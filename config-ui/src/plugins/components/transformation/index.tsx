@@ -22,10 +22,10 @@ import { RadioGroup, Radio, InputGroup, ButtonGroup, Button, Intent } from '@blu
 import { Divider, Selector, MultiSelector } from '@/components';
 
 import { Plugins } from '@/plugins';
-import { GitHubTransformation } from '@/plugins/github';
-import { JIRATransformation } from '@/plugins/jira';
-import { GitLabTransformation } from '@/plugins/gitlab';
-import { JenkinsTransformation } from '@/plugins/jenkins';
+import { GitHubTransformation } from '@/plugins/register/github';
+import { JIRATransformation } from '@/plugins/register/jira';
+import { GitLabTransformation } from '@/plugins/register/gitlab';
+import { JenkinsTransformation } from '@/plugins/register/jenkins';
 
 import type { TransformationType, RuleItem } from './types';
 import type { UseTransformationProps } from './use-transformation';

@@ -22,9 +22,9 @@ import { InputGroup, ButtonGroup, Button, Intent } from '@blueprintjs/core';
 
 import { PageLoading, PageHeader, Card } from '@/components';
 import { Plugins } from '@/plugins';
-import { GitHubTransformation } from '@/plugins/github';
-import { GitLabTransformation } from '@/plugins/gitlab';
-import { JenkinsTransformation } from '@/plugins/jenkins';
+import { GitHubTransformation } from '@/plugins/register/github';
+import { GitLabTransformation } from '@/plugins/register/gitlab';
+import { JenkinsTransformation } from '@/plugins/register/jenkins';
 
 import { useDetail } from './use-detail';
 import * as S from './styled';

@@ -21,10 +21,10 @@ import { ButtonGroup, Button, Intent } from '@blueprintjs/core';
 
 import { transformEntities } from '@/config';
 import { Plugins } from '@/plugins';
-import { GitHubDataScope } from '@/plugins/github';
-import { JIRADataScope } from '@/plugins/jira';
-import { GitLabDataScope } from '@/plugins/gitlab';
-import { JenkinsDataScope } from '@/plugins/jenkins';
+import { GitHubDataScope } from '@/plugins/register/github';
+import { JIRADataScope } from '@/plugins/register/jira';
+import { GitLabDataScope } from '@/plugins/register/gitlab';
+import { JenkinsDataScope } from '@/plugins/register/jenkins';
 import { MultiSelector } from '@/components';
 
 import type { UseDataScope } from './use-data-scope';
