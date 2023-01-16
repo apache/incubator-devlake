@@ -18,8 +18,9 @@
 
 import { useState, useEffect, useMemo } from 'react';
 
+import { useProxyPrefix } from '@/hooks';
+
 import type { ScopeItemType } from '../../types';
-import { useProxyPrefix } from '../../hooks';
 import * as API from '../../api';
 
 export interface UseProjectSelectorProps {
@@ -32,7 +33,10 @@ export const useProjectSelector = ({ connectionId }: UseProjectSelectorProps) =>
   const [search, setSearch] = useState('');
   const [membership, setMembership] = useState(true);
 
-  const prefix = useProxyPrefix(connectionId);
+  const prefix = useProxyPrefix({
+    plugin: 'gitlab',
+    connectionId,
+  });
 
   useEffect(() => {
     if (!search) return;

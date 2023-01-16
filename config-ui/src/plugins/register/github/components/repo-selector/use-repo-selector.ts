@@ -18,8 +18,9 @@
 
 import { useState, useEffect, useMemo } from 'react';
 
+import { useProxyPrefix } from '@/hooks';
+
 import type { ScopeItemType } from '../../types';
-import { useProxyPrefix } from '../../hooks';
 import * as API from '../../api';
 
 export interface UseRepoSelectorProps {
@@ -31,7 +32,10 @@ export const useRepoSelector = ({ connectionId }: UseRepoSelectorProps) => {
   const [items, setItems] = useState<ScopeItemType[]>([]);
   const [search, setSearch] = useState('');
 
-  const prefix = useProxyPrefix(connectionId);
+  const prefix = useProxyPrefix({
+    plugin: 'github',
+    connectionId,
+  });
 
   useEffect(() => {
     if (!search) return;

@@ -19,8 +19,9 @@
 import { useState, useEffect, useMemo, useCallback } from 'react';
 import { ItemType, ColumnType } from 'miller-columns-select';
 
+import { useProxyPrefix } from '@/hooks';
+
 import type { ScopeItemType } from '../../types';
-import { useProxyPrefix } from '../../hooks';
 import * as API from '../../api';
 
 const DEFAULT_PAGE_SIZE = 30;
@@ -46,7 +47,10 @@ export const useMillerColumns = ({ connectionId }: UseMillerColumnsProps) => {
   const [loadedIds, setLoadedIds] = useState<ID[]>([]);
   const [mapPage, setMapPage] = useState<MapPageType>({});
 
-  const prefix = useProxyPrefix(connectionId);
+  const prefix = useProxyPrefix({
+    plugin: 'github',
+    connectionId,
+  });
 
   const formatOrgs = (orgs: any, parentId: ID | null = null) =>
     orgs.map((it: any) => ({
