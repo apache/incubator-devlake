@@ -17,12 +17,11 @@
  */
 
 import type { PluginConfigType } from '@/plugins';
-import { Plugins } from '@/plugins';
 
 import { BasePipelineConfig } from '../base';
 
 export const AEConfig: PluginConfigType = {
   ...BasePipelineConfig,
-  plugin: Plugins.AE,
+  plugin: 'ae',
   name: 'AE',
 };

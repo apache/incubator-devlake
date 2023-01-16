@@ -22,7 +22,6 @@ import { ButtonGroup, Button, Intent, Position } from '@blueprintjs/core';
 import { Popover2 } from '@blueprintjs/popover2';
 
 import { Table, ColumnType } from '@/components';
-import { Plugins } from '@/plugins';
 import type { ConnectionItemType } from '@/store';
 import { useConnection, ConnectionStatus } from '@/store';
 import { operator } from '@/utils';
@@ -31,7 +30,7 @@ import * as API from './api';
 import * as S from './styled';
 
 interface Props {
-  plugin: Plugins;
+  plugin: string;
 }
 
 export const Connection = ({ plugin }: Props) => {

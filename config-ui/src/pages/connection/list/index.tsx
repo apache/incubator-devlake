@@ -21,14 +21,14 @@ import { useParams } from 'react-router-dom';
 
 import { PageHeader } from '@/components';
 import type { PluginConfigType } from '@/plugins';
-import { Plugins, PluginConfig } from '@/plugins';
+import { PluginConfig } from '@/plugins';
 import { WebHookConnection } from '@/plugins/register/webook';
 import { ConnectionContextProvider } from '@/store';
 
 import { Connection } from './connection';
 
 export const ConnectionListPage = () => {
-  const { plugin } = useParams<{ plugin: Plugins }>();
+  const { plugin } = useParams<{ plugin: string }>();
 
   const config = useMemo(() => PluginConfig.find((p) => p.plugin === plugin) as PluginConfigType, [plugin]);
 
@@ -40,7 +40,7 @@ export const ConnectionListPage = () => {
           { name: config.name, path: `/connections/${plugin}` },
         ]}
       >
-        {plugin === Plugins.Webhook ? <WebHookConnection /> : <Connection plugin={plugin} />}
+        {plugin === 'webhook' ? <WebHookConnection /> : <Connection plugin={plugin} />}
       </PageHeader>
     </ConnectionContextProvider>
   );

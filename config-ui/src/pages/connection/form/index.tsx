@@ -24,7 +24,7 @@ import { Tooltip2 } from '@blueprintjs/popover2';
 
 import { PageHeader, Card, PageLoading } from '@/components';
 import type { PluginConfigConnectionType } from '@/plugins';
-import { Plugins, PluginConfig } from '@/plugins';
+import { PluginConfig } from '@/plugins';
 
 import { GitHubToken, RateLimit } from './components';
 import { useForm } from './use-form';
@@ -34,7 +34,7 @@ export const ConnectionFormPage = () => {
   const [form, setForm] = useState<Record<string, any>>({});
 
   const history = useHistory();
-  const { plugin, cid } = useParams<{ plugin: Plugins; cid?: string }>();
+  const { plugin, cid } = useParams<{ plugin: string; cid?: string }>();
   const { loading, operating, connection, onTest, onCreate, onUpdate } = useForm({ plugin, id: cid });
 
   const {

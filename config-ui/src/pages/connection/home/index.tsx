@@ -21,7 +21,7 @@ import { useHistory } from 'react-router-dom';
 import { Tag, Intent } from '@blueprintjs/core';
 
 import type { PluginConfigConnectionType } from '@/plugins';
-import { PluginConfig, PluginType, Plugins } from '@/plugins';
+import { PluginConfig, PluginType } from '@/plugins';
 
 import * as S from './styled';
 
@@ -31,7 +31,7 @@ export const ConnectionHomePage = () => {
   const [connections, webhook] = useMemo(
     () => [
       PluginConfig.filter((p) => p.type === PluginType.Connection) as PluginConfigConnectionType[],
-      PluginConfig.filter((p) => p.plugin === Plugins.Webhook),
+      PluginConfig.filter((p) => p.plugin === 'webhook'),
     ],
     [],
   );

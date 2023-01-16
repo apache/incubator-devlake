@@ -20,7 +20,6 @@ import { useState, useEffect, useMemo } from 'react';
 import { omit } from 'lodash';
 
 import { transformEntities } from '@/config';
-import { Plugins } from '@/plugins';
 import { operator } from '@/utils';
 
 import * as API from './api';
@@ -57,13 +56,13 @@ export const useDataScope = ({ plugin, connectionId, entities, initialValues, on
 
   const getPluginId = (scope: any) => {
     switch (true) {
-      case plugin === Plugins.GitHub:
+      case plugin === 'github':
         return scope.githubId;
-      case plugin === Plugins.JIRA:
+      case plugin === 'jira':
         return scope.boardId;
-      case plugin === Plugins.GitLab:
+      case plugin === 'gitlab':
         return scope.gitlabId;
-      case plugin === Plugins.Jenkins:
+      case plugin === 'jenkins':
         return scope.jobFullName;
     }
   };

@@ -17,7 +17,6 @@
  */
 
 import type { PluginConfigType } from '@/plugins';
-import { Plugins } from '@/plugins';
 
 import {
   BaseConnectionConfig,
@@ -33,7 +32,7 @@ import Icon from './assets/icon.svg';
 
 export const JIRAConfig: PluginConfigType = {
   ...BaseConnectionConfig,
-  plugin: Plugins.JIRA,
+  plugin: 'jira',
   name: 'JIRA',
   icon: Icon,
   connection: {

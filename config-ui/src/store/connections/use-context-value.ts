@@ -19,14 +19,14 @@
 import { useState, useEffect, useCallback, useMemo } from 'react';
 
 import type { PluginConfigConnectionType } from '@/plugins';
-import { Plugins, PluginConfig, PluginType } from '@/plugins';
+import { PluginConfig, PluginType } from '@/plugins';
 
 import type { ConnectionItemType } from './types';
 import { ConnectionStatusEnum } from './types';
 import * as API from './api';
 
 export interface UseContextValueProps {
-  plugin?: Plugins;
+  plugin?: string;
   filterBeta?: boolean;
 }
 

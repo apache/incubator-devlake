@@ -17,7 +17,6 @@
  */
 
 import type { PluginConfigType } from '@/plugins';
-import { Plugins } from '@/plugins';
 
 import {
   BaseConnectionConfig,
@@ -33,7 +32,7 @@ import Icon from './assets/icon.svg';
 
 export const TAPDConfig: PluginConfigType = {
   ...BaseConnectionConfig,
-  plugin: Plugins.TAPD,
+  plugin: 'tapd',
   name: 'TAPD',
   isBeta: true,
   icon: Icon,

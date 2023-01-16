@@ -22,7 +22,6 @@ import { ButtonGroup, Button, Icon, Intent } from '@blueprintjs/core';
 
 import { PageHeader, Table, ColumnType, Dialog, Selector } from '@/components';
 import type { PluginConfigType } from '@/plugins';
-import { Plugins } from '@/plugins';
 import { TransformationContextProvider, TransformationContextConsumer, TransformationItemType } from '@/store';
 
 import * as S from './styled';
@@ -52,7 +51,7 @@ export const TransformationHomePage = () => {
           key: 'action',
           align: 'center',
           render: (_, row) =>
-            row.plugin !== Plugins.JIRA && (
+            row.plugin !== 'jira' && (
               <Button
                 minimal
                 intent={Intent.PRIMARY}
@@ -97,7 +96,7 @@ export const TransformationHomePage = () => {
                 isOpen={isOpen}
                 title="Select a Data Source"
                 okText="Continue"
-                okDisabled={!selectedPlugin || selectedPlugin.plugin === Plugins.JIRA}
+                okDisabled={!selectedPlugin || selectedPlugin.plugin === 'jira'}
                 onOk={() => history.push(`/transformations/${selectedPlugin?.plugin}/create`)}
                 onCancel={() => setIsOpen(false)}
               >
@@ -110,7 +109,7 @@ export const TransformationHomePage = () => {
                     selectedItem={selectedPlugin}
                     onChangeItem={(selectedItem) => setSelectedPlugin(selectedItem)}
                   />
-                  {selectedPlugin?.plugin === Plugins.JIRA && (
+                  {selectedPlugin?.plugin === 'jira' && (
                     <div className="warning">
                       <Icon icon="error" />
                       <span>

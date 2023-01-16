@@ -19,14 +19,14 @@
 import { useState, useEffect, useMemo } from 'react';
 
 import type { PluginConfigConnectionType } from '@/plugins';
-import { Plugins, PluginConfig } from '@/plugins';
+import { PluginConfig } from '@/plugins';
 import { operator } from '@/utils';
 
 import type { RuleItem, ScopeItem } from './types';
 import * as API from './api';
 
 export interface UseTransformationProps {
-  plugin: Plugins;
+  plugin: string;
   connectionId: ID;
   scopeIds: ID[];
   name: string;
@@ -136,13 +136,13 @@ export const useTransformation = ({
       transformation,
       getScopeKey(sc: any) {
         switch (true) {
-          case plugin === Plugins.GitHub:
+          case plugin === 'github':
             return sc.githubId;
-          case plugin === Plugins.JIRA:
+          case plugin === 'jira':
             return sc.boardId;
-          case plugin === Plugins.GitLab:
+          case plugin === 'gitlab':
             return sc.gitlabId;
-          case plugin === Plugins.Jenkins:
+          case plugin === 'jenkins':
             return sc.jobFullName;
         }
       },

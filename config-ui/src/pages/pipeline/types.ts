@@ -16,8 +16,6 @@
  *
  */
 
-import { Plugins } from '@/plugins';
-
 export enum StatusEnum {
   CREATED = 'TASK_CREATED',
   PENDING = 'TASK_PENDING',
@@ -43,7 +41,7 @@ export type PipelineType = {
 
 export type TaskType = {
   id: ID;
-  plugin: Plugins;
+  plugin: string;
   status: StatusEnum;
   pipelineRow: number;
   pipelineCol: number;

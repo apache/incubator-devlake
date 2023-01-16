@@ -17,7 +17,6 @@
  */
 
 import type { PluginConfigType } from '@/plugins';
-import { Plugins } from '@/plugins';
 
 import {
   BaseConnectionConfig,
@@ -33,7 +32,7 @@ import Icon from './assets/icon.svg';
 
 export const BitBucketConfig: PluginConfigType = {
   ...BaseConnectionConfig,
-  plugin: Plugins.BitBucket,
+  plugin: 'bitbucket',
   name: 'BitBucket',
   icon: Icon,
   isBeta: true,

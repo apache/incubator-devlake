@@ -21,7 +21,6 @@ import { Button, Icon, Intent, Position } from '@blueprintjs/core';
 import { Tooltip2 } from '@blueprintjs/popover2';
 
 import { Loading, DeleteButton } from '@/components';
-import { Plugins } from '@/plugins';
 
 import type { UseDataScopeList } from './use-data-scope-list';
 import { useDataScopeList } from './use-data-scope-list';
@@ -30,7 +29,7 @@ import * as S from './styled';
 interface Props extends UseDataScopeList {
   groupByTs: boolean;
   scopeIds: string[];
-  onDelete?: (plugin: Plugins, connectionId: ID, scopeId: ID) => void;
+  onDelete?: (plugin: string, connectionId: ID, scopeId: ID) => void;
 }
 
 export const DataScopeList = ({ groupByTs, scopeIds, onDelete, ...props }: Props) => {

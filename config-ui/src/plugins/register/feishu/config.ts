@@ -17,12 +17,11 @@
  */
 
 import type { PluginConfigType } from '@/plugins';
-import { Plugins } from '@/plugins';
 
 import { BasePipelineConfig } from '../base';
 
 export const FeiShuConfig: PluginConfigType = {
   ...BasePipelineConfig,
-  plugin: Plugins.FeiShu,
+  plugin: 'feishu',
   name: 'FeiShu',
 };

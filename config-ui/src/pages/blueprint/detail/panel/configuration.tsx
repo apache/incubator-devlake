@@ -23,7 +23,7 @@ import dayjs from 'dayjs';
 
 import { Table, ColumnType } from '@/components';
 import { getCron, transformEntities } from '@/config';
-import { PluginConfig, DataScopeList, Plugins } from '@/plugins';
+import { PluginConfig, DataScopeList } from '@/plugins';
 
 import type { BlueprintType } from '../../types';
 import { ModeEnum } from '../../types';
@@ -59,7 +59,7 @@ export const Configuration = ({ blueprint, operating, onUpdate, onRefresh }: Pro
   const connections = useMemo(
     () =>
       blueprint.settings?.connections
-        .filter((cs) => cs.plugin !== Plugins.Webhook)
+        .filter((cs) => cs.plugin !== 'webhook')
         .map((cs: any) => {
           const plugin = PluginConfig.find((p) => p.plugin === cs.plugin) as any;
           return {
@@ -149,7 +149,7 @@ export const Configuration = ({ blueprint, operating, onUpdate, onRefresh }: Pro
               plugin={plugin}
               connectionId={connectionId}
               scopeIds={scopeIds}
-              onDelete={(plugin: Plugins, connectionId: ID, scopeId: ID) =>
+              onDelete={(plugin: string, connectionId: ID, scopeId: ID) =>
                 handleUpdateConnection({
                   plugin,
                   connectionId,

@@ -17,12 +17,11 @@
  */
 
 import type { PluginConfigType } from '@/plugins';
-import { Plugins } from '@/plugins';
 
 import { BasePipelineConfig } from '../base';
 
 export const StarRocksConfig: PluginConfigType = {
   ...BasePipelineConfig,
-  plugin: Plugins.StarRocks,
+  plugin: 'starrocks',
   name: 'StarRocks',
 };

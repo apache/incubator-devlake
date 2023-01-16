@@ -18,7 +18,5 @@
 
 import { request } from '@/utils';
 
-import { Plugins } from '@/plugins';
-
-export const getDataScopeRepo = (plugin: Plugins, connectionId: ID, repoId: ID) =>
+export const getDataScopeRepo = (plugin: string, connectionId: ID, repoId: ID) =>
   request(`/plugins/${plugin}/connections/${connectionId}/scopes/${repoId}`);

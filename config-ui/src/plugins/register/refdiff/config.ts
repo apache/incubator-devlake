@@ -17,12 +17,11 @@
  */
 
 import type { PluginConfigType } from '@/plugins';
-import { Plugins } from '@/plugins';
 
 import { BasePipelineConfig } from '../base';
 
 export const RefDiffConfig: PluginConfigType = {
   ...BasePipelineConfig,
-  plugin: Plugins.RefDiff,
+  plugin: 'refdiff',
   name: 'RefDiff',
 };

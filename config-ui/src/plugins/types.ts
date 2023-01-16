@@ -16,27 +16,6 @@
  *
  */
 
-export enum Plugins {
-  AE = 'ae',
-  Azure = 'azure',
-  BitBucket = 'bitbucket',
-  DBT = 'dbt',
-  DORA = 'dora',
-  FeiShu = 'feishu',
-  Gitee = 'gitee',
-  GitExtractor = 'gitextractor',
-  GitHub = 'github',
-  GitHubGraphql = 'github_graphql',
-  GitLab = 'gitlab',
-  Jenkins = 'jenkins',
-  JIRA = 'jira',
-  RefDiff = 'refdiff',
-  StarRocks = 'starrocks',
-  TAPD = 'tapd',
-  Webhook = 'webhook',
-  ZenTao = 'zentao',
-}
-
 export enum PluginType {
   Connection = 'connection',
   Incoming_Connection = 'incoming_connection',
@@ -45,7 +24,7 @@ export enum PluginType {
 
 export type PluginConfigConnectionType = {
   type: PluginType.Connection;
-  plugin: Plugins;
+  plugin: string;
   name: string;
   icon: string;
   isBeta?: boolean;
@@ -66,7 +45,7 @@ export type PluginConfigConnectionType = {
 
 export type PluginConfigAnotherType = {
   type: PluginType.Incoming_Connection | PluginType.Pipeline;
-  plugin: Plugins;
+  plugin: string;
   name: string;
   icon: string;
 };

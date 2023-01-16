@@ -21,7 +21,6 @@ import type { TabId } from '@blueprintjs/core';
 import { Tabs, Tab } from '@blueprintjs/core';
 
 import { PageLoading } from '@/components';
-import { Plugins } from '@/plugins';
 
 import type { UseDetailProps } from './use-detail';
 import { useDetail } from './use-detail';
@@ -39,7 +38,7 @@ export const BlueprintDetail = ({ id }: Props) => {
   });
 
   const showJenkinsTips = useMemo(() => {
-    const jenkins = blueprint && blueprint.settings?.connections.find((cs) => cs.plugin === Plugins.Jenkins);
+    const jenkins = blueprint && blueprint.settings?.connections.find((cs) => cs.plugin === 'jenkins');
     return jenkins && !jenkins.scopes.length;
   }, [blueprint]);
 

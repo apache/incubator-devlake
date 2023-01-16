@@ -19,8 +19,6 @@
 import { useState, useEffect, useMemo } from 'react';
 import { groupBy } from 'lodash';
 
-import { Plugins } from '@/plugins';
-
 import * as API from './api';
 
 type ScopeItem = {
@@ -30,7 +28,7 @@ type ScopeItem = {
 };
 
 export interface UseDataScopeList {
-  plugin: Plugins;
+  plugin: string;
   connectionId: ID;
   scopeIds: string[];
 }
@@ -42,25 +40,25 @@ export const useDataScopeList = ({ plugin, connectionId, scopeIds }: UseDataScop
   const formatScope = (scope: any) => {
     return scope.map((sc: any) => {
       switch (true) {
-        case plugin === Plugins.GitHub:
+        case plugin === 'github':
           return {
             id: `${sc.githubId}`,
             name: sc.name,
             transformationRuleName: sc.transformationRuleName,
           };
-        case plugin === Plugins.JIRA:
+        case plugin === 'jira':
           return {
             id: `${sc.boardId}`,
             name: sc.name,
             transformationRuleName: sc.transformationRuleName,
           };
-        case plugin === Plugins.GitLab:
+        case plugin === 'gitlab':
           return {
             id: `${sc.gitlabId}`,
             name: sc.name,
             transformationRuleName: sc.transformationRuleName,
           };
-        case plugin === Plugins.Jenkins:
+        case plugin === 'jenkins':
           return {
             id: sc.jobFullName,
             name: sc.jobFullName,

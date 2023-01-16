@@ -17,7 +17,6 @@
  */
 
 import type { PluginConfigType } from '@/plugins';
-import { Plugins } from '@/plugins';
 
 import {
   BaseConnectionConfig,
@@ -31,7 +30,7 @@ import Icon from './assets/icon.svg';
 
 export const GitLabConfig: PluginConfigType = {
   ...BaseConnectionConfig,
-  plugin: Plugins.GitLab,
+  plugin: 'gitlab',
   name: 'GitLab',
   icon: Icon,
   connection: {

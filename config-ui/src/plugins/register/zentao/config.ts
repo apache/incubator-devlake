@@ -17,7 +17,6 @@
  */
 
 import type { PluginConfigType } from '@/plugins';
-import { Plugins } from '@/plugins';
 
 import {
   BaseConnectionConfig,
@@ -33,7 +32,7 @@ import Icon from './assets/icon.svg';
 
 export const ZenTaoConfig: PluginConfigType = {
   ...BaseConnectionConfig,
-  plugin: Plugins.ZenTao,
+  plugin: 'zentao',
   name: 'ZenTao',
   isBeta: true,
   icon: Icon,

@@ -17,12 +17,11 @@
  */
 
 import type { PluginConfigType } from '@/plugins';
-import { Plugins } from '@/plugins';
 
 import { BasePipelineConfig } from '../base';
 
 export const DBTConfig: PluginConfigType = {
   ...BasePipelineConfig,
-  plugin: Plugins.DBT,
+  plugin: 'dbt',
   name: 'DBT',
 };

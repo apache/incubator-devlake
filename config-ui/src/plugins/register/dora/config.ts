@@ -17,12 +17,11 @@
  */
 
 import type { PluginConfigType } from '@/plugins';
-import { Plugins } from '@/plugins';
 
 import { BasePipelineConfig } from '../base';
 
 export const DORAConfig: PluginConfigType = {
   ...BasePipelineConfig,
-  plugin: Plugins.DORA,
+  plugin: 'dora',
   name: 'DORA',
 };
