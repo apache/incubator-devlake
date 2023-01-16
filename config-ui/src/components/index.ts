@@ -26,4 +26,5 @@ export * from './toast';
 export * from './logo';
 export * from './card';
 export * from './inspector';
-export * from './delete-button';
+export * from './action';
+export * from './text-tooltip';

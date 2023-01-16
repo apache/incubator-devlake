@@ -16,45 +16,24 @@
  *
  */
 
-@import '~normalize.css';
-@import '~@blueprintjs/core/lib/css/blueprint.css';
-@import '~@blueprintjs/icons/lib/css/blueprint-icons.css';
-@import '~@blueprintjs/select/lib/css/blueprint-select.css';
-@import '~@blueprintjs/popover2/lib/css/blueprint-popover2.css';
-@import '~@blueprintjs/datetime/lib/css/blueprint-datetime.css';
+import { Colors } from '@blueprintjs/core';
+import styled from 'styled-components';
 
-h1 {
-  font-size: 20px;
-}
+export const Wrapper = styled.div`
+  &.ready,
+  &.cancel {
+    color: #94959f;
+  }
 
-h2 {
-  font-size: 18px;
-}
+  &.loading {
+    color: #7497f7;
+  }
 
-h3 {
-  font-size: 16px;
-}
+  &.success {
+    color: ${Colors.GREEN3};
+  }
 
-h4 {
-  font-size: 14px;
-}
-
-h5 {
-  font-size: 12px;
-}
-
-h6 {
-  font-size: 10px;
-}
-
-ul {
-  margin: 0;
-  padding: 0;
-  list-style: none;
-}
-
-p {
-  margin: 0 0 8px 0;
-  font-size: 12px;
-  color: #94959f;
-}
+  &.error {
+    color: ${Colors.RED3};
+  }
+`;

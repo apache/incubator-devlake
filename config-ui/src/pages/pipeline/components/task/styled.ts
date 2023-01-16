@@ -38,18 +38,17 @@ export const Info = styled.div`
     align-items: center;
     margin-bottom: 8px;
 
-    img {
+    & > img {
       width: 20px;
     }
 
-    strong {
+    & > strong {
       margin: 0 4px;
     }
 
-    span {
+    & > span {
+      flex: auto;
       overflow: hidden;
-      white-space: nowrap;
-      text-overflow: ellipsis;
     }
   }
 

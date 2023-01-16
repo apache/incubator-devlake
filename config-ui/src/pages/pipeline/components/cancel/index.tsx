@@ -16,45 +16,31 @@
  *
  */
 
-@import '~normalize.css';
-@import '~@blueprintjs/core/lib/css/blueprint.css';
-@import '~@blueprintjs/icons/lib/css/blueprint-icons.css';
-@import '~@blueprintjs/select/lib/css/blueprint-select.css';
-@import '~@blueprintjs/popover2/lib/css/blueprint-popover2.css';
-@import '~@blueprintjs/datetime/lib/css/blueprint-datetime.css';
+import React from 'react';
 
-h1 {
-  font-size: 20px;
+import { IconButton } from '@/components';
+import { useOperator } from '@/hooks';
+
+import { StatusEnum } from '../../types';
+import * as API from '../../api';
+
+import { usePipeline } from '../context';
+
+interface Props {
+  id: ID;
+  status: StatusEnum;
 }
 
-h2 {
-  font-size: 18px;
-}
+export const PipelineCancel = ({ id, status }: Props) => {
+  const { setVersion } = usePipeline();
 
-h3 {
-  font-size: 16px;
-}
+  const { operating, onSubmit } = useOperator(() => API.deletePipeline(id), {
+    callback: () => setVersion((v) => v + 1),
+  });
 
-h4 {
-  font-size: 14px;
-}
+  if (![StatusEnum.ACTIVE, StatusEnum.RUNNING, StatusEnum.RERUN].includes(status)) {
+    return null;
+  }
 
-h5 {
-  font-size: 12px;
-}
-
-h6 {
-  font-size: 10px;
-}
-
-ul {
-  margin: 0;
-  padding: 0;
-  list-style: none;
-}
-
-p {
-  margin: 0 0 8px 0;
-  font-size: 12px;
-  color: #94959f;
-}
+  return <IconButton loading={operating} icon="disable" tooltip="Cancel" onClick={onSubmit} />;
+};

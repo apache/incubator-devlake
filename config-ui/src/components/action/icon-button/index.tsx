@@ -16,4 +16,21 @@
  *
  */
 
-export * from './pipeline-info';
+import React from 'react';
+import { Button, Intent, Position, IconName } from '@blueprintjs/core';
+import { Tooltip2 } from '@blueprintjs/popover2';
+
+interface Props {
+  icon: IconName;
+  tooltip: string;
+  loading?: boolean;
+  onClick?: () => void;
+}
+
+export const IconButton = ({ icon, tooltip, loading, onClick }: Props) => {
+  return (
+    <Tooltip2 intent={Intent.PRIMARY} position={Position.TOP} content={tooltip}>
+      <Button loading={loading} minimal intent={Intent.PRIMARY} icon={icon} onClick={onClick} />
+    </Tooltip2>
+  );
+};

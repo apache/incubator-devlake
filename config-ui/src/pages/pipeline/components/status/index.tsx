@@ -16,9 +16,15 @@
  *
  */
 
+import React from 'react';
+import { Icon, IconName } from '@blueprintjs/core';
 import classNames from 'classnames';
 
-import { StatusEnum } from './types';
+import { Loading } from '@/components';
+
+import { StatusEnum } from '../../types';
+
+import * as S from './styled';
 
 export const STATUS_ICON = {
   [StatusEnum.CREATED]: 'stopwatch',
@@ -44,11 +50,27 @@ export const STATUS_LABEL = {
   [StatusEnum.CANCELLED]: 'Cancelled',
 };
 
-export const STATUS_CLS = (status: StatusEnum) =>
-  classNames({
+interface Props {
+  status: StatusEnum;
+}
+
+export const PipelineStatus = ({ status }: Props) => {
+  const statusCls = classNames({
     ready: [StatusEnum.CREATED, StatusEnum.PENDING].includes(status),
     loading: [StatusEnum.ACTIVE, StatusEnum.RUNNING, StatusEnum.RERUN].includes(status),
     success: [StatusEnum.COMPLETED, StatusEnum.PARTIAL].includes(status),
     error: status === StatusEnum.FAILED,
     cancel: status === StatusEnum.CANCELLED,
   });
+
+  return (
+    <S.Wrapper className={statusCls}>
+      {STATUS_ICON[status] === 'loading' ? (
+        <Loading style={{ marginRight: 4 }} size={14} />
+      ) : (
+        <Icon style={{ marginRight: 4 }} icon={STATUS_ICON[status] as IconName} />
+      )}
+      <span>{STATUS_LABEL[status]}</span>
+    </S.Wrapper>
+  );
+};

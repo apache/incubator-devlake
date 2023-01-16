@@ -16,31 +16,5 @@
  *
  */
 
-import { Colors } from '@blueprintjs/core';
-import styled from 'styled-components';
-
-export const StatusColumn = styled.div`
-  display: flex;
-  align-items: center;
-
-  .bp4-icon {
-    margin-right: 4px;
-  }
-
-  &.ready,
-  &.cancel {
-    color: #94959f;
-  }
-
-  &.loading {
-    color: #7497f7;
-  }
-
-  &.success {
-    color: ${Colors.GREEN3};
-  }
-
-  &.error {
-    color: ${Colors.RED3};
-  }
-`;
+export * from './delete-button';
+export * from './icon-button';

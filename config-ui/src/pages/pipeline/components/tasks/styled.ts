@@ -16,72 +16,16 @@
  *
  */
 
-import { Colors } from '@blueprintjs/core';
 import styled from 'styled-components';
 
 export const Wrapper = styled.div`
-  .card + .card {
-    margin-top: 16px;
-  }
+  position: relative;
+  padding-right: 36px;
 
-  .card:last-child {
-    position: relative;
-    padding: 24px 48px 24px 24px;
-
-    .collapse-control {
-      position: absolute;
-      right: 12px;
-      top: 24px;
-    }
-  }
-
-  p.message {
-    margin: 8px 0 0;
-
-    &.error {
-      color: ${Colors.RED3};
-    }
-  }
-`;
-
-export const Pipeline = styled.ul`
-  margin: 0;
-  padding: 0;
-  list-style: none;
-  display: flex;
-  align-items: center;
-
-  li {
-    flex: 1;
-    display: flex;
-    flex-direction: column;
-
-    &.success {
-      color: ${Colors.GREEN3};
-
-      .bp4-icon {
-        color: ${Colors.GREEN3};
-      }
-    }
-
-    &.error {
-      color: ${Colors.RED3};
-
-      .bp4-icon {
-        color: ${Colors.RED3};
-      }
-    }
-
-    & > span {
-      font-size: 12px;
-      color: #94959f;
-    }
-
-    & > strong {
-      display: flex;
-      align-items: center;
-      margin-top: 8px;
-    }
+  .collapse-control {
+    position: absolute;
+    right: 0;
+    top: 0;
   }
 `;
 

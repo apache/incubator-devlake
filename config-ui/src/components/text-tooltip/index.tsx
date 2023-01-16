@@ -17,19 +17,33 @@
  */
 
 import React from 'react';
+import type { IntentProps } from '@blueprintjs/core';
+import { Position } from '@blueprintjs/core';
+import { Tooltip2 } from '@blueprintjs/popover2';
+import styled from 'styled-components';
 
-import { Card } from '@/components';
+const Wrapper = styled.div`
+  width: 100%;
 
-import { PipelineDetail } from './pipeline-detail';
+  & > .bp4-popover2-target {
+    display: block;
+    overflow: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+  }
+`;
 
-interface Props {
-  id?: ID;
+interface Props extends IntentProps {
+  content: string;
+  children: React.ReactNode;
 }
 
-export const PipelineInfo = ({ id }: Props) => {
-  if (!id) {
-    return <Card>There is no current run for this blueprint.</Card>;
-  }
-
-  return <PipelineDetail id={id} />;
+export const TextTooltip = ({ intent, content, children }: Props) => {
+  return (
+    <Wrapper>
+      <Tooltip2 intent={intent} position={Position.TOP} content={content}>
+        {children}
+      </Tooltip2>
+    </Wrapper>
+  );
 };

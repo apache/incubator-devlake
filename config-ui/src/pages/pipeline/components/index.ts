@@ -16,5 +16,7 @@
  *
  */
 
+export * from './context';
 export * from './historical';
-export * from './duration';
+export * from './info';
+export * from './tasks';

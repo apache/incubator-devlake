@@ -20,54 +20,33 @@ import { useState, useMemo } from 'react';
 
 import { operator } from '@/utils';
 
-import * as API from './api';
-
-export interface Props {
-  id: ID;
-}
-
-export const useDetail = ({ id }: Props) => {
-  const [version, setVersion] = useState(0);
+export const useOperator = <T>(
+  request: (paylod?: any) => Promise<T>,
+  options?: {
+    callback?: () => void;
+    formatReason?: () => string;
+    formatMessage?: () => string;
+  },
+) => {
   const [operating, setOperating] = useState(false);
 
-  const handlePipelineCancel = async () => {
-    const [success] = await operator(() => API.deletePipeline(id), {
+  const handleSubmit = async (paylod?: any) => {
+    const [success] = await operator(() => request(paylod), {
       setOperating,
+      formatReason: options?.formatReason,
+      formatMessage: options?.formatMessage,
     });
 
     if (success) {
-      setVersion(version + 1);
-    }
-  };
-
-  const handlePipelineRerun = async () => {
-    const [success] = await operator(() => API.pipelineRerun(id), {
-      setOperating,
-    });
-
-    if (success) {
-      setVersion(version + 1);
-    }
-  };
-
-  const handleTaskRertun = async (id: ID) => {
-    const [success] = await operator(() => API.taskRerun(id), {
-      setOperating,
-    });
-
-    if (success) {
-      setVersion(version + 1);
+      options?.callback?.();
     }
   };
 
   return useMemo(
     () => ({
-      version,
       operating,
-      onCancel: handlePipelineCancel,
-      onRerun: handlePipelineRerun,
-      onRerunTask: handleTaskRertun,
+      onSubmit: handleSubmit,
     }),
-    [version, operating],
+    [operating],
   );
 };
