@@ -16,5 +16,5 @@
  *
  */
 
-export * from './icon-tooltip';
+export * from './help-tooltip';
 export * from './text-tooltip';
