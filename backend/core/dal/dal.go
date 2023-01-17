@@ -143,6 +143,8 @@ type Dal interface {
 	IsErrorNotFound(err errors.Error) bool
 	// IsDuplicationError returns true if error is duplicate-error
 	IsDuplicationError(err errors.Error) bool
+	// RawCursor (Deprecated) executes raw sql query and returns a database cursor.
+	RawCursor(query string, params ...interface{}) (*sql.Rows, errors.Error)
 }
 
 type Transaction interface {

@@ -364,6 +364,11 @@ func (d *Dalgorm) IsDuplicationError(err errors.Error) bool {
 	return strings.Contains(strings.ToLower(err.Error()), "duplicate")
 }
 
+// RawCursor (Deprecated) executes raw sql query and returns a database cursor
+func (d *Dalgorm) RawCursor(query string, params ...interface{}) (*sql.Rows, errors.Error) {
+	return errors.Convert01(d.db.Raw(query, params...).Rows())
+}
+
 // NewDalgorm creates a *Dalgorm
 func NewDalgorm(db *gorm.DB) *Dalgorm {
 	return &Dalgorm{db}
