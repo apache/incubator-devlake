@@ -19,13 +19,12 @@
 import { useState, useMemo, useEffect } from 'react';
 import { useHistory } from 'react-router-dom';
 
-import { Plugins } from '@/plugins';
 import { operator } from '@/utils';
 
 import * as API from './api';
 
 interface Props {
-  plugin: Plugins;
+  plugin: string;
   id?: ID;
 }
 

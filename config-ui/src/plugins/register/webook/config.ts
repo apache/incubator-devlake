@@ -17,12 +17,12 @@
  */
 
 import type { PluginConfigType } from '@/plugins';
-import { Plugins, PluginType } from '@/plugins';
+import { PluginType } from '@/plugins';
 
 import Icon from './assets/icon.svg';
 
 export const WebhookConfig: PluginConfigType = {
-  plugin: Plugins.Webhook,
+  plugin: 'webhook',
   name: 'Webhook',
   type: PluginType.Incoming_Connection,
   icon: Icon,

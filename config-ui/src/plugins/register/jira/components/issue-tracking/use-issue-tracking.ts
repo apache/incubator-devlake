@@ -19,7 +19,8 @@
 import { useState, useEffect, useMemo } from 'react';
 import { uniqWith } from 'lodash';
 
-import { useProxyPrefix } from '../../hooks';
+import { useProxyPrefix } from '@/hooks';
+
 import * as API from '../../api';
 
 export type IssueTypeItem = {
@@ -41,7 +42,10 @@ export const useIssueTracking = ({ connectionId }: UseIssueTrackingProps) => {
   const [issueTypes, setIssueTypes] = useState<IssueTypeItem[]>([]);
   const [fields, setFields] = useState<FieldItem[]>([]);
 
-  const prefix = useProxyPrefix(connectionId);
+  const prefix = useProxyPrefix({
+    plugin: 'jira',
+    connectionId,
+  });
 
   useEffect(() => {
     (async () => {

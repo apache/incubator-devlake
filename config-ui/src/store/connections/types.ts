@@ -16,8 +16,6 @@
  *
  */
 
-import { Plugins } from '@/plugins';
-
 export enum ConnectionStatusEnum {
   ONLINE = 'online',
   OFFLINE = 'offline',
@@ -28,7 +26,7 @@ export enum ConnectionStatusEnum {
 export type ConnectionItemType = {
   unique: string;
   status: ConnectionStatusEnum;
-  plugin: Plugins;
+  plugin: string;
   id: ID;
   name: string;
   icon: string;

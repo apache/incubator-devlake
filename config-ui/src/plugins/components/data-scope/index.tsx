@@ -20,7 +20,6 @@ import React from 'react';
 import { ButtonGroup, Button, Intent } from '@blueprintjs/core';
 
 import { transformEntities } from '@/config';
-import { Plugins } from '@/plugins';
 import { GitHubDataScope } from '@/plugins/register/github';
 import { JIRADataScope } from '@/plugins/register/jira';
 import { GitLabDataScope } from '@/plugins/register/gitlab';
@@ -47,7 +46,7 @@ export const DataScope = ({ plugin, connectionId, entities, onCancel, ...props }
   return (
     <S.Wrapper>
       <div className="block">
-        {plugin === Plugins.GitHub && (
+        {plugin === 'github' && (
           <GitHubDataScope
             connectionId={connectionId}
             disabledItems={disabledScope}
@@ -56,7 +55,7 @@ export const DataScope = ({ plugin, connectionId, entities, onCancel, ...props }
           />
         )}
 
-        {plugin === Plugins.JIRA && (
+        {plugin === 'jira' && (
           <JIRADataScope
             connectionId={connectionId}
             disabledItems={disabledScope}
@@ -65,7 +64,7 @@ export const DataScope = ({ plugin, connectionId, entities, onCancel, ...props }
           />
         )}
 
-        {plugin === Plugins.GitLab && (
+        {plugin === 'gitlab' && (
           <GitLabDataScope
             connectionId={connectionId}
             disabledItems={disabledScope}
@@ -74,7 +73,7 @@ export const DataScope = ({ plugin, connectionId, entities, onCancel, ...props }
           />
         )}
 
-        {plugin === Plugins.Jenkins && (
+        {plugin === 'jenkins' && (
           <JenkinsDataScope
             connectionId={connectionId}
             disabledItems={disabledScope}

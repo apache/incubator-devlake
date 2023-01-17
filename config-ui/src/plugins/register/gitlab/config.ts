@@ -17,54 +17,38 @@
  */
 
 import type { PluginConfigType } from '@/plugins';
-import { Plugins, PluginType } from '@/plugins';
+
+import {
+  BaseConnectionConfig,
+  ConnectionName,
+  ConnectionEndpoint,
+  ConnectionGitLabToken,
+  ConnectionProxy,
+  ConnectionRatelimit,
+} from '../base';
 
 import Icon from './assets/icon.svg';
 
 export const GitLabConfig: PluginConfigType = {
-  plugin: Plugins.GitLab,
+  ...BaseConnectionConfig,
+  plugin: 'gitlab',
   name: 'GitLab',
-  type: PluginType.Connection,
   icon: Icon,
   connection: {
-    initialValues: {
-      rateLimitPerHour: 5000,
-    },
     fields: [
-      {
-        key: 'name',
-        label: 'Connection Name',
-        type: 'text',
-        required: true,
+      ConnectionName({
+        initialValue: 'GitLab',
         placeholder: 'eg. GitLab',
-      },
-      {
-        key: 'endpoint',
-        label: 'Endpoint URL',
-        type: 'text',
-        required: true,
+      }),
+      ConnectionEndpoint({
+        initialValue: 'https://gitlab.com/api/v4/',
         placeholder: 'eg. https://gitlab.com/api/v4/',
-      },
-      {
-        key: 'token',
-        label: 'Access Token',
-        type: 'gitlabToken',
-        required: true,
-        placeholder: 'eg. ff9d1ad0e5c04f1f98fa',
-      },
-      {
-        key: 'proxy',
-        label: 'Proxy URL',
-        type: 'text',
-        placeholder: 'eg. http://proxy.localhost:8080',
-        tooltip: 'Add a proxy if your network can not access GitLab directly.',
-      },
-      {
-        key: 'rateLimitPerHour',
-        label: 'Fixed Rate Limit (per hour)',
-        type: 'rateLimit',
-        tooltip: 'Rate Limit requests per hour,\nEnter a numeric value > 0 to enable.',
-      },
+      }),
+      ConnectionGitLabToken(),
+      ConnectionProxy(),
+      ConnectionRatelimit({
+        initialValue: 5000,
+      }),
     ],
   },
   entities: ['CODE', 'TICKET', 'CODEREVIEW', 'CROSS', 'CICD'],

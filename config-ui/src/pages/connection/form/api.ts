@@ -16,18 +16,17 @@
  *
  */
 
-import { Plugins } from '@/plugins';
 import { request } from '@/utils';
 
-export const testConnection = (plugin: Plugins, payload: any) =>
+export const testConnection = (plugin: string, payload: any) =>
   request(`/plugins/${plugin}/test`, { method: 'post', data: payload });
 
-export const createConnection = (plugin: Plugins, payload: any) =>
+export const createConnection = (plugin: string, payload: any) =>
   request(`/plugins/${plugin}/connections`, { method: 'post', data: payload });
 
-export const getConnection = (plugin: Plugins, id: ID) => request(`/plugins/${plugin}/connections/${id}`);
+export const getConnection = (plugin: string, id: ID) => request(`/plugins/${plugin}/connections/${id}`);
 
-export const updateConnection = (plugin: Plugins, id: ID, payload: any) =>
+export const updateConnection = (plugin: string, id: ID, payload: any) =>
   request(`/plugins/${plugin}/connections/${id}`, {
     method: 'patch',
     data: payload,

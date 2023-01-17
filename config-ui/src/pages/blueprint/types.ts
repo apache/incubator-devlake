@@ -16,8 +16,6 @@
  *
  */
 
-import { Plugins } from '@/plugins';
-
 export enum ModeEnum {
   advanced = 'ADVANCED',
   normal = 'NORMAL',
@@ -41,7 +39,7 @@ export type BlueprintType = {
     version: string;
     createdDateAfter: null | string;
     connections: Array<{
-      plugin: Plugins;
+      plugin: string;
       connectionId: ID;
       scopes: Array<{
         id: string;

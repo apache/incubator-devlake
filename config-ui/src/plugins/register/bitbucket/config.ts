@@ -17,62 +17,44 @@
  */
 
 import type { PluginConfigType } from '@/plugins';
-import { Plugins, PluginType } from '@/plugins';
+
+import {
+  BaseConnectionConfig,
+  ConnectionName,
+  ConnectionEndpoint,
+  ConnectionUsername,
+  ConnectionPassword,
+  ConnectionProxy,
+  ConnectionRatelimit,
+} from '../base';
 
 import Icon from './assets/icon.svg';
 
 export const BitBucketConfig: PluginConfigType = {
-  plugin: Plugins.BitBucket,
+  ...BaseConnectionConfig,
+  plugin: 'bitbucket',
   name: 'BitBucket',
-  type: PluginType.Connection,
-  isBeta: true,
   icon: Icon,
+  isBeta: true,
   connection: {
-    initialValues: {
-      rateLimitPerHour: 10000,
-    },
     fields: [
-      {
-        key: 'name',
-        label: 'Connection Name',
-        type: 'text',
-        required: true,
+      ConnectionName({
+        initialValue: 'BitBucket',
         placeholder: 'eg. BitBucket',
-      },
-      {
-        key: 'endpoint',
-        label: 'Endpoint URL',
-        type: 'text',
-        required: true,
+      }),
+      ConnectionEndpoint({
+        initialValue: 'https://api.bitbucket.org/2.0/',
         placeholder: 'eg. https://api.bitbucket.org/2.0/',
-      },
-      {
-        key: 'username',
-        label: 'Username',
-        type: 'text',
-        required: true,
-        placeholder: 'eg. admin',
-      },
-      {
-        key: 'password',
+      }),
+      ConnectionUsername(),
+      ConnectionPassword({
         label: 'App Password',
-        type: 'password',
-        required: true,
-        placeholder: 'eg. ************',
-      },
-      {
-        key: 'proxy',
-        label: 'Proxy URL',
-        type: 'text',
-        placeholder: 'eg. http://proxy.localhost:8080',
-        tooltip: 'Add a proxy if your network can not access BitBucket directly.',
-      },
-      {
-        key: 'rateLimitPerHour',
-        label: 'Fixed Rate Limit (per hour)',
-        type: 'rateLimit',
-        tooltip: 'Rate Limit requests per hour,\nEnter a numeric value > 0 to enable.',
-      },
+        placeholder: 'App Password',
+      }),
+      ConnectionProxy(),
+      ConnectionRatelimit({
+        initialValue: 10000,
+      }),
     ],
   },
   entities: [],

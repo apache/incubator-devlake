@@ -21,7 +21,6 @@ import { RadioGroup, Radio, InputGroup, ButtonGroup, Button, Intent } from '@blu
 
 import { Divider, Selector, MultiSelector } from '@/components';
 
-import { Plugins } from '@/plugins';
 import { GitHubTransformation } from '@/plugins/register/github';
 import { JIRATransformation } from '@/plugins/register/jira';
 import { GitLabTransformation } from '@/plugins/register/gitlab';
@@ -138,11 +137,11 @@ export const Transformation = ({ from, plugin, connectionId, onCancel, ...props 
         <>
           <Divider />
           <div className="block">
-            {plugin === Plugins.GitHub && (
+            {plugin === 'github' && (
               <GitHubTransformation transformation={transformation} setTransformation={onChangeTransformation} />
             )}
 
-            {plugin === Plugins.JIRA && (
+            {plugin === 'jira' && (
               <JIRATransformation
                 connectionId={connectionId}
                 transformation={transformation}
@@ -150,11 +149,11 @@ export const Transformation = ({ from, plugin, connectionId, onCancel, ...props 
               />
             )}
 
-            {plugin === Plugins.GitLab && (
+            {plugin === 'gitlab' && (
               <GitLabTransformation transformation={transformation} setTransformation={onChangeTransformation} />
             )}
 
-            {plugin === Plugins.Jenkins && (
+            {plugin === 'jenkins' && (
               <JenkinsTransformation transformation={transformation} setTransformation={onChangeTransformation} />
             )}
 

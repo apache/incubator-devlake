@@ -17,13 +17,11 @@
  */
 
 import type { PluginConfigType } from '@/plugins';
-import { Plugins, PluginType } from '@/plugins';
 
-import Icon from './assets/icon.svg';
+import { BasePipelineConfig } from '../base';
 
 export const StarRocksConfig: PluginConfigType = {
-  plugin: Plugins.StarRocks,
+  ...BasePipelineConfig,
+  plugin: 'starrocks',
   name: 'StarRocks',
-  type: PluginType.Pipeline,
-  icon: Icon,
 };

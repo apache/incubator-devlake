@@ -21,7 +21,7 @@ import { Intent } from '@blueprintjs/core';
 
 import { TextTooltip } from '@/components';
 import type { PluginConfigType } from '@/plugins';
-import { Plugins, PluginConfig } from '@/plugins';
+import { PluginConfig } from '@/plugins';
 
 import type { TaskType } from '../../types';
 import { StatusEnum } from '../../types';
@@ -45,16 +45,16 @@ export const PipelineTask = ({ task }: Props) => {
     let name = config.name;
 
     switch (true) {
-      case [Plugins.GitHub, Plugins.GitHubGraphql].includes(config.plugin):
+      case ['github', 'github_graphql'].includes(config.plugin):
         name = `${name}:${options.name}`;
         break;
-      case Plugins.GitExtractor === config.plugin:
+      case ['gitextractor'].includes(config.plugin):
         name = `${name}:${options.repoId}`;
         break;
-      case [Plugins.DORA, Plugins.RefDiff].includes(config.plugin):
+      case ['dora', 'refdiff'].includes(config.plugin):
         name = `${name}:${options.projectName}`;
         break;
-      case Plugins.GitLab === config.plugin:
+      case ['gitlab'].includes(config.plugin):
         name = `${name}:projectId:${options.projectId}`;
         break;
       case [Plugins.JIRA, Plugins.Jenkins].includes(config.plugin):

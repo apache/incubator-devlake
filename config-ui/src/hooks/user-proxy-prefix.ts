@@ -18,5 +18,10 @@
 
 import { useMemo } from 'react';
 
-export const useProxyPrefix = (connectionId: ID) =>
-  useMemo(() => `/plugins/gitlab/connections/${connectionId}/proxy/rest`, [connectionId]);
+interface Props {
+  plugin: string;
+  connectionId: ID;
+}
+
+export const useProxyPrefix = ({ plugin, connectionId }: Props) =>
+  useMemo(() => `/plugins/${plugin}/connections/${connectionId}/proxy/rest`, [plugin, connectionId]);

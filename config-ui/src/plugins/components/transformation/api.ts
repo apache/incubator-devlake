@@ -17,20 +17,19 @@
  */
 
 import { request } from '@/utils';
-import { Plugins } from '@/plugins';
 
 type GetRulesParams = {
   page: number;
   pageSize: number;
 };
 
-export const getRules = (plugin: Plugins, params?: GetRulesParams) =>
+export const getRules = (plugin: string, params?: GetRulesParams) =>
   request(`/plugins/${plugin}/transformation_rules`, {
     method: 'get',
     data: params,
   });
 
-export const getDataScopeRepo = (plugin: Plugins, connectionId: ID, repoId: ID) =>
+export const getDataScopeRepo = (plugin: string, connectionId: ID, repoId: ID) =>
   request(`/plugins/${plugin}/connections/${connectionId}/scopes/${repoId}`);
 
 export const updateDataScope = (plugin: string, connectionId: ID, payload: any) =>

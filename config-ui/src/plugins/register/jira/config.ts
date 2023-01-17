@@ -17,62 +17,44 @@
  */
 
 import type { PluginConfigType } from '@/plugins';
-import { Plugins, PluginType } from '@/plugins';
+
+import {
+  BaseConnectionConfig,
+  ConnectionName,
+  ConnectionEndpoint,
+  ConnectionUsername,
+  ConnectionPassword,
+  ConnectionProxy,
+  ConnectionRatelimit,
+} from '../base';
 
 import Icon from './assets/icon.svg';
 
 export const JIRAConfig: PluginConfigType = {
-  plugin: Plugins.JIRA,
+  ...BaseConnectionConfig,
+  plugin: 'jira',
   name: 'JIRA',
-  type: PluginType.Connection,
   icon: Icon,
   connection: {
-    initialValues: {
-      rateLimitPerHour: 3000,
-    },
     fields: [
-      {
-        key: 'name',
-        label: 'Connection Name',
-        type: 'text',
-        required: true,
+      ConnectionName({
+        initialValue: 'JIRA',
         placeholder: 'eg. JIRA',
-      },
-      {
-        key: 'endpoint',
-        label: 'Endpoint URL',
-        type: 'text',
-        required: true,
+      }),
+      ConnectionEndpoint({
+        initialValue: 'https://your-domain.atlassian.net/rest/',
         placeholder: 'eg. https://your-domain.atlassian.net/rest/',
-      },
-      {
-        key: 'username',
+      }),
+      ConnectionUsername({
         label: 'Username / E-mail',
-        type: 'text',
-        required: true,
-        placeholder: 'eg. admin',
-      },
-      {
-        key: 'password',
-        label: 'Password',
-        type: 'password',
-        required: true,
-        placeholder: 'eg. ************',
+      }),
+      ConnectionPassword({
         tooltip: 'If you are using JIRA Cloud or JIRA Server,\nyour API Token should be used as password.',
-      },
-      {
-        key: 'proxy',
-        label: 'Proxy URL',
-        type: 'text',
-        placeholder: 'eg. http://proxy.localhost:8080',
-        tooltip: 'Add a proxy if your network can not access JIRA directly.',
-      },
-      {
-        key: 'rateLimitPerHour',
-        label: 'Fixed Rate Limit (per hour)',
-        type: 'rateLimit',
-        tooltip: 'Rate Limit requests per hour,\nEnter a numeric value > 0 to enable.',
-      },
+      }),
+      ConnectionProxy(),
+      ConnectionRatelimit({
+        initialValue: 3000,
+      }),
     ],
   },
   entities: ['TICKET', 'CROSS'],

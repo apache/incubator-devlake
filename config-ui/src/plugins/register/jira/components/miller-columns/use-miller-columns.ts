@@ -19,8 +19,9 @@
 import { useState, useEffect, useMemo } from 'react';
 import type { ItemType } from 'miller-columns-select';
 
+import { useProxyPrefix } from '@/hooks';
+
 import type { ScopeItemType } from '../../types';
-import { useProxyPrefix } from '../../hooks';
 import * as API from '../../api';
 
 const DEFAULT_PAGE_SIZE = 50;
@@ -36,7 +37,10 @@ export const useMillerColumns = ({ connectionId }: UseMillerColumnsProps) => {
   const [isLast, setIsLast] = useState(false);
   const [page, setPage] = useState(1);
 
-  const prefix = useProxyPrefix(connectionId);
+  const prefix = useProxyPrefix({
+    plugin: 'jira',
+    connectionId,
+  });
 
   const updateItems = (arr: any) =>
     arr.map((it: any) => ({

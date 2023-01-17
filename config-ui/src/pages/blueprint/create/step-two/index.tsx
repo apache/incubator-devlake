@@ -21,7 +21,7 @@ import { Icon } from '@blueprintjs/core';
 
 import { Card, Table, Divider } from '@/components';
 import { useConnection } from '@/store';
-import { Plugins, DataScope } from '@/plugins';
+import { DataScope } from '@/plugins';
 
 import type { BPConnectionItemType } from '../types';
 import { useCreateBP } from '../bp-context';
@@ -44,7 +44,7 @@ export const StepTwo = () => {
     onChangeShowDetail(false);
   };
 
-  const handleDeleteScope = (plugin: Plugins, connectionId: ID, scopeId: ID) => {
+  const handleDeleteScope = (plugin: string, connectionId: ID, scopeId: ID) => {
     const unique = `${plugin}-${connectionId}`;
 
     onChangeScopeMap({

@@ -17,13 +17,11 @@
  */
 
 import type { PluginConfigType } from '@/plugins';
-import { Plugins, PluginType } from '@/plugins';
 
-import Icon from './assets/icon.svg';
+import { BasePipelineConfig } from '../base';
 
 export const AEConfig: PluginConfigType = {
-  plugin: Plugins.AE,
+  ...BasePipelineConfig,
+  plugin: 'ae',
   name: 'AE',
-  type: PluginType.Pipeline,
-  icon: Icon,
 };

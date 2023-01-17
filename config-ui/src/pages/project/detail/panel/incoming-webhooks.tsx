@@ -21,7 +21,6 @@ import { Button, Intent } from '@blueprintjs/core';
 
 import NoData from '@/images/no-webhook.svg';
 import { Card } from '@/components';
-import { Plugins } from '@/plugins';
 import type { WebhookItemType } from '@/plugins/register/webook';
 import { WebhookCreateDialog, WebhookSelectorDialog, WebHookConnection } from '@/plugins/register/webook';
 
@@ -41,7 +40,7 @@ export const IncomingWebhooksPanel = ({ project, saving, onSelectWebhook, onCrea
     () =>
       project.blueprint
         ? project.blueprint.settings.connections
-            .filter((cs: any) => cs.plugin === Plugins.Webhook)
+            .filter((cs: any) => cs.plugin === 'webhook')
             .map((cs: any) => cs.connectionId)
         : [],
     [project],

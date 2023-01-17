@@ -17,62 +17,40 @@
  */
 
 import type { PluginConfigType } from '@/plugins';
-import { Plugins, PluginType } from '@/plugins';
+
+import {
+  BaseConnectionConfig,
+  ConnectionName,
+  ConnectionEndpoint,
+  ConnectionGitHubToken,
+  ConnectionGitHubGraphql,
+  ConnectionProxy,
+  ConnectionRatelimit,
+} from '../base';
 
 import Icon from './assets/icon.svg';
 
 export const GitHubConfig: PluginConfigType = {
-  plugin: Plugins.GitHub,
+  ...BaseConnectionConfig,
+  plugin: 'github',
   name: 'GitHub',
-  type: PluginType.Connection,
   icon: Icon,
   connection: {
-    initialValues: {
-      enableGraphql: true,
-      rateLimitPerHour: 4500,
-    },
     fields: [
-      {
-        key: 'name',
-        label: 'Connection Name',
-        type: 'text',
-        required: true,
+      ConnectionName({
+        initialValue: 'GitHub',
         placeholder: 'eg. GitHub',
-      },
-      {
-        key: 'endpoint',
-        label: 'Endpoint URL',
-        type: 'text',
-        required: true,
+      }),
+      ConnectionEndpoint({
+        initialValue: 'https://api.github.com/',
         placeholder: 'eg. https://api.github.com/',
-      },
-      {
-        key: 'token',
-        label: 'Basic Auth Token',
-        type: 'githubToken',
-        required: true,
-        tooltip: "Due to Github's rate limit, input more tokens, \ncomma separated, to accelerate data collection.",
-      },
-      {
-        key: 'proxy',
-        label: 'Proxy URL',
-        type: 'text',
-        placeholder: 'eg. http://proxy.localhost:8080',
-        tooltip: 'Add a proxy if your network can not access GitHub directly.',
-      },
-      {
-        key: 'enableGraphql',
-        label: 'Use Graphql APIs',
-        type: 'switch',
-        tooltip:
-          'GraphQL APIs are 10+ times faster than REST APIs, but it may not be supported in GitHub on-premise versions.',
-      },
-      {
-        key: 'rateLimitPerHour',
-        label: 'Fixed Rate Limit (per hour)',
-        type: 'rateLimit',
-        tooltip: 'Rate Limit requests per hour,\nEnter a numeric value > 0 to enable.',
-      },
+      }),
+      ConnectionGitHubToken(),
+      ConnectionGitHubGraphql(),
+      ConnectionProxy(),
+      ConnectionRatelimit({
+        initialValue: 4500,
+      }),
     ],
   },
   entities: ['CODE', 'TICKET', 'CODEREVIEW', 'CROSS', 'CICD'],

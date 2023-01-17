@@ -16,13 +16,11 @@
  *
  */
 
-import { Plugins } from '@/plugins';
-
 export type ConfigConnectionItemType = {
   icon: string;
   name: string;
   connectionId: ID;
-  plugin: Plugins;
+  plugin: string;
   entities: string[];
   selectedEntites: string[];
   scope: Array<{ id: string; entities: string[] }>;

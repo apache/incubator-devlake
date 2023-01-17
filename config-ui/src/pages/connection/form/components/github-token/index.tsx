@@ -20,8 +20,6 @@ import React, { useEffect, useState } from 'react';
 import { InputGroup, Button, Intent } from '@blueprintjs/core';
 import { pick } from 'lodash';
 
-import { Plugins } from '@/plugins';
-
 import * as API from '../../api';
 
 import * as S from './styled';
@@ -43,7 +41,7 @@ export const GitHubToken = ({ form, value, onChange }: Props) => {
 
   const testToken = async (token: string): Promise<TokenItem> => {
     try {
-      const res = await API.testConnection(Plugins.GitHub, {
+      const res = await API.testConnection('github', {
         ...pick(form, ['endpoint', 'proxy']),
         token,
       });

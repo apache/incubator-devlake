@@ -18,7 +18,7 @@
 
 import { useState, useEffect, useCallback, useMemo } from 'react';
 
-import { PluginConfig, PluginType, Plugins } from '@/plugins';
+import { PluginConfig, PluginType } from '@/plugins';
 
 import type { TransformationItemType } from './types';
 import * as API from './api';
@@ -29,7 +29,7 @@ export const useContextValue = () => {
 
   const allConnections = useMemo(() => PluginConfig.filter((p) => p.type === PluginType.Connection && !p.isBeta), []);
 
-  const getTransformation = async (plugin: Plugins) => {
+  const getTransformation = async (plugin: string) => {
     try {
       return await API.getTransformation(plugin);
     } catch {

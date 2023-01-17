@@ -20,7 +20,7 @@ import React, { useMemo } from 'react';
 import { Button, Intent } from '@blueprintjs/core';
 
 import type { ColumnType } from '@/components';
-import { Plugins, DataScopeList } from '@/plugins';
+import { DataScopeList } from '@/plugins';
 
 import type { BPConnectionItemType } from '../types';
 
@@ -28,7 +28,7 @@ import * as S from './styled';
 
 interface Props {
   onDetail: (connection: BPConnectionItemType) => void;
-  onDelete: (plugin: Plugins, connectionId: ID, scopeId: ID) => void;
+  onDelete: (plugin: string, connectionId: ID, scopeId: ID) => void;
 }
 
 export const useColumns = ({ onDetail, onDelete }: Props) => {

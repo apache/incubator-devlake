@@ -18,6 +18,4 @@
 
 import { request } from '@/utils';
 
-import { Plugins } from '@/plugins';
-
-export const getTransformation = (plugin: Plugins) => request(`/plugins/${plugin}/transformation_rules`);
+export const getTransformation = (plugin: string) => request(`/plugins/${plugin}/transformation_rules`);

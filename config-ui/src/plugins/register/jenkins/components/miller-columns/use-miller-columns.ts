@@ -19,8 +19,9 @@
 import { useState, useEffect, useMemo } from 'react';
 import type { ItemType, ColumnType } from 'miller-columns-select';
 
+import { useProxyPrefix } from '@/hooks';
+
 import type { ScopeItemType } from '../../types';
-import { useProxyPrefix } from '../../hooks';
 import * as API from '../../api';
 
 export type JenkinsItemType = ItemType<
@@ -44,7 +45,10 @@ export const useMillerColumns = ({ connectionId }: UseMillerColumnsProps) => {
   const [loadedIds, setLoadedIds] = useState<ID[]>([]);
   const [expandedIds, setExpandedIds] = useState<ID[]>([]);
 
-  const prefix = useProxyPrefix(connectionId);
+  const prefix = useProxyPrefix({
+    plugin: 'jenkins',
+    connectionId,
+  });
 
   const formatJobs = (jobs: any, parentId: ID | null = null) =>
     jobs.map((it: any) => ({

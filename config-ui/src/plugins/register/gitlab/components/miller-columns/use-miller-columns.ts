@@ -19,8 +19,9 @@
 import { useState, useEffect, useMemo } from 'react';
 import { ItemType, ColumnType } from 'miller-columns-select';
 
+import { useProxyPrefix } from '@/hooks';
+
 import type { ScopeItemType } from '../../types';
-import { useProxyPrefix } from '../../hooks';
 import * as API from '../../api';
 
 const DEFAULT_PAGE_SIZE = 20;
@@ -56,7 +57,10 @@ export const useMillerColumns = ({ connectionId }: UseMillerColumnsProps) => {
   const [expandedIds, setExpandedIds] = useState<ID[]>([]);
   const [map, setMap] = useState<MapType>({});
 
-  const prefix = useProxyPrefix(connectionId);
+  const prefix = useProxyPrefix({
+    plugin: 'gitlab',
+    connectionId,
+  });
 
   const formatGroups = (arr: any, parentId: ID | null = null): GitLabItemType[] =>
     arr.map((it: any) => ({

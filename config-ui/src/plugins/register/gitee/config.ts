@@ -17,13 +17,14 @@
  */
 
 import type { PluginConfigType } from '@/plugins';
-import { Plugins, PluginType } from '@/plugins';
+
+import { BasePipelineConfig } from '../base';
 
 import Icon from './assets/icon.svg';
 
 export const GiteeConfig: PluginConfigType = {
-  plugin: Plugins.Gitee,
+  ...BasePipelineConfig,
+  plugin: 'gitee',
   name: 'Gitee',
-  type: PluginType.Pipeline,
   icon: Icon,
 };

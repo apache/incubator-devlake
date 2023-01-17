@@ -17,17 +17,16 @@
  */
 
 import { request } from '@/utils';
-import { Plugins } from '@/plugins';
 
-export const createTransformation = (plugin: Plugins, payload: any) =>
+export const createTransformation = (plugin: string, payload: any) =>
   request(`/plugins/${plugin}/transformation_rules`, {
     method: 'post',
     data: payload,
   });
 
-export const getTransformation = (plugin: Plugins, id: ID) => request(`/plugins/${plugin}/transformation_rules/${id}`);
+export const getTransformation = (plugin: string, id: ID) => request(`/plugins/${plugin}/transformation_rules/${id}`);
 
-export const updateTransformation = (plugin: Plugins, id: ID, payload: any) =>
+export const updateTransformation = (plugin: string, id: ID, payload: any) =>
   request(`/plugins/${plugin}/transformation_rules/${id}`, {
     method: 'patch',
     data: payload,

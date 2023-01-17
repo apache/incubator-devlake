@@ -17,13 +17,14 @@
  */
 
 import type { PluginConfigType } from '@/plugins';
-import { Plugins, PluginType } from '@/plugins';
+
+import { BasePipelineConfig } from '../base';
 
 import Icon from './assets/icon.svg';
 
 export const AzureConfig: PluginConfigType = {
-  plugin: Plugins.Azure,
+  ...BasePipelineConfig,
+  plugin: 'azure',
   name: 'Azure',
-  type: PluginType.Pipeline,
   icon: Icon,
 };

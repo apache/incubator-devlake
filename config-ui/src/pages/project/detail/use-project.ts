@@ -19,8 +19,7 @@
 import { useState, useEffect, useMemo } from 'react';
 import { useHistory } from 'react-router-dom';
 
-import type { WebhookItemType } from '@/plugins';
-import { Plugins } from '@/plugins';
+import type { WebhookItemType } from '@/plugins/register/webook';
 import { operator } from '@/utils';
 
 import type { ProjectType } from './types';
@@ -82,7 +81,7 @@ export const useProject = (name: string) => {
         connections: [
           ...project?.blueprint.settings.connections,
           ...items.map((it) => ({
-            plugin: Plugins.Webhook,
+            plugin: 'webhook',
             connectionId: it.id,
           })),
         ],
@@ -106,7 +105,7 @@ export const useProject = (name: string) => {
         connections: [
           ...project?.blueprint.settings.connections,
           {
-            plugin: Plugins.Webhook,
+            plugin: 'webhook',
             connectionId: id,
           },
         ],

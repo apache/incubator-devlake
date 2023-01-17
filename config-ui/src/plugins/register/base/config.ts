@@ -16,7 +16,27 @@
  *
  */
 
-import { useMemo } from 'react';
+import { PluginType } from '../../types';
 
-export const useProxyPrefix = (connectionId: ID) =>
-  useMemo(() => `/plugins/jenkins/connections/${connectionId}/proxy/rest`, [connectionId]);
+import Icon from './assets/icon.svg';
+
+export const BaseConnectionConfig = {
+  type: PluginType.Connection,
+  plugin: undefined,
+  name: undefined,
+  icon: Icon,
+  isBeta: undefined,
+  connection: {
+    initialValues: [],
+    fields: [],
+  },
+  entities: [],
+  transformation: {},
+} as const;
+
+export const BasePipelineConfig = {
+  type: PluginType.Pipeline,
+  plugin: undefined,
+  name: undefined,
+  icon: Icon,
+} as const;

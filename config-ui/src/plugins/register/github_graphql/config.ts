@@ -17,13 +17,14 @@
  */
 
 import type { PluginConfigType } from '@/plugins';
-import { Plugins, PluginType } from '@/plugins';
+
+import { BasePipelineConfig } from '../base';
 
 import Icon from './assets/icon.svg';
 
 export const GitHubGraphqlConfig: PluginConfigType = {
-  plugin: Plugins.GitHubGraphql,
+  ...BasePipelineConfig,
+  plugin: 'github_graphql',
   name: 'GitHubGraphql',
-  type: PluginType.Pipeline,
   icon: Icon,
 };

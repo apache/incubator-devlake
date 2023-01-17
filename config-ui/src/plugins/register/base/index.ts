@@ -16,4 +16,5 @@
  *
  */
 
-export * from './user-proxy-prefix';
+export * from './config';
+export * from './connection-fields';

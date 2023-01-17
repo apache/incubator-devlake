@@ -21,7 +21,6 @@ import { useParams, useHistory } from 'react-router-dom';
 import { InputGroup, ButtonGroup, Button, Intent } from '@blueprintjs/core';
 
 import { PageLoading, PageHeader, Card } from '@/components';
-import { Plugins } from '@/plugins';
 import { GitHubTransformation } from '@/plugins/register/github';
 import { GitLabTransformation } from '@/plugins/register/gitlab';
 import { JenkinsTransformation } from '@/plugins/register/jenkins';
@@ -30,7 +29,7 @@ import { useDetail } from './use-detail';
 import * as S from './styled';
 
 export const TransformationDetailPage = () => {
-  const { plugin, tid } = useParams<{ plugin: Plugins; tid?: string }>();
+  const { plugin, tid } = useParams<{ plugin: string; tid?: string }>();
   const history = useHistory();
 
   const { loading, operating, name, transformation, onChangeName, onChangeTransformation, onSave } = useDetail({
@@ -67,16 +66,18 @@ export const TransformationDetailPage = () => {
           />
         </Card>
         <Card className="card">
-          {plugin === Plugins.GitHub && (
+          {plugin === 'github' && (
             <GitHubTransformation transformation={transformation} setTransformation={onChangeTransformation} />
           )}
-          {plugin === Plugins.GitLab && (
+
+          {plugin === 'gitlab' && (
             <GitLabTransformation transformation={transformation} setTransformation={onChangeTransformation} />
           )}
 
-          {plugin === Plugins.Jenkins && (
+          {plugin === 'jenkins' && (
             <JenkinsTransformation transformation={transformation} setTransformation={onChangeTransformation} />
           )}
+
           <div className="action">
             <ButtonGroup>
               <Button disabled={operating} outlined text="Cancel" onClick={() => history.push('/transformations')} />
