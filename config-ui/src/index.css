@@ -27,6 +27,16 @@ body {
   color: #292b3f;
 }
 
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+  margin: 0;
+  font-weight: 600;
+}
+
 h1 {
   font-size: 20px;
 }
@@ -58,7 +68,7 @@ ul {
 }
 
 p {
-  margin: 0 0 8px 0;
+  margin: 8px 0 16px;
   font-size: 12px;
   color: #94959f;
 }
