@@ -16,5 +16,34 @@
  *
  */
 
-export * from './icon-tooltip';
-export * from './text-tooltip';
+import React from 'react';
+import { Icon, Position, IconName } from '@blueprintjs/core';
+import { Tooltip2 } from '@blueprintjs/popover2';
+import styled from 'styled-components';
+
+const Wrapper = styled.span`
+  & > .bp4-popover2-target {
+    display: inline-block !important;
+
+    .bp4-icon {
+      display: block;
+      cursor: pointer;
+    }
+  }
+`;
+
+interface Props {
+  icon: IconName;
+  content: string | JSX.Element;
+  style?: React.CSSProperties;
+}
+
+export const IconTooltip = ({ icon, content, style }: Props) => {
+  return (
+    <Wrapper style={style}>
+      <Tooltip2 position={Position.TOP} content={content}>
+        <Icon icon={icon} size={12} />
+      </Tooltip2>
+    </Wrapper>
+  );
+};
