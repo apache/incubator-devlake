@@ -254,3 +254,27 @@ Copyright 2020 MANYPIXELS PTE LTD
 All images, assets and vectors published on ManyPixels can be used for free. You can use them for noncommercial and commercial purposes. You do not need to ask permission from or provide credit to the creator or ManyPixels.
 
 More precisely, ManyPixels grants you an nonexclusive, worldwide copyright license to download, copy, modify, distribute, perform, and use the assets provided from ManyPixels for free, including for commercial purposes, without permission from or attributing the creator or ManyPixels. This license does not include the right to compile assets, vectors or images from ManyPixels to replicate a similar or competing service, in any form or distribute the assets in packs or otherwise. This extends to automated and non-automated ways to link, embed.
+
+
+--------------------------------------------------------------------------------
+This product bundles various third-party components under other open source licenses.
+This section summarizes those components and their licenses.
+
+----------------------------------
+Mozilla Public License 2.0 License
+github.com/hashicorp/hcl
+----------------------------------
+ISC License
+github.com/davecgh/go-spew
+----------------------------------
+Simplified BSD License
+github.com/russross/blackfriday
+github.com/emirpasic/gods
+----------------------------------
+BSD License 2.0
+github.com/gogo/protobuf
+github.com/go-git/gcfg
+github.com/pmezard/go-difflib
+----------------------------------
+MIT License
+github.com/kevinburke/ssh_config
