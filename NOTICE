@@ -3,3 +3,16 @@ Copyright 2023 The Apache Software Foundation
 
 This product includes software developed at
 The Apache Software Foundation (https://www.apache.org/).
+
+This software includes the following open-source software:
+
+- [github.com/hashicorp/hcl] (https://github.com/hashicorp/hcl), licensed under the Mozilla Public License 2.0 License
+- [github.com/davecgh/go-spew] (https://github.com/davecgh/go-spew), licensed under the ISC License
+- [github.com/russross/blackfriday] (https://github.com/russross/blackfriday), licensed under the Simplified BSD License
+- [github.com/gogo/protobuf] (https://github.com/gogo/protobuf), licensed under the BSD License 2.0
+- [github.com/emirpasic/gods] (https://github.com/emirpasic/gods), licensed under the Simplified BSD License
+- [github.com/go-git/gcfg] (https://github.com/go-git/gcfg), licensed under the BSD License 2.0
+- [github.com/kevinburke/ssh_config] (https://github.com/kevinburke/ssh_config), licensed under the MIT License
+- [github.com/pmezard/go-difflib] (https://github.com/pmezard/go-difflib), licensed under the BSD License 2.0
+
+A copy of each license can be found in the file LICENSE
