@@ -108,7 +108,6 @@ func ConvertBug(taskCtx plugin.SubTaskContext) errors.Error {
 			return results, nil
 		},
 	})
-
 	if err != nil {
 		return err
 	}

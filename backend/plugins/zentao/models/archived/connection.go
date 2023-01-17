@@ -21,12 +21,10 @@ import (
 	"github.com/apache/incubator-devlake/core/models/migrationscripts/archived"
 )
 
-// TODO Please modify the following code to fit your needs
 // This object conforms to what the frontend currently sends.
 type ZentaoConnection struct {
 	RestConnection `mapstructure:",squash"`
-	//TODO you may need to use api.BasicAuth instead of api.AccessToken
-	BasicAuth `mapstructure:",squash"`
+	BasicAuth      `mapstructure:",squash"`
 }
 
 type TestConnectionRequest struct {

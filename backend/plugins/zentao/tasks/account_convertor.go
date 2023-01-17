@@ -67,7 +67,6 @@ func ConvertAccount(taskCtx plugin.SubTaskContext) errors.Error {
 		},
 		Convert: func(inputRow interface{}) ([]interface{}, errors.Error) {
 			toolEntity := inputRow.(*models.ZentaoAccount)
-
 			domainEntity := &crossdomain.Account{
 				DomainEntity: domainlayer.DomainEntity{
 					Id: accountIdGen.Generate(toolEntity.ConnectionId, toolEntity.ID),

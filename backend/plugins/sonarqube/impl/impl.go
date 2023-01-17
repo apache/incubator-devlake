@@ -50,7 +50,6 @@ func (p Sonarqube) Init(br context.BasicRes) errors.Error {
 }
 
 func (p Sonarqube) SubTaskMetas() []plugin.SubTaskMeta {
-	// TODO add your sub task here
 	return []plugin.SubTaskMeta{}
 }
 

@@ -44,10 +44,8 @@ func CollectStory(taskCtx plugin.SubTaskContext) errors.Error {
 			},
 			Table: RAW_STORY_TABLE,
 		},
-		ApiClient: data.ApiClient,
-
-		PageSize: 100,
-		// TODO write which api would you want request
+		ApiClient:   data.ApiClient,
+		PageSize:    100,
 		UrlTemplate: "/products/{{ .Params.ProductId }}/stories",
 		Query: func(reqData *api.RequestData) (url.Values, errors.Error) {
 			query := url.Values{}

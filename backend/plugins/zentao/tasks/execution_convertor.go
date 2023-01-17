@@ -78,7 +78,6 @@ func ConvertExecutions(taskCtx plugin.SubTaskContext) errors.Error {
 				CreatedDate: toolExecution.OpenedDate.ToNullableTime(),
 				Type:        toolExecution.Type,
 			}
-
 			results := make([]interface{}, 0)
 			results = append(results, domainBoard)
 			return results, nil

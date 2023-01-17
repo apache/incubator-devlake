@@ -44,8 +44,7 @@ func CollectProject(taskCtx plugin.SubTaskContext) errors.Error {
 			},
 			Table: RAW_PROJECT_TABLE,
 		},
-		ApiClient: data.ApiClient,
-		// TODO write which api would you want request
+		ApiClient:   data.ApiClient,
 		UrlTemplate: "projects",
 		Query: func(reqData *api.RequestData) (url.Values, errors.Error) {
 			query := url.Values{}

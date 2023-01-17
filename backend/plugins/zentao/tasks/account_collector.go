@@ -44,10 +44,8 @@ func CollectAccount(taskCtx plugin.SubTaskContext) errors.Error {
 			},
 			Table: RAW_ACCOUNT_TABLE,
 		},
-		ApiClient: data.ApiClient,
-
-		PageSize: 100,
-		// TODO write which api would you want request
+		ApiClient:   data.ApiClient,
+		PageSize:    100,
 		UrlTemplate: "/users",
 		Query: func(reqData *api.RequestData) (url.Values, errors.Error) {
 			query := url.Values{}

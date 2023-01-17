@@ -122,14 +122,14 @@ func ListConnections(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput,
 	return &plugin.ApiResourceOutput{Body: connections, Status: http.StatusOK}, nil
 }
 
-//TODO Please modify the folowing code to adapt to your plugin
 /*
 GET /plugins/Sonarqube/connections/:connectionId
-{
-	"name": "Sonarqube data connection name",
-	"endpoint": "Sonarqube api endpoint, i.e. http://host:port/api/",
-	"token": "Sonarqube user token"
-}
+
+	{
+		"name": "Sonarqube data connection name",
+		"endpoint": "Sonarqube api endpoint, i.e. http://host:port/api/",
+		"token": "Sonarqube user token"
+	}
 */
 func GetConnection(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, errors.Error) {
 	connection := &models.SonarqubeConnection{}
