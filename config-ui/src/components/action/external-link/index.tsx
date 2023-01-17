@@ -16,6 +16,18 @@
  *
  */
 
-export * from './delete-button';
-export * from './external-link';
-export * from './icon-button';
+import React from 'react';
+
+interface Props {
+  link: string;
+  children: React.ReactNode;
+  style?: React.CSSProperties;
+}
+
+export const ExternalLink = ({ link, children, style }: Props) => {
+  return (
+    <a href={link} rel="noreferrer" target="_blank" style={style}>
+      {children}
+    </a>
+  );
+};
