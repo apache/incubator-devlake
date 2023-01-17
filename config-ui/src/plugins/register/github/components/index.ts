@@ -18,7 +18,3 @@
 
 export * from './miller-columns';
 export * from './repo-selector';
-export * from './issue-tracking';
-export * from './ci-cd';
-export * from './code-review';
-export * from './additional-settings';
