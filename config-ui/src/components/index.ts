@@ -27,4 +27,4 @@ export * from './logo';
 export * from './card';
 export * from './inspector';
 export * from './action';
-export * from './text-tooltip';
+export * from './tooltip';

@@ -16,6 +16,35 @@
  *
  */
 
-export * from './delete-button';
-export * from './external-link';
-export * from './icon-button';
+import React from 'react';
+import { Icon, Position } from '@blueprintjs/core';
+import { Tooltip2 } from '@blueprintjs/popover2';
+import styled from 'styled-components';
+
+const Wrapper = styled.span`
+  margin-left: 4px;
+
+  & > .bp4-popover2-target {
+    display: inline-block !important;
+
+    .bp4-icon {
+      display: block;
+      cursor: pointer;
+    }
+  }
+`;
+
+interface Props {
+  content: string | JSX.Element;
+  style?: React.CSSProperties;
+}
+
+export const HelpTooltip = ({ content, style }: Props) => {
+  return (
+    <Wrapper style={style}>
+      <Tooltip2 position={Position.TOP} content={content}>
+        <Icon icon="help" size={12} color="#94959f" />
+      </Tooltip2>
+    </Wrapper>
+  );
+};

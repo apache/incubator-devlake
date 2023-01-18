@@ -19,24 +19,20 @@
 import styled from 'styled-components';
 
 export const Wrapper = styled.div`
+  .tips {
+    margin-bottom: 16px;
+    padding: 12px 24px;
+    background: #f0f4fe;
+    border: 1px solid #bdcefb;
+    border-radius: 4px;
+  }
+
   .block {
     padding: 8px 16px;
   }
 
   .item + .item {
     margin-top: 16px;
-  }
-
-  h3 {
-    margin: 0 0 8px;
-
-    .bp4-tag {
-      margin-left: 6px;
-    }
-  }
-
-  p {
-    margin: 0 0 8px;
   }
 
   .bp4-form-group {

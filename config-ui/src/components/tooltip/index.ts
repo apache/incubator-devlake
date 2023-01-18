@@ -16,6 +16,5 @@
  *
  */
 
-export * from './delete-button';
-export * from './external-link';
-export * from './icon-button';
+export * from './help-tooltip';
+export * from './text-tooltip';

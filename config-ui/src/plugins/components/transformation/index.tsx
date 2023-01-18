@@ -19,7 +19,7 @@
 import React, { useState } from 'react';
 import { RadioGroup, Radio, InputGroup, ButtonGroup, Button, Intent } from '@blueprintjs/core';
 
-import { Divider, Selector, MultiSelector } from '@/components';
+import { ExternalLink, Divider, Selector, MultiSelector } from '@/components';
 
 import { GitHubTransformation } from '@/plugins/register/github';
 import { JIRATransformation } from '@/plugins/register/jira';
@@ -59,6 +59,14 @@ export const Transformation = ({ from, plugin, connectionId, onCancel, ...props 
 
   return (
     <S.Wrapper>
+      <div className="tips">
+        To learn about how GitHub transformation is used in DevLake,
+        <ExternalLink link="https://devlake.apache.org/docs/UserManuals/ConfigUI/GitHub#step-3---adding-transformation-rules-optional">
+          check out this doc
+        </ExternalLink>
+        .
+      </div>
+
       <div className="block">
         <RadioGroup selectedValue={type} onChange={handleChangeType}>
           <Radio label="Creating a new transformation" value="create" />

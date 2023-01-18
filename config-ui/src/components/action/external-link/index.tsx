@@ -16,13 +16,18 @@
  *
  */
 
-import styled from 'styled-components';
+import React from 'react';
 
-export const Tips = styled.div`
-  display: flex;
-  align-items: center;
-`;
+interface Props {
+  link: string;
+  children: React.ReactNode;
+  style?: React.CSSProperties;
+}
 
-export const TipsContent = styled.div`
-  padding: 8px;
-`;
+export const ExternalLink = ({ link, children, style }: Props) => {
+  return (
+    <a href={link} rel="noreferrer" target="_blank" style={style}>
+      {children}
+    </a>
+  );
+};

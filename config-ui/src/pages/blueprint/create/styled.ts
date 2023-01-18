@@ -23,24 +23,9 @@ export const Container = styled.div``;
 export const Content = styled.div`
   margin-top: 36px;
   margin-bottom: 24px;
-  font-size: 12px;
 
   .card + .card {
     margin-top: 24px;
-  }
-
-  h2 {
-    margin: 0;
-    padding: 0;
-    font-size: 16px;
-    font-weight: 600;
-  }
-
-  h3 {
-    margin: 0 0 8px;
-    padding: 0;
-    font-size: 14px;
-    font-weight: 600;
   }
 
   .back {

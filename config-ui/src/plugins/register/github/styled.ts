@@ -19,16 +19,59 @@
 import styled from 'styled-components';
 
 export const TransformationWrapper = styled.div`
-  h3 {
-    margin: 0 0 8px;
+  .issue-tracking {
+    .issue-type {
+      .title {
+        margin-bottom: 8px;
+      }
 
-    .bp4-tag {
-      margin-left: 6px;
+      .list {
+        padding-left: 40px;
+      }
     }
   }
 
-  p {
-    margin: 0 0 8px;
+  .ci-cd {
+    h3 {
+      margin-top: 16px;
+      margin-bottom: 8px;
+    }
+
+    .radio {
+      padding-left: 20px;
+    }
+  }
+
+  .additional-settings {
+    h2 {
+      display: flex;
+      align-items: center;
+      cursor: pointer;
+    }
+
+    .radio {
+      display: flex;
+      align-items: center;
+      margin: 8px 0 16px;
+
+      p {
+        margin: 0;
+      }
+
+      .bp4-control {
+        margin: 0;
+      }
+    }
+
+    .refdiff {
+      display: flex;
+      align-items: center;
+      padding-left: 20px;
+
+      .bp4-input-group {
+        margin: 0 8px;
+      }
+    }
   }
 
   .bp4-form-group {
@@ -36,7 +79,7 @@ export const TransformationWrapper = styled.div`
     align-items: center;
 
     .bp4-label {
-      flex: 0 0 150px;
+      flex: 0 0 140px;
     }
 
     .bp4-form-content {
