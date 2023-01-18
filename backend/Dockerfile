@@ -133,7 +133,6 @@ RUN apt-get update && \
 EXPOSE 8080
 
 WORKDIR /app
-
 # Setup Python
 COPY python/requirements.txt /app/requirements.txt
 RUN python3 -m pip install --no-cache --upgrade pip setuptools && \
@@ -156,8 +155,9 @@ COPY --from=build /app/resources/tap /app/resources/tap
 
 ENV PATH="/app/bin:${PATH}"
 
-# add tini, prevent zombie process
-RUN apt-get install -y tini
+RUN apt-get update && \
+    apt-get install -y tini #add tini, prevent zombie process \
+
 ENTRYPOINT ["/sbin/tini", "--"]
 
 CMD ["lake"]
