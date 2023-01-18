@@ -45,8 +45,8 @@ export const ConnectionFormPage = () => {
   useEffect(() => {
     setForm({
       ...form,
-      ...(connection ?? {}),
       ...(omit(initialValues, 'rateLimitPerHour') ?? {}),
+      ...(connection ?? {}),
     });
   }, [initialValues, connection]);
 
