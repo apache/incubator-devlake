@@ -89,7 +89,6 @@ export const ConnectionGitHubGraphql = () => ({
   type: 'switch' as const,
   tooltip:
     'GraphQL APIs are 10+ times faster than REST APIs, but it may not be supported in GitHub on-premise versions.',
-  initialValue: true,
 });
 
 export const ConnectionGitLabToken = () => ({

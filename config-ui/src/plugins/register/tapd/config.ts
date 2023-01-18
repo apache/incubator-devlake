@@ -37,21 +37,22 @@ export const TAPDConfig: PluginConfigType = {
   isBeta: true,
   icon: Icon,
   connection: {
+    initialValues: {
+      name: 'TAPD',
+      endpoint: 'https://api.tapd.cn/',
+      rateLimitPerHour: 3000,
+    },
     fields: [
       ConnectionName({
-        initialValue: 'TAPD',
         placeholder: 'eg. TAPD',
       }),
       ConnectionEndpoint({
-        initialValue: 'https://api.tapd.cn/',
         placeholder: 'eg. https://api.tapd.cn/',
       }),
       ConnectionUsername(),
       ConnectionPassword(),
       ConnectionProxy(),
-      ConnectionRatelimit({
-        initialValue: 3000,
-      }),
+      ConnectionRatelimit(),
     ],
   },
   entities: ['TICKET'],
