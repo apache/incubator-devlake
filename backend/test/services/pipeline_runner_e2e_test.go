@@ -28,7 +28,7 @@ import (
 func TestComputePipelineStatus(t *testing.T) {
 	db := services.GetBasicRes().GetDal()
 	// insert fake tasks to datbase
-	pipeline := &models.DbPipeline{
+	pipeline := &models.Pipeline{
 		TotalTasks: 3,
 	}
 	err := db.Create(pipeline)

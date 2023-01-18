@@ -35,14 +35,14 @@ type Blueprint struct {
 	Name        string          `json:"name" validate:"required"`
 	ProjectName string          `json:"projectName" gorm:"type:varchar(255)"`
 	Mode        string          `json:"mode" gorm:"varchar(20)" validate:"required,oneof=NORMAL ADVANCED"`
-	Plan        json.RawMessage `json:"plan"`
+	Plan        json.RawMessage `json:"plan" gorm:"serializer:encdec"`
 	Enable      bool            `json:"enable"`
 	//please check this https://crontab.guru/ for detail
 	CronConfig   string          `json:"cronConfig" format:"* * * * *" example:"0 0 * * 1"`
 	IsManual     bool            `json:"isManual"`
 	SkipOnFail   bool            `json:"skipOnFail"`
-	Labels       []string        `json:"labels"`
-	Settings     json.RawMessage `json:"settings" swaggertype:"array,string" example:"please check api: /blueprints/<PLUGIN_NAME>/blueprint-setting"`
+	Labels       []string        `json:"labels" gorm:"-"`
+	Settings     json.RawMessage `json:"settings" swaggertype:"array,string" example:"please check api: /blueprints/<PLUGIN_NAME>/blueprint-setting" gorm:"serializer:encdec"`
 	common.Model `swaggerignore:"true"`
 }
 
@@ -64,24 +64,7 @@ func (bp *Blueprint) UnmarshalPlan() (plugin.PipelinePlan, errors.Error) {
 	return plan, nil
 }
 
-// @Description CronConfig
-type DbBlueprint struct {
-	Name        string `json:"name" validate:"required"`
-	ProjectName string `json:"projectName" gorm:"type:varchar(255)"`
-	Mode        string `json:"mode" gorm:"varchar(20)" validate:"required,oneof=NORMAL ADVANCED"`
-	Plan        string `json:"plan" encrypt:"yes"`
-	Enable      bool   `json:"enable"`
-	//please check this https://crontab.guru/ for detail
-	CronConfig   string `json:"cronConfig" format:"* * * * *" example:"0 0 * * 1"`
-	IsManual     bool   `json:"isManual"`
-	SkipOnFail   bool   `json:"skipOnFail"`
-	Settings     string `json:"settings" encrypt:"yes" swaggertype:"array,string" example:"please check api: /blueprints/<PLUGIN_NAME>/blueprint-setting"`
-	common.Model `swaggerignore:"true"`
-
-	Labels []DbBlueprintLabel `json:"-" gorm:"-"`
-}
-
-func (DbBlueprint) TableName() string {
+func (Blueprint) TableName() string {
 	return "_devlake_blueprints"
 }
 

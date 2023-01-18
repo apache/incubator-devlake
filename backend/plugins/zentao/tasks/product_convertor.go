@@ -77,7 +77,6 @@ func ConvertProducts(taskCtx plugin.SubTaskContext) errors.Error {
 				CreatedDate: toolProduct.CreatedDate.ToNullableTime(),
 				Type:        toolProduct.Type,
 			}
-
 			results := make([]interface{}, 0)
 			results = append(results, domainBoard)
 			return results, nil

@@ -44,10 +44,8 @@ func CollectBug(taskCtx plugin.SubTaskContext) errors.Error {
 			},
 			Table: RAW_BUG_TABLE,
 		},
-		ApiClient: data.ApiClient,
-
-		PageSize: 100,
-		// TODO write which api would you want request
+		ApiClient:   data.ApiClient,
+		PageSize:    100,
 		UrlTemplate: "/products/{{ .Params.ProductId }}/bugs",
 		Query: func(reqData *api.RequestData) (url.Values, errors.Error) {
 			query := url.Values{}

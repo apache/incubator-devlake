@@ -74,7 +74,7 @@ func pipelineServiceInit() {
 	} else {
 		// standalone mode: reset pipeline status
 		err := db.UpdateColumn(
-			&models.DbPipeline{},
+			&models.Pipeline{},
 			"status", models.TASK_FAILED,
 			dal.Where("status = ?", models.TASK_RUNNING),
 		)
@@ -110,34 +110,29 @@ func pipelineServiceInit() {
 
 // CreatePipeline and return the model
 func CreatePipeline(newPipeline *models.NewPipeline) (*models.Pipeline, errors.Error) {
-	dbPipeline, err := CreateDbPipeline(newPipeline)
+	pipeline, err := CreateDbPipeline(newPipeline)
 	if err != nil {
 		return nil, errors.Convert(err)
 	}
-	dbPipeline, err = decryptDbPipeline(dbPipeline)
+	err = fillPipelineDetail(pipeline)
 	if err != nil {
-		return nil, err
+		return nil, errors.Convert(err)
 	}
-	pipeline := parsePipeline(dbPipeline)
 	return pipeline, nil
 }
 
 // GetPipelines by query
 func GetPipelines(query *PipelineQuery) ([]*models.Pipeline, int64, errors.Error) {
-	dbPipelines, i, err := GetDbPipelines(query)
+	pipelines, i, err := GetDbPipelines(query)
 	if err != nil {
 		return nil, 0, errors.Convert(err)
 	}
-	pipelines := make([]*models.Pipeline, 0)
-	for _, dbPipeline := range dbPipelines {
-		dbPipeline, err = decryptDbPipeline(dbPipeline)
+	for _, p := range pipelines {
+		err = fillPipelineDetail(p)
 		if err != nil {
 			return nil, 0, err
 		}
-		pipeline := parsePipeline(dbPipeline)
-		pipelines = append(pipelines, pipeline)
 	}
-
 	return pipelines, i, nil
 }
 
@@ -147,12 +142,11 @@ func GetPipeline(pipelineId uint64) (*models.Pipeline, errors.Error) {
 	if err != nil {
 		return nil, err
 	}
-	dbPipeline, err = decryptDbPipeline(dbPipeline)
+	err = fillPipelineDetail(dbPipeline)
 	if err != nil {
 		return nil, err
 	}
-	pipeline := parsePipeline(dbPipeline)
-	return pipeline, nil
+	return dbPipeline, nil
 }
 
 // GetPipelineLogsArchivePath creates an archive for the logs of this pipeline and returns its file path
@@ -182,7 +176,7 @@ func RunPipelineInQueue(pipelineMaxParallel int64) {
 			panic(err)
 		}
 		globalPipelineLog.Info("get lock and wait next pipeline")
-		dbPipeline := &models.DbPipeline{}
+		dbPipeline := &models.Pipeline{}
 		for {
 			cronLocker.Lock()
 			// prepare query to find an appropriate pipeline to execute
@@ -212,7 +206,7 @@ func RunPipelineInQueue(pipelineMaxParallel int64) {
 		}
 
 		// mark the pipeline running
-		err = db.UpdateColumns(&models.DbPipeline{}, []dal.DalSet{
+		err = db.UpdateColumns(&models.Pipeline{}, []dal.DalSet{
 			{ColumnName: "status", Value: models.TASK_RUNNING},
 			{ColumnName: "message", Value: ""},
 			{ColumnName: "began_at", Value: time.Now()},
@@ -221,17 +215,15 @@ func RunPipelineInQueue(pipelineMaxParallel int64) {
 			panic(err)
 		}
 
-		// load pipeline
-		dbPipeline, err = GetDbPipeline(dbPipeline.ID)
+		// add pipelineParallelLabels to runningParallelLabels
+		var pipelineParallelLabels []string
+		err = fillPipelineDetail(dbPipeline)
 		if err != nil {
 			panic(err)
 		}
-
-		// add pipelineParallelLabels to runningParallelLabels
-		var pipelineParallelLabels []string
 		for _, dbLabel := range dbPipeline.Labels {
-			if strings.HasPrefix(dbLabel.Name, `parallel/`) {
-				pipelineParallelLabels = append(pipelineParallelLabels, dbLabel.Name)
+			if strings.HasPrefix(dbLabel, `parallel/`) {
+				pipelineParallelLabels = append(pipelineParallelLabels, dbLabel)
 			}
 		}
 		runningParallelLabelLock.Lock()
@@ -262,7 +254,7 @@ func watchTemporalPipelines() {
 		// run forever
 		for range ticker.C {
 			// load all running pipeline from database
-			runningDbPipelines := make([]models.DbPipeline, 0)
+			runningDbPipelines := make([]models.Pipeline, 0)
 			err := db.All(&runningDbPipelines, dal.Where("status = ?", models.TASK_RUNNING))
 			if err != nil {
 				panic(err)
@@ -380,7 +372,7 @@ func CancelPipeline(pipelineId uint64) errors.Error {
 	// prevent RunPipelineInQueue from consuming pending pipelines
 	cronLocker.Lock()
 	defer cronLocker.Unlock()
-	pipeline := &models.DbPipeline{}
+	pipeline := &models.Pipeline{}
 	err := db.First(pipeline, dal.Where("id = ?", pipelineId))
 	if err != nil {
 		return errors.BadInput.New("pipeline not found")
@@ -516,7 +508,7 @@ func RerunPipeline(pipelineId uint64, task *models.Task) ([]*models.Task, errors
 	}
 
 	// mark pipline rerun
-	err = db.UpdateColumn(&models.DbPipeline{},
+	err = db.UpdateColumn(&models.Pipeline{},
 		"status", models.TASK_RERUN,
 		dal.Where("id = ?", pipelineId),
 	)

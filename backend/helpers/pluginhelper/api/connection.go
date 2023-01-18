@@ -41,8 +41,8 @@ type BaseConnection struct {
 
 // BasicAuth FIXME ...
 type BasicAuth struct {
-	Username string `mapstructure:"username" validate:"required" json:"username" encrypt:"yes"`
-	Password string `mapstructure:"password" validate:"required" json:"password"`
+	Username string `mapstructure:"username" validate:"required" json:"username"`
+	Password string `mapstructure:"password" validate:"required" json:"password" gorm:"serializer:encdec"`
 }
 
 // GetEncodedToken FIXME ...
@@ -52,7 +52,7 @@ func (ba BasicAuth) GetEncodedToken() string {
 
 // AccessToken FIXME ...
 type AccessToken struct {
-	Token string `mapstructure:"token" validate:"required" json:"token" encrypt:"yes"`
+	Token string `mapstructure:"token" validate:"required" json:"token" gorm:"serializer:encdec"`
 }
 
 // AppKey FIXME ...
@@ -132,25 +132,12 @@ func (c *ConnectionApiHelper) First(connection interface{}, params map[string]st
 
 // FirstById finds connection from db by id and decrypt it
 func (c *ConnectionApiHelper) FirstById(connection interface{}, id uint64) errors.Error {
-	err := c.db.First(connection, dal.Where("id = ?", id))
-	if err != nil {
-		return err
-	}
-	c.decrypt(connection)
-	return nil
+	return c.db.First(connection, dal.Where("id = ?", id))
 }
 
 // List returns all connections with password/token decrypted
 func (c *ConnectionApiHelper) List(connections interface{}) errors.Error {
-	err := c.db.All(connections)
-	if err != nil {
-		return err
-	}
-	conns := reflect.ValueOf(connections).Elem()
-	for i := 0; i < conns.Len(); i++ {
-		c.decrypt(conns.Index(i).Addr().Interface())
-	}
-	return nil
+	return c.db.All(connections)
 }
 
 // Delete connection
@@ -163,8 +150,6 @@ func (c *ConnectionApiHelper) merge(connection interface{}, body map[string]inte
 }
 
 func (c *ConnectionApiHelper) save(connection interface{}) errors.Error {
-	c.encrypt(connection)
-
 	err := c.db.CreateOrUpdate(connection)
 	if err != nil {
 		if strings.Contains(strings.ToLower(err.Error()), "duplicate") {
@@ -172,27 +157,7 @@ func (c *ConnectionApiHelper) save(connection interface{}) errors.Error {
 		}
 		return err
 	}
-
-	c.decrypt(connection)
 	return nil
-}
-
-func (c *ConnectionApiHelper) decrypt(connection interface{}) {
-	err := UpdateEncryptFields(connection, func(encrypted string) (string, errors.Error) {
-		return plugin.Decrypt(c.encKey, encrypted)
-	})
-	if err != nil {
-		c.log.Error(err, "failed to decrypt")
-	}
-}
-
-func (c *ConnectionApiHelper) encrypt(connection interface{}) {
-	err := UpdateEncryptFields(connection, func(plaintext string) (string, errors.Error) {
-		return plugin.Encrypt(c.encKey, plaintext)
-	})
-	if err != nil {
-		c.log.Error(err, "failed to encrypt")
-	}
 }
 
 // UpdateEncryptFields update fields of val with tag `encrypt:"yes|true"`

@@ -36,8 +36,6 @@ func MakePipelinePlan(subtaskMetas []plugin.SubTaskMeta, connectionId uint64, sc
 		}
 		taskOptions["connectionId"] = connectionId
 
-		//TODO Add transformation rules to task options
-
 		/*
 		   var transformationRules tasks.JiraTransformationRule
 		   if len(scopeElem.Transformation) > 0 {

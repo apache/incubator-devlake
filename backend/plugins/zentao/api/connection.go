@@ -27,7 +27,6 @@ import (
 	"net/http"
 )
 
-// TODO Please modify the following code to fit your needs
 func TestConnection(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, errors.Error) {
 	// process input
 	var params models.TestConnectionRequest
@@ -67,15 +66,15 @@ func TestConnection(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, 
 	return nil, nil
 }
 
-//TODO Please modify the folowing code to adapt to your plugin
 /*
 POST /plugins/Zentao/connections
-{
-	"name": "Zentao data connection name",
-	"endpoint": "Zentao api endpoint, i.e. https://example.com",
-	"username": "username, usually should be email address",
-	"password": "Zentao api access token"
-}
+
+	{
+		"name": "Zentao data connection name",
+		"endpoint": "Zentao api endpoint, i.e. https://example.com",
+		"username": "username, usually should be email address",
+		"password": "Zentao api access token"
+	}
 */
 func PostConnections(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, errors.Error) {
 	// update from request and save to database
@@ -87,15 +86,15 @@ func PostConnections(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput,
 	return &plugin.ApiResourceOutput{Body: connection, Status: http.StatusOK}, nil
 }
 
-//TODO Please modify the folowing code to adapt to your plugin
 /*
 PATCH /plugins/Zentao/connections/:connectionId
-{
-	"name": "Zentao data connection name",
-	"endpoint": "Zentao api endpoint, i.e. https://example.com",
-	"username": "username, usually should be email address",
-	"password": "Zentao api access token"
-}
+
+	{
+		"name": "Zentao data connection name",
+		"endpoint": "Zentao api endpoint, i.e. https://example.com",
+		"username": "username, usually should be email address",
+		"password": "Zentao api access token"
+	}
 */
 func PatchConnection(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, errors.Error) {
 	connection := &models.ZentaoConnection{}
@@ -131,15 +130,15 @@ func ListConnections(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput,
 	return &plugin.ApiResourceOutput{Body: connections, Status: http.StatusOK}, nil
 }
 
-//TODO Please modify the folowing code to adapt to your plugin
 /*
 GET /plugins/Zentao/connections/:connectionId
-{
-	"name": "Zentao data connection name",
-	"endpoint": "Zentao api endpoint, i.e. https://merico.atlassian.net/rest",
-	"username": "username, usually should be email address",
-	"password": "Zentao api access token"
-}
+
+	{
+		"name": "Zentao data connection name",
+		"endpoint": "Zentao api endpoint, i.e. https://merico.atlassian.net/rest",
+		"username": "username, usually should be email address",
+		"password": "Zentao api access token"
+	}
 */
 func GetConnection(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, errors.Error) {
 	connection := &models.ZentaoConnection{}

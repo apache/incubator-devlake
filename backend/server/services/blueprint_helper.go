@@ -19,33 +19,35 @@ package services
 
 import (
 	"fmt"
-	"github.com/apache/incubator-devlake/core/config"
 	"github.com/apache/incubator-devlake/core/dal"
 	"github.com/apache/incubator-devlake/core/errors"
 	"github.com/apache/incubator-devlake/core/models"
-	"github.com/apache/incubator-devlake/core/plugin"
 )
 
 // SaveDbBlueprint accepts a Blueprint instance and upsert it to database
-func SaveDbBlueprint(dbBlueprint *models.DbBlueprint) errors.Error {
+func SaveDbBlueprint(blueprint *models.Blueprint) errors.Error {
 	var err error
-	if dbBlueprint.ID != 0 {
-		err = db.Update(&dbBlueprint)
+	if blueprint.ID != 0 {
+		err = db.Update(&blueprint)
 	} else {
-		err = db.Create(&dbBlueprint)
+		err = db.Create(&blueprint)
 	}
 	if err != nil {
 		return errors.Default.Wrap(err, "error creating DB blueprint")
 	}
-	err = db.Delete(&models.DbBlueprintLabel{}, dal.Where(`blueprint_id = ?`, dbBlueprint.ID))
+	err = db.Delete(&models.DbBlueprintLabel{}, dal.Where(`blueprint_id = ?`, blueprint.ID))
 	if err != nil {
 		return errors.Default.Wrap(err, "error delete DB blueprint's old labelModels")
 	}
-	if len(dbBlueprint.Labels) > 0 {
-		for i := range dbBlueprint.Labels {
-			dbBlueprint.Labels[i].BlueprintId = dbBlueprint.ID
+	if len(blueprint.Labels) > 0 {
+		blueprintLabels := make([]*models.DbBlueprintLabel, 0)
+		for i := range blueprint.Labels {
+			blueprintLabels = append(blueprintLabels, &models.DbBlueprintLabel{
+				BlueprintId: blueprint.ID,
+				Name:        blueprint.Labels[i],
+			})
 		}
-		err = db.Create(&dbBlueprint.Labels)
+		err = db.Create(&blueprintLabels)
 		if err != nil {
 			return errors.Default.Wrap(err, "error creating DB blueprint's labelModels")
 		}
@@ -54,9 +56,9 @@ func SaveDbBlueprint(dbBlueprint *models.DbBlueprint) errors.Error {
 }
 
 // GetDbBlueprints returns a paginated list of Blueprints based on `query`
-func GetDbBlueprints(query *BlueprintQuery) ([]*models.DbBlueprint, int64, errors.Error) {
+func GetDbBlueprints(query *BlueprintQuery) ([]*models.Blueprint, int64, errors.Error) {
 	// process query parameters
-	clauses := []dal.Clause{dal.From(&models.DbBlueprint{})}
+	clauses := []dal.Clause{dal.From(&models.Blueprint{})}
 	if query.Enable != nil {
 		clauses = append(clauses, dal.Where("enable = ?", *query.Enable))
 	}
@@ -82,7 +84,7 @@ func GetDbBlueprints(query *BlueprintQuery) ([]*models.DbBlueprint, int64, error
 		dal.Offset(query.GetSkip()),
 		dal.Limit(query.GetPageSize()),
 	)
-	dbBlueprints := make([]*models.DbBlueprint, 0)
+	dbBlueprints := make([]*models.Blueprint, 0)
 	err = db.All(&dbBlueprints, clauses...)
 	if err != nil {
 		return nil, 0, errors.Default.Wrap(err, "error getting DB count of blueprints")
@@ -100,25 +102,25 @@ func GetDbBlueprints(query *BlueprintQuery) ([]*models.DbBlueprint, int64, error
 }
 
 // GetDbBlueprint returns the detail of a given Blueprint ID
-func GetDbBlueprint(dbBlueprintId uint64) (*models.DbBlueprint, errors.Error) {
-	dbBlueprint := &models.DbBlueprint{}
-	err := db.First(dbBlueprint, dal.Where("id = ?", dbBlueprintId))
+func GetDbBlueprint(blueprintId uint64) (*models.Blueprint, errors.Error) {
+	blueprint := &models.Blueprint{}
+	err := db.First(blueprint, dal.Where("id = ?", blueprintId))
 	if err != nil {
 		if db.IsErrorNotFound(err) {
 			return nil, errors.NotFound.Wrap(err, "could not find blueprint in DB")
 		}
 		return nil, errors.Default.Wrap(err, "error getting blueprint from DB")
 	}
-	err = fillBlueprintDetail(dbBlueprint)
+	err = fillBlueprintDetail(blueprint)
 	if err != nil {
 		return nil, err
 	}
-	return dbBlueprint, nil
+	return blueprint, nil
 }
 
 // GetDbBlueprintByProjectName returns the detail of a given projectName
-func GetDbBlueprintByProjectName(projectName string) (*models.DbBlueprint, errors.Error) {
-	dbBlueprint := &models.DbBlueprint{}
+func GetDbBlueprintByProjectName(projectName string) (*models.Blueprint, errors.Error) {
+	dbBlueprint := &models.Blueprint{}
 	err := db.First(dbBlueprint, dal.Where("project_name = ?", projectName))
 	if err != nil {
 		if db.IsErrorNotFound(err) {
@@ -133,90 +135,8 @@ func GetDbBlueprintByProjectName(projectName string) (*models.DbBlueprint, error
 	return dbBlueprint, nil
 }
 
-// parseBlueprint
-func parseBlueprint(dbBlueprint *models.DbBlueprint) *models.Blueprint {
-	labelList := []string{}
-	for _, labelModel := range dbBlueprint.Labels {
-		labelList = append(labelList, labelModel.Name)
-	}
-	blueprint := models.Blueprint{
-		Name:        dbBlueprint.Name,
-		ProjectName: dbBlueprint.ProjectName,
-		Mode:        dbBlueprint.Mode,
-		Plan:        []byte(dbBlueprint.Plan),
-		Enable:      dbBlueprint.Enable,
-		CronConfig:  dbBlueprint.CronConfig,
-		IsManual:    dbBlueprint.IsManual,
-		SkipOnFail:  dbBlueprint.SkipOnFail,
-		Settings:    []byte(dbBlueprint.Settings),
-		Model:       dbBlueprint.Model,
-		Labels:      labelList,
-	}
-	if len(blueprint.Settings) == 0 {
-		blueprint.Settings = nil
-	}
-	return &blueprint
-}
-
-// parseDbBlueprint
-func parseDbBlueprint(blueprint *models.Blueprint) *models.DbBlueprint {
-	dbBlueprint := models.DbBlueprint{
-		Name:        blueprint.Name,
-		ProjectName: blueprint.ProjectName,
-		Mode:        blueprint.Mode,
-		Plan:        string(blueprint.Plan),
-		Enable:      blueprint.Enable,
-		CronConfig:  blueprint.CronConfig,
-		IsManual:    blueprint.IsManual,
-		SkipOnFail:  blueprint.SkipOnFail,
-		Settings:    string(blueprint.Settings),
-		Model:       blueprint.Model,
-	}
-	dbBlueprint.Labels = []models.DbBlueprintLabel{}
-	for _, label := range blueprint.Labels {
-		dbBlueprint.Labels = append(dbBlueprint.Labels, models.DbBlueprintLabel{
-			// NOTICE: BlueprintId may be nil
-			BlueprintId: blueprint.ID,
-			Name:        label,
-		})
-	}
-	return &dbBlueprint
-}
-
-// encryptDbBlueprint
-func encryptDbBlueprint(dbBlueprint *models.DbBlueprint) (*models.DbBlueprint, errors.Error) {
-	encKey := config.GetConfig().GetString(plugin.EncodeKeyEnvStr)
-	planEncrypt, err := plugin.Encrypt(encKey, dbBlueprint.Plan)
-	if err != nil {
-		return nil, err
-	}
-	dbBlueprint.Plan = planEncrypt
-	settingsEncrypt, err := plugin.Encrypt(encKey, dbBlueprint.Settings)
-	dbBlueprint.Settings = settingsEncrypt
-	if err != nil {
-		return nil, err
-	}
-	return dbBlueprint, nil
-}
-
-// decryptDbBlueprint
-func decryptDbBlueprint(dbBlueprint *models.DbBlueprint) (*models.DbBlueprint, errors.Error) {
-	encKey := config.GetConfig().GetString(plugin.EncodeKeyEnvStr)
-	plan, err := plugin.Decrypt(encKey, dbBlueprint.Plan)
-	if err != nil {
-		return nil, err
-	}
-	dbBlueprint.Plan = plan
-	settings, err := plugin.Decrypt(encKey, dbBlueprint.Settings)
-	dbBlueprint.Settings = settings
-	if err != nil {
-		return nil, err
-	}
-	return dbBlueprint, nil
-}
-
-func fillBlueprintDetail(blueprint *models.DbBlueprint) errors.Error {
-	err := db.All(&blueprint.Labels, dal.Where("blueprint_id = ?", blueprint.ID))
+func fillBlueprintDetail(blueprint *models.Blueprint) errors.Error {
+	err := db.Pluck("name", &blueprint.Labels, dal.From(&models.DbBlueprintLabel{}), dal.Where("blueprint_id = ?", blueprint.ID))
 	if err != nil {
 		return errors.Internal.Wrap(err, "error getting the blueprint labels from database")
 	}

@@ -26,7 +26,6 @@ type SonarqubeApiParams struct {
 }
 
 type SonarqubeOptions struct {
-	// TODO add some custom options here if necessary
 	// options means some custom params required by plugin running.
 	// Such As How many rows do your want
 	// You can use it in sub tasks and you need pass it in main.go and pipelines.

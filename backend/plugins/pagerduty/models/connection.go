@@ -21,7 +21,6 @@ import (
 	helper "github.com/apache/incubator-devlake/helpers/pluginhelper/api"
 )
 
-// TODO Please modify the following code to fit your needs
 // This object conforms to what the frontend currently sends.
 type PagerDutyConnection struct {
 	helper.BaseConnection `mapstructure:",squash"`

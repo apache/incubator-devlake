@@ -21,12 +21,10 @@ import (
 	helper "github.com/apache/incubator-devlake/helpers/pluginhelper/api"
 )
 
-// TODO Please modify the following code to fit your needs
 // This object conforms to what the frontend currently sends.
 type ZentaoConnection struct {
 	helper.RestConnection `mapstructure:",squash"`
-	//TODO you may need to use api.BasicAuth instead of api.AccessToken
-	helper.BasicAuth `mapstructure:",squash"`
+	helper.BasicAuth      `mapstructure:",squash"`
 }
 
 type TestConnectionRequest struct {

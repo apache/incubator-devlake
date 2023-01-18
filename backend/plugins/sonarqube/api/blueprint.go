@@ -35,9 +35,6 @@ func MakePipelinePlan(subtaskMetas []plugin.SubTaskMeta, connectionId uint64, sc
 			return nil, errors.Default.Wrap(err, "error unmarshalling task options")
 		}
 		taskOptions["connectionId"] = connectionId
-
-		//TODO Add transformation rules to task options
-
 		/*
 		   var transformationRules tasks.TransformationRules
 		   if len(scopeElem.Transformation) > 0 {

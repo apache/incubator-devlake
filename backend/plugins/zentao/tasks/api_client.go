@@ -33,7 +33,6 @@ func NewZentaoApiClient(taskCtx plugin.TaskContext, connection *models.ZentaoCon
 	if err != nil {
 		return nil, err
 	}
-
 	// request for access token
 	tokenReqBody := &models.ApiAccessTokenRequest{
 		Account:  connection.Username,
@@ -60,7 +59,6 @@ func NewZentaoApiClient(taskCtx plugin.TaskContext, connection *models.ZentaoCon
 	apiClient.SetHeaders(map[string]string{
 		"Token": fmt.Sprintf("%v", tokenResBody.Token),
 	})
-
 	// create rate limit calculator
 	rateLimiter := &api.ApiRateLimitCalculator{
 		UserRateLimitPerHour: connection.RateLimitPerHour,

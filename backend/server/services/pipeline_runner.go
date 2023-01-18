@@ -148,7 +148,7 @@ func runPipeline(pipelineId uint64) errors.Error {
 // 1. TASK_COMPLETED: all tasks were executed sucessfully
 // 2. TASK_FAILED: SkipOnFail=false with failed task(s)
 // 3. TASK_PARTIAL: SkipOnFail=true with failed task(s)
-func ComputePipelineStatus(pipeline *models.DbPipeline, isCancelled bool) (string, errors.Error) {
+func ComputePipelineStatus(pipeline *models.Pipeline, isCancelled bool) (string, errors.Error) {
 	tasks, err := GetLatestTasksOfPipeline(pipeline)
 	if err != nil {
 		return "", err
@@ -182,7 +182,7 @@ func ComputePipelineStatus(pipeline *models.DbPipeline, isCancelled bool) (strin
 }
 
 // GetLatestTasksOfPipeline returns latest tasks (reran tasks are excluding) of specified pipeline
-func GetLatestTasksOfPipeline(pipeline *models.DbPipeline) ([]*models.Task, errors.Error) {
+func GetLatestTasksOfPipeline(pipeline *models.Pipeline) ([]*models.Task, errors.Error) {
 	task := &models.Task{}
 	cursor, err := db.Cursor(
 		dal.From(task),

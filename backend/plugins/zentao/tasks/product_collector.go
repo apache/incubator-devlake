@@ -45,8 +45,7 @@ func CollectProduct(taskCtx plugin.SubTaskContext) errors.Error {
 			},
 			Table: RAW_PRODUCT_TABLE,
 		},
-		ApiClient: data.ApiClient,
-		// TODO write which api would you want request
+		ApiClient:   data.ApiClient,
 		UrlTemplate: "products/{{ .Params.ProductId }}",
 		Query: func(reqData *api.RequestData) (url.Values, errors.Error) {
 			query := url.Values{}
@@ -66,7 +65,6 @@ func CollectProduct(taskCtx plugin.SubTaskContext) errors.Error {
 	if err != nil {
 		return err
 	}
-
 	return collector.Execute()
 }
 

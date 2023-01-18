@@ -80,7 +80,6 @@ func (p Dora) Settings() interface{} {
 }
 
 func (p Dora) SubTaskMetas() []plugin.SubTaskMeta {
-	// TODO add your sub task here
 	return []plugin.SubTaskMeta{
 		tasks.EnrichTaskEnvMeta,
 		tasks.CalculateChangeLeadTimeMeta,

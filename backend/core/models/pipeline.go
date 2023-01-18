@@ -18,30 +18,29 @@ limitations under the License.
 package models
 
 import (
+	"encoding/json"
 	"time"
 
 	"github.com/apache/incubator-devlake/core/models/common"
 	"github.com/apache/incubator-devlake/core/plugin"
-
-	"gorm.io/datatypes"
 )
 
 type Pipeline struct {
 	common.Model
-	Name          string         `json:"name" gorm:"index"`
-	BlueprintId   uint64         `json:"blueprintId"`
-	Plan          datatypes.JSON `json:"plan"`
-	TotalTasks    int            `json:"totalTasks"`
-	FinishedTasks int            `json:"finishedTasks"`
-	BeganAt       *time.Time     `json:"beganAt"`
-	FinishedAt    *time.Time     `json:"finishedAt" gorm:"index"`
-	Status        string         `json:"status"`
-	Message       string         `json:"message"`
-	ErrorName     string         `json:"errorName"`
-	SpentSeconds  int            `json:"spentSeconds"`
-	Stage         int            `json:"stage"`
-	Labels        []string       `json:"labels"`
-	SkipOnFail    bool           `json:"skipOnFail"`
+	Name          string          `json:"name" gorm:"index"`
+	BlueprintId   uint64          `json:"blueprintId"`
+	Plan          json.RawMessage `json:"plan" gorm:"serializer:encdec"`
+	TotalTasks    int             `json:"totalTasks"`
+	FinishedTasks int             `json:"finishedTasks"`
+	BeganAt       *time.Time      `json:"beganAt"`
+	FinishedAt    *time.Time      `json:"finishedAt" gorm:"index"`
+	Status        string          `json:"status"`
+	Message       string          `json:"message"`
+	ErrorName     string          `json:"errorName"`
+	SpentSeconds  int             `json:"spentSeconds"`
+	Stage         int             `json:"stage"`
+	Labels        []string        `json:"labels" gorm:"-"`
+	SkipOnFail    bool            `json:"skipOnFail"`
 }
 
 // We use a 2D array because the request body must be an array of a set of tasks
@@ -54,26 +53,7 @@ type NewPipeline struct {
 	BlueprintId uint64
 }
 
-type DbPipeline struct {
-	common.Model
-	Name          string     `json:"name" gorm:"index"`
-	BlueprintId   uint64     `json:"blueprintId"`
-	Plan          string     `json:"plan" encrypt:"yes"`
-	TotalTasks    int        `json:"totalTasks"`
-	FinishedTasks int        `json:"finishedTasks"`
-	BeganAt       *time.Time `json:"beganAt"`
-	FinishedAt    *time.Time `json:"finishedAt" gorm:"index"`
-	Status        string     `json:"status"`
-	Message       string     `json:"message"`
-	ErrorName     string     `json:"errorName"`
-	SpentSeconds  int        `json:"spentSeconds"`
-	Stage         int        `json:"stage"`
-	SkipOnFail    bool       `json:"skipOnFail"`
-
-	Labels []DbPipelineLabel `json:"-" gorm:"-"`
-}
-
-func (DbPipeline) TableName() string {
+func (Pipeline) TableName() string {
 	return "_devlake_pipelines"
 }
 
