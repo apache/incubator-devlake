@@ -114,10 +114,6 @@ func CreatePipeline(newPipeline *models.NewPipeline) (*models.Pipeline, errors.E
 	if err != nil {
 		return nil, errors.Convert(err)
 	}
-	err = fillPipelineDetail(pipeline)
-	if err != nil {
-		return nil, errors.Convert(err)
-	}
 	return pipeline, nil
 }
 
