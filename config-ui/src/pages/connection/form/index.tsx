@@ -18,7 +18,7 @@
 
 import React, { useState, useEffect, useMemo } from 'react';
 import { useParams, useHistory } from 'react-router-dom';
-import { pick } from 'lodash';
+import { omit, pick } from 'lodash';
 import { FormGroup, InputGroup, Switch, ButtonGroup, Button, Icon, Intent, Position } from '@blueprintjs/core';
 import { Tooltip2 } from '@blueprintjs/popover2';
 
@@ -46,6 +46,7 @@ export const ConnectionFormPage = () => {
     setForm({
       ...form,
       ...(connection ?? {}),
+      ...(omit(initialValues, 'rateLimitPerHour') ?? {}),
     });
   }, [initialValues, connection]);
 
@@ -104,7 +105,7 @@ export const ConnectionFormPage = () => {
         {type === 'switch' && (
           <S.SwitchWrapper>
             <Switch
-              checked={form[key] ?? initialValues?.[key] ?? false}
+              checked={form[key] ?? false}
               onChange={(e) =>
                 setForm({
                   ...form,
