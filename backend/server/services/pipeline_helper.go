@@ -75,7 +75,7 @@ func CreateDbPipeline(newPipeline *models.NewPipeline) (*models.Pipeline, errors
 			Name:       label,
 		})
 	}
-	if len(dbPipeline.Labels) > 0 {
+	if len(newPipeline.Labels) > 0 {
 		if err := db.Create(&labels); err != nil {
 			globalPipelineLog.Error(err, "create pipeline's labelModels failed: %v", err)
 			return nil, errors.Internal.Wrap(err, "create pipeline's labelModels failed")
