@@ -115,7 +115,7 @@ func CreateDbPipeline(newPipeline *models.NewPipeline) (*models.Pipeline, errors
 		globalPipelineLog.Error(err, "update pipline state failed: %v", err)
 		return nil, errors.Internal.Wrap(err, "update pipline state failed")
 	}
-
+	dbPipeline.Labels = newPipeline.Labels
 	return dbPipeline, nil
 }
 
