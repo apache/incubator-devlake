@@ -27,6 +27,7 @@ import { GitLabTransformation } from '@/plugins/register/gitlab';
 import { JenkinsTransformation } from '@/plugins/register/jenkins';
 
 import type { TransformationType, RuleItem } from './types';
+import { TIPS_MAP } from './misc';
 import type { UseTransformationProps } from './use-transformation';
 import { useTransformation } from './use-transformation';
 import * as S from './styled';
@@ -59,13 +60,12 @@ export const Transformation = ({ from, plugin, connectionId, onCancel, ...props 
 
   return (
     <S.Wrapper>
-      <div className="tips">
-        To learn about how GitHub transformation is used in DevLake,
-        <ExternalLink link="https://devlake.apache.org/docs/UserManuals/ConfigUI/GitHub#step-3---adding-transformation-rules-optional">
-          check out this doc
-        </ExternalLink>
-        .
-      </div>
+      {TIPS_MAP[plugin] && (
+        <div className="tips">
+          To learn about how {TIPS_MAP[plugin].name} transformation is used in DevLake,
+          <ExternalLink link={TIPS_MAP[plugin].link}>check out this doc</ExternalLink>.
+        </div>
+      )}
 
       <div className="block">
         <RadioGroup selectedValue={type} onChange={handleChangeType}>

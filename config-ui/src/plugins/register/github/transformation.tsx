@@ -26,7 +26,6 @@ import {
   Radio,
   Icon,
   Collapse,
-  Checkbox,
   Intent,
   Colors,
 } from '@blueprintjs/core';
