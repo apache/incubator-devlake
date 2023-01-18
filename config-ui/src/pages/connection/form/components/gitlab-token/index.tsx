@@ -21,12 +21,11 @@ import { InputGroup } from '@blueprintjs/core';
 
 interface Props {
   placeholder?: string;
-  initialValue?: string;
   value?: string;
   onChange?: (value: string) => void;
 }
 
-export const GitLabToken = ({ placeholder, initialValue, value, onChange }: Props) => {
+export const GitLabToken = ({ placeholder, value, onChange }: Props) => {
   const handleChangeValue = (e: React.ChangeEvent<HTMLInputElement>) => {
     onChange?.(e.target.value);
   };
@@ -42,12 +41,7 @@ export const GitLabToken = ({ placeholder, initialValue, value, onChange }: Prop
           Learn about how to create a personal access token
         </a>
       </p>
-      <InputGroup
-        placeholder={placeholder}
-        type="password"
-        value={value ?? initialValue}
-        onChange={handleChangeValue}
-      />
+      <InputGroup placeholder={placeholder} type="password" value={value} onChange={handleChangeValue} />
     </div>
   );
 };

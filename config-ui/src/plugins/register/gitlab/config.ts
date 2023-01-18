@@ -35,20 +35,21 @@ export const GitLabConfig: PluginConfigType = {
   name: 'GitLab',
   icon: Icon,
   connection: {
+    initialValues: {
+      name: 'GitLab',
+      endpoint: 'https://gitlab.com/api/v4/',
+      rateLimitPerHour: 5000,
+    },
     fields: [
       ConnectionName({
-        initialValue: 'GitLab',
         placeholder: 'eg. GitLab',
       }),
       ConnectionEndpoint({
-        initialValue: 'https://gitlab.com/api/v4/',
         placeholder: 'eg. https://gitlab.com/api/v4/',
       }),
       ConnectionGitLabToken(),
       ConnectionProxy(),
-      ConnectionRatelimit({
-        initialValue: 5000,
-      }),
+      ConnectionRatelimit(),
     ],
   },
   entities: ['CODE', 'TICKET', 'CODEREVIEW', 'CROSS', 'CICD'],

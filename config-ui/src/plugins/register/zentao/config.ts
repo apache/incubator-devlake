@@ -37,21 +37,22 @@ export const ZenTaoConfig: PluginConfigType = {
   isBeta: true,
   icon: Icon,
   connection: {
+    initialValues: {
+      name: 'ZenTao',
+      endpoint: 'https://your-domain:port/api.php/v1/',
+      rateLimitPerHour: 10000,
+    },
     fields: [
       ConnectionName({
-        initialValue: 'ZenTao',
         placeholder: 'eg. ZenTao',
       }),
       ConnectionEndpoint({
-        initialValue: 'https://your-domain:port/api.php/v1/',
         placeholder: 'eg. https://your-domain:port/api.php/v1/',
       }),
       ConnectionUsername(),
       ConnectionPassword(),
       ConnectionProxy(),
-      ConnectionRatelimit({
-        initialValue: 10000,
-      }),
+      ConnectionRatelimit(),
     ],
   },
   entities: ['TICKET'],

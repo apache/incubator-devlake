@@ -36,21 +36,23 @@ export const GitHubConfig: PluginConfigType = {
   name: 'GitHub',
   icon: Icon,
   connection: {
+    initialValues: {
+      name: 'GitHub',
+      endpoint: 'https://api.github.com/',
+      enableGraphql: true,
+      rateLimitPerHour: 4500,
+    },
     fields: [
       ConnectionName({
-        initialValue: 'GitHub',
         placeholder: 'eg. GitHub',
       }),
       ConnectionEndpoint({
-        initialValue: 'https://api.github.com/',
         placeholder: 'eg. https://api.github.com/',
       }),
       ConnectionGitHubToken(),
       ConnectionGitHubGraphql(),
       ConnectionProxy(),
-      ConnectionRatelimit({
-        initialValue: 4500,
-      }),
+      ConnectionRatelimit(),
     ],
   },
   entities: ['CODE', 'TICKET', 'CODEREVIEW', 'CROSS', 'CICD'],

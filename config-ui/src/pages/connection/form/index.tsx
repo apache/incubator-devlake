@@ -18,7 +18,7 @@
 
 import React, { useState, useEffect, useMemo } from 'react';
 import { useParams, useHistory } from 'react-router-dom';
-import { pick } from 'lodash';
+import { omit, pick } from 'lodash';
 import { FormGroup, InputGroup, Switch, ButtonGroup, Button, Icon, Intent, Position } from '@blueprintjs/core';
 import { Tooltip2 } from '@blueprintjs/popover2';
 
@@ -39,15 +39,16 @@ export const ConnectionFormPage = () => {
 
   const {
     name,
-    connection: { fields },
+    connection: { initialValues, fields },
   } = useMemo(() => PluginConfig.find((p) => p.plugin === plugin) as PluginConfigConnectionType, [plugin]);
 
   useEffect(() => {
     setForm({
       ...form,
+      ...omit(initialValues, 'rateLimitPerHour'),
       ...(connection ?? {}),
     });
-  }, [connection]);
+  }, [initialValues, connection]);
 
   const error = useMemo(
     () => !!(fields.filter((field) => field.required) ?? []).find((field) => !form[field.key]),
@@ -68,7 +69,6 @@ export const ConnectionFormPage = () => {
     required,
     placeholder,
     tooltip,
-    initialValue,
   }: PluginConfigConnectionType['connection']['fields']['0']) => {
     return (
       <FormGroup
@@ -90,7 +90,7 @@ export const ConnectionFormPage = () => {
         {type === 'text' && (
           <InputGroup
             placeholder={placeholder}
-            value={form[key] ?? initialValue ?? ''}
+            value={form[key] ?? ''}
             onChange={(e) => setForm({ ...form, [`${key}`]: e.target.value })}
           />
         )}
@@ -105,7 +105,7 @@ export const ConnectionFormPage = () => {
         {type === 'switch' && (
           <S.SwitchWrapper>
             <Switch
-              checked={form[key] ?? initialValue ?? false}
+              checked={form[key] ?? false}
               onChange={(e) =>
                 setForm({
                   ...form,
@@ -117,7 +117,7 @@ export const ConnectionFormPage = () => {
         )}
         {type === 'rateLimit' && (
           <RateLimit
-            initialValue={initialValue}
+            initialValue={initialValues?.['rateLimitPerHour']}
             value={form.rateLimitPerHour}
             onChange={(value) =>
               setForm({
@@ -142,7 +142,6 @@ export const ConnectionFormPage = () => {
         {type === 'gitlabToken' && (
           <GitLabToken
             placeholder={placeholder}
-            initialValue={initialValue}
             value={form.token}
             onChange={(value) =>
               setForm({
