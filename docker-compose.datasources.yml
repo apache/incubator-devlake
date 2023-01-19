@@ -1,0 +1,100 @@
+# Licensed to the Apache Software Foundation (ASF) under one or more
+# contributor license agreements.  See the NOTICE file distributed with
+# this work for additional information regarding copyright ownership.
+# The ASF licenses this file to You under the Apache License, Version 2.0
+# (the "License"); you may not use this file except in compliance with
+# the License.  You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+#
+
+# This compose file is provided with the purposes of locally testing datasources that can be Dockerized.
+
+version: "3"
+services:
+
+  mysql-ds:
+    image: mysql:8
+    volumes:
+      - ./.docker/mysql-ds:/var/lib/mysql
+      # init.sql only runs on bootstrap. If you want to manually add the extra databases, run the SQL statements in the init.sql as MySQL root user
+      - ./backend/scripts/docker/mysql/init-ds.sql:/docker-entrypoint-initdb.d/init-ds.sql:ro
+    restart: always
+    ports:
+      - "3406:3306"
+    environment:
+      MYSQL_ROOT_PASSWORD: admin
+      MYSQL_USER: merico
+      MYSQL_PASSWORD: merico
+
+  jenkins:
+    image: jenkins/jenkins:2.387
+    privileged: true
+    user: root
+    ports:
+      - "8099:8080" # the UI
+      - "50000:50000"
+    container_name: jenkins
+    volumes:
+      - ./.docker/jenkins:/var/jenkins_home
+
+  # see https://developer.atlassian.com/platform/marketplace/timebomb-licenses-for-testing-server-apps/ for temporary test licenses
+  jira:
+    image: atlassian/jira-software:9.5.0
+    volumes:
+      - ./.docker/jira:/var/atlassian/jira
+      #download this jar from https://dev.mysql.com/downloads/connector/j/8.0.html if needed
+      - ./.docker/mysql-connector-j-8.0.32.jar:/opt/atlassian/jira/lib/mysql-connector-j-8.0.32.jar
+    ports:
+      - '8090:8080' # the UI
+    environment:
+      JIRA_DATABASE_URL: 'mysql://merico:merico@mysql-ds:3306/jira?autoReconnect=true&useSSL=false'
+      JIRA_DB_PASSWORD: merico
+      JVM_RESERVED_CODE_CACHE_SIZE: 1024m
+      SETENV_JVM_MINIMUM_MEMORY: 2048m
+      SETENV_JVM_MAXIMUM_MEMORY: 4096m
+#      JIRA_PROXY_NAME:
+#      JIRA_PROXY_PORT:
+#      JIRA_PROXY_SCHEME:
+    logging:
+      # limit logs retained on host to 25MB
+      driver: "json-file"
+      options:
+        max-size: "500k"
+        max-file: "50"
+    depends_on:
+      - mysql-ds
+
+  # see https://developer.atlassian.com/platform/marketplace/timebomb-licenses-for-testing-server-apps/ for temporary test licenses
+  bitbucket:
+    image: atlassian/bitbucket-server:8.7.0
+    ports:
+      - "7990:7990" # the UI
+      - "7999:7999"
+    environment:
+#      SERVER_PROXY_NAME:
+#      SERVER_PROXY_PORT:
+      SERVER_SCHEME: http
+      SERVER_SECURE: false
+      JVM_MINIMUM_MEMORY: 512m
+      JVM_MAXIMUM_MEMORY: 1024m
+#      JVM_SUPPORTED_RECOMMENDED_ARGS: NONE
+      SEARCH_ENABLED: true
+      APPLICATION_MODE: default
+      JDBC_DRIVER: com.mysql.cj.jdbc.Driver
+      JDBC_URL: 'jdbc:mysql://merico:merico@mysql-ds:3306/bitbucket?allowPublicKeyRetrieval=true&autoReconnect=true&useSSL=false'
+      JDBC_USER: merico
+      JDBC_PASSWORD: merico
+    volumes:
+      #download this jar from https://dev.mysql.com/downloads/connector/j/8.0.html if needed
+      - ./.docker/mysql-connector-j-8.0.32.jar:/var/atlassian/application-data/bitbucket/lib/mysql-connector-j-8.0.32.jar
+      - ./.docker/bitbucket/lib/native:/var/atlassian/application-data/bitbucket/lib/native
+      - ./.docker/bitbucket:/var/atlassian/application-data/bitbucket
+    depends_on:
+      - mysql-ds
