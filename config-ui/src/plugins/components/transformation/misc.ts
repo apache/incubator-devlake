@@ -16,30 +16,13 @@
  *
  */
 
-import React from 'react';
-import { InputGroup } from '@blueprintjs/core';
-
-interface Props {
-  transformation: any;
-  setTransformation: React.Dispatch<any>;
-}
-
-export const AdditionalSettings = ({ transformation, setTransformation }: Props) => {
-  return (
-    <>
-      <h3>Additional Settings</h3>
-      <p> Issue Weblink Commit SHA Pattern(Add weblink to jira for gitlab.)</p>
-      <InputGroup
-        fill
-        placeholder="/commit/([0-9a-f]{40})$"
-        value={transformation.remotelinkCommitShaPattern ?? ''}
-        onChange={(e) =>
-          setTransformation({
-            ...transformation,
-            remotelinkCommitShaPattern: e.target.value,
-          })
-        }
-      />
-    </>
-  );
+export const TIPS_MAP: Record<string, { name: string; link: string }> = {
+  github: {
+    name: 'GitHub',
+    link: 'https://devlake.apache.org/docs/UserManuals/ConfigUI/GitHub#step-3---adding-transformation-rules-optional',
+  },
+  jira: {
+    name: 'JIRA',
+    link: 'https://devlake.apache.org/docs/UserManuals/ConfigUI/Jira#step-3---adding-transformation-rules-optional',
+  },
 };

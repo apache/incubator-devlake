@@ -16,6 +16,7 @@
  *
  */
 
-export * from './user-proxy-prefix';
 export * from './use-auto-refresh';
 export * from './use-operator';
+export * from './use-refresh-data';
+export * from './user-proxy-prefix';
