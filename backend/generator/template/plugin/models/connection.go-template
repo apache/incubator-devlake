@@ -17,7 +17,7 @@ limitations under the License.
 
 package models
 
-import "github.com/apache/incubator-devlake/plugins/helper"
+import helper "github.com/apache/incubator-devlake/helpers/pluginhelper/api"
 
 //TODO Please modify the following code to fit your needs
 // This object conforms to what the frontend currently sends.

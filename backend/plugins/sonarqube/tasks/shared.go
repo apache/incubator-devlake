@@ -15,23 +15,27 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-package api
+package tasks
 
 import (
-	core "github.com/apache/incubator-devlake/core/plugin"
-	helper "github.com/apache/incubator-devlake/helpers/pluginhelper/api"
-	"github.com/go-playground/validator/v10"
+	"github.com/apache/incubator-devlake/core/plugin"
+	"github.com/apache/incubator-devlake/helpers/pluginhelper/api"
 )
 
-var vld *validator.Validate
-var connectionHelper *helper.ConnectionApiHelper
-var basicRes context.BasicRes
-
-func Init(br context.BasicRes) {
-	basicRes = br
-	vld = validator.New()
-	connectionHelper = helper.NewConnectionHelper(
-		basicRes,
-		vld,
-	)
+func CreateRawDataSubTaskArgs(taskCtx plugin.SubTaskContext, rawTable string) (*api.RawDataSubTaskArgs, *SonarqubeTaskData) {
+	data := taskCtx.GetData().(*SonarqubeTaskData)
+	filteredData := *data
+	filteredData.Options = &SonarqubeOptions{}
+	*filteredData.Options = *data.Options
+	var params = SonarqubeApiParams{
+		ConnectionId: data.Options.ConnectionId,
+		ProjectKey:   data.Options.ProjectKey,
+		HotspotKey:   data.Options.HotspotKey,
+	}
+	rawDataSubTaskArgs := &api.RawDataSubTaskArgs{
+		Ctx:    taskCtx,
+		Params: params,
+		Table:  rawTable,
+	}
+	return rawDataSubTaskArgs, &filteredData
 }

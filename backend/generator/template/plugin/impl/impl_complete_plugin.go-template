@@ -26,7 +26,7 @@ import (
     "github.com/apache/incubator-devlake/plugins/{{ .plugin_name }}/models"
     "github.com/apache/incubator-devlake/plugins/{{ .plugin_name }}/models/migrationscripts"
 	"github.com/apache/incubator-devlake/plugins/{{ .plugin_name }}/tasks"
-	"github.com/apache/incubator-devlake/plugins/helper"
+	helper "github.com/apache/incubator-devlake/helpers/pluginhelper/api"
 	"github.com/spf13/viper"
 )
 
@@ -76,11 +76,22 @@ func (p {{ .PluginName }}) PrepareTaskData(taskCtx plugin.TaskContext, options m
     if err != nil {
         return nil, errors.Default.Wrap(err, "unable to get {{ .PluginName }} API client instance")
     }
-
-    return &tasks.{{ .PluginName }}TaskData{
-        Options:   op,
-        ApiClient: apiClient,
-    }, nil
+    taskData := &tasks.SonarqubeTaskData{
+		Options:   op,
+		ApiClient: apiClient,
+	}
+	var createdDateAfter time.Time
+	if op.CreatedDateAfter != "" {
+		createdDateAfter, err = errors.Convert01(time.Parse(time.RFC3339, op.CreatedDateAfter))
+		if err != nil {
+			return nil, errors.BadInput.Wrap(err, "invalid value for `createdDateAfter`")
+		}
+	}
+	if !createdDateAfter.IsZero() {
+		taskData.CreatedDateAfter = &createdDateAfter
+		logger.Debug("collect data updated createdDateAfter %s", createdDateAfter)
+	}
+	return taskData, nil
 }
 
 // PkgPath information lost when compiled as plugin(.so)

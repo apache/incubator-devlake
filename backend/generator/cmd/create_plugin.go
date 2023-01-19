@@ -127,6 +127,7 @@ Type in what the name of plugin is, then generator will create a new plugin in p
 				`impl/impl.go`:                   util.ReadTemplate("generator/template/plugin/impl/impl_complete_plugin.go-template"),
 				`tasks/api_client.go`:            util.ReadTemplate("generator/template/plugin/tasks/api_client.go-template"),
 				`tasks/task_data.go`:             util.ReadTemplate("generator/template/plugin/tasks/task_data_complete_plugin.go-template"),
+				`tasks/shared.go`:                util.ReadTemplate("generator/template/plugin/tasks/shared.go-template"),
 				`api/connection.go`:              util.ReadTemplate("generator/template/plugin/api/connection.go-template"),
 				`models/connection.go`:           util.ReadTemplate("generator/template/plugin/models/connection.go-template"),
 				fmt.Sprintf("models/migrationscripts/%s_add_init_tables.go", versionTimestamp): util.ReadTemplate("generator/template/migrationscripts/add_init_tables.go-template"),

@@ -28,7 +28,7 @@ type IclaOptions struct {
 	// TODO add some custom options here if necessary
 	// options means some custom params required by plugin running.
 	// Such As How many rows do your want
-	// You can use it in sub tasks and you need pass it in main.go and pipelines.
+	// You can use it in subtasks, and you need to pass it to main.go and pipelines.
 	Tasks []string `json:"tasks,omitempty"`
 }
 

@@ -33,7 +33,7 @@ type ZentaoApiParams struct {
 type ZentaoOptions struct {
 	// options means some custom params required by plugin running.
 	// Such As How many rows do your want
-	// You can use it in sub tasks and you need pass it in main.go and pipelines.
+	// You can use it in subtasks, and you need to pass it to main.go and pipelines.
 	ConnectionId uint64 `json:"connectionId"`
 	ProductId    int64
 	ExecutionId  int64
