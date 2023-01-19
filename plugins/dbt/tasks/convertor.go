@@ -187,18 +187,18 @@ func DbtConverter(taskCtx core.SubTaskContext) errors.Error {
 	if err != nil {
 		return err
 	}
+	var errStr string
 	// ProcessState contains information about an exited process, available after a call to Wait.
 	defer func() {
 		if !cmd.ProcessState.Success() {
 			log.Error(nil, "dbt run task error, please check!!!")
+			err = errors.SubtaskErr.New(errStr)
 		}
 	}()
 
 	// prevent zombie process
 	defer cmd.Wait() //nolint
-
 	scanner := bufio.NewScanner(stdout)
-	var errStr string
 	for scanner.Scan() {
 		line := scanner.Text()
 		log.Info(line)
@@ -213,7 +213,7 @@ func DbtConverter(taskCtx core.SubTaskContext) errors.Error {
 		return err
 	}
 
-	return nil
+	return err
 }
 
 var DbtConverterMeta = core.SubTaskMeta{
