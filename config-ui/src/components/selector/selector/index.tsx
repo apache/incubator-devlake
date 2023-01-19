@@ -74,7 +74,7 @@ export const Selector = <T,>({
       itemRenderer={itemRenderer}
       onItemSelect={handleItemSelect}
     >
-      <Button outlined small fill alignText={Alignment.LEFT} rightIcon="double-caret-vertical" text={btnText} />
+      <Button outlined fill alignText={Alignment.LEFT} rightIcon="caret-down" text={btnText} />
     </Select2>
   );
 };
