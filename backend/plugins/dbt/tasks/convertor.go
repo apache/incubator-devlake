@@ -200,17 +200,18 @@ func DbtConverter(taskCtx plugin.SubTaskContext) (err errors.Error) {
 	}
 
 	// prevent zombie process
+	var errStr string
 	defer func() {
 		err = errors.Convert(cmd.Wait())
 		if err != nil {
 			logger.Error(err, "The DBT project run failed!")
+			err = errors.SubtaskErr.New(errStr)
 		} else {
 			logger.Info("The DBT project run ended.")
 		}
 	}()
 
 	scanner := bufio.NewScanner(stdout)
-	var errStr string
 	for scanner.Scan() {
 		line := scanner.Text()
 		logger.Info(line)
