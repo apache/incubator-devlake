@@ -45,6 +45,7 @@ func DbtConverter(taskCtx core.SubTaskContext) errors.Error {
 	projectVars := data.Options.ProjectVars
 	args := data.Options.Args
 	failFast := data.Options.FailFast
+	threads := data.Options.Threads
 	noVersionCheck := data.Options.NoVersionCheck
 	excludeModels := data.Options.ExcludeModels
 	selector := data.Options.Selector
@@ -118,7 +119,7 @@ func DbtConverter(taskCtx core.SubTaskContext) errors.Error {
 		log.Info("dbt deps run script: ", cmdDeps)
 		// prevent zombie process
 		defer func() {
-			if err := errors.Convert(cmdDeps.Wait()); err != nil {
+			if err = errors.Convert(cmdDeps.Wait()); err != nil {
 				log.Error(nil, "dbt deps run cmd.cmdDeps() error")
 			}
 		}()
@@ -146,6 +147,10 @@ func DbtConverter(taskCtx core.SubTaskContext) errors.Error {
 	}
 	if failFast {
 		dbtExecParams = append(dbtExecParams, "--fail-fast")
+	}
+	if threads != 0 {
+		dbtExecParams = append(dbtExecParams, "--threads")
+		dbtExecParams = append(dbtExecParams, strconv.Itoa(threads))
 	}
 	if noVersionCheck {
 		dbtExecParams = append(dbtExecParams, "--no-version-check")
@@ -196,17 +201,18 @@ func DbtConverter(taskCtx core.SubTaskContext) errors.Error {
 	}
 
 	// prevent zombie process
+	var errStr string
 	defer func() {
-		err := errors.Convert(cmd.Wait())
+		err = errors.Convert(cmd.Wait())
 		if err != nil {
 			log.Error(err, "The DBT project run failed!")
+			err = errors.SubtaskErr.New(errStr)
 		} else {
 			log.Info("The DBT project run ended.")
 		}
 	}()
 
 	scanner := bufio.NewScanner(stdout)
-	var errStr string
 	for scanner.Scan() {
 		line := scanner.Text()
 		log.Info(line)
@@ -217,7 +223,7 @@ func DbtConverter(taskCtx core.SubTaskContext) errors.Error {
 			taskCtx.IncProgress(1)
 		}
 	}
-	if err := errors.Convert(scanner.Err()); err != nil {
+	if err = errors.Convert(scanner.Err()); err != nil {
 		log.Error(err, "dbt read stdout failed.")
 		return err
 	}
@@ -228,7 +234,7 @@ func DbtConverter(taskCtx core.SubTaskContext) errors.Error {
 		return errors.Convert(closeErr)
 	}
 
-	return nil
+	return err
 }
 
 var DbtConverterMeta = core.SubTaskMeta{
