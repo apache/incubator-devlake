@@ -69,9 +69,16 @@ func CollectRemotelinks(taskCtx plugin.SubTaskContext) errors.Error {
 	incremental := collectorWithState.IsIncremental()
 	if incremental {
 		clauses = append(clauses, dal.Having("i.updated > ? AND (i.updated > max(rl.issue_updated) OR max(rl.issue_updated) IS NULL)", collectorWithState.LatestState.LatestSuccessStart))
-	} else {
-		clauses = append(clauses, dal.Having("i.updated > max(rl.issue_updated) OR max(rl.issue_updated) IS NULL "))
 	}
+	/*
+		i.updated > max(rl.issue_updated) was deleted because for non-incremental collection, max(rl.issue_updated) is always null.
+			so i.updated > max(rl.issue_updated) is constantly false
+		also, for the first collection, max(rl.issue_updated) is always null as there is no data in _tool_jira_remotelinks.
+		In conclusion, we don't need the following clause
+	*/
+	//else {
+	// clauses = append(clauses, dal.Having("i.updated > max(rl.issue_updated) OR max(rl.issue_updated) IS NULL "))
+	//}
 	cursor, err := db.Cursor(clauses...)
 	if err != nil {
 		logger.Error(err, "collect remotelink error")
