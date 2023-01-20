@@ -69,11 +69,9 @@ func CollectRemotelinks(taskCtx core.SubTaskContext) errors.Error {
 	}
 	incremental := collectorWithState.IsIncremental()
 	if incremental {
-		if collectorWithState.LatestState.LatestSuccessStart != nil {
-			clauses = append(clauses, dal.Having("i.updated > ? AND (i.updated > max(rl.issue_updated) OR max(rl.issue_updated) IS NULL)", collectorWithState.LatestState.LatestSuccessStart))
-		} else {
-			clauses = append(clauses, dal.Having("i.updated > max(rl.issue_updated) OR max(rl.issue_updated) IS NULL"))
-		}
+		clauses = append(clauses, dal.Having("i.updated > ? AND (i.updated > max(rl.issue_updated) OR max(rl.issue_updated) IS NULL)", collectorWithState.LatestState.LatestSuccessStart))
+	} else {
+		clauses = append(clauses, dal.Having("i.updated > max(rl.issue_updated) OR max(rl.issue_updated) IS NULL "))
 	}
 	cursor, err := db.Cursor(clauses...)
 	if err != nil {
