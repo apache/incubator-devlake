@@ -67,12 +67,10 @@ func CollectRemotelinks(taskCtx plugin.SubTaskContext) errors.Error {
 		dal.Groupby("i.issue_id, i.updated"),
 	}
 	incremental := collectorWithState.IsIncremental()
-	if incremental {
-		if collectorWithState.LatestState.LatestSuccessStart != nil {
-			clauses = append(clauses, dal.Having("i.updated > ? AND (i.updated > max(rl.issue_updated) OR max(rl.issue_updated) IS NULL)", collectorWithState.LatestState.LatestSuccessStart))
-		} else {
-			clauses = append(clauses, dal.Having("i.updated > max(rl.issue_updated) OR max(rl.issue_updated) IS NULL"))
-		}
+	if incremental && collectorWithState.LatestState.LatestSuccessStart != nil {
+		clauses = append(clauses, dal.Having("i.updated > ? AND (i.updated > max(rl.issue_updated) OR max(rl.issue_updated) IS NULL)", collectorWithState.LatestState.LatestSuccessStart))
+	} else {
+		clauses = append(clauses, dal.Having("i.updated > max(rl.issue_updated) OR max(rl.issue_updated) IS NULL "))
 	}
 	cursor, err := db.Cursor(clauses...)
 	if err != nil {
