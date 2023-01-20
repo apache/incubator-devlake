@@ -183,6 +183,12 @@ func createTmpTable(starrocks *sql.DB, db dal.Dal, starrocksTable string, starro
 	}
 	firstcm := ""
 	firstcmName := ""
+	var rowsInStarRocks *sql.Rows
+	defer func() {
+		if rowsInStarRocks != nil {
+			rowsInStarRocks.Close()
+		}
+	}()
 	for _, cm := range columnMetas {
 		name := cm.Name()
 		if name == updateColumn {
@@ -204,7 +210,7 @@ func createTmpTable(starrocks *sql.DB, db dal.Dal, starrocksTable string, starro
 				}
 			}
 			var starrocksErr error
-			rowsInStarRocks, starrocksErr := starrocks.Query(fmt.Sprintf("select %s from %s order by %s desc limit 1", updateColumn, starrocksTable, updateColumn))
+			rowsInStarRocks, starrocksErr = starrocks.Query(fmt.Sprintf("select %s from %s order by %s desc limit 1", updateColumn, starrocksTable, updateColumn))
 			if starrocksErr != nil {
 				if !strings.Contains(starrocksErr.Error(), "Unknown table") {
 					return nil, "", false, errors.Convert(starrocksErr)
