@@ -19,34 +19,70 @@ package tasks
 
 import (
 	"github.com/apache/incubator-devlake/core/errors"
-	helper "github.com/apache/incubator-devlake/helpers/pluginhelper/api"
-	"github.com/apache/incubator-devlake/helpers/pluginhelper/tap"
+	"github.com/apache/incubator-devlake/helpers/pluginhelper/api"
 	"github.com/apache/incubator-devlake/plugins/pagerduty/models"
+	"time"
 )
 
 type PagerDutyOptions struct {
-	ConnectionId    uint64   `json:"connectionId"`
-	Tasks           []string `json:"tasks,omitempty"`
-	Transformations TransformationRules
+	ConnectionId uint64   `json:"connectionId"`
+	TimeAfter    string   `json:"time_after,omitempty"`
+	ServiceId    string   `json:"service_id,omitempty"`
+	ServiceName  string   `json:"service_name,omitempty"`
+	Tasks        []string `json:"tasks,omitempty"`
+	*models.PagerdutyTransformationRule
 }
 
 type PagerDutyTaskData struct {
-	Options *PagerDutyOptions `json:"-"`
-	Config  *models.PagerDutyConfig
-	Client  *tap.SingerTap
+	Options   *PagerDutyOptions
+	TimeAfter *time.Time
+	Client    api.RateLimitedApiClient
 }
 
-type TransformationRules struct {
-	//Placeholder struct for later if needed
+type PagerDutyParams struct {
+	ConnectionId uint64
 }
 
 func DecodeAndValidateTaskOptions(options map[string]interface{}) (*PagerDutyOptions, errors.Error) {
-	var op PagerDutyOptions
-	if err := helper.Decode(options, &op, nil); err != nil {
+	op, err := DecodeTaskOptions(options)
+	if err != nil {
 		return nil, err
 	}
-	if op.ConnectionId == 0 {
-		return nil, errors.Default.New("connectionId is invalid")
+	err = ValidateTaskOptions(op)
+	if err != nil {
+		return nil, err
+	}
+	return op, nil
+}
+
+func DecodeTaskOptions(options map[string]interface{}) (*PagerDutyOptions, errors.Error) {
+	var op PagerDutyOptions
+	err := api.Decode(options, &op, nil)
+	if err != nil {
+		return nil, err
 	}
 	return &op, nil
+}
+
+func EncodeTaskOptions(op *PagerDutyOptions) (map[string]interface{}, errors.Error) {
+	var result map[string]interface{}
+	err := api.Decode(op, &result, nil)
+	if err != nil {
+		return nil, err
+	}
+	return result, nil
+}
+
+func ValidateTaskOptions(op *PagerDutyOptions) errors.Error {
+	if op.ServiceName == "" {
+		return errors.BadInput.New("no enough info for Pagerduty execution")
+	}
+	if op.ServiceId == "" {
+		return errors.BadInput.New("no enough info for Pagerduty execution")
+	}
+	// find the needed GitHub now
+	if op.ConnectionId == 0 {
+		return errors.BadInput.New("connectionId is invalid")
+	}
+	return nil
 }

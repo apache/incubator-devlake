@@ -69,9 +69,8 @@ func ConvertIncidents(taskCtx plugin.SubTaskContext) errors.Error {
 	converter, err := api.NewDataConverter(api.DataConverterArgs{
 		RawDataSubTaskArgs: api.RawDataSubTaskArgs{
 			Ctx: taskCtx,
-			Params: models.PagerDutyParams{
+			Params: PagerDutyParams{
 				ConnectionId: data.Options.ConnectionId,
-				Stream:       models.IncidentStream,
 			},
 			Table: RAW_INCIDENTS_TABLE,
 		},

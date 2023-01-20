@@ -15,21 +15,15 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-package models
+package archived
 
-import (
-	"github.com/apache/incubator-devlake/core/models/common"
-)
+import "github.com/apache/incubator-devlake/core/models/common"
 
-type Service struct {
-	common.NoPKModel
-	ConnectionId         uint64 `json:"connection_id" mapstructure:"connectionId,omitempty" gorm:"primaryKey" `
-	Url                  string `json:"url" mapstructure:"url"`
-	Id                   string `json:"id" mapstructure:"id" gorm:"primaryKey" `
-	TransformationRuleId uint64 `json:"transformation_rule_id" mapstructure:"transformation_rule_id,omitempty"` //keys to PagerdutyTransformationRules.ID
-	Name                 string `json:"name" mapstructure:"name"`
+type TransformationRules struct {
+	common.Model
+	Name string `gorm:"type:varchar(255);index:idx_name_github,unique"`
 }
 
-func (Service) TableName() string {
-	return "_tool_pagerduty_services"
+func (*TransformationRules) TableName() string {
+	return "_tool_pagerduty_transformation_rules"
 }

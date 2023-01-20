@@ -21,15 +21,11 @@ import (
 	"github.com/apache/incubator-devlake/core/models/common"
 )
 
-type Service struct {
-	common.NoPKModel
-	ConnectionId         uint64 `json:"connection_id" mapstructure:"connectionId,omitempty" gorm:"primaryKey" `
-	Url                  string `json:"url" mapstructure:"url"`
-	Id                   string `json:"id" mapstructure:"id" gorm:"primaryKey" `
-	TransformationRuleId uint64 `json:"transformation_rule_id" mapstructure:"transformation_rule_id,omitempty"` //keys to PagerdutyTransformationRules.ID
-	Name                 string `json:"name" mapstructure:"name"`
+type PagerdutyTransformationRule struct {
+	common.Model `mapstructure:"-"`
+	Name         string `mapstructure:"name" json:"name" gorm:"type:varchar(255);index:idx_name_github,unique" validate:"required"`
 }
 
-func (Service) TableName() string {
-	return "_tool_pagerduty_services"
+func (PagerdutyTransformationRule) TableName() string {
+	return "_tool_pagerduty_transformation_rules"
 }

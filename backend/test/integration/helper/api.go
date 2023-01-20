@@ -134,9 +134,9 @@ func (d *DevlakeClient) ListProjects() apiProject.PaginatedProjects {
 	}, http.MethodGet, fmt.Sprintf("%s/projects", d.Endpoint), nil)
 }
 
-func (d *DevlakeClient) CreateScope(pluginName string, connectionId uint64, scope any) any {
+func (d *DevlakeClient) CreateScope(pluginName string, connectionId uint64, scopes ...any) any {
 	request := map[string]any{
-		"Data": []any{scope},
+		"data": scopes,
 	}
 	return sendHttpRequest[any](d.testCtx, d.timeout, debugInfo{
 		print:      true,
@@ -176,7 +176,7 @@ func (d *DevlakeClient) ListTransformationRules(pluginName string) []any {
 	return sendHttpRequest[[]any](d.testCtx, d.timeout, debugInfo{
 		print:      true,
 		inlineJson: false,
-	}, http.MethodGet, fmt.Sprintf("%s/plugins/%s/transformation_rules?pageSize=20?page=1", d.Endpoint, pluginName), nil)
+	}, http.MethodGet, fmt.Sprintf("%s/plugins/%s/transformation_rules?pageSize=20&page=1", d.Endpoint, pluginName), nil)
 }
 
 func (d *DevlakeClient) RemoteScopes(query RemoteScopesQuery) RemoteScopesOutput {

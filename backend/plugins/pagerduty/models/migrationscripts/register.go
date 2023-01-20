@@ -26,5 +26,7 @@ func All() []plugin.MigrationScript {
 	return []plugin.MigrationScript{
 		new(addInitTables),
 		new(addEndpointAndProxyToConnection),
+		new(addPagerdutyConnectionFields20230123),
+		new(addTransformationRulesToService20230303),
 	}
 }
