@@ -74,8 +74,8 @@ func CollectIssueChangelogs(taskCtx plugin.SubTaskContext) errors.Error {
 		dal.Groupby("i.issue_id, i.updated"),
 	}
 	incremental := collectorWithState.IsIncremental()
-	if incremental && collectorWithState.LatestState.LatestSuccessStart != nil {
-		clauses = append(clauses, dal.Having("i.updated > ? AND (i.updated > max(c.issue_updated) OR max(c.issue_updated) IS NULL)", collectorWithState.LatestState.LatestSuccessStart))
+	if incremental {
+		clauses = append(clauses, dal.Having("i.updated > ? AND (i.updated > max(c.issue_updated) OR (max(c.issue_updated) IS NULL AND COUNT(c.changelog_id) > 0))", collectorWithState.LatestState.LatestSuccessStart))
 	} else {
 		clauses = append(clauses, dal.Having("i.updated > max(c.issue_updated) OR  (max(c.issue_updated) IS NULL AND COUNT(c.changelog_id) > 0)"))
 	}
