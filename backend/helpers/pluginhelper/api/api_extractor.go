@@ -127,7 +127,6 @@ func (extractor *ApiExtractor) Execute() errors.Error {
 			if err != nil {
 				return errors.Default.Wrap(err, "error adding result to batch")
 			}
-			extractor.args.Ctx.IncProgress(1)
 		}
 		extractor.args.Ctx.IncProgress(1)
 	}
