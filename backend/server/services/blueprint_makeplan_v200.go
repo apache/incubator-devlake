@@ -62,7 +62,7 @@ func GeneratePlanJsonV200(
 				Table:       scope.TableName(),
 				RowId:       scope.ScopeId(),
 			}
-			err = db.Create(projectMapping)
+			err = db.CreateOrUpdate(projectMapping)
 			if err != nil {
 				return nil, err
 			}
