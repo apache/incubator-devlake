@@ -68,6 +68,8 @@ func CollectWorklogs(taskCtx core.SubTaskContext) errors.Error {
 	}
 	incremental := collectorWithState.IsIncremental()
 	if incremental {
+		clauses = append(clauses, dal.Having("i.updated > ? AND (i.updated > max(wl.issue_updated) OR (max(wl.issue_updated) IS NULL AND COUNT(wl.worklog_id) > 0))", collectorWithState.LatestState.LatestSuccessStart))
+	} else {
 		clauses = append(clauses, dal.Having("i.updated > max(wl.issue_updated) OR  (max(wl.issue_updated) IS NULL AND COUNT(wl.worklog_id) > 0)"))
 	}
 

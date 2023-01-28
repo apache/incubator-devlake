@@ -75,6 +75,8 @@ func CollectIssueChangelogs(taskCtx core.SubTaskContext) errors.Error {
 	}
 	incremental := collectorWithState.IsIncremental()
 	if incremental {
+		clauses = append(clauses, dal.Having("i.updated > ? AND (i.updated > max(c.issue_updated) OR (max(c.issue_updated) IS NULL AND COUNT(c.changelog_id) > 0))", collectorWithState.LatestState.LatestSuccessStart))
+	} else {
 		clauses = append(clauses, dal.Having("i.updated > max(c.issue_updated) OR  (max(c.issue_updated) IS NULL AND COUNT(c.changelog_id) > 0)"))
 	}
 
