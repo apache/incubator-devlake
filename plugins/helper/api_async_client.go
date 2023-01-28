@@ -100,11 +100,11 @@ func CreateAsyncApiClient(
 
 	logger := taskCtx.GetLogger()
 	logger.Info(
-		"scheduler for api %s worker: %d, request: %d, duration: %v",
+		"creating scheduler for api \"%s\", number of workers: %d, allowed requests (rate-limit): %d, duration of rate-limit: %f minutes",
 		apiClient.GetEndpoint(),
 		numOfWorkers,
 		requests,
-		duration,
+		duration.Minutes(),
 	)
 	scheduler, err := NewWorkerScheduler(
 		taskCtx.GetContext(),
@@ -178,7 +178,9 @@ func (apiClient *ApiAsyncClient) DoAsync(
 			needRetry = true
 		} else if res.StatusCode >= HttpMinStatusRetryCode {
 			needRetry = true
-			err = errors.HttpStatus(res.StatusCode).New(fmt.Sprintf("Http DoAsync error: %s", body))
+			err = errors.HttpStatus(res.StatusCode).New(
+				fmt.Sprintf("Http DoAsync error calling [%s %s]. Response: %s", method, path, string(respBody)),
+			)
 		}
 
 		//  if it needs retry, check and retry
