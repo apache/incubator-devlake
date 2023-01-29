@@ -1,3 +1,19 @@
+<!--
+Licensed to the Apache Software Foundation (ASF) under one or more
+contributor license agreements.  See the NOTICE file distributed with
+this work for additional information regarding copyright ownership.
+The ASF licenses this file to You under the Apache License, Version 2.0
+(the "License"); you may not use this file except in compliance with
+the License.  You may obtain a copy of the License at
+
+    http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
+-->
 <svg width="120" height="120" viewBox="0 0 120 120" fill="none" xmlns="http://www.w3.org/2000/svg">
   <path fill-rule="evenodd" clip-rule="evenodd"
     d="M96.0375 30.5939V34.9997H91.6312C89.9062 34.9997 88.5187 36.3872 88.5187 38.1122C88.5187 39.8372 89.9062 41.2247 91.6312 41.2247H96.0375V45.6314C96.0375 47.3564 97.425 48.7439 99.15 48.7439C100.875 48.7439 102.262 47.3564 102.262 45.6314V41.2247H106.669C108.394 41.2247 109.781 39.8372 109.781 38.1122C109.781 36.406 108.394 34.9997 106.669 34.9997H102.262V30.5939C102.262 28.8689 100.875 27.4814 99.15 27.4814C97.4437 27.4814 96.0375 28.8689 96.0375 30.5939ZM35.3062 52.3438H42.2625C43.9875 52.3438 45.375 53.75 45.375 55.4563C45.375 57.1813 43.9875 58.5688 42.2625 58.5688H27.225C25.5 58.5688 24.1125 57.1813 24.1125 55.4563C24.1125 54.575 24.4875 53.7875 25.0687 53.225H18.1125C16.3875 53.225 15 51.8375 15 50.1125C15 48.3875 16.3875 47 18.1125 47H33.15C34.875 47 36.2625 48.3875 36.2625 50.1125C36.2625 50.9937 35.8875 51.7813 35.3062 52.3438ZM93 77H107.625C109.35 77 110.738 78.3875 110.756 80.1125C110.756 81.8375 109.369 83.225 107.644 83.225H99.225C99.7875 83.7875 100.125 84.5562 100.125 85.4188C100.125 87.1437 98.7375 88.5312 97.0125 88.5312H93V77Z"
