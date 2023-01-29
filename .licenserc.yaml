@@ -34,7 +34,6 @@ header:
     - '**/env.example'
     - '**/*.csv'
     - '**/*.json'
-    - '**/*.svg'
     - '**/*.png'
     - '.editorconfig'
     - '**/.gitignore'
