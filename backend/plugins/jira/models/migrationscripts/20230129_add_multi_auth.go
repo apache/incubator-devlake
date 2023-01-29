@@ -19,8 +19,10 @@ package migrationscripts
 
 import (
 	"github.com/apache/incubator-devlake/core/context"
+	"github.com/apache/incubator-devlake/core/dal"
 	"github.com/apache/incubator-devlake/core/errors"
 	"github.com/apache/incubator-devlake/helpers/migrationhelper"
+	"github.com/apache/incubator-devlake/helpers/pluginhelper/api/apihelperabstract"
 )
 
 type jiraMultiAuth20230129 struct {
@@ -35,7 +37,15 @@ func (jiraMultiAuth20230129) TableName() string {
 type addJiraMultiAuth20230129 struct{}
 
 func (script *addJiraMultiAuth20230129) Up(basicRes context.BasicRes) errors.Error {
-	return migrationhelper.AutoMigrateTables(basicRes, &jiraMultiAuth20230129{})
+	err := migrationhelper.AutoMigrateTables(basicRes, &jiraMultiAuth20230129{})
+	if err != nil {
+		return err
+	}
+	return basicRes.GetDal().UpdateColumn(
+		&jiraMultiAuth20230129{},
+		"auth_method", apihelperabstract.AUTH_METHOD_BASIC,
+		dal.Where("auth_method IS NULL"),
+	)
 }
 
 func (*addJiraMultiAuth20230129) Version() uint64 {
