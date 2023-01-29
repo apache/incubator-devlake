@@ -20,6 +20,11 @@ package api
 import (
 	"bytes"
 	"encoding/json"
+	"io"
+	"net/http"
+	"path"
+	"testing"
+
 	"github.com/apache/incubator-devlake/core/models/common"
 	"github.com/apache/incubator-devlake/core/plugin"
 	helper "github.com/apache/incubator-devlake/helpers/pluginhelper/api"
@@ -29,21 +34,17 @@ import (
 	"github.com/apache/incubator-devlake/plugins/bitbucket/tasks"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
-	"io"
-	"net/http"
-	"path"
-	"testing"
 )
 
 func TestMakePipelinePlan(t *testing.T) {
 	connection := &models.BitbucketConnection{
-		RestConnection: helper.RestConnection{
-			BaseConnection: helper.BaseConnection{
-				Name: "github-test",
-				Model: common.Model{
-					ID: 1,
-				},
+		BaseConnection: helper.BaseConnection{
+			Name: "github-test",
+			Model: common.Model{
+				ID: 1,
 			},
+		},
+		RestConnection: helper.RestConnection{
 			Endpoint:         "https://TestBitBucket/",
 			Proxy:            "",
 			RateLimitPerHour: 0,

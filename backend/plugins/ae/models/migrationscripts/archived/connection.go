@@ -33,7 +33,7 @@ type AeConnection struct {
 	RateLimitPerHour int    `comment:"api request rate limit per hour" json:"rateLimit"`
 
 	AppId     string `mapstructure:"app_id" validate:"required" json:"app_id"`
-	SecretKey string `mapstructure:"secret_key" validate:"required" json:"secret_key" encrypt:"yes"`
+	SecretKey string `mapstructure:"secret_key" validate:"required" json:"secret_key" gorm:"serializer:encdec"`
 }
 
 func (AeConnection) TableName() string {

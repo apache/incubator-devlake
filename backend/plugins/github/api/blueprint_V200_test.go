@@ -18,6 +18,8 @@ limitations under the License.
 package api
 
 import (
+	"testing"
+
 	"github.com/apache/incubator-devlake/core/models/common"
 	"github.com/apache/incubator-devlake/core/models/domainlayer"
 	"github.com/apache/incubator-devlake/core/models/domainlayer/code"
@@ -30,18 +32,17 @@ import (
 	"github.com/apache/incubator-devlake/plugins/github/models"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
-	"testing"
 )
 
 func TestMakeDataSourcePipelinePlanV200(t *testing.T) {
 	connection := &models.GithubConnection{
-		RestConnection: helper.RestConnection{
-			BaseConnection: helper.BaseConnection{
-				Name: "github-test",
-				Model: common.Model{
-					ID: 1,
-				},
+		BaseConnection: helper.BaseConnection{
+			Name: "github-test",
+			Model: common.Model{
+				ID: 1,
 			},
+		},
+		RestConnection: helper.RestConnection{
 			Endpoint:         "https://api.github.com/",
 			Proxy:            "",
 			RateLimitPerHour: 0,

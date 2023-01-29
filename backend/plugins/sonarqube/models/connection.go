@@ -21,6 +21,7 @@ import helper "github.com/apache/incubator-devlake/helpers/pluginhelper/api"
 
 // This object conforms to what the frontend currently sends.
 type SonarqubeConnection struct {
+	helper.BaseConnection `mapstructure:",squash"`
 	helper.RestConnection `mapstructure:",squash"`
 	// For sonarqube, we can `use user_token:`
 	helper.AccessToken `mapstructure:",squash"`

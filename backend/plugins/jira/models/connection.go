@@ -18,6 +18,9 @@ limitations under the License.
 package models
 
 import (
+	"net/http"
+
+	"github.com/apache/incubator-devlake/core/errors"
 	helper "github.com/apache/incubator-devlake/helpers/pluginhelper/api"
 )
 
@@ -27,21 +30,30 @@ type EpicResponse struct {
 	Value string
 }
 
-type TestConnectionRequest struct {
-	Endpoint         string `json:"endpoint"`
-	Proxy            string `json:"proxy"`
-	helper.BasicAuth `mapstructure:",squash"`
-}
-
 type BoardResponse struct {
 	Id    int
 	Title string
 	Value string
 }
 
-type JiraConnection struct {
+// JiraConn holds the essential information to connect to the Jira API
+type JiraConn struct {
 	helper.RestConnection `mapstructure:",squash"`
+	helper.MultiAuth      `mapstructure:",squash"`
 	helper.BasicAuth      `mapstructure:",squash"`
+	helper.AccessToken    `mapstructure:",squash"`
+}
+
+// SetupAuthentication implements the `IAuthentication` interface by delegating
+// the actual logic to the `MultiAuth` struct to help us write less code
+func (jc JiraConn) SetupAuthentication(req *http.Request) errors.Error {
+	return jc.MultiAuth.SetupAuthenticationForConnection(&jc, req)
+}
+
+// JiraConnection holds JiraConn plus ID/Name for database storage
+type JiraConnection struct {
+	helper.BaseConnection `mapstructure:",squash"`
+	JiraConn              `mapstructure:",squash"`
 }
 
 func (JiraConnection) TableName() string {

@@ -20,10 +20,11 @@ package api
 import (
 	"bytes"
 	"encoding/json"
-	mockapi "github.com/apache/incubator-devlake/mocks/helpers/pluginhelper/api"
 	"io"
 	"net/http"
 	"testing"
+
+	mockapi "github.com/apache/incubator-devlake/mocks/helpers/pluginhelper/api"
 
 	"github.com/apache/incubator-devlake/core/models/common"
 	"github.com/apache/incubator-devlake/core/plugin"
@@ -35,13 +36,13 @@ import (
 
 func TestProcessScope(t *testing.T) {
 	connection := &models.JenkinsConnection{
-		RestConnection: helper.RestConnection{
-			BaseConnection: helper.BaseConnection{
-				Name: "jenkins-test",
-				Model: common.Model{
-					ID: 1,
-				},
+		BaseConnection: helper.BaseConnection{
+			Name: "jenkins-test",
+			Model: common.Model{
+				ID: 1,
 			},
+		},
+		RestConnection: helper.RestConnection{
 			Endpoint:         "https://api.github.com/",
 			Proxy:            "",
 			RateLimitPerHour: 0,

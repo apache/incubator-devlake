@@ -21,16 +21,17 @@ import (
 	helper "github.com/apache/incubator-devlake/helpers/pluginhelper/api"
 )
 
-// This object conforms to what the frontend currently sends.
-type GitlabConnection struct {
+// GitlabConn holds the essential information to connect to the Gitlab API
+type GitlabConn struct {
 	helper.RestConnection `mapstructure:",squash"`
 	helper.AccessToken    `mapstructure:",squash"`
 }
 
-type TestConnectionRequest struct {
-	Endpoint           string `json:"endpoint"`
-	Proxy              string `json:"proxy"`
-	helper.AccessToken `mapstructure:",squash"`
+// This object conforms to what the frontend currently sends.
+// GitlabConnection holds GitlabConn plus ID/Name for database storage
+type GitlabConnection struct {
+	helper.BaseConnection `mapstructure:",squash"`
+	GitlabConn            `mapstructure:",squash"`
 }
 
 // This object conforms to what the frontend currently expects.

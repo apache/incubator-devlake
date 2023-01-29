@@ -22,6 +22,7 @@ import (
 )
 
 type GiteeConnection struct {
+	helper.BaseConnection `mapstructure:",squash"`
 	helper.RestConnection `mapstructure:",squash"`
 	helper.AccessToken    `mapstructure:",squash"`
 }

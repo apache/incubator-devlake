@@ -46,6 +46,7 @@ type TransformationRules struct {
 }
 
 type BitbucketConnection struct {
+	helper.BaseConnection `mapstructure:",squash"`
 	helper.RestConnection `mapstructure:",squash"`
 	helper.BasicAuth      `mapstructure:",squash"`
 }

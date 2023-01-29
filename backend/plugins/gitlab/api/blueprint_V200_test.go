@@ -18,11 +18,12 @@ limitations under the License.
 package api
 
 import (
-	mockdal "github.com/apache/incubator-devlake/mocks/core/dal"
-	mockplugin "github.com/apache/incubator-devlake/mocks/core/plugin"
 	"strconv"
 	"testing"
 	"time"
+
+	mockdal "github.com/apache/incubator-devlake/mocks/core/dal"
+	mockplugin "github.com/apache/incubator-devlake/mocks/core/plugin"
 
 	"github.com/apache/incubator-devlake/core/errors"
 	"github.com/apache/incubator-devlake/core/models/common"
@@ -83,19 +84,21 @@ func TestMakeDataSourcePipelinePlanV200(t *testing.T) {
 	}
 
 	var testGitlabConnection = &models.GitlabConnection{
-		RestConnection: helper.RestConnection{
-			BaseConnection: helper.BaseConnection{
-				Name: testName,
-				Model: common.Model{
-					ID: testConnectionID,
-				},
+		BaseConnection: helper.BaseConnection{
+			Name: testName,
+			Model: common.Model{
+				ID: testConnectionID,
 			},
-			Endpoint:         testGitlabEndPoint,
-			Proxy:            testProxy,
-			RateLimitPerHour: 0,
 		},
-		AccessToken: helper.AccessToken{
-			Token: testToken,
+		GitlabConn: models.GitlabConn{
+			RestConnection: helper.RestConnection{
+				Endpoint:         testGitlabEndPoint,
+				Proxy:            testProxy,
+				RateLimitPerHour: 0,
+			},
+			AccessToken: helper.AccessToken{
+				Token: testToken,
+			},
 		},
 	}
 

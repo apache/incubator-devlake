@@ -19,14 +19,13 @@ package api
 
 import (
 	"context"
-	"fmt"
+	"net/http"
+
 	"github.com/apache/incubator-devlake/core/errors"
 	"github.com/apache/incubator-devlake/core/plugin"
 	"github.com/apache/incubator-devlake/helpers/pluginhelper/api"
 	"github.com/apache/incubator-devlake/plugins/ae/models"
 	_ "github.com/apache/incubator-devlake/server/api/shared"
-	"net/http"
-	"time"
 )
 
 type ApiMeResponse struct {
@@ -36,7 +35,7 @@ type ApiMeResponse struct {
 // @Summary test ae connection
 // @Description Test AE Connection
 // @Tags plugins/ae
-// @Param body body models.TestConnectionRequest true "json body"
+// @Param body body models.AeConn true "json body"
 // @Success 200  {object} shared.ApiBody "Success"
 // @Failure 400  {string} errcode.Error "Bad Request"
 // @Failure 500  {string} errcode.Error "Internal Error"
@@ -44,30 +43,15 @@ type ApiMeResponse struct {
 func TestConnection(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, errors.Error) {
 	// decode
 	var err errors.Error
-	var connection models.TestConnectionRequest
+	var connection models.AeConn
 	if err := api.Decode(input.Body, &connection, vld); err != nil {
 		return nil, errors.BadInput.Wrap(err, "could not decode request parameters")
 	}
-	// load and process cconfiguration
-	endpoint := connection.Endpoint
-	appId := connection.AppId
-	secretKey := connection.SecretKey
-	proxy := connection.Proxy
 
-	apiClient, err := api.NewApiClient(context.TODO(), endpoint, nil, 3*time.Second, proxy, basicRes)
+	apiClient, err := api.NewApiClientFromConnection(context.TODO(), basicRes, connection)
 	if err != nil {
 		return nil, err
 	}
-	apiClient.SetBeforeFunction(func(req *http.Request) errors.Error {
-		nonceStr := plugin.RandLetterBytes(8)
-		timestamp := fmt.Sprintf("%v", time.Now().Unix())
-		sign := models.GetSign(req.URL.Query(), appId, secretKey, nonceStr, timestamp)
-		req.Header.Set("x-ae-app-id", appId)
-		req.Header.Set("x-ae-timestamp", timestamp)
-		req.Header.Set("x-ae-nonce-str", nonceStr)
-		req.Header.Set("x-ae-sign", sign)
-		return nil
-	})
 	res, err := apiClient.Get("projects", nil, nil)
 	if err != nil {
 		return nil, err

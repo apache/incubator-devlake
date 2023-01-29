@@ -29,5 +29,6 @@ func All() []plugin.MigrationScript {
 		new(addInitTables20220716),
 		new(addTransformationRule20221116),
 		new(addProjectName20221215),
+		new(addJiraMultiAuth20230129),
 	}
 }

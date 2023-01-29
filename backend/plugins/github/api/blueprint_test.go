@@ -20,6 +20,10 @@ package api
 import (
 	"bytes"
 	"encoding/json"
+	"io"
+	"net/http"
+	"testing"
+
 	"github.com/apache/incubator-devlake/core/errors"
 	"github.com/apache/incubator-devlake/core/models/common"
 	"github.com/apache/incubator-devlake/core/plugin"
@@ -30,9 +34,6 @@ import (
 	"github.com/apache/incubator-devlake/plugins/github/tasks"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
-	"io"
-	"net/http"
-	"testing"
 )
 
 var repo = &tasks.GithubApiRepo{
@@ -61,13 +62,13 @@ func TestMakePipelinePlan(t *testing.T) {
 	prepareMockMeta(t)
 	mockApiClient := prepareMockClient(t, repo)
 	connection := &models.GithubConnection{
-		RestConnection: helper.RestConnection{
-			BaseConnection: helper.BaseConnection{
-				Name: "github-test",
-				Model: common.Model{
-					ID: 1,
-				},
+		BaseConnection: helper.BaseConnection{
+			Name: "github-test",
+			Model: common.Model{
+				ID: 1,
 			},
+		},
+		RestConnection: helper.RestConnection{
 			Endpoint:         "https://api.github.com/",
 			Proxy:            "",
 			RateLimitPerHour: 0,

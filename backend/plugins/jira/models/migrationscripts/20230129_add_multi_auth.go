@@ -15,32 +15,33 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-package models
+package migrationscripts
 
 import (
-	helper "github.com/apache/incubator-devlake/helpers/pluginhelper/api"
+	"github.com/apache/incubator-devlake/core/context"
+	"github.com/apache/incubator-devlake/core/errors"
+	"github.com/apache/incubator-devlake/helpers/migrationhelper"
 )
 
-// This object conforms to what the frontend currently sends.
-type JenkinsConnection struct {
-	helper.BaseConnection `mapstructure:",squash"`
-	helper.RestConnection `mapstructure:",squash"`
-	helper.BasicAuth      `mapstructure:",squash"`
+type jiraMultiAuth20230129 struct {
+	AuthMethod string `gorm:"type:varchar(20)"`
+	Token      string `gorm:"type:varchar(255)"`
 }
 
-type JenkinsResponse struct {
-	ID   int    `json:"id"`
-	Name string `json:"name"`
-	JenkinsConnection
+func (jiraMultiAuth20230129) TableName() string {
+	return "_tool_jira_connections"
 }
 
-type TestConnectionRequest struct {
-	Endpoint string `json:"endpoint" validate:"required"`
-	Username string `json:"username" validate:"required"`
-	Password string `json:"password" validate:"required"`
-	Proxy    string `json:"proxy"`
+type addJiraMultiAuth20230129 struct{}
+
+func (script *addJiraMultiAuth20230129) Up(basicRes context.BasicRes) errors.Error {
+	return migrationhelper.AutoMigrateTables(basicRes, &jiraMultiAuth20230129{})
 }
 
-func (JenkinsConnection) TableName() string {
-	return "_tool_jenkins_connections"
+func (*addJiraMultiAuth20230129) Version() uint64 {
+	return 20230129115901
+}
+
+func (*addJiraMultiAuth20230129) Name() string {
+	return "add multiauth to _tool_jira_connections"
 }

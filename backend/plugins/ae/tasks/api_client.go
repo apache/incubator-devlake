@@ -18,36 +18,15 @@ limitations under the License.
 package tasks
 
 import (
-	"fmt"
 	"github.com/apache/incubator-devlake/core/errors"
 	"github.com/apache/incubator-devlake/core/plugin"
 	"github.com/apache/incubator-devlake/helpers/pluginhelper/api"
 	"github.com/apache/incubator-devlake/plugins/ae/models"
-	"net/http"
-	"time"
 )
 
+// CreateApiClient creates a new asynchronize API Client for AE
 func CreateApiClient(taskCtx plugin.TaskContext, connection *models.AeConnection) (*api.ApiAsyncClient, errors.Error) {
-	// load and process cconfiguration
-	endpoint := connection.Endpoint
-	appId := connection.AppId
-	secretKey := connection.SecretKey
-	proxy := connection.Proxy
-
-	apiClient, err := api.NewApiClient(taskCtx.GetContext(), endpoint, nil, 0, proxy, taskCtx)
-	if err != nil {
-		return nil, err
-	}
-	apiClient.SetBeforeFunction(func(req *http.Request) errors.Error {
-		nonceStr := plugin.RandLetterBytes(8)
-		timestamp := fmt.Sprintf("%v", time.Now().Unix())
-		sign := models.GetSign(req.URL.Query(), appId, secretKey, nonceStr, timestamp)
-		req.Header.Set("x-ae-app-id", appId)
-		req.Header.Set("x-ae-timestamp", timestamp)
-		req.Header.Set("x-ae-nonce-str", nonceStr)
-		req.Header.Set("x-ae-sign", sign)
-		return nil
-	})
+	apiClient, err := api.NewApiClientFromConnection(taskCtx.GetContext(), taskCtx, connection)
 
 	// create ae api client
 	asyncApiCLient, err := api.CreateAsyncApiClient(taskCtx, apiClient, nil)

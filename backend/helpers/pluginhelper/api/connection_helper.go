@@ -1,0 +1,137 @@
+/*
+Licensed to the Apache Software Foundation (ASF) under one or more
+contributor license agreements.  See the NOTICE file distributed with
+this work for additional information regarding copyright ownership.
+The ASF licenses this file to You under the Apache License, Version 2.0
+(the "License"); you may not use this file except in compliance with
+the License.  You may obtain a copy of the License at
+
+    http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
+*/
+
+package api
+
+import (
+	"strconv"
+	"strings"
+
+	"github.com/apache/incubator-devlake/core/context"
+	"github.com/apache/incubator-devlake/core/dal"
+	"github.com/apache/incubator-devlake/core/errors"
+	"github.com/apache/incubator-devlake/core/log"
+	plugin "github.com/apache/incubator-devlake/core/plugin"
+	"github.com/apache/incubator-devlake/helpers/pluginhelper/api/apihelperabstract"
+	"github.com/go-playground/validator/v10"
+)
+
+// ConnectionApiHelper is used to write the CURD of connection
+type ConnectionApiHelper struct {
+	encKey    string
+	log       log.Logger
+	db        dal.Dal
+	validator *validator.Validate
+}
+
+// NewConnectionHelper creates a ConnectionHelper for connection management
+func NewConnectionHelper(
+	basicRes context.BasicRes,
+	vld *validator.Validate,
+) *ConnectionApiHelper {
+	if vld == nil {
+		vld = validator.New()
+	}
+	return &ConnectionApiHelper{
+		encKey:    basicRes.GetConfig(plugin.EncodeKeyEnvStr),
+		log:       basicRes.GetLogger(),
+		db:        basicRes.GetDal(),
+		validator: vld,
+	}
+}
+
+// Create a connection record based on request body
+func (c *ConnectionApiHelper) Create(connection interface{}, input *plugin.ApiResourceInput) errors.Error {
+	// update fields from request body
+	err := c.merge(connection, input.Body)
+	if err != nil {
+		return err
+	}
+	return c.save(connection)
+}
+
+// Patch (Modify) a connection record based on request body
+func (c *ConnectionApiHelper) Patch(connection interface{}, input *plugin.ApiResourceInput) errors.Error {
+	err := c.First(connection, input.Params)
+	if err != nil {
+		return err
+	}
+
+	err = c.merge(connection, input.Body)
+	if err != nil {
+		return err
+	}
+	return c.save(connection)
+}
+
+// First finds connection from db  by parsing request input and decrypt it
+func (c *ConnectionApiHelper) First(connection interface{}, params map[string]string) errors.Error {
+	connectionId := params["connectionId"]
+	if connectionId == "" {
+		return errors.BadInput.New("missing connectionId")
+	}
+	id, err := strconv.ParseUint(connectionId, 10, 64)
+	if err != nil || id < 1 {
+		return errors.BadInput.New("invalid connectionId")
+	}
+	return c.FirstById(connection, id)
+}
+
+// FirstById finds connection from db by id and decrypt it
+func (c *ConnectionApiHelper) FirstById(connection interface{}, id uint64) errors.Error {
+	err := c.db.First(connection, dal.Where("id = ?", id))
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
+// List returns all connections with password/token decrypted
+func (c *ConnectionApiHelper) List(connections interface{}) errors.Error {
+	err := c.db.All(connections)
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
+// Delete connection
+func (c *ConnectionApiHelper) Delete(connection interface{}) errors.Error {
+	return c.db.Delete(connection)
+}
+
+func (c *ConnectionApiHelper) merge(connection interface{}, body map[string]interface{}) errors.Error {
+	if connectionValdiator, ok := connection.(apihelperabstract.ConnectionValidator); ok {
+		err := Decode(body, connection, nil)
+		if err != nil {
+			return err
+		}
+		return connectionValdiator.ValidateConnection(connection, c.validator)
+	}
+	return Decode(body, connection, c.validator)
+}
+
+func (c *ConnectionApiHelper) save(connection interface{}) errors.Error {
+	err := c.db.CreateOrUpdate(connection)
+	if err != nil {
+		if strings.Contains(strings.ToLower(err.Error()), "duplicate") {
+			return errors.BadInput.Wrap(err, "duplicated Connection Name")
+		}
+		return err
+	}
+	return nil
+}

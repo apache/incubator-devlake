@@ -20,6 +20,10 @@ package api
 import (
 	"bytes"
 	"encoding/json"
+	"io"
+	"net/http"
+	"testing"
+
 	"github.com/apache/incubator-devlake/core/models/common"
 	"github.com/apache/incubator-devlake/core/plugin"
 	helper "github.com/apache/incubator-devlake/helpers/pluginhelper/api"
@@ -29,26 +33,25 @@ import (
 	"github.com/apache/incubator-devlake/plugins/gitlab/tasks"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
-	"io"
-	"net/http"
-	"testing"
 )
 
 func TestProcessScope(t *testing.T) {
 	connection := &models.GitlabConnection{
-		RestConnection: helper.RestConnection{
-			BaseConnection: helper.BaseConnection{
-				Name: "gitlab-test",
-				Model: common.Model{
-					ID: 1,
-				},
+		BaseConnection: helper.BaseConnection{
+			Name: "gitlab-test",
+			Model: common.Model{
+				ID: 1,
 			},
-			Endpoint:         "https://gitlab.com/api/v4/",
-			Proxy:            "",
-			RateLimitPerHour: 0,
 		},
-		AccessToken: helper.AccessToken{
-			Token: "123",
+		GitlabConn: models.GitlabConn{
+			RestConnection: helper.RestConnection{
+				Endpoint:         "https://gitlab.com/api/v4/",
+				Proxy:            "",
+				RateLimitPerHour: 0,
+			},
+			AccessToken: helper.AccessToken{
+				Token: "123",
+			},
 		},
 	}
 	mockApiCLient := mockapi.NewApiClientGetter(t)
