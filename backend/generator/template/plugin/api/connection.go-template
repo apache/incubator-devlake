@@ -25,7 +25,7 @@ import (
 	"time"
 
 	core "github.com/apache/incubator-devlake/core/plugin"
-	"github.com/apache/incubator-devlake/plugins/helper"
+	helper "github.com/apache/incubator-devlake/helpers/pluginhelper/api"
 	"github.com/apache/incubator-devlake/plugins/{{ .plugin_name }}/models"
 )
 

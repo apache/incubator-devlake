@@ -23,6 +23,7 @@ import (
 	"github.com/apache/incubator-devlake/core/errors"
 	"github.com/apache/incubator-devlake/core/plugin"
 	helper "github.com/apache/incubator-devlake/helpers/pluginhelper/api"
+	"time"
 
 	"github.com/apache/incubator-devlake/plugins/sonarqube/api"
 	"github.com/apache/incubator-devlake/plugins/sonarqube/models"
@@ -50,10 +51,14 @@ func (p Sonarqube) Init(br context.BasicRes) errors.Error {
 }
 
 func (p Sonarqube) SubTaskMetas() []plugin.SubTaskMeta {
-	return []plugin.SubTaskMeta{}
+	return []plugin.SubTaskMeta{
+		tasks.CollectProjectsMeta,
+		tasks.ExtractProjectsMeta,
+	}
 }
 
 func (p Sonarqube) PrepareTaskData(taskCtx plugin.TaskContext, options map[string]interface{}) (interface{}, errors.Error) {
+	logger := taskCtx.GetLogger()
 	op, err := tasks.DecodeAndValidateTaskOptions(options)
 	if err != nil {
 		return nil, err
@@ -72,11 +77,22 @@ func (p Sonarqube) PrepareTaskData(taskCtx plugin.TaskContext, options map[strin
 	if err != nil {
 		return nil, errors.Default.Wrap(err, "unable to get Sonarqube API client instance")
 	}
-
-	return &tasks.SonarqubeTaskData{
+	taskData := &tasks.SonarqubeTaskData{
 		Options:   op,
 		ApiClient: apiClient,
-	}, nil
+	}
+	var createdDateAfter time.Time
+	if op.CreatedDateAfter != "" {
+		createdDateAfter, err = errors.Convert01(time.Parse(time.RFC3339, op.CreatedDateAfter))
+		if err != nil {
+			return nil, errors.BadInput.Wrap(err, "invalid value for `createdDateAfter`")
+		}
+	}
+	if !createdDateAfter.IsZero() {
+		taskData.CreatedDateAfter = &createdDateAfter
+		logger.Debug("collect data updated createdDateAfter %s", createdDateAfter)
+	}
+	return taskData, nil
 }
 
 // PkgPath information lost when compiled as plugin(.so)

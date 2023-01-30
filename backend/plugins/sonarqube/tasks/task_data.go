@@ -20,23 +20,30 @@ package tasks
 import (
 	"github.com/apache/incubator-devlake/core/errors"
 	"github.com/apache/incubator-devlake/helpers/pluginhelper/api"
+	"time"
 )
 
 type SonarqubeApiParams struct {
+	ConnectionId uint64 `json:"connectionId"`
+	ProjectKey   string
+	HotspotKey   string
 }
 
 type SonarqubeOptions struct {
 	// options means some custom params required by plugin running.
 	// Such As How many rows do your want
-	// You can use it in sub tasks and you need pass it in main.go and pipelines.
-	ConnectionId uint64   `json:"connectionId"`
-	Tasks        []string `json:"tasks,omitempty"`
-	Since        string
+	// You can use it in subtasks, and you need to pass it to main.go and pipelines.
+	ConnectionId     uint64   `json:"connectionId"`
+	ProjectKey       string   `json:"projectKey"`
+	HotspotKey       string   `json:"hotspotKey"`
+	CreatedDateAfter string   `json:"createdDateAfter" mapstructure:"createdDateAfter,omitempty"`
+	Tasks            []string `json:"tasks,omitempty"`
 }
 
 type SonarqubeTaskData struct {
-	Options   *SonarqubeOptions
-	ApiClient *api.ApiAsyncClient
+	Options          *SonarqubeOptions
+	ApiClient        *api.ApiAsyncClient
+	CreatedDateAfter *time.Time
 }
 
 func DecodeAndValidateTaskOptions(options map[string]interface{}) (*SonarqubeOptions, errors.Error) {

@@ -20,7 +20,7 @@ package tasks
 import (
 	"fmt"
 	"github.com/apache/incubator-devlake/core/errors"
-	"github.com/apache/incubator-devlake/plugins/helper"
+	helper "github.com/apache/incubator-devlake/helpers/pluginhelper/api"
 )
 
 type {{ .PluginName }}ApiParams struct {
@@ -30,15 +30,16 @@ type {{ .PluginName }}Options struct {
 	// TODO add some custom options here if necessary
 	// options means some custom params required by plugin running.
 	// Such As How many rows do your want
-	// You can use it in sub tasks and you need pass it in main.go and pipelines.
+	// You can use it in subtasks, and you need to pass it to main.go and pipelines.
     ConnectionId               uint64   `json:"connectionId"`
     Tasks                      []string `json:"tasks,omitempty"`
-    Since                      string
+    CreatedDateAfter string   `json:"createdDateAfter" mapstructure:"createdDateAfter,omitempty"`
 }
 
 type {{ .PluginName }}TaskData struct {
 	Options   *{{ .PluginName }}Options
 	ApiClient *api.ApiAsyncClient
+	CreatedDateAfter *time.Time
 }
 
 func DecodeAndValidateTaskOptions(options map[string]interface{}) (*{{ .PluginName }}Options, errors.Error) {
@@ -50,4 +51,20 @@ func DecodeAndValidateTaskOptions(options map[string]interface{}) (*{{ .PluginNa
 		return nil, errors.Default.New("connectionId is invalid")
 	}
 	return &op, nil
+}
+
+func CreateRawDataSubTaskArgs(taskCtx plugin.SubTaskContext, rawTable string) (*api.RawDataSubTaskArgs, *{{ .PluginName }}TaskData) {
+	data := taskCtx.GetData().(*{{ .PluginName }}TaskData)
+	filteredData := *data
+	filteredData.Options = &{{ .PluginName }}Options{}
+	*filteredData.Options = *data.Options
+	var params = {{ .PluginName }}ApiParams{
+		ConnectionId: data.Options.ConnectionId,
+	}
+	rawDataSubTaskArgs := &api.RawDataSubTaskArgs{
+		Ctx:    taskCtx,
+		Params: params,
+		Table:  rawTable,
+	}
+	return rawDataSubTaskArgs, &filteredData
 }

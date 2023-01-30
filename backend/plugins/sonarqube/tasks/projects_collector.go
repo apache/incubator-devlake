@@ -19,57 +19,63 @@ package tasks
 
 import (
 	"encoding/json"
+	"fmt"
+	"github.com/apache/incubator-devlake/core/errors"
+	"github.com/apache/incubator-devlake/core/plugin"
+	helper "github.com/apache/incubator-devlake/helpers/pluginhelper/api"
 	"net/http"
 	"net/url"
-	"strconv"
-
-	core "github.com/apache/incubator-devlake/core/plugin"
-	"github.com/apache/incubator-devlake/core/errors"
-	helper "github.com/apache/incubator-devlake/helpers/pluginhelper/api"
 )
 
-const RAW_{{ .COLLECTOR_DATA_NAME }}_TABLE = "{{ .plugin_name }}_{{ .collector_data_name }}"
+const RAW_PROJECTS_TABLE = "sonarqube_projects"
 
-var _ core.SubTaskEntryPoint = Collect{{ .CollectorDataName }}
+var _ plugin.SubTaskEntryPoint = CollectProjects
 
-func Collect{{ .CollectorDataName }}(taskCtx core.SubTaskContext) errors.Error {
-	data := taskCtx.GetData().(*{{ .PluginName }}TaskData)
-	rawDataSubTaskArgs, data := CreateRawDataSubTaskArgs(taskCtx, RAW_{{ .COLLECTOR_DATA_NAME }}_TABLE)
+func CollectProjects(taskCtx plugin.SubTaskContext) errors.Error {
+	rawDataSubTaskArgs, data := CreateRawDataSubTaskArgs(taskCtx, RAW_PROJECTS_TABLE)
 	logger := taskCtx.GetLogger()
+	logger.Info("collect projects")
 
-    collectorWithState, err := helper.NewApiCollectorWithState(*rawDataSubTaskArgs, data.CreatedDateAfter)
+	collectorWithState, err := helper.NewApiCollectorWithState(*rawDataSubTaskArgs, data.CreatedDateAfter)
 	if err != nil {
 		return err
 	}
-	incremental := collectorWithState.IsIncremental()
-
 	err = collectorWithState.InitCollector(helper.ApiCollectorArgs{
-		Incremental: incremental,
 		ApiClient:   data.ApiClient,
-		// PageSize:    100,
-		// TODO write which api would you want request
-		UrlTemplate: "{{ .HttpPath }}",
+		PageSize:    100,
+		UrlTemplate: "projects/search",
 		Query: func(reqData *helper.RequestData) (url.Values, errors.Error) {
 			query := url.Values{}
-			input := reqData.Input.(*helper.DatePair)
-			query.Set("start_time", strconv.FormatInt(input.PairStartTime.Unix(), 10))
-			query.Set("end_time", strconv.FormatInt(input.PairEndTime.Unix(), 10))
+			if data.CreatedDateAfter != nil {
+				query.Set("analyzedBefore",
+					data.CreatedDateAfter.Format("2006-01-02"))
+			}
+			if data.Options.ProjectKey != "" {
+				query.Set("q", data.Options.ProjectKey)
+			}
+			query.Set("p", fmt.Sprintf("%v", reqData.Pager.Page))
+			query.Set("ps", fmt.Sprintf("%v", reqData.Pager.Size))
 			return query, nil
 		},
+		GetTotalPages: GetTotalPagesFromResponse,
 		ResponseParser: func(res *http.Response) ([]json.RawMessage, errors.Error) {
-			// TODO decode result from api request
-			return []json.RawMessage{}, nil
+			var resData struct {
+				Data []json.RawMessage `json:"components"`
+			}
+			err = helper.UnmarshalResponse(res, &resData)
+			return resData.Data, err
 		},
 	})
 	if err != nil {
 		return err
 	}
+
 	return collectorWithState.Execute()
 }
 
-var Collect{{ .CollectorDataName }}Meta = plugin.SubTaskMeta{
-	Name:             "Collect{{ .CollectorDataName }}",
-	EntryPoint:       Collect{{ .CollectorDataName }},
+var CollectProjectsMeta = plugin.SubTaskMeta{
+	Name:             "CollectProjects",
+	EntryPoint:       CollectProjects,
 	EnabledByDefault: true,
-	Description:      "Collect {{ .CollectorDataName }} data from {{ .PluginName }} api",
+	Description:      "Collect Projects data from Sonarqube api",
 }
