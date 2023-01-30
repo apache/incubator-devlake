@@ -160,7 +160,7 @@ func saveBlueprint(blueprint *models.Blueprint) (*models.Blueprint, errors.Error
 	// validation
 	err := validateBlueprintAndMakePlan(blueprint)
 	if err != nil {
-		return nil, errors.BadInput.WrapRaw(err)
+		return nil, err
 	}
 	err = SaveDbBlueprint(blueprint)
 	if err != nil {

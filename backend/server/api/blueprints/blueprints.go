@@ -53,7 +53,7 @@ func Post(c *gin.Context) {
 
 	err = services.CreateBlueprint(blueprint)
 	if err != nil {
-		shared.ApiOutputError(c, errors.Default.Wrap(err, "error creating blueprint"))
+		shared.ApiOutputError(c, err)
 		return
 	}
 

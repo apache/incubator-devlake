@@ -64,6 +64,9 @@ func GeneratePlanJsonV200(
 			}
 			err = db.CreateOrUpdate(projectMapping)
 			if err != nil {
+				if basicRes.GetDal().IsDuplicationError(err) {
+					return nil, errors.BadInput.New("there was duplicate scope")
+				}
 				return nil, err
 			}
 		}
