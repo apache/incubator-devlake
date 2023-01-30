@@ -64,13 +64,6 @@ type AeConnection struct {
 	AeAppKey              `mapstructure:",squash"`
 }
 
-// This object conforms to what the frontend currently expects.
-type AeResponse struct {
-	AeConnection
-	Name string `json:"name"`
-	ID   int    `json:"id"`
-}
-
 func (AeConnection) TableName() string {
 	return "_tool_ae_connections"
 }

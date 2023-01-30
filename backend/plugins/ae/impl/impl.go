@@ -19,6 +19,7 @@ package impl
 
 import (
 	"fmt"
+
 	"github.com/apache/incubator-devlake/core/context"
 	"github.com/apache/incubator-devlake/core/dal"
 	"github.com/apache/incubator-devlake/core/errors"
@@ -50,7 +51,6 @@ func (p AE) GetTablesInfo() []dal.Tabler {
 		&models.AECommit{},
 		&models.AEProject{},
 		&models.AeConnection{},
-		&models.AeResponse{},
 	}
 }
 
