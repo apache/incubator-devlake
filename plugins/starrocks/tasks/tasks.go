@@ -280,52 +280,52 @@ func createTmpTable(starrocks *sql.DB, db dal.Dal, starrocksTable string, starro
 func loadData(starrocks *sql.DB, c core.SubTaskContext, starrocksTable, starrocksTmpTable, table string, columnMap map[string]string, db dal.Dal, config *StarRocksConfig, orderBy string) error {
 	offset := 0
 	var err error
-	var rowses []dal.Rows
-	defer func() {
-		for _, rows := range rowses {
-			rows.Close()
-		}
-	}()
 	for {
-		var rows dal.Rows
 		var data []map[string]interface{}
 		// select data from db
-		rows, err = db.Cursor(
-			dal.From(table),
-			dal.Orderby(orderBy),
-			dal.Limit(config.BatchSize),
-			dal.Offset(offset),
-		)
-		if err != nil {
-			return err
-		}
-		rowses = append(rowses, rows)
-		cols, err := rows.Columns()
-		if err != nil {
-			return err
-		}
-		for rows.Next() {
-			row := make(map[string]interface{})
-			columns := make([]interface{}, len(cols))
-			columnPointers := make([]interface{}, len(cols))
-			for i := range columns {
-				dataType := columnMap[cols[i]]
-				if strings.HasPrefix(dataType, "array") {
-					var arr []string
-					columns[i] = &arr
-					columnPointers[i] = pq.Array(&arr)
-				} else {
-					columnPointers[i] = &columns[i]
-				}
-			}
-			err = rows.Scan(columnPointers...)
+		err = func() error {
+			var rows dal.Rows
+			rows, err = db.Cursor(
+				dal.From(table),
+				dal.Orderby(orderBy),
+				dal.Limit(config.BatchSize),
+				dal.Offset(offset),
+			)
 			if err != nil {
 				return err
 			}
-			for i, colName := range cols {
-				row[colName] = columns[i]
+			defer rows.Close()
+			cols, err := rows.Columns()
+			if err != nil {
+				return err
 			}
-			data = append(data, row)
+			for rows.Next() {
+				row := make(map[string]interface{})
+				columns := make([]interface{}, len(cols))
+				columnPointers := make([]interface{}, len(cols))
+				for i := range columns {
+					dataType := columnMap[cols[i]]
+					if strings.HasPrefix(dataType, "array") {
+						var arr []string
+						columns[i] = &arr
+						columnPointers[i] = pq.Array(&arr)
+					} else {
+						columnPointers[i] = &columns[i]
+					}
+				}
+				err = rows.Scan(columnPointers...)
+				if err != nil {
+					return err
+				}
+				for i, colName := range cols {
+					row[colName] = columns[i]
+				}
+				data = append(data, row)
+			}
+			return nil
+		}()
+		if err != nil {
+			return err
 		}
 		if len(data) == 0 {
 			c.GetLogger().Warn(nil, "no data found in table %s already, limit: %d, offset: %d, so break", table, config.BatchSize, offset)
@@ -425,14 +425,14 @@ func loadData(starrocks *sql.DB, c core.SubTaskContext, starrocksTable, starrock
 			return err
 		}
 	}
-	rows, err = starrocks.Query(fmt.Sprintf("select count(*) from %s", starrocksTable))
+	rowsStarRocks, err := starrocks.Query(fmt.Sprintf("select count(*) from %s", starrocksTable))
 	if err != nil {
 		return err
 	}
-	defer rows.Close()
+	defer rowsStarRocks.Close()
 	var starrocksCount int
-	for rows.Next() {
-		err = rows.Scan(&starrocksCount)
+	for rowsStarRocks.Next() {
+		err = rowsStarRocks.Scan(&starrocksCount)
 		if err != nil {
 			return err
 		}
