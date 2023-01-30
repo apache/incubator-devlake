@@ -278,6 +278,12 @@ func createTmpTable(starrocks *sql.DB, db dal.Dal, starrocksTable string, starro
 func loadData(starrocks *sql.DB, c core.SubTaskContext, starrocksTable, starrocksTmpTable, table string, columnMap map[string]string, db dal.Dal, config *StarRocksConfig, orderBy string) error {
 	offset := 0
 	var err error
+	var rowses []*sql.Rows
+	defer func() {
+		for _, rows := range rowses {
+			rows.Close()
+		}
+	}()
 	for {
 		var rows *sql.Rows
 		var data []map[string]interface{}
@@ -286,6 +292,7 @@ func loadData(starrocks *sql.DB, c core.SubTaskContext, starrocksTable, starrock
 		if err != nil {
 			return err
 		}
+		rowses = append(rowses, rows)
 		cols, err := rows.Columns()
 		if err != nil {
 			return err
@@ -400,6 +407,7 @@ func loadData(starrocks *sql.DB, c core.SubTaskContext, starrocksTable, starrock
 	if err != nil {
 		return err
 	}
+	defer rows.Close()
 	var sourceCount int
 	for rows.Next() {
 		err = rows.Scan(&sourceCount)
@@ -411,6 +419,7 @@ func loadData(starrocks *sql.DB, c core.SubTaskContext, starrocksTable, starrock
 	if err != nil {
 		return err
 	}
+	defer rows.Close()
 	var starrocksCount int
 	for rows.Next() {
 		err = rows.Scan(&starrocksCount)
