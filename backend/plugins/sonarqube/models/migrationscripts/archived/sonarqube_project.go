@@ -24,12 +24,12 @@ import (
 
 type SonarqubeProject struct {
 	archived.NoPKModel
-	Key              string `json:"key" gorm:"type:varchar(64);primaryKey"`
-	Name             string `json:"name" gorm:"type:varchar(255)"`
-	Qualifier        string `json:"qualifier" gorm:"type:varchar(255)"`
-	Visibility       string `json:"visibility" gorm:"type:varchar(64)"`
+	Key              string     `json:"key" gorm:"type:varchar(64);primaryKey"`
+	Name             string     `json:"name" gorm:"type:varchar(255)"`
+	Qualifier        string     `json:"qualifier" gorm:"type:varchar(255)"`
+	Visibility       string     `json:"visibility" gorm:"type:varchar(64)"`
 	LastAnalysisDate *time.Time `json:"lastAnalysisDate"`
-	Revision         string `json:"revision" gorm:"type:varchar(128)"`
+	Revision         string     `json:"revision" gorm:"type:varchar(128)"`
 }
 
 func (SonarqubeProject) TableName() string {

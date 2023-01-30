@@ -32,7 +32,6 @@ const RAW_PROJECTS_TABLE = "sonarqube_projects"
 var _ plugin.SubTaskEntryPoint = CollectProjects
 
 func CollectProjects(taskCtx plugin.SubTaskContext) errors.Error {
-	data := taskCtx.GetData().(*SonarqubeTaskData)
 	rawDataSubTaskArgs, data := CreateRawDataSubTaskArgs(taskCtx, RAW_PROJECTS_TABLE)
 	logger := taskCtx.GetLogger()
 	logger.Info("collect projects")
