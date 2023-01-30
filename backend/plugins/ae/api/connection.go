@@ -44,7 +44,7 @@ func TestConnection(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, 
 	// decode
 	var err errors.Error
 	var connection models.AeConn
-	if err := api.Decode(input.Body, &connection, vld); err != nil {
+	if err = api.Decode(input.Body, &connection, vld); err != nil {
 		return nil, errors.BadInput.Wrap(err, "could not decode request parameters")
 	}
 

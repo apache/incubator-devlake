@@ -47,8 +47,7 @@ func (sat SonarqubeAccessToken) GetEncodedToken() string {
 type SonarqubeConnection struct {
 	helper.BaseConnection `mapstructure:",squash"`
 	helper.RestConnection `mapstructure:",squash"`
-	// For sonarqube, we can `use user_token:`
-	SonarqubeAccessToken `mapstructure:",squash"`
+	SonarqubeAccessToken  `mapstructure:",squash"`
 }
 
 // SonarqubeConn holds the essential information to connect to the sonarqube API
