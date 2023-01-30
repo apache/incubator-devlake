@@ -28,6 +28,7 @@ type TestConnectionRequest struct {
 }
 
 type GithubConnection struct {
+	helper.BaseConnection `mapstructure:",squash"`
 	helper.RestConnection `mapstructure:",squash"`
 	helper.AccessToken    `mapstructure:",squash"`
 	EnableGraphql         bool `mapstructure:"enableGraphql" json:"enableGraphql"`

@@ -20,20 +20,21 @@ package api
 import (
 	"context"
 	"fmt"
+	"net/http"
+	"net/url"
+	"strings"
+
 	"github.com/apache/incubator-devlake/core/errors"
 	"github.com/apache/incubator-devlake/core/plugin"
 	"github.com/apache/incubator-devlake/helpers/pluginhelper/api"
 	"github.com/apache/incubator-devlake/plugins/jira/models"
-	"net/http"
-	"net/url"
-	"strings"
-	"time"
+	"github.com/mitchellh/mapstructure"
 )
 
 // @Summary test jira connection
 // @Description Test Jira Connection
 // @Tags plugins/jira
-// @Param body body models.TestConnectionRequest true "json body"
+// @Param body body models.JiraConn true "json body"
 // @Success 200  {object} shared.ApiBody "Success"
 // @Failure 400  {string} errcode.Error "Bad Request"
 // @Failure 500  {string} errcode.Error "Internal Error"
@@ -41,29 +42,24 @@ import (
 func TestConnection(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, errors.Error) {
 	// decode
 	var err errors.Error
-	var connection models.TestConnectionRequest
-	err = api.Decode(input.Body, &connection, vld)
-	if err != nil {
-		return nil, err
+	var connection models.JiraConn
+	e := mapstructure.Decode(input.Body, &connection)
+	if e != nil {
+		return nil, errors.Convert(e)
+	}
+	e = vld.StructExcept(connection, "BasicAuth", "AccessToken")
+	if e != nil {
+		return nil, errors.Convert(e)
 	}
 	// test connection
-	apiClient, err := api.NewApiClient(
-		context.TODO(),
-		connection.Endpoint,
-		map[string]string{
-			"Authorization": fmt.Sprintf("Basic %v", connection.GetEncodedToken()),
-		},
-		3*time.Second,
-		connection.Proxy,
-		basicRes,
-	)
+	apiClient, err := api.NewApiClientFromConnection(context.TODO(), basicRes, connection)
 	if err != nil {
-		return nil, errors.Convert(err)
+		return nil, err
 	}
 	// serverInfo checking
 	res, err := apiClient.Get("api/2/serverInfo", nil, nil)
 	if err != nil {
-		return nil, errors.Convert(err)
+		return nil, err
 	}
 	serverInfoFail := "Failed testing the serverInfo: [ " + res.Request.URL.String() + " ]"
 	// check if `/rest/` was missing

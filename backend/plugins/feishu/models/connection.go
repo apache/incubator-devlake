@@ -29,6 +29,7 @@ type TestConnectionRequest struct {
 }
 
 type FeishuConnection struct {
+	helper.BaseConnection `mapstructure:",squash"`
 	helper.RestConnection `mapstructure:",squash"`
 	helper.AppKey         `mapstructure:",squash"`
 }

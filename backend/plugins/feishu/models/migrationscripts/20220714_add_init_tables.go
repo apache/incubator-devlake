@@ -22,7 +22,6 @@ import (
 	"github.com/apache/incubator-devlake/core/errors"
 	"github.com/apache/incubator-devlake/core/plugin"
 	"github.com/apache/incubator-devlake/helpers/migrationhelper"
-	helper "github.com/apache/incubator-devlake/helpers/pluginhelper/api"
 	"github.com/apache/incubator-devlake/plugins/feishu/models/migrationscripts/archived"
 )
 
@@ -56,12 +55,6 @@ func (u *addInitTables) Up(basicRes context.BasicRes) errors.Error {
 	connection.SecretKey = basicRes.GetConfig(`FEISHU_APPSCRECT`)
 	connection.Name = `Feishu`
 	if connection.Endpoint != `` && connection.AppId != `` && connection.SecretKey != `` && encodeKey != `` {
-		err = helper.UpdateEncryptFields(connection, func(plaintext string) (string, errors.Error) {
-			return plugin.Encrypt(encodeKey, plaintext)
-		})
-		if err != nil {
-			return err
-		}
 		// update from .env and save to db
 		err = db.CreateIfNotExist(connection)
 		if err != nil {

@@ -23,6 +23,7 @@ import (
 
 // This object conforms to what the frontend currently sends.
 type JenkinsConnection struct {
+	helper.BaseConnection `mapstructure:",squash"`
 	helper.RestConnection `mapstructure:",squash"`
 	helper.BasicAuth      `mapstructure:",squash"`
 }

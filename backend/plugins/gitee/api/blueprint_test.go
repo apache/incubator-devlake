@@ -20,6 +20,10 @@ package api
 import (
 	"bytes"
 	"encoding/json"
+	"io"
+	"net/http"
+	"testing"
+
 	"github.com/apache/incubator-devlake/core/models/common"
 	"github.com/apache/incubator-devlake/core/plugin"
 	helper "github.com/apache/incubator-devlake/helpers/pluginhelper/api"
@@ -29,20 +33,17 @@ import (
 	"github.com/apache/incubator-devlake/plugins/gitee/tasks"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
-	"io"
-	"net/http"
-	"testing"
 )
 
 func TestMakePipelinePlan(t *testing.T) {
 	connection := &models.GiteeConnection{
-		RestConnection: helper.RestConnection{
-			BaseConnection: helper.BaseConnection{
-				Name: "gitee-test",
-				Model: common.Model{
-					ID: 1,
-				},
+		BaseConnection: helper.BaseConnection{
+			Name: "gitee-test",
+			Model: common.Model{
+				ID: 1,
 			},
+		},
+		RestConnection: helper.RestConnection{
 			Endpoint:         "https://api.github.com/",
 			Proxy:            "",
 			RateLimitPerHour: 0,

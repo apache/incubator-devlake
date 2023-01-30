@@ -22,7 +22,6 @@ import (
 	"github.com/apache/incubator-devlake/core/errors"
 	"github.com/apache/incubator-devlake/core/plugin"
 	"github.com/apache/incubator-devlake/helpers/migrationhelper"
-	helper "github.com/apache/incubator-devlake/helpers/pluginhelper/api"
 	"github.com/apache/incubator-devlake/plugins/github/models/migrationscripts/archived"
 )
 
@@ -82,12 +81,6 @@ func (u *addInitTables) Up(basicRes context.BasicRes) errors.Error {
 	connection.Token = basicRes.GetConfig(`GITHUB_AUTH`)
 	connection.Name = `GitHub`
 	if connection.Endpoint != `` && connection.Token != `` && encodeKey != `` {
-		err = helper.UpdateEncryptFields(connection, func(plaintext string) (string, errors.Error) {
-			return plugin.Encrypt(encodeKey, plaintext)
-		})
-		if err != nil {
-			return err
-		}
 		// update from .env and save to db
 		err = db.Create(connection)
 		if err != nil {

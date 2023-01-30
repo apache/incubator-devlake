@@ -23,11 +23,6 @@ import (
 	"crypto/tls"
 	"encoding/json"
 	"fmt"
-	"github.com/apache/incubator-devlake/core/context"
-	"github.com/apache/incubator-devlake/core/errors"
-	"github.com/apache/incubator-devlake/core/log"
-	"github.com/apache/incubator-devlake/core/utils"
-	"github.com/apache/incubator-devlake/helpers/pluginhelper/common"
 	"io"
 	"net/http"
 	"net/url"
@@ -35,6 +30,13 @@ import (
 	"strings"
 	"time"
 	"unicode/utf8"
+
+	"github.com/apache/incubator-devlake/core/context"
+	"github.com/apache/incubator-devlake/core/errors"
+	"github.com/apache/incubator-devlake/core/log"
+	"github.com/apache/incubator-devlake/core/utils"
+	"github.com/apache/incubator-devlake/helpers/pluginhelper/api/apihelperabstract"
+	"github.com/apache/incubator-devlake/helpers/pluginhelper/common"
 )
 
 // ErrIgnoreAndContinue is a error which should be ignored
@@ -60,7 +62,27 @@ type ApiClient struct {
 	logger        log.Logger
 }
 
-// NewApiClient FIXME ...
+// NewApiClientFromConnection creates ApiClient based on given connection.
+// The connection must
+func NewApiClientFromConnection(
+	ctx gocontext.Context,
+	br context.BasicRes,
+	connection apihelperabstract.ApiConnection,
+) (*ApiClient, errors.Error) {
+	apiClient, err := NewApiClient(ctx, connection.GetEndpoint(), nil, 0, connection.GetProxy(), br)
+	if err != nil {
+		return nil, err
+	}
+	// if connection requires authorization
+	if authenticator, ok := connection.(apihelperabstract.ApiAuthenticator); ok {
+		apiClient.SetBeforeFunction(func(req *http.Request) errors.Error {
+			return authenticator.SetupAuthentication(req)
+		})
+	}
+	return apiClient, nil
+}
+
+// NewApiClient creates a new synchronize ApiClient
 func NewApiClient(
 	ctx gocontext.Context,
 	endpoint string,

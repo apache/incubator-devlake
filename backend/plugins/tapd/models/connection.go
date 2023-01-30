@@ -34,6 +34,7 @@ type WorkspaceResponse struct {
 }
 
 type TapdConnection struct {
+	helper.BaseConnection `mapstructure:",squash"`
 	helper.RestConnection `mapstructure:",squash"`
 	helper.BasicAuth      `mapstructure:",squash"`
 }

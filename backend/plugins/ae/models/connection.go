@@ -21,21 +21,47 @@ import (
 	"crypto/md5"
 	"encoding/hex"
 	"fmt"
-	helper "github.com/apache/incubator-devlake/helpers/pluginhelper/api"
+	"net/http"
 	"net/url"
 	"sort"
 	"strings"
+	"time"
+
+	"github.com/apache/incubator-devlake/core/errors"
+	"github.com/apache/incubator-devlake/core/plugin"
+	helper "github.com/apache/incubator-devlake/helpers/pluginhelper/api"
+	"github.com/apache/incubator-devlake/helpers/pluginhelper/api/apihelperabstract"
 )
 
-type AeConnection struct {
-	helper.RestConnection `mapstructure:",squash"`
-	helper.AppKey         `mapstructure:",squash"`
+type AeAppKey helper.AppKey
+
+// SetupAuthentication sets up the HTTP Request Authentication
+func (aak AeAppKey) SetupAuthentication(req *http.Request) errors.Error {
+	nonceStr := plugin.RandLetterBytes(8)
+	timestamp := fmt.Sprintf("%v", time.Now().Unix())
+	sign := signRequest(req.URL.Query(), aak.AppId, aak.SecretKey, nonceStr, timestamp)
+	req.Header.Set("x-ae-app-id", aak.AppId)
+	req.Header.Set("x-ae-timestamp", timestamp)
+	req.Header.Set("x-ae-nonce-str", nonceStr)
+	req.Header.Set("x-ae-sign", sign)
+	return nil
 }
 
-type TestConnectionRequest struct {
-	Endpoint      string `json:"endpoint"`
-	Proxy         string `json:"proxy"`
-	helper.AppKey `mapstructure:",squash"`
+func (aak AeAppKey) GetAppKeyAuthenticator() apihelperabstract.ApiAuthenticator {
+	return aak
+}
+
+// AeConn holds the essential information to connect to the AE API
+type AeConn struct {
+	helper.RestConnection `mapstructure:",squash"`
+	AeAppKey              `mapstructure:",squash"`
+}
+
+// AeConnection holds AeConn plus ID/Name for database storage
+type AeConnection struct {
+	helper.BaseConnection `mapstructure:",squash"`
+	helper.RestConnection `mapstructure:",squash"`
+	AeAppKey              `mapstructure:",squash"`
 }
 
 // This object conforms to what the frontend currently expects.
@@ -49,7 +75,7 @@ func (AeConnection) TableName() string {
 	return "_tool_ae_connections"
 }
 
-func GetSign(query url.Values, appId, secretKey, nonceStr, timestamp string) string {
+func signRequest(query url.Values, appId, secretKey, nonceStr, timestamp string) string {
 	// clone query because we need to add items
 	kvs := make([]string, 0, len(query)+3)
 	kvs = append(kvs, fmt.Sprintf("app_id=%s", appId))
