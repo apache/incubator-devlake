@@ -186,16 +186,20 @@ func createTmpTable(starrocks *sql.DB, db dal.Dal, starrocksTable string, starro
 	firstcm := ""
 	firstcmName := ""
 	var rowsInStarRocks *sql.Rows
+	var rowsInPostgres dal.Rows
 	defer func() {
 		if rowsInStarRocks != nil {
 			rowsInStarRocks.Close()
+		}
+		if rowsInPostgres != nil {
+			rowsInPostgres.Close()
 		}
 	}()
 	for _, cm := range columnMetas {
 		name := cm.Name()
 		if name == updateColumn {
 			// check update column to detect skip or not
-			rows, err := db.Cursor(
+			rowsInPostgres, err = db.Cursor(
 				dal.From(table),
 				dal.Select(updateColumn),
 				dal.Limit(1),
@@ -205,8 +209,8 @@ func createTmpTable(starrocks *sql.DB, db dal.Dal, starrocksTable string, starro
 				return nil, "", false, err
 			}
 			var updatedFrom time.Time
-			if rows.Next() {
-				err = errors.Convert(rows.Scan(&updatedFrom))
+			if rowsInPostgres.Next() {
+				err = errors.Convert(rowsInPostgres.Scan(&updatedFrom))
 				if err != nil {
 					return nil, "", false, err
 				}
