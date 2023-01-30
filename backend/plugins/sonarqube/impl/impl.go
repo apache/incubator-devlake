@@ -73,7 +73,7 @@ func (p Sonarqube) PrepareTaskData(taskCtx plugin.TaskContext, options map[strin
 		return nil, errors.Default.Wrap(err, "unable to get Sonarqube connection by the given connection ID")
 	}
 
-	apiClient, err := tasks.NewSonarqubeApiClient(taskCtx, connection)
+	apiClient, err := tasks.CreateApiClient(taskCtx, connection)
 	if err != nil {
 		return nil, errors.Default.Wrap(err, "unable to get Sonarqube API client instance")
 	}

@@ -19,13 +19,11 @@ package api
 
 import (
 	"context"
-	"fmt"
 	"github.com/apache/incubator-devlake/core/errors"
 	"github.com/apache/incubator-devlake/core/plugin"
 	"github.com/apache/incubator-devlake/helpers/pluginhelper/api"
 	"github.com/apache/incubator-devlake/plugins/sonarqube/models"
 	"net/http"
-	"time"
 )
 
 type validation struct {
@@ -39,17 +37,7 @@ func TestConnection(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, 
 	if err = api.Decode(input.Body, &connection, vld); err != nil {
 		return nil, err
 	}
-	// test connection
-	apiClient, err := api.NewApiClient(
-		context.TODO(),
-		connection.Endpoint,
-		map[string]string{
-			"Authorization": fmt.Sprintf("Basic %s", connection.GetEncodedToken()),
-		},
-		3*time.Second,
-		connection.Proxy,
-		basicRes,
-	)
+	apiClient, err := api.NewApiClientFromConnection(context.TODO(), basicRes, connection)
 	if err != nil {
 		return nil, err
 	}
@@ -58,19 +46,22 @@ func TestConnection(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, 
 	if err != nil {
 		return nil, err
 	}
-	if res.StatusCode != http.StatusOK {
-		return nil, errors.HttpStatus(res.StatusCode).New(fmt.Sprintf("unexpected status code: %d", res.StatusCode))
+	switch res.StatusCode {
+	case 200: // right StatusCode
+		body := &validation{}
+		err = api.UnmarshalResponse(res, body)
+		if err != nil {
+			return nil, err
+		}
+		if !body.Valid {
+			return nil, errors.Default.New("Authentication failed, please check your access token.")
+		}
+		return &plugin.ApiResourceOutput{Body: true, Status: 200}, nil
+	case 401: // error secretKey or nonceStr
+		return &plugin.ApiResourceOutput{Body: false, Status: res.StatusCode}, nil
+	default: // unknow what happen , back to user
+		return &plugin.ApiResourceOutput{Body: res.Body, Status: res.StatusCode}, nil
 	}
-
-	body := &validation{}
-	err = api.UnmarshalResponse(res, body)
-	if err != nil {
-		return nil, err
-	}
-	if !body.Valid {
-		return nil, errors.Default.New("Authentication failed, please check your access token.")
-	}
-	return nil, nil
 }
 
 /*
