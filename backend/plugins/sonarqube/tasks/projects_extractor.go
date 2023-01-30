@@ -18,28 +18,26 @@ limitations under the License.
 package tasks
 
 import (
+	"encoding/json"
 	"github.com/apache/incubator-devlake/core/errors"
 	"github.com/apache/incubator-devlake/core/plugin"
 	helper "github.com/apache/incubator-devlake/helpers/pluginhelper/api"
+	"github.com/apache/incubator-devlake/plugins/sonarqube/models"
 )
 
-var _ plugin.SubTaskEntryPoint = Extract{{ .ExtractorDataName }}
+var _ plugin.SubTaskEntryPoint = ExtractProjects
 
-func Extract{{ .ExtractorDataName }}(taskCtx plugin.SubTaskContext) errors.Error {
-    extractor, err := helper.NewApiExtractor(helper.ApiExtractorArgs{
-		RawDataSubTaskArgs: helper.RawDataSubTaskArgs{
-			Ctx: taskCtx,
-			Params: {{ .PluginName }}ApiParams{
-			},
-			Table: RAW_{{ .COLLECTOR_DATA_NAME }}_TABLE,
-		},
+func ExtractProjects(taskCtx plugin.SubTaskContext) errors.Error {
+	rawDataSubTaskArgs, _ := CreateRawDataSubTaskArgs(taskCtx, RAW_PROJECTS_TABLE)
+	extractor, err := helper.NewApiExtractor(helper.ApiExtractorArgs{
+		RawDataSubTaskArgs: *rawDataSubTaskArgs,
 		Extract: func(resData *helper.RawData) ([]interface{}, errors.Error) {
-			extractedModels := make([]interface{}, 0)
-			println(resData.Data)
-			println(resData.Input)
-			// TODO decode some db models from api result
-			// extractedModels = append(extractedModels, &models.XXXXXX)
-			return extractedModels, nil
+			body := &models.SonarqubeProject{}
+			err := errors.Convert(json.Unmarshal(resData.Data, body))
+			if err != nil {
+				return nil, err
+			}
+			return []interface{}{body}, nil
 		},
 	})
 	if err != nil {
@@ -49,9 +47,9 @@ func Extract{{ .ExtractorDataName }}(taskCtx plugin.SubTaskContext) errors.Error
 	return extractor.Execute()
 }
 
-var Extract{{ .ExtractorDataName }}Meta = plugin.SubTaskMeta{
-	Name:             "Extract{{ .ExtractorDataName }}",
-	EntryPoint:       Extract{{ .ExtractorDataName }},
+var ExtractProjectsMeta = plugin.SubTaskMeta{
+	Name:             "ExtractProjects",
+	EntryPoint:       ExtractProjects,
 	EnabledByDefault: true,
-	Description:      "Extract raw data into tool layer table {{ .plugin_name }}_{{ .extractor_data_name }}",
+	Description:      "Extract raw data into tool layer table sonarqube_projects",
 }

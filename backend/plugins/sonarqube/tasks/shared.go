@@ -18,8 +18,10 @@ limitations under the License.
 package tasks
 
 import (
+	"github.com/apache/incubator-devlake/core/errors"
 	"github.com/apache/incubator-devlake/core/plugin"
 	"github.com/apache/incubator-devlake/helpers/pluginhelper/api"
+	"net/http"
 )
 
 func CreateRawDataSubTaskArgs(taskCtx plugin.SubTaskContext, rawTable string) (*api.RawDataSubTaskArgs, *SonarqubeTaskData) {
@@ -38,4 +40,26 @@ func CreateRawDataSubTaskArgs(taskCtx plugin.SubTaskContext, rawTable string) (*
 		Table:  rawTable,
 	}
 	return rawDataSubTaskArgs, &filteredData
+}
+
+func GetTotalPagesFromResponse(res *http.Response, args *api.ApiCollectorArgs) (int, errors.Error) {
+	body := &SonarqubePagination{}
+	err := api.UnmarshalResponse(res, body)
+	if err != nil {
+		return 0, err
+	}
+	pages := body.Paging.Total / args.PageSize
+	if body.Paging.Total%args.PageSize > 0 {
+		pages++
+	}
+	return pages, nil
+}
+
+type SonarqubePagination struct {
+	Paging Paging `json:"paging"`
+}
+type Paging struct {
+	PageIndex int `json:"pageIndex"`
+	PageSize  int `json:"pageSize"`
+	Total     int `json:"total"`
 }

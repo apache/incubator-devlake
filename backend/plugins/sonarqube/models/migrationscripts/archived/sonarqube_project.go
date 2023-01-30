@@ -15,29 +15,23 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-package migrationscripts
+package archived
 
 import (
-	"github.com/apache/incubator-devlake/core/context"
-	"github.com/apache/incubator-devlake/core/errors"
-	"github.com/apache/incubator-devlake/helpers/migrationhelper"
-	"github.com/apache/incubator-devlake/plugins/sonarqube/models/migrationscripts/archived"
+	"github.com/apache/incubator-devlake/core/models/migrationscripts/archived"
+	"time"
 )
 
-type addInitTables struct{}
-
-func (*addInitTables) Up(basicRes context.BasicRes) errors.Error {
-	return migrationhelper.AutoMigrateTables(
-		basicRes,
-		&archived.SonarqubeConnection{},
-		&archived.SonarqubeProject{},
-	)
+type SonarqubeProject struct {
+	archived.NoPKModel
+	Key              string `json:"key" gorm:"type:varchar(64);primaryKey"`
+	Name             string `json:"name" gorm:"type:varchar(255)"`
+	Qualifier        string `json:"qualifier" gorm:"type:varchar(255)"`
+	Visibility       string `json:"visibility" gorm:"type:varchar(64)"`
+	LastAnalysisDate *time.Time `json:"lastAnalysisDate"`
+	Revision         string `json:"revision" gorm:"type:varchar(128)"`
 }
 
-func (*addInitTables) Version() uint64 {
-	return 20230130000011
-}
-
-func (*addInitTables) Name() string {
-	return "sonarqube init schemas"
+func (SonarqubeProject) TableName() string {
+	return "_tool_sonarqube_projects"
 }

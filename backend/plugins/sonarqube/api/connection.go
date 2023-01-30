@@ -40,7 +40,7 @@ func TestConnection(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, 
 		context.TODO(),
 		connection.Endpoint,
 		map[string]string{
-			"Authorization": fmt.Sprintf("%s:", connection.Token),
+			"Authorization": fmt.Sprintf("Basic %s", connection.GetEncodedToken()),
 		},
 		3*time.Second,
 		connection.Proxy,

@@ -19,6 +19,7 @@ package tasks
 
 import (
 	"encoding/json"
+	"fmt"
 	"github.com/apache/incubator-devlake/core/errors"
 	"github.com/apache/incubator-devlake/core/plugin"
 	helper "github.com/apache/incubator-devlake/helpers/pluginhelper/api"
@@ -53,8 +54,11 @@ func CollectProjects(taskCtx plugin.SubTaskContext) errors.Error {
 			if data.Options.ProjectKey != "" {
 				query.Set("q", data.Options.ProjectKey)
 			}
+			query.Set("p", fmt.Sprintf("%v", reqData.Pager.Page))
+			query.Set("ps", fmt.Sprintf("%v", reqData.Pager.Size))
 			return query, nil
 		},
+		GetTotalPages: GetTotalPagesFromResponse,
 		ResponseParser: func(res *http.Response) ([]json.RawMessage, errors.Error) {
 			var resData struct {
 				Data []json.RawMessage `json:"components"`

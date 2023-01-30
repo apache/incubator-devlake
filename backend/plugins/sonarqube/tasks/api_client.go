@@ -30,10 +30,9 @@ import (
 )
 
 func NewSonarqubeApiClient(taskCtx plugin.TaskContext, connection *models.SonarqubeConnection) (*api.ApiAsyncClient, errors.Error) {
-	fmt.Println(fmt.Sprintf("%s:", connection.Token))
 	// create synchronize api client so we can calculate api rate limit dynamically
 	headers := map[string]string{
-		"Authorization": fmt.Sprintf("%s:", connection.Token),
+		"Authorization": fmt.Sprintf("Basic %s", connection.GetEncodedToken()),
 	}
 	apiClient, err := api.NewApiClient(taskCtx.GetContext(), connection.Endpoint, headers, 30*time.Second, connection.Proxy, taskCtx)
 	if err != nil {

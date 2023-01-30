@@ -53,6 +53,7 @@ func (p Sonarqube) Init(br context.BasicRes) errors.Error {
 func (p Sonarqube) SubTaskMetas() []plugin.SubTaskMeta {
 	return []plugin.SubTaskMeta{
 		tasks.CollectProjectsMeta,
+		tasks.ExtractProjectsMeta,
 	}
 }
 
