@@ -76,7 +76,7 @@ func (p {{ .PluginName }}) PrepareTaskData(taskCtx plugin.TaskContext, options m
     if err != nil {
         return nil, errors.Default.Wrap(err, "unable to get {{ .PluginName }} API client instance")
     }
-    taskData := &tasks.SonarqubeTaskData{
+	taskData := &tasks.{{ .PluginName }}TaskData{
 		Options:   op,
 		ApiClient: apiClient,
 	}

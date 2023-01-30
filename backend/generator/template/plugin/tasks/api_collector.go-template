@@ -34,7 +34,7 @@ var _ core.SubTaskEntryPoint = Collect{{ .CollectorDataName }}
 
 func Collect{{ .CollectorDataName }}(taskCtx core.SubTaskContext) errors.Error {
 	data := taskCtx.GetData().(*{{ .PluginName }}TaskData)
-	rawDataSubTaskArgs, data := CreateRawDataSubTaskArgs(taskCtx, RAW_PROJECTS_TABLE)
+	rawDataSubTaskArgs, data := CreateRawDataSubTaskArgs(taskCtx, RAW_{{ .COLLECTOR_DATA_NAME }}_TABLE)
 	logger := taskCtx.GetLogger()
 
     collectorWithState, err := helper.NewApiCollectorWithState(*rawDataSubTaskArgs, data.CreatedDateAfter)
@@ -46,7 +46,7 @@ func Collect{{ .CollectorDataName }}(taskCtx core.SubTaskContext) errors.Error {
 	err = collectorWithState.InitCollector(helper.ApiCollectorArgs{
 		Incremental: incremental,
 		ApiClient:   data.ApiClient,
-		PageSize:    100,
+		// PageSize:    100,
 		// TODO write which api would you want request
 		UrlTemplate: "{{ .HttpPath }}",
 		Query: func(reqData *helper.RequestData) (url.Values, errors.Error) {
