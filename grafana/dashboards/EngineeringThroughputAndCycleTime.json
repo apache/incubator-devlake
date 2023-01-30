@@ -167,7 +167,7 @@
           "hide": false,
           "metricColumn": "none",
           "rawQuery": true,
-          "rawSql": "SELECT\n  DATE_ADD(date(pr.created_date), INTERVAL -$interval(date(pr.created_date))+1 DAY) as time,\n  count(distinct id) as \"PR: Opened\",\n  count(distinct case when pr.merged_date is not null then id else null end) as \"PR: Merged\"\nFROM pull_requests pr\n  join project_mapping pm on pr.base_repo_id = pm.row_id\nWHERE\n  $__timeFilter(pr.created_date)\n  and pm.project_name in ($project)\ngroup by 1\n",
+          "rawSql": "SELECT\n  DATE_ADD(date(pr.created_date), INTERVAL -$interval(date(pr.created_date))+1 DAY) as time,\n  count(distinct pr.id) as \"PR: Opened\",\n  count(distinct case when pr.merged_date is not null then id else null end) as \"PR: Merged\"\nFROM pull_requests pr\n  join project_mapping pm on pr.base_repo_id = pm.row_id\nWHERE\n  $__timeFilter(pr.created_date)\n  and pm.project_name in ($project)\ngroup by 1\n",
           "refId": "A",
           "select": [
             [
@@ -1635,37 +1635,6 @@
           }
         ],
         "query": "Month : DAYOFMONTH, Week : WEEKDAY",
-        "queryValue": "",
-        "skipUrlSync": false,
-        "type": "custom"
-      },
-      {
-        "allValue": null,
-        "current": {
-          "selected": false,
-          "text": "Last Comment Date",
-          "value": "last_comment_date"
-        },
-        "description": "",
-        "error": null,
-        "hide": 0,
-        "includeAll": false,
-        "label": "Review End Date",
-        "multi": false,
-        "name": "review_end_date",
-        "options": [
-          {
-            "selected": false,
-            "text": "PR Merged Date",
-            "value": "pr_merged_date"
-          },
-          {
-            "selected": true,
-            "text": "Last Comment Date",
-            "value": "last_comment_date"
-          }
-        ],
-        "query": "PR Merged Date : pr_merged_date, Last Comment Date : last_comment_date",
         "queryValue": "",
         "skipUrlSync": false,
         "type": "custom"

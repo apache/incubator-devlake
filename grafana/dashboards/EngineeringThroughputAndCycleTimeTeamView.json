@@ -2767,37 +2767,6 @@
         "queryValue": "",
         "skipUrlSync": false,
         "type": "custom"
-      },
-      {
-        "allValue": null,
-        "current": {
-          "selected": false,
-          "text": "Last Comment Date",
-          "value": "last_comment_date"
-        },
-        "description": "",
-        "error": null,
-        "hide": 0,
-        "includeAll": false,
-        "label": "Review End Date",
-        "multi": false,
-        "name": "review_end_date",
-        "options": [
-          {
-            "selected": false,
-            "text": "PR Merged Date",
-            "value": "pr_merged_date"
-          },
-          {
-            "selected": true,
-            "text": "Last Comment Date",
-            "value": "last_comment_date"
-          }
-        ],
-        "query": "PR Merged Date : pr_merged_date, Last Comment Date : last_comment_date",
-        "queryValue": "",
-        "skipUrlSync": false,
-        "type": "custom"
       }
     ]
   },
