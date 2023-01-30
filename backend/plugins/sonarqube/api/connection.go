@@ -28,10 +28,14 @@ import (
 	"time"
 )
 
+type validation struct {
+	Valid bool `json:"valid"`
+}
+
 func TestConnection(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, errors.Error) {
 	// decode
 	var err errors.Error
-	var connection models.TestConnectionRequest
+	var connection models.SonarqubeConn
 	if err = api.Decode(input.Body, &connection, vld); err != nil {
 		return nil, err
 	}
@@ -50,12 +54,21 @@ func TestConnection(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, 
 		return nil, err
 	}
 
-	res, err := apiClient.Get("server/version", nil, nil)
+	res, err := apiClient.Get("authentication/validate", nil, nil)
 	if err != nil {
 		return nil, err
 	}
 	if res.StatusCode != http.StatusOK {
 		return nil, errors.HttpStatus(res.StatusCode).New(fmt.Sprintf("unexpected status code: %d", res.StatusCode))
+	}
+
+	body := &validation{}
+	err = api.UnmarshalResponse(res, body)
+	if err != nil {
+		return nil, err
+	}
+	if !body.Valid {
+		return nil, errors.Default.New("Authentication failed, please check your access token.")
 	}
 	return nil, nil
 }

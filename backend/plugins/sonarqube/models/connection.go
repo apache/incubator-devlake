@@ -17,20 +17,44 @@ limitations under the License.
 
 package models
 
-import helper "github.com/apache/incubator-devlake/helpers/pluginhelper/api"
+import (
+	"encoding/base64"
+	"fmt"
+	"github.com/apache/incubator-devlake/core/errors"
+	helper "github.com/apache/incubator-devlake/helpers/pluginhelper/api"
+	"github.com/apache/incubator-devlake/helpers/pluginhelper/api/apihelperabstract"
+	"net/http"
+)
+
+type SonarqubeAccessToken helper.AccessToken
+
+// SetupAuthentication sets up the HTTP Request Authentication
+func (sat SonarqubeAccessToken) SetupAuthentication(req *http.Request) errors.Error {
+	req.Header.Set("Authorization", fmt.Sprintf("Basic %s", sat.GetEncodedToken()))
+	return nil
+}
+
+func (sat SonarqubeAccessToken) GetAccessTokenAuthenticator() apihelperabstract.ApiAuthenticator {
+	return sat
+}
+
+// GetEncodedToken returns encoded bearer token for HTTP Basic Authentication
+func (sat SonarqubeAccessToken) GetEncodedToken() string {
+	return base64.StdEncoding.EncodeToString([]byte(fmt.Sprintf("%v:", sat.Token)))
+}
 
 // This object conforms to what the frontend currently sends.
 type SonarqubeConnection struct {
 	helper.BaseConnection `mapstructure:",squash"`
 	helper.RestConnection `mapstructure:",squash"`
 	// For sonarqube, we can `use user_token:`
-	helper.AccessToken `mapstructure:",squash"`
+	SonarqubeAccessToken `mapstructure:",squash"`
 }
 
-type TestConnectionRequest struct {
-	Endpoint           string `json:"endpoint"`
-	Proxy              string `json:"proxy"`
-	helper.AccessToken `mapstructure:",squash"`
+// SonarqubeConn holds the essential information to connect to the sonarqube API
+type SonarqubeConn struct {
+	helper.RestConnection `mapstructure:",squash"`
+	SonarqubeAccessToken  `mapstructure:",squash"`
 }
 
 // This object conforms to what the frontend currently expects.
@@ -38,12 +62,6 @@ type SonarqubeResponse struct {
 	Name string `json:"name"`
 	ID   int    `json:"id"`
 	SonarqubeConnection
-}
-
-// Using User because it requires authentication.
-type ApiUserResponse struct {
-	Id   int
-	Name string `json:"name"`
 }
 
 func (SonarqubeConnection) TableName() string {
