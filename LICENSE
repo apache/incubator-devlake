@@ -202,55 +202,29 @@
 
 --------------------------------------------------------------------------------
 
-config-ui/src/images/help.svg - Apache License, Version 2.0
+The following icon is using Feather Icons with the MIT license:
+incubator-devlake/config-ui/src/images/icons/file.svg
 
-Copyright 2022 Blueprint JS Icons
+https://feathericons.com/
 
-Licensed under the Apache License, Version 2.0 (the "License");
-you may not use this file except in compliance with the License.
-You may obtain a copy of the License at
+The MIT License (MIT)
 
-    http://www.apache.org/licenses/LICENSE-2.0
+Copyright (c) 2013-2017 Cole Bemis
 
-Unless required by applicable law or agreed to in writing, software
-distributed under the License is distributed on an "AS IS" BASIS,
-WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-See the License for the specific language governing permissions and
-limitations under the License.
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
 
---------------------------------------------------------------------------------
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
 
-config-ui/src/images/integrations/github.svg - Apache License, Version 2.0
-config-ui/src/images/integrations/gitlab.svg
-
-Copyright 2022 Remix Icon
-
-Licensed under the Apache License, Version 2.0 (the "License");
-you may not use this file except in compliance with the License.
-You may obtain a copy of the License at
-
-    http://www.apache.org/licenses/LICENSE-2.0
-
-Unless required by applicable law or agreed to in writing, software
-distributed under the License is distributed on an "AS IS" BASIS,
-WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-See the License for the specific language governing permissions and
-limitations under the License.
-
---------------------------------------------------------------------------------
-
-grafana/img/component-and-file-level-metrics.svg
-grafana/img/contributor-experience.svg
-grafana/img/dora.svg
-grafana/img/engineering-overview.svg
-grafana/img/engineering-throughput-team-view.svg
-grafana/img/engineering-throughput.svg
-grafana/img/github-release-quality-and-contribution-analysis.svg
-grafana/img/weekly-bug-retro.svg
-grafana/img/weekly-community-retro.svg
-
-Copyright 2020 MANYPIXELS PTE LTD
-
-All images, assets and vectors published on ManyPixels can be used for free. You can use them for noncommercial and commercial purposes. You do not need to ask permission from or provide credit to the creator or ManyPixels.
-
-More precisely, ManyPixels grants you an nonexclusive, worldwide copyright license to download, copy, modify, distribute, perform, and use the assets provided from ManyPixels for free, including for commercial purposes, without permission from or attributing the creator or ManyPixels. This license does not include the right to compile assets, vectors or images from ManyPixels to replicate a similar or competing service, in any form or distribute the assets in packs or otherwise. This extends to automated and non-automated ways to link, embed.
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE.
