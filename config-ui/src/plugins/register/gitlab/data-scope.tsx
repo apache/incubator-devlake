@@ -24,12 +24,11 @@ import { MillerColumns, ProjectSelector } from './components';
 
 interface Props {
   connectionId: ID;
-  disabledItems: ScopeItemType[];
   selectedItems: ScopeItemType[];
   onChangeItems: (selectedItems: ScopeItemType[]) => void;
 }
 
-export const GitLabDataScope = ({ connectionId, disabledItems, selectedItems, onChangeItems }: Props) => {
+export const GitLabDataScope = ({ connectionId, selectedItems, onChangeItems }: Props) => {
   const handleChangeItems = (scope: ScopeItemType[]) => {
     onChangeItems(scope);
   };
@@ -38,20 +37,10 @@ export const GitLabDataScope = ({ connectionId, disabledItems, selectedItems, on
     <>
       <h4>Projects *</h4>
       <p>Select the project you would like to sync.</p>
-      <MillerColumns
-        connectionId={connectionId}
-        disabledItems={disabledItems}
-        selectedItems={selectedItems}
-        onChangeItems={handleChangeItems}
-      />
+      <MillerColumns connectionId={connectionId} selectedItems={selectedItems} onChangeItems={handleChangeItems} />
       <h5>Add repositories outside of your projects</h5>
       <p>Search for repositories and add to them</p>
-      <ProjectSelector
-        connectionId={connectionId}
-        disabledItems={disabledItems}
-        selectedItems={selectedItems}
-        onChangeItems={handleChangeItems}
-      />
+      <ProjectSelector connectionId={connectionId} selectedItems={selectedItems} onChangeItems={handleChangeItems} />
     </>
   );
 };

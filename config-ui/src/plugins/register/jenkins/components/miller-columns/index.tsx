@@ -27,13 +27,11 @@ import type { UseMillerColumnsProps } from './use-miller-columns';
 import { useMillerColumns } from './use-miller-columns';
 
 interface Props extends UseMillerColumnsProps {
-  disabledItems?: ScopeItemType[];
-  selectedItems?: ScopeItemType[];
-  onChangeItems?: (selectedItems: ScopeItemType[]) => void;
+  selectedItems: ScopeItemType[];
+  onChangeItems: (selectedItems: ScopeItemType[]) => void;
 }
 
-export const MillerColumns = ({ connectionId, disabledItems, selectedItems, onChangeItems }: Props) => {
-  const [disabledIds, setDisabledIds] = useState<ID[]>([]);
+export const MillerColumns = ({ connectionId, selectedItems, onChangeItems }: Props) => {
   const [selectedIds, setSelectedIds] = useState<ID[]>([]);
 
   const { items, getHasMore, onExpandItem } = useMillerColumns({
@@ -41,23 +39,19 @@ export const MillerColumns = ({ connectionId, disabledItems, selectedItems, onCh
   });
 
   useEffect(() => {
-    setDisabledIds((disabledItems ?? []).map((it) => it.jobFullName));
-  }, [disabledItems]);
-
-  useEffect(() => {
-    setSelectedIds((selectedItems ?? []).map((it) => it.jobFullName));
+    setSelectedIds(selectedItems.map((it) => it.jobFullName));
   }, [selectedItems]);
 
   const handleChangeItems = (selectedIds: ID[]) => {
     const result = items
-      .filter((it) => selectedIds.includes(it.id) && it.type !== 'folder')
+      .filter((it) => (selectedIds.length ? selectedIds.includes(it.id) : false))
       .map((it: any) => ({
         connectionId,
         jobFullName: it.id,
         name: it.id,
       }));
 
-    onChangeItems?.(result);
+    onChangeItems(result);
   };
 
   const renderLoading = () => {
@@ -72,7 +66,6 @@ export const MillerColumns = ({ connectionId, disabledItems, selectedItems, onCh
       getHasMore={getHasMore}
       renderLoading={renderLoading}
       items={items}
-      disabledIds={disabledIds}
       selectedIds={selectedIds}
       onSelectItemIds={handleChangeItems}
       onExpandItem={onExpandItem}

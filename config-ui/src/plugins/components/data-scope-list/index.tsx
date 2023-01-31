@@ -17,10 +17,10 @@
  */
 
 import React from 'react';
-import { Button, Icon, Intent, Position } from '@blueprintjs/core';
+import { Icon, Position } from '@blueprintjs/core';
 import { Tooltip2 } from '@blueprintjs/popover2';
 
-import { Loading, DeleteButton } from '@/components';
+import { Loading } from '@/components';
 
 import type { UseDataScopeList } from './use-data-scope-list';
 import { useDataScopeList } from './use-data-scope-list';
@@ -29,10 +29,9 @@ import * as S from './styled';
 interface Props extends UseDataScopeList {
   groupByTs: boolean;
   scopeIds: string[];
-  onDelete?: (plugin: string, connectionId: ID, scopeId: ID) => void;
 }
 
-export const DataScopeList = ({ groupByTs, scopeIds, onDelete, ...props }: Props) => {
+export const DataScopeList = ({ groupByTs, scopeIds, ...props }: Props) => {
   const { loading, scope, scopeTsMap } = useDataScopeList({ scopeIds, ...props });
 
   if (!scope.length) {
@@ -49,9 +48,6 @@ export const DataScopeList = ({ groupByTs, scopeIds, onDelete, ...props }: Props
         scope.map((sc) => (
           <S.ScopeItem key={sc.id}>
             <span>{sc.name}</span>
-            <DeleteButton onDelete={() => onDelete?.(props.plugin, props.connectionId, sc.id)}>
-              <Button small minimal intent={Intent.PRIMARY} icon="cross" />
-            </DeleteButton>
           </S.ScopeItem>
         ))}
 
@@ -68,11 +64,6 @@ export const DataScopeList = ({ groupByTs, scopeIds, onDelete, ...props }: Props
                   <Tooltip2 className="name" content={sc.name} position={Position.TOP}>
                     <span>{sc.name}</span>
                   </Tooltip2>
-                  {onDelete && scopeIds.length > 1 && (
-                    <DeleteButton onDelete={() => onDelete(props.plugin, props.connectionId, sc.id)}>
-                      <Button small minimal intent={Intent.PRIMARY} icon="cross" />
-                    </DeleteButton>
-                  )}
                 </li>
               ))}
             </ul>
