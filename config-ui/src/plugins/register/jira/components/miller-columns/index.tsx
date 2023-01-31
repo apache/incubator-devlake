@@ -27,13 +27,11 @@ import type { UseMillerColumnsProps } from './use-miller-columns';
 import { useMillerColumns } from './use-miller-columns';
 
 interface Props extends UseMillerColumnsProps {
-  disabledItems?: ScopeItemType[];
-  selectedItems?: ScopeItemType[];
-  onChangeItems?: (selectedItems: ScopeItemType[]) => void;
+  selectedItems: ScopeItemType[];
+  onChangeItems: (selectedItems: ScopeItemType[]) => void;
 }
 
-export const MillerColumns = ({ connectionId, disabledItems, selectedItems, onChangeItems }: Props) => {
-  const [disabledIds, setDisabledIds] = useState<ID[]>([]);
+export const MillerColumns = ({ connectionId, selectedItems, onChangeItems }: Props) => {
   const [selectedIds, setSelectedIds] = useState<ID[]>([]);
 
   const { items, getHasMore, onScrollColumn } = useMillerColumns({
@@ -41,16 +39,12 @@ export const MillerColumns = ({ connectionId, disabledItems, selectedItems, onCh
   });
 
   useEffect(() => {
-    setDisabledIds((disabledItems ?? []).map((it) => it.boardId));
-  }, [disabledItems]);
-
-  useEffect(() => {
-    setSelectedIds((selectedItems ?? []).map((it) => it.boardId));
+    setSelectedIds(selectedItems.map((it) => it.boardId));
   }, [selectedItems]);
 
   const handleChangeItems = (selectedIds: ID[]) => {
     const result = items
-      .filter((it) => selectedIds.includes(it.id))
+      .filter((it) => (selectedIds.length ? selectedIds.includes(it.id) : false))
       .map((it) => ({
         connectionId,
         boardId: it.boardId,
@@ -60,7 +54,7 @@ export const MillerColumns = ({ connectionId, disabledItems, selectedItems, onCh
         projectId: it.projectId,
       }));
 
-    onChangeItems?.(result);
+    onChangeItems(result);
   };
 
   const renderLoading = () => {
@@ -74,7 +68,6 @@ export const MillerColumns = ({ connectionId, disabledItems, selectedItems, onCh
       getHasMore={getHasMore}
       renderLoading={renderLoading}
       items={items}
-      disabledIds={disabledIds}
       selectedIds={selectedIds}
       onSelectItemIds={handleChangeItems}
       onScrollColumn={onScrollColumn}

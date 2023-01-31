@@ -35,51 +35,30 @@ interface Props extends UseDataScope {
 }
 
 export const DataScope = ({ plugin, connectionId, entities, onCancel, ...props }: Props) => {
-  const { saving, disabledScope, selectedScope, selectedEntities, onChangeScope, onChangeEntites, onSave } =
-    useDataScope({
-      ...props,
-      plugin,
-      connectionId,
-      entities,
-    });
+  const { saving, selectedScope, selectedEntities, onChangeScope, onChangeEntites, onSave } = useDataScope({
+    ...props,
+    plugin,
+    connectionId,
+    entities,
+  });
 
   return (
     <S.Wrapper>
       <div className="block">
         {plugin === 'github' && (
-          <GitHubDataScope
-            connectionId={connectionId}
-            disabledItems={disabledScope}
-            selectedItems={selectedScope}
-            onChangeItems={onChangeScope}
-          />
+          <GitHubDataScope connectionId={connectionId} selectedItems={selectedScope} onChangeItems={onChangeScope} />
         )}
 
         {plugin === 'jira' && (
-          <JIRADataScope
-            connectionId={connectionId}
-            disabledItems={disabledScope}
-            selectedItems={selectedScope}
-            onChangeItems={onChangeScope}
-          />
+          <JIRADataScope connectionId={connectionId} selectedItems={selectedScope} onChangeItems={onChangeScope} />
         )}
 
         {plugin === 'gitlab' && (
-          <GitLabDataScope
-            connectionId={connectionId}
-            disabledItems={disabledScope}
-            selectedItems={selectedScope}
-            onChangeItems={onChangeScope}
-          />
+          <GitLabDataScope connectionId={connectionId} selectedItems={selectedScope} onChangeItems={onChangeScope} />
         )}
 
         {plugin === 'jenkins' && (
-          <JenkinsDataScope
-            connectionId={connectionId}
-            disabledItems={disabledScope}
-            selectedItems={selectedScope}
-            onChangeItems={onChangeScope}
-          />
+          <JenkinsDataScope connectionId={connectionId} selectedItems={selectedScope} onChangeItems={onChangeScope} />
         )}
       </div>
 
