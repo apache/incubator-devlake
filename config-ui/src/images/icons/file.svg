@@ -1,3 +1,29 @@
+<!--
+This icon is from Feather Icons with the MIT license: https://feathericons.com/
+
+The MIT License (MIT)
+
+Copyright (c) 2013-2017 Cole Bemis
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE.
+-->
+
 <svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
   <path fill-rule="evenodd" clip-rule="evenodd"
     d="M3.23223 1.56524C3.70107 1.0964 4.33696 0.833008 5 0.833008H11.6667C11.8877 0.833008 12.0996 0.920805 12.2559 1.07709L17.2559 6.07709C17.4122 6.23337 17.5 6.44533 17.5 6.66634V16.6663C17.5 17.3294 17.2366 17.9653 16.7678 18.4341C16.2989 18.9029 15.663 19.1663 15 19.1663H5C4.33696 19.1663 3.70107 18.9029 3.23223 18.4341C2.76339 17.9653 2.5 17.3294 2.5 16.6663V3.33301C2.5 2.66997 2.76339 2.03408 3.23223 1.56524ZM5 2.49967C4.77899 2.49967 4.56702 2.58747 4.41074 2.74375C4.25446 2.90003 4.16667 3.11199 4.16667 3.33301V16.6663C4.16667 16.8874 4.25446 17.0993 4.41074 17.2556C4.56702 17.4119 4.77899 17.4997 5 17.4997H15C15.221 17.4997 15.433 17.4119 15.5893 17.2556C15.7455 17.0993 15.8333 16.8874 15.8333 16.6663V7.01152L11.3215 2.49967H5Z"
