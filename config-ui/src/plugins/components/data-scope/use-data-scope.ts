@@ -88,6 +88,7 @@ export const useDataScope = ({ plugin, connectionId, entities, initialValues, on
         }),
       {
         setOperating: setSaving,
+        hideToast: true,
       },
     );
 
