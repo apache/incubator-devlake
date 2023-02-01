@@ -65,8 +65,8 @@ func CreateRawDataSubTaskArgs(taskCtx plugin.SubTaskContext, Table string) (*api
 func GetQuery(reqData *api.RequestData) (url.Values, errors.Error) {
 	query := url.Values{}
 	query.Set("state", "all")
-	query.Set("page", fmt.Sprintf("%v", reqData.Pager.Page))
-	query.Set("pagelen", fmt.Sprintf("%v", reqData.Pager.Size))
+	query.Set("start", fmt.Sprintf("%v", reqData.Pager.Page*reqData.Pager.Size))
+	query.Set("limit", fmt.Sprintf("%v", reqData.Pager.Size))
 
 	return query, nil
 }
