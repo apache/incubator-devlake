@@ -26,7 +26,7 @@ import { PageHeader, Card, PageLoading } from '@/components';
 import type { PluginConfigConnectionType } from '@/plugins';
 import { PluginConfig } from '@/plugins';
 
-import { RateLimit, GitHubToken, GitLabToken } from './components';
+import { RateLimit, GitHubToken, GitLabToken, JIRAAuth } from './components';
 import { useForm } from './use-form';
 import * as S from './styled';
 
@@ -51,12 +51,23 @@ export const ConnectionFormPage = () => {
   }, [initialValues, connection]);
 
   const error = useMemo(
-    () => !!(fields.filter((field) => field.required) ?? []).find((field) => !form[field.key]),
+    () =>
+      fields.every((field) => {
+        if (field.required) {
+          return !!form[field.key];
+        }
+
+        if (field.checkError) {
+          return !field.checkError(form);
+        }
+
+        return true;
+      }),
     [form, fields],
   );
 
   const handleTest = () =>
-    onTest(pick(form, ['endpoint', 'token', 'username', 'password', 'app_id', 'secret_key', 'proxy']));
+    onTest(pick(form, ['endpoint', 'token', 'username', 'password', 'app_id', 'secret_key', 'proxy', 'authMethod']));
 
   const handleCancel = () => history.push(`/connections/${plugin}`);
 
@@ -70,6 +81,21 @@ export const ConnectionFormPage = () => {
     placeholder,
     tooltip,
   }: PluginConfigConnectionType['connection']['fields']['0']) => {
+    if (type === 'jiraAuth') {
+      return (
+        <JIRAAuth
+          key={key}
+          value={{ authMethod: form.authMethod, username: form.username, password: form.password, token: form.token }}
+          onChange={(value) => {
+            setForm({
+              ...form,
+              ...value,
+            });
+          }}
+        />
+      );
+    }
+
     return (
       <FormGroup
         key={key}

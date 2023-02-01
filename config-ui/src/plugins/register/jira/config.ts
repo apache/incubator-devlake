@@ -22,10 +22,9 @@ import {
   BaseConnectionConfig,
   ConnectionName,
   ConnectionEndpoint,
-  ConnectionUsername,
-  ConnectionPassword,
   ConnectionProxy,
   ConnectionRatelimit,
+  ConnectionJIRAAuth,
 } from '../base';
 
 import Icon from './assets/icon.svg';
@@ -48,12 +47,7 @@ export const JIRAConfig: PluginConfigType = {
       ConnectionEndpoint({
         placeholder: 'eg. https://your-domain.atlassian.net/rest/',
       }),
-      ConnectionUsername({
-        label: 'Username / E-mail',
-      }),
-      ConnectionPassword({
-        tooltip: 'If you are using JIRA Cloud or JIRA Server,\nyour API Token should be used as password.',
-      }),
+      ConnectionJIRAAuth(),
       ConnectionProxy(),
       ConnectionRatelimit(),
     ],

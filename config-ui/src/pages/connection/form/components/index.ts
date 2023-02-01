@@ -19,3 +19,4 @@
 export * from './rate-limit';
 export * from './github-token';
 export * from './gitlab-token';
+export * from './jira-auth';
