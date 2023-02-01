@@ -32,11 +32,12 @@ export type PluginConfigConnectionType = {
     initialValues?: Record<string, any>;
     fields: Array<{
       key: string;
-      type: 'text' | 'password' | 'switch' | 'rateLimit' | 'githubToken' | 'gitlabToken';
-      label: string;
+      type: 'text' | 'password' | 'switch' | 'rateLimit' | 'githubToken' | 'gitlabToken' | 'jiraAuth';
+      label?: string;
       required?: boolean;
       placeholder?: string;
       tooltip?: string;
+      checkError?: (value: any) => boolean;
     }>;
   };
   entities: string[];
