@@ -18,51 +18,86 @@ limitations under the License.
 package e2e
 
 import (
-	"github.com/apache/incubator-devlake/plugins/customize/models"
 	"testing"
 
 	"github.com/apache/incubator-devlake/core/models/domainlayer/ticket"
 	"github.com/apache/incubator-devlake/helpers/e2ehelper"
 	"github.com/apache/incubator-devlake/plugins/customize/impl"
+	"github.com/apache/incubator-devlake/plugins/customize/models"
 	"github.com/apache/incubator-devlake/plugins/customize/service"
-	"github.com/apache/incubator-devlake/plugins/customize/tasks"
 )
 
-func TestBoardDataFlow(t *testing.T) {
+func TestCustomizedFieldDataFlow(t *testing.T) {
 	var plugin impl.Customize
 	dataflowTester := e2ehelper.NewDataFlowTester(t, "customize", plugin)
 
-	taskData := &tasks.TaskData{
-		Options: &tasks.Options{
-			TransformationRules: []tasks.MappingRules{{
-				Table:         "issues",
-				RawDataTable:  "_raw_jira_api_issues",
-				RawDataParams: "{\"ConnectionId\":1,\"BoardId\":8}",
-				Mapping:       map[string]string{"x_test": "fields.created"},
-			}}}}
-
 	// import raw data table
-	dataflowTester.ImportCsvIntoRawTable("./raw_tables/_raw_jira_api_issues.csv", "_raw_jira_api_issues")
 	dataflowTester.ImportCsvIntoTabler("./raw_tables/issues.csv", &ticket.Issue{})
 	dataflowTester.FlushTabler(&models.CustomizedField{})
 	svc := service.NewService(dataflowTester.Dal)
 	err := svc.CreateField(&models.CustomizedField{
 		TbName:      "issues",
-		ColumnName:  "x_test",
-		DisplayName: "test column",
+		ColumnName:  "x_varchar",
+		DisplayName: "test column x_varchar",
 		DataType:    "varchar(255)",
 	})
 	if err != nil {
 		t.Fatal(err)
 	}
-	// verify extension fields extraction
-	dataflowTester.Subtask(tasks.ExtractCustomizedFieldsMeta, taskData)
+	err = svc.CreateField(&models.CustomizedField{
+		TbName:      "issues",
+		ColumnName:  "x_text",
+		DisplayName: "test column x_text",
+		DataType:    "text",
+	})
+	if err != nil {
+		t.Fatal(err)
+	}
+	err = svc.CreateField(&models.CustomizedField{
+		TbName:      "issues",
+		ColumnName:  "x_int",
+		DisplayName: "test column x_int",
+		DataType:    "bigint",
+	})
+	if err != nil {
+		t.Fatal(err)
+	}
+	err = svc.CreateField(&models.CustomizedField{
+		TbName:      "issues",
+		ColumnName:  "x_float",
+		DisplayName: "test column x_float",
+		DataType:    "float",
+	})
+	if err != nil {
+		t.Fatal(err)
+	}
+	err = svc.CreateField(&models.CustomizedField{
+		TbName:      "issues",
+		ColumnName:  "x_time",
+		DisplayName: "test column x_time",
+		DataType:    "timestamp",
+	})
+	if err != nil {
+		t.Fatal(err)
+	}
+	ff, err := svc.GetFields("issues")
+	if err != nil {
+		t.Fatal(err)
+	}
+	for _, f := range ff {
+		t.Logf("%+v\n", f)
+	}
+	err = svc.DeleteField("issues", "x_varchar")
+	if err != nil {
+		t.Fatal(err)
+	}
 	dataflowTester.VerifyTable(
-		ticket.Issue{},
-		"./snapshot_tables/issues.csv",
-		e2ehelper.ColumnWithRawData(
-			"id",
-			"x_test",
-		),
-	)
+		&models.CustomizedField{},
+		"snapshot_tables/_tool_customized_fields.csv",
+		[]string{
+			"tb_name",
+			"column_name",
+			"display_name",
+			"data_type",
+		})
 }

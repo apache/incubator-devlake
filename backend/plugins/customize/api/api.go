@@ -18,107 +18,76 @@ limitations under the License.
 package api
 
 import (
-	"github.com/apache/incubator-devlake/core/dal"
-	"github.com/apache/incubator-devlake/core/errors"
-	"github.com/apache/incubator-devlake/core/plugin"
-	"github.com/apache/incubator-devlake/plugins/customize/models"
+	"fmt"
 	"net/http"
 	"strings"
 
-	_ "github.com/apache/incubator-devlake/server/api/shared"
+	"github.com/apache/incubator-devlake/core/dal"
+	"github.com/apache/incubator-devlake/core/errors"
+	"github.com/apache/incubator-devlake/core/plugin"
+	helper "github.com/apache/incubator-devlake/helpers/pluginhelper/api"
+	"github.com/apache/incubator-devlake/plugins/customize/models"
+	"github.com/apache/incubator-devlake/plugins/customize/service"
 )
 
 type field struct {
-	ColumnName string `json:"columnName"`
-	ColumnType string `json:"columnType"`
+	ColumnName  string `json:"columnName" example:"x_column_varchar"`
+	DisplayName string `json:"displayName" example:"department"`
+	DataType    string `json:"dataType" example:"varchar(255)"`
 }
 
-func getFields(d dal.Dal, tbl string) ([]field, errors.Error) {
-	columns, err := d.GetColumns(&models.Table{Name: tbl}, func(columnMeta dal.ColumnMeta) bool {
-		return strings.HasPrefix(columnMeta.Name(), "x_")
-	})
-	if err != nil {
-		return nil, errors.Default.Wrap(err, "GetColumns error")
+func (f *field) toCustomizedField(table string) (*models.CustomizedField, errors.Error) {
+	if !strings.HasPrefix(f.ColumnName, "x_") {
+		return nil, errors.BadInput.New("the columnName should start with x_")
 	}
-	var result []field
-	for _, col := range columns {
-		result = append(result, field{
-			ColumnName: col.Name(),
-			ColumnType: "VARCHAR(255)",
-		})
+	if f.DisplayName == "" {
+		return nil, errors.BadInput.New("the displayName is empty")
 	}
-	return result, nil
-}
-func checkField(d dal.Dal, table, field string) (bool, errors.Error) {
-	if !strings.HasPrefix(field, "x_") {
-		return false, errors.Default.New("column name should start with `x_`")
+	t, ok := dal.ToColumnType(f.DataType)
+	if !ok {
+		return nil, errors.BadInput.New(fmt.Sprintf("the columnType:%s is unsupported", f.DataType))
 	}
-	fields, err := getFields(d, table)
-	if err != nil {
-		return false, err
-	}
-	for _, fld := range fields {
-		if fld.ColumnName == field {
-			return true, nil
-		}
-	}
-	return false, nil
+	return &models.CustomizedField{
+		TbName:      table,
+		ColumnName:  f.ColumnName,
+		DisplayName: f.DisplayName,
+		DataType:    t,
+	}, nil
 }
 
-func CreateField(d dal.Dal, table, field string) errors.Error {
-	exists, err := checkField(d, table, field)
-	if err != nil {
-		return err
+func fromCustomizedField(cf models.CustomizedField) field {
+	return field{
+		ColumnName:  cf.ColumnName,
+		DisplayName: cf.DisplayName,
+		DataType:    cf.DataType.String(),
 	}
-	if exists {
-		return nil
-	}
-	err = d.AddColumn(table, field, "VARCHAR(255)")
-	if err != nil {
-		return errors.Default.Wrap(err, "AddColumn error")
-	}
-	return nil
 }
 
-func deleteField(d dal.Dal, table, field string) errors.Error {
-	exists, err := checkField(d, table, field)
-	if err != nil {
-		return err
-	}
-	if !exists {
-		return nil
-	}
-	err = d.DropColumns(table, field)
-	if err != nil {
-		return errors.Default.Wrap(err, "DropColumn error")
-	}
-	return nil
-}
-
-//nolint:unused
-type input struct {
-	Name string `json:"name" example:"x_new_column"`
-}
 type Handlers struct {
-	dal dal.Dal
+	svc *service.Service
 }
 
 func NewHandlers(dal dal.Dal) *Handlers {
-	return &Handlers{dal: dal}
+	return &Handlers{svc: service.NewService(dal)}
 }
 
 // ListFields return all customized fields
 // @Summary return all customized fields
 // @Description return all customized fieldsh
 // @Tags plugins/customize
-// @Success 200  {object} shared.ApiBody "Success"
-// @Failure 400  {string} errcode.Error "Bad Request"
-// @Failure 500  {string} errcode.Error "Internal Error"
+// @Param table path string true "the table name"
+// @Success 200  {object} []field "Success"
+// @Failure 400  {object} shared.ApiBody "Bad Request"
+// @Failure 500  {object} shared.ApiBody "Internal Error"
 // @Router /plugins/customize/{table}/fields [GET]
 func (h *Handlers) ListFields(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, errors.Error) {
-	fields, err := getFields(h.dal, input.Params["table"])
+	customizedFields, err := h.svc.GetFields(input.Params["table"])
 	if err != nil {
 		return &plugin.ApiResourceOutput{Status: http.StatusBadRequest}, errors.Default.Wrap(err, "getFields error")
+	}
+	fields := make([]field, 0, len(customizedFields))
+	for _, cf := range customizedFields {
+		fields = append(fields, fromCustomizedField(cf))
 	}
 	return &plugin.ApiResourceOutput{Body: fields, Status: http.StatusOK}, nil
 }
@@ -127,36 +96,44 @@ func (h *Handlers) ListFields(input *plugin.ApiResourceInput) (*plugin.ApiResour
 // @Summary create a customized field
 // @Description create a customized field
 // @Tags plugins/customize
-// @Param request body input true "request body"
-// @Success 200  {object} shared.ApiBody "Success"
-// @Failure 400  {string} errcode.Error "Bad Request"
-// @Failure 500  {string} errcode.Error "Internal Error"
+// @Param table path string true "the table name"
+// @Param request body field true "request body"
+// @Success 200  {object} field "Success"
+// @Failure 400  {object} shared.ApiBody "Bad Request"
+// @Failure 500  {object} shared.ApiBody "Internal Error"
 // @Router /plugins/customize/{table}/fields [POST]
 func (h *Handlers) CreateFields(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, errors.Error) {
 	table := input.Params["table"]
-	fld, ok := input.Body["name"].(string)
-	if !ok {
-		return &plugin.ApiResourceOutput{Status: http.StatusBadRequest}, errors.BadInput.New("the name is not string")
+	fld := &field{}
+	err := helper.Decode(input.Body, fld, nil)
+	if err != nil {
+		return &plugin.ApiResourceOutput{Status: http.StatusBadRequest}, err
 	}
-	err := CreateField(h.dal, table, fld)
+	customizedField, err := fld.toCustomizedField(table)
+	if err != nil {
+		return &plugin.ApiResourceOutput{Status: http.StatusBadRequest}, err
+	}
+	err = h.svc.CreateField(customizedField)
 	if err != nil {
 		return nil, errors.Default.Wrap(err, "CreateField error")
 	}
-	return &plugin.ApiResourceOutput{Body: field{fld, "varchar(255)"}, Status: http.StatusOK}, nil
+	return &plugin.ApiResourceOutput{Body: fld, Status: http.StatusOK}, nil
 }
 
 // DeleteField delete a customized fields
 // @Summary return all customized fields
 // @Description return all customized fields
 // @Tags plugins/customize
+// @Param table path string true "the table name"
+// @Param field path string true "the column to be deleted"
 // @Success 200  {object} shared.ApiBody "Success"
-// @Failure 400  {string} errcode.Error "Bad Request"
-// @Failure 500  {string} errcode.Error "Internal Error"
-// @Router /plugins/customize/{table}/fields [DELETE]
+// @Failure 400  {object} shared.ApiBody "Bad Request"
+// @Failure 500  {object} shared.ApiBody "Internal Error"
+// @Router /plugins/customize/{table}/fields/{field} [DELETE]
 func (h *Handlers) DeleteField(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, errors.Error) {
 	table := input.Params["table"]
 	fld := input.Params["field"]
-	err := deleteField(h.dal, table, fld)
+	err := h.svc.DeleteField(table, fld)
 	if err != nil {
 		return &plugin.ApiResourceOutput{Status: http.StatusBadRequest}, errors.Default.Wrap(err, "deleteField error")
 	}

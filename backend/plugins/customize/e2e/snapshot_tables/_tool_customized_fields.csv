@@ -1,0 +1,5 @@
+tb_name,column_name,display_name,data_type
+issues,x_float,test column x_float,float
+issues,x_int,test column x_int,bigint
+issues,x_text,test column x_text,text
+issues,x_time,test column x_time,timestamp

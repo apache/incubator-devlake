@@ -31,6 +31,20 @@ import (
 	"gorm.io/gorm/clause"
 )
 
+const (
+	Varchar ColumnType = "varchar(255)"
+	Text    ColumnType = "text"
+	Int     ColumnType = "bigint"
+	Time    ColumnType = "timestamp"
+	Float   ColumnType = "float"
+)
+
+type ColumnType string
+
+func (c ColumnType) String() string {
+	return string(c)
+}
+
 // Dalgorm implements the dal.Dal interface with gorm
 type Dalgorm struct {
 	db *gorm.DB
@@ -247,13 +261,13 @@ func (d *Dalgorm) GetColumns(dst dal.Tabler, filter func(columnMeta dal.ColumnMe
 }
 
 // AddColumn add one column for the table
-func (d *Dalgorm) AddColumn(table, columnName, columnType string) errors.Error {
+func (d *Dalgorm) AddColumn(table, columnName string, columnType dal.ColumnType) errors.Error {
 	// work around the error `cached plan must not change result type` for postgres
 	// wrap in func(){} to make the linter happy
 	defer func() {
 		_ = d.Exec("SELECT * FROM ? LIMIT 1", clause.Table{Name: table})
 	}()
-	return d.Exec("ALTER TABLE ? ADD ? ?", clause.Table{Name: table}, clause.Column{Name: columnName}, clause.Expr{SQL: columnType})
+	return d.Exec("ALTER TABLE ? ADD ? ?", clause.Table{Name: table}, clause.Column{Name: columnName}, clause.Expr{SQL: columnType.String()})
 }
 
 // DropColumns drop one column from the table
