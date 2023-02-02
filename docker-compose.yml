@@ -82,7 +82,7 @@ services:
     build:
       context: "config-ui"
     ports:
-      - "127.0.0.1:4000:4000"
+      - "4000:4000"
     env_file:
       - ./.env
     environment:
