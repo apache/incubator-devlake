@@ -74,12 +74,10 @@ func ConvertPullRequests(taskCtx plugin.SubTaskContext) errors.Error {
 			// Getting the merge reference commit
 			mergeCommit := &models.BitbucketCommit{}
 			err = db.First(mergeCommit, dal.Where("LEFT(sha, 12) = ?", pr.MergeCommitSha))
-			if err != nil {
-				mergeCommit.CommittedDate = *pr.MergedAt
+			if err == nil {
+				// Setting the PR merged datetime to the commit commited datetime
+				pr.MergedAt = &mergeCommit.CommittedDate
 			}
-
-			// Setting the PR merged datetime to the commit commited datetime
-			pr.MergedAt = &mergeCommit.CommittedDate
 
 			domainPr := &code.PullRequest{
 				DomainEntity: domainlayer.DomainEntity{
