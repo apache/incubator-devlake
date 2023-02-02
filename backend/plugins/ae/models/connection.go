@@ -30,7 +30,6 @@ import (
 	"github.com/apache/incubator-devlake/core/errors"
 	"github.com/apache/incubator-devlake/core/plugin"
 	helper "github.com/apache/incubator-devlake/helpers/pluginhelper/api"
-	"github.com/apache/incubator-devlake/helpers/pluginhelper/api/apihelperabstract"
 )
 
 type AeAppKey helper.AppKey
@@ -47,10 +46,6 @@ func (aak AeAppKey) SetupAuthentication(req *http.Request) errors.Error {
 	return nil
 }
 
-func (aak AeAppKey) GetAppKeyAuthenticator() apihelperabstract.ApiAuthenticator {
-	return aak
-}
-
 // AeConn holds the essential information to connect to the AE API
 type AeConn struct {
 	helper.RestConnection `mapstructure:",squash"`
@@ -62,13 +57,6 @@ type AeConnection struct {
 	helper.BaseConnection `mapstructure:",squash"`
 	helper.RestConnection `mapstructure:",squash"`
 	AeAppKey              `mapstructure:",squash"`
-}
-
-// This object conforms to what the frontend currently expects.
-type AeResponse struct {
-	AeConnection
-	Name string `json:"name"`
-	ID   int    `json:"id"`
 }
 
 func (AeConnection) TableName() string {

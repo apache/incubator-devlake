@@ -27,7 +27,6 @@ type GitlabConn struct {
 	helper.AccessToken    `mapstructure:",squash"`
 }
 
-// This object conforms to what the frontend currently sends.
 // GitlabConnection holds GitlabConn plus ID/Name for database storage
 type GitlabConnection struct {
 	helper.BaseConnection `mapstructure:",squash"`
