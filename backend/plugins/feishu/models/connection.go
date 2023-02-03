@@ -21,7 +21,6 @@ import (
 	"fmt"
 
 	"github.com/apache/incubator-devlake/core/errors"
-	"github.com/apache/incubator-devlake/helpers/pluginhelper/api"
 	helper "github.com/apache/incubator-devlake/helpers/pluginhelper/api"
 	"github.com/apache/incubator-devlake/helpers/pluginhelper/api/apihelperabstract"
 	"github.com/apache/incubator-devlake/plugins/feishu/apimodels"
@@ -44,7 +43,7 @@ func (conn *FeishuConn) PrepareApiClient(apiClient apihelperabstract.ApiClientAb
 		return err
 	}
 	tokenResBody := &apimodels.ApiAccessTokenResponse{}
-	err = api.UnmarshalResponse(tokenRes, tokenResBody)
+	err = helper.UnmarshalResponse(tokenRes, tokenResBody)
 	if err != nil {
 		return err
 	}
