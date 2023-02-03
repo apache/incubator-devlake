@@ -35,15 +35,19 @@ export const getUserProjects = (prefix: string, uid: ID, params: PaginationParam
     data: params,
   });
 
-export const getGroupSubgroups = (prefix: string, gid: ID, params: PaginationParams) =>
-  request(`${prefix}/groups/${gid}/subgroups`, {
+export const getGroupSubgroups = (prefix: string, gid: ID, params: PaginationParams) => {
+  const id = (gid as string).split('-')[0];
+  return request(`${prefix}/groups/${id}/subgroups`, {
     data: params,
   });
+};
 
-export const getGroupProjects = (prefix: string, gid: ID, params: PaginationParams) =>
-  request(`${prefix}/groups/${gid}/projects`, {
+export const getGroupProjects = (prefix: string, gid: ID, params: PaginationParams) => {
+  const id = (gid as string).split('-')[0];
+  return request(`${prefix}/groups/${id}/projects`, {
     data: { with_shared: false, ...params },
   });
+};
 
 type SearchProjectParams = {
   search: string;

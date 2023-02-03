@@ -61,7 +61,7 @@ export const useMillerColumns = ({ connectionId }: UseMillerColumnsProps) => {
   const formatGroups = (arr: any, parentId: ID | null = null): GitLabItemType[] =>
     arr.map((it: any) => ({
       parentId,
-      id: it.id,
+      id: `${it.id}-group`,
       title: it.name,
       type: 'group',
     }));
@@ -69,7 +69,7 @@ export const useMillerColumns = ({ connectionId }: UseMillerColumnsProps) => {
   const formatProjects = (arr: any, parentId: ID | null = null): GitLabItemType[] =>
     arr.map((it: any) => ({
       parentId,
-      id: it.id,
+      id: `${it.id}-project`,
       title: it.name,
       type: 'project',
       gitlabId: it.id,
