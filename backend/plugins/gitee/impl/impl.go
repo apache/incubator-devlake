@@ -19,6 +19,7 @@ package impl
 
 import (
 	"fmt"
+
 	"github.com/apache/incubator-devlake/core/context"
 	"github.com/apache/incubator-devlake/core/dal"
 	"github.com/apache/incubator-devlake/core/errors"
@@ -60,7 +61,6 @@ func (p Gitee) GetTablesInfo() []dal.Tabler {
 		&models.GiteePullRequestLabel{},
 		&models.GiteeRepo{},
 		&models.GiteeRepoCommit{},
-		&models.GiteeResponse{},
 		&models.GiteeReviewer{},
 	}
 }
