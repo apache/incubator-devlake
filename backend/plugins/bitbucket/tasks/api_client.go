@@ -18,27 +18,15 @@ limitations under the License.
 package tasks
 
 import (
-	"fmt"
 	"github.com/apache/incubator-devlake/core/errors"
 	plugin "github.com/apache/incubator-devlake/core/plugin"
 	"github.com/apache/incubator-devlake/helpers/pluginhelper/api"
 	"github.com/apache/incubator-devlake/plugins/bitbucket/models"
-	"net/http"
 )
 
 func CreateApiClient(taskCtx plugin.TaskContext, connection *models.BitbucketConnection) (*api.ApiAsyncClient, errors.Error) {
-	// load configuration
-	token := connection.GetEncodedToken()
 	// create synchronize api client so we can calculate api rate limit dynamically
-	apiClient, err := api.NewApiClient(taskCtx.GetContext(), connection.Endpoint, nil, 0, connection.Proxy, taskCtx)
-	if err != nil {
-		return nil, err
-	}
-	// Rotates token on each request.
-	apiClient.SetBeforeFunction(func(req *http.Request) errors.Error {
-		req.Header.Set("Authorization", fmt.Sprintf("Basic %v", token))
-		return nil
-	})
+	apiClient, err := api.NewApiClientFromConnection(taskCtx.GetContext(), taskCtx, connection)
 
 	// create rate limit calculator
 	rateLimiter := &api.ApiRateLimitCalculator{
