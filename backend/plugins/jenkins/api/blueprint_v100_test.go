@@ -42,14 +42,16 @@ func TestProcessScope(t *testing.T) {
 				ID: 1,
 			},
 		},
-		RestConnection: helper.RestConnection{
-			Endpoint:         "https://api.github.com/",
-			Proxy:            "",
-			RateLimitPerHour: 0,
-		},
-		BasicAuth: helper.BasicAuth{
-			Username: "Username",
-			Password: "Password",
+		JenkinsConn: models.JenkinsConn{
+			RestConnection: helper.RestConnection{
+				Endpoint:         "https://api.github.com/",
+				Proxy:            "",
+				RateLimitPerHour: 0,
+			},
+			BasicAuth: helper.BasicAuth{
+				Username: "Username",
+				Password: "Password",
+			},
 		},
 	}
 

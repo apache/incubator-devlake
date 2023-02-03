@@ -18,22 +18,19 @@ limitations under the License.
 package tasks
 
 import (
-	"fmt"
+	"net/http"
+	"strconv"
+	"time"
+
 	"github.com/apache/incubator-devlake/core/errors"
 	"github.com/apache/incubator-devlake/core/plugin"
 	"github.com/apache/incubator-devlake/helpers/pluginhelper/api"
 	"github.com/apache/incubator-devlake/plugins/gitlab/models"
-	"net/http"
-	"strconv"
-	"time"
 )
 
 func NewGitlabApiClient(taskCtx plugin.TaskContext, connection *models.GitlabConnection) (*api.ApiAsyncClient, errors.Error) {
 	// create synchronize api client so we can calculate api rate limit dynamically
-	headers := map[string]string{
-		"Authorization": fmt.Sprintf("Bearer %v", connection.Token),
-	}
-	apiClient, err := api.NewApiClient(taskCtx.GetContext(), connection.Endpoint, headers, 0, connection.Proxy, taskCtx)
+	apiClient, err := api.NewApiClientFromConnection(taskCtx.GetContext(), taskCtx, connection)
 	if err != nil {
 		return nil, err
 	}

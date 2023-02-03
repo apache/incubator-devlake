@@ -42,8 +42,9 @@ func TestConnection(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, 
 	if err = api.Decode(input.Body, &connection, vld); err != nil {
 		return nil, err
 	}
+
 	// test connection
-	apiClient, err := api.NewApiClientFromConnection(context.TODO(), basicRes, connection)
+	apiClient, err := api.NewApiClientFromConnection(context.TODO(), basicRes, &connection)
 	if err != nil {
 		return nil, errors.Convert(err)
 	}
