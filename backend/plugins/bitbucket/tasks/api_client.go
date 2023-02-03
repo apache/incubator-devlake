@@ -27,6 +27,9 @@ import (
 func CreateApiClient(taskCtx plugin.TaskContext, connection *models.BitbucketConnection) (*api.ApiAsyncClient, errors.Error) {
 	// create synchronize api client so we can calculate api rate limit dynamically
 	apiClient, err := api.NewApiClientFromConnection(taskCtx.GetContext(), taskCtx, connection)
+	if err != nil {
+		return nil, err
+	}
 
 	// create rate limit calculator
 	rateLimiter := &api.ApiRateLimitCalculator{

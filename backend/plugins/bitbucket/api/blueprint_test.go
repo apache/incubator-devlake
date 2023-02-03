@@ -44,14 +44,16 @@ func TestMakePipelinePlan(t *testing.T) {
 				ID: 1,
 			},
 		},
-		RestConnection: helper.RestConnection{
-			Endpoint:         "https://TestBitBucket/",
-			Proxy:            "",
-			RateLimitPerHour: 0,
-		},
-		BasicAuth: helper.BasicAuth{
-			Username: "Username",
-			Password: "Password",
+		BitbucketConn: models.BitbucketConn{
+			RestConnection: helper.RestConnection{
+				Endpoint:         "https://TestBitBucket/",
+				Proxy:            "",
+				RateLimitPerHour: 0,
+			},
+			BasicAuth: helper.BasicAuth{
+				Username: "Username",
+				Password: "Password",
+			},
 		},
 	}
 
