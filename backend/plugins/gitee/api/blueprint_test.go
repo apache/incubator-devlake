@@ -43,13 +43,16 @@ func TestMakePipelinePlan(t *testing.T) {
 				ID: 1,
 			},
 		},
-		RestConnection: helper.RestConnection{
-			Endpoint:         "https://api.github.com/",
-			Proxy:            "",
-			RateLimitPerHour: 0,
-		},
-		AccessToken: helper.AccessToken{
-			Token: "123",
+		GiteeConn: models.GiteeConn{
+
+			RestConnection: helper.RestConnection{
+				Endpoint:         "https://api.github.com/",
+				Proxy:            "",
+				RateLimitPerHour: 0,
+			},
+			GiteeAccessToken: models.GiteeAccessToken{
+				Token: "123",
+			},
 		},
 	}
 	mockApiCLient := mockapi.NewApiClientGetter(t)
