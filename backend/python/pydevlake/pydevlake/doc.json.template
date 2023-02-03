@@ -1,0 +1,155 @@
+{
+    "info": {
+        "title": "$plugin_name plugin documentation",
+        "version": "1.0.0"
+    },
+    "openapi": "3.0.2",
+    "paths": {
+        "/plugins/$plugin_name/connections/{connectionId}": {
+            "get": {
+                "description": "Get a connection",
+                "parameters": [
+                    {
+                        "$$ref": "#/components/parameters/connectionId"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$$ref": "#/components/schemas/connection"
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "There is no connection with given id"
+                    }
+                }
+            },
+            "patch": {
+                "description": "Update a connection",
+                "parameters": [
+                    {
+                        "$$ref": "#/components/parameters/connectionId"
+                    },
+                    {
+                        "name": "connection",
+                        "required": true,
+                        "in": "body",
+                        "schema": {
+                            "$$ref": "#/components/schemas/connection"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$$ref": "#/components/schemas/connection"
+                                }
+                            }
+                        }
+                    }
+                }
+            },
+            "delete": {
+                "description": "Delete a connection",
+                "parameters": [
+                    {
+                        "$$ref": "#/components/parameters/connectionId"
+                    }
+                ],
+                "response": {
+                    "200": {
+                        "description": "The connection has been deleted"
+                    },
+                    "400": {
+                        "description": "There is no connection with given id"
+                    }
+                }
+            }
+        },
+        "/plugins/$plugin_name/connections": {
+            "get": {
+                "description": "Get all connections",
+                "responses": {
+                    "200": {
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "array",
+                                    "items": {
+                                        "$$ref": "#/components/schemas/connection"
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            },
+            "post": {
+                "description": "Create a connection",
+                "parameters": [
+                    {
+                        "name": "connection",
+                        "required": true,
+                        "in": "body",
+                        "schema": {
+                            "$$ref": "#/components/schemas/connection"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$$ref": "#/components/schemas/connection"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/plugins/$plugin_name/test": {
+            "post": {
+                "description": "Test if a connection is valid",
+                "body": {
+                    "application/json": {
+                        "schema": {
+                            "$$ref": "#/components/schemas/connection"
+                        }
+                    }
+                }
+            },
+            "response": {
+                "200": {
+                    "description": "The connection is valid"
+                },
+                "400": {
+                    "description": "The connection is not valid"
+                }
+            }
+        }
+    },
+    "components": {
+        "schemas": {
+            "connection": $connection_schema
+        },
+        "parameters": {
+            "connectionId": {
+                "name": "connectionId",
+                "description": "Id of the connection",
+                "in": "path",
+                "required": true,
+                "schema": {
+                    "type": "int"
+                }
+            }
+        }
+    }
+}
