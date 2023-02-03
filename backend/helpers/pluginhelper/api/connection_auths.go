@@ -35,12 +35,12 @@ type BasicAuth struct {
 }
 
 // GetEncodedToken returns encoded bearer token for HTTP Basic Authentication
-func (ba BasicAuth) GetEncodedToken() string {
+func (ba *BasicAuth) GetEncodedToken() string {
 	return base64.StdEncoding.EncodeToString([]byte(fmt.Sprintf("%v:%v", ba.Username, ba.Password)))
 }
 
 // SetupAuthentication sets up the request headers for authentication
-func (ba BasicAuth) SetupAuthentication(request *http.Request) errors.Error {
+func (ba *BasicAuth) SetupAuthentication(request *http.Request) errors.Error {
 	request.Header.Set("Authorization", fmt.Sprintf("Basic %v", ba.GetEncodedToken()))
 	return nil
 }
@@ -49,7 +49,7 @@ func (ba BasicAuth) SetupAuthentication(request *http.Request) errors.Error {
 // it looks odd to return itself with a different type, this is necessary because Callers
 // might call the method from the Outer-Struct(`connection.SetupAuthentication(...)`)
 // which would lead to a Stack Overflow  error
-func (ba BasicAuth) GetBasicAuthenticator() apihelperabstract.ApiAuthenticator {
+func (ba *BasicAuth) GetBasicAuthenticator() apihelperabstract.ApiAuthenticator {
 	return ba
 }
 
@@ -59,13 +59,13 @@ type AccessToken struct {
 }
 
 // SetupAuthentication sets up the request headers for authentication
-func (at AccessToken) SetupAuthentication(request *http.Request) errors.Error {
+func (at *AccessToken) SetupAuthentication(request *http.Request) errors.Error {
 	request.Header.Set("Authorization", fmt.Sprintf("Bearer %v", at.Token))
 	return nil
 }
 
 // GetAccessTokenAuthenticator returns SetupAuthentication
-func (at AccessToken) GetAccessTokenAuthenticator() apihelperabstract.ApiAuthenticator {
+func (at *AccessToken) GetAccessTokenAuthenticator() apihelperabstract.ApiAuthenticator {
 	return at
 }
 
@@ -76,17 +76,18 @@ type AppKey struct {
 }
 
 // SetupAuthentication sets up the request headers for authentication
-func (ak AppKey) SetupAuthentication(request *http.Request) errors.Error {
+func (ak *AppKey) SetupAuthentication(request *http.Request) errors.Error {
 	// no universal way to implement AppKey authentication, plugin should alias AppKey and
-	// define its own implementation
-	panic("not implemented")
+	// define its own implementation if API requires signature for each request,
+	// or you should implement PrepareApiClient if API requires a Token for all requests
+	return nil
 }
 
 // GetAppKeyAuthenticator returns SetupAuthentication
-func (ak AppKey) GetAppKeyAuthenticator() apihelperabstract.ApiAuthenticator {
+func (ak *AppKey) GetAppKeyAuthenticator() apihelperabstract.ApiAuthenticator {
 	// no universal way to implement AppKey authentication, plugin should alias AppKey and
 	// define its own implementation
-	panic("not implemented")
+	return ak
 }
 
 // MultiAuth implements the MultiAuthenticator interface
@@ -95,7 +96,7 @@ type MultiAuth struct {
 	apiAuthenticator apihelperabstract.ApiAuthenticator
 }
 
-func (ma MultiAuth) GetApiAuthenticator(connection apihelperabstract.ApiConnection) (apihelperabstract.ApiAuthenticator, errors.Error) {
+func (ma *MultiAuth) GetApiAuthenticator(connection apihelperabstract.ApiConnection) (apihelperabstract.ApiAuthenticator, errors.Error) {
 	// cache the ApiAuthenticator for performance
 	if ma.apiAuthenticator != nil {
 		return ma.apiAuthenticator, nil
@@ -134,7 +135,7 @@ func (ma MultiAuth) GetApiAuthenticator(connection apihelperabstract.ApiConnecti
 // Specific Connection should implement IAuthentication and then call this method for MultiAuth to work properly,
 // check jira/models/connection.go:JiraConn if you needed an example
 // Note: this method would be called for each request, so it is performance-sensitive, do NOT use reflection here
-func (ma MultiAuth) SetupAuthenticationForConnection(connection apihelperabstract.ApiConnection, req *http.Request) errors.Error {
+func (ma *MultiAuth) SetupAuthenticationForConnection(connection apihelperabstract.ApiConnection, req *http.Request) errors.Error {
 	apiAuthenticator, err := ma.GetApiAuthenticator(connection)
 	if err != nil {
 		return err
@@ -142,7 +143,7 @@ func (ma MultiAuth) SetupAuthenticationForConnection(connection apihelperabstrac
 	return apiAuthenticator.SetupAuthentication(req)
 }
 
-func (ma MultiAuth) ValidateConnection(connection interface{}, v *validator.Validate) errors.Error {
+func (ma *MultiAuth) ValidateConnection(connection interface{}, v *validator.Validate) errors.Error {
 	// the idea is to filtered out errors from unselected Authentication struct
 	validationErrors := v.Struct(connection).(validator.ValidationErrors)
 	if validationErrors != nil {
