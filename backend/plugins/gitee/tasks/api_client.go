@@ -18,27 +18,21 @@ limitations under the License.
 package tasks
 
 import (
+	"net/http"
+	"strconv"
+	"time"
+
 	"github.com/apache/incubator-devlake/core/errors"
 	"github.com/apache/incubator-devlake/core/plugin"
 	"github.com/apache/incubator-devlake/helpers/pluginhelper/api"
 	"github.com/apache/incubator-devlake/plugins/gitee/models"
-	"net/http"
-	"strconv"
-	"time"
 )
 
 func NewGiteeApiClient(taskCtx plugin.TaskContext, connection *models.GiteeConnection) (*api.ApiAsyncClient, errors.Error) {
-	apiClient, err := api.NewApiClient(taskCtx.GetContext(), connection.Endpoint, nil, 0, connection.Proxy, taskCtx)
+	apiClient, err := api.NewApiClientFromConnection(taskCtx.GetContext(), taskCtx, connection)
 	if err != nil {
 		return nil, err
 	}
-
-	apiClient.SetBeforeFunction(func(req *http.Request) errors.Error {
-		query := req.URL.Query()
-		query.Set("access_token", connection.Token)
-		req.URL.RawQuery = query.Encode()
-		return nil
-	})
 
 	rateLimiter := &api.ApiRateLimitCalculator{
 		UserRateLimitPerHour: connection.RateLimitPerHour,
