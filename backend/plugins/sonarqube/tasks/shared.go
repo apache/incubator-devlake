@@ -32,7 +32,6 @@ func CreateRawDataSubTaskArgs(taskCtx plugin.SubTaskContext, rawTable string) (*
 	var params = SonarqubeApiParams{
 		ConnectionId: data.Options.ConnectionId,
 		ProjectKey:   data.Options.ProjectKey,
-		HotspotKey:   data.Options.HotspotKey,
 	}
 	rawDataSubTaskArgs := &api.RawDataSubTaskArgs{
 		Ctx:    taskCtx,
