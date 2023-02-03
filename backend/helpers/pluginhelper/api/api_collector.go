@@ -44,6 +44,8 @@ type RequestData struct {
 	Params    interface{}
 	Input     interface{}
 	InputJSON []byte
+	// only exist when PageSize>0, PageInOrder=true and not the first request
+	PrevPageResponse *http.Response
 }
 
 // AsyncResponseHandler FIXME ...
@@ -60,18 +62,20 @@ type ApiCollectorArgs struct {
 	Query func(reqData *RequestData) (url.Values, errors.Error) ``
 	// Header would be sent out along with request
 	Header func(reqData *RequestData) (http.Header, errors.Error)
+	// GetTotalPages is to tell `ApiCollector` total number of pages based on response of the first page.
+	// so `ApiCollector` could collect those pages in parallel for us
+	GetTotalPages func(res *http.Response, args *ApiCollectorArgs) (int, errors.Error)
 	// PageSize tells ApiCollector the page size
 	PageSize int
-	// Incremental indicate if this is a incremental collection, the existing data won't get deleted if it was true
+	// Incremental indicate if this collection request each page in order and build query by the prev request
+	PageInOrder bool `comment:"indicate if this collection request each page in order"`
+	// Incremental indicate if this is an incremental collection, the existing data won't get deleted if it was true
 	Incremental bool `comment:"indicate if this collection is incremental update"`
 	// ApiClient is a asynchronize api request client with qps
 	ApiClient RateLimitedApiClient
 	// Input helps us collect data based on previous collected data, like collecting changelogs based on jira
 	// issue ids
 	Input Iterator
-	// GetTotalPages is to tell `ApiCollector` total number of pages based on response of the first page.
-	// so `ApiCollector` could collect those pages in parallel for us
-	GetTotalPages func(res *http.Response, args *ApiCollectorArgs) (int, errors.Error)
 	// Concurrency specify qps for api that doesn't return total number of pages/records
 	// NORMALLY, DO NOT SPECIFY THIS PARAMETER, unless you know what it means
 	Concurrency    int
@@ -208,11 +212,41 @@ func (collector *ApiCollector) exec(input interface{}) {
 	}
 	if collector.args.PageSize <= 0 {
 		collector.fetchAsync(reqData, nil)
+	} else if collector.args.PageInOrder {
+		collector.fetchPagesInOrder(reqData)
 	} else if collector.args.GetTotalPages != nil {
 		collector.fetchPagesDetermined(reqData)
 	} else {
 		collector.fetchPagesUndetermined(reqData)
 	}
+}
+
+// fetchPagesInOrder fetches data of all pages in order to build query by prev response
+func (collector *ApiCollector) fetchPagesInOrder(reqData *RequestData) {
+	reqDataCopy := RequestData{
+		Pager: &Pager{
+			Page: 1,
+			Size: collector.args.PageSize,
+			Skip: 0,
+		},
+		Input:            reqData.Input,
+		InputJSON:        reqData.InputJSON,
+		PrevPageResponse: nil,
+	}
+	var collect func() errors.Error
+	collect = func() errors.Error {
+		collector.fetchAsync(&reqDataCopy, func(count int, body []byte, res *http.Response) errors.Error {
+			if count < collector.args.PageSize {
+				return nil
+			}
+			reqDataCopy.Pager.Skip += collector.args.PageSize
+			reqDataCopy.Pager.Page += 1
+			reqDataCopy.PrevPageResponse = res
+			return collect()
+		})
+		return nil
+	}
+	collector.args.ApiClient.NextTick(collect)
 }
 
 // fetchPagesDetermined fetches data of all pages for APIs that return paging information
