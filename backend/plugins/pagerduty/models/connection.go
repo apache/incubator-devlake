@@ -18,19 +18,32 @@ limitations under the License.
 package models
 
 import (
+	"fmt"
+	"net/http"
+
+	"github.com/apache/incubator-devlake/core/errors"
 	helper "github.com/apache/incubator-devlake/helpers/pluginhelper/api"
 )
 
-// This object conforms to what the frontend currently sends.
-type PagerDutyConnection struct {
-	helper.BaseConnection `mapstructure:",squash"`
-	helper.AccessToken    `mapstructure:",squash"`
+// AccessToken implements HTTP Token Authentication with Access Token
+type PagerDutyAccessToken helper.AccessToken
+
+// SetupAuthentication sets up the request headers for authentication
+func (at *PagerDutyAccessToken) SetupAuthentication(request *http.Request) errors.Error {
+	request.Header.Set("Authorization", fmt.Sprintf("Token token=%s", at.Token))
+	return nil
 }
 
-type TestConnectionRequest struct {
-	Endpoint string `json:"endpoint" validate:"required,url"`
-	Token    string `json:"token" validate:"required"`
-	Proxy    string `json:"proxy"`
+// PagerDutyConn holds the essential information to connect to the PagerDuty API
+type PagerDutyConn struct {
+	helper.RestConnection `mapstructure:",squash"`
+	PagerDutyAccessToken  `mapstructure:",squash"`
+}
+
+// PagerDutyConnection holds GitlabConn plus ID/Name for database storage
+type PagerDutyConnection struct {
+	helper.BaseConnection `mapstructure:",squash"`
+	PagerDutyConn         `mapstructure:",squash"`
 }
 
 // This object conforms to what the frontend currently expects.

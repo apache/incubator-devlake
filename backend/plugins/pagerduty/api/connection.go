@@ -19,39 +19,29 @@ package api
 
 import (
 	"context"
-	"fmt"
+	"net/http"
+
 	"github.com/apache/incubator-devlake/core/errors"
 	"github.com/apache/incubator-devlake/core/plugin"
 	"github.com/apache/incubator-devlake/helpers/pluginhelper/api"
 	"github.com/apache/incubator-devlake/plugins/pagerduty/models"
-	"net/http"
-	"time"
 )
 
 // @Summary test pagerduty connection
 // @Description Test Pagerduty Connection
 // @Tags plugins/pagerduty
-// @Param body body models.TestConnectionRequest true "json body"
+// @Param body body models.PagerDutyConn true "json body"
 // @Success 200  {object} shared.ApiBody "Success"
 // @Failure 400  {string} errcode.Error "Bad Request"
 // @Failure 500  {string} errcode.Error "Internal Error"
 // @Router /plugins/pagerduty/test [POST]
 func TestConnection(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, errors.Error) {
-	var params models.TestConnectionRequest
-	err := api.Decode(input.Body, &params, vld)
+	var connection models.PagerDutyConn
+	err := api.Decode(input.Body, &connection, vld)
 	if err != nil {
 		return nil, err
 	}
-	apiClient, err := api.NewApiClient(
-		context.TODO(),
-		params.Endpoint,
-		map[string]string{
-			"Authorization": fmt.Sprintf("Token token=%s", params.Token),
-		},
-		3*time.Second,
-		params.Proxy,
-		basicRes,
-	)
+	apiClient, err := api.NewApiClientFromConnection(context.TODO(), basicRes, &connection)
 	if err != nil {
 		return nil, err
 	}
