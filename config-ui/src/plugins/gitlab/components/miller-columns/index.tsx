@@ -43,11 +43,11 @@ export const MillerColumns = ({ connectionId, disabledItems, selectedItems, onCh
   });
 
   useEffect(() => {
-    setDisabledIds((disabledItems ?? []).map((it) => it.gitlabId));
+    setDisabledIds((disabledItems ?? []).map((it) => `${it.gitlabId}-project`));
   }, [disabledItems]);
 
   useEffect(() => {
-    setSelectedIds((selectedItems ?? []).map((it) => it.gitlabId));
+    setSelectedIds((selectedItems ?? []).map((it) => `${it.gitlabId}-project`));
   }, [selectedItems]);
 
   const handleChangeItems = (selectedIds: ID[]) => {
@@ -57,7 +57,7 @@ export const MillerColumns = ({ connectionId, disabledItems, selectedItems, onCh
           .filter((it) => it.type === 'project')
           .map((it) => ({
             connectionId,
-            gitlabId: it.id,
+            gitlabId: +(it.id as string).split('-')[0],
             name: it.name,
             pathWithNamespace: it.pathWithNamespace,
             creatorId: it.creatorId,
@@ -72,7 +72,7 @@ export const MillerColumns = ({ connectionId, disabledItems, selectedItems, onCh
         ...(selectedItems ?? []),
       ],
       isEqual,
-    ).filter((it) => selectedIds.includes(it.gitlabId));
+    ).filter((it) => selectedIds.includes(`${it.gitlabId}-project`));
 
     onChangeItems?.(result);
   };
