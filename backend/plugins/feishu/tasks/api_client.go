@@ -18,50 +18,17 @@ limitations under the License.
 package tasks
 
 import (
-	"fmt"
 	"github.com/apache/incubator-devlake/core/errors"
 	"github.com/apache/incubator-devlake/core/plugin"
 	"github.com/apache/incubator-devlake/helpers/pluginhelper/api"
-	"github.com/apache/incubator-devlake/plugins/feishu/apimodels"
 	"github.com/apache/incubator-devlake/plugins/feishu/models"
 )
 
-const AUTH_ENDPOINT = "https://open.feishu.cn"
-const ENDPOINT = "https://open.feishu.cn/open-apis/vc/v1"
+// const AUTH_ENDPOINT = "https://open.feishu.cn"
+// const ENDPOINT = "https://open.feishu.cn/open-apis/vc/v1"
 
 func NewFeishuApiClient(taskCtx plugin.TaskContext, connection *models.FeishuConnection) (*api.ApiAsyncClient, errors.Error) {
-
-	authApiClient, err := api.NewApiClient(taskCtx.GetContext(), AUTH_ENDPOINT, nil, 0, connection.Proxy, taskCtx)
-	if err != nil {
-		return nil, err
-	}
-
-	// request for access token
-	tokenReqBody := &apimodels.ApiAccessTokenRequest{
-		AppId:     connection.AppId,
-		AppSecret: connection.SecretKey,
-	}
-	tokenRes, err := authApiClient.Post("open-apis/auth/v3/tenant_access_token/internal", nil, tokenReqBody, nil)
-	if err != nil {
-		return nil, err
-	}
-	tokenResBody := &apimodels.ApiAccessTokenResponse{}
-	err = api.UnmarshalResponse(tokenRes, tokenResBody)
-	if err != nil {
-		return nil, err
-	}
-	if tokenResBody.AppAccessToken == "" && tokenResBody.TenantAccessToken == "" {
-		return nil, errors.Default.New("failed to request access token")
-	}
-	// real request apiClient
-	apiClient, err := api.NewApiClient(taskCtx.GetContext(), ENDPOINT, nil, 0, connection.Proxy, taskCtx)
-	if err != nil {
-		return nil, err
-	}
-	// set token
-	apiClient.SetHeaders(map[string]string{
-		"Authorization": fmt.Sprintf("Bearer %v", tokenResBody.TenantAccessToken),
-	})
+	apiClient, err := api.NewApiClientFromConnection(taskCtx.GetContext(), taskCtx, connection)
 
 	// create async api client
 	asyncApiCLient, err := api.CreateAsyncApiClient(taskCtx, apiClient, &api.ApiRateLimitCalculator{

@@ -35,7 +35,7 @@ import (
 type AeAppKey helper.AppKey
 
 // SetupAuthentication sets up the HTTP Request Authentication
-func (aak AeAppKey) SetupAuthentication(req *http.Request) errors.Error {
+func (aak *AeAppKey) SetupAuthentication(req *http.Request) errors.Error {
 	nonceStr := plugin.RandLetterBytes(8)
 	timestamp := fmt.Sprintf("%v", time.Now().Unix())
 	sign := signRequest(req.URL.Query(), aak.AppId, aak.SecretKey, nonceStr, timestamp)
@@ -55,8 +55,7 @@ type AeConn struct {
 // AeConnection holds AeConn plus ID/Name for database storage
 type AeConnection struct {
 	helper.BaseConnection `mapstructure:",squash"`
-	helper.RestConnection `mapstructure:",squash"`
-	AeAppKey              `mapstructure:",squash"`
+	AeConn                `mapstructure:",squash"`
 }
 
 func (AeConnection) TableName() string {

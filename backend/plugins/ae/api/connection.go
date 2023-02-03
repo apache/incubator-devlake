@@ -48,7 +48,7 @@ func TestConnection(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, 
 		return nil, errors.BadInput.Wrap(err, "could not decode request parameters")
 	}
 
-	apiClient, err := api.NewApiClientFromConnection(context.TODO(), basicRes, connection)
+	apiClient, err := api.NewApiClientFromConnection(context.TODO(), basicRes, &connection)
 	if err != nil {
 		return nil, err
 	}

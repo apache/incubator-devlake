@@ -19,53 +19,34 @@ package api
 
 import (
 	"context"
+	"net/http"
+
 	"github.com/apache/incubator-devlake/core/errors"
 	"github.com/apache/incubator-devlake/core/plugin"
 	"github.com/apache/incubator-devlake/helpers/pluginhelper/api"
-	"github.com/apache/incubator-devlake/plugins/feishu/apimodels"
 	"github.com/apache/incubator-devlake/plugins/feishu/models"
-	"net/http"
 )
 
 // @Summary test feishu connection
-// @Description Test feishu Connection
+// @Description Test feishu Connection. endpoint: https://open.feishu.cn/open-apis/
 // @Tags plugins/feishu
-// @Param body body models.TestConnectionRequest true "json body"
+// @Param body body models.FeishuConn true "json body"
 // @Success 200  {object} shared.ApiBody "Success"
 // @Failure 400  {string} errcode.Error "Bad Request"
 // @Failure 500  {string} errcode.Error "Internal Error"
 // @Router /plugins/feishu/test [POST]
 func TestConnection(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, errors.Error) {
 	// process input
-	var params models.TestConnectionRequest
-	if err := api.Decode(input.Body, &params, vld); err != nil {
+	var connection models.FeishuConn
+	if err := api.Decode(input.Body, &connection, vld); err != nil {
 		return nil, errors.BadInput.Wrap(err, "could not decode request parameters")
 	}
-	authApiClient, err := api.NewApiClient(context.TODO(), params.Endpoint, nil, 0, params.Proxy, basicRes)
-	if err != nil {
-		return nil, err
-	}
 
-	// request for access token
-	tokenReqBody := &apimodels.ApiAccessTokenRequest{
-		AppId:     params.AppId,
-		AppSecret: params.SecretKey,
-	}
-	tokenRes, err := authApiClient.Post("open-apis/auth/v3/tenant_access_token/internal", nil, tokenReqBody, nil)
-	if err != nil {
-		return nil, err
-	}
-	tokenResBody := &apimodels.ApiAccessTokenResponse{}
-	err = api.UnmarshalResponse(tokenRes, tokenResBody)
-	if err != nil {
-		return nil, err
-	}
-	if tokenResBody.AppAccessToken == "" && tokenResBody.TenantAccessToken == "" {
-		return nil, errors.Default.New("failed to request access token")
-	}
+	// test connection
+	_, err := api.NewApiClientFromConnection(context.TODO(), basicRes, &connection)
 
 	// output
-	return nil, nil
+	return nil, err
 }
 
 // @Summary create feishu connection
