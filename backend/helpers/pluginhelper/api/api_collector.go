@@ -213,7 +213,7 @@ func (collector *ApiCollector) exec(input interface{}) {
 	if collector.args.PageSize <= 0 {
 		collector.fetchAsync(reqData, nil)
 	} else if collector.args.GetNextPageCustomData != nil {
-		collector.fetchPagesInOrder(reqData)
+		collector.fetchPagesSequentially(reqData)
 	} else if collector.args.GetTotalPages != nil {
 		collector.fetchPagesDetermined(reqData)
 	} else {
@@ -221,8 +221,8 @@ func (collector *ApiCollector) exec(input interface{}) {
 	}
 }
 
-// fetchPagesInOrder fetches data of all pages in order to build query by prev response
-func (collector *ApiCollector) fetchPagesInOrder(reqData *RequestData) {
+// fetchPagesSequentially fetches data of all pages in order to build RequestData by prev response
+func (collector *ApiCollector) fetchPagesSequentially(reqData *RequestData) {
 	var collect func() errors.Error
 	collect = func() errors.Error {
 		collector.fetchAsync(reqData, func(count int, body []byte, res *http.Response) errors.Error {
