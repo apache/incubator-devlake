@@ -65,11 +65,23 @@ func CreateRawDataSubTaskArgs(taskCtx plugin.SubTaskContext, Table string) (*api
 func GetQuery(reqData *api.RequestData) (url.Values, errors.Error) {
 	query := url.Values{}
 	query.Set("state", "all")
-	query.Set("start", fmt.Sprintf("%v", reqData.Pager.Page*reqData.Pager.Size))
-	query.Set("limit", fmt.Sprintf("%v", reqData.Pager.Size))
-
+	query.Set("pagelen", fmt.Sprintf("%v", reqData.Pager.Size))
+	if reqData.CustomData != nil {
+		query.Set("page", reqData.CustomData.(string))
+	}
 	return query, nil
 }
+
+func GetNextPageCustomData(reqData *helper.RequestData, prevPageResponse *http.Response) (interface{}, errors.Error) {
+	resBody, err := io.ReadAll(prevPageResponse.Body)
+	// decode json from body
+	if rawMessages.Next == `` {
+		return ``, helper.ErrFinishCollect
+	}
+	u, err := url.Parse(rawMessages.Next)
+	println(u.Query()[`page`][0])
+	return u.Query()[`page`][0], nil
+},
 
 func GetTotalPagesFromResponse(res *http.Response, args *api.ApiCollectorArgs) (int, errors.Error) {
 	body := &BitbucketPagination{}
