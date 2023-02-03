@@ -29,6 +29,9 @@ import (
 
 func NewFeishuApiClient(taskCtx plugin.TaskContext, connection *models.FeishuConnection) (*api.ApiAsyncClient, errors.Error) {
 	apiClient, err := api.NewApiClientFromConnection(taskCtx.GetContext(), taskCtx, connection)
+	if err != nil {
+		return nil, err
+	}
 
 	// create async api client
 	asyncApiCLient, err := api.CreateAsyncApiClient(taskCtx, apiClient, &api.ApiRateLimitCalculator{
