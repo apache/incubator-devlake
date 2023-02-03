@@ -28,7 +28,7 @@ import (
 )
 
 // @Summary test azure connection
-// @Description Test azure Connection
+// @Description Test azure Connection. endpoint: "https://dev.azure.com/{organization}/
 // @Tags pluginsazure/
 // @Param body body models.AzureConn true "json body"
 // @Success 200  {object} shared.ApiBody "Success"
