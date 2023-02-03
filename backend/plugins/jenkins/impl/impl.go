@@ -19,10 +19,11 @@ package impl
 
 import (
 	"fmt"
-	"github.com/apache/incubator-devlake/core/context"
-	"github.com/apache/incubator-devlake/core/dal"
 	"strings"
 	"time"
+
+	"github.com/apache/incubator-devlake/core/context"
+	"github.com/apache/incubator-devlake/core/dal"
 
 	"github.com/apache/incubator-devlake/core/errors"
 	"github.com/apache/incubator-devlake/core/plugin"
@@ -69,7 +70,6 @@ func (p Jenkins) GetTablesInfo() []dal.Tabler {
 		&models.JenkinsJob{},
 		&models.JenkinsJobDag{},
 		&models.JenkinsPipeline{},
-		&models.JenkinsResponse{},
 		&models.JenkinsStage{},
 		&models.JenkinsTask{},
 	}
