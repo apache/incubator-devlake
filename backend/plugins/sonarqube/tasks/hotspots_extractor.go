@@ -25,14 +25,15 @@ import (
 	"github.com/apache/incubator-devlake/plugins/sonarqube/models"
 )
 
-var _ plugin.SubTaskEntryPoint = ExtractProjects
+var _ plugin.SubTaskEntryPoint = ExtractHotspots
 
-func ExtractProjects(taskCtx plugin.SubTaskContext) errors.Error {
-	rawDataSubTaskArgs, data := CreateRawDataSubTaskArgs(taskCtx, RAW_PROJECTS_TABLE)
+func ExtractHotspots(taskCtx plugin.SubTaskContext) errors.Error {
+	rawDataSubTaskArgs, data := CreateRawDataSubTaskArgs(taskCtx, RAW_HOTSPOTS_TABLE)
+
 	extractor, err := helper.NewApiExtractor(helper.ApiExtractorArgs{
 		RawDataSubTaskArgs: *rawDataSubTaskArgs,
 		Extract: func(resData *helper.RawData) ([]interface{}, errors.Error) {
-			body := &models.SonarqubeProject{}
+			body := &models.SonarqubeHotspot{}
 			err := errors.Convert(json.Unmarshal(resData.Data, body))
 			body.ConnectionId = data.Options.ConnectionId
 			if err != nil {
@@ -48,9 +49,9 @@ func ExtractProjects(taskCtx plugin.SubTaskContext) errors.Error {
 	return extractor.Execute()
 }
 
-var ExtractProjectsMeta = plugin.SubTaskMeta{
-	Name:             "ExtractProjects",
-	EntryPoint:       ExtractProjects,
+var ExtractHotspotsMeta = plugin.SubTaskMeta{
+	Name:             "ExtractHotspots",
+	EntryPoint:       ExtractHotspots,
 	EnabledByDefault: true,
-	Description:      "Extract raw data into tool layer table sonarqube_projects",
+	Description:      "Extract raw data into tool layer table sonarqube_hotspots",
 }

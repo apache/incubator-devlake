@@ -32,7 +32,6 @@ const RAW_HOTSPOTS_TABLE = "sonarqube_hotspots"
 var _ plugin.SubTaskEntryPoint = CollectHotspots
 
 func CollectHotspots(taskCtx plugin.SubTaskContext) errors.Error {
-	data := taskCtx.GetData().(*SonarqubeTaskData)
 	rawDataSubTaskArgs, data := CreateRawDataSubTaskArgs(taskCtx, RAW_HOTSPOTS_TABLE)
 	collectorWithState, err := helper.NewApiCollectorWithState(*rawDataSubTaskArgs, data.CreatedDateAfter)
 	if err != nil {
@@ -43,9 +42,8 @@ func CollectHotspots(taskCtx plugin.SubTaskContext) errors.Error {
 	err = collectorWithState.InitCollector(helper.ApiCollectorArgs{
 		Incremental: incremental,
 		ApiClient:   data.ApiClient,
-		// PageSize:    100,
-		// TODO write which api would you want request
-		UrlTemplate: "api/hotspots/search",
+		PageSize:    100,
+		UrlTemplate: "hotspots/search",
 		Query: func(reqData *helper.RequestData) (url.Values, errors.Error) {
 			query := url.Values{}
 			// no time range
@@ -55,8 +53,11 @@ func CollectHotspots(taskCtx plugin.SubTaskContext) errors.Error {
 			return query, nil
 		},
 		ResponseParser: func(res *http.Response) ([]json.RawMessage, errors.Error) {
-			// TODO decode result from api request
-			return []json.RawMessage{}, nil
+			var resData struct {
+				Data []json.RawMessage `json:"hotspots"`
+			}
+			err = helper.UnmarshalResponse(res, &resData)
+			return resData.Data, err
 		},
 	})
 	if err != nil {

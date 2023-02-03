@@ -26,7 +26,6 @@ import (
 type SonarqubeApiParams struct {
 	ConnectionId uint64 `json:"connectionId"`
 	ProjectKey   string
-	HotspotKey   string
 }
 
 type SonarqubeOptions struct {
@@ -35,7 +34,6 @@ type SonarqubeOptions struct {
 	// You can use it in subtasks, and you need to pass it to main.go and pipelines.
 	ConnectionId     uint64   `json:"connectionId"`
 	ProjectKey       string   `json:"projectKey"`
-	HotspotKey       string   `json:"hotspotKey"`
 	CreatedDateAfter string   `json:"createdDateAfter" mapstructure:"createdDateAfter,omitempty"`
 	Tasks            []string `json:"tasks,omitempty"`
 }
