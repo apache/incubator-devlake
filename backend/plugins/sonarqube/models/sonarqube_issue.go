@@ -26,7 +26,7 @@ type SonarqubeIssue struct {
 	common.NoPKModel
 	ConnectionId uint64           `gorm:"primaryKey"`
 	Key          string           `json:"key" gorm:"primaryKey"`
-	BatchId      string           `json:"batchId" gorm:"primaryKey"`
+	BatchId      string           `json:"batchId" gorm:"type:varchar(100)"` // from collection time
 	Rule         string           `json:"rule"`
 	Severity     string           `json:"severity"`
 	Component    string           `json:"component"`
