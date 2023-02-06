@@ -77,7 +77,9 @@ func ExtractIssueChangelogs(taskCtx plugin.SubTaskContext) errors.Error {
 			for _, item := range changelog.Items {
 				result = append(result, item.ToToolLayer(connectionId, changelog.ID))
 				for _, u := range item.ExtractUser(connectionId) {
-					result = append(result, u)
+					if u != nil && u.AccountId != "" {
+						result = append(result, u)
+					}
 				}
 			}
 			return result, nil
