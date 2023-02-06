@@ -62,26 +62,60 @@ func CreateRawDataSubTaskArgs(taskCtx plugin.SubTaskContext, Table string) (*api
 	return RawDataSubTaskArgs, data
 }
 
+func decodeResponse(res *http.Response, message interface{}) errors.Error {
+	if res == nil {
+		return errors.Default.New("res is nil")
+	}
+	defer res.Body.Close()
+	resBody, err := io.ReadAll(res.Body)
+	if err != nil {
+		return errors.Default.Wrap(err, fmt.Sprintf("error reading response from %s", res.Request.URL.String()))
+	}
+
+	err = errors.Convert(json.Unmarshal(resBody, &message))
+	if err != nil {
+		return errors.Default.Wrap(err, fmt.Sprintf("error decoding response from %s: raw response: %s", res.Request.URL.String(), string(resBody)))
+	}
+	return nil
+}
+
 func GetQuery(reqData *api.RequestData) (url.Values, errors.Error) {
 	query := url.Values{}
 	query.Set("state", "all")
+	query.Set("page", fmt.Sprintf("%v", reqData.Pager.Page))
 	query.Set("pagelen", fmt.Sprintf("%v", reqData.Pager.Size))
+
+	return query, nil
+}
+
+func GetQueryForNext(reqData *api.RequestData) (url.Values, errors.Error) {
+	query := url.Values{}
+	query.Set("state", "all")
+	query.Set("pagelen", fmt.Sprintf("%v", reqData.Pager.Size))
+
 	if reqData.CustomData != nil {
 		query.Set("page", reqData.CustomData.(string))
 	}
 	return query, nil
 }
 
-func GetNextPageCustomData(reqData *helper.RequestData, prevPageResponse *http.Response) (interface{}, errors.Error) {
-	resBody, err := io.ReadAll(prevPageResponse.Body)
-	// decode json from body
-	if rawMessages.Next == `` {
-		return ``, helper.ErrFinishCollect
+func GetNextPageCustomData(_ *api.RequestData, prevPageResponse *http.Response) (interface{}, errors.Error) {
+	var rawMessages struct {
+		Next string `json:"next"`
 	}
-	u, err := url.Parse(rawMessages.Next)
-	println(u.Query()[`page`][0])
+	err := decodeResponse(prevPageResponse, &rawMessages)
+	if err != nil {
+		return nil, err
+	}
+	if rawMessages.Next == `` {
+		return ``, api.ErrFinishCollect
+	}
+	u, err := errors.Convert01(url.Parse(rawMessages.Next))
+	if err != nil {
+		return nil, err
+	}
 	return u.Query()[`page`][0], nil
-},
+}
 
 func GetTotalPagesFromResponse(res *http.Response, args *api.ApiCollectorArgs) (int, errors.Error) {
 	body := &BitbucketPagination{}
@@ -100,18 +134,9 @@ func GetRawMessageFromResponse(res *http.Response) ([]json.RawMessage, errors.Er
 	var rawMessages struct {
 		Values []json.RawMessage `json:"values"`
 	}
-	if res == nil {
-		return nil, errors.Default.New("res is nil")
-	}
-	defer res.Body.Close()
-	resBody, err := io.ReadAll(res.Body)
+	err := decodeResponse(res, &rawMessages)
 	if err != nil {
-		return nil, errors.Default.Wrap(err, fmt.Sprintf("error reading response from %s", res.Request.URL.String()))
-	}
-
-	err = errors.Convert(json.Unmarshal(resBody, &rawMessages))
-	if err != nil {
-		return nil, errors.Default.Wrap(err, fmt.Sprintf("error decoding response from %s: raw response: %s", res.Request.URL.String(), string(resBody)))
+		return nil, err
 	}
 
 	return rawMessages.Values, nil

@@ -43,15 +43,15 @@ func CollectApiPullRequestCommits(taskCtx plugin.SubTaskContext) errors.Error {
 	defer iterator.Close()
 
 	collector, err := helper.NewApiCollector(helper.ApiCollectorArgs{
-		RawDataSubTaskArgs: 	*rawDataSubTaskArgs,
-		ApiClient:          	data.ApiClient,
-		PageSize:           	100,
-		Incremental:        	false,
-		Input:              	iterator,
-		UrlTemplate:        	"repositories/{{ .Params.Owner }}/{{ .Params.Repo }}/pullrequests/{{ .Input.BitbucketId }}/commits",
-		GetNextPageCustomData: 	GetNextPageCustomData,
-		Query:              	GetQuery,
-		ResponseParser:     	GetRawMessageFromResponse,
+		RawDataSubTaskArgs:    *rawDataSubTaskArgs,
+		ApiClient:             data.ApiClient,
+		PageSize:              100,
+		Incremental:           false,
+		Input:                 iterator,
+		UrlTemplate:           "repositories/{{ .Params.Owner }}/{{ .Params.Repo }}/pullrequests/{{ .Input.BitbucketId }}/commits",
+		GetNextPageCustomData: GetNextPageCustomData,
+		Query:                 GetQueryForNext,
+		ResponseParser:        GetRawMessageFromResponse,
 	})
 
 	if err != nil {
