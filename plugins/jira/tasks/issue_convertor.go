@@ -18,17 +18,17 @@ limitations under the License.
 package tasks
 
 import (
-	"github.com/apache/incubator-devlake/errors"
 	"net/url"
 	"path/filepath"
 	"reflect"
+	"strings"
 
-	"github.com/apache/incubator-devlake/plugins/core/dal"
-
+	"github.com/apache/incubator-devlake/errors"
 	"github.com/apache/incubator-devlake/models/domainlayer"
 	"github.com/apache/incubator-devlake/models/domainlayer/didgen"
 	"github.com/apache/incubator-devlake/models/domainlayer/ticket"
 	"github.com/apache/incubator-devlake/plugins/core"
+	"github.com/apache/incubator-devlake/plugins/core/dal"
 	"github.com/apache/incubator-devlake/plugins/helper"
 	jiraModels "github.com/apache/incubator-devlake/plugins/jira/models"
 )
@@ -143,6 +143,7 @@ func convertURL(api, issueKey string) string {
 	if err != nil {
 		return api
 	}
-	u.Path = filepath.Join("/browse", issueKey)
+	before, _, _ := strings.Cut(u.Path, "/rest/agile/1.0/issue")
+	u.Path = filepath.Join(before, "browse", issueKey)
 	return u.String()
 }
