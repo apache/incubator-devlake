@@ -39,6 +39,16 @@ func Test_convertURL(t *testing.T) {
 			args{"http://8.142.68.162:8080/rest/agile/1.0/issue/10003", "TEST-4"},
 			"http://8.142.68.162:8080/browse/TEST-4",
 		},
+		{
+			"",
+			args{"http://8.142.68.162:8080/prefix/rest/agile/1.0/issue/10003", "TEST-4"},
+			"http://8.142.68.162:8080/prefix/browse/TEST-4",
+		},
+		{
+			"",
+			args{"http://8.142.68.162:8080/prefix1/prefix2/rest/agile/1.0/issue/10003", "TEST-4"},
+			"http://8.142.68.162:8080/prefix1/prefix2/browse/TEST-4",
+		},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
