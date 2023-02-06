@@ -19,11 +19,12 @@ package impl
 
 import (
 	"fmt"
+	"time"
+
 	"github.com/apache/incubator-devlake/core/context"
 	"github.com/apache/incubator-devlake/core/errors"
 	"github.com/apache/incubator-devlake/core/plugin"
 	helper "github.com/apache/incubator-devlake/helpers/pluginhelper/api"
-	"time"
 
 	"github.com/apache/incubator-devlake/plugins/sonarqube/api"
 	"github.com/apache/incubator-devlake/plugins/sonarqube/models"
@@ -54,6 +55,8 @@ func (p Sonarqube) SubTaskMetas() []plugin.SubTaskMeta {
 	return []plugin.SubTaskMeta{
 		tasks.CollectProjectsMeta,
 		tasks.ExtractProjectsMeta,
+		tasks.CollectIssuesMeta,
+		tasks.ExtractIssuesMeta,
 		tasks.CollectHotspotsMeta,
 		tasks.ExtractHotspotsMeta,
 	}
