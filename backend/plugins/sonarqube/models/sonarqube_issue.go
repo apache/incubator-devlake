@@ -22,25 +22,6 @@ import (
 	"github.com/apache/incubator-devlake/helpers/pluginhelper/api"
 )
 
-type SonarqubeIssue1 struct {
-	common.NoPKModel
-	ConnectionId             uint64           `gorm:"primaryKey"`
-	Key                      string           `json:"key" gorm:"primaryKey"`
-	BatchId                  string           `json:"batchId" gorm:"primaryKey"` // from collection time
-	Component                string           `json:"component"`
-	Project                  string           `json:"project" gorm:"index"` // projects.key
-	SecurityCategory         string           `json:"securityCategory"`
-	VulnerabilityProbability string           `json:"vulnerabilityProbability"`
-	Status                   string           `json:"status"`
-	Line                     int              `json:"line"`
-	Message                  string           `json:"message"`
-	Assignee                 string           `json:"assignee"`
-	Author                   string           `json:"author"`
-	CreationDate             *api.Iso8601Time `json:"creationDate"`
-	UpdateDate               *api.Iso8601Time `json:"updateDate"`
-	RuleKey                  string           `json:"ruleKey"`
-}
-
 type SonarqubeIssue struct {
 	common.NoPKModel
 	ConnectionId uint64           `gorm:"primaryKey"`
