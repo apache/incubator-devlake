@@ -19,7 +19,6 @@ package api
 
 import (
 	"context"
-	"fmt"
 	"net/http"
 
 	"github.com/apache/incubator-devlake/core/errors"
@@ -56,7 +55,7 @@ func TestConnection(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, 
 	}
 	res, err := apiClient.Get("user", nil, nil)
 	if err != nil {
-		return nil, errors.BadInput.Wrap(err, fmt.Sprintf("verify token failed"))
+		return nil, errors.BadInput.Wrap(err, "verify token failed")
 	}
 	if res.StatusCode != http.StatusOK {
 		return nil, errors.HttpStatus(res.StatusCode).New("unexpected status code while testing connection")
@@ -65,9 +64,9 @@ func TestConnection(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, 
 	githubUserOfToken := &models.GithubUserOfToken{}
 	err = api.UnmarshalResponse(res, githubUserOfToken)
 	if err != nil {
-		return nil, errors.BadInput.Wrap(err, fmt.Sprintf("verify token failed"))
+		return nil, errors.BadInput.Wrap(err, "verify token failed")
 	} else if githubUserOfToken.Login == "" {
-		return nil, errors.BadInput.Wrap(err, fmt.Sprintf("invalid token"))
+		return nil, errors.BadInput.Wrap(err, "invalid token")
 	}
 
 	githubApiResponse := &GithubTestConnResponse{}
