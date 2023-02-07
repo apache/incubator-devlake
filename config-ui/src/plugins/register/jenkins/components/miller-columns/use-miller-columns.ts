@@ -17,33 +17,24 @@
  */
 
 import { useState, useEffect, useMemo } from 'react';
-import type { ItemType, ColumnType } from 'miller-columns-select';
+import type { McsID, McsItem } from 'miller-columns-select';
 
 import { useProxyPrefix } from '@/hooks';
 
 import type { ScopeItemType } from '../../types';
 import * as API from '../../api';
 
-export type JenkinsItemType = ItemType<
-  {
-    type: 'folder' | 'file';
-  } & ScopeItemType
->;
-
-export type JenkinsColumnType = ColumnType<
-  {
-    type: 'folder' | 'file';
-  } & ScopeItemType
->;
+export type ExtraType = {
+  type: 'folder' | 'file';
+} & ScopeItemType;
 
 export interface UseMillerColumnsProps {
   connectionId: ID;
 }
 
 export const useMillerColumns = ({ connectionId }: UseMillerColumnsProps) => {
-  const [items, setItems] = useState<JenkinsItemType[]>([]);
+  const [items, setItems] = useState<McsItem<ExtraType>[]>([]);
   const [loadedIds, setLoadedIds] = useState<ID[]>([]);
-  const [expandedIds, setExpandedIds] = useState<ID[]>([]);
 
   const prefix = useProxyPrefix({
     plugin: 'jenkins',
@@ -66,28 +57,20 @@ export const useMillerColumns = ({ connectionId }: UseMillerColumnsProps) => {
     })();
   }, [prefix]);
 
-  const onExpandItem = async (item: JenkinsItemType) => {
-    if (expandedIds.includes(item.id)) {
-      return;
-    }
+  const onExpand = async (id: McsID) => {
+    const res = await API.getJobChildJobs(prefix, (id as string).split('/').join('/job/'));
 
-    const res = await API.getJobChildJobs(prefix, (item.id as string).split('/').join('/job/'));
-
-    setExpandedIds([...expandedIds, item.id]);
-    setLoadedIds([...loadedIds, item.id]);
-    setItems([...items, ...formatJobs(res.jobs, item.id)]);
+    setLoadedIds([...loadedIds, id]);
+    setItems([...items, ...formatJobs(res.jobs, id)]);
   };
 
   return useMemo(
     () => ({
       items,
-      getHasMore(column: JenkinsColumnType) {
-        if (loadedIds.includes(column.parentId ?? 'root')) {
-          return false;
-        }
-        return true;
+      getHasMore(id: McsID | null) {
+        return !loadedIds.includes(id ?? 'root');
       },
-      onExpandItem,
+      onExpand,
     }),
     [items, loadedIds],
   );

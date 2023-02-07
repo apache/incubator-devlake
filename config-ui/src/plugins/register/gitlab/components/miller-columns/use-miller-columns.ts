@@ -17,7 +17,7 @@
  */
 
 import { useState, useEffect, useMemo } from 'react';
-import { ItemType, ColumnType } from 'miller-columns-select';
+import { McsID, McsItem } from 'miller-columns-select';
 
 import { useProxyPrefix } from '@/hooks';
 
@@ -26,17 +26,9 @@ import * as API from '../../api';
 
 const DEFAULT_PAGE_SIZE = 20;
 
-export type GitLabItemType = ItemType<
-  {
-    type: 'group' | 'project';
-  } & ScopeItemType
->;
-
-export type GitLabColumnType = ColumnType<
-  {
-    type: 'group' | 'project';
-  } & ScopeItemType
->;
+export type ExtraType = {
+  type: 'group' | 'project';
+} & ScopeItemType;
 
 type MapValueType = {
   groupPage: number;
@@ -53,8 +45,7 @@ export interface UseMillerColumnsProps {
 
 export const useMillerColumns = ({ connectionId }: UseMillerColumnsProps) => {
   const [user, setUser] = useState<any>({});
-  const [items, setItems] = useState<GitLabItemType[]>([]);
-  const [expandedIds, setExpandedIds] = useState<ID[]>([]);
+  const [items, setItems] = useState<McsItem<ExtraType>[]>([]);
   const [map, setMap] = useState<MapType>({});
 
   const prefix = useProxyPrefix({
@@ -62,7 +53,7 @@ export const useMillerColumns = ({ connectionId }: UseMillerColumnsProps) => {
     connectionId,
   });
 
-  const formatGroups = (arr: any, parentId: ID | null = null): GitLabItemType[] =>
+  const formatGroups = (arr: any, parentId: ID | null = null): McsItem<ExtraType>[] =>
     arr.map((it: any) => ({
       parentId,
       id: it.id,
@@ -70,7 +61,7 @@ export const useMillerColumns = ({ connectionId }: UseMillerColumnsProps) => {
       type: 'group',
     }));
 
-  const formatProjects = (arr: any, parentId: ID | null = null): GitLabItemType[] =>
+  const formatProjects = (arr: any, parentId: ID | null = null): McsItem<ExtraType>[] =>
     arr.map((it: any) => ({
       parentId,
       id: it.id,
@@ -132,17 +123,13 @@ export const useMillerColumns = ({ connectionId }: UseMillerColumnsProps) => {
     })();
   }, [prefix]);
 
-  const onExpandItem = async (item: GitLabItemType) => {
-    if (expandedIds.includes(item.id)) {
-      return;
-    }
-
+  const onExpand = async (id: McsID) => {
     let groupLoaded = false;
     let projectLoaded = false;
     let groups = [];
     let projects = [];
 
-    groups = await API.getGroupSubgroups(prefix, item.id, {
+    groups = await API.getGroupSubgroups(prefix, id, {
       page: 1,
       per_page: DEFAULT_PAGE_SIZE,
     });
@@ -150,7 +137,7 @@ export const useMillerColumns = ({ connectionId }: UseMillerColumnsProps) => {
     groupLoaded = !groups.length || groups.length < DEFAULT_PAGE_SIZE;
 
     if (groupLoaded) {
-      projects = await API.getGroupProjects(prefix, item.id, {
+      projects = await API.getGroupProjects(prefix, id, {
         page: 1,
         per_page: DEFAULT_PAGE_SIZE,
       });
@@ -158,18 +145,17 @@ export const useMillerColumns = ({ connectionId }: UseMillerColumnsProps) => {
       projectLoaded = !projects.length || projects.length < DEFAULT_PAGE_SIZE;
     }
 
-    setLoaded(item.id, {
+    setLoaded(id, {
       groupLoaded,
       groupPage: groupLoaded ? 1 : 2,
       projectLoaded,
       projectPage: projectLoaded ? 1 : 2,
     });
-    setExpandedIds([...expandedIds, item.id]);
-    setItems([...items, ...formatGroups(groups, item.id), ...formatProjects(projects, item.id)]);
+    setItems([...items, ...formatGroups(groups, id), ...formatProjects(projects, id)]);
   };
 
-  const onScrollColumn = async (column: GitLabColumnType) => {
-    const mapValue = map[column.parentId ?? 'root'];
+  const onScroll = async (id: McsID | null) => {
+    const mapValue = map[id ?? 'root'];
 
     let groupLoaded = mapValue.groupLoaded;
     let projectLoaded = mapValue.projectLoaded;
@@ -177,8 +163,8 @@ export const useMillerColumns = ({ connectionId }: UseMillerColumnsProps) => {
     let projects = [];
 
     if (!groupLoaded) {
-      groups = column.parentId
-        ? await API.getGroupSubgroups(prefix, column.parentId, {
+      groups = id
+        ? await API.getGroupSubgroups(prefix, id, {
             page: mapValue.groupPage,
             per_page: DEFAULT_PAGE_SIZE,
           })
@@ -189,8 +175,8 @@ export const useMillerColumns = ({ connectionId }: UseMillerColumnsProps) => {
 
       groupLoaded = !groups.length || groups.length < DEFAULT_PAGE_SIZE;
     } else if (!projectLoaded) {
-      projects = column.parentId
-        ? await API.getGroupProjects(prefix, column.parentId, {
+      projects = id
+        ? await API.getGroupProjects(prefix, id, {
             page: mapValue.projectPage,
             per_page: DEFAULT_PAGE_SIZE,
           })
@@ -202,27 +188,24 @@ export const useMillerColumns = ({ connectionId }: UseMillerColumnsProps) => {
       projectLoaded = !projects.length || projects.length < DEFAULT_PAGE_SIZE;
     }
 
-    setLoaded(column.parentId ?? 'root', {
+    setLoaded(id ?? 'root', {
       groupLoaded,
       groupPage: groupLoaded ? mapValue.groupPage : mapValue.groupPage + 1,
       projectLoaded,
       projectPage: projectLoaded ? mapValue.projectPage : mapValue.projectPage + 1,
     });
-    setItems([...items, ...formatGroups(groups, column.parentId), ...formatProjects(projects, column.parentId)]);
+    setItems([...items, ...formatGroups(groups, id), ...formatProjects(projects, id)]);
   };
 
   return useMemo(
     () => ({
       items,
-      getHasMore(column: GitLabColumnType) {
-        const mapValue = map[column.parentId ?? 'root'];
-        if (mapValue?.groupLoaded && mapValue?.projectLoaded) {
-          return false;
-        }
-        return true;
+      getHasMore(id: McsID | null) {
+        const mapValue = map[id ?? 'root'];
+        return !(mapValue?.groupLoaded && mapValue?.projectLoaded);
       },
-      onExpandItem,
-      onScrollColumn,
+      onExpand,
+      onScroll,
     }),
     [items, map],
   );

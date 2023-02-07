@@ -17,7 +17,7 @@
  */
 
 import { useState, useEffect, useMemo } from 'react';
-import type { ItemType } from 'miller-columns-select';
+import type { McsItem } from 'miller-columns-select';
 
 import { useProxyPrefix } from '@/hooks';
 
@@ -26,14 +26,12 @@ import * as API from '../../api';
 
 const DEFAULT_PAGE_SIZE = 50;
 
-type JIRAItemType = ItemType<ScopeItemType>;
-
 export interface UseMillerColumnsProps {
   connectionId: ID;
 }
 
 export const useMillerColumns = ({ connectionId }: UseMillerColumnsProps) => {
-  const [items, setItems] = useState<JIRAItemType[]>([]);
+  const [items, setItems] = useState<McsItem<ScopeItemType>[]>([]);
   const [isLast, setIsLast] = useState(false);
   const [page, setPage] = useState(1);
 
@@ -71,7 +69,7 @@ export const useMillerColumns = ({ connectionId }: UseMillerColumnsProps) => {
       getHasMore() {
         return !isLast;
       },
-      onScrollColumn() {
+      onScroll() {
         setPage(page + 1);
       },
     }),
