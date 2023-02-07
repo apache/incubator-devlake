@@ -28,7 +28,7 @@ import (
 	"github.com/apache/incubator-devlake/core/plugin"
 	helper "github.com/apache/incubator-devlake/helpers/pluginhelper/api"
 	mockplugin "github.com/apache/incubator-devlake/mocks/core/plugin"
-	mockapi "github.com/apache/incubator-devlake/mocks/helpers/pluginhelper/api"
+	mockaha "github.com/apache/incubator-devlake/mocks/helpers/pluginhelper/api/apihelperabstract"
 	"github.com/apache/incubator-devlake/plugins/gitlab/models"
 	"github.com/apache/incubator-devlake/plugins/gitlab/tasks"
 	"github.com/stretchr/testify/assert"
@@ -54,7 +54,7 @@ func TestProcessScope(t *testing.T) {
 			},
 		},
 	}
-	mockApiCLient := mockapi.NewApiClientGetter(t)
+	mockApiCLient := mockaha.NewApiClientAbstract(t)
 	repo := &tasks.GitlabApiProject{
 		GitlabId:      12345,
 		HttpUrlToRepo: "https://this_is_HttpUrlToRepo",

@@ -24,7 +24,7 @@ import (
 	"net/http"
 	"testing"
 
-	mockapi "github.com/apache/incubator-devlake/mocks/helpers/pluginhelper/api"
+	mockaha "github.com/apache/incubator-devlake/mocks/helpers/pluginhelper/api/apihelperabstract"
 
 	"github.com/apache/incubator-devlake/core/models/common"
 	"github.com/apache/incubator-devlake/core/plugin"
@@ -66,7 +66,7 @@ func TestProcessScope(t *testing.T) {
 	scopes := make([]*plugin.BlueprintScopeV100, 0)
 	scopes = append(scopes, bs)
 
-	mockApiClient := mockapi.NewApiClientGetter(t)
+	mockApiClient := mockaha.NewApiClientAbstract(t)
 
 	var remoteData = []*models.Job{
 		{

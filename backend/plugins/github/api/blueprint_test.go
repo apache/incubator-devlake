@@ -28,8 +28,9 @@ import (
 	"github.com/apache/incubator-devlake/core/models/common"
 	"github.com/apache/incubator-devlake/core/plugin"
 	helper "github.com/apache/incubator-devlake/helpers/pluginhelper/api"
+	aha "github.com/apache/incubator-devlake/helpers/pluginhelper/api/apihelperabstract"
 	mockplugin "github.com/apache/incubator-devlake/mocks/core/plugin"
-	mockapi "github.com/apache/incubator-devlake/mocks/helpers/pluginhelper/api"
+	mockaha "github.com/apache/incubator-devlake/mocks/helpers/pluginhelper/api/apihelperabstract"
 	"github.com/apache/incubator-devlake/plugins/github/models"
 	"github.com/apache/incubator-devlake/plugins/github/tasks"
 	"github.com/stretchr/testify/assert"
@@ -159,8 +160,8 @@ func prepareMockMeta(t *testing.T) {
 	assert.Nil(t, err)
 }
 
-func prepareMockClient(t *testing.T, repo *tasks.GithubApiRepo) *mockapi.ApiClientGetter {
-	mockApiCLient := mockapi.NewApiClientGetter(t)
+func prepareMockClient(t *testing.T, repo *tasks.GithubApiRepo) aha.ApiClientAbstract {
+	mockApiCLient := mockaha.NewApiClientAbstract(t)
 	js, err := json.Marshal(repo)
 	assert.Nil(t, err)
 	res := &http.Response{}

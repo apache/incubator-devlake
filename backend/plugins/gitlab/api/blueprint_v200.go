@@ -20,12 +20,13 @@ package api
 import (
 	"encoding/json"
 	"fmt"
-	"github.com/apache/incubator-devlake/plugins/gitlab/tasks"
 	"io"
 	"net/http"
 	"net/url"
 	"strconv"
 	"time"
+
+	"github.com/apache/incubator-devlake/plugins/gitlab/tasks"
 
 	"github.com/apache/incubator-devlake/core/errors"
 	"github.com/apache/incubator-devlake/core/utils"
@@ -37,10 +38,16 @@ import (
 	"github.com/apache/incubator-devlake/core/models/domainlayer/ticket"
 	plugin "github.com/apache/incubator-devlake/core/plugin"
 	helper "github.com/apache/incubator-devlake/helpers/pluginhelper/api"
+	aha "github.com/apache/incubator-devlake/helpers/pluginhelper/api/apihelperabstract"
 	"github.com/apache/incubator-devlake/plugins/gitlab/models"
 )
 
-func MakePipelinePlanV200(subtaskMetas []plugin.SubTaskMeta, connectionId uint64, scope []*plugin.BlueprintScopeV200, syncPolicy *plugin.BlueprintSyncPolicy) (plugin.PipelinePlan, []plugin.Scope, errors.Error) {
+func MakePipelinePlanV200(
+	subtaskMetas []plugin.SubTaskMeta,
+	connectionId uint64,
+	scope []*plugin.BlueprintScopeV200,
+	syncPolicy *plugin.BlueprintSyncPolicy,
+) (plugin.PipelinePlan, []plugin.Scope, errors.Error) {
 	var err errors.Error
 	connection := new(models.GitlabConnection)
 	err1 := connectionHelper.FirstById(connection, connectionId)
@@ -106,7 +113,11 @@ func makeScopeV200(connectionId uint64, scopes []*plugin.BlueprintScopeV200) ([]
 	return sc, nil
 }
 
-func makePipelinePlanV200(subtaskMetas []plugin.SubTaskMeta, scopes []*plugin.BlueprintScopeV200, connection *models.GitlabConnection, syncPolicy *plugin.BlueprintSyncPolicy) (plugin.PipelinePlan, errors.Error) {
+func makePipelinePlanV200(
+	subtaskMetas []plugin.SubTaskMeta,
+	scopes []*plugin.BlueprintScopeV200,
+	connection *models.GitlabConnection, syncPolicy *plugin.BlueprintSyncPolicy,
+) (plugin.PipelinePlan, errors.Error) {
 	plans := make(plugin.PipelinePlan, 0, 3*len(scopes))
 	for _, scope := range scopes {
 		var stage plugin.PipelineStage
@@ -220,7 +231,10 @@ func GetTransformationRuleByRepo(repo *models.GitlabProject) (*models.GitlabTran
 	return transformationRules, nil
 }
 
-func GetApiProject(op *tasks.GitlabOptions, apiClient helper.ApiClientGetter) (*tasks.GitlabApiProject, errors.Error) {
+func GetApiProject(
+	op *tasks.GitlabOptions,
+	apiClient aha.ApiClientAbstract,
+) (*tasks.GitlabApiProject, errors.Error) {
 	repoRes := &tasks.GitlabApiProject{}
 	res, err := apiClient.Get(fmt.Sprintf("projects/%d", op.ProjectId), nil, nil)
 	if err != nil {

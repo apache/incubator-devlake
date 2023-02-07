@@ -20,17 +20,19 @@ package api
 import (
 	"encoding/json"
 	"fmt"
+	"io"
+	"net/http"
+	"strconv"
+
 	"github.com/apache/incubator-devlake/core/dal"
 	"github.com/apache/incubator-devlake/core/errors"
 	"github.com/apache/incubator-devlake/core/plugin"
 	"github.com/apache/incubator-devlake/helpers/pluginhelper/api"
+	aha "github.com/apache/incubator-devlake/helpers/pluginhelper/api/apihelperabstract"
 	"github.com/apache/incubator-devlake/plugins/jira/models"
 	"github.com/apache/incubator-devlake/plugins/jira/tasks"
 	"github.com/apache/incubator-devlake/plugins/jira/tasks/apiv2models"
 	"github.com/mitchellh/mapstructure"
-	"io"
-	"net/http"
-	"strconv"
 )
 
 type apiBoard struct {
@@ -216,7 +218,7 @@ func verifyBoard(board *models.JiraBoard) errors.Error {
 	return nil
 }
 
-func GetApiJira(op *tasks.JiraOptions, apiClient api.ApiClientGetter) (*apiv2models.Board, errors.Error) {
+func GetApiJira(op *tasks.JiraOptions, apiClient aha.ApiClientAbstract) (*apiv2models.Board, errors.Error) {
 	boardRes := &apiv2models.Board{}
 	res, err := apiClient.Get(fmt.Sprintf("agile/1.0/board/%d", op.BoardId), nil, nil)
 	if err != nil {
