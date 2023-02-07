@@ -38,21 +38,23 @@ var CollectApiPullRequestsMeta = plugin.SubTaskMeta{
 
 func CollectApiPullRequests(taskCtx plugin.SubTaskContext) errors.Error {
 	rawDataSubTaskArgs, data := CreateRawDataSubTaskArgs(taskCtx, RAW_PULL_REQUEST_TABLE)
-
-	collector, err := helper.NewApiCollector(helper.ApiCollectorArgs{
-		RawDataSubTaskArgs: *rawDataSubTaskArgs,
-		ApiClient:          data.ApiClient,
-		PageSize:           50,
-		Incremental:        false,
-		UrlTemplate:        "repositories/{{ .Params.Owner }}/{{ .Params.Repo }}/pullrequests",
-		Query:              GetQuery,
-		GetTotalPages:      GetTotalPagesFromResponse,
-		ResponseParser:     GetRawMessageFromResponse,
-	})
-
+	collectorWithState, err := helper.NewApiCollectorWithState(*rawDataSubTaskArgs, data.CreatedDateAfter)
 	if err != nil {
 		return err
 	}
 
-	return collector.Execute()
+	err = collectorWithState.InitCollector(helper.ApiCollectorArgs{
+		ApiClient:      data.ApiClient,
+		PageSize:       50,
+		Incremental:    collectorWithState.IsIncremental(),
+		UrlTemplate:    "repositories/{{ .Params.Owner }}/{{ .Params.Repo }}/pullrequests",
+		Query:          GetQueryCreatedAndUpdated(collectorWithState),
+		GetTotalPages:  GetTotalPagesFromResponse,
+		ResponseParser: GetRawMessageFromResponse,
+	})
+	if err != nil {
+		return err
+	}
+
+	return collectorWithState.Execute()
 }

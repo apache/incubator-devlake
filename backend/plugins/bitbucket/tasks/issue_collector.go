@@ -35,22 +35,25 @@ var CollectApiIssuesMeta = plugin.SubTaskMeta{
 
 func CollectApiIssues(taskCtx plugin.SubTaskContext) errors.Error {
 	rawDataSubTaskArgs, data := CreateRawDataSubTaskArgs(taskCtx, RAW_ISSUE_TABLE)
-
-	collector, err := helper.NewApiCollector(helper.ApiCollectorArgs{
-		RawDataSubTaskArgs: *rawDataSubTaskArgs,
-		ApiClient:          data.ApiClient,
-		PageSize:           100,
-		Incremental:        false,
-		UrlTemplate:        "repositories/{{ .Params.Owner }}/{{ .Params.Repo }}/issues",
-		Query:              GetQuery,
-		GetTotalPages:      GetTotalPagesFromResponse,
-		ResponseParser:     GetRawMessageFromResponse,
-		AfterResponse:      ignoreHTTPStatus404,
-	})
-
+	collectorWithState, err := helper.NewApiCollectorWithState(*rawDataSubTaskArgs, data.CreatedDateAfter)
 	if err != nil {
 		return err
 	}
 
-	return collector.Execute()
+	err = collectorWithState.InitCollector(helper.ApiCollectorArgs{
+		ApiClient:      data.ApiClient,
+		PageSize:       100,
+		Incremental:    collectorWithState.IsIncremental(),
+		UrlTemplate:    "repositories/{{ .Params.Owner }}/{{ .Params.Repo }}/issues",
+		Query:          GetQueryCreatedAndUpdated(collectorWithState),
+		GetTotalPages:  GetTotalPagesFromResponse,
+		ResponseParser: GetRawMessageFromResponse,
+		// some repo have no issue tracker
+		AfterResponse: ignoreHTTPStatus404,
+	})
+	if err != nil {
+		return err
+	}
+
+	return collectorWithState.Execute()
 }

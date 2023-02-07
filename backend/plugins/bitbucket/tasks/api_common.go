@@ -88,10 +88,37 @@ func GetQuery(reqData *api.RequestData) (url.Values, errors.Error) {
 	return query, nil
 }
 
+func GetQueryCreatedAndUpdated(collectorWithState *api.ApiCollectorStateManager) func(reqData *api.RequestData) (url.Values, errors.Error) {
+	return func(reqData *api.RequestData) (url.Values, errors.Error) {
+		query, err := GetQuery(reqData)
+		if err != nil {
+			return nil, err
+		}
+		query.Set("state", "all")
+		query.Set("page", fmt.Sprintf("%v", reqData.Pager.Page))
+		query.Set("pagelen", fmt.Sprintf("%v", reqData.Pager.Size))
+		query.Set("sort", "created_on")
+		if collectorWithState.IsIncremental() && collectorWithState.CreatedDateAfter != nil {
+			latestSuccessStart := collectorWithState.LatestState.LatestSuccessStart.Format("2006-01-02")
+			createdDateAfter := collectorWithState.CreatedDateAfter.Format("2006-01-02")
+			query.Set("q", fmt.Sprintf("updated_on>=%s AND created_on>=%s", latestSuccessStart, createdDateAfter))
+		} else if collectorWithState.IsIncremental() {
+			latestSuccessStart := collectorWithState.LatestState.LatestSuccessStart.Format("2006-01-02")
+			query.Set("q", fmt.Sprintf("updated_on>=%s", latestSuccessStart))
+		} else if collectorWithState.CreatedDateAfter != nil {
+			createdDateAfter := collectorWithState.CreatedDateAfter.Format("2006-01-02")
+			query.Set("q", fmt.Sprintf("created_on>=%s", createdDateAfter))
+		}
+
+		return query, nil
+	}
+}
+
 func GetQueryForNext(reqData *api.RequestData) (url.Values, errors.Error) {
 	query := url.Values{}
 	query.Set("state", "all")
 	query.Set("pagelen", fmt.Sprintf("%v", reqData.Pager.Size))
+	query.Set("sort", "created_on")
 
 	if reqData.CustomData != nil {
 		query.Set("page", reqData.CustomData.(string))
@@ -142,7 +169,7 @@ func GetRawMessageFromResponse(res *http.Response) ([]json.RawMessage, errors.Er
 	return rawMessages.Values, nil
 }
 
-func GetPullRequestsIterator(taskCtx plugin.SubTaskContext) (*api.DalCursorIterator, errors.Error) {
+func GetPullRequestsIterator(taskCtx plugin.SubTaskContext, collectorWithState *api.ApiCollectorStateManager) (*api.DalCursorIterator, errors.Error) {
 	db := taskCtx.GetDal()
 	data := taskCtx.GetData().(*BitbucketTaskData)
 	clauses := []dal.Clause{
@@ -153,6 +180,12 @@ func GetPullRequestsIterator(taskCtx plugin.SubTaskContext) (*api.DalCursorItera
 			fmt.Sprintf("%s/%s", data.Options.Owner, data.Options.Repo), data.Options.ConnectionId,
 		),
 	}
+	if collectorWithState.CreatedDateAfter != nil {
+		clauses = append(clauses, dal.Where("bitbucket_created_at > ?", *collectorWithState.CreatedDateAfter))
+	}
+	if collectorWithState.IsIncremental() {
+		clauses = append(clauses, dal.Where("bitbucket_updated_at > ?", *collectorWithState.LatestState.LatestSuccessStart))
+	}
 	// construct the input iterator
 	cursor, err := db.Cursor(clauses...)
 	if err != nil {
@@ -162,7 +195,7 @@ func GetPullRequestsIterator(taskCtx plugin.SubTaskContext) (*api.DalCursorItera
 	return api.NewDalCursorIterator(db, cursor, reflect.TypeOf(BitbucketInput{}))
 }
 
-func GetIssuesIterator(taskCtx plugin.SubTaskContext) (*api.DalCursorIterator, errors.Error) {
+func GetIssuesIterator(taskCtx plugin.SubTaskContext, collectorWithState *api.ApiCollectorStateManager) (*api.DalCursorIterator, errors.Error) {
 	db := taskCtx.GetDal()
 	data := taskCtx.GetData().(*BitbucketTaskData)
 	clauses := []dal.Clause{
@@ -172,6 +205,12 @@ func GetIssuesIterator(taskCtx plugin.SubTaskContext) (*api.DalCursorIterator, e
 			`bpr.repo_id = ? and bpr.connection_id = ?`,
 			fmt.Sprintf("%s/%s", data.Options.Owner, data.Options.Repo), data.Options.ConnectionId,
 		),
+	}
+	if collectorWithState.CreatedDateAfter != nil {
+		clauses = append(clauses, dal.Where("bitbucket_created_at > ?", *collectorWithState.CreatedDateAfter))
+	}
+	if collectorWithState.IsIncremental() {
+		clauses = append(clauses, dal.Where("bitbucket_updated_at > ?", *collectorWithState.LatestState.LatestSuccessStart))
 	}
 	// construct the input iterator
 	cursor, err := db.Cursor(clauses...)

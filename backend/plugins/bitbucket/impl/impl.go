@@ -28,6 +28,7 @@ import (
 	"github.com/apache/incubator-devlake/plugins/bitbucket/models"
 	"github.com/apache/incubator-devlake/plugins/bitbucket/models/migrationscripts"
 	"github.com/apache/incubator-devlake/plugins/bitbucket/tasks"
+	"time"
 )
 
 var _ plugin.PluginMeta = (*Bitbucket)(nil)
@@ -104,6 +105,8 @@ func (p Bitbucket) SubTaskMetas() []plugin.SubTaskMeta {
 }
 
 func (p Bitbucket) PrepareTaskData(taskCtx plugin.TaskContext, options map[string]interface{}) (interface{}, errors.Error) {
+	logger := taskCtx.GetLogger()
+	logger.Debug("%v", options)
 	op, err := tasks.DecodeAndValidateTaskOptions(options)
 	if err != nil {
 		return nil, err
@@ -123,10 +126,23 @@ func (p Bitbucket) PrepareTaskData(taskCtx plugin.TaskContext, options map[strin
 		return nil, errors.Default.Wrap(err, "unable to get bitbucket API client instance")
 	}
 
-	return &tasks.BitbucketTaskData{
+	var createdDateAfter time.Time
+	if op.CreatedDateAfter != "" {
+		createdDateAfter, err = errors.Convert01(time.Parse(time.RFC3339, op.CreatedDateAfter))
+		if err != nil {
+			return nil, errors.BadInput.Wrap(err, "invalid value for `createdDateAfter`")
+		}
+	}
+	taskData := &tasks.BitbucketTaskData{
 		Options:   op,
 		ApiClient: apiClient,
-	}, nil
+	}
+	if !createdDateAfter.IsZero() {
+		taskData.CreatedDateAfter = &createdDateAfter
+		logger.Debug("collect data updated createdDateAfter %s", createdDateAfter)
+	}
+
+	return taskData, nil
 }
 
 func (p Bitbucket) RootPkgPath() string {

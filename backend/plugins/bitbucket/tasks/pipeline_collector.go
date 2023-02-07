@@ -35,21 +35,23 @@ var CollectApiPipelinesMeta = plugin.SubTaskMeta{
 
 func CollectApiPipelines(taskCtx plugin.SubTaskContext) errors.Error {
 	rawDataSubTaskArgs, data := CreateRawDataSubTaskArgs(taskCtx, RAW_PIPELINE_TABLE)
-
-	collector, err := helper.NewApiCollector(helper.ApiCollectorArgs{
-		RawDataSubTaskArgs: *rawDataSubTaskArgs,
-		ApiClient:          data.ApiClient,
-		PageSize:           50,
-		Incremental:        false,
-		UrlTemplate:        "repositories/{{ .Params.Owner }}/{{ .Params.Repo }}/pipelines/",
-		Query:              GetQuery,
-		ResponseParser:     GetRawMessageFromResponse,
-		GetTotalPages:      GetTotalPagesFromResponse,
-	})
-
+	collectorWithState, err := helper.NewApiCollectorWithState(*rawDataSubTaskArgs, data.CreatedDateAfter)
 	if err != nil {
 		return err
 	}
 
-	return collector.Execute()
+	err = collectorWithState.InitCollector(helper.ApiCollectorArgs{
+		ApiClient:      data.ApiClient,
+		PageSize:       50,
+		Incremental:    collectorWithState.IsIncremental(),
+		UrlTemplate:    "repositories/{{ .Params.Owner }}/{{ .Params.Repo }}/pipelines/",
+		Query:          GetQueryCreatedAndUpdated(collectorWithState),
+		ResponseParser: GetRawMessageFromResponse,
+		GetTotalPages:  GetTotalPagesFromResponse,
+	})
+	if err != nil {
+		return err
+	}
+
+	return collectorWithState.Execute()
 }

@@ -28,17 +28,17 @@ import (
 type BitbucketOptions struct {
 	ConnectionId               uint64   `json:"connectionId"`
 	Tasks                      []string `json:"tasks,omitempty"`
-	Since                      string
 	Owner                      string
 	Repo                       string
+	CreatedDateAfter           string `json:"createdDateAfter" mapstructure:"createdDateAfter,omitempty"`
 	models.TransformationRules `mapstructure:"transformationRules" json:"transformationRules"`
 }
 
 type BitbucketTaskData struct {
-	Options   *BitbucketOptions
-	ApiClient *api.ApiAsyncClient
-	Since     *time.Time
-	Repo      *models.BitbucketRepo
+	Options          *BitbucketOptions
+	ApiClient        *api.ApiAsyncClient
+	Repo             *models.BitbucketRepo
+	CreatedDateAfter *time.Time
 }
 
 func DecodeAndValidateTaskOptions(options map[string]interface{}) (*BitbucketOptions, errors.Error) {

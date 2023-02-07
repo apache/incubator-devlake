@@ -36,28 +36,31 @@ var CollectApiIssueCommentsMeta = plugin.SubTaskMeta{
 
 func CollectApiIssueComments(taskCtx plugin.SubTaskContext) errors.Error {
 	rawDataSubTaskArgs, data := CreateRawDataSubTaskArgs(taskCtx, RAW_ISSUE_COMMENTS_TABLE)
+	collectorWithState, err := helper.NewApiCollectorWithState(*rawDataSubTaskArgs, data.CreatedDateAfter)
+	if err != nil {
+		return err
+	}
 
-	iterator, err := GetIssuesIterator(taskCtx)
+	iterator, err := GetIssuesIterator(taskCtx, collectorWithState)
 	if err != nil {
 		return err
 	}
 	defer iterator.Close()
 
-	collector, err := helper.NewApiCollector(helper.ApiCollectorArgs{
-		RawDataSubTaskArgs: *rawDataSubTaskArgs,
-		ApiClient:          data.ApiClient,
-		PageSize:           100,
-		Incremental:        false,
-		Input:              iterator,
-		UrlTemplate:        "repositories/{{ .Params.Owner }}/{{ .Params.Repo }}/issues/{{ .Input.BitbucketId }}/comments",
-		Query:              GetQuery,
-		GetTotalPages:      GetTotalPagesFromResponse,
-		ResponseParser:     GetRawMessageFromResponse,
-		AfterResponse:      ignoreHTTPStatus404,
+	err = collectorWithState.InitCollector(helper.ApiCollectorArgs{
+		ApiClient:      data.ApiClient,
+		PageSize:       100,
+		Incremental:    collectorWithState.IsIncremental(),
+		Input:          iterator,
+		UrlTemplate:    "repositories/{{ .Params.Owner }}/{{ .Params.Repo }}/issues/{{ .Input.BitbucketId }}/comments",
+		Query:          GetQuery,
+		GetTotalPages:  GetTotalPagesFromResponse,
+		ResponseParser: GetRawMessageFromResponse,
+		AfterResponse:  ignoreHTTPStatus404,
 	})
 	if err != nil {
 		return err
 	}
 
-	return collector.Execute()
+	return collectorWithState.Execute()
 }

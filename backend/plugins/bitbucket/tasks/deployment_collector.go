@@ -46,7 +46,6 @@ func CollectApiDeployments(taskCtx plugin.SubTaskContext) errors.Error {
 		ResponseParser:     GetRawMessageFromResponse,
 		GetTotalPages:      GetTotalPagesFromResponse,
 	})
-
 	if err != nil {
 		return err
 	}
