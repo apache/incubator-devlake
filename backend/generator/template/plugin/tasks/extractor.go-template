@@ -26,13 +26,11 @@ import (
 var _ plugin.SubTaskEntryPoint = Extract{{ .ExtractorDataName }}
 
 func Extract{{ .ExtractorDataName }}(taskCtx plugin.SubTaskContext) errors.Error {
+	rawDataSubTaskArgs, data := CreateRawDataSubTaskArgs(taskCtx, RAW_{{ .COLLECTOR_DATA_NAME }}_TABLE)
+
     extractor, err := helper.NewApiExtractor(helper.ApiExtractorArgs{
-		RawDataSubTaskArgs: helper.RawDataSubTaskArgs{
-			Ctx: taskCtx,
-			Params: {{ .PluginName }}ApiParams{
-			},
-			Table: RAW_{{ .COLLECTOR_DATA_NAME }}_TABLE,
-		},
+		RawDataSubTaskArgs: *rawDataSubTaskArgs,
+
 		Extract: func(resData *helper.RawData) ([]interface{}, errors.Error) {
 			extractedModels := make([]interface{}, 0)
 			println(resData.Data)

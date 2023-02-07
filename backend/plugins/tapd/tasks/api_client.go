@@ -18,8 +18,6 @@ limitations under the License.
 package tasks
 
 import (
-	"encoding/base64"
-	"fmt"
 	"github.com/apache/incubator-devlake/core/errors"
 	"github.com/apache/incubator-devlake/core/plugin"
 	"github.com/apache/incubator-devlake/helpers/pluginhelper/api"
@@ -28,12 +26,7 @@ import (
 
 func NewTapdApiClient(taskCtx plugin.TaskContext, connection *models.TapdConnection) (*api.ApiAsyncClient, errors.Error) {
 	// create synchronize api client so we can calculate api rate limit dynamically
-	auth := base64.StdEncoding.EncodeToString([]byte(fmt.Sprintf("%v:%v", connection.Username, connection.Password)))
-	headers := map[string]string{
-		"Authorization": fmt.Sprintf("Basic %v", auth),
-	}
-
-	apiClient, err := api.NewApiClient(taskCtx.GetContext(), connection.Endpoint, headers, 0, "", taskCtx)
+	apiClient, err := api.NewApiClientFromConnection(taskCtx.GetContext(), taskCtx, connection)
 	if err != nil {
 		return nil, err
 	}

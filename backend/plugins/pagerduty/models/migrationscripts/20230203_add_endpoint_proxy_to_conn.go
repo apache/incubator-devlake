@@ -21,25 +21,30 @@ import (
 	"github.com/apache/incubator-devlake/core/context"
 	"github.com/apache/incubator-devlake/core/errors"
 	"github.com/apache/incubator-devlake/helpers/migrationhelper"
-	"github.com/apache/incubator-devlake/plugins/tapd/models/migrationscripts/archived"
 )
 
-type increaseFieldLength struct{}
+type connection20230203 struct {
+	Endpoint         string `mapstructure:"endpoint" validate:"required" json:"endpoint"`
+	Proxy            string `mapstructure:"proxy" json:"proxy"`
+	RateLimitPerHour int    `comment:"api request rate limit per hour" json:"rateLimit"`
+}
 
-func (*increaseFieldLength) Up(basicRes context.BasicRes) errors.Error {
+func (*connection20230203) TableName() string {
+	return "_tool_pagerduty_connections"
+}
+
+type addEndpointAndProxyToConnection struct{}
+
+func (*addEndpointAndProxyToConnection) Up(basicRes context.BasicRes) errors.Error {
 	return migrationhelper.AutoMigrateTables(basicRes,
-		&archived.TapdBug{},
-		&archived.TapdBugCustomFields{},
-		&archived.TapdStory{},
-		&archived.TapdStoryCustomFields{},
-		&archived.TapdTask{},
-		&archived.TapdTaskCustomFields{})
+		&connection20230203{},
+	)
 }
 
-func (*increaseFieldLength) Version() uint64 {
-	return 20230103201138
+func (*addEndpointAndProxyToConnection) Version() uint64 {
+	return 20230203201814
 }
 
-func (*increaseFieldLength) Name() string {
-	return "Increase field length"
+func (*addEndpointAndProxyToConnection) Name() string {
+	return "add endpoint/proxy to pagerduty connection"
 }
