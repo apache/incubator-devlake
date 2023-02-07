@@ -26,14 +26,14 @@ import (
 	"github.com/apache/incubator-devlake/plugins/sonarqube/models"
 )
 
-var _ plugin.SubTaskEntryPoint = ExtractUsers
+var _ plugin.SubTaskEntryPoint = ExtractAccounts
 
-func ExtractUsers(taskCtx plugin.SubTaskContext) errors.Error {
-	rawDataSubTaskArgs, data := CreateRawDataSubTaskArgs(taskCtx, RAW_USERS_TABLE)
+func ExtractAccounts(taskCtx plugin.SubTaskContext) errors.Error {
+	rawDataSubTaskArgs, data := CreateRawDataSubTaskArgs(taskCtx, RAW_ACCOUNTS_TABLE)
 	extractor, err := helper.NewApiExtractor(helper.ApiExtractorArgs{
 		RawDataSubTaskArgs: *rawDataSubTaskArgs,
 		Extract: func(resData *helper.RawData) ([]interface{}, errors.Error) {
-			body := &models.SonarqubeUser{}
+			body := &models.SonarqubeAccount{}
 			err := errors.Convert(json.Unmarshal(resData.Data, body))
 			body.ConnectionId = data.Options.ConnectionId
 			if err != nil {
@@ -49,9 +49,9 @@ func ExtractUsers(taskCtx plugin.SubTaskContext) errors.Error {
 	return extractor.Execute()
 }
 
-var ExtractUsersMeta = plugin.SubTaskMeta{
-	Name:             "ExtractUsers",
-	EntryPoint:       ExtractUsers,
+var ExtractAccountsMeta = plugin.SubTaskMeta{
+	Name:             "ExtractAccounts",
+	EntryPoint:       ExtractAccounts,
 	EnabledByDefault: true,
-	Description:      "Extract raw data into tool layer table sonarqube_users",
+	Description:      "Extract raw data into tool layer table sonarqube_accounts",
 }

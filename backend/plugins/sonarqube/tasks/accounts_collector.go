@@ -28,14 +28,14 @@ import (
 	helper "github.com/apache/incubator-devlake/helpers/pluginhelper/api"
 )
 
-const RAW_USERS_TABLE = "sonarqube_users"
+const RAW_ACCOUNTS_TABLE = "sonarqube_accounts"
 
-var _ plugin.SubTaskEntryPoint = CollectUsers
+var _ plugin.SubTaskEntryPoint = CollectAccounts
 
-func CollectUsers(taskCtx plugin.SubTaskContext) errors.Error {
-	rawDataSubTaskArgs, data := CreateRawDataSubTaskArgs(taskCtx, RAW_USERS_TABLE)
+func CollectAccounts(taskCtx plugin.SubTaskContext) errors.Error {
+	rawDataSubTaskArgs, data := CreateRawDataSubTaskArgs(taskCtx, RAW_ACCOUNTS_TABLE)
 	logger := taskCtx.GetLogger()
-	logger.Info("collect users")
+	logger.Info("collect accounts")
 
 	collectorWithState, err := helper.NewApiCollectorWithState(*rawDataSubTaskArgs, data.CreatedDateAfter)
 	if err != nil {
@@ -67,9 +67,9 @@ func CollectUsers(taskCtx plugin.SubTaskContext) errors.Error {
 	return collectorWithState.Execute()
 }
 
-var CollectUsersMeta = plugin.SubTaskMeta{
-	Name:             "CollectUsers",
-	EntryPoint:       CollectUsers,
+var CollectAccountsMeta = plugin.SubTaskMeta{
+	Name:             "CollectAccounts",
+	EntryPoint:       CollectAccounts,
 	EnabledByDefault: true,
-	Description:      "Collect Users data from Sonarqube api",
+	Description:      "Collect Accounts data from Sonarqube user api",
 }

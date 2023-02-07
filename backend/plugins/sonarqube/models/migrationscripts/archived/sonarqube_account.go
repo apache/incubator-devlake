@@ -15,14 +15,14 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-package models
+package archived
 
 import (
-	"github.com/apache/incubator-devlake/core/models/common"
+	"github.com/apache/incubator-devlake/core/models/migrationscripts/archived"
 )
 
-type SonarqubeUser struct {
-	common.NoPKModel
+type SonarqubeAccount struct {
+	archived.NoPKModel
 	ConnectionId uint64 `gorm:"primaryKey"`
 	BatchId      string `json:"batchId" gorm:"type:varchar(100)"` // from collection time
 	Login        string `json:"login" gorm:"primaryKey"`
@@ -32,6 +32,6 @@ type SonarqubeUser struct {
 	Local        bool   `json:"local"`
 }
 
-func (SonarqubeUser) TableName() string {
-	return "_tool_sonarqube_users"
+func (SonarqubeAccount) TableName() string {
+	return "_tool_sonarqube_accounts"
 }
