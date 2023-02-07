@@ -36,7 +36,53 @@ func TestIssueChangelogDataFlow(t *testing.T) {
 			BoardId:      8,
 		},
 	}
-
+	// import raw data table
+	dataflowTester.ImportCsvIntoRawTable("./raw_tables/_raw_jira_api_issue_changelogs.csv", "_raw_jira_api_issue_changelogs")
+	dataflowTester.FlushTabler(&models.JiraIssueChangelogs{})
+	dataflowTester.FlushTabler(&models.JiraIssueChangelogItems{})
+	dataflowTester.FlushTabler(&models.JiraAccount{})
+	dataflowTester.Subtask(tasks.ExtractIssueChangelogsMeta, taskData)
+	dataflowTester.VerifyTable(
+		models.JiraIssueChangelogs{},
+		"./snapshot_tables/_tool_jira_issue_changelogs_extractor.csv",
+		e2ehelper.ColumnWithRawData(
+			"connection_id",
+			"changelog_id",
+			"issue_id",
+			"author_account_id",
+			"author_display_name",
+			"author_active",
+			"created",
+			"issue_updated",
+		))
+	dataflowTester.VerifyTable(
+		models.JiraIssueChangelogItems{},
+		"./snapshot_tables/_tool_jira_issue_changelog_items_extractor.csv",
+		e2ehelper.ColumnWithRawData(
+			"connection_id",
+			"changelog_id",
+			"field",
+			"field_type",
+			"field_id",
+			"from_value",
+			"from_string",
+			"to_value",
+			"to_string",
+		),
+	)
+	dataflowTester.VerifyTable(
+		models.JiraAccount{},
+		"./snapshot_tables/_tool_jira_accounts_changelog.csv",
+		e2ehelper.ColumnWithRawData(
+			"connection_id",
+			"account_id",
+			"account_type",
+			"name",
+			"email",
+			"avatar_url",
+			"timezone",
+		),
+	)
 	// verify changelog conversion
 	dataflowTester.ImportCsvIntoTabler("./snapshot_tables/_tool_jira_issue_changelogs.csv", &models.JiraIssueChangelogs{})
 	dataflowTester.ImportCsvIntoTabler("./snapshot_tables/_tool_jira_issue_changelog_items.csv", &models.JiraIssueChangelogItems{})
