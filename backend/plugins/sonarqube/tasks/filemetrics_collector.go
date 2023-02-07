@@ -19,24 +19,21 @@ package tasks
 
 import (
 	"encoding/json"
+	"fmt"
+	"github.com/apache/incubator-devlake/core/errors"
+	"github.com/apache/incubator-devlake/core/plugin"
+	helper "github.com/apache/incubator-devlake/helpers/pluginhelper/api"
 	"net/http"
 	"net/url"
-	"strconv"
-
-	"github.com/apache/incubator-devlake/core/plugin"
-	"github.com/apache/incubator-devlake/core/errors"
-	helper "github.com/apache/incubator-devlake/helpers/pluginhelper/api"
 )
 
-const RAW_{{ .COLLECTOR_DATA_NAME }}_TABLE = "{{ .plugin_name }}_{{ .collector_data_name }}"
+const RAW_FILEMETRICS_TABLE = "sonarqube_filemetrics"
 
-var _ plugin.SubTaskEntryPoint = Collect{{ .CollectorDataName }}
+var _ plugin.SubTaskEntryPoint = CollectFilemetrics
 
-func Collect{{ .CollectorDataName }}(taskCtx plugin.SubTaskContext) errors.Error {
-	rawDataSubTaskArgs, data := CreateRawDataSubTaskArgs(taskCtx, RAW_{{ .COLLECTOR_DATA_NAME }}_TABLE)
-	logger := taskCtx.GetLogger()
-
-    collectorWithState, err := helper.NewApiCollectorWithState(*rawDataSubTaskArgs, data.CreatedDateAfter)
+func CollectFilemetrics(taskCtx plugin.SubTaskContext) errors.Error {
+	rawDataSubTaskArgs, data := CreateRawDataSubTaskArgs(taskCtx, RAW_FILEMETRICS_TABLE)
+	collectorWithState, err := helper.NewApiCollectorWithState(*rawDataSubTaskArgs, data.CreatedDateAfter)
 	if err != nil {
 		return err
 	}
@@ -45,19 +42,23 @@ func Collect{{ .CollectorDataName }}(taskCtx plugin.SubTaskContext) errors.Error
 	err = collectorWithState.InitCollector(helper.ApiCollectorArgs{
 		Incremental: incremental,
 		ApiClient:   data.ApiClient,
-		// PageSize:    100,
-		// TODO write which api would you want request
-		UrlTemplate: "{{ .HttpPath }}",
+		PageSize:    100,
+		UrlTemplate: "measures/component_tree",
 		Query: func(reqData *helper.RequestData) (url.Values, errors.Error) {
 			query := url.Values{}
-			input := reqData.Input.(*helper.DatePair)
-			query.Set("start_time", strconv.FormatInt(input.PairStartTime.Unix(), 10))
-			query.Set("end_time", strconv.FormatInt(input.PairEndTime.Unix(), 10))
+			query.Set("component", data.Options.ProjectKey)
+			query.Set("qualifiers", "FIL")
+			query.Set("metricKeys", "code_smells,sqale_index,sqale_rating,bugs,reliability_rating,vulnerabilities,security_rating,security_hotspots,security_hotspots_reviewed,security_review_rating,ncloc,coverage,lines_to_cover,duplicated_lines_density,duplicated_blocks")
+			query.Set("p", fmt.Sprintf("%v", reqData.Pager.Page))
+			query.Set("ps", fmt.Sprintf("%v", reqData.Pager.Size))
 			return query, nil
 		},
 		ResponseParser: func(res *http.Response) ([]json.RawMessage, errors.Error) {
-			// TODO decode result from api request
-			return []json.RawMessage{}, nil
+			var resData struct {
+				Data []json.RawMessage `json:"components"`
+			}
+			err = helper.UnmarshalResponse(res, &resData)
+			return resData.Data, err
 		},
 	})
 	if err != nil {
@@ -66,9 +67,9 @@ func Collect{{ .CollectorDataName }}(taskCtx plugin.SubTaskContext) errors.Error
 	return collectorWithState.Execute()
 }
 
-var Collect{{ .CollectorDataName }}Meta = plugin.SubTaskMeta{
-	Name:             "Collect{{ .CollectorDataName }}",
-	EntryPoint:       Collect{{ .CollectorDataName }},
+var CollectFilemetricsMeta = plugin.SubTaskMeta{
+	Name:             "CollectFilemetrics",
+	EntryPoint:       CollectFilemetrics,
 	EnabledByDefault: true,
-	Description:      "Collect {{ .CollectorDataName }} data from {{ .PluginName }} api",
+	Description:      "Collect Filemetrics data from Sonarqube api",
 }

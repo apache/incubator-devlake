@@ -33,12 +33,13 @@ func (*addInitTables) Up(basicRes context.BasicRes) errors.Error {
 		&archived.SonarqubeProject{},
 		&archived.SonarqubeHotspot{},
 		&archived.SonarqubeIssue{},
+		&archived.SonarqubeFileMetrics{},
 		&archived.SonarqubeIssueCodeBlock{},
 	)
 }
 
 func (*addInitTables) Version() uint64 {
-	return 20230206200015
+	return 20230206200021
 }
 
 func (*addInitTables) Name() string {

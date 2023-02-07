@@ -35,11 +35,11 @@ func ExtractHotspots(taskCtx plugin.SubTaskContext) errors.Error {
 		Extract: func(resData *helper.RawData) ([]interface{}, errors.Error) {
 			body := &models.SonarqubeHotspot{}
 			err := errors.Convert(json.Unmarshal(resData.Data, body))
-			body.ConnectionId = data.Options.ConnectionId
-			//body.BatchId = ""
 			if err != nil {
 				return nil, err
 			}
+			body.ConnectionId = data.Options.ConnectionId
+			//body.BatchId = ""
 			return []interface{}{body}, nil
 		},
 	})
