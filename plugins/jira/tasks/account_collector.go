@@ -48,7 +48,7 @@ func CollectAccounts(taskCtx core.SubTaskContext) errors.Error {
 	cursor, err := db.Cursor(
 		dal.Select("account_id"),
 		dal.From("_tool_jira_accounts"),
-		dal.Where("connection_id = ?", data.Options.ConnectionId),
+		dal.Where("account_id != ? AND connection_id = ?", "", data.Options.ConnectionId),
 	)
 	if err != nil {
 		return err
