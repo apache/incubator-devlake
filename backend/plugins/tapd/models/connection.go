@@ -21,26 +21,16 @@ import (
 	helper "github.com/apache/incubator-devlake/helpers/pluginhelper/api"
 )
 
-type TestConnectionRequest struct {
-	Endpoint         string `json:"endpoint"`
-	Proxy            string `json:"proxy"`
-	helper.BasicAuth `mapstructure:",squash"`
-}
-
-type WorkspaceResponse struct {
-	Id    uint64
-	Title string
-	Value string
-}
-
-type TapdConnection struct {
-	helper.BaseConnection `mapstructure:",squash"`
+// TapdConn holds the essential information to connect to the TapdConn API
+type TapdConn struct {
 	helper.RestConnection `mapstructure:",squash"`
 	helper.BasicAuth      `mapstructure:",squash"`
 }
 
-type TapdConnectionDetail struct {
-	TapdConnection
+// TapdConnection holds TapdConn plus ID/Name for database storage
+type TapdConnection struct {
+	helper.BaseConnection `mapstructure:",squash"`
+	TapdConn              `mapstructure:",squash"`
 }
 
 func (TapdConnection) TableName() string {

@@ -18,20 +18,48 @@ limitations under the License.
 package models
 
 import (
+	"fmt"
+
+	"github.com/apache/incubator-devlake/core/errors"
 	helper "github.com/apache/incubator-devlake/helpers/pluginhelper/api"
+	"github.com/apache/incubator-devlake/helpers/pluginhelper/api/apihelperabstract"
 )
 
-// This object conforms to what the frontend currently sends.
-type ZentaoConnection struct {
-	helper.BaseConnection `mapstructure:",squash"`
+// PrepareApiClient fetches token from Zentao API for future requests
+func (connection ZentaoConn) PrepareApiClient(apiClient apihelperabstract.ApiClientAbstract) errors.Error {
+	// request for access token
+	tokenReqBody := &ApiAccessTokenRequest{
+		Account:  connection.Username,
+		Password: connection.Password,
+	}
+	tokenRes, err := apiClient.Post("/tokens", nil, tokenReqBody, nil)
+	if err != nil {
+		return err
+	}
+	tokenResBody := &ApiAccessTokenResponse{}
+	err = helper.UnmarshalResponse(tokenRes, tokenResBody)
+	if err != nil {
+		return err
+	}
+	if tokenResBody.Token == "" {
+		return errors.Default.New("failed to request access token")
+	}
+	apiClient.SetHeaders(map[string]string{
+		"Token": fmt.Sprintf("%v", tokenResBody.Token),
+	})
+	return nil
+}
+
+// ZentaoConn holds the essential information to connect to the Gitlab API
+type ZentaoConn struct {
 	helper.RestConnection `mapstructure:",squash"`
 	helper.BasicAuth      `mapstructure:",squash"`
 }
 
-type TestConnectionRequest struct {
-	Endpoint         string `json:"endpoint"`
-	Proxy            string `json:"proxy"`
-	helper.BasicAuth `mapstructure:",squash"`
+// ZentaoConnection holds ZentaoConn plus ID/Name for database storage
+type ZentaoConnection struct {
+	helper.BaseConnection `mapstructure:",squash"`
+	ZentaoConn            `mapstructure:",squash"`
 }
 
 // This object conforms to what the frontend currently expects.
