@@ -18,10 +18,11 @@ limitations under the License.
 package tasks
 
 import (
+	"time"
+
 	"github.com/apache/incubator-devlake/core/errors"
 	"github.com/apache/incubator-devlake/helpers/pluginhelper/api"
 	"github.com/apache/incubator-devlake/plugins/bitbucket/models"
-	"time"
 )
 
 type BitbucketOptions struct {

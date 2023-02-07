@@ -35,21 +35,12 @@ import (
 	"github.com/apache/incubator-devlake/core/errors"
 	"github.com/apache/incubator-devlake/core/log"
 	"github.com/apache/incubator-devlake/core/utils"
-	"github.com/apache/incubator-devlake/helpers/pluginhelper/api/apihelperabstract"
+	aha "github.com/apache/incubator-devlake/helpers/pluginhelper/api/apihelperabstract"
 	"github.com/apache/incubator-devlake/helpers/pluginhelper/common"
 )
 
 // ErrIgnoreAndContinue is a error which should be ignored
 var ErrIgnoreAndContinue = errors.Default.New("ignore and continue")
-
-// ApiClientGetter will be used for uint test
-type ApiClientGetter interface {
-	Get(
-		path string,
-		query url.Values,
-		headers http.Header,
-	) (*http.Response, errors.Error)
-}
 
 // ApiClient is designed for simple api requests
 type ApiClient struct {
@@ -66,21 +57,21 @@ type ApiClient struct {
 func NewApiClientFromConnection(
 	ctx gocontext.Context,
 	br context.BasicRes,
-	connection apihelperabstract.ApiConnection,
+	connection aha.ApiConnection,
 ) (*ApiClient, errors.Error) {
 	apiClient, err := NewApiClient(ctx, connection.GetEndpoint(), nil, 0, connection.GetProxy(), br)
 	if err != nil {
 		return nil, err
 	}
 	// if connection needs to prepare the ApiClient, i.e. fetch token for future requests
-	if prepareApiClient, ok := connection.(apihelperabstract.PrepareApiClient); ok {
+	if prepareApiClient, ok := connection.(aha.PrepareApiClient); ok {
 		err = prepareApiClient.PrepareApiClient(apiClient)
 		if err != nil {
 			return nil, err
 		}
 	}
 	// if connection requires authorization
-	if authenticator, ok := connection.(apihelperabstract.ApiAuthenticator); ok {
+	if authenticator, ok := connection.(aha.ApiAuthenticator); ok {
 		apiClient.SetBeforeFunction(func(req *http.Request) errors.Error {
 			return authenticator.SetupAuthentication(req)
 		})

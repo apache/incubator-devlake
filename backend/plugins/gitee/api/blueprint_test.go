@@ -28,7 +28,7 @@ import (
 	"github.com/apache/incubator-devlake/core/plugin"
 	helper "github.com/apache/incubator-devlake/helpers/pluginhelper/api"
 	mockplugin "github.com/apache/incubator-devlake/mocks/core/plugin"
-	mockapi "github.com/apache/incubator-devlake/mocks/helpers/pluginhelper/api"
+	mockaha "github.com/apache/incubator-devlake/mocks/helpers/pluginhelper/api/apihelperabstract"
 	"github.com/apache/incubator-devlake/plugins/gitee/models"
 	"github.com/apache/incubator-devlake/plugins/gitee/tasks"
 	"github.com/stretchr/testify/assert"
@@ -55,7 +55,7 @@ func TestMakePipelinePlan(t *testing.T) {
 			},
 		},
 	}
-	mockApiCLient := mockapi.NewApiClientGetter(t)
+	mockApiCLient := mockaha.NewApiClientAbstract(t)
 	repo := &tasks.GiteeApiRepoResponse{
 		GiteeId: 12345,
 		HTMLUrl: "https://this_is_cloneUrl",

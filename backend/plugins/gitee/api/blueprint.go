@@ -21,18 +21,19 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"io"
+	"net/http"
+	"net/url"
+	"strings"
+
 	"github.com/apache/incubator-devlake/core/errors"
 	"github.com/apache/incubator-devlake/core/models/domainlayer/didgen"
 	"github.com/apache/incubator-devlake/core/plugin"
 	"github.com/apache/incubator-devlake/core/utils"
 	"github.com/apache/incubator-devlake/helpers/pluginhelper/api"
+	aha "github.com/apache/incubator-devlake/helpers/pluginhelper/api/apihelperabstract"
 	"github.com/apache/incubator-devlake/plugins/gitee/models"
 	"github.com/apache/incubator-devlake/plugins/gitee/tasks"
-	"io"
-	"net/http"
-	"net/url"
-	"strings"
-	"time"
 )
 
 func MakePipelinePlan(subtaskMetas []plugin.SubTaskMeta, connectionId uint64, scope []*plugin.BlueprintScopeV100) (plugin.PipelinePlan, errors.Error) {
@@ -42,18 +43,7 @@ func MakePipelinePlan(subtaskMetas []plugin.SubTaskMeta, connectionId uint64, sc
 	if err != nil {
 		return nil, err
 	}
-	token := strings.Split(connection.Token, ",")[0]
-
-	apiClient, err := api.NewApiClient(
-		context.TODO(),
-		connection.Endpoint,
-		map[string]string{
-			"Authorization": fmt.Sprintf("Bearer %s", token),
-		},
-		10*time.Second,
-		connection.Proxy,
-		basicRes,
-	)
+	apiClient, err := api.NewApiClientFromConnection(context.TODO(), basicRes, connection)
 	if err != nil {
 		return nil, err
 	}
@@ -64,7 +54,12 @@ func MakePipelinePlan(subtaskMetas []plugin.SubTaskMeta, connectionId uint64, sc
 	return plan, nil
 }
 
-func makePipelinePlan(subtaskMetas []plugin.SubTaskMeta, scope []*plugin.BlueprintScopeV100, apiClient api.ApiClientGetter, connection *models.GiteeConnection) (plugin.PipelinePlan, errors.Error) {
+func makePipelinePlan(
+	subtaskMetas []plugin.SubTaskMeta,
+	scope []*plugin.BlueprintScopeV100,
+	apiClient aha.ApiClientAbstract,
+	connection *models.GiteeConnection,
+) (plugin.PipelinePlan, errors.Error) {
 	var err errors.Error
 	var repo *tasks.GiteeApiRepoResponse
 	plan := make(plugin.PipelinePlan, len(scope))
@@ -188,7 +183,10 @@ func makePipelinePlan(subtaskMetas []plugin.SubTaskMeta, scope []*plugin.Bluepri
 	return plan, nil
 }
 
-func getApiRepo(op *tasks.GiteeOptions, apiClient api.ApiClientGetter) (*tasks.GiteeApiRepoResponse, errors.Error) {
+func getApiRepo(
+	op *tasks.GiteeOptions,
+	apiClient aha.ApiClientAbstract,
+) (*tasks.GiteeApiRepoResponse, errors.Error) {
 	apiRepo := &tasks.GiteeApiRepoResponse{}
 	res, err := apiClient.Get(fmt.Sprintf("repos/%s/%s", op.Owner, op.Repo), nil, nil)
 	if err != nil {

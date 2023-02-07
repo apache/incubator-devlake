@@ -20,11 +20,12 @@ package api
 import (
 	"bytes"
 	"encoding/json"
-	mockdal "github.com/apache/incubator-devlake/mocks/core/dal"
-	mockapi "github.com/apache/incubator-devlake/mocks/helpers/pluginhelper/api"
 	"io"
 	"net/http"
 	"testing"
+
+	mockdal "github.com/apache/incubator-devlake/mocks/core/dal"
+	mockaha "github.com/apache/incubator-devlake/mocks/helpers/pluginhelper/api/apihelperabstract"
 
 	"github.com/apache/incubator-devlake/core/errors"
 	"github.com/apache/incubator-devlake/helpers/unithelper"
@@ -67,7 +68,7 @@ func TestGetJob(t *testing.T) {
 		},
 	}
 
-	mockApiClient := mockapi.NewApiClientGetter(t)
+	mockApiClient := mockaha.NewApiClientAbstract(t)
 
 	var data struct {
 		Jobs []json.RawMessage `json:"jobs"`
@@ -217,7 +218,7 @@ func TestGetAllJobs(t *testing.T) {
 		},
 	}
 
-	mockApiClient := mockapi.NewApiClientGetter(t)
+	mockApiClient := mockaha.NewApiClientAbstract(t)
 
 	var data struct {
 		Jobs []json.RawMessage `json:"jobs"`
