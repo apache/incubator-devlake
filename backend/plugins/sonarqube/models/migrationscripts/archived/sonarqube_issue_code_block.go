@@ -17,22 +17,21 @@ limitations under the License.
 
 package archived
 
-import (
-	"github.com/apache/incubator-devlake/core/models/migrationscripts/archived"
-	"time"
-)
+import "github.com/apache/incubator-devlake/core/models/migrationscripts/archived"
 
-type SonarqubeProject struct {
-	ConnectionId     uint64     `gorm:"primaryKey"`
-	Key              string     `json:"key" gorm:"type:varchar(64);primaryKey"`
-	Name             string     `json:"name" gorm:"type:varchar(255)"`
-	Qualifier        string     `json:"qualifier" gorm:"type:varchar(255)"`
-	Visibility       string     `json:"visibility" gorm:"type:varchar(64)"`
-	LastAnalysisDate *time.Time `json:"lastAnalysisDate"`
-	Revision         string     `json:"revision" gorm:"type:varchar(128)"`
+type SonarqubeIssueCodeBlock struct {
+	ConnectionId uint64 `gorm:"primaryKey"`
+	Id           string `gorm:"primaryKey"`
+	IssueKey     string `json:"key" gorm:"index"`
+	Component    string `json:"component" gorm:"index"`
+	Msg          string `json:"msg" `
+	StartLine    int    `json:"startLine" `
+	EndLine      int    `json:"endLine" `
+	StartOffset  int    `json:"startOffset" `
+	EndOffset    int    `json:"endOffset" `
 	archived.NoPKModel
 }
 
-func (SonarqubeProject) TableName() string {
-	return "_tool_sonarqube_projects"
+func (SonarqubeIssueCodeBlock) TableName() string {
+	return "_tool_sonarqube_issue_code_blocks"
 }

@@ -18,7 +18,11 @@ limitations under the License.
 package tasks
 
 import (
+	"crypto/sha256"
+	"encoding/hex"
 	"encoding/json"
+	"fmt"
+	"hash"
 	"strings"
 
 	"github.com/apache/incubator-devlake/core/errors"
@@ -28,10 +32,11 @@ import (
 )
 
 var _ plugin.SubTaskEntryPoint = ExtractIssues
+var hashCodeBlock hash.Hash
 
 func ExtractIssues(taskCtx plugin.SubTaskContext) errors.Error {
 	rawDataSubTaskArgs, data := CreateRawDataSubTaskArgs(taskCtx, RAW_ISSUES_TABLE)
-
+	hashCodeBlock = sha256.New()
 	extractor, err := helper.NewApiExtractor(helper.ApiExtractorArgs{
 		RawDataSubTaskArgs: *rawDataSubTaskArgs,
 		Extract: func(resData *helper.RawData) ([]interface{}, errors.Error) {
@@ -69,7 +74,26 @@ func ExtractIssues(taskCtx plugin.SubTaskContext) errors.Error {
 				sonarqubeIssue.Tags = strings.Join(body.Tags, ",")
 			}
 
-			return []interface{}{sonarqubeIssue}, nil
+			results := make([]interface{}, 0)
+			results = append(results, sonarqubeIssue)
+			for _, v := range body.Flows {
+				for _, location := range v.Locations {
+					codeBlock := &models.SonarqubeIssueCodeBlock{
+						ConnectionId: data.Options.ConnectionId,
+						IssueKey:     sonarqubeIssue.Key,
+						Component:    location.Component,
+						Msg:          location.Msg,
+						StartLine:    location.TextRange.StartLine,
+						EndLine:      location.TextRange.EndLine,
+						StartOffset:  location.TextRange.StartOffset,
+						EndOffset:    location.TextRange.EndOffset,
+					}
+					generateId(codeBlock)
+					results = append(results, codeBlock)
+				}
+			}
+
+			return results, nil
 		},
 	})
 	if err != nil {
@@ -100,7 +124,7 @@ type IssuesResponse struct {
 		StartOffset int `json:"startOffset"`
 		EndOffset   int `json:"endOffset"`
 	} `json:"textRange"`
-	Flows             []interface{}       `json:"flows"`
+	Flows             []flow              `json:"flows"`
 	Status            string              `json:"status"`
 	Message           string              `json:"message"`
 	Effort            string              `json:"effort"`
@@ -112,4 +136,24 @@ type IssuesResponse struct {
 	Type              string              `json:"type"`
 	Scope             string              `json:"scope"`
 	QuickFixAvailable bool                `json:"quickFixAvailable"`
+}
+
+type flow struct {
+	Locations []Location `json:"locations"`
+}
+type TextRange struct {
+	StartLine   int `json:"startLine"`
+	EndLine     int `json:"endLine"`
+	StartOffset int `json:"startOffset"`
+	EndOffset   int `json:"endOffset"`
+}
+type Location struct {
+	Component string    `json:"component"`
+	TextRange TextRange `json:"textRange"`
+	Msg       string    `json:"msg"`
+}
+
+func generateId(entity *models.SonarqubeIssueCodeBlock) {
+	hashCodeBlock.Write([]byte(fmt.Sprintf("%s-%d-%d-%d-%d-%s", entity.Component, entity.StartLine, entity.EndLine, entity.StartOffset, entity.EndOffset, entity.Msg)))
+	entity.Id = hex.EncodeToString(hashCodeBlock.Sum(nil))
 }

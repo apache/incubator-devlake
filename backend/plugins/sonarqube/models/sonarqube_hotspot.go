@@ -26,7 +26,7 @@ type SonarqubeHotspot struct {
 	common.NoPKModel
 	ConnectionId             uint64           `gorm:"primaryKey"`
 	Key                      string           `json:"key" gorm:"primaryKey"`
-	BatchId                  string           `json:"batchId" gorm:"primaryKey"` // from collection time
+	BatchId                  string           `json:"batchId" gorm:"type:varchar(100)"` // from collection time
 	Component                string           `json:"component"`
 	Project                  string           `json:"project" gorm:"index"` // projects.key
 	SecurityCategory         string           `json:"securityCategory"`
