@@ -53,13 +53,18 @@ func (u *Account) getAccountId() string {
 }
 
 func (u *Account) ToToolLayer(connectionId uint64) *models.JiraAccount {
-	return &models.JiraAccount{
-		ConnectionId: connectionId,
-		AccountId:    u.getAccountId(),
-		AccountType:  u.AccountType,
-		Name:         u.DisplayName,
-		Email:        u.EmailAddress,
-		Timezone:     u.TimeZone,
-		AvatarUrl:    u.AvatarUrls.Four8X48,
+	accountId := u.getAccountId()
+	if accountId == "" {
+		return nil
+	} else {
+		return &models.JiraAccount{
+			ConnectionId: connectionId,
+			AccountId:    accountId,
+			AccountType:  u.AccountType,
+			Name:         u.DisplayName,
+			Email:        u.EmailAddress,
+			Timezone:     u.TimeZone,
+			AvatarUrl:    u.AvatarUrls.Four8X48,
+		}
 	}
 }

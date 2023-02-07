@@ -52,8 +52,11 @@ func ExtractAccounts(taskCtx core.SubTaskContext) errors.Error {
 			if err != nil {
 				return nil, err
 			}
-			return []interface{}{user.ToToolLayer(data.Options.ConnectionId)}, nil
-
+			var result []interface{}
+			if account := user.ToToolLayer(data.Options.ConnectionId); account != nil {
+				result = append(result, account)
+			}
+			return result, nil
 		},
 	})
 
