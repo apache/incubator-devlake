@@ -15,33 +15,23 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-package migrationscripts
+package models
 
 import (
-	"github.com/apache/incubator-devlake/core/context"
-	"github.com/apache/incubator-devlake/core/errors"
-	"github.com/apache/incubator-devlake/helpers/migrationhelper"
-	"github.com/apache/incubator-devlake/plugins/sonarqube/models/migrationscripts/archived"
+	"github.com/apache/incubator-devlake/core/models/common"
 )
 
-type addInitTables struct{}
-
-func (*addInitTables) Up(basicRes context.BasicRes) errors.Error {
-	return migrationhelper.AutoMigrateTables(
-		basicRes,
-		&archived.SonarqubeConnection{},
-		&archived.SonarqubeProject{},
-		&archived.SonarqubeHotspot{},
-		&archived.SonarqubeIssue{},
-		&archived.SonarqubeIssueCodeBlock{},
-		&archived.SonarqubeUser{},
-	)
+type SonarqubeUser struct {
+	common.NoPKModel
+	ConnectionId uint64 `gorm:"primaryKey"`
+	BatchId      string `json:"batchId" gorm:"type:varchar(100)"` // from collection time
+	Login        string `json:"login" gorm:"primaryKey"`
+	Name         string `json:"name"`
+	Email        string `json:"email"`
+	Active       bool   `json:"active"`
+	Local        bool   `json:"local"`
 }
 
-func (*addInitTables) Version() uint64 {
-	return 20230207210015
-}
-
-func (*addInitTables) Name() string {
-	return "sonarqube init schemas"
+func (SonarqubeUser) TableName() string {
+	return "_tool_sonarqube_users"
 }
