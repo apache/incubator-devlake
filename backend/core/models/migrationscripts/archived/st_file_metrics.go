@@ -17,14 +17,10 @@ limitations under the License.
 
 package archived
 
-import (
-	"github.com/apache/incubator-devlake/core/models/migrationscripts/archived"
-)
-
-type SonarqubeFileMetrics struct {
-	ConnectionId             uint64  `gorm:"primaryKey"`
-	ComponentKey             string  `json:"component_key" gorm:"primaryKey"`
-	Project                  string  `json:"project" gorm:"index"`
+type StFileMetrics struct {
+	DomainEntity
+	ComponentKey             string  `json:"component_key"`
+	Project                  string  `gorm:"index;type:varchar(255)"` //domain project key
 	FileName                 string  `json:"file_name"`
 	FilePath                 string  `json:"file_path"`
 	FileLanguage             string  `json:"file_language"`
@@ -44,9 +40,8 @@ type SonarqubeFileMetrics struct {
 	LinesToCover             int     `json:"lines_to_cover"`
 	DuplicatedLinesDensity   float64 `json:"duplicated_lines_density"`
 	DuplicatedBlocks         int     `json:"duplicated_blocks"`
-	archived.NoPKModel
 }
 
-func (SonarqubeFileMetrics) TableName() string {
-	return "_tool_sonarqube_file_metrics"
+func (StFileMetrics) TableName() string {
+	return "st_file_metrics"
 }

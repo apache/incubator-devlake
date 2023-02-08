@@ -47,7 +47,8 @@ func ConvertIssues(taskCtx plugin.SubTaskContext) errors.Error {
 	}
 	defer cursor.Close()
 
-	accountIdGen := didgen.NewDomainIdGenerator(&sonarqubeModels.SonarqubeIssue{})
+	issueIdGen := didgen.NewDomainIdGenerator(&sonarqubeModels.SonarqubeIssue{})
+	projectIdGen := didgen.NewDomainIdGenerator(&sonarqubeModels.SonarqubeProject{})
 	converter, err := api.NewDataConverter(api.DataConverterArgs{
 		InputRowType:       reflect.TypeOf(sonarqubeModels.SonarqubeIssue{}),
 		Input:              cursor,
@@ -55,13 +56,13 @@ func ConvertIssues(taskCtx plugin.SubTaskContext) errors.Error {
 		Convert: func(inputRow interface{}) ([]interface{}, errors.Error) {
 			sonarqubeIssue := inputRow.(*sonarqubeModels.SonarqubeIssue)
 			domainIssue := &securitytesting.StIssue{
-				DomainEntity:      domainlayer.DomainEntity{Id: accountIdGen.Generate(data.Options.ConnectionId, sonarqubeIssue.Key)},
+				DomainEntity:      domainlayer.DomainEntity{Id: issueIdGen.Generate(data.Options.ConnectionId, sonarqubeIssue.Key)},
 				BatchId:           sonarqubeIssue.BatchId,
 				Key:               sonarqubeIssue.Key,
 				Rule:              sonarqubeIssue.Rule,
 				Severity:          sonarqubeIssue.Severity,
 				Component:         sonarqubeIssue.Component,
-				Project:           sonarqubeIssue.Project,
+				Project:           projectIdGen.Generate(data.Options.ConnectionId, sonarqubeIssue.Project),
 				Line:              sonarqubeIssue.Line,
 				Status:            sonarqubeIssue.Status,
 				Message:           sonarqubeIssue.Message,
