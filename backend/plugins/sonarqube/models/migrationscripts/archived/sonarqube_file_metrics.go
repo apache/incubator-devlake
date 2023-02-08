@@ -28,21 +28,21 @@ type SonarqubeFileMetrics struct {
 	FilePath                 string  `json:"file_path"`
 	FileLanguage             string  `json:"file_language"`
 	BatchID                  string  `json:"batch_id"`
+	CodeSmells               int     `json:"code_smells"`
 	SqaleIndex               string  `json:"sqale_index"`
 	SqaleRating              string  `json:"sqale_rating"`
-	ReliabilityRating        string  `json:"reliability_rating"`
-	SecurityRating           string  `json:"security_rating"`
-	SecurityReviewRating     string  `json:"security_review_rating"`
-	Ncloc                    int     `json:"ncloc"`
-	DuplicatedBlocks         int     `json:"duplicated_blocks"`
-	DuplicatedLinesDensity   float64 `json:"duplicated_lines_density"`
-	CodeSmells               int     `json:"code_smells"`
 	Bugs                     int     `json:"bugs"`
+	ReliabilityRating        string  `json:"reliability_rating"`
 	Vulnerabilities          int     `json:"vulnerabilities"`
+	SecurityRating           string  `json:"security_rating"`
 	SecurityHotspots         int     `json:"security_hotspots"`
 	SecurityHotspotsReviewed float64 `json:"security_hotspots_reviewed"`
+	SecurityReviewRating     string  `json:"security_review_rating"`
+	Ncloc                    int     `json:"ncloc"`
 	Coverage                 float64 `json:"coverage"`
 	LinesToCover             int     `json:"lines_to_cover"`
+	DuplicatedLinesDensity   float64 `json:"duplicated_lines_density"`
+	DuplicatedBlocks         int     `json:"duplicated_blocks"`
 	archived.NoPKModel
 }
 

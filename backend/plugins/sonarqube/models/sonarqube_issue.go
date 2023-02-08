@@ -23,10 +23,9 @@ import (
 )
 
 type SonarqubeIssue struct {
-	common.NoPKModel
 	ConnectionId uint64           `gorm:"primaryKey"`
-	Key          string           `json:"key" gorm:"primaryKey"`
 	BatchId      string           `json:"batchId" gorm:"type:varchar(100)"` // from collection time
+	Key          string           `json:"key" gorm:"primaryKey"`
 	Rule         string           `json:"rule"`
 	Severity     string           `json:"severity"`
 	Component    string           `json:"component"`
@@ -47,6 +46,7 @@ type SonarqubeIssue struct {
 	EndOffset    int              `json:"endOffset"`
 	CreationDate *api.Iso8601Time `json:"creationDate"`
 	UpdateDate   *api.Iso8601Time `json:"updateDate"`
+	common.NoPKModel
 }
 
 func (SonarqubeIssue) TableName() string {

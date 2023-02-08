@@ -23,12 +23,11 @@ import (
 )
 
 type SonarqubeHotspot struct {
-	common.NoPKModel
 	ConnectionId             uint64           `gorm:"primaryKey"`
-	Key                      string           `json:"key" gorm:"primaryKey"`
+	IssueKey                 string           `json:"key" gorm:"primaryKey"`
 	BatchId                  string           `json:"batchId" gorm:"type:varchar(100)"` // from collection time
-	Component                string           `json:"component"`
-	Project                  string           `json:"project" gorm:"index"` // projects.key
+	Component                string           `json:"component" gorm:"index"`
+	Project                  string           `json:"project" gorm:"index"`
 	SecurityCategory         string           `json:"securityCategory"`
 	VulnerabilityProbability string           `json:"vulnerabilityProbability"`
 	Status                   string           `json:"status"`
@@ -39,6 +38,7 @@ type SonarqubeHotspot struct {
 	CreationDate             *api.Iso8601Time `json:"creationDate"`
 	UpdateDate               *api.Iso8601Time `json:"updateDate"`
 	RuleKey                  string           `json:"ruleKey"`
+	common.NoPKModel
 }
 
 func (SonarqubeHotspot) TableName() string {
