@@ -63,6 +63,7 @@ func (p Sonarqube) SubTaskMetas() []plugin.SubTaskMeta {
 		tasks.ExtractFilemetricsMeta,
 		tasks.CollectAccountsMeta,
 		tasks.ExtractAccountsMeta,
+		tasks.ConvertProjectsMeta,
 	}
 }
 
