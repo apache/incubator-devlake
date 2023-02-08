@@ -28,10 +28,9 @@ import * as S from './styled';
 
 interface Props {
   onDetail: (connection: BPConnectionItemType) => void;
-  onDelete: (plugin: string, connectionId: ID, scopeId: ID) => void;
 }
 
-export const useColumns = ({ onDetail, onDelete }: Props) => {
+export const useColumns = ({ onDetail }: Props) => {
   return useMemo(
     () =>
       [
@@ -51,13 +50,7 @@ export const useColumns = ({ onDetail, onDelete }: Props) => {
           dataIndex: ['plugin', 'id', 'scopeIds'],
           key: 'unique',
           render: ({ plugin, id, scopeIds }: Pick<BPConnectionItemType, 'plugin' | 'id' | 'scopeIds'>) => (
-            <DataScopeList
-              groupByTs={false}
-              plugin={plugin}
-              connectionId={id}
-              scopeIds={scopeIds}
-              onDelete={onDelete}
-            />
+            <DataScopeList groupByTs={false} plugin={plugin} connectionId={id} scopeIds={scopeIds} />
           ),
         },
         {
@@ -70,12 +63,12 @@ export const useColumns = ({ onDetail, onDelete }: Props) => {
               minimal
               intent={Intent.PRIMARY}
               icon="add"
-              text="Add Scope"
+              text="Set Data Scope"
               onClick={() => onDetail(connection)}
             />
           ),
         },
       ] as ColumnType<BPConnectionItemType>,
-    [onDetail, onDelete],
+    [onDetail],
   );
 };

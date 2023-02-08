@@ -136,27 +136,14 @@ export const Configuration = ({ blueprint, operating, onUpdate, onRefresh }: Pro
         },
         {
           title: 'Data Scope and Transformation',
-          dataIndex: ['plugin', 'connectionId', 'scopeIds', 'scope'],
+          dataIndex: ['plugin', 'connectionId', 'scopeIds'],
           key: 'sopce',
           render: ({
             plugin,
             connectionId,
             scopeIds,
-            scope,
-          }: Pick<ConfigConnectionItemType, 'plugin' | 'connectionId' | 'scopeIds' | 'scope'>) => (
-            <DataScopeList
-              groupByTs
-              plugin={plugin}
-              connectionId={connectionId}
-              scopeIds={scopeIds}
-              onDelete={(plugin: string, connectionId: ID, scopeId: ID) =>
-                handleUpdateConnection({
-                  plugin,
-                  connectionId,
-                  scopes: scope.filter((sc) => sc.id !== scopeId),
-                })
-              }
-            />
+          }: Pick<ConfigConnectionItemType, 'plugin' | 'connectionId' | 'scopeIds'>) => (
+            <DataScopeList groupByTs plugin={plugin} connectionId={connectionId} scopeIds={scopeIds} />
           ),
         },
         {
@@ -173,7 +160,7 @@ export const Configuration = ({ blueprint, operating, onUpdate, onRefresh }: Pro
                 }}
               >
                 <Icon icon="add" color={Colors.BLUE2} />
-                <span>Add Data Scope</span>
+                <span>Change Data Scope</span>
               </div>
               <div
                 className="item"

@@ -18,20 +18,48 @@ limitations under the License.
 package models
 
 import (
+	"fmt"
+
+	"github.com/apache/incubator-devlake/core/errors"
 	helper "github.com/apache/incubator-devlake/helpers/pluginhelper/api"
+	"github.com/apache/incubator-devlake/helpers/pluginhelper/api/apihelperabstract"
+	"github.com/apache/incubator-devlake/plugins/feishu/apimodels"
 )
 
-type TestConnectionRequest struct {
-	Endpoint  string `json:"endpoint" validate:"required,url"`
-	AppId     string `mapstructure:"app_id" validate:"required" json:"app_id"`
-	SecretKey string `mapstructure:"secret_key" validate:"required" json:"secret_key"`
-	Proxy     string `json:"proxy"`
-}
-
-type FeishuConnection struct {
-	helper.BaseConnection `mapstructure:",squash"`
+// FeishuConn holds the essential information to connect to the Feishu API
+type FeishuConn struct {
 	helper.RestConnection `mapstructure:",squash"`
 	helper.AppKey         `mapstructure:",squash"`
+}
+
+func (conn *FeishuConn) PrepareApiClient(apiClient apihelperabstract.ApiClientAbstract) errors.Error {
+	// request for access token
+	tokenReqBody := &apimodels.ApiAccessTokenRequest{
+		AppId:     conn.AppId,
+		AppSecret: conn.SecretKey,
+	}
+	tokenRes, err := apiClient.Post("auth/v3/tenant_access_token/internal", nil, tokenReqBody, nil)
+	if err != nil {
+		return err
+	}
+	tokenResBody := &apimodels.ApiAccessTokenResponse{}
+	err = helper.UnmarshalResponse(tokenRes, tokenResBody)
+	if err != nil {
+		return err
+	}
+	if tokenResBody.AppAccessToken == "" && tokenResBody.TenantAccessToken == "" {
+		return errors.Default.New("failed to request access token")
+	}
+	apiClient.SetHeaders(map[string]string{
+		"Authorization": fmt.Sprintf("Bearer %v", tokenResBody.TenantAccessToken),
+	})
+	return nil
+}
+
+// FeishuConnection holds FeishuConn plus ID/Name for database storage
+type FeishuConnection struct {
+	helper.BaseConnection `mapstructure:",squash"`
+	FeishuConn            `mapstructure:",squash"`
 }
 
 func (FeishuConnection) TableName() string {

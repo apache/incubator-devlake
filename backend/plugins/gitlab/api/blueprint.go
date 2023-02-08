@@ -31,6 +31,7 @@ import (
 	"github.com/apache/incubator-devlake/core/plugin"
 	"github.com/apache/incubator-devlake/core/utils"
 	"github.com/apache/incubator-devlake/helpers/pluginhelper/api"
+	aha "github.com/apache/incubator-devlake/helpers/pluginhelper/api/apihelperabstract"
 	"github.com/apache/incubator-devlake/plugins/gitlab/models"
 	"github.com/apache/incubator-devlake/plugins/gitlab/tasks"
 )
@@ -60,7 +61,12 @@ func MakePipelinePlan(subtaskMetas []plugin.SubTaskMeta, connectionId uint64, sc
 	return plan, nil
 }
 
-func makePipelinePlan(subtaskMetas []plugin.SubTaskMeta, scope []*plugin.BlueprintScopeV100, apiClient api.ApiClientGetter, connection *models.GitlabConnection) (plugin.PipelinePlan, errors.Error) {
+func makePipelinePlan(
+	subtaskMetas []plugin.SubTaskMeta,
+	scope []*plugin.BlueprintScopeV100,
+	apiClient aha.ApiClientAbstract,
+	connection *models.GitlabConnection,
+) (plugin.PipelinePlan, errors.Error) {
 	var err errors.Error
 	var repo *tasks.GitlabApiProject
 	plan := make(plugin.PipelinePlan, len(scope))
@@ -188,7 +194,10 @@ func makePipelinePlan(subtaskMetas []plugin.SubTaskMeta, scope []*plugin.Bluepri
 	return plan, nil
 }
 
-func getApiRepo(op *tasks.GitlabOptions, apiClient api.ApiClientGetter) (*tasks.GitlabApiProject, errors.Error) {
+func getApiRepo(
+	op *tasks.GitlabOptions,
+	apiClient aha.ApiClientAbstract,
+) (*tasks.GitlabApiProject, errors.Error) {
 	apiRepo := &tasks.GitlabApiProject{}
 	res, err := apiClient.Get(fmt.Sprintf("projects/%d", op.ProjectId), nil, nil)
 	if err != nil {

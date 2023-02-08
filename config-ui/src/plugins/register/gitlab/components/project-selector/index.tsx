@@ -28,12 +28,11 @@ import { useProjectSelector } from './use-project-selector';
 import * as S from './styled';
 
 interface Props extends UseProjectSelectorProps {
-  disabledItems?: ScopeItemType[];
-  selectedItems?: ScopeItemType[];
-  onChangeItems?: (selectedItems: ScopeItemType[]) => void;
+  selectedItems: ScopeItemType[];
+  onChangeItems: (selectedItems: ScopeItemType[]) => void;
 }
 
-export const ProjectSelector = ({ connectionId, disabledItems, selectedItems, onChangeItems }: Props) => {
+export const ProjectSelector = ({ connectionId, selectedItems, onChangeItems }: Props) => {
   const { loading, items, membership, onSearch, onChangeMembership } = useProjectSelector({
     connectionId,
   });
@@ -45,7 +44,6 @@ export const ProjectSelector = ({ connectionId, disabledItems, selectedItems, on
         items={items}
         getKey={(it) => `${it.gitlabId}`}
         getName={(it) => it.name}
-        disabledItems={disabledItems}
         selectedItems={selectedItems}
         onChangeItems={onChangeItems}
         loading={loading}

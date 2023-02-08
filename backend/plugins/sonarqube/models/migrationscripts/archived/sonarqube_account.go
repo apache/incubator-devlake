@@ -15,31 +15,23 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-package migrationscripts
+package archived
 
 import (
-	"github.com/apache/incubator-devlake/core/context"
-	"github.com/apache/incubator-devlake/core/errors"
-	"github.com/apache/incubator-devlake/helpers/migrationhelper"
-	"github.com/apache/incubator-devlake/plugins/tapd/models/migrationscripts/archived"
+	"github.com/apache/incubator-devlake/core/models/migrationscripts/archived"
 )
 
-type increaseFieldLength struct{}
-
-func (*increaseFieldLength) Up(basicRes context.BasicRes) errors.Error {
-	return migrationhelper.AutoMigrateTables(basicRes,
-		&archived.TapdBug{},
-		&archived.TapdBugCustomFields{},
-		&archived.TapdStory{},
-		&archived.TapdStoryCustomFields{},
-		&archived.TapdTask{},
-		&archived.TapdTaskCustomFields{})
+type SonarqubeAccount struct {
+	archived.NoPKModel
+	ConnectionId uint64 `gorm:"primaryKey"`
+	BatchId      string `json:"batchId" gorm:"type:varchar(100)"` // from collection time
+	Login        string `json:"login" gorm:"primaryKey"`
+	Name         string `json:"name"`
+	Email        string `json:"email"`
+	Active       bool   `json:"active"`
+	Local        bool   `json:"local"`
 }
 
-func (*increaseFieldLength) Version() uint64 {
-	return 20230103201138
-}
-
-func (*increaseFieldLength) Name() string {
-	return "Increase field length"
+func (SonarqubeAccount) TableName() string {
+	return "_tool_sonarqube_accounts"
 }

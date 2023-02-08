@@ -19,13 +19,14 @@ package tasks
 
 import (
 	"encoding/json"
+	"net/http"
+	"net/url"
+	"strconv"
+
 	"github.com/apache/incubator-devlake/core/errors"
 	"github.com/apache/incubator-devlake/core/plugin"
 	"github.com/apache/incubator-devlake/helpers/pluginhelper/api"
 	"github.com/apache/incubator-devlake/plugins/feishu/apimodels"
-	"net/http"
-	"net/url"
-	"strconv"
 )
 
 const RAW_MEETING_TOP_USER_ITEM_TABLE = "feishu_meeting_top_user_item"
@@ -51,7 +52,7 @@ func CollectMeetingTopUserItem(taskCtx plugin.SubTaskContext) errors.Error {
 		ApiClient:   data.ApiClient,
 		Incremental: false,
 		Input:       iterator,
-		UrlTemplate: "/reports/get_top_user",
+		UrlTemplate: "vc/v1/reports/get_top_user",
 		Query: func(reqData *api.RequestData) (url.Values, errors.Error) {
 			query := url.Values{}
 			input := reqData.Input.(*api.DatePair)

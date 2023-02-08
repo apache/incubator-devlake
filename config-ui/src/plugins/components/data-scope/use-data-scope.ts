@@ -37,17 +37,16 @@ export interface UseDataScope {
 
 export const useDataScope = ({ plugin, connectionId, entities, initialValues, onSave }: UseDataScope) => {
   const [saving, setSaving] = useState(false);
-  const [disabledScope, setDisabledScope] = useState<any>([]);
   const [selectedScope, setSelectedScope] = useState<any>([]);
   const [selectedEntities, setSelectedEntities] = useState<any>([]);
 
-  const handleSetDisabledScope = async (disabledScope: any) => {
-    const scope = await Promise.all(disabledScope.map((sc: any) => API.getDataScope(plugin, connectionId, sc.id)));
-    setDisabledScope(scope);
-  };
-
   useEffect(() => {
-    handleSetDisabledScope(initialValues?.scope ?? []);
+    (async () => {
+      const scope = await Promise.all(
+        (initialValues?.scope ?? []).map((sc: any) => API.getDataScope(plugin, connectionId, sc.id)),
+      );
+      setSelectedScope(scope);
+    })();
   }, [initialValues?.scope]);
 
   useEffect(() => {
@@ -89,33 +88,29 @@ export const useDataScope = ({ plugin, connectionId, entities, initialValues, on
         }),
       {
         setOperating: setSaving,
+        hideToast: true,
       },
     );
 
     if (success) {
-      onSave?.([
-        ...(initialValues?.scope ?? []).map((it: any) => ({
-          id: `${it.id}`,
-          entities: selectedEntities.map((it: any) => it.value),
-        })),
-        ...res.map((it: any) => ({
+      onSave?.(
+        res.map((it: any) => ({
           id: `${getPluginId(it)}`,
           entities: selectedEntities.map((it: any) => it.value),
         })),
-      ]);
+      );
     }
   };
 
   return useMemo(
     () => ({
       saving,
-      disabledScope,
       selectedScope,
       selectedEntities,
       onChangeScope: setSelectedScope,
       onChangeEntites: setSelectedEntities,
       onSave: handleSave,
     }),
-    [saving, disabledScope, selectedScope, selectedEntities],
+    [saving, selectedScope, selectedEntities],
   );
 };

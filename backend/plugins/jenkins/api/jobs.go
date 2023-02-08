@@ -27,9 +27,15 @@ import (
 
 	"github.com/apache/incubator-devlake/core/errors"
 	helper "github.com/apache/incubator-devlake/helpers/pluginhelper/api"
+	aha "github.com/apache/incubator-devlake/helpers/pluginhelper/api/apihelperabstract"
 )
 
-func GetJobs(apiClient helper.ApiClientGetter, path string, pageSize int, callback func(job *models.Job) errors.Error) errors.Error {
+func GetJobs(
+	apiClient aha.ApiClientAbstract,
+	path string,
+	pageSize int,
+	callback func(job *models.Job) errors.Error,
+) errors.Error {
 	for i := 0; ; i += pageSize {
 		var data struct {
 			Jobs []json.RawMessage `json:"jobs"`
@@ -75,7 +81,14 @@ func GetJobs(apiClient helper.ApiClientGetter, path string, pageSize int, callba
 	}
 }
 
-func GetJob(apiClient helper.ApiClientGetter, path string, name string, fullName string, pageSize int, callback func(job *models.Job, isPath bool) errors.Error) errors.Error {
+func GetJob(
+	apiClient aha.ApiClientAbstract,
+	path string,
+	name string,
+	fullName string,
+	pageSize int,
+	callback func(job *models.Job, isPath bool) errors.Error,
+) errors.Error {
 	var err errors.Error
 
 	return GetJobs(apiClient, path, pageSize, func(job *models.Job) errors.Error {
@@ -99,7 +112,13 @@ func GetJob(apiClient helper.ApiClientGetter, path string, name string, fullName
 }
 
 // request all jobs
-func GetAllJobs(apiClient helper.ApiClientGetter, path string, beforename string, pageSize int, callback func(job *models.Job, isPath bool) errors.Error) errors.Error {
+func GetAllJobs(
+	apiClient aha.ApiClientAbstract,
+	path string,
+	beforename string,
+	pageSize int,
+	callback func(job *models.Job, isPath bool) errors.Error,
+) errors.Error {
 	var err errors.Error
 	return GetJobs(apiClient, path, pageSize, func(job *models.Job) errors.Error {
 		job.Path = path

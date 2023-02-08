@@ -17,7 +17,6 @@
  */
 
 import React, { useEffect, useState } from 'react';
-import { uniqWith, isEqual } from 'lodash';
 import MillerColumnsSelect from 'miller-columns-select';
 
 import { Loading } from '@/components';
@@ -29,13 +28,11 @@ import { useMillerColumns } from './use-miller-columns';
 import * as S from './styled';
 
 interface Props extends UseMillerColumnsProps {
-  disabledItems?: ScopeItemType[];
-  selectedItems?: ScopeItemType[];
-  onChangeItems?: (selectedItems: ScopeItemType[]) => void;
+  selectedItems: ScopeItemType[];
+  onChangeItems: (selectedItems: ScopeItemType[]) => void;
 }
 
-export const MillerColumns = ({ connectionId, disabledItems, selectedItems, onChangeItems }: Props) => {
-  const [disabledIds, setDisabledIds] = useState<ID[]>([]);
+export const MillerColumns = ({ connectionId, selectedItems, onChangeItems }: Props) => {
   const [selectedIds, setSelectedIds] = useState<ID[]>([]);
 
   const { items, getHasMore, onExpandItem, onScrollColumn } = useMillerColumns({
@@ -43,38 +40,28 @@ export const MillerColumns = ({ connectionId, disabledItems, selectedItems, onCh
   });
 
   useEffect(() => {
-    setDisabledIds((disabledItems ?? []).map((it) => it.gitlabId));
-  }, [disabledItems]);
-
-  useEffect(() => {
-    setSelectedIds((selectedItems ?? []).map((it) => it.gitlabId));
+    setSelectedIds(selectedItems.map((it) => it.gitlabId));
   }, [selectedItems]);
 
   const handleChangeItems = (selectedIds: ID[]) => {
-    const result = uniqWith(
-      [
-        ...items
-          .filter((it) => it.type === 'project')
-          .map((it) => ({
-            connectionId,
-            gitlabId: it.id,
-            name: it.name,
-            pathWithNamespace: it.pathWithNamespace,
-            creatorId: it.creatorId,
-            defaultBranch: it.defaultBranch,
-            description: it.description,
-            openIssuesCount: it.openIssuesCount,
-            starCount: it.starCount,
-            visibility: it.visibility,
-            webUrl: it.webUrl,
-            httpUrlToRepo: it.httpUrlToRepo,
-          })),
-        ...(selectedItems ?? []),
-      ],
-      isEqual,
-    ).filter((it) => selectedIds.includes(it.gitlabId));
+    const result = items
+      .filter((it) => (selectedIds.length ? selectedIds.includes(it.id) : false))
+      .map((it) => ({
+        connectionId,
+        gitlabId: it.id,
+        name: it.name,
+        pathWithNamespace: it.pathWithNamespace,
+        creatorId: it.creatorId,
+        defaultBranch: it.defaultBranch,
+        description: it.description,
+        openIssuesCount: it.openIssuesCount,
+        starCount: it.starCount,
+        visibility: it.visibility,
+        webUrl: it.webUrl,
+        httpUrlToRepo: it.httpUrlToRepo,
+      }));
 
-    onChangeItems?.(result);
+    onChangeItems(result);
   };
 
   const renderTitle = (column: GitLabColumnType) => {
@@ -94,7 +81,6 @@ export const MillerColumns = ({ connectionId, disabledItems, selectedItems, onCh
       renderTitle={renderTitle}
       renderLoading={renderLoading}
       items={items}
-      disabledIds={disabledIds}
       selectedIds={selectedIds}
       onSelectItemIds={handleChangeItems}
       onExpandItem={onExpandItem}

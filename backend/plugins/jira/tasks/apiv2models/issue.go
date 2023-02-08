@@ -251,7 +251,9 @@ func (i Issue) ExtractEntities(connectionId uint64) ([]uint64, *models.JiraIssue
 		for _, changelog := range i.Changelog.Histories {
 			cl, user := changelog.ToToolLayer(connectionId, i.ID, issueUpdated)
 			changelogs = append(changelogs, cl)
-			users = append(users, user)
+			if user != nil {
+				users = append(users, user)
+			}
 			for _, item := range changelog.Items {
 				changelogItems = append(changelogItems, item.ToToolLayer(connectionId, changelog.ID))
 				users = append(users, item.ExtractUser(connectionId)...)
@@ -264,9 +266,16 @@ func (i Issue) ExtractEntities(connectionId uint64) ([]uint64, *models.JiraIssue
 	for _, sprint := range i.Fields.ClosedSprints {
 		sprints = append(sprints, sprint.ID)
 	}
-	users = append(users, i.Fields.Creator.ToToolLayer(connectionId), i.Fields.Reporter.ToToolLayer(connectionId))
+	if creator := i.Fields.Creator.ToToolLayer(connectionId); creator != nil {
+		users = append(users, creator)
+	}
+	if reporter := i.Fields.Reporter.ToToolLayer(connectionId); reporter != nil {
+		users = append(users, reporter)
+	}
 	if i.Fields.Assignee != nil {
-		users = append(users, i.Fields.Assignee.ToToolLayer(connectionId))
+		if assignee := i.Fields.Assignee.ToToolLayer(connectionId); assignee != nil {
+			users = append(users, assignee)
+		}
 	}
 	return sprints, issue, worklogs, changelogs, changelogItems, users
 }

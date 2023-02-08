@@ -30,13 +30,12 @@ import (
 	"github.com/apache/incubator-devlake/core/errors"
 	"github.com/apache/incubator-devlake/core/plugin"
 	helper "github.com/apache/incubator-devlake/helpers/pluginhelper/api"
-	"github.com/apache/incubator-devlake/helpers/pluginhelper/api/apihelperabstract"
 )
 
 type AeAppKey helper.AppKey
 
 // SetupAuthentication sets up the HTTP Request Authentication
-func (aak AeAppKey) SetupAuthentication(req *http.Request) errors.Error {
+func (aak *AeAppKey) SetupAuthentication(req *http.Request) errors.Error {
 	nonceStr := plugin.RandLetterBytes(8)
 	timestamp := fmt.Sprintf("%v", time.Now().Unix())
 	sign := signRequest(req.URL.Query(), aak.AppId, aak.SecretKey, nonceStr, timestamp)
@@ -45,10 +44,6 @@ func (aak AeAppKey) SetupAuthentication(req *http.Request) errors.Error {
 	req.Header.Set("x-ae-nonce-str", nonceStr)
 	req.Header.Set("x-ae-sign", sign)
 	return nil
-}
-
-func (aak AeAppKey) GetAppKeyAuthenticator() apihelperabstract.ApiAuthenticator {
-	return aak
 }
 
 // AeConn holds the essential information to connect to the AE API
@@ -60,15 +55,7 @@ type AeConn struct {
 // AeConnection holds AeConn plus ID/Name for database storage
 type AeConnection struct {
 	helper.BaseConnection `mapstructure:",squash"`
-	helper.RestConnection `mapstructure:",squash"`
-	AeAppKey              `mapstructure:",squash"`
-}
-
-// This object conforms to what the frontend currently expects.
-type AeResponse struct {
-	AeConnection
-	Name string `json:"name"`
-	ID   int    `json:"id"`
+	AeConn                `mapstructure:",squash"`
 }
 
 func (AeConnection) TableName() string {

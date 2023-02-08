@@ -20,14 +20,13 @@ package api
 import (
 	"context"
 	"encoding/json"
-	"fmt"
-	"time"
 
 	"github.com/apache/incubator-devlake/plugins/jenkins/models"
 
 	"github.com/apache/incubator-devlake/core/errors"
 	"github.com/apache/incubator-devlake/core/plugin"
 	helper "github.com/apache/incubator-devlake/helpers/pluginhelper/api"
+	aha "github.com/apache/incubator-devlake/helpers/pluginhelper/api/apihelperabstract"
 	"github.com/apache/incubator-devlake/plugins/jenkins/tasks"
 )
 
@@ -39,16 +38,7 @@ func MakePipelinePlanV100(subtaskMetas []plugin.SubTaskMeta, connectionId uint64
 		return nil, err
 	}
 
-	apiClient, err := helper.NewApiClient(
-		context.Background(),
-		connection.Endpoint,
-		map[string]string{
-			"Authorization": fmt.Sprintf("Basic %s", connection.GetEncodedToken()),
-		},
-		10*time.Second,
-		connection.Proxy,
-		basicRes,
-	)
+	apiClient, err := helper.NewApiClientFromConnection(context.TODO(), basicRes, connection)
 	if err != nil {
 		return nil, err
 	}
@@ -60,7 +50,12 @@ func MakePipelinePlanV100(subtaskMetas []plugin.SubTaskMeta, connectionId uint64
 	return plan, nil
 }
 
-func makePipelinePlanV100(subtaskMetas []plugin.SubTaskMeta, scope []*plugin.BlueprintScopeV100, connection *models.JenkinsConnection, apiClient helper.ApiClientGetter) (plugin.PipelinePlan, errors.Error) {
+func makePipelinePlanV100(
+	subtaskMetas []plugin.SubTaskMeta,
+	scope []*plugin.BlueprintScopeV100,
+	connection *models.JenkinsConnection,
+	apiClient aha.ApiClientAbstract,
+) (plugin.PipelinePlan, errors.Error) {
 	var err errors.Error
 	plans := make(plugin.PipelinePlan, 0, len(scope))
 

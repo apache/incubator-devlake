@@ -43,7 +43,6 @@ func (gak GitlabConn) SetupAuthentication(req *http.Request) errors.Error {
 	return nil
 }
 
-// This object conforms to what the frontend currently sends.
 // GitlabConnection holds GitlabConn plus ID/Name for database storage
 type GitlabConnection struct {
 	helper.BaseConnection `mapstructure:",squash"`

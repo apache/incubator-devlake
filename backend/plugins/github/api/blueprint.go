@@ -21,39 +21,34 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
-	"github.com/apache/incubator-devlake/core/errors"
 	"io"
 	"net/http"
 	"net/url"
 	"strings"
-	"time"
+
+	"github.com/apache/incubator-devlake/core/errors"
 
 	"github.com/apache/incubator-devlake/core/models/domainlayer/didgen"
 	"github.com/apache/incubator-devlake/core/plugin"
 	"github.com/apache/incubator-devlake/core/utils"
 	helper "github.com/apache/incubator-devlake/helpers/pluginhelper/api"
+	aha "github.com/apache/incubator-devlake/helpers/pluginhelper/api/apihelperabstract"
 	"github.com/apache/incubator-devlake/plugins/github/models"
 	"github.com/apache/incubator-devlake/plugins/github/tasks"
 )
 
-func MakePipelinePlan(subtaskMetas []plugin.SubTaskMeta, connectionId uint64, scope []*plugin.BlueprintScopeV100) (plugin.PipelinePlan, errors.Error) {
+func MakePipelinePlan(
+	subtaskMetas []plugin.SubTaskMeta,
+	connectionId uint64,
+	scope []*plugin.BlueprintScopeV100,
+) (plugin.PipelinePlan, errors.Error) {
 	var err errors.Error
 	connection := new(models.GithubConnection)
 	err = connectionHelper.FirstById(connection, connectionId)
 	if err != nil {
 		return nil, err
 	}
-	token := strings.Split(connection.Token, ",")[0]
-	apiClient, err := helper.NewApiClient(
-		context.TODO(),
-		connection.Endpoint,
-		map[string]string{
-			"Authorization": fmt.Sprintf("Bearer %s", token),
-		},
-		10*time.Second,
-		connection.Proxy,
-		basicRes,
-	)
+	apiClient, err := helper.NewApiClientFromConnection(context.TODO(), basicRes, connection)
 	if err != nil {
 		return nil, err
 	}
@@ -64,7 +59,12 @@ func MakePipelinePlan(subtaskMetas []plugin.SubTaskMeta, connectionId uint64, sc
 	return plan, nil
 }
 
-func makePipelinePlan(subtaskMetas []plugin.SubTaskMeta, scopeV100s []*plugin.BlueprintScopeV100, apiClient helper.ApiClientGetter, connection *models.GithubConnection) (plugin.PipelinePlan, errors.Error) {
+func makePipelinePlan(
+	subtaskMetas []plugin.SubTaskMeta,
+	scopeV100s []*plugin.BlueprintScopeV100,
+	apiClient aha.ApiClientAbstract,
+	connection *models.GithubConnection,
+) (plugin.PipelinePlan, errors.Error) {
 	var err errors.Error
 	var repo *tasks.GithubApiRepo
 	plan := make(plugin.PipelinePlan, len(scopeV100s))
@@ -220,7 +220,10 @@ func addGithub(subtaskMetas []plugin.SubTaskMeta, connection *models.GithubConne
 	return stage, nil
 }
 
-func getApiRepo(op *tasks.GithubOptions, apiClient helper.ApiClientGetter) (*tasks.GithubApiRepo, errors.Error) {
+func getApiRepo(
+	op *tasks.GithubOptions,
+	apiClient aha.ApiClientAbstract,
+) (*tasks.GithubApiRepo, errors.Error) {
 	repoRes := &tasks.GithubApiRepo{}
 	res, err := apiClient.Get(fmt.Sprintf("repos/%s", op.Name), nil, nil)
 	if err != nil {
@@ -241,7 +244,10 @@ func getApiRepo(op *tasks.GithubOptions, apiClient helper.ApiClientGetter) (*tas
 	return repoRes, nil
 }
 
-func MemorizedGetApiRepo(repo *tasks.GithubApiRepo, op *tasks.GithubOptions, apiClient helper.ApiClientGetter) (*tasks.GithubApiRepo, errors.Error) {
+func MemorizedGetApiRepo(
+	repo *tasks.GithubApiRepo,
+	op *tasks.GithubOptions, apiClient aha.ApiClientAbstract,
+) (*tasks.GithubApiRepo, errors.Error) {
 	if repo == nil {
 		var err errors.Error
 		repo, err = getApiRepo(op, apiClient)

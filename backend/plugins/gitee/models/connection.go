@@ -18,30 +18,37 @@ limitations under the License.
 package models
 
 import (
+	"net/http"
+
+	"github.com/apache/incubator-devlake/core/errors"
 	helper "github.com/apache/incubator-devlake/helpers/pluginhelper/api"
 )
 
-type GiteeConnection struct {
-	helper.BaseConnection `mapstructure:",squash"`
-	helper.RestConnection `mapstructure:",squash"`
-	helper.AccessToken    `mapstructure:",squash"`
+type GiteeAccessToken helper.AccessToken
+
+// SetupAuthentication sets up the HTTP Request Authentication
+func (gat GiteeAccessToken) SetupAuthentication(req *http.Request) errors.Error {
+	query := req.URL.Query()
+	query.Set("access_token", gat.Token)
+	req.URL.RawQuery = query.Encode()
+	return nil
 }
 
-type GiteeResponse struct {
-	Name string `json:"name"`
-	ID   int    `json:"id"`
-	GiteeConnection
+// GiteeConn holds the essential information to connect to the Gitee API
+type GiteeConn struct {
+	helper.RestConnection `mapstructure:",squash"`
+	GiteeAccessToken      `mapstructure:",squash"`
+}
+
+// GiteeConnection holds GiteeConn plus ID/Name for database storage
+type GiteeConnection struct {
+	helper.BaseConnection `mapstructure:",squash"`
+	GiteeConn             `mapstructure:",squash"`
 }
 
 type ApiUserResponse struct {
 	Id   int
 	Name string `json:"name"`
-}
-
-type TestConnectionRequest struct {
-	Endpoint           string `json:"endpoint" validate:"required"`
-	Proxy              string `json:"proxy"`
-	helper.AccessToken `mapstructure:",squash"`
 }
 
 type TransformationRules struct {

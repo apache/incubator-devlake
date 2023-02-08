@@ -21,23 +21,6 @@ import (
 	helper "github.com/apache/incubator-devlake/helpers/pluginhelper/api"
 )
 
-type EpicResponse struct {
-	Id    int
-	Title string
-	Value string
-}
-
-type TestConnectionRequest struct {
-	Endpoint         string `json:"endpoint"`
-	Proxy            string `json:"proxy"`
-	helper.BasicAuth `mapstructure:",squash"`
-}
-
-type BoardResponse struct {
-	Id    int
-	Title string
-	Value string
-}
 type TransformationRules struct {
 	IssueStatusTODO       []string `mapstructure:"issueStatusTodo" json:"issueStatusTodo"`
 	IssueStatusINPROGRESS []string `mapstructure:"issueStatusInProgress" json:"issueStatusInProgress"`
@@ -45,10 +28,16 @@ type TransformationRules struct {
 	IssueStatusOTHER      []string `mapstructure:"issueStatusOther" json:"issueStatusOther"`
 }
 
-type BitbucketConnection struct {
-	helper.BaseConnection `mapstructure:",squash"`
+// BitbucketConn holds the essential information to connect to the Bitbucket API
+type BitbucketConn struct {
 	helper.RestConnection `mapstructure:",squash"`
 	helper.BasicAuth      `mapstructure:",squash"`
+}
+
+// BitbucketConnection holds BitbucketConn plus ID/Name for database storage
+type BitbucketConnection struct {
+	helper.BaseConnection `mapstructure:",squash"`
+	BitbucketConn         `mapstructure:",squash"`
 }
 
 func (BitbucketConnection) TableName() string {

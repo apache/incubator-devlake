@@ -46,8 +46,8 @@ type JiraConn struct {
 
 // SetupAuthentication implements the `IAuthentication` interface by delegating
 // the actual logic to the `MultiAuth` struct to help us write less code
-func (jc JiraConn) SetupAuthentication(req *http.Request) errors.Error {
-	return jc.MultiAuth.SetupAuthenticationForConnection(&jc, req)
+func (jc *JiraConn) SetupAuthentication(req *http.Request) errors.Error {
+	return jc.MultiAuth.SetupAuthenticationForConnection(jc, req)
 }
 
 // JiraConnection holds JiraConn plus ID/Name for database storage

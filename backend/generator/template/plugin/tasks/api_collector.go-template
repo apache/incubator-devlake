@@ -23,17 +23,16 @@ import (
 	"net/url"
 	"strconv"
 
-	core "github.com/apache/incubator-devlake/core/plugin"
+	"github.com/apache/incubator-devlake/core/plugin"
 	"github.com/apache/incubator-devlake/core/errors"
 	helper "github.com/apache/incubator-devlake/helpers/pluginhelper/api"
 )
 
 const RAW_{{ .COLLECTOR_DATA_NAME }}_TABLE = "{{ .plugin_name }}_{{ .collector_data_name }}"
 
-var _ core.SubTaskEntryPoint = Collect{{ .CollectorDataName }}
+var _ plugin.SubTaskEntryPoint = Collect{{ .CollectorDataName }}
 
-func Collect{{ .CollectorDataName }}(taskCtx core.SubTaskContext) errors.Error {
-	data := taskCtx.GetData().(*{{ .PluginName }}TaskData)
+func Collect{{ .CollectorDataName }}(taskCtx plugin.SubTaskContext) errors.Error {
 	rawDataSubTaskArgs, data := CreateRawDataSubTaskArgs(taskCtx, RAW_{{ .COLLECTOR_DATA_NAME }}_TABLE)
 	logger := taskCtx.GetLogger()
 

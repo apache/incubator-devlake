@@ -19,20 +19,18 @@ package api
 
 import (
 	"context"
-	"fmt"
+	"net/http"
+
 	"github.com/apache/incubator-devlake/core/errors"
 	"github.com/apache/incubator-devlake/core/plugin"
-	"github.com/apache/incubator-devlake/core/utils"
 	"github.com/apache/incubator-devlake/helpers/pluginhelper/api"
 	"github.com/apache/incubator-devlake/plugins/jenkins/models"
-	"net/http"
-	"time"
 )
 
 // @Summary test jenkins connection
 // @Description Test Jenkins Connection
 // @Tags plugins/jenkins
-// @Param body body models.TestConnectionRequest true "json body"
+// @Param body body models.JenkinsConn true "json body"
 // @Success 200  {object} shared.ApiBody "Success"
 // @Failure 400  {string} errcode.Error "Bad Request"
 // @Failure 500  {string} errcode.Error "Internal Error"
@@ -40,24 +38,13 @@ import (
 func TestConnection(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, errors.Error) {
 	// decode
 	var err errors.Error
-	var connection models.TestConnectionRequest
+	var connection models.JenkinsConn
 	err = api.Decode(input.Body, &connection, vld)
 	if err != nil {
 		return nil, err
 	}
 	// test connection
-	encodedToken := utils.GetEncodedToken(connection.Username, connection.Password)
-
-	apiClient, err := api.NewApiClient(
-		context.TODO(),
-		connection.Endpoint,
-		map[string]string{
-			"Authorization": fmt.Sprintf("Basic %v", encodedToken),
-		},
-		3*time.Second,
-		connection.Proxy,
-		basicRes,
-	)
+	apiClient, err := api.NewApiClientFromConnection(context.TODO(), basicRes, &connection)
 	if err != nil {
 		return nil, err
 	}

@@ -21,24 +21,16 @@ import (
 	helper "github.com/apache/incubator-devlake/helpers/pluginhelper/api"
 )
 
-// This object conforms to what the frontend currently sends.
-type JenkinsConnection struct {
-	helper.BaseConnection `mapstructure:",squash"`
+// JenkinsConn holds the essential information to connect to the Jenkins API
+type JenkinsConn struct {
 	helper.RestConnection `mapstructure:",squash"`
 	helper.BasicAuth      `mapstructure:",squash"`
 }
 
-type JenkinsResponse struct {
-	ID   int    `json:"id"`
-	Name string `json:"name"`
-	JenkinsConnection
-}
-
-type TestConnectionRequest struct {
-	Endpoint string `json:"endpoint" validate:"required"`
-	Username string `json:"username" validate:"required"`
-	Password string `json:"password" validate:"required"`
-	Proxy    string `json:"proxy"`
+// JenkinsConnection holds JenkinsConn plus ID/Name for database storage
+type JenkinsConnection struct {
+	helper.BaseConnection `mapstructure:",squash"`
+	JenkinsConn           `mapstructure:",squash"`
 }
 
 func (JenkinsConnection) TableName() string {

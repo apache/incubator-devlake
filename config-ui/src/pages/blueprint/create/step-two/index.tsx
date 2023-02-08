@@ -44,15 +44,6 @@ export const StepTwo = () => {
     onChangeShowDetail(false);
   };
 
-  const handleDeleteScope = (plugin: string, connectionId: ID, scopeId: ID) => {
-    const unique = `${plugin}-${connectionId}`;
-
-    onChangeScopeMap({
-      ...scopeMap,
-      [`${unique}`]: scopeMap[unique].filter((sc: any) => sc.id !== scopeId),
-    });
-  };
-
   const handleSave = (scope: any) => {
     if (!connection) return;
     onChangeScopeMap({
@@ -62,7 +53,7 @@ export const StepTwo = () => {
     handleBack();
   };
 
-  const columns = useColumns({ onDetail: handleGoDetail, onDelete: handleDeleteScope });
+  const columns = useColumns({ onDetail: handleGoDetail });
   const dataSource = useMemo(
     () =>
       uniqueList.map((unique) => {
@@ -84,7 +75,7 @@ export const StepTwo = () => {
         <Icon icon="arrow-left" size={14} />
         <span>Cancel and Go Back to the Data Scope List</span>
       </div>
-      <h2>Add Data Scope</h2>
+      <h2>Set Data Scope</h2>
       <Divider />
       <div className="connection">
         <img src={connection.icon} width={24} alt="" />

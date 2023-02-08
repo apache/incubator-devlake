@@ -98,3 +98,11 @@ export const ConnectionGitLabToken = () => ({
   required: true,
   placeholder: 'eg. ff9d1ad0e5c04f1f98fa',
 });
+
+export const ConnectionJIRAAuth = () => ({
+  key: 'auth',
+  type: 'jiraAuth' as const,
+  checkError: (form: any) => {
+    return !!(form.username && form.password) || !!form.token;
+  },
+});

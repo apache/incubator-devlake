@@ -23,13 +23,14 @@ import (
 )
 
 type SonarqubeProject struct {
-	archived.NoPKModel
+	ConnectionId     uint64     `gorm:"primaryKey"`
 	Key              string     `json:"key" gorm:"type:varchar(64);primaryKey"`
 	Name             string     `json:"name" gorm:"type:varchar(255)"`
 	Qualifier        string     `json:"qualifier" gorm:"type:varchar(255)"`
 	Visibility       string     `json:"visibility" gorm:"type:varchar(64)"`
 	LastAnalysisDate *time.Time `json:"lastAnalysisDate"`
 	Revision         string     `json:"revision" gorm:"type:varchar(128)"`
+	archived.NoPKModel
 }
 
 func (SonarqubeProject) TableName() string {

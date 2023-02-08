@@ -21,19 +21,19 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"io"
+	"net/http"
+	"net/url"
+	"path"
+
 	"github.com/apache/incubator-devlake/core/errors"
 	"github.com/apache/incubator-devlake/core/models/domainlayer/didgen"
 	"github.com/apache/incubator-devlake/core/plugin"
 	"github.com/apache/incubator-devlake/core/utils"
 	"github.com/apache/incubator-devlake/helpers/pluginhelper/api"
+	aha "github.com/apache/incubator-devlake/helpers/pluginhelper/api/apihelperabstract"
 	"github.com/apache/incubator-devlake/plugins/bitbucket/models"
 	"github.com/apache/incubator-devlake/plugins/bitbucket/tasks"
-	"io"
-	"net/http"
-	"net/url"
-	"path"
-	"strings"
-	"time"
 )
 
 func MakePipelinePlan(subtaskMetas []plugin.SubTaskMeta, connectionId uint64, scope []*plugin.BlueprintScopeV100) (plugin.PipelinePlan, errors.Error) {
@@ -42,28 +42,19 @@ func MakePipelinePlan(subtaskMetas []plugin.SubTaskMeta, connectionId uint64, sc
 	if err != nil {
 		return nil, err
 	}
-	tokens := strings.Split(connection.GetEncodedToken(), ",")
-	if len(tokens) == 0 {
-		return nil, errors.Default.New("no token")
-	}
-	token := tokens[0]
-	apiClient, err := api.NewApiClient(
-		context.TODO(),
-		connection.Endpoint,
-		map[string]string{
-			"Authorization": fmt.Sprintf("Basic %s", token),
-		},
-		10*time.Second,
-		connection.Proxy,
-		basicRes,
-	)
+	apiClient, err := api.NewApiClientFromConnection(context.TODO(), basicRes, connection)
 	if err != nil {
 		return nil, err
 	}
 	return makePipelinePlan(subtaskMetas, scope, apiClient, connection)
 }
 
-func makePipelinePlan(subtaskMetas []plugin.SubTaskMeta, scope []*plugin.BlueprintScopeV100, apiClient api.ApiClientGetter, connection *models.BitbucketConnection) (plugin.PipelinePlan, errors.Error) {
+func makePipelinePlan(
+	subtaskMetas []plugin.SubTaskMeta,
+	scope []*plugin.BlueprintScopeV100,
+	apiClient aha.ApiClientAbstract,
+	connection *models.BitbucketConnection,
+) (plugin.PipelinePlan, errors.Error) {
 	var err errors.Error
 	plan := make(plugin.PipelinePlan, len(scope))
 	var repo *tasks.BitbucketApiRepo
@@ -157,7 +148,10 @@ func makePipelinePlan(subtaskMetas []plugin.SubTaskMeta, scope []*plugin.Bluepri
 	return plan, nil
 }
 
-func getApiRepo(op *tasks.BitbucketOptions, apiClient api.ApiClientGetter) (*tasks.BitbucketApiRepo, errors.Error) {
+func getApiRepo(
+	op *tasks.BitbucketOptions,
+	apiClient aha.ApiClientAbstract,
+) (*tasks.BitbucketApiRepo, errors.Error) {
 	res, err := apiClient.Get(path.Join("repositories", op.Owner, op.Repo), nil, nil)
 	if err != nil {
 		return nil, err

@@ -28,12 +28,13 @@ import (
 var _ plugin.SubTaskEntryPoint = ExtractProjects
 
 func ExtractProjects(taskCtx plugin.SubTaskContext) errors.Error {
-	rawDataSubTaskArgs, _ := CreateRawDataSubTaskArgs(taskCtx, RAW_PROJECTS_TABLE)
+	rawDataSubTaskArgs, data := CreateRawDataSubTaskArgs(taskCtx, RAW_PROJECTS_TABLE)
 	extractor, err := helper.NewApiExtractor(helper.ApiExtractorArgs{
 		RawDataSubTaskArgs: *rawDataSubTaskArgs,
 		Extract: func(resData *helper.RawData) ([]interface{}, errors.Error) {
 			body := &models.SonarqubeProject{}
 			err := errors.Convert(json.Unmarshal(resData.Data, body))
+			body.ConnectionId = data.Options.ConnectionId
 			if err != nil {
 				return nil, err
 			}

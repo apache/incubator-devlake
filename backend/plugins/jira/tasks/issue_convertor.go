@@ -18,6 +18,11 @@ limitations under the License.
 package tasks
 
 import (
+	"net/url"
+	"path/filepath"
+	"reflect"
+	"strings"
+
 	"github.com/apache/incubator-devlake/core/dal"
 	"github.com/apache/incubator-devlake/core/errors"
 	"github.com/apache/incubator-devlake/core/models/domainlayer"
@@ -26,9 +31,6 @@ import (
 	"github.com/apache/incubator-devlake/core/plugin"
 	"github.com/apache/incubator-devlake/helpers/pluginhelper/api"
 	"github.com/apache/incubator-devlake/plugins/jira/models"
-	"net/url"
-	"path/filepath"
-	"reflect"
 )
 
 var ConvertIssuesMeta = plugin.SubTaskMeta{
@@ -48,8 +50,8 @@ func ConvertIssues(taskCtx plugin.SubTaskContext) errors.Error {
 	clauses := []dal.Clause{
 		dal.Select("_tool_jira_issues.*"),
 		dal.From(jiraIssue),
-		dal.Join(`left join _tool_jira_board_issues 
-			on _tool_jira_board_issues.issue_id = _tool_jira_issues.issue_id 
+		dal.Join(`left join _tool_jira_board_issues
+			on _tool_jira_board_issues.issue_id = _tool_jira_issues.issue_id
 			and _tool_jira_board_issues.connection_id = _tool_jira_issues.connection_id`),
 		dal.Where(
 			"_tool_jira_board_issues.connection_id = ? AND _tool_jira_board_issues.board_id = ?",
@@ -141,6 +143,7 @@ func convertURL(api, issueKey string) string {
 	if err != nil {
 		return api
 	}
-	u.Path = filepath.Join("/browse", issueKey)
+	before, _, _ := strings.Cut(u.Path, "/rest/agile/1.0/issue")
+	u.Path = filepath.Join(before, "browse", issueKey)
 	return u.String()
 }

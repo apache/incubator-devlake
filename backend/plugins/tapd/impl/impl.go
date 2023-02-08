@@ -19,6 +19,8 @@ package impl
 
 import (
 	"fmt"
+	"time"
+
 	"github.com/apache/incubator-devlake/core/context"
 	"github.com/apache/incubator-devlake/core/dal"
 	"github.com/apache/incubator-devlake/core/errors"
@@ -28,7 +30,6 @@ import (
 	"github.com/apache/incubator-devlake/plugins/tapd/models"
 	"github.com/apache/incubator-devlake/plugins/tapd/models/migrationscripts"
 	"github.com/apache/incubator-devlake/plugins/tapd/tasks"
-	"time"
 )
 
 var _ plugin.PluginMeta = (*Tapd)(nil)
@@ -57,7 +58,6 @@ func (p Tapd) GetTablesInfo() []dal.Tabler {
 		&models.TapdBugLabel{},
 		&models.TapdBugStatus{},
 		&models.TapdConnection{},
-		&models.TapdConnectionDetail{},
 		&models.TapdIssue{},
 		&models.TapdIteration{},
 		&models.TapdIterationBug{},

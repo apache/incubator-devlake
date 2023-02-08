@@ -47,7 +47,7 @@ func ConvertAccounts(taskCtx plugin.SubTaskContext) errors.Error {
 	clauses := []dal.Clause{
 		dal.Select("*"),
 		dal.From(&models.JiraAccount{}),
-		dal.Where("connection_id = ?", connectionId),
+		dal.Where("account_id != ? AND connection_id = ?", "", connectionId),
 	}
 	cursor, err := db.Cursor(clauses...)
 	if err != nil {

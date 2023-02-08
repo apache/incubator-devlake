@@ -20,14 +20,13 @@ package api
 import (
 	"context"
 	"encoding/json"
-	"fmt"
+	"io"
+	"time"
+
 	"github.com/apache/incubator-devlake/core/errors"
 	"github.com/apache/incubator-devlake/core/plugin"
 	helper "github.com/apache/incubator-devlake/helpers/pluginhelper/api"
 	"github.com/apache/incubator-devlake/plugins/github/models"
-	"io"
-	"strings"
-	"time"
 )
 
 const (
@@ -40,17 +39,7 @@ func Proxy(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, errors.Er
 	if err != nil {
 		return nil, err
 	}
-	tokens := strings.Split(connection.Token, ",")
-	apiClient, err := helper.NewApiClient(
-		context.TODO(),
-		connection.Endpoint,
-		map[string]string{
-			"Authorization": fmt.Sprintf("Bearer %s", tokens[0]),
-		},
-		TimeOut,
-		connection.Proxy,
-		basicRes,
-	)
+	apiClient, err := helper.NewApiClientFromConnection(context.TODO(), basicRes, connection)
 	if err != nil {
 		return nil, err
 	}

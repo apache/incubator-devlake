@@ -21,7 +21,6 @@ import (
 	"github.com/apache/incubator-devlake/core/errors"
 	"github.com/apache/incubator-devlake/core/plugin"
 	helper "github.com/apache/incubator-devlake/helpers/pluginhelper/api"
-	"github.com/apache/incubator-devlake/plugins/gitlab/tasks"
 )
 
 const RAW_PULL_REQUEST_COMMITS_TABLE = "bitbucket_api_pull_request_commits"
@@ -35,7 +34,7 @@ var CollectApiPrCommitsMeta = plugin.SubTaskMeta{
 }
 
 func CollectApiPullRequestCommits(taskCtx plugin.SubTaskContext) errors.Error {
-	rawDataSubTaskArgs, data := tasks.CreateRawDataSubTaskArgs(taskCtx, RAW_PULL_REQUEST_COMMITS_TABLE)
+	rawDataSubTaskArgs, data := CreateRawDataSubTaskArgs(taskCtx, RAW_PULL_REQUEST_COMMITS_TABLE)
 
 	iterator, err := GetPullRequestsIterator(taskCtx)
 	if err != nil {
@@ -44,14 +43,15 @@ func CollectApiPullRequestCommits(taskCtx plugin.SubTaskContext) errors.Error {
 	defer iterator.Close()
 
 	collector, err := helper.NewApiCollector(helper.ApiCollectorArgs{
-		RawDataSubTaskArgs: *rawDataSubTaskArgs,
-		ApiClient:          data.ApiClient,
-		PageSize:           100,
-		Incremental:        false,
-		Input:              iterator,
-		UrlTemplate:        "repositories/{{ .Params.Owner }}/{{ .Params.Repo }}/pullrequests/{{ .Input.BitbucketId }}/commits",
-		Query:              GetQuery,
-		ResponseParser:     GetRawMessageFromResponse,
+		RawDataSubTaskArgs:    *rawDataSubTaskArgs,
+		ApiClient:             data.ApiClient,
+		PageSize:              100,
+		Incremental:           false,
+		Input:                 iterator,
+		UrlTemplate:           "repositories/{{ .Params.Owner }}/{{ .Params.Repo }}/pullrequests/{{ .Input.BitbucketId }}/commits",
+		GetNextPageCustomData: GetNextPageCustomData,
+		Query:                 GetQueryForNext,
+		ResponseParser:        GetRawMessageFromResponse,
 	})
 
 	if err != nil {

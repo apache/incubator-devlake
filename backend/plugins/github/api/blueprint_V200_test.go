@@ -42,13 +42,17 @@ func TestMakeDataSourcePipelinePlanV200(t *testing.T) {
 				ID: 1,
 			},
 		},
-		RestConnection: helper.RestConnection{
-			Endpoint:         "https://api.github.com/",
-			Proxy:            "",
-			RateLimitPerHour: 0,
-		},
-		AccessToken: helper.AccessToken{
-			Token: "123",
+		GithubConn: models.GithubConn{
+			RestConnection: helper.RestConnection{
+				Endpoint:         "https://api.github.com/",
+				Proxy:            "",
+				RateLimitPerHour: 0,
+			},
+			GithubAccessToken: models.GithubAccessToken{
+				AccessToken: helper.AccessToken{
+					Token: "123",
+				},
+			},
 		},
 	}
 	mockMeta := mockplugin.NewPluginMeta(t)
