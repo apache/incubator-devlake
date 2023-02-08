@@ -52,6 +52,7 @@ func CollectAccounts(taskCtx plugin.SubTaskContext) errors.Error {
 	}
 	// it means we can not use /members/all to get the data
 	urlTemplate := "/projects/{{ .Params.ProjectId }}/members/all"
+	//if semver.Compare(taskCtx.GetConnection().Version.version, "13.11") < 0 {
 	if res.StatusCode == http.StatusBadRequest {
 		urlTemplate = "/projects/{{ .Params.ProjectId }}/members/"
 	}

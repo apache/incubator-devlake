@@ -43,10 +43,10 @@ func MakePipelinePlan(subtaskMetas []plugin.SubTaskMeta, connectionId uint64, sc
 		return nil, err
 	}
 
-	apiClient, err := tasks.NewApiClientFromConnectionWithTest(
+	apiClient, err := api.NewApiClientFromConnection(
 		context.TODO(),
 		basicRes,
-		&connection.GitlabConn,
+		connection,
 	)
 	if err != nil {
 		return nil, err

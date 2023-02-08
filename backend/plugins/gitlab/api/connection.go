@@ -25,7 +25,6 @@ import (
 	"github.com/apache/incubator-devlake/core/plugin"
 	"github.com/apache/incubator-devlake/helpers/pluginhelper/api"
 	"github.com/apache/incubator-devlake/plugins/gitlab/models"
-	"github.com/apache/incubator-devlake/plugins/gitlab/tasks"
 	"github.com/apache/incubator-devlake/server/api/shared"
 )
 
@@ -50,7 +49,7 @@ func TestConnection(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, 
 		return nil, err
 	}
 
-	_, err = tasks.NewApiClientFromConnectionWithTest(context.TODO(), basicRes, &connection)
+	_, err = api.NewApiClientFromConnection(context.TODO(), basicRes, &connection)
 	if err != nil {
 		return nil, err
 	}
