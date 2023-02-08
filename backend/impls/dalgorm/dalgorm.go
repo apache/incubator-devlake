@@ -195,6 +195,11 @@ func (d *Dalgorm) Create(entity interface{}, clauses ...dal.Clause) errors.Error
 	return errors.Convert(buildTx(d.db, clauses).Create(entity).Error)
 }
 
+// CreateWithMap insert record to database
+func (d *Dalgorm) CreateWithMap(entity interface{}, record map[string]interface{}) errors.Error {
+	return errors.Convert(buildTx(d.db, nil).Model(entity).Clauses(clause.OnConflict{UpdateAll: true}).Create(record).Error)
+}
+
 // Update updates record
 func (d *Dalgorm) Update(entity interface{}, clauses ...dal.Clause) errors.Error {
 	return errors.Convert(buildTx(d.db, clauses).Save(entity).Error)

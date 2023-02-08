@@ -92,5 +92,8 @@ func (p *Customize) ApiResources() map[string]map[string]plugin.ApiResourceHandl
 		":table/fields/:field": {
 			"DELETE": p.handlers.DeleteField,
 		},
+		"csvfile": {
+			"POST": p.handlers.ImportCSVFile,
+		},
 	}
 }

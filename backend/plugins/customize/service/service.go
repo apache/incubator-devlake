@@ -19,11 +19,15 @@ package service
 
 import (
 	"fmt"
-	"strings"
-
 	"github.com/apache/incubator-devlake/core/dal"
 	"github.com/apache/incubator-devlake/core/errors"
+	"github.com/apache/incubator-devlake/core/models/common"
+	"github.com/apache/incubator-devlake/core/models/domainlayer/crossdomain"
+	"github.com/apache/incubator-devlake/core/models/domainlayer/ticket"
+	"github.com/apache/incubator-devlake/helpers/pluginhelper"
 	"github.com/apache/incubator-devlake/plugins/customize/models"
+	"io"
+	"strings"
 )
 
 // Service wraps database operations
@@ -124,4 +128,99 @@ func (s *Service) getCustomizedFields(table string) ([]models.CustomizedField, e
 	var result []models.CustomizedField
 	err := s.dal.All(&result, dal.Where("tb_name = ?", table))
 	return result, err
+}
+
+func (s *Service) ImportCSV(table, rawDataParams string, file io.ReadCloser) errors.Error {
+	var err errors.Error
+	switch table {
+	case "issues":
+		err = s.dal.Delete(&ticket.Issue{}, dal.Where("_raw_data_params = ?", rawDataParams))
+		if err != nil {
+			return err
+		}
+		return s.importCSV(file, rawDataParams, s.issueHandler)
+	case "issue_commits":
+		err = s.dal.Delete(&crossdomain.IssueCommit{}, dal.Where("_raw_data_params = ?", rawDataParams))
+		if err != nil {
+			return err
+		}
+		return s.importCSV(file, rawDataParams, s.issueCommitHandler)
+	}
+	return errors.Default.New(fmt.Sprintf("can not import to the table %s", table))
+}
+
+func (s *Service) importCSV(file io.ReadCloser, rawDataParams string, recordHandler func(map[string]interface{}) errors.Error) errors.Error {
+	iterator, err := pluginhelper.NewCsvFileIteratorFromFile(file)
+	if err != nil {
+		return err
+	}
+	var hasNext bool
+	for {
+		if hasNext, err = iterator.HasNextWithError(); !hasNext {
+			return err
+		} else {
+			record := iterator.Fetch()
+			record["_raw_data_params"] = rawDataParams
+			for k, v := range record {
+				if v.(string) == "NULL" {
+					record[k] = nil
+				}
+			}
+			err = recordHandler(record)
+			if err != nil {
+				return err
+			}
+		}
+	}
+}
+
+func (s *Service) issueHandler(record map[string]interface{}) errors.Error {
+	var err errors.Error
+	var id string
+	if record["id"] == nil {
+		return errors.Default.New("record without id")
+	}
+	id, _ = record["id"].(string)
+	if id == "" {
+		return errors.Default.New("empty id")
+	}
+	if record["labels"] != nil {
+		labels, ok := record["labels"].(string)
+		if !ok {
+			return errors.Default.New("labels is not string")
+		}
+		var issueLabels []*ticket.IssueLabel
+		labelSet := make(map[string]struct{}) // for deduplicate label
+		for _, label := range strings.Split(labels, ",") {
+			label = strings.TrimSpace(label)
+			if label == "" {
+				continue
+			}
+			if _, exist := labelSet[label]; !exist {
+				issueLabel := &ticket.IssueLabel{
+					IssueId:   id,
+					LabelName: label,
+					NoPKModel: common.NoPKModel{
+						RawDataOrigin: common.RawDataOrigin{
+							RawDataParams: record["_raw_data_params"].(string),
+						},
+					},
+				}
+				issueLabels = append(issueLabels, issueLabel)
+				labelSet[label] = struct{}{}
+			}
+		}
+		if len(issueLabels) > 0 {
+			err = s.dal.CreateOrUpdate(issueLabels)
+			if err != nil {
+				return err
+			}
+		}
+	}
+	delete(record, "labels")
+	return s.dal.CreateWithMap(&ticket.Issue{}, record)
+}
+
+func (s *Service) issueCommitHandler(record map[string]interface{}) errors.Error {
+	return s.dal.CreateWithMap(&crossdomain.IssueCommit{}, record)
 }

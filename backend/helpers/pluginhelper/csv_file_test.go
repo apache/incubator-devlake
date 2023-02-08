@@ -32,7 +32,7 @@ func TestExampleCsvFile(t *testing.T) {
 	writer.Write([]string{"123", "foobar", `{"url": "https://example.com"}`, "2022-05-05 09:56:43.438000000"})
 	writer.Close()
 
-	iter := NewCsvFileIterator(filename)
+	iter, _ := NewCsvFileIterator(filename)
 	defer iter.Close()
 	for iter.HasNext() {
 		row := iter.Fetch()

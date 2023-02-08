@@ -21,6 +21,8 @@ import (
 	"encoding/csv"
 	"io"
 	"os"
+
+	"github.com/apache/incubator-devlake/core/errors"
 )
 
 // CsvFileIterator make iterating rows from csv file easier, it reads tuple from csv file and turn it into
@@ -31,30 +33,35 @@ import (
 //	"id","name","json","created_at"
 //	123,"foobar","{""url"": ""https://example.com""}","2022-05-05 09:56:43.438000000"
 type CsvFileIterator struct {
-	file   *os.File
+	file   io.ReadCloser
 	reader *csv.Reader
 	fields []string
 	row    map[string]interface{}
 }
 
 // NewCsvFileIterator create a `*CsvFileIterator` based on path to csv file
-func NewCsvFileIterator(csvPath string) *CsvFileIterator {
+func NewCsvFileIterator(csvPath string) (*CsvFileIterator, errors.Error) {
 	// open csv file
 	csvFile, err := os.Open(csvPath)
 	if err != nil {
-		panic(err)
+		return nil, errors.Convert(err)
 	}
+	return NewCsvFileIteratorFromFile(csvFile)
+}
+
+// NewCsvFileIteratorFromFile create a `*CsvFileIterator` from a file descriptor
+func NewCsvFileIteratorFromFile(csvFile io.ReadCloser) (*CsvFileIterator, errors.Error) {
 	csvReader := csv.NewReader(csvFile)
 	// load field names
 	fields, err := csvReader.Read()
 	if err != nil {
-		panic(err)
+		return nil, errors.Convert(err)
 	}
 	return &CsvFileIterator{
 		file:   csvFile,
 		reader: csvReader,
 		fields: fields,
-	}
+	}, nil
 }
 
 // Close releases resource
@@ -67,21 +74,30 @@ func (ci *CsvFileIterator) Close() {
 
 // HasNext returns a boolean to indicate whether there was any row to be `Fetch`
 func (ci *CsvFileIterator) HasNext() bool {
+	hasNext, err := ci.HasNextWithError()
+	if err != nil {
+		panic(err)
+	}
+	return hasNext
+}
+
+// HasNextWithError returns a boolean to indicate whether there was any row to be `Fetch`
+func (ci *CsvFileIterator) HasNextWithError() (bool, errors.Error) {
 	row, err := ci.reader.Read()
 	if err == io.EOF {
 		ci.row = nil
-		return false
+		return false, nil
 	}
 	if err != nil {
 		ci.row = nil
-		panic(err)
+		return false, errors.Convert(err)
 	}
 	// convert row tuple to map type, so gorm can insert data with it
 	ci.row = make(map[string]interface{})
 	for index, field := range ci.fields {
 		ci.row[field] = row[index]
 	}
-	return true
+	return true, nil
 }
 
 // Fetch returns current row

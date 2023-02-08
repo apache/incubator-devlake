@@ -134,6 +134,8 @@ type Dal interface {
 	Pluck(column string, dest interface{}, clauses ...Clause) errors.Error
 	// Create insert record to database
 	Create(entity interface{}, clauses ...Clause) errors.Error
+	// CreateWithMap insert record to database, the record is organized as map
+	CreateWithMap(entity interface{}, record map[string]interface{}) errors.Error
 	// Update updates record
 	Update(entity interface{}, clauses ...Clause) errors.Error
 	// UpdateColumn allows you to update multiple records

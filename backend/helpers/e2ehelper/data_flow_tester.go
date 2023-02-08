@@ -119,7 +119,7 @@ func NewDataFlowTester(t *testing.T, pluginName string, pluginMeta plugin.Plugin
 
 // ImportCsvIntoRawTable imports records from specified csv file into target raw table, note that existing data would be deleted first.
 func (t *DataFlowTester) ImportCsvIntoRawTable(csvRelPath string, rawTableName string) {
-	csvIter := pluginhelper.NewCsvFileIterator(csvRelPath)
+	csvIter, _ := pluginhelper.NewCsvFileIterator(csvRelPath)
 	defer csvIter.Close()
 	t.FlushRawTable(rawTableName)
 	// load rows and insert into target table
@@ -136,7 +136,7 @@ func (t *DataFlowTester) ImportCsvIntoRawTable(csvRelPath string, rawTableName s
 
 // ImportCsvIntoTabler imports records from specified csv file into target tabler, note that existing data would be deleted first.
 func (t *DataFlowTester) ImportCsvIntoTabler(csvRelPath string, dst schema.Tabler) {
-	csvIter := pluginhelper.NewCsvFileIterator(csvRelPath)
+	csvIter, _ := pluginhelper.NewCsvFileIterator(csvRelPath)
 	defer csvIter.Close()
 	t.FlushTabler(dst)
 	// load rows and insert into target table
@@ -425,7 +425,7 @@ func (t *DataFlowTester) VerifyTableWithOptions(dst schema.Tabler, opts TableOpt
 		panic(err)
 	}
 
-	csvIter := pluginhelper.NewCsvFileIterator(opts.CSVRelPath)
+	csvIter, _ := pluginhelper.NewCsvFileIterator(opts.CSVRelPath)
 	defer csvIter.Close()
 
 	var expectedTotal int64
