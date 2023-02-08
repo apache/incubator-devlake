@@ -39,10 +39,10 @@ func (StProject) TableName() string {
 	return "st_projects"
 }
 
-func (r *StProject) ScopeId() string {
-	return r.Id
+func (s *StProject) ScopeId() string {
+	return s.Id
 }
 
-func (r *StProject) ScopeName() string {
-	return r.Name
+func (s *StProject) ScopeName() string {
+	return s.Name
 }
