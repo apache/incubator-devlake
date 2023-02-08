@@ -17,13 +17,14 @@
  */
 
 import React, { useState, useEffect } from 'react';
+import type { McsItem } from 'miller-columns-select';
 import MillerColumnsSelect from 'miller-columns-select';
 
 import { Loading } from '@/components';
 
 import type { ScopeItemType } from '../../types';
 
-import type { UseMillerColumnsProps } from './use-miller-columns';
+import type { UseMillerColumnsProps, ExtraType } from './use-miller-columns';
 import { useMillerColumns } from './use-miller-columns';
 
 interface Props extends UseMillerColumnsProps {
@@ -34,7 +35,7 @@ interface Props extends UseMillerColumnsProps {
 export const MillerColumns = ({ connectionId, selectedItems, onChangeItems }: Props) => {
   const [selectedIds, setSelectedIds] = useState<ID[]>([]);
 
-  const { items, getHasMore, onExpandItem } = useMillerColumns({
+  const { items, getHasMore, onExpand } = useMillerColumns({
     connectionId,
   });
 
@@ -43,13 +44,19 @@ export const MillerColumns = ({ connectionId, selectedItems, onChangeItems }: Pr
   }, [selectedItems]);
 
   const handleChangeItems = (selectedIds: ID[]) => {
-    const result = items
-      .filter((it) => (selectedIds.length ? selectedIds.includes(it.id) : false))
-      .map((it: any) => ({
+    const result = selectedIds.map((id) => {
+      const selectedItem = selectedItems.find((it) => it.jobFullName === id);
+      if (selectedItem) {
+        return selectedItem;
+      }
+
+      const item = items.find((it) => it.id === id) as McsItem<ExtraType>;
+      return {
         connectionId,
-        jobFullName: it.id,
-        name: it.id,
-      }));
+        jobFullName: item.id as string,
+        name: item.id,
+      };
+    });
 
     onChangeItems(result);
   };
@@ -60,15 +67,15 @@ export const MillerColumns = ({ connectionId, selectedItems, onChangeItems }: Pr
 
   return (
     <MillerColumnsSelect
+      items={items}
+      getCanExpand={(it) => it.type === 'folder'}
+      onExpand={onExpand}
       columnCount={2.5}
       columnHeight={300}
-      getCanExpand={(it) => it.type === 'folder'}
       getHasMore={getHasMore}
       renderLoading={renderLoading}
-      items={items}
       selectedIds={selectedIds}
       onSelectItemIds={handleChangeItems}
-      onExpandItem={onExpandItem}
     />
   );
 };

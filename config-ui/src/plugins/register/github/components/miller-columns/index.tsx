@@ -17,14 +17,15 @@
  */
 
 import React, { useState, useEffect } from 'react';
-import type { ID, ColumnType } from 'miller-columns-select';
+import type { McsID, McsItem, McsColumn } from 'miller-columns-select';
 import MillerColumnsSelect from 'miller-columns-select';
 
 import { Loading } from '@/components';
 
 import type { ScopeItemType } from '../../types';
 
-import { useMillerColumns, UseMillerColumnsProps } from './use-miller-columns';
+import type { UseMillerColumnsProps, ExtraType } from './use-miller-columns';
+import { useMillerColumns } from './use-miller-columns';
 import * as S from './styled';
 
 interface Props extends UseMillerColumnsProps {
@@ -33,9 +34,9 @@ interface Props extends UseMillerColumnsProps {
 }
 
 export const MillerColumns = ({ connectionId, selectedItems, onChangeItems }: Props) => {
-  const [selectedIds, setSelectedIds] = useState<ID[]>([]);
+  const [selectedIds, setSelectedIds] = useState<McsID[]>([]);
 
-  const { items, getHasMore, onExpandItem, onScrollColumn } = useMillerColumns({
+  const { items, getHasMore, onExpand, onScroll } = useMillerColumns({
     connectionId,
   });
 
@@ -43,24 +44,30 @@ export const MillerColumns = ({ connectionId, selectedItems, onChangeItems }: Pr
     setSelectedIds(selectedItems.map((it) => it.githubId));
   }, [selectedItems]);
 
-  const handleChangeItems = (selectedIds: ID[]) => {
-    const result = items
-      .filter((it) => (selectedIds.length ? selectedIds.includes(it.id) : false))
-      .map((it) => ({
+  const handleChangeItems = (selectedIds: McsID[]) => {
+    const result = selectedIds.map((id) => {
+      const selectedItem = selectedItems.find((it) => it.githubId === id);
+      if (selectedItem) {
+        return selectedItem;
+      }
+
+      const item = items.find((it) => it.id === id) as McsItem<ExtraType>;
+      return {
         connectionId,
-        githubId: it.githubId,
-        name: it.name,
-        ownerId: it.ownerId,
-        language: it.language,
-        description: it.description,
-        cloneUrl: it.cloneUrl,
-        HTMLUrl: it.HTMLUrl,
-      }));
+        githubId: item.githubId,
+        name: item.name,
+        ownerId: item.ownerId,
+        language: item.language,
+        description: item.description,
+        cloneUrl: item.cloneUrl,
+        HTMLUrl: item.HTMLUrl,
+      };
+    });
 
     onChangeItems(result);
   };
 
-  const renderTitle = (column: ColumnType<any>) => {
+  const renderTitle = (column: McsColumn) => {
     return !column.parentId && <S.ColumnTitle>Organizations/Owners</S.ColumnTitle>;
   };
 
@@ -70,17 +77,17 @@ export const MillerColumns = ({ connectionId, selectedItems, onChangeItems }: Pr
 
   return (
     <MillerColumnsSelect
-      columnCount={2}
-      columnHeight={300}
+      items={items}
       getCanExpand={(it) => it.type === 'org'}
       getHasMore={getHasMore}
+      onExpand={onExpand}
+      onScroll={onScroll}
+      columnCount={2}
+      columnHeight={300}
       renderTitle={renderTitle}
       renderLoading={renderLoading}
-      items={items}
       selectedIds={selectedIds}
       onSelectItemIds={handleChangeItems}
-      onExpandItem={onExpandItem}
-      onScrollColumn={onScrollColumn}
     />
   );
 };

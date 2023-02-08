@@ -17,13 +17,14 @@
  */
 
 import React, { useEffect, useState } from 'react';
+import type { McsItem, McsColumn } from 'miller-columns-select';
 import MillerColumnsSelect from 'miller-columns-select';
 
 import { Loading } from '@/components';
 
 import type { ScopeItemType } from '../../types';
 
-import type { UseMillerColumnsProps, GitLabColumnType } from './use-miller-columns';
+import type { UseMillerColumnsProps, ExtraType } from './use-miller-columns';
 import { useMillerColumns } from './use-miller-columns';
 import * as S from './styled';
 
@@ -35,7 +36,7 @@ interface Props extends UseMillerColumnsProps {
 export const MillerColumns = ({ connectionId, selectedItems, onChangeItems }: Props) => {
   const [selectedIds, setSelectedIds] = useState<ID[]>([]);
 
-  const { items, getHasMore, onExpandItem, onScrollColumn } = useMillerColumns({
+  const { items, getHasMore, onExpand, onScroll } = useMillerColumns({
     connectionId,
   });
 
@@ -44,27 +45,33 @@ export const MillerColumns = ({ connectionId, selectedItems, onChangeItems }: Pr
   }, [selectedItems]);
 
   const handleChangeItems = (selectedIds: ID[]) => {
-    const result = items
-      .filter((it) => (selectedIds.length ? selectedIds.includes(it.id) : false))
-      .map((it) => ({
+    const result = selectedIds.map((id) => {
+      const selectedItem = selectedItems.find((it) => it.gitlabId === id);
+      if (selectedItem) {
+        return selectedItem;
+      }
+
+      const item = items.find((it) => it.id === id) as McsItem<ExtraType>;
+      return {
         connectionId,
-        gitlabId: it.id,
-        name: it.name,
-        pathWithNamespace: it.pathWithNamespace,
-        creatorId: it.creatorId,
-        defaultBranch: it.defaultBranch,
-        description: it.description,
-        openIssuesCount: it.openIssuesCount,
-        starCount: it.starCount,
-        visibility: it.visibility,
-        webUrl: it.webUrl,
-        httpUrlToRepo: it.httpUrlToRepo,
-      }));
+        gitlabId: item.id,
+        name: item.name,
+        pathWithNamespace: item.pathWithNamespace,
+        creatorId: item.creatorId,
+        defaultBranch: item.defaultBranch,
+        description: item.description,
+        openIssuesCount: item.openIssuesCount,
+        starCount: item.starCount,
+        visibility: item.visibility,
+        webUrl: item.webUrl,
+        httpUrlToRepo: item.httpUrlToRepo,
+      };
+    });
 
     onChangeItems(result);
   };
 
-  const renderTitle = (column: GitLabColumnType) => {
+  const renderTitle = (column: McsColumn) => {
     return !column.parentId && <S.ColumnTitle>Subgroups/Projects</S.ColumnTitle>;
   };
 
@@ -74,17 +81,17 @@ export const MillerColumns = ({ connectionId, selectedItems, onChangeItems }: Pr
 
   return (
     <MillerColumnsSelect
-      columnCount={2.5}
-      columnHeight={300}
+      items={items}
       getCanExpand={(it) => it.type === 'group'}
       getHasMore={getHasMore}
+      onExpand={onExpand}
+      onScroll={onScroll}
+      columnCount={2.5}
+      columnHeight={300}
       renderTitle={renderTitle}
       renderLoading={renderLoading}
-      items={items}
       selectedIds={selectedIds}
       onSelectItemIds={handleChangeItems}
-      onExpandItem={onExpandItem}
-      onScrollColumn={onScrollColumn}
     />
   );
 };
