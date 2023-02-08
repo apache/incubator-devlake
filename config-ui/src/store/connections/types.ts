@@ -36,4 +36,5 @@ export type ConnectionItemType = {
   token?: string;
   username?: string;
   password?: string;
+  authMethod?: string;
 };

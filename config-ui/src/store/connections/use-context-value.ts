@@ -82,6 +82,7 @@ export const useContextValue = ({ plugin, filterBeta = false }: UseContextValueP
         token: it.token,
         username: it.username,
         password: it.password,
+        authMethod: it.authMethod,
       })),
     );
 
@@ -105,7 +106,7 @@ export const useContextValue = ({ plugin, filterBeta = false }: UseContextValueP
         ),
       );
 
-      const { plugin, endpoint, proxy, token, username, password } = selectedConnection;
+      const { plugin, endpoint, proxy, token, username, password, authMethod } = selectedConnection;
 
       let status = ConnectionStatusEnum.OFFLINE;
 
@@ -116,6 +117,7 @@ export const useContextValue = ({ plugin, filterBeta = false }: UseContextValueP
           token,
           username,
           password,
+          authMethod,
         });
         status = res.success ? ConnectionStatusEnum.ONLINE : ConnectionStatusEnum.OFFLINE;
       } catch {
