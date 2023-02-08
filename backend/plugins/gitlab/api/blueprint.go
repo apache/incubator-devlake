@@ -24,7 +24,6 @@ import (
 	"io"
 	"net/http"
 	"net/url"
-	"strings"
 
 	"github.com/apache/incubator-devlake/core/errors"
 	"github.com/apache/incubator-devlake/core/models/domainlayer/didgen"
@@ -43,7 +42,6 @@ func MakePipelinePlan(subtaskMetas []plugin.SubTaskMeta, connectionId uint64, sc
 	if err != nil {
 		return nil, err
 	}
-	connection.Token = strings.Split(connection.Token, ",")[0]
 
 	apiClient, err := tasks.NewApiClientFromConnectionWithTest(
 		context.TODO(),
