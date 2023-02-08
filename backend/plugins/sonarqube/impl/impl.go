@@ -53,17 +53,17 @@ func (p Sonarqube) Init(br context.BasicRes) errors.Error {
 
 func (p Sonarqube) SubTaskMetas() []plugin.SubTaskMeta {
 	return []plugin.SubTaskMeta{
-		// tasks.CollectProjectsMeta,
-		// tasks.ExtractProjectsMeta,
-		// tasks.CollectIssuesMeta,
-		// tasks.ExtractIssuesMeta,
-		// tasks.CollectHotspotsMeta,
-		// tasks.ExtractHotspotsMeta,
-		// tasks.CollectFilemetricsMeta,
-		// tasks.ExtractFilemetricsMeta,
-		// tasks.CollectAccountsMeta,
-		// tasks.ExtractAccountsMeta,
-		// tasks.ConvertProjectsMeta,
+		tasks.CollectProjectsMeta,
+		tasks.ExtractProjectsMeta,
+		tasks.CollectIssuesMeta,
+		tasks.ExtractIssuesMeta,
+		tasks.CollectHotspotsMeta,
+		tasks.ExtractHotspotsMeta,
+		tasks.CollectFilemetricsMeta,
+		tasks.ExtractFilemetricsMeta,
+		tasks.CollectAccountsMeta,
+		tasks.ExtractAccountsMeta,
+		tasks.ConvertProjectsMeta,
 		tasks.ConvertIssueCodeBlocksMeta,
 	}
 }
