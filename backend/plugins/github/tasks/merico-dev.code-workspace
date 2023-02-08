@@ -1,0 +1,47 @@
+{
+	"folders": [
+		{
+			"name": "merico-dev",
+			"path": "../../../../.."
+		}
+	],
+	"settings": {
+		"go.goroot": "/usr/local/go",
+		"go.gopath": "/Users/abeizn/go",
+		"editor.fontSize": 13,
+		"go.formatTool": "goimports",
+		"go.autocompleteUnimportedPackages": true,
+		"go.gocodePackageLookupMode": "go",
+		"go.gotoSymbol.includeImports": true,
+		"go.docsTool": "gogetdoc",
+		"go.useCodeSnippetsOnFunctionSuggest": true,
+		"go.useCodeSnippetsOnFunctionSuggestWithoutType": true,
+		"go.useLanguageServer": false,
+		"go.inferGopath": false,
+		"workbench.editor.enablePreview": true,
+		"[go]": {
+			"editor.formatOnSave": true,
+			"editor.codeActionsOnSave": {
+				"source.organizeImports": true
+			}
+		},
+		"go.trace.server": "verbose",
+		"go.languageServerFlags": [
+			"-remote=auto",
+			"-logfile=auto",
+			"-debug=:0",
+			"-rpc.trace"
+		],
+		"files.autoSave": "afterDelay",
+		"workbench.iconTheme": "vscode-icons",
+		"editor.formatOnSave": true,
+		"gopls": {
+			"experimentalWorkspaceModule": true
+		},
+		"[jsonc]": {
+			"editor.defaultFormatter": "vscode.json-language-features"
+		},
+		"editor.suggest.snippetsPreventQuickSuggestions": false,
+		"commentTranslate.targetLanguage": "zh-CN"
+	}
+}
