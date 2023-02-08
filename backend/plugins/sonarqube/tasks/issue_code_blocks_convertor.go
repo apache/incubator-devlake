@@ -35,8 +35,10 @@ func ConvertIssueCodeBlocks(taskCtx plugin.SubTaskContext) errors.Error {
 	db := taskCtx.GetDal()
 	rawDataSubTaskArgs, data := CreateRawDataSubTaskArgs(taskCtx, RAW_ISSUES_TABLE)
 
-	cursor, err := db.Cursor(dal.From(&models.SonarqubeIssueCodeBlock{}), dal.Where("connection_id = ? and project = ? ",
-		data.Options.ConnectionId, data.Options.ProjectKey))
+	cursor, err := db.Cursor(
+		dal.From("_tool_sonarqube_issue_code_blocks icb"),
+		dal.Join("_tool_sonarqube_issues i on i.key = icb.issue_key"),
+		dal.Where("connection_id = ? ", data.Options.ConnectionId))
 	if err != nil {
 		return err
 	}
@@ -55,7 +57,6 @@ func ConvertIssueCodeBlocks(taskCtx plugin.SubTaskContext) errors.Error {
 				IssueKey:     sonarqubeIssueCodeBlock.IssueKey,
 				Component:    sonarqubeIssueCodeBlock.Component,
 				Msg:          sonarqubeIssueCodeBlock.Msg,
-				Project:      sonarqubeIssueCodeBlock.Project,
 				StartLine:    sonarqubeIssueCodeBlock.StartLine,
 				EndLine:      sonarqubeIssueCodeBlock.EndLine,
 				StartOffset:  sonarqubeIssueCodeBlock.StartOffset,

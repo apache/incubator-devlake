@@ -24,7 +24,6 @@ type SonarqubeIssueCodeBlock struct {
 	Id           string `gorm:"primaryKey"`
 	IssueKey     string `json:"key" gorm:"index"`
 	Component    string `json:"component" gorm:"index"`
-	Project      string `json:"project" gorm:"index"`
 	Msg          string `json:"msg" `
 	StartLine    int    `json:"startLine" `
 	EndLine      int    `json:"endLine" `
