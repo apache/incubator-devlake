@@ -66,6 +66,7 @@ func (p Sonarqube) SubTaskMetas() []plugin.SubTaskMeta {
 		tasks.ConvertProjectsMeta,
 		tasks.ConvertIssuesMeta,
 		tasks.ConvertHotspotsMeta,
+		tasks.ConvertFileMetricsMeta,
 	}
 }
 

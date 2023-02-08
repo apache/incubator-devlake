@@ -25,9 +25,9 @@ import (
 type SonarqubeHotspot struct {
 	ConnectionId             uint64           `gorm:"primaryKey"`
 	Key                      string           `json:"key" gorm:"primaryKey"`
+	Project                  string           `json:"project" gorm:"index"`
 	BatchId                  string           `json:"batchId" gorm:"type:varchar(100)"` // from collection time
 	Component                string           `json:"component" gorm:"index"`
-	Project                  string           `json:"project" gorm:"index"`
 	SecurityCategory         string           `json:"securityCategory"`
 	VulnerabilityProbability string           `json:"vulnerabilityProbability"`
 	Status                   string           `json:"status"`

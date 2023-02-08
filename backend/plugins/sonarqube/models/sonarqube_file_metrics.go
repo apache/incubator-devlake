@@ -24,6 +24,7 @@ import (
 type SonarqubeFileMetrics struct {
 	ConnectionId             uint64  `gorm:"primaryKey"`
 	ComponentKey             string  `json:"component_key" gorm:"primaryKey"`
+	Project                  string  `json:"project" gorm:"index"`
 	FileName                 string  `json:"file_name"`
 	FilePath                 string  `json:"file_path"`
 	FileLanguage             string  `json:"file_language"`
