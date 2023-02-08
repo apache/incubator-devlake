@@ -29,7 +29,6 @@ import (
 	"github.com/apache/incubator-devlake/core/plugin"
 	"github.com/apache/incubator-devlake/helpers/pluginhelper/api"
 	"github.com/apache/incubator-devlake/plugins/sonarqube/models"
-	sonarqubeModels "github.com/apache/incubator-devlake/plugins/sonarqube/models"
 )
 
 func ConvertIssueCodeBlocks(taskCtx plugin.SubTaskContext) errors.Error {
@@ -46,7 +45,7 @@ func ConvertIssueCodeBlocks(taskCtx plugin.SubTaskContext) errors.Error {
 	defer cursor.Close()
 
 	idGen := didgen.NewDomainIdGenerator(&models.SonarqubeIssueCodeBlock{})
-	issueIdGen := didgen.NewDomainIdGenerator(&sonarqubeModels.SonarqubeIssue{})
+	issueIdGen := didgen.NewDomainIdGenerator(&models.SonarqubeIssue{})
 	converter, err := api.NewDataConverter(api.DataConverterArgs{
 		InputRowType:       reflect.TypeOf(models.SonarqubeIssueCodeBlock{}),
 		Input:              cursor,
