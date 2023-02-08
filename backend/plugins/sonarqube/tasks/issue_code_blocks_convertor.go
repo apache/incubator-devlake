@@ -33,9 +33,10 @@ import (
 
 func ConvertIssueCodeBlocks(taskCtx plugin.SubTaskContext) errors.Error {
 	db := taskCtx.GetDal()
-	data := taskCtx.GetData().(*SonarqubeTaskData)
+	rawDataSubTaskArgs, data := CreateRawDataSubTaskArgs(taskCtx, RAW_ISSUES_TABLE)
 
-	cursor, err := db.Cursor(dal.From(&models.SonarqubeIssueCodeBlock{}), dal.Where("connection_id = ?", data.Options.ConnectionId))
+	cursor, err := db.Cursor(dal.From(&models.SonarqubeIssueCodeBlock{}), dal.Where("connection_id = ? and project = ? ",
+		data.Options.ConnectionId, data.Options.ProjectKey))
 	if err != nil {
 		return err
 	}
@@ -43,16 +44,9 @@ func ConvertIssueCodeBlocks(taskCtx plugin.SubTaskContext) errors.Error {
 
 	idGen := didgen.NewDomainIdGenerator(&models.SonarqubeIssueCodeBlock{})
 	converter, err := api.NewDataConverter(api.DataConverterArgs{
-		InputRowType: reflect.TypeOf(models.SonarqubeIssueCodeBlock{}),
-		Input:        cursor,
-		RawDataSubTaskArgs: api.RawDataSubTaskArgs{
-			Ctx: taskCtx,
-			Params: SonarqubeApiParams{
-				ConnectionId: data.Options.ConnectionId,
-				ProjectKey:   data.Options.ProjectKey,
-			},
-			Table: RAW_ISSUES_TABLE,
-		},
+		InputRowType:       reflect.TypeOf(models.SonarqubeIssueCodeBlock{}),
+		Input:              cursor,
+		RawDataSubTaskArgs: *rawDataSubTaskArgs,
 		Convert: func(inputRow interface{}) ([]interface{}, errors.Error) {
 			sonarqubeIssueCodeBlock := inputRow.(*models.SonarqubeIssueCodeBlock)
 			domainIssueCodeBlock := &securitytesting.StIssueCodeBlock{
@@ -61,6 +55,7 @@ func ConvertIssueCodeBlocks(taskCtx plugin.SubTaskContext) errors.Error {
 				IssueKey:     sonarqubeIssueCodeBlock.IssueKey,
 				Component:    sonarqubeIssueCodeBlock.Component,
 				Msg:          sonarqubeIssueCodeBlock.Msg,
+				Project:      sonarqubeIssueCodeBlock.Project,
 				StartLine:    sonarqubeIssueCodeBlock.StartLine,
 				EndLine:      sonarqubeIssueCodeBlock.EndLine,
 				StartOffset:  sonarqubeIssueCodeBlock.StartOffset,
@@ -84,6 +79,6 @@ var ConvertIssueCodeBlocksMeta = plugin.SubTaskMeta{
 	Name:             "convertIssueCodeBlocks",
 	EntryPoint:       ConvertIssueCodeBlocks,
 	EnabledByDefault: true,
-	Description:      "Convert tool layer table sonarqube_accounts into domain layer table accounts",
-	DomainTypes:      []string{plugin.DOMAIN_TYPE_CROSS},
+	Description:      "Convert tool layer table sonarqube_issues into domain layer table st_issue_code_blocks",
+	DomainTypes:      []string{plugin.DOMAIN_TYPE_SECURITY_TESTING},
 }

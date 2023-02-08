@@ -32,7 +32,7 @@ import (
 
 func ConvertAccounts(taskCtx plugin.SubTaskContext) errors.Error {
 	db := taskCtx.GetDal()
-	data := taskCtx.GetData().(*SonarqubeTaskData)
+	rawDataSubTaskArgs, data := CreateRawDataSubTaskArgs(taskCtx, RAW_ACCOUNTS_TABLE)
 
 	cursor, err := db.Cursor(dal.From(&models.SonarqubeAccount{}), dal.Where("connection_id = ?", data.Options.ConnectionId))
 	if err != nil {
@@ -42,16 +42,9 @@ func ConvertAccounts(taskCtx plugin.SubTaskContext) errors.Error {
 
 	accountIdGen := didgen.NewDomainIdGenerator(&models.SonarqubeAccount{})
 	converter, err := api.NewDataConverter(api.DataConverterArgs{
-		InputRowType: reflect.TypeOf(models.SonarqubeAccount{}),
-		Input:        cursor,
-		RawDataSubTaskArgs: api.RawDataSubTaskArgs{
-			Ctx: taskCtx,
-			Params: SonarqubeApiParams{
-				ConnectionId: data.Options.ConnectionId,
-				ProjectKey:   data.Options.ProjectKey,
-			},
-			Table: RAW_ACCOUNTS_TABLE,
-		},
+		InputRowType:       reflect.TypeOf(models.SonarqubeAccount{}),
+		Input:              cursor,
+		RawDataSubTaskArgs: *rawDataSubTaskArgs,
 		Convert: func(inputRow interface{}) ([]interface{}, errors.Error) {
 			SonarqubeAccount := inputRow.(*models.SonarqubeAccount)
 			domainUser := &crossdomain.Account{
