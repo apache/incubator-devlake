@@ -19,14 +19,14 @@ package archived
 
 type StIssueCodeBlock struct {
 	DomainEntity
-	Id          string `json:"id"`
-	IssueKey    string `json:"key" gorm:"index"`
-	Component   string `json:"component" gorm:"index"`
-	Msg         string `json:"msg" `
-	StartLine   int    `json:"startLine" `
-	EndLine     int    `json:"endLine" `
-	StartOffset int    `json:"startOffset" `
-	EndOffset   int    `json:"endOffset" `
+	IssueCodeBlockId string `json:"issueCodeBlockId"`
+	IssueKey         string `json:"key" gorm:"index"`
+	Component        string `json:"component" gorm:"index"`
+	Msg              string `json:"msg" `
+	StartLine        int    `json:"startLine" `
+	EndLine          int    `json:"endLine" `
+	StartOffset      int    `json:"startOffset" `
+	EndOffset        int    `json:"endOffset" `
 }
 
 func (StIssueCodeBlock) TableName() string {

@@ -52,15 +52,15 @@ func ConvertIssueCodeBlocks(taskCtx plugin.SubTaskContext) errors.Error {
 		Convert: func(inputRow interface{}) ([]interface{}, errors.Error) {
 			sonarqubeIssueCodeBlock := inputRow.(*models.SonarqubeIssueCodeBlock)
 			domainIssueCodeBlock := &securitytesting.StIssueCodeBlock{
-				DomainEntity: domainlayer.DomainEntity{Id: idGen.Generate(data.Options.ConnectionId, sonarqubeIssueCodeBlock.Id)},
-				Id:           sonarqubeIssueCodeBlock.Id,
-				IssueKey:     sonarqubeIssueCodeBlock.IssueKey,
-				Component:    sonarqubeIssueCodeBlock.Component,
-				Msg:          sonarqubeIssueCodeBlock.Msg,
-				StartLine:    sonarqubeIssueCodeBlock.StartLine,
-				EndLine:      sonarqubeIssueCodeBlock.EndLine,
-				StartOffset:  sonarqubeIssueCodeBlock.StartOffset,
-				EndOffset:    sonarqubeIssueCodeBlock.EndOffset,
+				DomainEntity:     domainlayer.DomainEntity{Id: idGen.Generate(data.Options.ConnectionId, sonarqubeIssueCodeBlock.Id)},
+				IssueCodeBlockId: sonarqubeIssueCodeBlock.Id,
+				IssueKey:         sonarqubeIssueCodeBlock.IssueKey,
+				Component:        sonarqubeIssueCodeBlock.Component,
+				Msg:              sonarqubeIssueCodeBlock.Msg,
+				StartLine:        sonarqubeIssueCodeBlock.StartLine,
+				EndLine:          sonarqubeIssueCodeBlock.EndLine,
+				StartOffset:      sonarqubeIssueCodeBlock.StartOffset,
+				EndOffset:        sonarqubeIssueCodeBlock.EndOffset,
 			}
 
 			return []interface{}{
