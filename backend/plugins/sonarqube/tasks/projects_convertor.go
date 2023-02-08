@@ -18,6 +18,8 @@ limitations under the License.
 package tasks
 
 import (
+	"reflect"
+
 	"github.com/apache/incubator-devlake/core/dal"
 	"github.com/apache/incubator-devlake/core/errors"
 	"github.com/apache/incubator-devlake/core/models/domainlayer"
@@ -26,7 +28,6 @@ import (
 	"github.com/apache/incubator-devlake/core/plugin"
 	"github.com/apache/incubator-devlake/helpers/pluginhelper/api"
 	sonarqubeModels "github.com/apache/incubator-devlake/plugins/sonarqube/models"
-	"reflect"
 )
 
 var ConvertProjectsMeta = plugin.SubTaskMeta{
@@ -56,7 +57,6 @@ func ConvertProjects(taskCtx plugin.SubTaskContext) errors.Error {
 			sonarqubeProject := inputRow.(*sonarqubeModels.SonarqubeProject)
 			domainProject := &securitytesting.StProject{
 				DomainEntity:     domainlayer.DomainEntity{Id: projectIdGen.Generate(data.Options.ConnectionId, sonarqubeProject.Key)},
-				Key:              sonarqubeProject.Key,
 				Name:             sonarqubeProject.Name,
 				Qualifier:        sonarqubeProject.Qualifier,
 				Visibility:       sonarqubeProject.Visibility,

@@ -27,7 +27,6 @@ var _ plugin.Scope = (*StProject)(nil)
 
 type StProject struct {
 	domainlayer.DomainEntity
-	Key              string           `json:"key" gorm:"type:varchar(64)"`
 	Name             string           `json:"name" gorm:"type:varchar(255)"`
 	Qualifier        string           `json:"qualifier" gorm:"type:varchar(255)"`
 	Visibility       string           `json:"visibility" gorm:"type:varchar(64)"`
