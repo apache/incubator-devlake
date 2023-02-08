@@ -29,6 +29,7 @@ import (
 	"github.com/apache/incubator-devlake/core/plugin"
 	"github.com/apache/incubator-devlake/helpers/pluginhelper/api"
 	"github.com/apache/incubator-devlake/plugins/sonarqube/models"
+	sonarqubeModels "github.com/apache/incubator-devlake/plugins/sonarqube/models"
 )
 
 func ConvertIssueCodeBlocks(taskCtx plugin.SubTaskContext) errors.Error {
@@ -38,13 +39,14 @@ func ConvertIssueCodeBlocks(taskCtx plugin.SubTaskContext) errors.Error {
 	cursor, err := db.Cursor(
 		dal.From("_tool_sonarqube_issue_code_blocks icb"),
 		dal.Join("_tool_sonarqube_issues i on i.key = icb.issue_key"),
-		dal.Where("connection_id = ? ", data.Options.ConnectionId))
+		dal.Where("connection_id = ? and project = ?", data.Options.ConnectionId, data.Options.ProjectKey))
 	if err != nil {
 		return err
 	}
 	defer cursor.Close()
 
 	idGen := didgen.NewDomainIdGenerator(&models.SonarqubeIssueCodeBlock{})
+	issueIdGen := didgen.NewDomainIdGenerator(&sonarqubeModels.SonarqubeIssue{})
 	converter, err := api.NewDataConverter(api.DataConverterArgs{
 		InputRowType:       reflect.TypeOf(models.SonarqubeIssueCodeBlock{}),
 		Input:              cursor,
@@ -54,7 +56,7 @@ func ConvertIssueCodeBlocks(taskCtx plugin.SubTaskContext) errors.Error {
 			domainIssueCodeBlock := &securitytesting.StIssueCodeBlock{
 				DomainEntity:     domainlayer.DomainEntity{Id: idGen.Generate(data.Options.ConnectionId, sonarqubeIssueCodeBlock.Id)},
 				IssueCodeBlockId: sonarqubeIssueCodeBlock.Id,
-				IssueKey:         sonarqubeIssueCodeBlock.IssueKey,
+				IssueKey:         issueIdGen.Generate(data.Options.ConnectionId, sonarqubeIssueCodeBlock.IssueKey),
 				Component:        sonarqubeIssueCodeBlock.Component,
 				Msg:              sonarqubeIssueCodeBlock.Msg,
 				StartLine:        sonarqubeIssueCodeBlock.StartLine,
