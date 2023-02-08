@@ -23,7 +23,7 @@ from pydevlake.message import Connection
 
 
 # TODO: Move swagger documentation generation to GO side along with API implementation
-TEMPLATE_PATH = str(Path(__file__).parent / 'doc.json.template')
+TEMPLATE_PATH = str(Path(__file__).parent / 'doc.template.json')
 
 def generate_doc(plugin_name: str, connection_type: Type[Connection]):
     with open(TEMPLATE_PATH, 'r') as f:

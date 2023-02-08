@@ -22,7 +22,7 @@ import (
 	"github.com/apache/incubator-devlake/core/models"
 	"github.com/apache/incubator-devlake/core/plugin"
 	"github.com/apache/incubator-devlake/helpers/pluginhelper/api"
-	"github.com/apache/incubator-devlake/server/api/project"
+	apiProject "github.com/apache/incubator-devlake/server/api/project"
 	"net/http"
 	"reflect"
 	"time"
@@ -152,8 +152,8 @@ func (d *DevlakeClient) GetProject(projectName string) models.ApiOutputProject {
 	}, http.MethodGet, fmt.Sprintf("%s/projects/%s", d.Endpoint, projectName), nil)
 }
 
-func (d *DevlakeClient) ListProjects() project.PaginatedProjects {
-	return sendHttpRequest[project.PaginatedProjects](d.testCtx, d.timeout, debugInfo{
+func (d *DevlakeClient) ListProjects() apiProject.PaginatedProjects {
+	return sendHttpRequest[apiProject.PaginatedProjects](d.testCtx, d.timeout, debugInfo{
 		print:      true,
 		inlineJson: false,
 	}, http.MethodGet, fmt.Sprintf("%s/projects", d.Endpoint), nil)

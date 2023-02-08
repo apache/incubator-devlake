@@ -26,7 +26,7 @@ import (
 	"github.com/apache/incubator-devlake/server/api/shared"
 	"github.com/apache/incubator-devlake/server/services/remote"
 
-	jsonmerge "github.com/RaveNoX/go-jsonmerge"
+	"github.com/RaveNoX/go-jsonmerge"
 	"github.com/gin-gonic/gin"
 	"github.com/go-playground/validator/v10"
 	ginSwagger "github.com/swaggo/gin-swagger"
@@ -56,14 +56,14 @@ func RegisterPlugin(router *gin.Engine, registerEndpoints func(r *gin.Engine, pl
 			shared.ApiOutputError(c, errors.BadInput.Wrap(err, shared.BadRequestBody))
 			return
 		}
-		plugin, err := remote.NewPlugin(&details.PluginInfo)
+		remotePlugin, err := remote.NewRemotePlugin(&details.PluginInfo)
 		if err != nil {
 			shared.ApiOutputError(c, errors.Default.Wrap(err, "plugin could not be initialized"))
 			return
 		}
 		resource := ApiResource{
 			PluginName: details.PluginInfo.Name,
-			Resources:  plugin.ApiResources(),
+			Resources:  remotePlugin.ApiResources(),
 		}
 		registerEndpoints(router, resource.PluginName, resource.Resources)
 		registerSwagger(router, &details.Swagger)

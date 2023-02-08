@@ -21,7 +21,7 @@ import (
 	"fmt"
 
 	"github.com/apache/incubator-devlake/core/errors"
-	core_models "github.com/apache/incubator-devlake/core/models"
+	coreModels "github.com/apache/incubator-devlake/core/models"
 	"github.com/apache/incubator-devlake/core/plugin"
 	"github.com/apache/incubator-devlake/helpers/pluginhelper/api"
 	"github.com/apache/incubator-devlake/server/services/remote/bridge"
@@ -35,7 +35,7 @@ type (
 		pluginPath       string
 		description      string
 		invoker          bridge.Invoker
-		connectionTabler *core_models.DynamicTabler
+		connectionTabler *coreModels.DynamicTabler
 		resources        map[string]map[string]plugin.ApiResourceHandler
 	}
 	RemotePluginTaskData struct {

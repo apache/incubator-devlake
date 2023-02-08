@@ -46,7 +46,7 @@ func CreateRemotePlugin(t *testing.T) models.RemotePlugin {
 		return nil
 	}
 
-	remotePlugin, err := remote.NewPlugin(&pluginInfo)
+	remotePlugin, err := remote.NewRemotePlugin(&pluginInfo)
 	if err != nil {
 		t.Error("Cannot create remote plugin", err)
 		return nil
@@ -66,12 +66,12 @@ func TestRunSubTask(t *testing.T) {
 	options := make(map[string]interface{})
 	options["project_slug"] = "gh/circleci/bond"
 	options["scopeId"] = "1"
-	task_data := plg.RemotePluginTaskData{
+	taskData := plg.RemotePluginTaskData{
 		DbUrl:      bridge.DefaultContext.GetConfig("db_url"),
 		Connection: CircleCIConnection{ID: 1},
 		Options:    options,
 	}
-	dataflowTester.Subtask(subtask, task_data)
+	dataflowTester.Subtask(subtask, taskData)
 }
 
 func TestTestConnection(t *testing.T) {

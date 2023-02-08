@@ -34,11 +34,11 @@ func Init(br context.BasicRes) {
 	remote.Init(br)
 }
 
-func NewPlugin(info *models.PluginInfo) (models.RemotePlugin, errors.Error) {
+func NewRemotePlugin(info *models.PluginInfo) (models.RemotePlugin, errors.Error) {
 	if _, ok := remotePlugins[info.Name]; ok {
 		return nil, errors.BadInput.New("plugin already registered")
 	}
-	plugin, err := remote.NewPlugin(info)
+	plugin, err := remote.NewRemotePlugin(info)
 	if err != nil {
 		return nil, errors.BadInput.New("unsupported plugin type")
 	}

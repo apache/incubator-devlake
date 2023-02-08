@@ -47,7 +47,7 @@ func main() {
 			panic(fmt.Sprintf("Cannot get plugin info: %s", err))
 		}
 
-		plugin, err := remote.NewPlugin(&pluginInfo)
+		plugin, err := remote.NewRemotePlugin(&pluginInfo)
 		if err != nil {
 			panic(fmt.Sprintf("Cannot initialize plugin: %s", err))
 		}
