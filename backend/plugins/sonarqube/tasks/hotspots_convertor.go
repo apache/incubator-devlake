@@ -47,7 +47,8 @@ func ConvertHotspots(taskCtx plugin.SubTaskContext) errors.Error {
 	}
 	defer cursor.Close()
 
-	accountIdGen := didgen.NewDomainIdGenerator(&sonarqubeModels.SonarqubeHotspot{})
+	issueIdGen := didgen.NewDomainIdGenerator(&sonarqubeModels.SonarqubeHotspot{})
+	projectIdGen := didgen.NewDomainIdGenerator(&sonarqubeModels.SonarqubeProject{})
 	converter, err := api.NewDataConverter(api.DataConverterArgs{
 		InputRowType:       reflect.TypeOf(sonarqubeModels.SonarqubeHotspot{}),
 		Input:              cursor,
@@ -55,11 +56,11 @@ func ConvertHotspots(taskCtx plugin.SubTaskContext) errors.Error {
 		Convert: func(inputRow interface{}) ([]interface{}, errors.Error) {
 			sonarqubeHotspot := inputRow.(*sonarqubeModels.SonarqubeHotspot)
 			domainHotspot := &securitytesting.StIssue{
-				DomainEntity:      domainlayer.DomainEntity{Id: accountIdGen.Generate(data.Options.ConnectionId, sonarqubeHotspot.Key)},
+				DomainEntity:      domainlayer.DomainEntity{Id: issueIdGen.Generate(data.Options.ConnectionId, sonarqubeHotspot.Key)},
 				BatchId:           sonarqubeHotspot.BatchId,
 				Key:               sonarqubeHotspot.Key,
 				Component:         sonarqubeHotspot.Component,
-				Project:           sonarqubeHotspot.Project,
+				Project:           projectIdGen.Generate(data.Options.ConnectionId, sonarqubeHotspot.Project),
 				Line:              sonarqubeHotspot.Line,
 				Status:            sonarqubeHotspot.Status,
 				Message:           sonarqubeHotspot.Message,

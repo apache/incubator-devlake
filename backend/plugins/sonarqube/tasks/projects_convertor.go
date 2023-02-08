@@ -47,7 +47,7 @@ func ConvertProjects(taskCtx plugin.SubTaskContext) errors.Error {
 	}
 	defer cursor.Close()
 
-	accountIdGen := didgen.NewDomainIdGenerator(&sonarqubeModels.SonarqubeProject{})
+	projectIdGen := didgen.NewDomainIdGenerator(&sonarqubeModels.SonarqubeProject{})
 	converter, err := api.NewDataConverter(api.DataConverterArgs{
 		InputRowType:       reflect.TypeOf(sonarqubeModels.SonarqubeProject{}),
 		Input:              cursor,
@@ -55,7 +55,7 @@ func ConvertProjects(taskCtx plugin.SubTaskContext) errors.Error {
 		Convert: func(inputRow interface{}) ([]interface{}, errors.Error) {
 			sonarqubeProject := inputRow.(*sonarqubeModels.SonarqubeProject)
 			domainProject := &securitytesting.StProject{
-				DomainEntity:     domainlayer.DomainEntity{Id: accountIdGen.Generate(data.Options.ConnectionId, sonarqubeProject.Key)},
+				DomainEntity:     domainlayer.DomainEntity{Id: projectIdGen.Generate(data.Options.ConnectionId, sonarqubeProject.Key)},
 				Key:              sonarqubeProject.Key,
 				Name:             sonarqubeProject.Name,
 				Qualifier:        sonarqubeProject.Qualifier,

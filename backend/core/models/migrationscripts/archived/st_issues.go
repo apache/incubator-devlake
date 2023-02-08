@@ -23,12 +23,12 @@ import (
 
 type StIssue struct {
 	DomainEntity
-	BatchId           string           `json:"batchId" gorm:"type:varchar(100)"` // from collection time
-	Key               string           `json:"key" gorm:"primaryKey"`
+	BatchId           string `json:"batchId" gorm:"type:varchar(100)"` // from collection time
+	Key               string
+	Project           string           `gorm:"index;type:varchar(255)"` //domain project key
 	Rule              string           `json:"rule" gorm:"type:varchar(255)"`
 	Severity          string           `json:"severity" gorm:"type:varchar(255)"`
 	Component         string           `json:"component" gorm:"type:varchar(255)"`
-	Project           string           `json:"project" gorm:"type:varchar(255)"`
 	Line              int              `json:"line"`
 	Status            string           `json:"status" gorm:"type:varchar(255)"`
 	Message           string           `json:"message"`

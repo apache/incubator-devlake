@@ -46,6 +46,7 @@ func ExtractFilemetrics(taskCtx plugin.SubTaskContext) errors.Error {
 				FileName:     body.Name,
 				FilePath:     body.Path,
 				FileLanguage: body.Language,
+				Project:      data.Options.ProjectKey,
 				//BatchID:                  "",
 			}
 			alphabetMap := map[string]string{
