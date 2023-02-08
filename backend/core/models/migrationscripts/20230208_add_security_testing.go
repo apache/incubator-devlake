@@ -20,29 +20,24 @@ package migrationscripts
 import (
 	"github.com/apache/incubator-devlake/core/context"
 	"github.com/apache/incubator-devlake/core/errors"
+	"github.com/apache/incubator-devlake/core/models/migrationscripts/archived"
 	"github.com/apache/incubator-devlake/helpers/migrationhelper"
-	"github.com/apache/incubator-devlake/plugins/sonarqube/models/migrationscripts/archived"
 )
 
-type addInitTables struct{}
+type addSecurityTesting struct{}
 
-func (*addInitTables) Up(basicRes context.BasicRes) errors.Error {
+func (u *addSecurityTesting) Up(basicRes context.BasicRes) errors.Error {
 	return migrationhelper.AutoMigrateTables(
 		basicRes,
-		&archived.SonarqubeConnection{},
-		&archived.SonarqubeProject{},
-		&archived.SonarqubeHotspot{},
-		&archived.SonarqubeIssue{},
-		&archived.SonarqubeFileMetrics{},
-		&archived.SonarqubeIssueCodeBlock{},
-		&archived.SonarqubeAccount{},
+		&archived.StProject{},
+		&archived.StIssue{},
 	)
 }
 
-func (*addInitTables) Version() uint64 {
-	return 20230207220016
+func (*addSecurityTesting) Version() uint64 {
+	return 20230208000002
 }
 
-func (*addInitTables) Name() string {
-	return "sonarqube init schemas"
+func (*addSecurityTesting) Name() string {
+	return "add SecurityTesting domain"
 }

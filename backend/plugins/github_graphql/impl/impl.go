@@ -31,6 +31,7 @@ import (
 	"github.com/apache/incubator-devlake/plugins/github_graphql/tasks"
 	"github.com/merico-dev/graphql"
 	"golang.org/x/oauth2"
+	"net/url"
 	"reflect"
 	"strings"
 	"time"
@@ -162,7 +163,11 @@ func (p GithubGraphql) PrepareTaskData(taskCtx plugin.TaskContext, options map[s
 		&oauth2.Token{AccessToken: tokens[0]},
 	)
 	httpClient := oauth2.NewClient(taskCtx.GetContext(), src)
-	client := graphql.NewClient(connection.Endpoint+`graphql`, httpClient)
+	endpoint, err := errors.Convert01(url.JoinPath(connection.Endpoint, `graphql`))
+	if err != nil {
+		return nil, errors.BadInput.Wrap(err, fmt.Sprintf("malformed connection endpoint supplied: %s", connection.Endpoint))
+	}
+	client := graphql.NewClient(endpoint, httpClient)
 	graphqlClient, err := helper.CreateAsyncGraphqlClient(taskCtx, client, taskCtx.GetLogger(),
 		func(ctx context.Context, client *graphql.Client, logger log.Logger) (rateRemaining int, resetAt *time.Time, err errors.Error) {
 			var query GraphQueryRateLimit

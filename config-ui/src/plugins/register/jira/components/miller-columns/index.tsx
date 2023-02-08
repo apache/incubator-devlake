@@ -17,6 +17,7 @@
  */
 
 import React, { useState, useEffect } from 'react';
+import type { McsItem } from 'miller-columns-select';
 import MillerColumnsSelect from 'miller-columns-select';
 
 import { Loading } from '@/components';
@@ -34,7 +35,7 @@ interface Props extends UseMillerColumnsProps {
 export const MillerColumns = ({ connectionId, selectedItems, onChangeItems }: Props) => {
   const [selectedIds, setSelectedIds] = useState<ID[]>([]);
 
-  const { items, getHasMore, onScrollColumn } = useMillerColumns({
+  const { items, getHasMore, onScroll } = useMillerColumns({
     connectionId,
   });
 
@@ -43,16 +44,22 @@ export const MillerColumns = ({ connectionId, selectedItems, onChangeItems }: Pr
   }, [selectedItems]);
 
   const handleChangeItems = (selectedIds: ID[]) => {
-    const result = items
-      .filter((it) => (selectedIds.length ? selectedIds.includes(it.id) : false))
-      .map((it) => ({
+    const result = selectedIds.map((id) => {
+      const selectedItem = selectedItems.find((it) => it.boardId === id);
+      if (selectedItem) {
+        return selectedItem;
+      }
+
+      const item = items.find((it) => it.id === id) as McsItem<ScopeItemType>;
+      return {
         connectionId,
-        boardId: it.boardId,
-        name: it.name,
-        self: it.self,
-        type: it.type,
-        projectId: it.projectId,
-      }));
+        boardId: item.boardId,
+        name: item.name,
+        self: item.self,
+        type: item.type,
+        projectId: item.projectId,
+      };
+    });
 
     onChangeItems(result);
   };
@@ -63,14 +70,14 @@ export const MillerColumns = ({ connectionId, selectedItems, onChangeItems }: Pr
 
   return (
     <MillerColumnsSelect
+      items={items}
+      getHasMore={getHasMore}
+      onScroll={onScroll}
       columnCount={1}
       columnHeight={300}
-      getHasMore={getHasMore}
       renderLoading={renderLoading}
-      items={items}
       selectedIds={selectedIds}
       onSelectItemIds={handleChangeItems}
-      onScrollColumn={onScrollColumn}
     />
   );
 };

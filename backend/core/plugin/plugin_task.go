@@ -72,11 +72,12 @@ type SubTask interface {
 // SubTaskEntryPoint All subtasks from plugins should comply to this prototype, so they could be orchestrated by framework
 type SubTaskEntryPoint func(c SubTaskContext) errors.Error
 
-const DOMAIN_TYPE_CODE = "CODE"              //nolint
-const DOMAIN_TYPE_TICKET = "TICKET"          //nolint
-const DOMAIN_TYPE_CODE_REVIEW = "CODEREVIEW" //nolint
-const DOMAIN_TYPE_CROSS = "CROSS"            //nolint
-const DOMAIN_TYPE_CICD = "CICD"              //nolint
+const DOMAIN_TYPE_CODE = "CODE"                        //nolint
+const DOMAIN_TYPE_TICKET = "TICKET"                    //nolint
+const DOMAIN_TYPE_CODE_REVIEW = "CODEREVIEW"           //nolint
+const DOMAIN_TYPE_CROSS = "CROSS"                      //nolint
+const DOMAIN_TYPE_CICD = "CICD"                        //nolint
+const DOMAIN_TYPE_SECURITY_TESTING = "SECURITYTESTING" //nolint
 
 var DOMAIN_TYPES = []string{
 	DOMAIN_TYPE_CODE,
@@ -84,6 +85,7 @@ var DOMAIN_TYPES = []string{
 	DOMAIN_TYPE_CODE_REVIEW,
 	DOMAIN_TYPE_CROSS,
 	DOMAIN_TYPE_CICD,
+	DOMAIN_TYPE_SECURITY_TESTING,
 } //nolint
 
 // SubTaskMeta Metadata of a subtask
