@@ -29,58 +29,49 @@ import (
 	"reflect"
 )
 
-var ConvertIssuesMeta = plugin.SubTaskMeta{
-	Name:             "convertIssues",
-	EntryPoint:       ConvertIssues,
+var ConvertHotspotsMeta = plugin.SubTaskMeta{
+	Name:             "convertHotspots",
+	EntryPoint:       ConvertHotspots,
 	EnabledByDefault: true,
-	Description:      "Convert tool layer table sonarqube_issues into  domain layer table st_issues",
+	Description:      "Convert tool layer table sonarqube_hotspots into  domain layer table st_hotspots",
 	DomainTypes:      []string{plugin.DOMAIN_TYPE_SECURITY_TESTING},
 }
 
-func ConvertIssues(taskCtx plugin.SubTaskContext) errors.Error {
+func ConvertHotspots(taskCtx plugin.SubTaskContext) errors.Error {
 	db := taskCtx.GetDal()
 	rawDataSubTaskArgs, data := CreateRawDataSubTaskArgs(taskCtx, RAW_PROJECTS_TABLE)
-	cursor, err := db.Cursor(dal.From(sonarqubeModels.SonarqubeIssue{}),
+	cursor, err := db.Cursor(dal.From(sonarqubeModels.SonarqubeHotspot{}),
 		dal.Where("connection_id = ? and project = ?", data.Options.ConnectionId, data.Options.ProjectKey))
 	if err != nil {
 		return err
 	}
 	defer cursor.Close()
 
-	accountIdGen := didgen.NewDomainIdGenerator(&sonarqubeModels.SonarqubeIssue{})
+	accountIdGen := didgen.NewDomainIdGenerator(&sonarqubeModels.SonarqubeHotspot{})
 	converter, err := api.NewDataConverter(api.DataConverterArgs{
-		InputRowType:       reflect.TypeOf(sonarqubeModels.SonarqubeIssue{}),
+		InputRowType:       reflect.TypeOf(sonarqubeModels.SonarqubeHotspot{}),
 		Input:              cursor,
 		RawDataSubTaskArgs: *rawDataSubTaskArgs,
 		Convert: func(inputRow interface{}) ([]interface{}, errors.Error) {
-			sonarqubeIssue := inputRow.(*sonarqubeModels.SonarqubeIssue)
-			domainIssue := &securitytesting.StIssue{
-				DomainEntity:      domainlayer.DomainEntity{Id: accountIdGen.Generate(data.Options.ConnectionId, sonarqubeIssue.Key)},
-				BatchId:           sonarqubeIssue.BatchId,
-				Key:               sonarqubeIssue.Key,
-				Rule:              sonarqubeIssue.Rule,
-				Severity:          sonarqubeIssue.Severity,
-				Component:         sonarqubeIssue.Component,
-				Project:           sonarqubeIssue.Project,
-				Line:              sonarqubeIssue.Line,
-				Status:            sonarqubeIssue.Status,
-				Message:           sonarqubeIssue.Message,
-				Debt:              sonarqubeIssue.Debt,
-				Effort:            sonarqubeIssue.Effort,
-				CommitAuthorEmail: sonarqubeIssue.Author,
-				Hash:              sonarqubeIssue.Hash,
-				Tags:              sonarqubeIssue.Tags,
-				Type:              sonarqubeIssue.Type,
-				Scope:             sonarqubeIssue.Scope,
-				StartLine:         sonarqubeIssue.StartLine,
-				EndLine:           sonarqubeIssue.EndLine,
-				StartOffset:       sonarqubeIssue.StartOffset,
-				EndOffset:         sonarqubeIssue.EndOffset,
-				CreationDate:      sonarqubeIssue.CreationDate,
-				UpdateDate:        sonarqubeIssue.UpdateDate,
+			sonarqubeHotspot := inputRow.(*sonarqubeModels.SonarqubeHotspot)
+			domainHotspot := &securitytesting.StIssue{
+				DomainEntity:      domainlayer.DomainEntity{Id: accountIdGen.Generate(data.Options.ConnectionId, sonarqubeHotspot.Key)},
+				BatchId:           sonarqubeHotspot.BatchId,
+				Key:               sonarqubeHotspot.Key,
+				Component:         sonarqubeHotspot.Component,
+				Project:           sonarqubeHotspot.Project,
+				Line:              sonarqubeHotspot.Line,
+				Status:            sonarqubeHotspot.Status,
+				Message:           sonarqubeHotspot.Message,
+				CommitAuthorEmail: sonarqubeHotspot.Author,
+				Assignee:          sonarqubeHotspot.Assignee,
+				Rule:              sonarqubeHotspot.RuleKey,
+				CreationDate:      sonarqubeHotspot.CreationDate,
+				UpdateDate:        sonarqubeHotspot.UpdateDate,
+				Type:              "HOTSPOTS",
 			}
 			return []interface{}{
-				domainIssue,
+				domainHotspot,
 			}, nil
 		},
 	})

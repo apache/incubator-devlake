@@ -24,29 +24,29 @@ import (
 
 type StIssue struct {
 	domainlayer.DomainEntity
-	BatchId      string           `json:"batchId" gorm:"type:varchar(100)"` // from collection time
-	Key          string           `json:"key" gorm:"primaryKey"`
-	Rule         string           `json:"rule" gorm:"type:varchar(255)"`
-	Severity     string           `json:"severity" gorm:"type:varchar(255)"`
-	Component    string           `json:"component" gorm:"type:varchar(255)"`
-	Project      string           `json:"project" gorm:"type:varchar(255)"`
-	Line         int              `json:"line"`
-	Status       string           `json:"status" gorm:"type:varchar(255)"`
-	Message      string           `json:"message"`
-	Debt         string           `json:"debt" gorm:"type:varchar(255)"`
-	Effort       string           `json:"effort" gorm:"type:varchar(255)"`
-	CommitAuthorEmail       string           `json:"author" gorm:"type:varchar(255)"`
-	Assignee     string           `json:"assignee" gorm:"type:varchar(255)"`
-	Hash         string           `json:"hash" gorm:"type:varchar(255)"`
-	Tags         string           `json:"tags" gorm:"type:varchar(255)"`
-	Type         string           `json:"type" gorm:"type:varchar(255)"`
-	Scope        string           `json:"scope" gorm:"type:varchar(255)"`
-	StartLine    int              `json:"startLine"`
-	EndLine      int              `json:"endLine"`
-	StartOffset  int              `json:"startOffset"`
-	EndOffset    int              `json:"endOffset"`
-	CreationDate *api.Iso8601Time `json:"creationDate"`
-	UpdateDate   *api.Iso8601Time `json:"updateDate"`
+	BatchId           string           `json:"batchId" gorm:"type:varchar(100)"` // from collection time
+	Key               string           `json:"key" gorm:"primaryKey"`
+	Rule              string           `json:"rule" gorm:"type:varchar(255)"`
+	Severity          string           `json:"severity" gorm:"type:varchar(255)"`
+	Component         string           `json:"component" gorm:"type:varchar(255)"`
+	Project           string           `json:"project" gorm:"type:varchar(255)"`
+	Line              int              `json:"line"`
+	Status            string           `json:"status" gorm:"type:varchar(255)"`
+	Message           string           `json:"message"`
+	Debt              string           `json:"debt" gorm:"type:varchar(255)"`
+	Effort            string           `json:"effort" gorm:"type:varchar(255)"`
+	CommitAuthorEmail string           `json:"author" gorm:"type:varchar(255)"`
+	Assignee          string           `json:"assignee" gorm:"type:varchar(255)"`
+	Hash              string           `json:"hash" gorm:"type:varchar(255)"`
+	Tags              string           `json:"tags" gorm:"type:varchar(255)"`
+	Type              string           `json:"type" gorm:"type:varchar(255)"`
+	Scope             string           `json:"scope" gorm:"type:varchar(255)"`
+	StartLine         int              `json:"startLine"`
+	EndLine           int              `json:"endLine"`
+	StartOffset       int              `json:"startOffset"`
+	EndOffset         int              `json:"endOffset"`
+	CreationDate      *api.Iso8601Time `json:"creationDate"`
+	UpdateDate        *api.Iso8601Time `json:"updateDate"`
 }
 
 func (StIssue) TableName() string {
