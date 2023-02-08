@@ -82,6 +82,7 @@ func ExtractIssues(taskCtx plugin.SubTaskContext) errors.Error {
 						ConnectionId: data.Options.ConnectionId,
 						IssueKey:     sonarqubeIssue.Key,
 						Component:    location.Component,
+						Project:      body.Project,
 						Msg:          location.Msg,
 						StartLine:    location.TextRange.StartLine,
 						EndLine:      location.TextRange.EndLine,

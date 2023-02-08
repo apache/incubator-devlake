@@ -18,6 +18,8 @@ limitations under the License.
 package tasks
 
 import (
+	"reflect"
+
 	"github.com/apache/incubator-devlake/core/dal"
 	"github.com/apache/incubator-devlake/core/errors"
 	"github.com/apache/incubator-devlake/core/models/domainlayer"
@@ -25,48 +27,31 @@ import (
 	"github.com/apache/incubator-devlake/core/models/domainlayer/didgen"
 	"github.com/apache/incubator-devlake/core/plugin"
 	"github.com/apache/incubator-devlake/helpers/pluginhelper/api"
-	gitlabModels "github.com/apache/incubator-devlake/plugins/gitlab/models"
-	"reflect"
+	"github.com/apache/incubator-devlake/plugins/sonarqube/models"
 )
-
-var ConvertAccountsMeta = plugin.SubTaskMeta{
-	Name:             "convertAccounts",
-	EntryPoint:       ConvertAccounts,
-	EnabledByDefault: true,
-	Description:      "Convert tool layer table gitlab_users into  domain layer table accounts",
-	DomainTypes:      []string{plugin.DOMAIN_TYPE_CROSS},
-}
 
 func ConvertAccounts(taskCtx plugin.SubTaskContext) errors.Error {
 	db := taskCtx.GetDal()
-	data := taskCtx.GetData().(*GitlabTaskData)
+	rawDataSubTaskArgs, data := CreateRawDataSubTaskArgs(taskCtx, RAW_ACCOUNTS_TABLE)
 
-	cursor, err := db.Cursor(dal.From(gitlabModels.GitlabAccount{}), dal.Where("connection_id = ?", data.Options.ConnectionId))
+	cursor, err := db.Cursor(dal.From(&models.SonarqubeAccount{}), dal.Where("connection_id = ?", data.Options.ConnectionId))
 	if err != nil {
 		return err
 	}
 	defer cursor.Close()
 
-	accountIdGen := didgen.NewDomainIdGenerator(&gitlabModels.GitlabAccount{})
+	accountIdGen := didgen.NewDomainIdGenerator(&models.SonarqubeAccount{})
 	converter, err := api.NewDataConverter(api.DataConverterArgs{
-		InputRowType: reflect.TypeOf(gitlabModels.GitlabAccount{}),
-		Input:        cursor,
-		RawDataSubTaskArgs: api.RawDataSubTaskArgs{
-			Ctx: taskCtx,
-			Params: GitlabApiParams{
-				ConnectionId: data.Options.ConnectionId,
-				ProjectId:    data.Options.ProjectId,
-			},
-			Table: RAW_USER_TABLE,
-		},
+		InputRowType:       reflect.TypeOf(models.SonarqubeAccount{}),
+		Input:              cursor,
+		RawDataSubTaskArgs: *rawDataSubTaskArgs,
 		Convert: func(inputRow interface{}) ([]interface{}, errors.Error) {
-			GitlabAccount := inputRow.(*gitlabModels.GitlabAccount)
+			SonarqubeAccount := inputRow.(*models.SonarqubeAccount)
 			domainUser := &crossdomain.Account{
-				DomainEntity: domainlayer.DomainEntity{Id: accountIdGen.Generate(data.Options.ConnectionId, GitlabAccount.GitlabId)},
-				UserName:     GitlabAccount.Username,
-				FullName:     GitlabAccount.Name,
-				Email:        GitlabAccount.Email,
-				AvatarUrl:    GitlabAccount.AvatarUrl,
+				DomainEntity: domainlayer.DomainEntity{Id: accountIdGen.Generate(data.Options.ConnectionId, SonarqubeAccount.Login)},
+				UserName:     SonarqubeAccount.Login,
+				FullName:     SonarqubeAccount.Name,
+				Email:        SonarqubeAccount.Email,
 			}
 
 			return []interface{}{
@@ -80,4 +65,12 @@ func ConvertAccounts(taskCtx plugin.SubTaskContext) errors.Error {
 	}
 
 	return converter.Execute()
+}
+
+var ConvertAccountsMeta = plugin.SubTaskMeta{
+	Name:             "convertAccounts",
+	EntryPoint:       ConvertAccounts,
+	EnabledByDefault: true,
+	Description:      "Convert tool layer table sonarqube_accounts into domain layer table accounts",
+	DomainTypes:      []string{plugin.DOMAIN_TYPE_CROSS},
 }

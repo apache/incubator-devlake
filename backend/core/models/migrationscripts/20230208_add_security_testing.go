@@ -31,6 +31,7 @@ func (u *addSecurityTesting) Up(basicRes context.BasicRes) errors.Error {
 		basicRes,
 		&archived.StProject{},
 		&archived.StIssue{},
+		&archived.StIssueCodeBlock{},
 		&archived.StFileMetrics{},
 	)
 }
