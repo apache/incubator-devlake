@@ -18,48 +18,30 @@ limitations under the License.
 package tasks
 
 import (
-	"encoding/json"
-	"fmt"
-	"net/http"
 	"net/url"
+	"reflect"
 
+	"github.com/apache/incubator-devlake/core/dal"
 	"github.com/apache/incubator-devlake/core/errors"
 	"github.com/apache/incubator-devlake/core/plugin"
 	"github.com/apache/incubator-devlake/helpers/pluginhelper/api"
 )
 
-const RAW_USER_TABLE = "gitlab_api_users"
-
-var CollectAccountsMeta = plugin.SubTaskMeta{
-	Name:             "collectAccounts",
-	EntryPoint:       CollectAccounts,
-	EnabledByDefault: true,
-	Description:      "collect gitlab users",
-	DomainTypes:      []string{plugin.DOMAIN_TYPE_CROSS},
-}
-
-func CollectAccounts(taskCtx plugin.SubTaskContext) errors.Error {
+func CollectAccountDetails(taskCtx plugin.SubTaskContext) errors.Error {
 	rawDataSubTaskArgs, data := CreateRawDataSubTaskArgs(taskCtx, RAW_USER_TABLE)
 	logger := taskCtx.GetLogger()
 	logger.Info("collect gitlab users")
 
-	// test if we can use the "/projects/{{ .Params.ProjectId }}/members/all"
-	// before the gitlab v13.11 it can not be used
-	res, err := data.ApiClient.Get(fmt.Sprintf("/projects/%d/members/all", data.Options.ProjectId), url.Values{}, (http.Header)(nil))
+	iterator, err := GetAccountsIterator(taskCtx)
 	if err != nil {
-		logger.Error(err, "test members/all failed")
 		return err
 	}
-	// it means we can not use /members/all to get the data
-	urlTemplate := "/projects/{{ .Params.ProjectId }}/members/all"
-	if res.StatusCode == http.StatusBadRequest {
-		urlTemplate = "/projects/{{ .Params.ProjectId }}/members/"
-	}
+	defer iterator.Close()
 
 	collector, err := api.NewApiCollector(api.ApiCollectorArgs{
 		RawDataSubTaskArgs: *rawDataSubTaskArgs,
 		ApiClient:          data.ApiClient,
-		UrlTemplate:        urlTemplate,
+		UrlTemplate:        "/projects/{{ .Params.ProjectId }}/members/{{ .Input.GitlabId }}",
 		//PageSize:           100,
 		Query: func(reqData *api.RequestData) (url.Values, errors.Error) {
 			query := url.Values{}
@@ -69,14 +51,7 @@ func CollectAccounts(taskCtx plugin.SubTaskContext) errors.Error {
 			return query, nil
 		},
 
-		ResponseParser: func(res *http.Response) ([]json.RawMessage, errors.Error) {
-			var items []json.RawMessage
-			err := api.UnmarshalResponse(res, &items)
-			if err != nil {
-				return nil, err
-			}
-			return items, nil
-		},
+		ResponseParser: GetOneRawMessageFromResponse,
 	})
 
 	if err != nil {
@@ -85,4 +60,24 @@ func CollectAccounts(taskCtx plugin.SubTaskContext) errors.Error {
 	}
 
 	return collector.Execute()
+}
+
+func GetAccountsIterator(taskCtx plugin.SubTaskContext) (*api.DalCursorIterator, errors.Error) {
+	db := taskCtx.GetDal()
+	data := taskCtx.GetData().(*GitlabTaskData)
+	clauses := []dal.Clause{
+		dal.Select("ga.gitlab_id,ga.gitlab_id as iid"),
+		dal.From("_tool_gitlab_accounts ga"),
+		dal.Where(
+			`ga.connection_id = ?`,
+			data.Options.ConnectionId,
+		),
+	}
+	// construct the input iterator
+	cursor, err := db.Cursor(clauses...)
+	if err != nil {
+		return nil, err
+	}
+
+	return api.NewDalCursorIterator(db, cursor, reflect.TypeOf(GitlabInput{}))
 }

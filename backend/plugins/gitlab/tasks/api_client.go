@@ -18,26 +18,72 @@ limitations under the License.
 package tasks
 
 import (
-	"fmt"
+	gocontext "context"
+	"net/http"
+	"strconv"
+	"time"
+
+	"github.com/apache/incubator-devlake/core/context"
 	"github.com/apache/incubator-devlake/core/errors"
 	"github.com/apache/incubator-devlake/core/plugin"
 	"github.com/apache/incubator-devlake/helpers/pluginhelper/api"
 	"github.com/apache/incubator-devlake/plugins/gitlab/models"
-	"net/http"
-	"strconv"
-	"time"
 )
 
-func NewGitlabApiClient(taskCtx plugin.TaskContext, connection *models.GitlabConnection) (*api.ApiAsyncClient, errors.Error) {
-	// create synchronize api client so we can calculate api rate limit dynamically
-	headers := map[string]string{
-		"Authorization": fmt.Sprintf("Bearer %v", connection.Token),
-	}
-	apiClient, err := api.NewApiClient(taskCtx.GetContext(), connection.Endpoint, headers, 0, connection.Proxy, taskCtx)
+// NewApiClientFromConnectionWithTest creates ApiClient based on given connection.
+// and then it will test and try to correct the connection
+// The connection must
+func NewApiClientFromConnectionWithTest(
+	ctx gocontext.Context,
+	br context.BasicRes,
+	connection *models.GitlabConn,
+) (*api.ApiClient, errors.Error) {
+	connection.IsPrivateToken = false
+	// test connection
+	apiClient, err := api.NewApiClientFromConnection(gocontext.TODO(), br, connection)
 	if err != nil {
-		return nil, err
+		return nil, errors.Convert(err)
 	}
 
+	resBody := &models.ApiUserResponse{}
+	res, err := apiClient.Get("user", nil, nil)
+	if res.StatusCode != http.StatusUnauthorized {
+		if err != nil {
+			return nil, errors.Convert(err)
+		}
+		err = api.UnmarshalResponse(res, resBody)
+		if err != nil {
+			return nil, errors.Convert(err)
+		}
+
+		if res.StatusCode != http.StatusOK {
+			return nil, errors.HttpStatus(res.StatusCode).New("unexpected status code while testing connection")
+		}
+	} else {
+		connection.IsPrivateToken = true
+		res, err = apiClient.Get("user", nil, nil)
+		if err != nil {
+			return nil, errors.Convert(err)
+		}
+		err = api.UnmarshalResponse(res, resBody)
+		if err != nil {
+			return nil, errors.Convert(err)
+		}
+
+		if res.StatusCode != http.StatusOK {
+			return nil, errors.HttpStatus(res.StatusCode).New("unexpected status code while testing connection[PrivateToken]")
+		}
+	}
+	connection.UserId = resBody.Id
+
+	return apiClient, nil
+}
+
+func CreateGitlabAsyncApiClient(
+	taskCtx plugin.TaskContext,
+	apiClient *api.ApiClient,
+	connection *models.GitlabConnection,
+) (*api.ApiAsyncClient, errors.Error) {
 	// create rate limit calculator
 	rateLimiter := &api.ApiRateLimitCalculator{
 		UserRateLimitPerHour: connection.RateLimitPerHour,
@@ -68,6 +114,15 @@ func NewGitlabApiClient(taskCtx plugin.TaskContext, connection *models.GitlabCon
 		return nil, err
 	}
 	return asyncApiClient, nil
+}
+
+func NewGitlabApiClient(taskCtx plugin.TaskContext, connection *models.GitlabConnection) (*api.ApiAsyncClient, errors.Error) {
+	apiClient, err := NewApiClientFromConnectionWithTest(taskCtx.GetContext(), taskCtx, &connection.GitlabConn)
+	if err != nil {
+		return nil, err
+	}
+
+	return CreateGitlabAsyncApiClient(taskCtx, apiClient, connection)
 }
 
 func ignoreHTTPStatus403(res *http.Response) errors.Error {

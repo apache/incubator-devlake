@@ -26,18 +26,8 @@ import (
 	"github.com/apache/incubator-devlake/plugins/gitlab/models"
 )
 
-var ExtractAccountsMeta = plugin.SubTaskMeta{
-	Name:             "extractAccounts",
-	EntryPoint:       ExtractAccounts,
-	EnabledByDefault: true,
-	Description:      "Extract raw workspace data into tool layer table _tool_gitlab_accounts",
-	DomainTypes:      []string{plugin.DOMAIN_TYPE_CROSS},
-}
-
-func ExtractAccounts(taskCtx plugin.SubTaskContext) errors.Error {
+func ExtractAccountDetails(taskCtx plugin.SubTaskContext) errors.Error {
 	rawDataSubTaskArgs, data := CreateRawDataSubTaskArgs(taskCtx, RAW_USER_TABLE)
-
-	needDetail := false
 
 	extractor, err := api.NewApiExtractor(api.ApiExtractorArgs{
 		RawDataSubTaskArgs: *rawDataSubTaskArgs,
@@ -60,11 +50,6 @@ func ExtractAccounts(taskCtx plugin.SubTaskContext) errors.Error {
 				WebUrl:          userRes.WebUrl,
 			}
 			results = append(results, GitlabAccount)
-
-			if userRes.AvatarUrl == "" {
-				needDetail = true
-			}
-
 			return results, nil
 		},
 	})
@@ -73,22 +58,5 @@ func ExtractAccounts(taskCtx plugin.SubTaskContext) errors.Error {
 		return err
 	}
 
-	err = extractor.Execute()
-	if err != nil {
-		return err
-	}
-
-	if needDetail {
-		err = CollectAccountDetails(taskCtx)
-		if err != nil {
-			return err
-		}
-
-		err = ExtractAccountDetails(taskCtx)
-		if err != nil {
-			return err
-		}
-	}
-
-	return nil
+	return extractor.Execute()
 }

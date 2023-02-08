@@ -21,6 +21,11 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"io"
+	"net/http"
+	"net/url"
+	"strings"
+
 	"github.com/apache/incubator-devlake/core/errors"
 	"github.com/apache/incubator-devlake/core/models/domainlayer/didgen"
 	"github.com/apache/incubator-devlake/core/plugin"
@@ -28,11 +33,6 @@ import (
 	"github.com/apache/incubator-devlake/helpers/pluginhelper/api"
 	"github.com/apache/incubator-devlake/plugins/gitlab/models"
 	"github.com/apache/incubator-devlake/plugins/gitlab/tasks"
-	"io"
-	"net/http"
-	"net/url"
-	"strings"
-	"time"
 )
 
 func MakePipelinePlan(subtaskMetas []plugin.SubTaskMeta, connectionId uint64, scope []*plugin.BlueprintScopeV100) (plugin.PipelinePlan, errors.Error) {
@@ -42,21 +42,17 @@ func MakePipelinePlan(subtaskMetas []plugin.SubTaskMeta, connectionId uint64, sc
 	if err != nil {
 		return nil, err
 	}
-	token := strings.Split(connection.Token, ",")[0]
+	connection.Token = strings.Split(connection.Token, ",")[0]
 
-	apiClient, err := api.NewApiClient(
+	apiClient, err := tasks.NewApiClientFromConnectionWithTest(
 		context.TODO(),
-		connection.Endpoint,
-		map[string]string{
-			"Authorization": fmt.Sprintf("Bearer %s", token),
-		},
-		10*time.Second,
-		connection.Proxy,
 		basicRes,
+		&connection.GitlabConn,
 	)
 	if err != nil {
 		return nil, err
 	}
+
 	plan, err := makePipelinePlan(subtaskMetas, scope, apiClient, connection)
 	if err != nil {
 		return nil, err

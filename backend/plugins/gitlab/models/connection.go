@@ -18,6 +18,10 @@ limitations under the License.
 package models
 
 import (
+	"fmt"
+	"net/http"
+
+	"github.com/apache/incubator-devlake/core/errors"
 	helper "github.com/apache/incubator-devlake/helpers/pluginhelper/api"
 )
 
@@ -25,6 +29,18 @@ import (
 type GitlabConn struct {
 	helper.RestConnection `mapstructure:",squash"`
 	helper.AccessToken    `mapstructure:",squash"`
+	IsPrivateToken        bool `gorm:"-"`
+	UserId                int  `gorm:"-"`
+}
+
+// SetupAuthentication sets up the HTTP Request Authentication
+func (gak GitlabConn) SetupAuthentication(req *http.Request) errors.Error {
+	if gak.IsPrivateToken {
+		req.Header.Set("Private-Token", gak.Token)
+	} else {
+		req.Header.Set("Authorization", fmt.Sprintf("Bearer %v", gak.Token))
+	}
+	return nil
 }
 
 // This object conforms to what the frontend currently sends.
@@ -50,3 +66,5 @@ type ApiUserResponse struct {
 func (GitlabConnection) TableName() string {
 	return "_tool_gitlab_connections"
 }
+
+type AeAppKey helper.AppKey
