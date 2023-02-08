@@ -30,12 +30,13 @@ func (u *addSecurityTesting) Up(basicRes context.BasicRes) errors.Error {
 	return migrationhelper.AutoMigrateTables(
 		basicRes,
 		&archived.StProject{},
-		&archived.StIssueCodeBlock{},
+		&archived.StIssue{},
+    &archived.StIssueCodeBlock{},
 	)
 }
 
 func (*addSecurityTesting) Version() uint64 {
-	return 20230208000001
+	return 20230208000002
 }
 
 func (*addSecurityTesting) Name() string {
