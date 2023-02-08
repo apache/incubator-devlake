@@ -28,10 +28,9 @@ var PluginEntry impl.Sonarqube //nolint
 // standalone mode for debugging
 func main() {
 	cmd := &cobra.Command{Use: "sonarqube"}
-
 	connectionId := cmd.Flags().Uint64P("connectionId", "c", 0, "sonarqube connection id")
 	projectKey := cmd.Flags().StringP("projectKey", "p", "", "sonarqube projectKey")
-	createdDateAfter := cmd.Flags().StringP("createdDateAfter", "a", "", "collect data that are created after specified time, ie 2006-05-06T07:08:09Z")
+	createdDateAfter := cmd.Flags().StringP("createdDateAfter", "a", "", "collect data that are created after specified time, ie 2006-05-06T07:08:09+08:00")
 	_ = cmd.MarkFlagRequired("connectionId")
 	//_ = cmd.MarkFlagRequired("projectKey")
 
