@@ -22,6 +22,7 @@ import (
 	"github.com/apache/incubator-devlake/core/models"
 	"github.com/apache/incubator-devlake/core/plugin"
 	"github.com/apache/incubator-devlake/core/utils"
+	"github.com/apache/incubator-devlake/helpers/pluginhelper/api"
 	"github.com/apache/incubator-devlake/test/helper"
 	"github.com/stretchr/testify/require"
 	"os"
@@ -77,20 +78,20 @@ func connectLocalServer(t *testing.T) *helper.DevlakeClient {
 func TestRunPipeline(t *testing.T) {
 	setupEnv()
 	buildPython(t)
-	sb := connectLocalServer(t)
-	endpoint := fmt.Sprintf("%s/connections", PLUGIN_NAME)
+	client := connectLocalServer(t)
 	fmt.Println("Create new connection")
-	conn := sb.CreateConnection(endpoint,
-		map[string]any{
-			"token": "this_is_a_valid_token",
-		})
-	sb.SetTimeout(0)
-	conns := sb.ListConnections(endpoint)
-	require.Greater(t, len(conns), 0)
-
+	conn := client.CreateConnection(PLUGIN_NAME,
+		api.AccessToken{
+			Token: "this_is_a_valid_token",
+		},
+	)
+	client.SetTimeout(0)
+	conns := client.ListConnections(PLUGIN_NAME)
+	require.Equal(t, 1, len(conns))
+	require.Equal(t, "this_is_a_valid_token", conns[0].Token)
 	fmt.Println("Run pipeline")
 	t.Run("run_pipeline", func(t *testing.T) {
-		pipeline := sb.RunPipeline(models.NewPipeline{
+		pipeline := client.RunPipeline(models.NewPipeline{
 			Name: "remote_test",
 			Plan: []plugin.PipelineStage{
 				{

@@ -19,6 +19,7 @@ package helper
 
 import (
 	"bufio"
+	"encoding/json"
 	"fmt"
 	"os"
 	"path/filepath"
@@ -59,6 +60,20 @@ func AddToPath(newPaths ...string) {
 		path = fmt.Sprintf("%s:%s", newPath, path)
 	}
 	_ = os.Setenv("PATH", path)
+}
+
+func Val[T any](t T) *T {
+	return &t
+}
+
+func Cast[T any](m any) T {
+	j := ToJson(m)
+	t := new(T)
+	err := json.Unmarshal(j, t)
+	if err != nil {
+		panic(err)
+	}
+	return *t
 }
 
 func readFile(path string) ([]string, error) {

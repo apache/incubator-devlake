@@ -22,45 +22,74 @@ import (
 	"github.com/apache/incubator-devlake/core/models"
 	"github.com/apache/incubator-devlake/core/plugin"
 	"github.com/apache/incubator-devlake/helpers/pluginhelper/api"
+	"github.com/apache/incubator-devlake/server/api/project"
 	"net/http"
 	"reflect"
 	"time"
 )
 
+type Connection struct {
+	api.BaseConnection `mapstructure:",squash"`
+	api.RestConnection `mapstructure:",squash"`
+	api.AccessToken    `mapstructure:",squash"`
+}
+
 // CreateConnection FIXME
-func (d *DevlakeClient) CreateConnection(dest string, connection interface{}) *api.BaseConnection {
+func (d *DevlakeClient) TestConnection(pluginName string, connection any) {
 	d.testCtx.Helper()
-	created := sendHttpRequest[api.BaseConnection](d.testCtx, d.timeout, debugInfo{
+	_ = sendHttpRequest[Connection](d.testCtx, d.timeout, debugInfo{
 		print:      true,
 		inlineJson: false,
-	}, http.MethodPost, fmt.Sprintf("%s/plugins/%s", d.Endpoint, dest), connection)
+	}, http.MethodPost, fmt.Sprintf("%s/plugins/%s/test", d.Endpoint, pluginName), connection)
+}
+
+// CreateConnection FIXME
+func (d *DevlakeClient) CreateConnection(pluginName string, connection any) *Connection {
+	d.testCtx.Helper()
+	created := sendHttpRequest[Connection](d.testCtx, d.timeout, debugInfo{
+		print:      true,
+		inlineJson: false,
+	}, http.MethodPost, fmt.Sprintf("%s/plugins/%s/connections", d.Endpoint, pluginName), connection)
 	return &created
 }
 
 // ListConnections FIXME
-func (d *DevlakeClient) ListConnections(dest string) []*api.BaseConnection {
+func (d *DevlakeClient) ListConnections(pluginName string) []*Connection {
 	d.testCtx.Helper()
-	all := sendHttpRequest[[]*api.BaseConnection](d.testCtx, d.timeout, debugInfo{
+	all := sendHttpRequest[[]*Connection](d.testCtx, d.timeout, debugInfo{
 		print:      true,
 		inlineJson: false,
-	}, http.MethodGet, fmt.Sprintf("%s/plugins/%s", d.Endpoint, dest), nil)
+	}, http.MethodGet, fmt.Sprintf("%s/plugins/%s/connections", d.Endpoint, pluginName), nil)
 	return all
 }
 
-// CreateBasicBlueprintV2 FIXME This has to actually be adapted to v2
-func (d *DevlakeClient) CreateBasicBlueprintV2(name string, connection *plugin.BlueprintConnectionV200) models.Blueprint {
+type BlueprintV2Config struct {
+	Connection       *plugin.BlueprintConnectionV200
+	CreatedDateAfter *time.Time
+	SkipOnFail       bool
+	ProjectName      string
+}
+
+// CreateBasicBlueprintV2 FIXME
+func (d *DevlakeClient) CreateBasicBlueprintV2(name string, config *BlueprintV2Config) models.Blueprint {
 	settings := &models.BlueprintSettings{
-		Version:     "2.0.0",
-		Connections: ToJson([]*plugin.BlueprintConnectionV200{connection}),
+		Version:          "2.0.0",
+		CreatedDateAfter: config.CreatedDateAfter,
+		Connections: ToJson([]*plugin.BlueprintConnectionV200{
+			config.Connection,
+		}),
 	}
 	blueprint := models.Blueprint{
-		Name:       name,
-		Mode:       models.BLUEPRINT_MODE_NORMAL,
-		Plan:       nil,
-		Enable:     true,
-		CronConfig: "manual",
-		IsManual:   true,
-		Settings:   ToJson(settings),
+		Name:        name,
+		ProjectName: config.ProjectName,
+		Mode:        models.BLUEPRINT_MODE_NORMAL,
+		Plan:        nil,
+		Enable:      true,
+		CronConfig:  "manual",
+		IsManual:    true,
+		SkipOnFail:  config.SkipOnFail,
+		Labels:      []string{"test-label"},
+		Settings:    ToJson(settings),
 	}
 	d.testCtx.Helper()
 	blueprint = sendHttpRequest[models.Blueprint](d.testCtx, d.timeout, debugInfo{
@@ -68,6 +97,94 @@ func (d *DevlakeClient) CreateBasicBlueprintV2(name string, connection *plugin.B
 		inlineJson: false,
 	}, http.MethodPost, fmt.Sprintf("%s/blueprints", d.Endpoint), &blueprint)
 	return blueprint
+}
+
+type (
+	ProjectPlugin struct {
+		Name    string
+		Options any
+	}
+	ProjectConfig struct {
+		ProjectName        string
+		ProjectDescription string
+		EnableDora         bool
+		MetricPlugins      []ProjectPlugin
+	}
+)
+
+func (d *DevlakeClient) CreateProject(project *ProjectConfig) models.ApiOutputProject {
+	var metrics []models.BaseMetric
+	doraSeen := false
+	for _, p := range project.MetricPlugins {
+		if p.Name == "dora" {
+			doraSeen = true
+		}
+		metrics = append(metrics, models.BaseMetric{
+			PluginName:   p.Name,
+			PluginOption: string(ToJson(p.Options)),
+			Enable:       true,
+		})
+	}
+	if project.EnableDora && !doraSeen {
+		metrics = append(metrics, models.BaseMetric{
+			PluginName:   "dora",
+			PluginOption: string(ToJson(nil)),
+			Enable:       true,
+		})
+	}
+	return sendHttpRequest[models.ApiOutputProject](d.testCtx, d.timeout, debugInfo{
+		print:      true,
+		inlineJson: false,
+	}, http.MethodPost, fmt.Sprintf("%s/projects", d.Endpoint), &models.ApiInputProject{
+		BaseProject: models.BaseProject{
+			Name:        project.ProjectName,
+			Description: project.ProjectDescription,
+		},
+		Enable:  Val(true),
+		Metrics: &metrics,
+	})
+}
+
+func (d *DevlakeClient) GetProject(projectName string) models.ApiOutputProject {
+	return sendHttpRequest[models.ApiOutputProject](d.testCtx, d.timeout, debugInfo{
+		print:      true,
+		inlineJson: false,
+	}, http.MethodGet, fmt.Sprintf("%s/projects/%s", d.Endpoint, projectName), nil)
+}
+
+func (d *DevlakeClient) ListProjects() project.PaginatedProjects {
+	return sendHttpRequest[project.PaginatedProjects](d.testCtx, d.timeout, debugInfo{
+		print:      true,
+		inlineJson: false,
+	}, http.MethodGet, fmt.Sprintf("%s/projects", d.Endpoint), nil)
+}
+
+func (d *DevlakeClient) CreateScope(pluginName string, connectionId uint64, scope any) any {
+	return sendHttpRequest[any](d.testCtx, d.timeout, debugInfo{
+		print:      true,
+		inlineJson: false,
+	}, http.MethodPut, fmt.Sprintf("%s/plugins/%s/connections/%d/scopes", d.Endpoint, pluginName, connectionId), scope)
+}
+
+func (d *DevlakeClient) ListScopes(pluginName string, connectionId uint64) []any {
+	return sendHttpRequest[[]any](d.testCtx, d.timeout, debugInfo{
+		print:      true,
+		inlineJson: false,
+	}, http.MethodGet, fmt.Sprintf("%s/plugins/%s/connections/%d/scopes", d.Endpoint, pluginName, connectionId), nil)
+}
+
+func (d *DevlakeClient) CreateTransformRule(pluginName string, rules any) any {
+	return sendHttpRequest[any](d.testCtx, d.timeout, debugInfo{
+		print:      true,
+		inlineJson: false,
+	}, http.MethodPost, fmt.Sprintf("%s/plugins/%s/transformation_rules", d.Endpoint, pluginName), rules)
+}
+
+func (d *DevlakeClient) ListTransformRules(pluginName string) []any {
+	return sendHttpRequest[[]any](d.testCtx, d.timeout, debugInfo{
+		print:      true,
+		inlineJson: false,
+	}, http.MethodGet, fmt.Sprintf("%s/plugins/%s/transformation_rules?pageSize=20?page=1", d.Endpoint, pluginName), nil)
 }
 
 // CreateBasicBlueprint FIXME
