@@ -37,8 +37,8 @@ var _ plugin.PluginMeta = (*Sonarqube)(nil)
 var _ plugin.PluginInit = (*Sonarqube)(nil)
 var _ plugin.PluginTask = (*Sonarqube)(nil)
 var _ plugin.PluginApi = (*Sonarqube)(nil)
-var _ plugin.PluginBlueprintV100 = (*Sonarqube)(nil)
 var _ plugin.CloseablePluginTask = (*Sonarqube)(nil)
+var _ plugin.PluginSource = (*Sonarqube)(nil)
 
 type Sonarqube struct{}
 
@@ -48,6 +48,18 @@ func (p Sonarqube) Description() string {
 
 func (p Sonarqube) Init(br context.BasicRes) errors.Error {
 	api.Init(br)
+	return nil
+}
+
+func (p Sonarqube) Connection() interface{} {
+	return &models.SonarqubeConnection{}
+}
+
+func (p Sonarqube) Scope() interface{} {
+	return &models.SonarqubeProject{}
+}
+
+func (p Sonarqube) TransformationRule() interface{} {
 	return nil
 }
 
@@ -136,8 +148,8 @@ func (p Sonarqube) ApiResources() map[string]map[string]plugin.ApiResourceHandle
 	}
 }
 
-func (p Sonarqube) MakePipelinePlan(connectionId uint64, scope []*plugin.BlueprintScopeV100) (plugin.PipelinePlan, errors.Error) {
-	return api.MakePipelinePlan(p.SubTaskMetas(), connectionId, scope)
+func (p Sonarqube) MakeDataSourcePipelinePlanV200(connectionId uint64, scopes []*plugin.BlueprintScopeV200, syncPolicy plugin.BlueprintSyncPolicy) (pp plugin.PipelinePlan, sc []plugin.Scope, err errors.Error) {
+	return api.MakeDataSourcePipelinePlanV200(p.SubTaskMetas(), connectionId, scopes, &syncPolicy)
 }
 
 func (p Sonarqube) Close(taskCtx plugin.TaskContext) errors.Error {
