@@ -41,12 +41,12 @@ func ExtractFilemetrics(taskCtx plugin.SubTaskContext) errors.Error {
 				return nil, err
 			}
 			fileMetrics := &models.SonarqubeFileMetrics{
-				ConnectionId: data.Options.ConnectionId,
-				ComponentKey: body.Key,
-				FileName:     body.Name,
-				FilePath:     body.Path,
-				FileLanguage: body.Language,
-				Project:      data.Options.ProjectKey,
+				ConnectionId:   data.Options.ConnectionId,
+				FileMetricsKey: body.Key,
+				FileName:       body.Name,
+				FilePath:       body.Path,
+				FileLanguage:   body.Language,
+				ProjectKey:     data.Options.ProjectKey,
 				//BatchID:                  "",
 			}
 			alphabetMap := map[string]string{

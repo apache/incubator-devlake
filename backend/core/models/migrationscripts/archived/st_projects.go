@@ -27,7 +27,7 @@ type StProject struct {
 	Qualifier        string           `json:"qualifier" gorm:"type:varchar(255)"`
 	Visibility       string           `json:"visibility" gorm:"type:varchar(64)"`
 	LastAnalysisDate *api.Iso8601Time `json:"lastAnalysisDate"`
-	Revision         string           `json:"revision" gorm:"type:varchar(128)"`
+	CommitSha        string           `gorm:"type:varchar(128)"`
 }
 
 func (StProject) TableName() string {

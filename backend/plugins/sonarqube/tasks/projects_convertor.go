@@ -42,7 +42,7 @@ func ConvertProjects(taskCtx plugin.SubTaskContext) errors.Error {
 	db := taskCtx.GetDal()
 	rawDataSubTaskArgs, data := CreateRawDataSubTaskArgs(taskCtx, RAW_PROJECTS_TABLE)
 	cursor, err := db.Cursor(dal.From(sonarqubeModels.SonarqubeProject{}),
-		dal.Where("connection_id = ? and `key` = ?", data.Options.ConnectionId, data.Options.ProjectKey))
+		dal.Where("connection_id = ? and project_key = ?", data.Options.ConnectionId, data.Options.ProjectKey))
 	if err != nil {
 		return err
 	}
@@ -56,12 +56,12 @@ func ConvertProjects(taskCtx plugin.SubTaskContext) errors.Error {
 		Convert: func(inputRow interface{}) ([]interface{}, errors.Error) {
 			sonarqubeProject := inputRow.(*sonarqubeModels.SonarqubeProject)
 			domainProject := &securitytesting.StProject{
-				DomainEntity:     domainlayer.DomainEntity{Id: projectIdGen.Generate(data.Options.ConnectionId, sonarqubeProject.Key)},
+				DomainEntity:     domainlayer.DomainEntity{Id: projectIdGen.Generate(data.Options.ConnectionId, sonarqubeProject.ProjectKey)},
 				Name:             sonarqubeProject.Name,
 				Qualifier:        sonarqubeProject.Qualifier,
 				Visibility:       sonarqubeProject.Visibility,
 				LastAnalysisDate: sonarqubeProject.LastAnalysisDate,
-				Revision:         sonarqubeProject.Revision,
+				CommitSha:        sonarqubeProject.Revision,
 			}
 			return []interface{}{
 				domainProject,

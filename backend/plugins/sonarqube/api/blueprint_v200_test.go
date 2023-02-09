@@ -79,7 +79,7 @@ func TestMakeDataSourcePipelinePlanV200(t *testing.T) {
 func NewMockBasicRes() *mockcontext.BasicRes {
 	sonarqubeProject := &models.SonarqubeProject{
 		ConnectionId: 1,
-		Key:          "f5a50c63-2e8f-4107-9014-853f6f467757",
+		ProjectKey:   "f5a50c63-2e8f-4107-9014-853f6f467757",
 		Name:         "aerosolve",
 	}
 

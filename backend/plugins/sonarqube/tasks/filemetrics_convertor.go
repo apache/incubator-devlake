@@ -41,7 +41,7 @@ func ConvertFileMetrics(taskCtx plugin.SubTaskContext) errors.Error {
 	db := taskCtx.GetDal()
 	rawDataSubTaskArgs, data := CreateRawDataSubTaskArgs(taskCtx, RAW_PROJECTS_TABLE)
 	cursor, err := db.Cursor(dal.From(sonarqubeModels.SonarqubeFileMetrics{}),
-		dal.Where("connection_id = ? and project = ?", data.Options.ConnectionId, data.Options.ProjectKey))
+		dal.Where("connection_id = ? and project_key = ?", data.Options.ConnectionId, data.Options.ProjectKey))
 	if err != nil {
 		return err
 	}
@@ -56,12 +56,11 @@ func ConvertFileMetrics(taskCtx plugin.SubTaskContext) errors.Error {
 		Convert: func(inputRow interface{}) ([]interface{}, errors.Error) {
 			sonarqubeFileMetric := inputRow.(*sonarqubeModels.SonarqubeFileMetrics)
 			domainFileMetric := &securitytesting.StFileMetrics{
-				DomainEntity: domainlayer.DomainEntity{Id: issueIdGen.Generate(data.Options.ConnectionId, sonarqubeFileMetric.ComponentKey)},
-				ComponentKey: sonarqubeFileMetric.ComponentKey,
+				DomainEntity: domainlayer.DomainEntity{Id: issueIdGen.Generate(data.Options.ConnectionId, sonarqubeFileMetric.FileMetricsKey)},
 				FileName:     sonarqubeFileMetric.FileName,
 				FilePath:     sonarqubeFileMetric.FilePath,
 				FileLanguage: sonarqubeFileMetric.FileLanguage,
-				Project:      projectIdGen.Generate(data.Options.ConnectionId, sonarqubeFileMetric.Project),
+				ProjectKey:   projectIdGen.Generate(data.Options.ConnectionId, sonarqubeFileMetric.ProjectKey),
 				//BatchID:                  sonarqubeFileMetric.BatchID,
 				CodeSmells:               sonarqubeFileMetric.CodeSmells,
 				SqaleIndex:               sonarqubeFileMetric.SqaleIndex,

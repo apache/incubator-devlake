@@ -19,8 +19,7 @@ package archived
 
 type StFileMetrics struct {
 	DomainEntity
-	ComponentKey             string
-	Project                  string  `gorm:"index;type:varchar(255)"` //domain project key
+	ProjectKey               string  `gorm:"index;type:varchar(255)"` //domain project key
 	BatchID                  string  `json:"batch_id"`
 	FileName                 string  `json:"file_name"`
 	FilePath                 string  `json:"file_path"`
