@@ -21,14 +21,16 @@ import (
 	"bytes"
 	"encoding/json"
 	"fmt"
-	"github.com/apache/incubator-devlake/core/dal"
-	"github.com/apache/incubator-devlake/core/errors"
-	plugin "github.com/apache/incubator-devlake/core/plugin"
-	"github.com/apache/incubator-devlake/helpers/pluginhelper/common"
 	"io"
 	"net/http"
 	"net/url"
 	"text/template"
+	"time"
+
+	"github.com/apache/incubator-devlake/core/dal"
+	"github.com/apache/incubator-devlake/core/errors"
+	plugin "github.com/apache/incubator-devlake/core/plugin"
+	"github.com/apache/incubator-devlake/helpers/pluginhelper/common"
 )
 
 // Pager contains pagination information for a api request
@@ -72,7 +74,8 @@ type ApiCollectorArgs struct {
 	// Incremental indicate if this is an incremental collection, the existing data won't get deleted if it was true
 	Incremental bool `comment:"indicate if this collection is incremental update"`
 	// ApiClient is a asynchronize api request client with qps
-	ApiClient RateLimitedApiClient
+	ApiClient       RateLimitedApiClient
+	MinTickInterval *time.Duration
 	// Input helps us collect data based on previous collected data, like collecting changelogs based on jira
 	// issue ids
 	Input Iterator
@@ -153,6 +156,24 @@ func (collector *ApiCollector) Execute() errors.Error {
 		}
 	}
 
+	// if MinTickInterval was specified
+	if collector.args.MinTickInterval != nil {
+		minTickInterval := *collector.args.MinTickInterval
+		if minTickInterval <= time.Duration(0) {
+			return errors.Default.Wrap(err, "MinTickInterval must be greater than 0")
+		}
+		oldTickInterval := collector.args.ApiClient.GetTickInterval()
+		if oldTickInterval < minTickInterval {
+			// reset the tick interval only if it exceeded the specified limit
+			logger.Info("set tick interval to %v", minTickInterval.String())
+			collector.args.ApiClient.Reset(minTickInterval)
+			defer func() {
+				logger.Info("restore tick interval to %v", oldTickInterval.String())
+				collector.args.ApiClient.Reset(oldTickInterval)
+			}()
+		}
+	}
+
 	collector.args.Ctx.SetProgress(0, -1)
 	if collector.args.Input != nil {
 		iterator := collector.args.Input
@@ -210,12 +231,16 @@ func (collector *ApiCollector) exec(input interface{}) {
 		Page: 1,
 		Size: collector.args.PageSize,
 	}
+	// featch the detail
 	if collector.args.PageSize <= 0 {
 		collector.fetchAsync(reqData, nil)
+		// fetch pages sequentially
 	} else if collector.args.GetNextPageCustomData != nil {
 		collector.fetchPagesSequentially(reqData)
+		// fetch pages in parallel with number of total pages can be determined from the first page
 	} else if collector.args.GetTotalPages != nil {
 		collector.fetchPagesDetermined(reqData)
+		// fetch pages in parallel without number of total pages
 	} else {
 		collector.fetchPagesUndetermined(reqData)
 	}
