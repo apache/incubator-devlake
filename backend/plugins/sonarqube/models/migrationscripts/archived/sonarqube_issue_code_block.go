@@ -24,11 +24,11 @@ type SonarqubeIssueCodeBlock struct {
 	Id           string `gorm:"primaryKey"`
 	IssueKey     string `json:"key" gorm:"index"`
 	Component    string `json:"component" gorm:"index"`
-	Msg          string `json:"msg" `
 	StartLine    int    `json:"startLine" `
 	EndLine      int    `json:"endLine" `
 	StartOffset  int    `json:"startOffset" `
 	EndOffset    int    `json:"endOffset" `
+	Msg          string `json:"msg" `
 	archived.NoPKModel
 }
 

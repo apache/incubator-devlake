@@ -21,14 +21,13 @@ import "github.com/apache/incubator-devlake/core/models/domainlayer"
 
 type StIssueCodeBlock struct {
 	domainlayer.DomainEntity
-	IssueCodeBlockId string `json:"issueCodeBlockId"`
-	IssueKey         string `json:"key" gorm:"index"`
-	Component        string `json:"component" gorm:"index"`
-	Msg              string `json:"msg" `
-	StartLine        int    `json:"startLine" `
-	EndLine          int    `json:"endLine" `
-	StartOffset      int    `json:"startOffset" `
-	EndOffset        int    `json:"endOffset" `
+	IssueKey    string `json:"key" gorm:"index"`
+	Component   string `json:"component" gorm:"index"`
+	StartLine   int    `json:"startLine" `
+	EndLine     int    `json:"endLine" `
+	StartOffset int    `json:"startOffset" `
+	EndOffset   int    `json:"endOffset" `
+	Msg         string `json:"msg" `
 }
 
 func (StIssueCodeBlock) TableName() string {
