@@ -17,21 +17,19 @@ limitations under the License.
 
 package models
 
-import (
-	"github.com/apache/incubator-devlake/core/models/common"
-)
+import "github.com/apache/incubator-devlake/core/models/common"
 
 type SonarqubeIssueCodeBlock struct {
-	common.NoPKModel
 	ConnectionId uint64 `gorm:"primaryKey"`
 	Id           string `gorm:"primaryKey"`
 	IssueKey     string `json:"key" gorm:"index"`
 	Component    string `json:"component" gorm:"index"`
-	Msg          string `json:"msg" `
 	StartLine    int    `json:"startLine" `
 	EndLine      int    `json:"endLine" `
 	StartOffset  int    `json:"startOffset" `
 	EndOffset    int    `json:"endOffset" `
+	Msg          string `json:"msg" `
+	common.NoPKModel
 }
 
 func (SonarqubeIssueCodeBlock) TableName() string {

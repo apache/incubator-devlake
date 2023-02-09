@@ -72,4 +72,5 @@ var CollectAccountsMeta = plugin.SubTaskMeta{
 	EntryPoint:       CollectAccounts,
 	EnabledByDefault: true,
 	Description:      "Collect Accounts data from Sonarqube user api",
+	DomainTypes:      []string{plugin.DOMAIN_TYPE_CROSS},
 }

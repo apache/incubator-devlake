@@ -18,6 +18,8 @@ limitations under the License.
 package tasks
 
 import (
+	"reflect"
+
 	"github.com/apache/incubator-devlake/core/dal"
 	"github.com/apache/incubator-devlake/core/errors"
 	"github.com/apache/incubator-devlake/core/models/domainlayer"
@@ -26,7 +28,6 @@ import (
 	"github.com/apache/incubator-devlake/core/plugin"
 	"github.com/apache/incubator-devlake/helpers/pluginhelper/api"
 	sonarqubeModels "github.com/apache/incubator-devlake/plugins/sonarqube/models"
-	"reflect"
 )
 
 var ConvertIssuesMeta = plugin.SubTaskMeta{
@@ -41,13 +42,14 @@ func ConvertIssues(taskCtx plugin.SubTaskContext) errors.Error {
 	db := taskCtx.GetDal()
 	rawDataSubTaskArgs, data := CreateRawDataSubTaskArgs(taskCtx, RAW_PROJECTS_TABLE)
 	cursor, err := db.Cursor(dal.From(sonarqubeModels.SonarqubeIssue{}),
-		dal.Where("connection_id = ? and project = ?", data.Options.ConnectionId, data.Options.ProjectKey))
+		dal.Where("connection_id = ? and project_key = ?", data.Options.ConnectionId, data.Options.ProjectKey))
 	if err != nil {
 		return err
 	}
 	defer cursor.Close()
 
-	accountIdGen := didgen.NewDomainIdGenerator(&sonarqubeModels.SonarqubeIssue{})
+	issueIdGen := didgen.NewDomainIdGenerator(&sonarqubeModels.SonarqubeIssue{})
+	projectIdGen := didgen.NewDomainIdGenerator(&sonarqubeModels.SonarqubeProject{})
 	converter, err := api.NewDataConverter(api.DataConverterArgs{
 		InputRowType:       reflect.TypeOf(sonarqubeModels.SonarqubeIssue{}),
 		Input:              cursor,
@@ -55,13 +57,12 @@ func ConvertIssues(taskCtx plugin.SubTaskContext) errors.Error {
 		Convert: func(inputRow interface{}) ([]interface{}, errors.Error) {
 			sonarqubeIssue := inputRow.(*sonarqubeModels.SonarqubeIssue)
 			domainIssue := &securitytesting.StIssue{
-				DomainEntity:      domainlayer.DomainEntity{Id: accountIdGen.Generate(data.Options.ConnectionId, sonarqubeIssue.Key)},
+				DomainEntity:      domainlayer.DomainEntity{Id: issueIdGen.Generate(data.Options.ConnectionId, sonarqubeIssue.IssueKey)},
 				BatchId:           sonarqubeIssue.BatchId,
-				Key:               sonarqubeIssue.Key,
 				Rule:              sonarqubeIssue.Rule,
 				Severity:          sonarqubeIssue.Severity,
 				Component:         sonarqubeIssue.Component,
-				Project:           sonarqubeIssue.Project,
+				ProjectKey:        projectIdGen.Generate(data.Options.ConnectionId, sonarqubeIssue.ProjectKey),
 				Line:              sonarqubeIssue.Line,
 				Status:            sonarqubeIssue.Status,
 				Message:           sonarqubeIssue.Message,

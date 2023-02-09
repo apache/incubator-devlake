@@ -30,6 +30,16 @@ type validation struct {
 	Valid bool `json:"valid"`
 }
 
+/*
+@Summary test sonarqube connection
+@Description Test sonarqube Connection
+@Tags plugins/sonarqube
+@Param body body models.SonarqubeConn true "json body"
+@Success 200  {object} shared.ApiBody "Success"
+@Failure 400  {string} errcode.Error "Bad Request"
+@Failure 500  {string} errcode.Error "Internal Error"
+@Router /plugins/sonarqube/test [POST]
+*/
 func TestConnection(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, errors.Error) {
 	// decode
 	var err errors.Error

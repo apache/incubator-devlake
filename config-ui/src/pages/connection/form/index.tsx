@@ -52,16 +52,16 @@ export const ConnectionFormPage = () => {
 
   const error = useMemo(
     () =>
-      fields.every((field) => {
+      fields.some((field) => {
         if (field.required) {
-          return !!form[field.key];
+          return !form[field.key];
         }
 
         if (field.checkError) {
           return !field.checkError(form);
         }
 
-        return true;
+        return false;
       }),
     [form, fields],
   );

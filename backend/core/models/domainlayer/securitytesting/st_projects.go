@@ -27,12 +27,11 @@ var _ plugin.Scope = (*StProject)(nil)
 
 type StProject struct {
 	domainlayer.DomainEntity
-	Key              string           `json:"key" gorm:"type:varchar(64);primaryKey"`
 	Name             string           `json:"name" gorm:"type:varchar(255)"`
 	Qualifier        string           `json:"qualifier" gorm:"type:varchar(255)"`
 	Visibility       string           `json:"visibility" gorm:"type:varchar(64)"`
 	LastAnalysisDate *api.Iso8601Time `json:"lastAnalysisDate"`
-	Revision         string           `json:"revision" gorm:"type:varchar(128)"`
+	CommitSha        string           `json:"revision" gorm:"type:varchar(128)"`
 }
 
 func (StProject) TableName() string {

@@ -69,19 +69,19 @@ func NewApiClientFromConnection(
 		return nil, err
 	}
 
-	// if connection requires authorization
-	if authenticator, ok := connection.(aha.ApiAuthenticator); ok {
-		apiClient.SetBeforeFunction(func(req *http.Request) errors.Error {
-			return authenticator.SetupAuthentication(req)
-		})
-	}
-
 	// if connection needs to prepare the ApiClient, i.e. fetch token for future requests
 	if prepareApiClient, ok := connection.(aha.PrepareApiClient); ok {
 		err = prepareApiClient.PrepareApiClient(apiClient)
 		if err != nil {
 			return nil, err
 		}
+	}
+
+	// if connection requires authorization
+	if authenticator, ok := connection.(aha.ApiAuthenticator); ok {
+		apiClient.SetBeforeFunction(func(req *http.Request) errors.Error {
+			return authenticator.SetupAuthentication(req)
+		})
 	}
 
 	return apiClient, nil
@@ -164,6 +164,7 @@ func (apiClient *ApiClient) Setup(
 	apiClient.client = &http.Client{Timeout: timeout}
 	apiClient.SetEndpoint(endpoint)
 	apiClient.SetHeaders(headers)
+	apiClient.data = map[string]interface{}{}
 }
 
 // SetEndpoint FIXME ...

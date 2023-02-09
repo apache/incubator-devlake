@@ -42,6 +42,7 @@ func CollectAccountDetails(taskCtx plugin.SubTaskContext) errors.Error {
 		RawDataSubTaskArgs: *rawDataSubTaskArgs,
 		ApiClient:          data.ApiClient,
 		UrlTemplate:        "/projects/{{ .Params.ProjectId }}/members/{{ .Input.GitlabId }}",
+		Input:              iterator,
 		//PageSize:           100,
 		Query: func(reqData *api.RequestData) (url.Values, errors.Error) {
 			query := url.Values{}

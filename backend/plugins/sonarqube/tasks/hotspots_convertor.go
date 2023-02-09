@@ -41,13 +41,14 @@ func ConvertHotspots(taskCtx plugin.SubTaskContext) errors.Error {
 	db := taskCtx.GetDal()
 	rawDataSubTaskArgs, data := CreateRawDataSubTaskArgs(taskCtx, RAW_PROJECTS_TABLE)
 	cursor, err := db.Cursor(dal.From(sonarqubeModels.SonarqubeHotspot{}),
-		dal.Where("connection_id = ? and project = ?", data.Options.ConnectionId, data.Options.ProjectKey))
+		dal.Where("connection_id = ? and project_key = ?", data.Options.ConnectionId, data.Options.ProjectKey))
 	if err != nil {
 		return err
 	}
 	defer cursor.Close()
 
-	accountIdGen := didgen.NewDomainIdGenerator(&sonarqubeModels.SonarqubeHotspot{})
+	issueIdGen := didgen.NewDomainIdGenerator(&sonarqubeModels.SonarqubeHotspot{})
+	projectIdGen := didgen.NewDomainIdGenerator(&sonarqubeModels.SonarqubeProject{})
 	converter, err := api.NewDataConverter(api.DataConverterArgs{
 		InputRowType:       reflect.TypeOf(sonarqubeModels.SonarqubeHotspot{}),
 		Input:              cursor,
@@ -55,20 +56,22 @@ func ConvertHotspots(taskCtx plugin.SubTaskContext) errors.Error {
 		Convert: func(inputRow interface{}) ([]interface{}, errors.Error) {
 			sonarqubeHotspot := inputRow.(*sonarqubeModels.SonarqubeHotspot)
 			domainHotspot := &securitytesting.StIssue{
-				DomainEntity:      domainlayer.DomainEntity{Id: accountIdGen.Generate(data.Options.ConnectionId, sonarqubeHotspot.Key)},
-				BatchId:           sonarqubeHotspot.BatchId,
-				Key:               sonarqubeHotspot.Key,
-				Component:         sonarqubeHotspot.Component,
-				Project:           sonarqubeHotspot.Project,
-				Line:              sonarqubeHotspot.Line,
-				Status:            sonarqubeHotspot.Status,
-				Message:           sonarqubeHotspot.Message,
-				CommitAuthorEmail: sonarqubeHotspot.Author,
-				Assignee:          sonarqubeHotspot.Assignee,
-				Rule:              sonarqubeHotspot.RuleKey,
-				CreationDate:      sonarqubeHotspot.CreationDate,
-				UpdateDate:        sonarqubeHotspot.UpdateDate,
-				Type:              "HOTSPOTS",
+				DomainEntity:             domainlayer.DomainEntity{Id: issueIdGen.Generate(data.Options.ConnectionId, sonarqubeHotspot.HotspotKey)},
+				BatchId:                  sonarqubeHotspot.BatchId,
+				Component:                sonarqubeHotspot.Component,
+				ProjectKey:               projectIdGen.Generate(data.Options.ConnectionId, sonarqubeHotspot.ProjectKey),
+				Line:                     sonarqubeHotspot.Line,
+				StartLine:                sonarqubeHotspot.Line,
+				Status:                   sonarqubeHotspot.Status,
+				Message:                  sonarqubeHotspot.Message,
+				CommitAuthorEmail:        sonarqubeHotspot.Author,
+				Assignee:                 sonarqubeHotspot.Assignee,
+				Rule:                     sonarqubeHotspot.RuleKey,
+				CreationDate:             sonarqubeHotspot.CreationDate,
+				UpdateDate:               sonarqubeHotspot.UpdateDate,
+				Type:                     "HOTSPOTS",
+				VulnerabilityProbability: sonarqubeHotspot.VulnerabilityProbability,
+				Severity:                 sonarqubeHotspot.SecurityCategory,
 			}
 			return []interface{}{
 				domainHotspot,

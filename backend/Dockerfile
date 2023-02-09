@@ -138,7 +138,9 @@ COPY python/requirements.txt /app/requirements.txt
 RUN python3 -m pip install --no-cache --upgrade pip setuptools && \
     python3 -m pip install --no-cache dbt-mysql dbt-postgres && \
     python3 -m pip install --no-cache -r requirements.txt && \
-    rm -fr /usr/share/python-wheels/*
+    rm -fr /usr/share/python-wheels/* \
+RUN curl -sSL https://install.python-poetry.org | python3 -
+RUN ln -sf /root/.local/bin/poetry /usr/local/bin
 
 
 FROM base as devlake-base

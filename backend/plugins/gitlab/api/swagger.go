@@ -37,7 +37,7 @@ type GitlabBlueprintSetting []struct {
 				Since     string
 			} `json:"options"`
 			Entities []string `json:"entities"`
-		} `json:"scope"`
+		} `json:"scopes"`
 	} `json:"connections"`
 }
 

@@ -73,7 +73,7 @@ func ExtractAccounts(taskCtx plugin.SubTaskContext) errors.Error {
 		return err
 	}
 
-	if semver.Compare(data.ApiClient.GetData(models.GitlabApiClientData_ApiVersion).(string), "13.11") < 0 {
+	if semver.Compare(data.ApiClient.GetData(models.GitlabApiClientData_ApiVersion).(string), "v13.11") < 0 {
 		err = CollectAccountDetails(taskCtx)
 		if err != nil {
 			return err

@@ -31,11 +31,13 @@ func (u *addSecurityTesting) Up(basicRes context.BasicRes) errors.Error {
 		basicRes,
 		&archived.StProject{},
 		&archived.StIssue{},
+		&archived.StIssueCodeBlock{},
+		&archived.StFileMetrics{},
 	)
 }
 
 func (*addSecurityTesting) Version() uint64 {
-	return 20230208000002
+	return 20230208000015
 }
 
 func (*addSecurityTesting) Name() string {

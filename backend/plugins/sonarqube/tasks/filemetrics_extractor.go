@@ -41,11 +41,12 @@ func ExtractFilemetrics(taskCtx plugin.SubTaskContext) errors.Error {
 				return nil, err
 			}
 			fileMetrics := &models.SonarqubeFileMetrics{
-				ConnectionId: data.Options.ConnectionId,
-				ComponentKey: body.Key,
-				FileName:     body.Name,
-				FilePath:     body.Path,
-				FileLanguage: body.Language,
+				ConnectionId:   data.Options.ConnectionId,
+				FileMetricsKey: body.Key,
+				FileName:       body.Name,
+				FilePath:       body.Path,
+				FileLanguage:   body.Language,
+				ProjectKey:     data.Options.ProjectKey,
 				//BatchID:                  "",
 			}
 			alphabetMap := map[string]string{
@@ -135,6 +136,7 @@ var ExtractFilemetricsMeta = plugin.SubTaskMeta{
 	EntryPoint:       ExtractFilemetrics,
 	EnabledByDefault: true,
 	Description:      "Extract raw data into tool layer table sonarqube_filemetrics",
+	DomainTypes:      []string{plugin.DOMAIN_TYPE_SECURITY_TESTING},
 }
 
 type fileMetricsResponse struct {

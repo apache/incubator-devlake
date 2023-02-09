@@ -18,6 +18,8 @@ limitations under the License.
 package tasks
 
 import (
+	"reflect"
+
 	"github.com/apache/incubator-devlake/core/dal"
 	"github.com/apache/incubator-devlake/core/errors"
 	"github.com/apache/incubator-devlake/core/models/domainlayer"
@@ -26,7 +28,6 @@ import (
 	"github.com/apache/incubator-devlake/core/plugin"
 	"github.com/apache/incubator-devlake/helpers/pluginhelper/api"
 	sonarqubeModels "github.com/apache/incubator-devlake/plugins/sonarqube/models"
-	"reflect"
 )
 
 var ConvertProjectsMeta = plugin.SubTaskMeta{
@@ -41,13 +42,13 @@ func ConvertProjects(taskCtx plugin.SubTaskContext) errors.Error {
 	db := taskCtx.GetDal()
 	rawDataSubTaskArgs, data := CreateRawDataSubTaskArgs(taskCtx, RAW_PROJECTS_TABLE)
 	cursor, err := db.Cursor(dal.From(sonarqubeModels.SonarqubeProject{}),
-		dal.Where("connection_id = ? and `key` = ?", data.Options.ConnectionId, data.Options.ProjectKey))
+		dal.Where("connection_id = ? and project_key = ?", data.Options.ConnectionId, data.Options.ProjectKey))
 	if err != nil {
 		return err
 	}
 	defer cursor.Close()
 
-	accountIdGen := didgen.NewDomainIdGenerator(&sonarqubeModels.SonarqubeProject{})
+	projectIdGen := didgen.NewDomainIdGenerator(&sonarqubeModels.SonarqubeProject{})
 	converter, err := api.NewDataConverter(api.DataConverterArgs{
 		InputRowType:       reflect.TypeOf(sonarqubeModels.SonarqubeProject{}),
 		Input:              cursor,
@@ -55,13 +56,12 @@ func ConvertProjects(taskCtx plugin.SubTaskContext) errors.Error {
 		Convert: func(inputRow interface{}) ([]interface{}, errors.Error) {
 			sonarqubeProject := inputRow.(*sonarqubeModels.SonarqubeProject)
 			domainProject := &securitytesting.StProject{
-				DomainEntity:     domainlayer.DomainEntity{Id: accountIdGen.Generate(data.Options.ConnectionId, sonarqubeProject.Key)},
-				Key:              sonarqubeProject.Key,
+				DomainEntity:     domainlayer.DomainEntity{Id: projectIdGen.Generate(data.Options.ConnectionId, sonarqubeProject.ProjectKey)},
 				Name:             sonarqubeProject.Name,
 				Qualifier:        sonarqubeProject.Qualifier,
 				Visibility:       sonarqubeProject.Visibility,
 				LastAnalysisDate: sonarqubeProject.LastAnalysisDate,
-				Revision:         sonarqubeProject.Revision,
+				CommitSha:        sonarqubeProject.Revision,
 			}
 			return []interface{}{
 				domainProject,

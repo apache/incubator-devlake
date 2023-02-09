@@ -46,7 +46,7 @@ func CollectAccounts(taskCtx plugin.SubTaskContext) errors.Error {
 
 	// it means we can not use /members/all to get the data
 	urlTemplate := "/projects/{{ .Params.ProjectId }}/members/all"
-	if semver.Compare(data.ApiClient.GetData(models.GitlabApiClientData_ApiVersion).(string), "13.11") < 0 {
+	if semver.Compare(data.ApiClient.GetData(models.GitlabApiClientData_ApiVersion).(string), "v13.11") < 0 {
 		urlTemplate = "/projects/{{ .Params.ProjectId }}/members/"
 	}
 

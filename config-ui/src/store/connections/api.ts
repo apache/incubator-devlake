@@ -24,6 +24,7 @@ type TestConnectionPayload = {
   token?: string;
   username?: string;
   password?: string;
+  authMethod?: string;
 };
 
 export const getConnection = (plugin: string) => request(`/plugins/${plugin}/connections`);

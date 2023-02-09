@@ -36,7 +36,7 @@ type blueprintSetting []struct {
 		Plugin string `json:"plugin" example:"customize"`
 		Scope  []struct {
 			Options tasks.Options `json:"options"`
-		} `json:"scope"`
+		} `json:"scopes"`
 	} `json:"connections"`
 }
 

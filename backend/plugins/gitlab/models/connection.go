@@ -35,6 +35,11 @@ type GitlabConn struct {
 const GitlabApiClientData_UserId string = "UserId"
 const GitlabApiClientData_ApiVersion string = "ApiVersion"
 
+// this function is used to rewrite the same function of AccessToken
+func (conn *GitlabConn) SetupAuthentication(request *http.Request) errors.Error {
+	return nil
+}
+
 // PrepareApiClient test api and set the IsPrivateToken,version,UserId and so on.
 func (conn *GitlabConn) PrepareApiClient(apiClient apihelperabstract.ApiClientAbstract) errors.Error {
 	header1 := http.Header{}
@@ -86,6 +91,11 @@ func (conn *GitlabConn) PrepareApiClient(apiClient apihelperabstract.ApiClientAb
 	err = api.UnmarshalResponse(res, versionResBody)
 	if err != nil {
 		return errors.Convert(err)
+	}
+
+	// add v for semver compare
+	if versionResBody.Version[0] != 'v' {
+		versionResBody.Version = "v" + versionResBody.Version
 	}
 
 	apiClient.SetData(GitlabApiClientData_UserId, userResBody.Id)

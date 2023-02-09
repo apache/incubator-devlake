@@ -19,6 +19,7 @@ package impl
 
 import (
 	"fmt"
+	"github.com/apache/incubator-devlake/core/dal"
 	"time"
 
 	"github.com/apache/incubator-devlake/core/context"
@@ -33,12 +34,15 @@ import (
 )
 
 // make sure interface is implemented
-var _ plugin.PluginMeta = (*Sonarqube)(nil)
-var _ plugin.PluginInit = (*Sonarqube)(nil)
-var _ plugin.PluginTask = (*Sonarqube)(nil)
-var _ plugin.PluginApi = (*Sonarqube)(nil)
-var _ plugin.PluginBlueprintV100 = (*Sonarqube)(nil)
-var _ plugin.CloseablePluginTask = (*Sonarqube)(nil)
+var _ interface {
+	plugin.PluginMeta
+	plugin.PluginInit
+	plugin.PluginTask
+	plugin.PluginMigration
+	plugin.DataSourcePluginBlueprintV200
+	plugin.CloseablePluginTask
+	plugin.PluginSource
+} = (*Sonarqube)(nil)
 
 type Sonarqube struct{}
 
@@ -49,6 +53,30 @@ func (p Sonarqube) Description() string {
 func (p Sonarqube) Init(br context.BasicRes) errors.Error {
 	api.Init(br)
 	return nil
+}
+
+func (p Sonarqube) Connection() interface{} {
+	return &models.SonarqubeConnection{}
+}
+
+func (p Sonarqube) Scope() interface{} {
+	return &models.SonarqubeProject{}
+}
+
+func (p Sonarqube) TransformationRule() interface{} {
+	return nil
+}
+
+func (p Sonarqube) GetTablesInfo() []dal.Tabler {
+	return []dal.Tabler{
+		&models.SonarqubeConnection{},
+		&models.SonarqubeProject{},
+		&models.SonarqubeIssue{},
+		&models.SonarqubeIssueCodeBlock{},
+		&models.SonarqubeHotspot{},
+		&models.SonarqubeFileMetrics{},
+		&models.SonarqubeAccount{},
+	}
 }
 
 func (p Sonarqube) SubTaskMetas() []plugin.SubTaskMeta {
@@ -65,7 +93,10 @@ func (p Sonarqube) SubTaskMetas() []plugin.SubTaskMeta {
 		tasks.ExtractAccountsMeta,
 		tasks.ConvertProjectsMeta,
 		tasks.ConvertIssuesMeta,
+		tasks.ConvertIssueCodeBlocksMeta,
 		tasks.ConvertHotspotsMeta,
+		tasks.ConvertFileMetricsMeta,
+		tasks.ConvertAccountsMeta,
 	}
 }
 
@@ -133,8 +164,8 @@ func (p Sonarqube) ApiResources() map[string]map[string]plugin.ApiResourceHandle
 	}
 }
 
-func (p Sonarqube) MakePipelinePlan(connectionId uint64, scope []*plugin.BlueprintScopeV100) (plugin.PipelinePlan, errors.Error) {
-	return api.MakePipelinePlan(p.SubTaskMetas(), connectionId, scope)
+func (p Sonarqube) MakeDataSourcePipelinePlanV200(connectionId uint64, scopes []*plugin.BlueprintScopeV200, syncPolicy plugin.BlueprintSyncPolicy) (pp plugin.PipelinePlan, sc []plugin.Scope, err errors.Error) {
+	return api.MakeDataSourcePipelinePlanV200(p.SubTaskMetas(), connectionId, scopes, &syncPolicy)
 }
 
 func (p Sonarqube) Close(taskCtx plugin.TaskContext) errors.Error {

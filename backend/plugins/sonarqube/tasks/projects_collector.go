@@ -78,4 +78,5 @@ var CollectProjectsMeta = plugin.SubTaskMeta{
 	EntryPoint:       CollectProjects,
 	EnabledByDefault: true,
 	Description:      "Collect Projects data from Sonarqube api",
+	DomainTypes:      []string{plugin.DOMAIN_TYPE_SECURITY_TESTING},
 }
