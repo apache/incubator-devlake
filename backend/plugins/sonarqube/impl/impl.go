@@ -165,7 +165,6 @@ func (p Sonarqube) ApiResources() map[string]map[string]plugin.ApiResourceHandle
 		"connections/:connectionId/scopes/:projectKey": {
 			"GET":   api.GetScope,
 			"PATCH": api.UpdateScope,
-			
 		},
 		"connections/:connectionId/scopes": {
 			"GET": api.GetScopeList,
