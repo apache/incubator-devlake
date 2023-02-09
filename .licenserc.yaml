@@ -34,6 +34,7 @@ header:
     - '**/env.example'
     - '**/*.csv'
     - '**/*.json'
+    - '**/*.template.json'
     - '**/*.sql'
     - '**/*.svg'
     - '**/*.png'
@@ -52,6 +53,7 @@ header:
     - '**/.eslintrc'
     - 'deployment/helm/templates/_helpers.tpl'
     - '**/.nvmrc'
+    - '**/poetry.lock'
 
 
 

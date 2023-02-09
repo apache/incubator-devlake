@@ -128,7 +128,7 @@ func (c *Collector[Stream]) Execute() (err errors.Error) {
 			return err
 		}
 	}
-	resultStream, err := c.tapClient.Run()
+	resultStream, err := c.tapClient.Run(c.ctx.GetContext())
 	if err != nil {
 		return err
 	}
@@ -156,7 +156,7 @@ func (c *Collector[Stream]) Execute() (err errors.Error) {
 			return err
 		default:
 		}
-		output := result.Data
+		output := result.Out
 		if tapRecord, ok := output.AsTapRecord(); ok {
 			batchedResults = append(batchedResults, tapRecord.Record)
 			c.ctx.IncProgress(1)
