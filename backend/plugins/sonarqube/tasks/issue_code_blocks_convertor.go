@@ -37,8 +37,8 @@ func ConvertIssueCodeBlocks(taskCtx plugin.SubTaskContext) errors.Error {
 
 	cursor, err := db.Cursor(
 		dal.From("_tool_sonarqube_issue_code_blocks icb"),
-		dal.Join("left join _tool_sonarqube_issues i on i.`key` = icb.issue_key"),
-		dal.Where("icb.connection_id = ? and project = ?", data.Options.ConnectionId, data.Options.ProjectKey))
+		dal.Join("left join _tool_sonarqube_issues i on i.project_key = icb.issue_key"),
+		dal.Where("icb.connection_id = ? and project_key = ?", data.Options.ConnectionId, data.Options.ProjectKey))
 	if err != nil {
 		return err
 	}

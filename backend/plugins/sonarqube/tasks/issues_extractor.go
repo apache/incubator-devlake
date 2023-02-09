@@ -48,12 +48,12 @@ func ExtractIssues(taskCtx plugin.SubTaskContext) errors.Error {
 
 			sonarqubeIssue := &models.SonarqubeIssue{
 				ConnectionId: data.Options.ConnectionId,
-				Key:          body.Key,
+				IssueKey:     body.Key,
 				// BatchId      string           `json:"batchId" gorm:"primaryKey"`
 				Rule:         body.Rule,
 				Severity:     body.Severity,
 				Component:    body.Component,
-				Project:      body.Project,
+				ProjectKey:   body.Project,
 				Line:         body.Line,
 				Status:       body.Status,
 				Message:      body.Message,
@@ -80,7 +80,7 @@ func ExtractIssues(taskCtx plugin.SubTaskContext) errors.Error {
 				for _, location := range v.Locations {
 					codeBlock := &models.SonarqubeIssueCodeBlock{
 						ConnectionId: data.Options.ConnectionId,
-						IssueKey:     sonarqubeIssue.Key,
+						IssueKey:     sonarqubeIssue.IssueKey,
 						Component:    location.Component,
 						Msg:          location.Msg,
 						StartLine:    location.TextRange.StartLine,

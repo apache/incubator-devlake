@@ -86,7 +86,7 @@ func makeScopesV200(bpScopes []*plugin.BlueprintScopeV200, connectionId uint64) 
 		sonarqubeProject := &models.SonarqubeProject{}
 		// get repo from db
 		err := basicRes.GetDal().First(sonarqubeProject,
-			dal.Where("connection_id = ? and `key` = ?",
+			dal.Where("connection_id = ? and project_key = ?",
 				connectionId, bpScope.Id))
 		if err != nil {
 			return nil, errors.Default.Wrap(err, fmt.Sprintf("fail to find sonarqube project %s", bpScope.Id))
@@ -95,7 +95,7 @@ func makeScopesV200(bpScopes []*plugin.BlueprintScopeV200, connectionId uint64) 
 		if utils.StringsContains(bpScope.Entities, plugin.DOMAIN_TYPE_SECURITY_TESTING) {
 			stProject := &securitytesting.StProject{
 				DomainEntity: domainlayer.DomainEntity{
-					Id: didgen.NewDomainIdGenerator(&models.SonarqubeProject{}).Generate(sonarqubeProject.ConnectionId, sonarqubeProject.Key),
+					Id: didgen.NewDomainIdGenerator(&models.SonarqubeProject{}).Generate(sonarqubeProject.ConnectionId, sonarqubeProject.ProjectKey),
 				},
 				Name: sonarqubeProject.Name,
 			}

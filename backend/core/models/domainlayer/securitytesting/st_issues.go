@@ -27,7 +27,7 @@ type StIssue struct {
 	Rule                     string           `json:"rule" gorm:"type:varchar(255)"`
 	Severity                 string           `json:"severity" gorm:"type:varchar(255)"`
 	Component                string           `json:"component" gorm:"type:varchar(255)"`
-	Project                  string           `gorm:"index;type:varchar(255)"`          //domain project key
+	ProjectKey               string           `gorm:"index;type:varchar(255)"`          //domain project key
 	BatchId                  string           `json:"batchId" gorm:"type:varchar(100)"` // from collection time
 	Line                     int              `json:"line"`
 	Status                   string           `json:"status" gorm:"type:varchar(255)"`

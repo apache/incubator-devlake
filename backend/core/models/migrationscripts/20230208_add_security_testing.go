@@ -37,7 +37,7 @@ func (u *addSecurityTesting) Up(basicRes context.BasicRes) errors.Error {
 }
 
 func (*addSecurityTesting) Version() uint64 {
-	return 20230208000013
+	return 20230208000015
 }
 
 func (*addSecurityTesting) Name() string {
