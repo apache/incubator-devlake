@@ -49,7 +49,6 @@ func ExtractIssues(taskCtx plugin.SubTaskContext) errors.Error {
 			sonarqubeIssue := &models.SonarqubeIssue{
 				ConnectionId: data.Options.ConnectionId,
 				IssueKey:     body.Key,
-				// BatchId      string           `json:"batchId" gorm:"primaryKey"`
 				Rule:         body.Rule,
 				Severity:     body.Severity,
 				Component:    body.Component,

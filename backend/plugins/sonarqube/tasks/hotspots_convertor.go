@@ -57,7 +57,6 @@ func ConvertHotspots(taskCtx plugin.SubTaskContext) errors.Error {
 			sonarqubeHotspot := inputRow.(*sonarqubeModels.SonarqubeHotspot)
 			domainHotspot := &securitytesting.StIssue{
 				DomainEntity:             domainlayer.DomainEntity{Id: issueIdGen.Generate(data.Options.ConnectionId, sonarqubeHotspot.HotspotKey)},
-				BatchId:                  sonarqubeHotspot.BatchId,
 				Component:                sonarqubeHotspot.Component,
 				ProjectKey:               projectIdGen.Generate(data.Options.ConnectionId, sonarqubeHotspot.ProjectKey),
 				Line:                     sonarqubeHotspot.Line,
