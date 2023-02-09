@@ -24,7 +24,7 @@ import (
 
 type SonarqubeIssue struct {
 	ConnectionId uint64           `gorm:"primaryKey"`
-	IssueKey     string           `json:"key" gorm:"primaryKey"`
+	IssueKey     string           `json:"issueKey" gorm:"primaryKey"`
 	Rule         string           `json:"rule" gorm:"type:varchar(255)"`
 	Severity     string           `json:"severity" gorm:"type:varchar(255)"`
 	Component    string           `json:"component" gorm:"type:varchar(255)"`

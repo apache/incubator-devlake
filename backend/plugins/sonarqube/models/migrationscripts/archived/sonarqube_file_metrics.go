@@ -23,27 +23,27 @@ import (
 
 type SonarqubeFileMetrics struct {
 	ConnectionId             uint64  `gorm:"primaryKey"`
-	FileMetricsKey           string  `json:"component_key" gorm:"primaryKey"`
-	ProjectKey               string  `json:"project" gorm:"index"`
-	BatchID                  string  `json:"batch_id"`
-	FileName                 string  `json:"file_name"`
-	FilePath                 string  `json:"file_path"`
-	FileLanguage             string  `json:"file_language"`
-	CodeSmells               int     `json:"code_smells"`
-	SqaleIndex               string  `json:"sqale_index"`
-	SqaleRating              string  `json:"sqale_rating"`
+	FileMetricsKey           string  `json:"componentKey" gorm:"primaryKey"`
+	ProjectKey               string  `json:"projectKey" gorm:"index"`
+	BatchID                  string  `json:"batchId"`
+	FileName                 string  `json:"fileName"`
+	FilePath                 string  `json:"filePath"`
+	FileLanguage             string  `json:"fileLanguage"`
+	CodeSmells               int     `json:"codeSmells"`
+	SqaleIndex               string  `json:"sqaleIndex"`
+	SqaleRating              string  `json:"sqaleRating"`
 	Bugs                     int     `json:"bugs"`
-	ReliabilityRating        string  `json:"reliability_rating"`
+	ReliabilityRating        string  `json:"reliabilityRating"`
 	Vulnerabilities          int     `json:"vulnerabilities"`
-	SecurityRating           string  `json:"security_rating"`
-	SecurityHotspots         int     `json:"security_hotspots"`
-	SecurityHotspotsReviewed float64 `json:"security_hotspots_reviewed"`
-	SecurityReviewRating     string  `json:"security_review_rating"`
+	SecurityRating           string  `json:"securityRating"`
+	SecurityHotspots         int     `json:"securityHotspots"`
+	SecurityHotspotsReviewed float64 `json:"securityHotspotsReviewed"`
+	SecurityReviewRating     string  `json:"securityReviewRating"`
 	Ncloc                    int     `json:"ncloc"`
 	Coverage                 float64 `json:"coverage"`
-	LinesToCover             int     `json:"lines_to_cover"`
-	DuplicatedLinesDensity   float64 `json:"duplicated_lines_density"`
-	DuplicatedBlocks         int     `json:"duplicated_blocks"`
+	LinesToCover             int     `json:"linesToCover"`
+	DuplicatedLinesDensity   float64 `json:"duplicatedLinesDensity"`
+	DuplicatedBlocks         int     `json:"duplicatedBlocks"`
 	archived.NoPKModel
 }
 

@@ -22,7 +22,7 @@ import "github.com/apache/incubator-devlake/core/models/common"
 type SonarqubeIssueCodeBlock struct {
 	ConnectionId uint64 `gorm:"primaryKey"`
 	Id           string `gorm:"primaryKey"`
-	IssueKey     string `json:"key" gorm:"index"`
+	IssueKey     string `json:"issueKey" gorm:"index"`
 	Component    string `json:"component" gorm:"index"`
 	StartLine    int    `json:"startLine" `
 	EndLine      int    `json:"endLine" `

@@ -24,7 +24,7 @@ import (
 
 type SonarqubeHotspot struct {
 	ConnectionId             uint64           `gorm:"primaryKey"`
-	HotspotKey               string           `json:"key" gorm:"primaryKey"`
+	HotspotKey               string           `json:"hotspotKey" gorm:"primaryKey"`
 	RuleKey                  string           `json:"ruleKey"`
 	Component                string           `json:"component" gorm:"index"`
 	ProjectKey               string           `json:"project" gorm:"index"`

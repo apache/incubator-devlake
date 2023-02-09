@@ -19,8 +19,9 @@ package impl
 
 import (
 	"fmt"
-	"github.com/apache/incubator-devlake/core/dal"
 	"time"
+
+	"github.com/apache/incubator-devlake/core/dal"
 
 	"github.com/apache/incubator-devlake/core/context"
 	"github.com/apache/incubator-devlake/core/errors"
@@ -160,6 +161,15 @@ func (p Sonarqube) ApiResources() map[string]map[string]plugin.ApiResourceHandle
 			"GET":    api.GetConnection,
 			"PATCH":  api.PatchConnection,
 			"DELETE": api.DeleteConnection,
+		},
+		"connections/:connectionId/scopes/:projectKey": {
+			"GET":   api.GetScope,
+			"PATCH": api.UpdateScope,
+			
+		},
+		"connections/:connectionId/scopes": {
+			"GET": api.GetScopeList,
+			"PUT": api.PutScope,
 		},
 	}
 }
