@@ -155,6 +155,6 @@ type Location struct {
 }
 
 func generateId(entity *models.SonarqubeIssueCodeBlock) {
-	hashCodeBlock.Write([]byte(fmt.Sprintf("%s-%d-%d-%d-%d-%s", entity.Component, entity.StartLine, entity.EndLine, entity.StartOffset, entity.EndOffset, entity.Msg)))
+	hashCodeBlock.Write([]byte(fmt.Sprintf("%s-%s-%d-%d-%d-%d-%s", entity.IssueKey, entity.Component, entity.StartLine, entity.EndLine, entity.StartOffset, entity.EndOffset, entity.Msg)))
 	entity.Id = hex.EncodeToString(hashCodeBlock.Sum(nil))
 }
