@@ -93,13 +93,13 @@ func makeScopesV200(bpScopes []*plugin.BlueprintScopeV200, connectionId uint64) 
 		}
 		// add board to scopes
 		if utils.StringsContains(bpScope.Entities, plugin.DOMAIN_TYPE_SECURITY_TESTING) {
-			domainBoard := &securitytesting.StProject{
+			stProject := &securitytesting.StProject{
 				DomainEntity: domainlayer.DomainEntity{
 					Id: didgen.NewDomainIdGenerator(&models.SonarqubeProject{}).Generate(sonarqubeProject.ConnectionId, sonarqubeProject.Key),
 				},
 				Name: sonarqubeProject.Name,
 			}
-			scopes = append(scopes, domainBoard)
+			scopes = append(scopes, stProject)
 		}
 	}
 	return scopes, nil

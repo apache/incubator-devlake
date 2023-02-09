@@ -41,7 +41,7 @@ type JiraBlueprintSetting []struct {
 				Since   string `json:"since"`
 			} `json:"options"`
 			Entities []string `json:"entities"`
-		} `json:"scope"`
+		} `json:"scopes"`
 	} `json:"connections"`
 }
 

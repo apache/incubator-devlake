@@ -32,10 +32,10 @@ type SonarqubeBlueprintSetting []struct {
 		ConnectionID int    `json:"connectionId"`
 		Scope        []struct {
 			Options struct {
-				ProjectKey int `json:"projectKey"`
+				Id int `json:"id"`
 			} `json:"options"`
 			Entities []string `json:"entities"`
-		} `json:"scope"`
+		} `json:"scopes"`
 	} `json:"connections"`
 }
 
