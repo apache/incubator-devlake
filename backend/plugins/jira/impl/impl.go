@@ -33,15 +33,17 @@ import (
 	"time"
 )
 
-var _ plugin.PluginMeta = (*Jira)(nil)
-var _ plugin.PluginInit = (*Jira)(nil)
-var _ plugin.PluginTask = (*Jira)(nil)
-var _ plugin.PluginApi = (*Jira)(nil)
-var _ plugin.PluginModel = (*Jira)(nil)
-var _ plugin.PluginMigration = (*Jira)(nil)
-var _ plugin.PluginBlueprintV100 = (*Jira)(nil)
-var _ plugin.CloseablePluginTask = (*Jira)(nil)
-var _ plugin.PluginSource = (*Jira)(nil)
+var _ interface {
+	plugin.PluginMeta
+	plugin.PluginInit
+	plugin.PluginTask
+	plugin.PluginModel
+	plugin.PluginMigration
+	plugin.PluginBlueprintV100
+	plugin.DataSourcePluginBlueprintV200
+	plugin.CloseablePluginTask
+	plugin.PluginSource
+} = (*Jira)(nil)
 
 type Jira struct {
 }

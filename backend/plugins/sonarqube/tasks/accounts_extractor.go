@@ -54,4 +54,5 @@ var ExtractAccountsMeta = plugin.SubTaskMeta{
 	EntryPoint:       ExtractAccounts,
 	EnabledByDefault: true,
 	Description:      "Extract raw data into tool layer table sonarqube_accounts",
+	DomainTypes:      []string{plugin.DOMAIN_TYPE_SECURITY_TESTING},
 }

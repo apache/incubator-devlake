@@ -53,4 +53,5 @@ var ExtractProjectsMeta = plugin.SubTaskMeta{
 	EntryPoint:       ExtractProjects,
 	EnabledByDefault: true,
 	Description:      "Extract raw data into tool layer table sonarqube_projects",
+	DomainTypes:      []string{plugin.DOMAIN_TYPE_SECURITY_TESTING},
 }

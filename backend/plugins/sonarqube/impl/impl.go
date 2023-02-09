@@ -19,6 +19,7 @@ package impl
 
 import (
 	"fmt"
+	"github.com/apache/incubator-devlake/core/dal"
 	"time"
 
 	"github.com/apache/incubator-devlake/core/context"
@@ -33,12 +34,15 @@ import (
 )
 
 // make sure interface is implemented
-var _ plugin.PluginMeta = (*Sonarqube)(nil)
-var _ plugin.PluginInit = (*Sonarqube)(nil)
-var _ plugin.PluginTask = (*Sonarqube)(nil)
-var _ plugin.PluginApi = (*Sonarqube)(nil)
-var _ plugin.CloseablePluginTask = (*Sonarqube)(nil)
-var _ plugin.PluginSource = (*Sonarqube)(nil)
+var _ interface {
+	plugin.PluginMeta
+	plugin.PluginInit
+	plugin.PluginTask
+	plugin.PluginMigration
+	plugin.DataSourcePluginBlueprintV200
+	plugin.CloseablePluginTask
+	plugin.PluginSource
+} = (*Sonarqube)(nil)
 
 type Sonarqube struct{}
 
@@ -61,6 +65,18 @@ func (p Sonarqube) Scope() interface{} {
 
 func (p Sonarqube) TransformationRule() interface{} {
 	return nil
+}
+
+func (p Sonarqube) GetTablesInfo() []dal.Tabler {
+	return []dal.Tabler{
+		&models.SonarqubeConnection{},
+		&models.SonarqubeProject{},
+		&models.SonarqubeIssue{},
+		&models.SonarqubeIssueCodeBlock{},
+		&models.SonarqubeHotspot{},
+		&models.SonarqubeFileMetrics{},
+		&models.SonarqubeAccount{},
+	}
 }
 
 func (p Sonarqube) SubTaskMetas() []plugin.SubTaskMeta {

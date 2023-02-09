@@ -136,6 +136,7 @@ var ExtractFilemetricsMeta = plugin.SubTaskMeta{
 	EntryPoint:       ExtractFilemetrics,
 	EnabledByDefault: true,
 	Description:      "Extract raw data into tool layer table sonarqube_filemetrics",
+	DomainTypes:      []string{plugin.DOMAIN_TYPE_SECURITY_TESTING},
 }
 
 type fileMetricsResponse struct {

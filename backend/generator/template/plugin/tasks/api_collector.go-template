@@ -71,4 +71,5 @@ var Collect{{ .CollectorDataName }}Meta = plugin.SubTaskMeta{
 	EntryPoint:       Collect{{ .CollectorDataName }},
 	EnabledByDefault: true,
 	Description:      "Collect {{ .CollectorDataName }} data from {{ .PluginName }} api",
+    DomainTypes:      []string{},
 }
