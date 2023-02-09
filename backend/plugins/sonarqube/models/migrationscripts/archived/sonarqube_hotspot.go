@@ -23,21 +23,21 @@ import (
 )
 
 type SonarqubeHotspot struct {
-	ConnectionId             uint64           `gorm:"primaryKey"`
-	HotspotKey               string           `json:"hotspotKey" gorm:"primaryKey"`
-	RuleKey                  string           `json:"ruleKey"`
-	Component                string           `json:"component" gorm:"index"`
-	ProjectKey               string           `json:"project" gorm:"index"`
-	BatchId                  string           `json:"batchId" gorm:"type:varchar(100)"` // from collection time
-	Line                     int              `json:"line"`
-	Status                   string           `json:"status"`
-	Message                  string           `json:"message"`
-	Author                   string           `json:"author"`
-	Assignee                 string           `json:"assignee"`
-	SecurityCategory         string           `json:"securityCategory"`
-	VulnerabilityProbability string           `json:"vulnerabilityProbability"`
-	CreationDate             *api.Iso8601Time `json:"creationDate"`
-	UpdateDate               *api.Iso8601Time `json:"updateDate"`
+	ConnectionId             uint64 `gorm:"primaryKey"`
+	HotspotKey               string `gorm:"primaryKey"`
+	RuleKey                  string
+	Component                string `gorm:"index"`
+	ProjectKey               string `gorm:"index"`
+	BatchId                  string `gorm:"type:varchar(100)"` // from collection time
+	Line                     int
+	Status                   string
+	Message                  string
+	Author                   string
+	Assignee                 string
+	SecurityCategory         string
+	VulnerabilityProbability string
+	CreationDate             *api.Iso8601Time
+	UpdateDate               *api.Iso8601Time
 	archived.NoPKModel
 }
 

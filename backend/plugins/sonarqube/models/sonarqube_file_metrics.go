@@ -22,28 +22,28 @@ import (
 )
 
 type SonarqubeFileMetrics struct {
-	ConnectionId             uint64  `gorm:"primaryKey"`
-	FileMetricsKey           string  `json:"componentKey" gorm:"primaryKey"`
-	ProjectKey               string  `json:"projectKey" gorm:"index"`
-	BatchID                  string  `json:"batchId"`
-	FileName                 string  `json:"fileName"`
-	FilePath                 string  `json:"filePath"`
-	FileLanguage             string  `json:"fileLanguage"`
-	CodeSmells               int     `json:"codeSmells"`
-	SqaleIndex               string  `json:"sqaleIndex"`
-	SqaleRating              string  `json:"sqaleRating"`
-	Bugs                     int     `json:"bugs"`
-	ReliabilityRating        string  `json:"reliabilityRating"`
-	Vulnerabilities          int     `json:"vulnerabilities"`
-	SecurityRating           string  `json:"securityRating"`
-	SecurityHotspots         int     `json:"securityHotspots"`
-	SecurityHotspotsReviewed float64 `json:"securityHotspotsReviewed"`
-	SecurityReviewRating     string  `json:"securityReviewRating"`
-	Ncloc                    int     `json:"ncloc"`
-	Coverage                 float64 `json:"coverage"`
-	LinesToCover             int     `json:"linesToCover"`
-	DuplicatedLinesDensity   float64 `json:"duplicatedLinesDensity"`
-	DuplicatedBlocks         int     `json:"duplicatedBlocks"`
+	ConnectionId             uint64 `gorm:"primaryKey"`
+	FileMetricsKey           string `gorm:"primaryKey"`
+	ProjectKey               string `gorm:"index"`
+	BatchID                  string
+	FileName                 string
+	FilePath                 string
+	FileLanguage             string
+	CodeSmells               int
+	SqaleIndex               string
+	SqaleRating              string
+	Bugs                     int
+	ReliabilityRating        string
+	Vulnerabilities          int
+	SecurityRating           string
+	SecurityHotspots         int
+	SecurityHotspotsReviewed float64
+	SecurityReviewRating     string
+	Ncloc                    int
+	Coverage                 float64
+	LinesToCover             int
+	DuplicatedLinesDensity   float64
+	DuplicatedBlocks         int
 	common.NoPKModel
 }
 
