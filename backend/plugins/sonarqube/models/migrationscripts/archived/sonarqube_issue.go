@@ -24,12 +24,12 @@ import (
 
 type SonarqubeIssue struct {
 	ConnectionId uint64           `gorm:"primaryKey"`
-	BatchId      string           `json:"batchId" gorm:"type:varchar(100)"` // from collection time
 	Key          string           `json:"key" gorm:"primaryKey"`
-	Rule         string           `json:"rule"`
-	Severity     string           `json:"severity"`
-	Component    string           `json:"component"`
-	Project      string           `json:"project"`
+	Rule         string           `json:"rule" gorm:"type:varchar(255)"`
+	Severity     string           `json:"severity" gorm:"type:varchar(255)"`
+	Component    string           `json:"component" gorm:"type:varchar(255)"`
+	Project      string           `gorm:"index;type:varchar(255)"`          //domain project key
+	BatchId      string           `json:"batchId" gorm:"type:varchar(100)"` // from collection time
 	Line         int              `json:"line"`
 	Status       string           `json:"status"`
 	Message      string           `json:"message"`

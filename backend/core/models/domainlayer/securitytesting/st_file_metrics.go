@@ -25,10 +25,10 @@ type StFileMetrics struct {
 	domainlayer.DomainEntity
 	ComponentKey             string
 	Project                  string  `gorm:"index;type:varchar(255)"` //domain project key
+	BatchID                  string  `json:"batch_id"`
 	FileName                 string  `json:"file_name"`
 	FilePath                 string  `json:"file_path"`
 	FileLanguage             string  `json:"file_language"`
-	BatchID                  string  `json:"batch_id"`
 	CodeSmells               int     `json:"code_smells"`
 	SqaleIndex               string  `json:"sqale_index"`
 	SqaleRating              string  `json:"sqale_rating"`

@@ -37,8 +37,8 @@ func ConvertIssueCodeBlocks(taskCtx plugin.SubTaskContext) errors.Error {
 
 	cursor, err := db.Cursor(
 		dal.From("_tool_sonarqube_issue_code_blocks icb"),
-		dal.Join("_tool_sonarqube_issues i on i.key = icb.issue_key"),
-		dal.Where("connection_id = ? and project = ?", data.Options.ConnectionId, data.Options.ProjectKey))
+		dal.Join("left join _tool_sonarqube_issues i on i.`key` = icb.issue_key"),
+		dal.Where("icb.connection_id = ? and project = ?", data.Options.ConnectionId, data.Options.ProjectKey))
 	if err != nil {
 		return err
 	}
@@ -53,15 +53,14 @@ func ConvertIssueCodeBlocks(taskCtx plugin.SubTaskContext) errors.Error {
 		Convert: func(inputRow interface{}) ([]interface{}, errors.Error) {
 			sonarqubeIssueCodeBlock := inputRow.(*models.SonarqubeIssueCodeBlock)
 			domainIssueCodeBlock := &securitytesting.StIssueCodeBlock{
-				DomainEntity:     domainlayer.DomainEntity{Id: idGen.Generate(data.Options.ConnectionId, sonarqubeIssueCodeBlock.Id)},
-				IssueCodeBlockId: sonarqubeIssueCodeBlock.Id,
-				IssueKey:         issueIdGen.Generate(data.Options.ConnectionId, sonarqubeIssueCodeBlock.IssueKey),
-				Component:        sonarqubeIssueCodeBlock.Component,
-				Msg:              sonarqubeIssueCodeBlock.Msg,
-				StartLine:        sonarqubeIssueCodeBlock.StartLine,
-				EndLine:          sonarqubeIssueCodeBlock.EndLine,
-				StartOffset:      sonarqubeIssueCodeBlock.StartOffset,
-				EndOffset:        sonarqubeIssueCodeBlock.EndOffset,
+				DomainEntity: domainlayer.DomainEntity{Id: idGen.Generate(data.Options.ConnectionId, sonarqubeIssueCodeBlock.Id)},
+				IssueKey:     issueIdGen.Generate(data.Options.ConnectionId, sonarqubeIssueCodeBlock.IssueKey),
+				Component:    sonarqubeIssueCodeBlock.Component,
+				Msg:          sonarqubeIssueCodeBlock.Msg,
+				StartLine:    sonarqubeIssueCodeBlock.StartLine,
+				EndLine:      sonarqubeIssueCodeBlock.EndLine,
+				StartOffset:  sonarqubeIssueCodeBlock.StartOffset,
+				EndOffset:    sonarqubeIssueCodeBlock.EndOffset,
 			}
 
 			return []interface{}{
