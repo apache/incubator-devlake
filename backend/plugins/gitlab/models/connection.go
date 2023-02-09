@@ -30,27 +30,18 @@ import (
 type GitlabConn struct {
 	api.RestConnection `mapstructure:",squash"`
 	api.AccessToken    `mapstructure:",squash"`
-	IsPrivateToken     bool                `gorm:"-"`
-	UserId             int                 `gorm:"-"`
-	Version            *ApiVersionResponse `gorm:"-"`
 }
 
-// SetupAuthentication sets up the HTTP Request Authentication
-func (conn *GitlabConn) SetupAuthentication(req *http.Request) errors.Error {
-	if conn.IsPrivateToken {
-		req.Header.Set("Private-Token", conn.Token)
-	} else {
-		req.Header.Set("Authorization", fmt.Sprintf("Bearer %v", conn.Token))
-	}
-	return nil
-}
+const GitlabApiClientData_UserId string = "UserId"
+const GitlabApiClientData_ApiVersion string = "ApiVersion"
 
 // PrepareApiClient test api and set the IsPrivateToken,version,UserId and so on.
 func (conn *GitlabConn) PrepareApiClient(apiClient apihelperabstract.ApiClientAbstract) errors.Error {
-	conn.IsPrivateToken = false
+	header1 := http.Header{}
+	header1.Set("Authorization", fmt.Sprintf("Bearer %v", conn.Token))
 	// test request for access token
 	userResBody := &ApiUserResponse{}
-	res, err := apiClient.Get("user", nil, nil)
+	res, err := apiClient.Get("user", nil, header1)
 	if res.StatusCode != http.StatusUnauthorized {
 		if err != nil {
 			return errors.Convert(err)
@@ -63,9 +54,13 @@ func (conn *GitlabConn) PrepareApiClient(apiClient apihelperabstract.ApiClientAb
 		if res.StatusCode != http.StatusOK {
 			return errors.HttpStatus(res.StatusCode).New("unexpected status code while testing connection")
 		}
+		apiClient.SetHeaders(map[string]string{
+			"Authorization": fmt.Sprintf("Bearer %v", conn.Token),
+		})
 	} else {
-		conn.IsPrivateToken = true
-		res, err = apiClient.Get("user", nil, nil)
+		header2 := http.Header{}
+		header2.Set("Private-Token", conn.Token)
+		res, err = apiClient.Get("user", nil, header2)
 		if err != nil {
 			return errors.Convert(err)
 		}
@@ -77,8 +72,10 @@ func (conn *GitlabConn) PrepareApiClient(apiClient apihelperabstract.ApiClientAb
 		if res.StatusCode != http.StatusOK {
 			return errors.HttpStatus(res.StatusCode).New("unexpected status code while testing connection[PrivateToken]")
 		}
+		apiClient.SetHeaders(map[string]string{
+			"Private-Token": conn.Token,
+		})
 	}
-	conn.UserId = userResBody.Id
 	// get gitlab version
 	versionResBody := &ApiVersionResponse{}
 	res, err = apiClient.Get("version", nil, nil)
@@ -91,7 +88,8 @@ func (conn *GitlabConn) PrepareApiClient(apiClient apihelperabstract.ApiClientAb
 		return errors.Convert(err)
 	}
 
-	conn.Version = versionResBody
+	apiClient.SetData(GitlabApiClientData_UserId, userResBody.Id)
+	apiClient.SetData(GitlabApiClientData_ApiVersion, versionResBody.Version)
 
 	return nil
 }

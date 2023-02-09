@@ -65,7 +65,7 @@ var ExtractApiPipelinesMeta = plugin.SubTaskMeta{
 func ExtractApiPipelines(taskCtx plugin.SubTaskContext) errors.Error {
 	rawDataSubTaskArgs, data := CreateRawDataSubTaskArgs(taskCtx, RAW_PIPELINE_TABLE)
 
-	lostdetaildata := false
+	needDetail := false
 
 	extractor, err := api.NewApiExtractor(api.ApiExtractorArgs{
 		RawDataSubTaskArgs: *rawDataSubTaskArgs,
@@ -82,7 +82,7 @@ func ExtractApiPipelines(taskCtx plugin.SubTaskContext) errors.Error {
 			}
 
 			if gitlabApiPipeline.CreatedAt == nil && gitlabApiPipeline.UpdatedAt == nil {
-				lostdetaildata = true
+				needDetail = true
 			}
 
 			gitlabPipeline := &models.GitlabPipeline{
@@ -124,7 +124,7 @@ func ExtractApiPipelines(taskCtx plugin.SubTaskContext) errors.Error {
 
 	// If lost the detail info it means we have in the old version gitlab
 	// we should collect and Extract the detail for it
-	if lostdetaildata {
+	if needDetail {
 		err = CollectApiPipelineDetails(taskCtx)
 		if err != nil {
 			return err

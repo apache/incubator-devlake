@@ -22,12 +22,14 @@ import (
 	gocontext "context"
 	"crypto/tls"
 	"encoding/json"
+	"encoding/xml"
 	"fmt"
 	"io"
 	"net/http"
 	"net/url"
 	"regexp"
 	"strings"
+	"sync"
 	"time"
 	"unicode/utf8"
 
@@ -44,9 +46,12 @@ var ErrIgnoreAndContinue = errors.Default.New("ignore and continue")
 
 // ApiClient is designed for simple api requests
 type ApiClient struct {
-	client        *http.Client
-	endpoint      string
-	headers       map[string]string
+	client     *http.Client
+	endpoint   string
+	headers    map[string]string
+	data       map[string]interface{}
+	data_mutex sync.Mutex
+
 	beforeRequest common.ApiClientBeforeRequest
 	afterResponse common.ApiClientAfterResponse
 	ctx           gocontext.Context
@@ -63,6 +68,14 @@ func NewApiClientFromConnection(
 	if err != nil {
 		return nil, err
 	}
+
+	// if connection requires authorization
+	if authenticator, ok := connection.(aha.ApiAuthenticator); ok {
+		apiClient.SetBeforeFunction(func(req *http.Request) errors.Error {
+			return authenticator.SetupAuthentication(req)
+		})
+	}
+
 	// if connection needs to prepare the ApiClient, i.e. fetch token for future requests
 	if prepareApiClient, ok := connection.(aha.PrepareApiClient); ok {
 		err = prepareApiClient.PrepareApiClient(apiClient)
@@ -70,12 +83,7 @@ func NewApiClientFromConnection(
 			return nil, err
 		}
 	}
-	// if connection requires authorization
-	if authenticator, ok := connection.(aha.ApiAuthenticator); ok {
-		apiClient.SetBeforeFunction(func(req *http.Request) errors.Error {
-			return authenticator.SetupAuthentication(req)
-		})
-	}
+
 	return apiClient, nil
 }
 
@@ -176,6 +184,26 @@ func (apiClient *ApiClient) SetTimeout(timeout time.Duration) {
 // GetTimeout FIXME ...
 func (apiClient *ApiClient) GetTimeout() time.Duration {
 	return apiClient.client.Timeout
+}
+
+// SetData FIXME ...
+func (apiClient *ApiClient) SetData(name string, data interface{}) {
+	apiClient.data_mutex.Lock()
+
+	apiClient.data[name] = data
+
+	apiClient.data_mutex.Unlock()
+}
+
+// GetData FIXME ...
+func (apiClient *ApiClient) GetData(name string) interface{} {
+	apiClient.data_mutex.Lock()
+
+	data := apiClient.data[name]
+
+	apiClient.data_mutex.Unlock()
+
+	return data
 }
 
 // SetHeaders FIXME ...
@@ -345,6 +373,20 @@ func UnmarshalResponse(res *http.Response, v interface{}) errors.Error {
 	err = errors.Convert(json.Unmarshal(resBody, &v))
 	if err != nil {
 		return errors.Default.Wrap(err, fmt.Sprintf("error decoding response from %s: raw response: %s", res.Request.URL.String(), string(resBody)))
+	}
+	return nil
+}
+
+// UnmarshalResponseXML FIXME ...
+func UnmarshalResponseXML(res *http.Response, v interface{}) errors.Error {
+	defer res.Body.Close()
+	resBody, err := io.ReadAll(res.Body)
+	if err != nil {
+		return errors.Default.Wrap(err, fmt.Sprintf("error reading response from %s", res.Request.URL.String()))
+	}
+	err = errors.Convert(xml.Unmarshal(resBody, &v))
+	if err != nil {
+		return errors.Default.Wrap(err, fmt.Sprintf("error decoding XML response from %s: raw response: %s", res.Request.URL.String(), string(resBody)))
 	}
 	return nil
 }

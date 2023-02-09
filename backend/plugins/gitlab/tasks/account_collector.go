@@ -19,13 +19,14 @@ package tasks
 
 import (
 	"encoding/json"
-	"fmt"
 	"net/http"
 	"net/url"
 
 	"github.com/apache/incubator-devlake/core/errors"
 	"github.com/apache/incubator-devlake/core/plugin"
 	"github.com/apache/incubator-devlake/helpers/pluginhelper/api"
+	"github.com/apache/incubator-devlake/plugins/gitlab/models"
+	"golang.org/x/mod/semver"
 )
 
 const RAW_USER_TABLE = "gitlab_api_users"
@@ -43,17 +44,9 @@ func CollectAccounts(taskCtx plugin.SubTaskContext) errors.Error {
 	logger := taskCtx.GetLogger()
 	logger.Info("collect gitlab users")
 
-	// test if we can use the "/projects/{{ .Params.ProjectId }}/members/all"
-	// before the gitlab v13.11 it can not be used
-	res, err := data.ApiClient.Get(fmt.Sprintf("/projects/%d/members/all", data.Options.ProjectId), url.Values{}, (http.Header)(nil))
-	if err != nil {
-		logger.Error(err, "test members/all failed")
-		return err
-	}
 	// it means we can not use /members/all to get the data
 	urlTemplate := "/projects/{{ .Params.ProjectId }}/members/all"
-	//if semver.Compare(taskCtx.GetConnection().Version.version, "13.11") < 0 {
-	if res.StatusCode == http.StatusBadRequest {
+	if semver.Compare(data.ApiClient.GetData(models.GitlabApiClientData_ApiVersion).(string), "13.11") < 0 {
 		urlTemplate = "/projects/{{ .Params.ProjectId }}/members/"
 	}
 
