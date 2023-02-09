@@ -22,13 +22,13 @@ import "github.com/apache/incubator-devlake/core/models/migrationscripts/archive
 type SonarqubeIssueCodeBlock struct {
 	ConnectionId uint64 `gorm:"primaryKey"`
 	Id           string `gorm:"primaryKey"`
-	IssueKey     string `json:"key" gorm:"index"`
-	Component    string `json:"component" gorm:"index"`
-	StartLine    int    `json:"startLine" `
-	EndLine      int    `json:"endLine" `
-	StartOffset  int    `json:"startOffset" `
-	EndOffset    int    `json:"endOffset" `
-	Msg          string `json:"msg" `
+	IssueKey     string `gorm:"index"`
+	Component    string `gorm:"index"`
+	StartLine    int
+	EndLine      int
+	StartOffset  int
+	EndOffset    int
+	Msg          string
 	archived.NoPKModel
 }
 

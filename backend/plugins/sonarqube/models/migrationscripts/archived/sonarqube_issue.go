@@ -23,29 +23,29 @@ import (
 )
 
 type SonarqubeIssue struct {
-	ConnectionId uint64           `gorm:"primaryKey"`
-	IssueKey     string           `json:"key" gorm:"primaryKey"`
-	Rule         string           `json:"rule" gorm:"type:varchar(255)"`
-	Severity     string           `json:"severity" gorm:"type:varchar(255)"`
-	Component    string           `json:"component" gorm:"type:varchar(255)"`
-	ProjectKey   string           `gorm:"index;type:varchar(255)"`          //domain project key
-	BatchId      string           `json:"batchId" gorm:"type:varchar(100)"` // from collection time
-	Line         int              `json:"line"`
-	Status       string           `json:"status"`
-	Message      string           `json:"message"`
-	Debt         string           `json:"debt"`
-	Effort       string           `json:"effort"`
-	Author       string           `json:"author"`
-	Hash         string           `json:"hash"`
-	Tags         string           `json:"tags"`
-	Type         string           `json:"type"`
-	Scope        string           `json:"scope"`
-	StartLine    int              `json:"startLine"`
-	EndLine      int              `json:"endLine"`
-	StartOffset  int              `json:"startOffset"`
-	EndOffset    int              `json:"endOffset"`
-	CreationDate *api.Iso8601Time `json:"creationDate"`
-	UpdateDate   *api.Iso8601Time `json:"updateDate"`
+	ConnectionId uint64 `gorm:"primaryKey"`
+	IssueKey     string `gorm:"primaryKey"`
+	Rule         string `gorm:"type:varchar(255)"`
+	Severity     string `gorm:"type:varchar(255)"`
+	Component    string `gorm:"type:varchar(255)"`
+	ProjectKey   string `gorm:"index;type:varchar(255)"` //domain project key
+	BatchId      string `gorm:"type:varchar(100)"`       // from collection time
+	Line         int
+	Status       string
+	Message      string
+	Debt         string
+	Effort       string
+	Author       string
+	Hash         string
+	Tags         string
+	Type         string
+	Scope        string
+	StartLine    int
+	EndLine      int
+	StartOffset  int
+	EndOffset    int
+	CreationDate *api.Iso8601Time
+	UpdateDate   *api.Iso8601Time
 	archived.NoPKModel
 }
 

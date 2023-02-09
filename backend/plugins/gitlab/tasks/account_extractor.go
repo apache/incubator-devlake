@@ -73,15 +73,17 @@ func ExtractAccounts(taskCtx plugin.SubTaskContext) errors.Error {
 		return err
 	}
 
-	if semver.Compare(data.ApiClient.GetData(models.GitlabApiClientData_ApiVersion).(string), "v13.11") < 0 {
-		err = CollectAccountDetails(taskCtx)
-		if err != nil {
-			return err
-		}
+	if version, ok := data.ApiClient.GetData(models.GitlabApiClientData_ApiVersion).(string); ok {
+		if semver.Compare(version, "v13.11") < 0 && version != "" {
+			err = CollectAccountDetails(taskCtx)
+			if err != nil {
+				return err
+			}
 
-		err = ExtractAccountDetails(taskCtx)
-		if err != nil {
-			return err
+			err = ExtractAccountDetails(taskCtx)
+			if err != nil {
+				return err
+			}
 		}
 	}
 
