@@ -72,4 +72,5 @@ var CollectFilemetricsMeta = plugin.SubTaskMeta{
 	EntryPoint:       CollectFilemetrics,
 	EnabledByDefault: true,
 	Description:      "Collect Filemetrics data from Sonarqube api",
+	DomainTypes:      []string{plugin.DOMAIN_TYPE_SECURITY_TESTING},
 }

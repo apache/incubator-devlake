@@ -17,48 +17,41 @@ limitations under the License.
 
 package api
 
-import (
-	"github.com/apache/incubator-devlake/plugins/jira/tasks"
-)
-
-// @Summary blueprints setting for jira
-// @Description blueprint setting for jira
-// @Tags plugins/jira
+// @Summary blueprints setting for sonarqube
+// @Description blueprint setting for sonarqube
+// @Tags plugins/sonarqube
 // @Accept application/json
-// @Param blueprint-setting body JiraBlueprintSetting true "json"
-// @Router /blueprints/jira/blueprint-setting [post]
+// @Param blueprint-setting body SonarqubeBlueprintSetting true "json"
+// @Router /blueprints/sonarqube/blueprint-setting [post]
 func _() {}
 
-type JiraBlueprintSetting []struct {
+type SonarqubeBlueprintSetting []struct {
 	Version     string `json:"version"`
 	Connections []struct {
 		Plugin       string `json:"plugin"`
 		ConnectionID int    `json:"connectionId"`
 		Scope        []struct {
-			Transformation tasks.JiraTransformationRule `json:"transformation"`
-			Options        struct {
-				BoardId uint64 `json:"boardId"`
-				Since   string `json:"since"`
+			Options struct {
+				Id int `json:"id"`
 			} `json:"options"`
 			Entities []string `json:"entities"`
 		} `json:"scopes"`
 	} `json:"connections"`
 }
 
-// @Summary pipelines plan for jira
-// @Description pipelines plan for jira
-// @Tags plugins/jira
+// @Summary pipelines plan for sonarqube
+// @Description pipelines plan for sonarqube
+// @Tags plugins/sonarqube
 // @Accept application/json
-// @Param pipeline-plan body JiraPipelinePlan true "json"
-// @Router /pipelines/jira/pipeline-plan [post]
+// @Param pipeline-plan body SonarqubePipelinePlan true "json"
+// @Router /pipelines/sonarqube/pipeline-plan [post]
 func _() {}
 
-type JiraPipelinePlan [][]struct {
+type SonarqubePipelinePlan [][]struct {
 	Plugin   string   `json:"plugin"`
 	Subtasks []string `json:"subtasks"`
 	Options  struct {
-		BoardID             int                          `json:"boardId"`
-		ConnectionID        int                          `json:"connectionId"`
-		TransformationRules tasks.JiraTransformationRule `json:"transformationRules"`
+		ProjectKey   string `json:"projectKey"`
+		ConnectionID int    `json:"connectionId"`
 	} `json:"options"`
 }

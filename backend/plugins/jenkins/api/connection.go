@@ -167,7 +167,7 @@ type JenkinsBlueprintSetting []struct {
 			Options struct {
 			} `json:"options"`
 			Entities []string `json:"entities"`
-		} `json:"scope"`
+		} `json:"scopes"`
 	} `json:"connections"`
 }
 

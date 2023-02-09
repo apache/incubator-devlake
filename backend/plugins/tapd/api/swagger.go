@@ -39,7 +39,7 @@ type TapdBlueprintSetting []struct {
 				TransformationRules TransformationRules `json:"transformationRules"`
 			} `json:"options"`
 			Entities []string `json:"entities"`
-		} `json:"scope"`
+		} `json:"scopes"`
 	} `json:"connections"`
 }
 
