@@ -17,41 +17,35 @@
  */
 
 import type { PluginConfigType } from '@/plugins';
-
-import {
-  BaseConnectionConfig,
-  ConnectionName,
-  ConnectionEndpoint,
-  ConnectionUsername,
-  ConnectionPassword,
-  ConnectionProxy,
-  ConnectionRatelimit,
-} from '../base';
+import { PluginType } from '@/plugins';
 
 import Icon from './assets/icon.svg';
 
 export const JenkinsConfig: PluginConfigType = {
-  ...BaseConnectionConfig,
+  type: PluginType.Connection,
   plugin: 'jenkins',
   name: 'Jenkins',
   icon: Icon,
+  sort: 4,
   connection: {
-    initialValues: {
-      name: 'Jenkins',
-      endpoint: 'https://api.jenkins.io/',
-      rateLimitPerHour: 10000,
-    },
+    docLink: 'https://devlake.apache.org/docs/Configuration/Jenkins',
     fields: [
-      ConnectionName({
-        placeholder: 'eg. Jenkins',
-      }),
-      ConnectionEndpoint({
-        placeholder: 'eg. https://api.jenkins.io/',
-      }),
-      ConnectionUsername(),
-      ConnectionPassword(),
-      ConnectionProxy(),
-      ConnectionRatelimit(),
+      'name',
+      {
+        key: 'endpoint',
+        subLabel: 'Provide the Jenkins instance API endpoint. E.g. https://api.jenkins.io',
+      },
+      'username',
+      'password',
+      'proxy',
+      {
+        key: 'rateLimitPerHour',
+        subLabel:
+          'By default, DevLake uses 10,000 requests/hour for data collection for Jenkins. But you can adjust the collection speed by setting up your desirable rate limit.',
+        learnMore: 'https://devlake.apache.org/docs/Configuration/Jenkins/#fixed-rate-limit-optional',
+        externalInfo: 'Jenkins does not specify a maximum value of rate limit.',
+        defaultValue: 10000,
+      },
     ],
   },
   entities: ['CICD'],

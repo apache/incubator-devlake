@@ -27,18 +27,12 @@ export type PluginConfigConnectionType = {
   plugin: string;
   name: string;
   icon: string;
+  sort: number;
   isBeta?: boolean;
   connection: {
+    docLink: string;
     initialValues?: Record<string, any>;
-    fields: Array<{
-      key: string;
-      type: 'text' | 'password' | 'switch' | 'rateLimit' | 'githubToken' | 'gitlabToken' | 'jiraAuth';
-      label?: string;
-      required?: boolean;
-      placeholder?: string;
-      tooltip?: string;
-      checkError?: (value: any) => boolean;
-    }>;
+    fields: any[];
   };
   entities: string[];
   transformation: any;

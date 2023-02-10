@@ -16,40 +16,40 @@
  *
  */
 
-import type { PluginConfigType } from '@/plugins';
+import React from 'react';
 
-import {
-  BaseConnectionConfig,
-  ConnectionName,
-  ConnectionEndpoint,
-  ConnectionProxy,
-  ConnectionRatelimit,
-  ConnectionJIRAAuth,
-} from '../base';
+import type { PluginConfigType } from '@/plugins';
+import { PluginType } from '@/plugins';
 
 import Icon from './assets/icon.svg';
+import { Auth } from './connection-fields';
 
 export const JIRAConfig: PluginConfigType = {
-  ...BaseConnectionConfig,
+  type: PluginType.Connection,
   plugin: 'jira',
   name: 'JIRA',
   icon: Icon,
+  sort: 3,
   connection: {
-    initialValues: {
-      name: 'JIRA',
-      endpoint: 'https://your-domain.atlassian.net/rest/',
-      rateLimitPerHour: 3000,
-    },
+    docLink: 'https://devlake.apache.org/docs/Configuration/Jira',
     fields: [
-      ConnectionName({
-        placeholder: 'eg. JIRA',
-      }),
-      ConnectionEndpoint({
-        placeholder: 'eg. https://your-domain.atlassian.net/rest/',
-      }),
-      ConnectionJIRAAuth(),
-      ConnectionProxy(),
-      ConnectionRatelimit(),
+      'name',
+      {
+        key: 'endpoint',
+        subLabel:
+          'Provide the Jira instance API endpoint. For Jira Cloud, e.g. https://your-company.atlassian.net/rest/',
+      },
+      (props: any) => <Auth {...props} />,
+      'proxy',
+      {
+        key: 'rateLimitPerHour',
+        subLabel:
+          'By default, DevLake uses dynamic rate limit for optimized data collection. But you can adjust the collection speed by setting up your desirable rate limit.',
+        learnMore: 'https://devlake.apache.org/docs/Configuration/Jira/#fixed-rate-limit-optional',
+        externalInfo:
+          'Jira Cloud does not specify a maximum value of rate limit. For Jira Server, please contact your admin for more information.',
+        defaultValue: 10000,
+      },
     ],
   },
   entities: ['TICKET', 'CROSS'],

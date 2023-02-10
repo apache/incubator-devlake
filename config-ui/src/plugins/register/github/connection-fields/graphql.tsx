@@ -16,13 +16,35 @@
  *
  */
 
-import { PluginType } from '../../types';
+import React from 'react';
+import { FormGroup, Switch } from '@blueprintjs/core';
 
-import Icon from './assets/icon.svg';
+import * as S from './styled';
 
-export const BasePipelineConfig = {
-  type: PluginType.Pipeline,
-  plugin: undefined,
-  name: undefined,
-  icon: Icon,
-} as const;
+interface Props {
+  form: any;
+  setForm: any;
+}
+
+export const Graphql = ({ form, setForm }: Props) => {
+  const handleChange = (e: React.FormEvent<HTMLInputElement>) => {
+    const enableGraphql = (e.target as HTMLInputElement).checked;
+    setForm({
+      ...form,
+      enableGraphql,
+    });
+  };
+
+  return (
+    <FormGroup
+      label={<S.Label>Use GraphQL APIs</S.Label>}
+      subLabel={
+        <S.LabelDescription>
+          GraphQL APIs are 10+ times faster than REST APIs, but they may not be supported in GitHub Server.
+        </S.LabelDescription>
+      }
+    >
+      <Switch checked={form.enableGraphql ?? false} onChange={handleChange} />
+    </FormGroup>
+  );
+};
