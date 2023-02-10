@@ -28,13 +28,39 @@ import (
 var _ plugin.SubTaskEntryPoint = ExtractProjects
 
 func ExtractProjects(taskCtx plugin.SubTaskContext) errors.Error {
-	rawDataSubTaskArgs, data := CreateRawDataSubTaskArgs(taskCtx, RAW_PROJECTS_TABLE)
+	// As we need to assign data.LastAnalysisDate, we can not use CreateRawDataSubTaskArgs
+	data := taskCtx.GetData().(*SonarqubeTaskData)
+	var params = SonarqubeApiParams{
+		ConnectionId: data.Options.ConnectionId,
+		ProjectKey:   data.Options.ProjectKey,
+	}
+	rawDataSubTaskArgs := &helper.RawDataSubTaskArgs{
+		Ctx:    taskCtx,
+		Params: params,
+		Table:  RAW_PROJECTS_TABLE,
+	}
 	extractor, err := helper.NewApiExtractor(helper.ApiExtractorArgs{
 		RawDataSubTaskArgs: *rawDataSubTaskArgs,
 		Extract: func(resData *helper.RawData) ([]interface{}, errors.Error) {
-			body := &models.SonarqubeProject{}
-			err := errors.Convert(json.Unmarshal(resData.Data, body))
-			body.ConnectionId = data.Options.ConnectionId
+			var res struct {
+				ProjectKey       string              `json:"key"`
+				Name             string              `json:"name"`
+				Qualifier        string              `json:"qualifier"`
+				Visibility       string              `json:"visibility"`
+				LastAnalysisDate *helper.Iso8601Time `json:"lastAnalysisDate"`
+				Revision         string              `json:"revision"`
+			}
+			err := errors.Convert(json.Unmarshal(resData.Data, &res))
+			body := &models.SonarqubeProject{
+				ConnectionId:     data.Options.ConnectionId,
+				ProjectKey:       res.ProjectKey,
+				Name:             res.Name,
+				Qualifier:        res.Qualifier,
+				Visibility:       res.Visibility,
+				LastAnalysisDate: res.LastAnalysisDate,
+				Revision:         res.Revision,
+			}
+			data.LastAnalysisDate = body.LastAnalysisDate.ToNullableTime()
 			if err != nil {
 				return nil, err
 			}
