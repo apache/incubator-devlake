@@ -28,13 +28,11 @@ import (
 	"github.com/apache/incubator-devlake/plugins/gitlab/models"
 )
 
-func NewGitlabApiClient(taskCtx plugin.TaskContext, connection *models.GitlabConnection) (*api.ApiAsyncClient, errors.Error) {
-	// create synchronize api client so we can calculate api rate limit dynamically
-	apiClient, err := api.NewApiClientFromConnection(taskCtx.GetContext(), taskCtx, connection)
-	if err != nil {
-		return nil, err
-	}
-
+func CreateGitlabAsyncApiClient(
+	taskCtx plugin.TaskContext,
+	apiClient *api.ApiClient,
+	connection *models.GitlabConnection,
+) (*api.ApiAsyncClient, errors.Error) {
 	// create rate limit calculator
 	rateLimiter := &api.ApiRateLimitCalculator{
 		UserRateLimitPerHour: connection.RateLimitPerHour,
@@ -60,6 +58,15 @@ func NewGitlabApiClient(taskCtx plugin.TaskContext, connection *models.GitlabCon
 		return nil, err
 	}
 	return asyncApiClient, nil
+}
+
+func NewGitlabApiClient(taskCtx plugin.TaskContext, connection *models.GitlabConnection) (*api.ApiAsyncClient, errors.Error) {
+	apiClient, err := api.NewApiClientFromConnection(taskCtx.GetContext(), taskCtx, connection)
+	if err != nil {
+		return nil, err
+	}
+
+	return CreateGitlabAsyncApiClient(taskCtx, apiClient, connection)
 }
 
 func ignoreHTTPStatus403(res *http.Response) errors.Error {

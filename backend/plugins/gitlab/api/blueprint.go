@@ -24,8 +24,6 @@ import (
 	"io"
 	"net/http"
 	"net/url"
-	"strings"
-	"time"
 
 	"github.com/apache/incubator-devlake/core/errors"
 	"github.com/apache/incubator-devlake/core/models/domainlayer/didgen"
@@ -44,21 +42,16 @@ func MakePipelinePlan(subtaskMetas []plugin.SubTaskMeta, connectionId uint64, sc
 	if err != nil {
 		return nil, err
 	}
-	token := strings.Split(connection.Token, ",")[0]
 
-	apiClient, err := api.NewApiClient(
+	apiClient, err := api.NewApiClientFromConnection(
 		context.TODO(),
-		connection.Endpoint,
-		map[string]string{
-			"Authorization": fmt.Sprintf("Bearer %s", token),
-		},
-		10*time.Second,
-		connection.Proxy,
 		basicRes,
+		connection,
 	)
 	if err != nil {
 		return nil, err
 	}
+
 	plan, err := makePipelinePlan(subtaskMetas, scope, apiClient, connection)
 	if err != nil {
 		return nil, err

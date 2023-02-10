@@ -26,6 +26,8 @@ import (
 
 // ApiClientAbstract defines the functionalities needed by all plugins for Synchronized API Request
 type ApiClientAbstract interface {
+	SetData(name string, data interface{})
+	GetData(name string) interface{}
 	SetHeaders(headers map[string]string)
 	Get(path string, query url.Values, headers http.Header) (*http.Response, errors.Error)
 	Post(path string, query url.Values, body interface{}, headers http.Header) (*http.Response, errors.Error)

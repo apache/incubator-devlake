@@ -20,14 +20,15 @@ package tasks
 import (
 	"encoding/json"
 	"fmt"
-	"github.com/apache/incubator-devlake/core/dal"
-	"github.com/apache/incubator-devlake/core/errors"
 	"io"
 	"net/http"
 	"net/url"
 	"reflect"
 	"strconv"
 	"time"
+
+	"github.com/apache/incubator-devlake/core/dal"
+	"github.com/apache/incubator-devlake/core/errors"
 
 	"github.com/apache/incubator-devlake/core/plugin"
 	helper "github.com/apache/incubator-devlake/helpers/pluginhelper/api"
@@ -73,6 +74,26 @@ func GetRawMessageFromResponse(res *http.Response) ([]json.RawMessage, errors.Er
 	}
 
 	return rawMessages, nil
+}
+
+func GetOneRawMessageFromResponse(res *http.Response) ([]json.RawMessage, errors.Error) {
+	rawMessage := json.RawMessage{}
+
+	if res == nil {
+		return nil, errors.Default.New("res is nil")
+	}
+	defer res.Body.Close()
+	resBody, err := io.ReadAll(res.Body)
+	if err != nil {
+		return nil, errors.Default.Wrap(err, fmt.Sprintf("error reading response from %s", res.Request.URL.String()))
+	}
+
+	err = errors.Convert(json.Unmarshal(resBody, &rawMessage))
+	if err != nil {
+		return nil, errors.Default.Wrap(err, fmt.Sprintf("error decoding response from %s. raw response was: %s", res.Request.URL.String(), string(resBody)))
+	}
+
+	return []json.RawMessage{rawMessage}, nil
 }
 
 func GetRawMessageCreatedAtAfter(createDateAfter *time.Time) func(res *http.Response) ([]json.RawMessage, errors.Error) {

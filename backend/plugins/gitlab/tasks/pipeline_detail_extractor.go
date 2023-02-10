@@ -26,44 +26,16 @@ import (
 	"github.com/apache/incubator-devlake/plugins/gitlab/models"
 )
 
-type ApiDetailedStatus struct {
-	Icon        string
-	Text        string
-	Label       string
-	Group       string
-	Tooltip     string
-	HasDetails  bool   `json:"has_details"`
-	DetailsPath string `json:"details_path"`
-	Favicon     string
-}
-
-type ApiPipeline struct {
-	Id       int `json:"id"`
-	Ref      string
-	Sha      string
-	Status   string
-	Tag      bool
-	Duration int
-	WebUrl   string `json:"web_url"`
-
-	CreatedAt  *api.Iso8601Time `json:"created_at"`
-	UpdatedAt  *api.Iso8601Time `json:"updated_at"`
-	StartedAt  *api.Iso8601Time `json:"started_at"`
-	FinishedAt *api.Iso8601Time `json:"finished_at"`
-
-	ApiDetailedStatus
-}
-
-var ExtractApiPipelinesMeta = plugin.SubTaskMeta{
-	Name:             "extractApiPipelines",
-	EntryPoint:       ExtractApiPipelines,
+var ExtractApiPipelineDetailsMeta = plugin.SubTaskMeta{
+	Name:             "extractApiPipelineDetails",
+	EntryPoint:       ExtractApiPipelineDetails,
 	EnabledByDefault: true,
-	Description:      "Extract raw pipelines data into tool layer table GitlabPipeline",
+	Description:      "Extract raw pipeline details data into tool layer table GitlabPipeline",
 	DomainTypes:      []string{plugin.DOMAIN_TYPE_CICD},
 }
 
-func ExtractApiPipelines(taskCtx plugin.SubTaskContext) errors.Error {
-	rawDataSubTaskArgs, data := CreateRawDataSubTaskArgs(taskCtx, RAW_PIPELINE_TABLE)
+func ExtractApiPipelineDetails(taskCtx plugin.SubTaskContext) errors.Error {
+	rawDataSubTaskArgs, data := CreateRawDataSubTaskArgs(taskCtx, RAW_PIPELINE_DETAILS_TABLE)
 
 	extractor, err := api.NewApiExtractor(api.ApiExtractorArgs{
 		RawDataSubTaskArgs: *rawDataSubTaskArgs,
@@ -78,7 +50,6 @@ func ExtractApiPipelines(taskCtx plugin.SubTaskContext) errors.Error {
 			if gitlabApiPipeline.UpdatedAt != nil && gitlabApiPipeline.CreatedAt != nil {
 				gitlabApiPipeline.Duration = int(gitlabApiPipeline.UpdatedAt.ToTime().Sub(gitlabApiPipeline.CreatedAt.ToTime()).Seconds())
 			}
-
 			gitlabPipeline := &models.GitlabPipeline{
 				GitlabId:         gitlabApiPipeline.Id,
 				ProjectId:        data.Options.ProjectId,
@@ -90,11 +61,10 @@ func ExtractApiPipelines(taskCtx plugin.SubTaskContext) errors.Error {
 				FinishedAt:       api.Iso8601TimeToTime(gitlabApiPipeline.FinishedAt),
 				Duration:         gitlabApiPipeline.Duration,
 				ConnectionId:     data.Options.ConnectionId,
-				IsDetailRequired: false,
+				IsDetailRequired: true,
 			}
-
-			if gitlabApiPipeline.CreatedAt == nil && gitlabApiPipeline.UpdatedAt == nil {
-				gitlabPipeline.IsDetailRequired = true
+			if err != nil {
+				return nil, err
 			}
 
 			pipelineProject := &models.GitlabPipelineProject{
@@ -116,10 +86,5 @@ func ExtractApiPipelines(taskCtx plugin.SubTaskContext) errors.Error {
 		return err
 	}
 
-	err = extractor.Execute()
-	if err != nil {
-		return err
-	}
-
-	return nil
+	return extractor.Execute()
 }
