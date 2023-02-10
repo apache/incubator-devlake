@@ -18,19 +18,32 @@ limitations under the License.
 package tasks
 
 import (
+	"reflect"
+
+	"github.com/apache/incubator-devlake/core/dal"
 	"github.com/apache/incubator-devlake/core/errors"
 	"github.com/apache/incubator-devlake/core/plugin"
 	helper "github.com/apache/incubator-devlake/helpers/pluginhelper/api"
 )
 
+const RAW_MERGE_REQUEST_DETAIL_TABLE = "gitlab_api_merge_request_details"
+
+var CollectApiMergeRequestDetailsMeta = plugin.SubTaskMeta{
+	Name:             "collectApiMergeRequestDetails",
+	EntryPoint:       CollectApiMergeRequestDetails,
+	EnabledByDefault: true,
+	Description:      "Collect merge request Details data from gitlab api",
+	DomainTypes:      []string{plugin.DOMAIN_TYPE_CODE_REVIEW},
+}
+
 func CollectApiMergeRequestDetails(taskCtx plugin.SubTaskContext) errors.Error {
-	rawDataSubTaskArgs, data := CreateRawDataSubTaskArgs(taskCtx, RAW_MERGE_REQUEST_TABLE)
+	rawDataSubTaskArgs, data := CreateRawDataSubTaskArgs(taskCtx, RAW_MERGE_REQUEST_DETAIL_TABLE)
 	collectorWithState, err := helper.NewApiCollectorWithState(*rawDataSubTaskArgs, data.CreatedDateAfter)
 	if err != nil {
 		return err
 	}
 
-	iterator, err := GetMergeRequestsIterator(taskCtx, collectorWithState)
+	iterator, err := GetMergeRequestDetailsIterator(taskCtx, collectorWithState)
 	if err != nil {
 		return err
 	}
@@ -50,4 +63,27 @@ func CollectApiMergeRequestDetails(taskCtx plugin.SubTaskContext) errors.Error {
 	}
 
 	return collectorWithState.Execute()
+}
+
+func GetMergeRequestDetailsIterator(taskCtx plugin.SubTaskContext, collectorWithState *helper.ApiCollectorStateManager) (*helper.DalCursorIterator, errors.Error) {
+	db := taskCtx.GetDal()
+	data := taskCtx.GetData().(*GitlabTaskData)
+	clauses := []dal.Clause{
+		dal.Select("gmr.gitlab_id, gmr.iid"),
+		dal.From("_tool_gitlab_merge_requests gmr"),
+		dal.Where(
+			`gmr.project_id = ? and gmr.connection_id = ? and gmr.is_detail_required = ?`,
+			data.Options.ProjectId, data.Options.ConnectionId, true,
+		),
+	}
+	if collectorWithState.CreatedDateAfter != nil {
+		clauses = append(clauses, dal.Where("gitlab_created_at > ?", *collectorWithState.CreatedDateAfter))
+	}
+	// construct the input iterator
+	cursor, err := db.Cursor(clauses...)
+	if err != nil {
+		return nil, err
+	}
+
+	return helper.NewDalCursorIterator(db, cursor, reflect.TypeOf(GitlabInput{}))
 }

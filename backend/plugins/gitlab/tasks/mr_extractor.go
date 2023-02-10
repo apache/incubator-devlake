@@ -97,22 +97,13 @@ func ExtractApiMergeRequests(taskCtx plugin.SubTaskContext) errors.Error {
 			return errors.Default.Wrap(err1, "regexp Compile prComponent failed")
 		}
 	}
-	needDetail := false
 
 	extractor, err := api.NewApiExtractor(api.ApiExtractorArgs{
 		RawDataSubTaskArgs: *rawDataSubTaskArgs,
 		Extract: func(row *api.RawData) ([]interface{}, errors.Error) {
 
-			// if we can not find merged_at and closed_at info in the detail
-			// we need get detail for gitlab v11
-			s := string(row.Data)
-			if !strings.Contains(s, "\"merged_at\":") {
-				if !strings.Contains(s, "\"closed_at\":") {
-					needDetail = true
-				}
-			}
-
 			mr := &MergeRequestRes{}
+			s := string(row.Data)
 			err := errors.Convert(json.Unmarshal(row.Data, mr))
 			if err != nil {
 				return nil, err
@@ -121,6 +112,14 @@ func ExtractApiMergeRequests(taskCtx plugin.SubTaskContext) errors.Error {
 			gitlabMergeRequest, err := convertMergeRequest(mr)
 			if err != nil {
 				return nil, err
+			}
+
+			// if we can not find merged_at and closed_at info in the detail
+			// we need get detail for gitlab v11
+			if !strings.Contains(s, "\"merged_at\":") {
+				if !strings.Contains(s, "\"closed_at\":") {
+					gitlabMergeRequest.IsDetailRequired = true
+				}
 			}
 
 			results := make([]interface{}, 0, len(mr.Reviewers)+1)
@@ -176,18 +175,6 @@ func ExtractApiMergeRequests(taskCtx plugin.SubTaskContext) errors.Error {
 		return err
 	}
 
-	if needDetail {
-		err = CollectApiMergeRequestDetails(taskCtx)
-		if err != nil {
-			return err
-		}
-
-		err = ExtractApiMergeRequestDetails(taskCtx)
-		if err != nil {
-			return err
-		}
-	}
-
 	return nil
 }
 
@@ -204,6 +191,7 @@ func convertMergeRequest(mr *MergeRequestRes) (*models.GitlabMergeRequest, error
 		WebUrl:           mr.WebUrl,
 		UserNotesCount:   mr.UserNotesCount,
 		WorkInProgress:   mr.WorkInProgress,
+		IsDetailRequired: false,
 		SourceBranch:     mr.SourceBranch,
 		TargetBranch:     mr.TargetBranch,
 		MergeCommitSha:   mr.MergeCommitSha,

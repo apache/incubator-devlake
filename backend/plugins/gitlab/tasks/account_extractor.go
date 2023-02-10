@@ -24,7 +24,6 @@ import (
 	"github.com/apache/incubator-devlake/core/plugin"
 	"github.com/apache/incubator-devlake/helpers/pluginhelper/api"
 	"github.com/apache/incubator-devlake/plugins/gitlab/models"
-	"golang.org/x/mod/semver"
 )
 
 var ExtractAccountsMeta = plugin.SubTaskMeta{
@@ -71,20 +70,6 @@ func ExtractAccounts(taskCtx plugin.SubTaskContext) errors.Error {
 	err = extractor.Execute()
 	if err != nil {
 		return err
-	}
-
-	if version, ok := data.ApiClient.GetData(models.GitlabApiClientData_ApiVersion).(string); ok {
-		if semver.Compare(version, "v13.11") < 0 && version != "" {
-			err = CollectAccountDetails(taskCtx)
-			if err != nil {
-				return err
-			}
-
-			err = ExtractAccountDetails(taskCtx)
-			if err != nil {
-				return err
-			}
-		}
 	}
 
 	return nil

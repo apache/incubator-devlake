@@ -25,12 +25,30 @@ import (
 	"github.com/apache/incubator-devlake/core/errors"
 	"github.com/apache/incubator-devlake/core/plugin"
 	"github.com/apache/incubator-devlake/helpers/pluginhelper/api"
+	"github.com/apache/incubator-devlake/plugins/gitlab/models"
+	"golang.org/x/mod/semver"
 )
 
+const RAW_USER_DETAIL_TABLE = "gitlab_api_user_details"
+
+var CollectAccountDetailsMeta = plugin.SubTaskMeta{
+	Name:             "collectAccountDetails",
+	EntryPoint:       CollectAccountDetails,
+	EnabledByDefault: true,
+	Description:      "collect gitlab user details",
+	DomainTypes:      []string{plugin.DOMAIN_TYPE_CROSS},
+}
+
 func CollectAccountDetails(taskCtx plugin.SubTaskContext) errors.Error {
-	rawDataSubTaskArgs, data := CreateRawDataSubTaskArgs(taskCtx, RAW_USER_TABLE)
+
+	rawDataSubTaskArgs, data := CreateRawDataSubTaskArgs(taskCtx, RAW_USER_DETAIL_TABLE)
 	logger := taskCtx.GetLogger()
-	logger.Info("collect gitlab users")
+	logger.Info("collect gitlab user details")
+
+	if !NeedAccountDetails(data.ApiClient) {
+		logger.Info("Don't need collect gitlab user details,skip")
+		return nil
+	}
 
 	iterator, err := GetAccountsIterator(taskCtx)
 	if err != nil {
@@ -61,6 +79,21 @@ func CollectAccountDetails(taskCtx plugin.SubTaskContext) errors.Error {
 	}
 
 	return collector.Execute()
+}
+
+// checking if we need detail data
+func NeedAccountDetails(apiClient *api.ApiAsyncClient) bool {
+	if apiClient == nil {
+		return false
+	}
+
+	if version, ok := apiClient.GetData(models.GitlabApiClientData_ApiVersion).(string); ok {
+		if semver.Compare(version, "v13.11") < 0 && version != "" {
+			return true
+		}
+	}
+
+	return false
 }
 
 func GetAccountsIterator(taskCtx plugin.SubTaskContext) (*api.DalCursorIterator, errors.Error) {

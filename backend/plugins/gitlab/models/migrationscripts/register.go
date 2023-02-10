@@ -31,5 +31,6 @@ func All() []plugin.MigrationScript {
 		new(fixDurationToFloat8),
 		new(addTransformationRule20221125),
 		new(addStdTypeToIssue221230),
+		new(addIsDetailRequired20230210),
 	}
 }

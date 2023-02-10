@@ -26,8 +26,24 @@ import (
 	"github.com/apache/incubator-devlake/plugins/gitlab/models"
 )
 
+var ExtractAccountDetailsMeta = plugin.SubTaskMeta{
+	Name:             "extractAccountDetails",
+	EntryPoint:       ExtractAccountDetails,
+	EnabledByDefault: true,
+	Description:      "Extract detail raw workspace data into tool layer table _tool_gitlab_accounts",
+	DomainTypes:      []string{plugin.DOMAIN_TYPE_CROSS},
+}
+
 func ExtractAccountDetails(taskCtx plugin.SubTaskContext) errors.Error {
-	rawDataSubTaskArgs, data := CreateRawDataSubTaskArgs(taskCtx, RAW_USER_TABLE)
+	rawDataSubTaskArgs, data := CreateRawDataSubTaskArgs(taskCtx, RAW_USER_DETAIL_TABLE)
+
+	logger := taskCtx.GetLogger()
+	logger.Info("Extract gitlab user details")
+
+	if !NeedAccountDetails(data.ApiClient) {
+		logger.Info("Don't need Extract gitlab user details,skip")
+		return nil
+	}
 
 	extractor, err := api.NewApiExtractor(api.ApiExtractorArgs{
 		RawDataSubTaskArgs: *rawDataSubTaskArgs,

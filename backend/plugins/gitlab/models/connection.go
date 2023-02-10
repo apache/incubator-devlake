@@ -131,5 +131,3 @@ type ApiUserResponse struct {
 func (GitlabConnection) TableName() string {
 	return "_tool_gitlab_connections"
 }
-
-type AeAppKey api.AppKey

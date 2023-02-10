@@ -65,8 +65,6 @@ var ExtractApiPipelinesMeta = plugin.SubTaskMeta{
 func ExtractApiPipelines(taskCtx plugin.SubTaskContext) errors.Error {
 	rawDataSubTaskArgs, data := CreateRawDataSubTaskArgs(taskCtx, RAW_PIPELINE_TABLE)
 
-	needDetail := false
-
 	extractor, err := api.NewApiExtractor(api.ApiExtractorArgs{
 		RawDataSubTaskArgs: *rawDataSubTaskArgs,
 		Extract: func(row *api.RawData) ([]interface{}, errors.Error) {
@@ -81,21 +79,22 @@ func ExtractApiPipelines(taskCtx plugin.SubTaskContext) errors.Error {
 				gitlabApiPipeline.Duration = int(gitlabApiPipeline.UpdatedAt.ToTime().Sub(gitlabApiPipeline.CreatedAt.ToTime()).Seconds())
 			}
 
-			if gitlabApiPipeline.CreatedAt == nil && gitlabApiPipeline.UpdatedAt == nil {
-				needDetail = true
+			gitlabPipeline := &models.GitlabPipeline{
+				GitlabId:         gitlabApiPipeline.Id,
+				ProjectId:        data.Options.ProjectId,
+				WebUrl:           gitlabApiPipeline.WebUrl,
+				Status:           gitlabApiPipeline.Status,
+				GitlabCreatedAt:  api.Iso8601TimeToTime(gitlabApiPipeline.CreatedAt),
+				GitlabUpdatedAt:  api.Iso8601TimeToTime(gitlabApiPipeline.UpdatedAt),
+				StartedAt:        api.Iso8601TimeToTime(gitlabApiPipeline.StartedAt),
+				FinishedAt:       api.Iso8601TimeToTime(gitlabApiPipeline.FinishedAt),
+				Duration:         gitlabApiPipeline.Duration,
+				ConnectionId:     data.Options.ConnectionId,
+				IsDetailRequired: false,
 			}
 
-			gitlabPipeline := &models.GitlabPipeline{
-				GitlabId:        gitlabApiPipeline.Id,
-				ProjectId:       data.Options.ProjectId,
-				WebUrl:          gitlabApiPipeline.WebUrl,
-				Status:          gitlabApiPipeline.Status,
-				GitlabCreatedAt: api.Iso8601TimeToTime(gitlabApiPipeline.CreatedAt),
-				GitlabUpdatedAt: api.Iso8601TimeToTime(gitlabApiPipeline.UpdatedAt),
-				StartedAt:       api.Iso8601TimeToTime(gitlabApiPipeline.StartedAt),
-				FinishedAt:      api.Iso8601TimeToTime(gitlabApiPipeline.FinishedAt),
-				Duration:        gitlabApiPipeline.Duration,
-				ConnectionId:    data.Options.ConnectionId,
+			if gitlabApiPipeline.CreatedAt == nil && gitlabApiPipeline.UpdatedAt == nil {
+				gitlabPipeline.IsDetailRequired = true
 			}
 
 			pipelineProject := &models.GitlabPipelineProject{
@@ -120,19 +119,6 @@ func ExtractApiPipelines(taskCtx plugin.SubTaskContext) errors.Error {
 	err = extractor.Execute()
 	if err != nil {
 		return err
-	}
-
-	// If lost the detail info it means we have in the old version gitlab
-	// we should collect and Extract the detail for it
-	if needDetail {
-		err = CollectApiPipelineDetails(taskCtx)
-		if err != nil {
-			return err
-		}
-		err = ExtractApiPipelineDetails(taskCtx)
-		if err != nil {
-			return err
-		}
 	}
 
 	return nil

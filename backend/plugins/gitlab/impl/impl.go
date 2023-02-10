@@ -19,6 +19,8 @@ package impl
 
 import (
 	"fmt"
+	"time"
+
 	"github.com/apache/incubator-devlake/core/context"
 	"github.com/apache/incubator-devlake/core/dal"
 	"github.com/apache/incubator-devlake/core/errors"
@@ -28,7 +30,6 @@ import (
 	"github.com/apache/incubator-devlake/plugins/gitlab/models"
 	"github.com/apache/incubator-devlake/plugins/gitlab/models/migrationscripts"
 	"github.com/apache/incubator-devlake/plugins/gitlab/tasks"
-	"time"
 )
 
 var _ interface {
@@ -98,17 +99,23 @@ func (p Gitlab) SubTaskMetas() []plugin.SubTaskMeta {
 		tasks.ExtractApiIssuesMeta,
 		tasks.CollectApiMergeRequestsMeta,
 		tasks.ExtractApiMergeRequestsMeta,
+		tasks.CollectApiMergeRequestDetailsMeta,
+		tasks.CollectApiMergeRequestDetailsMeta,
 		tasks.CollectApiMrNotesMeta,
 		tasks.ExtractApiMrNotesMeta,
 		tasks.CollectApiMrCommitsMeta,
 		tasks.ExtractApiMrCommitsMeta,
 		tasks.CollectApiPipelinesMeta,
 		tasks.ExtractApiPipelinesMeta,
+		tasks.CollectApiPipelineDetailsMeta,
+		tasks.ExtractApiPipelineDetailsMeta,
 		tasks.CollectApiJobsMeta,
 		tasks.ExtractApiJobsMeta,
 		tasks.EnrichMergeRequestsMeta,
 		tasks.CollectAccountsMeta,
 		tasks.ExtractAccountsMeta,
+		tasks.CollectAccountDetailsMeta,
+		tasks.ExtractAccountDetailsMeta,
 		tasks.ConvertAccountsMeta,
 		tasks.ConvertProjectMeta,
 		tasks.ConvertApiMergeRequestsMeta,
@@ -146,6 +153,7 @@ func (p Gitlab) PrepareTaskData(taskCtx plugin.TaskContext, options map[string]i
 	if err != nil {
 		return nil, errors.BadInput.Wrap(err, "connection not found")
 	}
+
 	apiClient, err := tasks.NewGitlabApiClient(taskCtx, connection)
 	if err != nil {
 		return nil, err

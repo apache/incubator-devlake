@@ -27,16 +27,18 @@ import (
 	helper "github.com/apache/incubator-devlake/helpers/pluginhelper/api"
 )
 
+const RAW_PIPELINE_DETAILS_TABLE = "gitlab_api_pipeline_details"
+
 var CollectApiPipelineDetailsMeta = plugin.SubTaskMeta{
-	Name:             "collectApiPipelines",
-	EntryPoint:       CollectApiPipelines,
+	Name:             "collectApiPipelineDetails",
+	EntryPoint:       CollectApiPipelineDetails,
 	EnabledByDefault: true,
-	Description:      "Collect pipeline data from gitlab api",
+	Description:      "Collect pipeline details data from gitlab api",
 	DomainTypes:      []string{plugin.DOMAIN_TYPE_CICD},
 }
 
 func CollectApiPipelineDetails(taskCtx plugin.SubTaskContext) errors.Error {
-	rawDataSubTaskArgs, data := CreateRawDataSubTaskArgs(taskCtx, RAW_PIPELINE_TABLE)
+	rawDataSubTaskArgs, data := CreateRawDataSubTaskArgs(taskCtx, RAW_PIPELINE_DETAILS_TABLE)
 	collectorWithState, err := helper.NewApiCollectorWithState(*rawDataSubTaskArgs, data.CreatedDateAfter)
 	if err != nil {
 		return err
@@ -79,8 +81,8 @@ func GetPipelinesIterator(taskCtx plugin.SubTaskContext, collectorWithState *hel
 		dal.Select("gp.gitlab_id,gp.gitlab_id as iid"),
 		dal.From("_tool_gitlab_pipelines gp"),
 		dal.Where(
-			`gp.project_id = ? and gp.connection_id = ?`,
-			data.Options.ProjectId, data.Options.ConnectionId,
+			`gp.project_id = ? and gp.connection_id = ? and gp.is_detail_required = ?`,
+			data.Options.ProjectId, data.Options.ConnectionId, true,
 		),
 	}
 	if collectorWithState.CreatedDateAfter != nil {

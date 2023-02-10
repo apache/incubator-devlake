@@ -26,8 +26,16 @@ import (
 	"github.com/apache/incubator-devlake/plugins/gitlab/models"
 )
 
+var ExtractApiPipelineDetailsMeta = plugin.SubTaskMeta{
+	Name:             "extractApiPipelineDetails",
+	EntryPoint:       ExtractApiPipelineDetails,
+	EnabledByDefault: true,
+	Description:      "Extract raw pipeline details data into tool layer table GitlabPipeline",
+	DomainTypes:      []string{plugin.DOMAIN_TYPE_CICD},
+}
+
 func ExtractApiPipelineDetails(taskCtx plugin.SubTaskContext) errors.Error {
-	rawDataSubTaskArgs, data := CreateRawDataSubTaskArgs(taskCtx, RAW_PIPELINE_TABLE)
+	rawDataSubTaskArgs, data := CreateRawDataSubTaskArgs(taskCtx, RAW_PIPELINE_DETAILS_TABLE)
 
 	extractor, err := api.NewApiExtractor(api.ApiExtractorArgs{
 		RawDataSubTaskArgs: *rawDataSubTaskArgs,
@@ -43,16 +51,17 @@ func ExtractApiPipelineDetails(taskCtx plugin.SubTaskContext) errors.Error {
 				gitlabApiPipeline.Duration = int(gitlabApiPipeline.UpdatedAt.ToTime().Sub(gitlabApiPipeline.CreatedAt.ToTime()).Seconds())
 			}
 			gitlabPipeline := &models.GitlabPipeline{
-				GitlabId:        gitlabApiPipeline.Id,
-				ProjectId:       data.Options.ProjectId,
-				WebUrl:          gitlabApiPipeline.WebUrl,
-				Status:          gitlabApiPipeline.Status,
-				GitlabCreatedAt: api.Iso8601TimeToTime(gitlabApiPipeline.CreatedAt),
-				GitlabUpdatedAt: api.Iso8601TimeToTime(gitlabApiPipeline.UpdatedAt),
-				StartedAt:       api.Iso8601TimeToTime(gitlabApiPipeline.StartedAt),
-				FinishedAt:      api.Iso8601TimeToTime(gitlabApiPipeline.FinishedAt),
-				Duration:        gitlabApiPipeline.Duration,
-				ConnectionId:    data.Options.ConnectionId,
+				GitlabId:         gitlabApiPipeline.Id,
+				ProjectId:        data.Options.ProjectId,
+				WebUrl:           gitlabApiPipeline.WebUrl,
+				Status:           gitlabApiPipeline.Status,
+				GitlabCreatedAt:  api.Iso8601TimeToTime(gitlabApiPipeline.CreatedAt),
+				GitlabUpdatedAt:  api.Iso8601TimeToTime(gitlabApiPipeline.UpdatedAt),
+				StartedAt:        api.Iso8601TimeToTime(gitlabApiPipeline.StartedAt),
+				FinishedAt:       api.Iso8601TimeToTime(gitlabApiPipeline.FinishedAt),
+				Duration:         gitlabApiPipeline.Duration,
+				ConnectionId:     data.Options.ConnectionId,
+				IsDetailRequired: true,
 			}
 			if err != nil {
 				return nil, err

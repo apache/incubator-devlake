@@ -190,19 +190,17 @@ func (apiClient *ApiClient) GetTimeout() time.Duration {
 // SetData FIXME ...
 func (apiClient *ApiClient) SetData(name string, data interface{}) {
 	apiClient.data_mutex.Lock()
+	defer apiClient.data_mutex.Unlock()
 
 	apiClient.data[name] = data
-
-	apiClient.data_mutex.Unlock()
 }
 
 // GetData FIXME ...
 func (apiClient *ApiClient) GetData(name string) interface{} {
 	apiClient.data_mutex.Lock()
+	defer apiClient.data_mutex.Unlock()
 
 	data := apiClient.data[name]
-
-	apiClient.data_mutex.Unlock()
 
 	return data
 }
