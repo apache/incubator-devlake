@@ -41,7 +41,7 @@ func CollectApiDeployments(taskCtx plugin.SubTaskContext) errors.Error {
 		ApiClient:          data.ApiClient,
 		PageSize:           50,
 		Incremental:        false,
-		UrlTemplate:        "repositories/{{ .Params.Owner }}/{{ .Params.Repo }}/deployments/",
+		UrlTemplate:        "repositories/{{ .Params.FullName }}/deployments/",
 		Query:              GetQuery,
 		ResponseParser:     GetRawMessageFromResponse,
 		GetTotalPages:      GetTotalPagesFromResponse,

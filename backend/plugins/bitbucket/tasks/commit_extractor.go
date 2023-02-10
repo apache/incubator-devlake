@@ -59,25 +59,10 @@ type CommitsResponse struct {
 }
 
 func ExtractApiCommits(taskCtx plugin.SubTaskContext) errors.Error {
-	data := taskCtx.GetData().(*BitbucketTaskData)
+	rawDataSubTaskArgs, data := CreateRawDataSubTaskArgs(taskCtx, RAW_COMMIT_TABLE)
 
 	extractor, err := api.NewApiExtractor(api.ApiExtractorArgs{
-		RawDataSubTaskArgs: api.RawDataSubTaskArgs{
-			Ctx: taskCtx,
-			/*
-				This struct will be JSONEncoded and stored into database along with raw data itself, to identity minimal
-				set of data to be process, for example, we process JiraCommits by Board
-			*/
-			Params: BitbucketApiParams{
-				ConnectionId: data.Options.ConnectionId,
-				Owner:        data.Options.Owner,
-				Repo:         data.Options.Repo,
-			},
-			/*
-				Table store raw data
-			*/
-			Table: RAW_COMMIT_TABLE,
-		},
+		RawDataSubTaskArgs: *rawDataSubTaskArgs,
 		Extract: func(row *api.RawData) ([]interface{}, errors.Error) {
 			commit := &CommitsResponse{}
 			err := errors.Convert(json.Unmarshal(row.Data, commit))
@@ -105,7 +90,7 @@ func ExtractApiCommits(taskCtx plugin.SubTaskContext) errors.Error {
 
 			bitbucketRepoCommit := &models.BitbucketRepoCommit{
 				ConnectionId: data.Options.ConnectionId,
-				RepoId:       data.Repo.BitbucketId,
+				RepoId:       data.Options.FullName,
 				CommitSha:    commit.Sha,
 			}
 

@@ -38,9 +38,9 @@ var ConvertPrCommitsMeta = plugin.SubTaskMeta{
 }
 
 func ConvertPullRequestCommits(taskCtx plugin.SubTaskContext) (err errors.Error) {
+	rawDataSubTaskArgs, data := CreateRawDataSubTaskArgs(taskCtx, RAW_PULL_REQUEST_COMMITS_TABLE)
 	db := taskCtx.GetDal()
-	data := taskCtx.GetData().(*BitbucketTaskData)
-	repoId := data.Repo.BitbucketId
+	repoId := data.Options.FullName
 
 	pullIdGen := didgen.NewDomainIdGenerator(&bitbucketModels.BitbucketPullRequest{})
 
@@ -56,17 +56,9 @@ func ConvertPullRequestCommits(taskCtx plugin.SubTaskContext) (err errors.Error)
 	defer cursor.Close()
 
 	converter, err := helper.NewDataConverter(helper.DataConverterArgs{
-		InputRowType: reflect.TypeOf(bitbucketModels.BitbucketPrCommit{}),
-		Input:        cursor,
-		RawDataSubTaskArgs: helper.RawDataSubTaskArgs{
-			Ctx: taskCtx,
-			Params: BitbucketApiParams{
-				ConnectionId: data.Options.ConnectionId,
-				Owner:        data.Options.Owner,
-				Repo:         data.Options.Repo,
-			},
-			Table: RAW_PULL_REQUEST_COMMITS_TABLE,
-		},
+		InputRowType:       reflect.TypeOf(bitbucketModels.BitbucketPrCommit{}),
+		Input:              cursor,
+		RawDataSubTaskArgs: *rawDataSubTaskArgs,
 		Convert: func(inputRow interface{}) ([]interface{}, errors.Error) {
 			bitbucketPullRequestCommit := inputRow.(*bitbucketModels.BitbucketPrCommit)
 			domainPrCommit := &code.PullRequestCommit{

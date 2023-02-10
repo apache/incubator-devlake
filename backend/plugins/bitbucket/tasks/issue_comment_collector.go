@@ -52,7 +52,7 @@ func CollectApiIssueComments(taskCtx plugin.SubTaskContext) errors.Error {
 		PageSize:       100,
 		Incremental:    collectorWithState.IsIncremental(),
 		Input:          iterator,
-		UrlTemplate:    "repositories/{{ .Params.Owner }}/{{ .Params.Repo }}/issues/{{ .Input.BitbucketId }}/comments",
+		UrlTemplate:    "repositories/{{ .Params.FullName }}/issues/{{ .Input.BitbucketId }}/comments",
 		Query:          GetQuery,
 		GetTotalPages:  GetTotalPagesFromResponse,
 		ResponseParser: GetRawMessageFromResponse,

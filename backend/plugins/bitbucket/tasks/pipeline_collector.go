@@ -44,7 +44,7 @@ func CollectApiPipelines(taskCtx plugin.SubTaskContext) errors.Error {
 		ApiClient:      data.ApiClient,
 		PageSize:       50,
 		Incremental:    collectorWithState.IsIncremental(),
-		UrlTemplate:    "repositories/{{ .Params.Owner }}/{{ .Params.Repo }}/pipelines/",
+		UrlTemplate:    "repositories/{{ .Params.FullName }}/pipelines/",
 		Query:          GetQueryCreatedAndUpdated(collectorWithState),
 		ResponseParser: GetRawMessageFromResponse,
 		GetTotalPages:  GetTotalPagesFromResponse,

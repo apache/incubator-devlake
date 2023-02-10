@@ -29,7 +29,10 @@ import (
 	"github.com/apache/incubator-devlake/helpers/pluginhelper/api"
 	"github.com/apache/incubator-devlake/plugins/bitbucket/models"
 	"reflect"
+	"time"
 )
+
+const RAW_REPOSITORIES_TABLE = "bitbucket_api_repositories"
 
 var ConvertRepoMeta = plugin.SubTaskMeta{
 	Name:             "convertRepo",
@@ -39,10 +42,40 @@ var ConvertRepoMeta = plugin.SubTaskMeta{
 	DomainTypes:      []string{plugin.DOMAIN_TYPE_CODE},
 }
 
+type ApiRepoResponse BitbucketApiRepo
+
+type BitbucketApiRepo struct {
+	Scm         string                  `json:"scm"`
+	HasWiki     bool                    `json:"has_wiki"`
+	Uuid        string                  `json:"uuid"`
+	Name        string                  `json:"name"`
+	FullName    string                  `json:"full_name"`
+	Language    string                  `json:"language"`
+	Description string                  `json:"description"`
+	Type        string                  `json:"type"`
+	HasIssue    bool                    `json:"has_issue"`
+	ForkPolicy  string                  `json:"fork_policy"`
+	Owner       models.BitbucketAccount `json:"owner"`
+	CreatedAt   *time.Time              `json:"created_on"`
+	UpdatedAt   *time.Time              `json:"updated_on"`
+	Links       struct {
+		Clone []struct {
+			Href string `json:"href"`
+			Name string `json:"name"`
+		} `json:"clone"`
+		Self struct {
+			Href string `json:"href"`
+		} `json:"self"`
+		Html struct {
+			Href string `json:"href"`
+		} `json:"html"`
+	} `json:"links"`
+}
+
 func ConvertRepo(taskCtx plugin.SubTaskContext) errors.Error {
+	rawDataSubTaskArgs, data := CreateRawDataSubTaskArgs(taskCtx, RAW_REPOSITORIES_TABLE)
 	db := taskCtx.GetDal()
-	data := taskCtx.GetData().(*BitbucketTaskData)
-	repoId := data.Repo.BitbucketId
+	repoId := data.Options.FullName
 
 	cursor, err := db.Cursor(
 		dal.From(&models.BitbucketRepo{}),
@@ -56,17 +89,9 @@ func ConvertRepo(taskCtx plugin.SubTaskContext) errors.Error {
 	repoIdGen := didgen.NewDomainIdGenerator(&models.BitbucketRepo{})
 
 	converter, err := api.NewDataConverter(api.DataConverterArgs{
-		InputRowType: reflect.TypeOf(models.BitbucketRepo{}),
-		Input:        cursor,
-		RawDataSubTaskArgs: api.RawDataSubTaskArgs{
-			Ctx: taskCtx,
-			Params: BitbucketApiParams{
-				ConnectionId: data.Options.ConnectionId,
-				Owner:        data.Options.Owner,
-				Repo:         data.Options.Repo,
-			},
-			Table: RAW_REPOSITORIES_TABLE,
-		},
+		InputRowType:       reflect.TypeOf(models.BitbucketRepo{}),
+		Input:              cursor,
+		RawDataSubTaskArgs: *rawDataSubTaskArgs,
 		Convert: func(inputRow interface{}) ([]interface{}, errors.Error) {
 			repository := inputRow.(*models.BitbucketRepo)
 			domainRepository := &code.Repo{
@@ -77,7 +102,7 @@ func ConvertRepo(taskCtx plugin.SubTaskContext) errors.Error {
 				Url:         repository.HTMLUrl,
 				Description: repository.Description,
 				Language:    repository.Language,
-				CreatedDate: &repository.CreatedDate,
+				CreatedDate: repository.CreatedDate,
 				UpdatedDate: repository.UpdatedDate,
 			}
 
@@ -88,7 +113,7 @@ func ConvertRepo(taskCtx plugin.SubTaskContext) errors.Error {
 				Name:        repository.Name,
 				Url:         fmt.Sprintf("%s/%s", repository.HTMLUrl, "issues"),
 				Description: repository.Description,
-				CreatedDate: &repository.CreatedDate,
+				CreatedDate: repository.CreatedDate,
 			}
 
 			return []interface{}{

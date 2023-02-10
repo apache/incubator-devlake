@@ -32,8 +32,7 @@ import (
 
 type BitbucketApiParams struct {
 	ConnectionId uint64
-	Owner        string
-	Repo         string
+	FullName     string
 }
 
 type BitbucketInput struct {
@@ -54,8 +53,7 @@ func CreateRawDataSubTaskArgs(taskCtx plugin.SubTaskContext, Table string) (*api
 		Ctx: taskCtx,
 		Params: BitbucketApiParams{
 			ConnectionId: data.Options.ConnectionId,
-			Owner:        data.Options.Owner,
-			Repo:         data.Options.Repo,
+			FullName:     data.Options.FullName,
 		},
 		Table: Table,
 	}
@@ -177,7 +175,7 @@ func GetPullRequestsIterator(taskCtx plugin.SubTaskContext, collectorWithState *
 		dal.From("_tool_bitbucket_pull_requests bpr"),
 		dal.Where(
 			`bpr.repo_id = ? and bpr.connection_id = ?`,
-			fmt.Sprintf("%s/%s", data.Options.Owner, data.Options.Repo), data.Options.ConnectionId,
+			data.Options.FullName, data.Options.ConnectionId,
 		),
 	}
 	if collectorWithState.CreatedDateAfter != nil {
@@ -203,7 +201,7 @@ func GetIssuesIterator(taskCtx plugin.SubTaskContext, collectorWithState *api.Ap
 		dal.From("_tool_bitbucket_issues bpr"),
 		dal.Where(
 			`bpr.repo_id = ? and bpr.connection_id = ?`,
-			fmt.Sprintf("%s/%s", data.Options.Owner, data.Options.Repo), data.Options.ConnectionId,
+			data.Options.FullName, data.Options.ConnectionId,
 		),
 	}
 	if collectorWithState.CreatedDateAfter != nil {

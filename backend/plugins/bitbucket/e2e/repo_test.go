@@ -32,14 +32,14 @@ func TestRepoDataFlow(t *testing.T) {
 	dataflowTester := e2ehelper.NewDataFlowTester(t, "bitbucket", plugin)
 
 	bitbucketRepository := &models.BitbucketRepo{
-		BitbucketId: "panjf2000/ants",
+		FullName: "panjf2000/ants",
 	}
 	taskData := &tasks.BitbucketTaskData{
 		Options: &tasks.BitbucketOptions{
 			ConnectionId:        1,
 			Owner:               "panjf2000",
 			Repo:                "ants",
-			TransformationRules: models.TransformationRules{},
+			TransformationRules: models.BitbucketTransformationRule{},
 		},
 		Repo: bitbucketRepository,
 	}

@@ -92,25 +92,10 @@ type BitbucketApiPullRequest struct {
 }
 
 func ExtractApiPullRequests(taskCtx plugin.SubTaskContext) errors.Error {
-	data := taskCtx.GetData().(*BitbucketTaskData)
+	rawDataSubTaskArgs, data := CreateRawDataSubTaskArgs(taskCtx, RAW_PULL_REQUEST_TABLE)
 	var err errors.Error
 	extractor, err := api.NewApiExtractor(api.ApiExtractorArgs{
-		RawDataSubTaskArgs: api.RawDataSubTaskArgs{
-			Ctx: taskCtx,
-			/*
-				This struct will be JSONEncoded and stored into database along with raw data itself, to identity minimal
-				set of data to be process, for example, we process JiraIssues by Board
-			*/
-			Params: BitbucketApiParams{
-				ConnectionId: data.Options.ConnectionId,
-				Owner:        data.Options.Owner,
-				Repo:         data.Options.Repo,
-			},
-			/*
-				Table store raw data
-			*/
-			Table: RAW_PULL_REQUEST_TABLE,
-		},
+		RawDataSubTaskArgs: *rawDataSubTaskArgs,
 		Extract: func(row *api.RawData) ([]interface{}, errors.Error) {
 			rawL := &BitbucketApiPullRequest{}
 			err := errors.Convert(json.Unmarshal(row.Data, rawL))
@@ -123,7 +108,7 @@ func ExtractApiPullRequests(taskCtx plugin.SubTaskContext) errors.Error {
 				return nil, nil
 			}
 
-			bitbucketPr, err := convertBitbucketPullRequest(rawL, data.Options.ConnectionId, data.Repo.BitbucketId)
+			bitbucketPr, err := convertBitbucketPullRequest(rawL, data.Options.ConnectionId, data.Options.FullName)
 			if err != nil {
 				return nil, err
 			}

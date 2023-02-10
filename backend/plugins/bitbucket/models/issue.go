@@ -28,6 +28,7 @@ type BitbucketIssue struct {
 	RepoId             string `gorm:"index;type:varchar(255)"`
 	Number             int    `gorm:"index;comment:Used in API requests ex. api/issues/<THIS_NUMBER>"`
 	State              string `gorm:"type:varchar(255)"`
+	StdState           string `gorm:"type:varchar(255)"`
 	Title              string `gorm:"type:varchar(255)"`
 	Body               string
 	Priority           string `gorm:"type:varchar(255)"`

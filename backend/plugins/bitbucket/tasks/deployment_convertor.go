@@ -39,8 +39,8 @@ var ConvertDeploymentMeta = plugin.SubTaskMeta{
 }
 
 func ConvertDeployments(taskCtx plugin.SubTaskContext) errors.Error {
+	rawDataSubTaskArgs, data := CreateRawDataSubTaskArgs(taskCtx, RAW_DEPLOYMENT_TABLE)
 	db := taskCtx.GetDal()
-	data := taskCtx.GetData().(*BitbucketTaskData)
 
 	cursor, err := db.Cursor(dal.From(models.BitbucketDeployment{}))
 	if err != nil {
@@ -51,17 +51,9 @@ func ConvertDeployments(taskCtx plugin.SubTaskContext) errors.Error {
 	pipelineIdGen := didgen.NewDomainIdGenerator(&models.BitbucketDeployment{})
 
 	converter, err := api.NewDataConverter(api.DataConverterArgs{
-		InputRowType: reflect.TypeOf(models.BitbucketDeployment{}),
-		Input:        cursor,
-		RawDataSubTaskArgs: api.RawDataSubTaskArgs{
-			Ctx: taskCtx,
-			Params: BitbucketApiParams{
-				ConnectionId: data.Options.ConnectionId,
-				Owner:        data.Options.Owner,
-				Repo:         data.Options.Repo,
-			},
-			Table: RAW_DEPLOYMENT_TABLE,
-		},
+		InputRowType:       reflect.TypeOf(models.BitbucketDeployment{}),
+		Input:              cursor,
+		RawDataSubTaskArgs: *rawDataSubTaskArgs,
 		Convert: func(inputRow interface{}) ([]interface{}, errors.Error) {
 			bitbucketDeployment := inputRow.(*models.BitbucketDeployment)
 

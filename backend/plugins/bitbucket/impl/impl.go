@@ -18,16 +18,21 @@ limitations under the License.
 package impl
 
 import (
+	"encoding/json"
 	"fmt"
 	"github.com/apache/incubator-devlake/core/context"
 	"github.com/apache/incubator-devlake/core/dal"
 	"github.com/apache/incubator-devlake/core/errors"
 	"github.com/apache/incubator-devlake/core/plugin"
 	helper "github.com/apache/incubator-devlake/helpers/pluginhelper/api"
+	aha "github.com/apache/incubator-devlake/helpers/pluginhelper/api/apihelperabstract"
 	"github.com/apache/incubator-devlake/plugins/bitbucket/api"
 	"github.com/apache/incubator-devlake/plugins/bitbucket/models"
 	"github.com/apache/incubator-devlake/plugins/bitbucket/models/migrationscripts"
 	"github.com/apache/incubator-devlake/plugins/bitbucket/tasks"
+	"io"
+	"net/http"
+	"path"
 	"time"
 )
 
@@ -37,10 +42,22 @@ var _ plugin.PluginTask = (*Bitbucket)(nil)
 var _ plugin.PluginApi = (*Bitbucket)(nil)
 var _ plugin.PluginModel = (*Bitbucket)(nil)
 var _ plugin.PluginMigration = (*Bitbucket)(nil)
-var _ plugin.PluginBlueprintV100 = (*Bitbucket)(nil)
 var _ plugin.CloseablePluginTask = (*Bitbucket)(nil)
+var _ plugin.PluginSource = (*Bitbucket)(nil)
 
 type Bitbucket string
+
+func (p Bitbucket) Connection() interface{} {
+	return &models.BitbucketConnection{}
+}
+
+func (p Bitbucket) Scope() interface{} {
+	return &models.BitbucketRepo{}
+}
+
+func (p Bitbucket) TransformationRule() interface{} {
+	return &models.BitbucketTransformationRule{}
+}
 
 func (p Bitbucket) Init(basicRes context.BasicRes) errors.Error {
 	api.Init(basicRes)
@@ -68,9 +85,6 @@ func (p Bitbucket) Description() string {
 
 func (p Bitbucket) SubTaskMetas() []plugin.SubTaskMeta {
 	return []plugin.SubTaskMeta{
-		tasks.CollectApiRepoMeta,
-		tasks.ExtractApiRepoMeta,
-
 		tasks.CollectApiPullRequestsMeta,
 		tasks.ExtractApiPullRequestsMeta,
 
@@ -125,6 +139,10 @@ func (p Bitbucket) PrepareTaskData(taskCtx plugin.TaskContext, options map[strin
 	if err != nil {
 		return nil, errors.Default.Wrap(err, "unable to get bitbucket API client instance")
 	}
+	err = EnrichOptions(taskCtx, op, apiClient.ApiClient)
+	if err != nil {
+		return nil, err
+	}
 
 	var createdDateAfter time.Time
 	if op.CreatedDateAfter != "" {
@@ -153,8 +171,8 @@ func (p Bitbucket) MigrationScripts() []plugin.MigrationScript {
 	return migrationscripts.All()
 }
 
-func (p Bitbucket) MakePipelinePlan(connectionId uint64, scope []*plugin.BlueprintScopeV100) (plugin.PipelinePlan, errors.Error) {
-	return api.MakePipelinePlan(p.SubTaskMetas(), connectionId, scope)
+func (p Bitbucket) MakeDataSourcePipelinePlanV200(connectionId uint64, scopes []*plugin.BlueprintScopeV200, syncPolicy plugin.BlueprintSyncPolicy) (pp plugin.PipelinePlan, sc []plugin.Scope, err errors.Error) {
+	return api.MakeDataSourcePipelinePlanV200(p.SubTaskMetas(), connectionId, scopes, &syncPolicy)
 }
 
 func (p Bitbucket) ApiResources() map[string]map[string]plugin.ApiResourceHandler {
@@ -171,6 +189,22 @@ func (p Bitbucket) ApiResources() map[string]map[string]plugin.ApiResourceHandle
 			"DELETE": api.DeleteConnection,
 			"GET":    api.GetConnection,
 		},
+		"connections/:connectionId/scopes/*repoId": {
+			"GET":   api.GetScope,
+			"PATCH": api.UpdateScope,
+		},
+		"connections/:connectionId/scopes": {
+			"GET": api.GetScopeList,
+			"PUT": api.PutScope,
+		},
+		"transformation_rules": {
+			"POST": api.CreateTransformationRule,
+			"GET":  api.GetTransformationRuleList,
+		},
+		"transformation_rules/:id": {
+			"PATCH": api.UpdateTransformationRule,
+			"GET":   api.GetTransformationRule,
+		},
 	}
 }
 
@@ -181,4 +215,106 @@ func (p Bitbucket) Close(taskCtx plugin.TaskContext) errors.Error {
 	}
 	data.ApiClient.Release()
 	return nil
+}
+
+func EnrichOptions(taskCtx plugin.TaskContext,
+	op *tasks.BitbucketOptions,
+	apiClient *helper.ApiClient) errors.Error {
+	var repo models.BitbucketRepo
+	// validate the op and set name=owner/repo if this is from advanced mode or bpV100
+	err := tasks.ValidateTaskOptions(op)
+	if err != nil {
+		return err
+	}
+	logger := taskCtx.GetLogger()
+	// for advanced mode or others which we only have name, for bp v200, we have githubId
+	err = taskCtx.GetDal().First(&repo, dal.Where(
+		"connection_id = ? AND bitbucket_id = ?",
+		op.ConnectionId, op.FullName))
+	if err == nil {
+		if op.TransformationRuleId == 0 {
+			op.TransformationRuleId = repo.TransformationRuleId
+		}
+	} else {
+		if taskCtx.GetDal().IsErrorNotFound(err) && op.FullName != "" {
+			repo, err := getApiRepo(op, apiClient)
+			if err != nil {
+				return err
+			}
+			logger.Debug(fmt.Sprintf("Current repo: %s", repo.FullName))
+			scope := convertApiRepoToScope(repo, op.ConnectionId)
+			err = taskCtx.GetDal().CreateIfNotExist(scope)
+			if err != nil {
+				return err
+			}
+		} else {
+			return errors.Default.Wrap(err, fmt.Sprintf("fail to find repo %s", op.FullName))
+		}
+	}
+	// Set GithubTransformationRule if it's nil, this has lower priority
+	if op.BitbucketTransformationRule == nil && op.TransformationRuleId != 0 {
+		var transformationRule models.BitbucketTransformationRule
+		db := taskCtx.GetDal()
+		err = db.First(&transformationRule, dal.Where("id = ?", repo.TransformationRuleId))
+		if err != nil && !db.IsErrorNotFound(err) {
+			return errors.BadInput.Wrap(err, "fail to get transformationRule")
+		}
+		op.BitbucketTransformationRule = &transformationRule
+	}
+	if op.BitbucketTransformationRule == nil && op.TransformationRuleId == 0 {
+		op.BitbucketTransformationRule = new(models.BitbucketTransformationRule)
+	}
+	return err
+}
+
+func convertApiRepoToScope(repo *tasks.BitbucketApiRepo, connectionId uint64) *models.BitbucketRepo {
+	var scope models.BitbucketRepo
+	scope.ConnectionId = connectionId
+	scope.BitbucketId = repo.FullName
+	scope.CreatedDate = repo.CreatedAt
+	scope.UpdatedDate = repo.UpdatedAt
+	scope.Language = repo.Language
+	scope.Description = repo.Description
+	scope.Name = repo.Name
+	scope.OwnerId = repo.Owner.AccountId
+
+	scope.CloneUrl = ""
+	for _, u := range repo.Links.Clone {
+		if u.Name == "https" {
+			scope.CloneUrl = u.Href
+		}
+	}
+	return &scope
+}
+
+func getApiRepo(
+	op *tasks.BitbucketOptions,
+	apiClient aha.ApiClientAbstract,
+) (*tasks.BitbucketApiRepo, errors.Error) {
+	res, err := apiClient.Get(path.Join("repositories", op.FullName), nil, nil)
+	if err != nil {
+		return nil, err
+	}
+	defer res.Body.Close()
+	if res.StatusCode != http.StatusOK {
+		return nil, errors.Default.New(fmt.Sprintf(
+			"unexpected status code when requesting repo detail %d %s",
+			res.StatusCode, res.Request.URL.String(),
+		))
+	}
+	body, err := errors.Convert01(io.ReadAll(res.Body))
+	if err != nil {
+		return nil, err
+	}
+	apiRepo := new(tasks.BitbucketApiRepo)
+	err = errors.Convert(json.Unmarshal(body, apiRepo))
+	if err != nil {
+		return nil, err
+	}
+	for _, u := range apiRepo.Links.Clone {
+		if u.Name == "https" {
+			return apiRepo, nil
+		}
+	}
+	return nil, errors.Default.New("no clone url")
 }

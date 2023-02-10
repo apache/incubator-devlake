@@ -38,9 +38,9 @@ var ConvertIssueCommentsMeta = plugin.SubTaskMeta{
 }
 
 func ConvertIssueComments(taskCtx plugin.SubTaskContext) errors.Error {
+	rawDataSubTaskArgs, data := CreateRawDataSubTaskArgs(taskCtx, RAW_ISSUE_COMMENTS_TABLE)
 	db := taskCtx.GetDal()
-	data := taskCtx.GetData().(*BitbucketTaskData)
-	repoId := data.Repo.BitbucketId
+	repoId := data.Options.FullName
 
 	cursor, err := db.Cursor(
 		dal.From(&models.BitbucketIssueComment{}),
@@ -57,17 +57,9 @@ func ConvertIssueComments(taskCtx plugin.SubTaskContext) errors.Error {
 	accountIdGen := didgen.NewDomainIdGenerator(&models.BitbucketAccount{})
 
 	converter, err := api.NewDataConverter(api.DataConverterArgs{
-		InputRowType: reflect.TypeOf(models.BitbucketIssueComment{}),
-		Input:        cursor,
-		RawDataSubTaskArgs: api.RawDataSubTaskArgs{
-			Ctx: taskCtx,
-			Params: BitbucketApiParams{
-				ConnectionId: data.Options.ConnectionId,
-				Owner:        data.Options.Owner,
-				Repo:         data.Options.Repo,
-			},
-			Table: RAW_ISSUE_COMMENTS_TABLE,
-		},
+		InputRowType:       reflect.TypeOf(models.BitbucketIssueComment{}),
+		Input:              cursor,
+		RawDataSubTaskArgs: *rawDataSubTaskArgs,
 		Convert: func(inputRow interface{}) ([]interface{}, errors.Error) {
 			bitbucketIssueComment := inputRow.(*models.BitbucketIssueComment)
 			domainIssueComment := &ticket.IssueComment{

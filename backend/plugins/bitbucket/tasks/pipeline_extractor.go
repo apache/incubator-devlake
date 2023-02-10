@@ -117,7 +117,7 @@ func ExtractApiPipelines(taskCtx plugin.SubTaskContext) errors.Error {
 				Status:              bitbucketApiPipeline.State.Name,
 				RefName:             bitbucketApiPipeline.Target.RefName,
 				CommitSha:           bitbucketApiPipeline.Target.Commit.Hash,
-				RepoId:              bitbucketApiPipeline.Repo.BitbucketId,
+				RepoId:              bitbucketApiPipeline.Repo.FullName,
 				DurationInSeconds:   bitbucketApiPipeline.DurationInSeconds,
 				BitbucketCreatedOn:  api.Iso8601TimeToTime(bitbucketApiPipeline.CreatedOn),
 				BitbucketCompleteOn: api.Iso8601TimeToTime(bitbucketApiPipeline.CompletedOn),

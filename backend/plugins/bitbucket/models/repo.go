@@ -23,16 +23,18 @@ import (
 )
 
 type BitbucketRepo struct {
-	ConnectionId uint64 `gorm:"primaryKey"`
-	BitbucketId  string `gorm:"primaryKey;type:varchar(255)"`
-	Name         string `gorm:"type:varchar(255)"`
-	HTMLUrl      string `gorm:"type:varchar(255)"`
-	Description  string
-	OwnerId      string     `json:"ownerId"`
-	Language     string     `json:"language" gorm:"type:varchar(255)"`
-	CreatedDate  time.Time  `json:"createdDate"`
-	UpdatedDate  *time.Time `json:"updatedDate"`
-	common.NoPKModel
+	ConnectionId         uint64     `json:"connectionId" gorm:"primaryKey" mapstructure:"connectionId,omitempty"`
+	BitbucketId          string     `json:"bitbucketId" gorm:"primaryKey;type:varchar(255)" mapstructure:"bitbucketId"`
+	Name                 string     `json:"name" gorm:"type:varchar(255)" mapstructure:"name,omitempty"`
+	HTMLUrl              string     `json:"HTMLUrl" gorm:"type:varchar(255)" mapstructure:"HTMLUrl,omitempty"`
+	Description          string     `json:"description" mapstructure:"description,omitempty"`
+	TransformationRuleId uint64     `json:"transformationRuleId,omitempty" mapstructure:"transformationRuleId,omitempty"`
+	OwnerId              string     `json:"ownerId" mapstructure:"ownerId,omitempty"`
+	Language             string     `json:"language" gorm:"type:varchar(255)" mapstructure:"language,omitempty"`
+	CloneUrl             string     `json:"cloneUrl" gorm:"type:varchar(255)" mapstructure:"cloneUrl,omitempty"`
+	CreatedDate          *time.Time `json:"createdDate" mapstructure:"-"`
+	UpdatedDate          *time.Time `json:"updatedDate" mapstructure:"-"`
+	common.NoPKModel     `json:"-" mapstructure:"-"`
 }
 
 func (BitbucketRepo) TableName() string {

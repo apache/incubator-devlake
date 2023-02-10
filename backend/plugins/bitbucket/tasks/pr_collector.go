@@ -47,7 +47,7 @@ func CollectApiPullRequests(taskCtx plugin.SubTaskContext) errors.Error {
 		ApiClient:      data.ApiClient,
 		PageSize:       50,
 		Incremental:    collectorWithState.IsIncremental(),
-		UrlTemplate:    "repositories/{{ .Params.Owner }}/{{ .Params.Repo }}/pullrequests",
+		UrlTemplate:    "repositories/{{ .Params.FullName }}/pullrequests",
 		Query:          GetQueryCreatedAndUpdated(collectorWithState),
 		GetTotalPages:  GetTotalPagesFromResponse,
 		ResponseParser: GetRawMessageFromResponse,

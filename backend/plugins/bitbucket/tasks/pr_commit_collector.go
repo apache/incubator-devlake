@@ -51,7 +51,7 @@ func CollectApiPullRequestCommits(taskCtx plugin.SubTaskContext) errors.Error {
 		PageSize:              100,
 		Incremental:           collectorWithState.IsIncremental(),
 		Input:                 iterator,
-		UrlTemplate:           "repositories/{{ .Params.Owner }}/{{ .Params.Repo }}/pullrequests/{{ .Input.BitbucketId }}/commits",
+		UrlTemplate:           "repositories/{{ .Params.FullName }}/pullrequests/{{ .Input.BitbucketId }}/commits",
 		GetNextPageCustomData: GetNextPageCustomData,
 		Query:                 GetQueryForNext,
 		ResponseParser:        GetRawMessageFromResponse,

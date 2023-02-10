@@ -24,6 +24,7 @@ import (
 	plugin "github.com/apache/incubator-devlake/core/plugin"
 	"github.com/apache/incubator-devlake/helpers/pluginhelper/api"
 	"github.com/apache/incubator-devlake/plugins/bitbucket/models"
+	"strings"
 	"time"
 )
 
@@ -68,29 +69,14 @@ var ExtractApiIssuesMeta = plugin.SubTaskMeta{
 }
 
 func ExtractApiIssues(taskCtx plugin.SubTaskContext) errors.Error {
-	data := taskCtx.GetData().(*BitbucketTaskData)
-	config := data.Options.TransformationRules
+	rawDataSubTaskArgs, data := CreateRawDataSubTaskArgs(taskCtx, RAW_ISSUE_COMMENTS_TABLE)
+	config := *data.Options.BitbucketTransformationRule
 	issueStatusMap, err := newIssueStatusMap(config)
 	if err != nil {
 		return nil
 	}
 	extractor, err := api.NewApiExtractor(api.ApiExtractorArgs{
-		RawDataSubTaskArgs: api.RawDataSubTaskArgs{
-			Ctx: taskCtx,
-			/*
-				This struct will be JSONEncoded and stored into database along with raw data itself, to identity minimal
-				set of data to be process, for example, we process JiraIssues by Board
-			*/
-			Params: BitbucketApiParams{
-				ConnectionId: data.Options.ConnectionId,
-				Owner:        data.Options.Owner,
-				Repo:         data.Options.Repo,
-			},
-			/*
-				Table store raw data
-			*/
-			Table: RAW_ISSUE_TABLE,
-		},
+		RawDataSubTaskArgs: *rawDataSubTaskArgs,
 		Extract: func(row *api.RawData) ([]interface{}, errors.Error) {
 			body := &IssuesResponse{}
 			err := errors.Convert(json.Unmarshal(row.Data, body))
@@ -107,12 +93,11 @@ func ExtractApiIssues(taskCtx plugin.SubTaskContext) errors.Error {
 			}
 			results := make([]interface{}, 0, 2)
 
-			bitbucketIssue, err := convertBitbucketIssue(body, data.Options.ConnectionId, data.Repo.BitbucketId)
+			bitbucketIssue, err := convertBitbucketIssue(body, data.Options.ConnectionId, data.Options.FullName)
 			if err != nil {
 				return nil, err
 			}
 
-			results = append(results, bitbucketIssue)
 			if body.Assignee != nil {
 				bitbucketIssue.AssigneeId = body.Assignee.AccountId
 				bitbucketIssue.AssigneeName = body.Assignee.DisplayName
@@ -132,8 +117,9 @@ func ExtractApiIssues(taskCtx plugin.SubTaskContext) errors.Error {
 				results = append(results, relatedUser)
 			}
 			if status, ok := issueStatusMap[bitbucketIssue.State]; ok {
-				bitbucketIssue.State = status
+				bitbucketIssue.StdState = status
 			}
+			results = append(results, bitbucketIssue)
 			return results, nil
 		},
 	})
@@ -176,18 +162,18 @@ func convertBitbucketIssue(issue *IssuesResponse, connectionId uint64, repositor
 	return bitbucketIssue, nil
 }
 
-func newIssueStatusMap(config models.TransformationRules) (map[string]string, errors.Error) {
+func newIssueStatusMap(config models.BitbucketTransformationRule) (map[string]string, errors.Error) {
 	issueStatusMap := make(map[string]string, 3)
-	for _, state := range config.IssueStatusTODO {
+	for _, state := range strings.Split(`,`, config.IssueStatusTodo) {
 		issueStatusMap[state] = ticket.TODO
 	}
-	for _, state := range config.IssueStatusINPROGRESS {
+	for _, state := range strings.Split(`,`, config.IssueStatusInProgress) {
 		issueStatusMap[state] = ticket.IN_PROGRESS
 	}
-	for _, state := range config.IssueStatusDONE {
+	for _, state := range strings.Split(`,`, config.IssueStatusDone) {
 		issueStatusMap[state] = ticket.DONE
 	}
-	for _, state := range config.IssueStatusOTHER {
+	for _, state := range strings.Split(`,`, config.IssueStatusOther) {
 		issueStatusMap[state] = ticket.OTHER
 	}
 	return issueStatusMap, nil

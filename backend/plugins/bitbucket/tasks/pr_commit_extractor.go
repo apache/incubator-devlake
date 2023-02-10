@@ -76,25 +76,10 @@ type ApiPrCommitsResponse struct {
 }
 
 func ExtractApiPullRequestCommits(taskCtx plugin.SubTaskContext) errors.Error {
-	data := taskCtx.GetData().(*BitbucketTaskData)
-	repoId := data.Repo.BitbucketId
+	rawDataSubTaskArgs, data := CreateRawDataSubTaskArgs(taskCtx, RAW_PULL_REQUEST_COMMENTS_TABLE)
+	repoId := data.Options.FullName
 	extractor, err := helper.NewApiExtractor(helper.ApiExtractorArgs{
-		RawDataSubTaskArgs: helper.RawDataSubTaskArgs{
-			Ctx: taskCtx,
-			/*
-				This struct will be JSONEncoded and stored into database along with raw data itself, to identity minimal
-				set of data to be process, for example, we process JiraIssues by Board
-			*/
-			Params: BitbucketApiParams{
-				ConnectionId: data.Options.ConnectionId,
-				Owner:        data.Options.Owner,
-				Repo:         data.Options.Repo,
-			},
-			/*
-				Table store raw data
-			*/
-			Table: RAW_PULL_REQUEST_COMMITS_TABLE,
-		},
+		RawDataSubTaskArgs: *rawDataSubTaskArgs,
 		Extract: func(row *helper.RawData) ([]interface{}, errors.Error) {
 			apiPullRequestCommit := &ApiPrCommitsResponse{}
 			if strings.HasPrefix(string(row.Data), "Not Found") {
