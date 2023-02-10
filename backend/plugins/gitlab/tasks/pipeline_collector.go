@@ -19,10 +19,12 @@ package tasks
 
 import (
 	"fmt"
+	"net/url"
+	"time"
+
 	"github.com/apache/incubator-devlake/core/errors"
 	"github.com/apache/incubator-devlake/core/plugin"
 	helper "github.com/apache/incubator-devlake/helpers/pluginhelper/api"
-	"net/url"
 )
 
 const RAW_PIPELINE_TABLE = "gitlab_api_pipeline"
@@ -42,10 +44,15 @@ func CollectApiPipelines(taskCtx plugin.SubTaskContext) errors.Error {
 		return err
 	}
 
+	tickInterval, err := helper.CalcTickInterval(200, 1*time.Minute)
+	if err != nil {
+		return err
+	}
 	incremental := collectorWithState.IsIncremental()
 	err = collectorWithState.InitCollector(helper.ApiCollectorArgs{
 		RawDataSubTaskArgs: *rawDataSubTaskArgs,
 		ApiClient:          data.ApiClient,
+		MinTickInterval:    &tickInterval,
 		PageSize:           100,
 		Incremental:        incremental,
 		UrlTemplate:        "projects/{{ .Params.ProjectId }}/pipelines",

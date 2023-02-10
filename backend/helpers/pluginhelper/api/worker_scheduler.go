@@ -19,14 +19,27 @@ package api
 
 import (
 	"context"
-	"github.com/apache/incubator-devlake/core/errors"
-	"github.com/apache/incubator-devlake/core/log"
 	"sync"
 	"sync/atomic"
 	"time"
 
+	"github.com/apache/incubator-devlake/core/errors"
+	"github.com/apache/incubator-devlake/core/log"
+
 	"github.com/panjf2000/ants/v2"
 )
+
+// CalcTickInterval calculates tick interval for number of works to be
+// executed in specified duration
+func CalcTickInterval(numOfWorks int, duration time.Duration) (time.Duration, errors.Error) {
+	if numOfWorks <= 0 {
+		return 0, errors.Default.New("numOfWorks must be greater than 0")
+	}
+	if duration <= 0 {
+		return 0, errors.Default.New("duration must be greater than 0")
+	}
+	return duration / time.Duration(numOfWorks), nil
+}
 
 // WorkerScheduler runs asynchronous tasks in parallel with throttling support
 type WorkerScheduler struct {
@@ -38,6 +51,7 @@ type WorkerScheduler struct {
 	mu           sync.Mutex
 	counter      int32
 	logger       log.Logger
+	tickInterval time.Duration
 }
 
 //var callframeEnabled = os.Getenv("ASYNC_CF") == "true"
@@ -45,23 +59,17 @@ type WorkerScheduler struct {
 // NewWorkerScheduler creates a WorkerScheduler
 func NewWorkerScheduler(
 	ctx context.Context,
-	workerNum int,
-	maxWork int,
-	maxWorkDuration time.Duration,
+	numOfWorkers int,
+	tickInterval time.Duration,
 	logger log.Logger,
 ) (*WorkerScheduler, errors.Error) {
-	if maxWork <= 0 {
-		return nil, errors.Default.New("maxWork less than 1")
-	}
-	if maxWorkDuration <= 0 {
-		return nil, errors.Default.New("maxWorkDuration less than 1")
-	}
 	s := &WorkerScheduler{
-		ctx:    ctx,
-		ticker: time.NewTicker(maxWorkDuration / time.Duration(maxWork)),
-		logger: logger,
+		ctx:          ctx,
+		logger:       logger,
+		tickInterval: tickInterval,
+		ticker:       time.NewTicker(tickInterval),
 	}
-	pool, err := ants.NewPool(workerNum, ants.WithPanicHandler(func(i interface{}) {
+	pool, err := ants.NewPool(numOfWorkers, ants.WithPanicHandler(func(i interface{}) {
 		s.checkError(i)
 	}))
 	if err != nil {
@@ -148,7 +156,7 @@ func (s *WorkerScheduler) NextTick(task func() errors.Error) {
 }
 
 // Wait blocks current go-routine until all workers returned
-func (s *WorkerScheduler) Wait() errors.Error {
+func (s *WorkerScheduler) WaitAsync() errors.Error {
 	s.waitGroup.Wait()
 	if len(s.workerErrors) > 0 {
 		for _, err := range s.workerErrors {
@@ -159,6 +167,17 @@ func (s *WorkerScheduler) Wait() errors.Error {
 		return errors.Default.Combine(s.workerErrors)
 	}
 	return nil
+}
+
+// Reset stops a WorkScheduler and resets its period to the specified duration.
+func (s *WorkerScheduler) Reset(interval time.Duration) {
+	s.tickInterval = interval
+	s.ticker.Reset(interval)
+}
+
+// GetTickInterval returns current tick interval of the WorkScheduler
+func (s *WorkerScheduler) GetTickInterval() time.Duration {
+	return s.tickInterval
 }
 
 // Release resources

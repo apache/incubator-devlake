@@ -48,12 +48,7 @@ func NewGitlabApiClient(taskCtx plugin.TaskContext, connection *models.GitlabCon
 			if err != nil {
 				return 0, 0, errors.Default.Wrap(err, "failed to parse RateLimit-Limit header")
 			}
-			// seems like gitlab rate limit is on minute basis
-			if rateLimit > 200 {
-				return 200, 1 * time.Minute, nil
-			} else {
-				return rateLimit, 1 * time.Minute, nil
-			}
+			return rateLimit, 1 * time.Minute, nil
 		},
 	}
 	asyncApiClient, err := api.CreateAsyncApiClient(
