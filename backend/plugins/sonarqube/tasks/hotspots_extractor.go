@@ -39,7 +39,6 @@ func ExtractHotspots(taskCtx plugin.SubTaskContext) errors.Error {
 				return nil, err
 			}
 			body.ConnectionId = data.Options.ConnectionId
-			//body.BatchId = ""
 			return []interface{}{body}, nil
 		},
 	})

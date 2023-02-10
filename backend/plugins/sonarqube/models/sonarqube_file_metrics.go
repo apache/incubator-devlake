@@ -25,7 +25,6 @@ type SonarqubeFileMetrics struct {
 	ConnectionId             uint64 `gorm:"primaryKey"`
 	FileMetricsKey           string `gorm:"primaryKey"`
 	ProjectKey               string `gorm:"index"`
-	BatchID                  string
 	FileName                 string
 	FilePath                 string
 	FileLanguage             string

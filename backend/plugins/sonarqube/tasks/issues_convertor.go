@@ -58,7 +58,6 @@ func ConvertIssues(taskCtx plugin.SubTaskContext) errors.Error {
 			sonarqubeIssue := inputRow.(*sonarqubeModels.SonarqubeIssue)
 			domainIssue := &securitytesting.StIssue{
 				DomainEntity:      domainlayer.DomainEntity{Id: issueIdGen.Generate(data.Options.ConnectionId, sonarqubeIssue.IssueKey)},
-				BatchId:           sonarqubeIssue.BatchId,
 				Rule:              sonarqubeIssue.Rule,
 				Severity:          sonarqubeIssue.Severity,
 				Component:         sonarqubeIssue.Component,
