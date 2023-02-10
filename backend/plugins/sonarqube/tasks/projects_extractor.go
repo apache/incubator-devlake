@@ -19,10 +19,8 @@ package tasks
 
 import (
 	"encoding/json"
-
 	"github.com/apache/incubator-devlake/core/errors"
 	"github.com/apache/incubator-devlake/core/plugin"
-	"github.com/apache/incubator-devlake/helpers/pluginhelper/api"
 	helper "github.com/apache/incubator-devlake/helpers/pluginhelper/api"
 	"github.com/apache/incubator-devlake/plugins/sonarqube/models"
 )
@@ -30,27 +28,43 @@ import (
 var _ plugin.SubTaskEntryPoint = ExtractProjects
 
 func ExtractProjects(taskCtx plugin.SubTaskContext) errors.Error {
-	rawDataSubTaskArgs, data := CreateRawDataSubTaskArgs(taskCtx, RAW_PROJECTS_TABLE)
+	// As we need to assign data.LastAnalysisDate, we can not use CreateRawDataSubTaskArgs
+	data := taskCtx.GetData().(*SonarqubeTaskData)
+	var params = SonarqubeApiParams{
+		ConnectionId: data.Options.ConnectionId,
+		ProjectKey:   data.Options.ProjectKey,
+	}
+	rawDataSubTaskArgs := &helper.RawDataSubTaskArgs{
+		Ctx:    taskCtx,
+		Params: params,
+		Table:  RAW_PROJECTS_TABLE,
+	}
 	extractor, err := helper.NewApiExtractor(helper.ApiExtractorArgs{
 		RawDataSubTaskArgs: *rawDataSubTaskArgs,
 		Extract: func(resData *helper.RawData) ([]interface{}, errors.Error) {
-			body := &SonarqubeRawProject{}
-			err := errors.Convert(json.Unmarshal(resData.Data, body))
+			var res struct {
+				ProjectKey       string              `json:"key"`
+				Name             string              `json:"name"`
+				Qualifier        string              `json:"qualifier"`
+				Visibility       string              `json:"visibility"`
+				LastAnalysisDate *helper.Iso8601Time `json:"lastAnalysisDate"`
+				Revision         string              `json:"revision"`
+			}
+			err := errors.Convert(json.Unmarshal(resData.Data, &res))
+			body := &models.SonarqubeProject{
+				ConnectionId:     data.Options.ConnectionId,
+				ProjectKey:       res.ProjectKey,
+				Name:             res.Name,
+				Qualifier:        res.Qualifier,
+				Visibility:       res.Visibility,
+				LastAnalysisDate: res.LastAnalysisDate,
+				Revision:         res.Revision,
+			}
+			data.LastAnalysisDate = body.LastAnalysisDate.ToNullableTime()
 			if err != nil {
 				return nil, err
 			}
-
-			sonarqubeProject := &models.SonarqubeProject{
-				ConnectionId:     data.Options.ConnectionId,
-				ProjectKey:       body.Key,
-				Name:             body.Name,
-				Qualifier:        body.Qualifier,
-				Visibility:       body.Visibility,
-				LastAnalysisDate: body.LastAnalysisDate,
-				Revision:         body.Revision,
-			}
-
-			return []interface{}{sonarqubeProject}, nil
+			return []interface{}{body}, nil
 		},
 	})
 	if err != nil {
@@ -66,13 +80,4 @@ var ExtractProjectsMeta = plugin.SubTaskMeta{
 	EnabledByDefault: true,
 	Description:      "Extract raw data into tool layer table sonarqube_projects",
 	DomainTypes:      []string{plugin.DOMAIN_TYPE_SECURITY_TESTING},
-}
-
-type SonarqubeRawProject struct {
-	Key              string           `json:"key"`
-	Name             string           `json:"name"`
-	Qualifier        string           `json:"qualifier"`
-	Visibility       string           `json:"visibility"`
-	LastAnalysisDate *api.Iso8601Time `json:"lastAnalysisDate"`
-	Revision         string           `json:"revision"`
 }
