@@ -16,7 +16,30 @@
  *
  */
 
-export * from './connection-form';
-export * from './data-scope-list';
-export * from './data-scope';
-export * from './transformation';
+import React, { useMemo } from 'react';
+import { Button } from '@blueprintjs/core';
+import { pick } from 'lodash';
+
+import { useOperator } from '@/hooks';
+
+import * as API from '../api';
+
+interface Props {
+  plugin: string;
+  form: any;
+  error: any;
+}
+
+export const Test = ({ plugin, form, error }: Props) => {
+  const { operating, onSubmit } = useOperator((payload) => API.testConnection(plugin, payload));
+
+  const disabled = useMemo(() => {
+    return Object.values(error).some((value) => value);
+  }, [error]);
+
+  const handleSubmit = () => {
+    onSubmit(pick(form, ['endpoint', 'token', 'username', 'password', 'app_id', 'secret_key', 'proxy', 'authMethod']));
+  };
+
+  return <Button loading={operating} disabled={disabled} outlined text="Test Connection" onClick={handleSubmit} />;
+};

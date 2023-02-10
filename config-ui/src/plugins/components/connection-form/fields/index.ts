@@ -16,7 +16,10 @@
  *
  */
 
-export * from './connection-form';
-export * from './data-scope-list';
-export * from './data-scope';
-export * from './transformation';
+export * from './name';
+export * from './endpoint';
+export * from './username';
+export * from './password';
+export * from './token';
+export * from './proxy';
+export * from './rate-limit';

@@ -16,7 +16,34 @@
  *
  */
 
-export * from './connection-form';
-export * from './data-scope-list';
-export * from './data-scope';
-export * from './transformation';
+import styled from 'styled-components';
+
+export const Label = styled.label`
+  font-size: 16px;
+  font-weight: 600;
+`;
+
+export const LabelInfo = styled.i`
+  color: #ff8b8b;
+`;
+
+export const LabelDescription = styled.p`
+  margin: 0;
+`;
+
+export const RateLimit = styled.div`
+  display: flex;
+  align-items: center;
+
+  .bp4-input-group {
+    width: 80px !important;
+  }
+
+  & > span {
+    margin-left: 8px;
+  }
+`;
+
+export const RateLimitInfo = styled.p`
+  white-space: pre-line;
+`;

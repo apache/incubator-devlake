@@ -16,7 +16,18 @@
  *
  */
 
-export * from './connection-form';
-export * from './data-scope-list';
-export * from './data-scope';
-export * from './transformation';
+import { request } from '@/utils';
+
+export const testConnection = (plugin: string, payload: any) =>
+  request(`/plugins/${plugin}/test`, { method: 'post', data: payload });
+
+export const createConnection = (plugin: string, payload: any) =>
+  request(`/plugins/${plugin}/connections`, { method: 'post', data: payload });
+
+export const getConnection = (plugin: string, id: ID) => request(`/plugins/${plugin}/connections/${id}`);
+
+export const updateConnection = (plugin: string, id: ID, payload: any) =>
+  request(`/plugins/${plugin}/connections/${id}`, {
+    method: 'patch',
+    data: payload,
+  });
