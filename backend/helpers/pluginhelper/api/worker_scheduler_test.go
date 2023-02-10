@@ -19,10 +19,11 @@ package api
 
 import (
 	"context"
-	"github.com/apache/incubator-devlake/core/errors"
-	"github.com/apache/incubator-devlake/helpers/unithelper"
 	"testing"
 	"time"
+
+	"github.com/apache/incubator-devlake/core/errors"
+	"github.com/apache/incubator-devlake/helpers/unithelper"
 
 	"github.com/stretchr/testify/assert"
 )
@@ -31,7 +32,8 @@ func TestWorkerSchedulerQpsControl(t *testing.T) {
 	// assuming we want 2 requests per second
 	testChannel := make(chan int, 100)
 	ctx, cancel := context.WithCancel(context.Background())
-	s, _ := NewWorkerScheduler(ctx, 5, 2, 1*time.Second, unithelper.DummyLogger())
+	tickInterval, _ := CalcTickInterval(2, 1*time.Second)
+	s, _ := NewWorkerScheduler(ctx, 5, tickInterval, unithelper.DummyLogger())
 	defer s.Release()
 	for i := 1; i <= 5; i++ {
 		t := i
@@ -56,7 +58,7 @@ func TestWorkerSchedulerQpsControl(t *testing.T) {
 	if len(testChannel) > 4 {
 		t.Fatal(`worker run too fast after a second`)
 	}
-	assert.Nil(t, s.Wait())
+	assert.Nil(t, s.WaitAsync())
 	if len(testChannel) != 5 {
 		t.Fatal(`worker not wait until finish`)
 	}

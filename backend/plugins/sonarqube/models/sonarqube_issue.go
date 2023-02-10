@@ -29,7 +29,6 @@ type SonarqubeIssue struct {
 	Severity     string `gorm:"type:varchar(255)"`
 	Component    string `gorm:"type:varchar(255)"`
 	ProjectKey   string `gorm:"index;type:varchar(255)"` //domain project key
-	BatchId      string `gorm:"type:varchar(100)"`       // from collection time
 	Line         int
 	Status       string
 	Message      string

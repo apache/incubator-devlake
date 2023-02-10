@@ -1,0 +1,5 @@
+connection_id,login,name,email,active,local
+1,admin,Administrator,,1,1
+1,admin1,Administrator1,,0,1
+2,admin2,Administrator2,aaa@email.com,1,1
+2,admin3,Administrator3,,0,1

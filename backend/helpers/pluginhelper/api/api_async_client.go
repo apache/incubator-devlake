@@ -21,14 +21,16 @@ import (
 	"bytes"
 	"context"
 	"fmt"
-	"github.com/apache/incubator-devlake/core/errors"
-	plugin "github.com/apache/incubator-devlake/core/plugin"
-	"github.com/apache/incubator-devlake/core/utils"
-	"github.com/apache/incubator-devlake/helpers/pluginhelper/common"
 	"io"
 	"net/http"
 	"net/url"
 	"time"
+
+	"github.com/apache/incubator-devlake/core/errors"
+	"github.com/apache/incubator-devlake/core/log"
+	plugin "github.com/apache/incubator-devlake/core/plugin"
+	"github.com/apache/incubator-devlake/core/utils"
+	"github.com/apache/incubator-devlake/helpers/pluginhelper/common"
 )
 
 // HttpMinStatusRetryCode is which status will retry
@@ -39,9 +41,10 @@ var HttpMinStatusRetryCode = http.StatusBadRequest
 // will be performed in parallel with rate-limit support
 type ApiAsyncClient struct {
 	*ApiClient
+	*WorkerScheduler
 	maxRetry     int
-	scheduler    *WorkerScheduler
 	numOfWorkers int
+	logger       log.Logger
 }
 
 const defaultTimeout = 120 * time.Second
@@ -96,20 +99,24 @@ func CreateAsyncApiClient(
 	// in order for scheduler to hold requests of 3 seconds, we need:
 	d := duration / RESPONSE_TIME
 	numOfWorkers := requests / int(d)
+	tickInterval, err := CalcTickInterval(requests, duration)
+	if err != nil {
+		return nil, err
+	}
 
-	logger := taskCtx.GetLogger()
+	logger := taskCtx.GetLogger().Nested("api async client")
 	logger.Info(
-		"creating scheduler for api \"%s\", number of workers: %d, allowed requests (rate-limit): %d, duration of rate-limit: %f minutes",
+		"creating scheduler for api \"%s\", number of workers: %d, %d reqs / %s (interval: %s)",
 		apiClient.GetEndpoint(),
 		numOfWorkers,
 		requests,
-		duration.Minutes(),
+		duration.String(),
+		tickInterval.String(),
 	)
 	scheduler, err := NewWorkerScheduler(
 		taskCtx.GetContext(),
 		numOfWorkers,
-		requests,
-		duration,
+		tickInterval,
 		logger,
 	)
 	if err != nil {
@@ -119,9 +126,10 @@ func CreateAsyncApiClient(
 	// finally, wrap around api client with async sematic
 	return &ApiAsyncClient{
 		apiClient,
-		retry,
 		scheduler,
+		retry,
 		numOfWorkers,
+		logger,
 	}, nil
 }
 
@@ -188,8 +196,8 @@ func (apiClient *ApiAsyncClient) DoAsync(
 			if retry < apiClient.maxRetry && err != context.Canceled {
 				apiClient.logger.Warn(err, "retry #%d calling %s", retry, path)
 				retry++
-				apiClient.scheduler.NextTick(func() errors.Error {
-					apiClient.scheduler.SubmitBlocking(request)
+				apiClient.NextTick(func() errors.Error {
+					apiClient.SubmitBlocking(request)
 					return nil
 				})
 				return nil
@@ -206,7 +214,7 @@ func (apiClient *ApiAsyncClient) DoAsync(
 		// when error occurs
 		return handler(res)
 	}
-	apiClient.scheduler.SubmitBlocking(request)
+	apiClient.SubmitBlocking(request)
 }
 
 // DoGetAsync Enqueue an api get request, the request may be sent sometime in future in parallel with other api requests
@@ -230,29 +238,9 @@ func (apiClient *ApiAsyncClient) DoPostAsync(
 	apiClient.DoAsync(http.MethodPost, path, query, body, header, handler, 0)
 }
 
-// WaitAsync blocks until all async requests were done
-func (apiClient *ApiAsyncClient) WaitAsync() errors.Error {
-	return apiClient.scheduler.Wait()
-}
-
-// HasError to return if the scheduler has Error
-func (apiClient *ApiAsyncClient) HasError() bool {
-	return apiClient.scheduler.HasError()
-}
-
-// NextTick to return the NextTick of scheduler
-func (apiClient *ApiAsyncClient) NextTick(task func() errors.Error) {
-	apiClient.scheduler.NextTick(task)
-}
-
 // GetNumOfWorkers to return the Workers count if scheduler.
 func (apiClient *ApiAsyncClient) GetNumOfWorkers() int {
 	return apiClient.numOfWorkers
-}
-
-// Release will release the ApiAsyncClient with scheduler
-func (apiClient *ApiAsyncClient) Release() {
-	apiClient.scheduler.Release()
 }
 
 // RateLimitedApiClient FIXME ...
@@ -265,6 +253,8 @@ type RateLimitedApiClient interface {
 	GetNumOfWorkers() int
 	GetAfterFunction() common.ApiClientAfterResponse
 	SetAfterFunction(callback common.ApiClientAfterResponse)
+	Reset(d time.Duration)
+	GetTickInterval() time.Duration
 	Release()
 }
 

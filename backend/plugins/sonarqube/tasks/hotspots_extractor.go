@@ -33,13 +33,41 @@ func ExtractHotspots(taskCtx plugin.SubTaskContext) errors.Error {
 	extractor, err := helper.NewApiExtractor(helper.ApiExtractorArgs{
 		RawDataSubTaskArgs: *rawDataSubTaskArgs,
 		Extract: func(resData *helper.RawData) ([]interface{}, errors.Error) {
-			body := &models.SonarqubeHotspot{}
-			err := errors.Convert(json.Unmarshal(resData.Data, body))
+			var res struct {
+				Key                      string              `json:"key" gorm:"primaryKey"`
+				RuleKey                  string              `json:"ruleKey"`
+				Component                string              `json:"component" gorm:"index"`
+				ProjectKey               string              `json:"project" gorm:"index"`
+				Line                     int                 `json:"line"`
+				Status                   string              `json:"status"`
+				Message                  string              `json:"message"`
+				Author                   string              `json:"author"`
+				Assignee                 string              `json:"assignee"`
+				SecurityCategory         string              `json:"securityCategory"`
+				VulnerabilityProbability string              `json:"vulnerabilityProbability"`
+				CreationDate             *helper.Iso8601Time `json:"creationDate"`
+				UpdateDate               *helper.Iso8601Time `json:"updateDate"`
+			}
+			err := errors.Convert(json.Unmarshal(resData.Data, &res))
 			if err != nil {
 				return nil, err
 			}
-			body.ConnectionId = data.Options.ConnectionId
-			//body.BatchId = ""
+			body := &models.SonarqubeHotspot{
+				ConnectionId:             data.Options.ConnectionId,
+				HotspotKey:               res.Key,
+				RuleKey:                  res.RuleKey,
+				Component:                res.Component,
+				ProjectKey:               res.ProjectKey,
+				Line:                     res.Line,
+				Status:                   res.Status,
+				Message:                  res.Message,
+				Author:                   res.Author,
+				Assignee:                 res.Assignee,
+				SecurityCategory:         res.SecurityCategory,
+				VulnerabilityProbability: res.VulnerabilityProbability,
+				CreationDate:             res.CreationDate,
+				UpdateDate:               res.UpdateDate,
+			}
 			return []interface{}{body}, nil
 		},
 	})
