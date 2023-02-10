@@ -20,23 +20,13 @@ import styled from 'styled-components';
 
 export const Wrapper = styled.div`
   .block + .block {
-    margin-top: 48px;
-  }
-
-  h2 {
-    margin: 0 0 4px;
-  }
-
-  p {
-    margin: 0 0 16px;
+    margin-top: 24px;
   }
 
   ul {
-    margin: 0;
-    padding: 0;
-    list-style: none;
     display: flex;
     align-items: center;
+    flex-wrap: wrap;
   }
 
   li {
@@ -44,7 +34,10 @@ export const Wrapper = styled.div`
     display: flex;
     flex-direction: column;
     align-items: center;
-    padding: 8px 16px;
+    margin-right: 24px;
+    margin-bottom: 12px;
+    padding: 8px 0;
+    width: 120px;
     border: 2px solid transparent;
     cursor: pointer;
     transition: all 0.2s linear;
@@ -53,6 +46,10 @@ export const Wrapper = styled.div`
       background-color: #eeeeee;
       border-color: #7497f7;
       box-shadow: 0 2px 2px 0 rgb(0 0 0 / 16%), 0 0 2px 0 rgb(0 0 0 / 12%);
+    }
+
+    &:last-child {
+      margin-right: 0;
     }
 
     & > img {
@@ -68,9 +65,5 @@ export const Wrapper = styled.div`
       top: -4px;
       right: 4px;
     }
-  }
-
-  li + li {
-    margin-left: 24px;
   }
 `;
