@@ -19,8 +19,10 @@ package tasks
 
 import (
 	"encoding/json"
+
 	"github.com/apache/incubator-devlake/core/errors"
 	"github.com/apache/incubator-devlake/core/plugin"
+	"github.com/apache/incubator-devlake/helpers/pluginhelper/api"
 	helper "github.com/apache/incubator-devlake/helpers/pluginhelper/api"
 	"github.com/apache/incubator-devlake/plugins/sonarqube/models"
 )
@@ -32,13 +34,23 @@ func ExtractProjects(taskCtx plugin.SubTaskContext) errors.Error {
 	extractor, err := helper.NewApiExtractor(helper.ApiExtractorArgs{
 		RawDataSubTaskArgs: *rawDataSubTaskArgs,
 		Extract: func(resData *helper.RawData) ([]interface{}, errors.Error) {
-			body := &models.SonarqubeProject{}
+			body := &SonarqubeRawProject{}
 			err := errors.Convert(json.Unmarshal(resData.Data, body))
-			body.ConnectionId = data.Options.ConnectionId
 			if err != nil {
 				return nil, err
 			}
-			return []interface{}{body}, nil
+
+			sonarqubeProject := &models.SonarqubeProject{
+				ConnectionId:     data.Options.ConnectionId,
+				ProjectKey:       body.Key,
+				Name:             body.Name,
+				Qualifier:        body.Qualifier,
+				Visibility:       body.Visibility,
+				LastAnalysisDate: body.LastAnalysisDate,
+				Revision:         body.Revision,
+			}
+
+			return []interface{}{sonarqubeProject}, nil
 		},
 	})
 	if err != nil {
@@ -54,4 +66,13 @@ var ExtractProjectsMeta = plugin.SubTaskMeta{
 	EnabledByDefault: true,
 	Description:      "Extract raw data into tool layer table sonarqube_projects",
 	DomainTypes:      []string{plugin.DOMAIN_TYPE_SECURITY_TESTING},
+}
+
+type SonarqubeRawProject struct {
+	Key              string           `json:"key"`
+	Name             string           `json:"name"`
+	Qualifier        string           `json:"qualifier"`
+	Visibility       string           `json:"visibility"`
+	LastAnalysisDate *api.Iso8601Time `json:"lastAnalysisDate"`
+	Revision         string           `json:"revision"`
 }
