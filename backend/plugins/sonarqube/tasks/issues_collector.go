@@ -20,12 +20,11 @@ package tasks
 import (
 	"encoding/json"
 	"fmt"
-	"net/http"
-	"net/url"
-
 	"github.com/apache/incubator-devlake/core/errors"
 	"github.com/apache/incubator-devlake/core/plugin"
 	helper "github.com/apache/incubator-devlake/helpers/pluginhelper/api"
+	"net/http"
+	"net/url"
 )
 
 const RAW_ISSUES_TABLE = "sonarqube_issues"
@@ -41,7 +40,6 @@ func CollectIssues(taskCtx plugin.SubTaskContext) (err errors.Error) {
 	if err != nil {
 		return err
 	}
-
 	err = collectorWithState.InitCollector(helper.ApiCollectorArgs{
 		ApiClient:   data.ApiClient,
 		PageSize:    100,
@@ -58,9 +56,22 @@ func CollectIssues(taskCtx plugin.SubTaskContext) (err errors.Error) {
 			var resData struct {
 				Data []json.RawMessage `json:"issues"`
 			}
-			err := helper.UnmarshalResponse(res, &resData)
+			var issue struct {
+				UpdateDate *helper.Iso8601Time `json:"updateDate"`
+			}
+			err = helper.UnmarshalResponse(res, &resData)
 			if err != nil {
 				return nil, err
+			}
+			for _, v := range resData.Data {
+				err = errors.Convert(json.Unmarshal(v, &issue))
+				if err != nil {
+					return nil, err
+				}
+				if issue.UpdateDate.ToTime().After(*data.LastAnalysisDate) {
+					return nil, errors.Default.New(fmt.Sprintf(`Your data is affected by the latest analysis\n
+						Please recollect this project: %s`, data.Options.ProjectKey))
+				}
 			}
 			return resData.Data, nil
 		},
@@ -68,7 +79,6 @@ func CollectIssues(taskCtx plugin.SubTaskContext) (err errors.Error) {
 	if err != nil {
 		return err
 	}
-
 	return collectorWithState.Execute()
 }
 

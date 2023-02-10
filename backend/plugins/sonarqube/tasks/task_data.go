@@ -41,6 +41,7 @@ type SonarqubeOptions struct {
 type SonarqubeTaskData struct {
 	Options          *SonarqubeOptions
 	ApiClient        *api.ApiAsyncClient
+	LastAnalysisDate *time.Time
 	CreatedDateAfter *time.Time
 }
 

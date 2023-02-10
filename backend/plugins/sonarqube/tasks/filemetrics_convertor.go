@@ -56,12 +56,11 @@ func ConvertFileMetrics(taskCtx plugin.SubTaskContext) errors.Error {
 		Convert: func(inputRow interface{}) ([]interface{}, errors.Error) {
 			sonarqubeFileMetric := inputRow.(*sonarqubeModels.SonarqubeFileMetrics)
 			domainFileMetric := &securitytesting.StFileMetrics{
-				DomainEntity: domainlayer.DomainEntity{Id: issueIdGen.Generate(data.Options.ConnectionId, sonarqubeFileMetric.FileMetricsKey)},
-				FileName:     sonarqubeFileMetric.FileName,
-				FilePath:     sonarqubeFileMetric.FilePath,
-				FileLanguage: sonarqubeFileMetric.FileLanguage,
-				ProjectKey:   projectIdGen.Generate(data.Options.ConnectionId, sonarqubeFileMetric.ProjectKey),
-				//BatchID:                  sonarqubeFileMetric.BatchID,
+				DomainEntity:             domainlayer.DomainEntity{Id: issueIdGen.Generate(data.Options.ConnectionId, sonarqubeFileMetric.FileMetricsKey)},
+				FileName:                 sonarqubeFileMetric.FileName,
+				FilePath:                 sonarqubeFileMetric.FilePath,
+				FileLanguage:             sonarqubeFileMetric.FileLanguage,
+				ProjectKey:               projectIdGen.Generate(data.Options.ConnectionId, sonarqubeFileMetric.ProjectKey),
 				CodeSmells:               sonarqubeFileMetric.CodeSmells,
 				SqaleIndex:               sonarqubeFileMetric.SqaleIndex,
 				SqaleRating:              sonarqubeFileMetric.SqaleRating,

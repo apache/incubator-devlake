@@ -28,7 +28,6 @@ type SonarqubeHotspot struct {
 	RuleKey                  string
 	Component                string `gorm:"index"`
 	ProjectKey               string `gorm:"index"`
-	BatchId                  string `gorm:"type:varchar(100)"` // from collection time
 	Line                     int
 	Status                   string
 	Message                  string

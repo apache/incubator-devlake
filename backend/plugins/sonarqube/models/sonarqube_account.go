@@ -24,7 +24,6 @@ import (
 type SonarqubeAccount struct {
 	common.NoPKModel
 	ConnectionId uint64 `gorm:"primaryKey"`
-	BatchId      string `json:"batchId" gorm:"type:varchar(100)"` // from collection time
 	Login        string `json:"login" gorm:"primaryKey"`
 	Name         string `json:"name"`
 	Email        string `json:"email"`

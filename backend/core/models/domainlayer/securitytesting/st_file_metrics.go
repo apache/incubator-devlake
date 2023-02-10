@@ -24,7 +24,6 @@ import (
 type StFileMetrics struct {
 	domainlayer.DomainEntity
 	ProjectKey               string  `gorm:"index;type:varchar(255)"` //domain project key
-	BatchID                  string  `json:"batch_id"`
 	FileName                 string  `json:"file_name"`
 	FilePath                 string  `json:"file_path"`
 	FileLanguage             string  `json:"file_language"`
