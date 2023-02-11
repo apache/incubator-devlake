@@ -50,7 +50,7 @@ func CollectBugChangelogs(taskCtx core.SubTaskContext) errors.Error {
 			query.Set("workspace_id", fmt.Sprintf("%v", data.Options.WorkspaceId))
 			query.Set("page", fmt.Sprintf("%v", reqData.Pager.Page))
 			query.Set("limit", fmt.Sprintf("%v", reqData.Pager.Size))
-			query.Set("order", "created%20desc")
+			query.Set("order", "created desc")
 			if data.CreatedDateAfter != nil {
 				query.Set("created",
 					fmt.Sprintf(">%s",
