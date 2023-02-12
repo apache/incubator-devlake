@@ -18,27 +18,77 @@ limitations under the License.
 package api
 
 import (
+	"io"
+	"strings"
+
 	"github.com/apache/incubator-devlake/core/errors"
 	"github.com/apache/incubator-devlake/core/plugin"
-	"strings"
 )
 
 const maxMemory = 32 << 20 // 32 MB
 
-// ImportCSVFile accepts a CSV file, parses and saves it to the database
-// @Summary      Upload CSV file
-// @Description  Upload CSV file
+// ImportIssue accepts a CSV file, parses and saves it to the database
+// @Summary      Upload issues.csv file
+// @Description  Upload issues.csv file. 3 tables(boards, issues, board_issues) would be affected.
 // @Tags 		 plugins/customize
 // @Accept       multipart/form-data
+// @Param        boardId formData string true "the ID of the board"
+// @Param        boardName formData string true "the name of the board"
 // @Param        file formData file true "select file to upload"
-// @Param        table formData string true "the table name, only issues and issue_commits are supported"
-// @Param        rawDataParams formData string true "the value of _raw_data_params"
 // @Produce      json
 // @Success      200
 // @Failure 400  {object} shared.ApiBody "Bad Request"
 // @Failure 500  {object} shared.ApiBody "Internal Error"
-// @Router       /plugins/customize/csvfile [post]
-func (h *Handlers) ImportCSVFile(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, errors.Error) {
+// @Router       /plugins/customize/csvfiles/issues.csv [post]
+func (h *Handlers) ImportIssue(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, errors.Error) {
+	file, err := h.extractFile(input)
+	if err != nil {
+		return nil, err
+	}
+	// nolint
+	defer file.Close()
+	boardId := strings.TrimSpace(input.Request.FormValue("boardId"))
+	if boardId == "" {
+		return nil, errors.BadInput.New("empty boardId")
+	}
+	boardName := strings.TrimSpace(input.Request.FormValue("boardName"))
+	if boardName == "" {
+		return nil, errors.BadInput.New("empty boardName")
+	}
+	err = h.svc.SaveBoard(boardId, boardName)
+	if err != nil {
+		return nil, err
+	}
+	return nil, h.svc.ImportIssue(boardId, boardName, file)
+}
+
+// ImportIssueCommit accepts a CSV file, parses and saves it to the database
+// @Summary      Upload issue_commits.csv file
+// @Description  Upload issue_commits.csv file
+// @Tags 		 plugins/customize
+// @Accept       multipart/form-data
+// @Param        boardId formData string true "the ID of the board"
+// @Param        file formData file true "select file to upload"
+// @Produce      json
+// @Success      200
+// @Failure 400  {object} shared.ApiBody "Bad Request"
+// @Failure 500  {object} shared.ApiBody "Internal Error"
+// @Router       /plugins/customize/csvfiles/issue_commits.csv [post]
+func (h *Handlers) ImportIssueCommit(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, errors.Error) {
+	file, err := h.extractFile(input)
+	if err != nil {
+		return nil, err
+	}
+	// nolint
+	defer file.Close()
+	boardId := strings.TrimSpace(input.Request.FormValue("boardId"))
+	if boardId == "" {
+		return nil, errors.Default.New("empty boardId")
+	}
+	return nil, h.svc.ImportIssueCommit(boardId, file)
+}
+
+func (h *Handlers) extractFile(input *plugin.ApiResourceInput) (io.ReadCloser, errors.Error) {
 	if input.Request == nil {
 		return nil, errors.Default.New("request is nil")
 	}
@@ -57,15 +107,5 @@ func (h *Handlers) ImportCSVFile(input *plugin.ApiResourceInput) (*plugin.ApiRes
 	if err != nil {
 		return nil, errors.Convert(err)
 	}
-	// nolint
-	defer file.Close()
-	table := strings.TrimSpace(input.Request.FormValue("table"))
-	if table == "" {
-		return nil, errors.Default.New("empty table")
-	}
-	rawDataParams := strings.TrimSpace(input.Request.FormValue("rawDataParams"))
-	if rawDataParams == "" {
-		return nil, errors.Default.New("empty rawDataParams")
-	}
-	return nil, h.svc.ImportCSV(table, rawDataParams, file)
+	return file, nil
 }

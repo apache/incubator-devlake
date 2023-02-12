@@ -39,7 +39,7 @@ func TestImportIssueCommitDataFlow(t *testing.T) {
 		t.Fatal(err1)
 	}
 	defer f.Close()
-	err := svc.ImportCSV("issue_commits", `{"ConnectionId":1,"BoardId":8}`, f)
+	err := svc.ImportIssueCommit(`{"ConnectionId":1,"BoardId":8}`, f)
 	if err != nil {
 		t.Fatal(err)
 	}

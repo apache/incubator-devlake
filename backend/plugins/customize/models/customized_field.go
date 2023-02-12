@@ -28,6 +28,7 @@ type CustomizedField struct {
 	ColumnName  string         `gorm:"primaryKey;type:varchar(255)"`
 	DisplayName string         `gorm:"type:varchar(255)"`
 	DataType    dal.ColumnType `gorm:"type:varchar(255)"`
+	Description string
 }
 
 func (t *CustomizedField) TableName() string {

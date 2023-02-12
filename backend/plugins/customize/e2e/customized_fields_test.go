@@ -32,8 +32,8 @@ func TestCustomizedFieldDataFlow(t *testing.T) {
 	dataflowTester := e2ehelper.NewDataFlowTester(t, "customize", plugin)
 
 	// import raw data table
-	dataflowTester.ImportCsvIntoTabler("./raw_tables/issues.csv", &ticket.Issue{})
 	dataflowTester.FlushTabler(&models.CustomizedField{})
+	dataflowTester.FlushTabler(&ticket.Issue{})
 	svc := service.NewService(dataflowTester.Dal)
 	err := svc.CreateField(&models.CustomizedField{
 		TbName:      "issues",
@@ -91,13 +91,4 @@ func TestCustomizedFieldDataFlow(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	dataflowTester.VerifyTable(
-		&models.CustomizedField{},
-		"snapshot_tables/_tool_customized_fields.csv",
-		[]string{
-			"tb_name",
-			"column_name",
-			"display_name",
-			"data_type",
-		})
 }

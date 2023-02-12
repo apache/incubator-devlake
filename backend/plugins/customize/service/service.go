@@ -19,15 +19,17 @@ package service
 
 import (
 	"fmt"
+	"io"
+	"strings"
+
 	"github.com/apache/incubator-devlake/core/dal"
 	"github.com/apache/incubator-devlake/core/errors"
 	"github.com/apache/incubator-devlake/core/models/common"
+	"github.com/apache/incubator-devlake/core/models/domainlayer"
 	"github.com/apache/incubator-devlake/core/models/domainlayer/crossdomain"
 	"github.com/apache/incubator-devlake/core/models/domainlayer/ticket"
 	"github.com/apache/incubator-devlake/helpers/pluginhelper"
 	"github.com/apache/incubator-devlake/plugins/customize/models"
-	"io"
-	"strings"
 )
 
 // Service wraps database operations
@@ -43,7 +45,7 @@ func NewService(dal dal.Dal) *Service {
 func (s *Service) GetFields(table string) ([]models.CustomizedField, errors.Error) {
 	// the customized fields created before v0.16.0 were not recorded in the table `_tool_customized_field`, we should take care of them
 	columns, err := s.dal.GetColumns(&models.Table{Name: table}, func(columnMeta dal.ColumnMeta) bool {
-		return strings.HasPrefix(columnMeta.Name(), "x_")
+		return true
 	})
 	if err != nil {
 		return nil, errors.Default.Wrap(err, "GetColumns error")
@@ -58,13 +60,24 @@ func (s *Service) GetFields(table string) ([]models.CustomizedField, errors.Erro
 	}
 	var result []models.CustomizedField
 	for _, col := range columns {
-		if field, ok := fieldMap[col.Name()]; ok {
-			result = append(result, field)
-		} else {
+		// original fields
+		if !strings.HasPrefix(col.Name(), "x_") {
+			dataType, _ := col.ColumnType()
 			result = append(result, models.CustomizedField{
+				TbName:     table,
 				ColumnName: col.Name(),
-				DataType:   dal.Varchar,
+				DataType:   dal.ColumnType(dataType),
 			})
+			// customized fields
+		} else {
+			if field, ok := fieldMap[col.Name()]; ok {
+				result = append(result, field)
+			} else {
+				result = append(result, models.CustomizedField{
+					ColumnName: col.Name(),
+					DataType:   dal.Varchar,
+				})
+			}
 		}
 	}
 	return result, nil
@@ -97,13 +110,13 @@ func (s *Service) CreateField(cf *models.CustomizedField) errors.Error {
 	if exists {
 		return errors.BadInput.New(fmt.Sprintf("the column %s already exists", cf.ColumnName))
 	}
-	err = s.dal.AddColumn(cf.TbName, cf.ColumnName, cf.DataType)
-	if err != nil {
-		return errors.Default.Wrap(err, "AddColumn error")
-	}
 	err = s.dal.Create(cf)
 	if err != nil {
 		return errors.Default.Wrap(err, "create customizedField")
+	}
+	err = s.dal.AddColumn(cf.TbName, cf.ColumnName, cf.DataType)
+	if err != nil {
+		return errors.Default.Wrap(err, "AddColumn error")
 	}
 	return nil
 }
@@ -130,23 +143,29 @@ func (s *Service) getCustomizedFields(table string) ([]models.CustomizedField, e
 	return result, err
 }
 
-func (s *Service) ImportCSV(table, rawDataParams string, file io.ReadCloser) errors.Error {
-	var err errors.Error
-	switch table {
-	case "issues":
-		err = s.dal.Delete(&ticket.Issue{}, dal.Where("_raw_data_params = ?", rawDataParams))
-		if err != nil {
-			return err
-		}
-		return s.importCSV(file, rawDataParams, s.issueHandler)
-	case "issue_commits":
-		err = s.dal.Delete(&crossdomain.IssueCommit{}, dal.Where("_raw_data_params = ?", rawDataParams))
-		if err != nil {
-			return err
-		}
-		return s.importCSV(file, rawDataParams, s.issueCommitHandler)
+func (s *Service) ImportIssue(boardId, boardName string, file io.ReadCloser) errors.Error {
+	err := s.dal.Delete(&ticket.Issue{}, dal.Where("_raw_data_params = ?", boardId))
+	if err != nil {
+		return err
 	}
-	return errors.Default.New(fmt.Sprintf("can not import to the table %s", table))
+	return s.importCSV(file, boardId, s.issueHandlerFactory(boardId))
+}
+
+func (s *Service) SaveBoard(boardId, boardName string) errors.Error {
+	return s.dal.CreateOrUpdate(&ticket.Board{
+		DomainEntity: domainlayer.DomainEntity{
+			Id: boardId,
+		},
+		Name: boardName,
+	})
+}
+
+func (s *Service) ImportIssueCommit(rawDataParams string, file io.ReadCloser) errors.Error {
+	err := s.dal.Delete(&crossdomain.IssueCommit{}, dal.Where("_raw_data_params = ?", rawDataParams))
+	if err != nil {
+		return err
+	}
+	return s.importCSV(file, rawDataParams, s.issueCommitHandler)
 }
 
 func (s *Service) importCSV(file io.ReadCloser, rawDataParams string, recordHandler func(map[string]interface{}) errors.Error) errors.Error {
@@ -174,51 +193,60 @@ func (s *Service) importCSV(file io.ReadCloser, rawDataParams string, recordHand
 	}
 }
 
-func (s *Service) issueHandler(record map[string]interface{}) errors.Error {
-	var err errors.Error
-	var id string
-	if record["id"] == nil {
-		return errors.Default.New("record without id")
-	}
-	id, _ = record["id"].(string)
-	if id == "" {
-		return errors.Default.New("empty id")
-	}
-	if record["labels"] != nil {
-		labels, ok := record["labels"].(string)
-		if !ok {
-			return errors.Default.New("labels is not string")
+func (s *Service) issueHandlerFactory(boardId string) func(record map[string]interface{}) errors.Error {
+	return func(record map[string]interface{}) errors.Error {
+		var err errors.Error
+		var id string
+		if record["id"] == nil {
+			return errors.Default.New("record without id")
 		}
-		var issueLabels []*ticket.IssueLabel
-		labelSet := make(map[string]struct{}) // for deduplicate label
-		for _, label := range strings.Split(labels, ",") {
-			label = strings.TrimSpace(label)
-			if label == "" {
-				continue
+		id, _ = record["id"].(string)
+		if id == "" {
+			return errors.Default.New("empty id")
+		}
+		if record["labels"] != nil {
+			labels, ok := record["labels"].(string)
+			if !ok {
+				return errors.Default.New("labels is not string")
 			}
-			if _, exist := labelSet[label]; !exist {
-				issueLabel := &ticket.IssueLabel{
-					IssueId:   id,
-					LabelName: label,
-					NoPKModel: common.NoPKModel{
-						RawDataOrigin: common.RawDataOrigin{
-							RawDataParams: record["_raw_data_params"].(string),
-						},
-					},
+			var issueLabels []*ticket.IssueLabel
+			appearedLabels := make(map[string]struct{}) // record the labels that have appeared
+			for _, label := range strings.Split(labels, ",") {
+				label = strings.TrimSpace(label)
+				if label == "" {
+					continue
 				}
-				issueLabels = append(issueLabels, issueLabel)
-				labelSet[label] = struct{}{}
+				if _, appeared := appearedLabels[label]; !appeared {
+					issueLabel := &ticket.IssueLabel{
+						IssueId:   id,
+						LabelName: label,
+						NoPKModel: common.NoPKModel{
+							RawDataOrigin: common.RawDataOrigin{
+								RawDataParams: boardId,
+							},
+						},
+					}
+					issueLabels = append(issueLabels, issueLabel)
+					appearedLabels[label] = struct{}{}
+				}
+			}
+			if len(issueLabels) > 0 {
+				err = s.dal.CreateOrUpdate(issueLabels)
+				if err != nil {
+					return err
+				}
 			}
 		}
-		if len(issueLabels) > 0 {
-			err = s.dal.CreateOrUpdate(issueLabels)
-			if err != nil {
-				return err
-			}
+		delete(record, "labels")
+		err = s.dal.CreateWithMap(&ticket.Issue{}, record)
+		if err != nil {
+			return err
 		}
+		return s.dal.CreateOrUpdate(&ticket.BoardIssue{
+			BoardId: boardId,
+			IssueId: id,
+		})
 	}
-	delete(record, "labels")
-	return s.dal.CreateWithMap(&ticket.Issue{}, record)
 }
 
 func (s *Service) issueCommitHandler(record map[string]interface{}) errors.Error {

@@ -35,6 +35,7 @@ func TestImportIssueDataFlow(t *testing.T) {
 	dataflowTester.FlushTabler(&ticket.Issue{})
 	dataflowTester.FlushTabler(&models.CustomizedField{})
 	dataflowTester.FlushTabler(&ticket.IssueLabel{})
+	dataflowTester.FlushTabler(&ticket.BoardIssue{})
 	svc := service.NewService(dataflowTester.Dal)
 	err := svc.CreateField(&models.CustomizedField{
 		TbName:      "issues",
@@ -87,7 +88,7 @@ func TestImportIssueDataFlow(t *testing.T) {
 		t.Fatal(err1)
 	}
 	defer issueFile.Close()
-	err = svc.ImportCSV("issues", `{"ConnectionId":1,"Owner":"thenicetgp","Repo":"lake"}`, issueFile)
+	err = svc.ImportIssue(`{"ConnectionId":1,"Owner":"thenicetgp","Repo":"lake"}`, "lake", issueFile)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -135,5 +136,12 @@ func TestImportIssueDataFlow(t *testing.T) {
 		[]string{
 			"issue_id",
 			"label_name",
+		})
+	dataflowTester.VerifyTableWithRawData(
+		&ticket.BoardIssue{},
+		"snapshot_tables/board_issues.csv",
+		[]string{
+			"board_id",
+			"issue_id",
 		})
 }

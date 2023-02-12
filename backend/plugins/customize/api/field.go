@@ -34,6 +34,7 @@ type field struct {
 	ColumnName  string `json:"columnName" example:"x_column_varchar"`
 	DisplayName string `json:"displayName" example:"department"`
 	DataType    string `json:"dataType" example:"varchar(255)"`
+	Description string `json:"description" example:"more details about the column"`
 }
 
 func (f *field) toCustomizedField(table string) (*models.CustomizedField, errors.Error) {
@@ -60,6 +61,7 @@ func fromCustomizedField(cf models.CustomizedField) field {
 		ColumnName:  cf.ColumnName,
 		DisplayName: cf.DisplayName,
 		DataType:    cf.DataType.String(),
+		Description: cf.Description,
 	}
 }
 
