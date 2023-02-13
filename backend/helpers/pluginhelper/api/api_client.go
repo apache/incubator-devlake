@@ -27,6 +27,7 @@ import (
 	"io"
 	"net/http"
 	"net/url"
+	"reflect"
 	"regexp"
 	"strings"
 	"sync"
@@ -64,6 +65,9 @@ func NewApiClientFromConnection(
 	br context.BasicRes,
 	connection aha.ApiConnection,
 ) (*ApiClient, errors.Error) {
+	if reflect.ValueOf(connection).Kind() != reflect.Ptr {
+		return nil, errors.Default.New("connection is not a pointer")
+	}
 	apiClient, err := NewApiClient(ctx, connection.GetEndpoint(), nil, 0, connection.GetProxy(), br)
 	if err != nil {
 		return nil, err

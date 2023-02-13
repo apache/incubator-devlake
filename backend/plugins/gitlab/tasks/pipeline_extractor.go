@@ -116,5 +116,10 @@ func ExtractApiPipelines(taskCtx plugin.SubTaskContext) errors.Error {
 		return err
 	}
 
-	return extractor.Execute()
+	err = extractor.Execute()
+	if err != nil {
+		return err
+	}
+
+	return nil
 }

@@ -49,7 +49,7 @@ func TestConnection(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, 
 		return nil, err
 	}
 
-	apiClient, err := api.NewApiClientFromConnection(context.TODO(), basicRes, conn)
+	apiClient, err := api.NewApiClientFromConnection(context.TODO(), basicRes, &conn)
 	if err != nil {
 		return nil, err
 	}
