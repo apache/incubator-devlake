@@ -35,8 +35,8 @@ interface Props {
 }
 
 export const ConnectionForm = ({ plugin, connectionId }: Props) => {
-  const [form, setForm] = useState<Record<string, any>>({});
-  const [error, setError] = useState<Record<string, any>>({});
+  const [values, setValues] = useState<Record<string, any>>({});
+  const [errors, setErrors] = useState<Record<string, any>>({});
 
   const {
     name,
@@ -65,14 +65,15 @@ export const ConnectionForm = ({ plugin, connectionId }: Props) => {
         <Form
           name={name}
           fields={fields}
-          values={{ ...form, ...initialValues, ...data }}
-          setValues={setForm}
-          error={error}
-          setError={setError}
+          initialValues={{ ...initialValues, ...data }}
+          values={values}
+          errors={errors}
+          setValues={setValues}
+          setErrors={setErrors}
         />
         <ButtonGroup className="btns">
-          <Test plugin={plugin} form={form} error={error} />
-          <Save plugin={plugin} connectionId={connectionId} form={form} error={error} />
+          <Test plugin={plugin} values={values} errors={errors} />
+          <Save plugin={plugin} connectionId={connectionId} values={values} errors={errors} />
         </ButtonGroup>
       </S.Form>
     </S.Wrapper>

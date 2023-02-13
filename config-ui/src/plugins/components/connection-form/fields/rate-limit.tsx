@@ -45,12 +45,25 @@ interface Props {
   learnMore: string;
   externalInfo: string;
   defaultValue: number;
+  initialValue: number;
   value: number;
-  onChange: (value: number) => void;
+  setValue: (value: number) => void;
 }
 
-export const ConnectionRateLimit = ({ subLabel, learnMore, externalInfo, defaultValue, value, onChange }: Props) => {
+export const ConnectionRateLimit = ({
+  subLabel,
+  learnMore,
+  externalInfo,
+  defaultValue,
+  initialValue,
+  value,
+  setValue,
+}: Props) => {
   const [checked, setChecked] = useState(true);
+
+  useEffect(() => {
+    setValue(initialValue);
+  }, [initialValue]);
 
   useEffect(() => {
     setChecked(value ? true : false);
@@ -59,15 +72,15 @@ export const ConnectionRateLimit = ({ subLabel, learnMore, externalInfo, default
   const handleChange = (e: React.FormEvent<HTMLInputElement>) => {
     const checked = (e.target as HTMLInputElement).checked;
     if (checked) {
-      onChange(defaultValue);
+      setValue(defaultValue);
     } else {
-      onChange(0);
+      setValue(0);
     }
     setChecked(checked);
   };
 
   const handleChangeValue = (value: number) => {
-    onChange(value);
+    setValue(value);
   };
 
   return (

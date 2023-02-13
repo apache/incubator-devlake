@@ -33,19 +33,30 @@ type TokenItem = {
 };
 
 interface Props {
-  values: any;
-  setValues: any;
-  error: any;
-  setError: any;
+  endpoint?: string;
+  proxy?: string;
+  initialValue: string;
+  value: string;
+  error: string;
+  setValue: (value: string) => void;
+  setError: (error: string) => void;
 }
 
-export const Token = ({ values, setValues, error, setError }: Props) => {
+export const Token = ({ endpoint, proxy, initialValue, value, error, setValue, setError }: Props) => {
   const [tokens, setTokens] = useState<TokenItem[]>([{ value: '', status: 'idle' }]);
 
   const testToken = async (token: string): Promise<TokenItem> => {
+    if (!endpoint) {
+      return {
+        value: token,
+        status: 'invalid',
+      };
+    }
+
     try {
       const res = await API.testConnection({
-        ...pick(values, ['endpoint', 'proxy']),
+        endpoint,
+        proxy,
         token,
       });
       return {
@@ -67,15 +78,15 @@ export const Token = ({ values, setValues, error, setError }: Props) => {
   };
 
   useEffect(() => {
-    if (values.token) {
-      checkTokens(values.token);
-    }
-  }, []);
+    checkTokens(initialValue);
+  }, [initialValue]);
 
   useEffect(() => {
-    const token = tokens.map((it) => it.value).join(',');
-    setValues({ ...values, token });
-    setError({ ...error, token: tokens.every((it) => it.value && it.status === 'valid') ? '' : 'error' });
+    setError(value ? '' : 'token is required');
+  }, [value]);
+
+  useEffect(() => {
+    setValue(tokens.map((it) => it.value).join(','));
   }, [tokens]);
 
   const handleCreateToken = () => setTokens([...tokens, { value: '', status: 'idle' }]);

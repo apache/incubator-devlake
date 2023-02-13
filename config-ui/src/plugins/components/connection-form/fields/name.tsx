@@ -16,19 +16,30 @@
  *
  */
 
-import React from 'react';
+import React, { useEffect } from 'react';
 import { FormGroup, InputGroup } from '@blueprintjs/core';
 
 import * as S from './styled';
 
 interface Props {
+  initialValue: string;
   value: string;
-  onChange: (value: string) => void;
+  error: string;
+  setValue: (value: string) => void;
+  setError: (error: string) => void;
 }
 
-export const ConnectionName = ({ value, onChange }: Props) => {
+export const ConnectionName = ({ initialValue, value, setValue, setError }: Props) => {
+  useEffect(() => {
+    setValue(initialValue);
+  }, [initialValue]);
+
+  useEffect(() => {
+    setError(value ? '' : 'name is required');
+  }, [value]);
+
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    onChange(e.target.value);
+    setValue(e.target.value);
   };
 
   return (

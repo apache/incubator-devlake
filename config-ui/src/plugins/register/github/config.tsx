@@ -45,9 +45,25 @@ export const GitHubConfig: PluginConfigType = {
           server: '',
         },
       },
-      (props: any) => <Token key="token" {...props} />,
+      ({ initialValues, values, errors, setValues, setErrors }: any) => (
+        <Token
+          key="token"
+          initialValue={initialValues.token ?? ''}
+          value={values.token ?? ''}
+          error={errors.token ?? ''}
+          setValue={(value) => setValues({ token: value })}
+          setError={(value) => setErrors({ token: value })}
+        />
+      ),
       'proxy',
-      (props: any) => <Graphql key="graphql" {...props} />,
+      ({ initialValues, values, setValues }: any) => (
+        <Graphql
+          key="graphql"
+          initialValue={initialValues.enableGraphql ?? false}
+          value={values.enableGraphql ?? false}
+          setValue={(value) => setValues({ enableGraphql: value })}
+        />
+      ),
       {
         key: 'rateLimitPerHour',
         subLabel:

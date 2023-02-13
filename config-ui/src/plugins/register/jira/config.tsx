@@ -16,7 +16,7 @@
  *
  */
 
-import React from 'react';
+import React, { useMemo } from 'react';
 
 import type { PluginConfigType } from '@/plugins';
 import { PluginType } from '@/plugins';
@@ -39,7 +39,38 @@ export const JIRAConfig: PluginConfigType = {
         subLabel:
           'Provide the Jira instance API endpoint. For Jira Cloud, e.g. https://your-company.atlassian.net/rest/',
       },
-      (props: any) => <Auth {...props} />,
+      ({ initialValues, values, errors, setValues, setErrors }: any) => {
+        const initialValue = useMemo(
+          () => ({
+            authMethod: initialValues.authMethod ?? 'BasicAuth',
+            username: initialValues.username ?? '',
+            password: initialValues.password ?? '',
+            token: initialValues.token ?? '',
+          }),
+          [],
+        );
+
+        const value = useMemo(
+          () => ({
+            authMethod: values.authMethod ?? 'BasicAuth',
+            username: values.username ?? '',
+            password: values.password ?? '',
+            token: values.token ?? '',
+          }),
+          [values],
+        );
+
+        return (
+          <Auth
+            key="auth"
+            initialValue={initialValue}
+            value={value}
+            error={errors.auth}
+            setValue={(value) => setValues(value)}
+            setError={(value) => setErrors({ auth: value })}
+          />
+        );
+      },
       'proxy',
       {
         key: 'rateLimitPerHour',

@@ -33,7 +33,7 @@
  *
  */
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { FormGroup, RadioGroup, Radio, InputGroup } from '@blueprintjs/core';
 
 import * as S from './styled';
@@ -45,28 +45,49 @@ interface Props {
   disabled?: boolean;
   name: string;
   multipleVersions?: Record<VersionType, string>;
+  initialValue: string;
   value: string;
-  onChange: (value: string) => void;
+  error: string;
+  setValue: (value: string) => void;
+  setError: (error: string) => void;
 }
 
-export const ConnectionEndpoint = ({ subLabel, disabled = false, name, multipleVersions, value, onChange }: Props) => {
+export const ConnectionEndpoint = ({
+  subLabel,
+  disabled = false,
+  name,
+  multipleVersions,
+  initialValue,
+  value,
+  error,
+  setValue,
+  setError,
+}: Props) => {
   const [version, setVersion] = useState<VersionType>('cloud');
+
+  useEffect(() => {
+    setValue(initialValue);
+  }, [initialValue]);
+
+  useEffect(() => {
+    setError(value ? '' : 'endpoint is required');
+  }, [value]);
 
   const handleChange = (e: React.FormEvent<HTMLInputElement>) => {
     const version = (e.target as HTMLInputElement).value as VersionType;
     if (version === 'cloud') {
-      onChange(multipleVersions?.cloud ?? '');
+      setValue(multipleVersions?.cloud ?? '');
     }
 
     if (version === 'server') {
-      onChange('');
+      setValue('');
     }
 
     setVersion(version);
   };
 
   const handleChangeValue = (e: React.ChangeEvent<HTMLInputElement>) => {
-    onChange(e.target.value);
+    setValue(e.target.value);
   };
 
   if (multipleVersions) {
