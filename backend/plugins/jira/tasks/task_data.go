@@ -20,10 +20,11 @@ package tasks
 import (
 	"encoding/json"
 	"fmt"
+	"time"
+
 	"github.com/apache/incubator-devlake/core/errors"
 	"github.com/apache/incubator-devlake/helpers/pluginhelper/api"
 	"github.com/apache/incubator-devlake/plugins/jira/models"
-	"time"
 )
 
 type StatusMapping struct {
@@ -94,6 +95,7 @@ type JiraOptions struct {
 	ConnectionId         uint64 `json:"connectionId"`
 	BoardId              uint64 `json:"boardId"`
 	CreatedDateAfter     string
+	UpdatedDateAfter     string
 	TransformationRules  *JiraTransformationRule `json:"transformationRules"`
 	ScopeId              string
 	TransformationRuleId uint64
@@ -103,6 +105,7 @@ type JiraTaskData struct {
 	Options          *JiraOptions
 	ApiClient        *api.ApiAsyncClient
 	CreatedDateAfter *time.Time
+	UpdatedDateAfter *time.Time
 	JiraServerInfo   models.JiraServerInfo
 }
 
