@@ -170,12 +170,8 @@ func ExtractApiMergeRequests(taskCtx plugin.SubTaskContext) errors.Error {
 		return errors.Convert(err)
 	}
 
-	err = extractor.Execute()
-	if err != nil {
-		return err
-	}
+	return extractor.Execute()
 
-	return nil
 }
 
 func convertMergeRequest(mr *MergeRequestRes) (*models.GitlabMergeRequest, errors.Error) {
