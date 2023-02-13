@@ -26,45 +26,45 @@ import * as S from './styled';
 type Method = 'BasicAuth' | 'AccessToken';
 
 interface Props {
-  form: any;
-  setForm: (value: any) => void;
+  values: any;
+  setValues: (value: any) => void;
 }
 
-export const Auth = ({ form, setForm }: Props) => {
+export const Auth = ({ values, setValues }: Props) => {
   const [method, setMethod] = useState<Method>('BasicAuth');
 
   const handleChangeMethod = (e: React.FormEvent<HTMLInputElement>) => {
     const m = (e.target as HTMLInputElement).value as Method;
 
     setMethod(m);
-    setForm({
-      ...form,
+    setValues({
+      ...values,
       authMethod: m,
-      username: m === 'BasicAuth' ? form.username : undefined,
-      password: m === 'BasicAuth' ? form.password : undefined,
-      token: m === 'AccessToken' ? form.token : undefined,
+      username: m === 'BasicAuth' ? values.username : undefined,
+      password: m === 'BasicAuth' ? values.password : undefined,
+      token: m === 'AccessToken' ? values.token : undefined,
     });
   };
 
   const handleChangeUsername = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setForm({
-      ...form,
+    setValues({
+      ...values,
       authMethod: 'BasicAuth',
       username: e.target.value,
     });
   };
 
   const handleChangePassword = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setForm({
-      ...form,
+    setValues({
+      ...values,
       authMethod: 'BasicAuth',
       password: e.target.value,
     });
   };
 
   const handleChangeToken = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setForm({
-      ...form,
+    setValues({
+      ...values,
       token: e.target.value,
     });
   };
@@ -80,7 +80,7 @@ export const Auth = ({ form, setForm }: Props) => {
           <FormGroup label={<S.Label>Username/e-mail</S.Label>} labelInfo={<S.LabelInfo>*</S.LabelInfo>}>
             <InputGroup
               placeholder="Your Username/e-mail"
-              value={form.username || ''}
+              value={values.username || ''}
               onChange={handleChangeUsername}
             />
           </FormGroup>
@@ -100,7 +100,7 @@ export const Auth = ({ form, setForm }: Props) => {
             <InputGroup
               type="password"
               placeholder="Your Token/Password"
-              value={form.password || ''}
+              value={values.password || ''}
               onChange={handleChangePassword}
             />
           </FormGroup>
@@ -118,7 +118,7 @@ export const Auth = ({ form, setForm }: Props) => {
             </S.LabelDescription>
           }
         >
-          <InputGroup type="password" placeholder="Your PAT" value={form.token || ''} onChange={handleChangeToken} />
+          <InputGroup type="password" placeholder="Your PAT" value={values.token || ''} onChange={handleChangeToken} />
         </FormGroup>
       )}
     </FormGroup>

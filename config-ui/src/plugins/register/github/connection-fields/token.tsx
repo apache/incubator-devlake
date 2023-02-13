@@ -33,19 +33,19 @@ type TokenItem = {
 };
 
 interface Props {
-  form: any;
-  setForm: any;
+  values: any;
+  setValues: any;
   error: any;
   setError: any;
 }
 
-export const Token = ({ form, setForm, error, setError }: Props) => {
+export const Token = ({ values, setValues, error, setError }: Props) => {
   const [tokens, setTokens] = useState<TokenItem[]>([{ value: '', status: 'idle' }]);
 
   const testToken = async (token: string): Promise<TokenItem> => {
     try {
       const res = await API.testConnection({
-        ...pick(form, ['endpoint', 'proxy']),
+        ...pick(values, ['endpoint', 'proxy']),
         token,
       });
       return {
@@ -67,32 +67,26 @@ export const Token = ({ form, setForm, error, setError }: Props) => {
   };
 
   useEffect(() => {
-    if (form.token) {
-      checkTokens(form.token);
+    if (values.token) {
+      checkTokens(values.token);
     }
   }, []);
 
   useEffect(() => {
     const token = tokens.map((it) => it.value).join(',');
-    setForm({ ...form, token });
-    setError({ ...error, token: token ? '' : 'token is required' });
+    setValues({ ...values, token });
+    setError({ ...error, token: tokens.every((it) => it.value && it.status === 'valid') ? '' : 'error' });
   }, [tokens]);
 
-  const handleCreateToken = () => {
-    setTokens([...tokens, { value: '', status: 'idle' }]);
-  };
+  const handleCreateToken = () => setTokens([...tokens, { value: '', status: 'idle' }]);
 
-  const handleRemoveToken = (key: number) => {
-    setTokens(tokens.filter((_, i) => (i === key ? false : true)));
-  };
+  const handleRemoveToken = (key: number) => setTokens(tokens.filter((_, i) => (i === key ? false : true)));
 
-  const handleChangeToken = (key: number, value: string) => {
+  const handleChangeToken = (key: number, value: string) =>
     setTokens(tokens.map((it, i) => (i === key ? { value, status: 'idle' } : it)));
-  };
 
   const handleTestToken = async (key: number) => {
     const token = tokens.find((_, i) => i === key) as TokenItem;
-
     if (token.status === 'idle' && token.value) {
       const res = await testToken(token.value);
       setTokens((tokens) => tokens.map((it, i) => (i === key ? res : it)));

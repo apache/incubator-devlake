@@ -22,15 +22,15 @@ import { FormGroup, Switch } from '@blueprintjs/core';
 import * as S from './styled';
 
 interface Props {
-  form: any;
-  setForm: any;
+  values: any;
+  setValues: any;
 }
 
-export const Graphql = ({ form, setForm }: Props) => {
+export const Graphql = ({ values, setValues }: Props) => {
   const handleChange = (e: React.FormEvent<HTMLInputElement>) => {
     const enableGraphql = (e.target as HTMLInputElement).checked;
-    setForm({
-      ...form,
+    setValues({
+      ...values,
       enableGraphql,
     });
   };
@@ -44,7 +44,7 @@ export const Graphql = ({ form, setForm }: Props) => {
         </S.LabelDescription>
       }
     >
-      <Switch checked={form.enableGraphql ?? false} onChange={handleChange} />
+      <Switch checked={values.enableGraphql ?? false} onChange={handleChange} />
     </FormGroup>
   );
 };

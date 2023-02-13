@@ -16,7 +16,7 @@
  *
  */
 
-import React, { useState, useEffect, useMemo } from 'react';
+import React, { useState, useMemo } from 'react';
 import { ButtonGroup } from '@blueprintjs/core';
 
 import { PageLoading, ExternalLink } from '@/components';
@@ -24,15 +24,7 @@ import { useRefreshData } from '@/hooks';
 import type { PluginConfigConnectionType } from '@/plugins';
 import { PluginConfig } from '@/plugins';
 
-import {
-  ConnectionName,
-  ConnectionEndpoint,
-  ConnectionUsername,
-  ConnectionPassword,
-  ConnectionToken,
-  ConnectionProxy,
-  ConnectionRateLimit,
-} from './fields';
+import { Form } from './fields';
 import { Test, Save } from './operate';
 import * as API from './api';
 import * as S from './styled';
@@ -47,7 +39,8 @@ export const ConnectionForm = ({ plugin, connectionId }: Props) => {
   const [error, setError] = useState<Record<string, any>>({});
 
   const {
-    connection: { initialValues },
+    name,
+    connection: { docLink, fields, initialValues },
   } = useMemo(() => PluginConfig.find((p) => p.plugin === plugin) as PluginConfigConnectionType, [plugin]);
 
   const { ready, data } = useRefreshData(async () => {
@@ -58,101 +51,7 @@ export const ConnectionForm = ({ plugin, connectionId }: Props) => {
     return API.getConnection(plugin, connectionId);
   }, [plugin, connectionId]);
 
-  useEffect(() => {
-    if (ready) {
-      setForm({
-        ...form,
-        ...initialValues,
-        ...data,
-      });
-    }
-  }, [ready, data]);
-
-  useEffect(() => {
-    setError({
-      ...error,
-      name: form.name ? '' : 'name is required',
-      endpoint: form.endpoint ? '' : 'endpoint is required',
-    });
-  }, [form]);
-
-  const {
-    name,
-    connection: { docLink, fields },
-  } = useMemo(() => PluginConfig.find((p) => p.plugin === plugin) as PluginConfigConnectionType, [plugin]);
-
-  const generateForm = () => {
-    return fields.map((field) => {
-      if (typeof field === 'function') {
-        return field({ form, setForm, error, setError });
-      }
-
-      const key = typeof field === 'string' ? field : field.key;
-
-      switch (key) {
-        case 'name':
-          return <ConnectionName key={key} value={form.name ?? ''} onChange={(name) => setForm({ ...form, name })} />;
-        case 'endpoint':
-          return (
-            <ConnectionEndpoint
-              {...field}
-              key={key}
-              name={name}
-              value={form.endpoint ?? ''}
-              onChange={(endpoint) => setForm({ ...form, endpoint })}
-            />
-          );
-        case 'username':
-          return (
-            <ConnectionUsername
-              key={key}
-              value={form.username ?? ''}
-              onChange={(username) => setForm({ ...form, username })}
-            />
-          );
-        case 'password':
-          return (
-            <ConnectionPassword
-              {...field}
-              key={key}
-              value={form.password ?? ''}
-              onChange={(password) => setForm({ ...form, password })}
-            />
-          );
-        case 'token':
-          return (
-            <ConnectionToken
-              {...field}
-              key={key}
-              value={form.token ?? ''}
-              onChange={(token) => setForm({ ...form, token })}
-            />
-          );
-        case 'proxy':
-          return (
-            <ConnectionProxy
-              key={key}
-              name={name}
-              value={form.proxy ?? ''}
-              onChange={(proxy) => setForm({ ...form, proxy })}
-            />
-          );
-        case 'rateLimitPerHour':
-          return (
-            <ConnectionRateLimit
-              {...field}
-              key={key}
-              value={form.rateLimitPerHour}
-              onChange={(rateLimitPerHour) => setForm({ ...form, rateLimitPerHour })}
-            />
-          );
-        default:
-          return null;
-      }
-    });
-  };
-
-  if (!ready) {
+  if (connectionId && !ready) {
     return <PageLoading />;
   }
 
@@ -163,7 +62,14 @@ export const ConnectionForm = ({ plugin, connectionId }: Props) => {
         <ExternalLink link={docLink}>check out this doc</ExternalLink>.
       </S.Tips>
       <S.Form>
-        {generateForm()}
+        <Form
+          name={name}
+          fields={fields}
+          values={{ ...form, ...initialValues, ...data }}
+          setValues={setForm}
+          error={error}
+          setError={setError}
+        />
         <ButtonGroup className="btns">
           <Test plugin={plugin} form={form} error={error} />
           <Save plugin={plugin} connectionId={connectionId} form={form} error={error} />
