@@ -78,8 +78,8 @@ const TypeGroup string = "group"
 // @Tags plugins/gitlab
 // @Accept application/json
 // @Param connectionId path int false "connection ID"
-// @Param groupId body string false "group ID"
-// @Param pageToken body string false "page Token"
+// @Param groupId query string false "group ID"
+// @Param pageToken query string false "page Token"
 // @Success 200  {object} []models.GitlabProject
 // @Failure 400  {object} shared.ApiBody "Bad Request"
 // @Failure 500  {object} shared.ApiBody "Internal Error"
@@ -250,9 +250,9 @@ func RemoteScopes(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, er
 // @Tags plugins/gitlab
 // @Accept application/json
 // @Param connectionId path int false "connection ID"
-// @Param search body string false "group ID"
-// @Param page body int false "page number"
-// @Param pageSize body int false "page size per page"
+// @Param search query string false "group ID"
+// @Param page query int false "page number"
+// @Param pageSize query int false "page size per page"
 // @Success 200  {object} []models.GitlabProject
 // @Failure 400  {object} shared.ApiBody "Bad Request"
 // @Failure 500  {object} shared.ApiBody "Internal Error"
