@@ -78,7 +78,7 @@ func (m *ApiCollectorStateManager) IsIncremental() bool {
 	}
 	// prioritize UpdatedDateAfter parameter: collector should filter data by `updated_date`
 	if m.UpdatedDateAfter != nil {
-		return m.LatestState.UpdatedDateAfter == nil || m.UpdatedDateAfter != nil && !m.UpdatedDateAfter.Before(*m.LatestState.UpdatedDateAfter)
+		return m.LatestState.UpdatedDateAfter == nil || !m.UpdatedDateAfter.Before(*m.LatestState.UpdatedDateAfter)
 	}
 	// fallback to CreatedDateAfter: collector should filter data by `created_date`
 	return m.LatestState.CreatedDateAfter == nil || m.CreatedDateAfter != nil && !m.CreatedDateAfter.Before(*m.LatestState.CreatedDateAfter)
