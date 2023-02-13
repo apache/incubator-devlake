@@ -128,6 +128,11 @@ func (p Gitlab) SubTaskMetas() []plugin.SubTaskMeta {
 		tasks.ConvertPipelineMeta,
 		tasks.ConvertPipelineCommitMeta,
 		tasks.ConvertJobMeta,
+		tasks.CollectApiCommitsMeta,
+		tasks.ExtractApiCommitsMeta,
+		tasks.ExtractApiMergeRequestDetailsMeta,
+		tasks.CollectTagMeta,
+		tasks.ExtractTagMeta,
 	}
 }
 
