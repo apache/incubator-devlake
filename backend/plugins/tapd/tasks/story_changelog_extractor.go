@@ -19,30 +19,29 @@ package tasks
 
 import (
 	"encoding/json"
-	"github.com/apache/incubator-devlake/errors"
+	"github.com/apache/incubator-devlake/core/errors"
+	"github.com/apache/incubator-devlake/core/plugin"
+	"github.com/apache/incubator-devlake/helpers/pluginhelper/api"
+	"github.com/apache/incubator-devlake/plugins/tapd/models"
 	"strconv"
 	"strings"
-
-	"github.com/apache/incubator-devlake/plugins/core"
-	"github.com/apache/incubator-devlake/plugins/helper"
-	"github.com/apache/incubator-devlake/plugins/tapd/models"
 )
 
-var _ core.SubTaskEntryPoint = ExtractStoryChangelog
+var _ plugin.SubTaskEntryPoint = ExtractStoryChangelog
 
-var ExtractStoryChangelogMeta = core.SubTaskMeta{
+var ExtractStoryChangelogMeta = plugin.SubTaskMeta{
 	Name:             "extractStoryChangelog",
 	EntryPoint:       ExtractStoryChangelog,
 	EnabledByDefault: true,
 	Description:      "Extract raw workspace data into tool layer table _tool_tapd_iterations",
-	DomainTypes:      []string{core.DOMAIN_TYPE_TICKET},
+	DomainTypes:      []string{plugin.DOMAIN_TYPE_TICKET},
 }
 
-func ExtractStoryChangelog(taskCtx core.SubTaskContext) errors.Error {
+func ExtractStoryChangelog(taskCtx plugin.SubTaskContext) errors.Error {
 	rawDataSubTaskArgs, data := CreateRawDataSubTaskArgs(taskCtx, RAW_STORY_CHANGELOG_TABLE, false)
-	extractor, err := helper.NewApiExtractor(helper.ApiExtractorArgs{
+	extractor, err := api.NewApiExtractor(api.ApiExtractorArgs{
 		RawDataSubTaskArgs: *rawDataSubTaskArgs,
-		Extract: func(row *helper.RawData) ([]interface{}, errors.Error) {
+		Extract: func(row *api.RawData) ([]interface{}, errors.Error) {
 			var storyChangelogBody struct {
 				WorkitemChange models.TapdStoryChangelog
 			}
