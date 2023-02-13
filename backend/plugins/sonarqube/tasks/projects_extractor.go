@@ -42,24 +42,10 @@ func ExtractProjects(taskCtx plugin.SubTaskContext) errors.Error {
 	extractor, err := helper.NewApiExtractor(helper.ApiExtractorArgs{
 		RawDataSubTaskArgs: *rawDataSubTaskArgs,
 		Extract: func(resData *helper.RawData) ([]interface{}, errors.Error) {
-			var res struct {
-				ProjectKey       string              `json:"key"`
-				Name             string              `json:"name"`
-				Qualifier        string              `json:"qualifier"`
-				Visibility       string              `json:"visibility"`
-				LastAnalysisDate *helper.Iso8601Time `json:"lastAnalysisDate"`
-				Revision         string              `json:"revision"`
-			}
+			res := SonarqubeApiProject{}
 			err := errors.Convert(json.Unmarshal(resData.Data, &res))
-			body := &models.SonarqubeProject{
-				ConnectionId:     data.Options.ConnectionId,
-				ProjectKey:       res.ProjectKey,
-				Name:             res.Name,
-				Qualifier:        res.Qualifier,
-				Visibility:       res.Visibility,
-				LastAnalysisDate: res.LastAnalysisDate,
-				Revision:         res.Revision,
-			}
+			body := ConvertProject(&res)
+			body.ConnectionId = data.Options.ConnectionId
 			data.LastAnalysisDate = body.LastAnalysisDate.ToNullableTime()
 			if err != nil {
 				return nil, err
@@ -80,4 +66,26 @@ var ExtractProjectsMeta = plugin.SubTaskMeta{
 	EnabledByDefault: true,
 	Description:      "Extract raw data into tool layer table sonarqube_projects",
 	DomainTypes:      []string{plugin.DOMAIN_TYPE_SECURITY_TESTING},
+}
+
+type SonarqubeApiProject struct {
+	ProjectKey       string              `json:"key"`
+	Name             string              `json:"name"`
+	Qualifier        string              `json:"qualifier"`
+	Visibility       string              `json:"visibility"`
+	LastAnalysisDate *helper.Iso8601Time `json:"lastAnalysisDate"`
+	Revision         string              `json:"revision"`
+}
+
+// Convert the API response to our DB model instance
+func ConvertProject(sonarqubeApiProject *SonarqubeApiProject) *models.SonarqubeProject {
+	sonarqubeProject := &models.SonarqubeProject{
+		ProjectKey:       sonarqubeApiProject.ProjectKey,
+		Name:             sonarqubeApiProject.Name,
+		Qualifier:        sonarqubeApiProject.Qualifier,
+		Visibility:       sonarqubeApiProject.Visibility,
+		LastAnalysisDate: sonarqubeApiProject.LastAnalysisDate,
+		Revision:         sonarqubeApiProject.Revision,
+	}
+	return sonarqubeProject
 }

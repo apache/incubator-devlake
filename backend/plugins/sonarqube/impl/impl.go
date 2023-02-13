@@ -162,6 +162,12 @@ func (p Sonarqube) ApiResources() map[string]map[string]plugin.ApiResourceHandle
 			"PATCH":  api.PatchConnection,
 			"DELETE": api.DeleteConnection,
 		},
+		"connections/:connectionId/remote-scopes": {
+			"GET": api.RemoteScopes,
+		},
+		"connections/:connectionId/search-remote-scopes": {
+			"GET": api.SearchRemoteScopes,
+		},
 		"connections/:connectionId/scopes/:projectKey": {
 			"GET":   api.GetScope,
 			"PATCH": api.UpdateScope,
