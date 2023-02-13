@@ -63,12 +63,12 @@ type GroupResponse struct {
 	RequestAccessEnabled bool   `json:"request_access_enabled"`
 	FullName             string `json:"full_name"`
 	FullPath             string `json:"full_path"`
-	ParentId             int    `json:"parent_id"`
+	ParentId             *int   `json:"parent_id"`
 	LdapCN               string `json:"ldap_cn"`
 	LdapAccess           string `json:"ldap_access"`
 }
 
-const GitlabRemoteScoopesPerPage int = 100
+const GitlabRemoteScopesPerPage int = 100
 const TypeProject string = "scope"
 const TypeGroup string = "group"
 
@@ -119,16 +119,17 @@ func RemoteScopes(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, er
 		return nil, err
 	}
 
-	query, err := GetQueryFromPageData(pageData)
-	if err != nil {
-		return nil, err
-	}
-
 	var res *http.Response
 	outputBody := &RemoteScopesOutput{}
 
 	// list groups part
 	if pageData.Tag == TypeGroup {
+		query, err := GetQueryFromPageData(pageData)
+		if err != nil {
+			return nil, err
+		}
+		query.Set("top_level_only", "true")
+
 		if gid == "" {
 			res, err = apiClient.Get("groups", query, nil)
 		} else {
@@ -149,6 +150,23 @@ func RemoteScopes(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, er
 				// don't need to save group into data
 				Data: nil,
 			}
+
+			// ignore not top_level
+			if group.ParentId == nil {
+				if gid != "" {
+					continue
+				}
+			} else {
+				if strconv.Itoa(*group.ParentId) != gid {
+					continue
+				}
+			}
+
+			// ignore self
+			if gid == child.Id {
+				continue
+			}
+
 			child.ParentId = &gid
 			if *child.ParentId == "" {
 				child.ParentId = nil
@@ -170,10 +188,15 @@ func RemoteScopes(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, er
 
 	// list projects part
 	if pageData.Tag == TypeProject {
+		query, err := GetQueryFromPageData(pageData)
+		if err != nil {
+			return nil, err
+		}
 		if gid == "" {
 			res, err = apiClient.Get(fmt.Sprintf("users/%d/projects", apiClient.GetData(models.GitlabApiClientData_UserId)), query, nil)
 		} else {
-			res, err = apiClient.Get(fmt.Sprintf("/groups/%s/subgroups", gid), query, nil)
+			query.Set("with_shared", "false")
+			res, err = apiClient.Get(fmt.Sprintf("/groups/%s/projects", gid), query, nil)
 		}
 		if err != nil {
 			return nil, err
@@ -185,7 +208,7 @@ func RemoteScopes(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, er
 		// append project to output
 		for _, project := range resBody {
 			child := RemoteScopesChild{
-				Type: TypeGroup,
+				Type: TypeProject,
 				Id:   strconv.Itoa(project.CreatorId),
 				Data: tasks.ConvertProject(&project),
 			}
@@ -210,7 +233,7 @@ func RemoteScopes(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, er
 	outputBody.NextPageToken = ""
 	if pageData != nil {
 		pageData.Page += 1
-		pageData.PerPage = GitlabRemoteScoopesPerPage
+		pageData.PerPage = GitlabRemoteScopesPerPage
 
 		outputBody.NextPageToken, err = GetPageTokenFromPageData(pageData)
 		if err != nil {
@@ -317,7 +340,7 @@ func GetPageDataFromPageToken(pageToken string) (*PageData, errors.Error) {
 	if pageToken == "" {
 		return &PageData{
 			Page:    1,
-			PerPage: GitlabRemoteScoopesPerPage,
+			PerPage: GitlabRemoteScopesPerPage,
 			Tag:     "group",
 		}, nil
 	}
