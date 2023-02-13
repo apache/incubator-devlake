@@ -17,47 +17,47 @@
  */
 
 import type { PluginConfigType } from '@/plugins';
-
-import {
-  BaseConnectionConfig,
-  ConnectionName,
-  ConnectionEndpoint,
-  ConnectionUsername,
-  ConnectionPassword,
-  ConnectionProxy,
-  ConnectionRatelimit,
-} from '../base';
+import { PluginType } from '@/plugins';
 
 import Icon from './assets/icon.svg';
 
 export const BitBucketConfig: PluginConfigType = {
-  ...BaseConnectionConfig,
+  type: PluginType.Connection,
   plugin: 'bitbucket',
   name: 'BitBucket',
   icon: Icon,
-  isBeta: true,
+  sort: 5,
   connection: {
-    initialValues: {
-      name: 'BitBucket',
-      endpoint: 'https://api.bitbucket.org/2.0/',
-      rateLimitPerHour: 10000,
-    },
+    docLink: 'https://devlake.apache.org/docs/Configuration/BitBucket',
     fields: [
-      ConnectionName({
-        placeholder: 'eg. BitBucket',
-      }),
-      ConnectionEndpoint({
-        placeholder: 'eg. https://api.bitbucket.org/2.0/',
-      }),
-      ConnectionUsername(),
-      ConnectionPassword({
+      'name',
+      {
+        key: 'endpoint',
+        multipleVersions: {
+          cloud: 'https://api.bitbucket.org/2.0/',
+        },
+      },
+      'username',
+      {
+        key: 'password',
         label: 'App Password',
-        placeholder: 'App Password',
-      }),
-      ConnectionProxy(),
-      ConnectionRatelimit(),
+      },
+      'proxy',
+      {
+        key: 'rateLimitPerHour',
+        subLabel:
+          'By default, DevLake uses dynamic rate limit for optimized data collection for BitBucket. But you can adjust the collection speed by entering a fixed value.',
+        learnMore: 'https://devlake.apache.org/docs/Configuration/BitBucket#fixed-rate-limit-optional',
+        externalInfo:
+          'The maximum rate limit for different entities in BitBucket Cloud is 60,000 or 1,000 requests/hour.',
+        defaultValue: 10000,
+      },
     ],
   },
-  entities: [],
-  transformation: {},
+  entities: ['TICKET', 'CROSS'],
+  transformation: {
+    storyPointField: '',
+    remotelinkCommitShaPattern: '',
+    typeMappings: {},
+  },
 };

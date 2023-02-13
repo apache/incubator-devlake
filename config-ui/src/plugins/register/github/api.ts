@@ -52,3 +52,5 @@ export const searchRepo = (prefix: string, params: SearchRepoParams) =>
     method: 'get',
     data: params,
   });
+
+export const testConnection = (payload: any) => request('/plugins/github/test', { method: 'post', data: payload });

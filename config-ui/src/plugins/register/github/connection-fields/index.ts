@@ -16,13 +16,5 @@
  *
  */
 
-import { PluginType } from '../../types';
-
-import Icon from './assets/icon.svg';
-
-export const BasePipelineConfig = {
-  type: PluginType.Pipeline,
-  plugin: undefined,
-  name: undefined,
-  icon: Icon,
-} as const;
+export * from './token';
+export * from './graphql';

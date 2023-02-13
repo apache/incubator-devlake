@@ -16,41 +16,5 @@
  *
  */
 
-import { Colors } from '@blueprintjs/core';
-import styled from 'styled-components';
-
-export const Wrapper = styled.div`
-  p {
-    margin: 0 0 8px;
-  }
-
-  h3 {
-    margin: 0 0 8px;
-    padding: 0;
-    font-size: 14px;
-  }
-
-  .token {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    margin-bottom: 8px;
-
-    .input {
-      display: flex;
-      align-items: center;
-
-      & > span {
-        margin-left: 4px;
-
-        &.error {
-          color: ${Colors.RED3};
-        }
-
-        &.success {
-          color: ${Colors.GREEN3};
-        }
-      }
-    }
-  }
-`;
+export * from './test';
+export * from './save';

@@ -16,13 +16,30 @@
  *
  */
 
-import { PluginType } from '../../types';
+import React, { useMemo } from 'react';
+import { Button } from '@blueprintjs/core';
+import { pick } from 'lodash';
 
-import Icon from './assets/icon.svg';
+import { useOperator } from '@/hooks';
 
-export const BasePipelineConfig = {
-  type: PluginType.Pipeline,
-  plugin: undefined,
-  name: undefined,
-  icon: Icon,
-} as const;
+import * as API from '../api';
+
+interface Props {
+  plugin: string;
+  form: any;
+  error: any;
+}
+
+export const Test = ({ plugin, form, error }: Props) => {
+  const { operating, onSubmit } = useOperator((payload) => API.testConnection(plugin, payload));
+
+  const disabled = useMemo(() => {
+    return Object.values(error).some((value) => value);
+  }, [error]);
+
+  const handleSubmit = () => {
+    onSubmit(pick(form, ['endpoint', 'token', 'username', 'password', 'app_id', 'secret_key', 'proxy', 'authMethod']));
+  };
+
+  return <Button loading={operating} disabled={disabled} outlined text="Test Connection" onClick={handleSubmit} />;
+};

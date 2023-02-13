@@ -16,13 +16,32 @@
  *
  */
 
-import { PluginType } from '../../types';
+import React from 'react';
+import { FormGroup, InputGroup } from '@blueprintjs/core';
 
-import Icon from './assets/icon.svg';
+import * as S from './styled';
 
-export const BasePipelineConfig = {
-  type: PluginType.Pipeline,
-  plugin: undefined,
-  name: undefined,
-  icon: Icon,
-} as const;
+interface Props {
+  value: string;
+  onChange: (value: string) => void;
+}
+
+export const ConnectionName = ({ value, onChange }: Props) => {
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    onChange(e.target.value);
+  };
+
+  return (
+    <FormGroup
+      label={<S.Label>Connection Name</S.Label>}
+      labelInfo={<S.LabelInfo>*</S.LabelInfo>}
+      subLabel={
+        <S.LabelDescription>
+          Give your connection a unique name to help you identify it in the future.
+        </S.LabelDescription>
+      }
+    >
+      <InputGroup placeholder="Your Connection Name" value={value} onChange={handleChange} />
+    </FormGroup>
+  );
+};

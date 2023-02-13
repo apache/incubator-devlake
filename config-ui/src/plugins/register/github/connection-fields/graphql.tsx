@@ -17,31 +17,34 @@
  */
 
 import React from 'react';
-import { InputGroup } from '@blueprintjs/core';
+import { FormGroup, Switch } from '@blueprintjs/core';
+
+import * as S from './styled';
 
 interface Props {
-  placeholder?: string;
-  value?: string;
-  onChange?: (value: string) => void;
+  values: any;
+  setValues: any;
 }
 
-export const GitLabToken = ({ placeholder, value, onChange }: Props) => {
-  const handleChangeValue = (e: React.ChangeEvent<HTMLInputElement>) => {
-    onChange?.(e.target.value);
+export const Graphql = ({ values, setValues }: Props) => {
+  const handleChange = (e: React.FormEvent<HTMLInputElement>) => {
+    const enableGraphql = (e.target as HTMLInputElement).checked;
+    setValues({
+      ...values,
+      enableGraphql,
+    });
   };
 
   return (
-    <div>
-      <p>
-        <a
-          href="https://devlake.apache.org/docs/UserManuals/ConfigUI/GitLab/#auth-tokens"
-          target="_blank"
-          rel="noreferrer"
-        >
-          Learn about how to create a personal access token
-        </a>
-      </p>
-      <InputGroup placeholder={placeholder} type="password" value={value} onChange={handleChangeValue} />
-    </div>
+    <FormGroup
+      label={<S.Label>Use GraphQL APIs</S.Label>}
+      subLabel={
+        <S.LabelDescription>
+          GraphQL APIs are 10+ times faster than REST APIs, but they may not be supported in GitHub Server.
+        </S.LabelDescription>
+      }
+    >
+      <Switch checked={values.enableGraphql ?? false} onChange={handleChange} />
+    </FormGroup>
   );
 };

@@ -16,13 +16,34 @@
  *
  */
 
-import { PluginType } from '../../types';
+import styled from 'styled-components';
 
-import Icon from './assets/icon.svg';
+export const Label = styled.label`
+  font-size: 16px;
+  font-weight: 600;
+`;
 
-export const BasePipelineConfig = {
-  type: PluginType.Pipeline,
-  plugin: undefined,
-  name: undefined,
-  icon: Icon,
-} as const;
+export const LabelInfo = styled.i`
+  color: #ff8b8b;
+`;
+
+export const LabelDescription = styled.p`
+  margin: 0;
+`;
+
+export const RateLimit = styled.div`
+  display: flex;
+  align-items: center;
+
+  .bp4-input-group {
+    width: 80px !important;
+  }
+
+  & > span {
+    margin-left: 8px;
+  }
+`;
+
+export const RateLimitInfo = styled.p`
+  white-space: pre-line;
+`;

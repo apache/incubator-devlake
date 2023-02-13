@@ -16,43 +16,47 @@
  *
  */
 
-import type { PluginConfigType } from '@/plugins';
+import React from 'react';
 
-import {
-  BaseConnectionConfig,
-  ConnectionName,
-  ConnectionEndpoint,
-  ConnectionGitHubToken,
-  ConnectionGitHubGraphql,
-  ConnectionProxy,
-  ConnectionRatelimit,
-} from '../base';
+import type { PluginConfigType } from '@/plugins';
+import { PluginType } from '@/plugins';
 
 import Icon from './assets/icon.svg';
+import { Token, Graphql } from './connection-fields';
 
 export const GitHubConfig: PluginConfigType = {
-  ...BaseConnectionConfig,
+  type: PluginType.Connection,
   plugin: 'github',
   name: 'GitHub',
   icon: Icon,
+  sort: 1,
   connection: {
+    docLink: 'https://devlake.apache.org/docs/UserManuals/ConfigUI/GitHub',
     initialValues: {
-      name: 'GitHub',
       endpoint: 'https://api.github.com/',
       enableGraphql: true,
-      rateLimitPerHour: 4500,
     },
     fields: [
-      ConnectionName({
-        placeholder: 'eg. GitHub',
-      }),
-      ConnectionEndpoint({
-        placeholder: 'eg. https://api.github.com/',
-      }),
-      ConnectionGitHubToken(),
-      ConnectionGitHubGraphql(),
-      ConnectionProxy(),
-      ConnectionRatelimit(),
+      'name',
+      {
+        key: 'endpoint',
+        multipleVersions: {
+          cloud: 'https://api.github.com/',
+          server: '',
+        },
+      },
+      (props: any) => <Token key="token" {...props} />,
+      'proxy',
+      (props: any) => <Graphql key="graphql" {...props} />,
+      {
+        key: 'rateLimitPerHour',
+        subLabel:
+          'By default, DevLake uses dynamic rate limit for optimized data collection for GitHub. But you can adjust the collection speed by entering a fixed value. Learn more',
+        learnMore: 'https://devlake.apache.org/docs/UserManuals/ConfigUI/GitHub/#fixed-rate-limit-optional',
+        externalInfo:
+          'Rate Limit Value Reference\nGitHub: 0-5,000 requests/hour\nGitHub Enterprise: 0-15,000 requests/hour',
+        defaultValue: 4500,
+      },
     ],
   },
   entities: ['CODE', 'TICKET', 'CODEREVIEW', 'CROSS', 'CICD'],
