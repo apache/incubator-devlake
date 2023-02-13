@@ -68,13 +68,17 @@ func CollectIssues(taskCtx core.SubTaskContext) errors.Error {
 	//  `updated`, issue will be jumping between pages if it got updated during the collection process
 	jql := "created is not null ORDER BY created ASC"
 
-	incremental := collectorWithState.IsIncremental()
-	if incremental {
-		jql = fmt.Sprintf("updated >= '%v' AND %v", collectorWithState.LatestState.LatestSuccessStart.Format("2006/01/02 15:04"), jql)
-	} else if data.UpdatedDateAfter != nil {
+	// timer filter
+	if data.UpdatedDateAfter != nil {
 		jql = fmt.Sprintf("updated >= '%v' AND %v", data.UpdatedDateAfter.Format("2006/01/02 15:04"), jql)
 	} else if data.CreatedDateAfter != nil {
 		jql = fmt.Sprintf("created >= '%v' AND %v", data.CreatedDateAfter.Format("2006/01/02 15:04"), jql)
+	}
+
+	// diff sync
+	incremental := collectorWithState.IsIncremental()
+	if incremental {
+		jql = fmt.Sprintf("updated >= '%v' AND %v", collectorWithState.LatestState.LatestSuccessStart.Format("2006/01/02 15:04"), jql)
 	}
 
 	err = collectorWithState.InitCollector(helper.ApiCollectorArgs{
