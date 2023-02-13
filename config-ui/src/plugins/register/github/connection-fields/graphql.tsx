@@ -16,32 +16,36 @@
  *
  */
 
-import React from 'react';
-import { InputGroup } from '@blueprintjs/core';
+import React, { useEffect } from 'react';
+import { FormGroup, Switch } from '@blueprintjs/core';
+
+import * as S from './styled';
 
 interface Props {
-  placeholder?: string;
-  value?: string;
-  onChange?: (value: string) => void;
+  initialValue: boolean;
+  value: boolean;
+  setValue: (value: boolean) => void;
 }
 
-export const GitLabToken = ({ placeholder, value, onChange }: Props) => {
-  const handleChangeValue = (e: React.ChangeEvent<HTMLInputElement>) => {
-    onChange?.(e.target.value);
+export const Graphql = ({ initialValue, value, setValue }: Props) => {
+  useEffect(() => {
+    setValue(initialValue);
+  }, [initialValue]);
+
+  const handleChange = (e: React.FormEvent<HTMLInputElement>) => {
+    setValue((e.target as HTMLInputElement).checked);
   };
 
   return (
-    <div>
-      <p>
-        <a
-          href="https://devlake.apache.org/docs/UserManuals/ConfigUI/GitLab/#auth-tokens"
-          target="_blank"
-          rel="noreferrer"
-        >
-          Learn about how to create a personal access token
-        </a>
-      </p>
-      <InputGroup placeholder={placeholder} type="password" value={value} onChange={handleChangeValue} />
-    </div>
+    <FormGroup
+      label={<S.Label>Use GraphQL APIs</S.Label>}
+      subLabel={
+        <S.LabelDescription>
+          GraphQL APIs are 10+ times faster than REST APIs, but they may not be supported in GitHub Server.
+        </S.LabelDescription>
+      }
+    >
+      <Switch checked={value} onChange={handleChange} />
+    </FormGroup>
   );
 };

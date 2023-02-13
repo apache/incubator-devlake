@@ -17,10 +17,12 @@
  */
 
 import React, { useEffect, useState } from 'react';
-import { InputGroup, Button, Intent } from '@blueprintjs/core';
+import { FormGroup, InputGroup, Button, Intent } from '@blueprintjs/core';
 import { pick } from 'lodash';
 
-import * as API from '../../api';
+import { ExternalLink } from '@/components';
+
+import * as API from '../api';
 
 import * as S from './styled';
 
@@ -31,18 +33,30 @@ type TokenItem = {
 };
 
 interface Props {
-  form: any;
-  value?: string;
-  onChange?: (value: string) => void;
+  endpoint?: string;
+  proxy?: string;
+  initialValue: string;
+  value: string;
+  error: string;
+  setValue: (value: string) => void;
+  setError: (error: string) => void;
 }
 
-export const GitHubToken = ({ form, value, onChange }: Props) => {
+export const Token = ({ endpoint, proxy, initialValue, value, error, setValue, setError }: Props) => {
   const [tokens, setTokens] = useState<TokenItem[]>([{ value: '', status: 'idle' }]);
 
   const testToken = async (token: string): Promise<TokenItem> => {
+    if (!endpoint) {
+      return {
+        value: token,
+        status: 'invalid',
+      };
+    }
+
     try {
-      const res = await API.testConnection('github', {
-        ...pick(form, ['endpoint', 'proxy']),
+      const res = await API.testConnection({
+        endpoint,
+        proxy,
         token,
       });
       return {
@@ -64,30 +78,26 @@ export const GitHubToken = ({ form, value, onChange }: Props) => {
   };
 
   useEffect(() => {
-    if (value) {
-      checkTokens(value);
-    }
-  }, []);
+    checkTokens(initialValue);
+  }, [initialValue]);
 
   useEffect(() => {
-    onChange?.(tokens.map((it) => it.value).join(','));
+    setError(value ? '' : 'token is required');
+  }, [value]);
+
+  useEffect(() => {
+    setValue(tokens.map((it) => it.value).join(','));
   }, [tokens]);
 
-  const handleCreateToken = () => {
-    setTokens([...tokens, { value: '', status: 'idle' }]);
-  };
+  const handleCreateToken = () => setTokens([...tokens, { value: '', status: 'idle' }]);
 
-  const handleRemoveToken = (key: number) => {
-    setTokens(tokens.filter((_, i) => (i === key ? false : true)));
-  };
+  const handleRemoveToken = (key: number) => setTokens(tokens.filter((_, i) => (i === key ? false : true)));
 
-  const handleChangeToken = (key: number, value: string) => {
+  const handleChangeToken = (key: number, value: string) =>
     setTokens(tokens.map((it, i) => (i === key ? { value, status: 'idle' } : it)));
-  };
 
   const handleTestToken = async (key: number) => {
     const token = tokens.find((_, i) => i === key) as TokenItem;
-
     if (token.status === 'idle' && token.value) {
       const res = await testToken(token.value);
       setTokens((tokens) => tokens.map((it, i) => (i === key ? res : it)));
@@ -95,40 +105,38 @@ export const GitHubToken = ({ form, value, onChange }: Props) => {
   };
 
   return (
-    <S.Wrapper>
-      <p>
-        Add one or more personal token(s) for authentication from you and your organization members. Multiple tokens can
-        help speed up the data collection process.{' '}
-      </p>
-      <p>
-        <a
-          href="https://devlake.apache.org/docs/UserManuals/ConfigUI/GitHub/#auth-tokens"
-          target="_blank"
-          rel="noreferrer"
-        >
-          Learn about how to create a personal access token
-        </a>
-      </p>
-      <h3>Personal Access Token(s)</h3>
+    <FormGroup
+      label={<S.Label>Personal Access Token(s) </S.Label>}
+      labelInfo={<S.LabelInfo>*</S.LabelInfo>}
+      subLabel={
+        <S.LabelDescription>
+          Add one or more personal token(s) for authentication from you and your organization members. Multiple tokens
+          can help speed up the data collection process.{' '}
+          <ExternalLink link="https://devlake.apache.org/docs/UserManuals/ConfigUI/GitHub/#auth-tokens">
+            Learn how to create a personal access token
+          </ExternalLink>
+        </S.LabelDescription>
+      }
+    >
       {tokens.map(({ value, status, from }, i) => (
-        <div className="token" key={i}>
-          <div className="input">
-            <InputGroup
-              placeholder="token"
-              type="password"
-              value={value ?? ''}
-              onChange={(e) => handleChangeToken(i, e.target.value)}
-              onBlur={() => handleTestToken(i)}
-            />
+        <S.Token key={i}>
+          <InputGroup
+            placeholder="Token"
+            type="password"
+            value={value ?? ''}
+            onChange={(e) => handleChangeToken(i, e.target.value)}
+            onBlur={() => handleTestToken(i)}
+          />
+          <Button minimal icon="cross" onClick={() => handleRemoveToken(i)} />
+          <div className="info">
             {status === 'invalid' && <span className="error">Invalid</span>}
             {status === 'valid' && <span className="success">Valid From: {from}</span>}
           </div>
-          <Button minimal icon="cross" onClick={() => handleRemoveToken(i)} />
-        </div>
+        </S.Token>
       ))}
       <div className="action">
         <Button outlined small intent={Intent.PRIMARY} text="Another Token" icon="plus" onClick={handleCreateToken} />
       </div>
-    </S.Wrapper>
+    </FormGroup>
   );
 };

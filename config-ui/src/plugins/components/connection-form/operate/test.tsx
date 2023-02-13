@@ -17,29 +17,31 @@
  */
 
 import React, { useMemo } from 'react';
-import { useParams } from 'react-router-dom';
+import { Button } from '@blueprintjs/core';
+import { pick } from 'lodash';
 
-import { PageHeader } from '@/components';
-import { PluginConfigConnectionType } from '@/plugins';
-import { PluginConfig, ConnectionForm } from '@/plugins';
+import { useOperator } from '@/hooks';
 
-export const ConnectionFormPage = () => {
-  const { plugin, cid } = useParams<{ plugin: string; cid?: string }>();
+import * as API from '../api';
 
-  const { name } = useMemo(() => PluginConfig.find((p) => p.plugin === plugin) as PluginConfigConnectionType, [plugin]);
+interface Props {
+  plugin: string;
+  values: any;
+  errors: any;
+}
 
-  return (
-    <PageHeader
-      breadcrumbs={[
-        { name: 'Connections', path: '/connections' },
-        { name, path: `/connections/${plugin}` },
-        {
-          name: cid ? cid : 'Create a New Connection',
-          path: `/connections/${plugin}/${cid ? cid : 'create'}`,
-        },
-      ]}
-    >
-      <ConnectionForm plugin={plugin} connectionId={cid} />
-    </PageHeader>
-  );
+export const Test = ({ plugin, values, errors }: Props) => {
+  const { operating, onSubmit } = useOperator((payload) => API.testConnection(plugin, payload));
+
+  const disabled = useMemo(() => {
+    return Object.values(errors).some((value) => value);
+  }, [errors]);
+
+  const handleSubmit = () => {
+    onSubmit(
+      pick(values, ['endpoint', 'token', 'username', 'password', 'app_id', 'secret_key', 'proxy', 'authMethod']),
+    );
+  };
+
+  return <Button loading={operating} disabled={disabled} outlined text="Test Connection" onClick={handleSubmit} />;
 };

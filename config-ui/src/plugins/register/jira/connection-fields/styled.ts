@@ -19,51 +19,44 @@
 import { Colors } from '@blueprintjs/core';
 import styled from 'styled-components';
 
-export const Wrapper = styled.div`
-  .bp4-form-group {
-    display: flex;
-    align-items: start;
-    justify-content: space-between;
+export const Label = styled.label`
+  font-size: 16px;
+  font-weight: 600;
+`;
 
-    .bp4-label {
-      flex: 0 0 200px;
-      font-weight: 600;
+export const LabelInfo = styled.i`
+  color: #ff8b8b;
+`;
 
-      .bp4-popover2-target {
-        display: inline;
-        margin: 0;
-        line-height: 1;
-        margin-left: 4px;
+export const LabelDescription = styled.p`
+  margin: 0;
+`;
 
-        & > .bp4-icon {
-          display: block;
-        }
-      }
-
-      .bp4-text-muted {
-        color: ${Colors.RED3};
-      }
-    }
-
-    .bp4-form-content {
-      flex: auto;
-    }
-  }
-
-  .footer {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    margin-top: 32px;
+export const Endpoint = styled.div`
+  p {
+    margin: 10px 0;
   }
 `;
 
-export const Label = styled.span`
-  display: inline-flex;
-  align-items: center;
-`;
-
-export const SwitchWrapper = styled.div`
+export const Token = styled.div`
   display: flex;
   align-items: center;
+  margin-bottom: 8px;
+
+  .input {
+    display: flex;
+    align-items: center;
+  }
+
+  .info {
+    margin-left: 4px;
+
+    span.error {
+      color: ${Colors.RED3};
+    }
+
+    span.success {
+      color: ${Colors.GREEN3};
+    }
+  }
 `;

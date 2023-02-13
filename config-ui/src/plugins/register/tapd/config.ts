@@ -17,42 +17,40 @@
  */
 
 import type { PluginConfigType } from '@/plugins';
-
-import {
-  BaseConnectionConfig,
-  ConnectionName,
-  ConnectionEndpoint,
-  ConnectionUsername,
-  ConnectionPassword,
-  ConnectionProxy,
-  ConnectionRatelimit,
-} from '../base';
+import { PluginType } from '@/plugins';
 
 import Icon from './assets/icon.svg';
 
 export const TAPDConfig: PluginConfigType = {
-  ...BaseConnectionConfig,
+  type: PluginType.Connection,
   plugin: 'tapd',
   name: 'TAPD',
   isBeta: true,
   icon: Icon,
+  sort: 6,
   connection: {
+    docLink: 'https://devlake.apache.org/docs/Configuration/Tapd',
     initialValues: {
-      name: 'TAPD',
-      endpoint: 'https://api.tapd.cn/',
-      rateLimitPerHour: 3000,
+      endpoint: 'https://api.tapd.cn',
     },
     fields: [
-      ConnectionName({
-        placeholder: 'eg. TAPD',
-      }),
-      ConnectionEndpoint({
-        placeholder: 'eg. https://api.tapd.cn/',
-      }),
-      ConnectionUsername(),
-      ConnectionPassword(),
-      ConnectionProxy(),
-      ConnectionRatelimit(),
+      'name',
+      {
+        key: 'endpoint',
+        subLabel: 'You do not need to enter the endpoint URL, because all versions use the same URL.',
+        disabled: true,
+      },
+      'username',
+      'password',
+      'proxy',
+      {
+        key: 'rateLimitPerHour',
+        subLabel:
+          'By default, DevLake uses 3,000 requests/hour for data collection for TAPD. But you can adjust the collection speed by setting up your desirable rate limit.',
+        learnMore: 'https://devlake.apache.org/docs/Configuration/Tapdt#fixed-rate-limit-optional',
+        externalInfo: 'The maximum rate limit of TAPD is 3,600 requests/hour.',
+        defaultValue: 3000,
+      },
     ],
   },
   entities: ['TICKET'],
