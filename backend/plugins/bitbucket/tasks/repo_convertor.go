@@ -18,6 +18,7 @@ limitations under the License.
 package tasks
 
 import (
+	"encoding/json"
 	"fmt"
 	"github.com/apache/incubator-devlake/core/dal"
 	"github.com/apache/incubator-devlake/core/errors"
@@ -27,7 +28,11 @@ import (
 	"github.com/apache/incubator-devlake/core/models/domainlayer/ticket"
 	plugin "github.com/apache/incubator-devlake/core/plugin"
 	"github.com/apache/incubator-devlake/helpers/pluginhelper/api"
+	aha "github.com/apache/incubator-devlake/helpers/pluginhelper/api/apihelperabstract"
 	"github.com/apache/incubator-devlake/plugins/bitbucket/models"
+	"io"
+	"net/http"
+	"path"
 	"reflect"
 	"time"
 )
@@ -45,20 +50,22 @@ var ConvertRepoMeta = plugin.SubTaskMeta{
 type ApiRepoResponse BitbucketApiRepo
 
 type BitbucketApiRepo struct {
-	Scm         string                  `json:"scm"`
-	HasWiki     bool                    `json:"has_wiki"`
-	Uuid        string                  `json:"uuid"`
-	Name        string                  `json:"name"`
-	FullName    string                  `json:"full_name"`
-	Language    string                  `json:"language"`
-	Description string                  `json:"description"`
-	Type        string                  `json:"type"`
-	HasIssue    bool                    `json:"has_issue"`
-	ForkPolicy  string                  `json:"fork_policy"`
-	Owner       models.BitbucketAccount `json:"owner"`
-	CreatedAt   *time.Time              `json:"created_on"`
-	UpdatedAt   *time.Time              `json:"updated_on"`
-	Links       struct {
+	//Scm         string `json:"scm"`
+	//HasWiki     bool   `json:"has_wiki"`
+	//Uuid        string `json:"uuid"`
+	//Type        string `json:"type"`
+	//HasIssue    bool   `json:"has_issue"`
+	//ForkPolicy  string `json:"fork_policy"`
+	Name        string `json:"name"`
+	FullName    string `json:"full_name"`
+	Language    string `json:"language"`
+	Description string `json:"description"`
+	Owner       struct {
+		Username string `json:"username"`
+	} `json:"owner"`
+	CreatedAt *time.Time `json:"created_on"`
+	UpdatedAt *time.Time `json:"updated_on"`
+	Links     struct {
 		Clone []struct {
 			Href string `json:"href"`
 			Name string `json:"name"`
@@ -66,10 +73,59 @@ type BitbucketApiRepo struct {
 		Self struct {
 			Href string `json:"href"`
 		} `json:"self"`
-		Html struct {
-			Href string `json:"href"`
-		} `json:"html"`
 	} `json:"links"`
+}
+
+func ConvertApiRepoToScope(repo *BitbucketApiRepo, connectionId uint64) *models.BitbucketRepo {
+	var scope models.BitbucketRepo
+	scope.ConnectionId = connectionId
+	scope.BitbucketId = repo.FullName
+	scope.CreatedDate = repo.CreatedAt
+	scope.UpdatedDate = repo.UpdatedAt
+	scope.Language = repo.Language
+	scope.Description = repo.Description
+	scope.Name = repo.Name
+	scope.OwnerId = repo.Owner.Username
+
+	scope.CloneUrl = ""
+	for _, u := range repo.Links.Clone {
+		if u.Name == "https" {
+			scope.CloneUrl = u.Href
+		}
+	}
+	return &scope
+}
+
+func GetApiRepo(
+	op *BitbucketOptions,
+	apiClient aha.ApiClientAbstract,
+) (*BitbucketApiRepo, errors.Error) {
+	res, err := apiClient.Get(path.Join("repositories", op.FullName), nil, nil)
+	if err != nil {
+		return nil, err
+	}
+	defer res.Body.Close()
+	if res.StatusCode != http.StatusOK {
+		return nil, errors.Default.New(fmt.Sprintf(
+			"unexpected status code when requesting repo detail %d %s",
+			res.StatusCode, res.Request.URL.String(),
+		))
+	}
+	body, err := errors.Convert01(io.ReadAll(res.Body))
+	if err != nil {
+		return nil, err
+	}
+	apiRepo := new(BitbucketApiRepo)
+	err = errors.Convert(json.Unmarshal(body, apiRepo))
+	if err != nil {
+		return nil, err
+	}
+	for _, u := range apiRepo.Links.Clone {
+		if u.Name == "https" {
+			return apiRepo, nil
+		}
+	}
+	return nil, errors.Default.New("no clone url")
 }
 
 func ConvertRepo(taskCtx plugin.SubTaskContext) errors.Error {

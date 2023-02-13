@@ -18,22 +18,18 @@ limitations under the License.
 package impl
 
 import (
-	"encoding/json"
 	"fmt"
+	"time"
+
 	"github.com/apache/incubator-devlake/core/context"
 	"github.com/apache/incubator-devlake/core/dal"
 	"github.com/apache/incubator-devlake/core/errors"
 	"github.com/apache/incubator-devlake/core/plugin"
 	helper "github.com/apache/incubator-devlake/helpers/pluginhelper/api"
-	aha "github.com/apache/incubator-devlake/helpers/pluginhelper/api/apihelperabstract"
 	"github.com/apache/incubator-devlake/plugins/bitbucket/api"
 	"github.com/apache/incubator-devlake/plugins/bitbucket/models"
 	"github.com/apache/incubator-devlake/plugins/bitbucket/models/migrationscripts"
 	"github.com/apache/incubator-devlake/plugins/bitbucket/tasks"
-	"io"
-	"net/http"
-	"path"
-	"time"
 )
 
 var _ plugin.PluginMeta = (*Bitbucket)(nil)
@@ -193,6 +189,12 @@ func (p Bitbucket) ApiResources() map[string]map[string]plugin.ApiResourceHandle
 			"GET":   api.GetScope,
 			"PATCH": api.UpdateScope,
 		},
+		"connections/:connectionId/remote-scopes": {
+			"GET": api.RemoteScopes,
+		},
+		"connections/:connectionId/search-remote-scopes": {
+			"GET": api.SearchRemoteScopes,
+		},
 		"connections/:connectionId/scopes": {
 			"GET": api.GetScopeList,
 			"PUT": api.PutScope,
@@ -237,12 +239,12 @@ func EnrichOptions(taskCtx plugin.TaskContext,
 		}
 	} else {
 		if taskCtx.GetDal().IsErrorNotFound(err) && op.FullName != "" {
-			repo, err := getApiRepo(op, apiClient)
+			repo, err := tasks.GetApiRepo(op, apiClient)
 			if err != nil {
 				return err
 			}
 			logger.Debug(fmt.Sprintf("Current repo: %s", repo.FullName))
-			scope := convertApiRepoToScope(repo, op.ConnectionId)
+			scope := tasks.ConvertApiRepoToScope(repo, op.ConnectionId)
 			err = taskCtx.GetDal().CreateIfNotExist(scope)
 			if err != nil {
 				return err
@@ -265,56 +267,4 @@ func EnrichOptions(taskCtx plugin.TaskContext,
 		op.BitbucketTransformationRule = new(models.BitbucketTransformationRule)
 	}
 	return err
-}
-
-func convertApiRepoToScope(repo *tasks.BitbucketApiRepo, connectionId uint64) *models.BitbucketRepo {
-	var scope models.BitbucketRepo
-	scope.ConnectionId = connectionId
-	scope.BitbucketId = repo.FullName
-	scope.CreatedDate = repo.CreatedAt
-	scope.UpdatedDate = repo.UpdatedAt
-	scope.Language = repo.Language
-	scope.Description = repo.Description
-	scope.Name = repo.Name
-	scope.OwnerId = repo.Owner.AccountId
-
-	scope.CloneUrl = ""
-	for _, u := range repo.Links.Clone {
-		if u.Name == "https" {
-			scope.CloneUrl = u.Href
-		}
-	}
-	return &scope
-}
-
-func getApiRepo(
-	op *tasks.BitbucketOptions,
-	apiClient aha.ApiClientAbstract,
-) (*tasks.BitbucketApiRepo, errors.Error) {
-	res, err := apiClient.Get(path.Join("repositories", op.FullName), nil, nil)
-	if err != nil {
-		return nil, err
-	}
-	defer res.Body.Close()
-	if res.StatusCode != http.StatusOK {
-		return nil, errors.Default.New(fmt.Sprintf(
-			"unexpected status code when requesting repo detail %d %s",
-			res.StatusCode, res.Request.URL.String(),
-		))
-	}
-	body, err := errors.Convert01(io.ReadAll(res.Body))
-	if err != nil {
-		return nil, err
-	}
-	apiRepo := new(tasks.BitbucketApiRepo)
-	err = errors.Convert(json.Unmarshal(body, apiRepo))
-	if err != nil {
-		return nil, err
-	}
-	for _, u := range apiRepo.Links.Clone {
-		if u.Name == "https" {
-			return apiRepo, nil
-		}
-	}
-	return nil, errors.Default.New("no clone url")
 }
