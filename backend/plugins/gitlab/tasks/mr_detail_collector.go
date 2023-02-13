@@ -18,6 +18,7 @@ limitations under the License.
 package tasks
 
 import (
+	"net/url"
 	"reflect"
 
 	"github.com/apache/incubator-devlake/core/dal"
@@ -49,13 +50,15 @@ func CollectApiMergeRequestDetails(taskCtx plugin.SubTaskContext) errors.Error {
 	}
 
 	err = collectorWithState.InitCollector(helper.ApiCollectorArgs{
-		ApiClient:      data.ApiClient,
-		PageSize:       100,
-		Incremental:    false,
-		Input:          iterator,
-		UrlTemplate:    "projects/{{ .Params.ProjectId }}/merge_requests/{{ .Input.Iid }}",
-		Query:          GetQuery,
-		GetTotalPages:  GetTotalPagesFromResponse,
+		ApiClient:   data.ApiClient,
+		Incremental: false,
+		Input:       iterator,
+		UrlTemplate: "projects/{{ .Params.ProjectId }}/merge_requests/{{ .Input.Iid }}",
+		Query: func(reqData *helper.RequestData) (url.Values, errors.Error) {
+			query := url.Values{}
+			query.Set("with_stats", "true")
+			return query, nil
+		},
 		ResponseParser: GetOneRawMessageFromResponse,
 	})
 	if err != nil {

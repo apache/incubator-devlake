@@ -20,6 +20,7 @@ package tasks
 import (
 	"net/url"
 	"reflect"
+	"time"
 
 	"github.com/apache/incubator-devlake/core/dal"
 	"github.com/apache/incubator-devlake/core/errors"
@@ -44,6 +45,11 @@ func CollectApiPipelineDetails(taskCtx plugin.SubTaskContext) errors.Error {
 		return err
 	}
 
+	tickInterval, err := helper.CalcTickInterval(200, 1*time.Minute)
+	if err != nil {
+		return err
+	}
+
 	incremental := collectorWithState.IsIncremental()
 
 	iterator, err := GetPipelinesIterator(taskCtx, collectorWithState)
@@ -55,7 +61,7 @@ func CollectApiPipelineDetails(taskCtx plugin.SubTaskContext) errors.Error {
 	err = collectorWithState.InitCollector(helper.ApiCollectorArgs{
 		RawDataSubTaskArgs: *rawDataSubTaskArgs,
 		ApiClient:          data.ApiClient,
-		PageSize:           100,
+		MinTickInterval:    &tickInterval,
 		Input:              iterator,
 		Incremental:        incremental,
 		UrlTemplate:        "projects/{{ .Params.ProjectId }}/pipelines/{{ .Input.GitlabId }}",

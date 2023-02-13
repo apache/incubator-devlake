@@ -18,15 +18,15 @@ limitations under the License.
 package api
 
 import (
+	"net/http"
+	"strconv"
+	"time"
+
 	"github.com/apache/incubator-devlake/core/dal"
 	"github.com/apache/incubator-devlake/core/errors"
 	"github.com/apache/incubator-devlake/core/plugin"
 	"github.com/apache/incubator-devlake/helpers/pluginhelper/api"
 	"github.com/apache/incubator-devlake/plugins/gitlab/models"
-	"net/http"
-	"strconv"
-	"time"
-
 	"github.com/mitchellh/mapstructure"
 )
 
