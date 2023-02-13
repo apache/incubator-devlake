@@ -30,8 +30,6 @@ import (
 func TestCustomizedFieldDataFlow(t *testing.T) {
 	var plugin impl.Customize
 	dataflowTester := e2ehelper.NewDataFlowTester(t, "customize", plugin)
-
-	// import raw data table
 	dataflowTester.FlushTabler(&models.CustomizedField{})
 	dataflowTester.FlushTabler(&ticket.Issue{})
 	svc := service.NewService(dataflowTester.Dal)

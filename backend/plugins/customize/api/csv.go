@@ -59,7 +59,7 @@ func (h *Handlers) ImportIssue(input *plugin.ApiResourceInput) (*plugin.ApiResou
 	if err != nil {
 		return nil, err
 	}
-	return nil, h.svc.ImportIssue(boardId, boardName, file)
+	return nil, h.svc.ImportIssue(boardId, file)
 }
 
 // ImportIssueCommit accepts a CSV file, parses and saves it to the database

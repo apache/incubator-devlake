@@ -143,8 +143,12 @@ func (s *Service) getCustomizedFields(table string) ([]models.CustomizedField, e
 	return result, err
 }
 
-func (s *Service) ImportIssue(boardId, boardName string, file io.ReadCloser) errors.Error {
+func (s *Service) ImportIssue(boardId string, file io.ReadCloser) errors.Error {
 	err := s.dal.Delete(&ticket.Issue{}, dal.Where("_raw_data_params = ?", boardId))
+	if err != nil {
+		return err
+	}
+	err = s.dal.Delete(&ticket.BoardIssue{}, dal.Where("board_id = ?", boardId))
 	if err != nil {
 		return err
 	}

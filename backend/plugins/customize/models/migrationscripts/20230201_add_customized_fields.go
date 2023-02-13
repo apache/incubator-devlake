@@ -30,7 +30,7 @@ func (script *addCustomizedField) Up(basicRes context.BasicRes) errors.Error {
 }
 
 func (*addCustomizedField) Version() uint64 {
-	return 20230201093309
+	return 20230201093311
 }
 
 func (*addCustomizedField) Name() string {

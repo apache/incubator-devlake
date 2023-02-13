@@ -88,7 +88,7 @@ func TestImportIssueDataFlow(t *testing.T) {
 		t.Fatal(err1)
 	}
 	defer issueFile.Close()
-	err = svc.ImportIssue(`{"ConnectionId":1,"Owner":"thenicetgp","Repo":"lake"}`, "lake", issueFile)
+	err = svc.ImportIssue(`{"ConnectionId":1,"Owner":"thenicetgp","Repo":"lake"}`, issueFile)
 	if err != nil {
 		t.Fatal(err)
 	}
