@@ -18,12 +18,14 @@ limitations under the License.
 package archived
 
 import (
+	"time"
+
 	"github.com/apache/incubator-devlake/core/dal"
-	"github.com/apache/incubator-devlake/core/models/migrationscripts/archived"
 )
 
 type CustomizedField struct {
-	archived.NoPKModel
+	CreatedAt   time.Time      `json:"createdAt"`
+	UpdatedAt   time.Time      `json:"updatedAt"`
 	TbName      string         `gorm:"primaryKey;type:varchar(255)"` // avoid conflicting with the method `TableName()`
 	ColumnName  string         `gorm:"primaryKey;type:varchar(255)"`
 	DisplayName string         `gorm:"type:varchar(255)"`
