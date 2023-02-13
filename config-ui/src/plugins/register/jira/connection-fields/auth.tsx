@@ -16,7 +16,7 @@
  *
  */
 
-import React, { useState } from 'react';
+import React, { useEffect } from 'react';
 import { FormGroup, RadioGroup, Radio, InputGroup } from '@blueprintjs/core';
 
 import { ExternalLink } from '@/components';
@@ -25,64 +25,71 @@ import * as S from './styled';
 
 type Method = 'BasicAuth' | 'AccessToken';
 
+type Value = {
+  authMethod: Method;
+  username: string;
+  password: string;
+  token: string;
+};
+
 interface Props {
-  values: any;
-  setValues: (value: any) => void;
+  initialValue: Value;
+  value: Value;
+  error: string;
+  setValue: (value: Value) => void;
+  setError: (value: string) => void;
 }
 
-export const Auth = ({ values, setValues }: Props) => {
-  const [method, setMethod] = useState<Method>('BasicAuth');
+export const Auth = ({ initialValue, value, error, setValue, setError }: Props) => {
+  useEffect(() => {
+    setValue(initialValue);
+  }, [initialValue]);
+
+  useEffect(() => {
+    const required =
+      (value.authMethod === 'BasicAuth' && value.username && value.password) ||
+      (value.authMethod === 'AccessToken' && value.token);
+    setError(required ? '' : 'auth is required');
+  }, [value]);
 
   const handleChangeMethod = (e: React.FormEvent<HTMLInputElement>) => {
-    const m = (e.target as HTMLInputElement).value as Method;
-
-    setMethod(m);
-    setValues({
-      ...values,
-      authMethod: m,
-      username: m === 'BasicAuth' ? values.username : undefined,
-      password: m === 'BasicAuth' ? values.password : undefined,
-      token: m === 'AccessToken' ? values.token : undefined,
+    setValue({
+      ...value,
+      authMethod: (e.target as HTMLInputElement).value as Method,
     });
   };
 
   const handleChangeUsername = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setValues({
-      ...values,
-      authMethod: 'BasicAuth',
+    setValue({
+      ...value,
       username: e.target.value,
     });
   };
 
   const handleChangePassword = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setValues({
-      ...values,
-      authMethod: 'BasicAuth',
+    setValue({
+      ...value,
       password: e.target.value,
     });
   };
 
   const handleChangeToken = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setValues({
-      ...values,
+    setValue({
+      ...value,
       token: e.target.value,
     });
   };
 
   return (
     <FormGroup label={<S.Label>Authentication Method</S.Label>} labelInfo={<S.LabelInfo>*</S.LabelInfo>}>
-      <RadioGroup inline selectedValue={method} onChange={handleChangeMethod}>
+      <RadioGroup inline selectedValue={value.authMethod} onChange={handleChangeMethod}>
         <Radio value="BasicAuth">Basic Authentication</Radio>
         <Radio value="AccessToken">Using Personal Access Token</Radio>
       </RadioGroup>
-      {method === 'BasicAuth' && (
+      {value.authMethod === 'BasicAuth' && (
         <>
           <FormGroup label={<S.Label>Username/e-mail</S.Label>} labelInfo={<S.LabelInfo>*</S.LabelInfo>}>
-            <InputGroup
-              placeholder="Your Username/e-mail"
-              value={values.username || ''}
-              onChange={handleChangeUsername}
-            />
+            <InputGroup placeholder="Your Username/e-mail" value={value.username} onChange={handleChangeUsername} />
           </FormGroup>
           <FormGroup
             label={<S.Label>Password</S.Label>}
@@ -100,13 +107,13 @@ export const Auth = ({ values, setValues }: Props) => {
             <InputGroup
               type="password"
               placeholder="Your Token/Password"
-              value={values.password || ''}
+              value={value.password}
               onChange={handleChangePassword}
             />
           </FormGroup>
         </>
       )}
-      {method === 'AccessToken' && (
+      {value.authMethod === 'AccessToken' && (
         <FormGroup
           label={<S.Label>Personal Access Token</S.Label>}
           labelInfo={<S.LabelInfo>*</S.LabelInfo>}
@@ -118,7 +125,7 @@ export const Auth = ({ values, setValues }: Props) => {
             </S.LabelDescription>
           }
         >
-          <InputGroup type="password" placeholder="Your PAT" value={values.token || ''} onChange={handleChangeToken} />
+          <InputGroup type="password" placeholder="Your PAT" value={value.token} onChange={handleChangeToken} />
         </FormGroup>
       )}
     </FormGroup>

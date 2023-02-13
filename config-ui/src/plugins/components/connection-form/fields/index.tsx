@@ -29,17 +29,27 @@ import { ConnectionRateLimit } from './rate-limit';
 interface Props {
   name: string;
   fields: any[];
+  initialValues: any;
   values: any;
+  errors: any;
   setValues: (values: any) => void;
-  error: any;
-  setError: (error: any) => void;
+  setErrors: (errors: any) => void;
 }
 
-export const Form = ({ name, fields, values, setValues, error, setError }: Props) => {
+export const Form = ({ name, fields, initialValues, values, errors, setValues, setErrors }: Props) => {
+  const onValues = (values: any) => setValues((prev: any) => ({ ...prev, ...values }));
+  const onErrors = (values: any) => setErrors((prev: any) => ({ ...prev, ...values }));
+
   const generateForm = () => {
     return fields.map((field) => {
       if (typeof field === 'function') {
-        return field({ values, setValues, error, setError });
+        return field({
+          initialValues,
+          values,
+          setValues: onValues,
+          errors,
+          setErrors: onErrors,
+        });
       }
 
       const key = typeof field === 'string' ? field : field.key;
@@ -47,7 +57,14 @@ export const Form = ({ name, fields, values, setValues, error, setError }: Props
       switch (key) {
         case 'name':
           return (
-            <ConnectionName key={key} value={values.name ?? ''} onChange={(name) => setValues({ ...values, name })} />
+            <ConnectionName
+              key={key}
+              initialValue={initialValues.name ?? ''}
+              value={values.name ?? ''}
+              error={errors.name ?? ''}
+              setValue={(value) => onValues({ name: value })}
+              setError={(value) => onErrors({ name: value })}
+            />
           );
         case 'endpoint':
           return (
@@ -55,16 +72,20 @@ export const Form = ({ name, fields, values, setValues, error, setError }: Props
               {...field}
               key={key}
               name={name}
+              initialValue={initialValues.endpoint ?? ''}
               value={values.endpoint ?? ''}
-              onChange={(endpoint) => setValues({ ...values, endpoint })}
+              error={errors.endpoint ?? ''}
+              setValue={(value) => onValues({ endpoint: value })}
+              setError={(value) => onErrors({ endpoint: value })}
             />
           );
         case 'username':
           return (
             <ConnectionUsername
               key={key}
+              initialValue={initialValues.username ?? ''}
               value={values.username ?? ''}
-              onChange={(username) => setValues({ ...values, username })}
+              setValue={(value) => onValues({ username: value })}
             />
           );
         case 'password':
@@ -72,8 +93,9 @@ export const Form = ({ name, fields, values, setValues, error, setError }: Props
             <ConnectionPassword
               {...field}
               key={key}
+              initialValue={initialValues.password ?? ''}
               value={values.password ?? ''}
-              onChange={(password) => setValues({ ...values, password })}
+              setValue={(value) => onValues({ password: value })}
             />
           );
         case 'token':
@@ -81,8 +103,9 @@ export const Form = ({ name, fields, values, setValues, error, setError }: Props
             <ConnectionToken
               {...field}
               key={key}
+              initialValue={initialValues.token ?? ''}
               value={values.token ?? ''}
-              onChange={(token) => setValues({ ...values, token })}
+              setValue={(value) => onValues({ token: value })}
             />
           );
         case 'proxy':
@@ -90,8 +113,9 @@ export const Form = ({ name, fields, values, setValues, error, setError }: Props
             <ConnectionProxy
               key={key}
               name={name}
+              initialValue={initialValues.proxy ?? ''}
               value={values.proxy ?? ''}
-              onChange={(proxy) => setValues({ ...values, proxy })}
+              setValue={(value) => onValues({ proxy: value })}
             />
           );
         case 'rateLimitPerHour':
@@ -99,8 +123,9 @@ export const Form = ({ name, fields, values, setValues, error, setError }: Props
             <ConnectionRateLimit
               {...field}
               key={key}
+              initialValue={initialValues.rateLimitPerHour ?? 0}
               value={values.rateLimitPerHour}
-              onChange={(rateLimitPerHour) => setValues({ ...values, rateLimitPerHour })}
+              setValue={(value) => onValues({ rateLimitPerHour: value })}
             />
           );
         default:

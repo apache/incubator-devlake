@@ -26,19 +26,21 @@ import * as API from '../api';
 
 interface Props {
   plugin: string;
-  form: any;
-  error: any;
+  values: any;
+  errors: any;
 }
 
-export const Test = ({ plugin, form, error }: Props) => {
+export const Test = ({ plugin, values, errors }: Props) => {
   const { operating, onSubmit } = useOperator((payload) => API.testConnection(plugin, payload));
 
   const disabled = useMemo(() => {
-    return Object.values(error).some((value) => value);
-  }, [error]);
+    return Object.values(errors).some((value) => value);
+  }, [errors]);
 
   const handleSubmit = () => {
-    onSubmit(pick(form, ['endpoint', 'token', 'username', 'password', 'app_id', 'secret_key', 'proxy', 'authMethod']));
+    onSubmit(
+      pick(values, ['endpoint', 'token', 'username', 'password', 'app_id', 'secret_key', 'proxy', 'authMethod']),
+    );
   };
 
   return <Button loading={operating} disabled={disabled} outlined text="Test Connection" onClick={handleSubmit} />;

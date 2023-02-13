@@ -27,11 +27,11 @@ import * as API from '../api';
 interface Props {
   plugin: string;
   connectionId?: ID;
-  form: any;
-  error: any;
+  values: any;
+  errors: any;
 }
 
-export const Save = ({ plugin, connectionId, form, error }: Props) => {
+export const Save = ({ plugin, connectionId, values, errors }: Props) => {
   const history = useHistory();
 
   const { operating, onSubmit } = useOperator(
@@ -43,11 +43,11 @@ export const Save = ({ plugin, connectionId, form, error }: Props) => {
   );
 
   const disabled = useMemo(() => {
-    return Object.values(error).some((value) => value);
-  }, [error]);
+    return Object.values(errors).some((value) => value);
+  }, [errors]);
 
   const handleSubmit = () => {
-    onSubmit(form);
+    onSubmit(values);
   };
 
   return (
