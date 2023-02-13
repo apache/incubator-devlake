@@ -20,6 +20,7 @@ package tasks
 import (
 	"encoding/json"
 	"github.com/apache/incubator-devlake/errors"
+	"strconv"
 	"strings"
 
 	"github.com/apache/incubator-devlake/plugins/core"
@@ -89,14 +90,23 @@ func ExtractStoryChangelog(taskCtx core.SubTaskContext) errors.Error {
 						default:
 							item.ValueBeforeParsed = valueBeforeMap.(string)
 						}
+						err = convertUnicode(&item)
+						if err != nil {
+							return nil, err
+						}
 						results = append(results, &item)
 					}
 				default:
 					item.ConnectionId = data.Options.ConnectionId
 					item.ChangelogId = storyChangelog.Id
 					item.Field = fc.Field
-					item.ValueAfterParsed = strings.Trim(string(fc.ValueAfterParsed), `"`)
-					item.ValueBeforeParsed = strings.Trim(string(fc.ValueBeforeParsed), `"`)
+					item.ValueAfterParsed = valueAfterMap.(string)
+					// as ValueAfterParsed is string, valueBeforeMap is always string
+					item.ValueBeforeParsed = valueBeforeMap.(string)
+				}
+				err = convertUnicode(&item)
+				if err != nil {
+					return nil, err
 				}
 				if item.Field == "iteration_id" {
 					iterationFrom, iterationTo, err := parseIterationChangelog(taskCtx, item.ValueBeforeParsed, item.ValueAfterParsed)
@@ -118,4 +128,25 @@ func ExtractStoryChangelog(taskCtx core.SubTaskContext) errors.Error {
 	}
 
 	return extractor.Execute()
+}
+
+func unicodeToZh(s string) (string, error) {
+	str, err := strconv.Unquote(strings.Replace(strconv.Quote(s), `\\u`, `\u`, -1))
+	if err != nil {
+		return "", err
+	}
+	return str, nil
+}
+
+func convertUnicode(item *models.TapdStoryChangelogItem) errors.Error {
+	var err errors.Error
+	item.ValueAfterParsed, err = errors.Convert01(unicodeToZh(item.ValueAfterParsed))
+	if err != nil {
+		return err
+	}
+	item.ValueBeforeParsed, err = errors.Convert01(unicodeToZh(item.ValueBeforeParsed))
+	if err != nil {
+		return err
+	}
+	return nil
 }
