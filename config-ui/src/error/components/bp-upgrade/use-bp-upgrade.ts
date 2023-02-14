@@ -90,27 +90,28 @@ export const useBPUpgrade = ({ id, onResetError }: UseBPUpgradeProps) => {
   };
 
   const upgradeScope = async (plugin: string, connectionId: ID, scope: any) => {
+    // get data scope detail
+    const scopeDetail = await getScopeDetail(plugin, connectionId, scope.options);
+    const scopeId = getScopeId(plugin, scopeDetail);
+
     let transformationRule;
 
     if (scope.transformation) {
       // create transfromation template
       transformationRule = await API.createTransformation(plugin, {
         ...scope.transformation,
-        name: `upgrade-${plugin}-${connectionId}-${new Date().getTime()}`,
+        name: `upgrade-${plugin}-${connectionId}-${scopeId}-${new Date().getTime()}`,
       });
     }
 
-    // get data scope detail
-    const scopeDetail = await getScopeDetail(plugin, connectionId, scope.options);
-
     // put data scope
-    await API.updateDataScope(plugin, connectionId, getScopeId(plugin, scopeDetail), {
+    await API.updateDataScope(plugin, connectionId, scopeId, {
       ...scopeDetail,
       transformationRuleId: transformationRule?.id,
     });
 
     return {
-      id: `${getScopeId(plugin, scopeDetail)}`,
+      id: scopeId,
       entities: scope.entities,
     };
   };
