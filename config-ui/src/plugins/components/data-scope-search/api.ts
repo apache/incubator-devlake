@@ -16,9 +16,16 @@
  *
  */
 
-export * from './connection-form';
-export * from './data-scope-list';
-export * from './data-scope';
-export * from './data-scope-miller-columns';
-export * from './data-scope-search';
-export * from './transformation';
+import { request } from '@/utils';
+
+type Params = {
+  search?: string;
+  page?: number;
+  pageSize?: number;
+};
+
+export const searchScope = (plugin: string, connectionId: ID, params: Params) =>
+  request(`/plugins/${plugin}/connections/${connectionId}/search-remote-scopes`, {
+    method: 'get',
+    data: params,
+  });
