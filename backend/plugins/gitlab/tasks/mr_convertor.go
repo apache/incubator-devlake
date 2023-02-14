@@ -29,6 +29,10 @@ import (
 	"reflect"
 )
 
+func init() {
+	register(ConvertApiMergeRequestsMeta)
+}
+
 var ConvertApiMergeRequestsMeta = plugin.SubTaskMeta{
 	Name:             "convertApiMergeRequests",
 	EntryPoint:       ConvertApiMergeRequests,

@@ -25,6 +25,10 @@ import (
 
 const RAW_TAG_TABLE = "gitlab_api_tag"
 
+func init() {
+	register(CollectTagMeta)
+}
+
 var CollectTagMeta = plugin.SubTaskMeta{
 	Name:             "collectApiTag",
 	EntryPoint:       CollectApiTag,

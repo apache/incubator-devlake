@@ -19,6 +19,7 @@ package tasks
 
 import (
 	"encoding/json"
+
 	"github.com/apache/incubator-devlake/core/errors"
 	"github.com/apache/incubator-devlake/core/plugin"
 	"github.com/apache/incubator-devlake/helpers/pluginhelper/api"
@@ -34,6 +35,10 @@ type GitlabApiTag struct {
 		TagName     string
 		Description string
 	}
+}
+
+func init() {
+	register(ExtractTagMeta)
 }
 
 var ExtractTagMeta = plugin.SubTaskMeta{

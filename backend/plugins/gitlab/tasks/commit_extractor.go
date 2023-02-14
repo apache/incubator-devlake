@@ -25,6 +25,10 @@ import (
 	"github.com/apache/incubator-devlake/plugins/gitlab/models"
 )
 
+func init() {
+	register(ExtractApiCommitsMeta)
+}
+
 var ExtractApiCommitsMeta = plugin.SubTaskMeta{
 	Name:             "extractApiCommits",
 	EntryPoint:       ExtractApiCommits,

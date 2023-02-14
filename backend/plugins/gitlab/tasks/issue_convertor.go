@@ -31,6 +31,10 @@ import (
 	"strings"
 )
 
+func init() {
+	register(ConvertIssuesMeta)
+}
+
 var ConvertIssuesMeta = plugin.SubTaskMeta{
 	Name:             "convertIssues",
 	EntryPoint:       ConvertIssues,

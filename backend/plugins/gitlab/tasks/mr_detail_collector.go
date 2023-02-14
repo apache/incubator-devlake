@@ -29,6 +29,10 @@ import (
 
 const RAW_MERGE_REQUEST_DETAIL_TABLE = "gitlab_api_merge_request_details"
 
+func init() {
+	register(CollectApiMergeRequestDetailsMeta)
+}
+
 var CollectApiMergeRequestDetailsMeta = plugin.SubTaskMeta{
 	Name:             "collectApiMergeRequestDetails",
 	EntryPoint:       CollectApiMergeRequestDetails,

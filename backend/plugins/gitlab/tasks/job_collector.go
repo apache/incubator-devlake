@@ -25,6 +25,10 @@ import (
 
 const RAW_JOB_TABLE = "gitlab_api_job"
 
+func init() {
+	register(CollectApiJobsMeta)
+}
+
 var CollectApiJobsMeta = plugin.SubTaskMeta{
 	Name:             "collectApiJobs",
 	EntryPoint:       CollectApiJobs,

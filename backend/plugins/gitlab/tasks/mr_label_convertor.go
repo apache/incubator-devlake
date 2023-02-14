@@ -28,6 +28,10 @@ import (
 	"reflect"
 )
 
+func init() {
+	register(ConvertMrLabelsMeta)
+}
+
 var ConvertMrLabelsMeta = plugin.SubTaskMeta{
 	Name:             "convertMrLabels",
 	EntryPoint:       ConvertMrLabels,

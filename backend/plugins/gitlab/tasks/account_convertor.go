@@ -18,6 +18,8 @@ limitations under the License.
 package tasks
 
 import (
+	"reflect"
+
 	"github.com/apache/incubator-devlake/core/dal"
 	"github.com/apache/incubator-devlake/core/errors"
 	"github.com/apache/incubator-devlake/core/models/domainlayer"
@@ -26,8 +28,11 @@ import (
 	"github.com/apache/incubator-devlake/core/plugin"
 	"github.com/apache/incubator-devlake/helpers/pluginhelper/api"
 	gitlabModels "github.com/apache/incubator-devlake/plugins/gitlab/models"
-	"reflect"
 )
+
+func init() {
+	register(ConvertAccountsMeta)
+}
 
 var ConvertAccountsMeta = plugin.SubTaskMeta{
 	Name:             "convertAccounts",

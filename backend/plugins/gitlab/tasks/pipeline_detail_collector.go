@@ -30,6 +30,10 @@ import (
 
 const RAW_PIPELINE_DETAILS_TABLE = "gitlab_api_pipeline_details"
 
+func init() {
+	register(CollectApiPipelineDetailsMeta)
+}
+
 var CollectApiPipelineDetailsMeta = plugin.SubTaskMeta{
 	Name:             "collectApiPipelineDetails",
 	EntryPoint:       CollectApiPipelineDetails,

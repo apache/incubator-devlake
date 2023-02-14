@@ -29,6 +29,10 @@ import (
 	gitlabModels "github.com/apache/incubator-devlake/plugins/gitlab/models"
 )
 
+func init() {
+	register(ConvertPipelineCommitMeta)
+}
+
 var ConvertPipelineCommitMeta = plugin.SubTaskMeta{
 	Name:             "convertPipelineCommits",
 	EntryPoint:       ConvertPipelineCommits,

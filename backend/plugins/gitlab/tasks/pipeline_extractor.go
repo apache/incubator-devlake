@@ -54,6 +54,10 @@ type ApiPipeline struct {
 	ApiDetailedStatus
 }
 
+func init() {
+	register(ExtractApiPipelinesMeta)
+}
+
 var ExtractApiPipelinesMeta = plugin.SubTaskMeta{
 	Name:             "extractApiPipelines",
 	EntryPoint:       ExtractApiPipelines,

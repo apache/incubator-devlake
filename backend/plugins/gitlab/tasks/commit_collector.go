@@ -25,6 +25,10 @@ import (
 
 const RAW_COMMIT_TABLE = "gitlab_api_commit"
 
+func init() {
+	register(CollectApiCommitsMeta)
+}
+
 var CollectApiCommitsMeta = plugin.SubTaskMeta{
 	Name:             "collectApiCommits",
 	EntryPoint:       CollectApiCommits,

@@ -51,6 +51,10 @@ type GitlabApiProject struct {
 	HttpUrlToRepo     string              `json:"http_url_to_repo"`
 }
 
+func init() {
+	register(ConvertProjectMeta)
+}
+
 var ConvertProjectMeta = plugin.SubTaskMeta{
 	Name:             "convertApiProject",
 	EntryPoint:       ConvertApiProjects,

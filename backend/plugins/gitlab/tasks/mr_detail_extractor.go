@@ -27,6 +27,10 @@ import (
 	"github.com/apache/incubator-devlake/plugins/gitlab/models"
 )
 
+func init() {
+	register(ExtractApiMergeRequestDetailsMeta)
+}
+
 var ExtractApiMergeRequestDetailsMeta = plugin.SubTaskMeta{
 	Name:             "extractApiMergeRequestDetails",
 	EntryPoint:       ExtractApiMergeRequestDetails,

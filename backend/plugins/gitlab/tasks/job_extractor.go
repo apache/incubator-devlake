@@ -19,6 +19,7 @@ package tasks
 
 import (
 	"encoding/json"
+
 	"github.com/apache/incubator-devlake/core/errors"
 	"github.com/apache/incubator-devlake/core/plugin"
 	"github.com/apache/incubator-devlake/helpers/pluginhelper/api"
@@ -42,6 +43,10 @@ type ApiJob struct {
 	CreatedAt  *api.Iso8601Time `json:"created_at"`
 	StartedAt  *api.Iso8601Time `json:"started_at"`
 	FinishedAt *api.Iso8601Time `json:"finished_at"`
+}
+
+func init() {
+	register(ExtractApiJobsMeta)
 }
 
 var ExtractApiJobsMeta = plugin.SubTaskMeta{

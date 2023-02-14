@@ -19,13 +19,18 @@ package tasks
 
 import (
 	"encoding/json"
+	"regexp"
+
 	"github.com/apache/incubator-devlake/core/errors"
 	"github.com/apache/incubator-devlake/core/models/domainlayer/ticket"
 	"github.com/apache/incubator-devlake/core/plugin"
 	"github.com/apache/incubator-devlake/helpers/pluginhelper/api"
 	"github.com/apache/incubator-devlake/plugins/gitlab/models"
-	"regexp"
 )
+
+func init() {
+	register(ExtractApiIssuesMeta)
+}
 
 var ExtractApiIssuesMeta = plugin.SubTaskMeta{
 	Name:             "extractApiIssues",

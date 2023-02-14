@@ -94,46 +94,7 @@ func (p Gitlab) Description() string {
 }
 
 func (p Gitlab) SubTaskMetas() []plugin.SubTaskMeta {
-	return []plugin.SubTaskMeta{
-		tasks.CollectApiIssuesMeta,
-		tasks.ExtractApiIssuesMeta,
-		tasks.CollectApiMergeRequestsMeta,
-		tasks.ExtractApiMergeRequestsMeta,
-		tasks.CollectApiMergeRequestDetailsMeta,
-		tasks.CollectApiMergeRequestDetailsMeta,
-		tasks.CollectApiMrNotesMeta,
-		tasks.ExtractApiMrNotesMeta,
-		tasks.CollectApiMrCommitsMeta,
-		tasks.ExtractApiMrCommitsMeta,
-		tasks.CollectApiPipelinesMeta,
-		tasks.ExtractApiPipelinesMeta,
-		tasks.CollectApiPipelineDetailsMeta,
-		tasks.ExtractApiPipelineDetailsMeta,
-		tasks.CollectApiJobsMeta,
-		tasks.ExtractApiJobsMeta,
-		tasks.EnrichMergeRequestsMeta,
-		tasks.CollectAccountsMeta,
-		tasks.ExtractAccountsMeta,
-		tasks.CollectAccountDetailsMeta,
-		tasks.ExtractAccountDetailsMeta,
-		tasks.ConvertAccountsMeta,
-		tasks.ConvertProjectMeta,
-		tasks.ConvertApiMergeRequestsMeta,
-		tasks.ConvertMrCommentMeta,
-		tasks.ConvertApiMrCommitsMeta,
-		tasks.ConvertIssuesMeta,
-		tasks.ConvertIssueLabelsMeta,
-		tasks.ConvertMrLabelsMeta,
-		tasks.ConvertCommitsMeta,
-		tasks.ConvertPipelineMeta,
-		tasks.ConvertPipelineCommitMeta,
-		tasks.ConvertJobMeta,
-		tasks.CollectApiCommitsMeta,
-		tasks.ExtractApiCommitsMeta,
-		tasks.ExtractApiMergeRequestDetailsMeta,
-		tasks.CollectTagMeta,
-		tasks.ExtractTagMeta,
-	}
+	return GetSubTaskMetaList()
 }
 
 func (p Gitlab) PrepareTaskData(taskCtx plugin.TaskContext, options map[string]interface{}) (interface{}, errors.Error) {

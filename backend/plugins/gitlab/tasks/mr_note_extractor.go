@@ -42,6 +42,10 @@ type MergeRequestNote struct {
 	Type string `json:"type"`
 }
 
+func init() {
+	register(ExtractApiMrNotesMeta)
+}
+
 var ExtractApiMrNotesMeta = plugin.SubTaskMeta{
 	Name:             "extractApiMergeRequestsNotes",
 	EntryPoint:       ExtractApiMergeRequestsNotes,

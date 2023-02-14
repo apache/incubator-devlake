@@ -68,6 +68,10 @@ type Reviewer struct {
 	WebUrl         string `json:"web_url"`
 }
 
+func init() {
+	register(ExtractApiMergeRequestsMeta)
+}
+
 var ExtractApiMergeRequestsMeta = plugin.SubTaskMeta{
 	Name:             "extractApiMergeRequests",
 	EntryPoint:       ExtractApiMergeRequests,

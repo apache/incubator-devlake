@@ -1,0 +1,19 @@
+package tasks
+
+import (
+	"github.com/apache/incubator-devlake/core/plugin"
+)
+
+var subTaskMetaMap map[string]plugin.SubTaskMeta
+
+func register(meta plugin.SubTaskMeta) {
+	subTaskMetaMap[meta.Name] = meta
+}
+
+func GetSubTaskMetaList() (subTasks []plugin.SubTaskMeta) {
+	for _, value := range subTaskMetaMap {
+		subTasks = append(subTasks, value)
+	}
+
+	return
+}

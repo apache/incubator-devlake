@@ -30,6 +30,10 @@ import (
 
 const RAW_ISSUE_TABLE = "gitlab_api_issues"
 
+func init() {
+	register(CollectApiIssuesMeta)
+}
+
 var CollectApiIssuesMeta = plugin.SubTaskMeta{
 	Name:             "collectApiIssues",
 	EntryPoint:       CollectApiIssues,

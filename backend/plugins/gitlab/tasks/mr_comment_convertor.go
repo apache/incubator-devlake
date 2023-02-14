@@ -29,6 +29,10 @@ import (
 	"reflect"
 )
 
+func init() {
+	register(ConvertMrCommentMeta)
+}
+
 var ConvertMrCommentMeta = plugin.SubTaskMeta{
 	Name:             "convertMergeRequestComment",
 	EntryPoint:       ConvertMergeRequestComment,

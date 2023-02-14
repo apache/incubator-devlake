@@ -26,6 +26,10 @@ import (
 	"github.com/apache/incubator-devlake/plugins/gitlab/models"
 )
 
+func init() {
+	register(ExtractAccountDetailsMeta)
+}
+
 var ExtractAccountDetailsMeta = plugin.SubTaskMeta{
 	Name:             "extractAccountDetails",
 	EntryPoint:       ExtractAccountDetails,

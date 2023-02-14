@@ -27,6 +27,10 @@ import (
 	"time"
 )
 
+func init() {
+	register(EnrichMergeRequestsMeta)
+}
+
 var EnrichMergeRequestsMeta = plugin.SubTaskMeta{
 	Name:             "enrichMrs",
 	EntryPoint:       EnrichMergeRequests,

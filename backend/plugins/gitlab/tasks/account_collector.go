@@ -31,6 +31,10 @@ import (
 
 const RAW_USER_TABLE = "gitlab_api_users"
 
+func init() {
+	register(CollectAccountsMeta)
+}
+
 var CollectAccountsMeta = plugin.SubTaskMeta{
 	Name:             "collectAccounts",
 	EntryPoint:       CollectAccounts,
