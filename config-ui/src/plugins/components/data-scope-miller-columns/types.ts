@@ -16,8 +16,7 @@
  *
  */
 
-export * from './connection-form';
-export * from './data-scope-list';
-export * from './data-scope';
-export * from './data-scope-miller-columns';
-export * from './transformation';
+export type ExtraType = {
+  type: 'group' | 'scope';
+  data: any;
+};

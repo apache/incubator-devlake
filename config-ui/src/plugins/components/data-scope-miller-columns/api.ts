@@ -16,8 +16,15 @@
  *
  */
 
-export * from './connection-form';
-export * from './data-scope-list';
-export * from './data-scope';
-export * from './data-scope-miller-columns';
-export * from './transformation';
+import { request } from '@/utils';
+
+type Params = {
+  groupId: ID | null;
+  pageToken?: string;
+};
+
+export const getScope = (plugin: string, connectionId: ID, params: Params) =>
+  request(`/plugins/${plugin}/connections/${connectionId}/remote-scopes`, {
+    method: 'get',
+    data: params,
+  });
