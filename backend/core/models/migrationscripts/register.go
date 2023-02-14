@@ -70,5 +70,6 @@ func All() []plugin.MigrationScript {
 		new(renameProjectMetrics),
 		new(addOriginalTypeToIssue221230),
 		new(addSecurityTesting),
+		new(modifyIssueStorypointToFloat64),
 	}
 }
