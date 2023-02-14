@@ -43,6 +43,12 @@ type RemoteScopesOutput struct {
 	NextPageToken string              `json:"nextPageToken"`
 }
 
+type SearchRemoteScopesOutput struct {
+	Children []RemoteScopesChild `json:"children"`
+	Page     int                 `json:"page"`
+	PageSize int                 `json:"pageSize"`
+}
+
 type PageData struct {
 	Page    int `json:"page"`
 	PerPage int `json:"per_page"`
@@ -87,7 +93,7 @@ const TypeGroup string = "group"
 // @Param connectionId path int false "connection ID"
 // @Param groupId query string false "group ID"
 // @Param pageToken query string false "page Token"
-// @Success 200  {object} []models.BitbucketRepo
+// @Success 200  {object} RemoteScopesOutput
 // @Failure 400  {object} shared.ApiBody "Bad Request"
 // @Failure 500  {object} shared.ApiBody "Internal Error"
 // @Router /plugins/bitbucket/connections/{connectionId}/remote-scopes [GET]
@@ -229,7 +235,7 @@ func RemoteScopes(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, er
 // @Param groupId query string false "group ID, empty means search public repos"
 // @Param page query int false "page number"
 // @Param pageSize query int false "page size per page"
-// @Success 200  {object} []models.BitbucketRepo
+// @Success 200  {object} SearchRemoteScopesOutput
 // @Failure 400  {object} shared.ApiBody "Bad Request"
 // @Failure 500  {object} shared.ApiBody "Internal Error"
 // @Router /plugins/bitbucket/connections/{connectionId}/search-remote-scopes [GET]
@@ -302,12 +308,22 @@ func SearchRemoteScopes(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutp
 	}
 
 	// set repos return
-	repos := []models.BitbucketRepo{}
-	for _, project := range resBody.Values {
-		repos = append(repos, *tasks.ConvertApiRepoToScope(&project, connection.ID))
+	outputBody := &SearchRemoteScopesOutput{}
+	for _, repo := range resBody.Values {
+		child := RemoteScopesChild{
+			Type:     TypeScope,
+			Id:       repo.FullName,
+			ParentId: nil,
+			Name:     repo.Name,
+			Data:     tasks.ConvertApiRepoToScope(&repo, connection.ID),
+		}
+		outputBody.Children = append(outputBody.Children, child)
 	}
 
-	return &plugin.ApiResourceOutput{Body: repos, Status: http.StatusOK}, nil
+	outputBody.Page = p
+	outputBody.PageSize = ps
+
+	return &plugin.ApiResourceOutput{Body: outputBody, Status: http.StatusOK}, nil
 }
 
 func GetPageTokenFromPageData(pageData *PageData) (string, errors.Error) {
