@@ -94,7 +94,7 @@ func (p Gitlab) Description() string {
 }
 
 func (p Gitlab) SubTaskMetas() []plugin.SubTaskMeta {
-	return GetSubTaskMetaList()
+	return tasks.GetSubTaskMetaList()
 }
 
 func (p Gitlab) PrepareTaskData(taskCtx plugin.TaskContext, options map[string]interface{}) (interface{}, errors.Error) {
