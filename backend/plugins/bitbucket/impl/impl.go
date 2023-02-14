@@ -90,6 +90,9 @@ func (p Bitbucket) SubTaskMetas() []plugin.SubTaskMeta {
 		tasks.CollectApiPrCommitsMeta,
 		tasks.ExtractApiPrCommitsMeta,
 
+		tasks.CollectApiCommitsMeta,
+		tasks.ExtractApiCommitsMeta,
+
 		tasks.CollectApiIssuesMeta,
 		tasks.ExtractApiIssuesMeta,
 
@@ -107,6 +110,7 @@ func (p Bitbucket) SubTaskMetas() []plugin.SubTaskMeta {
 		tasks.ConvertPullRequestsMeta,
 		tasks.ConvertPrCommentsMeta,
 		tasks.ConvertPrCommitsMeta,
+		tasks.ConvertCommitsMeta,
 		tasks.ConvertIssuesMeta,
 		tasks.ConvertIssueCommentsMeta,
 		tasks.ConvertPipelineMeta,
@@ -239,7 +243,8 @@ func EnrichOptions(taskCtx plugin.TaskContext,
 		}
 	} else {
 		if taskCtx.GetDal().IsErrorNotFound(err) && op.FullName != "" {
-			repo, err := tasks.GetApiRepo(op, apiClient)
+			var repo *tasks.BitbucketApiRepo
+			repo, err = tasks.GetApiRepo(op, apiClient)
 			if err != nil {
 				return err
 			}
