@@ -20,6 +20,7 @@ package service
 import (
 	"fmt"
 	"io"
+	"regexp"
 	"strings"
 
 	"github.com/apache/incubator-devlake/core/dal"
@@ -34,14 +35,15 @@ import (
 
 // Service wraps database operations
 type Service struct {
-	dal dal.Dal
+	dal         dal.Dal
+	nameChecker *regexp.Regexp
 }
 
 func NewService(dal dal.Dal) *Service {
-	return &Service{dal: dal}
+	return &Service{dal: dal, nameChecker: regexp.MustCompile(`^x_\w+`)}
 }
 
-// GetFields returns all the customized fields for the table
+// GetFields returns all the fields of the table
 func (s *Service) GetFields(table string) ([]models.CustomizedField, errors.Error) {
 	// the customized fields created before v0.16.0 were not recorded in the table `_tool_customized_field`, we should take care of them
 	columns, err := s.dal.GetColumns(&models.Table{Name: table}, func(columnMeta dal.ColumnMeta) bool {
@@ -88,6 +90,9 @@ func (s *Service) checkField(table, field string) (bool, errors.Error) {
 	}
 	if !strings.HasPrefix(field, "x_") {
 		return false, errors.Default.New("column name should start with `x_`")
+	}
+	if !s.nameChecker.MatchString(field) {
+		return false, errors.Default.New("invalid column name")
 	}
 	fields, err := s.GetFields(table)
 	if err != nil {
