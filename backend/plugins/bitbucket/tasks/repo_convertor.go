@@ -70,9 +70,9 @@ type BitbucketApiRepo struct {
 			Href string `json:"href"`
 			Name string `json:"name"`
 		} `json:"clone"`
-		Self struct {
+		Html struct {
 			Href string `json:"href"`
-		} `json:"self"`
+		} `json:"html"`
 	} `json:"links"`
 }
 
@@ -85,7 +85,8 @@ func ConvertApiRepoToScope(repo *BitbucketApiRepo, connectionId uint64) *models.
 	scope.Language = repo.Language
 	scope.Description = repo.Description
 	scope.Name = repo.Name
-	scope.OwnerId = repo.Owner.Username
+	scope.Owner = repo.Owner.Username
+	scope.HTMLUrl = repo.Links.Html.Href
 
 	scope.CloneUrl = ""
 	for _, u := range repo.Links.Clone {

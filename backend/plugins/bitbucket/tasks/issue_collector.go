@@ -41,11 +41,15 @@ func CollectApiIssues(taskCtx plugin.SubTaskContext) errors.Error {
 	}
 
 	err = collectorWithState.InitCollector(helper.ApiCollectorArgs{
-		ApiClient:      data.ApiClient,
-		PageSize:       100,
-		Incremental:    collectorWithState.IsIncremental(),
-		UrlTemplate:    "repositories/{{ .Params.FullName }}/issues",
-		Query:          GetQueryCreatedAndUpdated(collectorWithState),
+		ApiClient:   data.ApiClient,
+		PageSize:    100,
+		Incremental: collectorWithState.IsIncremental(),
+		UrlTemplate: "repositories/{{ .Params.FullName }}/issues",
+		Query: GetQueryCreatedAndUpdated(
+			`values.type,values.id,values.links.self,`+
+				`values.title,values.content.raw,values.reporter,values.assignee,`+
+				`values.state,values.milestone.id,values.component,values.priority,values.created_on,values.updated_on`,
+			collectorWithState),
 		GetTotalPages:  GetTotalPagesFromResponse,
 		ResponseParser: GetRawMessageFromResponse,
 		// some repo have no issue tracker

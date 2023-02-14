@@ -53,7 +53,7 @@ func CollectApiPullRequestsComments(taskCtx plugin.SubTaskContext) errors.Error 
 		Incremental:    collectorWithState.IsIncremental(),
 		Input:          iterator,
 		UrlTemplate:    "repositories/{{ .Params.FullName }}/pullrequests/{{ .Input.BitbucketId }}/comments",
-		Query:          GetQuery,
+		Query:          GetQueryFields(`values.id,values.type,values.created_on,values.updated_on,values.content.raw,values.pullrequest.id,values.user`),
 		GetTotalPages:  GetTotalPagesFromResponse,
 		ResponseParser: GetRawMessageFromResponse,
 	})

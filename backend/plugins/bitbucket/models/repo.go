@@ -29,7 +29,7 @@ type BitbucketRepo struct {
 	HTMLUrl              string     `json:"HTMLUrl" gorm:"type:varchar(255)" mapstructure:"HTMLUrl,omitempty"`
 	Description          string     `json:"description" mapstructure:"description,omitempty"`
 	TransformationRuleId uint64     `json:"transformationRuleId,omitempty" mapstructure:"transformationRuleId,omitempty"`
-	OwnerId              string     `json:"ownerId" mapstructure:"ownerId,omitempty"`
+	Owner                string     `json:"owner" mapstructure:"owner,omitempty"`
 	Language             string     `json:"language" gorm:"type:varchar(255)" mapstructure:"language,omitempty"`
 	CloneUrl             string     `json:"cloneUrl" gorm:"type:varchar(255)" mapstructure:"cloneUrl,omitempty"`
 	CreatedDate          *time.Time `json:"createdDate" mapstructure:"-"`

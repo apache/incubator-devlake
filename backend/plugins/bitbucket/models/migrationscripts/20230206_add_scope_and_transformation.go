@@ -27,6 +27,7 @@ import (
 type BitbucketRepo20230206 struct {
 	TransformationRuleId uint64 `json:"transformationRuleId,omitempty" mapstructure:"transformationRuleId,omitempty"`
 	CloneUrl             string `json:"cloneUrl" gorm:"type:varchar(255)" mapstructure:"cloneUrl,omitempty"`
+	Owner                string `json:"owner" mapstructure:"owner,omitempty"`
 }
 
 func (BitbucketRepo20230206) TableName() string {
@@ -44,6 +45,12 @@ func (BitbucketIssue20230206) TableName() string {
 type addScope20230206 struct{}
 
 func (*addScope20230206) Up(basicRes context.BasicRes) errors.Error {
+	db := basicRes.GetDal()
+	err := db.RenameColumn("_tool_bitbucket_repos", "owner_id", "owner")
+	if err != nil {
+		return err
+	}
+
 	return migrationhelper.AutoMigrateTables(
 		basicRes,
 		&BitbucketRepo20230206{},

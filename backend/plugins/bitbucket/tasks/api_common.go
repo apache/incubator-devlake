@@ -86,15 +86,14 @@ func GetQuery(reqData *api.RequestData) (url.Values, errors.Error) {
 	return query, nil
 }
 
-func GetQueryCreatedAndUpdated(collectorWithState *api.ApiCollectorStateManager) func(reqData *api.RequestData) (url.Values, errors.Error) {
+func GetQueryCreatedAndUpdated(fields string, collectorWithState *api.ApiCollectorStateManager) func(reqData *api.RequestData) (url.Values, errors.Error) {
+	//func GetQueryCreatedAndUpdated(collectorWithState *api.ApiCollectorStateManager) func(reqData *api.RequestData) (url.Values, errors.Error) {
 	return func(reqData *api.RequestData) (url.Values, errors.Error) {
 		query, err := GetQuery(reqData)
 		if err != nil {
 			return nil, err
 		}
-		query.Set("state", "all")
-		query.Set("page", fmt.Sprintf("%v", reqData.Pager.Page))
-		query.Set("pagelen", fmt.Sprintf("%v", reqData.Pager.Size))
+		query.Set("fields", fields)
 		query.Set("sort", "created_on")
 		if collectorWithState.IsIncremental() && collectorWithState.CreatedDateAfter != nil {
 			latestSuccessStart := collectorWithState.LatestState.LatestSuccessStart.Format("2006-01-02")
@@ -112,16 +111,16 @@ func GetQueryCreatedAndUpdated(collectorWithState *api.ApiCollectorStateManager)
 	}
 }
 
-func GetQueryForNext(reqData *api.RequestData) (url.Values, errors.Error) {
-	query := url.Values{}
-	query.Set("state", "all")
-	query.Set("pagelen", fmt.Sprintf("%v", reqData.Pager.Size))
-	query.Set("sort", "created_on")
+func GetQueryFields(fields string) func(reqData *api.RequestData) (url.Values, errors.Error) {
+	return func(reqData *api.RequestData) (url.Values, errors.Error) {
+		query, err := GetQuery(reqData)
+		if err != nil {
+			return nil, err
+		}
+		query.Set("fields", fields)
 
-	if reqData.CustomData != nil {
-		query.Set("page", reqData.CustomData.(string))
+		return query, nil
 	}
-	return query, nil
 }
 
 func GetNextPageCustomData(_ *api.RequestData, prevPageResponse *http.Response) (interface{}, errors.Error) {

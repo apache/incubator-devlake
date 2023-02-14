@@ -36,34 +36,24 @@ var ExtractApiPullRequestsMeta = plugin.SubTaskMeta{
 }
 
 type BitbucketApiPullRequest struct {
-	BitbucketId  int    `json:"id"`
-	CommentCount int    `json:"comment_count"`
-	TaskCount    int    `json:"task_count"`
-	Type         string `json:"type"`
-	State        string `json:"state"`
-	Title        string `json:"title"`
-	Description  string `json:"description"`
-	MergeCommit  *struct {
-		Type  string `json:"type"`
-		Hash  string `json:"hash"`
-		Links *struct {
-			Self struct {
-				Href string `json:"href"`
-			} `json:"self"`
-			Html struct {
-				Href string `json:"href"`
-			} `json:"html"`
-		} `json:"links"`
+	BitbucketId  int `json:"id"`
+	CommentCount int `json:"comment_count"`
+	//TaskCount    int    `json:"task_count"`
+	Type        string `json:"type"`
+	State       string `json:"state"`
+	Title       string `json:"title"`
+	Description string `json:"description"`
+	MergeCommit *struct {
+		Hash string `json:"hash"`
+		// date only return when fields defined
+		Date *api.Iso8601Time `json:"date"`
 	} `json:"merge_commit"`
 	Links *struct {
-		Self struct {
-			Href string `json:"href"`
-		} `json:"self"`
 		Html struct {
 			Href string `json:"href"`
 		} `json:"html"`
 	} `json:"links"`
-	ClosedBy           *BitbucketAccountResponse `json:"closed_by"`
+	//ClosedBy           *BitbucketAccountResponse `json:"closed_by"`
 	Author             *BitbucketAccountResponse `json:"author"`
 	BitbucketCreatedAt time.Time                 `json:"created_on"`
 	BitbucketUpdatedAt time.Time                 `json:"updated_on"`
@@ -72,7 +62,6 @@ type BitbucketApiPullRequest struct {
 			Name string `json:"name"`
 		} `json:"branch"`
 		Commit struct {
-			Type string `json:"type"`
 			Hash string `json:"hash"`
 		} `json:"commit"`
 		Repo *BitbucketApiRepo `json:"repository"`
@@ -82,13 +71,12 @@ type BitbucketApiPullRequest struct {
 			Name string `json:"name"`
 		} `json:"branch"`
 		Commit struct {
-			Type string `json:"type"`
 			Hash string `json:"hash"`
 		} `json:"commit"`
 		Repo *BitbucketApiRepo `json:"repository"`
 	} `json:"source"`
-	Reviewers    []BitbucketAccountResponse `json:"reviewers"`
-	Participants []BitbucketAccountResponse `json:"participants"`
+	//Reviewers    []BitbucketAccountResponse `json:"reviewers"`
+	//Participants []BitbucketAccountResponse `json:"participants"`
 }
 
 func ExtractApiPullRequests(taskCtx plugin.SubTaskContext) errors.Error {
@@ -123,6 +111,7 @@ func ExtractApiPullRequests(taskCtx plugin.SubTaskContext) errors.Error {
 			}
 			if rawL.MergeCommit != nil {
 				bitbucketPr.MergeCommitSha = rawL.MergeCommit.Hash
+				bitbucketPr.MergedAt = rawL.MergeCommit.Date.ToNullableTime()
 			}
 			results = append(results, bitbucketPr)
 
@@ -138,6 +127,7 @@ func convertBitbucketPullRequest(pull *BitbucketApiPullRequest, connId uint64, r
 	bitbucketPull := &models.BitbucketPullRequest{
 		ConnectionId:       connId,
 		BitbucketId:        pull.BitbucketId,
+		Number:             pull.BitbucketId,
 		RepoId:             repoId,
 		BaseRepoId:         pull.BaseRef.Repo.FullName,
 		HeadRepoId:         pull.HeadRef.Repo.FullName,

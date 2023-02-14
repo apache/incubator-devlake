@@ -29,33 +29,25 @@ import (
 )
 
 type IssuesResponse struct {
-	Type        string            `json:"type"`
-	BitbucketId int               `json:"id"`
-	Repository  *BitbucketApiRepo `json:"repository"`
+	Type        string `json:"type"`
+	BitbucketId int    `json:"id"`
 	Links       struct {
 		Self struct {
 			Href string `json:"href"`
 		} `json:"self"`
-		Html struct {
-			Href string `json:"href"`
-		} `json:"html"`
 	} `json:"links"`
 	Title   string `json:"title"`
 	Content struct {
-		Type string `json:"type"`
-		Raw  string `json:"raw"`
+		Raw string `json:"raw"`
 	} `json:"content"`
 	Reporter  *BitbucketAccountResponse `json:"reporter"`
 	Assignee  *BitbucketAccountResponse `json:"assignee"`
 	State     string                    `json:"state"`
-	Kind      string                    `json:"kind"`
 	Milestone *struct {
 		Id int `json:"id"`
 	} `json:"milestone"`
 	Component          string    `json:"component"`
 	Priority           string    `json:"priority"`
-	Votes              int       `json:"votes"`
-	Watches            int       `json:"watches"`
 	BitbucketCreatedAt time.Time `json:"created_on"`
 	BitbucketUpdatedAt time.Time `json:"updated_on"`
 }
@@ -69,11 +61,11 @@ var ExtractApiIssuesMeta = plugin.SubTaskMeta{
 }
 
 func ExtractApiIssues(taskCtx plugin.SubTaskContext) errors.Error {
-	rawDataSubTaskArgs, data := CreateRawDataSubTaskArgs(taskCtx, RAW_ISSUE_COMMENTS_TABLE)
+	rawDataSubTaskArgs, data := CreateRawDataSubTaskArgs(taskCtx, RAW_ISSUE_TABLE)
 	config := *data.Options.BitbucketTransformationRule
 	issueStatusMap, err := newIssueStatusMap(config)
 	if err != nil {
-		return nil
+		return err
 	}
 	extractor, err := api.NewApiExtractor(api.ApiExtractorArgs{
 		RawDataSubTaskArgs: *rawDataSubTaskArgs,

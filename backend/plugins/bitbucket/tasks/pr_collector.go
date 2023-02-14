@@ -44,11 +44,16 @@ func CollectApiPullRequests(taskCtx plugin.SubTaskContext) errors.Error {
 	}
 
 	err = collectorWithState.InitCollector(helper.ApiCollectorArgs{
-		ApiClient:      data.ApiClient,
-		PageSize:       50,
-		Incremental:    collectorWithState.IsIncremental(),
-		UrlTemplate:    "repositories/{{ .Params.FullName }}/pullrequests",
-		Query:          GetQueryCreatedAndUpdated(collectorWithState),
+		ApiClient:   data.ApiClient,
+		PageSize:    50,
+		Incremental: collectorWithState.IsIncremental(),
+		UrlTemplate: "repositories/{{ .Params.FullName }}/pullrequests",
+		Query: GetQueryCreatedAndUpdated(
+			`values.id,values.comment_count,values.type,values.state,values.title,values.description,`+
+				`values.merge_commit.hash,values.merge_commit.date,values.links.html,values.author,values.created_on,values.updated_on,`+
+				`values.destination.branch.name,values.destination.commit.hash,values.destination.repository.full_name,`+
+				`values.source.branch.name,values.source.commit.hash,values.source.repository.full_name`,
+			collectorWithState),
 		GetTotalPages:  GetTotalPagesFromResponse,
 		ResponseParser: GetRawMessageFromResponse,
 	})

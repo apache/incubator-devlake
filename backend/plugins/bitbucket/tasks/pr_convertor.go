@@ -62,15 +62,6 @@ func ConvertPullRequests(taskCtx plugin.SubTaskContext) errors.Error {
 		RawDataSubTaskArgs: *rawDataSubTaskArgs,
 		Convert: func(inputRow interface{}) ([]interface{}, errors.Error) {
 			pr := inputRow.(*models.BitbucketPullRequest)
-
-			// Getting the merge reference commit
-			mergeCommit := &models.BitbucketCommit{}
-			err = db.First(mergeCommit, dal.Where("LEFT(sha, 12) = ?", pr.MergeCommitSha))
-			if err == nil {
-				// Setting the PR merged datetime to the commit commited datetime
-				pr.MergedAt = &mergeCommit.CommittedDate
-			}
-
 			domainPr := &code.PullRequest{
 				DomainEntity: domainlayer.DomainEntity{
 					Id: prIdGen.Generate(data.Options.ConnectionId, pr.BitbucketId),

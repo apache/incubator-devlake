@@ -36,7 +36,7 @@ var ExtractApiCommitsMeta = plugin.SubTaskMeta{
 }
 
 type CommitsResponse struct {
-	Type string    `json:"type"`
+	//Type string    `json:"type"`
 	Sha  string    `json:"hash"`
 	Date time.Time `json:"date"`
 	//Author *models.BitbucketAccount

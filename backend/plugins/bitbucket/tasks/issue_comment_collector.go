@@ -53,7 +53,7 @@ func CollectApiIssueComments(taskCtx plugin.SubTaskContext) errors.Error {
 		Incremental:    collectorWithState.IsIncremental(),
 		Input:          iterator,
 		UrlTemplate:    "repositories/{{ .Params.FullName }}/issues/{{ .Input.BitbucketId }}/comments",
-		Query:          GetQuery,
+		Query:          GetQueryFields(`values.type,values.id,values.created_on,values.updated_on,values.content,values.issue.id,values.user`),
 		GetTotalPages:  GetTotalPagesFromResponse,
 		ResponseParser: GetRawMessageFromResponse,
 		AfterResponse:  ignoreHTTPStatus404,

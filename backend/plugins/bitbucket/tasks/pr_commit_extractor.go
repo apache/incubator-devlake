@@ -37,46 +37,24 @@ var ExtractApiPrCommitsMeta = plugin.SubTaskMeta{
 }
 
 type ApiPrCommitsResponse struct {
-	Type   string    `json:"type"`
+	//Type   string    `json:"type"`
 	Hash   string    `json:"hash"`
 	Date   time.Time `json:"date"`
 	Author struct {
-		Type string                   `json:"type"`
+		//Type string                   `json:"type"`
 		Raw  string                   `json:"raw"`
 		User BitbucketAccountResponse `json:"user"`
 	} `json:"author"`
 	Message string `json:"message"`
-	Summary struct {
-		Type   string `json:"type"`
-		Raw    string `json:"raw"`
-		Markup string `json:"markup"`
-		HTML   string `json:"html"`
-	} `json:"summary"`
-	Links struct {
+	Links   struct {
 		Self struct {
 			Href string `json:"href"`
 		} `json:"self"`
-		HTML struct {
-			Href string `json:"href"`
-		} `json:"html"`
 	} `json:"links"`
-	Parents []struct {
-		Type  string `json:"type"`
-		Hash  string `json:"hash"`
-		Links struct {
-			Self struct {
-				Href string `json:"href"`
-			} `json:"self"`
-			HTML struct {
-				Href string `json:"href"`
-			} `json:"html"`
-		} `json:"links"`
-	} `json:"parents"`
-	Repository BitbucketApiRepo `json:"repository"`
 }
 
 func ExtractApiPullRequestCommits(taskCtx plugin.SubTaskContext) errors.Error {
-	rawDataSubTaskArgs, data := CreateRawDataSubTaskArgs(taskCtx, RAW_PULL_REQUEST_COMMENTS_TABLE)
+	rawDataSubTaskArgs, data := CreateRawDataSubTaskArgs(taskCtx, RAW_PULL_REQUEST_COMMITS_TABLE)
 	repoId := data.Options.FullName
 	extractor, err := helper.NewApiExtractor(helper.ApiExtractorArgs{
 		RawDataSubTaskArgs: *rawDataSubTaskArgs,
@@ -134,7 +112,7 @@ func convertPullRequestCommit(prCommit *ApiPrCommitsResponse, connId uint64) (*m
 		Sha:           prCommit.Hash,
 		Message:       prCommit.Message,
 		AuthorId:      prCommit.Author.User.AccountId,
-		AuthorName:    prCommit.Author.User.UserName,
+		AuthorName:    prCommit.Author.User.DisplayName,
 		AuthorEmail:   prCommit.Author.Raw,
 		AuthoredDate:  prCommit.Date,
 		CommittedDate: prCommit.Date,
