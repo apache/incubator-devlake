@@ -29,8 +29,8 @@ import (
 	"github.com/apache/incubator-devlake/core/errors"
 	"github.com/apache/incubator-devlake/core/plugin"
 	"github.com/apache/incubator-devlake/helpers/pluginhelper/api"
-	"github.com/apache/incubator-devlake/plugins/gitlab/models"
-	"github.com/apache/incubator-devlake/plugins/gitlab/tasks"
+	"github.com/apache/incubator-devlake/plugins/sonarqube/models"
+	"github.com/apache/incubator-devlake/plugins/sonarqube/tasks"
 )
 
 type RemoteScopesChild struct {
@@ -51,54 +51,30 @@ type PageData struct {
 	Tag     string `json:"tag"`
 }
 
-type GroupResponse struct {
-	Id                   int    `json:"id"`
-	WebUrl               string `json:"web_url"`
-	Name                 string `json:"name"`
-	Path                 string `json:"path"`
-	Description          string `json:"description"`
-	Visibility           string `json:"visibility"`
-	LfsEnabled           bool   `json:"lfs_enabled"`
-	AvatarUrl            string `json:"avatar_url"`
-	RequestAccessEnabled bool   `json:"request_access_enabled"`
-	FullName             string `json:"full_name"`
-	FullPath             string `json:"full_path"`
-	ParentId             *int   `json:"parent_id"`
-	LdapCN               string `json:"ldap_cn"`
-	LdapAccess           string `json:"ldap_access"`
-}
-
-const GitlabRemoteScopesPerPage int = 100
+const SonarqubeRemoteScopesPerPage int = 10
 const TypeProject string = "scope"
-const TypeGroup string = "group"
 
 // RemoteScopes list all available scope for users
 // @Summary list all available scope for users
 // @Description list all available scope for users
-// @Tags plugins/gitlab
+// @Tags plugins/sonarqube
 // @Accept application/json
 // @Param connectionId path int false "connection ID"
-// @Param groupId query string false "group ID"
-// @Param pageToken query string false "page Token"
-// @Success 200  {object} []models.GitlabProject
+// @Param pageToken body string false "page Token"
+// @Success 200  {object} []models.SonarqubeProject
 // @Failure 400  {object} shared.ApiBody "Bad Request"
 // @Failure 500  {object} shared.ApiBody "Internal Error"
-// @Router /plugins/gitlab/connections/{connectionId}/remote-scopes [GET]
+// @Router /plugins/sonarqube/connections/{connectionId}/remote-scopes [GET]
 func RemoteScopes(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, errors.Error) {
 	connectionId, _ := extractParam(input.Params)
 	if connectionId == 0 {
 		return nil, errors.BadInput.New("invalid connectionId")
 	}
 
-	connection := &models.GitlabConnection{}
+	connection := &models.SonarqubeConnection{}
 	err := connectionHelper.First(connection, input.Params)
 	if err != nil {
 		return nil, err
-	}
-
-	groupId, ok := input.Query["groupId"]
-	if !ok || len(groupId) == 0 {
-		groupId = []string{""}
 	}
 
 	pageToken, ok := input.Query["pageToken"]
@@ -106,11 +82,10 @@ func RemoteScopes(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, er
 		pageToken = []string{""}
 	}
 
-	// get gid and pageData
-	gid := groupId[0]
+	// get pageData
 	pageData, err := GetPageDataFromPageToken(pageToken[0])
 	if err != nil {
-		return nil, errors.BadInput.New("failed to get paget token")
+		return nil, errors.BadInput.New("fail to get page token")
 	}
 
 	// create api client
@@ -122,118 +97,45 @@ func RemoteScopes(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, er
 	var res *http.Response
 	outputBody := &RemoteScopesOutput{}
 
-	// list groups part
-	if pageData.Tag == TypeGroup {
-		query, err := GetQueryFromPageData(pageData)
-		if err != nil {
-			return nil, err
-		}
-		query.Set("top_level_only", "true")
+	// list projects part
+	query, err := GetQueryFromPageData(pageData)
+	if err != nil {
+		return nil, err
+	}
+	res, err = apiClient.Get("projects/search", query, nil)
 
-		if gid == "" {
-			res, err = apiClient.Get("groups", query, nil)
-		} else {
-			res, err = apiClient.Get(fmt.Sprintf("groups/%s/subgroups", gid), query, nil)
-		}
-		if err != nil {
-			return nil, err
-		}
-
-		resBody := []GroupResponse{}
-		err = api.UnmarshalResponse(res, &resBody)
-
-		// append group to output
-		for _, group := range resBody {
-			child := RemoteScopesChild{
-				Type: TypeGroup,
-				Id:   strconv.Itoa(group.Id),
-				// don't need to save group into data
-				Data: nil,
-			}
-
-			// ignore not top_level
-			if group.ParentId == nil {
-				if gid != "" {
-					continue
-				}
-			} else {
-				if strconv.Itoa(*group.ParentId) != gid {
-					continue
-				}
-			}
-
-			// ignore self
-			if gid == child.Id {
-				continue
-			}
-
-			child.ParentId = &gid
-			if *child.ParentId == "" {
-				child.ParentId = nil
-			}
-
-			outputBody.Children = append(outputBody.Children, child)
-		}
-
-		// check groups count
-		if err != nil {
-			return nil, err
-		}
-		if len(resBody) < pageData.PerPage {
-			pageData.Tag = TypeProject
-			pageData.Page = 1
-			pageData.PerPage = pageData.PerPage - len(resBody)
-		}
+	if err != nil {
+		return nil, err
 	}
 
-	// list projects part
-	if pageData.Tag == TypeProject {
-		query, err := GetQueryFromPageData(pageData)
-		if err != nil {
-			return nil, err
-		}
-		if gid == "" {
-			res, err = apiClient.Get(fmt.Sprintf("users/%d/projects", apiClient.GetData(models.GitlabApiClientData_UserId)), query, nil)
-		} else {
-			query.Set("with_shared", "false")
-			res, err = apiClient.Get(fmt.Sprintf("/groups/%s/projects", gid), query, nil)
-		}
-		if err != nil {
-			return nil, err
-		}
+	var resBody struct {
+		Data []tasks.SonarqubeApiProject `json:"components"`
+	}
+	err = api.UnmarshalResponse(res, &resBody)
 
-		resBody := []tasks.GitlabApiProject{}
-		err = api.UnmarshalResponse(res, &resBody)
-
-		// append project to output
-		for _, project := range resBody {
-			child := RemoteScopesChild{
-				Type: TypeProject,
-				Id:   strconv.Itoa(project.CreatorId),
-				Data: tasks.ConvertProject(&project),
-			}
-			child.ParentId = &gid
-			if *child.ParentId == "" {
-				child.ParentId = nil
-			}
-
-			outputBody.Children = append(outputBody.Children, child)
+	// append project to output
+	for _, project := range resBody.Data {
+		child := RemoteScopesChild{
+			Type: TypeProject,
+			Id:   project.ProjectKey,
+			Data: tasks.ConvertProject(&project),
 		}
+		outputBody.Children = append(outputBody.Children, child)
+	}
 
-		// check project count
-		if err != nil {
-			return nil, err
-		}
-		if len(resBody) < pageData.PerPage {
-			pageData = nil
-		}
+	// check project count
+	if err != nil {
+		return nil, err
+	}
+	if len(resBody.Data) < pageData.PerPage {
+		pageData = nil
 	}
 
 	// get the next page token
 	outputBody.NextPageToken = ""
 	if pageData != nil {
 		pageData.Page += 1
-		pageData.PerPage = GitlabRemoteScopesPerPage
+		pageData.PerPage = SonarqubeRemoteScopesPerPage
 
 		outputBody.NextPageToken, err = GetPageTokenFromPageData(pageData)
 		if err != nil {
@@ -247,23 +149,22 @@ func RemoteScopes(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, er
 // SearchRemoteScopes use the Search API and only return project
 // @Summary use the Search API and only return project
 // @Description use the Search API and only return project
-// @Tags plugins/gitlab
+// @Tags plugins/sonarqube
 // @Accept application/json
 // @Param connectionId path int false "connection ID"
-// @Param search query string false "group ID"
-// @Param page query int false "page number"
-// @Param pageSize query int false "page size per page"
-// @Success 200  {object} []models.GitlabProject
+// @Param page body int false "page number"
+// @Param pageSize body int false "page size per page"
+// @Success 200  {object} []models.SonarqubeProject
 // @Failure 400  {object} shared.ApiBody "Bad Request"
 // @Failure 500  {object} shared.ApiBody "Internal Error"
-// @Router /plugins/gitlab/connections/{connectionId}/search-remote-scopes [GET]
+// @Router /plugins/sonarqube/connections/{connectionId}/search-remote-scopes [GET]
 func SearchRemoteScopes(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, errors.Error) {
 	connectionId, _ := extractParam(input.Params)
 	if connectionId == 0 {
 		return nil, errors.BadInput.New("invalid connectionId")
 	}
 
-	connection := &models.GitlabConnection{}
+	connection := &models.SonarqubeConnection{}
 	err := connectionHelper.First(connection, input.Params)
 	if err != nil {
 		return nil, err
@@ -273,7 +174,6 @@ func SearchRemoteScopes(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutp
 	if !ok || len(search) == 0 {
 		search = []string{""}
 	}
-
 	var p int
 	var err1 error
 	page, ok := input.Query["page"]
@@ -288,13 +188,14 @@ func SearchRemoteScopes(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutp
 	var ps int
 	pageSize, ok := input.Query["pageSize"]
 	if !ok || len(pageSize) == 0 {
-		ps = GitlabRemoteScopesPerPage
+		ps = SonarqubeRemoteScopesPerPage
 	} else {
 		ps, err1 = strconv.Atoi(pageSize[0])
 		if err1 != nil {
 			return nil, errors.BadInput.Wrap(err1, fmt.Sprintf("failed to Atoi pageSize:%s", pageSize[0]))
 		}
 	}
+
 	// create api client
 	apiClient, err := api.NewApiClientFromConnection(context.TODO(), basicRes, connection)
 	if err != nil {
@@ -308,19 +209,21 @@ func SearchRemoteScopes(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutp
 	}
 
 	// request search
-	res, err := apiClient.Get("search", query, nil)
+	res, err := apiClient.Get("projects/search", query, nil)
 	if err != nil {
 		return nil, err
 	}
-	resBody := []tasks.GitlabApiProject{}
+	var resBody struct {
+		Data []tasks.SonarqubeApiProject `json:"components"`
+	}
 	err = api.UnmarshalResponse(res, &resBody)
 	if err != nil {
 		return nil, err
 	}
 
 	// set projects return
-	projects := []models.GitlabProject{}
-	for _, project := range resBody {
+	var projects []models.SonarqubeProject
+	for _, project := range resBody.Data {
 		projects = append(projects, *tasks.ConvertProject(&project))
 	}
 
@@ -342,8 +245,7 @@ func GetPageDataFromPageToken(pageToken string) (*PageData, errors.Error) {
 	if pageToken == "" {
 		return &PageData{
 			Page:    1,
-			PerPage: GitlabRemoteScopesPerPage,
-			Tag:     "group",
+			PerPage: SonarqubeRemoteScopesPerPage,
 		}, nil
 	}
 
@@ -364,8 +266,8 @@ func GetPageDataFromPageToken(pageToken string) (*PageData, errors.Error) {
 
 func GetQueryFromPageData(pageData *PageData) (url.Values, errors.Error) {
 	query := url.Values{}
-	query.Set("page", fmt.Sprintf("%v", pageData.Page))
-	query.Set("per_page", fmt.Sprintf("%v", pageData.PerPage))
+	query.Set("p", fmt.Sprintf("%v", pageData.Page))
+	query.Set("ps", fmt.Sprintf("%v", pageData.PerPage))
 	return query, nil
 }
 
@@ -374,8 +276,6 @@ func GetQueryForSearchProject(search string, page int, perPage int) (url.Values,
 	if err != nil {
 		return nil, err
 	}
-	query.Set("search", search)
-	query.Set("scope", "projects")
-
+	query.Set("q", search)
 	return query, nil
 }
