@@ -237,14 +237,14 @@ func (plugin Jira) PrepareTaskData(taskCtx core.TaskContext, options map[string]
 		taskData.CreatedDateAfter = &createdDateAfter
 		logger.Debug("collect data created from %s", createdDateAfter)
 	}
-	if op.UpdatedDateAfter != "" {
-		var updatedDateAfter time.Time
-		updatedDateAfter, err = errors.Convert01(time.Parse(time.RFC3339, op.UpdatedDateAfter))
+	if op.TimeAfter != "" {
+		var timeAfter time.Time
+		timeAfter, err = errors.Convert01(time.Parse(time.RFC3339, op.TimeAfter))
 		if err != nil {
-			return nil, errors.BadInput.Wrap(err, "invalid value for `updatedDateAfter`")
+			return nil, errors.BadInput.Wrap(err, "invalid value for `timeAfter`")
 		}
-		taskData.UpdatedDateAfter = &updatedDateAfter
-		logger.Debug("collect data created from %s", updatedDateAfter)
+		taskData.TimeAfter = &timeAfter
+		logger.Debug("collect data created from %s", timeAfter)
 	}
 	return taskData, nil
 }

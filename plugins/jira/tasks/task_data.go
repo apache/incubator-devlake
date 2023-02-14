@@ -96,7 +96,7 @@ type JiraOptions struct {
 	ConnectionId         uint64 `json:"connectionId"`
 	BoardId              uint64 `json:"boardId"`
 	CreatedDateAfter     string
-	UpdatedDateAfter     string
+	TimeAfter            string
 	TransformationRules  *JiraTransformationRule `json:"transformationRules"`
 	ScopeId              string
 	TransformationRuleId uint64
@@ -106,7 +106,7 @@ type JiraTaskData struct {
 	Options          *JiraOptions
 	ApiClient        *helper.ApiAsyncClient
 	CreatedDateAfter *time.Time
-	UpdatedDateAfter *time.Time
+	TimeAfter        *time.Time
 	JiraServerInfo   models.JiraServerInfo
 }
 

@@ -69,6 +69,6 @@ func All() []core.MigrationScript {
 		new(encryptTask221221),
 		new(renameProjectMetrics),
 		new(addOriginalTypeToIssue221230),
-		new(addUpdatedDateAfterToCollectorMeta20230213),
+		new(addTimeAfterToCollectorMeta20230213),
 	}
 }

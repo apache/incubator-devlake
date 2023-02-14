@@ -33,12 +33,12 @@ type ApiCollectorStateManager struct {
 	LatestState models.CollectorLatestState
 	// Deprecating
 	CreatedDateAfter *time.Time
-	UpdatedDateAfter *time.Time
+	TimeAfter        *time.Time
 	ExecuteStart     time.Time
 }
 
 // NewApiCollectorWithStateEx create a new ApiCollectorStateManager
-func NewApiCollectorWithStateEx(args RawDataSubTaskArgs, createdDateAfter *time.Time, updatedDateAfter *time.Time) (*ApiCollectorStateManager, errors.Error) {
+func NewApiCollectorWithStateEx(args RawDataSubTaskArgs, createdDateAfter *time.Time, timeAfter *time.Time) (*ApiCollectorStateManager, errors.Error) {
 	db := args.Ctx.GetDal()
 
 	rawDataSubTask, err := NewRawDataSubTask(args)
@@ -61,7 +61,7 @@ func NewApiCollectorWithStateEx(args RawDataSubTaskArgs, createdDateAfter *time.
 		RawDataSubTaskArgs: args,
 		LatestState:        latestState,
 		CreatedDateAfter:   createdDateAfter,
-		UpdatedDateAfter:   updatedDateAfter,
+		TimeAfter:          timeAfter,
 		ExecuteStart:       time.Now(),
 	}, nil
 }
@@ -77,9 +77,9 @@ func (m *ApiCollectorStateManager) IsIncremental() bool {
 	if m.LatestState.LatestSuccessStart == nil {
 		return false
 	}
-	// prioritize UpdatedDateAfter parameter: collector should filter data by `updated_date`
-	if m.UpdatedDateAfter != nil {
-		return m.LatestState.UpdatedDateAfter == nil || !m.UpdatedDateAfter.Before(*m.LatestState.UpdatedDateAfter)
+	// prioritize TimeAfter parameter: collector should filter data by `updated_date`
+	if m.TimeAfter != nil {
+		return m.LatestState.TimeAfter == nil || !m.TimeAfter.Before(*m.LatestState.TimeAfter)
 	}
 	// fallback to CreatedDateAfter: collector should filter data by `created_date`
 	return m.LatestState.CreatedDateAfter == nil || m.CreatedDateAfter != nil && !m.CreatedDateAfter.Before(*m.LatestState.CreatedDateAfter)
@@ -123,6 +123,6 @@ func (m ApiCollectorStateManager) updateState() errors.Error {
 	db := m.Ctx.GetDal()
 	m.LatestState.LatestSuccessStart = &m.ExecuteStart
 	m.LatestState.CreatedDateAfter = m.CreatedDateAfter
-	m.LatestState.UpdatedDateAfter = m.UpdatedDateAfter
+	m.LatestState.TimeAfter = m.TimeAfter
 	return db.CreateOrUpdate(&m.LatestState)
 }

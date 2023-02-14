@@ -58,7 +58,7 @@ func CollectIssues(taskCtx core.SubTaskContext) errors.Error {
 			Table store raw data
 		*/
 		Table: RAW_ISSUE_TABLE,
-	}, data.CreatedDateAfter, data.UpdatedDateAfter)
+	}, data.CreatedDateAfter, data.TimeAfter)
 	if err != nil {
 		return err
 	}
@@ -69,8 +69,8 @@ func CollectIssues(taskCtx core.SubTaskContext) errors.Error {
 	jql := "created is not null ORDER BY created ASC"
 
 	// timer filter
-	if data.UpdatedDateAfter != nil {
-		jql = fmt.Sprintf("updated >= '%v' AND %v", data.UpdatedDateAfter.Format("2006/01/02 15:04"), jql)
+	if data.TimeAfter != nil {
+		jql = fmt.Sprintf("updated >= '%v' AND %v", data.TimeAfter.Format("2006/01/02 15:04"), jql)
 	} else if data.CreatedDateAfter != nil {
 		jql = fmt.Sprintf("created >= '%v' AND %v", data.CreatedDateAfter.Format("2006/01/02 15:04"), jql)
 	}
