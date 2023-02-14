@@ -179,5 +179,5 @@ type BlueprintSyncPolicy struct {
 	SkipOnFail bool   `json:"skipOnFail"`
 	// Deprecating
 	CreatedDateAfter *time.Time `json:"createdDateAfter"`
-	UpdatedDateAfter *time.Time `json:"updatedDateAfter"`
+	TimeAfter        *time.Time `json:"timeAfter"`
 }

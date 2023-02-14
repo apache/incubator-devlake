@@ -27,7 +27,7 @@ type CollectorLatestState struct {
 	RawDataParams      string    `gorm:"primaryKey;column:raw_data_params;type:varchar(255);index" json:"raw_data_params"`
 	RawDataTable       string    `gorm:"primaryKey;column:raw_data_table;type:varchar(255)" json:"raw_data_table"`
 	CreatedDateAfter   *time.Time
-	UpdatedDateAfter   *time.Time
+	TimeAfter          *time.Time
 	LatestSuccessStart *time.Time
 }
 

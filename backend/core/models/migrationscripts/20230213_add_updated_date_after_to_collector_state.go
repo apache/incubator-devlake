@@ -26,23 +26,23 @@ import (
 )
 
 type collectorLatestState20230213 struct {
-	UpdatedDateAfter *time.Time
+	TimeAfter *time.Time
 }
 
 func (collectorLatestState20230213) TableName() string {
 	return "_devlake_collector_latest_state"
 }
 
-type addUpdatedDateAfterToCollectorMeta20230213 struct{}
+type addTimeAfterToCollectorMeta20230213 struct{}
 
-func (script *addUpdatedDateAfterToCollectorMeta20230213) Up(basicRes core.BasicRes) errors.Error {
+func (script *addTimeAfterToCollectorMeta20230213) Up(basicRes core.BasicRes) errors.Error {
 	return migrationhelper.AutoMigrateTables(basicRes, &collectorLatestState20230213{})
 }
 
-func (*addUpdatedDateAfterToCollectorMeta20230213) Version() uint64 {
-	return 20230213200038
+func (*addTimeAfterToCollectorMeta20230213) Version() uint64 {
+	return 20230213200039
 }
 
-func (*addUpdatedDateAfterToCollectorMeta20230213) Name() string {
-	return "add updated_date_after to _devlake_collector_latest_state"
+func (*addTimeAfterToCollectorMeta20230213) Name() string {
+	return "add time_after to _devlake_collector_latest_state"
 }
