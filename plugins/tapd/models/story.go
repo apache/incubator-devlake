@@ -82,9 +82,9 @@ type TapdStory struct {
 	CustomFieldThree string `json:"custom_field_three" gorm:"type:text"`
 	CustomFieldFour  string `json:"custom_field_four" gorm:"type:text"`
 	CustomFieldFive  string `json:"custom_field_five" gorm:"type:text"`
-	CustomField6     string `json:"custom_field_6" gorm:"type:text"`
-	CustomField7     string `json:"custom_field_7" gorm:"type:text"`
-	CustomField8     string `json:"custom_field_8" gorm:"type:text"`
+	CustomField6     string `json:"custom_field_six" gorm:"type:text"`
+	CustomField7     string `json:"custom_field_seven" gorm:"type:text"`
+	CustomField8     string `json:"custom_field_eight" gorm:"type:text"`
 	CustomField9     string `json:"custom_field_9" gorm:"type:text"`
 	CustomField10    string `json:"custom_field_10" gorm:"type:text"`
 	CustomField11    string `json:"custom_field_11" gorm:"type:text"`
