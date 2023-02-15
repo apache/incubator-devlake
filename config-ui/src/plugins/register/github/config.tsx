@@ -48,6 +48,8 @@ export const GitHubConfig: PluginConfigType = {
       ({ initialValues, values, errors, setValues, setErrors }: any) => (
         <Token
           key="token"
+          endpoint={values.endpoint}
+          proxy={values.proxy}
           initialValue={initialValues.token ?? ''}
           value={values.token ?? ''}
           error={errors.token ?? ''}
