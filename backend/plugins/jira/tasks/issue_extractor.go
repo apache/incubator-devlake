@@ -122,7 +122,7 @@ func extractIssues(data *JiraTaskData, mappings *typeMappings, ignoreBoard bool,
 		}
 
 	}
-	issue.StdStoryPoint = int64(issue.StoryPoint)
+
 	// code in next line will set issue.Type to issueType.Name
 	issue.Type = mappings.typeIdMappings[issue.Type]
 	issue.StdType = mappings.stdTypeMappings[issue.Type]
