@@ -219,14 +219,6 @@ func (plugin Jira) PrepareTaskData(taskCtx core.TaskContext, options map[string]
 		}
 	}
 
-	var createdDateAfter time.Time
-	if op.CreatedDateAfter != "" {
-		createdDateAfter, err = errors.Convert01(time.Parse(time.RFC3339, op.CreatedDateAfter))
-		if err != nil {
-			return nil, errors.BadInput.Wrap(err, "invalid value for `createdDateAfter`")
-		}
-	}
-
 	info, code, err := tasks.GetJiraServerInfo(jiraApiClient)
 	if err != nil || code != http.StatusOK || info == nil {
 		return nil, errors.HttpStatus(code).Wrap(err, "fail to get Jira server info")
@@ -236,11 +228,24 @@ func (plugin Jira) PrepareTaskData(taskCtx core.TaskContext, options map[string]
 		ApiClient:      jiraApiClient,
 		JiraServerInfo: *info,
 	}
-	if !createdDateAfter.IsZero() {
+	if op.CreatedDateAfter != "" {
+		var createdDateAfter time.Time
+		createdDateAfter, err = errors.Convert01(time.Parse(time.RFC3339, op.CreatedDateAfter))
+		if err != nil {
+			return nil, errors.BadInput.Wrap(err, "invalid value for `createdDateAfter`")
+		}
 		taskData.CreatedDateAfter = &createdDateAfter
 		logger.Debug("collect data created from %s", createdDateAfter)
 	}
-
+	if op.TimeAfter != "" {
+		var timeAfter time.Time
+		timeAfter, err = errors.Convert01(time.Parse(time.RFC3339, op.TimeAfter))
+		if err != nil {
+			return nil, errors.BadInput.Wrap(err, "invalid value for `timeAfter`")
+		}
+		taskData.TimeAfter = &timeAfter
+		logger.Debug("collect data created from %s", timeAfter)
+	}
 	return taskData, nil
 }
 
