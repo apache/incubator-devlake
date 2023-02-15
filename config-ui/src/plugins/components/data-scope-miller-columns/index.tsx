@@ -30,19 +30,19 @@ interface Props {
   title?: string;
   plugin: string;
   connectionId: ID;
-  selectedItems?: any;
+  selectedItems?: McsItem<ExtraType>[];
   onChangeItems?: (selectedItems: any) => void;
 }
 
-export const DataScopeMillerColumns = ({ title, plugin, connectionId, ...props }: Props) => {
+export const DataScopeMillerColumns = ({ title, plugin, connectionId, selectedItems, onChangeItems }: Props) => {
   const [items, setItems] = useState<McsItem<ExtraType>[]>([]);
   const [selectedIds, setSelectedIds] = useState<ID[]>([]);
   const [loadedIds, setLoadedIds] = useState<ID[]>([]);
   const [nextTokenMap, setNextTokenMap] = useState<Record<ID, string>>({});
 
   useEffect(() => {
-    setSelectedIds((props.selectedItems ?? []).map((it: any) => it.id));
-  }, [props.selectedItems]);
+    setSelectedIds((selectedItems ?? []).map((it: any) => it.id));
+  }, [selectedItems]);
 
   const getItems = async (groupId: ID | null, pageToken?: string) => {
     const res = await API.getScope(plugin, connectionId, {
@@ -52,7 +52,7 @@ export const DataScopeMillerColumns = ({ title, plugin, connectionId, ...props }
 
     setItems([
       ...items,
-      ...res.children.map((it: any) => ({
+      ...(res.children ?? []).map((it: any) => ({
         ...it,
         title: it.name,
       })),
@@ -73,8 +73,17 @@ export const DataScopeMillerColumns = ({ title, plugin, connectionId, ...props }
   }, []);
 
   const handleChangeItems = (selectedIds: ID[]) => {
-    const result = items.filter((it) => (selectedIds.length ? selectedIds.includes(it.id) : false));
-    props.onChangeItems ? props.onChangeItems(result.map((it) => it.data)) : setSelectedIds(selectedIds);
+    const result = selectedIds.map((id) => {
+      const selectedItem = (selectedItems ?? []).find((it) => it.id === id);
+      if (selectedItem) {
+        return selectedItem.data;
+      }
+
+      const item = items.find((it) => it.id === id) as McsItem<ExtraType>;
+      return item.data;
+    });
+
+    onChangeItems ? onChangeItems(result) : setSelectedIds(selectedIds);
   };
 
   const handleExpand = (id: McsID) => getItems(id, nextTokenMap[id]);

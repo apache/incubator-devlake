@@ -47,7 +47,7 @@ export const DataScopeSearch = ({ plugin, connectionId, selectedItems, onChangeI
           page: 1,
           pageSize: 50,
         });
-        setItems(res.children);
+        setItems(res.children ?? []);
       } finally {
         setLoading(false);
       }
