@@ -18,8 +18,9 @@ limitations under the License.
 package models
 
 import (
-	"github.com/apache/incubator-devlake/core/models/common"
 	"time"
+
+	"github.com/apache/incubator-devlake/core/models/common"
 
 	"gorm.io/datatypes"
 )
@@ -59,7 +60,6 @@ type JiraIssue struct {
 	Updated                  time.Time `gorm:"index"`
 	SpentMinutes             int64
 	LeadTimeMinutes          uint
-	StdStoryPoint            int64
 	StdType                  string `gorm:"type:varchar(255)"`
 	StdStatus                string `gorm:"type:varchar(255)"`
 	AllFields                datatypes.JSONMap

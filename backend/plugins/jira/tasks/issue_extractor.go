@@ -19,15 +19,16 @@ package tasks
 
 import (
 	"encoding/json"
+	"strconv"
+	"strings"
+	"time"
+
 	"github.com/apache/incubator-devlake/core/dal"
 	"github.com/apache/incubator-devlake/core/errors"
 	"github.com/apache/incubator-devlake/core/plugin"
 	"github.com/apache/incubator-devlake/helpers/pluginhelper/api"
 	"github.com/apache/incubator-devlake/plugins/jira/models"
 	"github.com/apache/incubator-devlake/plugins/jira/tasks/apiv2models"
-	"strconv"
-	"strings"
-	"time"
 )
 
 var _ plugin.SubTaskEntryPoint = ExtractIssues
@@ -121,7 +122,7 @@ func extractIssues(data *JiraTaskData, mappings *typeMappings, ignoreBoard bool,
 		}
 
 	}
-	issue.StdStoryPoint = int64(issue.StoryPoint)
+
 	// code in next line will set issue.Type to issueType.Name
 	issue.Type = mappings.typeIdMappings[issue.Type]
 	issue.StdType = mappings.stdTypeMappings[issue.Type]

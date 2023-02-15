@@ -18,18 +18,29 @@ limitations under the License.
 package migrationscripts
 
 import (
+	"github.com/apache/incubator-devlake/core/context"
+	"github.com/apache/incubator-devlake/core/errors"
 	"github.com/apache/incubator-devlake/core/plugin"
 )
 
-// All return all the migration scripts
-func All() []plugin.MigrationScript {
-	return []plugin.MigrationScript{
-		new(addSourceTable20220407),
-		new(renameSourceTable20220505),
-		new(addInitTables20220716),
-		new(addTransformationRule20221116),
-		new(addProjectName20221215),
-		new(addJiraMultiAuth20230129),
-		new(removeIssueStdStoryPoint),
+var _ plugin.MigrationScript = (*removeIssueStdStoryPoint)(nil)
+
+type removeIssueStdStoryPoint struct{}
+
+func (*removeIssueStdStoryPoint) Up(basicRes context.BasicRes) errors.Error {
+	db := basicRes.GetDal()
+	err := db.DropColumns("_tool_jira_issues", "std_story_point")
+	if err != nil {
+		return err
 	}
+
+	return nil
+}
+
+func (*removeIssueStdStoryPoint) Version() uint64 {
+	return 20230214232735
+}
+
+func (*removeIssueStdStoryPoint) Name() string {
+	return "remove _tool_jira_issues column std_story_point"
 }

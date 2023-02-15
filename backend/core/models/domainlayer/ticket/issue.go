@@ -18,8 +18,9 @@ limitations under the License.
 package ticket
 
 import (
-	"github.com/apache/incubator-devlake/core/models/domainlayer"
 	"time"
+
+	"github.com/apache/incubator-devlake/core/models/domainlayer"
 )
 
 type Issue struct {
@@ -34,7 +35,7 @@ type Issue struct {
 	OriginalType            string `gorm:"type:varchar(100)"`
 	Status                  string `gorm:"type:varchar(100)"`
 	OriginalStatus          string `gorm:"type:varchar(100)"`
-	StoryPoint              int64
+	StoryPoint              float64
 	ResolutionDate          *time.Time
 	CreatedDate             *time.Time
 	UpdatedDate             *time.Time

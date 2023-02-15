@@ -126,7 +126,6 @@ func TestIssueDataFlow(t *testing.T) {
 			"updated",
 			"spent_minutes",
 			"lead_time_minutes",
-			"std_story_point",
 			"std_type",
 			"std_status",
 			"icon_url",

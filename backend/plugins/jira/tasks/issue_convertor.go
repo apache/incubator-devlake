@@ -96,7 +96,7 @@ func ConvertIssues(taskCtx plugin.SubTaskContext) errors.Error {
 				OriginalType:            jiraIssue.Type,
 				Status:                  jiraIssue.StdStatus,
 				OriginalStatus:          jiraIssue.StatusName,
-				StoryPoint:              jiraIssue.StdStoryPoint,
+				StoryPoint:              jiraIssue.StoryPoint,
 				OriginalEstimateMinutes: jiraIssue.OriginalEstimateMinutes,
 				ResolutionDate:          jiraIssue.ResolutionDate,
 				Priority:                jiraIssue.PriorityName,
