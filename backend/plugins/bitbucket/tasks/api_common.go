@@ -86,8 +86,8 @@ func GetQuery(reqData *api.RequestData) (url.Values, errors.Error) {
 	return query, nil
 }
 
+// GetQueryCreatedAndUpdated is a common GeyQuery for timeFilter and incremental
 func GetQueryCreatedAndUpdated(fields string, collectorWithState *api.ApiCollectorStateManager) func(reqData *api.RequestData) (url.Values, errors.Error) {
-	//func GetQueryCreatedAndUpdated(collectorWithState *api.ApiCollectorStateManager) func(reqData *api.RequestData) (url.Values, errors.Error) {
 	return func(reqData *api.RequestData) (url.Values, errors.Error) {
 		query, err := GetQuery(reqData)
 		if err != nil {
