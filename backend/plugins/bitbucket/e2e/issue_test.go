@@ -30,21 +30,16 @@ func TestIssueDataFlow(t *testing.T) {
 	var plugin impl.Bitbucket
 	dataflowTester := e2ehelper.NewDataFlowTester(t, "bitbucket", plugin)
 
-	bitbucketRepository := &models.BitbucketRepo{
-		BitbucketId: "panjf2000/ants",
-	}
 	taskData := &tasks.BitbucketTaskData{
 		Options: &tasks.BitbucketOptions{
 			ConnectionId: 1,
-			Owner:        "panjf2000",
-			Repo:         "ants",
-			TransformationRules: models.TransformationRules{
-				IssueStatusTODO:       []string{"new", "open", "wantfix"},
-				IssueStatusINPROGRESS: []string{"on hold", "resolved"},
-				IssueStatusDONE:       []string{"closed", "invalid"},
+			FullName:     "likyh/likyhphp",
+			BitbucketTransformationRule: &models.BitbucketTransformationRule{
+				IssueStatusTodo:       "new,open,wantfix",
+				IssueStatusInProgress: "on hold,resolved",
+				IssueStatusDone:       "closed,invalid",
 			},
 		},
-		Repo: bitbucketRepository,
 	}
 
 	// import raw data table
@@ -62,6 +57,7 @@ func TestIssueDataFlow(t *testing.T) {
 			"bitbucket_id",
 			"repo_id",
 			"number",
+			"std_state",
 			"state",
 			"title",
 			"body",

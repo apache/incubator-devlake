@@ -31,21 +31,16 @@ func TestCommentDataFlow(t *testing.T) {
 	var plugin impl.Bitbucket
 	dataflowTester := e2ehelper.NewDataFlowTester(t, "bitbucket", plugin)
 
-	bitbucketRepository := &models.BitbucketRepo{
-		BitbucketId: "panjf2000/ants",
-	}
 	taskData := &tasks.BitbucketTaskData{
 		Options: &tasks.BitbucketOptions{
 			ConnectionId: 1,
-			Owner:        "panjf2000",
-			Repo:         "ants",
-			TransformationRules: models.TransformationRules{
-				IssueStatusTODO:       []string{"new", "open"},
-				IssueStatusINPROGRESS: []string{"on hold"},
-				IssueStatusDONE:       []string{"closed"},
+			FullName:     "likyh/likyhphp",
+			BitbucketTransformationRule: &models.BitbucketTransformationRule{
+				IssueStatusTodo:       "new,open",
+				IssueStatusInProgress: "on hold",
+				IssueStatusDone:       "closed",
 			},
 		},
-		Repo: bitbucketRepository,
 	}
 
 	// import raw data table

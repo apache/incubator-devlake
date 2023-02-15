@@ -18,12 +18,16 @@ limitations under the License.
 package e2e
 
 import (
+	"encoding/json"
+	"github.com/apache/incubator-devlake/core/errors"
 	"github.com/apache/incubator-devlake/core/models/domainlayer/code"
 	"github.com/apache/incubator-devlake/core/models/domainlayer/ticket"
 	"github.com/apache/incubator-devlake/helpers/e2ehelper"
+	"github.com/apache/incubator-devlake/helpers/pluginhelper"
 	"github.com/apache/incubator-devlake/plugins/bitbucket/impl"
 	"github.com/apache/incubator-devlake/plugins/bitbucket/models"
 	"github.com/apache/incubator-devlake/plugins/bitbucket/tasks"
+	"github.com/stretchr/testify/assert"
 	"testing"
 )
 
@@ -31,36 +35,43 @@ func TestRepoDataFlow(t *testing.T) {
 	var plugin impl.Bitbucket
 	dataflowTester := e2ehelper.NewDataFlowTester(t, "bitbucket", plugin)
 
-	bitbucketRepository := &models.BitbucketRepo{
-		FullName: "panjf2000/ants",
-	}
 	taskData := &tasks.BitbucketTaskData{
 		Options: &tasks.BitbucketOptions{
-			ConnectionId:        1,
-			Owner:               "panjf2000",
-			Repo:                "ants",
-			TransformationRules: models.BitbucketTransformationRule{},
+			ConnectionId: 1,
+			FullName:     "likyh/likyhphp",
 		},
-		Repo: bitbucketRepository,
 	}
 
 	// import raw data table
-	dataflowTester.ImportCsvIntoRawTable("./raw_tables/_raw_bitbucket_api_repositories.csv", "_raw_bitbucket_api_repositories")
+	csvIter := pluginhelper.NewCsvFileIterator("./raw_tables/_raw_bitbucket_api_repositories.csv")
+	defer csvIter.Close()
+	apiRepo := &tasks.BitbucketApiRepo{}
+	// load rows and insert into target table
+	for csvIter.HasNext() {
+		toInsertValues := csvIter.Fetch()
+		data := json.RawMessage(toInsertValues[`data`].(string))
+		err := errors.Convert(json.Unmarshal(data, apiRepo))
+		assert.Nil(t, err)
+		break
+	}
 
 	// verify extraction
 	dataflowTester.FlushTabler(&models.BitbucketRepo{})
-	dataflowTester.Subtask(tasks.ExtractApiRepoMeta, taskData)
+	scope := tasks.ConvertApiRepoToScope(apiRepo, 1)
+	err := dataflowTester.Dal.CreateIfNotExist(scope)
+	assert.Nil(t, err)
 	dataflowTester.VerifyTable(
 		models.BitbucketRepo{},
-		"./snapshot_tables/_tool_bitbucket_repos.csv",
+		"./snapshot_tables/_tool_bitbucket_repos1.csv",
 		e2ehelper.ColumnWithRawData(
 			"connection_id",
 			"bitbucket_id",
 			"name",
 			"html_url",
 			"description",
-			"owner_id",
+			"owner",
 			"language",
+			"clone_url",
 		),
 	)
 

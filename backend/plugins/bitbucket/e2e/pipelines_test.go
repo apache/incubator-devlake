@@ -32,16 +32,11 @@ func TestBitbucketPipelineDataFlow(t *testing.T) {
 	var bitbucket impl.Bitbucket
 	dataflowTester := e2ehelper.NewDataFlowTester(t, "bitbucket", bitbucket)
 
-	bitbucketRepository := &models.BitbucketRepo{
-		BitbucketId: "thenicetgp/ptest",
-	}
 	taskData := &tasks.BitbucketTaskData{
 		Options: &tasks.BitbucketOptions{
 			ConnectionId: 1,
-			Owner:        "thenicetgp",
-			Repo:         "ptest",
+			FullName:     "likyh/likyhphp",
 		},
-		Repo: bitbucketRepository,
 	}
 	// import raw data table
 	dataflowTester.ImportCsvIntoRawTable("./raw_tables/_raw_bitbucket_api_pipelines.csv", "_raw_bitbucket_api_pipelines")

@@ -62,8 +62,7 @@ var ExtractApiIssuesMeta = plugin.SubTaskMeta{
 
 func ExtractApiIssues(taskCtx plugin.SubTaskContext) errors.Error {
 	rawDataSubTaskArgs, data := CreateRawDataSubTaskArgs(taskCtx, RAW_ISSUE_TABLE)
-	config := *data.Options.BitbucketTransformationRule
-	issueStatusMap, err := newIssueStatusMap(config)
+	issueStatusMap, err := newIssueStatusMap(data.Options.BitbucketTransformationRule)
 	if err != nil {
 		return err
 	}
@@ -154,18 +153,21 @@ func convertBitbucketIssue(issue *IssuesResponse, connectionId uint64, repositor
 	return bitbucketIssue, nil
 }
 
-func newIssueStatusMap(config models.BitbucketTransformationRule) (map[string]string, errors.Error) {
+func newIssueStatusMap(config *models.BitbucketTransformationRule) (map[string]string, errors.Error) {
 	issueStatusMap := make(map[string]string, 3)
-	for _, state := range strings.Split(`,`, config.IssueStatusTodo) {
+	if config == nil {
+		return issueStatusMap, nil
+	}
+	for _, state := range strings.Split(config.IssueStatusTodo, `,`) {
 		issueStatusMap[state] = ticket.TODO
 	}
-	for _, state := range strings.Split(`,`, config.IssueStatusInProgress) {
+	for _, state := range strings.Split(config.IssueStatusInProgress, `,`) {
 		issueStatusMap[state] = ticket.IN_PROGRESS
 	}
-	for _, state := range strings.Split(`,`, config.IssueStatusDone) {
+	for _, state := range strings.Split(config.IssueStatusDone, `,`) {
 		issueStatusMap[state] = ticket.DONE
 	}
-	for _, state := range strings.Split(`,`, config.IssueStatusOther) {
+	for _, state := range strings.Split(config.IssueStatusOther, `,`) {
 		issueStatusMap[state] = ticket.OTHER
 	}
 	return issueStatusMap, nil

@@ -64,7 +64,7 @@ func ConvertPullRequests(taskCtx plugin.SubTaskContext) errors.Error {
 			pr := inputRow.(*models.BitbucketPullRequest)
 			domainPr := &code.PullRequest{
 				DomainEntity: domainlayer.DomainEntity{
-					Id: prIdGen.Generate(data.Options.ConnectionId, pr.BitbucketId),
+					Id: prIdGen.Generate(data.Options.ConnectionId, pr.RepoId, pr.BitbucketId),
 				},
 				BaseRepoId:     repoIdGen.Generate(data.Options.ConnectionId, pr.BaseRepoId),
 				HeadRepoId:     repoIdGen.Generate(data.Options.ConnectionId, pr.HeadRepoId),

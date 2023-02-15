@@ -64,12 +64,13 @@ func ConvertIssues(taskCtx plugin.SubTaskContext) errors.Error {
 		Convert: func(inputRow interface{}) ([]interface{}, errors.Error) {
 			issue := inputRow.(*models.BitbucketIssue)
 			domainIssue := &ticket.Issue{
-				DomainEntity:    domainlayer.DomainEntity{Id: issueIdGen.Generate(data.Options.ConnectionId, issue.BitbucketId)},
+				DomainEntity:    domainlayer.DomainEntity{Id: issueIdGen.Generate(data.Options.ConnectionId, issue.RepoId, issue.BitbucketId)},
 				IssueKey:        strconv.Itoa(issue.Number),
 				Title:           issue.Title,
 				Description:     issue.Body,
 				Priority:        issue.Priority,
 				Type:            issue.Type,
+				Status:          issue.StdState,
 				OriginalStatus:  issue.State,
 				LeadTimeMinutes: int64(issue.LeadTimeMinutes),
 				Url:             issue.Url,
@@ -78,11 +79,6 @@ func ConvertIssues(taskCtx plugin.SubTaskContext) errors.Error {
 				ResolutionDate:  issue.ClosedAt,
 				Severity:        issue.Severity,
 				Component:       issue.Component,
-			}
-			if issue.State == "closed" {
-				domainIssue.Status = ticket.DONE
-			} else {
-				domainIssue.Status = ticket.TODO
 			}
 			if issue.AssigneeName != "" {
 				domainIssue.AssigneeName = issue.AssigneeName
