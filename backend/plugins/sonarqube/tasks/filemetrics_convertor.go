@@ -21,8 +21,8 @@ import (
 	"github.com/apache/incubator-devlake/core/dal"
 	"github.com/apache/incubator-devlake/core/errors"
 	"github.com/apache/incubator-devlake/core/models/domainlayer"
+	"github.com/apache/incubator-devlake/core/models/domainlayer/codequality"
 	"github.com/apache/incubator-devlake/core/models/domainlayer/didgen"
-	"github.com/apache/incubator-devlake/core/models/domainlayer/securitytesting"
 	"github.com/apache/incubator-devlake/core/plugin"
 	"github.com/apache/incubator-devlake/helpers/pluginhelper/api"
 	sonarqubeModels "github.com/apache/incubator-devlake/plugins/sonarqube/models"
@@ -33,8 +33,8 @@ var ConvertFileMetricsMeta = plugin.SubTaskMeta{
 	Name:             "convertFileMetrics",
 	EntryPoint:       ConvertFileMetrics,
 	EnabledByDefault: true,
-	Description:      "Convert tool layer table sonarqube_file_metrics into  domain layer table st_file_metrics",
-	DomainTypes:      []string{plugin.DOMAIN_TYPE_SECURITY_TESTING},
+	Description:      "Convert tool layer table sonarqube_file_metrics into  domain layer table cq_file_metrics",
+	DomainTypes:      []string{plugin.DOMAIN_TYPE_CODE_QUALITY},
 }
 
 func ConvertFileMetrics(taskCtx plugin.SubTaskContext) errors.Error {
@@ -55,7 +55,7 @@ func ConvertFileMetrics(taskCtx plugin.SubTaskContext) errors.Error {
 		RawDataSubTaskArgs: *rawDataSubTaskArgs,
 		Convert: func(inputRow interface{}) ([]interface{}, errors.Error) {
 			sonarqubeFileMetric := inputRow.(*sonarqubeModels.SonarqubeFileMetrics)
-			domainFileMetric := &securitytesting.StFileMetrics{
+			domainFileMetric := &codequality.CqFileMetrics{
 				DomainEntity:             domainlayer.DomainEntity{Id: issueIdGen.Generate(data.Options.ConnectionId, sonarqubeFileMetric.FileMetricsKey)},
 				FileName:                 sonarqubeFileMetric.FileName,
 				FilePath:                 sonarqubeFileMetric.FilePath,

@@ -107,7 +107,7 @@ var ExtractIssuesMeta = plugin.SubTaskMeta{
 	EntryPoint:       ExtractIssues,
 	EnabledByDefault: true,
 	Description:      "Extract raw data into tool layer table sonarqube_issues",
-	DomainTypes:      []string{plugin.DOMAIN_TYPE_SECURITY_TESTING},
+	DomainTypes:      []string{plugin.DOMAIN_TYPE_CODE_QUALITY},
 }
 
 type IssuesResponse struct {

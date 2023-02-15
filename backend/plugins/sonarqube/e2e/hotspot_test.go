@@ -19,7 +19,7 @@ import (
 	"testing"
 
 	"github.com/apache/incubator-devlake/core/models/common"
-	"github.com/apache/incubator-devlake/core/models/domainlayer/securitytesting"
+	"github.com/apache/incubator-devlake/core/models/domainlayer/codequality"
 	"github.com/apache/incubator-devlake/helpers/e2ehelper"
 	"github.com/apache/incubator-devlake/plugins/sonarqube/impl"
 	"github.com/apache/incubator-devlake/plugins/sonarqube/models"
@@ -61,9 +61,9 @@ func TestSonarqubeHotspotDataFlow(t *testing.T) {
 	})
 
 	// verify convertor
-	dataflowTester.FlushTabler(&securitytesting.StIssue{})
+	dataflowTester.FlushTabler(&codequality.CqIssue{})
 	dataflowTester.Subtask(tasks.ConvertHotspotsMeta, taskData)
-	dataflowTester.VerifyTableWithOptions(&securitytesting.StIssue{}, e2ehelper.TableOptions{
+	dataflowTester.VerifyTableWithOptions(&codequality.CqIssue{}, e2ehelper.TableOptions{
 		CSVRelPath:  "./snapshot_tables/issue_hotspots.csv",
 		IgnoreTypes: []interface{}{common.NoPKModel{}},
 	})

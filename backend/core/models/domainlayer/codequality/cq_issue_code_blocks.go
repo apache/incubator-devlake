@@ -15,31 +15,21 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-package migrationscripts
+package codequality
 
-import (
-	"github.com/apache/incubator-devlake/core/context"
-	"github.com/apache/incubator-devlake/core/errors"
-	"github.com/apache/incubator-devlake/core/models/migrationscripts/archived"
-	"github.com/apache/incubator-devlake/helpers/migrationhelper"
-)
+import "github.com/apache/incubator-devlake/core/models/domainlayer"
 
-type addSecurityTesting struct{}
-
-func (u *addSecurityTesting) Up(basicRes context.BasicRes) errors.Error {
-	return migrationhelper.AutoMigrateTables(
-		basicRes,
-		&archived.StProject{},
-		&archived.StIssue{},
-		&archived.StIssueCodeBlock{},
-		&archived.StFileMetrics{},
-	)
+type CqIssueCodeBlock struct {
+	domainlayer.DomainEntity
+	IssueKey    string `json:"key" gorm:"index"`
+	Component   string `json:"component" gorm:"index"`
+	StartLine   int    `json:"startLine" `
+	EndLine     int    `json:"endLine" `
+	StartOffset int    `json:"startOffset" `
+	EndOffset   int    `json:"endOffset" `
+	Msg         string `json:"msg" `
 }
 
-func (*addSecurityTesting) Version() uint64 {
-	return 20230208000015
-}
-
-func (*addSecurityTesting) Name() string {
-	return "add SecurityTesting domain"
+func (CqIssueCodeBlock) TableName() string {
+	return "cq_issue_code_blocks"
 }

@@ -83,5 +83,5 @@ var ExtractHotspotsMeta = plugin.SubTaskMeta{
 	EntryPoint:       ExtractHotspots,
 	EnabledByDefault: true,
 	Description:      "Extract raw data into tool layer table sonarqube_hotspots",
-	DomainTypes:      []string{plugin.DOMAIN_TYPE_SECURITY_TESTING},
+	DomainTypes:      []string{plugin.DOMAIN_TYPE_CODE_QUALITY},
 }
