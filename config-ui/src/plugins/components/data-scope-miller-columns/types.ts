@@ -16,4 +16,7 @@
  *
  */
 
-export * from './ci-cd';
+export type ExtraType = {
+  type: 'group' | 'scope';
+  data: any;
+};

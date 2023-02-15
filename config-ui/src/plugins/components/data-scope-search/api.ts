@@ -16,4 +16,16 @@
  *
  */
 
-export * from './ci-cd';
+import { request } from '@/utils';
+
+type Params = {
+  search?: string;
+  page?: number;
+  pageSize?: number;
+};
+
+export const searchScope = (plugin: string, connectionId: ID, params: Params) =>
+  request(`/plugins/${plugin}/connections/${connectionId}/search-remote-scopes`, {
+    method: 'get',
+    data: params,
+  });

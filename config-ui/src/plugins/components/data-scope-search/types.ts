@@ -16,10 +16,8 @@
  *
  */
 
-import styled from 'styled-components';
-
-export const Container = styled.div`
-  .checkbox {
-    margin: 8px 0 0;
-  }
-`;
+export type ItemType = {
+  id: ID;
+  name: string;
+  data: any;
+};

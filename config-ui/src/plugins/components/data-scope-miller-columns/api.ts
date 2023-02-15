@@ -16,4 +16,15 @@
  *
  */
 
-export * from './ci-cd';
+import { request } from '@/utils';
+
+type Params = {
+  groupId: ID | null;
+  pageToken?: string;
+};
+
+export const getScope = (plugin: string, connectionId: ID, params: Params) =>
+  request(`/plugins/${plugin}/connections/${connectionId}/remote-scopes`, {
+    method: 'get',
+    data: params,
+  });
