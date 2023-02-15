@@ -54,6 +54,7 @@ func ConvertIssueComments(taskCtx plugin.SubTaskContext) errors.Error {
 	defer cursor.Close()
 
 	issueIdGen := didgen.NewDomainIdGenerator(&models.BitbucketIssue{})
+	issueCommentIdGen := didgen.NewDomainIdGenerator(&models.BitbucketIssueComment{})
 	accountIdGen := didgen.NewDomainIdGenerator(&models.BitbucketAccount{})
 
 	converter, err := api.NewDataConverter(api.DataConverterArgs{
@@ -64,9 +65,9 @@ func ConvertIssueComments(taskCtx plugin.SubTaskContext) errors.Error {
 			bitbucketIssueComment := inputRow.(*models.BitbucketIssueComment)
 			domainIssueComment := &ticket.IssueComment{
 				DomainEntity: domainlayer.DomainEntity{
-					Id: issueIdGen.Generate(data.Options.ConnectionId, bitbucketIssueComment.BitbucketId),
+					Id: issueCommentIdGen.Generate(data.Options.ConnectionId, bitbucketIssueComment.BitbucketId),
 				},
-				IssueId:     issueIdGen.Generate(data.Options.ConnectionId, bitbucketIssueComment.IssueId),
+				IssueId:     issueIdGen.Generate(data.Options.ConnectionId, data.Options.FullName, bitbucketIssueComment.IssueId),
 				AccountId:   accountIdGen.Generate(data.Options.ConnectionId, bitbucketIssueComment.AuthorId),
 				CreatedDate: bitbucketIssueComment.CreatedAt,
 				Body:        bitbucketIssueComment.Body,
