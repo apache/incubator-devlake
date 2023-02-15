@@ -16,7 +16,7 @@
  *
  */
 
-import React, { useState } from 'react';
+import React, {useMemo, useState} from 'react';
 import {
   FormGroup,
   InputGroup,
@@ -45,6 +45,12 @@ const ALL_STATES = ['new', 'open', 'resolved', 'closed', 'on hold', 'wontfix', '
 export const BitbucketTransformation = ({ transformation, setTransformation }: Props) => {
   const [enableCICD, setEnableCICD] = useState(1);
   const [openAdditionalSettings, setOpenAdditionalSettings] = useState(false);
+  const selectedStates = useMemo(() => [
+    ...transformation.issueStatusTodo ? transformation.issueStatusTodo.split(',') : [],
+    ...transformation.issueStatusInProgress ? transformation.issueStatusInProgress.split(',') : [],
+    ...transformation.issueStatusDone ? transformation.issueStatusDone.split(',') : [],
+    ...transformation.issueStatusOther ? transformation.issueStatusOther.split(',') : [],
+  ], [transformation]);
 
   const handleChangeCICDEnable = (e: number) => {
     if (e === 0) {
@@ -87,6 +93,7 @@ export const BitbucketTransformation = ({ transformation, setTransformation }: P
             <FormGroup inline label="TODO">
               <MultiSelector
                 items={ALL_STATES}
+                disabledItems={selectedStates}
                 selectedItems={transformation.issueStatusTodo ? transformation.issueStatusTodo.split(',') : []}
                 onChangeItems={(selectedItems) =>
                   setTransformation({
@@ -99,6 +106,7 @@ export const BitbucketTransformation = ({ transformation, setTransformation }: P
             <FormGroup inline label="IN-PROGRESS">
               <MultiSelector
                 items={ALL_STATES}
+                disabledItems={selectedStates}
                 selectedItems={
                   transformation.issueStatusInProgress ? transformation.issueStatusInProgress.split(',') : []
                 }
@@ -113,6 +121,7 @@ export const BitbucketTransformation = ({ transformation, setTransformation }: P
             <FormGroup inline label="DONE">
               <MultiSelector
                 items={ALL_STATES}
+                disabledItems={selectedStates}
                 selectedItems={transformation.issueStatusDone ? transformation.issueStatusDone.split(',') : []}
                 onChangeItems={(selectedItems) =>
                   setTransformation({
@@ -125,6 +134,7 @@ export const BitbucketTransformation = ({ transformation, setTransformation }: P
             <FormGroup inline label="OTHER">
               <MultiSelector
                 items={ALL_STATES}
+                disabledItems={selectedStates}
                 selectedItems={transformation.issueStatusOther ? transformation.issueStatusOther.split(',') : []}
                 onChangeItems={(selectedItems) =>
                   setTransformation({

@@ -20,7 +20,7 @@ import React from 'react';
 
 import type { ExtraType } from '../../components/data-scope-miller-columns/types';
 
-import { DataScopeMillerColumns, DataScopeSearch } from '../../components';
+import { DataScopeMillerColumns } from '../../components';
 
 interface Props {
   connectionId: ID;
@@ -34,9 +34,9 @@ export const BitbucketDataScope = ({ connectionId, selectedItems, onChangeItems 
       <h3>Repositories *</h3>
       <p>Select the repositories you would like to sync.</p>
       <DataScopeMillerColumns plugin="bitbucket" connectionId={connectionId} selectedItems={selectedItems} onChangeItems={onChangeItems} />
-      <h4>Add repositories outside of your organizations</h4>
-      <p>Search for repositories and add to them</p>
-      <DataScopeSearch plugin="bitbucket" connectionId={connectionId} selectedItems={selectedItems} onChangeItems={onChangeItems} />
+      {/*<h4>Add repositories outside of your organizations</h4>*/}
+      {/*<p>Search for repositories and add to them</p>*/}
+      {/*<DataScopeSearch plugin="bitbucket" connectionId={connectionId} selectedItems={selectedItems} onChangeItems={onChangeItems} />*/}
     </>
   );
 };

@@ -5,7 +5,9 @@ this work for additional information regarding copyright ownership.
 The ASF licenses this file to You under the Apache License, Version 2.0
 (the "License"); you may not use this file except in compliance with
 the License.  You may obtain a copy of the License at
+
     http://www.apache.org/licenses/LICENSE-2.0
+
 Unless required by applicable law or agreed to in writing, software
 distributed under the License is distributed on an "AS IS" BASIS,
 WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -28,6 +30,7 @@ import (
 	"net/http"
 	"net/url"
 	"strconv"
+	"strings"
 )
 
 type RemoteScopesChild struct {
@@ -232,7 +235,6 @@ func RemoteScopes(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, er
 // @Accept application/json
 // @Param connectionId path int false "connection ID"
 // @Param search query string false "search"
-// @Param groupId query string false "group ID, empty means search public repos"
 // @Param page query int false "page number"
 // @Param pageSize query int false "page size per page"
 // @Success 200  {object} SearchRemoteScopesOutput
@@ -255,6 +257,7 @@ func SearchRemoteScopes(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutp
 	if !ok || len(search) == 0 {
 		search = []string{""}
 	}
+	s := search[0]
 
 	p := 1
 	page, ok := input.Query["page"]
@@ -274,12 +277,6 @@ func SearchRemoteScopes(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutp
 		}
 	}
 
-	groupId, ok := input.Query["groupId"]
-	if !ok || len(groupId) == 0 {
-		groupId = []string{""}
-	}
-	gid := groupId[0]
-
 	// create api client
 	apiClient, err := api.NewApiClientFromConnection(context.TODO(), basicRes, connection)
 	if err != nil {
@@ -295,7 +292,13 @@ func SearchRemoteScopes(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutp
 	// request search
 	query.Set("sort", "name")
 	query.Set("fields", "values.name,values.full_name,values.language,values.description,values.owner.username,values.created_on,values.updated_on,values.links.clone,values.links.self,pagelen,page,size")
-	query.Set("q", fmt.Sprintf(`name~"%s"`, search[0]))
+
+	gid := ``
+	if strings.Contains(s, `/`) {
+		gid = strings.Split(s, `/`)[0]
+		s = strings.Split(s, `/`)[0]
+	}
+	query.Set("q", fmt.Sprintf(`name~"%s"`, s))
 	// list repos part
 	res, err := apiClient.Get(fmt.Sprintf("/repositories/%s", gid), query, nil)
 	if err != nil {
@@ -308,7 +311,7 @@ func SearchRemoteScopes(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutp
 	}
 
 	// set repos return
-	outputBody := &SearchRemoteScopesOutput{}
+	outputBody := &SearchRemoteScopesOutput{Children: []RemoteScopesChild{}}
 	for _, repo := range resBody.Values {
 		child := RemoteScopesChild{
 			Type:     TypeScope,

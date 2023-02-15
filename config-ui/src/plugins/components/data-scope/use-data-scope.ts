@@ -63,6 +63,8 @@ export const useDataScope = ({ plugin, connectionId, entities, initialValues, on
         return scope.gitlabId;
       case plugin === 'jenkins':
         return scope.jobFullName;
+      case plugin === 'bitbucket':
+        return scope.bitbucketId;
     }
   };
 
