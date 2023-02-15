@@ -44,7 +44,7 @@ func TestMakeDataSourcePipelinePlanV200(t *testing.T) {
 		},
 		BitbucketConn: models.BitbucketConn{
 			RestConnection: helper.RestConnection{
-				Endpoint:         "https://api.github.com/",
+				Endpoint:         "https://api.bitbucket.org/2.0/",
 				Proxy:            "",
 				RateLimitPerHour: 0,
 			},
@@ -81,17 +81,16 @@ func TestMakeDataSourcePipelinePlanV200(t *testing.T) {
 				Plugin:   "bitbucket",
 				Subtasks: []string{},
 				Options: map[string]interface{}{
+					"fullName":     "likyh/likyhphp",
 					"connectionId": uint64(1),
-					"bitbucketId":  "likyh/likyhphp",
-					"name":         "test/testRepo",
 				},
 			},
 			{
 				Plugin: "gitextractor",
 				Options: map[string]interface{}{
 					"proxy":  "",
-					"repoId": "bitbucket:BitbucketRepo:1:12345",
-					"url":    "https://git:123@this_is_cloneUrl",
+					"repoId": "bitbucket:BitbucketRepo:1:likyh/likyhphp",
+					"url":    "https://git:Password@this_is_cloneUrl",
 				},
 			},
 		},
@@ -99,7 +98,7 @@ func TestMakeDataSourcePipelinePlanV200(t *testing.T) {
 			{
 				Plugin: "refdiff",
 				Options: map[string]interface{}{
-					"repoId":      "bitbucket:BitbucketRepo:1:12345",
+					"repoId":      "bitbucket:BitbucketRepo:1:likyh/likyhphp",
 					"tagsLimit":   10,
 					"tagsOrder":   "reverse semver",
 					"tagsPattern": "pattern",
@@ -111,14 +110,14 @@ func TestMakeDataSourcePipelinePlanV200(t *testing.T) {
 	expectScopes := make([]plugin.Scope, 0)
 	scopeRepo := &code.Repo{
 		DomainEntity: domainlayer.DomainEntity{
-			Id: "bitbucket:BitbucketRepo:1:12345",
+			Id: "bitbucket:BitbucketRepo:1:likyh/likyhphp",
 		},
 		Name: "test/testRepo",
 	}
 
 	scopeTicket := &ticket.Board{
 		DomainEntity: domainlayer.DomainEntity{
-			Id: "bitbucket:BitbucketRepo:1:12345",
+			Id: "bitbucket:BitbucketRepo:1:likyh/likyhphp",
 		},
 		Name:        "test/testRepo",
 		Description: "",
@@ -145,8 +144,8 @@ func NewMockBasicRes() *mockcontext.BasicRes {
 		Model: common.Model{
 			ID: 1,
 		},
-		Name:         "Bitbucket transformation rule",
-		IssueTypeBug: "hey,man,wasup",
+		Name:            "Bitbucket transformation rule",
+		IssueStatusTodo: "new,open,wantfix",
 		Refdiff: map[string]interface{}{
 			"tagsPattern": "pattern",
 			"tagsLimit":   10,
