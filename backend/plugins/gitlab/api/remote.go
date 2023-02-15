@@ -335,7 +335,7 @@ func SearchRemoteScopes(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutp
 			Type:     TypeProject,
 			Id:       strconv.Itoa(project.GitlabId),
 			ParentId: nil,
-			Name:     project.Name,
+			Name:     project.PathWithNamespace,
 			Data:     tasks.ConvertProject(&project),
 		}
 
