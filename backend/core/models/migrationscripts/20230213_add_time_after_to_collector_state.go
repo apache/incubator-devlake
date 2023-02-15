@@ -20,9 +20,9 @@ package migrationscripts
 import (
 	"time"
 
-	"github.com/apache/incubator-devlake/errors"
+	"github.com/apache/incubator-devlake/core/context"
+	"github.com/apache/incubator-devlake/core/errors"
 	"github.com/apache/incubator-devlake/helpers/migrationhelper"
-	"github.com/apache/incubator-devlake/plugins/core"
 )
 
 type collectorLatestState20230213 struct {
@@ -35,12 +35,12 @@ func (collectorLatestState20230213) TableName() string {
 
 type addTimeAfterToCollectorMeta20230213 struct{}
 
-func (script *addTimeAfterToCollectorMeta20230213) Up(basicRes core.BasicRes) errors.Error {
+func (script *addTimeAfterToCollectorMeta20230213) Up(basicRes context.BasicRes) errors.Error {
 	return migrationhelper.AutoMigrateTables(basicRes, &collectorLatestState20230213{})
 }
 
 func (*addTimeAfterToCollectorMeta20230213) Version() uint64 {
-	return 20230213200039
+	return 20230213200040
 }
 
 func (*addTimeAfterToCollectorMeta20230213) Name() string {

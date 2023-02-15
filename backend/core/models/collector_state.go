@@ -22,10 +22,11 @@ import (
 )
 
 type CollectorLatestState struct {
-	CreatedAt          time.Time `json:"createdAt"`
-	UpdatedAt          time.Time `json:"updatedAt"`
-	RawDataParams      string    `gorm:"primaryKey;column:raw_data_params;type:varchar(255);index" json:"raw_data_params"`
-	RawDataTable       string    `gorm:"primaryKey;column:raw_data_table;type:varchar(255)" json:"raw_data_table"`
+	CreatedAt     time.Time `json:"createdAt"`
+	UpdatedAt     time.Time `json:"updatedAt"`
+	RawDataParams string    `gorm:"primaryKey;column:raw_data_params;type:varchar(255);index" json:"raw_data_params"`
+	RawDataTable  string    `gorm:"primaryKey;column:raw_data_table;type:varchar(255)" json:"raw_data_table"`
+	// Deprecated: copy to TimeAfter and delete the field in last step
 	CreatedDateAfter   *time.Time
 	TimeAfter          *time.Time
 	LatestSuccessStart *time.Time

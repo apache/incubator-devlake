@@ -44,7 +44,7 @@ var CollectIssuesMeta = plugin.SubTaskMeta{
 func CollectIssues(taskCtx plugin.SubTaskContext) errors.Error {
 	data := taskCtx.GetData().(*JiraTaskData)
 
-	collectorWithState, err := api.NewApiCollectorWithStateEx(api.RawDataSubTaskArgs{
+	collectorWithState, err := api.NewStatefulApiCollector(api.RawDataSubTaskArgs{
 		Ctx: taskCtx,
 		/*
 			This struct will be JSONEncoded and stored into database along with raw data itself, to identity minimal
@@ -58,7 +58,7 @@ func CollectIssues(taskCtx plugin.SubTaskContext) errors.Error {
 			Table store raw data
 		*/
 		Table: RAW_ISSUE_TABLE,
-	}, data.CreatedDateAfter, data.TimeAfter)
+	}, data.TimeAfter)
 	if err != nil {
 		return err
 	}
@@ -71,8 +71,6 @@ func CollectIssues(taskCtx plugin.SubTaskContext) errors.Error {
 	// timer filter
 	if data.TimeAfter != nil {
 		jql = fmt.Sprintf("updated >= '%v' AND %v", data.TimeAfter.Format("2006/01/02 15:04"), jql)
-	} else if data.CreatedDateAfter != nil {
-		jql = fmt.Sprintf("created >= '%v' AND %v", data.CreatedDateAfter.Format("2006/01/02 15:04"), jql)
 	}
 
 	// diff sync

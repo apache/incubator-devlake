@@ -20,6 +20,8 @@ package services
 import (
 	"encoding/json"
 	"fmt"
+	"strings"
+
 	"github.com/apache/incubator-devlake/core/dal"
 	"github.com/apache/incubator-devlake/core/errors"
 	"github.com/apache/incubator-devlake/core/models"
@@ -27,7 +29,6 @@ import (
 	helper "github.com/apache/incubator-devlake/helpers/pluginhelper/api"
 	"github.com/apache/incubator-devlake/impls/logruslog"
 	"github.com/robfig/cron/v3"
-	"strings"
 )
 
 // BlueprintQuery is a query for GetBlueprints
@@ -273,7 +274,9 @@ func MakePlanForBlueprint(blueprint *models.Blueprint) (plugin.PipelinePlan, err
 	}
 
 	bpSyncPolicy := plugin.BlueprintSyncPolicy{}
+	// Deprecated: to be deleted
 	bpSyncPolicy.CreatedDateAfter = bpSettings.CreatedDateAfter
+	bpSyncPolicy.TimeAfter = bpSettings.TimeAfter
 
 	var plan plugin.PipelinePlan
 	switch bpSettings.Version {

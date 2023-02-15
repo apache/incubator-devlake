@@ -22,8 +22,6 @@ import (
 	"time"
 
 	"github.com/apache/incubator-devlake/core/errors"
-
-	"github.com/apache/incubator-devlake/errors"
 )
 
 // PipelineTask represents a smallest unit of execution inside a PipelinePlan
@@ -177,7 +175,7 @@ type CompositePluginBlueprintV200 interface {
 type BlueprintSyncPolicy struct {
 	Version    string `json:"version" validate:"required,semver,oneof=1.0.0"`
 	SkipOnFail bool   `json:"skipOnFail"`
-	// Deprecating
+	// Deprecated: use TimeAfter instead
 	CreatedDateAfter *time.Time `json:"createdDateAfter"`
 	TimeAfter        *time.Time `json:"timeAfter"`
 }

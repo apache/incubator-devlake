@@ -19,10 +19,11 @@ package models
 
 import (
 	"encoding/json"
+	"time"
+
 	"github.com/apache/incubator-devlake/core/errors"
 	"github.com/apache/incubator-devlake/core/models/common"
 	"github.com/apache/incubator-devlake/core/plugin"
-	"time"
 )
 
 const (
@@ -47,8 +48,10 @@ type Blueprint struct {
 }
 
 type BlueprintSettings struct {
-	Version          string          `json:"version" validate:"required,semver,oneof=1.0.0"`
+	Version string `json:"version" validate:"required,semver,oneof=1.0.0"`
+	// Deprecated: copy to TimeAfter and delete the field in last step
 	CreatedDateAfter *time.Time      `json:"createdDateAfter"`
+	TimeAfter        *time.Time      `json:"timeAfter"`
 	Connections      json.RawMessage `json:"connections" validate:"required"`
 	BeforePlan       json.RawMessage `json:"before_plan"`
 	AfterPlan        json.RawMessage `json:"after_plan"`
