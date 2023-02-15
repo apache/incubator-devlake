@@ -69,7 +69,7 @@ func All() []plugin.MigrationScript {
 		new(encryptTask221221),
 		new(renameProjectMetrics),
 		new(addOriginalTypeToIssue221230),
-    new(addCodeQuality),
+		new(addCodeQuality),
 		new(modifyIssueStorypointToFloat64),
 	}
 }
