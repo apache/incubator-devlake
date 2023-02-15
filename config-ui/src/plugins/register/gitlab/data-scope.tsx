@@ -16,11 +16,11 @@
  *
  */
 
-import React from 'react';
+import React, { useMemo } from 'react';
+
+import { DataScopeMillerColumns, DataScopeSearch } from '@/plugins';
 
 import type { ScopeItemType } from './types';
-
-import { MillerColumns, ProjectSelector } from './components';
 
 interface Props {
   connectionId: ID;
@@ -28,15 +28,30 @@ interface Props {
   onChangeItems: (selectedItems: ScopeItemType[]) => void;
 }
 
-export const GitLabDataScope = ({ connectionId, selectedItems, onChangeItems }: Props) => {
+export const GitLabDataScope = ({ connectionId, onChangeItems, ...props }: Props) => {
+  const selectedItems = useMemo(
+    () => props.selectedItems.map((it) => ({ id: `${it.gitlabId}`, name: it.name, data: it })),
+    [props.selectedItems],
+  );
+
   return (
     <>
       <h4>Projects *</h4>
       <p>Select the project you would like to sync.</p>
-      <MillerColumns connectionId={connectionId} selectedItems={selectedItems} onChangeItems={onChangeItems} />
+      <DataScopeMillerColumns
+        plugin="gitlab"
+        connectionId={connectionId}
+        selectedItems={selectedItems}
+        onChangeItems={onChangeItems}
+      />
       <h5>Add repositories outside of your projects</h5>
       <p>Search for repositories and add to them</p>
-      <ProjectSelector connectionId={connectionId} selectedItems={selectedItems} onChangeItems={onChangeItems} />
+      <DataScopeSearch
+        plugin="gitlab"
+        connectionId={connectionId}
+        selectedItems={selectedItems}
+        onChangeItems={onChangeItems}
+      />
     </>
   );
 };
