@@ -15,14 +15,10 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-package securitytesting
+package archived
 
-import (
-	"github.com/apache/incubator-devlake/core/models/domainlayer"
-)
-
-type StFileMetrics struct {
-	domainlayer.DomainEntity
+type CqFileMetrics struct {
+	DomainEntity
 	ProjectKey               string  `gorm:"index;type:varchar(255)"` //domain project key
 	FileName                 string  `json:"file_name"`
 	FilePath                 string  `json:"file_path"`
@@ -44,6 +40,6 @@ type StFileMetrics struct {
 	DuplicatedBlocks         int     `json:"duplicated_blocks"`
 }
 
-func (StFileMetrics) TableName() string {
-	return "st_file_metrics"
+func (CqFileMetrics) TableName() string {
+	return "cq_file_metrics"
 }

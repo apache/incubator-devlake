@@ -37,12 +37,19 @@ type RemoteScopesChild struct {
 	Type     string      `json:"type"`
 	ParentId *string     `json:"parentId"`
 	Id       string      `json:"id"`
+	Name     string      `json:"name"`
 	Data     interface{} `json:"data"`
 }
 
 type RemoteScopesOutput struct {
 	Children      []RemoteScopesChild `json:"children"`
 	NextPageToken string              `json:"nextPageToken"`
+}
+
+type SearchRemoteScopesOutput struct {
+	Children []RemoteScopesChild `json:"children"`
+	Page     int                 `json:"page"`
+	PageSize int                 `json:"pageSize"`
 }
 
 type PageData struct {
@@ -80,7 +87,7 @@ const TypeGroup string = "group"
 // @Param connectionId path int false "connection ID"
 // @Param groupId query string false "group ID"
 // @Param pageToken query string false "page Token"
-// @Success 200  {object} []models.GitlabProject
+// @Success 200  {object} RemoteScopesOutput
 // @Failure 400  {object} shared.ApiBody "Bad Request"
 // @Failure 500  {object} shared.ApiBody "Internal Error"
 // @Router /plugins/gitlab/connections/{connectionId}/remote-scopes [GET]
@@ -128,9 +135,9 @@ func RemoteScopes(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, er
 		if err != nil {
 			return nil, err
 		}
-		query.Set("top_level_only", "true")
 
 		if gid == "" {
+			query.Set("top_level_only", "true")
 			res, err = apiClient.Get("groups", query, nil)
 		} else {
 			res, err = apiClient.Get(fmt.Sprintf("groups/%s/subgroups", gid), query, nil)
@@ -147,6 +154,7 @@ func RemoteScopes(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, er
 			child := RemoteScopesChild{
 				Type: TypeGroup,
 				Id:   strconv.Itoa(group.Id),
+				Name: group.Name,
 				// don't need to save group into data
 				Data: nil,
 			}
@@ -209,7 +217,8 @@ func RemoteScopes(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, er
 		for _, project := range resBody {
 			child := RemoteScopesChild{
 				Type: TypeProject,
-				Id:   strconv.Itoa(project.CreatorId),
+				Id:   strconv.Itoa(project.GitlabId),
+				Name: project.Name,
 				Data: tasks.ConvertProject(&project),
 			}
 			child.ParentId = &gid
@@ -253,7 +262,7 @@ func RemoteScopes(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, er
 // @Param search query string false "group ID"
 // @Param page query int false "page number"
 // @Param pageSize query int false "page size per page"
-// @Success 200  {object} []models.GitlabProject
+// @Success 200  {object} SearchRemoteScopesOutput
 // @Failure 400  {object} shared.ApiBody "Bad Request"
 // @Failure 500  {object} shared.ApiBody "Internal Error"
 // @Router /plugins/gitlab/connections/{connectionId}/search-remote-scopes [GET]
@@ -318,13 +327,25 @@ func SearchRemoteScopes(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutp
 		return nil, err
 	}
 
-	// set projects return
-	projects := []models.GitlabProject{}
+	outputBody := &SearchRemoteScopesOutput{}
+
+	// append project to output
 	for _, project := range resBody {
-		projects = append(projects, *tasks.ConvertProject(&project))
+		child := RemoteScopesChild{
+			Type:     TypeProject,
+			Id:       strconv.Itoa(project.GitlabId),
+			ParentId: nil,
+			Name:     project.Name,
+			Data:     tasks.ConvertProject(&project),
+		}
+
+		outputBody.Children = append(outputBody.Children, child)
 	}
 
-	return &plugin.ApiResourceOutput{Body: projects, Status: http.StatusOK}, nil
+	outputBody.Page = p
+	outputBody.PageSize = ps
+
+	return &plugin.ApiResourceOutput{Body: outputBody, Status: http.StatusOK}, nil
 }
 
 func GetPageTokenFromPageData(pageData *PageData) (string, errors.Error) {

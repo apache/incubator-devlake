@@ -21,8 +21,8 @@ import (
 	"github.com/apache/incubator-devlake/core/dal"
 	"github.com/apache/incubator-devlake/core/errors"
 	"github.com/apache/incubator-devlake/core/models/domainlayer"
+	"github.com/apache/incubator-devlake/core/models/domainlayer/codequality"
 	"github.com/apache/incubator-devlake/core/models/domainlayer/didgen"
-	"github.com/apache/incubator-devlake/core/models/domainlayer/securitytesting"
 	"github.com/apache/incubator-devlake/core/plugin"
 	"github.com/apache/incubator-devlake/helpers/pluginhelper/api"
 	sonarqubeModels "github.com/apache/incubator-devlake/plugins/sonarqube/models"
@@ -33,8 +33,8 @@ var ConvertHotspotsMeta = plugin.SubTaskMeta{
 	Name:             "convertHotspots",
 	EntryPoint:       ConvertHotspots,
 	EnabledByDefault: true,
-	Description:      "Convert tool layer table sonarqube_hotspots into  domain layer table st_hotspots",
-	DomainTypes:      []string{plugin.DOMAIN_TYPE_SECURITY_TESTING},
+	Description:      "Convert tool layer table sonarqube_hotspots into  domain layer table cq_hotspots",
+	DomainTypes:      []string{plugin.DOMAIN_TYPE_CODE_QUALITY},
 }
 
 func ConvertHotspots(taskCtx plugin.SubTaskContext) errors.Error {
@@ -55,7 +55,7 @@ func ConvertHotspots(taskCtx plugin.SubTaskContext) errors.Error {
 		RawDataSubTaskArgs: *rawDataSubTaskArgs,
 		Convert: func(inputRow interface{}) ([]interface{}, errors.Error) {
 			sonarqubeHotspot := inputRow.(*sonarqubeModels.SonarqubeHotspot)
-			domainHotspot := &securitytesting.StIssue{
+			domainHotspot := &codequality.CqIssue{
 				DomainEntity:             domainlayer.DomainEntity{Id: issueIdGen.Generate(data.Options.ConnectionId, sonarqubeHotspot.HotspotKey)},
 				Component:                sonarqubeHotspot.Component,
 				ProjectKey:               projectIdGen.Generate(data.Options.ConnectionId, sonarqubeHotspot.ProjectKey),

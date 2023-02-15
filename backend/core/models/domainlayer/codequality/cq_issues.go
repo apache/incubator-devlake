@@ -15,14 +15,14 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-package securitytesting
+package codequality
 
 import (
 	"github.com/apache/incubator-devlake/core/models/domainlayer"
 	"github.com/apache/incubator-devlake/helpers/pluginhelper/api"
 )
 
-type StIssue struct {
+type CqIssue struct {
 	domainlayer.DomainEntity
 	Rule                     string           `json:"rule" gorm:"type:varchar(255)"`
 	Severity                 string           `json:"severity" gorm:"type:varchar(255)"`
@@ -49,6 +49,6 @@ type StIssue struct {
 	UpdateDate               *api.Iso8601Time `json:"updateDate"`
 }
 
-func (StIssue) TableName() string {
-	return "st_issues"
+func (CqIssue) TableName() string {
+	return "cq_issues"
 }
