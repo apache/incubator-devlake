@@ -16,34 +16,9 @@
  *
  */
 
-import React, { useMemo } from 'react';
-
-import { DataScopeMillerColumns, DataScopeSearch } from '@/plugins';
-
-import type { ScopeItemType } from './types';
-
-interface Props {
+export type ScopeItemType = {
   connectionId: ID;
-  selectedItems: ScopeItemType[];
-  onChangeItems: (selectedItems: ScopeItemType[]) => void;
-}
-
-export const BitbucketDataScope = ({ connectionId, onChangeItems, ...props }: Props) => {
-  const selectedItems = useMemo(
-    () => props.selectedItems.map((it) => ({ id: `${it.bitbucketId}`, name: it.name, data: it })),
-    [props.selectedItems],
-  );
-
-  return (
-    <>
-      <h3>Repositories *</h3>
-      <p>Select the repositories you would like to sync.</p>
-      <DataScopeMillerColumns
-        plugin="bitbucket"
-        connectionId={connectionId}
-        selectedItems={selectedItems}
-        onChangeItems={onChangeItems}
-      />
-    </>
-  );
+  bitbucketId: string;
+  name: string;
+  // and others
 };
