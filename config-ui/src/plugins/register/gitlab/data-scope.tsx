@@ -39,12 +39,13 @@ export const GitLabDataScope = ({ connectionId, onChangeItems, ...props }: Props
       <h4>Projects *</h4>
       <p>Select the project you would like to sync.</p>
       <DataScopeMillerColumns
+        title="Subgroups/Projects"
         plugin="gitlab"
         connectionId={connectionId}
         selectedItems={selectedItems}
         onChangeItems={onChangeItems}
       />
-      <h5>Add repositories outside of your projects</h5>
+      <h4>Add repositories outside of your projects</h4>
       <p>Search for repositories and add to them</p>
       <DataScopeSearch
         plugin="gitlab"

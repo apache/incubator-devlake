@@ -27,13 +27,14 @@ import * as API from './api';
 import * as S from './styled';
 
 interface Props {
+  title?: string;
   plugin: string;
   connectionId: ID;
   selectedItems?: any;
   onChangeItems?: (selectedItems: any) => void;
 }
 
-export const DataScopeMillerColumns = ({ plugin, connectionId, ...props }: Props) => {
+export const DataScopeMillerColumns = ({ title, plugin, connectionId, ...props }: Props) => {
   const [items, setItems] = useState<McsItem<ExtraType>[]>([]);
   const [selectedIds, setSelectedIds] = useState<ID[]>([]);
   const [loadedIds, setLoadedIds] = useState<ID[]>([]);
@@ -81,7 +82,7 @@ export const DataScopeMillerColumns = ({ plugin, connectionId, ...props }: Props
   const handleScroll = (id: McsID | null) => getItems(id, nextTokenMap[id ?? 'root']);
 
   const renderTitle = (column: McsColumn) => {
-    return !column.parentId && <S.ColumnTitle>Subgroups/Projects</S.ColumnTitle>;
+    return !column.parentId && <S.ColumnTitle>{title}</S.ColumnTitle>;
   };
 
   const renderLoading = () => {
