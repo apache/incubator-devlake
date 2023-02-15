@@ -33,7 +33,6 @@ import (
 	"github.com/apache/incubator-devlake/plugins/bitbucket/tasks"
 	"github.com/go-playground/validator/v10"
 	"net/url"
-	"strings"
 	"time"
 )
 
@@ -135,8 +134,7 @@ func makeDataSourcePipelinePlanV200(
 			if err != nil {
 				return nil, err
 			}
-			token := strings.Split(connection.Password, ",")[0]
-			cloneUrl.User = url.UserPassword("git", token)
+			cloneUrl.User = url.UserPassword("git", connection.Password)
 			stage = append(stage, &plugin.PipelineTask{
 				Plugin: "gitextractor",
 				Options: map[string]interface{}{

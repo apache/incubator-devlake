@@ -63,7 +63,7 @@ func ConvertPullRequestCommits(taskCtx plugin.SubTaskContext) (err errors.Error)
 			bitbucketPullRequestCommit := inputRow.(*bitbucketModels.BitbucketPrCommit)
 			domainPrCommit := &code.PullRequestCommit{
 				CommitSha:     bitbucketPullRequestCommit.CommitSha,
-				PullRequestId: pullIdGen.Generate(data.Options.ConnectionId, bitbucketPullRequestCommit.PullRequestId),
+				PullRequestId: pullIdGen.Generate(data.Options.ConnectionId, data.Options.FullName, bitbucketPullRequestCommit.PullRequestId),
 			}
 			return []interface{}{
 				domainPrCommit,
