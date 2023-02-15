@@ -15,7 +15,7 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-package securitytesting
+package codequality
 
 import (
 	"github.com/apache/incubator-devlake/core/models/domainlayer"
@@ -23,9 +23,9 @@ import (
 	"github.com/apache/incubator-devlake/helpers/pluginhelper/api"
 )
 
-var _ plugin.Scope = (*StProject)(nil)
+var _ plugin.Scope = (*CqProject)(nil)
 
-type StProject struct {
+type CqProject struct {
 	domainlayer.DomainEntity
 	Name             string           `json:"name" gorm:"type:varchar(255)"`
 	Qualifier        string           `json:"qualifier" gorm:"type:varchar(255)"`
@@ -34,14 +34,14 @@ type StProject struct {
 	CommitSha        string           `json:"revision" gorm:"type:varchar(128)"`
 }
 
-func (StProject) TableName() string {
-	return "st_projects"
+func (CqProject) TableName() string {
+	return "cq_projects"
 }
 
-func (s *StProject) ScopeId() string {
+func (s *CqProject) ScopeId() string {
 	return s.Id
 }
 
-func (s *StProject) ScopeName() string {
+func (s *CqProject) ScopeName() string {
 	return s.Name
 }

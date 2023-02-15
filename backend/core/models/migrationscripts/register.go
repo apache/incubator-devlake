@@ -69,6 +69,6 @@ func All() []plugin.MigrationScript {
 		new(encryptTask221221),
 		new(renameProjectMetrics),
 		new(addOriginalTypeToIssue221230),
-		new(addSecurityTesting),
+		new(addCodeQuality),
 	}
 }

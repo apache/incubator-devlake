@@ -21,7 +21,7 @@ import (
 	"testing"
 
 	"github.com/apache/incubator-devlake/core/models/common"
-	"github.com/apache/incubator-devlake/core/models/domainlayer/securitytesting"
+	"github.com/apache/incubator-devlake/core/models/domainlayer/codequality"
 	"github.com/apache/incubator-devlake/helpers/e2ehelper"
 	"github.com/apache/incubator-devlake/plugins/sonarqube/impl"
 	"github.com/apache/incubator-devlake/plugins/sonarqube/models"
@@ -61,9 +61,9 @@ func TestSonarqubeProjectDataFlow(t *testing.T) {
 		IgnoreTypes: []interface{}{common.NoPKModel{}},
 	})
 
-	dataflowTester.FlushTabler(&securitytesting.StProject{})
+	dataflowTester.FlushTabler(&codequality.CqProject{})
 	dataflowTester.Subtask(tasks.ConvertProjectsMeta, taskData2)
-	dataflowTester.VerifyTableWithOptions(&securitytesting.StProject{}, e2ehelper.TableOptions{
+	dataflowTester.VerifyTableWithOptions(&codequality.CqProject{}, e2ehelper.TableOptions{
 		CSVRelPath:  "./snapshot_tables/projects.csv",
 		IgnoreTypes: []interface{}{common.NoPKModel{}},
 	})

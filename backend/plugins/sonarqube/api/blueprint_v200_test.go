@@ -19,7 +19,7 @@ package api
 
 import (
 	"github.com/apache/incubator-devlake/core/models/domainlayer"
-	"github.com/apache/incubator-devlake/core/models/domainlayer/securitytesting"
+	"github.com/apache/incubator-devlake/core/models/domainlayer/codequality"
 	"github.com/apache/incubator-devlake/core/plugin"
 	mockcontext "github.com/apache/incubator-devlake/mocks/core/context"
 	mockdal "github.com/apache/incubator-devlake/mocks/core/dal"
@@ -36,7 +36,7 @@ func TestMakeDataSourcePipelinePlanV200(t *testing.T) {
 	err := plugin.RegisterPlugin("sonarqube", mockMeta)
 	assert.Nil(t, err)
 	bs := &plugin.BlueprintScopeV200{
-		Entities: []string{"SECURITYTESTING"},
+		Entities: []string{"CODEQUALITY"},
 		Id:       "f5a50c63-2e8f-4107-9014-853f6f467757",
 	}
 	syncPolicy := &plugin.BlueprintSyncPolicy{}
@@ -64,7 +64,7 @@ func TestMakeDataSourcePipelinePlanV200(t *testing.T) {
 	assert.Equal(t, expectPlan, plan)
 
 	expectScopes := make([]plugin.Scope, 0)
-	sonarqubeProject := &securitytesting.StProject{
+	sonarqubeProject := &codequality.CqProject{
 		DomainEntity: domainlayer.DomainEntity{
 			Id: "sonarqube:SonarqubeProject:1:f5a50c63-2e8f-4107-9014-853f6f467757",
 		},
