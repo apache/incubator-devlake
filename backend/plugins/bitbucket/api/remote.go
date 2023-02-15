@@ -167,10 +167,6 @@ func RemoteScopes(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, er
 				// don't need to save group into data
 				Data: nil,
 			}
-			if gid != "" {
-				child.ParentId = &gid
-			}
-
 			outputBody.Children = append(outputBody.Children, child)
 		}
 
@@ -202,10 +198,6 @@ func RemoteScopes(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, er
 				Data: tasks.ConvertApiRepoToScope(&repo, connection.ID),
 			}
 			child.ParentId = &gid
-			if *child.ParentId == "" {
-				child.ParentId = nil
-			}
-
 			outputBody.Children = append(outputBody.Children, child)
 		}
 
