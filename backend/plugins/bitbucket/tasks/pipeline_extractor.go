@@ -26,34 +26,26 @@ import (
 )
 
 type bitbucketApiCommit struct {
-	Type  string `json:"type"`
-	Hash  string `json:"hash"`
-	Links struct {
-		Self struct {
-			Href string `json:"href"`
-		}
-		Html struct {
-			Href string `json:"href"`
-		}
-	} `json:"links"`
+	//Type  string `json:"type"`
+	Hash string `json:"hash"`
 }
 
 type bitbucketApiPipelineTarget struct {
-	Type     string `json:"type"`
-	RefType  string `json:"ref_type"`
-	RefName  string `json:"ref_name"`
-	Selector struct {
-		Type string `json:"type"`
-	} `json:"selector"`
+	//Type     string `json:"type"`
+	//RefType  string `json:"ref_type"`
+	RefName string `json:"ref_name"`
+	//Selector struct {
+	//	Type string `json:"type"`
+	//} `json:"selector"`
 	Commit *bitbucketApiCommit `json:"commit"`
 }
 
 type BitbucketApiPipeline struct {
-	Uuid  string `json:"uuid"`
-	Type  string `json:"type"`
+	Uuid string `json:"uuid"`
+	//Type  string `json:"type"`
 	State struct {
-		Name   string `json:"name"`
-		Type   string `json:"type"`
+		Name string `json:"name"`
+		//	Type   string `json:"type"`
 		Result *struct {
 			Name string `json:"name"`
 			Type string `json:"type"`
@@ -63,29 +55,14 @@ type BitbucketApiPipeline struct {
 			Type string `json:"type"`
 		} `json:"stage"`
 	} `json:"state"`
-	BuildNumber int                         `json:"build_number"`
-	Creator     *BitbucketAccountResponse   `json:"creator"`
-	Repo        *BitbucketApiRepo           `json:"repository"`
-	Target      *bitbucketApiPipelineTarget `json:"target"`
-	Trigger     struct {
-		Name string `json:"name"`
-		Type string `json:"type"`
-	} `json:"trigger"`
-	CreatedOn         *api.Iso8601Time `json:"created_on"`
-	CompletedOn       *api.Iso8601Time `json:"completed_on"`
-	RunNumber         int              `json:"run_number"`
-	DurationInSeconds uint64           `json:"duration_in_seconds"`
-	BuildSecondsUsed  int              `json:"build_seconds_used"`
-	FirstSuccessful   bool             `json:"first_successful"`
-	Expired           bool             `json:"expired"`
-	HasVariables      bool             `json:"has_variables"`
+	Target            *bitbucketApiPipelineTarget `json:"target"`
+	CreatedOn         *api.Iso8601Time            `json:"created_on"`
+	CompletedOn       *api.Iso8601Time            `json:"completed_on"`
+	DurationInSeconds uint64                      `json:"duration_in_seconds"`
 	Links             struct {
 		Self struct {
 			Href string `json:"href"`
 		} `json:"self"`
-		Steps struct {
-			Href string `json:"href"`
-		} `json:"steps"`
 	} `json:"links"`
 }
 
@@ -117,7 +94,7 @@ func ExtractApiPipelines(taskCtx plugin.SubTaskContext) errors.Error {
 				Status:              bitbucketApiPipeline.State.Name,
 				RefName:             bitbucketApiPipeline.Target.RefName,
 				CommitSha:           bitbucketApiPipeline.Target.Commit.Hash,
-				RepoId:              bitbucketApiPipeline.Repo.BitbucketId,
+				RepoId:              data.Options.FullName,
 				DurationInSeconds:   bitbucketApiPipeline.DurationInSeconds,
 				BitbucketCreatedOn:  api.Iso8601TimeToTime(bitbucketApiPipeline.CreatedOn),
 				BitbucketCompleteOn: api.Iso8601TimeToTime(bitbucketApiPipeline.CompletedOn),

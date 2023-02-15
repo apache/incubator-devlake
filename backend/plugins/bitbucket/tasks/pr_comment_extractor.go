@@ -39,34 +39,14 @@ type BitbucketPrCommentsResponse struct {
 	BitbucketId int        `json:"id"`
 	CreatedOn   time.Time  `json:"created_on"`
 	UpdatedOn   *time.Time `json:"updated_on"`
+	Type        string     `json:"type"`
 	Content     struct {
-		Type string `json:"type"`
-		Raw  string `json:"raw"`
+		Raw string `json:"raw"`
 	} `json:"content"`
-	User    *BitbucketAccountResponse `json:"user"`
-	Deleted bool                      `json:"deleted"`
-	Type    string                    `json:"type"`
-	Links   struct {
-		Self struct {
-			Href string
-		} `json:"self"`
-		Html struct {
-			Href string
-		} `json:"html"`
-	} `json:"links"`
 	PullRequest struct {
-		Type  string `json:"type"`
-		Id    int    `json:"id"`
-		Title string `json:"title"`
-		Links struct {
-			Self struct {
-				Href string `json:"href"`
-			} `json:"self"`
-			Html struct {
-				Href string `json:"href"`
-			} `json:"html"`
-		} `json:"links"`
-	}
+		Id int `json:"id"`
+	} `json:"pullrequest"`
+	User *BitbucketAccountResponse `json:"user"`
 }
 
 func ExtractApiPullRequestsComments(taskCtx plugin.SubTaskContext) errors.Error {
@@ -94,7 +74,7 @@ func ExtractApiPullRequestsComments(taskCtx plugin.SubTaskContext) errors.Error 
 					return nil, err
 				}
 				toolprComment.AuthorId = bitbucketUser.AccountId
-				toolprComment.AuthorName = bitbucketUser.UserName
+				toolprComment.AuthorName = bitbucketUser.DisplayName
 				results = append(results, bitbucketUser)
 			}
 			results = append(results, toolprComment)
@@ -102,7 +82,6 @@ func ExtractApiPullRequestsComments(taskCtx plugin.SubTaskContext) errors.Error 
 			return results, nil
 		},
 	})
-
 	if err != nil {
 		return err
 	}

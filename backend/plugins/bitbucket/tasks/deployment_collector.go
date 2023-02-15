@@ -41,12 +41,14 @@ func CollectApiDeployments(taskCtx plugin.SubTaskContext) errors.Error {
 		ApiClient:          data.ApiClient,
 		PageSize:           50,
 		Incremental:        false,
-		UrlTemplate:        "repositories/{{ .Params.Owner }}/{{ .Params.Repo }}/deployments/",
-		Query:              GetQuery,
-		ResponseParser:     GetRawMessageFromResponse,
-		GetTotalPages:      GetTotalPagesFromResponse,
+		UrlTemplate:        "repositories/{{ .Params.FullName }}/deployments/",
+		Query: GetQueryFields(`values.type,values.uuid,` +
+			`values.release.pipeline,values.release.key,values.release.name,values.release.url,values.release.created_on,` +
+			`values.release.commit.hash,values.release.commit.links.html,` +
+			`values.state.name,values.state.url,values.state.started_on,values.state.completed_on,values.last_update_time`),
+		ResponseParser: GetRawMessageFromResponse,
+		GetTotalPages:  GetTotalPagesFromResponse,
 	})
-
 	if err != nil {
 		return err
 	}

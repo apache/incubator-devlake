@@ -50,14 +50,18 @@ export const BitBucketConfig: PluginConfigType = {
         learnMore: 'https://devlake.apache.org/docs/Configuration/BitBucket#fixed-rate-limit-optional',
         externalInfo:
           'The maximum rate limit for different entities in BitBucket Cloud is 60,000 or 1,000 requests/hour.',
-        defaultValue: 10000,
+        defaultValue: 1000,
       },
     ],
   },
-  entities: ['TICKET', 'CROSS'],
+  entities: ['CODE', 'TICKET', 'CODEREVIEW', 'CROSS', 'CICD'],
   transformation: {
-    storyPointField: '',
-    remotelinkCommitShaPattern: '',
-    typeMappings: {},
+    issueStatusTodo: 'new,open',
+    issueStatusInProgress: '',
+    issueStatusDone: 'resolved,closed',
+    issueStatusOther: 'on hold,wontfix,duplicate,invalid',
+    productionPattern: '',
+    deploymentPattern: '',
+    refdiff: null,
   },
 };

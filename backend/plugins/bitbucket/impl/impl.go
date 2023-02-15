@@ -19,6 +19,8 @@ package impl
 
 import (
 	"fmt"
+	"time"
+
 	"github.com/apache/incubator-devlake/core/context"
 	"github.com/apache/incubator-devlake/core/dal"
 	"github.com/apache/incubator-devlake/core/errors"
@@ -36,10 +38,22 @@ var _ plugin.PluginTask = (*Bitbucket)(nil)
 var _ plugin.PluginApi = (*Bitbucket)(nil)
 var _ plugin.PluginModel = (*Bitbucket)(nil)
 var _ plugin.PluginMigration = (*Bitbucket)(nil)
-var _ plugin.PluginBlueprintV100 = (*Bitbucket)(nil)
 var _ plugin.CloseablePluginTask = (*Bitbucket)(nil)
+var _ plugin.PluginSource = (*Bitbucket)(nil)
 
 type Bitbucket string
+
+func (p Bitbucket) Connection() interface{} {
+	return &models.BitbucketConnection{}
+}
+
+func (p Bitbucket) Scope() interface{} {
+	return &models.BitbucketRepo{}
+}
+
+func (p Bitbucket) TransformationRule() interface{} {
+	return &models.BitbucketTransformationRule{}
+}
 
 func (p Bitbucket) Init(basicRes context.BasicRes) errors.Error {
 	api.Init(basicRes)
@@ -67,9 +81,6 @@ func (p Bitbucket) Description() string {
 
 func (p Bitbucket) SubTaskMetas() []plugin.SubTaskMeta {
 	return []plugin.SubTaskMeta{
-		tasks.CollectApiRepoMeta,
-		tasks.ExtractApiRepoMeta,
-
 		tasks.CollectApiPullRequestsMeta,
 		tasks.ExtractApiPullRequestsMeta,
 
@@ -78,6 +89,9 @@ func (p Bitbucket) SubTaskMetas() []plugin.SubTaskMeta {
 
 		tasks.CollectApiPrCommitsMeta,
 		tasks.ExtractApiPrCommitsMeta,
+
+		tasks.CollectApiCommitsMeta,
+		tasks.ExtractApiCommitsMeta,
 
 		tasks.CollectApiIssuesMeta,
 		tasks.ExtractApiIssuesMeta,
@@ -96,6 +110,7 @@ func (p Bitbucket) SubTaskMetas() []plugin.SubTaskMeta {
 		tasks.ConvertPullRequestsMeta,
 		tasks.ConvertPrCommentsMeta,
 		tasks.ConvertPrCommitsMeta,
+		tasks.ConvertCommitsMeta,
 		tasks.ConvertIssuesMeta,
 		tasks.ConvertIssueCommentsMeta,
 		tasks.ConvertPipelineMeta,
@@ -104,6 +119,8 @@ func (p Bitbucket) SubTaskMetas() []plugin.SubTaskMeta {
 }
 
 func (p Bitbucket) PrepareTaskData(taskCtx plugin.TaskContext, options map[string]interface{}) (interface{}, errors.Error) {
+	logger := taskCtx.GetLogger()
+	logger.Debug("%v", options)
 	op, err := tasks.DecodeAndValidateTaskOptions(options)
 	if err != nil {
 		return nil, err
@@ -122,11 +139,28 @@ func (p Bitbucket) PrepareTaskData(taskCtx plugin.TaskContext, options map[strin
 	if err != nil {
 		return nil, errors.Default.Wrap(err, "unable to get bitbucket API client instance")
 	}
+	err = EnrichOptions(taskCtx, op, apiClient.ApiClient)
+	if err != nil {
+		return nil, err
+	}
 
-	return &tasks.BitbucketTaskData{
+	var createdDateAfter time.Time
+	if op.CreatedDateAfter != "" {
+		createdDateAfter, err = errors.Convert01(time.Parse(time.RFC3339, op.CreatedDateAfter))
+		if err != nil {
+			return nil, errors.BadInput.Wrap(err, "invalid value for `createdDateAfter`")
+		}
+	}
+	taskData := &tasks.BitbucketTaskData{
 		Options:   op,
 		ApiClient: apiClient,
-	}, nil
+	}
+	if !createdDateAfter.IsZero() {
+		taskData.CreatedDateAfter = &createdDateAfter
+		logger.Debug("collect data updated createdDateAfter %s", createdDateAfter)
+	}
+
+	return taskData, nil
 }
 
 func (p Bitbucket) RootPkgPath() string {
@@ -137,8 +171,8 @@ func (p Bitbucket) MigrationScripts() []plugin.MigrationScript {
 	return migrationscripts.All()
 }
 
-func (p Bitbucket) MakePipelinePlan(connectionId uint64, scope []*plugin.BlueprintScopeV100) (plugin.PipelinePlan, errors.Error) {
-	return api.MakePipelinePlan(p.SubTaskMetas(), connectionId, scope)
+func (p Bitbucket) MakeDataSourcePipelinePlanV200(connectionId uint64, scopes []*plugin.BlueprintScopeV200, syncPolicy plugin.BlueprintSyncPolicy) (pp plugin.PipelinePlan, sc []plugin.Scope, err errors.Error) {
+	return api.MakeDataSourcePipelinePlanV200(p.SubTaskMetas(), connectionId, scopes, &syncPolicy)
 }
 
 func (p Bitbucket) ApiResources() map[string]map[string]plugin.ApiResourceHandler {
@@ -155,6 +189,28 @@ func (p Bitbucket) ApiResources() map[string]map[string]plugin.ApiResourceHandle
 			"DELETE": api.DeleteConnection,
 			"GET":    api.GetConnection,
 		},
+		"connections/:connectionId/scopes/*repoId": {
+			"GET":   api.GetScope,
+			"PATCH": api.UpdateScope,
+		},
+		"connections/:connectionId/remote-scopes": {
+			"GET": api.RemoteScopes,
+		},
+		"connections/:connectionId/search-remote-scopes": {
+			"GET": api.SearchRemoteScopes,
+		},
+		"connections/:connectionId/scopes": {
+			"GET": api.GetScopeList,
+			"PUT": api.PutScope,
+		},
+		"transformation_rules": {
+			"POST": api.CreateTransformationRule,
+			"GET":  api.GetTransformationRuleList,
+		},
+		"transformation_rules/:id": {
+			"PATCH": api.UpdateTransformationRule,
+			"GET":   api.GetTransformationRule,
+		},
 	}
 }
 
@@ -165,4 +221,55 @@ func (p Bitbucket) Close(taskCtx plugin.TaskContext) errors.Error {
 	}
 	data.ApiClient.Release()
 	return nil
+}
+
+func EnrichOptions(taskCtx plugin.TaskContext,
+	op *tasks.BitbucketOptions,
+	apiClient *helper.ApiClient) errors.Error {
+	var repo models.BitbucketRepo
+	// validate the op and set name=owner/repo if this is from advanced mode or bpV100
+	err := tasks.ValidateTaskOptions(op)
+	if err != nil {
+		return err
+	}
+	logger := taskCtx.GetLogger()
+	// for advanced mode or others which we only have name, for bp v200, we have githubId
+	err = taskCtx.GetDal().First(&repo, dal.Where(
+		"connection_id = ? AND bitbucket_id = ?",
+		op.ConnectionId, op.FullName))
+	if err == nil {
+		if op.TransformationRuleId == 0 {
+			op.TransformationRuleId = repo.TransformationRuleId
+		}
+	} else {
+		if taskCtx.GetDal().IsErrorNotFound(err) && op.FullName != "" {
+			var repo *tasks.BitbucketApiRepo
+			repo, err = tasks.GetApiRepo(op, apiClient)
+			if err != nil {
+				return err
+			}
+			logger.Debug(fmt.Sprintf("Current repo: %s", repo.FullName))
+			scope := tasks.ConvertApiRepoToScope(repo, op.ConnectionId)
+			err = taskCtx.GetDal().CreateIfNotExist(scope)
+			if err != nil {
+				return err
+			}
+		} else {
+			return errors.Default.Wrap(err, fmt.Sprintf("fail to find repo %s", op.FullName))
+		}
+	}
+	// Set GithubTransformationRule if it's nil, this has lower priority
+	if op.BitbucketTransformationRule == nil && op.TransformationRuleId != 0 {
+		var transformationRule models.BitbucketTransformationRule
+		db := taskCtx.GetDal()
+		err = db.First(&transformationRule, dal.Where("id = ?", repo.TransformationRuleId))
+		if err != nil && !db.IsErrorNotFound(err) {
+			return errors.BadInput.Wrap(err, "fail to get transformationRule")
+		}
+		op.BitbucketTransformationRule = &transformationRule
+	}
+	if op.BitbucketTransformationRule == nil && op.TransformationRuleId == 0 {
+		op.BitbucketTransformationRule = new(models.BitbucketTransformationRule)
+	}
+	return err
 }

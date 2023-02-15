@@ -29,6 +29,7 @@ import { MultiSelector } from '@/components';
 import type { UseDataScope } from './use-data-scope';
 import { useDataScope } from './use-data-scope';
 import * as S from './styled';
+import {BitbucketDataScope} from "@/plugins/register/bitbucket";
 
 interface Props extends UseDataScope {
   onCancel?: () => void;
@@ -59,6 +60,10 @@ export const DataScope = ({ plugin, connectionId, entities, onCancel, ...props }
 
         {plugin === 'jenkins' && (
           <JenkinsDataScope connectionId={connectionId} selectedItems={selectedScope} onChangeItems={onChangeScope} />
+        )}
+
+        {plugin === 'bitbucket' && (
+          <BitbucketDataScope connectionId={connectionId} selectedItems={selectedScope} onChangeItems={onChangeScope} />
         )}
       </div>
 

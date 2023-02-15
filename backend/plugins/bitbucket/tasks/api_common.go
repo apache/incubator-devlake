@@ -32,8 +32,7 @@ import (
 
 type BitbucketApiParams struct {
 	ConnectionId uint64
-	Owner        string
-	Repo         string
+	FullName     string
 }
 
 type BitbucketInput struct {
@@ -54,8 +53,7 @@ func CreateRawDataSubTaskArgs(taskCtx plugin.SubTaskContext, Table string) (*api
 		Ctx: taskCtx,
 		Params: BitbucketApiParams{
 			ConnectionId: data.Options.ConnectionId,
-			Owner:        data.Options.Owner,
-			Repo:         data.Options.Repo,
+			FullName:     data.Options.FullName,
 		},
 		Table: Table,
 	}
@@ -88,15 +86,41 @@ func GetQuery(reqData *api.RequestData) (url.Values, errors.Error) {
 	return query, nil
 }
 
-func GetQueryForNext(reqData *api.RequestData) (url.Values, errors.Error) {
-	query := url.Values{}
-	query.Set("state", "all")
-	query.Set("pagelen", fmt.Sprintf("%v", reqData.Pager.Size))
+// GetQueryCreatedAndUpdated is a common GeyQuery for timeFilter and incremental
+func GetQueryCreatedAndUpdated(fields string, collectorWithState *api.ApiCollectorStateManager) func(reqData *api.RequestData) (url.Values, errors.Error) {
+	return func(reqData *api.RequestData) (url.Values, errors.Error) {
+		query, err := GetQuery(reqData)
+		if err != nil {
+			return nil, err
+		}
+		query.Set("fields", fields)
+		query.Set("sort", "created_on")
+		if collectorWithState.IsIncremental() && collectorWithState.CreatedDateAfter != nil {
+			latestSuccessStart := collectorWithState.LatestState.LatestSuccessStart.Format("2006-01-02")
+			createdDateAfter := collectorWithState.CreatedDateAfter.Format("2006-01-02")
+			query.Set("q", fmt.Sprintf("updated_on>=%s AND created_on>=%s", latestSuccessStart, createdDateAfter))
+		} else if collectorWithState.IsIncremental() {
+			latestSuccessStart := collectorWithState.LatestState.LatestSuccessStart.Format("2006-01-02")
+			query.Set("q", fmt.Sprintf("updated_on>=%s", latestSuccessStart))
+		} else if collectorWithState.CreatedDateAfter != nil {
+			createdDateAfter := collectorWithState.CreatedDateAfter.Format("2006-01-02")
+			query.Set("q", fmt.Sprintf("created_on>=%s", createdDateAfter))
+		}
 
-	if reqData.CustomData != nil {
-		query.Set("page", reqData.CustomData.(string))
+		return query, nil
 	}
-	return query, nil
+}
+
+func GetQueryFields(fields string) func(reqData *api.RequestData) (url.Values, errors.Error) {
+	return func(reqData *api.RequestData) (url.Values, errors.Error) {
+		query, err := GetQuery(reqData)
+		if err != nil {
+			return nil, err
+		}
+		query.Set("fields", fields)
+
+		return query, nil
+	}
 }
 
 func GetNextPageCustomData(_ *api.RequestData, prevPageResponse *http.Response) (interface{}, errors.Error) {
@@ -142,7 +166,7 @@ func GetRawMessageFromResponse(res *http.Response) ([]json.RawMessage, errors.Er
 	return rawMessages.Values, nil
 }
 
-func GetPullRequestsIterator(taskCtx plugin.SubTaskContext) (*api.DalCursorIterator, errors.Error) {
+func GetPullRequestsIterator(taskCtx plugin.SubTaskContext, collectorWithState *api.ApiCollectorStateManager) (*api.DalCursorIterator, errors.Error) {
 	db := taskCtx.GetDal()
 	data := taskCtx.GetData().(*BitbucketTaskData)
 	clauses := []dal.Clause{
@@ -150,8 +174,14 @@ func GetPullRequestsIterator(taskCtx plugin.SubTaskContext) (*api.DalCursorItera
 		dal.From("_tool_bitbucket_pull_requests bpr"),
 		dal.Where(
 			`bpr.repo_id = ? and bpr.connection_id = ?`,
-			fmt.Sprintf("%s/%s", data.Options.Owner, data.Options.Repo), data.Options.ConnectionId,
+			data.Options.FullName, data.Options.ConnectionId,
 		),
+	}
+	if collectorWithState.CreatedDateAfter != nil {
+		clauses = append(clauses, dal.Where("bitbucket_created_at > ?", *collectorWithState.CreatedDateAfter))
+	}
+	if collectorWithState.IsIncremental() {
+		clauses = append(clauses, dal.Where("bitbucket_updated_at > ?", *collectorWithState.LatestState.LatestSuccessStart))
 	}
 	// construct the input iterator
 	cursor, err := db.Cursor(clauses...)
@@ -162,7 +192,7 @@ func GetPullRequestsIterator(taskCtx plugin.SubTaskContext) (*api.DalCursorItera
 	return api.NewDalCursorIterator(db, cursor, reflect.TypeOf(BitbucketInput{}))
 }
 
-func GetIssuesIterator(taskCtx plugin.SubTaskContext) (*api.DalCursorIterator, errors.Error) {
+func GetIssuesIterator(taskCtx plugin.SubTaskContext, collectorWithState *api.ApiCollectorStateManager) (*api.DalCursorIterator, errors.Error) {
 	db := taskCtx.GetDal()
 	data := taskCtx.GetData().(*BitbucketTaskData)
 	clauses := []dal.Clause{
@@ -170,8 +200,14 @@ func GetIssuesIterator(taskCtx plugin.SubTaskContext) (*api.DalCursorIterator, e
 		dal.From("_tool_bitbucket_issues bpr"),
 		dal.Where(
 			`bpr.repo_id = ? and bpr.connection_id = ?`,
-			fmt.Sprintf("%s/%s", data.Options.Owner, data.Options.Repo), data.Options.ConnectionId,
+			data.Options.FullName, data.Options.ConnectionId,
 		),
+	}
+	if collectorWithState.CreatedDateAfter != nil {
+		clauses = append(clauses, dal.Where("bitbucket_created_at > ?", *collectorWithState.CreatedDateAfter))
+	}
+	if collectorWithState.IsIncremental() {
+		clauses = append(clauses, dal.Where("bitbucket_updated_at > ?", *collectorWithState.LatestState.LatestSuccessStart))
 	}
 	// construct the input iterator
 	cursor, err := db.Cursor(clauses...)

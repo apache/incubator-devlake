@@ -144,6 +144,8 @@ export const useTransformation = ({
             return sc.gitlabId;
           case plugin === 'jenkins':
             return sc.jobFullName;
+          case plugin === 'bitbucket':
+            return sc.bitbucketId;
         }
       },
       onSave: handleSave,

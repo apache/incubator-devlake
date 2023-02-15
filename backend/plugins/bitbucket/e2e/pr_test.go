@@ -30,17 +30,11 @@ func TestPrDataFlow(t *testing.T) {
 	var plugin impl.Bitbucket
 	dataflowTester := e2ehelper.NewDataFlowTester(t, "bitbucket", plugin)
 
-	bitbucketRepository := &models.BitbucketRepo{
-		BitbucketId: "panjf2000/ants",
-	}
 	taskData := &tasks.BitbucketTaskData{
 		Options: &tasks.BitbucketOptions{
-			ConnectionId:        1,
-			Owner:               "panjf2000",
-			Repo:                "ants",
-			TransformationRules: models.TransformationRules{},
+			ConnectionId: 1,
+			FullName:     "likyh/likyhphp",
 		},
-		Repo: bitbucketRepository,
 	}
 
 	// import raw data table
