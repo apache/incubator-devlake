@@ -26,7 +26,7 @@ import * as API from './api';
 interface Props {
   plugin: string;
   connectionId: ID;
-  selectedItems?: any;
+  selectedItems?: ItemType[];
   onChangeItems?: (selectedItems: any) => void;
 }
 
@@ -47,7 +47,7 @@ export const DataScopeSearch = ({ plugin, connectionId, selectedItems, onChangeI
           page: 1,
           pageSize: 50,
         });
-        setItems(res);
+        setItems(res.children);
       } finally {
         setLoading(false);
       }
@@ -56,9 +56,11 @@ export const DataScopeSearch = ({ plugin, connectionId, selectedItems, onChangeI
     return () => clearTimeout(timer);
   }, [search]);
 
-  const getKey = (it) => it.id;
+  const getKey = (it: ItemType) => it.id;
 
-  const getName = (it) => it.name;
+  const getName = (it: ItemType) => it.name;
+
+  const handleChangeItems = (selectedItems: ItemType[]) => onChangeItems?.(selectedItems.map((it) => it.data));
 
   return (
     <MultiSelector
@@ -67,7 +69,7 @@ export const DataScopeSearch = ({ plugin, connectionId, selectedItems, onChangeI
       getKey={getKey}
       getName={getName}
       selectedItems={selectedItems}
-      onChangeItems={onChangeItems}
+      onChangeItems={handleChangeItems}
       loading={loading}
       noResult="No Repositories Available."
       onQueryChange={(s) => setSearch(s)}

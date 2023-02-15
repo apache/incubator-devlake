@@ -16,4 +16,8 @@
  *
  */
 
-export type ItemType = {};
+export type ItemType = {
+  id: ID;
+  name: string;
+  data: any;
+};
