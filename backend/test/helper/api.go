@@ -66,7 +66,7 @@ func (d *DevlakeClient) ListConnections(pluginName string) []*Connection {
 
 type BlueprintV2Config struct {
 	Connection *plugin.BlueprintConnectionV200
-	// Deprecated: to be deleted
+	// Deprecating(timeAfter): to be deleted
 	CreatedDateAfter *time.Time
 	TimeAfter        *time.Time
 	SkipOnFail       bool
@@ -77,7 +77,7 @@ type BlueprintV2Config struct {
 func (d *DevlakeClient) CreateBasicBlueprintV2(name string, config *BlueprintV2Config) models.Blueprint {
 	settings := &models.BlueprintSettings{
 		Version: "2.0.0",
-		// Deprecated: to be deleted
+		// Deprecating(timeAfter): to be deleted
 		CreatedDateAfter: config.CreatedDateAfter,
 		TimeAfter:        config.TimeAfter,
 		Connections: ToJson([]*plugin.BlueprintConnectionV200{

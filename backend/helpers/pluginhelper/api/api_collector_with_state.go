@@ -31,7 +31,7 @@ type ApiCollectorStateManager struct {
 	*ApiCollector
 	*GraphqlCollector
 	LatestState models.CollectorLatestState
-	// Deprecated: to be deleted
+	// Deprecating(timeAfter): to be deleted
 	CreatedDateAfter *time.Time
 	TimeAfter        *time.Time
 	ExecuteStart     time.Time
@@ -60,7 +60,7 @@ func NewApiCollectorWithStateEx(args RawDataSubTaskArgs, createdDateAfter *time.
 	return &ApiCollectorStateManager{
 		RawDataSubTaskArgs: args,
 		LatestState:        latestState,
-		// Deprecated: to be deleted
+		// Deprecating(timeAfter): to be deleted
 		CreatedDateAfter: createdDateAfter,
 		TimeAfter:        timeAfter,
 		ExecuteStart:     time.Now(),
@@ -68,7 +68,7 @@ func NewApiCollectorWithStateEx(args RawDataSubTaskArgs, createdDateAfter *time.
 }
 
 // NewApiCollectorWithState create a new ApiCollectorStateManager
-// Deprecated: use NewStatefulApiCollector instead
+// Deprecating(timeAfter): use NewStatefulApiCollector instead
 func NewApiCollectorWithState(args RawDataSubTaskArgs, createdDateAfter *time.Time) (*ApiCollectorStateManager, errors.Error) {
 	return NewApiCollectorWithStateEx(args, createdDateAfter, nil)
 }
@@ -88,7 +88,7 @@ func (m *ApiCollectorStateManager) IsIncremental() bool {
 	if m.TimeAfter != nil {
 		return m.LatestState.TimeAfter == nil || !m.TimeAfter.Before(*m.LatestState.TimeAfter)
 	}
-	// Deprecated: to be removed
+	// Deprecating(timeAfter): to be removed
 	// fallback to CreatedDateAfter: collector should filter data by `created_date`
 	return m.LatestState.CreatedDateAfter == nil || m.CreatedDateAfter != nil && !m.CreatedDateAfter.Before(*m.LatestState.CreatedDateAfter)
 }
@@ -130,7 +130,7 @@ func (m ApiCollectorStateManager) ExecuteGraphQL() errors.Error {
 func (m ApiCollectorStateManager) updateState() errors.Error {
 	db := m.Ctx.GetDal()
 	m.LatestState.LatestSuccessStart = &m.ExecuteStart
-	// Deprecated: to be deleted
+	// Deprecating(timeAfter): to be deleted
 	m.LatestState.CreatedDateAfter = m.CreatedDateAfter
 	m.LatestState.TimeAfter = m.TimeAfter
 	return db.CreateOrUpdate(&m.LatestState)

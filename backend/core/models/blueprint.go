@@ -49,7 +49,7 @@ type Blueprint struct {
 
 type BlueprintSettings struct {
 	Version string `json:"version" validate:"required,semver,oneof=1.0.0"`
-	// Deprecated: copy to TimeAfter and delete the field in last step
+	// Deprecating(timeAfter): copy to TimeAfter and delete the field in last step
 	CreatedDateAfter *time.Time      `json:"createdDateAfter"`
 	TimeAfter        *time.Time      `json:"timeAfter"`
 	Connections      json.RawMessage `json:"connections" validate:"required"`

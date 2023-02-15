@@ -175,7 +175,7 @@ type CompositePluginBlueprintV200 interface {
 type BlueprintSyncPolicy struct {
 	Version    string `json:"version" validate:"required,semver,oneof=1.0.0"`
 	SkipOnFail bool   `json:"skipOnFail"`
-	// Deprecated: use TimeAfter instead
+	// Deprecating(timeAfter): use TimeAfter instead
 	CreatedDateAfter *time.Time `json:"createdDateAfter"`
 	TimeAfter        *time.Time `json:"timeAfter"`
 }

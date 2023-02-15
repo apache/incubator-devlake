@@ -274,7 +274,7 @@ func MakePlanForBlueprint(blueprint *models.Blueprint) (plugin.PipelinePlan, err
 	}
 
 	bpSyncPolicy := plugin.BlueprintSyncPolicy{}
-	// Deprecated: to be deleted
+	// Deprecating(timeAfter): to be deleted
 	bpSyncPolicy.CreatedDateAfter = bpSettings.CreatedDateAfter
 	bpSyncPolicy.TimeAfter = bpSettings.TimeAfter
 
