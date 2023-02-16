@@ -19,15 +19,21 @@ from pathlib import Path
 from string import Template
 import json
 
-from pydevlake.message import Connection
+from pydevlake.message import Connection, TransformationRule
 
 
 # TODO: Move swagger documentation generation to GO side along with API implementation
 TEMPLATE_PATH = str(Path(__file__).parent / 'doc.template.json')
 
-def generate_doc(plugin_name: str, connection_type: Type[Connection]):
+def generate_doc(plugin_name: str, 
+                 connection_type: Type[Connection], 
+                 transformation_rule_type: Type[TransformationRule]):
     with open(TEMPLATE_PATH, 'r') as f:
         doc_template = Template(f.read())
         connection_schema = connection_type.schema_json()
-        doc = doc_template.substitute(plugin_name=plugin_name, connection_schema=connection_schema)
+        transformation_rule_schema = transformation_rule_type.schema_json()
+        doc = doc_template.substitute(
+            plugin_name=plugin_name, 
+            connection_schema=connection_schema,
+            transformation_rule_schema=transformation_rule_schema)
         return json.loads(doc)

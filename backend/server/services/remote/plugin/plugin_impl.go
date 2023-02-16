@@ -30,13 +30,14 @@ import (
 
 type (
 	remotePluginImpl struct {
-		name             string
-		subtaskMetas     []plugin.SubTaskMeta
-		pluginPath       string
-		description      string
-		invoker          bridge.Invoker
-		connectionTabler *coreModels.DynamicTabler
-		resources        map[string]map[string]plugin.ApiResourceHandler
+		name                     string
+		subtaskMetas             []plugin.SubTaskMeta
+		pluginPath               string
+		description              string
+		invoker                  bridge.Invoker
+		connectionTabler         *coreModels.DynamicTabler
+		transformationRuleTabler *coreModels.DynamicTabler
+		resources                map[string]map[string]plugin.ApiResourceHandler
 	}
 	RemotePluginTaskData struct {
 		DbUrl        string                 `json:"db_url"`
@@ -48,17 +49,25 @@ type (
 
 func newPlugin(info *models.PluginInfo, invoker bridge.Invoker) (*remotePluginImpl, errors.Error) {
 	connectionTableName := fmt.Sprintf("_tool_%s_connections", info.Name)
-	dynamicTabler, err := models.LoadTableModel(connectionTableName, info.ConnectionSchema)
+	connectionTabler, err := models.LoadTableModel(connectionTableName, info.ConnectionSchema)
 	if err != nil {
 		return nil, err
 	}
+
+	txRuleTableName := fmt.Sprintf("_tool_%s_transformation_rules", info.Name)
+	txRuleTabler, err := models.LoadTableModel(txRuleTableName, info.TransformationRuleSchema)
+	if err != nil {
+		return nil, err
+	}
+
 	p := remotePluginImpl{
-		name:             info.Name,
-		invoker:          invoker,
-		pluginPath:       info.PluginPath,
-		description:      info.Description,
-		connectionTabler: dynamicTabler,
-		resources:        GetDefaultAPI(invoker, dynamicTabler, connectionHelper),
+		name:                     info.Name,
+		invoker:                  invoker,
+		pluginPath:               info.PluginPath,
+		description:              info.Description,
+		connectionTabler:         connectionTabler,
+		transformationRuleTabler: txRuleTabler,
+		resources:                GetDefaultAPI(invoker, connectionTabler, txRuleTabler, connectionHelper),
 	}
 	remoteBridge := bridge.NewBridge(invoker)
 	for _, subtask := range info.SubtaskMetas {
@@ -119,6 +128,11 @@ func (p *remotePluginImpl) ApiResources() map[string]map[string]plugin.ApiResour
 
 func (p *remotePluginImpl) RunMigrations(forceMigrate bool) errors.Error {
 	err := api.CallDB(basicRes.GetDal().AutoMigrate, p.connectionTabler.New())
+	if err != nil {
+		return err
+	}
+
+	err = api.CallDB(basicRes.GetDal().AutoMigrate, p.transformationRuleTabler.New())
 	if err != nil {
 		return err
 	}

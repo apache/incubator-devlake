@@ -137,11 +137,245 @@
                     "description": "The connection is not valid"
                 }
             }
+        },
+        "/plugins/$plugin_name/connections/{connectionId}/scopes/{scopeId}": {
+            "get": {
+                "description": "Get a scope",
+                "parameters": [
+                    {
+                        "$$ref": "#/components/parameters/connectionId"
+                    },
+                    {
+                        "$$ref": "#/components/parameters/scopeId"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$$ref": "#/components/schemas/scope"
+                                }
+                            }
+                        }
+                    }
+                }
+            },
+            "patch": {
+                "description": "Update a scope",
+                "parameters": [
+                    {
+                        "$$ref": "#/components/parameters/connectionId"
+                    },
+                    {
+                        "$$ref": "#/components/parameters/scopeId"
+                    },
+                    {
+                        "name": "scope",
+                        "required": true,
+                        "in": "body",
+                        "schema": {
+                            "$$ref": "#/components/schemas/scope"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$$ref": "#/components/schemas/scope"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/plugins/$plugin_name/connections/{connectionId}/scopes": {
+            "get": {
+                "description": "Get all scopes",
+                "parameters": [
+                    {
+                        "$$ref": "#/components/parameters/pageSize"
+                    },
+                    {
+                        "$$ref": "#/components/parameters/page"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "array",
+                                    "items": {
+                                        "$$ref": "#/components/schemas/scope"
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            },
+            "put": {
+                "description": "Create a list of scopes",
+                "parameters": [
+                    {
+                        "name": "scopes",
+                        "required": true,
+                        "in": "body",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$$ref": "#/components/schemas/scope"
+                            }
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "array",
+                                    "items": {
+                                        "$$ref": "#/components/schemas/scope"
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/plugins/$plugin_name/transformation_rules": {
+            "get": {
+                "description": "Get all transformation rules",
+                "parameters": [
+                    {
+                        "$$ref": "#/components/parameters/pageSize"
+                    },
+                    {
+                        "$$ref": "#/components/parameters/page"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "array",
+                                    "items": {
+                                        "$$ref": "#/components/schemas/transformationRule"
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            },
+            "post": {
+                "description": "Create a transformation rule",
+                "parameters": [
+                    {
+                        "name": "rules",
+                        "required": true,
+                        "in": "body",
+                        "schema": {
+                            "$$ref": "#/components/schemas/transformationRule"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$$ref": "#/components/schemas/transformationRule"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/plugins/$plugin_name/transformation_rules/{ruleId}": {
+            "get": {
+                "description": "Get a transformation rule",
+                "parameters": [
+                    {
+                        "$$ref": "#/components/parameters/ruleId"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$$ref": "#/components/schemas/transformationRule"
+                                }
+                            }
+                        }
+                    }
+                }
+            },
+            "patch": {
+                "description": "Update a transformation rule",
+                "parameters": [
+                    {
+                        "$$ref": "#/components/parameters/ruleId"
+                    },
+                    {
+                        "name": "rule",
+                        "required": true,
+                        "in": "body",
+                        "schema": {
+                            "$$ref": "#/components/schemas/transformationRule"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$$ref": "#/components/schemas/transformationRule"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
         }
     },
     "components": {
         "schemas": {
-            "connection": $connection_schema
+            "connection": $connection_schema,
+            "transformationRule": $transformation_rule_schema,
+            "scope": {
+                "title": "Scope",
+                "type": "object",
+                "properties": {
+                    "scopeId": {
+                        "title": "scope id",
+                        "type": "string"
+                    },
+                    "scopeName": {
+                        "title": "scope name",
+                        "type": "string"
+                    },
+                    "connectionId": {
+                        "title": "connection id",
+                        "type": "integer"
+                    },
+                    "transformationRuleId": {
+                        "title": "Transformation rule id",
+                        "type": "integer"
+                    }
+                },
+                "required": ["scopeId", "scopeName", "connectionId", "transformationRuleId"]
+            }
         },
         "parameters": {
             "connectionId": {
@@ -151,6 +385,42 @@
                 "required": true,
                 "schema": {
                     "type": "int"
+                }
+            },
+            "scopeId": {
+                "name": "scopeId",
+                "description": "Id of the scope",
+                "in": "path",
+                "required": true,
+                "schema": {
+                    "type": "string"
+                }
+            },
+            "ruleId": {
+                "name": "ruleId",
+                "description": "Id of the transformation rule",
+                "in": "path",
+                "required": true,
+                "schema": {
+                    "type": "int"
+                }
+            },
+            "pageSize": {
+                "name": "pageSize",
+                "description": "Number of items per page",
+                "in": "query",
+                "required": false,
+                "schema": {
+                    "type": "integer"
+                }
+            },
+            "page": {
+                "name": "page",
+                "description": "Page number",
+                "in": "query",
+                "required": false,
+                "schema": {
+                    "type": "integer"
                 }
             }
         }
