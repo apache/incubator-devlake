@@ -1,0 +1,30 @@
+name: Update chart
+
+on:
+  push:
+    tags:
+      - '*'
+jobs:
+  update-chart:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+        with:
+          repository: apache/incubator-devlake
+          ref: ${{ github.ref }}
+      - name: Download helm chart repo
+        uses: actions/checkout@v2
+        with:
+          repository: apache/incubator-devlake-helm-chart
+          ref: master
+      - name: Update chart.yaml
+        run: |
+          sed -i 's/version:.*/version: ${{ github.ref }}/' charts/devlake/Chart.yaml
+      - name: Update values.yaml
+        run: |
+          sed -i 's/imageTag:.*/imageTag: ${{ github.ref }}/' charts/devlake/values.yaml
+      - name: Commit and Push changes
+        run: |
+          git add .
+          git commit -m "Update chart to version ${{ github.ref }}"
+          git push origin version-${{ github.ref }}
