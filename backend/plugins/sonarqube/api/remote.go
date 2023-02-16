@@ -37,12 +37,19 @@ type RemoteScopesChild struct {
 	Type     string      `json:"type"`
 	ParentId *string     `json:"parentId"`
 	Id       string      `json:"id"`
+	Name     string      `json:"name"`
 	Data     interface{} `json:"data"`
 }
 
 type RemoteScopesOutput struct {
 	Children      []RemoteScopesChild `json:"children"`
 	NextPageToken string              `json:"nextPageToken"`
+}
+
+type SearchRemoteScopesOutput struct {
+	Children []RemoteScopesChild `json:"children"`
+	Page     int                 `json:"page"`
+	PageSize int                 `json:"pageSize"`
 }
 
 type PageData struct {
@@ -60,8 +67,8 @@ const TypeProject string = "scope"
 // @Tags plugins/sonarqube
 // @Accept application/json
 // @Param connectionId path int false "connection ID"
-// @Param pageToken body string false "page Token"
-// @Success 200  {object} []models.SonarqubeProject
+// @Param pageToken query string false "page Token"
+// @Success 200  {object} RemoteScopesOutput
 // @Failure 400  {object} shared.ApiBody "Bad Request"
 // @Failure 500  {object} shared.ApiBody "Internal Error"
 // @Router /plugins/sonarqube/connections/{connectionId}/remote-scopes [GET]
@@ -118,6 +125,7 @@ func RemoteScopes(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, er
 		child := RemoteScopesChild{
 			Type: TypeProject,
 			Id:   project.ProjectKey,
+			Name: project.Name,
 			Data: tasks.ConvertProject(&project),
 		}
 		outputBody.Children = append(outputBody.Children, child)
@@ -152,9 +160,9 @@ func RemoteScopes(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, er
 // @Tags plugins/sonarqube
 // @Accept application/json
 // @Param connectionId path int false "connection ID"
-// @Param page body int false "page number"
-// @Param pageSize body int false "page size per page"
-// @Success 200  {object} []models.SonarqubeProject
+// @Param page query int false "page number"
+// @Param pageSize query int false "page size per page"
+// @Success 200  {object} SearchRemoteScopesOutput
 // @Failure 400  {object} shared.ApiBody "Bad Request"
 // @Failure 500  {object} shared.ApiBody "Internal Error"
 // @Router /plugins/sonarqube/connections/{connectionId}/search-remote-scopes [GET]
@@ -222,12 +230,21 @@ func SearchRemoteScopes(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutp
 	}
 
 	// set projects return
-	var projects []models.SonarqubeProject
+	outputBody := &SearchRemoteScopesOutput{}
 	for _, project := range resBody.Data {
-		projects = append(projects, *tasks.ConvertProject(&project))
+		child := RemoteScopesChild{
+			Type:     TypeProject,
+			Id:       project.ProjectKey,
+			ParentId: nil,
+			Name:     project.Name,
+			Data:     tasks.ConvertProject(&project),
+		}
+		outputBody.Children = append(outputBody.Children, child)
 	}
+	outputBody.Page = p
+	outputBody.PageSize = ps
 
-	return &plugin.ApiResourceOutput{Body: projects, Status: http.StatusOK}, nil
+	return &plugin.ApiResourceOutput{Body: outputBody, Status: http.StatusOK}, nil
 }
 
 func GetPageTokenFromPageData(pageData *PageData) (string, errors.Error) {
