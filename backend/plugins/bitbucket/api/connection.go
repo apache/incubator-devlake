@@ -19,20 +19,25 @@ package api
 
 import (
 	"context"
+	"github.com/apache/incubator-devlake/server/api/shared"
 	"net/http"
 
 	"github.com/apache/incubator-devlake/core/errors"
 	plugin "github.com/apache/incubator-devlake/core/plugin"
 	"github.com/apache/incubator-devlake/helpers/pluginhelper/api"
 	"github.com/apache/incubator-devlake/plugins/bitbucket/models"
-	_ "github.com/apache/incubator-devlake/server/api/shared"
 )
+
+type BitBucketTestConnResponse struct {
+	shared.ApiBody
+	Connection *models.BitbucketConn
+}
 
 // @Summary test bitbucket connection
 // @Description Test bitbucket Connection
 // @Tags plugins/bitbucket
 // @Param body body models.BitbucketConn true "json body"
-// @Success 200  {object} shared.ApiBody "Success"
+// @Success 200  {object} BitBucketTestConnResponse "Success"
 // @Failure 400  {string} errcode.Error "Bad Request"
 // @Failure 500  {string} errcode.Error "Internal Error"
 // @Router /plugins/bitbucket/test [POST]
@@ -56,7 +61,12 @@ func TestConnection(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, 
 	if res.StatusCode != http.StatusOK {
 		return nil, errors.HttpStatus(res.StatusCode).New("unexpected status code when testing connection")
 	}
-	return nil, nil
+	body := BitBucketTestConnResponse{}
+	body.Success = true
+	body.Message = "success"
+	body.Connection = &connection
+	// output
+	return &plugin.ApiResourceOutput{Body: body, Status: 200}, nil
 }
 
 // @Summary create bitbucket connection

@@ -19,6 +19,7 @@ package api
 
 import (
 	"context"
+	"github.com/apache/incubator-devlake/server/api/shared"
 	"net/http"
 
 	"github.com/apache/incubator-devlake/core/errors"
@@ -27,11 +28,16 @@ import (
 	"github.com/apache/incubator-devlake/plugins/feishu/models"
 )
 
+type FeishuTestConnResponse struct {
+	shared.ApiBody
+	Connection *models.FeishuConn
+}
+
 // @Summary test feishu connection
 // @Description Test feishu Connection. endpoint: https://open.feishu.cn/open-apis/
 // @Tags plugins/feishu
 // @Param body body models.FeishuConn true "json body"
-// @Success 200  {object} shared.ApiBody "Success"
+// @Success 200  {object} FeishuTestConnResponse "Success"
 // @Failure 400  {string} errcode.Error "Bad Request"
 // @Failure 500  {string} errcode.Error "Internal Error"
 // @Router /plugins/feishu/test [POST]
@@ -45,8 +51,14 @@ func TestConnection(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, 
 	// test connection
 	_, err := api.NewApiClientFromConnection(context.TODO(), basicRes, &connection)
 
-	// output
-	return nil, err
+	body := FeishuTestConnResponse{}
+	body.Success = true
+	body.Message = "success"
+	body.Connection = &connection
+	if err != nil {
+		return nil, err
+	}
+	return &plugin.ApiResourceOutput{Body: body, Status: 200}, nil
 }
 
 // @Summary create feishu connection

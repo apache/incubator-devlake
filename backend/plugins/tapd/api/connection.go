@@ -20,6 +20,7 @@ package api
 import (
 	"context"
 	"fmt"
+	"github.com/apache/incubator-devlake/server/api/shared"
 	"net/http"
 
 	"github.com/apache/incubator-devlake/core/errors"
@@ -28,11 +29,16 @@ import (
 	"github.com/apache/incubator-devlake/plugins/tapd/models"
 )
 
+type TapdTestConnResponse struct {
+	shared.ApiBody
+	Connection *models.TapdConn
+}
+
 // @Summary test tapd connection
 // @Description Test Tapd Connection
 // @Tags plugins/tapd
 // @Param body body models.TapdConn true "json body"
-// @Success 200  {object} shared.ApiBody "Success"
+// @Success 200  {object} TapdTestConnResponse "Success"
 // @Failure 400  {string} errcode.Error "Bad Request"
 // @Failure 500  {string} errcode.Error "Internal Error"
 // @Router /plugins/tapd/test [POST]
@@ -59,8 +65,12 @@ func TestConnection(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, 
 	if res.StatusCode != http.StatusOK {
 		return nil, errors.HttpStatus(res.StatusCode).New(fmt.Sprintf("unexpected status code: %d", res.StatusCode))
 	}
+	body := TapdTestConnResponse{}
+	body.Success = true
+	body.Message = "success"
+	body.Connection = &connection
 	// output
-	return nil, nil
+	return &plugin.ApiResourceOutput{Body: body, Status: 200}, nil
 }
 
 // @Summary create tapd connection

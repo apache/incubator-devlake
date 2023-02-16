@@ -19,6 +19,7 @@ package api
 
 import (
 	"context"
+	"github.com/apache/incubator-devlake/server/api/shared"
 	"net/http"
 
 	"github.com/apache/incubator-devlake/core/errors"
@@ -27,11 +28,16 @@ import (
 	"github.com/apache/incubator-devlake/plugins/azure/models"
 )
 
+type AzureTestConnResponse struct {
+	shared.ApiBody
+	Connection *models.AzureConn
+}
+
 // @Summary test azure connection
 // @Description Test azure Connection. endpoint: "https://dev.azure.com/{organization}/
-// @Tags pluginsazure/
+// @Tags plugins/azure
 // @Param body body models.AzureConn true "json body"
-// @Success 200  {object} shared.ApiBody "Success"
+// @Success 200  {object} AzureTestConnResponse "Success"
 // @Failure 400  {string} errcode.Error "Bad Request"
 // @Failure 500  {string} errcode.Error "Internal Error"
 // @Router /plugins/azure/test [POST]
@@ -55,12 +61,17 @@ func TestConnection(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, 
 	if res.StatusCode != http.StatusOK {
 		return nil, errors.HttpStatus(res.StatusCode).New("unexpected status code while testing connection")
 	}
-	return nil, nil
+	body := AzureTestConnResponse{}
+	body.Success = true
+	body.Message = "success"
+	body.Connection = &connection
+	// output
+	return &plugin.ApiResourceOutput{Body: body, Status: 200}, nil
 }
 
 // @Summary create azure connection
 // @Description Create azure connection
-// @Tags pluginsazure/
+// @Tags plugins/azure
 // @Param body body models.AzureConnection true "json body"
 // @Success 200  {object} models.AzureConnection
 // @Failure 400  {string} errcode.Error "Bad Request"
@@ -80,7 +91,7 @@ func PostConnections(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput,
 
 // @Summary patch azure connection
 // @Description Patch azure connection
-// @Tags pluginsazure/
+// @Tags plugins/azure
 // @Param body body models.AzureConnection true "json body"
 // @Success 200  {object} models.AzureConnection
 // @Failure 400  {string} errcode.Error "Bad Request"
@@ -98,7 +109,7 @@ func PatchConnection(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput,
 
 // @Summary delete a azure connection
 // @Description Delete a azure connection
-// @Tags pluginsazure/
+// @Tags plugins/azure
 // @Success 200  {object} models.AzureConnection
 // @Failure 400  {string} errcode.Error "Bad Request"
 // @Failure 500  {string} errcode.Error "Internal Error"
@@ -115,7 +126,7 @@ func DeleteConnection(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput
 
 // @Summary get all azure connections
 // @Description Get all azure connections
-// @Tags pluginsazure/
+// @Tags plugins/azure
 // @Success 200  {object} []models.AzureConnection
 // @Failure 400  {string} errcode.Error "Bad Request"
 // @Failure 500  {string} errcode.Error "Internal Error"
@@ -132,7 +143,7 @@ func ListConnections(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput,
 
 // @Summary get azure connection detail
 // @Description Get azure connection detail
-// @Tags pluginsazure/
+// @Tags plugins/azure
 // @Success 200  {object} models.AzureConnection
 // @Failure 400  {string} errcode.Error "Bad Request"
 // @Failure 500  {string} errcode.Error "Internal Error"

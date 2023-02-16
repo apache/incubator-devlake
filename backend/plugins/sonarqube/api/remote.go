@@ -58,7 +58,7 @@ type PageData struct {
 	Tag     string `json:"tag"`
 }
 
-const SonarqubeRemoteScopesPerPage int = 10
+const SonarqubeRemoteScopesPerPage int = 100
 const TypeProject string = "scope"
 
 // RemoteScopes list all available scope for users

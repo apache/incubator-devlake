@@ -19,6 +19,7 @@ package api
 
 import (
 	"context"
+	"github.com/apache/incubator-devlake/server/api/shared"
 	"net/http"
 
 	"github.com/apache/incubator-devlake/core/errors"
@@ -27,11 +28,16 @@ import (
 	"github.com/apache/incubator-devlake/plugins/zentao/models"
 )
 
+type ZentaoTestConnResponse struct {
+	shared.ApiBody
+	Connection *models.ZentaoConn
+}
+
 // @Summary test zentao connection
 // @Description Test zentao Connection
 // @Tags plugins/zentao
 // @Param body body models.ZentaoConn true "json body"
-// @Success 200  {object} shared.ApiBody "Success"
+// @Success 200  {object} ZentaoTestConnResponse "Success"
 // @Failure 400  {string} errcode.Error "Bad Request"
 // @Failure 500  {string} errcode.Error "Internal Error"
 // @Router /plugins/zentao/test [POST]
@@ -45,14 +51,20 @@ func TestConnection(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, 
 
 	// try to create apiClient
 	_, err = helper.NewApiClientFromConnection(context.TODO(), basicRes, &connection)
-
+	if err != nil {
+		return nil, err
+	}
+	body := ZentaoTestConnResponse{}
+	body.Success = true
+	body.Message = "success"
+	body.Connection = &connection
 	// output
-	return nil, err
+	return &plugin.ApiResourceOutput{Body: body, Status: 200}, nil
 }
 
 // @Summary create zentao connection
 // @Description Create zentao connection
-// @Tags plugins/zentao/
+// @Tags plugins/zentao
 // @Param body body models.ZentaoConnection true "json body"
 // @Success 200  {object} models.ZentaoConnection
 // @Failure 400  {string} errcode.Error "Bad Request"
@@ -70,7 +82,7 @@ func PostConnections(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput,
 
 // @Summary patch zentao connection
 // @Description Patch zentao connection
-// @Tags plugins/zentao/
+// @Tags plugins/zentao
 // @Param body body models.ZentaoConnection true "json body"
 // @Success 200  {object} models.ZentaoConnection
 // @Failure 400  {string} errcode.Error "Bad Request"
@@ -87,7 +99,7 @@ func PatchConnection(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput,
 
 // @Summary delete a zentao connection
 // @Description Delete a zentao connection
-// @Tags plugins/zentao/
+// @Tags plugins/zentao
 // @Success 200  {object} models.ZentaoConnection
 // @Failure 400  {string} errcode.Error "Bad Request"
 // @Failure 500  {string} errcode.Error "Internal Error"
@@ -104,7 +116,7 @@ func DeleteConnection(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput
 
 // @Summary get all zentao connections
 // @Description Get all zentao connections
-// @Tags plugins/zentao/
+// @Tags plugins/zentao
 // @Success 200  {object} []models.ZentaoConnection
 // @Failure 400  {string} errcode.Error "Bad Request"
 // @Failure 500  {string} errcode.Error "Internal Error"
@@ -120,7 +132,7 @@ func ListConnections(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput,
 
 // @Summary get zentao connection detail
 // @Description Get zentao connection detail
-// @Tags plugins/zentao/
+// @Tags plugins/zentao
 // @Success 200  {object} models.ZentaoConnection
 // @Failure 400  {string} errcode.Error "Bad Request"
 // @Failure 500  {string} errcode.Error "Internal Error"
