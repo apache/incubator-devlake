@@ -20,7 +20,7 @@ package tasks
 import (
 	"reflect"
 
-	"github.com/apache/incubator-devlake/core/models/domainlayer/securitytesting"
+	"github.com/apache/incubator-devlake/core/models/domainlayer/codequality"
 
 	"github.com/apache/incubator-devlake/core/dal"
 	"github.com/apache/incubator-devlake/core/errors"
@@ -52,7 +52,7 @@ func ConvertIssueCodeBlocks(taskCtx plugin.SubTaskContext) errors.Error {
 		RawDataSubTaskArgs: *rawDataSubTaskArgs,
 		Convert: func(inputRow interface{}) ([]interface{}, errors.Error) {
 			sonarqubeIssueCodeBlock := inputRow.(*models.SonarqubeIssueCodeBlock)
-			domainIssueCodeBlock := &securitytesting.StIssueCodeBlock{
+			domainIssueCodeBlock := &codequality.CqIssueCodeBlock{
 				DomainEntity: domainlayer.DomainEntity{Id: idGen.Generate(data.Options.ConnectionId, sonarqubeIssueCodeBlock.Id)},
 				IssueKey:     issueIdGen.Generate(data.Options.ConnectionId, sonarqubeIssueCodeBlock.IssueKey),
 				Component:    sonarqubeIssueCodeBlock.Component,
@@ -80,6 +80,6 @@ var ConvertIssueCodeBlocksMeta = plugin.SubTaskMeta{
 	Name:             "convertIssueCodeBlocks",
 	EntryPoint:       ConvertIssueCodeBlocks,
 	EnabledByDefault: true,
-	Description:      "Convert tool layer table sonarqube_issues into domain layer table st_issue_code_blocks",
-	DomainTypes:      []string{plugin.DOMAIN_TYPE_SECURITY_TESTING},
+	Description:      "Convert tool layer table sonarqube_issues into domain layer table cq_issue_code_blocks",
+	DomainTypes:      []string{plugin.DOMAIN_TYPE_CODE_QUALITY},
 }

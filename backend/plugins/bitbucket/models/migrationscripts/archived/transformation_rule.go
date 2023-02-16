@@ -15,31 +15,27 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-package migrationscripts
+package archived
 
 import (
-	"github.com/apache/incubator-devlake/core/context"
-	"github.com/apache/incubator-devlake/core/errors"
 	"github.com/apache/incubator-devlake/core/models/migrationscripts/archived"
-	"github.com/apache/incubator-devlake/helpers/migrationhelper"
+	"gorm.io/datatypes"
 )
 
-type addSecurityTesting struct{}
+type BitbucketTransformationRule struct {
+	archived.Model
+	Name              string            `gorm:"type:varchar(255);index:idx_name_github,unique"`
+	DeploymentPattern string            `gorm:"type:varchar(255)"`
+	ProductionPattern string            `gorm:"type:varchar(255)"`
+	Refdiff           datatypes.JSONMap `format:"json"`
 
-func (u *addSecurityTesting) Up(basicRes context.BasicRes) errors.Error {
-	return migrationhelper.AutoMigrateTables(
-		basicRes,
-		&archived.StProject{},
-		&archived.StIssue{},
-		&archived.StIssueCodeBlock{},
-		&archived.StFileMetrics{},
-	)
+	// a string array, split by `,`.
+	IssueStatusTodo       string `gorm:"type:varchar(255)"`
+	IssueStatusInProgress string `gorm:"type:varchar(255)"`
+	IssueStatusDone       string `gorm:"type:varchar(255)"`
+	IssueStatusOther      string `gorm:"type:varchar(255)"`
 }
 
-func (*addSecurityTesting) Version() uint64 {
-	return 20230208000015
-}
-
-func (*addSecurityTesting) Name() string {
-	return "add SecurityTesting domain"
+func (BitbucketTransformationRule) TableName() string {
+	return "_tool_bitbucket_transformation_rules"
 }

@@ -21,13 +21,6 @@ import (
 	helper "github.com/apache/incubator-devlake/helpers/pluginhelper/api"
 )
 
-type TransformationRules struct {
-	IssueStatusTODO       []string `mapstructure:"issueStatusTodo" json:"issueStatusTodo"`
-	IssueStatusINPROGRESS []string `mapstructure:"issueStatusInProgress" json:"issueStatusInProgress"`
-	IssueStatusDONE       []string `mapstructure:"issueStatusDone" json:"issueStatusDone"`
-	IssueStatusOTHER      []string `mapstructure:"issueStatusOther" json:"issueStatusOther"`
-}
-
 // BitbucketConn holds the essential information to connect to the Bitbucket API
 type BitbucketConn struct {
 	helper.RestConnection `mapstructure:",squash"`

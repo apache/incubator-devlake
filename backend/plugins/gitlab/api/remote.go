@@ -148,6 +148,9 @@ func RemoteScopes(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, er
 
 		resBody := []GroupResponse{}
 		err = api.UnmarshalResponse(res, &resBody)
+		if err != nil {
+			return nil, err
+		}
 
 		// append group to output
 		for _, group := range resBody {
@@ -184,9 +187,6 @@ func RemoteScopes(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, er
 		}
 
 		// check groups count
-		if err != nil {
-			return nil, err
-		}
 		if len(resBody) < pageData.PerPage {
 			pageData.Tag = TypeProject
 			pageData.Page = 1
@@ -212,6 +212,9 @@ func RemoteScopes(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, er
 
 		resBody := []tasks.GitlabApiProject{}
 		err = api.UnmarshalResponse(res, &resBody)
+		if err != nil {
+			return nil, err
+		}
 
 		// append project to output
 		for _, project := range resBody {
@@ -230,9 +233,6 @@ func RemoteScopes(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, er
 		}
 
 		// check project count
-		if err != nil {
-			return nil, err
-		}
 		if len(resBody) < pageData.PerPage {
 			pageData = nil
 		}
@@ -259,7 +259,7 @@ func RemoteScopes(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, er
 // @Tags plugins/gitlab
 // @Accept application/json
 // @Param connectionId path int false "connection ID"
-// @Param search query string false "group ID"
+// @Param search query string false "search"
 // @Param page query int false "page number"
 // @Param pageSize query int false "page size per page"
 // @Success 200  {object} SearchRemoteScopesOutput
@@ -335,7 +335,7 @@ func SearchRemoteScopes(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutp
 			Type:     TypeProject,
 			Id:       strconv.Itoa(project.GitlabId),
 			ParentId: nil,
-			Name:     project.Name,
+			Name:     project.PathWithNamespace,
 			Data:     tasks.ConvertProject(&project),
 		}
 

@@ -23,8 +23,8 @@ import (
 	"github.com/apache/incubator-devlake/core/dal"
 	"github.com/apache/incubator-devlake/core/errors"
 	"github.com/apache/incubator-devlake/core/models/domainlayer"
+	"github.com/apache/incubator-devlake/core/models/domainlayer/codequality"
 	"github.com/apache/incubator-devlake/core/models/domainlayer/didgen"
-	"github.com/apache/incubator-devlake/core/models/domainlayer/securitytesting"
 	"github.com/apache/incubator-devlake/core/plugin"
 	"github.com/apache/incubator-devlake/helpers/pluginhelper/api"
 	sonarqubeModels "github.com/apache/incubator-devlake/plugins/sonarqube/models"
@@ -35,7 +35,7 @@ var ConvertProjectsMeta = plugin.SubTaskMeta{
 	EntryPoint:       ConvertProjects,
 	EnabledByDefault: true,
 	Description:      "Convert tool layer table sonarqube_projects into  domain layer table projects",
-	DomainTypes:      []string{plugin.DOMAIN_TYPE_SECURITY_TESTING},
+	DomainTypes:      []string{plugin.DOMAIN_TYPE_CODE_QUALITY},
 }
 
 func ConvertProjects(taskCtx plugin.SubTaskContext) errors.Error {
@@ -55,7 +55,7 @@ func ConvertProjects(taskCtx plugin.SubTaskContext) errors.Error {
 		RawDataSubTaskArgs: *rawDataSubTaskArgs,
 		Convert: func(inputRow interface{}) ([]interface{}, errors.Error) {
 			sonarqubeProject := inputRow.(*sonarqubeModels.SonarqubeProject)
-			domainProject := &securitytesting.StProject{
+			domainProject := &codequality.CqProject{
 				DomainEntity:     domainlayer.DomainEntity{Id: projectIdGen.Generate(data.Options.ConnectionId, sonarqubeProject.ProjectKey)},
 				Name:             sonarqubeProject.Name,
 				Qualifier:        sonarqubeProject.Qualifier,

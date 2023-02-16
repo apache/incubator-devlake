@@ -24,18 +24,19 @@ import (
 )
 
 type BitbucketAccountResponse struct {
+	Uuid          string    `json:"uuid"`
 	UserName      string    `json:"username"`
 	DisplayName   string    `json:"display_name"`
 	AccountId     string    `json:"account_id"`
 	AccountStatus string    `json:"account_status"`
 	CreateOn      time.Time `json:"create_on"`
 	Links         struct {
-		Self       struct{ Href string } `json:"self"`
-		Html       struct{ Href string } `json:"html"`
-		Avatar     struct{ Href string } `json:"avatar"`
-		Followers  struct{ Href string } `json:"followers"`
-		Following  struct{ Href string } `json:"following"`
-		Repository struct{ Href string } `json:"repository"`
+		//Self       struct{ Href string } `json:"self"`
+		Html   struct{ Href string } `json:"html"`
+		Avatar struct{ Href string } `json:"avatar"`
+		//Followers  struct{ Href string } `json:"followers"`
+		//Following  struct{ Href string } `json:"following"`
+		//Repository struct{ Href string } `json:"repository"`
 	}
 }
 
@@ -45,6 +46,7 @@ func convertAccount(res *BitbucketAccountResponse, connId uint64) (*models.Bitbu
 		UserName:      res.UserName,
 		DisplayName:   res.DisplayName,
 		AccountId:     res.AccountId,
+		Uuid:          res.Uuid,
 		AccountStatus: res.AccountStatus,
 		AvatarUrl:     res.Links.Avatar.Href,
 		HtmlUrl:       res.Links.Html.Href,

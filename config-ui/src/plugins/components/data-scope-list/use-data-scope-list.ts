@@ -64,6 +64,12 @@ export const useDataScopeList = ({ plugin, connectionId, scopeIds }: UseDataScop
             name: sc.jobFullName,
             transformationRuleName: sc.transformationRuleName,
           };
+        case plugin === 'bitbucket':
+          return {
+            id: sc.bitbucketId,
+            name: sc.name,
+            transformationRuleName: sc.transformationRuleName,
+          };
         default:
           return {
             id: sc.id,

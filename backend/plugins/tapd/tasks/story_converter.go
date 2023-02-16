@@ -18,6 +18,10 @@ limitations under the License.
 package tasks
 
 import (
+	"reflect"
+	"strconv"
+	"time"
+
 	"github.com/apache/incubator-devlake/core/dal"
 	"github.com/apache/incubator-devlake/core/errors"
 	"github.com/apache/incubator-devlake/core/models/domainlayer"
@@ -26,9 +30,6 @@ import (
 	"github.com/apache/incubator-devlake/core/plugin"
 	helper "github.com/apache/incubator-devlake/helpers/pluginhelper/api"
 	"github.com/apache/incubator-devlake/plugins/tapd/models"
-	"reflect"
-	"strconv"
-	"time"
 )
 
 func ConvertStory(taskCtx plugin.SubTaskContext) errors.Error {
@@ -64,7 +65,7 @@ func ConvertStory(taskCtx plugin.SubTaskContext) errors.Error {
 				Type:                 toolL.StdType,
 				OriginalType:         toolL.Type,
 				Status:               toolL.StdStatus,
-				StoryPoint:           int64(toolL.Size),
+				StoryPoint:           float64(toolL.Size),
 				OriginalStatus:       toolL.Status,
 				ResolutionDate:       (*time.Time)(toolL.Completed),
 				CreatedDate:          (*time.Time)(toolL.Created),

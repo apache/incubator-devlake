@@ -23,8 +23,8 @@ import (
 	"github.com/apache/incubator-devlake/core/dal"
 	"github.com/apache/incubator-devlake/core/errors"
 	"github.com/apache/incubator-devlake/core/models/domainlayer"
+	"github.com/apache/incubator-devlake/core/models/domainlayer/codequality"
 	"github.com/apache/incubator-devlake/core/models/domainlayer/didgen"
-	"github.com/apache/incubator-devlake/core/models/domainlayer/securitytesting"
 	"github.com/apache/incubator-devlake/core/plugin"
 	"github.com/apache/incubator-devlake/helpers/pluginhelper/api"
 	sonarqubeModels "github.com/apache/incubator-devlake/plugins/sonarqube/models"
@@ -34,8 +34,8 @@ var ConvertIssuesMeta = plugin.SubTaskMeta{
 	Name:             "convertIssues",
 	EntryPoint:       ConvertIssues,
 	EnabledByDefault: true,
-	Description:      "Convert tool layer table sonarqube_issues into  domain layer table st_issues",
-	DomainTypes:      []string{plugin.DOMAIN_TYPE_SECURITY_TESTING},
+	Description:      "Convert tool layer table sonarqube_issues into  domain layer table cq_issues",
+	DomainTypes:      []string{plugin.DOMAIN_TYPE_CODE_QUALITY},
 }
 
 func ConvertIssues(taskCtx plugin.SubTaskContext) errors.Error {
@@ -56,7 +56,7 @@ func ConvertIssues(taskCtx plugin.SubTaskContext) errors.Error {
 		RawDataSubTaskArgs: *rawDataSubTaskArgs,
 		Convert: func(inputRow interface{}) ([]interface{}, errors.Error) {
 			sonarqubeIssue := inputRow.(*sonarqubeModels.SonarqubeIssue)
-			domainIssue := &securitytesting.StIssue{
+			domainIssue := &codequality.CqIssue{
 				DomainEntity:      domainlayer.DomainEntity{Id: issueIdGen.Generate(data.Options.ConnectionId, sonarqubeIssue.IssueKey)},
 				Rule:              sonarqubeIssue.Rule,
 				Severity:          sonarqubeIssue.Severity,

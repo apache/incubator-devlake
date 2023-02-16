@@ -37,24 +37,11 @@ type BitbucketIssueCommentsResponse struct {
 	} `json:"content"`
 	User  *BitbucketAccountResponse `json:"user"`
 	Issue struct {
-		Type       string            `json:"type"`
-		Id         int               `json:"id"`
-		Repository *BitbucketApiRepo `json:"repository"`
-		Links      struct {
-			Self struct {
-				Href string `json:"href"`
-			} `json:"self"`
-		} `json:"links"`
-		Title string `json:"title"`
+		//Type string `json:"type"`
+		Id int `json:"id"`
+		//Repository *BitbucketApiRepo `json:"repository"`
+		//Title string `json:"title"`
 	}
-	Links struct {
-		Self struct {
-			Href string `json:"href"`
-		} `json:"self"`
-		Html struct {
-			Href string `json:"href"`
-		} `json:"html"`
-	} `json:"links"`
 }
 
 var ExtractApiIssueCommentsMeta = plugin.SubTaskMeta{

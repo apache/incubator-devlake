@@ -20,6 +20,7 @@ package api
 import (
 	"context"
 	"fmt"
+	"github.com/apache/incubator-devlake/server/api/shared"
 	"net/http"
 	"net/url"
 	"strings"
@@ -31,11 +32,16 @@ import (
 	"github.com/mitchellh/mapstructure"
 )
 
+type JiraTestConnResponse struct {
+	shared.ApiBody
+	Connection *models.JiraConn
+}
+
 // @Summary test jira connection
 // @Description Test Jira Connection
 // @Tags plugins/jira
 // @Param body body models.JiraConn true "json body"
-// @Success 200  {object} shared.ApiBody "Success"
+// @Success 200  {object} JiraTestConnResponse "Success"
 // @Failure 400  {string} errcode.Error "Bad Request"
 // @Failure 500  {string} errcode.Error "Internal Error"
 // @Router /plugins/jira/test [POST]
@@ -111,8 +117,14 @@ func TestConnection(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, 
 	if res.StatusCode != http.StatusOK {
 		return nil, errors.HttpStatus(res.StatusCode).New(fmt.Sprintf("%s Unexpected [%s] status code: %d %s", getStatusFail, res.Request.URL, res.StatusCode, errMsg))
 	}
-
-	return nil, nil
+	body := JiraTestConnResponse{}
+	body.Success = true
+	body.Message = "success"
+	body.Connection = &connection
+	if err != nil {
+		return nil, err
+	}
+	return &plugin.ApiResourceOutput{Body: body, Status: 200}, nil
 }
 
 // @Summary create jira connection

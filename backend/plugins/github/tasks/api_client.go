@@ -54,9 +54,17 @@ func CreateApiClient(taskCtx plugin.TaskContext, connection *models.GithubConnec
 			}
 			return remaining * len(tokens), time.Unix(int64(reset), 0).Sub(date), nil
 			*/
-			rateLimit, err := strconv.Atoi(res.Header.Get("X-RateLimit-Limit"))
-			if err != nil {
-				return 0, 0, errors.Default.Wrap(err, "failed to parse X-RateLimit-Limit header")
+			var rateLimit int
+			headerRateLimit := res.Header.Get("X-RateLimit-Limit")
+			if len(headerRateLimit) > 0 {
+				var e error
+				rateLimit, e = strconv.Atoi(headerRateLimit)
+				if e != nil {
+					return 0, 0, errors.Default.Wrap(err, "failed to parse X-RateLimit-Limit header")
+				}
+			} else {
+				// if we can't find "X-RateLimit-Limit" in header, we will return globalRatelimit in ApiRateLimitCalculator.Calculate
+				return 0, 0, nil
 			}
 			// even though different token could have different rate limit, but it is hard to support it
 			// so, we calculate the rate limit of a single token, and presume all tokens are the same, to

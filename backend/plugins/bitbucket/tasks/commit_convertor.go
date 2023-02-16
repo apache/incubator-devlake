@@ -38,17 +38,17 @@ var ConvertCommitsMeta = plugin.SubTaskMeta{
 }
 
 func ConvertCommits(taskCtx plugin.SubTaskContext) errors.Error {
+	rawDataSubTaskArgs, data := CreateRawDataSubTaskArgs(taskCtx, RAW_COMMIT_TABLE)
 	db := taskCtx.GetDal()
-	data := taskCtx.GetData().(*BitbucketTaskData)
-	repoId := data.Repo.BitbucketId
+	repoId := data.Options.FullName
 
 	cursor, err := db.Cursor(
-		dal.From("_tool_bitbucket_commits gc"),
-		dal.Join(`left join _tool_bitbucket_repo_commits grc on (
-			grc.commit_sha = gc.sha
+		dal.From("_tool_bitbucket_commits c"),
+		dal.Join(`left join _tool_bitbucket_repo_commits rc on (
+			rc.commit_sha = c.sha
 		)`),
-		dal.Select("gc.*"),
-		dal.Where("grc.repo_id = ? AND grc.connection_id = ?", repoId, data.Options.ConnectionId),
+		dal.Select("c.*"),
+		dal.Where("rc.repo_id = ? AND rc.connection_id = ?", repoId, data.Options.ConnectionId),
 	)
 	if err != nil {
 		return err
@@ -59,17 +59,9 @@ func ConvertCommits(taskCtx plugin.SubTaskContext) errors.Error {
 	domainRepoId := repoDidGen.Generate(data.Options.ConnectionId, repoId)
 
 	converter, err := api.NewDataConverter(api.DataConverterArgs{
-		RawDataSubTaskArgs: api.RawDataSubTaskArgs{
-			Ctx: taskCtx,
-			Params: BitbucketApiParams{
-				ConnectionId: data.Options.ConnectionId,
-				Owner:        data.Options.Owner,
-				Repo:         data.Options.Repo,
-			},
-			Table: RAW_COMMIT_TABLE,
-		},
-		InputRowType: reflect.TypeOf(models.BitbucketCommit{}),
-		Input:        cursor,
+		RawDataSubTaskArgs: *rawDataSubTaskArgs,
+		InputRowType:       reflect.TypeOf(models.BitbucketCommit{}),
+		Input:              cursor,
 
 		Convert: func(inputRow interface{}) ([]interface{}, errors.Error) {
 			bitbucketCommit := inputRow.(*models.BitbucketCommit)

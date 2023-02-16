@@ -26,37 +26,57 @@ import (
 )
 
 type BitbucketOptions struct {
-	ConnectionId               uint64   `json:"connectionId"`
-	Tasks                      []string `json:"tasks,omitempty"`
-	Since                      string
-	Owner                      string
-	Repo                       string
-	models.TransformationRules `mapstructure:"transformationRules" json:"transformationRules"`
+	ConnectionId                        uint64   `json:"connectionId" mapstructure:"connectionId,omitempty"`
+	Tasks                               []string `json:"tasks,omitempty" mapstructure:",omitempty"`
+	FullName                            string   `json:"fullName" mapstructure:"fullName"`
+	CreatedDateAfter                    string   `json:"createdDateAfter" mapstructure:"createdDateAfter,omitempty"`
+	TransformationRuleId                uint64   `json:"transformationRuleId" mapstructure:"transformationRuleId,omitempty"`
+	*models.BitbucketTransformationRule `mapstructure:"transformationRules,omitempty" json:"transformationRules"`
 }
 
 type BitbucketTaskData struct {
-	Options   *BitbucketOptions
-	ApiClient *api.ApiAsyncClient
-	Since     *time.Time
-	Repo      *models.BitbucketRepo
+	Options          *BitbucketOptions
+	ApiClient        *api.ApiAsyncClient
+	CreatedDateAfter *time.Time
 }
 
 func DecodeAndValidateTaskOptions(options map[string]interface{}) (*BitbucketOptions, errors.Error) {
+	op, err := DecodeTaskOptions(options)
+	if err != nil {
+		return nil, err
+	}
+	err = ValidateTaskOptions(op)
+	if err != nil {
+		return nil, err
+	}
+	return op, nil
+}
+
+func DecodeTaskOptions(options map[string]interface{}) (*BitbucketOptions, errors.Error) {
 	var op BitbucketOptions
 	err := api.Decode(options, &op, nil)
 	if err != nil {
-		return nil, errors.Default.New("could not decode options for Bitbucket execution")
-	}
-	if op.Owner == "" {
-		return nil, errors.Default.New("owner is required for Bitbucket execution")
-	}
-	if op.Repo == "" {
-		return nil, errors.Default.New("repo is required for Bitbucket execution")
-	}
-
-	// find the needed Bitbucket now
-	if op.ConnectionId == 0 {
-		return nil, errors.Default.New("Bitbucket connectionId is invalid")
+		return nil, err
 	}
 	return &op, nil
+}
+
+func EncodeTaskOptions(op *BitbucketOptions) (map[string]interface{}, errors.Error) {
+	var result map[string]interface{}
+	err := api.Decode(op, &result, nil)
+	if err != nil {
+		return nil, err
+	}
+	return result, nil
+}
+
+func ValidateTaskOptions(op *BitbucketOptions) errors.Error {
+	if op.FullName == "" {
+		return errors.BadInput.New("no enough info for Bitbucket execution")
+	}
+	// find the needed Bitbucket now
+	if op.ConnectionId == 0 {
+		return errors.BadInput.New("connectionId is invalid")
+	}
+	return nil
 }

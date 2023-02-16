@@ -15,33 +15,32 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-package securitytesting
+package migrationscripts
 
 import (
-	"github.com/apache/incubator-devlake/core/models/domainlayer"
+	"github.com/apache/incubator-devlake/core/context"
+	"github.com/apache/incubator-devlake/core/errors"
 	"github.com/apache/incubator-devlake/core/plugin"
-	"github.com/apache/incubator-devlake/helpers/pluginhelper/api"
 )
 
-var _ plugin.Scope = (*StProject)(nil)
+var _ plugin.MigrationScript = (*removeIssueStdStoryPoint)(nil)
 
-type StProject struct {
-	domainlayer.DomainEntity
-	Name             string           `json:"name" gorm:"type:varchar(255)"`
-	Qualifier        string           `json:"qualifier" gorm:"type:varchar(255)"`
-	Visibility       string           `json:"visibility" gorm:"type:varchar(64)"`
-	LastAnalysisDate *api.Iso8601Time `json:"lastAnalysisDate"`
-	CommitSha        string           `json:"revision" gorm:"type:varchar(128)"`
+type removeIssueStdStoryPoint struct{}
+
+func (*removeIssueStdStoryPoint) Up(basicRes context.BasicRes) errors.Error {
+	db := basicRes.GetDal()
+	err := db.DropColumns("_tool_jira_issues", "std_story_point")
+	if err != nil {
+		return err
+	}
+
+	return nil
 }
 
-func (StProject) TableName() string {
-	return "st_projects"
+func (*removeIssueStdStoryPoint) Version() uint64 {
+	return 20230214232735
 }
 
-func (s *StProject) ScopeId() string {
-	return s.Id
-}
-
-func (s *StProject) ScopeName() string {
-	return s.Name
+func (*removeIssueStdStoryPoint) Name() string {
+	return "remove _tool_jira_issues column std_story_point"
 }

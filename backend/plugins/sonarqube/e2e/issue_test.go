@@ -19,7 +19,7 @@ import (
 	"testing"
 
 	"github.com/apache/incubator-devlake/core/models/common"
-	"github.com/apache/incubator-devlake/core/models/domainlayer/securitytesting"
+	"github.com/apache/incubator-devlake/core/models/domainlayer/codequality"
 	"github.com/apache/incubator-devlake/helpers/e2ehelper"
 	"github.com/apache/incubator-devlake/plugins/sonarqube/impl"
 	"github.com/apache/incubator-devlake/plugins/sonarqube/models"
@@ -66,15 +66,15 @@ func TestSonarqubeIssueDataFlow(t *testing.T) {
 	})
 
 	// verify convertor
-	dataflowTester.FlushTabler(&securitytesting.StIssue{})
-	dataflowTester.FlushTabler(&securitytesting.StIssueCodeBlock{})
+	dataflowTester.FlushTabler(&codequality.CqIssue{})
+	dataflowTester.FlushTabler(&codequality.CqIssueCodeBlock{})
 	dataflowTester.Subtask(tasks.ConvertIssuesMeta, taskData)
-	dataflowTester.VerifyTableWithOptions(&securitytesting.StIssue{}, e2ehelper.TableOptions{
+	dataflowTester.VerifyTableWithOptions(&codequality.CqIssue{}, e2ehelper.TableOptions{
 		CSVRelPath:  "./snapshot_tables/issues.csv",
 		IgnoreTypes: []interface{}{common.NoPKModel{}},
 	})
 	dataflowTester.Subtask(tasks.ConvertIssueCodeBlocksMeta, taskData)
-	dataflowTester.VerifyTableWithOptions(&securitytesting.StIssueCodeBlock{}, e2ehelper.TableOptions{
+	dataflowTester.VerifyTableWithOptions(&codequality.CqIssueCodeBlock{}, e2ehelper.TableOptions{
 		CSVRelPath:  "./snapshot_tables/issue_code_blocks.csv",
 		IgnoreTypes: []interface{}{common.NoPKModel{}},
 	})

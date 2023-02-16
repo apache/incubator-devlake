@@ -41,8 +41,8 @@ var ConvertAccountsMeta = plugin.SubTaskMeta{
 }
 
 func ConvertAccounts(taskCtx plugin.SubTaskContext) errors.Error {
+	rawDataSubTaskArgs, data := CreateRawDataSubTaskArgs(taskCtx, RAW_ACCOUNT_TABLE)
 	db := taskCtx.GetDal()
-	data := taskCtx.GetData().(*BitbucketTaskData)
 
 	cursor, err := db.Cursor(dal.From(&bitbucketModels.BitbucketAccount{}))
 	if err != nil {
@@ -53,17 +53,9 @@ func ConvertAccounts(taskCtx plugin.SubTaskContext) errors.Error {
 	accountIdGen := didgen.NewDomainIdGenerator(&bitbucketModels.BitbucketAccount{})
 
 	converter, err := api.NewDataConverter(api.DataConverterArgs{
-		InputRowType: reflect.TypeOf(bitbucketModels.BitbucketAccount{}),
-		Input:        cursor,
-		RawDataSubTaskArgs: api.RawDataSubTaskArgs{
-			Ctx: taskCtx,
-			Params: BitbucketApiParams{
-				ConnectionId: data.Options.ConnectionId,
-				Owner:        data.Options.Owner,
-				Repo:         data.Options.Repo,
-			},
-			Table: RAW_ACCOUNT_TABLE,
-		},
+		InputRowType:       reflect.TypeOf(bitbucketModels.BitbucketAccount{}),
+		Input:              cursor,
+		RawDataSubTaskArgs: *rawDataSubTaskArgs,
 		Convert: func(inputRow interface{}) ([]interface{}, errors.Error) {
 			bitbucketUser := inputRow.(*bitbucketModels.BitbucketAccount)
 			domainUser := &crossdomain.Account{

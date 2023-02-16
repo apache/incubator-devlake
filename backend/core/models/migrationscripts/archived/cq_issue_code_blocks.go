@@ -17,7 +17,7 @@ limitations under the License.
 
 package archived
 
-type StIssueCodeBlock struct {
+type CqIssueCodeBlock struct {
 	DomainEntity
 	IssueKey    string `json:"key" gorm:"index"`
 	Component   string `json:"component" gorm:"index"`
@@ -28,6 +28,6 @@ type StIssueCodeBlock struct {
 	Msg         string `json:"msg" `
 }
 
-func (StIssueCodeBlock) TableName() string {
-	return "st_issue_code_blocks"
+func (CqIssueCodeBlock) TableName() string {
+	return "cq_issue_code_blocks"
 }

@@ -15,11 +15,11 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-package securitytesting
+package codequality
 
 import "github.com/apache/incubator-devlake/core/models/domainlayer"
 
-type StIssueCodeBlock struct {
+type CqIssueCodeBlock struct {
 	domainlayer.DomainEntity
 	IssueKey    string `json:"key" gorm:"index"`
 	Component   string `json:"component" gorm:"index"`
@@ -30,6 +30,6 @@ type StIssueCodeBlock struct {
 	Msg         string `json:"msg" `
 }
 
-func (StIssueCodeBlock) TableName() string {
-	return "st_issue_code_blocks"
+func (CqIssueCodeBlock) TableName() string {
+	return "cq_issue_code_blocks"
 }

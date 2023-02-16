@@ -19,13 +19,14 @@ package tasks
 
 import (
 	"encoding/json"
+	"net/http"
+	"reflect"
+
 	"github.com/apache/incubator-devlake/core/dal"
 	"github.com/apache/incubator-devlake/core/errors"
 	"github.com/apache/incubator-devlake/core/plugin"
 	"github.com/apache/incubator-devlake/helpers/pluginhelper/api"
 	"github.com/apache/incubator-devlake/plugins/jira/tasks/apiv2models"
-	"net/http"
-	"reflect"
 )
 
 const RAW_REMOTELINK_TABLE = "jira_api_remotelinks"
@@ -46,14 +47,14 @@ func CollectRemotelinks(taskCtx plugin.SubTaskContext) errors.Error {
 	logger := taskCtx.GetLogger()
 	logger.Info("collect remotelink")
 
-	collectorWithState, err := api.NewApiCollectorWithState(api.RawDataSubTaskArgs{
+	collectorWithState, err := api.NewStatefulApiCollector(api.RawDataSubTaskArgs{
 		Ctx: taskCtx,
 		Params: JiraApiParams{
 			ConnectionId: data.Options.ConnectionId,
 			BoardId:      data.Options.BoardId,
 		},
 		Table: RAW_REMOTELINK_TABLE,
-	}, data.CreatedDateAfter)
+	}, data.TimeAfter)
 	if err != nil {
 		return err
 	}

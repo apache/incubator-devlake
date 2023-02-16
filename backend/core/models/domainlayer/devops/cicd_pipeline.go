@@ -84,8 +84,8 @@ func GetResult(rule *ResultRule, input interface{}) string {
 			return ABORT
 		}
 	}
-	for _, abort := range rule.Manual {
-		if abort == input {
+	for _, manual := range rule.Manual {
+		if manual == input {
 			return MANUAL
 		}
 	}
@@ -104,8 +104,8 @@ func GetStatus(rule *StatusRule, input interface{}) string {
 			return FAILURE
 		}
 	}
-	for _, abort := range rule.Manual {
-		if abort == input {
+	for _, manual := range rule.Manual {
+		if manual == input {
 			return MANUAL
 		}
 	}

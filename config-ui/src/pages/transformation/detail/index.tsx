@@ -24,6 +24,7 @@ import { PageLoading, PageHeader, Card } from '@/components';
 import { GitHubTransformation } from '@/plugins/register/github';
 import { GitLabTransformation } from '@/plugins/register/gitlab';
 import { JenkinsTransformation } from '@/plugins/register/jenkins';
+import { BitbucketTransformation } from '@/plugins/register/bitbucket';
 
 import { useDetail } from './use-detail';
 import * as S from './styled';
@@ -76,6 +77,10 @@ export const TransformationDetailPage = () => {
 
           {plugin === 'jenkins' && (
             <JenkinsTransformation transformation={transformation} setTransformation={onChangeTransformation} />
+          )}
+
+          {plugin === 'bitbucket' && (
+            <BitbucketTransformation transformation={transformation} setTransformation={onChangeTransformation} />
           )}
 
           <div className="action">

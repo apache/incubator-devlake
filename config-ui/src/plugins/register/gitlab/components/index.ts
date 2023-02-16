@@ -16,6 +16,4 @@
  *
  */
 
-export * from './miller-columns';
-export * from './project-selector';
 export * from './ci-cd';

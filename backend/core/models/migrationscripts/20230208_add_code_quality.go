@@ -15,21 +15,31 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-package archived
+package migrationscripts
 
 import (
-	"github.com/apache/incubator-devlake/helpers/pluginhelper/api"
+	"github.com/apache/incubator-devlake/core/context"
+	"github.com/apache/incubator-devlake/core/errors"
+	"github.com/apache/incubator-devlake/core/models/migrationscripts/archived"
+	"github.com/apache/incubator-devlake/helpers/migrationhelper"
 )
 
-type StProject struct {
-	DomainEntity
-	Name             string           `json:"name" gorm:"type:varchar(255)"`
-	Qualifier        string           `json:"qualifier" gorm:"type:varchar(255)"`
-	Visibility       string           `json:"visibility" gorm:"type:varchar(64)"`
-	LastAnalysisDate *api.Iso8601Time `json:"lastAnalysisDate"`
-	CommitSha        string           `gorm:"type:varchar(128)"`
+type addCodeQuality struct{}
+
+func (u *addCodeQuality) Up(basicRes context.BasicRes) errors.Error {
+	return migrationhelper.AutoMigrateTables(
+		basicRes,
+		&archived.CqProject{},
+		&archived.CqIssue{},
+		&archived.CqIssueCodeBlock{},
+		&archived.CqFileMetrics{},
+	)
 }
 
-func (StProject) TableName() string {
-	return "st_projects"
+func (*addCodeQuality) Version() uint64 {
+	return 20230208000019
+}
+
+func (*addCodeQuality) Name() string {
+	return "add code quality domain"
 }

@@ -20,12 +20,13 @@ package tasks
 import (
 	"encoding/json"
 	"fmt"
-	"github.com/apache/incubator-devlake/core/errors"
-	"github.com/apache/incubator-devlake/core/plugin"
-	"github.com/apache/incubator-devlake/helpers/pluginhelper/api"
 	"io"
 	"net/http"
 	"net/url"
+
+	"github.com/apache/incubator-devlake/core/errors"
+	"github.com/apache/incubator-devlake/core/plugin"
+	"github.com/apache/incubator-devlake/helpers/pluginhelper/api"
 )
 
 const RAW_ISSUE_TABLE = "jira_api_issues"
@@ -43,7 +44,7 @@ var CollectIssuesMeta = plugin.SubTaskMeta{
 func CollectIssues(taskCtx plugin.SubTaskContext) errors.Error {
 	data := taskCtx.GetData().(*JiraTaskData)
 
-	collectorWithState, err := api.NewApiCollectorWithState(api.RawDataSubTaskArgs{
+	collectorWithState, err := api.NewStatefulApiCollector(api.RawDataSubTaskArgs{
 		Ctx: taskCtx,
 		/*
 			This struct will be JSONEncoded and stored into database along with raw data itself, to identity minimal
@@ -57,7 +58,7 @@ func CollectIssues(taskCtx plugin.SubTaskContext) errors.Error {
 			Table store raw data
 		*/
 		Table: RAW_ISSUE_TABLE,
-	}, data.CreatedDateAfter)
+	}, data.TimeAfter)
 	if err != nil {
 		return err
 	}
@@ -65,13 +66,14 @@ func CollectIssues(taskCtx plugin.SubTaskContext) errors.Error {
 	// build jql
 	// IMPORTANT: we have to keep paginated data in a consistence order to avoid data-missing, if we sort issues by
 	//  `updated`, issue will be jumping between pages if it got updated during the collection process
-	createdDateAfter := data.CreatedDateAfter
 	jql := "created is not null ORDER BY created ASC"
-	if createdDateAfter != nil {
-		// prepend a time range criteria if `since` was specified, either by user or from database
-		jql = fmt.Sprintf("created >= '%v' AND %v", createdDateAfter.Format("2006/01/02 15:04"), jql)
+
+	// timer filter
+	if data.TimeAfter != nil {
+		jql = fmt.Sprintf("updated >= '%v' AND %v", data.TimeAfter.Format("2006/01/02 15:04"), jql)
 	}
 
+	// diff sync
 	incremental := collectorWithState.IsIncremental()
 	if incremental {
 		jql = fmt.Sprintf("updated >= '%v' AND %v", collectorWithState.LatestState.LatestSuccessStart.Format("2006/01/02 15:04"), jql)

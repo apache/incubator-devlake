@@ -23,23 +23,26 @@ import (
 	"github.com/apache/incubator-devlake/core/plugin"
 	"github.com/apache/incubator-devlake/helpers/pluginhelper/api"
 	"github.com/apache/incubator-devlake/plugins/sonarqube/models"
+	"github.com/apache/incubator-devlake/server/api/shared"
 	"net/http"
 )
 
 type validation struct {
 	Valid bool `json:"valid"`
 }
+type SonarqubeTestConnResponse struct {
+	shared.ApiBody
+	Connection *models.SonarqubeConn
+}
 
-/*
-@Summary test sonarqube connection
-@Description Test sonarqube Connection
-@Tags plugins/sonarqube
-@Param body body models.SonarqubeConn true "json body"
-@Success 200  {object} shared.ApiBody "Success"
-@Failure 400  {string} errcode.Error "Bad Request"
-@Failure 500  {string} errcode.Error "Internal Error"
-@Router /plugins/sonarqube/test [POST]
-*/
+// @Summary test sonarqube connection
+// @Description Test sonarqube Connection
+// @Tags plugins/sonarqube
+// @Param body body models.SonarqubeConn true "json body"
+// @Success 200  {object} SonarqubeTestConnResponse "Success"
+// @Failure 400  {string} errcode.Error "Bad Request"
+// @Failure 500  {string} errcode.Error "Internal Error"
+// @Router /plugins/sonarqube/test [POST]
 func TestConnection(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, errors.Error) {
 	// decode
 	var err errors.Error
@@ -47,7 +50,7 @@ func TestConnection(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, 
 	if err = api.Decode(input.Body, &connection, vld); err != nil {
 		return nil, err
 	}
-	apiClient, err := api.NewApiClientFromConnection(context.TODO(), basicRes, connection)
+	apiClient, err := api.NewApiClientFromConnection(context.TODO(), basicRes, &connection)
 	if err != nil {
 		return nil, err
 	}
@@ -58,15 +61,19 @@ func TestConnection(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, 
 	}
 	switch res.StatusCode {
 	case 200: // right StatusCode
-		body := &validation{}
-		err = api.UnmarshalResponse(res, body)
+		valid := &validation{}
+		err = api.UnmarshalResponse(res, valid)
+		body := SonarqubeTestConnResponse{}
+		body.Success = true
+		body.Message = "success"
+		body.Connection = &connection
 		if err != nil {
 			return nil, err
 		}
-		if !body.Valid {
+		if !valid.Valid {
 			return nil, errors.Default.New("Authentication failed, please check your access token.")
 		}
-		return &plugin.ApiResourceOutput{Body: true, Status: 200}, nil
+		return &plugin.ApiResourceOutput{Body: body, Status: 200}, nil
 	case 401: // error secretKey or nonceStr
 		return &plugin.ApiResourceOutput{Body: false, Status: res.StatusCode}, nil
 	default: // unknow what happen , back to user
@@ -74,15 +81,14 @@ func TestConnection(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, 
 	}
 }
 
-/*
-POST /plugins/Sonarqube/connections
-
-	{
-		"name": "Sonarqube data connection name",
-		"endpoint": "Sonarqube api endpoint, i.e. http://host:port/api/",
-		"token": "Sonarqube user token"
-	}
-*/
+// @Summary create sonarqube connection
+// @Description Create sonarqube connection
+// @Tags plugins/sonarqube
+// @Param body body models.SonarqubeConnection true "json body"
+// @Success 200  {object} models.SonarqubeConnection
+// @Failure 400  {string} errcode.Error "Bad Request"
+// @Failure 500  {string} errcode.Error "Internal Error"
+// @Router /plugins/sonarqube/connections [POST]
 func PostConnections(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, errors.Error) {
 	// update from request and save to database
 	connection := &models.SonarqubeConnection{}
@@ -93,15 +99,14 @@ func PostConnections(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput,
 	return &plugin.ApiResourceOutput{Body: connection, Status: http.StatusOK}, nil
 }
 
-/*
-PATCH /plugins/Sonarqube/connections/:connectionId
-
-	{
-		"name": "Sonarqube data connection name",
-		"endpoint": "Sonarqube api endpoint, i.e. http://host:port/api/",
-		"token": "Sonarqube user token"
-	}
-*/
+// @Summary patch sonarqube connection
+// @Description Patch sonarqube connection
+// @Tags plugins/sonarqube
+// @Param body body models.SonarqubeConnection true "json body"
+// @Success 200  {object} models.SonarqubeConnection
+// @Failure 400  {string} errcode.Error "Bad Request"
+// @Failure 500  {string} errcode.Error "Internal Error"
+// @Router /plugins/sonarqube/connections/{connectionId} [PATCH]
 func PatchConnection(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, errors.Error) {
 	connection := &models.SonarqubeConnection{}
 	err := connectionHelper.Patch(connection, input)
@@ -111,9 +116,13 @@ func PatchConnection(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput,
 	return &plugin.ApiResourceOutput{Body: connection}, nil
 }
 
-/*
-DELETE /plugins/Sonarqube/connections/:connectionId
-*/
+// @Summary delete a sonarqube connection
+// @Description Delete a sonarqube connection
+// @Tags plugins/sonarqube
+// @Success 200  {object} models.SonarqubeConnection
+// @Failure 400  {string} errcode.Error "Bad Request"
+// @Failure 500  {string} errcode.Error "Internal Error"
+// @Router /plugins/sonarqube/connections/{connectionId} [DELETE]
 func DeleteConnection(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, errors.Error) {
 	connection := &models.SonarqubeConnection{}
 	err := connectionHelper.First(connection, input.Params)
@@ -124,9 +133,13 @@ func DeleteConnection(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput
 	return &plugin.ApiResourceOutput{Body: connection}, err
 }
 
-/*
-GET /plugins/Sonarqube/connections
-*/
+// @Summary get all sonarqube connections
+// @Description Get all sonarqube connections
+// @Tags plugins/sonarqube
+// @Success 200  {object} []models.SonarqubeConnection
+// @Failure 400  {string} errcode.Error "Bad Request"
+// @Failure 500  {string} errcode.Error "Internal Error"
+// @Router /plugins/sonarqube/connections [GET]
 func ListConnections(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, errors.Error) {
 	var connections []models.SonarqubeConnection
 	err := connectionHelper.List(&connections)
@@ -136,15 +149,13 @@ func ListConnections(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput,
 	return &plugin.ApiResourceOutput{Body: connections, Status: http.StatusOK}, nil
 }
 
-/*
-GET /plugins/Sonarqube/connections/:connectionId
-
-	{
-		"name": "Sonarqube data connection name",
-		"endpoint": "Sonarqube api endpoint, i.e. http://host:port/api/",
-		"token": "Sonarqube user token"
-	}
-*/
+// @Summary get sonarqube connection detail
+// @Description Get sonarqube connection detail
+// @Tags plugins/sonarqube
+// @Success 200  {object} models.SonarqubeConnection
+// @Failure 400  {string} errcode.Error "Bad Request"
+// @Failure 500  {string} errcode.Error "Internal Error"
+// @Router /plugins/sonarqube/connections/{connectionId} [GET]
 func GetConnection(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, errors.Error) {
 	connection := &models.SonarqubeConnection{}
 	err := connectionHelper.First(connection, input.Params)

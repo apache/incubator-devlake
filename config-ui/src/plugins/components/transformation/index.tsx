@@ -31,6 +31,7 @@ import { TIPS_MAP } from './misc';
 import type { UseTransformationProps } from './use-transformation';
 import { useTransformation } from './use-transformation';
 import * as S from './styled';
+import {BitbucketTransformation} from "@/plugins/register/bitbucket";
 
 interface Props extends Omit<UseTransformationProps, 'name' | 'selectedRule' | 'setSelectedScope'> {
   from: 'create' | 'update';
@@ -163,6 +164,10 @@ export const Transformation = ({ from, plugin, connectionId, onCancel, ...props 
 
             {plugin === 'jenkins' && (
               <JenkinsTransformation transformation={transformation} setTransformation={onChangeTransformation} />
+            )}
+
+            {plugin === 'bitbucket' && (
+              <BitbucketTransformation transformation={transformation} setTransformation={onChangeTransformation} />
             )}
 
             <ButtonGroup>

@@ -30,6 +30,14 @@ import (
 )
 
 //TODO Please modify the following code to fit your needs
+// @Summary test {{ .pluginName }} connection
+// @Description Test {{ .pluginName }} Connection. endpoint: "https://dev.{{ .pluginName }}.com/{organization}/
+// @Tags plugins/{{ .pluginName }}
+// @Param body body models.{{ .PluginName }}Conn true "json body"
+// @Success 200  {object} {{ .PluginName }}TestConnResponse "Success"
+// @Failure 400  {string} errcode.Error "Bad Request"
+// @Failure 500  {string} errcode.Error "Internal Error"
+// @Router /plugins/{{ .pluginName }}/test [POST]
 func TestConnection(input *core.ApiResourceInput) (*plugin.ApiResourceOutput, errors.Error) {
 	// decode
 	var err errors.Error
@@ -65,19 +73,23 @@ func TestConnection(input *core.ApiResourceInput) (*plugin.ApiResourceOutput, er
 	if res.StatusCode != http.StatusOK {
 		return nil, errors.HttpStatus(res.StatusCode).New(fmt.Sprintf("unexpected status code: %d", res.StatusCode))
 	}
-	return nil, nil
+	body := {{ .PluginName }}TestConnResponse{}
+	body.Success = true
+	body.Message = "success"
+	body.Connection = &connection
+	// output
+	return &plugin.ApiResourceOutput{Body: body, Status: 200}, nil
 }
 
 //TODO Please modify the folowing code to adapt to your plugin
-/*
-POST /plugins/{{ .PluginName }}/connections
-{
-	"name": "{{ .PluginName }} data connection name",
-	"endpoint": "{{ .PluginName }} api endpoint, i.e. https://example.com",
-	"username": "username, usually should be email address",
-	"password": "{{ .PluginName }} api access token"
-}
-*/
+// @Summary create {{ .pluginName }} connection
+// @Description Create {{ .pluginName }} connection
+// @Tags plugins/{{ .pluginName }}
+// @Param body body models.{{ .PluginName }}Connection true "json body"
+// @Success 200  {object} models.{{ .PluginName }}Connection
+// @Failure 400  {string} errcode.Error "Bad Request"
+// @Failure 500  {string} errcode.Error "Internal Error"
+// @Router /plugins/{{ .pluginName }}/connections [POST]
 func PostConnections(input *core.ApiResourceInput) (*plugin.ApiResourceOutput, errors.Error) {
 	// update from request and save to database
 	connection := &models.{{ .PluginName }}Connection{}
@@ -90,14 +102,14 @@ func PostConnections(input *core.ApiResourceInput) (*plugin.ApiResourceOutput, e
 
 //TODO Please modify the folowing code to adapt to your plugin
 /*
-PATCH /plugins/{{ .PluginName }}/connections/:connectionId
-{
-	"name": "{{ .PluginName }} data connection name",
-	"endpoint": "{{ .PluginName }} api endpoint, i.e. https://example.com",
-	"username": "username, usually should be email address",
-	"password": "{{ .PluginName }} api access token"
-}
-*/
+// @Summary patch {{ .pluginName }} connection
+// @Description Patch {{ .pluginName }} connection
+// @Tags plugins/{{ .pluginName }}
+// @Param body body models.{{ .PluginName }}Connection true "json body"
+// @Success 200  {object} models.{{ .PluginName }}Connection
+// @Failure 400  {string} errcode.Error "Bad Request"
+// @Failure 500  {string} errcode.Error "Internal Error"
+// @Router /plugins/{{ .pluginName }}/connections/{connectionId} [PATCH]
 func PatchConnection(input *core.ApiResourceInput) (*plugin.ApiResourceOutput, errors.Error) {
 	connection := &models.{{ .PluginName }}Connection{}
 	err := connectionHelper.Patch(connection, input)
@@ -107,9 +119,13 @@ func PatchConnection(input *core.ApiResourceInput) (*plugin.ApiResourceOutput, e
 	return &plugin.ApiResourceOutput{Body: connection}, nil
 }
 
-/*
-DELETE /plugins/{{ .PluginName }}/connections/:connectionId
-*/
+// @Summary delete a {{ .pluginName }} connection
+// @Description Delete a {{ .pluginName }} connection
+// @Tags plugins/{{ .pluginName }}
+// @Success 200  {object} models.{{ .PluginName }}Connection
+// @Failure 400  {string} errcode.Error "Bad Request"
+// @Failure 500  {string} errcode.Error "Internal Error"
+// @Router /plugins/{{ .pluginName }}/connections/{connectionId} [DELETE]
 func DeleteConnection(input *core.ApiResourceInput) (*plugin.ApiResourceOutput, errors.Error) {
 	connection := &models.{{ .PluginName }}Connection{}
 	err := connectionHelper.First(connection, input.Params)
@@ -120,9 +136,13 @@ func DeleteConnection(input *core.ApiResourceInput) (*plugin.ApiResourceOutput, 
 	return &plugin.ApiResourceOutput{Body: connection}, err
 }
 
-/*
-GET /plugins/{{ .PluginName }}/connections
-*/
+// @Summary get all {{ .pluginName }} connections
+// @Description Get all {{ .pluginName }} connections
+// @Tags plugins/{{ .pluginName }}
+// @Success 200  {object} []models.{{ .PluginName }}Connection
+// @Failure 400  {string} errcode.Error "Bad Request"
+// @Failure 500  {string} errcode.Error "Internal Error"
+// @Router /plugins/{{ .pluginName }}/connections [GET]
 func ListConnections(input *core.ApiResourceInput) (*plugin.ApiResourceOutput, errors.Error) {
 	var connections []models.{{ .PluginName }}Connection
 	err := connectionHelper.List(&connections)
@@ -133,15 +153,13 @@ func ListConnections(input *core.ApiResourceInput) (*plugin.ApiResourceOutput, e
 }
 
 //TODO Please modify the folowing code to adapt to your plugin
-/*
-GET /plugins/{{ .PluginName }}/connections/:connectionId
-{
-	"name": "{{ .PluginName }} data connection name",
-	"endpoint": "{{ .PluginName }} api endpoint, i.e. https://merico.atlassian.net/rest",
-	"username": "username, usually should be email address",
-	"password": "{{ .PluginName }} api access token"
-}
-*/
+// @Summary get {{ .pluginName }} connection detail
+// @Description Get {{ .pluginName }} connection detail
+// @Tags plugins/{{ .pluginName }}
+// @Success 200  {object} models.{{ .PluginName }}Connection
+// @Failure 400  {string} errcode.Error "Bad Request"
+// @Failure 500  {string} errcode.Error "Internal Error"
+// @Router /plugins/{{ .pluginName }}/connections/{connectionId} [GET]
 func GetConnection(input *core.ApiResourceInput) (*plugin.ApiResourceOutput, errors.Error) {
 	connection := &models.{{ .PluginName }}Connection{}
 	err := connectionHelper.First(connection, input.Params)

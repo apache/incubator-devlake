@@ -19,6 +19,9 @@ package api
 
 import (
 	"fmt"
+	"net/http"
+	"time"
+
 	"github.com/apache/incubator-devlake/core/dal"
 	"github.com/apache/incubator-devlake/core/errors"
 	"github.com/apache/incubator-devlake/core/models/domainlayer"
@@ -26,8 +29,6 @@ import (
 	"github.com/apache/incubator-devlake/core/plugin"
 	helper "github.com/apache/incubator-devlake/helpers/pluginhelper/api"
 	"github.com/apache/incubator-devlake/plugins/webhook/models"
-	"net/http"
-	"time"
 
 	"github.com/go-playground/validator/v10"
 )
@@ -42,7 +43,7 @@ type WebhookIssueRequest struct {
 	Type                    string     `mapstructure:"type"`
 	Status                  string     `mapstructure:"status" validate:"oneof=TODO DONE IN_PROGRESS"`
 	OriginalStatus          string     `mapstructure:"original_status" validate:"required"`
-	StoryPoint              int64      `mapstructure:"story_point"`
+	StoryPoint              float64    `mapstructure:"story_point"`
 	ResolutionDate          *time.Time `mapstructure:"resolution_date"`
 	CreatedDate             *time.Time `mapstructure:"created_date" validate:"required"`
 	UpdatedDate             *time.Time `mapstructure:"updated_date"`

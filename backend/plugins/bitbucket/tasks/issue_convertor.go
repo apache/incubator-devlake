@@ -39,9 +39,9 @@ var ConvertIssuesMeta = plugin.SubTaskMeta{
 }
 
 func ConvertIssues(taskCtx plugin.SubTaskContext) errors.Error {
+	rawDataSubTaskArgs, data := CreateRawDataSubTaskArgs(taskCtx, RAW_ISSUE_COMMENTS_TABLE)
 	db := taskCtx.GetDal()
-	data := taskCtx.GetData().(*BitbucketTaskData)
-	repoId := data.Repo.BitbucketId
+	repoId := data.Options.FullName
 
 	issue := &models.BitbucketIssue{}
 	cursor, err := db.Cursor(
@@ -58,26 +58,19 @@ func ConvertIssues(taskCtx plugin.SubTaskContext) errors.Error {
 	accountIdGen := didgen.NewDomainIdGenerator(&models.BitbucketAccount{})
 
 	converter, err := api.NewDataConverter(api.DataConverterArgs{
-		RawDataSubTaskArgs: api.RawDataSubTaskArgs{
-			Ctx: taskCtx,
-			Params: BitbucketApiParams{
-				ConnectionId: data.Options.ConnectionId,
-				Owner:        data.Options.Owner,
-				Repo:         data.Options.Repo,
-			},
-			Table: RAW_ISSUE_TABLE,
-		},
-		InputRowType: reflect.TypeOf(models.BitbucketIssue{}),
-		Input:        cursor,
+		RawDataSubTaskArgs: *rawDataSubTaskArgs,
+		InputRowType:       reflect.TypeOf(models.BitbucketIssue{}),
+		Input:              cursor,
 		Convert: func(inputRow interface{}) ([]interface{}, errors.Error) {
 			issue := inputRow.(*models.BitbucketIssue)
 			domainIssue := &ticket.Issue{
-				DomainEntity:    domainlayer.DomainEntity{Id: issueIdGen.Generate(data.Options.ConnectionId, issue.BitbucketId)},
+				DomainEntity:    domainlayer.DomainEntity{Id: issueIdGen.Generate(data.Options.ConnectionId, issue.RepoId, issue.BitbucketId)},
 				IssueKey:        strconv.Itoa(issue.Number),
 				Title:           issue.Title,
 				Description:     issue.Body,
 				Priority:        issue.Priority,
 				Type:            issue.Type,
+				Status:          issue.StdState,
 				OriginalStatus:  issue.State,
 				LeadTimeMinutes: int64(issue.LeadTimeMinutes),
 				Url:             issue.Url,
@@ -86,11 +79,6 @@ func ConvertIssues(taskCtx plugin.SubTaskContext) errors.Error {
 				ResolutionDate:  issue.ClosedAt,
 				Severity:        issue.Severity,
 				Component:       issue.Component,
-			}
-			if issue.State == "closed" {
-				domainIssue.Status = ticket.DONE
-			} else {
-				domainIssue.Status = ticket.TODO
 			}
 			if issue.AssigneeName != "" {
 				domainIssue.AssigneeName = issue.AssigneeName

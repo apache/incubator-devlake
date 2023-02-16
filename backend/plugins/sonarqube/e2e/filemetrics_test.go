@@ -19,7 +19,7 @@ import (
 	"testing"
 
 	"github.com/apache/incubator-devlake/core/models/common"
-	"github.com/apache/incubator-devlake/core/models/domainlayer/securitytesting"
+	"github.com/apache/incubator-devlake/core/models/domainlayer/codequality"
 	"github.com/apache/incubator-devlake/helpers/e2ehelper"
 	"github.com/apache/incubator-devlake/plugins/sonarqube/impl"
 	"github.com/apache/incubator-devlake/plugins/sonarqube/models"
@@ -61,9 +61,9 @@ func TestSonarqubeFileMetricsDataFlow(t *testing.T) {
 	})
 
 	// verify convertor
-	dataflowTester.FlushTabler(&securitytesting.StFileMetrics{})
+	dataflowTester.FlushTabler(&codequality.CqFileMetrics{})
 	dataflowTester.Subtask(tasks.ConvertFileMetricsMeta, taskData)
-	dataflowTester.VerifyTableWithOptions(&securitytesting.StFileMetrics{}, e2ehelper.TableOptions{
+	dataflowTester.VerifyTableWithOptions(&codequality.CqFileMetrics{}, e2ehelper.TableOptions{
 		CSVRelPath:  "./snapshot_tables/filemetrics.csv",
 		IgnoreTypes: []interface{}{common.NoPKModel{}},
 	})

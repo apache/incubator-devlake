@@ -22,8 +22,8 @@ import (
 	"github.com/apache/incubator-devlake/core/dal"
 	"github.com/apache/incubator-devlake/core/errors"
 	"github.com/apache/incubator-devlake/core/models/domainlayer"
+	"github.com/apache/incubator-devlake/core/models/domainlayer/codequality"
 	"github.com/apache/incubator-devlake/core/models/domainlayer/didgen"
-	"github.com/apache/incubator-devlake/core/models/domainlayer/securitytesting"
 	"github.com/apache/incubator-devlake/core/plugin"
 	"github.com/apache/incubator-devlake/core/utils"
 	helper "github.com/apache/incubator-devlake/helpers/pluginhelper/api"
@@ -92,8 +92,8 @@ func makeScopesV200(bpScopes []*plugin.BlueprintScopeV200, connectionId uint64) 
 			return nil, errors.Default.Wrap(err, fmt.Sprintf("fail to find sonarqube project %s", bpScope.Id))
 		}
 		// add board to scopes
-		if utils.StringsContains(bpScope.Entities, plugin.DOMAIN_TYPE_SECURITY_TESTING) {
-			stProject := &securitytesting.StProject{
+		if utils.StringsContains(bpScope.Entities, plugin.DOMAIN_TYPE_CODE_QUALITY) {
+			stProject := &codequality.CqProject{
 				DomainEntity: domainlayer.DomainEntity{
 					Id: didgen.NewDomainIdGenerator(&models.SonarqubeProject{}).Generate(sonarqubeProject.ConnectionId, sonarqubeProject.ProjectKey),
 				},

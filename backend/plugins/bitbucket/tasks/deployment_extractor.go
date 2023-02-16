@@ -27,19 +27,18 @@ import (
 )
 
 type bitbucketApiDeploymentsResponse struct {
-	Type   string `json:"type"`
-	Number int    `json:"number"`
-	UUID   string `json:"uuid"`
-	Key    string `json:"key"`
-	Step   struct {
-		UUID string `json:"uuid"`
-	} `json:"step"`
-	Environment struct {
-		UUID string `json:"uuid"`
-	} `json:"environment"`
+	Type string `json:"type"`
+	UUID string `json:"uuid"`
+	//Key  string `json:"key"`
+	//Step struct {
+	//	UUID string `json:"uuid"`
+	//} `json:"step"`
+	//Environment struct {
+	//	UUID string `json:"uuid"`
+	//} `json:"environment"`
 	Release struct {
-		Type     string `json:"type"`
-		UUID     string `json:"uuid"`
+		//Type     string `json:"type"`
+		//UUID     string `json:"uuid"`
 		Pipeline struct {
 			UUID string `json:"uuid"`
 			Type string `json:"type"`
@@ -48,12 +47,9 @@ type bitbucketApiDeploymentsResponse struct {
 		Name   string `json:"name"`
 		URL    string `json:"url"`
 		Commit struct {
-			Type  string `json:"type"`
+			//Type  string `json:"type"`
 			Hash  string `json:"hash"`
 			Links struct {
-				Self struct {
-					Href string `json:"href"`
-				} `json:"self"`
 				HTML struct {
 					Href string `json:"href"`
 				} `json:"html"`
@@ -62,18 +58,18 @@ type bitbucketApiDeploymentsResponse struct {
 		CreatedOn *time.Time `json:"created_on"`
 	} `json:"release"`
 	State struct {
-		Type   string `json:"type"`
-		Name   string `json:"name"`
-		URL    string `json:"url"`
-		Status struct {
-			Type string `json:"type"`
-			Name string `json:"name"`
-		} `json:"status"`
+		//Type   string `json:"type"`
+		Name string `json:"name"`
+		URL  string `json:"url"`
+		//Status struct {
+		//	Type string `json:"type"`
+		//	Name string `json:"name"`
+		//} `json:"status"`
 		StartedOn   *time.Time `json:"started_on"`
 		CompletedOn *time.Time `json:"completed_on"`
 	} `json:"state"`
 	LastUpdateTime *time.Time `json:"last_update_time"`
-	Version        int        `json:"version"`
+	//Version        int        `json:"version"`
 }
 
 var ExtractApiDeploymentsMeta = plugin.SubTaskMeta{
