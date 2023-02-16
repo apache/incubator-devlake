@@ -19,13 +19,14 @@ package helper
 
 import (
 	"fmt"
+	"net/http"
+	"reflect"
+	"time"
+
 	"github.com/apache/incubator-devlake/core/models"
 	"github.com/apache/incubator-devlake/core/plugin"
 	"github.com/apache/incubator-devlake/helpers/pluginhelper/api"
 	apiProject "github.com/apache/incubator-devlake/server/api/project"
-	"net/http"
-	"reflect"
-	"time"
 )
 
 type Connection struct {
@@ -64,8 +65,10 @@ func (d *DevlakeClient) ListConnections(pluginName string) []*Connection {
 }
 
 type BlueprintV2Config struct {
-	Connection       *plugin.BlueprintConnectionV200
+	Connection *plugin.BlueprintConnectionV200
+	// Deprecating(timeAfter): to be deleted
 	CreatedDateAfter *time.Time
+	TimeAfter        *time.Time
 	SkipOnFail       bool
 	ProjectName      string
 }
@@ -73,8 +76,10 @@ type BlueprintV2Config struct {
 // CreateBasicBlueprintV2 FIXME
 func (d *DevlakeClient) CreateBasicBlueprintV2(name string, config *BlueprintV2Config) models.Blueprint {
 	settings := &models.BlueprintSettings{
-		Version:          "2.0.0",
+		Version: "2.0.0",
+		// Deprecating(timeAfter): to be deleted
 		CreatedDateAfter: config.CreatedDateAfter,
+		TimeAfter:        config.TimeAfter,
 		Connections: ToJson([]*plugin.BlueprintConnectionV200{
 			config.Connection,
 		}),

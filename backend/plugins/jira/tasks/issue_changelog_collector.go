@@ -20,6 +20,10 @@ package tasks
 import (
 	"encoding/json"
 	"fmt"
+	"net/http"
+	"net/url"
+	"reflect"
+
 	"github.com/apache/incubator-devlake/core/dal"
 	"github.com/apache/incubator-devlake/core/errors"
 	"github.com/apache/incubator-devlake/core/log"
@@ -27,9 +31,6 @@ import (
 	"github.com/apache/incubator-devlake/helpers/pluginhelper/api"
 	"github.com/apache/incubator-devlake/plugins/jira/models"
 	"github.com/apache/incubator-devlake/plugins/jira/tasks/apiv2models"
-	"net/http"
-	"net/url"
-	"reflect"
 )
 
 var _ plugin.SubTaskEntryPoint = CollectIssueChangelogs
@@ -52,14 +53,14 @@ func CollectIssueChangelogs(taskCtx plugin.SubTaskContext) errors.Error {
 	logger := taskCtx.GetLogger()
 	db := taskCtx.GetDal()
 
-	collectorWithState, err := api.NewApiCollectorWithState(api.RawDataSubTaskArgs{
+	collectorWithState, err := api.NewStatefulApiCollector(api.RawDataSubTaskArgs{
 		Ctx: taskCtx,
 		Params: JiraApiParams{
 			ConnectionId: data.Options.ConnectionId,
 			BoardId:      data.Options.BoardId,
 		},
 		Table: RAW_CHANGELOG_TABLE,
-	}, data.CreatedDateAfter)
+	}, data.TimeAfter)
 	if err != nil {
 		return err
 	}

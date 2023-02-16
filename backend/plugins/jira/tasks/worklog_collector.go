@@ -19,13 +19,14 @@ package tasks
 
 import (
 	"encoding/json"
+	"net/http"
+	"reflect"
+
 	"github.com/apache/incubator-devlake/core/dal"
 	"github.com/apache/incubator-devlake/core/errors"
 	"github.com/apache/incubator-devlake/core/plugin"
 	"github.com/apache/incubator-devlake/helpers/pluginhelper/api"
 	"github.com/apache/incubator-devlake/plugins/jira/tasks/apiv2models"
-	"net/http"
-	"reflect"
 )
 
 const RAW_WORKLOGS_TABLE = "jira_api_worklogs"
@@ -44,14 +45,14 @@ func CollectWorklogs(taskCtx plugin.SubTaskContext) errors.Error {
 
 	logger := taskCtx.GetLogger()
 
-	collectorWithState, err := api.NewApiCollectorWithState(api.RawDataSubTaskArgs{
+	collectorWithState, err := api.NewStatefulApiCollector(api.RawDataSubTaskArgs{
 		Ctx: taskCtx,
 		Params: JiraApiParams{
 			ConnectionId: data.Options.ConnectionId,
 			BoardId:      data.Options.BoardId,
 		},
 		Table: RAW_WORKLOGS_TABLE,
-	}, data.CreatedDateAfter)
+	}, data.TimeAfter)
 	if err != nil {
 		return err
 	}

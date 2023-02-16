@@ -15,23 +15,34 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-package models
+package migrationscripts
 
 import (
 	"time"
+
+	"github.com/apache/incubator-devlake/core/context"
+	"github.com/apache/incubator-devlake/core/errors"
+	"github.com/apache/incubator-devlake/helpers/migrationhelper"
 )
 
-type CollectorLatestState struct {
-	CreatedAt     time.Time `json:"createdAt"`
-	UpdatedAt     time.Time `json:"updatedAt"`
-	RawDataParams string    `gorm:"primaryKey;column:raw_data_params;type:varchar(255);index" json:"raw_data_params"`
-	RawDataTable  string    `gorm:"primaryKey;column:raw_data_table;type:varchar(255)" json:"raw_data_table"`
-	// Deprecating(timeAfter): copy to TimeAfter and delete the field in last step
-	CreatedDateAfter   *time.Time
-	TimeAfter          *time.Time
-	LatestSuccessStart *time.Time
+type collectorLatestState20230213 struct {
+	TimeAfter *time.Time
 }
 
-func (CollectorLatestState) TableName() string {
+func (collectorLatestState20230213) TableName() string {
 	return "_devlake_collector_latest_state"
+}
+
+type addTimeAfterToCollectorMeta20230213 struct{}
+
+func (script *addTimeAfterToCollectorMeta20230213) Up(basicRes context.BasicRes) errors.Error {
+	return migrationhelper.AutoMigrateTables(basicRes, &collectorLatestState20230213{})
+}
+
+func (*addTimeAfterToCollectorMeta20230213) Version() uint64 {
+	return 20230213200040
+}
+
+func (*addTimeAfterToCollectorMeta20230213) Name() string {
+	return "add time_after to _devlake_collector_latest_state"
 }
