@@ -41,7 +41,8 @@ func TestMakeDataSourcePipelinePlanV200(t *testing.T) {
 	const testKey string = "TEST"
 	const testBambooEndPoint string = "http://mail.nddtf.com:8085/rest/api/latest/"
 	const testLink string = "http://mail.nddtf.com:8085/rest/api/latest/project/TEST"
-	const testToken string = "nddtf"
+	const testUser string = "username"
+	const testPass string = "password"
 	const testName string = "bamboo-test"
 	const testTransformationRuleName string = "bamboo transformation rule"
 	const testProxy string = ""
@@ -57,7 +58,7 @@ func TestMakeDataSourcePipelinePlanV200(t *testing.T) {
 
 	var testBambooProject = &models.BambooProject{
 		ConnectionId: testConnectionID,
-		Key:          testKey,
+		ProjectKey:   testKey,
 		Name:         testName,
 		Href:         testLink,
 
@@ -84,8 +85,9 @@ func TestMakeDataSourcePipelinePlanV200(t *testing.T) {
 				Proxy:            testProxy,
 				RateLimitPerHour: 0,
 			},
-			AccessToken: helper.AccessToken{
-				Token: testToken,
+			BasicAuth: helper.BasicAuth{
+				Username: testUser,
+				Password: testPass,
 			},
 		},
 	}
@@ -101,7 +103,7 @@ func TestMakeDataSourcePipelinePlanV200(t *testing.T) {
 				Subtasks: []string{},
 				Options: map[string]interface{}{
 					"connectionId":         uint64(1),
-					"key":                  testKey,
+					"projectKey":           testKey,
 					"transformationRuleId": testTransformationRuleId,
 				},
 			},

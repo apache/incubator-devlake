@@ -34,7 +34,7 @@ type BambooOptions struct {
 	// Such As How many rows do your want
 	// You can use it in sub tasks and you need pass it in main.go and pipelines.
 	ConnectionId     uint64   `json:"connectionId"`
-	Key              string   `json:"key"`
+	ProjectKey       string   `json:"projectKey"`
 	CreatedDateAfter string   `json:"createdDateAfter" mapstructure:"createdDateAfter,omitempty"`
 	Tasks            []string `json:"tasks,omitempty"`
 

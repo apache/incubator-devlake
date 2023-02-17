@@ -109,7 +109,7 @@ func makePipelinePlanV200(
 		// bamboo main part
 		options := make(map[string]interface{})
 		options["connectionId"] = connection.ID
-		options["key"] = scope.Id
+		options["projectKey"] = scope.Id
 		options["transformationRuleId"] = transformationRules.ID
 
 		// construct subtasks

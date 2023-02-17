@@ -110,14 +110,14 @@ func (p Bamboo) PrepareTaskData(taskCtx plugin.TaskContext, options map[string]i
 		return nil, errors.Default.Wrap(err, "unable to get Bamboo API client instance")
 	}
 
-	if op.Key != "" {
+	if op.ProjectKey != "" {
 		var scope *models.BambooProject
 		// support v100 & advance mode
 		// If we still cannot find the record in db, we have to request from remote server and save it to db
 		db := taskCtx.GetDal()
-		err = db.First(&scope, dal.Where("connection_id = ? AND key = ?", op.ConnectionId, op.Key))
+		err = db.First(&scope, dal.Where("connection_id = ? AND key = ?", op.ConnectionId, op.ProjectKey))
 		if err != nil && db.IsErrorNotFound(err) {
-			apiProject, err := api.GetApiProject(op.Key, apiClient)
+			apiProject, err := api.GetApiProject(op.ProjectKey, apiClient)
 			if err != nil {
 				return nil, err
 			}
@@ -130,7 +130,7 @@ func (p Bamboo) PrepareTaskData(taskCtx plugin.TaskContext, options map[string]i
 			}
 		}
 		if err != nil {
-			return nil, errors.Default.Wrap(err, fmt.Sprintf("fail to find project: %s", op.Key))
+			return nil, errors.Default.Wrap(err, fmt.Sprintf("fail to find project: %s", op.ProjectKey))
 		}
 	}
 

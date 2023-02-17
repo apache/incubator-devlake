@@ -19,7 +19,7 @@ package models
 
 type ApiBambooLink struct {
 	Href string `json:"href"`
-	Ref  string `json:"rel"`
+	Rel  string `json:"rel"`
 }
 
 type ApiBambooSizeData struct {
