@@ -26,8 +26,8 @@ import * as API from './api';
 interface Props {
   plugin: string;
   connectionId: ID;
-  selectedItems?: ItemType[];
-  onChangeItems?: (selectedItems: any) => void;
+  selectedItems?: any[];
+  onChangeItems?: (selectedItems: any[]) => void;
 }
 
 export const DataScopeSearch = ({ plugin, connectionId, selectedItems, onChangeItems }: Props) => {
