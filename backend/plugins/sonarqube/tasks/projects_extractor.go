@@ -44,12 +44,12 @@ func ExtractProjects(taskCtx plugin.SubTaskContext) errors.Error {
 		Extract: func(resData *helper.RawData) ([]interface{}, errors.Error) {
 			res := SonarqubeApiProject{}
 			err := errors.Convert(json.Unmarshal(resData.Data, &res))
-			body := ConvertProject(&res)
-			body.ConnectionId = data.Options.ConnectionId
-			data.LastAnalysisDate = body.LastAnalysisDate.ToNullableTime()
 			if err != nil {
 				return nil, err
 			}
+			body := ConvertProject(&res)
+			body.ConnectionId = data.Options.ConnectionId
+			data.LastAnalysisDate = body.LastAnalysisDate.ToNullableTime()
 			return []interface{}{body}, nil
 		},
 	})

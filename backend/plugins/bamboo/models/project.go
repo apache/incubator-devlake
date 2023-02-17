@@ -15,29 +15,21 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-package migrationscripts
+package models
 
-import (
-	"github.com/apache/incubator-devlake/core/context"
-	"github.com/apache/incubator-devlake/core/errors"
-	"github.com/apache/incubator-devlake/helpers/migrationhelper"
-	"github.com/apache/incubator-devlake/plugins/bamboo/models/migrationscripts/archived"
-)
+import "github.com/apache/incubator-devlake/core/models/common"
 
-type addInitTables struct{}
-
-func (u *addInitTables) Up(baseRes context.BasicRes) errors.Error {
-	return migrationhelper.AutoMigrateTables(
-		baseRes,
-		&archived.BambooConnection{},
-		&archived.BambooProject{},
-	)
+type BambooProject struct {
+	ConnectionId uint64 `gorm:"primaryKey"`
+	ProjectKey   string `gorm:"primaryKey;type:varchar(100)"`
+	Expand       string `json:"expand"`
+	Name         string `gorm:"index;type:varchar(100)"`
+	Description  string `json:"description"`
+	Href         string `json:"link"`
+	Rel          string `gorm:"type:varchar(100)"`
+	common.NoPKModel
 }
 
-func (*addInitTables) Version() uint64 {
-	return 20230216205028
-}
-
-func (*addInitTables) Name() string {
-	return "bamboo init schemas"
+func (BambooProject) TableName() string {
+	return "_tool_bamboo_projects"
 }

@@ -368,7 +368,7 @@ func (t *DataFlowTester) VerifyTableWithRawData(dst schema.Tabler, csvRelPath st
 }
 
 // VerifyTable reads rows from csv file and compare with records from database one by one. You must specify the
-// Primary Key Fields with `pkFields` so DataFlowTester could select the exact record from database, as well as which
+// Primary ProjectKey Fields with `pkFields` so DataFlowTester could select the exact record from database, as well as which
 // fields to compare with by specifying `targetFields` parameter. Leaving `targetFields` empty/nil will compare all fields.
 func (t *DataFlowTester) VerifyTable(dst schema.Tabler, csvRelPath string, targetFields []string) {
 	t.VerifyTableWithOptions(dst, TableOptions{

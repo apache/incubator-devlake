@@ -69,7 +69,7 @@ func (at *AccessToken) GetAccessTokenAuthenticator() apihelperabstract.ApiAuthen
 	return at
 }
 
-// AppKey implements the API Key and Secret authentication mechanism
+// AppKey implements the API ProjectKey and Secret authentication mechanism
 type AppKey struct {
 	AppId     string `mapstructure:"appId" validate:"required" json:"appId"`
 	SecretKey string `mapstructure:"secretKey" validate:"required" json:"secretKey" gorm:"serializer:encdec"`

@@ -23,6 +23,8 @@ import (
 )
 
 type BambooApiParams struct {
+	ConnectionId uint64 `json:"connectionId"`
+	ProjectKey   string
 }
 
 type BambooOptions struct {
@@ -30,9 +32,10 @@ type BambooOptions struct {
 	// options means some custom params required by plugin running.
 	// Such As How many rows do your want
 	// You can use it in sub tasks and you need pass it in main.go and pipelines.
-	ConnectionId uint64   `json:"connectionId"`
-	Tasks        []string `json:"tasks,omitempty"`
-	Since        string
+	ConnectionId     uint64   `json:"connectionId"`
+	ProjectKey       string   `json:"projectKey"`
+	CreatedDateAfter string   `json:"createdDateAfter" mapstructure:"createdDateAfter,omitempty"`
+	Tasks            []string `json:"tasks,omitempty"`
 }
 
 type BambooTaskData struct {
