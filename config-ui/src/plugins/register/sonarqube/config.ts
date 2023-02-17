@@ -40,7 +40,7 @@ export const SonarQubeConfig: PluginConfigType = {
           'By default, DevLake uses 18,000 requests/hour for data collection for Azure DevOps. But you can adjust the collection speed by setting up your desirable rate limit.',
         learnMore: 'https://devlake.apache.org/docs/UserManuals/ConfigUI/AzureDevOps/#custom-rate-limit-optional',
         externalInfo: 'Azure DevOps does not specify a maximum value of rate limit.',
-        maximum: 18000,
+        defaultValue: 18000,
       },
     ],
   },
