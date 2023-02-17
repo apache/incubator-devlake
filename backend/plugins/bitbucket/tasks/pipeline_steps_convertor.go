@@ -1,0 +1,125 @@
+/*
+Licensed to the Apache Software Foundation (ASF) under one or more
+contributor license agreements.  See the NOTICE file distributed with
+this work for additional information regarding copyright ownership.
+The ASF licenses this file to You under the Apache License, Version 2.0
+(the "License"); you may not use this file except in compliance with
+the License.  You may obtain a copy of the License at
+
+    http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
+*/
+
+package tasks
+
+import (
+	"github.com/apache/incubator-devlake/core/dal"
+	"github.com/apache/incubator-devlake/core/errors"
+	"github.com/apache/incubator-devlake/core/models/domainlayer"
+	"github.com/apache/incubator-devlake/core/models/domainlayer/devops"
+	"github.com/apache/incubator-devlake/core/models/domainlayer/didgen"
+	plugin "github.com/apache/incubator-devlake/core/plugin"
+	"github.com/apache/incubator-devlake/helpers/pluginhelper/api"
+	"github.com/apache/incubator-devlake/plugins/bitbucket/models"
+	"reflect"
+)
+
+var ConvertPipelineStepMeta = plugin.SubTaskMeta{
+	Name:             "convertPipelineSteps",
+	EntryPoint:       ConvertPipelineSteps,
+	EnabledByDefault: true,
+	Description:      "Convert tool layer table bitbucket_pipeline into domain layer table pipeline",
+	DomainTypes:      []string{plugin.DOMAIN_TYPE_CICD},
+}
+
+func ConvertPipelineSteps(taskCtx plugin.SubTaskContext) errors.Error {
+	rawDataSubTaskArgs, data := CreateRawDataSubTaskArgs(taskCtx, RAW_PIPELINE_STEPS_TABLE)
+	db := taskCtx.GetDal()
+
+	deploymentPattern := data.Options.DeploymentPattern
+	productionPattern := data.Options.ProductionPattern
+	regexEnricher := api.NewRegexEnricher()
+	err := regexEnricher.AddRegexp(deploymentPattern, productionPattern)
+	if err != nil {
+		return err
+	}
+
+	cursor, err := db.Cursor(dal.From(models.BitbucketPipelineStep{}))
+	if err != nil {
+		return err
+	}
+	defer cursor.Close()
+
+	pipelineIdGen := didgen.NewDomainIdGenerator(&models.BitbucketPipelineStep{})
+
+	converter, err := api.NewDataConverter(api.DataConverterArgs{
+		InputRowType:       reflect.TypeOf(models.BitbucketPipelineStep{}),
+		Input:              cursor,
+		RawDataSubTaskArgs: *rawDataSubTaskArgs,
+		Convert: func(inputRow interface{}) ([]interface{}, errors.Error) {
+			bitbucketPipelineStep := inputRow.(*models.BitbucketPipelineStep)
+
+			domainTask := &devops.CICDTask{
+				DomainEntity: domainlayer.DomainEntity{
+					Id: pipelineIdGen.Generate(data.Options.ConnectionId, bitbucketPipelineStep.BitbucketId),
+				},
+				Name:       bitbucketPipelineStep.Name,
+				PipelineId: bitbucketPipelineStep.PipelineId,
+				Result: devops.GetResult(&devops.ResultRule{
+					Failed:  []string{models.FAILED, models.ERROR, models.UNDEPLOYED},
+					Abort:   []string{models.STOPPED, models.SKIPPED},
+					Success: []string{models.SUCCESSFUL, models.COMPLETED},
+					Manual:  []string{models.PAUSED, models.HALTED},
+					Default: devops.SUCCESS,
+				}, bitbucketPipelineStep.Result),
+				Status: devops.GetStatus(&devops.StatusRule{
+					InProgress: []string{models.IN_PROGRESS, models.PENDING, models.BUILDING},
+					Default:    devops.DONE,
+				}, bitbucketPipelineStep.State),
+			}
+			if bitbucketPipelineStep.StartedOn != nil {
+				domainTask.StartedDate = *bitbucketPipelineStep.StartedOn
+			}
+			// rebuild the FinishedDate
+			if domainTask.Status == devops.DONE {
+				domainTask.FinishedDate = bitbucketPipelineStep.CompletedOn
+				domainTask.DurationSec = uint64(bitbucketPipelineStep.DurationInSeconds)
+			}
+
+			bitbucketDeployment := &models.BitbucketDeployment{}
+			deploymentErr := db.First(bitbucketDeployment, dal.Where(`step_id=?`, bitbucketPipelineStep.BitbucketId))
+			if deploymentErr == nil {
+				domainTask.Type = devops.DEPLOYMENT
+				if bitbucketDeployment.EnvironmentType == `Production` {
+					domainTask.Environment = devops.PRODUCTION
+				} else if bitbucketDeployment.EnvironmentType == `Staging` {
+					domainTask.Environment = devops.STAGING
+				} else if bitbucketDeployment.EnvironmentType == `Test` {
+					domainTask.Environment = devops.TESTING
+				}
+			}
+			if domainTask.Type == `` {
+				domainTask.Type = regexEnricher.GetEnrichResult(deploymentPattern, bitbucketPipelineStep.Name, devops.DEPLOYMENT)
+				if domainTask.Type != `` {
+					// only check env after type recognized
+					domainTask.Environment = regexEnricher.GetEnrichResult(productionPattern, bitbucketPipelineStep.Name, devops.PRODUCTION)
+				}
+			}
+
+			return []interface{}{
+				domainTask,
+			}, nil
+		},
+	})
+
+	if err != nil {
+		return err
+	}
+
+	return converter.Execute()
+}

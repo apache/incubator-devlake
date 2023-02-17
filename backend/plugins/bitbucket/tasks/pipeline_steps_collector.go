@@ -23,25 +23,27 @@ import (
 	helper "github.com/apache/incubator-devlake/helpers/pluginhelper/api"
 )
 
-const RAW_PULL_REQUEST_COMMENTS_TABLE = "bitbucket_api_pull_request_comments"
+const RAW_PIPELINE_STEPS_TABLE = "bitbucket_pipeline_steps"
 
-var CollectApiPrCommentsMeta = plugin.SubTaskMeta{
-	Name:             "collectApiPullRequestsComments",
-	EntryPoint:       CollectApiPullRequestsComments,
+var _ plugin.SubTaskEntryPoint = CollectPipelineSteps
+
+var CollectPipelineStepsMeta = plugin.SubTaskMeta{
+	Name:             "CollectPipelineSteps",
+	EntryPoint:       CollectPipelineSteps,
 	EnabledByDefault: true,
-	Required:         true,
-	Description:      "Collect pull requests comments data from bitbucket api",
-	DomainTypes:      []string{plugin.DOMAIN_TYPE_CODE_REVIEW},
+	Description:      "Collect PipelineSteps data from Bitbucket api",
+	DomainTypes:      []string{plugin.DOMAIN_TYPE_CICD},
 }
 
-func CollectApiPullRequestsComments(taskCtx plugin.SubTaskContext) errors.Error {
-	rawDataSubTaskArgs, data := CreateRawDataSubTaskArgs(taskCtx, RAW_PULL_REQUEST_COMMENTS_TABLE)
+func CollectPipelineSteps(taskCtx plugin.SubTaskContext) errors.Error {
+	rawDataSubTaskArgs, data := CreateRawDataSubTaskArgs(taskCtx, RAW_PIPELINE_STEPS_TABLE)
+
 	collectorWithState, err := helper.NewApiCollectorWithState(*rawDataSubTaskArgs, data.CreatedDateAfter)
 	if err != nil {
 		return err
 	}
 
-	iterator, err := GetPullRequestsIterator(taskCtx, collectorWithState)
+	iterator, err := GetPipelinesIterator(taskCtx, collectorWithState)
 	if err != nil {
 		return err
 	}
@@ -52,9 +54,11 @@ func CollectApiPullRequestsComments(taskCtx plugin.SubTaskContext) errors.Error 
 		PageSize:    100,
 		Incremental: collectorWithState.IsIncremental(),
 		Input:       iterator,
-		UrlTemplate: "repositories/{{ .Params.FullName }}/pullrequests/{{ .Input.BitbucketId }}/comments",
+		UrlTemplate: "repositories/{{ .Params.FullName }}/pipelines/{{ .Input.BitbucketId }}/steps/",
 		Query: GetQueryFields(
-			`values.id,values.type,values.created_on,values.updated_on,values.content.raw,values.pullrequest.id,values.user,` +
+			`values.type,values.name,values.uuid,values.pipeline.uuid,values.trigger.type,` +
+				`values.state.name,values.state.result.name,values.maxTime,values.started_on,` +
+				`values.completed_on,values.duration_in_seconds,values.build_seconds_used,values.run_number,` +
 				`page,pagelen,size`),
 		GetTotalPages:  GetTotalPagesFromResponse,
 		ResponseParser: GetRawMessageFromResponse,
@@ -62,6 +66,5 @@ func CollectApiPullRequestsComments(taskCtx plugin.SubTaskContext) errors.Error 
 	if err != nil {
 		return err
 	}
-
 	return collectorWithState.Execute()
 }
