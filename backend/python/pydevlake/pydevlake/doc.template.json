@@ -118,13 +118,16 @@
         "/plugins/$plugin_name/test": {
             "post": {
                 "description": "Test if a connection is valid",
-                "body": {
-                    "application/json": {
+                "parameters": [
+                    {
+                        "name": "connection",
+                        "required": true,
+                        "in": "body",
                         "schema": {
                             "$$ref": "#/components/schemas/connection"
                         }
                     }
-                }
+                ]
             },
             "response": {
                 "200": {
