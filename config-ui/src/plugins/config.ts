@@ -31,6 +31,7 @@ import { GitLabConfig } from './register/gitlab';
 import { JenkinsConfig } from './register/jenkins';
 import { JIRAConfig } from './register/jira';
 import { RefDiffConfig } from './register/refdiff';
+import { SonarQubeConfig } from './register/sonarqube';
 import { StarRocksConfig } from './register/starrocks';
 import { TAPDConfig } from './register/tapd';
 import { WebhookConfig } from './register/webook';
@@ -50,6 +51,7 @@ export const PluginConfig: PluginConfigType[] = [
   JenkinsConfig,
   JIRAConfig,
   RefDiffConfig,
+  SonarQubeConfig,
   StarRocksConfig,
   BitBucketConfig,
   TAPDConfig,

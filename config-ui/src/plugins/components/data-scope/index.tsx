@@ -24,12 +24,13 @@ import { GitHubDataScope } from '@/plugins/register/github';
 import { JIRADataScope } from '@/plugins/register/jira';
 import { GitLabDataScope } from '@/plugins/register/gitlab';
 import { JenkinsDataScope } from '@/plugins/register/jenkins';
+import { BitbucketDataScope } from '@/plugins/register/bitbucket';
+import { SonarQubeDataScope } from '@/plugins/register/sonarqube';
 import { MultiSelector } from '@/components';
 
 import type { UseDataScope } from './use-data-scope';
 import { useDataScope } from './use-data-scope';
 import * as S from './styled';
-import {BitbucketDataScope} from "@/plugins/register/bitbucket";
 
 interface Props extends UseDataScope {
   onCancel?: () => void;
@@ -64,6 +65,10 @@ export const DataScope = ({ plugin, connectionId, entities, onCancel, ...props }
 
         {plugin === 'bitbucket' && (
           <BitbucketDataScope connectionId={connectionId} selectedItems={selectedScope} onChangeItems={onChangeScope} />
+        )}
+
+        {plugin === 'sonarqube' && (
+          <SonarQubeDataScope connectionId={connectionId} selectedItems={selectedScope} onChangeItems={onChangeScope} />
         )}
       </div>
 

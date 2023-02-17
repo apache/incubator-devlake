@@ -57,16 +57,19 @@ export const useColumns = ({ onDetail }: Props) => {
           title: '',
           key: 'action',
           align: 'center',
-          render: (_: any, connection: BPConnectionItemType) => (
-            <Button
-              small
-              minimal
-              intent={Intent.PRIMARY}
-              icon="add"
-              text="Add Transformation"
-              onClick={() => onDetail(connection)}
-            />
-          ),
+          render: (_: any, connection: BPConnectionItemType) =>
+            connection.plugin === 'sonarqube' ? (
+              'No Transformation Required'
+            ) : (
+              <Button
+                small
+                minimal
+                intent={Intent.PRIMARY}
+                icon="add"
+                text="Add Transformation"
+                onClick={() => onDetail(connection)}
+              />
+            ),
         },
       ] as ColumnType<BPConnectionItemType>,
     [],
