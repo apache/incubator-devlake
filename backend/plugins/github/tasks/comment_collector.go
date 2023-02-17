@@ -39,7 +39,7 @@ func CollectApiComments(taskCtx plugin.SubTaskContext) errors.Error {
 			Name:         data.Options.Name,
 		},
 		Table: RAW_COMMENTS_TABLE,
-	}, data.CreatedDateAfter)
+	}, data.TimeAfter)
 	if err != nil {
 		return err
 	}
@@ -55,11 +55,11 @@ func CollectApiComments(taskCtx plugin.SubTaskContext) errors.Error {
 			query := url.Values{}
 			query.Set("state", "all")
 			// if data.CreatedDateAfter != nil, we set since once
-			if data.CreatedDateAfter != nil {
+			if data.TimeAfter != nil {
 				// Note that `since` is for filtering records by the `updated` time
 				// which is not ideal for semantic reasons and would result in slightly more records than expected.
 				// But we have no choice since it is the only available field we could exploit from the API.
-				query.Set("since", data.CreatedDateAfter.String())
+				query.Set("since", data.TimeAfter.String())
 			}
 			// if incremental == true, we overwrite it
 			if incremental {

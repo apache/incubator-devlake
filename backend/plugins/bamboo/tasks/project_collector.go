@@ -20,68 +20,60 @@ package tasks
 import (
 	"encoding/json"
 	"fmt"
-	"net/http"
-	"net/url"
-
 	"github.com/apache/incubator-devlake/core/errors"
 	"github.com/apache/incubator-devlake/core/plugin"
 	helper "github.com/apache/incubator-devlake/helpers/pluginhelper/api"
+	"io"
+	"net/http"
+	"net/url"
 )
 
-const RAW_PULL_REQUEST_TABLE = "github_api_pull_requests"
+const RAW_PROJECT_TABLE = "bamboo_project"
 
-var CollectApiPullRequestsMeta = plugin.SubTaskMeta{
-	Name:             "collectApiPullRequests",
-	EntryPoint:       CollectApiPullRequests,
-	EnabledByDefault: true,
-	Description:      "Collect PullRequests data from Github api",
-	DomainTypes:      []string{plugin.DOMAIN_TYPE_CROSS, plugin.DOMAIN_TYPE_CODE_REVIEW},
-}
+var _ plugin.SubTaskEntryPoint = CollectProject
 
-func CollectApiPullRequests(taskCtx plugin.SubTaskContext) errors.Error {
-	data := taskCtx.GetData().(*GithubTaskData)
-	collectorWithState, err := helper.NewApiCollectorWithState(helper.RawDataSubTaskArgs{
-		Ctx: taskCtx,
-		Params: GithubApiParams{
-			ConnectionId: data.Options.ConnectionId,
-			Name:         data.Options.Name,
-		},
-		Table: RAW_PULL_REQUEST_TABLE,
-	}, data.TimeAfter)
+func CollectProject(taskCtx plugin.SubTaskContext) errors.Error {
+	rawDataSubTaskArgs, data := CreateRawDataSubTaskArgs(taskCtx, RAW_PROJECT_TABLE)
+
+	collectorWithState, err := helper.NewApiCollectorWithState(*rawDataSubTaskArgs, nil)
 	if err != nil {
 		return err
 	}
+	incremental := collectorWithState.IsIncremental()
 
 	err = collectorWithState.InitCollector(helper.ApiCollectorArgs{
+		Incremental: incremental,
 		ApiClient:   data.ApiClient,
-		PageSize:    100,
-		Incremental: false,
-
-		UrlTemplate: "repos/{{ .Params.Name }}/pulls",
-
+		// TODO write which api would you want request
+		UrlTemplate: "project/{{ .Params.ProjectKey }}.json",
 		Query: func(reqData *helper.RequestData) (url.Values, errors.Error) {
 			query := url.Values{}
-			query.Set("state", "all")
-			query.Set("page", fmt.Sprintf("%v", reqData.Pager.Page))
-			query.Set("direction", "asc")
-			query.Set("per_page", fmt.Sprintf("%v", reqData.Pager.Size))
-
+			query.Set("showEmpty", fmt.Sprintf("%v", true))
 			return query, nil
 		},
+		GetTotalPages: func(res *http.Response, args *helper.ApiCollectorArgs) (int, errors.Error) {
+			return 1, nil
+		},
 
-		GetTotalPages: GetTotalPagesFromResponse,
 		ResponseParser: func(res *http.Response) ([]json.RawMessage, errors.Error) {
-			var items []json.RawMessage
-			err := helper.UnmarshalResponse(res, &items)
+			body, err := io.ReadAll(res.Body)
 			if err != nil {
-				return nil, err
+				return nil, errors.Convert(err)
 			}
-			return items, nil
+			res.Body.Close()
+			return []json.RawMessage{body}, nil
 		},
 	})
 	if err != nil {
 		return err
 	}
-
 	return collectorWithState.Execute()
+}
+
+var CollectProjectMeta = plugin.SubTaskMeta{
+	Name:             "CollectProject",
+	EntryPoint:       CollectProject,
+	EnabledByDefault: true,
+	Description:      "Collect Project data from Bamboo api",
+	DomainTypes:      []string{plugin.DOMAIN_TYPE_CICD},
 }

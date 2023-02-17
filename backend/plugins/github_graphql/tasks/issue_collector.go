@@ -18,6 +18,9 @@ limitations under the License.
 package tasks
 
 import (
+	"strings"
+	"time"
+
 	"github.com/apache/incubator-devlake/core/dal"
 	"github.com/apache/incubator-devlake/core/errors"
 	"github.com/apache/incubator-devlake/core/models/domainlayer/ticket"
@@ -26,8 +29,6 @@ import (
 	"github.com/apache/incubator-devlake/plugins/github/models"
 	githubTasks "github.com/apache/incubator-devlake/plugins/github/tasks"
 	"github.com/merico-dev/graphql"
-	"strings"
-	"time"
 )
 
 const RAW_ISSUES_TABLE = "github_graphql_issues"
@@ -129,7 +130,7 @@ func CollectIssue(taskCtx plugin.SubTaskContext) errors.Error {
 			results := make([]interface{}, 0, 1)
 			isFinish := false
 			for _, issue := range issues {
-				if data.CreatedDateAfter != nil && !data.CreatedDateAfter.Before(issue.CreatedAt) {
+				if data.TimeAfter != nil && !data.TimeAfter.Before(issue.CreatedAt) {
 					isFinish = true
 					break
 				}

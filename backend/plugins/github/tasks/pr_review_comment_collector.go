@@ -42,7 +42,7 @@ func CollectPrReviewComments(taskCtx plugin.SubTaskContext) errors.Error {
 			Name:         data.Options.Name,
 		},
 		Table: RAW_PR_REVIEW_COMMENTS_TABLE,
-	}, data.CreatedDateAfter)
+	}, data.TimeAfter)
 	if err != nil {
 		return err
 	}
@@ -57,11 +57,11 @@ func CollectPrReviewComments(taskCtx plugin.SubTaskContext) errors.Error {
 		Query: func(reqData *helper.RequestData) (url.Values, errors.Error) {
 			query := url.Values{}
 			// if data.CreatedDateAfter != nil, we set since once
-			if data.CreatedDateAfter != nil {
+			if data.TimeAfter != nil {
 				// Note that `since` is for filtering records by the `updated` time
 				// which is not ideal for semantic reasons and would result in slightly more records than expected.
 				// But we have no choice since it is the only available field we could exploit from the API.
-				query.Set("since", data.CreatedDateAfter.String())
+				query.Set("since", data.TimeAfter.String())
 			}
 			// if incremental == true, we overwrite it
 			if incremental {

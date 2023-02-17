@@ -70,6 +70,7 @@ func (p Bamboo) MakeDataSourcePipelinePlanV200(connectionId uint64, scopes []*pl
 func (p Bamboo) GetTablesInfo() []dal.Tabler {
 	return []dal.Tabler{
 		&models.BambooConnection{},
+		&models.BambooProject{},
 	}
 }
 
@@ -79,7 +80,11 @@ func (p Bamboo) Description() string {
 
 func (p Bamboo) SubTaskMetas() []plugin.SubTaskMeta {
 	// TODO add your sub task here
-	return []plugin.SubTaskMeta{}
+	return []plugin.SubTaskMeta{
+		tasks.CollectProjectMeta,
+		tasks.ExtractProjectMeta,
+		tasks.ConvertProjectsMeta,
+	}
 }
 
 func (p Bamboo) PrepareTaskData(taskCtx plugin.TaskContext, options map[string]interface{}) (interface{}, errors.Error) {

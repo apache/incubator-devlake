@@ -37,13 +37,13 @@ type BambooConnection struct {
 type BambooConn struct {
 	api.RestConnection `mapstructure:",squash"`
 	//TODO you may need to use helper.BasicAuth instead of helper.AccessToken
-	api.AccessToken `mapstructure:",squash"`
+	api.BasicAuth `mapstructure:",squash"`
 }
 
 // PrepareApiClient test api and set the IsPrivateToken,version,UserId and so on.
 func (conn *BambooConn) PrepareApiClient(apiClient apihelperabstract.ApiClientAbstract) errors.Error {
 	header := http.Header{}
-	header.Set("Authorization", fmt.Sprintf("Bearer %v", conn.Token))
+	header.Set("Authorization", fmt.Sprintf("Basic %v", conn.GetEncodedToken()))
 
 	res, err := apiClient.Get("info.json", nil, header)
 	if err != nil {

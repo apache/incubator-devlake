@@ -43,11 +43,12 @@ type ApiBambooProjectResponse struct {
 
 type BambooProject struct {
 	ConnectionId         uint64 `json:"connectionId" mapstructure:"connectionId" gorm:"primaryKey"`
-	Key                  string `json:"key" gorm:"primaryKey;type:varchar(512)"`
+	Key                  string `json:"key" gorm:"primaryKey;type:varchar(256)"`
 	TransformationRuleId uint64 `json:"transformationRuleId,omitempty" mapstructure:"transformationRuleId"`
-	Name                 string `json:"name"`
+	Name                 string `json:"name" gorm:"index;type:varchar(256)"`
 	Description          string `json:"description"`
 	Href                 string `json:"link"`
+	Rel                  string `json:"rel" gorm:"type:varchar(100)"`
 	common.NoPKModel     `json:"-" mapstructure:"-"`
 }
 
@@ -59,5 +60,5 @@ func (b *BambooProject) Convert(apiProject *ApiBambooProject) {
 }
 
 func (b *BambooProject) TableName() string {
-	return "_tool_bamboo_Projects"
+	return "_tool_bamboo_projects"
 }
