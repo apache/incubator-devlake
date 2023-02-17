@@ -36,15 +36,15 @@ type RestConnection struct {
 	RateLimitPerHour int    `comment:"api request rate limit per hour" json:"rateLimitPerHour"`
 }
 
-// AccessToken FIXME ...
-type AccessToken struct {
-	Token string `mapstructure:"token" validate:"required" json:"token" encrypt:"yes"`
+type BasicAuth struct {
+	Username string `mapstructure:"username" validate:"required" json:"username"`
+	Password string `mapstructure:"password" validate:"required" json:"password"`
 }
 
 type BambooConn struct {
 	RestConnection `mapstructure:",squash"`
 	//TODO you may need to use helper.BasicAuth instead of helper.AccessToken
-	AccessToken `mapstructure:",squash"`
+	BasicAuth `mapstructure:",squash"`
 }
 
 // TODO Please modify the following code to fit your needs
@@ -55,9 +55,9 @@ type BambooConnection struct {
 }
 
 type TestConnectionRequest struct {
-	Endpoint    string `json:"endpoint"`
-	Proxy       string `json:"proxy"`
-	AccessToken `mapstructure:",squash"`
+	Endpoint  string `json:"endpoint"`
+	Proxy     string `json:"proxy"`
+	BasicAuth `mapstructure:",squash"`
 }
 
 // This object conforms to what the frontend currently expects.
