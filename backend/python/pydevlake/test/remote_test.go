@@ -64,10 +64,9 @@ func TestRunSubTask(t *testing.T) {
 	dataflowTester := e2ehelper.NewDataFlowTester(t, "circleci", remotePlugin)
 	subtask := remotePlugin.SubTaskMetas()[0]
 	options := make(map[string]interface{})
-	options["project_slug"] = "gh/circleci/bond"
-	options["scopeId"] = "1"
 	taskData := plg.RemotePluginTaskData{
 		DbUrl:      bridge.DefaultContext.GetConfig("db_url"),
+		ScopeId:    "gh/circleci/bond",
 		Connection: CircleCIConnection{ID: 1},
 		Options:    options,
 	}

@@ -20,6 +20,7 @@ package plugin
 import (
 	"fmt"
 
+	"github.com/apache/incubator-devlake/core/dal"
 	"github.com/apache/incubator-devlake/core/errors"
 	coreModels "github.com/apache/incubator-devlake/core/models"
 	"github.com/apache/incubator-devlake/core/plugin"
@@ -40,10 +41,12 @@ type (
 		resources                map[string]map[string]plugin.ApiResourceHandler
 	}
 	RemotePluginTaskData struct {
-		DbUrl        string                 `json:"db_url"`
-		ConnectionId uint64                 `json:"connection_id"`
-		Connection   interface{}            `json:"connection"`
-		Options      map[string]interface{} `json:"options"`
+		DbUrl              string                 `json:"db_url"`
+		ScopeId            string                 `json:"scope_id"`
+		ConnectionId       uint64                 `json:"connection_id"`
+		Connection         interface{}            `json:"connection"`
+		TransformationRule interface{}            `json:"transformation_rule"`
+		Options            map[string]interface{} `json:"options"`
 	}
 )
 
@@ -102,11 +105,27 @@ func (p *remotePluginImpl) PrepareTaskData(taskCtx plugin.TaskContext, options m
 		return nil, errors.Convert(err)
 	}
 
+	scopeId, ok := options["scopeId"].(string)
+	if !ok {
+		return nil, errors.BadInput.New("missing scopeId")
+	}
+
+	txRule := p.transformationRuleTabler.New()
+	txRuleId, ok := options["transformation_rule_id"].(uint64)
+	if ok {
+		db := taskCtx.GetDal()
+		err = db.First(&txRule, dal.Where("id = ?", txRuleId))
+		if err != nil {
+			return nil, errors.BadInput.New("invalid transformation rule id")
+		}
+	}
+
 	return RemotePluginTaskData{
-		DbUrl:        dbUrl,
-		ConnectionId: connectionId,
-		Connection:   connection.Unwrap(),
-		Options:      options,
+		DbUrl:              dbUrl,
+		ScopeId:            scopeId,
+		ConnectionId:       connectionId,
+		Connection:         connection.Unwrap(),
+		TransformationRule: txRule,
 	}, nil
 }
 
