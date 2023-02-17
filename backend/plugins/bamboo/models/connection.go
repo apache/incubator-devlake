@@ -40,12 +40,6 @@ type BambooConn struct {
 	api.AccessToken `mapstructure:",squash"`
 }
 
-// this function is used to rewrite the same function of AccessToken
-func (conn *BambooConn) SetupAuthentication(request *http.Request) errors.Error {
-	request.Header.Set("Authorization", fmt.Sprintf("Bearer %v", conn.Token))
-	return nil
-}
-
 // PrepareApiClient test api and set the IsPrivateToken,version,UserId and so on.
 func (conn *BambooConn) PrepareApiClient(apiClient apihelperabstract.ApiClientAbstract) errors.Error {
 	header := http.Header{}
@@ -53,38 +47,38 @@ func (conn *BambooConn) PrepareApiClient(apiClient apihelperabstract.ApiClientAb
 
 	res, err := apiClient.Get("", nil, header)
 	if err != nil {
-		return errors.HttpStatus(500).New(fmt.Sprintf("Get failed %s", err.Error()))
+		return errors.HttpStatus(400).New(fmt.Sprintf("Get failed %s", err.Error()))
 	}
-	resBody1 := &ApiXMLResourcesResponse{}
+	resources := &ApiXMLResourcesResponse{}
 
 	if res.StatusCode != http.StatusOK {
 		return errors.HttpStatus(res.StatusCode).New(fmt.Sprintf("unexpected status code: %d", res.StatusCode))
 	}
 
-	err = api.UnmarshalResponseXML(res, resBody1)
+	err = api.UnmarshalResponseXML(res, resources)
 
 	if err != nil {
 		return errors.HttpStatus(500).New(fmt.Sprintf("UnmarshalResponse failed %s", err.Error()))
 	}
 
-	if resBody1.Link.Href != conn.Endpoint {
-		return errors.HttpStatus(500).New(fmt.Sprintf("Response Data error for connection endpoint: %s, it should like: http://{domain}/rest/api/latest/", conn.Endpoint))
+	if resources.Link.Href != conn.Endpoint {
+		return errors.HttpStatus(400).New(fmt.Sprintf("Response Data error for connection endpoint: %s, it should like: http://{domain}/rest/api/latest/", conn.Endpoint))
 	}
 
 	res, err = apiClient.Get("repository", nil, header)
 	if err != nil {
-		return errors.HttpStatus(500).New(fmt.Sprintf("Get failed %s", err.Error()))
+		return errors.HttpStatus(400).New(fmt.Sprintf("Get failed %s", err.Error()))
 	}
-	resBody2 := &ApiRepository{}
+	repo := &ApiRepository{}
 
 	if res.StatusCode != http.StatusOK {
 		return errors.HttpStatus(res.StatusCode).New(fmt.Sprintf("unexpected status code: %d", res.StatusCode))
 	}
 
-	err = api.UnmarshalResponse(res, resBody2)
+	err = api.UnmarshalResponse(res, repo)
 
 	if err != nil {
-		return errors.HttpStatus(500).New(fmt.Sprintf("UnmarshalResponse repository failed %s", err.Error()))
+		return errors.HttpStatus(400).New(fmt.Sprintf("UnmarshalResponse repository failed %s", err.Error()))
 	}
 
 	return nil
