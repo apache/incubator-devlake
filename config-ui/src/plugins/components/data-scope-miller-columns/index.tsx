@@ -18,6 +18,7 @@
 
 import React, { useState, useEffect } from 'react';
 import type { McsID, McsItem, McsColumn } from 'miller-columns-select';
+import type { MillerColumnsSelectProps } from 'miller-columns-select';
 import MillerColumnsSelect from 'miller-columns-select';
 
 import { Loading } from '@/components';
@@ -26,15 +27,22 @@ import type { ExtraType } from './types';
 import * as API from './api';
 import * as S from './styled';
 
-interface Props {
+interface Props extends Pick<MillerColumnsSelectProps<ExtraType>, 'columnCount'> {
   title?: string;
   plugin: string;
   connectionId: ID;
-  selectedItems?: McsItem<ExtraType>[];
-  onChangeItems?: (selectedItems: any) => void;
+  selectedItems?: any[];
+  onChangeItems?: (selectedItems: any[]) => void;
 }
 
-export const DataScopeMillerColumns = ({ title, plugin, connectionId, selectedItems, onChangeItems }: Props) => {
+export const DataScopeMillerColumns = ({
+  title,
+  plugin,
+  connectionId,
+  selectedItems,
+  onChangeItems,
+  ...props
+}: Props) => {
   const [items, setItems] = useState<McsItem<ExtraType>[]>([]);
   const [selectedIds, setSelectedIds] = useState<ID[]>([]);
   const [loadedIds, setLoadedIds] = useState<ID[]>([]);
@@ -91,7 +99,7 @@ export const DataScopeMillerColumns = ({ title, plugin, connectionId, selectedIt
   const handleScroll = (id: McsID | null) => getItems(id, nextTokenMap[id ?? 'root']);
 
   const renderTitle = (column: McsColumn) => {
-    return !column.parentId && <S.ColumnTitle>{title}</S.ColumnTitle>;
+    return !column.parentId && title && <S.ColumnTitle>{title}</S.ColumnTitle>;
   };
 
   const renderLoading = () => {
@@ -111,6 +119,7 @@ export const DataScopeMillerColumns = ({ title, plugin, connectionId, selectedIt
       renderLoading={renderLoading}
       selectedIds={selectedIds}
       onSelectItemIds={handleChangeItems}
+      {...props}
     />
   );
 };
