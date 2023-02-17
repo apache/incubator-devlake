@@ -20,6 +20,7 @@ package tasks
 import (
 	"github.com/apache/incubator-devlake/core/errors"
 	helper "github.com/apache/incubator-devlake/helpers/pluginhelper/api"
+	"github.com/apache/incubator-devlake/plugins/bamboo/models"
 )
 
 type BambooApiParams struct {
@@ -31,8 +32,12 @@ type BambooOptions struct {
 	// Such As How many rows do your want
 	// You can use it in sub tasks and you need pass it in main.go and pipelines.
 	ConnectionId uint64   `json:"connectionId"`
+	Key          string   `json:"key"`
 	Tasks        []string `json:"tasks,omitempty"`
 	Since        string
+
+	TransformationRuleId             uint64 `mapstructure:"transformationRuleId" json:"transformationRuleId"`
+	*models.BambooTransformationRule `mapstructure:"transformationRules" json:"transformationRules"`
 }
 
 type BambooTaskData struct {

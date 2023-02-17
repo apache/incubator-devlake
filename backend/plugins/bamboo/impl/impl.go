@@ -64,8 +64,7 @@ func (p Bamboo) TransformationRule() interface{} {
 }
 
 func (p Bamboo) MakeDataSourcePipelinePlanV200(connectionId uint64, scopes []*plugin.BlueprintScopeV200, syncPolicy plugin.BlueprintSyncPolicy) (plugin.PipelinePlan, []plugin.Scope, errors.Error) {
-	//return api.MakePipelinePlanV200(p.SubTaskMetas(), connectionId, scopes, &syncPolicy)
-	return nil, nil, nil
+	return api.MakePipelinePlanV200(p.SubTaskMetas(), connectionId, scopes, &syncPolicy)
 }
 
 func (p Bamboo) GetTablesInfo() []dal.Tabler {
@@ -84,6 +83,9 @@ func (p Bamboo) SubTaskMetas() []plugin.SubTaskMeta {
 }
 
 func (p Bamboo) PrepareTaskData(taskCtx plugin.TaskContext, options map[string]interface{}) (interface{}, errors.Error) {
+	logger := taskCtx.GetLogger()
+	logger.Debug("%v", options)
+
 	op, err := tasks.DecodeAndValidateTaskOptions(options)
 	if err != nil {
 		return nil, err
@@ -101,6 +103,43 @@ func (p Bamboo) PrepareTaskData(taskCtx plugin.TaskContext, options map[string]i
 	apiClient, err := tasks.NewBambooApiClient(taskCtx, connection)
 	if err != nil {
 		return nil, errors.Default.Wrap(err, "unable to get Bamboo API client instance")
+	}
+
+	if op.Key != "" {
+		var scope *models.BambooProject
+		// support v100 & advance mode
+		// If we still cannot find the record in db, we have to request from remote server and save it to db
+		db := taskCtx.GetDal()
+		err = db.First(&scope, dal.Where("connection_id = ? AND key = ?", op.ConnectionId, op.Key))
+		if err != nil && db.IsErrorNotFound(err) {
+			apiProject, err := api.GetApiProject(op.Key, apiClient)
+			if err != nil {
+				return nil, err
+			}
+			logger.Debug(fmt.Sprintf("Current project: %s", apiProject.Key))
+			scope.Convert(apiProject)
+			scope.ConnectionId = op.ConnectionId
+			err = taskCtx.GetDal().CreateIfNotExist(&scope)
+			if err != nil {
+				return nil, err
+			}
+		}
+		if err != nil {
+			return nil, errors.Default.Wrap(err, fmt.Sprintf("fail to find project: %s", op.Key))
+		}
+	}
+
+	if op.BambooTransformationRule == nil && op.TransformationRuleId != 0 {
+		var transformationRule models.BambooTransformationRule
+		db := taskCtx.GetDal()
+		err = db.First(&transformationRule, dal.Where("id = ?", op.TransformationRuleId))
+		if err != nil {
+			if db.IsErrorNotFound(err) {
+				return nil, errors.Default.Wrap(err, fmt.Sprintf("can not find transformationRules by transformationRuleId [%d]", op.TransformationRuleId))
+			}
+			return nil, errors.Default.Wrap(err, fmt.Sprintf("fail to find transformationRules by transformationRuleId [%d]", op.TransformationRuleId))
+		}
+		op.BambooTransformationRule = &transformationRule
 	}
 
 	return &tasks.BambooTaskData{
@@ -136,8 +175,7 @@ func (p Bamboo) ApiResources() map[string]map[string]plugin.ApiResourceHandler {
 }
 
 func (p Bamboo) MakePipelinePlan(connectionId uint64, scope []*plugin.BlueprintScopeV100) (plugin.PipelinePlan, errors.Error) {
-	//return api.MakePipelinePlan(p.SubTaskMetas(), connectionId, scope)
-	return nil, nil
+	return nil, errors.Default.New("Bamboo don't support blueprint v100")
 }
 
 func (p Bamboo) Close(taskCtx plugin.TaskContext) errors.Error {
