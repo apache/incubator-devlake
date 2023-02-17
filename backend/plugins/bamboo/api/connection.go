@@ -40,7 +40,7 @@ type BambooTestConnResponse struct {
 // @Success 200  {object} BambooTestConnResponse "Success"
 // @Failure 400  {string} errcode.Error "Bad Request"
 // @Failure 500  {string} errcode.Error "Internal Error"
-// @Router /plugins/Bamboo/test [POST]
+// @Router /plugins/bamboo/test [POST]
 func TestConnection(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, errors.Error) {
 	// decode
 	var err errors.Error
