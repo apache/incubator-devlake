@@ -18,37 +18,30 @@
 
 import React, { useMemo } from 'react';
 
-import { DataScopeMillerColumns, DataScopeSearch } from '@/plugins';
+import { DataScopeMillerColumns } from '@/plugins';
 
-import type { ScopeItemType } from './types';
+import type { SonarQubeScopeType } from './types';
 
 interface Props {
   connectionId: ID;
-  selectedItems: ScopeItemType[];
-  onChangeItems: (selectedItems: ScopeItemType[]) => void;
+  selectedItems: SonarQubeScopeType[];
+  onChangeItems: (selectedItems: SonarQubeScopeType[]) => void;
 }
 
-export const GitLabDataScope = ({ connectionId, onChangeItems, ...props }: Props) => {
+export const SonarQubeDataScope = ({ connectionId, onChangeItems, ...props }: Props) => {
   const selectedItems = useMemo(
-    () => props.selectedItems.map((it) => ({ id: `${it.gitlabId}`, data: it })),
+    () => props.selectedItems.map((it) => ({ id: it.projectKey, data: it })),
     [props.selectedItems],
   );
 
   return (
     <>
-      <h4>Projects *</h4>
-      <p>Select the project you would like to sync.</p>
+      <h4>Add Repositories by Selecting from the Directory</h4>
+      <p>The following directory lists out all projects from SonarQube.</p>
       <DataScopeMillerColumns
-        title="Subgroups/Projects"
-        plugin="gitlab"
-        connectionId={connectionId}
-        selectedItems={selectedItems}
-        onChangeItems={onChangeItems}
-      />
-      <h4>Add repositories outside of your projects</h4>
-      <p>Search for repositories and add to them</p>
-      <DataScopeSearch
-        plugin="gitlab"
+        columnCount={1}
+        title="Projects"
+        plugin="sonarqube"
         connectionId={connectionId}
         selectedItems={selectedItems}
         onChangeItems={onChangeItems}

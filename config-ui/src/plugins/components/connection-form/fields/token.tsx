@@ -48,7 +48,7 @@ interface Props {
 
 export const ConnectionToken = ({ label, subLabel, initialValue, value, setValue }: Props) => {
   useEffect(() => {
-    setValue('');
+    setValue(initialValue);
   }, [initialValue]);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -59,9 +59,9 @@ export const ConnectionToken = ({ label, subLabel, initialValue, value, setValue
     <FormGroup
       label={<S.Label>{label ?? 'Token'}</S.Label>}
       labelInfo={<S.LabelInfo>*</S.LabelInfo>}
-      subLabel={<S.LabelDescription>{subLabel}</S.LabelDescription>}
+      subLabel={subLabel && <S.LabelDescription>{subLabel}</S.LabelDescription>}
     >
-      <InputGroup placeholder="Your Token" value={value} onChange={handleChange} />
+      <InputGroup type="password" placeholder="Your Token" value={value} onChange={handleChange} />
     </FormGroup>
   );
 };

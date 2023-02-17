@@ -16,17 +16,8 @@
  *
  */
 
-export const EntitiesLabel: Record<string, string> = {
-  CODE: 'Source Code Management',
-  TICKET: 'Issue Tracking',
-  CODEREVIEW: 'Code Review',
-  CICD: 'CI/CD',
-  CROSS: 'Cross Domain',
-  CODEQUALITY: 'Code Quality Domain',
+export type SonarQubeScopeType = {
+  connectionId: ID;
+  projectKey: string;
+  name: string;
 };
-
-export const transformEntities = (entities: string[]) =>
-  entities.map((it) => ({
-    label: EntitiesLabel[it],
-    value: it,
-  }));

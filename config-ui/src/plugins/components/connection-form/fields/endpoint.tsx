@@ -126,7 +126,7 @@ export const ConnectionEndpoint = ({
       labelInfo={<S.LabelInfo>*</S.LabelInfo>}
       subLabel={<S.LabelDescription>{subLabel ?? `Provide the ${name} instance API endpoint.`}</S.LabelDescription>}
     >
-      <InputGroup disabled={disabled} placeholder="Your Endpoint URL" value={value} onChange={handleChange} />
+      <InputGroup disabled={disabled} placeholder="Your Endpoint URL" value={value} onChange={handleChangeValue} />
     </FormGroup>
   );
 };
