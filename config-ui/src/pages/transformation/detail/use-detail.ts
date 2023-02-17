@@ -19,7 +19,7 @@
 import { useState, useEffect, useMemo } from 'react';
 import { useHistory } from 'react-router-dom';
 
-import type { PluginConfigConnectionType } from '@/plugins';
+import type { PluginConfigType } from '@/plugins';
 import { PluginConfig } from '@/plugins';
 import { operator } from '@/utils';
 
@@ -35,7 +35,7 @@ export const useDetail = ({ plugin, id }: Props) => {
   const [operating, setOperating] = useState(false);
   const [name, setName] = useState('');
   const [transformation, setTransformation] = useState<any>(
-    (PluginConfig.find((pc) => pc.plugin === plugin) as PluginConfigConnectionType)?.transformation,
+    (PluginConfig.find((pc) => pc.plugin === plugin) as PluginConfigType)?.transformation,
   );
 
   const history = useHistory();

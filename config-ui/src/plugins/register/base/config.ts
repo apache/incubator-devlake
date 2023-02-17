@@ -25,4 +25,12 @@ export const BasePipelineConfig = {
   plugin: undefined,
   name: undefined,
   icon: Icon,
-} as const;
+  sort: 99,
+  connection: {
+    docLink: '',
+    initialValues: {},
+    fields: [],
+  },
+  entities: [],
+  transformation: {},
+};

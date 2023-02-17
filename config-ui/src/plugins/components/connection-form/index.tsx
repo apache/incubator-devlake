@@ -21,7 +21,7 @@ import { ButtonGroup } from '@blueprintjs/core';
 
 import { PageLoading, ExternalLink } from '@/components';
 import { useRefreshData } from '@/hooks';
-import type { PluginConfigConnectionType } from '@/plugins';
+import type { PluginConfigType } from '@/plugins';
 import { PluginConfig } from '@/plugins';
 
 import { Form } from './fields';
@@ -41,7 +41,7 @@ export const ConnectionForm = ({ plugin, connectionId }: Props) => {
   const {
     name,
     connection: { docLink, fields, initialValues },
-  } = useMemo(() => PluginConfig.find((p) => p.plugin === plugin) as PluginConfigConnectionType, [plugin]);
+  } = useMemo(() => PluginConfig.find((p) => p.plugin === plugin) as PluginConfigType, [plugin]);
 
   const { ready, data } = useRefreshData(async () => {
     if (!connectionId) {

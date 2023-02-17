@@ -46,10 +46,10 @@ export const Token = ({ endpoint, proxy, initialValue, value, error, setValue, s
   const [tokens, setTokens] = useState<TokenItem[]>([{ value: '', status: 'idle' }]);
 
   const testToken = async (token: string): Promise<TokenItem> => {
-    if (!endpoint) {
+    if (!endpoint || !token) {
       return {
         value: token,
-        status: 'invalid',
+        status: 'idle',
       };
     }
 
@@ -79,7 +79,7 @@ export const Token = ({ endpoint, proxy, initialValue, value, error, setValue, s
 
   useEffect(() => {
     checkTokens(initialValue);
-  }, [initialValue]);
+  }, [initialValue, endpoint]);
 
   useEffect(() => {
     setError(value ? '' : 'token is required');

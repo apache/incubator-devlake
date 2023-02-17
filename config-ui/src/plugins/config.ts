@@ -39,6 +39,7 @@ import { ZenTaoConfig } from './register/zentao';
 export const PluginConfig: PluginConfigType[] = [
   AEConfig,
   AzureConfig,
+  BitBucketConfig,
   DBTConfig,
   DORAConfig,
   FeiShuConfig,
@@ -51,8 +52,7 @@ export const PluginConfig: PluginConfigType[] = [
   JIRAConfig,
   RefDiffConfig,
   StarRocksConfig,
-  BitBucketConfig,
   TAPDConfig,
   ZenTaoConfig,
   WebhookConfig,
-];
+].sort((a, b) => a.sort - b.sort);
