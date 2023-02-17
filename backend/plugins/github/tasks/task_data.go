@@ -33,7 +33,7 @@ type GithubOptions struct {
 	TransformationRuleId             uint64   `json:"transformationRuleId" mapstructure:"transformationRuleId,omitempty"`
 	GithubId                         int      `json:"githubId" mapstructure:"githubId,omitempty"`
 	Tasks                            []string `json:"tasks,omitempty" mapstructure:",omitempty"`
-	CreatedDateAfter                 string   `json:"createdDateAfter" mapstructure:"createdDateAfter,omitempty"`
+	TimeAfter                        string   `json:"timeAfter" mapstructure:"timeAfter,omitempty"`
 	Owner                            string   `json:"owner" mapstructure:"owner,omitempty"`
 	Repo                             string   `json:"repo"  mapstructure:"repo,omitempty"`
 	Name                             string   `json:"name"  mapstructure:"name,omitempty"`
@@ -41,10 +41,10 @@ type GithubOptions struct {
 }
 
 type GithubTaskData struct {
-	Options          *GithubOptions
-	ApiClient        *helper.ApiAsyncClient
-	GraphqlClient    *helper.GraphqlAsyncClient
-	CreatedDateAfter *time.Time
+	Options       *GithubOptions
+	ApiClient     *helper.ApiAsyncClient
+	GraphqlClient *helper.GraphqlAsyncClient
+	TimeAfter     *time.Time
 }
 
 type GithubApiParams struct {

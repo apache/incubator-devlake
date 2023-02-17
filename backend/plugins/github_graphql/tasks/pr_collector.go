@@ -18,15 +18,16 @@ limitations under the License.
 package tasks
 
 import (
+	"regexp"
+	"strings"
+	"time"
+
 	"github.com/apache/incubator-devlake/core/errors"
 	"github.com/apache/incubator-devlake/core/plugin"
 	"github.com/apache/incubator-devlake/helpers/pluginhelper/api"
 	"github.com/apache/incubator-devlake/plugins/github/models"
 	"github.com/apache/incubator-devlake/plugins/github/tasks"
 	"github.com/merico-dev/graphql"
-	"regexp"
-	"strings"
-	"time"
 )
 
 const RAW_PRS_TABLE = "github_graphql_prs"
@@ -179,7 +180,7 @@ func CollectPr(taskCtx plugin.SubTaskContext) errors.Error {
 			results := make([]interface{}, 0, 1)
 			isFinish := false
 			for _, rawL := range prs {
-				if data.CreatedDateAfter != nil && !data.CreatedDateAfter.Before(rawL.CreatedAt) {
+				if data.TimeAfter != nil && !data.TimeAfter.Before(rawL.CreatedAt) {
 					isFinish = true
 					break
 				}

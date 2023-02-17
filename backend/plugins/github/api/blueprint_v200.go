@@ -19,6 +19,10 @@ package api
 
 import (
 	"fmt"
+	"net/url"
+	"strings"
+	"time"
+
 	"github.com/apache/incubator-devlake/core/dal"
 	"github.com/apache/incubator-devlake/core/errors"
 	"github.com/apache/incubator-devlake/core/models/domainlayer"
@@ -32,9 +36,6 @@ import (
 	"github.com/apache/incubator-devlake/plugins/github/models"
 	"github.com/apache/incubator-devlake/plugins/github/tasks"
 	"github.com/go-playground/validator/v10"
-	"net/url"
-	"strings"
-	"time"
 )
 
 func MakeDataSourcePipelinePlanV200(subtaskMetas []plugin.SubTaskMeta, connectionId uint64, bpScopes []*plugin.BlueprintScopeV200, syncPolicy *plugin.BlueprintSyncPolicy) (plugin.PipelinePlan, []plugin.Scope, errors.Error) {
@@ -109,8 +110,8 @@ func makeDataSourcePipelinePlanV200(
 			GithubId:     githubRepo.GithubId,
 			Name:         githubRepo.Name,
 		}
-		if syncPolicy.CreatedDateAfter != nil {
-			op.CreatedDateAfter = syncPolicy.CreatedDateAfter.Format(time.RFC3339)
+		if syncPolicy.TimeAfter != nil {
+			op.TimeAfter = syncPolicy.TimeAfter.Format(time.RFC3339)
 		}
 		options, err := tasks.EncodeTaskOptions(op)
 		if err != nil {

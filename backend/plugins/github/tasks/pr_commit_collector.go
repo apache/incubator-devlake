@@ -20,10 +20,11 @@ package tasks
 import (
 	"encoding/json"
 	"fmt"
-	"github.com/apache/incubator-devlake/core/errors"
 	"net/http"
 	"net/url"
 	"reflect"
+
+	"github.com/apache/incubator-devlake/core/errors"
 
 	"github.com/apache/incubator-devlake/core/dal"
 
@@ -61,7 +62,7 @@ func CollectApiPullRequestCommits(taskCtx plugin.SubTaskContext) errors.Error {
 			Name:         data.Options.Name,
 		},
 		Table: RAW_PR_COMMIT_TABLE,
-	}, data.CreatedDateAfter)
+	}, data.TimeAfter)
 	if err != nil {
 		return err
 	}

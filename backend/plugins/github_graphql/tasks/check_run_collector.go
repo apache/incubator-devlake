@@ -19,6 +19,10 @@ package tasks
 
 import (
 	"encoding/json"
+	"reflect"
+	"strings"
+	"time"
+
 	"github.com/apache/incubator-devlake/core/dal"
 	"github.com/apache/incubator-devlake/core/errors"
 	"github.com/apache/incubator-devlake/core/plugin"
@@ -26,9 +30,6 @@ import (
 	"github.com/apache/incubator-devlake/plugins/github/models"
 	githubTasks "github.com/apache/incubator-devlake/plugins/github/tasks"
 	"github.com/merico-dev/graphql"
-	"reflect"
-	"strings"
-	"time"
 )
 
 const RAW_CHECK_RUNS_TABLE = "github_graphql_check_runs"
@@ -107,7 +108,7 @@ func CollectCheckRun(taskCtx plugin.SubTaskContext) errors.Error {
 			Name:         data.Options.Name,
 		},
 		Table: RAW_CHECK_RUNS_TABLE,
-	}, data.CreatedDateAfter)
+	}, data.TimeAfter)
 	if err != nil {
 		return err
 	}
@@ -120,8 +121,8 @@ func CollectCheckRun(taskCtx plugin.SubTaskContext) errors.Error {
 		dal.Where("repo_id = ? and connection_id=?", data.Options.GithubId, data.Options.ConnectionId),
 		dal.Orderby("github_updated_at DESC"),
 	}
-	if collectorWithState.CreatedDateAfter != nil {
-		clauses = append(clauses, dal.Where("github_created_at > ?", *collectorWithState.CreatedDateAfter))
+	if collectorWithState.TimeAfter != nil {
+		clauses = append(clauses, dal.Where("github_created_at > ?", *collectorWithState.TimeAfter))
 	}
 	if incremental {
 		clauses = append(clauses, dal.Where("github_updated_at > ?", *collectorWithState.LatestState.LatestSuccessStart))
