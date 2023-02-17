@@ -18,9 +18,9 @@ limitations under the License.
 package models
 
 import (
-	"encoding/xml"
 	"fmt"
 	"net/http"
+	"time"
 
 	"github.com/apache/incubator-devlake/core/errors"
 	"github.com/apache/incubator-devlake/helpers/pluginhelper/api"
@@ -45,31 +45,11 @@ func (conn *BambooConn) PrepareApiClient(apiClient apihelperabstract.ApiClientAb
 	header := http.Header{}
 	header.Set("Authorization", fmt.Sprintf("Bearer %v", conn.Token))
 
-	res, err := apiClient.Get("", nil, header)
+	res, err := apiClient.Get("info.json", nil, header)
 	if err != nil {
 		return errors.HttpStatus(400).New(fmt.Sprintf("Get failed %s", err.Error()))
 	}
-	resources := &ApiXMLResourcesResponse{}
-
-	if res.StatusCode != http.StatusOK {
-		return errors.HttpStatus(res.StatusCode).New(fmt.Sprintf("unexpected status code: %d", res.StatusCode))
-	}
-
-	err = api.UnmarshalResponseXML(res, resources)
-
-	if err != nil {
-		return errors.HttpStatus(500).New(fmt.Sprintf("UnmarshalResponse failed %s", err.Error()))
-	}
-
-	if resources.Link.Href != conn.Endpoint {
-		return errors.HttpStatus(400).New(fmt.Sprintf("Response Data error for connection endpoint: %s, it should like: http://{domain}/rest/api/latest/", conn.Endpoint))
-	}
-
-	res, err = apiClient.Get("repository", nil, header)
-	if err != nil {
-		return errors.HttpStatus(400).New(fmt.Sprintf("Get failed %s", err.Error()))
-	}
-	repo := &ApiRepository{}
+	repo := &ApiBambooServerInfo{}
 
 	if res.StatusCode != http.StatusOK {
 		return errors.HttpStatus(res.StatusCode).New(fmt.Sprintf("unexpected status code: %d", res.StatusCode))
@@ -78,7 +58,7 @@ func (conn *BambooConn) PrepareApiClient(apiClient apihelperabstract.ApiClientAb
 	err = api.UnmarshalResponse(res, repo)
 
 	if err != nil {
-		return errors.HttpStatus(400).New(fmt.Sprintf("UnmarshalResponse repository failed %s", err.Error()))
+		return errors.BadInput.New(fmt.Sprintf("UnmarshalResponse repository failed %s", err.Error()))
 	}
 
 	return nil
@@ -91,36 +71,19 @@ type BambooResponse struct {
 	BambooConnection
 }
 
+type ApiBambooServerInfo struct {
+	Version     string    `json:"version"`
+	Edition     string    `json:"edition"`
+	BuildDate   time.Time `json:"buildDate"`
+	BuildNumber string    `json:"buildNumber"`
+	State       string    `json:"state"`
+}
+
 type ApiRepository struct {
 	Size          int         `json:"size"`
 	SearchResults interface{} `json:"searchResults"`
 	StartIndex    int         `json:"start-index"`
 	MaxResult     int         `json:"max-result"`
-}
-
-type ApiXMLLink struct {
-	XMLName xml.Name `json:"xml_name" xml:"link"`
-	Href    string   `json:"href" xml:"href,attr"`
-}
-
-type ApiXMLResource struct {
-	XMLName xml.Name `json:"xml_name" xml:"resource"`
-	Name    string   `json:"name" xml:"name,attr"`
-}
-
-type ApiXMLResources struct {
-	XMLName   xml.Name         `json:"xml_name" xml:"resources"`
-	Size      string           `json:"size" xml:"size,attr"`
-	Resources []ApiXMLResource `json:"resource" xml:"resource"`
-}
-
-// Using User because it requires authentication.
-type ApiXMLResourcesResponse struct {
-	XMLName xml.Name `json:"xml_name" xml:"resources"`
-	Expand  string   `json:"expand" xml:"expand,attr"`
-
-	Link      ApiXMLLink      `json:"link" xml:"link"`
-	Resources ApiXMLResources `json:"resources" xml:"resources"`
 }
 
 func (BambooConnection) TableName() string {
