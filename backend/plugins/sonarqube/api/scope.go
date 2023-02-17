@@ -80,7 +80,7 @@ func PutScope(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, errors
 // @Tags plugins/sonarqube
 // @Accept application/json
 // @Param connectionId path int false "connection ID"
-// @Param projectKey path string false "project ProjectKey"
+// @Param projectKey path string false "project Key"
 // @Param scope body models.SonarqubeProject true "json"
 // @Success 200  {object} models.SonarqubeProject
 // @Failure 400  {object} shared.ApiBody "Bad Request"

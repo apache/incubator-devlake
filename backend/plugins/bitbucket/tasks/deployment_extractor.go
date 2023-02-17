@@ -29,7 +29,7 @@ import (
 type bitbucketApiDeploymentsResponse struct {
 	Type string `json:"type"`
 	UUID string `json:"uuid"`
-	//ProjectKey  string `json:"key"`
+	//Key  string `json:"key"`
 	//Step struct {
 	//	UUID string `json:"uuid"`
 	//} `json:"step"`

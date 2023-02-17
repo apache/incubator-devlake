@@ -77,7 +77,7 @@ type AccessTokenAuthenticator interface {
 	GetAccessTokenAuthenticator() ApiAuthenticator
 }
 
-// AppKeyAuthenticator represents the API ProjectKey and Secret authentication mechanism
+// AppKeyAuthenticator represents the API Key and Secret authentication mechanism
 type AppKeyAuthenticator interface {
 	GetAppKeyAuthenticator() ApiAuthenticator
 }
