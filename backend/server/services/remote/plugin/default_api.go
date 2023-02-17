@@ -24,12 +24,24 @@ import (
 	"github.com/apache/incubator-devlake/server/services/remote/bridge"
 )
 
-func GetDefaultAPI(invoker bridge.Invoker, connType *models.DynamicTabler, helper *api.ConnectionApiHelper) map[string]map[string]plugin.ApiResourceHandler {
+func GetDefaultAPI(
+	invoker bridge.Invoker,
+	connType *models.DynamicTabler,
+	txRuleType *models.DynamicTabler,
+	helper *api.ConnectionApiHelper) map[string]map[string]plugin.ApiResourceHandler {
 	connectionApi := &ConnectionAPI{
 		invoker:  invoker,
 		connType: connType,
 		helper:   helper,
 	}
+
+	scopeApi := &ScopeAPI{
+		txRuleType: txRuleType,
+	}
+	txruleApi := &TransformationRuleAPI{
+		txRuleType: txRuleType,
+	}
+
 	return map[string]map[string]plugin.ApiResourceHandler{
 		"test": {
 			"POST": connectionApi.TestConnection,
@@ -42,6 +54,22 @@ func GetDefaultAPI(invoker bridge.Invoker, connType *models.DynamicTabler, helpe
 			"GET":    connectionApi.GetConnection,
 			"PATCH":  connectionApi.PatchConnection,
 			"DELETE": connectionApi.DeleteConnection,
+		},
+		"connections/:connectionId/scopes": {
+			"PUT": scopeApi.PutScope,
+			"GET": scopeApi.ListScopes,
+		},
+		"connections/:connectionId/scopes/*scopeId": {
+			"GET":   scopeApi.GetScope,
+			"PATCH": scopeApi.PatchScope,
+		},
+		"transformation_rules": {
+			"POST": txruleApi.PostTransformationRules,
+			"GET":  txruleApi.ListTransformationRules,
+		},
+		"transformation_rules/:id": {
+			"GET":   txruleApi.GetTransformationRule,
+			"PATCH": txruleApi.PatchTransformationRule,
 		},
 	}
 }

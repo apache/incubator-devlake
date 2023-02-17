@@ -31,14 +31,15 @@ type (
 )
 
 type PluginInfo struct {
-	Type             PluginType      `json:"type" validate:"required"`
-	Name             string          `json:"name" validate:"required"`
-	Extension        PluginExtension `json:"extension"`
-	ConnectionSchema map[string]any  `json:"connection_schema" validate:"required"`
-	Description      string          `json:"description"`
-	PluginPath       string          `json:"plugin_path" validate:"required"`
-	ApiEndpoints     []Endpoint      `json:"api_endpoints" validate:"dive"`
-	SubtaskMetas     []SubtaskMeta   `json:"subtask_metas" validate:"dive"`
+	Type                     PluginType      `json:"type" validate:"required"`
+	Name                     string          `json:"name" validate:"required"`
+	Extension                PluginExtension `json:"extension"`
+	ConnectionSchema         map[string]any  `json:"connection_schema" validate:"required"`
+	TransformationRuleSchema map[string]any  `json:"transformation_rule_schema" validate:"required"`
+	Description              string          `json:"description"`
+	PluginPath               string          `json:"plugin_path" validate:"required"`
+	ApiEndpoints             []Endpoint      `json:"api_endpoints" validate:"dive"`
+	SubtaskMetas             []SubtaskMeta   `json:"subtask_metas" validate:"dive"`
 }
 
 type SubtaskMeta struct {
