@@ -53,6 +53,7 @@ type req struct {
 // @Router /plugins/bamboo/connections/{connectionId}/scopes [PUT]
 func PutScope(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, errors.Error) {
 	connectionId, _ := extractParam(input.Params)
+
 	if connectionId == 0 {
 		return nil, errors.BadInput.New("invalid connectionId")
 	}
@@ -90,19 +91,19 @@ func PutScope(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, errors
 // @Tags plugins/bamboo
 // @Accept application/json
 // @Param connectionId path int false "connection ID"
-// @Param projectId path int false "project ID"
+// @Param projectKey path int false "project ID"
 // @Param scope body models.BambooProject true "json"
 // @Success 200  {object} models.BambooProject
 // @Failure 400  {object} shared.ApiBody "Bad Request"
 // @Failure 500  {object} shared.ApiBody "Internal Error"
-// @Router /plugins/bamboo/connections/{connectionId}/scopes/{projectId} [PATCH]
+// @Router /plugins/bamboo/connections/{connectionId}/scopes/{projectKey} [PATCH]
 func UpdateScope(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, errors.Error) {
-	connectionId, projectId := extractParam(input.Params)
-	if connectionId == 0 || projectId == "" {
+	connectionId, projectKey := extractParam(input.Params)
+	if connectionId == 0 || projectKey == "" {
 		return nil, errors.BadInput.New("invalid path params")
 	}
 	var project models.BambooProject
-	err := basicRes.GetDal().First(&project, dal.Where("connection_id = ? AND project_key = ?", connectionId, projectId))
+	err := basicRes.GetDal().First(&project, dal.Where("connection_id = ? AND project_key = ?", connectionId, projectKey))
 	if err != nil {
 		return nil, errors.Default.Wrap(err, "getting BambooProject error")
 	}
@@ -170,33 +171,38 @@ func GetScopeList(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, er
 // @Description get one Bamboo project
 // @Tags plugins/bamboo
 // @Param connectionId path int false "connection ID"
-// @Param projectId path int false "project ID"
+// @Param projectKey path int false "project ID"
 // @Param pageSize query int false "page size, default 50"
 // @Param page query int false "page size, default 1"
 // @Success 200  {object} apiProject
 // @Failure 400  {object} shared.ApiBody "Bad Request"
 // @Failure 500  {object} shared.ApiBody "Internal Error"
-// @Router /plugins/bamboo/connections/{connectionId}/scopes/{projectId} [GET]
+// @Router /plugins/bamboo/connections/{connectionId}/scopes/{projectKey} [GET]
 func GetScope(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, errors.Error) {
 	var project models.BambooProject
-	connectionId, projectId := extractParam(input.Params)
-	if connectionId == 0 || projectId == "" {
+	connectionId, projectKey := extractParam(input.Params)
+	if connectionId == 0 || projectKey == "" {
 		return nil, errors.BadInput.New("invalid path params")
 	}
 	db := basicRes.GetDal()
-	err := db.First(&project, dal.Where("connection_id = ? AND bamboo_id = ?", connectionId, projectId))
+	err := db.First(&project, dal.Where("connection_id = ? AND project_key = ?", connectionId, projectKey))
 	if err != nil && db.IsErrorNotFound(err) {
-		var scope *models.BambooProject
+		var scope models.BambooProject
 		connection := &models.BambooConnection{}
-		err := connectionHelper.First(connection, input.Params)
+		err = connectionHelper.First(connection, input.Params)
 		if err != nil {
 			return nil, err
 		}
 		apiClient, err := api.NewApiClientFromConnection(context.TODO(), basicRes, connection)
-		apiProject, err := GetApiProject(projectId, apiClient)
 		if err != nil {
 			return nil, err
 		}
+
+		apiProject, err := GetApiProject(projectKey, apiClient)
+		if err != nil {
+			return nil, err
+		}
+
 		scope.Convert(apiProject)
 		scope.ConnectionId = connectionId
 		err = db.CreateIfNotExist(&scope)
@@ -220,8 +226,8 @@ func GetScope(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, errors
 
 func extractParam(params map[string]string) (uint64, string) {
 	connectionId, _ := strconv.ParseUint(params["connectionId"], 10, 64)
-	projectId, _ := params["projectId"]
-	return connectionId, projectId
+	projectKey := params["projectKey"]
+	return connectionId, projectKey
 }
 
 func verifyProject(project *models.BambooProject) errors.Error {
@@ -229,7 +235,7 @@ func verifyProject(project *models.BambooProject) errors.Error {
 		return errors.BadInput.New("invalid connectionId")
 	}
 	if project.ProjectKey == "" {
-		return errors.BadInput.New("invalid projectId")
+		return errors.BadInput.New("invalid projectKey")
 	}
 	return nil
 }

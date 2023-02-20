@@ -30,7 +30,6 @@ import (
 	"github.com/apache/incubator-devlake/core/plugin"
 	"github.com/apache/incubator-devlake/helpers/pluginhelper/api"
 	"github.com/apache/incubator-devlake/plugins/bamboo/models"
-	"github.com/apache/incubator-devlake/plugins/bamboo/tasks"
 )
 
 type RemoteScopesChild struct {
@@ -53,9 +52,8 @@ type SearchRemoteScopesOutput struct {
 }
 
 type PageData struct {
-	Page    int    `json:"page"`
-	PerPage int    `json:"per_page"`
-	Tag     string `json:"tag"`
+	Page     int `json:"page"`
+	PageSize int `json:"per_page"`
 }
 
 type GroupResponse struct {
@@ -129,52 +127,50 @@ func RemoteScopes(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, er
 	var res *http.Response
 	outputBody := &RemoteScopesOutput{}
 
-	// list projects part
-	if pageData.Tag == TypeProject {
-		query, err := GetQueryFromPageData(pageData)
-		if err != nil {
-			return nil, err
+	query, err := GetQueryFromPageData(pageData)
+	if err != nil {
+		return nil, err
+	}
+
+	res, err = apiClient.Get("/project.json", query, nil)
+
+	if err != nil {
+		return nil, err
+	}
+
+	resBody := models.ApiBambooProjectResponse{}
+	err = api.UnmarshalResponse(res, &resBody)
+	if err != nil {
+		return nil, err
+	}
+
+	// append project to output
+	for _, apiProject := range resBody.Projects.Projects {
+		project := (&models.BambooProject{}).Convert(&apiProject)
+		child := RemoteScopesChild{
+			Type: TypeProject,
+			Id:   project.ProjectKey,
+			Name: project.Name,
+			Data: project,
+		}
+		child.ParentId = &gid
+		if *child.ParentId == "" {
+			child.ParentId = nil
 		}
 
-		res, err = apiClient.Get("/project.json", query, nil)
+		outputBody.Children = append(outputBody.Children, child)
+	}
 
-		if err != nil {
-			return nil, err
-		}
-
-		resBody := models.ApiBambooProjectResponse{}
-		err = api.UnmarshalResponse(res, &resBody)
-		if err != nil {
-			return nil, err
-		}
-
-		// append project to output
-		for _, project := range resBody.Projects.Projects {
-			child := RemoteScopesChild{
-				Type: TypeProject,
-				Id:   project.Key,
-				Name: project.Name,
-				Data: tasks.ConvertProject(&project),
-			}
-			child.ParentId = &gid
-			if *child.ParentId == "" {
-				child.ParentId = nil
-			}
-
-			outputBody.Children = append(outputBody.Children, child)
-		}
-
-		// check project count
-		if len(resBody.Projects.Projects) < pageData.PerPage {
-			pageData = nil
-		}
+	// check project count
+	if len(resBody.Projects.Projects) < pageData.PageSize {
+		pageData = nil
 	}
 
 	// get the next page token
 	outputBody.NextPageToken = ""
 	if pageData != nil {
 		pageData.Page += 1
-		pageData.PerPage = BambooRemoteScopesPerPage
+		pageData.PageSize = BambooRemoteScopesPerPage
 
 		outputBody.NextPageToken, err = GetPageTokenFromPageData(pageData)
 		if err != nil {
@@ -249,11 +245,11 @@ func SearchRemoteScopes(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutp
 	}
 
 	// request search
-	res, err := apiClient.Get("search", query, nil)
+	res, err := apiClient.Get("search/projects.json", query, nil)
 	if err != nil {
 		return nil, err
 	}
-	resBody := []models.ApiBambooProject{}
+	resBody := models.ApiBambooSearchProjectResponse{}
 	err = api.UnmarshalResponse(res, &resBody)
 	if err != nil {
 		return nil, err
@@ -262,13 +258,20 @@ func SearchRemoteScopes(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutp
 	outputBody := &SearchRemoteScopesOutput{}
 
 	// append project to output
-	for _, project := range resBody {
+	for _, apiResult := range resBody.SearchResults {
+		var project models.BambooProject
+		apiProject, err := GetApiProject(apiResult.SearchEntity.Key, apiClient)
+		if err != nil {
+			return nil, err
+		}
+
+		project.Convert(apiProject)
 		child := RemoteScopesChild{
 			Type:     TypeProject,
-			Id:       project.Key,
+			Id:       project.ProjectKey,
 			ParentId: nil,
 			Name:     project.Name,
-			Data:     tasks.ConvertProject(&project),
+			Data:     project,
 		}
 
 		outputBody.Children = append(outputBody.Children, child)
@@ -294,9 +297,8 @@ func GetPageTokenFromPageData(pageData *PageData) (string, errors.Error) {
 func GetPageDataFromPageToken(pageToken string) (*PageData, errors.Error) {
 	if pageToken == "" {
 		return &PageData{
-			Page:    1,
-			PerPage: BambooRemoteScopesPerPage,
-			Tag:     TypeProject,
+			Page:     1,
+			PageSize: BambooRemoteScopesPerPage,
 		}, nil
 	}
 
@@ -317,18 +319,18 @@ func GetPageDataFromPageToken(pageToken string) (*PageData, errors.Error) {
 
 func GetQueryFromPageData(pageData *PageData) (url.Values, errors.Error) {
 	query := url.Values{}
-	query.Set("page", fmt.Sprintf("%v", pageData.Page))
-	query.Set("per_page", fmt.Sprintf("%v", pageData.PerPage))
+	query.Set("showEmpty", fmt.Sprintf("%v", true))
+	query.Set("max-result", fmt.Sprintf("%v", pageData.PageSize))
+	query.Set("start-index", fmt.Sprintf("%v", (pageData.Page-1)*pageData.PageSize))
 	return query, nil
 }
 
 func GetQueryForSearchProject(search string, page int, perPage int) (url.Values, errors.Error) {
-	query, err := GetQueryFromPageData(&PageData{Page: page, PerPage: perPage})
+	query, err := GetQueryFromPageData(&PageData{Page: page, PageSize: perPage})
 	if err != nil {
 		return nil, err
 	}
-	query.Set("search", search)
-	query.Set("scope", "projects")
+	query.Set("searchTerm", search)
 
 	return query, nil
 }

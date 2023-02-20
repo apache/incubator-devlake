@@ -96,8 +96,6 @@ func TestMakeDataSourcePipelinePlanV200(t *testing.T) {
 	var expectRepoId = "bamboo:BambooProject:1:TEST"
 
 	var testSubTaskMeta = []plugin.SubTaskMeta{
-		tasks.CollectProjectMeta,
-		tasks.ExtractProjectMeta,
 		tasks.ConvertProjectsMeta,
 	}
 
@@ -106,8 +104,6 @@ func TestMakeDataSourcePipelinePlanV200(t *testing.T) {
 			{
 				Plugin: "bamboo",
 				Subtasks: []string{
-					tasks.CollectProjectMeta.Name,
-					tasks.ExtractProjectMeta.Name,
 					tasks.ConvertProjectsMeta.Name,
 				},
 				Options: map[string]interface{}{

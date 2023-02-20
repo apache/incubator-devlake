@@ -19,6 +19,7 @@ package tasks
 
 import (
 	"encoding/json"
+
 	"github.com/apache/incubator-devlake/core/errors"
 	"github.com/apache/incubator-devlake/core/plugin"
 	helper "github.com/apache/incubator-devlake/helpers/pluginhelper/api"
@@ -39,7 +40,7 @@ func ExtractPlan(taskCtx plugin.SubTaskContext) errors.Error {
 			if err != nil {
 				return nil, err
 			}
-			body := models.BambooPlan{}.Convert(res)
+			body := (&models.BambooPlan{}).Convert(res)
 			body.ConnectionId = data.Options.ConnectionId
 			return []interface{}{body}, nil
 		},

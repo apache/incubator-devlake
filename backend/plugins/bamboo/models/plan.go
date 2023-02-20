@@ -43,26 +43,25 @@ type BambooPlan struct {
 	common.NoPKModel
 }
 
-func (BambooPlan) Convert(apiProject *ApiBambooPlan) *BambooPlan {
-	b := &BambooPlan{
-		PlanKey:                   apiProject.Key,
-		Name:                      apiProject.Name,
-		Expand:                    apiProject.Expand,
-		ProjectKey:                apiProject.ProjectKey,
-		ProjectName:               apiProject.ProjectName,
-		Description:               apiProject.Description,
-		ShortName:                 apiProject.ShortName,
-		BuildName:                 apiProject.BuildName,
-		ShortKey:                  apiProject.ShortKey,
-		Type:                      apiProject.Type,
-		Enabled:                   apiProject.Enabled,
-		Href:                      apiProject.Href,
-		Rel:                       apiProject.Rel,
-		IsFavourite:               apiProject.IsFavourite,
-		IsActive:                  apiProject.IsActive,
-		IsBuilding:                apiProject.IsBuilding,
-		AverageBuildTimeInSeconds: apiProject.AverageBuildTimeInSeconds,
-	}
+func (b *BambooPlan) Convert(apiProject *ApiBambooPlan) *BambooPlan {
+	b.PlanKey = apiProject.Key
+	b.Name = apiProject.Name
+	b.Expand = apiProject.Expand
+	b.ProjectKey = apiProject.ProjectKey
+	b.ProjectName = apiProject.ProjectName
+	b.Description = apiProject.Description
+	b.ShortName = apiProject.ShortName
+	b.BuildName = apiProject.BuildName
+	b.ShortKey = apiProject.ShortKey
+	b.Type = apiProject.Type
+	b.Enabled = apiProject.Enabled
+	b.Href = apiProject.Href
+	b.Rel = apiProject.Rel
+	b.IsFavourite = apiProject.IsFavourite
+	b.IsActive = apiProject.IsActive
+	b.IsBuilding = apiProject.IsBuilding
+	b.AverageBuildTimeInSeconds = apiProject.AverageBuildTimeInSeconds
+
 	return b
 }
 

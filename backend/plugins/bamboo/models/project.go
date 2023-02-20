@@ -23,28 +23,6 @@ import (
 	"github.com/apache/incubator-devlake/core/models/common"
 )
 
-type ApiBambooProject struct {
-	Key         string            `json:"key"`
-	Expand      string            `json:"expand"`
-	Name        string            `json:"name"`
-	Description string            `json:"description"`
-	Link        ApiBambooLink     `json:"link"`
-	Plans       ApiBambooSizeData `json:"plans"`
-}
-
-type ApiBambooProjects struct {
-	ApiBambooSizeData
-	Expand   string             `json:"expand"`
-	Link     ApiBambooLink      `json:"link"`
-	Projects []ApiBambooProject `json:"project"`
-}
-
-type ApiBambooProjectResponse struct {
-	Expand   string            `json:"expand"`
-	Link     ApiBambooLink     `json:"link"`
-	Projects ApiBambooProjects `json:"projects"`
-}
-
 type BambooProject struct {
 	ConnectionId         uint64 `json:"connectionId" mapstructure:"connectionId" gorm:"primaryKey"`
 	ProjectKey           string `json:"projectKey" gorm:"primaryKey;type:varchar(256)"`
@@ -56,11 +34,12 @@ type BambooProject struct {
 	common.NoPKModel     `json:"-" mapstructure:"-"`
 }
 
-func (b *BambooProject) Convert(apiProject *ApiBambooProject) {
+func (b *BambooProject) Convert(apiProject *ApiBambooProject) *BambooProject {
 	b.ProjectKey = apiProject.Key
 	b.Name = apiProject.Name
 	b.Description = apiProject.Description
 	b.Href = apiProject.Link.Href
+	return b
 }
 
 func (b *BambooProject) TableName() string {
@@ -92,4 +71,22 @@ type ApiBambooProjectResponse struct {
 	Expand   string            `json:"expand"`
 	Link     ApiBambooLink     `json:"link"`
 	Projects ApiBambooProjects `json:"projects"`
+}
+
+type ApiSearchEntityProject struct {
+	Id          string `json:"id"`
+	Key         string `json:"key"`
+	ProjectName string `json:"projectName"`
+	Description string `json:"description"`
+}
+
+type ApiSearchResultProjects struct {
+	Id           string                 `json:"id"`
+	Type         string                 `json:"type"`
+	SearchEntity ApiSearchEntityProject `json:"searchResults"`
+}
+
+type ApiBambooSearchProjectResponse struct {
+	ApiBambooSizeData `json:"squash"`
+	SearchResults     []ApiSearchResultProjects `json:"searchResults"`
 }
