@@ -25,22 +25,29 @@ import (
 	"github.com/apache/incubator-devlake/plugins/bamboo/models"
 )
 
-var _ plugin.SubTaskEntryPoint = ExtractPlan
+var _ plugin.SubTaskEntryPoint = ExtractJob
 
-func ExtractPlan(taskCtx plugin.SubTaskContext) errors.Error {
-	rawDataSubTaskArgs, data := CreateRawDataSubTaskArgs(taskCtx, RAW_PLAN_TABLE)
+func ExtractJob(taskCtx plugin.SubTaskContext) errors.Error {
+	rawDataSubTaskArgs, data := CreateRawDataSubTaskArgs(taskCtx, RAW_JOB_TABLE)
 
 	extractor, err := helper.NewApiExtractor(helper.ApiExtractorArgs{
 		RawDataSubTaskArgs: *rawDataSubTaskArgs,
 
 		Extract: func(resData *helper.RawData) ([]interface{}, errors.Error) {
-			res := &models.ApiBambooPlan{}
+			res := &models.ApiBambooJob{}
 			err := errors.Convert(json.Unmarshal(resData.Data, res))
 			if err != nil {
 				return nil, err
 			}
-			body := models.BambooPlan{}.Convert(res)
+			plan := &SimplePlan{}
+			err = errors.Convert(json.Unmarshal(resData.Input, plan))
+			if err != nil {
+				return nil, err
+			}
+			body := models.BambooJob{}.Convert(res)
 			body.ConnectionId = data.Options.ConnectionId
+			body.ProjectKey = data.Options.ProjectKey
+			body.PlanKey = plan.PlanKey
 			return []interface{}{body}, nil
 		},
 	})
@@ -51,10 +58,10 @@ func ExtractPlan(taskCtx plugin.SubTaskContext) errors.Error {
 	return extractor.Execute()
 }
 
-var ExtractPlanMeta = plugin.SubTaskMeta{
-	Name:             "ExtractPlan",
-	EntryPoint:       ExtractPlan,
+var ExtractJobMeta = plugin.SubTaskMeta{
+	Name:             "ExtractJob",
+	EntryPoint:       ExtractJob,
 	EnabledByDefault: true,
-	Description:      "Extract raw data into tool layer table bamboo_plan",
+	Description:      "Extract raw data into tool layer table bamboo_job",
 	DomainTypes:      []string{plugin.DOMAIN_TYPE_CICD},
 }
