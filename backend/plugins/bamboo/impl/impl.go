@@ -19,7 +19,6 @@ package impl
 
 import (
 	"fmt"
-
 	"github.com/apache/incubator-devlake/core/context"
 	"github.com/apache/incubator-devlake/core/dal"
 	"github.com/apache/incubator-devlake/core/errors"
@@ -71,6 +70,11 @@ func (p Bamboo) GetTablesInfo() []dal.Tabler {
 	return []dal.Tabler{
 		&models.BambooConnection{},
 		&models.BambooProject{},
+		&models.BambooPlan{},
+		&models.BambooJob{},
+		&models.BambooPlanBuild{},
+		&models.BambooPlanBuildVcsRevision{},
+		&models.BambooJobBuild{},
 	}
 }
 
@@ -85,6 +89,10 @@ func (p Bamboo) SubTaskMetas() []plugin.SubTaskMeta {
 		tasks.ExtractPlanMeta,
 		tasks.CollectJobMeta,
 		tasks.ExtractJobMeta,
+		tasks.CollectPlanBuildMeta,
+		tasks.ExtractPlanBuildMeta,
+		tasks.CollectJobBuildMeta,
+		tasks.ExtractJobBuildMeta,
 		tasks.ConvertProjectsMeta,
 	}
 }

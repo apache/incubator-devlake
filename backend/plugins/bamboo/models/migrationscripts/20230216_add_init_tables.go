@@ -27,17 +27,28 @@ import (
 type addInitTables struct{}
 
 func (u *addInitTables) Up(baseRes context.BasicRes) errors.Error {
+	// will be deleted after finish bamboo
+	_ = baseRes.GetDal().DropTables(
+		&archived.BambooPlan{},
+		&archived.BambooJob{},
+		&archived.BambooPlanBuild{},
+		&archived.BambooPlanBuildVcsRevision{},
+		&archived.BambooJobBuild{},
+	)
 	return migrationhelper.AutoMigrateTables(
 		baseRes,
 		&archived.BambooConnection{},
 		&archived.BambooProject{},
 		&archived.BambooPlan{},
 		&archived.BambooJob{},
+		&archived.BambooPlanBuild{},
+		&archived.BambooPlanBuildVcsRevision{},
+		&archived.BambooJobBuild{},
 	)
 }
 
 func (*addInitTables) Version() uint64 {
-	return 20230216205032
+	return 20230216205037
 }
 
 func (*addInitTables) Name() string {
