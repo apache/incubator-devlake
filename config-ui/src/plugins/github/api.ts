@@ -25,8 +25,8 @@ type PaginationParams = {
 
 export const getUser = (prefix: string) => request(`${prefix}/user`);
 
-export const getUserOrgs = (prefix: string, username: string, params: PaginationParams) =>
-  request(`${prefix}/users/${username}/orgs`, {
+export const getUserOrgs = (prefix: string, params: PaginationParams) =>
+  request(`${prefix}/user/orgs`, {
     method: 'get',
     data: params,
   });
