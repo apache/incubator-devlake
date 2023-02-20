@@ -81,8 +81,8 @@ func (p Bamboo) Description() string {
 func (p Bamboo) SubTaskMetas() []plugin.SubTaskMeta {
 	// TODO add your sub task here
 	return []plugin.SubTaskMeta{
-		tasks.CollectProjectMeta,
-		tasks.ExtractProjectMeta,
+		tasks.CollectPlanMeta,
+		tasks.ExtractPlanMeta,
 		tasks.ConvertProjectsMeta,
 	}
 }
@@ -115,7 +115,7 @@ func (p Bamboo) PrepareTaskData(taskCtx plugin.TaskContext, options map[string]i
 		// support v100 & advance mode
 		// If we still cannot find the record in db, we have to request from remote server and save it to db
 		db := taskCtx.GetDal()
-		err = db.First(&scope, dal.Where("connection_id = ? AND key = ?", op.ConnectionId, op.ProjectKey))
+		err = db.First(&scope, dal.Where("connection_id = ? AND project_key = ?", op.ConnectionId, op.ProjectKey))
 		if err != nil && db.IsErrorNotFound(err) {
 			apiProject, err := api.GetApiProject(op.ProjectKey, apiClient)
 			if err != nil {
@@ -180,7 +180,7 @@ func (p Bamboo) ApiResources() map[string]map[string]plugin.ApiResourceHandler {
 }
 
 func (p Bamboo) MakePipelinePlan(connectionId uint64, scope []*plugin.BlueprintScopeV100) (plugin.PipelinePlan, errors.Error) {
-	return nil, errors.Default.New("Bamboo don't support blueprint v100")
+	return nil, errors.Default.New("Bamboo does not support blueprint v100")
 }
 
 func (p Bamboo) Close(taskCtx plugin.TaskContext) errors.Error {
