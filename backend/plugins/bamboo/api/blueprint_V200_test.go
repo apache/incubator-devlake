@@ -30,6 +30,7 @@ import (
 	helper "github.com/apache/incubator-devlake/helpers/pluginhelper/api"
 	"github.com/apache/incubator-devlake/helpers/unithelper"
 	"github.com/apache/incubator-devlake/plugins/bamboo/models"
+	"github.com/apache/incubator-devlake/plugins/bamboo/tasks"
 	"github.com/go-playground/validator/v10"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
@@ -94,13 +95,21 @@ func TestMakeDataSourcePipelinePlanV200(t *testing.T) {
 
 	var expectRepoId = "bamboo:BambooProject:1:TEST"
 
-	var testSubTaskMeta = []plugin.SubTaskMeta{}
+	var testSubTaskMeta = []plugin.SubTaskMeta{
+		tasks.CollectProjectMeta,
+		tasks.ExtractProjectMeta,
+		tasks.ConvertProjectsMeta,
+	}
 
 	var expectPlans = plugin.PipelinePlan{
 		{
 			{
-				Plugin:   "bamboo",
-				Subtasks: []string{},
+				Plugin: "bamboo",
+				Subtasks: []string{
+					tasks.CollectProjectMeta.Name,
+					tasks.ExtractProjectMeta.Name,
+					tasks.ConvertProjectsMeta.Name,
+				},
 				Options: map[string]interface{}{
 					"connectionId":         uint64(1),
 					"projectKey":           testKey,

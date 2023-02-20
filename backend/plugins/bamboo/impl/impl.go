@@ -64,6 +64,8 @@ func (p Bamboo) TransformationRule() interface{} {
 }
 
 func (p Bamboo) MakeDataSourcePipelinePlanV200(connectionId uint64, scopes []*plugin.BlueprintScopeV200, syncPolicy plugin.BlueprintSyncPolicy) (plugin.PipelinePlan, []plugin.Scope, errors.Error) {
+	// 测试
+	fmt.Printf("MakeDataSourcePipelinePlanV200\r\n")
 	return api.MakePipelinePlanV200(p.SubTaskMetas(), connectionId, scopes, &syncPolicy)
 }
 
@@ -180,6 +182,8 @@ func (p Bamboo) ApiResources() map[string]map[string]plugin.ApiResourceHandler {
 }
 
 func (p Bamboo) MakePipelinePlan(connectionId uint64, scope []*plugin.BlueprintScopeV100) (plugin.PipelinePlan, errors.Error) {
+	// 测试
+	fmt.Printf("MakePipelinePlan\r\n")
 	return nil, errors.Default.New("Bamboo don't support blueprint v100")
 }
 

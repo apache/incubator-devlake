@@ -1,0 +1,334 @@
+/*
+Licensed to the Apache Software Foundation (ASF) under one or more
+contributor license agreements.  See the NOTICE file distributed with
+this work for additional information regarding copyright ownership.
+The ASF licenses this file to You under the Apache License, Version 2.0
+(the "License"); you may not use this file except in compliance with
+the License.  You may obtain a copy of the License at
+
+    http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
+*/
+
+package api
+
+import (
+	"context"
+	"encoding/base64"
+	"encoding/json"
+	"fmt"
+	"net/http"
+	"net/url"
+	"strconv"
+
+	"github.com/apache/incubator-devlake/core/errors"
+	"github.com/apache/incubator-devlake/core/plugin"
+	"github.com/apache/incubator-devlake/helpers/pluginhelper/api"
+	"github.com/apache/incubator-devlake/plugins/bamboo/models"
+	"github.com/apache/incubator-devlake/plugins/bamboo/tasks"
+)
+
+type RemoteScopesChild struct {
+	Type     string      `json:"type"`
+	ParentId *string     `json:"parentId"`
+	Id       string      `json:"id"`
+	Name     string      `json:"name"`
+	Data     interface{} `json:"data"`
+}
+
+type RemoteScopesOutput struct {
+	Children      []RemoteScopesChild `json:"children"`
+	NextPageToken string              `json:"nextPageToken"`
+}
+
+type SearchRemoteScopesOutput struct {
+	Children []RemoteScopesChild `json:"children"`
+	Page     int                 `json:"page"`
+	PageSize int                 `json:"pageSize"`
+}
+
+type PageData struct {
+	Page    int    `json:"page"`
+	PerPage int    `json:"per_page"`
+	Tag     string `json:"tag"`
+}
+
+type GroupResponse struct {
+	Id                   int    `json:"id"`
+	WebUrl               string `json:"web_url"`
+	Name                 string `json:"name"`
+	Path                 string `json:"path"`
+	Description          string `json:"description"`
+	Visibility           string `json:"visibility"`
+	LfsEnabled           bool   `json:"lfs_enabled"`
+	AvatarUrl            string `json:"avatar_url"`
+	RequestAccessEnabled bool   `json:"request_access_enabled"`
+	FullName             string `json:"full_name"`
+	FullPath             string `json:"full_path"`
+	ParentId             *int   `json:"parent_id"`
+	LdapCN               string `json:"ldap_cn"`
+	LdapAccess           string `json:"ldap_access"`
+}
+
+const BambooRemoteScopesPerPage int = 100
+const TypeProject string = "scope"
+const TypeGroup string = "group"
+
+// RemoteScopes list all available scope for users
+// @Summary list all available scope for users
+// @Description list all available scope for users
+// @Tags plugins/bamboo
+// @Accept application/json
+// @Param connectionId path int false "connection ID"
+// @Param groupId query string false "group ID"
+// @Param pageToken query string false "page Token"
+// @Success 200  {object} RemoteScopesOutput
+// @Failure 400  {object} shared.ApiBody "Bad Request"
+// @Failure 500  {object} shared.ApiBody "Internal Error"
+// @Router /plugins/bamboo/connections/{connectionId}/remote-scopes [GET]
+func RemoteScopes(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, errors.Error) {
+	connectionId, _ := extractParam(input.Params)
+	if connectionId == 0 {
+		return nil, errors.BadInput.New("invalid connectionId")
+	}
+
+	connection := &models.BambooConnection{}
+	err := connectionHelper.First(connection, input.Params)
+	if err != nil {
+		return nil, err
+	}
+
+	groupId, ok := input.Query["groupId"]
+	if !ok || len(groupId) == 0 {
+		groupId = []string{""}
+	}
+
+	pageToken, ok := input.Query["pageToken"]
+	if !ok || len(pageToken) == 0 {
+		pageToken = []string{""}
+	}
+
+	// get gid and pageData
+	gid := groupId[0]
+	pageData, err := GetPageDataFromPageToken(pageToken[0])
+	if err != nil {
+		return nil, errors.BadInput.New("failed to get paget token")
+	}
+
+	// create api client
+	apiClient, err := api.NewApiClientFromConnection(context.TODO(), basicRes, connection)
+	if err != nil {
+		return nil, err
+	}
+
+	var res *http.Response
+	outputBody := &RemoteScopesOutput{}
+
+	// list projects part
+	if pageData.Tag == TypeProject {
+		query, err := GetQueryFromPageData(pageData)
+		if err != nil {
+			return nil, err
+		}
+
+		res, err = apiClient.Get("/project.json", query, nil)
+
+		if err != nil {
+			return nil, err
+		}
+
+		resBody := models.ApiBambooProjectResponse{}
+		err = api.UnmarshalResponse(res, &resBody)
+		if err != nil {
+			return nil, err
+		}
+
+		// append project to output
+		for _, project := range resBody.Projects.Projects {
+			child := RemoteScopesChild{
+				Type: TypeProject,
+				Id:   project.Key,
+				Name: project.Name,
+				Data: tasks.ConvertProject(&project),
+			}
+			child.ParentId = &gid
+			if *child.ParentId == "" {
+				child.ParentId = nil
+			}
+
+			outputBody.Children = append(outputBody.Children, child)
+		}
+
+		// check project count
+		if len(resBody.Projects.Projects) < pageData.PerPage {
+			pageData = nil
+		}
+	}
+
+	// get the next page token
+	outputBody.NextPageToken = ""
+	if pageData != nil {
+		pageData.Page += 1
+		pageData.PerPage = BambooRemoteScopesPerPage
+
+		outputBody.NextPageToken, err = GetPageTokenFromPageData(pageData)
+		if err != nil {
+			return nil, err
+		}
+	}
+
+	return &plugin.ApiResourceOutput{Body: outputBody, Status: http.StatusOK}, nil
+}
+
+// SearchRemoteScopes use the Search API and only return project
+// @Summary use the Search API and only return project
+// @Description use the Search API and only return project
+// @Tags plugins/bamboo
+// @Accept application/json
+// @Param connectionId path int false "connection ID"
+// @Param search query string false "search"
+// @Param page query int false "page number"
+// @Param pageSize query int false "page size per page"
+// @Success 200  {object} SearchRemoteScopesOutput
+// @Failure 400  {object} shared.ApiBody "Bad Request"
+// @Failure 500  {object} shared.ApiBody "Internal Error"
+// @Router /plugins/bamboo/connections/{connectionId}/search-remote-scopes [GET]
+func SearchRemoteScopes(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, errors.Error) {
+	connectionId, _ := extractParam(input.Params)
+	if connectionId == 0 {
+		return nil, errors.BadInput.New("invalid connectionId")
+	}
+
+	connection := &models.BambooConnection{}
+	err := connectionHelper.First(connection, input.Params)
+	if err != nil {
+		return nil, err
+	}
+
+	search, ok := input.Query["search"]
+	if !ok || len(search) == 0 {
+		search = []string{""}
+	}
+
+	var p int
+	var err1 error
+	page, ok := input.Query["page"]
+	if !ok || len(page) == 0 {
+		p = 1
+	} else {
+		p, err1 = strconv.Atoi(page[0])
+		if err != nil {
+			return nil, errors.BadInput.Wrap(err1, fmt.Sprintf("failed to Atoi page:%s", page[0]))
+		}
+	}
+	var ps int
+	pageSize, ok := input.Query["pageSize"]
+	if !ok || len(pageSize) == 0 {
+		ps = BambooRemoteScopesPerPage
+	} else {
+		ps, err1 = strconv.Atoi(pageSize[0])
+		if err1 != nil {
+			return nil, errors.BadInput.Wrap(err1, fmt.Sprintf("failed to Atoi pageSize:%s", pageSize[0]))
+		}
+	}
+	// create api client
+	apiClient, err := api.NewApiClientFromConnection(context.TODO(), basicRes, connection)
+	if err != nil {
+		return nil, err
+	}
+
+	// set query
+	query, err := GetQueryForSearchProject(search[0], p, ps)
+	if err != nil {
+		return nil, err
+	}
+
+	// request search
+	res, err := apiClient.Get("search", query, nil)
+	if err != nil {
+		return nil, err
+	}
+	resBody := []models.ApiBambooProject{}
+	err = api.UnmarshalResponse(res, &resBody)
+	if err != nil {
+		return nil, err
+	}
+
+	outputBody := &SearchRemoteScopesOutput{}
+
+	// append project to output
+	for _, project := range resBody {
+		child := RemoteScopesChild{
+			Type:     TypeProject,
+			Id:       project.Key,
+			ParentId: nil,
+			Name:     project.Name,
+			Data:     tasks.ConvertProject(&project),
+		}
+
+		outputBody.Children = append(outputBody.Children, child)
+	}
+
+	outputBody.Page = p
+	outputBody.PageSize = ps
+
+	return &plugin.ApiResourceOutput{Body: outputBody, Status: http.StatusOK}, nil
+}
+
+func GetPageTokenFromPageData(pageData *PageData) (string, errors.Error) {
+	// Marshal json
+	pageTokenDecode, err := json.Marshal(pageData)
+	if err != nil {
+		return "", errors.Default.Wrap(err, fmt.Sprintf("Marshal pageToken failed %+v", pageData))
+	}
+
+	// Encode pageToken Base64
+	return base64.StdEncoding.EncodeToString(pageTokenDecode), nil
+}
+
+func GetPageDataFromPageToken(pageToken string) (*PageData, errors.Error) {
+	if pageToken == "" {
+		return &PageData{
+			Page:    1,
+			PerPage: BambooRemoteScopesPerPage,
+			Tag:     TypeProject,
+		}, nil
+	}
+
+	// Decode pageToken Base64
+	pageTokenDecode, err := base64.StdEncoding.DecodeString(pageToken)
+	if err != nil {
+		return nil, errors.Default.Wrap(err, fmt.Sprintf("decode pageToken failed %s", pageToken))
+	}
+	// Unmarshal json
+	pt := &PageData{}
+	err = json.Unmarshal(pageTokenDecode, pt)
+	if err != nil {
+		return nil, errors.Default.Wrap(err, fmt.Sprintf("json Unmarshal pageTokenDecode failed %s", pageTokenDecode))
+	}
+
+	return pt, nil
+}
+
+func GetQueryFromPageData(pageData *PageData) (url.Values, errors.Error) {
+	query := url.Values{}
+	query.Set("page", fmt.Sprintf("%v", pageData.Page))
+	query.Set("per_page", fmt.Sprintf("%v", pageData.PerPage))
+	return query, nil
+}
+
+func GetQueryForSearchProject(search string, page int, perPage int) (url.Values, errors.Error) {
+	query, err := GetQueryFromPageData(&PageData{Page: page, PerPage: perPage})
+	if err != nil {
+		return nil, err
+	}
+	query.Set("search", search)
+	query.Set("scope", "projects")
+
+	return query, nil
+}

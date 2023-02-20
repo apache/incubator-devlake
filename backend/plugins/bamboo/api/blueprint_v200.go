@@ -59,6 +59,11 @@ func MakePipelinePlanV200(
 		return nil, nil, err
 	}
 
+	// 测试
+	fmt.Printf("MakePipelinePlanV200\r\n")
+	fmt.Printf("pp:%+v\r\n", pp)
+	fmt.Printf("sc:%+v\r\n", sc)
+
 	return pp, sc, nil
 }
 
@@ -69,7 +74,7 @@ func makeScopeV200(connectionId uint64, scopes []*plugin.BlueprintScopeV200) ([]
 		id := didgen.NewDomainIdGenerator(&models.BambooProject{}).Generate(connectionId, scope.Id)
 
 		// get project from db
-		BambooProject, err := GetprojectByConnectionIdAndscopeId(connectionId, scope.Id)
+		BambooProject, err := GetProjectByConnectionIdAndscopeId(connectionId, scope.Id)
 		if err != nil {
 			return nil, err
 		}
@@ -95,7 +100,7 @@ func makePipelinePlanV200(
 		var stage plugin.PipelineStage
 		var err errors.Error
 		// get project
-		project, err := GetprojectByConnectionIdAndscopeId(connection.ID, scope.Id)
+		project, err := GetProjectByConnectionIdAndscopeId(connection.ID, scope.Id)
 		if err != nil {
 			return nil, err
 		}
@@ -129,12 +134,12 @@ func makePipelinePlanV200(
 	return plans, nil
 }
 
-// GetprojectByConnectionIdAndscopeId get tbe project by the connectionId and the scopeId
-func GetprojectByConnectionIdAndscopeId(connectionId uint64, scopeId string) (*models.BambooProject, errors.Error) {
+// GetProjectByConnectionIdAndscopeId get tbe project by the connectionId and the scopeId
+func GetProjectByConnectionIdAndscopeId(connectionId uint64, scopeId string) (*models.BambooProject, errors.Error) {
 	key := scopeId
 	project := &models.BambooProject{}
 	db := basicRes.GetDal()
-	err := db.First(project, dal.Where("connection_id = ? AND key = ?", connectionId, key))
+	err := db.First(project, dal.Where("connection_id = ? AND project_key = ?", connectionId, key))
 	if err != nil {
 		if db.IsErrorNotFound(err) {
 			return nil, errors.Default.Wrap(err, fmt.Sprintf("can not find project by connection [%d] scope [%s]", connectionId, scopeId))
