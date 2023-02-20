@@ -19,6 +19,7 @@ package tasks
 
 import (
 	"encoding/json"
+
 	"github.com/apache/incubator-devlake/core/errors"
 	"github.com/apache/incubator-devlake/core/plugin"
 	helper "github.com/apache/incubator-devlake/helpers/pluginhelper/api"
@@ -34,7 +35,7 @@ func ExtractProject(taskCtx plugin.SubTaskContext) errors.Error {
 		RawDataSubTaskArgs: *rawDataSubTaskArgs,
 
 		Extract: func(resData *helper.RawData) ([]interface{}, errors.Error) {
-			res := &ApiProject{}
+			res := &models.ApiBambooProject{}
 			err := errors.Convert(json.Unmarshal(resData.Data, res))
 			if err != nil {
 				return nil, err
@@ -60,9 +61,8 @@ var ExtractProjectMeta = plugin.SubTaskMeta{
 }
 
 // Convert the API response to our DB model instance
-func ConvertProject(bambooApiProject *ApiProject) *models.BambooProject {
+func ConvertProject(bambooApiProject *models.ApiBambooProject) *models.BambooProject {
 	bambooProject := &models.BambooProject{
-		Expand:      bambooApiProject.Expand,
 		ProjectKey:  bambooApiProject.Key,
 		Name:        bambooApiProject.Name,
 		Description: bambooApiProject.Description,
@@ -70,19 +70,6 @@ func ConvertProject(bambooApiProject *ApiProject) *models.BambooProject {
 		Rel:         bambooApiProject.Link.Rel,
 	}
 	return bambooProject
-}
-
-type ApiProject struct {
-	Expand      string  `json:"expand"`
-	Key         string  `json:"key"`
-	Name        string  `json:"name"`
-	Description string  `json:"description"`
-	Link        ApiLink `json:"link"`
-	//Plans       []ApiPlan `json:"plans"`
-}
-type ApiLink struct {
-	Href string `json:"href"`
-	Rel  string `json:"rel"`
 }
 
 //type ApiProject struct {

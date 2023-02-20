@@ -19,17 +19,46 @@ package models
 
 import "github.com/apache/incubator-devlake/core/models/common"
 
-type BambooProject struct {
-	ConnectionId uint64 `gorm:"primaryKey"`
-	ProjectKey   string `gorm:"primaryKey;type:varchar(100)"`
-	Expand       string `json:"expand"`
-	Name         string `gorm:"index;type:varchar(100)"`
-	Description  string `json:"description"`
-	Href         string `json:"link"`
-	Rel          string `gorm:"type:varchar(100)"`
-	common.NoPKModel
+type ApiBambooProject struct {
+	Key         string            `json:"key"`
+	Expand      string            `json:"expand"`
+	Name        string            `json:"name"`
+	Description string            `json:"description"`
+	Link        ApiBambooLink     `json:"link"`
+	Plans       ApiBambooSizeData `json:"plans"`
 }
 
-func (BambooProject) TableName() string {
+type ApiBambooProjects struct {
+	ApiBambooSizeData
+	Expand   string             `json:"expand"`
+	Link     ApiBambooLink      `json:"link"`
+	Projects []ApiBambooProject `json:"project"`
+}
+
+type ApiBambooProjectResponse struct {
+	Expand   string            `json:"expand"`
+	Link     ApiBambooLink     `json:"link"`
+	Projects ApiBambooProjects `json:"projects"`
+}
+
+type BambooProject struct {
+	ConnectionId         uint64 `json:"connectionId" mapstructure:"connectionId" gorm:"primaryKey"`
+	ProjectKey           string `json:"projectKey" gorm:"primaryKey;type:varchar(256)"`
+	TransformationRuleId uint64 `json:"transformationRuleId,omitempty" mapstructure:"transformationRuleId"`
+	Name                 string `json:"name" gorm:"index;type:varchar(256)"`
+	Description          string `json:"description"`
+	Href                 string `json:"link"`
+	Rel                  string `json:"rel" gorm:"type:varchar(100)"`
+	common.NoPKModel     `json:"-" mapstructure:"-"`
+}
+
+func (b *BambooProject) Convert(apiProject *ApiBambooProject) {
+	b.ProjectKey = apiProject.Key
+	b.Name = apiProject.Name
+	b.Description = apiProject.Description
+	b.Href = apiProject.Link.Href
+}
+
+func (b *BambooProject) TableName() string {
 	return "_tool_bamboo_projects"
 }

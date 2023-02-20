@@ -20,6 +20,7 @@ package tasks
 import (
 	"github.com/apache/incubator-devlake/core/errors"
 	helper "github.com/apache/incubator-devlake/helpers/pluginhelper/api"
+	"github.com/apache/incubator-devlake/plugins/bamboo/models"
 )
 
 type BambooApiParams struct {
@@ -36,6 +37,9 @@ type BambooOptions struct {
 	ProjectKey       string   `json:"projectKey"`
 	CreatedDateAfter string   `json:"createdDateAfter" mapstructure:"createdDateAfter,omitempty"`
 	Tasks            []string `json:"tasks,omitempty"`
+
+	TransformationRuleId             uint64 `mapstructure:"transformationRuleId" json:"transformationRuleId"`
+	*models.BambooTransformationRule `mapstructure:"transformationRules" json:"transformationRules"`
 }
 
 type BambooTaskData struct {
