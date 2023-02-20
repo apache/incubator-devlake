@@ -218,23 +218,36 @@ class PagedResponse(Response):
         self.paginator = paginator
         self.api = api
 
+    @property
+    def items(self):
+        return self.paginator.get_items(self.response)
+
+    @property
+    def next_page_request(self):
+        next_page_id = self.paginator.get_next_page_id(self.response)
+        if not next_page_id:
+            # No next page
+            return None
+
+        next_request = self.response.request.copy()
+        self.paginator.set_next_page_param(next_request, next_page_id)
+        return next_request
+
     def __iter__(self):
-        current = self.response
+        """
+        Iterate over
+        """
+        current = self
 
         while True:
-            items = self.paginator.get_items(current)
-            for item in items:
-                yield item
+            yield from current.items
 
-            next_page_id = self.paginator.get_next_page_id(current)
-            if not next_page_id:
+            next_page_request = current.next_page_request
+            if not next_page_request:
                 # No next page
                 return
 
-            # Fetch next page
-            next_request = current.request.copy()
-            self.paginator.set_next_page_param(next_request, next_page_id)
-            current = self.api.send(next_request)
+            current = current.api.send(current.next_page_request)
 
     def __getattr__(self, attr_name):
         # Delegate everything to Response
