@@ -93,6 +93,10 @@ func CollectRuns(taskCtx plugin.SubTaskContext) errors.Error {
 				return nil, err
 			}
 
+			if len(body.GithubWorkflowRuns) == 0 {
+				return nil, nil
+			}
+
 			// time filter or diff sync
 			if createdAfter != nil {
 				// if the first record of the page was created before minCreated, return emtpy set and stop
