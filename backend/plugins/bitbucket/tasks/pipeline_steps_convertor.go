@@ -55,7 +55,8 @@ func ConvertPipelineSteps(taskCtx plugin.SubTaskContext) errors.Error {
 	}
 	defer cursor.Close()
 
-	pipelineIdGen := didgen.NewDomainIdGenerator(&models.BitbucketPipelineStep{})
+	pipelineStepIdGen := didgen.NewDomainIdGenerator(&models.BitbucketPipelineStep{})
+	pipelineIdGen := didgen.NewDomainIdGenerator(&models.BitbucketPipeline{})
 
 	converter, err := api.NewDataConverter(api.DataConverterArgs{
 		InputRowType:       reflect.TypeOf(models.BitbucketPipelineStep{}),
@@ -66,10 +67,10 @@ func ConvertPipelineSteps(taskCtx plugin.SubTaskContext) errors.Error {
 
 			domainTask := &devops.CICDTask{
 				DomainEntity: domainlayer.DomainEntity{
-					Id: pipelineIdGen.Generate(data.Options.ConnectionId, bitbucketPipelineStep.BitbucketId),
+					Id: pipelineStepIdGen.Generate(data.Options.ConnectionId, bitbucketPipelineStep.BitbucketId),
 				},
 				Name:       bitbucketPipelineStep.Name,
-				PipelineId: bitbucketPipelineStep.PipelineId,
+				PipelineId: pipelineIdGen.Generate(data.Options.ConnectionId, bitbucketPipelineStep.PipelineId),
 				Result: devops.GetResult(&devops.ResultRule{
 					Failed:  []string{models.FAILED, models.ERROR, models.UNDEPLOYED},
 					Abort:   []string{models.STOPPED, models.SKIPPED},
