@@ -15,35 +15,35 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-package models
+package migrationscripts
 
 import (
-	"github.com/apache/incubator-devlake/core/models/common"
-	"time"
+	"github.com/apache/incubator-devlake/core/context"
+	"github.com/apache/incubator-devlake/core/errors"
+	"github.com/apache/incubator-devlake/helpers/migrationhelper"
+	"github.com/apache/incubator-devlake/plugins/bitbucket/models/migrationscripts/archived"
 )
 
-type BitbucketDeployment struct {
-	ConnectionId    uint64 `gorm:"primaryKey"`
-	BitbucketId     string `gorm:"primaryKey"`
-	PipelineId      string `gorm:"type:varchar(255)"`
+type BitbucketDeployment20230215 struct {
 	StepId          string `gorm:"type:varchar(255)"`
-	Type            string `gorm:"type:varchar(255)"`
-	Name            string `gorm:"type:varchar(255)"`
 	Environment     string `gorm:"type:varchar(255)"`
 	EnvironmentType string `gorm:"type:varchar(255)"`
-	Key             string `gorm:"type:varchar(255)"`
-	WebUrl          string `gorm:"type:varchar(255)"`
-	Status          string `gorm:"type:varchar(100)"`
-	StateUrl        string `gorm:"type:varchar(255)"`
-	CommitSha       string `gorm:"type:varchar(255)"`
-	CommitUrl       string `gorm:"type:varchar(255)"`
-	CreatedOn       *time.Time
-	StartedOn       *time.Time
-	CompletedOn     *time.Time
-	LastUpdateTime  *time.Time
-	common.NoPKModel
 }
 
-func (BitbucketDeployment) TableName() string {
+func (BitbucketDeployment20230215) TableName() string {
 	return "_tool_bitbucket_deployments"
+}
+
+type addPipelineStep20230215 struct{}
+
+func (script *addPipelineStep20230215) Up(basicRes context.BasicRes) errors.Error {
+	return migrationhelper.AutoMigrateTables(basicRes, &archived.BitbucketPipelineStep{}, &BitbucketDeployment20230215{})
+}
+
+func (*addPipelineStep20230215) Version() uint64 {
+	return 20230215000009
+}
+
+func (*addPipelineStep20230215) Name() string {
+	return "add pipeline step"
 }

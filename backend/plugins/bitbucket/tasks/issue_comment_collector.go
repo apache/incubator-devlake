@@ -48,12 +48,14 @@ func CollectApiIssueComments(taskCtx plugin.SubTaskContext) errors.Error {
 	defer iterator.Close()
 
 	err = collectorWithState.InitCollector(helper.ApiCollectorArgs{
-		ApiClient:      data.ApiClient,
-		PageSize:       100,
-		Incremental:    collectorWithState.IsIncremental(),
-		Input:          iterator,
-		UrlTemplate:    "repositories/{{ .Params.FullName }}/issues/{{ .Input.BitbucketId }}/comments",
-		Query:          GetQueryFields(`values.type,values.id,values.created_on,values.updated_on,values.content,values.issue.id,values.user`),
+		ApiClient:   data.ApiClient,
+		PageSize:    100,
+		Incremental: collectorWithState.IsIncremental(),
+		Input:       iterator,
+		UrlTemplate: "repositories/{{ .Params.FullName }}/issues/{{ .Input.BitbucketId }}/comments",
+		Query: GetQueryFields(
+			`values.type,values.id,values.created_on,values.updated_on,values.content,values.issue.id,values.user,` +
+				`page,pagelen,size`),
 		GetTotalPages:  GetTotalPagesFromResponse,
 		ResponseParser: GetRawMessageFromResponse,
 		AfterResponse:  ignoreHTTPStatus404,

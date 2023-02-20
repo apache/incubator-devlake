@@ -105,6 +105,10 @@ func (p Bitbucket) SubTaskMetas() []plugin.SubTaskMeta {
 		tasks.CollectApiDeploymentsMeta,
 		tasks.ExtractApiDeploymentsMeta,
 
+		// must run after deployment to match
+		tasks.CollectPipelineStepsMeta,
+		tasks.ExtractPipelineStepsMeta,
+
 		tasks.ConvertRepoMeta,
 		tasks.ConvertAccountsMeta,
 		tasks.ConvertPullRequestsMeta,
@@ -114,7 +118,7 @@ func (p Bitbucket) SubTaskMetas() []plugin.SubTaskMeta {
 		tasks.ConvertIssuesMeta,
 		tasks.ConvertIssueCommentsMeta,
 		tasks.ConvertPipelineMeta,
-		tasks.ConvertDeploymentMeta,
+		tasks.ConvertPipelineStepMeta,
 	}
 }
 
