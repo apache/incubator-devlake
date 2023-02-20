@@ -111,7 +111,7 @@ export const useMillerColumns = ({ connectionId }: UseMillerColumnsProps) => {
 
       const isUser = id === user.login;
       const repos = isUser
-        ? await API.getUserRepos(prefix, user.login, {
+        ? await API.getUserRepos(prefix, {
             page: 1,
             per_page: DEFAULT_PAGE_SIZE,
           })
@@ -138,7 +138,7 @@ export const useMillerColumns = ({ connectionId }: UseMillerColumnsProps) => {
       const item = items.find((it) => it.id === id) as McsItem<ExtraType>;
 
       repos = isUser
-        ? await API.getUserRepos(prefix, user.login, {
+        ? await API.getUserRepos(prefix, {
             page,
             per_page: DEFAULT_PAGE_SIZE,
           })
