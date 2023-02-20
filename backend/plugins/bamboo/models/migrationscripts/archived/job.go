@@ -15,31 +15,28 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-package migrationscripts
+package archived
 
 import (
-	"github.com/apache/incubator-devlake/core/context"
-	"github.com/apache/incubator-devlake/core/errors"
-	"github.com/apache/incubator-devlake/helpers/migrationhelper"
-	"github.com/apache/incubator-devlake/plugins/bamboo/models/migrationscripts/archived"
+	"github.com/apache/incubator-devlake/core/models/migrationscripts/archived"
 )
 
-type addInitTables struct{}
-
-func (u *addInitTables) Up(baseRes context.BasicRes) errors.Error {
-	return migrationhelper.AutoMigrateTables(
-		baseRes,
-		&archived.BambooConnection{},
-		&archived.BambooProject{},
-		&archived.BambooPlan{},
-		&archived.BambooJob{},
-	)
+type BambooJob struct {
+	ConnectionId uint64 `gorm:"primaryKey"`
+	JobKey       string `gorm:"primaryKey"`
+	Id           string
+	Name         string `json:"name"`
+	PlanKey      string `json:"planKey"`
+	PlanName     string `json:"planName"`
+	ProjectKey   string `gorm:"index"`
+	ProjectName  string `json:"projectName"`
+	Description  string `json:"description"`
+	BranchName   string `json:"branchName"`
+	StageName    string `json:"stageName"`
+	Type         string `json:"type"`
+	archived.NoPKModel
 }
 
-func (*addInitTables) Version() uint64 {
-	return 20230216205032
-}
-
-func (*addInitTables) Name() string {
-	return "bamboo init schemas"
+func (BambooJob) TableName() string {
+	return "_tool_bamboo_jobs"
 }
