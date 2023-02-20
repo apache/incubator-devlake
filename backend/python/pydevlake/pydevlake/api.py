@@ -17,10 +17,14 @@
 from __future__ import annotations
 
 from typing import Optional, Union
+from urllib.parse import urljoin
+from http import HTTPStatus
 import json
+import time
 
 import requests as req
-from urllib.parse import urljoin
+
+from pydevlake import logger
 
 
 RouteArgs = Union[list[str], dict[str, str]]
@@ -75,7 +79,7 @@ ABORT = object()
 class APIBase:
     """
     The base class for defining APIs.
-    It implements a hook system to preprocess requests before sending them and postprocess response 
+    It implements a hook system to preprocess requests before sending them and postprocess response
     before returning them.
     Hooks are declared by decorating methods with `@request_hook` and `@response_hook`.
     Hooks are executed in the order they are declared.
@@ -121,7 +125,7 @@ class APIBase:
             if isinstance(result, type(target)):
                 target = result
         return target
-                
+
     def get(self, path, **query_args):
         req = Request(urljoin(self.base_url, path), query_args)
         return self.send(req)
@@ -135,7 +139,7 @@ class APIBase:
         if not hasattr(self, '_response_hooks'):
             self._response_hooks = [h for h in self._iter_members() if isinstance(h, ResponseHook)]
         return self._response_hooks
- 
+
     def _iter_members(self):
         for c in reversed(type(self).__mro__):
             for m in c.__dict__.values():
@@ -199,7 +203,7 @@ class Paginator:
     def set_next_page_param(self, request, next_page_id: int | str):
         """
         Modify the request to set the parameter for fetching next page,
-        e.g. set the `page` query parameter. 
+        e.g. set the `page` query parameter.
         """
         pass
 
@@ -251,12 +255,12 @@ class TokenPaginator(Paginator):
 
     def set_next_page_param(self, request, next_page_id):
         request.query_args[self.next_page_token_param] = next_page_id
-        
+
 
 class APIException(Exception):
     def __init__(self, response):
         self.response = response
-    
+
     def __str__(self):
         return f'APIException: {self.response}'
 
@@ -267,7 +271,7 @@ class API(APIBase):
     - pagination: define the `paginator` property in subclasses
 
     # TODO:
-    - Error handling response hook: retries, 
+    - Error handling response hook: retries,
     - Rate limitation
     """
     @property
@@ -278,8 +282,23 @@ class API(APIBase):
         return None
 
     @response_hook
+    def pause_if_too_many_requests(self, response: Response):
+        """
+        Pause execution if a response has a 429 status TOO_MANY_REQUEST.
+        for the number of seconds indicated in the 'Retry-After' header,
+        or 60 seconds if this header is missing.
+        Retry the failed request afterwards.
+        """
+        if response.status == HTTPStatus.TOO_MANY_REQUESTS:
+            retry_after = response.headers.get('Retry-After', 60)
+            logger.warning(f'Got TOO_MANY_REQUESTS response, sleep {int(retry_after)} seconds')
+            time.sleep(retry_after)
+            return self.send(response.request)
+        return response
+
+    @response_hook
     def handle_error(self, response):
-        if response.status != 200:
+        if response.status != HTTPStatus.OK:
             raise APIException(response)
 
     @response_hook
