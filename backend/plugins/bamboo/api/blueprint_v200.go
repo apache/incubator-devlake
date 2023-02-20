@@ -18,9 +18,7 @@ limitations under the License.
 package api
 
 import (
-	"encoding/json"
 	"fmt"
-	"io"
 	"net/http"
 
 	"github.com/apache/incubator-devlake/plugins/bamboo/models"
@@ -134,7 +132,7 @@ func GetprojectByConnectionIdAndscopeId(connectionId uint64, scopeId string) (*m
 	key := scopeId
 	project := &models.BambooProject{}
 	db := basicRes.GetDal()
-	err := db.First(project, dal.Where("connection_id = ? AND key = ?", connectionId, key))
+	err := db.First(project, dal.Where("connection_id = ? AND project_key = ?", connectionId, key))
 	if err != nil {
 		if db.IsErrorNotFound(err) {
 			return nil, errors.Default.Wrap(err, fmt.Sprintf("can not find project by connection [%d] scope [%s]", connectionId, scopeId))
@@ -178,11 +176,7 @@ func GetApiProject(
 	if res.StatusCode != http.StatusOK {
 		return nil, errors.HttpStatus(res.StatusCode).New(fmt.Sprintf("unexpected status code when requesting project detail from %s", res.Request.URL.String()))
 	}
-	body, err := errors.Convert01(io.ReadAll(res.Body))
-	if err != nil {
-		return nil, err
-	}
-	err = errors.Convert(json.Unmarshal(body, projectRes))
+	err = helper.UnmarshalResponse(res, projectRes)
 	if err != nil {
 		return nil, err
 	}

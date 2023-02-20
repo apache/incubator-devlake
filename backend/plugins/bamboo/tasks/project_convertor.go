@@ -31,6 +31,8 @@ import (
 	bambooModels "github.com/apache/incubator-devlake/plugins/bamboo/models"
 )
 
+const RAW_PROJECT_TABLE = "bamboo_project"
+
 var ConvertProjectsMeta = plugin.SubTaskMeta{
 	Name:             "convertProjects",
 	EntryPoint:       ConvertProjects,
