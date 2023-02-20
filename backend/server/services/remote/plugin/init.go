@@ -29,10 +29,11 @@ import (
 var (
 	connectionHelper *api.ConnectionApiHelper
 	basicRes         context.BasicRes
+	vld              *validator.Validate
 )
 
 func Init(br context.BasicRes) {
-	vld := validator.New()
+	vld = validator.New()
 	basicRes = br
 	connectionHelper = api.NewConnectionHelper(
 		br,

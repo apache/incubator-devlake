@@ -19,17 +19,25 @@ package runner
 
 import (
 	"fmt"
-	"github.com/apache/incubator-devlake/core/context"
-	"github.com/apache/incubator-devlake/core/errors"
-	"github.com/apache/incubator-devlake/core/plugin"
 	"io/fs"
 	"path/filepath"
 	goplugin "plugin"
+	"strconv"
 	"strings"
+
+	"github.com/apache/incubator-devlake/core/context"
+	"github.com/apache/incubator-devlake/core/errors"
+	"github.com/apache/incubator-devlake/core/plugin"
+	"github.com/apache/incubator-devlake/server/services/remote"
 )
 
 // LoadPlugins load plugins from local directory
 func LoadPlugins(basicRes context.BasicRes) errors.Error {
+	remote_plugins_enabled, err := strconv.ParseBool(basicRes.GetConfig("ENABLE_REMOTE_PLUGINS"))
+	if err == nil && remote_plugins_enabled {
+		remote.Init(basicRes)
+	}
+
 	pluginsDir := basicRes.GetConfig("PLUGIN_DIR")
 	walkErr := filepath.WalkDir(pluginsDir, func(path string, d fs.DirEntry, err error) error {
 		if err != nil {

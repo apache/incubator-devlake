@@ -17,7 +17,11 @@ limitations under the License.
 
 package models
 
-import "github.com/apache/incubator-devlake/core/models/common"
+import (
+	"encoding/json"
+
+	"github.com/apache/incubator-devlake/core/models/common"
+)
 
 type ApiBambooProject struct {
 	Key         string            `json:"key"`
@@ -61,4 +65,31 @@ func (b *BambooProject) Convert(apiProject *ApiBambooProject) {
 
 func (b *BambooProject) TableName() string {
 	return "_tool_bamboo_projects"
+}
+
+type ApiBambooPlans struct {
+	ApiBambooSizeData `json:"squash"`
+	Plan              []json.RawMessage `json:"plan"`
+}
+
+type ApiBambooProject struct {
+	Key         string         `json:"key"`
+	Expand      string         `json:"expand"`
+	Name        string         `json:"name"`
+	Description string         `json:"description"`
+	Link        ApiBambooLink  `json:"link"`
+	Plans       ApiBambooPlans `json:"plans"`
+}
+
+type ApiBambooProjects struct {
+	ApiBambooSizeData `json:"squash"`
+	Expand            string             `json:"expand"`
+	Link              ApiBambooLink      `json:"link"`
+	Projects          []ApiBambooProject `json:"project"`
+}
+
+type ApiBambooProjectResponse struct {
+	Expand   string            `json:"expand"`
+	Link     ApiBambooLink     `json:"link"`
+	Projects ApiBambooProjects `json:"projects"`
 }

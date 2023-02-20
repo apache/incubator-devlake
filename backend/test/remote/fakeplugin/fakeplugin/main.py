@@ -19,7 +19,7 @@ from typing import Optional
 
 from sqlmodel import Field
 
-from pydevlake import Plugin, Connection, Stream, ToolModel
+from pydevlake import Plugin, Connection, TransformationRule, Stream, ToolModel
 from pydevlake.domain_layer.devops import CICDScope, CICDPipeline
 
 
@@ -92,6 +92,10 @@ class FakeStream(Stream):
 
 class FakeConnection(Connection):
     token: str
+
+
+class FakeTransformationRule(TransformationRule):
+    tx1: str
 
 
 class FakePlugin(Plugin):

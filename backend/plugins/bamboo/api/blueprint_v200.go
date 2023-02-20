@@ -18,9 +18,7 @@ limitations under the License.
 package api
 
 import (
-	"encoding/json"
 	"fmt"
-	"io"
 	"net/http"
 
 	"github.com/apache/incubator-devlake/plugins/bamboo/models"
@@ -183,11 +181,7 @@ func GetApiProject(
 	if res.StatusCode != http.StatusOK {
 		return nil, errors.HttpStatus(res.StatusCode).New(fmt.Sprintf("unexpected status code when requesting project detail from %s", res.Request.URL.String()))
 	}
-	body, err := errors.Convert01(io.ReadAll(res.Body))
-	if err != nil {
-		return nil, err
-	}
-	err = errors.Convert(json.Unmarshal(body, projectRes))
+	err = helper.UnmarshalResponse(res, projectRes)
 	if err != nil {
 		return nil, err
 	}

@@ -54,6 +54,10 @@ class Plugin:
     def connection_type(self) -> Type[msg.Connection]:
         pass
 
+    @property
+    def transformation_rule_type(self) -> Type[msg.TransformationRule]:
+        return msg.TransformationRule
+
     @abstractmethod
     def test_connection(self, connection: msg.Connection):
         """
@@ -133,7 +137,7 @@ class Plugin:
             swagger=msg.SwaggerDoc(
                 name=self.name,
                 resource=self.name,
-                spec=generate_doc(self.name, self.connection_type)
+                spec=generate_doc(self.name, self.connection_type, self.transformation_rule_type)
             )
         )
         resp = requests.post(f"{endpoint}/plugins/register", data=details.json())
@@ -160,6 +164,7 @@ class Plugin:
             plugin_path=self._plugin_path(),
             extension="datasource",
             connection_schema=self.connection_type.schema(),
+            transformation_rule_schema=self.transformation_rule_type.schema(),
             subtask_metas=subtask_metas
         )
 

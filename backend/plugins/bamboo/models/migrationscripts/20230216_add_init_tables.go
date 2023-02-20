@@ -31,11 +31,12 @@ func (u *addInitTables) Up(baseRes context.BasicRes) errors.Error {
 		baseRes,
 		&archived.BambooConnection{},
 		&archived.BambooProject{},
+		&archived.BambooPlan{},
 	)
 }
 
 func (*addInitTables) Version() uint64 {
-	return 20230216205028
+	return 20230216205031
 }
 
 func (*addInitTables) Name() string {

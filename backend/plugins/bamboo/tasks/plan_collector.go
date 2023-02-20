@@ -23,45 +23,53 @@ import (
 	"github.com/apache/incubator-devlake/core/errors"
 	"github.com/apache/incubator-devlake/core/plugin"
 	helper "github.com/apache/incubator-devlake/helpers/pluginhelper/api"
-	"io"
+	"github.com/apache/incubator-devlake/plugins/bamboo/models"
 	"net/http"
 	"net/url"
 )
 
-const RAW_PROJECT_TABLE = "bamboo_project"
+const RAW_PLAN_TABLE = "bamboo_plan"
 
-var _ plugin.SubTaskEntryPoint = CollectProject
+var _ plugin.SubTaskEntryPoint = CollectPlan
 
-func CollectProject(taskCtx plugin.SubTaskContext) errors.Error {
-	rawDataSubTaskArgs, data := CreateRawDataSubTaskArgs(taskCtx, RAW_PROJECT_TABLE)
+func CollectPlan(taskCtx plugin.SubTaskContext) errors.Error {
+	rawDataSubTaskArgs, data := CreateRawDataSubTaskArgs(taskCtx, RAW_PLAN_TABLE)
 
 	collectorWithState, err := helper.NewApiCollectorWithState(*rawDataSubTaskArgs, nil)
 	if err != nil {
 		return err
 	}
-	incremental := collectorWithState.IsIncremental()
 
 	err = collectorWithState.InitCollector(helper.ApiCollectorArgs{
-		Incremental: incremental,
 		ApiClient:   data.ApiClient,
-		// TODO write which api would you want request
+		PageSize:    100,
 		UrlTemplate: "project/{{ .Params.ProjectKey }}.json",
 		Query: func(reqData *helper.RequestData) (url.Values, errors.Error) {
 			query := url.Values{}
 			query.Set("showEmpty", fmt.Sprintf("%v", true))
+			query.Set("expand", "plans.plan")
+			query.Set("max-result", fmt.Sprintf("%v", reqData.Pager.Size))
+			query.Set("start-index", fmt.Sprintf("%v", (reqData.Pager.Page-1)*reqData.Pager.Size))
 			return query, nil
 		},
 		GetTotalPages: func(res *http.Response, args *helper.ApiCollectorArgs) (int, errors.Error) {
-			return 1, nil
+			var body struct {
+				SizeInfo models.ApiBambooSizeData `json:"plans"`
+			}
+			err = helper.UnmarshalResponse(res, &body)
+			if err != nil {
+				return 0, err
+			}
+			return GetTotalPagesFromSizeInfo(&body.SizeInfo, args)
 		},
 
 		ResponseParser: func(res *http.Response) ([]json.RawMessage, errors.Error) {
-			body, err := io.ReadAll(res.Body)
+			body := &models.ApiBambooProject{}
+			err = helper.UnmarshalResponse(res, body)
 			if err != nil {
-				return nil, errors.Convert(err)
+				return nil, err
 			}
-			res.Body.Close()
-			return []json.RawMessage{body}, nil
+			return body.Plans.Plan, nil
 		},
 	})
 	if err != nil {
@@ -70,10 +78,10 @@ func CollectProject(taskCtx plugin.SubTaskContext) errors.Error {
 	return collectorWithState.Execute()
 }
 
-var CollectProjectMeta = plugin.SubTaskMeta{
-	Name:             "CollectProject",
-	EntryPoint:       CollectProject,
+var CollectPlanMeta = plugin.SubTaskMeta{
+	Name:             "CollectPlan",
+	EntryPoint:       CollectPlan,
 	EnabledByDefault: true,
-	Description:      "Collect Project data from Bamboo api",
+	Description:      "Collect Plan data from Bamboo api",
 	DomainTypes:      []string{plugin.DOMAIN_TYPE_CICD},
 }

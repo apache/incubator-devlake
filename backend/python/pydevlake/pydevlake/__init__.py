@@ -16,7 +16,7 @@
 
 from .model import ToolModel
 from .logger import logger
-from .message import Connection
+from .message import Connection, TransformationRule
 from .plugin import Plugin
 from .stream import Stream, Substream
 from .context import Context

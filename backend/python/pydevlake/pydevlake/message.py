@@ -35,6 +35,7 @@ class PluginInfo(Message):
     name: str
     description: str
     connection_schema: dict
+    transformation_rule_schema: dict
     plugin_path: str
     subtask_metas: list[SubtaskMeta]
     extension: str = "datasource"
@@ -59,6 +60,10 @@ class RemoteProgress(Message):
 
 
 class Connection(Message):
+    pass
+
+
+class TransformationRule(Message):
     pass
 
 

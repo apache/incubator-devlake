@@ -87,7 +87,9 @@ class PluginCommands:
 
     def _mk_context(self, data: dict):
         db_url = data['db_url']
+        scope_id = data['scope_id']
         connection_id = data['connection_id']
         connection = self._plugin.connection_type(**data['connection'])
+        transformation_rule = self._plugin.transformation_rule_type(**data['transformation_rule'])
         options = data.get('options', {})
-        return Context(db_url, connection_id, connection, options)
+        return Context(db_url, scope_id, connection_id, connection, transformation_rule, options)
