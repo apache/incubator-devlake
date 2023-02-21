@@ -63,7 +63,7 @@ export const ConnectionPassword = ({ label, initialValue, value, setValue, setEr
 
   return (
     <FormGroup label={<S.Label>{label ?? 'Password'}</S.Label>} labelInfo={<S.LabelInfo>*</S.LabelInfo>}>
-      <InputGroup placeholder="Your Password" value={value} onChange={handleChange} />
+      <InputGroup type="password" placeholder="Your Password" value={value} onChange={handleChange} />
     </FormGroup>
   );
 };
