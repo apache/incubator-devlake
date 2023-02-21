@@ -123,30 +123,22 @@ func (p Sonarqube) PrepareTaskData(taskCtx plugin.TaskContext, options map[strin
 		Options:   op,
 		ApiClient: apiClient,
 	}
-	if op.ProjectKey != "" {
-		var scope *models.SonarqubeProject
-		var apiProject *tasks.SonarqubeApiProject
-		// support v100 & advance mode
-		// If we still cannot find the record in db, we have to request from remote server and save it to db
-		db := taskCtx.GetDal()
-		err = db.First(&scope, dal.Where("connection_id = ? AND project_key = ?", op.ConnectionId, op.ProjectKey))
-		if err != nil && db.IsErrorNotFound(err) {
-			apiProject, err = api.GetApiProject(op.ProjectKey, apiClient)
-			if err != nil {
-				return nil, err
-			}
-			logger.Debug(fmt.Sprintf("Current project: %s", apiProject.ProjectKey))
-			scope = tasks.ConvertProject(apiProject)
-			scope.ConnectionId = op.ConnectionId
-			err = taskCtx.GetDal().CreateIfNotExist(&scope)
-			if err != nil {
-				return nil, err
-			}
-		}
-		if err != nil {
-			return nil, errors.Default.Wrap(err, fmt.Sprintf("fail to find project: %s", op.ProjectKey))
-		}
+	// even we have project in _tool_sonaqube_projects, we still need to collect project to update LastAnalysisDate
+	var scope *models.SonarqubeProject
+	var apiProject *tasks.SonarqubeApiProject
+	apiProject, err = api.GetApiProject(op.ProjectKey, apiClient)
+	if err != nil {
+		return nil, err
 	}
+	logger.Debug(fmt.Sprintf("Current project: %s", apiProject.ProjectKey))
+	scope = tasks.ConvertProject(apiProject)
+	scope.ConnectionId = op.ConnectionId
+	err = taskCtx.GetDal().CreateOrUpdate(&scope)
+	if err != nil {
+		return nil, err
+	}
+	taskData.LastAnalysisDate = scope.LastAnalysisDate.ToNullableTime()
+
 	var createdDateAfter time.Time
 	if op.CreatedDateAfter != "" {
 		createdDateAfter, err = errors.Convert01(time.Parse(time.RFC3339, op.CreatedDateAfter))

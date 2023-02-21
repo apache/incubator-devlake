@@ -22,13 +22,12 @@ import (
 	"encoding/hex"
 	"encoding/json"
 	"fmt"
-	"hash"
-	"strings"
-
 	"github.com/apache/incubator-devlake/core/errors"
 	"github.com/apache/incubator-devlake/core/plugin"
 	helper "github.com/apache/incubator-devlake/helpers/pluginhelper/api"
 	"github.com/apache/incubator-devlake/plugins/sonarqube/models"
+	"hash"
+	"strings"
 )
 
 var _ plugin.SubTaskEntryPoint = ExtractIssues
@@ -45,7 +44,6 @@ func ExtractIssues(taskCtx plugin.SubTaskContext) errors.Error {
 			if err != nil {
 				return nil, err
 			}
-
 			sonarqubeIssue := &models.SonarqubeIssue{
 				ConnectionId: data.Options.ConnectionId,
 				IssueKey:     body.Key,
@@ -91,7 +89,6 @@ func ExtractIssues(taskCtx plugin.SubTaskContext) errors.Error {
 					results = append(results, codeBlock)
 				}
 			}
-
 			return results, nil
 		},
 	})

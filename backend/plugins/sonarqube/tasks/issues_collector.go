@@ -35,7 +35,6 @@ func CollectIssues(taskCtx plugin.SubTaskContext) (err errors.Error) {
 	rawDataSubTaskArgs, data := CreateRawDataSubTaskArgs(taskCtx, RAW_ISSUES_TABLE)
 	logger := taskCtx.GetLogger()
 	logger.Info("collect issues")
-
 	collectorWithState, err := helper.NewApiCollectorWithState(*rawDataSubTaskArgs, data.CreatedDateAfter)
 	if err != nil {
 		return err
