@@ -25,8 +25,8 @@ type PaginationParams = {
 
 export const getUser = (prefix: string) => request(`${prefix}/user`);
 
-export const getUserOrgs = (prefix: string, username: string, params: PaginationParams) =>
-  request(`${prefix}/users/${username}/orgs`, {
+export const getUserOrgs = (prefix: string, params: PaginationParams) =>
+  request(`${prefix}/user/orgs`, {
     method: 'get',
     data: params,
   });
@@ -37,10 +37,13 @@ export const getOrgRepos = (prefix: string, org: string, params: PaginationParam
     data: params,
   });
 
-export const getUserRepos = (prefix: string, username: string, params: PaginationParams) =>
-  request(`${prefix}/users/${username}/repos`, {
+export const getUserRepos = (prefix: string, params: PaginationParams) =>
+  request(`${prefix}/user/repos`, {
     method: 'get',
-    data: params,
+    data: {
+      ...params,
+      type: 'owner',
+    },
   });
 
 type SearchRepoParams = {

@@ -85,7 +85,7 @@ export const useMillerColumns = ({ connectionId }: UseMillerColumnsProps) => {
   useEffect(() => {
     (async () => {
       const user = await API.getUser(prefix);
-      const orgs = await API.getUserOrgs(prefix, user.login, {
+      const orgs = await API.getUserOrgs(prefix, {
         page: 1,
         per_page: DEFAULT_PAGE_SIZE,
       });
@@ -114,7 +114,7 @@ export const useMillerColumns = ({ connectionId }: UseMillerColumnsProps) => {
 
       const isUser = item.id === user.login;
       const repos = isUser
-        ? await API.getUserRepos(prefix, user.login, {
+        ? await API.getUserRepos(prefix, {
             page: 1,
             per_page: DEFAULT_PAGE_SIZE,
           })
@@ -135,7 +135,7 @@ export const useMillerColumns = ({ connectionId }: UseMillerColumnsProps) => {
     const page = mapPage[column.parentId ?? 'root'];
     const isUser = column.parentId === user.login;
     const orgs = !column.parentId
-      ? await API.getUserOrgs(prefix, user.login, {
+      ? await API.getUserOrgs(prefix, {
           page,
           per_page: DEFAULT_PAGE_SIZE,
         })
@@ -143,7 +143,7 @@ export const useMillerColumns = ({ connectionId }: UseMillerColumnsProps) => {
 
     const repos = column.parentId
       ? isUser
-        ? await API.getUserRepos(prefix, user.login, {
+        ? await API.getUserRepos(prefix, {
             page,
             per_page: DEFAULT_PAGE_SIZE,
           })
