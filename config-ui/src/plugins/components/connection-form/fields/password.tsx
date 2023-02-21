@@ -40,6 +40,8 @@ import * as S from './styled';
 
 interface Props {
   label?: string;
+  subLabel?: string;
+  placeholder?: string;
   name: string;
   initialValue: string;
   value: string;
@@ -48,7 +50,15 @@ interface Props {
   setError: (value: string) => void;
 }
 
-export const ConnectionPassword = ({ label, initialValue, value, setValue, setError }: Props) => {
+export const ConnectionPassword = ({
+  label,
+  subLabel,
+  placeholder,
+  initialValue,
+  value,
+  setValue,
+  setError,
+}: Props) => {
   useEffect(() => {
     setValue(initialValue);
   }, [initialValue]);
@@ -62,8 +72,12 @@ export const ConnectionPassword = ({ label, initialValue, value, setValue, setEr
   };
 
   return (
-    <FormGroup label={<S.Label>{label ?? 'Password'}</S.Label>} labelInfo={<S.LabelInfo>*</S.LabelInfo>}>
-      <InputGroup type="password" placeholder="Your Password" value={value} onChange={handleChange} />
+    <FormGroup
+      label={<S.Label>{label ?? 'Password'}</S.Label>}
+      labelInfo={<S.LabelInfo>*</S.LabelInfo>}
+      subLabel={subLabel ? <S.LabelDescription>{subLabel}</S.LabelDescription> : null}
+    >
+      <InputGroup type="password" placeholder={placeholder ?? 'Your Password'} value={value} onChange={handleChange} />
     </FormGroup>
   );
 };
