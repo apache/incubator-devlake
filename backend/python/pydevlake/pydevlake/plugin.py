@@ -74,6 +74,10 @@ class Plugin:
     def get_scopes(self, scope_name: str, connection: msg.Connection) -> Iterable[DomainModel]:
         pass
 
+    @abstractmethod
+    def remote_scopes(self, connection: msg.Connection, query: str = ''):
+        pass
+
     @property
     def streams(self) -> list[Union[Stream, Type[Stream]]]:
         pass
@@ -114,7 +118,7 @@ class Plugin:
         plan = msg.PipelinePlan(stages=stages)
         yield plan
 
-        scopes = [ 
+        scopes = [
             msg.PipelineScope(
                 id=':'.join([self.name, type(scope).__name__, ctx.connection_id, bp_scope.id]),
                 name=bp_scope.name,

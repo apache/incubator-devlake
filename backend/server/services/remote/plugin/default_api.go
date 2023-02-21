@@ -64,6 +64,12 @@ func GetDefaultAPI(
 			"GET":   papi.GetScope,
 			"PATCH": papi.PatchScope,
 		},
+		"connections/:connectionId/remote-scopes": {
+			"GET": papi.GetRemoteScopes,
+		},
+		"connections/:connectionId/search-remote-scopes": {
+			"GET": papi.GetRemoteScopes,
+		},
 		"transformation_rules": {
 			"POST": papi.PostTransformationRules,
 			"GET":  papi.ListTransformationRules,
