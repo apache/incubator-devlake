@@ -208,5 +208,5 @@ func CollectCheckRun(taskCtx plugin.SubTaskContext) errors.Error {
 		return err
 	}
 
-	return collectorWithState.ExecuteGraphQL()
+	return collectorWithState.Execute()
 }

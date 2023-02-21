@@ -20,12 +20,17 @@ package tasks
 import (
 	"encoding/json"
 	"fmt"
+	"io"
 	"net/http"
 	"net/url"
+	"reflect"
+	"time"
 
+	"github.com/apache/incubator-devlake/core/dal"
 	"github.com/apache/incubator-devlake/core/errors"
 	"github.com/apache/incubator-devlake/core/plugin"
 	helper "github.com/apache/incubator-devlake/helpers/pluginhelper/api"
+	"github.com/apache/incubator-devlake/plugins/github/models"
 )
 
 const RAW_PULL_REQUEST_TABLE = "github_api_pull_requests"
@@ -38,50 +43,94 @@ var CollectApiPullRequestsMeta = plugin.SubTaskMeta{
 	DomainTypes:      []string{plugin.DOMAIN_TYPE_CROSS, plugin.DOMAIN_TYPE_CODE_REVIEW},
 }
 
+type SimpleGithubPr struct {
+	GithubId int64
+}
+
+type SimpleGithubApiPr struct {
+	CreatedAt time.Time `json:"created_at"`
+}
+
 func CollectApiPullRequests(taskCtx plugin.SubTaskContext) errors.Error {
+	// pull requests are Finalizable, they can't be re-open once closed
 	data := taskCtx.GetData().(*GithubTaskData)
-	collectorWithState, err := helper.NewApiCollectorWithState(helper.RawDataSubTaskArgs{
-		Ctx: taskCtx,
-		Params: GithubApiParams{
-			ConnectionId: data.Options.ConnectionId,
-			Name:         data.Options.Name,
+	db := taskCtx.GetDal()
+
+	collector, err := helper.NewStatefulApiCollectorForFinalizableEntity(helper.FinalizableApiCollectorArgs{
+		RawDataSubTaskArgs: helper.RawDataSubTaskArgs{
+			Ctx: taskCtx,
+			Params: GithubApiParams{
+				ConnectionId: data.Options.ConnectionId,
+				Name:         data.Options.Name,
+			},
+			Table: RAW_PULL_REQUEST_TABLE,
 		},
-		Table: RAW_PULL_REQUEST_TABLE,
-	}, data.TimeAfter)
-	if err != nil {
-		return err
-	}
-
-	err = collectorWithState.InitCollector(helper.ApiCollectorArgs{
-		ApiClient:   data.ApiClient,
-		PageSize:    100,
-		Incremental: false,
-
-		UrlTemplate: "repos/{{ .Params.Name }}/pulls",
-
-		Query: func(reqData *helper.RequestData) (url.Values, errors.Error) {
-			query := url.Values{}
-			query.Set("state", "all")
-			query.Set("page", fmt.Sprintf("%v", reqData.Pager.Page))
-			query.Set("direction", "asc")
-			query.Set("per_page", fmt.Sprintf("%v", reqData.Pager.Size))
-
-			return query, nil
+		ApiClient: data.ApiClient,
+		TimeAfter: data.TimeAfter, // set to nil to disable timeFilter
+		CollectNewRecordsByList: helper.FinalizableApiCollectorListArgs{
+			PageSize:    100,
+			Concurrency: 10,
+			FinalizableApiCollectorCommonArgs: helper.FinalizableApiCollectorCommonArgs{
+				UrlTemplate: "repos/{{ .Params.Name }}/pulls",
+				Query: func(reqData *helper.RequestData, createdAfter *time.Time) (url.Values, errors.Error) {
+					query := url.Values{}
+					query.Set("state", "all")
+					query.Set("direction", "desc")
+					query.Set("page", fmt.Sprintf("%v", reqData.Pager.Page))
+					query.Set("per_page", fmt.Sprintf("%v", reqData.Pager.Size))
+					return query, nil
+				},
+				ResponseParser: func(res *http.Response) ([]json.RawMessage, errors.Error) {
+					var items []json.RawMessage
+					err := helper.UnmarshalResponse(res, &items)
+					if err != nil {
+						return nil, err
+					}
+					return items, nil
+				},
+			},
+			GetCreated: func(item json.RawMessage) (time.Time, errors.Error) {
+				pr := &SimpleGithubApiPr{}
+				err := json.Unmarshal(item, pr)
+				if err != nil {
+					return time.Time{}, errors.BadInput.Wrap(err, "failed to unmarshal github pull request")
+				}
+				return pr.CreatedAt, nil
+			},
 		},
-
-		GetTotalPages: GetTotalPagesFromResponse,
-		ResponseParser: func(res *http.Response) ([]json.RawMessage, errors.Error) {
-			var items []json.RawMessage
-			err := helper.UnmarshalResponse(res, &items)
-			if err != nil {
-				return nil, err
-			}
-			return items, nil
+		CollectUnfinishedDetails: helper.FinalizableApiCollectorDetailArgs{
+			BuildInputIterator: func() (helper.Iterator, errors.Error) {
+				// select pull id from database
+				cursor, err := db.Cursor(
+					dal.Select("github_id"),
+					dal.From(&models.GithubPullRequest{}),
+					dal.Where(
+						"repo_id = ? AND connection_id = ? AND state != 'closed'",
+						data.Options.GithubId, data.Options.ConnectionId,
+					),
+				)
+				if err != nil {
+					return nil, err
+				}
+				return helper.NewDalCursorIterator(db, cursor, reflect.TypeOf(SimpleGithubPr{}))
+			},
+			FinalizableApiCollectorCommonArgs: helper.FinalizableApiCollectorCommonArgs{
+				UrlTemplate: "repos/{{ .Params.Name }}/pulls/{{ .Input.GithubId }}",
+				ResponseParser: func(res *http.Response) ([]json.RawMessage, errors.Error) {
+					body, err := io.ReadAll(res.Body)
+					if err != nil {
+						return nil, errors.Convert(err)
+					}
+					res.Body.Close()
+					return []json.RawMessage{body}, nil
+				},
+			},
 		},
 	})
+
 	if err != nil {
 		return err
 	}
 
-	return collectorWithState.Execute()
+	return collector.Execute()
 }
