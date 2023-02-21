@@ -30,24 +30,26 @@ import (
 	"reflect"
 )
 
-const RAW_JOB_TABLE = "bamboo_job"
+const RAW_JOB_BUILD_TABLE = "bamboo_job_build"
 
-var _ plugin.SubTaskEntryPoint = CollectJob
+var _ plugin.SubTaskEntryPoint = CollectJobBuild
 
-type SimplePlan struct {
-	PlanKey string
+type SimpleJob struct {
+	JobKey   string
+	PlanName string
+	PlanKey  string
 }
 
-func CollectJob(taskCtx plugin.SubTaskContext) errors.Error {
-	rawDataSubTaskArgs, data := CreateRawDataSubTaskArgs(taskCtx, RAW_JOB_TABLE)
+func CollectJobBuild(taskCtx plugin.SubTaskContext) errors.Error {
+	rawDataSubTaskArgs, data := CreateRawDataSubTaskArgs(taskCtx, RAW_JOB_BUILD_TABLE)
 	db := taskCtx.GetDal()
 	collectorWithState, err := helper.NewApiCollectorWithState(*rawDataSubTaskArgs, nil)
 	if err != nil {
 		return err
 	}
 	clauses := []dal.Clause{
-		dal.Select("plan_key"),
-		dal.From(models.BambooPlan{}.TableName()),
+		dal.Select("job_key, plan_name, plan_key"),
+		dal.From(models.BambooJob{}.TableName()),
 		dal.Where("project_key = ? and connection_id=?", data.Options.ProjectKey, data.Options.ConnectionId),
 	}
 	cursor, err := db.Cursor(
@@ -56,7 +58,7 @@ func CollectJob(taskCtx plugin.SubTaskContext) errors.Error {
 	if err != nil {
 		return err
 	}
-	iterator, err := helper.NewDalCursorIterator(db, cursor, reflect.TypeOf(SimplePlan{}))
+	iterator, err := helper.NewDalCursorIterator(db, cursor, reflect.TypeOf(SimpleJob{}))
 	if err != nil {
 		return err
 	}
@@ -65,33 +67,37 @@ func CollectJob(taskCtx plugin.SubTaskContext) errors.Error {
 		ApiClient:   data.ApiClient,
 		PageSize:    100,
 		Input:       iterator,
-		UrlTemplate: "search/jobs/{{ .Input.PlanKey }}.json",
+		UrlTemplate: "result/{{ .Input.JobKey }}.json",
 		Query: func(reqData *helper.RequestData) (url.Values, errors.Error) {
 			query := url.Values{}
 			query.Set("showEmpty", fmt.Sprintf("%v", true))
-			query.Set("expand", "jobs.job")
+			query.Set("expand", "results.result.vcsRevisions")
 			query.Set("max-result", fmt.Sprintf("%v", reqData.Pager.Size))
 			query.Set("start-index", fmt.Sprintf("%v", reqData.Pager.Skip))
 			return query, nil
 		},
 		GetTotalPages: func(res *http.Response, args *helper.ApiCollectorArgs) (int, errors.Error) {
-			body := models.ApiBambooSizeData{}
+			var body struct {
+				SizeInfo models.ApiBambooSizeData `json:"results"`
+			}
 			err = helper.UnmarshalResponse(res, &body)
 			if err != nil {
 				return 0, err
 			}
-			return GetTotalPagesFromSizeInfo(&body, args)
+			return GetTotalPagesFromSizeInfo(&body.SizeInfo, args)
 		},
 
 		ResponseParser: func(res *http.Response) ([]json.RawMessage, errors.Error) {
-			var results struct {
-				SearchResults []json.RawMessage `json:"searchResults"`
+			var resData struct {
+				Results struct {
+					Result []json.RawMessage `json:"result"`
+				} `json:"results"`
 			}
-			err = helper.UnmarshalResponse(res, &results)
+			err = helper.UnmarshalResponse(res, &resData)
 			if err != nil {
 				return nil, err
 			}
-			return results.SearchResults, nil
+			return resData.Results.Result, nil
 		},
 	})
 	if err != nil {
@@ -100,10 +106,10 @@ func CollectJob(taskCtx plugin.SubTaskContext) errors.Error {
 	return collectorWithState.Execute()
 }
 
-var CollectJobMeta = plugin.SubTaskMeta{
-	Name:             "CollectJob",
-	EntryPoint:       CollectJob,
+var CollectJobBuildMeta = plugin.SubTaskMeta{
+	Name:             "CollectJobBuild",
+	EntryPoint:       CollectJobBuild,
 	EnabledByDefault: true,
-	Description:      "Collect Job data from Bamboo api",
+	Description:      "Collect JobBuild data from Bamboo api",
 	DomainTypes:      []string{plugin.DOMAIN_TYPE_CICD},
 }

@@ -15,21 +15,21 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-package migrationscripts
+package models
 
 import (
-	plugin "github.com/apache/incubator-devlake/core/plugin"
+	"github.com/apache/incubator-devlake/core/models/common"
 )
 
-// All return all the migration scripts
-func All() []plugin.MigrationScript {
-	return []plugin.MigrationScript{
-		new(addInitTables20220803),
-		new(addPipeline20220914),
-		new(addPrCommits20221008),
-		new(addDeployment20221013),
-		new(addRepoIdAndCommitShaField20221014),
-		new(addScope20230206),
-		new(addPipelineStep20230215),
-	}
+type BambooPlanBuildVcsRevision struct {
+	ConnectionId   uint64 `gorm:"primaryKey"`
+	PlanBuildKey   string `gorm:"primaryKey"`
+	RepositoryId   int
+	RepositoryName string `json:"repositoryName"`
+	VcsRevisionKey string `gorm:"primaryKey"`
+	common.NoPKModel
+}
+
+func (BambooPlanBuildVcsRevision) TableName() string {
+	return "_tool_bamboo_plan_build_commits"
 }

@@ -35,7 +35,7 @@ var ConvertPipelineMeta = plugin.SubTaskMeta{
 	EntryPoint:       ConvertPipelines,
 	EnabledByDefault: true,
 	Description:      "Convert tool layer table bitbucket_pipeline into domain layer table pipeline",
-	DomainTypes:      []string{plugin.DOMAIN_TYPE_CROSS},
+	DomainTypes:      []string{plugin.DOMAIN_TYPE_CICD},
 }
 
 func ConvertPipelines(taskCtx plugin.SubTaskContext) errors.Error {

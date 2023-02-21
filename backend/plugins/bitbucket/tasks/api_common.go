@@ -39,6 +39,10 @@ type BitbucketInput struct {
 	BitbucketId int
 }
 
+type BitbucketUuidInput struct {
+	BitbucketId string
+}
+
 type BitbucketPagination struct {
 	Values  []interface{} `json:"values"`
 	PageLen int           `json:"pagelen"`
@@ -216,6 +220,32 @@ func GetIssuesIterator(taskCtx plugin.SubTaskContext, collectorWithState *api.Ap
 	}
 
 	return api.NewDalCursorIterator(db, cursor, reflect.TypeOf(BitbucketInput{}))
+}
+
+func GetPipelinesIterator(taskCtx plugin.SubTaskContext, collectorWithState *api.ApiCollectorStateManager) (*api.DalCursorIterator, errors.Error) {
+	db := taskCtx.GetDal()
+	data := taskCtx.GetData().(*BitbucketTaskData)
+	clauses := []dal.Clause{
+		dal.Select("bpr.bitbucket_id"),
+		dal.From("_tool_bitbucket_pipelines bpr"),
+		dal.Where(
+			`bpr.repo_id = ? and bpr.connection_id = ?`,
+			data.Options.FullName, data.Options.ConnectionId,
+		),
+	}
+	if collectorWithState.CreatedDateAfter != nil {
+		clauses = append(clauses, dal.Where("bitbucket_created_on > ?", *collectorWithState.CreatedDateAfter))
+	}
+	if collectorWithState.IsIncremental() {
+		clauses = append(clauses, dal.Where("bitbucket_complete_on > ?", *collectorWithState.LatestState.LatestSuccessStart))
+	}
+	// construct the input iterator
+	cursor, err := db.Cursor(clauses...)
+	if err != nil {
+		return nil, err
+	}
+
+	return api.NewDalCursorIterator(db, cursor, reflect.TypeOf(BitbucketUuidInput{}))
 }
 
 func ignoreHTTPStatus404(res *http.Response) errors.Error {

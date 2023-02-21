@@ -57,11 +57,6 @@ func MakePipelinePlanV200(
 		return nil, nil, err
 	}
 
-	// 测试
-	fmt.Printf("MakePipelinePlanV200\r\n")
-	fmt.Printf("pp:%+v\r\n", pp)
-	fmt.Printf("sc:%+v\r\n", sc)
-
 	return pp, sc, nil
 }
 

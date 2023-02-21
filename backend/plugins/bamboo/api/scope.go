@@ -21,7 +21,6 @@ import (
 	"context"
 	"net/http"
 	"strconv"
-	"time"
 
 	"github.com/apache/incubator-devlake/core/dal"
 	"github.com/apache/incubator-devlake/core/errors"
@@ -63,7 +62,6 @@ func PutScope(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, errors
 		return nil, errors.BadInput.Wrap(err, "decoding Bamboo project error")
 	}
 	keeper := make(map[string]struct{})
-	now := time.Now()
 	for _, project := range projects.Data {
 		if _, ok := keeper[project.ProjectKey]; ok {
 			return nil, errors.BadInput.New("duplicated item")
@@ -71,8 +69,6 @@ func PutScope(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, errors
 			keeper[project.ProjectKey] = struct{}{}
 		}
 		project.ConnectionId = connectionId
-		project.CreatedAt = now
-		project.UpdatedAt = now
 		err = verifyProject(project)
 		if err != nil {
 			return nil, err
