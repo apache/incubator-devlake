@@ -15,15 +15,15 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-package models
+package archived
 
 import (
-	"github.com/apache/incubator-devlake/core/models/common"
+	"github.com/apache/incubator-devlake/core/models/migrationscripts/archived"
 	"gorm.io/datatypes"
 )
 
 type BambooTransformationRule struct {
-	common.Model
+	archived.Model
 	Name string `gorm:"type:varchar(255);index:idx_name_gitlab,unique" validate:"required" mapstructure:"name" json:"name"`
 	// should be {realRepoName: [bamboo_repoId]}
 	RepoMap           datatypes.JSONMap

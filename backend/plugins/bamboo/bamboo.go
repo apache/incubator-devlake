@@ -31,7 +31,7 @@ func main() {
 	bambooCmd := &cobra.Command{Use: "bamboo"}
 	connectionId := bambooCmd.Flags().Uint64P("Connection-id", "c", 0, "bamboo connection id")
 	projectKey := bambooCmd.Flags().StringP("project-key", "p", "", "bamboo project key")
-	_ = bambooCmd.MarkFlagRequired("project-id")
+	_ = bambooCmd.MarkFlagRequired("project-key")
 	bambooCmd.Run = func(cmd *cobra.Command, args []string) {
 		runner.DirectRun(cmd, args, PluginEntry, map[string]interface{}{
 			"connectionId": *connectionId,

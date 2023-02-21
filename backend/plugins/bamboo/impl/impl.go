@@ -157,7 +157,9 @@ func (p Bamboo) PrepareTaskData(taskCtx plugin.TaskContext, options map[string]i
 		}
 		op.BambooTransformationRule = &transformationRule
 	}
-
+	if op.BambooTransformationRule == nil && op.TransformationRuleId == 0 {
+		op.BambooTransformationRule = new(models.BambooTransformationRule)
+	}
 	return &tasks.BambooTaskData{
 		Options:   op,
 		ApiClient: apiClient,
@@ -186,6 +188,14 @@ func (p Bamboo) ApiResources() map[string]map[string]plugin.ApiResourceHandler {
 			"GET":    api.GetConnection,
 			"PATCH":  api.PatchConnection,
 			"DELETE": api.DeleteConnection,
+		},
+		"transformation_rules": {
+			"POST": api.CreateTransformationRule,
+			"GET":  api.GetTransformationRuleList,
+		},
+		"transformation_rules/:id": {
+			"PATCH": api.UpdateTransformationRule,
+			"GET":   api.GetTransformationRule,
 		},
 		"connections/:connectionId/scopes": {
 			"GET": api.GetScopeList,
