@@ -27,6 +27,10 @@ services:
       MYSQL_DATABASE: lake
       MYSQL_USER: merico
       MYSQL_PASSWORD: merico
+    command:
+      --character-set-server=utf8mb4
+      --collation-server=utf8mb4_bin
+
 
   # postgres:
   #   image: postgres:14.2
