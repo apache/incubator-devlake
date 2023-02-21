@@ -93,3 +93,8 @@ class PipelineScope(Message):
 class BlueprintScope(Message):
     id: str
     name: str
+
+
+class RemoteScope(Message):
+    id: str
+    name: str

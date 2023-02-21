@@ -25,7 +25,6 @@ import (
 
 	"github.com/apache/incubator-devlake/core/dal"
 	"github.com/apache/incubator-devlake/core/errors"
-	"github.com/apache/incubator-devlake/core/models"
 	"github.com/apache/incubator-devlake/core/plugin"
 	"github.com/apache/incubator-devlake/helpers/pluginhelper/api"
 )
@@ -48,11 +47,7 @@ type request struct {
 	Data []*ScopeItem `json:"data"`
 }
 
-type ScopeAPI struct {
-	txRuleType *models.DynamicTabler
-}
-
-func (s *ScopeAPI) PutScope(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, errors.Error) {
+func (pa *pluginAPI) PutScope(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, errors.Error) {
 	connectionId, _ := extractParam(input.Params)
 	if connectionId == 0 {
 		return nil, errors.BadInput.New("invalid connectionId")
@@ -87,7 +82,7 @@ func (s *ScopeAPI) PutScope(input *plugin.ApiResourceInput) (*plugin.ApiResource
 	return &plugin.ApiResourceOutput{Body: scopes.Data, Status: http.StatusOK}, nil
 }
 
-func (s *ScopeAPI) PatchScope(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, errors.Error) {
+func (pa *pluginAPI) PatchScope(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, errors.Error) {
 	connectionId, scopeId := extractParam(input.Params)
 	if connectionId == 0 {
 		return nil, errors.BadInput.New("invalid connectionId")
@@ -117,7 +112,7 @@ func (s *ScopeAPI) PatchScope(input *plugin.ApiResourceInput) (*plugin.ApiResour
 	return &plugin.ApiResourceOutput{Body: scope, Status: http.StatusOK}, nil
 }
 
-func (s *ScopeAPI) ListScopes(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, errors.Error) {
+func (pa *pluginAPI) ListScopes(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, errors.Error) {
 	var scopes []ScopeItem
 	connectionId, _ := extractParam(input.Params)
 
@@ -151,7 +146,7 @@ func (s *ScopeAPI) ListScopes(input *plugin.ApiResourceInput) (*plugin.ApiResour
 	if len(ruleIds) > 0 {
 		err = db.All(&txRuleId2Name,
 			dal.Select("id, name"),
-			dal.From(s.txRuleType.TableName()),
+			dal.From(pa.txRuleType.TableName()),
 			dal.Where("id IN (?)", ruleIds))
 		if err != nil {
 			return nil, err
@@ -176,7 +171,7 @@ func (s *ScopeAPI) ListScopes(input *plugin.ApiResourceInput) (*plugin.ApiResour
 	return &plugin.ApiResourceOutput{Body: apiScopes, Status: http.StatusOK}, nil
 }
 
-func (s *ScopeAPI) GetScope(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, errors.Error) {
+func (pa *pluginAPI) GetScope(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, errors.Error) {
 	var scope ScopeItem
 	connectionId, scopeId := extractParam(input.Params)
 	if connectionId == 0 {
@@ -194,7 +189,7 @@ func (s *ScopeAPI) GetScope(input *plugin.ApiResourceInput) (*plugin.ApiResource
 
 	var ruleName string
 	if scope.TransformationRuleId > 0 {
-		err = db.First(&ruleName, dal.Select("name"), dal.From(s.txRuleType.TableName()), dal.Where("id = ?", scope.TransformationRuleId))
+		err = db.First(&ruleName, dal.Select("name"), dal.From(pa.txRuleType.TableName()), dal.Where("id = ?", scope.TransformationRuleId))
 		if err != nil {
 			return nil, err
 		}
