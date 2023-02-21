@@ -67,7 +67,7 @@ func CollectPlanBuild(taskCtx plugin.SubTaskContext) errors.Error {
 			query.Set("showEmpty", fmt.Sprintf("%v", true))
 			query.Set("expand", "results.result.vcsRevisions")
 			query.Set("max-result", fmt.Sprintf("%v", reqData.Pager.Size))
-			query.Set("start-index", fmt.Sprintf("%v", (reqData.Pager.Page-1)*reqData.Pager.Size))
+			query.Set("start-index", fmt.Sprintf("%v", reqData.Pager.Skip))
 			return query, nil
 		},
 		GetTotalPages: func(res *http.Response, args *helper.ApiCollectorArgs) (int, errors.Error) {
