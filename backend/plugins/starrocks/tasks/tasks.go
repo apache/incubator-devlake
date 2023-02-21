@@ -22,7 +22,6 @@ import (
 	"encoding/json"
 	"fmt"
 	"io"
-	"log"
 	"net/http"
 	"net/url"
 	"regexp"
@@ -43,13 +42,6 @@ import (
 
 type Table struct {
 	name string
-}
-
-type StarRocksContext struct {
-	db          dal.Dal
-	starrocksDb dal.Dal
-	config      *StarRocksConfig
-	logger      log.Logger
 }
 
 func (t *Table) TableName() string {
