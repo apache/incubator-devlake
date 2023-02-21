@@ -18,6 +18,7 @@ limitations under the License.
 package api
 
 import (
+	"context"
 	"net/http"
 	"strconv"
 
@@ -25,34 +26,40 @@ import (
 	"github.com/apache/incubator-devlake/core/errors"
 	"github.com/apache/incubator-devlake/core/plugin"
 	"github.com/apache/incubator-devlake/helpers/pluginhelper/api"
-	"github.com/apache/incubator-devlake/plugins/sonarqube/models"
+	"github.com/apache/incubator-devlake/plugins/bamboo/models"
+	"github.com/mitchellh/mapstructure"
 )
 
-type req struct {
-	Data []*models.SonarqubeProject `json:"data"`
+type apiProject struct {
+	models.BambooProject
+	TransformationRuleName string `json:"transformationRuleName,omitempty"`
 }
 
-// PutScope create or update sonarqube project
-// @Summary create or update sonarqube project
-// @Description Create or update sonarqube project
-// @Tags plugins/sonarqube
+type req struct {
+	Data []*models.BambooProject `json:"data"`
+}
+
+// PutScope create or update bamboo project
+// @Summary create or update bamboo project
+// @Description Create or update bamboo project
+// @Tags plugins/bamboo
 // @Accept application/json
 // @Param connectionId path int false "connection ID"
 // @Param scope body req true "json"
-// @Success 200  {object} []models.SonarqubeProject
+// @Success 200  {object} []models.BambooProject
 // @Failure 400  {object} shared.ApiBody "Bad Request"
 // @Failure 500  {object} shared.ApiBody "Internal Error"
-// @Router /plugins/sonarqube/connections/{connectionId}/scopes [PUT]
+// @Router /plugins/bamboo/connections/{connectionId}/scopes [PUT]
 func PutScope(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, errors.Error) {
 	connectionId, _ := extractParam(input.Params)
+
 	if connectionId == 0 {
 		return nil, errors.BadInput.New("invalid connectionId")
 	}
 	var projects req
-	// As we need to process *api.Iso8601Time, we need to use DecodeMapStruct instead of mapstructure.Decode
-	err := errors.Convert(api.DecodeMapStruct(input.Body, &projects))
+	err := errors.Convert(mapstructure.Decode(input.Body, &projects))
 	if err != nil {
-		return nil, errors.BadInput.Wrap(err, "decoding Sonarqube project error")
+		return nil, errors.BadInput.Wrap(err, "decoding Bamboo project error")
 	}
 	keeper := make(map[string]struct{})
 	for _, project := range projects.Data {
@@ -69,36 +76,36 @@ func PutScope(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, errors
 	}
 	err = basicRes.GetDal().CreateOrUpdate(projects.Data)
 	if err != nil {
-		return nil, errors.Default.Wrap(err, "error on saving SonarqubeProject")
+		return nil, errors.Default.Wrap(err, "error on saving BambooProject")
 	}
 	return &plugin.ApiResourceOutput{Body: projects.Data, Status: http.StatusOK}, nil
 }
 
-// UpdateScope patch to sonarqube project
-// @Summary patch to sonarqube project
-// @Description patch to sonarqube project
-// @Tags plugins/sonarqube
+// UpdateScope patch to bamboo project
+// @Summary patch to bamboo project
+// @Description patch to bamboo project
+// @Tags plugins/bamboo
 // @Accept application/json
 // @Param connectionId path int false "connection ID"
-// @Param projectKey path string false "project Key"
-// @Param scope body models.SonarqubeProject true "json"
-// @Success 200  {object} models.SonarqubeProject
+// @Param projectKey path int false "project ID"
+// @Param scope body models.BambooProject true "json"
+// @Success 200  {object} models.BambooProject
 // @Failure 400  {object} shared.ApiBody "Bad Request"
 // @Failure 500  {object} shared.ApiBody "Internal Error"
-// @Router /plugins/sonarqube/connections/{connectionId}/scopes/{projectKey} [PATCH]
+// @Router /plugins/bamboo/connections/{connectionId}/scopes/{projectKey} [PATCH]
 func UpdateScope(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, errors.Error) {
 	connectionId, projectKey := extractParam(input.Params)
-	if connectionId*uint64(len(projectKey)) == 0 {
-		return nil, errors.BadInput.New("invalid connectionId or projectKey")
+	if connectionId == 0 || projectKey == "" {
+		return nil, errors.BadInput.New("invalid path params")
 	}
-	var project models.SonarqubeProject
+	var project models.BambooProject
 	err := basicRes.GetDal().First(&project, dal.Where("connection_id = ? AND project_key = ?", connectionId, projectKey))
 	if err != nil {
-		return nil, errors.Default.Wrap(err, "getting SonarqubeProject error")
+		return nil, errors.Default.Wrap(err, "getting BambooProject error")
 	}
 	err = api.DecodeMapStruct(input.Body, &project)
 	if err != nil {
-		return nil, errors.Default.Wrap(err, "patch sonarqube project error")
+		return nil, errors.Default.Wrap(err, "patch bamboo project error")
 	}
 	err = verifyProject(&project)
 	if err != nil {
@@ -106,22 +113,22 @@ func UpdateScope(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, err
 	}
 	err = basicRes.GetDal().Update(project)
 	if err != nil {
-		return nil, errors.Default.Wrap(err, "error on saving SonarqubeProject")
+		return nil, errors.Default.Wrap(err, "error on saving BambooProject")
 	}
 	return &plugin.ApiResourceOutput{Body: project, Status: http.StatusOK}, nil
 }
 
-// GetScopeList get Sonarqube projects
-// @Summary get Sonarqube projects
-// @Description get Sonarqube projects
-// @Tags plugins/sonarqube
+// GetScopeList get Bamboo projects
+// @Summary get Bamboo projects
+// @Description get Bamboo projects
+// @Tags plugins/bamboo
 // @Param connectionId path int false "connection ID"
-// @Success 200  {object} []models.SonarqubeProject
+// @Success 200  {object} []apiProject
 // @Failure 400  {object} shared.ApiBody "Bad Request"
 // @Failure 500  {object} shared.ApiBody "Internal Error"
-// @Router /plugins/sonarqube/connections/{connectionId}/scopes/ [GET]
+// @Router /plugins/bamboo/connections/{connectionId}/scopes/ [GET]
 func GetScopeList(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, errors.Error) {
-	var projects []models.SonarqubeProject
+	var projects []models.BambooProject
 	connectionId, _ := extractParam(input.Params)
 	if connectionId == 0 {
 		return nil, errors.BadInput.New("invalid path params")
@@ -131,38 +138,86 @@ func GetScopeList(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, er
 	if err != nil {
 		return nil, err
 	}
-
-	return &plugin.ApiResourceOutput{Body: projects, Status: http.StatusOK}, nil
+	var ruleIds []uint64
+	for _, proj := range projects {
+		if proj.TransformationRuleId > 0 {
+			ruleIds = append(ruleIds, proj.TransformationRuleId)
+		}
+	}
+	var rules []models.BambooTransformationRule
+	if len(ruleIds) > 0 {
+		err = basicRes.GetDal().All(&rules, dal.Where("id IN (?)", ruleIds))
+		if err != nil {
+			return nil, err
+		}
+	}
+	names := make(map[uint64]string)
+	for _, rule := range rules {
+		names[rule.ID] = rule.Name
+	}
+	var apiProjects []apiProject
+	for _, proj := range projects {
+		apiProjects = append(apiProjects, apiProject{proj, names[proj.TransformationRuleId]})
+	}
+	return &plugin.ApiResourceOutput{Body: apiProjects, Status: http.StatusOK}, nil
 }
 
-// GetScope get one Sonarqube project
-// @Summary get one Sonarqube project
-// @Description get one Sonarqube project
-// @Tags plugins/sonarqube
+// GetScope get one Bamboo project
+// @Summary get one Bamboo project
+// @Description get one Bamboo project
+// @Tags plugins/bamboo
 // @Param connectionId path int false "connection ID"
-// @Param projectKey path string false "project key"
+// @Param projectKey path int false "project ID"
 // @Param pageSize query int false "page size, default 50"
 // @Param page query int false "page size, default 1"
-// @Success 200  {object} models.SonarqubeProject
+// @Success 200  {object} apiProject
 // @Failure 400  {object} shared.ApiBody "Bad Request"
 // @Failure 500  {object} shared.ApiBody "Internal Error"
-// @Router /plugins/sonarqube/connections/{connectionId}/scopes/{projectKey} [GET]
+// @Router /plugins/bamboo/connections/{connectionId}/scopes/{projectKey} [GET]
 func GetScope(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, errors.Error) {
-	var project models.SonarqubeProject
+	var project models.BambooProject
 	connectionId, projectKey := extractParam(input.Params)
-	if connectionId*uint64(len(projectKey)) == 0 {
+	if connectionId == 0 || projectKey == "" {
 		return nil, errors.BadInput.New("invalid path params")
 	}
 	db := basicRes.GetDal()
 	err := db.First(&project, dal.Where("connection_id = ? AND project_key = ?", connectionId, projectKey))
-	if db.IsErrorNotFound(err) {
+	if err != nil && db.IsErrorNotFound(err) {
+		var scope models.BambooProject
+		connection := &models.BambooConnection{}
+		err = connectionHelper.First(connection, input.Params)
+		if err != nil {
+			return nil, err
+		}
+		apiClient, err := api.NewApiClientFromConnection(context.TODO(), basicRes, connection)
+		if err != nil {
+			return nil, err
+		}
+
+		apiProject, err := GetApiProject(projectKey, apiClient)
+		if err != nil {
+			return nil, err
+		}
+
+		scope.Convert(apiProject)
+		scope.ConnectionId = connectionId
+		err = db.CreateIfNotExist(&scope)
+		if err != nil {
+			return nil, err
+		}
 		return nil, errors.NotFound.New("record not found")
-	}
-	if err != nil {
+	} else if err != nil {
 		return nil, err
 	}
 
-	return &plugin.ApiResourceOutput{Body: project, Status: http.StatusOK}, nil
+	var rule models.BambooTransformationRule
+	if project.TransformationRuleId > 0 {
+		err = basicRes.GetDal().First(&rule, dal.Where("id = ?", project.TransformationRuleId))
+		if err != nil {
+			return nil, err
+		}
+	}
+	return &plugin.ApiResourceOutput{Body: apiProject{project, rule.Name}, Status: http.StatusOK}, nil
 }
 
 func extractParam(params map[string]string) (uint64, string) {
@@ -171,12 +226,12 @@ func extractParam(params map[string]string) (uint64, string) {
 	return connectionId, projectKey
 }
 
-func verifyProject(project *models.SonarqubeProject) errors.Error {
+func verifyProject(project *models.BambooProject) errors.Error {
 	if project.ConnectionId == 0 {
 		return errors.BadInput.New("invalid connectionId")
 	}
-	if len(project.ProjectKey) == 0 {
-		return errors.BadInput.New("invalid project key")
+	if project.ProjectKey == "" {
+		return errors.BadInput.New("invalid projectKey")
 	}
 	return nil
 }

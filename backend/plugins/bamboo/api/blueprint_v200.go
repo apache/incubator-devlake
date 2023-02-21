@@ -67,7 +67,7 @@ func makeScopeV200(connectionId uint64, scopes []*plugin.BlueprintScopeV200) ([]
 		id := didgen.NewDomainIdGenerator(&models.BambooProject{}).Generate(connectionId, scope.Id)
 
 		// get project from db
-		BambooProject, err := GetprojectByConnectionIdAndscopeId(connectionId, scope.Id)
+		BambooProject, err := GetProjectByConnectionIdAndscopeId(connectionId, scope.Id)
 		if err != nil {
 			return nil, err
 		}
@@ -93,7 +93,7 @@ func makePipelinePlanV200(
 		var stage plugin.PipelineStage
 		var err errors.Error
 		// get project
-		project, err := GetprojectByConnectionIdAndscopeId(connection.ID, scope.Id)
+		project, err := GetProjectByConnectionIdAndscopeId(connection.ID, scope.Id)
 		if err != nil {
 			return nil, err
 		}
@@ -127,8 +127,8 @@ func makePipelinePlanV200(
 	return plans, nil
 }
 
-// GetprojectByConnectionIdAndscopeId get tbe project by the connectionId and the scopeId
-func GetprojectByConnectionIdAndscopeId(connectionId uint64, scopeId string) (*models.BambooProject, errors.Error) {
+// GetProjectByConnectionIdAndscopeId get tbe project by the connectionId and the scopeId
+func GetProjectByConnectionIdAndscopeId(connectionId uint64, scopeId string) (*models.BambooProject, errors.Error) {
 	key := scopeId
 	project := &models.BambooProject{}
 	db := basicRes.GetDal()

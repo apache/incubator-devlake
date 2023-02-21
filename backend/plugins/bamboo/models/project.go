@@ -19,6 +19,7 @@ package models
 
 import (
 	"encoding/json"
+
 	"github.com/apache/incubator-devlake/core/models/common"
 )
 
@@ -69,4 +70,22 @@ type ApiBambooProjectResponse struct {
 	Expand   string            `json:"expand"`
 	Link     ApiBambooLink     `json:"link"`
 	Projects ApiBambooProjects `json:"projects"`
+}
+
+type ApiSearchEntityProject struct {
+	Id          string `json:"id"`
+	Key         string `json:"key"`
+	ProjectName string `json:"projectName"`
+	Description string `json:"description"`
+}
+
+type ApiSearchResultProjects struct {
+	Id           string                 `json:"id"`
+	Type         string                 `json:"type"`
+	SearchEntity ApiSearchEntityProject `json:"searchResults"`
+}
+
+type ApiBambooSearchProjectResponse struct {
+	ApiBambooSizeData `json:"squash"`
+	SearchResults     []ApiSearchResultProjects `json:"searchResults"`
 }
