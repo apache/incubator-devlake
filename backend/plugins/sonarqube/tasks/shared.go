@@ -21,6 +21,7 @@ import (
 	"github.com/apache/incubator-devlake/core/errors"
 	"github.com/apache/incubator-devlake/core/plugin"
 	"github.com/apache/incubator-devlake/helpers/pluginhelper/api"
+	"github.com/apache/incubator-devlake/plugins/sonarqube/models"
 	"net/http"
 )
 
@@ -61,4 +62,26 @@ type Paging struct {
 	PageIndex int `json:"pageIndex"`
 	PageSize  int `json:"pageSize"`
 	Total     int `json:"total"`
+}
+
+type SonarqubeApiProject struct {
+	ProjectKey       string           `json:"key"`
+	Name             string           `json:"name"`
+	Qualifier        string           `json:"qualifier"`
+	Visibility       string           `json:"visibility"`
+	LastAnalysisDate *api.Iso8601Time `json:"lastAnalysisDate"`
+	Revision         string           `json:"revision"`
+}
+
+// Convert the API response to our DB model instance
+func ConvertProject(sonarqubeApiProject *SonarqubeApiProject) *models.SonarqubeProject {
+	sonarqubeProject := &models.SonarqubeProject{
+		ProjectKey:       sonarqubeApiProject.ProjectKey,
+		Name:             sonarqubeApiProject.Name,
+		Qualifier:        sonarqubeApiProject.Qualifier,
+		Visibility:       sonarqubeApiProject.Visibility,
+		LastAnalysisDate: sonarqubeApiProject.LastAnalysisDate,
+		Revision:         sonarqubeApiProject.Revision,
+	}
+	return sonarqubeProject
 }

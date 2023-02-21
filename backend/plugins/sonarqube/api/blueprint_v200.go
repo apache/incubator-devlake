@@ -27,7 +27,11 @@ import (
 	"github.com/apache/incubator-devlake/core/plugin"
 	"github.com/apache/incubator-devlake/core/utils"
 	helper "github.com/apache/incubator-devlake/helpers/pluginhelper/api"
+	aha "github.com/apache/incubator-devlake/helpers/pluginhelper/api/apihelperabstract"
 	"github.com/apache/incubator-devlake/plugins/sonarqube/models"
+	"github.com/apache/incubator-devlake/plugins/sonarqube/tasks"
+	"net/http"
+	"net/url"
 	"time"
 )
 
@@ -103,4 +107,30 @@ func makeScopesV200(bpScopes []*plugin.BlueprintScopeV200, connectionId uint64) 
 		}
 	}
 	return scopes, nil
+}
+
+func GetApiProject(
+	projectKey string,
+	apiClient aha.ApiClientAbstract,
+) (*tasks.SonarqubeApiProject, errors.Error) {
+	var resData struct {
+		Data []tasks.SonarqubeApiProject `json:"components"`
+	}
+	query := url.Values{}
+	query.Set("q", projectKey)
+	res, err := apiClient.Get("projects/search", query, nil)
+	if err != nil {
+		return nil, err
+	}
+	if res.StatusCode != http.StatusOK {
+		return nil, errors.HttpStatus(res.StatusCode).New(fmt.Sprintf("unexpected status code when requesting project detail from %s", res.Request.URL.String()))
+	}
+	err = helper.UnmarshalResponse(res, &resData)
+	if err != nil {
+		return nil, err
+	}
+	if len(resData.Data) > 0 {
+		return &resData.Data[0], nil
+	}
+	return nil, errors.BadInput.New(fmt.Sprintf("Cannot find project: %s", projectKey))
 }

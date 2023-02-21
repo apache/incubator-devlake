@@ -29,6 +29,8 @@ import (
 	"reflect"
 )
 
+const RAW_PROJECTS_TABLE = "sonarqube_projects"
+
 var ConvertFileMetricsMeta = plugin.SubTaskMeta{
 	Name:             "convertFileMetrics",
 	EntryPoint:       ConvertFileMetrics,
