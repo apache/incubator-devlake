@@ -42,7 +42,9 @@ interface Props {
   name: string;
   initialValue: string;
   value: string;
+  error: string;
   setValue: (value: string) => void;
+  setError: (value: string) => void;
 }
 
 export const ConnectionProxy = ({ name, initialValue, value, setValue }: Props) => {

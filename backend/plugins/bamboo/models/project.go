@@ -34,12 +34,11 @@ type BambooProject struct {
 	common.NoPKModel     `json:"-" mapstructure:"-"`
 }
 
-func (b *BambooProject) Convert(apiProject *ApiBambooProject) *BambooProject {
+func (b *BambooProject) Convert(apiProject *ApiBambooProject) {
 	b.ProjectKey = apiProject.Key
 	b.Name = apiProject.Name
 	b.Description = apiProject.Description
 	b.Href = apiProject.Link.Href
-	return b
 }
 
 func (b *BambooProject) TableName() string {

@@ -40,7 +40,8 @@ func ExtractPlan(taskCtx plugin.SubTaskContext) errors.Error {
 			if err != nil {
 				return nil, err
 			}
-			body := (&models.BambooPlan{}).Convert(res)
+			body := &models.BambooPlan{}
+			body.Convert(res)
 			body.ConnectionId = data.Options.ConnectionId
 			return []interface{}{body}, nil
 		},

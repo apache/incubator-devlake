@@ -29,6 +29,9 @@ export const BitBucketConfig: PluginConfigType = {
   sort: 5,
   connection: {
     docLink: 'https://devlake.apache.org/docs/Configuration/BitBucket',
+    initialValues: {
+      endpoint: 'https://api.bitbucket.org/2.0/',
+    },
     fields: [
       'name',
       {

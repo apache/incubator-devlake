@@ -45,9 +45,12 @@ interface Props {
   learnMore: string;
   externalInfo: string;
   defaultValue: number;
+  name: string;
   initialValue: number;
   value: number;
+  error: string;
   setValue: (value: number) => void;
+  setError: (value: string) => void;
 }
 
 export const ConnectionRateLimit = ({

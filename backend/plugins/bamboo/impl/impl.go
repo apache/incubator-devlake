@@ -205,7 +205,7 @@ func (p Bamboo) ApiResources() map[string]map[string]plugin.ApiResourceHandler {
 }
 
 func (p Bamboo) MakePipelinePlan(connectionId uint64, scope []*plugin.BlueprintScopeV100) (plugin.PipelinePlan, errors.Error) {
-	return nil, errors.Default.New("Bamboo don't support blueprint v100")
+	return nil, errors.Default.New("Bamboo does not support blueprint v100")
 }
 
 func (p Bamboo) Close(taskCtx plugin.TaskContext) errors.Error {

@@ -84,18 +84,12 @@ func RemoteScopes(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, er
 		return nil, err
 	}
 
-	groupId, ok := input.Query["groupId"]
-	if !ok || len(groupId) == 0 {
-		groupId = []string{""}
-	}
-
 	pageToken, ok := input.Query["pageToken"]
 	if !ok || len(pageToken) == 0 {
 		pageToken = []string{""}
 	}
 
-	// get gid and pageData
-	gid := groupId[0]
+	// get pageData
 	pageData, err := GetPageDataFromPageToken(pageToken[0])
 	if err != nil {
 		return nil, errors.BadInput.New("failed to get paget token")
@@ -110,10 +104,7 @@ func RemoteScopes(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, er
 	var res *http.Response
 	outputBody := &RemoteScopesOutput{}
 
-	query, err := GetQueryFromPageData(pageData)
-	if err != nil {
-		return nil, err
-	}
+	query := GetQueryFromPageData(pageData)
 
 	res, err = apiClient.Get("/project.json", query, nil)
 
@@ -129,16 +120,14 @@ func RemoteScopes(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, er
 
 	// append project to output
 	for _, apiProject := range resBody.Projects.Projects {
-		project := (&models.BambooProject{}).Convert(&apiProject)
+		project := &models.BambooProject{}
+		project.Convert(&apiProject)
 		child := RemoteScopesChild{
-			Type: TypeProject,
-			Id:   project.ProjectKey,
-			Name: project.Name,
-			Data: project,
-		}
-		child.ParentId = &gid
-		if *child.ParentId == "" {
-			child.ParentId = nil
+			Type:     TypeProject,
+			ParentId: nil,
+			Id:       project.ProjectKey,
+			Name:     project.Name,
+			Data:     project,
 		}
 
 		outputBody.Children = append(outputBody.Children, child)
@@ -222,10 +211,7 @@ func SearchRemoteScopes(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutp
 	}
 
 	// set query
-	query, err := GetQueryForSearchProject(search[0], p, ps)
-	if err != nil {
-		return nil, err
-	}
+	query := GetQueryForSearchProject(search[0], p, ps)
 
 	// request search
 	res, err := apiClient.Get("search/projects.json", query, nil)
@@ -300,20 +286,17 @@ func GetPageDataFromPageToken(pageToken string) (*PageData, errors.Error) {
 	return pt, nil
 }
 
-func GetQueryFromPageData(pageData *PageData) (url.Values, errors.Error) {
+func GetQueryFromPageData(pageData *PageData) url.Values {
 	query := url.Values{}
 	query.Set("showEmpty", fmt.Sprintf("%v", true))
 	query.Set("max-result", fmt.Sprintf("%v", pageData.PageSize))
 	query.Set("start-index", fmt.Sprintf("%v", (pageData.Page-1)*pageData.PageSize))
-	return query, nil
+	return query
 }
 
-func GetQueryForSearchProject(search string, page int, perPage int) (url.Values, errors.Error) {
-	query, err := GetQueryFromPageData(&PageData{Page: page, PageSize: perPage})
-	if err != nil {
-		return nil, err
-	}
+func GetQueryForSearchProject(search string, page int, perPage int) url.Values {
+	query := GetQueryFromPageData(&PageData{Page: page, PageSize: perPage})
 	query.Set("searchTerm", search)
 
-	return query, nil
+	return query
 }

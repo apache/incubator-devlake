@@ -37,7 +37,7 @@ type BambooJob struct {
 	common.NoPKModel
 }
 
-func (b *BambooJob) Convert(apiRes *ApiBambooJob) *BambooJob {
+func (b *BambooJob) Convert(apiRes *ApiBambooJob) {
 	b.JobKey = apiRes.SearchEntity.Key
 	b.Id = apiRes.Id
 	b.Name = apiRes.SearchEntity.JobName
@@ -46,8 +46,6 @@ func (b *BambooJob) Convert(apiRes *ApiBambooJob) *BambooJob {
 	b.Description = apiRes.SearchEntity.Description
 	b.BranchName = apiRes.SearchEntity.BranchName
 	b.Type = apiRes.SearchEntity.Type
-
-	return b
 }
 
 func (BambooJob) TableName() string {

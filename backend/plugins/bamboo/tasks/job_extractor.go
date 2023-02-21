@@ -45,7 +45,8 @@ func ExtractJob(taskCtx plugin.SubTaskContext) errors.Error {
 			if err != nil {
 				return nil, err
 			}
-			body := (&models.BambooJob{}).Convert(res)
+			body := &models.BambooJob{}
+			body.Convert(res)
 			body.ConnectionId = data.Options.ConnectionId
 			body.ProjectKey = data.Options.ProjectKey
 			body.PlanKey = plan.PlanKey

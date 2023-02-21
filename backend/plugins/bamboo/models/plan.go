@@ -43,7 +43,7 @@ type BambooPlan struct {
 	common.NoPKModel
 }
 
-func (b *BambooPlan) Convert(apiProject *ApiBambooPlan) *BambooPlan {
+func (b *BambooPlan) Convert(apiProject *ApiBambooPlan) {
 	b.PlanKey = apiProject.Key
 	b.Name = apiProject.Name
 	b.Expand = apiProject.Expand
@@ -61,8 +61,6 @@ func (b *BambooPlan) Convert(apiProject *ApiBambooPlan) *BambooPlan {
 	b.IsActive = apiProject.IsActive
 	b.IsBuilding = apiProject.IsBuilding
 	b.AverageBuildTimeInSeconds = apiProject.AverageBuildTimeInSeconds
-
-	return b
 }
 
 func (BambooPlan) TableName() string {
