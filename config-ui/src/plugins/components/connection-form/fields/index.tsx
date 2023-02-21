@@ -40,6 +40,17 @@ export const Form = ({ name, fields, initialValues, values, errors, setValues, s
   const onValues = (values: any) => setValues((prev: any) => ({ ...prev, ...values }));
   const onErrors = (values: any) => setErrors((prev: any) => ({ ...prev, ...values }));
 
+  const getProps = (key: string, defaultValue: any = '') => {
+    return {
+      name,
+      initialValue: initialValues[key] ?? defaultValue,
+      value: values[key] ?? defaultValue,
+      error: errors[key] ?? defaultValue,
+      setValue: (value: any) => onValues({ [key]: value }),
+      setError: (value: any) => onErrors({ [key]: value }),
+    };
+  };
+
   const generateForm = () => {
     return fields.map((field) => {
       if (typeof field === 'function') {
@@ -56,78 +67,19 @@ export const Form = ({ name, fields, initialValues, values, errors, setValues, s
 
       switch (key) {
         case 'name':
-          return (
-            <ConnectionName
-              key={key}
-              initialValue={initialValues.name ?? ''}
-              value={values.name ?? ''}
-              error={errors.name ?? ''}
-              setValue={(value) => onValues({ name: value })}
-              setError={(value) => onErrors({ name: value })}
-            />
-          );
+          return <ConnectionName key={key} {...getProps('name')} {...field} />;
         case 'endpoint':
-          return (
-            <ConnectionEndpoint
-              {...field}
-              key={key}
-              name={name}
-              initialValue={initialValues.endpoint ?? ''}
-              value={values.endpoint ?? ''}
-              error={errors.endpoint ?? ''}
-              setValue={(value) => onValues({ endpoint: value })}
-              setError={(value) => onErrors({ endpoint: value })}
-            />
-          );
+          return <ConnectionEndpoint key={key} {...getProps('endpoint')} {...field} />;
         case 'username':
-          return (
-            <ConnectionUsername
-              key={key}
-              initialValue={initialValues.username ?? ''}
-              value={values.username ?? ''}
-              setValue={(value) => onValues({ username: value })}
-            />
-          );
+          return <ConnectionUsername key={key} {...getProps('username')} {...field} />;
         case 'password':
-          return (
-            <ConnectionPassword
-              {...field}
-              key={key}
-              initialValue={initialValues.password ?? ''}
-              value={values.password ?? ''}
-              setValue={(value) => onValues({ password: value })}
-            />
-          );
+          return <ConnectionPassword key={key} {...getProps('password')} {...field} />;
         case 'token':
-          return (
-            <ConnectionToken
-              {...field}
-              key={key}
-              initialValue={initialValues.token ?? ''}
-              value={values.token ?? ''}
-              setValue={(value) => onValues({ token: value })}
-            />
-          );
+          return <ConnectionToken key={key} {...getProps('token')} {...field} />;
         case 'proxy':
-          return (
-            <ConnectionProxy
-              key={key}
-              name={name}
-              initialValue={initialValues.proxy ?? ''}
-              value={values.proxy ?? ''}
-              setValue={(value) => onValues({ proxy: value })}
-            />
-          );
+          return <ConnectionProxy key={key} {...getProps('proxy')} {...field} />;
         case 'rateLimitPerHour':
-          return (
-            <ConnectionRateLimit
-              {...field}
-              key={key}
-              initialValue={initialValues.rateLimitPerHour ?? 0}
-              value={values.rateLimitPerHour}
-              setValue={(value) => onValues({ rateLimitPerHour: value })}
-            />
-          );
+          return <ConnectionRateLimit key={key} {...getProps('rateLimitPerHour', 0)} {...field} />;
         default:
           return null;
       }

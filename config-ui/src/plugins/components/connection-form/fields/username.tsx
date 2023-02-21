@@ -39,15 +39,22 @@ import { FormGroup, InputGroup } from '@blueprintjs/core';
 import * as S from './styled';
 
 interface Props {
+  name: string;
   initialValue: string;
   value: string;
+  error: string;
   setValue: (value: string) => void;
+  setError: (error: string) => void;
 }
 
-export const ConnectionUsername = ({ initialValue, value, setValue }: Props) => {
+export const ConnectionUsername = ({ initialValue, value, setValue, setError }: Props) => {
   useEffect(() => {
     setValue(initialValue);
   }, [initialValue]);
+
+  useEffect(() => {
+    setError(value ? '' : 'username is required');
+  }, [value]);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setValue(e.target.value);

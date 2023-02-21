@@ -22,6 +22,7 @@ import { FormGroup, InputGroup } from '@blueprintjs/core';
 import * as S from './styled';
 
 interface Props {
+  name: string;
   initialValue: string;
   value: string;
   error: string;

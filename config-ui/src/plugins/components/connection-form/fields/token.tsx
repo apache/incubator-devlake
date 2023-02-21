@@ -41,15 +41,22 @@ import * as S from './styled';
 interface Props {
   label?: string;
   subLabel?: string;
+  name: string;
   initialValue: string;
   value: string;
+  error: string;
   setValue: (value: string) => void;
+  setError: (value: string) => void;
 }
 
-export const ConnectionToken = ({ label, subLabel, initialValue, value, setValue }: Props) => {
+export const ConnectionToken = ({ label, subLabel, initialValue, value, setValue, setError }: Props) => {
   useEffect(() => {
     setValue(initialValue);
   }, [initialValue]);
+
+  useEffect(() => {
+    setError(value ? '' : 'token is required');
+  }, [value]);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setValue(e.target.value);
