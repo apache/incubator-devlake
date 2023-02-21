@@ -59,7 +59,6 @@ export const ConnectionEndpoint = ({
   multipleVersions,
   initialValue,
   value,
-  error,
   setValue,
   setError,
 }: Props) => {
