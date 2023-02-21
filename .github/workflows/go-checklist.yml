@@ -20,6 +20,7 @@ on:
   pull_request:
     branches: [ main ]
     paths:
+      - ".github/workflows/*.yml"
       - "**.go"
       - "go.mod"
       - "go.sum"
