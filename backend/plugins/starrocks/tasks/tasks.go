@@ -19,20 +19,21 @@ package tasks
 
 import (
 	"bytes"
-	"database/sql"
 	"encoding/json"
 	"fmt"
-	"github.com/apache/incubator-devlake/core/dal"
-	"github.com/apache/incubator-devlake/core/errors"
-	"github.com/apache/incubator-devlake/core/plugin"
-	"github.com/apache/incubator-devlake/impls/dalgorm"
-	"github.com/apache/incubator-devlake/plugins/starrocks/utils"
 	"io"
+	"log"
 	"net/http"
 	"net/url"
 	"regexp"
 	"strings"
 	"time"
+
+	"github.com/apache/incubator-devlake/core/dal"
+	"github.com/apache/incubator-devlake/core/errors"
+	"github.com/apache/incubator-devlake/core/plugin"
+	"github.com/apache/incubator-devlake/impls/dalgorm"
+	"github.com/apache/incubator-devlake/plugins/starrocks/utils"
 
 	"github.com/lib/pq"
 	"gorm.io/driver/mysql"
@@ -44,111 +45,76 @@ type Table struct {
 	name string
 }
 
+type StarRocksContext struct {
+	db          dal.Dal
+	starrocksDb dal.Dal
+	config      *StarRocksConfig
+	logger      log.Logger
+}
+
 func (t *Table) TableName() string {
 	return t.name
 }
 
-func LoadData(c plugin.SubTaskContext) errors.Error {
-	var db dal.Dal
+func ExportData(c plugin.SubTaskContext) errors.Error {
+	logger := c.GetLogger()
 	config := c.GetData().(*StarRocksConfig)
-	if config.SourceDsn != "" && config.SourceType != "" {
-		var o *gorm.DB
-		var err error
-		if config.SourceType == "mysql" {
-			o, err = gorm.Open(mysql.Open(config.SourceDsn))
-			if err != nil {
-				return errors.Convert(err)
-			}
-		} else if config.SourceType == "postgres" {
-			o, err = gorm.Open(postgres.Open(config.SourceDsn))
-			if err != nil {
-				return errors.Convert(err)
-			}
-		} else {
-			return errors.NotFound.New(fmt.Sprintf("unsupported source type %s", config.SourceType))
-		}
-		db = dalgorm.NewDalgorm(o)
-		sqlDB, err := o.DB()
-		if err != nil {
-			return errors.Convert(err)
-		}
-		defer sqlDB.Close()
-	} else {
-		db = c.GetDal()
-	}
-	var starrocksTables []string
-	if config.DomainLayer != "" {
-		starrocksTables = utils.GetTablesByDomainLayer(config.DomainLayer)
-		if starrocksTables == nil {
-			return errors.NotFound.New(fmt.Sprintf("no table found by domain layer: %s", config.DomainLayer))
-		}
-	} else {
-		tables := config.Tables
-		allTables, err := db.AllTables()
-		if err != nil {
-			return err
-		}
-		if len(tables) == 0 {
-			starrocksTables = allTables
-		} else {
-			for _, table := range allTables {
-				for _, r := range tables {
-					var ok bool
-					ok, err = errors.Convert01(regexp.Match(r, []byte(table)))
-					if err != nil {
-						return err
-					}
-					if ok {
-						starrocksTables = append(starrocksTables, table)
-					}
-				}
-			}
-		}
-	}
-
-	starrocks, err := sql.Open("mysql", fmt.Sprintf("%s:%s@tcp(%s:%d)/%s?charset=utf8mb4&parseTime=True&loc=Local", config.User, config.Password, config.Host, config.Port, config.Database))
+	// 1. Get db instance
+	db, err := getDbInstance(c)
 	if err != nil {
 		return errors.Convert(err)
 	}
-	defer starrocks.Close()
+	// 2. Filter out the tables to import
+	starrocksTables, err := getImportTables(c, db)
+	if err != nil {
+		return errors.Convert(err)
+	}
+	// 3. put devlake data to starrocks
+	sr, err := gorm.Open(mysql.Open(fmt.Sprintf("%s:%s@tcp(%s:%d)/%s?charset=utf8mb4&parseTime=True&loc=Local", config.User, config.Password, config.Host, config.Port, config.Database)))
+	if err != nil {
+		return errors.Convert(err)
+	}
+	starrocksDb := dalgorm.NewDalgorm(sr)
 
 	for _, table := range starrocksTables {
+		select {
+		case <-c.GetContext().Done():
+			return errors.Convert(c.GetContext().Err())
+		default:
+		}
 		starrocksTable := strings.TrimLeft(table, "_")
 		starrocksTmpTable := fmt.Sprintf("%s_tmp", starrocksTable)
-		var columnMap map[string]string
-		var orderBy string
-		var skip bool
-		columnMap, orderBy, skip, err = createTmpTable(starrocks, db, starrocksTable, starrocksTmpTable, table, c, config)
+		columnMap, orderBy, skip, err := createTmpTable(c, starrocksDb, db, starrocksTable, starrocksTmpTable, table)
 		if skip {
-			c.GetLogger().Info(fmt.Sprintf("table %s is up to date, so skip it", table))
+			logger.Info(fmt.Sprintf("table %s is up to date, so skip it", table))
 			continue
 		}
 		if err != nil {
-			c.GetLogger().Error(err, "create table %s in starrocks error", table)
+			logger.Error(err, "create table %s in starrocks error", table)
 			return errors.Convert(err)
 		}
-		if db.Dialect() == "postgres" {
-			err = db.Exec("begin transaction isolation level repeatable read")
-			if err != nil {
-				return errors.Convert(err)
-			}
-		} else if db.Dialect() == "mysql" {
-			err = db.Exec("set session transaction isolation level repeatable read")
-			if err != nil {
-				return errors.Convert(err)
-			}
-			err = errors.Convert(db.Exec("start transaction"))
-			if err != nil {
-				return errors.Convert(err)
-			}
+		var tx dal.Transaction
+		if db.Dialect() == "postgres" || db.Dialect() == "mysql" {
+			tx = db.Begin()
+			defer func() {
+				if r := recover(); r != nil || err != nil {
+					err = tx.Rollback()
+					if err != nil {
+						logger.Error(err, "starrocks: failed to rollback")
+					}
+				}
+			}()
 		} else {
 			return errors.NotFound.New(fmt.Sprintf("unsupported dialect %s", db.Dialect()))
 		}
-		err = errors.Convert(loadData(starrocks, c, starrocksTable, starrocksTmpTable, table, columnMap, db, config, orderBy))
+
+		err = putDataToDst(c, starrocksDb, db, starrocksTable, starrocksTmpTable, table, columnMap, orderBy)
 		if err != nil {
 			return errors.Convert(err)
 		}
-		err = errors.Convert(db.Exec("commit"))
+
+		// all good, commit transaction
+		err = tx.Commit()
 		if err != nil {
 			return errors.Convert(err)
 		}
@@ -156,26 +122,27 @@ func LoadData(c plugin.SubTaskContext) errors.Error {
 	return nil
 }
 
-func createTmpTable(starrocks *sql.DB, db dal.Dal, starrocksTable string, starrocksTmpTable string, table string, c plugin.SubTaskContext, config *StarRocksConfig) (map[string]string, string, bool, errors.Error) {
+// create temp table for dealing with some complex logic
+func createTmpTable(c plugin.SubTaskContext, starrocksDb dal.Dal, db dal.Dal, starrocksTable string, starrocksTmpTable string, table string) (map[string]string, string, bool, error) {
+	logger := c.GetLogger()
+	config := c.GetData().(*StarRocksConfig)
 	columnMetas, err := db.GetColumns(&Table{name: table}, nil)
 	updateColumn := config.UpdateColumn
 	columnMap := make(map[string]string)
 	if err != nil {
 		if strings.Contains(err.Error(), "cached plan must not change result type") {
-			c.GetLogger().Warn(err, "skip err: cached plan must not change result type")
+			logger.Warn(err, "skip err: cached plan must not change result type")
 			columnMetas, err = db.GetColumns(&Table{name: table}, nil)
 			if err != nil {
-				return nil, "", false, errors.Convert(err)
+				return nil, "", false, err
 			}
 		} else {
-			return nil, "", false, errors.Convert(err)
+			return nil, "", false, err
 		}
 	}
 
-	var pks []string
-	var orders []string
-	var columns []string
-	var separator string
+	var pks, orders, columns []string
+	var separator, firstcm, firstcmName string
 	if db.Dialect() == "postgres" {
 		separator = "\""
 	} else if db.Dialect() == "mysql" {
@@ -183,52 +150,23 @@ func createTmpTable(starrocks *sql.DB, db dal.Dal, starrocksTable string, starro
 	} else {
 		return nil, "", false, errors.NotFound.New(fmt.Sprintf("unsupported dialect %s", db.Dialect()))
 	}
-	firstcm := ""
-	firstcmName := ""
-	var rowsInStarRocks *sql.Rows
-	var rowsInPostgres dal.Rows
-	defer func() {
-		if rowsInStarRocks != nil {
-			rowsInStarRocks.Close()
-		}
-		if rowsInPostgres != nil {
-			rowsInPostgres.Close()
-		}
-	}()
 	for _, cm := range columnMetas {
 		name := cm.Name()
 		if name == updateColumn {
 			// check update column to detect skip or not
-			rowsInPostgres, err = db.Cursor(
-				dal.From(table),
-				dal.Select(updateColumn),
-				dal.Limit(1),
-				dal.Orderby(fmt.Sprintf("%s desc", updateColumn)),
-			)
+			var updatedFrom time.Time
+			err = db.All(&updatedFrom, dal.Select(updateColumn), dal.From(table), dal.Limit(1), dal.Orderby(fmt.Sprintf("%s desc", updateColumn)))
 			if err != nil {
 				return nil, "", false, err
 			}
-			var updatedFrom time.Time
-			if rowsInPostgres.Next() {
-				err = errors.Convert(rowsInPostgres.Scan(&updatedFrom))
-				if err != nil {
+
+			var updatedTo time.Time
+			err = starrocksDb.All(&updatedTo, dal.Select(updateColumn), dal.From(starrocksTable), dal.Limit(1), dal.Orderby(fmt.Sprintf("%s desc", updateColumn)))
+			if err != nil {
+				if !strings.Contains(err.Error(), "Unknown table") {
 					return nil, "", false, err
 				}
-			}
-			var starrocksErr error
-			rowsInStarRocks, starrocksErr = starrocks.Query(fmt.Sprintf("select %s from %s order by %s desc limit 1", updateColumn, starrocksTable, updateColumn))
-			if starrocksErr != nil {
-				if !strings.Contains(starrocksErr.Error(), "Unknown table") {
-					return nil, "", false, errors.Convert(starrocksErr)
-				}
 			} else {
-				var updatedTo time.Time
-				if rowsInStarRocks.Next() {
-					err = errors.Convert(rowsInStarRocks.Scan(&updatedTo))
-					if err != nil {
-						return nil, "", false, err
-					}
-				}
 				if updatedFrom.Equal(updatedTo) {
 					return nil, "", true, nil
 				}
@@ -272,84 +210,146 @@ func createTmpTable(starrocks *sql.DB, db dal.Dal, starrocksTable string, starro
 		}
 	}
 	tableSql := fmt.Sprintf("drop table if exists %s; create table if not exists `%s` ( %s ) %s", starrocksTmpTable, starrocksTmpTable, strings.Join(columns, ","), extra)
-	c.GetLogger().Debug(tableSql)
-	_, err = errors.Convert01(starrocks.Exec(tableSql))
+	logger.Debug(tableSql)
+	err = starrocksDb.Exec(tableSql)
 	return columnMap, orderBy, false, err
 }
 
-func loadData(starrocks *sql.DB, c plugin.SubTaskContext, starrocksTable, starrocksTmpTable, table string, columnMap map[string]string, db dal.Dal, config *StarRocksConfig, orderBy string) error {
-	offset := 0
+// put data to final dst database
+func putDataToDst(c plugin.SubTaskContext, starrocksDb, db dal.Dal, starrocksTable, starrocksTmpTable, table string, columnMap map[string]string, orderBy string) error {
+	logger := c.GetLogger()
+	config := c.GetData().(*StarRocksConfig)
+	var offset int
 	var err error
-	for {
-		var data []map[string]interface{}
-		// select data from db
-		err = func() error {
-			var rows dal.Rows
-			rows, err = db.Cursor(
-				dal.From(table),
-				dal.Orderby(orderBy),
-				dal.Limit(config.BatchSize),
-				dal.Offset(offset),
-			)
-			if err != nil {
-				return err
+	var rows dal.Rows
+
+	rows, err = db.Cursor(
+		dal.From(table),
+		dal.Orderby(orderBy),
+	)
+	if err != nil {
+		return err
+	}
+	defer rows.Close()
+
+	var data []map[string]interface{}
+	cols, err := (rows).Columns()
+	if err != nil {
+		return err
+	}
+
+	var batchCount int
+	for rows.Next() {
+		select {
+		case <-c.GetContext().Done():
+			return c.GetContext().Err()
+		default:
+		}
+		row := make(map[string]interface{})
+		columns := make([]interface{}, len(cols))
+		columnPointers := make([]interface{}, len(cols))
+		for i := range columns {
+			dataType := columnMap[cols[i]]
+			if strings.HasPrefix(dataType, "array") {
+				var arr []string
+				columns[i] = &arr
+				columnPointers[i] = pq.Array(&arr)
+			} else {
+				columnPointers[i] = &columns[i]
 			}
-			defer rows.Close()
-			cols, err := rows.Columns()
-			if err != nil {
-				return err
-			}
-			for rows.Next() {
-				row := make(map[string]interface{})
-				columns := make([]interface{}, len(cols))
-				columnPointers := make([]interface{}, len(cols))
-				for i := range columns {
-					dataType := columnMap[cols[i]]
-					if strings.HasPrefix(dataType, "array") {
-						var arr []string
-						columns[i] = &arr
-						columnPointers[i] = pq.Array(&arr)
-					} else {
-						columnPointers[i] = &columns[i]
-					}
-				}
-				err = rows.Scan(columnPointers...)
-				if err != nil {
-					return err
-				}
-				for i, colName := range cols {
-					row[colName] = columns[i]
-				}
-				data = append(data, row)
-			}
-			return nil
-		}()
+		}
+		err = rows.Scan(columnPointers...)
 		if err != nil {
 			return err
 		}
-		if len(data) == 0 {
-			c.GetLogger().Warn(nil, "no data found in table %s already, limit: %d, offset: %d, so break", table, config.BatchSize, offset)
-			break
+		for i, colName := range cols {
+			row[colName] = columns[i]
 		}
-		// insert data to tmp table
-		loadURL := fmt.Sprintf("http://%s:%d/api/%s/%s/_stream_load", config.BeHost, config.BePort, config.Database, starrocksTmpTable)
-		headers := map[string]string{
-			"format":            "json",
-			"strip_outer_array": "true",
-			"Expect":            "100-continue",
-			"ignore_json_size":  "true",
-			"Connection":        "close",
+		data = append(data, row)
+		batchCount += 1
+		if batchCount == config.BatchSize {
+			err = putBatchData(c, starrocksTmpTable, table, data, config, offset)
+			if err != nil {
+				return err
+			}
+			batchCount = 0
+			data = nil
 		}
-		jsonData, err := json.Marshal(data)
+	}
+	if batchCount != 0 {
+		err = putBatchData(c, starrocksTmpTable, table, data, config, offset)
 		if err != nil {
 			return err
 		}
-		client := http.Client{
-			CheckRedirect: func(req *http.Request, via []*http.Request) error {
-				return http.ErrUseLastResponse
-			},
+	}
+
+	// drop old table
+	err = starrocksDb.Exec(fmt.Sprintf("drop table if exists %s", starrocksTable))
+	if err != nil {
+		return err
+	}
+	// rename tmp table to old table
+	err = starrocksDb.Exec(fmt.Sprintf("alter table %s rename %s", starrocksTmpTable, starrocksTable))
+	if err != nil {
+		return err
+	}
+
+	// check data count
+	sourceCount, err := db.Count(dal.From(table))
+	if err != nil {
+		return err
+	}
+	starrocksCount, err := starrocksDb.Count(dal.From(starrocksTable))
+	if err != nil {
+		return err
+	}
+	if sourceCount != starrocksCount {
+		logger.Warn(nil, "source count %d not equal to starrocks count %d", sourceCount, starrocksCount)
+	}
+	logger.Info("load %s to starrocks success", table)
+	return nil
+}
+
+// put batch size data to database
+func putBatchData(c plugin.SubTaskContext, starrocksTmpTable, table string, data []map[string]interface{}, config *StarRocksConfig, offset int) error {
+	logger := c.GetLogger()
+	// insert data to tmp table
+	loadURL := fmt.Sprintf("http://%s:%d/api/%s/%s/_stream_load", config.BeHost, config.BePort, config.Database, starrocksTmpTable)
+	headers := map[string]string{
+		"format":            "json",
+		"strip_outer_array": "true",
+		"Expect":            "100-continue",
+		"ignore_json_size":  "true",
+		"Connection":        "close",
+	}
+	jsonData, err := json.Marshal(data)
+	if err != nil {
+		return err
+	}
+	client := http.Client{
+		CheckRedirect: func(req *http.Request, via []*http.Request) error {
+			return http.ErrUseLastResponse
+		},
+	}
+	req, err := http.NewRequest(http.MethodPut, loadURL, bytes.NewBuffer(jsonData))
+	if err != nil {
+		return err
+	}
+	req.SetBasicAuth(config.User, config.Password)
+	for k, v := range headers {
+		req.Header.Set(k, v)
+	}
+	resp, err := client.Do(req)
+	if err != nil {
+		return err
+	}
+	if resp.StatusCode == 307 {
+		var location *url.URL
+		location, err = resp.Location()
+		if err != nil {
+			return err
 		}
-		req, err := http.NewRequest(http.MethodPut, loadURL, bytes.NewBuffer(jsonData))
+		req, err = http.NewRequest(http.MethodPut, location.String(), bytes.NewBuffer(jsonData))
 		if err != nil {
 			return err
 		}
@@ -357,96 +357,95 @@ func loadData(starrocks *sql.DB, c plugin.SubTaskContext, starrocksTable, starro
 		for k, v := range headers {
 			req.Header.Set(k, v)
 		}
-		resp, err := client.Do(req)
-		if err != nil {
-			return err
-		}
-		if resp.StatusCode == 307 {
-			var location *url.URL
-			location, err = resp.Location()
-			if err != nil {
-				return err
-			}
-			req, err = http.NewRequest(http.MethodPut, location.String(), bytes.NewBuffer(jsonData))
-			if err != nil {
-				return err
-			}
-			req.SetBasicAuth(config.User, config.Password)
-			for k, v := range headers {
-				req.Header.Set(k, v)
-			}
-			resp, err = client.Do(req)
-		}
-		if err != nil {
-			return err
-		}
-		b, err := io.ReadAll(resp.Body)
-		if err != nil {
-			return err
-		}
-		var result map[string]interface{}
-		err = json.Unmarshal(b, &result)
-		if err != nil {
-			return err
-		}
-		if resp.StatusCode != http.StatusOK {
-			c.GetLogger().Error(nil, "[%s]: %s", resp.StatusCode, string(b))
-		}
-		if result["Status"] != "Success" {
-			c.GetLogger().Error(nil, "load %s failed: %s", table, string(b))
-		} else {
-			c.GetLogger().Debug("load %s success: %s, limit: %d, offset: %d", table, b, config.BatchSize, offset)
-		}
-		offset += len(data)
+		resp, err = client.Do(req)
 	}
-	// drop old table
-	_, err = starrocks.Exec(fmt.Sprintf("drop table if exists %s", starrocksTable))
 	if err != nil {
 		return err
 	}
-	// rename tmp table to old table
-	_, err = starrocks.Exec(fmt.Sprintf("alter table %s rename %s", starrocksTmpTable, starrocksTable))
+	b, err := io.ReadAll(resp.Body)
 	if err != nil {
 		return err
 	}
-	// check data count
-	rows, err := db.Cursor(
-		dal.Select("count(*)"),
-		dal.From(table),
-	)
+	var result map[string]interface{}
+	err = json.Unmarshal(b, &result)
 	if err != nil {
 		return err
 	}
-	defer rows.Close()
-	var sourceCount int
-	for rows.Next() {
-		err = rows.Scan(&sourceCount)
-		if err != nil {
-			return err
-		}
+	if resp.StatusCode != http.StatusOK {
+		logger.Error(nil, "[%s]: %s", resp.StatusCode, string(b))
 	}
-	rowsStarRocks, err := starrocks.Query(fmt.Sprintf("select count(*) from %s", starrocksTable))
-	if err != nil {
-		return err
+	if result["Status"] != "Success" {
+		logger.Error(nil, "load %s failed: %s", table, string(b))
+	} else {
+		logger.Debug("load %s success: %s, limit: %d, offset: %d", table, b, config.BatchSize, offset)
 	}
-	defer rowsStarRocks.Close()
-	var starrocksCount int
-	for rowsStarRocks.Next() {
-		err = rowsStarRocks.Scan(&starrocksCount)
-		if err != nil {
-			return err
-		}
-	}
-	if sourceCount != starrocksCount {
-		c.GetLogger().Warn(nil, "source count %d not equal to starrocks count %d", sourceCount, starrocksCount)
-	}
-	c.GetLogger().Info("load %s to starrocks success", table)
 	return nil
 }
 
-var LoadDataTaskMeta = plugin.SubTaskMeta{
-	Name:             "LoadData",
-	EntryPoint:       LoadData,
+// get db instance
+func getDbInstance(c plugin.SubTaskContext) (db dal.Dal, err error) {
+	config := c.GetData().(*StarRocksConfig)
+	if config.SourceDsn != "" && config.SourceType != "" {
+		var o *gorm.DB
+		if config.SourceType == "mysql" {
+			o, err = gorm.Open(mysql.Open(config.SourceDsn))
+			if err != nil {
+				return nil, err
+			}
+		} else if config.SourceType == "postgres" {
+			o, err = gorm.Open(postgres.Open(config.SourceDsn))
+			if err != nil {
+				return nil, err
+			}
+		} else {
+			return nil, errors.NotFound.New(fmt.Sprintf("unsupported source type %s", config.SourceType))
+		}
+		db = dalgorm.NewDalgorm(o)
+	} else {
+		db = c.GetDal()
+	}
+
+	return db, nil
+
+}
+
+// get imported tables
+func getImportTables(c plugin.SubTaskContext, db dal.Dal) (starrocksTables []string, err error) {
+	config := c.GetData().(*StarRocksConfig)
+	if config.DomainLayer != "" {
+		starrocksTables = utils.GetTablesByDomainLayer(config.DomainLayer)
+		if starrocksTables == nil {
+			return nil, errors.NotFound.New(fmt.Sprintf("no table found by domain layer: %s", config.DomainLayer))
+		}
+	} else {
+		tables := config.Tables
+		allTables, err := db.AllTables()
+		if err != nil {
+			return nil, err
+		}
+		if len(tables) == 0 {
+			starrocksTables = allTables
+		} else {
+			for _, table := range allTables {
+				for _, r := range tables {
+					var ok bool
+					ok, err := regexp.Match(r, []byte(table))
+					if err != nil {
+						return nil, err
+					}
+					if ok {
+						starrocksTables = append(starrocksTables, table)
+					}
+				}
+			}
+		}
+	}
+	return starrocksTables, nil
+}
+
+var ExportDataTaskMeta = plugin.SubTaskMeta{
+	Name:             "ExportData",
+	EntryPoint:       ExportData,
 	EnabledByDefault: true,
 	Description:      "Load data to StarRocks",
 }
