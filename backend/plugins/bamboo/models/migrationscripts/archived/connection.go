@@ -20,9 +20,9 @@ package archived
 import "time"
 
 type Model struct {
-	ID        uint64    `gorm:"primaryKey" json:"id"`
-	CreatedAt time.Time `json:"createdAt"`
-	UpdatedAt time.Time `json:"updatedAt"`
+	ID        uint64     `gorm:"primaryKey" json:"id"`
+	CreatedAt *time.Time `json:"createdAt"`
+	UpdatedAt *time.Time `json:"updatedAt"`
 }
 type BaseConnection struct {
 	Name string `gorm:"type:varchar(100);uniqueIndex" json:"name" validate:"required"`

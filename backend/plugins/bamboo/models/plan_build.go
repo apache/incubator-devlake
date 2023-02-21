@@ -32,33 +32,33 @@ type BambooPlanBuild struct {
 	PlanKey                  string
 	ProjectName              string `json:"projectName"`
 	ProjectKey               string
-	BuildResultKey           string    `json:"buildResultKey"`
-	LifeCycleState           string    `json:"lifeCycleState"`
-	BuildStartedTime         time.Time `json:"buildStartedTime"`
-	PrettyBuildStartedTime   string    `json:"prettyBuildStartedTime"`
-	BuildCompletedTime       time.Time `json:"buildCompletedTime"`
-	BuildCompletedDate       time.Time `json:"buildCompletedDate"`
-	PrettyBuildCompletedTime string    `json:"prettyBuildCompletedTime"`
-	BuildDurationInSeconds   int       `json:"buildDurationInSeconds"`
-	BuildDuration            int       `json:"buildDuration"`
-	BuildDurationDescription string    `json:"buildDurationDescription"`
-	BuildRelativeTime        string    `json:"buildRelativeTime"`
-	VcsRevisionKey           string    `json:"vcsRevisionKey"`
-	BuildTestSummary         string    `json:"buildTestSummary"`
-	SuccessfulTestCount      int       `json:"successfulTestCount"`
-	FailedTestCount          int       `json:"failedTestCount"`
-	QuarantinedTestCount     int       `json:"quarantinedTestCount"`
-	SkippedTestCount         int       `json:"skippedTestCount"`
-	Continuable              bool      `json:"continuable"`
-	OnceOff                  bool      `json:"onceOff"`
-	Restartable              bool      `json:"restartable"`
-	NotRunYet                bool      `json:"notRunYet"`
-	Finished                 bool      `json:"finished"`
-	Successful               bool      `json:"successful"`
-	BuildReason              string    `json:"buildReason"`
-	ReasonSummary            string    `json:"reasonSummary"`
-	State                    string    `json:"state"`
-	BuildState               string    `json:"buildState"`
+	BuildResultKey           string     `json:"buildResultKey"`
+	LifeCycleState           string     `json:"lifeCycleState"`
+	BuildStartedTime         *time.Time `json:"buildStartedTime"`
+	PrettyBuildStartedTime   string     `json:"prettyBuildStartedTime"`
+	BuildCompletedTime       *time.Time `json:"buildCompletedTime"`
+	BuildCompletedDate       *time.Time `json:"buildCompletedDate"`
+	PrettyBuildCompletedTime string     `json:"prettyBuildCompletedTime"`
+	BuildDurationInSeconds   int        `json:"buildDurationInSeconds"`
+	BuildDuration            int        `json:"buildDuration"`
+	BuildDurationDescription string     `json:"buildDurationDescription"`
+	BuildRelativeTime        string     `json:"buildRelativeTime"`
+	VcsRevisionKey           string     `json:"vcsRevisionKey"`
+	BuildTestSummary         string     `json:"buildTestSummary"`
+	SuccessfulTestCount      int        `json:"successfulTestCount"`
+	FailedTestCount          int        `json:"failedTestCount"`
+	QuarantinedTestCount     int        `json:"quarantinedTestCount"`
+	SkippedTestCount         int        `json:"skippedTestCount"`
+	Continuable              bool       `json:"continuable"`
+	OnceOff                  bool       `json:"onceOff"`
+	Restartable              bool       `json:"restartable"`
+	NotRunYet                bool       `json:"notRunYet"`
+	Finished                 bool       `json:"finished"`
+	Successful               bool       `json:"successful"`
+	BuildReason              string     `json:"buildReason"`
+	ReasonSummary            string     `json:"reasonSummary"`
+	State                    string     `json:"state"`
+	BuildState               string     `json:"buildState"`
 	PlanResultKey            string
 	common.NoPKModel
 }
@@ -108,22 +108,22 @@ func (BambooPlanBuild) Convert(apiRes *ApiBambooPlanBuild) *BambooPlanBuild {
 }
 
 type ApiBambooPlanBuild struct {
-	Expand                   string    `json:"expand"`
-	PlanName                 string    `json:"planName"`
-	ProjectName              string    `json:"projectName"`
-	BuildResultKey           string    `json:"buildResultKey"`
-	LifeCycleState           string    `json:"lifeCycleState"`
-	Id                       int       `json:"id"`
-	BuildStartedTime         time.Time `json:"buildStartedTime"`
-	PrettyBuildStartedTime   string    `json:"prettyBuildStartedTime"`
-	BuildCompletedTime       time.Time `json:"buildCompletedTime"`
-	BuildCompletedDate       time.Time `json:"buildCompletedDate"`
-	PrettyBuildCompletedTime string    `json:"prettyBuildCompletedTime"`
-	BuildDurationInSeconds   int       `json:"buildDurationInSeconds"`
-	BuildDuration            int       `json:"buildDuration"`
-	BuildDurationDescription string    `json:"buildDurationDescription"`
-	BuildRelativeTime        string    `json:"buildRelativeTime"`
-	VcsRevisionKey           string    `json:"vcsRevisionKey"`
+	Expand                   string     `json:"expand"`
+	PlanName                 string     `json:"planName"`
+	ProjectName              string     `json:"projectName"`
+	BuildResultKey           string     `json:"buildResultKey"`
+	LifeCycleState           string     `json:"lifeCycleState"`
+	Id                       int        `json:"id"`
+	BuildStartedTime         *time.Time `json:"buildStartedTime"`
+	PrettyBuildStartedTime   string     `json:"prettyBuildStartedTime"`
+	BuildCompletedTime       *time.Time `json:"buildCompletedTime"`
+	BuildCompletedDate       *time.Time `json:"buildCompletedDate"`
+	PrettyBuildCompletedTime string     `json:"prettyBuildCompletedTime"`
+	BuildDurationInSeconds   int        `json:"buildDurationInSeconds"`
+	BuildDuration            int        `json:"buildDuration"`
+	BuildDurationDescription string     `json:"buildDurationDescription"`
+	BuildRelativeTime        string     `json:"buildRelativeTime"`
+	VcsRevisionKey           string     `json:"vcsRevisionKey"`
 	VcsRevisions             struct {
 		Size        int    `json:"size"`
 		Expand      string `json:"expand"`
@@ -160,4 +160,26 @@ type ApiBambooPlanBuild struct {
 	BuildState  string `json:"buildState"`
 	Number      int    `json:"number"`
 	BuildNumber int    `json:"buildNumber"`
+	Parent      `json:"parent"`
 }
+
+type Parent struct {
+	Href string `json:"href"`
+	Rel  string `json:"rel"`
+}
+
+const (
+	FAILED      = "Failed"
+	ERROR       = "ERROR"
+	UNDEPLOYED  = "UNDEPLOYED"
+	UNKNOWN     = "Unknown"
+	STOPPED     = "Stopped"
+	SKIPPED     = "Skipped"
+	SUCCESSFUL  = "Successful"
+	COMPLETED   = "COMPLETED"
+	PAUSED      = "COMPLETED"
+	HALTED      = "HALTED"
+	IN_PROGRESS = "IN_PROGRESS"
+	PENDING     = "PENDING"
+	BUILDING    = "BUILDING"
+)

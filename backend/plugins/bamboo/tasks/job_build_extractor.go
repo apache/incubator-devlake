@@ -19,6 +19,7 @@ package tasks
 
 import (
 	"encoding/json"
+	"fmt"
 	"github.com/apache/incubator-devlake/core/errors"
 	"github.com/apache/incubator-devlake/core/plugin"
 	helper "github.com/apache/incubator-devlake/helpers/pluginhelper/api"
@@ -29,7 +30,7 @@ var _ plugin.SubTaskEntryPoint = ExtractJobBuild
 
 func ExtractJobBuild(taskCtx plugin.SubTaskContext) errors.Error {
 	rawDataSubTaskArgs, data := CreateRawDataSubTaskArgs(taskCtx, RAW_JOB_BUILD_TABLE)
-
+	//repoMap := getRepoMap(data.Options.BambooTransformationRule.RepoMap)
 	extractor, err := helper.NewApiExtractor(helper.ApiExtractorArgs{
 		RawDataSubTaskArgs: *rawDataSubTaskArgs,
 
@@ -50,7 +51,7 @@ func ExtractJobBuild(taskCtx plugin.SubTaskContext) errors.Error {
 			body.JobKey = plan.JobKey
 			body.PlanKey = plan.PlanKey
 			body.PlanName = plan.PlanName
-
+			body.PlanBuildKey = fmt.Sprintf("%s-%v", plan.PlanKey, body.Number)
 			results := make([]interface{}, 0)
 			results = append(results, body)
 			for _, v := range res.VcsRevisions.VcsRevision {
@@ -79,3 +80,16 @@ var ExtractJobBuildMeta = plugin.SubTaskMeta{
 	Description:      "Extract raw data into tool layer table bamboo_plan_builds",
 	DomainTypes:      []string{plugin.DOMAIN_TYPE_CICD},
 }
+
+// will be used in next pr
+//func getRepoMap(rawRepoMap datatypes.JSONMap) map[int]string {
+//	repoMap := make(map[int]string)
+//	for k, v := range rawRepoMap {
+//		if list, ok := v.([]int); ok {
+//			for _, id := range list {
+//				repoMap[id] = k
+//			}
+//		}
+//	}
+//	return repoMap
+//}

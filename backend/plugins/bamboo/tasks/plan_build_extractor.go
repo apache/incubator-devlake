@@ -53,6 +53,7 @@ func ExtractPlanBuild(taskCtx plugin.SubTaskContext) errors.Error {
 			results = append(results, body)
 			// As job build can get more accuracy repo info,
 			// we can collect BambooPlanBuildVcsRevision in job_biuld_extractor
+			// keep this because we might need it later
 			/*
 				for _, v := range res.VcsRevisions.VcsRevision {
 					results = append(results, &models.BambooPlanBuildVcsRevision{

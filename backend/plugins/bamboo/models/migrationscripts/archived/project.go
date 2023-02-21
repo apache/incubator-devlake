@@ -22,14 +22,15 @@ import (
 )
 
 type BambooProject struct {
-	ConnectionId         uint64 `json:"connectionId" mapstructure:"connectionId" gorm:"primaryKey"`
-	ProjectKey           string `json:"projectKey" gorm:"primaryKey;type:varchar(256)"`
-	TransformationRuleId uint64 `json:"transformationRuleId,omitempty" mapstructure:"transformationRuleId"`
-	Name                 string `json:"name" gorm:"index;type:varchar(256)"`
+	ConnectionId         uint64 `gorm:"primaryKey"`
+	ProjectKey           string `gorm:"primaryKey;type:varchar(100)"`
+	Expand               string `json:"expand"`
+	Name                 string `gorm:"index;type:varchar(100)"`
 	Description          string `json:"description"`
 	Href                 string `json:"link"`
-	Rel                  string `json:"rel" gorm:"type:varchar(100)"`
-	archived.NoPKModel   `json:"-" mapstructure:"-"`
+	Rel                  string `gorm:"type:varchar(100)"`
+	TransformationRuleId uint64 `json:"transformationRuleId,omitempty" mapstructure:"transformationRuleId"`
+	archived.NoPKModel
 }
 
 func (BambooProject) TableName() string {

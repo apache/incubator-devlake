@@ -72,11 +72,11 @@ type BambooResponse struct {
 }
 
 type ApiBambooServerInfo struct {
-	Version     string    `json:"version"`
-	Edition     string    `json:"edition"`
-	BuildDate   time.Time `json:"buildDate"`
-	BuildNumber string    `json:"buildNumber"`
-	State       string    `json:"state"`
+	Version     string     `json:"version"`
+	Edition     string     `json:"edition"`
+	BuildDate   *time.Time `json:"buildDate"`
+	BuildNumber string     `json:"buildNumber"`
+	State       string     `json:"state"`
 }
 
 type ApiRepository struct {
