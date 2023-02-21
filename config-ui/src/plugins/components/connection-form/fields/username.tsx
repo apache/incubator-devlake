@@ -39,6 +39,9 @@ import { FormGroup, InputGroup } from '@blueprintjs/core';
 import * as S from './styled';
 
 interface Props {
+  label?: string;
+  subLabel?: string;
+  placeholder?: string;
   name: string;
   initialValue: string;
   value: string;
@@ -47,7 +50,15 @@ interface Props {
   setError: (error: string) => void;
 }
 
-export const ConnectionUsername = ({ initialValue, value, setValue, setError }: Props) => {
+export const ConnectionUsername = ({
+  label,
+  subLabel,
+  placeholder,
+  initialValue,
+  value,
+  setValue,
+  setError,
+}: Props) => {
   useEffect(() => {
     setValue(initialValue);
   }, [initialValue]);
@@ -61,8 +72,12 @@ export const ConnectionUsername = ({ initialValue, value, setValue, setError }: 
   };
 
   return (
-    <FormGroup label={<S.Label>Username</S.Label>} labelInfo={<S.LabelInfo>*</S.LabelInfo>}>
-      <InputGroup placeholder="Your Username" value={value} onChange={handleChange} />
+    <FormGroup
+      label={<S.Label>{label ?? 'Username'}</S.Label>}
+      labelInfo={<S.LabelInfo>*</S.LabelInfo>}
+      subLabel={subLabel ? <S.LabelDescription>{subLabel}</S.LabelDescription> : null}
+    >
+      <InputGroup placeholder={placeholder ?? 'Your Username'} value={value} onChange={handleChange} />
     </FormGroup>
   );
 };

@@ -16,6 +16,9 @@
  *
  */
 
+import React from 'react';
+
+import { ExternalLink } from '@/components';
 import type { PluginConfigType } from '@/plugins';
 import { PluginType } from '@/plugins';
 
@@ -27,7 +30,7 @@ export const TAPDConfig: PluginConfigType = {
   name: 'TAPD',
   isBeta: true,
   icon: Icon,
-  sort: 100,
+  sort: 6,
   connection: {
     docLink: 'https://devlake.apache.org/docs/Configuration/Tapd',
     initialValues: {
@@ -40,8 +43,25 @@ export const TAPDConfig: PluginConfigType = {
         subLabel: 'You do not need to enter the endpoint URL, because all versions use the same URL.',
         disabled: true,
       },
-      'username',
-      'password',
+      {
+        key: 'username',
+        label: 'API Account',
+        subLabel: (
+          <span>
+            Please follow the instruction{' '}
+            <ExternalLink link="https://devlake.apache.org/docs/UserManuals/ConfigUI/Tapd/#api-account--api-token">
+              here
+            </ExternalLink>{' '}
+            to find your API account information.
+          </span>
+        ),
+        placeholder: 'Your API Account',
+      },
+      {
+        key: 'password',
+        label: 'API Token',
+        placeholder: 'Your API Token',
+      },
       'proxy',
       {
         key: 'rateLimitPerHour',
