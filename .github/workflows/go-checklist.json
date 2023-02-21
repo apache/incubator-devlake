@@ -22,23 +22,23 @@
     },
     {
       "keywords": ["errors.HttpStatus("],
-      "comment": "check if http status code correct"
+      "comment": "check if http status code (`errors.HttpStatus`) correct"
     },
     {
       "keywords": ["db.Cursor", "db.RawCursor", "dal.Cursor"],
-      "comment": "check if db.Cursor close"
+      "comment": "check if `db.Cursor` close"
     },
     {
       "keywords": ["gorm:\"primaryKey\""],
-      "comment": "check if primary key not duplicated and check if migration added when primary key changed"
+      "comment": "check if primary key in model not duplicated and check if migration added when primary key changed"
     },
     {
       "keywords": ["PageSize:"],
-      "comment": "check if page size set but not used"
+      "comment": "check if `PageSize` set but not used"
     },
     {
       "keywords": ["collectorWithState.IsIncremental", "Incremental:"],
-      "comment": "check if collector is incremental when Incremental is true"
+      "comment": "check if collector is incremental when `Incremental` is true"
     }
   ]
 }
