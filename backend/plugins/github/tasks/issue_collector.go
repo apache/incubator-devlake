@@ -73,6 +73,9 @@ func CollectApiIssues(taskCtx plugin.SubTaskContext) errors.Error {
 		Query: func(reqData *helper.RequestData) (url.Values, errors.Error) {
 			query := url.Values{}
 			query.Set("state", "all")
+			if data.TimeAfter != nil {
+				query.Set("since", data.TimeAfter.String())
+			}
 			if incremental {
 				query.Set("since", collectorWithState.LatestState.LatestSuccessStart.String())
 			}
