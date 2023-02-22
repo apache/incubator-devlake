@@ -26,7 +26,7 @@ import (
 	"github.com/apache/incubator-devlake/core/dal"
 	"github.com/apache/incubator-devlake/core/errors"
 	"github.com/apache/incubator-devlake/core/models"
-	plugin "github.com/apache/incubator-devlake/core/plugin"
+	"github.com/apache/incubator-devlake/core/plugin"
 	"github.com/apache/incubator-devlake/helpers/pluginhelper/common"
 )
 
@@ -148,7 +148,7 @@ func (m *ApiCollectorStateManager) Execute() errors.Error {
 //  3. The API must fit one of the following traits:
 //     a. it supports filtering by Created Date, in this case, you may specify the `GetTotalPages`
 //     option to fetch data with Determined Strategy if possible.
-//     b. or sorting by Created Date in Descending order, this this case, you must use `Concurrency`
+//     b. or sorting by Created Date in Descending order, in this case, you must use `Concurrency`
 //     or `GetNextPageCustomData` instead of `GetTotalPages` for Undetermined Strategy since we have
 //     to stop the process in the middle.
 func NewStatefulApiCollectorForFinalizableEntity(args FinalizableApiCollectorArgs) (plugin.SubTask, errors.Error) {
