@@ -22,16 +22,24 @@ export const Container = styled.div`
   position: relative;
 `;
 
-export const TableWrapper = styled.ul<{ loading: number }>`
-  margin: 0;
-  padding: 0;
-  list-style: none;
-  transition: opacity 0.3s linear;
+export const Loading = styled.div`
+  text-align: center;
+`;
 
+export const NoData = styled.div`
+  text-align: center;
+
+  img {
+    display: inline-block;
+  }
+`;
+
+export const Table = styled.ul<{ loading: number }>`
+  transition: opacity 0.3s linear;
   ${({ loading }) => (loading ? 'opacity: 0.2; ' : '')}
 `;
 
-export const TableRow = styled.li`
+export const Row = styled.li`
   display: flex;
   align-items: center;
   padding: 12px 16px;
@@ -43,13 +51,13 @@ export const TableRow = styled.li`
   }
 `;
 
-export const TableHeader = styled(TableRow)`
+export const Header = styled(Row)`
   font-size: 14px;
   font-weight: 600;
   border-top: none;
 `;
 
-export const TableMask = styled.div`
+export const Mask = styled.div`
   position: absolute;
   top: 0;
   right: 0;

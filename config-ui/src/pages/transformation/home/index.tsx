@@ -33,6 +33,8 @@ export const TransformationHomePage = () => {
 
   const history = useHistory();
 
+  const handleCreate = () => setIsOpen(true);
+
   const columns = useMemo(
     () =>
       [
@@ -86,11 +88,16 @@ export const TransformationHomePage = () => {
                     />
                   ))}
                 </ButtonGroup>
-                <Button intent={Intent.PRIMARY} text="Create Transformation" onClick={() => setIsOpen(true)} />
+                <Button icon="plus" intent={Intent.PRIMARY} text="New Transformation" onClick={handleCreate} />
               </div>
               <Table
                 columns={columns}
                 dataSource={transformations.filter((ts) => (active === 'All' ? true : ts.plugin === active))}
+                noData={{
+                  text: 'There is no transformation yet. Please add a new transformation.',
+                  btnText: 'New Transformation',
+                  onCreate: handleCreate,
+                }}
               />
               <Dialog
                 isOpen={isOpen}
