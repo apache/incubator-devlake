@@ -267,10 +267,11 @@ func sendHttpRequest[Res any](t *testing.T, timeout time.Duration, debug debugIn
 		coloredPrintf("calling:\n\t%s %s\nwith:\n%s\n", httpMethod, endpoint, string(ToCleanJson(debug.inlineJson, body)))
 	}
 	timer := time.After(timeout)
+	request, err := http.NewRequest(httpMethod, endpoint, bytes.NewReader(b))
+	require.NoError(t, err)
+	request.Close = true
+	request.Header.Add("Content-Type", "application/json")
 	for {
-		request, err := http.NewRequest(httpMethod, endpoint, bytes.NewReader(b))
-		require.NoError(t, err)
-		request.Header.Add("Content-Type", "application/json")
 		response, err := http.DefaultClient.Do(request)
 		require.NoError(t, err)
 		if timeout > 0 {
@@ -278,6 +279,8 @@ func sendHttpRequest[Res any](t *testing.T, timeout time.Duration, debug debugIn
 			case <-timer:
 			default:
 				if response.StatusCode >= 300 {
+					require.NoError(t, response.Body.Close())
+					response.Close = true
 					time.Sleep(1 * time.Second)
 					continue
 				}
@@ -291,6 +294,7 @@ func sendHttpRequest[Res any](t *testing.T, timeout time.Duration, debug debugIn
 			coloredPrintf("result: %s\n", ToCleanJson(debug.inlineJson, b))
 		}
 		require.NoError(t, response.Body.Close())
+		response.Close = true
 		return result
 	}
 }

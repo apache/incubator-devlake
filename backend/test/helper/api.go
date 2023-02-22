@@ -25,15 +25,8 @@ import (
 
 	"github.com/apache/incubator-devlake/core/models"
 	"github.com/apache/incubator-devlake/core/plugin"
-	"github.com/apache/incubator-devlake/helpers/pluginhelper/api"
 	apiProject "github.com/apache/incubator-devlake/server/api/project"
 )
-
-type Connection struct {
-	api.BaseConnection `mapstructure:",squash"`
-	api.RestConnection `mapstructure:",squash"`
-	api.AccessToken    `mapstructure:",squash"`
-}
 
 // CreateConnection FIXME
 func (d *DevlakeClient) TestConnection(pluginName string, connection any) {
@@ -64,13 +57,6 @@ func (d *DevlakeClient) ListConnections(pluginName string) []*Connection {
 	return all
 }
 
-type BlueprintV2Config struct {
-	Connection  *plugin.BlueprintConnectionV200
-	TimeAfter   *time.Time
-	SkipOnFail  bool
-	ProjectName string
-}
-
 // CreateBasicBlueprintV2 FIXME
 func (d *DevlakeClient) CreateBasicBlueprintV2(name string, config *BlueprintV2Config) models.Blueprint {
 	settings := &models.BlueprintSettings{
@@ -99,19 +85,6 @@ func (d *DevlakeClient) CreateBasicBlueprintV2(name string, config *BlueprintV2C
 	}, http.MethodPost, fmt.Sprintf("%s/blueprints", d.Endpoint), &blueprint)
 	return blueprint
 }
-
-type (
-	ProjectPlugin struct {
-		Name    string
-		Options any
-	}
-	ProjectConfig struct {
-		ProjectName        string
-		ProjectDescription string
-		EnableDora         bool
-		MetricPlugins      []ProjectPlugin
-	}
-)
 
 func (d *DevlakeClient) CreateProject(project *ProjectConfig) models.ApiOutputProject {
 	var metrics []models.BaseMetric
@@ -167,11 +140,25 @@ func (d *DevlakeClient) CreateScope(pluginName string, connectionId uint64, scop
 	}, http.MethodPut, fmt.Sprintf("%s/plugins/%s/connections/%d/scopes", d.Endpoint, pluginName, connectionId), scope)
 }
 
+func (d *DevlakeClient) UpdateScope(pluginName string, connectionId uint64, scopeId string, scope any) any {
+	return sendHttpRequest[any](d.testCtx, d.timeout, debugInfo{
+		print:      true,
+		inlineJson: false,
+	}, http.MethodPatch, fmt.Sprintf("%s/plugins/%s/connections/%d/scopes/%s", d.Endpoint, pluginName, connectionId, scopeId), scope)
+}
+
 func (d *DevlakeClient) ListScopes(pluginName string, connectionId uint64) []any {
 	return sendHttpRequest[[]any](d.testCtx, d.timeout, debugInfo{
 		print:      true,
 		inlineJson: false,
 	}, http.MethodGet, fmt.Sprintf("%s/plugins/%s/connections/%d/scopes", d.Endpoint, pluginName, connectionId), nil)
+}
+
+func (d *DevlakeClient) GetScope(pluginName string, connectionId uint64, scopeId string) any {
+	return sendHttpRequest[any](d.testCtx, d.timeout, debugInfo{
+		print:      true,
+		inlineJson: false,
+	}, http.MethodGet, fmt.Sprintf("%s/plugins/%s/connections/%d/scopes/%s", d.Endpoint, pluginName, connectionId, scopeId), nil)
 }
 
 func (d *DevlakeClient) CreateTransformRule(pluginName string, rules any) any {
@@ -186,6 +173,36 @@ func (d *DevlakeClient) ListTransformRules(pluginName string) []any {
 		print:      true,
 		inlineJson: false,
 	}, http.MethodGet, fmt.Sprintf("%s/plugins/%s/transformation_rules?pageSize=20?page=1", d.Endpoint, pluginName), nil)
+}
+
+func (d *DevlakeClient) RemoteScopes(query RemoteScopesQuery) RemoteScopesOutput {
+	return sendHttpRequest[RemoteScopesOutput](d.testCtx, d.timeout, debugInfo{
+		print:      true,
+		inlineJson: false,
+	}, http.MethodGet, fmt.Sprintf("%s/plugins/%s/connections/%d/remote-scopes?groupId=%s?pageToken=%s&%s",
+		d.Endpoint,
+		query.PluginName,
+		query.ConnectionId,
+		query.GroupId,
+		query.PageToken,
+		mapToQueryString(query.Params)),
+		nil)
+}
+
+// SearchRemoteScopes makes calls to the "scope API" indirectly. "Search" is the remote endpoint to hit.
+func (d *DevlakeClient) SearchRemoteScopes(query SearchRemoteScopesQuery) SearchRemoteScopesOutput {
+	return sendHttpRequest[SearchRemoteScopesOutput](d.testCtx, d.timeout, debugInfo{
+		print:      true,
+		inlineJson: false,
+	}, http.MethodGet, fmt.Sprintf("%s/plugins/%s/connections/%d/search-remote-scopes?search=%s&page=%d&pageSize=%d&%s",
+		d.Endpoint,
+		query.PluginName,
+		query.ConnectionId,
+		query.Search,
+		query.Page,
+		query.PageSize,
+		mapToQueryString(query.Params)),
+		nil)
 }
 
 // CreateBasicBlueprint FIXME
@@ -229,6 +246,14 @@ func (d *DevlakeClient) RunPipeline(pipeline models.NewPipeline) models.Pipeline
 		inlineJson: false,
 	}, http.MethodPost, fmt.Sprintf("%s/pipelines", d.Endpoint), &pipeline)
 	return d.monitorPipeline(pipelineResult.ID)
+}
+
+func mapToQueryString(queryParams map[string]string) string {
+	q := ""
+	for k, v := range queryParams {
+		q = q + "&" + k + "=" + v
+	}
+	return q
 }
 
 // MonitorPipeline FIXME
