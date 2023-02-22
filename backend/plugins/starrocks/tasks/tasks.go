@@ -38,6 +38,7 @@ import (
 	"gorm.io/driver/mysql"
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
+	"gorm.io/gorm/clause"
 )
 
 type Table struct {
@@ -85,28 +86,7 @@ func ExportData(c plugin.SubTaskContext) errors.Error {
 			logger.Error(err, "create table %s in starrocks error", table)
 			return errors.Convert(err)
 		}
-		var tx dal.Transaction
-		if db.Dialect() == "postgres" || db.Dialect() == "mysql" {
-			tx = db.Begin()
-			defer func() {
-				if r := recover(); r != nil || err != nil {
-					err = tx.Rollback()
-					if err != nil {
-						logger.Error(err, "starrocks: failed to rollback")
-					}
-				}
-			}()
-		} else {
-			return errors.NotFound.New(fmt.Sprintf("unsupported dialect %s", db.Dialect()))
-		}
-
 		err = putDataToDst(c, starrocksDb, db, starrocksTable, starrocksTmpTable, table, columnMap, orderBy)
-		if err != nil {
-			return errors.Convert(err)
-		}
-
-		// all good, commit transaction
-		err = tx.Commit()
 		if err != nil {
 			return errors.Convert(err)
 		}
@@ -201,7 +181,7 @@ func createTmpTable(c plugin.SubTaskContext, starrocksDb dal.Dal, db dal.Dal, st
 			extra = v
 		}
 	}
-	tableSql := fmt.Sprintf("drop table if exists %s; create table if not exists `%s` ( %s ) %s", starrocksTmpTable, starrocksTmpTable, strings.Join(columns, ","), extra)
+	tableSql := fmt.Sprintf("DROP TABLE IF EXISTS %s; CREATE TABLE IF NOT EXISTS `%s` ( %s ) %s", starrocksTmpTable, starrocksTmpTable, strings.Join(columns, ","), extra)
 	logger.Debug(tableSql)
 	err = starrocksDb.Exec(tableSql)
 	return columnMap, orderBy, false, err
@@ -276,12 +256,12 @@ func putDataToDst(c plugin.SubTaskContext, starrocksDb, db dal.Dal, starrocksTab
 	}
 
 	// drop old table
-	err = starrocksDb.Exec(fmt.Sprintf("drop table if exists %s", starrocksTable))
+	err = starrocksDb.Exec("DROP TABLE IF EXISTS ?", clause.Table{Name: starrocksTable})
 	if err != nil {
 		return err
 	}
 	// rename tmp table to old table
-	err = starrocksDb.Exec(fmt.Sprintf("alter table %s rename %s", starrocksTmpTable, starrocksTable))
+	err = starrocksDb.Exec("ALTER TABLE ? RENAME ?", clause.Table{Name: starrocksTmpTable}, clause.Table{Name: starrocksTable})
 	if err != nil {
 		return err
 	}
