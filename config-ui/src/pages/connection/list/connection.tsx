@@ -121,10 +121,18 @@ export const Connection = ({ plugin }: Props) => {
   return (
     <S.Wrapper>
       <ButtonGroup className="action">
-        <Button intent={Intent.PRIMARY} icon="plus" text="Add Connection" onClick={handleCreate} />
+        <Button intent={Intent.PRIMARY} icon="plus" text="New Connection" onClick={handleCreate} />
         <Button icon="refresh" text="Refresh Connections" onClick={handleRefresh} />
       </ButtonGroup>
-      <Table columns={columns} dataSource={connections} />
+      <Table
+        columns={columns}
+        dataSource={connections}
+        noData={{
+          text: 'There is no data connection yet. Please add a new connection.',
+          btnText: 'New Connection',
+          onCreate: handleCreate,
+        }}
+      />
     </S.Wrapper>
   );
 };

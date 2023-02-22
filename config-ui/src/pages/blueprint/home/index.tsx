@@ -90,6 +90,8 @@ export const BlueprintHomePage = () => {
     [],
   );
 
+  const handleCreate = () => history.push('/blueprints/create');
+
   if (loading) {
     return <PageLoading />;
   }
@@ -113,9 +115,17 @@ export const BlueprintHomePage = () => {
               />
             ))}
           </ButtonGroup>
-          <Button intent={Intent.PRIMARY} text="Create Blueprint" onClick={() => history.push('/blueprints/create')} />
+          <Button icon="plus" intent={Intent.PRIMARY} text="New Blueprint" onClick={handleCreate} />
         </div>
-        <Table columns={columns} dataSource={dataSource} />
+        <Table
+          columns={columns}
+          dataSource={dataSource}
+          noData={{
+            text: 'There is no Blueprint yet. Please add a new Blueprint here or from a Project.',
+            btnText: 'New Blueprint',
+            onCreate: handleCreate,
+          }}
+        />
       </S.Wrapper>
     </PageHeader>
   );
