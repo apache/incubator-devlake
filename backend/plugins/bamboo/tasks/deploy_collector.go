@@ -26,12 +26,12 @@ import (
 	helper "github.com/apache/incubator-devlake/helpers/pluginhelper/api"
 )
 
-const RAW_DEPLOY_TABLE = "bamboo_deploy"
+const RAW_DEPLOY_TABLE = "bamboo_api_deploy"
 
 var _ plugin.SubTaskEntryPoint = CollectDeploy
 
 func CollectDeploy(taskCtx plugin.SubTaskContext) errors.Error {
-	rawDataSubTaskArgs, data := CreateRawDataSubTaskArgs(taskCtx, RAW_PLAN_TABLE)
+	rawDataSubTaskArgs, data := CreateRawDataSubTaskArgs(taskCtx, RAW_DEPLOY_TABLE)
 
 	collectorWithState, err := helper.NewApiCollectorWithState(*rawDataSubTaskArgs, nil)
 	if err != nil {

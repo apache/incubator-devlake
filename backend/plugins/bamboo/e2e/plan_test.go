@@ -33,8 +33,8 @@ func TestBambooPlanDataFlow(t *testing.T) {
 
 	taskData := &tasks.BambooTaskData{
 		Options: &tasks.BambooOptions{
-			ConnectionId:             1,
-			ProjectKey:               "TEST",
+			ConnectionId:             3,
+			ProjectKey:               "TEST1",
 			BambooTransformationRule: new(models.BambooTransformationRule),
 		},
 	}
@@ -49,15 +49,23 @@ func TestBambooPlanDataFlow(t *testing.T) {
 		"./snapshot_tables/_tool_bamboo_plans.csv",
 		e2ehelper.ColumnWithRawData(
 			"connection_id",
-			"bamboo_id",
-			"bamboo_created_at",
-			"project_id",
-			"status",
-			"web_url",
-			"duration",
-			"started_at",
-			"finished_at",
-			"coverage",
+			"plan_key",
+			"name",
+			"expand",
+			"project_key",
+			"project_name",
+			"description",
+			"short_name",
+			"build_name",
+			"short_key",
+			"type",
+			"enabled",
+			"href",
+			"rel",
+			"is_favourite",
+			"is_active",
+			"is_building",
+			"average_build_time_in_seconds",
 		),
 	)
 
