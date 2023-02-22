@@ -16,8 +16,8 @@
   "editable": true,
   "gnetId": null,
   "graphTooltip": 0,
-  "id": 9,
-  "iteration": 1672982007817,
+  "id": 17,
+  "iteration": 1677030964408,
   "links": [],
   "panels": [
     {
@@ -169,7 +169,7 @@
           "metricColumn": "none",
           "queryType": "randomWalk",
           "rawQuery": true,
-          "rawSql": "SELECT file_path,\n        count(distinct author_name) AS author_count,\n         max(rst) AS file_total_size,max(rst)/count(distinct author_name) as rate\nFROM commits\nJOIN \n    (SELECT file_path,\n        commit_files.commit_sha,\n         sum(additions) - sum(deletions) AS rst\n    FROM commit_files\n    JOIN repo_commits rc\n        ON commit_files.commit_sha = rc.commit_sha\n    WHERE repo_id IN ($repo_id)\n\n    GROUP BY  file_path,commit_sha\n    ORDER BY  rst DESC ) a\n    ON a.commit_sha = commits.sha\nGROUP BY  file_path\nHAVING author_count > 0\nORDER BY rate DESC",
+          "rawSql": "SELECT file_path,\n       COUNT(DISTINCT author_name) AS author_count,\n       MAX(rst) AS file_total_size,\n       MAX(rst) / COUNT(DISTINCT author_name) AS rate\nFROM commits\nJOIN (\n  SELECT file_path,\n         commit_files.commit_sha,\n         SUM(additions - deletions) AS rst\n  FROM commit_files\n  JOIN repo_commits rc ON commit_files.commit_sha = rc.commit_sha\n  WHERE repo_id IN ($repo_id)\n  GROUP BY file_path, commit_files.commit_sha\n) a ON a.commit_sha = commits.sha\nGROUP BY file_path\nHAVING author_count > 0\nORDER BY rate DESC\n",
           "refId": "A",
           "select": [
             [
@@ -991,7 +991,7 @@
       {
         "allValue": null,
         "current": {
-          "selected": true,
+          "selected": false,
           "text": [
             "All"
           ],
@@ -1061,5 +1061,5 @@
   "timezone": "",
   "title": "Component and File-level Metrics",
   "uid": "KxUh7IG4z",
-  "version": 3
+  "version": 4
 }
