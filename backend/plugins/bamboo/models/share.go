@@ -27,3 +27,16 @@ type ApiBambooSizeData struct {
 	StartIndex int `json:"start-index"`
 	MaxResult  int `json:"max-result"`
 }
+type ApiBambooKey struct {
+	Key string `json:"key"`
+}
+
+type ApiBambooOperations struct {
+	CanView                   bool `json:"canView"`
+	CanEdit                   bool `json:"canEdit"`
+	CanDelete                 bool `json:"canDelete"`
+	AllowedToExecute          bool `json:"allowedToExecute"`
+	CanExecute                bool `json:"canExecute"`
+	AllowedToCreateVersion    bool `json:"allowedToCreateVersion"`
+	AllowedToSetVersionStatus bool `json:"allowedToSetVersionStatus"`
+}

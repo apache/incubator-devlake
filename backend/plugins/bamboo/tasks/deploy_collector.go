@@ -18,22 +18,19 @@ limitations under the License.
 package tasks
 
 import (
-	"encoding/json"
 	"fmt"
-	"net/http"
 	"net/url"
 
 	"github.com/apache/incubator-devlake/core/errors"
 	"github.com/apache/incubator-devlake/core/plugin"
 	helper "github.com/apache/incubator-devlake/helpers/pluginhelper/api"
-	"github.com/apache/incubator-devlake/plugins/bamboo/models"
 )
 
-const RAW_PLAN_TABLE = "bamboo_api_plan"
+const RAW_DEPLOY_TABLE = "bamboo_deploy"
 
-var _ plugin.SubTaskEntryPoint = CollectPlan
+var _ plugin.SubTaskEntryPoint = CollectDeploy
 
-func CollectPlan(taskCtx plugin.SubTaskContext) errors.Error {
+func CollectDeploy(taskCtx plugin.SubTaskContext) errors.Error {
 	rawDataSubTaskArgs, data := CreateRawDataSubTaskArgs(taskCtx, RAW_PLAN_TABLE)
 
 	collectorWithState, err := helper.NewApiCollectorWithState(*rawDataSubTaskArgs, nil)
@@ -44,34 +41,16 @@ func CollectPlan(taskCtx plugin.SubTaskContext) errors.Error {
 	err = collectorWithState.InitCollector(helper.ApiCollectorArgs{
 		ApiClient:   data.ApiClient,
 		PageSize:    100,
-		UrlTemplate: "project/{{ .Params.ProjectKey }}.json",
+		UrlTemplate: "deploy/project/all.json",
 		Query: func(reqData *helper.RequestData) (url.Values, errors.Error) {
 			query := url.Values{}
 			query.Set("showEmpty", fmt.Sprintf("%v", true))
-			query.Set("expand", "plans.plan")
 			query.Set("max-result", fmt.Sprintf("%v", reqData.Pager.Size))
 			query.Set("start-index", fmt.Sprintf("%v", reqData.Pager.Skip))
 			return query, nil
 		},
-		GetTotalPages: func(res *http.Response, args *helper.ApiCollectorArgs) (int, errors.Error) {
-			var body struct {
-				SizeInfo models.ApiBambooSizeData `json:"plans"`
-			}
-			err = helper.UnmarshalResponse(res, &body)
-			if err != nil {
-				return 0, err
-			}
-			return GetTotalPagesFromSizeInfo(&body.SizeInfo, args)
-		},
 
-		ResponseParser: func(res *http.Response) ([]json.RawMessage, errors.Error) {
-			body := &models.ApiBambooProject{}
-			err = helper.UnmarshalResponse(res, body)
-			if err != nil {
-				return nil, err
-			}
-			return body.Plans.Plan, nil
-		},
+		ResponseParser: helper.GetRawMessageArrayFromResponse,
 	})
 	if err != nil {
 		return err
@@ -79,10 +58,10 @@ func CollectPlan(taskCtx plugin.SubTaskContext) errors.Error {
 	return collectorWithState.Execute()
 }
 
-var CollectPlanMeta = plugin.SubTaskMeta{
-	Name:             "CollectPlan",
-	EntryPoint:       CollectPlan,
+var CollectDeployMeta = plugin.SubTaskMeta{
+	Name:             "CollectDeploy",
+	EntryPoint:       CollectDeploy,
 	EnabledByDefault: true,
-	Description:      "Collect Plan data from Bamboo api",
+	Description:      "Collect Deploy data from Bamboo api",
 	DomainTypes:      []string{plugin.DOMAIN_TYPE_CICD},
 }
