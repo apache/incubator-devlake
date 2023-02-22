@@ -42,7 +42,7 @@ type GraphqlQueryIssueWrapper struct {
 			TotalCount graphql.Int
 			Issues     []GraphqlQueryIssue `graphql:"nodes"`
 			PageInfo   *helper.GraphqlQueryPageInfo
-		} `graphql:"issues(first: $pageSize, after: $skipCursor, orderBy: {field: CREATED_AT, direction: DESC})"`
+		} `graphql:"issues(first: $pageSize, after: $skipCursor, orderBy: {field: UPDATED_AT, direction: DESC})"`
 	} `graphql:"repository(owner: $owner, name: $name)"`
 }
 
@@ -97,17 +97,24 @@ func CollectIssue(taskCtx plugin.SubTaskContext) errors.Error {
 		return nil
 	}
 
-	collector, err := helper.NewGraphqlCollector(helper.GraphqlCollectorArgs{
-		RawDataSubTaskArgs: helper.RawDataSubTaskArgs{
-			Ctx: taskCtx,
-			Params: githubTasks.GithubApiParams{
-				ConnectionId: data.Options.ConnectionId,
-				Name:         data.Options.Name,
-			},
-			Table: RAW_ISSUES_TABLE,
+	collectorWithState, err := helper.NewStatefulApiCollector(helper.RawDataSubTaskArgs{
+		Ctx: taskCtx,
+		Params: githubTasks.GithubApiParams{
+			ConnectionId: data.Options.ConnectionId,
+			Name:         data.Options.Name,
 		},
+		Table: RAW_ISSUES_TABLE,
+	}, data.TimeAfter)
+	if err != nil {
+		return err
+	}
+
+	incremental := collectorWithState.IsIncremental()
+
+	err = collectorWithState.InitGraphQLCollector(helper.GraphqlCollectorArgs{
 		GraphqlClient: data.GraphqlClient,
 		PageSize:      100,
+		Incremental:   incremental,
 		BuildQuery: func(reqData *helper.GraphqlRequestData) (interface{}, map[string]interface{}, error) {
 			query := &GraphqlQueryIssueWrapper{}
 			ownerName := strings.Split(data.Options.Name, "/")
@@ -130,7 +137,8 @@ func CollectIssue(taskCtx plugin.SubTaskContext) errors.Error {
 			results := make([]interface{}, 0, 1)
 			isFinish := false
 			for _, issue := range issues {
-				if data.TimeAfter != nil && !data.TimeAfter.Before(issue.CreatedAt) {
+				// collect all data even though in increment mode because of existing data extracting
+				if collectorWithState.TimeAfter != nil && !collectorWithState.TimeAfter.Before(issue.UpdatedAt) {
 					isFinish = true
 					break
 				}
@@ -166,12 +174,11 @@ func CollectIssue(taskCtx plugin.SubTaskContext) errors.Error {
 			}
 		},
 	})
-
 	if err != nil {
 		return err
 	}
 
-	return collector.Execute()
+	return collectorWithState.Execute()
 }
 
 // create a milestone map for numberId to databaseId

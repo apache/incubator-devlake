@@ -101,7 +101,7 @@ func CollectCheckRun(taskCtx plugin.SubTaskContext) errors.Error {
 	db := taskCtx.GetDal()
 	data := taskCtx.GetData().(*githubTasks.GithubTaskData)
 
-	collectorWithState, err := helper.NewApiCollectorWithState(helper.RawDataSubTaskArgs{
+	collectorWithState, err := helper.NewStatefulApiCollector(helper.RawDataSubTaskArgs{
 		Ctx: taskCtx,
 		Params: githubTasks.GithubApiParams{
 			ConnectionId: data.Options.ConnectionId,
@@ -120,9 +120,6 @@ func CollectCheckRun(taskCtx plugin.SubTaskContext) errors.Error {
 		dal.From(models.GithubRun{}.TableName()),
 		dal.Where("repo_id = ? and connection_id=?", data.Options.GithubId, data.Options.ConnectionId),
 		dal.Orderby("github_updated_at DESC"),
-	}
-	if collectorWithState.TimeAfter != nil {
-		clauses = append(clauses, dal.Where("github_created_at > ?", *collectorWithState.TimeAfter))
 	}
 	if incremental {
 		clauses = append(clauses, dal.Where("github_updated_at > ?", *collectorWithState.LatestState.LatestSuccessStart))
@@ -203,7 +200,6 @@ func CollectCheckRun(taskCtx plugin.SubTaskContext) errors.Error {
 			return results, nil
 		},
 	})
-
 	if err != nil {
 		return err
 	}

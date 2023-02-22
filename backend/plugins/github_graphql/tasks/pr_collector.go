@@ -41,7 +41,7 @@ type GraphqlQueryPrWrapper struct {
 			PageInfo   *api.GraphqlQueryPageInfo
 			Prs        []GraphqlQueryPr `graphql:"nodes"`
 			TotalCount graphql.Int
-		} `graphql:"pullRequests(first: $pageSize, after: $skipCursor, orderBy: {field: CREATED_AT, direction: DESC})"`
+		} `graphql:"pullRequests(first: $pageSize, after: $skipCursor, orderBy: {field: UPDATED_AT, direction: DESC})"`
 	} `graphql:"repository(owner: $owner, name: $name)"`
 }
 
@@ -130,31 +130,38 @@ func CollectPr(taskCtx plugin.SubTaskContext) errors.Error {
 	config := data.Options.GithubTransformationRule
 	var labelTypeRegex *regexp.Regexp
 	var labelComponentRegex *regexp.Regexp
-	var err error
+	var err errors.Error
 	if config != nil && len(config.PrType) > 0 {
-		labelTypeRegex, err = regexp.Compile(config.PrType)
+		labelTypeRegex, err = errors.Convert01(regexp.Compile(config.PrType))
 		if err != nil {
 			return errors.Default.Wrap(err, "regexp Compile prType failed")
 		}
 	}
 	if config != nil && len(config.PrComponent) > 0 {
-		labelComponentRegex, err = regexp.Compile(config.PrComponent)
+		labelComponentRegex, err = errors.Convert01(regexp.Compile(config.PrComponent))
 		if err != nil {
 			return errors.Default.Wrap(err, "regexp Compile prComponent failed")
 		}
 	}
 
-	collector, err := api.NewGraphqlCollector(api.GraphqlCollectorArgs{
-		RawDataSubTaskArgs: api.RawDataSubTaskArgs{
-			Ctx: taskCtx,
-			Params: tasks.GithubApiParams{
-				ConnectionId: data.Options.ConnectionId,
-				Name:         data.Options.Name,
-			},
-			Table: RAW_PRS_TABLE,
+	collectorWithState, err := api.NewStatefulApiCollector(api.RawDataSubTaskArgs{
+		Ctx: taskCtx,
+		Params: tasks.GithubApiParams{
+			ConnectionId: data.Options.ConnectionId,
+			Name:         data.Options.Name,
 		},
+		Table: RAW_PRS_TABLE,
+	}, data.TimeAfter)
+	if err != nil {
+		return err
+	}
+
+	incremental := collectorWithState.IsIncremental()
+
+	err = collectorWithState.InitGraphQLCollector(api.GraphqlCollectorArgs{
 		GraphqlClient: data.GraphqlClient,
 		PageSize:      30,
+		Incremental:   incremental,
 		/*
 			(Optional) Return query string for request, or you can plug them into UrlTemplate directly
 		*/
@@ -180,7 +187,8 @@ func CollectPr(taskCtx plugin.SubTaskContext) errors.Error {
 			results := make([]interface{}, 0, 1)
 			isFinish := false
 			for _, rawL := range prs {
-				if data.TimeAfter != nil && !data.TimeAfter.Before(rawL.CreatedAt) {
+				// collect all data even though in increment mode because of existing data extracting
+				if collectorWithState.TimeAfter != nil && !collectorWithState.TimeAfter.Before(rawL.UpdatedAt) {
 					isFinish = true
 					break
 				}
@@ -291,12 +299,11 @@ func CollectPr(taskCtx plugin.SubTaskContext) errors.Error {
 			}
 		},
 	})
-
 	if err != nil {
-		return errors.Convert(err)
+		return err
 	}
 
-	return collector.Execute()
+	return collectorWithState.Execute()
 }
 
 func convertGithubPullRequest(pull GraphqlQueryPr, connId uint64, repoId int) (*models.GithubPullRequest, errors.Error) {
