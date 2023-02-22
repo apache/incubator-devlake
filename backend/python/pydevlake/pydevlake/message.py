@@ -16,6 +16,8 @@
 
 from pydantic import BaseModel
 
+from pydevlake.model import DomainModel
+
 
 class Message(BaseModel):
     pass
@@ -36,6 +38,7 @@ class PluginInfo(Message):
     description: str
     connection_schema: dict
     transformation_rule_schema: dict
+    scope_info: dict
     plugin_path: str
     subtask_metas: list[SubtaskMeta]
     extension: str = "datasource"
@@ -67,6 +70,10 @@ class TransformationRule(Message):
     pass
 
 
+class Scope(Message, DomainModel):
+    pass
+
+
 class PipelineTask(Message):
     plugin: str
     # Do not snake_case this attribute,
@@ -82,12 +89,6 @@ class PipelineStage(Message):
 
 class PipelinePlan(Message):
     stages: list[PipelineStage]
-
-
-class PipelineScope(Message):
-    id: str
-    name: str
-    table_name: str
 
 
 class BlueprintScope(Message):

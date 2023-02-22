@@ -40,10 +40,24 @@ type PluginInfo struct {
 	Extension                PluginExtension `json:"extension"`
 	ConnectionSchema         map[string]any  `json:"connection_schema" validate:"required"`
 	TransformationRuleSchema map[string]any  `json:"transformation_rule_schema" validate:"required"`
+	ScopeInfo                ScopeInfo       `json:"scope_info" validate:"dive"`
 	Description              string          `json:"description"`
 	PluginPath               string          `json:"plugin_path" validate:"required"`
 	ApiEndpoints             []Endpoint      `json:"api_endpoints" validate:"dive"`
 	SubtaskMetas             []SubtaskMeta   `json:"subtask_metas" validate:"dive"`
+}
+
+type ScopeInfo struct {
+	TableName   string         `json:"table_name" validate:"required"`
+	ScopeSchema map[string]any `json:"scope_schema" validate:"required"`
+}
+
+type ScopeModel struct {
+	Id                   string    `gorm:"primaryKey" json:"id"`
+	CreatedAt            time.Time `json:"createdAt"`
+	UpdatedAt            time.Time `json:"updatedAt"`
+	ConnectionId         uint64    `gorm:"primaryKey" json:"connection_id"`
+	TransformationRuleId uint64    `json:"transformation_rule_id"`
 }
 
 type TransformationModel struct {

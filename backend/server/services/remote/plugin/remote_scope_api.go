@@ -26,6 +26,13 @@ import (
 	"github.com/apache/incubator-devlake/server/services/remote/bridge"
 )
 
+type ScopeItem struct {
+	ScopeId              string `json:"scopeId"`
+	ScopeName            string `json:"scopeName"`
+	ConnectionId         uint64 `json:"connectionId"`
+	TransformationRuleId uint64 `json:"transformationRuleId,omitempty"`
+}
+
 type RemoteScopesOutput struct {
 	Children []ScopeItem `json:"children"`
 }

@@ -28,6 +28,7 @@ type pluginAPI struct {
 	invoker    bridge.Invoker
 	connType   *models.DynamicTabler
 	txRuleType *models.DynamicTabler
+	scopeType  *models.DynamicTabler
 	helper     *api.ConnectionApiHelper
 }
 
@@ -35,11 +36,13 @@ func GetDefaultAPI(
 	invoker bridge.Invoker,
 	connType *models.DynamicTabler,
 	txRuleType *models.DynamicTabler,
+	scopeType *models.DynamicTabler,
 	helper *api.ConnectionApiHelper) map[string]map[string]plugin.ApiResourceHandler {
 	papi := &pluginAPI{
 		invoker:    invoker,
 		connType:   connType,
 		txRuleType: txRuleType,
+		scopeType:  scopeType,
 		helper:     helper,
 	}
 
@@ -60,7 +63,7 @@ func GetDefaultAPI(
 			"PUT": papi.PutScope,
 			"GET": papi.ListScopes,
 		},
-		"connections/:connectionId/scopes/*scopeId": {
+		"connections/:connectionId/scopes/:scopeId": {
 			"GET":   papi.GetScope,
 			"PATCH": papi.PatchScope,
 		},

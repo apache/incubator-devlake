@@ -43,7 +43,7 @@ class FakePipeline(ToolModel, table=True):
 
 class FakeStream(Stream):
     tool_model = FakePipeline
-    domain_types = [DomainType.CROSS]
+    domain_types = [DomainType.CICD]
 
     fake_pipelines = [
         FakePipeline(id=1, project=VALID_PROJECT, state=FakePipeline.State.SUCCESS, started_at=datetime(2023, 1, 10, 11, 0, 0), finished_at=datetime(2023, 1, 10, 11, 3, 0)),
@@ -103,8 +103,11 @@ class FakePlugin(Plugin):
     def connection_type(self):
         return FakeConnection
 
+    @property
+    def scope_type(self):
+        return CICDScope
+
     def get_scopes(self, scope_name: str, connection: FakeConnection):
-        assert connection
         yield CICDScope(
             id=1,
             name=scope_name,

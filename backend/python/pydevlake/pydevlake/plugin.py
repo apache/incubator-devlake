@@ -55,6 +55,11 @@ class Plugin:
         pass
 
     @property
+    @abstractmethod
+    def scope_type(self) -> Type[msg.Scope]:
+        pass
+
+    @property
     def transformation_rule_type(self) -> Type[msg.TransformationRule]:
         return msg.TransformationRule
 
@@ -71,7 +76,7 @@ class Plugin:
         return [subtask for stream in self._streams.values() for subtask in stream.subtasks]
 
     @abstractmethod
-    def get_scopes(self, scope_name: str, connection: msg.Connection) -> Iterable[DomainModel]:
+    def get_scopes(self, scope_name: str, connection: msg.Connection) -> Iterable[msg.Scope]:
         pass
 
     @abstractmethod
@@ -119,11 +124,7 @@ class Plugin:
         yield plan
 
         scopes = [
-            msg.PipelineScope(
-                id=':'.join([self.name, type(scope).__name__, ctx.connection_id, bp_scope.id]),
-                name=bp_scope.name,
-                table_name=scope.__tablename__
-            )
+            scope
             for bp_scope in scopes
             for scope in self.get_scopes(bp_scope.name, ctx.connection)
         ]
@@ -148,7 +149,7 @@ class Plugin:
         if resp.status_code != 200:
             raise Exception(f"unexpected http status code {resp.status_code}: {resp.content}")
 
-    def plugin_info(self):
+    def plugin_info(self) -> msg.PluginInfo:
         subtask_metas = [
             msg.SubtaskMeta(
                 name=subtask.name,
@@ -161,7 +162,6 @@ class Plugin:
             )
             for subtask in self.subtasks
         ]
-
         return msg.PluginInfo(
             name=self.name,
             description=self.description,
@@ -169,6 +169,10 @@ class Plugin:
             extension="datasource",
             connection_schema=self.connection_type.schema(),
             transformation_rule_schema=self.transformation_rule_type.schema(),
+            scope_info={
+                'table_name': self.scope_type.__tablename__,
+                'scope_schema': self.scope_type.schema(),
+            },
             subtask_metas=subtask_metas
         )
 
