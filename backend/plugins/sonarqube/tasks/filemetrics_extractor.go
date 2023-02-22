@@ -58,9 +58,15 @@ func ExtractFilemetrics(taskCtx plugin.SubTaskContext) errors.Error {
 			for _, v := range body.Measures {
 				switch v.Metric {
 				case "sqale_index":
-					fileMetrics.SqaleIndex = v.Value
+					fileMetrics.SqaleIndex, err = errors.Convert01(strconv.Atoi(v.Value))
+					if err != nil {
+						return nil, err
+					}
 				case "sqale_rating":
-					fileMetrics.SqaleRating = v.Value
+					fileMetrics.SqaleRating, err = errors.Convert01(strconv.ParseFloat(v.Value, 32))
+					if err != nil {
+						return nil, err
+					}
 				case "reliability_rating":
 					fileMetrics.ReliabilityRating = alphabetMap[v.Value]
 				case "security_rating":

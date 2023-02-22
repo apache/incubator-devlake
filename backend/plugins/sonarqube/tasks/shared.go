@@ -18,11 +18,15 @@ limitations under the License.
 package tasks
 
 import (
+	"encoding/hex"
+	"fmt"
 	"github.com/apache/incubator-devlake/core/errors"
 	"github.com/apache/incubator-devlake/core/plugin"
 	"github.com/apache/incubator-devlake/helpers/pluginhelper/api"
 	"github.com/apache/incubator-devlake/plugins/sonarqube/models"
+	"hash"
 	"net/http"
+	"unicode"
 )
 
 func CreateRawDataSubTaskArgs(taskCtx plugin.SubTaskContext, rawTable string) (*api.RawDataSubTaskArgs, *SonarqubeTaskData) {
@@ -84,4 +88,42 @@ func ConvertProject(sonarqubeApiProject *SonarqubeApiProject) *models.SonarqubeP
 		Revision:         sonarqubeApiProject.Revision,
 	}
 	return sonarqubeProject
+}
+
+func generateId(hashCodeBlock hash.Hash, entity *models.SonarqubeIssueCodeBlock) {
+	hashCodeBlock.Write([]byte(fmt.Sprintf("%s-%s-%d-%d-%d-%d-%s", entity.IssueKey, entity.Component, entity.StartLine, entity.EndLine, entity.StartOffset, entity.EndOffset, entity.Msg)))
+	entity.Id = hex.EncodeToString(hashCodeBlock.Sum(nil))
+}
+
+func convertTimeToMinutes(timeStr string) int {
+	days := 0
+	hours := 0
+	minutes := 0
+
+	var currentNum int
+	var currentUnit string
+
+	for i := 0; i < len(timeStr); i++ {
+		c := timeStr[i]
+
+		if unicode.IsDigit(rune(c)) {
+			currentNum = currentNum*10 + int(c-'0')
+		} else {
+			currentUnit += string(c)
+			if currentUnit == "d" {
+				days = currentNum
+			} else if currentUnit == "h" {
+				hours = currentNum
+			} else if currentUnit == "min" {
+				minutes = currentNum
+			} else {
+				continue
+			}
+			currentNum = 0
+			currentUnit = ""
+		}
+	}
+
+	totalMinutes := days*24*60 + hours*60 + minutes
+	return totalMinutes
 }

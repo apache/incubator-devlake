@@ -32,8 +32,8 @@ type SonarqubeIssue struct {
 	Line         int
 	Status       string
 	Message      string
-	Debt         string
-	Effort       string
+	Debt         int
+	Effort       int
 	Author       string
 	Hash         string
 	Tags         string
