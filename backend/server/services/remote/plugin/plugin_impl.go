@@ -23,6 +23,7 @@ import (
 	"github.com/apache/incubator-devlake/core/dal"
 	"github.com/apache/incubator-devlake/core/errors"
 	coreModels "github.com/apache/incubator-devlake/core/models"
+	"github.com/apache/incubator-devlake/core/models/common"
 	"github.com/apache/incubator-devlake/core/plugin"
 	"github.com/apache/incubator-devlake/helpers/pluginhelper/api"
 	"github.com/apache/incubator-devlake/server/services/remote/bridge"
@@ -52,17 +53,16 @@ type (
 
 func newPlugin(info *models.PluginInfo, invoker bridge.Invoker) (*remotePluginImpl, errors.Error) {
 	connectionTableName := fmt.Sprintf("_tool_%s_connections", info.Name)
-	connectionTabler, err := models.LoadTableModel(connectionTableName, info.ConnectionSchema)
+	connectionTabler, err := models.LoadTableModel(connectionTableName, info.ConnectionSchema, true, common.Model{})
 	if err != nil {
 		return nil, err
 	}
 
 	txRuleTableName := fmt.Sprintf("_tool_%s_transformation_rules", info.Name)
-	txRuleTabler, err := models.LoadTableModel(txRuleTableName, info.TransformationRuleSchema)
+	txRuleTabler, err := models.LoadTableModel(txRuleTableName, info.TransformationRuleSchema, false, models.TransformationModel{})
 	if err != nil {
 		return nil, err
 	}
-
 	p := remotePluginImpl{
 		name:                     info.Name,
 		invoker:                  invoker,
@@ -94,13 +94,13 @@ func (p *remotePluginImpl) PrepareTaskData(taskCtx plugin.TaskContext, options m
 	dbUrl := taskCtx.GetConfig("db_url")
 	connectionId := uint64(options["connectionId"].(float64))
 
-	connectionHelper := api.NewConnectionHelper(
+	helper := api.NewConnectionHelper(
 		taskCtx,
 		nil,
 	)
 
 	connection := p.connectionTabler.New()
-	err := connectionHelper.FirstById(connection, connectionId)
+	err := helper.FirstById(connection, connectionId)
 	if err != nil {
 		return nil, errors.Convert(err)
 	}
@@ -119,7 +119,6 @@ func (p *remotePluginImpl) PrepareTaskData(taskCtx plugin.TaskContext, options m
 			return nil, errors.BadInput.New("invalid transformation rule id")
 		}
 	}
-
 	return RemotePluginTaskData{
 		DbUrl:              dbUrl,
 		ScopeId:            scopeId,
@@ -162,4 +161,3 @@ func (p *remotePluginImpl) RunMigrations(forceMigrate bool) errors.Error {
 }
 
 var _ models.RemotePlugin = (*remotePluginImpl)(nil)
-var _ plugin.Scope = (*models.WrappedPipelineScope)(nil)

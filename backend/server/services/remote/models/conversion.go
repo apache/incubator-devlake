@@ -24,18 +24,17 @@ import (
 
 	"github.com/apache/incubator-devlake/core/errors"
 	"github.com/apache/incubator-devlake/core/models"
-	"github.com/apache/incubator-devlake/core/models/common"
 )
 
-func LoadTableModel(tableName string, schema map[string]any) (*models.DynamicTabler, errors.Error) {
-	structType, err := GenerateStructType(schema, reflect.TypeOf(common.Model{}))
+func LoadTableModel(tableName string, schema map[string]any, encrypt bool, parentModel any) (*models.DynamicTabler, errors.Error) {
+	structType, err := GenerateStructType(schema, encrypt, reflect.TypeOf(parentModel))
 	if err != nil {
 		return nil, err
 	}
 	return models.NewDynamicTabler(tableName, structType), nil
 }
 
-func GenerateStructType(schema map[string]any, baseType reflect.Type) (reflect.Type, errors.Error) {
+func GenerateStructType(schema map[string]any, encrypt bool, baseType reflect.Type) (reflect.Type, errors.Error) {
 	var structFields []reflect.StructField
 	propsRaw, ok := schema["properties"]
 	if !ok {
@@ -56,7 +55,7 @@ func GenerateStructType(schema map[string]any, baseType reflect.Type) (reflect.T
 	}
 	for k, v := range props {
 		spec := v.(map[string]any)
-		field, err := generateStructField(k, spec)
+		field, err := generateStructField(k, encrypt, spec)
 		if err != nil {
 			return nil, err
 		}
@@ -65,19 +64,21 @@ func GenerateStructType(schema map[string]any, baseType reflect.Type) (reflect.T
 	return reflect.StructOf(structFields), nil
 }
 
-func generateStructField(name string, schema map[string]any) (*reflect.StructField, errors.Error) {
-	tag := reflect.StructTag(fmt.Sprintf("json:\"%s\" "+
-		"gorm:\"serializer:encdec\"", //just encrypt everything for GORM operations - makes things easy
-		name))
+func generateStructField(name string, encrypt bool, schema map[string]any) (*reflect.StructField, errors.Error) {
 	goType, err := getGoType(schema)
 	if err != nil {
 		return nil, err
 	}
-	return &reflect.StructField{
+	sf := &reflect.StructField{
 		Name: strings.Title(name), //nolint:staticcheck
 		Type: goType,
-		Tag:  tag,
-	}, nil
+	}
+	if encrypt {
+		sf.Tag = reflect.StructTag(fmt.Sprintf("json:\"%s\" "+
+			"gorm:\"serializer:encdec\"", //just encrypt everything for GORM operations - makes things easy
+			name))
+	}
+	return sf, nil
 }
 
 func getGoType(schema map[string]any) (reflect.Type, errors.Error) {
@@ -90,6 +91,8 @@ func getGoType(schema map[string]any) (reflect.Type, errors.Error) {
 	//TODO: support more types
 	case "integer":
 		goType = reflect.TypeOf(uint64(0))
+	case "boolean":
+		goType = reflect.TypeOf(false)
 	case "string":
 		//TODO: distinguish stypes based on string format
 		goType = reflect.TypeOf("")

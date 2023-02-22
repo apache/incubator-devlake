@@ -17,6 +17,10 @@ limitations under the License.
 
 package models
 
+import (
+	"time"
+)
+
 const (
 	PythonPoetryCmd PluginType      = "python-poetry"
 	PythonCmd       PluginType      = "python"
@@ -40,6 +44,13 @@ type PluginInfo struct {
 	PluginPath               string          `json:"plugin_path" validate:"required"`
 	ApiEndpoints             []Endpoint      `json:"api_endpoints" validate:"dive"`
 	SubtaskMetas             []SubtaskMeta   `json:"subtask_metas" validate:"dive"`
+}
+
+type TransformationModel struct {
+	Id        uint64    `gorm:"primaryKey" json:"id"`
+	CreatedAt time.Time `json:"createdAt"`
+	UpdatedAt time.Time `json:"updatedAt"`
+	Name      string
 }
 
 type SubtaskMeta struct {
