@@ -95,6 +95,7 @@ func (p Bamboo) SubTaskMetas() []plugin.SubTaskMeta {
 		tasks.CollectJobBuildMeta,
 		tasks.ExtractJobBuildMeta,
 		tasks.CollectDeployMeta,
+		tasks.ExtractDeployMeta,
 		tasks.ConvertProjectsMeta,
 	}
 }

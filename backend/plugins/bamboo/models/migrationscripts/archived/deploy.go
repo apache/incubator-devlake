@@ -15,9 +15,19 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-package models
+package archived
 
-import "github.com/apache/incubator-devlake/core/models/common"
+import "github.com/apache/incubator-devlake/core/models/migrationscripts/archived"
+
+type ApiBambooOperations struct {
+	CanView                   bool `json:"canView"`
+	CanEdit                   bool `json:"canEdit"`
+	CanDelete                 bool `json:"canDelete"`
+	AllowedToExecute          bool `json:"allowedToExecute"`
+	CanExecute                bool `json:"canExecute"`
+	AllowedToCreateVersion    bool `json:"allowedToCreateVersion"`
+	AllowedToSetVersionStatus bool `json:"allowedToSetVersionStatus"`
+}
 
 type BambooDeployEnvironment struct {
 	ConnectionId        uint64 `gorm:"primaryKey"`
@@ -31,42 +41,9 @@ type BambooDeployEnvironment struct {
 	ConfigurationState  string `json:"configurationState"`
 
 	ApiBambooOperations
-	common.NoPKModel
-}
-
-func (b *BambooDeployEnvironment) Convert(apiEnv *ApiBambooEnvironment) {
-	b.ID = apiEnv.ID
-	b.Key = apiEnv.Key.Key
-	b.Name = apiEnv.Name
-	b.Description = apiEnv.Description
-	b.DeploymentProjectId = apiEnv.DeploymentProjectId
-	b.Position = apiEnv.Position
-	b.ConfigurationState = apiEnv.ConfigurationState
-	b.ApiBambooOperations = apiEnv.Operations
+	archived.NoPKModel
 }
 
 func (BambooDeployEnvironment) TableName() string {
 	return "_tool_bamboo_deploy_environment"
-}
-
-type ApiBambooEnvironment struct {
-	ID                  uint64              `json:"id"`
-	Key                 ApiBambooKey        `json:"key"`
-	Name                string              `json:"name"`
-	Description         string              `json:"description"`
-	DeploymentProjectId uint64              `json:"deploymentProjectId"`
-	Operations          ApiBambooOperations `json:"operations"`
-	Position            uint64              `json:"position"`
-	ConfigurationState  string              `json:"configurationState"`
-}
-
-type ApiBambooDeployProject struct {
-	ID           uint64                 `json:"id"`
-	OID          string                 `json:"oid"`
-	Key          ApiBambooKey           `json:"key"`
-	Name         string                 `json:"name"`
-	PlanKey      ApiBambooKey           `json:"planKey"`
-	Description  string                 `json:"description"`
-	Environments []ApiBambooEnvironment `json:"environments"`
-	Operations   ApiBambooOperations    `json:"operations"`
 }
