@@ -19,6 +19,10 @@ package api
 
 import (
 	"fmt"
+	"net/http"
+	"net/url"
+	"time"
+
 	"github.com/apache/incubator-devlake/core/dal"
 	"github.com/apache/incubator-devlake/core/errors"
 	"github.com/apache/incubator-devlake/core/models/domainlayer"
@@ -30,9 +34,6 @@ import (
 	aha "github.com/apache/incubator-devlake/helpers/pluginhelper/api/apihelperabstract"
 	"github.com/apache/incubator-devlake/plugins/sonarqube/models"
 	"github.com/apache/incubator-devlake/plugins/sonarqube/tasks"
-	"net/http"
-	"net/url"
-	"time"
 )
 
 func MakeDataSourcePipelinePlanV200(subtaskMetas []plugin.SubTaskMeta, connectionId uint64, bpScopes []*plugin.BlueprintScopeV200, syncPolicy *plugin.BlueprintSyncPolicy) (plugin.PipelinePlan, []plugin.Scope, errors.Error) {
@@ -65,8 +66,8 @@ func makeDataSourcePipelinePlanV200(
 		options := make(map[string]interface{})
 		options["connectionId"] = connectionId
 		options["projectKey"] = bpScope.Id
-		if syncPolicy.CreatedDateAfter != nil {
-			options["createdDateAfter"] = syncPolicy.CreatedDateAfter.Format(time.RFC3339)
+		if syncPolicy.TimeAfter != nil {
+			options["timeAfter"] = syncPolicy.TimeAfter.Format(time.RFC3339)
 		}
 
 		subtasks, err := helper.MakePipelinePlanSubtasks(subtaskMetas, bpScope.Entities)

@@ -37,7 +37,7 @@ func CollectAccounts(taskCtx plugin.SubTaskContext) errors.Error {
 	logger := taskCtx.GetLogger()
 	logger.Info("collect accounts")
 
-	collectorWithState, err := helper.NewApiCollectorWithState(*rawDataSubTaskArgs, data.CreatedDateAfter)
+	collectorWithState, err := helper.NewApiCollectorWithState(*rawDataSubTaskArgs, data.TimeAfter)
 	if err != nil {
 		return err
 	}

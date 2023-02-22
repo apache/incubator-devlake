@@ -20,11 +20,12 @@ package tasks
 import (
 	"encoding/json"
 	"fmt"
+	"net/http"
+	"net/url"
+
 	"github.com/apache/incubator-devlake/core/errors"
 	"github.com/apache/incubator-devlake/core/plugin"
 	helper "github.com/apache/incubator-devlake/helpers/pluginhelper/api"
-	"net/http"
-	"net/url"
 )
 
 const RAW_ISSUES_TABLE = "sonarqube_issues"
@@ -35,7 +36,7 @@ func CollectIssues(taskCtx plugin.SubTaskContext) (err errors.Error) {
 	rawDataSubTaskArgs, data := CreateRawDataSubTaskArgs(taskCtx, RAW_ISSUES_TABLE)
 	logger := taskCtx.GetLogger()
 	logger.Info("collect issues")
-	collectorWithState, err := helper.NewApiCollectorWithState(*rawDataSubTaskArgs, data.CreatedDateAfter)
+	collectorWithState, err := helper.NewApiCollectorWithState(*rawDataSubTaskArgs, data.TimeAfter)
 	if err != nil {
 		return err
 	}

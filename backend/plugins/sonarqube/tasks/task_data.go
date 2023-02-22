@@ -18,9 +18,10 @@ limitations under the License.
 package tasks
 
 import (
+	"time"
+
 	"github.com/apache/incubator-devlake/core/errors"
 	"github.com/apache/incubator-devlake/helpers/pluginhelper/api"
-	"time"
 )
 
 type SonarqubeApiParams struct {
@@ -32,17 +33,17 @@ type SonarqubeOptions struct {
 	// options means some custom params required by plugin running.
 	// Such As How many rows do your want
 	// You can use it in subtasks, and you need to pass it to main.go and pipelines.
-	ConnectionId     uint64   `json:"connectionId"`
-	ProjectKey       string   `json:"projectKey"`
-	CreatedDateAfter string   `json:"createdDateAfter" mapstructure:"createdDateAfter,omitempty"`
-	Tasks            []string `json:"tasks,omitempty"`
+	ConnectionId uint64   `json:"connectionId"`
+	ProjectKey   string   `json:"projectKey"`
+	TimeAfter    string   `json:"timeAfter" mapstructure:"timeAfter,omitempty"`
+	Tasks        []string `json:"tasks,omitempty"`
 }
 
 type SonarqubeTaskData struct {
 	Options          *SonarqubeOptions
 	ApiClient        *api.ApiAsyncClient
 	LastAnalysisDate *time.Time
-	CreatedDateAfter *time.Time
+	TimeAfter        *time.Time
 }
 
 func DecodeAndValidateTaskOptions(options map[string]interface{}) (*SonarqubeOptions, errors.Error) {
