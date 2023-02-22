@@ -22,6 +22,7 @@ import (
 	"github.com/apache/incubator-devlake/core/plugin"
 	"github.com/apache/incubator-devlake/helpers/pluginhelper/api"
 	"github.com/apache/incubator-devlake/plugins/bamboo/models"
+	"gorm.io/datatypes"
 )
 
 func CreateRawDataSubTaskArgs(taskCtx plugin.SubTaskContext, rawTable string) (*api.RawDataSubTaskArgs, *BambooTaskData) {
@@ -47,4 +48,16 @@ func GetTotalPagesFromSizeInfo(sizeInfo *models.ApiBambooSizeData, args *api.Api
 		pages++
 	}
 	return pages, nil
+}
+
+func getRepoMap(rawRepoMap datatypes.JSONMap) map[int]string {
+	repoMap := make(map[int]string)
+	for k, v := range rawRepoMap {
+		if list, ok := v.([]interface{}); ok {
+			for _, id := range list {
+				repoMap[int(id.(float64))] = k
+			}
+		}
+	}
+	return repoMap
 }

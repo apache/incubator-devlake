@@ -57,7 +57,7 @@ func ExtractJobBuild(taskCtx plugin.SubTaskContext) errors.Error {
 			for _, v := range res.VcsRevisions.VcsRevision {
 				results = append(results, &models.BambooPlanBuildVcsRevision{
 					ConnectionId:   data.Options.ConnectionId,
-					PlanBuildKey:   body.PlanKey,
+					PlanBuildKey:   body.PlanBuildKey,
 					RepositoryId:   v.RepositoryId,
 					RepositoryName: v.RepositoryName,
 					VcsRevisionKey: v.VcsRevisionKey,
@@ -80,16 +80,3 @@ var ExtractJobBuildMeta = plugin.SubTaskMeta{
 	Description:      "Extract raw data into tool layer table bamboo_plan_builds",
 	DomainTypes:      []string{plugin.DOMAIN_TYPE_CICD},
 }
-
-// will be used in next pr
-//func getRepoMap(rawRepoMap datatypes.JSONMap) map[int]string {
-//	repoMap := make(map[int]string)
-//	for k, v := range rawRepoMap {
-//		if list, ok := v.([]int); ok {
-//			for _, id := range list {
-//				repoMap[id] = k
-//			}
-//		}
-//	}
-//	return repoMap
-//}
