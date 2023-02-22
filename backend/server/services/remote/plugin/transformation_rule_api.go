@@ -23,17 +23,12 @@ import (
 
 	"github.com/apache/incubator-devlake/core/dal"
 	"github.com/apache/incubator-devlake/core/errors"
-	"github.com/apache/incubator-devlake/core/models"
 	"github.com/apache/incubator-devlake/core/plugin"
 	"github.com/apache/incubator-devlake/helpers/pluginhelper/api"
 )
 
-type TransformationRuleAPI struct {
-	txRuleType *models.DynamicTabler
-}
-
-func (t *TransformationRuleAPI) PostTransformationRules(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, errors.Error) {
-	txRule := t.txRuleType.New()
+func (pa *pluginAPI) PostTransformationRules(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, errors.Error) {
+	txRule := pa.txRuleType.New()
 	err := api.Decode(input.Body, txRule, vld)
 	if err != nil {
 		return nil, errors.BadInput.Wrap(err, "error in decoding transformation rule")
@@ -46,13 +41,13 @@ func (t *TransformationRuleAPI) PostTransformationRules(input *plugin.ApiResourc
 	return &plugin.ApiResourceOutput{Body: txRule.Unwrap(), Status: http.StatusOK}, nil
 }
 
-func (t *TransformationRuleAPI) PatchTransformationRule(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, errors.Error) {
+func (pa *pluginAPI) PatchTransformationRule(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, errors.Error) {
 	id, err := strconv.ParseUint(input.Params["id"], 10, 64)
 	if err != nil {
 		return nil, errors.Default.Wrap(err, "id should be an integer")
 	}
 
-	txRule := t.txRuleType.New()
+	txRule := pa.txRuleType.New()
 	db := basicRes.GetDal()
 	err = api.CallDB(db.First, txRule, dal.Where("id = ?", id))
 	if err != nil {
@@ -67,8 +62,8 @@ func (t *TransformationRuleAPI) PatchTransformationRule(input *plugin.ApiResourc
 	return &plugin.ApiResourceOutput{Body: txRule.Unwrap(), Status: http.StatusOK}, nil
 }
 
-func (t *TransformationRuleAPI) GetTransformationRule(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, errors.Error) {
-	txRule := t.txRuleType.New()
+func (pa *pluginAPI) GetTransformationRule(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, errors.Error) {
+	txRule := pa.txRuleType.New()
 	db := basicRes.GetDal()
 	err := api.CallDB(db.First, txRule, dal.Where("id = ?", input.Params))
 	if err != nil {
@@ -78,8 +73,8 @@ func (t *TransformationRuleAPI) GetTransformationRule(input *plugin.ApiResourceI
 	return &plugin.ApiResourceOutput{Body: txRule.Unwrap()}, nil
 }
 
-func (t *TransformationRuleAPI) ListTransformationRules(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, errors.Error) {
-	txRules := t.txRuleType.NewSlice()
+func (pa *pluginAPI) ListTransformationRules(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, errors.Error) {
+	txRules := pa.txRuleType.NewSlice()
 	limit, offset := api.GetLimitOffset(input.Query, "pageSize", "page")
 	if limit > 100 {
 		return nil, errors.BadInput.New("pageSize cannot exceed 100")

@@ -19,7 +19,7 @@ from typing import Optional
 
 from sqlmodel import Field
 
-from pydevlake import Plugin, Connection, TransformationRule, Stream, ToolModel
+from pydevlake import Plugin, Connection, TransformationRule, Stream, ToolModel, RemoteScope
 from pydevlake.domain_layer.devops import CICDScope, CICDPipeline
 
 
@@ -74,7 +74,7 @@ class FakeStream(Stream):
                 return CICDPipeline.Status.DONE
             case _:
                 return CICDPipeline.Status.IN_PROGRESS
-            
+
     def convert_result(self, state: FakePipeline.State):
         match state:
             case FakePipeline.State.SUCCESS:
@@ -82,7 +82,7 @@ class FakeStream(Stream):
             case FakePipeline.State.FAILURE:
                 return CICDPipeline.Status.FAILURE
             case _:
-                return None            
+                return None
 
     def duration(self, pipeline: FakePipeline):
         if pipeline.finished_at:
@@ -111,10 +111,16 @@ class FakePlugin(Plugin):
             url=f"http://fake.org/api/project/{scope_name}"
         )
 
+    def remote_scopes(self, connection: FakeConnection, query: str = ''):
+        yield RemoteScope(
+            id='test',
+            name='Not a real scope'
+        )
+
     def test_connection(self, connection: FakeConnection):
         if connection.token != VALID_TOKEN:
             raise Exception("Invalid token")
-        
+
     @property
     def streams(self):
         return [

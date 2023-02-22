@@ -82,6 +82,11 @@ class PluginCommands:
     def plugin_info(self):
         return self._plugin.plugin_info()
 
+    @plugin_method
+    def remote_scopes(self, connection: dict, query: str = ''):
+        c = self._plugin.connection_type(**connection)
+        self.plugin.remote_scopes(c, query)
+
     def startup(self, endpoint: str):
         self._plugin.startup(endpoint)
 
