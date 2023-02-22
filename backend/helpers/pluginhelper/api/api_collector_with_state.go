@@ -200,7 +200,7 @@ func NewStatefulApiCollectorForFinalizableEntity(args FinalizableApiCollectorArg
 			}
 
 			// time filter or diff sync
-			if createdAfter != nil {
+			if createdAfter != nil && args.CollectNewRecordsByList.GetCreated != nil {
 				// if the first record of the page was created before createdAfter, return emtpy set and stop
 				firstCreated, err := args.CollectNewRecordsByList.GetCreated(items[0])
 				if err != nil {
@@ -286,6 +286,7 @@ type FinalizableApiCollectorCommonArgs struct {
 	Method          string
 }
 type FinalizableApiCollectorListArgs struct {
+	// optional, leave it be `nil` if API supports filtering by created date (Don't forget to set the Query)
 	GetCreated func(item json.RawMessage) (time.Time, errors.Error)
 	FinalizableApiCollectorCommonArgs
 	Concurrency           int
