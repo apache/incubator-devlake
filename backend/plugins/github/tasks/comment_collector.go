@@ -32,7 +32,7 @@ const RAW_COMMENTS_TABLE = "github_api_comments"
 
 func CollectApiComments(taskCtx plugin.SubTaskContext) errors.Error {
 	data := taskCtx.GetData().(*GithubTaskData)
-	collectorWithState, err := helper.NewApiCollectorWithState(helper.RawDataSubTaskArgs{
+	collectorWithState, err := helper.NewStatefulApiCollector(helper.RawDataSubTaskArgs{
 		Ctx: taskCtx,
 		Params: GithubApiParams{
 			ConnectionId: data.Options.ConnectionId,
@@ -54,7 +54,6 @@ func CollectApiComments(taskCtx plugin.SubTaskContext) errors.Error {
 		Query: func(reqData *helper.RequestData) (url.Values, errors.Error) {
 			query := url.Values{}
 			query.Set("state", "all")
-			// if data.CreatedDateAfter != nil, we set since once
 			if data.TimeAfter != nil {
 				// Note that `since` is for filtering records by the `updated` time
 				// which is not ideal for semantic reasons and would result in slightly more records than expected.
