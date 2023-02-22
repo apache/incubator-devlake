@@ -18,5 +18,5 @@ from .model import ToolModel
 from .logger import logger
 from .message import Connection, TransformationRule, RemoteScope
 from .plugin import Plugin
-from .stream import Stream, Substream
+from .stream import DomainType, Stream, Substream
 from .context import Context

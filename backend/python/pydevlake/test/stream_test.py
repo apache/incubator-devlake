@@ -19,7 +19,7 @@ import json
 import pytest
 from sqlmodel import Session, Field
 
-from pydevlake import Stream, Connection, Context
+from pydevlake import Stream, Connection, Context, DomainType
 from pydevlake.model import ToolModel, DomainModel
 
 
@@ -34,7 +34,7 @@ class DummyDomainModel(DomainModel, table=True):
 
 class DummyStream(Stream):
     tool_model=DummyToolModel
-    domain_model=DummyDomainModel
+    domain_types=[DomainType.CROSS]
 
     def collect(self, state, context):
         for i, each in enumerate(context.connection.raw_data):

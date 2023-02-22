@@ -157,7 +157,7 @@ class Plugin:
                 required=True,
                 enabled_by_default=True,
                 description=subtask.description,
-                domain_types=[dm.__name__ for dm in subtask.stream.domain_models]
+                domain_types=[dm.value for dm in subtask.stream.domain_types]
             )
             for subtask in self.subtasks
         ]

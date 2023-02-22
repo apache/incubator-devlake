@@ -19,7 +19,7 @@ from typing import Optional
 
 from sqlmodel import Field
 
-from pydevlake import Plugin, Connection, TransformationRule, Stream, ToolModel, RemoteScope
+from pydevlake import Plugin, Connection, TransformationRule, Stream, ToolModel, RemoteScope, DomainType
 from pydevlake.domain_layer.devops import CICDScope, CICDPipeline
 
 
@@ -43,7 +43,7 @@ class FakePipeline(ToolModel, table=True):
 
 class FakeStream(Stream):
     tool_model = FakePipeline
-    domain_model = CICDPipeline
+    domain_types = [DomainType.CROSS]
 
     fake_pipelines = [
         FakePipeline(id=1, project=VALID_PROJECT, state=FakePipeline.State.SUCCESS, started_at=datetime(2023, 1, 10, 11, 0, 0), finished_at=datetime(2023, 1, 10, 11, 3, 0)),
