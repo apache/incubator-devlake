@@ -19,13 +19,13 @@ package archived
 
 type CqFileMetrics struct {
 	DomainEntity
-	ProjectKey               string  `gorm:"index;type:varchar(255)"` //domain project key
-	FileName                 string  `json:"file_name"`
-	FilePath                 string  `json:"file_path"`
-	FileLanguage             string  `json:"file_language"`
-	CodeSmells               int     `json:"code_smells"`
-	SqaleIndex               string  `json:"sqale_index"`
-	SqaleRating              string  `json:"sqale_rating"`
+	ProjectKey               string `gorm:"index;type:varchar(255)"` //domain project key
+	FileName                 string `json:"file_name"`
+	FilePath                 string `json:"file_path"`
+	FileLanguage             string `json:"file_language"`
+	CodeSmells               int    `json:"code_smells"`
+	SqaleIndex               int
+	SqaleRating              float64
 	Bugs                     int     `json:"bugs"`
 	ReliabilityRating        string  `json:"reliability_rating"`
 	Vulnerabilities          int     `json:"vulnerabilities"`

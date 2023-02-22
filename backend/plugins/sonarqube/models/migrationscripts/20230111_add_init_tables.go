@@ -27,6 +27,17 @@ import (
 type addInitTables struct{}
 
 func (*addInitTables) Up(basicRes context.BasicRes) errors.Error {
+	err := basicRes.GetDal().DropTables(
+		&archived.SonarqubeProject{},
+		&archived.SonarqubeHotspot{},
+		&archived.SonarqubeIssue{},
+		&archived.SonarqubeFileMetrics{},
+		&archived.SonarqubeIssueCodeBlock{},
+		&archived.SonarqubeAccount{},
+	)
+	if err != nil {
+		return err
+	}
 	return migrationhelper.AutoMigrateTables(
 		basicRes,
 		&archived.SonarqubeConnection{},
@@ -40,7 +51,7 @@ func (*addInitTables) Up(basicRes context.BasicRes) errors.Error {
 }
 
 func (*addInitTables) Version() uint64 {
-	return 20230208220025
+	return 20230221220030
 }
 
 func (*addInitTables) Name() string {

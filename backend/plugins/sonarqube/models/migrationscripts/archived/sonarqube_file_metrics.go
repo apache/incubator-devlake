@@ -29,8 +29,8 @@ type SonarqubeFileMetrics struct {
 	FilePath                 string
 	FileLanguage             string
 	CodeSmells               int
-	SqaleIndex               string
-	SqaleRating              string
+	SqaleIndex               int
+	SqaleRating              float64
 	Bugs                     int
 	ReliabilityRating        string
 	Vulnerabilities          int
