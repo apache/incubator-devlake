@@ -126,6 +126,7 @@ func (p *remotePluginImpl) PrepareTaskData(taskCtx plugin.TaskContext, options m
 		ConnectionId:       connectionId,
 		Connection:         connection.Unwrap(),
 		TransformationRule: txRule,
+		Options:            options,
 	}, nil
 }
 

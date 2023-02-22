@@ -19,17 +19,18 @@ package test
 
 import (
 	"fmt"
+	"os"
+	"os/exec"
+	"path/filepath"
+	"testing"
+	"time"
+
 	"github.com/apache/incubator-devlake/core/models"
 	"github.com/apache/incubator-devlake/core/plugin"
 	"github.com/apache/incubator-devlake/core/utils"
 	"github.com/apache/incubator-devlake/helpers/pluginhelper/api"
 	"github.com/apache/incubator-devlake/test/helper"
 	"github.com/stretchr/testify/require"
-	"os"
-	"os/exec"
-	"path/filepath"
-	"testing"
-	"time"
 )
 
 const PLUGIN_NAME = "fake"
@@ -100,7 +101,7 @@ func TestRunPipeline(t *testing.T) {
 						Subtasks: nil,
 						Options: map[string]interface{}{
 							"connectionId": conn.ID,
-							"scopeId":      1,
+							"scopeId":      "org/project",
 						},
 					},
 				},
