@@ -96,9 +96,9 @@ func GetOneRawMessageFromResponse(res *http.Response) ([]json.RawMessage, errors
 	return []json.RawMessage{rawMessage}, nil
 }
 
-func GetRawMessageCreatedAtAfter(createDateAfter *time.Time) func(res *http.Response) ([]json.RawMessage, errors.Error) {
+func GetRawMessageUpdatedAtAfter(timeAfter *time.Time) func(res *http.Response) ([]json.RawMessage, errors.Error) {
 	type ApiModel struct {
-		CreatedAt *helper.Iso8601Time `json:"created_at"`
+		UpdatedAt *helper.Iso8601Time `json:"updated_at"`
 	}
 
 	return func(res *http.Response) ([]json.RawMessage, errors.Error) {
@@ -114,7 +114,7 @@ func GetRawMessageCreatedAtAfter(createDateAfter *time.Time) func(res *http.Resp
 			if err != nil {
 				return nil, err
 			}
-			if createDateAfter == nil || createDateAfter.Before(apiModel.CreatedAt.ToTime()) {
+			if timeAfter == nil || timeAfter.Before(apiModel.UpdatedAt.ToTime()) {
 				// only finish when all items are created before `createDateAfter`
 				// because gitlab's order may not strict enough
 				isFinish = false
@@ -161,8 +161,8 @@ func GetMergeRequestsIterator(taskCtx plugin.SubTaskContext, collectorWithState 
 			data.Options.ProjectId, data.Options.ConnectionId,
 		),
 	}
-	if collectorWithState.CreatedDateAfter != nil {
-		clauses = append(clauses, dal.Where("gitlab_created_at > ?", *collectorWithState.CreatedDateAfter))
+	if collectorWithState.LatestState.LatestSuccessStart != nil {
+		clauses = append(clauses, dal.Where("gitlab_updated_at > ?", *collectorWithState.LatestState.LatestSuccessStart))
 	}
 	// construct the input iterator
 	cursor, err := db.Cursor(clauses...)

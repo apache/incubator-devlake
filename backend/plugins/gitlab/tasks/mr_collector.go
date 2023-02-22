@@ -18,11 +18,12 @@ limitations under the License.
 package tasks
 
 import (
+	"net/url"
+	"time"
+
 	"github.com/apache/incubator-devlake/core/errors"
 	"github.com/apache/incubator-devlake/core/plugin"
 	helper "github.com/apache/incubator-devlake/helpers/pluginhelper/api"
-	"net/url"
-	"time"
 )
 
 const RAW_MERGE_REQUEST_TABLE = "gitlab_api_merge_requests"
@@ -37,7 +38,7 @@ var CollectApiMergeRequestsMeta = plugin.SubTaskMeta{
 
 func CollectApiMergeRequests(taskCtx plugin.SubTaskContext) errors.Error {
 	rawDataSubTaskArgs, data := CreateRawDataSubTaskArgs(taskCtx, RAW_MERGE_REQUEST_TABLE)
-	collectorWithState, err := helper.NewApiCollectorWithState(*rawDataSubTaskArgs, data.CreatedDateAfter)
+	collectorWithState, err := helper.NewStatefulApiCollector(*rawDataSubTaskArgs, data.TimeAfter)
 	if err != nil {
 		return err
 	}
@@ -55,11 +56,11 @@ func CollectApiMergeRequests(taskCtx plugin.SubTaskContext) errors.Error {
 			if err != nil {
 				return nil, err
 			}
+			if collectorWithState.TimeAfter != nil {
+				query.Set("updated_after", collectorWithState.TimeAfter.Format(time.RFC3339))
+			}
 			if incremental {
 				query.Set("updated_after", collectorWithState.LatestState.LatestSuccessStart.Format(time.RFC3339))
-			}
-			if collectorWithState.CreatedDateAfter != nil {
-				query.Set("created_after", collectorWithState.CreatedDateAfter.Format(time.RFC3339))
 			}
 			return query, nil
 		},
