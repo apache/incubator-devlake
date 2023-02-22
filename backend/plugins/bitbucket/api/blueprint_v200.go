@@ -107,8 +107,8 @@ func makeDataSourcePipelinePlanV200(
 			ConnectionId: repo.ConnectionId,
 			FullName:     repo.BitbucketId,
 		}
-		if syncPolicy.CreatedDateAfter != nil {
-			op.CreatedDateAfter = syncPolicy.CreatedDateAfter.Format(time.RFC3339)
+		if syncPolicy.TimeAfter != nil {
+			op.TimeAfter = syncPolicy.TimeAfter.Format(time.RFC3339)
 		}
 		options, err := tasks.EncodeTaskOptions(op)
 		if err != nil {

@@ -99,16 +99,12 @@ func GetQueryCreatedAndUpdated(fields string, collectorWithState *api.ApiCollect
 		}
 		query.Set("fields", fields)
 		query.Set("sort", "created_on")
-		if collectorWithState.IsIncremental() && collectorWithState.CreatedDateAfter != nil {
-			latestSuccessStart := collectorWithState.LatestState.LatestSuccessStart.Format("2006-01-02")
-			createdDateAfter := collectorWithState.CreatedDateAfter.Format("2006-01-02")
-			query.Set("q", fmt.Sprintf("updated_on>=%s AND created_on>=%s", latestSuccessStart, createdDateAfter))
-		} else if collectorWithState.IsIncremental() {
+		if collectorWithState.IsIncremental() {
 			latestSuccessStart := collectorWithState.LatestState.LatestSuccessStart.Format("2006-01-02")
 			query.Set("q", fmt.Sprintf("updated_on>=%s", latestSuccessStart))
-		} else if collectorWithState.CreatedDateAfter != nil {
-			createdDateAfter := collectorWithState.CreatedDateAfter.Format("2006-01-02")
-			query.Set("q", fmt.Sprintf("created_on>=%s", createdDateAfter))
+		} else if collectorWithState.TimeAfter != nil {
+			timeAfter := collectorWithState.TimeAfter.Format("2006-01-02")
+			query.Set("q", fmt.Sprintf("updated_on>=%s", timeAfter))
 		}
 
 		return query, nil
@@ -181,9 +177,6 @@ func GetPullRequestsIterator(taskCtx plugin.SubTaskContext, collectorWithState *
 			data.Options.FullName, data.Options.ConnectionId,
 		),
 	}
-	if collectorWithState.CreatedDateAfter != nil {
-		clauses = append(clauses, dal.Where("bitbucket_created_at > ?", *collectorWithState.CreatedDateAfter))
-	}
 	if collectorWithState.IsIncremental() {
 		clauses = append(clauses, dal.Where("bitbucket_updated_at > ?", *collectorWithState.LatestState.LatestSuccessStart))
 	}
@@ -207,9 +200,6 @@ func GetIssuesIterator(taskCtx plugin.SubTaskContext, collectorWithState *api.Ap
 			data.Options.FullName, data.Options.ConnectionId,
 		),
 	}
-	if collectorWithState.CreatedDateAfter != nil {
-		clauses = append(clauses, dal.Where("bitbucket_created_at > ?", *collectorWithState.CreatedDateAfter))
-	}
 	if collectorWithState.IsIncremental() {
 		clauses = append(clauses, dal.Where("bitbucket_updated_at > ?", *collectorWithState.LatestState.LatestSuccessStart))
 	}
@@ -232,9 +222,6 @@ func GetPipelinesIterator(taskCtx plugin.SubTaskContext, collectorWithState *api
 			`bpr.repo_id = ? and bpr.connection_id = ?`,
 			data.Options.FullName, data.Options.ConnectionId,
 		),
-	}
-	if collectorWithState.CreatedDateAfter != nil {
-		clauses = append(clauses, dal.Where("bitbucket_created_on > ?", *collectorWithState.CreatedDateAfter))
 	}
 	if collectorWithState.IsIncremental() {
 		clauses = append(clauses, dal.Where("bitbucket_complete_on > ?", *collectorWithState.LatestState.LatestSuccessStart))
