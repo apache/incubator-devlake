@@ -33,7 +33,7 @@ func CollectWorklogs(taskCtx plugin.SubTaskContext) errors.Error {
 	rawDataSubTaskArgs, data := CreateRawDataSubTaskArgs(taskCtx, RAW_WORKLOG_TABLE, false)
 	logger := taskCtx.GetLogger()
 	logger.Info("collect worklogs")
-	collectorWithState, err := helper.NewApiCollectorWithState(*rawDataSubTaskArgs, data.CreatedDateAfter)
+	collectorWithState, err := helper.NewStatefulApiCollector(*rawDataSubTaskArgs, data.TimeAfter)
 	if err != nil {
 		return err
 	}
@@ -50,13 +50,13 @@ func CollectWorklogs(taskCtx plugin.SubTaskContext) errors.Error {
 			query.Set("page", fmt.Sprintf("%v", reqData.Pager.Page))
 			query.Set("limit", fmt.Sprintf("%v", reqData.Pager.Size))
 			query.Set("order", "created asc")
-			if data.CreatedDateAfter != nil {
-				query.Set("created",
+			if data.TimeAfter != nil {
+				query.Set("modified",
 					fmt.Sprintf(">%s",
-						data.CreatedDateAfter.In(data.Options.CstZone).Format("2006-01-02")))
+						data.TimeAfter.In(data.Options.CstZone).Format("2006-01-02")))
 			}
 			if incremental {
-				query.Set("created",
+				query.Set("modified",
 					fmt.Sprintf(">%s",
 						collectorWithState.LatestState.LatestSuccessStart.In(data.Options.CstZone).Format("2006-01-02")))
 			}
