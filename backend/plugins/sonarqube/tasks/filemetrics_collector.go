@@ -20,11 +20,12 @@ package tasks
 import (
 	"encoding/json"
 	"fmt"
+	"net/http"
+	"net/url"
+
 	"github.com/apache/incubator-devlake/core/errors"
 	"github.com/apache/incubator-devlake/core/plugin"
 	helper "github.com/apache/incubator-devlake/helpers/pluginhelper/api"
-	"net/http"
-	"net/url"
 )
 
 const RAW_FILEMETRICS_TABLE = "sonarqube_filemetrics"
@@ -32,18 +33,16 @@ const RAW_FILEMETRICS_TABLE = "sonarqube_filemetrics"
 var _ plugin.SubTaskEntryPoint = CollectFilemetrics
 
 func CollectFilemetrics(taskCtx plugin.SubTaskContext) errors.Error {
-	rawDataSubTaskArgs, data := CreateRawDataSubTaskArgs(taskCtx, RAW_FILEMETRICS_TABLE)
-	collectorWithState, err := helper.NewApiCollectorWithState(*rawDataSubTaskArgs, data.CreatedDateAfter)
-	if err != nil {
-		return err
-	}
-	incremental := collectorWithState.IsIncremental()
+	logger := taskCtx.GetLogger()
+	logger.Info("collect filemetrics")
 
-	err = collectorWithState.InitCollector(helper.ApiCollectorArgs{
-		Incremental: incremental,
-		ApiClient:   data.ApiClient,
-		PageSize:    100,
-		UrlTemplate: "measures/component_tree",
+	rawDataSubTaskArgs, data := CreateRawDataSubTaskArgs(taskCtx, RAW_FILEMETRICS_TABLE)
+	collector, err := helper.NewApiCollector(helper.ApiCollectorArgs{
+		RawDataSubTaskArgs: *rawDataSubTaskArgs,
+		ApiClient:          data.ApiClient,
+		PageSize:           100,
+		Incremental:        false,
+		UrlTemplate:        "measures/component_tree",
 		Query: func(reqData *helper.RequestData) (url.Values, errors.Error) {
 			query := url.Values{}
 			query.Set("component", data.Options.ProjectKey)
@@ -57,14 +56,14 @@ func CollectFilemetrics(taskCtx plugin.SubTaskContext) errors.Error {
 			var resData struct {
 				Data []json.RawMessage `json:"components"`
 			}
-			err = helper.UnmarshalResponse(res, &resData)
+			err := helper.UnmarshalResponse(res, &resData)
 			return resData.Data, err
 		},
 	})
 	if err != nil {
 		return err
 	}
-	return collectorWithState.Execute()
+	return collector.Execute()
 }
 
 var CollectFilemetricsMeta = plugin.SubTaskMeta{

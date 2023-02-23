@@ -33,18 +33,15 @@ const RAW_ACCOUNTS_TABLE = "sonarqube_accounts"
 var _ plugin.SubTaskEntryPoint = CollectAccounts
 
 func CollectAccounts(taskCtx plugin.SubTaskContext) errors.Error {
-	rawDataSubTaskArgs, data := CreateRawDataSubTaskArgs(taskCtx, RAW_ACCOUNTS_TABLE)
 	logger := taskCtx.GetLogger()
 	logger.Info("collect accounts")
 
-	collectorWithState, err := helper.NewApiCollectorWithState(*rawDataSubTaskArgs, data.CreatedDateAfter)
-	if err != nil {
-		return err
-	}
-	err = collectorWithState.InitCollector(helper.ApiCollectorArgs{
-		ApiClient:   data.ApiClient,
-		PageSize:    100,
-		UrlTemplate: "users/search",
+	rawDataSubTaskArgs, data := CreateRawDataSubTaskArgs(taskCtx, RAW_ACCOUNTS_TABLE)
+	collector, err := helper.NewApiCollector(helper.ApiCollectorArgs{
+		RawDataSubTaskArgs: *rawDataSubTaskArgs,
+		ApiClient:          data.ApiClient,
+		PageSize:           100,
+		UrlTemplate:        "users/search",
 		Query: func(reqData *helper.RequestData) (url.Values, errors.Error) {
 			query := url.Values{}
 			query.Set("p", fmt.Sprintf("%v", reqData.Pager.Page))
@@ -56,7 +53,7 @@ func CollectAccounts(taskCtx plugin.SubTaskContext) errors.Error {
 			var resData struct {
 				Data []json.RawMessage `json:"users"`
 			}
-			err = helper.UnmarshalResponse(res, &resData)
+			err := helper.UnmarshalResponse(res, &resData)
 			return resData.Data, err
 		},
 	})
@@ -64,7 +61,7 @@ func CollectAccounts(taskCtx plugin.SubTaskContext) errors.Error {
 		return err
 	}
 
-	return collectorWithState.Execute()
+	return collector.Execute()
 }
 
 var CollectAccountsMeta = plugin.SubTaskMeta{

@@ -20,11 +20,12 @@ package tasks
 import (
 	"encoding/json"
 	"fmt"
+	"net/http"
+	"net/url"
+
 	"github.com/apache/incubator-devlake/core/errors"
 	"github.com/apache/incubator-devlake/core/plugin"
 	helper "github.com/apache/incubator-devlake/helpers/pluginhelper/api"
-	"net/http"
-	"net/url"
 )
 
 const RAW_ISSUES_TABLE = "sonarqube_issues"
@@ -32,17 +33,15 @@ const RAW_ISSUES_TABLE = "sonarqube_issues"
 var _ plugin.SubTaskEntryPoint = CollectIssues
 
 func CollectIssues(taskCtx plugin.SubTaskContext) (err errors.Error) {
-	rawDataSubTaskArgs, data := CreateRawDataSubTaskArgs(taskCtx, RAW_ISSUES_TABLE)
 	logger := taskCtx.GetLogger()
 	logger.Info("collect issues")
-	collectorWithState, err := helper.NewApiCollectorWithState(*rawDataSubTaskArgs, data.CreatedDateAfter)
-	if err != nil {
-		return err
-	}
-	err = collectorWithState.InitCollector(helper.ApiCollectorArgs{
-		ApiClient:   data.ApiClient,
-		PageSize:    100,
-		UrlTemplate: "issues/search",
+
+	rawDataSubTaskArgs, data := CreateRawDataSubTaskArgs(taskCtx, RAW_ISSUES_TABLE)
+	collector, err := helper.NewApiCollector(helper.ApiCollectorArgs{
+		RawDataSubTaskArgs: *rawDataSubTaskArgs,
+		ApiClient:          data.ApiClient,
+		PageSize:           100,
+		UrlTemplate:        "issues/search",
 		Query: func(reqData *helper.RequestData) (url.Values, errors.Error) {
 			query := url.Values{}
 			query.Set("componentKeys", fmt.Sprintf("%v", data.Options.ProjectKey))
@@ -78,7 +77,7 @@ func CollectIssues(taskCtx plugin.SubTaskContext) (err errors.Error) {
 	if err != nil {
 		return err
 	}
-	return collectorWithState.Execute()
+	return collector.Execute()
 }
 
 var CollectIssuesMeta = plugin.SubTaskMeta{

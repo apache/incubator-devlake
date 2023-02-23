@@ -18,6 +18,8 @@ limitations under the License.
 package tasks
 
 import (
+	"reflect"
+
 	"github.com/apache/incubator-devlake/core/dal"
 	"github.com/apache/incubator-devlake/core/errors"
 	"github.com/apache/incubator-devlake/core/models/domainlayer"
@@ -26,7 +28,6 @@ import (
 	"github.com/apache/incubator-devlake/core/plugin"
 	"github.com/apache/incubator-devlake/helpers/pluginhelper/api"
 	sonarqubeModels "github.com/apache/incubator-devlake/plugins/sonarqube/models"
-	"reflect"
 )
 
 var ConvertHotspotsMeta = plugin.SubTaskMeta{
@@ -70,7 +71,7 @@ func ConvertHotspots(taskCtx plugin.SubTaskContext) errors.Error {
 				UpdateDate:               sonarqubeHotspot.UpdateDate,
 				Type:                     "HOTSPOTS",
 				VulnerabilityProbability: sonarqubeHotspot.VulnerabilityProbability,
-				Severity:                 sonarqubeHotspot.SecurityCategory,
+				SecurityCategory:         sonarqubeHotspot.SecurityCategory,
 			}
 			return []interface{}{
 				domainHotspot,
