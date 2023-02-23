@@ -99,7 +99,7 @@ export const ConnectionEndpoint = ({
           </Radio>
         </RadioGroup>
         {version === 'cloud' && (
-          <p>
+          <p style={{ margin: 0 }}>
             If you are using {name} Cloud, you do not need to enter the endpoint URL, which is
             {multipleVersions.cloud}.
           </p>

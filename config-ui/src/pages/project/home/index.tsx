@@ -85,55 +85,53 @@ export const ProjectHomePage = () => {
         ) : null
       }
     >
-      <S.Container>
-        <Table
-          loading={loading}
-          columns={columns}
-          dataSource={projects}
-          noData={{
-            text: 'Add new projects to see engineering metrics based on projects.',
-            btnText: 'New Project',
-            onCreate: handleShowDialog,
-          }}
-        />
-        <Dialog
-          isOpen={isOpen}
-          title="Create a New Project"
-          style={{
-            top: -100,
-            width: 820,
-          }}
-          okText="Save"
-          okDisabled={!name}
-          okLoading={operating}
-          onCancel={handleHideDialog}
-          onOk={onSave}
-        >
-          <S.DialogWrapper>
-            <div className="block">
-              <h3>Project Name *</h3>
-              <p>Give your project a unique name.</p>
-              <InputGroup placeholder="Your Project Name" value={name} onChange={(e) => setName(e.target.value)} />
+      <Table
+        loading={loading}
+        columns={columns}
+        dataSource={projects}
+        noData={{
+          text: 'Add new projects to see engineering metrics based on projects.',
+          btnText: 'New Project',
+          onCreate: handleShowDialog,
+        }}
+      />
+      <Dialog
+        isOpen={isOpen}
+        title="Create a New Project"
+        style={{
+          top: -100,
+          width: 820,
+        }}
+        okText="Save"
+        okDisabled={!name}
+        okLoading={operating}
+        onCancel={handleHideDialog}
+        onOk={onSave}
+      >
+        <S.DialogInner>
+          <div className="block">
+            <h3>Project Name *</h3>
+            <p>Give your project a unique name.</p>
+            <InputGroup placeholder="Your Project Name" value={name} onChange={(e) => setName(e.target.value)} />
+          </div>
+          <div className="block">
+            <h3>Project Settings</h3>
+            <div className="checkbox">
+              <Checkbox
+                label="Enable DORA Metrics"
+                checked={enableDora}
+                onChange={(e) => setEnableDora((e.target as HTMLInputElement).checked)}
+              />
+              <p>
+                <a href="https://devlake.apache.org/docs/UserManuals/DORA/" rel="noreferrer" target="_blank">
+                  DORA metrics
+                </a>{' '}
+                <span>are four widely-adopted metrics for measuring software delivery performance.</span>
+              </p>
             </div>
-            <div className="block">
-              <h3>Project Settings</h3>
-              <div className="checkbox">
-                <Checkbox
-                  label="Enable DORA Metrics"
-                  checked={enableDora}
-                  onChange={(e) => setEnableDora((e.target as HTMLInputElement).checked)}
-                />
-                <p>
-                  <a href="https://devlake.apache.org/docs/UserManuals/DORA/" rel="noreferrer" target="_blank">
-                    DORA metrics
-                  </a>{' '}
-                  <span>are four widely-adopted metrics for measuring software delivery performance.</span>
-                </p>
-              </div>
-            </div>
-          </S.DialogWrapper>
-        </Dialog>
-      </S.Container>
+          </div>
+        </S.DialogInner>
+      </Dialog>
     </PageHeader>
   );
 };
