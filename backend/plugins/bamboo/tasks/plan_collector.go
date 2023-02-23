@@ -34,16 +34,11 @@ var _ plugin.SubTaskEntryPoint = CollectPlan
 
 func CollectPlan(taskCtx plugin.SubTaskContext) errors.Error {
 	rawDataSubTaskArgs, data := CreateRawDataSubTaskArgs(taskCtx, RAW_PLAN_TABLE)
-
-	collectorWithState, err := helper.NewApiCollectorWithState(*rawDataSubTaskArgs, nil)
-	if err != nil {
-		return err
-	}
-
-	err = collectorWithState.InitCollector(helper.ApiCollectorArgs{
-		ApiClient:   data.ApiClient,
-		PageSize:    100,
-		UrlTemplate: "project/{{ .Params.ProjectKey }}.json",
+	collector, err := helper.NewApiCollector(helper.ApiCollectorArgs{
+		RawDataSubTaskArgs: *rawDataSubTaskArgs,
+		ApiClient:          data.ApiClient,
+		PageSize:           100,
+		UrlTemplate:        "project/{{ .Params.ProjectKey }}.json",
 		Query: func(reqData *helper.RequestData) (url.Values, errors.Error) {
 			query := url.Values{}
 			query.Set("showEmpty", fmt.Sprintf("%v", true))
@@ -56,7 +51,7 @@ func CollectPlan(taskCtx plugin.SubTaskContext) errors.Error {
 			var body struct {
 				SizeInfo models.ApiBambooSizeData `json:"plans"`
 			}
-			err = helper.UnmarshalResponse(res, &body)
+			err := helper.UnmarshalResponse(res, &body)
 			if err != nil {
 				return 0, err
 			}
@@ -65,7 +60,7 @@ func CollectPlan(taskCtx plugin.SubTaskContext) errors.Error {
 
 		ResponseParser: func(res *http.Response) ([]json.RawMessage, errors.Error) {
 			body := &models.ApiBambooProject{}
-			err = helper.UnmarshalResponse(res, body)
+			err := helper.UnmarshalResponse(res, body)
 			if err != nil {
 				return nil, err
 			}
@@ -75,7 +70,7 @@ func CollectPlan(taskCtx plugin.SubTaskContext) errors.Error {
 	if err != nil {
 		return err
 	}
-	return collectorWithState.Execute()
+	return collector.Execute()
 }
 
 var CollectPlanMeta = plugin.SubTaskMeta{
