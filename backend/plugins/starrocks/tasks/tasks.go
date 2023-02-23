@@ -86,7 +86,7 @@ func ExportData(c plugin.SubTaskContext) errors.Error {
 		default:
 		}
 
-		td := DataConfigParams{
+		dc := DataConfigParams{
 			Ctx:           c,
 			Config:        config,
 			SrcDb:         db,
@@ -94,7 +94,7 @@ func ExportData(c plugin.SubTaskContext) errors.Error {
 			SrcTableName:  table,
 			DestTableName: strings.TrimLeft(table, "_"),
 		}
-		columnMap, orderBy, skip, err := createTmpTableInStarrocks(&td)
+		columnMap, orderBy, skip, err := createTmpTableInStarrocks(&dc)
 		if skip {
 			logger.Info(fmt.Sprintf("table %s is up to date, so skip it", table))
 			continue
@@ -103,7 +103,7 @@ func ExportData(c plugin.SubTaskContext) errors.Error {
 			logger.Error(err, "create table %s in starrocks error", table)
 			return errors.Convert(err)
 		}
-		err = copyDataToDst(&td, columnMap, orderBy)
+		err = copyDataToDst(&dc, columnMap, orderBy)
 		if err != nil {
 			return errors.Convert(err)
 		}
@@ -112,13 +112,13 @@ func ExportData(c plugin.SubTaskContext) errors.Error {
 }
 
 // create temp table for dealing with some complex logic
-func createTmpTableInStarrocks(td *DataConfigParams) (map[string]string, string, bool, error) {
-	logger := td.Ctx.GetLogger()
-	config := td.Config
-	db := td.SrcDb
-	starrocksDb := td.DestDb
-	table := td.SrcTableName
-	starrocksTable := td.DestTableName
+func createTmpTableInStarrocks(dc *DataConfigParams) (map[string]string, string, bool, error) {
+	logger := dc.Ctx.GetLogger()
+	config := dc.Config
+	db := dc.SrcDb
+	starrocksDb := dc.DestDb
+	table := dc.SrcTableName
+	starrocksTable := dc.DestTableName
 	starrocksTmpTable := fmt.Sprintf("%s_tmp", starrocksTable)
 
 	columnMetas, err := db.GetColumns(&Table{name: table}, nil)
@@ -212,14 +212,14 @@ func createTmpTableInStarrocks(td *DataConfigParams) (map[string]string, string,
 }
 
 // put data to final dst database
-func copyDataToDst(td *DataConfigParams, columnMap map[string]string, orderBy string) error {
-	c := td.Ctx
-	logger := td.Ctx.GetLogger()
-	config := td.Config
-	db := td.SrcDb
-	starrocksDb := td.DestDb
-	table := td.SrcTableName
-	starrocksTable := td.DestTableName
+func copyDataToDst(dc *DataConfigParams, columnMap map[string]string, orderBy string) error {
+	c := dc.Ctx
+	logger := dc.Ctx.GetLogger()
+	config := dc.Config
+	db := dc.SrcDb
+	starrocksDb := dc.DestDb
+	table := dc.SrcTableName
+	starrocksTable := dc.DestTableName
 	starrocksTmpTable := fmt.Sprintf("%s_tmp", starrocksTable)
 
 	var offset int
