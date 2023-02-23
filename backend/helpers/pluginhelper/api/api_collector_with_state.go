@@ -71,10 +71,17 @@ func NewStatefulApiCollector(args RawDataSubTaskArgs, timeAfter *time.Time) (*Ap
 
 // IsIncremental indicates if the collector should operate in incremental mode
 func (m *ApiCollectorStateManager) IsIncremental() bool {
-	if m.TimeAfter != nil {
-		return m.LatestState.TimeAfter == nil || !m.TimeAfter.Before(*m.LatestState.TimeAfter)
+	prevSyncTime := m.LatestState.LatestSuccessStart
+	prevTimeAfter := m.LatestState.TimeAfter
+	currTimeAfter := m.TimeAfter
+
+	if prevSyncTime == nil {
+		return false
 	}
-	return m.LatestState.LatestSuccessStart != nil
+	if currTimeAfter != nil {
+		return prevTimeAfter == nil || !currTimeAfter.Before(*prevTimeAfter)
+	}
+	return prevTimeAfter == nil
 }
 
 // InitCollector init the embedded collector
