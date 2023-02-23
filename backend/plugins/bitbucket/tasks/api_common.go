@@ -28,6 +28,7 @@ import (
 	"net/http"
 	"net/url"
 	"reflect"
+	"time"
 )
 
 type BitbucketApiParams struct {
@@ -100,10 +101,10 @@ func GetQueryCreatedAndUpdated(fields string, collectorWithState *api.ApiCollect
 		query.Set("fields", fields)
 		query.Set("sort", "created_on")
 		if collectorWithState.IsIncremental() {
-			latestSuccessStart := collectorWithState.LatestState.LatestSuccessStart.Format("2006-01-02")
+			latestSuccessStart := collectorWithState.LatestState.LatestSuccessStart.Format(time.RFC3339)
 			query.Set("q", fmt.Sprintf("updated_on>=%s", latestSuccessStart))
 		} else if collectorWithState.TimeAfter != nil {
-			timeAfter := collectorWithState.TimeAfter.Format("2006-01-02")
+			timeAfter := collectorWithState.TimeAfter.Format(time.RFC3339)
 			query.Set("q", fmt.Sprintf("updated_on>=%s", timeAfter))
 		}
 
