@@ -346,6 +346,7 @@ func putBatchData(c plugin.SubTaskContext, starrocksTmpTable, table string, data
 		return err
 	}
 	defer resp.Body.Close()
+	var b []byte
 
 	if resp.StatusCode == 307 {
 		var location *url.URL
@@ -366,12 +367,17 @@ func putBatchData(c plugin.SubTaskContext, starrocksTmpTable, table string, data
 			return err
 		}
 		defer respRetry.Body.Close()
+		b, err = io.ReadAll(respRetry.Body)
+		if err != nil {
+			return err
+		}
+	} else {
+		b, err = io.ReadAll(resp.Body)
+		if err != nil {
+			return err
+		}
 	}
 
-	b, err := io.ReadAll(resp.Body)
-	if err != nil {
-		return err
-	}
 	var result map[string]interface{}
 	err = json.Unmarshal(b, &result)
 	if err != nil {
