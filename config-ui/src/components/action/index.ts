@@ -16,6 +16,5 @@
  *
  */
 
-export * from './delete-button';
 export * from './external-link';
 export * from './icon-button';
