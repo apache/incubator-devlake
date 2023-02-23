@@ -65,11 +65,11 @@ func CollectApiPullRequestReviews(taskCtx plugin.SubTaskContext) errors.Error {
 		dal.From(models.GithubPullRequest{}.TableName()),
 		dal.Where("repo_id = ? and connection_id=?", data.Options.GithubId, data.Options.ConnectionId),
 	}
-	if collectorWithState.CreatedDateAfter != nil {
-		clauses = append(clauses, dal.Where("github_created_at > ?", *collectorWithState.CreatedDateAfter))
-	}
 	if incremental {
-		clauses = append(clauses, dal.Where("github_updated_at > ?", *collectorWithState.LatestState.LatestSuccessStart))
+		clauses = append(
+			clauses,
+			dal.Where("github_updated_at > ?", collectorWithState.LatestState.LatestSuccessStart),
+		)
 	}
 	cursor, err := db.Cursor(
 		clauses...,

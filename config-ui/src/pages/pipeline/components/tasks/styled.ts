@@ -34,9 +34,6 @@ export const Inner = styled.div`
 `;
 
 export const Header = styled.ul`
-  padding: 0;
-  margin: 0;
-  list-style: none;
   display: flex;
   align-items: center;
 
@@ -75,9 +72,6 @@ export const Header = styled.ul`
 `;
 
 export const Tasks = styled.ul`
-  padding: 0;
-  margin: 0;
-  list-style: none;
   display: flex;
   align-items: flex-start;
 

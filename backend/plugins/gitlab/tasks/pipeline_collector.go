@@ -39,7 +39,7 @@ var CollectApiPipelinesMeta = plugin.SubTaskMeta{
 
 func CollectApiPipelines(taskCtx plugin.SubTaskContext) errors.Error {
 	rawDataSubTaskArgs, data := CreateRawDataSubTaskArgs(taskCtx, RAW_PIPELINE_TABLE)
-	collectorWithState, err := helper.NewApiCollectorWithState(*rawDataSubTaskArgs, data.CreatedDateAfter)
+	collectorWithState, err := helper.NewStatefulApiCollector(*rawDataSubTaskArgs, data.TimeAfter)
 	if err != nil {
 		return err
 	}
@@ -58,8 +58,11 @@ func CollectApiPipelines(taskCtx plugin.SubTaskContext) errors.Error {
 		UrlTemplate:        "projects/{{ .Params.ProjectId }}/pipelines",
 		Query: func(reqData *helper.RequestData) (url.Values, errors.Error) {
 			query := url.Values{}
+			if collectorWithState.TimeAfter != nil {
+				query.Set("updated_after", collectorWithState.TimeAfter.Format(time.RFC3339))
+			}
 			if incremental {
-				query.Set("updated_after", collectorWithState.LatestState.LatestSuccessStart.String())
+				query.Set("updated_after", collectorWithState.LatestState.LatestSuccessStart.Format(time.RFC3339))
 			}
 			query.Set("with_stats", "true")
 			query.Set("sort", "asc")

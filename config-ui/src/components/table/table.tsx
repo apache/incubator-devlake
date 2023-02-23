@@ -19,8 +19,7 @@
 import React from 'react';
 import { Button, Intent } from '@blueprintjs/core';
 
-import NoData from '@/images/no-data.svg';
-import { Loading, Card } from '@/components';
+import { Loading, Card, NoData } from '@/components';
 
 import { ColumnType } from './types';
 import * as S from './styled';
@@ -48,17 +47,16 @@ export const Table = <T extends Record<string, any>>({ loading, columns, dataSou
           </S.Loading>
         </Card>
       ) : !dataSource.length ? (
-        <Card>
-          <S.NoData>
-            <img src={NoData} alt="" />
-            <p>{text ?? 'No Data'}</p>
-            {onCreate && (
+        <NoData
+          text={text}
+          action={
+            onCreate && (
               <Button intent={Intent.PRIMARY} icon="plus" onClick={onCreate}>
                 {btnText ?? 'Create'}
               </Button>
-            )}
-          </S.NoData>
-        </Card>
+            )
+          }
+        />
       ) : (
         <Card style={{ padding: 0 }}>
           <S.Table loading={loading ? 1 : 0}>

@@ -42,10 +42,6 @@ type SimplePlan struct {
 func CollectJob(taskCtx plugin.SubTaskContext) errors.Error {
 	rawDataSubTaskArgs, data := CreateRawDataSubTaskArgs(taskCtx, RAW_JOB_TABLE)
 	db := taskCtx.GetDal()
-	collectorWithState, err := helper.NewApiCollectorWithState(*rawDataSubTaskArgs, nil)
-	if err != nil {
-		return err
-	}
 	clauses := []dal.Clause{
 		dal.Select("plan_key"),
 		dal.From(models.BambooPlan{}.TableName()),
@@ -62,11 +58,12 @@ func CollectJob(taskCtx plugin.SubTaskContext) errors.Error {
 		return err
 	}
 
-	err = collectorWithState.InitCollector(helper.ApiCollectorArgs{
-		ApiClient:   data.ApiClient,
-		PageSize:    100,
-		Input:       iterator,
-		UrlTemplate: "search/jobs/{{ .Input.PlanKey }}.json",
+	collector, err := helper.NewApiCollector(helper.ApiCollectorArgs{
+		RawDataSubTaskArgs: *rawDataSubTaskArgs,
+		ApiClient:          data.ApiClient,
+		PageSize:           100,
+		Input:              iterator,
+		UrlTemplate:        "search/jobs/{{ .Input.PlanKey }}.json",
 		Query: func(reqData *helper.RequestData) (url.Values, errors.Error) {
 			query := url.Values{}
 			query.Set("showEmpty", fmt.Sprintf("%v", true))
@@ -98,7 +95,7 @@ func CollectJob(taskCtx plugin.SubTaskContext) errors.Error {
 	if err != nil {
 		return err
 	}
-	return collectorWithState.Execute()
+	return collector.Execute()
 }
 
 var CollectJobMeta = plugin.SubTaskMeta{

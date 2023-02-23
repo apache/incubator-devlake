@@ -20,13 +20,14 @@ package tasks
 import (
 	"encoding/json"
 	"fmt"
+	"net/http"
+	"net/url"
+	"reflect"
+
 	"github.com/apache/incubator-devlake/core/dal"
 	"github.com/apache/incubator-devlake/core/errors"
 	"github.com/apache/incubator-devlake/core/plugin"
 	"github.com/apache/incubator-devlake/helpers/pluginhelper/api"
-	"net/http"
-	"net/url"
-	"reflect"
 )
 
 const RAW_STAGE_TABLE = "jenkins_api_stages"
@@ -53,9 +54,9 @@ func CollectApiStages(taskCtx plugin.SubTaskContext) errors.Error {
 		dal.Where(`tjb.connection_id = ? and tjb.job_path = ? and tjb.job_name = ? and tjb.class = ?`,
 			data.Options.ConnectionId, data.Options.JobPath, data.Options.JobName, "WorkflowRun"),
 	}
-	createdDateAfter := data.CreatedDateAfter
-	if createdDateAfter != nil {
-		clauses = append(clauses, dal.Where(`tjb.start_time >= ?`, createdDateAfter.Format("2006/01/02 15:04")))
+	timeAfter := data.TimeAfter
+	if timeAfter != nil {
+		clauses = append(clauses, dal.Where(`tjb.start_time >= ?`, timeAfter))
 	}
 
 	cursor, err := db.Cursor(clauses...)

@@ -20,6 +20,8 @@ package e2e
 import (
 	"testing"
 
+	"github.com/apache/incubator-devlake/core/models/common"
+	"github.com/apache/incubator-devlake/core/models/domainlayer/devops"
 	"github.com/apache/incubator-devlake/helpers/e2ehelper"
 	"github.com/apache/incubator-devlake/plugins/bamboo/impl"
 	"github.com/apache/incubator-devlake/plugins/bamboo/models"
@@ -91,10 +93,20 @@ func TestBambooPlanBuildDataFlow(t *testing.T) {
 	)
 
 	// verify conversion
-	/*dataflowTester.FlushTabler(&devops.CICDTask{})
-	dataflowTester.Subtask(tasks.ConvertPlanBuildMeta, taskData)
-	dataflowTester.VerifyTableWithOptions(&devops.CICDTask{}, e2ehelper.TableOptions{
-		CSVRelPath:  "./snapshot_tables/cicd_tasks.csv",
+	dataflowTester.FlushTabler(&devops.CICDPipeline{})
+	dataflowTester.FlushTabler(&devops.CiCDPipelineCommit{})
+
+	dataflowTester.Subtask(tasks.ConvertPlanBuildsMeta, taskData)
+	dataflowTester.Subtask(tasks.ConvertPlanBuildsMeta, taskData)
+
+	dataflowTester.VerifyTableWithOptions(&devops.CICDPipeline{}, e2ehelper.TableOptions{
+		CSVRelPath:  "./snapshot_tables/cicd_pipelines.csv",
 		IgnoreTypes: []interface{}{common.NoPKModel{}},
-	})*/
+	})
+
+	dataflowTester.VerifyTableWithOptions(&devops.CiCDPipelineCommit{}, e2ehelper.TableOptions{
+		CSVRelPath:  "./snapshot_tables/cicd_pipeline_commits.csv",
+		IgnoreTypes: []interface{}{common.NoPKModel{}},
+	})
+
 }

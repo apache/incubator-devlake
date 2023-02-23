@@ -35,7 +35,7 @@ func (u *addInitTables) Up(baseRes context.BasicRes) errors.Error {
 		&archived.BambooPlanBuildVcsRevision{},
 		&archived.BambooJobBuild{},
 		&archived.BambooTransformationRule{},
-		&archived.BambooDeployEnvironment{},
+		//&archived.BambooDeployEnvironment{},
 	)
 	return migrationhelper.AutoMigrateTables(
 		baseRes,
@@ -47,7 +47,7 @@ func (u *addInitTables) Up(baseRes context.BasicRes) errors.Error {
 		&archived.BambooPlanBuildVcsRevision{},
 		&archived.BambooJobBuild{},
 		&archived.BambooTransformationRule{},
-		&archived.BambooDeployEnvironment{},
+		//&archived.BambooDeployEnvironment{},
 	)
 }
 

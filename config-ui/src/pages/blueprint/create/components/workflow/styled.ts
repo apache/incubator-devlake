@@ -21,9 +21,6 @@ import styled from 'styled-components';
 export const List = styled.ul`
   display: flex;
   align-items: center;
-  list-style: none;
-  padding: 0;
-  margin: 0;
 `;
 
 export const Item = styled.li<{ active?: boolean }>`

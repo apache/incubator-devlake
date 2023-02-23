@@ -18,11 +18,7 @@
 
 import styled from 'styled-components';
 
-export const ScopeList = styled.ul`
-  list-style: none;
-  margin: 0;
-  padding: 0;
-`;
+export const ScopeList = styled.ul``;
 
 export const ScopeItem = styled.li`
   margin-bottom: 4px;
@@ -54,9 +50,6 @@ export const ScopeItemMap = styled(ScopeItem)`
   }
 
   & > ul {
-    margin: 0;
-    padding: 0;
-    list-style: none;
     padding-left: 24px;
     margin-top: 4px;
 

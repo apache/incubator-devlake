@@ -16,25 +16,38 @@
  *
  */
 
+import React from 'react';
+
+import Img from '@/images/no-data.svg';
+import { Card } from '@/components';
+
 import styled from 'styled-components';
 
-export const Wrapper = styled.div`
-  & > .bp4-tabs > .bp4-tab-list {
-    display: flex;
-    justify-content: center;
-  }
-`;
+const Wrapper = styled(Card)`
+  text-align: center;
 
-export const Settings = styled.div`
-  .block + .block {
+  img {
+    display: inline-block;
+    width: 120px;
+    height: 120px;
+  }
+
+  .action {
     margin-top: 24px;
   }
-
-  .bp4-control {
-    margin-bottom: 0;
-  }
-
-  .bp4-input-group {
-    width: 386px;
-  }
 `;
+
+interface Props {
+  text: React.ReactNode;
+  action?: React.ReactNode;
+}
+
+export const NoData = ({ text, action }: Props) => {
+  return (
+    <Wrapper>
+      <img src={Img} alt="" />
+      <p>{text}</p>
+      <div className="action">{action}</div>
+    </Wrapper>
+  );
+};

@@ -19,6 +19,7 @@ package tasks
 
 import (
 	"encoding/json"
+
 	"github.com/apache/incubator-devlake/core/errors"
 	"github.com/apache/incubator-devlake/core/plugin"
 	helper "github.com/apache/incubator-devlake/helpers/pluginhelper/api"
@@ -53,18 +54,16 @@ func ExtractPlanBuild(taskCtx plugin.SubTaskContext) errors.Error {
 			results = append(results, body)
 			// As job build can get more accuracy repo info,
 			// we can collect BambooPlanBuildVcsRevision in job_biuld_extractor
-			// keep this because we might need it later
-			/*
-				for _, v := range res.VcsRevisions.VcsRevision {
-					results = append(results, &models.BambooPlanBuildVcsRevision{
-						ConnectionId:   data.Options.ConnectionId,
-						PlanBuildKey:   body.PlanBuildKey,
-						RepositoryId:   v.RepositoryId,
-						RepositoryName: v.RepositoryName,
-						VcsRevisionKey: v.VcsRevisionKey,
-					})
-				}
-			*/
+			for _, v := range res.VcsRevisions.VcsRevision {
+				results = append(results, &models.BambooPlanBuildVcsRevision{
+					ConnectionId:   data.Options.ConnectionId,
+					PlanBuildKey:   body.PlanBuildKey,
+					RepositoryId:   v.RepositoryId,
+					RepositoryName: v.RepositoryName,
+					VcsRevisionKey: v.VcsRevisionKey,
+				})
+			}
+
 			return results, nil
 		},
 	})
