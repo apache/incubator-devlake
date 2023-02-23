@@ -22,6 +22,7 @@ import { InputGroup, Checkbox, ButtonGroup, Button, Intent } from '@blueprintjs/
 import { Card } from '@/components';
 
 import type { ProjectType } from '../types';
+import * as S from '../styled';
 
 interface Props {
   project: ProjectType;
@@ -43,7 +44,7 @@ export const SettingsPanel = ({ project, onUpdate }: Props) => {
 
   return (
     <Card>
-      <div className="settings">
+      <S.Settings>
         <div className="block">
           <h3>Project Name *</h3>
           <p>Edit your project name.</p>
@@ -60,7 +61,7 @@ export const SettingsPanel = ({ project, onUpdate }: Props) => {
         <ButtonGroup>
           <Button text="Save" intent={Intent.PRIMARY} onClick={handleSave} />
         </ButtonGroup>
-      </div>
+      </S.Settings>
     </Card>
   );
 };

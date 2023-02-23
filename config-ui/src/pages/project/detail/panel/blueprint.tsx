@@ -20,8 +20,7 @@ import React from 'react';
 import { useHistory } from 'react-router-dom';
 import { Button, Intent } from '@blueprintjs/core';
 
-import NoData from '@/images/no-data.svg';
-import { Card } from '@/components';
+import { NoData } from '@/components';
 import { BlueprintDetail } from '@/pages';
 
 import type { ProjectType } from '../types';
@@ -36,21 +35,16 @@ export const BlueprintPanel = ({ project }: Props) => {
   const handleGoCreateBlueprint = () =>
     history.push(`/projects/${window.encodeURIComponent(project.name)}/create-blueprint`);
 
-  return !project.blueprint ? (
-    <Card>
-      <div className="blueprint">
-        <div className="logo">
-          <img src={NoData} alt="" />
-        </div>
-        <div className="desc">
-          <p>Create a blueprint to collect data from data sources.</p>
-        </div>
-        <div className="action">
+  if (!project.blueprint) {
+    return (
+      <NoData
+        text="Create a blueprint to collect data from data sources."
+        action={
           <Button intent={Intent.PRIMARY} icon="plus" text="Create a Blueprint" onClick={handleGoCreateBlueprint} />
-        </div>
-      </div>
-    </Card>
-  ) : (
-    <BlueprintDetail id={project.blueprint.id} />
-  );
+        }
+      />
+    );
+  }
+
+  return <BlueprintDetail id={project.blueprint.id} />;
 };

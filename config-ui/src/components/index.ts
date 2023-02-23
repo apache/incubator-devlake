@@ -28,3 +28,4 @@ export * from './card';
 export * from './inspector';
 export * from './action';
 export * from './tooltip';
+export * from './no-data';
