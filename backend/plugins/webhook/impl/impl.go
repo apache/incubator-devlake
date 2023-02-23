@@ -23,6 +23,7 @@ import (
 	"github.com/apache/incubator-devlake/core/errors"
 	"github.com/apache/incubator-devlake/core/plugin"
 	"github.com/apache/incubator-devlake/plugins/webhook/api"
+	"github.com/apache/incubator-devlake/plugins/webhook/models/migrationscripts"
 )
 
 // make sure interface is implemented
@@ -57,7 +58,7 @@ func (p Webhook) RootPkgPath() string {
 }
 
 func (p Webhook) MigrationScripts() []plugin.MigrationScript {
-	return nil
+	return migrationscripts.All()
 }
 
 func (p Webhook) ApiResources() map[string]map[string]plugin.ApiResourceHandler {
