@@ -108,6 +108,8 @@ func (p Jira) SubTaskMetas() []plugin.SubTaskMeta {
 		tasks.CollectIssuesMeta,
 		tasks.ExtractIssuesMeta,
 
+		tasks.ConvertIssueLabelsMeta,
+
 		tasks.CollectIssueChangelogsMeta,
 		tasks.ExtractIssueChangelogsMeta,
 
