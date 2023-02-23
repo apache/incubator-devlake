@@ -28,12 +28,18 @@ import (
 	"github.com/apache/incubator-devlake/core/models"
 	"github.com/apache/incubator-devlake/core/plugin"
 	"github.com/apache/incubator-devlake/core/utils"
-	"github.com/apache/incubator-devlake/helpers/pluginhelper/api"
 	"github.com/apache/incubator-devlake/test/helper"
 	"github.com/stretchr/testify/require"
 )
 
 const PLUGIN_NAME = "fake"
+const TOKEN = "this_is_a_valid_token"
+
+type FakePluginConnection struct {
+	Id    uint64 `json:"id"`
+	Name  string `json:"name"`
+	Token string `json:"token"`
+}
 
 func setupEnv() {
 	fmt.Println("Setup test env")
@@ -76,39 +82,97 @@ func connectLocalServer(t *testing.T) *helper.DevlakeClient {
 	return client
 }
 
+func CreateTestConnection(client *helper.DevlakeClient) *helper.Connection {
+	connection := client.CreateConnection(PLUGIN_NAME,
+		FakePluginConnection{
+			Name:  "Test connection",
+			Token: TOKEN,
+		},
+	)
+
+	client.SetTimeout(1)
+	return connection
+}
+
+func TestCreateConnection(t *testing.T) {
+	setupEnv()
+	buildPython(t)
+	client := connectLocalServer(t)
+
+	CreateTestConnection(client)
+
+	conns := client.ListConnections(PLUGIN_NAME)
+	require.Equal(t, 1, len(conns))
+	require.Equal(t, TOKEN, conns[0].Token)
+}
+
 func TestRunPipeline(t *testing.T) {
 	setupEnv()
 	buildPython(t)
 	client := connectLocalServer(t)
-	fmt.Println("Create new connection")
-	conn := client.CreateConnection(PLUGIN_NAME,
-		api.AccessToken{
-			Token: "this_is_a_valid_token",
-		},
-	)
-	client.SetTimeout(0)
-	conns := client.ListConnections(PLUGIN_NAME)
-	require.Equal(t, 1, len(conns))
-	require.Equal(t, "this_is_a_valid_token", conns[0].Token)
-	fmt.Println("Run pipeline")
-	t.Run("run_pipeline", func(t *testing.T) {
-		pipeline := client.RunPipeline(models.NewPipeline{
-			Name: "remote_test",
-			Plan: []plugin.PipelineStage{
+	conn := CreateTestConnection(client)
+
+	pipeline := client.RunPipeline(models.NewPipeline{
+		Name: "remote_test",
+		Plan: []plugin.PipelineStage{
+			{
 				{
+					Plugin:   PLUGIN_NAME,
+					Subtasks: nil,
+					Options: map[string]interface{}{
+						"connectionId": conn.ID,
+						"scopeId":      "org/project",
+					},
+				},
+			},
+		},
+	})
+
+	require.Equal(t, models.TASK_COMPLETED, pipeline.Status)
+	require.Equal(t, 1, pipeline.FinishedTasks)
+	require.Equal(t, "", pipeline.ErrorName)
+}
+
+func TestBlueprintV200(t *testing.T) {
+	setupEnv()
+	buildPython(t)
+	client := connectLocalServer(t)
+	connection := CreateTestConnection(client)
+	projectName := "Test project"
+
+	client.CreateProject(&helper.ProjectConfig{
+		ProjectName: projectName,
+	})
+
+	client.CreateScope("fake", connection.ID, map[string]interface{}{
+		"id":            "12345",
+		"connection_id": connection.ID,
+		"name":          "fake project",
+	})
+
+	blueprint := client.CreateBasicBlueprintV2(
+		"Test blueprint",
+		&helper.BlueprintV2Config{
+			Connection: &plugin.BlueprintConnectionV200{
+				Plugin:       "fake",
+				ConnectionId: connection.ID,
+				Scopes: []*plugin.BlueprintScopeV200{
 					{
-						Plugin:   PLUGIN_NAME,
-						Subtasks: nil,
-						Options: map[string]interface{}{
-							"connectionId": conn.ID,
-							"scopeId":      "org/project",
+						Id:   "12345",
+						Name: "Test scope",
+						Entities: []string{
+							plugin.DOMAIN_TYPE_CROSS,
 						},
 					},
 				},
 			},
-		})
-		require.Equal(t, models.TASK_COMPLETED, pipeline.Status)
-		require.Equal(t, 1, pipeline.FinishedTasks)
-		require.Equal(t, "", pipeline.ErrorName)
-	})
+			SkipOnFail:  true,
+			ProjectName: projectName,
+		},
+	)
+
+	project := client.GetProject(projectName)
+	require.Equal(t, blueprint.Name, project.Blueprint.Name)
+
+	client.TriggerBlueprint(blueprint.ID)
 }
