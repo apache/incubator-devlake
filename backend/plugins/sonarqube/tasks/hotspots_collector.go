@@ -33,18 +33,17 @@ const RAW_HOTSPOTS_TABLE = "sonarqube_hotspots"
 var _ plugin.SubTaskEntryPoint = CollectHotspots
 
 func CollectHotspots(taskCtx plugin.SubTaskContext) errors.Error {
-	rawDataSubTaskArgs, data := CreateRawDataSubTaskArgs(taskCtx, RAW_HOTSPOTS_TABLE)
-	collectorWithState, err := helper.NewApiCollectorWithState(*rawDataSubTaskArgs, data.TimeAfter)
-	if err != nil {
-		return err
-	}
-	incremental := collectorWithState.IsIncremental()
+	logger := taskCtx.GetLogger()
+	logger.Info("collect hotspots")
 
-	err = collectorWithState.InitCollector(helper.ApiCollectorArgs{
-		Incremental: incremental,
-		ApiClient:   data.ApiClient,
-		PageSize:    100,
-		UrlTemplate: "hotspots/search",
+	rawDataSubTaskArgs, data := CreateRawDataSubTaskArgs(taskCtx, RAW_HOTSPOTS_TABLE)
+
+	collector, err := helper.NewApiCollector(helper.ApiCollectorArgs{
+		RawDataSubTaskArgs: *rawDataSubTaskArgs,
+		ApiClient:          data.ApiClient,
+		PageSize:           100,
+		Incremental:        false,
+		UrlTemplate:        "hotspots/search",
 		Query: func(reqData *helper.RequestData) (url.Values, errors.Error) {
 			query := url.Values{}
 			// no time range
@@ -57,14 +56,14 @@ func CollectHotspots(taskCtx plugin.SubTaskContext) errors.Error {
 			var resData struct {
 				Data []json.RawMessage `json:"hotspots"`
 			}
-			err = helper.UnmarshalResponse(res, &resData)
+			err := helper.UnmarshalResponse(res, &resData)
 			return resData.Data, err
 		},
 	})
 	if err != nil {
 		return err
 	}
-	return collectorWithState.Execute()
+	return collector.Execute()
 }
 
 var CollectHotspotsMeta = plugin.SubTaskMeta{

@@ -35,7 +35,6 @@ type SonarqubeOptions struct {
 	// You can use it in subtasks, and you need to pass it to main.go and pipelines.
 	ConnectionId uint64   `json:"connectionId"`
 	ProjectKey   string   `json:"projectKey"`
-	TimeAfter    string   `json:"timeAfter" mapstructure:"timeAfter,omitempty"`
 	Tasks        []string `json:"tasks,omitempty"`
 }
 

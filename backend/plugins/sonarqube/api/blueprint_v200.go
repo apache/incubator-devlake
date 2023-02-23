@@ -21,7 +21,6 @@ import (
 	"fmt"
 	"net/http"
 	"net/url"
-	"time"
 
 	"github.com/apache/incubator-devlake/core/dal"
 	"github.com/apache/incubator-devlake/core/errors"
@@ -66,9 +65,6 @@ func makeDataSourcePipelinePlanV200(
 		options := make(map[string]interface{})
 		options["connectionId"] = connectionId
 		options["projectKey"] = bpScope.Id
-		if syncPolicy.TimeAfter != nil {
-			options["timeAfter"] = syncPolicy.TimeAfter.Format(time.RFC3339)
-		}
 
 		subtasks, err := helper.MakePipelinePlanSubtasks(subtaskMetas, bpScope.Entities)
 		if err != nil {
