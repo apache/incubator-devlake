@@ -94,6 +94,9 @@ func (p Bamboo) SubTaskMetas() []plugin.SubTaskMeta {
 		tasks.ExtractPlanBuildMeta,
 		tasks.CollectJobBuildMeta,
 		tasks.ExtractJobBuildMeta,
+		tasks.ConvertJobBuildsMeta,
+		tasks.ConvertPlanBuildsMeta,
+		tasks.ConvertPlanVcsMeta,
 		tasks.ConvertProjectsMeta,
 	}
 }
@@ -140,6 +143,7 @@ func (p Bamboo) PrepareTaskData(taskCtx plugin.TaskContext, options map[string]i
 				return nil, err
 			}
 		}
+		op.TransformationRuleId = scope.TransformationRuleId
 		if err != nil {
 			return nil, errors.Default.Wrap(err, fmt.Sprintf("fail to find project: %s", op.ProjectKey))
 		}
