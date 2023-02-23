@@ -44,6 +44,14 @@ import (
 type Table struct {
 	name string
 }
+type TableData struct {
+	Ctx           plugin.SubTaskContext
+	Config        *StarRocksConfig
+	SrcDb         dal.Dal
+	DestDb        dal.Dal
+	SrcTableName  string
+	DestTableName string
+}
 
 func (t *Table) TableName() string {
 	return t.name
@@ -52,17 +60,18 @@ func (t *Table) TableName() string {
 func ExportData(c plugin.SubTaskContext) errors.Error {
 	logger := c.GetLogger()
 	config := c.GetData().(*StarRocksConfig)
+
 	// 1. Get db instance
 	db, err := getDbInstance(c)
 	if err != nil {
 		return errors.Convert(err)
 	}
-	// 2. Filter out the tables to import
-	starrocksTables, err := getImportTables(c, db)
+	// 2. Filter out the tables to export
+	starrocksTables, err := getExportingTables(c, db)
 	if err != nil {
 		return errors.Convert(err)
 	}
-	// 3. put devlake data to starrocks
+	// 3. copy devlake data to starrocks
 	sr, err := gorm.Open(mysql.Open(fmt.Sprintf("%s:%s@tcp(%s:%d)/%s?charset=utf8mb4&parseTime=True&loc=Local", config.User, config.Password, config.Host, config.Port, config.Database)))
 	if err != nil {
 		return errors.Convert(err)
@@ -75,9 +84,17 @@ func ExportData(c plugin.SubTaskContext) errors.Error {
 			return errors.Convert(c.GetContext().Err())
 		default:
 		}
-		starrocksTable := strings.TrimLeft(table, "_")
-		starrocksTmpTable := fmt.Sprintf("%s_tmp", starrocksTable)
-		columnMap, orderBy, skip, err := createTmpTable(c, starrocksDb, db, starrocksTable, starrocksTmpTable, table)
+
+		td := TableData{
+			Ctx:           c,
+			Config:        config,
+			SrcDb:         db,
+			DestDb:        starrocksDb,
+			SrcTableName:  table,
+			DestTableName: strings.TrimLeft(table, "_"),
+		}
+		// columnMap, orderBy, skip, err := createTmpTableInStarrocks(c, starrocksDb, db, starrocksTable, starrocksTmpTable, table)
+		columnMap, orderBy, skip, err := createTmpTableInStarrocks(&td)
 		if skip {
 			logger.Info(fmt.Sprintf("table %s is up to date, so skip it", table))
 			continue
@@ -86,7 +103,7 @@ func ExportData(c plugin.SubTaskContext) errors.Error {
 			logger.Error(err, "create table %s in starrocks error", table)
 			return errors.Convert(err)
 		}
-		err = putDataToDst(c, starrocksDb, db, starrocksTable, starrocksTmpTable, table, columnMap, orderBy)
+		err = copyDataToDst(&td, columnMap, orderBy)
 		if err != nil {
 			return errors.Convert(err)
 		}
@@ -95,9 +112,15 @@ func ExportData(c plugin.SubTaskContext) errors.Error {
 }
 
 // create temp table for dealing with some complex logic
-func createTmpTable(c plugin.SubTaskContext, starrocksDb dal.Dal, db dal.Dal, starrocksTable string, starrocksTmpTable string, table string) (map[string]string, string, bool, error) {
-	logger := c.GetLogger()
-	config := c.GetData().(*StarRocksConfig)
+func createTmpTableInStarrocks(td *TableData) (map[string]string, string, bool, error) {
+	logger := td.Ctx.GetLogger()
+	config := td.Config
+	db := td.SrcDb
+	starrocksDb := td.DestDb
+	table := td.SrcTableName
+	starrocksTable := td.DestTableName
+	starrocksTmpTable := fmt.Sprintf("%s_tmp", starrocksTable)
+
 	columnMetas, err := db.GetColumns(&Table{name: table}, nil)
 	updateColumn := config.UpdateColumn
 	columnMap := make(map[string]string)
@@ -188,13 +211,19 @@ func createTmpTable(c plugin.SubTaskContext, starrocksDb dal.Dal, db dal.Dal, st
 }
 
 // put data to final dst database
-func putDataToDst(c plugin.SubTaskContext, starrocksDb, db dal.Dal, starrocksTable, starrocksTmpTable, table string, columnMap map[string]string, orderBy string) error {
-	logger := c.GetLogger()
-	config := c.GetData().(*StarRocksConfig)
+func copyDataToDst(td *TableData, columnMap map[string]string, orderBy string) error {
+	c := td.Ctx
+	logger := td.Ctx.GetLogger()
+	config := td.Config
+	db := td.SrcDb
+	starrocksDb := td.DestDb
+	table := td.SrcTableName
+	starrocksTable := td.DestTableName
+	starrocksTmpTable := fmt.Sprintf("%s_tmp", starrocksTable)
+
 	var offset int
 	var err error
 	var rows dal.Rows
-
 	rows, err = db.Cursor(
 		dal.From(table),
 		dal.Orderby(orderBy),
@@ -315,6 +344,8 @@ func putBatchData(c plugin.SubTaskContext, starrocksTmpTable, table string, data
 	if err != nil {
 		return err
 	}
+	defer resp.Body.Close()
+
 	if resp.StatusCode == 307 {
 		var location *url.URL
 		location, err = resp.Location()
@@ -329,11 +360,13 @@ func putBatchData(c plugin.SubTaskContext, starrocksTmpTable, table string, data
 		for k, v := range headers {
 			req.Header.Set(k, v)
 		}
-		resp, err = client.Do(req)
+		respRetry, err := client.Do(req)
+		if err != nil {
+			return err
+		}
+		defer respRetry.Body.Close()
 	}
-	if err != nil {
-		return err
-	}
+
 	b, err := io.ReadAll(resp.Body)
 	if err != nil {
 		return err
@@ -359,17 +392,18 @@ func getDbInstance(c plugin.SubTaskContext) (db dal.Dal, err error) {
 	config := c.GetData().(*StarRocksConfig)
 	if config.SourceDsn != "" && config.SourceType != "" {
 		var o *gorm.DB
-		if config.SourceType == "mysql" {
+		switch config.SourceType {
+		case "mysql":
 			o, err = gorm.Open(mysql.Open(config.SourceDsn))
 			if err != nil {
 				return nil, err
 			}
-		} else if config.SourceType == "postgres" {
+		case "postgres":
 			o, err = gorm.Open(postgres.Open(config.SourceDsn))
 			if err != nil {
 				return nil, err
 			}
-		} else {
+		default:
 			return nil, errors.NotFound.New(fmt.Sprintf("unsupported source type %s", config.SourceType))
 		}
 		db = dalgorm.NewDalgorm(o)
@@ -382,7 +416,7 @@ func getDbInstance(c plugin.SubTaskContext) (db dal.Dal, err error) {
 }
 
 // get imported tables
-func getImportTables(c plugin.SubTaskContext, db dal.Dal) (starrocksTables []string, err error) {
+func getExportingTables(c plugin.SubTaskContext, db dal.Dal) (starrocksTables []string, err error) {
 	config := c.GetData().(*StarRocksConfig)
 	if config.DomainLayer != "" {
 		starrocksTables = utils.GetTablesByDomainLayer(config.DomainLayer)
