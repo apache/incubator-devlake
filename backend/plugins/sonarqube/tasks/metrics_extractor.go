@@ -25,30 +25,34 @@ import (
 	"github.com/apache/incubator-devlake/plugins/sonarqube/models"
 )
 
-var _ plugin.SubTaskEntryPoint = ExtractFilemetrics
+var _ plugin.SubTaskEntryPoint = ExtractMetrics
 
-func ExtractFilemetrics(taskCtx plugin.SubTaskContext) errors.Error {
-	rawDataSubTaskArgs, data := CreateRawDataSubTaskArgs(taskCtx, RAW_FILEMETRICS_TABLE)
+func ExtractMetrics(taskCtx plugin.SubTaskContext) errors.Error {
+	rawDataSubTaskArgs, data := CreateRawDataSubTaskArgs(taskCtx, RAW_METRICS_TABLE)
 
 	extractor, err := helper.NewApiExtractor(helper.ApiExtractorArgs{
 		RawDataSubTaskArgs: *rawDataSubTaskArgs,
 
 		Extract: func(resData *helper.RawData) ([]interface{}, errors.Error) {
-			body := &fileMetricsResponse{}
+			body := &models.SonarqubeApiMetrics{}
 			err := errors.Convert(json.Unmarshal(resData.Data, body))
 			if err != nil {
 				return nil, err
 			}
-			fileMetrics := &models.SonarqubeFileMetrics{
-				ConnectionId:   data.Options.ConnectionId,
-				FileMetricsKey: body.Key,
-				FileName:       body.Name,
-				FilePath:       body.Path,
-				FileLanguage:   body.Language,
-				ProjectKey:     data.Options.ProjectKey,
+			metric := &models.SonarqubeMetrics{
+				ConnectionId: data.Options.ConnectionId,
+				Id:           body.Id,
+				MetricsKey:   body.Key,
+				Type:         body.Type,
+				Name:         body.Name,
+				Description:  body.Description,
+				Domain:       body.Domain,
+				Direction:    body.Direction,
+				Qualitative:  body.Qualitative,
+				Hidden:       body.Hidden,
+				Custom:       body.Custom,
 			}
-			err = setMetrics(fileMetrics, body.Measures)
-			return []interface{}{fileMetrics}, err
+			return []interface{}{metric}, nil
 		},
 	})
 	if err != nil {
@@ -58,10 +62,10 @@ func ExtractFilemetrics(taskCtx plugin.SubTaskContext) errors.Error {
 	return extractor.Execute()
 }
 
-var ExtractFilemetricsMeta = plugin.SubTaskMeta{
-	Name:             "ExtractFilemetrics",
-	EntryPoint:       ExtractFilemetrics,
+var ExtractMetricsMeta = plugin.SubTaskMeta{
+	Name:             "ExtractMetrics",
+	EntryPoint:       ExtractMetrics,
 	EnabledByDefault: true,
-	Description:      "Extract raw data into tool layer table sonarqube_filemetrics",
+	Description:      "Extract raw data into tool layer table sonarqube_metrics",
 	DomainTypes:      []string{plugin.DOMAIN_TYPE_CODE_QUALITY},
 }

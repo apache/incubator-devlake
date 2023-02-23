@@ -21,16 +21,34 @@ import (
 	"github.com/apache/incubator-devlake/core/models/common"
 )
 
-type SonarqubeAccount struct {
-	common.NoPKModel
+type SonarqubeMetrics struct {
 	ConnectionId uint64 `gorm:"primaryKey"`
-	Login        string `json:"login" gorm:"primaryKey"`
+	Id           string `gorm:"primaryKey"`
+	MetricsKey   string `gorm:"type:varchar(100)"`
+	Type         string `gorm:"type:varchar(100)"`
 	Name         string `gorm:"type:varchar(100)"`
-	Email        string `gorm:"type:varchar(100)"`
-	Active       bool   `json:"active"`
-	Local        bool   `json:"local"`
+	Description  string
+	Domain       string `gorm:"type:varchar(255)"`
+	Direction    int
+	Qualitative  bool
+	Hidden       bool
+	Custom       bool
+	common.NoPKModel
 }
 
-func (SonarqubeAccount) TableName() string {
-	return "_tool_sonarqube_accounts"
+func (SonarqubeMetrics) TableName() string {
+	return "_tool_sonarqube_metrics"
+}
+
+type SonarqubeApiMetrics struct {
+	Id          string `json:"id"`
+	Key         string `json:"key"`
+	Type        string `json:"type"`
+	Name        string `json:"name"`
+	Description string `json:"description"`
+	Domain      string `json:"domain"`
+	Direction   int    `json:"direction"`
+	Qualitative bool   `json:"qualitative"`
+	Hidden      bool   `json:"hidden"`
+	Custom      bool   `json:"custom"`
 }

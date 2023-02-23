@@ -35,8 +35,8 @@ func TestConvertTimeToMinutes(t *testing.T) {
 		//{"1min", 1},
 		//{"30min", 30},
 		//{"1h30min", 90},
-		{"1d1h30min", 1530},
-		{"3d5h10min", 4630},
+		{"1d1h30min", 570},
+		{"3d5h10min", 1750},
 	}
 
 	for _, tc := range testCases {
@@ -101,5 +101,51 @@ func TestGetTotalPagesFromResponse(t *testing.T) {
 	expectedPages := 2
 	if totalPages != expectedPages {
 		t.Fatalf("Expected %v pages, but got %v", expectedPages, totalPages)
+	}
+}
+
+func TestSetMetrics(t *testing.T) {
+	fileMetrics := &models.SonarqubeFileMetrics{}
+	metricsList := []Measure{
+		{Metric: "sqale_index", Value: "100"},
+		{Metric: "sqale_rating", Value: "1.0"},
+		{Metric: "reliability_rating", Value: "1.0"},
+		{Metric: "security_rating", Value: "2.0"},
+		{Metric: "security_review_rating", Value: "3.0"},
+		{Metric: "ncloc", Value: "500"},
+		{Metric: "code_smells", Value: "10"},
+	}
+
+	err := setMetrics(fileMetrics, metricsList)
+	if err != nil {
+		t.Errorf("setMetrics returned an error: %s", err)
+	}
+
+	if fileMetrics.SqaleIndex != 100 {
+		t.Errorf("SqaleIndex was not set properly")
+	}
+
+	if fileMetrics.SqaleRating != 1.0 {
+		t.Errorf("SqaleRating was not set properly")
+	}
+
+	if fileMetrics.ReliabilityRating != "A" {
+		t.Errorf("ReliabilityRating was not set properly")
+	}
+
+	if fileMetrics.SecurityRating != "B" {
+		t.Errorf("SecurityRating was not set properly")
+	}
+
+	if fileMetrics.SecurityReviewRating != "C" {
+		t.Errorf("SecurityReviewRating was not set properly")
+	}
+
+	if fileMetrics.Ncloc != 500 {
+		t.Errorf("Ncloc was not set properly")
+	}
+
+	if fileMetrics.CodeSmells != 10 {
+		t.Errorf("CodeSmells was not set properly")
 	}
 }

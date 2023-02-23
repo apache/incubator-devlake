@@ -20,28 +20,26 @@ package tasks
 import (
 	"encoding/json"
 	"fmt"
-	"net/http"
-	"net/url"
-
 	"github.com/apache/incubator-devlake/core/errors"
 	"github.com/apache/incubator-devlake/core/plugin"
 	helper "github.com/apache/incubator-devlake/helpers/pluginhelper/api"
+	"net/http"
+	"net/url"
 )
 
-const RAW_ACCOUNTS_TABLE = "sonarqube_api_accounts"
+var _ plugin.SubTaskEntryPoint = CollectMetrics
 
-var _ plugin.SubTaskEntryPoint = CollectAccounts
+const RAW_METRICS_TABLE = "sonarqube_api_metrics"
 
-func CollectAccounts(taskCtx plugin.SubTaskContext) errors.Error {
-	logger := taskCtx.GetLogger()
-	logger.Info("collect accounts")
+// We collect metrics to define field type of fileMetrics
+func CollectMetrics(taskCtx plugin.SubTaskContext) errors.Error {
+	rawDataSubTaskArgs, data := CreateRawDataSubTaskArgs(taskCtx, RAW_METRICS_TABLE)
 
-	rawDataSubTaskArgs, data := CreateRawDataSubTaskArgs(taskCtx, RAW_ACCOUNTS_TABLE)
 	collector, err := helper.NewApiCollector(helper.ApiCollectorArgs{
 		RawDataSubTaskArgs: *rawDataSubTaskArgs,
 		ApiClient:          data.ApiClient,
 		PageSize:           100,
-		UrlTemplate:        "users/search",
+		UrlTemplate:        "metrics/search",
 		Query: func(reqData *helper.RequestData) (url.Values, errors.Error) {
 			query := url.Values{}
 			query.Set("p", fmt.Sprintf("%v", reqData.Pager.Page))
@@ -51,7 +49,7 @@ func CollectAccounts(taskCtx plugin.SubTaskContext) errors.Error {
 		GetTotalPages: GetTotalPagesFromResponse,
 		ResponseParser: func(res *http.Response) ([]json.RawMessage, errors.Error) {
 			var resData struct {
-				Data []json.RawMessage `json:"users"`
+				Data []json.RawMessage `json:"metrics"`
 			}
 			err := helper.UnmarshalResponse(res, &resData)
 			return resData.Data, err
@@ -60,14 +58,13 @@ func CollectAccounts(taskCtx plugin.SubTaskContext) errors.Error {
 	if err != nil {
 		return err
 	}
-
 	return collector.Execute()
 }
 
-var CollectAccountsMeta = plugin.SubTaskMeta{
-	Name:             "CollectAccounts",
-	EntryPoint:       CollectAccounts,
+var CollectMetricsMeta = plugin.SubTaskMeta{
+	Name:             "CollectMetrics",
+	EntryPoint:       CollectMetrics,
 	EnabledByDefault: true,
-	Description:      "Collect Accounts data from Sonarqube user api",
-	DomainTypes:      []string{plugin.DOMAIN_TYPE_CROSS},
+	Description:      "Collect metrics data from Sonarqube api",
+	DomainTypes:      []string{plugin.DOMAIN_TYPE_CODE_QUALITY},
 }

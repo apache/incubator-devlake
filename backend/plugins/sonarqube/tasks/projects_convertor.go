@@ -30,6 +30,8 @@ import (
 	sonarqubeModels "github.com/apache/incubator-devlake/plugins/sonarqube/models"
 )
 
+const RAW_PROJECTS_TABLE = "sonarqube_api_projects"
+
 var ConvertProjectsMeta = plugin.SubTaskMeta{
 	Name:             "convertProjects",
 	EntryPoint:       ConvertProjects,

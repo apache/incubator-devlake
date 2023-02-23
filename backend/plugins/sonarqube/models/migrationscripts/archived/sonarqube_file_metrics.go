@@ -25,24 +25,30 @@ type SonarqubeFileMetrics struct {
 	ConnectionId             uint64 `gorm:"primaryKey"`
 	FileMetricsKey           string `gorm:"primaryKey"`
 	ProjectKey               string `gorm:"index"`
-	FileName                 string
+	FileName                 string `gorm:"type:varchar(255)"`
 	FilePath                 string
-	FileLanguage             string
+	FileLanguage             string `gorm:"type:varchar(20)"`
 	CodeSmells               int
 	SqaleIndex               int
 	SqaleRating              float64
 	Bugs                     int
-	ReliabilityRating        string
+	ReliabilityRating        string `gorm:"type:varchar(20)"`
 	Vulnerabilities          int
-	SecurityRating           string
+	SecurityRating           string `gorm:"type:varchar(20)"`
 	SecurityHotspots         int
 	SecurityHotspotsReviewed float64
-	SecurityReviewRating     string
+	SecurityReviewRating     string `gorm:"type:varchar(20)"`
 	Ncloc                    int
-	Coverage                 float64
+	UnoveredLines            int
 	LinesToCover             int
 	DuplicatedLinesDensity   float64
 	DuplicatedBlocks         int
+	DuplicatedFiles          int
+	DuplicatedLines          int
+
+	EffortToReachMaintainabilityRatingA int
+	Complexity                          int
+	CognitiveComplexity                 int
 	archived.NoPKModel
 }
 

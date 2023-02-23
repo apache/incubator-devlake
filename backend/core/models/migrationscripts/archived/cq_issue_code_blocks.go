@@ -20,12 +20,12 @@ package archived
 type CqIssueCodeBlock struct {
 	DomainEntity
 	IssueKey    string `json:"key" gorm:"index"`
-	Component   string `json:"component" gorm:"index"`
-	StartLine   int    `json:"startLine" `
-	EndLine     int    `json:"endLine" `
-	StartOffset int    `json:"startOffset" `
-	EndOffset   int    `json:"endOffset" `
-	Msg         string `json:"msg" `
+	Component   string `gorm:"index"`
+	StartLine   int
+	EndLine     int
+	StartOffset int
+	EndOffset   int
+	Msg         string
 }
 
 func (CqIssueCodeBlock) TableName() string {

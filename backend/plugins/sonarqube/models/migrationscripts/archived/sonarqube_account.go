@@ -24,11 +24,11 @@ import (
 type SonarqubeAccount struct {
 	archived.NoPKModel
 	ConnectionId uint64 `gorm:"primaryKey"`
-	Login        string `json:"login" gorm:"primaryKey"`
-	Name         string `json:"name"`
-	Email        string `json:"email"`
-	Active       bool   `json:"active"`
-	Local        bool   `json:"local"`
+	Login        string `gorm:"primaryKey"`
+	Name         string `gorm:"type:varchar(100)"`
+	Email        string `gorm:"type:varchar(100)"`
+	Active       bool
+	Local        bool
 }
 
 func (SonarqubeAccount) TableName() string {

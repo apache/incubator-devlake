@@ -28,7 +28,7 @@ import (
 	helper "github.com/apache/incubator-devlake/helpers/pluginhelper/api"
 )
 
-const RAW_FILEMETRICS_TABLE = "sonarqube_filemetrics"
+const RAW_FILEMETRICS_TABLE = "sonarqube_api_filemetrics"
 
 var _ plugin.SubTaskEntryPoint = CollectFilemetrics
 

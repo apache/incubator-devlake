@@ -28,7 +28,7 @@ import (
 	helper "github.com/apache/incubator-devlake/helpers/pluginhelper/api"
 )
 
-const RAW_HOTSPOTS_TABLE = "sonarqube_hotspots"
+const RAW_HOTSPOTS_TABLE = "sonarqube_api_hotspots"
 
 var _ plugin.SubTaskEntryPoint = CollectHotspots
 

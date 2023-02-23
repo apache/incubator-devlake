@@ -25,16 +25,16 @@ import (
 type SonarqubeHotspot struct {
 	ConnectionId             uint64 `gorm:"primaryKey"`
 	HotspotKey               string `gorm:"primaryKey"`
-	RuleKey                  string
+	RuleKey                  string `gorm:"type:varchar(255)"`
 	Component                string `gorm:"index"`
 	ProjectKey               string `gorm:"index"`
 	Line                     int
-	Status                   string
+	Status                   string `gorm:"type:varchar(100)"`
 	Message                  string
-	Author                   string
-	Assignee                 string
-	SecurityCategory         string
-	VulnerabilityProbability string
+	Author                   string `gorm:"type:varchar(100)"`
+	Assignee                 string `gorm:"type:varchar(100)"`
+	SecurityCategory         string `gorm:"type:varchar(100)"`
+	VulnerabilityProbability string `gorm:"type:varchar(100)"`
 	CreationDate             *api.Iso8601Time
 	UpdateDate               *api.Iso8601Time
 	archived.NoPKModel

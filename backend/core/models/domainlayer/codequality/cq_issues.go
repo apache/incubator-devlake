@@ -24,21 +24,21 @@ import (
 
 type CqIssue struct {
 	domainlayer.DomainEntity
-	Rule                     string           `json:"rule" gorm:"type:varchar(255)"`
-	Severity                 string           `json:"severity" gorm:"type:varchar(255)"`
-	Component                string           `json:"component" gorm:"type:varchar(255)"`
-	ProjectKey               string           `gorm:"index;type:varchar(255)"` //domain project key
-	Line                     int              `json:"line"`
-	Status                   string           `json:"status" gorm:"type:varchar(255)"`
-	Message                  string           `json:"message"`
-	Debt                     int              `json:"debt"`
-	Effort                   int              `json:"effort"`
-	CommitAuthorEmail        string           `json:"author" gorm:"type:varchar(255)"`
-	Assignee                 string           `json:"assignee" gorm:"type:varchar(255)"`
-	Hash                     string           `json:"hash" gorm:"type:varchar(255)"`
-	Tags                     string           `json:"tags" gorm:"type:varchar(255)"`
-	Type                     string           `json:"type" gorm:"type:varchar(255)"`
-	Scope                    string           `json:"scope" gorm:"type:varchar(255)"`
+	Rule                     string `gorm:"type:varchar(255)"`
+	Severity                 string `gorm:"type:varchar(100)"`
+	Component                string `gorm:"type:varchar(255)"`
+	ProjectKey               string `gorm:"index;type:varchar(100)"` //domain project key
+	Line                     int
+	Status                   string `gorm:"type:varchar(20)"`
+	Message                  string
+	Debt                     int
+	Effort                   int
+	CommitAuthorEmail        string `json:"author" gorm:"type:varchar(255)"`
+	Assignee                 string `json:"assignee" gorm:"type:varchar(255)"`
+	Hash                     string `gorm:"type:varchar(100)"`
+	Tags                     string
+	Type                     string           `gorm:"type:varchar(100)"`
+	Scope                    string           `gorm:"type:varchar(255)"`
 	StartLine                int              `json:"startLine"`
 	EndLine                  int              `json:"endLine"`
 	StartOffset              int              `json:"startOffset"`

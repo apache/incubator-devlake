@@ -24,21 +24,21 @@ import (
 
 type SonarqubeIssue struct {
 	ConnectionId uint64 `gorm:"primaryKey"`
-	IssueKey     string `gorm:"primaryKey"`
+	IssueKey     string `gorm:"primaryKey;type:varchar(100)"`
 	Rule         string `gorm:"type:varchar(255)"`
-	Severity     string `gorm:"type:varchar(255)"`
+	Severity     string `gorm:"type:varchar(100)"`
 	Component    string `gorm:"type:varchar(255)"`
-	ProjectKey   string `gorm:"index;type:varchar(255)"` //domain project key
+	ProjectKey   string `gorm:"index;type:varchar(100)"` //domain project key
 	Line         int
-	Status       string
+	Status       string `gorm:"type:varchar(20)"`
 	Message      string
 	Debt         int
 	Effort       int
-	Author       string
-	Hash         string
+	Author       string `gorm:"type:varchar(100)"`
+	Hash         string `gorm:"type:varchar(100)"`
 	Tags         string
-	Type         string
-	Scope        string
+	Type         string `gorm:"type:varchar(100)"`
+	Scope        string `gorm:"type:varchar(255)"`
 	StartLine    int
 	EndLine      int
 	StartOffset  int

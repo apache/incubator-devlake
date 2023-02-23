@@ -29,8 +29,6 @@ import (
 	"reflect"
 )
 
-const RAW_PROJECTS_TABLE = "sonarqube_projects"
-
 var ConvertFileMetricsMeta = plugin.SubTaskMeta{
 	Name:             "convertFileMetrics",
 	EntryPoint:       ConvertFileMetrics,
@@ -41,8 +39,8 @@ var ConvertFileMetricsMeta = plugin.SubTaskMeta{
 
 func ConvertFileMetrics(taskCtx plugin.SubTaskContext) errors.Error {
 	db := taskCtx.GetDal()
-	rawDataSubTaskArgs, data := CreateRawDataSubTaskArgs(taskCtx, RAW_PROJECTS_TABLE)
-	cursor, err := db.Cursor(dal.From(sonarqubeModels.SonarqubeFileMetrics{}),
+	rawDataSubTaskArgs, data := CreateRawDataSubTaskArgs(taskCtx, RAW_FILEMETRICS_TABLE)
+	cursor, err := db.Cursor(dal.From(sonarqubeModels.SonarqubeWholeFileMetrics{}),
 		dal.Where("connection_id = ? and project_key = ?", data.Options.ConnectionId, data.Options.ProjectKey))
 	if err != nil {
 		return err
@@ -52,32 +50,37 @@ func ConvertFileMetrics(taskCtx plugin.SubTaskContext) errors.Error {
 	issueIdGen := didgen.NewDomainIdGenerator(&sonarqubeModels.SonarqubeFileMetrics{})
 	projectIdGen := didgen.NewDomainIdGenerator(&sonarqubeModels.SonarqubeProject{})
 	converter, err := api.NewDataConverter(api.DataConverterArgs{
-		InputRowType:       reflect.TypeOf(sonarqubeModels.SonarqubeFileMetrics{}),
+		InputRowType:       reflect.TypeOf(sonarqubeModels.SonarqubeWholeFileMetrics{}),
 		Input:              cursor,
 		RawDataSubTaskArgs: *rawDataSubTaskArgs,
 		Convert: func(inputRow interface{}) ([]interface{}, errors.Error) {
-			sonarqubeFileMetric := inputRow.(*sonarqubeModels.SonarqubeFileMetrics)
+			sonarqubeFileMetric := inputRow.(*sonarqubeModels.SonarqubeWholeFileMetrics)
 			domainFileMetric := &codequality.CqFileMetrics{
-				DomainEntity:             domainlayer.DomainEntity{Id: issueIdGen.Generate(data.Options.ConnectionId, sonarqubeFileMetric.FileMetricsKey)},
-				FileName:                 sonarqubeFileMetric.FileName,
-				FilePath:                 sonarqubeFileMetric.FilePath,
-				FileLanguage:             sonarqubeFileMetric.FileLanguage,
-				ProjectKey:               projectIdGen.Generate(data.Options.ConnectionId, sonarqubeFileMetric.ProjectKey),
-				CodeSmells:               sonarqubeFileMetric.CodeSmells,
-				SqaleIndex:               sonarqubeFileMetric.SqaleIndex,
-				SqaleRating:              sonarqubeFileMetric.SqaleRating,
-				Bugs:                     sonarqubeFileMetric.Bugs,
-				ReliabilityRating:        sonarqubeFileMetric.ReliabilityRating,
-				Vulnerabilities:          sonarqubeFileMetric.Vulnerabilities,
-				SecurityRating:           sonarqubeFileMetric.SecurityRating,
-				SecurityHotspots:         sonarqubeFileMetric.SecurityHotspots,
-				SecurityHotspotsReviewed: sonarqubeFileMetric.SecurityHotspotsReviewed,
-				SecurityReviewRating:     sonarqubeFileMetric.SecurityReviewRating,
-				Ncloc:                    sonarqubeFileMetric.Ncloc,
-				Coverage:                 sonarqubeFileMetric.Coverage,
-				LinesToCover:             sonarqubeFileMetric.LinesToCover,
-				DuplicatedLinesDensity:   sonarqubeFileMetric.DuplicatedLinesDensity,
-				DuplicatedBlocks:         sonarqubeFileMetric.DuplicatedBlocks,
+				DomainEntity:                        domainlayer.DomainEntity{Id: issueIdGen.Generate(data.Options.ConnectionId, sonarqubeFileMetric.FileMetricsKey)},
+				ProjectKey:                          projectIdGen.Generate(data.Options.ConnectionId, sonarqubeFileMetric.ProjectKey),
+				FileName:                            sonarqubeFileMetric.FileName,
+				FilePath:                            sonarqubeFileMetric.FilePath,
+				FileLanguage:                        sonarqubeFileMetric.FileLanguage,
+				CodeSmells:                          sonarqubeFileMetric.CodeSmells,
+				SqaleIndex:                          sonarqubeFileMetric.SqaleIndex,
+				SqaleRating:                         sonarqubeFileMetric.SqaleRating,
+				Bugs:                                sonarqubeFileMetric.Bugs,
+				ReliabilityRating:                   sonarqubeFileMetric.ReliabilityRating,
+				Vulnerabilities:                     sonarqubeFileMetric.Vulnerabilities,
+				SecurityRating:                      sonarqubeFileMetric.SecurityRating,
+				SecurityHotspots:                    sonarqubeFileMetric.SecurityHotspots,
+				SecurityHotspotsReviewed:            sonarqubeFileMetric.SecurityHotspotsReviewed,
+				SecurityReviewRating:                sonarqubeFileMetric.SecurityReviewRating,
+				Ncloc:                               sonarqubeFileMetric.Ncloc,
+				UnoveredLines:                       sonarqubeFileMetric.UnoveredLines,
+				LinesToCover:                        sonarqubeFileMetric.LinesToCover,
+				DuplicatedLinesDensity:              sonarqubeFileMetric.DuplicatedLinesDensity,
+				DuplicatedBlocks:                    sonarqubeFileMetric.DuplicatedBlocks,
+				DuplicatedFiles:                     sonarqubeFileMetric.DuplicatedFiles,
+				DuplicatedLines:                     sonarqubeFileMetric.DuplicatedLines,
+				EffortToReachMaintainabilityRatingA: sonarqubeFileMetric.EffortToReachMaintainabilityRatingA,
+				Complexity:                          sonarqubeFileMetric.Complexity,
+				CognitiveComplexity:                 sonarqubeFileMetric.CognitiveComplexity,
 			}
 			return []interface{}{
 				domainFileMetric,

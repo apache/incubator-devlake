@@ -39,8 +39,8 @@ type SonarqubeConnection struct {
 }
 
 type TestConnectionRequest struct {
-	Endpoint    string `json:"endpoint"`
-	Proxy       string `json:"proxy"`
+	Endpoint    string `gorm:"type:varchar(255)"`
+	Proxy       string `gorm:"type:varchar(255)"`
 	AccessToken `mapstructure:",squash"`
 }
 
@@ -51,15 +51,15 @@ type AccessToken struct {
 
 // This object conforms to what the frontend currently expects.
 type SonarqubeResponse struct {
-	Name string `json:"name"`
-	ID   int    `json:"id"`
+	Name string `gorm:"type:varchar(255)"`
+	ID   int
 	SonarqubeConnection
 }
 
 // Using User because it requires authentication.
 type ApiUserResponse struct {
 	Id   int
-	Name string `json:"name"`
+	Name string `gorm:"type:varchar(255)"`
 }
 
 func (SonarqubeConnection) TableName() string {

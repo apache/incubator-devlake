@@ -19,35 +19,23 @@ package archived
 
 import (
 	"github.com/apache/incubator-devlake/core/models/migrationscripts/archived"
-	"github.com/apache/incubator-devlake/helpers/pluginhelper/api"
 )
 
-type SonarqubeIssue struct {
+type SonarqubeMetrics struct {
 	ConnectionId uint64 `gorm:"primaryKey"`
-	IssueKey     string `gorm:"primaryKey"`
-	Rule         string `gorm:"type:varchar(255)"`
-	Severity     string `gorm:"type:varchar(100)"`
-	Component    string `gorm:"type:varchar(255)"`
-	ProjectKey   string `gorm:"index;type:varchar(100)"` //domain project key
-	Line         int
-	Status       string `gorm:"type:varchar(20)"`
-	Message      string
-	Debt         int
-	Effort       int
-	Author       string `gorm:"type:varchar(100)"`
-	Hash         string `gorm:"type:varchar(100)"`
-	Tags         string
+	Id           string `gorm:"primaryKey"`
+	MetricsKey   string `gorm:"type:varchar(100)"`
 	Type         string `gorm:"type:varchar(100)"`
-	Scope        string `gorm:"type:varchar(255)"`
-	StartLine    int
-	EndLine      int
-	StartOffset  int
-	EndOffset    int
-	CreationDate *api.Iso8601Time
-	UpdateDate   *api.Iso8601Time
+	Name         string `gorm:"type:varchar(100)"`
+	Description  string
+	Domain       string `gorm:"type:varchar(255)"`
+	Direction    int
+	Qualitative  bool
+	Hidden       bool
+	Custom       bool
 	archived.NoPKModel
 }
 
-func (SonarqubeIssue) TableName() string {
-	return "_tool_sonarqube_issues"
+func (SonarqubeMetrics) TableName() string {
+	return "_tool_sonarqube_metrics"
 }

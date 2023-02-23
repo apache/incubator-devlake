@@ -26,6 +26,7 @@ import (
 	"github.com/apache/incubator-devlake/plugins/sonarqube/models"
 	"hash"
 	"net/http"
+	"strconv"
 	"unicode"
 )
 
@@ -124,6 +125,139 @@ func convertTimeToMinutes(timeStr string) int {
 		}
 	}
 
-	totalMinutes := days*24*60 + hours*60 + minutes
+	totalMinutes := days*8*60 + hours*60 + minutes
 	return totalMinutes
+}
+
+var alphabetMap = map[string]string{
+	"1.0": "A",
+	"2.0": "B",
+	"3.0": "C",
+	"4.0": "D",
+	"5.0": "E",
+}
+
+type fileMetricsResponse struct {
+	Key       string    `json:"key"`
+	Name      string    `json:"name"`
+	Qualifier string    `json:"qualifier"`
+	Path      string    `json:"path"`
+	Language  string    `json:"language"`
+	Measures  []Measure `json:"measures"`
+}
+type Measure struct {
+	Metric    string `json:"metric"`
+	Value     string `json:"value"`
+	BestValue bool   `json:"bestValue,omitempty"`
+}
+
+// As we have many metrics, we cannot
+func setMetrics(fileMetrics *models.SonarqubeFileMetrics, metricsList []Measure) errors.Error {
+	var err errors.Error
+	for _, v := range metricsList {
+		switch v.Metric {
+		case "sqale_index":
+			fileMetrics.SqaleIndex, err = errors.Convert01(strconv.Atoi(v.Value))
+			if err != nil {
+				return err
+			}
+		case "sqale_rating":
+			fileMetrics.SqaleRating, err = errors.Convert01(strconv.ParseFloat(v.Value, 32))
+			if err != nil {
+				return err
+			}
+		case "reliability_rating":
+			fileMetrics.ReliabilityRating = alphabetMap[v.Value]
+		case "security_rating":
+			fileMetrics.SecurityRating = alphabetMap[v.Value]
+		case "security_review_rating":
+			fileMetrics.SecurityReviewRating = alphabetMap[v.Value]
+		case "ncloc":
+			fileMetrics.Ncloc, err = errors.Convert01(strconv.Atoi(v.Value))
+			if err != nil {
+				return err
+			}
+		case "code_smells":
+			fileMetrics.CodeSmells, err = errors.Convert01(strconv.Atoi(v.Value))
+			if err != nil {
+				return err
+			}
+		case "bugs":
+			fileMetrics.Bugs, err = errors.Convert01(strconv.Atoi(v.Value))
+			if err != nil {
+				return err
+			}
+		case "vulnerabilities":
+			fileMetrics.Vulnerabilities, err = errors.Convert01(strconv.Atoi(v.Value))
+			if err != nil {
+				return err
+			}
+		case "security_hotspots":
+			fileMetrics.SecurityHotspots, err = errors.Convert01(strconv.Atoi(v.Value))
+			if err != nil {
+				return err
+			}
+		case "security_hotspots_reviewed":
+			fileMetrics.SecurityHotspotsReviewed, err = errors.Convert01(strconv.ParseFloat(v.Value, 32))
+			if err != nil {
+				return err
+			}
+		case "uncovered_lines":
+			fileMetrics.UnoveredLines, err = errors.Convert01(strconv.Atoi(v.Value))
+			if err != nil {
+				return err
+			}
+		case "lines_to_cover":
+			fileMetrics.LinesToCover, err = errors.Convert01(strconv.Atoi(v.Value))
+			if err != nil {
+				return err
+			}
+		case "duplicated_blocks":
+			fileMetrics.DuplicatedBlocks, err = errors.Convert01(strconv.Atoi(v.Value))
+			if err != nil {
+				return err
+			}
+		case "duplicated_lines_density":
+			fileMetrics.DuplicatedLinesDensity, err = errors.Convert01(strconv.ParseFloat(v.Value, 32))
+			if err != nil {
+				return err
+			}
+		}
+	}
+	return nil
+}
+
+// As we have many metrics, we cannot
+func setAdditionalMetrics(fileMetrics *models.SonarqubeAdditionalFileMetrics, metricsList []Measure) errors.Error {
+	var err errors.Error
+	for _, v := range metricsList {
+		switch v.Metric {
+		case "duplicated_lines":
+			fileMetrics.DuplicatedLines, err = errors.Convert01(strconv.Atoi(v.Value))
+			if err != nil {
+				return err
+			}
+		case "duplicated_files":
+			fileMetrics.DuplicatedFiles, err = errors.Convert01(strconv.Atoi(v.Value))
+			if err != nil {
+				return err
+			}
+		case "complexity":
+			fileMetrics.Complexity, err = errors.Convert01(strconv.Atoi(v.Value))
+			if err != nil {
+				return err
+			}
+		case "cognitive_complexity":
+			fileMetrics.CognitiveComplexity, err = errors.Convert01(strconv.Atoi(v.Value))
+			if err != nil {
+				return err
+			}
+		case "effort_to_reach_maintainability_rating_a":
+			fileMetrics.EffortToReachMaintainabilityRatingA, err = errors.Convert01(strconv.Atoi(v.Value))
+			if err != nil {
+				return err
+			}
+		}
+	}
+	return nil
 }
