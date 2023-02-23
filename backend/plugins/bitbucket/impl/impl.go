@@ -148,20 +148,20 @@ func (p Bitbucket) PrepareTaskData(taskCtx plugin.TaskContext, options map[strin
 		return nil, err
 	}
 
-	var createdDateAfter time.Time
-	if op.CreatedDateAfter != "" {
-		createdDateAfter, err = errors.Convert01(time.Parse(time.RFC3339, op.CreatedDateAfter))
+	var timeAfter time.Time
+	if op.TimeAfter != "" {
+		timeAfter, err = errors.Convert01(time.Parse(time.RFC3339, op.TimeAfter))
 		if err != nil {
-			return nil, errors.BadInput.Wrap(err, "invalid value for `createdDateAfter`")
+			return nil, errors.BadInput.Wrap(err, "invalid value for `timeAfter`")
 		}
 	}
 	taskData := &tasks.BitbucketTaskData{
 		Options:   op,
 		ApiClient: apiClient,
 	}
-	if !createdDateAfter.IsZero() {
-		taskData.CreatedDateAfter = &createdDateAfter
-		logger.Debug("collect data updated createdDateAfter %s", createdDateAfter)
+	if !timeAfter.IsZero() {
+		taskData.TimeAfter = &timeAfter
+		logger.Debug("collect data updated timeAfter %s", timeAfter)
 	}
 
 	return taskData, nil
