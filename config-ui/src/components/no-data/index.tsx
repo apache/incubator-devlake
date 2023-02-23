@@ -17,34 +17,37 @@
  */
 
 import React from 'react';
-import { useHistory } from 'react-router-dom';
-import { Button, Intent } from '@blueprintjs/core';
 
-import { NoData } from '@/components';
-import { BlueprintDetail } from '@/pages';
+import Img from '@/images/no-data.svg';
+import { Card } from '@/components';
 
-import type { ProjectType } from '../types';
+import styled from 'styled-components';
 
-interface Props {
-  project: ProjectType;
-}
+const Wrapper = styled(Card)`
+  text-align: center;
 
-export const BlueprintPanel = ({ project }: Props) => {
-  const history = useHistory();
-
-  const handleGoCreateBlueprint = () =>
-    history.push(`/projects/${window.encodeURIComponent(project.name)}/create-blueprint`);
-
-  if (!project.blueprint) {
-    return (
-      <NoData
-        text="Create a blueprint to collect data from data sources."
-        action={
-          <Button intent={Intent.PRIMARY} icon="plus" text="Create a Blueprint" onClick={handleGoCreateBlueprint} />
-        }
-      />
-    );
+  img {
+    display: inline-block;
+    width: 120px;
+    height: 120px;
   }
 
-  return <BlueprintDetail id={project.blueprint.id} />;
+  .action {
+    margin-top: 24px;
+  }
+`;
+
+interface Props {
+  text: React.ReactNode;
+  action?: React.ReactNode;
+}
+
+export const NoData = ({ text, action }: Props) => {
+  return (
+    <Wrapper>
+      <img src={Img} alt="" />
+      <p>{text}</p>
+      <div className="action">{action}</div>
+    </Wrapper>
+  );
 };
