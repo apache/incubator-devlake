@@ -15,21 +15,10 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-package models
+package archived
 
-type ApiBambooLink struct {
-	Href string `json:"href"`
-	Rel  string `json:"rel"`
-}
-
-type ApiBambooSizeData struct {
-	Size       int `json:"size"`
-	StartIndex int `json:"start-index"`
-	MaxResult  int `json:"max-result"`
-}
-type ApiBambooKey struct {
-	Key string `json:"key"`
-}
+/*
+import "github.com/apache/incubator-devlake/core/models/migrationscripts/archived"
 
 type ApiBambooOperations struct {
 	CanView                   bool `json:"canView"`
@@ -40,3 +29,23 @@ type ApiBambooOperations struct {
 	AllowedToCreateVersion    bool `json:"allowedToCreateVersion"`
 	AllowedToSetVersionStatus bool `json:"allowedToSetVersionStatus"`
 }
+
+type BambooDeployEnvironment struct {
+	ConnectionId        uint64 `gorm:"primaryKey"`
+	ID                  uint64 `json:"id" gorm:"primaryKey"`
+	EnvKey              string `json:"key" gorm:"index;type:varchar(255)"`
+	Name                string `json:"name" gorm:"index;type:varchar(255)"`
+	PlanKey             string `json:"plan_key" gorm:"index;type:varchar(255)"`
+	Description         string `json:"description"`
+	DeploymentProjectId uint64 `json:"deploymentProjectId"`
+	Position            uint64 `json:"position"`
+	ConfigurationState  string `json:"configurationState"`
+
+	ApiBambooOperations
+	archived.NoPKModel
+}
+
+func (BambooDeployEnvironment) TableName() string {
+	return "_tool_bamboo_deploy_environment"
+}
+*/

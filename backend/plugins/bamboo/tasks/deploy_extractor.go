@@ -17,6 +17,7 @@ limitations under the License.
 
 package tasks
 
+/*
 import (
 	"encoding/json"
 
@@ -26,16 +27,16 @@ import (
 	"github.com/apache/incubator-devlake/plugins/bamboo/models"
 )
 
-var _ plugin.SubTaskEntryPoint = ExtractPlanBuild
+var _ plugin.SubTaskEntryPoint = ExtractDeploy
 
-func ExtractPlanBuild(taskCtx plugin.SubTaskContext) errors.Error {
-	rawDataSubTaskArgs, data := CreateRawDataSubTaskArgs(taskCtx, RAW_PLAN_BUILD_TABLE)
+func ExtractDeploy(taskCtx plugin.SubTaskContext) errors.Error {
+	rawDataSubTaskArgs, data := CreateRawDataSubTaskArgs(taskCtx, RAW_DEPLOY_TABLE)
 
 	extractor, err := helper.NewApiExtractor(helper.ApiExtractorArgs{
 		RawDataSubTaskArgs: *rawDataSubTaskArgs,
 
 		Extract: func(resData *helper.RawData) ([]interface{}, errors.Error) {
-			res := &models.ApiBambooPlanBuild{}
+			res := &models.ApiBambooDeployProject{}
 			err := errors.Convert(json.Unmarshal(resData.Data, res))
 			if err != nil {
 				return nil, err
@@ -45,25 +46,17 @@ func ExtractPlanBuild(taskCtx plugin.SubTaskContext) errors.Error {
 			if err != nil {
 				return nil, err
 			}
-			body := models.BambooPlanBuild{}.Convert(res)
-			body.ConnectionId = data.Options.ConnectionId
-			body.ProjectKey = data.Options.ProjectKey
-			body.PlanKey = plan.PlanKey
 
-			results := make([]interface{}, 0)
-			results = append(results, body)
-			// As job build can get more accuracy repo info,
-			// we can collect BambooPlanBuildVcsRevision in job_biuld_extractor
-			for _, v := range res.VcsRevisions.VcsRevision {
-				results = append(results, &models.BambooPlanBuildVcsRevision{
-					ConnectionId:   data.Options.ConnectionId,
-					PlanBuildKey:   body.PlanBuildKey,
-					RepositoryId:   v.RepositoryId,
-					RepositoryName: v.RepositoryName,
-					VcsRevisionKey: v.VcsRevisionKey,
-				})
+			results := make([]interface{}, 0, len(res.Environments))
+			for _, env := range res.Environments {
+				body := &models.BambooDeployEnvironment{}
+
+				body.Convert(&env)
+				body.ConnectionId = data.Options.ConnectionId
+				body.PlanKey = res.PlanKey.Key
+
+				results = append(results, body)
 			}
-
 			return results, nil
 		},
 	})
@@ -74,10 +67,11 @@ func ExtractPlanBuild(taskCtx plugin.SubTaskContext) errors.Error {
 	return extractor.Execute()
 }
 
-var ExtractPlanBuildMeta = plugin.SubTaskMeta{
-	Name:             "ExtractPlanBuild",
-	EntryPoint:       ExtractPlanBuild,
+var ExtractDeployMeta = plugin.SubTaskMeta{
+	Name:             "ExtractDeploy",
+	EntryPoint:       ExtractDeploy,
 	EnabledByDefault: true,
-	Description:      "Extract raw data into tool layer table bamboo_plan_builds",
+	Description:      "Extract raw data into tool layer table _tool_bamboo_deploy_environment",
 	DomainTypes:      []string{plugin.DOMAIN_TYPE_CICD},
 }
+*/

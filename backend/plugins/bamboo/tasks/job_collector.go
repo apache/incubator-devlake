@@ -20,17 +20,18 @@ package tasks
 import (
 	"encoding/json"
 	"fmt"
+	"net/http"
+	"net/url"
+	"reflect"
+
 	"github.com/apache/incubator-devlake/core/dal"
 	"github.com/apache/incubator-devlake/core/errors"
 	"github.com/apache/incubator-devlake/core/plugin"
 	helper "github.com/apache/incubator-devlake/helpers/pluginhelper/api"
 	"github.com/apache/incubator-devlake/plugins/bamboo/models"
-	"net/http"
-	"net/url"
-	"reflect"
 )
 
-const RAW_JOB_TABLE = "bamboo_job"
+const RAW_JOB_TABLE = "bamboo_api_job"
 
 var _ plugin.SubTaskEntryPoint = CollectJob
 
