@@ -27,6 +27,7 @@ import (
 	"github.com/merico-dev/graphql"
 	"net/http"
 	"reflect"
+	"time"
 )
 
 // CursorPager contains pagination information for a graphql request
@@ -48,6 +49,10 @@ type GraphqlQueryPageInfo struct {
 	EndCursor   string `json:"endCursor"`
 	HasNextPage bool   `json:"hasNextPage"`
 }
+
+// DateTime is the type of time in Graphql
+// graphql lib can only read this name...
+type DateTime struct{ time.Time }
 
 // GraphqlAsyncResponseHandler callback function to handle the Response asynchronously
 type GraphqlAsyncResponseHandler func(res *http.Response) error
@@ -203,6 +208,11 @@ func (collector *GraphqlCollector) exec(divider *BatchSaveDivider, input interfa
 		SkipCursor: nil,
 		Size:       collector.args.PageSize,
 	}
+	err = collector.ExtractExistRawData(divider, reqData)
+	if err != nil {
+		collector.checkError(err)
+		return
+	}
 	if collector.args.GetPageInfo != nil {
 		collector.fetchOneByOne(divider, reqData)
 	} else {
@@ -210,7 +220,7 @@ func (collector *GraphqlCollector) exec(divider *BatchSaveDivider, input interfa
 	}
 }
 
-// fetchPagesDetermined fetches data of all pages for APIs that return paging information
+// fetchOneByOne fetches data of all pages for APIs that return paging information
 func (collector *GraphqlCollector) fetchOneByOne(divider *BatchSaveDivider, reqData *GraphqlRequestData) {
 	// fetch first page
 	var fetchNextPage func(query interface{}) errors.Error
@@ -239,6 +249,110 @@ func (collector *GraphqlCollector) fetchOneByOne(divider *BatchSaveDivider, reqD
 		return nil
 	}
 	collector.fetchAsync(divider, reqData, fetchNextPage)
+}
+
+// BatchSaveWithOrigin save the results and fill raw data origin for them
+func (collector *GraphqlCollector) BatchSaveWithOrigin(divider *BatchSaveDivider, results []interface{}, row *RawData) errors.Error {
+	// batch save divider
+	RAW_DATA_ORIGIN := "RawDataOrigin"
+	for _, result := range results {
+		// get the batch operator for the specific type
+		batch, err := divider.ForType(reflect.TypeOf(result))
+		if err != nil {
+			return err
+		}
+		// set raw data origin field
+		origin := reflect.ValueOf(result).Elem().FieldByName(RAW_DATA_ORIGIN)
+		if origin.IsValid() && origin.IsZero() {
+			origin.Set(reflect.ValueOf(common.RawDataOrigin{
+				RawDataTable:  collector.table,
+				RawDataId:     row.ID,
+				RawDataParams: row.Params,
+			}))
+		}
+		// records get saved into db when slots were max outed
+		err = batch.Add(result)
+		if err != nil {
+			return errors.Default.Wrap(err, "error adding result to batch")
+		}
+	}
+	return nil
+}
+
+// ExtractExistRawData will extract data from existing data from raw layer if increment
+func (collector *GraphqlCollector) ExtractExistRawData(divider *BatchSaveDivider, reqData *GraphqlRequestData) errors.Error {
+	// load data from database
+	db := collector.args.Ctx.GetDal()
+	logger := collector.args.Ctx.GetLogger()
+
+	clauses := []dal.Clause{
+		dal.From(collector.table),
+		dal.Where("params = ?", collector.params),
+		dal.Orderby("id ASC"),
+	}
+
+	count, err := db.Count(clauses...)
+	if err != nil {
+		return errors.Default.Wrap(err, "error getting count of clauses")
+	}
+	cursor, err := db.Cursor(clauses...)
+	if err != nil {
+		return errors.Default.Wrap(err, "error running DB query")
+	}
+	logger.Info("get data from %s where params=%s and got %d", collector.table, collector.params, count)
+	defer cursor.Close()
+	row := &RawData{}
+
+	// get the type of query and variables
+	query, variables, _ := collector.args.BuildQuery(reqData)
+
+	// prgress
+	collector.args.Ctx.SetProgress(0, -1)
+	ctx := collector.args.Ctx.GetContext()
+	// iterate all rows
+	for cursor.Next() {
+		select {
+		case <-ctx.Done():
+			return errors.Convert(ctx.Err())
+		default:
+		}
+		err = db.Fetch(cursor, row)
+		if err != nil {
+			return errors.Default.Wrap(err, "error fetching row")
+		}
+
+		err = errors.Convert(json.Unmarshal(row.Data, &query))
+		if err != nil {
+			return errors.Default.Wrap(err, `graphql collector unmarshal query failed`)
+		}
+		err = errors.Convert(json.Unmarshal(row.Input, &variables))
+		if err != nil {
+			return errors.Default.Wrap(err, `variables in graphql query can not unmarshal from json`)
+		}
+
+		var results []interface{}
+		if collector.args.ResponseParserWithDataErrors != nil {
+			results, err = errors.Convert01(collector.args.ResponseParserWithDataErrors(query, variables, nil))
+		} else {
+			results, err = errors.Convert01(collector.args.ResponseParser(query, variables))
+		}
+		if err != nil {
+			if errors.Is(err, ErrFinishCollect) {
+				logger.Info("existing data parser return ErrFinishCollect, but skip. rawId: #%d", row.ID)
+			} else {
+				return errors.Default.Wrap(err, "error calling plugin Extract implementation")
+			}
+		}
+		err = collector.BatchSaveWithOrigin(divider, results, row)
+		if err != nil {
+			return err
+		}
+
+		collector.args.Ctx.IncProgress(1)
+	}
+
+	// save the last batches
+	return divider.Close()
 }
 
 func (collector *GraphqlCollector) fetchAsync(divider *BatchSaveDivider, reqData *GraphqlRequestData, handler func(query interface{}) errors.Error) {
@@ -300,10 +414,8 @@ func (collector *GraphqlCollector) fetchAsync(divider *BatchSaveDivider, reqData
 		return
 	}
 
-	var (
-		results []interface{}
-	)
-	if len(dataErrors) > 0 || collector.args.ResponseParser == nil {
+	var results []interface{}
+	if collector.args.ResponseParserWithDataErrors != nil {
 		results, err = collector.args.ResponseParserWithDataErrors(query, variables, dataErrors)
 	} else {
 		results, err = collector.args.ResponseParser(query, variables)
@@ -317,33 +429,12 @@ func (collector *GraphqlCollector) fetchAsync(divider *BatchSaveDivider, reqData
 			return
 		}
 	}
-
-	RAW_DATA_ORIGIN := "RawDataOrigin"
-	// batch save divider
-	for _, result := range results {
-		// get the batch operator for the specific type
-		batch, err := divider.ForType(reflect.TypeOf(result))
-		if err != nil {
-			collector.checkError(err)
-			return
-		}
-		// set raw data origin field
-		origin := reflect.ValueOf(result).Elem().FieldByName(RAW_DATA_ORIGIN)
-		if origin.IsValid() {
-			origin.Set(reflect.ValueOf(common.RawDataOrigin{
-				RawDataTable:  collector.table,
-				RawDataId:     row.ID,
-				RawDataParams: row.Params,
-			}))
-		}
-		// records get saved into db when slots were max outed
-		err = batch.Add(result)
-		if err != nil {
-			collector.checkError(err)
-			return
-		}
-		collector.args.Ctx.IncProgress(1)
+	err = collector.BatchSaveWithOrigin(divider, results, row)
+	if err != nil {
+		collector.checkError(err)
+		return
 	}
+
 	collector.args.Ctx.IncProgress(1)
 	if handler != nil {
 		// trigger next fetch, but return if ErrFinishCollect got from ResponseParser

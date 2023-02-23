@@ -83,7 +83,7 @@ func (p GithubGraphql) SubTaskMetas() []plugin.SubTaskMeta {
 		// collect workflow run & job
 		githubTasks.CollectRunsMeta,
 		githubTasks.ExtractRunsMeta,
-		tasks.CollectCheckRunMeta,
+		tasks.CollectGraphqlJobsMeta,
 
 		// collect others
 		githubTasks.CollectApiCommentsMeta,

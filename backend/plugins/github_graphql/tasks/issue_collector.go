@@ -42,7 +42,7 @@ type GraphqlQueryIssueWrapper struct {
 			TotalCount graphql.Int
 			Issues     []GraphqlQueryIssue `graphql:"nodes"`
 			PageInfo   *helper.GraphqlQueryPageInfo
-		} `graphql:"issues(first: $pageSize, after: $skipCursor, orderBy: {field: CREATED_AT, direction: DESC})"`
+		} `graphql:"issues(first: $pageSize, after: $skipCursor, orderBy: {field: CREATED_AT, direction: DESC}, filterBy: {since: $since})"`
 	} `graphql:"repository(owner: $owner, name: $name)"`
 }
 
@@ -97,21 +97,35 @@ func CollectIssue(taskCtx plugin.SubTaskContext) errors.Error {
 		return nil
 	}
 
-	collector, err := helper.NewGraphqlCollector(helper.GraphqlCollectorArgs{
-		RawDataSubTaskArgs: helper.RawDataSubTaskArgs{
-			Ctx: taskCtx,
-			Params: githubTasks.GithubApiParams{
-				ConnectionId: data.Options.ConnectionId,
-				Name:         data.Options.Name,
-			},
-			Table: RAW_ISSUES_TABLE,
+	collectorWithState, err := helper.NewStatefulApiCollector(helper.RawDataSubTaskArgs{
+		Ctx: taskCtx,
+		Params: githubTasks.GithubApiParams{
+			ConnectionId: data.Options.ConnectionId,
+			Name:         data.Options.Name,
 		},
+		Table: RAW_ISSUES_TABLE,
+	}, data.TimeAfter)
+	if err != nil {
+		return err
+	}
+
+	incremental := collectorWithState.IsIncremental()
+
+	err = collectorWithState.InitGraphQLCollector(helper.GraphqlCollectorArgs{
 		GraphqlClient: data.GraphqlClient,
 		PageSize:      100,
+		Incremental:   incremental,
 		BuildQuery: func(reqData *helper.GraphqlRequestData) (interface{}, map[string]interface{}, error) {
+			since := helper.DateTime{}
+			if incremental {
+				since = helper.DateTime{Time: *collectorWithState.LatestState.LatestSuccessStart}
+			} else if collectorWithState.TimeAfter != nil {
+				since = helper.DateTime{Time: *collectorWithState.TimeAfter}
+			}
 			query := &GraphqlQueryIssueWrapper{}
 			ownerName := strings.Split(data.Options.Name, "/")
 			variables := map[string]interface{}{
+				"since":      since,
 				"pageSize":   graphql.Int(reqData.Pager.Size),
 				"skipCursor": (*graphql.String)(reqData.Pager.SkipCursor),
 				"owner":      graphql.String(ownerName[0]),
@@ -130,10 +144,6 @@ func CollectIssue(taskCtx plugin.SubTaskContext) errors.Error {
 			results := make([]interface{}, 0, 1)
 			isFinish := false
 			for _, issue := range issues {
-				if data.TimeAfter != nil && !data.TimeAfter.Before(issue.CreatedAt) {
-					isFinish = true
-					break
-				}
 				githubIssue, err := convertGithubIssue(milestoneMap, issue, data.Options.ConnectionId, data.Options.GithubId)
 				if err != nil {
 					return nil, err
@@ -166,12 +176,11 @@ func CollectIssue(taskCtx plugin.SubTaskContext) errors.Error {
 			}
 		},
 	})
-
 	if err != nil {
 		return err
 	}
 
-	return collector.Execute()
+	return collectorWithState.Execute()
 }
 
 // create a milestone map for numberId to databaseId

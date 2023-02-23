@@ -32,7 +32,7 @@ import (
 	"github.com/merico-dev/graphql"
 )
 
-const RAW_CHECK_RUNS_TABLE = "github_graphql_check_runs"
+const RAW_GRAPHQL_JOBS_TABLE = "github_graphql_jobs"
 
 type GraphqlQueryCheckRunWrapper struct {
 	RateLimit struct {
@@ -42,12 +42,14 @@ type GraphqlQueryCheckRunWrapper struct {
 }
 
 type GraphqlQueryCheckSuite struct {
-	Id         string
-	Typename   string `graphql:"__typename"`
+	Id       string
+	Typename string `graphql:"__typename"`
+	// equal to Run in rest
 	CheckSuite struct {
 		WorkflowRun struct {
 			DatabaseId int
 		}
+		// equal to Job in rest
 		CheckRuns struct {
 			TotalCount int
 			Nodes      []struct {
@@ -86,28 +88,28 @@ type SimpleWorkflowRun struct {
 	CheckSuiteNodeID string
 }
 
-var CollectCheckRunMeta = plugin.SubTaskMeta{
-	Name:             "CollectCheckRun",
-	EntryPoint:       CollectCheckRun,
+var CollectGraphqlJobsMeta = plugin.SubTaskMeta{
+	Name:             "CollectGraphqlJobs",
+	EntryPoint:       CollectGraphqlJobs,
 	EnabledByDefault: true,
-	Description:      "Collect CheckRun data from GithubGraphql api",
+	Description:      "Collect Jobs(CheckRun) data from GithubGraphql api",
 	DomainTypes:      []string{plugin.DOMAIN_TYPE_CICD},
 }
 
 var _ plugin.SubTaskEntryPoint = CollectAccount
 
-func CollectCheckRun(taskCtx plugin.SubTaskContext) errors.Error {
+func CollectGraphqlJobs(taskCtx plugin.SubTaskContext) errors.Error {
 	logger := taskCtx.GetLogger()
 	db := taskCtx.GetDal()
 	data := taskCtx.GetData().(*githubTasks.GithubTaskData)
 
-	collectorWithState, err := helper.NewApiCollectorWithState(helper.RawDataSubTaskArgs{
+	collectorWithState, err := helper.NewStatefulApiCollector(helper.RawDataSubTaskArgs{
 		Ctx: taskCtx,
 		Params: githubTasks.GithubApiParams{
 			ConnectionId: data.Options.ConnectionId,
 			Name:         data.Options.Name,
 		},
-		Table: RAW_CHECK_RUNS_TABLE,
+		Table: RAW_GRAPHQL_JOBS_TABLE,
 	}, data.TimeAfter)
 	if err != nil {
 		return err
@@ -120,9 +122,6 @@ func CollectCheckRun(taskCtx plugin.SubTaskContext) errors.Error {
 		dal.From(models.GithubRun{}.TableName()),
 		dal.Where("repo_id = ? and connection_id=?", data.Options.GithubId, data.Options.ConnectionId),
 		dal.Orderby("github_updated_at DESC"),
-	}
-	if collectorWithState.TimeAfter != nil {
-		clauses = append(clauses, dal.Where("github_created_at > ?", *collectorWithState.TimeAfter))
 	}
 	if incremental {
 		clauses = append(clauses, dal.Where("github_updated_at > ?", *collectorWithState.LatestState.LatestSuccessStart))
@@ -203,7 +202,6 @@ func CollectCheckRun(taskCtx plugin.SubTaskContext) errors.Error {
 			return results, nil
 		},
 	})
-
 	if err != nil {
 		return err
 	}
