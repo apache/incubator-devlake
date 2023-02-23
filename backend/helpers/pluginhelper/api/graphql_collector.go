@@ -27,6 +27,7 @@ import (
 	"github.com/merico-dev/graphql"
 	"net/http"
 	"reflect"
+	"time"
 )
 
 // CursorPager contains pagination information for a graphql request
@@ -48,6 +49,10 @@ type GraphqlQueryPageInfo struct {
 	EndCursor   string `json:"endCursor"`
 	HasNextPage bool   `json:"hasNextPage"`
 }
+
+// DateTime is the type of time in Graphql
+// graphql lib can only read this name...
+type DateTime struct{ time.Time }
 
 // GraphqlAsyncResponseHandler callback function to handle the Response asynchronously
 type GraphqlAsyncResponseHandler func(res *http.Response) error

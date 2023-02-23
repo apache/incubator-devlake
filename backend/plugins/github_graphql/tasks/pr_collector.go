@@ -36,6 +36,10 @@ type GraphqlQueryPrWrapper struct {
 	RateLimit struct {
 		Cost int
 	}
+	// now it orderBy UPDATED_AT and use cursor pagination
+	// It may miss some PRs updated when collection.
+	// Because these missed PRs will be collected on next, But it's not enough.
+	// So Next Millstone(0.17) we should change it to filter by CREATE_AT + collect detail
 	Repository struct {
 		PullRequests struct {
 			PageInfo   *api.GraphqlQueryPageInfo

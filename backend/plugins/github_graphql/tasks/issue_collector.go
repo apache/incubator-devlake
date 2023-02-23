@@ -42,7 +42,7 @@ type GraphqlQueryIssueWrapper struct {
 			TotalCount graphql.Int
 			Issues     []GraphqlQueryIssue `graphql:"nodes"`
 			PageInfo   *helper.GraphqlQueryPageInfo
-		} `graphql:"issues(first: $pageSize, after: $skipCursor, orderBy: {field: UPDATED_AT, direction: DESC})"`
+		} `graphql:"issues(first: $pageSize, after: $skipCursor, orderBy: {field: CREATED_AT, direction: DESC}, filterBy: {since: $since})"`
 	} `graphql:"repository(owner: $owner, name: $name)"`
 }
 
@@ -116,9 +116,16 @@ func CollectIssue(taskCtx plugin.SubTaskContext) errors.Error {
 		PageSize:      100,
 		Incremental:   incremental,
 		BuildQuery: func(reqData *helper.GraphqlRequestData) (interface{}, map[string]interface{}, error) {
+			since := helper.DateTime{}
+			if incremental {
+				since = helper.DateTime{Time: *collectorWithState.LatestState.LatestSuccessStart}
+			} else if collectorWithState.TimeAfter != nil {
+				since = helper.DateTime{Time: *collectorWithState.TimeAfter}
+			}
 			query := &GraphqlQueryIssueWrapper{}
 			ownerName := strings.Split(data.Options.Name, "/")
 			variables := map[string]interface{}{
+				"since":      since,
 				"pageSize":   graphql.Int(reqData.Pager.Size),
 				"skipCursor": (*graphql.String)(reqData.Pager.SkipCursor),
 				"owner":      graphql.String(ownerName[0]),
@@ -137,11 +144,6 @@ func CollectIssue(taskCtx plugin.SubTaskContext) errors.Error {
 			results := make([]interface{}, 0, 1)
 			isFinish := false
 			for _, issue := range issues {
-				// collect all data even though in increment mode because of existing data extracting
-				if collectorWithState.TimeAfter != nil && !collectorWithState.TimeAfter.Before(issue.UpdatedAt) {
-					isFinish = true
-					break
-				}
 				githubIssue, err := convertGithubIssue(milestoneMap, issue, data.Options.ConnectionId, data.Options.GithubId)
 				if err != nil {
 					return nil, err
