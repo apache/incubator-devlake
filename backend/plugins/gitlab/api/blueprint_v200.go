@@ -145,8 +145,8 @@ func makePipelinePlanV200(
 		options["connectionId"] = connection.ID
 		options["projectId"] = intScopeId
 		options["transformationRuleId"] = transformationRules.ID
-		if syncPolicy.CreatedDateAfter != nil {
-			options["createdDateAfter"] = syncPolicy.CreatedDateAfter.Format(time.RFC3339)
+		if syncPolicy.TimeAfter != nil {
+			options["timeAfter"] = syncPolicy.TimeAfter.Format(time.RFC3339)
 		}
 
 		// construct subtasks
