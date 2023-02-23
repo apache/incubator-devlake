@@ -20,11 +20,12 @@ package dalgorm
 import (
 	"database/sql"
 	"fmt"
+	"reflect"
+	"strings"
+
 	"github.com/apache/incubator-devlake/core/dal"
 	"github.com/apache/incubator-devlake/core/errors"
 	"github.com/apache/incubator-devlake/core/utils"
-	"reflect"
-	"strings"
 
 	"gorm.io/gorm"
 	"gorm.io/gorm/clause"
@@ -201,15 +202,16 @@ func (d *Dalgorm) Delete(entity interface{}, clauses ...dal.Clause) errors.Error
 }
 
 // UpdateColumn allows you to update mulitple records
-func (d *Dalgorm) UpdateColumn(entity interface{}, columnName string, value interface{}, clauses ...dal.Clause) errors.Error {
+func (d *Dalgorm) UpdateColumn(entityOrTable interface{}, columnName string, value interface{}, clauses ...dal.Clause) errors.Error {
 	if expr, ok := value.(dal.DalClause); ok {
 		value = gorm.Expr(expr.Expr, transformParams(expr.Params)...)
 	}
-	return errors.Convert(buildTx(d.db, clauses).Model(entity).Update(columnName, value).Error)
+	clauses = append(clauses, dal.From(entityOrTable))
+	return errors.Convert(buildTx(d.db, clauses).Update(columnName, value).Error)
 }
 
 // UpdateColumns allows you to update multiple columns of mulitple records
-func (d *Dalgorm) UpdateColumns(entity interface{}, set []dal.DalSet, clauses ...dal.Clause) errors.Error {
+func (d *Dalgorm) UpdateColumns(entityOrTable interface{}, set []dal.DalSet, clauses ...dal.Clause) errors.Error {
 	updatesSet := make(map[string]interface{})
 
 	for _, s := range set {
@@ -219,7 +221,8 @@ func (d *Dalgorm) UpdateColumns(entity interface{}, set []dal.DalSet, clauses ..
 		updatesSet[s.ColumnName] = s.Value
 	}
 
-	return errors.Convert(buildTx(d.db, clauses).Model(entity).Updates(updatesSet).Error)
+	clauses = append(clauses, dal.From(entityOrTable))
+	return errors.Convert(buildTx(d.db, clauses).Updates(updatesSet).Error)
 }
 
 // UpdateAllColumn updated all Columns of entity

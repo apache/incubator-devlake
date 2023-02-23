@@ -35,16 +35,14 @@ type ApiCollectorStateManager struct {
 	RawDataSubTaskArgs
 	// *ApiCollector
 	// *GraphqlCollector
-	subtasks    []plugin.SubTask
-	LatestState models.CollectorLatestState
-	// Deprecating(timeAfter): to be deleted
-	CreatedDateAfter *time.Time
-	TimeAfter        *time.Time
-	ExecuteStart     time.Time
+	subtasks     []plugin.SubTask
+	LatestState  models.CollectorLatestState
+	TimeAfter    *time.Time
+	ExecuteStart time.Time
 }
 
-// NewApiCollectorWithStateEx create a new ApiCollectorStateManager
-func NewApiCollectorWithStateEx(args RawDataSubTaskArgs, createdDateAfter *time.Time, timeAfter *time.Time) (*ApiCollectorStateManager, errors.Error) {
+// NewApiCollectorWithState create a new ApiCollectorStateManager
+func NewStatefulApiCollector(args RawDataSubTaskArgs, timeAfter *time.Time) (*ApiCollectorStateManager, errors.Error) {
 	db := args.Ctx.GetDal()
 
 	rawDataSubTask, err := NewRawDataSubTask(args)
@@ -66,37 +64,17 @@ func NewApiCollectorWithStateEx(args RawDataSubTaskArgs, createdDateAfter *time.
 	return &ApiCollectorStateManager{
 		RawDataSubTaskArgs: args,
 		LatestState:        latestState,
-		// Deprecating(timeAfter): to be deleted
-		CreatedDateAfter: createdDateAfter,
-		TimeAfter:        timeAfter,
-		ExecuteStart:     time.Now(),
+		TimeAfter:          timeAfter,
+		ExecuteStart:       time.Now(),
 	}, nil
-}
-
-// NewApiCollectorWithState create a new ApiCollectorStateManager
-// Deprecating(timeAfter): use NewStatefulApiCollector instead
-func NewApiCollectorWithState(args RawDataSubTaskArgs, createdDateAfter *time.Time) (*ApiCollectorStateManager, errors.Error) {
-	return NewApiCollectorWithStateEx(args, createdDateAfter, nil)
-}
-
-// NewApiCollectorWithState create a new ApiCollectorStateManager
-func NewStatefulApiCollector(args RawDataSubTaskArgs, timeAfter *time.Time) (*ApiCollectorStateManager, errors.Error) {
-	return NewApiCollectorWithStateEx(args, nil, timeAfter)
 }
 
 // IsIncremental indicates if the collector should operate in incremental mode
 func (m *ApiCollectorStateManager) IsIncremental() bool {
-	// the initial collection
-	if m.LatestState.LatestSuccessStart == nil {
-		return false
-	}
-	// prioritize TimeAfter parameter: collector should filter data by `updated_date`
 	if m.TimeAfter != nil {
 		return m.LatestState.TimeAfter == nil || !m.TimeAfter.Before(*m.LatestState.TimeAfter)
 	}
-	// Deprecating(timeAfter): to be removed
-	// fallback to CreatedDateAfter: collector should filter data by `created_date`
-	return m.LatestState.CreatedDateAfter == nil || m.CreatedDateAfter != nil && !m.CreatedDateAfter.Before(*m.LatestState.CreatedDateAfter)
+	return m.LatestState.LatestSuccessStart != nil
 }
 
 // InitCollector init the embedded collector
@@ -132,8 +110,6 @@ func (m *ApiCollectorStateManager) Execute() errors.Error {
 
 	db := m.Ctx.GetDal()
 	m.LatestState.LatestSuccessStart = &m.ExecuteStart
-	// Deprecating(timeAfter): to be deleted
-	m.LatestState.CreatedDateAfter = m.CreatedDateAfter
 	m.LatestState.TimeAfter = m.TimeAfter
 	return db.CreateOrUpdate(&m.LatestState)
 }

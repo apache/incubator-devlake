@@ -19,8 +19,9 @@ package dal
 
 import (
 	"database/sql"
-	"github.com/apache/incubator-devlake/core/errors"
 	"reflect"
+
+	"github.com/apache/incubator-devlake/core/errors"
 )
 
 type Tabler interface {
@@ -108,9 +109,9 @@ type Dal interface {
 	// Update updates record
 	Update(entity interface{}, clauses ...Clause) errors.Error
 	// UpdateColumn allows you to update multiple records
-	UpdateColumn(entity interface{}, columnName string, value interface{}, clauses ...Clause) errors.Error
+	UpdateColumn(entityOrTable interface{}, columnName string, value interface{}, clauses ...Clause) errors.Error
 	// UpdateColumns allows you to update multiple columns of multiple records
-	UpdateColumns(entity interface{}, set []DalSet, clauses ...Clause) errors.Error
+	UpdateColumns(entityOrTable interface{}, set []DalSet, clauses ...Clause) errors.Error
 	// UpdateAllColumn updated all Columns of entity
 	UpdateAllColumn(entity interface{}, clauses ...Clause) errors.Error
 	// CreateOrUpdate tries to create the record, or fallback to update all if failed

@@ -274,14 +274,12 @@ func MakePlanForBlueprint(blueprint *models.Blueprint) (plugin.PipelinePlan, err
 	}
 
 	bpSyncPolicy := plugin.BlueprintSyncPolicy{}
-	// Deprecating(timeAfter): to be deleted
-	bpSyncPolicy.CreatedDateAfter = bpSettings.CreatedDateAfter
 	bpSyncPolicy.TimeAfter = bpSettings.TimeAfter
 
 	var plan plugin.PipelinePlan
 	switch bpSettings.Version {
 	case "1.0.0":
-		// Notice: v1 not complete SkipOnFail & CreatedDateAfter
+		// Notice: v1 not complete SkipOnFail & TimeAfter
 		plan, err = GeneratePlanJsonV100(bpSettings)
 	case "2.0.0":
 		// load project metric plugins and convert it to a map
