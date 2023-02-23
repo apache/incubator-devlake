@@ -44,17 +44,18 @@ import (
 type Table struct {
 	name string
 }
-type TableData struct {
+
+func (t *Table) TableName() string {
+	return t.name
+}
+
+type DataConfigParams struct {
 	Ctx           plugin.SubTaskContext
 	Config        *StarRocksConfig
 	SrcDb         dal.Dal
 	DestDb        dal.Dal
 	SrcTableName  string
 	DestTableName string
-}
-
-func (t *Table) TableName() string {
-	return t.name
 }
 
 func ExportData(c plugin.SubTaskContext) errors.Error {
@@ -85,7 +86,7 @@ func ExportData(c plugin.SubTaskContext) errors.Error {
 		default:
 		}
 
-		td := TableData{
+		td := DataConfigParams{
 			Ctx:           c,
 			Config:        config,
 			SrcDb:         db,
@@ -93,7 +94,6 @@ func ExportData(c plugin.SubTaskContext) errors.Error {
 			SrcTableName:  table,
 			DestTableName: strings.TrimLeft(table, "_"),
 		}
-		// columnMap, orderBy, skip, err := createTmpTableInStarrocks(c, starrocksDb, db, starrocksTable, starrocksTmpTable, table)
 		columnMap, orderBy, skip, err := createTmpTableInStarrocks(&td)
 		if skip {
 			logger.Info(fmt.Sprintf("table %s is up to date, so skip it", table))
@@ -112,7 +112,7 @@ func ExportData(c plugin.SubTaskContext) errors.Error {
 }
 
 // create temp table for dealing with some complex logic
-func createTmpTableInStarrocks(td *TableData) (map[string]string, string, bool, error) {
+func createTmpTableInStarrocks(td *DataConfigParams) (map[string]string, string, bool, error) {
 	logger := td.Ctx.GetLogger()
 	config := td.Config
 	db := td.SrcDb
@@ -167,6 +167,7 @@ func createTmpTableInStarrocks(td *TableData) (map[string]string, string, bool, 
 				}
 			}
 		}
+
 		columnDatatype, ok := cm.ColumnType()
 		if !ok {
 			return columnMap, "", false, errors.Default.New(fmt.Sprintf("Get [%s] ColumeType Failed", name))
@@ -211,7 +212,7 @@ func createTmpTableInStarrocks(td *TableData) (map[string]string, string, bool, 
 }
 
 // put data to final dst database
-func copyDataToDst(td *TableData, columnMap map[string]string, orderBy string) error {
+func copyDataToDst(td *DataConfigParams, columnMap map[string]string, orderBy string) error {
 	c := td.Ctx
 	logger := td.Ctx.GetLogger()
 	config := td.Config
