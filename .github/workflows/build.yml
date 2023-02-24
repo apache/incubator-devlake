@@ -45,7 +45,7 @@ jobs:
           push: true
           target: builder
           tags: ${{ secrets.DOCKERHUB_OWNER }}/devlake:amd64-builder
-          dockerfile: ./backend/Dockerfile
+          file: ./backend/Dockerfile
           platforms: linux/amd64
           cache-from: ${{ secrets.DOCKERHUB_OWNER }}/devlake:amd64-builder
           cache-to: ${{ secrets.DOCKERHUB_OWNER }}/devlake:amd64-builder
@@ -70,7 +70,7 @@ jobs:
           push: true
           target: base
           tags: ${{ secrets.DOCKERHUB_OWNER }}/devlake:base
-          dockerfile: ./backend/Dockerfile
+          file: ./backend/Dockerfile
           platforms: linux/amd64,linux/arm64
           cache-from: ${{ secrets.DOCKERHUB_OWNER }}/devlake:base
           cache-to: ${{ secrets.DOCKERHUB_OWNER }}/devlake:base
