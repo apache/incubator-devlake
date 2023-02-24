@@ -30,7 +30,7 @@ def plugin_method(func):
     def send_output(send_ch: TextIO, obj: object):
         if not isinstance(obj, Message):
             return
-        send_ch.write(obj.json())
+        send_ch.write(obj.json(exclude_unset=True))
         send_ch.write('\n')
         send_ch.flush()
 

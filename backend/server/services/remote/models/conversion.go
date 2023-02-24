@@ -54,6 +54,9 @@ func GenerateStructType(schema map[string]any, encrypt bool, baseType reflect.Ty
 		structFields = append(structFields, anonymousField)
 	}
 	for k, v := range props {
+		if isBaseTypeField(k, baseType) {
+			continue
+		}
 		spec := v.(map[string]any)
 		field, err := generateStructField(k, encrypt, spec)
 		if err != nil {
@@ -64,6 +67,26 @@ func GenerateStructType(schema map[string]any, encrypt bool, baseType reflect.Ty
 	return reflect.StructOf(structFields), nil
 }
 
+func isBaseTypeField(fieldName string, baseType reflect.Type) bool {
+	fieldName = canonicalFieldName(fieldName)
+	for i := 0; i < baseType.NumField(); i++ {
+		baseField := baseType.Field(i)
+		if baseField.Anonymous {
+			if isBaseTypeField(fieldName, baseField.Type) {
+				return true
+			}
+		}
+		if fieldName == canonicalFieldName(baseField.Name) {
+			return true
+		}
+	}
+	return false
+}
+
+func canonicalFieldName(fieldName string) string {
+	return strings.ToLower(strings.Replace(fieldName, "_", "", -1))
+}
+
 func generateStructField(name string, encrypt bool, schema map[string]any) (*reflect.StructField, errors.Error) {
 	goType, err := getGoType(schema)
 	if err != nil {
@@ -72,6 +95,7 @@ func generateStructField(name string, encrypt bool, schema map[string]any) (*ref
 	sf := &reflect.StructField{
 		Name: strings.Title(name), //nolint:staticcheck
 		Type: goType,
+		Tag:  reflect.StructTag(fmt.Sprintf("json:\"%s\"", name)),
 	}
 	if encrypt {
 		sf.Tag = reflect.StructTag(fmt.Sprintf("json:\"%s\" "+
