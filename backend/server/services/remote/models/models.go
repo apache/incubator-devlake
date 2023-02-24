@@ -43,7 +43,6 @@ type PluginInfo struct {
 	ScopeInfo                ScopeInfo       `json:"scope_info" validate:"dive"`
 	Description              string          `json:"description"`
 	PluginPath               string          `json:"plugin_path" validate:"required"`
-	ApiEndpoints             []Endpoint      `json:"api_endpoints" validate:"dive"`
 	SubtaskMetas             []SubtaskMeta   `json:"subtask_metas" validate:"dive"`
 }
 
@@ -75,10 +74,4 @@ type SubtaskMeta struct {
 	EnabledByDefault bool     `json:"enabled_by_default"`
 	Description      string   `json:"description" validate:"required"`
 	DomainTypes      []string `json:"domain_types" validate:"required"`
-}
-
-type Endpoint struct {
-	Resource string `json:"resource" validate:"required"`
-	Handler  string `json:"handler" validate:"required"`
-	Method   string `json:"method" validate:"required"`
 }
