@@ -59,7 +59,7 @@ export const BPContext = React.createContext<BPContextType>({
   onChangeCronConfig: () => {},
   onChangeIsManual: () => {},
   onChangeSkipOnFail: () => {},
-  onChangeCreatedDateAfter: () => {},
+  onChangeTimeAfter: () => {},
 
   onSave: () => {},
   onSaveAndRun: () => {},
@@ -84,7 +84,7 @@ export const BPContextProvider = ({ from, projectName, children }: Props) => {
   const [cronConfig, setCronConfig] = useState('0 0 * * *');
   const [isManual, setIsManual] = useState(false);
   const [skipOnFail, setSkipOnFail] = useState(true);
-  const [timeAfter, setCreatedDateAfter] = useState<string | null>(
+  const [timeAfter, setTimeAfter] = useState<string | null>(
     formatTime(dayjs().subtract(6, 'month').startOf('day').toDate(), 'YYYY-MM-DD[T]HH:mm:ssZ'),
   );
 
@@ -218,7 +218,7 @@ export const BPContextProvider = ({ from, projectName, children }: Props) => {
         onChangeCronConfig: setCronConfig,
         onChangeIsManual: setIsManual,
         onChangeSkipOnFail: setSkipOnFail,
-        onChangeCreatedDateAfter: setCreatedDateAfter,
+        onChangeTimeAfter: setTimeAfter,
 
         onSave: handleSave,
         onSaveAndRun: hanldeSaveAndRun,

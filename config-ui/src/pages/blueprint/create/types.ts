@@ -53,7 +53,7 @@ export type BPContextType = {
   onChangeCronConfig: React.Dispatch<React.SetStateAction<string>>;
   onChangeIsManual: React.Dispatch<React.SetStateAction<boolean>>;
   onChangeSkipOnFail: React.Dispatch<React.SetStateAction<boolean>>;
-  onChangeCreatedDateAfter: React.Dispatch<React.SetStateAction<string | null>>;
+  onChangeTimeAfter: React.Dispatch<React.SetStateAction<string | null>>;
 
   onSave: () => void;
   onSaveAndRun: () => void;

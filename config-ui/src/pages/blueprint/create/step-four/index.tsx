@@ -34,7 +34,7 @@ export const StepFour = () => {
     onChangeIsManual,
     onChangeCronConfig,
     onChangeSkipOnFail,
-    onChangeCreatedDateAfter,
+    onChangeTimeAfter,
   } = useCreateBP();
 
   return (
@@ -50,7 +50,7 @@ export const StepFour = () => {
         onChangeIsManual={onChangeIsManual}
         onChangeCronConfig={onChangeCronConfig}
         onChangeSkipOnFail={onChangeSkipOnFail}
-        onChangeCreatedDateAfter={onChangeCreatedDateAfter}
+        onChangeTimeAfter={onChangeTimeAfter}
       />
     </Card>
   );

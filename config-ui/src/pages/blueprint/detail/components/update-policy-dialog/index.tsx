@@ -39,13 +39,13 @@ export const UpdatePolicyDialog = ({ blueprint, operating, onCancel, onSubmit, .
   const [isManual, setIsManual] = useState(false);
   const [cronConfig, setCronConfig] = useState('');
   const [skipOnFail, setSkipOnFail] = useState(false);
-  const [timeAfter, setCreatedDateAfter] = useState<string | null>(null);
+  const [timeAfter, setTimeAfter] = useState<string | null>(null);
 
   useEffect(() => {
     setIsManual(props.isManual);
     setCronConfig(props.cronConfig);
     setSkipOnFail(props.skipOnFail);
-    setCreatedDateAfter(props.timeAfter);
+    setTimeAfter(props.timeAfter);
   }, []);
 
   const handleSubmit = () => {
@@ -84,7 +84,7 @@ export const UpdatePolicyDialog = ({ blueprint, operating, onCancel, onSubmit, .
         onChangeIsManual={setIsManual}
         onChangeCronConfig={setCronConfig}
         onChangeSkipOnFail={setSkipOnFail}
-        onChangeCreatedDateAfter={setCreatedDateAfter}
+        onChangeTimeAfter={setTimeAfter}
       />
     </Dialog>
   );
