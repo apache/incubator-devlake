@@ -39,7 +39,7 @@ type SonarqubeFileMetrics struct {
 	SecurityHotspotsReviewed float64
 	SecurityReviewRating     string
 	Ncloc                    int
-	UnoveredLines            int
+	UncoveredLines           int
 	LinesToCover             int
 	DuplicatedLinesDensity   float64
 	DuplicatedBlocks         int
@@ -83,7 +83,7 @@ type SonarqubeWholeFileMetrics struct {
 	SecurityHotspotsReviewed            float64
 	SecurityReviewRating                string `gorm:"type:varchar(20)"`
 	Ncloc                               int
-	UnoveredLines                       int
+	UncoveredLines                      int
 	LinesToCover                        int
 	DuplicatedLinesDensity              float64
 	DuplicatedBlocks                    int
