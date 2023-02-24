@@ -20,10 +20,10 @@ from enum import Enum
 
 from sqlmodel import Field, Relationship
 
-from pydevlake.model import DomainModel, NoPKModel
+from pydevlake.model import DomainModel, DomainScope, NoPKModel
 
 
-class CICDScope(DomainModel, table=True):
+class CICDScope(DomainScope, table=True):
     __tablename__ = 'cicd_scopes'
 
     name: str

@@ -70,10 +70,6 @@ class TransformationRule(Message):
     pass
 
 
-class Scope(Message, DomainModel):
-    pass
-
-
 class PipelineTask(Message):
     plugin: str
     # Do not snake_case this attribute,

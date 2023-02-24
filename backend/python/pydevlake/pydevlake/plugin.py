@@ -27,7 +27,7 @@ from pydevlake.docgen import generate_doc
 from pydevlake.ipc import PluginCommands
 from pydevlake.context import Context
 from pydevlake.stream import Stream
-from pydevlake.model import DomainModel
+from pydevlake.model import ToolScope, DomainScope
 
 
 class Plugin:
@@ -56,7 +56,7 @@ class Plugin:
 
     @property
     @abstractmethod
-    def scope_type(self) -> Type[msg.Scope]:
+    def tool_scope_type(self) -> Type[ToolScope]:
         pass
 
     @property
@@ -76,7 +76,7 @@ class Plugin:
         return [subtask for stream in self._streams.values() for subtask in stream.subtasks]
 
     @abstractmethod
-    def get_scopes(self, scope_name: str, connection: msg.Connection) -> Iterable[msg.Scope]:
+    def get_domain_scopes(self, scope_name: str, connection: msg.Connection) -> Iterable[DomainScope]:
         pass
 
     @abstractmethod
@@ -170,8 +170,8 @@ class Plugin:
             connection_schema=self.connection_type.schema(),
             transformation_rule_schema=self.transformation_rule_type.schema(),
             scope_info={
-                'table_name': self.scope_type.__tablename__,
-                'scope_schema': self.scope_type.schema(),
+                'table_name': self.tool_scope_type.__tablename__,
+                'scope_schema': self.tool_scope_type.schema(),
             },
             subtask_metas=subtask_metas
         )

@@ -72,6 +72,11 @@ class ToolModel(RawDataOrigin):
         return f'_tool_{plugin_name}_{plural_entity}'
 
 
+class ToolScope(ToolModel):
+    id: str = Field(primary_key=True)
+    name: str
+
+
 class NoPKModel(SQLModel):
     created_at: datetime = Field(
         sa_column=Column(DateTime(), default=func.now())
@@ -83,6 +88,10 @@ class NoPKModel(SQLModel):
 
 class DomainModel(NoPKModel):
     id: str = Field(primary_key=True)
+
+
+class DomainScope(DomainModel):
+    pass
 
 
 def generate_domain_id(tool_model: ToolModel, connection_id: str):

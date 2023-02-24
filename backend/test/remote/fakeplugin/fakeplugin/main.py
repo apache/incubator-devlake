@@ -104,10 +104,10 @@ class FakePlugin(Plugin):
         return FakeConnection
 
     @property
-    def scope_type(self):
+    def tool_scope_type(self):
         return CICDScope
 
-    def get_scopes(self, scope_name: str, connection: FakeConnection):
+    def get_domain_scopes(self, scope_name: str, connection: FakeConnection):
         yield CICDScope(
             id=1,
             name=scope_name,

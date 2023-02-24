@@ -14,7 +14,7 @@
 # limitations under the License.
 
 
-from .model import ToolModel
+from .model import ToolModel, ToolScope, DomainScope
 from .logger import logger
 from .message import Connection, TransformationRule, RemoteScope
 from .plugin import Plugin
