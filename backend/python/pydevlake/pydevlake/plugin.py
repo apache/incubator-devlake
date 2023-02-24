@@ -162,18 +162,20 @@ class Plugin(ABC):
             )
             for subtask in self.subtasks
         ]
-        tx_rule_schema = self.transformation_rule_type.schema() if self.transformation_rule_type else None
+
+        if self.transformation_rule_type:
+            tx_rule_model_info = msg.DynamicModelInfo.from_model(self.transformation_rule_type)
+        else:
+            tx_rule_model_info = None
+
         return msg.PluginInfo(
             name=self.name,
             description=self.description,
             plugin_path=self._plugin_path(),
             extension="datasource",
-            connection_schema=self.connection_type.schema(),
-            transformation_rule_schema=tx_rule_schema,
-            scope_info={
-                'table_name': self.tool_scope_type.__tablename__,
-                'scope_schema': self.tool_scope_type.schema(),
-            },
+            connection_model_info=msg.DynamicModelInfo.from_model(self.connection_type),
+            transformation_rule_model_info=tx_rule_model_info,
+            scope_model_info=msg.DynamicModelInfo.from_model(self.tool_scope_type),
             subtask_metas=subtask_metas
         )
 

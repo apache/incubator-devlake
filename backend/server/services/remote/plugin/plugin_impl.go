@@ -18,8 +18,6 @@ limitations under the License.
 package plugin
 
 import (
-	"fmt"
-
 	"github.com/apache/incubator-devlake/core/dal"
 	"github.com/apache/incubator-devlake/core/errors"
 	coreModels "github.com/apache/incubator-devlake/core/models"
@@ -52,21 +50,19 @@ type (
 )
 
 func newPlugin(info *models.PluginInfo, invoker bridge.Invoker) (*remotePluginImpl, errors.Error) {
-	connectionTableName := fmt.Sprintf("_tool_%s_connections", info.Name)
-	connectionTabler, err := models.LoadTableModel(connectionTableName, info.ConnectionSchema, true, common.Model{})
+	connectionTabler, err := info.ConnectionModelInfo.LoadDynamicTabler(true, common.Model{})
 	if err != nil {
 		return nil, err
 	}
 
 	var txRuleTabler *coreModels.DynamicTabler
-	if info.TransformationRuleSchema != nil {
-		txRuleTableName := fmt.Sprintf("_tool_%s_transformation_rules", info.Name)
-		txRuleTabler, err = models.LoadTableModel(txRuleTableName, info.TransformationRuleSchema, false, models.TransformationModel{})
+	if info.TransformationRuleModelInfo != nil {
+		txRuleTabler, err = info.TransformationRuleModelInfo.LoadDynamicTabler(false, models.TransformationModel{})
 		if err != nil {
 			return nil, err
 		}
 	}
-	scopeTabler, err := models.LoadTableModel(info.ScopeInfo.TableName, info.ScopeInfo.ScopeSchema, false, models.ScopeModel{})
+	scopeTabler, err := info.ScopeModelInfo.LoadDynamicTabler(false, models.ScopeModel{})
 	if err != nil {
 		return nil, err
 	}

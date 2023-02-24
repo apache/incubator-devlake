@@ -19,6 +19,9 @@ package models
 
 import (
 	"time"
+
+	"github.com/apache/incubator-devlake/core/errors"
+	"github.com/apache/incubator-devlake/core/models"
 )
 
 const (
@@ -35,20 +38,24 @@ type (
 )
 
 type PluginInfo struct {
-	Type                     PluginType      `json:"type" validate:"required"`
-	Name                     string          `json:"name" validate:"required"`
-	Extension                PluginExtension `json:"extension"`
-	ConnectionSchema         map[string]any  `json:"connection_schema" validate:"required"`
-	TransformationRuleSchema map[string]any  `json:"transformation_rule_schema"`
-	ScopeInfo                ScopeInfo       `json:"scope_info" validate:"dive"`
-	Description              string          `json:"description"`
-	PluginPath               string          `json:"plugin_path" validate:"required"`
-	SubtaskMetas             []SubtaskMeta   `json:"subtask_metas" validate:"dive"`
+	Type                        PluginType        `json:"type" validate:"required"`
+	Name                        string            `json:"name" validate:"required"`
+	Extension                   PluginExtension   `json:"extension"`
+	ConnectionModelInfo         *DynamicModelInfo `json:"connection_model_info" validate:"required"`
+	TransformationRuleModelInfo *DynamicModelInfo `json:"transformation_rule_model_info"`
+	ScopeModelInfo              *DynamicModelInfo `json:"scope_model_info" validate:"dive"`
+	Description                 string            `json:"description"`
+	PluginPath                  string            `json:"plugin_path" validate:"required"`
+	SubtaskMetas                []SubtaskMeta     `json:"subtask_metas" validate:"dive"`
 }
 
-type ScopeInfo struct {
-	TableName   string         `json:"table_name" validate:"required"`
-	ScopeSchema map[string]any `json:"scope_schema" validate:"required"`
+type DynamicModelInfo struct {
+	JsonSchema map[string]any `json:"json_schema" validate:"required"`
+	TableName  string         `json:"table_name" validate:"required"`
+}
+
+func (d DynamicModelInfo) LoadDynamicTabler(encrypt bool, parentModel any) (*models.DynamicTabler, errors.Error) {
+	return LoadTableModel(d.TableName, d.JsonSchema, encrypt, parentModel)
 }
 
 type ScopeModel struct {

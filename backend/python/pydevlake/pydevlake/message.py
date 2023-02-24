@@ -33,12 +33,24 @@ class SubtaskMeta(BaseModel):
     arguments: list[str] = None
 
 
+class DynamicModelInfo(Message):
+    json_schema: dict
+    table_name: str
+
+    @staticmethod
+    def from_model(model_class):
+        return DynamicModelInfo(
+            json_schema=model_class.schema(),
+            table_name=model_class.__tablename__
+        )
+
+
 class PluginInfo(Message):
     name: str
     description: str
-    connection_schema: dict
-    transformation_rule_schema: Optional[dict]
-    scope_info: dict
+    connection_model_info: DynamicModelInfo
+    transformation_rule_model_info: Optional[DynamicModelInfo]
+    scope_model_info: DynamicModelInfo
     plugin_path: str
     subtask_metas: list[SubtaskMeta]
     extension: str = "datasource"
