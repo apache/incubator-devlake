@@ -34,28 +34,32 @@ func TestSonarqubeFileMetricsDataFlow(t *testing.T) {
 	// import raw data table
 	dataflowTester.ImportCsvIntoRawTable("./raw_tables/_raw_sonarqube_api_filemetrics.csv",
 		"_raw_sonarqube_api_filemetrics")
+	dataflowTester.ImportCsvIntoRawTable("./raw_tables/_raw_sonarqube_api_filemetrics_additional.csv",
+		"_raw_sonarqube_api_filemetrics_additional")
 
 	// Standard data
 	taskData := &tasks.SonarqubeTaskData{
 		Options: &tasks.SonarqubeOptions{
-			ConnectionId: 1,
-			ProjectKey:   "02c1047b-f87c-4c35-a6b5-76c6b607d37f",
+			ConnectionId: 2,
+			ProjectKey:   "testDevLake",
 		},
 	}
 	// Interfered data
 	taskData2 := &tasks.SonarqubeTaskData{
 		Options: &tasks.SonarqubeOptions{
-			ConnectionId: 2,
-			ProjectKey:   "e2c6d5e9-a321-4e8c-b322-03d9599ef962",
+			ConnectionId: 1,
+			ProjectKey:   "testNone",
 		},
 	}
 
 	// verify extraction
-	dataflowTester.FlushTabler(&models.SonarqubeFileMetrics{})
+	dataflowTester.FlushTabler(&models.SonarqubeWholeFileMetrics{})
 	dataflowTester.Subtask(tasks.ExtractFilemetricsMeta, taskData)
+	dataflowTester.Subtask(tasks.ExtractAdditionalFileMetricsMeta, taskData)
 
 	dataflowTester.Subtask(tasks.ExtractFilemetricsMeta, taskData2)
-	dataflowTester.VerifyTableWithOptions(&models.SonarqubeFileMetrics{}, e2ehelper.TableOptions{
+	dataflowTester.Subtask(tasks.ExtractAdditionalFileMetricsMeta, taskData2)
+	dataflowTester.VerifyTableWithOptions(&models.SonarqubeWholeFileMetrics{}, e2ehelper.TableOptions{
 		CSVRelPath:  "./snapshot_tables/_tool_sonarqube_filemetrics.csv",
 		IgnoreTypes: []interface{}{common.NoPKModel{}},
 	})

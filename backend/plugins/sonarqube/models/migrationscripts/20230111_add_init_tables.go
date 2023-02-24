@@ -33,7 +33,6 @@ func (*addInitTables) Up(basicRes context.BasicRes) errors.Error {
 		&archived.SonarqubeIssue{},
 		&archived.SonarqubeFileMetrics{},
 		&archived.SonarqubeIssueCodeBlock{},
-		&archived.SonarqubeMetrics{},
 		&archived.SonarqubeAccount{},
 	)
 	if err != nil {
@@ -48,7 +47,6 @@ func (*addInitTables) Up(basicRes context.BasicRes) errors.Error {
 		&archived.SonarqubeFileMetrics{},
 		&archived.SonarqubeIssueCodeBlock{},
 		&archived.SonarqubeAccount{},
-		&archived.SonarqubeMetrics{},
 	)
 }
 
