@@ -27,7 +27,7 @@ from pydevlake.docgen import generate_doc
 from pydevlake.ipc import PluginCommands
 from pydevlake.context import Context
 from pydevlake.stream import Stream
-from pydevlake.model import ToolScope, DomainScope
+from pydevlake.model import ToolScope, DomainScope, Connection, TransformationRule
 
 
 class Plugin(ABC):
@@ -51,7 +51,7 @@ class Plugin(ABC):
 
     @property
     @abstractmethod
-    def connection_type(self) -> Type[msg.Connection]:
+    def connection_type(self) -> Type[Connection]:
         pass
 
     @property
@@ -60,11 +60,11 @@ class Plugin(ABC):
         pass
 
     @property
-    def transformation_rule_type(self) -> Type[msg.TransformationRule]:
-        return msg.TransformationRule
+    def transformation_rule_type(self) -> Type[TransformationRule]:
+        return None
 
     @abstractmethod
-    def test_connection(self, connection: msg.Connection):
+    def test_connection(self, connection: Connection):
         """
         Test if the the connection with the datasource can be established with the given connection.
         Must raise an exception if the connection can't be established.
@@ -76,11 +76,11 @@ class Plugin(ABC):
         return [subtask for stream in self._streams.values() for subtask in stream.subtasks]
 
     @abstractmethod
-    def get_domain_scopes(self, scope_name: str, connection: msg.Connection) -> Iterable[DomainScope]:
+    def get_domain_scopes(self, scope_name: str, connection: Connection) -> Iterable[DomainScope]:
         pass
 
     @abstractmethod
-    def remote_scopes(self, connection: msg.Connection, query: str = ''):
+    def remote_scopes(self, connection: Connection, query: str = ''):
         pass
 
     @property

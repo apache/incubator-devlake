@@ -18,8 +18,6 @@ from typing import Optional
 
 from pydantic import BaseModel
 
-from pydevlake.model import DomainModel
-
 
 class Message(BaseModel):
     pass
@@ -62,14 +60,6 @@ class RemoteProgress(Message):
     increment: int = 0
     current: int = 0
     total: int = 0
-
-
-class Connection(Message):
-    pass
-
-
-class TransformationRule(Message):
-    pass
 
 
 class PipelineTask(Message):

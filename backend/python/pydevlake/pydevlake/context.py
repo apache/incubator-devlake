@@ -17,7 +17,7 @@
 from urllib.parse import urlparse, parse_qsl
 from sqlmodel import SQLModel, create_engine
 
-from pydevlake.message import Connection, TransformationRule
+from pydevlake.model import Connection, TransformationRule
 
 
 class Context:
