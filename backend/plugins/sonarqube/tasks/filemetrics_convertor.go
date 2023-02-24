@@ -72,7 +72,7 @@ func ConvertFileMetrics(taskCtx plugin.SubTaskContext) errors.Error {
 				SecurityHotspotsReviewed:            sonarqubeFileMetric.SecurityHotspotsReviewed,
 				SecurityReviewRating:                sonarqubeFileMetric.SecurityReviewRating,
 				Ncloc:                               sonarqubeFileMetric.Ncloc,
-				UnoveredLines:                       sonarqubeFileMetric.UnoveredLines,
+				UncoveredLines:                      sonarqubeFileMetric.UncoveredLines,
 				LinesToCover:                        sonarqubeFileMetric.LinesToCover,
 				DuplicatedLinesDensity:              sonarqubeFileMetric.DuplicatedLinesDensity,
 				DuplicatedBlocks:                    sonarqubeFileMetric.DuplicatedBlocks,

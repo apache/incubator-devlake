@@ -38,7 +38,7 @@ type CqFileMetrics struct {
 	SecurityHotspotsReviewed            float64
 	SecurityReviewRating                string `gorm:"type:varchar(20)"`
 	Ncloc                               int    `json:"ncloc"`
-	UnoveredLines                       int
+	UncoveredLines                      int
 	LinesToCover                        int     `json:"lines_to_cover"`
 	DuplicatedLinesDensity              float64 `json:"duplicated_lines_density"`
 	DuplicatedBlocks                    int     `json:"duplicated_blocks"`
