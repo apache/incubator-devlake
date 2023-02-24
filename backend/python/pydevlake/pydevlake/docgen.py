@@ -31,7 +31,7 @@ def generate_doc(plugin_name: str,
     with open(TEMPLATE_PATH, 'r') as f:
         doc_template = Template(f.read())
         connection_schema = connection_type.schema_json()
-        transformation_rule_schema = transformation_rule_type.schema_json()
+        transformation_rule_schema = transformation_rule_type.schema_json() if transformation_rule_type else {}
         doc = doc_template.substitute(
             plugin_name=plugin_name, 
             connection_schema=connection_schema,

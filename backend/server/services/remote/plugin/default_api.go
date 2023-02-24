@@ -46,7 +46,7 @@ func GetDefaultAPI(
 		helper:     helper,
 	}
 
-	return map[string]map[string]plugin.ApiResourceHandler{
+	resources := map[string]map[string]plugin.ApiResourceHandler{
 		"test": {
 			"POST": papi.TestConnection,
 		},
@@ -73,13 +73,18 @@ func GetDefaultAPI(
 		"connections/:connectionId/search-remote-scopes": {
 			"GET": papi.GetRemoteScopes,
 		},
-		"transformation_rules": {
+	}
+
+	if txRuleType != nil {
+		resources["transformation_rules"] = map[string]plugin.ApiResourceHandler{
 			"POST": papi.PostTransformationRules,
 			"GET":  papi.ListTransformationRules,
-		},
-		"transformation_rules/:id": {
+		}
+		resources["transformation_rules/:id"] = map[string]plugin.ApiResourceHandler{
 			"GET":   papi.GetTransformationRule,
 			"PATCH": papi.PatchTransformationRule,
-		},
+		}
 	}
+
+	return resources
 }

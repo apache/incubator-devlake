@@ -39,7 +39,7 @@ type PluginInfo struct {
 	Name                     string          `json:"name" validate:"required"`
 	Extension                PluginExtension `json:"extension"`
 	ConnectionSchema         map[string]any  `json:"connection_schema" validate:"required"`
-	TransformationRuleSchema map[string]any  `json:"transformation_rule_schema" validate:"required"`
+	TransformationRuleSchema map[string]any  `json:"transformation_rule_schema"`
 	ScopeInfo                ScopeInfo       `json:"scope_info" validate:"dive"`
 	Description              string          `json:"description"`
 	PluginPath               string          `json:"plugin_path" validate:"required"`

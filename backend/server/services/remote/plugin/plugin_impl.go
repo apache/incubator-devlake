@@ -58,10 +58,14 @@ func newPlugin(info *models.PluginInfo, invoker bridge.Invoker) (*remotePluginIm
 	if err != nil {
 		return nil, err
 	}
-	txRuleTableName := fmt.Sprintf("_tool_%s_transformation_rules", info.Name)
-	txRuleTabler, err := models.LoadTableModel(txRuleTableName, info.TransformationRuleSchema, false, models.TransformationModel{})
-	if err != nil {
-		return nil, err
+
+	var txRuleTabler *coreModels.DynamicTabler
+	if info.TransformationRuleSchema != nil {
+		txRuleTableName := fmt.Sprintf("_tool_%s_transformation_rules", info.Name)
+		txRuleTabler, err = models.LoadTableModel(txRuleTableName, info.TransformationRuleSchema, false, models.TransformationModel{})
+		if err != nil {
+			return nil, err
+		}
 	}
 	scopeTabler, err := models.LoadTableModel(info.ScopeInfo.TableName, info.ScopeInfo.ScopeSchema, false, models.ScopeModel{})
 	if err != nil {
@@ -104,31 +108,37 @@ func (p *remotePluginImpl) PrepareTaskData(taskCtx plugin.TaskContext, options m
 		nil,
 	)
 
-	connection := p.connectionTabler.New()
-	err := helper.FirstById(connection, connectionId)
+	wrappedConnection := p.connectionTabler.New()
+	err := helper.FirstById(wrappedConnection, connectionId)
 	if err != nil {
 		return nil, errors.Convert(err)
 	}
+	connection := wrappedConnection.Unwrap()
 
 	scopeId, ok := options["scopeId"].(string)
 	if !ok {
 		return nil, errors.BadInput.New("missing scopeId")
 	}
 
-	txRule := p.transformationRuleTabler.New()
+	var txRule interface{}
 	txRuleId, ok := options["transformation_rule_id"].(uint64)
 	if ok {
+		wrappedTxRule := p.transformationRuleTabler.New()
 		db := taskCtx.GetDal()
-		err = db.First(&txRule, dal.Where("id = ?", txRuleId))
+		err = db.First(&wrappedTxRule, dal.Where("id = ?", txRuleId))
 		if err != nil {
 			return nil, errors.BadInput.New("invalid transformation rule id")
 		}
+		txRule = wrappedTxRule.Unwrap()
+	} else {
+		txRule = nil
 	}
+
 	return RemotePluginTaskData{
 		DbUrl:              dbUrl,
 		ScopeId:            scopeId,
 		ConnectionId:       connectionId,
-		Connection:         connection.Unwrap(),
+		Connection:         connection,
 		TransformationRule: txRule,
 		Options:            options,
 	}, nil
@@ -155,10 +165,11 @@ func (p *remotePluginImpl) RunMigrations(forceMigrate bool) errors.Error {
 	if err != nil {
 		return err
 	}
-
-	err = api.CallDB(basicRes.GetDal().AutoMigrate, p.transformationRuleTabler.New())
-	if err != nil {
-		return err
+	if p.transformationRuleTabler != nil {
+		err = api.CallDB(basicRes.GetDal().AutoMigrate, p.transformationRuleTabler.New())
+		if err != nil {
+			return err
+		}
 	}
 	err = api.CallDB(basicRes.GetDal().AutoMigrate, p.scopeTabler.New())
 	if err != nil {

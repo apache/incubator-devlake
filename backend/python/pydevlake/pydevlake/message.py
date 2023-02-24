@@ -14,6 +14,8 @@
 # limitations under the License.
 
 
+from typing import Optional
+
 from pydantic import BaseModel
 
 from pydevlake.model import DomainModel
@@ -37,7 +39,7 @@ class PluginInfo(Message):
     name: str
     description: str
     connection_schema: dict
-    transformation_rule_schema: dict
+    transformation_rule_schema: Optional[dict]
     scope_info: dict
     plugin_path: str
     subtask_metas: list[SubtaskMeta]
