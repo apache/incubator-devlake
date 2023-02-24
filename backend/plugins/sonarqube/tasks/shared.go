@@ -203,7 +203,7 @@ func setMetrics(fileMetrics *models.SonarqubeFileMetrics, metricsList []Measure)
 				return err
 			}
 		case "uncovered_lines":
-			fileMetrics.UnoveredLines, err = errors.Convert01(strconv.Atoi(v.Value))
+			fileMetrics.UncoveredLines, err = errors.Convert01(strconv.Atoi(v.Value))
 			if err != nil {
 				return err
 			}
