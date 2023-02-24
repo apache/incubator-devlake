@@ -45,7 +45,6 @@ type (
 	RemotePluginTaskData struct {
 		DbUrl              string                 `json:"db_url"`
 		ScopeId            string                 `json:"scope_id"`
-		ConnectionId       uint64                 `json:"connection_id"`
 		Connection         interface{}            `json:"connection"`
 		TransformationRule interface{}            `json:"transformation_rule"`
 		Options            map[string]interface{} `json:"options"`
@@ -137,7 +136,6 @@ func (p *remotePluginImpl) PrepareTaskData(taskCtx plugin.TaskContext, options m
 	return RemotePluginTaskData{
 		DbUrl:              dbUrl,
 		ScopeId:            scopeId,
-		ConnectionId:       connectionId,
 		Connection:         connection,
 		TransformationRule: txRule,
 		Options:            options,

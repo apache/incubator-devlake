@@ -299,7 +299,6 @@ poetry run myplugin/main.py --help
 For testing, the interesting commands are `collect`/`extract`/`convert`.
 Each takes a context and a stream name.
 The context is a JSON object that must at least contain:
-- a `connection_id`
 - a `db_url`, e.g. you can use `"sqlite+pysqlite:///:memory:"` for an in-memory DB
 - a `connection` object containing the same attributes than your plugin connection type
 
@@ -308,7 +307,7 @@ redirect to stdout when testing your plugin.
 
 ```
 console
-CTX='{"connection_id": "1", "db_url":"sqlite+pysqlite:///:memory:", "connection": {...your connection attrs here...}}'
+CTX='{"db_url":"sqlite+pysqlite:///:memory:", "connection": {...your connection attrs here...}}'
 poetry run myplugin/main.py $CTX users 3>&1
 ```
 
