@@ -38,28 +38,9 @@ type SonarqubeConnection struct {
 	AccessToken    `mapstructure:",squash"`
 }
 
-type TestConnectionRequest struct {
-	Endpoint    string `gorm:"type:varchar(255)"`
-	Proxy       string `gorm:"type:varchar(255)"`
-	AccessToken `mapstructure:",squash"`
-}
-
 // For sonarqube, we can `use user_token:`
 type AccessToken struct {
 	Token string `mapstructure:"token" validate:"required" json:"token" encrypt:"yes"`
-}
-
-// This object conforms to what the frontend currently expects.
-type SonarqubeResponse struct {
-	Name string `gorm:"type:varchar(255)"`
-	ID   int
-	SonarqubeConnection
-}
-
-// Using User because it requires authentication.
-type ApiUserResponse struct {
-	Id   int
-	Name string `gorm:"type:varchar(255)"`
 }
 
 func (SonarqubeConnection) TableName() string {
