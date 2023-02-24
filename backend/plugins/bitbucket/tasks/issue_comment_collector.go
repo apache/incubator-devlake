@@ -36,7 +36,7 @@ var CollectApiIssueCommentsMeta = plugin.SubTaskMeta{
 
 func CollectApiIssueComments(taskCtx plugin.SubTaskContext) errors.Error {
 	rawDataSubTaskArgs, data := CreateRawDataSubTaskArgs(taskCtx, RAW_ISSUE_COMMENTS_TABLE)
-	collectorWithState, err := helper.NewApiCollectorWithState(*rawDataSubTaskArgs, data.CreatedDateAfter)
+	collectorWithState, err := helper.NewStatefulApiCollector(*rawDataSubTaskArgs, data.TimeAfter)
 	if err != nil {
 		return err
 	}
@@ -48,12 +48,14 @@ func CollectApiIssueComments(taskCtx plugin.SubTaskContext) errors.Error {
 	defer iterator.Close()
 
 	err = collectorWithState.InitCollector(helper.ApiCollectorArgs{
-		ApiClient:      data.ApiClient,
-		PageSize:       100,
-		Incremental:    collectorWithState.IsIncremental(),
-		Input:          iterator,
-		UrlTemplate:    "repositories/{{ .Params.FullName }}/issues/{{ .Input.BitbucketId }}/comments",
-		Query:          GetQueryFields(`values.type,values.id,values.created_on,values.updated_on,values.content,values.issue.id,values.user`),
+		ApiClient:   data.ApiClient,
+		PageSize:    100,
+		Incremental: collectorWithState.IsIncremental(),
+		Input:       iterator,
+		UrlTemplate: "repositories/{{ .Params.FullName }}/issues/{{ .Input.BitbucketId }}/comments",
+		Query: GetQueryFields(
+			`values.type,values.id,values.created_on,values.updated_on,values.content,values.issue.id,values.user,` +
+				`page,pagelen,size`),
 		GetTotalPages:  GetTotalPagesFromResponse,
 		ResponseParser: GetRawMessageFromResponse,
 		AfterResponse:  ignoreHTTPStatus404,

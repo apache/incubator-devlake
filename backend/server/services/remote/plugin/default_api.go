@@ -24,24 +24,59 @@ import (
 	"github.com/apache/incubator-devlake/server/services/remote/bridge"
 )
 
-func GetDefaultAPI(invoker bridge.Invoker, connType *models.DynamicTabler, helper *api.ConnectionApiHelper) map[string]map[string]plugin.ApiResourceHandler {
-	connectionApi := &ConnectionAPI{
-		invoker:  invoker,
-		connType: connType,
-		helper:   helper,
+type pluginAPI struct {
+	invoker    bridge.Invoker
+	connType   *models.DynamicTabler
+	txRuleType *models.DynamicTabler
+	helper     *api.ConnectionApiHelper
+}
+
+func GetDefaultAPI(
+	invoker bridge.Invoker,
+	connType *models.DynamicTabler,
+	txRuleType *models.DynamicTabler,
+	helper *api.ConnectionApiHelper) map[string]map[string]plugin.ApiResourceHandler {
+	papi := &pluginAPI{
+		invoker:    invoker,
+		connType:   connType,
+		txRuleType: txRuleType,
+		helper:     helper,
 	}
+
 	return map[string]map[string]plugin.ApiResourceHandler{
 		"test": {
-			"POST": connectionApi.TestConnection,
+			"POST": papi.TestConnection,
 		},
 		"connections": {
-			"POST": connectionApi.PostConnections,
-			"GET":  connectionApi.ListConnections,
+			"POST": papi.PostConnections,
+			"GET":  papi.ListConnections,
 		},
 		"connections/:connectionId": {
-			"GET":    connectionApi.GetConnection,
-			"PATCH":  connectionApi.PatchConnection,
-			"DELETE": connectionApi.DeleteConnection,
+			"GET":    papi.GetConnection,
+			"PATCH":  papi.PatchConnection,
+			"DELETE": papi.DeleteConnection,
+		},
+		"connections/:connectionId/scopes": {
+			"PUT": papi.PutScope,
+			"GET": papi.ListScopes,
+		},
+		"connections/:connectionId/scopes/*scopeId": {
+			"GET":   papi.GetScope,
+			"PATCH": papi.PatchScope,
+		},
+		"connections/:connectionId/remote-scopes": {
+			"GET": papi.GetRemoteScopes,
+		},
+		"connections/:connectionId/search-remote-scopes": {
+			"GET": papi.GetRemoteScopes,
+		},
+		"transformation_rules": {
+			"POST": papi.PostTransformationRules,
+			"GET":  papi.ListTransformationRules,
+		},
+		"transformation_rules/:id": {
+			"GET":   papi.GetTransformationRule,
+			"PATCH": papi.PatchTransformationRule,
 		},
 	}
 }

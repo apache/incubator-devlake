@@ -33,36 +33,19 @@ func TestSonarqubeProjectDataFlow(t *testing.T) {
 	var sonarqube impl.Sonarqube
 	dataflowTester := e2ehelper.NewDataFlowTester(t, "sonarqube", sonarqube)
 
-	taskData := &tasks.SonarqubeTaskData{
-		Options: &tasks.SonarqubeOptions{
-			ConnectionId: 1,
-			ProjectKey:   "fa2cf9cd-c448-4fc3-99a5-1c893f15d84c",
-		},
-	}
-
 	// import raw data table
-	dataflowTester.ImportCsvIntoRawTable("./raw_tables/_raw_sonarqube_projects.csv",
-		"_raw_sonarqube_projects")
+	dataflowTester.ImportCsvIntoTabler("./raw_tables/_tool_sonarqube_projects.csv",
+		&models.SonarqubeProject{})
 
-	// verify extraction
-	dataflowTester.FlushTabler(&models.SonarqubeProject{})
-	dataflowTester.Subtask(tasks.ExtractProjectsMeta, taskData)
-
-	taskData2 := &tasks.SonarqubeTaskData{
+	taskData := &tasks.SonarqubeTaskData{
 		Options: &tasks.SonarqubeOptions{
 			ConnectionId: 2,
 			ProjectKey:   "e2c6d5e9-a321-4e8c-b322-03d9599ef962",
 		},
 	}
 
-	dataflowTester.Subtask(tasks.ExtractProjectsMeta, taskData2)
-	dataflowTester.VerifyTableWithOptions(&models.SonarqubeProject{}, e2ehelper.TableOptions{
-		CSVRelPath:  "./snapshot_tables/_tool_sonarqube_projects.csv",
-		IgnoreTypes: []interface{}{common.NoPKModel{}},
-	})
-
 	dataflowTester.FlushTabler(&codequality.CqProject{})
-	dataflowTester.Subtask(tasks.ConvertProjectsMeta, taskData2)
+	dataflowTester.Subtask(tasks.ConvertProjectsMeta, taskData)
 	dataflowTester.VerifyTableWithOptions(&codequality.CqProject{}, e2ehelper.TableOptions{
 		CSVRelPath:  "./snapshot_tables/projects.csv",
 		IgnoreTypes: []interface{}{common.NoPKModel{}},

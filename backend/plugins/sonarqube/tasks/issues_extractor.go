@@ -19,24 +19,19 @@ package tasks
 
 import (
 	"crypto/sha256"
-	"encoding/hex"
 	"encoding/json"
-	"fmt"
-	"hash"
-	"strings"
-
 	"github.com/apache/incubator-devlake/core/errors"
 	"github.com/apache/incubator-devlake/core/plugin"
 	helper "github.com/apache/incubator-devlake/helpers/pluginhelper/api"
 	"github.com/apache/incubator-devlake/plugins/sonarqube/models"
+	"strings"
 )
 
 var _ plugin.SubTaskEntryPoint = ExtractIssues
-var hashCodeBlock hash.Hash
 
 func ExtractIssues(taskCtx plugin.SubTaskContext) errors.Error {
 	rawDataSubTaskArgs, data := CreateRawDataSubTaskArgs(taskCtx, RAW_ISSUES_TABLE)
-	hashCodeBlock = sha256.New()
+	hashCodeBlock := sha256.New()
 	extractor, err := helper.NewApiExtractor(helper.ApiExtractorArgs{
 		RawDataSubTaskArgs: *rawDataSubTaskArgs,
 		Extract: func(resData *helper.RawData) ([]interface{}, errors.Error) {
@@ -45,7 +40,6 @@ func ExtractIssues(taskCtx plugin.SubTaskContext) errors.Error {
 			if err != nil {
 				return nil, err
 			}
-
 			sonarqubeIssue := &models.SonarqubeIssue{
 				ConnectionId: data.Options.ConnectionId,
 				IssueKey:     body.Key,
@@ -56,8 +50,6 @@ func ExtractIssues(taskCtx plugin.SubTaskContext) errors.Error {
 				Line:         body.Line,
 				Status:       body.Status,
 				Message:      body.Message,
-				Debt:         body.Debt,
-				Effort:       body.Effort,
 				Author:       body.Author,
 				Hash:         body.Hash,
 				Type:         body.Type,
@@ -68,6 +60,14 @@ func ExtractIssues(taskCtx plugin.SubTaskContext) errors.Error {
 				EndOffset:    body.TextRange.EndOffset,
 				CreationDate: body.CreationDate,
 				UpdateDate:   body.UpdateDate,
+			}
+			sonarqubeIssue.Debt = convertTimeToMinutes(body.Debt)
+			if err != nil {
+				return nil, err
+			}
+			sonarqubeIssue.Effort = convertTimeToMinutes(body.Effort)
+			if err != nil {
+				return nil, err
 			}
 			if len(body.Tags) > 0 {
 				sonarqubeIssue.Tags = strings.Join(body.Tags, ",")
@@ -87,11 +87,10 @@ func ExtractIssues(taskCtx plugin.SubTaskContext) errors.Error {
 						StartOffset:  location.TextRange.StartOffset,
 						EndOffset:    location.TextRange.EndOffset,
 					}
-					generateId(codeBlock)
+					generateId(hashCodeBlock, codeBlock)
 					results = append(results, codeBlock)
 				}
 			}
-
 			return results, nil
 		},
 	})
@@ -151,9 +150,4 @@ type Location struct {
 	Component string    `json:"component"`
 	TextRange TextRange `json:"textRange"`
 	Msg       string    `json:"msg"`
-}
-
-func generateId(entity *models.SonarqubeIssueCodeBlock) {
-	hashCodeBlock.Write([]byte(fmt.Sprintf("%s-%s-%d-%d-%d-%d-%s", entity.IssueKey, entity.Component, entity.StartLine, entity.EndLine, entity.StartOffset, entity.EndOffset, entity.Msg)))
-	entity.Id = hex.EncodeToString(hashCodeBlock.Sum(nil))
 }

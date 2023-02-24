@@ -53,32 +53,37 @@ export const BaseLayout = ({ children }: Props) => {
       <S.Sider>
         <Logo />
         <Menu className="menu">
-          {menu.map((it) => (
-            <MenuItem
-              key={it.key}
-              className="menu-item"
-              text={it.title}
-              icon={it.icon}
-              active={pathname.includes(it.path)}
-              onClick={() => handlePushPath(it)}
-            >
-              {it.children?.map((cit) => (
-                <MenuItem
-                  key={cit.key}
-                  className="sub-menu-item"
-                  text={
-                    <S.SiderMenuItem>
-                      <span>{cit.title}</span>
-                      {cit.isBeta && <Tag intent={Intent.WARNING}>beta</Tag>}
-                    </S.SiderMenuItem>
-                  }
-                  icon={cit.icon ?? <img src={cit.iconUrl} width={16} alt="" />}
-                  active={pathname.includes(cit.path)}
-                  onClick={() => handlePushPath(cit)}
-                />
-              ))}
-            </MenuItem>
-          ))}
+          {menu.map((it) => {
+            const paths = [it.path, ...(it.children ?? []).map((cit) => cit.path)];
+            const active = !!paths.find((path) => pathname.includes(path));
+            return (
+              <MenuItem
+                key={it.key}
+                className="menu-item"
+                text={it.title}
+                icon={it.icon}
+                active={active}
+                onClick={() => handlePushPath(it)}
+              >
+                {it.children?.map((cit) => (
+                  <MenuItem
+                    key={cit.key}
+                    className="sub-menu-item"
+                    text={
+                      <S.SiderMenuItem>
+                        <span>{cit.title}</span>
+                        {cit.isBeta && <Tag intent={Intent.WARNING}>beta</Tag>}
+                      </S.SiderMenuItem>
+                    }
+                    icon={cit.icon ?? <img src={cit.iconUrl} width={16} alt="" />}
+                    active={pathname.includes(cit.path)}
+                    disabled={cit.disabled}
+                    onClick={() => handlePushPath(cit)}
+                  />
+                ))}
+              </MenuItem>
+            );
+          })}
         </Menu>
         <div className="copyright">
           <div>Apache 2.0 License</div>

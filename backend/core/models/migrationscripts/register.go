@@ -72,5 +72,7 @@ func All() []plugin.MigrationScript {
 		new(addTimeAfterToCollectorMeta20230213),
 		new(addCodeQuality),
 		new(modifyIssueStorypointToFloat64),
+		new(addCommitShaIndex),
+		new(removeCreatedDateAfterFromCollectorMeta20230223),
 	}
 }

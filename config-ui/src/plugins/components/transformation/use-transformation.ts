@@ -18,7 +18,7 @@
 
 import { useState, useEffect, useMemo } from 'react';
 
-import type { PluginConfigConnectionType } from '@/plugins';
+import type { PluginConfigType } from '@/plugins';
 import { PluginConfig } from '@/plugins';
 import { operator } from '@/utils';
 
@@ -50,7 +50,7 @@ export const useTransformation = ({
   const [saving, setSaving] = useState(false);
   const [transformation, setTransformation] = useState({});
 
-  const config = useMemo(() => PluginConfig.find((p) => p.plugin === plugin) as PluginConfigConnectionType, []);
+  const config = useMemo(() => PluginConfig.find((p) => p.plugin === plugin) as PluginConfigType, []);
 
   useEffect(() => {
     setTransformation(selectedRule ? selectedRule : config.transformation);

@@ -29,15 +29,15 @@ type BitbucketOptions struct {
 	ConnectionId                        uint64   `json:"connectionId" mapstructure:"connectionId,omitempty"`
 	Tasks                               []string `json:"tasks,omitempty" mapstructure:",omitempty"`
 	FullName                            string   `json:"fullName" mapstructure:"fullName"`
-	CreatedDateAfter                    string   `json:"createdDateAfter" mapstructure:"createdDateAfter,omitempty"`
+	TimeAfter                           string   `json:"timeAfter" mapstructure:"timeAfter,omitempty"`
 	TransformationRuleId                uint64   `json:"transformationRuleId" mapstructure:"transformationRuleId,omitempty"`
 	*models.BitbucketTransformationRule `mapstructure:"transformationRules,omitempty" json:"transformationRules"`
 }
 
 type BitbucketTaskData struct {
-	Options          *BitbucketOptions
-	ApiClient        *api.ApiAsyncClient
-	CreatedDateAfter *time.Time
+	Options   *BitbucketOptions
+	ApiClient *api.ApiAsyncClient
+	TimeAfter *time.Time
 }
 
 func DecodeAndValidateTaskOptions(options map[string]interface{}) (*BitbucketOptions, errors.Error) {

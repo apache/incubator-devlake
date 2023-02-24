@@ -23,21 +23,24 @@ import (
 )
 
 type BitbucketDeployment struct {
-	ConnectionId   uint64 `gorm:"primaryKey"`
-	BitbucketId    string `gorm:"primaryKey"`
-	PipelineId     string `gorm:"type:varchar(255)"`
-	Type           string `gorm:"type:varchar(255)"`
-	Name           string `gorm:"type:varchar(255)"`
-	Key            string `gorm:"type:varchar(255)"`
-	WebUrl         string `gorm:"type:varchar(255)"`
-	Status         string `gorm:"type:varchar(100)"`
-	StateUrl       string `gorm:"type:varchar(255)"`
-	CommitSha      string `gorm:"type:varchar(255)"`
-	CommitUrl      string `gorm:"type:varchar(255)"`
-	CreatedOn      *time.Time
-	StartedOn      *time.Time
-	CompletedOn    *time.Time
-	LastUpdateTime *time.Time
+	ConnectionId    uint64 `gorm:"primaryKey"`
+	BitbucketId     string `gorm:"primaryKey"`
+	PipelineId      string `gorm:"type:varchar(255)"`
+	StepId          string `gorm:"type:varchar(255)"`
+	Type            string `gorm:"type:varchar(255)"`
+	Name            string `gorm:"type:varchar(255)"`
+	Environment     string `gorm:"type:varchar(255)"`
+	EnvironmentType string `gorm:"type:varchar(255)"`
+	Key             string `gorm:"type:varchar(255)"`
+	WebUrl          string `gorm:"type:varchar(255)"`
+	Status          string `gorm:"type:varchar(100)"`
+	StateUrl        string `gorm:"type:varchar(255)"`
+	CommitSha       string `gorm:"type:varchar(255)"`
+	CommitUrl       string `gorm:"type:varchar(255)"`
+	CreatedOn       *time.Time
+	StartedOn       *time.Time
+	CompletedOn     *time.Time
+	LastUpdateTime  *time.Time
 	common.NoPKModel
 }
 

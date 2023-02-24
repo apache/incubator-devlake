@@ -21,7 +21,7 @@ import { useHistory } from 'react-router-dom';
 import { ButtonGroup, Button, Intent, Position } from '@blueprintjs/core';
 import { Popover2 } from '@blueprintjs/popover2';
 
-import { Table, ColumnType } from '@/components';
+import { Table, ColumnType, IconButton } from '@/components';
 import type { ConnectionItemType } from '@/store';
 import { useConnection, ConnectionStatus } from '@/store';
 import { operator } from '@/utils';
@@ -91,7 +91,7 @@ export const Connection = ({ plugin }: Props) => {
           key: 'action',
           render: (id) => (
             <ButtonGroup>
-              <Button minimal intent={Intent.PRIMARY} icon="edit" onClick={() => handleUpdate(id)} />
+              <IconButton icon="edit" tooltip="Edit" onClick={() => handleUpdate(id)} />
               <Popover2
                 position={Position.TOP}
                 content={
@@ -109,7 +109,7 @@ export const Connection = ({ plugin }: Props) => {
                   </S.DeleteConfirm>
                 }
               >
-                <Button minimal intent={Intent.PRIMARY} icon="delete" />
+                <IconButton icon="delete" tooltip="Delete" />
               </Popover2>
             </ButtonGroup>
           ),
@@ -121,10 +121,18 @@ export const Connection = ({ plugin }: Props) => {
   return (
     <S.Wrapper>
       <ButtonGroup className="action">
-        <Button intent={Intent.PRIMARY} icon="plus" text="Add Connection" onClick={handleCreate} />
+        <Button intent={Intent.PRIMARY} icon="plus" text="New Connection" onClick={handleCreate} />
         <Button icon="refresh" text="Refresh Connections" onClick={handleRefresh} />
       </ButtonGroup>
-      <Table columns={columns} dataSource={connections} />
+      <Table
+        columns={columns}
+        dataSource={connections}
+        noData={{
+          text: 'There is no data connection yet. Please add a new connection.',
+          btnText: 'New Connection',
+          onCreate: handleCreate,
+        }}
+      />
     </S.Wrapper>
   );
 };

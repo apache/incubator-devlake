@@ -162,20 +162,24 @@ export const Configuration = ({ blueprint, operating, onUpdate, onRefresh }: Pro
                 <Icon icon="add" color={Colors.BLUE2} />
                 <span>Change Data Scope</span>
               </div>
-              <div
-                className="item"
-                onClick={() => {
-                  setType('transformation');
-                  setCurConnection(row);
-                }}
-              >
-                <Icon icon="annotation" color={Colors.BLUE2} />
-                <span>Re-apply Transformation</span>
-              </div>
-              <div className="item" onClick={() => history.push('/transformations')}>
-                <Icon icon="cog" color={Colors.BLUE2} />
-                <span>Manage Transformations</span>
-              </div>
+              {row.plugin !== 'sonarqube' && (
+                <>
+                  <div
+                    className="item"
+                    onClick={() => {
+                      setType('transformation');
+                      setCurConnection(row);
+                    }}
+                  >
+                    <Icon icon="annotation" color={Colors.BLUE2} />
+                    <span>Re-apply Transformation</span>
+                  </div>
+                  <div className="item" onClick={() => history.push('/transformations')}>
+                    <Icon icon="cog" color={Colors.BLUE2} />
+                    <span>Manage Transformations</span>
+                  </div>
+                </>
+              )}
             </S.ActionColumn>
           ),
         },

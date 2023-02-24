@@ -27,7 +27,10 @@ export const useContextValue = () => {
   const [loading, setLoading] = useState(false);
   const [transformations, setTransformations] = useState<TransformationItemType[]>([]);
 
-  const allConnections = useMemo(() => PluginConfig.filter((p) => p.type === PluginType.Connection && !p.isBeta), []);
+  const allConnections = useMemo(
+    () => PluginConfig.filter((p) => p.type === PluginType.Connection && !p.isBeta && p.transformation),
+    [],
+  );
 
   const getTransformation = async (plugin: string) => {
     try {

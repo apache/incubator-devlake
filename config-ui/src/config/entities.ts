@@ -22,6 +22,7 @@ export const EntitiesLabel: Record<string, string> = {
   CODEREVIEW: 'Code Review',
   CICD: 'CI/CD',
   CROSS: 'Cross Domain',
+  CODEQUALITY: 'Code Quality Domain',
 };
 
 export const transformEntities = (entities: string[]) =>

@@ -65,6 +65,8 @@ export const useDataScope = ({ plugin, connectionId, entities, initialValues, on
         return scope.jobFullName;
       case plugin === 'bitbucket':
         return scope.bitbucketId;
+      case plugin === 'sonarqube':
+        return scope.projectKey;
     }
   };
 

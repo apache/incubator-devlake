@@ -18,7 +18,6 @@
 
 import { useState, useEffect, useCallback, useMemo } from 'react';
 
-import type { PluginConfigConnectionType } from '@/plugins';
 import { PluginConfig, PluginType } from '@/plugins';
 
 import type { ConnectionItemType } from './types';
@@ -36,7 +35,7 @@ export const useContextValue = ({ plugin, filterBeta = false }: UseContextValueP
 
   const allConnections = useMemo(
     () =>
-      (PluginConfig.filter((p) => p.type === PluginType.Connection) as PluginConfigConnectionType[])
+      PluginConfig.filter((p) => p.type === PluginType.Connection)
         .filter((p) => (plugin ? p.plugin === plugin : true))
         .filter((p) => (filterBeta ? !p.isBeta : true)),
     [plugin],

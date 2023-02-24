@@ -37,7 +37,7 @@ var _ plugin.SubTaskEntryPoint = CollectBugCommits
 func CollectBugCommits(taskCtx plugin.SubTaskContext) errors.Error {
 	rawDataSubTaskArgs, data := CreateRawDataSubTaskArgs(taskCtx, RAW_BUG_COMMIT_TABLE, false)
 	db := taskCtx.GetDal()
-	collectorWithState, err := api.NewApiCollectorWithState(*rawDataSubTaskArgs, data.CreatedDateAfter)
+	collectorWithState, err := api.NewStatefulApiCollector(*rawDataSubTaskArgs, data.TimeAfter)
 	if err != nil {
 		return err
 	}
@@ -49,8 +49,8 @@ func CollectBugCommits(taskCtx plugin.SubTaskContext) errors.Error {
 		dal.From(&models.TapdBug{}),
 		dal.Where("_tool_tapd_bugs.connection_id = ? and _tool_tapd_bugs.workspace_id = ? ", data.Options.ConnectionId, data.Options.WorkspaceId),
 	}
-	if collectorWithState.CreatedDateAfter != nil {
-		clauses = append(clauses, dal.Where("created > ?", *collectorWithState.CreatedDateAfter))
+	if collectorWithState.TimeAfter != nil {
+		clauses = append(clauses, dal.Where("modified > ?", *collectorWithState.TimeAfter))
 	}
 	if incremental {
 		clauses = append(clauses, dal.Where("modified > ?", *collectorWithState.LatestState.LatestSuccessStart))

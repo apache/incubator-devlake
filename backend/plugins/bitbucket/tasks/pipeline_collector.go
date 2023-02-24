@@ -35,7 +35,7 @@ var CollectApiPipelinesMeta = plugin.SubTaskMeta{
 
 func CollectApiPipelines(taskCtx plugin.SubTaskContext) errors.Error {
 	rawDataSubTaskArgs, data := CreateRawDataSubTaskArgs(taskCtx, RAW_PIPELINE_TABLE)
-	collectorWithState, err := helper.NewApiCollectorWithState(*rawDataSubTaskArgs, data.CreatedDateAfter)
+	collectorWithState, err := helper.NewStatefulApiCollector(*rawDataSubTaskArgs, data.TimeAfter)
 	if err != nil {
 		return err
 	}
@@ -48,7 +48,8 @@ func CollectApiPipelines(taskCtx plugin.SubTaskContext) errors.Error {
 		Query: GetQueryCreatedAndUpdated(
 			`values.uuid,values.type,values.state.name,values.state.result.name,values.state.result.type,values.state.stage.name,values.state.stage.type,`+
 				`values.target.ref_name,values.target.commit.hash,`+
-				`values.created_on,values.completed_on,values.duration_in_seconds,values.links.self`,
+				`values.created_on,values.completed_on,values.duration_in_seconds,values.links.self,`+
+				`page,pagelen,size`,
 			collectorWithState),
 		ResponseParser: GetRawMessageFromResponse,
 		GetTotalPages:  GetTotalPagesFromResponse,

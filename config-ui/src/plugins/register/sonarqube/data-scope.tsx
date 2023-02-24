@@ -16,40 +16,35 @@
  *
  */
 
-import React, { useState } from 'react';
-import { Position } from '@blueprintjs/core';
-import { Tooltip2 } from '@blueprintjs/popover2';
+import React, { useMemo } from 'react';
 
-import { Dialog } from '@/components';
+import { DataScopeMillerColumns } from '@/plugins';
+
+import type { SonarQubeScopeType } from './types';
 
 interface Props {
-  children: JSX.Element;
-  loading?: boolean;
-  onDelete: () => void;
+  connectionId: ID;
+  selectedItems: SonarQubeScopeType[];
+  onChangeItems: (selectedItems: SonarQubeScopeType[]) => void;
 }
 
-export const DeleteButton = ({ children, loading = false, onDelete }: Props) => {
-  const [isOpen, setIsOpen] = useState(false);
-
-  const handleDelete = () => {
-    onDelete();
-    setIsOpen(false);
-  };
+export const SonarQubeDataScope = ({ connectionId, onChangeItems, ...props }: Props) => {
+  const selectedItems = useMemo(
+    () => props.selectedItems.map((it) => ({ id: it.projectKey, data: it })),
+    [props.selectedItems],
+  );
 
   return (
     <>
-      <Tooltip2 position={Position.TOP} content="Delete">
-        {React.cloneElement(children, {
-          onClick: () => setIsOpen(true),
-        })}
-      </Tooltip2>
-      <Dialog
-        isOpen={isOpen}
-        title="Are you sure you want to delete this data scope?"
-        onCancel={() => setIsOpen(false)}
-        okLoading={loading}
-        okText="Confirm"
-        onOk={handleDelete}
+      <h4>Add Repositories by Selecting from the Directory</h4>
+      <p>The following directory lists out all projects from SonarQube.</p>
+      <DataScopeMillerColumns
+        columnCount={1}
+        title="Projects"
+        plugin="sonarqube"
+        connectionId={connectionId}
+        selectedItems={selectedItems}
+        onChangeItems={onChangeItems}
       />
     </>
   );

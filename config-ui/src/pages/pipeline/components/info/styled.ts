@@ -23,9 +23,6 @@ import { Card } from '@/components';
 
 export const Wrapper = styled(Card)`
   ul {
-    margin: 0;
-    padding: 0;
-    list-style: none;
     display: flex;
     align-items: center;
   }

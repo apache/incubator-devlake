@@ -20,15 +20,12 @@ import React, {useMemo, useState} from 'react';
 import {
   FormGroup,
   InputGroup,
-  TextArea,
   Tag,
-  RadioGroup,
   Radio,
   Icon,
   Collapse,
   Intent,
-  Colors,
-  TagInput,
+  Checkbox,
 } from '@blueprintjs/core';
 
 import { ExternalLink, HelpTooltip, Divider, MultiSelector } from '@/components';
@@ -43,7 +40,7 @@ interface Props {
 const ALL_STATES = ['new', 'open', 'resolved', 'closed', 'on hold', 'wontfix', 'duplicate', 'invalid'];
 
 export const BitbucketTransformation = ({ transformation, setTransformation }: Props) => {
-  const [enableCICD, setEnableCICD] = useState(1);
+  const [enableCICD, setEnableCICD] = useState(false);
   const [openAdditionalSettings, setOpenAdditionalSettings] = useState(false);
   const selectedStates = useMemo(() => [
     ...transformation.issueStatusTodo ? transformation.issueStatusTodo.split(',') : [],
@@ -52,8 +49,8 @@ export const BitbucketTransformation = ({ transformation, setTransformation }: P
     ...transformation.issueStatusOther ? transformation.issueStatusOther.split(',') : [],
   ], [transformation]);
 
-  const handleChangeCICDEnable = (e: number) => {
-    if (e === 0) {
+  const handleChangeCICDEnable = (b: boolean) => {
+    if (b) {
       setTransformation({
         ...transformation,
         deploymentPattern: undefined,
@@ -66,7 +63,7 @@ export const BitbucketTransformation = ({ transformation, setTransformation }: P
         productionPattern: '',
       });
     }
-    setEnableCICD(e);
+    setEnableCICD(b);
   };
 
   const handleChangeAdditionalSettingsOpen = () => {
@@ -157,66 +154,61 @@ export const BitbucketTransformation = ({ transformation, setTransformation }: P
             DORA
           </Tag>
         </h3>
-        <p>Tell DevLake what CI jobs are Deployments.</p>
-        <RadioGroup
-          selectedValue={enableCICD}
-          onChange={(e) => handleChangeCICDEnable(+(e.target as HTMLInputElement).value)}
-        >
-          <Radio label="Detect Deployment from Builds in BitBucket" value={1} />
-          {enableCICD === 1 && (
-            <>
-              <p>
-                Not sure what a Bitbucket Action is?{' '}
-                <ExternalLink link="https://docs.github.com/en/actions/using-jobs/using-jobs-in-a-workflow">
-                  See it here
-                </ExternalLink>
-              </p>
-              <div className="radio">
-                <FormGroup
-                  inline
-                  label={
-                    <>
-                      <span>Deployment</span>
-                      <HelpTooltip content="A BitBucket build with a name that matches the RegEx will be considered as a deployment in DevLake." />
-                    </>
+        <p>
+          DevLake uses BitBucket{' '}
+          <ExternalLink link="https://support.atlassian.com/bitbucket-cloud/docs/set-up-and-monitor-deployments/">deployments</ExternalLink>
+          {' '}as DevLake deployments. If you are NOT using BitBucket deployments, DevLake provides the option to detect deployments from BitBucket pipeline steps.{' '}
+          <ExternalLink link="https://devlake.apache.org/docs/Configuration/BitBucket#step-3---adding-transformation-rules-optional">Learn more</ExternalLink>
+        </p>
+        <Checkbox label="Detect Deployments from Pipeline steps in BitBucket" checked={enableCICD}
+                  onChange={(e) => handleChangeCICDEnable((e.target as HTMLInputElement).checked)}
+        />
+        {enableCICD && (
+          <>
+            <div className="radio">
+              <FormGroup
+                inline
+                label={
+                  <>
+                    <span>Deployment</span>
+                    <HelpTooltip content="A BitBucket build with a name that matches the RegEx will be considered as a deployment in DevLake." />
+                  </>
+                }
+              >
+                <InputGroup
+                  placeholder="(?i)deploy"
+                  value={transformation.deploymentPattern}
+                  onChange={(e) =>
+                    setTransformation({
+                      ...transformation,
+                      deploymentPattern: e.target.value,
+                    })
                   }
-                >
-                  <InputGroup
-                    placeholder="(?i)deploy"
-                    value={transformation.deploymentPattern}
-                    onChange={(e) =>
-                      setTransformation({
-                        ...transformation,
-                        deploymentPattern: e.target.value,
-                      })
-                    }
-                  />
-                </FormGroup>
-                <FormGroup
-                  inline
-                  label={
-                    <>
-                      <span>Production</span>
-                      <HelpTooltip content="DevLake is only concerned with deployments in production environment when calculating DORA metrics. A BitBucket build with a name that matches the given RegEx will be considered as a job in the Production environment. If you leave this field empty, all data will be tagged as in the Production environment. " />
-                    </>
+                />
+              </FormGroup>
+              <FormGroup
+                inline
+                label={
+                  <>
+                    <span>Production Environment</span>
+                    <HelpTooltip content="DevLake is only concerned with deployments in production environment when calculating DORA metrics. A BitBucket build with a name that matches the given RegEx will be considered as a job in the Production environment. If you leave this field empty, all data will be tagged as in the Production environment. " />
+                  </>
+                }
+              >
+                <InputGroup
+                  placeholder="(?i)production"
+                  value={transformation.productionPattern}
+                  onChange={(e) =>
+                    setTransformation({
+                      ...transformation,
+                      productionPattern: e.target.value,
+                    })
                   }
-                >
-                  <InputGroup
-                    placeholder="(?i)production"
-                    value={transformation.productionPattern}
-                    onChange={(e) =>
-                      setTransformation({
-                        ...transformation,
-                        productionPattern: e.target.value,
-                      })
-                    }
-                  />
-                </FormGroup>
-              </div>
-            </>
-          )}
-          <Radio label="Not using any Bitbucket entities as Deployment" value={0} />
-        </RadioGroup>
+                />
+              </FormGroup>
+            </div>
+          </>
+        )}
       </div>
       <Divider />
       {/* Additional Settings */}

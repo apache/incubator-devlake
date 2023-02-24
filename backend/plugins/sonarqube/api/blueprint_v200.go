@@ -19,6 +19,9 @@ package api
 
 import (
 	"fmt"
+	"net/http"
+	"net/url"
+
 	"github.com/apache/incubator-devlake/core/dal"
 	"github.com/apache/incubator-devlake/core/errors"
 	"github.com/apache/incubator-devlake/core/models/domainlayer"
@@ -27,8 +30,9 @@ import (
 	"github.com/apache/incubator-devlake/core/plugin"
 	"github.com/apache/incubator-devlake/core/utils"
 	helper "github.com/apache/incubator-devlake/helpers/pluginhelper/api"
+	aha "github.com/apache/incubator-devlake/helpers/pluginhelper/api/apihelperabstract"
 	"github.com/apache/incubator-devlake/plugins/sonarqube/models"
-	"time"
+	"github.com/apache/incubator-devlake/plugins/sonarqube/tasks"
 )
 
 func MakeDataSourcePipelinePlanV200(subtaskMetas []plugin.SubTaskMeta, connectionId uint64, bpScopes []*plugin.BlueprintScopeV200, syncPolicy *plugin.BlueprintSyncPolicy) (plugin.PipelinePlan, []plugin.Scope, errors.Error) {
@@ -61,9 +65,6 @@ func makeDataSourcePipelinePlanV200(
 		options := make(map[string]interface{})
 		options["connectionId"] = connectionId
 		options["projectKey"] = bpScope.Id
-		if syncPolicy.CreatedDateAfter != nil {
-			options["createdDateAfter"] = syncPolicy.CreatedDateAfter.Format(time.RFC3339)
-		}
 
 		subtasks, err := helper.MakePipelinePlanSubtasks(subtaskMetas, bpScope.Entities)
 		if err != nil {
@@ -103,4 +104,30 @@ func makeScopesV200(bpScopes []*plugin.BlueprintScopeV200, connectionId uint64) 
 		}
 	}
 	return scopes, nil
+}
+
+func GetApiProject(
+	projectKey string,
+	apiClient aha.ApiClientAbstract,
+) (*tasks.SonarqubeApiProject, errors.Error) {
+	var resData struct {
+		Data []tasks.SonarqubeApiProject `json:"components"`
+	}
+	query := url.Values{}
+	query.Set("q", projectKey)
+	res, err := apiClient.Get("projects/search", query, nil)
+	if err != nil {
+		return nil, err
+	}
+	if res.StatusCode != http.StatusOK {
+		return nil, errors.HttpStatus(res.StatusCode).New(fmt.Sprintf("unexpected status code when requesting project detail from %s", res.Request.URL.String()))
+	}
+	err = helper.UnmarshalResponse(res, &resData)
+	if err != nil {
+		return nil, err
+	}
+	if len(resData.Data) > 0 {
+		return &resData.Data[0], nil
+	}
+	return nil, errors.BadInput.New(fmt.Sprintf("Cannot find project: %s", projectKey))
 }

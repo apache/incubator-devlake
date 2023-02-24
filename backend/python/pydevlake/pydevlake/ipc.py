@@ -82,12 +82,19 @@ class PluginCommands:
     def plugin_info(self):
         return self._plugin.plugin_info()
 
+    @plugin_method
+    def remote_scopes(self, connection: dict, query: str = ''):
+        c = self._plugin.connection_type(**connection)
+        self.plugin.remote_scopes(c, query)
+
     def startup(self, endpoint: str):
         self._plugin.startup(endpoint)
 
     def _mk_context(self, data: dict):
         db_url = data['db_url']
+        scope_id = data['scope_id']
         connection_id = data['connection_id']
         connection = self._plugin.connection_type(**data['connection'])
+        transformation_rule = self._plugin.transformation_rule_type(**data['transformation_rule'])
         options = data.get('options', {})
-        return Context(db_url, connection_id, connection, options)
+        return Context(db_url, scope_id, connection_id, connection, transformation_rule, options)

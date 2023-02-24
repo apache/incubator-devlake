@@ -1,0 +1,28 @@
+<!--
+Licensed to the Apache Software Foundation (ASF) under one or more
+contributor license agreements.  See the NOTICE file distributed with
+this work for additional information regarding copyright ownership.
+The ASF licenses this file to You under the Apache License, Version 2.0
+(the "License"); you may not use this file except in compliance with
+the License.  You may obtain a copy of the License at
+
+    http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
+-->
+<svg width="60" height="60" viewBox="0 0 60 60" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <path
+    d="M49.0136 55.091C49.0534 49.1121 47.8941 43.186 45.6042 37.6628C43.3143 32.1397 39.9403 27.1318 35.6816 22.9352C31.4228 18.7385 26.3659 15.4383 20.8098 13.2298C15.2537 11.0212 9.31113 9.94899 3.3335 10.0766L3.39567 12.9883C8.98408 12.8689 14.5397 13.8713 19.734 15.9361C24.9284 18.0009 29.656 21.0862 33.6374 25.0095C37.6188 28.9329 40.7732 33.6148 42.914 38.7782C45.0548 43.9417 46.1386 49.482 46.1013 55.0716L49.0136 55.091Z"
+    fill="#7497F7" />
+  <path
+    d="M53.5855 38.8361C51.4412 31.1064 47.3893 24.0392 41.8019 18.2836C36.2145 12.5279 29.2706 8.26816 21.6079 5.89551L20.9153 8.13223C28.2034 10.3889 34.8077 14.4403 40.1219 19.9145C45.4361 25.3887 49.2898 32.1103 51.3293 39.4621L53.5855 38.8361Z"
+    fill="#7497F7" />
+  <path
+    d="M56.316 24.8632C52.1338 16.738 45.8537 9.87982 38.1273 5L37.1394 6.56421C44.5867 11.2678 50.6399 17.8782 54.6711 25.7099L56.316 24.8632Z"
+    fill="#7497F7" />
+</svg>
+  

@@ -19,7 +19,6 @@ package impl
 
 import (
 	"fmt"
-	"time"
 
 	"github.com/apache/incubator-devlake/core/dal"
 
@@ -82,8 +81,6 @@ func (p Sonarqube) GetTablesInfo() []dal.Tabler {
 
 func (p Sonarqube) SubTaskMetas() []plugin.SubTaskMeta {
 	return []plugin.SubTaskMeta{
-		tasks.CollectProjectsMeta,
-		tasks.ExtractProjectsMeta,
 		tasks.CollectIssuesMeta,
 		tasks.ExtractIssuesMeta,
 		tasks.CollectHotspotsMeta,
@@ -125,17 +122,22 @@ func (p Sonarqube) PrepareTaskData(taskCtx plugin.TaskContext, options map[strin
 		Options:   op,
 		ApiClient: apiClient,
 	}
-	var createdDateAfter time.Time
-	if op.CreatedDateAfter != "" {
-		createdDateAfter, err = errors.Convert01(time.Parse(time.RFC3339, op.CreatedDateAfter))
-		if err != nil {
-			return nil, errors.BadInput.Wrap(err, "invalid value for `createdDateAfter`")
-		}
+	// even we have project in _tool_sonaqube_projects, we still need to collect project to update LastAnalysisDate
+	var scope *models.SonarqubeProject
+	var apiProject *tasks.SonarqubeApiProject
+	apiProject, err = api.GetApiProject(op.ProjectKey, apiClient)
+	if err != nil {
+		return nil, err
 	}
-	if !createdDateAfter.IsZero() {
-		taskData.CreatedDateAfter = &createdDateAfter
-		logger.Debug("collect data updated createdDateAfter %s", createdDateAfter)
+	logger.Debug(fmt.Sprintf("Current project: %s", apiProject.ProjectKey))
+	scope = tasks.ConvertProject(apiProject)
+	scope.ConnectionId = op.ConnectionId
+	err = taskCtx.GetDal().CreateOrUpdate(&scope)
+	if err != nil {
+		return nil, err
 	}
+	taskData.LastAnalysisDate = scope.LastAnalysisDate.ToNullableTime()
+
 	return taskData, nil
 }
 

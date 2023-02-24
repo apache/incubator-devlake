@@ -19,8 +19,7 @@
 import React, { useState, useMemo } from 'react';
 import { Button, Intent } from '@blueprintjs/core';
 
-import NoData from '@/images/no-webhook.svg';
-import { Card } from '@/components';
+import { NoData } from '@/components';
 import type { WebhookItemType } from '@/plugins/register/webook';
 import { WebhookCreateDialog, WebhookSelectorDialog, WebHookConnection } from '@/plugins/register/webook';
 
@@ -50,32 +49,31 @@ export const IncomingWebhooksPanel = ({ project, saving, onSelectWebhook, onCrea
     setType(undefined);
   };
 
-  return !webhookIds.length ? (
-    <Card>
-      <div className="webhook">
-        <div className="logo">
-          <img src={NoData} alt="" />
-        </div>
-        <div className="desc">
-          <p>Push `incidents` or `deployments` from your tools by incoming webhooks.</p>
-        </div>
-        <div className="action">
-          <Button intent={Intent.PRIMARY} icon="plus" text="Add a Webhook" onClick={() => setType('create')} />
-          <span className="or">or</span>
-          <Button
-            outlined
-            intent={Intent.PRIMARY}
-            text="Select Existing Webhooks"
-            onClick={() => setType('selectExist')}
-          />
-        </div>
-      </div>
-      {type === 'create' && <WebhookCreateDialog isOpen onCancel={handleCancel} onSubmitAfter={onCreateWebhook} />}
-      {type === 'selectExist' && (
-        <WebhookSelectorDialog isOpen saving={saving} onCancel={handleCancel} onSubmit={onSelectWebhook} />
-      )}
-    </Card>
-  ) : (
-    <WebHookConnection filterIds={webhookIds} onCreateAfter={onCreateWebhook} />
-  );
+  if (!webhookIds.length) {
+    return (
+      <>
+        <NoData
+          text="Push `incidents` or `deployments` from your tools by incoming webhooks."
+          action={
+            <>
+              <Button intent={Intent.PRIMARY} icon="plus" text="Add a Webhook" onClick={() => setType('create')} />
+              <div style={{ margin: '8px 0' }}>or</div>
+              <Button
+                outlined
+                intent={Intent.PRIMARY}
+                text="Select Existing Webhooks"
+                onClick={() => setType('selectExist')}
+              />
+            </>
+          }
+        />
+        {type === 'create' && <WebhookCreateDialog isOpen onCancel={handleCancel} onSubmitAfter={onCreateWebhook} />}
+        {type === 'selectExist' && (
+          <WebhookSelectorDialog isOpen saving={saving} onCancel={handleCancel} onSubmit={onSelectWebhook} />
+        )}
+      </>
+    );
+  }
+
+  return <WebHookConnection filterIds={webhookIds} onCreateAfter={onCreateWebhook} />;
 };

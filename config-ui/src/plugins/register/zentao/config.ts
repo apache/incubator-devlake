@@ -27,7 +27,7 @@ export const ZenTaoConfig: PluginConfigType = {
   name: 'ZenTao',
   isBeta: true,
   icon: Icon,
-  sort: 7,
+  sort: 100,
   connection: {
     docLink: 'https://devlake.apache.org/docs/Configuration/Zentao',
     fields: [

@@ -21,38 +21,29 @@ import { PluginType } from '@/plugins';
 
 import Icon from './assets/icon.svg';
 
-export const TAPDConfig: PluginConfigType = {
+export const SonarQubeConfig: PluginConfigType = {
   type: PluginType.Connection,
-  plugin: 'tapd',
-  name: 'TAPD',
-  isBeta: true,
+  plugin: 'sonarqube',
+  name: 'SonarQube',
   icon: Icon,
-  sort: 6,
+  sort: 7,
   connection: {
-    docLink: 'https://devlake.apache.org/docs/Configuration/Tapd',
-    initialValues: {
-      endpoint: 'https://api.tapd.cn',
-    },
+    docLink: '',
     fields: [
       'name',
-      {
-        key: 'endpoint',
-        subLabel: 'You do not need to enter the endpoint URL, because all versions use the same URL.',
-        disabled: true,
-      },
-      'username',
-      'password',
+      'endpoint',
+      'token',
       'proxy',
       {
         key: 'rateLimitPerHour',
         subLabel:
-          'By default, DevLake uses 3,000 requests/hour for data collection for TAPD. But you can adjust the collection speed by setting up your desirable rate limit.',
-        learnMore: 'https://devlake.apache.org/docs/Configuration/Tapdt#fixed-rate-limit-optional',
-        externalInfo: 'The maximum rate limit of TAPD is 3,600 requests/hour.',
-        defaultValue: 3000,
+          'By default, DevLake uses 18,000 requests/hour for data collection for Azure DevOps. But you can adjust the collection speed by setting up your desirable rate limit.',
+        learnMore: 'https://devlake.apache.org/docs/UserManuals/ConfigUI/AzureDevOps/#custom-rate-limit-optional',
+        externalInfo: 'Azure DevOps does not specify a maximum value of rate limit.',
+        defaultValue: 18000,
       },
     ],
   },
-  entities: ['TICKET'],
-  transformation: {},
+  entities: ['CODEQUALITY', 'CROSS'],
+  transformation: null,
 };

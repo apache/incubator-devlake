@@ -27,6 +27,15 @@ import (
 type addCodeQuality struct{}
 
 func (u *addCodeQuality) Up(basicRes context.BasicRes) errors.Error {
+	err := basicRes.GetDal().DropTables(
+		&archived.CqProject{},
+		&archived.CqIssue{},
+		&archived.CqIssueCodeBlock{},
+		&archived.CqFileMetrics{},
+	)
+	if err != nil {
+		return err
+	}
 	return migrationhelper.AutoMigrateTables(
 		basicRes,
 		&archived.CqProject{},
@@ -37,7 +46,7 @@ func (u *addCodeQuality) Up(basicRes context.BasicRes) errors.Error {
 }
 
 func (*addCodeQuality) Version() uint64 {
-	return 20230208000019
+	return 20230221000022
 }
 
 func (*addCodeQuality) Name() string {

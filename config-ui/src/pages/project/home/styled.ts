@@ -18,25 +18,9 @@
 
 import styled from 'styled-components';
 
-export const Container = styled.div`
-  .card {
-    text-align: center;
-
-    img {
-      display: inline-block;
-      width: 120px;
-      height: 120px;
-    }
-
-    .desc {
-      margin: 24px 0;
-    }
-  }
-`;
-
-export const DialogWrapper = styled.div`
+export const DialogInner = styled.div`
   .block + .block {
-    margin-top: 16px;
+    margin-top: 24px;
   }
 
   .bp4-input-group {
@@ -50,10 +34,5 @@ export const DialogWrapper = styled.div`
     & > p {
       margin: 0 0 0 16px;
     }
-  }
-
-  h3 {
-    margin: 0;
-    padding: 0;
   }
 `;

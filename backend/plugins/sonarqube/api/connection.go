@@ -23,23 +23,26 @@ import (
 	"github.com/apache/incubator-devlake/core/plugin"
 	"github.com/apache/incubator-devlake/helpers/pluginhelper/api"
 	"github.com/apache/incubator-devlake/plugins/sonarqube/models"
+	"github.com/apache/incubator-devlake/server/api/shared"
 	"net/http"
 )
 
 type validation struct {
 	Valid bool `json:"valid"`
 }
+type SonarqubeTestConnResponse struct {
+	shared.ApiBody
+	Connection *models.SonarqubeConn
+}
 
-/*
-@Summary test sonarqube connection
-@Description Test sonarqube Connection
-@Tags plugins/sonarqube
-@Param body body models.SonarqubeConn true "json body"
-@Success 200  {object} shared.ApiBody "Success"
-@Failure 400  {string} errcode.Error "Bad Request"
-@Failure 500  {string} errcode.Error "Internal Error"
-@Router /plugins/sonarqube/test [POST]
-*/
+// @Summary test sonarqube connection
+// @Description Test sonarqube Connection
+// @Tags plugins/sonarqube
+// @Param body body models.SonarqubeConn true "json body"
+// @Success 200  {object} SonarqubeTestConnResponse "Success"
+// @Failure 400  {string} errcode.Error "Bad Request"
+// @Failure 500  {string} errcode.Error "Internal Error"
+// @Router /plugins/sonarqube/test [POST]
 func TestConnection(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, errors.Error) {
 	// decode
 	var err errors.Error
@@ -58,15 +61,19 @@ func TestConnection(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, 
 	}
 	switch res.StatusCode {
 	case 200: // right StatusCode
-		body := &validation{}
-		err = api.UnmarshalResponse(res, body)
+		valid := &validation{}
+		err = api.UnmarshalResponse(res, valid)
+		body := SonarqubeTestConnResponse{}
+		body.Success = true
+		body.Message = "success"
+		body.Connection = &connection
 		if err != nil {
 			return nil, err
 		}
-		if !body.Valid {
+		if !valid.Valid {
 			return nil, errors.Default.New("Authentication failed, please check your access token.")
 		}
-		return &plugin.ApiResourceOutput{Body: true, Status: 200}, nil
+		return &plugin.ApiResourceOutput{Body: body, Status: 200}, nil
 	case 401: // error secretKey or nonceStr
 		return &plugin.ApiResourceOutput{Body: false, Status: res.StatusCode}, nil
 	default: // unknow what happen , back to user

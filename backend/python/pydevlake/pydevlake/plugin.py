@@ -54,6 +54,10 @@ class Plugin:
     def connection_type(self) -> Type[msg.Connection]:
         pass
 
+    @property
+    def transformation_rule_type(self) -> Type[msg.TransformationRule]:
+        return msg.TransformationRule
+
     @abstractmethod
     def test_connection(self, connection: msg.Connection):
         """
@@ -68,6 +72,10 @@ class Plugin:
 
     @abstractmethod
     def get_scopes(self, scope_name: str, connection: msg.Connection) -> Iterable[DomainModel]:
+        pass
+
+    @abstractmethod
+    def remote_scopes(self, connection: msg.Connection, query: str = ''):
         pass
 
     @property
@@ -110,7 +118,7 @@ class Plugin:
         plan = msg.PipelinePlan(stages=stages)
         yield plan
 
-        scopes = [ 
+        scopes = [
             msg.PipelineScope(
                 id=':'.join([self.name, type(scope).__name__, ctx.connection_id, bp_scope.id]),
                 name=bp_scope.name,
@@ -133,7 +141,7 @@ class Plugin:
             swagger=msg.SwaggerDoc(
                 name=self.name,
                 resource=self.name,
-                spec=generate_doc(self.name, self.connection_type)
+                spec=generate_doc(self.name, self.connection_type, self.transformation_rule_type)
             )
         )
         resp = requests.post(f"{endpoint}/plugins/register", data=details.json())
@@ -160,6 +168,7 @@ class Plugin:
             plugin_path=self._plugin_path(),
             extension="datasource",
             connection_schema=self.connection_type.schema(),
+            transformation_rule_schema=self.transformation_rule_type.schema(),
             subtask_metas=subtask_metas
         )
 

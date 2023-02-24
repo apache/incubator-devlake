@@ -31,16 +31,15 @@ func main() {
 	cmd := &cobra.Command{Use: "bitbucket"}
 	connectionId := cmd.Flags().Uint64P("connectionId", "c", 0, "bitbucket connection id")
 	fullName := cmd.Flags().StringP("fullName", "n", "", "bitbucket id: owner/repo")
-	createdDateAfter := cmd.Flags().StringP("createdDateAfter", "a", "", "collect data that are created after specified time, ie 2006-05-06T07:08:09Z")
+	timeAfter := cmd.Flags().StringP("timeAfter", "a", "", "collect data that are created after specified time, ie 2006-05-06T07:08:09Z")
 	_ = cmd.MarkFlagRequired("connectionId")
-	_ = cmd.MarkFlagRequired("owner")
-	_ = cmd.MarkFlagRequired("repo")
+	_ = cmd.MarkFlagRequired("fullName")
 
 	cmd.Run = func(cmd *cobra.Command, args []string) {
 		runner.DirectRun(cmd, args, PluginEntry, map[string]interface{}{
-			"connectionId":     *connectionId,
-			"fullName":         *fullName,
-			"createdDateAfter": *createdDateAfter,
+			"connectionId": *connectionId,
+			"fullName":     *fullName,
+			"timeAfter":    *timeAfter,
 		})
 	}
 	runner.RunCmd(cmd)

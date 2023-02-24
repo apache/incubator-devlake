@@ -23,40 +23,18 @@ export const Wrapper = styled.div`
     display: flex;
     justify-content: center;
   }
+`;
 
-  .blueprint,
-  .webhook {
-    padding: 24px;
-    text-align: center;
-
-    .logo > img {
-      display: inline-block;
-      width: 120px;
-      height: 120px;
-    }
-
-    .desc {
-      margin: 20px 0;
-    }
-
-    .action > .or {
-      display: block;
-      margin: 8px 0;
-    }
+export const Settings = styled.div`
+  .block + .block {
+    margin-top: 24px;
   }
 
-  .settings {
-    h3 {
-      margin: 0;
-      padding: 0;
-    }
+  .bp4-control {
+    margin-bottom: 0;
+  }
 
-    .block {
-      margin-bottom: 16px;
-    }
-
-    .bp4-input-group {
-      width: 386px;
-    }
+  .bp4-input-group {
+    width: 386px;
   }
 `;

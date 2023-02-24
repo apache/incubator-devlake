@@ -35,7 +35,7 @@ var CollectApiIssuesMeta = plugin.SubTaskMeta{
 
 func CollectApiIssues(taskCtx plugin.SubTaskContext) errors.Error {
 	rawDataSubTaskArgs, data := CreateRawDataSubTaskArgs(taskCtx, RAW_ISSUE_TABLE)
-	collectorWithState, err := helper.NewApiCollectorWithState(*rawDataSubTaskArgs, data.CreatedDateAfter)
+	collectorWithState, err := helper.NewStatefulApiCollector(*rawDataSubTaskArgs, data.TimeAfter)
 	if err != nil {
 		return err
 	}
@@ -48,7 +48,8 @@ func CollectApiIssues(taskCtx plugin.SubTaskContext) errors.Error {
 		Query: GetQueryCreatedAndUpdated(
 			`values.type,values.id,values.links.self,`+
 				`values.title,values.content.raw,values.reporter,values.assignee,`+
-				`values.state,values.milestone.id,values.component,values.priority,values.created_on,values.updated_on`,
+				`values.state,values.milestone.id,values.component,values.priority,values.created_on,values.updated_on,`+
+				`page,pagelen,size`,
 			collectorWithState),
 		GetTotalPages:  GetTotalPagesFromResponse,
 		ResponseParser: GetRawMessageFromResponse,

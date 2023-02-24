@@ -47,14 +47,14 @@ func CollectApiPullRequestReviews(taskCtx plugin.SubTaskContext) errors.Error {
 	db := taskCtx.GetDal()
 	data := taskCtx.GetData().(*GithubTaskData)
 
-	collectorWithState, err := helper.NewApiCollectorWithState(helper.RawDataSubTaskArgs{
+	collectorWithState, err := helper.NewStatefulApiCollector(helper.RawDataSubTaskArgs{
 		Ctx: taskCtx,
 		Params: GithubApiParams{
 			ConnectionId: data.Options.ConnectionId,
 			Name:         data.Options.Name,
 		},
 		Table: RAW_PR_REVIEW_TABLE,
-	}, data.CreatedDateAfter)
+	}, data.TimeAfter)
 	if err != nil {
 		return err
 	}
@@ -65,11 +65,11 @@ func CollectApiPullRequestReviews(taskCtx plugin.SubTaskContext) errors.Error {
 		dal.From(models.GithubPullRequest{}.TableName()),
 		dal.Where("repo_id = ? and connection_id=?", data.Options.GithubId, data.Options.ConnectionId),
 	}
-	if collectorWithState.CreatedDateAfter != nil {
-		clauses = append(clauses, dal.Where("github_created_at > ?", *collectorWithState.CreatedDateAfter))
-	}
 	if incremental {
-		clauses = append(clauses, dal.Where("github_updated_at > ?", *collectorWithState.LatestState.LatestSuccessStart))
+		clauses = append(
+			clauses,
+			dal.Where("github_updated_at > ?", collectorWithState.LatestState.LatestSuccessStart),
+		)
 	}
 	cursor, err := db.Cursor(
 		clauses...,

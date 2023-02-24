@@ -30,8 +30,8 @@ type CqIssue struct {
 	Line                     int              `json:"line"`
 	Status                   string           `json:"status" gorm:"type:varchar(255)"`
 	Message                  string           `json:"message"`
-	Debt                     string           `json:"debt" gorm:"type:varchar(255)"`
-	Effort                   string           `json:"effort" gorm:"type:varchar(255)"`
+	Debt                     int              `json:"debt"`
+	Effort                   int              `json:"effort"`
 	CommitAuthorEmail        string           `json:"author" gorm:"type:varchar(255)"`
 	Assignee                 string           `json:"assignee" gorm:"type:varchar(255)"`
 	Hash                     string           `json:"hash" gorm:"type:varchar(255)"`

@@ -223,6 +223,9 @@ class MyAPI(API):
 
 Here the method `authenticate` is a hook that is run on each request.
 Similarly you can declare response hooks with `@response_hook`.
+Multiple hooks are executed in the order of their declaration.
+The `API` base class declares some hooks that are executed first.
+
 
 #### Pagination
 

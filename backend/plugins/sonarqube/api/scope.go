@@ -26,8 +26,6 @@ import (
 	"github.com/apache/incubator-devlake/core/plugin"
 	"github.com/apache/incubator-devlake/helpers/pluginhelper/api"
 	"github.com/apache/incubator-devlake/plugins/sonarqube/models"
-
-	"github.com/mitchellh/mapstructure"
 )
 
 type req struct {
@@ -51,7 +49,8 @@ func PutScope(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, errors
 		return nil, errors.BadInput.New("invalid connectionId")
 	}
 	var projects req
-	err := errors.Convert(mapstructure.Decode(input.Body, &projects))
+	// As we need to process *api.Iso8601Time, we need to use DecodeMapStruct instead of mapstructure.Decode
+	err := errors.Convert(api.DecodeMapStruct(input.Body, &projects))
 	if err != nil {
 		return nil, errors.BadInput.Wrap(err, "decoding Sonarqube project error")
 	}
@@ -117,7 +116,7 @@ func UpdateScope(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, err
 // @Description get Sonarqube projects
 // @Tags plugins/sonarqube
 // @Param connectionId path int false "connection ID"
-// @Success 200  {object} []apiProject
+// @Success 200  {object} []models.SonarqubeProject
 // @Failure 400  {object} shared.ApiBody "Bad Request"
 // @Failure 500  {object} shared.ApiBody "Internal Error"
 // @Router /plugins/sonarqube/connections/{connectionId}/scopes/ [GET]
@@ -144,7 +143,7 @@ func GetScopeList(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, er
 // @Param projectKey path string false "project key"
 // @Param pageSize query int false "page size, default 50"
 // @Param page query int false "page size, default 1"
-// @Success 200  {object} apiProject
+// @Success 200  {object} models.SonarqubeProject
 // @Failure 400  {object} shared.ApiBody "Bad Request"
 // @Failure 500  {object} shared.ApiBody "Internal Error"
 // @Router /plugins/sonarqube/connections/{connectionId}/scopes/{projectKey} [GET]

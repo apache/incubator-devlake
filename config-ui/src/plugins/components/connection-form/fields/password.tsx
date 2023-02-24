@@ -40,23 +40,44 @@ import * as S from './styled';
 
 interface Props {
   label?: string;
+  subLabel?: string;
+  placeholder?: string;
+  name: string;
   initialValue: string;
   value: string;
+  error: string;
   setValue: (value: string) => void;
+  setError: (value: string) => void;
 }
 
-export const ConnectionPassword = ({ label, initialValue, value, setValue }: Props) => {
+export const ConnectionPassword = ({
+  label,
+  subLabel,
+  placeholder,
+  initialValue,
+  value,
+  setValue,
+  setError,
+}: Props) => {
   useEffect(() => {
     setValue(initialValue);
   }, [initialValue]);
+
+  useEffect(() => {
+    setError(value ? '' : 'password is required');
+  }, [value]);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setValue(e.target.value);
   };
 
   return (
-    <FormGroup label={<S.Label>{label ?? 'Password'}</S.Label>} labelInfo={<S.LabelInfo>*</S.LabelInfo>}>
-      <InputGroup placeholder="Your Password" value={value} onChange={handleChange} />
+    <FormGroup
+      label={<S.Label>{label ?? 'Password'}</S.Label>}
+      labelInfo={<S.LabelInfo>*</S.LabelInfo>}
+      subLabel={subLabel ? <S.LabelDescription>{subLabel}</S.LabelDescription> : null}
+    >
+      <InputGroup type="password" placeholder={placeholder ?? 'Your Password'} value={value} onChange={handleChange} />
     </FormGroup>
   );
 };

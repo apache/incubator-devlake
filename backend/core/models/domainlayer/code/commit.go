@@ -18,9 +18,10 @@ limitations under the License.
 package code
 
 import (
+	"time"
+
 	"github.com/apache/incubator-devlake/core/models/common"
 	"github.com/apache/incubator-devlake/core/models/domainlayer"
-	"time"
 )
 
 type Commit struct {
@@ -46,7 +47,7 @@ func (Commit) TableName() string {
 
 type CommitFile struct {
 	domainlayer.DomainEntity
-	CommitSha string `gorm:"type:varchar(40)"`
+	CommitSha string `gorm:"index;type:varchar(40)"`
 	FilePath  string `gorm:"type:text"`
 	Additions int
 	Deletions int

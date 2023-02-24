@@ -18,11 +18,12 @@ limitations under the License.
 package tasks
 
 import (
+	"strings"
+	"time"
+
 	"github.com/apache/incubator-devlake/core/errors"
 	"github.com/apache/incubator-devlake/helpers/pluginhelper/api"
 	"github.com/apache/incubator-devlake/plugins/jenkins/models"
-	"strings"
-	"time"
 )
 
 type JenkinsApiParams struct {
@@ -37,16 +38,16 @@ type JenkinsOptions struct {
 	JobFullName                       string `json:"jobFullName"` // "path1/path2/job name"
 	JobName                           string `json:"jobName"`     // "job name"
 	JobPath                           string `json:"jobPath"`     // "job/path1/job/path2"
-	CreatedDateAfter                  string
+	TimeAfter                         string
 	Tasks                             []string `json:"tasks,omitempty"`
 	*models.JenkinsTransformationRule `mapstructure:"transformationRules" json:"transformationRules"`
 }
 
 type JenkinsTaskData struct {
-	Options          *JenkinsOptions
-	ApiClient        *api.ApiAsyncClient
-	Connection       *models.JenkinsConnection
-	CreatedDateAfter *time.Time
+	Options    *JenkinsOptions
+	ApiClient  *api.ApiAsyncClient
+	Connection *models.JenkinsConnection
+	TimeAfter  *time.Time
 }
 
 func DecodeTaskOptions(options map[string]interface{}) (*JenkinsOptions, errors.Error) {

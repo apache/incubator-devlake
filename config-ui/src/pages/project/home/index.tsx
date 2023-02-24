@@ -20,8 +20,7 @@ import React, { useMemo, useState } from 'react';
 import { Link, useHistory } from 'react-router-dom';
 import { Button, InputGroup, Checkbox, Intent } from '@blueprintjs/core';
 
-import NoData from '@/images/no-data.svg';
-import { PageHeader, Card, Table, ColumnType, Dialog } from '@/components';
+import { PageHeader, Table, ColumnType, Dialog } from '@/components';
 
 import { useProject } from './use-project';
 import * as S from './styled';
@@ -86,60 +85,53 @@ export const ProjectHomePage = () => {
         ) : null
       }
     >
-      <S.Container>
-        {!projects.length ? (
-          <Card className="card">
-            <div className="logo">
-              <img src={NoData} alt="" />
+      <Table
+        loading={loading}
+        columns={columns}
+        dataSource={projects}
+        noData={{
+          text: 'Add new projects to see engineering metrics based on projects.',
+          btnText: 'New Project',
+          onCreate: handleShowDialog,
+        }}
+      />
+      <Dialog
+        isOpen={isOpen}
+        title="Create a New Project"
+        style={{
+          top: -100,
+          width: 820,
+        }}
+        okText="Save"
+        okDisabled={!name}
+        okLoading={operating}
+        onCancel={handleHideDialog}
+        onOk={onSave}
+      >
+        <S.DialogInner>
+          <div className="block">
+            <h3>Project Name *</h3>
+            <p>Give your project a unique name.</p>
+            <InputGroup placeholder="Your Project Name" value={name} onChange={(e) => setName(e.target.value)} />
+          </div>
+          <div className="block">
+            <h3>Project Settings</h3>
+            <div className="checkbox">
+              <Checkbox
+                label="Enable DORA Metrics"
+                checked={enableDora}
+                onChange={(e) => setEnableDora((e.target as HTMLInputElement).checked)}
+              />
+              <p>
+                <a href="https://devlake.apache.org/docs/UserManuals/DORA/" rel="noreferrer" target="_blank">
+                  DORA metrics
+                </a>{' '}
+                <span>are four widely-adopted metrics for measuring software delivery performance.</span>
+              </p>
             </div>
-            <div className="desc">
-              <p>Add new projects to see engineering metrics based on projects.</p>
-            </div>
-            <div className="action">
-              <Button intent={Intent.PRIMARY} icon="plus" text="New Project" onClick={handleShowDialog} />
-            </div>
-          </Card>
-        ) : (
-          <Table loading={loading} columns={columns} dataSource={projects} />
-        )}
-        <Dialog
-          isOpen={isOpen}
-          title="Create a New Project"
-          style={{
-            top: -100,
-            width: 820,
-          }}
-          okText="Save"
-          okDisabled={!name}
-          okLoading={operating}
-          onCancel={handleHideDialog}
-          onOk={onSave}
-        >
-          <S.DialogWrapper>
-            <div className="block">
-              <h3>Project Name *</h3>
-              <p>Give your project a unique name.</p>
-              <InputGroup placeholder="Your Project Name" value={name} onChange={(e) => setName(e.target.value)} />
-            </div>
-            <div className="block">
-              <h3>Project Settings</h3>
-              <div className="checkbox">
-                <Checkbox
-                  label="Enable DORA Metrics"
-                  checked={enableDora}
-                  onChange={(e) => setEnableDora((e.target as HTMLInputElement).checked)}
-                />
-                <p>
-                  <a href="https://devlake.apache.org/docs/UserManuals/DORA/" rel="noreferrer" target="_blank">
-                    DORA metrics
-                  </a>{' '}
-                  <span>are four widely-adopted metrics for measuring software delivery performance.</span>
-                </p>
-              </div>
-            </div>
-          </S.DialogWrapper>
-        </Dialog>
-      </S.Container>
+          </div>
+        </S.DialogInner>
+      </Dialog>
     </PageHeader>
   );
 };

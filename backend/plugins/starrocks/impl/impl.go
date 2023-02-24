@@ -34,7 +34,7 @@ var _ plugin.PluginModel = (*StarRocks)(nil)
 
 func (s StarRocks) SubTaskMetas() []plugin.SubTaskMeta {
 	return []plugin.SubTaskMeta{
-		tasks.LoadDataTaskMeta,
+		tasks.ExportDataTaskMeta,
 	}
 }
 

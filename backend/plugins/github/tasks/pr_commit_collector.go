@@ -20,10 +20,11 @@ package tasks
 import (
 	"encoding/json"
 	"fmt"
-	"github.com/apache/incubator-devlake/core/errors"
 	"net/http"
 	"net/url"
 	"reflect"
+
+	"github.com/apache/incubator-devlake/core/errors"
 
 	"github.com/apache/incubator-devlake/core/dal"
 
@@ -54,14 +55,14 @@ func CollectApiPullRequestCommits(taskCtx plugin.SubTaskContext) errors.Error {
 	db := taskCtx.GetDal()
 	data := taskCtx.GetData().(*GithubTaskData)
 
-	collectorWithState, err := helper.NewApiCollectorWithState(helper.RawDataSubTaskArgs{
+	collectorWithState, err := helper.NewStatefulApiCollector(helper.RawDataSubTaskArgs{
 		Ctx: taskCtx,
 		Params: GithubApiParams{
 			ConnectionId: data.Options.ConnectionId,
 			Name:         data.Options.Name,
 		},
 		Table: RAW_PR_COMMIT_TABLE,
-	}, data.CreatedDateAfter)
+	}, data.TimeAfter)
 	if err != nil {
 		return err
 	}
@@ -73,11 +74,12 @@ func CollectApiPullRequestCommits(taskCtx plugin.SubTaskContext) errors.Error {
 		dal.From(models.GithubPullRequest{}.TableName()),
 		dal.Where("repo_id = ? and connection_id=?", data.Options.GithubId, data.Options.ConnectionId),
 	}
-	if collectorWithState.CreatedDateAfter != nil {
-		clauses = append(clauses, dal.Where("github_created_at > ?", *collectorWithState.CreatedDateAfter))
-	}
+	// incremental collection, no need to care about the timeFilter since it has to be collected by PR
 	if incremental {
-		clauses = append(clauses, dal.Where("github_updated_at > ?", *collectorWithState.LatestState.LatestSuccessStart))
+		clauses = append(
+			clauses,
+			dal.Where("github_updated_at > ?", collectorWithState.LatestState.LatestSuccessStart),
+		)
 	}
 	cursor, err := db.Cursor(
 		clauses...,

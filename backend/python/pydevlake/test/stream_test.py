@@ -75,9 +75,10 @@ def connection(raw_data):
 def ctx(connection):
     return Context(
         db_url="sqlite+pysqlite:///:memory:",
+        scope_id="1",
         connection_id=11,
         connection=connection,
-        options={"scopeId": 1, "scopeName": "foo"}
+        options={}
     )
 
 
@@ -123,7 +124,7 @@ def test_convert_data(stream, raw_data, ctx):
                     id=each["i"],
                     name=each["n"],
                     raw_data_table="_raw_dummy_model",
-                    raw_data_params=json.dumps({"connection_id": ctx.connection_id, "scope_id": ctx.options.scopeId})
+                    raw_data_params=json.dumps({"connection_id": ctx.connection_id, "scope_id": ctx.scope_id})
                 )
             )
         session.commit()

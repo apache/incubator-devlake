@@ -17,66 +17,53 @@ limitations under the License.
 
 package tasks
 
+/*
 import (
-	"encoding/json"
 	"fmt"
+	"net/url"
+
 	"github.com/apache/incubator-devlake/core/errors"
 	"github.com/apache/incubator-devlake/core/plugin"
 	helper "github.com/apache/incubator-devlake/helpers/pluginhelper/api"
-	"net/http"
-	"net/url"
 )
 
-const RAW_PROJECTS_TABLE = "sonarqube_projects"
+const RAW_DEPLOY_TABLE = "bamboo_api_deploy"
 
-var _ plugin.SubTaskEntryPoint = CollectProjects
+var _ plugin.SubTaskEntryPoint = CollectDeploy
 
-func CollectProjects(taskCtx plugin.SubTaskContext) errors.Error {
-	rawDataSubTaskArgs, data := CreateRawDataSubTaskArgs(taskCtx, RAW_PROJECTS_TABLE)
-	logger := taskCtx.GetLogger()
-	logger.Info("collect projects")
+func CollectDeploy(taskCtx plugin.SubTaskContext) errors.Error {
+	rawDataSubTaskArgs, data := CreateRawDataSubTaskArgs(taskCtx, RAW_DEPLOY_TABLE)
 
-	collectorWithState, err := helper.NewApiCollectorWithState(*rawDataSubTaskArgs, data.CreatedDateAfter)
+	collectorWithState, err := helper.NewApiCollectorWithState(*rawDataSubTaskArgs, nil)
 	if err != nil {
 		return err
 	}
+
 	err = collectorWithState.InitCollector(helper.ApiCollectorArgs{
 		ApiClient:   data.ApiClient,
 		PageSize:    100,
-		UrlTemplate: "projects/search",
+		UrlTemplate: "deploy/project/all.json",
 		Query: func(reqData *helper.RequestData) (url.Values, errors.Error) {
 			query := url.Values{}
-			if data.CreatedDateAfter != nil {
-				query.Set("analyzedBefore",
-					data.CreatedDateAfter.Format("2006-01-02"))
-			}
-			if data.Options.ProjectKey != "" {
-				query.Set("q", data.Options.ProjectKey)
-			}
-			query.Set("p", fmt.Sprintf("%v", reqData.Pager.Page))
-			query.Set("ps", fmt.Sprintf("%v", reqData.Pager.Size))
+			query.Set("showEmpty", fmt.Sprintf("%v", true))
+			query.Set("max-result", fmt.Sprintf("%v", reqData.Pager.Size))
+			query.Set("start-index", fmt.Sprintf("%v", reqData.Pager.Skip))
 			return query, nil
 		},
-		GetTotalPages: GetTotalPagesFromResponse,
-		ResponseParser: func(res *http.Response) ([]json.RawMessage, errors.Error) {
-			var resData struct {
-				Data []json.RawMessage `json:"components"`
-			}
-			err = helper.UnmarshalResponse(res, &resData)
-			return resData.Data, err
-		},
+
+		ResponseParser: helper.GetRawMessageArrayFromResponse,
 	})
 	if err != nil {
 		return err
 	}
-
 	return collectorWithState.Execute()
 }
 
-var CollectProjectsMeta = plugin.SubTaskMeta{
-	Name:             "CollectProjects",
-	EntryPoint:       CollectProjects,
+var CollectDeployMeta = plugin.SubTaskMeta{
+	Name:             "CollectDeploy",
+	EntryPoint:       CollectDeploy,
 	EnabledByDefault: true,
-	Description:      "Collect Projects data from Sonarqube api",
-	DomainTypes:      []string{plugin.DOMAIN_TYPE_CODE_QUALITY},
+	Description:      "Collect Deploy data from Bamboo api",
+	DomainTypes:      []string{plugin.DOMAIN_TYPE_CICD},
 }
+*/

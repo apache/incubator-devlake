@@ -35,6 +35,7 @@ class PluginInfo(Message):
     name: str
     description: str
     connection_schema: dict
+    transformation_rule_schema: dict
     plugin_path: str
     subtask_metas: list[SubtaskMeta]
     extension: str = "datasource"
@@ -62,6 +63,10 @@ class Connection(Message):
     pass
 
 
+class TransformationRule(Message):
+    pass
+
+
 class PipelineTask(Message):
     plugin: str
     # Do not snake_case this attribute,
@@ -86,5 +91,10 @@ class PipelineScope(Message):
 
 
 class BlueprintScope(Message):
+    id: str
+    name: str
+
+
+class RemoteScope(Message):
     id: str
     name: str

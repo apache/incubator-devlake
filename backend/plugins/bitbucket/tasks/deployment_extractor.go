@@ -30,12 +30,15 @@ type bitbucketApiDeploymentsResponse struct {
 	Type string `json:"type"`
 	UUID string `json:"uuid"`
 	//Key  string `json:"key"`
-	//Step struct {
-	//	UUID string `json:"uuid"`
-	//} `json:"step"`
-	//Environment struct {
-	//	UUID string `json:"uuid"`
-	//} `json:"environment"`
+	Step struct {
+		UUID string `json:"uuid"`
+	} `json:"step"`
+	Environment struct {
+		Name            string `json:"name"`
+		EnvironmentType struct {
+			Name string `json:"name"`
+		} `json:"environment_type"`
+	} `json:"environment"`
 	Release struct {
 		//Type     string `json:"type"`
 		//UUID     string `json:"uuid"`
@@ -93,24 +96,24 @@ func ExtractApiDeployments(taskCtx plugin.SubTaskContext) errors.Error {
 			}
 
 			bitbucketDeployment := &models.BitbucketDeployment{
-				ConnectionId:   data.Options.ConnectionId,
-				BitbucketId:    bitbucketApiDeployments.UUID,
-				PipelineId:     bitbucketApiDeployments.Release.Pipeline.UUID,
-				Type:           bitbucketApiDeployments.Type,
-				Name:           bitbucketApiDeployments.Release.Name,
-				Key:            bitbucketApiDeployments.Release.Key,
-				WebUrl:         bitbucketApiDeployments.Release.URL,
-				CommitSha:      bitbucketApiDeployments.Release.Commit.Hash,
-				CommitUrl:      bitbucketApiDeployments.Release.Commit.Links.HTML.Href,
-				Status:         bitbucketApiDeployments.State.Name,
-				StateUrl:       bitbucketApiDeployments.State.URL,
-				CreatedOn:      bitbucketApiDeployments.Release.CreatedOn,
-				StartedOn:      bitbucketApiDeployments.State.StartedOn,
-				CompletedOn:    bitbucketApiDeployments.State.CompletedOn,
-				LastUpdateTime: bitbucketApiDeployments.LastUpdateTime,
-			}
-			if err != nil {
-				return nil, err
+				ConnectionId:    data.Options.ConnectionId,
+				BitbucketId:     bitbucketApiDeployments.UUID,
+				PipelineId:      bitbucketApiDeployments.Release.Pipeline.UUID,
+				StepId:          bitbucketApiDeployments.Step.UUID,
+				Type:            bitbucketApiDeployments.Type,
+				Name:            bitbucketApiDeployments.Release.Name,
+				Environment:     bitbucketApiDeployments.Environment.Name,
+				EnvironmentType: bitbucketApiDeployments.Environment.EnvironmentType.Name,
+				Key:             bitbucketApiDeployments.Release.Key,
+				WebUrl:          bitbucketApiDeployments.Release.URL,
+				CommitSha:       bitbucketApiDeployments.Release.Commit.Hash,
+				CommitUrl:       bitbucketApiDeployments.Release.Commit.Links.HTML.Href,
+				Status:          bitbucketApiDeployments.State.Name,
+				StateUrl:        bitbucketApiDeployments.State.URL,
+				CreatedOn:       bitbucketApiDeployments.Release.CreatedOn,
+				StartedOn:       bitbucketApiDeployments.State.StartedOn,
+				CompletedOn:     bitbucketApiDeployments.State.CompletedOn,
+				LastUpdateTime:  bitbucketApiDeployments.LastUpdateTime,
 			}
 
 			results := make([]interface{}, 0, 2)

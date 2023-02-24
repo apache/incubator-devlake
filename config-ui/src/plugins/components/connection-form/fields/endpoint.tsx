@@ -59,7 +59,6 @@ export const ConnectionEndpoint = ({
   multipleVersions,
   initialValue,
   value,
-  error,
   setValue,
   setError,
 }: Props) => {
@@ -100,7 +99,7 @@ export const ConnectionEndpoint = ({
           </Radio>
         </RadioGroup>
         {version === 'cloud' && (
-          <p>
+          <p style={{ margin: 0 }}>
             If you are using {name} Cloud, you do not need to enter the endpoint URL, which is
             {multipleVersions.cloud}.
           </p>
@@ -126,7 +125,7 @@ export const ConnectionEndpoint = ({
       labelInfo={<S.LabelInfo>*</S.LabelInfo>}
       subLabel={<S.LabelDescription>{subLabel ?? `Provide the ${name} instance API endpoint.`}</S.LabelDescription>}
     >
-      <InputGroup disabled={disabled} placeholder="Your Endpoint URL" value={value} onChange={handleChange} />
+      <InputGroup disabled={disabled} placeholder="Your Endpoint URL" value={value} onChange={handleChangeValue} />
     </FormGroup>
   );
 };

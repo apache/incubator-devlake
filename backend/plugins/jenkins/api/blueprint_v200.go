@@ -64,8 +64,8 @@ func makeDataSourcePipelinePlanV200(
 		options["scopeId"] = bpScope.Id
 		options["connectionId"] = connectionId
 
-		if syncPolicy.CreatedDateAfter != nil {
-			options["createdDateAfter"] = syncPolicy.CreatedDateAfter.Format(time.RFC3339)
+		if syncPolicy.TimeAfter != nil {
+			options["timeAfter"] = syncPolicy.TimeAfter.Format(time.RFC3339)
 		}
 		subtasks, err := helper.MakePipelinePlanSubtasks(subtaskMetas, bpScope.Entities)
 		if err != nil {

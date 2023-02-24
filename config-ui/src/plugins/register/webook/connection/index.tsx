@@ -19,7 +19,7 @@
 import React, { useState } from 'react';
 import { ButtonGroup, Button, Icon, Intent } from '@blueprintjs/core';
 
-import { Table, ColumnType } from '@/components';
+import { Table, ColumnType, ExternalLink } from '@/components';
 
 import type { WebhookItemType } from '../types';
 import { WebhookCreateDialog } from '../create-dialog';
@@ -83,7 +83,21 @@ export const WebHookConnection = ({ onCreateAfter, ...props }: Props) => {
       <ButtonGroup>
         <Button icon="plus" text="Add a Webhook" intent={Intent.PRIMARY} onClick={() => handleShowDialog('add')} />
       </ButtonGroup>
-      <Table loading={loading} columns={columns} dataSource={connections} />
+      <Table
+        loading={loading}
+        columns={columns}
+        dataSource={connections}
+        noData={{
+          text: (
+            <>
+              There is no Webhook yet. Please add a new Webhook.{' '}
+              <ExternalLink link="https://devlake.apache.org/docs/Configuration/webhook">Learn more</ExternalLink>
+            </>
+          ),
+          btnText: 'Add a Webhook',
+          onCreate: () => handleShowDialog('add'),
+        }}
+      />
       {type === 'add' && (
         <WebhookCreateDialog
           isOpen

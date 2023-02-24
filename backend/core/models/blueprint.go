@@ -48,13 +48,11 @@ type Blueprint struct {
 }
 
 type BlueprintSettings struct {
-	Version string `json:"version" validate:"required,semver,oneof=1.0.0"`
-	// Deprecating(timeAfter): copy to TimeAfter and delete the field in last step
-	CreatedDateAfter *time.Time      `json:"createdDateAfter"`
-	TimeAfter        *time.Time      `json:"timeAfter"`
-	Connections      json.RawMessage `json:"connections" validate:"required"`
-	BeforePlan       json.RawMessage `json:"before_plan"`
-	AfterPlan        json.RawMessage `json:"after_plan"`
+	Version     string          `json:"version" validate:"required,semver,oneof=1.0.0"`
+	TimeAfter   *time.Time      `json:"timeAfter"`
+	Connections json.RawMessage `json:"connections" validate:"required"`
+	BeforePlan  json.RawMessage `json:"before_plan"`
+	AfterPlan   json.RawMessage `json:"after_plan"`
 }
 
 // UnmarshalPlan unmarshals Plan in JSON to strong-typed plugin.PipelinePlan

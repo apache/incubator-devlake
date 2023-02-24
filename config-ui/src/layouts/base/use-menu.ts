@@ -19,7 +19,6 @@
 import { useMemo } from 'react';
 import { IconName } from '@blueprintjs/core';
 
-import type { PluginConfigConnectionType } from '@/plugins';
 import { PluginConfig, PluginType } from '@/plugins';
 
 export type MenuItemType = {
@@ -31,6 +30,7 @@ export type MenuItemType = {
   children?: MenuItemType[];
   target?: boolean;
   isBeta?: boolean;
+  disabled?: boolean;
 };
 
 export const useMenu = () => {
@@ -55,10 +55,8 @@ export const useMenu = () => {
           title: 'Connections',
           icon: 'data-connection',
           path: '/connections',
-          children: (
-            PluginConfig.filter((p) =>
-              [PluginType.Connection, PluginType.Incoming_Connection].includes(p.type),
-            ) as PluginConfigConnectionType[]
+          children: PluginConfig.filter((p) =>
+            [PluginType.Connection, PluginType.Incoming_Connection].includes(p.type),
           ).map((it) => ({
             key: it.plugin,
             title: it.name,
@@ -68,24 +66,31 @@ export const useMenu = () => {
           })),
         },
         {
-          key: 'blueprint',
-          title: 'Blueprints',
-          icon: 'timeline-events',
-          path: '/blueprints',
-          children: [
-            {
-              key: 'create-blueprint',
-              title: 'Create Blueprint',
-              icon: 'git-pull',
-              path: '/blueprints/create',
-            },
-          ],
-        },
-        {
           key: 'transformation',
           title: 'Transformation',
           icon: 'function',
           path: '/transformations',
+        },
+        {
+          key: 'advanced',
+          title: 'Advanced',
+          icon: 'pulse',
+          // path: '/advanced',
+          children: [
+            {
+              key: 'blueprints',
+              title: 'Blueprints',
+              icon: '',
+              path: '/blueprints',
+            },
+            {
+              key: 'pipelines',
+              title: 'Pipelines',
+              icon: '',
+              path: '/pipelines',
+              disabled: true,
+            },
+          ],
         },
         {
           key: 'dashboard',

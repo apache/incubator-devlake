@@ -20,9 +20,7 @@ import styled from 'styled-components';
 import { Colors } from '@blueprintjs/core';
 
 export const ConnectionList = styled.ul`
-  margin: 0;
   padding: 12px;
-  list-style: none;
 
   li {
     display: flex;

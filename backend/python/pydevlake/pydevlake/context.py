@@ -17,15 +17,23 @@
 from urllib.parse import urlparse, parse_qsl
 from sqlmodel import SQLModel, create_engine
 
-from pydevlake.message import Connection
+from pydevlake.message import Connection, TransformationRule
 
 
 class Context:
-    def __init__(self, db_url: str, connection_id: int, connection: Connection, options: dict):
+    def __init__(self,
+                 db_url: str,
+                 scope_id: str,
+                 connection_id: int,
+                 connection: Connection,
+                 transformation_rule: TransformationRule = None,
+                 options: dict = None):
         self.db_url = db_url
+        self.scope_id = scope_id
         self.connection_id = connection_id
         self.connection = connection
-        self.options = options
+        self.transformation_rule = transformation_rule
+        self.options = options or {}
         self._engine = None
 
     @property

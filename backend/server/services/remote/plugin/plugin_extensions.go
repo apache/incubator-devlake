@@ -36,18 +36,19 @@ type (
 )
 
 func (p *remoteMetricPlugin) MakeMetricPluginPipelinePlanV200(projectName string, options json.RawMessage) (plugin.PipelinePlan, errors.Error) {
-	plan := plugin.PipelinePlan{}
-	err := p.invoker.Call("MakeMetricPluginPipelinePlanV200", bridge.DefaultContext, projectName, options).Get(&plan)
-	if err != nil {
-		return nil, err
-	}
-	return plan, err
+	return nil, errors.Internal.New("Remote metric plugins not supported")
 }
 
 func (p *remoteDatasourcePlugin) MakeDataSourcePipelinePlanV200(connectionId uint64, bpScopes []*plugin.BlueprintScopeV200, syncPolicy plugin.BlueprintSyncPolicy) (plugin.PipelinePlan, []plugin.Scope, errors.Error) {
+	connection := p.connectionTabler.New()
+	err := connectionHelper.FirstById(connection, connectionId)
+	if err != nil {
+		return nil, nil, err
+	}
+
 	plan := plugin.PipelinePlan{}
 	var scopes []models.PipelineScope
-	err := p.invoker.Call("make-pipeline", bridge.DefaultContext, connectionId, bpScopes).Get(&plan, &scopes)
+	err = p.invoker.Call("make-pipeline", bridge.DefaultContext, connectionId, bpScopes).Get(&plan, &scopes)
 	if err != nil {
 		return nil, nil, err
 	}

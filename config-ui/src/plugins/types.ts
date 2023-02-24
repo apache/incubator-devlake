@@ -22,8 +22,8 @@ export enum PluginType {
   Pipeline = 'pipeline',
 }
 
-export type PluginConfigConnectionType = {
-  type: PluginType.Connection;
+export type PluginConfigType = {
+  type: PluginType;
   plugin: string;
   name: string;
   icon: string;
@@ -37,12 +37,3 @@ export type PluginConfigConnectionType = {
   entities: string[];
   transformation: any;
 };
-
-export type PluginConfigAnotherType = {
-  type: PluginType.Incoming_Connection | PluginType.Pipeline;
-  plugin: string;
-  name: string;
-  icon: string;
-};
-
-export type PluginConfigType = PluginConfigConnectionType | PluginConfigAnotherType;

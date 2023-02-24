@@ -17,8 +17,9 @@
  */
 
 import React from 'react';
+import { Button, Intent } from '@blueprintjs/core';
 
-import { Loading, Card } from '@/components';
+import { Loading, Card, NoData } from '@/components';
 
 import { ColumnType } from './types';
 import * as S from './styled';
@@ -27,44 +28,65 @@ interface Props<T> {
   loading?: boolean;
   columns: ColumnType<T>;
   dataSource: T[];
+  noData?: {
+    text?: React.ReactNode;
+    btnText?: string;
+    onCreate?: () => void;
+  };
 }
 
-export const Table = <T extends Record<string, any>>({ loading, columns, dataSource }: Props<T>) => {
+export const Table = <T extends Record<string, any>>({ loading, columns, dataSource, noData = {} }: Props<T>) => {
+  const { text, btnText, onCreate } = noData;
+
   return (
-    <Card style={{ padding: 0 }}>
-      <S.Container>
-        <S.TableWrapper loading={loading ? 1 : 0}>
-          <S.TableHeader>
-            {columns.map(({ key, align = 'left', title }) => (
-              <span key={key} style={{ textAlign: align }}>
-                {title}
-              </span>
-            ))}
-          </S.TableHeader>
-          {dataSource.map((data, i) => (
-            <S.TableRow key={i}>
-              {columns.map(({ key, align = 'left', dataIndex, render }) => {
-                const value = Array.isArray(dataIndex)
-                  ? dataIndex.reduce((acc, cur) => {
-                      acc[cur] = data[cur];
-                      return acc;
-                    }, {} as any)
-                  : data[dataIndex];
-                return (
-                  <span key={key} style={{ textAlign: align }}>
-                    {render ? render(value, data) : value}
-                  </span>
-                );
-              })}
-            </S.TableRow>
-          ))}
-        </S.TableWrapper>
-        {loading && (
-          <S.TableMask>
+    <S.Container>
+      {loading ? (
+        <Card>
+          <S.Loading>
             <Loading />
-          </S.TableMask>
-        )}
-      </S.Container>
-    </Card>
+          </S.Loading>
+        </Card>
+      ) : !dataSource.length ? (
+        <NoData
+          text={text}
+          action={
+            onCreate && (
+              <Button intent={Intent.PRIMARY} icon="plus" onClick={onCreate}>
+                {btnText ?? 'Create'}
+              </Button>
+            )
+          }
+        />
+      ) : (
+        <Card style={{ padding: 0 }}>
+          <S.Table loading={loading ? 1 : 0}>
+            <S.Header>
+              {columns.map(({ key, align = 'left', title }) => (
+                <span key={key} style={{ textAlign: align }}>
+                  {title}
+                </span>
+              ))}
+            </S.Header>
+            {dataSource.map((data, i) => (
+              <S.Row key={i}>
+                {columns.map(({ key, align = 'left', dataIndex, render }) => {
+                  const value = Array.isArray(dataIndex)
+                    ? dataIndex.reduce((acc, cur) => {
+                        acc[cur] = data[cur];
+                        return acc;
+                      }, {} as any)
+                    : data[dataIndex];
+                  return (
+                    <span key={key} style={{ textAlign: align }}>
+                      {render ? render(value, data) : value}
+                    </span>
+                  );
+                })}
+              </S.Row>
+            ))}
+          </S.Table>
+        </Card>
+      )}
+    </S.Container>
   );
 };
