@@ -21,7 +21,7 @@ import "github.com/apache/incubator-devlake/core/models/migrationscripts/archive
 
 type SonarqubeIssueCodeBlock struct {
 	ConnectionId uint64 `gorm:"primaryKey"`
-	Id           string `gorm:"primaryKey"`
+	Id           string `gorm:"primaryKey;type:varchar(100)"`
 	IssueKey     string `gorm:"index"`
 	Component    string `gorm:"index"`
 	StartLine    int

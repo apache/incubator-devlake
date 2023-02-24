@@ -20,38 +20,37 @@ package tasks
 import (
 	"encoding/json"
 	"fmt"
-	"net/http"
-	"net/url"
-
 	"github.com/apache/incubator-devlake/core/errors"
 	"github.com/apache/incubator-devlake/core/plugin"
 	helper "github.com/apache/incubator-devlake/helpers/pluginhelper/api"
+	"net/http"
+	"net/url"
 )
 
-const RAW_ACCOUNTS_TABLE = "sonarqube_api_accounts"
+var _ plugin.SubTaskEntryPoint = CollectAdditionalFilemetrics
 
-var _ plugin.SubTaskEntryPoint = CollectAccounts
+const RAW_FILEMETRICS_ADDITIONAL_TABLE = "sonarqube_api_filemetrics_additional"
 
-func CollectAccounts(taskCtx plugin.SubTaskContext) errors.Error {
-	logger := taskCtx.GetLogger()
-	logger.Info("collect accounts")
+func CollectAdditionalFilemetrics(taskCtx plugin.SubTaskContext) errors.Error {
+	rawDataSubTaskArgs, data := CreateRawDataSubTaskArgs(taskCtx, RAW_FILEMETRICS_ADDITIONAL_TABLE)
 
-	rawDataSubTaskArgs, data := CreateRawDataSubTaskArgs(taskCtx, RAW_ACCOUNTS_TABLE)
 	collector, err := helper.NewApiCollector(helper.ApiCollectorArgs{
 		RawDataSubTaskArgs: *rawDataSubTaskArgs,
 		ApiClient:          data.ApiClient,
 		PageSize:           100,
-		UrlTemplate:        "users/search",
+		UrlTemplate:        "measures/component_tree",
 		Query: func(reqData *helper.RequestData) (url.Values, errors.Error) {
 			query := url.Values{}
+			query.Set("component", data.Options.ProjectKey)
+			query.Set("qualifiers", "FIL")
+			query.Set("metricKeys", "duplicated_lines, duplicated_files, complexity, cognitive_complexity, effort_to_reach_maintainability_rating_a")
 			query.Set("p", fmt.Sprintf("%v", reqData.Pager.Page))
 			query.Set("ps", fmt.Sprintf("%v", reqData.Pager.Size))
 			return query, nil
 		},
-		GetTotalPages: GetTotalPagesFromResponse,
 		ResponseParser: func(res *http.Response) ([]json.RawMessage, errors.Error) {
 			var resData struct {
-				Data []json.RawMessage `json:"users"`
+				Data []json.RawMessage `json:"components"`
 			}
 			err := helper.UnmarshalResponse(res, &resData)
 			return resData.Data, err
@@ -60,14 +59,13 @@ func CollectAccounts(taskCtx plugin.SubTaskContext) errors.Error {
 	if err != nil {
 		return err
 	}
-
 	return collector.Execute()
 }
 
-var CollectAccountsMeta = plugin.SubTaskMeta{
-	Name:             "CollectAccounts",
-	EntryPoint:       CollectAccounts,
+var CollectAdditionalFilemetricsMeta = plugin.SubTaskMeta{
+	Name:             "CollectAdditionalFilemetrics",
+	EntryPoint:       CollectAdditionalFilemetrics,
 	EnabledByDefault: true,
-	Description:      "Collect Accounts data from Sonarqube user api",
-	DomainTypes:      []string{plugin.DOMAIN_TYPE_CROSS},
+	Description:      "Collect Filemetrics data from Sonarqube api",
+	DomainTypes:      []string{plugin.DOMAIN_TYPE_CODE_QUALITY},
 }

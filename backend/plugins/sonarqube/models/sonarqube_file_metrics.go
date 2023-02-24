@@ -39,7 +39,7 @@ type SonarqubeFileMetrics struct {
 	SecurityHotspotsReviewed float64
 	SecurityReviewRating     string
 	Ncloc                    int
-	Coverage                 float64
+	UnoveredLines            int
 	LinesToCover             int
 	DuplicatedLinesDensity   float64
 	DuplicatedBlocks         int
@@ -47,5 +47,54 @@ type SonarqubeFileMetrics struct {
 }
 
 func (SonarqubeFileMetrics) TableName() string {
+	return "_tool_sonarqube_file_metrics"
+}
+
+type SonarqubeAdditionalFileMetrics struct {
+	ConnectionId                        uint64 `gorm:"primaryKey"`
+	FileMetricsKey                      string `gorm:"primaryKey"`
+	DuplicatedFiles                     int
+	DuplicatedLines                     int
+	EffortToReachMaintainabilityRatingA int
+	Complexity                          int
+	CognitiveComplexity                 int
+	common.NoPKModel
+}
+
+func (SonarqubeAdditionalFileMetrics) TableName() string {
+	return "_tool_sonarqube_file_metrics"
+}
+
+type SonarqubeWholeFileMetrics struct {
+	ConnectionId                        uint64 `gorm:"primaryKey"`
+	FileMetricsKey                      string `gorm:"primaryKey"`
+	ProjectKey                          string `gorm:"index"`
+	FileName                            string `gorm:"type:varchar(255)"`
+	FilePath                            string
+	FileLanguage                        string `gorm:"type:varchar(20)"`
+	CodeSmells                          int
+	SqaleIndex                          int
+	SqaleRating                         float64
+	Bugs                                int
+	ReliabilityRating                   string `gorm:"type:varchar(20)"`
+	Vulnerabilities                     int
+	SecurityRating                      string `gorm:"type:varchar(20)"`
+	SecurityHotspots                    int
+	SecurityHotspotsReviewed            float64
+	SecurityReviewRating                string `gorm:"type:varchar(20)"`
+	Ncloc                               int
+	UnoveredLines                       int
+	LinesToCover                        int
+	DuplicatedLinesDensity              float64
+	DuplicatedBlocks                    int
+	DuplicatedFiles                     int
+	DuplicatedLines                     int
+	EffortToReachMaintainabilityRatingA int
+	Complexity                          int
+	CognitiveComplexity                 int
+	common.NoPKModel
+}
+
+func (SonarqubeWholeFileMetrics) TableName() string {
 	return "_tool_sonarqube_file_metrics"
 }

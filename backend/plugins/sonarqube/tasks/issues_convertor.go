@@ -40,7 +40,7 @@ var ConvertIssuesMeta = plugin.SubTaskMeta{
 
 func ConvertIssues(taskCtx plugin.SubTaskContext) errors.Error {
 	db := taskCtx.GetDal()
-	rawDataSubTaskArgs, data := CreateRawDataSubTaskArgs(taskCtx, RAW_PROJECTS_TABLE)
+	rawDataSubTaskArgs, data := CreateRawDataSubTaskArgs(taskCtx, RAW_ISSUES_TABLE)
 	cursor, err := db.Cursor(dal.From(sonarqubeModels.SonarqubeIssue{}),
 		dal.Where("connection_id = ? and project_key = ?", data.Options.ConnectionId, data.Options.ProjectKey))
 	if err != nil {

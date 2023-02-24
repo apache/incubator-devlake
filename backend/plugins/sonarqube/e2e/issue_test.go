@@ -32,8 +32,8 @@ func TestSonarqubeIssueDataFlow(t *testing.T) {
 	dataflowTester := e2ehelper.NewDataFlowTester(t, "sonarqube", sonarqube)
 
 	// import raw data table
-	dataflowTester.ImportCsvIntoRawTable("./raw_tables/_raw_sonarqube_issues.csv",
-		"_raw_sonarqube_issues")
+	dataflowTester.ImportCsvIntoRawTable("./raw_tables/_raw_sonarqube_api_issues.csv",
+		"_raw_sonarqube_api_issues")
 
 	// Standard data
 	taskData := &tasks.SonarqubeTaskData{

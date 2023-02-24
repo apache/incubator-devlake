@@ -38,28 +38,9 @@ type SonarqubeConnection struct {
 	AccessToken    `mapstructure:",squash"`
 }
 
-type TestConnectionRequest struct {
-	Endpoint    string `json:"endpoint"`
-	Proxy       string `json:"proxy"`
-	AccessToken `mapstructure:",squash"`
-}
-
 // For sonarqube, we can `use user_token:`
 type AccessToken struct {
 	Token string `mapstructure:"token" validate:"required" json:"token" encrypt:"yes"`
-}
-
-// This object conforms to what the frontend currently expects.
-type SonarqubeResponse struct {
-	Name string `json:"name"`
-	ID   int    `json:"id"`
-	SonarqubeConnection
-}
-
-// Using User because it requires authentication.
-type ApiUserResponse struct {
-	Id   int
-	Name string `json:"name"`
 }
 
 func (SonarqubeConnection) TableName() string {

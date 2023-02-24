@@ -25,10 +25,10 @@ import (
 	"github.com/apache/incubator-devlake/plugins/sonarqube/models"
 )
 
-var _ plugin.SubTaskEntryPoint = ExtractFilemetrics
+var _ plugin.SubTaskEntryPoint = ExtractAdditionalFileMetrics
 
-func ExtractFilemetrics(taskCtx plugin.SubTaskContext) errors.Error {
-	rawDataSubTaskArgs, data := CreateRawDataSubTaskArgs(taskCtx, RAW_FILEMETRICS_TABLE)
+func ExtractAdditionalFileMetrics(taskCtx plugin.SubTaskContext) errors.Error {
+	rawDataSubTaskArgs, data := CreateRawDataSubTaskArgs(taskCtx, RAW_FILEMETRICS_ADDITIONAL_TABLE)
 
 	extractor, err := helper.NewApiExtractor(helper.ApiExtractorArgs{
 		RawDataSubTaskArgs: *rawDataSubTaskArgs,
@@ -39,15 +39,11 @@ func ExtractFilemetrics(taskCtx plugin.SubTaskContext) errors.Error {
 			if err != nil {
 				return nil, err
 			}
-			fileMetrics := &models.SonarqubeFileMetrics{
+			fileMetrics := &models.SonarqubeAdditionalFileMetrics{
 				ConnectionId:   data.Options.ConnectionId,
 				FileMetricsKey: body.Key,
-				FileName:       body.Name,
-				FilePath:       body.Path,
-				FileLanguage:   body.Language,
-				ProjectKey:     data.Options.ProjectKey,
 			}
-			err = setMetrics(fileMetrics, body.Measures)
+			err = setAdditionalMetrics(fileMetrics, body.Measures)
 			return []interface{}{fileMetrics}, err
 		},
 	})
@@ -58,10 +54,10 @@ func ExtractFilemetrics(taskCtx plugin.SubTaskContext) errors.Error {
 	return extractor.Execute()
 }
 
-var ExtractFilemetricsMeta = plugin.SubTaskMeta{
-	Name:             "ExtractFilemetrics",
-	EntryPoint:       ExtractFilemetrics,
+var ExtractAdditionalFileMetricsMeta = plugin.SubTaskMeta{
+	Name:             "ExtractAdditionalFileMetrics",
+	EntryPoint:       ExtractAdditionalFileMetrics,
 	EnabledByDefault: true,
-	Description:      "Extract raw data into tool layer table sonarqube_filemetrics",
+	Description:      "Extract raw data into tool layer table sonarqube_api_filemetrics",
 	DomainTypes:      []string{plugin.DOMAIN_TYPE_CODE_QUALITY},
 }

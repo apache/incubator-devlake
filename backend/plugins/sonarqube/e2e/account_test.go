@@ -40,8 +40,8 @@ func TestSonarqubeAccountDataFlow(t *testing.T) {
 	}
 
 	// import raw data table
-	dataflowTester.ImportCsvIntoRawTable("./raw_tables/_raw_sonarqube_accounts.csv",
-		"_raw_sonarqube_accounts")
+	dataflowTester.ImportCsvIntoRawTable("./raw_tables/_raw_sonarqube_api_accounts.csv",
+		"_raw_sonarqube_api_accounts")
 
 	// verify extraction
 	dataflowTester.FlushTabler(&models.SonarqubeAccount{})

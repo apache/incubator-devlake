@@ -23,25 +23,30 @@ import (
 
 type CqFileMetrics struct {
 	domainlayer.DomainEntity
-	ProjectKey               string `gorm:"index;type:varchar(255)"` //domain project key
-	FileName                 string `json:"file_name"`
-	FilePath                 string `json:"file_path"`
-	FileLanguage             string `json:"file_language"`
-	CodeSmells               int    `json:"code_smells"`
-	SqaleIndex               int
-	SqaleRating              float64
-	Bugs                     int     `json:"bugs"`
-	ReliabilityRating        string  `json:"reliability_rating"`
-	Vulnerabilities          int     `json:"vulnerabilities"`
-	SecurityRating           string  `json:"security_rating"`
-	SecurityHotspots         int     `json:"security_hotspots"`
-	SecurityHotspotsReviewed float64 `json:"security_hotspots_reviewed"`
-	SecurityReviewRating     string  `json:"security_review_rating"`
-	Ncloc                    int     `json:"ncloc"`
-	Coverage                 float64 `json:"coverage"`
-	LinesToCover             int     `json:"lines_to_cover"`
-	DuplicatedLinesDensity   float64 `json:"duplicated_lines_density"`
-	DuplicatedBlocks         int     `json:"duplicated_blocks"`
+	ProjectKey                          string `gorm:"index;type:varchar(255)"` //domain project key
+	FileName                            string `gorm:"type:varchar(255)"`
+	FilePath                            string
+	FileLanguage                        string `gorm:"type:varchar(20)"`
+	CodeSmells                          int
+	SqaleIndex                          int
+	SqaleRating                         float64
+	Bugs                                int
+	ReliabilityRating                   string `gorm:"type:varchar(20)"`
+	Vulnerabilities                     int
+	SecurityRating                      string `gorm:"type:varchar(20)"`
+	SecurityHotspots                    int
+	SecurityHotspotsReviewed            float64
+	SecurityReviewRating                string `gorm:"type:varchar(20)"`
+	Ncloc                               int    `json:"ncloc"`
+	UnoveredLines                       int
+	LinesToCover                        int     `json:"lines_to_cover"`
+	DuplicatedLinesDensity              float64 `json:"duplicated_lines_density"`
+	DuplicatedBlocks                    int     `json:"duplicated_blocks"`
+	DuplicatedFiles                     int
+	DuplicatedLines                     int
+	EffortToReachMaintainabilityRatingA int
+	Complexity                          int
+	CognitiveComplexity                 int
 }
 
 func (CqFileMetrics) TableName() string {

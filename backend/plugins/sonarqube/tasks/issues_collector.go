@@ -28,7 +28,7 @@ import (
 	helper "github.com/apache/incubator-devlake/helpers/pluginhelper/api"
 )
 
-const RAW_ISSUES_TABLE = "sonarqube_issues"
+const RAW_ISSUES_TABLE = "sonarqube_api_issues"
 
 var _ plugin.SubTaskEntryPoint = CollectIssues
 

@@ -32,8 +32,8 @@ func TestSonarqubeHotspotDataFlow(t *testing.T) {
 	dataflowTester := e2ehelper.NewDataFlowTester(t, "sonarqube", sonarqube)
 
 	// import raw data table
-	dataflowTester.ImportCsvIntoRawTable("./raw_tables/_raw_sonarqube_hotspots.csv",
-		"_raw_sonarqube_hotspots")
+	dataflowTester.ImportCsvIntoRawTable("./raw_tables/_raw_sonarqube_api_hotspots.csv",
+		"_raw_sonarqube_api_hotspots")
 
 	// Standard data
 	taskData := &tasks.SonarqubeTaskData{

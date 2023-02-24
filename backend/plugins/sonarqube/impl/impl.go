@@ -85,6 +85,8 @@ func (p Sonarqube) SubTaskMetas() []plugin.SubTaskMeta {
 		tasks.ExtractIssuesMeta,
 		tasks.CollectHotspotsMeta,
 		tasks.ExtractHotspotsMeta,
+		tasks.CollectAdditionalFilemetricsMeta,
+		tasks.ExtractAdditionalFileMetricsMeta,
 		tasks.CollectFilemetricsMeta,
 		tasks.ExtractFilemetricsMeta,
 		tasks.CollectAccountsMeta,

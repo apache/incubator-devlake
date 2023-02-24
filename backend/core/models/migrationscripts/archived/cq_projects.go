@@ -23,11 +23,11 @@ import (
 
 type CqProject struct {
 	DomainEntity
-	Name             string           `json:"name" gorm:"type:varchar(255)"`
-	Qualifier        string           `json:"qualifier" gorm:"type:varchar(255)"`
-	Visibility       string           `json:"visibility" gorm:"type:varchar(64)"`
-	LastAnalysisDate *api.Iso8601Time `json:"lastAnalysisDate"`
-	CommitSha        string           `gorm:"type:varchar(128)"`
+	Name             string `gorm:"type:varchar(255)"`
+	Qualifier        string `gorm:"type:varchar(255)"`
+	Visibility       string `gorm:"type:varchar(64)"`
+	LastAnalysisDate *api.Iso8601Time
+	CommitSha        string `gorm:"type:varchar(128)"`
 }
 
 func (CqProject) TableName() string {
