@@ -37,7 +37,7 @@ export type BlueprintType = {
   plan: any;
   settings: {
     version: string;
-    createdDateAfter: null | string;
+    timeAfter: null | string;
     connections: Array<{
       plugin: string;
       connectionId: ID;

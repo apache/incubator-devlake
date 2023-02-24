@@ -30,7 +30,7 @@ export const StepFour = () => {
     isManual,
     cronConfig,
     skipOnFail,
-    createdDateAfter,
+    timeAfter,
     onChangeIsManual,
     onChangeCronConfig,
     onChangeSkipOnFail,
@@ -46,7 +46,7 @@ export const StepFour = () => {
         cronConfig={cronConfig}
         skipOnFail={skipOnFail}
         showTimeFilter={mode === ModeEnum.normal}
-        createdDateAfter={createdDateAfter}
+        timeAfter={timeAfter}
         onChangeIsManual={onChangeIsManual}
         onChangeCronConfig={onChangeCronConfig}
         onChangeSkipOnFail={onChangeSkipOnFail}

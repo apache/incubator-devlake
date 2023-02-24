@@ -45,7 +45,7 @@ export const BPContext = React.createContext<BPContextType>({
   cronConfig: '0 0 * * *',
   isManual: false,
   skipOnFail: false,
-  createdDateAfter: null,
+  timeAfter: null,
 
   onChangeStep: () => {},
   onChangeShowInspector: () => {},
@@ -84,7 +84,7 @@ export const BPContextProvider = ({ from, projectName, children }: Props) => {
   const [cronConfig, setCronConfig] = useState('0 0 * * *');
   const [isManual, setIsManual] = useState(false);
   const [skipOnFail, setSkipOnFail] = useState(true);
-  const [createdDateAfter, setCreatedDateAfter] = useState<string | null>(
+  const [timeAfter, setCreatedDateAfter] = useState<string | null>(
     formatTime(dayjs().subtract(6, 'month').startOf('day').toDate(), 'YYYY-MM-DD[T]HH:mm:ssZ'),
   );
 
@@ -128,7 +128,7 @@ export const BPContextProvider = ({ from, projectName, children }: Props) => {
     if (mode === ModeEnum.normal) {
       params.settings = {
         version: '2.0.0',
-        createdDateAfter,
+        timeAfter,
         connections: uniqueList.map((unique) => {
           const connection = connections.find((cs) => cs.unique === unique) as ConnectionItemType;
           const scope = scopeMap[unique] ?? [];
@@ -154,7 +154,7 @@ export const BPContextProvider = ({ from, projectName, children }: Props) => {
     cronConfig,
     isManual,
     skipOnFail,
-    createdDateAfter,
+    timeAfter,
     rawPlan,
     uniqueList,
     scopeMap,
@@ -204,7 +204,7 @@ export const BPContextProvider = ({ from, projectName, children }: Props) => {
         cronConfig,
         isManual,
         skipOnFail,
-        createdDateAfter,
+        timeAfter,
 
         onChangeStep: setStep,
         onChangeShowInspector: setShowInspector,

@@ -31,7 +31,7 @@ interface Props {
   cronConfig: string;
   skipOnFail: boolean;
   showTimeFilter: boolean;
-  createdDateAfter: string | null;
+  timeAfter: string | null;
   onChangeIsManual: (val: boolean) => void;
   onChangeCronConfig: (val: string) => void;
   onChangeSkipOnFail: (val: boolean) => void;
@@ -43,7 +43,7 @@ export const SyncPolicy = ({
   cronConfig,
   skipOnFail,
   showTimeFilter,
-  createdDateAfter,
+  timeAfter,
   onChangeIsManual,
   onChangeCronConfig,
   onChangeSkipOnFail,
@@ -72,7 +72,7 @@ export const SyncPolicy = ({
         <div className="block">
           <h3>Time Filter *</h3>
           <p>Select the data range you wish to collect. DevLake will collect the last six months of data by default.</p>
-          <StartFromSelector value={createdDateAfter} onChange={onChangeCreatedDateAfter} />
+          <StartFromSelector value={timeAfter} onChange={onChangeCreatedDateAfter} />
         </div>
       )}
       <div className="block">

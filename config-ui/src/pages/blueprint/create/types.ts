@@ -39,7 +39,7 @@ export type BPContextType = {
   cronConfig: string;
   isManual: boolean;
   skipOnFail: boolean;
-  createdDateAfter: string | null;
+  timeAfter: string | null;
 
   onChangeStep: React.Dispatch<React.SetStateAction<number>>;
   onChangeShowInspector: React.Dispatch<React.SetStateAction<boolean>>;
