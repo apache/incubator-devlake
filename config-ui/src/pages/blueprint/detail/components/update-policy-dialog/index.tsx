@@ -29,7 +29,7 @@ interface Props {
   isManual: boolean;
   cronConfig: string;
   skipOnFail: boolean;
-  createdDateAfter: string | null;
+  timeAfter: string | null;
   operating: boolean;
   onCancel: () => void;
   onSubmit: (params: any) => Promise<void>;
@@ -39,13 +39,13 @@ export const UpdatePolicyDialog = ({ blueprint, operating, onCancel, onSubmit, .
   const [isManual, setIsManual] = useState(false);
   const [cronConfig, setCronConfig] = useState('');
   const [skipOnFail, setSkipOnFail] = useState(false);
-  const [createdDateAfter, setCreatedDateAfter] = useState<string | null>(null);
+  const [timeAfter, setTimeAfter] = useState<string | null>(null);
 
   useEffect(() => {
     setIsManual(props.isManual);
     setCronConfig(props.cronConfig);
     setSkipOnFail(props.skipOnFail);
-    setCreatedDateAfter(props.createdDateAfter);
+    setTimeAfter(props.timeAfter);
   }, []);
 
   const handleSubmit = () => {
@@ -57,7 +57,7 @@ export const UpdatePolicyDialog = ({ blueprint, operating, onCancel, onSubmit, .
         blueprint.mode === ModeEnum.normal
           ? {
               ...blueprint.settings,
-              createdDateAfter,
+              timeAfter,
             }
           : undefined,
     });
@@ -80,11 +80,11 @@ export const UpdatePolicyDialog = ({ blueprint, operating, onCancel, onSubmit, .
         cronConfig={cronConfig}
         skipOnFail={skipOnFail}
         showTimeFilter={blueprint.mode === ModeEnum.normal}
-        createdDateAfter={createdDateAfter}
+        timeAfter={timeAfter}
         onChangeIsManual={setIsManual}
         onChangeCronConfig={setCronConfig}
         onChangeSkipOnFail={setSkipOnFail}
-        onChangeCreatedDateAfter={setCreatedDateAfter}
+        onChangeTimeAfter={setTimeAfter}
       />
     </Dialog>
   );

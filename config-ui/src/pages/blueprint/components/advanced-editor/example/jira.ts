@@ -23,7 +23,7 @@ const jira = [
       options: {
         connectionId: 1,
         boardId: 8,
-        createdDateAfter: '2006-01-02T15:04:05Z',
+        timeAfter: '2006-01-02T15:04:05Z',
       },
     },
   ],
