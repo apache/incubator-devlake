@@ -40,3 +40,17 @@ func TestExampleCsvFile(t *testing.T) {
 		assert.Equal(t, row["json"], `{"url": "https://example.com"}`, "json not euqal")
 	}
 }
+
+func TestWrongCsvPath(t *testing.T) {
+	defer func() {
+		if r := recover(); r == nil {
+			t.Errorf("The code did not panic")
+		}
+	}()
+
+	tmpPath := t.TempDir()
+	filename := fmt.Sprintf(`%s/foobar.txt`, tmpPath)
+	println(filename)
+
+	NewCsvFileWriter(filename, []string{})
+}

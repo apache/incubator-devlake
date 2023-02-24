@@ -19,7 +19,9 @@ package pluginhelper
 
 import (
 	"encoding/csv"
+	"errors"
 	"os"
+	"path/filepath"
 )
 
 // CsvFileWriter make writer for saving csv file easier, it write tuple to csv file
@@ -37,6 +39,10 @@ type CsvFileWriter struct {
 // NewCsvFileWriter create a `*CsvFileWriter` based on path to saving csv file
 func NewCsvFileWriter(csvPath string, fields []string) *CsvFileWriter {
 	// open csv file
+	if filepath.Ext(csvPath) != ".csv" {
+		panic(errors.New("The file does not have \".csv\" extension."))
+	}
+
 	csvFile, err := os.Create(csvPath)
 	if err != nil {
 		panic(err)
