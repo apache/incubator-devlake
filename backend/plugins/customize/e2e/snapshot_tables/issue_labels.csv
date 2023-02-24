@@ -1,0 +1,5 @@
+issue_id,label_name,_raw_data_params,_raw_data_table,_raw_data_id,_raw_data_remark
+bitbucket:BitbucketIssue:1:10,hello worlds,"{""ConnectionId"":1,""Owner"":""thenicetgp"",""Repo"":""lake""}",,0,
+bitbucket:BitbucketIssue:1:14,label1,"{""ConnectionId"":1,""Owner"":""thenicetgp"",""Repo"":""lake""}",,0,
+bitbucket:BitbucketIssue:1:14,label2,"{""ConnectionId"":1,""Owner"":""thenicetgp"",""Repo"":""lake""}",,0,
+bitbucket:BitbucketIssue:1:14,label3,"{""ConnectionId"":1,""Owner"":""thenicetgp"",""Repo"":""lake""}",,0,

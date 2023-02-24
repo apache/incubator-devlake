@@ -15,28 +15,24 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-package pluginhelper
+package models
 
 import (
-	"fmt"
-	"github.com/magiconair/properties/assert"
-	"testing"
+	"time"
+
+	"github.com/apache/incubator-devlake/core/dal"
 )
 
-func TestExampleCsvFile(t *testing.T) {
-	tmpPath := t.TempDir()
-	filename := fmt.Sprintf(`%s/foobar.csv`, tmpPath)
-	println(filename)
+type CustomizedField struct {
+	CreatedAt   time.Time      `json:"createdAt"`
+	UpdatedAt   time.Time      `json:"updatedAt"`
+	TbName      string         `gorm:"primaryKey;type:varchar(255)"` // avoid conflicting with the method `TableName()`
+	ColumnName  string         `gorm:"primaryKey;type:varchar(255)"`
+	DisplayName string         `gorm:"type:varchar(255)"`
+	DataType    dal.ColumnType `gorm:"type:varchar(255)"`
+	Description string
+}
 
-	writer := NewCsvFileWriter(filename, []string{"id", "name", "json", "created_at"})
-	writer.Write([]string{"123", "foobar", `{"url": "https://example.com"}`, "2022-05-05 09:56:43.438000000"})
-	writer.Close()
-
-	iter, _ := NewCsvFileIterator(filename)
-	defer iter.Close()
-	for iter.HasNext() {
-		row := iter.Fetch()
-		assert.Equal(t, row["name"], "foobar", "name not euqal")
-		assert.Equal(t, row["json"], `{"url": "https://example.com"}`, "json not euqal")
-	}
+func (t *CustomizedField) TableName() string {
+	return "_tool_customized_fields"
 }

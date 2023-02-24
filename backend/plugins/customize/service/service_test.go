@@ -15,28 +15,52 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-package pluginhelper
+package service
 
 import (
-	"fmt"
-	"github.com/magiconair/properties/assert"
+	"regexp"
 	"testing"
 )
 
-func TestExampleCsvFile(t *testing.T) {
-	tmpPath := t.TempDir()
-	filename := fmt.Sprintf(`%s/foobar.csv`, tmpPath)
-	println(filename)
-
-	writer := NewCsvFileWriter(filename, []string{"id", "name", "json", "created_at"})
-	writer.Write([]string{"123", "foobar", `{"url": "https://example.com"}`, "2022-05-05 09:56:43.438000000"})
-	writer.Close()
-
-	iter, _ := NewCsvFileIterator(filename)
-	defer iter.Close()
-	for iter.HasNext() {
-		row := iter.Fetch()
-		assert.Equal(t, row["name"], "foobar", "name not euqal")
-		assert.Equal(t, row["json"], `{"url": "https://example.com"}`, "json not euqal")
+func TestService_checkFieldName(t *testing.T) {
+	nameChecker := regexp.MustCompile(`^x_\w+`)
+	tests := []struct {
+		name string
+		args string
+		want bool
+	}{
+		{
+			"",
+			"x_abc23_e",
+			true,
+		},
+		{
+			"",
+			"_abc23_e",
+			false,
+		},
+		{
+			"",
+			"x__",
+			true,
+		},
+		{
+			"",
+			"x_ space",
+			false,
+		},
+		{
+			"",
+			"x_123",
+			true,
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			got := nameChecker.MatchString(tt.args)
+			if got != tt.want {
+				t.Errorf("got = %v, want %v", got, tt.want)
+			}
+		})
 	}
 }
