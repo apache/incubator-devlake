@@ -43,7 +43,7 @@ func TestRepoDataFlow(t *testing.T) {
 	}
 
 	// import raw data table
-	csvIter := pluginhelper.NewCsvFileIterator("./raw_tables/_raw_bitbucket_api_repositories.csv")
+	csvIter, _ := pluginhelper.NewCsvFileIterator("./raw_tables/_raw_bitbucket_api_repositories.csv")
 	defer csvIter.Close()
 	apiRepo := &tasks.BitbucketApiRepo{}
 	// load rows and insert into target table
