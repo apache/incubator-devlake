@@ -16,7 +16,7 @@
 
 from typing import Type, Union, Iterable
 import sys
-from abc import abstractmethod
+from abc import ABC, abstractmethod
 import requests
 
 import fire
@@ -30,7 +30,7 @@ from pydevlake.stream import Stream
 from pydevlake.model import ToolScope, DomainScope
 
 
-class Plugin:
+class Plugin(ABC):
     def __init__(self):
         self._streams = dict()
         for stream in self.streams:
