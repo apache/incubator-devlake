@@ -31,5 +31,6 @@ func All() []plugin.MigrationScript {
 		new(addProjectName20221215),
 		new(addJiraMultiAuth20230129),
 		new(removeIssueStdStoryPoint),
+		new(addCommitRepoPattern),
 	}
 }

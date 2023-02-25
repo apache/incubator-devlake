@@ -15,22 +15,41 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-package crossdomain
+package migrationscripts
 
 import (
-	"github.com/apache/incubator-devlake/core/models/common"
+	"github.com/apache/incubator-devlake/core/context"
+	"github.com/apache/incubator-devlake/core/errors"
+	"github.com/apache/incubator-devlake/core/plugin"
+	"github.com/apache/incubator-devlake/helpers/migrationhelper"
 )
 
-type IssueRepoCommit struct {
-	common.NoPKModel
-	IssueId   string `gorm:"primaryKey;type:varchar(255)"`
-	RepoUrl   string `gorm:"primaryKey;type:varchar(255)"`
-	CommitSha string `gorm:"primaryKey;type:varchar(255)"`
+var _ plugin.MigrationScript = (*addHostNamespaceRepoName)(nil)
+
+type IssueRepoCommit20220222 struct {
 	Host      string `gorm:"type:varchar(255)"`
 	Namespace string `gorm:"type:varchar(255)"`
 	RepoName  string `gorm:"type:varchar(255)"`
 }
 
-func (IssueRepoCommit) TableName() string {
+func (IssueRepoCommit20220222) TableName() string {
 	return "issue_repo_commits"
+}
+
+type addHostNamespaceRepoName struct{}
+
+func (script *addHostNamespaceRepoName) Up(basicRes context.BasicRes) errors.Error {
+
+	return migrationhelper.AutoMigrateTables(
+		basicRes,
+		&IssueRepoCommit20220222{},
+	)
+}
+
+func (*addHostNamespaceRepoName) Version() uint64 {
+	return 20230222153154
+}
+
+func (*addHostNamespaceRepoName) Name() string {
+	return "add host, namespace, repo_name to issue_repo_commits"
 }

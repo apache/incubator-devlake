@@ -18,6 +18,12 @@ limitations under the License.
 package tasks
 
 import (
+	"fmt"
+	"net/url"
+	"path"
+	"reflect"
+	"regexp"
+
 	"github.com/apache/incubator-devlake/core/dal"
 	"github.com/apache/incubator-devlake/core/errors"
 	"github.com/apache/incubator-devlake/core/models/domainlayer/crossdomain"
@@ -25,8 +31,6 @@ import (
 	"github.com/apache/incubator-devlake/core/plugin"
 	"github.com/apache/incubator-devlake/helpers/pluginhelper/api"
 	"github.com/apache/incubator-devlake/plugins/jira/models"
-	"reflect"
-	"regexp"
 )
 
 var ConvertIssueRepoCommitsMeta = plugin.SubTaskMeta{
@@ -52,6 +56,16 @@ func ConvertIssueRepoCommits(taskCtx plugin.SubTaskContext) errors.Error {
 	commitRepoUrlRegex, err = regexp.Compile(commitRepoUrlPattern)
 	if err != nil {
 		return errors.Default.Wrap(err, "regexp Compile commitRepoUrlPattern failed")
+	}
+	var commitRepoUrlRegexps []*regexp.Regexp
+	if tr := data.Options.TransformationRules; tr != nil {
+		for _, s := range tr.RemotelinkRepoPattern {
+			pattern, e := regexp.Compile(s)
+			if e != nil {
+				return errors.Convert(e)
+			}
+			commitRepoUrlRegexps = append(commitRepoUrlRegexps, pattern)
+		}
 	}
 
 	clause := []dal.Clause{
@@ -83,8 +97,8 @@ func ConvertIssueRepoCommits(taskCtx plugin.SubTaskContext) errors.Error {
 		InputRowType: reflect.TypeOf(models.JiraIssueCommit{}),
 		Input:        cursor,
 		Convert: func(inputRow interface{}) ([]interface{}, errors.Error) {
-			var result []interface{}
 			issueCommit := inputRow.(*models.JiraIssueCommit)
+			fmt.Println(*issueCommit)
 			item := &crossdomain.IssueRepoCommit{
 				IssueId:   issueIdGenerator.Generate(connectionId, issueCommit.IssueId),
 				CommitSha: issueCommit.CommitSha,
@@ -95,8 +109,8 @@ func ConvertIssueRepoCommits(taskCtx plugin.SubTaskContext) errors.Error {
 					item.RepoUrl = groups[1]
 				}
 			}
-			result = append(result, item)
-			return result, nil
+			refineIssueRepoCommit(item, commitRepoUrlRegexps, issueCommit.CommitUrl)
+			return []interface{}{item}, nil
 		},
 	})
 	if err != nil {
@@ -104,4 +118,27 @@ func ConvertIssueRepoCommits(taskCtx plugin.SubTaskContext) errors.Error {
 	}
 
 	return converter.Execute()
+}
+
+func refineIssueRepoCommit(item *crossdomain.IssueRepoCommit, repoPatterns []*regexp.Regexp, commitUrl string) *crossdomain.IssueRepoCommit {
+	u, err := url.Parse(commitUrl)
+	if err != nil {
+		return item
+	}
+	item.Host = u.Host
+	for _, pattern := range repoPatterns {
+		if pattern.MatchString(commitUrl) {
+			group := pattern.FindStringSubmatch(commitUrl)
+			fmt.Println(group)
+			if len(group) == 4 {
+				item.Namespace = group[1]
+				item.RepoName = group[2]
+				item.CommitSha = group[3]
+				u.Path = path.Join(item.Namespace, item.RepoName+".git")
+				item.RepoUrl = u.String()
+				break
+			}
+		}
+	}
+	return item
 }

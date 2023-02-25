@@ -45,6 +45,7 @@ type JiraTransformationRule struct {
 	EpicKeyField               string       `json:"epicKeyField"`
 	StoryPointField            string       `json:"storyPointField"`
 	RemotelinkCommitShaPattern string       `json:"remotelinkCommitShaPattern"`
+	RemotelinkRepoPattern      []string     `json:"remotelinkRepoPattern"`
 	TypeMappings               TypeMappings `json:"typeMappings"`
 }
 
@@ -53,26 +54,18 @@ func (r *JiraTransformationRule) ToDb() (rule *models.JiraTransformationRule, er
 	if err != nil {
 		return nil, errors.Default.Wrap(err, "error marshaling TypeMappings")
 	}
+	remotelinkRepoPattern, err := json.Marshal(r.RemotelinkRepoPattern)
+	if err != nil {
+		return nil, errors.Default.Wrap(err, "error marshaling RemotelinkRepoPattern")
+	}
 	return &models.JiraTransformationRule{
 		Name:                       r.Name,
 		EpicKeyField:               r.EpicKeyField,
 		StoryPointField:            r.StoryPointField,
 		RemotelinkCommitShaPattern: r.RemotelinkCommitShaPattern,
+		RemotelinkRepoPattern:      string(remotelinkRepoPattern),
 		TypeMappings:               blob,
 	}, nil
-}
-func (r *JiraTransformationRule) FromDb(rule *models.JiraTransformationRule) (*JiraTransformationRule, errors.Error) {
-	mappings := make(map[string]TypeMapping)
-	err := json.Unmarshal(rule.TypeMappings, &mappings)
-	if err != nil {
-		return nil, errors.Default.Wrap(err, "error marshaling TypeMappings")
-	}
-	r.Name = rule.Name
-	r.EpicKeyField = rule.EpicKeyField
-	r.StoryPointField = rule.StoryPointField
-	r.RemotelinkCommitShaPattern = rule.RemotelinkCommitShaPattern
-	r.TypeMappings = mappings
-	return r, nil
 }
 
 func MakeTransformationRules(rule models.JiraTransformationRule) (*JiraTransformationRule, errors.Error) {
@@ -81,11 +74,17 @@ func MakeTransformationRules(rule models.JiraTransformationRule) (*JiraTransform
 	if err != nil {
 		return nil, errors.Default.Wrap(err, "unable to unmarshal the typeMapping")
 	}
+	var remotelinkRepoPattern []string
+	err = json.Unmarshal([]byte(rule.RemotelinkRepoPattern), &remotelinkRepoPattern)
+	if err != nil {
+		return nil, errors.Default.Wrap(err, "error unMarshaling RemotelinkRepoPattern")
+	}
 	result := &JiraTransformationRule{
 		Name:                       rule.Name,
 		EpicKeyField:               rule.EpicKeyField,
 		StoryPointField:            rule.StoryPointField,
 		RemotelinkCommitShaPattern: rule.RemotelinkCommitShaPattern,
+		RemotelinkRepoPattern:      remotelinkRepoPattern,
 		TypeMappings:               typeMapping,
 	}
 	return result, nil
