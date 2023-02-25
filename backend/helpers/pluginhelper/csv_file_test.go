@@ -44,7 +44,7 @@ func TestExampleCsvFile(t *testing.T) {
 func TestWrongCsvPath(t *testing.T) {
 	defer func() {
 		if r := recover(); r == nil {
-			t.Errorf("The code did not panic")
+			t.Errorf("the code did not panic")
 		}
 	}()
 

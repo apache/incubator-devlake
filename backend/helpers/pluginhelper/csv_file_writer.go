@@ -40,7 +40,7 @@ type CsvFileWriter struct {
 func NewCsvFileWriter(csvPath string, fields []string) *CsvFileWriter {
 	// open csv file
 	if filepath.Ext(csvPath) != ".csv" {
-		panic(errors.New("The file does not have \".csv\" extension."))
+		panic(errors.New("the file does not have \".csv\" extension"))
 	}
 
 	csvFile, err := os.Create(csvPath)
