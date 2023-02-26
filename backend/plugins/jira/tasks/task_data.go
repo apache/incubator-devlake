@@ -49,7 +49,7 @@ type JiraTransformationRule struct {
 	TypeMappings               TypeMappings `json:"typeMappings"`
 }
 
-func (r *JiraTransformationRule) ToDb() (rule *models.JiraTransformationRule, error2 errors.Error) {
+func (r *JiraTransformationRule) ToDb() (*models.JiraTransformationRule, errors.Error) {
 	blob, err := json.Marshal(r.TypeMappings)
 	if err != nil {
 		return nil, errors.Default.Wrap(err, "error marshaling TypeMappings")
@@ -58,14 +58,18 @@ func (r *JiraTransformationRule) ToDb() (rule *models.JiraTransformationRule, er
 	if err != nil {
 		return nil, errors.Default.Wrap(err, "error marshaling RemotelinkRepoPattern")
 	}
-	return &models.JiraTransformationRule{
+	rule := &models.JiraTransformationRule{
 		Name:                       r.Name,
 		EpicKeyField:               r.EpicKeyField,
 		StoryPointField:            r.StoryPointField,
 		RemotelinkCommitShaPattern: r.RemotelinkCommitShaPattern,
-		RemotelinkRepoPattern:      string(remotelinkRepoPattern),
+		RemotelinkRepoPattern:      remotelinkRepoPattern,
 		TypeMappings:               blob,
-	}, nil
+	}
+	if err1 := rule.VerifyRegexp(); err1 != nil {
+		return nil, err1
+	}
+	return rule, nil
 }
 
 func MakeTransformationRules(rule models.JiraTransformationRule) (*JiraTransformationRule, errors.Error) {
@@ -75,7 +79,7 @@ func MakeTransformationRules(rule models.JiraTransformationRule) (*JiraTransform
 		return nil, errors.Default.Wrap(err, "unable to unmarshal the typeMapping")
 	}
 	var remotelinkRepoPattern []string
-	err = json.Unmarshal([]byte(rule.RemotelinkRepoPattern), &remotelinkRepoPattern)
+	err = json.Unmarshal(rule.RemotelinkRepoPattern, &remotelinkRepoPattern)
 	if err != nil {
 		return nil, errors.Default.Wrap(err, "error unMarshaling RemotelinkRepoPattern")
 	}

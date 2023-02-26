@@ -18,13 +18,15 @@ limitations under the License.
 package migrationscripts
 
 import (
+	"encoding/json"
+
 	"github.com/apache/incubator-devlake/core/context"
 	"github.com/apache/incubator-devlake/core/errors"
 	"github.com/apache/incubator-devlake/helpers/migrationhelper"
 )
 
 type JiraTransformationRule20230223 struct {
-	RemotelinkRepoPattern string `mapstructure:"remotelinkRepoPattern,omitempty" json:"remotelinkRepoPattern"`
+	RemotelinkRepoPattern json.RawMessage `mapstructure:"remotelinkRepoPattern,omitempty" json:"remotelinkRepoPattern"`
 }
 
 func (JiraTransformationRule20230223) TableName() string {
