@@ -100,8 +100,7 @@ export const ConnectionEndpoint = ({
         </RadioGroup>
         {version === 'cloud' && (
           <p style={{ margin: 0 }}>
-            If you are using {name} Cloud, you do not need to enter the endpoint URL, which is
-            {multipleVersions.cloud}.
+            If you are using {name} Cloud, you do not need to enter the endpoint URL, which is {multipleVersions.cloud}.
           </p>
         )}
         {version === 'server' && (
@@ -109,7 +108,9 @@ export const ConnectionEndpoint = ({
             label={<S.Label>Endpoint URL</S.Label>}
             labelInfo={<S.LabelInfo>*</S.LabelInfo>}
             subLabel={
-              <S.LabelDescription>If you are using {name} Server, please enter the endpoint URL.</S.LabelDescription>
+              <S.LabelDescription>
+                {subLabel ?? `If you are using ${name} Server, please enter the endpoint URL.`}
+              </S.LabelDescription>
             }
           >
             <InputGroup placeholder="Your Endpoint URL" value={value} onChange={handleChangeValue} />

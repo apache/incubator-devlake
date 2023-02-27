@@ -36,7 +36,7 @@ export const getGitHub = (prefix: string, owner: string, repo: string) => reques
 
 export const getGitLab = (prefix: string, id: ID) => request(`${prefix}/projects/${id}`);
 
-export const getJIRA = (prefix: string, id: ID) => request(`${prefix}/agile/1.0/board/${id}`);
+export const getJira = (prefix: string, id: ID) => request(`${prefix}/agile/1.0/board/${id}`);
 
 export const updateDataScope = (plugin: string, connectionId: ID, repoId: ID, payload: any) =>
   request(`/plugins/${plugin}/connections/${connectionId}/scopes/${repoId}`, {

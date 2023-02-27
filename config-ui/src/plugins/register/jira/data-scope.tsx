@@ -28,7 +28,7 @@ interface Props {
   onChangeItems: (selectedItems: ScopeItemType[]) => void;
 }
 
-export const JIRADataScope = ({ connectionId, selectedItems, onChangeItems }: Props) => {
+export const JiraDataScope = ({ connectionId, selectedItems, onChangeItems }: Props) => {
   return (
     <>
       <h3>Boards *</h3>

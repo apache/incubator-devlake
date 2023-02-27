@@ -24,10 +24,10 @@ import { PluginType } from '@/plugins';
 import Icon from './assets/icon.svg';
 import { Auth } from './connection-fields';
 
-export const JIRAConfig: PluginConfigType = {
+export const JiraConfig: PluginConfigType = {
   type: PluginType.Connection,
   plugin: 'jira',
-  name: 'JIRA',
+  name: 'Jira',
   icon: Icon,
   sort: 3,
   connection: {
@@ -37,7 +37,7 @@ export const JIRAConfig: PluginConfigType = {
       {
         key: 'endpoint',
         subLabel:
-          'Provide the Jira instance API endpoint. For Jira Cloud, e.g. https://your-company.atlassian.net/rest/',
+          'Provide the Jira instance API endpoint. For Jira Cloud, e.g. https://your-company.atlassian.net/rest/. For Jira Server v8+, e.g. https://your-company.atlassian.net/rest/. Please note: The endpoint URL should end with /.',
       },
       ({ initialValues, values, errors, setValues, setErrors }: any) => {
         const initialValue = useMemo(
@@ -75,7 +75,7 @@ export const JIRAConfig: PluginConfigType = {
       {
         key: 'rateLimitPerHour',
         subLabel:
-          'By default, DevLake uses dynamic rate limit for optimized data collection. But you can adjust the collection speed by setting up your desirable rate limit.',
+          'By default, DevLake uses dynamic rate limit for optimized data collection for Jira. But you can adjust the collection speed by setting up your desirable rate limit.',
         learnMore: 'https://devlake.apache.org/docs/Configuration/Jira/#fixed-rate-limit-optional',
         externalInfo:
           'Jira Cloud does not specify a maximum value of rate limit. For Jira Server, please contact your admin for more information.',

@@ -57,7 +57,7 @@ export const EXAMPLE_CONFIG = [
   },
   {
     id: 'jira',
-    name: 'Load JIRA Configuration',
+    name: 'Load Jira Configuration',
     config: jira,
   },
   {

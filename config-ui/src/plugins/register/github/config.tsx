@@ -31,7 +31,7 @@ export const GitHubConfig: PluginConfigType = {
   icon: Icon,
   sort: 1,
   connection: {
-    docLink: 'https://devlake.apache.org/docs/UserManuals/ConfigUI/GitHub',
+    docLink: 'https://devlake.apache.org/docs/Configuration/GitHub',
     initialValues: {
       endpoint: 'https://api.github.com/',
       enableGraphql: true,
@@ -69,8 +69,8 @@ export const GitHubConfig: PluginConfigType = {
       {
         key: 'rateLimitPerHour',
         subLabel:
-          'By default, DevLake uses dynamic rate limit for optimized data collection for GitHub. But you can adjust the collection speed by entering a fixed value. Learn more',
-        learnMore: 'https://devlake.apache.org/docs/UserManuals/ConfigUI/GitHub/#fixed-rate-limit-optional',
+          'By default, DevLake uses dynamic rate limit for optimized data collection for GitHub. But you can adjust the collection speed by entering a fixed value. Please note: the rate limit setting applies to all tokens you have entered above.',
+        learnMore: 'https://devlake.apache.org/docs/Configuration/GitHub/#fixed-rate-limit-optional',
         externalInfo:
           'Rate Limit Value Reference\nGitHub: 0-5,000 requests/hour\nGitHub Enterprise: 0-15,000 requests/hour',
         defaultValue: 4500,
