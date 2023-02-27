@@ -22,6 +22,13 @@ import (
 	"database/sql"
 	"encoding/json"
 	"fmt"
+	"os"
+	"strconv"
+	"strings"
+	"sync"
+	"testing"
+	"time"
+
 	"github.com/apache/incubator-devlake/core/config"
 	"github.com/apache/incubator-devlake/core/dal"
 	"github.com/apache/incubator-devlake/core/errors"
@@ -34,12 +41,6 @@ import (
 	contextimpl "github.com/apache/incubator-devlake/impls/context"
 	"github.com/apache/incubator-devlake/impls/dalgorm"
 	"github.com/apache/incubator-devlake/impls/logruslog"
-	"os"
-	"strconv"
-	"strings"
-	"sync"
-	"testing"
-	"time"
 
 	"github.com/spf13/viper"
 	"github.com/stretchr/testify/assert"
@@ -238,7 +239,7 @@ func (t *DataFlowTester) CreateSnapshot(dst schema.Tabler, opts TableOptions) {
 	if err != nil {
 		panic(errors.Default.Wrap(err, fmt.Sprintf("unable to get columns from table %s", dst.TableName())))
 	}
-	csvWriter := pluginhelper.NewCsvFileWriter(opts.CSVRelPath, columns)
+	csvWriter, _ := pluginhelper.NewCsvFileWriter(opts.CSVRelPath, columns)
 	defer csvWriter.Close()
 
 	// define how to scan value
@@ -317,7 +318,7 @@ func (t *DataFlowTester) ExportRawTable(rawTableName string, csvRelPath string) 
 		panic(err)
 	}
 
-	csvWriter := pluginhelper.NewCsvFileWriter(csvRelPath, allFields)
+	csvWriter, _ := pluginhelper.NewCsvFileWriter(csvRelPath, allFields)
 	defer csvWriter.Close()
 
 	for _, rawRow := range *rawRows {

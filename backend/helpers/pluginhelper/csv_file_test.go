@@ -28,7 +28,7 @@ func TestExampleCsvFile(t *testing.T) {
 	filename := fmt.Sprintf(`%s/foobar.csv`, tmpPath)
 	println(filename)
 
-	writer := NewCsvFileWriter(filename, []string{"id", "name", "json", "created_at"})
+	writer, _ := NewCsvFileWriter(filename, []string{"id", "name", "json", "created_at"})
 	writer.Write([]string{"123", "foobar", `{"url": "https://example.com"}`, "2022-05-05 09:56:43.438000000"})
 	writer.Close()
 
@@ -42,15 +42,12 @@ func TestExampleCsvFile(t *testing.T) {
 }
 
 func TestWrongCsvPath(t *testing.T) {
-	defer func() {
-		if r := recover(); r == nil {
-			t.Errorf("the code did not panic")
-		}
-	}()
-
 	tmpPath := t.TempDir()
 	filename := fmt.Sprintf(`%s/foobar.txt`, tmpPath)
 	println(filename)
 
-	NewCsvFileWriter(filename, []string{})
+	_, err := NewCsvFileWriter(filename, []string{})
+	if err == nil {
+		t.Fatal("the code did not return error")
+	}
 }

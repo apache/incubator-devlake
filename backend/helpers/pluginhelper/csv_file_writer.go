@@ -37,10 +37,10 @@ type CsvFileWriter struct {
 }
 
 // NewCsvFileWriter create a `*CsvFileWriter` based on path to saving csv file
-func NewCsvFileWriter(csvPath string, fields []string) *CsvFileWriter {
+func NewCsvFileWriter(csvPath string, fields []string) (*CsvFileWriter, error) {
 	// open csv file
 	if filepath.Ext(csvPath) != ".csv" {
-		panic(errors.New("the file does not have \".csv\" extension"))
+		return nil, errors.New("the file does not have \".csv\" extension")
 	}
 
 	csvFile, err := os.Create(csvPath)
@@ -61,7 +61,7 @@ func NewCsvFileWriter(csvPath string, fields []string) *CsvFileWriter {
 		file:   csvFile,
 		writer: csvWriter,
 		fields: fields,
-	}
+	}, nil
 }
 
 // Close releases resource
