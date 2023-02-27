@@ -40,7 +40,7 @@ type Service struct {
 }
 
 func NewService(dal dal.Dal) *Service {
-	return &Service{dal: dal, nameChecker: regexp.MustCompile(`^x_[a-zA-Z0-9_]{0,253}$`)}
+	return &Service{dal: dal, nameChecker: regexp.MustCompile(`^x_[a-zA-Z0-9_]{0,50}$`)}
 }
 
 // GetFields returns all the fields of the table

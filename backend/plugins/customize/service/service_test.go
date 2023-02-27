@@ -24,7 +24,7 @@ import (
 )
 
 func TestService_checkFieldName(t *testing.T) {
-	nameChecker := regexp.MustCompile(`^x_[a-zA-Z0-9_]{0,253}$`)
+	nameChecker := regexp.MustCompile(`^x_[a-zA-Z0-9_]{0,50}$`)
 	tests := []struct {
 		name string
 		args string
@@ -47,12 +47,12 @@ func TestService_checkFieldName(t *testing.T) {
 		},
 		{
 			"issue #4519",
-			"x_" + strings.Repeat("a", 253),
+			"x_" + strings.Repeat("a", 50),
 			true,
 		},
 		{
 			"issue #4519",
-			"x_" + strings.Repeat("a", 254),
+			"x_" + strings.Repeat("a", 51),
 			false,
 		},
 		{
