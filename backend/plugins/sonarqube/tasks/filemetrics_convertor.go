@@ -81,6 +81,8 @@ func ConvertFileMetrics(taskCtx plugin.SubTaskContext) errors.Error {
 				EffortToReachMaintainabilityRatingA: sonarqubeFileMetric.EffortToReachMaintainabilityRatingA,
 				Complexity:                          sonarqubeFileMetric.Complexity,
 				CognitiveComplexity:                 sonarqubeFileMetric.CognitiveComplexity,
+				NumOfLines:                          sonarqubeFileMetric.NumOfLines,
+				Coverage:                            sonarqubeFileMetric.Coverage,
 			}
 			return []interface{}{
 				domainFileMetric,
