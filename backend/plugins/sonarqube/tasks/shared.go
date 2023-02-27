@@ -212,13 +212,8 @@ func setMetrics(fileMetrics *models.SonarqubeFileMetrics, metricsList []Measure)
 			if err != nil {
 				return err
 			}
-		case "duplicated_blocks":
-			fileMetrics.DuplicatedBlocks, err = errors.Convert01(strconv.Atoi(v.Value))
-			if err != nil {
-				return err
-			}
-		case "duplicated_lines_density":
-			fileMetrics.DuplicatedLinesDensity, err = errors.Convert01(strconv.ParseFloat(v.Value, 32))
+		case "coverage":
+			fileMetrics.Coverage, err = errors.Convert01(strconv.ParseFloat(v.Value, 32))
 			if err != nil {
 				return err
 			}
@@ -232,6 +227,11 @@ func setAdditionalMetrics(fileMetrics *models.SonarqubeAdditionalFileMetrics, me
 	var err errors.Error
 	for _, v := range metricsList {
 		switch v.Metric {
+		case "duplicated_blocks":
+			fileMetrics.DuplicatedBlocks, err = errors.Convert01(strconv.Atoi(v.Value))
+			if err != nil {
+				return err
+			}
 		case "duplicated_lines":
 			fileMetrics.DuplicatedLines, err = errors.Convert01(strconv.Atoi(v.Value))
 			if err != nil {
@@ -239,6 +239,11 @@ func setAdditionalMetrics(fileMetrics *models.SonarqubeAdditionalFileMetrics, me
 			}
 		case "duplicated_files":
 			fileMetrics.DuplicatedFiles, err = errors.Convert01(strconv.Atoi(v.Value))
+			if err != nil {
+				return err
+			}
+		case "duplicated_lines_density":
+			fileMetrics.DuplicatedLinesDensity, err = errors.Convert01(strconv.ParseFloat(v.Value, 32))
 			if err != nil {
 				return err
 			}
@@ -257,6 +262,12 @@ func setAdditionalMetrics(fileMetrics *models.SonarqubeAdditionalFileMetrics, me
 			if err != nil {
 				return err
 			}
+		case "lines":
+			fileMetrics.NumOfLines, err = errors.Convert01(strconv.Atoi(v.Value))
+			if err != nil {
+				return err
+			}
+
 		}
 	}
 	return nil
