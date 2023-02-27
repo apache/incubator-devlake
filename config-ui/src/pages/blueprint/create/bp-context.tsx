@@ -76,7 +76,9 @@ export const BPContextProvider = ({ from, projectName, children }: Props) => {
   const [showInspector, setShowInspector] = useState(false);
   const [showDetail, setShowDetail] = useState(false);
 
-  const [name, setName] = useState(from === FromEnum.project ? `${projectName}-BLUEPRINT` : 'MY BLUEPRINT');
+  const [name, setName] = useState(
+    from === FromEnum.project ? `${window.decodeURIComponent(projectName)}-BLUEPRINT` : 'MY BLUEPRINT',
+  );
   const [mode, setMode] = useState<ModeEnum>(ModeEnum.normal);
   const [rawPlan, setRawPlan] = useState(JSON.stringify([[]], null, '  '));
   const [uniqueList, setUniqueList] = useState<string[]>([]);
@@ -117,7 +119,7 @@ export const BPContextProvider = ({ from, projectName, children }: Props) => {
   const payload = useMemo(() => {
     const params: any = {
       name,
-      projectName,
+      projectName: window.decodeURIComponent(projectName),
       mode,
       enable: true,
       cronConfig,
