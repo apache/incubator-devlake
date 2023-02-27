@@ -47,7 +47,7 @@ func CollectFilemetrics(taskCtx plugin.SubTaskContext) errors.Error {
 			query := url.Values{}
 			query.Set("component", data.Options.ProjectKey)
 			query.Set("qualifiers", "FIL")
-			query.Set("metricKeys", "code_smells,sqale_index,sqale_rating,bugs,reliability_rating,vulnerabilities,security_rating,security_hotspots,security_hotspots_reviewed,security_review_rating,ncloc,uncovered_lines,lines_to_cover,duplicated_lines_density,duplicated_blocks")
+			query.Set("metricKeys", "code_smells,sqale_index,sqale_rating,bugs,reliability_rating,vulnerabilities,security_rating,security_hotspots,security_hotspots_reviewed,security_review_rating,ncloc,coverage,uncovered_lines,lines_to_cover")
 			query.Set("p", fmt.Sprintf("%v", reqData.Pager.Page))
 			query.Set("ps", fmt.Sprintf("%v", reqData.Pager.Size))
 			return query, nil

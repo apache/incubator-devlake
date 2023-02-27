@@ -43,7 +43,7 @@ func CollectAdditionalFilemetrics(taskCtx plugin.SubTaskContext) errors.Error {
 			query := url.Values{}
 			query.Set("component", data.Options.ProjectKey)
 			query.Set("qualifiers", "FIL")
-			query.Set("metricKeys", "duplicated_lines, duplicated_files, complexity, cognitive_complexity, effort_to_reach_maintainability_rating_a")
+			query.Set("metricKeys", "duplicated_lines_density,duplicated_blocks,duplicated_lines, duplicated_files, complexity, cognitive_complexity, effort_to_reach_maintainability_rating_a, lines")
 			query.Set("p", fmt.Sprintf("%v", reqData.Pager.Page))
 			query.Set("ps", fmt.Sprintf("%v", reqData.Pager.Size))
 			return query, nil
