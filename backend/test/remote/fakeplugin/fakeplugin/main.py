@@ -20,7 +20,7 @@ from typing import Optional
 from sqlmodel import Field
 
 from pydevlake import Plugin, Connection, TransformationRule, Stream, ToolModel, RemoteScope, DomainType
-from pydevlake.domain_layer.devops import CICDScope, CICDPipeline
+from pydevlake.domain_layer.devops import CicdScope, CICDPipeline
 
 
 VALID_TOKEN = "this_is_a_valid_token"
@@ -105,10 +105,10 @@ class FakePlugin(Plugin):
 
     @property
     def tool_scope_type(self):
-        return CICDScope
+        return CicdScope
 
     def get_domain_scopes(self, scope_name: str, connection: FakeConnection):
-        yield CICDScope(
+        yield CicdScope(
             id=1,
             name=scope_name,
             url=f"http://fake.org/api/project/{scope_name}"

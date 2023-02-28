@@ -23,7 +23,7 @@ from sqlmodel import Field, Relationship
 from pydevlake.model import DomainModel, DomainScope, NoPKModel
 
 
-class CICDScope(DomainScope, table=True):
+class CicdScope(DomainScope, table=True):
     __tablename__ = 'cicd_scopes'
 
     name: str
