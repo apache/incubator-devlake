@@ -20,6 +20,7 @@ on:
   pull_request:
     branches: [ main ]
     paths:
+      - ".github/workflows/*.yml"
       - "**.go"
       - "go.mod"
       - "go.sum"
@@ -30,7 +31,7 @@ jobs:
     steps:
       - uses: actions/checkout@v3
       - name: Dynamic checklist action
-        uses: vishalsinha21/dynamic-checklist@v1
+        uses: vishalsinha21/dynamic-checklist@23eec89b55d2565f678788c4a12a8bc66b8fe1e5
         with:
           mappingFile: '.github/workflows/go-checklist.json'
         env:
