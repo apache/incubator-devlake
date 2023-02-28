@@ -65,8 +65,8 @@ class RawModel(SQLModel):
 class RawDataOrigin(SQLModel):
     # SQLModel doesn't like attributes starting with _
     # so we change the names of the columns.
-    raw_data_params: str = Field(sa_column_kwargs={'name':'_raw_data_params'})
-    raw_data_table: str = Field(sa_column_kwargs={'name':'_raw_data_table'})
+    raw_data_params: Optional[str] = Field(sa_column_kwargs={'name':'_raw_data_params'})
+    raw_data_table: Optional[str] = Field(sa_column_kwargs={'name':'_raw_data_table'})
     raw_data_id: Optional[str] = Field(sa_column_kwargs={'name':'_raw_data_id'})
     raw_data_remark: Optional[str] = Field(sa_column_kwargs={'name':'_raw_data_remark'})
 
@@ -77,10 +77,10 @@ class RawDataOrigin(SQLModel):
 
 
 class NoPKModel(RawDataOrigin):
-    created_at: datetime = Field(
+    created_at: Optional[datetime] = Field(
         sa_column=Column(DateTime(), default=func.now())
     )
-    updated_at: datetime = Field(
+    updated_at: Optional[datetime] = Field(
         sa_column=Column(DateTime(), default=func.now(), onupdate=func.now())
     )
 
