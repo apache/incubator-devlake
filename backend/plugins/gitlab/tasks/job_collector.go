@@ -61,8 +61,6 @@ func CollectApiJobs(taskCtx plugin.SubTaskContext) errors.Error {
 				UrlTemplate: "projects/{{ .Params.ProjectId }}/jobs",
 				Query: func(reqData *helper.RequestData, createdAfter *time.Time) (url.Values, errors.Error) {
 					query := url.Values{}
-					query.Set("with_stats", "true")
-					query.Set("sort", "asc")
 					query.Set("page", strconv.Itoa(reqData.Pager.Page))
 					query.Set("per_page", strconv.Itoa(reqData.Pager.Size))
 					return query, nil
@@ -81,7 +79,7 @@ func CollectApiJobs(taskCtx plugin.SubTaskContext) errors.Error {
 				pr := &SimpleGitlabApiJob{}
 				err := json.Unmarshal(item, pr)
 				if err != nil {
-					return time.Time{}, errors.BadInput.Wrap(err, "failed to unmarshal github pull request")
+					return time.Time{}, errors.BadInput.Wrap(err, "failed to unmarshal gitlab job")
 				}
 				return pr.CreatedAt.ToTime(), nil
 			},
