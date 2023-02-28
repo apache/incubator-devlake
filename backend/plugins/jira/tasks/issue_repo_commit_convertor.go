@@ -18,7 +18,6 @@ limitations under the License.
 package tasks
 
 import (
-	"fmt"
 	"net/url"
 	"path"
 	"reflect"
@@ -98,7 +97,6 @@ func ConvertIssueRepoCommits(taskCtx plugin.SubTaskContext) errors.Error {
 		Input:        cursor,
 		Convert: func(inputRow interface{}) ([]interface{}, errors.Error) {
 			issueCommit := inputRow.(*models.JiraIssueCommit)
-			fmt.Println(*issueCommit)
 			item := &crossdomain.IssueRepoCommit{
 				IssueId:   issueIdGenerator.Generate(connectionId, issueCommit.IssueId),
 				CommitSha: issueCommit.CommitSha,
@@ -129,7 +127,6 @@ func refineIssueRepoCommit(item *crossdomain.IssueRepoCommit, repoPatterns []*re
 	for _, pattern := range repoPatterns {
 		if pattern.MatchString(commitUrl) {
 			group := pattern.FindStringSubmatch(commitUrl)
-			fmt.Println(group)
 			if len(group) == 4 {
 				item.Namespace = group[1]
 				item.RepoName = group[2]
