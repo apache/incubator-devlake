@@ -76,7 +76,7 @@ class Plugin(ABC):
         return [subtask for stream in self._streams.values() for subtask in stream.subtasks]
 
     @abstractmethod
-    def get_domain_scopes(self, scope_name: str, connection: Connection) -> Iterable[DomainScope]:
+    def domain_scopes(self, tool_scope: ToolScope) -> Iterable[DomainScope]:
         pass
 
     @abstractmethod
@@ -100,35 +100,39 @@ class Plugin(ABC):
         # TODO: Create tables
         pass
 
-    def make_pipeline(self, ctx: Context, scopes: list[msg.BlueprintScope]):
+    def make_pipeline(self, tool_scopes: list[ToolScope]):
         """
         Make a simple pipeline using the scopes declared by the plugin.
         """
-        stages = [
-            msg.PipelineStage(
-                tasks=[
-                    msg.PipelineTask(
-                        self.name,
-                        skipOnFail=False,
-                        subtasks=[t.name for t in self.subtasks],
-                        options={
-                            "scopeId": scope.id,
-                            "scopeName": scope.name}
-                    )
-                ]
+        plan = self.make_pipeline_plan(tool_scopes)
+        domain_scopes = [
+            msg.DynamicDomainScope(
+                type_name=type(scope).__name__,
+                data=scope.dict(exclude_unset=True)
             )
-            for scope in scopes
+            for tool_scope in tool_scopes
+            for scope in self.domain_scopes(tool_scope)
         ]
+        return msg.PipelineData(
+            plan=plan,
+            scopes=domain_scopes
+        )
 
-        plan = msg.PipelinePlan(stages=stages)
-        yield plan
+    def make_pipeline_plan(self, scopes: list[ToolScope]) -> list[list[msg.PipelineTask]]:
+        return [self.make_pipeline_stage(scope) for scope in scopes]
 
-        scopes = [
-            scope
-            for bp_scope in scopes
-            for scope in self.get_scopes(bp_scope.name, ctx.connection)
+    def make_pipeline_stage(self, scope: ToolScope) -> list[msg.PipelineTask]:
+        return [
+            msg.PipelineTask(
+                plugin=self.name,
+                skipOnFail=False,
+                subtasks=[t.name for t in self.subtasks],
+                options={
+                    "scopeId": scope.id,
+                    "scopeName": scope.name
+                }
+            )
         ]
-        yield scopes
 
     def get_stream(self, stream_name: str):
         stream = self._streams.get(stream_name)

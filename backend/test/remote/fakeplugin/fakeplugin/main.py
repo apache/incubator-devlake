@@ -19,7 +19,7 @@ from typing import Optional
 
 from sqlmodel import Field
 
-from pydevlake import Plugin, Connection, TransformationRule, Stream, ToolModel, RemoteScope, DomainType
+from pydevlake import Plugin, Connection, TransformationRule, Stream, ToolModel, ToolScope, RemoteScope, DomainType
 from pydevlake.domain_layer.devops import CicdScope, CICDPipeline
 
 
@@ -94,6 +94,10 @@ class FakeConnection(Connection):
     token: str
 
 
+class FakeProject(ToolScope):
+    pass
+
+
 class FakeTransformationRule(TransformationRule):
     tx1: str
 
@@ -105,13 +109,13 @@ class FakePlugin(Plugin):
 
     @property
     def tool_scope_type(self):
-        return CicdScope
+        return FakeProject
 
-    def get_domain_scopes(self, scope_name: str, connection: FakeConnection):
+    def domain_scopes(self, project: FakeProject):
         yield CicdScope(
             id=1,
-            name=scope_name,
-            url=f"http://fake.org/api/project/{scope_name}"
+            name=project.name,
+            url=f"http://fake.org/api/project/{project.name}"
         )
 
     def remote_scopes(self, connection: FakeConnection, query: str = ''):

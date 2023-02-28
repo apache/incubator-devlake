@@ -22,6 +22,8 @@ import (
 
 	"github.com/apache/incubator-devlake/core/errors"
 	"github.com/apache/incubator-devlake/core/models"
+	"github.com/apache/incubator-devlake/core/models/common"
+	"github.com/apache/incubator-devlake/core/plugin"
 )
 
 const (
@@ -59,11 +61,10 @@ func (d DynamicModelInfo) LoadDynamicTabler(encrypt bool, parentModel any) (*mod
 }
 
 type ScopeModel struct {
-	Id                   string    `gorm:"primaryKey" json:"id"`
-	CreatedAt            time.Time `json:"createdAt"`
-	UpdatedAt            time.Time `json:"updatedAt"`
-	ConnectionId         uint64    `gorm:"primaryKey" json:"connection_id"`
-	TransformationRuleId uint64    `json:"transformation_rule_id"`
+	common.NoPKModel
+	Id                   string `gorm:"primarykey;type:varchar(255)" json:"id"`
+	ConnectionId         uint64 `gorm:"primaryKey" json:"connection_id"`
+	TransformationRuleId uint64 `json:"transformation_rule_id"`
 }
 
 type TransformationModel struct {
@@ -81,4 +82,14 @@ type SubtaskMeta struct {
 	EnabledByDefault bool     `json:"enabled_by_default"`
 	Description      string   `json:"description" validate:"required"`
 	DomainTypes      []string `json:"domain_types" validate:"required"`
+}
+
+type DynamicDomainScope struct {
+	TypeName string                 `json:"type_name"`
+	Data     map[string]interface{} `json:"data"`
+}
+
+type PipelineData struct {
+	Plan   plugin.PipelinePlan  `json:"plan"`
+	Scopes []DynamicDomainScope `json:"scopes"`
 }

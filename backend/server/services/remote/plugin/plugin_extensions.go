@@ -20,8 +20,10 @@ package plugin
 import (
 	"encoding/json"
 
+	"github.com/apache/incubator-devlake/core/dal"
 	"github.com/apache/incubator-devlake/core/errors"
 	"github.com/apache/incubator-devlake/core/plugin"
+	"github.com/apache/incubator-devlake/helpers/pluginhelper/api"
 	"github.com/apache/incubator-devlake/server/services/remote/bridge"
 	"github.com/apache/incubator-devlake/server/services/remote/models"
 )
@@ -46,17 +48,33 @@ func (p remoteDatasourcePlugin) MakeDataSourcePipelinePlanV200(connectionId uint
 		return nil, nil, err
 	}
 
-	plan := plugin.PipelinePlan{}
-	var scopes []models.PipelineScope
-	err = p.invoker.Call("make-pipeline", bridge.DefaultContext, connectionId, bpScopes).Get(&plan, &scopes)
+	db := basicRes.GetDal()
+	var toolScopes = make([]interface{}, len(bpScopes))
+	for i, bpScope := range bpScopes {
+		toolScope := p.scopeTabler.New()
+		err = api.CallDB(db.First, toolScope, dal.Where("id = ?", bpScope.Id))
+		if err != nil {
+			return nil, nil, errors.NotFound.New("record not found")
+		}
+		toolScopes[i] = toolScope.Unwrap()
+	}
+
+	plan_data := models.PipelineData{}
+	err = p.invoker.Call("make-pipeline", bridge.DefaultContext, toolScopes).Get(&plan_data)
 	if err != nil {
 		return nil, nil, err
 	}
-	var castedScopes []plugin.Scope
-	for _, scope := range scopes {
-		castedScopes = append(castedScopes, &models.WrappedPipelineScope{Scope: scope})
+
+	var scopes = make([]plugin.Scope, len(plan_data.Scopes))
+	for i, dynamicScope := range plan_data.Scopes {
+		scope, err := dynamicScope.Load()
+		if err != nil {
+			return nil, nil, err
+		}
+		scopes[i] = scope
 	}
-	return plan, castedScopes, nil
+
+	return plan_data.Plan, scopes, nil
 }
 
 var _ models.RemotePlugin = (*remoteMetricPlugin)(nil)

@@ -83,17 +83,14 @@ class PipelineTask(Message):
     options: dict[str, object]
 
 
-class PipelineStage(Message):
-    tasks: list[PipelineTask]
+class DynamicDomainScope(Message):
+	type_name: str
+	data: dict
 
 
-class PipelinePlan(Message):
-    stages: list[PipelineStage]
-
-
-class BlueprintScope(Message):
-    id: str
-    name: str
+class PipelineData(Message):
+    plan: list[list[PipelineTask]]
+    scopes: list[DynamicDomainScope]
 
 
 class RemoteScope(Message):
