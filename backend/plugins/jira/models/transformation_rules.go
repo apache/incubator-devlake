@@ -19,6 +19,9 @@ package models
 
 import (
 	"encoding/json"
+	"regexp"
+
+	"github.com/apache/incubator-devlake/core/errors"
 	"github.com/apache/incubator-devlake/core/models/common"
 )
 
@@ -28,9 +31,32 @@ type JiraTransformationRule struct {
 	EpicKeyField               string          `mapstructure:"epicKeyField,omitempty" json:"epicKeyField" gorm:"type:varchar(255)"`
 	StoryPointField            string          `mapstructure:"storyPointField,omitempty" json:"storyPointField" gorm:"type:varchar(255)"`
 	RemotelinkCommitShaPattern string          `mapstructure:"remotelinkCommitShaPattern,omitempty" json:"remotelinkCommitShaPattern" gorm:"type:varchar(255)"`
+	RemotelinkRepoPattern      json.RawMessage `mapstructure:"remotelinkRepoPattern,omitempty" json:"remotelinkRepoPattern"`
 	TypeMappings               json.RawMessage `mapstructure:"typeMappings,omitempty" json:"typeMappings"`
 }
 
-func (JiraTransformationRule) TableName() string {
+func (r *JiraTransformationRule) TableName() string {
 	return "_tool_jira_transformation_rules"
+}
+
+func (r *JiraTransformationRule) VerifyRegexp() errors.Error {
+	var err error
+	if r.RemotelinkCommitShaPattern != "" {
+		_, err = regexp.Compile(r.RemotelinkCommitShaPattern)
+		if err != nil {
+			return errors.Convert(err)
+		}
+	}
+	var repoPatterns []string
+	err = json.Unmarshal(r.RemotelinkRepoPattern, &repoPatterns)
+	if err != nil {
+		return errors.Convert(err)
+	}
+	for _, pattern := range repoPatterns {
+		_, err = regexp.Compile(pattern)
+		if err != nil {
+			return errors.Convert(err)
+		}
+	}
+	return nil
 }

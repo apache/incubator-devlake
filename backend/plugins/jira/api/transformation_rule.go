@@ -79,6 +79,10 @@ func UpdateTransformationRule(input *plugin.ApiResourceInput) (*plugin.ApiResour
 		return nil, errors.Default.Wrap(err, "error decoding map into transformationRule")
 	}
 	old.ID = transformationRuleId
+	err = old.VerifyRegexp()
+	if err != nil {
+		return nil, errors.Default.Wrap(err, "error verify the regexps of transformationRule")
+	}
 	err = basicRes.GetDal().Update(&old, dal.Where("id = ?", transformationRuleId))
 	if err != nil {
 		if basicRes.GetDal().IsDuplicationError(err) {
