@@ -19,7 +19,7 @@ package pluginhelper
 
 import (
 	"encoding/csv"
-	"errors"
+	"github.com/apache/incubator-devlake/core/errors"
 	"os"
 	"path/filepath"
 )
@@ -37,10 +37,10 @@ type CsvFileWriter struct {
 }
 
 // NewCsvFileWriter create a `*CsvFileWriter` based on path to saving csv file
-func NewCsvFileWriter(csvPath string, fields []string) (*CsvFileWriter, error) {
+func NewCsvFileWriter(csvPath string, fields []string) (*CsvFileWriter, errors.Error) {
 	// open csv file
 	if filepath.Ext(csvPath) != ".csv" {
-		return nil, errors.New("the file does not have \".csv\" extension")
+		return nil, errors.BadInput.New("the file does not have \".csv\" extension")
 	}
 
 	csvFile, err := os.Create(csvPath)
