@@ -20,15 +20,17 @@ from enum import Enum
 
 from sqlmodel import Field, Relationship
 
-from pydevlake.model import DomainModel, NoPKModel
+from pydevlake.model import DomainModel, DomainScope, NoPKModel
 
 
-class CICDScope(DomainModel):
-	name: str
-	description: str
-	url: str
-	createdDate: datetime
-	updatedDate: datetime
+class CicdScope(DomainScope, table=True):
+    __tablename__ = 'cicd_scopes'
+
+    name: str
+    description: Optional[str]
+    url: Optional[str]
+    createdDate: Optional[datetime]
+    updatedDate: Optional[datetime]
 
 
 class CICDPipeline(DomainModel, table=True):
@@ -48,7 +50,7 @@ class CICDPipeline(DomainModel, table=True):
     class Type(Enum):
         CI = "CI"
         CD = "CD"
-        
+
     name: str
     status: Status
     created_date: datetime

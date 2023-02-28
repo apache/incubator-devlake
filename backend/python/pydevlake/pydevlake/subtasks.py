@@ -47,9 +47,9 @@ class Subtask:
 
     def run(self, ctx: Context, sync_point_interval=100):
         with Session(ctx.engine) as session:
-            subtask_run = self._start_subtask(session, ctx.connection_id)
+            subtask_run = self._start_subtask(session, ctx.connection.id)
             if ctx.incremental:
-                state = self._get_last_state(session, ctx.connection_id)
+                state = self._get_last_state(session, ctx.connection.id)
             else:
                 self.delete(session, ctx)
                 state = dict()
@@ -151,7 +151,7 @@ class Collector(Subtask):
 
     def _params(self, ctx: Context) -> str:
         return json.dumps({
-            "connection_id": ctx.connection_id,
+            "connection_id": ctx.connection.id,
             "scope_id": ctx.scope_id
         })
 
@@ -199,9 +199,9 @@ class Convertor(Subtask):
         res = self.stream.convert(tool_model)
         if isinstance(res, Generator):
             for each in self.stream.convert(tool_model):
-                self._save(tool_model, each, session, ctx.connection_id)
+                self._save(tool_model, each, session, ctx.connection.id)
         else:
-            self._save(tool_model, res, session, ctx.connection_id)
+            self._save(tool_model, res, session, ctx.connection.id)
 
     def _save(self, tool_model: ToolModel, domain_model: DomainModel, session: Session, connection_id: int):
         if not isinstance(domain_model, DomainModel):

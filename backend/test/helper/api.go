@@ -134,10 +134,13 @@ func (d *DevlakeClient) ListProjects() apiProject.PaginatedProjects {
 }
 
 func (d *DevlakeClient) CreateScope(pluginName string, connectionId uint64, scope any) any {
+	request := map[string]any{
+		"Data": []any{scope},
+	}
 	return sendHttpRequest[any](d.testCtx, d.timeout, debugInfo{
 		print:      true,
 		inlineJson: false,
-	}, http.MethodPut, fmt.Sprintf("%s/plugins/%s/connections/%d/scopes", d.Endpoint, pluginName, connectionId), scope)
+	}, http.MethodPut, fmt.Sprintf("%s/plugins/%s/connections/%d/scopes", d.Endpoint, pluginName, connectionId), request)
 }
 
 func (d *DevlakeClient) UpdateScope(pluginName string, connectionId uint64, scopeId string, scope any) any {

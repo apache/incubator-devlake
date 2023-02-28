@@ -16,7 +16,7 @@
 
 import os
 from functools import wraps
-from typing import Generator, TextIO
+from typing import Generator, TextIO, Optional
 
 from pydevlake.context import Context
 from pydevlake.message import Message
@@ -30,7 +30,7 @@ def plugin_method(func):
     def send_output(send_ch: TextIO, obj: object):
         if not isinstance(obj, Message):
             return
-        send_ch.write(obj.json())
+        send_ch.write(obj.json(exclude_unset=True))
         send_ch.write('\n')
         send_ch.flush()
 
@@ -71,8 +71,9 @@ class PluginCommands:
         self._plugin.test_connection(connection)
 
     @plugin_method
-    def make_pipeline(self, ctx: dict, scopes: list[dict]):
-        yield from self._plugin.make_pipeline(self._mk_context(ctx), scopes)
+    def make_pipeline(self, scopes: list[dict]):
+        s = [self._plugin.tool_scope_type(**data) for data in scopes]
+        return self._plugin.make_pipeline(s)
 
     @plugin_method
     def run_migrations(self, force: bool):
@@ -83,9 +84,9 @@ class PluginCommands:
         return self._plugin.plugin_info()
 
     @plugin_method
-    def remote_scopes(self, connection: dict, query: str = ''):
+    def remote_scopes(self, connection: dict, group_id: Optional[str]):
         c = self._plugin.connection_type(**connection)
-        self.plugin.remote_scopes(c, query)
+        return self._plugin.remote_scopes(c, group_id)
 
     def startup(self, endpoint: str):
         self._plugin.startup(endpoint)
@@ -93,8 +94,10 @@ class PluginCommands:
     def _mk_context(self, data: dict):
         db_url = data['db_url']
         scope_id = data['scope_id']
-        connection_id = data['connection_id']
         connection = self._plugin.connection_type(**data['connection'])
-        transformation_rule = self._plugin.transformation_rule_type(**data['transformation_rule'])
+        if self._plugin.transformation_rule_type:
+            transformation_rule = self._plugin.transformation_rule_type(**data['transformation_rule'])
+        else:
+            transformation_rule = None
         options = data.get('options', {})
-        return Context(db_url, scope_id, connection_id, connection, transformation_rule, options)
+        return Context(db_url, scope_id, connection, transformation_rule, options)

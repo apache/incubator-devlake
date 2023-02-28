@@ -14,9 +14,9 @@
 # limitations under the License.
 
 
-from typing import Type, Union, Iterable
+from typing import Type, Union, Iterable, Optional
 import sys
-from abc import abstractmethod
+from abc import ABC, abstractmethod
 import requests
 
 import fire
@@ -27,10 +27,10 @@ from pydevlake.docgen import generate_doc
 from pydevlake.ipc import PluginCommands
 from pydevlake.context import Context
 from pydevlake.stream import Stream
-from pydevlake.model import DomainModel
+from pydevlake.model import ToolScope, DomainScope, Connection, TransformationRule
 
 
-class Plugin:
+class Plugin(ABC):
     def __init__(self):
         self._streams = dict()
         for stream in self.streams:
@@ -51,15 +51,20 @@ class Plugin:
 
     @property
     @abstractmethod
-    def connection_type(self) -> Type[msg.Connection]:
+    def connection_type(self) -> Type[Connection]:
         pass
 
     @property
-    def transformation_rule_type(self) -> Type[msg.TransformationRule]:
-        return msg.TransformationRule
+    @abstractmethod
+    def tool_scope_type(self) -> Type[ToolScope]:
+        pass
+
+    @property
+    def transformation_rule_type(self) -> Type[TransformationRule]:
+        return None
 
     @abstractmethod
-    def test_connection(self, connection: msg.Connection):
+    def test_connection(self, connection: Connection):
         """
         Test if the the connection with the datasource can be established with the given connection.
         Must raise an exception if the connection can't be established.
@@ -71,11 +76,15 @@ class Plugin:
         return [subtask for stream in self._streams.values() for subtask in stream.subtasks]
 
     @abstractmethod
-    def get_scopes(self, scope_name: str, connection: msg.Connection) -> Iterable[DomainModel]:
+    def domain_scopes(self, tool_scope: ToolScope) -> Iterable[DomainScope]:
         pass
 
     @abstractmethod
-    def remote_scopes(self, connection: msg.Connection, query: str = ''):
+    def remote_scopes(self, connection: Connection, group_id: str) -> list[ToolScope]:
+        pass
+
+    @abstractmethod
+    def remote_scope_groups(self, connection: Connection) -> list[msg.RemoteScopeGroup]:
         pass
 
     @property
@@ -95,39 +104,53 @@ class Plugin:
         # TODO: Create tables
         pass
 
-    def make_pipeline(self, ctx: Context, scopes: list[msg.BlueprintScope]):
+    def make_remote_scopes(self, connection: Connection, group_id: Optional[str]) -> list[msg.RemoteScopeTreeNode]:
+        if group_id:
+            return [
+                msg.RemoteScope(
+                    id=tool_scope.id,
+                    name=tool_scope.name,
+                    scope=tool_scope
+                )
+                for tool_scope
+                in self.remote_scopes(connection, group_id)
+            ]
+        else:
+            return self.remote_scope_groups(connection)
+
+    def make_pipeline(self, tool_scopes: list[ToolScope]):
         """
         Make a simple pipeline using the scopes declared by the plugin.
         """
-        stages = [
-            msg.PipelineStage(
-                tasks=[
-                    msg.PipelineTask(
-                        self.name,
-                        skipOnFail=False,
-                        subtasks=[t.name for t in self.subtasks],
-                        options={
-                            "scopeId": scope.id,
-                            "scopeName": scope.name}
-                    )
-                ]
+        plan = self.make_pipeline_plan(tool_scopes)
+        domain_scopes = [
+            msg.DynamicDomainScope(
+                type_name=type(scope).__name__,
+                data=scope.dict(exclude_unset=True)
             )
-            for scope in scopes
+            for tool_scope in tool_scopes
+            for scope in self.domain_scopes(tool_scope)
         ]
+        return msg.PipelineData(
+            plan=plan,
+            scopes=domain_scopes
+        )
 
-        plan = msg.PipelinePlan(stages=stages)
-        yield plan
+    def make_pipeline_plan(self, scopes: list[ToolScope]) -> list[list[msg.PipelineTask]]:
+        return [self.make_pipeline_stage(scope) for scope in scopes]
 
-        scopes = [
-            msg.PipelineScope(
-                id=':'.join([self.name, type(scope).__name__, ctx.connection_id, bp_scope.id]),
-                name=bp_scope.name,
-                table_name=scope.__tablename__
+    def make_pipeline_stage(self, scope: ToolScope) -> list[msg.PipelineTask]:
+        return [
+            msg.PipelineTask(
+                plugin=self.name,
+                skipOnFail=False,
+                subtasks=[t.name for t in self.subtasks],
+                options={
+                    "scopeId": scope.id,
+                    "scopeName": scope.name
+                }
             )
-            for bp_scope in scopes
-            for scope in self.get_scopes(bp_scope.name, ctx.connection)
         ]
-        yield scopes
 
     def get_stream(self, stream_name: str):
         stream = self._streams.get(stream_name)
@@ -148,7 +171,7 @@ class Plugin:
         if resp.status_code != 200:
             raise Exception(f"unexpected http status code {resp.status_code}: {resp.content}")
 
-    def plugin_info(self):
+    def plugin_info(self) -> msg.PluginInfo:
         subtask_metas = [
             msg.SubtaskMeta(
                 name=subtask.name,
@@ -157,18 +180,24 @@ class Plugin:
                 required=True,
                 enabled_by_default=True,
                 description=subtask.description,
-                domain_types=[dm.__name__ for dm in subtask.stream.domain_models]
+                domain_types=[dm.value for dm in subtask.stream.domain_types]
             )
             for subtask in self.subtasks
         ]
+
+        if self.transformation_rule_type:
+            tx_rule_model_info = msg.DynamicModelInfo.from_model(self.transformation_rule_type)
+        else:
+            tx_rule_model_info = None
 
         return msg.PluginInfo(
             name=self.name,
             description=self.description,
             plugin_path=self._plugin_path(),
             extension="datasource",
-            connection_schema=self.connection_type.schema(),
-            transformation_rule_schema=self.transformation_rule_type.schema(),
+            connection_model_info=msg.DynamicModelInfo.from_model(self.connection_type),
+            transformation_rule_model_info=tx_rule_model_info,
+            scope_model_info=msg.DynamicModelInfo.from_model(self.tool_scope_type),
             subtask_metas=subtask_metas
         )
 

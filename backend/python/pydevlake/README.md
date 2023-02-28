@@ -98,7 +98,7 @@ You can use `SQLModel` features like [declaring relationships with other models]
 Create a new file for your first stream in a `streams` directory.
 
 ```python
-from pydevlake import Stream
+from pydevlake import Stream, DomainType
 from pydevlake.domain_layer.crossdomain import User as DomainUser
 
 from myplugin.models import User as ToolUser
@@ -106,7 +106,7 @@ from myplugin.models import User as ToolUser
 
 class Users(Stream):
     tool_model = ToolUser
-    domain_model = DomainUser
+    domain_types = [DomainType.CROSS]
 
     def collect(self, state, context) -> Iterable[Tuple[object, dict]]:
         pass
@@ -118,7 +118,8 @@ class Users(Stream):
 This stream will collect raw user data, e.g. as parsed JSON objects, extract this raw data as your
 tool-specific user model, then convert them into domain-layer user models.
 
-It is possible to have a stream that produce several domain models of different types from a single tool model. In that case, declare the list of possible domain model types in a class attribute `domain_models` (plural) instead of a single domain model type in the `domain_model` (singular) class attribute.
+The `tool_model` class attribute declares the tool model class that is extracted by this strem.
+The `domain_types` class attribute is a list of domain types this stream is about.
 
 The `collect` method takes a `state` dictionary and a context object and yields tuples of raw data and new state.
 The last state that the plugin yielded for a given connection will be reused during the next collection.
@@ -198,7 +199,7 @@ class Users(Stream):
 #### Request and response hook
 
 For each request sent and response received by your API wrapper,
-you can register hooks. Hooks allows you to implement 
+you can register hooks. Hooks allows you to implement
 authentication, pagination, and generic API error handling.
 
 For example, lets assume that we are dealing with an API that
@@ -278,7 +279,7 @@ class UserComments(Substream):
     ...
     def collect(self, state: dict, context, user: User):
         """
-        This method will be called for each user collected from parent stream Users. 
+        This method will be called for each user collected from parent stream Users.
         """
         for json in MyPluginAPI(context.connection.token).user_comments(user.id):
             yield json, state
@@ -298,7 +299,6 @@ poetry run myplugin/main.py --help
 For testing, the interesting commands are `collect`/`extract`/`convert`.
 Each takes a context and a stream name.
 The context is a JSON object that must at least contain:
-- a `connection_id`
 - a `db_url`, e.g. you can use `"sqlite+pysqlite:///:memory:"` for an in-memory DB
 - a `connection` object containing the same attributes than your plugin connection type
 
@@ -307,7 +307,7 @@ redirect to stdout when testing your plugin.
 
 ```
 console
-CTX='{"connection_id": "1", "db_url":"sqlite+pysqlite:///:memory:", "connection": {...your connection attrs here...}}'
+CTX='{"db_url":"sqlite+pysqlite:///:memory:", "connection": {...your connection attrs here...}}'
 poetry run myplugin/main.py $CTX users 3>&1
 ```
 
@@ -326,7 +326,7 @@ curl -X 'POST' \
 
 You should get the created connection with his id (which is 1 for the first created connection) in the response.
 
-Now that a connection for your plugin exists in DevLake database, we can try to run your plugin using `backend/server/services/remote/run/run.go` script: 
+Now that a connection for your plugin exists in DevLake database, we can try to run your plugin using `backend/server/services/remote/run/run.go` script:
 
 ```console
 cd backend

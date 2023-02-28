@@ -28,6 +28,7 @@ type pluginAPI struct {
 	invoker    bridge.Invoker
 	connType   *models.DynamicTabler
 	txRuleType *models.DynamicTabler
+	scopeType  *models.DynamicTabler
 	helper     *api.ConnectionApiHelper
 }
 
@@ -35,15 +36,17 @@ func GetDefaultAPI(
 	invoker bridge.Invoker,
 	connType *models.DynamicTabler,
 	txRuleType *models.DynamicTabler,
+	scopeType *models.DynamicTabler,
 	helper *api.ConnectionApiHelper) map[string]map[string]plugin.ApiResourceHandler {
 	papi := &pluginAPI{
 		invoker:    invoker,
 		connType:   connType,
 		txRuleType: txRuleType,
+		scopeType:  scopeType,
 		helper:     helper,
 	}
 
-	return map[string]map[string]plugin.ApiResourceHandler{
+	resources := map[string]map[string]plugin.ApiResourceHandler{
 		"test": {
 			"POST": papi.TestConnection,
 		},
@@ -60,7 +63,7 @@ func GetDefaultAPI(
 			"PUT": papi.PutScope,
 			"GET": papi.ListScopes,
 		},
-		"connections/:connectionId/scopes/*scopeId": {
+		"connections/:connectionId/scopes/:scopeId": {
 			"GET":   papi.GetScope,
 			"PATCH": papi.PatchScope,
 		},
@@ -68,15 +71,20 @@ func GetDefaultAPI(
 			"GET": papi.GetRemoteScopes,
 		},
 		"connections/:connectionId/search-remote-scopes": {
-			"GET": papi.GetRemoteScopes,
-		},
-		"transformation_rules": {
-			"POST": papi.PostTransformationRules,
-			"GET":  papi.ListTransformationRules,
-		},
-		"transformation_rules/:id": {
-			"GET":   papi.GetTransformationRule,
-			"PATCH": papi.PatchTransformationRule,
+			"GET": papi.SearchRemoteScopes,
 		},
 	}
+
+	if txRuleType != nil {
+		resources["transformation_rules"] = map[string]plugin.ApiResourceHandler{
+			"POST": papi.PostTransformationRules,
+			"GET":  papi.ListTransformationRules,
+		}
+		resources["transformation_rules/:id"] = map[string]plugin.ApiResourceHandler{
+			"GET":   papi.GetTransformationRule,
+			"PATCH": papi.PatchTransformationRule,
+		}
+	}
+
+	return resources
 }

@@ -16,9 +16,19 @@
 
 from typing import Iterable, Type
 from abc import abstractmethod
+from enum import Enum
 
 from pydevlake.subtasks import Collector, Extractor, Convertor, SubstreamCollector
 from pydevlake.model import RawModel, ToolModel, DomainModel
+
+
+class DomainType(Enum):
+    CODE = "CODE"
+    TICKET = "TICKET"
+    CODE_REVIEW = "CODEREVIEW"
+    CROSS = "CROSS"
+    CICD = "CICD"
+    CODE_QUALITY = "CODEQUALITY"
 
 
 class Stream:
@@ -46,13 +56,9 @@ class Stream:
         pass
 
     @property
-    def domain_model(self) -> Type[DomainModel]:
+    @abstractmethod
+    def domain_types(self) -> list[DomainType]:
         pass
-
-    @property
-    def domain_models(self) -> Type[DomainModel]:
-        assert self.domain_model, "Streams must declare their domain_model or domain_models"
-        return [self.domain_model]
 
     def raw_model(self, session) -> Type[RawModel]:
         if self._raw_model is not None:

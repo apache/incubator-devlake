@@ -17,6 +17,15 @@ limitations under the License.
 
 package models
 
+import (
+	"time"
+
+	"github.com/apache/incubator-devlake/core/errors"
+	"github.com/apache/incubator-devlake/core/models"
+	"github.com/apache/incubator-devlake/core/models/common"
+	"github.com/apache/incubator-devlake/core/plugin"
+)
+
 const (
 	PythonPoetryCmd PluginType      = "python-poetry"
 	PythonCmd       PluginType      = "python"
@@ -31,15 +40,38 @@ type (
 )
 
 type PluginInfo struct {
-	Type                     PluginType      `json:"type" validate:"required"`
-	Name                     string          `json:"name" validate:"required"`
-	Extension                PluginExtension `json:"extension"`
-	ConnectionSchema         map[string]any  `json:"connection_schema" validate:"required"`
-	TransformationRuleSchema map[string]any  `json:"transformation_rule_schema" validate:"required"`
-	Description              string          `json:"description"`
-	PluginPath               string          `json:"plugin_path" validate:"required"`
-	ApiEndpoints             []Endpoint      `json:"api_endpoints" validate:"dive"`
-	SubtaskMetas             []SubtaskMeta   `json:"subtask_metas" validate:"dive"`
+	Type                        PluginType        `json:"type" validate:"required"`
+	Name                        string            `json:"name" validate:"required"`
+	Extension                   PluginExtension   `json:"extension"`
+	ConnectionModelInfo         *DynamicModelInfo `json:"connection_model_info" validate:"required"`
+	TransformationRuleModelInfo *DynamicModelInfo `json:"transformation_rule_model_info"`
+	ScopeModelInfo              *DynamicModelInfo `json:"scope_model_info" validate:"dive"`
+	Description                 string            `json:"description"`
+	PluginPath                  string            `json:"plugin_path" validate:"required"`
+	SubtaskMetas                []SubtaskMeta     `json:"subtask_metas" validate:"dive"`
+}
+
+type DynamicModelInfo struct {
+	JsonSchema map[string]any `json:"json_schema" validate:"required"`
+	TableName  string         `json:"table_name" validate:"required"`
+}
+
+func (d DynamicModelInfo) LoadDynamicTabler(encrypt bool, parentModel any) (*models.DynamicTabler, errors.Error) {
+	return LoadTableModel(d.TableName, d.JsonSchema, encrypt, parentModel)
+}
+
+type ScopeModel struct {
+	common.NoPKModel
+	Id                   string `gorm:"primarykey;type:varchar(255)" json:"id"`
+	ConnectionId         uint64 `gorm:"primaryKey" json:"connection_id"`
+	TransformationRuleId uint64 `json:"transformation_rule_id"`
+}
+
+type TransformationModel struct {
+	Id        uint64    `gorm:"primaryKey" json:"id"`
+	CreatedAt time.Time `json:"createdAt"`
+	UpdatedAt time.Time `json:"updatedAt"`
+	Name      string
 }
 
 type SubtaskMeta struct {
@@ -52,8 +84,12 @@ type SubtaskMeta struct {
 	DomainTypes      []string `json:"domain_types" validate:"required"`
 }
 
-type Endpoint struct {
-	Resource string `json:"resource" validate:"required"`
-	Handler  string `json:"handler" validate:"required"`
-	Method   string `json:"method" validate:"required"`
+type DynamicDomainScope struct {
+	TypeName string                 `json:"type_name"`
+	Data     map[string]interface{} `json:"data"`
+}
+
+type PipelineData struct {
+	Plan   plugin.PipelinePlan  `json:"plan"`
+	Scopes []DynamicDomainScope `json:"scopes"`
 }

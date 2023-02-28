@@ -14,7 +14,11 @@
 # limitations under the License.
 
 
-from pydantic import BaseModel
+from typing import Optional
+
+from pydantic import BaseModel, Field
+
+from pydevlake.model import ToolScope
 
 
 class Message(BaseModel):
@@ -31,11 +35,24 @@ class SubtaskMeta(BaseModel):
     arguments: list[str] = None
 
 
+class DynamicModelInfo(Message):
+    json_schema: dict
+    table_name: str
+
+    @staticmethod
+    def from_model(model_class):
+        return DynamicModelInfo(
+            json_schema=model_class.schema(),
+            table_name=model_class.__tablename__
+        )
+
+
 class PluginInfo(Message):
     name: str
     description: str
-    connection_schema: dict
-    transformation_rule_schema: dict
+    connection_model_info: DynamicModelInfo
+    transformation_rule_model_info: Optional[DynamicModelInfo]
+    scope_model_info: DynamicModelInfo
     plugin_path: str
     subtask_metas: list[SubtaskMeta]
     extension: str = "datasource"
@@ -59,14 +76,6 @@ class RemoteProgress(Message):
     total: int = 0
 
 
-class Connection(Message):
-    pass
-
-
-class TransformationRule(Message):
-    pass
-
-
 class PipelineTask(Message):
     plugin: str
     # Do not snake_case this attribute,
@@ -76,25 +85,25 @@ class PipelineTask(Message):
     options: dict[str, object]
 
 
-class PipelineStage(Message):
-    tasks: list[PipelineTask]
+class DynamicDomainScope(Message):
+	type_name: str
+	data: dict
 
 
-class PipelinePlan(Message):
-    stages: list[PipelineStage]
+class PipelineData(Message):
+    plan: list[list[PipelineTask]]
+    scopes: list[DynamicDomainScope]
 
 
-class PipelineScope(Message):
-    id: str
-    name: str
-    table_name: str
-
-
-class BlueprintScope(Message):
+class RemoteScopeTreeNode(Message):
     id: str
     name: str
 
 
-class RemoteScope(Message):
-    id: str
-    name: str
+class RemoteScopeGroup(RemoteScopeTreeNode):
+    type: str = Field("group", const=True)
+
+
+class RemoteScope(RemoteScopeTreeNode):
+    type: str = Field("scope", const=True)
+    scope: ToolScope
