@@ -42,7 +42,7 @@ import (
 	"github.com/apache/incubator-devlake/helpers/pluginhelper/common"
 )
 
-// ErrIgnoreAndContinue is a error which should be ignored
+// ErrIgnoreAndContinue is an error which should be ignored
 var ErrIgnoreAndContinue = errors.Default.New("ignore and continue")
 
 // ApiClient is designed for simple api requests

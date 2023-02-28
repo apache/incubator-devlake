@@ -22,6 +22,7 @@ import (
 	"github.com/apache/incubator-devlake/core/errors"
 	"github.com/apache/incubator-devlake/core/plugin"
 	helper "github.com/apache/incubator-devlake/helpers/pluginhelper/api"
+	"net/http"
 	"net/url"
 )
 
@@ -70,7 +71,8 @@ func CollectApiPullRequestCommits(taskCtx plugin.SubTaskContext) errors.Error {
 		ResponseParser: GetRawMessageFromResponse,
 		// some pr have no commit
 		// such as: https://bitbucket.org/amdatulabs/amdatu-kubernetes-deployer/pull-requests/21
-		AfterResponse: ignoreHTTPStatus404,
+		// in the case of the value of page was too large, the status code could be 400
+		AfterResponse: ignoreSomeHTTPStatus(http.StatusBadRequest, http.StatusNotFound),
 	})
 	if err != nil {
 		return err

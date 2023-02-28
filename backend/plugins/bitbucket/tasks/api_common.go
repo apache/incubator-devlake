@@ -245,3 +245,17 @@ func ignoreHTTPStatus404(res *http.Response) errors.Error {
 	}
 	return nil
 }
+
+func ignoreSomeHTTPStatus(statusCodes ...int) func(res *http.Response) errors.Error {
+	return func(res *http.Response) errors.Error {
+		if res.StatusCode == http.StatusUnauthorized {
+			return errors.Unauthorized.New("authentication failed, please check your AccessToken")
+		}
+		for _, status := range statusCodes {
+			if res.StatusCode == status {
+				return api.ErrIgnoreAndContinue
+			}
+		}
+		return nil
+	}
+}
