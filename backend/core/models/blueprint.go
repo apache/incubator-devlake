@@ -60,7 +60,7 @@ func (bp *Blueprint) UnmarshalPlan() (plugin.PipelinePlan, errors.Error) {
 	var plan plugin.PipelinePlan
 	err := errors.Convert(json.Unmarshal(bp.Plan, &plan))
 	if err != nil {
-		return nil, errors.Convert(err)
+		return nil, errors.Default.Wrap(err, `unmarshal plan fail`)
 	}
 	return plan, nil
 }

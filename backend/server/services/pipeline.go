@@ -191,12 +191,13 @@ func RunPipelineInQueue(pipelineMaxParallel int64) {
 				dal.Orderby("id ASC"),
 				dal.Limit(1),
 			)
-			if err != nil && !db.IsErrorNotFound(err) {
-				globalPipelineLog.Error(err, "dequeue failed")
-			}
-			cronLocker.Unlock()
-			if !db.IsErrorNotFound(err) {
+			if err == nil {
+				// next pipeline found
 				break
+			}
+			if !db.IsErrorNotFound(err) {
+				// log unexpected err
+				globalPipelineLog.Error(err, "dequeue failed")
 			}
 			time.Sleep(time.Second)
 		}

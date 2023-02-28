@@ -31,7 +31,7 @@ func MakeDataSourcePipelinePlanV200(connectionId uint64) (plugin.PipelinePlan, [
 	connection := &models.WebhookConnection{}
 	err := connectionHelper.FirstById(connection, connectionId)
 	if err != nil {
-		return nil, nil, err
+		return nil, nil, errors.Default.Wrap(err, `cannot find webhook connection`)
 	}
 
 	scopes := make([]plugin.Scope, 0)
