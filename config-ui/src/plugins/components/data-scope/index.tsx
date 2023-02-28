@@ -21,7 +21,7 @@ import { ButtonGroup, Button, Intent } from '@blueprintjs/core';
 
 import { transformEntities } from '@/config';
 import { GitHubDataScope } from '@/plugins/register/github';
-import { JIRADataScope } from '@/plugins/register/jira';
+import { JiraDataScope } from '@/plugins/register/jira';
 import { GitLabDataScope } from '@/plugins/register/gitlab';
 import { JenkinsDataScope } from '@/plugins/register/jenkins';
 import { BitbucketDataScope } from '@/plugins/register/bitbucket';
@@ -52,7 +52,7 @@ export const DataScope = ({ plugin, connectionId, entities, onCancel, ...props }
         )}
 
         {plugin === 'jira' && (
-          <JIRADataScope connectionId={connectionId} selectedItems={selectedScope} onChangeItems={onChangeScope} />
+          <JiraDataScope connectionId={connectionId} selectedItems={selectedScope} onChangeItems={onChangeScope} />
         )}
 
         {plugin === 'gitlab' && (

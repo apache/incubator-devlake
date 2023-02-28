@@ -29,7 +29,7 @@ import { GitHubConfig } from './register/github';
 import { GitHubGraphqlConfig } from './register/github_graphql';
 import { GitLabConfig } from './register/gitlab';
 import { JenkinsConfig } from './register/jenkins';
-import { JIRAConfig } from './register/jira';
+import { JiraConfig } from './register/jira';
 import { RefDiffConfig } from './register/refdiff';
 import { SonarQubeConfig } from './register/sonarqube';
 import { StarRocksConfig } from './register/starrocks';
@@ -50,7 +50,7 @@ export const PluginConfig: PluginConfigType[] = [
   GitHubGraphqlConfig,
   GitLabConfig,
   JenkinsConfig,
-  JIRAConfig,
+  JiraConfig,
   RefDiffConfig,
   SonarQubeConfig,
   StarRocksConfig,
