@@ -236,16 +236,6 @@ func GetPipelinesIterator(taskCtx plugin.SubTaskContext, collectorWithState *api
 	return api.NewDalCursorIterator(db, cursor, reflect.TypeOf(BitbucketUuidInput{}))
 }
 
-func ignoreHTTPStatus404(res *http.Response) errors.Error {
-	if res.StatusCode == http.StatusUnauthorized {
-		return errors.Unauthorized.New("authentication failed, please check your AccessToken")
-	}
-	if res.StatusCode == http.StatusNotFound {
-		return api.ErrIgnoreAndContinue
-	}
-	return nil
-}
-
 func ignoreSomeHTTPStatus(statusCodes ...int) func(res *http.Response) errors.Error {
 	return func(res *http.Response) errors.Error {
 		if res.StatusCode == http.StatusUnauthorized {

@@ -18,8 +18,10 @@ limitations under the License.
 package tasks
 
 import (
+	"net/http"
+
 	"github.com/apache/incubator-devlake/core/errors"
-	plugin "github.com/apache/incubator-devlake/core/plugin"
+	"github.com/apache/incubator-devlake/core/plugin"
 	helper "github.com/apache/incubator-devlake/helpers/pluginhelper/api"
 )
 
@@ -58,7 +60,7 @@ func CollectApiIssueComments(taskCtx plugin.SubTaskContext) errors.Error {
 				`page,pagelen,size`),
 		GetTotalPages:  GetTotalPagesFromResponse,
 		ResponseParser: GetRawMessageFromResponse,
-		AfterResponse:  ignoreHTTPStatus404,
+		AfterResponse:  ignoreSomeHTTPStatus(http.StatusNotFound),
 	})
 	if err != nil {
 		return err
