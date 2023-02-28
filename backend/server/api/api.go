@@ -21,6 +21,7 @@ import (
 	"fmt"
 	"net/http"
 	"strconv"
+	"strings"
 	"time"
 
 	"github.com/apache/incubator-devlake/core/config"
@@ -120,6 +121,7 @@ func CreateApiService() {
 
 func bootstrapRemotePlugins(v *viper.Viper) {
 	port := v.GetString("PORT")
+	port = strings.TrimLeft(port, ":")
 	portNum, err := strconv.Atoi(port)
 	if err != nil {
 		panic(fmt.Errorf("PORT [%s] must be int: %s", port, err.Error()))
