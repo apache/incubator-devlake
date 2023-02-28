@@ -5,6 +5,10 @@
       "comment": "check test snapshot or result have been added into github desc"
     },
     {
+      "keywords": ["CSVRelPath"],
+      "comment": "check if the data in e2e/*.csv is simple and complete. (No duplicated data but cover all type of data)"
+    },
+    {
       "keywords": ["const RAW_"],
       "comment": "RAW_TABLE use correct in extractor and convertor"
     },
