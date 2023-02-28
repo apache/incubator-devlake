@@ -21,10 +21,12 @@ import (
 	"github.com/apache/incubator-devlake/core/context"
 	"github.com/apache/incubator-devlake/core/errors"
 	"github.com/apache/incubator-devlake/helpers/migrationhelper"
+	"time"
 )
 
 type gitlabMergeRequests20230210 struct {
 	IsDetailRequired bool
+	GitlabUpdatedAt  *time.Time
 }
 
 func (gitlabMergeRequests20230210) TableName() string {
@@ -50,7 +52,7 @@ func (script *addIsDetailRequired20230210) Up(basicRes context.BasicRes) errors.
 }
 
 func (*addIsDetailRequired20230210) Version() uint64 {
-	return 20230210161031
+	return 20230228161031
 }
 
 func (*addIsDetailRequired20230210) Name() string {
