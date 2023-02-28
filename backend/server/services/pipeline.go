@@ -191,6 +191,7 @@ func RunPipelineInQueue(pipelineMaxParallel int64) {
 				dal.Orderby("id ASC"),
 				dal.Limit(1),
 			)
+			cronLocker.Unlock()
 			if err == nil {
 				// next pipeline found
 				break
