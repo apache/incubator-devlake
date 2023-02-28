@@ -59,7 +59,7 @@ export const SettingsPanel = ({ project, onUpdate }: Props) => {
           <p>DORA metrics are four widely-adopted metrics for measuring software delivery performance.</p>
         </div>
         <ButtonGroup>
-          <Button text="Save" intent={Intent.PRIMARY} onClick={handleSave} />
+          <Button text="Save" disabled={!name} intent={Intent.PRIMARY} onClick={handleSave} />
         </ButtonGroup>
       </S.Settings>
     </Card>
