@@ -19,11 +19,18 @@ package tasks
 
 import (
 	"encoding/json"
+	"regexp"
+
 	"github.com/apache/incubator-devlake/core/errors"
 	"github.com/apache/incubator-devlake/core/plugin"
 	"github.com/apache/incubator-devlake/helpers/pluginhelper/api"
 	"github.com/apache/incubator-devlake/plugins/github/models"
-	"regexp"
+)
+
+const (
+	OPEN   = "OPEN"
+	CLOSED = "CLOSED"
+	MERGED = "MERGED"
 )
 
 var ExtractApiPullRequestsMeta = plugin.SubTaskMeta{
@@ -181,6 +188,13 @@ func convertGithubPullRequest(pull *GithubApiPullRequest, connId uint64, repoId 
 	}
 	if pull.Head.Repo != nil {
 		githubPull.HeadRepoId = pull.Head.Repo.GithubId
+	}
+	if pull.State == "open" {
+		githubPull.State = OPEN
+	} else if pull.State == "closed" && pull.MergedAt != nil {
+		githubPull.State = MERGED
+	} else {
+		githubPull.State = CLOSED
 	}
 
 	return githubPull, nil

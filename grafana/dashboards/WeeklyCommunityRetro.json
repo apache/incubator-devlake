@@ -15,8 +15,8 @@
   "editable": true,
   "gnetId": null,
   "graphTooltip": 0,
-  "id": 9,
-  "iteration": 1660821905109,
+  "id": 27,
+  "iteration": 1677590542157,
   "links": [],
   "panels": [
     {
@@ -1293,7 +1293,7 @@
           "hide": false,
           "metricColumn": "none",
           "rawQuery": true,
-          "rawSql": "select\n\tcount(*) as merged_pull_request_count\nfrom \n\tpull_requests pr\nwhere\n  date(created_date) BETWEEN curdate() - INTERVAL WEEKDAY(curdate())+7 DAY AND curdate() - INTERVAL WEEKDAY(curdate())+1 DAY\n\tand base_repo_id in ($repo_id)\n\tand merged_date is not null\n\tand author_id not in (select distinct id from accounts where organization in ($org))",
+          "rawSql": "select\n\tcount(*) as merged_pull_request_count\nfrom \n\tpull_requests pr\nwhere\n  date(created_date) BETWEEN curdate() - INTERVAL WEEKDAY(curdate())+7 DAY AND curdate() - INTERVAL WEEKDAY(curdate())+1 DAY\n\tand base_repo_id in ($repo_id)\n\tand pr.status in ('closed', 'merged', 'declined') and pr.merged_date is not null\n\tand author_id not in (select distinct id from accounts where organization in ($org))",
           "refId": "A",
           "select": [
             [
@@ -1463,7 +1463,7 @@
           "hide": false,
           "metricColumn": "none",
           "rawQuery": true,
-          "rawSql": "select\n\tavg(TIMESTAMPDIFF(Minute,created_date,merged_date)/1440)\nfrom \n\tpull_requests\nwhere \n  date(created_date) BETWEEN curdate() - INTERVAL WEEKDAY(curdate())+7 DAY AND curdate() - INTERVAL WEEKDAY(curdate())+1 DAY\n\tand base_repo_id in ($repo_id)\n\tand merged_date is not null\n\tand author_id not in (select distinct id from accounts where organization in ($org))",
+          "rawSql": "select\n\tavg(TIMESTAMPDIFF(Minute,created_date,merged_date)/1440)\nfrom \n\tpull_requests\nwhere \n  date(created_date) BETWEEN curdate() - INTERVAL WEEKDAY(curdate())+7 DAY AND curdate() - INTERVAL WEEKDAY(curdate())+1 DAY\n\tand base_repo_id in ($repo_id)\n\tand status in ('closed', 'merged', 'declined') and merged_date is not null\n\tand author_id not in (select distinct id from accounts where organization in ($org))",
           "refId": "A",
           "select": [
             [
@@ -1790,5 +1790,5 @@
   "timezone": "",
   "title": "Weekly Community Retro",
   "uid": "VTr6Y_q7z",
-  "version": 7
+  "version": 3
 }
