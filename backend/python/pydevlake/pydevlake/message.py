@@ -16,7 +16,9 @@
 
 from typing import Optional
 
-from pydantic import BaseModel
+from pydantic import BaseModel, Field
+
+from pydevlake.model import ToolScope
 
 
 class Message(BaseModel):
@@ -93,6 +95,15 @@ class PipelineData(Message):
     scopes: list[DynamicDomainScope]
 
 
-class RemoteScope(Message):
+class RemoteScopeTreeNode(Message):
     id: str
     name: str
+
+
+class RemoteScopeGroup(RemoteScopeTreeNode):
+    type: str = Field("group", const=True)
+
+
+class RemoteScope(RemoteScopeTreeNode):
+    type: str = Field("scope", const=True)
+    scope: ToolScope

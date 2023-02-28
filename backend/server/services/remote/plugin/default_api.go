@@ -71,7 +71,7 @@ func GetDefaultAPI(
 			"GET": papi.GetRemoteScopes,
 		},
 		"connections/:connectionId/search-remote-scopes": {
-			"GET": papi.GetRemoteScopes,
+			"GET": papi.SearchRemoteScopes,
 		},
 	}
 

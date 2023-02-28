@@ -19,7 +19,7 @@ from typing import Optional
 
 from sqlmodel import Field
 
-from pydevlake import Plugin, Connection, TransformationRule, Stream, ToolModel, ToolScope, RemoteScope, DomainType
+from pydevlake import Plugin, Connection, TransformationRule, Stream, ToolModel, ToolScope, RemoteScopeGroup, DomainType
 from pydevlake.domain_layer.devops import CicdScope, CICDPipeline
 
 
@@ -118,11 +118,24 @@ class FakePlugin(Plugin):
             url=f"http://fake.org/api/project/{project.name}"
         )
 
-    def remote_scopes(self, connection: FakeConnection, query: str = ''):
-        yield RemoteScope(
-            id='test',
-            name='Not a real scope'
-        )
+    def remote_scopes(self, connection: FakeConnection, group_id: str):
+        if group_id == 'group1':
+            return [
+                FakeProject(
+                    id='p1',
+                    name='Project 1'
+                )
+            ]
+        else:
+            return []
+
+    def remote_scope_groups(self, connection: FakeConnection):
+        return [
+            RemoteScopeGroup(
+                id='group1',
+                name='Group 1'
+            )
+        ]
 
     def test_connection(self, connection: FakeConnection):
         if connection.token != VALID_TOKEN:

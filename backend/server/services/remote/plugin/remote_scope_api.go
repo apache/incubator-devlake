@@ -34,7 +34,14 @@ type ScopeItem struct {
 }
 
 type RemoteScopesOutput struct {
-	Children []ScopeItem `json:"children"`
+	Children []RemoteScopesTreeNode `json:"children"`
+}
+
+type RemoteScopesTreeNode struct {
+	Type string      `json:"type"`
+	Id   string      `json:"id"`
+	Name string      `json:"name"`
+	Data interface{} `json:"data"`
 }
 
 func (pa *pluginAPI) GetRemoteScopes(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, errors.Error) {
@@ -49,20 +56,19 @@ func (pa *pluginAPI) GetRemoteScopes(input *plugin.ApiResourceInput) (*plugin.Ap
 		return nil, err
 	}
 
-	query, ok := input.Params["query"]
-	if !ok {
-		query = ""
-	}
-
-	var scopes []ScopeItem
-	err = pa.invoker.Call("remote-scopes", bridge.DefaultContext, connection, query).Get(&scopes)
+	var remoteScopes []RemoteScopesTreeNode
+	err = pa.invoker.Call("remote-scopes", bridge.DefaultContext, connection.Unwrap()).Get(&remoteScopes)
 	if err != nil {
 		return nil, err
 	}
 
-	res := RemoteScopesOutput{
-		Children: scopes,
+	output := RemoteScopesOutput{
+		Children: remoteScopes,
 	}
 
-	return &plugin.ApiResourceOutput{Body: res, Status: http.StatusOK}, nil
+	return &plugin.ApiResourceOutput{Body: output, Status: http.StatusOK}, nil
+}
+
+func (pa *pluginAPI) SearchRemoteScopes(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, errors.Error) {
+	return &plugin.ApiResourceOutput{Status: http.StatusNotImplemented}, nil
 }

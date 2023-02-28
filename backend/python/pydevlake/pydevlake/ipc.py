@@ -16,7 +16,7 @@
 
 import os
 from functools import wraps
-from typing import Generator, TextIO
+from typing import Generator, TextIO, Optional
 
 from pydevlake.context import Context
 from pydevlake.message import Message
@@ -84,9 +84,9 @@ class PluginCommands:
         return self._plugin.plugin_info()
 
     @plugin_method
-    def remote_scopes(self, connection: dict, query: str = ''):
+    def remote_scopes(self, connection: dict, group_id: Optional[str]):
         c = self._plugin.connection_type(**connection)
-        self.plugin.remote_scopes(c, query)
+        return self._plugin.remote_scopes(c, group_id)
 
     def startup(self, endpoint: str):
         self._plugin.startup(endpoint)

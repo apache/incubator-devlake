@@ -14,7 +14,7 @@
 # limitations under the License.
 
 
-from typing import Type, Union, Iterable
+from typing import Type, Union, Iterable, Optional
 import sys
 from abc import ABC, abstractmethod
 import requests
@@ -80,7 +80,11 @@ class Plugin(ABC):
         pass
 
     @abstractmethod
-    def remote_scopes(self, connection: Connection, query: str = ''):
+    def remote_scopes(self, connection: Connection, group_id: str) -> list[ToolScope]:
+        pass
+
+    @abstractmethod
+    def remote_scope_groups(self, connection: Connection) -> list[msg.RemoteScopeGroup]:
         pass
 
     @property
@@ -99,6 +103,20 @@ class Plugin(ABC):
     def run_migrations(self, force: bool):
         # TODO: Create tables
         pass
+
+    def make_remote_scopes(self, connection: Connection, group_id: Optional[str]) -> list[msg.RemoteScopeTreeNode]:
+        if group_id:
+            return [
+                msg.RemoteScope(
+                    id=tool_scope.id,
+                    name=tool_scope.name,
+                    scope=tool_scope
+                )
+                for tool_scope
+                in self.remote_scopes(connection, group_id)
+            ]
+        else:
+            return self.remote_scope_groups(connection)
 
     def make_pipeline(self, tool_scopes: list[ToolScope]):
         """
