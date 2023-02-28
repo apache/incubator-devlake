@@ -18,7 +18,7 @@
 
 import React, { useMemo } from 'react';
 
-import { DataScopeMillerColumns, DataScopeSearch } from '@/plugins';
+import { DataScopeMillerColumns } from '@/plugins';
 
 import type { ScopeItemType } from './types';
 
