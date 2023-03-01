@@ -105,6 +105,7 @@ func CreateApiService() {
 
 	RegisterRouter(router)
 	port := v.GetString("PORT")
+	port = strings.TrimLeft(port, ":")
 	if remotePluginsEnabled {
 		go bootstrapRemotePlugins(v)
 	}
