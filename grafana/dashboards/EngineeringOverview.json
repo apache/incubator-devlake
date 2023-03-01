@@ -15,8 +15,8 @@
   "editable": true,
   "gnetId": null,
   "graphTooltip": 0,
-  "id": 22,
-  "iteration": 1677590435867,
+  "id": 26,
+  "iteration": 1671764846277,
   "links": [],
   "panels": [
     {
@@ -833,7 +833,7 @@
           "metricColumn": "none",
           "queryType": "randomWalk",
           "rawQuery": true,
-          "rawSql": "select\n  count(*)\nfrom\n  lake.pull_requests pr\n  join project_mapping pm on pr.base_repo_id = pm.row_id\nwhere\n  pr.status in ('closed', 'merged', 'declined') and pr.merged_date is not null \n  and date(pr.merged_date) between\n    STR_TO_DATE('$month','%Y-%m-%d')\n  and STR_TO_DATE('$month','%Y-%m-%d') + INTERVAL 1 MONTH - INTERVAL 1 DAY \n  and pm.project_name in ($project);",
+          "rawSql": "select\n  count(*)\nfrom\n  lake.pull_requests pr\n  join project_mapping pm on pr.base_repo_id = pm.row_id\nwhere\n  pr.merged_date is not null \n  and date(pr.merged_date) between\n    STR_TO_DATE('$month','%Y-%m-%d')\n  and STR_TO_DATE('$month','%Y-%m-%d') + INTERVAL 1 MONTH - INTERVAL 1 DAY \n  and pm.project_name in ($project);",
           "refId": "A",
           "select": [
             [
@@ -930,7 +930,7 @@
           "metricColumn": "none",
           "queryType": "randomWalk",
           "rawQuery": true,
-          "rawSql": "with _merged_prs as(\n  select\n    DATE_ADD(date(pr.merged_date), INTERVAL -DAY(date(pr.merged_date))+1 DAY) as time,\n    count(*) as pr_merged_count\n  from\n    lake.pull_requests pr\n    join project_mapping pm on pr.base_repo_id = pm.row_id\n  where\n    pm.project_name in ($project)\n    and pr.status in ('closed', 'merged', 'declined') and pr.merged_date is not null\n    and $__timeFilter(pr.merged_date)\n    and pr.merged_date >= DATE_ADD(DATE_ADD($__timeFrom(), INTERVAL -DAY($__timeFrom())+1 DAY), INTERVAL +1 MONTH)\n  group by time\n)\n\nselect\n  date_format(time,'%M %Y') as month,\n  pr_merged_count\nfrom _merged_prs\norder by time asc",
+          "rawSql": "with _merged_prs as(\n  select\n    DATE_ADD(date(pr.merged_date), INTERVAL -DAY(date(pr.merged_date))+1 DAY) as time,\n    count(*) as pr_merged_count\n  from\n    lake.pull_requests pr\n    join project_mapping pm on pr.base_repo_id = pm.row_id\n  where\n    pm.project_name in ($project)\n    and pr.merged_date is not null\n    and $__timeFilter(pr.merged_date)\n    and pr.merged_date >= DATE_ADD(DATE_ADD($__timeFrom(), INTERVAL -DAY($__timeFrom())+1 DAY), INTERVAL +1 MONTH)\n  group by time\n)\n\nselect\n  date_format(time,'%M %Y') as month,\n  pr_merged_count\nfrom _merged_prs\norder by time asc",
           "refId": "A",
           "select": [
             [
@@ -1845,5 +1845,5 @@
   "timezone": "",
   "title": "Engineering Overview",
   "uid": "ZF6abXX7z",
-  "version": 3
+  "version": 5
 }

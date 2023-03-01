@@ -15,8 +15,8 @@
   "editable": true,
   "gnetId": null,
   "graphTooltip": 0,
-  "id": 23,
-  "iteration": 1677590457539,
+  "id": 11,
+  "iteration": 1673349403459,
   "links": [],
   "panels": [
     {
@@ -167,7 +167,7 @@
           "hide": false,
           "metricColumn": "none",
           "rawQuery": true,
-          "rawSql": "SELECT\n  DATE_ADD(date(pr.created_date), INTERVAL -$interval(date(pr.created_date))+1 DAY) as time,\n  count(distinct pr.id) as \"PR: Opened\",\n  count(distinct case when pr.status in ('closed', 'merged', 'declined') and pr.merged_date is not null then id else null end) as \"PR: Merged\"\nFROM pull_requests pr\n  join project_mapping pm on pr.base_repo_id = pm.row_id\nWHERE\n  $__timeFilter(pr.created_date)\n  and pm.project_name in ($project)\ngroup by 1\n",
+          "rawSql": "SELECT\n  DATE_ADD(date(pr.created_date), INTERVAL -$interval(date(pr.created_date))+1 DAY) as time,\n  count(distinct pr.id) as \"PR: Opened\",\n  count(distinct case when pr.merged_date is not null then id else null end) as \"PR: Merged\"\nFROM pull_requests pr\n  join project_mapping pm on pr.base_repo_id = pm.row_id\nWHERE\n  $__timeFilter(pr.created_date)\n  and pm.project_name in ($project)\ngroup by 1\n",
           "refId": "A",
           "select": [
             [
@@ -519,7 +519,7 @@
           "hide": false,
           "metricColumn": "none",
           "rawQuery": true,
-          "rawSql": "SELECT\n  DATE_ADD(date(pr.created_date), INTERVAL -$interval(date(pr.created_date))+1 DAY) as time,\n  count(distinct prc.id)/count(distinct pr.id) as \"PR Review Depth\"\nFROM \n  pull_requests pr\n  left join pull_request_comments prc on pr.id = prc.pull_request_id\n  join project_mapping pm on pr.base_repo_id = pm.row_id\nWHERE\n  $__timeFilter(pr.created_date)\n  and pm.project_name in ($project)\n  and pr.status in ('closed', 'merged', 'declined') and pr.merged_date is not null\ngroup by 1\n",
+          "rawSql": "SELECT\n  DATE_ADD(date(pr.created_date), INTERVAL -$interval(date(pr.created_date))+1 DAY) as time,\n  count(distinct prc.id)/count(distinct pr.id) as \"PR Review Depth\"\nFROM \n  pull_requests pr\n  left join pull_request_comments prc on pr.id = prc.pull_request_id\n  join project_mapping pm on pr.base_repo_id = pm.row_id\nWHERE\n  $__timeFilter(pr.created_date)\n  and pm.project_name in ($project)\n  and pr.merged_date is not null\ngroup by 1\n",
           "refId": "A",
           "select": [
             [
@@ -838,7 +838,7 @@
           "hide": false,
           "metricColumn": "none",
           "rawQuery": true,
-          "rawSql": "SELECT\n  DATE_ADD(date(pr.created_date), INTERVAL -$interval(date(pr.created_date))+1 DAY) as time,\n  sum(case when pr.id not in (SELECT pull_request_id FROM pull_request_comments) then 1 else 0 end) as \"PRs Merged w/o Review\"\nFROM \n  pull_requests pr\n  join project_mapping pm on pr.base_repo_id = pm.row_id\nWHERE\n  $__timeFilter(pr.created_date)\n  and pm.project_name in ($project)\n  and pr.status in ('closed', 'merged', 'declined') and pr.merged_date is not null\nGROUP BY 1\nORDER BY 1",
+          "rawSql": "SELECT\n  DATE_ADD(date(pr.created_date), INTERVAL -$interval(date(pr.created_date))+1 DAY) as time,\n  sum(case when pr.id not in (SELECT pull_request_id FROM pull_request_comments) then 1 else 0 end) as \"PRs Merged w/o Review\"\nFROM \n  pull_requests pr\n  join project_mapping pm on pr.base_repo_id = pm.row_id\nWHERE\n  $__timeFilter(pr.created_date)\n  and pm.project_name in ($project)\n  and pr.merged_date is not null\nGROUP BY 1\nORDER BY 1",
           "refId": "A",
           "select": [
             [
@@ -1555,9 +1555,13 @@
       {
         "allValue": null,
         "current": {
-          "selected": false,
-          "text": "All",
-          "value": "$__all"
+          "selected": true,
+          "text": [
+            "Louis"
+          ],
+          "value": [
+            "Louis"
+          ]
         },
         "datasource": "mysql",
         "definition": "select distinct name from projects",
