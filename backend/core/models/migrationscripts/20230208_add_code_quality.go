@@ -46,7 +46,7 @@ func (u *addCodeQuality) Up(basicRes context.BasicRes) errors.Error {
 }
 
 func (*addCodeQuality) Version() uint64 {
-	return 20230227000081
+	return 20230301000082
 }
 
 func (*addCodeQuality) Name() string {
