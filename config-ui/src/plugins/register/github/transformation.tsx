@@ -167,7 +167,7 @@ export const GitHubTransformation = ({ transformation, setTransformation }: Prop
           }
         >
           <InputGroup
-            placeholder="component/(.*)$"
+            placeholder="component(.*)$"
             value={transformation.issueComponent}
             onChange={(e) =>
               setTransformation({
@@ -187,7 +187,7 @@ export const GitHubTransformation = ({ transformation, setTransformation }: Prop
           }
         >
           <InputGroup
-            placeholder="severity/(.*)$"
+            placeholder="severity(.*)$"
             value={transformation.issueSeverity}
             onChange={(e) =>
               setTransformation({
@@ -233,7 +233,7 @@ export const GitHubTransformation = ({ transformation, setTransformation }: Prop
                   }
                 >
                   <InputGroup
-                    placeholder="(?i)deploy"
+                    placeholder="^.*(deploy|push-image).*$"
                     value={transformation.deploymentPattern}
                     onChange={(e) =>
                       setTransformation({
@@ -253,7 +253,7 @@ export const GitHubTransformation = ({ transformation, setTransformation }: Prop
                   }
                 >
                   <InputGroup
-                    placeholder="(?i)production"
+                    placeholder="^.*product.*$"
                     value={transformation.productionPattern}
                     onChange={(e) =>
                       setTransformation({
@@ -290,7 +290,7 @@ export const GitHubTransformation = ({ transformation, setTransformation }: Prop
           }
         >
           <InputGroup
-            placeholder="type/(.*)$"
+            placeholder="type(.*)$"
             value={transformation.prType}
             onChange={(e) => setTransformation({ ...transformation, prType: e.target.value })}
           />
@@ -305,7 +305,7 @@ export const GitHubTransformation = ({ transformation, setTransformation }: Prop
           }
         >
           <InputGroup
-            placeholder="component/(.*)$"
+            placeholder="component(.*)$"
             value={transformation.prComponent}
             onChange={(e) =>
               setTransformation({

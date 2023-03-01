@@ -119,7 +119,7 @@ export const BPContextProvider = ({ from, projectName, children }: Props) => {
   const payload = useMemo(() => {
     const params: any = {
       name,
-      projectName: window.decodeURIComponent(projectName),
+      projectName: projectName ? window.decodeURIComponent(projectName) : '',
       mode,
       enable: true,
       cronConfig,

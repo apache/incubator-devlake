@@ -38,6 +38,7 @@ export const BitBucketConfig: PluginConfigType = {
         key: 'endpoint',
         multipleVersions: {
           cloud: 'https://api.bitbucket.org/2.0/',
+          server: '',
         },
       },
       'username',
