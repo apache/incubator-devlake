@@ -36,16 +36,16 @@ type CqIssue struct {
 	Assignee                 string `json:"assignee" gorm:"type:varchar(255)"`
 	Hash                     string `gorm:"type:varchar(100)"`
 	Tags                     string
-	Type                     string           `gorm:"type:varchar(100)"`
-	Scope                    string           `gorm:"type:varchar(255)"`
-	StartLine                int              `json:"startLine"`
-	EndLine                  int              `json:"endLine"`
-	StartOffset              int              `json:"startOffset"`
-	EndOffset                int              `json:"endOffset"`
-	VulnerabilityProbability string           `gorm:"type:varchar(100)"`
-	SecurityCategory         string           `gorm:"type:varchar(100)"`
-	CreatedDate              *api.Iso8601Time `json:"createdDate"`
-	UpdatedDate              *api.Iso8601Time `json:"updatedDate"`
+	Type                     string `gorm:"type:varchar(100)"`
+	Scope                    string `gorm:"type:varchar(255)"`
+	StartLine                int    `json:"startLine"`
+	EndLine                  int    `json:"endLine"`
+	StartOffset              int    `json:"startOffset"`
+	EndOffset                int    `json:"endOffset"`
+	VulnerabilityProbability string `gorm:"type:varchar(100)"`
+	SecurityCategory         string `gorm:"type:varchar(100)"`
+	CreatedDate              *api.Iso8601Time
+	UpdatedDate              *api.Iso8601Time
 }
 
 func (CqIssue) TableName() string {
