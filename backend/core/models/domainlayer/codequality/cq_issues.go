@@ -45,8 +45,8 @@ type CqIssue struct {
 	EndOffset                int              `json:"endOffset"`
 	VulnerabilityProbability string           `gorm:"type:varchar(100)"`
 	SecurityCategory         string           `gorm:"type:varchar(100)"`
-	CreationDate             *api.Iso8601Time `json:"creationDate"`
-	UpdateDate               *api.Iso8601Time `json:"updateDate"`
+	CreatedDate              *api.Iso8601Time `json:"createdDate"`
+	UpdatedDate              *api.Iso8601Time `json:"updatedDate"`
 }
 
 func (CqIssue) TableName() string {
