@@ -66,6 +66,7 @@ export const ConnectionEndpoint = ({
 
   useEffect(() => {
     setValue(initialValue);
+    setVersion(initialValue === multipleVersions?.cloud ? 'cloud' : 'server');
   }, [initialValue]);
 
   useEffect(() => {
