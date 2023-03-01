@@ -83,9 +83,9 @@ export const JiraTransformation = ({ connectionId, transformation, setTransforma
 
   const [requirementItems, bugItems, incidentItems] = useMemo(() => {
     return [
-      (issueTypes ?? []).filter((it) => requirements.includes(it.name)),
-      (issueTypes ?? []).filter((it) => bugs.includes(it.name)),
-      (issueTypes ?? []).filter((it) => incidents.includes(it.name)),
+      (data?.issueTypes ?? []).filter((it) => requirements.includes(it.name)),
+      (data?.issueTypes ?? []).filter((it) => bugs.includes(it.name)),
+      (data?.issueTypes ?? []).filter((it) => incidents.includes(it.name)),
     ];
   }, [requirements, bugs, incidents, data?.issueTypes]);
 
@@ -110,7 +110,6 @@ export const JiraTransformation = ({ connectionId, transformation, setTransforma
       return acc;
     }, {} as any);
   };
-
   return (
     <S.TransformationWrapper>
       {/* Issue Tracking */}

@@ -63,7 +63,7 @@ export const Transformation = ({ from, plugin, connectionId, onCancel, ...props 
     <S.Wrapper>
       {TIPS_MAP[plugin] && (
         <div className="tips">
-          To learn about how {TIPS_MAP[plugin].name} transformation is used in DevLake,
+          To learn about how {TIPS_MAP[plugin].name} transformation is used in DevLake,{' '}
           <ExternalLink link={TIPS_MAP[plugin].link}>check out this doc</ExternalLink>.
         </div>
       )}
