@@ -134,7 +134,7 @@ func makeDataSourcePipelinePlanV200(
 			if err != nil {
 				return nil, err
 			}
-			cloneUrl.User = url.UserPassword("git", connection.Password)
+			cloneUrl.User = url.UserPassword(connection.Username, connection.Password)
 			stage = append(stage, &plugin.PipelineTask{
 				Plugin: "gitextractor",
 				Options: map[string]interface{}{
