@@ -20,11 +20,12 @@ package tasks
 import (
 	"encoding/json"
 	"fmt"
+	"net/http"
+	"net/url"
+
 	"github.com/apache/incubator-devlake/core/errors"
 	"github.com/apache/incubator-devlake/core/plugin"
 	"github.com/apache/incubator-devlake/helpers/pluginhelper/api"
-	"net/http"
-	"net/url"
 )
 
 const RAW_ITERATION_TABLE = "tapd_api_iterations"
@@ -43,7 +44,7 @@ func CollectIterations(taskCtx plugin.SubTaskContext) errors.Error {
 	err = collectorWithState.InitCollector(api.ApiCollectorArgs{
 		Incremental: incremental,
 		ApiClient:   data.ApiClient,
-		PageSize:    100,
+		PageSize:    int(data.Options.pageSize),
 		Concurrency: 3,
 		UrlTemplate: "iterations",
 		Query: func(reqData *api.RequestData) (url.Values, errors.Error) {

@@ -19,10 +19,11 @@ package tasks
 
 import (
 	"fmt"
+	"net/url"
+
 	"github.com/apache/incubator-devlake/core/errors"
 	"github.com/apache/incubator-devlake/core/plugin"
 	helper "github.com/apache/incubator-devlake/helpers/pluginhelper/api"
-	"net/url"
 )
 
 const RAW_TASK_TABLE = "tapd_api_tasks"
@@ -43,7 +44,7 @@ func CollectTasks(taskCtx plugin.SubTaskContext) errors.Error {
 		RawDataSubTaskArgs: *rawDataSubTaskArgs,
 		Incremental:        incremental,
 		ApiClient:          data.ApiClient,
-		PageSize:           100,
+		PageSize:           int(data.Options.pageSize),
 		UrlTemplate:        "tasks",
 		Query: func(reqData *helper.RequestData) (url.Values, errors.Error) {
 			query := url.Values{}
