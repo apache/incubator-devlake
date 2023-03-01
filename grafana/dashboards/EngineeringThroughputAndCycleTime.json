@@ -1555,13 +1555,9 @@
       {
         "allValue": null,
         "current": {
-          "selected": true,
-          "text": [
-            "Louis"
-          ],
-          "value": [
-            "Louis"
-          ]
+          "selected": false,
+          "text": "All",
+          "value": "$__all"
         },
         "datasource": "mysql",
         "definition": "select distinct name from projects",

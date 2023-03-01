@@ -15,8 +15,8 @@
   "editable": true,
   "gnetId": null,
   "graphTooltip": 0,
-  "id": 11,
-  "iteration": 1672981230078,
+  "id": 21,
+  "iteration": 1677590412757,
   "links": [],
   "panels": [
     {
@@ -508,7 +508,7 @@
           "metricColumn": "none",
           "queryType": "randomWalk",
           "rawQuery": true,
-          "rawSql": "select\n\tavg(TIMESTAMPDIFF(Minute,created_date,closed_date)/1440) as time_to_close\nfrom \n\tpull_requests pr\nwhere \n  date(created_date) BETWEEN\n    curdate() - INTERVAL DAYOFMONTH(curdate())-1 DAY - INTERVAL 1 month and\n    curdate() - INTERVAL DAYOFMONTH(curdate()) DAY\n\tand status = 'closed'\n\tand pr.base_repo_id in ($repo_id)\n\n\n",
+          "rawSql": "select\n\tavg(TIMESTAMPDIFF(Minute,created_date,closed_date)/1440) as time_to_close\nfrom \n\tpull_requests pr\nwhere \n  date(created_date) BETWEEN\n    curdate() - INTERVAL DAYOFMONTH(curdate())-1 DAY - INTERVAL 1 month and\n    curdate() - INTERVAL DAYOFMONTH(curdate()) DAY\n\tand status in ('closed', 'merged', 'declined')\n\tand pr.base_repo_id in ($repo_id)\n\n\n",
           "refId": "A",
           "select": [
             [
@@ -590,7 +590,7 @@
           "metricColumn": "none",
           "queryType": "randomWalk",
           "rawQuery": true,
-          "rawSql": "select\n  100 * sum(case when TIMESTAMPDIFF(Minute, created_date, closed_date) / 1440 < $prrt_sla then 1 else null end) / count(*)\nfrom \n\tpull_requests pr\nwhere \n  date(created_date) BETWEEN\n    curdate() - INTERVAL DAYOFMONTH(curdate())-1 DAY - INTERVAL 1 month and\n    curdate() - INTERVAL DAYOFMONTH(curdate()) DAY\n\tand status = 'closed'\n\tand pr.base_repo_id in ($repo_id)\n\n\n",
+          "rawSql": "select\n  100 * sum(case when TIMESTAMPDIFF(Minute, created_date, closed_date) / 1440 < $prrt_sla then 1 else null end) / count(*)\nfrom \n\tpull_requests pr\nwhere \n  date(created_date) BETWEEN\n    curdate() - INTERVAL DAYOFMONTH(curdate())-1 DAY - INTERVAL 1 month and\n    curdate() - INTERVAL DAYOFMONTH(curdate()) DAY\n\tand status in ('closed', 'merged', 'declined')\n\tand pr.base_repo_id in ($repo_id)\n\n\n",
           "refId": "A",
           "select": [
             [
@@ -672,7 +672,7 @@
           "metricColumn": "none",
           "queryType": "randomWalk",
           "rawQuery": true,
-          "rawSql": "select\n  100 * count(distinct case when status = 'closed' and merged_date is null then id else null end)/count(distinct case when status = 'closed' then id else null end) as ratio\nfrom \n\tpull_requests pr\nwhere\n  date(created_date) BETWEEN\n    curdate() - INTERVAL DAYOFMONTH(curdate())-1 DAY - INTERVAL 1 month and\n    curdate() - INTERVAL DAYOFMONTH(curdate()) DAY\n  and pr.base_repo_id in ($repo_id)",
+          "rawSql": "select\n  100 * count(distinct case when status in ('closed', 'merged', 'declined') and merged_date is null then id else null end)/count(distinct case when status in ('closed', 'merged', 'declined') then id else null end) as ratio\nfrom \n\tpull_requests pr\nwhere\n  date(created_date) BETWEEN\n    curdate() - INTERVAL DAYOFMONTH(curdate())-1 DAY - INTERVAL 1 month and\n    curdate() - INTERVAL DAYOFMONTH(curdate()) DAY\n  and pr.base_repo_id in ($repo_id)",
           "refId": "A",
           "select": [
             [
@@ -722,6 +722,7 @@
       "type": "text"
     }
   ],
+  "refresh": "",
   "schemaVersion": 30,
   "style": "dark",
   "tags": [],
@@ -827,5 +828,5 @@
   "timezone": "",
   "title": "Contributor Experience",
   "uid": "bwsP5Nz4z",
-  "version": 2
+  "version": 6
 }
