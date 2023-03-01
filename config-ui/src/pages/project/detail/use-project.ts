@@ -19,6 +19,7 @@
 import { useState, useEffect, useMemo } from 'react';
 import { useHistory } from 'react-router-dom';
 
+import { toast } from '@/components';
 import type { WebhookItemType } from '@/plugins/register/webook';
 import { operator } from '@/utils';
 
@@ -54,6 +55,11 @@ export const useProject = (name: string) => {
   }, []);
 
   const handleUpdate = async (newName: string, enableDora: boolean) => {
+    if (!/^\w+$/.test(newName)) {
+      toast.error('Please enter alphanumeric or underscore');
+      return;
+    }
+
     const payload = {
       name: newName,
       description: '',

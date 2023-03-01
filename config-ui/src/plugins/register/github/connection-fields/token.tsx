@@ -18,7 +18,6 @@
 
 import React, { useEffect, useState } from 'react';
 import { FormGroup, InputGroup, Button, Intent } from '@blueprintjs/core';
-import { pick } from 'lodash';
 
 import { ExternalLink } from '@/components';
 
@@ -111,8 +110,8 @@ export const Token = ({ endpoint, proxy, initialValue, value, error, setValue, s
       subLabel={
         <S.LabelDescription>
           Add one or more personal token(s) for authentication from you and your organization members. Multiple tokens
-          can help speed up the data collection process.{' '}
-          <ExternalLink link="https://devlake.apache.org/docs/UserManuals/ConfigUI/GitHub/#auth-tokens">
+          (from different GitHub accounts, NOT from one account) can help speed up the data collection process.
+          <ExternalLink link="https://devlake.apache.org/docs/Configuration/GitHub/#auth-tokens">
             Learn how to create a personal access token
           </ExternalLink>
         </S.LabelDescription>

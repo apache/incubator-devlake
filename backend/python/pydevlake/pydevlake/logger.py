@@ -32,10 +32,3 @@ logging.basicConfig(
 )
 
 logger = logging.getLogger()
-
-
-if __name__ == "__main__":
-    logger.info('hey')
-    logger.debug('wut?')
-    logger.error('oops')
-    logger.critical('boom')

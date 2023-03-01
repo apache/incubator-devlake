@@ -92,7 +92,7 @@ export const Auth = ({ initialValue, value, error, setValue, setError }: Props) 
             <InputGroup placeholder="Your Username/e-mail" value={value.username} onChange={handleChangeUsername} />
           </FormGroup>
           <FormGroup
-            label={<S.Label>Password</S.Label>}
+            label={<S.Label>Token/Password</S.Label>}
             labelInfo={<S.LabelInfo>*</S.LabelInfo>}
             subLabel={
               <S.LabelDescription>

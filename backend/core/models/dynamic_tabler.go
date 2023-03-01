@@ -18,6 +18,8 @@ limitations under the License.
 package models
 
 import (
+	"encoding/json"
+	"github.com/apache/incubator-devlake/core/errors"
 	"reflect"
 
 	"github.com/apache/incubator-devlake/core/dal"
@@ -54,6 +56,26 @@ func (d *DynamicTabler) NewSlice() *DynamicTabler {
 		wrapped: reflect.New(sliceType).Interface(),
 		table:   d.table,
 	}
+}
+
+func (d *DynamicTabler) From(src any) errors.Error {
+	b, err := json.Marshal(src)
+	if err != nil {
+		return errors.Convert(err)
+	}
+	return errors.Convert(json.Unmarshal(b, d.wrapped))
+}
+
+func (d *DynamicTabler) To(target any) errors.Error {
+	b, err := json.Marshal(d.wrapped)
+	if err != nil {
+		return errors.Convert(err)
+	}
+	return errors.Convert(json.Unmarshal(b, target))
+}
+
+func (d *DynamicTabler) Set(x any) {
+	d.wrapped = x
 }
 
 func (d *DynamicTabler) Unwrap() any {

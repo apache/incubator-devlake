@@ -19,8 +19,8 @@ from typing import Optional
 
 from sqlmodel import Field
 
-from pydevlake import Plugin, Connection, TransformationRule, Stream, ToolModel, RemoteScope
-from pydevlake.domain_layer.devops import CICDScope, CICDPipeline
+from pydevlake import Plugin, Connection, TransformationRule, Stream, ToolModel, ToolScope, RemoteScopeGroup, DomainType
+from pydevlake.domain_layer.devops import CicdScope, CICDPipeline
 
 
 VALID_TOKEN = "this_is_a_valid_token"
@@ -43,7 +43,7 @@ class FakePipeline(ToolModel, table=True):
 
 class FakeStream(Stream):
     tool_model = FakePipeline
-    domain_model = CICDPipeline
+    domain_types = [DomainType.CICD]
 
     fake_pipelines = [
         FakePipeline(id=1, project=VALID_PROJECT, state=FakePipeline.State.SUCCESS, started_at=datetime(2023, 1, 10, 11, 0, 0), finished_at=datetime(2023, 1, 10, 11, 3, 0)),
@@ -94,6 +94,10 @@ class FakeConnection(Connection):
     token: str
 
 
+class FakeProject(ToolScope):
+    pass
+
+
 class FakeTransformationRule(TransformationRule):
     tx1: str
 
@@ -103,19 +107,35 @@ class FakePlugin(Plugin):
     def connection_type(self):
         return FakeConnection
 
-    def get_scopes(self, scope_name: str, connection: FakeConnection):
-        assert connection
-        yield CICDScope(
+    @property
+    def tool_scope_type(self):
+        return FakeProject
+
+    def domain_scopes(self, project: FakeProject):
+        yield CicdScope(
             id=1,
-            name=scope_name,
-            url=f"http://fake.org/api/project/{scope_name}"
+            name=project.name,
+            url=f"http://fake.org/api/project/{project.name}"
         )
 
-    def remote_scopes(self, connection: FakeConnection, query: str = ''):
-        yield RemoteScope(
-            id='test',
-            name='Not a real scope'
-        )
+    def remote_scopes(self, connection: FakeConnection, group_id: str):
+        if group_id == 'group1':
+            return [
+                FakeProject(
+                    id='p1',
+                    name='Project 1'
+                )
+            ]
+        else:
+            return []
+
+    def remote_scope_groups(self, connection: FakeConnection):
+        return [
+            RemoteScopeGroup(
+                id='group1',
+                name='Group 1'
+            )
+        ]
 
     def test_connection(self, connection: FakeConnection):
         if connection.token != VALID_TOKEN:

@@ -19,7 +19,7 @@ import json
 import pytest
 from sqlmodel import Session, Field
 
-from pydevlake import Stream, Connection, Context
+from pydevlake import Stream, Connection, Context, DomainType
 from pydevlake.model import ToolModel, DomainModel
 
 
@@ -34,7 +34,7 @@ class DummyDomainModel(DomainModel, table=True):
 
 class DummyStream(Stream):
     tool_model=DummyToolModel
-    domain_model=DummyDomainModel
+    domain_types=[DomainType.CROSS]
 
     def collect(self, state, context):
         for i, each in enumerate(context.connection.raw_data):
@@ -68,7 +68,7 @@ def raw_data():
 
 @pytest.fixture
 def connection(raw_data):
-    return DummyConnection(raw_data=raw_data)
+    return DummyConnection(id=11, raw_data=raw_data)
 
 
 @pytest.fixture
@@ -76,7 +76,6 @@ def ctx(connection):
     return Context(
         db_url="sqlite+pysqlite:///:memory:",
         scope_id="1",
-        connection_id=11,
         connection=connection,
         options={}
     )
@@ -124,7 +123,7 @@ def test_convert_data(stream, raw_data, ctx):
                     id=each["i"],
                     name=each["n"],
                     raw_data_table="_raw_dummy_model",
-                    raw_data_params=json.dumps({"connection_id": ctx.connection_id, "scope_id": ctx.scope_id})
+                    raw_data_params=json.dumps({"connection_id": ctx.connection.id, "scope_id": ctx.scope_id})
                 )
             )
         session.commit()

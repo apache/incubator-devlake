@@ -22,16 +22,16 @@ import { RadioGroup, Radio, InputGroup, ButtonGroup, Button, Intent } from '@blu
 import { ExternalLink, Divider, Selector, MultiSelector } from '@/components';
 
 import { GitHubTransformation } from '@/plugins/register/github';
-import { JIRATransformation } from '@/plugins/register/jira';
+import { JiraTransformation } from '@/plugins/register/jira';
 import { GitLabTransformation } from '@/plugins/register/gitlab';
 import { JenkinsTransformation } from '@/plugins/register/jenkins';
+import { BitbucketTransformation } from '@/plugins/register/bitbucket';
 
 import type { TransformationType, RuleItem } from './types';
 import { TIPS_MAP } from './misc';
 import type { UseTransformationProps } from './use-transformation';
 import { useTransformation } from './use-transformation';
 import * as S from './styled';
-import {BitbucketTransformation} from "@/plugins/register/bitbucket";
 
 interface Props extends Omit<UseTransformationProps, 'name' | 'selectedRule' | 'setSelectedScope'> {
   from: 'create' | 'update';
@@ -151,7 +151,7 @@ export const Transformation = ({ from, plugin, connectionId, onCancel, ...props 
             )}
 
             {plugin === 'jira' && (
-              <JIRATransformation
+              <JiraTransformation
                 connectionId={connectionId}
                 transformation={transformation}
                 setTransformation={onChangeTransformation}

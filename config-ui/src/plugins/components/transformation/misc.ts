@@ -22,7 +22,7 @@ export const TIPS_MAP: Record<string, { name: string; link: string }> = {
     link: 'https://devlake.apache.org/docs/UserManuals/ConfigUI/GitHub#step-3---adding-transformation-rules-optional',
   },
   jira: {
-    name: 'JIRA',
+    name: 'Jira',
     link: 'https://devlake.apache.org/docs/UserManuals/ConfigUI/Jira#step-3---adding-transformation-rules-optional',
   },
 };

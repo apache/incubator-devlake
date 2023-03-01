@@ -18,6 +18,7 @@ limitations under the License.
 package api
 
 import (
+	"fmt"
 	"net/http"
 	"strconv"
 	"strings"
@@ -107,7 +108,12 @@ func CreateApiService() {
 	if remotePluginsEnabled {
 		go bootstrapRemotePlugins(v)
 	}
-	err := router.Run(port)
+	portNum, err := strconv.Atoi(port)
+	if err != nil {
+		panic(fmt.Errorf("PORT [%s] must be int: %s", port, err.Error()))
+	}
+
+	err = router.Run(fmt.Sprintf("0.0.0.0:%d", portNum))
 	if err != nil {
 		panic(err)
 	}
@@ -115,9 +121,10 @@ func CreateApiService() {
 
 func bootstrapRemotePlugins(v *viper.Viper) {
 	port := v.GetString("PORT")
-	portNum, err := strconv.Atoi(strings.Split(port, ":")[1])
+	port = strings.TrimLeft(port, ":")
+	portNum, err := strconv.Atoi(port)
 	if err != nil {
-		panic(err)
+		panic(fmt.Errorf("PORT [%s] must be int: %s", port, err.Error()))
 	}
 	err = bridge.Bootstrap(v, portNum)
 	if err != nil {

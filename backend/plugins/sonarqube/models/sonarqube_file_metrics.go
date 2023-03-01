@@ -39,10 +39,9 @@ type SonarqubeFileMetrics struct {
 	SecurityHotspotsReviewed float64
 	SecurityReviewRating     string
 	Ncloc                    int
+	Coverage                 float64
 	UncoveredLines           int
 	LinesToCover             int
-	DuplicatedLinesDensity   float64
-	DuplicatedBlocks         int
 	common.NoPKModel
 }
 
@@ -58,6 +57,9 @@ type SonarqubeAdditionalFileMetrics struct {
 	EffortToReachMaintainabilityRatingA int
 	Complexity                          int
 	CognitiveComplexity                 int
+	NumOfLines                          int
+	DuplicatedLinesDensity              float64
+	DuplicatedBlocks                    int
 	common.NoPKModel
 }
 
@@ -83,6 +85,7 @@ type SonarqubeWholeFileMetrics struct {
 	SecurityHotspotsReviewed            float64
 	SecurityReviewRating                string `gorm:"type:varchar(20)"`
 	Ncloc                               int
+	Coverage                            float64
 	UncoveredLines                      int
 	LinesToCover                        int
 	DuplicatedLinesDensity              float64
@@ -92,6 +95,7 @@ type SonarqubeWholeFileMetrics struct {
 	EffortToReachMaintainabilityRatingA int
 	Complexity                          int
 	CognitiveComplexity                 int
+	NumOfLines                          int
 	common.NoPKModel
 }
 

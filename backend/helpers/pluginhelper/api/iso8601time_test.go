@@ -18,8 +18,11 @@ limitations under the License.
 package api
 
 import (
+	"database/sql/driver"
 	"encoding/json"
+	"fmt"
 	"github.com/apache/incubator-devlake/core/errors"
+	"reflect"
 	"testing"
 	"time"
 
@@ -80,5 +83,85 @@ func TestIso8601Time(t *testing.T) {
 		err = DecodeMapStruct(ms, &record4)
 		assert.Nil(t, err)
 		assert.Equal(t, expected, record4.Created.UTC())
+	}
+}
+
+func TestIso8601Time_Value(t *testing.T) {
+	zeroTime := time.Time{}
+	testCases := []struct {
+		name   string
+		input  *Iso8601Time
+		output driver.Value
+		err    error
+	}{
+		{
+			name:   "Nil value",
+			input:  nil,
+			output: nil,
+			err:    nil,
+		},
+		{
+			name: "Valid time value",
+			input: &Iso8601Time{
+				time:   time.Date(2023, 2, 28, 10, 30, 0, 0, time.UTC),
+				format: time.RFC3339,
+			},
+			output: time.Date(2023, 2, 28, 10, 30, 0, 0, time.UTC),
+			err:    nil,
+		},
+		{
+			name: "Zero time value",
+			input: &Iso8601Time{
+				time:   zeroTime,
+				format: time.RFC3339,
+			},
+			output: nil,
+			err:    nil,
+		},
+	}
+	for _, tc := range testCases {
+		t.Run(tc.name, func(t *testing.T) {
+			output, err := tc.input.Value()
+			if output != tc.output {
+				t.Errorf("Expected output to be %v, but got %v", tc.output, output)
+			}
+			if err != tc.err {
+				t.Errorf("Expected error to be %v, but got %v", tc.err, err)
+			}
+		})
+	}
+}
+
+func TestIso8601Time_Scan(t *testing.T) {
+	testCases := []struct {
+		name   string
+		input  interface{}
+		output *Iso8601Time
+		err    error
+	}{
+		{
+			name:   "Valid time value",
+			input:  time.Date(2023, 2, 28, 10, 30, 0, 0, time.UTC),
+			output: &Iso8601Time{time: time.Date(2023, 2, 28, 10, 30, 0, 0, time.UTC), format: time.RFC3339},
+			err:    nil,
+		},
+		{
+			name:   "Invalid input value",
+			input:  "invalid",
+			output: &Iso8601Time{},
+			err:    fmt.Errorf("can not convert %v to timestamp", "invalid"),
+		},
+	}
+	for _, tc := range testCases {
+		t.Run(tc.name, func(t *testing.T) {
+			var output Iso8601Time
+			err := output.Scan(tc.input)
+			if !reflect.DeepEqual(tc.output, &output) {
+				t.Errorf("Expected output to be %v, but got %v", tc.output, output)
+			}
+			if !reflect.DeepEqual(tc.err, err) {
+				t.Errorf("Expected error to be %v, but got %v", tc.err, err)
+			}
+		})
 	}
 }

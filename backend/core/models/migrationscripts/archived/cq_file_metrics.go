@@ -33,16 +33,18 @@ type CqFileMetrics struct {
 	SecurityHotspots                    int
 	SecurityHotspotsReviewed            float64
 	SecurityReviewRating                string `gorm:"type:varchar(20)"`
-	Ncloc                               int    `json:"ncloc"`
+	Ncloc                               int
+	Coverage                            float64
 	UncoveredLines                      int
-	LinesToCover                        int     `json:"lines_to_cover"`
-	DuplicatedLinesDensity              float64 `json:"duplicated_lines_density"`
-	DuplicatedBlocks                    int     `json:"duplicated_blocks"`
+	LinesToCover                        int
+	DuplicatedLinesDensity              float64
+	DuplicatedBlocks                    int
 	DuplicatedFiles                     int
 	DuplicatedLines                     int
 	EffortToReachMaintainabilityRatingA int
 	Complexity                          int
 	CognitiveComplexity                 int
+	NumOfLines                          int
 }
 
 func (CqFileMetrics) TableName() string {

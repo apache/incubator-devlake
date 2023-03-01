@@ -67,7 +67,7 @@ export const TAPDConfig: PluginConfigType = {
         key: 'rateLimitPerHour',
         subLabel:
           'By default, DevLake uses 3,000 requests/hour for data collection for TAPD. But you can adjust the collection speed by setting up your desirable rate limit.',
-        learnMore: 'https://devlake.apache.org/docs/Configuration/Tapdt#fixed-rate-limit-optional',
+        learnMore: 'https://devlake.apache.org/docs/Configuration/Tapd#fixed-rate-limit-optional',
         externalInfo: 'The maximum rate limit of TAPD is 3,600 requests/hour.',
         defaultValue: 3000,
       },

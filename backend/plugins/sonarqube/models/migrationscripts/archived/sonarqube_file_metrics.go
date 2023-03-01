@@ -39,6 +39,7 @@ type SonarqubeFileMetrics struct {
 	SecurityHotspotsReviewed float64
 	SecurityReviewRating     string `gorm:"type:varchar(20)"`
 	Ncloc                    int
+	Coverage                 float64
 	UncoveredLines           int
 	LinesToCover             int
 	DuplicatedLinesDensity   float64
@@ -49,6 +50,7 @@ type SonarqubeFileMetrics struct {
 	EffortToReachMaintainabilityRatingA int
 	Complexity                          int
 	CognitiveComplexity                 int
+	NumOfLines                          int
 	archived.NoPKModel
 }
 

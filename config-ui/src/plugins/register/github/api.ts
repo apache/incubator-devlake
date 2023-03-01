@@ -34,7 +34,10 @@ export const getUserOrgs = (prefix: string, params: PaginationParams) =>
 export const getOrgRepos = (prefix: string, org: string, params: PaginationParams) =>
   request(`${prefix}/orgs/${org}/repos`, {
     method: 'get',
-    data: params,
+    data: {
+      ...params,
+      sort: 'full_name',
+    },
   });
 
 export const getUserRepos = (prefix: string, params: PaginationParams) =>
@@ -43,6 +46,7 @@ export const getUserRepos = (prefix: string, params: PaginationParams) =>
     data: {
       ...params,
       type: 'owner',
+      sort: 'full_name',
     },
   });
 

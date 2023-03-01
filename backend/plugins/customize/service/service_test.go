@@ -19,11 +19,12 @@ package service
 
 import (
 	"regexp"
+	"strings"
 	"testing"
 )
 
 func TestService_checkFieldName(t *testing.T) {
-	nameChecker := regexp.MustCompile(`^x_\w+`)
+	nameChecker := regexp.MustCompile(`^x_[a-zA-Z0-9_]{0,50}$`)
 	tests := []struct {
 		name string
 		args string
@@ -43,6 +44,16 @@ func TestService_checkFieldName(t *testing.T) {
 			"",
 			"x__",
 			true,
+		},
+		{
+			"issue #4519",
+			"x_" + strings.Repeat("a", 50),
+			true,
+		},
+		{
+			"issue #4519",
+			"x_" + strings.Repeat("a", 51),
+			false,
 		},
 		{
 			"",

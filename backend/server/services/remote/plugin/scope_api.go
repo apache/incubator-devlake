@@ -21,6 +21,8 @@ import (
 	"net/http"
 	"strconv"
 
+	"github.com/apache/incubator-devlake/server/services/remote/models"
+
 	"github.com/mitchellh/mapstructure"
 
 	"github.com/apache/incubator-devlake/core/dal"
@@ -29,22 +31,14 @@ import (
 	"github.com/apache/incubator-devlake/helpers/pluginhelper/api"
 )
 
-type ScopeItem struct {
-	ScopeId              string `json:"scopeId"`
-	ScopeName            string `json:"scopeName"`
-	ConnectionId         uint64 `json:"connectionId"`
-	TransformationRuleId uint64 `json:"transformationRuleId,omitempty"`
-}
-
 // DTO that includes the transformation rule name
 type apiScopeResponse struct {
-	Scope                  ScopeItem
+	Scope                  any
 	TransformationRuleName string `json:"transformationRuleId,omitempty"`
 }
 
-// Why a batch PUT?
 type request struct {
-	Data []*ScopeItem `json:"data"`
+	Data []map[string]any `json:"data"`
 }
 
 func (pa *pluginAPI) PutScope(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, errors.Error) {
@@ -52,34 +46,38 @@ func (pa *pluginAPI) PutScope(input *plugin.ApiResourceInput) (*plugin.ApiResour
 	if connectionId == 0 {
 		return nil, errors.BadInput.New("invalid connectionId")
 	}
-
 	var scopes request
 	err := errors.Convert(mapstructure.Decode(input.Body, &scopes))
 	if err != nil {
 		return nil, errors.BadInput.Wrap(err, "decoding scope error")
 	}
-
 	keeper := make(map[string]struct{})
-	for _, scope := range scopes.Data {
-		if _, ok := keeper[scope.ScopeId]; ok {
-			return nil, errors.BadInput.New("duplicated item")
-		} else {
-			keeper[scope.ScopeId] = struct{}{}
-		}
-		scope.ConnectionId = connectionId
-
-		err = verifyScope(scope)
+	var createdScopes []any
+	for _, scopeRaw := range scopes.Data {
+		err = verifyScope(scopeRaw)
 		if err != nil {
 			return nil, err
 		}
+		scopeId := scopeRaw["id"].(string)
+		if _, ok := keeper[scopeId]; ok {
+			return nil, errors.BadInput.New("duplicated item")
+		} else {
+			keeper[scopeId] = struct{}{}
+		}
+		scope := pa.scopeType.New()
+		err = scope.From(&scopeRaw)
+		if err != nil {
+			return nil, err
+		}
+		// I don't know the reflection logic to do this in a batch...
+		err = api.CallDB(basicRes.GetDal().CreateOrUpdate, scope)
+		if err != nil {
+			return nil, errors.Default.Wrap(err, "error on saving scope")
+		}
+		createdScopes = append(createdScopes, scope.Unwrap())
 	}
 
-	err = basicRes.GetDal().CreateOrUpdate(scopes.Data)
-	if err != nil {
-		return nil, errors.Default.Wrap(err, "error on saving scope")
-	}
-
-	return &plugin.ApiResourceOutput{Body: scopes.Data, Status: http.StatusOK}, nil
+	return &plugin.ApiResourceOutput{Body: createdScopes, Status: http.StatusOK}, nil
 }
 
 func (pa *pluginAPI) PatchScope(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, errors.Error) {
@@ -87,115 +85,113 @@ func (pa *pluginAPI) PatchScope(input *plugin.ApiResourceInput) (*plugin.ApiReso
 	if connectionId == 0 {
 		return nil, errors.BadInput.New("invalid connectionId")
 	}
-
 	db := basicRes.GetDal()
-	scope := ScopeItem{}
-	err := db.First(&scope, dal.Where("connection_id = ? AND scope_id = ?", connectionId, scopeId))
+	scope := pa.scopeType.New()
+	err := api.CallDB(db.First, scope, dal.Where("connection_id = ? AND id = ?", connectionId, scopeId))
 	if err != nil {
 		return nil, errors.Default.Wrap(err, "scope not found")
 	}
-
-	err = api.DecodeMapStruct(input.Body, &scope)
-	if err != nil {
-		return nil, errors.Default.Wrap(err, "patch scope error")
-	}
-
-	err = verifyScope(&scope)
+	err = verifyScope(input.Body)
 	if err != nil {
 		return nil, err
 	}
-
-	err = db.Update(&scope)
+	err = scope.From(&input.Body)
+	if err != nil {
+		return nil, errors.Default.Wrap(err, "patch scope error")
+	}
+	err = api.CallDB(db.Update, scope)
 	if err != nil {
 		return nil, errors.Default.Wrap(err, "error on saving scope")
 	}
-	return &plugin.ApiResourceOutput{Body: scope, Status: http.StatusOK}, nil
+	return &plugin.ApiResourceOutput{Body: scope.Unwrap(), Status: http.StatusOK}, nil
 }
 
 func (pa *pluginAPI) ListScopes(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, errors.Error) {
-	var scopes []ScopeItem
 	connectionId, _ := extractParam(input.Params)
-
 	if connectionId == 0 {
 		return nil, errors.BadInput.New("invalid connectionId")
 	}
-
 	limit, offset := api.GetLimitOffset(input.Query, "pageSize", "page")
 
 	if limit > 100 {
 		return nil, errors.BadInput.New("Page limit cannot exceed 100")
 	}
-
 	db := basicRes.GetDal()
-	err := db.All(&scopes, dal.Where("connection_id = ?", connectionId), dal.Limit(limit), dal.Offset(offset))
+	scopes := pa.scopeType.NewSlice()
+	err := api.CallDB(db.All, scopes, dal.Where("connection_id = ?", connectionId), dal.Limit(limit), dal.Offset(offset))
 	if err != nil {
 		return nil, err
 	}
-
+	var scopeMap []map[string]any
+	err = scopes.To(&scopeMap)
+	if err != nil {
+		return nil, err
+	}
 	var ruleIds []uint64
-	for _, scope := range scopes {
-		if scope.TransformationRuleId > 0 {
-			ruleIds = append(ruleIds, scope.TransformationRuleId)
+	for _, scopeModel := range scopeMap {
+		if tid := uint64(scopeModel["transformation_rule_id"].(float64)); tid > 0 {
+			ruleIds = append(ruleIds, tid)
 		}
 	}
-
-	var txRuleId2Name []struct {
-		id   uint64
-		name string
-	}
+	rules := pa.txRuleType.NewSlice()
 	if len(ruleIds) > 0 {
-		err = db.All(&txRuleId2Name,
-			dal.Select("id, name"),
-			dal.From(pa.txRuleType.TableName()),
+		err = api.CallDB(db.All, rules, dal.Select("id, name"),
 			dal.Where("id IN (?)", ruleIds))
 		if err != nil {
 			return nil, err
 		}
 	}
-
-	names := make(map[uint64]string)
-	for _, r := range txRuleId2Name {
-		names[r.id] = r.name
+	var transformationModels []models.TransformationModel
+	err = rules.To(&transformationModels)
+	if err != nil {
+		return nil, err
 	}
-
+	names := make(map[uint64]string)
+	for _, t := range transformationModels {
+		names[t.Id] = t.Name
+	}
 	var apiScopes []apiScopeResponse
-	for _, scope := range scopes {
-		txRuleName := names[scope.TransformationRuleId]
-		scopeRes := apiScopeResponse{
-			Scope:                  scope,
-			TransformationRuleName: txRuleName,
+	for _, scope := range scopeMap {
+		txRuleName, ok := names[uint64(scope["transformation_rule_id"].(float64))]
+		if ok {
+			scopeRes := apiScopeResponse{
+				Scope:                  scope,
+				TransformationRuleName: txRuleName,
+			}
+			apiScopes = append(apiScopes, scopeRes)
 		}
-		apiScopes = append(apiScopes, scopeRes)
 	}
 
 	return &plugin.ApiResourceOutput{Body: apiScopes, Status: http.StatusOK}, nil
 }
 
 func (pa *pluginAPI) GetScope(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, errors.Error) {
-	var scope ScopeItem
 	connectionId, scopeId := extractParam(input.Params)
 	if connectionId == 0 {
 		return nil, errors.BadInput.New("invalid path params")
 	}
-
+	rawScope := pa.scopeType.New()
 	db := basicRes.GetDal()
-	err := db.First(&scope, dal.Where("connection_id = ? AND scope_id = ?", connectionId, scopeId))
+	err := api.CallDB(db.First, rawScope, dal.Where("connection_id = ? AND id = ?", connectionId, scopeId))
 	if db.IsErrorNotFound(err) {
 		return nil, errors.NotFound.New("record not found")
 	}
 	if err != nil {
 		return nil, err
 	}
-
-	var ruleName string
+	var scope models.ScopeModel
+	err = rawScope.To(&scope)
+	if err != nil {
+		return nil, err
+	}
+	var rule models.TransformationModel
 	if scope.TransformationRuleId > 0 {
-		err = db.First(&ruleName, dal.Select("name"), dal.From(pa.txRuleType.TableName()), dal.Where("id = ?", scope.TransformationRuleId))
+		err = api.CallDB(db.First, &rule, dal.From(pa.txRuleType.TableName()), dal.Where("id = ?", scope.TransformationRuleId))
 		if err != nil {
 			return nil, err
 		}
 	}
-
-	return &plugin.ApiResourceOutput{Body: apiScopeResponse{scope, ruleName}, Status: http.StatusOK}, nil
+	return &plugin.ApiResourceOutput{Body: apiScopeResponse{rawScope.Unwrap(), rule.Name}, Status: http.StatusOK}, nil
 }
 
 func extractParam(params map[string]string) (uint64, string) {
@@ -204,12 +200,12 @@ func extractParam(params map[string]string) (uint64, string) {
 	return connectionId, scopeId
 }
 
-func verifyScope(scope *ScopeItem) errors.Error {
-	if scope.ConnectionId == 0 {
+func verifyScope(scope map[string]any) errors.Error {
+	if scope["connection_id"].(float64) == 0 {
 		return errors.BadInput.New("invalid connectionId")
 	}
 
-	if scope.ScopeId == "" {
+	if scope["id"] == "" {
 		return errors.BadInput.New("invalid scope ID")
 	}
 

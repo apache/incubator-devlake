@@ -26,6 +26,9 @@ type IssueRepoCommit struct {
 	IssueId   string `gorm:"primaryKey;type:varchar(255)"`
 	RepoUrl   string `gorm:"primaryKey;type:varchar(255)"`
 	CommitSha string `gorm:"primaryKey;type:varchar(255)"`
+	Host      string `gorm:"type:varchar(255)"`
+	Namespace string `gorm:"type:varchar(255)"`
+	RepoName  string `gorm:"type:varchar(255)"`
 }
 
 func (IssueRepoCommit) TableName() string {

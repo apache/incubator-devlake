@@ -53,9 +53,9 @@ func NewRemotePlugin(info *models.PluginInfo) (models.RemotePlugin, errors.Error
 	case models.None:
 		return plugin, nil
 	case models.Metric:
-		return remoteMetricPlugin{plugin}, nil
+		return &remoteMetricPlugin{plugin}, nil
 	case models.Datasource:
-		return remoteDatasourcePlugin{plugin}, nil
+		return &remoteDatasourcePlugin{plugin}, nil
 	default:
 		return nil, errors.BadInput.New("unsupported plugin extension")
 	}

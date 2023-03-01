@@ -38,7 +38,7 @@ interface Props {
   setTransformation: React.Dispatch<React.SetStateAction<any>>;
 }
 
-export const JIRATransformation = ({ connectionId, transformation, setTransformation }: Props) => {
+export const JiraTransformation = ({ connectionId, transformation, setTransformation }: Props) => {
   const [requirements, setRequirements] = useState<string[]>([]);
   const [bugs, setBugs] = useState<string[]>([]);
   const [incidents, setIncidents] = useState<string[]>([]);

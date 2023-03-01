@@ -77,7 +77,7 @@ export const useBPUpgrade = ({ id, onResetError }: UseBPUpgradeProps) => {
     }
 
     if (plugin === 'jira') {
-      const res = await API.getJIRA(prefix, options.boardId);
+      const res = await API.getJira(prefix, options.boardId);
       return {
         connectionId,
         boardId: res.id,

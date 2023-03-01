@@ -20,40 +20,36 @@ package migrationscripts
 import (
 	"github.com/apache/incubator-devlake/core/context"
 	"github.com/apache/incubator-devlake/core/errors"
+	"github.com/apache/incubator-devlake/core/plugin"
 	"github.com/apache/incubator-devlake/helpers/migrationhelper"
-	"github.com/apache/incubator-devlake/plugins/sonarqube/models/migrationscripts/archived"
 )
 
-type addInitTables struct{}
+var _ plugin.MigrationScript = (*addHostNamespaceRepoName)(nil)
 
-func (*addInitTables) Up(basicRes context.BasicRes) errors.Error {
-	err := basicRes.GetDal().DropTables(
-		&archived.SonarqubeProject{},
-		&archived.SonarqubeHotspot{},
-		&archived.SonarqubeIssue{},
-		&archived.SonarqubeFileMetrics{},
-		&archived.SonarqubeIssueCodeBlock{},
-		&archived.SonarqubeAccount{},
-	)
-	if err != nil {
-		return err
-	}
+type IssueRepoCommit20220222 struct {
+	Host      string `gorm:"type:varchar(255)"`
+	Namespace string `gorm:"type:varchar(255)"`
+	RepoName  string `gorm:"type:varchar(255)"`
+}
+
+func (IssueRepoCommit20220222) TableName() string {
+	return "issue_repo_commits"
+}
+
+type addHostNamespaceRepoName struct{}
+
+func (script *addHostNamespaceRepoName) Up(basicRes context.BasicRes) errors.Error {
+
 	return migrationhelper.AutoMigrateTables(
 		basicRes,
-		&archived.SonarqubeConnection{},
-		&archived.SonarqubeProject{},
-		&archived.SonarqubeHotspot{},
-		&archived.SonarqubeIssue{},
-		&archived.SonarqubeFileMetrics{},
-		&archived.SonarqubeIssueCodeBlock{},
-		&archived.SonarqubeAccount{},
+		&IssueRepoCommit20220222{},
 	)
 }
 
-func (*addInitTables) Version() uint64 {
-	return 20230227220071
+func (*addHostNamespaceRepoName) Version() uint64 {
+	return 20230222153154
 }
 
-func (*addInitTables) Name() string {
-	return "sonarqube init schemas"
+func (*addHostNamespaceRepoName) Name() string {
+	return "add host, namespace, repo_name to issue_repo_commits"
 }

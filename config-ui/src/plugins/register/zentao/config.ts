@@ -32,7 +32,10 @@ export const ZenTaoConfig: PluginConfigType = {
     docLink: 'https://devlake.apache.org/docs/Configuration/Zentao',
     fields: [
       'name',
-      'endpoint',
+      {
+        key: 'endpoint',
+        subLabel: 'Provide the Zentao instance API endpoint. E.g. https://YOUR_DOMAIN:YOUR_PORT/',
+      },
       'username',
       'password',
       'proxy',
@@ -41,7 +44,7 @@ export const ZenTaoConfig: PluginConfigType = {
         subLabel:
           'By default, DevLake uses 10,000 requests/hour for data collection for ZenTao. But you can adjust the collection speed by setting up your desirable rate limit.',
         learnMore: 'https://devlake.apache.org/docs/Configuration/Zentao/#custom-rate-limit-optional',
-        externalInfo: 'Jenkins does not specify a maximum value of rate limit.',
+        externalInfo: 'ZenTao does not specify a maximum value of rate limit.',
         defaultValue: 10000,
       },
     ],

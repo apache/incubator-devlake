@@ -18,6 +18,7 @@ limitations under the License.
 package e2e
 
 import (
+	"github.com/apache/incubator-devlake/core/models/common"
 	"github.com/apache/incubator-devlake/core/models/domainlayer/code"
 	"github.com/apache/incubator-devlake/helpers/e2ehelper"
 	"github.com/apache/incubator-devlake/plugins/gitlab/impl"
@@ -46,86 +47,28 @@ func TestGitlabMrDataFlow(t *testing.T) {
 	dataflowTester.FlushTabler(&models.GitlabMergeRequest{})
 	dataflowTester.FlushTabler(&models.GitlabMrLabel{})
 	dataflowTester.Subtask(tasks.ExtractApiMergeRequestsMeta, taskData)
-	dataflowTester.VerifyTable(
-		models.GitlabMergeRequest{},
-		"./snapshot_tables/_tool_gitlab_merge_requests.csv",
-		e2ehelper.ColumnWithRawData(
-			"connection_id",
-			"gitlab_id",
-			"iid",
-			"project_id",
-			"source_project_id",
-			"target_project_id",
-			"state",
-			"title",
-			"web_url",
-			"user_notes_count",
-			"work_in_progress",
-			"source_branch",
-			"target_branch",
-			"merge_commit_sha",
-			"merged_at",
-			"gitlab_created_at",
-			"closed_at",
-			"merged_by_username",
-			"description",
-			"author_username",
-			"author_user_id",
-			"component",
-			"first_comment_time",
-			"review_rounds",
-		),
-	)
-	dataflowTester.VerifyTable(
-		models.GitlabMrLabel{},
-		"./snapshot_tables/_tool_gitlab_mr_labels.csv",
-		e2ehelper.ColumnWithRawData(
-			"connection_id",
-			"mr_id",
-			"label_name",
-		),
-	)
+	dataflowTester.VerifyTableWithOptions(&models.GitlabMergeRequest{}, e2ehelper.TableOptions{
+		CSVRelPath:  "./snapshot_tables/_tool_gitlab_merge_requests.csv",
+		IgnoreTypes: []interface{}{common.NoPKModel{}},
+	})
+	dataflowTester.VerifyTableWithOptions(&models.GitlabMrLabel{}, e2ehelper.TableOptions{
+		CSVRelPath:  "./snapshot_tables/_tool_gitlab_mr_labels.csv",
+		IgnoreTypes: []interface{}{common.NoPKModel{}},
+	})
 
 	// verify conversion
 	dataflowTester.FlushTabler(&code.PullRequest{})
 	dataflowTester.Subtask(tasks.ConvertApiMergeRequestsMeta, taskData)
-	dataflowTester.VerifyTable(
-		code.PullRequest{},
-		"./snapshot_tables/pull_requests.csv",
-		e2ehelper.ColumnWithRawData(
-			"id",
-			"base_repo_id",
-			"head_repo_id",
-			"status",
-			"title",
-			"description",
-			"url",
-			"author_name",
-			"author_id",
-			"parent_pr_id",
-			"pull_request_key",
-			"created_date",
-			"merged_date",
-			"closed_date",
-			"type",
-			"component",
-			"merge_commit_sha",
-			"head_ref",
-			"base_ref",
-			"base_commit_sha",
-			"head_commit_sha",
-		),
-	)
+	dataflowTester.VerifyTableWithOptions(&code.PullRequest{}, e2ehelper.TableOptions{
+		CSVRelPath:  "./snapshot_tables/pull_requests.csv",
+		IgnoreTypes: []interface{}{common.NoPKModel{}},
+	})
 
 	// verify conversion
 	dataflowTester.FlushTabler(&code.PullRequestLabel{})
 	dataflowTester.Subtask(tasks.ConvertMrLabelsMeta, taskData)
-	dataflowTester.VerifyTable(
-		code.PullRequestLabel{},
-		"./snapshot_tables/pull_request_labels.csv",
-		e2ehelper.ColumnWithRawData(
-			"pull_request_id",
-			"label_name",
-		),
-	)
+	dataflowTester.VerifyTableWithOptions(&code.PullRequestLabel{}, e2ehelper.TableOptions{
+		CSVRelPath:  "./snapshot_tables/pull_request_labels.csv",
+		IgnoreTypes: []interface{}{common.NoPKModel{}},
+	})
 }

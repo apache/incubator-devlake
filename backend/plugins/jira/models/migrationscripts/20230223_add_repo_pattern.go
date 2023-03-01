@@ -18,42 +18,31 @@ limitations under the License.
 package migrationscripts
 
 import (
+	"encoding/json"
+
 	"github.com/apache/incubator-devlake/core/context"
 	"github.com/apache/incubator-devlake/core/errors"
 	"github.com/apache/incubator-devlake/helpers/migrationhelper"
-	"github.com/apache/incubator-devlake/plugins/sonarqube/models/migrationscripts/archived"
 )
 
-type addInitTables struct{}
-
-func (*addInitTables) Up(basicRes context.BasicRes) errors.Error {
-	err := basicRes.GetDal().DropTables(
-		&archived.SonarqubeProject{},
-		&archived.SonarqubeHotspot{},
-		&archived.SonarqubeIssue{},
-		&archived.SonarqubeFileMetrics{},
-		&archived.SonarqubeIssueCodeBlock{},
-		&archived.SonarqubeAccount{},
-	)
-	if err != nil {
-		return err
-	}
-	return migrationhelper.AutoMigrateTables(
-		basicRes,
-		&archived.SonarqubeConnection{},
-		&archived.SonarqubeProject{},
-		&archived.SonarqubeHotspot{},
-		&archived.SonarqubeIssue{},
-		&archived.SonarqubeFileMetrics{},
-		&archived.SonarqubeIssueCodeBlock{},
-		&archived.SonarqubeAccount{},
-	)
+type JiraTransformationRule20230223 struct {
+	RemotelinkRepoPattern json.RawMessage `mapstructure:"remotelinkRepoPattern,omitempty" json:"remotelinkRepoPattern"`
 }
 
-func (*addInitTables) Version() uint64 {
-	return 20230227220071
+func (JiraTransformationRule20230223) TableName() string {
+	return "_tool_jira_transformation_rules"
 }
 
-func (*addInitTables) Name() string {
-	return "sonarqube init schemas"
+type addCommitRepoPattern struct{}
+
+func (script *addCommitRepoPattern) Up(basicRes context.BasicRes) errors.Error {
+	return migrationhelper.AutoMigrateTables(basicRes, &JiraTransformationRule20230223{})
+}
+
+func (*addCommitRepoPattern) Version() uint64 {
+	return 20230223112532
+}
+
+func (*addCommitRepoPattern) Name() string {
+	return "add remotelink_repo_pattern to _tool_jira_transformation_rules"
 }

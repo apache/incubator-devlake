@@ -18,11 +18,10 @@ limitations under the License.
 package plugin
 
 import (
-	"fmt"
-
 	"github.com/apache/incubator-devlake/core/dal"
 	"github.com/apache/incubator-devlake/core/errors"
 	coreModels "github.com/apache/incubator-devlake/core/models"
+	"github.com/apache/incubator-devlake/core/models/common"
 	"github.com/apache/incubator-devlake/core/plugin"
 	"github.com/apache/incubator-devlake/helpers/pluginhelper/api"
 	"github.com/apache/incubator-devlake/server/services/remote/bridge"
@@ -37,13 +36,13 @@ type (
 		description              string
 		invoker                  bridge.Invoker
 		connectionTabler         *coreModels.DynamicTabler
+		scopeTabler              *coreModels.DynamicTabler
 		transformationRuleTabler *coreModels.DynamicTabler
 		resources                map[string]map[string]plugin.ApiResourceHandler
 	}
 	RemotePluginTaskData struct {
 		DbUrl              string                 `json:"db_url"`
 		ScopeId            string                 `json:"scope_id"`
-		ConnectionId       uint64                 `json:"connection_id"`
 		Connection         interface{}            `json:"connection"`
 		TransformationRule interface{}            `json:"transformation_rule"`
 		Options            map[string]interface{} `json:"options"`
@@ -51,26 +50,31 @@ type (
 )
 
 func newPlugin(info *models.PluginInfo, invoker bridge.Invoker) (*remotePluginImpl, errors.Error) {
-	connectionTableName := fmt.Sprintf("_tool_%s_connections", info.Name)
-	connectionTabler, err := models.LoadTableModel(connectionTableName, info.ConnectionSchema)
+	connectionTabler, err := info.ConnectionModelInfo.LoadDynamicTabler(true, common.Model{})
 	if err != nil {
 		return nil, err
 	}
 
-	txRuleTableName := fmt.Sprintf("_tool_%s_transformation_rules", info.Name)
-	txRuleTabler, err := models.LoadTableModel(txRuleTableName, info.TransformationRuleSchema)
+	var txRuleTabler *coreModels.DynamicTabler
+	if info.TransformationRuleModelInfo != nil {
+		txRuleTabler, err = info.TransformationRuleModelInfo.LoadDynamicTabler(false, models.TransformationModel{})
+		if err != nil {
+			return nil, err
+		}
+	}
+	scopeTabler, err := info.ScopeModelInfo.LoadDynamicTabler(false, models.ScopeModel{})
 	if err != nil {
 		return nil, err
 	}
-
 	p := remotePluginImpl{
 		name:                     info.Name,
 		invoker:                  invoker,
 		pluginPath:               info.PluginPath,
 		description:              info.Description,
 		connectionTabler:         connectionTabler,
+		scopeTabler:              scopeTabler,
 		transformationRuleTabler: txRuleTabler,
-		resources:                GetDefaultAPI(invoker, connectionTabler, txRuleTabler, connectionHelper),
+		resources:                GetDefaultAPI(invoker, connectionTabler, txRuleTabler, scopeTabler, connectionHelper),
 	}
 	remoteBridge := bridge.NewBridge(invoker)
 	for _, subtask := range info.SubtaskMetas {
@@ -94,38 +98,43 @@ func (p *remotePluginImpl) PrepareTaskData(taskCtx plugin.TaskContext, options m
 	dbUrl := taskCtx.GetConfig("db_url")
 	connectionId := uint64(options["connectionId"].(float64))
 
-	connectionHelper := api.NewConnectionHelper(
+	helper := api.NewConnectionHelper(
 		taskCtx,
 		nil,
 	)
 
-	connection := p.connectionTabler.New()
-	err := connectionHelper.FirstById(connection, connectionId)
+	wrappedConnection := p.connectionTabler.New()
+	err := helper.FirstById(wrappedConnection, connectionId)
 	if err != nil {
 		return nil, errors.Convert(err)
 	}
+	connection := wrappedConnection.Unwrap()
 
 	scopeId, ok := options["scopeId"].(string)
 	if !ok {
 		return nil, errors.BadInput.New("missing scopeId")
 	}
 
-	txRule := p.transformationRuleTabler.New()
+	var txRule interface{}
 	txRuleId, ok := options["transformation_rule_id"].(uint64)
 	if ok {
+		wrappedTxRule := p.transformationRuleTabler.New()
 		db := taskCtx.GetDal()
-		err = db.First(&txRule, dal.Where("id = ?", txRuleId))
+		err = db.First(&wrappedTxRule, dal.Where("id = ?", txRuleId))
 		if err != nil {
 			return nil, errors.BadInput.New("invalid transformation rule id")
 		}
+		txRule = wrappedTxRule.Unwrap()
+	} else {
+		txRule = nil
 	}
 
 	return RemotePluginTaskData{
 		DbUrl:              dbUrl,
 		ScopeId:            scopeId,
-		ConnectionId:       connectionId,
-		Connection:         connection.Unwrap(),
+		Connection:         connection,
 		TransformationRule: txRule,
+		Options:            options,
 	}, nil
 }
 
@@ -150,15 +159,18 @@ func (p *remotePluginImpl) RunMigrations(forceMigrate bool) errors.Error {
 	if err != nil {
 		return err
 	}
-
-	err = api.CallDB(basicRes.GetDal().AutoMigrate, p.transformationRuleTabler.New())
+	if p.transformationRuleTabler != nil {
+		err = api.CallDB(basicRes.GetDal().AutoMigrate, p.transformationRuleTabler.New())
+		if err != nil {
+			return err
+		}
+	}
+	err = api.CallDB(basicRes.GetDal().AutoMigrate, p.scopeTabler.New())
 	if err != nil {
 		return err
 	}
-
 	err = p.invoker.Call("run-migrations", bridge.DefaultContext, forceMigrate).Get()
 	return err
 }
 
 var _ models.RemotePlugin = (*remotePluginImpl)(nil)
-var _ plugin.Scope = (*models.WrappedPipelineScope)(nil)
