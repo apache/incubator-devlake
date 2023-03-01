@@ -42,7 +42,7 @@ export const GitHubConfig: PluginConfigType = {
         key: 'endpoint',
         multipleVersions: {
           cloud: 'https://api.github.com/',
-          server: '',
+          server: ' ',
         },
       },
       ({ initialValues, values, errors, setValues, setErrors }: any) => (

@@ -37,7 +37,7 @@ export const JiraConfig: PluginConfigType = {
       {
         key: 'endpoint',
         subLabel:
-          'Provide the Jira instance API endpoint. For Jira Cloud, e.g. https://your-company.atlassian.net/rest/. For Jira Server v8+, e.g. https://your-company.atlassian.net/rest/. Please note: The endpoint URL should end with /.',
+          'Provide the Jira instance API endpoint. For Jira Cloud, e.g. https://your-company.atlassian.net/rest/. For Jira Server/Data Center v7+, e.g. https://your-company.atlassian.net/rest/. Please note: The endpoint URL should end with /.',
       },
       ({ initialValues, values, errors, setValues, setErrors }: any) => {
         const initialValue = useMemo(

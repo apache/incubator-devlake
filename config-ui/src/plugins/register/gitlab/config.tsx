@@ -42,7 +42,7 @@ export const GitLabConfig: PluginConfigType = {
         key: 'endpoint',
         multipleVersions: {
           cloud: 'https://gitlab.com/api/v4/',
-          server: '',
+          server: '(v11+)',
         },
         subLabel:
           'If you are using GitLab Cloud, you do not need to enter the endpoint URL, which is https://gitlab.com/api/v4/.',
