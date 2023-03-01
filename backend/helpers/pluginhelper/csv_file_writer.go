@@ -19,7 +19,9 @@ package pluginhelper
 
 import (
 	"encoding/csv"
+	"github.com/apache/incubator-devlake/core/errors"
 	"os"
+	"path/filepath"
 )
 
 // CsvFileWriter make writer for saving csv file easier, it write tuple to csv file
@@ -35,8 +37,12 @@ type CsvFileWriter struct {
 }
 
 // NewCsvFileWriter create a `*CsvFileWriter` based on path to saving csv file
-func NewCsvFileWriter(csvPath string, fields []string) *CsvFileWriter {
+func NewCsvFileWriter(csvPath string, fields []string) (*CsvFileWriter, errors.Error) {
 	// open csv file
+	if filepath.Ext(csvPath) != ".csv" {
+		return nil, errors.BadInput.New("the file does not have \".csv\" extension")
+	}
+
 	csvFile, err := os.Create(csvPath)
 	if err != nil {
 		panic(err)
@@ -55,7 +61,7 @@ func NewCsvFileWriter(csvPath string, fields []string) *CsvFileWriter {
 		file:   csvFile,
 		writer: csvWriter,
 		fields: fields,
-	}
+	}, nil
 }
 
 // Close releases resource
