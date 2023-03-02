@@ -114,8 +114,6 @@ func (p Gitlab) SubTaskMetas() []plugin.SubTaskMeta {
 		tasks.EnrichMergeRequestsMeta,
 		tasks.CollectAccountsMeta,
 		tasks.ExtractAccountsMeta,
-		tasks.CollectAccountDetailsMeta,
-		tasks.ExtractAccountDetailsMeta,
 		tasks.ConvertAccountsMeta,
 		tasks.ConvertProjectMeta,
 		tasks.ConvertApiMergeRequestsMeta,
