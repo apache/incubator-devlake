@@ -29,7 +29,6 @@ class Builds(Stream):
         connection: AzureDevOpsConnection = context.connection
         options = context.options
         azure_api = AzureDevOpsAPI(connection.base_url, connection.pat)
-        # import pydevlake.keon.debugger
         # grab this info off the parent results
         response = azure_api.builds(options["org"], options["project"])
         cached_repos = dict()
@@ -39,7 +38,6 @@ class Builds(Stream):
 
     def extract(self, raw_data: dict, context) -> ToolModel:
         build: Build = self.tool_model(**raw_data)
-        # import pydevlake.keon.debugger
         build.id = raw_data["id"]
         build.project_id = raw_data["project"]["id"]
         build.repo_id = raw_data["repository"]["id"]
@@ -61,7 +59,6 @@ class Builds(Stream):
         return build
 
     def convert(self, b: Build, ctx: Context) -> Iterable[DomainModel]:
-        # import pydevlake.keon.debugger
         yield CICDPipeline(
                 name=b.id,
                 status=b.status,

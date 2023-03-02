@@ -29,7 +29,6 @@ class Jobs(Substream):
         options = context.options
         azure_api = AzureDevOpsAPI(connection.base_url, connection.pat)
         # grab this info off the parent results
-        # import pydevlake.keon.debugger
         response = azure_api.jobs(options["org"], options["project"], parent.id)
         if response.status != 200:
             yield None, state
@@ -40,14 +39,12 @@ class Jobs(Substream):
                 yield raw_job, state
 
     def extract(self, raw_data: dict, context) -> ToolModel:
-        # import pydevlake.keon.debugger
         job: Job = self.tool_model(**raw_data)
         if job.type != job.type.Job:
             return None
         return job
 
     def convert(self, j: Job, ctx: Context) -> Iterable[CICDPipeline]:
-        # import pydevlake.keon.debugger
         yield CICDTask(
             name=j.id,
             pipeline_id=j.build_id,

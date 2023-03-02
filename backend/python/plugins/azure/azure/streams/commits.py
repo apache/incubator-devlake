@@ -61,7 +61,6 @@ class GitCommits(Substream):
 
 
 def extract_raw_commit(stream: Stream, raw_data: dict, ctx: Context) -> GitCommit:
-    # import pydevlake.keon.debugger
     commit: GitCommit = stream.tool_model(**raw_data)
     commit.project_id = ctx.options["project"]
     commit.repo_id = raw_data["repo_id"]

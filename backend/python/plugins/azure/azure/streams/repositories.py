@@ -27,7 +27,6 @@ class GitRepositories(Stream):
             yield raw_repo, state
 
     def extract(self, raw_data: dict, context) -> ToolModel:
-        # import pydevlake.keon.debugger
         repo: GitRepository = self.tool_model(**raw_data)
         if not repo.defaultBranch:
             return None

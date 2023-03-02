@@ -38,7 +38,6 @@ class GitPullRequests(Substream):
             yield raw_pr, state
 
     def extract(self, raw_data: dict, context) -> ToolModel:
-        # import pydevlake.keon.debugger
         pr: GitPullRequest = self.tool_model(**raw_data)
         pr.id = raw_data["pullRequestId"]
         pr.project_id = context.options["project"]
@@ -66,7 +65,6 @@ class GitPullRequests(Substream):
         return pr
 
     def convert(self, pr: GitPullRequest, context: Context) -> Iterable[DomainPullRequest]:
-        # import pydevlake.keon.debugger
         merged_date: datetime = None
         if pr.status == GitPullRequest.Status.Completed:
             # query from commits
