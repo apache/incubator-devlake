@@ -34,7 +34,6 @@ import (
 )
 
 type WebhookIssueRequest struct {
-	BoardKey                string     `mapstructure:"board_key" validate:"required"`
 	Url                     string     `mapstructure:"url"`
 	IssueKey                string     `mapstructure:"issue_key" validate:"required"`
 	Title                   string     `mapstructure:"title" validate:"required"`
@@ -65,7 +64,7 @@ type WebhookIssueRequest struct {
 
 // PostIssue
 // @Summary receive a record as defined and save it
-// @Description receive a record as follow and save it, example: {"board_key":"DLK","url":"","issue_key":"DLK-1234","title":"a feature from DLK","description":"","epic_key":"","type":"BUG","status":"TODO","original_status":"created","story_point":0,"resolution_date":null,"created_date":"2020-01-01T12:00:00+00:00","updated_date":null,"lead_time_minutes":0,"parent_issue_key":"DLK-1200","priority":"","original_estimate_minutes":0,"time_spent_minutes":0,"time_remaining_minutes":0,"creator_id":"user1131","creator_name":"Nick name 1","assignee_id":"user1132","assignee_name":"Nick name 2","severity":"","component":""}
+// @Description receive a record as follow and save it, example: {"url":"","issue_key":"DLK-1234","title":"a feature from DLK","description":"","epic_key":"","type":"BUG","status":"TODO","original_status":"created","story_point":0,"resolution_date":null,"created_date":"2020-01-01T12:00:00+00:00","updated_date":null,"lead_time_minutes":0,"parent_issue_key":"DLK-1200","priority":"","original_estimate_minutes":0,"time_spent_minutes":0,"time_remaining_minutes":0,"creator_id":"user1131","creator_name":"Nick name 1","assignee_id":"user1132","assignee_name":"Nick name 2","severity":"","component":""}
 // @Tags plugins/webhook
 // @Param body body WebhookIssueRequest true "json body"
 // @Success 200  {string} noResponse ""
@@ -94,7 +93,7 @@ func PostIssue(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, error
 	db := basicRes.GetDal()
 	domainIssue := &ticket.Issue{
 		DomainEntity: domainlayer.DomainEntity{
-			Id: fmt.Sprintf("%s:%d:%s:%s", "webhook", connection.ID, request.BoardKey, request.IssueKey),
+			Id: fmt.Sprintf("%s:%d:%s", "webhook", connection.ID, request.IssueKey),
 		},
 		Url:                     request.Url,
 		IssueKey:                request.IssueKey,
@@ -125,10 +124,10 @@ func PostIssue(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, error
 		domainIssue.AssigneeId = fmt.Sprintf("%s:%d:%s", "webhook", connection.ID, request.AssigneeId)
 	}
 	if request.ParentIssueKey != "" {
-		domainIssue.ParentIssueId = fmt.Sprintf("%s:%d:%s:%s", "webhook", connection.ID, request.BoardKey, request.ParentIssueKey)
+		domainIssue.ParentIssueId = fmt.Sprintf("%s:%d:%s", "webhook", connection.ID, request.ParentIssueKey)
 	}
 
-	domainBoardId := fmt.Sprintf("%s:%d:%s", "webhook", connection.ID, request.BoardKey)
+	domainBoardId := fmt.Sprintf("%s:%d", "webhook", connection.ID)
 
 	boardIssue := &ticket.BoardIssue{
 		BoardId: domainBoardId,
@@ -175,7 +174,7 @@ func PostIssue(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, error
 // @Success 200  {string} noResponse ""
 // @Failure 400  {string} errcode.Error "Bad Request"
 // @Failure 500  {string} errcode.Error "Internal Error"
-// @Router /plugins/webhook/:connectionId/issue/:boardKey/:issueKey/close [POST]
+// @Router /plugins/webhook/:connectionId/issue/:issueKey/close [POST]
 func CloseIssue(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, errors.Error) {
 	connection := &models.WebhookConnection{}
 	err := connectionHelper.First(connection, input.Params)
@@ -185,7 +184,7 @@ func CloseIssue(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, erro
 
 	db := basicRes.GetDal()
 	domainIssue := &ticket.Issue{}
-	err = db.First(domainIssue, dal.Where("id = ?", fmt.Sprintf("%s:%d:%s:%s", "webhook", connection.ID, input.Params[`boardKey`], input.Params[`issueKey`])))
+	err = db.First(domainIssue, dal.Where("id = ?", fmt.Sprintf("%s:%d:%s", "webhook", connection.ID, input.Params[`issueKey`])))
 	if err != nil {
 		return nil, errors.NotFound.Wrap(err, `issue not found`)
 	}
