@@ -28,12 +28,3 @@ export const Container = styled.div`
     margin-left: 8px;
   }
 `;
-
-export const Error = styled.div`
-  padding: 6px 10px;
-  color: #94959f;
-
-  span.bp4-icon {
-    margin-right: 4px;
-  }
-`;
