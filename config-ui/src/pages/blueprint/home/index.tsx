@@ -20,7 +20,7 @@ import React, { useMemo } from 'react';
 import { Link, useHistory } from 'react-router-dom';
 import { ButtonGroup, Button, Intent } from '@blueprintjs/core';
 
-import { PageLoading, PageHeader, Table, ColumnType } from '@/components';
+import { PageLoading, PageHeader, Table, ColumnType, IconButton, TextTooltip } from '@/components';
 import { getCron, getCronOptions } from '@/config';
 import { formatTime } from '@/utils';
 
@@ -44,10 +44,12 @@ export const BlueprintHomePage = () => {
           title: 'Blueprint Name',
           dataIndex: 'name',
           key: 'name',
+          ellipsis: true,
         },
         {
           title: 'Data Connections',
           key: 'connections',
+          align: 'center',
           render: (_, row) => {
             if (row.mode === ModeEnum.advanced) {
               return 'Advanced Mode';
@@ -58,6 +60,8 @@ export const BlueprintHomePage = () => {
         {
           title: 'Frequency',
           key: 'frequency',
+          width: 100,
+          align: 'center',
           render: (_, row) => {
             const cron = getCron(row.isManual, row.cronConfig);
             return cron.label;
@@ -66,6 +70,8 @@ export const BlueprintHomePage = () => {
         {
           title: 'Next Run Time',
           key: 'nextRunTime',
+          width: 200,
+          align: 'center',
           render: (_, row) => {
             const cron = getCron(row.isManual, row.cronConfig);
             return formatTime(cron.nextTime);
@@ -75,15 +81,24 @@ export const BlueprintHomePage = () => {
           title: 'Project',
           dataIndex: 'projectName',
           key: 'project',
-          render: (val) => (val ? <Link to={`/projects/${window.encodeURIComponent(val)}`}> {val}</Link> : val),
+          align: 'center',
+          render: (val) =>
+            val ? (
+              <Link to={`/projects/${window.encodeURIComponent(val)}`}>
+                <TextTooltip content={val}>{val}</TextTooltip>
+              </Link>
+            ) : (
+              val
+            ),
         },
         {
           title: '',
           dataIndex: 'id',
           key: 'action',
+          width: 100,
           align: 'center',
           render: (val) => (
-            <Button minimal intent={Intent.PRIMARY} icon="cog" onClick={() => history.push(`/blueprints/${val}`)} />
+            <IconButton icon="cog" tooltip="Detail" onClick={() => history.push(`/blueprints/${val}`)} />
           ),
         },
       ] as ColumnType<BlueprintType>,

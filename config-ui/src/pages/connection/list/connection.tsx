@@ -67,6 +67,7 @@ export const Connection = ({ plugin }: Props) => {
           title: 'ID',
           dataIndex: 'id',
           key: 'id',
+          width: 100,
         },
         {
           title: 'Connection Name',
@@ -77,6 +78,7 @@ export const Connection = ({ plugin }: Props) => {
           title: 'Endpoint',
           dataIndex: 'endpoint',
           key: 'endpoint',
+          ellipsis: true,
         },
         {
           title: 'Status',
@@ -89,6 +91,8 @@ export const Connection = ({ plugin }: Props) => {
           title: '',
           dataIndex: 'id',
           key: 'action',
+          width: 100,
+          align: 'center',
           render: (id) => (
             <ButtonGroup>
               <IconButton icon="edit" tooltip="Edit" onClick={() => handleUpdate(id)} />

@@ -20,7 +20,7 @@ import React, { useMemo, useState } from 'react';
 import { Link, useHistory } from 'react-router-dom';
 import { Button, InputGroup, Checkbox, Intent } from '@blueprintjs/core';
 
-import { PageHeader, Table, ColumnType, Dialog } from '@/components';
+import { PageHeader, Table, ColumnType, Dialog, IconButton } from '@/components';
 
 import { useProject } from './use-project';
 import * as S from './styled';
@@ -60,14 +60,14 @@ export const ProjectHomePage = () => {
         },
         {
           title: '',
-          dataIndex: 'name' as const,
-          align: 'right' as const,
+          dataIndex: 'name',
           key: 'action',
+          width: 100,
+          align: 'center',
           render: (name: any) => (
-            <Button
-              outlined
-              intent={Intent.PRIMARY}
+            <IconButton
               icon="cog"
+              tooltip="Detail"
               onClick={() => history.push(`/projects/${window.encodeURIComponent(name)}`)}
             />
           ),
