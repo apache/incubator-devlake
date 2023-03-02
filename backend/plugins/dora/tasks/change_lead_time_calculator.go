@@ -35,7 +35,7 @@ func CalculateChangeLeadTime(taskCtx plugin.SubTaskContext) errors.Error {
 	data := taskCtx.GetData().(*DoraTaskData)
 	// construct a list of tuple[task, oldPipelineCommitSha, newPipelineCommitSha, taskFinishedDate]
 	deploymentClause := []dal.Clause{
-		dal.Select(`ct.id as task_id, cpc.commit_sha as new_deploy_commit_sha, 
+		dal.Select(`ct.id as task_id, cpc.commit_sha as new_deploy_commit_sha,
 			ct.finished_date as task_finished_date, cpc.repo_id as repo_id`),
 		dal.From(`cicd_tasks ct`),
 		dal.Join(`left join cicd_pipeline_commits cpc on ct.pipeline_id = cpc.pipeline_id`),
@@ -111,6 +111,8 @@ func CalculateChangeLeadTime(taskCtx plugin.SubTaskContext) errors.Error {
 			if err != nil {
 				return nil, err
 			}
+			// clauses filter by merged_date IS NOT NULL, so MergedDate must be not nil.
+			prDuring := processNegativeValue(int64(pr.MergedDate.Sub(pr.CreatedDate).Minutes()))
 			if firstReview != nil {
 				projectPrMetric.PrPickupTime = processNegativeValue(int64(firstReview.CreatedDate.Sub(pr.CreatedDate).Minutes()))
 				projectPrMetric.PrReviewTime = processNegativeValue(int64(pr.MergedDate.Sub(firstReview.CreatedDate).Minutes()))
@@ -132,11 +134,8 @@ func CalculateChangeLeadTime(taskCtx plugin.SubTaskContext) errors.Error {
 			if projectPrMetric.PrCodingTime != nil {
 				result += *projectPrMetric.PrCodingTime
 			}
-			if projectPrMetric.PrPickupTime != nil {
-				result += *projectPrMetric.PrPickupTime
-			}
-			if projectPrMetric.PrReviewTime != nil {
-				result += *projectPrMetric.PrReviewTime
+			if prDuring != nil {
+				result += *prDuring
 			}
 			if projectPrMetric.PrDeployTime != nil {
 				result += *projectPrMetric.PrDeployTime
