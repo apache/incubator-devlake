@@ -70,7 +70,7 @@ export const Transformation = ({ from, plugin, connectionId, onCancel, ...props 
 
       <div className="block">
         <RadioGroup selectedValue={type} onChange={handleChangeType}>
-          <Radio label="Creating a new transformation" value="create" />
+          <Radio label="Create a new transformation" value="create" />
           <Radio
             label={
               from === 'create'
@@ -79,7 +79,7 @@ export const Transformation = ({ from, plugin, connectionId, onCancel, ...props 
             }
             value="createByExist"
           />
-          <Radio label="Selecting an existing transformation" value="selectExist" />
+          <Radio label="Select an existing transformation" value="selectExist" />
         </RadioGroup>
       </div>
 
