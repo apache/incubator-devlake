@@ -64,6 +64,7 @@ export const Action = () => {
               error ? (
                 <Popover2
                   defaultIsOpen
+                  interactionKind="hover"
                   placement={Position.TOP}
                   content={
                     <S.Error>
