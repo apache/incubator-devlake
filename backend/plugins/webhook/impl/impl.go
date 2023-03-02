@@ -84,7 +84,7 @@ func (p Webhook) ApiResources() map[string]map[string]plugin.ApiResourceHandler 
 		":connectionId/issues": {
 			"POST": api.PostIssue,
 		},
-		":connectionId/issue/:boardKey/:issueKey/close": {
+		":connectionId/issue/:issueKey/close": {
 			"POST": api.CloseIssue,
 		},
 	}

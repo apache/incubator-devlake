@@ -19,6 +19,7 @@ package api
 
 import (
 	"fmt"
+
 	"github.com/apache/incubator-devlake/core/errors"
 	"github.com/apache/incubator-devlake/core/models/domainlayer"
 	"github.com/apache/incubator-devlake/core/models/domainlayer/devops"
@@ -42,8 +43,6 @@ func MakeDataSourcePipelinePlanV200(connectionId uint64) (plugin.PipelinePlan, [
 		},
 		Name: connection.Name,
 	})
-	// NOTICE:
-	//if utils.StringsContains(bpScope.Entities, plugin.DOMAIN_TYPE_TICKET) {}
-	// issue board will be created when post issue
+
 	return nil, scopes, nil
 }
