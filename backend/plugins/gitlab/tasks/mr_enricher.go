@@ -74,7 +74,7 @@ func EnrichMergeRequests(taskCtx plugin.SubTaskContext) errors.Error {
 			commits := make([]models.GitlabCommit, 0)
 			commitClauses := []dal.Clause{
 				dal.From(&models.GitlabCommit{}),
-				dal.Join(`join _tool_gitlab_mr_commits gmrc 
+				dal.Join(`join _tool_gitlab_mr_commits gmrc
 					on gmrc.commit_sha = _tool_gitlab_commits.sha`),
 				dal.Where("merge_request_id = ? AND gmrc.connection_id = ?",
 					gitlabMr.GitlabId, data.Options.ConnectionId),

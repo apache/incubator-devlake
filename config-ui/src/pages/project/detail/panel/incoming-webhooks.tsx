@@ -30,9 +30,16 @@ interface Props {
   saving: boolean;
   onSelectWebhook: (items: WebhookItemType[]) => void;
   onCreateWebhook: (id: ID) => any;
+  onDeleteWebhook: (id: ID) => any;
 }
 
-export const IncomingWebhooksPanel = ({ project, saving, onSelectWebhook, onCreateWebhook }: Props) => {
+export const IncomingWebhooksPanel = ({
+  project,
+  saving,
+  onSelectWebhook,
+  onCreateWebhook,
+  onDeleteWebhook,
+}: Props) => {
   const [type, setType] = useState<'selectExist' | 'create'>();
 
   const webhookIds = useMemo(
@@ -75,5 +82,5 @@ export const IncomingWebhooksPanel = ({ project, saving, onSelectWebhook, onCrea
     );
   }
 
-  return <WebHookConnection filterIds={webhookIds} onCreateAfter={onCreateWebhook} />;
+  return <WebHookConnection filterIds={webhookIds} onCreateAfter={onCreateWebhook} onDeleteAfter={onDeleteWebhook} />;
 };

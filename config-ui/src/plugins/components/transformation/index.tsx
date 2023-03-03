@@ -63,14 +63,14 @@ export const Transformation = ({ from, plugin, connectionId, onCancel, ...props 
     <S.Wrapper>
       {TIPS_MAP[plugin] && (
         <div className="tips">
-          To learn about how {TIPS_MAP[plugin].name} transformation is used in DevLake,
+          To learn about how {TIPS_MAP[plugin].name} transformation is used in DevLake,{' '}
           <ExternalLink link={TIPS_MAP[plugin].link}>check out this doc</ExternalLink>.
         </div>
       )}
 
       <div className="block">
         <RadioGroup selectedValue={type} onChange={handleChangeType}>
-          <Radio label="Creating a new transformation" value="create" />
+          <Radio label="Create a new transformation" value="create" />
           <Radio
             label={
               from === 'create'
@@ -79,7 +79,7 @@ export const Transformation = ({ from, plugin, connectionId, onCancel, ...props 
             }
             value="createByExist"
           />
-          <Radio label="Selecting an existing transformation" value="selectExist" />
+          <Radio label="Select an existing transformation" value="selectExist" />
         </RadioGroup>
       </div>
 

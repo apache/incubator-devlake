@@ -62,7 +62,7 @@ func TestRepoDataFlow(t *testing.T) {
 	assert.Nil(t, err)
 	dataflowTester.VerifyTable(
 		models.BitbucketRepo{},
-		"./snapshot_tables/_tool_bitbucket_repos1.csv",
+		"./snapshot_tables/_tool_bitbucket_repos.csv",
 		e2ehelper.ColumnWithRawData(
 			"connection_id",
 			"bitbucket_id",

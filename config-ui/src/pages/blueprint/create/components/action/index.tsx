@@ -18,7 +18,7 @@
 
 import React, { useMemo } from 'react';
 import { ButtonGroup, Button, Icon, Intent, Position, Colors } from '@blueprintjs/core';
-import { Popover2 } from '@blueprintjs/popover2';
+import { Tooltip2 } from '@blueprintjs/popover2';
 
 import { ModeEnum } from '../../../types';
 import { useCreateBP } from '../../bp-context';
@@ -62,18 +62,9 @@ export const Action = () => {
             disabled={!!error}
             icon={
               error ? (
-                <Popover2
-                  defaultIsOpen
-                  placement={Position.TOP}
-                  content={
-                    <S.Error>
-                      <Icon icon="warning-sign" color={Colors.ORANGE5} />
-                      <span>{error}</span>
-                    </S.Error>
-                  }
-                >
+                <Tooltip2 defaultIsOpen placement={Position.TOP} content={error}>
                   <Icon icon="warning-sign" color={Colors.ORANGE5} style={{ margin: 0 }} />
-                </Popover2>
+                </Tooltip2>
               ) : null
             }
             text="Next Step"

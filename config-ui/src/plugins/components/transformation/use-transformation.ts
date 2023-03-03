@@ -108,6 +108,7 @@ export const useTransformation = ({
         }),
       {
         setOperating: setSaving,
+        formatReason: (err) => (err as any).response?.data?.message,
       },
     );
 

@@ -19,10 +19,11 @@ package api
 
 import (
 	"fmt"
+	"net/http"
+
 	"github.com/apache/incubator-devlake/core/errors"
 	"github.com/apache/incubator-devlake/core/plugin"
 	"github.com/apache/incubator-devlake/plugins/webhook/models"
-	"net/http"
 )
 
 // PostConnections
@@ -128,7 +129,7 @@ func GetConnection(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, e
 func formatConnection(connection *models.WebhookConnection) *WebhookConnectionResponse {
 	response := &WebhookConnectionResponse{WebhookConnection: *connection}
 	response.PostIssuesEndpoint = fmt.Sprintf(`/plugins/webhook/%d/issues`, connection.ID)
-	response.CloseIssuesEndpoint = fmt.Sprintf(`/plugins/webhook/%d/issue/:boardKey/:issueKey/close`, connection.ID)
+	response.CloseIssuesEndpoint = fmt.Sprintf(`/plugins/webhook/%d/issue/:issueKey/close`, connection.ID)
 	response.PostPipelineTaskEndpoint = fmt.Sprintf(`/plugins/webhook/%d/cicd_tasks`, connection.ID)
 	response.PostPipelineDeployTaskEndpoint = fmt.Sprintf(`/plugins/webhook/%d/deployments`, connection.ID)
 	response.ClosePipelineEndpoint = fmt.Sprintf(`/plugins/webhook/%d/cicd_pipeline/:pipelineName/finish`, connection.ID)

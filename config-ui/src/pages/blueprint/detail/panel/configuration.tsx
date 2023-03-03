@@ -159,7 +159,7 @@ export const Configuration = ({ blueprint, operating, onUpdate, onRefresh }: Pro
                   setCurConnection(row);
                 }}
               >
-                <Icon icon="add" color={Colors.BLUE2} />
+                <Icon icon="annotation" color={Colors.BLUE2} />
                 <span>Change Data Scope</span>
               </div>
               {row.plugin !== 'sonarqube' && (

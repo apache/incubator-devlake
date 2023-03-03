@@ -19,7 +19,7 @@
 import React from 'react';
 import { Button, Intent } from '@blueprintjs/core';
 
-import { Loading, Card, NoData } from '@/components';
+import { Loading, Card, NoData, TextTooltip } from '@/components';
 
 import { ColumnType } from './types';
 import * as S from './styled';
@@ -58,18 +58,20 @@ export const Table = <T extends Record<string, any>>({ loading, columns, dataSou
           }
         />
       ) : (
-        <Card style={{ padding: 0 }}>
-          <S.Table loading={loading ? 1 : 0}>
-            <S.Header>
-              {columns.map(({ key, align = 'left', title }) => (
-                <span key={key} style={{ textAlign: align }}>
+        <S.Table>
+          <S.THeader>
+            <S.TR>
+              {columns.map(({ key, width, align = 'left', title }) => (
+                <S.TH key={key} style={{ width, textAlign: align }}>
                   {title}
-                </span>
+                </S.TH>
               ))}
-            </S.Header>
+            </S.TR>
+          </S.THeader>
+          <S.TBody>
             {dataSource.map((data, i) => (
-              <S.Row key={i}>
-                {columns.map(({ key, align = 'left', dataIndex, render }) => {
+              <S.TR key={i}>
+                {columns.map(({ key, width, align = 'left', ellipsis, dataIndex, render }) => {
                   const value = Array.isArray(dataIndex)
                     ? dataIndex.reduce((acc, cur) => {
                         acc[cur] = data[cur];
@@ -77,15 +79,21 @@ export const Table = <T extends Record<string, any>>({ loading, columns, dataSou
                       }, {} as any)
                     : data[dataIndex];
                   return (
-                    <span key={key} style={{ textAlign: align }}>
-                      {render ? render(value, data) : value}
-                    </span>
+                    <S.TD key={key} style={{ width, textAlign: align }}>
+                      {render ? (
+                        render(value, data)
+                      ) : ellipsis ? (
+                        <TextTooltip content={value}>{value}</TextTooltip>
+                      ) : (
+                        value
+                      )}
+                    </S.TD>
                   );
                 })}
-              </S.Row>
+              </S.TR>
             ))}
-          </S.Table>
-        </Card>
+          </S.TBody>
+        </S.Table>
       )}
     </S.Container>
   );

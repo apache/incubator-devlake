@@ -30,7 +30,7 @@ interface Props {
 
 export const GitLabDataScope = ({ connectionId, onChangeItems, ...props }: Props) => {
   const selectedItems = useMemo(
-    () => props.selectedItems.map((it) => ({ id: `${it.gitlabId}`, data: it })),
+    () => props.selectedItems.map((it) => ({ id: `${it.gitlabId}`, name: it.name, data: it })),
     [props.selectedItems],
   );
 

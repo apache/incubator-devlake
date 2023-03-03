@@ -20,6 +20,8 @@ export type ColumnType<T> = Array<{
   title: string;
   dataIndex: string | string[];
   key: string;
+  width?: number;
   align?: 'left' | 'center' | 'right';
+  ellipsis?: boolean;
   render?: (value: any, row: T) => React.ReactNode;
 }>;

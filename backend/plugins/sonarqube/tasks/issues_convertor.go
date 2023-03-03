@@ -76,8 +76,8 @@ func ConvertIssues(taskCtx plugin.SubTaskContext) errors.Error {
 				EndLine:           sonarqubeIssue.EndLine,
 				StartOffset:       sonarqubeIssue.StartOffset,
 				EndOffset:         sonarqubeIssue.EndOffset,
-				CreationDate:      sonarqubeIssue.CreationDate,
-				UpdateDate:        sonarqubeIssue.UpdateDate,
+				CreatedDate:       sonarqubeIssue.CreationDate,
+				UpdatedDate:       sonarqubeIssue.UpdateDate,
 			}
 			return []interface{}{
 				domainIssue,

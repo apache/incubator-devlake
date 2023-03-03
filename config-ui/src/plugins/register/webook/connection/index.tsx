@@ -17,9 +17,9 @@
  */
 
 import React, { useState } from 'react';
-import { ButtonGroup, Button, Icon, Intent } from '@blueprintjs/core';
+import { ButtonGroup, Button, Intent } from '@blueprintjs/core';
 
-import { Table, ColumnType, ExternalLink } from '@/components';
+import { Table, ColumnType, ExternalLink, IconButton } from '@/components';
 
 import type { WebhookItemType } from '../types';
 import { WebhookCreateDialog } from '../create-dialog';
@@ -34,9 +34,10 @@ type Type = 'add' | 'edit' | 'show' | 'delete';
 
 interface Props extends UseConnectionProps {
   onCreateAfter?: (id: ID) => void;
+  onDeleteAfter?: (id: ID) => void;
 }
 
-export const WebHookConnection = ({ onCreateAfter, ...props }: Props) => {
+export const WebHookConnection = ({ onCreateAfter, onDeleteAfter, ...props }: Props) => {
   const [type, setType] = useState<Type>();
   const [record, setRecord] = useState<WebhookItemType>();
 
@@ -71,8 +72,8 @@ export const WebHookConnection = ({ onCreateAfter, ...props }: Props) => {
       align: 'center',
       render: (_, row) => (
         <S.Action>
-          <Icon icon="edit" onClick={() => handleShowDialog('edit', row)} />
-          <Icon icon="trash" onClick={() => handleShowDialog('delete', row)} />
+          <IconButton icon="edit" tooltip="Edit" onClick={() => handleShowDialog('edit', row)} />
+          <IconButton icon="trash" tooltip="Delete" onClick={() => handleShowDialog('delete', row)} />
         </S.Action>
       ),
     },
@@ -109,7 +110,15 @@ export const WebHookConnection = ({ onCreateAfter, ...props }: Props) => {
         />
       )}
       {type === 'delete' && (
-        <WebhookDeleteDialog isOpen initialValues={record} onCancel={handleHideDialog} onSubmitAfter={onRefresh} />
+        <WebhookDeleteDialog
+          isOpen
+          initialValues={record}
+          onCancel={handleHideDialog}
+          onSubmitAfter={(id) => {
+            onRefresh();
+            onDeleteAfter?.(id);
+          }}
+        />
       )}
       {(type === 'edit' || type === 'show') && (
         <WebhookViewOrEditDialog

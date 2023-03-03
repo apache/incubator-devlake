@@ -29,7 +29,7 @@ import * as S from './styled';
 export const ProjectDetailPage = () => {
   const { pname } = useParams<{ pname: string }>();
 
-  const { loading, project, saving, onUpdate, onSelectWebhook, onCreateWebhook } = useProject(pname);
+  const { loading, project, saving, onUpdate, onSelectWebhook, onCreateWebhook, onDeleteWebhook } = useProject(pname);
 
   if (loading || !project) {
     return <PageLoading />;
@@ -55,6 +55,7 @@ export const ProjectDetailPage = () => {
                 saving={saving}
                 onSelectWebhook={onSelectWebhook}
                 onCreateWebhook={onCreateWebhook}
+                onDeleteWebhook={onDeleteWebhook}
               />
             }
           />

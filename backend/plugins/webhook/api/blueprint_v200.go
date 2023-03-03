@@ -19,6 +19,7 @@ package api
 
 import (
 	"fmt"
+
 	"github.com/apache/incubator-devlake/core/errors"
 	"github.com/apache/incubator-devlake/core/models/domainlayer"
 	"github.com/apache/incubator-devlake/core/models/domainlayer/devops"
@@ -31,7 +32,7 @@ func MakeDataSourcePipelinePlanV200(connectionId uint64) (plugin.PipelinePlan, [
 	connection := &models.WebhookConnection{}
 	err := connectionHelper.FirstById(connection, connectionId)
 	if err != nil {
-		return nil, nil, err
+		return nil, nil, errors.Default.Wrap(err, `cannot find webhook connection`)
 	}
 
 	scopes := make([]plugin.Scope, 0)
@@ -42,8 +43,6 @@ func MakeDataSourcePipelinePlanV200(connectionId uint64) (plugin.PipelinePlan, [
 		},
 		Name: connection.Name,
 	})
-	// NOTICE:
-	//if utils.StringsContains(bpScope.Entities, plugin.DOMAIN_TYPE_TICKET) {}
-	// issue board will be created when post issue
+
 	return nil, scopes, nil
 }

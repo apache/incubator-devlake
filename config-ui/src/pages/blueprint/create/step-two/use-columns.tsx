@@ -62,7 +62,7 @@ export const useColumns = ({ onDetail }: Props) => {
               small
               minimal
               intent={Intent.PRIMARY}
-              icon="add"
+              icon="cog"
               text="Set Data Scope"
               onClick={() => onDetail(connection)}
             />

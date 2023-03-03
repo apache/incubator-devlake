@@ -66,6 +66,7 @@ export const ConnectionEndpoint = ({
 
   useEffect(() => {
     setValue(initialValue);
+    setVersion(initialValue === multipleVersions?.cloud ? 'cloud' : 'server');
   }, [initialValue]);
 
   useEffect(() => {
@@ -94,8 +95,8 @@ export const ConnectionEndpoint = ({
       <FormGroup label={<S.Label>{name} Version</S.Label>} labelInfo={<S.LabelInfo>*</S.LabelInfo>}>
         <RadioGroup inline selectedValue={version} onChange={handleChange}>
           <Radio value="cloud">{name} Cloud</Radio>
-          <Radio value="server" disabled={multipleVersions.server === undefined}>
-            {name} Server
+          <Radio value="server" disabled={!multipleVersions.server}>
+            {name} Server {multipleVersions.server ? multipleVersions.server : '(to be supported)'}
           </Radio>
         </RadioGroup>
         {version === 'cloud' && (
