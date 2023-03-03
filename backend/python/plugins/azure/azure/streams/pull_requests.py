@@ -1,4 +1,3 @@
-import typing
 from datetime import datetime
 from typing import Iterable
 
@@ -8,21 +7,14 @@ from azure.api import AzureDevOpsAPI
 from azure.helper import db
 from azure.models import GitRepository, GitPullRequest, GitCommit
 from azure.streams.repositories import GitRepositories
-from pydevlake import Substream, Stream, Context
+from pydevlake import Substream, Stream, Context, DomainType
 from pydevlake.domain_layer.code import PullRequest as DomainPullRequest
-from pydevlake.model import DomainModel, ToolModel
+
 
 
 class GitPullRequests(Substream):
-
-    @property
-    def tool_model(self) -> typing.Type[ToolModel]:
-        # TODO define pr model
-        return GitPullRequest
-
-    @property
-    def domain_models(self) -> Iterable[typing.Type[DomainModel]]:
-        return [DomainPullRequest]
+    tool_model = GitPullRequest
+    domain_types = [DomainType.CODE]
 
     @property
     def parent_stream(self) -> Stream:
@@ -37,7 +29,7 @@ class GitPullRequests(Substream):
         for raw_pr in azure_api.parse_response(response):
             yield raw_pr, state
 
-    def extract(self, raw_data: dict, context) -> ToolModel:
+    def extract(self, raw_data: dict, context) -> GitPullRequest:
         pr: GitPullRequest = self.tool_model(**raw_data)
         pr.id = raw_data["pullRequestId"]
         pr.project_id = context.options["project"]

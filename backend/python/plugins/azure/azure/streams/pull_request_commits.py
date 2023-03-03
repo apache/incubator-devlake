@@ -1,29 +1,18 @@
-import typing
 from typing import Iterable
 
 from azure.api import AzureDevOpsAPI
-# from azure.streams.repositories import AzureRepositories
 from azure.models import GitPullRequest, GitCommit
 from azure.streams.commits import extract_raw_commit
 from azure.streams.pull_requests import GitPullRequests
-from pydevlake import Substream, Stream, ToolModel
+from pydevlake import Substream, DomainType
 from pydevlake.domain_layer.code import PullRequestCommit as DomainPullRequestCommit
-from pydevlake.model import NoPKModel
+
 
 
 class GitPullRequestCommits(Substream):
-
-    @property
-    def tool_model(self) -> typing.Type[ToolModel]:
-        return GitCommit
-
-    @property
-    def domain_models(self) -> Iterable[typing.Type[NoPKModel]]:
-        return [DomainPullRequestCommit]
-
-    @property
-    def parent_stream(self) -> Stream:
-        return GitPullRequests(self.plugin_name)
+    tool_model = GitCommit
+    domain_types = [DomainType.CODE]
+    parent_stream = GitPullRequests
 
     def collect(self, state, context, parent: GitPullRequest) -> Iterable[tuple[object, dict]]:
         connection = context.connection
@@ -35,7 +24,7 @@ class GitPullRequestCommits(Substream):
             raw_commit["repo_id"] = parent.repo_id
             yield raw_commit, state
 
-    def extract(self, raw_data: dict, context) -> ToolModel:
+    def extract(self, raw_data: dict, context) -> GitCommit:
         return extract_raw_commit(self, raw_data, context)
 
     def convert(self, commit: GitCommit, context) -> Iterable[DomainPullRequestCommit]:

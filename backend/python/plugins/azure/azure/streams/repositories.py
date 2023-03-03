@@ -1,22 +1,14 @@
-import typing
 from typing import Iterable, Tuple
 
 from azure.api import AzureDevOpsAPI
 from azure.models import GitRepository
-from pydevlake import Stream, ToolModel
+from pydevlake import Stream, DomainType
 from pydevlake.domain_layer.code import Repo as DomainRepo
-from pydevlake.model import DomainModel
 
 
 class GitRepositories(Stream):
-
-    @property
-    def tool_model(self) -> typing.Type[ToolModel]:
-        return GitRepository
-
-    @property
-    def domain_models(self) -> Iterable[typing.Type[DomainModel]]:
-        return [DomainRepo]
+    tool_model = GitRepository
+    domain_types = [DomainType.CODE]
 
     def collect(self, state, context) -> Iterable[Tuple[object, dict]]:
         connection = context.connection
@@ -26,7 +18,7 @@ class GitRepositories(Stream):
         for raw_repo in api.parse_response(response):
             yield raw_repo, state
 
-    def extract(self, raw_data: dict, context) -> ToolModel:
+    def extract(self, raw_data: dict, context) -> GitRepository:
         repo: GitRepository = self.tool_model(**raw_data)
         if not repo.defaultBranch:
             return None

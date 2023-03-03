@@ -7,23 +7,13 @@ from azure.api import AzureDevOpsAPI
 from azure.helper import db
 from azure.models import AzureDevOpsConnection, GitRepository
 from azure.models import Build
-from pydevlake.context import Context
+from pydevlake import Context, DomainType, Stream, logger
 from pydevlake.domain_layer.devops import *
-from pydevlake.logger import logger
-from pydevlake.model import DomainModel, ToolModel
-from pydevlake.stream import Stream
 
 
 class Builds(Stream):
-
-    @property
-    def tool_model(self) -> typing.Type[ToolModel]:
-        # TODO define pr model
-        return Build
-
-    @property
-    def domain_models(self) -> Iterable[typing.Type[DomainModel]]:
-        return [CICDPipeline, CiCDPipelineCommit]
+    tool_model = Build
+    domain_types = [DomainType.CICD]
 
     def collect(self, state, context) -> Iterable[tuple[object, dict]]:
         connection: AzureDevOpsConnection = context.connection
@@ -36,7 +26,7 @@ class Builds(Stream):
             if self.validate_repo(context, raw_build, cached_repos):
                 yield raw_build, state
 
-    def extract(self, raw_data: dict, context) -> ToolModel:
+    def extract(self, raw_data: dict, context) -> Build:
         build: Build = self.tool_model(**raw_data)
         build.id = raw_data["id"]
         build.project_id = raw_data["project"]["id"]

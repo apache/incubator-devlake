@@ -1,4 +1,3 @@
-import typing
 from typing import Iterable
 
 import iso8601 as iso8601
@@ -6,25 +5,15 @@ import iso8601 as iso8601
 from azure.api import AzureDevOpsAPI
 from azure.models import GitRepository, GitCommit
 from azure.streams.repositories import GitRepositories
-from pydevlake import Substream, Stream, ToolModel, Context
+from pydevlake import Substream, Stream, Context, DomainType
 from pydevlake.domain_layer.code import Commit as DomainCommit
 from pydevlake.domain_layer.code import RepoCommit as DomainRepoCommit
-from pydevlake.model import DomainModel
 
 
 class GitCommits(Substream):
-
-    @property
-    def tool_model(self) -> typing.Type[ToolModel]:
-        return GitCommit
-
-    @property
-    def domain_models(self) -> Iterable[typing.Type[DomainModel]]:
-        return [DomainCommit]
-
-    @property
-    def parent_stream(self) -> Stream:
-        return GitRepositories(self.plugin_name)
+    tool_model = GitCommit
+    domain_types = [DomainType.CODE]
+    parent_stream = GitRepositories
 
     def collect(self, state, context, parent: GitRepository) -> Iterable[tuple[object, dict]]:
         connection = context.connection
@@ -36,7 +25,7 @@ class GitCommits(Substream):
             raw_commit["repo_id"] = parent.id
             yield raw_commit, state
 
-    def extract(self, raw_data: dict, ctx: Context) -> ToolModel:
+    def extract(self, raw_data: dict, ctx: Context) -> GitCommit:
         return extract_raw_commit(self, raw_data, ctx)
 
     def convert(self, commit: GitCommit, ctx: Context) -> Iterable[DomainCommit]:

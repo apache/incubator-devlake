@@ -1,28 +1,16 @@
-import typing
 from typing import Iterable
 
 from azure.api import AzureDevOpsAPI
 from azure.models import AzureDevOpsConnection, Job, Build
 from azure.streams.builds import Builds
-from pydevlake import ToolModel, Context, Substream, Stream
+from pydevlake import Context, Substream, DomainType
 from pydevlake.domain_layer.devops import *
-from pydevlake.model import DomainModel
 
 
 class Jobs(Substream):
-
-    @property
-    def parent_stream(self) -> Stream:
-        return Builds(self.plugin_name)
-
-    @property
-    def tool_model(self) -> typing.Type[ToolModel]:
-        # TODO define pr model
-        return Job
-
-    @property
-    def domain_models(self) -> Iterable[typing.Type[DomainModel]]:
-        return [CICDPipeline]
+    tool_model = Job
+    domain_types = [DomainType.CICD]
+    parent_stream = Builds
 
     def collect(self, state, context, parent: Build) -> Iterable[tuple[object, dict]]:
         connection: AzureDevOpsConnection = context.connection
@@ -38,7 +26,7 @@ class Jobs(Substream):
                 raw_job["repo_id"] = parent.repo_id
                 yield raw_job, state
 
-    def extract(self, raw_data: dict, context) -> ToolModel:
+    def extract(self, raw_data: dict, ctx: Context) -> Job:
         job: Job = self.tool_model(**raw_data)
         if job.type != job.type.Job:
             return None
