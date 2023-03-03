@@ -20,7 +20,7 @@ import React, { useState, useMemo } from 'react';
 import { useHistory } from 'react-router-dom';
 import { ButtonGroup, Button, Icon, Intent } from '@blueprintjs/core';
 
-import { PageHeader, Table, ColumnType, Dialog, Selector } from '@/components';
+import { PageHeader, Table, ColumnType, Dialog, Selector, IconButton } from '@/components';
 import type { PluginConfigType } from '@/plugins';
 import { TransformationContextProvider, TransformationContextConsumer, TransformationItemType } from '@/store';
 
@@ -51,13 +51,13 @@ export const TransformationHomePage = () => {
         {
           title: '',
           key: 'action',
+          width: 100,
           align: 'center',
           render: (_, row) =>
             row.plugin !== 'jira' && (
-              <Button
-                minimal
-                intent={Intent.PRIMARY}
+              <IconButton
                 icon="cog"
+                tooltip="Detail"
                 onClick={() => history.push(`/transformations/${row.plugin}/${row.id}`)}
               />
             ),

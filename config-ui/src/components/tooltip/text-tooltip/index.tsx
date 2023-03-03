@@ -36,11 +36,12 @@ const Wrapper = styled.div`
 interface Props extends IntentProps {
   content: string;
   children: React.ReactNode;
+  style?: React.CSSProperties;
 }
 
-export const TextTooltip = ({ intent, content, children }: Props) => {
+export const TextTooltip = ({ intent, content, children, style }: Props) => {
   return (
-    <Wrapper>
+    <Wrapper style={style}>
       <Tooltip2 intent={intent} position={Position.TOP} content={content}>
         {children}
       </Tooltip2>

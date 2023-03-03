@@ -34,27 +34,40 @@ export const NoData = styled.div`
   }
 `;
 
-export const Table = styled.ul<{ loading: number }>`
-  transition: opacity 0.3s linear;
-  ${({ loading }) => (loading ? 'opacity: 0.2; ' : '')}
+export const Table = styled.table`
+  table-layout: fixed;
+  width: 100%;
+  background-color: #fff;
+  box-shadow: 0px 2.4px 4.8px -0.8px rgba(0, 0, 0, 0.1), 0px 1.6px 8px rgba(0, 0, 0, 0.07);
+  border-radius: 8px;
+  border-spacing: 0;
 `;
 
-export const Row = styled.li`
-  display: flex;
-  align-items: center;
-  padding: 12px 16px;
-  border-top: 1px solid #dbe4fd;
+export const THeader = styled.thead``;
 
-  & > span {
-    flex: 1;
-    overflow: hidden;
+export const TBody = styled.tbody``;
+
+export const TR = styled.tr`
+  &:last-child {
+    td {
+      border-bottom: none;
+    }
   }
 `;
 
-export const Header = styled(Row)`
-  font-size: 14px;
-  font-weight: 600;
-  border-top: none;
+export const TH = styled.th`
+  padding: 12px 16px;
+  border-bottom: 1px solid #dbe4fd;
+`;
+
+export const TD = styled.td`
+  padding: 12px 16px;
+  border-bottom: 1px solid #dbe4fd;
+  word-break: break-word;
+`;
+
+export const TDEllipsis = styled.td`
+  word-break: break-word;
 `;
 
 export const Mask = styled.div`
