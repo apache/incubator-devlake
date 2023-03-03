@@ -29,7 +29,6 @@ on:
       - "test/**"
       - "e2e/**"
       - "devops/**"
-      - "config-ui/**"
 jobs:
   e2e-mysql:
     runs-on: ubuntu-latest
