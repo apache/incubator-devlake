@@ -22,6 +22,7 @@ import (
 	"io"
 	"regexp"
 	"strings"
+	"time"
 
 	"github.com/apache/incubator-devlake/core/dal"
 	"github.com/apache/incubator-devlake/core/errors"
@@ -183,6 +184,7 @@ func (s *Service) importCSV(file io.ReadCloser, rawDataParams string, recordHand
 		return err
 	}
 	var hasNext bool
+	now := time.Now()
 	for {
 		if hasNext, err = iterator.HasNextWithError(); !hasNext {
 			return err
@@ -194,6 +196,8 @@ func (s *Service) importCSV(file io.ReadCloser, rawDataParams string, recordHand
 					record[k] = nil
 				}
 			}
+			record["created_at"] = now
+			record["updated_at"] = now
 			err = recordHandler(record)
 			if err != nil {
 				return err
