@@ -44,7 +44,7 @@ func CollectTasks(taskCtx plugin.SubTaskContext) errors.Error {
 		RawDataSubTaskArgs: *rawDataSubTaskArgs,
 		Incremental:        incremental,
 		ApiClient:          data.ApiClient,
-		PageSize:           int(data.Options.pageSize),
+		PageSize:           int(data.Options.PageSize),
 		UrlTemplate:        "tasks",
 		Query: func(reqData *helper.RequestData) (url.Values, errors.Error) {
 			query := url.Values{}

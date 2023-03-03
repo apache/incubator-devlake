@@ -187,6 +187,9 @@ func (p Tapd) PrepareTaskData(taskCtx plugin.TaskContext, options map[string]int
 	if err != nil {
 		return nil, errors.Default.Wrap(err, "failed to create tapd api client")
 	}
+	if op.PageSize == 0 {
+		op.PageSize = 100
+	}
 	cstZone, err1 := time.LoadLocation("Asia/Shanghai")
 	if err1 != nil {
 		return nil, errors.Default.Wrap(err1, "fail to get CST Location")

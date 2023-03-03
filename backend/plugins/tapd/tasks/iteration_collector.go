@@ -44,7 +44,7 @@ func CollectIterations(taskCtx plugin.SubTaskContext) errors.Error {
 	err = collectorWithState.InitCollector(api.ApiCollectorArgs{
 		Incremental: incremental,
 		ApiClient:   data.ApiClient,
-		PageSize:    int(data.Options.pageSize),
+		PageSize:    int(data.Options.PageSize),
 		Concurrency: 3,
 		UrlTemplate: "iterations",
 		Query: func(reqData *api.RequestData) (url.Values, errors.Error) {

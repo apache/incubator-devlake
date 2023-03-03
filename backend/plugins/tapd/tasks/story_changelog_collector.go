@@ -43,7 +43,7 @@ func CollectStoryChangelogs(taskCtx plugin.SubTaskContext) errors.Error {
 	err = collectorWithState.InitCollector(helper.ApiCollectorArgs{
 		Incremental: incremental,
 		ApiClient:   data.ApiClient,
-		PageSize:    int(data.Options.pageSize),
+		PageSize:    int(data.Options.PageSize),
 		UrlTemplate: "story_changes",
 		Query: func(reqData *helper.RequestData) (url.Values, errors.Error) {
 			query := url.Values{}

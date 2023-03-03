@@ -38,7 +38,7 @@ func CollectStoryStatusLastStep(taskCtx plugin.SubTaskContext) errors.Error {
 	collector, err := helper.NewApiCollector(helper.ApiCollectorArgs{
 		RawDataSubTaskArgs: *rawDataSubTaskArgs,
 		ApiClient:          data.ApiClient,
-		PageSize:           int(data.Options.pageSize),
+		PageSize:           int(data.Options.PageSize),
 		UrlTemplate:        "workflows/last_steps",
 		Query: func(reqData *helper.RequestData) (url.Values, errors.Error) {
 			query := url.Values{}
