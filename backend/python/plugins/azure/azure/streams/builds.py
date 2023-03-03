@@ -20,9 +20,9 @@ class Builds(Stream):
         options = context.options
         azure_api = AzureDevOpsAPI(connection.base_url, connection.pat)
         # grab this info off the parent results
-        response = azure_api.builds(options["org"], options["project"])
         cached_repos = dict()
-        for raw_build in azure_api.parse_response(response):
+        response = azure_api.builds(options["org"], options["project"])
+        for raw_build in response:
             if self.validate_repo(context, raw_build, cached_repos):
                 yield raw_build, state
 

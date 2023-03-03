@@ -1,10 +1,23 @@
+from typing import Optional
 import base64
 import typing
 
-from pydevlake.api import API, request_hook, Paginator, TokenPaginator, response_hook, Response, Request
+from pydevlake.api import API, request_hook, Paginator, response_hook, Response, Request
+
+
+class AzurePaginator(Paginator):
+    def get_items(self, response) -> Optional[list[object]]:
+        return response.json['value']
+
+    def get_next_page_id(self, response) -> Optional[int | str]:
+        return response.headers.get('x-ms-continuation')
+
+    def set_next_page_param(self, request, next_page_id):
+        request.query_args['continuationToken'] = next_page_id
 
 
 class AzureDevOpsAPI(API):
+    paginator = AzurePaginator()
 
     def __init__(self, base_url: str, pat: str):
         self.base_url = base_url
@@ -12,11 +25,6 @@ class AzureDevOpsAPI(API):
 
     def base_url(self):
         return self.base_url
-
-    @property
-    def paginator(self) -> Paginator:
-        TokenPaginator("", "", "")
-        return None
 
     @response_hook  # how to use this?
     def on_response(self, response: Response):
@@ -78,6 +86,3 @@ class AzureDevOpsAPI(API):
     # unused
     def releases(self, org: str, project: str) -> Response:
         return self.get(f'{org}/{project}/_apis/release/releases')
-
-    def parse_response(self, res: Response) -> typing.Iterable[dict]:
-        return res.json['value']

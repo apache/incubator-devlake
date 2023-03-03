@@ -15,7 +15,7 @@ class Projects(Stream):
         options = context.options
         api = AzureDevOpsAPI(connection.base_url, connection.pat)
         response = api.projects(options['org'])
-        for raw_project in api.parse_response(response):
+        for raw_project in response:
             yield raw_project, state
 
     def convert(self, project: Project, context) -> Iterable[object]:

@@ -15,7 +15,7 @@ class GitRepositories(Stream):
         options = context.options
         api = AzureDevOpsAPI(connection.base_url, connection.pat)
         response = api.git_repos(options['org'], options['project'])
-        for raw_repo in api.parse_response(response):
+        for raw_repo in response:
             yield raw_repo, state
 
     def extract(self, raw_data: dict, context) -> GitRepository:

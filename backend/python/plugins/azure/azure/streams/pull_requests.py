@@ -26,7 +26,7 @@ class GitPullRequests(Substream):
         azure_api = AzureDevOpsAPI(connection.base_url, connection.pat)
         # grab this info off the parent results
         response = azure_api.git_repo_pull_requests(options["org"], options["project"], parent.name)
-        for raw_pr in azure_api.parse_response(response):
+        for raw_pr in response:
             yield raw_pr, state
 
     def extract(self, raw_data: dict, context) -> GitPullRequest:

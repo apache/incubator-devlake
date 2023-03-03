@@ -20,7 +20,7 @@ class GitPullRequestCommits(Substream):
         azure_api = AzureDevOpsAPI(connection.base_url, connection.pat)
         # grab this info off the parent results
         response = azure_api.git_repo_pull_request_commits(options["org"], options["project"], parent.repo_id, parent.id)
-        for raw_commit in azure_api.parse_response(response):
+        for raw_commit in response:
             raw_commit["repo_id"] = parent.repo_id
             yield raw_commit, state
 
