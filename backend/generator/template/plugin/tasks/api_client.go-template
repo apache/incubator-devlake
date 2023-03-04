@@ -26,7 +26,7 @@ import (
 	"github.com/apache/incubator-devlake/plugins/{{ .plugin_name }}/models"
 	"github.com/apache/incubator-devlake/core/plugin"
 	"github.com/apache/incubator-devlake/core/errors"
-	helper "github.com/apache/incubator-devlake/helpers/pluginhelper/api"
+	"github.com/apache/incubator-devlake/helpers/pluginhelper/api"
 )
 
 func New{{ .PluginName }}ApiClient(taskCtx plugin.TaskContext, connection *models.{{ .PluginName }}Connection) (*api.ApiAsyncClient, errors.Error) {

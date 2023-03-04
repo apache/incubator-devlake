@@ -57,7 +57,7 @@ func MakePipelinePlan(subtaskMetas []plugin.SubTaskMeta, connectionId uint64, sc
 		if err != nil {
 			return nil, err
 		}
-		plan[i] = core.PipelineStage{
+		plan[i] = plugin.PipelineStage{
 			{
 				Plugin:   "{{ .plugin_name }}",
 				Subtasks: subtasks,

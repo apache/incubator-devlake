@@ -18,14 +18,12 @@ limitations under the License.
 package main
 
 import (
+	"github.com/apache/incubator-devlake/core/context"
     "github.com/apache/incubator-devlake/core/errors"
 	"github.com/apache/incubator-devlake/core/plugin"
-	"github.com/apache/incubator-devlake/core/errors"
 	"github.com/apache/incubator-devlake/plugins/{{ .plugin_name }}/tasks"
-	"github.com/apache/incubator-devlake/runner"
-	"github.com/mitchellh/mapstructure"
+	"github.com/apache/incubator-devlake/core/runner"
 	"github.com/spf13/cobra"
-	"github.com/spf13/viper"
 )
 
 // make sure interface is implemented
@@ -44,7 +42,7 @@ func (p {{ .PluginName }}) Description() string {
 }
 
 func (p {{ .PluginName }}) Init(br context.BasicRes) errors.Error {
-	api.Init(br)
+	// api.Init(br)
 	return nil
 }
 
@@ -56,9 +54,6 @@ func (p {{ .PluginName }}) SubTaskMetas() []plugin.SubTaskMeta {
 
 func (p {{ .PluginName }}) PrepareTaskData(taskCtx plugin.TaskContext, options map[string]interface{}) (interface{}, errors.Error) {
 	var op tasks.{{ .PluginName }}Options
-	if err := helper.Decode(input.Body, &connection, vld); err != nil {
-		return nil, err
-	}
 	return &tasks.{{ .PluginName }}TaskData{
 		Options: &op,
 	}, nil

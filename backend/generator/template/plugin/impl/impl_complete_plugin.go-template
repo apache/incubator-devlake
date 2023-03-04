@@ -19,15 +19,15 @@ package impl
 
 import (
 	"fmt"
-	"github.com/apache/incubator-devlake/errors"
-	"github.com/apache/incubator-devlake/plugins/core"
-	"github.com/apache/incubator-devlake/plugins/core"
+	"github.com/apache/incubator-devlake/core/context"
+	"github.com/apache/incubator-devlake/core/errors"
+	"github.com/apache/incubator-devlake/core/plugin"
     "github.com/apache/incubator-devlake/plugins/{{ .plugin_name }}/api"
     "github.com/apache/incubator-devlake/plugins/{{ .plugin_name }}/models"
     "github.com/apache/incubator-devlake/plugins/{{ .plugin_name }}/models/migrationscripts"
 	"github.com/apache/incubator-devlake/plugins/{{ .plugin_name }}/tasks"
 	helper "github.com/apache/incubator-devlake/helpers/pluginhelper/api"
-	"github.com/spf13/viper"
+	"time"
 )
 
 // make sure interface is implemented
@@ -58,6 +58,7 @@ func (p {{ .PluginName }}) SubTaskMetas() []plugin.SubTaskMeta {
 }
 
 func (p {{ .PluginName }}) PrepareTaskData(taskCtx plugin.TaskContext, options map[string]interface{}) (interface{}, errors.Error) {
+	logger := taskCtx.GetLogger()
 	op, err := tasks.DecodeAndValidateTaskOptions(options)
     if err != nil {
         return nil, err
@@ -108,20 +109,24 @@ func (p {{ .PluginName }}) ApiResources() map[string]map[string]plugin.ApiResour
         "test": {
             "POST": api.TestConnection,
         },
-        "connections": {
-            "POST": api.PostConnections,
-            "GET":  api.ListConnections,
-        },
-        "connections/:connectionId": {
-            "GET":    api.GetConnection,
-            "PATCH":  api.PatchConnection,
-            "DELETE": api.DeleteConnection,
-        },
+		"connections": {
+			"POST": api.PostConnections,
+			//TODO Please modify the folowing code to adapt to your plugin
+
+			// "GET":  api.ListConnections,
+		},
+		/*
+		"connections/:connectionId": {
+			"GET":    api.GetConnection,
+			"PATCH":  api.PatchConnection,
+			"DELETE": api.DeleteConnection,
+		},
+		*/
     }
 }
 
 func (p {{ .PluginName }}) MakePipelinePlan(connectionId uint64, scope []*plugin.BlueprintScopeV100) (plugin.PipelinePlan, errors.Error) {
-	return api.MakePipelinePlan(plugin.SubTaskMetas(), connectionId, scope)
+	return api.MakePipelinePlan(p.SubTaskMetas(), connectionId, scope)
 }
 
 func (p {{ .PluginName }}) Close(taskCtx plugin.TaskContext) errors.Error {

@@ -18,12 +18,14 @@ limitations under the License.
 package tasks
 
 import (
-	"fmt"
 	"github.com/apache/incubator-devlake/core/errors"
-	helper "github.com/apache/incubator-devlake/helpers/pluginhelper/api"
+	"github.com/apache/incubator-devlake/core/plugin"
+	"github.com/apache/incubator-devlake/helpers/pluginhelper/api"
+	"time"
 )
 
 type {{ .PluginName }}ApiParams struct {
+	ConnectionId uint64
 }
 
 type {{ .PluginName }}Options struct {
@@ -44,7 +46,7 @@ type {{ .PluginName }}TaskData struct {
 
 func DecodeAndValidateTaskOptions(options map[string]interface{}) (*{{ .PluginName }}Options, errors.Error) {
 	var op {{ .PluginName }}Options
-	if err := helper.Decode(options, &op, nil); err != nil {
+	if err := api.Decode(options, &op, nil); err != nil {
 		return nil, err
 	}
 	if op.ConnectionId == 0 {

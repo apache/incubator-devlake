@@ -21,13 +21,19 @@ import (
 	"context"
 	"fmt"
 	"github.com/apache/incubator-devlake/core/errors"
+	"github.com/apache/incubator-devlake/server/api/shared"
 	"net/http"
 	"time"
 
 	"github.com/apache/incubator-devlake/core/plugin"
-	helper "github.com/apache/incubator-devlake/helpers/pluginhelper/api"
+	"github.com/apache/incubator-devlake/helpers/pluginhelper/api"
 	"github.com/apache/incubator-devlake/plugins/{{ .plugin_name }}/models"
 )
+
+type {{ .PluginName }}TestConnResponse struct {
+	shared.ApiBody
+    Connection *models.TestConnectionRequest
+}
 
 //TODO Please modify the following code to fit your needs
 // @Summary test {{ .pluginName }} connection
@@ -38,11 +44,11 @@ import (
 // @Failure 400  {string} errcode.Error "Bad Request"
 // @Failure 500  {string} errcode.Error "Internal Error"
 // @Router /plugins/{{ .pluginName }}/test [POST]
-func TestConnection(input *core.ApiResourceInput) (*plugin.ApiResourceOutput, errors.Error) {
+func TestConnection(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, errors.Error) {
 	// decode
 	var err errors.Error
 	var connection models.TestConnectionRequest
-	if err = helper.Decode(input.Body, &connection, vld); err != nil {
+	if err = api.Decode(input.Body, &connection, vld); err != nil {
 		return nil, err
 	}
 	// test connection
@@ -65,7 +71,7 @@ func TestConnection(input *core.ApiResourceInput) (*plugin.ApiResourceOutput, er
 		return nil, err
 	}
 	resBody := &models.ApiUserResponse{}
-	err = helper.UnmarshalResponse(res, resBody)
+	err = api.UnmarshalResponse(res, resBody)
 	if err != nil {
 		return nil, err
 	}
@@ -73,7 +79,7 @@ func TestConnection(input *core.ApiResourceInput) (*plugin.ApiResourceOutput, er
 	if res.StatusCode != http.StatusOK {
 		return nil, errors.HttpStatus(res.StatusCode).New(fmt.Sprintf("unexpected status code: %d", res.StatusCode))
 	}
-	body := {{ .PluginName }}TestConnResponse{}
+	body := &{{ .PluginName }}TestConnResponse{}
 	body.Success = true
 	body.Message = "success"
 	body.Connection = &connection
@@ -90,7 +96,7 @@ func TestConnection(input *core.ApiResourceInput) (*plugin.ApiResourceOutput, er
 // @Failure 400  {string} errcode.Error "Bad Request"
 // @Failure 500  {string} errcode.Error "Internal Error"
 // @Router /plugins/{{ .pluginName }}/connections [POST]
-func PostConnections(input *core.ApiResourceInput) (*plugin.ApiResourceOutput, errors.Error) {
+func PostConnections(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, errors.Error) {
 	// update from request and save to database
 	connection := &models.{{ .PluginName }}Connection{}
 	err := connectionHelper.Create(connection, input)
@@ -165,3 +171,4 @@ func GetConnection(input *core.ApiResourceInput) (*plugin.ApiResourceOutput, err
 	err := connectionHelper.First(connection, input.Params)
 	return &plugin.ApiResourceOutput{Body: connection}, err
 }
+*/

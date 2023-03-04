@@ -16,26 +16,3 @@ limitations under the License.
 */
 
 package tasks
-
-import (
-	"github.com/apache/incubator-devlake/core/plugin"
-	"github.com/apache/incubator-devlake/helpers/pluginhelper/api"
-)
-
-func CreateRawDataSubTaskArgs(taskCtx plugin.SubTaskContext, rawTable string) (*api.RawDataSubTaskArgs, *{{ .PluginName }}TaskData) {
-	data := taskCtx.GetData().(*{{ .PluginName }}TaskData)
-	filteredData := *data
-	filteredData.Options = &{{ .PluginName }}Options{}
-	*filteredData.Options = *data.Options
-	var params = {{ .PluginName }}ApiParams{
-		ConnectionId: data.Options.ConnectionId,
-		ProjectKey:   data.Options.ProjectKey,
-		HotspotKey:   data.Options.HotspotKey,
-	}
-	rawDataSubTaskArgs := &api.RawDataSubTaskArgs{
-		Ctx:    taskCtx,
-		Params: params,
-		Table:  rawTable,
-	}
-	return rawDataSubTaskArgs, &filteredData
-}

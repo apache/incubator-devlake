@@ -18,7 +18,7 @@ limitations under the License.
 package api
 
 import (
-	"github.com/apache/incubator-devlake/core/plugin"
+	"github.com/apache/incubator-devlake/core/context"
 	helper "github.com/apache/incubator-devlake/helpers/pluginhelper/api"
 	"github.com/go-playground/validator/v10"
 )
