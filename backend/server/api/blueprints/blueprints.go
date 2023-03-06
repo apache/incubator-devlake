@@ -64,9 +64,9 @@ func Post(c *gin.Context) {
 // @Description get blueprints
 // @Tags framework/blueprints
 // @Param enable query bool false "enable"
-// @Param is_manual query bool false "is_manual"
+// @Param isManual query bool false "isManual"
 // @Param page query int false "page"
-// @Param page_size query int false "page_size"
+// @Param pageSize query int false "pageSize"
 // @Param label query string false "label"
 // @Success 200  {object} PaginatedBlueprint
 // @Failure 400  {object} shared.ApiBody "Bad Request"

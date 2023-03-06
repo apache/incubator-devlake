@@ -16,12 +16,24 @@
  *
  */
 
-import { request } from '@/utils';
+const customize = [
+  [
+    {
+      plugin: 'customize',
+      options: {
+        transformationRules: [
+          {
+            table: 'issues',
+            rawDataTable: '_raw_jira_api_issues',
+            rawDataParams: '{"ConnectionId":1,"BoardId":8}',
+            mapping: {
+              x_test: 'fields.status.name',
+            },
+          },
+        ],
+      },
+    },
+  ],
+];
 
-type GetTransformationParams = {
-  page: number;
-  pageSize: number;
-};
-
-export const getTransformation = (plugin: string, params: GetTransformationParams) =>
-  request(`/plugins/${plugin}/transformation_rules`, { data: params });
+export default customize;

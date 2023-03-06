@@ -88,7 +88,7 @@
           "metricColumn": "none",
           "queryType": "randomWalk",
           "rawQuery": true,
-          "rawSql": "SELECT\n  count(*) as 'Bugs'\nFROM cq_issues\nWHERE\n  $__timeFilter(creation_date)\n  and project_key in ($project_id)\n  and `type` = 'BUG'\nORDER BY creation_date",
+          "rawSql": "SELECT\n  count(*) as 'Bugs'\nFROM cq_issues\nWHERE\n  $__timeFilter(created_date)\n  and project_key in ($project_id)\n  and `type` = 'BUG'\nORDER BY created_date",
           "refId": "A",
           "select": [
             [
@@ -172,7 +172,7 @@
           "metricColumn": "none",
           "queryType": "randomWalk",
           "rawQuery": true,
-          "rawSql": "SELECT\n  count(*) as 'Vulnerabilities'\nFROM cq_issues\nWHERE\n  $__timeFilter(creation_date)\n  and project_key in ($project_id)\n  and `type` = 'VULNERABILITY'\nORDER BY creation_date",
+          "rawSql": "SELECT\n  count(*) as 'Vulnerabilities'\nFROM cq_issues\nWHERE\n  $__timeFilter(created_date)\n  and project_key in ($project_id)\n  and `type` = 'VULNERABILITY'\nORDER BY created_date",
           "refId": "A",
           "select": [
             [
@@ -256,7 +256,7 @@
           "metricColumn": "none",
           "queryType": "randomWalk",
           "rawQuery": true,
-          "rawSql": "SELECT\n  COUNT(IF(status = 'TO_REVIEW', 1, NULL)) AS 'Security Hotspots'\nFROM cq_issues\nWHERE\n  $__timeFilter(creation_date)\n  and project_key in ($project_id)\n  and `type` = 'HOTSPOTS'\nORDER BY creation_date",
+          "rawSql": "SELECT\n  COUNT(IF(status = 'TO_REVIEW', 1, NULL)) AS 'Security Hotspots'\nFROM cq_issues\nWHERE\n  $__timeFilter(created_date)\n  and project_key in ($project_id)\n  and `type` = 'HOTSPOTS'\nORDER BY created_date",
           "refId": "A",
           "select": [
             [
@@ -340,7 +340,7 @@
           "metricColumn": "none",
           "queryType": "randomWalk",
           "rawQuery": true,
-          "rawSql": "SELECT\n  CONCAT(ROUND(COUNT(IF(status != 'TO_REVIEW', 1, NULL)) / COUNT(*) * 100, 2), '%') AS 'Reviewed'\nFROM cq_issues\nWHERE\n  $__timeFilter(creation_date)\n  and project_key in ($project_id)\n  and `type` = 'HOTSPOTS'\nORDER BY creation_date",
+          "rawSql": "SELECT\n  CONCAT(ROUND(COUNT(IF(status != 'TO_REVIEW', 1, NULL)) / COUNT(*) * 100, 2), '%') AS 'Reviewed'\nFROM cq_issues\nWHERE\n  $__timeFilter(created_date)\n  and project_key in ($project_id)\n  and `type` = 'HOTSPOTS'\nORDER BY created_date",
           "refId": "A",
           "select": [
             [
@@ -523,7 +523,7 @@
           "metricColumn": "none",
           "queryType": "randomWalk",
           "rawQuery": true,
-          "rawSql": "SELECT\n  CONCAT(ROUND(SUM(debt) / (8 * 60), 0), ' days') AS 'Debt'\nFROM cq_issues\nWHERE\n  $__timeFilter(creation_date)\n  and project_key in ($project_id)",
+          "rawSql": "SELECT\n  CONCAT(ROUND(SUM(debt) / (8 * 60), 0), ' days') AS 'Debt'\nFROM cq_issues\nWHERE\n  $__timeFilter(created_date)\n  and project_key in ($project_id)",
           "refId": "A",
           "select": [
             [
@@ -608,7 +608,7 @@
           "metricColumn": "none",
           "queryType": "randomWalk",
           "rawQuery": true,
-          "rawSql": "SELECT\n\tCOUNT(if(type = 'CODE_SMELL', 1, null)) as 'Code Smells'\nFROM cq_issues\nWHERE\n  $__timeFilter(creation_date)\n  and project_key in ($project_id)",
+          "rawSql": "SELECT\n\tCOUNT(if(type = 'CODE_SMELL', 1, null)) as 'Code Smells'\nFROM cq_issues\nWHERE\n  $__timeFilter(created_date)\n  and project_key in ($project_id)",
           "refId": "A",
           "select": [
             [
@@ -988,9 +988,9 @@
       {
         "allValue": null,
         "current": {
-          "selected": false,
-          "text": "",
-          "value": ""
+          "selected": true,
+          "text": "20",
+          "value": "20"
         },
         "description": null,
         "error": null,
@@ -1001,7 +1001,7 @@
         "name": "rows",
         "options": [
           {
-            "selected": false,
+            "selected": true,
             "text": "20",
             "value": "20"
           },

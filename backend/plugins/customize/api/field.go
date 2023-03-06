@@ -30,15 +30,19 @@ import (
 	"github.com/apache/incubator-devlake/plugins/customize/service"
 )
 
-type field struct {
-	ColumnName        string `json:"columnName" example:"x_column_varchar"`
-	DisplayName       string `json:"displayName" example:"department"`
-	DataType          string `json:"dataType" example:"varchar(255)"`
-	Description       string `json:"description" example:"more details about the column"`
-	IsCustomizedField bool   `json:"isCustomizedField" example:"true"`
+type fieldResponse struct {
+	Field
+	IsCustomizedField bool `json:"isCustomizedField" example:"true"`
 }
 
-func (f *field) toCustomizedField(table string) (*models.CustomizedField, errors.Error) {
+type Field struct {
+	ColumnName  string `json:"columnName" example:"x_column_varchar"`
+	DisplayName string `json:"displayName" example:"department"`
+	DataType    string `json:"dataType" example:"varchar(255)"`
+	Description string `json:"description" example:"more details about the column"`
+}
+
+func (f *Field) toDBModel(table string) (*models.CustomizedField, errors.Error) {
 	if !strings.HasPrefix(f.ColumnName, "x_") {
 		return nil, errors.BadInput.New("the columnName should start with x_")
 	}
@@ -58,12 +62,14 @@ func (f *field) toCustomizedField(table string) (*models.CustomizedField, errors
 	}, nil
 }
 
-func fromCustomizedField(cf models.CustomizedField) field {
-	return field{
-		ColumnName:        cf.ColumnName,
-		DisplayName:       cf.DisplayName,
-		DataType:          cf.DataType.String(),
-		Description:       cf.Description,
+func fromCustomizedField(cf models.CustomizedField) fieldResponse {
+	return fieldResponse{
+		Field: Field{
+			ColumnName:  cf.ColumnName,
+			DisplayName: cf.DisplayName,
+			DataType:    cf.DataType.String(),
+			Description: cf.Description,
+		},
 		IsCustomizedField: strings.HasPrefix(cf.ColumnName, "x_"),
 	}
 }
@@ -81,7 +87,7 @@ func NewHandlers(dal dal.Dal) *Handlers {
 // @Description return all customized fieldsh
 // @Tags plugins/customize
 // @Param table path string true "the table name"
-// @Success 200  {object} []field "Success"
+// @Success 200  {object} []fieldResponse "Success"
 // @Failure 400  {object} shared.ApiBody "Bad Request"
 // @Failure 500  {object} shared.ApiBody "Internal Error"
 // @Router /plugins/customize/{table}/fields [GET]
@@ -90,7 +96,7 @@ func (h *Handlers) ListFields(input *plugin.ApiResourceInput) (*plugin.ApiResour
 	if err != nil {
 		return &plugin.ApiResourceOutput{Status: http.StatusBadRequest}, errors.Default.Wrap(err, "getFields error")
 	}
-	fields := make([]field, 0, len(customizedFields))
+	fields := make([]fieldResponse, 0, len(customizedFields))
 	for _, cf := range customizedFields {
 		fields = append(fields, fromCustomizedField(cf))
 	}
@@ -102,19 +108,19 @@ func (h *Handlers) ListFields(input *plugin.ApiResourceInput) (*plugin.ApiResour
 // @Description create a customized field
 // @Tags plugins/customize
 // @Param table path string true "the table name"
-// @Param request body field true "request body"
-// @Success 200  {object} field "Success"
+// @Param request body Field true "request body"
+// @Success 200  {object} fieldResponse "Success"
 // @Failure 400  {object} shared.ApiBody "Bad Request"
 // @Failure 500  {object} shared.ApiBody "Internal Error"
 // @Router /plugins/customize/{table}/fields [POST]
 func (h *Handlers) CreateFields(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, errors.Error) {
 	table := input.Params["table"]
-	fld := &field{}
+	fld := &Field{}
 	err := helper.Decode(input.Body, fld, nil)
 	if err != nil {
 		return &plugin.ApiResourceOutput{Status: http.StatusBadRequest}, err
 	}
-	customizedField, err := fld.toCustomizedField(table)
+	customizedField, err := fld.toDBModel(table)
 	if err != nil {
 		return &plugin.ApiResourceOutput{Status: http.StatusBadRequest}, err
 	}
@@ -122,7 +128,7 @@ func (h *Handlers) CreateFields(input *plugin.ApiResourceInput) (*plugin.ApiReso
 	if err != nil {
 		return nil, errors.Default.Wrap(err, "CreateField error")
 	}
-	return &plugin.ApiResourceOutput{Body: fld, Status: http.StatusOK}, nil
+	return &plugin.ApiResourceOutput{Body: fieldResponse{*fld, true}, Status: http.StatusOK}, nil
 }
 
 // DeleteField delete a customized fields

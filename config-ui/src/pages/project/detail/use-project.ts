@@ -55,7 +55,7 @@ export const useProject = (name: string) => {
   }, []);
 
   const handleUpdate = async (newName: string, enableDora: boolean) => {
-    if (!/^\w+$/.test(newName)) {
+    if (!/^(\w|-|\/)+$/.test(newName)) {
       toast.error('Please enter alphanumeric or underscore');
       return;
     }

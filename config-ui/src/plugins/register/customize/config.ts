@@ -16,37 +16,12 @@
  *
  */
 
-import { useState, useMemo } from 'react';
+import type { PluginConfigType } from '@/plugins';
 
-import { operator } from '@/utils';
+import { BasePipelineConfig } from '../base';
 
-export const useOperator = <T>(
-  request: (paylod?: any) => Promise<T>,
-  options?: {
-    callback?: () => void;
-    formatReason?: (err: unknown) => string;
-    formatMessage?: () => string;
-  },
-) => {
-  const [operating, setOperating] = useState(false);
-
-  const handleSubmit = async (paylod?: any) => {
-    const [success] = await operator(() => request(paylod), {
-      setOperating,
-      formatReason: options?.formatReason ? options?.formatMessage : (err) => (err as any).response?.data?.message,
-      formatMessage: options?.formatMessage,
-    });
-
-    if (success) {
-      options?.callback?.();
-    }
-  };
-
-  return useMemo(
-    () => ({
-      operating,
-      onSubmit: handleSubmit,
-    }),
-    [operating],
-  );
+export const CustomizeConfig: PluginConfigType = {
+  ...BasePipelineConfig,
+  plugin: 'customize',
+  name: 'customize',
 };

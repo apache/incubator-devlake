@@ -16,7 +16,7 @@
  *
  */
 
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import {
   FormGroup,
   InputGroup,
@@ -42,6 +42,12 @@ interface Props {
 export const GitHubTransformation = ({ transformation, setTransformation }: Props) => {
   const [enableCICD, setEnableCICD] = useState(1);
   const [openAdditionalSettings, setOpenAdditionalSettings] = useState(false);
+
+  useEffect(() => {
+    if (transformation.refdiff) {
+      setOpenAdditionalSettings(true);
+    }
+  }, [transformation]);
 
   const handleChangeCICDEnable = (e: number) => {
     if (e === 0) {
@@ -91,7 +97,7 @@ export const GitHubTransformation = ({ transformation, setTransformation }: Prop
           <div className="list">
             <FormGroup inline label="Feature">
               <InputGroup
-                placeholder="(feat|feature|proposal|requirement)$"
+                placeholder="(feat|feature|proposal|requirement)"
                 value={transformation.issueTypeRequirement}
                 onChange={(e) =>
                   setTransformation({
@@ -103,7 +109,7 @@ export const GitHubTransformation = ({ transformation, setTransformation }: Prop
             </FormGroup>
             <FormGroup inline label="Bug">
               <InputGroup
-                placeholder="(bug|broken)$"
+                placeholder="(bug|broken)"
                 value={transformation.issueTypeBug}
                 onChange={(e) =>
                   setTransformation({
@@ -125,7 +131,7 @@ export const GitHubTransformation = ({ transformation, setTransformation }: Prop
               }
             >
               <InputGroup
-                placeholder="(incident|p0|p1|p2)$"
+                placeholder="(incident|failure)"
                 value={transformation.issueTypeIncident}
                 onChange={(e) =>
                   setTransformation({
@@ -147,7 +153,7 @@ export const GitHubTransformation = ({ transformation, setTransformation }: Prop
           }
         >
           <InputGroup
-            placeholder="(highest|high|medium|low)$"
+            placeholder="(highest|high|medium|low|p0|p1|p2|p3)"
             value={transformation.issuePriority}
             onChange={(e) =>
               setTransformation({
@@ -167,7 +173,7 @@ export const GitHubTransformation = ({ transformation, setTransformation }: Prop
           }
         >
           <InputGroup
-            placeholder="component(.*)$"
+            placeholder="component(.*)"
             value={transformation.issueComponent}
             onChange={(e) =>
               setTransformation({
@@ -187,7 +193,7 @@ export const GitHubTransformation = ({ transformation, setTransformation }: Prop
           }
         >
           <InputGroup
-            placeholder="severity(.*)$"
+            placeholder="severity(.*)"
             value={transformation.issueSeverity}
             onChange={(e) =>
               setTransformation({
@@ -233,7 +239,7 @@ export const GitHubTransformation = ({ transformation, setTransformation }: Prop
                   }
                 >
                   <InputGroup
-                    placeholder="^.*(deploy|push-image).*$"
+                    placeholder="(deploy|push-image)"
                     value={transformation.deploymentPattern}
                     onChange={(e) =>
                       setTransformation({
@@ -253,7 +259,7 @@ export const GitHubTransformation = ({ transformation, setTransformation }: Prop
                   }
                 >
                   <InputGroup
-                    placeholder="^.*product.*$"
+                    placeholder="production"
                     value={transformation.productionPattern}
                     onChange={(e) =>
                       setTransformation({
@@ -353,7 +359,7 @@ export const GitHubTransformation = ({ transformation, setTransformation }: Prop
         >
           <TextArea
             value={transformation.prBodyClosePattern}
-            placeholder="(?mi)(fix|close|resolve|fixes|closes|resolves|fixed|closed|resolved)[\s]*.*(((and )?(#|https:\/\/github.com\/%s\/issues\/)\d+[ ]*)+)"
+            placeholder="(?mi)(fix|close|resolve|fixes|closes|resolves|fixed|closed|resolved)[s]*.*(((and )?(#|https://github.com/%s/%s/issues/)d+[ ]*)+)"
             onChange={(e) =>
               setTransformation({
                 ...transformation,
@@ -369,7 +375,7 @@ export const GitHubTransformation = ({ transformation, setTransformation }: Prop
       {/* Additional Settings */}
       <div className="additional-settings">
         <h2 onClick={handleChangeAdditionalSettingsOpen}>
-          <Icon icon={openAdditionalSettings ? 'chevron-up' : 'chevron-down'} size={18} />
+          <Icon icon={!openAdditionalSettings ? 'chevron-up' : 'chevron-down'} size={18} />
           <span>Additional Settings</span>
         </h2>
         <Collapse isOpen={openAdditionalSettings}>

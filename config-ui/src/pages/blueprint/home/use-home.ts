@@ -35,7 +35,10 @@ export const useHome = () => {
   const getBlueprints = async () => {
     setLoading(true);
     try {
-      const res = await API.getBlueprints();
+      const res = await API.getBlueprints({
+        page: 1,
+        pageSize: 200,
+      });
       setBlueprints(res.blueprints);
     } finally {
       setLoading(false);
@@ -57,7 +60,7 @@ export const useHome = () => {
           case 'custom':
             return !presets.includes(bp.cronConfig);
           default:
-            return bp.cronConfig === type;
+            return !bp.isManual && bp.cronConfig === type;
         }
       }),
     );
