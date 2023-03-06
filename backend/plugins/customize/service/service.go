@@ -184,10 +184,12 @@ func (s *Service) importCSV(file io.ReadCloser, rawDataParams string, recordHand
 		return err
 	}
 	var hasNext bool
+	var line int
 	now := time.Now()
 	for {
+		line++
 		if hasNext, err = iterator.HasNextWithError(); !hasNext {
-			return err
+			return errors.BadInput.Wrap(err, fmt.Sprintf("error on processing the line:%d", line))
 		} else {
 			record := iterator.Fetch()
 			record["_raw_data_params"] = rawDataParams
@@ -200,7 +202,7 @@ func (s *Service) importCSV(file io.ReadCloser, rawDataParams string, recordHand
 			record["updated_at"] = now
 			err = recordHandler(record)
 			if err != nil {
-				return err
+				return errors.BadInput.Wrap(err, fmt.Sprintf("error on processing the line:%d", line))
 			}
 		}
 	}
