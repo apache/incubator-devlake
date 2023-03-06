@@ -24,7 +24,7 @@ export const useOperator = <T>(
   request: (paylod?: any) => Promise<T>,
   options?: {
     callback?: () => void;
-    formatReason?: () => string;
+    formatReason?: (err: unknown) => string;
     formatMessage?: () => string;
   },
 ) => {
@@ -33,7 +33,7 @@ export const useOperator = <T>(
   const handleSubmit = async (paylod?: any) => {
     const [success] = await operator(() => request(paylod), {
       setOperating,
-      formatReason: options?.formatReason,
+      formatReason: options?.formatReason ? options?.formatMessage : (err) => (err as any).response?.data?.message,
       formatMessage: options?.formatMessage,
     });
 
