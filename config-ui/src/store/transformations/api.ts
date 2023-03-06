@@ -18,4 +18,10 @@
 
 import { request } from '@/utils';
 
-export const getTransformation = (plugin: string) => request(`/plugins/${plugin}/transformation_rules`);
+type GetTransformationParams = {
+  page: number;
+  pageSize: number;
+};
+
+export const getTransformation = (plugin: string, params: GetTransformationParams) =>
+  request(`/plugins/${plugin}/transformation_rules`, { data: params });

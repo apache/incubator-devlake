@@ -18,6 +18,8 @@
 
 import { request } from '@/utils';
 
+export const getConnection = (plugin: string) => request(`/plugins/${plugin}/connections`);
+
 type TestConnectionPayload = {
   endpoint: string;
   proxy: string;
@@ -26,8 +28,6 @@ type TestConnectionPayload = {
   password?: string;
   authMethod?: string;
 };
-
-export const getConnection = (plugin: string) => request(`/plugins/${plugin}/connections`);
 
 export const testConnection = (plugin: string, data: TestConnectionPayload) =>
   request(`/plugins/${plugin}/test`, {

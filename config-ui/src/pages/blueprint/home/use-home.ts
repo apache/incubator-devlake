@@ -35,7 +35,10 @@ export const useHome = () => {
   const getBlueprints = async () => {
     setLoading(true);
     try {
-      const res = await API.getBlueprints();
+      const res = await API.getBlueprints({
+        page: 1,
+        pageSize: 200,
+      });
       setBlueprints(res.blueprints);
     } finally {
       setLoading(false);
