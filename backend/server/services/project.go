@@ -19,6 +19,7 @@ package services
 
 import (
 	"fmt"
+
 	"github.com/apache/incubator-devlake/core/dal"
 	"github.com/apache/incubator-devlake/core/errors"
 	"github.com/apache/incubator-devlake/core/models"
@@ -221,13 +222,15 @@ func PatchProject(name string, body map[string]interface{}) (*models.ApiOutputPr
 	}
 
 	// Blueprint
-	err = tx.UpdateColumn(
-		&models.Blueprint{},
-		"enable", projectInput.Enable,
-		dal.Where("project_name = ?", name),
-	)
-	if err != nil {
-		return nil, err
+	if projectInput.Enable != nil {
+		err = tx.UpdateColumn(
+			&models.Blueprint{},
+			"enable", projectInput.Enable,
+			dal.Where("project_name = ?", name),
+		)
+		if err != nil {
+			return nil, err
+		}
 	}
 
 	// refresh project metrics if needed
