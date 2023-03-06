@@ -53,7 +53,7 @@ export const useProject = <T>({ name, enableDora, onHideDialog }: Props) => {
   }, []);
 
   const handleSave = async () => {
-    if (!/^\w|-\/+$/.test(name)) {
+    if (!/(^\w|-|\/)+$/.test(name)) {
       toast.error('Please enter alphanumeric or underscore');
       return;
     }
