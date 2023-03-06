@@ -24,9 +24,13 @@ class AzureDevOpsAPI(API):
 
     @request_hook
     def authenticate(self, request: Request):
-        pat_b64 = base64.b64encode((':' + self.pat).encode()).decode()
         if self.pat:
+            pat_b64 = base64.b64encode((':' + self.pat).encode()).decode()
             request.headers['Authorization'] = 'Basic ' + pat_b64
+
+    @request_hook
+    def set_api_version(self, request: Request):
+        request.query_args['api-version'] = "7.0"
 
     def accounts(self):
         req = Request('https://app.vssps.visualstudio.com/_apis/accounts')
