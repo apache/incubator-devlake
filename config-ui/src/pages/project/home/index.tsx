@@ -37,7 +37,10 @@ export const ProjectHomePage = () => {
   const history = useHistory();
 
   const handleShowDialog = () => setIsOpen(true);
-  const handleHideDialog = () => setIsOpen(false);
+  const handleHideDialog = () => {
+    setIsOpen(false);
+    setName('');
+  };
 
   const { loading, operating, projects, onSave } = useProject<ProjectItem>({
     name,
@@ -111,7 +114,7 @@ export const ProjectHomePage = () => {
         <S.DialogInner>
           <div className="block">
             <h3>Project Name *</h3>
-            <p>Give your project a unique name.</p>
+            <p>Give your project a unique name with letters, numbers, -, _ or /</p>
             <InputGroup placeholder="Your Project Name" value={name} onChange={(e) => setName(e.target.value)} />
           </div>
           <div className="block">

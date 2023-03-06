@@ -34,7 +34,7 @@ export const useContextValue = () => {
 
   const getTransformation = async (plugin: string) => {
     try {
-      return await API.getTransformation(plugin);
+      return await API.getTransformation(plugin, { page: 1, pageSize: 200 });
     } catch {
       return [];
     }

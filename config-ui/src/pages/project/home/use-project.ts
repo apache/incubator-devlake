@@ -37,7 +37,7 @@ export const useProject = <T>({ name, enableDora, onHideDialog }: Props) => {
   const getProjects = async () => {
     setLoading(true);
     try {
-      const res = await API.getProjects({ page: 1, pageSize: 100 });
+      const res = await API.getProjects({ page: 1, pageSize: 200 });
       setProjects(
         res.projects.map((it: any) => ({
           name: it.name,
@@ -53,7 +53,7 @@ export const useProject = <T>({ name, enableDora, onHideDialog }: Props) => {
   }, []);
 
   const handleSave = async () => {
-    if (!/^\w+$/.test(name)) {
+    if (!/^(\w|-|\/)+$/.test(name)) {
       toast.error('Please enter alphanumeric or underscore');
       return;
     }

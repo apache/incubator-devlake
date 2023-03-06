@@ -16,17 +16,8 @@
  *
  */
 
-import React, {useMemo, useState} from 'react';
-import {
-  FormGroup,
-  InputGroup,
-  Tag,
-  Radio,
-  Icon,
-  Collapse,
-  Intent,
-  Checkbox,
-} from '@blueprintjs/core';
+import React, { useMemo, useState, useEffect } from 'react';
+import { FormGroup, InputGroup, Tag, Radio, Icon, Collapse, Intent, Checkbox } from '@blueprintjs/core';
 
 import { ExternalLink, HelpTooltip, Divider, MultiSelector } from '@/components';
 
@@ -42,12 +33,22 @@ const ALL_STATES = ['new', 'open', 'resolved', 'closed', 'on hold', 'wontfix', '
 export const BitbucketTransformation = ({ transformation, setTransformation }: Props) => {
   const [enableCICD, setEnableCICD] = useState(false);
   const [openAdditionalSettings, setOpenAdditionalSettings] = useState(false);
-  const selectedStates = useMemo(() => [
-    ...transformation.issueStatusTodo ? transformation.issueStatusTodo.split(',') : [],
-    ...transformation.issueStatusInProgress ? transformation.issueStatusInProgress.split(',') : [],
-    ...transformation.issueStatusDone ? transformation.issueStatusDone.split(',') : [],
-    ...transformation.issueStatusOther ? transformation.issueStatusOther.split(',') : [],
-  ], [transformation]);
+
+  useEffect(() => {
+    if (transformation.refdiff) {
+      setOpenAdditionalSettings(true);
+    }
+  }, [transformation]);
+
+  const selectedStates = useMemo(
+    () => [
+      ...(transformation.issueStatusTodo ? transformation.issueStatusTodo.split(',') : []),
+      ...(transformation.issueStatusInProgress ? transformation.issueStatusInProgress.split(',') : []),
+      ...(transformation.issueStatusDone ? transformation.issueStatusDone.split(',') : []),
+      ...(transformation.issueStatusOther ? transformation.issueStatusOther.split(',') : []),
+    ],
+    [transformation],
+  );
 
   const handleChangeCICDEnable = (b: boolean) => {
     if (b) {
@@ -156,12 +157,19 @@ export const BitbucketTransformation = ({ transformation, setTransformation }: P
         </h3>
         <p>
           DevLake uses BitBucket{' '}
-          <ExternalLink link="https://support.atlassian.com/bitbucket-cloud/docs/set-up-and-monitor-deployments/">deployments</ExternalLink>
-          {' '}as DevLake deployments. If you are NOT using BitBucket deployments, DevLake provides the option to detect deployments from BitBucket pipeline steps.{' '}
-          <ExternalLink link="https://devlake.apache.org/docs/Configuration/BitBucket#step-3---adding-transformation-rules-optional">Learn more</ExternalLink>
+          <ExternalLink link="https://support.atlassian.com/bitbucket-cloud/docs/set-up-and-monitor-deployments/">
+            deployments
+          </ExternalLink>{' '}
+          as DevLake deployments. If you are NOT using BitBucket deployments, DevLake provides the option to detect
+          deployments from BitBucket pipeline steps.{' '}
+          <ExternalLink link="https://devlake.apache.org/docs/Configuration/BitBucket#step-3---adding-transformation-rules-optional">
+            Learn more
+          </ExternalLink>
         </p>
-        <Checkbox label="Detect Deployments from Pipeline steps in BitBucket" checked={enableCICD}
-                  onChange={(e) => handleChangeCICDEnable((e.target as HTMLInputElement).checked)}
+        <Checkbox
+          label="Detect Deployments from Pipeline steps in BitBucket"
+          checked={enableCICD}
+          onChange={(e) => handleChangeCICDEnable((e.target as HTMLInputElement).checked)}
         />
         {enableCICD && (
           <>
@@ -176,7 +184,7 @@ export const BitbucketTransformation = ({ transformation, setTransformation }: P
                 }
               >
                 <InputGroup
-                  placeholder="(?i)deploy"
+                  placeholder="(deploy|push-image)"
                   value={transformation.deploymentPattern}
                   onChange={(e) =>
                     setTransformation({
@@ -196,7 +204,7 @@ export const BitbucketTransformation = ({ transformation, setTransformation }: P
                 }
               >
                 <InputGroup
-                  placeholder="(?i)production"
+                  placeholder="production"
                   value={transformation.productionPattern}
                   onChange={(e) =>
                     setTransformation({
@@ -214,7 +222,7 @@ export const BitbucketTransformation = ({ transformation, setTransformation }: P
       {/* Additional Settings */}
       <div className="additional-settings">
         <h2 onClick={handleChangeAdditionalSettingsOpen}>
-          <Icon icon={openAdditionalSettings ? 'chevron-up' : 'chevron-down'} size={18} />
+          <Icon icon={!openAdditionalSettings ? 'chevron-up' : 'chevron-down'} size={18} />
           <span>Additional Settings</span>
         </h2>
         <Collapse isOpen={openAdditionalSettings}>

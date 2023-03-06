@@ -18,4 +18,9 @@
 
 import { request } from '@/utils';
 
-export const getBlueprints = () => request('/blueprints');
+type GetBlueprintsParams = {
+  page: number;
+  pageSize: number;
+};
+
+export const getBlueprints = (params: GetBlueprintsParams) => request('/blueprints', { data: params });

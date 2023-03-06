@@ -16,12 +16,4 @@
  *
  */
 
-import { request } from '@/utils';
-
-type GetTransformationParams = {
-  page: number;
-  pageSize: number;
-};
-
-export const getTransformation = (plugin: string, params: GetTransformationParams) =>
-  request(`/plugins/${plugin}/transformation_rules`, { data: params });
+export * from './config';

@@ -49,7 +49,7 @@ export const useCreate = ({ onSubmitAfter }: UseCreateProps) => {
       },
     );
 
-    if (success) {
+    if (success && !onSubmitAfter) {
       setStep(2);
       setRecord({
         postIssuesEndpoint: `${prefix}${res.postIssuesEndpoint}`,
@@ -60,6 +60,7 @@ export const useCreate = ({ onSubmitAfter }: UseCreateProps) => {
         \\"start_time\\":\\"Optional, eg. 2020-01-01T12:00:00+00:00\\"
       }"`,
       });
+    } else if (success) {
       onSubmitAfter?.(res.id);
     }
   };

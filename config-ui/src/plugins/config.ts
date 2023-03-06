@@ -20,6 +20,7 @@ import type { PluginConfigType } from './types';
 import { AEConfig } from './register/ae';
 import { AzureConfig } from './register/azure';
 import { BitBucketConfig } from './register/bitbucket';
+import { CustomizeConfig } from './register/customize';
 import { DBTConfig } from './register/dbt';
 import { DORAConfig } from './register/dora';
 import { FeiShuConfig } from './register/feishu';
@@ -41,6 +42,7 @@ export const PluginConfig: PluginConfigType[] = [
   AEConfig,
   AzureConfig,
   BitBucketConfig,
+  CustomizeConfig,
   DBTConfig,
   DORAConfig,
   FeiShuConfig,

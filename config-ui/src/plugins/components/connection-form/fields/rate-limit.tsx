@@ -70,7 +70,7 @@ export const ConnectionRateLimit = ({
 
   useEffect(() => {
     setChecked(value ? true : false);
-  }, []);
+  }, [value]);
 
   const handleChange = (e: React.FormEvent<HTMLInputElement>) => {
     const checked = (e.target as HTMLInputElement).checked;

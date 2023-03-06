@@ -47,7 +47,7 @@ export const SettingsPanel = ({ project, onUpdate }: Props) => {
       <S.Settings>
         <div className="block">
           <h3>Project Name *</h3>
-          <p>Edit your project name.</p>
+          <p>Edit your project name with letters, numbers, -, _ or /</p>
           <InputGroup value={name} onChange={(e) => setName(e.target.value)} />
         </div>
         <div className="block">

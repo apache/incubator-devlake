@@ -62,10 +62,13 @@ export const BitBucketConfig: PluginConfigType = {
   transformation: {
     issueStatusTodo: 'new,open',
     issueStatusInProgress: '',
-    issueStatusDone: 'resolved,closed',
+    issueStatusDone: 'closed',
     issueStatusOther: 'on hold,wontfix,duplicate,invalid',
     productionPattern: '',
     deploymentPattern: '',
-    refdiff: null,
+    refdiff: {
+      tagsOrder: 10,
+      tagsPattern: /v\d+\.\d+(\.\d+(-rc)*\d*)*$/,
+    },
   },
 };

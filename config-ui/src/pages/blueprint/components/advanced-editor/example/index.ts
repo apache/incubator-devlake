@@ -16,15 +16,16 @@
  *
  */
 
+import customize from './customize';
+import dbt from './dbt';
+import feishu from './feishu';
 import general from './general';
-import refdiff from './refdiff';
 import gitextractor from './gitextractor';
 import github from './github';
 import gitlab from './gitlab';
-import jira from './jira';
 import jenkins from './jenkins';
-import feishu from './feishu';
-import dbt from './dbt';
+import jira from './jira';
+import refdiff from './refdiff';
 import starrocks from './starrocks';
 import tapd from './tapd';
 import zentao from './zentao';
@@ -89,5 +90,10 @@ export const EXAMPLE_CONFIG = [
     id: 'starrocks',
     name: 'Load StarRocks Configuration',
     config: starrocks,
+  },
+  {
+    id: 'customize',
+    name: 'Load Customize Configuration',
+    config: customize,
   },
 ];
