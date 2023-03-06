@@ -45,7 +45,7 @@ export const GitLabConfig: PluginConfigType = {
           server: '(v11+)',
         },
         subLabel:
-          'If you are using GitLab Cloud, you do not need to enter the endpoint URL, which is https://gitlab.com/api/v4/.',
+          'If you are using GitLab Server, please enter the endpoint URL. E.g. https://gitlab.your-company.com/api/v4/',
       },
       {
         key: 'token',
