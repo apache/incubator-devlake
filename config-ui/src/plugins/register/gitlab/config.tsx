@@ -70,7 +70,7 @@ export const GitLabConfig: PluginConfigType = {
   },
   entities: ['CODE', 'TICKET', 'CODEREVIEW', 'CROSS', 'CICD'],
   transformation: {
-    productionPattern: '',
-    deploymentPattern: '',
+    deploymentPattern: '(deploy|push-image)',
+    productionPattern: 'production',
   },
 };

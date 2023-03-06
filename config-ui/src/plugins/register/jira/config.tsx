@@ -86,7 +86,7 @@ export const JiraConfig: PluginConfigType = {
   entities: ['TICKET', 'CROSS'],
   transformation: {
     storyPointField: '',
-    remotelinkCommitShaPattern: '',
     typeMappings: {},
+    remotelinkCommitShaPattern: /commit\/([0-9a-f]{40})$/,
   },
 };

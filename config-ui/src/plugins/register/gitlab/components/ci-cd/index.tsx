@@ -61,7 +61,7 @@ export const CiCd = ({ transformation, setTransformation }: Props) => {
             <p>A GitLab CI job with a name that matches the given regEx will be considered as a Deployment.</p>
             <FormGroup inline label="Deployment">
               <InputGroup
-                placeholder="(?i)deploy"
+                placeholder="(deploy|push-image)"
                 value={transformation.deploymentPattern}
                 onChange={(e) =>
                   setTransformation({
@@ -77,7 +77,7 @@ export const CiCd = ({ transformation, setTransformation }: Props) => {
             </p>
             <FormGroup inline label="Production">
               <InputGroup
-                placeholder="(?i)production"
+                placeholder="production"
                 value={transformation.productionPattern}
                 onChange={(e) =>
                   setTransformation({
