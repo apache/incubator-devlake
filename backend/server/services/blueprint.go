@@ -35,7 +35,7 @@ import (
 type BlueprintQuery struct {
 	Pagination
 	Enable   *bool  `form:"enable,omitempty"`
-	IsManual *bool  `form:"is_manual"`
+	IsManual *bool  `form:"isManual"`
 	Label    string `form:"label"`
 }
 
