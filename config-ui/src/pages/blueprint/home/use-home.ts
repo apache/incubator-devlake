@@ -57,7 +57,7 @@ export const useHome = () => {
           case 'custom':
             return !presets.includes(bp.cronConfig);
           default:
-            return bp.cronConfig === type;
+            return !bp.isManual && bp.cronConfig === type;
         }
       }),
     );
