@@ -18,7 +18,7 @@
 
 import React, { useMemo } from 'react';
 import { Link, useHistory } from 'react-router-dom';
-import { ButtonGroup, Button, Intent } from '@blueprintjs/core';
+import { ButtonGroup, Button, Tag, Intent } from '@blueprintjs/core';
 
 import { PageLoading, PageHeader, Table, ColumnType, IconButton, TextTooltip } from '@/components';
 import { getCron, getCronOptions } from '@/config';
@@ -90,6 +90,18 @@ export const BlueprintHomePage = () => {
             ) : (
               val
             ),
+        },
+        {
+          title: 'Status',
+          dataIndex: 'enable',
+          key: 'enable',
+          align: 'center',
+          width: 100,
+          render: (val) => (
+            <Tag minimal intent={val ? Intent.SUCCESS : Intent.DANGER}>
+              {val ? 'Enabled' : 'Disabled'}
+            </Tag>
+          ),
         },
         {
           title: '',

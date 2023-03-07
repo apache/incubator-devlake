@@ -71,7 +71,7 @@ export const SyncPolicy = ({
       {showTimeFilter && (
         <div className="block">
           <h3>Time Filter *</h3>
-          <p>Select the data range you wish to collect. DevLake will collect the last six months of data by default.</p>
+          <p>Select the data range you wish to collect. This filter applies to all data sources except SonarQube.</p>
           <StartFromSelector value={timeAfter} onChange={onChangeTimeAfter} />
         </div>
       )}
