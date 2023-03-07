@@ -19,10 +19,11 @@ package tasks
 
 import (
 	"fmt"
+	"net/url"
+
 	"github.com/apache/incubator-devlake/core/errors"
 	"github.com/apache/incubator-devlake/core/plugin"
 	helper "github.com/apache/incubator-devlake/helpers/pluginhelper/api"
-	"net/url"
 )
 
 const RAW_WORKLOG_TABLE = "tapd_api_worklogs"
@@ -42,7 +43,7 @@ func CollectWorklogs(taskCtx plugin.SubTaskContext) errors.Error {
 	err = collectorWithState.InitCollector(helper.ApiCollectorArgs{
 		Incremental: incremental,
 		ApiClient:   data.ApiClient,
-		PageSize:    100,
+		PageSize:    int(data.Options.PageSize),
 		UrlTemplate: "timesheets",
 		Query: func(reqData *helper.RequestData) (url.Values, errors.Error) {
 			query := url.Values{}

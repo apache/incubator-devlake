@@ -19,10 +19,11 @@ package tasks
 
 import (
 	"fmt"
+	"net/url"
+
 	"github.com/apache/incubator-devlake/core/errors"
 	"github.com/apache/incubator-devlake/core/plugin"
 	helper "github.com/apache/incubator-devlake/helpers/pluginhelper/api"
-	"net/url"
 )
 
 const RAW_STORY_STATUS_LAST_STEP_TABLE = "tapd_api_story_status_last_steps"
@@ -37,7 +38,7 @@ func CollectStoryStatusLastStep(taskCtx plugin.SubTaskContext) errors.Error {
 	collector, err := helper.NewApiCollector(helper.ApiCollectorArgs{
 		RawDataSubTaskArgs: *rawDataSubTaskArgs,
 		ApiClient:          data.ApiClient,
-		PageSize:           100,
+		PageSize:           int(data.Options.PageSize),
 		UrlTemplate:        "workflows/last_steps",
 		Query: func(reqData *helper.RequestData) (url.Values, errors.Error) {
 			query := url.Values{}

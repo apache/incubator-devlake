@@ -28,6 +28,7 @@ type TapdOptions struct {
 	ConnectionId        uint64 `mapstruct:"connectionId"`
 	WorkspaceId         uint64 `mapstruct:"workspaceId"`
 	CompanyId           uint64 `mapstruct:"companyId"`
+	PageSize            uint64 `mapstruct:"pageSize"`
 	TimeAfter           string `json:"timeAfter" mapstructure:"timeAfter,omitempty"`
 	CstZone             *time.Location
 	TransformationRules TransformationRules `json:"transformationRules"`
