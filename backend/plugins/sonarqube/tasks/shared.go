@@ -57,6 +57,9 @@ func GetTotalPagesFromResponse(res *http.Response, args *api.ApiCollectorArgs) (
 	if body.Paging.Total%args.PageSize > 0 {
 		pages++
 	}
+	if pages > 100 {
+		pages = 100
+	}
 	return pages, nil
 }
 
