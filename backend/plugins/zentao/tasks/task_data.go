@@ -57,5 +57,8 @@ func DecodeAndValidateTaskOptions(options map[string]interface{}) (*ZentaoOption
 	if op.ConnectionId == 0 {
 		return nil, fmt.Errorf("connectionId is invalid")
 	}
+	if op.ProductId == 0 {
+		return nil, fmt.Errorf("please set productId")
+	}
 	return &op, nil
 }

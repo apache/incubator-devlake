@@ -33,6 +33,9 @@ var _ plugin.SubTaskEntryPoint = CollectTask
 
 func CollectTask(taskCtx plugin.SubTaskContext) errors.Error {
 	data := taskCtx.GetData().(*ZentaoTaskData)
+	if data.Options.ExecutionId == 0 {
+		return nil
+	}
 	collector, err := api.NewApiCollector(api.ApiCollectorArgs{
 		RawDataSubTaskArgs: api.RawDataSubTaskArgs{
 			Ctx: taskCtx,
