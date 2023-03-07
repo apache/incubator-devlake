@@ -27,26 +27,18 @@ export const Wrapper = styled.div`
 export const Input = styled.div`
   display: flex;
   align-items: center;
+
+  .bp4-form-group + .bp4-form-group {
+    margin-left: 8px;
+  }
+
+  .bp4-input {
+    width: 60px;
+  }
 `;
 
-export const Help = styled.div`
-  padding: 10px;
-  width: 300px;
-  font-size: 12px;
-
-  .title {
-    margin-bottom: 10px;
-    font-size: 14px;
-    font-weight: 700px;
-
-    span.bp4-icon {
-      margin-right: 4px;
-    }
-  }
-
-  img {
-    width: 100%;
-  }
+export const Error = styled.div`
+  color: #e34040;
 `;
 
 export const FromTimeWrapper = styled.div`

@@ -20,26 +20,29 @@ import parser from 'cron-parser';
 
 export const cronPresets = [
   {
-    label: 'Hourly',
-    config: '59 * * * *',
-    description: 'At minute 59 on every day-of-week from Monday through Sunday.',
-  },
-  {
     label: 'Daily',
     config: '0 0 * * *',
-    description: 'At 00:00 (Midnight) on every day-of-week from Monday through Sunday.',
+    description: '(at 00:00 AM) ',
   },
   {
     label: 'Weekly',
     config: '0 0 * * 1',
-    description: 'At 00:00 (Midnight) on Monday.',
+    description: '(on Monday at 00:00 AM) ',
   },
   {
     label: 'Monthly',
     config: '0 0 1 * *',
-    description: 'At 00:00 (Midnight) on day-of-month 1.',
+    description: '(on first day of the month at 00:00 AM) ',
   },
 ];
+
+const getNextTime = (config: string) => {
+  try {
+    return parser.parseExpression(config, { tz: 'utc' }).next().toString();
+  } catch {
+    return null;
+  }
+};
 
 export const getCron = (isManual: boolean, config: string) => {
   if (isManual) {
@@ -58,34 +61,37 @@ export const getCron = (isManual: boolean, config: string) => {
     ? {
         ...preset,
         value: preset.config,
-        nextTime: parser.parseExpression(preset.config).next().toString(),
+        nextTime: getNextTime(preset.config),
       }
     : {
         label: 'Custom',
         value: 'custom',
         description: 'Custom',
         config,
-        nextTime: parser.parseExpression(config).next().toString(),
+        nextTime: getNextTime(config),
       };
 };
 
 export const getCronOptions = () => {
   return [
     {
-      label: 'Manual',
       value: 'manual',
+      label: 'Manual',
+      subLabel: '',
     },
   ]
     .concat(
       cronPresets.map((cp) => ({
-        label: cp.label,
         value: cp.config,
+        label: cp.label,
+        subLabel: cp.description,
       })),
     )
     .concat([
       {
-        label: 'Custom',
         value: 'custom',
+        label: 'Custom',
+        subLabel: '',
       },
     ]);
 };

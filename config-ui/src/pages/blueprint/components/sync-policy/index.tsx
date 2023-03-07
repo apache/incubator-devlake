@@ -17,11 +17,10 @@
  */
 
 import React, { useMemo } from 'react';
-import { Checkbox, Icon, InputGroup, Position, Radio, RadioGroup } from '@blueprintjs/core';
-import { Popover2 } from '@blueprintjs/popover2';
+import dayjs from 'dayjs';
+import { Checkbox, FormGroup, InputGroup, Radio, RadioGroup } from '@blueprintjs/core';
 
 import { getCron, getCronOptions } from '@/config';
-import CronHelp from '@/images/cron-help.png';
 
 import StartFromSelector from './start-from-selector';
 import * as S from './styled';
@@ -49,6 +48,7 @@ export const SyncPolicy = ({
   onChangeSkipOnFail,
   onChangeTimeAfter,
 }: Props) => {
+  const [mintue, hour, day, month, week] = useMemo(() => cronConfig.split(' '), [cronConfig]);
   const cron = useMemo(() => getCron(isManual, cronConfig), [isManual, cronConfig]);
 
   const options = useMemo(() => getCronOptions(), []);
@@ -75,46 +75,60 @@ export const SyncPolicy = ({
           <StartFromSelector value={timeAfter} onChange={onChangeTimeAfter} />
         </div>
       )}
-      <div className="block">
-        <h3>Frequency</h3>
-        <p>Blueprints will run recurringly based on the sync frequency.</p>
-        <p style={{ margin: '10px 0' }}>{cron.description}</p>
-        <RadioGroup selectedValue={cron.value} onChange={handleChangeFrequency}>
-          {options.map(({ label, value }) => (
-            <Radio key={value} label={label} value={value} />
-          ))}
-        </RadioGroup>
-        {cron.value === 'custom' && (
-          <S.Input>
-            <InputGroup value={cronConfig} onChange={(e) => onChangeCronConfig(e.target.value)} />
-            <Popover2
-              position={Position.RIGHT}
-              content={
-                <S.Help>
-                  <div className="title">
-                    <Icon icon="help" />
-                    <span>Cron Expression Format</span>
-                  </div>
-                  <p>
-                    Need Help? &mdash; For additional information on <strong>Crontab</strong>, please reference the{' '}
-                    <a
-                      href="https://man7.org/linux/man-pages/man5/crontab.5.html"
-                      rel="noreferrer"
-                      target="_blank"
-                      style={{ textDecoration: 'underline' }}
-                    >
-                      Crontab Linux manual
-                    </a>
-                    .
-                  </p>
-                  <img src={CronHelp} alt="" />
-                </S.Help>
-              }
-            >
-              <Icon icon="help" size={14} style={{ marginLeft: '10px', transition: 'none' }} />
-            </Popover2>
-          </S.Input>
-        )}
+      <div className="block" style={{ display: 'flex' }}>
+        <div className="left" style={{ flex: '0 0 500px' }}>
+          <h3>Frequency</h3>
+          <p>
+            Blueprints will run on creation and recurringly based on the schedule. The time shown below is your LOCAL
+            time.
+          </p>
+          <RadioGroup selectedValue={cron.value} onChange={handleChangeFrequency}>
+            {options.map(({ value, label, subLabel }) => (
+              <Radio key={value} label={`${label} ${subLabel}`} value={value} />
+            ))}
+          </RadioGroup>
+          {cron.value === 'custom' && (
+            <>
+              <S.Input>
+                <FormGroup label="Minute">
+                  <InputGroup
+                    value={mintue}
+                    onChange={(e) => onChangeCronConfig([e.target.value, hour, day, month, week].join(' '))}
+                  />
+                </FormGroup>
+                <FormGroup label="Hour">
+                  <InputGroup
+                    value={hour}
+                    onChange={(e) => onChangeCronConfig([mintue, e.target.value, day, month, week].join(' '))}
+                  />
+                </FormGroup>
+                <FormGroup label="Day">
+                  <InputGroup
+                    value={day}
+                    onChange={(e) => onChangeCronConfig([mintue, hour, e.target.value, month, week].join(' '))}
+                  />
+                </FormGroup>
+                <FormGroup label="Month">
+                  <InputGroup
+                    value={month}
+                    onChange={(e) => onChangeCronConfig([mintue, hour, day, e.target.value, week].join(' '))}
+                  />
+                </FormGroup>
+                <FormGroup label="Week">
+                  <InputGroup
+                    value={week}
+                    onChange={(e) => onChangeCronConfig([mintue, hour, day, month, e.target.value].join(' '))}
+                  />
+                </FormGroup>
+              </S.Input>
+              {!cron.nextTime && <S.Error>Invalid Cron code, please enter again.</S.Error>}
+            </>
+          )}
+        </div>
+        <div className="right">
+          <h3>Next Run Time:</h3>
+          <h4>{cron.nextTime ? dayjs(cron.nextTime).format('YYYY-MM-DD HH:mm A') : 'N/A'}</h4>
+        </div>
       </div>
       <div className="block">
         <h3>Running Policy</h3>
