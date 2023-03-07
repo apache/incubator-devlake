@@ -129,8 +129,6 @@ func convertBitbucketPullRequest(pull *BitbucketApiPullRequest, connId uint64, r
 		BitbucketId:        pull.BitbucketId,
 		Number:             pull.BitbucketId,
 		RepoId:             repoId,
-		BaseRepoId:         pull.BaseRef.Repo.FullName,
-		HeadRepoId:         pull.HeadRef.Repo.FullName,
 		State:              pull.State,
 		Title:              pull.Title,
 		Description:        pull.Description,
@@ -139,10 +137,20 @@ func convertBitbucketPullRequest(pull *BitbucketApiPullRequest, connId uint64, r
 		CommentCount:       pull.CommentCount,
 		BitbucketCreatedAt: pull.BitbucketCreatedAt,
 		BitbucketUpdatedAt: pull.BitbucketUpdatedAt,
-		BaseRef:            pull.BaseRef.Branch.Name,
-		BaseCommitSha:      pull.BaseRef.Commit.Hash,
-		HeadRef:            pull.HeadRef.Branch.Name,
-		HeadCommitSha:      pull.HeadRef.Commit.Hash,
+	}
+	if pull.BaseRef != nil {
+		if pull.BaseRef.Repo != nil {
+			bitbucketPull.BaseRepoId = pull.BaseRef.Repo.FullName
+		}
+		bitbucketPull.BaseRef = pull.BaseRef.Branch.Name
+		bitbucketPull.BaseCommitSha = pull.BaseRef.Commit.Hash
+	}
+	if pull.HeadRef != nil {
+		if pull.HeadRef.Repo != nil {
+			bitbucketPull.HeadRepoId = pull.HeadRef.Repo.FullName
+		}
+		bitbucketPull.HeadRef = pull.HeadRef.Branch.Name
+		bitbucketPull.HeadCommitSha = pull.HeadRef.Commit.Hash
 	}
 	return bitbucketPull, nil
 }
