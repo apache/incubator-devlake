@@ -30,6 +30,7 @@ inflect = "^6.0.2"
 fire = "^0.4.0"
 pydantic = "^1.10.2"
 pydevd-pycharm = "^231.6471.3"
+pytest = "^7.2.2"
 
 
 [tool.poetry.group.dev.dependencies]

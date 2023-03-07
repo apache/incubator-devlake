@@ -132,7 +132,7 @@ class Build(ToolModel, table=True):
     id: int = Field(primary_key=True)
     project_id: str
     repo_id: str
-    repo_url: str
+    repo_type: str
     build_number: str
     build_number_revision: Optional[str]
     controller_id: Optional[str]
