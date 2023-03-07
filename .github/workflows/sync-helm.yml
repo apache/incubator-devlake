@@ -1,0 +1,66 @@
+#
+# Licensed to the Apache Software Foundation (ASF) under one or more
+# contributor license agreements.  See the NOTICE file distributed with
+# this work for additional information regarding copyright ownership.
+# The ASF licenses this file to You under the Apache License, Version 2.0
+# (the "License"); you may not use this file except in compliance with
+# the License.  You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+#
+
+name: sync-helm
+on:
+  push:
+    tags-ignore:
+      - '*test*'
+
+env:
+  HELM_CHART_REPO: incubator-devlake-helm-chart
+  TAG: ${{ github.ref_name }}
+  FORK_REPO: aFlyBird0/incubator-devlake-helm-chart
+
+jobs:
+  sync-helm-images:
+    if: (github.repository == 'apache/incubator-devlake')
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Helm Chart
+        uses: actions/checkout@v3
+        with:
+          path: ${{ env.HELM_CHART_REPO }}
+          repository: apache/${{ env.HELM_CHART_REPO }}
+      - name: Update Helm Chart Image Tag
+        run: |
+          versionWithoutV=$(echo ${{ env.TAG }} | sed 's/^v//')
+          sed -i "s/imageTag: .*/imageTag: ${{ env.TAG }}/g" ${{ env.HELM_CHART_REPO }}/charts/devlake/values.yaml
+          sed -i "s/version: .*/version: ${versionWithoutV}/g" ${{ env.HELM_CHART_REPO }}/charts/devlake/Chart.yaml
+          sed -i "s/appVersion: .*/appVersion: ${{ env.TAG }}/g" ${{ env.HELM_CHART_REPO }}/charts/devlake/Chart.yaml
+      - name: Create Pull Request
+        # reference: https://github.com/peter-evans/create-pull-request
+        uses: peter-evans/create-pull-request@v4
+        with:
+          # this GitHub Personal Access Token should have 'repo' scope to the forked repo
+          # or any other way in this link:
+          # https://github.com/peter-evans/create-pull-request/blob/main/docs/concepts-guidelines.md#workarounds-to-trigger-further-workflow-runs
+          token: ${{ secrets.GH_PAT }}
+          path: ${{ env.HELM_CHART_REPO }}
+          branch: sync-helm-images
+          branch-suffix: timestamp
+          title: "feat: sync image tags(auto by bot)"
+          commit-message: "feat: sync image tags(auto by bot)"
+#          body: "Automated changes by [create-pull-request](https://github.com/peter-evans/create-pull-request) GitHub action"
+          delete-branch: true
+          push-to-fork: ${{ env.FORK_REPO }}
+          # if you want to active the configuration below,
+          # you should use token with admin rights to devlake helm chart repo
+#          reviewers: user1,user2
+#          team-reviewers:
+#          assignees:
+#          labels: bot
