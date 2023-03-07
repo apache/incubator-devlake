@@ -25,6 +25,7 @@ const tapd = [
         companyId: 1,
         workspaceId: 1,
         connectionId: 1,
+        pageSize: 100,
       },
     },
   ],
