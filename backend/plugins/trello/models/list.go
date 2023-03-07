@@ -22,11 +22,11 @@ import (
 )
 
 type TrelloList struct {
-	RawID string `gorm:"primaryKey;type:varchar(24)"`
-	Name  string `gorm:"type:varchar(255)"`
+	ID   string `gorm:"primaryKey;type:varchar(255)"`
+	Name string `gorm:"type:varchar(255)"`
 	common.NoPKModel
 }
 
 func (TrelloList) TableName() string {
-	return "_tool_trello_list"
+	return "_tool_trello_lists"
 }

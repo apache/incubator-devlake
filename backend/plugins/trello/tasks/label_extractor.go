@@ -22,45 +22,52 @@ import (
 	"github.com/apache/incubator-devlake/core/errors"
 	"github.com/apache/incubator-devlake/core/plugin"
 	"github.com/apache/incubator-devlake/helpers/pluginhelper/api"
-	"net/http"
+	"github.com/apache/incubator-devlake/plugins/trello/models"
 )
 
-const RAW_CARD_TABLE = "trello_cards"
+var _ plugin.SubTaskEntryPoint = ExtractLabel
 
-var _ plugin.SubTaskEntryPoint = CollectCard
-
-var CollectCardMeta = plugin.SubTaskMeta{
-	Name:             "CollectCard",
-	EntryPoint:       CollectCard,
-	EnabledByDefault: true,
-	Description:      "Collect Card data from Trello api",
-	DomainTypes:      []string{},
+type TrelloApiLabel struct {
+	ID   string `json:"id"`
+	Name string `json:"name"`
 }
 
-func CollectCard(taskCtx plugin.SubTaskContext) errors.Error {
-	data := taskCtx.GetData().(*TrelloTaskData)
+func ExtractLabel(taskCtx plugin.SubTaskContext) errors.Error {
+	taskData := taskCtx.GetData().(*TrelloTaskData)
 
-	collector, err := api.NewApiCollector(api.ApiCollectorArgs{
+	extractor, err := api.NewApiExtractor(api.ApiExtractorArgs{
 		RawDataSubTaskArgs: api.RawDataSubTaskArgs{
 			Ctx: taskCtx,
 			Params: TrelloApiParams{
-				ConnectionId: data.Options.ConnectionId,
-				BoardId:      data.Options.BoardId,
+				ConnectionId: taskData.Options.ConnectionId,
+				BoardId:      taskData.Options.BoardId,
 			},
-			Table: RAW_CARD_TABLE,
+			Table: RAW_LABEL_TABLE,
 		},
-		ApiClient:   data.ApiClient,
-		UrlTemplate: "1/boards/{{ .Params.BoardId }}/cards",
-		ResponseParser: func(res *http.Response) ([]json.RawMessage, errors.Error) {
-			var data []json.RawMessage
-			err := api.UnmarshalResponse(res, &data)
-			return data, err
+		Extract: func(resData *api.RawData) ([]interface{}, errors.Error) {
+			apiLabel := &TrelloApiLabel{}
+			err := errors.Convert(json.Unmarshal(resData.Data, apiLabel))
+			if err != nil {
+				return nil, err
+			}
+			return []interface{}{
+				&models.TrelloLabel{
+					ID:   apiLabel.ID,
+					Name: apiLabel.Name,
+				},
+			}, nil
 		},
 	})
-
 	if err != nil {
 		return err
 	}
 
-	return collector.Execute()
+	return extractor.Execute()
+}
+
+var ExtractLabelMeta = plugin.SubTaskMeta{
+	Name:             "ExtractLabel",
+	EntryPoint:       ExtractLabel,
+	EnabledByDefault: true,
+	Description:      "Extract raw data into tool layer table {{ .plugin_name }}_{{ .extractor_data_name }}",
 }

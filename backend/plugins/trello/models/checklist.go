@@ -21,12 +21,12 @@ import (
 	"github.com/apache/incubator-devlake/core/models/common"
 )
 
-type TrelloCard struct {
-	RawID string `gorm:"primaryKey;type:varchar(24)"`
-	Name  string `gorm:"type:varchar(255)"`
+type TrelloChecklist struct {
+	ID   string `gorm:"primaryKey;type:varchar(255)"`
+	Name string `gorm:"type:varchar(255)"`
 	common.NoPKModel
 }
 
-func (TrelloCard) TableName() string {
-	return "_tool_trello_card"
+func (TrelloChecklist) TableName() string {
+	return "_tool_trello_checklists"
 }

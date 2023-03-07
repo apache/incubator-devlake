@@ -67,6 +67,14 @@ func (p Trello) SubTaskMetas() []plugin.SubTaskMeta {
 		tasks.ExtractListMeta,
 		tasks.CollectCardMeta,
 		tasks.ExtractCardMeta,
+		tasks.CollectLabelMeta,
+		tasks.ExtractLabelMeta,
+		tasks.CollectChecklistMeta,
+		tasks.ExtractChecklistMeta,
+		tasks.CollectCheckItemMeta,
+		tasks.ExtractCheckItemMeta,
+		tasks.CollectMemberMeta,
+		tasks.ExtractMemberMeta,
 	}
 }
 

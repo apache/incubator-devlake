@@ -15,33 +15,18 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-package migrationscripts
+package models
 
 import (
-	"github.com/apache/incubator-devlake/core/context"
-	"github.com/apache/incubator-devlake/core/errors"
-	"github.com/apache/incubator-devlake/helpers/migrationhelper"
-	"github.com/apache/incubator-devlake/plugins/trello/models"
+	"github.com/apache/incubator-devlake/core/models/common"
 )
 
-type addInitTables struct{}
-
-func (*addInitTables) Up(basicRes context.BasicRes) errors.Error {
-	return migrationhelper.AutoMigrateTables(
-		basicRes,
-		&models.TrelloList{},
-		&models.TrelloCard{},
-		&models.TrelloLabel{},
-		&models.TrelloMember{},
-		&models.TrelloChecklist{},
-		&models.TrelloCheckItem{},
-	)
+type TrelloLabel struct {
+	ID   string `gorm:"primaryKey;type:varchar(255)"`
+	Name string `gorm:"type:varchar(255)"`
+	common.NoPKModel
 }
 
-func (*addInitTables) Version() uint64 {
-	return 20230305000009
-}
-
-func (*addInitTables) Name() string {
-	return "trello init schemas"
+func (TrelloLabel) TableName() string {
+	return "_tool_trello_labels"
 }

@@ -25,19 +25,19 @@ import (
 	"net/http"
 )
 
-const RAW_CARD_TABLE = "trello_cards"
+const RAW_MEMBER_TABLE = "trello_members"
 
-var _ plugin.SubTaskEntryPoint = CollectCard
+var _ plugin.SubTaskEntryPoint = CollectMember
 
-var CollectCardMeta = plugin.SubTaskMeta{
-	Name:             "CollectCard",
-	EntryPoint:       CollectCard,
+var CollectMemberMeta = plugin.SubTaskMeta{
+	Name:             "CollectMember",
+	EntryPoint:       CollectMember,
 	EnabledByDefault: true,
-	Description:      "Collect Card data from Trello api",
+	Description:      "Collect Member data from Trello api",
 	DomainTypes:      []string{},
 }
 
-func CollectCard(taskCtx plugin.SubTaskContext) errors.Error {
+func CollectMember(taskCtx plugin.SubTaskContext) errors.Error {
 	data := taskCtx.GetData().(*TrelloTaskData)
 
 	collector, err := api.NewApiCollector(api.ApiCollectorArgs{
@@ -47,10 +47,10 @@ func CollectCard(taskCtx plugin.SubTaskContext) errors.Error {
 				ConnectionId: data.Options.ConnectionId,
 				BoardId:      data.Options.BoardId,
 			},
-			Table: RAW_CARD_TABLE,
+			Table: RAW_MEMBER_TABLE,
 		},
 		ApiClient:   data.ApiClient,
-		UrlTemplate: "1/boards/{{ .Params.BoardId }}/cards",
+		UrlTemplate: "1/boards/{{ .Params.BoardId }}/members",
 		ResponseParser: func(res *http.Response) ([]json.RawMessage, errors.Error) {
 			var data []json.RawMessage
 			err := api.UnmarshalResponse(res, &data)

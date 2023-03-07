@@ -25,7 +25,7 @@ import (
 	"net/http"
 )
 
-const RAW_LIST_TABLE = "trello_list"
+const RAW_LIST_TABLE = "trello_lists"
 
 var _ plugin.SubTaskEntryPoint = CollectList
 

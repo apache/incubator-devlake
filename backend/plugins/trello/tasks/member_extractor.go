@@ -25,14 +25,15 @@ import (
 	"github.com/apache/incubator-devlake/plugins/trello/models"
 )
 
-var _ plugin.SubTaskEntryPoint = ExtractCard
+var _ plugin.SubTaskEntryPoint = ExtractMember
 
-type TrelloApiCard struct {
-	ID   string `json:"id"`
-	Name string `json:"name"`
+type TrelloApiMember struct {
+	ID       string `json:"id"`
+	FullName string `json:"fullName"`
+	Username string `json:"username"`
 }
 
-func ExtractCard(taskCtx plugin.SubTaskContext) errors.Error {
+func ExtractMember(taskCtx plugin.SubTaskContext) errors.Error {
 	taskData := taskCtx.GetData().(*TrelloTaskData)
 
 	extractor, err := api.NewApiExtractor(api.ApiExtractorArgs{
@@ -42,18 +43,19 @@ func ExtractCard(taskCtx plugin.SubTaskContext) errors.Error {
 				ConnectionId: taskData.Options.ConnectionId,
 				BoardId:      taskData.Options.BoardId,
 			},
-			Table: RAW_CARD_TABLE,
+			Table: RAW_MEMBER_TABLE,
 		},
 		Extract: func(resData *api.RawData) ([]interface{}, errors.Error) {
-			apiCard := &TrelloApiCard{}
-			err := errors.Convert(json.Unmarshal(resData.Data, apiCard))
+			apiMember := &TrelloApiMember{}
+			err := errors.Convert(json.Unmarshal(resData.Data, apiMember))
 			if err != nil {
 				return nil, err
 			}
 			return []interface{}{
-				&models.TrelloCard{
-					ID:   apiCard.ID,
-					Name: apiCard.Name,
+				&models.TrelloMember{
+					ID:       apiMember.ID,
+					FullName: apiMember.FullName,
+					Username: apiMember.Username,
 				},
 			}, nil
 		},
@@ -65,9 +67,9 @@ func ExtractCard(taskCtx plugin.SubTaskContext) errors.Error {
 	return extractor.Execute()
 }
 
-var ExtractCardMeta = plugin.SubTaskMeta{
-	Name:             "ExtractCard",
-	EntryPoint:       ExtractCard,
+var ExtractMemberMeta = plugin.SubTaskMeta{
+	Name:             "ExtractMember",
+	EntryPoint:       ExtractMember,
 	EnabledByDefault: true,
 	Description:      "Extract raw data into tool layer table {{ .plugin_name }}_{{ .extractor_data_name }}",
 }

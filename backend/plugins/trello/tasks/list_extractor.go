@@ -52,8 +52,8 @@ func ExtractList(taskCtx plugin.SubTaskContext) errors.Error {
 			}
 			return []interface{}{
 				&models.TrelloList{
-					RawID: apiList.ID,
-					Name:  apiList.Name,
+					ID:   apiList.ID,
+					Name: apiList.Name,
 				},
 			}, nil
 		},

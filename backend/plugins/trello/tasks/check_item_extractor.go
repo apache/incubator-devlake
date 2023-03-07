@@ -25,14 +25,20 @@ import (
 	"github.com/apache/incubator-devlake/plugins/trello/models"
 )
 
-var _ plugin.SubTaskEntryPoint = ExtractCard
+var _ plugin.SubTaskEntryPoint = ExtractCheckItem
 
-type TrelloApiCard struct {
+type TrelloApiCheckItem struct {
+	ID         string                `json:"id"`
+	Name       string                `json:"name"`
+	CheckItems []TrelloApiCheckItems `json:"checkItems"`
+}
+
+type TrelloApiCheckItems struct {
 	ID   string `json:"id"`
 	Name string `json:"name"`
 }
 
-func ExtractCard(taskCtx plugin.SubTaskContext) errors.Error {
+func ExtractCheckItem(taskCtx plugin.SubTaskContext) errors.Error {
 	taskData := taskCtx.GetData().(*TrelloTaskData)
 
 	extractor, err := api.NewApiExtractor(api.ApiExtractorArgs{
@@ -42,20 +48,22 @@ func ExtractCard(taskCtx plugin.SubTaskContext) errors.Error {
 				ConnectionId: taskData.Options.ConnectionId,
 				BoardId:      taskData.Options.BoardId,
 			},
-			Table: RAW_CARD_TABLE,
+			Table: RAW_CHECK_ITEM_TABLE,
 		},
 		Extract: func(resData *api.RawData) ([]interface{}, errors.Error) {
-			apiCard := &TrelloApiCard{}
-			err := errors.Convert(json.Unmarshal(resData.Data, apiCard))
+			apiCheckItem := &TrelloApiCheckItem{}
+			err := errors.Convert(json.Unmarshal(resData.Data, apiCheckItem))
 			if err != nil {
 				return nil, err
 			}
-			return []interface{}{
-				&models.TrelloCard{
-					ID:   apiCard.ID,
-					Name: apiCard.Name,
-				},
-			}, nil
+			results := make([]interface{}, 0)
+			for _, item := range apiCheckItem.CheckItems {
+				results = append(results, &models.TrelloCheckItem{
+					ID:   item.ID,
+					Name: item.Name,
+				})
+			}
+			return results, nil
 		},
 	})
 	if err != nil {
@@ -65,9 +73,9 @@ func ExtractCard(taskCtx plugin.SubTaskContext) errors.Error {
 	return extractor.Execute()
 }
 
-var ExtractCardMeta = plugin.SubTaskMeta{
-	Name:             "ExtractCard",
-	EntryPoint:       ExtractCard,
+var ExtractCheckItemMeta = plugin.SubTaskMeta{
+	Name:             "ExtractCheckItem",
+	EntryPoint:       ExtractCheckItem,
 	EnabledByDefault: true,
 	Description:      "Extract raw data into tool layer table {{ .plugin_name }}_{{ .extractor_data_name }}",
 }
