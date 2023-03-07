@@ -1,21 +1,33 @@
-from abc import ABC
-
 from azure.api import AzureDevOpsAPI
-from azure.models import AzureDevOpsConnection
+from azure.models import AzureDevOpsConnection, GitRepository
 from azure.streams.builds import Builds
 from azure.streams.commits import GitCommits
 from azure.streams.jobs import Jobs
 from azure.streams.pull_request_commits import GitPullRequestCommits
 from azure.streams.pull_requests import GitPullRequests
 from azure.streams.repositories import GitRepositories
-from pydevlake.plugin import Plugin
 
+from pydevlake import Plugin, RemoteScopeGroup
+from pydevlake.domain_layer.code import Repo
 
-class AzureDevOpsPlugin(Plugin, ABC):
+class AzureDevOpsPlugin(Plugin):
 
     @property
     def connection_type(self):
         return AzureDevOpsConnection
+
+    @property
+    def tool_scope_type(self):
+        return GitRepository
+
+    def domain_scopes(self, tool_scope: GitRepository):
+        pass
+
+    def remote_scope_groups(self, ctx) -> list[RemoteScopeGroup]:
+        pass
+
+    def remote_scopes(self, ctx, group_id: str) -> list[GitRepository]:
+        pass
 
     @property
     def name(self) -> str:
