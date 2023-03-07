@@ -27,15 +27,23 @@ import (
 
 var _ plugin.SubTaskEntryPoint = ExtractCheckItem
 
-type TrelloApiCheckItem struct {
-	ID         string                `json:"id"`
-	Name       string                `json:"name"`
-	CheckItems []TrelloApiCheckItems `json:"checkItems"`
+var ExtractCheckItemMeta = plugin.SubTaskMeta{
+	Name:             "ExtractCheckItem",
+	EntryPoint:       ExtractCheckItem,
+	EnabledByDefault: true,
+	Description:      "Extract raw data into tool layer table trello_check_items",
 }
 
 type TrelloApiCheckItems struct {
-	ID   string `json:"id"`
-	Name string `json:"name"`
+	ID          string      `json:"id"`
+	Name        string      `json:"name"`
+	NameData    interface{} `json:"nameData"`
+	Pos         float64     `json:"pos"`
+	State       string      `json:"state"`
+	Due         interface{} `json:"due"`
+	DueReminder interface{} `json:"dueReminder"`
+	IDMember    string      `json:"idMember"`
+	IDChecklist string      `json:"idChecklist"`
 }
 
 func ExtractCheckItem(taskCtx plugin.SubTaskContext) errors.Error {
@@ -51,7 +59,7 @@ func ExtractCheckItem(taskCtx plugin.SubTaskContext) errors.Error {
 			Table: RAW_CHECK_ITEM_TABLE,
 		},
 		Extract: func(resData *api.RawData) ([]interface{}, errors.Error) {
-			apiCheckItem := &TrelloApiCheckItem{}
+			apiCheckItem := &TrelloApiChecklist{}
 			err := errors.Convert(json.Unmarshal(resData.Data, apiCheckItem))
 			if err != nil {
 				return nil, err
@@ -59,8 +67,11 @@ func ExtractCheckItem(taskCtx plugin.SubTaskContext) errors.Error {
 			results := make([]interface{}, 0)
 			for _, item := range apiCheckItem.CheckItems {
 				results = append(results, &models.TrelloCheckItem{
-					ID:   item.ID,
-					Name: item.Name,
+					ID:          item.ID,
+					Name:        item.Name,
+					State:       item.State,
+					IDChecklist: item.IDChecklist,
+					Pos:         item.Pos,
 				})
 			}
 			return results, nil
@@ -71,11 +82,4 @@ func ExtractCheckItem(taskCtx plugin.SubTaskContext) errors.Error {
 	}
 
 	return extractor.Execute()
-}
-
-var ExtractCheckItemMeta = plugin.SubTaskMeta{
-	Name:             "ExtractCheckItem",
-	EntryPoint:       ExtractCheckItem,
-	EnabledByDefault: true,
-	Description:      "Extract raw data into tool layer table {{ .plugin_name }}_{{ .extractor_data_name }}",
 }

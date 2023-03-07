@@ -22,8 +22,11 @@ import (
 )
 
 type TrelloList struct {
-	ID   string `gorm:"primaryKey;type:varchar(255)"`
-	Name string `gorm:"type:varchar(255)"`
+	ID         string `gorm:"primaryKey;type:varchar(255)"`
+	Name       string `gorm:"type:varchar(255)"`
+	IDBoard    string `gorm:"type:varchar(255)"`
+	Subscribed bool
+	Pos        float64
 	common.NoPKModel
 }
 

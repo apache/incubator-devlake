@@ -27,9 +27,18 @@ import (
 
 var _ plugin.SubTaskEntryPoint = ExtractLabel
 
+var ExtractLabelMeta = plugin.SubTaskMeta{
+	Name:             "ExtractLabel",
+	EntryPoint:       ExtractLabel,
+	EnabledByDefault: true,
+	Description:      "Extract raw data into tool layer table trello_labels",
+}
+
 type TrelloApiLabel struct {
-	ID   string `json:"id"`
-	Name string `json:"name"`
+	ID      string `json:"id"`
+	IDBoard string `json:"idBoard"`
+	Name    string `json:"name"`
+	Color   string `json:"color"`
 }
 
 func ExtractLabel(taskCtx plugin.SubTaskContext) errors.Error {
@@ -52,8 +61,10 @@ func ExtractLabel(taskCtx plugin.SubTaskContext) errors.Error {
 			}
 			return []interface{}{
 				&models.TrelloLabel{
-					ID:   apiLabel.ID,
-					Name: apiLabel.Name,
+					ID:      apiLabel.ID,
+					IDBoard: apiLabel.IDBoard,
+					Name:    apiLabel.Name,
+					Color:   apiLabel.Color,
 				},
 			}, nil
 		},
@@ -63,11 +74,4 @@ func ExtractLabel(taskCtx plugin.SubTaskContext) errors.Error {
 	}
 
 	return extractor.Execute()
-}
-
-var ExtractLabelMeta = plugin.SubTaskMeta{
-	Name:             "ExtractLabel",
-	EntryPoint:       ExtractLabel,
-	EnabledByDefault: true,
-	Description:      "Extract raw data into tool layer table {{ .plugin_name }}_{{ .extractor_data_name }}",
 }

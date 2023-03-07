@@ -19,11 +19,23 @@ package models
 
 import (
 	"github.com/apache/incubator-devlake/core/models/common"
+	"time"
 )
 
 type TrelloCard struct {
-	ID   string `gorm:"primaryKey;type:varchar(255)"`
-	Name string `gorm:"type:varchar(255)"`
+	ID               string `gorm:"primaryKey;type:varchar(255)"`
+	Name             string `gorm:"type:varchar(255)"`
+	Closed           bool
+	DueComplete      bool
+	DateLastActivity time.Time
+	IDBoard          string `gorm:"type:varchar(255)"`
+	IDList           string `gorm:"type:varchar(255)"`
+	IDShort          int
+	Pos              float64
+	ShortLink        string `gorm:"type:varchar(255)"`
+	ShortUrl         string `gorm:"type:varchar(255)"`
+	Subscribed       bool
+	Url              string `gorm:"type:varchar(255)"`
 	common.NoPKModel
 }
 

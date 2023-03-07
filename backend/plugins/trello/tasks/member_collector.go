@@ -33,23 +33,23 @@ var CollectMemberMeta = plugin.SubTaskMeta{
 	Name:             "CollectMember",
 	EntryPoint:       CollectMember,
 	EnabledByDefault: true,
-	Description:      "Collect Member data from Trello api",
+	Description:      "Collect member data from Trello api",
 	DomainTypes:      []string{},
 }
 
 func CollectMember(taskCtx plugin.SubTaskContext) errors.Error {
-	data := taskCtx.GetData().(*TrelloTaskData)
+	taskData := taskCtx.GetData().(*TrelloTaskData)
 
 	collector, err := api.NewApiCollector(api.ApiCollectorArgs{
 		RawDataSubTaskArgs: api.RawDataSubTaskArgs{
 			Ctx: taskCtx,
 			Params: TrelloApiParams{
-				ConnectionId: data.Options.ConnectionId,
-				BoardId:      data.Options.BoardId,
+				ConnectionId: taskData.Options.ConnectionId,
+				BoardId:      taskData.Options.BoardId,
 			},
 			Table: RAW_MEMBER_TABLE,
 		},
-		ApiClient:   data.ApiClient,
+		ApiClient:   taskData.ApiClient,
 		UrlTemplate: "1/boards/{{ .Params.BoardId }}/members",
 		ResponseParser: func(res *http.Response) ([]json.RawMessage, errors.Error) {
 			var data []json.RawMessage

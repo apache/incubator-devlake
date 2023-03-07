@@ -27,9 +27,21 @@ import (
 
 var _ plugin.SubTaskEntryPoint = ExtractList
 
+var ExtractListMeta = plugin.SubTaskMeta{
+	Name:             "ExtractList",
+	EntryPoint:       ExtractList,
+	EnabledByDefault: true,
+	Description:      "Extract raw data into tool layer table trello_lists",
+}
+
 type TrelloApiList struct {
-	ID   string `json:"id"`
-	Name string `json:"name"`
+	ID         string      `json:"id"`
+	Name       string      `json:"name"`
+	Closed     bool        `json:"closed"`
+	IDBoard    string      `json:"idBoard"`
+	Pos        float64     `json:"pos"`
+	Subscribed bool        `json:"subscribed"`
+	SoftLimit  interface{} `json:"softLimit"`
 }
 
 func ExtractList(taskCtx plugin.SubTaskContext) errors.Error {
@@ -52,8 +64,11 @@ func ExtractList(taskCtx plugin.SubTaskContext) errors.Error {
 			}
 			return []interface{}{
 				&models.TrelloList{
-					ID:   apiList.ID,
-					Name: apiList.Name,
+					ID:         apiList.ID,
+					Name:       apiList.Name,
+					IDBoard:    apiList.IDBoard,
+					Subscribed: apiList.Subscribed,
+					Pos:        apiList.Pos,
 				},
 			}, nil
 		},
@@ -63,11 +78,4 @@ func ExtractList(taskCtx plugin.SubTaskContext) errors.Error {
 	}
 
 	return extractor.Execute()
-}
-
-var ExtractListMeta = plugin.SubTaskMeta{
-	Name:             "ExtractList",
-	EntryPoint:       ExtractList,
-	EnabledByDefault: true,
-	Description:      "Extract raw data into tool layer table {{ .plugin_name }}_{{ .extractor_data_name }}",
 }

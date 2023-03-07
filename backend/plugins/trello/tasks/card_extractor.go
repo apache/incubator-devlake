@@ -23,13 +23,50 @@ import (
 	"github.com/apache/incubator-devlake/core/plugin"
 	"github.com/apache/incubator-devlake/helpers/pluginhelper/api"
 	"github.com/apache/incubator-devlake/plugins/trello/models"
+	"time"
 )
 
 var _ plugin.SubTaskEntryPoint = ExtractCard
 
+var ExtractCardMeta = plugin.SubTaskMeta{
+	Name:             "ExtractCard",
+	EntryPoint:       ExtractCard,
+	EnabledByDefault: true,
+	Description:      "Extract raw data into tool layer table trello_cards",
+}
+
 type TrelloApiCard struct {
-	ID   string `json:"id"`
-	Name string `json:"name"`
+	ID                    string        `json:"id"`
+	Badges                interface{}   `json:"badges"`
+	CheckItemStates       interface{}   `json:"checkItemStates"`
+	Closed                bool          `json:"closed"`
+	DueComplete           bool          `json:"dueComplete"`
+	DateLastActivity      time.Time     `json:"dateLastActivity"`
+	Desc                  string        `json:"desc"`
+	DescData              interface{}   `json:"descData"`
+	Due                   interface{}   `json:"due"`
+	DueReminder           interface{}   `json:"dueReminder"`
+	Email                 interface{}   `json:"email"`
+	IDBoard               string        `json:"idBoard"`
+	IDChecklists          []string      `json:"idChecklists"`
+	IDList                string        `json:"idList"`
+	IDMembers             []string      `json:"idMembers"`
+	IDMembersVoted        []string      `json:"idMembersVoted"`
+	IDShort               int           `json:"idShort"`
+	IDAttachmentCover     string        `json:"idAttachmentCover"`
+	Labels                []interface{} `json:"labels"`
+	IDLabels              []string      `json:"idLabels"`
+	ManualCoverAttachment bool          `json:"manualCoverAttachment"`
+	Name                  string        `json:"name"`
+	Pos                   float64       `json:"pos"`
+	ShortLink             string        `json:"shortLink"`
+	ShortUrl              string        `json:"shortUrl"`
+	Start                 interface{}   `json:"start"`
+	Subscribed            bool          `json:"subscribed"`
+	Url                   string        `json:"url"`
+	Cover                 interface{}   `json:"cover"`
+	IsTemplate            bool          `json:"isTemplate"`
+	CardRole              interface{}   `json:"cardRole"`
 }
 
 func ExtractCard(taskCtx plugin.SubTaskContext) errors.Error {
@@ -52,8 +89,19 @@ func ExtractCard(taskCtx plugin.SubTaskContext) errors.Error {
 			}
 			return []interface{}{
 				&models.TrelloCard{
-					ID:   apiCard.ID,
-					Name: apiCard.Name,
+					ID:               apiCard.ID,
+					Name:             apiCard.Name,
+					Closed:           apiCard.Closed,
+					DueComplete:      apiCard.DueComplete,
+					DateLastActivity: apiCard.DateLastActivity,
+					IDBoard:          apiCard.IDBoard,
+					IDList:           apiCard.IDList,
+					IDShort:          apiCard.IDShort,
+					Pos:              apiCard.Pos,
+					ShortLink:        apiCard.ShortLink,
+					ShortUrl:         apiCard.ShortUrl,
+					Subscribed:       apiCard.Subscribed,
+					Url:              apiCard.Url,
 				},
 			}, nil
 		},
@@ -63,11 +111,4 @@ func ExtractCard(taskCtx plugin.SubTaskContext) errors.Error {
 	}
 
 	return extractor.Execute()
-}
-
-var ExtractCardMeta = plugin.SubTaskMeta{
-	Name:             "ExtractCard",
-	EntryPoint:       ExtractCard,
-	EnabledByDefault: true,
-	Description:      "Extract raw data into tool layer table {{ .plugin_name }}_{{ .extractor_data_name }}",
 }

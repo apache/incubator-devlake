@@ -27,9 +27,20 @@ import (
 
 var _ plugin.SubTaskEntryPoint = ExtractChecklist
 
+var ExtractChecklistMeta = plugin.SubTaskMeta{
+	Name:             "ExtractChecklist",
+	EntryPoint:       ExtractChecklist,
+	EnabledByDefault: true,
+	Description:      "Extract raw data into tool layer table trello_checklists",
+}
+
 type TrelloApiChecklist struct {
-	ID   string `json:"id"`
-	Name string `json:"name"`
+	ID         string                `json:"id"`
+	Name       string                `json:"name"`
+	IDBoard    string                `json:"idBoard"`
+	IDCard     string                `json:"idCard"`
+	Pos        float64               `json:"pos"`
+	CheckItems []TrelloApiCheckItems `json:"checkItems"`
 }
 
 func ExtractChecklist(taskCtx plugin.SubTaskContext) errors.Error {
@@ -52,8 +63,11 @@ func ExtractChecklist(taskCtx plugin.SubTaskContext) errors.Error {
 			}
 			return []interface{}{
 				&models.TrelloChecklist{
-					ID:   apiChecklist.ID,
-					Name: apiChecklist.Name,
+					ID:      apiChecklist.ID,
+					Name:    apiChecklist.Name,
+					IDBoard: apiChecklist.IDBoard,
+					IDCard:  apiChecklist.IDCard,
+					Pos:     apiChecklist.Pos,
 				},
 			}, nil
 		},
@@ -63,11 +77,4 @@ func ExtractChecklist(taskCtx plugin.SubTaskContext) errors.Error {
 	}
 
 	return extractor.Execute()
-}
-
-var ExtractChecklistMeta = plugin.SubTaskMeta{
-	Name:             "ExtractChecklist",
-	EntryPoint:       ExtractChecklist,
-	EnabledByDefault: true,
-	Description:      "Extract raw data into tool layer table {{ .plugin_name }}_{{ .extractor_data_name }}",
 }

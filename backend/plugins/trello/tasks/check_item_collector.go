@@ -33,23 +33,23 @@ var CollectCheckItemMeta = plugin.SubTaskMeta{
 	Name:             "CollectCheckItem",
 	EntryPoint:       CollectCheckItem,
 	EnabledByDefault: true,
-	Description:      "Collect Check Item data from Trello api",
+	Description:      "Collect check item data from Trello api",
 	DomainTypes:      []string{},
 }
 
 func CollectCheckItem(taskCtx plugin.SubTaskContext) errors.Error {
-	data := taskCtx.GetData().(*TrelloTaskData)
+	taskData := taskCtx.GetData().(*TrelloTaskData)
 
 	collector, err := api.NewApiCollector(api.ApiCollectorArgs{
 		RawDataSubTaskArgs: api.RawDataSubTaskArgs{
 			Ctx: taskCtx,
 			Params: TrelloApiParams{
-				ConnectionId: data.Options.ConnectionId,
-				BoardId:      data.Options.BoardId,
+				ConnectionId: taskData.Options.ConnectionId,
+				BoardId:      taskData.Options.BoardId,
 			},
 			Table: RAW_CHECK_ITEM_TABLE,
 		},
-		ApiClient:   data.ApiClient,
+		ApiClient:   taskData.ApiClient,
 		UrlTemplate: "1/boards/{{ .Params.BoardId }}/checklists",
 		ResponseParser: func(res *http.Response) ([]json.RawMessage, errors.Error) {
 			var data []json.RawMessage

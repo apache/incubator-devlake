@@ -27,6 +27,13 @@ import (
 
 var _ plugin.SubTaskEntryPoint = ExtractMember
 
+var ExtractMemberMeta = plugin.SubTaskMeta{
+	Name:             "ExtractMember",
+	EntryPoint:       ExtractMember,
+	EnabledByDefault: true,
+	Description:      "Extract raw data into tool layer table trello_members",
+}
+
 type TrelloApiMember struct {
 	ID       string `json:"id"`
 	FullName string `json:"fullName"`
@@ -65,11 +72,4 @@ func ExtractMember(taskCtx plugin.SubTaskContext) errors.Error {
 	}
 
 	return extractor.Execute()
-}
-
-var ExtractMemberMeta = plugin.SubTaskMeta{
-	Name:             "ExtractMember",
-	EntryPoint:       ExtractMember,
-	EnabledByDefault: true,
-	Description:      "Extract raw data into tool layer table {{ .plugin_name }}_{{ .extractor_data_name }}",
 }

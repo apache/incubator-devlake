@@ -22,8 +22,11 @@ import (
 )
 
 type TrelloCheckItem struct {
-	ID   string `gorm:"primaryKey;type:varchar(255)"`
-	Name string `gorm:"type:varchar(255)"`
+	ID          string `gorm:"primaryKey;type:varchar(255)"`
+	Name        string `gorm:"type:varchar(255)"`
+	State       string `gorm:"type:varchar(255)"`
+	IDChecklist string `gorm:"type:varchar(255)"`
+	Pos         float64
 	common.NoPKModel
 }
 

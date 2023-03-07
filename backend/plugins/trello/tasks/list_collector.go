@@ -33,7 +33,7 @@ var CollectListMeta = plugin.SubTaskMeta{
 	Name:             "CollectList",
 	EntryPoint:       CollectList,
 	EnabledByDefault: true,
-	Description:      "Collect List data from Trello api",
+	Description:      "Collect list data from Trello api",
 	DomainTypes:      []string{},
 }
 

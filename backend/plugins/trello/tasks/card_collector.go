@@ -33,7 +33,7 @@ var CollectCardMeta = plugin.SubTaskMeta{
 	Name:             "CollectCard",
 	EntryPoint:       CollectCard,
 	EnabledByDefault: true,
-	Description:      "Collect Card data from Trello api",
+	Description:      "Collect card data from Trello api",
 	DomainTypes:      []string{},
 }
 

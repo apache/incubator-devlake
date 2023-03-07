@@ -33,23 +33,23 @@ var CollectLabelMeta = plugin.SubTaskMeta{
 	Name:             "CollectLabel",
 	EntryPoint:       CollectLabel,
 	EnabledByDefault: true,
-	Description:      "Collect Label data from Trello api",
+	Description:      "Collect label data from Trello api",
 	DomainTypes:      []string{},
 }
 
 func CollectLabel(taskCtx plugin.SubTaskContext) errors.Error {
-	data := taskCtx.GetData().(*TrelloTaskData)
+	taskData := taskCtx.GetData().(*TrelloTaskData)
 
 	collector, err := api.NewApiCollector(api.ApiCollectorArgs{
 		RawDataSubTaskArgs: api.RawDataSubTaskArgs{
 			Ctx: taskCtx,
 			Params: TrelloApiParams{
-				ConnectionId: data.Options.ConnectionId,
-				BoardId:      data.Options.BoardId,
+				ConnectionId: taskData.Options.ConnectionId,
+				BoardId:      taskData.Options.BoardId,
 			},
 			Table: RAW_LABEL_TABLE,
 		},
-		ApiClient:   data.ApiClient,
+		ApiClient:   taskData.ApiClient,
 		UrlTemplate: "1/boards/{{ .Params.BoardId }}/labels",
 		ResponseParser: func(res *http.Response) ([]json.RawMessage, errors.Error) {
 			var data []json.RawMessage
