@@ -9,6 +9,8 @@ from azure.streams.repositories import GitRepositories
 
 from pydevlake import Plugin, RemoteScopeGroup
 from pydevlake.domain_layer.code import Repo
+from pydevlake.domain_layer.devops import CicdScope
+
 
 class AzureDevOpsPlugin(Plugin):
 
@@ -20,14 +22,43 @@ class AzureDevOpsPlugin(Plugin):
     def tool_scope_type(self):
         return GitRepository
 
-    def domain_scopes(self, tool_scope: GitRepository):
-        pass
+    def domain_scopes(self, git_repo: GitRepository):
+        yield Repo(
+            name=git_repo.name,
+            url=git_repo.url,
+            forked_from=git_repo.parentRepositoryUrl,
+            deleted=git_repo.isDisabled,
+        )
+
+        yield CicdScope(
+            name=git_repo.name,
+            description=git_repo.name,
+            url=git_repo.url
+        )
 
     def remote_scope_groups(self, ctx) -> list[RemoteScopeGroup]:
-        pass
+        api = AzureDevOpsAPI(ctx.connection.base_url, ctx.connection.pat)
+        member_id = api.my_profile.json['id']
+        accounts = api.accounts(member_id).json
+        orgs = [acc['accountId'] for acc in accounts]
+        for org in orgs:
+            for proj in api.projects(org):
+                yield RemoteScopeGroup(
+                    id=f'{org}/{proj["name"]}',
+                    name=proj['name']
+                )
 
     def remote_scopes(self, ctx, group_id: str) -> list[GitRepository]:
-        pass
+        org, proj = group_id.split('/')
+        api = AzureDevOpsAPI(ctx.connection.base_url, ctx.connection.pat)
+        for raw_repo in api.git_repos(org, proj):
+            repo = GitRepository(**raw_repo)
+            if not repo.defaultBranch:
+                return None
+            repo.project_id = raw_repo['project']["id"]
+            if "parentRepository" in raw_repo:
+                repo.parentRepositoryUrl = raw_repo["parentRepository"]["url"]
+            yield repo
 
     @property
     def name(self) -> str:

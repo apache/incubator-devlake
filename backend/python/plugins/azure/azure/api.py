@@ -36,8 +36,12 @@ class AzureDevOpsAPI(API):
     def set_api_version(self, request: Request):
         request.query_args['api-version'] = "7.0"
 
-    def accounts(self):
-        req = Request('https://app.vssps.visualstudio.com/_apis/accounts')
+    def my_profile(self):
+        req = Request('https://app.vssps.visualstudio.com/_apis/profile/profiles/me')
+        return self.send(req)
+
+    def accounts(self, member_id: str):
+        req = Request('https://app.vssps.visualstudio.com/_apis/accounts', query_args={"memberId": member_id})
         return self.send(req)
 
     def orgs(self) -> list[str]:
