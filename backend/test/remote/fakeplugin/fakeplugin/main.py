@@ -57,7 +57,7 @@ class FakeStream(Stream):
             for p in self.fake_pipelines:
                 yield dict(p)
 
-    def convert(self, pipeline: FakePipeline):
+    def convert(self, pipeline: FakePipeline, ctx):
         yield CICDPipeline(
             name=pipeline.id,
             status=self.convert_status(pipeline.state),

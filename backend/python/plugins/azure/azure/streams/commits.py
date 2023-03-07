@@ -5,7 +5,7 @@ import iso8601 as iso8601
 from azure.api import AzureDevOpsAPI
 from azure.models import GitRepository, GitCommit
 from azure.streams.repositories import GitRepositories
-from pydevlake import Substream, Stream, Context, DomainType
+from pydevlake import Substream, Stream, DomainType, Context
 from pydevlake.domain_layer.code import Commit as DomainCommit
 from pydevlake.domain_layer.code import RepoCommit as DomainRepoCommit
 
@@ -25,24 +25,25 @@ class GitCommits(Substream):
             raw_commit["repo_id"] = parent.id
             yield raw_commit, state
 
-    def extract(self, raw_data: dict, ctx: Context) -> GitCommit:
-        return extract_raw_commit(self, raw_data, ctx)
+    def extract(self, raw_data: dict) -> GitCommit:
+        return extract_raw_commit(raw_data)
 
     def convert(self, commit: GitCommit, ctx: Context) -> Iterable[DomainCommit]:
         yield DomainCommit(
-                sha=commit.commit_sha,
-                additions=commit.additions,
-                deletions=commit.deletions,
-                message=commit.comment,
-                author_name=commit.author_name,
-                author_email=commit.author_email,
-                authored_date=commit.authored_date,
-                author_id=commit.author_name,
-                committer_name=commit.committer_name,
-                committer_email=commit.committer_email,
-                committed_date=commit.commit_date,
-                committer_id=commit.committer_name,
+            sha=commit.commit_sha,
+            additions=commit.additions,
+            deletions=commit.deletions,
+            message=commit.comment,
+            author_name=commit.author_name,
+            author_email=commit.author_email,
+            authored_date=commit.authored_date,
+            author_id=commit.author_name,
+            committer_name=commit.committer_name,
+            committer_email=commit.committer_email,
+            committed_date=commit.commit_date,
+            committer_id=commit.committer_name,
         )
+
         yield DomainRepoCommit(
                 repo_id=commit.repo_id,
                 commit_sha=commit.commit_sha,

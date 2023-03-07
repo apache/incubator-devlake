@@ -29,10 +29,9 @@ class GitPullRequests(Substream):
         for raw_pr in response:
             yield raw_pr, state
 
-    def extract(self, raw_data: dict, context) -> GitPullRequest:
-        pr: GitPullRequest = self.tool_model(**raw_data)
+    def extract(self, raw_data: dict) -> GitPullRequest:
+        pr = GitPullRequest(**raw_data)
         pr.id = raw_data["pullRequestId"]
-        pr.project_id = context.options["project"]
         pr.created_by_id = raw_data["createdBy"]["id"]
         pr.created_by_name = raw_data["createdBy"]["displayName"]
         if "closedDate" in raw_data:

@@ -26,7 +26,7 @@ class Jobs(Substream):
                 raw_job["repo_id"] = parent.repo_id
                 yield raw_job, state
 
-    def extract(self, raw_data: dict, ctx: Context) -> Job:
+    def extract(self, raw_data: dict) -> Job:
         job: Job = self.tool_model(**raw_data)
         if job.type != job.type.Job:
             return None

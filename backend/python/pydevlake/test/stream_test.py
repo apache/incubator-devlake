@@ -47,7 +47,7 @@ class DummyStream(Stream):
             name=raw["n"]
         )
 
-    def convert(self, tm):
+    def convert(self, tm, ctx):
         return DummyDomainModel(
             ID=tm.id,
             Name=tm.name,

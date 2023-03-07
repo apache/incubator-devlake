@@ -26,7 +26,7 @@ class Builds(Stream):
             if self.validate_repo(context, raw_build, cached_repos):
                 yield raw_build, state
 
-    def extract(self, raw_data: dict, context) -> Build:
+    def extract(self, raw_data: dict) -> Build:
         build: Build = self.tool_model(**raw_data)
         build.id = raw_data["id"]
         build.project_id = raw_data["project"]["id"]

@@ -111,7 +111,7 @@ class Users(Stream):
     def collect(self, state, context) -> Iterable[Tuple[object, dict]]:
         pass
 
-    def convert(self, user: ToolUser) -> Iterable[DomainUser]:
+    def convert(self, user: ToolUser, context) -> Iterable[DomainUser]:
         pass
 ```
 
@@ -130,7 +130,7 @@ The `convert` method takes a tool-specific user model and convert it into domain
 Here the two models align quite well, the conversion is trivial:
 
 ```python
-def convert(self, user: ToolUser) -> Iterable[DomainUser]:
+def convert(self, user: ToolUser, context: Context) -> Iterable[DomainUser]:
     yield DomainUser(
         id=user.id,
         name=user.name

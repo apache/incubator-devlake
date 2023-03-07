@@ -18,7 +18,7 @@ class GitRepositories(Stream):
         for raw_repo in response:
             yield raw_repo, state
 
-    def extract(self, raw_data: dict, context) -> GitRepository:
+    def extract(self, raw_data: dict) -> GitRepository:
         repo: GitRepository = self.tool_model(**raw_data)
         if not repo.defaultBranch:
             return None

@@ -24,8 +24,8 @@ class GitPullRequestCommits(Substream):
             raw_commit["repo_id"] = parent.repo_id
             yield raw_commit, state
 
-    def extract(self, raw_data: dict, context) -> GitCommit:
-        return extract_raw_commit(self, raw_data, context)
+    def extract(self, raw_data: dict) -> GitCommit:
+        return extract_raw_commit(self, raw_data)
 
     def convert(self, commit: GitCommit, context) -> Iterable[DomainPullRequestCommit]:
         yield DomainPullRequestCommit(
