@@ -23,6 +23,7 @@ import (
 	"github.com/apache/incubator-devlake/core/dal"
 	"github.com/apache/incubator-devlake/core/errors"
 	"github.com/apache/incubator-devlake/core/models/domainlayer"
+	"github.com/apache/incubator-devlake/core/models/domainlayer/code"
 	"github.com/apache/incubator-devlake/core/models/domainlayer/devops"
 	"github.com/apache/incubator-devlake/core/models/domainlayer/ticket"
 	"github.com/apache/incubator-devlake/core/plugin"
@@ -350,7 +351,13 @@ func PostDeploymentCicdTask(input *plugin.ApiResourceInput) (*plugin.ApiResource
 		PipelineId: pipelineId,
 		CommitSha:  request.CommitSha,
 		Branch:     ``,
-		RepoId:     request.RepoUrl,
+		Repo:       request.RepoUrl,
+	}
+
+	mayRelatedRepo := code.Repo{}
+	relatedRepoErr := db.First(&mayRelatedRepo, dal.Where("url = ?", request.RepoUrl))
+	if relatedRepoErr == nil {
+		domainPipelineCommit.RepoId = mayRelatedRepo.Id
 	}
 
 	// save
