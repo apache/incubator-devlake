@@ -42,9 +42,16 @@ type FakePluginConnection struct {
 }
 
 type FakeProject struct {
-	Id           string `json:"id"`
-	Name         string `json:"name"`
-	ConnectionId uint64 `json:"connection_id"`
+	Id                   string `json:"id"`
+	Name                 string `json:"name"`
+	ConnectionId         uint64 `json:"connection_id"`
+	TransformationRuleId uint64 `json:"transformation_rule_id"`
+}
+
+type FakeTxRule struct {
+	Id   uint64 `json:"id"`
+	Name string `json:"name"`
+	Env  string `json:"env"`
 }
 
 func setupEnv() {
@@ -101,12 +108,20 @@ func CreateTestConnection(client *helper.DevlakeClient) *helper.Connection {
 }
 
 func CreateTestScope(client *helper.DevlakeClient, connectionId uint64) any {
+	res := client.CreateTransformRule(PLUGIN_NAME, FakeTxRule{Name: "Tx rule", Env: "test env"})
+	rule, ok := res.(map[string]interface{})
+	if !ok {
+		panic("Cannot cast transform rule")
+	}
+	ruleId := uint64(rule["id"].(float64))
+
 	scope := client.CreateScope(PLUGIN_NAME,
 		connectionId,
 		FakeProject{
-			Id:           "12345",
-			Name:         "Test project",
-			ConnectionId: connectionId,
+			Id:                   "12345",
+			Name:                 "Test project",
+			ConnectionId:         connectionId,
+			TransformationRuleId: ruleId,
 		},
 	)
 

@@ -58,13 +58,17 @@ class FakeStream(Stream):
                 yield dict(p)
 
     def convert(self, pipeline: FakePipeline, ctx):
+        if ctx.transformationRule:
+            env = ctx.transformationRule.env
+        else:
+            env = "unknown"
         yield CICDPipeline(
             name=pipeline.id,
             status=self.convert_status(pipeline.state),
             finished_date=pipeline.finished_at,
             result=self.convert_result(pipeline.state),
             duration_sec=self.duration(pipeline),
-            environment=[],
+            environment=env,
             type=CICDPipeline.Type.CI
         )
 
@@ -99,7 +103,7 @@ class FakeProject(ToolScope):
 
 
 class FakeTransformationRule(TransformationRule):
-    tx1: str
+    env: str
 
 
 class FakePlugin(Plugin):
@@ -110,6 +114,10 @@ class FakePlugin(Plugin):
     @property
     def tool_scope_type(self):
         return FakeProject
+
+    @property
+    def transformation_rule_type(self):
+        return FakeTransformationRule
 
     def domain_scopes(self, project: FakeProject):
         yield CicdScope(
