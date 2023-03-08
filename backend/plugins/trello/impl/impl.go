@@ -32,58 +32,60 @@ import (
 
 var _ interface {
 	plugin.PluginTask
+	plugin.PluginMeta
+	plugin.PluginInit
+	plugin.PluginTask
+	plugin.PluginApi
+	plugin.PluginModel
+	plugin.PluginMigration
+	plugin.CloseablePluginTask
+	plugin.DataSourcePluginBlueprintV200
 } = (*Trello)(nil)
 
-type Trello struct {
-}
+type Trello struct{}
 
-func (p Trello) Connection() interface{} {
-	return &models.TrelloConnection{}
-}
-
-func (p Trello) Scope() interface{} {
-	return &models.TrelloBoard{}
-}
-
-func (p *Trello) Init(basicRes context.BasicRes) errors.Error {
+func (p Trello) Init(basicRes context.BasicRes) errors.Error {
 	api.Init(basicRes)
 	return nil
 }
 
 func (p Trello) GetTablesInfo() []dal.Tabler {
 	return []dal.Tabler{
-		&models.TrelloBoard{},
 		&models.TrelloConnection{},
+		&models.TrelloBoard{},
+		&models.TrelloList{},
+		&models.TrelloCard{},
+		&models.TrelloLabel{},
+		&models.TrelloMember{},
+		&models.TrelloChecklist{},
+		&models.TrelloCheckItem{},
 	}
 }
 
 func (p Trello) Description() string {
-	return "To collect and enrich data from JIRA"
+	return "To collect and enrich data from Trello"
 }
 
 func (p Trello) SubTaskMetas() []plugin.SubTaskMeta {
 	return []plugin.SubTaskMeta{
 		tasks.CollectListMeta,
 		tasks.ExtractListMeta,
+
 		tasks.CollectCardMeta,
 		tasks.ExtractCardMeta,
+
 		tasks.CollectLabelMeta,
 		tasks.ExtractLabelMeta,
+
 		tasks.CollectChecklistMeta,
 		tasks.ExtractChecklistMeta,
+
 		tasks.CollectCheckItemMeta,
 		tasks.ExtractCheckItemMeta,
+
 		tasks.CollectMemberMeta,
 		tasks.ExtractMemberMeta,
 	}
-}
-
-func (p Trello) RootPkgPath() string {
-	return "github.com/apache/incubator-devlake/plugins/trello"
-}
-
-func (p Trello) MigrationScripts() []plugin.MigrationScript {
-	return migrationscripts.All()
 }
 
 func (p Trello) PrepareTaskData(taskCtx plugin.TaskContext, options map[string]interface{}) (interface{}, errors.Error) {
@@ -93,34 +95,18 @@ func (p Trello) PrepareTaskData(taskCtx plugin.TaskContext, options map[string]i
 		return nil, errors.Default.Wrap(err, "Trello plugin could not decode options")
 	}
 	if op.BoardId == "" {
-		//  TODO test only
-		op.BoardId = ""
-		// return nil, errors.BadInput.New("boardId is required")
+		return nil, errors.BadInput.New("boardId is required")
 	}
 	if op.ConnectionId == 0 {
-		// TODO test only
-		// return nil, errors.BadInput.New("trello connectionId is invalid")
+		return nil, errors.BadInput.New("trello connectionId is invalid")
 	}
-	connection := &models.TrelloConnection{
-		BaseConnection: helper.BaseConnection{},
-		TrelloConn: models.TrelloConn{
-			RestConnection: helper.RestConnection{
-				Endpoint:         "https://api.trello.com/",
-				Proxy:            "",
-				RateLimitPerHour: 0,
-			},
-			BasicAuth: helper.BasicAuth{
-				Username: "",
-				Password: "",
-			},
-		},
-	}
-	// TODO test only
-	// connectionHelper := helper.NewConnectionHelper(
-	// 	taskCtx,
-	// 	nil,
-	// )
-	// err = connectionHelper.FirstById(connection, op.ConnectionId)
+
+	connection := &models.TrelloConnection{}
+	connectionHelper := helper.NewConnectionHelper(
+		taskCtx,
+		nil,
+	)
+	err = connectionHelper.FirstById(connection, op.ConnectionId)
 
 	if err != nil {
 		return nil, errors.Default.Wrap(err, "error getting connection for Trello plugin")
@@ -133,6 +119,22 @@ func (p Trello) PrepareTaskData(taskCtx plugin.TaskContext, options map[string]i
 		Options:   &op,
 		ApiClient: apiClient,
 	}, nil
+}
+
+func (p Trello) RootPkgPath() string {
+	return "github.com/apache/incubator-devlake/plugins/trello"
+}
+
+func (p Trello) MigrationScripts() []plugin.MigrationScript {
+	return migrationscripts.All()
+}
+
+func (p Trello) Connection() interface{} {
+	return &models.TrelloConnection{}
+}
+
+func (p Trello) Scope() interface{} {
+	return &models.TrelloBoard{}
 }
 
 func (p Trello) ApiResources() map[string]map[string]plugin.ApiResourceHandler {
@@ -154,7 +156,30 @@ func (p Trello) ApiResources() map[string]map[string]plugin.ApiResourceHandler {
 			"DELETE": api.DeleteConnection,
 			"GET":    api.GetConnection,
 		},
+		"connections/:connectionId/proxy/rest/*path": {
+			"GET": api.Proxy,
+		},
+		"transformation_rules": {
+			"POST": api.CreateTransformationRule,
+			"GET":  api.GetTransformationRuleList,
+		},
+		"transformation_rules/:id": {
+			"PATCH": api.UpdateTransformationRule,
+			"GET":   api.GetTransformationRule,
+		},
+		"connections/:connectionId/scopes/:boardId": {
+			"GET":   api.GetScope,
+			"PATCH": api.UpdateScope,
+		},
+		"connections/:connectionId/scopes": {
+			"GET": api.GetScopeList,
+			"PUT": api.PutScope,
+		},
 	}
+}
+
+func (p Trello) MakeDataSourcePipelinePlanV200(connectionId uint64, scopes []*plugin.BlueprintScopeV200, syncPolicy plugin.BlueprintSyncPolicy) (plugin.PipelinePlan, []plugin.Scope, errors.Error) {
+	return api.MakePipelinePlanV200(p.SubTaskMetas(), connectionId, scopes, &syncPolicy)
 }
 
 func (p Trello) Close(taskCtx plugin.TaskContext) errors.Error {

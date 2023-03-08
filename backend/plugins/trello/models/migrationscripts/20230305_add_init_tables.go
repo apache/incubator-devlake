@@ -29,17 +29,20 @@ type addInitTables struct{}
 func (*addInitTables) Up(basicRes context.BasicRes) errors.Error {
 	return migrationhelper.AutoMigrateTables(
 		basicRes,
+		&models.TrelloConnection{},
+		&models.TrelloBoard{},
 		&models.TrelloList{},
 		&models.TrelloCard{},
 		&models.TrelloLabel{},
 		&models.TrelloMember{},
 		&models.TrelloChecklist{},
 		&models.TrelloCheckItem{},
+		&models.TrelloTransformationRule{},
 	)
 }
 
 func (*addInitTables) Version() uint64 {
-	return 20230305000011
+	return 20230305000013
 }
 
 func (*addInitTables) Name() string {

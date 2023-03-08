@@ -15,20 +15,23 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-package models
+package api
 
 import (
-	"github.com/apache/incubator-devlake/core/models/common"
+	"github.com/apache/incubator-devlake/core/context"
+	"github.com/apache/incubator-devlake/helpers/pluginhelper/api"
+	"github.com/go-playground/validator/v10"
 )
 
-type TrelloBoard struct {
-	common.NoPKModel     `json:"-" mapstructure:"-"`
-	ConnectionId         uint64 `json:"connectionId" mapstructure:"connectionId" gorm:"primaryKey"`
-	BoardId              string `json:"boardId" mapstructure:"boardId" gorm:"type:varchar(255)"`
-	TransformationRuleId uint64 `json:"transformationRuleId,omitempty" mapstructure:"transformationRuleId"`
-	Name                 string `json:"name" mapstructure:"name" gorm:"type:varchar(255)"`
-}
+var vld *validator.Validate
+var connectionHelper *api.ConnectionApiHelper
+var basicRes context.BasicRes
 
-func (TrelloBoard) TableName() string {
-	return "_tool_trello_boards"
+func Init(br context.BasicRes) {
+	basicRes = br
+	vld = validator.New()
+	connectionHelper = api.NewConnectionHelper(
+		basicRes,
+		vld,
+	)
 }

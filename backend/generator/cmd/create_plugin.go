@@ -133,7 +133,7 @@ Type in what the name of plugin is, then generator will create a new plugin in p
 				fmt.Sprintf("models/migrationscripts/%s_add_init_tables.go", versionTimestamp): util.ReadTemplate("generator/template/migrationscripts/add_init_tables.go-template"),
 				`models/migrationscripts/register.go`:                                          util.ReadTemplate("generator/template/migrationscripts/register.go-template"),
 				`api/init.go`:                                                                  util.ReadTemplate("generator/template/plugin/api/init.go-template"),
-				`api/blueprint.go`:                                                             util.ReadTemplate("generator/template/plugin/api/blueprint.go-template"),
+				`api/blueprint_v200.go`:                                                        util.ReadTemplate("generator/template/plugin/api/blueprint_v200.go-template"),
 			}
 			util.GenerateAllFormatVar(values, `plugin_name`, pluginName)
 		} else if withApiClient == `No` {

@@ -30,14 +30,12 @@ func main() {
 	cmd := &cobra.Command{Use: "trello"}
 	connectionId := cmd.Flags().Uint64P("connection", "c", 0, "trello connection id")
 	boardId := cmd.Flags().StringP("board", "b", "", "trello board id")
-	// _ = cmd.MarkFlagRequired("connection")
-	// _ = cmd.MarkFlagRequired("board")
-	timeAfter := cmd.Flags().StringP("timeAfter", "a", "", "collect data that are created after specified time, ie 2006-05-06T07:08:09Z")
+	_ = cmd.MarkFlagRequired("connection")
+	_ = cmd.MarkFlagRequired("board")
 	cmd.Run = func(c *cobra.Command, args []string) {
 		runner.DirectRun(c, args, PluginEntry, map[string]interface{}{
 			"connectionId": *connectionId,
 			"boardId":      *boardId,
-			"timeAfter":    *timeAfter,
 		})
 	}
 	runner.RunCmd(cmd)

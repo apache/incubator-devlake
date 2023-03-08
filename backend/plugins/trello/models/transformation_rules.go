@@ -15,34 +15,17 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-package tasks
+package models
 
 import (
-	"github.com/apache/incubator-devlake/core/errors"
-	"github.com/apache/incubator-devlake/plugins/github/models"
+	"github.com/apache/incubator-devlake/core/models/common"
 )
 
-type GithubAccountEdge struct {
-	Login     string
-	Id        int `graphql:"databaseId"`
-	Name      string
-	Company   string
-	Email     string
-	AvatarUrl string
-	HtmlUrl   string `graphql:"url"`
-	//Type      string
-}
-type GraphqlInlineAccountQuery struct {
-	GithubAccountEdge `graphql:"... on User"`
+type TrelloTransformationRule struct {
+	common.Model `mapstructure:"-"`
+	Name         string `mapstructure:"name" json:"name" gorm:"type:varchar(255);index:idx_name_trello,unique" validate:"required"`
 }
 
-func convertGraphqlPreAccount(res GraphqlInlineAccountQuery, repoId int, connId uint64) (*models.GithubRepoAccount, errors.Error) {
-	githubAccount := &models.GithubRepoAccount{
-		ConnectionId: connId,
-		RepoGithubId: repoId,
-		Login:        res.Login,
-		AccountId:    res.Id,
-	}
-
-	return githubAccount, nil
+func (TrelloTransformationRule) TableName() string {
+	return "_tool_trello_transformation_rules"
 }
