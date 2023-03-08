@@ -118,7 +118,7 @@ func ConnectLocalServer(t *testing.T, sbConfig *LocalClientConfig) *DevlakeClien
 		d.dropDB()
 	}
 	if sbConfig.CreateServer {
-		cfg.Set("PORT", fmt.Sprintf(":%d", sbConfig.ServerPort))
+		cfg.Set("PORT", sbConfig.ServerPort)
 		cfg.Set("PLUGIN_DIR", throwawayDir)
 		cfg.Set("LOGGING_DIR", throwawayDir)
 		go func() {

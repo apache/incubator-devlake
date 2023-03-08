@@ -41,6 +41,12 @@ type FakePluginConnection struct {
 	Token string `json:"token"`
 }
 
+type FakeProject struct {
+	Id           string `json:"id"`
+	Name         string `json:"name"`
+	ConnectionId uint64 `json:"connection_id"`
+}
+
 func setupEnv() {
 	fmt.Println("Setup test env")
 	helper.LocalInit()
@@ -94,6 +100,20 @@ func CreateTestConnection(client *helper.DevlakeClient) *helper.Connection {
 	return connection
 }
 
+func CreateTestScope(client *helper.DevlakeClient, connectionId uint64) any {
+	scope := client.CreateScope(PLUGIN_NAME,
+		connectionId,
+		FakeProject{
+			Id:           "12345",
+			Name:         "Test project",
+			ConnectionId: connectionId,
+		},
+	)
+
+	client.SetTimeout(1)
+	return scope
+}
+
 func TestCreateConnection(t *testing.T) {
 	setupEnv()
 	buildPython(t)
@@ -106,11 +126,25 @@ func TestCreateConnection(t *testing.T) {
 	require.Equal(t, TOKEN, conns[0].Token)
 }
 
+func TestCreateScope(t *testing.T) {
+	setupEnv()
+	buildPython(t)
+	client := connectLocalServer(t)
+	var connectionId uint64 = 1
+
+	CreateTestScope(client, connectionId)
+
+	scopes := client.ListScopes(PLUGIN_NAME, connectionId)
+	require.Equal(t, 1, len(scopes))
+}
+
 func TestRunPipeline(t *testing.T) {
 	setupEnv()
 	buildPython(t)
 	client := connectLocalServer(t)
 	conn := CreateTestConnection(client)
+
+	CreateTestScope(client, conn.ID)
 
 	pipeline := client.RunPipeline(models.NewPipeline{
 		Name: "remote_test",
@@ -121,7 +155,7 @@ func TestRunPipeline(t *testing.T) {
 					Subtasks: nil,
 					Options: map[string]interface{}{
 						"connectionId": conn.ID,
-						"scopeId":      "org/project",
+						"scopeId":      "12345",
 					},
 				},
 			},
@@ -144,11 +178,7 @@ func TestBlueprintV200(t *testing.T) {
 		ProjectName: projectName,
 	})
 
-	client.CreateScope("fake", connection.ID, map[string]interface{}{
-		"id":            "12345",
-		"connection_id": connection.ID,
-		"name":          "fake project",
-	})
+	CreateTestScope(client, connection.ID)
 
 	blueprint := client.CreateBasicBlueprintV2(
 		"Test blueprint",
@@ -161,7 +191,7 @@ func TestBlueprintV200(t *testing.T) {
 						Id:   "12345",
 						Name: "Test scope",
 						Entities: []string{
-							plugin.DOMAIN_TYPE_CROSS,
+							plugin.DOMAIN_TYPE_CICD,
 						},
 					},
 				},

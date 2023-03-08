@@ -73,10 +73,10 @@ class CiCDPipelineCommit(NoPKModel, table=True):
 class CicdScope(DomainModel):
     __tablename__ = 'cicd_scopes'
     name: str
-    description: str
-    url: str
-    createdDate: datetime
-    updatedDate: datetime
+    description: Optional[str]
+    url: Optional[str]
+    createdDate: Optional[datetime]
+    updatedDate: Optional[datetime]
 
 
 class CICDTask(DomainModel, table=True):
