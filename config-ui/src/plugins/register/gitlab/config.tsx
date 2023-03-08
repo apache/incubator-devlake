@@ -51,7 +51,7 @@ export const GitLabConfig: PluginConfigType = {
         key: 'token',
         label: 'Personal Access Token',
         subLabel: (
-          <ExternalLink link="https://devlake.apache.org/docs/UserManuals/ConfigUI/GitLab/#auth-tokens">
+          <ExternalLink link="https://devlake.apache.org/docs/Configuration/GitLab/#auth-tokens">
             Learn how to create a personal access token
           </ExternalLink>
         ),
