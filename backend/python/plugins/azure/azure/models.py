@@ -28,8 +28,6 @@ default_date = datetime.datetime.fromisoformat("1970-01-01")
 class AzureDevOpsConnection(Connection):
     base_url: str
     pat: str
-    org: str
-    project: str
 
 
 class Project(ToolModel, table=True):
