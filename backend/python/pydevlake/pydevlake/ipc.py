@@ -71,9 +71,9 @@ class PluginCommands:
         self._plugin.test_connection(connection)
 
     @plugin_method
-    def make_pipeline(self, scopes: list[dict]):
+    def make_pipeline(self, scopes: list[dict], connection: dict):
         s = [self._plugin.tool_scope_type(**data) for data in scopes]
-        return self._plugin.make_pipeline(s)
+        return self._plugin.make_pipeline(s, connection['id'])
 
     @plugin_method
     def run_migrations(self, force: bool):
