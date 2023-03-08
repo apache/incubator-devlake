@@ -5,7 +5,6 @@ from azure.streams.commits import GitCommits
 from azure.streams.jobs import Jobs
 from azure.streams.pull_request_commits import GitPullRequestCommits
 from azure.streams.pull_requests import GitPullRequests
-from azure.streams.repositories import GitRepositories
 
 from pydevlake import Plugin, RemoteScopeGroup
 from pydevlake.domain_layer.code import Repo
@@ -52,10 +51,9 @@ class AzureDevOpsPlugin(Plugin):
         org, proj = group_id.split('/')
         api = AzureDevOpsAPI(ctx.connection.base_url, ctx.connection.pat)
         for raw_repo in api.git_repos(org, proj):
-            repo = GitRepository(**raw_repo)
+            repo = GitRepository(**raw_repo, project_id=proj, org_id=org)
             if not repo.defaultBranch:
                 return None
-            repo.project_id = raw_repo['project']["id"]
             if "parentRepository" in raw_repo:
                 repo.parentRepositoryUrl = raw_repo["parentRepository"]["url"]
             yield repo
@@ -72,8 +70,6 @@ class AzureDevOpsPlugin(Plugin):
     @property
     def streams(self):
         return [
-            # Projects,
-            GitRepositories,
             GitPullRequests,
             GitPullRequestCommits,
             GitCommits,

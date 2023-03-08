@@ -5,7 +5,7 @@ from typing import Optional
 from sqlmodel import Field
 
 from pydevlake import Connection
-from pydevlake.model import ToolModel
+from pydevlake.model import ToolModel, ToolScope
 
 default_date = datetime.datetime.fromisoformat("1970-01-01")
 
@@ -23,14 +23,13 @@ class Project(ToolModel, table=True):
     url: str
 
 
-class GitRepository(ToolModel, table=True):
-    id: str = Field(primary_key=True)
-    name: str
+class GitRepository(ToolScope, table=True):
     url: str
     sshUrl: str
     remoteUrl: str
     defaultBranch: Optional[str]
     project_id: str  # = Field(foreign_key=Project.id)
+    org_id: str
     size: int
     isDisabled: bool
     isInMaintenance: bool

@@ -4,25 +4,22 @@ import iso8601 as iso8601
 
 from azure.api import AzureDevOpsAPI
 from azure.models import GitRepository, GitCommit
-from azure.streams.repositories import GitRepositories
-from pydevlake import Substream, Stream, DomainType, Context
+from pydevlake import Stream, DomainType, Context
 from pydevlake.domain_layer.code import Commit as DomainCommit
 from pydevlake.domain_layer.code import RepoCommit as DomainRepoCommit
 
 
-class GitCommits(Substream):
+class GitCommits(Stream):
     tool_model = GitCommit
     domain_types = [DomainType.CODE]
-    parent_stream = GitRepositories
 
-    def collect(self, state, context, parent: GitRepository) -> Iterable[tuple[object, dict]]:
+    def collect(self, state, context) -> Iterable[tuple[object, dict]]:
         connection = context.connection
-        options = context.options
+        repo: GitRepository = context.scope
         azure_api = AzureDevOpsAPI(connection.base_url, connection.pat)
-        # grab this info off the parent results
-        response = azure_api.commits(options["org"], options["project"], parent.id)
+        response = azure_api.commits(repo.org_id, repo.project_id, repo.id)
         for raw_commit in response:
-            raw_commit["repo_id"] = parent.id
+            raw_commit["repo_id"] = repo.id
             yield raw_commit, state
 
     def extract(self, raw_data: dict) -> GitCommit:
@@ -52,7 +49,8 @@ class GitCommits(Substream):
 
 def extract_raw_commit(stream: Stream, raw_data: dict, ctx: Context) -> GitCommit:
     commit: GitCommit = stream.tool_model(**raw_data)
-    commit.project_id = ctx.options["project"]
+    repo: GitRepository = ctx.scope
+    commit.project_id = repo.project_id
     commit.repo_id = raw_data["repo_id"]
     commit.commit_sha = raw_data["commitId"]
     commit.author_name = raw_data["author"]["name"]

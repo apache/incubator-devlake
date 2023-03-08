@@ -17,11 +17,10 @@ class Builds(Stream):
 
     def collect(self, state, context) -> Iterable[tuple[object, dict]]:
         connection: AzureDevOpsConnection = context.connection
-        options = context.options
+        repo: GitRepository = context.scope
         azure_api = AzureDevOpsAPI(connection.base_url, connection.pat)
-        # grab this info off the parent results
         cached_repos = dict()
-        response = azure_api.builds(options["org"], options["project"])
+        response = azure_api.builds(repo.org_id, repo.project_id)
         for raw_build in response:
             if self.validate_repo(context, raw_build, cached_repos):
                 yield raw_build, state

@@ -6,26 +6,19 @@ import iso8601 as iso8601
 from azure.api import AzureDevOpsAPI
 from azure.helper import db
 from azure.models import GitRepository, GitPullRequest, GitCommit
-from azure.streams.repositories import GitRepositories
-from pydevlake import Substream, Stream, Context, DomainType
+from pydevlake import Stream, Context, DomainType
 from pydevlake.domain_layer.code import PullRequest as DomainPullRequest
 
 
-
-class GitPullRequests(Substream):
+class GitPullRequests(Stream):
     tool_model = GitPullRequest
     domain_types = [DomainType.CODE]
 
-    @property
-    def parent_stream(self) -> Stream:
-        return GitRepositories(self.plugin_name)
-
-    def collect(self, state, context, parent: GitRepository) -> Iterable[tuple[object, dict]]:
+    def collect(self, state, context) -> Iterable[tuple[object, dict]]:
         connection = context.connection
-        options = context.options
         azure_api = AzureDevOpsAPI(connection.base_url, connection.pat)
-        # grab this info off the parent results
-        response = azure_api.git_repo_pull_requests(options["org"], options["project"], parent.name)
+        repo: GitRepository = context.scope
+        response = azure_api.git_repo_pull_requests(repo.org_id, repo.project_id, repo.id)
         for raw_pr in response:
             yield raw_pr, state
 
