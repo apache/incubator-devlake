@@ -127,6 +127,13 @@ func (pa *pluginAPI) ListScopes(input *plugin.ApiResourceInput) (*plugin.ApiReso
 	if err != nil {
 		return nil, err
 	}
+	if pa.txRuleType == nil {
+		var apiScopes []apiScopeResponse
+		for _, scope := range scopeMap {
+			apiScopes = append(apiScopes, apiScopeResponse{Scope: scope})
+		}
+		return &plugin.ApiResourceOutput{Body: apiScopes, Status: http.StatusOK}, nil
+	}
 	var ruleIds []uint64
 	for _, scopeModel := range scopeMap {
 		if tid := uint64(scopeModel["transformation_rule_id"].(float64)); tid > 0 {

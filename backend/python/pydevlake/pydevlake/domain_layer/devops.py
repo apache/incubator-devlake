@@ -18,14 +18,60 @@ from typing import Optional
 from datetime import datetime
 from enum import Enum
 
-from sqlmodel import Field, Relationship
+from sqlmodel import Field
 
-from pydevlake.model import DomainModel, DomainScope, NoPKModel
+from pydevlake.model import DomainModel, NoPKModel
 
 
-class CicdScope(DomainScope, table=True):
+class CICDResult(Enum):
+    SUCCESS = "SUCCESS"
+    FAILURE = "FAILURE"
+    ABORT = "ABORT"
+    MANUAL = "MANUAL"
+
+
+class CICDStatus(Enum):
+    IN_PROGRESS = "IN_PROGRESS"
+    DONE = "DONE"
+
+
+class CICDType(Enum):
+    TEST = "TEST"
+    LINT = "LINT"
+    BUILD = "BUILD"
+    DEPLOYMENT = "DEPLOYMENT"
+
+
+class CICDEnvironment(Enum):
+    PRODUCTION = "PRODUCTION"
+    STAGING = "STAGING"
+    TESTING = "TESTING"
+
+
+class CICDPipeline(DomainModel, table=True):
+    __tablename__ = 'cicd_pipelines'
+    name: str
+    status: Optional[CICDStatus]
+    created_date: Optional[datetime]
+    finished_date: Optional[datetime]
+    result: Optional[CICDResult]
+    duration_sec: Optional[int]
+    environment: Optional[str]
+    type: Optional[CICDType]
+    cicd_scope_id: Optional[str]
+
+
+class CiCDPipelineCommit(NoPKModel, table=True):
+    __tablename__ = 'cicd_pipeline_commits'
+    pipeline_id: str = Field(primary_key=True)
+    commit_sha: str = Field(primary_key=True)
+    branch: str
+    repo_id: str
+    repo: str
+
+
+class CicdScope(DomainModel):
     __tablename__ = 'cicd_scopes'
-
     name: str
     description: Optional[str]
     url: Optional[str]
@@ -33,38 +79,15 @@ class CicdScope(DomainScope, table=True):
     updatedDate: Optional[datetime]
 
 
-class CICDPipeline(DomainModel, table=True):
-    __table_name__ = 'cicd_pipelines'
-
-    class Result(Enum):
-        SUCCESS = "SUCCESS"
-        FAILURE = "FAILURE"
-        ABORT = "ABORT"
-        MANUAL = "MANUAL"
-
-    class Status(Enum):
-        IN_PROGRESS = "IN_PROGRESS"
-        DONE = "DONE"
-        MANUAL = "MANUAL"
-
-    class Type(Enum):
-        CI = "CI"
-        CD = "CD"
-
+class CICDTask(DomainModel, table=True):
+    __tablename__ = 'cicd_tasks'
     name: str
-    status: Status
-    created_date: datetime
+    pipeline_id: str
+    result: str = Optional[CICDResult]
+    status: Optional[CICDStatus]
+    type: Optional[CICDType]
+    environment: Optional[CICDEnvironment]
+    duration_sec: int
+    started_date: Optional[datetime]
     finished_date: Optional[datetime]
-    result: Optional[Result]
-    duration_sec: Optional[int]
-    environment: Optional[str]
-    type: Optional[Type] #Unused
-
-    # parent_pipelines: list["CICDPipeline"] = Relationship(back_populates="child_pipelines", link_model="CICDPipelineRelationship")
-    # child_pipelines: list["CICDPipeline"] = Relationship(back_populates="parent_pipelines", link_model="CICDPipelineRelationship")
-
-
-class CICDPipelineRelationship(NoPKModel):
-    __table_name__ = 'cicd_pipeline_relationships'
-    parent_pipeline_id: str = Field(primary_key=True, foreign_key=CICDPipeline.id)
-    child_pipeline_id: str = Field(primary_key=True, foreign_key=CICDPipeline.id)
+    cicd_scope_id: str

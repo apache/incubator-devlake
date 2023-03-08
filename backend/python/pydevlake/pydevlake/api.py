@@ -17,7 +17,6 @@
 from __future__ import annotations
 
 from typing import Optional, Union
-from urllib.parse import urljoin
 from http import HTTPStatus
 import json
 import time
@@ -91,8 +90,8 @@ class APIBase:
         return self._session
 
     @property
-    def base_url(self):
-        pass
+    def base_url(self) -> Optional[str]:
+        return None
 
     def send(self, request: Request):
         request = self._apply_hooks(request, self.request_hooks())
@@ -126,8 +125,10 @@ class APIBase:
                 target = result
         return target
 
-    def get(self, path, **query_args):
-        req = Request(urljoin(self.base_url, path), query_args)
+    def get(self, *path_args, **query_args):
+        parts = [self.base_url, *path_args] if self.base_url else path_args
+        url = "/".join([a.strip('/') for a in parts])
+        req = Request(url, query_args)
         return self.send(req)
 
     def request_hooks(self):

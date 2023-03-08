@@ -71,9 +71,9 @@ class PluginCommands:
         self._plugin.test_connection(connection)
 
     @plugin_method
-    def make_pipeline(self, scopes: list[dict]):
+    def make_pipeline(self, scopes: list[dict], connection: dict):
         s = [self._plugin.tool_scope_type(**data) for data in scopes]
-        return self._plugin.make_pipeline(s)
+        return self._plugin.make_pipeline(s, connection['id'])
 
     @plugin_method
     def run_migrations(self, force: bool):
@@ -93,11 +93,11 @@ class PluginCommands:
 
     def _mk_context(self, data: dict):
         db_url = data['db_url']
-        scope_id = data['scope_id']
+        scope = self._plugin.tool_scope_type(**data['scope'])
         connection = self._plugin.connection_type(**data['connection'])
         if self._plugin.transformation_rule_type:
             transformation_rule = self._plugin.transformation_rule_type(**data['transformation_rule'])
         else:
             transformation_rule = None
         options = data.get('options', {})
-        return Context(db_url, scope_id, connection, transformation_rule, options)
+        return Context(db_url, scope, connection, transformation_rule, options)

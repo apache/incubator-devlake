@@ -23,12 +23,12 @@ from pydevlake.model import Connection, TransformationRule
 class Context:
     def __init__(self,
                  db_url: str,
-                 scope_id: str,
+                 scope: str,
                  connection: Connection,
                  transformation_rule: TransformationRule = None,
                  options: dict = None):
         self.db_url = db_url
-        self.scope_id = scope_id
+        self.scope = scope
         self.connection = connection
         self.transformation_rule = transformation_rule
         self.options = options or {}

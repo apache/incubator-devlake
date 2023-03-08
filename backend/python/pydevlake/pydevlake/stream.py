@@ -18,6 +18,7 @@ from typing import Iterable, Type
 from abc import abstractmethod
 from enum import Enum
 
+from pydevlake.context import Context
 from pydevlake.subtasks import Collector, Extractor, Convertor, SubstreamCollector
 from pydevlake.model import RawModel, ToolModel, DomainModel
 
@@ -87,7 +88,7 @@ class Stream:
     def extract(self, raw_data: dict) -> ToolModel:
         return self.tool_model(**raw_data)
 
-    def convert(self, tool_model: ToolModel) -> DomainModel:
+    def convert(self, tool_model: ToolModel, context: Context) -> DomainModel:
         pass
 
 

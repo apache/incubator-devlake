@@ -152,7 +152,7 @@ class Collector(Subtask):
     def _params(self, ctx: Context) -> str:
         return json.dumps({
             "connection_id": ctx.connection.id,
-            "scope_id": ctx.scope_id
+            "scope_id": ctx.scope.id
         })
 
     def delete(self, session, ctx):
@@ -196,9 +196,9 @@ class Convertor(Subtask):
             yield item, state
 
     def process(self, tool_model: ToolModel, session: Session, ctx: Context):
-        res = self.stream.convert(tool_model)
+        res = self.stream.convert(tool_model, ctx)
         if isinstance(res, Generator):
-            for each in self.stream.convert(tool_model):
+            for each in res:
                 self._save(tool_model, each, session, ctx.connection.id)
         else:
             self._save(tool_model, res, session, ctx.connection.id)

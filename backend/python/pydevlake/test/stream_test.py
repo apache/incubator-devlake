@@ -20,7 +20,7 @@ import pytest
 from sqlmodel import Session, Field
 
 from pydevlake import Stream, Connection, Context, DomainType
-from pydevlake.model import ToolModel, DomainModel
+from pydevlake.model import ToolModel, DomainModel, ToolScope
 
 
 class DummyToolModel(ToolModel, table=True):
@@ -47,7 +47,7 @@ class DummyStream(Stream):
             name=raw["n"]
         )
 
-    def convert(self, tm):
+    def convert(self, tm, ctx):
         return DummyDomainModel(
             ID=tm.id,
             Name=tm.name,
@@ -68,14 +68,19 @@ def raw_data():
 
 @pytest.fixture
 def connection(raw_data):
-    return DummyConnection(id=11, raw_data=raw_data)
+    return DummyConnection(id=11, name='dummy connection', raw_data=raw_data)
 
 
 @pytest.fixture
-def ctx(connection):
+def scope():
+    return ToolScope(id='scope_id', name='scope_name')
+
+
+@pytest.fixture
+def ctx(connection, scope):
     return Context(
         db_url="sqlite+pysqlite:///:memory:",
-        scope_id="1",
+        scope=scope,
         connection=connection,
         options={}
     )
@@ -123,7 +128,7 @@ def test_convert_data(stream, raw_data, ctx):
                     id=each["i"],
                     name=each["n"],
                     raw_data_table="_raw_dummy_model",
-                    raw_data_params=json.dumps({"connection_id": ctx.connection.id, "scope_id": ctx.scope_id})
+                    raw_data_params=json.dumps({"connection_id": ctx.connection.id, "scope_id": ctx.scope.id})
                 )
             )
         session.commit()

@@ -118,11 +118,11 @@ class Plugin(ABC):
         else:
             return self.remote_scope_groups(connection)
 
-    def make_pipeline(self, tool_scopes: list[ToolScope]):
+    def make_pipeline(self, tool_scopes: list[ToolScope], connection_id: int):
         """
         Make a simple pipeline using the scopes declared by the plugin.
         """
-        plan = self.make_pipeline_plan(tool_scopes)
+        plan = self.make_pipeline_plan(tool_scopes, connection_id)
         domain_scopes = [
             msg.DynamicDomainScope(
                 type_name=type(scope).__name__,
@@ -136,10 +136,10 @@ class Plugin(ABC):
             scopes=domain_scopes
         )
 
-    def make_pipeline_plan(self, scopes: list[ToolScope]) -> list[list[msg.PipelineTask]]:
-        return [self.make_pipeline_stage(scope) for scope in scopes]
+    def make_pipeline_plan(self, scopes: list[ToolScope], connection_id: int) -> list[list[msg.PipelineTask]]:
+        return [self.make_pipeline_stage(scope, connection_id) for scope in scopes]
 
-    def make_pipeline_stage(self, scope: ToolScope) -> list[msg.PipelineTask]:
+    def make_pipeline_stage(self, scope: ToolScope, connection_id: int) -> list[msg.PipelineTask]:
         return [
             msg.PipelineTask(
                 plugin=self.name,
@@ -147,7 +147,8 @@ class Plugin(ABC):
                 subtasks=[t.name for t in self.subtasks],
                 options={
                     "scopeId": scope.id,
-                    "scopeName": scope.name
+                    "scopeName": scope.name,
+                    "connectionId": connection_id
                 }
             )
         ]

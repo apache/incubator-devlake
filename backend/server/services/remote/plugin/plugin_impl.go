@@ -18,6 +18,8 @@ limitations under the License.
 package plugin
 
 import (
+	"fmt"
+
 	"github.com/apache/incubator-devlake/core/dal"
 	"github.com/apache/incubator-devlake/core/errors"
 	coreModels "github.com/apache/incubator-devlake/core/models"
@@ -42,7 +44,7 @@ type (
 	}
 	RemotePluginTaskData struct {
 		DbUrl              string                 `json:"db_url"`
-		ScopeId            string                 `json:"scope_id"`
+		Scope              interface{}            `json:"scope"`
 		Connection         interface{}            `json:"connection"`
 		TransformationRule interface{}            `json:"transformation_rule"`
 		Options            map[string]interface{} `json:"options"`
@@ -115,14 +117,27 @@ func (p *remotePluginImpl) PrepareTaskData(taskCtx plugin.TaskContext, options m
 		return nil, errors.BadInput.New("missing scopeId")
 	}
 
+	db := taskCtx.GetDal()
+	wrappedScope := p.scopeTabler.New()
+	err = api.CallDB(db.First, wrappedScope, dal.Where("connection_id = ? AND id = ?", connectionId, scopeId))
+	if err != nil {
+		return nil, errors.BadInput.New("Invalid scope id")
+	}
+	var scope models.ScopeModel
+	err = wrappedScope.To(&scope)
+	if err != nil {
+		return nil, err
+	}
+
 	var txRule interface{}
-	txRuleId, ok := options["transformation_rule_id"].(uint64)
-	if ok {
+	if scope.TransformationRuleId > 0 {
+		if p.transformationRuleTabler == nil {
+			return nil, errors.Default.New(fmt.Sprintf("Cannot load transformation rule %v: plugin %s has no transformation rule model", scope.TransformationRuleId, p.name))
+		}
 		wrappedTxRule := p.transformationRuleTabler.New()
-		db := taskCtx.GetDal()
-		err = db.First(&wrappedTxRule, dal.Where("id = ?", txRuleId))
+		err = api.CallDB(db.First, wrappedTxRule, dal.From(p.transformationRuleTabler.TableName()), dal.Where("id = ?", scope.TransformationRuleId))
 		if err != nil {
-			return nil, errors.BadInput.New("invalid transformation rule id")
+			return nil, err
 		}
 		txRule = wrappedTxRule.Unwrap()
 	} else {
@@ -131,7 +146,7 @@ func (p *remotePluginImpl) PrepareTaskData(taskCtx plugin.TaskContext, options m
 
 	return RemotePluginTaskData{
 		DbUrl:              dbUrl,
-		ScopeId:            scopeId,
+		Scope:              wrappedScope.Unwrap(),
 		Connection:         connection,
 		TransformationRule: txRule,
 		Options:            options,

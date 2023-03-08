@@ -13,29 +13,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-[tool.poetry]
-name = "pydevlake"
-version = "0.1.0"
-description = "Devlake plugin framework"
-authors = ["Camille Teruel <camille.teruel@meri.co>", "Keon Amini <keon.amini@merico.dev>"]
-license = "Apache-2.0"
-readme = "README.md"
+import pytest
+pytest.register_assert_rewrite('pydevlake.testing')
 
-[tool.poetry.dependencies]
-python = "^3.10"
-sqlmodel = "^0.0.8"
-mysqlclient = "^2.1.1"
-requests = "^2.28.1"
-inflect = "^6.0.2"
-fire = "^0.4.0"
-pydantic = "^1.10.2"
-pydevd-pycharm = "^231.6471.3"
-pytest = "^7.2.2"
-
-
-[tool.poetry.group.dev.dependencies]
-pytest = "^7.2.0"
-
-[build-system]
-requires = ["poetry-core"]
-build-backend = "poetry.core.masonry.api"
+from .testing import assert_convert

@@ -60,7 +60,7 @@ func (p remoteDatasourcePlugin) MakeDataSourcePipelinePlanV200(connectionId uint
 	}
 
 	plan_data := models.PipelineData{}
-	err = p.invoker.Call("make-pipeline", bridge.DefaultContext, toolScopes).Get(&plan_data)
+	err = p.invoker.Call("make-pipeline", bridge.DefaultContext, toolScopes, connection.Unwrap()).Get(&plan_data)
 	if err != nil {
 		return nil, nil, err
 	}
