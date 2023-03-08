@@ -152,7 +152,7 @@ class Collector(Subtask):
     def _params(self, ctx: Context) -> str:
         return json.dumps({
             "connection_id": ctx.connection.id,
-            "scope_id": ctx.scope_id
+            "scope_id": ctx.scope.id
         })
 
     def delete(self, session, ctx):

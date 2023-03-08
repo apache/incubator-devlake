@@ -42,7 +42,7 @@ type (
 	}
 	RemotePluginTaskData struct {
 		DbUrl              string                 `json:"db_url"`
-		ScopeId            string                 `json:"scope_id"`
+		Scope              interface{}            `json:"scope"`
 		Connection         interface{}            `json:"connection"`
 		TransformationRule interface{}            `json:"transformation_rule"`
 		Options            map[string]interface{} `json:"options"`
@@ -115,14 +115,22 @@ func (p *remotePluginImpl) PrepareTaskData(taskCtx plugin.TaskContext, options m
 		return nil, errors.BadInput.New("missing scopeId")
 	}
 
+	db := taskCtx.GetDal()
+	wrappedScope := p.scopeTabler.New()
+	err = api.CallDB(db.First, wrappedScope, dal.Where("connection_id = ? AND id = ?", connectionId, scopeId))
+	if err != nil {
+		return nil, errors.BadInput.New("Invalid scope id")
+	}
+
+	scope := wrappedScope.Unwrap()
+
 	var txRule interface{}
 	txRuleId, ok := options["transformation_rule_id"].(uint64)
 	if ok {
 		wrappedTxRule := p.transformationRuleTabler.New()
-		db := taskCtx.GetDal()
-		err = db.First(&wrappedTxRule, dal.Where("id = ?", txRuleId))
+		err = api.CallDB(db.First, wrappedTxRule, dal.Where("id = ?", txRuleId))
 		if err != nil {
-			return nil, errors.BadInput.New("invalid transformation rule id")
+			return nil, errors.BadInput.New("Invalid transformation rule id")
 		}
 		txRule = wrappedTxRule.Unwrap()
 	} else {
@@ -131,7 +139,7 @@ func (p *remotePluginImpl) PrepareTaskData(taskCtx plugin.TaskContext, options m
 
 	return RemotePluginTaskData{
 		DbUrl:              dbUrl,
-		ScopeId:            scopeId,
+		Scope:              scope,
 		Connection:         connection,
 		TransformationRule: txRule,
 		Options:            options,
