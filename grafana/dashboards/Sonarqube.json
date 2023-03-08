@@ -15,17 +15,40 @@
   "editable": true,
   "gnetId": null,
   "graphTooltip": 0,
-  "id": 26,
-  "iteration": 1677495313287,
+  "id": 2,
+  "iteration": 1678275507113,
   "links": [],
   "panels": [
+    {
+      "datasource": null,
+      "gridPos": {
+        "h": 3,
+        "w": 13,
+        "x": 0,
+        "y": 0
+      },
+      "id": 19,
+      "options": {
+        "content": "- Use Cases: This dashboard shows the code quality metrics from SonarQube.\n- Data Source Required: SonarQube v8.2+",
+        "mode": "markdown"
+      },
+      "pluginVersion": "8.0.6",
+      "targets": [
+        {
+          "queryType": "randomWalk",
+          "refId": "A"
+        }
+      ],
+      "title": "Dashboard Introduction",
+      "type": "text"
+    },
     {
       "datasource": null,
       "gridPos": {
         "h": 1,
         "w": 24,
         "x": 0,
-        "y": 0
+        "y": 3
       },
       "id": 16,
       "title": "Reliability & Security",
@@ -60,7 +83,7 @@
         "h": 4,
         "w": 6,
         "x": 0,
-        "y": 1
+        "y": 4
       },
       "id": 2,
       "options": {
@@ -144,7 +167,7 @@
         "h": 4,
         "w": 6,
         "x": 6,
-        "y": 1
+        "y": 4
       },
       "id": 3,
       "options": {
@@ -228,7 +251,7 @@
         "h": 4,
         "w": 6,
         "x": 12,
-        "y": 1
+        "y": 4
       },
       "id": 4,
       "options": {
@@ -312,7 +335,7 @@
         "h": 4,
         "w": 6,
         "x": 18,
-        "y": 1
+        "y": 4
       },
       "id": 13,
       "options": {
@@ -374,7 +397,7 @@
         "h": 1,
         "w": 24,
         "x": 0,
-        "y": 5
+        "y": 8
       },
       "id": 12,
       "panels": [],
@@ -410,7 +433,7 @@
         "h": 5,
         "w": 6,
         "x": 0,
-        "y": 6
+        "y": 9
       },
       "id": 8,
       "options": {
@@ -495,7 +518,7 @@
         "h": 5,
         "w": 6,
         "x": 6,
-        "y": 6
+        "y": 9
       },
       "id": 7,
       "options": {
@@ -580,7 +603,7 @@
         "h": 5,
         "w": 6,
         "x": 12,
-        "y": 6
+        "y": 9
       },
       "id": 14,
       "options": {
@@ -642,7 +665,7 @@
         "h": 1,
         "w": 24,
         "x": 0,
-        "y": 11
+        "y": 14
       },
       "id": 6,
       "panels": [],
@@ -678,7 +701,7 @@
         "h": 5,
         "w": 6,
         "x": 0,
-        "y": 12
+        "y": 15
       },
       "id": 10,
       "options": {
@@ -762,7 +785,7 @@
         "h": 5,
         "w": 6,
         "x": 6,
-        "y": 12
+        "y": 15
       },
       "id": 9,
       "options": {
@@ -851,7 +874,7 @@
         "h": 6,
         "w": 24,
         "x": 0,
-        "y": 17
+        "y": 20
       },
       "id": 17,
       "options": {
@@ -891,7 +914,7 @@
           ]
         }
       ],
-      "title": "Code",
+      "title": "Code Quality Metrics by Files",
       "type": "table"
     }
   ],
@@ -906,10 +929,10 @@
         "current": {
           "selected": false,
           "text": [
-            ""
+            "All"
           ],
           "value": [
-            ""
+            "$__all"
           ]
         },
         "datasource": "mysql",
@@ -934,10 +957,10 @@
         "current": {
           "selected": false,
           "text": [
-            ""
+            "All"
           ],
           "value": [
-            ""
+            "$__all"
           ]
         },
         "datasource": "mysql",
@@ -962,10 +985,10 @@
         "current": {
           "selected": false,
           "text": [
-            ""
+            "All"
           ],
           "value": [
-            ""
+            "$__all"
           ]
         },
         "datasource": "mysql",
@@ -988,7 +1011,7 @@
       {
         "allValue": null,
         "current": {
-          "selected": true,
+          "selected": false,
           "text": "20",
           "value": "20"
         },
@@ -1029,7 +1052,7 @@
   },
   "timepicker": {},
   "timezone": "",
-  "title": "Sonarqube",
+  "title": "SonarQube",
   "uid": "WA0qbuJ4k",
-  "version": 60
+  "version": 5
 }

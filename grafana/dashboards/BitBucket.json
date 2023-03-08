@@ -16,7 +16,7 @@
   "gnetId": null,
   "graphTooltip": 0,
   "id": 26,
-  "iteration": 1677590524546,
+  "iteration": 1678275825094,
   "links": [],
   "panels": [
     {
@@ -29,7 +29,7 @@
       },
       "id": 101,
       "options": {
-        "content": "- Use Cases: This dashboard shows the basic Git and Code Review metrics from GitLab.\n- Data Source Required: GitLab",
+        "content": "- Use Cases: This dashboard shows the basic Git and Code Review metrics from BitBucket.\n- Data Source Required: BitBucket",
         "mode": "markdown"
       },
       "pluginVersion": "8.0.6",
@@ -1117,7 +1117,7 @@
           ]
         },
         "datasource": "mysql",
-        "definition": "select concat(name, '--', id) as text from repos where id like 'gitlab%'",
+        "definition": "select concat(name, '--', id) as text from repos where id like 'bitbucket%'",
         "description": null,
         "error": null,
         "hide": 0,
@@ -1126,7 +1126,7 @@
         "multi": true,
         "name": "repo_id",
         "options": [],
-        "query": "select concat(name, '--', id) as text from repos where id like 'gitlab%'",
+        "query": "select concat(name, '--', id) as text from repos where id like 'bitbucket%'",
         "refresh": 1,
         "regex": "/^(?<text>.*)--(?<value>.*)$/",
         "skipUrlSync": false,
@@ -1141,7 +1141,7 @@
   },
   "timepicker": {},
   "timezone": "",
-  "title": "GitLab",
-  "uid": "msSjEq97z",
-  "version": 10
+  "title": "BitBucket",
+  "uid": "4LzQHZa4k",
+  "version": 4
 }
