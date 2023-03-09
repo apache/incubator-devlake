@@ -18,15 +18,16 @@ limitations under the License.
 package tasks
 
 import (
+	"reflect"
+
 	"github.com/apache/incubator-devlake/core/dal"
 	"github.com/apache/incubator-devlake/core/errors"
 	"github.com/apache/incubator-devlake/core/models/domainlayer"
 	"github.com/apache/incubator-devlake/core/models/domainlayer/devops"
 	"github.com/apache/incubator-devlake/core/models/domainlayer/didgen"
-	plugin "github.com/apache/incubator-devlake/core/plugin"
+	"github.com/apache/incubator-devlake/core/plugin"
 	"github.com/apache/incubator-devlake/helpers/pluginhelper/api"
 	"github.com/apache/incubator-devlake/plugins/bitbucket/models"
-	"reflect"
 )
 
 var ConvertPipelineStepMeta = plugin.SubTaskMeta{
@@ -57,6 +58,7 @@ func ConvertPipelineSteps(taskCtx plugin.SubTaskContext) errors.Error {
 
 	pipelineStepIdGen := didgen.NewDomainIdGenerator(&models.BitbucketPipelineStep{})
 	pipelineIdGen := didgen.NewDomainIdGenerator(&models.BitbucketPipeline{})
+	repoIdGen := didgen.NewDomainIdGenerator(&models.BitbucketRepo{})
 
 	converter, err := api.NewDataConverter(api.DataConverterArgs{
 		InputRowType:       reflect.TypeOf(models.BitbucketPipelineStep{}),
@@ -82,6 +84,7 @@ func ConvertPipelineSteps(taskCtx plugin.SubTaskContext) errors.Error {
 					InProgress: []string{models.IN_PROGRESS, models.PENDING, models.BUILDING},
 					Default:    devops.DONE,
 				}, bitbucketPipelineStep.State),
+				CicdScopeId: repoIdGen.Generate(data.Options.ConnectionId, data.Options.FullName),
 			}
 			// not save to domain layer if StartedOn is empty
 			if bitbucketPipelineStep.StartedOn == nil {
