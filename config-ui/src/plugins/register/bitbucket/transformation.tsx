@@ -227,7 +227,7 @@ export const BitbucketTransformation = ({ transformation, setTransformation }: P
         </h2>
         <Collapse isOpen={openAdditionalSettings}>
           <div className="radio">
-            <Radio checked />
+            <Radio defaultChecked />
             <p>
               Enable the <ExternalLink link="https://devlake.apache.org/docs/Plugins/refdiff">RefDiff</ExternalLink>{' '}
               plugin to pre-calculate version-based metrics
