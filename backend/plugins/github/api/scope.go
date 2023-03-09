@@ -18,16 +18,15 @@ limitations under the License.
 package api
 
 import (
+	"fmt"
 	"github.com/apache/incubator-devlake/core/dal"
 	"github.com/apache/incubator-devlake/core/errors"
 	"github.com/apache/incubator-devlake/core/plugin"
 	"github.com/apache/incubator-devlake/helpers/pluginhelper/api"
 	"github.com/apache/incubator-devlake/plugins/github/models"
+	"github.com/mitchellh/mapstructure"
 	"net/http"
 	"strconv"
-	"time"
-
-	"github.com/mitchellh/mapstructure"
 )
 
 type apiRepo struct {
@@ -51,33 +50,13 @@ type req struct {
 // @Failure 500  {object} shared.ApiBody "Internal Error"
 // @Router /plugins/github/connections/{connectionId}/scopes [PUT]
 func PutScope(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, errors.Error) {
-	connectionId, _ := extractParam(input.Params)
-	if connectionId == 0 {
-		return nil, errors.BadInput.New("invalid connectionId")
-	}
 	var repos req
 	err := errors.Convert(mapstructure.Decode(input.Body, &repos))
 	if err != nil {
 		return nil, errors.BadInput.Wrap(err, "decoding Github repo error")
 	}
-	keeper := make(map[int]struct{})
-	now := time.Now()
-	for _, repo := range repos.Data {
-		if _, ok := keeper[repo.GithubId]; ok {
-			return nil, errors.BadInput.New("duplicated item")
-		} else {
-			keeper[repo.GithubId] = struct{}{}
-		}
-		repo.ConnectionId = connectionId
-		// Fixme: why do we set this to now?
-		repo.CreatedDate = &now
-		repo.UpdatedDate = &now
-		err = verifyRepo(repo)
-		if err != nil {
-			return nil, err
-		}
-	}
-	err = basicRes.GetDal().CreateOrUpdate(repos.Data)
+	fmt.Println("length is ", len(repos.Data))
+	err = scopeHelper.Put(input, "githubId", repos.Data)
 	if err != nil {
 		return nil, errors.Default.Wrap(err, "error on saving GithubRepo")
 	}

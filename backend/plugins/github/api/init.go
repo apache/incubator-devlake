@@ -25,12 +25,17 @@ import (
 
 var vld *validator.Validate
 var connectionHelper *api.ConnectionApiHelper
+var scopeHelper *api.ScopeApiHelper
 var basicRes context.BasicRes
 
 func Init(br context.BasicRes) {
 	basicRes = br
 	vld = validator.New()
 	connectionHelper = api.NewConnectionHelper(
+		basicRes,
+		vld,
+	)
+	scopeHelper = api.NewScopeHelper(
 		basicRes,
 		vld,
 	)
