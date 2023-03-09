@@ -19,23 +19,30 @@ package tasks
 
 import (
 	"github.com/apache/incubator-devlake/core/errors"
-	"github.com/apache/incubator-devlake/core/plugin"
-	"github.com/apache/incubator-devlake/helpers/pluginhelper/api"
-	"github.com/apache/incubator-devlake/plugins/trello/models"
+	"github.com/apache/incubator-devlake/plugins/github/models"
 )
 
-// CreateApiClient creates a new API Client for Trello
-func CreateApiClient(taskCtx plugin.TaskContext, connection *models.TrelloConnection) (*api.ApiAsyncClient, errors.Error) {
-	apiClient, err := api.NewApiClientFromConnection(taskCtx.GetContext(), taskCtx, connection)
-	if err != nil {
-		return nil, err
+type GithubAccountEdge struct {
+	Login     string
+	Id        int `graphql:"databaseId"`
+	Name      string
+	Company   string
+	Email     string
+	AvatarUrl string
+	HtmlUrl   string `graphql:"url"`
+	//Type      string
+}
+type GraphqlInlineAccountQuery struct {
+	GithubAccountEdge `graphql:"... on User"`
+}
+
+func convertGraphqlPreAccount(res GraphqlInlineAccountQuery, repoId int, connId uint64) (*models.GithubRepoAccount, errors.Error) {
+	githubAccount := &models.GithubRepoAccount{
+		ConnectionId: connId,
+		RepoGithubId: repoId,
+		Login:        res.Login,
+		AccountId:    res.Id,
 	}
 
-	// create api client
-	asyncApiClient, err := api.CreateAsyncApiClient(taskCtx, apiClient, nil)
-	if err != nil {
-		return nil, err
-	}
-
-	return asyncApiClient, nil
+	return githubAccount, nil
 }
