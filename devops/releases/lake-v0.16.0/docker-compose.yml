@@ -21,16 +21,14 @@ services:
       - mysql-storage:/var/lib/mysql
     restart: always
     ports:
-      - 127.0.0.1:3306:3306
+      - 3306:3306
     environment:
       MYSQL_ROOT_PASSWORD: admin
       MYSQL_DATABASE: lake
       MYSQL_USER: merico
       MYSQL_PASSWORD: merico
-    command:
-      --character-set-server=utf8mb4
+    command: --character-set-server=utf8mb4
       --collation-server=utf8mb4_bin
-
 
   grafana:
     image: apache/devlake-dashboard:v0.16.0
@@ -52,7 +50,7 @@ services:
   devlake:
     image: apache/devlake:v0.16.0
     ports:
-      - 127.0.0.1:8080:8080
+      - 8080:8080
     restart: always
     volumes:
       - ./.env:/app/.env
@@ -65,7 +63,7 @@ services:
   config-ui:
     image: apache/devlake-config-ui:v0.16.0
     ports:
-      - 127.0.0.1:4000:4000
+      - 4000:4000
     env_file:
       - ./.env
     environment:
@@ -79,4 +77,3 @@ services:
 volumes:
   mysql-storage:
   grafana-storage:
-
