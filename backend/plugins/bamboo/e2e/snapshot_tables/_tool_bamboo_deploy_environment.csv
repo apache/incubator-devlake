@@ -1,0 +1,7 @@
+connection_id,env_id,name,plan_key,description,position,configuration_state,can_view,can_edit,can_delete,allowed_to_execute,can_execute,allowed_to_create_version,allowed_to_set_version_status,_raw_data_params,_raw_data_table,_raw_data_id,_raw_data_remark
+3,950273,test-env,TEST1-TEST1,a test environment,0,DETAILED,1,1,1,1,1,0,0,"{""connectionId"":3,""ProjectKey"":""TEST1""}",_raw_bamboo_api_deploy,39,
+3,1310721,environment2,TEST1-TEST3,other test environment,0,DETAILED,1,1,1,1,1,0,0,"{""connectionId"":3,""ProjectKey"":""TEST1""}",_raw_bamboo_api_deploy,41,
+3,1310722,lake,TEST1-TEST3,a test environment,1,DETAILED,1,1,1,1,1,0,0,"{""connectionId"":3,""ProjectKey"":""TEST1""}",_raw_bamboo_api_deploy,41,
+3,1310723,environment2,TEST1-TEST1,the environment2 for project,1,DETAILED,1,1,1,1,1,0,0,"{""connectionId"":3,""ProjectKey"":""TEST1""}",_raw_bamboo_api_deploy,39,
+3,1310724,test-env3,TEST1-TEST1,a test environment num3,2,DETAILED,1,1,1,1,1,0,0,"{""connectionId"":3,""ProjectKey"":""TEST1""}",_raw_bamboo_api_deploy,39,
+3,1310725,test-env4,TEST1-TEST1,the 4th test environment,3,DETAILED,1,1,1,1,1,0,0,"{""connectionId"":3,""ProjectKey"":""TEST1""}",_raw_bamboo_api_deploy,39,
