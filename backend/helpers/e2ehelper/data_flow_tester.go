@@ -89,6 +89,8 @@ type TableOptions struct {
 	// IgnoreTypes similar to IgnoreFields, this will ignore the fields contained in the type. Useful for ignoring embedded
 	// types and their fields in the target model
 	IgnoreTypes []interface{}
+	// if Nullable is set to be true, only the string `NULL` will be taken as NULL
+	Nullable bool
 }
 
 // NewDataFlowTester create a *DataFlowTester to help developer test their subtasks data flow
@@ -135,8 +137,7 @@ func (t *DataFlowTester) ImportCsvIntoRawTable(csvRelPath string, rawTableName s
 	}
 }
 
-// ImportCsvIntoTabler imports records from specified csv file into target tabler, note that existing data would be deleted first.
-func (t *DataFlowTester) ImportCsvIntoTabler(csvRelPath string, dst schema.Tabler) {
+func (t *DataFlowTester) importCsv(csvRelPath string, dst schema.Tabler, nullable bool) {
 	csvIter, _ := pluginhelper.NewCsvFileIterator(csvRelPath)
 	defer csvIter.Close()
 	t.FlushTabler(dst)
@@ -144,8 +145,14 @@ func (t *DataFlowTester) ImportCsvIntoTabler(csvRelPath string, dst schema.Table
 	for csvIter.HasNext() {
 		toInsertValues := csvIter.Fetch()
 		for i := range toInsertValues {
-			if toInsertValues[i].(string) == `` {
-				toInsertValues[i] = nil
+			if nullable {
+				if toInsertValues[i].(string) == `NULL` {
+					toInsertValues[i] = nil
+				}
+			} else {
+				if toInsertValues[i].(string) == `` {
+					toInsertValues[i] = nil
+				}
 			}
 		}
 		result := t.Db.Model(dst).Create(toInsertValues)
@@ -154,6 +161,16 @@ func (t *DataFlowTester) ImportCsvIntoTabler(csvRelPath string, dst schema.Table
 		}
 		assert.Equal(t.T, int64(1), result.RowsAffected)
 	}
+}
+
+// ImportCsvIntoTabler imports records from specified csv file into target tabler, the empty string will be taken as NULL. note that existing data would be deleted first.
+func (t *DataFlowTester) ImportCsvIntoTabler(csvRelPath string, dst schema.Tabler) {
+	t.importCsv(csvRelPath, dst, false)
+}
+
+// ImportNullableCsvIntoTabler imports records from specified csv file into target tabler, the `NULL` will be taken as NULL. note that existing data would be deleted first.
+func (t *DataFlowTester) ImportNullableCsvIntoTabler(csvRelPath string, dst schema.Tabler) {
+	t.importCsv(csvRelPath, dst, true)
 }
 
 // FlushRawTable migrate table and deletes all records from specified table
@@ -272,7 +289,11 @@ func (t *DataFlowTester) CreateSnapshot(dst schema.Tabler, opts TableOptions) {
 				if value.Valid {
 					values[i] = value.Time.In(location).Format("2006-01-02T15:04:05.000-07:00")
 				} else {
-					values[i] = ``
+					if opts.Nullable {
+						values[i] = "NULL"
+					} else {
+						values[i] = ""
+					}
 				}
 			case *bool:
 				if *forScanValues[i].(*bool) {
@@ -285,14 +306,22 @@ func (t *DataFlowTester) CreateSnapshot(dst schema.Tabler, opts TableOptions) {
 				if value.Valid {
 					values[i] = value.String
 				} else {
-					values[i] = ``
+					if opts.Nullable {
+						values[i] = "NULL"
+					} else {
+						values[i] = ""
+					}
 				}
 			case *sql.NullInt64:
 				value := *forScanValues[i].(*sql.NullInt64)
 				if value.Valid {
 					values[i] = strconv.FormatInt(value.Int64, 10)
 				} else {
-					values[i] = ``
+					if opts.Nullable {
+						values[i] = "NULL"
+					} else {
+						values[i] = ""
+					}
 				}
 			case *string:
 				values[i] = fmt.Sprint(*forScanValues[i].(*string))
@@ -333,7 +362,10 @@ func (t *DataFlowTester) ExportRawTable(rawTableName string, csvRelPath string) 
 	}
 }
 
-func formatDbValue(value interface{}) string {
+func formatDbValue(value interface{}, nullable bool) string {
+	if nullable && value == nil {
+		return "NULL"
+	}
 	location, _ := time.LoadLocation(`UTC`)
 	switch value := value.(type) {
 	case time.Time:
@@ -457,7 +489,7 @@ func (t *DataFlowTester) VerifyTableWithOptions(dst schema.Tabler, opts TableOpt
 		actualTotal++
 		pkValues := make([]string, 0, len(pkColumns))
 		for _, pkc := range pkColumns {
-			pkValues = append(pkValues, formatDbValue(actual[pkc.Name()]))
+			pkValues = append(pkValues, formatDbValue(actual[pkc.Name()], opts.Nullable))
 		}
 		expected, ok := csvMap[strings.Join(pkValues, `-`)]
 		assert.True(t.T, ok, fmt.Sprintf(`%s not found (with params from csv %s)`, dst.TableName(), pkValues))
@@ -465,7 +497,7 @@ func (t *DataFlowTester) VerifyTableWithOptions(dst schema.Tabler, opts TableOpt
 			continue
 		}
 		for _, field := range targetFields {
-			assert.Equal(t.T, expected[field], formatDbValue(actual[field]), fmt.Sprintf(`%s.%s not match (with params from csv %s)`, dst.TableName(), field, pkValues))
+			assert.Equal(t.T, expected[field], formatDbValue(actual[field], opts.Nullable), fmt.Sprintf(`%s.%s not match (with params from csv %s)`, dst.TableName(), field, pkValues))
 		}
 	}
 
