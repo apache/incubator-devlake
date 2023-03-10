@@ -59,23 +59,13 @@ class AzureDevOpsAPI(API):
         req = Request('https://app.vssps.visualstudio.com/_apis/accounts', query_args={"memberId": member_id})
         return self.send(req)
 
-    def orgs(self) -> list[str]:
-        response = self.accounts()
-        return [acct["AccountName"] for acct in response.json]
-
     def projects(self, org: str):
         return self.get(org, '_apis/projects')
 
-    # Get a project
-    def project(self, org: str, project: str):
-        return self.get(org, '_apis/projects', project)
-
-    # List repos under an org
     def git_repos(self, org: str, project: str):
         return self.get(org, project, '_apis/git/repositories')
 
     def git_repo_pull_requests(self, org: str, project: str, repo_id: str):
-        # see https://learn.microsoft.com/en-us/rest/api/azure/devops/git/pull-requests/get-pull-requests?view=azure-devops-rest-7.1&tabs=HTTP
         return self.get(org, project, '_apis/git/repositories', repo_id, 'pullrequests')
 
     def git_repo_pull_request_commits(self, org: str, project: str, repo_id: str, pull_request_id: int):
@@ -84,7 +74,6 @@ class AzureDevOpsAPI(API):
     def git_repo_pull_request_comments(self, org: str, project: str, repo_id: str, pull_request_id: int):
         return self.get(org, project, '_apis/git/repositories', repo_id, 'pullRequests', pull_request_id, 'threads')
 
-    # not needed
     def commits(self, org: str, project: str, repo_id: str):
         return self.get(org, project, '_apis/git/repositories', repo_id, 'commits')
 
@@ -93,11 +82,3 @@ class AzureDevOpsAPI(API):
 
     def jobs(self, org: str, project: str, build_id: int):
         return self.get(org, project, '_apis/build/builds', build_id, 'timeline')
-
-    # unused
-    def deployments(self, org: str, project: str):
-        return self.get(org, project, '_apis/release/deployments')
-
-    # unused
-    def releases(self, org: str, project: str):
-        return self.get(org, project, '_apis/release/releases')
