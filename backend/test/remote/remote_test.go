@@ -145,6 +145,39 @@ func TestCreateConnection(t *testing.T) {
 	require.Equal(t, TOKEN, conns[0].Token)
 }
 
+func TestRemoteScopeGroups(t *testing.T) {
+	client := createClient(t)
+	connection := createTestConnection(client)
+
+	output := client.RemoteScopes(helper.RemoteScopesQuery{
+		PluginName:   PLUGIN_NAME,
+		ConnectionId: connection.ID,
+	})
+
+	scopeGroups := output.Children
+	require.Equal(t, 1, len(scopeGroups))
+	scope := scopeGroups[0]
+	require.Equal(t, "Group 1", scope.Name)
+	require.Equal(t, "group1", scope.Id)
+}
+
+func TestRemoteScopes(t *testing.T) {
+	client := createClient(t)
+	connection := createTestConnection(client)
+
+	output := client.RemoteScopes(helper.RemoteScopesQuery{
+		PluginName:   PLUGIN_NAME,
+		ConnectionId: connection.ID,
+		GroupId:      "group1",
+	})
+
+	scopes := output.Children
+	require.Equal(t, 1, len(scopes))
+	scope := scopes[0]
+	require.Equal(t, "Project 1", scope.Name)
+	require.Equal(t, "p1", scope.Id)
+}
+
 func TestCreateScope(t *testing.T) {
 	client := createClient(t)
 	var connectionId uint64 = 1
