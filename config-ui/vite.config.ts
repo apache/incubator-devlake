@@ -16,12 +16,21 @@
  *
  */
 
-module.exports = {
-  extends: ['react-app', 'react-app/jest', 'prettier'],
-  plugins: ['header', 'prettier'],
-  rules: {
-    'prettier/prettier': 'warn',
-    'header/header': ['error', '.file-headerrc'],
-    'react-hooks/exhaustive-deps': 'off',
+import path from 'path';
+import { defineConfig } from 'vite';
+import react from '@vitejs/plugin-react';
+
+// https://vitejs.dev/config/
+export default defineConfig({
+  plugins: [react()],
+
+  server: {
+    port: 4000,
   },
-};
+
+  resolve: {
+    alias: {
+      '@': path.join(__dirname, './src'),
+    },
+  },
+});
