@@ -21,12 +21,13 @@ import (
 	"bufio"
 	"context"
 	"encoding/json"
+	"os"
+	"path/filepath"
+
 	"github.com/apache/incubator-devlake/core/config"
 	"github.com/apache/incubator-devlake/core/errors"
 	"github.com/apache/incubator-devlake/core/utils"
 	"github.com/mitchellh/hashstructure"
-	"os"
-	"path/filepath"
 )
 
 const singerPropertiesDir = "TAP_PROPERTIES_DIR"
@@ -137,16 +138,7 @@ func (t *SingerTap) Run(ctx context.Context) (<-chan *Response, errors.Error) {
 		t.propertiesFile.path,
 		ifElse(t.stateFile.path != "", "--state "+t.stateFile.path, ""),
 	)
-	rawStream, err := utils.StreamProcess(cmd, &utils.StreamProcessOptions{
-		OnStdout: func(b []byte) (any, errors.Error) {
-			var output Output[json.RawMessage]
-			output, err := NewSingerTapOutput(b)
-			if err != nil {
-				return nil, err
-			}
-			return output, nil //data is expected to be JSON
-		},
-	})
+	rawStream, err := utils.StreamProcess(cmd, nil)
 	if err != nil {
 		return nil, errors.Default.Wrap(err, "error starting process stream from singer-tap")
 	}
@@ -159,7 +151,11 @@ func (t *SingerTap) Run(ctx context.Context) (<-chan *Response, errors.Error) {
 			}
 			out := result.GetStdout()
 			if out != nil {
-				stream <- &Response{Out: out.(Output[json.RawMessage])}
+				tap_output, err := NewSingerTapOutput(out)
+				if err != nil {
+					stream <- &Response{Err: err}
+				}
+				stream <- &Response{Out: tap_output}
 			}
 		}
 	}()

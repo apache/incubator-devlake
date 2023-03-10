@@ -24,7 +24,6 @@ from pydevlake.domain_layer.devops import CicdScope, CICDPipeline
 
 
 VALID_TOKEN = "this_is_a_valid_token"
-VALID_PROJECT = "this_is_a_valid_project"
 
 
 class FakePipeline(ToolModel, table=True):
@@ -35,7 +34,6 @@ class FakePipeline(ToolModel, table=True):
         SUCCESS = "success"
 
     id: str = Field(primary_key=True)
-    project: str
     started_at: Optional[datetime]
     finished_at: Optional[datetime]
     state: State
@@ -46,16 +44,14 @@ class FakeStream(Stream):
     domain_types = [DomainType.CICD]
 
     fake_pipelines = [
-        FakePipeline(id=1, project=VALID_PROJECT, state=FakePipeline.State.SUCCESS, started_at=datetime(2023, 1, 10, 11, 0, 0), finished_at=datetime(2023, 1, 10, 11, 3, 0)),
-        FakePipeline(id=2, project=VALID_PROJECT, state=FakePipeline.State.FAILURE, started_at=datetime(2023, 1, 10, 12, 0, 0), finished_at=datetime(2023, 1, 10, 12, 1, 30)),
-        FakePipeline(id=1, project=VALID_PROJECT, state=FakePipeline.State.PENDING),
+        FakePipeline(id=1, state=FakePipeline.State.SUCCESS, started_at=datetime(2023, 1, 10, 11, 0, 0), finished_at=datetime(2023, 1, 10, 11, 3, 0)),
+        FakePipeline(id=2, state=FakePipeline.State.FAILURE, started_at=datetime(2023, 1, 10, 12, 0, 0), finished_at=datetime(2023, 1, 10, 12, 1, 30)),
+        FakePipeline(id=1, state=FakePipeline.State.PENDING),
     ]
 
     def collect(self, state, context):
-        project = context.options['project']
-        if project == VALID_PROJECT:
-            for p in self.fake_pipelines:
-                yield dict(p)
+        for p in self.fake_pipelines:
+            yield p.json(), {}
 
     def convert(self, pipeline: FakePipeline, ctx):
         if ctx.transformationRule:
