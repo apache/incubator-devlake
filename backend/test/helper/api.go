@@ -164,14 +164,14 @@ func (d *DevlakeClient) GetScope(pluginName string, connectionId uint64, scopeId
 	}, http.MethodGet, fmt.Sprintf("%s/plugins/%s/connections/%d/scopes/%s", d.Endpoint, pluginName, connectionId, scopeId), nil)
 }
 
-func (d *DevlakeClient) CreateTransformRule(pluginName string, rules any) any {
+func (d *DevlakeClient) CreateTransformationRule(pluginName string, rules any) any {
 	return sendHttpRequest[any](d.testCtx, d.timeout, debugInfo{
 		print:      true,
 		inlineJson: false,
 	}, http.MethodPost, fmt.Sprintf("%s/plugins/%s/transformation_rules", d.Endpoint, pluginName), rules)
 }
 
-func (d *DevlakeClient) ListTransformRules(pluginName string) []any {
+func (d *DevlakeClient) ListTransformationRules(pluginName string) []any {
 	return sendHttpRequest[[]any](d.testCtx, d.timeout, debugInfo{
 		print:      true,
 		inlineJson: false,
