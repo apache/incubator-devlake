@@ -32,8 +32,8 @@ import (
 // @Description create transformation rule for Trello
 // @Tags plugins/trello
 // @Accept application/json
-// @Param transformationRule body tasks.TrelloTransformationRule true "transformation rule"
-// @Success 200  {object} tasks.TrelloTransformationRule
+// @Param transformationRule body models.TrelloTransformationRule true "transformation rule"
+// @Success 200  {object} models.TrelloTransformationRule
 // @Failure 400  {object} shared.ApiBody "Bad Request"
 // @Failure 500  {object} shared.ApiBody "Internal Error"
 // @Router /plugins/trello/transformation_rules [POST]
@@ -59,8 +59,8 @@ func CreateTransformationRule(input *plugin.ApiResourceInput) (*plugin.ApiResour
 // @Tags plugins/trello
 // @Accept application/json
 // @Param id path int true "id"
-// @Param transformationRule body tasks.TrelloTransformationRule true "transformation rule"
-// @Success 200  {object} tasks.TrelloTransformationRule
+// @Param transformationRule body models.TrelloTransformationRule true "transformation rule"
+// @Success 200  {object} models.TrelloTransformationRule
 // @Failure 400  {object} shared.ApiBody "Bad Request"
 // @Failure 500  {object} shared.ApiBody "Internal Error"
 // @Router /plugins/trello/transformation_rules/{id} [PATCH]
@@ -94,7 +94,7 @@ func UpdateTransformationRule(input *plugin.ApiResourceInput) (*plugin.ApiResour
 // @Description return one transformation rule
 // @Tags plugins/trello
 // @Param id path int true "id"
-// @Success 200  {object} tasks.TrelloTransformationRule
+// @Success 200  {object} models.TrelloTransformationRule
 // @Failure 400  {object} shared.ApiBody "Bad Request"
 // @Failure 500  {object} shared.ApiBody "Internal Error"
 // @Router /plugins/trello/transformation_rules/{id} [GET]
@@ -117,7 +117,7 @@ func GetTransformationRule(input *plugin.ApiResourceInput) (*plugin.ApiResourceO
 // @Tags plugins/trello
 // @Param pageSize query int false "page size, default 50"
 // @Param page query int false "page size, default 1"
-// @Success 200  {object} []tasks.TrelloTransformationRule
+// @Success 200  {object} []models.TrelloTransformationRule
 // @Failure 400  {object} shared.ApiBody "Bad Request"
 // @Failure 500  {object} shared.ApiBody "Internal Error"
 // @Router /plugins/trello/transformation_rules [GET]
