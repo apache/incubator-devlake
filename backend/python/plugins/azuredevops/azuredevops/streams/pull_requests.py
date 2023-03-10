@@ -25,6 +25,9 @@ class GitPullRequests(Stream):
     tool_model = GitPullRequest
     domain_types = [DomainType.CODE]
 
+    def should_run_on(self, scope: GitRepository) -> bool:
+        return not scope.is_external()
+
     def collect(self, state, context) -> Iterable[tuple[object, dict]]:
         api = AzureDevOpsAPI(context.connection)
         repo: GitRepository = context.scope

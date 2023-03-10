@@ -44,6 +44,10 @@ class GitRepository(ToolScope, table=True):
     project_id: str
     org_id: str
     parent_repository_url: Optional[str] = Field(source='parentRepository/url')
+    provider: Optional[str]
+
+    def is_external(self):
+        return bool(self.provider)
 
 
 class GitPullRequest(ToolModel, table=True):
