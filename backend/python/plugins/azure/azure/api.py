@@ -77,8 +77,8 @@ class AzureDevOpsAPI(API):
     def commits(self, org: str, project: str, repo_id: str):
         return self.get(org, project, '_apis/git/repositories', repo_id, 'commits')
 
-    def builds(self, org: str, project: str):
-        return self.get(org, project, '_apis/build/builds')
+    def builds(self, org: str, project: str, repository_id: str, provider: str):
+        return self.get(org, project, '_apis/build/builds', repositoryId=repository_id, repositoryType=provider)
 
     def jobs(self, org: str, project: str, build_id: int):
         return self.get(org, project, '_apis/build/builds', build_id, 'timeline')

@@ -13,13 +13,11 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-import typing
 from typing import Iterable
 
 import iso8601 as iso8601
 
 from azure.api import AzureDevOpsAPI
-from azure.helper import db
 from azure.models import AzureDevOpsConnection, GitRepository
 from azure.models import Build
 from pydevlake import Context, DomainType, Stream, logger
@@ -34,11 +32,9 @@ class Builds(Stream):
         connection: AzureDevOpsConnection = context.connection
         repo: GitRepository = context.scope
         azure_api = AzureDevOpsAPI(connection.base_url, connection.pat)
-        cached_repos = dict()
-        response = azure_api.builds(repo.org_id, repo.project_id)
+        response = azure_api.builds(repo.org_id, repo.project_id, repo.id, repo.provider)
         for raw_build in response:
-            if self.validate_repo(context, raw_build, cached_repos):
-                yield raw_build, state
+            yield raw_build, state
 
     def extract(self, raw_data: dict) -> Build:
         build: Build = self.tool_model(**raw_data)
@@ -112,17 +108,3 @@ class Builds(Stream):
             repo_id=b.repo_id,
             repo=repo_url,
         )
-
-    # workaround because azure also returns builds for unmanaged repos (we don't want them)
-    @classmethod
-    def validate_repo(cls, context: Context, raw_build: dict, cached_repos: typing.Dict[str, GitRepository]) -> bool:
-        repo_id = raw_build["repository"]["id"]
-        if repo_id not in cached_repos:
-            repo: GitRepository = db.get(context, GitRepository, GitRepository.id == repo_id)
-            if repo is None:
-                logger.warn(f"no Azure repo associated with {repo_id}")
-            cached_repos[repo_id] = repo
-        if cached_repos[repo_id] is None:
-            return False
-        raw_build["repository"]["url"] = cached_repos[repo_id].url
-        return True
