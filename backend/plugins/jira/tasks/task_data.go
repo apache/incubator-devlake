@@ -74,14 +74,19 @@ func (r *JiraTransformationRule) ToDb() (*models.JiraTransformationRule, errors.
 
 func MakeTransformationRules(rule models.JiraTransformationRule) (*JiraTransformationRule, errors.Error) {
 	var typeMapping TypeMappings
-	err := json.Unmarshal(rule.TypeMappings, &typeMapping)
-	if err != nil {
-		return nil, errors.Default.Wrap(err, "unable to unmarshal the typeMapping")
+	var err error
+	if len(rule.TypeMappings) > 0 {
+		err = json.Unmarshal(rule.TypeMappings, &typeMapping)
+		if err != nil {
+			return nil, errors.Default.Wrap(err, "unable to unmarshal the typeMapping")
+		}
 	}
 	var remotelinkRepoPattern []string
-	err = json.Unmarshal(rule.RemotelinkRepoPattern, &remotelinkRepoPattern)
-	if err != nil {
-		return nil, errors.Default.Wrap(err, "error unMarshaling RemotelinkRepoPattern")
+	if len(rule.RemotelinkRepoPattern) > 0 {
+		err = json.Unmarshal(rule.RemotelinkRepoPattern, &remotelinkRepoPattern)
+		if err != nil {
+			return nil, errors.Default.Wrap(err, "error unMarshaling RemotelinkRepoPattern")
+		}
 	}
 	result := &JiraTransformationRule{
 		Name:                       rule.Name,
