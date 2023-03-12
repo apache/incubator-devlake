@@ -1,0 +1,1873 @@
+{
+  "annotations": {
+    "list": [
+      {
+        "builtIn": 1,
+        "datasource": "-- Grafana --",
+        "enable": true,
+        "hide": true,
+        "iconColor": "rgba(0, 211, 255, 1)",
+        "name": "Annotations & Alerts",
+        "type": "dashboard"
+      }
+    ]
+  },
+  "editable": true,
+  "gnetId": null,
+  "graphTooltip": 0,
+  "id": 34,
+  "iteration": 1678442002166,
+  "links": [],
+  "panels": [
+    {
+      "collapsed": true,
+      "datasource": null,
+      "gridPos": {
+        "h": 1,
+        "w": 24,
+        "x": 0,
+        "y": 0
+      },
+      "id": 22,
+      "panels": [
+        {
+          "datasource": "mysql",
+          "description": "",
+          "fieldConfig": {
+            "defaults": {
+              "color": {
+                "fixedColor": "blue",
+                "mode": "thresholds"
+              },
+              "custom": {
+                "align": "auto",
+                "displayMode": "auto",
+                "filterable": false
+              },
+              "mappings": [],
+              "noValue": "-",
+              "thresholds": {
+                "mode": "absolute",
+                "steps": [
+                  {
+                    "color": "text",
+                    "value": null
+                  }
+                ]
+              }
+            },
+            "overrides": [
+              {
+                "matcher": {
+                  "id": "byName",
+                  "options": "low"
+                },
+                "properties": [
+                  {
+                    "id": "custom.displayMode",
+                    "value": "color-text"
+                  },
+                  {
+                    "id": "color",
+                    "value": {
+                      "fixedColor": "red",
+                      "mode": "fixed"
+                    }
+                  }
+                ]
+              },
+              {
+                "matcher": {
+                  "id": "byName",
+                  "options": "medium"
+                },
+                "properties": [
+                  {
+                    "id": "custom.displayMode",
+                    "value": "color-text"
+                  },
+                  {
+                    "id": "color",
+                    "value": {
+                      "fixedColor": "yellow",
+                      "mode": "fixed"
+                    }
+                  }
+                ]
+              },
+              {
+                "matcher": {
+                  "id": "byName",
+                  "options": "high"
+                },
+                "properties": [
+                  {
+                    "id": "custom.displayMode",
+                    "value": "color-text"
+                  },
+                  {
+                    "id": "color",
+                    "value": {
+                      "fixedColor": "green",
+                      "mode": "fixed"
+                    }
+                  }
+                ]
+              },
+              {
+                "matcher": {
+                  "id": "byName",
+                  "options": "elite"
+                },
+                "properties": [
+                  {
+                    "id": "custom.displayMode",
+                    "value": "color-text"
+                  },
+                  {
+                    "id": "color",
+                    "value": {
+                      "fixedColor": "purple",
+                      "mode": "fixed"
+                    }
+                  }
+                ]
+              }
+            ]
+          },
+          "gridPos": {
+            "h": 6,
+            "w": 24,
+            "x": 0,
+            "y": 1
+          },
+          "id": 8,
+          "options": {
+            "showHeader": true,
+            "sortBy": []
+          },
+          "pluginVersion": "8.0.6",
+          "targets": [
+            {
+              "format": "table",
+              "group": [],
+              "metricColumn": "none",
+              "queryType": "randomWalk",
+              "rawQuery": true,
+              "rawSql": "-- Metric 1: Deployment Frequency\nwith last_few_calendar_months as(\n-- get the last few months within the selected time period in the top-right corner\n\tSELECT CAST((SYSDATE()-INTERVAL (H+T+U) DAY) AS date) day\n\tFROM ( SELECT 0 H\n\t\t\tUNION ALL SELECT 100 UNION ALL SELECT 200 UNION ALL SELECT 300\n\t\t) H CROSS JOIN ( SELECT 0 T\n\t\t\tUNION ALL SELECT  10 UNION ALL SELECT  20 UNION ALL SELECT  30\n\t\t\tUNION ALL SELECT  40 UNION ALL SELECT  50 UNION ALL SELECT  60\n\t\t\tUNION ALL SELECT  70 UNION ALL SELECT  80 UNION ALL SELECT  90\n\t\t) T CROSS JOIN ( SELECT 0 U\n\t\t\tUNION ALL SELECT   1 UNION ALL SELECT   2 UNION ALL SELECT   3\n\t\t\tUNION ALL SELECT   4 UNION ALL SELECT   5 UNION ALL SELECT   6\n\t\t\tUNION ALL SELECT   7 UNION ALL SELECT   8 UNION ALL SELECT   9\n\t\t) U\n\tWHERE\n\t\t(SYSDATE()-INTERVAL (H+T+U) DAY) > $__timeFrom()\n),\n\n_days_weeks_deploy as(\n\tSELECT\n\t\t\tdate(DATE_ADD(last_few_calendar_months.day, INTERVAL -WEEKDAY(last_few_calendar_months.day) DAY)) as week,\n\t\t\tMAX(if(deployments.day is not null, 1, 0)) as week_deployed,\n\t\t\tCOUNT(distinct deployments.day) as days_deployed\n\tFROM \n\t\tlast_few_calendar_months\n\t\tLEFT JOIN(\n\t\t\tSELECT\n\t\t\t\tdistinct DATE(finished_date) AS day,\n\t\t\t\tid\n\t\t\tFROM cicd_tasks ct\n\t\t\tjoin project_mapping pm on ct.cicd_scope_id = pm.row_id\n\t\t\tWHERE\n\t\t\t  pm.project_name in ($project)\n\t\t\t\tand type = 'DEPLOYMENT'\n\t\t\t\tand result = 'SUCCESS'\n\t\t\t\tand environment = 'PRODUCTION') deployments ON deployments.day = last_few_calendar_months.day\n\tGROUP BY week\n\t),\n\n_monthly_deploy as(\n\tSELECT\n\t\t\tdate(DATE_ADD(last_few_calendar_months.day, INTERVAL -DAY(last_few_calendar_months.day)+1 DAY)) as month,\n\t\t\tMAX(if(deployments.day is not null, 1, 0)) as months_deployed\n\tFROM \n\t\tlast_few_calendar_months\n\t\tLEFT JOIN(\n\t\t\tSELECT\n\t\t\t\tdistinct DATE(finished_date) AS day,\n\t\t\t\tid\n\t\t\tFROM cicd_tasks ct\n\t\t\tjoin project_mapping pm on ct.cicd_scope_id = pm.row_id\n\t\t\tWHERE\n\t\t\t  pm.project_name in ($project)\n\t\t\t\tand type = 'DEPLOYMENT'\n\t\t\t\tand result = 'SUCCESS'\n\t\t\t\tand environment = 'PRODUCTION') deployments ON deployments.day = last_few_calendar_months.day\n\tGROUP BY month\n\t),\n\n_median_number_of_deployment_days_per_week_ranks as(\n\tSELECT *, percent_rank() over(order by days_deployed) as ranks\n\tFROM _days_weeks_deploy\n),\n\n_median_number_of_deployment_days_per_week as(\n\tSELECT max(days_deployed) as median_number_of_deployment_days_per_week\n\tFROM _median_number_of_deployment_days_per_week_ranks\n\tWHERE ranks <= 0.5\n),\n\n_median_number_of_deployment_days_per_month_ranks as(\n\tSELECT *, percent_rank() over(order by months_deployed) as ranks\n\tFROM _monthly_deploy\n),\n\n_median_number_of_deployment_days_per_month as(\n\tSELECT max(months_deployed) as median_number_of_deployment_days_per_month\n\tFROM _median_number_of_deployment_days_per_month_ranks\n\tWHERE ranks <= 0.5\n),\n\n_metric_deployment_frequency as (\n\tSELECT \n\t\t'Deployment frequency' as metric,\n\t\tCASE  \n\t\t\tWHEN median_number_of_deployment_days_per_week >= 3 THEN 'On-demand'\n\t\t\tWHEN median_number_of_deployment_days_per_week >= 1 THEN 'Between once per week and once per month'\n\t\t\tWHEN median_number_of_deployment_days_per_month >= 1 THEN 'Between once per month and once every 6 months'\n\t\t\tELSE 'Fewer than once per six months' END AS value\n\tFROM _median_number_of_deployment_days_per_week, _median_number_of_deployment_days_per_month\n),\n\n-- Metric 2: median change lead time\n_pr_stats as (\n-- get PRs' cycle time in the selected period\n\tSELECT\n\t\tdistinct pr.id,\n\t\tprm.pr_cycle_time\n\tFROM\n\t\tpull_requests pr\n\t\tjoin project_pr_metrics prm on prm.id = pr.id\n\t\tjoin project_mapping pm on pr.base_repo_id = pm.row_id\n\tWHERE\n\t  pm.project_name in ($project) \n\t\tand pr.merged_date is not null\n\t\tand prm.pr_cycle_time is not null\n\t\tand $__timeFilter(pr.merged_date)\n),\n\n_median_change_lead_time_ranks as(\n\tSELECT *, percent_rank() over(order by pr_cycle_time) as ranks\n\tFROM _pr_stats\n),\n\n_median_change_lead_time as(\n-- use median PR cycle time as the median change lead time\n\tSELECT max(pr_cycle_time) as median_change_lead_time\n\tFROM _median_change_lead_time_ranks\n\tWHERE ranks <= 0.5\n),\n\n_metric_change_lead_time as (\n\tSELECT \n\t\t'Lead time for changes' as metric,\n\t\tCASE\n\t\t\tWHEN median_change_lead_time < 60 then \"Less than one hour\"\n\t\t\tWHEN median_change_lead_time < 7 * 24 * 60 then \"Less than one week\"\n\t\t\tWHEN median_change_lead_time < 180 * 24 * 60 then \"Between one week and six months\"\n\t\t\tELSE \"More than six months\"\n\t\t\tEND as value\nFROM _median_change_lead_time\n),\n\n\n-- Metric 3: Median time to restore service \n_incidents as (\n-- get the incidents created within the selected time period in the top-right corner\n\tSELECT\n\t  distinct i.id,\n\t\tcast(lead_time_minutes as signed) as lead_time_minutes\n\tFROM\n\t\tissues i\n\t  join board_issues bi on i.id = bi.issue_id\n\t  join boards b on bi.board_id = b.id\n\t  join project_mapping pm on b.id = pm.row_id\n\tWHERE\n\t  pm.project_name in ($project)\n\t\tand i.type = 'INCIDENT'\n\t\tand $__timeFilter(i.created_date)\n),\n\n_median_mttr_ranks as(\n\tSELECT *, percent_rank() over(order by lead_time_minutes) as ranks\n\tFROM _incidents\n),\n\n_median_mttr as(\n\tSELECT max(lead_time_minutes) as med_time_to_resolve\n\tFROM _median_mttr_ranks\n\tWHERE ranks <= 0.5\n),\n\n\n_metric_mttr as (\n\tSELECT \n\t\t'Time to restore service' as metric,\n\t\tcase\n\t\t\tWHEN med_time_to_resolve < 60  then \"Less than one hour\"\n\t\t\tWHEN med_time_to_resolve < 24 * 60 then \"Less than one Day\"\n\t\t\tWHEN med_time_to_resolve < 7 * 24 * 60  then \"Between one day and one week\"\n\t\t\tELSE \"More than one week\"\n\t\t\tEND as value\n\tFROM \n\t\t_median_mttr\n),\n\n-- Metric 4: change failure rate\n_deployment_count as (\n-- get the deployment deployed within the selected time period in the top-right corner\n\tSELECT\n\t\tCOUNT(distinct id) AS deployment_count\n\tFROM\n\t\tcicd_tasks ct\n\t\tjoin project_mapping pm on ct.cicd_scope_id = pm.row_id\n\tWHERE\n\t  pm.project_name in ($project)\n\t\tand type = 'DEPLOYMENT'\n\t\tand result = 'SUCCESS'\n\t\tand environment = 'PRODUCTION'\n    and $__timeFilter(finished_date)\n),\n\n_incident_count as (\n-- get the incident created within the selected time period in the top-right corner\n\tSELECT\n\t\tCOUNT(distinct i.id) AS incident_count\n\tFROM\n\t\tissues i\n\t  join board_issues bi on i.id = bi.issue_id\n\t  join boards b on bi.board_id = b.id\n\t  join project_mapping pm on b.id = pm.row_id\n\tWHERE\n\t  pm.project_name in ($project) \n\t  and i.type = 'INCIDENT'\n\t\tand $__timeFilter(i.created_date)\n),\n\n_metric_cfr as (\n\tSELECT \n\t\t'Change failure rate' as metric,\n\t\tcase \n\t\t\twhen deployment_count is null or incident_count is null or deployment_count = 0 then NULL \n\t\t\twhen incident_count/deployment_count <= .15 then \"0-15%\"\n\t\t\twhen incident_count/deployment_count <= .20 then \"16%-20%\"\n\t\t\twhen incident_count/deployment_count <= .30 then \"21%-30%\"\n\t\t\telse \"> 30%\"\n\t\t\tend as value\n\tFROM \n\t\t_deployment_count, _incident_count\n),\n\n_final_results as (\t\n\tSELECT distinct db.id,db.metric,db.low,db.medium,db.high,db.elite,m1.metric as _metric, m1.value FROM dora_benchmarks db\n\tleft join _metric_deployment_frequency m1 on db.metric = m1.metric\n\tWHERE m1.metric is not null\n\t\n\tunion \n\t\n\tSELECT distinct db.id,db.metric,db.low,db.medium,db.high,db.elite,m2.metric as _metric, m2.value FROM dora_benchmarks db\n\tleft join _metric_change_lead_time m2 on db.metric = m2.metric\n\tWHERE m2.metric is not null\n\t\n\tunion \n\t\n\tSELECT distinct db.id,db.metric,db.low,db.medium,db.high,db.elite,m3.metric as _metric, m3.value FROM dora_benchmarks db\n\tleft join _metric_mttr m3 on db.metric = m3.metric\n\tWHERE m3.metric is not null\n\t\n\tunion \n\t\n\tSELECT distinct db.id,db.metric,db.low,db.medium,db.high,db.elite,m4.metric as _metric, m4.value FROM dora_benchmarks db\n\tleft join _metric_cfr m4 on db.metric = m4.metric\n\tWHERE m4.metric is not null\n)\n\n\nSELECT \n\tmetric,\n\tcase when low = value then low else null end as low,\n\tcase when medium = value then medium else null end as medium,\n\tcase when high = value then high else null end as high,\n\tcase when elite = value then elite else null end as elite\nFROM _final_results\nORDER BY id",
+              "refId": "A",
+              "select": [
+                [
+                  {
+                    "params": [
+                      "id"
+                    ],
+                    "type": "column"
+                  }
+                ]
+              ],
+              "table": "_devlake_blueprints",
+              "timeColumn": "created_at",
+              "timeColumnType": "timestamp",
+              "where": [
+                {
+                  "name": "$__timeFilter",
+                  "params": [],
+                  "type": "macro"
+                }
+              ]
+            }
+          ],
+          "title": "Overall DORA Metrics",
+          "type": "table"
+        }
+      ],
+      "title": "Overall DORA Metrics",
+      "type": "row"
+    },
+    {
+      "collapsed": false,
+      "datasource": null,
+      "gridPos": {
+        "h": 1,
+        "w": 24,
+        "x": 0,
+        "y": 1
+      },
+      "id": 20,
+      "panels": [],
+      "title": "Deployment Frequency",
+      "type": "row"
+    },
+    {
+      "datasource": "mysql",
+      "description": "",
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "fixedColor": "rgba(255, 255, 255, 1)",
+            "mode": "fixed"
+          },
+          "custom": {
+            "align": "left",
+            "displayMode": "color-background-solid"
+          },
+          "mappings": [
+            {
+              "options": {
+                "DEPLOYMENT": {
+                  "color": "green",
+                  "index": 1
+                },
+                "PRODUCTION": {
+                  "color": "green",
+                  "index": 0
+                },
+                "SUCCESS": {
+                  "color": "green",
+                  "index": 2
+                },
+                "this project": {
+                  "color": "green",
+                  "index": 3
+                }
+              },
+              "type": "value"
+            }
+          ],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              }
+            ]
+          }
+        },
+        "overrides": [
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "type"
+            },
+            "properties": [
+              {
+                "id": "custom.width",
+                "value": 103
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "result"
+            },
+            "properties": [
+              {
+                "id": "custom.width",
+                "value": 107
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "environment"
+            },
+            "properties": [
+              {
+                "id": "custom.width",
+                "value": 132
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "count(1)"
+            },
+            "properties": [
+              {
+                "id": "custom.width",
+                "value": 96
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "IF(pm.project_name in ('all_6'),'this project',pm.project_name)"
+            },
+            "properties": [
+              {
+                "id": "custom.width",
+                "value": 104
+              }
+            ]
+          }
+        ]
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 0,
+        "y": 2
+      },
+      "id": 16,
+      "options": {
+        "showHeader": true,
+        "sortBy": []
+      },
+      "pluginVersion": "8.0.6",
+      "targets": [
+        {
+          "format": "table",
+          "group": [],
+          "metricColumn": "none",
+          "queryType": "randomWalk",
+          "rawQuery": true,
+          "rawSql": "SELECT\n\tct._raw_data_table,IF(pm.project_name in ($project),'this project',pm.project_name) as project_name,`type`,result,environment,count(1)\nFROM cicd_tasks ct\nLEFT join project_mapping pm on ct.cicd_scope_id = pm.row_id\nGROUP BY pm.project_name, ct._raw_data_table,`type`,result,environment",
+          "refId": "A",
+          "select": [
+            [
+              {
+                "params": [
+                  "id"
+                ],
+                "type": "column"
+              }
+            ]
+          ],
+          "table": "_devlake_tasks",
+          "timeColumn": "created_at",
+          "timeColumnType": "timestamp",
+          "where": [
+            {
+              "name": "$__timeFilter",
+              "params": [],
+              "type": "macro"
+            }
+          ]
+        }
+      ],
+      "title": "Step 1. all cicd_tasks (the rows with 4 green columns will be used in next table)",
+      "type": "table"
+    },
+    {
+      "datasource": "mysql",
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "thresholds"
+          },
+          "custom": {
+            "align": "auto",
+            "displayMode": "auto"
+          },
+          "mappings": [
+            {
+              "options": {
+                "Between once per month and once every 6 months": {
+                  "color": "yellow",
+                  "index": 1
+                },
+                "Between once per week and once per month": {
+                  "color": "green",
+                  "index": 2
+                },
+                "Fewer than once per six months": {
+                  "color": "red",
+                  "index": 0
+                },
+                "On-demand": {
+                  "color": "purple",
+                  "index": 3
+                }
+              },
+              "type": "value"
+            }
+          ],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              }
+            ]
+          }
+        },
+        "overrides": [
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "day"
+            },
+            "properties": [
+              {
+                "id": "custom.width",
+                "value": null
+              }
+            ]
+          }
+        ]
+      },
+      "gridPos": {
+        "h": 5,
+        "w": 7,
+        "x": 12,
+        "y": 2
+      },
+      "id": 11,
+      "options": {
+        "showHeader": true,
+        "sortBy": []
+      },
+      "pluginVersion": "8.0.6",
+      "targets": [
+        {
+          "format": "table",
+          "group": [],
+          "metricColumn": "none",
+          "queryType": "randomWalk",
+          "rawQuery": true,
+          "rawSql": "SELECT\n\tdistinct DATE(finished_date) AS day,\n\tcount(1)\nFROM cicd_tasks ct\njoin project_mapping pm on ct.cicd_scope_id = pm.row_id\nWHERE\n  pm.project_name in ($project)\n\tand type = 'DEPLOYMENT'\n\tand result = 'SUCCESS'\n\tand environment = 'PRODUCTION'\nGROUP BY 1",
+          "refId": "A",
+          "select": [
+            [
+              {
+                "params": [
+                  "id"
+                ],
+                "type": "column"
+              }
+            ]
+          ],
+          "table": "_devlake_tasks",
+          "timeColumn": "created_at",
+          "timeColumnType": "timestamp",
+          "where": [
+            {
+              "name": "$__timeFilter",
+              "params": [],
+              "type": "macro"
+            }
+          ]
+        }
+      ],
+      "title": "Step 3. Deployment Checker for 「Deployment Frequency」",
+      "type": "table"
+    },
+    {
+      "datasource": "mysql",
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "thresholds"
+          },
+          "mappings": [
+            {
+              "options": {
+                "Between once per month and once every 6 months": {
+                  "color": "yellow",
+                  "index": 1
+                },
+                "Between once per week and once per month": {
+                  "color": "green",
+                  "index": 2
+                },
+                "Fewer than once per six months": {
+                  "color": "red",
+                  "index": 0
+                },
+                "On-demand": {
+                  "color": "purple",
+                  "index": 3
+                }
+              },
+              "type": "value"
+            }
+          ],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              }
+            ]
+          }
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 5,
+        "w": 5,
+        "x": 19,
+        "y": 2
+      },
+      "id": 15,
+      "options": {
+        "colorMode": "value",
+        "graphMode": "area",
+        "justifyMode": "auto",
+        "orientation": "auto",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "/^Deployment Frequency$/",
+          "values": false
+        },
+        "text": {},
+        "textMode": "auto"
+      },
+      "pluginVersion": "8.0.6",
+      "targets": [
+        {
+          "format": "table",
+          "group": [],
+          "metricColumn": "none",
+          "queryType": "randomWalk",
+          "rawQuery": true,
+          "rawSql": "-- Metric 1: Deployment Frequency\nwith last_few_calendar_months as(\n-- get the last few months within the selected time period in the top-right corner\n\tSELECT CAST((SYSDATE()-INTERVAL (H+T+U) DAY) AS date) day\n\tFROM ( SELECT 0 H\n\t\t\tUNION ALL SELECT 100 UNION ALL SELECT 200 UNION ALL SELECT 300\n\t\t) H CROSS JOIN ( SELECT 0 T\n\t\t\tUNION ALL SELECT  10 UNION ALL SELECT  20 UNION ALL SELECT  30\n\t\t\tUNION ALL SELECT  40 UNION ALL SELECT  50 UNION ALL SELECT  60\n\t\t\tUNION ALL SELECT  70 UNION ALL SELECT  80 UNION ALL SELECT  90\n\t\t) T CROSS JOIN ( SELECT 0 U\n\t\t\tUNION ALL SELECT   1 UNION ALL SELECT   2 UNION ALL SELECT   3\n\t\t\tUNION ALL SELECT   4 UNION ALL SELECT   5 UNION ALL SELECT   6\n\t\t\tUNION ALL SELECT   7 UNION ALL SELECT   8 UNION ALL SELECT   9\n\t\t) U\n\tWHERE\n\t\t(SYSDATE()-INTERVAL (H+T+U) DAY) > $__timeFrom()\n),\n\n_days_weeks_deploy as(\n\tSELECT\n\t\t\tdate(DATE_ADD(last_few_calendar_months.day, INTERVAL -WEEKDAY(last_few_calendar_months.day) DAY)) as week,\n\t\t\tMAX(if(deployments.day is not null, 1, 0)) as week_deployed,\n\t\t\tCOUNT(distinct deployments.day) as days_deployed\n\tFROM \n\t\tlast_few_calendar_months\n\t\tLEFT JOIN(\n\t\t\tSELECT\n\t\t\t\tdistinct DATE(finished_date) AS day,\n\t\t\t\tid\n\t\t\tFROM cicd_tasks ct\n\t\t\tjoin project_mapping pm on ct.cicd_scope_id = pm.row_id\n\t\t\tWHERE\n\t\t\t  pm.project_name in ($project)\n\t\t\t\tand type = 'DEPLOYMENT'\n\t\t\t\tand result = 'SUCCESS'\n\t\t\t\tand environment = 'PRODUCTION') deployments ON deployments.day = last_few_calendar_months.day\n\tGROUP BY week\n\t),\n\n_monthly_deploy as(\n\tSELECT\n\t\t\tdate(DATE_ADD(last_few_calendar_months.day, INTERVAL -DAY(last_few_calendar_months.day)+1 DAY)) as month,\n\t\t\tMAX(if(deployments.day is not null, 1, 0)) as months_deployed\n\tFROM \n\t\tlast_few_calendar_months\n\t\tLEFT JOIN(\n\t\t\tSELECT\n\t\t\t\tdistinct DATE(finished_date) AS day,\n\t\t\t\tid\n\t\t\tFROM cicd_tasks ct\n\t\t\tjoin project_mapping pm on ct.cicd_scope_id = pm.row_id\n\t\t\tWHERE\n\t\t\t  pm.project_name in ($project)\n\t\t\t\tand type = 'DEPLOYMENT'\n\t\t\t\tand result = 'SUCCESS'\n\t\t\t\tand environment = 'PRODUCTION') deployments ON deployments.day = last_few_calendar_months.day\n\tGROUP BY month\n\t),\n\n_median_number_of_deployment_days_per_week_ranks as(\n\tSELECT *, percent_rank() over(order by days_deployed) as ranks\n\tFROM _days_weeks_deploy\n),\n\n_median_number_of_deployment_days_per_week as(\n\tSELECT max(days_deployed) as median_number_of_deployment_days_per_week\n\tFROM _median_number_of_deployment_days_per_week_ranks\n\tWHERE ranks <= 0.5\n),\n\n_median_number_of_deployment_days_per_month_ranks as(\n\tSELECT *, percent_rank() over(order by months_deployed) as ranks\n\tFROM _monthly_deploy\n),\n\n_median_number_of_deployment_days_per_month as(\n\tSELECT max(months_deployed) as median_number_of_deployment_days_per_month\n\tFROM _median_number_of_deployment_days_per_month_ranks\n\tWHERE ranks <= 0.5\n)\n\nSELECT \n\tCASE  \n\t\tWHEN median_number_of_deployment_days_per_week >= 3 THEN 'On-demand'\n\t\tWHEN median_number_of_deployment_days_per_week >= 1 THEN 'Between once per week and once per month'\n\t\tWHEN median_number_of_deployment_days_per_month >= 1 THEN 'Between once per month and once every 6 months'\n\t\tELSE 'Fewer than once per six months' END AS 'Deployment Frequency'\nFROM _median_number_of_deployment_days_per_week, _median_number_of_deployment_days_per_month\n",
+          "refId": "A",
+          "select": [
+            [
+              {
+                "params": [
+                  "id"
+                ],
+                "type": "column"
+              }
+            ]
+          ],
+          "table": "_devlake_tasks",
+          "timeColumn": "created_at",
+          "timeColumnType": "timestamp",
+          "where": [
+            {
+              "name": "$__timeFilter",
+              "params": [],
+              "type": "macro"
+            }
+          ]
+        }
+      ],
+      "title": "Deployment Frequency",
+      "type": "stat"
+    },
+    {
+      "datasource": "mysql",
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "palette-classic"
+          },
+          "custom": {
+            "axisLabel": "",
+            "axisPlacement": "auto",
+            "axisSoftMin": 0,
+            "fillOpacity": 80,
+            "gradientMode": "none",
+            "hideFrom": {
+              "legend": false,
+              "tooltip": false,
+              "viz": false
+            },
+            "lineWidth": 1
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              },
+              {
+                "color": "red",
+                "value": 80
+              }
+            ]
+          }
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 12,
+        "y": 7
+      },
+      "id": 2,
+      "options": {
+        "barWidth": 0.6,
+        "groupWidth": 0.7,
+        "legend": {
+          "calcs": [],
+          "displayMode": "list",
+          "placement": "bottom"
+        },
+        "orientation": "auto",
+        "showValue": "auto",
+        "text": {},
+        "tooltip": {
+          "mode": "single"
+        }
+      },
+      "targets": [
+        {
+          "format": "table",
+          "group": [],
+          "metricColumn": "none",
+          "queryType": "randomWalk",
+          "rawQuery": true,
+          "rawSql": "-- Metric 1: Number of deployments per month\nwith _deployments as (\n-- get the deployment count each month\n\tSELECT\n\t\tdate_format(finished_date,'%y/%m') as month,\n\t\tCOUNT(distinct id) AS deployment_count\n\tFROM\n\t\tcicd_tasks ct\n\t\tjoin project_mapping pm on ct.cicd_scope_id = pm.row_id\n\tWHERE\n\t  pm.project_name in ($project)\n\t\tand type = 'DEPLOYMENT'\n\t\tand result = 'SUCCESS'\n\t\tand environment = 'PRODUCTION'\n\tGROUP BY 1\n),\n\n_calendar_months as(\n-- deal with the month with no deployments\n\tSELECT date_format(CAST((SYSDATE()-INTERVAL (month_index) MONTH) AS date), '%y/%m') as month\n\tFROM ( SELECT 0 month_index\n\t\t\tUNION ALL SELECT   1  UNION ALL SELECT   2 UNION ALL SELECT   3\n\t\t\tUNION ALL SELECT   4  UNION ALL SELECT   5 UNION ALL SELECT   6\n\t\t\tUNION ALL SELECT   7  UNION ALL SELECT   8 UNION ALL SELECT   9\n\t\t\tUNION ALL SELECT   10 UNION ALL SELECT  11\n\t\t) month_index\n\tWHERE (SYSDATE()-INTERVAL (month_index) MONTH) > SYSDATE()-INTERVAL 6 MONTH\t\n)\n\nSELECT \n\tcm.month, \n\tcase when d.deployment_count is null then 0 else d.deployment_count end as deployment_count\nFROM \n\t_calendar_months cm\n\tleft join _deployments d on cm.month = d.month\nORDER BY 1",
+          "refId": "A",
+          "select": [
+            [
+              {
+                "params": [
+                  "id"
+                ],
+                "type": "column"
+              }
+            ]
+          ],
+          "table": "_devlake_blueprints",
+          "timeColumn": "created_at",
+          "timeColumnType": "timestamp",
+          "where": [
+            {
+              "name": "$__timeFilter",
+              "params": [],
+              "type": "macro"
+            }
+          ]
+        }
+      ],
+      "title": "Number of deployments",
+      "type": "barchart"
+    },
+    {
+      "datasource": "mysql",
+      "description": "",
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "fixedColor": "rgba(255, 255, 255, 1)",
+            "mode": "fixed"
+          },
+          "custom": {
+            "align": "left",
+            "displayMode": "color-background-solid"
+          },
+          "mappings": [
+            {
+              "options": {
+                "DEPLOYMENT": {
+                  "color": "green",
+                  "index": 1
+                },
+                "PRODUCTION": {
+                  "color": "green",
+                  "index": 0
+                },
+                "SUCCESS": {
+                  "color": "green",
+                  "index": 2
+                }
+              },
+              "type": "value"
+            }
+          ],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              }
+            ]
+          }
+        },
+        "overrides": [
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "type"
+            },
+            "properties": [
+              {
+                "id": "custom.width",
+                "value": 112
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "result"
+            },
+            "properties": [
+              {
+                "id": "custom.width",
+                "value": 107
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "environment"
+            },
+            "properties": [
+              {
+                "id": "custom.width",
+                "value": 132
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "count(1)"
+            },
+            "properties": [
+              {
+                "id": "custom.width",
+                "value": 96
+              }
+            ]
+          }
+        ]
+      },
+      "gridPos": {
+        "h": 5,
+        "w": 12,
+        "x": 0,
+        "y": 10
+      },
+      "id": 29,
+      "options": {
+        "showHeader": true,
+        "sortBy": []
+      },
+      "pluginVersion": "8.0.6",
+      "targets": [
+        {
+          "format": "table",
+          "group": [],
+          "metricColumn": "none",
+          "queryType": "randomWalk",
+          "rawQuery": true,
+          "rawSql": "SELECT\n\tct._raw_data_table,`type`,result,environment,count(1)\nFROM cicd_tasks ct\njoin project_mapping pm on ct.cicd_scope_id = pm.row_id\nWHERE\n  pm.project_name in ($project)\n\tand type = 'DEPLOYMENT'\n\tand result = 'SUCCESS'\n\tand environment = 'PRODUCTION'\nGROUP BY ct._raw_data_table,`type`,result,environment",
+          "refId": "A",
+          "select": [
+            [
+              {
+                "params": [
+                  "id"
+                ],
+                "type": "column"
+              }
+            ]
+          ],
+          "table": "_devlake_tasks",
+          "timeColumn": "created_at",
+          "timeColumnType": "timestamp",
+          "where": [
+            {
+              "name": "$__timeFilter",
+              "params": [],
+              "type": "macro"
+            }
+          ]
+        }
+      ],
+      "title": "Step 2. cicd_tasks in this project",
+      "type": "table"
+    },
+    {
+      "collapsed": false,
+      "datasource": null,
+      "gridPos": {
+        "h": 1,
+        "w": 24,
+        "x": 0,
+        "y": 15
+      },
+      "id": 28,
+      "panels": [],
+      "title": "Median Lead Time for Changes",
+      "type": "row"
+    },
+    {
+      "datasource": "mysql",
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "fixedColor": "rgba(255, 254, 254, 1)",
+            "mode": "fixed"
+          },
+          "custom": {
+            "align": "auto",
+            "displayMode": "color-background"
+          },
+          "mappings": [
+            {
+              "options": {
+                "from": 1,
+                "result": {
+                  "color": "green",
+                  "index": 0
+                },
+                "to": 10000000
+              },
+              "type": "range"
+            }
+          ],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              }
+            ]
+          }
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 7,
+        "w": 12,
+        "x": 0,
+        "y": 16
+      },
+      "id": 12,
+      "options": {
+        "showHeader": true
+      },
+      "pluginVersion": "8.0.6",
+      "targets": [
+        {
+          "format": "table",
+          "group": [],
+          "metricColumn": "none",
+          "queryType": "randomWalk",
+          "rawQuery": true,
+          "rawSql": "SELECT\n\tpr._raw_data_table,count(1)\nFROM\n\tpull_requests pr \n-- \tjoin project_pr_metrics prm on prm.id = pr.id\n\tjoin project_mapping pm on pr.base_repo_id = pm.row_id AND `table`='repos'\nWHERE\n  pm.project_name in ($project)\n\tand pr.merged_date is not null\n-- \tand prm.pr_cycle_time is not null\n\tand $__timeFilter(pr.merged_date)\nGROUP BY pr._raw_data_table\n",
+          "refId": "A",
+          "select": [
+            [
+              {
+                "params": [
+                  "id"
+                ],
+                "type": "column"
+              }
+            ]
+          ],
+          "table": "_devlake_tasks",
+          "timeColumn": "created_at",
+          "timeColumnType": "timestamp",
+          "where": [
+            {
+              "name": "$__timeFilter",
+              "params": [],
+              "type": "macro"
+            }
+          ]
+        }
+      ],
+      "title": "Step 1. PR Checker for 「Median Lead Time for Changes」",
+      "type": "table"
+    },
+    {
+      "datasource": "mysql",
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "thresholds"
+          },
+          "mappings": [
+            {
+              "options": {
+                "Between one week and six months": {
+                  "color": "yellow",
+                  "index": 1
+                },
+                "Less than one hour": {
+                  "color": "purple",
+                  "index": 3
+                },
+                "Less than one week": {
+                  "color": "green",
+                  "index": 2
+                },
+                "More than six months": {
+                  "color": "red",
+                  "index": 0
+                }
+              },
+              "type": "value"
+            }
+          ],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              }
+            ]
+          }
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 5,
+        "w": 6,
+        "x": 15,
+        "y": 16
+      },
+      "id": 17,
+      "options": {
+        "colorMode": "value",
+        "graphMode": "area",
+        "justifyMode": "auto",
+        "orientation": "auto",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "/^median_change_lead_time$/",
+          "values": false
+        },
+        "text": {},
+        "textMode": "auto"
+      },
+      "pluginVersion": "8.0.6",
+      "targets": [
+        {
+          "format": "table",
+          "group": [],
+          "metricColumn": "none",
+          "queryType": "randomWalk",
+          "rawQuery": true,
+          "rawSql": "-- Metric 2: median change lead time\nwith _pr_stats as (\n-- get PRs' cycle time in the selected period\n\tSELECT\n\t\tdistinct pr.id,\n\t\tprm.pr_cycle_time\n\tFROM\n\t\tpull_requests pr \n\t\tjoin project_pr_metrics prm on prm.id = pr.id\n\t\tjoin project_mapping pm on pr.base_repo_id = pm.row_id\n\tWHERE\n\t  pm.project_name in ($project) \n\t\tand pr.merged_date is not null\n\t\tand prm.pr_cycle_time is not null\n\t\tand $__timeFilter(pr.merged_date)\n),\n\n_median_change_lead_time_ranks as(\n\tSELECT *, percent_rank() over(order by pr_cycle_time) as ranks\n\tFROM _pr_stats\n),\n\n_median_change_lead_time as(\n-- use median PR cycle time as the median change lead time\n\tSELECT max(pr_cycle_time) as median_change_lead_time\n\tFROM _median_change_lead_time_ranks\n\tWHERE ranks <= 0.5\n)\n\nSELECT \n  CASE\n    WHEN median_change_lead_time < 60 then \"Less than one hour\"\n    WHEN median_change_lead_time < 7 * 24 * 60 then \"Less than one week\"\n    WHEN median_change_lead_time < 180 * 24 * 60 then \"Between one week and six months\"\n    WHEN median_change_lead_time >= 180 * 24 * 60 then \"More than six months\"\n    ELSE \"N/A.Please check if you have collected deployments/incidents.\"\n    END as median_change_lead_time\nFROM _median_change_lead_time",
+          "refId": "A",
+          "select": [
+            [
+              {
+                "params": [
+                  "id"
+                ],
+                "type": "column"
+              }
+            ]
+          ],
+          "table": "_devlake_tasks",
+          "timeColumn": "created_at",
+          "timeColumnType": "timestamp",
+          "where": [
+            {
+              "name": "$__timeFilter",
+              "params": [],
+              "type": "macro"
+            }
+          ]
+        }
+      ],
+      "title": "Median Lead Time for Changes",
+      "type": "stat"
+    },
+    {
+      "datasource": "mysql",
+      "description": "",
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "palette-classic"
+          },
+          "custom": {
+            "axisLabel": "Hours",
+            "axisPlacement": "auto",
+            "axisSoftMin": 0,
+            "fillOpacity": 80,
+            "gradientMode": "none",
+            "hideFrom": {
+              "legend": false,
+              "tooltip": false,
+              "viz": false
+            },
+            "lineWidth": 1
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              }
+            ]
+          }
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 12,
+        "y": 21
+      },
+      "id": 6,
+      "options": {
+        "barWidth": 0.7,
+        "groupWidth": 0.7,
+        "legend": {
+          "calcs": [],
+          "displayMode": "list",
+          "placement": "bottom"
+        },
+        "orientation": "auto",
+        "showValue": "auto",
+        "text": {},
+        "tooltip": {
+          "mode": "single"
+        }
+      },
+      "pluginVersion": "8.0.6",
+      "targets": [
+        {
+          "format": "table",
+          "group": [],
+          "hide": false,
+          "metricColumn": "none",
+          "rawQuery": true,
+          "rawSql": "-- Metric 2: median change lead time per month\nwith _pr_stats as (\n-- get PRs' cycle lead time in each month\n\tSELECT\n\t\tdistinct pr.id,\n\t\tdate_format(pr.merged_date,'%y/%m') as month,\n\t\tprm.pr_cycle_time\n\tFROM\n\t\tpull_requests pr\n\t\tjoin project_pr_metrics prm on prm.id = pr.id\n\t\tjoin project_mapping pm on pr.base_repo_id = pm.row_id\n\tWHERE\n\t\tpr.merged_date is not null\n\t\tand prm.pr_cycle_time is not null\n\t\tand $__timeFilter(pr.merged_date)\n),\n\n_find_median_clt_each_month_ranks as(\n\tSELECT *, percent_rank() over(PARTITION BY month order by pr_cycle_time) as ranks\n\tFROM _pr_stats\n),\n\n_find_median_clt_each_month as(\n\tSELECT month, max(pr_cycle_time) as med_change_lead_time\n\tFROM _find_median_clt_each_month_ranks\n\tWHERE ranks <= 0.5\n\tgroup by month\n),\n\n_find_clt_rank_each_month as (\n\tSELECT\n\t\t*,\n\t\trank() over(PARTITION BY month ORDER BY med_change_lead_time) as _rank \n\tFROM\n\t\t_find_median_clt_each_month\n),\n\n_clt as (\n\tSELECT\n\t\tmonth,\n\t\tmed_change_lead_time\n\tfrom _find_clt_rank_each_month\n\tWHERE _rank = 1\n),\n\n_calendar_months as(\n-- to\tdeal with the month with no incidents\n\tSELECT date_format(CAST((SYSDATE()-INTERVAL (month_index) MONTH) AS date), '%y/%m') as month\n\tFROM ( SELECT 0 month_index\n\t\t\tUNION ALL SELECT   1  UNION ALL SELECT   2 UNION ALL SELECT   3\n\t\t\tUNION ALL SELECT   4  UNION ALL SELECT   5 UNION ALL SELECT   6\n\t\t\tUNION ALL SELECT   7  UNION ALL SELECT   8 UNION ALL SELECT   9\n\t\t\tUNION ALL SELECT   10 UNION ALL SELECT  11\n\t\t) month_index\n\tWHERE (SYSDATE()-INTERVAL (month_index) MONTH) > SYSDATE()-INTERVAL 6 MONTH\t\n)\n\nSELECT \n\tcm.month,\n\tcase \n\t\twhen _clt.med_change_lead_time is null then 0 \n\t\telse _clt.med_change_lead_time/60 end as med_change_lead_time_in_hour\nFROM \n\t_calendar_months cm\n\tleft join _clt on cm.month = _clt.month\nORDER BY 1",
+          "refId": "A",
+          "select": [
+            [
+              {
+                "params": [
+                  "id"
+                ],
+                "type": "column"
+              }
+            ]
+          ],
+          "table": "ae_projects",
+          "timeColumn": "ae_create_time",
+          "timeColumnType": "timestamp",
+          "where": [
+            {
+              "name": "$__timeFilter",
+              "params": [],
+              "type": "macro"
+            }
+          ]
+        }
+      ],
+      "timeFrom": null,
+      "timeShift": null,
+      "title": "Median Lead Time for Changes",
+      "type": "barchart"
+    },
+    {
+      "datasource": "mysql",
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "fixedColor": "rgba(255, 254, 254, 1)",
+            "mode": "fixed"
+          },
+          "custom": {
+            "align": "auto",
+            "displayMode": "color-background"
+          },
+          "mappings": [
+            {
+              "options": {
+                "from": 1,
+                "result": {
+                  "color": "green",
+                  "index": 0
+                },
+                "to": 10000000
+              },
+              "type": "range"
+            }
+          ],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              }
+            ]
+          }
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 6,
+        "w": 12,
+        "x": 0,
+        "y": 23
+      },
+      "id": 18,
+      "options": {
+        "showHeader": true
+      },
+      "pluginVersion": "8.0.6",
+      "targets": [
+        {
+          "format": "table",
+          "group": [],
+          "metricColumn": "none",
+          "queryType": "randomWalk",
+          "rawQuery": true,
+          "rawSql": "SELECT\n\tpr._raw_data_table,count(1)\nFROM\n\tpull_requests pr \n\tjoin project_pr_metrics prm on prm.id = pr.id\n\tjoin project_mapping pm on pr.base_repo_id = pm.row_id AND `table`='repos'\nWHERE\n  pm.project_name in ($project)\n\tand pr.merged_date is not null\n\tand prm.pr_cycle_time is not null\n\tand $__timeFilter(pr.merged_date)\nGROUP BY pr._raw_data_table\n",
+          "refId": "A",
+          "select": [
+            [
+              {
+                "params": [
+                  "id"
+                ],
+                "type": "column"
+              }
+            ]
+          ],
+          "table": "_devlake_tasks",
+          "timeColumn": "created_at",
+          "timeColumnType": "timestamp",
+          "where": [
+            {
+              "name": "$__timeFilter",
+              "params": [],
+              "type": "macro"
+            }
+          ]
+        }
+      ],
+      "title": "Step 2. pr_metrics Checker for 「Median Lead Time for Changes」",
+      "type": "table"
+    },
+    {
+      "collapsed": false,
+      "datasource": null,
+      "gridPos": {
+        "h": 1,
+        "w": 24,
+        "x": 0,
+        "y": 29
+      },
+      "id": 26,
+      "panels": [],
+      "title": "Change Failure Rate & Median Time to Restore Service",
+      "type": "row"
+    },
+    {
+      "datasource": "mysql",
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "fixedColor": "rgba(255, 255, 255, 1)",
+            "mode": "fixed"
+          },
+          "custom": {
+            "align": "auto",
+            "displayMode": "color-background"
+          },
+          "mappings": [
+            {
+              "options": {
+                "INCIDENT": {
+                  "color": "green",
+                  "index": 0
+                },
+                "this project": {
+                  "color": "green",
+                  "index": 1
+                }
+              },
+              "type": "value"
+            }
+          ],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              }
+            ]
+          }
+        },
+        "overrides": [
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "type"
+            },
+            "properties": [
+              {
+                "id": "custom.width",
+                "value": 122
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "project_name"
+            },
+            "properties": [
+              {
+                "id": "custom.width",
+                "value": 119
+              }
+            ]
+          }
+        ]
+      },
+      "gridPos": {
+        "h": 7,
+        "w": 12,
+        "x": 0,
+        "y": 30
+      },
+      "id": 31,
+      "options": {
+        "showHeader": true,
+        "sortBy": []
+      },
+      "pluginVersion": "8.0.6",
+      "targets": [
+        {
+          "format": "table",
+          "group": [],
+          "metricColumn": "none",
+          "queryType": "randomWalk",
+          "rawQuery": true,
+          "rawSql": "-- get the incident created within the selected time period in the top-right corner\nSELECT\n\ti._raw_data_table, IF(pm.project_name in ($project),'this project',pm.project_name) as project_name,i.type,count(1)\nFROM\n\tissues i\n  join board_issues bi on i.id = bi.issue_id\n  join boards b on bi.board_id = b.id\n  join project_mapping pm on b.id = pm.row_id\nWHERE\n  pm.project_name in ($project)\n-- \tand i.type = 'INCIDENT'\n\tand $__timeFilter(i.created_date)\nGROUP BY i._raw_data_table, pm.project_name, i.type",
+          "refId": "A",
+          "select": [
+            [
+              {
+                "params": [
+                  "id"
+                ],
+                "type": "column"
+              }
+            ]
+          ],
+          "table": "_devlake_tasks",
+          "timeColumn": "created_at",
+          "timeColumnType": "timestamp",
+          "where": [
+            {
+              "name": "$__timeFilter",
+              "params": [],
+              "type": "macro"
+            }
+          ]
+        }
+      ],
+      "title": "Step 1. all issue (Change Failure Rate)",
+      "type": "table"
+    },
+    {
+      "datasource": "mysql",
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "thresholds"
+          },
+          "mappings": [
+            {
+              "options": {
+                "0-15%": {
+                  "color": "purple",
+                  "index": 3
+                },
+                "16%-20%": {
+                  "color": "green",
+                  "index": 2
+                },
+                "21%-30%": {
+                  "color": "yellow",
+                  "index": 1
+                },
+                "> 30%": {
+                  "color": "red",
+                  "index": 0
+                }
+              },
+              "type": "value"
+            }
+          ],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              }
+            ]
+          }
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 5,
+        "w": 6,
+        "x": 12,
+        "y": 30
+      },
+      "id": 30,
+      "options": {
+        "colorMode": "value",
+        "graphMode": "area",
+        "justifyMode": "auto",
+        "orientation": "auto",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "/^change_failure_rate$/",
+          "values": false
+        },
+        "text": {},
+        "textMode": "auto"
+      },
+      "pluginVersion": "8.0.6",
+      "targets": [
+        {
+          "format": "table",
+          "group": [],
+          "metricColumn": "none",
+          "queryType": "randomWalk",
+          "rawQuery": true,
+          "rawSql": "-- Metric 4: change failure rate\nwith _deployment_count as (\n-- get the deployment deployed within the selected time period in the top-right corner\n\tSELECT\n\t\tCOUNT(distinct id) AS deployment_count\n\tFROM\n\t\tcicd_tasks ct\n\t\tjoin project_mapping pm on ct.cicd_scope_id = pm.row_id\n\tWHERE\n\t  pm.project_name in ($project)\n\t\tand type = 'DEPLOYMENT'\n\t\tand result = 'SUCCESS'\n\t\tand environment = 'PRODUCTION'\n    and $__timeFilter(finished_date)\n),\n\n_incident_count as (\n-- get the incident created within the selected time period in the top-right corner\n\tSELECT\n\t\tCOUNT(distinct i.id) AS incident_count\n\tFROM\n\t\tissues i\n\t  join board_issues bi on i.id = bi.issue_id\n\t  join boards b on bi.board_id = b.id\n\t  join project_mapping pm on b.id = pm.row_id\n\tWHERE\n\t  pm.project_name in ($project)\n\t\tand i.type = 'INCIDENT'\n\t\tand $__timeFilter(i.created_date)\n)\n\nSELECT \n\tcase \n\t\twhen deployment_count is null or incident_count is null or deployment_count = 0 then NULL \n\t\twhen incident_count/deployment_count <= .15 then \"0-15%\"\n\t\twhen incident_count/deployment_count <= .20 then \"16%-20%\"\n\t\twhen incident_count/deployment_count <= .30 then \"21%-30%\"\n\t\telse \"> 30%\"\n\t\tend as change_failure_rate\nFROM \n\t_deployment_count, _incident_count",
+          "refId": "A",
+          "select": [
+            [
+              {
+                "params": [
+                  "id"
+                ],
+                "type": "column"
+              }
+            ]
+          ],
+          "table": "_devlake_tasks",
+          "timeColumn": "created_at",
+          "timeColumnType": "timestamp",
+          "where": [
+            {
+              "name": "$__timeFilter",
+              "params": [],
+              "type": "macro"
+            }
+          ]
+        }
+      ],
+      "title": "Change Failure Rate",
+      "type": "stat"
+    },
+    {
+      "datasource": "mysql",
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "thresholds"
+          },
+          "mappings": [
+            {
+              "options": {
+                "Between one day and one week": {
+                  "color": "yellow",
+                  "index": 1
+                },
+                "Less than one day": {
+                  "color": "green",
+                  "index": 2
+                },
+                "Less than one hour": {
+                  "color": "purple",
+                  "index": 3
+                },
+                "More than one week": {
+                  "color": "red",
+                  "index": 0
+                }
+              },
+              "type": "value"
+            }
+          ],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              },
+              {
+                "color": "red",
+                "value": 80
+              }
+            ]
+          }
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 5,
+        "w": 6,
+        "x": 18,
+        "y": 30
+      },
+      "id": 32,
+      "options": {
+        "colorMode": "value",
+        "graphMode": "area",
+        "justifyMode": "auto",
+        "orientation": "auto",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "/^med_time_to_resolve$/",
+          "values": false
+        },
+        "text": {},
+        "textMode": "auto"
+      },
+      "pluginVersion": "8.0.6",
+      "targets": [
+        {
+          "format": "table",
+          "group": [],
+          "metricColumn": "none",
+          "queryType": "randomWalk",
+          "rawQuery": true,
+          "rawSql": "-- Metric 3: Median time to restore service \nwith _incidents as (\n-- get the incidents created within the selected time period in the top-right corner\n\tSELECT\n\t  distinct i.id,\n\t\tcast(lead_time_minutes as signed) as lead_time_minutes\n\tFROM\n\t\tissues i\n\t  join board_issues bi on i.id = bi.issue_id\n\t  join boards b on bi.board_id = b.id\n\t  join project_mapping pm on b.id = pm.row_id\n\tWHERE\n\t  pm.project_name in ($project)\n\t\tand i.type = 'INCIDENT'\n\t\tand $__timeFilter(i.created_date)\n),\n\n_median_mttr_ranks as(\n\tSELECT *, percent_rank() over(order by lead_time_minutes) as ranks\n\tFROM _incidents\n),\n\n_median_mttr as(\n\tSELECT max(lead_time_minutes) as med_time_to_resolve\n\tFROM _median_mttr_ranks\n\tWHERE ranks <= 0.5\n)\n\nSELECT \n\tcase\n\t\tWHEN med_time_to_resolve < 60  then \"Less than one hour\"\n    WHEN med_time_to_resolve < 24 * 60 then \"Less than one Day\"\n    WHEN med_time_to_resolve < 7 * 24 * 60  then \"Between one day and one week\"\n    WHEN med_time_to_resolve >= 7 * 24 * 60 then \"More than one week\"\n    ELSE \"N/A.Please check if you have collected deployments/incidents.\"\n    END as med_time_to_resolve\nFROM \n\t_median_mttr",
+          "refId": "A",
+          "select": [
+            [
+              {
+                "params": [
+                  "id"
+                ],
+                "type": "column"
+              }
+            ]
+          ],
+          "table": "_devlake_tasks",
+          "timeColumn": "created_at",
+          "timeColumnType": "timestamp",
+          "where": [
+            {
+              "name": "$__timeFilter",
+              "params": [],
+              "type": "macro"
+            }
+          ]
+        }
+      ],
+      "title": "Median Time to Restore Service",
+      "type": "stat"
+    },
+    {
+      "datasource": "mysql",
+      "description": "",
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "palette-classic"
+          },
+          "custom": {
+            "axisLabel": "",
+            "axisPlacement": "auto",
+            "axisSoftMin": 0,
+            "fillOpacity": 80,
+            "gradientMode": "none",
+            "hideFrom": {
+              "legend": false,
+              "tooltip": false,
+              "viz": false
+            },
+            "lineWidth": 1
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              },
+              {
+                "color": "red",
+                "value": 80
+              }
+            ]
+          },
+          "unit": "percentunit"
+        },
+        "overrides": [
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "change_failure_rate"
+            },
+            "properties": [
+              {
+                "id": "color",
+                "value": {
+                  "fixedColor": "blue",
+                  "mode": "fixed"
+                }
+              }
+            ]
+          }
+        ]
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 12,
+        "y": 35
+      },
+      "id": 5,
+      "options": {
+        "barWidth": 0.6,
+        "groupWidth": 0.7,
+        "legend": {
+          "calcs": [],
+          "displayMode": "list",
+          "placement": "bottom"
+        },
+        "orientation": "auto",
+        "showValue": "auto",
+        "text": {},
+        "tooltip": {
+          "mode": "single"
+        }
+      },
+      "pluginVersion": "8.0.6",
+      "targets": [
+        {
+          "format": "table",
+          "group": [],
+          "hide": false,
+          "metricColumn": "none",
+          "rawQuery": true,
+          "rawSql": "with _deployments as (\n-- get the deployment count each month\n\tSELECT\n\t\tdate_format(finished_date,'%y/%m') as month,\n\t\tCOUNT(distinct id) AS deployment_count\n\tFROM\n\t\tcicd_tasks ct\n\t\tjoin project_mapping pm on ct.cicd_scope_id = pm.row_id\n\tWHERE\n\t  pm.project_name in ($project)\n\t\tand type = 'DEPLOYMENT'\n\t\tand result = 'SUCCESS'\n\t\tand environment = 'PRODUCTION'\n\tGROUP BY 1\n),\n\n_incidents as (\n-- get the incident count each month\n\tSELECT\n\t\tdate_format(i.created_date,'%y/%m') as month,\n\t\tCOUNT(distinct i.id) AS incident_count\n\tFROM\n\t\tissues  i\n\t  join board_issues bi on i.id = bi.issue_id\n\t  join boards b on bi.board_id = b.id\n\t  join project_mapping pm on b.id = pm.row_id\n\tWHERE\n\t  pm.project_name in ($project) and\n\t\ti.type = 'INCIDENT'\n\tGROUP BY 1\n),\n\n_calendar_months as(\n-- deal with the month with no incidents\n\tSELECT date_format(CAST((SYSDATE()-INTERVAL (month_index) MONTH) AS date), '%y/%m') as month\n\tFROM ( SELECT 0 month_index\n\t\t\tUNION ALL SELECT   1  UNION ALL SELECT   2 UNION ALL SELECT   3\n\t\t\tUNION ALL SELECT   4  UNION ALL SELECT   5 UNION ALL SELECT   6\n\t\t\tUNION ALL SELECT   7  UNION ALL SELECT   8 UNION ALL SELECT   9\n\t\t\tUNION ALL SELECT   10 UNION ALL SELECT  11\n\t\t) month_index\n\tWHERE (SYSDATE()-INTERVAL (month_index) MONTH) > SYSDATE()-INTERVAL 6 MONTH\t\n)\n\nSELECT \n\tcm.month,\n\tcase \n\t\twhen d.deployment_count is null or i.incident_count is null then 0 \n\t\telse i.incident_count/d.deployment_count end as change_failure_rate\nFROM \n\t_calendar_months cm\n\tleft join _incidents i on cm.month = i.month\n\tleft join _deployments d on cm.month = d.month\nORDER BY 1",
+          "refId": "A",
+          "select": [
+            [
+              {
+                "params": [
+                  "id"
+                ],
+                "type": "column"
+              }
+            ]
+          ],
+          "table": "ae_projects",
+          "timeColumn": "ae_create_time",
+          "timeColumnType": "timestamp",
+          "where": [
+            {
+              "name": "$__timeFilter",
+              "params": [],
+              "type": "macro"
+            }
+          ]
+        }
+      ],
+      "timeFrom": null,
+      "timeShift": null,
+      "title": "Change Failure Rate",
+      "type": "barchart"
+    },
+    {
+      "datasource": "mysql",
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "fixedColor": "rgba(255, 255, 255, 1)",
+            "mode": "fixed"
+          },
+          "custom": {
+            "align": "auto",
+            "displayMode": "color-background"
+          },
+          "mappings": [
+            {
+              "options": {
+                "INCIDENT": {
+                  "color": "green",
+                  "index": 0
+                },
+                "this project": {
+                  "color": "green",
+                  "index": 1
+                }
+              },
+              "type": "value"
+            }
+          ],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              }
+            ]
+          }
+        },
+        "overrides": [
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "type"
+            },
+            "properties": [
+              {
+                "id": "custom.width",
+                "value": 122
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "project_name"
+            },
+            "properties": [
+              {
+                "id": "custom.width",
+                "value": 119
+              }
+            ]
+          }
+        ]
+      },
+      "gridPos": {
+        "h": 7,
+        "w": 12,
+        "x": 0,
+        "y": 37
+      },
+      "id": 14,
+      "options": {
+        "showHeader": true,
+        "sortBy": []
+      },
+      "pluginVersion": "8.0.6",
+      "targets": [
+        {
+          "format": "table",
+          "group": [],
+          "metricColumn": "none",
+          "queryType": "randomWalk",
+          "rawQuery": true,
+          "rawSql": "-- get the incident created within the selected time period in the top-right corner\nSELECT\n\ti._raw_data_table, IF(pm.project_name in ($project),'this project',pm.project_name) as project_name,i.type, count(1)\nFROM\n\tissues i\n  join board_issues bi on i.id = bi.issue_id\n  join boards b on bi.board_id = b.id\n  join project_mapping pm on b.id = pm.row_id\nWHERE\n  pm.project_name in ($project)\n\tand i.type = 'INCIDENT'\n\tand $__timeFilter(i.created_date)\nGROUP BY i._raw_data_table, pm.project_name, i.type",
+          "refId": "A",
+          "select": [
+            [
+              {
+                "params": [
+                  "id"
+                ],
+                "type": "column"
+              }
+            ]
+          ],
+          "table": "_devlake_tasks",
+          "timeColumn": "created_at",
+          "timeColumnType": "timestamp",
+          "where": [
+            {
+              "name": "$__timeFilter",
+              "params": [],
+              "type": "macro"
+            }
+          ]
+        }
+      ],
+      "title": "Step 2. issue Checker (Change Failure Rate)",
+      "type": "table"
+    },
+    {
+      "datasource": "mysql",
+      "description": "",
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "palette-classic"
+          },
+          "custom": {
+            "axisLabel": "Hours",
+            "axisPlacement": "auto",
+            "axisSoftMin": 0,
+            "fillOpacity": 80,
+            "gradientMode": "none",
+            "hideFrom": {
+              "legend": false,
+              "tooltip": false,
+              "viz": false
+            },
+            "lineWidth": 1
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              },
+              {
+                "color": "red",
+                "value": 80
+              }
+            ]
+          },
+          "unit": "none"
+        },
+        "overrides": [
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "med_time_to_resolve_in_hour"
+            },
+            "properties": [
+              {
+                "id": "color",
+                "value": {
+                  "fixedColor": "blue",
+                  "mode": "fixed"
+                }
+              }
+            ]
+          }
+        ]
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 12,
+        "y": 43
+      },
+      "id": 9,
+      "options": {
+        "barWidth": 0.6,
+        "groupWidth": 0.7,
+        "legend": {
+          "calcs": [],
+          "displayMode": "list",
+          "placement": "bottom"
+        },
+        "orientation": "auto",
+        "showValue": "auto",
+        "text": {},
+        "tooltip": {
+          "mode": "single"
+        }
+      },
+      "pluginVersion": "8.0.6",
+      "targets": [
+        {
+          "format": "table",
+          "group": [],
+          "hide": false,
+          "metricColumn": "none",
+          "rawQuery": true,
+          "rawSql": "-- Metric 3: median time to restore service - MTTR\nwith _incidents as (\n-- get the incident count each month\n\tSELECT\n\t  distinct i.id,\n\t\tdate_format(i.created_date,'%y/%m') as month,\n\t\tcast(lead_time_minutes as signed) as lead_time_minutes\n\tFROM\n\t\tissues i\n\t  join board_issues bi on i.id = bi.issue_id\n\t  join boards b on bi.board_id = b.id\n\t  join project_mapping pm on b.id = pm.row_id\n\tWHERE\n\t  pm.project_name in ($project)\n\t\tand i.type = 'INCIDENT'\n\t\tand i.lead_time_minutes is not null\n),\n\n_find_median_mttr_each_month_ranks as(\n\tSELECT *, percent_rank() over(PARTITION BY month order by lead_time_minutes) as ranks\n\tFROM _incidents\n),\n\n_find_median_mttr_each_month as(\n\tSELECT month, max(lead_time_minutes) as lead_time_minutes\n\tFROM _find_median_mttr_each_month_ranks\n\tWHERE ranks <= 0.5\n\tGROUP BY month\n),\n\n_find_mttr_rank_each_month as (\n\tSELECT\n\t\t*,\n\t\trank() over(PARTITION BY month ORDER BY lead_time_minutes) as _rank \n\tFROM\n\t\t_find_median_mttr_each_month\n),\n\n_mttr as (\n\tSELECT\n\t\tmonth,\n\t\tlead_time_minutes as med_time_to_resolve\n\tfrom _find_mttr_rank_each_month\n\tWHERE _rank = 1\n),\n\n_calendar_months as(\n-- deal with the month with no incidents\n\tSELECT date_format(CAST((SYSDATE()-INTERVAL (month_index) MONTH) AS date), '%y/%m') as month\n\tFROM ( SELECT 0 month_index\n\t\t\tUNION ALL SELECT   1  UNION ALL SELECT   2 UNION ALL SELECT   3\n\t\t\tUNION ALL SELECT   4  UNION ALL SELECT   5 UNION ALL SELECT   6\n\t\t\tUNION ALL SELECT   7  UNION ALL SELECT   8 UNION ALL SELECT   9\n\t\t\tUNION ALL SELECT   10 UNION ALL SELECT  11\n\t\t) month_index\n\tWHERE (SYSDATE()-INTERVAL (month_index) MONTH) > SYSDATE()-INTERVAL 6 MONTH\t\n)\n\nSELECT \n\tcm.month,\n\tcase \n\t\twhen m.med_time_to_resolve is null then 0 \n\t\telse m.med_time_to_resolve/60 end as med_time_to_resolve_in_hour\nFROM \n\t_calendar_months cm\n\tleft join _mttr m on cm.month = m.month\nORDER BY 1",
+          "refId": "A",
+          "select": [
+            [
+              {
+                "params": [
+                  "id"
+                ],
+                "type": "column"
+              }
+            ]
+          ],
+          "table": "ae_projects",
+          "timeColumn": "ae_create_time",
+          "timeColumnType": "timestamp",
+          "where": [
+            {
+              "name": "$__timeFilter",
+              "params": [],
+              "type": "macro"
+            }
+          ]
+        }
+      ],
+      "timeFrom": null,
+      "timeShift": null,
+      "title": "Median Time to Restore Service",
+      "type": "barchart"
+    }
+  ],
+  "refresh": "",
+  "schemaVersion": 30,
+  "style": "dark",
+  "tags": [],
+  "templating": {
+    "list": [
+      {
+        "allValue": null,
+        "current": {
+          "selected": false,
+          "text": [
+            "all_6"
+          ],
+          "value": [
+            "all_6"
+          ]
+        },
+        "datasource": "mysql",
+        "definition": "select distinct name from projects",
+        "description": null,
+        "error": null,
+        "hide": 0,
+        "includeAll": true,
+        "label": "Project",
+        "multi": true,
+        "name": "project",
+        "options": [],
+        "query": "select distinct name from projects",
+        "refresh": 1,
+        "regex": "",
+        "skipUrlSync": false,
+        "sort": 0,
+        "type": "query"
+      }
+    ]
+  },
+  "time": {
+    "from": "now-6M",
+    "to": "now"
+  },
+  "timepicker": {},
+  "timezone": "",
+  "title": "DORA Flow",
+  "uid": "KGkUnV-Vz",
+  "version": 15
+}
