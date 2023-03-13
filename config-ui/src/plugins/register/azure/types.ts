@@ -16,6 +16,8 @@
  *
  */
 
-export * from './config';
-export * from './data-scope';
-export * from './transformation';
+export type AzureScopeType = {
+  connectionId: ID;
+  azureId: ID;
+  name: string;
+};

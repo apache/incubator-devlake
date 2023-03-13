@@ -29,6 +29,7 @@ import { JiraDataScope } from '@/plugins/register/jira';
 import { GitLabDataScope } from '@/plugins/register/gitlab';
 import { JenkinsDataScope } from '@/plugins/register/jenkins';
 import { BitbucketDataScope } from '@/plugins/register/bitbucket';
+import { AzureDataScope } from '@/plugins/register/azure';
 import { SonarQubeDataScope } from '@/plugins/register/sonarqube';
 import { PagerDutyDataScope } from '@/plugins/register/pagerduty';
 import { ZentaoDataScope } from '@/plugins/register/zentao';
@@ -142,6 +143,10 @@ export const DataScopeForm = ({
 
           {plugin === 'bitbucket' && (
             <BitbucketDataScope connectionId={connectionId} selectedItems={scope} onChangeItems={setScope} />
+          )}
+
+          {plugin === 'azuredevops' && (
+            <AzureDataScope connectionId={connectionId} selectedItems={scope} onChangeItems={setScope} />
           )}
 
           {plugin === 'sonarqube' && (

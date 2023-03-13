@@ -16,15 +16,17 @@
  *
  */
 
-import type { PluginConfigType } from '@/plugins';
+import styled from 'styled-components';
 
-import { BasePipelineConfig } from '../base';
+export const Label = styled.label`
+  font-size: 16px;
+  font-weight: 600;
+`;
 
-import Icon from './assets/icon.svg';
+export const LabelInfo = styled.i`
+  color: #ff8b8b;
+`;
 
-export const AzureConfig: PluginConfigType = {
-  ...BasePipelineConfig,
-  plugin: 'azure',
-  name: 'Azure',
-  icon: Icon,
-};
+export const LabelDescription = styled.p`
+  margin: 0;
+`;

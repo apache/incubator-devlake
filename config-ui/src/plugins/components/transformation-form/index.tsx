@@ -28,6 +28,7 @@ import { JiraTransformation } from '@/plugins/register/jira';
 import { GitLabTransformation } from '@/plugins/register/gitlab';
 import { JenkinsTransformation } from '@/plugins/register/jenkins';
 import { BitbucketTransformation } from '@/plugins/register/bitbucket';
+import { AzureTransformation } from '@/plugins/register/azure';
 
 import { TIPS_MAP } from './misc';
 import * as API from './api';
@@ -111,6 +112,10 @@ export const TransformationForm = ({ plugin, connectionId, scopeId, id, onCancel
 
         {plugin === 'bitbucket' && (
           <BitbucketTransformation transformation={transformation} setTransformation={setTransformation} />
+        )}
+
+        {plugin === 'azuredevops' && (
+          <AzureTransformation transformation={transformation} setTransformation={setTransformation} />
         )}
 
         {plugin === 'tapd' && (
