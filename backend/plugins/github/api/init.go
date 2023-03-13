@@ -38,5 +38,6 @@ func Init(br context.BasicRes) {
 	scopeHelper = api.NewScopeHelper(
 		basicRes,
 		vld,
+		connectionHelper,
 	)
 }

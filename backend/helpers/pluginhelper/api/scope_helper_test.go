@@ -81,11 +81,11 @@ func TestSetGitlabProjectFields(t *testing.T) {
 		common.NoPKModel `json:"-" mapstructure:"-"`
 	}
 
-	// call SetGitlabProjectFields to assign value
+	// call SetScopeFields to assign value
 	connectionId := uint64(123)
 	createdDate := time.Now()
 	updatedDate := &createdDate
-	SetGitlabProjectFields(&p, connectionId, &createdDate, updatedDate)
+	SetScopeFields(&p, connectionId, &createdDate, updatedDate)
 
 	// verify fields
 	if p.ConnectionId != connectionId {
@@ -102,7 +102,7 @@ func TestSetGitlabProjectFields(t *testing.T) {
 		t.Errorf("UpdatedDate not set correctly, expected: %v, got: %v", updatedDate, p.UpdatedDate)
 	}
 
-	SetGitlabProjectFields(&p, connectionId, &createdDate, nil)
+	SetScopeFields(&p, connectionId, &createdDate, nil)
 
 	// verify fields
 	if p.ConnectionId != connectionId {

@@ -25,6 +25,7 @@ import (
 	"github.com/apache/incubator-devlake/core/log"
 	"github.com/apache/incubator-devlake/core/plugin"
 	"github.com/go-playground/validator/v10"
+	"gorm.io/gorm"
 	"strconv"
 	"strings"
 	"time"
@@ -34,23 +35,29 @@ import (
 
 // ScopeApiHelper is used to write the CURD of connection
 type ScopeApiHelper struct {
-	log       log.Logger
-	db        dal.Dal
-	validator *validator.Validate
+	log        log.Logger
+	db         dal.Dal
+	validator  *validator.Validate
+	connHelper *ConnectionApiHelper
 }
 
 // NewScopeHelper creates a ScopeHelper for connection management
 func NewScopeHelper(
 	basicRes context.BasicRes,
 	vld *validator.Validate,
+	connHelper *ConnectionApiHelper,
 ) *ScopeApiHelper {
 	if vld == nil {
 		vld = validator.New()
 	}
+	if connHelper == nil {
+		return nil
+	}
 	return &ScopeApiHelper{
-		log:       basicRes.GetLogger(),
-		db:        basicRes.GetDal(),
-		validator: vld,
+		log:        basicRes.GetLogger(),
+		db:         basicRes.GetDal(),
+		validator:  vld,
+		connHelper: connHelper,
 	}
 }
 
@@ -61,23 +68,21 @@ type Req struct {
 // Put saves the given scopes to the database. It expects a slice of struct pointers
 // as the scopes argument. It also expects a fieldName argument, which is used to extract
 // the connection ID from the input.Params map.
-func (c *ScopeApiHelper) Put(input *plugin.ApiResourceInput, fieldName string, scopes interface{}) errors.Error {
+func (c *ScopeApiHelper) Put(input *plugin.ApiResourceInput, scopes interface{}, connection interface{}) errors.Error {
 	// Ensure that the scopes argument is a slice
 	scopesValue := reflect.ValueOf(scopes)
 	if scopesValue.Kind() != reflect.Slice {
 		panic("expected a slice")
 	}
-
 	// Extract the connection ID from the input.Params map
-	connectionIdStr, _ := ExtractParam(input.Params, fieldName)
-	if len(connectionIdStr) == 0 || connectionIdStr == "0" {
+	connectionId, _ := ExtractParam(input.Params)
+	if connectionId == 0 {
 		return errors.BadInput.New("invalid connectionId or scopeId")
 	}
-	connectionId, err := errors.Convert01(strconv.ParseUint(connectionIdStr, 10, 64))
+	err := c.VerifyConnection(connection, connectionId)
 	if err != nil {
 		return err
 	}
-
 	// Create a map to keep track of primary key values
 	keeper := make(map[string]struct{})
 
@@ -101,7 +106,7 @@ func (c *ScopeApiHelper) Put(input *plugin.ApiResourceInput, fieldName string, s
 		}
 
 		// Set the connection ID, CreatedDate, and UpdatedDate fields
-		SetGitlabProjectFields(structValue.Interface(), connectionId, &now, &now)
+		SetScopeFields(structValue.Interface(), connectionId, &now, &now)
 
 		// Verify that the primary key value is valid
 		err = VerifyPrimaryKeyValue(structValue.Elem().Interface())
@@ -114,62 +119,129 @@ func (c *ScopeApiHelper) Put(input *plugin.ApiResourceInput, fieldName string, s
 	return c.save(scopes, c.db.Create)
 }
 
-//// Patch (Modify) a connection record based on request body
-//func (c *ScopeApiHelper) Patch(connection interface{}, input *plugin.ApiResourceInput) errors.Error {
-//	err := c.First(connection, input.Params)
-//	if err != nil {
-//		return err
-//	}
-//
-//	err = c.merge(connection, input.Body)
-//	if err != nil {
-//		return err
-//	}
-//	return c.save(connection, c.db.CreateOrUpdate)
-//}
-//
-//// First finds connection from db  by parsing request input and decrypt it
-//func (c *ScopeApiHelper) First(connection interface{}, params map[string]string) errors.Error {
-//	connectionId := params["connectionId"]
-//	if connectionId == "" {
-//		return errors.BadInput.New("missing connectionId")
-//	}
-//	id, err := strconv.ParseUint(connectionId, 10, 64)
-//	if err != nil || id < 1 {
-//		return errors.BadInput.New("invalid connectionId")
-//	}
-//	return c.FirstById(connection, id)
-//}
-//
-//// FirstById finds connection from db by id and decrypt it
-//func (c *ScopeApiHelper) FirstById(connection interface{}, id uint64) errors.Error {
-//	return CallDB(c.db.First, connection, dal.Where("id = ?", id))
-//}
-//
-//// List returns all connections with password/token decrypted
-//func (c *ScopeApiHelper) List(connections interface{}) errors.Error {
-//	return CallDB(c.db.All, connections)
-//}
-//
-//// Delete connection
-//func (c *ScopeApiHelper) Delete(connection interface{}) errors.Error {
-//	return CallDB(c.db.Delete, connection)
-//}
-//
-//func (c *ScopeApiHelper) merge(connection interface{}, body map[string]interface{}) errors.Error {
-//	connection = models.UnwrapObject(connection)
-//	if connectionValidator, ok := connection.(apihelperabstract.ScopeValidator); ok {
-//		err := Decode(body, connection, nil)
-//		if err != nil {
-//			return err
-//		}
-//		return connectionValidator.ValidateScope(connection, c.validator)
-//	}
-//	return Decode(body, connection, c.validator)
-//}
+func (c *ScopeApiHelper) Update(input *plugin.ApiResourceInput, fieldName string, connection interface{}, scope interface{}) errors.Error {
+	connectionId, scopeId := ExtractParam(input.Params)
+
+	if connectionId == 0 || len(scopeId) == 0 || scopeId == "0" {
+		return errors.BadInput.New("invalid connectionId")
+	}
+	err := c.VerifyConnection(connection, connectionId)
+	if err != nil {
+		return err
+	}
+
+	err = c.db.First(scope, dal.Where(fmt.Sprintf("connection_id = ? AND %s = ?", fieldName), connectionId, scopeId))
+	if err != nil {
+		return errors.Default.New("getting Scope error")
+	}
+	err = DecodeMapStruct(input.Body, scope)
+	if err != nil {
+		return errors.Default.Wrap(err, "patch scope error")
+	}
+	err = VerifyPrimaryKeyValue(scope)
+	if err != nil {
+		return err
+	}
+	err = c.db.Update(scope)
+	if err != nil {
+		return errors.Default.Wrap(err, "error on saving Scope")
+	}
+	return nil
+}
+
+func (c *ScopeApiHelper) GetScopeList(input *plugin.ApiResourceInput, connection interface{}, scopes interface{}, rules interface{}) (map[uint64]string, errors.Error) {
+	connectionId, _ := ExtractParam(input.Params)
+	if connectionId == 0 {
+		return nil, errors.BadInput.New("invalid path params")
+	}
+	err := c.VerifyConnection(connection, connectionId)
+	if err != nil {
+		return nil, err
+	}
+	limit, offset := GetLimitOffset(input.Query, "pageSize", "page")
+	err = c.db.All(scopes, dal.Where("connection_id = ?", connectionId), dal.Limit(limit), dal.Offset(offset))
+	if err != nil {
+		return nil, err
+	}
+
+	scopesValue := reflect.ValueOf(reflect.ValueOf(scopes).Elem().Interface())
+	if scopesValue.Kind() != reflect.Slice {
+		panic("expected a slice")
+	}
+	var ruleIds []uint64
+	for i := 0; i < scopesValue.Len(); i++ {
+		// Get the reflect.Value of the i-th struct pointer in the slice
+		structValue := scopesValue.Index(i)
+
+		// Ensure that the structValue is a pointer to a struct
+		if structValue.Kind() != reflect.Ptr || structValue.Elem().Kind() != reflect.Struct {
+			panic("expected a pointer to a struct")
+		}
+		ruleId := structValue.Elem().FieldByName("TransformationRuleId").Uint()
+		if ruleId > 0 {
+			ruleIds = append(ruleIds, ruleId)
+		}
+	}
+
+	if len(ruleIds) > 0 {
+		err = c.db.All(rules, dal.Where("id IN (?)", ruleIds))
+		if err != nil {
+			return nil, err
+		}
+	}
+	rulesValue := reflect.ValueOf(reflect.ValueOf(rules).Elem().Interface())
+	if scopesValue.Kind() != reflect.Slice {
+		panic("expected a slice")
+	}
+	names := make(map[uint64]string)
+	for i := 0; i < rulesValue.Len(); i++ {
+		// Get the reflect.Value of the i-th struct pointer in the slice
+		structValue := rulesValue.Index(i)
+		names[structValue.FieldByName("ID").Uint()] = structValue.FieldByName("Name").String()
+	}
+	return names, nil
+}
+
+func (c *ScopeApiHelper) GetScope(input *plugin.ApiResourceInput, fieldName string, connection interface{}, scope interface{}, rule interface{}) errors.Error {
+	connectionId, scopeId := ExtractParam(input.Params)
+	if connectionId == 0 || len(scopeId) == 0 || scopeId == "0" {
+		return errors.BadInput.New("invalid path params")
+	}
+	err := c.VerifyConnection(connection, connectionId)
+	if err != nil {
+		return err
+	}
+	db := c.db
+	query := dal.Where(fmt.Sprintf("connection_id = ? AND %s = ?", fieldName), connectionId, scopeId)
+	err = db.First(scope, query)
+	if db.IsErrorNotFound(err) {
+		return errors.NotFound.New("Scope not found")
+	}
+	if err != nil {
+		return err
+	}
+	repoRuleId := reflect.ValueOf(scope).Elem().FieldByName("TransformationRuleId").Uint()
+	if repoRuleId > 0 {
+		err = db.First(rule, dal.Where("id = ?", repoRuleId))
+		if err != nil {
+			return errors.NotFound.New("transformationRule not found")
+		}
+	}
+	return nil
+}
+
+func (c *ScopeApiHelper) VerifyConnection(connection interface{}, connId uint64) errors.Error {
+	err := c.connHelper.FirstById(&connection, connId)
+	if err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			return errors.BadInput.New("Invalid Connection Id")
+		}
+		return err
+	}
+	return nil
+}
 
 func (c *ScopeApiHelper) save(scope interface{}, method func(entity interface{}, clauses ...dal.Clause) errors.Error) errors.Error {
-	fmt.Println(scope)
 	err := c.db.CreateOrUpdate(scope)
 	if err != nil {
 		if c.db.IsDuplicationError(err) {
@@ -180,15 +252,24 @@ func (c *ScopeApiHelper) save(scope interface{}, method func(entity interface{},
 	return nil
 }
 
-func ExtractParam(params map[string]string, fieldName string) (string, string) {
-	connectionId := params["connectionId"]
-	scopeId := params[fieldName]
+func ExtractParam(params map[string]string) (uint64, string) {
+	connectionId, err := strconv.ParseUint(params["connectionId"], 10, 64)
+	if err != nil {
+		return 0, ""
+	}
+	scopeId := params["scopeId"]
 	return connectionId, scopeId
 }
 
 // VerifyPrimaryKeyValue function verifies that the primary key value of a given struct instance is not zero or empty.
 func VerifyPrimaryKeyValue(i interface{}) errors.Error {
-	value := reflect.ValueOf(i)
+	var value reflect.Value
+	pType := reflect.TypeOf(i)
+	if pType.Kind() == reflect.Ptr {
+		value = reflect.ValueOf(reflect.ValueOf(i).Elem().Interface())
+	} else {
+		value = reflect.ValueOf(i)
+	}
 	// Loop through the fields of the input struct using reflection
 	for j := 0; j < value.NumField(); j++ {
 		field := value.Field(j)
@@ -206,7 +287,7 @@ func VerifyPrimaryKeyValue(i interface{}) errors.Error {
 	return nil
 }
 
-func SetGitlabProjectFields(p interface{}, connectionId uint64, createdDate *time.Time, updatedDate *time.Time) {
+func SetScopeFields(p interface{}, connectionId uint64, createdDate *time.Time, updatedDate *time.Time) {
 	pType := reflect.TypeOf(p)
 	if pType.Kind() != reflect.Ptr {
 		panic("expected a pointer to a struct")

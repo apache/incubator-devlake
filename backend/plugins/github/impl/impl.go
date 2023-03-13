@@ -204,7 +204,7 @@ func (p Github) ApiResources() map[string]map[string]plugin.ApiResourceHandler {
 			"PATCH":  api.PatchConnection,
 			"DELETE": api.DeleteConnection,
 		},
-		"connections/:connectionId/scopes/:repoId": {
+		"connections/:connectionId/scopes/:scopeId": {
 			"GET":   api.GetScope,
 			"PATCH": api.UpdateScope,
 		},
