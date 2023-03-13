@@ -13,13 +13,13 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from azure.api import AzureDevOpsAPI
-from azure.models import AzureDevOpsConnection, GitRepository
-from azure.streams.builds import Builds
-from azure.streams.commits import GitCommits
-from azure.streams.jobs import Jobs
-from azure.streams.pull_request_commits import GitPullRequestCommits
-from azure.streams.pull_requests import GitPullRequests
+from azuredevops.api import AzureDevOpsAPI
+from azuredevops.models import AzureDevOpsConnection, GitRepository
+from azuredevops.streams.builds import Builds
+from azuredevops.streams.commits import GitCommits
+from azuredevops.streams.jobs import Jobs
+from azuredevops.streams.pull_request_commits import GitPullRequestCommits
+from azuredevops.streams.pull_requests import GitPullRequests
 
 from pydevlake import Plugin, RemoteScopeGroup
 from pydevlake.domain_layer.code import Repo
@@ -72,10 +72,6 @@ class AzureDevOpsPlugin(Plugin):
             if "parentRepository" in raw_repo:
                 repo.parentRepositoryUrl = raw_repo["parentRepository"]["url"]
             yield repo
-
-    @property
-    def name(self) -> str:
-        return "azure"
 
     def test_connection(self, connection: AzureDevOpsConnection):
         resp = AzureDevOpsAPI(connection.base_url, connection.pat).projects(connection.org)
