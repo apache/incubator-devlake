@@ -17,7 +17,6 @@ limitations under the License.
 
 package archived
 
-/*
 import "github.com/apache/incubator-devlake/core/models/migrationscripts/archived"
 
 type ApiBambooOperations struct {
@@ -31,8 +30,8 @@ type ApiBambooOperations struct {
 }
 
 type BambooDeployEnvironment struct {
-	ConnectionId        uint64 `gorm:"primaryKey"`
-	ID                  uint64 `json:"id" gorm:"primaryKey"`
+	ConnectionId        uint64 `json:"connection_id" gorm:"primaryKey"`
+	EnvId               uint64 `json:"env_id" gorm:"primaryKey"`
 	EnvKey              string `json:"key" gorm:"index;type:varchar(255)"`
 	Name                string `json:"name" gorm:"index;type:varchar(255)"`
 	PlanKey             string `json:"plan_key" gorm:"index;type:varchar(255)"`
@@ -48,4 +47,3 @@ type BambooDeployEnvironment struct {
 func (BambooDeployEnvironment) TableName() string {
 	return "_tool_bamboo_deploy_environment"
 }
-*/

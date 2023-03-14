@@ -17,10 +17,8 @@ limitations under the License.
 
 package tasks
 
-/*
 import (
-	"fmt"
-	"net/url"
+	"net/http"
 
 	"github.com/apache/incubator-devlake/core/errors"
 	"github.com/apache/incubator-devlake/core/plugin"
@@ -34,29 +32,20 @@ var _ plugin.SubTaskEntryPoint = CollectDeploy
 func CollectDeploy(taskCtx plugin.SubTaskContext) errors.Error {
 	rawDataSubTaskArgs, data := CreateRawDataSubTaskArgs(taskCtx, RAW_DEPLOY_TABLE)
 
-	collectorWithState, err := helper.NewApiCollectorWithState(*rawDataSubTaskArgs, nil)
-	if err != nil {
-		return err
-	}
-
-	err = collectorWithState.InitCollector(helper.ApiCollectorArgs{
-		ApiClient:   data.ApiClient,
-		PageSize:    100,
-		UrlTemplate: "deploy/project/all.json",
-		Query: func(reqData *helper.RequestData) (url.Values, errors.Error) {
-			query := url.Values{}
-			query.Set("showEmpty", fmt.Sprintf("%v", true))
-			query.Set("max-result", fmt.Sprintf("%v", reqData.Pager.Size))
-			query.Set("start-index", fmt.Sprintf("%v", reqData.Pager.Skip))
-			return query, nil
+	collector, err := helper.NewApiCollector(helper.ApiCollectorArgs{
+		RawDataSubTaskArgs: *rawDataSubTaskArgs,
+		ApiClient:          data.ApiClient,
+		PageSize:           100,
+		GetTotalPages: func(res *http.Response, args *helper.ApiCollectorArgs) (int, errors.Error) {
+			return 1, nil
 		},
-
+		UrlTemplate:    "deploy/project/all.json",
 		ResponseParser: helper.GetRawMessageArrayFromResponse,
 	})
 	if err != nil {
 		return err
 	}
-	return collectorWithState.Execute()
+	return collector.Execute()
 }
 
 var CollectDeployMeta = plugin.SubTaskMeta{
@@ -66,4 +55,3 @@ var CollectDeployMeta = plugin.SubTaskMeta{
 	Description:      "Collect Deploy data from Bamboo api",
 	DomainTypes:      []string{plugin.DOMAIN_TYPE_CICD},
 }
-*/
