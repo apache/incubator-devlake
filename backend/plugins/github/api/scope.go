@@ -18,11 +18,9 @@ limitations under the License.
 package api
 
 import (
-	"fmt"
 	"github.com/apache/incubator-devlake/core/errors"
 	"github.com/apache/incubator-devlake/core/plugin"
 	"github.com/apache/incubator-devlake/plugins/github/models"
-	"github.com/mitchellh/mapstructure"
 	"net/http"
 )
 
@@ -48,12 +46,7 @@ type req struct {
 // @Router /plugins/github/connections/{connectionId}/scopes [PUT]
 func PutScope(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, errors.Error) {
 	var repos req
-	err := errors.Convert(mapstructure.Decode(input.Body, &repos))
-	if err != nil {
-		return nil, errors.BadInput.Wrap(err, "decoding Github repo error")
-	}
-	fmt.Println("length is ", len(repos.Data))
-	err = scopeHelper.Put(input, repos.Data, &models.GithubConnection{})
+	err := scopeHelper.Put(input, &repos, &models.GithubConnection{})
 	if err != nil {
 		return nil, errors.Default.Wrap(err, "error on saving GithubRepo")
 	}

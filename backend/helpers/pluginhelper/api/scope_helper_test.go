@@ -19,7 +19,14 @@ package api
 
 import (
 	"github.com/apache/incubator-devlake/core/models/common"
+	"github.com/apache/incubator-devlake/core/plugin"
+	"github.com/apache/incubator-devlake/helpers/unithelper"
+	mockcontext "github.com/apache/incubator-devlake/mocks/core/context"
+	mockdal "github.com/apache/incubator-devlake/mocks/core/dal"
+	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/mock"
 	"gorm.io/gorm"
+	"reflect"
 	"testing"
 	"time"
 )
@@ -27,6 +34,44 @@ import (
 type TestModel struct {
 	ID   uint   `gorm:"primaryKey"`
 	Name string `gorm:"primaryKey;type:BIGINT  NOT NULL"`
+}
+
+type GithubRepo struct {
+	ConnectionId         uint64     `json:"connectionId" gorm:"primaryKey" mapstructure:"connectionId,omitempty"`
+	GithubId             int        `json:"githubId" gorm:"primaryKey" mapstructure:"githubId"`
+	Name                 string     `json:"name" gorm:"type:varchar(255)" mapstructure:"name,omitempty"`
+	HTMLUrl              string     `json:"HTMLUrl" gorm:"type:varchar(255)" mapstructure:"HTMLUrl,omitempty"`
+	Description          string     `json:"description" mapstructure:"description,omitempty"`
+	TransformationRuleId uint64     `json:"transformationRuleId,omitempty" mapstructure:"transformationRuleId,omitempty"`
+	OwnerId              int        `json:"ownerId" mapstructure:"ownerId,omitempty"`
+	Language             string     `json:"language" gorm:"type:varchar(255)" mapstructure:"language,omitempty"`
+	ParentGithubId       int        `json:"parentId" mapstructure:"parentGithubId,omitempty"`
+	ParentHTMLUrl        string     `json:"parentHtmlUrl" mapstructure:"parentHtmlUrl,omitempty"`
+	CloneUrl             string     `json:"cloneUrl" gorm:"type:varchar(255)" mapstructure:"cloneUrl,omitempty"`
+	CreatedDate          *time.Time `json:"createdDate" mapstructure:"-"`
+	UpdatedDate          *time.Time `json:"updatedDate" mapstructure:"-"`
+	common.NoPKModel     `json:"-" mapstructure:"-"`
+}
+
+func (GithubRepo) TableName() string {
+	return "_tool_github_repos"
+}
+
+type GithubConnection struct {
+	common.Model
+	Name             string `gorm:"type:varchar(100);uniqueIndex" json:"name" validate:"required"`
+	Endpoint         string `mapstructure:"endpoint" env:"GITHUB_ENDPOINT" validate:"required"`
+	Proxy            string `mapstructure:"proxy" env:"GITHUB_PROXY"`
+	RateLimitPerHour int    `comment:"api request rate limit per hour"`
+	Token            string `mapstructure:"token" env:"GITHUB_AUTH" validate:"required" encrypt:"yes"`
+}
+
+func (GithubConnection) TableName() string {
+	return "_tool_github_connections"
+}
+
+type req struct {
+	Data []*GithubRepo `json:"data"`
 }
 
 func TestCheckPrimaryKeyValue(t *testing.T) {
@@ -76,7 +121,7 @@ func TestSetGitlabProjectFields(t *testing.T) {
 		ConnectionId uint64 `json:"connectionId" mapstructure:"connectionId" gorm:"primaryKey"`
 		GitlabId     int    `json:"gitlabId" mapstructure:"gitlabId" gorm:"primaryKey"`
 
-		CreatedDate      time.Time  `json:"createdDate" mapstructure:"-"`
+		CreatedDate      *time.Time `json:"createdDate" mapstructure:"-"`
 		UpdatedDate      *time.Time `json:"updatedDate" mapstructure:"-"`
 		common.NoPKModel `json:"-" mapstructure:"-"`
 	}
@@ -138,7 +183,7 @@ func TestReturnPrimaryKeyValue(t *testing.T) {
 	}
 
 	// Call the function and check if it returns the correct primary key value.
-	result := ReturnPrimaryKeyValue(&test)
+	result := ReturnPrimaryKeyValue(test)
 	expected := "1-123"
 	if result != expected {
 		t.Errorf("ReturnPrimaryKeyValue returned %s, expected %s", result, expected)
@@ -163,4 +208,62 @@ func TestReturnPrimaryKeyValue(t *testing.T) {
 	if result2 != expected2 {
 		t.Errorf("ReturnPrimaryKeyValue returned %s, expected %s", result2, expected2)
 	}
+}
+
+func TestScopeApiHelper_Put(t *testing.T) {
+	mockDal := new(mockdal.Dal)
+	mockLogger := unithelper.DummyLogger()
+	mockRes := new(mockcontext.BasicRes)
+
+	mockRes.On("GetDal").Return(mockDal)
+	mockRes.On("GetConfig", mock.Anything).Return("")
+	mockRes.On("GetLogger").Return(mockLogger)
+
+	// we expect total 2 deletion calls after all code got carried out
+	mockDal.On("Delete", mock.Anything, mock.Anything).Return(nil).Twice()
+	mockDal.On("GetPrimaryKeyFields", mock.Anything).Return(
+		[]reflect.StructField{
+			{Name: "ID", Type: reflect.TypeOf("")},
+		},
+	)
+	mockDal.On("CreateOrUpdate", mock.Anything, mock.Anything).Return(nil)
+	mockDal.On("First", mock.Anything, mock.Anything).Return(nil)
+	mockDal.On("All", mock.Anything, mock.Anything).Return(nil)
+
+	connHelper := NewConnectionHelper(mockRes, nil)
+
+	// create a mock input, scopes, and connection
+	input := &plugin.ApiResourceInput{Params: map[string]string{"connectionId": "123"}}
+	scopes := []*GithubRepo{
+		{GithubId: 1, Name: "scope1"},
+		{GithubId: 2, Name: "scope2"},
+	}
+	connection := &GithubConnection{}
+	connection.ID = 3
+	connection.Name = "test"
+
+	// create a mock ScopeApiHelper with a mock database connection
+	apiHelper := &ScopeApiHelper{db: mockDal, connHelper: connHelper}
+	apiReq := req{Data: scopes}
+	// test a successful call to Put
+	err := apiHelper.Put(input, &apiReq, connection)
+	assert.NoError(t, err)
+
+	// test a call to Put with a duplicate primary key value
+	duplicateScopes := []*GithubRepo{
+		{GithubId: 1, Name: "scope1"},
+		{GithubId: 1, Name: "scope2"},
+	}
+	apiReq.Data = duplicateScopes
+	err = apiHelper.Put(input, &apiReq, connection)
+	assert.Error(t, err)
+
+	// test a call to Put with an invalid primary key value
+	invalidScopes := []*GithubRepo{
+		{GithubId: 0, Name: "scope1"},
+	}
+	apiReq.Data = invalidScopes
+
+	err = apiHelper.Put(input, &apiReq, connection)
+	assert.Error(t, err)
 }

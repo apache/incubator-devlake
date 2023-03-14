@@ -25,6 +25,7 @@ import (
 	"github.com/apache/incubator-devlake/core/log"
 	"github.com/apache/incubator-devlake/core/plugin"
 	"github.com/go-playground/validator/v10"
+	"github.com/mitchellh/mapstructure"
 	"gorm.io/gorm"
 	"strconv"
 	"strings"
@@ -61,16 +62,17 @@ func NewScopeHelper(
 	}
 }
 
-type Req struct {
-	Data []interface{} `json:"data"`
-}
-
 // Put saves the given scopes to the database. It expects a slice of struct pointers
 // as the scopes argument. It also expects a fieldName argument, which is used to extract
 // the connection ID from the input.Params map.
-func (c *ScopeApiHelper) Put(input *plugin.ApiResourceInput, scopes interface{}, connection interface{}) errors.Error {
+func (c *ScopeApiHelper) Put(input *plugin.ApiResourceInput, apiScope interface{}, connection interface{}) errors.Error {
+	err := errors.Convert(mapstructure.Decode(input.Body, apiScope))
+	if err != nil {
+		return errors.BadInput.Wrap(err, "decoding Github repo error")
+	}
 	// Ensure that the scopes argument is a slice
-	scopesValue := reflect.ValueOf(scopes)
+	v := reflect.ValueOf(apiScope)
+	scopesValue := v.Elem().FieldByName("Data")
 	if scopesValue.Kind() != reflect.Slice {
 		panic("expected a slice")
 	}
@@ -79,7 +81,7 @@ func (c *ScopeApiHelper) Put(input *plugin.ApiResourceInput, scopes interface{},
 	if connectionId == 0 {
 		return errors.BadInput.New("invalid connectionId or scopeId")
 	}
-	err := c.VerifyConnection(connection, connectionId)
+	err = c.VerifyConnection(connection, connectionId)
 	if err != nil {
 		return err
 	}
@@ -116,7 +118,7 @@ func (c *ScopeApiHelper) Put(input *plugin.ApiResourceInput, scopes interface{},
 	}
 
 	// Save the scopes to the database
-	return c.save(scopes, c.db.Create)
+	return c.save(scopesValue.Interface(), c.db.Create)
 }
 
 func (c *ScopeApiHelper) Update(input *plugin.ApiResourceInput, fieldName string, connection interface{}, scope interface{}) errors.Error {
