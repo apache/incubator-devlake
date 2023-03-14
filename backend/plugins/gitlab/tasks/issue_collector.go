@@ -35,7 +35,7 @@ var CollectApiIssuesMeta = plugin.SubTaskMeta{
 	Name:             "collectApiIssues",
 	EntryPoint:       CollectApiIssues,
 	EnabledByDefault: true,
-	Description:      "Collect issues data from Gitlab api",
+	Description:      "Collect issues data from Gitlab api, supports both timeFilter and diffSync.",
 	DomainTypes:      []string{plugin.DOMAIN_TYPE_TICKET},
 }
 
