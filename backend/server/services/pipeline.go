@@ -20,6 +20,12 @@ package services
 import (
 	"context"
 	"fmt"
+	"os"
+	"path/filepath"
+	"strings"
+	"sync"
+	"time"
+
 	"github.com/apache/incubator-devlake/core/dal"
 	"github.com/apache/incubator-devlake/core/errors"
 	"github.com/apache/incubator-devlake/core/models"
@@ -31,11 +37,6 @@ import (
 	"go.temporal.io/sdk/client"
 	"go.temporal.io/sdk/converter"
 	"golang.org/x/sync/semaphore"
-	"os"
-	"path/filepath"
-	"strings"
-	"sync"
-	"time"
 )
 
 var notificationService *NotificationService
@@ -73,17 +74,24 @@ func pipelineServiceInit() {
 		watchTemporalPipelines()
 	} else {
 		// standalone mode: reset pipeline status
-		err := db.UpdateColumn(
+		errMsg := "The process was terminated unexpectedly"
+		err := db.UpdateColumns(
 			&models.Pipeline{},
-			"status", models.TASK_FAILED,
+			[]dal.DalSet{
+				{ColumnName: "status", Value: models.TASK_FAILED},
+				{ColumnName: "message", Value: errMsg},
+			},
 			dal.Where("status = ?", models.TASK_RUNNING),
 		)
 		if err != nil {
 			panic(err)
 		}
-		err = db.UpdateColumn(
+		err = db.UpdateColumns(
 			&models.Task{},
-			"status", models.TASK_FAILED,
+			[]dal.DalSet{
+				{ColumnName: "status", Value: models.TASK_FAILED},
+				{ColumnName: "message", Value: errMsg},
+			},
 			dal.Where("status = ?", models.TASK_RUNNING),
 		)
 		if err != nil {
