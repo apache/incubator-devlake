@@ -24,8 +24,8 @@ import (
 )
 
 type BambooProject struct {
-	ConnectionId         uint64 `json:"connectionId" mapstructure:"connectionId" gorm:"primaryKey"`
-	ProjectKey           string `json:"projectKey" gorm:"primaryKey;type:varchar(256)"`
+	ConnectionId         uint64 `json:"connectionId" mapstructure:"connectionId" validate:"required" gorm:"primaryKey"`
+	ProjectKey           string `json:"projectKey" gorm:"primaryKey;type:varchar(256)" validate:"required"`
 	TransformationRuleId uint64 `json:"transformationRuleId,omitempty" mapstructure:"transformationRuleId"`
 	Name                 string `json:"name" gorm:"index;type:varchar(256)"`
 	Description          string `json:"description"`

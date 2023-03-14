@@ -23,8 +23,8 @@ import (
 )
 
 type BitbucketRepo struct {
-	ConnectionId         uint64     `json:"connectionId" gorm:"primaryKey" mapstructure:"connectionId,omitempty"`
-	BitbucketId          string     `json:"bitbucketId" gorm:"primaryKey;type:varchar(255)" mapstructure:"bitbucketId"`
+	ConnectionId         uint64     `json:"connectionId" gorm:"primaryKey" validate:"required" mapstructure:"connectionId,omitempty"`
+	BitbucketId          string     `json:"bitbucketId" gorm:"primaryKey;type:varchar(255)" validate:"required" mapstructure:"bitbucketId"`
 	Name                 string     `json:"name" gorm:"type:varchar(255)" mapstructure:"name,omitempty"`
 	HTMLUrl              string     `json:"HTMLUrl" gorm:"type:varchar(255)" mapstructure:"HTMLUrl,omitempty"`
 	Description          string     `json:"description" mapstructure:"description,omitempty"`
