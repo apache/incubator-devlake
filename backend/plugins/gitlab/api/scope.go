@@ -18,16 +18,13 @@ limitations under the License.
 package api
 
 import (
-	"net/http"
-	"strconv"
-	"time"
-
 	"github.com/apache/incubator-devlake/core/dal"
 	"github.com/apache/incubator-devlake/core/errors"
 	"github.com/apache/incubator-devlake/core/plugin"
 	"github.com/apache/incubator-devlake/helpers/pluginhelper/api"
 	"github.com/apache/incubator-devlake/plugins/gitlab/models"
-	"github.com/mitchellh/mapstructure"
+	"net/http"
+	"strconv"
 )
 
 type apiProject struct {
@@ -51,36 +48,12 @@ type req struct {
 // @Failure 500  {object} shared.ApiBody "Internal Error"
 // @Router /plugins/gitlab/connections/{connectionId}/scopes [PUT]
 func PutScope(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, errors.Error) {
-	connectionId, _ := extractParam(input.Params)
-	if connectionId == 0 {
-		return nil, errors.BadInput.New("invalid connectionId")
-	}
-	var projects req
-	err := errors.Convert(mapstructure.Decode(input.Body, &projects))
+	var scopes req
+	err := scopeHelper.Put(input, &scopes, &models.GitlabConnection{})
 	if err != nil {
-		return nil, errors.BadInput.Wrap(err, "decoding Gitlab project error")
+		return nil, errors.Default.Wrap(err, "error on saving GithubRepo")
 	}
-	keeper := make(map[int]struct{})
-	now := time.Now()
-	for _, project := range projects.Data {
-		if _, ok := keeper[project.GitlabId]; ok {
-			return nil, errors.BadInput.New("duplicated item")
-		} else {
-			keeper[project.GitlabId] = struct{}{}
-		}
-		project.ConnectionId = connectionId
-		project.CreatedDate = now
-		project.UpdatedDate = &now
-		err = verifyProject(project)
-		if err != nil {
-			return nil, err
-		}
-	}
-	err = basicRes.GetDal().CreateOrUpdate(projects.Data)
-	if err != nil {
-		return nil, errors.Default.Wrap(err, "error on saving GitlabProject")
-	}
-	return &plugin.ApiResourceOutput{Body: projects.Data, Status: http.StatusOK}, nil
+	return &plugin.ApiResourceOutput{Body: scopes.Data, Status: http.StatusOK}, nil
 }
 
 // UpdateScope patch to gitlab project
