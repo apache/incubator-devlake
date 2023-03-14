@@ -36,7 +36,7 @@ type GithubRepo struct {
 	CloneUrl             string     `json:"cloneUrl" gorm:"type:varchar(255)" mapstructure:"cloneUrl,omitempty"`
 	CreatedDate          *time.Time `json:"createdDate" mapstructure:"-"`
 	UpdatedDate          *time.Time `json:"updatedDate" mapstructure:"-"`
-	common.NoPKModel     `json:"-" mapstructure:"-"`
+	common.NoPKModel     `json:"-" mapstructure:",squash"`
 }
 
 func (GithubRepo) TableName() string {

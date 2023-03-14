@@ -38,7 +38,7 @@ type TestModel struct {
 	Name string `gorm:"primaryKey;type:BIGINT  NOT NULL"`
 }
 
-type GithubRepo struct {
+type TestRepo struct {
 	ConnectionId         uint64     `json:"connectionId" gorm:"primaryKey" mapstructure:"connectionId,omitempty"`
 	GithubId             int        `json:"githubId" gorm:"primaryKey" mapstructure:"githubId"`
 	Name                 string     `json:"name" gorm:"type:varchar(255)" mapstructure:"name,omitempty"`
@@ -55,11 +55,11 @@ type GithubRepo struct {
 	common.NoPKModel     `json:"-" mapstructure:"-"`
 }
 
-func (GithubRepo) TableName() string {
+func (TestRepo) TableName() string {
 	return "_tool_github_repos"
 }
 
-type GithubConnection struct {
+type TestConnection struct {
 	common.Model
 	Name             string `gorm:"type:varchar(100);uniqueIndex" json:"name" validate:"required"`
 	Endpoint         string `mapstructure:"endpoint" env:"GITHUB_ENDPOINT" validate:"required"`
@@ -68,7 +68,7 @@ type GithubConnection struct {
 	Token            string `mapstructure:"token" env:"GITHUB_AUTH" validate:"required" encrypt:"yes"`
 }
 
-func (GithubConnection) TableName() string {
+func (TestConnection) TableName() string {
 	return "_tool_github_connections"
 }
 
@@ -113,7 +113,7 @@ func TestVerifyScope(t *testing.T) {
 	}
 }
 
-type GithubTransformationRule struct {
+type TestTransformationRule struct {
 	common.Model         `mapstructure:"-"`
 	Name                 string            `mapstructure:"name" json:"name" gorm:"type:varchar(255);index:idx_name_github,unique" validate:"required"`
 	PrType               string            `mapstructure:"prType,omitempty" json:"prType" gorm:"type:varchar(255)"`
@@ -130,11 +130,11 @@ type GithubTransformationRule struct {
 	Refdiff              datatypes.JSONMap `mapstructure:"refdiff,omitempty" json:"refdiff" swaggertype:"object" format:"json"`
 }
 
-func (GithubTransformationRule) TableName() string {
+func (TestTransformationRule) TableName() string {
 	return "_tool_github_transformation_rules"
 }
 
-func TestSetGitlabProjectFields(t *testing.T) {
+func TestSetScopeFields(t *testing.T) {
 	// create a struct
 	var p struct {
 		ConnectionId uint64 `json:"connectionId" mapstructure:"connectionId" gorm:"primaryKey"`
@@ -286,8 +286,49 @@ func TestScopeApiHelper_Put(t *testing.T) {
 			}}}}
 
 	// create a mock ScopeApiHelper with a mock database connection
-	apiHelper := &ScopeApiHelper[GithubConnection, GithubRepo, GithubTransformationRule]{db: mockDal, connHelper: connHelper}
+	apiHelper := &ScopeApiHelper[TestConnection, TestRepo, TestTransformationRule]{db: mockDal, connHelper: connHelper}
 	// test a successful call to Put
 	_, err := apiHelper.Put(input)
 	assert.NoError(t, err)
+}
+
+func TestFlattenStruct(t *testing.T) {
+	type InnerStruct struct {
+		Foo int
+		Bar string
+	}
+
+	type OuterStruct struct {
+		Baz       bool
+		Qux       float64
+		Inner     InnerStruct `mapstructure:",squash"`
+		OtherProp string
+	}
+
+	input := OuterStruct{
+		Baz: true,
+		Qux: 3.14,
+		Inner: InnerStruct{
+			Foo: 42,
+			Bar: "hello",
+		},
+		OtherProp: "world",
+	}
+
+	expectedOutput := map[string]interface{}{
+		"baz":       true,
+		"qux":       3.14,
+		"foo":       42,
+		"bar":       "hello",
+		"otherProp": "world",
+	}
+
+	output, err := flattenStruct(input)
+	if err != nil {
+		t.Errorf("flattenStruct returned an error: %v", err)
+	}
+
+	if !reflect.DeepEqual(output, expectedOutput) {
+		t.Errorf("flattenStruct returned incorrect output.\nExpected: %v\nActual:   %v", expectedOutput, output)
+	}
 }

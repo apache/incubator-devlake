@@ -18,6 +18,7 @@ limitations under the License.
 package api
 
 import (
+	"encoding/json"
 	"fmt"
 	"github.com/apache/incubator-devlake/core/context"
 	"github.com/apache/incubator-devlake/core/dal"
@@ -27,6 +28,7 @@ import (
 	"github.com/go-playground/validator/v10"
 	"github.com/mitchellh/mapstructure"
 	"gorm.io/gorm"
+	"net/http"
 	"strconv"
 	"strings"
 	"time"
@@ -63,7 +65,7 @@ func NewScopeHelper[Conn any, Scope any, Tr any](
 }
 
 type ScopeRes[T any] struct {
-	Scope                  T
+	Scope                  T      `mapstructure:",squash"`
 	TransformationRuleName string `json:"transformationRuleName,omitempty"`
 }
 
@@ -74,7 +76,7 @@ type ScopeReq[T any] struct {
 // Put saves the given scopes to the database. It expects a slice of struct pointers
 // as the scopes argument. It also expects a fieldName argument, which is used to extract
 // the connection ID from the input.Params map.
-func (c *ScopeApiHelper[Conn, Scope, Tr]) Put(input *plugin.ApiResourceInput) ([]*Scope, errors.Error) {
+func (c *ScopeApiHelper[Conn, Scope, Tr]) Put(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, errors.Error) {
 	var req struct {
 		Data []*Scope `json:"data"`
 	}
@@ -114,43 +116,47 @@ func (c *ScopeApiHelper[Conn, Scope, Tr]) Put(input *plugin.ApiResourceInput) ([
 			return nil, err
 		}
 	}
+	err = c.save(&req.Data)
+	if err != nil {
+		return nil, err
+	}
 
 	// Save the scopes to the database
-	return req.Data, c.save(&req.Data)
+	return &plugin.ApiResourceOutput{Body: req.Data, Status: http.StatusOK}, nil
 }
 
-func (c *ScopeApiHelper[Conn, Scope, Tr]) Update(input *plugin.ApiResourceInput, fieldName string) (*Scope, errors.Error) {
+func (c *ScopeApiHelper[Conn, Scope, Tr]) Update(input *plugin.ApiResourceInput, fieldName string) (*plugin.ApiResourceOutput, errors.Error) {
 	connectionId, scopeId := extractFromReqParam(input.Params)
 
 	if connectionId == 0 || len(scopeId) == 0 || scopeId == "0" {
-		return nil, errors.BadInput.New("invalid connectionId")
+		return &plugin.ApiResourceOutput{Body: nil, Status: http.StatusInternalServerError}, errors.BadInput.New("invalid connectionId")
 	}
 	err := c.VerifyConnection(connectionId)
 	if err != nil {
-		return nil, err
+		return &plugin.ApiResourceOutput{Body: nil, Status: http.StatusInternalServerError}, err
 	}
 	var scope Scope
 	err = c.db.First(&scope, dal.Where(fmt.Sprintf("connection_id = ? AND %s = ?", fieldName), connectionId, scopeId))
 	if err != nil {
-		return nil, errors.Default.New("getting Scope error")
+		return &plugin.ApiResourceOutput{Body: nil, Status: http.StatusInternalServerError}, errors.Default.New("getting Scope error")
 	}
 	err = DecodeMapStruct(input.Body, &scope)
 	if err != nil {
-		return nil, errors.Default.Wrap(err, "patch scope error")
+		return &plugin.ApiResourceOutput{Body: nil, Status: http.StatusInternalServerError}, errors.Default.Wrap(err, "patch scope error")
 	}
 	err = VerifyScope(&scope, c.validator)
 	if err != nil {
-		return nil, errors.Default.Wrap(err, "Invalid scope")
+		return &plugin.ApiResourceOutput{Body: nil, Status: http.StatusInternalServerError}, errors.Default.Wrap(err, "Invalid scope")
 	}
 
 	err = c.db.Update(scope)
 	if err != nil {
-		return nil, errors.Default.Wrap(err, "error on saving Scope")
+		return &plugin.ApiResourceOutput{Body: nil, Status: http.StatusInternalServerError}, errors.Default.Wrap(err, "error on saving Scope")
 	}
-	return &scope, nil
+	return &plugin.ApiResourceOutput{Body: &scope, Status: http.StatusOK}, nil
 }
 
-func (c *ScopeApiHelper[Conn, Scope, Tr]) GetScopeList(input *plugin.ApiResourceInput) ([]ScopeRes[Scope], errors.Error) {
+func (c *ScopeApiHelper[Conn, Scope, Tr]) GetScopeList(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, errors.Error) {
 	connectionId, _ := extractFromReqParam(input.Params)
 	if connectionId == 0 {
 		return nil, errors.BadInput.New("invalid path params")
@@ -187,12 +193,12 @@ func (c *ScopeApiHelper[Conn, Scope, Tr]) GetScopeList(input *plugin.ApiResource
 	}
 	apiScopes := make([]ScopeRes[Scope], 0)
 	for _, scope := range scopes {
-		apiScopes = append(apiScopes, ScopeRes[Scope]{Scope: *scope, TransformationRuleName: names[reflect.ValueOf(scope).Elem().FieldByName("TransformationRuleId").Uint()]})
+		apiScopes = append(apiScopes, ScopeRes[Scope]{*scope, names[reflect.ValueOf(scope).Elem().FieldByName("TransformationRuleId").Uint()]})
 	}
-	return apiScopes, nil
+	return &plugin.ApiResourceOutput{Body: apiScopes, Status: http.StatusOK}, nil
 }
 
-func (c *ScopeApiHelper[Conn, Scope, Tr]) GetScope(input *plugin.ApiResourceInput, fieldName string) (*ScopeRes[Scope], errors.Error) {
+func (c *ScopeApiHelper[Conn, Scope, Tr]) GetScope(input *plugin.ApiResourceInput, fieldName string) (*plugin.ApiResourceOutput, errors.Error) {
 	connectionId, scopeId := extractFromReqParam(input.Params)
 	if connectionId == 0 || len(scopeId) == 0 || scopeId == "0" {
 		return nil, errors.BadInput.New("invalid path params")
@@ -219,7 +225,8 @@ func (c *ScopeApiHelper[Conn, Scope, Tr]) GetScope(input *plugin.ApiResourceInpu
 			return nil, errors.NotFound.New("transformationRule not found")
 		}
 	}
-	return &ScopeRes[Scope]{Scope: scope, TransformationRuleName: reflect.ValueOf(rule).FieldByName("Name").String()}, nil
+	scopeRes := &ScopeRes[Scope]{scope, reflect.ValueOf(rule).FieldByName("Name").String()}
+	return &plugin.ApiResourceOutput{Body: scopeRes, Status: http.StatusOK}, nil
 }
 
 func (c *ScopeApiHelper[Conn, Scope, Tr]) VerifyConnection(connId uint64) errors.Error {
@@ -321,4 +328,58 @@ func VerifyScope(scope interface{}, vld *validator.Validate) errors.Error {
 		}
 	}
 	return nil
+}
+
+// Implement MarshalJSON method to flatten all fields
+func (sr ScopeRes[T]) MarshalJSON() ([]byte, error) {
+	// Create an empty map to store flattened fields and values
+	flatMap, err := flattenStruct(sr)
+	if err != nil {
+		return nil, err
+	}
+	// Encode the flattened map to JSON
+	result, err := json.Marshal(flatMap)
+	if err != nil {
+		return nil, err
+	}
+
+	return result, nil
+}
+
+// A helper function to flatten nested structs
+func flattenStruct(s interface{}) (map[string]interface{}, error) {
+	flatMap := make(map[string]interface{})
+
+	// Use reflection to get all fields of the nested struct type
+	fields := reflect.TypeOf(s).NumField()
+
+	// Traverse all fields of the nested struct and add them to flatMap
+	for i := 0; i < fields; i++ {
+		field := reflect.TypeOf(s).Field(i)
+		fieldValue := reflect.ValueOf(s).Field(i)
+		if strings.Contains(field.Tag.Get("swaggerignore"), "true") {
+			continue
+		}
+		if fieldValue.IsZero() && strings.Contains(field.Tag.Get("json"), "omitempty") {
+			continue
+		}
+		// If the field is a nested struct, recursively flatten its fields
+		if field.Type.Kind() == reflect.Struct && strings.Contains(field.Tag.Get("mapstructure"), "squash") {
+			nestedFields, err := flattenStruct(fieldValue.Interface())
+			if err != nil {
+				return nil, err
+			}
+			for k, v := range nestedFields {
+				flatMap[lowerCaseFirst(k)] = v
+			}
+		} else {
+			// If the field is not a nested struct, add its name and value to flatMap
+			flatMap[lowerCaseFirst(field.Name)] = fieldValue.Interface()
+		}
+	}
+	return flatMap, nil
+}
+
+func lowerCaseFirst(name string) string {
+	return strings.ToLower(string(name[0])) + name[1:]
 }

@@ -18,16 +18,12 @@ limitations under the License.
 package api
 
 import (
-	"github.com/apache/incubator-devlake/core/dal"
 	"github.com/apache/incubator-devlake/core/errors"
 	"github.com/apache/incubator-devlake/core/plugin"
-	"github.com/apache/incubator-devlake/helpers/pluginhelper/api"
 	"github.com/apache/incubator-devlake/plugins/gitlab/models"
-	"net/http"
-	"strconv"
 )
 
-type apiProject struct {
+type ScopeRes struct {
 	models.GitlabProject
 	TransformationRuleName string `json:"transformationRuleName,omitempty"`
 }
@@ -44,11 +40,7 @@ type apiProject struct {
 // @Failure 500  {object} shared.ApiBody "Internal Error"
 // @Router /plugins/gitlab/connections/{connectionId}/scopes [PUT]
 func PutScope(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, errors.Error) {
-	repos, err := scopeHelper.Put(input)
-	if err != nil {
-		return nil, errors.Default.Wrap(err, "error on saving GithubRepo")
-	}
-	return &plugin.ApiResourceOutput{Body: repos, Status: http.StatusOK}, nil
+	return scopeHelper.Put(input)
 }
 
 // UpdateScope patch to gitlab project
@@ -64,11 +56,7 @@ func PutScope(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, errors
 // @Failure 500  {object} shared.ApiBody "Internal Error"
 // @Router /plugins/gitlab/connections/{connectionId}/scopes/{projectId} [PATCH]
 func UpdateScope(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, errors.Error) {
-	repo, err := scopeHelper.Update(input, "gitlab_id")
-	if err != nil {
-		return &plugin.ApiResourceOutput{Body: nil, Status: http.StatusInternalServerError}, err
-	}
-	return &plugin.ApiResourceOutput{Body: repo, Status: http.StatusOK}, nil
+	return scopeHelper.Update(input, "gitlab_id")
 }
 
 // GetScopeList get Gitlab projects
@@ -76,43 +64,12 @@ func UpdateScope(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, err
 // @Description get Gitlab projects
 // @Tags plugins/gitlab
 // @Param connectionId path int false "connection ID"
-// @Success 200  {object} []apiProject
+// @Success 200  {object} []ScopeRes
 // @Failure 400  {object} shared.ApiBody "Bad Request"
 // @Failure 500  {object} shared.ApiBody "Internal Error"
 // @Router /plugins/gitlab/connections/{connectionId}/scopes/ [GET]
 func GetScopeList(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, errors.Error) {
-	var projects []models.GitlabProject
-	connectionId, _ := extractParam(input.Params)
-	if connectionId == 0 {
-		return nil, errors.BadInput.New("invalid path params")
-	}
-	limit, offset := api.GetLimitOffset(input.Query, "pageSize", "page")
-	err := basicRes.GetDal().All(&projects, dal.Where("connection_id = ?", connectionId), dal.Limit(limit), dal.Offset(offset))
-	if err != nil {
-		return nil, err
-	}
-	var ruleIds []uint64
-	for _, proj := range projects {
-		if proj.TransformationRuleId > 0 {
-			ruleIds = append(ruleIds, proj.TransformationRuleId)
-		}
-	}
-	var rules []models.GitlabTransformationRule
-	if len(ruleIds) > 0 {
-		err = basicRes.GetDal().All(&rules, dal.Where("id IN (?)", ruleIds))
-		if err != nil {
-			return nil, err
-		}
-	}
-	names := make(map[uint64]string)
-	for _, rule := range rules {
-		names[rule.ID] = rule.Name
-	}
-	var apiProjects []apiProject
-	for _, proj := range projects {
-		apiProjects = append(apiProjects, apiProject{proj, names[proj.TransformationRuleId]})
-	}
-	return &plugin.ApiResourceOutput{Body: apiProjects, Status: http.StatusOK}, nil
+	return scopeHelper.GetScopeList(input)
 }
 
 // GetScope get one Gitlab project
@@ -123,36 +80,10 @@ func GetScopeList(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, er
 // @Param projectId path int false "project ID"
 // @Param pageSize query int false "page size, default 50"
 // @Param page query int false "page size, default 1"
-// @Success 200  {object} apiProject
+// @Success 200  {object} ScopeRes
 // @Failure 400  {object} shared.ApiBody "Bad Request"
 // @Failure 500  {object} shared.ApiBody "Internal Error"
 // @Router /plugins/gitlab/connections/{connectionId}/scopes/{projectId} [GET]
 func GetScope(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, errors.Error) {
-	var project models.GitlabProject
-	connectionId, projectId := extractParam(input.Params)
-	if connectionId*projectId == 0 {
-		return nil, errors.BadInput.New("invalid path params")
-	}
-	db := basicRes.GetDal()
-	err := db.First(&project, dal.Where("connection_id = ? AND gitlab_id = ?", connectionId, projectId))
-	if db.IsErrorNotFound(err) {
-		return nil, errors.NotFound.New("record not found")
-	}
-	if err != nil {
-		return nil, err
-	}
-	var rule models.GitlabTransformationRule
-	if project.TransformationRuleId > 0 {
-		err = basicRes.GetDal().First(&rule, dal.Where("id = ?", project.TransformationRuleId))
-		if err != nil {
-			return nil, err
-		}
-	}
-	return &plugin.ApiResourceOutput{Body: apiProject{project, rule.Name}, Status: http.StatusOK}, nil
-}
-
-func extractParam(params map[string]string) (uint64, uint64) {
-	connectionId, _ := strconv.ParseUint(params["connectionId"], 10, 64)
-	projectId, _ := strconv.ParseUint(params["projectId"], 10, 64)
-	return connectionId, projectId
+	return scopeHelper.GetScope(input, "gitlab_id")
 }
