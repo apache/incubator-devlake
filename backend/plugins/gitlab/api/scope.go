@@ -32,10 +32,6 @@ type apiProject struct {
 	TransformationRuleName string `json:"transformationRuleName,omitempty"`
 }
 
-type req struct {
-	Data []*models.GitlabProject `json:"data"`
-}
-
 // PutScope create or update gitlab project
 // @Summary create or update gitlab project
 // @Description Create or update gitlab project
@@ -48,12 +44,11 @@ type req struct {
 // @Failure 500  {object} shared.ApiBody "Internal Error"
 // @Router /plugins/gitlab/connections/{connectionId}/scopes [PUT]
 func PutScope(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, errors.Error) {
-	var scopes req
-	err := scopeHelper.Put(input, &scopes, &models.GitlabConnection{})
+	repos, err := scopeHelper.Put(input)
 	if err != nil {
 		return nil, errors.Default.Wrap(err, "error on saving GithubRepo")
 	}
-	return &plugin.ApiResourceOutput{Body: scopes.Data, Status: http.StatusOK}, nil
+	return &plugin.ApiResourceOutput{Body: repos, Status: http.StatusOK}, nil
 }
 
 // UpdateScope patch to gitlab project
@@ -69,28 +64,11 @@ func PutScope(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, errors
 // @Failure 500  {object} shared.ApiBody "Internal Error"
 // @Router /plugins/gitlab/connections/{connectionId}/scopes/{projectId} [PATCH]
 func UpdateScope(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, errors.Error) {
-	connectionId, projectId := extractParam(input.Params)
-	if connectionId*projectId == 0 {
-		return nil, errors.BadInput.New("invalid connectionId or projectId")
-	}
-	var project models.GitlabProject
-	err := basicRes.GetDal().First(&project, dal.Where("connection_id = ? AND gitlab_id = ?", connectionId, projectId))
+	repo, err := scopeHelper.Update(input, "gitlab_id")
 	if err != nil {
-		return nil, errors.Default.Wrap(err, "getting GitlabProject error")
+		return &plugin.ApiResourceOutput{Body: nil, Status: http.StatusInternalServerError}, err
 	}
-	err = api.DecodeMapStruct(input.Body, &project)
-	if err != nil {
-		return nil, errors.Default.Wrap(err, "patch gitlab project error")
-	}
-	err = verifyProject(&project)
-	if err != nil {
-		return nil, err
-	}
-	err = basicRes.GetDal().Update(project)
-	if err != nil {
-		return nil, errors.Default.Wrap(err, "error on saving GitlabProject")
-	}
-	return &plugin.ApiResourceOutput{Body: project, Status: http.StatusOK}, nil
+	return &plugin.ApiResourceOutput{Body: repo, Status: http.StatusOK}, nil
 }
 
 // GetScopeList get Gitlab projects
@@ -177,14 +155,4 @@ func extractParam(params map[string]string) (uint64, uint64) {
 	connectionId, _ := strconv.ParseUint(params["connectionId"], 10, 64)
 	projectId, _ := strconv.ParseUint(params["projectId"], 10, 64)
 	return connectionId, projectId
-}
-
-func verifyProject(project *models.GitlabProject) errors.Error {
-	if project.ConnectionId == 0 {
-		return errors.BadInput.New("invalid connectionId")
-	}
-	if project.GitlabId <= 0 {
-		return errors.BadInput.New("invalid projectId")
-	}
-	return nil
 }

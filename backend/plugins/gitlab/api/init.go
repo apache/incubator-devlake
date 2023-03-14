@@ -20,12 +20,13 @@ package api
 import (
 	"github.com/apache/incubator-devlake/core/context"
 	"github.com/apache/incubator-devlake/helpers/pluginhelper/api"
+	"github.com/apache/incubator-devlake/plugins/gitlab/models"
 	"github.com/go-playground/validator/v10"
 )
 
 var vld *validator.Validate
 var connectionHelper *api.ConnectionApiHelper
-var scopeHelper *api.ScopeApiHelper
+var scopeHelper *api.ScopeApiHelper[models.GitlabConnection, models.GitlabProject, models.GitlabTransformationRule]
 var basicRes context.BasicRes
 
 func Init(br context.BasicRes) {
@@ -35,7 +36,7 @@ func Init(br context.BasicRes) {
 		basicRes,
 		vld,
 	)
-	scopeHelper = api.NewScopeHelper(
+	scopeHelper = api.NewScopeHelper[models.GitlabConnection, models.GitlabProject, models.GitlabTransformationRule](
 		basicRes,
 		vld,
 		connectionHelper,
