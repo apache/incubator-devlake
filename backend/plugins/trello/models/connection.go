@@ -27,7 +27,7 @@ import (
 // TrelloConn holds the essential information to connect to the Trello API
 type TrelloConn struct {
 	helper.RestConnection `mapstructure:",squash"`
-	helper.BasicAuth      `mapstructure:",squash"`
+	helper.AppKey         `mapstructure:",squash"`
 }
 
 // TrelloConnection holds TrelloConn plus ID/Name for database storage
@@ -38,7 +38,7 @@ type TrelloConnection struct {
 
 // SetupAuthentication sets up the HTTP Request Authentication
 func (tc *TrelloConn) SetupAuthentication(req *http.Request) errors.Error {
-	req.Header.Set("Authorization", fmt.Sprintf("OAuth oauth_consumer_key=\"%s\", oauth_token=\"%s\"", tc.Username, tc.Password))
+	req.Header.Set("Authorization", fmt.Sprintf("OAuth oauth_consumer_key=\"%s\", oauth_token=\"%s\"", tc.AppId, tc.SecretKey))
 	return nil
 }
 

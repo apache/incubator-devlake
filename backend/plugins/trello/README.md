@@ -18,8 +18,8 @@ curl 'http://localhost:8080/plugins/trello/connections' \
     "name": "trello",
     "endpoint": "https://api.trello.com/",
     "rateLimitPerHour": 20000,
-    "username": "<YOUR_APIKEY>"
-    "password": "<YOUR_TOKEN>"
+    "appId": "<YOUR_APIKEY>",
+    "secretKey": "<YOUR_TOKEN>"
 }
 '
 ```
