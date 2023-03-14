@@ -127,7 +127,7 @@ func (m *ApiCollectorStateManager) Execute() errors.Error {
 //  1. The entity is a short-lived object or it is likely to be irrelevant
 //     a. ci/id pipelines are short-lived objects
 //     b. pull request might took a year to be closed or never, but it is likely irrelevant
-//  2. The entity must be Finalizable: when it is finalized, no modification would be allowed ever since
+//  2. The entity must be Finalizable, meaning no future modifications will happen to it.
 //  3. The API must fit one of the following traits:
 //     a. it supports filtering by Created Date, in this case, you must implement the filtering
 //     via the `UrlTemplate`, `Query` or `Header` hook based on the API specification.
