@@ -20,8 +20,13 @@ package api
 import (
 	"github.com/apache/incubator-devlake/core/errors"
 	"github.com/apache/incubator-devlake/core/plugin"
-	"net/http"
+	"github.com/apache/incubator-devlake/plugins/github/models"
 )
+
+type ScopeRes struct {
+	models.GithubRepo
+	TransformationRuleName string `json:"transformationRuleName,omitempty"`
+}
 
 // PutScope create or update github repo
 // @Summary create or update github repo
@@ -35,11 +40,7 @@ import (
 // @Failure 500  {object} shared.ApiBody "Internal Error"
 // @Router /plugins/github/connections/{connectionId}/scopes [PUT]
 func PutScope(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, errors.Error) {
-	repos, err := scopeHelper.Put(input)
-	if err != nil {
-		return nil, errors.Default.Wrap(err, "error on saving GithubRepo")
-	}
-	return &plugin.ApiResourceOutput{Body: repos, Status: http.StatusOK}, nil
+	return scopeHelper.Put(input)
 }
 
 // UpdateScope patch to github repo
@@ -48,18 +49,14 @@ func PutScope(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, errors
 // @Tags plugins/github
 // @Accept application/json
 // @Param connectionId path int true "connection ID"
-// @Param repoId path int true "repo ID"
+// @Param scopeId path int true "scope ID"
 // @Param scope body models.GithubRepo true "json"
 // @Success 200  {object} models.GithubRepo
 // @Failure 400  {object} shared.ApiBody "Bad Request"
 // @Failure 500  {object} shared.ApiBody "Internal Error"
 // @Router /plugins/github/connections/{connectionId}/scopes/{scopeId} [PATCH]
 func UpdateScope(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, errors.Error) {
-	repo, err := scopeHelper.Update(input, "github_id")
-	if err != nil {
-		return &plugin.ApiResourceOutput{Body: nil, Status: http.StatusInternalServerError}, err
-	}
-	return &plugin.ApiResourceOutput{Body: repo, Status: http.StatusOK}, nil
+	return scopeHelper.Update(input, "github_id")
 }
 
 // GetScopeList get Github repos
@@ -69,16 +66,12 @@ func UpdateScope(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, err
 // @Param connectionId path int true "connection ID"
 // @Param pageSize query int false "page size, default 50"
 // @Param page query int false "page size, default 1"
-// @Success 200  {object} []apiRepo
+// @Success 200  {object} []ScopeRes
 // @Failure 400  {object} shared.ApiBody "Bad Request"
 // @Failure 500  {object} shared.ApiBody "Internal Error"
 // @Router /plugins/github/connections/{connectionId}/scopes/ [GET]
 func GetScopeList(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, errors.Error) {
-	apiScopes, err := scopeHelper.GetScopeList(input)
-	if err != nil {
-		return nil, err
-	}
-	return &plugin.ApiResourceOutput{Body: apiScopes, Status: http.StatusOK}, nil
+	return scopeHelper.GetScopeList(input)
 }
 
 // GetScope get one Github repo
@@ -86,15 +79,11 @@ func GetScopeList(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, er
 // @Description get one Github repo
 // @Tags plugins/github
 // @Param connectionId path int true "connection ID"
-// @Param repoId path int true "repo ID"
-// @Success 200  {object} apiRepo
+// @Param scopeId path int true "scope ID"
+// @Success 200  {object} ScopeRes
 // @Failure 400  {object} shared.ApiBody "Bad Request"
 // @Failure 500  {object} shared.ApiBody "Internal Error"
-// @Router /plugins/github/connections/{connectionId}/scopes/{id} [GET]
+// @Router /plugins/github/connections/{connectionId}/scopes/{scopeId} [GET]
 func GetScope(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, errors.Error) {
-	apiScope, err := scopeHelper.GetScope(input, "github_id")
-	if err != nil {
-		return nil, err
-	}
-	return &plugin.ApiResourceOutput{Body: apiScope, Status: http.StatusOK}, nil
+	return scopeHelper.GetScope(input, "github_id")
 }
