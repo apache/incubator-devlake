@@ -66,7 +66,7 @@ func NewScopeHelper[Conn any, Scope any, Tr any](
 
 type ScopeRes[T any] struct {
 	Scope                  T      `mapstructure:",squash"`
-	TransformationRuleName string `json:"transformationRuleName,omitempty"`
+	TransformationRuleName string `mapstructure:"transformationRuleName,omitempty"`
 }
 
 type ScopeReq[T any] struct {
@@ -331,9 +331,9 @@ func VerifyScope(scope interface{}, vld *validator.Validate) errors.Error {
 }
 
 // Implement MarshalJSON method to flatten all fields
-func (sr ScopeRes[T]) MarshalJSON() ([]byte, error) {
-	// Create an empty map to store flattened fields and values
-	flatMap, err := flattenStruct(sr)
+func (sr *ScopeRes[T]) MarshalJSON() ([]byte, error) {
+	var flatMap map[string]interface{}
+	err := mapstructure.Decode(sr, &flatMap)
 	if err != nil {
 		return nil, err
 	}
@@ -344,42 +344,4 @@ func (sr ScopeRes[T]) MarshalJSON() ([]byte, error) {
 	}
 
 	return result, nil
-}
-
-// A helper function to flatten nested structs
-func flattenStruct(s interface{}) (map[string]interface{}, error) {
-	flatMap := make(map[string]interface{})
-
-	// Use reflection to get all fields of the nested struct type
-	fields := reflect.TypeOf(s).NumField()
-
-	// Traverse all fields of the nested struct and add them to flatMap
-	for i := 0; i < fields; i++ {
-		field := reflect.TypeOf(s).Field(i)
-		fieldValue := reflect.ValueOf(s).Field(i)
-		if strings.Contains(field.Tag.Get("swaggerignore"), "true") {
-			continue
-		}
-		if fieldValue.IsZero() && strings.Contains(field.Tag.Get("json"), "omitempty") {
-			continue
-		}
-		// If the field is a nested struct, recursively flatten its fields
-		if field.Type.Kind() == reflect.Struct && strings.Contains(field.Tag.Get("mapstructure"), "squash") {
-			nestedFields, err := flattenStruct(fieldValue.Interface())
-			if err != nil {
-				return nil, err
-			}
-			for k, v := range nestedFields {
-				flatMap[lowerCaseFirst(k)] = v
-			}
-		} else {
-			// If the field is not a nested struct, add its name and value to flatMap
-			flatMap[lowerCaseFirst(field.Name)] = fieldValue.Interface()
-		}
-	}
-	return flatMap, nil
-}
-
-func lowerCaseFirst(name string) string {
-	return strings.ToLower(string(name[0])) + name[1:]
 }

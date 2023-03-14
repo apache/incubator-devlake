@@ -20,6 +20,7 @@ package api
 import (
 	"github.com/apache/incubator-devlake/core/errors"
 	"github.com/apache/incubator-devlake/core/plugin"
+	"github.com/apache/incubator-devlake/helpers/pluginhelper/api"
 	"github.com/apache/incubator-devlake/plugins/github/models"
 )
 
@@ -28,13 +29,15 @@ type ScopeRes struct {
 	TransformationRuleName string `json:"transformationRuleName,omitempty"`
 }
 
+type ScopeReq api.ScopeReq[models.GithubRepo]
+
 // PutScope create or update github repo
 // @Summary create or update github repo
 // @Description Create or update github repo
 // @Tags plugins/github
 // @Accept application/json
 // @Param connectionId path int true "connection ID"
-// @Param scope body req true "json"
+// @Param scope body ScopeReq true "json"
 // @Success 200  {object} []models.GithubRepo
 // @Failure 400  {object} shared.ApiBody "Bad Request"
 // @Failure 500  {object} shared.ApiBody "Internal Error"

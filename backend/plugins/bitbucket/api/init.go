@@ -20,11 +20,13 @@ package api
 import (
 	"github.com/apache/incubator-devlake/core/context"
 	"github.com/apache/incubator-devlake/helpers/pluginhelper/api"
+	"github.com/apache/incubator-devlake/plugins/bitbucket/models"
 	"github.com/go-playground/validator/v10"
 )
 
 var vld *validator.Validate
 var connectionHelper *api.ConnectionApiHelper
+var scopeHelper *api.ScopeApiHelper[models.BitbucketConnection, models.BitbucketRepo, models.BitbucketTransformationRule]
 var basicRes context.BasicRes
 
 func Init(br context.BasicRes) {
@@ -33,5 +35,10 @@ func Init(br context.BasicRes) {
 	connectionHelper = api.NewConnectionHelper(
 		basicRes,
 		vld,
+	)
+	scopeHelper = api.NewScopeHelper[models.BitbucketConnection, models.BitbucketRepo, models.BitbucketTransformationRule](
+		basicRes,
+		vld,
+		connectionHelper,
 	)
 }

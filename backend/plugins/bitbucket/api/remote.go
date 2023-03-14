@@ -361,3 +361,8 @@ func GetQueryFromPageData(pageData *PageData) (url.Values, errors.Error) {
 	query.Set("pagelen", fmt.Sprintf("%v", pageData.PerPage))
 	return query, nil
 }
+func extractParam(params map[string]string) (uint64, string) {
+	connectionId, _ := strconv.ParseUint(params["connectionId"], 10, 64)
+	fullName := strings.TrimLeft(params["repoId"], "/")
+	return connectionId, fullName
+}

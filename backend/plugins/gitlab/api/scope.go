@@ -20,6 +20,7 @@ package api
 import (
 	"github.com/apache/incubator-devlake/core/errors"
 	"github.com/apache/incubator-devlake/core/plugin"
+	"github.com/apache/incubator-devlake/helpers/pluginhelper/api"
 	"github.com/apache/incubator-devlake/plugins/gitlab/models"
 )
 
@@ -28,13 +29,15 @@ type ScopeRes struct {
 	TransformationRuleName string `json:"transformationRuleName,omitempty"`
 }
 
+type ScopeReq api.ScopeReq[models.GitlabProject]
+
 // PutScope create or update gitlab project
 // @Summary create or update gitlab project
 // @Description Create or update gitlab project
 // @Tags plugins/gitlab
 // @Accept application/json
 // @Param connectionId path int false "connection ID"
-// @Param scope body req true "json"
+// @Param scope body ScopeReq true "json"
 // @Success 200  {object} []models.GitlabProject
 // @Failure 400  {object} shared.ApiBody "Bad Request"
 // @Failure 500  {object} shared.ApiBody "Internal Error"
@@ -49,12 +52,12 @@ func PutScope(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, errors
 // @Tags plugins/gitlab
 // @Accept application/json
 // @Param connectionId path int false "connection ID"
-// @Param projectId path int false "project ID"
+// @Param scopeId path int false "project ID"
 // @Param scope body models.GitlabProject true "json"
 // @Success 200  {object} models.GitlabProject
 // @Failure 400  {object} shared.ApiBody "Bad Request"
 // @Failure 500  {object} shared.ApiBody "Internal Error"
-// @Router /plugins/gitlab/connections/{connectionId}/scopes/{projectId} [PATCH]
+// @Router /plugins/gitlab/connections/{connectionId}/scopes/{scopeId} [PATCH]
 func UpdateScope(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, errors.Error) {
 	return scopeHelper.Update(input, "gitlab_id")
 }
@@ -77,13 +80,13 @@ func GetScopeList(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, er
 // @Description get one Gitlab project
 // @Tags plugins/gitlab
 // @Param connectionId path int false "connection ID"
-// @Param projectId path int false "project ID"
+// @Param scopeId path int false "project ID"
 // @Param pageSize query int false "page size, default 50"
 // @Param page query int false "page size, default 1"
 // @Success 200  {object} ScopeRes
 // @Failure 400  {object} shared.ApiBody "Bad Request"
 // @Failure 500  {object} shared.ApiBody "Internal Error"
-// @Router /plugins/gitlab/connections/{connectionId}/scopes/{projectId} [GET]
+// @Router /plugins/gitlab/connections/{connectionId}/scopes/{scopeId} [GET]
 func GetScope(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, errors.Error) {
 	return scopeHelper.GetScope(input, "gitlab_id")
 }
