@@ -33,7 +33,7 @@ var CollectApiPipelinesMeta = plugin.SubTaskMeta{
 	Name:             "collectApiPipelines",
 	EntryPoint:       CollectApiPipelines,
 	EnabledByDefault: true,
-	Description:      "Collect pipeline data from gitlab api",
+	Description:      "Collect pipeline data from gitlab api, supports both timeFilter and diffSync.",
 	DomainTypes:      []string{plugin.DOMAIN_TYPE_CICD},
 }
 
