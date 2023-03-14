@@ -24,16 +24,13 @@ import (
 	"crypto/sha256"
 	"encoding/base64"
 	"fmt"
-	"github.com/apache/incubator-devlake/core/errors"
 	"math/rand"
 	"time"
+
+	"github.com/apache/incubator-devlake/core/errors"
 )
 
 const EncodeKeyEnvStr = "ENCODE_KEY"
-
-func init() {
-	rand.Seed(time.Now().UnixNano())
-}
 
 // TODO: maybe move encryption/decryption into helper?
 // AES + Base64 encryption using ENCODE_KEY in .env as key
@@ -161,9 +158,10 @@ func RandomEncKey() string {
 const letterBytes = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789"
 
 func RandLetterBytes(n int) string {
+	r := rand.New(rand.NewSource(time.Now().Unix()))
 	b := make([]byte, n)
 	for i := range b {
-		b[i] = letterBytes[rand.Intn(len(letterBytes))]
+		b[i] = letterBytes[r.Intn(len(letterBytes))]
 	}
 	return string(b)
 }

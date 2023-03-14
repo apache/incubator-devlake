@@ -22,17 +22,17 @@ import (
 	"encoding/hex"
 	"encoding/json"
 	"fmt"
-	"github.com/apache/incubator-devlake/core/errors"
-	"github.com/apache/incubator-devlake/core/models"
 	"io"
 	"math/rand"
 	"net/http"
 	"strings"
 	"time"
+
+	"github.com/apache/incubator-devlake/core/errors"
+	"github.com/apache/incubator-devlake/core/models"
 )
 
 func init() {
-	rand.Seed(time.Now().UnixNano())
 }
 
 // NotificationService FIXME ...
@@ -107,9 +107,10 @@ func (n *NotificationService) signature(input, nouce string) string {
 var letters = []rune("abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ")
 
 func randSeq(n int) string {
+	r := rand.New(rand.NewSource(time.Now().Unix()))
 	b := make([]rune, n)
 	for i := range b {
-		b[i] = letters[rand.Intn(len(letters))]
+		b[i] = letters[r.Intn(len(letters))]
 	}
 	return string(b)
 }
