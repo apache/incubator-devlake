@@ -23,8 +23,8 @@ import (
 )
 
 type GithubRepo struct {
-	ConnectionId         uint64     `json:"connectionId" gorm:"primaryKey" mapstructure:"connectionId,omitempty"`
-	GithubId             int        `json:"githubId" gorm:"primaryKey" mapstructure:"githubId"`
+	ConnectionId         uint64     `json:"connectionId" gorm:"primaryKey" validate:"required" mapstructure:"connectionId,omitempty"`
+	GithubId             int        `json:"githubId" gorm:"primaryKey" validate:"required" mapstructure:"githubId"`
 	Name                 string     `json:"name" gorm:"type:varchar(255)" mapstructure:"name,omitempty"`
 	HTMLUrl              string     `json:"HTMLUrl" gorm:"type:varchar(255)" mapstructure:"HTMLUrl,omitempty"`
 	Description          string     `json:"description" mapstructure:"description,omitempty"`

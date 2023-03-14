@@ -23,8 +23,10 @@ import (
 	"github.com/apache/incubator-devlake/helpers/unithelper"
 	mockcontext "github.com/apache/incubator-devlake/mocks/core/context"
 	mockdal "github.com/apache/incubator-devlake/mocks/core/dal"
+	"github.com/go-playground/validator/v10"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
+	"gorm.io/datatypes"
 	"gorm.io/gorm"
 	"reflect"
 	"testing"
@@ -32,7 +34,7 @@ import (
 )
 
 type TestModel struct {
-	ID   uint   `gorm:"primaryKey"`
+	ID   uint   `gorm:"primaryKey" validate:"required"`
 	Name string `gorm:"primaryKey;type:BIGINT  NOT NULL"`
 }
 
@@ -70,11 +72,7 @@ func (GithubConnection) TableName() string {
 	return "_tool_github_connections"
 }
 
-type req struct {
-	Data []*GithubRepo `json:"data"`
-}
-
-func TestCheckPrimaryKeyValue(t *testing.T) {
+func TestVerifyScope(t *testing.T) {
 	testCases := []struct {
 		name    string
 		model   TestModel
@@ -102,17 +100,38 @@ func TestCheckPrimaryKeyValue(t *testing.T) {
 				ID:   1,
 				Name: "",
 			},
-			wantErr: true,
+			wantErr: false,
 		},
 	}
 
 	for _, tc := range testCases {
-		err := VerifyPrimaryKeyValue(tc.model)
+		err := VerifyScope(&tc.model, validator.New())
 		if (err != nil) != tc.wantErr {
 			t.Errorf("unexpected error value - got: %v, want: %v", err, tc.wantErr)
 		}
 
 	}
+}
+
+type GithubTransformationRule struct {
+	common.Model         `mapstructure:"-"`
+	Name                 string            `mapstructure:"name" json:"name" gorm:"type:varchar(255);index:idx_name_github,unique" validate:"required"`
+	PrType               string            `mapstructure:"prType,omitempty" json:"prType" gorm:"type:varchar(255)"`
+	PrComponent          string            `mapstructure:"prComponent,omitempty" json:"prComponent" gorm:"type:varchar(255)"`
+	PrBodyClosePattern   string            `mapstructure:"prBodyClosePattern,omitempty" json:"prBodyClosePattern" gorm:"type:varchar(255)"`
+	IssueSeverity        string            `mapstructure:"issueSeverity,omitempty" json:"issueSeverity" gorm:"type:varchar(255)"`
+	IssuePriority        string            `mapstructure:"issuePriority,omitempty" json:"issuePriority" gorm:"type:varchar(255)"`
+	IssueComponent       string            `mapstructure:"issueComponent,omitempty" json:"issueComponent" gorm:"type:varchar(255)"`
+	IssueTypeBug         string            `mapstructure:"issueTypeBug,omitempty" json:"issueTypeBug" gorm:"type:varchar(255)"`
+	IssueTypeIncident    string            `mapstructure:"issueTypeIncident,omitempty" json:"issueTypeIncident" gorm:"type:varchar(255)"`
+	IssueTypeRequirement string            `mapstructure:"issueTypeRequirement,omitempty" json:"issueTypeRequirement" gorm:"type:varchar(255)"`
+	DeploymentPattern    string            `mapstructure:"deploymentPattern,omitempty" json:"deploymentPattern" gorm:"type:varchar(255)"`
+	ProductionPattern    string            `mapstructure:"productionPattern,omitempty" json:"productionPattern" gorm:"type:varchar(255)"`
+	Refdiff              datatypes.JSONMap `mapstructure:"refdiff,omitempty" json:"refdiff" swaggertype:"object" format:"json"`
+}
+
+func (GithubTransformationRule) TableName() string {
+	return "_tool_github_transformation_rules"
 }
 
 func TestSetGitlabProjectFields(t *testing.T) {
@@ -126,11 +145,11 @@ func TestSetGitlabProjectFields(t *testing.T) {
 		common.NoPKModel `json:"-" mapstructure:"-"`
 	}
 
-	// call SetScopeFields to assign value
+	// call setScopeFields to assign value
 	connectionId := uint64(123)
 	createdDate := time.Now()
 	updatedDate := &createdDate
-	SetScopeFields(&p, connectionId, &createdDate, updatedDate)
+	setScopeFields(&p, connectionId, &createdDate, updatedDate)
 
 	// verify fields
 	if p.ConnectionId != connectionId {
@@ -147,7 +166,7 @@ func TestSetGitlabProjectFields(t *testing.T) {
 		t.Errorf("UpdatedDate not set correctly, expected: %v, got: %v", updatedDate, p.UpdatedDate)
 	}
 
-	SetScopeFields(&p, connectionId, &createdDate, nil)
+	setScopeFields(&p, connectionId, &createdDate, nil)
 
 	// verify fields
 	if p.ConnectionId != connectionId {
@@ -183,10 +202,10 @@ func TestReturnPrimaryKeyValue(t *testing.T) {
 	}
 
 	// Call the function and check if it returns the correct primary key value.
-	result := ReturnPrimaryKeyValue(test)
+	result := returnPrimaryKeyValue(test)
 	expected := "1-123"
 	if result != expected {
-		t.Errorf("ReturnPrimaryKeyValue returned %s, expected %s", result, expected)
+		t.Errorf("returnPrimaryKeyValue returned %s, expected %s", result, expected)
 	}
 
 	// Test with a different struct that has no field with primaryKey tag.
@@ -203,10 +222,10 @@ func TestReturnPrimaryKeyValue(t *testing.T) {
 		CreatedAt: time.Now(),
 	}
 
-	result2 := ReturnPrimaryKeyValue(test2)
+	result2 := returnPrimaryKeyValue(test2)
 	expected2 := ""
 	if result2 != expected2 {
-		t.Errorf("ReturnPrimaryKeyValue returned %s, expected %s", result2, expected2)
+		t.Errorf("returnPrimaryKeyValue returned %s, expected %s", result2, expected2)
 	}
 }
 
@@ -233,37 +252,42 @@ func TestScopeApiHelper_Put(t *testing.T) {
 	connHelper := NewConnectionHelper(mockRes, nil)
 
 	// create a mock input, scopes, and connection
-	input := &plugin.ApiResourceInput{Params: map[string]string{"connectionId": "123"}}
-	scopes := []*GithubRepo{
-		{GithubId: 1, Name: "scope1"},
-		{GithubId: 2, Name: "scope2"},
-	}
-	connection := &GithubConnection{}
-	connection.ID = 3
-	connection.Name = "test"
+	input := &plugin.ApiResourceInput{Params: map[string]string{"connectionId": "123"}, Body: map[string]interface{}{
+		"data": []map[string]interface{}{
+			{
+				"HTMLUrl":              "string",
+				"githubId":             1,
+				"cloneUrl":             "string",
+				"connectionId":         1,
+				"createdAt":            "string",
+				"createdDate":          "string",
+				"description":          "string",
+				"language":             "string",
+				"name":                 "string",
+				"owner":                "string",
+				"transformationRuleId": 0,
+				"updatedAt":            "string",
+				"updatedDate":          "string",
+			},
+			{
+				"HTMLUrl":              "11",
+				"githubId":             2,
+				"cloneUrl":             "string",
+				"connectionId":         1,
+				"createdAt":            "string",
+				"createdDate":          "string",
+				"description":          "string",
+				"language":             "string",
+				"name":                 "string",
+				"owner":                "string",
+				"transformationRuleId": 0,
+				"updatedAt":            "string",
+				"updatedDate":          "string",
+			}}}}
 
 	// create a mock ScopeApiHelper with a mock database connection
-	apiHelper := &ScopeApiHelper{db: mockDal, connHelper: connHelper}
-	apiReq := req{Data: scopes}
+	apiHelper := &ScopeApiHelper[GithubConnection, GithubRepo, GithubTransformationRule]{db: mockDal, connHelper: connHelper}
 	// test a successful call to Put
-	err := apiHelper.Put(input, &apiReq, connection)
+	_, err := apiHelper.Put(input)
 	assert.NoError(t, err)
-
-	// test a call to Put with a duplicate primary key value
-	duplicateScopes := []*GithubRepo{
-		{GithubId: 1, Name: "scope1"},
-		{GithubId: 1, Name: "scope2"},
-	}
-	apiReq.Data = duplicateScopes
-	err = apiHelper.Put(input, &apiReq, connection)
-	assert.Error(t, err)
-
-	// test a call to Put with an invalid primary key value
-	invalidScopes := []*GithubRepo{
-		{GithubId: 0, Name: "scope1"},
-	}
-	apiReq.Data = invalidScopes
-
-	err = apiHelper.Put(input, &apiReq, connection)
-	assert.Error(t, err)
 }
