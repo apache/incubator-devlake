@@ -19,17 +19,18 @@ package tasks
 
 import (
 	"encoding/json"
-	"github.com/apache/incubator-devlake/core/dal"
-	"github.com/apache/incubator-devlake/core/errors"
-	"github.com/apache/incubator-devlake/core/plugin"
-	helper "github.com/apache/incubator-devlake/helpers/pluginhelper/api"
-	"github.com/apache/incubator-devlake/plugins/gitlab/models"
 	"io"
 	"net/http"
 	"net/url"
 	"reflect"
 	"strconv"
 	"time"
+
+	"github.com/apache/incubator-devlake/core/dal"
+	"github.com/apache/incubator-devlake/core/errors"
+	"github.com/apache/incubator-devlake/core/plugin"
+	helper "github.com/apache/incubator-devlake/helpers/pluginhelper/api"
+	"github.com/apache/incubator-devlake/plugins/gitlab/models"
 )
 
 const RAW_JOB_TABLE = "gitlab_api_job"
@@ -43,7 +44,7 @@ var CollectApiJobsMeta = plugin.SubTaskMeta{
 	Name:             "collectApiJobs",
 	EntryPoint:       CollectApiJobs,
 	EnabledByDefault: true,
-	Description:      "Collect job data from gitlab api",
+	Description:      "Collect job data from gitlab api, supports both timeFilter and diffSync.",
 	DomainTypes:      []string{plugin.DOMAIN_TYPE_CICD},
 }
 

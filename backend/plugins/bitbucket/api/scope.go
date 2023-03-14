@@ -18,25 +18,18 @@ limitations under the License.
 package api
 
 import (
-	"github.com/apache/incubator-devlake/core/dal"
 	"github.com/apache/incubator-devlake/core/errors"
 	"github.com/apache/incubator-devlake/core/plugin"
 	"github.com/apache/incubator-devlake/helpers/pluginhelper/api"
 	"github.com/apache/incubator-devlake/plugins/bitbucket/models"
-	"github.com/mitchellh/mapstructure"
-	"net/http"
-	"strconv"
-	"strings"
 )
 
-type apiRepo struct {
+type ScopeRes struct {
 	models.BitbucketRepo
 	TransformationRuleName string `json:"transformationRuleName,omitempty"`
 }
 
-type req struct {
-	Data []*models.BitbucketRepo `json:"data"`
-}
+type ScopeReq api.ScopeReq[models.BitbucketRepo]
 
 // PutScope create or update repo
 // @Summary create or update repo
@@ -44,39 +37,13 @@ type req struct {
 // @Tags plugins/bitbucket
 // @Accept application/json
 // @Param connectionId path int true "connection ID"
-// @Param scope body req true "json"
+// @Param scope body ScopeReq true "json"
 // @Success 200  {object} []models.BitbucketRepo
 // @Failure 400  {object} shared.ApiBody "Bad Request"
 // @Failure 500  {object} shared.ApiBody "Internal Error"
 // @Router /plugins/bitbucket/connections/{connectionId}/scopes [PUT]
 func PutScope(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, errors.Error) {
-	connectionId, _ := extractParam(input.Params)
-	if connectionId == 0 {
-		return nil, errors.BadInput.New("invalid connectionId")
-	}
-	var repos req
-	err := errors.Convert(mapstructure.Decode(input.Body, &repos))
-	if err != nil {
-		return nil, errors.BadInput.Wrap(err, "decoding repo error")
-	}
-	keeper := make(map[string]struct{})
-	for _, repo := range repos.Data {
-		if _, ok := keeper[repo.BitbucketId]; ok {
-			return nil, errors.BadInput.New("duplicated item")
-		} else {
-			keeper[repo.BitbucketId] = struct{}{}
-		}
-		repo.ConnectionId = connectionId
-		err = verifyRepo(repo)
-		if err != nil {
-			return nil, err
-		}
-	}
-	err = basicRes.GetDal().CreateOrUpdate(repos.Data)
-	if err != nil {
-		return nil, errors.Default.Wrap(err, "error on saving BitbucketRepo")
-	}
-	return &plugin.ApiResourceOutput{Body: repos.Data, Status: http.StatusOK}, nil
+	return scopeHelper.Put(input)
 }
 
 // UpdateScope patch to repo
@@ -85,35 +52,14 @@ func PutScope(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, errors
 // @Tags plugins/bitbucket
 // @Accept application/json
 // @Param connectionId path int true "connection ID"
-// @Param repoId path string true "repo ID"
+// @Param scopeId path string true "repo ID"
 // @Param scope body models.BitbucketRepo true "json"
 // @Success 200  {object} models.BitbucketRepo
 // @Failure 400  {object} shared.ApiBody "Bad Request"
 // @Failure 500  {object} shared.ApiBody "Internal Error"
-// @Router /plugins/bitbucket/connections/{connectionId}/scopes/{repoId} [PATCH]
+// @Router /plugins/bitbucket/connections/{connectionId}/scopes/{scopeId} [PATCH]
 func UpdateScope(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, errors.Error) {
-	connectionId, repoId := extractParam(input.Params)
-	if connectionId == 0 || repoId == "" {
-		return nil, errors.BadInput.New("invalid connectionId or repoId")
-	}
-	var repo models.BitbucketRepo
-	err := basicRes.GetDal().First(&repo, dal.Where("connection_id = ? AND bitbucket_id = ?", connectionId, repoId))
-	if err != nil {
-		return nil, errors.Default.Wrap(err, "getting Repo error")
-	}
-	err = api.DecodeMapStruct(input.Body, &repo)
-	if err != nil {
-		return nil, errors.Default.Wrap(err, "patch repo error")
-	}
-	err = verifyRepo(&repo)
-	if err != nil {
-		return nil, err
-	}
-	err = basicRes.GetDal().Update(repo)
-	if err != nil {
-		return nil, errors.Default.Wrap(err, "error on saving BitbucketRepo")
-	}
-	return &plugin.ApiResourceOutput{Body: repo, Status: http.StatusOK}, nil
+	return scopeHelper.Update(input, "bitbucket_id")
 }
 
 // GetScopeList get repos
@@ -123,43 +69,12 @@ func UpdateScope(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, err
 // @Param connectionId path int true "connection ID"
 // @Param pageSize query int false "page size, default 50"
 // @Param page query int false "page size, default 1"
-// @Success 200  {object} []apiRepo
+// @Success 200  {object} []ScopeRes
 // @Failure 400  {object} shared.ApiBody "Bad Request"
 // @Failure 500  {object} shared.ApiBody "Internal Error"
 // @Router /plugins/bitbucket/connections/{connectionId}/scopes/ [GET]
 func GetScopeList(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, errors.Error) {
-	var repos []models.BitbucketRepo
-	connectionId, _ := extractParam(input.Params)
-	if connectionId == 0 {
-		return nil, errors.BadInput.New("invalid path params")
-	}
-	limit, offset := api.GetLimitOffset(input.Query, "pageSize", "page")
-	err := basicRes.GetDal().All(&repos, dal.Where("connection_id = ?", connectionId), dal.Limit(limit), dal.Offset(offset))
-	if err != nil {
-		return nil, err
-	}
-	var ruleIds []uint64
-	for _, repo := range repos {
-		if repo.TransformationRuleId > 0 {
-			ruleIds = append(ruleIds, repo.TransformationRuleId)
-		}
-	}
-	var rules []models.BitbucketTransformationRule
-	if len(ruleIds) > 0 {
-		err = basicRes.GetDal().All(&rules, dal.Where("id IN (?)", ruleIds))
-		if err != nil {
-			return nil, err
-		}
-	}
-	names := make(map[uint64]string)
-	for _, rule := range rules {
-		names[rule.ID] = rule.Name
-	}
-	var apiRepos []apiRepo
-	for _, repo := range repos {
-		apiRepos = append(apiRepos, apiRepo{repo, names[repo.TransformationRuleId]})
-	}
-	return &plugin.ApiResourceOutput{Body: apiRepos, Status: http.StatusOK}, nil
+	return scopeHelper.GetScopeList(input)
 }
 
 // GetScope get one repo
@@ -167,47 +82,11 @@ func GetScopeList(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, er
 // @Description get one repo
 // @Tags plugins/bitbucket
 // @Param connectionId path int true "connection ID"
-// @Param repoId path string true "repo ID"
-// @Success 200  {object} apiRepo
+// @Param scopeId path string true "repo ID"
+// @Success 200  {object} ScopeRes
 // @Failure 400  {object} shared.ApiBody "Bad Request"
 // @Failure 500  {object} shared.ApiBody "Internal Error"
-// @Router /plugins/bitbucket/connections/{connectionId}/scopes/{repoId} [GET]
+// @Router /plugins/bitbucket/connections/{connectionId}/scopes/{scopeId} [GET]
 func GetScope(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, errors.Error) {
-	var repo models.BitbucketRepo
-	connectionId, repoId := extractParam(input.Params)
-	if connectionId == 0 || repoId == "" {
-		return nil, errors.BadInput.New("invalid connectionId or repoId")
-	}
-	db := basicRes.GetDal()
-	err := db.First(&repo, dal.Where("connection_id = ? AND bitbucket_id = ?", connectionId, repoId))
-	if db.IsErrorNotFound(err) {
-		return nil, errors.NotFound.New("record not found")
-	}
-	if err != nil {
-		return nil, err
-	}
-	var rule models.BitbucketTransformationRule
-	if repo.TransformationRuleId > 0 {
-		err = basicRes.GetDal().First(&rule, dal.Where("id = ?", repo.TransformationRuleId))
-		if err != nil {
-			return nil, err
-		}
-	}
-	return &plugin.ApiResourceOutput{Body: apiRepo{repo, rule.Name}, Status: http.StatusOK}, nil
-}
-
-func extractParam(params map[string]string) (uint64, string) {
-	connectionId, _ := strconv.ParseUint(params["connectionId"], 10, 64)
-	fullName := strings.TrimLeft(params["repoId"], "/")
-	return connectionId, fullName
-}
-
-func verifyRepo(repo *models.BitbucketRepo) errors.Error {
-	if repo.ConnectionId == 0 {
-		return errors.BadInput.New("invalid connectionId")
-	}
-	if repo.BitbucketId == `` {
-		return errors.BadInput.New("invalid bitbucket ID or full name")
-	}
-	return nil
+	return scopeHelper.GetScope(input, "bitbucket_id")
 }

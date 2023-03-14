@@ -32,7 +32,7 @@ var CollectApiMergeRequestsMeta = plugin.SubTaskMeta{
 	Name:             "collectApiMergeRequests",
 	EntryPoint:       CollectApiMergeRequests,
 	EnabledByDefault: true,
-	Description:      "Collect merge requests data from gitlab api",
+	Description:      "Collect merge requests data from gitlab api, supports both timeFilter and diffSync.",
 	DomainTypes:      []string{plugin.DOMAIN_TYPE_CODE_REVIEW},
 }
 

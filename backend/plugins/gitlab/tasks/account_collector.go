@@ -35,7 +35,7 @@ var CollectAccountsMeta = plugin.SubTaskMeta{
 	Name:             "collectAccounts",
 	EntryPoint:       CollectAccounts,
 	EnabledByDefault: true,
-	Description:      "collect gitlab users",
+	Description:      "collect gitlab users, does not support either timeFilter or diffSync.",
 	DomainTypes:      []string{plugin.DOMAIN_TYPE_CROSS},
 }
 

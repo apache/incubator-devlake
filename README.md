@@ -34,22 +34,20 @@ Apache DevLake is designed for developer teams looking to make better sense of t
 
 ## 💪 Supported Data Sources
 
-[Here](https://devlake.apache.org/docs/SupportedDataSources#data-sources-and-data-plugins) you can find all data sources supported by DevLake, their scopes, supported versions and more!
+[Here](https://devlake.apache.org/docs/Overview/SupportedDataSources) you can find all data sources supported by DevLake, their scopes, supported versions and more!
 
 
 ## 🚀 Getting Started
 
 - [Install via Docker Compose](https://devlake.apache.org/docs/GettingStarted/DockerComposeSetup)
-- [Install via Kubernetes](https://devlake.apache.org/docs/GettingStarted/KubernetesSetup)
-- [Install via Helm ](https://devlake.apache.org/docs/GettingStarted/HelmSetup)
-- [Install in Temporal Mode](https://devlake.apache.org/docs/GettingStarted/TemporalSetup)
+- [Install via Helm](https://devlake.apache.org/docs/GettingStarted/HelmSetup)
 - [Install in Developer Mode](https://devlake.apache.org/docs/DeveloperManuals/DeveloperSetup)
 
 ## 🤓 How do I use DevLake?
 
 ### 1. Set up DevLake
 
-You can set up Apache DevLake by following our step-by-step instructions for [Install via Docker Compose](https://devlake.apache.org/docs/GettingStarted/DockerComposeSetup) or [Install via Kubernetes](https://devlake.apache.org/docs/GettingStarted/KubernetesSetup). 
+You can set up Apache DevLake by following our step-by-step instructions for [Install via Docker Compose](https://devlake.apache.org/docs/GettingStarted/DockerComposeSetup) or [Install via Helm](https://devlake.apache.org/docs/GettingStarted/HelmSetup).
 Please see detailed instructions [here](https://devlake.apache.org/docs/Overview/Introduction#how-do-i-use-devlake), and ask the community if you get stuck at any point.
 
 ### 2. Create a Blueprint
@@ -79,7 +77,7 @@ Please read the [contribution guidelines](https://devlake.apache.org/community) 
 - [Contribute a Plugin](https://devlake.apache.org/docs/DeveloperManuals/PluginImplementation): [Add a plugin](https://github.com/apache/incubator-devlake/issues?q=is%3Aissue+is%3Aopen+label%3Aadd-a-plugin+) to integrate Apache DevLake with more data sources for the community
 
 ## 📄 Contributing to Documentation:
-  
+
 - Apache DevLake's documentation is hosted at [devlake.apache.org](https://devlake.apache.org/)
 - **We have a separate GitHub repository for Apache DevLake's documentation:** [github.com/apache/incubator-devlake-website](https://github.com/apache/incubator-devlake-website)
 
@@ -90,10 +88,11 @@ Please read the [contribution guidelines](https://devlake.apache.org/community) 
 ## 💙 Community
 
 - <a href="https://join.slack.com/t/devlake-io/shared_invite/zt-18uayb6ut-cHOjiYcBwERQ8VVPZ9cQQw" target="_blank">Slack</a>: Message us on Slack
-- <a href="https://github.com/apache/incubator-devlake/wiki/FAQ" target="_blank">FAQ</a>: Frequently Asked Questions
 - Wechat Community:<br/>
   ![](resources/img/wechat_community_barcode.png)
 
 ## 📄 License<a id="license"></a>
 
 This project is licensed under Apache License 2.0 - see the [LICENSE](LICENSE) file for details.
+
+</div>

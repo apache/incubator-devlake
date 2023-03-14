@@ -29,7 +29,7 @@ var CollectTagMeta = plugin.SubTaskMeta{
 	Name:             "collectApiTag",
 	EntryPoint:       CollectApiTag,
 	EnabledByDefault: false,
-	Description:      "Collect tag data from gitlab api",
+	Description:      "Collect tag data from gitlab api, does not support either timeFilter or diffSync.",
 	DomainTypes:      []string{plugin.DOMAIN_TYPE_CODE},
 }
 
