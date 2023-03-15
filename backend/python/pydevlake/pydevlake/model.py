@@ -29,7 +29,7 @@ inflect_engine = inflect.engine()
 
 
 class Model(SQLModel):
-    id: int = Field(primary_key=True)
+    id: Optional[int] = Field(primary_key=True)
     created_at: Optional[datetime] = Field(
         sa_column=Column(DateTime(), default=func.now())
     )
