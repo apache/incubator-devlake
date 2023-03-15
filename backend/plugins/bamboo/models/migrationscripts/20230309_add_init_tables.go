@@ -36,6 +36,7 @@ func (u *addInitTables) Up(baseRes context.BasicRes) errors.Error {
 		&archived.BambooJobBuild{},
 		&archived.BambooTransformationRule{},
 		&archived.BambooDeployEnvironment{},
+		&archived.BambooDeployBuild{},
 	)
 	return migrationhelper.AutoMigrateTables(
 		baseRes,
@@ -48,11 +49,12 @@ func (u *addInitTables) Up(baseRes context.BasicRes) errors.Error {
 		&archived.BambooJobBuild{},
 		&archived.BambooTransformationRule{},
 		&archived.BambooDeployEnvironment{},
+		&archived.BambooDeployBuild{},
 	)
 }
 
 func (*addInitTables) Version() uint64 {
-	return 20230309205035
+	return 20230315205035
 }
 
 func (*addInitTables) Name() string {

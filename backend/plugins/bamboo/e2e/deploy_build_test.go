@@ -20,53 +20,62 @@ package e2e
 import (
 	"testing"
 
+	"github.com/apache/incubator-devlake/core/models/common"
+	"github.com/apache/incubator-devlake/core/models/domainlayer/devops"
 	"github.com/apache/incubator-devlake/helpers/e2ehelper"
 	"github.com/apache/incubator-devlake/plugins/bamboo/impl"
 	"github.com/apache/incubator-devlake/plugins/bamboo/models"
 	"github.com/apache/incubator-devlake/plugins/bamboo/tasks"
 )
 
-func TestBambooPlanDataFlow(t *testing.T) {
-
+func TestBambooDeployBuildDataFlow(t *testing.T) {
 	var bamboo impl.Bamboo
 	dataflowTester := e2ehelper.NewDataFlowTester(t, "bamboo", bamboo)
-
 	taskData := &tasks.BambooTaskData{
 		Options: &models.BambooOptions{
-			ConnectionId:             3,
+			ConnectionId:             1,
 			ProjectKey:               "TEST1",
 			BambooTransformationRule: new(models.BambooTransformationRule),
 		},
 	}
+
 	// import raw data table
-	dataflowTester.ImportCsvIntoRawTable("./raw_tables/_raw_bamboo_api_plan.csv", "_raw_bamboo_api_plan")
+	dataflowTester.ImportCsvIntoRawTable("./raw_tables/_raw_bamboo_api_deploy_build.csv", "_raw_bamboo_api_deploy_build")
 
 	// verify extraction
-	dataflowTester.FlushTabler(&models.BambooPlan{})
-	dataflowTester.Subtask(tasks.ExtractPlanMeta, taskData)
+	dataflowTester.FlushTabler(&models.BambooDeployBuild{})
+	dataflowTester.Subtask(tasks.ExtractDeployBuildMeta, taskData)
 	dataflowTester.VerifyTable(
-		models.BambooPlan{},
-		"./snapshot_tables/_tool_bamboo_plans.csv",
+		models.BambooDeployBuild{},
+		"./snapshot_tables/_tool_bamboo_deploy_build.csv",
 		e2ehelper.ColumnWithRawData(
 			"connection_id",
+			"deploy_build_id",
+			"deployment_version_name",
+			"deployment_state",
+			"life_cycle_state",
+			"started_date",
+			"queued_date",
+			"executed_date",
+			"finished_date",
+			"reason_summary",
 			"plan_key",
-			"name",
-			"expand",
 			"project_key",
-			"project_name",
-			"description",
-			"short_name",
-			"build_name",
-			"short_key",
-			"type",
-			"enabled",
-			"href",
-			"rel",
-			"is_favourite",
-			"is_active",
-			"is_building",
-			"average_build_time_in_seconds",
+			"can_view",
+			"can_edit",
+			"can_delete",
+			"allowed_to_execute",
+			"can_execute",
+			"allowed_to_create_version",
+			"allowed_to_set_version_status",
 		),
 	)
 
+	// verify conversion
+	dataflowTester.FlushTabler(&devops.CICDTask{})
+	dataflowTester.Subtask(tasks.ConvertDeployBuildsMeta, taskData)
+	dataflowTester.VerifyTableWithOptions(&devops.CICDTask{}, e2ehelper.TableOptions{
+		CSVRelPath:  "./snapshot_tables/cicd_tasks_deploy.csv",
+		IgnoreTypes: []interface{}{common.NoPKModel{}},
+	})
 }
