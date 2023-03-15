@@ -31,7 +31,7 @@ class GitCommits(Stream):
     def collect(self, state, context) -> Iterable[tuple[object, dict]]:
         connection = context.connection
         repo: GitRepository = context.scope
-        azuredevops_api = AzureDevOpsAPI(connection.base_url, connection.pat)
+        azuredevops_api = AzureDevOpsAPI(connection.pat)
         response = azuredevops_api.commits(repo.org_id, repo.project_id, repo.id)
         for raw_commit in response:
             raw_commit["repo_id"] = repo.id

@@ -33,13 +33,12 @@ class AzurePaginator(Paginator):
 class AzureDevOpsAPI(API):
     paginator = AzurePaginator()
 
-    def __init__(self, base_url: str, pat: str):
-        self._base_url = base_url or "https://dev.azure.com/"
+    def __init__(self, pat: str):
         self.pat = pat
 
     @property
     def base_url(self):
-        return self._base_url
+        return "https://dev.azure.com/"
 
     @request_hook
     def authenticate(self, request: Request):

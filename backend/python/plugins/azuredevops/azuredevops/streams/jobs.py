@@ -30,7 +30,7 @@ class Jobs(Substream):
     def collect(self, state, context, parent: Build) -> Iterable[tuple[object, dict]]:
         connection: AzureDevOpsConnection = context.connection
         repo: GitRepository = context.scope
-        azuredevops_api = AzureDevOpsAPI(connection.base_url, connection.pat)
+        azuredevops_api = AzureDevOpsAPI(connection.pat)
         response = azuredevops_api.jobs(repo.org_id, repo.project_id, parent.id)
         if response.status != 200:
             yield None, state

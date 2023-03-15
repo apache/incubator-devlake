@@ -31,7 +31,7 @@ class GitPullRequestCommits(Substream):
     def collect(self, state, context, parent: GitPullRequest) -> Iterable[tuple[object, dict]]:
         connection = context.connection
         repo: GitRepository = context.scope
-        azuredevops_api = AzureDevOpsAPI(connection.base_url, connection.pat)
+        azuredevops_api = AzureDevOpsAPI(connection.pat)
         response = azuredevops_api.git_repo_pull_request_commits(repo.org_id, repo.project_id, parent.repo_id, parent.id)
         for raw_commit in response:
             raw_commit["repo_id"] = parent.repo_id

@@ -31,7 +31,7 @@ class GitPullRequests(Stream):
 
     def collect(self, state, context) -> Iterable[tuple[object, dict]]:
         connection = context.connection
-        azuredevops_api = AzureDevOpsAPI(connection.base_url, connection.pat)
+        azuredevops_api = AzureDevOpsAPI(connection.pat)
         repo: GitRepository = context.scope
         response = azuredevops_api.git_repo_pull_requests(repo.org_id, repo.project_id, repo.id)
         for raw_pr in response:
