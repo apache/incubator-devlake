@@ -105,18 +105,6 @@ step 3: framework should maintain the project_mapping table based on the []Scope
 	]
 */
 
-// Scope represents the top level entity for a data source, i.e. github repo,
-// gitlab project, jira board. They turn into repo, board in Domain Layer. In
-// Apache Devlake, a Project is essentially a set of these top level entities,
-// for the framework to maintain these relationships dynamically and
-// automatically, all Domain Layer Top Level Entities should implement this
-// interface
-type Scope interface {
-	ScopeId() string
-	ScopeName() string
-	TableName() string
-}
-
 // DataSourcePluginBlueprintV200 extends the V100 to provide support for
 // Project, so that complex metrics like DORA can be implemented based on a set
 // of Data Scopes

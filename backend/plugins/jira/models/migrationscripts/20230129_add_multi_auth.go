@@ -21,8 +21,8 @@ import (
 	"github.com/apache/incubator-devlake/core/context"
 	"github.com/apache/incubator-devlake/core/dal"
 	"github.com/apache/incubator-devlake/core/errors"
+	"github.com/apache/incubator-devlake/core/plugin"
 	"github.com/apache/incubator-devlake/helpers/migrationhelper"
-	"github.com/apache/incubator-devlake/helpers/pluginhelper/api/apihelperabstract"
 )
 
 type jiraMultiAuth20230129 struct {
@@ -43,7 +43,7 @@ func (script *addJiraMultiAuth20230129) Up(basicRes context.BasicRes) errors.Err
 	}
 	return basicRes.GetDal().UpdateColumn(
 		&jiraMultiAuth20230129{},
-		"auth_method", apihelperabstract.AUTH_METHOD_BASIC,
+		"auth_method", plugin.AUTH_METHOD_BASIC,
 		dal.Where("auth_method IS NULL"),
 	)
 }
