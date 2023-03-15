@@ -36,7 +36,7 @@ var CollectApiEventsMeta = plugin.SubTaskMeta{
 	Name:             "collectApiEvents",
 	EntryPoint:       CollectApiEvents,
 	EnabledByDefault: true,
-	Description:      "Collect Events data from Github api",
+	Description:      "Collect Events data from Github api, does not support either timeFilter or diffSync.",
 	DomainTypes:      []string{plugin.DOMAIN_TYPE_TICKET},
 }
 

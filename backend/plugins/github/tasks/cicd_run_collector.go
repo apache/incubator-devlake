@@ -44,7 +44,7 @@ var CollectRunsMeta = plugin.SubTaskMeta{
 	Name:             "collectRuns",
 	EntryPoint:       CollectRuns,
 	EnabledByDefault: true,
-	Description:      "Collect Runs data from Github action api",
+	Description:      "Collect Runs data from Github action api, supports both timeFilter and diffSync.",
 	DomainTypes:      []string{plugin.DOMAIN_TYPE_CICD},
 }
 
@@ -61,9 +61,7 @@ func CollectRuns(taskCtx plugin.SubTaskContext) errors.Error {
 	if err != nil {
 		return err
 	}
-
 	incremental := collectorWithState.IsIncremental()
-
 	// step 1: fetch records created after createdAfter
 	var createdAfter *time.Time
 	if incremental {
@@ -71,7 +69,6 @@ func CollectRuns(taskCtx plugin.SubTaskContext) errors.Error {
 	} else {
 		createdAfter = data.TimeAfter
 	}
-
 	err = collectorWithState.InitCollector(helper.ApiCollectorArgs{
 		ApiClient:   data.ApiClient,
 		PageSize:    PAGE_SIZE,
@@ -141,6 +138,12 @@ func CollectRuns(taskCtx plugin.SubTaskContext) errors.Error {
 type GithubRawRunsResult struct {
 	TotalCount         int64             `json:"total_count"`
 	GithubWorkflowRuns []json.RawMessage `json:"workflow_runs"`
+}
+
+
+type SimpleGithubApiJob struct {
+	GithubId  int
+	CreatedAt helper.Iso8601Time `json:"created_at"`
 }
 
 func collectUnfinishedRuns(taskCtx plugin.SubTaskContext) errors.Error {

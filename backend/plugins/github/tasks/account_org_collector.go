@@ -90,6 +90,6 @@ var CollectAccountOrgMeta = plugin.SubTaskMeta{
 	Name:             "collectAccountOrg",
 	EntryPoint:       CollectAccountOrg,
 	EnabledByDefault: true,
-	Description:      "Collect accounts org data from Github api",
+	Description:      "Collect accounts org data from Github api, does not support either timeFilter or diffSync.",
 	DomainTypes:      []string{plugin.DOMAIN_TYPE_CROSS},
 }
