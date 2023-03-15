@@ -34,13 +34,6 @@ export type MenuItemType = {
 };
 
 export const useMenu = () => {
-  const getGrafanaUrl = () => {
-    const suffix = '/d/lCO8w-pVk/homepage?orgId=1';
-    const { protocol, hostname } = window.location;
-
-    return process.env.LOCAL ? `${protocol}//${hostname}:3002${suffix}` : `/grafana${suffix}`;
-  };
-
   return useMemo(
     () =>
       [
@@ -91,13 +84,6 @@ export const useMenu = () => {
               disabled: true,
             },
           ],
-        },
-        {
-          key: 'dashboard',
-          title: 'Dashboard',
-          icon: 'dashboard',
-          path: getGrafanaUrl(),
-          target: true,
         },
       ] as MenuItemType[],
     [],
