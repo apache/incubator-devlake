@@ -18,7 +18,7 @@ from typing import Iterable
 import iso8601 as iso8601
 
 from azuredevops.api import AzureDevOpsAPI
-from azuredevops.models import AzureDevOpsConnection, GitRepository
+from azuredevops.models import GitRepository
 from azuredevops.models import Build
 from pydevlake import Context, DomainType, Stream, logger
 import pydevlake.domain_layer.devops as devops
@@ -29,10 +29,9 @@ class Builds(Stream):
     domain_types = [DomainType.CICD]
 
     def collect(self, state, context) -> Iterable[tuple[object, dict]]:
-        connection: AzureDevOpsConnection = context.connection
         repo: GitRepository = context.scope
-        azuredevops_api = AzureDevOpsAPI(connection.pat)
-        response = azuredevops_api.builds(repo.org_id, repo.project_id, repo.id, repo.provider)
+        api = AzureDevOpsAPI(context.connection)
+        response = api.builds(repo.org_id, repo.project_id, repo.id, repo.provider)
         for raw_build in response:
             yield raw_build, state
 

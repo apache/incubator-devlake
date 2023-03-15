@@ -17,13 +17,15 @@
 import os
 from typing import Optional
 from inspect import getmodule
-
 from datetime import datetime
-from sqlalchemy import Column, String, DateTime, func
+
+import inflect
+from pydantic import AnyUrl
+from sqlalchemy import Column, DateTime, func
 from sqlalchemy.orm import declared_attr
 from sqlalchemy.inspection import inspect
 from sqlmodel import SQLModel, Field
-import inflect
+
 
 inflect_engine = inflect.engine()
 
@@ -47,6 +49,7 @@ class ToolTable(Model):
 
 class Connection(ToolTable):
     name: str
+    proxy: Optional[AnyUrl]
 
 
 class TransformationRule(ToolTable):

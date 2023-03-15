@@ -29,10 +29,9 @@ class GitCommits(Stream):
     domain_types = [DomainType.CODE]
 
     def collect(self, state, context) -> Iterable[tuple[object, dict]]:
-        connection = context.connection
         repo: GitRepository = context.scope
-        azuredevops_api = AzureDevOpsAPI(connection.pat)
-        response = azuredevops_api.commits(repo.org_id, repo.project_id, repo.id)
+        api = AzureDevOpsAPI(context.connection)
+        response = api.commits(repo.org_id, repo.project_id, repo.id)
         for raw_commit in response:
             raw_commit["repo_id"] = repo.id
             yield raw_commit, state
