@@ -104,9 +104,9 @@ class Plugin(ABC):
         # TODO: Create tables
         pass
 
-    def make_remote_scopes(self, connection: Connection, group_id: Optional[str]) -> list[msg.RemoteScopeTreeNode]:
+    def make_remote_scopes(self, connection: Connection, group_id: Optional[str] = None) -> msg.RemoteScopes:
         if group_id:
-            return [
+            scopes = [
                 msg.RemoteScope(
                     id=tool_scope.id,
                     name=tool_scope.name,
@@ -116,7 +116,8 @@ class Plugin(ABC):
                 in self.remote_scopes(connection, group_id)
             ]
         else:
-            return self.remote_scope_groups(connection)
+            scopes = self.remote_scope_groups(connection)
+        return msg.RemoteScopes(__root__=scopes)
 
     def make_pipeline(self, tool_scopes: list[ToolScope], connection_id: int):
         """

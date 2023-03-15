@@ -70,7 +70,7 @@ class Subtask:
                             current=i
                         )
             except Exception as e:
-                logger.error(e)
+                logger.error(f'{type(e).__name__}: {e}')
 
             subtask_run.state = json.dumps(state)
             subtask_run.completed = datetime.now()

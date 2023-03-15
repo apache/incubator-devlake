@@ -21,6 +21,7 @@ import (
 	"fmt"
 	"net/http"
 	"reflect"
+	"strings"
 	"time"
 
 	"github.com/apache/incubator-devlake/core/models"
@@ -179,17 +180,27 @@ func (d *DevlakeClient) ListTransformRules(pluginName string) []any {
 }
 
 func (d *DevlakeClient) RemoteScopes(query RemoteScopesQuery) RemoteScopesOutput {
-	return sendHttpRequest[RemoteScopesOutput](d.testCtx, d.timeout, debugInfo{
-		print:      true,
-		inlineJson: false,
-	}, http.MethodGet, fmt.Sprintf("%s/plugins/%s/connections/%d/remote-scopes?groupId=%s?pageToken=%s&%s",
+	url := fmt.Sprintf("%s/plugins/%s/connections/%d/remote-scopes",
 		d.Endpoint,
 		query.PluginName,
 		query.ConnectionId,
-		query.GroupId,
-		query.PageToken,
-		mapToQueryString(query.Params)),
-		nil)
+	)
+	if query.Params == nil {
+		query.Params = make(map[string]string)
+	}
+	if query.GroupId != "" {
+		query.Params["groupId"] = query.GroupId
+	}
+	if query.PageToken != "" {
+		query.Params["pageToken"] = query.PageToken
+	}
+	if len(query.Params) > 0 {
+		url = url + "?" + mapToQueryString(query.Params)
+	}
+	return sendHttpRequest[RemoteScopesOutput](d.testCtx, d.timeout, debugInfo{
+		print:      true,
+		inlineJson: false,
+	}, http.MethodGet, url, nil)
 }
 
 // SearchRemoteScopes makes calls to the "scope API" indirectly. "Search" is the remote endpoint to hit.
@@ -252,11 +263,11 @@ func (d *DevlakeClient) RunPipeline(pipeline models.NewPipeline) models.Pipeline
 }
 
 func mapToQueryString(queryParams map[string]string) string {
-	q := ""
+	params := make([]string, 0)
 	for k, v := range queryParams {
-		q = q + "&" + k + "=" + v
+		params = append(params, k+"="+v)
 	}
-	return q
+	return strings.Join(params, "&")
 }
 
 // MonitorPipeline FIXME
