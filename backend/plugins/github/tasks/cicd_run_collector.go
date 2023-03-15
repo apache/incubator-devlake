@@ -140,7 +140,6 @@ type GithubRawRunsResult struct {
 	GithubWorkflowRuns []json.RawMessage `json:"workflow_runs"`
 }
 
-
 type SimpleGithubApiJob struct {
 	GithubId  int
 	CreatedAt helper.Iso8601Time `json:"created_at"`
