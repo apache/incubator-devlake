@@ -26,7 +26,7 @@ import (
 )
 
 func (pa *pluginAPI) TestConnection(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, errors.Error) {
-	err := pa.invoker.Call("test-connection", bridge.DefaultContext, input.Body).Get()
+	err := pa.invoker.Call("test-connection", bridge.DefaultContext, input.Body).Err
 	if err != nil {
 		return nil, err
 	}

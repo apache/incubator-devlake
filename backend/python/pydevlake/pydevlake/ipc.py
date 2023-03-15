@@ -29,7 +29,7 @@ def plugin_method(func):
 
     def send_output(send_ch: TextIO, obj: object):
         if not isinstance(obj, Message):
-            return
+            raise Exception(f"Not a message: {obj}")
         send_ch.write(obj.json(exclude_unset=True))
         send_ch.write('\n')
         send_ch.flush()
@@ -84,9 +84,9 @@ class PluginCommands:
         return self._plugin.plugin_info()
 
     @plugin_method
-    def remote_scopes(self, connection: dict, group_id: Optional[str]):
+    def remote_scopes(self, connection: dict, group_id: Optional[str] = None):
         c = self._plugin.connection_type(**connection)
-        return self._plugin.remote_scopes(c, group_id)
+        return self._plugin.make_remote_scopes(c, group_id)
 
     def startup(self, endpoint: str):
         self._plugin.startup(endpoint)

@@ -40,7 +40,7 @@ type GitlabProject struct {
 	ForkedFromProjectWebUrl string `json:"forkedFromProjectWebUrl" mapstructure:"forkedFromProjectWebUrl" gorm:"type:varchar(255)"`
 	HttpUrlToRepo           string `json:"httpUrlToRepo" gorm:"type:varchar(255)"`
 
-	CreatedDate      time.Time  `json:"createdDate" mapstructure:"-"`
+	CreatedDate      *time.Time `json:"createdDate" mapstructure:"-"`
 	UpdatedDate      *time.Time `json:"updatedDate" mapstructure:"-"`
 	common.NoPKModel `json:"-" mapstructure:"-"`
 }

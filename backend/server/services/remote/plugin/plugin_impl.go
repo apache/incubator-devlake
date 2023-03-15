@@ -174,17 +174,17 @@ func (p *remotePluginImpl) RunMigrations(forceMigrate bool) errors.Error {
 	if err != nil {
 		return err
 	}
+	err = api.CallDB(basicRes.GetDal().AutoMigrate, p.scopeTabler.New())
+	if err != nil {
+		return err
+	}
 	if p.transformationRuleTabler != nil {
 		err = api.CallDB(basicRes.GetDal().AutoMigrate, p.transformationRuleTabler.New())
 		if err != nil {
 			return err
 		}
 	}
-	err = api.CallDB(basicRes.GetDal().AutoMigrate, p.scopeTabler.New())
-	if err != nil {
-		return err
-	}
-	err = p.invoker.Call("run-migrations", bridge.DefaultContext, forceMigrate).Get()
+	err = p.invoker.Call("run-migrations", bridge.DefaultContext, forceMigrate).Err
 	return err
 }
 

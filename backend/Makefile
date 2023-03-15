@@ -29,7 +29,7 @@ go-dep:
 	go install github.com/golangci/golangci-lint/cmd/golangci-lint@v1.50.1
 
 python-dep:
-	pip install -r requirements.txt
+	pip install -r python/requirements.txt
 
 dep: go-dep python-dep
 
