@@ -34,11 +34,33 @@ export const TransformationWrapper = styled.div`
   .ci-cd {
     h3 {
       margin-top: 16px;
-      margin-bottom: 8px;
+
+      .bp4-tag {
+        margin-left: 4px;
+      }
     }
 
     .radio {
       padding-left: 20px;
+      margin-bottom: 16px;
+
+      .input {
+        display: flex;
+        align-items: center;
+        flex-wrap: wrap;
+
+        & + .input {
+          margin-top: 8px;
+        }
+
+        p {
+          color: #292b3f;
+        }
+
+        .bp4-input-group {
+          margin: 0 4px;
+        }
+      }
     }
   }
 

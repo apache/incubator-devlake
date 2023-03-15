@@ -210,7 +210,7 @@ export const GitHubTransformation = ({ transformation, setTransformation }: Prop
         <h2>CI/CD</h2>
         <h3>
           <span>Deployment</span>
-          <Tag minimal intent={Intent.PRIMARY} style={{ marginLeft: 4, fontWeight: 400 }}>
+          <Tag minimal intent={Intent.PRIMARY}>
             DORA
           </Tag>
         </h3>
@@ -221,56 +221,49 @@ export const GitHubTransformation = ({ transformation, setTransformation }: Prop
         >
           <Radio label="Detect Deployment from Jobs in GitHub Action" value={1} />
           {enableCICD === 1 && (
-            <>
+            <div className="radio">
               <p>
-                Not sure what a GitHub Action is?{' '}
+                Please fill in the following RegEx, as DevLake ONLY accounts for deployments in the production
+                environment for DORA metrics. Not sure what a GitHub Action job is?{' '}
                 <ExternalLink link="https://docs.github.com/en/actions/using-jobs/using-jobs-in-a-workflow">
                   See it here
                 </ExternalLink>
               </p>
-              <div className="radio">
-                <FormGroup
-                  inline
-                  label={
-                    <>
-                      <span>Deployment</span>
-                      <HelpTooltip content="A GitHub Action job with a name that matches the RegEx will be considered as a deployment in DevLake." />
-                    </>
+              <div className="input">
+                <p>The Job name that matches</p>
+                <InputGroup
+                  placeholder="(deploy|push-image)"
+                  value={transformation.deploymentPattern}
+                  onChange={(e) =>
+                    setTransformation({
+                      ...transformation,
+                      deploymentPattern: e.target.value,
+                    })
                   }
-                >
-                  <InputGroup
-                    placeholder="(deploy|push-image)"
-                    value={transformation.deploymentPattern}
-                    onChange={(e) =>
-                      setTransformation({
-                        ...transformation,
-                        deploymentPattern: e.target.value,
-                      })
-                    }
-                  />
-                </FormGroup>
-                <FormGroup
-                  inline
-                  label={
-                    <>
-                      <span>Production</span>
-                      <HelpTooltip content="DevLake is only concerned with deployments in production environment when calculating DORA metrics.A GitHub Action job with a name that matches the given RegEx will be considered as a job in the Production environment. If you leave this field empty, all data will be tagged as in the Production environment." />
-                    </>
-                  }
-                >
-                  <InputGroup
-                    placeholder="production"
-                    value={transformation.productionPattern}
-                    onChange={(e) =>
-                      setTransformation({
-                        ...transformation,
-                        productionPattern: e.target.value,
-                      })
-                    }
-                  />
-                </FormGroup>
+                />
+                <p>
+                  will be registered as a `Deployment` in DevLake. <span style={{ color: '#E34040' }}>*</span>
+                </p>
               </div>
-            </>
+              <div className="input">
+                <p>The Job name that matches</p>
+                <InputGroup
+                  disabled={!transformation.deploymentPattern}
+                  placeholder="production"
+                  value={transformation.productionPattern}
+                  onChange={(e) =>
+                    setTransformation({
+                      ...transformation,
+                      productionPattern: e.target.value,
+                    })
+                  }
+                />
+                <p>
+                  will be registered as a `Deployment` to the Production environment in DevLake.
+                  <HelpTooltip content="If you leave this field empty, all data will be tagged as in the Production environment. " />
+                </p>
+              </div>
+            </div>
           )}
           <Radio label="Not using any GitHub entities as Deployment" value={0} />
         </RadioGroup>
