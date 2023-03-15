@@ -108,7 +108,7 @@ func convertToRepositoryModel(project *models.GitlabProject) *code.Repo {
 		Url:         project.WebUrl,
 		Description: project.Description,
 		ForkedFrom:  project.ForkedFromProjectWebUrl,
-		CreatedDate: &project.CreatedDate,
+		CreatedDate: project.CreatedDate,
 		UpdatedDate: project.UpdatedDate,
 	}
 	return domainRepository
@@ -122,7 +122,7 @@ func convertToBoardModel(project *models.GitlabProject) *ticket.Board {
 		Name:        project.Name,
 		Url:         project.WebUrl,
 		Description: project.Description,
-		CreatedDate: &project.CreatedDate,
+		CreatedDate: project.CreatedDate,
 	}
 	return domainBoard
 }
@@ -143,7 +143,7 @@ func convertToCicdScopeModel(project *models.GitlabProject) *devops.CicdScope {
 		Name:        project.Name,
 		Url:         project.WebUrl,
 		Description: project.Description,
-		CreatedDate: &project.CreatedDate,
+		CreatedDate: project.CreatedDate,
 		UpdatedDate: project.UpdatedDate,
 	}
 	return domainCicdScope

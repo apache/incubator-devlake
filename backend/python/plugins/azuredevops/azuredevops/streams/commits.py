@@ -17,8 +17,8 @@ from typing import Iterable
 
 import iso8601 as iso8601
 
-from azure.api import AzureDevOpsAPI
-from azure.models import GitRepository, GitCommit
+from azuredevops.api import AzureDevOpsAPI
+from azuredevops.models import GitRepository, GitCommit
 from pydevlake import Stream, DomainType, Context
 from pydevlake.domain_layer.code import Commit as DomainCommit
 from pydevlake.domain_layer.code import RepoCommit as DomainRepoCommit
@@ -31,8 +31,8 @@ class GitCommits(Stream):
     def collect(self, state, context) -> Iterable[tuple[object, dict]]:
         connection = context.connection
         repo: GitRepository = context.scope
-        azure_api = AzureDevOpsAPI(connection.base_url, connection.pat)
-        response = azure_api.commits(repo.org_id, repo.project_id, repo.id)
+        azuredevops_api = AzureDevOpsAPI(connection.base_url, connection.pat)
+        response = azuredevops_api.commits(repo.org_id, repo.project_id, repo.id)
         for raw_commit in response:
             raw_commit["repo_id"] = repo.id
             yield raw_commit, state

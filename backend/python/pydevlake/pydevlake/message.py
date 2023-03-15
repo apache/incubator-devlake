@@ -107,3 +107,7 @@ class RemoteScopeGroup(RemoteScopeTreeNode):
 class RemoteScope(RemoteScopeTreeNode):
     type: str = Field("scope", const=True)
     scope: ToolScope
+
+
+class RemoteScopes(Message):
+    __root__: list[RemoteScopeTreeNode]

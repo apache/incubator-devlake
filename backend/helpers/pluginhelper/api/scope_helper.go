@@ -20,6 +20,11 @@ package api
 import (
 	"encoding/json"
 	"fmt"
+	"net/http"
+	"strconv"
+	"strings"
+	"time"
+
 	"github.com/apache/incubator-devlake/core/context"
 	"github.com/apache/incubator-devlake/core/dal"
 	"github.com/apache/incubator-devlake/core/errors"
@@ -28,10 +33,6 @@ import (
 	"github.com/go-playground/validator/v10"
 	"github.com/mitchellh/mapstructure"
 	"gorm.io/gorm"
-	"net/http"
-	"strconv"
-	"strings"
-	"time"
 
 	"reflect"
 )
@@ -80,7 +81,7 @@ func (c *ScopeApiHelper[Conn, Scope, Tr]) Put(input *plugin.ApiResourceInput) (*
 	var req struct {
 		Data []*Scope `json:"data"`
 	}
-	err := errors.Convert(mapstructure.Decode(input.Body, &req))
+	err := errors.Convert(DecodeMapStruct(input.Body, &req))
 	if err != nil {
 		return nil, errors.BadInput.Wrap(err, "decoding Github repo error")
 	}
@@ -173,8 +174,12 @@ func (c *ScopeApiHelper[Conn, Scope, Tr]) GetScopeList(input *plugin.ApiResource
 	}
 
 	var ruleIds []uint64
-	for _, structValue := range scopes {
-		ruleId := reflect.ValueOf(structValue).Elem().FieldByName("TransformationRuleId").Uint()
+	for _, scope := range scopes {
+		valueRepoRuleId := reflect.ValueOf(scope).Elem().FieldByName("TransformationRuleId")
+		if !valueRepoRuleId.IsValid() {
+			return &plugin.ApiResourceOutput{Body: scopes, Status: http.StatusOK}, nil
+		}
+		ruleId := reflect.ValueOf(scope).Elem().FieldByName("TransformationRuleId").Uint()
 		if ruleId > 0 {
 			ruleIds = append(ruleIds, ruleId)
 		}
@@ -208,6 +213,7 @@ func (c *ScopeApiHelper[Conn, Scope, Tr]) GetScope(input *plugin.ApiResourceInpu
 		return nil, err
 	}
 	db := c.db
+
 	query := dal.Where(fmt.Sprintf("connection_id = ? AND %s = ?", fieldName), connectionId, scopeId)
 	var scope Scope
 	err = db.First(&scope, query)
@@ -216,6 +222,10 @@ func (c *ScopeApiHelper[Conn, Scope, Tr]) GetScope(input *plugin.ApiResourceInpu
 	}
 	if err != nil {
 		return nil, err
+	}
+	valueRepoRuleId := reflect.ValueOf(scope).FieldByName("TransformationRuleId")
+	if !valueRepoRuleId.IsValid() {
+		return &plugin.ApiResourceOutput{Body: scope, Status: http.StatusOK}, nil
 	}
 	repoRuleId := reflect.ValueOf(scope).FieldByName("TransformationRuleId").Uint()
 	var rule Tr
@@ -274,10 +284,15 @@ func setScopeFields(p interface{}, connectionId uint64, createdDate *time.Time, 
 
 	// set CreatedDate
 	createdDateField := pValue.FieldByName("CreatedDate")
-	createdDateField.Set(reflect.ValueOf(createdDate))
+	if createdDateField.IsValid() {
+		createdDateField.Set(reflect.ValueOf(createdDate))
+	}
 
 	// set UpdatedDate
 	updatedDateField := pValue.FieldByName("UpdatedDate")
+	if !updatedDateField.IsValid() {
+		return
+	}
 	if updatedDate == nil {
 		// if updatedDate is nil, set UpdatedDate to be nil
 		updatedDateField.Set(reflect.Zero(updatedDateField.Type()))

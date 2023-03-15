@@ -18,14 +18,15 @@ limitations under the License.
 package bridge
 
 import (
+	"encoding/json"
+
 	"github.com/apache/incubator-devlake/core/errors"
-	"github.com/mitchellh/mapstructure"
 )
 
 type (
 	CallResult struct {
-		results []map[string]any
-		err     errors.Error
+		Results []byte
+		Err     errors.Error
 	}
 	StreamResult = CallResult
 	MethodStream struct {
@@ -36,50 +37,28 @@ type (
 	}
 )
 
-func NewCallResult(results []map[string]any, err errors.Error) *CallResult {
+func NewCallResult(results []byte, err errors.Error) *CallResult {
 	return &CallResult{
-		results: results,
-		err:     err,
+		Results: results,
+		Err:     err,
 	}
 }
 
-func (m *CallResult) Get(targets ...any) errors.Error {
-	if m.err != nil {
-		return m.err
+func (m *CallResult) Get(target any) errors.Error {
+	if m.Err != nil {
+		return m.Err
 	}
-	if len(targets) != len(m.results) {
-		// if everything came back as nil, consider it good
-		for _, result := range m.results {
-			if result != nil {
-				return errors.Default.New("unequal results and targets length")
-			}
-		}
-		return nil
-	}
-
-	for i, target := range targets {
-		config := &mapstructure.DecoderConfig{
-			TagName: "json",
-			Result:  target,
-		}
-
-		decoder, err := mapstructure.NewDecoder(config)
-		if err != nil {
-			return errors.Convert(err)
-		}
-
-		err = decoder.Decode(m.results[i])
-		if err != nil {
-			return errors.Convert(err)
-		}
+	err := json.Unmarshal(m.Results, &target)
+	if err != nil {
+		return errors.Convert(err)
 	}
 	return nil
 }
 
-func NewStreamResult(results []map[string]any, err errors.Error) *StreamResult {
+func NewStreamResult(results []byte, err errors.Error) *StreamResult {
 	return &StreamResult{
-		results: results,
-		err:     err,
+		Results: results,
+		Err:     err,
 	}
 }
 

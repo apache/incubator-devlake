@@ -18,26 +18,19 @@ limitations under the License.
 package api
 
 import (
-	"github.com/apache/incubator-devlake/core/dal"
 	"github.com/apache/incubator-devlake/core/errors"
 	"github.com/apache/incubator-devlake/core/plugin"
 	"github.com/apache/incubator-devlake/helpers/pluginhelper/api"
 	"github.com/apache/incubator-devlake/plugins/jenkins/models"
-	"net/http"
-	"strconv"
 	"strings"
-
-	"github.com/mitchellh/mapstructure"
 )
 
-type apiJob struct {
+type ScopeRes struct {
 	models.JenkinsJob
 	TransformationRuleName string `json:"transformationRuleName,omitempty"`
 }
 
-type req struct {
-	Data []*models.JenkinsJob `json:"data"`
-}
+type ScopeReq api.ScopeReq[models.JenkinsJob]
 
 // PutScope create or update jenkins job
 // @Summary create or update jenkins job
@@ -45,36 +38,13 @@ type req struct {
 // @Tags plugins/jenkins
 // @Accept application/json
 // @Param connectionId path int false "connection ID"
-// @Param scope body req true "json"
+// @Param scope body ScopeReq true "json"
 // @Success 200  {object} []models.JenkinsJob
 // @Failure 400  {object} shared.ApiBody "Bad Request"
 // @Failure 500  {object} shared.ApiBody "Internal Error"
 // @Router /plugins/jenkins/connections/{connectionId}/scopes [PUT]
 func PutScope(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, errors.Error) {
-	connectionId, _ := strconv.ParseUint(input.Params["connectionId"], 10, 64)
-	if connectionId == 0 {
-		return nil, errors.BadInput.New("invalid connectionId")
-	}
-	var jobs req
-	err := errors.Convert(mapstructure.Decode(input.Body, &jobs))
-	if err != nil {
-		return nil, errors.BadInput.Wrap(err, "decoding Jenkins job error")
-	}
-	keeper := make(map[string]struct{})
-	for _, job := range jobs.Data {
-		if _, ok := keeper[job.FullName]; ok {
-			return nil, errors.BadInput.New("duplicated item")
-		} else {
-			keeper[job.FullName] = struct{}{}
-		}
-		job.ConnectionId = connectionId
-
-	}
-	err = basicRes.GetDal().CreateOrUpdate(jobs.Data)
-	if err != nil {
-		return nil, errors.Default.Wrap(err, "error on saving JenkinsJob")
-	}
-	return &plugin.ApiResourceOutput{Body: jobs.Data, Status: http.StatusOK}, nil
+	return scopeHelper.Put(input)
 }
 
 // UpdateScope patch to jenkins job
@@ -83,33 +53,15 @@ func PutScope(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, errors
 // @Tags plugins/jenkins
 // @Accept application/json
 // @Param connectionId path int false "connection ID"
-// @Param fullName path string false "job's full name"
+// @Param scopeId path string false "job's full name"
 // @Param scope body models.JenkinsJob true "json"
 // @Success 200  {object} models.JenkinsJob
 // @Failure 400  {object} shared.ApiBody "Bad Request"
 // @Failure 500  {object} shared.ApiBody "Internal Error"
-// @Router /plugins/jenkins/connections/{connectionId}/scopes/{fullName} [PATCH]
+// @Router /plugins/jenkins/connections/{connectionId}/scopes/{scopeId} [PATCH]
 func UpdateScope(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, errors.Error) {
-	connectionId, fullName, err := extractParam(input.Params)
-	if err != nil {
-		return nil, err
-	}
-	var job models.JenkinsJob
-	job.ConnectionId = connectionId
-	job.FullName = fullName
-	err = basicRes.GetDal().First(&job, dal.Where("connection_id = ? AND full_name = ?", connectionId, fullName))
-	if err != nil {
-		return nil, errors.Default.Wrap(err, "getting JenkinsJob error")
-	}
-	err = api.DecodeMapStruct(input.Body, &job)
-	if err != nil {
-		return nil, errors.Default.Wrap(err, "patch jenkins job error")
-	}
-	err = basicRes.GetDal().Update(&job)
-	if err != nil {
-		return nil, errors.Default.Wrap(err, "error on saving JenkinsJob")
-	}
-	return &plugin.ApiResourceOutput{Body: job, Status: http.StatusOK}, nil
+	input.Params["scopeId"] = strings.TrimLeft(input.Params["scopeId"], "/")
+	return scopeHelper.Update(input, "full_name")
 }
 
 // GetScopeList get Jenkins jobs
@@ -119,43 +71,12 @@ func UpdateScope(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, err
 // @Param connectionId path int false "connection ID"
 // @Param pageSize query int false "page size, default 50"
 // @Param page query int false "page size, default 1"
-// @Success 200  {object} []apiJob
+// @Success 200  {object} []ScopeRes
 // @Failure 400  {object} shared.ApiBody "Bad Request"
 // @Failure 500  {object} shared.ApiBody "Internal Error"
 // @Router /plugins/jenkins/connections/{connectionId}/scopes [GET]
 func GetScopeList(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, errors.Error) {
-	var jobs []models.JenkinsJob
-	connectionId, _ := strconv.ParseUint(input.Params["connectionId"], 10, 64)
-	if connectionId == 0 {
-		return nil, errors.BadInput.New("invalid path params")
-	}
-	limit, offset := api.GetLimitOffset(input.Query, "pageSize", "page")
-	err := basicRes.GetDal().All(&jobs, dal.Where("connection_id = ?", connectionId), dal.Limit(limit), dal.Offset(offset))
-	if err != nil {
-		return nil, err
-	}
-	var ruleIds []uint64
-	for _, job := range jobs {
-		if job.TransformationRuleId > 0 {
-			ruleIds = append(ruleIds, job.TransformationRuleId)
-		}
-	}
-	var rules []models.JenkinsTransformationRule
-	if len(ruleIds) > 0 {
-		err = basicRes.GetDal().All(&rules, dal.Where("id IN (?)", ruleIds))
-		if err != nil {
-			return nil, err
-		}
-	}
-	names := make(map[uint64]string)
-	for _, rule := range rules {
-		names[rule.ID] = rule.Name
-	}
-	var apiJobs []apiJob
-	for _, job := range jobs {
-		apiJobs = append(apiJobs, apiJob{job, names[job.TransformationRuleId]})
-	}
-	return &plugin.ApiResourceOutput{Body: apiJobs, Status: http.StatusOK}, nil
+	return scopeHelper.GetScopeList(input)
 }
 
 // GetScope get one Jenkins job
@@ -163,44 +84,12 @@ func GetScopeList(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, er
 // @Description get one Jenkins job
 // @Tags plugins/jenkins
 // @Param connectionId path int false "connection ID"
-// @Param fullName path string false "job's full name"
-// @Success 200  {object} apiJob
+// @Param scopeId path string false "job's full name"
+// @Success 200  {object} ScopeRes
 // @Failure 400  {object} shared.ApiBody "Bad Request"
 // @Failure 500  {object} shared.ApiBody "Internal Error"
-// @Router /plugins/jenkins/connections/{connectionId}/scopes/{fullName} [GET]
+// @Router /plugins/jenkins/connections/{connectionId}/scopes/{scopeId} [GET]
 func GetScope(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, errors.Error) {
-	var job models.JenkinsJob
-	connectionId, fullName, err := extractParam(input.Params)
-	if err != nil {
-		return nil, err
-	}
-	db := basicRes.GetDal()
-	err = db.First(&job, dal.Where("connection_id = ? AND full_name = ?", connectionId, fullName))
-	if db.IsErrorNotFound(err) {
-		return nil, errors.NotFound.New("record not found")
-	}
-	if err != nil {
-		return nil, err
-	}
-
-	var rule models.JenkinsTransformationRule
-	if job.TransformationRuleId > 0 {
-		err = basicRes.GetDal().First(&rule, dal.Where("id = ?", job.TransformationRuleId))
-		if err != nil {
-			return nil, err
-		}
-	}
-	return &plugin.ApiResourceOutput{Body: apiJob{job, rule.Name}, Status: http.StatusOK}, nil
-}
-
-func extractParam(params map[string]string) (uint64, string, errors.Error) {
-	connectionId, _ := strconv.ParseUint(params["connectionId"], 10, 64)
-	if connectionId == 0 {
-		return 0, "", errors.BadInput.New("invalid connectionId")
-	}
-	fullName := strings.TrimLeft(params["fullName"], "/")
-	if fullName == "" {
-		return 0, "", errors.BadInput.New("invalid fullName")
-	}
-	return connectionId, fullName, nil
+	input.Params["scopeId"] = strings.TrimLeft(input.Params["scopeId"], "/")
+	return scopeHelper.GetScope(input, "full_name")
 }

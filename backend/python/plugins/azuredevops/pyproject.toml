@@ -14,7 +14,7 @@
 # limitations under the License.
 
 [tool.poetry]
-name = "azure"
+name = "azuredevops"
 version = "0.1.0"
 description = ""
 authors = ["Hezheng Yin <hezheng@merico.dev>"]

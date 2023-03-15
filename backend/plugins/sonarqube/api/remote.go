@@ -296,3 +296,9 @@ func GetQueryForSearchProject(search string, page int, perPage int) (url.Values,
 	query.Set("q", search)
 	return query, nil
 }
+
+func extractParam(params map[string]string) (uint64, string) {
+	connectionId, _ := strconv.ParseUint(params["connectionId"], 10, 64)
+	projectKey := params["projectKey"]
+	return connectionId, projectKey
+}
