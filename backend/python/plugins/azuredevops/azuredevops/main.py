@@ -74,9 +74,9 @@ class AzureDevOpsPlugin(Plugin):
             yield repo
 
     def test_connection(self, connection: AzureDevOpsConnection):
-        resp = AzureDevOpsAPI(connection.base_url, connection.pat).projects(connection.org)
+        resp = AzureDevOpsAPI(connection.base_url, connection.pat).my_profile()
         if resp.status != 200:
-            raise Exception(f"Invalid connection: {resp.json}")
+            raise Exception(f"Invalid token: {connection.token}")
 
     @property
     def streams(self):
