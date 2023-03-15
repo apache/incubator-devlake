@@ -275,10 +275,15 @@ func setScopeFields(p interface{}, connectionId uint64, createdDate *time.Time, 
 
 	// set CreatedDate
 	createdDateField := pValue.FieldByName("CreatedDate")
-	createdDateField.Set(reflect.ValueOf(createdDate))
+	if createdDateField.IsValid() {
+		createdDateField.Set(reflect.ValueOf(createdDate))
+	}
 
 	// set UpdatedDate
 	updatedDateField := pValue.FieldByName("UpdatedDate")
+	if !updatedDateField.IsValid() {
+		return
+	}
 	if updatedDate == nil {
 		// if updatedDate is nil, set UpdatedDate to be nil
 		updatedDateField.Set(reflect.Zero(updatedDateField.Type()))
