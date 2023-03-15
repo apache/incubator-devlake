@@ -85,7 +85,7 @@ func NewGormDbEx(configReader config.ConfigReader, logger log.Logger, sessionCon
 	var db *gorm.DB
 	switch strings.ToLower(u.Scheme) {
 	case "mysql":
-		dbUrl = fmt.Sprintf("%s@tcp(%s)%s?%s", u.User.String(), u.Host, u.Path, u.RawQuery)
+		dbUrl = fmt.Sprintf("%s@tcp(%s)%s?%s", getUserString(u), u.Host, u.Path, u.RawQuery)
 		db, err = gorm.Open(mysql.Open(dbUrl), dbConfig)
 	case "postgresql", "postgres", "pg":
 		db, err = gorm.Open(postgres.Open(dbUrl), dbConfig)
@@ -104,4 +104,13 @@ func NewGormDbEx(configReader config.ConfigReader, logger log.Logger, sessionCon
 	sqlDB.SetConnMaxLifetime(time.Hour)
 
 	return db, errors.Convert(err)
+}
+
+func getUserString(u *url.URL) string {
+	userString := u.User.Username()
+	password, ok := u.User.Password()
+	if ok {
+		userString = fmt.Sprintf("%s:%s", userString, password)
+	}
+	return userString
 }
