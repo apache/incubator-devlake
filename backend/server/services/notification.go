@@ -32,9 +32,6 @@ import (
 	"github.com/apache/incubator-devlake/core/models"
 )
 
-func init() {
-}
-
 // NotificationService FIXME ...
 type NotificationService struct {
 	EndPoint string
