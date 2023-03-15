@@ -66,7 +66,7 @@ func TestMakeDataSourcePipelinePlanV200(t *testing.T) {
 		Name:         testName,
 
 		TransformationRuleId: testTransformationRuleId,
-		CreatedDate:          time.Time{},
+		CreatedDate:          &time.Time{},
 		HttpUrlToRepo:        testHttpUrlToRepo,
 	}
 

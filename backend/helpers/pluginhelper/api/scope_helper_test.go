@@ -180,6 +180,15 @@ func TestSetScopeFields(t *testing.T) {
 	if p.UpdatedDate != nil {
 		t.Errorf("UpdatedDate not set correctly, expected: %v, got: %v", nil, p.UpdatedDate)
 	}
+
+	var p1 struct {
+		ConnectionId uint64 `json:"connectionId" mapstructure:"connectionId" gorm:"primaryKey"`
+		GitlabId     int    `json:"gitlabId" mapstructure:"gitlabId" gorm:"primaryKey"`
+
+		common.NoPKModel `json:"-" mapstructure:"-"`
+	}
+	setScopeFields(&p1, connectionId, &createdDate, &createdDate)
+
 }
 
 func TestReturnPrimaryKeyValue(t *testing.T) {
