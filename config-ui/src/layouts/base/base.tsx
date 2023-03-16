@@ -30,6 +30,7 @@ import DashboardIcon from '@/images/icons/dashborad.svg';
 
 import { useMenu, MenuItemType } from './use-menu';
 import * as S from './styled';
+import { BorderContainer } from "./styled";
 
 interface Props {
   children: React.ReactNode;
@@ -101,10 +102,12 @@ export const BaseLayout = ({ children }: Props) => {
       <S.Inner>
         <S.Header>
           <Navbar.Group align={Alignment.RIGHT}>
-            <a href={getGrafanaUrl()} rel="noreferrer" target="_blank">
-              <img src={DashboardIcon} alt="dashboards" />
-              <span>Dashboards</span>
-            </a>
+            <BorderContainer>
+              <a href={getGrafanaUrl()} rel="noreferrer" target="_blank">
+                <img src={DashboardIcon} alt="dashboards" />
+                <span>Dashboards</span>
+              </a>
+            </BorderContainer>
             <Navbar.Divider />
             <a href="https://devlake.apache.org/docs/UserManuals/ConfigUI/Tutorial/" rel="noreferrer" target="_blank">
               <img src={FileIcon} alt="documents" />
