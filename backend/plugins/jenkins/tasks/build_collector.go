@@ -34,7 +34,7 @@ var CollectApiBuildsMeta = plugin.SubTaskMeta{
 	Name:             "collectApiBuilds",
 	EntryPoint:       CollectApiBuilds,
 	EnabledByDefault: true,
-	Description:      "Collect builds data from jenkins api, does not support either timeFilter or diffSync.",
+	Description:      "Collect builds data from jenkins api, supports both timeFilter and diffSync.",
 	DomainTypes:      []string{plugin.DOMAIN_TYPE_CICD},
 }
 

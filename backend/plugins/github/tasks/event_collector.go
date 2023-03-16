@@ -20,30 +20,39 @@ package tasks
 import (
 	"encoding/json"
 	"fmt"
+	"io"
 	"net/http"
 	"net/url"
+	"reflect"
+	"time"
 
+	"github.com/apache/incubator-devlake/core/dal"
 	"github.com/apache/incubator-devlake/core/errors"
 	"github.com/apache/incubator-devlake/core/plugin"
 	helper "github.com/apache/incubator-devlake/helpers/pluginhelper/api"
+	"github.com/apache/incubator-devlake/plugins/github/models"
 )
 
 const RAW_EVENTS_TABLE = "github_api_events"
 
-// this struct should be moved to `gitub_api_common.go`
+type SimpleGithubApiEvents struct {
+	GithubId  int64
+	CreatedAt helper.Iso8601Time `json:"created_at"`
+}
 
 var CollectApiEventsMeta = plugin.SubTaskMeta{
 	Name:             "collectApiEvents",
 	EntryPoint:       CollectApiEvents,
 	EnabledByDefault: true,
-	Description:      "Collect Events data from Github api, does not support either timeFilter or diffSync.",
+	Description:      "Collect Events data from Github api, supports both timeFilter and diffSync.",
 	DomainTypes:      []string{plugin.DOMAIN_TYPE_TICKET},
 }
 
 func CollectApiEvents(taskCtx plugin.SubTaskContext) errors.Error {
 	data := taskCtx.GetData().(*GithubTaskData)
+	db := taskCtx.GetDal()
 
-	collector, err := helper.NewApiCollector(helper.ApiCollectorArgs{
+	collector, err := helper.NewStatefulApiCollectorForFinalizableEntity(helper.FinalizableApiCollectorArgs{
 		RawDataSubTaskArgs: helper.RawDataSubTaskArgs{
 			Ctx: taskCtx,
 			Params: GithubApiParams{
@@ -52,26 +61,64 @@ func CollectApiEvents(taskCtx plugin.SubTaskContext) errors.Error {
 			},
 			Table: RAW_EVENTS_TABLE,
 		},
-		ApiClient:   data.ApiClient,
-		PageSize:    100,
-		Incremental: false,
-
-		UrlTemplate: "repos/{{ .Params.Name }}/issues/events",
-		Query: func(reqData *helper.RequestData) (url.Values, errors.Error) {
-			query := url.Values{}
-			query.Set("page", fmt.Sprintf("%v", reqData.Pager.Page))
-			query.Set("per_page", fmt.Sprintf("%v", reqData.Pager.Size))
-
-			return query, nil
+		ApiClient: data.ApiClient,
+		TimeAfter: data.TimeAfter, // set to nil to disable timeFilter
+		CollectNewRecordsByList: helper.FinalizableApiCollectorListArgs{
+			PageSize:    100,
+			Concurrency: 10,
+			//GetTotalPages: GetTotalPagesFromResponse,
+			FinalizableApiCollectorCommonArgs: helper.FinalizableApiCollectorCommonArgs{
+				UrlTemplate: "repos/{{ .Params.Name }}/issues/events",
+				Query: func(reqData *helper.RequestData, createdAfter *time.Time) (url.Values, errors.Error) {
+					query := url.Values{}
+					query.Set("page", fmt.Sprintf("%v", reqData.Pager.Page))
+					query.Set("per_page", fmt.Sprintf("%v", reqData.Pager.Size))
+					return query, nil
+				},
+				ResponseParser: func(res *http.Response) ([]json.RawMessage, errors.Error) {
+					var items []json.RawMessage
+					err := helper.UnmarshalResponse(res, &items)
+					if err != nil {
+						return nil, err
+					}
+					return items, nil
+				},
+			},
+			GetCreated: func(item json.RawMessage) (time.Time, errors.Error) {
+				e := &SimpleGithubApiEvents{}
+				err := json.Unmarshal(item, e)
+				if err != nil {
+					return time.Time{}, errors.BadInput.Wrap(err, "failed to unmarshal github events")
+				}
+				return e.CreatedAt.ToTime(), nil
+			},
 		},
-		GetTotalPages: GetTotalPagesFromResponse,
-		ResponseParser: func(res *http.Response) ([]json.RawMessage, errors.Error) {
-			var items []json.RawMessage
-			err := helper.UnmarshalResponse(res, &items)
-			if err != nil {
-				return nil, err
-			}
-			return items, nil
+		CollectUnfinishedDetails: helper.FinalizableApiCollectorDetailArgs{
+			BuildInputIterator: func() (helper.Iterator, errors.Error) {
+				cursor, err := db.Cursor(
+					dal.Select("github_id"),
+					dal.From(&models.GithubIssueEvent{}),
+					dal.Where(
+						"github_id = ? AND connection_id = ? and type NOT IN ('closed', 'merged')",
+						data.Options.GithubId, data.Options.ConnectionId,
+					),
+				)
+				if err != nil {
+					return nil, err
+				}
+				return helper.NewDalCursorIterator(db, cursor, reflect.TypeOf(SimpleGithubApiEvents{}))
+			},
+			FinalizableApiCollectorCommonArgs: helper.FinalizableApiCollectorCommonArgs{
+				UrlTemplate: "repos/{{ .Params.Name }}/issues/events/{{ .Input.GithubId }}",
+				ResponseParser: func(res *http.Response) ([]json.RawMessage, errors.Error) {
+					body, err := io.ReadAll(res.Body)
+					if err != nil {
+						return nil, errors.Convert(err)
+					}
+					res.Body.Close()
+					return []json.RawMessage{body}, nil
+				},
+			},
 		},
 	})
 	if err != nil {
