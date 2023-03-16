@@ -19,8 +19,6 @@ package api
 
 import (
 	"context"
-	"encoding/base64"
-	"encoding/json"
 	"fmt"
 	"net/http"
 	"net/url"
@@ -73,84 +71,7 @@ const TypeGroup string = "group"
 // @Failure 500  {object} shared.ApiBody "Internal Error"
 // @Router /plugins/bamboo/connections/{connectionId}/remote-scopes [GET]
 func RemoteScopes(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, errors.Error) {
-	connectionId, _ := extractParam(input.Params)
-	if connectionId == 0 {
-		return nil, errors.BadInput.New("invalid connectionId")
-	}
-
-	connection := &models.BambooConnection{}
-	err := connectionHelper.First(connection, input.Params)
-	if err != nil {
-		return nil, err
-	}
-
-	pageToken, ok := input.Query["pageToken"]
-	if !ok || len(pageToken) == 0 {
-		pageToken = []string{""}
-	}
-
-	// get pageData
-	pageData, err := GetPageDataFromPageToken(pageToken[0])
-	if err != nil {
-		return nil, errors.BadInput.New("failed to get paget token")
-	}
-
-	// create api client
-	apiClient, err := api.NewApiClientFromConnection(context.TODO(), basicRes, connection)
-	if err != nil {
-		return nil, err
-	}
-
-	var res *http.Response
-	outputBody := &RemoteScopesOutput{}
-
-	query := GetQueryFromPageData(pageData)
-
-	res, err = apiClient.Get("/project.json", query, nil)
-
-	if err != nil {
-		return nil, err
-	}
-
-	resBody := models.ApiBambooProjectResponse{}
-	err = api.UnmarshalResponse(res, &resBody)
-	if err != nil {
-		return nil, err
-	}
-
-	// append project to output
-	for _, apiProject := range resBody.Projects.Projects {
-		project := &models.BambooProject{}
-		project.Convert(&apiProject)
-		child := RemoteScopesChild{
-			Type:     TypeProject,
-			ParentId: nil,
-			Id:       project.ProjectKey,
-			Name:     project.Name,
-			Data:     project,
-		}
-
-		outputBody.Children = append(outputBody.Children, child)
-	}
-
-	// check project count
-	if len(resBody.Projects.Projects) < pageData.PageSize {
-		pageData = nil
-	}
-
-	// get the next page token
-	outputBody.NextPageToken = ""
-	if pageData != nil {
-		pageData.Page += 1
-		pageData.PageSize = BambooRemoteScopesPerPage
-
-		outputBody.NextPageToken, err = GetPageTokenFromPageData(pageData)
-		if err != nil {
-			return nil, err
-		}
-	}
-
-	return &plugin.ApiResourceOutput{Body: outputBody, Status: http.StatusOK}, nil
+	return remoteHelper.GetScopesFromRemote(input)
 }
 
 // SearchRemoteScopes use the Search API and only return project
@@ -234,7 +155,7 @@ func SearchRemoteScopes(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutp
 			return nil, err
 		}
 
-		project.Convert(apiProject)
+		project = apiProject.ConvertApiScope().(models.BambooProject)
 		child := RemoteScopesChild{
 			Type:     TypeProject,
 			Id:       project.ProjectKey,
@@ -250,40 +171,6 @@ func SearchRemoteScopes(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutp
 	outputBody.PageSize = ps
 
 	return &plugin.ApiResourceOutput{Body: outputBody, Status: http.StatusOK}, nil
-}
-
-func GetPageTokenFromPageData(pageData *PageData) (string, errors.Error) {
-	// Marshal json
-	pageTokenDecode, err := json.Marshal(pageData)
-	if err != nil {
-		return "", errors.Default.Wrap(err, fmt.Sprintf("Marshal pageToken failed %+v", pageData))
-	}
-
-	// Encode pageToken Base64
-	return base64.StdEncoding.EncodeToString(pageTokenDecode), nil
-}
-
-func GetPageDataFromPageToken(pageToken string) (*PageData, errors.Error) {
-	if pageToken == "" {
-		return &PageData{
-			Page:     1,
-			PageSize: BambooRemoteScopesPerPage,
-		}, nil
-	}
-
-	// Decode pageToken Base64
-	pageTokenDecode, err := base64.StdEncoding.DecodeString(pageToken)
-	if err != nil {
-		return nil, errors.Default.Wrap(err, fmt.Sprintf("decode pageToken failed %s", pageToken))
-	}
-	// Unmarshal json
-	pt := &PageData{}
-	err = json.Unmarshal(pageTokenDecode, pt)
-	if err != nil {
-		return nil, errors.Default.Wrap(err, fmt.Sprintf("json Unmarshal pageTokenDecode failed %s", pageTokenDecode))
-	}
-
-	return pt, nil
 }
 
 func GetQueryFromPageData(pageData *PageData) url.Values {
