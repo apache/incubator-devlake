@@ -92,7 +92,7 @@ var CollectGraphqlJobsMeta = plugin.SubTaskMeta{
 	Name:             "CollectGraphqlJobs",
 	EntryPoint:       CollectGraphqlJobs,
 	EnabledByDefault: true,
-	Description:      "Collect Jobs(CheckRun) data from GithubGraphql api",
+	Description:      "Collect Jobs(CheckRun) data from GithubGraphql api, supports both timeFilter and diffSync.",
 	DomainTypes:      []string{plugin.DOMAIN_TYPE_CICD},
 }
 

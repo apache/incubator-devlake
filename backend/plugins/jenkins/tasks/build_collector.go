@@ -20,11 +20,12 @@ package tasks
 import (
 	"encoding/json"
 	"fmt"
+	"net/http"
+	"net/url"
+
 	"github.com/apache/incubator-devlake/core/errors"
 	"github.com/apache/incubator-devlake/core/plugin"
 	"github.com/apache/incubator-devlake/helpers/pluginhelper/api"
-	"net/http"
-	"net/url"
 )
 
 const RAW_BUILD_TABLE = "jenkins_api_builds"
@@ -33,7 +34,7 @@ var CollectApiBuildsMeta = plugin.SubTaskMeta{
 	Name:             "collectApiBuilds",
 	EntryPoint:       CollectApiBuilds,
 	EnabledByDefault: true,
-	Description:      "Collect builds data from jenkins api",
+	Description:      "Collect builds data from jenkins api, supports both timeFilter and diffSync.",
 	DomainTypes:      []string{plugin.DOMAIN_TYPE_CICD},
 }
 

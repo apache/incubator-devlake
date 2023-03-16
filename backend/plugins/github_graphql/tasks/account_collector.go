@@ -18,6 +18,8 @@ limitations under the License.
 package tasks
 
 import (
+	"reflect"
+
 	"github.com/apache/incubator-devlake/core/dal"
 	"github.com/apache/incubator-devlake/core/errors"
 	"github.com/apache/incubator-devlake/core/plugin"
@@ -25,7 +27,6 @@ import (
 	"github.com/apache/incubator-devlake/plugins/github/models"
 	githubTasks "github.com/apache/incubator-devlake/plugins/github/tasks"
 	"github.com/merico-dev/graphql"
-	"reflect"
 )
 
 const RAW_ACCOUNTS_TABLE = "github_graphql_accounts"
@@ -60,7 +61,7 @@ var CollectAccountMeta = plugin.SubTaskMeta{
 	Name:             "CollectAccount",
 	EntryPoint:       CollectAccount,
 	EnabledByDefault: true,
-	Description:      "Collect Account data from GithubGraphql api",
+	Description:      "Collect Account data from GithubGraphql api, does not support either timeFilter or diffSync.",
 	DomainTypes:      []string{plugin.DOMAIN_TYPE_CROSS},
 }
 
