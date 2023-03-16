@@ -16,7 +16,7 @@
 from typing import Iterable
 
 from azuredevops.api import AzureDevOpsAPI
-from azuredevops.models import AzureDevOpsConnection, Job, Build, GitRepository
+from azuredevops.models import Job, Build, GitRepository
 from azuredevops.streams.builds import Builds
 from pydevlake import Context, Substream, DomainType
 import pydevlake.domain_layer.devops as devops
@@ -28,10 +28,9 @@ class Jobs(Substream):
     parent_stream = Builds
 
     def collect(self, state, context, parent: Build) -> Iterable[tuple[object, dict]]:
-        connection: AzureDevOpsConnection = context.connection
         repo: GitRepository = context.scope
-        azuredevops_api = AzureDevOpsAPI(connection.base_url, connection.pat)
-        response = azuredevops_api.jobs(repo.org_id, repo.project_id, parent.id)
+        api = AzureDevOpsAPI(context.connection)
+        response = api.jobs(repo.org_id, repo.project_id, parent.id)
         if response.status != 200:
             yield None, state
         else:

@@ -18,6 +18,8 @@ import base64
 
 from pydevlake.api import API, request_hook, Paginator, Request
 
+from azuredevops.models import AzureDevOpsConnection
+
 
 class AzurePaginator(Paginator):
     def get_items(self, response) -> Optional[list[object]]:
@@ -32,20 +34,12 @@ class AzurePaginator(Paginator):
 
 class AzureDevOpsAPI(API):
     paginator = AzurePaginator()
-
-    def __init__(self, base_url: str, pat: str):
-        self._base_url = base_url or "https://dev.azure.com/"
-        self.pat = pat
-
-    @property
-    def base_url(self):
-        return self._base_url
+    base_url = "https://dev.azure.com/"
 
     @request_hook
     def authenticate(self, request: Request):
-        if self.pat:
-            pat_b64 = base64.b64encode((':' + self.pat).encode()).decode()
-            request.headers['Authorization'] = 'Basic ' + pat_b64
+        pat_b64 = base64.b64encode((':' + self.connection.pat).encode()).decode()
+        request.headers['Authorization'] = 'Basic ' + pat_b64
 
     @request_hook
     def set_api_version(self, request: Request):

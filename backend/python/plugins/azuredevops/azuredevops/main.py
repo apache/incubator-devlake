@@ -51,7 +51,7 @@ class AzureDevOpsPlugin(Plugin):
         )
 
     def remote_scope_groups(self, ctx) -> list[RemoteScopeGroup]:
-        api = AzureDevOpsAPI(ctx.connection.base_url, ctx.connection.pat)
+        api = AzureDevOpsAPI(ctx.connection)
         member_id = api.my_profile.json['id']
         accounts = api.accounts(member_id).json
         orgs = [acc['accountId'] for acc in accounts]
@@ -64,7 +64,7 @@ class AzureDevOpsPlugin(Plugin):
 
     def remote_scopes(self, ctx, group_id: str) -> list[GitRepository]:
         org, proj = group_id.split('/')
-        api = AzureDevOpsAPI(ctx.connection.base_url, ctx.connection.pat)
+        api = AzureDevOpsAPI(ctx.connection)
         for raw_repo in api.git_repos(org, proj):
             repo = GitRepository(**raw_repo, project_id=proj, org_id=org)
             if not repo.defaultBranch:
@@ -74,9 +74,9 @@ class AzureDevOpsPlugin(Plugin):
             yield repo
 
     def test_connection(self, connection: AzureDevOpsConnection):
-        resp = AzureDevOpsAPI(connection.base_url, connection.pat).projects(connection.org)
+        resp = AzureDevOpsAPI(connection).my_profile()
         if resp.status != 200:
-            raise Exception(f"Invalid connection: {resp.json}")
+            raise Exception(f"Invalid token: {connection.token}")
 
     @property
     def streams(self):
