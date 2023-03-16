@@ -19,8 +19,6 @@ package api
 
 import (
 	"context"
-	"encoding/base64"
-	"encoding/json"
 	"fmt"
 	"net/http"
 	"net/url"
@@ -56,23 +54,6 @@ type PageData struct {
 	Page    int    `json:"page"`
 	PerPage int    `json:"per_page"`
 	Tag     string `json:"tag"`
-}
-
-type GroupResponse struct {
-	Id                   int    `json:"id"`
-	WebUrl               string `json:"web_url"`
-	Name                 string `json:"name"`
-	Path                 string `json:"path"`
-	Description          string `json:"description"`
-	Visibility           string `json:"visibility"`
-	LfsEnabled           bool   `json:"lfs_enabled"`
-	AvatarUrl            string `json:"avatar_url"`
-	RequestAccessEnabled bool   `json:"request_access_enabled"`
-	FullName             string `json:"full_name"`
-	FullPath             string `json:"full_path"`
-	ParentId             *int   `json:"parent_id"`
-	LdapCN               string `json:"ldap_cn"`
-	LdapAccess           string `json:"ldap_access"`
 }
 
 const GitlabRemoteScopesPerPage int = 100
@@ -188,41 +169,6 @@ func SearchRemoteScopes(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutp
 	outputBody.PageSize = ps
 
 	return &plugin.ApiResourceOutput{Body: outputBody, Status: http.StatusOK}, nil
-}
-
-func GetPageTokenFromPageData(pageData *PageData) (string, errors.Error) {
-	// Marshal json
-	pageTokenDecode, err := json.Marshal(pageData)
-	if err != nil {
-		return "", errors.Default.Wrap(err, fmt.Sprintf("Marshal pageToken failed %+v", pageData))
-	}
-
-	// Encode pageToken Base64
-	return base64.StdEncoding.EncodeToString(pageTokenDecode), nil
-}
-
-func GetPageDataFromPageToken(pageToken string) (*PageData, errors.Error) {
-	if pageToken == "" {
-		return &PageData{
-			Page:    1,
-			PerPage: GitlabRemoteScopesPerPage,
-			Tag:     "group",
-		}, nil
-	}
-
-	// Decode pageToken Base64
-	pageTokenDecode, err := base64.StdEncoding.DecodeString(pageToken)
-	if err != nil {
-		return nil, errors.Default.Wrap(err, fmt.Sprintf("decode pageToken failed %s", pageToken))
-	}
-	// Unmarshal json
-	pt := &PageData{}
-	err = json.Unmarshal(pageTokenDecode, pt)
-	if err != nil {
-		return nil, errors.Default.Wrap(err, fmt.Sprintf("json Unmarshal pageTokenDecode failed %s", pageTokenDecode))
-	}
-
-	return pt, nil
 }
 
 func GetQueryFromPageData(pageData *PageData) (url.Values, errors.Error) {

@@ -45,7 +45,7 @@ func TestRepoDataFlow(t *testing.T) {
 	// import raw data table
 	csvIter, _ := pluginhelper.NewCsvFileIterator("./raw_tables/_raw_bitbucket_api_repositories.csv")
 	defer csvIter.Close()
-	apiRepo := &tasks.BitbucketApiRepo{}
+	apiRepo := &models.BitbucketApiRepo{}
 	// load rows and insert into target table
 	for csvIter.HasNext() {
 		toInsertValues := csvIter.Fetch()
@@ -57,7 +57,8 @@ func TestRepoDataFlow(t *testing.T) {
 
 	// verify extraction
 	dataflowTester.FlushTabler(&models.BitbucketRepo{})
-	scope := tasks.ConvertApiRepoToScope(apiRepo, 1)
+	scope := apiRepo.ConvertApiScope().(*models.BitbucketRepo)
+	scope.ConnectionId = 1
 	err := dataflowTester.Dal.CreateIfNotExist(scope)
 	assert.Nil(t, err)
 	dataflowTester.VerifyTable(

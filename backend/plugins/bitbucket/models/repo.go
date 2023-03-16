@@ -19,8 +19,13 @@ package models
 
 import (
 	"github.com/apache/incubator-devlake/core/models/common"
+	"github.com/apache/incubator-devlake/core/plugin"
 	"time"
 )
+
+var _ plugin.ToolLayerScope = (*BitbucketRepo)(nil)
+var _ plugin.ApiGroup = (*GroupResponse)(nil)
+var _ plugin.ApiScope = (*BitbucketApiRepo)(nil)
 
 type BitbucketRepo struct {
 	ConnectionId         uint64     `json:"connectionId" gorm:"primaryKey" validate:"required" mapstructure:"connectionId,omitempty"`
@@ -39,4 +44,96 @@ type BitbucketRepo struct {
 
 func (BitbucketRepo) TableName() string {
 	return "_tool_bitbucket_repos"
+}
+
+func (p BitbucketRepo) ScopeId() string {
+	return p.BitbucketId
+}
+
+func (p BitbucketRepo) ScopeName() string {
+	return p.Name
+}
+
+type BitbucketApiRepo struct {
+	//Scm         string `json:"scm"`
+	//HasWiki     bool   `json:"has_wiki"`
+	//Uuid        string `json:"uuid"`
+	//Type        string `json:"type"`
+	//HasIssue    bool   `json:"has_issue"`
+	//ForkPolicy  string `json:"fork_policy"`
+	Name        string `json:"name"`
+	FullName    string `json:"full_name"`
+	Language    string `json:"language"`
+	Description string `json:"description"`
+	Owner       struct {
+		Username string `json:"username"`
+	} `json:"owner"`
+	CreatedAt *time.Time `json:"created_on"`
+	UpdatedAt *time.Time `json:"updated_on"`
+	Links     struct {
+		Clone []struct {
+			Href string `json:"href"`
+			Name string `json:"name"`
+		} `json:"clone"`
+		Html struct {
+			Href string `json:"href"`
+		} `json:"html"`
+	} `json:"links"`
+}
+
+func (b BitbucketApiRepo) ConvertApiScope() plugin.ToolLayerScope {
+	scope := &BitbucketRepo{}
+	scope.BitbucketId = b.FullName
+	scope.CreatedDate = b.CreatedAt
+	scope.UpdatedDate = b.UpdatedAt
+	scope.Language = b.Language
+	scope.Description = b.Description
+	scope.Name = b.Name
+	scope.Owner = b.Owner.Username
+	scope.HTMLUrl = b.Links.Html.Href
+
+	scope.CloneUrl = ""
+	for _, u := range b.Links.Clone {
+		if u.Name == "https" {
+			scope.CloneUrl = u.Href
+		}
+	}
+	return scope
+}
+
+type WorkspaceResponse struct {
+	Pagelen int             `json:"pagelen"`
+	Page    int             `json:"page"`
+	Size    int             `json:"size"`
+	Values  []GroupResponse `json:"values"`
+}
+
+type GroupResponse struct {
+	//Type       string `json:"type"`
+	//Permission string `json:"permission"`
+	//LastAccessed time.Time `json:"last_accessed"`
+	//AddedOn      time.Time `json:"added_on"`
+	Workspace WorkspaceItem `json:"workspace"`
+}
+
+type WorkspaceItem struct {
+	//Type string `json:"type"`
+	//Uuid string `json:"uuid"`
+	Slug string `json:"slug" group:"id"`
+	Name string `json:"name" group:"name"`
+}
+
+func (p GroupResponse) GroupId() string {
+	return p.Workspace.Slug
+}
+
+func (p GroupResponse) GroupName() string {
+	return p.Workspace.Name
+}
+
+type ReposResponse struct {
+	Pagelen int                `json:"pagelen"`
+	Page    int                `json:"page"`
+	Size    int                `json:"size"`
+	Values  []BitbucketApiRepo `json:"values"`
 }
