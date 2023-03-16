@@ -115,7 +115,7 @@ func CollectApiPullRequests(taskCtx plugin.SubTaskContext) errors.Error {
 				return helper.NewDalCursorIterator(db, cursor, reflect.TypeOf(SimpleGithubPr{}))
 			},
 			FinalizableApiCollectorCommonArgs: helper.FinalizableApiCollectorCommonArgs{
-				UrlTemplate: "repos/{{ .Params.Name }}/pulls/{{ .Input.number }}",
+				UrlTemplate: "repos/{{ .Params.Name }}/pulls/{{ .Input.Number }}",
 				ResponseParser: func(res *http.Response) ([]json.RawMessage, errors.Error) {
 					body, err := io.ReadAll(res.Body)
 					if err != nil {
