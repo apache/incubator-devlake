@@ -95,11 +95,21 @@ class NoPKModel(RawDataOrigin):
 
 
 class ToolModel(ToolTable, NoPKModel):
-    @declared_attr
-    def __tablename__(cls) -> str:
-        plugin_name = _get_plugin_name(cls)
-        plural_entity = inflect_engine.plural_noun(cls.__name__.lower())
-        return f'_tool_{plugin_name}_{plural_entity}'
+    connection_id: Optional[int] = Field(primary_key=True)
+
+    def domain_id(self):
+        """
+        Generate an identifier for domain entities
+        originates from self.
+        """
+        model_type = type(self)
+        segments = [_get_plugin_name(model_type), model_type.__name__]
+        mapper = inspect(model_type)
+        for primary_key_column in mapper.primary_key:
+            prop = mapper.get_property_by_column(primary_key_column)
+            attr_val = getattr(self, prop.key)
+            segments.append(str(attr_val))
+        return ':'.join(segments)
 
 
 class DomainModel(NoPKModel):
@@ -113,21 +123,6 @@ class ToolScope(ToolModel):
 
 class DomainScope(DomainModel):
     pass
-
-
-def generate_domain_id(tool_model: ToolModel, connection_id: str):
-    """
-    Generate an identifier for a domain entity
-    from the tool entity it originates from.
-    """
-    model_type = type(tool_model)
-    segments = [_get_plugin_name(model_type), model_type.__name__, str(connection_id)]
-    mapper = inspect(model_type)
-    for primary_key_column in mapper.primary_key:
-        prop = mapper.get_property_by_column(primary_key_column)
-        attr_val = getattr(tool_model, prop.key)
-        segments.append(str(attr_val))
-    return ':'.join(segments)
 
 
 def _get_plugin_name(cls):
