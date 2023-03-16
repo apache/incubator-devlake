@@ -44,7 +44,7 @@ var CollectApiPullRequestsMeta = plugin.SubTaskMeta{
 }
 
 type SimpleGithubPr struct {
-	GithubId int64
+	Number int64
 }
 
 type SimpleGithubApiPr struct {
@@ -102,7 +102,7 @@ func CollectApiPullRequests(taskCtx plugin.SubTaskContext) errors.Error {
 			BuildInputIterator: func() (helper.Iterator, errors.Error) {
 				// select pull id from database
 				cursor, err := db.Cursor(
-					dal.Select("github_id"),
+					dal.Select("number"),
 					dal.From(&models.GithubPullRequest{}),
 					dal.Where(
 						"repo_id = ? AND connection_id = ? AND state != 'closed'",
@@ -115,7 +115,7 @@ func CollectApiPullRequests(taskCtx plugin.SubTaskContext) errors.Error {
 				return helper.NewDalCursorIterator(db, cursor, reflect.TypeOf(SimpleGithubPr{}))
 			},
 			FinalizableApiCollectorCommonArgs: helper.FinalizableApiCollectorCommonArgs{
-				UrlTemplate: "repos/{{ .Params.Name }}/pulls/{{ .Input.GithubId }}",
+				UrlTemplate: "repos/{{ .Params.Name }}/pulls/{{ .Input.number }}",
 				ResponseParser: func(res *http.Response) ([]json.RawMessage, errors.Error) {
 					body, err := io.ReadAll(res.Body)
 					if err != nil {
