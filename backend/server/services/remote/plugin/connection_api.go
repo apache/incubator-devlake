@@ -22,15 +22,22 @@ import (
 
 	"github.com/apache/incubator-devlake/core/errors"
 	"github.com/apache/incubator-devlake/core/plugin"
+	"github.com/apache/incubator-devlake/server/api/shared"
 	"github.com/apache/incubator-devlake/server/services/remote/bridge"
 )
 
 func (pa *pluginAPI) TestConnection(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, errors.Error) {
 	err := pa.invoker.Call("test-connection", bridge.DefaultContext, input.Body).Err
 	if err != nil {
-		return &plugin.ApiResourceOutput{Body: false, Status: 401}, nil
+		body := shared.ApiBody{
+			Success: false,
+			Message: err.Error(),
+		}
+		return &plugin.ApiResourceOutput{Body: body, Status: 401}, nil
+	} else {
+		body := shared.ApiBody{Success: true}
+		return &plugin.ApiResourceOutput{Body: body, Status: 200}, nil
 	}
-	return &plugin.ApiResourceOutput{Body: true, Status: 200}, nil
 }
 
 func (pa *pluginAPI) PostConnections(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, errors.Error) {
