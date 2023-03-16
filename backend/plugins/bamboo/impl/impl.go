@@ -138,7 +138,7 @@ func (p Bamboo) PrepareTaskData(taskCtx plugin.TaskContext, options map[string]i
 				return nil, err
 			}
 			logger.Debug(fmt.Sprintf("Current project: %s", apiProject.Key))
-			scope.Convert(apiProject)
+			scope = apiProject.ConvertApiScope().(*models.BambooProject)
 			scope.ConnectionId = op.ConnectionId
 			err = taskCtx.GetDal().CreateIfNotExist(&scope)
 			if err != nil {
