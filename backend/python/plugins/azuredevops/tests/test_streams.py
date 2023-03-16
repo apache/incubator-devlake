@@ -19,7 +19,7 @@ from pydevlake.testing import assert_convert
 import pydevlake.domain_layer.code as code
 import pydevlake.domain_layer.devops as devops
 
-from azure.main import AzureDevOpsPlugin
+from azuredevops.main import AzureDevOpsPlugin
 
 
 def test_builds_stream():

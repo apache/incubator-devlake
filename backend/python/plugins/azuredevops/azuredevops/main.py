@@ -13,13 +13,13 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from azure.api import AzureDevOpsAPI
-from azure.models import AzureDevOpsConnection, GitRepository
-from azure.streams.builds import Builds
-from azure.streams.commits import GitCommits
-from azure.streams.jobs import Jobs
-from azure.streams.pull_request_commits import GitPullRequestCommits
-from azure.streams.pull_requests import GitPullRequests
+from azuredevops.api import AzureDevOpsAPI
+from azuredevops.models import AzureDevOpsConnection, GitRepository
+from azuredevops.streams.builds import Builds
+from azuredevops.streams.commits import GitCommits
+from azuredevops.streams.jobs import Jobs
+from azuredevops.streams.pull_request_commits import GitPullRequestCommits
+from azuredevops.streams.pull_requests import GitPullRequests
 
 from pydevlake import Plugin, RemoteScopeGroup
 from pydevlake.domain_layer.code import Repo
@@ -51,7 +51,7 @@ class AzureDevOpsPlugin(Plugin):
         )
 
     def remote_scope_groups(self, ctx) -> list[RemoteScopeGroup]:
-        api = AzureDevOpsAPI(ctx.connection.base_url, ctx.connection.pat)
+        api = AzureDevOpsAPI(ctx.connection)
         member_id = api.my_profile.json['id']
         accounts = api.accounts(member_id).json
         orgs = [acc['accountId'] for acc in accounts]
@@ -64,7 +64,7 @@ class AzureDevOpsPlugin(Plugin):
 
     def remote_scopes(self, ctx, group_id: str) -> list[GitRepository]:
         org, proj = group_id.split('/')
-        api = AzureDevOpsAPI(ctx.connection.base_url, ctx.connection.pat)
+        api = AzureDevOpsAPI(ctx.connection)
         for raw_repo in api.git_repos(org, proj):
             repo = GitRepository(**raw_repo, project_id=proj, org_id=org)
             if not repo.defaultBranch:
@@ -73,14 +73,10 @@ class AzureDevOpsPlugin(Plugin):
                 repo.parentRepositoryUrl = raw_repo["parentRepository"]["url"]
             yield repo
 
-    @property
-    def name(self) -> str:
-        return "azure"
-
     def test_connection(self, connection: AzureDevOpsConnection):
-        resp = AzureDevOpsAPI(connection.base_url, connection.pat).projects(connection.org)
+        resp = AzureDevOpsAPI(connection).my_profile()
         if resp.status != 200:
-            raise Exception(f"Invalid connection: {resp.json}")
+            raise Exception(f"Invalid token: {connection.token}")
 
     @property
     def streams(self):

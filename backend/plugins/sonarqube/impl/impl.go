@@ -172,7 +172,7 @@ func (p Sonarqube) ApiResources() map[string]map[string]plugin.ApiResourceHandle
 		"connections/:connectionId/search-remote-scopes": {
 			"GET": api.SearchRemoteScopes,
 		},
-		"connections/:connectionId/scopes/:projectKey": {
+		"connections/:connectionId/scopes/:scopeId": {
 			"GET":   api.GetScope,
 			"PATCH": api.UpdateScope,
 		},

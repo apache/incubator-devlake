@@ -18,9 +18,9 @@ from typing import Iterable
 
 import iso8601 as iso8601
 
-from azure.api import AzureDevOpsAPI
-from azure.helper import db
-from azure.models import GitRepository, GitPullRequest, GitCommit
+from azuredevops.api import AzureDevOpsAPI
+from azuredevops.helper import db
+from azuredevops.models import GitRepository, GitPullRequest, GitCommit
 from pydevlake import Stream, Context, DomainType
 from pydevlake.domain_layer.code import PullRequest as DomainPullRequest
 
@@ -31,9 +31,9 @@ class GitPullRequests(Stream):
 
     def collect(self, state, context) -> Iterable[tuple[object, dict]]:
         connection = context.connection
-        azure_api = AzureDevOpsAPI(connection.base_url, connection.pat)
+        api = AzureDevOpsAPI(context.connection)
         repo: GitRepository = context.scope
-        response = azure_api.git_repo_pull_requests(repo.org_id, repo.project_id, repo.id)
+        response = api.git_repo_pull_requests(repo.org_id, repo.project_id, repo.id)
         for raw_pr in response:
             yield raw_pr, state
 

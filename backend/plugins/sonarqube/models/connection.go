@@ -21,8 +21,8 @@ import (
 	"encoding/base64"
 	"fmt"
 	"github.com/apache/incubator-devlake/core/errors"
+	"github.com/apache/incubator-devlake/core/plugin"
 	helper "github.com/apache/incubator-devlake/helpers/pluginhelper/api"
-	"github.com/apache/incubator-devlake/helpers/pluginhelper/api/apihelperabstract"
 	"net/http"
 )
 
@@ -34,7 +34,7 @@ func (sat SonarqubeAccessToken) SetupAuthentication(req *http.Request) errors.Er
 	return nil
 }
 
-func (sat SonarqubeAccessToken) GetAccessTokenAuthenticator() apihelperabstract.ApiAuthenticator {
+func (sat SonarqubeAccessToken) GetAccessTokenAuthenticator() plugin.ApiAuthenticator {
 	return sat
 }
 

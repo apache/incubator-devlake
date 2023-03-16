@@ -20,6 +20,11 @@ package api
 import (
 	"encoding/json"
 	"fmt"
+	"net/http"
+	"strconv"
+	"strings"
+	"time"
+
 	"github.com/apache/incubator-devlake/core/context"
 	"github.com/apache/incubator-devlake/core/dal"
 	"github.com/apache/incubator-devlake/core/errors"
@@ -28,10 +33,6 @@ import (
 	"github.com/go-playground/validator/v10"
 	"github.com/mitchellh/mapstructure"
 	"gorm.io/gorm"
-	"net/http"
-	"strconv"
-	"strings"
-	"time"
 
 	"reflect"
 )
@@ -80,12 +81,12 @@ func (c *ScopeApiHelper[Conn, Scope, Tr]) Put(input *plugin.ApiResourceInput) (*
 	var req struct {
 		Data []*Scope `json:"data"`
 	}
-	err := errors.Convert(mapstructure.Decode(input.Body, &req))
+	err := errors.Convert(DecodeMapStruct(input.Body, &req))
 	if err != nil {
 		return nil, errors.BadInput.Wrap(err, "decoding Github repo error")
 	}
 	// Extract the connection ID from the input.Params map
-	connectionId, _ := extractFromReqParam(input.Params)
+	connectionId, _ := ExtractFromReqParam(input.Params)
 	if connectionId == 0 {
 		return nil, errors.BadInput.New("invalid connectionId or scopeId")
 	}
@@ -126,7 +127,7 @@ func (c *ScopeApiHelper[Conn, Scope, Tr]) Put(input *plugin.ApiResourceInput) (*
 }
 
 func (c *ScopeApiHelper[Conn, Scope, Tr]) Update(input *plugin.ApiResourceInput, fieldName string) (*plugin.ApiResourceOutput, errors.Error) {
-	connectionId, scopeId := extractFromReqParam(input.Params)
+	connectionId, scopeId := ExtractFromReqParam(input.Params)
 
 	if connectionId == 0 || len(scopeId) == 0 || scopeId == "0" {
 		return &plugin.ApiResourceOutput{Body: nil, Status: http.StatusInternalServerError}, errors.BadInput.New("invalid connectionId")
@@ -157,7 +158,7 @@ func (c *ScopeApiHelper[Conn, Scope, Tr]) Update(input *plugin.ApiResourceInput,
 }
 
 func (c *ScopeApiHelper[Conn, Scope, Tr]) GetScopeList(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, errors.Error) {
-	connectionId, _ := extractFromReqParam(input.Params)
+	connectionId, _ := ExtractFromReqParam(input.Params)
 	if connectionId == 0 {
 		return nil, errors.BadInput.New("invalid path params")
 	}
@@ -173,8 +174,12 @@ func (c *ScopeApiHelper[Conn, Scope, Tr]) GetScopeList(input *plugin.ApiResource
 	}
 
 	var ruleIds []uint64
-	for _, structValue := range scopes {
-		ruleId := reflect.ValueOf(structValue).Elem().FieldByName("TransformationRuleId").Uint()
+	for _, scope := range scopes {
+		valueRepoRuleId := reflect.ValueOf(scope).Elem().FieldByName("TransformationRuleId")
+		if !valueRepoRuleId.IsValid() {
+			return &plugin.ApiResourceOutput{Body: scopes, Status: http.StatusOK}, nil
+		}
+		ruleId := reflect.ValueOf(scope).Elem().FieldByName("TransformationRuleId").Uint()
 		if ruleId > 0 {
 			ruleIds = append(ruleIds, ruleId)
 		}
@@ -199,7 +204,7 @@ func (c *ScopeApiHelper[Conn, Scope, Tr]) GetScopeList(input *plugin.ApiResource
 }
 
 func (c *ScopeApiHelper[Conn, Scope, Tr]) GetScope(input *plugin.ApiResourceInput, fieldName string) (*plugin.ApiResourceOutput, errors.Error) {
-	connectionId, scopeId := extractFromReqParam(input.Params)
+	connectionId, scopeId := ExtractFromReqParam(input.Params)
 	if connectionId == 0 || len(scopeId) == 0 || scopeId == "0" {
 		return nil, errors.BadInput.New("invalid path params")
 	}
@@ -208,6 +213,7 @@ func (c *ScopeApiHelper[Conn, Scope, Tr]) GetScope(input *plugin.ApiResourceInpu
 		return nil, err
 	}
 	db := c.db
+
 	query := dal.Where(fmt.Sprintf("connection_id = ? AND %s = ?", fieldName), connectionId, scopeId)
 	var scope Scope
 	err = db.First(&scope, query)
@@ -216,6 +222,10 @@ func (c *ScopeApiHelper[Conn, Scope, Tr]) GetScope(input *plugin.ApiResourceInpu
 	}
 	if err != nil {
 		return nil, err
+	}
+	valueRepoRuleId := reflect.ValueOf(scope).FieldByName("TransformationRuleId")
+	if !valueRepoRuleId.IsValid() {
+		return &plugin.ApiResourceOutput{Body: scope, Status: http.StatusOK}, nil
 	}
 	repoRuleId := reflect.ValueOf(scope).FieldByName("TransformationRuleId").Uint()
 	var rule Tr
@@ -252,7 +262,7 @@ func (c *ScopeApiHelper[Conn, Scope, Tr]) save(scope interface{}) errors.Error {
 	return nil
 }
 
-func extractFromReqParam(params map[string]string) (uint64, string) {
+func ExtractFromReqParam(params map[string]string) (uint64, string) {
 	connectionId, err := strconv.ParseUint(params["connectionId"], 10, 64)
 	if err != nil {
 		return 0, ""
@@ -274,10 +284,15 @@ func setScopeFields(p interface{}, connectionId uint64, createdDate *time.Time, 
 
 	// set CreatedDate
 	createdDateField := pValue.FieldByName("CreatedDate")
-	createdDateField.Set(reflect.ValueOf(createdDate))
+	if createdDateField.IsValid() {
+		createdDateField.Set(reflect.ValueOf(createdDate))
+	}
 
 	// set UpdatedDate
 	updatedDateField := pValue.FieldByName("UpdatedDate")
+	if !updatedDateField.IsValid() {
+		return
+	}
 	if updatedDate == nil {
 		// if updatedDate is nil, set UpdatedDate to be nil
 		updatedDateField.Set(reflect.Zero(updatedDateField.Type()))

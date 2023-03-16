@@ -95,7 +95,13 @@ func connectLocalServer(t *testing.T) *helper.DevlakeClient {
 	return client
 }
 
-func CreateTestConnection(client *helper.DevlakeClient) *helper.Connection {
+func createClient(t *testing.T) *helper.DevlakeClient {
+	setupEnv()
+	buildPython(t)
+	return connectLocalServer(t)
+}
+
+func createTestConnection(client *helper.DevlakeClient) *helper.Connection {
 	connection := client.CreateConnection(PLUGIN_NAME,
 		FakePluginConnection{
 			Name:  "Test connection",
@@ -107,7 +113,7 @@ func CreateTestConnection(client *helper.DevlakeClient) *helper.Connection {
 	return connection
 }
 
-func CreateTestScope(client *helper.DevlakeClient, connectionId uint64) any {
+func createTestScope(client *helper.DevlakeClient, connectionId uint64) any {
 	res := client.CreateTransformRule(PLUGIN_NAME, FakeTxRule{Name: "Tx rule", Env: "test env"})
 	rule, ok := res.(map[string]interface{})
 	if !ok {
@@ -130,36 +136,63 @@ func CreateTestScope(client *helper.DevlakeClient, connectionId uint64) any {
 }
 
 func TestCreateConnection(t *testing.T) {
-	setupEnv()
-	buildPython(t)
-	client := connectLocalServer(t)
+	client := createClient(t)
 
-	CreateTestConnection(client)
+	createTestConnection(client)
 
 	conns := client.ListConnections(PLUGIN_NAME)
 	require.Equal(t, 1, len(conns))
 	require.Equal(t, TOKEN, conns[0].Token)
 }
 
+func TestRemoteScopeGroups(t *testing.T) {
+	client := createClient(t)
+	connection := createTestConnection(client)
+
+	output := client.RemoteScopes(helper.RemoteScopesQuery{
+		PluginName:   PLUGIN_NAME,
+		ConnectionId: connection.ID,
+	})
+
+	scopeGroups := output.Children
+	require.Equal(t, 1, len(scopeGroups))
+	scope := scopeGroups[0]
+	require.Equal(t, "Group 1", scope.Name)
+	require.Equal(t, "group1", scope.Id)
+}
+
+func TestRemoteScopes(t *testing.T) {
+	client := createClient(t)
+	connection := createTestConnection(client)
+
+	output := client.RemoteScopes(helper.RemoteScopesQuery{
+		PluginName:   PLUGIN_NAME,
+		ConnectionId: connection.ID,
+		GroupId:      "group1",
+	})
+
+	scopes := output.Children
+	require.Equal(t, 1, len(scopes))
+	scope := scopes[0]
+	require.Equal(t, "Project 1", scope.Name)
+	require.Equal(t, "p1", scope.Id)
+}
+
 func TestCreateScope(t *testing.T) {
-	setupEnv()
-	buildPython(t)
-	client := connectLocalServer(t)
+	client := createClient(t)
 	var connectionId uint64 = 1
 
-	CreateTestScope(client, connectionId)
+	createTestScope(client, connectionId)
 
 	scopes := client.ListScopes(PLUGIN_NAME, connectionId)
 	require.Equal(t, 1, len(scopes))
 }
 
 func TestRunPipeline(t *testing.T) {
-	setupEnv()
-	buildPython(t)
-	client := connectLocalServer(t)
-	conn := CreateTestConnection(client)
+	client := createClient(t)
+	conn := createTestConnection(client)
 
-	CreateTestScope(client, conn.ID)
+	createTestScope(client, conn.ID)
 
 	pipeline := client.RunPipeline(models.NewPipeline{
 		Name: "remote_test",
@@ -183,17 +216,13 @@ func TestRunPipeline(t *testing.T) {
 }
 
 func TestBlueprintV200(t *testing.T) {
-	setupEnv()
-	buildPython(t)
-	client := connectLocalServer(t)
-	connection := CreateTestConnection(client)
+	client := createClient(t)
+	connection := createTestConnection(client)
 	projectName := "Test project"
-
 	client.CreateProject(&helper.ProjectConfig{
 		ProjectName: projectName,
 	})
-
-	CreateTestScope(client, connection.ID)
+	createTestScope(client, connection.ID)
 
 	blueprint := client.CreateBasicBlueprintV2(
 		"Test blueprint",
@@ -218,6 +247,5 @@ func TestBlueprintV200(t *testing.T) {
 
 	project := client.GetProject(projectName)
 	require.Equal(t, blueprint.Name, project.Blueprint.Name)
-
 	client.TriggerBlueprint(blueprint.ID)
 }

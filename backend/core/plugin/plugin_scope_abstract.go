@@ -15,30 +15,31 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-package api
+package plugin
 
-import (
-	"github.com/apache/incubator-devlake/core/context"
-	"github.com/apache/incubator-devlake/helpers/pluginhelper/api"
-	"github.com/apache/incubator-devlake/plugins/jenkins/models"
-	"github.com/go-playground/validator/v10"
-)
+// Scope represents the top level entity for a data source, i.e. github repo,
+// gitlab project, jira board. They turn into repo, board in Domain Layer. In
+// Apache Devlake, a Project is essentially a set of these top level entities,
+// for the framework to maintain these relationships dynamically and
+// automatically, all Domain Layer Top Level Entities should implement this
+// interface
+type Scope interface {
+	ScopeId() string
+	ScopeName() string
+	TableName() string
+}
 
-var vld *validator.Validate
-var connectionHelper *api.ConnectionApiHelper
-var scopeHelper *api.ScopeApiHelper[models.JenkinsConnection, models.JenkinsJob, models.JenkinsTransformationRule]
-var basicRes context.BasicRes
+type ToolLayerScope interface {
+	ScopeId() string
+	ScopeName() string
+	TableName() string
+}
 
-func Init(br context.BasicRes) {
-	basicRes = br
-	vld = validator.New()
-	connectionHelper = api.NewConnectionHelper(
-		basicRes,
-		vld,
-	)
-	scopeHelper = api.NewScopeHelper[models.JenkinsConnection, models.JenkinsJob, models.JenkinsTransformationRule](
-		basicRes,
-		vld,
-		connectionHelper,
-	)
+type ApiScope interface {
+	ConvertApiScope() ToolLayerScope
+}
+
+type ApiGroup interface {
+	GroupId() string
+	GroupName() string
 }

@@ -20,13 +20,15 @@ package api
 import (
 	"github.com/apache/incubator-devlake/core/context"
 	"github.com/apache/incubator-devlake/helpers/pluginhelper/api"
-	"github.com/apache/incubator-devlake/plugins/github/models"
+	"github.com/apache/incubator-devlake/plugins/bamboo/models"
 	"github.com/go-playground/validator/v10"
 )
 
 var vld *validator.Validate
 var connectionHelper *api.ConnectionApiHelper
-var scopeHelper *api.ScopeApiHelper[models.GithubConnection, models.GithubRepo, models.GithubTransformationRule]
+var scopeHelper *api.ScopeApiHelper[models.BambooConnection, models.BambooProject, models.BambooTransformationRule]
+var remoteHelper *api.RemoteApiHelper[models.BambooConnection, models.BambooProject, models.ApiBambooProject, models.GroupResponse]
+
 var basicRes context.BasicRes
 
 func Init(br context.BasicRes) {
@@ -36,7 +38,12 @@ func Init(br context.BasicRes) {
 		basicRes,
 		vld,
 	)
-	scopeHelper = api.NewScopeHelper[models.GithubConnection, models.GithubRepo, models.GithubTransformationRule](
+	scopeHelper = api.NewScopeHelper[models.BambooConnection, models.BambooProject, models.BambooTransformationRule](
+		basicRes,
+		vld,
+		connectionHelper,
+	)
+	remoteHelper = api.NewRemoteHelper[models.BambooConnection, models.BambooProject, models.ApiBambooProject, models.GroupResponse](
 		basicRes,
 		vld,
 		connectionHelper,

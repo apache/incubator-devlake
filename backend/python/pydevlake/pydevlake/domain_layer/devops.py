@@ -83,7 +83,7 @@ class CICDTask(DomainModel, table=True):
     __tablename__ = 'cicd_tasks'
     name: str
     pipeline_id: str
-    result: str = Optional[CICDResult]
+    result: Optional[CICDResult]
     status: Optional[CICDStatus]
     type: Optional[CICDType]
     environment: Optional[CICDEnvironment]

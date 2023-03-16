@@ -140,7 +140,7 @@ func CollectGraphqlJobs(taskCtx plugin.SubTaskContext) errors.Error {
 
 	err = collectorWithState.InitGraphQLCollector(helper.GraphqlCollectorArgs{
 		Input:         iterator,
-		InputStep:     60,
+		InputStep:     20,
 		Incremental:   incremental,
 		GraphqlClient: data.GraphqlClient,
 		BuildQuery: func(reqData *helper.GraphqlRequestData) (interface{}, map[string]interface{}, error) {

@@ -49,8 +49,10 @@ func (pa *pluginAPI) GetRemoteScopes(input *plugin.ApiResourceInput) (*plugin.Ap
 		return nil, err
 	}
 
-	var remoteScopes []RemoteScopesTreeNode
-	err = pa.invoker.Call("remote-scopes", bridge.DefaultContext, connection.Unwrap()).Get(&remoteScopes)
+	groupId := input.Query.Get("groupId")
+
+	remoteScopes := make([]RemoteScopesTreeNode, 0)
+	err = pa.invoker.Call("remote-scopes", bridge.DefaultContext, connection.Unwrap(), groupId).Get(&remoteScopes)
 	if err != nil {
 		return nil, err
 	}

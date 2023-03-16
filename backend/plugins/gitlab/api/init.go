@@ -27,6 +27,7 @@ import (
 var vld *validator.Validate
 var connectionHelper *api.ConnectionApiHelper
 var scopeHelper *api.ScopeApiHelper[models.GitlabConnection, models.GitlabProject, models.GitlabTransformationRule]
+var remoteHelper *api.RemoteApiHelper[models.GitlabConnection, models.GitlabProject, models.GitlabApiProject, models.GroupResponse]
 var basicRes context.BasicRes
 
 func Init(br context.BasicRes) {
@@ -37,6 +38,12 @@ func Init(br context.BasicRes) {
 		vld,
 	)
 	scopeHelper = api.NewScopeHelper[models.GitlabConnection, models.GitlabProject, models.GitlabTransformationRule](
+		basicRes,
+		vld,
+		connectionHelper,
+	)
+
+	remoteHelper = api.NewRemoteHelper[models.GitlabConnection, models.GitlabProject, models.GitlabApiProject, models.GroupResponse](
 		basicRes,
 		vld,
 		connectionHelper,

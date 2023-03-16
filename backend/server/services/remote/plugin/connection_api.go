@@ -26,11 +26,11 @@ import (
 )
 
 func (pa *pluginAPI) TestConnection(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, errors.Error) {
-	err := pa.invoker.Call("test-connection", bridge.DefaultContext, input.Body).Get()
+	err := pa.invoker.Call("test-connection", bridge.DefaultContext, input.Body).Err
 	if err != nil {
-		return nil, err
+		return &plugin.ApiResourceOutput{Body: false, Status: 401}, nil
 	}
-	return nil, nil
+	return &plugin.ApiResourceOutput{Body: true, Status: 200}, nil
 }
 
 func (pa *pluginAPI) PostConnections(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, errors.Error) {

@@ -15,10 +15,10 @@
 
 from typing import Iterable
 
-from azure.api import AzureDevOpsAPI
-from azure.models import GitPullRequest, GitCommit, GitRepository
-from azure.streams.commits import extract_raw_commit
-from azure.streams.pull_requests import GitPullRequests
+from azuredevops.api import AzureDevOpsAPI
+from azuredevops.models import GitPullRequest, GitCommit, GitRepository
+from azuredevops.streams.commits import extract_raw_commit
+from azuredevops.streams.pull_requests import GitPullRequests
 from pydevlake import Substream, DomainType
 from pydevlake.domain_layer.code import PullRequestCommit as DomainPullRequestCommit
 
@@ -29,10 +29,9 @@ class GitPullRequestCommits(Substream):
     parent_stream = GitPullRequests
 
     def collect(self, state, context, parent: GitPullRequest) -> Iterable[tuple[object, dict]]:
-        connection = context.connection
         repo: GitRepository = context.scope
-        azure_api = AzureDevOpsAPI(connection.base_url, connection.pat)
-        response = azure_api.git_repo_pull_request_commits(repo.org_id, repo.project_id, parent.repo_id, parent.id)
+        azuredevops_api = AzureDevOpsAPI(context.connection)
+        response = azuredevops_api.git_repo_pull_request_commits(repo.org_id, repo.project_id, parent.repo_id, parent.id)
         for raw_commit in response:
             raw_commit["repo_id"] = parent.repo_id
             yield raw_commit, state

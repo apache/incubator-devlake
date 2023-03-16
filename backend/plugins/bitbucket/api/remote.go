@@ -19,14 +19,11 @@ package api
 
 import (
 	"context"
-	"encoding/base64"
-	"encoding/json"
 	"fmt"
 	"github.com/apache/incubator-devlake/core/errors"
 	"github.com/apache/incubator-devlake/core/plugin"
 	"github.com/apache/incubator-devlake/helpers/pluginhelper/api"
 	"github.com/apache/incubator-devlake/plugins/bitbucket/models"
-	"github.com/apache/incubator-devlake/plugins/bitbucket/tasks"
 	"net/http"
 	"net/url"
 	"strconv"
@@ -57,33 +54,6 @@ type PageData struct {
 	PerPage int `json:"per_page"`
 }
 
-type WorkspaceResponse struct {
-	Pagelen int `json:"pagelen"`
-	Page    int `json:"page"`
-	Size    int `json:"size"`
-	Values  []struct {
-		//Type       string `json:"type"`
-		//Permission string `json:"permission"`
-		//LastAccessed time.Time `json:"last_accessed"`
-		//AddedOn      time.Time `json:"added_on"`
-		Workspace WorkspaceItem `json:"workspace"`
-	} `json:"values"`
-}
-
-type WorkspaceItem struct {
-	//Type string `json:"type"`
-	//Uuid string `json:"uuid"`
-	Slug string `json:"slug"`
-	Name string `json:"name"`
-}
-
-type ReposResponse struct {
-	Pagelen int                      `json:"pagelen"`
-	Page    int                      `json:"page"`
-	Size    int                      `json:"size"`
-	Values  []tasks.BitbucketApiRepo `json:"values"`
-}
-
 const RemoteScopesPerPage int = 100
 const TypeScope string = "scope"
 const TypeGroup string = "group"
@@ -101,123 +71,7 @@ const TypeGroup string = "group"
 // @Failure 500  {object} shared.ApiBody "Internal Error"
 // @Router /plugins/bitbucket/connections/{connectionId}/remote-scopes [GET]
 func RemoteScopes(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, errors.Error) {
-	connectionId, _ := extractParam(input.Params)
-	if connectionId == 0 {
-		return nil, errors.BadInput.New("invalid connectionId")
-	}
-
-	connection := &models.BitbucketConnection{}
-	err := connectionHelper.First(connection, input.Params)
-	if err != nil {
-		return nil, err
-	}
-
-	groupId, ok := input.Query["groupId"]
-	if !ok || len(groupId) == 0 {
-		groupId = []string{""}
-	}
-
-	pageToken, ok := input.Query["pageToken"]
-	if !ok || len(pageToken) == 0 {
-		pageToken = []string{""}
-	}
-
-	// get gid and pageData
-	gid := groupId[0]
-	pageData, err := GetPageDataFromPageToken(pageToken[0])
-	if err != nil {
-		return nil, errors.BadInput.New("failed to get page token")
-	}
-
-	// create api client
-	apiClient, err := api.NewApiClientFromConnection(context.TODO(), basicRes, connection)
-	if err != nil {
-		return nil, err
-	}
-
-	query, err := GetQueryFromPageData(pageData)
-	if err != nil {
-		return nil, err
-	}
-
-	var res *http.Response
-	outputBody := &RemoteScopesOutput{}
-
-	// list groups part
-	if gid == "" {
-		query.Set("sort", "workspace.slug")
-		query.Set("fields", "values.workspace.slug,values.workspace.name,pagelen,page,size")
-		res, err = apiClient.Get("/user/permissions/workspaces", query, nil)
-		if err != nil {
-			return nil, err
-		}
-
-		resBody := &WorkspaceResponse{}
-		err = api.UnmarshalResponse(res, resBody)
-		if err != nil {
-			return nil, err
-		}
-
-		// append group to output
-		for _, group := range resBody.Values {
-			child := RemoteScopesChild{
-				Type: TypeGroup,
-				Id:   group.Workspace.Slug,
-				Name: group.Workspace.Name,
-				// don't need to save group into data
-				Data: nil,
-			}
-			outputBody.Children = append(outputBody.Children, child)
-		}
-
-		// check groups count
-		if resBody.Size < pageData.PerPage {
-			pageData = nil
-		}
-	} else {
-		query.Set("sort", "name")
-		query.Set("fields", "values.name,values.full_name,values.language,values.description,values.owner.username,values.created_on,values.updated_on,values.links.clone,values.links.self,pagelen,page,size")
-		// list projects part
-		res, err = apiClient.Get(fmt.Sprintf("/repositories/%s", gid), query, nil)
-		if err != nil {
-			return nil, err
-		}
-
-		resBody := &ReposResponse{}
-		err = api.UnmarshalResponse(res, resBody)
-		if err != nil {
-			return nil, err
-		}
-
-		// append repo to output
-		for _, repo := range resBody.Values {
-			child := RemoteScopesChild{
-				Type: TypeScope,
-				Id:   repo.FullName,
-				Name: repo.Name,
-				Data: tasks.ConvertApiRepoToScope(&repo, connection.ID),
-			}
-			child.ParentId = &gid
-			outputBody.Children = append(outputBody.Children, child)
-		}
-
-		// check repo count
-		if resBody.Size < pageData.PerPage {
-			pageData = nil
-		}
-	}
-
-	// get the next page token
-	outputBody.NextPageToken = ""
-	if pageData != nil {
-		pageData.Page += 1
-		outputBody.NextPageToken, err = GetPageTokenFromPageData(pageData)
-		if err != nil {
-			return nil, err
-		}
-	}
-
-	return &plugin.ApiResourceOutput{Body: outputBody, Status: http.StatusOK}, nil
+	return remoteHelper.GetScopesFromRemote(input)
 }
 
 // SearchRemoteScopes use the Search API and only return project
@@ -296,7 +150,7 @@ func SearchRemoteScopes(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutp
 	if err != nil {
 		return nil, err
 	}
-	resBody := &ReposResponse{}
+	resBody := &models.ReposResponse{}
 	err = api.UnmarshalResponse(res, &resBody)
 	if err != nil {
 		return nil, err
@@ -310,7 +164,7 @@ func SearchRemoteScopes(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutp
 			Id:       repo.FullName,
 			ParentId: nil,
 			Name:     repo.Name,
-			Data:     tasks.ConvertApiRepoToScope(&repo, connection.ID),
+			Data:     repo.ConvertApiScope(),
 		}
 		outputBody.Children = append(outputBody.Children, child)
 	}
@@ -319,40 +173,6 @@ func SearchRemoteScopes(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutp
 	outputBody.PageSize = ps
 
 	return &plugin.ApiResourceOutput{Body: outputBody, Status: http.StatusOK}, nil
-}
-
-func GetPageTokenFromPageData(pageData *PageData) (string, errors.Error) {
-	// Marshal json
-	pageTokenDecode, err := json.Marshal(pageData)
-	if err != nil {
-		return "", errors.Default.Wrap(err, fmt.Sprintf("Marshal pageToken failed %+v", pageData))
-	}
-
-	// Encode pageToken Base64
-	return base64.StdEncoding.EncodeToString(pageTokenDecode), nil
-}
-
-func GetPageDataFromPageToken(pageToken string) (*PageData, errors.Error) {
-	if pageToken == "" {
-		return &PageData{
-			Page:    1,
-			PerPage: RemoteScopesPerPage,
-		}, nil
-	}
-
-	// Decode pageToken Base64
-	pageTokenDecode, err := base64.StdEncoding.DecodeString(pageToken)
-	if err != nil {
-		return nil, errors.Default.Wrap(err, fmt.Sprintf("decode pageToken failed %s", pageToken))
-	}
-	// Unmarshal json
-	pt := &PageData{}
-	err = json.Unmarshal(pageTokenDecode, pt)
-	if err != nil {
-		return nil, errors.Default.Wrap(err, fmt.Sprintf("json Unmarshal pageTokenDecode failed %s", pageTokenDecode))
-	}
-
-	return pt, nil
 }
 
 func GetQueryFromPageData(pageData *PageData) (url.Values, errors.Error) {

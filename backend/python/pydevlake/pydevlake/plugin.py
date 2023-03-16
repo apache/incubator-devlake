@@ -104,9 +104,9 @@ class Plugin(ABC):
         # TODO: Create tables
         pass
 
-    def make_remote_scopes(self, connection: Connection, group_id: Optional[str]) -> list[msg.RemoteScopeTreeNode]:
+    def make_remote_scopes(self, connection: Connection, group_id: Optional[str] = None) -> msg.RemoteScopes:
         if group_id:
-            return [
+            scopes = [
                 msg.RemoteScope(
                     id=tool_scope.id,
                     name=tool_scope.name,
@@ -116,13 +116,14 @@ class Plugin(ABC):
                 in self.remote_scopes(connection, group_id)
             ]
         else:
-            return self.remote_scope_groups(connection)
+            scopes = self.remote_scope_groups(connection)
+        return msg.RemoteScopes(__root__=scopes)
 
-    def make_pipeline(self, tool_scopes: list[ToolScope], connection_id: int):
+    def make_pipeline(self, tool_scopes: list[ToolScope], entity_types: list[str], connection_id: int):
         """
         Make a simple pipeline using the scopes declared by the plugin.
         """
-        plan = self.make_pipeline_plan(tool_scopes, connection_id)
+        plan = self.make_pipeline_plan(tool_scopes, entity_types, connection_id)
         domain_scopes = [
             msg.DynamicDomainScope(
                 type_name=type(scope).__name__,
@@ -136,15 +137,15 @@ class Plugin(ABC):
             scopes=domain_scopes
         )
 
-    def make_pipeline_plan(self, scopes: list[ToolScope], connection_id: int) -> list[list[msg.PipelineTask]]:
-        return [self.make_pipeline_stage(scope, connection_id) for scope in scopes]
+    def make_pipeline_plan(self, scopes: list[ToolScope], entity_types: list[str], connection_id: int) -> list[list[msg.PipelineTask]]:
+        return [self.make_pipeline_stage(scope, entity_types, connection_id) for scope in scopes]
 
-    def make_pipeline_stage(self, scope: ToolScope, connection_id: int) -> list[msg.PipelineTask]:
+    def make_pipeline_stage(self, scope: ToolScope, entity_types: list[str], connection_id: int) -> list[msg.PipelineTask]:
         return [
             msg.PipelineTask(
                 plugin=self.name,
                 skipOnFail=False,
-                subtasks=[t.name for t in self.subtasks],
+                subtasks=self.select_subtasks(scope, entity_types),
                 options={
                     "scopeId": scope.id,
                     "scopeName": scope.name,
@@ -152,6 +153,17 @@ class Plugin(ABC):
                 }
             )
         ]
+
+    def select_subtasks(self, scope: ToolScope, entity_types: list[str]) -> list[str]:
+        """
+        Returns the list of subtasks names that should be run for given scope and entity types.
+        """
+        subtasks = []
+        for stream in self._streams.values():
+            if set(stream.domain_types).intersection(entity_types) and stream.should_run_on(scope):
+                for subtask in stream.subtasks:
+                    subtasks.append(subtask.name)
+        return subtasks
 
     def get_stream(self, stream_name: str):
         stream = self._streams.get(stream_name)
