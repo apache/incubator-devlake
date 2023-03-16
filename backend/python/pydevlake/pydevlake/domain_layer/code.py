@@ -75,7 +75,7 @@ class Commit(NoPKModel, table=True):
     __tablename__ = 'commits'
     sha: str = Field(primary_key=True)
     additions: str
-    deletions: str = Optional[str]
+    deletions: Optional[str]
     dev_eq: Optional[str]
     message: str
     author_name: str

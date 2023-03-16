@@ -15,8 +15,9 @@
 
 
 import os
+import json
 from functools import wraps
-from typing import Generator, TextIO, Optional
+from typing import Generator, TextIO, Optional, Union
 
 from pydevlake.context import Context
 from pydevlake.message import Message
@@ -67,13 +68,20 @@ class PluginCommands:
 
     @plugin_method
     def test_connection(self, connection: dict):
+        connection = self._parse(connection)
         connection = self._plugin.connection_type(**connection)
         self._plugin.test_connection(connection)
 
     @plugin_method
-    def make_pipeline(self, scopes: list[dict], connection: dict):
-        s = [self._plugin.tool_scope_type(**data) for data in scopes]
-        return self._plugin.make_pipeline(s, connection['id'])
+    def make_pipeline(self, scopes: list[dict], entities: list[str], connection: dict):
+        scopes = self._parse(scopes)
+        connection = self._parse(connection)
+        entities = self._parse(entities)
+        tool_scopes = [
+            self._plugin.tool_scope_type(**self._parse(data))
+            for data in scopes
+        ]
+        return self._plugin.make_pipeline(tool_scopes, entities, connection['id'])
 
     @plugin_method
     def run_migrations(self, force: bool):
@@ -85,6 +93,7 @@ class PluginCommands:
 
     @plugin_method
     def remote_scopes(self, connection: dict, group_id: Optional[str] = None):
+        connection = self._parse(connection)
         c = self._plugin.connection_type(**connection)
         return self._plugin.make_remote_scopes(c, group_id)
 
@@ -92,12 +101,24 @@ class PluginCommands:
         self._plugin.startup(endpoint)
 
     def _mk_context(self, data: dict):
+        data = self._parse(data)
         db_url = data['db_url']
-        scope = self._plugin.tool_scope_type(**data['scope'])
-        connection = self._plugin.connection_type(**data['connection'])
+        scope_dict = self._parse(data['scope'])
+        scope = self._plugin.tool_scope_type(**scope_dict)
+        connection_dict = self._parse(data['connection'])
+        connection = self._plugin.connection_type(**connection_dict)
         if self._plugin.transformation_rule_type:
-            transformation_rule = self._plugin.transformation_rule_type(**data['transformation_rule'])
+            transformation_rule_dict = self._parse(data['transformation_rule'])
+            transformation_rule = self._plugin.transformation_rule_type(**transformation_rule_dict)
         else:
             transformation_rule = None
         options = data.get('options', {})
         return Context(db_url, scope, connection, transformation_rule, options)
+
+    def _parse(self, data: Union[str, dict]) -> Union[dict, list]:
+        if isinstance(data, dict):
+            return data
+        try:
+            return json.loads(data)
+        except json.JSONDecodeError as e:
+            raise Exception(f"Invalid JSON: {e.msg}")

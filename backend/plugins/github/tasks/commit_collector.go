@@ -34,7 +34,7 @@ var CollectApiCommitsMeta = plugin.SubTaskMeta{
 	Name:             "collectApiCommits",
 	EntryPoint:       CollectApiCommits,
 	EnabledByDefault: false,
-	Description:      "Collect commits data from Github api",
+	Description:      "Collect commits data from Github api, supports both timeFilter and diffSync.",
 	DomainTypes:      []string{plugin.DOMAIN_TYPE_CODE},
 }
 

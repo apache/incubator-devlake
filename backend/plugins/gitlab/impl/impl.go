@@ -177,13 +177,14 @@ func (p Gitlab) PrepareTaskData(taskCtx plugin.TaskContext, options map[string]i
 		db := taskCtx.GetDal()
 		err = db.First(&scope, dal.Where("connection_id = ? AND gitlab_id = ?", op.ConnectionId, op.ProjectId))
 		if err != nil && db.IsErrorNotFound(err) {
-			var project *tasks.GitlabApiProject
+			var project *models.GitlabApiProject
 			project, err = api.GetApiProject(op, apiClient)
 			if err != nil {
 				return nil, err
 			}
 			logger.Debug(fmt.Sprintf("Current project: %d", project.GitlabId))
-			scope = tasks.ConvertProject(project)
+			i := project.ConvertApiScope()
+			scope = i.(*models.GitlabProject)
 			scope.ConnectionId = op.ConnectionId
 			err = taskCtx.GetDal().CreateIfNotExist(&scope)
 			if err != nil {

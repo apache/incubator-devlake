@@ -19,9 +19,14 @@ package models
 
 import (
 	"encoding/json"
+	"github.com/apache/incubator-devlake/core/plugin"
 
 	"github.com/apache/incubator-devlake/core/models/common"
 )
+
+var _ plugin.ToolLayerScope = (*BambooProject)(nil)
+var _ plugin.ApiGroup = (*GroupResponse)(nil)
+var _ plugin.ApiScope = (*ApiBambooProject)(nil)
 
 type BambooProject struct {
 	ConnectionId         uint64 `json:"connectionId" mapstructure:"connectionId" validate:"required" gorm:"primaryKey"`
@@ -34,14 +39,15 @@ type BambooProject struct {
 	common.NoPKModel     `json:"-" mapstructure:"-"`
 }
 
-func (b *BambooProject) Convert(apiProject *ApiBambooProject) {
-	b.ProjectKey = apiProject.Key
-	b.Name = apiProject.Name
-	b.Description = apiProject.Description
-	b.Href = apiProject.Link.Href
+func (p BambooProject) ScopeId() string {
+	return p.ProjectKey
 }
 
-func (b *BambooProject) TableName() string {
+func (p BambooProject) ScopeName() string {
+	return p.Name
+}
+
+func (BambooProject) TableName() string {
 	return "_tool_bamboo_projects"
 }
 
@@ -88,4 +94,24 @@ type ApiSearchResultProjects struct {
 type ApiBambooSearchProjectResponse struct {
 	ApiBambooSizeData `json:"squash"`
 	SearchResults     []ApiSearchResultProjects `json:"searchResults"`
+}
+
+func (apiProject ApiBambooProject) ConvertApiScope() plugin.ToolLayerScope {
+	b := &BambooProject{}
+	b.ProjectKey = apiProject.Key
+	b.Name = apiProject.Name
+	b.Description = apiProject.Description
+	b.Href = apiProject.Link.Href
+	return b
+}
+
+type GroupResponse struct {
+}
+
+func (p GroupResponse) GroupId() string {
+	return ""
+}
+
+func (p GroupResponse) GroupName() string {
+	return ""
 }

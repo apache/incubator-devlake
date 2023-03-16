@@ -15,14 +15,31 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-package migrationscripts
+package plugin
 
-import "github.com/apache/incubator-devlake/core/plugin"
+// Scope represents the top level entity for a data source, i.e. github repo,
+// gitlab project, jira board. They turn into repo, board in Domain Layer. In
+// Apache Devlake, a Project is essentially a set of these top level entities,
+// for the framework to maintain these relationships dynamically and
+// automatically, all Domain Layer Top Level Entities should implement this
+// interface
+type Scope interface {
+	ScopeId() string
+	ScopeName() string
+	TableName() string
+}
 
-// All return all the migration scripts
-func All() []plugin.MigrationScript {
-	return []plugin.MigrationScript{
-		new(addInitTables),
-		new(modifyCharacterSet),
-	}
+type ToolLayerScope interface {
+	ScopeId() string
+	ScopeName() string
+	TableName() string
+}
+
+type ApiScope interface {
+	ConvertApiScope() ToolLayerScope
+}
+
+type ApiGroup interface {
+	GroupId() string
+	GroupName() string
 }

@@ -17,19 +17,21 @@
 import os
 from typing import Optional
 from inspect import getmodule
-
 from datetime import datetime
-from sqlalchemy import Column, String, DateTime, func
+
+import inflect
+from pydantic import AnyUrl
+from sqlalchemy import Column, DateTime, func
 from sqlalchemy.orm import declared_attr
 from sqlalchemy.inspection import inspect
 from sqlmodel import SQLModel, Field
-import inflect
+
 
 inflect_engine = inflect.engine()
 
 
 class Model(SQLModel):
-    id: int = Field(primary_key=True)
+    id: Optional[int] = Field(primary_key=True)
     created_at: Optional[datetime] = Field(
         sa_column=Column(DateTime(), default=func.now())
     )
@@ -47,6 +49,7 @@ class ToolTable(Model):
 
 class Connection(ToolTable):
     name: str
+    proxy: Optional[AnyUrl]
 
 
 class TransformationRule(ToolTable):

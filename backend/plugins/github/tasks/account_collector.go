@@ -19,14 +19,15 @@ package tasks
 
 import (
 	"encoding/json"
+	"io"
+	"net/http"
+	"reflect"
+
 	"github.com/apache/incubator-devlake/core/dal"
 	"github.com/apache/incubator-devlake/core/errors"
 	"github.com/apache/incubator-devlake/core/plugin"
 	"github.com/apache/incubator-devlake/helpers/pluginhelper/api"
 	"github.com/apache/incubator-devlake/plugins/github/models"
-	"io"
-	"net/http"
-	"reflect"
 )
 
 const RAW_ACCOUNT_TABLE = "github_api_accounts"
@@ -89,6 +90,6 @@ var CollectAccountsMeta = plugin.SubTaskMeta{
 	Name:             "collectAccounts",
 	EntryPoint:       CollectAccounts,
 	EnabledByDefault: true,
-	Description:      "Collect accounts data from Github api",
+	Description:      "Collect accounts data from Github api, does not support either timeFilter or diffSync.",
 	DomainTypes:      []string{plugin.DOMAIN_TYPE_CROSS},
 }

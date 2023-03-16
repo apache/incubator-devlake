@@ -18,8 +18,11 @@ limitations under the License.
 package models
 
 import (
+	"context"
 	"fmt"
+	context2 "github.com/apache/incubator-devlake/core/context"
 	"net/http"
+	"net/url"
 	"time"
 
 	"github.com/apache/incubator-devlake/core/errors"
@@ -88,4 +91,28 @@ type ApiRepository struct {
 
 func (BambooConnection) TableName() string {
 	return "_tool_bamboo_connections"
+}
+
+func (g BambooConnection) GetGroup(basicRes context2.BasicRes, gid string, query url.Values) ([]GroupResponse, errors.Error) {
+	return []GroupResponse{}, nil
+}
+
+func (g BambooConnection) GetScope(basicRes context2.BasicRes, gid string, query url.Values) ([]ApiBambooProject, errors.Error) {
+	// create api client
+	apiClient, err := api.NewApiClientFromConnection(context.TODO(), basicRes, &g)
+	if err != nil {
+		return nil, err
+	}
+	res, err := apiClient.Get("/project.json", query, nil)
+
+	if err != nil {
+		return nil, err
+	}
+
+	resBody := ApiBambooProjectResponse{}
+	err = api.UnmarshalResponse(res, &resBody)
+	if err != nil {
+		return nil, err
+	}
+	return resBody.Projects.Projects, err
 }

@@ -36,7 +36,7 @@ var CollectApiStagesMeta = plugin.SubTaskMeta{
 	Name:             "collectApiStages",
 	EntryPoint:       CollectApiStages,
 	EnabledByDefault: true,
-	Description:      "Collect stages data from jenkins api",
+	Description:      "Collect stages data from jenkins api, supports timeFilter but not diffSync.",
 	DomainTypes:      []string{plugin.DOMAIN_TYPE_CICD},
 }
 

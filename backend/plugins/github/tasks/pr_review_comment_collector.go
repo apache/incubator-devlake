@@ -93,6 +93,6 @@ var CollectApiPrReviewCommentsMeta = plugin.SubTaskMeta{
 	Name:             "collectApiPrReviewCommentsMeta",
 	EntryPoint:       CollectPrReviewComments,
 	EnabledByDefault: true,
-	Description:      "Collect pr review comments data from Github api",
+	Description:      "Collect pr review comments data from Github api, supports both timeFilter and diffSync.",
 	DomainTypes:      []string{plugin.DOMAIN_TYPE_CROSS, plugin.DOMAIN_TYPE_CODE_REVIEW},
 }

@@ -20,15 +20,16 @@ package tasks
 import (
 	"encoding/json"
 	"fmt"
+	"io"
+	"net/http"
+	"net/url"
+	"reflect"
+
 	"github.com/apache/incubator-devlake/core/dal"
 	"github.com/apache/incubator-devlake/core/errors"
 	"github.com/apache/incubator-devlake/core/plugin"
 	"github.com/apache/incubator-devlake/helpers/pluginhelper/api"
 	"github.com/apache/incubator-devlake/plugins/github/models"
-	"io"
-	"net/http"
-	"net/url"
-	"reflect"
 )
 
 const RAW_COMMIT_STATS_TABLE = "github_api_commit_stats"
@@ -37,7 +38,7 @@ var CollectApiCommitStatsMeta = plugin.SubTaskMeta{
 	Name:             "collectApiCommitStats",
 	EntryPoint:       CollectApiCommitStats,
 	EnabledByDefault: false,
-	Description:      "Collect commitStats data from Github api",
+	Description:      "Collect commitStats data from Github api, does not support either timeFilter or diffSync.",
 	DomainTypes:      []string{plugin.DOMAIN_TYPE_CODE},
 }
 

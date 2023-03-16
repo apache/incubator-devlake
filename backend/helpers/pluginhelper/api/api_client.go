@@ -24,6 +24,7 @@ import (
 	"encoding/json"
 	"encoding/xml"
 	"fmt"
+	aha "github.com/apache/incubator-devlake/core/plugin"
 	"io"
 	"net/http"
 	"net/url"
@@ -38,7 +39,6 @@ import (
 	"github.com/apache/incubator-devlake/core/errors"
 	"github.com/apache/incubator-devlake/core/log"
 	"github.com/apache/incubator-devlake/core/utils"
-	aha "github.com/apache/incubator-devlake/helpers/pluginhelper/api/apihelperabstract"
 	"github.com/apache/incubator-devlake/helpers/pluginhelper/common"
 )
 
@@ -375,7 +375,7 @@ func UnmarshalResponse(res *http.Response, v interface{}) errors.Error {
 	}
 	err = errors.Convert(json.Unmarshal(resBody, &v))
 	if err != nil {
-		return errors.Default.Wrap(err, fmt.Sprintf("error decoding response from %s: raw response: %s", res.Request.URL.String(), string(resBody)))
+		return errors.Default.New(fmt.Sprintf("error decoding response from %s: raw response: %s", res.Request.URL.String(), string(resBody)))
 	}
 	return nil
 }

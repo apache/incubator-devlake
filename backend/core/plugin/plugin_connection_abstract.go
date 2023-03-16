@@ -15,10 +15,13 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-package apihelperabstract
+package plugin
 
 import (
+	context2 "github.com/apache/incubator-devlake/core/context"
+	"github.com/apache/incubator-devlake/helpers/pluginhelper/api/apihelperabstract"
 	"net/http"
+	"net/url"
 
 	"github.com/apache/incubator-devlake/core/errors"
 	"github.com/go-playground/validator/v10"
@@ -29,6 +32,12 @@ type ApiConnection interface {
 	GetEndpoint() string
 	GetProxy() string
 	GetRateLimitPerHour() int
+}
+
+type ApiConnectionForRemote[T ApiGroup, S ApiScope] interface {
+	ApiConnection
+	GetGroup(basicRes context2.BasicRes, gid string, query url.Values) ([]T, errors.Error)
+	GetScope(basicRes context2.BasicRes, gid string, query url.Values) ([]S, errors.Error)
 }
 
 // ApiAuthenticator is to be implemented by a Concreate Connection if Authorization is required
@@ -46,7 +55,7 @@ type ConnectionValidator interface {
 // PrepareApiClient is to be implemented by the concrete Connection which requires
 // preparation for the ApiClient created by NewApiClientFromConnection, i.e. fetch token for future requests
 type PrepareApiClient interface {
-	PrepareApiClient(apiClient ApiClientAbstract) errors.Error
+	PrepareApiClient(apiClient apihelperabstract.ApiClientAbstract) errors.Error
 }
 
 // MultiAuth

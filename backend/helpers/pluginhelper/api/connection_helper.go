@@ -24,7 +24,6 @@ import (
 	"github.com/apache/incubator-devlake/core/log"
 	"github.com/apache/incubator-devlake/core/models"
 	plugin "github.com/apache/incubator-devlake/core/plugin"
-	"github.com/apache/incubator-devlake/helpers/pluginhelper/api/apihelperabstract"
 	"github.com/go-playground/validator/v10"
 	"strconv"
 )
@@ -107,7 +106,7 @@ func (c *ConnectionApiHelper) Delete(connection interface{}) errors.Error {
 
 func (c *ConnectionApiHelper) merge(connection interface{}, body map[string]interface{}) errors.Error {
 	connection = models.UnwrapObject(connection)
-	if connectionValidator, ok := connection.(apihelperabstract.ConnectionValidator); ok {
+	if connectionValidator, ok := connection.(plugin.ConnectionValidator); ok {
 		err := Decode(body, connection, nil)
 		if err != nil {
 			return err
