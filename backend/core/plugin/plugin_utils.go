@@ -140,8 +140,8 @@ func AesDecrypt(crypted, key []byte) ([]byte, errors.Error) {
 	return origData, nil
 }
 
-// RandomCapsStr A random string of length len uppercase characters
-func RandomCapsStr(len int) string {
+// randomCapsStr A random string of length len uppercase characters
+func randomCapsStr(len int) string {
 	r := rand.New(rand.NewSource(time.Now().Unix()))
 	randomBytes := make([]byte, len)
 	for i := 0; i < len; i++ {
@@ -152,16 +152,5 @@ func RandomCapsStr(len int) string {
 }
 
 func RandomEncKey() string {
-	return RandomCapsStr(128)
-}
-
-const letterBytes = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789"
-
-func RandLetterBytes(n int) string {
-	r := rand.New(rand.NewSource(time.Now().Unix()))
-	b := make([]byte, n)
-	for i := range b {
-		b[i] = letterBytes[r.Intn(len(letterBytes))]
-	}
-	return string(b)
+	return randomCapsStr(128)
 }

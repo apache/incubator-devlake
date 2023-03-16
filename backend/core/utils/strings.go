@@ -17,6 +17,13 @@ limitations under the License.
 
 package utils
 
+import (
+	"math/rand"
+	"time"
+)
+
+const letterBytes = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789"
+
 // StringsUniq returns a new String Slice contains deduped elements from `source`
 func StringsUniq(source []string) []string {
 	book := make(map[string]bool, len(source))
@@ -38,4 +45,14 @@ func StringsContains(slice []string, target string) bool {
 		}
 	}
 	return false
+}
+
+// RandLetterBytes returns a string with given length n
+func RandLetterBytes(n int) string {
+	r := rand.New(rand.NewSource(time.Now().Unix()))
+	b := make([]byte, n)
+	for i := range b {
+		b[i] = letterBytes[r.Intn(len(letterBytes))]
+	}
+	return string(b)
 }

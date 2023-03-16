@@ -58,7 +58,7 @@ func TestRandomCapsStr(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			t.Log(RandomCapsStr(tt.args.len))
+			t.Log(randomCapsStr(tt.args.len))
 		})
 	}
 }
