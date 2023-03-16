@@ -64,7 +64,7 @@ type BitbucketApiPullRequest struct {
 		Commit struct {
 			Hash string `json:"hash"`
 		} `json:"commit"`
-		Repo *BitbucketApiRepo `json:"repository"`
+		Repo *models.BitbucketApiRepo `json:"repository"`
 	} `json:"destination"`
 	HeadRef *struct {
 		Branch struct {
@@ -73,7 +73,7 @@ type BitbucketApiPullRequest struct {
 		Commit struct {
 			Hash string `json:"hash"`
 		} `json:"commit"`
-		Repo *BitbucketApiRepo `json:"repository"`
+		Repo *models.BitbucketApiRepo `json:"repository"`
 	} `json:"source"`
 	//Reviewers    []BitbucketAccountResponse `json:"reviewers"`
 	//Participants []BitbucketAccountResponse `json:"participants"`
