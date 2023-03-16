@@ -23,13 +23,13 @@
 #While incubation status is not necessarily a reflection of the completeness or stability of the code,
 #it does indicate that the project has yet to be fully endorsed by the ASF.
 
-FROM node:14 as builder
+FROM node:16 as builder
+
 WORKDIR /home/node/code
-COPY package.json /home/node/code
-COPY package-lock.json /home/node/code
-RUN npm ci
-COPY . /home/node/code
-RUN npm run build-production
+COPY . .
+
+RUN yarn install
+RUN yarn build
 
 FROM nginxinc/nginx-unprivileged:1.21
 USER 0
