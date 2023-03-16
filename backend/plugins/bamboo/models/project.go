@@ -19,9 +19,8 @@ package models
 
 import (
 	"encoding/json"
-	"github.com/apache/incubator-devlake/core/plugin"
-
 	"github.com/apache/incubator-devlake/core/models/common"
+	"github.com/apache/incubator-devlake/core/plugin"
 )
 
 var _ plugin.ToolLayerScope = (*BambooProject)(nil)
