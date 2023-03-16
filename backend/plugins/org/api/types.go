@@ -243,9 +243,9 @@ func (*team) fakeData() []team {
 }
 
 type projectMapping struct {
-	ProjectName string
-	Table       string
-	RowId       string
+	ProjectName string `csv:"project_name"`
+	Table       string `csv:"table"`
+	RowId       string `csv:"row_id"`
 }
 
 func (*projectMapping) fromDomainLayer(tt []crossdomain.ProjectMapping) []projectMapping {
