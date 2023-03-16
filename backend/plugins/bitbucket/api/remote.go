@@ -58,23 +58,33 @@ type PageData struct {
 }
 
 type WorkspaceResponse struct {
-	Pagelen int `json:"pagelen"`
-	Page    int `json:"page"`
-	Size    int `json:"size"`
-	Values  []struct {
-		//Type       string `json:"type"`
-		//Permission string `json:"permission"`
-		//LastAccessed time.Time `json:"last_accessed"`
-		//AddedOn      time.Time `json:"added_on"`
-		Workspace WorkspaceItem `json:"workspace"`
-	} `json:"values"`
+	Pagelen int             `json:"pagelen"`
+	Page    int             `json:"page"`
+	Size    int             `json:"size"`
+	Values  []GroupResponse `json:"values"`
+}
+
+type GroupResponse struct {
+	//Type       string `json:"type"`
+	//Permission string `json:"permission"`
+	//LastAccessed time.Time `json:"last_accessed"`
+	//AddedOn      time.Time `json:"added_on"`
+	Workspace WorkspaceItem `json:"workspace"`
+}
+
+func (p GroupResponse) ScopeId() string {
+	return p.Workspace.Slug
+}
+
+func (p GroupResponse) ScopeName() string {
+	return p.Workspace.Name
 }
 
 type WorkspaceItem struct {
 	//Type string `json:"type"`
 	//Uuid string `json:"uuid"`
-	Slug string `json:"slug"`
-	Name string `json:"name"`
+	Slug string `json:"slug" group:"id"`
+	Name string `json:"name" group:"name"`
 }
 
 type ReposResponse struct {

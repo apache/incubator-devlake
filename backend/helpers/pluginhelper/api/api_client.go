@@ -24,6 +24,7 @@ import (
 	"encoding/json"
 	"encoding/xml"
 	"fmt"
+	aha "github.com/apache/incubator-devlake/core/plugin"
 	"io"
 	"net/http"
 	"net/url"
@@ -38,7 +39,6 @@ import (
 	"github.com/apache/incubator-devlake/core/errors"
 	"github.com/apache/incubator-devlake/core/log"
 	"github.com/apache/incubator-devlake/core/utils"
-	aha "github.com/apache/incubator-devlake/helpers/pluginhelper/api/apihelperabstract"
 	"github.com/apache/incubator-devlake/helpers/pluginhelper/common"
 )
 

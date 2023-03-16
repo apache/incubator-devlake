@@ -20,11 +20,11 @@ package api
 import (
 	"encoding/base64"
 	"fmt"
+	"github.com/apache/incubator-devlake/core/plugin"
 	"net/http"
 	"strings"
 
 	"github.com/apache/incubator-devlake/core/errors"
-	"github.com/apache/incubator-devlake/helpers/pluginhelper/api/apihelperabstract"
 	"github.com/go-playground/validator/v10"
 )
 
@@ -49,7 +49,7 @@ func (ba *BasicAuth) SetupAuthentication(request *http.Request) errors.Error {
 // it looks odd to return itself with a different type, this is necessary because Callers
 // might call the method from the Outer-Struct(`connection.SetupAuthentication(...)`)
 // which would lead to a Stack Overflow  error
-func (ba *BasicAuth) GetBasicAuthenticator() apihelperabstract.ApiAuthenticator {
+func (ba *BasicAuth) GetBasicAuthenticator() plugin.ApiAuthenticator {
 	return ba
 }
 
@@ -65,7 +65,7 @@ func (at *AccessToken) SetupAuthentication(request *http.Request) errors.Error {
 }
 
 // GetAccessTokenAuthenticator returns SetupAuthentication
-func (at *AccessToken) GetAccessTokenAuthenticator() apihelperabstract.ApiAuthenticator {
+func (at *AccessToken) GetAccessTokenAuthenticator() plugin.ApiAuthenticator {
 	return at
 }
 
@@ -84,7 +84,7 @@ func (ak *AppKey) SetupAuthentication(request *http.Request) errors.Error {
 }
 
 // GetAppKeyAuthenticator returns SetupAuthentication
-func (ak *AppKey) GetAppKeyAuthenticator() apihelperabstract.ApiAuthenticator {
+func (ak *AppKey) GetAppKeyAuthenticator() plugin.ApiAuthenticator {
 	// no universal way to implement AppKey authentication, plugin should alias AppKey and
 	// define its own implementation
 	return ak
@@ -93,33 +93,33 @@ func (ak *AppKey) GetAppKeyAuthenticator() apihelperabstract.ApiAuthenticator {
 // MultiAuth implements the MultiAuthenticator interface
 type MultiAuth struct {
 	AuthMethod       string `mapstructure:"authMethod" json:"authMethod" validate:"required,oneof=BasicAuth AccessToken AppKey"`
-	apiAuthenticator apihelperabstract.ApiAuthenticator
+	apiAuthenticator plugin.ApiAuthenticator
 }
 
-func (ma *MultiAuth) GetApiAuthenticator(connection apihelperabstract.ApiConnection) (apihelperabstract.ApiAuthenticator, errors.Error) {
+func (ma *MultiAuth) GetApiAuthenticator(connection plugin.ApiConnection) (plugin.ApiAuthenticator, errors.Error) {
 	// cache the ApiAuthenticator for performance
 	if ma.apiAuthenticator != nil {
 		return ma.apiAuthenticator, nil
 	}
 	// cache missed
 	switch ma.AuthMethod {
-	case apihelperabstract.AUTH_METHOD_BASIC:
-		basicAuth, ok := connection.(apihelperabstract.BasicAuthenticator)
+	case plugin.AUTH_METHOD_BASIC:
+		basicAuth, ok := connection.(plugin.BasicAuthenticator)
 		if !ok {
 			return nil, errors.Default.New("connection doesn't support Basic Authentication")
 		}
 		ma.apiAuthenticator = basicAuth.GetBasicAuthenticator()
-	case apihelperabstract.AUTH_METHOD_TOKEN:
-		accessToken, ok := connection.(apihelperabstract.AccessTokenAuthenticator)
+	case plugin.AUTH_METHOD_TOKEN:
+		accessToken, ok := connection.(plugin.AccessTokenAuthenticator)
 		if !ok {
 			return nil, errors.Default.New("connection doesn't support AccessToken Authentication")
 		}
 		ma.apiAuthenticator = accessToken.GetAccessTokenAuthenticator()
-	case apihelperabstract.AUTH_METHOD_APPKEY:
+	case plugin.AUTH_METHOD_APPKEY:
 		// Note that AppKey Authentication requires complex logic like signing the request with timestamp
 		// so, there is no way to solve them once and for all, each Specific Connection should implement
 		// on its own.
-		appKey, ok := connection.(apihelperabstract.AppKeyAuthenticator)
+		appKey, ok := connection.(plugin.AppKeyAuthenticator)
 		if !ok {
 			return nil, errors.Default.New("connection doesn't support AppKey Authentication")
 		}
@@ -135,7 +135,7 @@ func (ma *MultiAuth) GetApiAuthenticator(connection apihelperabstract.ApiConnect
 // Specific Connection should implement IAuthentication and then call this method for MultiAuth to work properly,
 // check jira/models/connection.go:JiraConn if you needed an example
 // Note: this method would be called for each request, so it is performance-sensitive, do NOT use reflection here
-func (ma *MultiAuth) SetupAuthenticationForConnection(connection apihelperabstract.ApiConnection, req *http.Request) errors.Error {
+func (ma *MultiAuth) SetupAuthenticationForConnection(connection plugin.ApiConnection, req *http.Request) errors.Error {
 	apiAuthenticator, err := ma.GetApiAuthenticator(connection)
 	if err != nil {
 		return err
@@ -154,7 +154,7 @@ func (ma *MultiAuth) ValidateConnection(connection interface{}, v *validator.Val
 			if len(ns) > 1 {
 				// BasicAuth
 				authName := ns[len(ns)-2]
-				if apihelperabstract.ALL_AUTH[authName] && authName != ma.AuthMethod {
+				if plugin.ALL_AUTH[authName] && authName != ma.AuthMethod {
 					continue
 				}
 				filteredValidationErrors = append(filteredValidationErrors, e)
