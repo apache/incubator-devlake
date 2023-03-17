@@ -20,6 +20,7 @@ package api
 import (
 	"context"
 	"net/http"
+	"strings"
 
 	"github.com/apache/incubator-devlake/core/errors"
 	"github.com/apache/incubator-devlake/core/plugin"
@@ -27,6 +28,8 @@ import (
 	"github.com/apache/incubator-devlake/plugins/github/models"
 	"github.com/apache/incubator-devlake/server/api/shared"
 )
+
+var RequirePermission = []string{"repo:status", "repo_deployment", "read:user", "read:org"}
 
 type GithubTestConnResponse struct {
 	shared.ApiBody
@@ -67,6 +70,16 @@ func TestConnection(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, 
 		return nil, errors.BadInput.Wrap(err, "verify token failed")
 	} else if githubUserOfToken.Login == "" {
 		return nil, errors.BadInput.Wrap(err, "invalid token")
+	}
+
+	// for github classic token, check permission
+	if strings.HasPrefix(conn.Token, "ghp_") {
+		scopes := res.Header.Get("X-OAuth-Scopes")
+		for _, permission := range RequirePermission {
+			if !strings.Contains(scopes, permission) {
+				return nil, errors.BadInput.New("insufficient token permission")
+			}
+		}
 	}
 
 	githubApiResponse := &GithubTestConnResponse{}
