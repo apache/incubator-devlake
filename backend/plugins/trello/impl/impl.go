@@ -95,7 +95,10 @@ func (p Trello) PrepareTaskData(taskCtx plugin.TaskContext, options map[string]i
 		return nil, errors.Default.Wrap(err, "Trello plugin could not decode options")
 	}
 	if op.BoardId == "" {
-		return nil, errors.BadInput.New("boardId is required")
+		if op.ScopeId == "" {
+			return nil, errors.BadInput.New("one of boardId and scopeId is required")
+		}
+		op.BoardId = op.ScopeId
 	}
 	if op.ConnectionId == 0 {
 		return nil, errors.BadInput.New("trello connectionId is invalid")

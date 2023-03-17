@@ -86,7 +86,7 @@ func PutScope(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, errors
 // @Tags plugins/trello
 // @Accept application/json
 // @Param connectionId path int false "connection ID"
-// @Param boardId path int false "board ID"
+// @Param boardId path string false "board ID"
 // @Param scope body models.TrelloBoard true "json"
 // @Success 200  {object} models.TrelloBoard
 // @Failure 400  {object} shared.ApiBody "Bad Request"
@@ -168,7 +168,7 @@ func GetScopeList(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, er
 // @Description get one Trello board
 // @Tags plugins/trello
 // @Param connectionId path int false "connection ID"
-// @Param boardId path int false "board ID"
+// @Param boardId path string false "board ID"
 // @Success 200  {object} models.TrelloBoard
 // @Failure 400  {object} shared.ApiBody "Bad Request"
 // @Failure 500  {object} shared.ApiBody "Internal Error"
