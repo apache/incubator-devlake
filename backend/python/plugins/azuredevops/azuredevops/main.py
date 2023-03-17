@@ -50,21 +50,23 @@ class AzureDevOpsPlugin(Plugin):
             url=git_repo.url
         )
 
-    def remote_scope_groups(self, ctx) -> list[RemoteScopeGroup]:
-        api = AzureDevOpsAPI(ctx.connection)
-        member_id = api.my_profile.json['id']
+    def remote_scope_groups(self, connection) -> list[RemoteScopeGroup]:
+        api = AzureDevOpsAPI(connection)
+        member_id = api.my_profile().json['id']
         accounts = api.accounts(member_id).json
-        orgs = [acc['accountId'] for acc in accounts]
-        for org in orgs:
+        for account in accounts['value']:
+            org = account['accountName']
             for proj in api.projects(org):
+                proj_name = proj['name']
+
                 yield RemoteScopeGroup(
-                    id=f'{org}/{proj["name"]}',
-                    name=proj['name']
+                    id=f'{org}/{proj_name}',
+                    name=proj_name
                 )
 
-    def remote_scopes(self, ctx, group_id: str) -> list[GitRepository]:
+    def remote_scopes(self, connection, group_id: str) -> list[GitRepository]:
         org, proj = group_id.split('/')
-        api = AzureDevOpsAPI(ctx.connection)
+        api = AzureDevOpsAPI(connection)
         for raw_repo in api.git_repos(org, proj):
             repo = GitRepository(**raw_repo, project_id=proj, org_id=org)
             if not repo.defaultBranch:
