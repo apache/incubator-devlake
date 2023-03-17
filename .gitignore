@@ -138,9 +138,6 @@ local.js
 .DS_Store
 Thumbs.db
 
-# yarn
-yarn.lock
-
 lake
 *.exe
 *.so

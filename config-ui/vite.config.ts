@@ -16,24 +16,28 @@
  *
  */
 
-import React from 'react';
-import ReactDOM from 'react-dom';
-import { BrowserRouter } from 'react-router-dom';
+import path from 'path';
+import { defineConfig } from 'vite';
+import react from '@vitejs/plugin-react';
 
-import { ErrorBoundary } from '@/error';
-import { VersionContextProvider } from '@/store';
+// https://vitejs.dev/config/
+export default defineConfig({
+  plugins: [react()],
 
-import App from './App';
+  server: {
+    port: 4000,
+    proxy: {
+      '/api': {
+        target: 'http://localhost:8080/',
+        changeOrigin: true,
+        rewrite: (path) => path.replace(/^\/api/, ''),
+      },
+    },
+  },
 
-import './index.css';
-
-ReactDOM.render(
-  <BrowserRouter>
-    <ErrorBoundary>
-      <VersionContextProvider>
-        <App />
-      </VersionContextProvider>
-    </ErrorBoundary>
-  </BrowserRouter>,
-  document.getElementById('app'),
-);
+  resolve: {
+    alias: {
+      '@': path.join(__dirname, './src'),
+    },
+  },
+});

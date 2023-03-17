@@ -30,7 +30,7 @@ import DashboardIcon from '@/images/icons/dashborad.svg';
 
 import { useMenu, MenuItemType } from './use-menu';
 import * as S from './styled';
-import { BorderContainer } from "./styled";
+import { BorderContainer } from './styled';
 
 interface Props {
   children: React.ReactNode;
@@ -54,7 +54,7 @@ export const BaseLayout = ({ children }: Props) => {
     const suffix = '/d/lCO8w-pVk/homepage?orgId=1';
     const { protocol, hostname } = window.location;
 
-    return process.env.LOCAL ? `${protocol}//${hostname}:3002${suffix}` : `/grafana${suffix}`;
+    return import.meta.env.DEV ? `${protocol}//${hostname}:3002${suffix}` : `/grafana${suffix}`;
   };
 
   return (

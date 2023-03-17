@@ -17,11 +17,11 @@
  */
 
 import { useState, useEffect, useMemo } from 'react';
-import type { ItemType } from 'miller-columns-select';
+import type { McsItem } from 'miller-columns-select';
 
 import * as API from '../../api';
 
-type WebhookItemType = ItemType<{
+type WebhookItemType = McsItem<{
   id: ID;
   name: string;
 }>;
