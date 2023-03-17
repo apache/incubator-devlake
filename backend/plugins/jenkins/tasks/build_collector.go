@@ -29,7 +29,6 @@ import (
 	"github.com/apache/incubator-devlake/core/dal"
 	"github.com/apache/incubator-devlake/core/errors"
 	"github.com/apache/incubator-devlake/core/plugin"
-	"github.com/apache/incubator-devlake/helpers/pluginhelper/api"
 	helper "github.com/apache/incubator-devlake/helpers/pluginhelper/api"
 	"github.com/apache/incubator-devlake/plugins/jenkins/models"
 )
@@ -51,14 +50,14 @@ type SimpleJob struct {
 
 type SimpleJenkinsApiBuild struct {
 	Number    int64
-	Timestamp int64
+	Timestamp int64 `json:"timestamp"`
 }
 
 func CollectApiBuilds(taskCtx plugin.SubTaskContext) errors.Error {
 	data := taskCtx.GetData().(*JenkinsTaskData)
 	db := taskCtx.GetDal()
 	collector, err := helper.NewStatefulApiCollectorForFinalizableEntity(helper.FinalizableApiCollectorArgs{
-		RawDataSubTaskArgs: api.RawDataSubTaskArgs{
+		RawDataSubTaskArgs: helper.RawDataSubTaskArgs{
 			Params: JenkinsApiParams{
 				ConnectionId: data.Options.ConnectionId,
 				FullName:     data.Options.JobFullName,
@@ -98,7 +97,10 @@ func CollectApiBuilds(taskCtx plugin.SubTaskContext) errors.Error {
 				if err != nil {
 					return time.Time{}, errors.BadInput.Wrap(err, "failed to unmarshal jenkins build")
 				}
-				return time.Unix(b.Timestamp, 0), nil
+				seconds := b.Timestamp / 1000
+				nanos := (b.Timestamp % 1000) * 1000000
+				return time.Unix(seconds, nanos), nil
+				//return time.Unix(b.Timestamp, 0), nil
 			},
 		},
 		CollectUnfinishedDetails: helper.FinalizableApiCollectorDetailArgs{
