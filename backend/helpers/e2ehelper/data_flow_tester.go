@@ -107,6 +107,9 @@ func NewDataFlowTester(t *testing.T, pluginName string, pluginMeta plugin.Plugin
 	cfg.Set(`DB_URL`, cfg.GetString(`E2E_DB_URL`))
 	db, err := runner.NewGormDb(cfg, logruslog.Global)
 	if err != nil {
+		// if here fail with error `acces denied for user` you need to create database by your self as follow command
+		// create databases lake_test;
+		// grant all on lake_test.* to 'merico'@'%';
 		panic(err)
 	}
 	return &DataFlowTester{
@@ -122,7 +125,10 @@ func NewDataFlowTester(t *testing.T, pluginName string, pluginMeta plugin.Plugin
 
 // ImportCsvIntoRawTable imports records from specified csv file into target raw table, note that existing data would be deleted first.
 func (t *DataFlowTester) ImportCsvIntoRawTable(csvRelPath string, rawTableName string) {
-	csvIter, _ := pluginhelper.NewCsvFileIterator(csvRelPath)
+	csvIter, err := pluginhelper.NewCsvFileIterator(csvRelPath)
+	if err != nil {
+		panic(err)
+	}
 	defer csvIter.Close()
 	t.FlushRawTable(rawTableName)
 	// load rows and insert into target table

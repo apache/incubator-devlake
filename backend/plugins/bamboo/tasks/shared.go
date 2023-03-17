@@ -28,9 +28,9 @@ import (
 func CreateRawDataSubTaskArgs(taskCtx plugin.SubTaskContext, rawTable string) (*api.RawDataSubTaskArgs, *BambooTaskData) {
 	data := taskCtx.GetData().(*BambooTaskData)
 	filteredData := *data
-	filteredData.Options = &BambooOptions{}
+	filteredData.Options = &models.BambooOptions{}
 	*filteredData.Options = *data.Options
-	var params = BambooApiParams{
+	var params = models.BambooApiParams{
 		ConnectionId: data.Options.ConnectionId,
 		ProjectKey:   data.Options.ProjectKey,
 	}

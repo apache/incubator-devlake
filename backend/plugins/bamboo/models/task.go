@@ -15,26 +15,21 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-package tasks
+package models
 
-import (
-	"github.com/apache/incubator-devlake/core/errors"
-	helper "github.com/apache/incubator-devlake/helpers/pluginhelper/api"
-	"github.com/apache/incubator-devlake/plugins/bamboo/models"
-)
-
-type BambooTaskData struct {
-	Options   *models.BambooOptions
-	ApiClient *helper.ApiAsyncClient
+type BambooApiParams struct {
+	ConnectionId uint64 `json:"connectionId"`
+	ProjectKey   string
 }
 
-func DecodeAndValidateTaskOptions(options map[string]interface{}) (*models.BambooOptions, errors.Error) {
-	var op models.BambooOptions
-	if err := helper.Decode(options, &op, nil); err != nil {
-		return nil, err
-	}
-	if op.ConnectionId == 0 {
-		return nil, errors.Default.New("connectionId is invalid")
-	}
-	return &op, nil
+type BambooOptions struct {
+	// TODO add some custom options here if necessary
+	// options means some custom params required by plugin running.
+	// Such As How many rows do your want
+	// You can use it in sub tasks and you need pass it in main.go and pipelines.
+	ConnectionId              uint64   `json:"connectionId"`
+	ProjectKey                string   `json:"projectKey"`
+	Tasks                     []string `json:"tasks,omitempty"`
+	TransformationRuleId      uint64   `mapstructure:"transformationRuleId" json:"transformationRuleId"`
+	*BambooTransformationRule `mapstructure:"transformationRules" json:"transformationRules"`
 }

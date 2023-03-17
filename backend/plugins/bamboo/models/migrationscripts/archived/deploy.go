@@ -35,6 +35,7 @@ type BambooDeployEnvironment struct {
 	EnvKey              string `json:"key" gorm:"index;type:varchar(255)"`
 	Name                string `json:"name" gorm:"index;type:varchar(255)"`
 	PlanKey             string `json:"plan_key" gorm:"index;type:varchar(255)"`
+	ProjectKey          string `json:"project_key" gorm:"index"`
 	Description         string `json:"description"`
 	DeploymentProjectId uint64 `json:"deploymentProjectId"`
 	Position            uint64 `json:"position"`
