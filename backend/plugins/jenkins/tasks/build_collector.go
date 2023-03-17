@@ -100,7 +100,6 @@ func CollectApiBuilds(taskCtx plugin.SubTaskContext) errors.Error {
 				seconds := b.Timestamp / 1000
 				nanos := (b.Timestamp % 1000) * 1000000
 				return time.Unix(seconds, nanos), nil
-				//return time.Unix(b.Timestamp, 0), nil
 			},
 		},
 		CollectUnfinishedDetails: helper.FinalizableApiCollectorDetailArgs{
