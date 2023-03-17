@@ -26,9 +26,11 @@ import { useVersion } from '@/store';
 import FileIcon from '@/images/icons/file.svg';
 import GitHubIcon from '@/images/icons/github.svg';
 import SlackIcon from '@/images/icons/slack.svg';
+import DashboardIcon from '@/images/icons/dashborad.svg';
 
 import { useMenu, MenuItemType } from './use-menu';
 import * as S from './styled';
+import { BorderContainer } from "./styled";
 
 interface Props {
   children: React.ReactNode;
@@ -46,6 +48,13 @@ export const BaseLayout = ({ children }: Props) => {
     } else {
       window.open(it.path, '_blank');
     }
+  };
+
+  const getGrafanaUrl = () => {
+    const suffix = '/d/lCO8w-pVk/homepage?orgId=1';
+    const { protocol, hostname } = window.location;
+
+    return process.env.LOCAL ? `${protocol}//${hostname}:3002${suffix}` : `/grafana${suffix}`;
   };
 
   return (
@@ -93,6 +102,13 @@ export const BaseLayout = ({ children }: Props) => {
       <S.Inner>
         <S.Header>
           <Navbar.Group align={Alignment.RIGHT}>
+            <BorderContainer>
+              <a href={getGrafanaUrl()} rel="noreferrer" target="_blank">
+                <img src={DashboardIcon} alt="dashboards" />
+                <span>Dashboards</span>
+              </a>
+            </BorderContainer>
+            <Navbar.Divider />
             <a href="https://devlake.apache.org/docs/UserManuals/ConfigUI/Tutorial/" rel="noreferrer" target="_blank">
               <img src={FileIcon} alt="documents" />
               <span>Docs</span>
