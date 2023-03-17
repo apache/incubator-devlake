@@ -15,24 +15,24 @@
 # limitations under the License.
 #
 
-name: Frontend-Lint
+name: config-ui
 on:
   pull_request:
     branches: [ main ]
     paths:
       - 'config-ui/**'
 jobs:
-  build:
+  lint:
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v2
-    - name: Cache Frontend-Lint
-      id: cache-Frontend-Lint
-      uses: actions/cache@v3
+    - name: Set up Node.js
+      uses: actions/setup-node@v3
       with:
-        path: Frontend-Lint
-        key: ${{ runner.os }}-Frontend-Lint
-    - name: Install modules
-      run: cd config-ui; npm i
-    - name: Run ESLint
-      run: cd config-ui; npm run lint
+        node-version: '16'
+        cache: 'yarn'
+        cache-dependency-path: config-ui/yarn.lock
+    - name: Install with Yarn
+      run: cd config-ui; yarn
+    - name: Run Lint
+      run: cd config-ui; yarn tsc && yarn lint
