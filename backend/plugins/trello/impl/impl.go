@@ -57,7 +57,6 @@ func (p Trello) GetTablesInfo() []dal.Tabler {
 		&models.TrelloCard{},
 		&models.TrelloLabel{},
 		&models.TrelloMember{},
-		&models.TrelloChecklist{},
 		&models.TrelloCheckItem{},
 	}
 }
@@ -76,9 +75,6 @@ func (p Trello) SubTaskMetas() []plugin.SubTaskMeta {
 
 		tasks.CollectLabelMeta,
 		tasks.ExtractLabelMeta,
-
-		tasks.CollectChecklistMeta,
-		tasks.ExtractChecklistMeta,
 
 		tasks.CollectCheckItemMeta,
 		tasks.ExtractCheckItemMeta,

@@ -27,7 +27,7 @@ import (
 
 const RAW_CHECK_ITEM_TABLE = "trello_check_items"
 
-var _ plugin.SubTaskEntryPoint = CollectChecklist
+var _ plugin.SubTaskEntryPoint = CollectCheckItem
 
 var CollectCheckItemMeta = plugin.SubTaskMeta{
 	Name:             "CollectCheckItem",

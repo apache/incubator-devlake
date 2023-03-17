@@ -34,6 +34,15 @@ var ExtractCheckItemMeta = plugin.SubTaskMeta{
 	Description:      "Extract raw data into tool layer table trello_check_items",
 }
 
+type TrelloApiChecklist struct {
+	ID         string                `json:"id"`
+	Name       string                `json:"name"`
+	IDBoard    string                `json:"idBoard"`
+	IDCard     string                `json:"idCard"`
+	Pos        float64               `json:"pos"`
+	CheckItems []TrelloApiCheckItems `json:"checkItems"`
+}
+
 type TrelloApiCheckItems struct {
 	ID          string      `json:"id"`
 	Name        string      `json:"name"`
@@ -67,11 +76,14 @@ func ExtractCheckItem(taskCtx plugin.SubTaskContext) errors.Error {
 			results := make([]interface{}, 0)
 			for _, item := range apiCheckItem.CheckItems {
 				results = append(results, &models.TrelloCheckItem{
-					ID:          item.ID,
-					Name:        item.Name,
-					State:       item.State,
-					IDChecklist: item.IDChecklist,
-					Pos:         item.Pos,
+					ID:            item.ID,
+					Name:          item.Name,
+					State:         item.State,
+					IDChecklist:   item.IDChecklist,
+					ChecklistName: apiCheckItem.Name,
+					IDBoard:       apiCheckItem.IDBoard,
+					IDCard:        apiCheckItem.IDCard,
+					Pos:           item.Pos,
 				})
 			}
 			return results, nil

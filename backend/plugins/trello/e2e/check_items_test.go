@@ -26,7 +26,7 @@ import (
 	"testing"
 )
 
-func TestTrelloChecklistDataFlow(t *testing.T) {
+func TestTrelloCheckItemDataFlow(t *testing.T) {
 	var trello impl.Trello
 	dataflowTester := e2ehelper.NewDataFlowTester(t, "trello", trello)
 
@@ -38,13 +38,13 @@ func TestTrelloChecklistDataFlow(t *testing.T) {
 	}
 
 	// import raw data table
-	dataflowTester.ImportCsvIntoRawTable("./raw_tables/_raw_trello_checklists.csv", "_raw_trello_checklists")
+	dataflowTester.ImportCsvIntoRawTable("./raw_tables/_raw_trello_check_items.csv", "_raw_trello_check_items")
 
 	// verify extraction
-	dataflowTester.FlushTabler(&models.TrelloChecklist{})
-	dataflowTester.Subtask(tasks.ExtractChecklistMeta, taskData)
-	dataflowTester.VerifyTableWithOptions(models.TrelloChecklist{}, e2ehelper.TableOptions{
-		CSVRelPath:  "./snapshot_tables/_tool_trello_checklists.csv",
+	dataflowTester.FlushTabler(&models.TrelloCheckItem{})
+	dataflowTester.Subtask(tasks.ExtractCheckItemMeta, taskData)
+	dataflowTester.VerifyTableWithOptions(models.TrelloCheckItem{}, e2ehelper.TableOptions{
+		CSVRelPath:  "./snapshot_tables/_tool_trello_check_items.csv",
 		IgnoreTypes: []interface{}{common.NoPKModel{}},
 	})
 }

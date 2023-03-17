@@ -35,14 +35,13 @@ func (*addInitTables) Up(basicRes context.BasicRes) errors.Error {
 		&models.TrelloCard{},
 		&models.TrelloLabel{},
 		&models.TrelloMember{},
-		&models.TrelloChecklist{},
 		&models.TrelloCheckItem{},
 		&models.TrelloTransformationRule{},
 	)
 }
 
 func (*addInitTables) Version() uint64 {
-	return 20230305000013
+	return 20230305000014
 }
 
 func (*addInitTables) Name() string {
