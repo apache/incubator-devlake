@@ -19,14 +19,15 @@ package tasks
 
 import (
 	"encoding/json"
+	"net/http"
+	"net/url"
+	"reflect"
+
 	"github.com/apache/incubator-devlake/core/dal"
 	"github.com/apache/incubator-devlake/core/errors"
 	"github.com/apache/incubator-devlake/core/plugin"
 	"github.com/apache/incubator-devlake/helpers/pluginhelper/api"
 	"github.com/apache/incubator-devlake/plugins/jira/models"
-	"net/http"
-	"net/url"
-	"reflect"
 )
 
 const RAW_USERS_TABLE = "jira_api_users"
@@ -35,7 +36,7 @@ var CollectAccountsMeta = plugin.SubTaskMeta{
 	Name:             "collectAccounts",
 	EntryPoint:       CollectAccounts,
 	EnabledByDefault: true,
-	Description:      "collect Jira accounts",
+	Description:      "collect Jira accounts, does not support either timeFilter or diffSync.",
 	DomainTypes:      []string{plugin.DOMAIN_TYPE_CROSS},
 }
 

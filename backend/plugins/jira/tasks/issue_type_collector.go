@@ -19,11 +19,12 @@ package tasks
 
 import (
 	"encoding/json"
+	"net/http"
+
 	"github.com/apache/incubator-devlake/core/errors"
 	"github.com/apache/incubator-devlake/core/plugin"
 	"github.com/apache/incubator-devlake/helpers/pluginhelper/api"
 	"github.com/apache/incubator-devlake/plugins/jira/models"
-	"net/http"
 )
 
 const RAW_ISSUE_TYPE_TABLE = "jira_api_issue_types"
@@ -34,7 +35,7 @@ var CollectIssueTypesMeta = plugin.SubTaskMeta{
 	Name:             "collectIssueTypes",
 	EntryPoint:       CollectIssueTypes,
 	EnabledByDefault: true,
-	Description:      "collect Jira issue_types",
+	Description:      "collect Jira issue_types, does not support either timeFilter or diffSync.",
 	DomainTypes:      []string{plugin.DOMAIN_TYPE_TICKET},
 }
 

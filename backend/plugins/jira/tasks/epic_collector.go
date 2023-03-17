@@ -19,12 +19,13 @@ package tasks
 
 import (
 	"fmt"
+	"reflect"
+	"strings"
+
 	"github.com/apache/incubator-devlake/core/dal"
 	"github.com/apache/incubator-devlake/core/errors"
 	"github.com/apache/incubator-devlake/core/plugin"
 	"github.com/apache/incubator-devlake/helpers/pluginhelper/api"
-	"reflect"
-	"strings"
 
 	"encoding/json"
 	"io"
@@ -40,7 +41,7 @@ var CollectEpicsMeta = plugin.SubTaskMeta{
 	Name:             "collectEpics",
 	EntryPoint:       CollectEpics,
 	EnabledByDefault: true,
-	Description:      "collect Jira epics from all boards",
+	Description:      "collect Jira epics from all boards, does not support either timeFilter or diffSync.",
 	DomainTypes:      []string{plugin.DOMAIN_TYPE_TICKET, plugin.DOMAIN_TYPE_CROSS},
 }
 

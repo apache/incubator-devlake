@@ -41,7 +41,7 @@ var CollectIssueChangelogsMeta = plugin.SubTaskMeta{
 	Name:             "collectIssueChangelogs",
 	EntryPoint:       CollectIssueChangelogs,
 	EnabledByDefault: true,
-	Description:      "collect Jira Issue change logs",
+	Description:      "collect Jira Issue change logs, supports both timeFilter and diffSync.",
 	DomainTypes:      []string{plugin.DOMAIN_TYPE_TICKET, plugin.DOMAIN_TYPE_CROSS},
 }
 
