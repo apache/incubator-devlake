@@ -140,9 +140,25 @@ class Plugin(ABC):
         )
 
     def make_pipeline_plan(self, scopes: list[ToolScope], entity_types: list[str], connection_id: int) -> list[list[msg.PipelineTask]]:
-        return [self.make_pipeline_stage(scope, entity_types, connection_id) for scope in scopes]
+        """
+        Generate a pipeline plan with one stage per scope, plus optional additional stages.
+        Redefine `extra_stages` to add stages at the end of this pipeline.
+        """
+        return [
+            *(self.make_pipeline_stage(scope, entity_types, connection_id) for scope in scopes),
+            *self.extra_stages(scopes, entity_types, connection_id)
+        ]
+
+    def extra_stages(self, scopes: list[ToolScope], entity_types: list[str], connection_id: int) -> list[list[msg.PipelineTask]]:
+        """Override this method to add extra stages to the pipeline plan"""
+        return []
 
     def make_pipeline_stage(self, scope: ToolScope, entity_types: list[str], connection_id: int) -> list[msg.PipelineTask]:
+        """
+        Generate a pipeline stage for the given scope, plus optional additional tasks.
+        Subtasks are selected from `entity_types` via `select_subtasks`.
+        Redefine `extra_tasks` to add tasks to this stage.
+        """
         return [
             msg.PipelineTask(
                 plugin=self.name,
@@ -153,8 +169,13 @@ class Plugin(ABC):
                     "scopeName": scope.name,
                     "connectionId": connection_id
                 }
-            )
+            ),
+            self.extra_tasks(scope, entity_types, connection_id)
         ]
+
+    def extra_tasks(self, scope: ToolScope, entity_types: list[str], connection_id: int) -> list[msg.PipelineTask]:
+        """Override this method to add tasks to the given scope stage"""
+        return []
 
     def select_subtasks(self, scope: ToolScope, entity_types: list[str]) -> list[str]:
         """

@@ -13,6 +13,8 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+from urllib.parse import urlparse
+
 from azuredevops.api import AzureDevOpsAPI
 from azuredevops.models import AzureDevOpsConnection, GitRepository
 from azuredevops.streams.builds import Builds
@@ -21,9 +23,10 @@ from azuredevops.streams.jobs import Jobs
 from azuredevops.streams.pull_request_commits import GitPullRequestCommits
 from azuredevops.streams.pull_requests import GitPullRequests
 
-from pydevlake import Plugin, RemoteScopeGroup
+from pydevlake import Plugin, RemoteScopeGroup, DomainType
 from pydevlake.domain_layer.code import Repo
 from pydevlake.domain_layer.devops import CicdScope
+from pydevlake.pipeline_tasks import gitextractor, refdiff
 
 
 class AzureDevOpsPlugin(Plugin):
@@ -68,7 +71,9 @@ class AzureDevOpsPlugin(Plugin):
         org, proj = group_id.split('/')
         api = AzureDevOpsAPI(connection)
         for raw_repo in api.git_repos(org, proj):
-            repo = GitRepository(**raw_repo, project_id=proj, org_id=org)
+            url = urlparse(raw_repo['remoteUrl'])
+            url = url._replace(netloc=f'{url.username}:{connection.pat}@{url.hostname}')
+            repo = GitRepository(**raw_repo, project_id=proj, org_id=org, url=url.geturl())
             if not repo.defaultBranch:
                 return None
             if "parentRepository" in raw_repo:
@@ -79,6 +84,20 @@ class AzureDevOpsPlugin(Plugin):
         resp = AzureDevOpsAPI(connection).my_profile()
         if resp.status != 200:
             raise Exception(f"Invalid token: {connection.token}")
+
+    def extra_tasks(self, scope: GitRepository, entity_types: list[str], connection_id: int):
+        if DomainType.CODE in entity_types:
+            # TODO: pass proxy
+            return [gitextractor(scope.url, scope.id, None)]
+        else:
+            return []
+
+    def extra_stages(self, scopes: list[GitRepository], entity_types: list[str], connection_id: int):
+        if DomainType.CODE in entity_types:
+            # TODO: pass refdiff options
+            return [refdiff(scope.id, {}) for scope in scopes]
+        else:
+            return []
 
     @property
     def streams(self):
