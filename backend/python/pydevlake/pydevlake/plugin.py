@@ -124,14 +124,16 @@ class Plugin(ABC):
         Make a simple pipeline using the scopes declared by the plugin.
         """
         plan = self.make_pipeline_plan(tool_scopes, entity_types, connection_id)
-        domain_scopes = [
-            msg.DynamicDomainScope(
-                type_name=type(scope).__name__,
-                data=scope.dict(exclude_unset=True)
-            )
-            for tool_scope in tool_scopes
-            for scope in self.domain_scopes(tool_scope)
-        ]
+        domain_scopes = []
+        for tool_scope in tool_scopes:
+            for scope in self.domain_scopes(tool_scope):
+                scope.id = tool_scope.domain_id()
+                domain_scopes.append(
+                    msg.DynamicDomainScope(
+                        type_name=type(scope).__name__,
+                        data=scope.dict(exclude_unset=True)
+                    )
+                )
         return msg.PipelineData(
             plan=plan,
             scopes=domain_scopes
