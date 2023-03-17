@@ -26,34 +26,8 @@ import (
 	"github.com/apache/incubator-devlake/core/plugin"
 	"github.com/go-playground/validator/v10"
 	"net/http"
-	"net/url"
+	"strconv"
 )
-
-// RemoteApiHelper is used to write the CURD of connection
-type RemoteApiHelper[Conn plugin.ApiConnectionForRemote[Group, ApiScope], Scope plugin.ToolLayerScope, ApiScope plugin.ApiScope, Group plugin.ApiGroup] struct {
-	basicRes   coreContext.BasicRes
-	validator  *validator.Validate
-	connHelper *ConnectionApiHelper
-}
-
-// NewRemoteHelper creates a ScopeHelper for connection management
-func NewRemoteHelper[Conn plugin.ApiConnectionForRemote[Group, ApiScope], Scope plugin.ToolLayerScope, ApiScope plugin.ApiScope, Group plugin.ApiGroup](
-	basicRes coreContext.BasicRes,
-	vld *validator.Validate,
-	connHelper *ConnectionApiHelper,
-) *RemoteApiHelper[Conn, Scope, ApiScope, Group] {
-	if vld == nil {
-		vld = validator.New()
-	}
-	if connHelper == nil {
-		return nil
-	}
-	return &RemoteApiHelper[Conn, Scope, ApiScope, Group]{
-		basicRes:   basicRes,
-		validator:  vld,
-		connHelper: connHelper,
-	}
-}
 
 type RemoteScopesChild struct {
 	Type     string      `json:"type"`
@@ -74,18 +48,41 @@ type SearchRemoteScopesOutput struct {
 	PageSize int                 `json:"pageSize"`
 }
 
-type PageData struct {
-	Page    int    `json:"page"`
-	PerPage int    `json:"per_page"`
-	Tag     string `json:"tag"`
+// RemoteApiHelper is used to write the CURD of connection
+type RemoteApiHelper[Conn plugin.ApiConnection, Scope plugin.ToolLayerScope, ApiScope plugin.ApiScope, Group plugin.ApiGroup] struct {
+	basicRes   coreContext.BasicRes
+	validator  *validator.Validate
+	connHelper *ConnectionApiHelper
+}
+
+// NewRemoteHelper creates a ScopeHelper for connection management
+func NewRemoteHelper[Conn plugin.ApiConnection, Scope plugin.ToolLayerScope, ApiScope plugin.ApiScope, Group plugin.ApiGroup](
+	basicRes coreContext.BasicRes,
+	vld *validator.Validate,
+	connHelper *ConnectionApiHelper,
+) *RemoteApiHelper[Conn, Scope, ApiScope, Group] {
+	if vld == nil {
+		vld = validator.New()
+	}
+	if connHelper == nil {
+		return nil
+	}
+	return &RemoteApiHelper[Conn, Scope, ApiScope, Group]{
+		basicRes:   basicRes,
+		validator:  vld,
+		connHelper: connHelper,
+	}
 }
 
 const remoteScopesPerPage int = 100
 const TypeProject string = "scope"
 const TypeGroup string = "group"
 
-func (r *RemoteApiHelper[Conn, Scope, ApiScope, Group]) GetScopesFromRemote(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, errors.Error) {
-	connectionId, _ := ExtractFromReqParam(input.Params)
+func (r *RemoteApiHelper[Conn, Scope, ApiScope, Group]) GetScopesFromRemote(input *plugin.ApiResourceInput,
+	getGroup func(basicRes coreContext.BasicRes, gid string, queryData *plugin.QueryData, connection Conn) ([]Group, errors.Error),
+	getScope func(basicRes coreContext.BasicRes, gid string, queryData *plugin.QueryData, connection Conn) ([]ApiScope, errors.Error),
+) (*plugin.ApiResourceOutput, errors.Error) {
+	connectionId, _ := extractFromReqParam(input.Params)
 	if connectionId == 0 {
 		return nil, errors.BadInput.New("invalid connectionId")
 	}
@@ -108,7 +105,7 @@ func (r *RemoteApiHelper[Conn, Scope, ApiScope, Group]) GetScopesFromRemote(inpu
 
 	// get gid and pageData
 	gid := groupId[0]
-	pageData, err := getPageDataFromPageToken(pageToken[0])
+	queryData, err := getPageDataFromPageToken(pageToken[0])
 	if err != nil {
 		return nil, errors.BadInput.New("failed to get paget token")
 	}
@@ -116,17 +113,13 @@ func (r *RemoteApiHelper[Conn, Scope, ApiScope, Group]) GetScopesFromRemote(inpu
 	outputBody := &RemoteScopesOutput{}
 
 	// list groups part
-	if pageData.Tag == TypeGroup {
-		query, err := getQueryFromPageData(pageData)
-		if err != nil {
-			return nil, err
-		}
+	if queryData.Tag == TypeGroup {
 		var resBody []Group
-		resBody, err = connection.GetGroup(r.basicRes, gid, query)
+		resBody, err = getGroup(r.basicRes, gid, queryData, connection)
 		if err != nil {
 			return nil, err
 		}
-
+		// if len(resBody) == 0, will skip the following steps, this will happen in some plugins which don't have group
 		// append group to output
 		for _, group := range resBody {
 			child := RemoteScopesChild{
@@ -143,22 +136,17 @@ func (r *RemoteApiHelper[Conn, Scope, ApiScope, Group]) GetScopesFromRemote(inpu
 			outputBody.Children = append(outputBody.Children, child)
 		}
 		// check groups count
-		if len(resBody) < pageData.PerPage {
-			pageData.Tag = TypeProject
-			pageData.Page = 1
-			pageData.PerPage = pageData.PerPage - len(resBody)
+		if len(resBody) < queryData.PerPage {
+			queryData.Tag = TypeProject
+			queryData.Page = 1
+			queryData.PerPage = queryData.PerPage - len(resBody)
 		}
 	}
 
 	// list projects part
-	if pageData.Tag == TypeProject {
-		query, err := getQueryFromPageData(pageData)
-		if err != nil {
-			return nil, err
-		}
+	if queryData.Tag == TypeProject {
 		var resBody []ApiScope
-
-		resBody, err = connection.GetScope(r.basicRes, gid, query)
+		resBody, err = getScope(r.basicRes, gid, queryData, connection)
 		if err != nil {
 			return nil, err
 		}
@@ -181,18 +169,18 @@ func (r *RemoteApiHelper[Conn, Scope, ApiScope, Group]) GetScopesFromRemote(inpu
 		}
 
 		// check project count
-		if len(resBody) < pageData.PerPage {
-			pageData = nil
+		if len(resBody) < queryData.PerPage {
+			queryData = nil
 		}
 	}
 
 	// get the next page token
 	outputBody.NextPageToken = ""
-	if pageData != nil {
-		pageData.Page += 1
-		pageData.PerPage = remoteScopesPerPage
+	if queryData != nil {
+		queryData.Page += 1
+		queryData.PerPage = remoteScopesPerPage
 
-		outputBody.NextPageToken, err = getPageTokenFromPageData(pageData)
+		outputBody.NextPageToken, err = getPageTokenFromPageData(queryData)
 		if err != nil {
 			return nil, err
 		}
@@ -201,7 +189,80 @@ func (r *RemoteApiHelper[Conn, Scope, ApiScope, Group]) GetScopesFromRemote(inpu
 	return &plugin.ApiResourceOutput{Body: outputBody, Status: http.StatusOK}, nil
 }
 
-func getPageTokenFromPageData(pageData *PageData) (string, errors.Error) {
+func (r *RemoteApiHelper[Conn, Scope, ApiScope, Group]) SearchRemoteScopes(input *plugin.ApiResourceInput, searchScope func(basicRes coreContext.BasicRes, queryData *plugin.QueryData, connection Conn) ([]ApiScope, errors.Error)) (*plugin.ApiResourceOutput, errors.Error) {
+	connectionId, _ := extractFromReqParam(input.Params)
+	if connectionId == 0 {
+		return nil, errors.BadInput.New("invalid connectionId")
+	}
+
+	var connection Conn
+	err := r.connHelper.First(&connection, input.Params)
+	if err != nil {
+		return nil, err
+	}
+
+	search, ok := input.Query["search"]
+	if !ok || len(search) == 0 {
+		search = []string{""}
+	}
+
+	var p int
+	var err1 error
+	page, ok := input.Query["page"]
+	if !ok || len(page) == 0 {
+		p = 1
+	} else {
+		p, err1 = strconv.Atoi(page[0])
+		if err != nil {
+			return nil, errors.BadInput.Wrap(err1, fmt.Sprintf("failed to Atoi page:%s", page[0]))
+		}
+	}
+	var ps int
+	pageSize, ok := input.Query["pageSize"]
+	if !ok || len(pageSize) == 0 {
+		ps = remoteScopesPerPage
+	} else {
+		ps, err1 = strconv.Atoi(pageSize[0])
+		if err1 != nil {
+			return nil, errors.BadInput.Wrap(err1, fmt.Sprintf("failed to Atoi pageSize:%s", pageSize[0]))
+		}
+	}
+
+	queryData := &plugin.QueryData{
+		Page:    p,
+		PerPage: ps,
+		Search:  search,
+	}
+
+	var resBody []ApiScope
+	resBody, err = searchScope(r.basicRes, queryData, connection)
+	if err != nil {
+		return nil, err
+	}
+
+	outputBody := &SearchRemoteScopesOutput{}
+
+	// append project to output
+	for _, project := range resBody {
+		scope := project.ConvertApiScope()
+		child := RemoteScopesChild{
+			Type:     TypeProject,
+			Id:       scope.ScopeId(),
+			ParentId: nil,
+			Name:     scope.ScopeName(),
+			Data:     scope,
+		}
+
+		outputBody.Children = append(outputBody.Children, child)
+	}
+
+	outputBody.Page = p
+	outputBody.PageSize = ps
+
+	return &plugin.ApiResourceOutput{Body: outputBody, Status: http.StatusOK}, nil
+}
+
+func getPageTokenFromPageData(pageData *plugin.QueryData) (string, errors.Error) {
 	// Marshal json
 	pageTokenDecode, err := json.Marshal(pageData)
 	if err != nil {
@@ -212,9 +273,9 @@ func getPageTokenFromPageData(pageData *PageData) (string, errors.Error) {
 	return base64.StdEncoding.EncodeToString(pageTokenDecode), nil
 }
 
-func getPageDataFromPageToken(pageToken string) (*PageData, errors.Error) {
+func getPageDataFromPageToken(pageToken string) (*plugin.QueryData, errors.Error) {
 	if pageToken == "" {
-		return &PageData{
+		return &plugin.QueryData{
 			Page:    1,
 			PerPage: remoteScopesPerPage,
 			Tag:     "group",
@@ -227,29 +288,11 @@ func getPageDataFromPageToken(pageToken string) (*PageData, errors.Error) {
 		return nil, errors.Default.Wrap(err, fmt.Sprintf("decode pageToken failed %s", pageToken))
 	}
 	// Unmarshal json
-	pt := &PageData{}
+	pt := &plugin.QueryData{}
 	err = json.Unmarshal(pageTokenDecode, pt)
 	if err != nil {
 		return nil, errors.Default.Wrap(err, fmt.Sprintf("json Unmarshal pageTokenDecode failed %s", pageTokenDecode))
 	}
 
 	return pt, nil
-}
-
-func getQueryFromPageData(pageData *PageData) (url.Values, errors.Error) {
-	query := url.Values{}
-	query.Set("page", fmt.Sprintf("%v", pageData.Page))
-	query.Set("per_page", fmt.Sprintf("%v", pageData.PerPage))
-	return query, nil
-}
-
-func GetQueryForSearchProject(search string, page int, perPage int) (url.Values, errors.Error) {
-	query, err := getQueryFromPageData(&PageData{Page: page, PerPage: perPage})
-	if err != nil {
-		return nil, err
-	}
-	query.Set("search", search)
-	query.Set("scope", "projects")
-
-	return query, nil
 }

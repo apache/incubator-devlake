@@ -18,13 +18,10 @@ limitations under the License.
 package plugin
 
 import (
-	context2 "github.com/apache/incubator-devlake/core/context"
-	"github.com/apache/incubator-devlake/helpers/pluginhelper/api/apihelperabstract"
-	"net/http"
-	"net/url"
-
 	"github.com/apache/incubator-devlake/core/errors"
+	"github.com/apache/incubator-devlake/helpers/pluginhelper/api/apihelperabstract"
 	"github.com/go-playground/validator/v10"
+	"net/http"
 )
 
 // ApiConnection represents a API Connection
@@ -34,10 +31,11 @@ type ApiConnection interface {
 	GetRateLimitPerHour() int
 }
 
-type ApiConnectionForRemote[T ApiGroup, S ApiScope] interface {
-	ApiConnection
-	GetGroup(basicRes context2.BasicRes, gid string, query url.Values) ([]T, errors.Error)
-	GetScope(basicRes context2.BasicRes, gid string, query url.Values) ([]S, errors.Error)
+type QueryData struct {
+	Page    int    `json:"page"`
+	PerPage int    `json:"per_page"`
+	Tag     string `json:"tag"`
+	Search  []string
 }
 
 // ApiAuthenticator is to be implemented by a Concreate Connection if Authorization is required

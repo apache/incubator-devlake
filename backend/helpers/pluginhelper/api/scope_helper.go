@@ -86,7 +86,7 @@ func (c *ScopeApiHelper[Conn, Scope, Tr]) Put(input *plugin.ApiResourceInput) (*
 		return nil, errors.BadInput.Wrap(err, "decoding Github repo error")
 	}
 	// Extract the connection ID from the input.Params map
-	connectionId, _ := ExtractFromReqParam(input.Params)
+	connectionId, _ := extractFromReqParam(input.Params)
 	if connectionId == 0 {
 		return nil, errors.BadInput.New("invalid connectionId or scopeId")
 	}
@@ -127,7 +127,7 @@ func (c *ScopeApiHelper[Conn, Scope, Tr]) Put(input *plugin.ApiResourceInput) (*
 }
 
 func (c *ScopeApiHelper[Conn, Scope, Tr]) Update(input *plugin.ApiResourceInput, fieldName string) (*plugin.ApiResourceOutput, errors.Error) {
-	connectionId, scopeId := ExtractFromReqParam(input.Params)
+	connectionId, scopeId := extractFromReqParam(input.Params)
 
 	if connectionId == 0 || len(scopeId) == 0 || scopeId == "0" {
 		return &plugin.ApiResourceOutput{Body: nil, Status: http.StatusInternalServerError}, errors.BadInput.New("invalid connectionId")
@@ -158,7 +158,7 @@ func (c *ScopeApiHelper[Conn, Scope, Tr]) Update(input *plugin.ApiResourceInput,
 }
 
 func (c *ScopeApiHelper[Conn, Scope, Tr]) GetScopeList(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, errors.Error) {
-	connectionId, _ := ExtractFromReqParam(input.Params)
+	connectionId, _ := extractFromReqParam(input.Params)
 	if connectionId == 0 {
 		return nil, errors.BadInput.New("invalid path params")
 	}
@@ -204,7 +204,7 @@ func (c *ScopeApiHelper[Conn, Scope, Tr]) GetScopeList(input *plugin.ApiResource
 }
 
 func (c *ScopeApiHelper[Conn, Scope, Tr]) GetScope(input *plugin.ApiResourceInput, fieldName string) (*plugin.ApiResourceOutput, errors.Error) {
-	connectionId, scopeId := ExtractFromReqParam(input.Params)
+	connectionId, scopeId := extractFromReqParam(input.Params)
 	if connectionId == 0 || len(scopeId) == 0 || scopeId == "0" {
 		return nil, errors.BadInput.New("invalid path params")
 	}
@@ -262,7 +262,7 @@ func (c *ScopeApiHelper[Conn, Scope, Tr]) save(scope interface{}) errors.Error {
 	return nil
 }
 
-func ExtractFromReqParam(params map[string]string) (uint64, string) {
+func extractFromReqParam(params map[string]string) (uint64, string) {
 	connectionId, err := strconv.ParseUint(params["connectionId"], 10, 64)
 	if err != nil {
 		return 0, ""

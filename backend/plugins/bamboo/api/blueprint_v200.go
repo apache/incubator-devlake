@@ -19,8 +19,6 @@ package api
 
 import (
 	"fmt"
-	"net/http"
-
 	"github.com/apache/incubator-devlake/plugins/bamboo/models"
 
 	"github.com/apache/incubator-devlake/core/errors"
@@ -31,7 +29,6 @@ import (
 	"github.com/apache/incubator-devlake/core/models/domainlayer/didgen"
 	plugin "github.com/apache/incubator-devlake/core/plugin"
 	helper "github.com/apache/incubator-devlake/helpers/pluginhelper/api"
-	aha "github.com/apache/incubator-devlake/helpers/pluginhelper/api/apihelperabstract"
 )
 
 func MakePipelinePlanV200(
@@ -161,24 +158,4 @@ func GetTransformationRuleByproject(project *models.BambooProject) (*models.Bamb
 	}
 
 	return transformationRules, nil
-}
-
-func GetApiProject(
-	projectKey string,
-	apiClient aha.ApiClientAbstract,
-) (*models.ApiBambooProject, errors.Error) {
-	projectRes := &models.ApiBambooProject{}
-	res, err := apiClient.Get(fmt.Sprintf("project/%s.json", projectKey), nil, nil)
-	if err != nil {
-		return nil, err
-	}
-	defer res.Body.Close()
-	if res.StatusCode != http.StatusOK {
-		return nil, errors.HttpStatus(res.StatusCode).New(fmt.Sprintf("unexpected status code when requesting project detail from %s", res.Request.URL.String()))
-	}
-	err = helper.UnmarshalResponse(res, projectRes)
-	if err != nil {
-		return nil, err
-	}
-	return projectRes, nil
 }

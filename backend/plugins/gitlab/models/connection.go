@@ -18,16 +18,12 @@ limitations under the License.
 package models
 
 import (
-	"context"
 	"fmt"
-	context2 "github.com/apache/incubator-devlake/core/context"
-	"github.com/apache/incubator-devlake/core/plugin"
-	"net/http"
-	"net/url"
-
 	"github.com/apache/incubator-devlake/core/errors"
+	"github.com/apache/incubator-devlake/core/plugin"
 	"github.com/apache/incubator-devlake/helpers/pluginhelper/api"
 	"github.com/apache/incubator-devlake/helpers/pluginhelper/api/apihelperabstract"
+	"net/http"
 )
 
 // GitlabConn holds the essential information to connect to the Gitlab API
@@ -108,8 +104,7 @@ func (conn *GitlabConn) PrepareApiClient(apiClient apihelperabstract.ApiClientAb
 	return nil
 }
 
-var _ plugin.ApiConnectionForRemote[GroupResponse, GitlabApiProject] = (*GitlabConnection)(nil)
-var _ plugin.ApiGroup = (*GroupResponse)(nil)
+var _ plugin.ApiConnection = (*GitlabConnection)(nil)
 
 // GitlabConnection holds GitlabConn plus ID/Name for database storage
 type GitlabConnection struct {
@@ -137,56 +132,4 @@ type ApiUserResponse struct {
 
 func (GitlabConnection) TableName() string {
 	return "_tool_gitlab_connections"
-}
-
-func (g GitlabConnection) GetGroup(basicRes context2.BasicRes, gid string, query url.Values) ([]GroupResponse, errors.Error) {
-	apiClient, err := api.NewApiClientFromConnection(context.TODO(), basicRes, &g)
-	if err != nil {
-		return nil, errors.BadInput.Wrap(err, "failed to get create apiClient")
-	}
-	var res *http.Response
-	if gid == "" {
-		query.Set("top_level_only", "true")
-		res, err = apiClient.Get("groups", query, nil)
-		if err != nil {
-			return nil, err
-		}
-	} else {
-		res, err = apiClient.Get(fmt.Sprintf("groups/%s/subgroups", gid), query, nil)
-		if err != nil {
-			return nil, err
-		}
-	}
-	var resBody []GroupResponse
-	err = api.UnmarshalResponse(res, &resBody)
-	if err != nil {
-		return nil, err
-	}
-	return resBody, err
-}
-
-func (g GitlabConnection) GetScope(basicRes context2.BasicRes, gid string, query url.Values) ([]GitlabApiProject, errors.Error) {
-	apiClient, err := api.NewApiClientFromConnection(context.TODO(), basicRes, &g)
-	if err != nil {
-		return nil, errors.BadInput.Wrap(err, "failed to get create apiClient")
-	}
-	var res *http.Response
-	if gid == "" {
-		res, err = apiClient.Get(fmt.Sprintf("users/%d/projects", apiClient.GetData("UserId")), query, nil)
-		if err != nil {
-			return nil, err
-		}
-	} else {
-		query.Set("with_shared", "false")
-		res, err = apiClient.Get(fmt.Sprintf("/groups/%s/projects", gid), query, nil)
-		if err != nil {
-			return nil, err
-		}
-	}
-	var resBody []GitlabApiProject
-	err = api.UnmarshalResponse(res, &resBody)
-	if err != nil {
-		return nil, err
-	}
-	return resBody, err
 }

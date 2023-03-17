@@ -82,6 +82,10 @@ func (gitlabApiProject GitlabApiProject) ConvertApiScope() plugin.ToolLayerScope
 		p.ForkedFromProjectId = gitlabApiProject.ForkedFromProject.GitlabId
 		p.ForkedFromProjectWebUrl = gitlabApiProject.ForkedFromProject.WebUrl
 	}
+	// this might happen when GitlabConnection.SearchScopes
+	if len(p.Name) > len(p.PathWithNamespace) {
+		p.Name, p.PathWithNamespace = p.PathWithNamespace, p.Name
+	}
 	return p
 }
 
