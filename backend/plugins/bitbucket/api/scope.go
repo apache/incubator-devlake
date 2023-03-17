@@ -22,6 +22,7 @@ import (
 	"github.com/apache/incubator-devlake/core/plugin"
 	"github.com/apache/incubator-devlake/helpers/pluginhelper/api"
 	"github.com/apache/incubator-devlake/plugins/bitbucket/models"
+	"strings"
 )
 
 type ScopeRes struct {
@@ -59,6 +60,7 @@ func PutScope(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, errors
 // @Failure 500  {object} shared.ApiBody "Internal Error"
 // @Router /plugins/bitbucket/connections/{connectionId}/scopes/{scopeId} [PATCH]
 func UpdateScope(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, errors.Error) {
+	input.Params["scopeId"] = strings.TrimLeft(input.Params["scopeId"], "/")
 	return scopeHelper.Update(input, "bitbucket_id")
 }
 
@@ -88,5 +90,6 @@ func GetScopeList(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, er
 // @Failure 500  {object} shared.ApiBody "Internal Error"
 // @Router /plugins/bitbucket/connections/{connectionId}/scopes/{scopeId} [GET]
 func GetScope(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, errors.Error) {
+	input.Params["scopeId"] = strings.TrimLeft(input.Params["scopeId"], "/")
 	return scopeHelper.GetScope(input, "bitbucket_id")
 }

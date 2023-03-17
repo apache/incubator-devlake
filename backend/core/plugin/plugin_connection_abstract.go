@@ -15,13 +15,13 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-package apihelperabstract
+package plugin
 
 import (
-	"net/http"
-
 	"github.com/apache/incubator-devlake/core/errors"
+	"github.com/apache/incubator-devlake/helpers/pluginhelper/api/apihelperabstract"
 	"github.com/go-playground/validator/v10"
+	"net/http"
 )
 
 // ApiConnection represents a API Connection
@@ -29,6 +29,13 @@ type ApiConnection interface {
 	GetEndpoint() string
 	GetProxy() string
 	GetRateLimitPerHour() int
+}
+
+type QueryData struct {
+	Page    int    `json:"page"`
+	PerPage int    `json:"per_page"`
+	Tag     string `json:"tag"`
+	Search  []string
 }
 
 // ApiAuthenticator is to be implemented by a Concreate Connection if Authorization is required
@@ -46,7 +53,7 @@ type ConnectionValidator interface {
 // PrepareApiClient is to be implemented by the concrete Connection which requires
 // preparation for the ApiClient created by NewApiClientFromConnection, i.e. fetch token for future requests
 type PrepareApiClient interface {
-	PrepareApiClient(apiClient ApiClientAbstract) errors.Error
+	PrepareApiClient(apiClient apihelperabstract.ApiClientAbstract) errors.Error
 }
 
 // MultiAuth

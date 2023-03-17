@@ -35,7 +35,7 @@ var CollectWorklogsMeta = plugin.SubTaskMeta{
 	Name:             "collectWorklogs",
 	EntryPoint:       CollectWorklogs,
 	EnabledByDefault: true,
-	Description:      "collect Jira work logs",
+	Description:      "collect Jira work logs, supports both timeFilter and diffSync.",
 	DomainTypes:      []string{plugin.DOMAIN_TYPE_TICKET},
 }
 

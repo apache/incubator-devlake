@@ -247,13 +247,14 @@ func EnrichOptions(taskCtx plugin.TaskContext,
 		}
 	} else {
 		if taskCtx.GetDal().IsErrorNotFound(err) && op.FullName != "" {
-			var repo *tasks.BitbucketApiRepo
+			var repo *models.BitbucketApiRepo
 			repo, err = tasks.GetApiRepo(op, apiClient)
 			if err != nil {
 				return err
 			}
 			logger.Debug(fmt.Sprintf("Current repo: %s", repo.FullName))
-			scope := tasks.ConvertApiRepoToScope(repo, op.ConnectionId)
+			scope := repo.ConvertApiScope().(models.BitbucketRepo)
+			scope.ConnectionId = op.ConnectionId
 			err = taskCtx.GetDal().CreateIfNotExist(scope)
 			if err != nil {
 				return err

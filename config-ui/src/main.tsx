@@ -35,5 +35,5 @@ ReactDOM.render(
       </VersionContextProvider>
     </ErrorBoundary>
   </BrowserRouter>,
-  document.getElementById('app'),
+  document.getElementById('root'),
 );

@@ -19,8 +19,12 @@ package models
 
 import (
 	"github.com/apache/incubator-devlake/core/models/common"
+	"github.com/apache/incubator-devlake/core/plugin"
+	"strconv"
 	"time"
 )
+
+var _ plugin.ToolLayerScope = (*GithubRepo)(nil)
 
 type GithubRepo struct {
 	ConnectionId         uint64     `json:"connectionId" gorm:"primaryKey" validate:"required" mapstructure:"connectionId,omitempty"`
@@ -37,6 +41,14 @@ type GithubRepo struct {
 	CreatedDate          *time.Time `json:"createdDate" mapstructure:"-"`
 	UpdatedDate          *time.Time `json:"updatedDate" mapstructure:"-"`
 	common.NoPKModel     `json:"-" mapstructure:"-"`
+}
+
+func (r GithubRepo) ScopeId() string {
+	return strconv.Itoa(r.GithubId)
+}
+
+func (r GithubRepo) ScopeName() string {
+	return r.Name
 }
 
 func (GithubRepo) TableName() string {
