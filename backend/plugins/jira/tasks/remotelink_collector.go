@@ -37,7 +37,7 @@ var CollectRemotelinksMeta = plugin.SubTaskMeta{
 	Name:             "collectRemotelinks",
 	EntryPoint:       CollectRemotelinks,
 	EnabledByDefault: true,
-	Description:      "collect Jira remote links",
+	Description:      "collect Jira remote links, supports both timeFilter and diffSync.",
 	DomainTypes:      []string{plugin.DOMAIN_TYPE_TICKET},
 }
 

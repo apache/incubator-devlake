@@ -37,7 +37,7 @@ var CollectIssuesMeta = plugin.SubTaskMeta{
 	Name:             "collectIssues",
 	EntryPoint:       CollectIssues,
 	EnabledByDefault: true,
-	Description:      "collect Jira issues",
+	Description:      "collect Jira issues, supports both timeFilter and diffSync.",
 	DomainTypes:      []string{plugin.DOMAIN_TYPE_TICKET, plugin.DOMAIN_TYPE_CROSS},
 }
 
