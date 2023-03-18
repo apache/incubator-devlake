@@ -66,6 +66,13 @@ export const PipelineTask = ({ task }: Props) => {
       case ['sonarqube'].includes(config.plugin):
         name = `${name}:${options.projectKey}`;
         break;
+      case ['zentao'].includes(config.plugin):
+        if (options.projectId) {
+          name = `${name}:project/${options.projectId}`;
+        } else {
+          name = `${name}:product/${options.productId}`;
+        }
+        break;
     }
 
     return [config.icon, name];

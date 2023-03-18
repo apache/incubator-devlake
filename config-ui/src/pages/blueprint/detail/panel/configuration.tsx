@@ -162,7 +162,7 @@ export const Configuration = ({ blueprint, operating, onUpdate, onRefresh }: Pro
                 <Icon icon="annotation" color={Colors.BLUE2} />
                 <span>Change Data Scope</span>
               </div>
-              {row.plugin !== 'sonarqube' && (
+              {row.plugin !== 'sonarqube' && row.plugin !== 'zentao' && (
                 <>
                   <div
                     className="item"

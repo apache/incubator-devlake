@@ -70,6 +70,12 @@ export const useDataScopeList = ({ plugin, connectionId, scopeIds }: UseDataScop
             name: sc.name,
             transformationRuleName: sc.transformationRuleName,
           };
+        case plugin === 'zentao':
+          return {
+            id: sc.id,
+            name: sc.name,
+            transformationRuleName: sc.transformationRuleName,
+          };
         default:
           return {
             id: sc.id,
