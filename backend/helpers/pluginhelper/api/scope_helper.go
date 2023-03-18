@@ -83,7 +83,7 @@ func (c *ScopeApiHelper[Conn, Scope, Tr]) Put(input *plugin.ApiResourceInput) (*
 	}
 	err := errors.Convert(DecodeMapStruct(input.Body, &req))
 	if err != nil {
-		return nil, errors.BadInput.Wrap(err, "decoding Github repo error")
+		return nil, errors.BadInput.Wrap(err, "decoding scope error")
 	}
 	// Extract the connection ID from the input.Params map
 	connectionId, _ := extractFromReqParam(input.Params)
@@ -117,9 +117,11 @@ func (c *ScopeApiHelper[Conn, Scope, Tr]) Put(input *plugin.ApiResourceInput) (*
 			return nil, err
 		}
 	}
-	err = c.save(&req.Data)
-	if err != nil {
-		return nil, err
+	if req.Data != nil && len(req.Data) > 0 {
+		err = c.save(&req.Data)
+		if err != nil {
+			return nil, err
+		}
 	}
 
 	// Save the scopes to the database
@@ -284,13 +286,13 @@ func setScopeFields(p interface{}, connectionId uint64, createdDate *time.Time, 
 
 	// set CreatedDate
 	createdDateField := pValue.FieldByName("CreatedDate")
-	if createdDateField.IsValid() {
+	if createdDateField.IsValid() && createdDateField.Type().AssignableTo(reflect.TypeOf(createdDate)) {
 		createdDateField.Set(reflect.ValueOf(createdDate))
 	}
 
 	// set UpdatedDate
 	updatedDateField := pValue.FieldByName("UpdatedDate")
-	if !updatedDateField.IsValid() {
+	if !updatedDateField.IsValid() || (updatedDate != nil && !updatedDateField.Type().AssignableTo(reflect.TypeOf(updatedDate))) {
 		return
 	}
 	if updatedDate == nil {

@@ -74,6 +74,30 @@ func NewRemoteHelper[Conn plugin.ApiConnection, Scope plugin.ToolLayerScope, Api
 	}
 }
 
+type NoRemoteGroupResponse struct {
+}
+
+func (NoRemoteGroupResponse) GroupId() string {
+	return ""
+}
+
+func (NoRemoteGroupResponse) GroupName() string {
+	return ""
+}
+
+type BaseRemoteGroupResponse struct {
+	Id   string
+	Name string
+}
+
+func (g BaseRemoteGroupResponse) GroupId() string {
+	return g.Id
+}
+
+func (g BaseRemoteGroupResponse) GroupName() string {
+	return g.Name
+}
+
 const remoteScopesPerPage int = 100
 const TypeProject string = "scope"
 const TypeGroup string = "group"
@@ -115,7 +139,9 @@ func (r *RemoteApiHelper[Conn, Scope, ApiScope, Group]) GetScopesFromRemote(inpu
 	// list groups part
 	if queryData.Tag == TypeGroup {
 		var resBody []Group
-		resBody, err = getGroup(r.basicRes, gid, queryData, connection)
+		if getGroup != nil {
+			resBody, err = getGroup(r.basicRes, gid, queryData, connection)
+		}
 		if err != nil {
 			return nil, err
 		}
@@ -144,7 +170,7 @@ func (r *RemoteApiHelper[Conn, Scope, ApiScope, Group]) GetScopesFromRemote(inpu
 	}
 
 	// list projects part
-	if queryData.Tag == TypeProject {
+	if queryData.Tag == TypeProject && getScope != nil {
 		var resBody []ApiScope
 		resBody, err = getScope(r.basicRes, gid, queryData, connection)
 		if err != nil {

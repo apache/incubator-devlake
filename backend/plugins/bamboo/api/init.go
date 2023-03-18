@@ -27,7 +27,7 @@ import (
 var vld *validator.Validate
 var connectionHelper *api.ConnectionApiHelper
 var scopeHelper *api.ScopeApiHelper[models.BambooConnection, models.BambooProject, models.BambooTransformationRule]
-var remoteHelper *api.RemoteApiHelper[models.BambooConnection, models.BambooProject, models.ApiBambooProject, models.GroupResponse]
+var remoteHelper *api.RemoteApiHelper[models.BambooConnection, models.BambooProject, models.ApiBambooProject, api.NoRemoteGroupResponse]
 
 var basicRes context.BasicRes
 
@@ -43,7 +43,7 @@ func Init(br context.BasicRes) {
 		vld,
 		connectionHelper,
 	)
-	remoteHelper = api.NewRemoteHelper[models.BambooConnection, models.BambooProject, models.ApiBambooProject, models.GroupResponse](
+	remoteHelper = api.NewRemoteHelper[models.BambooConnection, models.BambooProject, models.ApiBambooProject, api.NoRemoteGroupResponse](
 		basicRes,
 		vld,
 		connectionHelper,
