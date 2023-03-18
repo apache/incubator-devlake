@@ -54,41 +54,10 @@ func ExtractProducts(taskCtx plugin.SubTaskContext) errors.Error {
 			if err != nil {
 				return nil, errors.Default.Wrap(err, "error reading endpoint response by Zentao product extractor")
 			}
-			product := &models.ZentaoProduct{
-				ConnectionId:   data.Options.ConnectionId,
-				Id:             int64(res.ID),
-				Program:        res.Program,
-				Name:           res.Name,
-				Code:           res.Code,
-				Bind:           res.Bind,
-				Line:           res.Line,
-				Type:           res.Type,
-				Status:         res.Status,
-				SubStatus:      res.SubStatus,
-				Description:    res.Description,
-				POId:           getAccountId(res.PO),
-				QDId:           getAccountId(res.QD),
-				RDId:           getAccountId(res.RD),
-				Acl:            res.Acl,
-				Reviewer:       res.Reviewer,
-				CreatedById:    getAccountId(res.CreatedBy),
-				CreatedDate:    res.CreatedDate,
-				CreatedVersion: res.CreatedVersion,
-				OrderIn:        res.OrderIn,
-				Deleted:        res.Deleted,
-				Plans:          res.Plans,
-				Releases:       res.Releases,
-				Builds:         res.Builds,
-				Cases:          res.Cases,
-				Projects:       res.Projects,
-				Executions:     res.Executions,
-				Bugs:           res.Bugs,
-				Docs:           res.Docs,
-				Progress:       res.Progress,
-				CaseReview:     res.CaseReview,
-			}
 			results := make([]interface{}, 0)
-			results = append(results, product)
+			model := res.ConvertApiScope().(models.ZentaoProduct)
+			model.ConnectionId = data.Options.ConnectionId
+			results = append(results, model)
 			return results, nil
 		},
 	})

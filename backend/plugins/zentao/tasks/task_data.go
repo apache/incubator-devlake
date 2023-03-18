@@ -19,6 +19,7 @@ package tasks
 
 import (
 	"fmt"
+	"github.com/apache/incubator-devlake/core/errors"
 	helper "github.com/apache/incubator-devlake/helpers/pluginhelper/api"
 	"github.com/mitchellh/mapstructure"
 )
@@ -35,11 +36,13 @@ type ZentaoOptions struct {
 	// Such As How many rows do your want
 	// You can use it in subtasks, and you need to pass it to main.go and pipelines.
 	ConnectionId uint64 `json:"connectionId"`
-	ProductId    int64
+	ProductId    int64  `json:"productId" mapstructure:"productId"`
 	ExecutionId  int64
-	ProjectId    int64
-	Tasks        []string `json:"tasks,omitempty"`
-	Since        string
+	ProjectId    int64 `json:"projectId" mapstructure:"projectId"`
+	// TODO not support now
+	TimeAfter string `json:"timeAfter" mapstructure:"timeAfter,omitempty"`
+	//TransformationRuleId                uint64 `json:"transformationZentaoeId" mapstructure:"transformationRuleId,omitempty"`
+	//*models.ZentaoTransformationRule `mapstructure:"transformationRules,omitempty" json:"transformationRules"`
 }
 
 type ZentaoTaskData struct {
@@ -57,8 +60,17 @@ func DecodeAndValidateTaskOptions(options map[string]interface{}) (*ZentaoOption
 	if op.ConnectionId == 0 {
 		return nil, fmt.Errorf("connectionId is invalid")
 	}
-	if op.ProductId == 0 {
+	if op.ProductId == 0 && op.ProjectId == 0 {
 		return nil, fmt.Errorf("please set productId")
 	}
 	return &op, nil
+}
+
+func EncodeTaskOptions(op *ZentaoOptions) (map[string]interface{}, errors.Error) {
+	var result map[string]interface{}
+	err := helper.Decode(op, &result, nil)
+	if err != nil {
+		return nil, err
+	}
+	return result, nil
 }

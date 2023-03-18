@@ -45,7 +45,7 @@ func ConvertProducts(taskCtx plugin.SubTaskContext) errors.Error {
 	boardIdGen := didgen.NewDomainIdGenerator(&models.ZentaoProduct{})
 	cursor, err := db.Cursor(
 		dal.From(&models.ZentaoProduct{}),
-		dal.Where(`_tool_zentao_products.id = ? and 
+		dal.Where(`_tool_zentao_products.id = ? and
 			_tool_zentao_products.connection_id = ?`, data.Options.ProductId, data.Options.ConnectionId),
 	)
 	if err != nil {
