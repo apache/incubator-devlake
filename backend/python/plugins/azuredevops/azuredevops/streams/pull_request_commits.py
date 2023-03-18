@@ -16,15 +16,14 @@
 from typing import Iterable
 
 from azuredevops.api import AzureDevOpsAPI
-from azuredevops.models import GitPullRequest, GitCommit, GitRepository
-from azuredevops.streams.commits import extract_raw_commit
+from azuredevops.models import GitPullRequest, GitPullRequestCommit, GitRepository
 from azuredevops.streams.pull_requests import GitPullRequests
 from pydevlake import Substream, DomainType
-from pydevlake.domain_layer.code import PullRequestCommit as DomainPullRequestCommit
+import pydevlake.domain_layer.code as code
 
 
 class GitPullRequestCommits(Substream):
-    tool_model = GitCommit
+    tool_model = GitPullRequestCommit
     domain_types = [DomainType.CODE]
     parent_stream = GitPullRequests
 
@@ -33,14 +32,25 @@ class GitPullRequestCommits(Substream):
         azuredevops_api = AzureDevOpsAPI(context.connection)
         response = azuredevops_api.git_repo_pull_request_commits(repo.org_id, repo.project_id, parent.repo_id, parent.id)
         for raw_commit in response:
-            raw_commit["repo_id"] = parent.repo_id
+            raw_commit["pull_request_id"] = parent.domain_id()
             yield raw_commit, state
 
-    def extract(self, raw_data: dict) -> GitCommit:
-        return extract_raw_commit(self, raw_data)
+    def extract(self, raw_data: dict) -> GitPullRequestCommit:
+        return GitPullRequestCommit(
+            **raw_data,
+            commit_sha = raw_data["commitId"],
+            author_name = raw_data["author"]["name"],
+            author_email = raw_data["author"]["email"],
+            authored_date = raw_data["author"]["date"],
+            committer_name = raw_data["committer"]["name"],
+            committer_email = raw_data["committer"]["email"],
+            commit_date = raw_data["committer"]["date"],
+            additions = raw_data["changeCounts"]["Add"] if "changeCounts" in raw_data else 0,
+            deletions = raw_data["changeCounts"]["Delete"] if "changeCounts" in raw_data else 0
+        )
 
-    def convert(self, commit: GitCommit, context) -> Iterable[DomainPullRequestCommit]:
-        yield DomainPullRequestCommit(
+    def convert(self, commit: GitPullRequestCommit, context) -> Iterable[code.PullRequestCommit]:
+        yield code.PullRequestCommit(
             commit_sha=commit.commit_sha,
-            pull_request_id=commit.repo_id,
+            pull_request_id=commit.pull_request_id,
         )

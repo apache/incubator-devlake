@@ -79,10 +79,9 @@ class GitPullRequest(ToolModel, table=True):
     fork_repo_id: Optional[str]
 
 
-class GitCommit(ToolModel, table=True):
+class GitPullRequestCommit(ToolModel, table=True):
     commit_sha: str = Field(primary_key=True)
-    project_id: str
-    repo_id: str
+    pull_request_id: str
     committer_name: str = ""
     committer_email: str = ""
     commit_date: datetime.datetime = default_date
