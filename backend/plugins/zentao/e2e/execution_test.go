@@ -52,10 +52,15 @@ func TestZentaoExecutionDataFlow(t *testing.T) {
 		IgnoreTypes: []interface{}{common.NoPKModel{}},
 	})
 
-	dataflowTester.FlushTabler(&ticket.Board{})
+	dataflowTester.FlushTabler(&ticket.Sprint{})
+	dataflowTester.FlushTabler(&ticket.BoardSprint{})
 	dataflowTester.Subtask(tasks.ConvertExecutionMeta, taskData)
-	dataflowTester.VerifyTableWithOptions(&ticket.Board{}, e2ehelper.TableOptions{
-		CSVRelPath:  "./snapshot_tables/boards_execution.csv",
+	dataflowTester.VerifyTableWithOptions(&ticket.Sprint{}, e2ehelper.TableOptions{
+		CSVRelPath:  "./snapshot_tables/execution_sprint.csv",
+		IgnoreTypes: []interface{}{common.NoPKModel{}},
+	})
+	dataflowTester.VerifyTableWithOptions(&ticket.BoardSprint{}, e2ehelper.TableOptions{
+		CSVRelPath:  "./snapshot_tables/execution_board_sprint.csv",
 		IgnoreTypes: []interface{}{common.NoPKModel{}},
 	})
 }

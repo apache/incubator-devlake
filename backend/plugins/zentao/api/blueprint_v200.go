@@ -88,6 +88,7 @@ func makePipelinePlanV200(
 						Id: didgen.NewDomainIdGenerator(&models.ZentaoProject{}).Generate(connection.ID, scope.Id),
 					},
 					Name: scope.Name,
+					Type: scope.Type,
 				}
 				domainScopes = append(domainScopes, scopeTicket)
 			}
@@ -106,6 +107,7 @@ func makePipelinePlanV200(
 						Id: didgen.NewDomainIdGenerator(&models.ZentaoProduct{}).Generate(connection.ID, scope.Id),
 					},
 					Name: scope.Name,
+					Type: scope.Type,
 				}
 				domainScopes = append(domainScopes, scopeTicket)
 			}

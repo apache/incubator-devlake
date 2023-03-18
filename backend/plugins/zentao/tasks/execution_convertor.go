@@ -42,7 +42,8 @@ var ConvertExecutionMeta = plugin.SubTaskMeta{
 func ConvertExecutions(taskCtx plugin.SubTaskContext) errors.Error {
 	data := taskCtx.GetData().(*ZentaoTaskData)
 	db := taskCtx.GetDal()
-	boardIdGen := didgen.NewDomainIdGenerator(&models.ZentaoExecution{})
+	executionIdGen := didgen.NewDomainIdGenerator(&models.ZentaoExecution{})
+	projectIdGen := didgen.NewDomainIdGenerator(&models.ZentaoProject{})
 	cursor, err := db.Cursor(
 		dal.From(&models.ZentaoExecution{}),
 		dal.Where(`project_id = ? and connection_id = ?`, data.Options.ProjectId, data.Options.ConnectionId),
@@ -66,18 +67,37 @@ func ConvertExecutions(taskCtx plugin.SubTaskContext) errors.Error {
 		Convert: func(inputRow interface{}) ([]interface{}, errors.Error) {
 			toolExecution := inputRow.(*models.ZentaoExecution)
 
-			domainBoard := &ticket.Board{
+			domainStatus := ``
+			switch toolExecution.Status {
+			case `wait`:
+				domainStatus = `FUTURE`
+			case `doing`:
+				domainStatus = `ACTIVE`
+			case `suspended`:
+				domainStatus = `SUSPENDED`
+			case `closed`:
+			case `done`:
+				domainStatus = `CLOSED`
+			}
+
+			sprint := &ticket.Sprint{
 				DomainEntity: domainlayer.DomainEntity{
-					Id: boardIdGen.Generate(toolExecution.ConnectionId, toolExecution.Id),
+					Id: executionIdGen.Generate(toolExecution.ConnectionId, toolExecution.Id),
 				},
-				Name:        toolExecution.Name,
-				Description: toolExecution.Description,
-				Url:         toolExecution.Path,
-				CreatedDate: toolExecution.OpenedDate.ToNullableTime(),
-				Type:        toolExecution.Type,
+				Name:            toolExecution.Name,
+				Url:             toolExecution.Path,
+				Status:          domainStatus,
+				StartedDate:     toolExecution.RealBegan.ToNullableTime(),
+				EndedDate:       toolExecution.RealEnd.ToNullableTime(),
+				CompletedDate:   toolExecution.ClosedDate.ToNullableTime(),
+				OriginalBoardID: projectIdGen.Generate(toolExecution.ConnectionId, toolExecution.Id),
+			}
+			boardSprint := &ticket.BoardSprint{
+				BoardId:  projectIdGen.Generate(toolExecution.ConnectionId, toolExecution.Id),
+				SprintId: sprint.Id,
 			}
 			results := make([]interface{}, 0)
-			results = append(results, domainBoard)
+			results = append(results, sprint, boardSprint)
 			return results, nil
 		},
 	})

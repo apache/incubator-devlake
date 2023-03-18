@@ -22,29 +22,28 @@ import (
 
 	"github.com/apache/incubator-devlake/core/models/common"
 	"github.com/apache/incubator-devlake/core/models/domainlayer"
-	"github.com/apache/incubator-devlake/core/models/domainlayer/code"
 	"github.com/apache/incubator-devlake/core/models/domainlayer/ticket"
 	"github.com/apache/incubator-devlake/core/plugin"
 	helper "github.com/apache/incubator-devlake/helpers/pluginhelper/api"
 	mockcontext "github.com/apache/incubator-devlake/mocks/core/context"
 	mockdal "github.com/apache/incubator-devlake/mocks/core/dal"
 	mockplugin "github.com/apache/incubator-devlake/mocks/core/plugin"
-	"github.com/apache/incubator-devlake/plugins/bitbucket/models"
+	"github.com/apache/incubator-devlake/plugins/zentao/models"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
 )
 
 func TestMakeDataSourcePipelinePlanV200(t *testing.T) {
-	connection := &models.BitbucketConnection{
+	connection := &models.ZentaoConnection{
 		BaseConnection: helper.BaseConnection{
-			Name: "bitbucket-test",
+			Name: "zentao-test",
 			Model: common.Model{
 				ID: 1,
 			},
 		},
-		BitbucketConn: models.BitbucketConn{
+		ZentaoConn: models.ZentaoConn{
 			RestConnection: helper.RestConnection{
-				Endpoint:         "https://api.bitbucket.org/2.0/",
+				Endpoint:         "https://zentao.example.org/api.php/v1/",
 				Proxy:            "",
 				RateLimitPerHour: 0,
 			},
@@ -55,115 +54,119 @@ func TestMakeDataSourcePipelinePlanV200(t *testing.T) {
 		},
 	}
 	mockMeta := mockplugin.NewPluginMeta(t)
-	mockMeta.On("RootPkgPath").Return("github.com/apache/incubator-devlake/plugins/bitbucket")
-	err := plugin.RegisterPlugin("bitbucket", mockMeta)
+	mockMeta.On("RootPkgPath").Return("github.com/apache/incubator-devlake/plugins/zentao")
+	err := plugin.RegisterPlugin("zentao", mockMeta)
 	assert.Nil(t, err)
 	// Refresh Global Variables and set the sql mock
 	basicRes = NewMockBasicRes()
 	bs := &plugin.BlueprintScopeV200{
-		Entities: []string{"CODE", "TICKET"},
-		Id:       "1",
+		Entities: []string{"TICKET"},
+		Id:       "project/1",
+	}
+	bs2 := &plugin.BlueprintScopeV200{
+		Entities: []string{"TICKET"},
+		Id:       "product/1",
 	}
 	bpScopes := make([]*plugin.BlueprintScopeV200, 0)
-	bpScopes = append(bpScopes, bs)
+	bpScopes = append(bpScopes, bs, bs2)
 	syncPolicy := &plugin.BlueprintSyncPolicy{}
 
 	plan := make(plugin.PipelinePlan, len(bpScopes))
-	plan, err = makeDataSourcePipelinePlanV200(nil, plan, bpScopes, connection, syncPolicy)
+	plan, scopes, err := makePipelinePlanV200(nil, plan, bpScopes, connection, syncPolicy)
 	assert.Nil(t, err)
 	basicRes = NewMockBasicRes()
-	scopes, err := makeScopesV200(bpScopes, connection)
-	assert.Nil(t, err)
 
 	expectPlan := plugin.PipelinePlan{
 		plugin.PipelineStage{
 			{
-				Plugin:   "bitbucket",
+				Plugin:   "zentao",
 				Subtasks: []string{},
 				Options: map[string]interface{}{
-					"fullName":     "likyh/likyhphp",
-					"connectionId": uint64(1),
-				},
-			},
-			{
-				Plugin: "gitextractor",
-				Options: map[string]interface{}{
-					"proxy":  "",
-					"repoId": "bitbucket:BitbucketRepo:1:likyh/likyhphp",
-					"url":    "https://Username:Password@this_is_cloneUrl",
+					"ConnectionId": uint64(1),
+					"productId":    int64(0),
+					"projectId":    int64(1),
 				},
 			},
 		},
 		plugin.PipelineStage{
 			{
-				Plugin: "refdiff",
+				Plugin:   "zentao",
+				Subtasks: []string{},
 				Options: map[string]interface{}{
-					"repoId":      "bitbucket:BitbucketRepo:1:likyh/likyhphp",
-					"tagsLimit":   10,
-					"tagsOrder":   "reverse semver",
-					"tagsPattern": "pattern",
+					"ConnectionId": uint64(1),
+					"productId":    int64(1),
+					"projectId":    int64(0),
 				},
 			},
 		},
 	}
 	assert.Equal(t, expectPlan, plan)
 	expectScopes := make([]plugin.Scope, 0)
-	scopeRepo := &code.Repo{
+	scopeTicket1 := &ticket.Board{
 		DomainEntity: domainlayer.DomainEntity{
-			Id: "bitbucket:BitbucketRepo:1:likyh/likyhphp",
-		},
-		Name: "test/testRepo",
-	}
-
-	scopeTicket := &ticket.Board{
-		DomainEntity: domainlayer.DomainEntity{
-			Id: "bitbucket:BitbucketRepo:1:likyh/likyhphp",
+			Id: "zentao:ZentaoProject:1:1",
 		},
 		Name:        "test/testRepo",
 		Description: "",
 		Url:         "",
 		CreatedDate: nil,
-		Type:        "",
+		Type:        `project`,
+	}
+	scopeTicket2 := &ticket.Board{
+		DomainEntity: domainlayer.DomainEntity{
+			Id: "zentao:ZentaoProduct:1:1",
+		},
+		Name:        "test/testRepo",
+		Description: "",
+		Url:         "",
+		CreatedDate: nil,
+		Type:        `product/normal`,
 	}
 
-	expectScopes = append(expectScopes, scopeRepo, scopeTicket)
+	expectScopes = append(expectScopes, scopeTicket1, scopeTicket2)
 	assert.Equal(t, expectScopes, scopes)
 }
 
 // NewMockBasicRes FIXME ...
 func NewMockBasicRes() *mockcontext.BasicRes {
-	testBitbucketRepo := &models.BitbucketRepo{
-		ConnectionId:         1,
-		BitbucketId:          "likyh/likyhphp",
-		Name:                 "test/testRepo",
-		CloneUrl:             "https://this_is_cloneUrl",
-		TransformationRuleId: 1,
+	testZentaoProduct := &models.ZentaoProduct{
+		ConnectionId: 1,
+		Id:           1,
+		Name:         "test/testRepo",
+		Type:         `product/normal`,
+		//TransformationRuleId: 1,
+	}
+	testZentaoProject := &models.ZentaoProject{
+		ConnectionId: 1,
+		Id:           1,
+		Name:         "test/testRepo",
+		Type:         `project`,
+		//TransformationRuleId: 1,
 	}
 
-	testTransformationRule := &models.BitbucketTransformationRule{
-		Model: common.Model{
-			ID: 1,
-		},
-		Name:            "Bitbucket transformation rule",
-		IssueStatusTodo: "new,open,wantfix",
-		Refdiff: map[string]interface{}{
-			"tagsPattern": "pattern",
-			"tagsLimit":   10,
-			"tagsOrder":   "reverse semver",
-		},
-	}
+	//testTransformationRule := &models.ZentaoTransformation{
+	//	Model: common.Model{
+	//		ID: 1,
+	//	},
+	//	Name:            "Zentao transformation rule",
+	//}
 	mockRes := new(mockcontext.BasicRes)
 	mockDal := new(mockdal.Dal)
 
 	mockDal.On("First", mock.Anything, mock.Anything).Run(func(args mock.Arguments) {
-		dst := args.Get(0).(*models.BitbucketRepo)
-		*dst = *testBitbucketRepo
+		dst := args.Get(0).(*models.ZentaoProject)
+		*dst = *testZentaoProject
 	}).Return(nil).Once()
 
 	mockDal.On("First", mock.Anything, mock.Anything).Run(func(args mock.Arguments) {
-		dst := args.Get(0).(*models.BitbucketTransformationRule)
-		*dst = *testTransformationRule
+		dst := args.Get(0).(*models.ZentaoProduct)
+		*dst = *testZentaoProduct
 	}).Return(nil).Once()
+
+	//mockDal.On("First", mock.Anything, mock.Anything).Run(func(args mock.Arguments) {
+	//	dst := args.Get(0).(*models.ZentaoTransformation)
+	//	*dst = *testTransformationRule
+	//}).Return(nil).Once()
 
 	mockRes.On("GetDal").Return(mockDal)
 	mockRes.On("GetConfig", mock.Anything).Return("")
