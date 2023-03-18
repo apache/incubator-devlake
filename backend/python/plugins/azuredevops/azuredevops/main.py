@@ -18,7 +18,6 @@ from urllib.parse import urlparse
 from azuredevops.api import AzureDevOpsAPI
 from azuredevops.models import AzureDevOpsConnection, GitRepository
 from azuredevops.streams.builds import Builds
-from azuredevops.streams.commits import GitCommits
 from azuredevops.streams.jobs import Jobs
 from azuredevops.streams.pull_request_commits import GitPullRequestCommits
 from azuredevops.streams.pull_requests import GitPullRequests
@@ -104,7 +103,6 @@ class AzureDevOpsPlugin(Plugin):
         return [
             GitPullRequests,
             GitPullRequestCommits,
-            GitCommits,
             Builds,
             Jobs,
         ]
