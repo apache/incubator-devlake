@@ -23,7 +23,6 @@ import { transformEntities } from '@/config';
 import { operator } from '@/utils';
 
 import * as API from './api';
-import { updateDataScopeWithType } from './api';
 
 export interface UseDataScope {
   plugin: string;
