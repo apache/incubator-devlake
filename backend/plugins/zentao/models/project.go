@@ -27,7 +27,7 @@ import (
 type ZentaoProject struct {
 	common.NoPKModel `json:"-"`
 	ConnectionId     uint64              `json:"connectionid" gorm:"primaryKey;type:BIGINT  NOT NULL"`
-	ID               int64               `json:"id" gorm:"primaryKey;type:BIGINT  NOT NULL"`
+	Id               int64               `json:"id" gorm:"primaryKey;type:BIGINT  NOT NULL"`
 	Project          int64               `json:"project"`
 	Model            string              `json:"model"`
 	Type             string              `json:"type"`
@@ -115,7 +115,7 @@ func (ZentaoProject) TableName() string {
 }
 
 func (p ZentaoProject) ScopeId() string {
-	return fmt.Sprintf(`project/%d`, p.ID)
+	return fmt.Sprintf(`project/%d`, p.Id)
 }
 
 func (p ZentaoProject) ScopeName() string {

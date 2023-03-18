@@ -27,7 +27,6 @@ import (
 type ZentaoApiParams struct {
 	ConnectionId uint64
 	ProductId    int64
-	ExecutionId  int64
 	ProjectId    int64
 }
 
@@ -37,8 +36,7 @@ type ZentaoOptions struct {
 	// You can use it in subtasks, and you need to pass it to main.go and pipelines.
 	ConnectionId uint64 `json:"connectionId"`
 	ProductId    int64  `json:"productId" mapstructure:"productId"`
-	ExecutionId  int64
-	ProjectId    int64 `json:"projectId" mapstructure:"projectId"`
+	ProjectId    int64  `json:"projectId" mapstructure:"projectId"`
 	// TODO not support now
 	TimeAfter string `json:"timeAfter" mapstructure:"timeAfter,omitempty"`
 	//TransformationRuleId                uint64 `json:"transformationZentaoeId" mapstructure:"transformationRuleId,omitempty"`

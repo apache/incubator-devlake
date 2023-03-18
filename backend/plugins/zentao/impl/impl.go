@@ -51,9 +51,8 @@ func (p Zentao) Init(basicRes context.BasicRes) errors.Error {
 
 func (p Zentao) SubTaskMetas() []plugin.SubTaskMeta {
 	return []plugin.SubTaskMeta{
-		tasks.CollectProductMeta,
-		tasks.ExtractProductMeta,
 		tasks.ConvertProductMeta,
+		tasks.ConvertProjectMeta,
 		tasks.CollectExecutionMeta,
 		tasks.ExtractExecutionMeta,
 		tasks.ConvertExecutionMeta,

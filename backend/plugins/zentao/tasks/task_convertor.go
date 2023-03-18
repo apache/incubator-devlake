@@ -48,8 +48,7 @@ func ConvertTask(taskCtx plugin.SubTaskContext) errors.Error {
 	taskIdGen := didgen.NewDomainIdGenerator(&models.ZentaoTask{})
 	cursor, err := db.Cursor(
 		dal.From(&models.ZentaoTask{}),
-		dal.Where(`_tool_zentao_tasks.execution = ? and 
-			_tool_zentao_tasks.connection_id = ?`, data.Options.ExecutionId, data.Options.ConnectionId),
+		dal.Where(`project = ? and connection_id = ?`, data.Options.ProjectId, data.Options.ConnectionId),
 	)
 	if err != nil {
 		return err
@@ -63,7 +62,6 @@ func ConvertTask(taskCtx plugin.SubTaskContext) errors.Error {
 			Params: ZentaoApiParams{
 				ConnectionId: data.Options.ConnectionId,
 				ProductId:    data.Options.ProductId,
-				ExecutionId:  data.Options.ExecutionId,
 				ProjectId:    data.Options.ProjectId,
 			},
 			Table: RAW_TASK_TABLE,
@@ -103,7 +101,7 @@ func ConvertTask(taskCtx plugin.SubTaskContext) errors.Error {
 				domainEntity.LeadTimeMinutes = int64(toolEntity.ClosedDate.ToNullableTime().Sub(toolEntity.OpenedDate.ToTime()).Minutes())
 			}
 			domainBoardIssue := &ticket.BoardIssue{
-				BoardId: boardIdGen.Generate(data.Options.ConnectionId, data.Options.ExecutionId),
+				BoardId: boardIdGen.Generate(data.Options.ConnectionId, toolEntity.Execution),
 				IssueId: domainEntity.Id,
 			}
 			results := make([]interface{}, 0)

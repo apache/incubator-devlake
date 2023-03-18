@@ -80,12 +80,12 @@ func makePipelinePlanV200(
 			if err != nil {
 				return nil, nil, errors.Default.Wrap(err, fmt.Sprintf("fail to find zentao project %s", bpScope.Id))
 			}
-			op.ProjectId = scope.ID
+			op.ProjectId = scope.Id
 
 			if utils.StringsContains(bpScope.Entities, plugin.DOMAIN_TYPE_TICKET) {
 				scopeTicket := &ticket.Board{
 					DomainEntity: domainlayer.DomainEntity{
-						Id: didgen.NewDomainIdGenerator(&models.ZentaoProject{}).Generate(connection.ID, scope.ID),
+						Id: didgen.NewDomainIdGenerator(&models.ZentaoProject{}).Generate(connection.ID, scope.Id),
 					},
 					Name: scope.Name,
 				}

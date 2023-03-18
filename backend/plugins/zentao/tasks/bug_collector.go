@@ -33,13 +33,15 @@ var _ plugin.SubTaskEntryPoint = CollectBug
 
 func CollectBug(taskCtx plugin.SubTaskContext) errors.Error {
 	data := taskCtx.GetData().(*ZentaoTaskData)
+	if data.Options.ProductId == 0 {
+		return nil
+	}
 	collector, err := api.NewApiCollector(api.ApiCollectorArgs{
 		RawDataSubTaskArgs: api.RawDataSubTaskArgs{
 			Ctx: taskCtx,
 			Params: ZentaoApiParams{
 				ConnectionId: data.Options.ConnectionId,
 				ProductId:    data.Options.ProductId,
-				ExecutionId:  data.Options.ExecutionId,
 				ProjectId:    data.Options.ProjectId,
 			},
 			Table: RAW_BUG_TABLE,
@@ -77,4 +79,5 @@ var CollectBugMeta = plugin.SubTaskMeta{
 	EntryPoint:       CollectBug,
 	EnabledByDefault: true,
 	Description:      "Collect Bug data from Zentao api",
+	DomainTypes:      []string{plugin.DOMAIN_TYPE_TICKET},
 }

@@ -33,7 +33,7 @@ var _ plugin.SubTaskEntryPoint = CollectTask
 
 func CollectTask(taskCtx plugin.SubTaskContext) errors.Error {
 	data := taskCtx.GetData().(*ZentaoTaskData)
-	if data.Options.ExecutionId == 0 {
+	if data.Options.ProjectId == 0 {
 		return nil
 	}
 	collector, err := api.NewApiCollector(api.ApiCollectorArgs{
@@ -42,7 +42,6 @@ func CollectTask(taskCtx plugin.SubTaskContext) errors.Error {
 			Params: ZentaoApiParams{
 				ConnectionId: data.Options.ConnectionId,
 				ProductId:    data.Options.ProductId,
-				ExecutionId:  data.Options.ExecutionId,
 				ProjectId:    data.Options.ProjectId,
 			},
 			Table: RAW_TASK_TABLE,
@@ -79,4 +78,5 @@ var CollectTaskMeta = plugin.SubTaskMeta{
 	EntryPoint:       CollectTask,
 	EnabledByDefault: true,
 	Description:      "Collect Task data from Zentao api",
+	DomainTypes:      []string{plugin.DOMAIN_TYPE_TICKET},
 }

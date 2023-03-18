@@ -37,7 +37,6 @@ func TestZentaoExecutionDataFlow(t *testing.T) {
 			ConnectionId: 1,
 			ProjectId:    1,
 			ProductId:    3,
-			ExecutionId:  1,
 		},
 	}
 
