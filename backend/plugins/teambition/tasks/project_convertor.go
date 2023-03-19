@@ -18,6 +18,7 @@ limitations under the License.
 package tasks
 
 import (
+	"fmt"
 	"github.com/apache/incubator-devlake/core/dal"
 	"github.com/apache/incubator-devlake/core/errors"
 	"github.com/apache/incubator-devlake/core/models/domainlayer"
@@ -26,25 +27,22 @@ import (
 	helper "github.com/apache/incubator-devlake/helpers/pluginhelper/api"
 	"github.com/apache/incubator-devlake/plugins/teambition/models"
 	"reflect"
-	"strconv"
 )
 
-var ConvertTasksMeta = plugin.SubTaskMeta{
-	Name:             "convertTasks",
-	EntryPoint:       ConvertTasks,
+var ConvertProjectsMeta = plugin.SubTaskMeta{
+	Name:             "convertAccounts",
+	EntryPoint:       ConvertProjects,
 	EnabledByDefault: true,
-	Description:      "convert teambition account",
+	Description:      "convert teambition projects",
 	DomainTypes:      []string{plugin.DOMAIN_TYPE_TICKET},
 }
 
-func ConvertTasks(taskCtx plugin.SubTaskContext) errors.Error {
-	rawDataSubTaskArgs, data := CreateRawDataSubTaskArgs(taskCtx, RAW_TASK_TABLE)
+func ConvertProjects(taskCtx plugin.SubTaskContext) errors.Error {
+	rawDataSubTaskArgs, data := CreateRawDataSubTaskArgs(taskCtx, RAW_PROJECT_TABLE)
 	db := taskCtx.GetDal()
-	logger := taskCtx.GetLogger()
-	logger.Info("convert project:%d", data.Options.ProjectId)
 	clauses := []dal.Clause{
-		dal.From(&models.TeambitionTask{}),
-		dal.Where("connection_id = ? AND project_id = ?", data.Options.ConnectionId, data.Options.ProjectId),
+		dal.From(&models.TeambitionProject{}),
+		dal.Where("connection_id = ?", data.Options.ConnectionId),
 	}
 
 	cursor, err := db.Cursor(clauses...)
@@ -54,26 +52,22 @@ func ConvertTasks(taskCtx plugin.SubTaskContext) errors.Error {
 	defer cursor.Close()
 	converter, err := helper.NewDataConverter(helper.DataConverterArgs{
 		RawDataSubTaskArgs: *rawDataSubTaskArgs,
-		InputRowType:       reflect.TypeOf(models.TeambitionTask{}),
+		InputRowType:       reflect.TypeOf(models.TeambitionProject{}),
 		Input:              cursor,
 		Convert: func(inputRow interface{}) ([]interface{}, errors.Error) {
-			userTool := inputRow.(*models.TeambitionTask)
-			issue := &ticket.Issue{
+			userTool := inputRow.(*models.TeambitionProject)
+			account := &ticket.Board{
 				DomainEntity: domainlayer.DomainEntity{
-					Id: getTaskIdGen().Generate(data.Options.ConnectionId, userTool.Id),
+					Id: getProjectIdGen().Generate(data.Options.ConnectionId, userTool.Id),
 				},
-				IssueKey:        userTool.Id,
-				Title:           userTool.Content,
-				Description:     userTool.Note,
-				Priority:        strconv.Itoa(userTool.Priority),
-				ParentIssueId:   userTool.ParentTaskId,
-				CreatorId:       userTool.CreatorId,
-				OriginalProject: getProjectIdGen().Generate(data.Options.ConnectionId, data.Options.ProjectId),
-				AssigneeId:      userTool.ExecutorId,
+				Name:        userTool.Name,
+				Description: userTool.Description,
+				Url:         fmt.Sprintf("https://www.teambition.com/project/%s", userTool.Id),
+				CreatedDate: userTool.Created.ToNullableTime(),
 			}
 
 			return []interface{}{
-				issue,
+				account,
 			}, nil
 		},
 	})

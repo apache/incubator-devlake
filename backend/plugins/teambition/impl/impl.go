@@ -59,6 +59,7 @@ func (p Teambition) GetTablesInfo() []dal.Tabler {
 		&models.TeambitionSprint{},
 		&models.TeambitionTaskActivity{},
 		&models.TeambitionTaskWorktime{},
+		&models.TeambitionProject{},
 	}
 }
 
@@ -80,6 +81,9 @@ func (p Teambition) SubTaskMetas() []plugin.SubTaskMeta {
 		tasks.CollectTaskWorktimeMeta,
 		tasks.ExtractTaskWorktimeMeta,
 		tasks.ConvertTaskWorktimeMeta,
+		tasks.CollectProjectsMeta,
+		tasks.ExtractProjectsMeta,
+		tasks.ConvertProjectsMeta,
 	}
 }
 
@@ -119,7 +123,7 @@ func (p Teambition) PrepareTaskData(taskCtx plugin.TaskContext, options map[stri
 	return taskData, nil
 }
 
-// PkgPath information lost when compiled as plugin(.so)
+// RootPkgPath PkgPath information lost when compiled as plugin(.so)
 func (p Teambition) RootPkgPath() string {
 	return "github.com/apache/incubator-devlake/plugins/teambition"
 }

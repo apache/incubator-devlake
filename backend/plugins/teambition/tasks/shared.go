@@ -43,6 +43,7 @@ var accountIdGen *didgen.DomainIdGenerator
 var taskIdGen *didgen.DomainIdGenerator
 var taskActivityIdGen *didgen.DomainIdGenerator
 var taskWorktimeIdGen *didgen.DomainIdGenerator
+var projectIdGen *didgen.DomainIdGenerator
 
 func getAccountIdGen() *didgen.DomainIdGenerator {
 	if accountIdGen == nil {
@@ -63,6 +64,13 @@ func getTaskActivityIdGen() *didgen.DomainIdGenerator {
 		taskActivityIdGen = didgen.NewDomainIdGenerator(&models.TeambitionTaskActivity{})
 	}
 	return taskActivityIdGen
+}
+
+func getProjectIdGen() *didgen.DomainIdGenerator {
+	if projectIdGen == nil {
+		projectIdGen = didgen.NewDomainIdGenerator(&models.TeambitionProject{})
+	}
+	return projectIdGen
 }
 
 func getTaskWorktimeIdGen() *didgen.DomainIdGenerator {

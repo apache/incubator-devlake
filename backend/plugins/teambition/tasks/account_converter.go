@@ -32,7 +32,7 @@ var ConvertAccountsMeta = plugin.SubTaskMeta{
 	Name:             "convertAccounts",
 	EntryPoint:       ConvertAccounts,
 	EnabledByDefault: true,
-	Description:      "convert tapd account",
+	Description:      "convert teambition account",
 	DomainTypes:      []string{plugin.DOMAIN_TYPE_CROSS},
 }
 
