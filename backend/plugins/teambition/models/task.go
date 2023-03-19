@@ -24,22 +24,22 @@ import (
 
 type TeambitionTask struct {
 	ConnectionId   uint64                  `gorm:"primaryKey;type:BIGINT"`
+	ProjectId      string                  `gorm:"primaryKey;type:varchar(100)" json:"projectId"`
 	Id             string                  `gorm:"primaryKey;type:varchar(100)" json:"id"`
 	Content        string                  `gorm:"type:varchar(255)" json:"content"`
 	Note           string                  `gorm:"type:varchar(255)" json:"Content"`
-	ProjectId      string                  `gorm:"type:varchar(100)" json:"projectId"`
-	AncestorIds    []string                `gorm:"-" json:"ancestorIds"`
+	AncestorIds    []string                `gorm:"serializer:json;type:text" json:"ancestorIds"`
 	ParentTaskId   string                  `gorm:"type:varchar(100)" json:"parentTaskId"`
 	TfsId          string                  `gorm:"type:varchar(100)" json:"tfsId"`
 	TasklistId     string                  `gorm:"type:varchar(100)" json:"tasklistId"`
 	StageId        string                  `gorm:"type:varchar(100)" json:"stageId"`
-	TagIds         []string                `gorm:"-" json:"tagIds"`
+	TagIds         []string                `gorm:"serializer:json;type:text" json:"tagIds"`
 	CreatorId      string                  `gorm:"type:varchar(100)" json:"creatorId"`
 	ExecutorId     string                  `gorm:"type:varchar(100)" json:"executorId"`
-	InvolveMembers []string                `gorm:"-" json:"involveMembers"`
+	InvolveMembers []string                `gorm:"serializer:json;type:text" json:"involveMembers"`
 	Priority       int                     `json:"priority"`
 	StoryPoint     string                  `gorm:"varchar(255)" json:"storyPoint"`
-	Recurrence     []string                `gorm:"-" json:"recurrence"`
+	Recurrence     []string                `gorm:"serializer:json;type:text" json:"recurrence"`
 	IsDone         bool                    `json:"isDone"`
 	IsArchived     bool                    `json:"isArchived"`
 	Visible        string                  `gorm:"varchar(100)" json:"visible"`
@@ -51,7 +51,7 @@ type TeambitionTask struct {
 	Updated        *api.Iso8601Time        `json:"updated"`
 	SfcId          string                  `gorm:"varchar(100)" json:"sfcId"`
 	SprintId       string                  `gorm:"varchar(100)" json:"sprintId"`
-	Customfields   []TeambitionCustomField `gorm:"-" json:"customfields"`
+	Customfields   []TeambitionCustomField `gorm:"serializer:json;type:text" json:"customfields"`
 
 	common.NoPKModel
 }

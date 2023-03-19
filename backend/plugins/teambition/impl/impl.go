@@ -70,7 +70,6 @@ func (p Teambition) SubTaskMetas() []plugin.SubTaskMeta {
 		tasks.ConvertAccountsMeta,
 		tasks.CollectTasksMeta,
 		tasks.ExtractTasksMeta,
-		tasks.ConvertTasksMeta,
 		tasks.CollectTaskTagsMeta,
 		tasks.ExtractTaskTagsMeta,
 		tasks.ConvertTaskTagTasksMeta,
@@ -84,6 +83,7 @@ func (p Teambition) SubTaskMetas() []plugin.SubTaskMeta {
 		tasks.CollectProjectsMeta,
 		tasks.ExtractProjectsMeta,
 		tasks.ConvertProjectsMeta,
+		tasks.ConvertTasksMeta,
 	}
 }
 

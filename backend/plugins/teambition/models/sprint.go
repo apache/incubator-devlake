@@ -37,7 +37,7 @@ type TeambitionSprint struct {
 	Created      *api.Iso8601Time `json:"created"`
 	Updated      *api.Iso8601Time `json:"updated"`
 	Payload      string           `gorm:"type:text" json:"payload"`
-	Labels       []string         `gorm:"-" json:"labels"`
+	Labels       []string         `gorm:"serializer:json;type:text" json:"labels"`
 
 	common.NoPKModel
 }

@@ -39,7 +39,7 @@ type TeambitionProject struct {
 	Updated        *api.Iso8601Time               `json:"updated"`
 	StartDate      *api.Iso8601Time               `json:"startDate"`
 	EndDate        *api.Iso8601Time               `json:"endDate"`
-	Customfields   []TeambitionProjectCustomField `gorm:"-" json:"customfields"`
+	Customfields   []TeambitionProjectCustomField `gorm:"serializer:json;type:text" json:"customfields"`
 
 	common.NoPKModel
 }

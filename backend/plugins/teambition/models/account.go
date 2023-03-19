@@ -24,8 +24,8 @@ import (
 
 type TeambitionAccount struct {
 	ConnectionId   uint64           `gorm:"primaryKey;type:BIGINT"`
-	MemberId       string           `gorm:"primaryKey;type:varchar(100)" json:"memberId"`
 	UserId         string           `gorm:"primaryKey;type:varchar(100)" json:"userId"`
+	MemberId       string           `gorm:"type:varchar(100)" json:"memberId"`
 	IsDisabled     int              `json:"isDisabled"`
 	Role           uint64           `json:"role"`
 	AvatarUrl      string           `gorm:"type:varchar(255)" json:"avatarUrl"`

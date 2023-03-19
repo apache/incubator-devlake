@@ -18,6 +18,8 @@ limitations under the License.
 package tasks
 
 import (
+	"github.com/apache/incubator-devlake/core/dal"
+	"github.com/apache/incubator-devlake/core/errors"
 	"github.com/apache/incubator-devlake/core/models/domainlayer/didgen"
 	"github.com/apache/incubator-devlake/core/plugin"
 	"github.com/apache/incubator-devlake/helpers/pluginhelper/api"
@@ -44,6 +46,7 @@ var taskIdGen *didgen.DomainIdGenerator
 var taskActivityIdGen *didgen.DomainIdGenerator
 var taskWorktimeIdGen *didgen.DomainIdGenerator
 var projectIdGen *didgen.DomainIdGenerator
+var sprintIdGen *didgen.DomainIdGenerator
 
 func getAccountIdGen() *didgen.DomainIdGenerator {
 	if accountIdGen == nil {
@@ -80,6 +83,13 @@ func getTaskWorktimeIdGen() *didgen.DomainIdGenerator {
 	return taskWorktimeIdGen
 }
 
+func getSprintIdGen() *didgen.DomainIdGenerator {
+	if sprintIdGen == nil {
+		sprintIdGen = didgen.NewDomainIdGenerator(&models.TeambitionSprint{})
+	}
+	return sprintIdGen
+}
+
 func CreateRawDataSubTaskArgs(taskCtx plugin.SubTaskContext, rawTable string) (*api.RawDataSubTaskArgs, *TeambitionTaskData) {
 	data := taskCtx.GetData().(*TeambitionTaskData)
 	filteredData := *data
@@ -96,4 +106,26 @@ func CreateRawDataSubTaskArgs(taskCtx plugin.SubTaskContext, rawTable string) (*
 		Table:  rawTable,
 	}
 	return rawDataSubTaskArgs, &filteredData
+}
+
+func FindAccountById(db dal.Dal, accountId string) (*models.TeambitionAccount, errors.Error) {
+	if accountId == "" {
+		return nil, errors.Default.New("account id must not empty")
+	}
+	account := &models.TeambitionAccount{}
+	if err := db.First(account, dal.Where("user_id = ?", accountId)); err != nil {
+		return nil, err
+	}
+	return account, nil
+}
+
+func FindProjectById(db dal.Dal, projectId string) (*models.TeambitionProject, errors.Error) {
+	if projectId == "" {
+		return nil, errors.Default.New("project id must not empty")
+	}
+	project := &models.TeambitionProject{}
+	if err := db.First(project, dal.Where("id = ?", projectId)); err != nil {
+		return nil, err
+	}
+	return project, nil
 }
