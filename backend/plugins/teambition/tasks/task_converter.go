@@ -21,7 +21,6 @@ import (
 	"github.com/apache/incubator-devlake/core/dal"
 	"github.com/apache/incubator-devlake/core/errors"
 	"github.com/apache/incubator-devlake/core/models/domainlayer"
-	"github.com/apache/incubator-devlake/core/models/domainlayer/didgen"
 	"github.com/apache/incubator-devlake/core/models/domainlayer/ticket"
 	"github.com/apache/incubator-devlake/core/plugin"
 	helper "github.com/apache/incubator-devlake/helpers/pluginhelper/api"
@@ -53,7 +52,6 @@ func ConvertTasks(taskCtx plugin.SubTaskContext) errors.Error {
 		return err
 	}
 	defer cursor.Close()
-	taskIdGen := didgen.NewDomainIdGenerator(&models.TeambitionTask{})
 	converter, err := helper.NewDataConverter(helper.DataConverterArgs{
 		RawDataSubTaskArgs: *rawDataSubTaskArgs,
 		InputRowType:       reflect.TypeOf(models.TeambitionTask{}),
@@ -62,7 +60,7 @@ func ConvertTasks(taskCtx plugin.SubTaskContext) errors.Error {
 			userTool := inputRow.(*models.TeambitionTask)
 			issue := &ticket.Issue{
 				DomainEntity: domainlayer.DomainEntity{
-					Id: taskIdGen.Generate(data.Options.ConnectionId, userTool.Id),
+					Id: getTaskIdGen().Generate(data.Options.ConnectionId, userTool.Id),
 				},
 				IssueKey:        userTool.Id,
 				Title:           userTool.Content,

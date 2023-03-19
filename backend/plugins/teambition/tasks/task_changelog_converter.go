@@ -20,6 +20,7 @@ package tasks
 import (
 	"github.com/apache/incubator-devlake/core/dal"
 	"github.com/apache/incubator-devlake/core/errors"
+	"github.com/apache/incubator-devlake/core/models/domainlayer"
 	"github.com/apache/incubator-devlake/core/models/domainlayer/ticket"
 	"github.com/apache/incubator-devlake/core/plugin"
 	helper "github.com/apache/incubator-devlake/helpers/pluginhelper/api"
@@ -27,28 +28,22 @@ import (
 	"reflect"
 )
 
-var ConvertTaskTagTasksMeta = plugin.SubTaskMeta{
-	Name:             "convertTaskTags",
-	EntryPoint:       ConvertTaskTagTasks,
+var ConvertTaskChangelogMeta = plugin.SubTaskMeta{
+	Name:             "convertTaskChangelog",
+	EntryPoint:       ConvertTaskChangelog,
 	EnabledByDefault: true,
-	Description:      "convert teambition task tags",
+	Description:      "convert teambition task changelogs",
 	DomainTypes:      []string{plugin.DOMAIN_TYPE_TICKET},
 }
 
-func ConvertTaskTagTasks(taskCtx plugin.SubTaskContext) errors.Error {
-	rawDataSubTaskArgs, data := CreateRawDataSubTaskArgs(taskCtx, RAW_TASK_TAG_TABLE)
+func ConvertTaskChangelog(taskCtx plugin.SubTaskContext) errors.Error {
+	rawDataSubTaskArgs, data := CreateRawDataSubTaskArgs(taskCtx, RAW_TASK_ACTIVITY_TABLE)
 	db := taskCtx.GetDal()
 	logger := taskCtx.GetLogger()
-	logger.Info("convert project:%v task tag tasks", data.Options.ProjectId)
+	logger.Info("convert project:%v task changelogs", data.Options.ProjectId)
 	clauses := []dal.Clause{
-		dal.Select("b.name as name, a.task_id as task_id, a.connection_id as connection_id, a.project_id as project_id"),
-		dal.From("_tool_teambition_task_tag_tasks a"),
-		dal.Join(`left join _tool_teambition_task_tags b on (
-			a.connection_id = b.connection_id
-			AND a.project_id = b.project_id
-			AND a.task_tag_id = b.id
-		)`),
-		dal.Where("a.connection_id = ? AND a.project_id = ?", data.Options.ConnectionId, data.Options.ProjectId),
+		dal.From(&models.TeambitionTaskActivity{}),
+		dal.Where("connection_id = ? AND project_id = ?", data.Options.ConnectionId, data.Options.ProjectId),
 	}
 
 	cursor, err := db.Cursor(clauses...)
@@ -58,16 +53,22 @@ func ConvertTaskTagTasks(taskCtx plugin.SubTaskContext) errors.Error {
 	defer cursor.Close()
 	converter, err := helper.NewDataConverter(helper.DataConverterArgs{
 		RawDataSubTaskArgs: *rawDataSubTaskArgs,
-		InputRowType:       reflect.TypeOf(models.TeambitionTaskTagTask{}),
+		InputRowType:       reflect.TypeOf(models.TeambitionTaskActivity{}),
 		Input:              cursor,
 		Convert: func(inputRow interface{}) ([]interface{}, errors.Error) {
-			userTool := inputRow.(*models.TeambitionTaskTagTask)
-			issue := &ticket.IssueLabel{
-				IssueId:   getTaskIdGen().Generate(userTool.ConnectionId, userTool.TaskId),
-				LabelName: userTool.Name,
+			userTool := inputRow.(*models.TeambitionTaskActivity)
+			issueComment := &ticket.IssueChangelogs{
+				DomainEntity: domainlayer.DomainEntity{
+					Id: getTaskActivityGen().Generate(data.Options.ConnectionId, userTool.Id),
+				},
+				IssueId:         getTaskIdGen().Generate(userTool.ConnectionId, userTool.TaskId),
+				AuthorId:        getAccountIdGen().Generate(userTool.ConnectionId, userTool.CreatorId),
+				CreatedDate:     userTool.CreateTime.ToTime(),
+				FieldId:         userTool.Action,
+				OriginalToValue: userTool.Content,
 			}
 			return []interface{}{
-				issue,
+				issueComment,
 			}, nil
 		},
 	})

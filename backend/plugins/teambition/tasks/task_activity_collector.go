@@ -78,6 +78,7 @@ func CollectTaskActivities(taskCtx plugin.SubTaskContext) errors.Error {
 		Incremental: incremental,
 		ApiClient:   data.ApiClient,
 		Input:       iterator,
+		PageSize:    int(data.Options.PageSize),
 		UrlTemplate: "/v3/task/{{ .Input.TaskId }}/activity/list",
 		GetNextPageCustomData: func(prevReqData *api.RequestData, prevPageResponse *http.Response) (interface{}, errors.Error) {
 			res := TeambitionComRes[any]{}

@@ -40,12 +40,28 @@ type TeambitionComRes[T any] struct {
 }
 
 var accountIdGen *didgen.DomainIdGenerator
+var taskIdGen *didgen.DomainIdGenerator
+var taskActivityIdGen *didgen.DomainIdGenerator
 
 func getAccountIdGen() *didgen.DomainIdGenerator {
 	if accountIdGen == nil {
 		accountIdGen = didgen.NewDomainIdGenerator(&models.TeambitionAccount{})
 	}
 	return accountIdGen
+}
+
+func getTaskIdGen() *didgen.DomainIdGenerator {
+	if taskIdGen == nil {
+		taskIdGen = didgen.NewDomainIdGenerator(&models.TeambitionTask{})
+	}
+	return taskIdGen
+}
+
+func getTaskActivityGen() *didgen.DomainIdGenerator {
+	if taskActivityIdGen == nil {
+		taskActivityIdGen = didgen.NewDomainIdGenerator(&models.TeambitionTaskActivity{})
+	}
+	return taskActivityIdGen
 }
 
 func CreateRawDataSubTaskArgs(taskCtx plugin.SubTaskContext, rawTable string) (*api.RawDataSubTaskArgs, *TeambitionTaskData) {

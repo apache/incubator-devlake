@@ -53,6 +53,7 @@ func ExtractTaskActivities(taskCtx plugin.SubTaskContext) errors.Error {
 			toolL := userRes
 			toolL.ConnectionId = data.Options.ConnectionId
 			toolL.TaskId = input.TaskId
+			toolL.ProjectId = data.Options.ProjectId
 			return []interface{}{
 				&toolL,
 			}, nil
