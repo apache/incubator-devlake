@@ -18,7 +18,6 @@ limitations under the License.
 package tasks
 
 import (
-	"encoding/json"
 	"github.com/apache/incubator-devlake/core/dal"
 	"github.com/apache/incubator-devlake/core/errors"
 	"github.com/apache/incubator-devlake/core/models/domainlayer"
@@ -29,22 +28,22 @@ import (
 	"reflect"
 )
 
-var ConvertTaskCommentsMeta = plugin.SubTaskMeta{
-	Name:             "convertTaskComments",
-	EntryPoint:       ConvertTaskComments,
+var ConvertTaskWorktimeMeta = plugin.SubTaskMeta{
+	Name:             "convertTaskWorktime",
+	EntryPoint:       ConvertTaskWorktime,
 	EnabledByDefault: true,
-	Description:      "convert teambition task comments",
+	Description:      "convert teambition task worktime",
 	DomainTypes:      []string{plugin.DOMAIN_TYPE_TICKET},
 }
 
-func ConvertTaskComments(taskCtx plugin.SubTaskContext) errors.Error {
-	rawDataSubTaskArgs, data := CreateRawDataSubTaskArgs(taskCtx, RAW_TASK_ACTIVITY_TABLE)
+func ConvertTaskWorktime(taskCtx plugin.SubTaskContext) errors.Error {
+	rawDataSubTaskArgs, data := CreateRawDataSubTaskArgs(taskCtx, RAW_TASK_WORKTIME_TABLE)
 	db := taskCtx.GetDal()
 	logger := taskCtx.GetLogger()
-	logger.Info("convert project:%v task comments", data.Options.ProjectId)
+	logger.Info("convert project:%v task worktime", data.Options.ProjectId)
 	clauses := []dal.Clause{
-		dal.From(&models.TeambitionTaskActivity{}),
-		dal.Where("connection_id = ? AND project_id = ? AND action = ?", data.Options.ConnectionId, data.Options.ProjectId, "comment"),
+		dal.From(&models.TeambitionTaskWorktime{}),
+		dal.Where("connection_id = ? AND project_id = ?", data.Options.ConnectionId, data.Options.ProjectId),
 	}
 
 	cursor, err := db.Cursor(clauses...)
@@ -54,26 +53,23 @@ func ConvertTaskComments(taskCtx plugin.SubTaskContext) errors.Error {
 	defer cursor.Close()
 	converter, err := helper.NewDataConverter(helper.DataConverterArgs{
 		RawDataSubTaskArgs: *rawDataSubTaskArgs,
-		InputRowType:       reflect.TypeOf(models.TeambitionTaskActivity{}),
+		InputRowType:       reflect.TypeOf(models.TeambitionTaskWorktime{}),
 		Input:              cursor,
 		Convert: func(inputRow interface{}) ([]interface{}, errors.Error) {
-			userTool := inputRow.(*models.TeambitionTaskActivity)
-			issueComment := &ticket.IssueComment{
+			userTool := inputRow.(*models.TeambitionTaskWorktime)
+			issueWorklog := &ticket.IssueWorklog{
 				DomainEntity: domainlayer.DomainEntity{
-					Id: getTaskActivityIdGen().Generate(data.Options.ConnectionId, userTool.Id),
+					Id: getTaskWorktimeIdGen().Generate(data.Options.ConnectionId, userTool.WorktimeId),
 				},
-				IssueId:     getTaskIdGen().Generate(userTool.ConnectionId, userTool.TaskId),
-				AccountId:   getAccountIdGen().Generate(userTool.ConnectionId, userTool.CreatorId),
-				CreatedDate: userTool.CreateTime.ToTime(),
+				IssueId:          getTaskIdGen().Generate(userTool.ConnectionId, userTool.TaskId),
+				AuthorId:         getAccountIdGen().Generate(userTool.ConnectionId, userTool.UserId),
+				LoggedDate:       userTool.CreatedAt.ToNullableTime(),
+				Comment:          userTool.Description,
+				TimeSpentMinutes: int(userTool.Worktime / (60 * 1000)),
+				StartedDate:      userTool.Date.ToNullableTime(),
 			}
-			comment := &models.TeambitionTaskComment{}
-			err := json.Unmarshal([]byte(userTool.Content), comment)
-			if err != nil {
-				return nil, errors.Convert(err)
-			}
-			issueComment.Body = comment.Comment
 			return []interface{}{
-				issueComment,
+				issueWorklog,
 			}, nil
 		},
 	})

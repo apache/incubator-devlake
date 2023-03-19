@@ -36,6 +36,7 @@ func (*addInitTables) Up(basicRes context.BasicRes) errors.Error {
 		&models.TeambitionSprint{},
 		&models.TeambitionTaskTag{},
 		&models.TeambitionTaskTagTask{},
+		&models.TeambitionTaskWorktime{},
 	)
 }
 

@@ -18,7 +18,7 @@ limitations under the License.
 package models
 
 type TeambitionTaskComment struct {
-	Comment              string   `json:"comment"'`
+	Comment              string   `json:"comment"`
 	IsOnlyNotifyMentions bool     `json:"isOnlyNotifyMentions"`
 	IsDingtalkPM         bool     `json:"isDingtalkPM"`
 	RenderMode           string   `json:"renderMode"`

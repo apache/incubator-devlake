@@ -59,7 +59,7 @@ func ConvertTaskChangelog(taskCtx plugin.SubTaskContext) errors.Error {
 			userTool := inputRow.(*models.TeambitionTaskActivity)
 			issueComment := &ticket.IssueChangelogs{
 				DomainEntity: domainlayer.DomainEntity{
-					Id: getTaskActivityGen().Generate(data.Options.ConnectionId, userTool.Id),
+					Id: getTaskActivityIdGen().Generate(data.Options.ConnectionId, userTool.Id),
 				},
 				IssueId:         getTaskIdGen().Generate(userTool.ConnectionId, userTool.TaskId),
 				AuthorId:        getAccountIdGen().Generate(userTool.ConnectionId, userTool.CreatorId),

@@ -58,6 +58,7 @@ func (p Teambition) GetTablesInfo() []dal.Tabler {
 		&models.TeambitionTaskTag{},
 		&models.TeambitionSprint{},
 		&models.TeambitionTaskActivity{},
+		&models.TeambitionTaskWorktime{},
 	}
 }
 
@@ -76,6 +77,9 @@ func (p Teambition) SubTaskMetas() []plugin.SubTaskMeta {
 		tasks.ExtractTaskActivitiesMeta,
 		tasks.ConvertTaskCommentsMeta,
 		tasks.ConvertTaskChangelogMeta,
+		tasks.CollectTaskWorktimeMeta,
+		tasks.ExtractTaskWorktimeMeta,
+		tasks.ConvertTaskWorktimeMeta,
 	}
 }
 
