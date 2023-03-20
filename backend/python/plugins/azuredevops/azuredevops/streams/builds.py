@@ -37,20 +37,11 @@ class Builds(Stream):
 
     def extract(self, raw_data: dict) -> Build:
         build: Build = self.tool_model(**raw_data)
-        build.id = raw_data["id"]
         build.project_id = raw_data["project"]["id"]
         build.repo_id = raw_data["repository"]["id"]
         build.repo_type = raw_data["repository"]["type"]
-        build.source_branch = raw_data["sourceBranch"]
-        build.source_version = raw_data["sourceVersion"]
         build.build_number = raw_data["buildNumber"]
-        if "buildNumberRevision" in raw_data:
-            build.build_number_revision = raw_data["buildNumberRevision"]
-        build.start_time = iso8601.parse_date(raw_data["startTime"])
-        build.finish_time = iso8601.parse_date(raw_data["finishTime"])
-        build.status = Build.Status(raw_data["status"])
         build.tags = ",".join(raw_data["tags"])
-        build.priority = raw_data["priority"]
         build.build_result = Build.Result(raw_data["result"])
         trigger_info: dict = raw_data["triggerInfo"]
         if "ci.sourceSha" in trigger_info: # this key is not guaranteed to be in here per docs

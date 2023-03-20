@@ -111,6 +111,17 @@ class ToolModel(ToolTable, NoPKModel):
             segments.append(str(attr_val))
         return ':'.join(segments)
 
+    class Config:
+        allow_population_by_field_name = True
+
+        @classmethod
+        def alias_generator(cls, attr_name: str) -> str:
+            # Allow to set snake_cased attributes with camelCased keyword args.
+            # Useful for extractors dealing with raw data that has camelCased attributes.
+            parts = attr_name.split('_')
+            return parts[0] + ''.join(word.capitalize() for word in parts[1:])
+
+
 
 class DomainModel(NoPKModel):
     id: str = Field(primary_key=True)

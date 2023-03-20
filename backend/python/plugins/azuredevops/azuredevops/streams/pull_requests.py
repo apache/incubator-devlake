@@ -41,17 +41,10 @@ class GitPullRequests(Stream):
         pr.id = raw_data["pullRequestId"]
         pr.created_by_id = raw_data["createdBy"]["id"]
         pr.created_by_name = raw_data["createdBy"]["displayName"]
-        if "closedDate" in raw_data:
-            pr.closed_date = iso8601.parse_date(raw_data["closedDate"])
-        pr.creation_date = iso8601.parse_date(raw_data["creationDate"])
-        pr.code_review_id = raw_data["codeReviewId"]
         pr.repo_id = raw_data["repository"]["id"]
-        pr.description = raw_data["description"]
         pr.source_commit_sha = raw_data["lastMergeSourceCommit"]["commitId"]
         pr.target_commit_sha = raw_data["lastMergeTargetCommit"]["commitId"]
         pr.merge_commit_sha = raw_data["lastMergeCommit"]["commitId"]
-        pr.source_ref_name = raw_data["sourceRefName"]
-        pr.target_ref_name = raw_data["targetRefName"]
         if "labels" in raw_data:
             # TODO get this off transformation rules regex
             pr.type = raw_data["labels"][0]["name"]
