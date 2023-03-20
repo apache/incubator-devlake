@@ -78,7 +78,6 @@ func ExportData(c plugin.SubTaskContext) errors.Error {
 		return errors.Convert(err)
 	}
 	starrocksDb := dalgorm.NewDalgorm(sr)
-	
 	sqlStarrocksDB, err := sr.DB()
 	if err != nil {
 		return errors.Convert(err)
