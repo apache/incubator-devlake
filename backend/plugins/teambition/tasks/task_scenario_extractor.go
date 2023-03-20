@@ -25,28 +25,29 @@ import (
 	"github.com/apache/incubator-devlake/plugins/teambition/models"
 )
 
-var _ plugin.SubTaskEntryPoint = ExtractProjects
+var _ plugin.SubTaskEntryPoint = ExtractTaskScenarios
 
-var ExtractProjectsMeta = plugin.SubTaskMeta{
-	Name:             "extractProjects",
-	EntryPoint:       ExtractProjects,
+var ExtractTaskScenariosMeta = plugin.SubTaskMeta{
+	Name:             "extractTaskScenarios",
+	EntryPoint:       ExtractTaskScenarios,
 	EnabledByDefault: true,
-	Description:      "Extract raw data into tool layer table _tool_teambition_projects",
+	Description:      "Extract raw data into tool layer table _tool_teambition_task_scenarios",
 	DomainTypes:      []string{plugin.DOMAIN_TYPE_TICKET},
 }
 
-func ExtractProjects(taskCtx plugin.SubTaskContext) errors.Error {
-	rawDataSubTaskArgs, data := CreateRawDataSubTaskArgs(taskCtx, RAW_PROJECT_TABLE)
+func ExtractTaskScenarios(taskCtx plugin.SubTaskContext) errors.Error {
+	rawDataSubTaskArgs, data := CreateRawDataSubTaskArgs(taskCtx, RAW_TASK_SCENARIOS_TABLE)
 	extractor, err := api.NewApiExtractor(api.ApiExtractorArgs{
 		RawDataSubTaskArgs: *rawDataSubTaskArgs,
 		Extract: func(row *api.RawData) ([]interface{}, errors.Error) {
-			userRes := models.TeambitionProject{}
+			userRes := models.TeambitionTaskScenario{}
 			err := errors.Convert(json.Unmarshal(row.Data, &userRes))
 			if err != nil {
 				return nil, err
 			}
 			toolL := userRes
 			toolL.ConnectionId = data.Options.ConnectionId
+			toolL.ProjectId = data.Options.ProjectId
 			return []interface{}{
 				&toolL,
 			}, nil
