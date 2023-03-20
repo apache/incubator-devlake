@@ -65,6 +65,8 @@ export const useDataScope = ({ plugin, connectionId, entities, initialValues, on
         return scope.jobFullName;
       case plugin === 'bitbucket':
         return scope.bitbucketId;
+      case plugin === 'zentao':
+        return scope.type === 'project' ? `project/${scope.id}` : `product/${scope.id}`;
       case plugin === 'sonarqube':
         return scope.projectKey;
     }
@@ -85,16 +87,29 @@ export const useDataScope = ({ plugin, connectionId, entities, initialValues, on
   const handleSave = async () => {
     const scope = await Promise.all(selectedScope.map((sc: any) => getDataScope(sc)));
 
-    const [success, res] = await operator(
-      () =>
+    let request: () => Promise<any>;
+    if (plugin === 'zentao') {
+      request = async () => {
+        return [
+          ...(await API.updateDataScopeWithType(plugin, connectionId, 'product', {
+            data: scope.filter((s) => s.type !== 'project').map((sc: any) => omit(sc, 'from')),
+          })),
+          ...(await API.updateDataScopeWithType(plugin, connectionId, 'project', {
+            data: scope.filter((s) => s.type === 'project').map((sc: any) => omit(sc, 'from')),
+          })),
+        ];
+      };
+    } else {
+      request = () =>
         API.updateDataScope(plugin, connectionId, {
           data: scope.map((sc: any) => omit(sc, 'from')),
-        }),
-      {
-        setOperating: setSaving,
-        hideToast: true,
-      },
-    );
+        });
+    }
+
+    const [success, res] = await operator(request, {
+      setOperating: setSaving,
+      hideToast: true,
+    });
 
     if (success) {
       onSave?.(

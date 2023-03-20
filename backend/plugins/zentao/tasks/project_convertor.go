@@ -29,32 +29,32 @@ import (
 	"reflect"
 )
 
-const RAW_PRODUCT_TABLE = "zentao_api_products"
+const RAW_PROJECT_TABLE = "zentao_api_projects"
 
-var _ plugin.SubTaskEntryPoint = ConvertProducts
+var _ plugin.SubTaskEntryPoint = ConvertProjects
 
-var ConvertProductMeta = plugin.SubTaskMeta{
-	Name:             "convertProducts",
-	EntryPoint:       ConvertProducts,
+var ConvertProjectMeta = plugin.SubTaskMeta{
+	Name:             "convertProjects",
+	EntryPoint:       ConvertProjects,
 	EnabledByDefault: true,
-	Description:      "convert Zentao products",
+	Description:      "convert Zentao projects",
 	DomainTypes:      []string{plugin.DOMAIN_TYPE_TICKET},
 }
 
-func ConvertProducts(taskCtx plugin.SubTaskContext) errors.Error {
+func ConvertProjects(taskCtx plugin.SubTaskContext) errors.Error {
 	data := taskCtx.GetData().(*ZentaoTaskData)
 	db := taskCtx.GetDal()
-	boardIdGen := didgen.NewDomainIdGenerator(&models.ZentaoProduct{})
+	boardIdGen := didgen.NewDomainIdGenerator(&models.ZentaoProject{})
 	cursor, err := db.Cursor(
-		dal.From(&models.ZentaoProduct{}),
-		dal.Where(`id = ? and connection_id = ?`, data.Options.ProductId, data.Options.ConnectionId),
+		dal.From(&models.ZentaoProject{}),
+		dal.Where(`id = ? and connection_id = ?`, data.Options.ProjectId, data.Options.ConnectionId),
 	)
 	if err != nil {
 		return err
 	}
 	defer cursor.Close()
 	convertor, err := api.NewDataConverter(api.DataConverterArgs{
-		InputRowType: reflect.TypeOf(models.ZentaoProduct{}),
+		InputRowType: reflect.TypeOf(models.ZentaoProject{}),
 		Input:        cursor,
 		RawDataSubTaskArgs: api.RawDataSubTaskArgs{
 			Ctx: taskCtx,
@@ -63,19 +63,19 @@ func ConvertProducts(taskCtx plugin.SubTaskContext) errors.Error {
 				ProductId:    data.Options.ProductId,
 				ProjectId:    data.Options.ProjectId,
 			},
-			Table: RAW_PRODUCT_TABLE,
+			Table: RAW_PROJECT_TABLE,
 		},
 		Convert: func(inputRow interface{}) ([]interface{}, errors.Error) {
-			toolProduct := inputRow.(*models.ZentaoProduct)
+			toolProject := inputRow.(*models.ZentaoProject)
 
 			domainBoard := &ticket.Board{
 				DomainEntity: domainlayer.DomainEntity{
-					Id: boardIdGen.Generate(toolProduct.ConnectionId, toolProduct.Id),
+					Id: boardIdGen.Generate(toolProject.ConnectionId, toolProject.Id),
 				},
-				Name:        toolProduct.Name,
-				Description: toolProduct.Description,
-				CreatedDate: toolProduct.CreatedDate.ToNullableTime(),
-				Type:        toolProduct.Type,
+				Name:        toolProject.Name,
+				Description: toolProject.Description,
+				CreatedDate: toolProject.OpenedDate.ToNullableTime(),
+				Type:        toolProject.Type,
 			}
 			results := make([]interface{}, 0)
 			results = append(results, domainBoard)

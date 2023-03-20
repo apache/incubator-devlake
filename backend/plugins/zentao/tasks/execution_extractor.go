@@ -43,7 +43,6 @@ func ExtractExecutions(taskCtx plugin.SubTaskContext) errors.Error {
 			Params: ZentaoApiParams{
 				ConnectionId: data.Options.ConnectionId,
 				ProductId:    data.Options.ProductId,
-				ExecutionId:  data.Options.ExecutionId,
 				ProjectId:    data.Options.ProjectId,
 			},
 			Table: RAW_EXECUTION_TABLE,
@@ -58,6 +57,7 @@ func ExtractExecutions(taskCtx plugin.SubTaskContext) errors.Error {
 				ConnectionId:   data.Options.ConnectionId,
 				Id:             res.ID,
 				Project:        res.Project,
+				ProjectId:      res.Project,
 				Model:          res.Model,
 				Type:           res.Type,
 				Lifetime:       res.Lifetime,

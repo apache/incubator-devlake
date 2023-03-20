@@ -20,36 +20,58 @@ package tasks
 import (
 	"encoding/json"
 	"fmt"
+	"github.com/apache/incubator-devlake/core/dal"
 	"github.com/apache/incubator-devlake/core/errors"
 	"github.com/apache/incubator-devlake/core/plugin"
 	"github.com/apache/incubator-devlake/helpers/pluginhelper/api"
+	"github.com/apache/incubator-devlake/plugins/zentao/models"
 	"net/http"
 	"net/url"
+	"reflect"
 )
 
 const RAW_TASK_TABLE = "zentao_api_tasks"
+
+type ExecuteInput struct {
+	Id int64
+}
 
 var _ plugin.SubTaskEntryPoint = CollectTask
 
 func CollectTask(taskCtx plugin.SubTaskContext) errors.Error {
 	data := taskCtx.GetData().(*ZentaoTaskData)
-	if data.Options.ExecutionId == 0 {
+	if data.Options.ProjectId == 0 {
 		return nil
 	}
+	cursor, err := taskCtx.GetDal().Cursor(
+		dal.Select(`id`),
+		dal.From(&models.ZentaoExecution{}),
+		dal.Where(`project_id = ? and connection_id = ?`, data.Options.ProjectId, data.Options.ConnectionId),
+	)
+	if err != nil {
+		return err
+	}
+	defer cursor.Close()
+
+	iterator, err := api.NewDalCursorIterator(taskCtx.GetDal(), cursor, reflect.TypeOf(ExecuteInput{}))
+	if err != nil {
+		return err
+	}
+
 	collector, err := api.NewApiCollector(api.ApiCollectorArgs{
 		RawDataSubTaskArgs: api.RawDataSubTaskArgs{
 			Ctx: taskCtx,
 			Params: ZentaoApiParams{
 				ConnectionId: data.Options.ConnectionId,
 				ProductId:    data.Options.ProductId,
-				ExecutionId:  data.Options.ExecutionId,
 				ProjectId:    data.Options.ProjectId,
 			},
 			Table: RAW_TASK_TABLE,
 		},
+		Input:       iterator,
 		ApiClient:   data.ApiClient,
 		PageSize:    100,
-		UrlTemplate: "/executions/{{ .Params.ExecutionId }}/tasks",
+		UrlTemplate: "/executions/{{ .Input.Id }}/tasks",
 		Query: func(reqData *api.RequestData) (url.Values, errors.Error) {
 			query := url.Values{}
 			query.Set("page", fmt.Sprintf("%v", reqData.Pager.Page))
@@ -79,4 +101,5 @@ var CollectTaskMeta = plugin.SubTaskMeta{
 	EntryPoint:       CollectTask,
 	EnabledByDefault: true,
 	Description:      "Collect Task data from Zentao api",
+	DomainTypes:      []string{plugin.DOMAIN_TYPE_TICKET},
 }

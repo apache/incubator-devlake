@@ -16,5 +16,10 @@
  *
  */
 
-export * from './config';
-export * from './data-scope';
+export type ScopeItemType = {
+  connectionId: ID;
+  id: string;
+  name: string;
+  type: 'product/normal' | 'product/branch' | 'product/platform' | 'project';
+  // and others
+};

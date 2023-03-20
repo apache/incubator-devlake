@@ -37,21 +37,11 @@ func TestZentaoProductDataFlow(t *testing.T) {
 			ConnectionId: 1,
 			ProjectId:    1,
 			ProductId:    3,
-			ExecutionId:  9,
 		},
 	}
 
 	// import raw data table
-	dataflowTester.ImportCsvIntoRawTable("./raw_tables/_raw_zentao_api_products.csv",
-		"_raw_zentao_api_products")
-
-	// verify extraction
-	dataflowTester.FlushTabler(&models.ZentaoProduct{})
-	dataflowTester.Subtask(tasks.ExtractProductMeta, taskData)
-	dataflowTester.VerifyTableWithOptions(&models.ZentaoProduct{}, e2ehelper.TableOptions{
-		CSVRelPath:  "./snapshot_tables/_tool_zentao_products.csv",
-		IgnoreTypes: []interface{}{common.NoPKModel{}},
-	})
+	dataflowTester.ImportCsvIntoTabler("./snapshot_tables/_tool_zentao_products.csv", &models.ZentaoProduct{})
 
 	dataflowTester.FlushTabler(&ticket.Board{})
 	dataflowTester.Subtask(tasks.ConvertProductMeta, taskData)
