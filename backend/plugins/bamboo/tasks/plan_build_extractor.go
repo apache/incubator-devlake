@@ -45,7 +45,7 @@ func ExtractPlanBuild(taskCtx plugin.SubTaskContext) errors.Error {
 			if err != nil {
 				return nil, err
 			}
-			body := models.BambooPlanBuild{}.Convert(res)
+			body := res.Convert()
 			body.ConnectionId = data.Options.ConnectionId
 			body.ProjectKey = data.Options.ProjectKey
 			body.PlanKey = plan.PlanKey

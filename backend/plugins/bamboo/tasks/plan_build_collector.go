@@ -18,10 +18,6 @@ limitations under the License.
 package tasks
 
 import (
-	"encoding/json"
-	"fmt"
-	"net/http"
-	"net/url"
 	"reflect"
 
 	"github.com/apache/incubator-devlake/core/dal"
@@ -60,37 +56,10 @@ func CollectPlanBuild(taskCtx plugin.SubTaskContext) errors.Error {
 		PageSize:           100,
 		Input:              iterator,
 		UrlTemplate:        "result/{{ .Input.PlanKey }}.json",
-		Query: func(reqData *helper.RequestData) (url.Values, errors.Error) {
-			query := url.Values{}
-			query.Set("showEmpty", fmt.Sprintf("%v", true))
-			query.Set("expand", "results.result.vcsRevisions")
-			query.Set("max-result", fmt.Sprintf("%v", reqData.Pager.Size))
-			query.Set("start-index", fmt.Sprintf("%v", reqData.Pager.Skip))
-			return query, nil
-		},
-		GetTotalPages: func(res *http.Response, args *helper.ApiCollectorArgs) (int, errors.Error) {
-			var body struct {
-				SizeInfo models.ApiBambooSizeData `json:"results"`
-			}
-			err = helper.UnmarshalResponse(res, &body)
-			if err != nil {
-				return 0, err
-			}
-			return GetTotalPagesFromSizeInfo(&body.SizeInfo, args)
-		},
 
-		ResponseParser: func(res *http.Response) ([]json.RawMessage, errors.Error) {
-			var resData struct {
-				Results struct {
-					Result []json.RawMessage `json:"result"`
-				} `json:"results"`
-			}
-			err = helper.UnmarshalResponse(res, &resData)
-			if err != nil {
-				return nil, err
-			}
-			return resData.Results.Result, nil
-		},
+		Query:          QueryForResult,
+		GetTotalPages:  GetTotalPagesFromResult,
+		ResponseParser: GetResultsResult,
 	})
 	if err != nil {
 		return err

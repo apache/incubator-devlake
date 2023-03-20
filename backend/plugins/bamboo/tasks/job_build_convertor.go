@@ -74,17 +74,19 @@ func ConvertJobBuilds(taskCtx plugin.SubTaskContext) errors.Error {
 				FinishedDate: line.BuildCompletedDate,
 				PipelineId:   planBuildIdGen.Generate(data.Options.ConnectionId, line.PlanBuildKey),
 				CicdScopeId:  projectIdGen.Generate(data.Options.ConnectionId, line.ProjectKey),
+
+				Result: devops.GetResult(&devops.ResultRule{
+					Failed:  []string{"Failed"},
+					Success: []string{"Successful"},
+					Default: "",
+				}, line.BuildState),
+
+				Status: devops.GetStatus(&devops.StatusRule{
+					Done:    []string{"Finished"},
+					Default: devops.IN_PROGRESS,
+				}, line.LifeCycleState),
 			}
-			if !line.Finished {
-				domainJobBuild.Status = devops.IN_PROGRESS
-			} else {
-				domainJobBuild.Status = devops.DONE
-			}
-			if !line.Successful {
-				domainJobBuild.Result = devops.FAILURE
-			} else {
-				domainJobBuild.Result = devops.SUCCESS
-			}
+
 			domainJobBuild.Type = regexEnricher.GetEnrichResult(deploymentPattern, line.JobName, devops.DEPLOYMENT)
 			domainJobBuild.Environment = regexEnricher.GetEnrichResult(productionPattern, line.JobName, devops.PRODUCTION)
 
