@@ -78,6 +78,12 @@ func ExportData(c plugin.SubTaskContext) errors.Error {
 		return errors.Convert(err)
 	}
 	starrocksDb := dalgorm.NewDalgorm(sr)
+	
+	sqlStarrocksDB, err := sr.DB()
+	if err != nil {
+		return errors.Convert(err)
+	}
+	defer sqlStarrocksDB.Close()
 
 	for _, table := range starrocksTables {
 		select {
@@ -414,6 +420,11 @@ func getDbInstance(c plugin.SubTaskContext) (db dal.Dal, err error) {
 			return nil, errors.NotFound.New(fmt.Sprintf("unsupported source type %s", config.SourceType))
 		}
 		db = dalgorm.NewDalgorm(o)
+		sqlDB, err := o.DB()
+		if err != nil {
+			return nil, err
+		}
+		defer sqlDB.Close()
 	} else {
 		db = c.GetDal()
 	}
