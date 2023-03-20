@@ -40,6 +40,9 @@ func ExtractStoryStatus(taskCtx plugin.SubTaskContext) errors.Error {
 	extractor, err := api.NewApiExtractor(api.ApiExtractorArgs{
 		RawDataSubTaskArgs: *rawDataSubTaskArgs,
 		Extract: func(row *api.RawData) ([]interface{}, errors.Error) {
+			if string(row.Data) == "[]" {
+				return nil, nil
+			}
 			var storyStatusRes struct {
 				Data map[string]string
 			}
