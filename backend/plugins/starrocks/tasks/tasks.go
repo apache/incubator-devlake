@@ -63,10 +63,22 @@ func ExportData(c plugin.SubTaskContext) errors.Error {
 	config := c.GetData().(*StarRocksConfig)
 
 	// 1. Get db instance
-	db, err := getDbInstance(c)
-	if err != nil {
-		return errors.Convert(err)
+	var db dal.Dal
+	if config.SourceDsn != "" && config.SourceType != "" {
+		o, err := getDbInstance(c)
+		if err != nil {
+			return errors.Convert(err)
+		}
+		db = dalgorm.NewDalgorm(o)
+		sqlDB, err := o.DB()
+		if err != nil {
+			return errors.Convert(err)
+		}
+		defer sqlDB.Close()
+	} else {
+		db = c.GetDal()
 	}
+
 	// 2. Filter out the tables to export
 	starrocksTables, err := getExportingTables(c, db)
 	if err != nil {
@@ -78,6 +90,11 @@ func ExportData(c plugin.SubTaskContext) errors.Error {
 		return errors.Convert(err)
 	}
 	starrocksDb := dalgorm.NewDalgorm(sr)
+	sqlStarrocksDB, err := sr.DB()
+	if err != nil {
+		return errors.Convert(err)
+	}
+	defer sqlStarrocksDB.Close()
 
 	for _, table := range starrocksTables {
 		select {
@@ -395,31 +412,24 @@ func putBatchData(c plugin.SubTaskContext, starrocksTmpTable, table string, data
 }
 
 // get db instance
-func getDbInstance(c plugin.SubTaskContext) (db dal.Dal, err error) {
+func getDbInstance(c plugin.SubTaskContext) (o *gorm.DB, err error) {
 	config := c.GetData().(*StarRocksConfig)
-	if config.SourceDsn != "" && config.SourceType != "" {
-		var o *gorm.DB
-		switch config.SourceType {
-		case "mysql":
-			o, err = gorm.Open(mysql.Open(config.SourceDsn))
-			if err != nil {
-				return nil, err
-			}
-		case "postgres":
-			o, err = gorm.Open(postgres.Open(config.SourceDsn))
-			if err != nil {
-				return nil, err
-			}
-		default:
-			return nil, errors.NotFound.New(fmt.Sprintf("unsupported source type %s", config.SourceType))
+	switch config.SourceType {
+	case "mysql":
+		o, err = gorm.Open(mysql.Open(config.SourceDsn))
+		if err != nil {
+			return nil, err
 		}
-		db = dalgorm.NewDalgorm(o)
-	} else {
-		db = c.GetDal()
+	case "postgres":
+		o, err = gorm.Open(postgres.Open(config.SourceDsn))
+		if err != nil {
+			return nil, err
+		}
+	default:
+		return nil, errors.NotFound.New(fmt.Sprintf("unsupported source type %s", config.SourceType))
 	}
 
-	return db, nil
-
+	return o, nil
 }
 
 // get imported tables
