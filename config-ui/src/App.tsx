@@ -30,8 +30,6 @@ import {
   BlueprintHomePage,
   BlueprintCreatePage,
   BlueprintDetailPage,
-  TransformationHomePage,
-  TransformationDetailPage,
 } from '@/pages';
 
 function App() {
@@ -53,9 +51,6 @@ function App() {
         <Route exact path="/blueprints" component={() => <BlueprintHomePage />} />
         <Route exact path="/blueprints/create" component={() => <BlueprintCreatePage from={FromEnum.blueprint} />} />
         <Route exact path="/blueprints/:id" component={() => <BlueprintDetailPage />} />
-        <Route exact path="/transformations" component={() => <TransformationHomePage />} />
-        <Route exact path="/transformations/:plugin/create" component={() => <TransformationDetailPage />} />
-        <Route exact path="/transformations/:plugin/:tid" component={() => <TransformationDetailPage />} />
       </Switch>
     </BaseLayout>
   );
