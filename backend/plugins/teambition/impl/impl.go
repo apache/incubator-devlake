@@ -83,6 +83,9 @@ func (p Teambition) SubTaskMetas() []plugin.SubTaskMeta {
 		tasks.CollectProjectsMeta,
 		tasks.ExtractProjectsMeta,
 		tasks.ConvertProjectsMeta,
+		tasks.CollectSprintsMeta,
+		tasks.ExtractSprintsMeta,
+		tasks.ConvertSprintsMeta,
 		tasks.ConvertTasksMeta,
 	}
 }

@@ -141,7 +141,7 @@ func calcEstimateTimeMinutes(task *models.TeambitionTask) (
 	if task.IsDone {
 		timeSpentMinutes = calcLeadTimeMinutes(task)
 	} else {
-		timeSpentMinutes = int64(time.Now().Sub(startTime).Minutes())
+		timeSpentMinutes = int64(time.Since(startTime).Minutes())
 	}
 	timeRemainingMinutes = originalEstimateMinutes - timeSpentMinutes
 	return
