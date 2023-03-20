@@ -72,28 +72,6 @@ type Paging struct {
 	Total     int `json:"total"`
 }
 
-type SonarqubeApiProject struct {
-	ProjectKey       string           `json:"key"`
-	Name             string           `json:"name"`
-	Qualifier        string           `json:"qualifier"`
-	Visibility       string           `json:"visibility"`
-	LastAnalysisDate *api.Iso8601Time `json:"lastAnalysisDate"`
-	Revision         string           `json:"revision"`
-}
-
-// Convert the API response to our DB model instance
-func ConvertProject(sonarqubeApiProject *SonarqubeApiProject) *models.SonarqubeProject {
-	sonarqubeProject := &models.SonarqubeProject{
-		ProjectKey:       sonarqubeApiProject.ProjectKey,
-		Name:             sonarqubeApiProject.Name,
-		Qualifier:        sonarqubeApiProject.Qualifier,
-		Visibility:       sonarqubeApiProject.Visibility,
-		LastAnalysisDate: sonarqubeApiProject.LastAnalysisDate,
-		Revision:         sonarqubeApiProject.Revision,
-	}
-	return sonarqubeProject
-}
-
 func generateId(hashCodeBlock hash.Hash, entity *models.SonarqubeIssueCodeBlock) {
 	hashCodeBlock.Write([]byte(fmt.Sprintf("%s-%s-%d-%d-%d-%d-%s", entity.IssueKey, entity.Component, entity.StartLine, entity.EndLine, entity.StartOffset, entity.EndOffset, entity.Msg)))
 	entity.Id = hex.EncodeToString(hashCodeBlock.Sum(nil))
