@@ -24,12 +24,13 @@ import (
 )
 
 type TeambitionOptions struct {
-	ConnectionId   uint64 `json:"connectionId"`
-	OrganizationId string `json:"organizationId"`
-	ProjectId      string `json:"projectId"`
-	PageSize       uint64 `mapstruct:"pageSize"`
-	TimeAfter      string `json:"timeAfter" mapstructure:"timeAfter,omitempty"`
-	CstZone        *time.Location
+	ConnectionId        uint64 `json:"connectionId"`
+	OrganizationId      string `json:"organizationId"`
+	ProjectId           string `json:"projectId"`
+	PageSize            uint64 `mapstruct:"pageSize"`
+	TimeAfter           string `json:"timeAfter" mapstructure:"timeAfter,omitempty"`
+	CstZone             *time.Location
+	TransformationRules TransformationRules `json:"transformationRules"`
 }
 
 type TeambitionTaskData struct {
@@ -47,4 +48,19 @@ func DecodeAndValidateTaskOptions(options map[string]interface{}) (*TeambitionOp
 		return nil, errors.Default.New("connectionId is invalid")
 	}
 	return &op, nil
+}
+
+type TypeMapping struct {
+	StandardType string `json:"standardType"`
+}
+
+type OriginalStatus []string
+
+type StatusMappings map[string]OriginalStatus
+
+type TypeMappings map[string]TypeMapping
+
+type TransformationRules struct {
+	TypeMappings   TypeMappings   `json:"typeMappings"`
+	StatusMappings StatusMappings `json:"statusMappings"`
 }

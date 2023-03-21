@@ -94,26 +94,37 @@ func ConvertTasks(taskCtx plugin.SubTaskContext) errors.Error {
 			if p, err := FindProjectById(db, userTool.ProjectId); err == nil {
 				issue.OriginalProject = p.Name
 			}
+
+			stdStatusMappings := getStatusMapping(data)
 			if taskflowstatus, err := FindTaskFlowStatusById(db, userTool.TfsId); err == nil {
 				issue.OriginalStatus = taskflowstatus.Name
-				switch taskflowstatus.Kind {
-				case "start":
-					issue.Status = ticket.TODO
-				case "unset":
-					issue.Status = ticket.IN_PROGRESS
-				case "end":
-					issue.Status = ticket.DONE
+				if v, ok := stdStatusMappings[taskflowstatus.Name]; ok {
+					issue.Status = v
+				} else {
+					switch taskflowstatus.Kind {
+					case "start":
+						issue.Status = ticket.TODO
+					case "unset":
+						issue.Status = ticket.IN_PROGRESS
+					case "end":
+						issue.Status = ticket.DONE
+					}
 				}
 			}
+			stdTypeMappings := getStdTypeMappings(data)
 			if scenario, err := FindTaskScenarioById(db, userTool.SfcId); err == nil {
 				issue.OriginalType = scenario.Name
-				switch scenario.Source {
-				case "application.bug":
-					issue.Type = ticket.BUG
-				case "application.story":
-					issue.Type = ticket.REQUIREMENT
-				case "application.risk":
-					issue.Type = ticket.INCIDENT
+				if v, ok := stdTypeMappings[scenario.Name]; ok {
+					issue.Type = v
+				} else {
+					switch scenario.Source {
+					case "application.bug":
+						issue.Type = ticket.BUG
+					case "application.story":
+						issue.Type = ticket.REQUIREMENT
+					case "application.risk":
+						issue.Type = ticket.INCIDENT
+					}
 				}
 			}
 
