@@ -31,9 +31,12 @@ func TestRemotelinkDataFlow(t *testing.T) {
 
 	taskData := &tasks.JiraTaskData{
 		Options: &tasks.JiraOptions{
-			ConnectionId:        2,
-			BoardId:             8,
-			TransformationRules: &tasks.JiraTransformationRule{RemotelinkCommitShaPattern: ".*/commit/(.*)"},
+			ConnectionId: 2,
+			BoardId:      8,
+			TransformationRules: &tasks.JiraTransformationRule{
+				RemotelinkCommitShaPattern: ".*/commit/(.*)",
+				RemotelinkRepoPattern:      []string{`https://example.com/(?P<namespace>\S+)/(?P<repo_name>\S+)/-/commits/(?P<commit_sha>\w{40})`},
+			},
 		},
 	}
 

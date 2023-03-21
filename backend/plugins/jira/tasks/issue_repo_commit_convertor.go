@@ -130,7 +130,6 @@ func refineIssueRepoCommit(item *crossdomain.IssueRepoCommit, repoPatterns []*re
 			if len(group) == 4 {
 				item.Namespace = group[1]
 				item.RepoName = group[2]
-				item.CommitSha = group[3]
 				u.Path = path.Join(item.Namespace, item.RepoName+".git")
 				item.RepoUrl = u.String()
 				break

@@ -52,7 +52,16 @@ func ExtractRemotelinks(taskCtx plugin.SubTaskContext) errors.Error {
 			return errors.Default.Wrap(err, "regexp Compile pattern failed")
 		}
 	}
-
+	var commitRepoUrlRegexps []*regexp.Regexp
+	if tr := data.Options.TransformationRules; tr != nil {
+		for _, s := range tr.RemotelinkRepoPattern {
+			pattern, e := regexp.Compile(s)
+			if e != nil {
+				return errors.Convert(e)
+			}
+			commitRepoUrlRegexps = append(commitRepoUrlRegexps, pattern)
+		}
+	}
 	// select all remotelinks belongs to the board, cursor is important for low memory footprint
 	clauses := []dal.Clause{
 		dal.From(&models.JiraRemotelink{}),
@@ -97,24 +106,41 @@ func ExtractRemotelinks(taskCtx plugin.SubTaskContext) errors.Error {
 				IssueUpdated: &input.UpdateTime,
 			}
 			result = append(result, remotelink)
+			issueCommit := &models.JiraIssueCommit{
+				ConnectionId: connectionId,
+				IssueId:      remotelink.IssueId,
+				CommitUrl:    remotelink.Url,
+			}
 			if commitShaRegex != nil {
 				groups := commitShaRegex.FindStringSubmatch(remotelink.Url)
 				if len(groups) > 1 {
-					issueCommit := &models.JiraIssueCommit{
-						ConnectionId: connectionId,
-						IssueId:      remotelink.IssueId,
-						CommitSha:    groups[1],
-						CommitUrl:    remotelink.Url,
-					}
-					result = append(result, issueCommit)
+					issueCommit.CommitSha = groups[1]
 				}
 			}
+			if issueCommit.CommitSha == "" {
+				issueCommit.CommitSha = extractCommitSha(commitRepoUrlRegexps, remotelink.Url)
+			}
+			if issueCommit.CommitSha != "" {
+				result = append(result, issueCommit)
+			}
 			return result, nil
-		},
-	})
+		}})
+
 	if err != nil {
 		return errors.Convert(err)
 	}
 
 	return extractor.Execute()
+}
+
+func extractCommitSha(repoPatterns []*regexp.Regexp, commitUrl string) string {
+	for _, pattern := range repoPatterns {
+		if pattern.MatchString(commitUrl) {
+			group := pattern.FindStringSubmatch(commitUrl)
+			if len(group) == 4 {
+				return group[3]
+			}
+		}
+	}
+	return ""
 }
