@@ -20,11 +20,9 @@ package services
 import (
 	"encoding/json"
 	"fmt"
-	"github.com/apache/incubator-devlake/core/dal"
 
 	"github.com/apache/incubator-devlake/core/errors"
 	"github.com/apache/incubator-devlake/core/models"
-	"github.com/apache/incubator-devlake/core/models/domainlayer/crossdomain"
 	"github.com/apache/incubator-devlake/core/plugin"
 )
 
@@ -47,24 +45,6 @@ func GeneratePlanJsonV200(
 			if err != nil {
 				scopeInfo := fmt.Sprintf("[Id:%s][Name:%s][TableName:%s]", scope.ScopeId(), scope.ScopeName(), scope.TableName())
 				return nil, errors.Default.Wrap(err, fmt.Sprintf("failed to create scopes:[%s]", scopeInfo))
-			}
-		}
-	}
-	// refresh project_mapping table to reflect project/scopes relationship
-	if len(projectName) != 0 {
-		err = db.Delete(&crossdomain.ProjectMapping{}, dal.Where("project_name = ?", projectName))
-		if err != nil {
-			return nil, err
-		}
-		for _, scope := range scopes {
-			projectMapping := &crossdomain.ProjectMapping{
-				ProjectName: projectName,
-				Table:       scope.TableName(),
-				RowId:       scope.ScopeId(),
-			}
-			err = db.CreateOrUpdate(projectMapping)
-			if err != nil {
-				return nil, err
 			}
 		}
 	}
@@ -141,7 +121,21 @@ func genPlanJsonV200(
 			)
 		}
 	}
+	var planForProjectMapping plugin.PipelinePlan
+	if projectName != "" {
+		p, err := plugin.GetPlugin("org")
+		if err != nil {
+			return nil, nil, err
+		}
+		if pluginBp, ok := p.(plugin.ProjectMapper); ok {
+			planForProjectMapping, err = pluginBp.MapProject(projectName, scopes)
+			if err != nil {
+				return nil, nil, err
+			}
+		}
+	}
 	plan := SequencializePipelinePlans(
+		planForProjectMapping,
 		ParallelizePipelinePlans(sourcePlans...),
 		ParallelizePipelinePlans(metricPlans...),
 	)
