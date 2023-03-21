@@ -20,7 +20,7 @@ from inspect import getmodule
 from datetime import datetime
 
 import inflect
-from pydantic import AnyUrl
+from pydantic import AnyUrl, validator
 from sqlalchemy import Column, DateTime, func
 from sqlalchemy.orm import declared_attr
 from sqlalchemy.inspection import inspect
@@ -50,6 +50,12 @@ class ToolTable(Model):
 class Connection(ToolTable):
     name: str
     proxy: Optional[AnyUrl]
+
+    @validator('proxy', pre=True)
+    def allow_empty_proxy(cls, proxy):
+        if proxy == "":
+            return None
+        return proxy
 
 
 class TransformationRule(ToolTable):

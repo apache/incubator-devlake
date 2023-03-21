@@ -22,7 +22,7 @@ readme = "README.md"
 
 [tool.poetry.dependencies]
 python = "^3.10"
-pydevlake = { path = "../../pydevlake", develop = false }
+pydevlake = { path = "../../pydevlake", develop = true }
 iso8601 = "^1.1.0"
 
 
