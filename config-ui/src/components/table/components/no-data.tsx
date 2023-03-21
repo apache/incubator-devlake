@@ -16,46 +16,27 @@
  *
  */
 
-import styled from 'styled-components';
+import { Button, Intent } from '@blueprintjs/core';
 
-export const Table = styled.table`
-  table-layout: fixed;
-  width: 100%;
-  background-color: #fff;
-  border-radius: 4px;
-  border-spacing: 0;
-`;
+import { NoData } from '@/components';
 
-export const THeader = styled.thead`
-  background-color: #f0f4fe;
-`;
+interface Props {
+  text?: React.ReactNode;
+  btnText?: string;
+  onCreate?: () => void;
+}
 
-export const TBody = styled.tbody``;
-
-export const TR = styled.tr`
-  &:last-child {
-    td {
-      border-bottom: none;
-    }
-  }
-`;
-
-export const TH = styled.th`
-  padding: 12px 16px;
-  font-weight: 400;
-  border-bottom: 1px solid #dbdcdf;
-
-  label.bp4-control {
-    margin-bottom: 0;
-  }
-`;
-
-export const TD = styled.td`
-  padding: 12px 16px;
-  border-bottom: 1px solid #dbdcdf;
-  word-break: break-word;
-
-  label.bp4-control {
-    margin-bottom: 0;
-  }
-`;
+export const TableNoData = ({ text, btnText, onCreate }: Props) => {
+  return (
+    <NoData
+      text={text}
+      action={
+        onCreate && (
+          <Button intent={Intent.PRIMARY} icon="plus" onClick={onCreate}>
+            {btnText ?? 'Create'}
+          </Button>
+        )
+      }
+    />
+  );
+};
