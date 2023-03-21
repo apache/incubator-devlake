@@ -26,6 +26,7 @@ import (
 	"io"
 	"net/http"
 	"os"
+	"sync"
 	"syscall"
 	"testing"
 	"time"
@@ -48,7 +49,15 @@ import (
 	"gorm.io/gorm"
 )
 
-var throwawayDir string
+var (
+	throwawayDir           string
+	initService            = new(sync.Once)
+	dbTruncationExclusions = []string{
+		"_devlake_migration_history",
+		"_devlake_locking_stub",
+		"_devlake_locking_history",
+	}
+)
 
 func init() {
 	tempDir, err := errors.Convert01(os.MkdirTemp("", "devlake_test"+"_*"))
@@ -74,6 +83,7 @@ type (
 		DbURL                string
 		CreateServer         bool
 		DropDb               bool
+		TruncateDb           bool
 		Plugins              map[string]plugin.PluginMeta
 		AdditionalMigrations func() []plugin.MigrationScript
 		Timeout              time.Duration
@@ -102,6 +112,11 @@ func ConnectLocalServer(t *testing.T, sbConfig *LocalClientConfig) *DevlakeClien
 	cfg.Set("DB_URL", sbConfig.DbURL)
 	db, err := runner.NewGormDb(cfg, logger)
 	require.NoError(t, err)
+	t.Cleanup(func() {
+		d, err := db.DB()
+		require.NoError(t, err)
+		require.NoError(t, d.Close())
+	})
 	addr := fmt.Sprintf("http://localhost:%d", sbConfig.ServerPort)
 	d := &DevlakeClient{
 		Endpoint: addr,
@@ -114,15 +129,15 @@ func ConnectLocalServer(t *testing.T, sbConfig *LocalClientConfig) *DevlakeClien
 	}
 	d.configureEncryption()
 	d.initPlugins(sbConfig)
-	if sbConfig.DropDb {
-		d.dropDB()
+	if sbConfig.DropDb || sbConfig.TruncateDb {
+		d.prepareDB(sbConfig)
 	}
 	if sbConfig.CreateServer {
 		cfg.Set("PORT", sbConfig.ServerPort)
 		cfg.Set("PLUGIN_DIR", throwawayDir)
 		cfg.Set("LOGGING_DIR", throwawayDir)
 		go func() {
-			api.CreateApiService()
+			initService.Do(api.CreateApiService)
 		}()
 	}
 	req, err2 := http.NewRequest(http.MethodGet, fmt.Sprintf("%s/proceed-db-migration", addr), nil)
@@ -247,17 +262,35 @@ func (d *DevlakeClient) runMigrations(sbConfig *LocalClientConfig) {
 	}
 }
 
-func (d *DevlakeClient) dropDB() {
+func (d *DevlakeClient) prepareDB(cfg *LocalClientConfig) {
 	d.testCtx.Helper()
 	migrator := d.db.Migrator()
 	tables, err := migrator.GetTables()
 	require.NoError(d.testCtx, err)
-	var tablesRaw []any
-	for _, table := range tables {
-		tablesRaw = append(tablesRaw, table)
+	if cfg.DropDb {
+		d.log.Info("Dropping %d tables", len(tables))
+		var tablesRaw []any
+		for _, table := range tables {
+			tablesRaw = append(tablesRaw, table)
+		}
+		err = migrator.DropTable(tablesRaw...)
+		require.NoError(d.testCtx, err)
+	} else if cfg.TruncateDb {
+		d.log.Info("Truncating %d tables", len(tables)-len(dbTruncationExclusions))
+		for _, table := range tables {
+			excluded := false
+			for _, exclusion := range dbTruncationExclusions {
+				if exclusion == table {
+					excluded = true
+					break
+				}
+			}
+			if !excluded {
+				err = d.db.Exec("DELETE FROM " + table).Error
+				require.NoError(d.testCtx, err)
+			}
+		}
 	}
-	err = migrator.DropTable(tablesRaw...)
-	require.NoError(d.testCtx, err)
 }
 
 func sendHttpRequest[Res any](t *testing.T, timeout time.Duration, debug debugInfo, httpMethod string, endpoint string, body any) Res {

@@ -109,6 +109,9 @@ unit-test: mock unit-test-only
 unit-test-only:
 	make unit-test-only -C backend
 
+python-unit-test:
+	make python-unit-test -C backend
+
 e2e-test: build e2e-test-only
 
 e2e-test-only:
@@ -116,6 +119,9 @@ e2e-test-only:
 
 e2e-plugins-test:
 	make e2e-plugins-test -C backend
+
+integration-test:
+	make integration-test -C backend
 
 lint:
 	make lint -C backend

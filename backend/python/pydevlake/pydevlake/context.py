@@ -48,9 +48,11 @@ class Context:
 
             if 'parseTime' in connect_args:
                 del connect_args['parseTime']
-
-            self._engine = create_engine(db_url, connect_args=connect_args)
-            SQLModel.metadata.create_all(self._engine)
+            try:
+                self._engine = create_engine(db_url, connect_args=connect_args)
+                SQLModel.metadata.create_all(self._engine)
+            except Exception as e:
+                raise Exception(f"Unable to make a database connection") from e
         return self._engine
 
     @property

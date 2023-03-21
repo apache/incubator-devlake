@@ -176,7 +176,7 @@ func StreamProcess(cmd *exec.Cmd, opts *StreamProcessOptions) (*ProcessStream, e
 	stdScanner := scanOutputPipe(pipes.stdout, wg, opts.OnStdout, func(result []byte) *ProcessResponse {
 		return &ProcessResponse{stdout: result}
 	}, receiveStream)
-	errScanner, remoteErrorMsg := scanErrorPipe(pipes.stderr, receiveStream)
+	errScanner, remoteErrorMsg := scanErrorPipe(pipes.stderr, opts.OnStderr, receiveStream)
 	fdOutScanner := scanOutputPipe(pipes.fdOut, wg, opts.OnFdOut, func(result []byte) *ProcessResponse {
 		return &ProcessResponse{fdOut: result}
 	}, receiveStream)
@@ -250,7 +250,7 @@ func scanOutputPipe(pipe io.ReadCloser, wg *sync.WaitGroup, onReceive func([]byt
 	}
 }
 
-func scanErrorPipe(pipe io.ReadCloser, outboundChannel chan<- *ProcessResponse) (func(), *strings.Builder) {
+func scanErrorPipe(pipe io.ReadCloser, onReceive func([]byte), outboundChannel chan<- *ProcessResponse) (func(), *strings.Builder) {
 	remoteErrorMsg := &strings.Builder{}
 	return func() {
 		scanner := bufio.NewScanner(pipe)
@@ -259,6 +259,7 @@ func scanErrorPipe(pipe io.ReadCloser, outboundChannel chan<- *ProcessResponse) 
 			src := scanner.Bytes()
 			data := make([]byte, len(src))
 			copy(data, src)
+			onReceive(data)
 			outboundChannel <- &ProcessResponse{stderr: data}
 			_, _ = remoteErrorMsg.Write(src)
 			_, _ = remoteErrorMsg.WriteString("\n")

@@ -15,36 +15,33 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-package helper
+package e2e
 
 import (
-	"os"
-	"path/filepath"
+	"github.com/apache/incubator-devlake/core/config"
+	"github.com/apache/incubator-devlake/core/plugin"
+	"github.com/apache/incubator-devlake/server/services"
+	"github.com/apache/incubator-devlake/test"
 )
 
-var (
-	ProjectRoot = ""
-	Shell       = ""
-)
-
-func LocalInit() {
-	pwd, err := os.Getwd()
+func init() {
+	_, err := test.NormalizeBaseDirectory()
 	if err != nil {
 		panic(err)
 	}
-	for {
-		dir := filepath.Base(pwd)
-		if dir == "" {
-			panic("base repo directory not found")
+	v := config.GetConfig()
+	encKey := v.GetString(plugin.EncodeKeyEnvStr)
+	if encKey == "" {
+		// Randomly generate a bunch of encryption keys and set them to config
+		encKey = plugin.RandomEncKey()
+		v.Set(plugin.EncodeKeyEnvStr, encKey)
+		err := config.WriteConfig(v)
+		if err != nil {
+			panic(err)
 		}
-		if dir == "lake" || dir == "incubator-devlake" {
-			ProjectRoot = pwd
-			break
-		}
-		pwd = filepath.Dir(pwd)
 	}
-	Shell = "/bin/sh"
-	err = os.Chdir(ProjectRoot)
+	services.Init()
+	err = services.GetMigrator().Execute()
 	if err != nil {
 		panic(err)
 	}

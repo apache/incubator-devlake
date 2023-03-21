@@ -49,7 +49,12 @@ build-worker:
 build-server: swag
 	go build -ldflags "-X 'github.com/apache/incubator-devlake/core/version.Version=$(VERSION)'" -o bin/lake ./server/
 
-build: build-plugin build-server
+build-python:
+	find ./python/ -name "*.sh" | xargs chmod +x &&\
+	./python/build.sh &&\
+	./python/build_tests.sh
+
+build: build-python build-plugin build-server
 
 all: build build-worker
 
@@ -75,18 +80,22 @@ mock:
 
 test: unit-test e2e-test
 
-unit-test: mock unit-test-only
+unit-test: mock unit-test-only python-unit-test
 
 unit-test-only:
 	set -e; for m in $$(go list ./... | egrep -v 'test|models|e2e'); do echo $$m; go test -timeout 60s -v $$m; done
 
-e2e-test: build e2e-test-only
-
-e2e-test-only:
-	PLUGIN_DIR=$(shell readlink -f bin/plugins) go test -timeout 300s -v ./test/...
+python-unit-test:
+	sh ./python/build.sh && sh ./python/run_tests.sh
 
 e2e-plugins-test:
 	export ENV_PATH=$(shell readlink -f .env); set -e; for m in $$(go list ./plugins/... | egrep 'e2e'); do echo $$m; go test -timeout 300s -gcflags=all=-l -v $$m; done
+
+e2e-test:
+	export PLUGIN_DIR=$(shell readlink -f bin/plugins); set -e; for m in $$(go list ./test/e2e/...); do echo $$m; go test -timeout 300s -v $$m; done
+
+integration-test:
+	export ENV_PATH=$(shell readlink -f .env); set -e; for m in $$(go list ./test/integration...); do echo $$m; go test -timeout 300s -v $$m; done
 
 lint:
 	golangci-lint run

@@ -42,27 +42,33 @@ jobs:
           MYSQL_ROOT_PASSWORD: root
     container: mericodev/lake-builder:latest
     steps:
-      - uses: actions/checkout@v3
+      - name: Checkout code
+        uses: actions/checkout@v3
+      - run: git config --global --add safe.directory $(pwd)
+      - name: Build Sources
+        run: |
+          cd backend
+          make build
       - name: Cache test-e2e
         id: cache-test-e2e
         uses: actions/cache@v3
         with:
           path: |
             ~/.cache/go-build
-            ~/go/pkg/mod
+            ${{ env.GOPATH }}/pkg/mod
           key: ${{ runner.os }}-go-${{ hashFiles('**/go.sum') }}
           restore-keys: |
             ${{ runner.os }}-go-
-      - name: Test
+      - name: Test-mysql
         env:
           DB_URL: mysql://root:root@db:3306/lake?charset=utf8mb4&parseTime=True
           E2E_DB_URL: mysql://root:root@db:3306/lake?charset=utf8mb4&parseTime=True
         run: |
-          git config --global --add safe.directory /__w/incubator-devlake/incubator-devlake
-          cp .env.example backend/.env
+          cp .env.example .env
           cd backend
           make e2e-test
           make e2e-plugins-test
+          make integration-test
 
   e2e-postgres:
     runs-on: ubuntu-latest
@@ -75,14 +81,20 @@ jobs:
           POSTGRES_PASSWORD: merico
     container: mericodev/lake-builder:latest
     steps:
-      - uses: actions/checkout@v3
+      - name: Checkout code
+        uses: actions/checkout@v3
+      - run: git config --global --add safe.directory $(pwd)
+      - name: Build Sources
+        run: |
+          cd backend
+          make build
       - name: Cache test-e2e-pg
         id: cache-test-e2e-pg
         uses: actions/cache@v3
         with:
           path: |
             ~/.cache/go-build
-            ~/go/pkg/mod
+            ${{ env.GOPATH }}/pkg/mod
           key: ${{ runner.os }}-go-${{ hashFiles('**/go.sum') }}
           restore-keys: |
             ${{ runner.os }}-go-
@@ -91,8 +103,8 @@ jobs:
           DB_URL: postgres://merico:merico@db:5432/lake
           E2E_DB_URL: postgres://merico:merico@db:5432/lake
         run: |
-          git config --global --add safe.directory /__w/incubator-devlake/incubator-devlake
-          cp .env.example backend/.env
+          cp .env.example .env
           cd backend
           make e2e-test
           make e2e-plugins-test
+          make integration-test
