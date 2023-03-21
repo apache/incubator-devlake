@@ -94,6 +94,28 @@ func ConvertTasks(taskCtx plugin.SubTaskContext) errors.Error {
 			if p, err := FindProjectById(db, userTool.ProjectId); err == nil {
 				issue.OriginalProject = p.Name
 			}
+			if taskflowstatus, err := FindTaskFlowStatusById(db, userTool.TfsId); err == nil {
+				issue.OriginalStatus = taskflowstatus.Name
+				switch taskflowstatus.Kind {
+				case "start":
+					issue.Status = ticket.TODO
+				case "unset":
+					issue.Status = ticket.IN_PROGRESS
+				case "end":
+					issue.Status = ticket.DONE
+				}
+			}
+			if scenario, err := FindTaskScenarioById(db, userTool.SfcId); err == nil {
+				issue.OriginalType = scenario.Name
+				switch scenario.Source {
+				case "application.bug":
+					issue.Type = ticket.BUG
+				case "application.story":
+					issue.Type = ticket.REQUIREMENT
+				case "application.risk":
+					issue.Type = ticket.INCIDENT
+				}
+			}
 
 			result := make([]interface{}, 0, 3)
 			result = append(result, issue)

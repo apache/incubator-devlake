@@ -129,3 +129,25 @@ func FindProjectById(db dal.Dal, projectId string) (*models.TeambitionProject, e
 	}
 	return project, nil
 }
+
+func FindTaskScenarioById(db dal.Dal, scenarioId string) (*models.TeambitionTaskScenario, errors.Error) {
+	if scenarioId == "" {
+		return nil, errors.Default.New("id must not empty")
+	}
+	scenario := &models.TeambitionTaskScenario{}
+	if err := db.First(scenario, dal.Where("id = ?", scenarioId)); err != nil {
+		return nil, err
+	}
+	return scenario, nil
+}
+
+func FindTaskFlowStatusById(db dal.Dal, id string) (*models.TeambitionTaskFlowStatus, errors.Error) {
+	if id == "" {
+		return nil, errors.Default.New("id must not empty")
+	}
+	status := &models.TeambitionTaskFlowStatus{}
+	if err := db.First(status, dal.Where("id = ?", id)); err != nil {
+		return nil, err
+	}
+	return status, nil
+}

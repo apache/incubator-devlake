@@ -49,9 +49,12 @@ type TeambitionTask struct {
 	AccomplishTime *api.Iso8601Time        `json:"accomplishTime"`
 	Created        *api.Iso8601Time        `json:"created"`
 	Updated        *api.Iso8601Time        `json:"updated"`
-	SfcId          string                  `gorm:"varchar(100)" json:"sfcId"`
-	SprintId       string                  `gorm:"varchar(100)" json:"sprintId"`
+	SfcId          string                  `gorm:"type:varchar(100)" json:"sfcId"`
+	SprintId       string                  `gorm:"type:varchar(100)" json:"sprintId"`
 	Customfields   []TeambitionCustomField `gorm:"serializer:json;type:text" json:"customfields"`
+
+	StdType   string `gorm:"type:varchar(100)" json:"stdType"`
+	StdStatus string `gorm:"type:varchar(100)" json:"stdStatus"`
 
 	common.NoPKModel
 }

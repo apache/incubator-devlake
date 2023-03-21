@@ -61,7 +61,7 @@ func ConvertSprints(taskCtx plugin.SubTaskContext) errors.Error {
 					Id: getSprintIdGen().Generate(data.Options.ConnectionId, userTool.Id),
 				},
 				Name:            userTool.Name,
-				Url:             fmt.Sprintf("https://www.teambition.com/sprint/%s", userTool.Id),
+				Url:             fmt.Sprintf("https://www.teambition.com/project/%s/sprint/section/%s", userTool.ProjectId, userTool.Id),
 				Status:          userTool.Status,
 				StartedDate:     userTool.StartDate.ToNullableTime(),
 				EndedDate:       userTool.DueDate.ToNullableTime(),
