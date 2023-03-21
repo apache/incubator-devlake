@@ -60,26 +60,19 @@ func CollectRemotelinks(taskCtx plugin.SubTaskContext) errors.Error {
 	}
 
 	clauses := []dal.Clause{
-		dal.Select("i.issue_id, i.updated AS update_time"),
+		dal.Select("i.issue_id AS issue_id, i.updated AS update_time"),
 		dal.From("_tool_jira_board_issues bi"),
 		dal.Join("LEFT JOIN _tool_jira_issues i ON (bi.connection_id = i.connection_id AND bi.issue_id = i.issue_id)"),
-		dal.Join("LEFT JOIN _tool_jira_remotelinks rl ON (rl.connection_id = i.connection_id AND rl.issue_id = i.issue_id)"),
-		dal.Where("i.updated > i.created AND bi.connection_id = ?  AND bi.board_id = ?  ", data.Options.ConnectionId, data.Options.BoardId),
-		dal.Groupby("i.issue_id, i.updated"),
+		dal.Where("bi.connection_id=? and bi.board_id = ?", data.Options.ConnectionId, data.Options.BoardId),
 	}
 	incremental := collectorWithState.IsIncremental()
-	if incremental {
-		clauses = append(clauses, dal.Having("i.updated > ? AND (i.updated > max(rl.issue_updated) OR max(rl.issue_updated) IS NULL)", collectorWithState.LatestState.LatestSuccessStart))
+	if incremental && collectorWithState.LatestState.LatestSuccessStart != nil {
+		clauses = append(
+			clauses,
+			dal.Where("i.updated > ?", collectorWithState.LatestState.LatestSuccessStart),
+		)
 	}
-	/*
-		i.updated > max(rl.issue_updated) was deleted because for non-incremental collection, max(rl.issue_updated) is always null.
-			so i.updated > max(rl.issue_updated) is constantly false
-		also, for the first collection, max(rl.issue_updated) is always null as there is no data in _tool_jira_remotelinks.
-		In conclusion, we don't need the following clause
-	*/
-	//else {
-	// clauses = append(clauses, dal.Having("i.updated > max(rl.issue_updated) OR max(rl.issue_updated) IS NULL "))
-	//}
+
 	cursor, err := db.Cursor(clauses...)
 	if err != nil {
 		logger.Error(err, "collect remotelink error")
