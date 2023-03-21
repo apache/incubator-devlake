@@ -81,9 +81,9 @@ Please read the [contribution guidelines](https://devlake.apache.org/community) 
 - Apache DevLake's documentation is hosted at [devlake.apache.org](https://devlake.apache.org/)
 - **We have a separate GitHub repository for Apache DevLake's documentation:** [github.com/apache/incubator-devlake-website](https://github.com/apache/incubator-devlake-website)
 
-## ⌚ Project Roadmap
+## ⌚ Roadmap
 
-- <a href="https://devlake.apache.org/docs/Overview/Roadmap" target="_blank">Roadmap 2022</a>: Detailed project roadmaps for 2022.
+- <a href="https://devlake.apache.org/docs/Overview/Roadmap" target="_blank">Roadmap</a>: Detailed roadmaps for DevLake.
 
 ## 💙 Community
 
