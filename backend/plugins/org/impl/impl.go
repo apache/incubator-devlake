@@ -31,6 +31,7 @@ var _ plugin.PluginMeta = (*Org)(nil)
 var _ plugin.PluginInit = (*Org)(nil)
 var _ plugin.PluginTask = (*Org)(nil)
 var _ plugin.PluginModel = (*Org)(nil)
+var _ plugin.ProjectMapper = (*Org)(nil)
 
 type Org struct {
 	handlers *api.Handlers
@@ -52,7 +53,29 @@ func (p Org) Description() string {
 func (p Org) SubTaskMetas() []plugin.SubTaskMeta {
 	return []plugin.SubTaskMeta{
 		tasks.ConnectUserAccountsExactMeta,
+		tasks.SetProjectMappingMeta,
 	}
+}
+
+func (p Org) MapProject(projectName string, scopes []plugin.Scope) (plugin.PipelinePlan, errors.Error) {
+	var plan plugin.PipelinePlan
+	var stage plugin.PipelineStage
+
+	// construct task options for Org
+	options := make(map[string]interface{})
+	options["projectMappings"] = []tasks.ProjectMapping{tasks.NewProjectMapping(projectName, scopes)}
+
+	subtasks, err := helper.MakePipelinePlanSubtasks([]plugin.SubTaskMeta{tasks.SetProjectMappingMeta}, []string{plugin.DOMAIN_TYPE_CROSS})
+	if err != nil {
+		return nil, err
+	}
+	stage = append(stage, &plugin.PipelineTask{
+		Plugin:   "org",
+		Subtasks: subtasks,
+		Options:  options,
+	})
+	plan = append(plan, stage)
+	return plan, nil
 }
 
 func (p Org) PrepareTaskData(taskCtx plugin.TaskContext, options map[string]interface{}) (interface{}, errors.Error) {
