@@ -43,24 +43,26 @@ type BambooPlan struct {
 	common.NoPKModel
 }
 
-func (b *BambooPlan) Convert(apiProject *ApiBambooPlan) {
-	b.PlanKey = apiProject.Key
-	b.Name = apiProject.Name
-	b.Expand = apiProject.Expand
-	b.ProjectKey = apiProject.ProjectKey
-	b.ProjectName = apiProject.ProjectName
-	b.Description = apiProject.Description
-	b.ShortName = apiProject.ShortName
-	b.BuildName = apiProject.BuildName
-	b.ShortKey = apiProject.ShortKey
-	b.Type = apiProject.Type
-	b.Enabled = apiProject.Enabled
-	b.Href = apiProject.Href
-	b.Rel = apiProject.Rel
-	b.IsFavourite = apiProject.IsFavourite
-	b.IsActive = apiProject.IsActive
-	b.IsBuilding = apiProject.IsBuilding
-	b.AverageBuildTimeInSeconds = apiProject.AverageBuildTimeInSeconds
+func (apiRes *ApiBambooPlan) Convert() *BambooPlan {
+	return &BambooPlan{
+		PlanKey:                   apiRes.Key,
+		Name:                      apiRes.Name,
+		Expand:                    apiRes.Expand,
+		ProjectKey:                apiRes.ProjectKey,
+		ProjectName:               apiRes.ProjectName,
+		Description:               apiRes.Description,
+		ShortName:                 apiRes.ShortName,
+		BuildName:                 apiRes.BuildName,
+		ShortKey:                  apiRes.ShortKey,
+		Type:                      apiRes.Type,
+		Enabled:                   apiRes.Enabled,
+		Href:                      apiRes.Href,
+		Rel:                       apiRes.Rel,
+		IsFavourite:               apiRes.IsFavourite,
+		IsActive:                  apiRes.IsActive,
+		IsBuilding:                apiRes.IsBuilding,
+		AverageBuildTimeInSeconds: apiRes.AverageBuildTimeInSeconds,
+	}
 }
 
 func (BambooPlan) TableName() string {

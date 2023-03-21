@@ -18,8 +18,9 @@ limitations under the License.
 package tasks
 
 import (
-	"github.com/apache/incubator-devlake/core/models/domainlayer/devops"
 	"reflect"
+
+	"github.com/apache/incubator-devlake/core/models/domainlayer/devops"
 
 	"github.com/apache/incubator-devlake/core/dal"
 	"github.com/apache/incubator-devlake/core/errors"
@@ -72,17 +73,19 @@ func ConvertPlanBuilds(taskCtx plugin.SubTaskContext) errors.Error {
 				CreatedDate:  *line.BuildStartedTime,
 				FinishedDate: line.BuildCompletedDate,
 				CicdScopeId:  projectIdGen.Generate(data.Options.ConnectionId, line.ProjectKey),
+
+				Result: devops.GetResult(&devops.ResultRule{
+					Failed:  []string{"Failed"},
+					Success: []string{"Successful"},
+					Default: "",
+				}, line.BuildState),
+
+				Status: devops.GetStatus(&devops.StatusRule{
+					Done:    []string{"Finished"},
+					Default: devops.IN_PROGRESS,
+				}, line.LifeCycleState),
 			}
-			if line.LifeCycleState != "Finished" {
-				domainPlanBuild.Status = devops.IN_PROGRESS
-			} else {
-				domainPlanBuild.Status = devops.DONE
-			}
-			if line.BuildState == "Failed" {
-				domainPlanBuild.Result = devops.FAILURE
-			} else if line.BuildState == "Successful" {
-				domainPlanBuild.Result = devops.SUCCESS
-			}
+
 			domainPlanBuild.Type = regexEnricher.GetEnrichResult(deploymentPattern, line.PlanName, devops.DEPLOYMENT)
 			domainPlanBuild.Environment = regexEnricher.GetEnrichResult(productionPattern, line.PlanName, devops.PRODUCTION)
 

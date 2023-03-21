@@ -18,6 +18,11 @@ limitations under the License.
 package tasks
 
 import (
+	"encoding/json"
+	"fmt"
+	"net/http"
+	"net/url"
+
 	"github.com/apache/incubator-devlake/core/errors"
 	"github.com/apache/incubator-devlake/core/plugin"
 	"github.com/apache/incubator-devlake/helpers/pluginhelper/api"
@@ -48,6 +53,39 @@ func GetTotalPagesFromSizeInfo(sizeInfo *models.ApiBambooSizeData, args *api.Api
 		pages++
 	}
 	return pages, nil
+}
+
+func GetTotalPagesFromResult(res *http.Response, args *api.ApiCollectorArgs) (int, errors.Error) {
+	var body struct {
+		SizeInfo models.ApiBambooSizeData `json:"results"`
+	}
+	err := api.UnmarshalResponse(res, &body)
+	if err != nil {
+		return 0, err
+	}
+	return GetTotalPagesFromSizeInfo(&body.SizeInfo, args)
+}
+
+func QueryForResult(reqData *api.RequestData) (url.Values, errors.Error) {
+	query := url.Values{}
+	query.Set("showEmpty", fmt.Sprintf("%v", true))
+	query.Set("expand", "results.result.vcsRevisions")
+	query.Set("max-result", fmt.Sprintf("%v", reqData.Pager.Size))
+	query.Set("start-index", fmt.Sprintf("%v", reqData.Pager.Skip))
+	return query, nil
+}
+
+func GetResultsResult(res *http.Response) ([]json.RawMessage, errors.Error) {
+	var resData struct {
+		Results struct {
+			Result []json.RawMessage `json:"result"`
+		} `json:"results"`
+	}
+	err := api.UnmarshalResponse(res, &resData)
+	if err != nil {
+		return nil, err
+	}
+	return resData.Results.Result, nil
 }
 
 func getRepoMap(rawRepoMap datatypes.JSONMap) map[int]string {
