@@ -208,3 +208,70 @@ func TestGetTableMetaData(t *testing.T) {
 		}
 	})
 }
+
+func TestCheckDiversity(t *testing.T) {
+	// Define test cases using a struct that contains input values and expected output.
+	testCases := []struct {
+		name             string
+		rows             *[]map[string]interface{}
+		minUniqueValues  int
+		ignoreFieldNames []string
+		wantErr          bool
+	}{
+		{
+			// Test case 1: 'nil input'
+			// Description: Checks if the function returns an error when provided with a `nil` input.
+			name:    "nil input",
+			rows:    nil,
+			wantErr: true,
+		},
+		{
+			// Test case 2: 'valid input'
+			// Description: Checks if the function returns no error when provided with a valid input that meets the diversity requirement.
+			name: "valid input",
+			rows: &[]map[string]interface{}{
+				{"field1": 1, "field2": "a"},
+				{"field1": 2, "field2": "b"},
+				{"field1": 3, "field2": "c"},
+			},
+			minUniqueValues: 2,
+			wantErr:         false,
+		},
+		{
+			// Test case 3: 'invalid input'
+			// Description: Checks if the function returns an error when provided with an input that doesn't meet the diversity requirement.
+			name: "invalid input",
+			rows: &[]map[string]interface{}{
+				{"field1": 1, "field2": "a"},
+				{"field1": 1, "field2": "a"},
+				{"field1": 1, "field2": "a"},
+			},
+			minUniqueValues: 2,
+			wantErr:         true,
+		},
+		{
+			// Test case 4: 'specific fields'
+			// Description: Checks if the function returns no error when provided with specific fields to check, and the input meets the diversity requirement.
+			name: "specific fields",
+			rows: &[]map[string]interface{}{
+				{"field1": 1, "field2": "a", "field3": 100},
+				{"field1": 2, "field2": "b", "field3": 200},
+				{"field1": 3, "field2": "c", "field3": 100},
+			},
+			minUniqueValues:  2,
+			ignoreFieldNames: []string{"field3"},
+			wantErr:          false,
+		},
+	}
+
+	// Iterate through the test cases and run the test for each case.
+	for _, tc := range testCases {
+		t.Run(tc.name, func(t *testing.T) {
+			// Call the checkDiversity function with the input values and compare the result with the expected output.
+			err := checkDiversity(tc.rows, tc.minUniqueValues, tc.ignoreFieldNames...)
+			if (err != nil) != tc.wantErr {
+				t.Errorf("checkDiversity() error = %v, wantErr %v", err, tc.wantErr)
+			}
+		})
+	}
+}

@@ -23,6 +23,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"os"
+	"reflect"
 	"strconv"
 	"strings"
 	"sync"
@@ -89,6 +90,8 @@ type TableOptions struct {
 	// IgnoreTypes similar to IgnoreFields, this will ignore the fields contained in the type. Useful for ignoring embedded
 	// types and their fields in the target model
 	IgnoreTypes []interface{}
+	// IgnoreDataDiversityCheckFields the fields (columns) to ignore/skip data diversity check.
+	IgnoreDataDiversityCheckFields []string
 	// if Nullable is set to be true, only the string `NULL` will be taken as NULL
 	Nullable bool
 }
@@ -147,6 +150,8 @@ func (t *DataFlowTester) importCsv(csvRelPath string, dst schema.Tabler, nullabl
 	csvIter, _ := pluginhelper.NewCsvFileIterator(csvRelPath)
 	defer csvIter.Close()
 	t.FlushTabler(dst)
+
+	rows := []map[string]interface{}{}
 	// load rows and insert into target table
 	for csvIter.HasNext() {
 		toInsertValues := csvIter.Fetch()
@@ -161,11 +166,18 @@ func (t *DataFlowTester) importCsv(csvRelPath string, dst schema.Tabler, nullabl
 				}
 			}
 		}
+		rows = append(rows, toInsertValues)
+
 		result := t.Db.Model(dst).Create(toInsertValues)
 		if result.Error != nil {
 			panic(result.Error)
 		}
 		assert.Equal(t.T, int64(1), result.RowsAffected)
+	}
+	// Check data diversity, TODO support ignore fields
+	err := checkDiversity(&rows, 3)
+	if err != nil {
+		panic(err)
 	}
 }
 
@@ -506,6 +518,65 @@ func (t *DataFlowTester) VerifyTableWithOptions(dst schema.Tabler, opts TableOpt
 			assert.Equal(t.T, expected[field], formatDbValue(actual[field], opts.Nullable), fmt.Sprintf(`%s.%s not match (with params from csv %s)`, dst.TableName(), field, pkValues))
 		}
 	}
+	err = checkDiversity(dbRows, 3, opts.IgnoreDataDiversityCheckFields...)
+	if err != nil {
+		panic(err)
+	}
 
 	assert.Equal(t.T, expectedTotal, actualTotal, fmt.Sprintf(`%s count not match count,[expected:%d][actual:%d]`, dst.TableName(), expectedTotal, actualTotal))
+}
+
+func checkDiversity(rows *[]map[string]interface{}, minUniqueValues int, ignoreFieldNames ...string) error {
+	// Check if the input rows is a non-nil pointer to a slice.
+	if rows == nil || reflect.ValueOf(rows).Kind() != reflect.Ptr || reflect.ValueOf(rows).Elem().Kind() != reflect.Slice {
+		return errors.Default.New("expected a non-nil pointer to a slice")
+	}
+
+	// Dereference the pointer to the slice of maps.
+	records := *rows
+
+	// Initialize a map to store unique values for each field.
+	fieldMaps := make(map[string]map[interface{}]bool)
+
+	// Iterate over the records.
+	for _, record := range records {
+		// Iterate over the fields of each record.
+		for field, value := range record {
+			// If ignoreFieldNames are provided, check if the current field is in the list, if true, skip it.
+			if len(ignoreFieldNames) > 0 && contains(ignoreFieldNames, field) {
+				continue
+			}
+
+			// If the map for the current field doesn't exist, create one.
+			if fieldMaps[field] == nil {
+				fieldMaps[field] = make(map[interface{}]bool)
+			}
+			// Add the current field value to the map.
+			fieldMaps[field][value] = true
+		}
+	}
+
+	// Iterate over the maps for each field and check if the unique value count meets the requirement.
+	for filedName, fieldMap := range fieldMaps {
+		if len(fieldMap) < minUniqueValues {
+			var valueList []interface{}
+			for k := range fieldMap {
+				valueList = append(valueList, k)
+			}
+			return errors.Default.New(fmt.Sprintf("data diversity check failed for field: `%s` that have values: %v ", filedName, valueList))
+		}
+	}
+
+	// If all fields pass the diversity check, return nil.
+	return nil
+}
+
+// contains is a helper function to check if a slice contains a given string.
+func contains(slice []string, s string) bool {
+	for _, item := range slice {
+		if item == s {
+			return true
+		}
+	}
+	return false
 }
