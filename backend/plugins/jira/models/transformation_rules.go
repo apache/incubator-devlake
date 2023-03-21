@@ -35,11 +35,11 @@ type JiraTransformationRule struct {
 	TypeMappings               json.RawMessage `mapstructure:"typeMappings,omitempty" json:"typeMappings"`
 }
 
-func (r *JiraTransformationRule) TableName() string {
+func (r JiraTransformationRule) TableName() string {
 	return "_tool_jira_transformation_rules"
 }
 
-func (r *JiraTransformationRule) VerifyRegexp() errors.Error {
+func (r JiraTransformationRule) VerifyRegexp() errors.Error {
 	var err error
 	if r.RemotelinkCommitShaPattern != "" {
 		_, err = regexp.Compile(r.RemotelinkCommitShaPattern)

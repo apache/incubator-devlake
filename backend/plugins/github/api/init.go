@@ -28,6 +28,7 @@ var vld *validator.Validate
 var connectionHelper *api.ConnectionApiHelper
 var scopeHelper *api.ScopeApiHelper[models.GithubConnection, models.GithubRepo, models.GithubTransformationRule]
 var basicRes context.BasicRes
+var trHelper *api.TransformationRuleHelper[models.GithubTransformationRule]
 
 func Init(br context.BasicRes) {
 	basicRes = br
@@ -40,5 +41,9 @@ func Init(br context.BasicRes) {
 		basicRes,
 		vld,
 		connectionHelper,
+	)
+	trHelper = api.NewTransformationRuleHelper[models.GithubTransformationRule](
+		basicRes,
+		vld,
 	)
 }

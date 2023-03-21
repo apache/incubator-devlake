@@ -28,6 +28,7 @@ var vld *validator.Validate
 var connectionHelper *api.ConnectionApiHelper
 var scopeHelper *api.ScopeApiHelper[models.BitbucketConnection, models.BitbucketRepo, models.BitbucketTransformationRule]
 var remoteHelper *api.RemoteApiHelper[models.BitbucketConnection, models.BitbucketRepo, models.BitbucketApiRepo, models.GroupResponse]
+var trHelper *api.TransformationRuleHelper[models.BitbucketTransformationRule]
 var basicRes context.BasicRes
 
 func Init(br context.BasicRes) {
@@ -46,5 +47,9 @@ func Init(br context.BasicRes) {
 		basicRes,
 		vld,
 		connectionHelper,
+	)
+	trHelper = api.NewTransformationRuleHelper[models.BitbucketTransformationRule](
+		basicRes,
+		vld,
 	)
 }
