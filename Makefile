@@ -48,7 +48,7 @@ configure:
 	docker-compose up config-ui
 
 configure-dev:
-	cd config-ui; npm install; npm start;
+	cd config-ui; yarn; yarn start
 
 commit:
 	git cz
