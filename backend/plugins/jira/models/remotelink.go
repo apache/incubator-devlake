@@ -33,7 +33,7 @@ type JiraRemotelink struct {
 	RawJson      datatypes.JSON
 	Self         string `gorm:"type:varchar(255)"`
 	Title        string
-	Url          string `gorm:"type:varchar(255)"`
+	Url          string
 	IssueUpdated *time.Time
 }
 

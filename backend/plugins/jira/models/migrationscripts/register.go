@@ -32,5 +32,6 @@ func All() []plugin.MigrationScript {
 		new(addJiraMultiAuth20230129),
 		new(removeIssueStdStoryPoint),
 		new(addCommitRepoPattern),
+		new(expandRemotelinkUrl),
 	}
 }
