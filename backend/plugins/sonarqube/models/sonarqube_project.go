@@ -24,8 +24,8 @@ import (
 
 type SonarqubeProject struct {
 	common.NoPKModel `json:"-" mapstructure:"-"`
-	ConnectionId     uint64           `json:"connectionId" gorm:"primaryKey"`
-	ProjectKey       string           `json:"projectKey" gorm:"type:varchar(64);primaryKey"`
+	ConnectionId     uint64           `json:"connectionId" validate:"required" gorm:"primaryKey"`
+	ProjectKey       string           `json:"projectKey" validate:"required" gorm:"type:varchar(255);primaryKey"`
 	Name             string           `json:"name" gorm:"type:varchar(255)"`
 	Qualifier        string           `json:"qualifier" gorm:"type:varchar(255)"`
 	Visibility       string           `json:"visibility" gorm:"type:varchar(64)"`

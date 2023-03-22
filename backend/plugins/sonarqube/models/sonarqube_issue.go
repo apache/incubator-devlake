@@ -28,7 +28,7 @@ type SonarqubeIssue struct {
 	Rule         string `gorm:"type:varchar(255)"`
 	Severity     string `gorm:"type:varchar(100)"`
 	Component    string `gorm:"type:varchar(255)"`
-	ProjectKey   string `gorm:"index;type:varchar(100)"` //domain project key
+	ProjectKey   string `gorm:"index;type:varchar(255)"` //domain project key
 	Line         int
 	Status       string `gorm:"type:varchar(20)"`
 	Message      string
