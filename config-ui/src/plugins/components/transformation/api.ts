@@ -18,28 +18,19 @@
 
 import { request } from '@/utils';
 
-type GetRulesParams = {
-  page: number;
-  pageSize: number;
-};
-
-export const getRules = (plugin: string, params?: GetRulesParams) =>
-  request(`/plugins/${plugin}/transformation_rules`, {
+export const getTransformation = (plugin: string, connectionId: ID, tid: ID) =>
+  request(`/plugins/${plugin}/transformation_rules/${tid}`, {
     method: 'get',
-    data: params,
   });
 
-export const getDataScopeRepo = (plugin: string, connectionId: ID, repoId: ID) =>
-  request(`/plugins/${plugin}/connections/${connectionId}/scopes/${repoId}`);
-
-export const updateDataScope = (plugin: string, connectionId: ID, payload: any) =>
-  request(`/plugins/${plugin}/connections/${connectionId}/scopes`, {
-    method: 'put',
-    data: payload,
-  });
-
-export const createTransformation = (plugin: string, paylod: any) =>
+export const createTransformation = (plugin: string, connectionId: ID, paylod: any) =>
   request(`/plugins/${plugin}/transformation_rules`, {
-    method: 'POST',
+    method: 'post',
     data: paylod,
+  });
+
+export const updateTransformation = (plugin: string, connectionId: ID, tid: ID, payload: any) =>
+  request(`/plugins/${plugin}/transformation_rules/${tid}`, {
+    method: 'patch',
+    data: payload,
   });

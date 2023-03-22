@@ -22,137 +22,68 @@ import type { PluginConfigType } from '@/plugins';
 import { PluginConfig } from '@/plugins';
 import { operator } from '@/utils';
 
-import type { RuleItem, ScopeItem } from './types';
 import * as API from './api';
 
 export interface UseTransformationProps {
   plugin: string;
   connectionId: ID;
-  scopeIds: ID[];
-  name: string;
-  selectedRule?: RuleItem;
-  selectedScope?: ScopeItem[];
-  onSave?: () => void;
+  id?: ID;
+  onCancel?: () => void;
 }
 
-export const useTransformation = ({
-  plugin,
-  connectionId,
-  scopeIds,
-  name,
-  selectedRule,
-  selectedScope,
-  onSave,
-}: UseTransformationProps) => {
+export const useTransformation = ({ plugin, connectionId, id, onCancel }: UseTransformationProps) => {
   const [loading, setLoading] = useState(false);
-  const [rules, setRules] = useState<RuleItem[]>([]);
-  const [scope, setScope] = useState<ScopeItem[]>([]);
   const [saving, setSaving] = useState(false);
+  const [name, setName] = useState('');
   const [transformation, setTransformation] = useState({});
 
   const config = useMemo(() => PluginConfig.find((p) => p.plugin === plugin) as PluginConfigType, []);
 
   useEffect(() => {
-    setTransformation(selectedRule ? selectedRule : config.transformation);
-  }, [selectedRule]);
-
-  const getRules = async () => {
-    const res = await API.getRules(plugin);
-    setRules(res);
-  };
-
-  const getScope = async () => {
-    const res = await Promise.all(scopeIds.map((id) => API.getDataScopeRepo(plugin, connectionId, id)));
-    setScope(res);
-  };
-
-  const init = async () => {
     setLoading(true);
-    try {
-      await getRules();
-      await getScope();
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  useEffect(() => {
-    init();
-  }, []);
-
-  const handleUpdateScope = async (tid?: ID) => {
-    if (!tid) return;
-
-    const payload = (selectedScope ?? []).map((sc: any) => ({
-      ...sc,
-      transformationRuleId: tid,
-    }));
-
-    const [success] = await operator(() =>
-      API.updateDataScope(plugin, connectionId, {
-        data: payload,
-      }),
-    );
-
-    if (success) {
-      onSave?.();
-    }
-  };
+    (async () => {
+      if (id) {
+        const transformation = await API.getTransformation(plugin, connectionId, id);
+        setTransformation(transformation);
+        setName(transformation.name);
+      } else {
+        setTransformation(config.transformation);
+      }
+    })();
+    setLoading(false);
+  }, [id, config]);
 
   const handleSave = async () => {
-    const [success, res] = await operator(
-      () =>
-        API.createTransformation(plugin, {
+    const request = id
+      ? API.updateTransformation(plugin, connectionId, id, {
           ...transformation,
           name,
-        }),
-      {
-        setOperating: setSaving,
-        formatReason: (err) => (err as any).response?.data?.message,
-      },
-    );
+        })
+      : API.createTransformation(plugin, connectionId, {
+          ...transformation,
+          name,
+        });
+
+    const [success] = await operator(() => request, {
+      setOperating: setSaving,
+      formatReason: (err) => (err as any).response?.data?.message,
+    });
 
     if (success) {
-      const payload = (selectedScope ?? []).map((sc: any) => ({
-        ...sc,
-        transformationRuleId: res.id,
-      }));
-
-      if (payload.length) {
-        await API.updateDataScope(plugin, connectionId, {
-          data: payload,
-        });
-      }
-
-      onSave?.();
+      onCancel?.();
     }
   };
 
   return useMemo(
     () => ({
       loading,
-      rules,
-      scope,
-      saving,
+      name,
+      setName,
       transformation,
-      getScopeKey(sc: any) {
-        switch (true) {
-          case plugin === 'github':
-            return sc.githubId;
-          case plugin === 'jira':
-            return sc.boardId;
-          case plugin === 'gitlab':
-            return sc.gitlabId;
-          case plugin === 'jenkins':
-            return sc.jobFullName;
-          case plugin === 'bitbucket':
-            return sc.bitbucketId;
-        }
-      },
+      setTransformation: setTransformation,
+      saving,
       onSave: handleSave,
-      onUpdateScope: handleUpdateScope,
-      onChangeTransformation: setTransformation,
     }),
-    [loading, rules, scope, saving, transformation, plugin, selectedScope, name, onSave],
+    [plugin, connectionId, id, name, transformation, saving],
   );
 };

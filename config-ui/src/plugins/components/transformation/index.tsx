@@ -16,10 +16,9 @@
  *
  */
 
-import React, { useState } from 'react';
-import { RadioGroup, Radio, InputGroup, ButtonGroup, Button, Intent } from '@blueprintjs/core';
+import { InputGroup, Button, Intent } from '@blueprintjs/core';
 
-import { ExternalLink, Divider, Selector, MultiSelector } from '@/components';
+import { PageLoading, ExternalLink, Card } from '@/components';
 
 import { GitHubTransformation } from '@/plugins/register/github';
 import { JiraTransformation } from '@/plugins/register/jira';
@@ -27,156 +26,70 @@ import { GitLabTransformation } from '@/plugins/register/gitlab';
 import { JenkinsTransformation } from '@/plugins/register/jenkins';
 import { BitbucketTransformation } from '@/plugins/register/bitbucket';
 
-import type { TransformationType, RuleItem } from './types';
 import { TIPS_MAP } from './misc';
 import type { UseTransformationProps } from './use-transformation';
 import { useTransformation } from './use-transformation';
 import * as S from './styled';
 
-interface Props extends Omit<UseTransformationProps, 'name' | 'selectedRule' | 'setSelectedScope'> {
-  from: 'create' | 'update';
-  onCancel?: () => void;
-}
+interface Props extends UseTransformationProps {}
 
-export const Transformation = ({ from, plugin, connectionId, onCancel, ...props }: Props) => {
-  const [type, setType] = useState<TransformationType>();
-  const [name, setName] = useState('');
-  const [selectedRule, setSelectedRule] = useState<RuleItem>();
-  const [selectedScope, setSelectedScope] = useState<any>([]);
+export const Transformation = ({ plugin, connectionId, onCancel, ...props }: Props) => {
+  const { loading, name, setName, transformation, setTransformation, saving, onSave } = useTransformation({
+    plugin,
+    connectionId,
+    onCancel,
+    ...props,
+  });
 
-  const { loading, rules, scope, saving, transformation, getScopeKey, onSave, onUpdateScope, onChangeTransformation } =
-    useTransformation({
-      ...props,
-      plugin,
-      connectionId,
-      name,
-      selectedRule,
-      selectedScope,
-    });
-
-  const handleChangeType = (e: React.FormEvent<HTMLInputElement>) => {
-    setType((e.target as HTMLInputElement).value as TransformationType);
-    setSelectedRule(undefined);
-  };
+  if (loading) {
+    return <PageLoading />;
+  }
 
   return (
     <S.Wrapper>
       {TIPS_MAP[plugin] && (
-        <div className="tips">
+        <S.Tips>
           To learn about how {TIPS_MAP[plugin].name} transformation is used in DevLake,{' '}
           <ExternalLink link={TIPS_MAP[plugin].link}>check out this doc</ExternalLink>.
-        </div>
+        </S.Tips>
       )}
 
-      <div className="block">
-        <RadioGroup selectedValue={type} onChange={handleChangeType}>
-          <Radio label="Create a new transformation" value="create" />
-          <Radio
-            label={
-              from === 'create'
-                ? 'Create a new transformation by duplicating an exisitng transformation'
-                : 'Duplicating an existing transformation'
-            }
-            value="createByExist"
+      <Card style={{ marginTop: 24 }}>
+        <h3>Transformation Name *</h3>
+        <p>Give this set of transformation rules a unique name so that you can identify it in the future.</p>
+        <InputGroup placeholder="Enter Transformation Name" value={name} onChange={(e) => setName(e.target.value)} />
+      </Card>
+
+      <Card style={{ marginTop: 24 }}>
+        {plugin === 'github' && (
+          <GitHubTransformation transformation={transformation} setTransformation={setTransformation} />
+        )}
+
+        {plugin === 'jira' && (
+          <JiraTransformation
+            connectionId={connectionId}
+            transformation={transformation}
+            setTransformation={setTransformation}
           />
-          <Radio label="Select an existing transformation" value="selectExist" />
-        </RadioGroup>
-      </div>
+        )}
 
-      {type && (
-        <>
-          <Divider />
-          <div className="block">
-            {(type === 'createByExist' || type === 'selectExist') && (
-              <div className="item">
-                <h3>Select a Transformation to Duplicate *</h3>
-                <p>
-                  The selected transformation will be used as template that you can tweak and save as a new
-                  transformation.
-                </p>
-                <Selector
-                  items={rules}
-                  getKey={(it) => it.id}
-                  getName={(it) => it.name}
-                  selectedItem={selectedRule}
-                  onChangeItem={setSelectedRule}
-                />
-              </div>
-            )}
-            {type !== 'selectExist' && (
-              <div className="item">
-                <h3>Transformation Name *</h3>
-                <p>Give this set of transformation rules a unique name so that you can identify it in the future.</p>
-                <InputGroup
-                  placeholder="Enter Transformation Name"
-                  value={name}
-                  onChange={(e) => setName(e.target.value)}
-                />
-              </div>
-            )}
-            <div className="item">
-              <h3>Applied Data Scope</h3>
-              <p>Select the data scope for which you want to apply this transformation for.</p>
-              <MultiSelector
-                loading={loading}
-                items={scope}
-                getKey={getScopeKey}
-                getName={(sc) => sc.name}
-                selectedItems={selectedScope}
-                onChangeItems={setSelectedScope}
-              />
-              {type === 'selectExist' && (
-                <ButtonGroup>
-                  <Button outlined intent={Intent.PRIMARY} text="Cancel and Go Back" onClick={onCancel} />
-                  <Button
-                    outlined
-                    disabled={!selectedRule || !selectedScope.length}
-                    intent={Intent.PRIMARY}
-                    text="Save"
-                    onClick={() => onUpdateScope(selectedRule?.id)}
-                  />
-                </ButtonGroup>
-              )}
-            </div>
-          </div>
-        </>
-      )}
+        {plugin === 'gitlab' && (
+          <GitLabTransformation transformation={transformation} setTransformation={setTransformation} />
+        )}
 
-      {(type === 'create' || (type === 'createByExist' && selectedRule)) && (
-        <>
-          <Divider />
-          <div className="block">
-            {plugin === 'github' && (
-              <GitHubTransformation transformation={transformation} setTransformation={onChangeTransformation} />
-            )}
+        {plugin === 'jenkins' && (
+          <JenkinsTransformation transformation={transformation} setTransformation={setTransformation} />
+        )}
 
-            {plugin === 'jira' && (
-              <JiraTransformation
-                connectionId={connectionId}
-                transformation={transformation}
-                setTransformation={onChangeTransformation}
-              />
-            )}
+        {plugin === 'bitbucket' && (
+          <BitbucketTransformation transformation={transformation} setTransformation={setTransformation} />
+        )}
+      </Card>
 
-            {plugin === 'gitlab' && (
-              <GitLabTransformation transformation={transformation} setTransformation={onChangeTransformation} />
-            )}
-
-            {plugin === 'jenkins' && (
-              <JenkinsTransformation transformation={transformation} setTransformation={onChangeTransformation} />
-            )}
-
-            {plugin === 'bitbucket' && (
-              <BitbucketTransformation transformation={transformation} setTransformation={onChangeTransformation} />
-            )}
-
-            <ButtonGroup>
-              <Button outlined intent={Intent.PRIMARY} text="Cancel and Go Back" onClick={onCancel} />
-              <Button outlined disabled={!name} loading={saving} intent={Intent.PRIMARY} text="Save" onClick={onSave} />
-            </ButtonGroup>
-          </div>
-        </>
-      )}
+      <S.Btns>
+        <Button outlined intent={Intent.PRIMARY} text="Cancel" onClick={onCancel} />
+        <Button intent={Intent.PRIMARY} disabled={!name} loading={saving} text="Save" onClick={onSave} />
+      </S.Btns>
     </S.Wrapper>
   );
 };
