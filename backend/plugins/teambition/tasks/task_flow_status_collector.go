@@ -43,17 +43,11 @@ func CollectTaskFlowStatus(taskCtx plugin.SubTaskContext) errors.Error {
 	rawDataSubTaskArgs, data := CreateRawDataSubTaskArgs(taskCtx, RAW_TASK_FLOW_STATUS_TABLE)
 	logger := taskCtx.GetLogger()
 	logger.Info("collect projects")
-	collectorWithState, err := api.NewStatefulApiCollector(*rawDataSubTaskArgs, data.TimeAfter)
-	if err != nil {
-		return err
-	}
-	incremental := collectorWithState.IsIncremental()
 
 	collector, err := api.NewApiCollector(api.ApiCollectorArgs{
 		RawDataSubTaskArgs: *rawDataSubTaskArgs,
 		ApiClient:          data.ApiClient,
 		UrlTemplate:        "/v3/project/{{ .Params.ProjectId }}/taskflowstatus/search",
-		Incremental:        incremental,
 		PageSize:           int(data.Options.PageSize),
 		GetNextPageCustomData: func(prevReqData *api.RequestData, prevPageResponse *http.Response) (interface{}, errors.Error) {
 			res := TeambitionComRes[any]{}
@@ -77,11 +71,9 @@ func CollectTaskFlowStatus(taskCtx plugin.SubTaskContext) errors.Error {
 			return query, nil
 		},
 		ResponseParser: func(res *http.Response) ([]json.RawMessage, errors.Error) {
-			var data struct {
-				Users []json.RawMessage `json:"result"`
-			}
+			data := &TeambitionComRes[[]json.RawMessage]{}
 			err := api.UnmarshalResponse(res, &data)
-			return data.Users, err
+			return data.Result, err
 		},
 	})
 	if err != nil {

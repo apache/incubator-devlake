@@ -43,15 +43,9 @@ func CollectTasks(taskCtx plugin.SubTaskContext) errors.Error {
 	rawDataSubTaskArgs, data := CreateRawDataSubTaskArgs(taskCtx, RAW_TASK_TABLE)
 	logger := taskCtx.GetLogger()
 	logger.Info("collect tasks")
-	collectorWithState, err := api.NewStatefulApiCollector(*rawDataSubTaskArgs, data.TimeAfter)
-	if err != nil {
-		return err
-	}
-	incremental := collectorWithState.IsIncremental()
 
 	collector, err := api.NewApiCollector(api.ApiCollectorArgs{
 		RawDataSubTaskArgs: *rawDataSubTaskArgs,
-		Incremental:        incremental,
 		ApiClient:          data.ApiClient,
 		PageSize:           int(data.Options.PageSize),
 		UrlTemplate:        "/v3/project/{{ .Params.ProjectId }}/task/query",

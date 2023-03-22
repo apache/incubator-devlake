@@ -19,7 +19,6 @@ package tasks
 
 import (
 	"encoding/json"
-	"fmt"
 	"github.com/apache/incubator-devlake/core/errors"
 	"github.com/apache/incubator-devlake/core/plugin"
 	"github.com/apache/incubator-devlake/helpers/pluginhelper/api"
@@ -49,15 +48,13 @@ func CollectAccounts(taskCtx plugin.SubTaskContext) errors.Error {
 		UrlTemplate:        "/org/member/list",
 		Query: func(reqData *api.RequestData) (url.Values, errors.Error) {
 			query := url.Values{}
-			query.Set("orgId", fmt.Sprintf("%v", data.Options.OrganizationId))
+			query.Set("orgId", data.Options.OrganizationId)
 			return query, nil
 		},
 		ResponseParser: func(res *http.Response) ([]json.RawMessage, errors.Error) {
-			var data struct {
-				Users []json.RawMessage `json:"result"`
-			}
+			data := &TeambitionComRes[[]json.RawMessage]{}
 			err := api.UnmarshalResponse(res, &data)
-			return data.Users, err
+			return data.Result, err
 		},
 	})
 	if err != nil {

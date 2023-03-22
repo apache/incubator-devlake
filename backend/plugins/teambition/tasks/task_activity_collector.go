@@ -46,22 +46,11 @@ func CollectTaskActivities(taskCtx plugin.SubTaskContext) errors.Error {
 	rawDataSubTaskArgs, data := CreateRawDataSubTaskArgs(taskCtx, RAW_TASK_ACTIVITY_TABLE)
 	logger := taskCtx.GetLogger()
 	logger.Info("collect task activities")
-	collectorWithState, err := api.NewStatefulApiCollector(*rawDataSubTaskArgs, data.TimeAfter)
-	if err != nil {
-		return err
-	}
-	incremental := collectorWithState.IsIncremental()
 
 	clauses := []dal.Clause{
 		dal.Select("id as task_id, updated"),
 		dal.From(&models.TeambitionTask{}),
 		dal.Where("_tool_teambition_tasks.connection_id = ? and _tool_teambition_tasks.project_id = ? ", data.Options.ConnectionId, data.Options.ProjectId),
-	}
-	if collectorWithState.TimeAfter != nil {
-		clauses = append(clauses, dal.Where("updated > ?", *collectorWithState.TimeAfter))
-	}
-	if incremental {
-		clauses = append(clauses, dal.Where("updated > ?", *collectorWithState.LatestState.LatestSuccessStart))
 	}
 
 	db := taskCtx.GetDal()
@@ -74,12 +63,12 @@ func CollectTaskActivities(taskCtx plugin.SubTaskContext) errors.Error {
 		return err
 	}
 
-	err = collectorWithState.InitCollector(api.ApiCollectorArgs{
-		Incremental: incremental,
-		ApiClient:   data.ApiClient,
-		Input:       iterator,
-		PageSize:    int(data.Options.PageSize),
-		UrlTemplate: "/v3/task/{{ .Input.TaskId }}/activity/list",
+	collector, err := api.NewApiCollector(api.ApiCollectorArgs{
+		RawDataSubTaskArgs: *rawDataSubTaskArgs,
+		ApiClient:          data.ApiClient,
+		Input:              iterator,
+		PageSize:           int(data.Options.PageSize),
+		UrlTemplate:        "/v3/task/{{ .Input.TaskId }}/activity/list",
 		GetNextPageCustomData: func(prevReqData *api.RequestData, prevPageResponse *http.Response) (interface{}, errors.Error) {
 			res := TeambitionComRes[any]{}
 			err := api.UnmarshalResponse(prevPageResponse, &res)
@@ -111,5 +100,5 @@ func CollectTaskActivities(taskCtx plugin.SubTaskContext) errors.Error {
 		logger.Error(err, "collect task activities error")
 		return err
 	}
-	return collectorWithState.Execute()
+	return collector.Execute()
 }
