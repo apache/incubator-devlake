@@ -65,6 +65,7 @@ func ConvertStoryChangelog(taskCtx plugin.SubTaskContext) errors.Error {
 	customStatusMap := getStatusMapping(data)
 	logger.Info("convert changelog :%d", data.Options.WorkspaceId)
 	clIdGen := didgen.NewDomainIdGenerator(&models.TapdStoryChangelog{})
+	clIterIdGen := didgen.NewDomainIdGenerator(&models.TapdIteration{})
 	issueIdGen := didgen.NewDomainIdGenerator(&models.TapdStory{})
 	stdTypeMappings := getStdTypeMappings(data)
 	clauses := []dal.Clause{
@@ -107,6 +108,13 @@ func ConvertStoryChangelog(taskCtx plugin.SubTaskContext) errors.Error {
 					domainCl.FromValue = getStdStatus(domainCl.OriginalFromValue)
 					domainCl.ToValue = getStdStatus(domainCl.OriginalToValue)
 				}
+			}
+			if domainCl.FieldName == "iteration_id" {
+				domainCl.FieldId = "Sprint"
+				domainCl.OriginalFromValue = clIterIdGen.Generate(cl.ConnectionId, cl.IterationIdFrom)
+				domainCl.OriginalToValue = clIterIdGen.Generate(cl.ConnectionId, cl.IterationIdTo)
+				domainCl.ToValue = cl.ValueAfterParsed
+				domainCl.OriginalFromValue = cl.ValueBeforeParsed
 			}
 			if domainCl.FieldName == "workitem_type_id" {
 				// As OriginalFromValue is value_before_parsed, so we don't need to transform id to name

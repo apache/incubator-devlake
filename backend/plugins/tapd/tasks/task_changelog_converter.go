@@ -71,6 +71,7 @@ func ConvertTaskChangelog(taskCtx plugin.SubTaskContext) errors.Error {
 	logger.Info("convert changelog :%d", data.Options.WorkspaceId)
 	clIdGen := didgen.NewDomainIdGenerator(&models.TapdTaskChangelog{})
 	issueIdGen := didgen.NewDomainIdGenerator(&models.TapdTask{})
+	clIterIdGen := didgen.NewDomainIdGenerator(&models.TapdIteration{})
 
 	clauses := []dal.Clause{
 		dal.Select("tc.created, tc.id, tc.workspace_id, tc.task_id, tc.creator, _tool_tapd_task_changelog_items.*"),
@@ -112,7 +113,13 @@ func ConvertTaskChangelog(taskCtx plugin.SubTaskContext) errors.Error {
 					domainCl.ToValue = getTaskStdStatus(domainCl.OriginalToValue)
 				}
 			}
-
+			if domainCl.FieldName == "iteration_id" {
+				domainCl.FieldId = "Sprint"
+				domainCl.OriginalFromValue = clIterIdGen.Generate(cl.ConnectionId, cl.IterationIdFrom)
+				domainCl.OriginalToValue = clIterIdGen.Generate(cl.ConnectionId, cl.IterationIdTo)
+				domainCl.ToValue = cl.ValueAfterParsed
+				domainCl.OriginalFromValue = cl.ValueBeforeParsed
+			}
 			return []interface{}{
 				domainCl,
 			}, nil
