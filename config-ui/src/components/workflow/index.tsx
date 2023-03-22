@@ -16,17 +16,24 @@
  *
  */
 
-export * from './action';
-export * from './card';
-export * from './dialog';
-export * from './divider';
-export * from './inspector';
-export * from './loading';
-export * from './logo';
-export * from './no-data';
-export * from './page-header';
-export * from './selector';
-export * from './table';
-export * from './toast';
-export * from './tooltip';
-export * from './workflow';
+import { Icon } from '@blueprintjs/core';
+
+import * as S from './styled';
+
+interface Props {
+  steps: string[];
+  activeStep: number;
+}
+
+export const Workflow = ({ steps, activeStep }: Props) => {
+  return (
+    <S.List>
+      {steps.map((step, i) => (
+        <S.Item key={i} actived={i + 1 === activeStep} passed={activeStep > i + 1}>
+          <span className="step">{activeStep > i + 1 ? <Icon icon="tick" /> : i + 1}</span>
+          <span className="name">{step}</span>
+        </S.Item>
+      ))}
+    </S.List>
+  );
+};
