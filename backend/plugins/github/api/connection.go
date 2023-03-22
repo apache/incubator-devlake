@@ -29,7 +29,7 @@ import (
 	"github.com/apache/incubator-devlake/server/api/shared"
 )
 
-var RequirePermission = []string{"repo:status", "repo_deployment", "read:user", "read:org"}
+var requirePermission = []string{"repo:status", "repo_deployment", "read:user", "read:org"}
 
 type GithubTestConnResponse struct {
 	shared.ApiBody
@@ -75,8 +75,24 @@ func TestConnection(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, 
 	// for github classic token, check permission
 	if strings.HasPrefix(conn.Token, "ghp_") {
 		scopes := res.Header.Get("X-OAuth-Scopes")
-		for _, permission := range RequirePermission {
+		for _, permission := range requirePermission {
 			if !strings.Contains(scopes, permission) {
+				if permission == "repo:status" || permission == "repo_deployment" {
+					// If the missing permission is repo:status or repo_deployment, check if the repo permission is present
+					if strings.Contains(scopes, "repo") {
+						continue
+					}
+				}
+				if permission == "read:user" {
+					if strings.Contains(scopes, "user") {
+						continue
+					}
+				}
+				if permission == "read:org" {
+					if strings.Contains(scopes, "admin:org") {
+						continue
+					}
+				}
 				return nil, errors.BadInput.New("insufficient token permission")
 			}
 		}
