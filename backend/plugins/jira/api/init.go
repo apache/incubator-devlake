@@ -28,6 +28,7 @@ var vld *validator.Validate
 var connectionHelper *api.ConnectionApiHelper
 var scopeHelper *api.ScopeApiHelper[models.JiraConnection, models.JiraBoard, models.JiraTransformationRule]
 var basicRes context.BasicRes
+var trHelper *api.TransformationRuleHelper[models.JiraTransformationRule]
 
 func Init(br context.BasicRes) {
 	basicRes = br
@@ -40,5 +41,10 @@ func Init(br context.BasicRes) {
 		basicRes,
 		vld,
 		connectionHelper,
+	)
+
+	trHelper = api.NewTransformationRuleHelper[models.JiraTransformationRule](
+		basicRes,
+		vld,
 	)
 }

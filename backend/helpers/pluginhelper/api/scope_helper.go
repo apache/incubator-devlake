@@ -37,7 +37,7 @@ import (
 	"reflect"
 )
 
-// ScopeApiHelper is used to write the CURD of connection
+// ScopeApiHelper is used to write the CURD of scopes
 type ScopeApiHelper[Conn any, Scope any, Tr any] struct {
 	log        log.Logger
 	db         dal.Dal
@@ -45,7 +45,7 @@ type ScopeApiHelper[Conn any, Scope any, Tr any] struct {
 	connHelper *ConnectionApiHelper
 }
 
-// NewScopeHelper creates a ScopeHelper for connection management
+// NewScopeHelper creates a ScopeHelper for scopes management
 func NewScopeHelper[Conn any, Scope any, Tr any](
 	basicRes context.BasicRes,
 	vld *validator.Validate,
