@@ -55,7 +55,7 @@ export const Table = <T extends Record<string, any>>({
     return <TableLoading />;
   }
 
-  if (!dataSource) {
+  if (!dataSource.length) {
     return <TableNoData {...noData} />;
   }
 
