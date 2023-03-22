@@ -62,6 +62,7 @@ func ConvertBugChangelog(taskCtx plugin.SubTaskContext) errors.Error {
 	customStatusMap := getStatusMapping(data)
 	logger.Info("convert changelog :%d", data.Options.WorkspaceId)
 	issueIdGen := didgen.NewDomainIdGenerator(&models.TapdBug{})
+	clIterIdGen := didgen.NewDomainIdGenerator(&models.TapdIteration{})
 	clIdGen := didgen.NewDomainIdGenerator(&models.TapdBugChangelog{})
 	clauses := []dal.Clause{
 		dal.Select("tc.created, tc.id, tc.workspace_id, tc.bug_id, tc.author, _tool_tapd_bug_changelog_items.*"),
@@ -95,6 +96,13 @@ func ConvertBugChangelog(taskCtx plugin.SubTaskContext) errors.Error {
 				OriginalFromValue: cl.ValueBeforeParsed,
 				OriginalToValue:   cl.ValueAfterParsed,
 				CreatedDate:       *cl.Created,
+			}
+			if domainCl.FieldName == "iteration_id" {
+				domainCl.FieldId = "Sprint"
+				domainCl.OriginalFromValue = clIterIdGen.Generate(cl.ConnectionId, cl.IterationIdFrom)
+				domainCl.OriginalToValue = clIterIdGen.Generate(cl.ConnectionId, cl.IterationIdTo)
+				domainCl.ToValue = cl.ValueAfterParsed
+				domainCl.OriginalFromValue = cl.ValueBeforeParsed
 			}
 			if domainCl.FieldName == "status" {
 				domainCl.OriginalFromValue = statusLanguageMap[domainCl.OriginalFromValue]
