@@ -65,28 +65,18 @@ func CollectIssueChangelogs(taskCtx plugin.SubTaskContext) errors.Error {
 		return err
 	}
 
-	// query for issue_ids that needed changelog collection
 	clauses := []dal.Clause{
-		dal.Select("i.issue_id, i.updated AS update_time"),
+		dal.Select("i.issue_id AS issue_id, i.updated AS update_time"),
 		dal.From("_tool_jira_board_issues bi"),
 		dal.Join("LEFT JOIN _tool_jira_issues i ON (bi.connection_id = i.connection_id AND bi.issue_id = i.issue_id)"),
-		dal.Join("LEFT JOIN _tool_jira_issue_changelogs c ON (c.connection_id = i.connection_id AND c.issue_id = i.issue_id)"),
-		dal.Where("i.updated > i.created AND bi.connection_id = ?  AND bi.board_id = ? AND i.std_type != ? ", data.Options.ConnectionId, data.Options.BoardId, "Epic"),
-		dal.Groupby("i.issue_id, i.updated"),
+		dal.Where("bi.connection_id=? and bi.board_id = ? AND i.std_type != ?", data.Options.ConnectionId, data.Options.BoardId, "Epic"),
 	}
 	incremental := collectorWithState.IsIncremental()
-	if incremental {
-		clauses = append(clauses, dal.Having("i.updated > ? AND (i.updated > max(c.issue_updated) OR (max(c.issue_updated) IS NULL AND COUNT(c.changelog_id) > 0))", collectorWithState.LatestState.LatestSuccessStart))
-	} else {
-		/*
-			i.updated > max(rl.issue_updated) was deleted because for non-incremental collection,
-			max(rl.issue_updated) will only be one of null, less or equal to i.updated
-			so i.updated > max(rl.issue_updated) is always false.
-			max(c.issue_updated) IS NULL AND COUNT(c.changelog_id) > 0 infers the issue has more than 100 changelogs,
-			because we collected changelogs when collecting issues, and assign changelog.issue_updated if num of changelogs < 100,
-			and max(c.issue_updated) IS NULL AND COUNT(c.changelog_id) > 0 means all changelogs for the issue were not assigned issue_updated
-		*/
-		clauses = append(clauses, dal.Having("max(c.issue_updated) IS NULL AND COUNT(c.changelog_id) > 0"))
+	if incremental && collectorWithState.LatestState.LatestSuccessStart != nil {
+		clauses = append(
+			clauses,
+			dal.Where("i.updated > ?", collectorWithState.LatestState.LatestSuccessStart),
+		)
 	}
 
 	if logger.IsLevelEnabled(log.LOG_DEBUG) {
