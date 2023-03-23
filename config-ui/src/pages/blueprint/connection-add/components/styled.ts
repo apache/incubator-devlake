@@ -16,9 +16,15 @@
  *
  */
 
-export * from './types';
-export * from './home';
-export * from './create';
-export * from './detail';
-export * from './connection-add';
-export * from './connection-detail';
+import styled from 'styled-components';
+
+export const Wrapper = styled.div`
+  margin-top: 36px;
+`;
+
+export const Action = styled.div`
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-top: 36px;
+`;

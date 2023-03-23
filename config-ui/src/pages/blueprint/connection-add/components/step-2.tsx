@@ -16,9 +16,29 @@
  *
  */
 
-export * from './types';
-export * from './home';
-export * from './create';
-export * from './detail';
-export * from './connection-add';
-export * from './connection-detail';
+import { DataScope } from '@/plugins';
+
+import { useConnectionAdd } from '../context';
+
+import * as S from './styled';
+
+export const Step2 = () => {
+  const { connection, onChangeConnection, onPrev, onNext } = useConnectionAdd();
+
+  if (!connection) {
+    return null;
+  }
+
+  return (
+    <S.Wrapper>
+      <DataScope
+        connections={[connection]}
+        cancelBtnProps={{ text: 'Previous Step' }}
+        submitBtnProps={{ text: 'Next Step' }}
+        onCancel={onPrev}
+        onSubmit={onNext}
+        onChange={(connections) => onChangeConnection(connections[0])}
+      />
+    </S.Wrapper>
+  );
+};

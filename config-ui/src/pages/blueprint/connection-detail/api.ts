@@ -16,9 +16,15 @@
  *
  */
 
-export * from './types';
-export * from './home';
-export * from './create';
-export * from './detail';
-export * from './connection-add';
-export * from './connection-detail';
+import { request } from '@/utils';
+
+export const getBlueprint = (id: ID) => request(`/blueprints/${id}`);
+
+export const updateBlueprint = (id: ID, payload: any) =>
+  request(`/blueprints/${id}`, { method: 'patch', data: payload });
+
+export const getConnection = (plugin: string, connectionId: ID) =>
+  request(`/plugins/${plugin}/connections/${connectionId}`);
+
+export const getDataScope = (plugin: string, connectionId: ID, scopeId: ID) =>
+  request(`/plugins/${plugin}/connections/${connectionId}/scopes/${scopeId}`);

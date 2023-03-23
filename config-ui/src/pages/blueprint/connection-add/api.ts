@@ -16,9 +16,9 @@
  *
  */
 
-export * from './types';
-export * from './home';
-export * from './create';
-export * from './detail';
-export * from './connection-add';
-export * from './connection-detail';
+import { request } from '@/utils';
+
+export const getBlueprint = (id: ID) => request(`/blueprints/${id}`);
+
+export const updateBlueprint = (id: ID, payload: any) =>
+  request(`/blueprints/${id}`, { method: 'patch', data: payload });

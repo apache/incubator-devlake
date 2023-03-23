@@ -16,9 +16,6 @@
  *
  */
 
-export * from './types';
-export * from './home';
-export * from './create';
-export * from './detail';
-export * from './connection-add';
-export * from './connection-detail';
+export * from './step-1';
+export * from './step-2';
+export * from './step-3';

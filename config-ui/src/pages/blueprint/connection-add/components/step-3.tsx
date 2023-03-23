@@ -16,9 +16,27 @@
  *
  */
 
-export * from './types';
-export * from './home';
-export * from './create';
-export * from './detail';
-export * from './connection-add';
-export * from './connection-detail';
+import { Transformation } from '@/plugins';
+
+import { useConnectionAdd } from '../context';
+
+import * as S from './styled';
+
+export const Step3 = () => {
+  const { connection, onPrev, operating, onSubmit } = useConnectionAdd();
+
+  if (!connection) {
+    return null;
+  }
+
+  return (
+    <S.Wrapper>
+      <Transformation
+        connections={[connection]}
+        submitBtnProps={{ loading: operating }}
+        onCancel={onPrev}
+        onSubmit={onSubmit}
+      />
+    </S.Wrapper>
+  );
+};

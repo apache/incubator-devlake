@@ -16,7 +16,6 @@
  *
  */
 
-import React from 'react';
 import { Switch, Route, Redirect } from 'react-router-dom';
 
 import { BaseLayout } from '@/layouts';
@@ -30,6 +29,8 @@ import {
   BlueprintHomePage,
   BlueprintCreatePage,
   BlueprintDetailPage,
+  BlueprintConnectioAddPage,
+  BlueprintConnectionDetailPage,
 } from '@/pages';
 
 function App() {
@@ -51,6 +52,8 @@ function App() {
         <Route exact path="/blueprints" component={() => <BlueprintHomePage />} />
         <Route exact path="/blueprints/create" component={() => <BlueprintCreatePage from={FromEnum.blueprint} />} />
         <Route exact path="/blueprints/:id" component={() => <BlueprintDetailPage />} />
+        <Route exact path="/blueprints/:id/connection-add" component={() => <BlueprintConnectioAddPage />} />
+        <Route exact path="/blueprints/:id/:unique" component={() => <BlueprintConnectionDetailPage />} />
       </Switch>
     </BaseLayout>
   );
