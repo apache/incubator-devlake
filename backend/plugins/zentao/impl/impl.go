@@ -34,7 +34,8 @@ var _ plugin.PluginMeta = (*Zentao)(nil)
 var _ plugin.PluginInit = (*Zentao)(nil)
 var _ plugin.PluginTask = (*Zentao)(nil)
 var _ plugin.PluginApi = (*Zentao)(nil)
-var _ plugin.PluginBlueprintV100 = (*Zentao)(nil)
+
+// var _ plugin.CompositePluginBlueprintV200 = (*Zentao)(nil)
 var _ plugin.CloseablePluginTask = (*Zentao)(nil)
 
 type Zentao struct{}
@@ -50,9 +51,8 @@ func (p Zentao) Init(basicRes context.BasicRes) errors.Error {
 
 func (p Zentao) SubTaskMetas() []plugin.SubTaskMeta {
 	return []plugin.SubTaskMeta{
-		tasks.CollectProductMeta,
-		tasks.ExtractProductMeta,
 		tasks.ConvertProductMeta,
+		tasks.ConvertProjectMeta,
 		tasks.CollectExecutionMeta,
 		tasks.ExtractExecutionMeta,
 		tasks.ConvertExecutionMeta,
@@ -123,11 +123,28 @@ func (p Zentao) ApiResources() map[string]map[string]plugin.ApiResourceHandler {
 			"PATCH":  api.PatchConnection,
 			"DELETE": api.DeleteConnection,
 		},
+		"connections/:connectionId/product/scopes": {
+			"PUT": api.PutProductScope,
+		},
+		"connections/:connectionId/project/scopes": {
+			"PUT": api.PutProjectScope,
+		},
+		"connections/:connectionId/scopes/product/:scopeId": {
+			"GET":   api.GetProductScope,
+			"PATCH": api.UpdateProductScope,
+		},
+		"connections/:connectionId/scopes/project/:scopeId": {
+			"GET":   api.GetProjectScope,
+			"PATCH": api.UpdateProjectScope,
+		},
+		"connections/:connectionId/remote-scopes": {
+			"GET": api.RemoteScopes,
+		},
 	}
 }
 
-func (p Zentao) MakePipelinePlan(connectionId uint64, scope []*plugin.BlueprintScopeV100) (plugin.PipelinePlan, errors.Error) {
-	return api.MakePipelinePlan(p.SubTaskMetas(), connectionId, scope)
+func (p Zentao) MakeDataSourcePipelinePlanV200(connectionId uint64, scopes []*plugin.BlueprintScopeV200, syncPolicy plugin.BlueprintSyncPolicy) (pp plugin.PipelinePlan, sc []plugin.Scope, err errors.Error) {
+	return api.MakeDataSourcePipelinePlanV200(p.SubTaskMetas(), connectionId, scopes, &syncPolicy)
 }
 
 func (p Zentao) Close(taskCtx plugin.TaskContext) errors.Error {

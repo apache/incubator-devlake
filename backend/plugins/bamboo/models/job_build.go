@@ -18,8 +18,9 @@ limitations under the License.
 package models
 
 import (
-	"github.com/apache/incubator-devlake/core/models/common"
 	"time"
+
+	"github.com/apache/incubator-devlake/core/models/common"
 )
 
 type BambooJobBuild struct {
@@ -70,8 +71,10 @@ func (BambooJobBuild) TableName() string {
 	return "_tool_bamboo_job_builds"
 }
 
-func (BambooJobBuild) Convert(apiRes *ApiBambooPlanBuild) *BambooJobBuild {
-	b := &BambooJobBuild{
+type ApiBambooJobBuild ApiBambooPlanBuild
+
+func (apiRes *ApiBambooJobBuild) Convert() *BambooJobBuild {
+	return &BambooJobBuild{
 		ConnectionId:             0,
 		JobBuildKey:              apiRes.Key,
 		Expand:                   apiRes.Expand,
@@ -112,5 +115,4 @@ func (BambooJobBuild) Convert(apiRes *ApiBambooPlanBuild) *BambooJobBuild {
 		BuildState:               apiRes.BuildState,
 		JobResultKey:             apiRes.PlanResultKey.Key,
 	}
-	return b
 }

@@ -27,6 +27,7 @@ import (
 var vld *validator.Validate
 var connectionHelper *api.ConnectionApiHelper
 var scopeHelper *api.ScopeApiHelper[models.SonarqubeConnection, models.SonarqubeProject, interface{}]
+var remoteHelper *api.RemoteApiHelper[models.SonarqubeConnection, models.SonarqubeProject, models.SonarqubeApiProject, api.NoRemoteGroupResponse]
 var basicRes context.BasicRes
 
 func Init(br context.BasicRes) {
@@ -37,6 +38,11 @@ func Init(br context.BasicRes) {
 		vld,
 	)
 	scopeHelper = api.NewScopeHelper[models.SonarqubeConnection, models.SonarqubeProject, interface{}](
+		basicRes,
+		vld,
+		connectionHelper,
+	)
+	remoteHelper = api.NewRemoteHelper[models.SonarqubeConnection, models.SonarqubeProject, models.SonarqubeApiProject, api.NoRemoteGroupResponse](
 		basicRes,
 		vld,
 		connectionHelper,

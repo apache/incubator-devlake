@@ -96,7 +96,7 @@ export const Configuration = ({ blueprint, operating, onUpdate, onRefresh }: Pro
   const handleUpdateConnection = (updated: any) =>
     onUpdate({
       settings: {
-        version: '2.0.0',
+        ...blueprint.settings,
         connections: blueprint.settings.connections.map((cs) =>
           cs.plugin === updated.plugin && cs.connectionId === updated.connectionId ? updated : cs,
         ),
@@ -162,7 +162,7 @@ export const Configuration = ({ blueprint, operating, onUpdate, onRefresh }: Pro
                 <Icon icon="annotation" color={Colors.BLUE2} />
                 <span>Change Data Scope</span>
               </div>
-              {row.plugin !== 'sonarqube' && (
+              {row.plugin !== 'sonarqube' && row.plugin !== 'zentao' && (
                 <>
                   <div
                     className="item"

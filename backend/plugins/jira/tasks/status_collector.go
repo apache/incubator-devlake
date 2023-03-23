@@ -19,10 +19,11 @@ package tasks
 
 import (
 	"encoding/json"
+	"net/http"
+
 	"github.com/apache/incubator-devlake/core/errors"
 	"github.com/apache/incubator-devlake/core/plugin"
 	"github.com/apache/incubator-devlake/helpers/pluginhelper/api"
-	"net/http"
 )
 
 const RAW_STATUS_TABLE = "jira_api_status"
@@ -31,7 +32,7 @@ var CollectStatusMeta = plugin.SubTaskMeta{
 	Name:             "collectStatus",
 	EntryPoint:       CollectStatus,
 	EnabledByDefault: true,
-	Description:      "collect Jira status",
+	Description:      "collect Jira status, does not support either timeFilter or diffSync.",
 	DomainTypes:      []string{plugin.DOMAIN_TYPE_TICKET},
 }
 

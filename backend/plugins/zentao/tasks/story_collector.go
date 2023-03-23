@@ -33,13 +33,15 @@ var _ plugin.SubTaskEntryPoint = CollectStory
 
 func CollectStory(taskCtx plugin.SubTaskContext) errors.Error {
 	data := taskCtx.GetData().(*ZentaoTaskData)
+	if data.Options.ProductId == 0 {
+		return nil
+	}
 	collector, err := api.NewApiCollector(api.ApiCollectorArgs{
 		RawDataSubTaskArgs: api.RawDataSubTaskArgs{
 			Ctx: taskCtx,
 			Params: ZentaoApiParams{
 				ConnectionId: data.Options.ConnectionId,
 				ProductId:    data.Options.ProductId,
-				ExecutionId:  data.Options.ExecutionId,
 				ProjectId:    data.Options.ProjectId,
 			},
 			Table: RAW_STORY_TABLE,
@@ -78,4 +80,5 @@ var CollectStoryMeta = plugin.SubTaskMeta{
 	EntryPoint:       CollectStory,
 	EnabledByDefault: true,
 	Description:      "Collect Story data from Zentao api",
+	DomainTypes:      []string{plugin.DOMAIN_TYPE_TICKET},
 }

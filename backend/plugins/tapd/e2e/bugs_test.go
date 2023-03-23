@@ -41,6 +41,10 @@ func TestTapdBugDataFlow(t *testing.T) {
 					"BUG":  {StandardType: "缺陷"},
 					"TASK": {StandardType: "任务"},
 				},
+				StatusMappings: map[string]tasks.OriginalStatus{
+					"完成":  []string{"已关闭"},
+					"处理中": []string{"接受/处理"},
+				},
 			},
 		},
 	}

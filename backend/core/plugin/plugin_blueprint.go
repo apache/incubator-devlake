@@ -141,6 +141,11 @@ type MetricPluginBlueprintV200 interface {
 	MakeMetricPluginPipelinePlanV200(projectName string, options json.RawMessage) (PipelinePlan, errors.Error)
 }
 
+// ProjectMapper is implemented by the plugin org, which binding project and scopes
+type ProjectMapper interface {
+	MapProject(projectName string, scopes []Scope) (PipelinePlan, errors.Error)
+}
+
 // CompositeDataSourcePluginBlueprintV200 is for unit test
 type CompositeDataSourcePluginBlueprintV200 interface {
 	PluginMeta
@@ -153,11 +158,17 @@ type CompositeMetricPluginBlueprintV200 interface {
 	MetricPluginBlueprintV200
 }
 
-// CompositeMetricPluginBlueprintV200 is for unit test
+// CompositePluginBlueprintV200 is for unit test
 type CompositePluginBlueprintV200 interface {
 	PluginMeta
 	DataSourcePluginBlueprintV200
 	MetricPluginBlueprintV200
+}
+
+// CompositeProjectMapper is for unit test
+type CompositeProjectMapper interface {
+	PluginMeta
+	ProjectMapper
 }
 
 type BlueprintSyncPolicy struct {

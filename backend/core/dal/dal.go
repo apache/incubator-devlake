@@ -19,6 +19,7 @@ package dal
 
 import (
 	"database/sql"
+	"fmt"
 	"reflect"
 
 	"github.com/apache/incubator-devlake/core/errors"
@@ -239,7 +240,8 @@ func GetPrimarykeyColumnNames(d Dal, dst Tabler) (names []string, err errors.Err
 		return
 	}
 	for _, pkColumn := range pkColumns {
-		names = append(names, pkColumn.Name())
+		// in case the column name is a reserved identifier
+		names = append(names, fmt.Sprintf("%s.%s", dst.TableName(), pkColumn.Name()))
 	}
 	return
 }

@@ -26,3 +26,9 @@ export const updateDataScope = (plugin: string, connectionId: ID, payload: any) 
     method: 'put',
     data: payload,
   });
+
+export const updateDataScopeWithType = (plugin: string, connectionId: ID, type: string, payload: any) =>
+  request(`/plugins/${plugin}/connections/${connectionId}/${type}/scopes`, {
+    method: 'put',
+    data: payload,
+  });

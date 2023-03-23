@@ -24,7 +24,6 @@ header:
     - '**/*.md'
     - 'LICENSE'
     - 'NOTICE'
-    - 'config-ui/node_modules'
     - 'bin'
     - 'logs'
     - 'mocks'
@@ -47,13 +46,13 @@ header:
     - 'go.mod'
     - 'go.sum'
     - 'requirements.txt'
-    - '**/.babelrc'
     - '**/empty'
     - '**/*.conf'
-    - '**/.eslintrc'
     - 'deployment/helm/templates/_helpers.tpl'
-    - '**/.nvmrc'
     - '**/poetry.lock'
+    - 'config-ui/.yarn/**/*'
+    - 'config-ui/.yarnrc.yml'
+    - 'config-ui/yarn.lock'
 
 
 

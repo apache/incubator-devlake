@@ -19,7 +19,6 @@ package impl
 
 import (
 	"fmt"
-
 	"github.com/apache/incubator-devlake/core/context"
 	"github.com/apache/incubator-devlake/core/dal"
 	"github.com/apache/incubator-devlake/core/errors"
@@ -96,10 +95,14 @@ func (p Bamboo) SubTaskMetas() []plugin.SubTaskMeta {
 		tasks.ExtractJobBuildMeta,
 		tasks.CollectDeployMeta,
 		tasks.ExtractDeployMeta,
+		tasks.CollectDeployBuildMeta,
+		tasks.ExtractDeployBuildMeta,
+
 		tasks.ConvertJobBuildsMeta,
 		tasks.ConvertPlanBuildsMeta,
 		tasks.ConvertPlanVcsMeta,
 		tasks.ConvertProjectsMeta,
+		tasks.ConvertDeployBuildsMeta,
 	}
 }
 

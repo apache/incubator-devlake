@@ -29,6 +29,7 @@ var connectionHelper *api.ConnectionApiHelper
 var scopeHelper *api.ScopeApiHelper[models.GitlabConnection, models.GitlabProject, models.GitlabTransformationRule]
 var remoteHelper *api.RemoteApiHelper[models.GitlabConnection, models.GitlabProject, models.GitlabApiProject, models.GroupResponse]
 var basicRes context.BasicRes
+var trHelper *api.TransformationRuleHelper[models.GitlabTransformationRule]
 
 func Init(br context.BasicRes) {
 	basicRes = br
@@ -47,5 +48,9 @@ func Init(br context.BasicRes) {
 		basicRes,
 		vld,
 		connectionHelper,
+	)
+	trHelper = api.NewTransformationRuleHelper[models.GitlabTransformationRule](
+		basicRes,
+		vld,
 	)
 }

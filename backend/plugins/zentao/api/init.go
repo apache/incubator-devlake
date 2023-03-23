@@ -20,11 +20,23 @@ package api
 import (
 	"github.com/apache/incubator-devlake/core/context"
 	"github.com/apache/incubator-devlake/helpers/pluginhelper/api"
+	"github.com/apache/incubator-devlake/plugins/zentao/models"
 	"github.com/go-playground/validator/v10"
 )
 
+type MixScopes struct {
+	ZentaoProduct *models.ZentaoProduct `json:"product"`
+	ZentaoProject *models.ZentaoProject `json:"project"`
+}
+type NoTransformation struct{}
+
 var vld *validator.Validate
 var connectionHelper *api.ConnectionApiHelper
+var productScopeHelper *api.ScopeApiHelper[models.ZentaoConnection, models.ZentaoProduct, NoTransformation]
+var projectScopeHelper *api.ScopeApiHelper[models.ZentaoConnection, models.ZentaoProject, NoTransformation]
+
+var productRemoteHelper *api.RemoteApiHelper[models.ZentaoConnection, models.ZentaoProduct, models.ZentaoProductRes, api.BaseRemoteGroupResponse]
+var projectRemoteHelper *api.RemoteApiHelper[models.ZentaoConnection, models.ZentaoProject, models.ZentaoProject, api.NoRemoteGroupResponse]
 var basicRes context.BasicRes
 
 func Init(br context.BasicRes) {
@@ -33,5 +45,25 @@ func Init(br context.BasicRes) {
 	connectionHelper = api.NewConnectionHelper(
 		basicRes,
 		vld,
+	)
+	productScopeHelper = api.NewScopeHelper[models.ZentaoConnection, models.ZentaoProduct, NoTransformation](
+		basicRes,
+		vld,
+		connectionHelper,
+	)
+	projectScopeHelper = api.NewScopeHelper[models.ZentaoConnection, models.ZentaoProject, NoTransformation](
+		basicRes,
+		vld,
+		connectionHelper,
+	)
+	productRemoteHelper = api.NewRemoteHelper[models.ZentaoConnection, models.ZentaoProduct, models.ZentaoProductRes, api.BaseRemoteGroupResponse](
+		basicRes,
+		vld,
+		connectionHelper,
+	)
+	projectRemoteHelper = api.NewRemoteHelper[models.ZentaoConnection, models.ZentaoProject, models.ZentaoProject, api.NoRemoteGroupResponse](
+		basicRes,
+		vld,
+		connectionHelper,
 	)
 }

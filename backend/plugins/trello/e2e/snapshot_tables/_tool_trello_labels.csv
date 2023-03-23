@@ -1,0 +1,11 @@
+id,id_board,name,color
+6402f643d23aa9af56b29073,6402f643d23aa9af56b28f4b,Not clear ⏸,orange
+6402f643d23aa9af56b29076,6402f643d23aa9af56b28f4b,Committed to Repo ⏫,pink
+6402f643d23aa9af56b29079,6402f643d23aa9af56b28f4b,On Staging Server 🔜,orange
+6402f643d23aa9af56b2907c,6402f643d23aa9af56b28f4b,Done ✅,green
+6402f643d23aa9af56b2907f,6402f643d23aa9af56b28f4b,Flagged 🔴,red
+6402f643d23aa9af56b29082,6402f643d23aa9af56b28f4b,On Production Server 🔛,blue
+6402f643d23aa9af56b29085,6402f643d23aa9af56b28f4b,Has to be discussed 📳,purple
+6402f643d23aa9af56b29088,6402f643d23aa9af56b28f4b,Passed ❇️,green
+6402f643d23aa9af56b2908b,6402f643d23aa9af56b28f4b,Blocked 🔙,red
+6402f643d23aa9af56b2908e,6402f643d23aa9af56b28f4b,Waiting for feedback ⏺,yellow

@@ -69,6 +69,8 @@ class PluginCommands:
     @plugin_method
     def test_connection(self, connection: dict):
         connection = self._parse(connection)
+        if "name" not in connection:
+            connection["name"] = "Test connection"
         connection = self._plugin.connection_type(**connection)
         self._plugin.test_connection(connection)
 

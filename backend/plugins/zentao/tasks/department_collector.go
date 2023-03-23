@@ -39,7 +39,6 @@ func CollectDepartment(taskCtx plugin.SubTaskContext) errors.Error {
 			Params: ZentaoApiParams{
 				ConnectionId: data.Options.ConnectionId,
 				ProductId:    data.Options.ProductId,
-				ExecutionId:  data.Options.ExecutionId,
 				ProjectId:    data.Options.ProjectId,
 			},
 			Table: RAW_DEPARTMENT_TABLE,
@@ -76,4 +75,5 @@ var CollectDepartmentMeta = plugin.SubTaskMeta{
 	EntryPoint:       CollectDepartment,
 	EnabledByDefault: true,
 	Description:      "Collect Department data from Zentao api",
+	DomainTypes:      []string{plugin.DOMAIN_TYPE_TICKET},
 }

@@ -58,7 +58,7 @@ export const useColumns = ({ onDetail }: Props) => {
           key: 'action',
           align: 'center',
           render: (_: any, connection: BPConnectionItemType) =>
-            connection.plugin === 'sonarqube' ? (
+            connection.plugin === 'sonarqube' || connection.plugin === 'zentao' ? (
               'No Transformation Required'
             ) : (
               <Button

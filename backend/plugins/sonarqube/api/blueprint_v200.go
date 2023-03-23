@@ -32,7 +32,6 @@ import (
 	helper "github.com/apache/incubator-devlake/helpers/pluginhelper/api"
 	aha "github.com/apache/incubator-devlake/helpers/pluginhelper/api/apihelperabstract"
 	"github.com/apache/incubator-devlake/plugins/sonarqube/models"
-	"github.com/apache/incubator-devlake/plugins/sonarqube/tasks"
 )
 
 func MakeDataSourcePipelinePlanV200(subtaskMetas []plugin.SubTaskMeta, connectionId uint64, bpScopes []*plugin.BlueprintScopeV200, syncPolicy *plugin.BlueprintSyncPolicy) (plugin.PipelinePlan, []plugin.Scope, errors.Error) {
@@ -109,9 +108,9 @@ func makeScopesV200(bpScopes []*plugin.BlueprintScopeV200, connectionId uint64) 
 func GetApiProject(
 	projectKey string,
 	apiClient aha.ApiClientAbstract,
-) (*tasks.SonarqubeApiProject, errors.Error) {
+) (*models.SonarqubeApiProject, errors.Error) {
 	var resData struct {
-		Data []tasks.SonarqubeApiProject `json:"components"`
+		Data []models.SonarqubeApiProject `json:"components"`
 	}
 	query := url.Values{}
 	query.Set("q", projectKey)

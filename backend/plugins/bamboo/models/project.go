@@ -19,13 +19,13 @@ package models
 
 import (
 	"encoding/json"
-	"github.com/apache/incubator-devlake/core/plugin"
-
 	"github.com/apache/incubator-devlake/core/models/common"
+	"github.com/apache/incubator-devlake/core/plugin"
+	"github.com/apache/incubator-devlake/helpers/pluginhelper/api"
 )
 
 var _ plugin.ToolLayerScope = (*BambooProject)(nil)
-var _ plugin.ApiGroup = (*GroupResponse)(nil)
+var _ plugin.ApiGroup = (*api.NoRemoteGroupResponse)(nil)
 var _ plugin.ApiScope = (*ApiBambooProject)(nil)
 
 type BambooProject struct {
@@ -103,15 +103,4 @@ func (apiProject ApiBambooProject) ConvertApiScope() plugin.ToolLayerScope {
 	b.Description = apiProject.Description
 	b.Href = apiProject.Link.Href
 	return b
-}
-
-type GroupResponse struct {
-}
-
-func (p GroupResponse) GroupId() string {
-	return ""
-}
-
-func (p GroupResponse) GroupName() string {
-	return ""
 }

@@ -40,6 +40,13 @@ type Data struct {
 	Count int `json:"count"`
 }
 
+var priorityMap = map[string]string{
+	"1": "Nice To Have",
+	"2": "Low",
+	"3": "Middle",
+	"4": "High",
+}
+
 var accountIdGen *didgen.DomainIdGenerator
 var workspaceIdGen *didgen.DomainIdGenerator
 var iterIdGen *didgen.DomainIdGenerator

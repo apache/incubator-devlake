@@ -18,9 +18,11 @@ limitations under the License.
 package api
 
 import (
+	"strings"
+
+	"github.com/apache/incubator-devlake/core/models/common"
 	"github.com/apache/incubator-devlake/core/models/domainlayer"
 	"github.com/apache/incubator-devlake/core/models/domainlayer/crossdomain"
-	"strings"
 )
 
 const TimeFormat = "2006-01-02"
@@ -267,6 +269,12 @@ func (*projectMapping) toDomainLayer(tt []projectMapping) []*crossdomain.Project
 			ProjectName: t.ProjectName,
 			Table:       t.Table,
 			RowId:       t.RowId,
+			NoPKModel: common.NoPKModel{
+				RawDataOrigin: common.RawDataOrigin{
+					// set the RawDataParams equals to projectName. In the case of importing from CSV file, records would be deleted in terms of this field
+					RawDataParams: t.ProjectName,
+				},
+			},
 		})
 	}
 	return result

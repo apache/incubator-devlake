@@ -37,7 +37,7 @@ import (
 	"reflect"
 )
 
-// ScopeApiHelper is used to write the CURD of connection
+// ScopeApiHelper is used to write the CURD of scopes
 type ScopeApiHelper[Conn any, Scope any, Tr any] struct {
 	log        log.Logger
 	db         dal.Dal
@@ -45,7 +45,7 @@ type ScopeApiHelper[Conn any, Scope any, Tr any] struct {
 	connHelper *ConnectionApiHelper
 }
 
-// NewScopeHelper creates a ScopeHelper for connection management
+// NewScopeHelper creates a ScopeHelper for scopes management
 func NewScopeHelper[Conn any, Scope any, Tr any](
 	basicRes context.BasicRes,
 	vld *validator.Validate,
@@ -83,10 +83,10 @@ func (c *ScopeApiHelper[Conn, Scope, Tr]) Put(input *plugin.ApiResourceInput) (*
 	}
 	err := errors.Convert(DecodeMapStruct(input.Body, &req))
 	if err != nil {
-		return nil, errors.BadInput.Wrap(err, "decoding Github repo error")
+		return nil, errors.BadInput.Wrap(err, "decoding scope error")
 	}
 	// Extract the connection ID from the input.Params map
-	connectionId, _ := ExtractFromReqParam(input.Params)
+	connectionId, _ := extractFromReqParam(input.Params)
 	if connectionId == 0 {
 		return nil, errors.BadInput.New("invalid connectionId or scopeId")
 	}
@@ -117,9 +117,11 @@ func (c *ScopeApiHelper[Conn, Scope, Tr]) Put(input *plugin.ApiResourceInput) (*
 			return nil, err
 		}
 	}
-	err = c.save(&req.Data)
-	if err != nil {
-		return nil, err
+	if req.Data != nil && len(req.Data) > 0 {
+		err = c.save(&req.Data)
+		if err != nil {
+			return nil, err
+		}
 	}
 
 	// Save the scopes to the database
@@ -127,7 +129,7 @@ func (c *ScopeApiHelper[Conn, Scope, Tr]) Put(input *plugin.ApiResourceInput) (*
 }
 
 func (c *ScopeApiHelper[Conn, Scope, Tr]) Update(input *plugin.ApiResourceInput, fieldName string) (*plugin.ApiResourceOutput, errors.Error) {
-	connectionId, scopeId := ExtractFromReqParam(input.Params)
+	connectionId, scopeId := extractFromReqParam(input.Params)
 
 	if connectionId == 0 || len(scopeId) == 0 || scopeId == "0" {
 		return &plugin.ApiResourceOutput{Body: nil, Status: http.StatusInternalServerError}, errors.BadInput.New("invalid connectionId")
@@ -154,11 +156,29 @@ func (c *ScopeApiHelper[Conn, Scope, Tr]) Update(input *plugin.ApiResourceInput,
 	if err != nil {
 		return &plugin.ApiResourceOutput{Body: nil, Status: http.StatusInternalServerError}, errors.Default.Wrap(err, "error on saving Scope")
 	}
-	return &plugin.ApiResourceOutput{Body: &scope, Status: http.StatusOK}, nil
+	valueRepoRuleId := reflect.ValueOf(scope).FieldByName("TransformationRuleId")
+	if !valueRepoRuleId.IsValid() {
+		return &plugin.ApiResourceOutput{Body: scope, Status: http.StatusOK}, nil
+	}
+	repoRuleId := reflect.ValueOf(scope).FieldByName("TransformationRuleId").Uint()
+	var rule Tr
+	if repoRuleId > 0 {
+		err = c.db.First(&rule, dal.Where("id = ?", repoRuleId))
+		if err != nil {
+			return nil, errors.NotFound.New("transformationRule not found")
+		}
+	}
+	scopeRes := &ScopeRes[Scope]{scope, reflect.ValueOf(rule).FieldByName("Name").String()}
+
+	return &plugin.ApiResourceOutput{Body: scopeRes, Status: http.StatusOK}, nil
 }
 
+// GetScopeList returns a list of scopes. It expects a fieldName argument, which is used
+// to extract the connection ID from the input.Params map.
+
 func (c *ScopeApiHelper[Conn, Scope, Tr]) GetScopeList(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, errors.Error) {
-	connectionId, _ := ExtractFromReqParam(input.Params)
+	// Extract the connection ID from the input.Params map
+	connectionId, _ := extractFromReqParam(input.Params)
 	if connectionId == 0 {
 		return nil, errors.BadInput.New("invalid path params")
 	}
@@ -204,7 +224,7 @@ func (c *ScopeApiHelper[Conn, Scope, Tr]) GetScopeList(input *plugin.ApiResource
 }
 
 func (c *ScopeApiHelper[Conn, Scope, Tr]) GetScope(input *plugin.ApiResourceInput, fieldName string) (*plugin.ApiResourceOutput, errors.Error) {
-	connectionId, scopeId := ExtractFromReqParam(input.Params)
+	connectionId, scopeId := extractFromReqParam(input.Params)
 	if connectionId == 0 || len(scopeId) == 0 || scopeId == "0" {
 		return nil, errors.BadInput.New("invalid path params")
 	}
@@ -262,7 +282,7 @@ func (c *ScopeApiHelper[Conn, Scope, Tr]) save(scope interface{}) errors.Error {
 	return nil
 }
 
-func ExtractFromReqParam(params map[string]string) (uint64, string) {
+func extractFromReqParam(params map[string]string) (uint64, string) {
 	connectionId, err := strconv.ParseUint(params["connectionId"], 10, 64)
 	if err != nil {
 		return 0, ""
@@ -284,13 +304,13 @@ func setScopeFields(p interface{}, connectionId uint64, createdDate *time.Time, 
 
 	// set CreatedDate
 	createdDateField := pValue.FieldByName("CreatedDate")
-	if createdDateField.IsValid() {
+	if createdDateField.IsValid() && createdDateField.Type().AssignableTo(reflect.TypeOf(createdDate)) {
 		createdDateField.Set(reflect.ValueOf(createdDate))
 	}
 
 	// set UpdatedDate
 	updatedDateField := pValue.FieldByName("UpdatedDate")
-	if !updatedDateField.IsValid() {
+	if !updatedDateField.IsValid() || (updatedDate != nil && !updatedDateField.Type().AssignableTo(reflect.TypeOf(updatedDate))) {
 		return
 	}
 	if updatedDate == nil {

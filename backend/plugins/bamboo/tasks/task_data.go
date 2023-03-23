@@ -23,30 +23,13 @@ import (
 	"github.com/apache/incubator-devlake/plugins/bamboo/models"
 )
 
-type BambooApiParams struct {
-	ConnectionId uint64 `json:"connectionId"`
-	ProjectKey   string
-}
-
-type BambooOptions struct {
-	// TODO add some custom options here if necessary
-	// options means some custom params required by plugin running.
-	// Such As How many rows do your want
-	// You can use it in sub tasks and you need pass it in main.go and pipelines.
-	ConnectionId                     uint64   `json:"connectionId"`
-	ProjectKey                       string   `json:"projectKey"`
-	Tasks                            []string `json:"tasks,omitempty"`
-	TransformationRuleId             uint64   `mapstructure:"transformationRuleId" json:"transformationRuleId"`
-	*models.BambooTransformationRule `mapstructure:"transformationRules" json:"transformationRules"`
-}
-
 type BambooTaskData struct {
-	Options   *BambooOptions
+	Options   *models.BambooOptions
 	ApiClient *helper.ApiAsyncClient
 }
 
-func DecodeAndValidateTaskOptions(options map[string]interface{}) (*BambooOptions, errors.Error) {
-	var op BambooOptions
+func DecodeAndValidateTaskOptions(options map[string]interface{}) (*models.BambooOptions, errors.Error) {
+	var op models.BambooOptions
 	if err := helper.Decode(options, &op, nil); err != nil {
 		return nil, err
 	}

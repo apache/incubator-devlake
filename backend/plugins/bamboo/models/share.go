@@ -17,6 +17,8 @@ limitations under the License.
 
 package models
 
+import "time"
+
 type ApiBambooLink struct {
 	Href string `json:"href"`
 	Rel  string `json:"rel"`
@@ -39,4 +41,9 @@ type ApiBambooOperations struct {
 	CanExecute                bool `json:"canExecute"`
 	AllowedToCreateVersion    bool `json:"allowedToCreateVersion"`
 	AllowedToSetVersionStatus bool `json:"allowedToSetVersionStatus"`
+}
+
+func unixForBambooDeployBuild(time_unix int64) *time.Time {
+	t := time.Unix(time_unix/1000, 0)
+	return &t
 }

@@ -80,6 +80,7 @@ func ExtractDeploy(taskCtx plugin.SubTaskContext) errors.Error {
 
 					body.Convert(&env)
 					body.ConnectionId = data.Options.ConnectionId
+					body.ProjectKey = data.Options.ProjectKey
 					body.PlanKey = res.PlanKey.Key
 
 					results = append(results, body)
