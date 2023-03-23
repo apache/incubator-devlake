@@ -24,10 +24,9 @@ import (
 	"crypto/sha256"
 	"encoding/base64"
 	"fmt"
-	"math/rand"
-	"time"
 
 	"github.com/apache/incubator-devlake/core/errors"
+	"github.com/apache/incubator-devlake/core/utils"
 )
 
 const EncodeKeyEnvStr = "ENCODE_KEY"
@@ -140,17 +139,7 @@ func AesDecrypt(crypted, key []byte) ([]byte, errors.Error) {
 	return origData, nil
 }
 
-// randomCapsStr A random string of length len uppercase characters
-func randomCapsStr(len int) string {
-	r := rand.New(rand.NewSource(time.Now().Unix()))
-	randomBytes := make([]byte, len)
-	for i := 0; i < len; i++ {
-		b := r.Intn(26) + 65
-		randomBytes[i] = byte(b)
-	}
-	return string(randomBytes)
-}
-
+// RandomEncKey will return a random string of length 128
 func RandomEncKey() string {
-	return randomCapsStr(128)
+	return utils.RandLetterBytes(128)
 }
