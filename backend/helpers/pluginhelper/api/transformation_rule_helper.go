@@ -22,18 +22,12 @@ import (
 	"github.com/apache/incubator-devlake/core/dal"
 	"github.com/apache/incubator-devlake/core/errors"
 	"github.com/apache/incubator-devlake/core/log"
-	"github.com/apache/incubator-devlake/core/models/common"
 	"github.com/apache/incubator-devlake/core/plugin"
 	"github.com/go-playground/validator/v10"
 	"github.com/mitchellh/mapstructure"
 	"net/http"
 	"strconv"
 )
-
-type AbstractTr interface {
-	dal.Tabler
-	common.Model
-}
 
 // TransformationRuleHelper is used to write the CURD of transformation rule
 type TransformationRuleHelper[Tr dal.Tabler] struct {
