@@ -16,39 +16,39 @@
  *
  */
 
-import { useState } from 'react';
-import { Button, Intent } from '@blueprintjs/core';
+import { useState, useMemo } from 'react';
+import { Button, Icon, Intent, Position, Colors } from '@blueprintjs/core';
+import { Tooltip2 } from '@blueprintjs/popover2';
 
 import { Table, Dialog } from '@/components';
 import { DataScopeForm } from '@/plugins';
 
-import { BPConnectionType } from '../../types';
-
 import * as S from './styled';
 
 interface Props {
-  connections: BPConnectionType[];
+  connections: MixConnection[];
   cancelBtnProps?: {
     text?: string;
   };
   submitBtnProps?: {
-    text: string;
+    text?: string;
   };
   onCancel?: () => void;
   onSubmit?: () => void;
-  onChange?: (connections: BPConnectionType[]) => void;
+  onChange?: (connections: MixConnection[]) => void;
 }
 
 export const DataScope = ({ connections, cancelBtnProps, submitBtnProps, onCancel, onSubmit, onChange }: Props) => {
-  const [connection, setConnection] = useState<BPConnectionType>();
+  const [connection, setConnection] = useState<MixConnection>();
+
+  const error = useMemo(
+    () => (!connections.every((cs) => cs.scope.length) ? 'No Data Scope is Selected' : ''),
+    [connections],
+  );
 
   const handleCancel = () => setConnection(undefined);
 
-  const handleSubmit = (
-    connection: BPConnectionType,
-    scope: BPConnectionType['scope'],
-    origin: BPConnectionType['origin'],
-  ) => {
+  const handleSubmit = (connection: MixConnection, scope: MixConnection['scope'], origin: MixConnection['origin']) => {
     onChange?.(
       connections.map((cs) => {
         if (cs.unique === connection.unique) {
@@ -71,9 +71,11 @@ export const DataScope = ({ connections, cancelBtnProps, submitBtnProps, onCance
         plugin={plugin}
         connectionId={connectionId}
         cancelBtnProps={cancelBtnProps}
-        submitBtnProps={submitBtnProps}
+        submitBtnProps={{
+          ...submitBtnProps,
+        }}
         onCancel={onCancel}
-        onSubmit={(scope: BPConnectionType['scope'], origin: BPConnectionType['origin']) => {
+        onSubmit={(scope: MixConnection['scope'], origin: MixConnection['origin']) => {
           onChange?.([
             {
               plugin,
@@ -108,7 +110,7 @@ export const DataScope = ({ connections, cancelBtnProps, submitBtnProps, onCance
             title: 'Data Scope',
             dataIndex: 'origin',
             key: 'scope',
-            render: (scope: BPConnectionType['origin']) =>
+            render: (scope: MixConnection['origin']) =>
               !scope.length ? (
                 <span>No Data Scope Selected</span>
               ) : (
@@ -142,19 +144,32 @@ export const DataScope = ({ connections, cancelBtnProps, submitBtnProps, onCance
       />
       <S.Btns>
         <Button outlined intent={Intent.PRIMARY} text="Cancel" onClick={onCancel} {...cancelBtnProps} />
-        <Button intent={Intent.PRIMARY} text="Save" onClick={onSubmit} {...submitBtnProps} />
+        <Button
+          intent={Intent.PRIMARY}
+          disabled={!!error}
+          icon={
+            error ? (
+              <Tooltip2 defaultIsOpen placement={Position.TOP} content={error}>
+                <Icon icon="warning-sign" color={Colors.ORANGE5} style={{ margin: 0 }} />
+              </Tooltip2>
+            ) : null
+          }
+          text="Save"
+          onClick={onSubmit}
+          {...submitBtnProps}
+        />
       </S.Btns>
       {connection && (
         <Dialog isOpen title="Set Data Scope" footer={null} style={{ width: 820 }} onCancel={handleCancel}>
-          <div className="connection">
-            <img src={connection.icon} width={24} alt="" />
+          <S.DialogTitle>
+            <img src={connection.icon} alt="" />
             <span>{connection.name}</span>
-          </div>
+          </S.DialogTitle>
           <DataScopeForm
             plugin={connection.plugin}
             connectionId={connection.connectionId}
             onCancel={handleCancel}
-            onSubmit={(scope: BPConnectionType['scope'], origin: BPConnectionType['origin']) =>
+            onSubmit={(scope: MixConnection['scope'], origin: MixConnection['origin']) =>
               handleSubmit(connection, scope, origin)
             }
           />

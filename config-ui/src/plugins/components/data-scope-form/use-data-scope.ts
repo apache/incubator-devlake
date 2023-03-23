@@ -107,7 +107,7 @@ export const useDataScope = ({ plugin, connectionId, initialScope, initialEntiti
     if (success) {
       onSubmit?.(
         res.map((it: any) => ({
-          id: `${getPluginId(it)}`,
+          id: getPluginId(it),
           entities,
         })),
         res,

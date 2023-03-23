@@ -50,3 +50,15 @@ export const Btns = styled.div`
   justify-content: space-between;
   margin-top: 36px;
 `;
+
+export const DialogTitle = styled.div`
+  display: flex;
+  align-items: center;
+  margin-bottom: 16px;
+
+  img {
+    margin-right: 4px;
+    width: 24px;
+    height: 24px;
+  }
+`;

@@ -17,7 +17,8 @@
  */
 
 import { useMemo } from 'react';
-import { Button, Intent } from '@blueprintjs/core';
+import { Button, Icon, Intent, Position, Colors } from '@blueprintjs/core';
+import { Tooltip2 } from '@blueprintjs/popover2';
 
 import { Card, MultiSelector } from '@/components';
 import { transformEntities } from '@/config';
@@ -66,6 +67,11 @@ export const DataScopeForm = ({
     initialScope: initialScope ?? [],
     initialEntities: initialEntities ?? config.entities,
   });
+
+  const error = useMemo(
+    () => (!scope.length || !entities.length ? 'No Data Scope is Selected' : ''),
+    [scope, entities],
+  );
 
   return (
     <S.Wrapper>
@@ -124,19 +130,25 @@ export const DataScopeForm = ({
 
       <div className="action">
         <Button
-          outlined
           intent={Intent.PRIMARY}
+          outlined
           disabled={saving}
           text="Cancel"
           onClick={onCancel}
           {...cancelBtnProps}
         />
         <Button
-          outlined
           intent={Intent.PRIMARY}
-          loading={saving}
-          disabled={!scope.length || !entities.length}
           text="Save"
+          loading={saving}
+          disabled={!!error}
+          icon={
+            error ? (
+              <Tooltip2 defaultIsOpen placement={Position.TOP} content={error}>
+                <Icon icon="warning-sign" color={Colors.ORANGE5} style={{ margin: 0 }} />
+              </Tooltip2>
+            ) : null
+          }
           onClick={onSave}
           {...submitBtnProps}
         />
