@@ -33,7 +33,7 @@ interface Props extends UseDetailProps {}
 export const BlueprintDetail = ({ id }: Props) => {
   const [activeTab, setActiveTab] = useState<TabId>('status');
 
-  const { loading, blueprint, pipelineId, operating, onRun, onUpdate, onRefresh } = useDetail({
+  const { loading, blueprint, pipelineId, operating, onRun, onUpdate } = useDetail({
     id,
   });
 
@@ -57,9 +57,7 @@ export const BlueprintDetail = ({ id }: Props) => {
         <Tab
           id="configuration"
           title="Configuration"
-          panel={
-            <Configuration blueprint={blueprint} operating={operating} onUpdate={onUpdate} onRefresh={onRefresh} />
-          }
+          panel={<Configuration blueprint={blueprint} operating={operating} onUpdate={onUpdate} />}
         />
       </Tabs>
       {showJenkinsTips && (

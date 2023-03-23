@@ -16,6 +16,40 @@
  *
  */
 
-export * from './update-name-dialog';
-export * from './update-policy-dialog';
-export * from './connection-list';
+import styled from 'styled-components';
+
+export const List = styled.ul`
+  display: flex;
+  align-items: center;
+`;
+
+export const Item = styled.li`
+  margin-right: 24px;
+  padding: 12px 16px;
+  width: 280px;
+  background: #ffffff;
+  box-shadow: 0px 2.4px 4.8px -0.8px rgba(0, 0, 0, 0.1), 0px 1.6px 8px rgba(0, 0, 0, 0.07);
+  border-radius: 4px;
+
+  &:last-child {
+    margin-right: 0;
+  }
+
+  .title {
+    display: flex;
+    align-items: center;
+
+    img {
+      width: 24px;
+      height: 24px;
+    }
+
+    span {
+      margin-left: 8px;
+    }
+  }
+
+  .count {
+    margin: 24px 0;
+  }
+`;

@@ -26,13 +26,15 @@ export const ConfigurationPanel = styled.div`
   .top {
     display: flex;
     align-items: flex-start;
+    justify-content: space-between;
 
-    .block + .block {
-      margin-left: 32px;
-    }
+    ul {
+      display: flex;
+      align-items: flex-start;
 
-    h3 {
-      margin: 0 0 8px;
+      li + li {
+        margin-left: 48px;
+      }
     }
 
     .detail {
@@ -44,7 +46,13 @@ export const ConfigurationPanel = styled.div`
   }
 
   .bottom {
-    margin-top: 32px;
+    margin-top: 24px;
+
+    h3 {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
 
     .btns {
       margin-top: 16px;
