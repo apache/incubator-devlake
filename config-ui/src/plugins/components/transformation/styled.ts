@@ -18,22 +18,35 @@
 
 import styled from 'styled-components';
 
-export const Wrapper = styled.div``;
+export const List = styled.div``;
 
-export const Tips = styled.div`
-  padding: 24px;
-  background: #f0f4fe;
-  border: 1px solid #bdcefb;
-  border-radius: 4px;
+export const Item = styled.div`
+  margin-bottom: 36px;
+
+  &:last-child {
+    margin-bottom: 0;
+  }
+`;
+
+export const Title = styled.div`
+  display: flex;
+  align-items: center;
+  margin-bottom: 16px;
+
+  img {
+    margin-right: 4px;
+    width: 24px;
+    height: 24px;
+  }
+`;
+
+export const Action = styled.div`
+  margin-bottom: 16px;
 `;
 
 export const Btns = styled.div`
   display: flex;
   align-items: center;
-  justify-content: end;
-  margin-top: 24px;
-
-  .bp4-button + .bp4-button {
-    margin-left: 4px;
-  }
+  justify-content: space-between;
+  margin-top: 36px;
 `;

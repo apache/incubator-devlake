@@ -16,80 +16,115 @@
  *
  */
 
-import { InputGroup, Button, Intent } from '@blueprintjs/core';
+import { useState } from 'react';
+import { Button, Intent } from '@blueprintjs/core';
 
-import { PageLoading, ExternalLink, Card } from '@/components';
+import { Table, IconButton } from '@/components';
+import { TransformationSelect, getPluginId } from '@/plugins';
 
-import { GitHubTransformation } from '@/plugins/register/github';
-import { JiraTransformation } from '@/plugins/register/jira';
-import { GitLabTransformation } from '@/plugins/register/gitlab';
-import { JenkinsTransformation } from '@/plugins/register/jenkins';
-import { BitbucketTransformation } from '@/plugins/register/bitbucket';
-
-import { TIPS_MAP } from './misc';
-import type { UseTransformationProps } from './use-transformation';
-import { useTransformation } from './use-transformation';
+import * as API from './api';
 import * as S from './styled';
 
-interface Props extends UseTransformationProps {}
+interface Props {
+  connections: MixConnection[];
+  cancelBtnProps?: {
+    text?: string;
+  };
+  submitBtnProps?: {
+    text: string;
+  };
+  onCancel?: () => void;
+  onSubmit?: () => void;
+}
 
-export const Transformation = ({ plugin, connectionId, onCancel, ...props }: Props) => {
-  const { loading, name, setName, transformation, setTransformation, saving, onSave } = useTransformation({
-    plugin,
-    connectionId,
-    onCancel,
-    ...props,
-  });
+export const TransformationBind = ({ connections, cancelBtnProps, submitBtnProps, onCancel, onSubmit }: Props) => {
+  const [selected, setSelected] = useState<Record<string, ID[]>>({});
+  const [connection, setConnection] = useState<MixConnection>();
 
-  if (loading) {
-    return <PageLoading />;
-  }
+  const handleCancel = () => setConnection(undefined);
+
+  const handleSubmit = async (tid: ID, connection: MixConnection) => {
+    const { unique, plugin, connectionId } = connection;
+    const scopeIds = selected[unique];
+    const scopes = connection.scope.filter((sc) => scopeIds.includes(sc.id));
+
+    await Promise.all(
+      scopes.map((scope) =>
+        API.updateDataScope(plugin, connectionId, scope.id, {
+          ...scope,
+          transformationRuleId: tid,
+        }),
+      ),
+    );
+  };
 
   return (
-    <S.Wrapper>
-      {TIPS_MAP[plugin] && (
-        <S.Tips>
-          To learn about how {TIPS_MAP[plugin].name} transformation is used in DevLake,{' '}
-          <ExternalLink link={TIPS_MAP[plugin].link}>check out this doc</ExternalLink>.
-        </S.Tips>
-      )}
-
-      <Card style={{ marginTop: 24 }}>
-        <h3>Transformation Name *</h3>
-        <p>Give this set of transformation rules a unique name so that you can identify it in the future.</p>
-        <InputGroup placeholder="Enter Transformation Name" value={name} onChange={(e) => setName(e.target.value)} />
-      </Card>
-
-      <Card style={{ marginTop: 24 }}>
-        {plugin === 'github' && (
-          <GitHubTransformation transformation={transformation} setTransformation={setTransformation} />
-        )}
-
-        {plugin === 'jira' && (
-          <JiraTransformation
-            connectionId={connectionId}
-            transformation={transformation}
-            setTransformation={setTransformation}
+    <S.List>
+      {connections.map((cs) => (
+        <S.Item key={cs.unique}>
+          {connections.length !== 1 && (
+            <S.Title>
+              <img src={cs.icon} alt="" />
+              <span>{cs.name}</span>
+            </S.Title>
+          )}
+          <S.Action>
+            <Button
+              intent={Intent.PRIMARY}
+              icon="annotation"
+              disabled={!selected[cs.unique] || !selected[cs.unique].length}
+              onClick={() => setConnection(cs)}
+            >
+              Select Transformation
+            </Button>
+          </S.Action>
+          <Table
+            columns={[
+              { title: 'Data Scope', dataIndex: 'name', key: 'name' },
+              {
+                title: 'Transformation',
+                dataIndex: 'transformationRuleName',
+                key: 'transformation',
+                align: 'center',
+                render: (val, row) => (
+                  <div>
+                    <span>{val ?? 'N/A'}</span>
+                    <IconButton
+                      icon="annotation"
+                      tooltip="Select Transformation"
+                      onClick={() => {
+                        setSelected({
+                          ...selected,
+                          [`${cs.unique}`]: [row.id],
+                        });
+                        setConnection(cs);
+                      }}
+                    />
+                  </div>
+                ),
+              },
+            ]}
+            dataSource={cs.origin}
+            rowSelection={{
+              rowKey: getPluginId(cs.plugin),
+              selectedRowKeys: selected[cs.unique],
+              onChange: (selectedRowKeys) => setSelected({ ...selected, [`${cs.unique}`]: selectedRowKeys }),
+            }}
           />
-        )}
-
-        {plugin === 'gitlab' && (
-          <GitLabTransformation transformation={transformation} setTransformation={setTransformation} />
-        )}
-
-        {plugin === 'jenkins' && (
-          <JenkinsTransformation transformation={transformation} setTransformation={setTransformation} />
-        )}
-
-        {plugin === 'bitbucket' && (
-          <BitbucketTransformation transformation={transformation} setTransformation={setTransformation} />
-        )}
-      </Card>
-
+        </S.Item>
+      ))}
       <S.Btns>
-        <Button outlined intent={Intent.PRIMARY} text="Cancel" onClick={onCancel} />
-        <Button intent={Intent.PRIMARY} disabled={!name} loading={saving} text="Save" onClick={onSave} />
+        <Button outlined intent={Intent.PRIMARY} text="Cancel" onClick={onCancel} {...cancelBtnProps} />
+        <Button outlined intent={Intent.PRIMARY} text="Save" onClick={onSubmit} {...submitBtnProps} />
       </S.Btns>
-    </S.Wrapper>
+      {connection && (
+        <TransformationSelect
+          plugin={connection.plugin}
+          connectionId={connection.connectionId}
+          onCancel={handleCancel}
+          onSubmit={(tid) => handleSubmit(tid, connection)}
+        />
+      )}
+    </S.List>
   );
 };
