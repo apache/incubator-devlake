@@ -72,7 +72,6 @@ func ConvertTaskChangelog(taskCtx plugin.SubTaskContext) errors.Error {
 	clIdGen := didgen.NewDomainIdGenerator(&models.TapdTaskChangelog{})
 	issueIdGen := didgen.NewDomainIdGenerator(&models.TapdTask{})
 	clIterIdGen := didgen.NewDomainIdGenerator(&models.TapdIteration{})
-
 	clauses := []dal.Clause{
 		dal.Select("tc.created, tc.id, tc.workspace_id, tc.task_id, tc.creator, _tool_tapd_task_changelog_items.*"),
 		dal.From(&models.TapdTaskChangelogItem{}),
@@ -114,11 +113,16 @@ func ConvertTaskChangelog(taskCtx plugin.SubTaskContext) errors.Error {
 				}
 			}
 			if domainCl.FieldName == "iteration_id" {
-				domainCl.FieldId = "Sprint"
+				domainCl.FieldName = "Sprint"
 				domainCl.OriginalFromValue = clIterIdGen.Generate(cl.ConnectionId, cl.IterationIdFrom)
 				domainCl.OriginalToValue = clIterIdGen.Generate(cl.ConnectionId, cl.IterationIdTo)
 				domainCl.ToValue = cl.ValueAfterParsed
-				domainCl.OriginalFromValue = cl.ValueBeforeParsed
+				domainCl.FromValue = cl.ValueBeforeParsed
+			}
+			if domainCl.FieldId == "owner" {
+				domainCl.FieldName = "assignee"
+				domainCl.OriginalFromValue = generateDomainAccountIdForUsers(cl.ValueBeforeParsed, cl.ConnectionId)
+				domainCl.OriginalToValue = generateDomainAccountIdForUsers(cl.ValueAfterParsed, cl.ConnectionId)
 			}
 			return []interface{}{
 				domainCl,

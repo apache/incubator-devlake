@@ -55,7 +55,7 @@ func ConvertBugChangelog(taskCtx plugin.SubTaskContext) errors.Error {
 	logger := taskCtx.GetLogger()
 	db := taskCtx.GetDal()
 	statusList := make([]models.TapdBugStatus, 0)
-	statusLanguageMap, getStdStatus, err := getDefaltStdStatusMapping(data, db, statusList)
+	statusLanguageMap, getStdStatus, err := getDefaultStdStatusMapping(data, db, statusList)
 	if err != nil {
 		return err
 	}
@@ -97,12 +97,18 @@ func ConvertBugChangelog(taskCtx plugin.SubTaskContext) errors.Error {
 				OriginalToValue:   cl.ValueAfterParsed,
 				CreatedDate:       *cl.Created,
 			}
-			if domainCl.FieldName == "iteration_id" {
-				domainCl.FieldId = "Sprint"
+			if domainCl.FieldId == "iteration_id" {
+				domainCl.FieldName = "Sprint"
 				domainCl.OriginalFromValue = clIterIdGen.Generate(cl.ConnectionId, cl.IterationIdFrom)
 				domainCl.OriginalToValue = clIterIdGen.Generate(cl.ConnectionId, cl.IterationIdTo)
 				domainCl.ToValue = cl.ValueAfterParsed
-				domainCl.OriginalFromValue = cl.ValueBeforeParsed
+				domainCl.FromValue = cl.ValueBeforeParsed
+			}
+			if domainCl.FieldId == "current_owner" {
+				domainCl.FieldName = "assignee"
+				domainCl.OriginalFromValue = generateDomainAccountIdForUsers(cl.ValueBeforeParsed, cl.ConnectionId)
+				domainCl.OriginalToValue = generateDomainAccountIdForUsers(cl.ValueAfterParsed, cl.ConnectionId)
+
 			}
 			if domainCl.FieldName == "status" {
 				domainCl.OriginalFromValue = statusLanguageMap[domainCl.OriginalFromValue]
