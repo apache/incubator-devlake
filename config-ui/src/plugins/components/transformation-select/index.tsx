@@ -21,7 +21,7 @@ import { Button, Intent } from '@blueprintjs/core';
 
 import { Dialog, PageLoading, Table, IconButton } from '@/components';
 import { useRefreshData } from '@/hooks';
-import { Transformation } from '@/plugins';
+import { TransformationForm } from '@/plugins';
 
 import * as API from './api';
 import * as S from './styled';
@@ -110,7 +110,7 @@ export const TransformationSelect = ({ plugin, connectionId, onCancel, onSubmit 
           </S.Btns>
         </S.Wrapper>
       ) : (
-        <Transformation plugin={plugin} connectionId={connectionId} id={updatedId} onCancel={handleReset} />
+        <TransformationForm plugin={plugin} connectionId={connectionId} id={updatedId} onCancel={handleReset} />
       )}
     </Dialog>
   );

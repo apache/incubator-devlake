@@ -16,11 +16,13 @@
  *
  */
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { InputGroup, Button, Intent } from '@blueprintjs/core';
 
 import { PageLoading, ExternalLink, Card } from '@/components';
 import { useRefreshData, useOperator } from '@/hooks';
+import type { PluginConfigType } from '@/plugins';
+import { PluginConfig } from '@/plugins';
 import { GitHubTransformation } from '@/plugins/register/github';
 import { JiraTransformation } from '@/plugins/register/jira';
 import { GitLabTransformation } from '@/plugins/register/gitlab';
@@ -38,9 +40,11 @@ interface Props {
   onCancel?: () => void;
 }
 
-export const Transformation = ({ plugin, connectionId, id, onCancel }: Props) => {
+export const TransformationForm = ({ plugin, connectionId, id, onCancel }: Props) => {
   const [name, setName] = useState('');
   const [transformation, setTransformation] = useState({});
+
+  const config = useMemo(() => PluginConfig.find((p) => p.plugin === plugin) as PluginConfigType, []);
 
   const { ready, data } = useRefreshData(async () => {
     if (!id) return null;
@@ -48,22 +52,19 @@ export const Transformation = ({ plugin, connectionId, id, onCancel }: Props) =>
   }, [id]);
 
   const { operating, onSubmit } = useOperator(
-    () =>
+    (payload) =>
       id
-        ? API.updateTransformation(plugin, connectionId, id, {
-            ...transformation,
-            name,
-          })
-        : API.createTransformation(plugin, connectionId, {
-            ...transformation,
-            name,
-          }),
-    { callback: onCancel },
+        ? API.updateTransformation(plugin, connectionId, id, payload)
+        : API.createTransformation(plugin, connectionId, payload),
+    {
+      callback: onCancel,
+      formatMessage: () => 'Transformation created successfully',
+    },
   );
 
   useEffect(() => {
-    setTransformation(data ?? {});
-  }, [data]);
+    setTransformation(data ?? config.transformation);
+  }, [data, config.transformation]);
 
   if (!ready) {
     return <PageLoading />;
@@ -112,7 +113,13 @@ export const Transformation = ({ plugin, connectionId, id, onCancel }: Props) =>
 
       <S.Btns>
         <Button outlined intent={Intent.PRIMARY} text="Cancel" onClick={onCancel} />
-        <Button intent={Intent.PRIMARY} disabled={!name} loading={operating} text="Save" onClick={onSubmit} />
+        <Button
+          intent={Intent.PRIMARY}
+          disabled={!name}
+          loading={operating}
+          text="Save"
+          onClick={() => onSubmit({ ...transformation, name })}
+        />
       </S.Btns>
     </S.Wrapper>
   );

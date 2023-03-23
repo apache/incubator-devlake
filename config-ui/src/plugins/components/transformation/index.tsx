@@ -31,31 +31,41 @@ interface Props {
     text?: string;
   };
   submitBtnProps?: {
-    text: string;
+    text?: string;
+    loading?: boolean;
   };
   onCancel?: () => void;
   onSubmit?: () => void;
+  onChange?: (connections: MixConnection[]) => void;
 }
 
-export const TransformationBind = ({ connections, cancelBtnProps, submitBtnProps, onCancel, onSubmit }: Props) => {
+export const Transformation = ({
+  connections,
+  cancelBtnProps,
+  submitBtnProps,
+  onCancel,
+  onSubmit,
+  onChange,
+}: Props) => {
   const [selected, setSelected] = useState<Record<string, ID[]>>({});
   const [connection, setConnection] = useState<MixConnection>();
 
   const handleCancel = () => setConnection(undefined);
 
-  const handleSubmit = async (tid: ID, connection: MixConnection) => {
+  const handleSubmit = async (tid: ID, connection: MixConnection, connections: MixConnection[]) => {
     const { unique, plugin, connectionId } = connection;
     const scopeIds = selected[unique];
-    const scopes = connection.scope.filter((sc) => scopeIds.includes(sc.id));
-
-    await Promise.all(
-      scopes.map((scope) =>
-        API.updateDataScope(plugin, connectionId, scope.id, {
+    const scopes = await Promise.all(
+      scopeIds.map(async (scopeId) => {
+        const scope = await API.getDataScope(plugin, connectionId, scopeId);
+        return await API.updateDataScope(plugin, connectionId, scopeId, {
           ...scope,
           transformationRuleId: tid,
-        }),
-      ),
+        });
+      }),
     );
+    onChange?.(connections.map((cs) => (cs.unique !== unique ? cs : { ...cs, origin: scopes })));
+    handleCancel();
   };
 
   return (
@@ -95,7 +105,7 @@ export const TransformationBind = ({ connections, cancelBtnProps, submitBtnProps
                       onClick={() => {
                         setSelected({
                           ...selected,
-                          [`${cs.unique}`]: [row.id],
+                          [`${cs.unique}`]: [row[getPluginId(cs.plugin)]],
                         });
                         setConnection(cs);
                       }}
@@ -122,7 +132,7 @@ export const TransformationBind = ({ connections, cancelBtnProps, submitBtnProps
           plugin={connection.plugin}
           connectionId={connection.connectionId}
           onCancel={handleCancel}
-          onSubmit={(tid) => handleSubmit(tid, connection)}
+          onSubmit={(tid) => handleSubmit(tid, connection, connections)}
         />
       )}
     </S.List>
