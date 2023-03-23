@@ -49,5 +49,5 @@ type TeambitionScenarioField struct {
 }
 
 func (TeambitionTaskScenario) TableName() string {
-	return "_tool_teambition_task_scenario"
+	return "_tool_teambition_task_scenarios"
 }

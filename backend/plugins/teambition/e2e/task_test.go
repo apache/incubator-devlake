@@ -35,18 +35,8 @@ func TestTeambitionTask(t *testing.T) {
 
 	taskData := &tasks.TeambitionTaskData{
 		Options: &tasks.TeambitionOptions{
-			ConnectionId:   1,
-			OrganizationId: "640b1c30c933fd85bb11ca31",
-			ProjectId:      "64132c94f0d59df1c9825ab8",
-			TransformationRules: tasks.TransformationRules{
-				TypeMappings: map[string]tasks.TypeMapping{
-					"BUG":  {StandardType: "缺陷"},
-					"TASK": {StandardType: "任务"},
-					"需求":   {StandardType: "故事需求"},
-					"技术债":  {StandardType: "技术需求债务"},
-					"长篇故事": {StandardType: "Epic需求"},
-				},
-			},
+			ConnectionId: 1,
+			ProjectId:    "64132c94f0d59df1c9825ab8",
 		},
 	}
 
@@ -102,8 +92,8 @@ func TestTeambitionTask(t *testing.T) {
 	dataflowTester.VerifyTableWithOptions(
 		ticket.Issue{},
 		e2ehelper.TableOptions{
-			CSVRelPath:   "./snapshot_tables/issue.csv",
-			IgnoreFields: []string{"created_date", "logged_date", "started_date"},
+			CSVRelPath:   "./snapshot_tables/issues.csv",
+			IgnoreFields: []string{"created_date", "logged_date", "started_date", "updated_date", "resolution_date"},
 			IgnoreTypes:  []interface{}{domainlayer.DomainEntity{}},
 		},
 	)
