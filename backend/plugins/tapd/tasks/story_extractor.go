@@ -72,7 +72,7 @@ func ExtractStories(taskCtx plugin.SubTaskContext) errors.Error {
 			}
 
 			toolL.ConnectionId = data.Options.ConnectionId
-
+			toolL.Priority = priorityMap[toolL.Priority]
 			toolL.Type = typeIdMapping[toolL.WorkitemTypeId]
 			toolL.StdType = stdTypeMappings[toolL.Type]
 			if toolL.StdType == "" {

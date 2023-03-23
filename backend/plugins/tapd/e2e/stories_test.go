@@ -18,6 +18,7 @@ limitations under the License.
 package e2e
 
 import (
+	"github.com/apache/incubator-devlake/core/models/common"
 	"github.com/apache/incubator-devlake/core/models/domainlayer/ticket"
 	"github.com/apache/incubator-devlake/helpers/e2ehelper"
 	"github.com/apache/incubator-devlake/plugins/tapd/impl"
@@ -205,38 +206,11 @@ func TestTapdStoryDataFlow(t *testing.T) {
 	dataflowTester.FlushTabler(&ticket.SprintIssue{})
 	dataflowTester.FlushTabler(&ticket.IssueLabel{})
 	dataflowTester.Subtask(tasks.ConvertStoryMeta, taskData)
-	dataflowTester.VerifyTable(
-		ticket.Issue{},
-		"./snapshot_tables/issues_story.csv",
-		e2ehelper.ColumnWithRawData(
-			"id",
-			"url",
-			"issue_key",
-			"title",
-			"description",
-			"epic_key",
-			"type",
-			"status",
-			"original_status",
-			"story_point",
-			"resolution_date",
-			"created_date",
-			"updated_date",
-			"lead_time_minutes",
-			"parent_issue_id",
-			"priority",
-			"original_estimate_minutes",
-			"time_spent_minutes",
-			"time_remaining_minutes",
-			"creator_id",
-			"assignee_id",
-			"assignee_name",
-			"severity",
-			"component",
-			"icon_url",
-			"creator_name",
-		),
-	)
+	dataflowTester.VerifyTableWithOptions(&ticket.Issue{}, e2ehelper.TableOptions{
+		CSVRelPath:  "./snapshot_tables/issues_story.csv",
+		IgnoreTypes: []interface{}{common.Model{}},
+	})
+
 	dataflowTester.VerifyTable(
 		ticket.BoardIssue{},
 		"./snapshot_tables/board_issues_story.csv",

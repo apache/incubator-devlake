@@ -224,6 +224,12 @@ func (t *DataFlowTester) CreateSnapshot(dst schema.Tabler, opts TableOptions) {
 	if err != nil {
 		panic(err)
 	}
+	for i := 0; i < len(pkColumnNames); i++ {
+		group := strings.Split(pkColumnNames[i], ".")
+		if len(group) > 1 {
+			pkColumnNames[i] = group[len(group)-1]
+		}
+	}
 	allFields := append(pkColumnNames, targetFields...)
 	allFields = utils.StringsUniq(allFields)
 	dbCursor, err := t.Dal.Cursor(

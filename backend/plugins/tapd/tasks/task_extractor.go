@@ -70,6 +70,7 @@ func ExtractTasks(taskCtx plugin.SubTaskContext) errors.Error {
 			if toolL.StdType == "" {
 				toolL.StdType = ticket.TASK
 			}
+			toolL.Priority = priorityMap[toolL.Priority]
 			toolL.StdStatus = getTaskStdStatus(toolL.Status)
 			if strings.Contains(toolL.Owner, ";") {
 				toolL.Owner = strings.Split(toolL.Owner, ";")[0]
