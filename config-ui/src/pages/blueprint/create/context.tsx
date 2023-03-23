@@ -20,49 +20,39 @@ import React, { useState, useMemo, useContext } from 'react';
 import { useHistory } from 'react-router-dom';
 import dayjs from 'dayjs';
 
-import type { ConnectionItemType } from '@/store';
-import { useConnection, ConnectionStatusEnum } from '@/store';
 import { operator, formatTime } from '@/utils';
 
 import { ModeEnum, FromEnum } from '../types';
 import { validRawPlan } from '../utils';
 
-import type { BPContextType } from './types';
+import type { ContextType } from './types';
 import * as API from './api';
 
-export const BPContext = React.createContext<BPContextType>({
+export const Context = React.createContext<ContextType>({
   step: 1,
-  error: '',
-  showInspector: false,
-  showDetail: false,
-  payload: {},
 
   name: 'MY BLUEPRINT',
   mode: ModeEnum.normal,
+  connections: [],
   rawPlan: JSON.stringify([[]], null, '  '),
-  uniqueList: [],
-  scopeMap: {},
   cronConfig: '0 0 * * *',
   isManual: false,
   skipOnFail: false,
   timeAfter: null,
 
-  onChangeStep: () => {},
-  onChangeShowInspector: () => {},
-  onChangeShowDetail: () => {},
+  onPrev: () => {},
+  onNext: () => {},
+  onSave: () => {},
+  onSaveAndRun: () => {},
 
   onChangeMode: () => {},
   onChangeName: () => {},
+  onChangeConnections: () => {},
   onChangeRawPlan: () => {},
-  onChangeUniqueList: () => {},
-  onChangeScopeMap: () => {},
   onChangeCronConfig: () => {},
   onChangeIsManual: () => {},
   onChangeSkipOnFail: () => {},
   onChangeTimeAfter: () => {},
-
-  onSave: () => {},
-  onSaveAndRun: () => {},
 });
 
 interface Props {
@@ -71,18 +61,15 @@ interface Props {
   children: React.ReactNode;
 }
 
-export const BPContextProvider = ({ from, projectName, children }: Props) => {
+export const ContextProvider = ({ from, projectName, children }: Props) => {
   const [step, setStep] = useState(1);
-  const [showInspector, setShowInspector] = useState(false);
-  const [showDetail, setShowDetail] = useState(false);
 
   const [name, setName] = useState(
     from === FromEnum.project ? `${window.decodeURIComponent(projectName)}-BLUEPRINT` : 'MY BLUEPRINT',
   );
   const [mode, setMode] = useState<ModeEnum>(ModeEnum.normal);
+  const [connections, setConnections] = useState<MixConnection[]>([]);
   const [rawPlan, setRawPlan] = useState(JSON.stringify([[]], null, '  '));
-  const [uniqueList, setUniqueList] = useState<string[]>([]);
-  const [scopeMap, setScopeMap] = useState<Record<string, any>>({});
   const [cronConfig, setCronConfig] = useState('0 0 * * *');
   const [isManual, setIsManual] = useState(false);
   const [skipOnFail, setSkipOnFail] = useState(true);
@@ -91,30 +78,6 @@ export const BPContextProvider = ({ from, projectName, children }: Props) => {
   );
 
   const history = useHistory();
-
-  const { connections } = useConnection();
-
-  const error = useMemo(() => {
-    switch (true) {
-      case !name:
-        return 'Blueprint Name: Enter a valid Name';
-      case name.length < 3:
-        return 'Blueprint Name: Name too short, 3 chars minimum.';
-      case mode === ModeEnum.advanced && validRawPlan(rawPlan):
-        return 'Advanced Mode: Invalid/Empty Configuration';
-      case mode === ModeEnum.normal && !uniqueList.length:
-        return 'Normal Mode: No Data Connections selected.';
-      case mode === ModeEnum.normal &&
-        !connections
-          .filter((cs) => uniqueList.includes(cs.unique))
-          .every((cs) => cs.status === ConnectionStatusEnum.ONLINE):
-        return 'Normal Mode: Has some offline connections';
-      case step === 2 && Object.keys(scopeMap).filter((key) => scopeMap[key].length).length !== uniqueList.length:
-        return 'No Data Scope is Selected';
-      default:
-        return '';
-    }
-  }, [name, mode, rawPlan, uniqueList, connections, step, scopeMap]);
 
   const payload = useMemo(() => {
     const params: any = {
@@ -131,13 +94,14 @@ export const BPContextProvider = ({ from, projectName, children }: Props) => {
       params.settings = {
         version: '2.0.0',
         timeAfter,
-        connections: uniqueList.map((unique) => {
-          const connection = connections.find((cs) => cs.unique === unique) as ConnectionItemType;
-          const scope = scopeMap[unique] ?? [];
+        connections: connections.map((cs) => {
           return {
-            plugin: connection.plugin,
-            connectionId: connection.id,
-            scopes: scope,
+            plugin: cs.plugin,
+            connectionId: cs.connectionId,
+            scopes: cs.scope.map((sc) => ({
+              id: `${sc.id}`,
+              entities: sc.entities,
+            })),
           };
         }),
       };
@@ -149,19 +113,7 @@ export const BPContextProvider = ({ from, projectName, children }: Props) => {
     }
 
     return params;
-  }, [
-    name,
-    projectName,
-    mode,
-    cronConfig,
-    isManual,
-    skipOnFail,
-    timeAfter,
-    rawPlan,
-    uniqueList,
-    scopeMap,
-    connections,
-  ]);
+  }, [projectName, name, mode, connections, rawPlan, cronConfig, isManual, skipOnFail, timeAfter]);
 
   const handleSaveAfter = (id: ID) => {
     const path =
@@ -189,48 +141,43 @@ export const BPContextProvider = ({ from, projectName, children }: Props) => {
     }
   };
 
+  const handlePrev = () => setStep(step - 1);
+  const handleNext = () => setStep(step + 1);
+
   return (
-    <BPContext.Provider
+    <Context.Provider
       value={{
         step,
-        error,
-        showInspector,
-        showDetail,
-        payload,
 
-        name,
         mode,
+        name,
+        connections,
         rawPlan,
-        uniqueList,
-        scopeMap,
         cronConfig,
         isManual,
         skipOnFail,
         timeAfter,
 
-        onChangeStep: setStep,
-        onChangeShowInspector: setShowInspector,
-        onChangeShowDetail: setShowDetail,
+        onPrev: handlePrev,
+        onNext: handleNext,
+        onSave: handleSave,
+        onSaveAndRun: hanldeSaveAndRun,
 
-        onChangeName: setName,
         onChangeMode: setMode,
+        onChangeName: setName,
+        onChangeConnections: setConnections,
         onChangeRawPlan: setRawPlan,
-        onChangeUniqueList: setUniqueList,
-        onChangeScopeMap: setScopeMap,
         onChangeCronConfig: setCronConfig,
         onChangeIsManual: setIsManual,
         onChangeSkipOnFail: setSkipOnFail,
         onChangeTimeAfter: setTimeAfter,
-
-        onSave: handleSave,
-        onSaveAndRun: hanldeSaveAndRun,
       }}
     >
       {children}
-    </BPContext.Provider>
+    </Context.Provider>
   );
 };
 
-export const useCreateBP = () => {
-  return useContext(BPContext);
+export const useCreate = () => {
+  return useContext(Context);
 };

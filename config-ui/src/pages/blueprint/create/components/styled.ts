@@ -19,6 +19,14 @@
 import styled from 'styled-components';
 import { Colors } from '@blueprintjs/core';
 
+export const Wrapper = styled.div`
+  margin-top: 36px;
+
+  .card + .card {
+    margin-top: 16px;
+  }
+`;
+
 export const ConnectionList = styled.ul`
   padding: 12px;
 
@@ -54,5 +62,40 @@ export const Tips = styled.p`
   span:last-child {
     color: #7497f7;
     cursor: pointer;
+  }
+`;
+
+export const ConnectionColumn = styled.div`
+  display: flex;
+  align-items: center;
+
+  img {
+    margin-right: 4px;
+    width: 20px;
+  }
+`;
+
+export const ScopeColumn = styled.ul``;
+
+export const ScopeItem = styled.li`
+  margin-bottom: 4px;
+
+  &:last-child {
+    margin-bottom: 0;
+  }
+
+  .bp4-button {
+    margin-left: 6px;
+  }
+`;
+
+export const Btns = styled.div`
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-top: 36px;
+
+  .bp4-button + .bp4-button {
+    margin-left: 8px;
   }
 `;

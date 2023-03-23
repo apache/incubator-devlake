@@ -16,15 +16,25 @@
  *
  */
 
-import styled from 'styled-components';
+import { DataScope } from '@/plugins';
 
-export const Container = styled.div`
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  margin-top: 36px;
+import { useCreate } from '../context';
 
-  .bp4-button + .bp4-button {
-    margin-left: 8px;
-  }
-`;
+import * as S from './styled';
+
+export const Step2 = () => {
+  const { connections, onChangeConnections, onPrev, onNext } = useCreate();
+
+  return (
+    <S.Wrapper>
+      <DataScope
+        connections={connections}
+        cancelBtnProps={{ text: 'Previous Step' }}
+        submitBtnProps={{ text: 'Next Step' }}
+        onCancel={onPrev}
+        onSubmit={onNext}
+        onChange={onChangeConnections}
+      />
+    </S.Wrapper>
+  );
+};

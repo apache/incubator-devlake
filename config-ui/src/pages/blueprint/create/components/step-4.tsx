@@ -16,15 +16,18 @@
  *
  */
 
-import React from 'react';
+import { Button, Intent } from '@blueprintjs/core';
 
 import { Card, Divider } from '@/components';
 
 import { ModeEnum } from '../../types';
-import { useCreateBP } from '../bp-context';
 import { SyncPolicy } from '../../components';
 
-export const StepFour = () => {
+import { useCreate } from '../context';
+
+import * as S from './styled';
+
+export const Step4 = () => {
   const {
     mode,
     isManual,
@@ -35,23 +38,35 @@ export const StepFour = () => {
     onChangeCronConfig,
     onChangeSkipOnFail,
     onChangeTimeAfter,
-  } = useCreateBP();
+    onPrev,
+    onSave,
+    onSaveAndRun,
+  } = useCreate();
 
   return (
-    <Card>
-      <h2>Set Sync Policy</h2>
-      <Divider />
-      <SyncPolicy
-        isManual={isManual}
-        cronConfig={cronConfig}
-        skipOnFail={skipOnFail}
-        showTimeFilter={mode === ModeEnum.normal}
-        timeAfter={timeAfter}
-        onChangeIsManual={onChangeIsManual}
-        onChangeCronConfig={onChangeCronConfig}
-        onChangeSkipOnFail={onChangeSkipOnFail}
-        onChangeTimeAfter={onChangeTimeAfter}
-      />
-    </Card>
+    <S.Wrapper>
+      <Card>
+        <h2>Set Sync Policy</h2>
+        <Divider />
+        <SyncPolicy
+          isManual={isManual}
+          cronConfig={cronConfig}
+          skipOnFail={skipOnFail}
+          showTimeFilter={mode === ModeEnum.normal}
+          timeAfter={timeAfter}
+          onChangeIsManual={onChangeIsManual}
+          onChangeCronConfig={onChangeCronConfig}
+          onChangeSkipOnFail={onChangeSkipOnFail}
+          onChangeTimeAfter={onChangeTimeAfter}
+        />
+      </Card>
+      <S.Btns>
+        <Button intent={Intent.PRIMARY} outlined text="Previous Step" onClick={onPrev} />
+        <div>
+          <Button intent={Intent.PRIMARY} text="Save Blueprint" onClick={onSave} />
+          <Button intent={Intent.PRIMARY} outlined text="Save and Run Now" onClick={onSaveAndRun} />
+        </div>
+      </S.Btns>
+    </S.Wrapper>
   );
 };

@@ -16,32 +16,25 @@
  *
  */
 
-import React, { useMemo } from 'react';
+import { Transformation } from '@/plugins';
 
-import { ModeEnum } from '../../../types';
-import { useCreateBP } from '../../bp-context';
+import { useCreate } from '../context';
 
 import * as S from './styled';
 
-export const WorkFlow = () => {
-  const { step, mode } = useCreateBP();
-
-  const steps = useMemo(
-    () =>
-      mode === ModeEnum.normal
-        ? ['Add Data Connections', 'Set Data Scope', 'Add Transformation (Optional)', 'Set Sync Policy']
-        : ['Create Advanced Configuration', 'Set Sync Policy'],
-    [mode],
-  );
+export const Step3 = () => {
+  const { connections, onChangeConnections, onPrev, onNext } = useCreate();
 
   return (
-    <S.List>
-      {steps.map((it, i) => (
-        <S.Item key={it} active={i + 1 === step}>
-          <span className="step">{i + 1}</span>
-          <span className="name">{it}</span>
-        </S.Item>
-      ))}
-    </S.List>
+    <S.Wrapper>
+      <Transformation
+        connections={connections}
+        cancelBtnProps={{ text: 'Previous Step' }}
+        submitBtnProps={{ text: 'Next Step' }}
+        onCancel={onPrev}
+        onSubmit={onNext}
+        onChange={onChangeConnections}
+      />
+    </S.Wrapper>
   );
 };

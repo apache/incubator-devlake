@@ -16,16 +16,18 @@
  *
  */
 
-import React, { useMemo } from 'react';
-import { pick } from 'lodash';
-import { InputGroup, Icon } from '@blueprintjs/core';
+import { useMemo } from 'react';
+import { InputGroup, Icon, Button, Intent, Position, Colors } from '@blueprintjs/core';
+import { Tooltip2 } from '@blueprintjs/popover2';
 
 import { useConnection, ConnectionStatusEnum } from '@/store';
 import { Card, Divider, MultiSelector, Loading } from '@/components';
 
 import { ModeEnum, FromEnum } from '../../types';
 import { AdvancedEditor } from '../../components';
-import { useCreateBP } from '../bp-context';
+import { validRawPlan } from '../../utils';
+
+import { useCreate } from '../context';
 
 import * as S from './styled';
 
@@ -33,26 +35,34 @@ interface Props {
   from: FromEnum;
 }
 
-export const StepOne = ({ from }: Props) => {
+export const Step1 = ({ from }: Props) => {
   const { connections, onTest } = useConnection();
-
-  const {
-    mode,
-    name,
-    rawPlan,
-    uniqueList,
-    scopeMap,
-    onChangeMode,
-    onChangeName,
-    onChangeRawPlan,
-    onChangeUniqueList,
-    onChangeScopeMap,
-  } = useCreateBP();
+  const { mode, name, rawPlan, onChangeMode, onChangeName, onChangeConnections, onChangeRawPlan, onNext, ...props } =
+    useCreate();
 
   const fromProject = useMemo(() => from === FromEnum.project, [from]);
+  const uniqueList = useMemo(() => props.connections.map((sc) => sc.unique), [props.connections]);
+
+  const error = useMemo(() => {
+    switch (true) {
+      case !name:
+        return 'Blueprint Name: Enter a valid Name';
+      case name.length < 3:
+        return 'Blueprint Name: Name too short, 3 chars minimum.';
+      case mode === ModeEnum.advanced && validRawPlan(rawPlan):
+        return 'Advanced Mode: Invalid/Empty Configuration';
+      case mode === ModeEnum.normal && !uniqueList.length:
+        return 'Normal Mode: No Data Connections selected.';
+      case mode === ModeEnum.normal &&
+        !connections
+          .filter((cs) => uniqueList.includes(cs.unique))
+          .every((cs) => cs.status === ConnectionStatusEnum.ONLINE):
+        return 'Normal Mode: Has some offline connections';
+    }
+  }, [mode, name, connections, props.connections, rawPlan]);
 
   return (
-    <>
+    <S.Wrapper>
       <Card className="card">
         <h2>Blueprint Name</h2>
         <Divider />
@@ -79,9 +89,17 @@ export const StepOne = ({ from }: Props) => {
                 if (lastItem) {
                   onTest(lastItem);
                 }
-                const uniqueList = selectedItems.map((sc) => sc.unique);
-                onChangeUniqueList(uniqueList);
-                onChangeScopeMap(pick(scopeMap, uniqueList));
+                onChangeConnections(
+                  selectedItems.map((sc) => ({
+                    unique: sc.unique,
+                    plugin: sc.plugin,
+                    connectionId: sc.id,
+                    name: sc.name,
+                    icon: sc.icon,
+                    scope: [],
+                    origin: [],
+                  })),
+                );
               }}
             />
             <S.ConnectionList>
@@ -128,6 +146,23 @@ export const StepOne = ({ from }: Props) => {
           </S.Tips>
         </>
       )}
-    </>
+
+      <S.Btns>
+        <span></span>
+        <Button
+          intent={Intent.PRIMARY}
+          disabled={!!error}
+          icon={
+            error ? (
+              <Tooltip2 defaultIsOpen placement={Position.TOP} content={error}>
+                <Icon icon="warning-sign" color={Colors.ORANGE5} style={{ margin: 0 }} />
+              </Tooltip2>
+            ) : null
+          }
+          text="Next Step"
+          onClick={onNext}
+        />
+      </S.Btns>
+    </S.Wrapper>
   );
 };
