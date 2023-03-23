@@ -32,8 +32,8 @@ interface Props {
   };
   submitBtnProps?: {
     text?: string;
-    loading?: boolean;
   };
+  noFooter?: boolean;
   onCancel?: () => void;
   onSubmit?: () => void;
   onChange?: (connections: MixConnection[]) => void;
@@ -43,6 +43,7 @@ export const Transformation = ({
   connections,
   cancelBtnProps,
   submitBtnProps,
+  noFooter,
   onCancel,
   onSubmit,
   onChange,
@@ -123,10 +124,12 @@ export const Transformation = ({
           />
         </S.Item>
       ))}
-      <S.Btns>
-        <Button outlined intent={Intent.PRIMARY} text="Cancel" onClick={onCancel} {...cancelBtnProps} />
-        <Button outlined intent={Intent.PRIMARY} text="Save" onClick={onSubmit} {...submitBtnProps} />
-      </S.Btns>
+      {!noFooter && (
+        <S.Btns>
+          <Button outlined intent={Intent.PRIMARY} text="Cancel" onClick={onCancel} {...cancelBtnProps} />
+          <Button outlined intent={Intent.PRIMARY} text="Save" onClick={onSubmit} {...submitBtnProps} />
+        </S.Btns>
+      )}
       {connection && (
         <TransformationSelect
           plugin={connection.plugin}
