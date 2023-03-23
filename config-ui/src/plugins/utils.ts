@@ -16,7 +16,21 @@
  *
  */
 
-export * from './types';
-export * from './utils';
-export * from './components';
-export * from './config';
+export const getPluginId = (plugin: string) => {
+  switch (plugin) {
+    case 'github':
+      return 'githubId';
+    case 'jira':
+      return 'boardId';
+    case 'gitlab':
+      return 'gitlabId';
+    case 'jenkins':
+      return 'jobFullName';
+    case 'bitbucket':
+      return 'bitbucketId';
+    case 'sonarqube':
+      return 'projectKey';
+    default:
+      return 'id';
+  }
+};
