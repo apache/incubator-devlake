@@ -27,6 +27,8 @@ import * as S from './styled';
 
 interface Props {
   connections: MixConnection[];
+  initialScope?: any[];
+  initialEntities?: string[];
   cancelBtnProps?: {
     text?: string;
   };
@@ -38,7 +40,16 @@ interface Props {
   onChange?: (connections: MixConnection[]) => void;
 }
 
-export const DataScope = ({ connections, cancelBtnProps, submitBtnProps, onCancel, onSubmit, onChange }: Props) => {
+export const DataScope = ({
+  connections,
+  initialScope,
+  initialEntities,
+  cancelBtnProps,
+  submitBtnProps,
+  onCancel,
+  onSubmit,
+  onChange,
+}: Props) => {
   const [connection, setConnection] = useState<MixConnection>();
 
   const error = useMemo(
@@ -70,10 +81,10 @@ export const DataScope = ({ connections, cancelBtnProps, submitBtnProps, onCance
       <DataScopeForm
         plugin={plugin}
         connectionId={connectionId}
+        initialScope={initialScope}
+        initialEntities={initialEntities}
         cancelBtnProps={cancelBtnProps}
-        submitBtnProps={{
-          ...submitBtnProps,
-        }}
+        submitBtnProps={submitBtnProps}
         onCancel={onCancel}
         onSubmit={(scope: MixConnection['scope'], origin: MixConnection['origin']) => {
           onChange?.([
@@ -168,6 +179,8 @@ export const DataScope = ({ connections, cancelBtnProps, submitBtnProps, onCance
           <DataScopeForm
             plugin={connection.plugin}
             connectionId={connection.connectionId}
+            initialScope={initialScope}
+            initialEntities={initialEntities}
             onCancel={handleCancel}
             onSubmit={(scope: MixConnection['scope'], origin: MixConnection['origin']) =>
               handleSubmit(connection, scope, origin)

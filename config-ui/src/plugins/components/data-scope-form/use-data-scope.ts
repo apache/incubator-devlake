@@ -36,10 +36,7 @@ export const useDataScope = ({ plugin, connectionId, initialScope, initialEntiti
   const [entities, setEntites] = useState<any>([]);
 
   useEffect(() => {
-    (async () => {
-      const scope = await Promise.all(initialScope.map((sc: any) => API.getDataScope(plugin, connectionId, sc.id)));
-      setScope(scope);
-    })();
+    setScope(initialScope);
   }, []);
 
   useEffect(() => {
