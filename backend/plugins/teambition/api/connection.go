@@ -34,7 +34,7 @@ type TeambitionTestConnResponse struct {
 	Connection *models.TeambitionConn
 }
 
-// @Summary test teambition connection
+// TestConnection @Summary test teambition connection
 // @Description Test teambition Connection
 // @Tags plugins/teambition
 // @Param body body models.TeambitionConn true "json body"
@@ -81,7 +81,7 @@ func TestConnection(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, 
 	return &plugin.ApiResourceOutput{Body: body, Status: 200}, nil
 }
 
-// @Summary create teambition connection
+// PostConnections @Summary create teambition connection
 // @Description Create teambition connection
 // @Tags plugins/teambition
 // @Param body body models.TeambitionConnection true "json body"
@@ -99,7 +99,7 @@ func PostConnections(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput,
 	return &plugin.ApiResourceOutput{Body: connection, Status: http.StatusOK}, nil
 }
 
-// @Summary patch teambition connection
+// PatchConnection @Summary patch teambition connection
 // @Description Patch teambition connection
 // @Tags plugins/teambition
 // @Param body body models.TeambitionConnection true "json body"
@@ -116,7 +116,7 @@ func PatchConnection(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput,
 	return &plugin.ApiResourceOutput{Body: connection}, nil
 }
 
-// @Summary delete a teambition connection
+// DeleteConnection @Summary delete a teambition connection
 // @Description Delete a teambition connection
 // @Tags plugins/teambition
 // @Success 200  {object} models.TeambitionConnection
@@ -133,7 +133,7 @@ func DeleteConnection(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput
 	return &plugin.ApiResourceOutput{Body: connection}, err
 }
 
-// @Summary get all teambition connections
+// ListConnections @Summary get all teambition connections
 // @Description Get all teambition connections
 // @Tags plugins/teambition
 // @Success 200  {object} []models.TeambitionConnection
@@ -149,7 +149,7 @@ func ListConnections(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput,
 	return &plugin.ApiResourceOutput{Body: connections, Status: http.StatusOK}, nil
 }
 
-// @Summary get teambition connection detail
+// GetConnection @Summary get teambition connection detail
 // @Description Get teambition connection detail
 // @Tags plugins/teambition
 // @Success 200  {object} models.TeambitionConnection

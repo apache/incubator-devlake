@@ -48,11 +48,11 @@ func CollectAccounts(taskCtx plugin.SubTaskContext) errors.Error {
 		UrlTemplate:        "/org/member/list",
 		Query: func(reqData *api.RequestData) (url.Values, errors.Error) {
 			query := url.Values{}
-			query.Set("orgId", data.Options.OrganizationId)
+			query.Set("orgId", data.TenantId)
 			return query, nil
 		},
 		ResponseParser: func(res *http.Response) ([]json.RawMessage, errors.Error) {
-			data := &TeambitionComRes[[]json.RawMessage]{}
+			data := TeambitionComRes[[]json.RawMessage]{}
 			err := api.UnmarshalResponse(res, &data)
 			return data.Result, err
 		},

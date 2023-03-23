@@ -97,9 +97,8 @@ func CreateRawDataSubTaskArgs(taskCtx plugin.SubTaskContext, rawTable string) (*
 	filteredData.Options = &TeambitionOptions{}
 	*filteredData.Options = *data.Options
 	params := TeambitionApiParams{
-		ConnectionId:   data.Options.ConnectionId,
-		OrganizationId: data.Options.OrganizationId,
-		ProjectId:      data.Options.ProjectId,
+		ConnectionId: data.Options.ConnectionId,
+		ProjectId:    data.Options.ProjectId,
 	}
 	rawDataSubTaskArgs := &api.RawDataSubTaskArgs{
 		Ctx:    taskCtx,

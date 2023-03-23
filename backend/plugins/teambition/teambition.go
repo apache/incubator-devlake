@@ -30,15 +30,12 @@ var PluginEntry impl.Teambition //nolint
 func main() {
 	cmd := &cobra.Command{Use: "teambition"}
 	connectionId := cmd.Flags().Uint64P("connection", "c", 0, "teambition connection id")
-	organizationId := cmd.Flags().StringP("organization", "o", "", "teambition organization id")
 	projectId := cmd.Flags().StringP("project", "p", "", "teambition project id")
-	_ = cmd.MarkFlagRequired("organization")
 
 	cmd.Run = func(cmd *cobra.Command, args []string) {
 		runner.DirectRun(cmd, args, PluginEntry, map[string]interface{}{
-			"connectionId":   *connectionId,
-			"organizationId": *organizationId,
-			"projectId":      *projectId,
+			"connectionId": *connectionId,
+			"projectId":    *projectId,
 		})
 	}
 

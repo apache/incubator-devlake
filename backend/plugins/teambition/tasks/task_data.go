@@ -25,7 +25,6 @@ import (
 
 type TeambitionOptions struct {
 	ConnectionId        uint64 `json:"connectionId"`
-	OrganizationId      string `json:"organizationId"`
 	ProjectId           string `json:"projectId"`
 	PageSize            uint64 `mapstruct:"pageSize"`
 	TimeAfter           string `json:"timeAfter" mapstructure:"timeAfter,omitempty"`
@@ -37,6 +36,7 @@ type TeambitionTaskData struct {
 	Options   *TeambitionOptions
 	ApiClient *helper.ApiAsyncClient
 	TimeAfter *time.Time
+	TenantId  string
 }
 
 func DecodeAndValidateTaskOptions(options map[string]interface{}) (*TeambitionOptions, errors.Error) {

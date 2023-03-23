@@ -71,7 +71,7 @@ func CollectTaskFlowStatus(taskCtx plugin.SubTaskContext) errors.Error {
 			return query, nil
 		},
 		ResponseParser: func(res *http.Response) ([]json.RawMessage, errors.Error) {
-			data := &TeambitionComRes[[]json.RawMessage]{}
+			data := TeambitionComRes[[]json.RawMessage]{}
 			err := api.UnmarshalResponse(res, &data)
 			return data.Result, err
 		},

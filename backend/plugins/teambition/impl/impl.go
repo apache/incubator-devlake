@@ -120,6 +120,7 @@ func (p Teambition) PrepareTaskData(taskCtx plugin.TaskContext, options map[stri
 	taskData := &tasks.TeambitionTaskData{
 		Options:   op,
 		ApiClient: apiClient,
+		TenantId:  connection.TenantId,
 	}
 	var createdDateAfter time.Time
 	if op.TimeAfter != "" {
