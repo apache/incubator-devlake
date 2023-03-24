@@ -18,11 +18,11 @@ limitations under the License.
 package migrationscripts
 
 import (
-    "github.com/apache/incubator-devlake/core/context"
-    "github.com/apache/incubator-devlake/core/dal"
-    "github.com/apache/incubator-devlake/core/errors"
-    "github.com/apache/incubator-devlake/helpers/migrationhelper"
-    "github.com/apache/incubator-devlake/plugins/github/models"
+	"github.com/apache/incubator-devlake/core/context"
+	"github.com/apache/incubator-devlake/core/dal"
+	"github.com/apache/incubator-devlake/core/errors"
+	"github.com/apache/incubator-devlake/helpers/migrationhelper"
+	"github.com/apache/incubator-devlake/plugins/github/models"
 )
 
 type addConnectionIdToTransformationRule struct{}
