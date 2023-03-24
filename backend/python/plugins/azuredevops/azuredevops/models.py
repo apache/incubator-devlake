@@ -19,14 +19,19 @@ from typing import Optional
 
 from sqlmodel import Field
 
-from pydevlake import Connection
+from pydevlake import Connection, TransformationRule
 from pydevlake.model import ToolModel, ToolScope
+from pydevlake.pipeline_tasks import RefDiffOptions
 
 default_date = datetime.datetime.fromisoformat("1970-01-01")
 
 
 class AzureDevOpsConnection(Connection):
     token: str
+
+
+class AzureDevOpsTransformationRule(TransformationRule):
+    refdiff_options: Optional[RefDiffOptions]
 
 
 class Project(ToolModel, table=True):

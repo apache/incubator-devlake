@@ -16,13 +16,13 @@
 from urllib.parse import urlparse
 
 from azuredevops.api import AzureDevOpsAPI
-from azuredevops.models import AzureDevOpsConnection, GitRepository
+from azuredevops.models import AzureDevOpsConnection, GitRepository, AzureDevOpsTransformationRule
 from azuredevops.streams.builds import Builds
 from azuredevops.streams.jobs import Jobs
 from azuredevops.streams.pull_request_commits import GitPullRequestCommits
 from azuredevops.streams.pull_requests import GitPullRequests
 
-from pydevlake import Plugin, RemoteScopeGroup, DomainType
+from pydevlake import Plugin, RemoteScopeGroup, DomainType, ScopeTxRulePair
 from pydevlake.domain_layer.code import Repo
 from pydevlake.domain_layer.devops import CicdScope
 from pydevlake.pipeline_tasks import gitextractor, refdiff
@@ -37,6 +37,10 @@ class AzureDevOpsPlugin(Plugin):
     @property
     def tool_scope_type(self):
         return GitRepository
+
+    @property
+    def transformation_rule_type(self):
+        return AzureDevOpsTransformationRule
 
     def domain_scopes(self, git_repo: GitRepository):
         yield Repo(
@@ -91,12 +95,11 @@ class AzureDevOpsPlugin(Plugin):
         else:
             return []
 
-    def extra_stages(self, scopes: list[GitRepository], entity_types: list[str], connection_id: int):
+    def extra_stages(self, scope_tx_rule_pairs: list[ScopeTxRulePair], entity_types: list[str], connection_id: int):
         if DomainType.CODE in entity_types:
-            # TODO: pass refdiff options
-            return [refdiff(scope.id, {}) for scope in scopes]
-        else:
-            return []
+            for scope, tx_rule in scope_tx_rule_pairs:
+                options = tx_rule.refdiff_options if tx_rule else None
+                yield refdiff(scope.id, options)
 
     @property
     def streams(self):
