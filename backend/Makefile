@@ -21,6 +21,7 @@ SHA = $(shell git show -s --format=%h)
 TAG ?= $(shell git tag --points-at HEAD)
 IMAGE_REPO ?= "apache"
 VERSION = $(TAG)@$(SHA)
+PYTHON_DIR ?= "./python"
 
 go-dep:
 	go install github.com/vektra/mockery/v2@latest
@@ -49,12 +50,12 @@ build-worker:
 build-server: swag
 	go build -ldflags "-X 'github.com/apache/incubator-devlake/core/version.Version=$(VERSION)'" -o bin/lake ./server/
 
-build-python:
+build-python: #don't mix this with the other build commands
 	find ./python/ -name "*.sh" | xargs chmod +x &&\
 	./python/build.sh &&\
 	./python/build_tests.sh
 
-build: build-python build-plugin build-server
+build: build-plugin build-server
 
 all: build build-worker
 

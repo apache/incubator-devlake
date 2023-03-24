@@ -48,6 +48,9 @@ jobs:
       - name: Build Sources
         run: |
           cd backend
+          echo "Building Python"
+          make build-python
+          echo "Building Go"
           make build
       - name: Cache test-e2e
         id: cache-test-e2e
@@ -87,6 +90,9 @@ jobs:
       - name: Build Sources
         run: |
           cd backend
+          echo "Building Python"
+          make build-python
+          echo "Building Go"
           make build
       - name: Cache test-e2e-pg
         id: cache-test-e2e-pg
