@@ -34,12 +34,13 @@ import * as S from '../styled';
 type Type = 'name' | 'frequency' | 'scope' | 'transformation';
 
 interface Props {
+  paths: string[];
   blueprint: BlueprintType;
   operating: boolean;
   onUpdate: (bp: any) => void;
 }
 
-export const Configuration = ({ blueprint, operating, onUpdate }: Props) => {
+export const Configuration = ({ paths, blueprint, operating, onUpdate }: Props) => {
   const [type, setType] = useState<Type>();
   const [rawPlan, setRawPlan] = useState('');
 
@@ -103,15 +104,11 @@ export const Configuration = ({ blueprint, operating, onUpdate }: Props) => {
         <div className="bottom">
           <h3>
             <span>Connections</span>
-            <Button
-              small
-              intent={Intent.PRIMARY}
-              onClick={() => history.push(`/blueprints/${blueprint.id}/connection-add`)}
-            >
+            <Button small intent={Intent.PRIMARY} onClick={() => history.push(paths[0])}>
               Add a Connection
             </Button>
           </h3>
-          <ConnectionList blueprint={blueprint} />
+          <ConnectionList path={paths[1]} blueprint={blueprint} />
         </div>
       )}
       {blueprint.mode === ModeEnum.advanced && (

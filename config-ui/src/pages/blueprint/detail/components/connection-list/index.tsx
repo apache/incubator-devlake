@@ -26,10 +26,11 @@ import type { BlueprintType } from '../../../types';
 import * as S from './styled';
 
 interface Props {
+  path: string;
   blueprint: BlueprintType;
 }
 
-export const ConnectionList = ({ blueprint }: Props) => {
+export const ConnectionList = ({ path, blueprint }: Props) => {
   const connections = useMemo(
     () =>
       blueprint.settings?.connections
@@ -59,7 +60,7 @@ export const ConnectionList = ({ blueprint }: Props) => {
             <span>{cs.scope.length} data scope</span>
           </div>
           <div className="link">
-            <Link to={`/blueprints/${blueprint.id}/${cs.unique}`}>View Detail</Link>
+            <Link to={`${path}${cs.unique}`}>View Detail</Link>
           </div>
         </S.Item>
       ))}
