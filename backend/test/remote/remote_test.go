@@ -114,7 +114,7 @@ func createTestConnection(client *helper.DevlakeClient) *helper.Connection {
 }
 
 func createTestScope(client *helper.DevlakeClient, connectionId uint64) any {
-	res := client.CreateTransformRule(PLUGIN_NAME, FakeTxRule{Name: "Tx rule", Env: "test env"})
+	res := client.CreateTransformationRule(PLUGIN_NAME, FakeTxRule{Name: "Tx rule", Env: "test env"})
 	rule, ok := res.(map[string]interface{})
 	if !ok {
 		panic("Cannot cast transform rule")
