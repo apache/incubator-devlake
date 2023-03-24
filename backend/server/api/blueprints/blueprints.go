@@ -18,12 +18,13 @@ limitations under the License.
 package blueprints
 
 import (
+	"net/http"
+	"strconv"
+
 	"github.com/apache/incubator-devlake/core/errors"
 	"github.com/apache/incubator-devlake/core/models"
 	"github.com/apache/incubator-devlake/server/api/shared"
 	"github.com/apache/incubator-devlake/server/services"
-	"net/http"
-	"strconv"
 
 	"github.com/gin-gonic/gin"
 )
@@ -179,10 +180,6 @@ func Trigger(c *gin.Context) {
 		return
 	}
 	pipeline, err := services.TriggerBlueprint(id)
-	if errors.Is(err, services.ErrBlueprintRunning) {
-		shared.ApiOutputError(c, errors.BadInput.Wrap(err, "the blueprint is running"))
-		return
-	}
 	if err != nil {
 		shared.ApiOutputError(c, errors.Default.Wrap(err, "error triggering blueprint"))
 		return
