@@ -58,13 +58,14 @@ func ConvertStoryChangelog(taskCtx plugin.SubTaskContext) errors.Error {
 	logger := taskCtx.GetLogger()
 	db := taskCtx.GetDal()
 	statusList := make([]models.TapdStoryStatus, 0)
-	_, getStdStatus, err := getDefaltStdStatusMapping(data, db, statusList)
+	_, getStdStatus, err := getDefaultStdStatusMapping(data, db, statusList)
 	if err != nil {
 		return err
 	}
 	customStatusMap := getStatusMapping(data)
 	logger.Info("convert changelog :%d", data.Options.WorkspaceId)
 	clIdGen := didgen.NewDomainIdGenerator(&models.TapdStoryChangelog{})
+	clIterIdGen := didgen.NewDomainIdGenerator(&models.TapdIteration{})
 	issueIdGen := didgen.NewDomainIdGenerator(&models.TapdStory{})
 	stdTypeMappings := getStdTypeMappings(data)
 	clauses := []dal.Clause{
@@ -108,6 +109,13 @@ func ConvertStoryChangelog(taskCtx plugin.SubTaskContext) errors.Error {
 					domainCl.ToValue = getStdStatus(domainCl.OriginalToValue)
 				}
 			}
+			if domainCl.FieldName == "iteration_id" {
+				domainCl.FieldName = "Sprint"
+				domainCl.OriginalFromValue = clIterIdGen.Generate(cl.ConnectionId, cl.IterationIdFrom)
+				domainCl.OriginalToValue = clIterIdGen.Generate(cl.ConnectionId, cl.IterationIdTo)
+				domainCl.ToValue = cl.ValueAfterParsed
+				domainCl.FromValue = cl.ValueBeforeParsed
+			}
 			if domainCl.FieldName == "workitem_type_id" {
 				// As OriginalFromValue is value_before_parsed, so we don't need to transform id to name
 				if stdTypeMappings[domainCl.OriginalFromValue] != "" {
@@ -116,6 +124,12 @@ func ConvertStoryChangelog(taskCtx plugin.SubTaskContext) errors.Error {
 				if stdTypeMappings[domainCl.OriginalToValue] != "" {
 					domainCl.ToValue = stdTypeMappings[domainCl.OriginalToValue]
 				}
+			}
+			if domainCl.FieldId == "owner" {
+				domainCl.FieldName = "assignee"
+				domainCl.OriginalFromValue = generateDomainAccountIdForUsers(cl.ValueBeforeParsed, cl.ConnectionId)
+				domainCl.OriginalToValue = generateDomainAccountIdForUsers(cl.ValueAfterParsed, cl.ConnectionId)
+
 			}
 			return []interface{}{
 				domainCl,
