@@ -27,14 +27,7 @@ export const Step3 = () => {
 
   return (
     <S.Wrapper>
-      <Transformation
-        connections={connections}
-        cancelBtnProps={{ text: 'Previous Step' }}
-        submitBtnProps={{ text: 'Next Step' }}
-        onCancel={onPrev}
-        onSubmit={onNext}
-        onChange={onChangeConnections}
-      />
+      <Transformation connections={connections} onCancel={onPrev} onSubmit={onChangeConnections} onNext={onNext} />
     </S.Wrapper>
   );
 };

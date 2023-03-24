@@ -27,14 +27,7 @@ export const Step2 = () => {
 
   return (
     <S.Wrapper>
-      <DataScope
-        connections={connections}
-        cancelBtnProps={{ text: 'Previous Step' }}
-        submitBtnProps={{ text: 'Next Step' }}
-        onCancel={onPrev}
-        onSubmit={onNext}
-        onChange={onChangeConnections}
-      />
+      <DataScope connections={connections} onCancel={onPrev} onSubmit={onChangeConnections} onNext={onNext} />
     </S.Wrapper>
   );
 };

@@ -32,6 +32,7 @@ interface Props {
   };
   submitBtnProps?: {
     text?: string;
+    loading?: boolean;
   };
   noFooter?: boolean;
   onCancel?: () => void;

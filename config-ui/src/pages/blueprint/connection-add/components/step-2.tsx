@@ -36,8 +36,8 @@ export const Step2 = () => {
         cancelBtnProps={{ text: 'Previous Step' }}
         submitBtnProps={{ text: 'Next Step' }}
         onCancel={onPrev}
-        onSubmit={onNext}
-        onChange={(connections) => onChangeConnection(connections[0])}
+        onSubmit={(connections) => onChangeConnection(connections[0])}
+        onNext={onNext}
       />
     </S.Wrapper>
   );

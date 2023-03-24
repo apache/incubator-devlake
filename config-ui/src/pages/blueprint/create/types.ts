@@ -38,7 +38,7 @@ export type ContextType = {
 
   onChangeMode: (mode: ModeEnum) => void;
   onChangeName: React.Dispatch<React.SetStateAction<string>>;
-  onChangeConnections: React.Dispatch<React.SetStateAction<BPConnectionType[]>>;
+  onChangeConnections: React.Dispatch<React.SetStateAction<MixConnection[]>>;
   onChangeRawPlan: React.Dispatch<React.SetStateAction<string>>;
   onChangeCronConfig: React.Dispatch<React.SetStateAction<string>>;
   onChangeIsManual: React.Dispatch<React.SetStateAction<boolean>>;
