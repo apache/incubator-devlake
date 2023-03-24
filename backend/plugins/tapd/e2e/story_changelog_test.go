@@ -77,6 +77,8 @@ func TestTapdStoryChangelogDataFlow(t *testing.T) {
 			"is_last_step",
 		),
 	)
+	// iteration
+	dataflowTester.ImportCsvIntoTabler("./snapshot_tables/_tool_tapd_iterations.csv", &models.TapdIteration{})
 
 	// import raw data table
 	dataflowTester.ImportCsvIntoRawTable("./raw_tables/_raw_tapd_api_story_changelogs.csv",
