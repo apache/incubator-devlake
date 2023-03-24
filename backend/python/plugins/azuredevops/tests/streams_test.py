@@ -285,3 +285,29 @@ def test_pull_requests_stream():
     )
 
     assert_convert(AzureDevOpsPlugin, 'gitpullrequests', raw, expected)
+
+
+def test_pull_request_commits_stream():
+    raw = {
+        'commitId': '85ede91717145a1e6e2bdab4cab689ac8f2fa3a2',
+        'author': {
+            'name': 'John Doe',
+            'email': 'john.doe@merico.dev',
+            'date': '2023-02-07T04:49:28Z'
+        },
+        'committer': {
+            'name': 'John Doe',
+            'email': 'john.doe@merico.dev',
+            'date': '2023-02-07T04:49:28Z'
+        },
+        'comment': 'Fixed main.java',
+        'url': 'https://dev.azure.com/johndoe/7a3fd40e-2aed-4fac-bac9-511bf1a70206/_apis/git/repositories/0d50ba13-f9ad-49b0-9b21-d29eda50ca33/commits/85ede91717145a1e6e2bdab4cab689ac8f2fa3a2',
+        'pull_request_id': "azuredevops:gitpullrequest:1:12345" # This is not part of the API response, but is added in collect method
+    }
+
+    expected = code.PullRequestCommit(
+        commit_sha='85ede91717145a1e6e2bdab4cab689ac8f2fa3a2',
+        pull_request_id="azuredevops:gitpullrequest:1:12345",
+    )
+
+    assert_convert(AzureDevOpsPlugin, 'gitpullrequestcommits', raw, expected)
