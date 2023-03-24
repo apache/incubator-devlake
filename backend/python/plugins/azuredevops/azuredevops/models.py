@@ -23,8 +23,6 @@ from pydevlake import Connection, TransformationRule
 from pydevlake.model import ToolModel, ToolScope
 from pydevlake.pipeline_tasks import RefDiffOptions
 
-default_date = datetime.datetime.fromisoformat("1970-01-01")
-
 
 class AzureDevOpsConnection(Connection):
     token: str
@@ -71,8 +69,8 @@ class GitPullRequest(ToolModel, table=True):
     status: Status
     created_by_id: Optional[str]
     created_by_name: Optional[str]
-    creation_date: datetime.datetime = default_date
-    closed_date: datetime.datetime = default_date
+    creation_date: datetime.datetime
+    closed_date: Optional[datetime.datetime]
     source_commit_sha: Optional[str]  # lastmergesourcecommit #base
     target_commit_sha: Optional[str]  # lastmergetargetcommit #head
     merge_commit_sha: Optional[str]
@@ -87,16 +85,16 @@ class GitPullRequest(ToolModel, table=True):
 class GitPullRequestCommit(ToolModel, table=True):
     commit_sha: str = Field(primary_key=True)
     pull_request_id: str
-    committer_name: str = ""
-    committer_email: str = ""
-    commit_date: datetime.datetime = default_date
-    author_name: str = ""
-    author_email: str = ""
-    authored_date: datetime.datetime = default_date
-    comment: str = ""
-    url: str = ""
-    additions: int = 0
-    deletions: int = 0
+    committer_name: str
+    committer_email: str
+    commit_date: datetime.datetime
+    author_name: str
+    author_email: str
+    authored_date: datetime.datetime
+    comment: str
+    url: str
+    additions: int
+    deletions: int
 
 
 class Account(ToolModel, table=True):

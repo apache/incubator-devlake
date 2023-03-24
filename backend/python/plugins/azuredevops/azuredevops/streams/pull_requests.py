@@ -13,15 +13,11 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from datetime import datetime
 from typing import Iterable
 
-import iso8601 as iso8601
-
 from azuredevops.api import AzureDevOpsAPI
-from azuredevops.helper import db
-from azuredevops.models import GitRepository, GitPullRequest, GitCommit
-from pydevlake import Stream, Context, DomainType
+from azuredevops.models import GitRepository, GitPullRequest
+from pydevlake import Stream, DomainType
 import pydevlake.domain_layer.code as code
 
 
@@ -69,8 +65,8 @@ class GitPullRequests(Stream):
             type=pr.type,
             component="", # not supported
             merge_commit_sha=pr.merge_commit_sha,
-            head_ref=pr.target_ref_name,
-            base_ref=pr.source_ref_name,
-            base_commit_sha=pr.source_commit_sha,
-            head_commit_sha=pr.target_commit_sha,
+            head_ref=pr.source_ref_name,
+            base_ref=pr.target_ref_name,
+            head_commit_sha=pr.source_commit_sha,
+            base_commit_sha=pr.target_commit_sha
         )
