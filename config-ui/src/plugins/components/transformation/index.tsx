@@ -65,7 +65,22 @@ export const Transformation = ({
         });
       }),
     );
-    onSubmit?.(connections.map((cs) => (cs.unique !== unique ? cs : { ...cs, origin: scopes })));
+    onSubmit?.(
+      connections.map((cs) => {
+        if (cs.unique !== unique) {
+          return cs;
+        }
+
+        const origin = cs.origin.map((sc) => {
+          if (!scopeIds.includes(sc[getPluginId(cs.plugin)])) {
+            return sc;
+          }
+          return scopes.find((it) => it[getPluginId(cs.plugin)] === sc[getPluginId(cs.plugin)]);
+        });
+
+        return { ...cs, origin };
+      }),
+    );
     handleCancel();
   };
 
