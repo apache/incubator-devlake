@@ -19,7 +19,9 @@ package api
 
 import (
 	"context"
+	"fmt"
 	"net/http"
+	"net/url"
 
 	"github.com/apache/incubator-devlake/core/errors"
 	"github.com/apache/incubator-devlake/core/plugin"
@@ -49,9 +51,22 @@ func TestConnection(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, 
 		return nil, err
 	}
 
-	_, err = api.NewApiClientFromConnection(context.TODO(), basicRes, &connection)
+	apiClient, err := api.NewApiClientFromConnection(context.TODO(), basicRes, &connection)
 	if err != nil {
 		return nil, err
+	}
+
+	// check API/read_api permissions
+	query := url.Values{}
+	query.Set("page", fmt.Sprintf("%v", 1))
+	query.Set("per_page", fmt.Sprintf("%v", 1))
+	res, err := apiClient.Get("projects", query, nil)
+	if err != nil {
+		return nil, err
+	}
+
+	if res.StatusCode == http.StatusForbidden {
+		return nil, errors.BadInput.New("token need api or read_api permissions scope")
 	}
 
 	body := GitlabTestConnResponse{}
