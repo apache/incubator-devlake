@@ -30,6 +30,8 @@ import (
 	"io"
 	"net/http"
 	"net/url"
+	"reflect"
+	"strconv"
 	"strings"
 )
 
@@ -205,7 +207,7 @@ func getStatusMapping(data *TapdTaskData) map[string]string {
 	return statusMapping
 }
 
-func getDefaltStdStatusMapping[S models.TapdStatus](data *TapdTaskData, db dal.Dal, statusList []S) (map[string]string, func(statusKey string) string, errors.Error) {
+func getDefaultStdStatusMapping[S models.TapdStatus](data *TapdTaskData, db dal.Dal, statusList []S) (map[string]string, func(statusKey string) string, errors.Error) {
 	clauses := []dal.Clause{
 		dal.Where("connection_id = ? and workspace_id = ?", data.Options.ConnectionId, data.Options.WorkspaceId),
 	}
@@ -231,4 +233,66 @@ func getDefaltStdStatusMapping[S models.TapdStatus](data *TapdTaskData, db dal.D
 		}
 	}
 	return statusLanguageMap, getStdStatus, nil
+}
+
+func unicodeToZh(s string) (string, error) {
+	// strconv.Quote(s) will add additional `"`, so we need to do `Unquote` again
+	str, err := strconv.Unquote(strings.Replace(strconv.Quote(s), `\\u`, `\u`, -1))
+	if err != nil {
+		return "", err
+	}
+	return str, nil
+}
+
+func convertUnicode(p interface{}) errors.Error {
+	var err errors.Error
+	pType := reflect.TypeOf(p)
+	if pType.Kind() != reflect.Ptr {
+		panic("expected a pointer to a struct")
+	}
+	pValue := reflect.ValueOf(p).Elem()
+	if pValue.Kind() != reflect.Struct {
+		panic("expected a pointer to a struct")
+	}
+	after, err := errors.Convert01(unicodeToZh(pValue.FieldByName("ValueAfterParsed").String()))
+	if err != nil {
+		return err
+	}
+	before, err := errors.Convert01(unicodeToZh(pValue.FieldByName("ValueBeforeParsed").String()))
+	if err != nil {
+		return err
+	}
+	if after == "--" {
+		after = ""
+	}
+	if before == "--" {
+		before = ""
+	}
+	// set ValueAfterParsed
+	valueAfterField := pValue.FieldByName("ValueAfterParsed")
+	valueAfterField.SetString(after)
+	valueBeforeField := pValue.FieldByName("ValueBeforeParsed")
+	valueBeforeField.SetString(before)
+	return nil
+}
+
+// replace ";" with ","
+func replaceSemicolonWithComma(str string) string {
+	res := strings.ReplaceAll(str, ";", ",")
+	return strings.TrimRight(res, ",")
+}
+
+// generate domain account id for each user
+// param is a string with format "user1,user2,user3"
+func generateDomainAccountIdForUsers(param string, connectionId uint64) string {
+	if param == "" {
+		return ""
+	}
+	param = replaceSemicolonWithComma(param)
+	users := strings.Split(param, ",")
+	var res []string
+	for _, user := range users {
+		res = append(res, getAccountIdGen().Generate(connectionId, user))
+	}
+	return strings.Join(res, ",")
 }

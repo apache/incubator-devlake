@@ -26,7 +26,7 @@ import (
 	"testing"
 )
 
-func TestTapdBugChangelogDataFlow(t *testing.T) {
+func TestTapdTaskChangelogDataFlow(t *testing.T) {
 
 	var tapd impl.Tapd
 	dataflowTester := e2ehelper.NewDataFlowTester(t, "tapd", tapd)
@@ -36,79 +36,40 @@ func TestTapdBugChangelogDataFlow(t *testing.T) {
 			ConnectionId: 1,
 			CompanyId:    99,
 			WorkspaceId:  991,
-			TransformationRules: tasks.TransformationRules{
-				TypeMappings: map[string]tasks.TypeMapping{
-					"Techstory": {
-						StandardType: "REQUIREMENT",
-					},
-					"技术债": {
-						StandardType: "REQUIREMENT",
-					},
-					"需求": {
-						StandardType: "REQUIREMENT",
-					},
-				},
-				StatusMappings: map[string]tasks.OriginalStatus{
-					"DONE":        []string{"已关闭"},
-					"IN_PROGRESS": []string{"接受/处理", "开发中", "developing", "test-11test-11test-12"},
-					"TODO":        []string{"新", "planning", "test-11test-11test-11"},
-				},
-			},
 		},
 	}
-
 	// iteration
 	dataflowTester.ImportCsvIntoTabler("./snapshot_tables/_tool_tapd_iterations.csv", &models.TapdIteration{})
-	// bug status
-	// import raw data table
-	dataflowTester.ImportCsvIntoRawTable("./raw_tables/_raw_tapd_api_bug_status.csv",
-		"_raw_tapd_api_bug_status")
-	dataflowTester.ImportCsvIntoRawTable("./raw_tables/_raw_tapd_api_bug_status_last_steps.csv",
-		"_raw_tapd_api_bug_status_last_steps")
-
-	// verify extraction
-	dataflowTester.FlushTabler(&models.TapdBugStatus{})
-	dataflowTester.Subtask(tasks.ExtractBugStatusMeta, taskData)
-	dataflowTester.Subtask(tasks.EnrichBugStatusLastStepMeta, taskData)
-	dataflowTester.VerifyTable(
-		models.TapdBugStatus{},
-		"./snapshot_tables/_tool_tapd_bug_statuses.csv",
-		e2ehelper.ColumnWithRawData(
-			"connection_id",
-			"workspace_id",
-			"english_name",
-			"chinese_name",
-			"is_last_step",
-		),
-	)
 
 	// import raw data table
-	dataflowTester.ImportCsvIntoRawTable("./raw_tables/_raw_tapd_api_bug_changelogs.csv",
-		"_raw_tapd_api_bug_changelogs")
+	dataflowTester.ImportCsvIntoRawTable("./raw_tables/_raw_tapd_api_task_changelogs.csv",
+		"_raw_tapd_api_task_changelogs")
 
 	// verify extraction
-	dataflowTester.FlushTabler(&models.TapdBugChangelog{})
-	dataflowTester.FlushTabler(&models.TapdBugChangelogItem{})
-	dataflowTester.Subtask(tasks.ExtractBugChangelogMeta, taskData)
+	dataflowTester.FlushTabler(&models.TapdTaskChangelog{})
+	dataflowTester.FlushTabler(&models.TapdTaskChangelogItem{})
+	dataflowTester.Subtask(tasks.ExtractTaskChangelogMeta, taskData)
 	dataflowTester.VerifyTable(
-		models.TapdBugChangelog{},
-		"./snapshot_tables/_tool_tapd_bug_changelogs.csv",
+		models.TapdTaskChangelog{},
+		"./snapshot_tables/_tool_tapd_task_changelogs.csv",
 		e2ehelper.ColumnWithRawData(
 			"connection_id",
 			"id",
-			"field",
 			"workspace_id",
-			"bug_id",
-			"author",
-			"old_value",
-			"new_value",
-			"memo",
+			"workitem_type_id",
+			"creator",
 			"created",
+			"change_summary",
+			"comment",
+			"entity_type",
+			"change_type",
+			"task_id",
 		),
 	)
+
 	dataflowTester.VerifyTable(
-		models.TapdBugChangelogItem{},
-		"./snapshot_tables/_tool_tapd_bug_changelog_items.csv",
+		models.TapdTaskChangelogItem{},
+		"./snapshot_tables/_tool_tapd_task_changelog_items.csv",
 		e2ehelper.ColumnWithRawData(
 			"connection_id",
 			"changelog_id",
@@ -121,10 +82,10 @@ func TestTapdBugChangelogDataFlow(t *testing.T) {
 	)
 
 	dataflowTester.FlushTabler(&ticket.IssueChangelogs{})
-	dataflowTester.Subtask(tasks.ConvertBugChangelogMeta, taskData)
+	dataflowTester.Subtask(tasks.ConvertTaskChangelogMeta, taskData)
 	dataflowTester.VerifyTable(
 		ticket.IssueChangelogs{},
-		"./snapshot_tables/issue_changelogs_bug.csv",
+		"./snapshot_tables/issue_changelogs_task.csv",
 		e2ehelper.ColumnWithRawData(
 			"id",
 			"issue_id",
@@ -139,5 +100,4 @@ func TestTapdBugChangelogDataFlow(t *testing.T) {
 			"original_to_value",
 		),
 	)
-
 }
