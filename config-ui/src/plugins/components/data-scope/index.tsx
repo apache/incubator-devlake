@@ -171,11 +171,19 @@ export const DataScope = ({
         />
       </S.Btns>
       {connection && (
-        <Dialog isOpen title="Set Data Scope" footer={null} style={{ width: 820 }} onCancel={handleCancel}>
-          <S.DialogTitle>
-            <img src={connection.icon} alt="" />
-            <span>{connection.name}</span>
-          </S.DialogTitle>
+        <Dialog
+          isOpen
+          title={
+            <S.DialogTitle>
+              <img src={connection.icon} alt="" />
+              <span>{connection.name}</span>
+              <span>(Set Data Scope)</span>
+            </S.DialogTitle>
+          }
+          footer={null}
+          style={{ width: 820 }}
+          onCancel={handleCancel}
+        >
           <DataScopeForm
             plugin={connection.plugin}
             connectionId={connection.connectionId}
