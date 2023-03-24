@@ -1,0 +1,2 @@
+connection_id,user_id,member_id,is_disabled,role,avatar_url,birthday,city,province,country,email,entry_time,name,phone,title,pinyin,py,staff_type,employee_number,created_at,updated_at,_raw_data_params,_raw_data_table,_raw_data_id,_raw_data_remark
+1,5f27709685e4266322e2690a,"",0,0,https://tcs.teambition.net/thumbnail/112042983b05e2f2cc22822e30beb7bdd668/w/100/h/100,"","","","","",,coldgust,"","","","","","",2023-03-23 14:24:36.273,2023-03-23 14:24:36.273,"{""ConnectionId"":1,""OrganizationId"":"""",""ProjectId"":""64132c94f0d59df1c9825ab8""}",_raw_teambition_api_users,1,""
