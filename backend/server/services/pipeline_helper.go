@@ -20,28 +20,45 @@ package services
 import (
 	"encoding/json"
 	"fmt"
+
 	"github.com/apache/incubator-devlake/core/dal"
 	"github.com/apache/incubator-devlake/core/errors"
 	"github.com/apache/incubator-devlake/core/models"
 )
-
-// ErrBlueprintRunning indicates there is a running pipeline with the specified blueprint_id
-var ErrBlueprintRunning = errors.Default.New("the blueprint is running")
 
 // CreateDbPipeline returns a NewPipeline
 func CreateDbPipeline(newPipeline *models.NewPipeline) (*models.Pipeline, errors.Error) {
 	cronLocker.Lock()
 	defer cronLocker.Unlock()
 	if newPipeline.BlueprintId > 0 {
-		count, err := db.Count(
+		clauses := []dal.Clause{
 			dal.From(&models.Pipeline{}),
 			dal.Where("blueprint_id = ? AND status IN ?", newPipeline.BlueprintId, models.PendingTaskStatus),
-		)
+		}
+		count, err := db.Count(clauses...)
 		if err != nil {
 			return nil, errors.Default.Wrap(err, "query pipelines error")
 		}
+		// some pipeline is ruunning , get the detail and output them.
 		if count > 0 {
-			return nil, ErrBlueprintRunning
+			cursor, err := db.Cursor(clauses...)
+			if err != nil {
+				return nil, errors.Default.Wrap(err, fmt.Sprintf("query pipelines error but count it success. count:%d", count))
+			}
+			defer cursor.Close()
+			fetched := 0
+			errstr := ""
+			for cursor.Next() {
+				pipeline := &models.Pipeline{}
+				err = db.Fetch(cursor, pipeline)
+				if err != nil {
+					return nil, errors.Default.Wrap(err, fmt.Sprintf("failed to Fetch pipelines fetched:[%d],count:[%d]", fetched, count))
+				}
+				fetched++
+
+				errstr += fmt.Sprintf("pipeline:[%d] on state:[%s] Pending it\r\n", pipeline.ID, pipeline.Status)
+			}
+			return nil, errors.Default.New(fmt.Sprintf("the blueprint is running fetched:[%d],count:[%d]:\r\n%s", fetched, count, errstr))
 		}
 	}
 	planByte, err := errors.Convert01(json.Marshal(newPipeline.Plan))
