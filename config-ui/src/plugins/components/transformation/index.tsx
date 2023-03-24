@@ -82,6 +82,10 @@ export const Transformation = ({
         return { ...cs, origin };
       }),
     );
+    setSelected({
+      ...selected,
+      [`${unique}`]: [],
+    });
     handleCancel();
   };
 
@@ -143,7 +147,7 @@ export const Transformation = ({
       {!noFooter && (
         <S.Btns>
           <Button outlined intent={Intent.PRIMARY} text="Previous Step" onClick={onCancel} {...cancelBtnProps} />
-          <Button outlined intent={Intent.PRIMARY} text="Next Step" onClick={onNext} {...submitBtnProps} />
+          <Button intent={Intent.PRIMARY} text="Next Step" onClick={onNext} {...submitBtnProps} />
         </S.Btns>
       )}
       {connection && (

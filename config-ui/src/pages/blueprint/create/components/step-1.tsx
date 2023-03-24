@@ -17,8 +17,7 @@
  */
 
 import { useMemo } from 'react';
-import { InputGroup, Icon, Button, Intent, Position, Colors } from '@blueprintjs/core';
-import { Tooltip2 } from '@blueprintjs/popover2';
+import { InputGroup, Icon, Button, Intent } from '@blueprintjs/core';
 
 import { useConnection, ConnectionStatusEnum } from '@/store';
 import { Card, Divider, MultiSelector, Loading } from '@/components';
@@ -46,18 +45,20 @@ export const Step1 = ({ from }: Props) => {
   const error = useMemo(() => {
     switch (true) {
       case !name:
-        return 'Blueprint Name: Enter a valid Name';
+        return true;
       case name.length < 3:
-        return 'Blueprint Name: Name too short, 3 chars minimum.';
+        return true;
       case mode === ModeEnum.advanced && validRawPlan(rawPlan):
-        return 'Advanced Mode: Invalid/Empty Configuration';
+        return true;
       case mode === ModeEnum.normal && !uniqueList.length:
-        return 'Normal Mode: No Data Connections selected.';
+        return true;
       case mode === ModeEnum.normal &&
         !connections
           .filter((cs) => uniqueList.includes(cs.unique))
           .every((cs) => cs.status === ConnectionStatusEnum.ONLINE):
-        return 'Normal Mode: Has some offline connections';
+        return true;
+      default:
+        return false;
     }
   }, [mode, name, connections, props.connections, rawPlan]);
 
@@ -149,19 +150,7 @@ export const Step1 = ({ from }: Props) => {
 
       <S.Btns>
         <span></span>
-        <Button
-          intent={Intent.PRIMARY}
-          disabled={!!error}
-          icon={
-            error ? (
-              <Tooltip2 defaultIsOpen placement={Position.TOP} content={error}>
-                <Icon icon="warning-sign" color={Colors.ORANGE5} style={{ margin: 0 }} />
-              </Tooltip2>
-            ) : null
-          }
-          text="Next Step"
-          onClick={onNext}
-        />
+        <Button intent={Intent.PRIMARY} disabled={error} text="Next Step" onClick={onNext} />
       </S.Btns>
     </S.Wrapper>
   );

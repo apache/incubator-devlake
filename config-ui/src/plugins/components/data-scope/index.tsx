@@ -17,8 +17,7 @@
  */
 
 import { useState, useMemo } from 'react';
-import { Button, Icon, Intent, Position, Colors } from '@blueprintjs/core';
-import { Tooltip2 } from '@blueprintjs/popover2';
+import { Button, Intent } from '@blueprintjs/core';
 
 import { Table, Dialog } from '@/components';
 import { DataScopeForm } from '@/plugins';
@@ -52,10 +51,7 @@ export const DataScope = ({
 }: Props) => {
   const [connection, setConnection] = useState<MixConnection>();
 
-  const error = useMemo(
-    () => (!connections.every((cs) => cs.scope.length) ? 'No Data Scope is Selected' : ''),
-    [connections],
-  );
+  const error = useMemo(() => (!connections.every((cs) => cs.scope.length) ? true : false), [connections]);
 
   const handleCancel = () => setConnection(undefined);
 
@@ -155,20 +151,7 @@ export const DataScope = ({
       />
       <S.Btns>
         <Button outlined intent={Intent.PRIMARY} text="Cancel" {...cancelBtnProps} onClick={onCancel} />
-        <Button
-          intent={Intent.PRIMARY}
-          text="Save"
-          {...submitBtnProps}
-          disabled={!!error}
-          icon={
-            error ? (
-              <Tooltip2 defaultIsOpen placement={Position.TOP} content={error}>
-                <Icon icon="warning-sign" color={Colors.ORANGE5} style={{ margin: 0 }} />
-              </Tooltip2>
-            ) : null
-          }
-          onClick={onNext}
-        />
+        <Button intent={Intent.PRIMARY} text="Save" {...submitBtnProps} disabled={error} onClick={onNext} />
       </S.Btns>
       {connection && (
         <Dialog

@@ -109,7 +109,7 @@ export const BlueprintConnectionDetailPage = () => {
         ),
       },
     });
-    history.push(`/blueprints/${blueprint.id}`);
+    history.push(pname ? `/projects/:${pname}` : `/blueprints/${blueprint.id}`);
   };
 
   return (

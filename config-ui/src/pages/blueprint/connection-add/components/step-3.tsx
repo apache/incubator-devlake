@@ -33,9 +33,9 @@ export const Step3 = () => {
     <S.Wrapper>
       <Transformation
         connections={[connection]}
-        submitBtnProps={{ loading: operating }}
+        submitBtnProps={{ text: 'Save', loading: operating }}
         onCancel={onPrev}
-        onSubmit={onSubmit}
+        onNext={() => onSubmit(connection)}
       />
     </S.Wrapper>
   );

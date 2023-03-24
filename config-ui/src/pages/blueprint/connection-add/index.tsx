@@ -27,7 +27,7 @@ export const BlueprintConnectioAddPage = () => {
   const { pname, bid } = useParams<{ pname?: string; bid: string }>();
 
   return (
-    <ContextProvider id={bid}>
+    <ContextProvider pname={pname} id={bid}>
       <Context.Consumer>
         {({ name, step }) => (
           <PageHeader

@@ -27,6 +27,7 @@ import * as API from './api';
 type ContextType = {
   name: string;
   step: number;
+  filter: string[];
   connection?: MixConnection;
   onChangeConnection: (connection: MixConnection) => void;
 
@@ -34,12 +35,13 @@ type ContextType = {
   onNext: () => void;
   onCancel: () => void;
   operating: boolean;
-  onSubmit: () => void;
+  onSubmit: (connection: MixConnection) => void;
 };
 
 export const Context = React.createContext<ContextType>({
   name: '',
   step: 1,
+  filter: [],
 
   onChangeConnection: () => {},
   onPrev: () => {},
@@ -50,11 +52,12 @@ export const Context = React.createContext<ContextType>({
 });
 
 interface Props {
+  pname?: string;
   id: string;
   children: React.ReactNode;
 }
 
-export const ContextProvider = ({ id, children }: Props) => {
+export const ContextProvider = ({ pname, id, children }: Props) => {
   const [step, setStep] = useState(1);
   const [connection, setConnection] = useState<MixConnection>();
 
@@ -63,7 +66,7 @@ export const ContextProvider = ({ id, children }: Props) => {
   const { ready, data } = useRefreshData(() => API.getBlueprint(id), [id]);
 
   const { operating, onSubmit } = useOperator(
-    async () => {
+    async (connection: MixConnection) => {
       if (!connection) return;
       const { plugin, connectionId, scope } = connection;
 
@@ -88,7 +91,7 @@ export const ContextProvider = ({ id, children }: Props) => {
       await API.updateBlueprint(data.id, payload);
     },
     {
-      callback: () => history.push(`/blueprints/${id}`),
+      callback: () => history.push(pname ? `/projects/${pname}` : `/blueprints/${id}`),
     },
   );
 
@@ -113,6 +116,7 @@ export const ContextProvider = ({ id, children }: Props) => {
       value={{
         name: data.name,
         step,
+        filter: data.settings.connections.map((cs: any) => `${cs.plugin}-${cs.connectionId}`),
         connection,
         onChangeConnection: setConnection,
         onPrev: handlePrev,

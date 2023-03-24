@@ -27,10 +27,10 @@ import { useConnectionAdd } from '../context';
 import * as S from './styled';
 
 export const Step1 = () => {
-  const { connection, onChangeConnection, onCancel, onNext } = useConnectionAdd();
+  const { filter, connection, onChangeConnection, onCancel, onNext } = useConnectionAdd();
 
   return (
-    <ConnectionContextProvider filterBeta>
+    <ConnectionContextProvider filterBeta filter={filter}>
       <ConnectionContextConsumer>
         {({ connections }) => (
           <S.Wrapper>
@@ -60,7 +60,7 @@ export const Step1 = () => {
               <Button outlined intent={Intent.PRIMARY} onClick={onCancel}>
                 Cancel
               </Button>
-              <Button outlined intent={Intent.PRIMARY} disabled={!connection} onClick={onNext}>
+              <Button intent={Intent.PRIMARY} disabled={!connection} onClick={onNext}>
                 Next Step
               </Button>
             </S.Action>
