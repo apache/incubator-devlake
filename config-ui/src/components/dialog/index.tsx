@@ -25,7 +25,7 @@ interface Props {
   isOpen: boolean;
   children?: React.ReactNode;
   style?: React.CSSProperties;
-  title?: string;
+  title?: React.ReactNode;
   footer?: React.ReactNode | null;
   cancelText?: string;
   okText?: string;
