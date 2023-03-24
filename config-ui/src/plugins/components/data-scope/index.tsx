@@ -36,8 +36,8 @@ interface Props {
     text?: string;
   };
   onCancel?: () => void;
-  onSubmit?: () => void;
-  onChange?: (connections: MixConnection[]) => void;
+  onSubmit?: (connections: MixConnection[]) => void;
+  onNext?: () => void;
 }
 
 export const DataScope = ({
@@ -48,7 +48,7 @@ export const DataScope = ({
   submitBtnProps,
   onCancel,
   onSubmit,
-  onChange,
+  onNext,
 }: Props) => {
   const [connection, setConnection] = useState<MixConnection>();
 
@@ -60,7 +60,7 @@ export const DataScope = ({
   const handleCancel = () => setConnection(undefined);
 
   const handleSubmit = (connection: MixConnection, scope: MixConnection['scope'], origin: MixConnection['origin']) => {
-    onChange?.(
+    onSubmit?.(
       connections.map((cs) => {
         if (cs.unique === connection.unique) {
           return {
@@ -87,7 +87,7 @@ export const DataScope = ({
         submitBtnProps={submitBtnProps}
         onCancel={onCancel}
         onSubmit={(scope: MixConnection['scope'], origin: MixConnection['origin']) => {
-          onChange?.([
+          onSubmit?.([
             {
               plugin,
               connectionId,
@@ -96,7 +96,7 @@ export const DataScope = ({
               origin,
             },
           ]);
-          onSubmit?.();
+          onNext?.();
         }}
       />
     );
@@ -154,9 +154,11 @@ export const DataScope = ({
         dataSource={connections}
       />
       <S.Btns>
-        <Button outlined intent={Intent.PRIMARY} text="Cancel" onClick={onCancel} {...cancelBtnProps} />
+        <Button outlined intent={Intent.PRIMARY} text="Cancel" {...cancelBtnProps} onClick={onCancel} />
         <Button
           intent={Intent.PRIMARY}
+          text="Save"
+          {...submitBtnProps}
           disabled={!!error}
           icon={
             error ? (
@@ -165,9 +167,7 @@ export const DataScope = ({
               </Tooltip2>
             ) : null
           }
-          text="Save"
-          onClick={onSubmit}
-          {...submitBtnProps}
+          onClick={onNext}
         />
       </S.Btns>
       {connection && (
