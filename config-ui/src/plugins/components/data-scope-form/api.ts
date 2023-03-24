@@ -18,8 +18,8 @@
 
 import { request } from '@/utils';
 
-export const getDataScope = (plugin: string, connectionId: ID, repoId: string) =>
-  request(`/plugins/${plugin}/connections/${connectionId}/scopes/${repoId}`);
+export const getDataScope = (plugin: string, connectionId: ID, scopeId: string) =>
+  request(`/plugins/${plugin}/connections/${connectionId}/scopes/${scopeId}`);
 
 export const updateDataScope = (plugin: string, connectionId: ID, payload: any) =>
   request(`/plugins/${plugin}/connections/${connectionId}/scopes`, {

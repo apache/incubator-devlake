@@ -16,14 +16,15 @@
  *
  */
 
-import { useMemo } from 'react';
-import { Button, Icon, Intent, Position, Colors } from '@blueprintjs/core';
-import { Tooltip2 } from '@blueprintjs/popover2';
+import { useState, useEffect, useMemo } from 'react';
+import { Button, Intent } from '@blueprintjs/core';
 
 import { Card, MultiSelector } from '@/components';
 import { transformEntities } from '@/config';
+import { useOperator } from '@/hooks';
 import type { PluginConfigType } from '@/plugins';
-import { PluginConfig } from '@/plugins';
+import { PluginConfig, getPluginId } from '@/plugins';
+
 import { GitHubDataScope } from '@/plugins/register/github';
 import { JiraDataScope } from '@/plugins/register/jira';
 import { GitLabDataScope } from '@/plugins/register/gitlab';
@@ -32,20 +33,22 @@ import { BitbucketDataScope } from '@/plugins/register/bitbucket';
 import { SonarQubeDataScope } from '@/plugins/register/sonarqube';
 import { ZentaoDataScope } from '@/plugins/register/zentao';
 
-import type { UseDataScope } from './use-data-scope';
-import { useDataScope } from './use-data-scope';
+import * as API from './api';
 import * as S from './styled';
 
-interface Props extends Pick<UseDataScope, 'plugin' | 'connectionId' | 'onSubmit'> {
+interface Props {
+  plugin: string;
+  connectionId: ID;
+  initialScope?: any[];
+  initialEntities?: string[];
   cancelBtnProps?: {
     text?: string;
   };
   submitBtnProps?: {
     text?: string;
   };
-  initialScope?: any[];
-  initialEntities?: string[];
   onCancel?: () => void;
+  onSubmit?: (scope: Array<{ id: string; entities: string[] }>, origin: any) => void;
 }
 
 export const DataScopeForm = ({
@@ -58,19 +61,59 @@ export const DataScopeForm = ({
   submitBtnProps,
   ...props
 }: Props) => {
-  const config = useMemo(() => PluginConfig.find((p) => p.plugin === plugin) as PluginConfigType, []);
+  const [scope, setScope] = useState<any>([]);
+  const [entities, setEntites] = useState<string[]>([]);
 
-  const { saving, scope, setScope, entities, setEntites, onSave } = useDataScope({
-    ...props,
-    plugin,
-    connectionId,
-    initialScope: initialScope ?? [],
-    initialEntities: initialEntities ?? config.entities,
-  });
+  useEffect(() => {
+    setScope(initialScope ?? []);
+    setEntites(initialEntities ?? []);
+  }, []);
+
+  const config = useMemo(() => PluginConfig.find((p) => p.plugin === plugin) as PluginConfigType, []);
 
   const error = useMemo(
     () => (!scope.length || !entities.length ? 'No Data Scope is Selected' : ''),
     [scope, entities],
+  );
+
+  const getDataScope = async (scopeId: string) => {
+    try {
+      const res = await API.getDataScope(plugin, connectionId, scopeId);
+      return {
+        ...scope,
+        transformationRuleId: res.transformationRuleId,
+      };
+    } catch {
+      return scope;
+    }
+  };
+
+  const { operating, onSubmit } = useOperator(
+    async () => {
+      const data = await Promise.all(scope.map((sc: any) => getDataScope(sc[getPluginId(plugin)])));
+      return plugin === 'zentao'
+        ? Promise.all([
+            API.updateDataScopeWithType(plugin, connectionId, 'product', {
+              data: data.filter((s) => s.type !== 'project'),
+            }),
+            API.updateDataScopeWithType(plugin, connectionId, 'project', {
+              data: data.filter((s) => s.type === 'project'),
+            }),
+          ])
+        : API.updateDataScope(plugin, connectionId, {
+            data,
+          });
+    },
+    {
+      callback: (res) =>
+        props.onSubmit?.(
+          res.map((it: any) => ({
+            id: getPluginId(it),
+            entities,
+          })),
+          res,
+        ),
+    },
   );
 
   return (
@@ -130,27 +173,20 @@ export const DataScopeForm = ({
 
       <div className="action">
         <Button
-          intent={Intent.PRIMARY}
           outlined
-          disabled={saving}
+          intent={Intent.PRIMARY}
           text="Cancel"
-          onClick={onCancel}
           {...cancelBtnProps}
+          disabled={operating}
+          onClick={onCancel}
         />
         <Button
           intent={Intent.PRIMARY}
           text="Save"
-          loading={saving}
-          disabled={!!error}
-          icon={
-            error ? (
-              <Tooltip2 defaultIsOpen placement={Position.TOP} content={error}>
-                <Icon icon="warning-sign" color={Colors.ORANGE5} style={{ margin: 0 }} />
-              </Tooltip2>
-            ) : null
-          }
-          onClick={onSave}
           {...submitBtnProps}
+          loading={operating}
+          disabled={!!error}
+          onClick={onSubmit}
         />
       </div>
     </S.Wrapper>
