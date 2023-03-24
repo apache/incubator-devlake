@@ -21,13 +21,14 @@ import (
 	"crypto/md5"
 	"encoding/hex"
 	"fmt"
+	"reflect"
+	"strings"
+
 	"github.com/apache/incubator-devlake/core/context"
 	"github.com/apache/incubator-devlake/core/dal"
 	"github.com/apache/incubator-devlake/core/errors"
 	"github.com/apache/incubator-devlake/core/plugin"
 	helper "github.com/apache/incubator-devlake/helpers/pluginhelper/api"
-	"reflect"
-	"strings"
 )
 
 // AutoMigrateTables runs AutoMigrate for muliple tables
@@ -89,12 +90,13 @@ func ChangeColumnsType[D any](
 		for i, v := range columns {
 			dalSet = append(dalSet, dal.DalSet{
 				ColumnName: v,
-				Value:      dal.ClauseColumn{Name: tmpColumnsNames[i]},
+				Value:      tmpColumnsNames[i],
 			})
 		}
 		err = db.UpdateColumns(
 			new(D),
 			dalSet,
+			dal.Where("1=1"),
 		)
 	} else {
 		params := make([]interface{}, 0, len(tmpColumnsNames))
