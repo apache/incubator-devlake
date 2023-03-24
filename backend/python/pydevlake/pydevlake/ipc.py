@@ -85,7 +85,7 @@ class PluginCommands:
             )
             for raw_scope, raw_tx_rule in scope_tx_rule_pairs
         ]
-        return self._plugin.make_pipeline(scope_tx_rule_pairs, entities, connection['id'])
+        return self._plugin.make_pipeline(scope_tx_rule_pairs, entities, connection)
 
     @plugin_method
     def run_migrations(self, force: bool):

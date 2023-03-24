@@ -88,10 +88,9 @@ class AzureDevOpsPlugin(Plugin):
         if resp.status != 200:
             raise Exception(f"Invalid token: {connection.token}")
 
-    def extra_tasks(self, scope: GitRepository, entity_types: list[str], connection_id: int):
+    def extra_tasks(self, scope: GitRepository, entity_types: list[str], connection: AzureDevOpsConnection):
         if DomainType.CODE in entity_types:
-            # TODO: pass proxy
-            return [gitextractor(scope.url, scope.id, None)]
+            return [gitextractor(scope.url, scope.id, connection.proxy)]
         else:
             return []
 
