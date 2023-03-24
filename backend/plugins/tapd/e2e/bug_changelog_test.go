@@ -57,6 +57,8 @@ func TestTapdBugChangelogDataFlow(t *testing.T) {
 		},
 	}
 
+	// iteration
+	dataflowTester.ImportCsvIntoTabler("./snapshot_tables/_tool_tapd_iterations.csv", &models.TapdIteration{})
 	// bug status
 	// import raw data table
 	dataflowTester.ImportCsvIntoRawTable("./raw_tables/_raw_tapd_api_bug_status.csv",

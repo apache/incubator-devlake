@@ -38,6 +38,8 @@ func TestTapdTaskChangelogDataFlow(t *testing.T) {
 			WorkspaceId:  991,
 		},
 	}
+	// iteration
+	dataflowTester.ImportCsvIntoTabler("./snapshot_tables/_tool_tapd_iterations.csv", &models.TapdIteration{})
 
 	// import raw data table
 	dataflowTester.ImportCsvIntoRawTable("./raw_tables/_raw_tapd_api_task_changelogs.csv",
