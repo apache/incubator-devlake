@@ -27,11 +27,12 @@ import (
 // @Description create transformation rule for Github
 // @Tags plugins/github
 // @Accept application/json
+// @Param connectionId path int true "connectionId"
 // @Param transformationRule body models.GithubTransformationRule true "transformation rule"
 // @Success 200  {object} models.GithubTransformationRule
 // @Failure 400  {object} shared.ApiBody "Bad Request"
 // @Failure 500  {object} shared.ApiBody "Internal Error"
-// @Router /plugins/github/transformation_rules [POST]
+// @Router /plugins/github/connections/{connectionId}/transformation_rules [POST]
 func CreateTransformationRule(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, errors.Error) {
 	return trHelper.Create(input)
 }
@@ -42,11 +43,12 @@ func CreateTransformationRule(input *plugin.ApiResourceInput) (*plugin.ApiResour
 // @Tags plugins/github
 // @Accept application/json
 // @Param id path int true "id"
+// @Param connectionId path int true "connectionId"
 // @Param transformationRule body models.GithubTransformationRule true "transformation rule"
 // @Success 200  {object} models.GithubTransformationRule
 // @Failure 400  {object} shared.ApiBody "Bad Request"
 // @Failure 500  {object} shared.ApiBody "Internal Error"
-// @Router /plugins/github/transformation_rules/{id} [PATCH]
+// @Router /plugins/github/connections/{connectionId}/transformation_rules/{id} [PATCH]
 func UpdateTransformationRule(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, errors.Error) {
 	return trHelper.Update(input)
 }
@@ -56,10 +58,11 @@ func UpdateTransformationRule(input *plugin.ApiResourceInput) (*plugin.ApiResour
 // @Description return one transformation rule
 // @Tags plugins/github
 // @Param id path int true "id"
+// @Param connectionId path int true "connectionId"
 // @Success 200  {object} models.GithubTransformationRule
 // @Failure 400  {object} shared.ApiBody "Bad Request"
 // @Failure 500  {object} shared.ApiBody "Internal Error"
-// @Router /plugins/github/transformation_rules/{id} [GET]
+// @Router /plugins/github/connections/{connectionId}/transformation_rules/{id} [GET]
 func GetTransformationRule(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, errors.Error) {
 	return trHelper.Get(input)
 }
@@ -70,10 +73,11 @@ func GetTransformationRule(input *plugin.ApiResourceInput) (*plugin.ApiResourceO
 // @Tags plugins/github
 // @Param pageSize query int false "page size, default 50"
 // @Param page query int false "page size, default 1"
+// @Param connectionId path int true "connectionId"
 // @Success 200  {object} []models.GithubTransformationRule
 // @Failure 400  {object} shared.ApiBody "Bad Request"
 // @Failure 500  {object} shared.ApiBody "Internal Error"
-// @Router /plugins/github/transformation_rules [GET]
+// @Router /plugins/github/connections/{connectionId}/transformation_rules [GET]
 func GetTransformationRuleList(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, errors.Error) {
 	return trHelper.List(input)
 }

@@ -41,6 +41,7 @@ type TypeMapping struct {
 type TypeMappings map[string]TypeMapping
 
 type JiraTransformationRule struct {
+	ConnectionId               uint64       `mapstructure:"connectionId" json:"connectionId"`
 	Name                       string       `gorm:"type:varchar(255)" validate:"required"`
 	EpicKeyField               string       `json:"epicKeyField"`
 	StoryPointField            string       `json:"storyPointField"`
@@ -59,6 +60,7 @@ func (r *JiraTransformationRule) ToDb() (*models.JiraTransformationRule, errors.
 		return nil, errors.Default.Wrap(err, "error marshaling RemotelinkRepoPattern")
 	}
 	rule := &models.JiraTransformationRule{
+		ConnectionId:               r.ConnectionId,
 		Name:                       r.Name,
 		EpicKeyField:               r.EpicKeyField,
 		StoryPointField:            r.StoryPointField,
@@ -89,6 +91,7 @@ func MakeTransformationRules(rule models.JiraTransformationRule) (*JiraTransform
 		}
 	}
 	result := &JiraTransformationRule{
+		ConnectionId:               rule.ConnectionId,
 		Name:                       rule.Name,
 		EpicKeyField:               rule.EpicKeyField,
 		StoryPointField:            rule.StoryPointField,
