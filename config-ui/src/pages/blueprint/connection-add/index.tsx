@@ -24,15 +24,26 @@ import { Step1, Step2, Step3 } from './components';
 import { ContextProvider, Context } from './context';
 
 export const BlueprintConnectioAddPage = () => {
-  const { id } = useParams<{ id: string }>();
+  const { pname, bid } = useParams<{ pname?: string; bid: string }>();
 
   return (
-    <ContextProvider id={id}>
+    <ContextProvider id={bid}>
       <Context.Consumer>
         {({ name, step }) => (
           <PageHeader
             breadcrumbs={[
-              { name: name, path: `/blueprints/${id}` },
+              ...(pname
+                ? [
+                    {
+                      name: 'Projects',
+                      path: '/projects',
+                    },
+                    {
+                      name: pname,
+                      path: `/projects/${pname}`,
+                    },
+                  ]
+                : [{ name: name, path: `/blueprints/${bid}` }]),
               { name: 'Add a New Connection', path: '' },
             ]}
           >

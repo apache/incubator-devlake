@@ -40,6 +40,8 @@ function App() {
         <Route path="/" exact component={() => <Redirect to="/projects" />} />
         <Route exact path="/projects" component={() => <ProjectHomePage />} />
         <Route exact path="/projects/:pname" component={() => <ProjectDetailPage />} />
+        <Route exact path="/projects/:pname/:bid/connection-add" component={() => <BlueprintConnectioAddPage />} />
+        <Route exact path="/projects/:pname/:bid/:unique" component={() => <BlueprintConnectionDetailPage />} />
         <Route
           exact
           path="/projects/:pname/create-blueprint"
@@ -52,8 +54,8 @@ function App() {
         <Route exact path="/blueprints" component={() => <BlueprintHomePage />} />
         <Route exact path="/blueprints/create" component={() => <BlueprintCreatePage from={FromEnum.blueprint} />} />
         <Route exact path="/blueprints/:id" component={() => <BlueprintDetailPage />} />
-        <Route exact path="/blueprints/:id/connection-add" component={() => <BlueprintConnectioAddPage />} />
-        <Route exact path="/blueprints/:id/:unique" component={() => <BlueprintConnectionDetailPage />} />
+        <Route exact path="/blueprints/:bid/connection-add" component={() => <BlueprintConnectioAddPage />} />
+        <Route exact path="/blueprints/:bid/:unique" component={() => <BlueprintConnectionDetailPage />} />
       </Switch>
     </BaseLayout>
   );

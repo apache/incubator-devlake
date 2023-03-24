@@ -34,12 +34,12 @@ export const BlueprintConnectionDetailPage = () => {
   const [version, setVersion] = useState(1);
   const [isOpen, setIsOpen] = useState(false);
 
-  const { id, unique } = useParams<{ id: string; unique: string }>();
+  const { pname, bid, unique } = useParams<{ pname?: string; bid: string; unique: string }>();
   const history = useHistory();
 
   const { ready, data } = useRefreshData(async () => {
     const [plugin, connectionId] = unique.split('-');
-    const blueprint = await API.getBlueprint(id);
+    const blueprint = await API.getBlueprint(bid);
     const connection = await API.getConnection(plugin, connectionId);
     const scope = blueprint.settings.connections.find(
       (cs: any) => cs.plugin === plugin && cs.connectionId === +connectionId,
@@ -115,7 +115,18 @@ export const BlueprintConnectionDetailPage = () => {
   return (
     <PageHeader
       breadcrumbs={[
-        { name: bpName, path: `/blueprints/${id}` },
+        ...(pname
+          ? [
+              {
+                name: 'Projects',
+                path: '/projects',
+              },
+              {
+                name: pname,
+                path: `/projects/${pname}`,
+              },
+            ]
+          : [{ name: bpName, path: `/blueprints/${bid}` }]),
         { name: `Connection - ${csName}`, path: '' },
       ]}
     >
@@ -149,7 +160,7 @@ export const BlueprintConnectionDetailPage = () => {
           ))}
         </ul>
       </S.Entities>
-      <Transformation connections={[connection]} noFooter onChange={handleChangeTransformation} />
+      <Transformation connections={[connection]} noFooter onSubmit={handleChangeTransformation} />
       <Dialog
         isOpen={isOpen}
         title="Change Data Scope"
@@ -161,8 +172,8 @@ export const BlueprintConnectionDetailPage = () => {
           connections={[connection]}
           initialScope={connection.origin}
           onCancel={handleHideDataScope}
-          onSubmit={handleHideDataScope}
-          onChange={handleChangeDataScope}
+          onSubmit={handleChangeDataScope}
+          onNext={handleHideDataScope}
         />
       </Dialog>
     </PageHeader>
