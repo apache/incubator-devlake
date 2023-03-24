@@ -223,9 +223,9 @@ func ReloadBlueprints(c *cron.Cron) errors.Error {
 		if _, err := c.AddFunc(blueprint.CronConfig, func() {
 			pipeline, err := createPipelineByBlueprint(blueprint)
 			if err != nil {
-				blueprintLog.Error(err, "run cron job failed")
+				blueprintLog.Error(err, fmt.Sprintf("run cron job failed on blueprint:[%d][%s]", blueprint.ID, blueprint.Name))
 			} else {
-				blueprintLog.Info("Run new cron job successfully, pipeline id: %d", pipeline.ID)
+				blueprintLog.Info("Run new cron job successfully,pipeline id:[%d] pipeline id:[%d]", blueprint.ID, pipeline.ID)
 			}
 		}); err != nil {
 			blueprintLog.Error(err, failToCreateCronJob)
@@ -248,6 +248,7 @@ func createPipelineByBlueprint(blueprint *models.Blueprint) (*models.Pipeline, e
 		plan, err = blueprint.UnmarshalPlan()
 	}
 	if err != nil {
+		blueprintLog.Error(err, fmt.Sprintf("failed to MakePlanForBlueprint on blueprint:[%d][%s]", blueprint.ID, blueprint.Name))
 		return nil, err
 	}
 	newPipeline := models.NewPipeline{}
@@ -259,7 +260,7 @@ func createPipelineByBlueprint(blueprint *models.Blueprint) (*models.Pipeline, e
 	pipeline, err := CreatePipeline(&newPipeline)
 	// Return all created tasks to the User
 	if err != nil {
-		blueprintLog.Error(err, failToCreateCronJob)
+		blueprintLog.Error(err, fmt.Sprintf("%s on blueprint:[%d][%s]", failToCreateCronJob, blueprint.ID, blueprint.Name))
 		return nil, errors.Convert(err)
 	}
 	return pipeline, nil
