@@ -35,8 +35,8 @@ interface Props {
   };
   noFooter?: boolean;
   onCancel?: () => void;
-  onSubmit?: () => void;
-  onChange?: (connections: MixConnection[]) => void;
+  onSubmit?: (connections: MixConnection[]) => void;
+  onNext?: () => void;
 }
 
 export const Transformation = ({
@@ -46,7 +46,7 @@ export const Transformation = ({
   noFooter,
   onCancel,
   onSubmit,
-  onChange,
+  onNext,
 }: Props) => {
   const [selected, setSelected] = useState<Record<string, ID[]>>({});
   const [connection, setConnection] = useState<MixConnection>();
@@ -65,7 +65,7 @@ export const Transformation = ({
         });
       }),
     );
-    onChange?.(connections.map((cs) => (cs.unique !== unique ? cs : { ...cs, origin: scopes })));
+    onSubmit?.(connections.map((cs) => (cs.unique !== unique ? cs : { ...cs, origin: scopes })));
     handleCancel();
   };
 
@@ -126,8 +126,8 @@ export const Transformation = ({
       ))}
       {!noFooter && (
         <S.Btns>
-          <Button outlined intent={Intent.PRIMARY} text="Cancel" onClick={onCancel} {...cancelBtnProps} />
-          <Button outlined intent={Intent.PRIMARY} text="Save" onClick={onSubmit} {...submitBtnProps} />
+          <Button outlined intent={Intent.PRIMARY} text="Previous Step" onClick={onCancel} {...cancelBtnProps} />
+          <Button outlined intent={Intent.PRIMARY} text="Next Step" onClick={onNext} {...submitBtnProps} />
         </S.Btns>
       )}
       {connection && (
