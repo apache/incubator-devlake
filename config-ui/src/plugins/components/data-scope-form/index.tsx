@@ -21,7 +21,6 @@ import { Button, Intent } from '@blueprintjs/core';
 
 import { Card, MultiSelector } from '@/components';
 import { transformEntities } from '@/config';
-import { useOperator } from '@/hooks';
 import type { PluginConfigType } from '@/plugins';
 import { PluginConfig, getPluginId } from '@/plugins';
 
@@ -56,18 +55,14 @@ export const DataScopeForm = ({
   connectionId,
   initialScope,
   initialEntities,
+  onSubmit,
   onCancel,
   cancelBtnProps,
   submitBtnProps,
-  ...props
 }: Props) => {
+  const [operating, setOperating] = useState(false);
   const [scope, setScope] = useState<any>([]);
   const [entities, setEntites] = useState<string[]>([]);
-
-  useEffect(() => {
-    setScope(initialScope ?? []);
-    setEntites(initialEntities ?? []);
-  }, []);
 
   const config = useMemo(() => PluginConfig.find((p) => p.plugin === plugin) as PluginConfigType, []);
 
@@ -76,9 +71,14 @@ export const DataScopeForm = ({
     [scope, entities],
   );
 
-  const getDataScope = async (scopeId: string) => {
+  useEffect(() => {
+    setScope(initialScope ?? []);
+    setEntites(initialEntities ?? config.entities);
+  }, []);
+
+  const getDataScope = async (scope: any) => {
     try {
-      const res = await API.getDataScope(plugin, connectionId, scopeId);
+      const res = await API.getDataScope(plugin, connectionId, scope[getPluginId(plugin)]);
       return {
         ...scope,
         transformationRuleId: res.transformationRuleId,
@@ -88,33 +88,35 @@ export const DataScopeForm = ({
     }
   };
 
-  const { operating, onSubmit } = useOperator(
-    async () => {
-      const data = await Promise.all(scope.map((sc: any) => getDataScope(sc[getPluginId(plugin)])));
-      return plugin === 'zentao'
-        ? Promise.all([
-            API.updateDataScopeWithType(plugin, connectionId, 'product', {
-              data: data.filter((s) => s.type !== 'project'),
-            }),
-            API.updateDataScopeWithType(plugin, connectionId, 'project', {
-              data: data.filter((s) => s.type === 'project'),
-            }),
-          ])
-        : API.updateDataScope(plugin, connectionId, {
-            data,
-          });
-    },
-    {
-      callback: (res) =>
-        props.onSubmit?.(
-          res.map((it: any) => ({
-            id: getPluginId(it),
-            entities,
-          })),
-          res,
-        ),
-    },
-  );
+  const handleSubmit = async () => {
+    setOperating(true);
+    try {
+      const data = await Promise.all(scope.map((sc: any) => getDataScope(sc)));
+      const res =
+        plugin === 'zentao'
+          ? await Promise.all([
+              API.updateDataScopeWithType(plugin, connectionId, 'product', {
+                data: data.filter((s) => s.type !== 'project'),
+              }),
+              API.updateDataScopeWithType(plugin, connectionId, 'project', {
+                data: data.filter((s) => s.type === 'project'),
+              }),
+            ])
+          : await API.updateDataScope(plugin, connectionId, {
+              data,
+            });
+
+      onSubmit?.(
+        res.map((it: any) => ({
+          id: it[getPluginId(plugin)],
+          entities,
+        })),
+        res,
+      );
+    } finally {
+      setOperating(false);
+    }
+  };
 
   return (
     <S.Wrapper>
@@ -186,7 +188,7 @@ export const DataScopeForm = ({
           {...submitBtnProps}
           loading={operating}
           disabled={!!error}
-          onClick={onSubmit}
+          onClick={handleSubmit}
         />
       </div>
     </S.Wrapper>
