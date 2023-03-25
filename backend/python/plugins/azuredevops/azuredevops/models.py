@@ -16,6 +16,7 @@
 import datetime
 from enum import Enum
 from typing import Optional
+import re
 
 from sqlmodel import Field
 
@@ -30,6 +31,8 @@ class AzureDevOpsConnection(Connection):
 
 class AzureDevOpsTransformationRule(TransformationRule):
     refdiff_options: Optional[RefDiffOptions]
+    deployment_pattern: Optional[re.Pattern]
+    production_pattern: Optional[re.Pattern]
 
 
 class Project(ToolModel, table=True):
