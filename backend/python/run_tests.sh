@@ -15,27 +15,14 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #
-
-build() {
-    python_dir=$1
-    cd "$python_dir" &&\
-    poetry install &&\
-    cd -
-    exit_code=$?
-    if [ $exit_code != 0 ]; then
-      exit $exit_code
-    fi
-}
-
 cd "${0%/*}" # make sure we're in the correct dir
 
-poetry config virtualenvs.create true
-
-echo "Installing Python DevLake framework"
-build pydevlake
-
-for plugin_dir in $(ls -d plugins/*/*.toml); do
-  plugin_dir=$(dirname $plugin_dir)
-  echo "Installing dependencies of python plugin in: $plugin_dir" &&\
-  build "$plugin_dir"
+for test_dir in $(find . -type f -name "*_test.py" | xargs dirname | sort -u); do
+  printf "Running Python tests in $test_dir\n"
+  cd $test_dir
+  poetry run pytest
+  if [ $? != 0 ]; then
+    exit 1
+  fi
+  cd -
 done

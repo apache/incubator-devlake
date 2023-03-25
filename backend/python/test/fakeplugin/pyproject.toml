@@ -21,7 +21,7 @@ authors = []
 
 [tool.poetry.dependencies]
 python = "^3.10"
-pydevlake = { path = "../../../python/pydevlake", develop = false }
+pydevlake = { path = "../../pydevlake", develop = true }
 
 
 [build-system]

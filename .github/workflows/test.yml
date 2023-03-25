@@ -40,21 +40,23 @@ jobs:
     steps:
     - name: Checkout code
       uses: actions/checkout@v3
-    - name: Setup Golang env
-      uses: actions/setup-go@v3
-      with:
-        go-version: ${{ matrix.go }}
+    - run: git config --global --add safe.directory $(pwd)
+    - name: Build Python
+      run: |
+        cd backend
+        make build-python
     - name: Cache unit-test
       id: cache-unit-test
       uses: actions/cache@v3
       with:
         path: |
           ~/.cache/go-build
-          ~/go/pkg/mod
+          ${{ env.GOPATH }}/pkg/mod
         key: ${{ runner.os }}-go-${{ hashFiles('**/go.sum') }}
         restore-keys: |
           ${{ runner.os }}-go-
     - name: Unit tests
       run: |
+        cp .env.example .env
         cd backend
         make unit-test

@@ -20,7 +20,7 @@ package services
 import (
 	"github.com/apache/incubator-devlake/core/models"
 	"github.com/apache/incubator-devlake/server/services"
-	_ "github.com/apache/incubator-devlake/test"
+	_ "github.com/apache/incubator-devlake/test/e2e"
 	"github.com/stretchr/testify/assert"
 	"testing"
 )

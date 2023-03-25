@@ -15,29 +15,23 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-package test
+package helper
 
 import (
-	"github.com/apache/incubator-devlake/core/config"
-	"github.com/apache/incubator-devlake/core/plugin"
-	"github.com/apache/incubator-devlake/server/services"
+	"github.com/apache/incubator-devlake/core/errors"
+	"github.com/apache/incubator-devlake/test"
 )
 
-func init() {
-	v := config.GetConfig()
-	encKey := v.GetString(plugin.EncodeKeyEnvStr)
-	if encKey == "" {
-		// Randomly generate a bunch of encryption keys and set them to config
-		encKey = plugin.RandomEncKey()
-		v.Set(plugin.EncodeKeyEnvStr, encKey)
-		err := config.WriteConfig(v)
-		if err != nil {
-			panic(err)
-		}
-	}
-	services.InitResources()
-	err := services.GetMigrator().Execute()
+var (
+	ProjectRoot = ""
+	Shell       = ""
+)
+
+func Init() {
+	Shell = "/bin/sh"
+	var err errors.Error
+	ProjectRoot, err = test.NormalizeBaseDirectory()
 	if err != nil {
-		panic(err)
+		panic(err.Error())
 	}
 }

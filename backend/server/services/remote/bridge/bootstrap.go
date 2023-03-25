@@ -34,11 +34,15 @@ func Bootstrap(cfg *viper.Viper, port int) errors.Error {
 	if scriptPath == "" {
 		return errors.BadInput.New(fmt.Sprintf("missing env key: %s", "REMOTE_PLUGINS_STARTUP_PATH"))
 	}
-	workingDir, err := errors.Convert01(os.Getwd())
-	if err != nil {
-		return err
+	absScriptPath := scriptPath
+	if !filepath.IsAbs(scriptPath) {
+		workingDir, err := errors.Convert01(os.Getwd())
+		if err != nil {
+			return err
+		}
+		absScriptPath = filepath.Join(workingDir, scriptPath)
 	}
-	absScriptPath := filepath.Join(workingDir, scriptPath)
+	logruslog.Global.Info("Resolved remote plugins script path: %s", absScriptPath)
 	cmd := exec.Command(absScriptPath, fmt.Sprintf("http://127.0.0.1:%d", port)) //expects the plugins to live on the same host
 	cmd.Dir = filepath.Dir(absScriptPath)
 	result, err := utils.RunProcess(cmd, &utils.RunProcessOptions{

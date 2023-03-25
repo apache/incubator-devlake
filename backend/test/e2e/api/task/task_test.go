@@ -22,7 +22,7 @@ import (
 	"github.com/apache/incubator-devlake/core/errors"
 	"github.com/apache/incubator-devlake/core/models"
 	"github.com/apache/incubator-devlake/server/api"
-	_ "github.com/apache/incubator-devlake/test"
+	_ "github.com/apache/incubator-devlake/test/e2e"
 	"github.com/gin-gonic/gin"
 	"github.com/magiconair/properties/assert"
 	"net/http"
