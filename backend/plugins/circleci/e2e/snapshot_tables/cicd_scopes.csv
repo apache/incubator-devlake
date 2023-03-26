@@ -1,0 +1,2 @@
+id,created_at,updated_at,_raw_data_params,_raw_data_table,_raw_data_id,_raw_data_remark,name,description,url,created_date,updated_date
+circleci:CircleciProject:1:918df292-936a-41b2-8174-696c6cdd6cf5,2023-03-28 15:39:55.695,2023-03-28 15:39:55.695,"{""ConnectionId"":1,""ProjectSlug"":""github/coldgust/coldgust.github.io""}",_raw_circleci_api_projects,3,"",coldgust.github.io,"",https://app.circleci.com/pipelines/github/coldgust/coldgust.github.io,,
