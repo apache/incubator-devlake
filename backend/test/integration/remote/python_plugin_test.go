@@ -18,114 +18,17 @@ limitations under the License.
 package test
 
 import (
-	"fmt"
-	"github.com/apache/incubator-devlake/core/config"
-	"github.com/apache/incubator-devlake/test/integration/helper"
-	"os"
-	"path/filepath"
-	"testing"
-	"time"
-
 	"github.com/apache/incubator-devlake/core/models"
 	"github.com/apache/incubator-devlake/core/plugin"
+	"github.com/apache/incubator-devlake/test/integration/helper"
 	"github.com/stretchr/testify/require"
+	"testing"
 )
-
-const (
-	PLUGIN_NAME     = "fake"
-	TOKEN           = "this_is_a_valid_token"
-	FAKE_PLUGIN_DIR = "python/test/fakeplugin"
-)
-
-type FakePluginConnection struct {
-	Id    uint64 `json:"id"`
-	Name  string `json:"name"`
-	Token string `json:"token"`
-}
-
-type FakeProject struct {
-	Id                   string `json:"id"`
-	Name                 string `json:"name"`
-	ConnectionId         uint64 `json:"connection_id"`
-	TransformationRuleId uint64 `json:"transformation_rule_id"`
-}
-
-type FakeTxRule struct {
-	Id   uint64 `json:"id"`
-	Name string `json:"name"`
-	Env  string `json:"env"`
-}
-
-func setupEnv() {
-	fmt.Println("Setup test env")
-	helper.Init()
-	path := filepath.Join(helper.ProjectRoot, FAKE_PLUGIN_DIR, "start.sh") // make sure the path is correct
-	_, err := os.Stat(path)
-	if err != nil {
-		panic(err)
-	}
-	_ = os.Setenv("REMOTE_PLUGINS_STARTUP_PATH", path)
-	_ = os.Setenv("ENABLE_REMOTE_PLUGINS", "true")
-}
-
-func connectLocalServer(t *testing.T) *helper.DevlakeClient {
-	fmt.Println("Connect to server")
-	client := helper.ConnectLocalServer(t, &helper.LocalClientConfig{
-		ServerPort:   8089,
-		DbURL:        config.GetConfig().GetString("E2E_DB_URL"),
-		CreateServer: true,
-		TruncateDb:   true,
-		Plugins:      map[string]plugin.PluginMeta{},
-	})
-	client.SetTimeout(60 * time.Second)
-	// Wait for plugin registration
-	time.Sleep(3 * time.Second)
-	return client
-}
-
-func createClient(t *testing.T) *helper.DevlakeClient {
-	setupEnv()
-	return connectLocalServer(t)
-}
-
-func createTestConnection(client *helper.DevlakeClient) *helper.Connection {
-	connection := client.CreateConnection(PLUGIN_NAME,
-		FakePluginConnection{
-			Name:  "Test connection",
-			Token: TOKEN,
-		},
-	)
-
-	client.SetTimeout(1)
-	return connection
-}
-
-func createTestScope(client *helper.DevlakeClient, connectionId uint64) any {
-	res := client.CreateTransformationRule(PLUGIN_NAME, FakeTxRule{Name: "Tx rule", Env: "test env"})
-	rule, ok := res.(map[string]interface{})
-	if !ok {
-		panic("Cannot cast transform rule")
-	}
-	ruleId := uint64(rule["id"].(float64))
-
-	scope := client.CreateScope(PLUGIN_NAME,
-		connectionId,
-		FakeProject{
-			Id:                   "12345",
-			Name:                 "Test project",
-			ConnectionId:         connectionId,
-			TransformationRuleId: ruleId,
-		},
-	)
-
-	client.SetTimeout(1)
-	return scope
-}
 
 func TestCreateConnection(t *testing.T) {
-	client := createClient(t)
+	client := CreateClient(t)
 
-	createTestConnection(client)
+	CreateTestConnection(client)
 
 	conns := client.ListConnections(PLUGIN_NAME)
 	require.Equal(t, 1, len(conns))
@@ -133,8 +36,8 @@ func TestCreateConnection(t *testing.T) {
 }
 
 func TestRemoteScopeGroups(t *testing.T) {
-	client := createClient(t)
-	connection := createTestConnection(client)
+	client := CreateClient(t)
+	connection := CreateTestConnection(client)
 
 	output := client.RemoteScopes(helper.RemoteScopesQuery{
 		PluginName:   PLUGIN_NAME,
@@ -150,8 +53,8 @@ func TestRemoteScopeGroups(t *testing.T) {
 }
 
 func TestRemoteScopes(t *testing.T) {
-	client := createClient(t)
-	connection := createTestConnection(client)
+	client := CreateClient(t)
+	connection := CreateTestConnection(client)
 
 	output := client.RemoteScopes(helper.RemoteScopesQuery{
 		PluginName:   PLUGIN_NAME,
@@ -168,10 +71,10 @@ func TestRemoteScopes(t *testing.T) {
 }
 
 func TestCreateScope(t *testing.T) {
-	client := createClient(t)
+	client := CreateClient(t)
 	var connectionId uint64 = 1
 
-	createTestScope(client, connectionId)
+	CreateTestScope(client, connectionId)
 
 	scopes := client.ListScopes(PLUGIN_NAME, connectionId)
 	require.Equal(t, 1, len(scopes))
@@ -179,10 +82,10 @@ func TestCreateScope(t *testing.T) {
 
 func TestRunPipeline(t *testing.T) {
 	t.SkipNow() //Fix later
-	client := createClient(t)
-	conn := createTestConnection(client)
+	client := CreateClient(t)
+	conn := CreateTestConnection(client)
 
-	createTestScope(client, conn.ID)
+	CreateTestScope(client, conn.ID)
 
 	pipeline := client.RunPipeline(models.NewPipeline{
 		Name: "remote_test",
@@ -207,13 +110,13 @@ func TestRunPipeline(t *testing.T) {
 
 func TestBlueprintV200(t *testing.T) {
 	t.SkipNow() //Fix later
-	client := createClient(t)
-	connection := createTestConnection(client)
+	client := CreateClient(t)
+	connection := CreateTestConnection(client)
 	projectName := "Test project"
 	client.CreateProject(&helper.ProjectConfig{
 		ProjectName: projectName,
 	})
-	createTestScope(client, connection.ID)
+	CreateTestScope(client, connection.ID)
 
 	blueprint := client.CreateBasicBlueprintV2(
 		"Test blueprint",

@@ -155,6 +155,23 @@ func (d *DevlakeClient) SetTimeout(timeout time.Duration) {
 	d.timeout = timeout
 }
 
+// AwaitPluginAvailability wait for this plugin to become available on the server given a timeout. Returns false if this condition does not get met.
+func (d *DevlakeClient) AwaitPluginAvailability(pluginName string, timeout time.Duration) bool {
+	timeoutCh := time.After(timeout)
+	for {
+		select {
+		case <-timeoutCh:
+			return false
+		default:
+			_, err := plugin.GetPlugin(pluginName)
+			if err == nil {
+				return true
+			}
+			time.Sleep(250 * time.Millisecond)
+		}
+	}
+}
+
 // RunPlugin manually execute a plugin directly (local server only)
 func (d *DevlakeClient) RunPlugin(ctx context.Context, pluginName string, pluginTask plugin.PluginTask, options map[string]interface{}, subtaskNames ...string) errors.Error {
 	if len(subtaskNames) == 0 {
