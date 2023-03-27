@@ -143,7 +143,7 @@ RUN python3 -m pip install --no-cache --upgrade pip setuptools && \
 RUN curl -sSL https://install.python-poetry.org | python3 -
 RUN ln -sf /root/.local/bin/poetry /usr/local/bin
 # Build Python plugins
-RUN find ./app/python/ -name "*.sh" | xargs -I{} chmod +x {} && \
+RUN find /app/python/ -name "*.sh" | xargs -I{} chmod +x {} && \
     /app/python/build.sh
 
 
