@@ -70,7 +70,7 @@ func TestConnection(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, 
 		return nil, err
 	}
 	if resBody.Code != http.StatusOK {
-		return nil, errors.HttpStatus(res.StatusCode).New(fmt.Sprintf("unexpected status code: %d", res.StatusCode))
+		return nil, errors.HttpStatus(resBody.Code).New(fmt.Sprintf("unexpected body code: %d", resBody.Code))
 	}
 
 	body := TeambitionTestConnResponse{}
