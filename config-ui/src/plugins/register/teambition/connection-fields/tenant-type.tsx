@@ -39,10 +39,6 @@ import { FormGroup, InputGroup } from '@blueprintjs/core';
 import * as S from './styled';
 
 interface Props {
-  label?: string;
-  subLabel?: string;
-  disabled?: boolean;
-  placeholder?: string;
   name: string;
   initialValue: string;
   value: string;
@@ -52,11 +48,7 @@ interface Props {
 }
 
 export const ConnectionTenantType = ({
-                                     label,
-                                     subLabel,
-                                     placeholder,
                                      initialValue,
-                                     disabled = false,
                                      value,
                                      setValue,
                                      setError,
@@ -75,11 +67,11 @@ export const ConnectionTenantType = ({
 
   return (
     <FormGroup
-      label={<S.Label>{label ?? 'TenantType'}</S.Label>}
+      label={<S.Label>Tenant Type</S.Label>}
       labelInfo={<S.LabelInfo>*</S.LabelInfo>}
-      subLabel={subLabel ? <S.LabelDescription>{subLabel}</S.LabelDescription> : null}
+      subLabel={<S.LabelDescription>You do not need to enter the tenant type, because teambition only supports 'organization' type currently.</S.LabelDescription>}
     >
-      <InputGroup disabled={disabled} placeholder={placeholder ?? 'Your TenantType'} value={value} onChange={handleChange} />
+      <InputGroup disabled={true} placeholder="Your API Tenant Type" value={value} onChange={handleChange} />
     </FormGroup>
   );
 };

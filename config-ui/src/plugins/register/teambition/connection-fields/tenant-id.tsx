@@ -39,9 +39,6 @@ import { FormGroup, InputGroup } from '@blueprintjs/core';
 import * as S from './styled';
 
 interface Props {
-  label?: string;
-  subLabel?: string;
-  placeholder?: string;
   name: string;
   initialValue: string;
   value: string;
@@ -51,9 +48,6 @@ interface Props {
 }
 
 export const ConnectionTenantId = ({
-                                     label,
-                                     subLabel,
-                                     placeholder,
                                      initialValue,
                                      value,
                                      setValue,
@@ -73,11 +67,11 @@ export const ConnectionTenantId = ({
 
   return (
     <FormGroup
-      label={<S.Label>{label ?? 'TenantId'}</S.Label>}
+      label={<S.Label>Tenant Id</S.Label>}
       labelInfo={<S.LabelInfo>*</S.LabelInfo>}
-      subLabel={subLabel ? <S.LabelDescription>{subLabel}</S.LabelDescription> : null}
+      subLabel={<S.LabelDescription>Your teambition organization id.</S.LabelDescription>}
     >
-      <InputGroup placeholder={placeholder ?? 'Your TenantId'} value={value} onChange={handleChange} />
+      <InputGroup placeholder="Your TenantId" value={value} onChange={handleChange} />
     </FormGroup>
   );
 };

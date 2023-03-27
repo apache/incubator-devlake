@@ -58,8 +58,6 @@ export const TeambitionConfig: PluginConfigType = {
         <ConnectionTenantId
           key="tenantId"
           name="tenantId"
-          label="Tenant Id"
-          subLabel="Your teambition organization id."
           value={values.tenantId ?? ''}
           error={errors.tenantId ?? ''}
           setValue={(value) => setValues({ tenantId: value })}
@@ -70,23 +68,12 @@ export const TeambitionConfig: PluginConfigType = {
         <ConnectionTenantType
           key="tenantType"
           name="tenantType"
-          label="Tenant Type"
-          placeholder="Your API Tenant Type"
-          subLabel="You do not need to enter the tenant type, because teambition only supports 'organization' type currently."
-          disabled={true}
           value={values.tenantType ?? ''}
           error={errors.tenantType ?? ''}
           setValue={(value) => setValues({ tenantType: value })}
           setError={(value) => setErrors({ tenantType: value })}
           initialValue={initialValues.tenantType} />
       ),
-      {
-        key: 'tenantType',
-        label: 'Tenant Type',
-        placeholder: 'Your API Tenant Type',
-        subLabel: 'You do not need to enter the tenant type, because teambition only supports \'organization\' type currently.',
-        disabled: true,
-      },
       'proxy',
       {
         key: 'rateLimitPerHour',
