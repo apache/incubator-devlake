@@ -35,7 +35,7 @@ func (d *DevlakeClient) TestConnection(pluginName string, connection any) {
 	_ = sendHttpRequest[Connection](d.testCtx, d.timeout, debugInfo{
 		print:      true,
 		inlineJson: false,
-	}, http.MethodPost, fmt.Sprintf("%s/plugins/%s/test", d.Endpoint, pluginName), connection)
+	}, http.MethodPost, fmt.Sprintf("%s/plugins/%s/test", d.Endpoint, pluginName), nil, connection)
 }
 
 // CreateConnection FIXME
@@ -44,7 +44,7 @@ func (d *DevlakeClient) CreateConnection(pluginName string, connection any) *Con
 	created := sendHttpRequest[Connection](d.testCtx, d.timeout, debugInfo{
 		print:      true,
 		inlineJson: false,
-	}, http.MethodPost, fmt.Sprintf("%s/plugins/%s/connections", d.Endpoint, pluginName), connection)
+	}, http.MethodPost, fmt.Sprintf("%s/plugins/%s/connections", d.Endpoint, pluginName), nil, connection)
 	return &created
 }
 
@@ -54,7 +54,7 @@ func (d *DevlakeClient) ListConnections(pluginName string) []*Connection {
 	all := sendHttpRequest[[]*Connection](d.testCtx, d.timeout, debugInfo{
 		print:      true,
 		inlineJson: false,
-	}, http.MethodGet, fmt.Sprintf("%s/plugins/%s/connections", d.Endpoint, pluginName), nil)
+	}, http.MethodGet, fmt.Sprintf("%s/plugins/%s/connections", d.Endpoint, pluginName), nil, nil)
 	return all
 }
 
@@ -83,7 +83,7 @@ func (d *DevlakeClient) CreateBasicBlueprintV2(name string, config *BlueprintV2C
 	blueprint = sendHttpRequest[models.Blueprint](d.testCtx, d.timeout, debugInfo{
 		print:      true,
 		inlineJson: false,
-	}, http.MethodPost, fmt.Sprintf("%s/blueprints", d.Endpoint), &blueprint)
+	}, http.MethodPost, fmt.Sprintf("%s/blueprints", d.Endpoint), nil, &blueprint)
 	return blueprint
 }
 
@@ -110,7 +110,7 @@ func (d *DevlakeClient) CreateProject(project *ProjectConfig) models.ApiOutputPr
 	return sendHttpRequest[models.ApiOutputProject](d.testCtx, d.timeout, debugInfo{
 		print:      true,
 		inlineJson: false,
-	}, http.MethodPost, fmt.Sprintf("%s/projects", d.Endpoint), &models.ApiInputProject{
+	}, http.MethodPost, fmt.Sprintf("%s/projects", d.Endpoint), nil, &models.ApiInputProject{
 		BaseProject: models.BaseProject{
 			Name:        project.ProjectName,
 			Description: project.ProjectDescription,
@@ -124,14 +124,14 @@ func (d *DevlakeClient) GetProject(projectName string) models.ApiOutputProject {
 	return sendHttpRequest[models.ApiOutputProject](d.testCtx, d.timeout, debugInfo{
 		print:      true,
 		inlineJson: false,
-	}, http.MethodGet, fmt.Sprintf("%s/projects/%s", d.Endpoint, projectName), nil)
+	}, http.MethodGet, fmt.Sprintf("%s/projects/%s", d.Endpoint, projectName), nil, nil)
 }
 
 func (d *DevlakeClient) ListProjects() apiProject.PaginatedProjects {
 	return sendHttpRequest[apiProject.PaginatedProjects](d.testCtx, d.timeout, debugInfo{
 		print:      true,
 		inlineJson: false,
-	}, http.MethodGet, fmt.Sprintf("%s/projects", d.Endpoint), nil)
+	}, http.MethodGet, fmt.Sprintf("%s/projects", d.Endpoint), nil, nil)
 }
 
 func (d *DevlakeClient) CreateScope(pluginName string, connectionId uint64, scopes ...any) any {
@@ -141,42 +141,44 @@ func (d *DevlakeClient) CreateScope(pluginName string, connectionId uint64, scop
 	return sendHttpRequest[any](d.testCtx, d.timeout, debugInfo{
 		print:      true,
 		inlineJson: false,
-	}, http.MethodPut, fmt.Sprintf("%s/plugins/%s/connections/%d/scopes", d.Endpoint, pluginName, connectionId), request)
+	}, http.MethodPut, fmt.Sprintf("%s/plugins/%s/connections/%d/scopes", d.Endpoint, pluginName, connectionId), nil, request)
 }
 
 func (d *DevlakeClient) UpdateScope(pluginName string, connectionId uint64, scopeId string, scope any) any {
 	return sendHttpRequest[any](d.testCtx, d.timeout, debugInfo{
 		print:      true,
 		inlineJson: false,
-	}, http.MethodPatch, fmt.Sprintf("%s/plugins/%s/connections/%d/scopes/%s", d.Endpoint, pluginName, connectionId, scopeId), scope)
+	}, http.MethodPatch, fmt.Sprintf("%s/plugins/%s/connections/%d/scopes/%s", d.Endpoint, pluginName, connectionId, scopeId), nil, scope)
 }
 
 func (d *DevlakeClient) ListScopes(pluginName string, connectionId uint64) []any {
 	return sendHttpRequest[[]any](d.testCtx, d.timeout, debugInfo{
 		print:      true,
 		inlineJson: false,
-	}, http.MethodGet, fmt.Sprintf("%s/plugins/%s/connections/%d/scopes", d.Endpoint, pluginName, connectionId), nil)
+	}, http.MethodGet, fmt.Sprintf("%s/plugins/%s/connections/%d/scopes", d.Endpoint, pluginName, connectionId), nil, nil)
 }
 
 func (d *DevlakeClient) GetScope(pluginName string, connectionId uint64, scopeId string) any {
 	return sendHttpRequest[any](d.testCtx, d.timeout, debugInfo{
 		print:      true,
 		inlineJson: false,
-	}, http.MethodGet, fmt.Sprintf("%s/plugins/%s/connections/%d/scopes/%s", d.Endpoint, pluginName, connectionId, scopeId), nil)
+	}, http.MethodGet, fmt.Sprintf("%s/plugins/%s/connections/%d/scopes/%s", d.Endpoint, pluginName, connectionId, scopeId), nil, nil)
 }
 
-func (d *DevlakeClient) CreateTransformationRule(pluginName string, rules any) any {
+func (d *DevlakeClient) CreateTransformationRule(pluginName string, connectionId uint64, rules any) any {
 	return sendHttpRequest[any](d.testCtx, d.timeout, debugInfo{
 		print:      true,
 		inlineJson: false,
-	}, http.MethodPost, fmt.Sprintf("%s/plugins/%s/transformation_rules", d.Endpoint, pluginName), rules)
+	}, http.MethodPost, fmt.Sprintf("%s/plugins/%s/%d/transformation_rules",
+		d.Endpoint, pluginName, connectionId), nil, rules)
 }
 
-func (d *DevlakeClient) ListTransformationRules(pluginName string) []any {
+func (d *DevlakeClient) ListTransformationRules(pluginName string, connectionId uint64) []any {
 	return sendHttpRequest[[]any](d.testCtx, d.timeout, debugInfo{
 		print:      true,
 		inlineJson: false,
-	}, http.MethodGet, fmt.Sprintf("%s/plugins/%s/transformation_rules?pageSize=20&page=1", d.Endpoint, pluginName), nil)
+	}, http.MethodGet, fmt.Sprintf("%s/plugins/%s/%d/transformation_rules?pageSize=20&page=1",
+		d.Endpoint, pluginName, connectionId), nil, nil)
 }
 
 func (d *DevlakeClient) RemoteScopes(query RemoteScopesQuery) RemoteScopesOutput {
@@ -200,7 +202,7 @@ func (d *DevlakeClient) RemoteScopes(query RemoteScopesQuery) RemoteScopesOutput
 	return sendHttpRequest[RemoteScopesOutput](d.testCtx, d.timeout, debugInfo{
 		print:      true,
 		inlineJson: false,
-	}, http.MethodGet, url, nil)
+	}, http.MethodGet, url, nil, nil)
 }
 
 // SearchRemoteScopes makes calls to the "scope API" indirectly. "Search" is the remote endpoint to hit.
@@ -216,7 +218,7 @@ func (d *DevlakeClient) SearchRemoteScopes(query SearchRemoteScopesQuery) Search
 		query.Page,
 		query.PageSize,
 		mapToQueryString(query.Params)),
-		nil)
+		nil, nil)
 }
 
 // CreateBasicBlueprint FIXME
@@ -238,7 +240,7 @@ func (d *DevlakeClient) CreateBasicBlueprint(name string, connection *plugin.Blu
 	blueprint = sendHttpRequest[models.Blueprint](d.testCtx, d.timeout, debugInfo{
 		print:      true,
 		inlineJson: false,
-	}, http.MethodPost, fmt.Sprintf("%s/blueprints", d.Endpoint), &blueprint)
+	}, http.MethodPost, fmt.Sprintf("%s/blueprints", d.Endpoint), nil, &blueprint)
 	return blueprint
 }
 
@@ -248,7 +250,7 @@ func (d *DevlakeClient) TriggerBlueprint(blueprintId uint64) models.Pipeline {
 	pipeline := sendHttpRequest[models.Pipeline](d.testCtx, d.timeout, debugInfo{
 		print:      true,
 		inlineJson: false,
-	}, http.MethodPost, fmt.Sprintf("%s/blueprints/%d/trigger", d.Endpoint, blueprintId), nil)
+	}, http.MethodPost, fmt.Sprintf("%s/blueprints/%d/trigger", d.Endpoint, blueprintId), nil, nil)
 	return d.monitorPipeline(pipeline.ID)
 }
 
@@ -258,7 +260,7 @@ func (d *DevlakeClient) RunPipeline(pipeline models.NewPipeline) models.Pipeline
 	pipelineResult := sendHttpRequest[models.Pipeline](d.testCtx, d.timeout, debugInfo{
 		print:      true,
 		inlineJson: false,
-	}, http.MethodPost, fmt.Sprintf("%s/pipelines", d.Endpoint), &pipeline)
+	}, http.MethodPost, fmt.Sprintf("%s/pipelines", d.Endpoint), nil, &pipeline)
 	return d.monitorPipeline(pipelineResult.ID)
 }
 
@@ -280,7 +282,7 @@ func (d *DevlakeClient) monitorPipeline(id uint64) models.Pipeline {
 		time.Sleep(1 * time.Second)
 		pipelineResult := sendHttpRequest[models.Pipeline](d.testCtx, d.timeout, debugInfo{
 			print: false,
-		}, http.MethodGet, fmt.Sprintf("%s/pipelines/%d", d.Endpoint, id), nil)
+		}, http.MethodGet, fmt.Sprintf("%s/pipelines/%d", d.Endpoint, id), nil, nil)
 		if pipelineResult.Status == models.TASK_COMPLETED || pipelineResult.Status == models.TASK_FAILED {
 			coloredPrintf("result: %s\n", ToCleanJson(true, &pipelineResult))
 			return pipelineResult

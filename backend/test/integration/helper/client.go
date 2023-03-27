@@ -310,7 +310,7 @@ func (d *DevlakeClient) prepareDB(cfg *LocalClientConfig) {
 	}
 }
 
-func sendHttpRequest[Res any](t *testing.T, timeout time.Duration, debug debugInfo, httpMethod string, endpoint string, body any) Res {
+func sendHttpRequest[Res any](t *testing.T, timeout time.Duration, debug debugInfo, httpMethod string, endpoint string, headers map[string]string, body any) Res {
 	t.Helper()
 	b := ToJson(body)
 	if debug.print {
@@ -321,6 +321,9 @@ func sendHttpRequest[Res any](t *testing.T, timeout time.Duration, debug debugIn
 	require.NoError(t, err)
 	request.Close = true
 	request.Header.Add("Content-Type", "application/json")
+	for header, headerVal := range headers {
+		request.Header.Add(header, headerVal)
+	}
 	for {
 		response, err := http.DefaultClient.Do(request)
 		require.NoError(t, err)
