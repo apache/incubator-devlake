@@ -43,6 +43,20 @@ var (
 	blueprintLog = logruslog.Global.Nested("blueprint")
 )
 
+type BlueprintJob struct {
+	Blueprint *models.Blueprint
+}
+
+func (bj BlueprintJob) Run() {
+	blueprint := bj.Blueprint
+	pipeline, err := createPipelineByBlueprint(blueprint)
+	if err != nil {
+		blueprintLog.Error(err, fmt.Sprintf("run cron job failed on blueprint:[%d][%s]", blueprint.ID, blueprint.Name))
+	} else {
+		blueprintLog.Info("Run new cron job successfully,blueprint id:[%d] pipeline id:[%d]", blueprint.ID, pipeline.ID)
+	}
+}
+
 // CreateBlueprint accepts a Blueprint instance and insert it to database
 func CreateBlueprint(blueprint *models.Blueprint) errors.Error {
 	err := validateBlueprintAndMakePlan(blueprint)
@@ -220,14 +234,13 @@ func ReloadBlueprints(c *cron.Cron) errors.Error {
 			blueprintLog.Error(err, failToCreateCronJob)
 			return err
 		}
-		if _, err := c.AddFunc(blueprint.CronConfig, func() {
-			pipeline, err := createPipelineByBlueprint(blueprint)
-			if err != nil {
-				blueprintLog.Error(err, fmt.Sprintf("run cron job failed on blueprint:[%d][%s]", blueprint.ID, blueprint.Name))
-			} else {
-				blueprintLog.Info("Run new cron job successfully,pipeline id:[%d] pipeline id:[%d]", blueprint.ID, pipeline.ID)
-			}
-		}); err != nil {
+
+		blueprintLog.Info("Add blueprint id:[%d] cronConfg[%s] to cron job", blueprint.ID, blueprint.CronConfig)
+		blueprintJob := &BlueprintJob{
+			Blueprint: blueprint,
+		}
+
+		if _, err := c.AddJob(blueprint.CronConfig, blueprintJob); err != nil {
 			blueprintLog.Error(err, failToCreateCronJob)
 			return errors.Default.Wrap(err, "created cron job failed")
 		}
