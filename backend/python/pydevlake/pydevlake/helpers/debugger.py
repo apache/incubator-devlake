@@ -19,21 +19,25 @@ from pydevlake import logger
 
 
 def __start__():
-    if os.environ.get("ENABLE_PYTHON_DEBUGGER", default="false").lower() == "true":
+    debugger = os.getenv("USE_PYTHON_DEBUGGER", default="").lower()
+    if debugger == "":
+        return
+    # The hostname of the machine from which you're debugging (e.g. your IDE's host).
+    host = os.getenv("PYTHON_DEBUG_HOST", default="localhost")
+    # The port of the machine from which you're debugging (e.g. your IDE's host)
+    port = int(os.getenv("PYTHON_DEBUG_PORT", default=32000))
+    print("========== Enabling remote debugging on ", host, ":", port, " ==========")
+    if debugger == "pycharm":
         try:
             import pydevd_pycharm as pydevd
-            # The hostname of the machine from which you're debugging (e.g. your IDE's host)
-            # This default is only applicable if this is running from within a docker container. Otherwise you have to override it.
-            host = os.getenv("PYTHON_DEBUG_HOST", default="host.docker.internal")
-            # The port of the machine from which you're debugging (e.g. your IDE's host)
-            port = int(os.getenv("PYTHON_DEBUG_PORT", default=32000))
-            print("========== Enabling remote debugging on ", host, ":", port, " ==========")
             try:
                 pydevd.settrace(host=host, port=port, suspend=False, stdoutToServer=True, stderrToServer=True)
             except TimeoutError as e:
-                logger.error(f"Failed to connect to Python debugger on {host}:{port}. Make sure it is running")
+                logger.error(f"Failed to connect to pycharm debugger on {host}:{port}. Make sure it is running")
         except ImportError as e:
             logger.error("Pycharm debugger library is not installed")
+    else:
+        logger.error(f"Unsupported Python debugger specified: {debugger}")
 
 
 __start__()

@@ -1,6 +1,7 @@
 # Pydevlake
 
-A framework to write data collection plugins for [DevLake](https://devlake.apache.org/).
+A framework to write data collection plugins for [DevLake](https://devlake.apache.org/). The framework source code
+can be found in [here](./pydevlake) and the plugin source code [here](./pydevlake).
 
 
 # How to create a new plugin
@@ -342,9 +343,12 @@ executed by the `run_tests.sh` script by the CICD automation. The test files sho
 
 
 # Debugging Python plugins
-You need to have a PyCharm debugger installed to debug the Python code. This capability is controlled by the environment
-variable `ENABLE_PYTHON_DEBUGGER` which defaults to `false`. Set to `true` to enable it. You will further have to set
-the environment variables `PYTHON_DEBUG_HOST` (The hostname/IP on which your debugger is running relative to the environment
+You need to have a Python remote-debugger installed to debug the Python code. This capability is controlled by the environment
+variable `USE_PYTHON_DEBUGGER` which is empty by default. The allowed debuggers as of now are:
+
+- pycharm
+
+You will further have to set the environment variables `PYTHON_DEBUG_HOST` (The hostname/IP on which your debugger is running relative to the environment
 in which the plugin is running) and `PYTHON_DEBUG_PORT` (The corresponding debugger port). The variables should be set in the
 Go integration tests written in `backend/test/integration/remote` or Docker container/server env configuration. Once done,
 set breakpoints in the Python plugin code in your IDE, turn on the debugger in it, and those breakpoints should get hit.
