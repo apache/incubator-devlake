@@ -91,7 +91,7 @@ func canonicalFieldName(fieldName string) string {
 func generateStructField(name string, encrypt bool, schema map[string]any) (*reflect.StructField, errors.Error) {
 	goType, err := getGoType(schema)
 	if err != nil {
-		return nil, err
+		return nil, errors.Default.Wrap(err, fmt.Sprintf("couldn't resolve type for field: \"%s\"", name))
 	}
 	sf := &reflect.StructField{
 		Name: strings.Title(name), //nolint:staticcheck
