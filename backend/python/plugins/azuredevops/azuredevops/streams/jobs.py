@@ -65,6 +65,13 @@ class Jobs(Substream):
             case Job.State.Pending:
                 status = devops.CICDStatus.IN_PROGRESS
 
+        type = devops.CICDType.BUILD
+        if ctx.transformation_rule.deployment_pattern.search(j.name):
+            type = devops.CICDType.DEPLOYMENT
+        environment = devops.CICDEnvironment.TESTING
+        if ctx.transformation_rule.production_pattern.search(j.name):
+            environment = devops.CICDEnvironment.PRODUCTION
+
         yield devops.CICDTask(
             id=j.id,
             name=j.name,
@@ -73,8 +80,8 @@ class Jobs(Substream):
             created_date=j.startTime,
             finished_date=j.finishTime,
             result=result,
-            type=devops.CICDType.BUILD,
+            type=type,
             duration_sec=abs(j.finishTime.second-j.startTime.second),
-            environment=devops.CICDEnvironment.PRODUCTION,
+            environment=environment,
             cicd_scope_id=j.repo_id
         )

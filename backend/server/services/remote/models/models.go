@@ -64,6 +64,7 @@ type ScopeModel struct {
 	common.NoPKModel
 	Id                   string `gorm:"primarykey;type:varchar(255)" json:"id"`
 	ConnectionId         uint64 `gorm:"primaryKey" json:"connection_id"`
+	Name                 string `json:"name" validate:"required"`
 	TransformationRuleId uint64 `json:"transformation_rule_id"`
 }
 

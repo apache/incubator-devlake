@@ -17,6 +17,6 @@
 from .model import ToolModel, ToolScope, DomainScope, Connection, TransformationRule
 from .logger import logger
 from .message import RemoteScopeGroup
-from .plugin import Plugin
+from .plugin import Plugin, ScopeTxRulePair
 from .stream import DomainType, Stream, Substream
 from .context import Context

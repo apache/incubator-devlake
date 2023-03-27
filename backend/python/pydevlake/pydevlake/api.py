@@ -140,7 +140,7 @@ class APIBase:
 
     def get(self, *path_args, **query_args):
         parts = [self.base_url, *path_args] if self.base_url else path_args
-        url = "/".join([a.strip('/') for a in parts])
+        url = "/".join([str(a).strip('/') for a in parts])
         req = Request(url, query_args)
         return self.send(req)
 

@@ -80,9 +80,9 @@ class PipelineTask(Message):
     plugin: str
     # Do not snake_case this attribute,
     # it must match the json tag name in PipelineTask go struct
-    skipOnFail: bool
-    subtasks: list[str]
-    options: dict[str, object]
+    skipOnFail: bool = False
+    subtasks: list[str] = Field(default_factory=list)
+    options: dict[str, object] = Field(default_factory=dict)
 
 
 class DynamicDomainScope(Message):

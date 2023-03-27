@@ -36,7 +36,7 @@ class PullRequest(DomainModel, table=True):
     pull_request_key: int
     created_date: datetime
     merged_date: Optional[datetime]
-    closed_date: datetime
+    closed_date: Optional[datetime]
     type: str
     component: str
     merge_commit_sha: str

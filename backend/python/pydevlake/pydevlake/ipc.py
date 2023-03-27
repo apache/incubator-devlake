@@ -31,7 +31,7 @@ def plugin_method(func):
     def send_output(send_ch: TextIO, obj: object):
         if not isinstance(obj, Message):
             raise Exception(f"Not a message: {obj}")
-        send_ch.write(obj.json(exclude_unset=True))
+        send_ch.write(obj.json(exclude_none=True))
         send_ch.write('\n')
         send_ch.flush()
 
@@ -75,15 +75,17 @@ class PluginCommands:
         self._plugin.test_connection(connection)
 
     @plugin_method
-    def make_pipeline(self, scopes: list[dict], entities: list[str], connection: dict):
-        scopes = self._parse(scopes)
-        connection = self._parse(connection)
+    def make_pipeline(self, scope_tx_rule_pairs: list[tuple[dict, dict]], entities: list[str], connection: dict):
+        connection = self._plugin.connection_type(**self._parse(connection))
         entities = self._parse(entities)
-        tool_scopes = [
-            self._plugin.tool_scope_type(**self._parse(data))
-            for data in scopes
+        scope_tx_rule_pairs = [
+            (
+                self._plugin.tool_scope_type(**self._parse(raw_scope)),
+                self._plugin.transformation_rule_type(**self._parse(raw_tx_rule)) if raw_tx_rule else None
+            )
+            for raw_scope, raw_tx_rule in scope_tx_rule_pairs
         ]
-        return self._plugin.make_pipeline(tool_scopes, entities, connection['id'])
+        return self._plugin.make_pipeline(scope_tx_rule_pairs, entities, connection)
 
     @plugin_method
     def run_migrations(self, force: bool):
@@ -117,10 +119,13 @@ class PluginCommands:
         options = data.get('options', {})
         return Context(db_url, scope, connection, transformation_rule, options)
 
-    def _parse(self, data: Union[str, dict]) -> Union[dict, list]:
-        if isinstance(data, dict):
+    def _parse(self, data: Union[str, dict, list]) -> Union[dict, list]:
+        print(data)
+        if isinstance(data, (dict, list)):
             return data
-        try:
-            return json.loads(data)
-        except json.JSONDecodeError as e:
-            raise Exception(f"Invalid JSON: {e.msg}")
+        if isinstance(data, str):
+            try:
+                return json.loads(data)
+            except json.JSONDecodeError as e:
+                raise Exception(f"Invalid JSON: {e.msg}")
+        raise Exception(f"Invalid argument type: {type(data)}")
