@@ -29,6 +29,7 @@ type MixConnection = {
     entities: string[];
   }>;
   origin: Array<any>;
+  noTS: boolean;
 };
 
 declare module '*.svg' {

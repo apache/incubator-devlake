@@ -99,6 +99,7 @@ export const Step1 = ({ from }: Props) => {
                     icon: sc.icon,
                     scope: [],
                     origin: [],
+                    noTS: sc.noTS,
                   })),
                 );
               }}
