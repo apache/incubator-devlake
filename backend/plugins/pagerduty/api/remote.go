@@ -28,6 +28,7 @@ import (
 	"github.com/apache/incubator-devlake/plugins/pagerduty/models"
 	"net/http"
 	"net/url"
+	"strconv"
 	"time"
 )
 
@@ -304,4 +305,10 @@ func GetQueryFromPageData(pageData *PageData) (url.Values, errors.Error) {
 	query.Set("offset", fmt.Sprintf("%v", pageData.Page))
 	query.Set("limit", fmt.Sprintf("%v", pageData.PerPage))
 	return query, nil
+}
+
+func extractParam(params map[string]string) (uint64, uint64) {
+	connectionId, _ := strconv.ParseUint(params["connectionId"], 10, 64)
+	serviceId, _ := strconv.ParseUint(params["serviceId"], 10, 64)
+	return connectionId, serviceId
 }

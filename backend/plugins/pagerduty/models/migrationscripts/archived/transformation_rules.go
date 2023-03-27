@@ -21,7 +21,8 @@ import "github.com/apache/incubator-devlake/core/models/common"
 
 type TransformationRules struct {
 	common.Model
-	Name string `gorm:"type:varchar(255);index:idx_name_github,unique"`
+	Name         string `gorm:"type:varchar(255);index:idx_name_github,unique"`
+	ConnectionId uint64
 }
 
 func (*TransformationRules) TableName() string {
