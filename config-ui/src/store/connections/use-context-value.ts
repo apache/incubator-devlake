@@ -27,9 +27,10 @@ import * as API from './api';
 export interface UseContextValueProps {
   plugin?: string;
   filterBeta?: boolean;
+  filter?: string[];
 }
 
-export const useContextValue = ({ plugin, filterBeta = false }: UseContextValueProps) => {
+export const useContextValue = ({ plugin, filterBeta = false, filter }: UseContextValueProps) => {
   const [loading, setLoading] = useState(false);
   const [connections, setConnections] = useState<ConnectionItemType[]>([]);
 
@@ -140,7 +141,7 @@ export const useContextValue = ({ plugin, filterBeta = false }: UseContextValueP
   return useMemo(
     () => ({
       loading,
-      connections,
+      connections: filter ? connections.filter((cs) => !filter.includes(cs.unique)) : connections,
       onRefresh: handleRefresh,
       onTest: handleTest,
     }),

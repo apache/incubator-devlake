@@ -94,7 +94,6 @@ export const useDetail = ({ id }: UseDetailProps) => {
       pipelineId,
       onRun: handleRun,
       onUpdate: handleUpdate,
-      onRefresh: getBlueprint,
     }),
     [loading, operating, blueprint, pipelineId],
   );

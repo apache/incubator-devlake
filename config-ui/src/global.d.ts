@@ -18,6 +18,19 @@
 
 type ID = string | number;
 
+type MixConnection = {
+  unique: string;
+  plugin: string;
+  connectionId: ID;
+  name: string;
+  icon: string;
+  scope: Array<{
+    id: string;
+    entities: string[];
+  }>;
+  origin: Array<any>;
+};
+
 declare module '*.svg' {
   const content: any;
   export default content;

@@ -16,45 +16,32 @@
  *
  */
 
-import type { ConnectionItemType } from '@/store';
-
 import { ModeEnum } from '../types';
 
-export type BPConnectionItemType = ConnectionItemType & {
-  scopeIds: string[];
-};
-
-export type BPContextType = {
+export type ContextType = {
   step: number;
-  error: string;
-  showInspector: boolean;
-  showDetail: boolean;
-  payload: any;
 
-  name: string;
   mode: ModeEnum;
+  name: string;
+  connections: MixConnection[];
   rawPlan: string;
-  uniqueList: string[];
-  scopeMap: Record<string, any>;
   cronConfig: string;
   isManual: boolean;
   skipOnFail: boolean;
   timeAfter: string | null;
 
-  onChangeStep: React.Dispatch<React.SetStateAction<number>>;
-  onChangeShowInspector: React.Dispatch<React.SetStateAction<boolean>>;
-  onChangeShowDetail: React.Dispatch<React.SetStateAction<boolean>>;
+  onPrev: () => void;
+  onNext: () => void;
 
-  onChangeName: React.Dispatch<React.SetStateAction<string>>;
+  onSave: () => void;
+  onSaveAndRun: () => void;
+
   onChangeMode: (mode: ModeEnum) => void;
+  onChangeName: React.Dispatch<React.SetStateAction<string>>;
+  onChangeConnections: React.Dispatch<React.SetStateAction<MixConnection[]>>;
   onChangeRawPlan: React.Dispatch<React.SetStateAction<string>>;
-  onChangeUniqueList: React.Dispatch<React.SetStateAction<string[]>>;
-  onChangeScopeMap: React.Dispatch<React.SetStateAction<Record<string, any>>>;
   onChangeCronConfig: React.Dispatch<React.SetStateAction<string>>;
   onChangeIsManual: React.Dispatch<React.SetStateAction<boolean>>;
   onChangeSkipOnFail: React.Dispatch<React.SetStateAction<boolean>>;
   onChangeTimeAfter: React.Dispatch<React.SetStateAction<string | null>>;
-
-  onSave: () => void;
-  onSaveAndRun: () => void;
 };

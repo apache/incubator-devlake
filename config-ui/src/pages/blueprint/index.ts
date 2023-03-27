@@ -20,3 +20,5 @@ export * from './types';
 export * from './home';
 export * from './create';
 export * from './detail';
+export * from './connection-add';
+export * from './connection-detail';
