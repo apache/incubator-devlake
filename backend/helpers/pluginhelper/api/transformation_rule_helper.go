@@ -18,6 +18,10 @@ limitations under the License.
 package api
 
 import (
+	"net/http"
+	"reflect"
+	"strconv"
+
 	"github.com/apache/incubator-devlake/core/context"
 	"github.com/apache/incubator-devlake/core/dal"
 	"github.com/apache/incubator-devlake/core/errors"
@@ -25,8 +29,6 @@ import (
 	"github.com/apache/incubator-devlake/core/plugin"
 	"github.com/go-playground/validator/v10"
 	"github.com/mitchellh/mapstructure"
-	"net/http"
-	"strconv"
 )
 
 // TransformationRuleHelper is used to write the CURD of transformation rule
@@ -52,11 +54,20 @@ func NewTransformationRuleHelper[Tr dal.Tabler](
 }
 
 func (t TransformationRuleHelper[Tr]) Create(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, errors.Error) {
+	connectionId, e := strconv.ParseUint(input.Params["connectionId"], 10, 64)
+	if e != nil || connectionId == 0 {
+		return nil, errors.Default.Wrap(e, "the connection ID should be an non-zero integer")
+	}
 	var rule Tr
 	err := Decode(input.Body, &rule, t.validator)
 	if err != nil {
 		return nil, errors.BadInput.Wrap(err, "error in decoding transformation rule")
 	}
+	valueConnectionId := reflect.ValueOf(&rule).Elem().FieldByName("ConnectionId")
+	if valueConnectionId.IsValid() {
+		valueConnectionId.SetUint(connectionId)
+	}
+
 	err = t.db.Create(&rule)
 	if err != nil {
 		if t.db.IsDuplicationError(err) {
@@ -105,9 +116,13 @@ func (t TransformationRuleHelper[Tr]) Get(input *plugin.ApiResourceInput) (*plug
 }
 
 func (t TransformationRuleHelper[Tr]) List(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, errors.Error) {
+	connectionId, e := strconv.ParseUint(input.Params["connectionId"], 10, 64)
+	if e != nil || connectionId == 0 {
+		return nil, errors.Default.Wrap(e, "the connection ID should be an non-zero integer")
+	}
 	var rules []Tr
 	limit, offset := GetLimitOffset(input.Query, "pageSize", "page")
-	err := t.db.All(&rules, dal.Limit(limit), dal.Offset(offset))
+	err := t.db.All(&rules, dal.Where("connection_id = ?", connectionId), dal.Limit(limit), dal.Offset(offset))
 	if err != nil {
 		return nil, errors.Default.Wrap(err, "error on get TransformationRule list")
 	}

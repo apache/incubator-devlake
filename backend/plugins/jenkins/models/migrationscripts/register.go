@@ -32,5 +32,6 @@ func All() []plugin.MigrationScript {
 		new(changeIndexOfJobPath),
 		new(addTransformationRule20221128),
 		new(addFullNameForBuilds),
+		new(addConnectionIdToTransformationRule),
 	}
 }

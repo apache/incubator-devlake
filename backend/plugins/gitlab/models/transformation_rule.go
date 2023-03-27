@@ -24,6 +24,7 @@ import (
 
 type GitlabTransformationRule struct {
 	common.Model
+	ConnectionId         uint64            `mapstructure:"connectionId" json:"connectionId"`
 	Name                 string            `gorm:"type:varchar(255);index:idx_name_gitlab,unique" validate:"required" mapstructure:"name" json:"name"`
 	PrType               string            `mapstructure:"prType" json:"prType"`
 	PrComponent          string            `mapstructure:"prComponent" json:"prComponent"`
