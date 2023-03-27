@@ -99,16 +99,18 @@ export const Transformation = ({
               <span>{cs.name}</span>
             </S.Title>
           )}
-          <S.Action>
-            <Button
-              intent={Intent.PRIMARY}
-              icon="annotation"
-              disabled={!selected[cs.unique] || !selected[cs.unique].length}
-              onClick={() => setConnection(cs)}
-            >
-              Select Transformation
-            </Button>
-          </S.Action>
+          {!cs.noTS && (
+            <S.Action>
+              <Button
+                intent={Intent.PRIMARY}
+                icon="annotation"
+                disabled={!selected[cs.unique] || !selected[cs.unique].length}
+                onClick={() => setConnection(cs)}
+              >
+                Select Transformation
+              </Button>
+            </S.Action>
+          )}
           <Table
             columns={[
               { title: 'Data Scope', dataIndex: 'name', key: 'name' },
@@ -120,17 +122,19 @@ export const Transformation = ({
                 render: (val, row) => (
                   <div>
                     <span>{val ?? 'N/A'}</span>
-                    <IconButton
-                      icon="annotation"
-                      tooltip="Select Transformation"
-                      onClick={() => {
-                        setSelected({
-                          ...selected,
-                          [`${cs.unique}`]: [row[getPluginId(cs.plugin)]],
-                        });
-                        setConnection(cs);
-                      }}
-                    />
+                    {!cs.noTS && (
+                      <IconButton
+                        icon="annotation"
+                        tooltip="Select Transformation"
+                        onClick={() => {
+                          setSelected({
+                            ...selected,
+                            [`${cs.unique}`]: [row[getPluginId(cs.plugin)]],
+                          });
+                          setConnection(cs);
+                        }}
+                      />
+                    )}
                   </div>
                 ),
               },

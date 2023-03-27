@@ -52,6 +52,7 @@ export const Step1 = () => {
                     icon: connection.icon,
                     scope: [],
                     origin: [],
+                    noTS: connection.noTS,
                   });
                 },
               }}

@@ -60,6 +60,7 @@ export const BlueprintConnectionDetailPage = () => {
         icon: config.icon,
         scope,
         origin,
+        noTS: connection.noTS,
       },
     };
   }, [version]);
