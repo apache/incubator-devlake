@@ -108,18 +108,6 @@ func CollectIncidents(taskCtx plugin.SubTaskContext) errors.Error {
 					return rawResult.Incidents, err
 				},
 			},
-			GetNextPageCustomData: func(prevReqData *api.RequestData, prevPageResponse *http.Response) (interface{}, errors.Error) {
-				// not sure this is even necessary because the framework seems to auto-detect when to stop querying for the next page
-				pageInfo := pagingInfo{}
-				err := api.UnmarshalResponse(prevPageResponse, &pageInfo)
-				if err != nil {
-					return nil, err
-				}
-				if *pageInfo.Offset > *pageInfo.Total {
-					return nil, api.ErrFinishCollect
-				}
-				return pageInfo, nil
-			},
 		},
 		CollectUnfinishedDetails: api.FinalizableApiCollectorDetailArgs{
 			FinalizableApiCollectorCommonArgs: api.FinalizableApiCollectorCommonArgs{
