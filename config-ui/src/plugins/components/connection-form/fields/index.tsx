@@ -25,6 +25,8 @@ import { ConnectionPassword } from './password';
 import { ConnectionToken } from './token';
 import { ConnectionProxy } from './proxy';
 import { ConnectionRateLimit } from './rate-limit';
+import { ConnectionAppId } from "./app-id";
+import { ConnectionSecretKey } from "./secret-key";
 
 interface Props {
   name: string;
@@ -76,6 +78,10 @@ export const Form = ({ name, fields, initialValues, values, errors, setValues, s
           return <ConnectionPassword key={key} {...getProps('password')} {...field} />;
         case 'token':
           return <ConnectionToken key={key} {...getProps('token')} {...field} />;
+        case 'appId':
+          return <ConnectionAppId key={key} {...getProps('appId')} {...field} />;
+        case 'secretKey':
+          return <ConnectionSecretKey key={key} {...getProps('secretKey')} {...field} />;
         case 'proxy':
           return <ConnectionProxy key={key} {...getProps('proxy')} {...field} />;
         case 'rateLimitPerHour':
