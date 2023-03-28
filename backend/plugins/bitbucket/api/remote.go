@@ -44,7 +44,7 @@ import (
 // @Router /plugins/bitbucket/connections/{connectionId}/remote-scopes [GET]
 func RemoteScopes(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, errors.Error) {
 	return remoteHelper.GetScopesFromRemote(input,
-		func(basicRes context2.BasicRes, gid string, queryData *plugin.QueryData, connection models.BitbucketConnection) ([]models.GroupResponse, errors.Error) {
+		func(basicRes context2.BasicRes, gid string, queryData *api.RemoteQueryData, connection models.BitbucketConnection) ([]models.GroupResponse, errors.Error) {
 			if gid != "" {
 				return nil, nil
 			}
@@ -70,7 +70,7 @@ func RemoteScopes(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, er
 
 			return resBody.Values, err
 		},
-		func(basicRes context2.BasicRes, gid string, queryData *plugin.QueryData, connection models.BitbucketConnection) ([]models.BitbucketApiRepo, errors.Error) {
+		func(basicRes context2.BasicRes, gid string, queryData *api.RemoteQueryData, connection models.BitbucketConnection) ([]models.BitbucketApiRepo, errors.Error) {
 			if gid == "" {
 				return nil, nil
 			}
@@ -112,7 +112,7 @@ func RemoteScopes(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, er
 // @Router /plugins/bitbucket/connections/{connectionId}/search-remote-scopes [GET]
 func SearchRemoteScopes(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, errors.Error) {
 	return remoteHelper.SearchRemoteScopes(input,
-		func(basicRes context2.BasicRes, queryData *plugin.QueryData, connection models.BitbucketConnection) ([]models.BitbucketApiRepo, errors.Error) {
+		func(basicRes context2.BasicRes, queryData *api.RemoteQueryData, connection models.BitbucketConnection) ([]models.BitbucketApiRepo, errors.Error) {
 			// create api client
 			apiClient, err := api.NewApiClientFromConnection(context.TODO(), basicRes, &connection)
 			if err != nil {
@@ -145,7 +145,7 @@ func SearchRemoteScopes(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutp
 	)
 }
 
-func initialQuery(queryData *plugin.QueryData) url.Values {
+func initialQuery(queryData *api.RemoteQueryData) url.Values {
 	query := url.Values{}
 	query.Set("page", fmt.Sprintf("%v", queryData.Page))
 	query.Set("pagelen", fmt.Sprintf("%v", queryData.PerPage))

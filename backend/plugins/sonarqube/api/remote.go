@@ -42,7 +42,7 @@ import (
 func RemoteScopes(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, errors.Error) {
 	return remoteHelper.GetScopesFromRemote(input,
 		nil,
-		func(basicRes context2.BasicRes, gid string, queryData *plugin.QueryData, connection models.SonarqubeConnection) ([]models.SonarqubeApiProject, errors.Error) {
+		func(basicRes context2.BasicRes, gid string, queryData *api.RemoteQueryData, connection models.SonarqubeConnection) ([]models.SonarqubeApiProject, errors.Error) {
 			query := initialQuery(queryData)
 			// create api client
 			apiClient, err := api.NewApiClientFromConnection(context.TODO(), basicRes, &connection)
@@ -82,7 +82,7 @@ func RemoteScopes(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, er
 func SearchRemoteScopes(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, errors.Error) {
 	return remoteHelper.GetScopesFromRemote(input,
 		nil,
-		func(basicRes context2.BasicRes, gid string, queryData *plugin.QueryData, connection models.SonarqubeConnection) ([]models.SonarqubeApiProject, errors.Error) {
+		func(basicRes context2.BasicRes, gid string, queryData *api.RemoteQueryData, connection models.SonarqubeConnection) ([]models.SonarqubeApiProject, errors.Error) {
 			query := initialQuery(queryData)
 			query.Set("q", queryData.Search[0])
 			// create api client
@@ -108,7 +108,7 @@ func SearchRemoteScopes(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutp
 		})
 }
 
-func initialQuery(queryData *plugin.QueryData) url.Values {
+func initialQuery(queryData *api.RemoteQueryData) url.Values {
 	query := url.Values{}
 	query.Set("p", fmt.Sprintf("%v", queryData.Page))
 	query.Set("ps", fmt.Sprintf("%v", queryData.PerPage))

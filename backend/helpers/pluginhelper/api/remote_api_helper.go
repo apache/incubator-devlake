@@ -37,6 +37,18 @@ type RemoteScopesChild struct {
 	Data     interface{} `json:"data"`
 }
 
+type RemoteQueryData struct {
+	Page       int    `json:"page"`
+	PerPage    int    `json:"per_page"`
+	CustomInfo string `json:"custom"`
+	Tag        string `json:"tag"`
+	Search     []string
+}
+
+type FirstPageTokenOutput struct {
+	PageToken string `json:"pageToken"`
+}
+
 type RemoteScopesOutput struct {
 	Children      []RemoteScopesChild `json:"children"`
 	NextPageToken string              `json:"nextPageToken"`
@@ -102,9 +114,26 @@ const remoteScopesPerPage int = 100
 const TypeProject string = "scope"
 const TypeGroup string = "group"
 
+// PrepareFirstPageToken prepares the first page token
+func (r *RemoteApiHelper[Conn, Scope, ApiScope, Group]) PrepareFirstPageToken(customInfo string) (*plugin.ApiResourceOutput, errors.Error) {
+	outputBody := &FirstPageTokenOutput{}
+	pageToken, err := getPageTokenFromPageData(&RemoteQueryData{
+		Page:       1,
+		PerPage:    remoteScopesPerPage,
+		CustomInfo: customInfo,
+		Tag:        "group",
+	})
+	if err != nil {
+		return nil, err
+	}
+	outputBody.PageToken = pageToken
+	return &plugin.ApiResourceOutput{Body: outputBody, Status: http.StatusOK}, nil
+}
+
+// GetScopesFromRemote gets the scopes from api
 func (r *RemoteApiHelper[Conn, Scope, ApiScope, Group]) GetScopesFromRemote(input *plugin.ApiResourceInput,
-	getGroup func(basicRes coreContext.BasicRes, gid string, queryData *plugin.QueryData, connection Conn) ([]Group, errors.Error),
-	getScope func(basicRes coreContext.BasicRes, gid string, queryData *plugin.QueryData, connection Conn) ([]ApiScope, errors.Error),
+	getGroup func(basicRes coreContext.BasicRes, gid string, queryData *RemoteQueryData, connection Conn) ([]Group, errors.Error),
+	getScope func(basicRes coreContext.BasicRes, gid string, queryData *RemoteQueryData, connection Conn) ([]ApiScope, errors.Error),
 ) (*plugin.ApiResourceOutput, errors.Error) {
 	connectionId, _ := extractFromReqParam(input.Params)
 	if connectionId == 0 {
@@ -215,7 +244,7 @@ func (r *RemoteApiHelper[Conn, Scope, ApiScope, Group]) GetScopesFromRemote(inpu
 	return &plugin.ApiResourceOutput{Body: outputBody, Status: http.StatusOK}, nil
 }
 
-func (r *RemoteApiHelper[Conn, Scope, ApiScope, Group]) SearchRemoteScopes(input *plugin.ApiResourceInput, searchScope func(basicRes coreContext.BasicRes, queryData *plugin.QueryData, connection Conn) ([]ApiScope, errors.Error)) (*plugin.ApiResourceOutput, errors.Error) {
+func (r *RemoteApiHelper[Conn, Scope, ApiScope, Group]) SearchRemoteScopes(input *plugin.ApiResourceInput, searchScope func(basicRes coreContext.BasicRes, queryData *RemoteQueryData, connection Conn) ([]ApiScope, errors.Error)) (*plugin.ApiResourceOutput, errors.Error) {
 	connectionId, _ := extractFromReqParam(input.Params)
 	if connectionId == 0 {
 		return nil, errors.BadInput.New("invalid connectionId")
@@ -254,7 +283,7 @@ func (r *RemoteApiHelper[Conn, Scope, ApiScope, Group]) SearchRemoteScopes(input
 		}
 	}
 
-	queryData := &plugin.QueryData{
+	queryData := &RemoteQueryData{
 		Page:    p,
 		PerPage: ps,
 		Search:  search,
@@ -288,7 +317,7 @@ func (r *RemoteApiHelper[Conn, Scope, ApiScope, Group]) SearchRemoteScopes(input
 	return &plugin.ApiResourceOutput{Body: outputBody, Status: http.StatusOK}, nil
 }
 
-func getPageTokenFromPageData(pageData *plugin.QueryData) (string, errors.Error) {
+func getPageTokenFromPageData(pageData *RemoteQueryData) (string, errors.Error) {
 	// Marshal json
 	pageTokenDecode, err := json.Marshal(pageData)
 	if err != nil {
@@ -299,9 +328,9 @@ func getPageTokenFromPageData(pageData *plugin.QueryData) (string, errors.Error)
 	return base64.StdEncoding.EncodeToString(pageTokenDecode), nil
 }
 
-func getPageDataFromPageToken(pageToken string) (*plugin.QueryData, errors.Error) {
+func getPageDataFromPageToken(pageToken string) (*RemoteQueryData, errors.Error) {
 	if pageToken == "" {
-		return &plugin.QueryData{
+		return &RemoteQueryData{
 			Page:    1,
 			PerPage: remoteScopesPerPage,
 			Tag:     "group",
@@ -314,7 +343,7 @@ func getPageDataFromPageToken(pageToken string) (*plugin.QueryData, errors.Error
 		return nil, errors.Default.Wrap(err, fmt.Sprintf("decode pageToken failed %s", pageToken))
 	}
 	// Unmarshal json
-	pt := &plugin.QueryData{}
+	pt := &RemoteQueryData{}
 	err = json.Unmarshal(pageTokenDecode, pt)
 	if err != nil {
 		return nil, errors.Default.Wrap(err, fmt.Sprintf("json Unmarshal pageTokenDecode failed %s", pageTokenDecode))
