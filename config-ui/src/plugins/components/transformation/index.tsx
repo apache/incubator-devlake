@@ -19,8 +19,8 @@
 import { useState } from 'react';
 import { Button, Intent } from '@blueprintjs/core';
 
-import { Table, IconButton } from '@/components';
-import { TransformationSelect, getPluginId } from '@/plugins';
+import { IconButton, Table } from '@/components';
+import { getPluginId, TransformationSelect } from '@/plugins';
 
 import * as API from './api';
 import * as S from './styled';
@@ -51,8 +51,11 @@ export const Transformation = ({
 }: Props) => {
   const [selected, setSelected] = useState<Record<string, ID[]>>({});
   const [connection, setConnection] = useState<MixConnection>();
+  const [startStepOption, setStartStepOption] = useState<{ type: 'add' | 'edit'; id?: ID }>();
 
-  const handleCancel = () => setConnection(undefined);
+  const handleCancel = () => {
+    setConnection(undefined);
+  }
 
   const handleSubmit = async (tid: ID, connection: MixConnection, connections: MixConnection[]) => {
     const { unique, plugin, connectionId } = connection;
@@ -99,13 +102,16 @@ export const Transformation = ({
               <span>{cs.name}</span>
             </S.Title>
           )}
-          {!cs.noTS && (
+          {cs.transformationType === 'for-connection' && (
             <S.Action>
               <Button
                 intent={Intent.PRIMARY}
                 icon="annotation"
                 disabled={!selected[cs.unique] || !selected[cs.unique].length}
-                onClick={() => setConnection(cs)}
+                onClick={() => {
+                  setStartStepOption(undefined);
+                  setConnection(cs);
+                }}
               >
                 Select Transformation
               </Button>
@@ -116,13 +122,13 @@ export const Transformation = ({
               { title: 'Data Scope', dataIndex: 'name', key: 'name' },
               {
                 title: 'Transformation',
-                dataIndex: 'transformationRuleName',
+                dataIndex: 'transformationRuleId',
                 key: 'transformation',
                 align: 'center',
                 render: (val, row) => (
                   <div>
                     <span>{val ?? 'N/A'}</span>
-                    {!cs.noTS && (
+                    {cs.transformationType === 'for-connection' && (
                       <IconButton
                         icon="annotation"
                         tooltip="Select Transformation"
@@ -131,20 +137,49 @@ export const Transformation = ({
                             ...selected,
                             [`${cs.unique}`]: [row[getPluginId(cs.plugin)]],
                           });
+                          setStartStepOption(undefined);
                           setConnection(cs);
                         }}
                       />
-                    )}
+                     )}
+                    {cs.transformationType === 'for-scope' &&
+                      (row['transformationRuleId'] ? (
+                        <IconButton
+                          icon="annotation"
+                          tooltip="Edit Transformation"
+                          onClick={() => {
+                            setSelected({
+                              ...selected,
+                              [`${cs.unique}`]: [row[getPluginId(cs.plugin)]],
+                            });
+                            setStartStepOption({ type: 'edit', id: row['transformationRuleId'] });
+                            setConnection(cs);
+                          }}
+                        />
+                      ) : (
+                        <IconButton
+                          icon="annotation"
+                          tooltip="Add Transformation"
+                          onClick={() => {
+                            setSelected({
+                              ...selected,
+                              [`${cs.unique}`]: [row[getPluginId(cs.plugin)]],
+                            });
+                            setStartStepOption({ type: 'add' });
+                            setConnection(cs);
+                          }}
+                        />
+                      ))}
                   </div>
                 ),
               },
             ]}
             dataSource={cs.origin}
-            rowSelection={{
+            rowSelection={cs.transformationType === 'for-connection' ? {
               rowKey: getPluginId(cs.plugin),
               selectedRowKeys: selected[cs.unique],
               onChange: (selectedRowKeys) => setSelected({ ...selected, [`${cs.unique}`]: selectedRowKeys }),
-            }}
+            } : undefined}
           />
         </S.Item>
       ))}
@@ -157,7 +192,9 @@ export const Transformation = ({
       {connection && (
         <TransformationSelect
           plugin={connection.plugin}
+          startStepOption={startStepOption}
           connectionId={connection.connectionId}
+          scopeId={selected[connection.unique][0]}
           onCancel={handleCancel}
           onSubmit={(tid) => handleSubmit(tid, connection, connections)}
         />

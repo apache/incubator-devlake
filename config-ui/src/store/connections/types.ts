@@ -31,7 +31,7 @@ export type ConnectionItemType = {
   name: string;
   icon: string;
   entities: string[];
-  noTS: boolean;
+  transformationType: 'none' | 'for-connection' | 'for-scope';
   endpoint: string;
   proxy: string;
   token?: string;

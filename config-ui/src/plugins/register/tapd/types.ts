@@ -16,6 +16,9 @@
  *
  */
 
-export * from './config';
-export * from './data-scope';
-export * from './transformation';
+export type ScopeItemType = {
+  connectionId: ID;
+  id: string;
+  name: string;
+  // and others
+};

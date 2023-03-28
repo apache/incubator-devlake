@@ -16,6 +16,18 @@
  *
  */
 
-export * from './config';
-export * from './data-scope';
-export * from './transformation';
+import { request } from '@/utils';
+
+export type GetBoardsParams = {
+  startAt: number;
+  maxResults: number;
+};
+
+export const getBoards = (prefix: string, params: GetBoardsParams) =>
+  request(`${prefix}/agile/1.0/board`, { data: params });
+
+export const getStatus = (prefix: string, workspaceId: ID, system: string) =>
+  request(`${prefix}/workflows/status_map?workspace_id=${workspaceId}&system=${system}`);
+
+export const getStoryType = (prefix: string, workspaceId: ID) =>
+  request(`${prefix}/story_categories?workspace_id=${workspaceId}`);

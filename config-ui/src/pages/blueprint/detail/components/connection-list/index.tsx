@@ -60,7 +60,7 @@ export const ConnectionList = ({ path, blueprint }: Props) => {
             <span>{cs.scope.length} data scope</span>
           </div>
           <div className="link">
-            <Link to={`${path}${cs.unique}`}>View Detail</Link>
+            <Link to={`/${path}${cs.unique}`}>View Detail</Link>
           </div>
         </S.Item>
       ))}

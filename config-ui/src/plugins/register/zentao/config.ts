@@ -49,5 +49,4 @@ export const ZenTaoConfig: PluginConfigType = {
     ],
   },
   entities: ['TICKET'],
-  transformation: {},
 };

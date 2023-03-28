@@ -16,6 +16,31 @@
  *
  */
 
-export * from './config';
-export * from './data-scope';
-export * from './transformation';
+import styled from 'styled-components';
+
+export const TransformationWrapper = styled.div`
+  .issue-tracking {
+    .issue-type, .issue-status {
+      .title {
+        margin-bottom: 8px;
+      }
+
+      .list {
+        padding-left: 40px;
+      }
+    }
+  }
+
+  .bp4-form-group {
+    display: flex;
+    align-items: center;
+
+    .bp4-label {
+      flex: 0 0 140px;
+    }
+
+    .bp4-form-content {
+      flex: auto;
+    }
+  }
+`;
