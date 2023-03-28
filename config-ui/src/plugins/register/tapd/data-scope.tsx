@@ -38,7 +38,7 @@ export const TapdDataScope = ({ connectionId, onChangeItems, ...props }: Props) 
   );
 
   const [pageToken, setPageToken] = useState<string | undefined>(undefined);
-  const [companyId, setCompanyId] = useState<string>('');
+  const [companyId, setCompanyId] = useState<string>(localStorage.getItem(`plugin/tapd/connections/${connectionId}/company_id`) || '');
 
   const getPageToken = async (companyId: string | undefined) => {
     if (!companyId) {
@@ -64,7 +64,10 @@ export const TapdDataScope = ({ connectionId, onChangeItems, ...props }: Props) 
           placeholder="Your company ID"
           value={companyId}
           style={{ width: 300 }}
-          onChange={(e) => setCompanyId(e.target.value)}
+          onChange={(e) => {
+            setCompanyId(e.target.value)
+            localStorage.setItem(`plugin/tapd/connections/${connectionId}/company_id`, e.target.value)
+          }}
         />
         <Button intent={Intent.PRIMARY} onClick={() => getPageToken(companyId)}>
           Search
