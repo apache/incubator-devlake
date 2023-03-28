@@ -18,11 +18,12 @@ limitations under the License.
 package test
 
 import (
+	"testing"
+
 	"github.com/apache/incubator-devlake/core/models"
 	"github.com/apache/incubator-devlake/core/plugin"
 	"github.com/apache/incubator-devlake/test/integration/helper"
 	"github.com/stretchr/testify/require"
-	"testing"
 )
 
 func TestCreateConnection(t *testing.T) {
@@ -81,7 +82,6 @@ func TestCreateScope(t *testing.T) {
 }
 
 func TestRunPipeline(t *testing.T) {
-	t.SkipNow() //Fix later
 	client := CreateClient(t)
 	conn := CreateTestConnection(client)
 
@@ -109,7 +109,6 @@ func TestRunPipeline(t *testing.T) {
 }
 
 func TestBlueprintV200(t *testing.T) {
-	t.SkipNow() //Fix later
 	client := CreateClient(t)
 	connection := CreateTestConnection(client)
 	projectName := "Test project"
