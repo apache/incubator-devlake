@@ -16,17 +16,9 @@
  *
  */
 
-import styled from 'styled-components';
-
-export const Label = styled.label`
-  font-size: 16px;
-  font-weight: 600;
-`;
-
-export const LabelInfo = styled.i`
-  color: #ff8b8b;
-`;
-
-export const LabelDescription = styled.p`
-  margin: 0;
-`;
+export type ScopeItemType = {
+  connectionId: ID;
+  id: string;
+  name: string;
+  // and others
+};

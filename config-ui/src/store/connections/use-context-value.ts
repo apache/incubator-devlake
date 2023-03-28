@@ -57,14 +57,14 @@ export const useContextValue = ({ plugin, filterBeta = false, filter }: UseConte
 
     const resWithPlugin = res.map((cs, i) =>
       cs.map((it: any) => {
-        const { plugin, icon, entities, transformation } = allConnections[i];
+        const { plugin, icon, entities, transformation, transformationType } = allConnections[i];
 
         return {
           ...it,
           plugin,
           icon,
           entities,
-          noTS: !transformation,
+          transformationType: transformationType || (transformation ? 'for-connection' : 'none'),
         };
       }),
     );
@@ -78,7 +78,7 @@ export const useContextValue = ({ plugin, filterBeta = false, filter }: UseConte
         name: it.name,
         icon: it.icon,
         entities: it.entities,
-        noTS: it.noTS,
+        transformationType: it.transformationType,
         endpoint: it.endpoint,
         proxy: it.proxy,
         token: it.token,

@@ -61,6 +61,7 @@ export const useRefreshData = <T>(request: (signal: AbortSignal) => Promise<T>, 
           return;
         }
         ref.current.state = 'error';
+        console.error(err);
         setVersion((v) => v + 1);
       });
   }, 10);

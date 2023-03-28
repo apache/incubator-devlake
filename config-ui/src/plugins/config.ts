@@ -37,7 +37,7 @@ import { StarRocksConfig } from './register/starrocks';
 import { TAPDConfig } from './register/tapd';
 import { WebhookConfig } from './register/webook';
 import { ZenTaoConfig } from './register/zentao';
-import { TeambitionConfig } from "./register/teambition";
+import { TeambitionConfig } from './register/teambition';
 
 export const PluginConfig: PluginConfigType[] = [
   AEConfig,

@@ -28,16 +28,19 @@ import * as S from './styled';
 
 interface Props {
   plugin: string;
+  // use for add or edit transformation directly
+  startStepOption?: { type: 'add' | 'edit'; id?: ID };
   connectionId: ID;
+  scopeId: ID;
   onCancel: () => void;
   onSubmit: (tid: ID) => void;
 }
 
-export const TransformationSelect = ({ plugin, connectionId, onCancel, onSubmit }: Props) => {
-  const [step, setStep] = useState(1);
-  const [type, setType] = useState<'add' | 'edit'>('add');
-  const [selectedId, setSelectedId] = useState<ID>();
-  const [updatedId, setUpdatedId] = useState<ID>();
+export const TransformationSelect = ({ plugin, startStepOption, connectionId, scopeId, onCancel, onSubmit }: Props) => {
+  const [step, setStep] = useState(startStepOption ? 2 : 1);
+  const [type, setType] = useState<'add' | 'edit'>(startStepOption?.type ?? 'add');
+  const [selectedId, setSelectedId] = useState<ID>(startStepOption?.id ?? '');
+  const [updatedId, setUpdatedId] = useState<ID>(startStepOption?.id ?? '');
 
   const { ready, data } = useRefreshData(() => API.getTransformations(plugin, connectionId), [step]);
 
@@ -55,6 +58,7 @@ export const TransformationSelect = ({ plugin, connectionId, onCancel, onSubmit 
   const handleNewTransformation = () => {
     setStep(2);
     setType('add');
+    setSelectedId('');
   };
 
   const handleEditTransformation = (id: ID) => {
@@ -65,7 +69,11 @@ export const TransformationSelect = ({ plugin, connectionId, onCancel, onSubmit 
 
   const handleReset = () => {
     setStep(1);
-    setUpdatedId(undefined);
+    setUpdatedId('');
+  };
+
+  const handleResetWithStartStepOption = (tr?: any) => {
+    tr ? onSubmit(tr.id) : onCancel();
   };
 
   const handleSubmit = () => !!selectedId && onSubmit(selectedId);
@@ -110,7 +118,13 @@ export const TransformationSelect = ({ plugin, connectionId, onCancel, onSubmit 
           </S.Btns>
         </S.Wrapper>
       ) : (
-        <TransformationForm plugin={plugin} connectionId={connectionId} id={updatedId} onCancel={handleReset} />
+        <TransformationForm
+          plugin={plugin}
+          connectionId={connectionId}
+          scopeId={scopeId}
+          id={updatedId}
+          onCancel={startStepOption ? handleResetWithStartStepOption : handleReset}
+        />
       )}
     </Dialog>
   );

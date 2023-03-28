@@ -16,17 +16,18 @@
  *
  */
 
-import styled from 'styled-components';
+import { request } from '@/utils';
 
-export const Label = styled.label`
-  font-size: 16px;
-  font-weight: 600;
-`;
+export type GetBoardsParams = {
+  startAt: number;
+  maxResults: number;
+};
 
-export const LabelInfo = styled.i`
-  color: #ff8b8b;
-`;
+export const getBoards = (prefix: string, params: GetBoardsParams) =>
+  request(`${prefix}/agile/1.0/board`, { data: params });
 
-export const LabelDescription = styled.p`
-  margin: 0;
-`;
+export const getStatus = (prefix: string, workspaceId: ID, system: string) =>
+  request(`${prefix}/workflows/status_map?workspace_id=${workspaceId}&system=${system}`);
+
+export const getStoryType = (prefix: string, workspaceId: ID) =>
+  request(`${prefix}/story_categories?workspace_id=${workspaceId}`);

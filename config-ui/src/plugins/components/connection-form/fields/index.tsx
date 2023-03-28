@@ -25,8 +25,8 @@ import { ConnectionPassword } from './password';
 import { ConnectionToken } from './token';
 import { ConnectionProxy } from './proxy';
 import { ConnectionRateLimit } from './rate-limit';
-import { ConnectionAppId } from "./app-id";
-import { ConnectionSecretKey } from "./secret-key";
+import { ConnectionAppId } from './app-id';
+import { ConnectionSecretKey } from './secret-key';
 
 interface Props {
   name: string;

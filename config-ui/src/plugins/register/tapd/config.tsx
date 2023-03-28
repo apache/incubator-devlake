@@ -28,7 +28,6 @@ export const TAPDConfig: PluginConfigType = {
   type: PluginType.Connection,
   plugin: 'tapd',
   name: 'TAPD',
-  isBeta: true,
   icon: Icon,
   sort: 100,
   connection: {
@@ -73,6 +72,11 @@ export const TAPDConfig: PluginConfigType = {
       },
     ],
   },
-  entities: ['TICKET'],
-  transformation: {},
+  entities: ['TICKET', 'CROSS'],
+  transformationType: 'for-scope',
+  transformation: {
+    typeMappings: {},
+    statusMappings: {},
+    remotelinkCommitShaPattern: '/commit/([0-9a-f]{40})$/',
+  },
 };

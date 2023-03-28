@@ -18,15 +18,30 @@
 
 import styled from 'styled-components';
 
-export const Label = styled.label`
-  font-size: 16px;
-  font-weight: 600;
-`;
+export const TransformationWrapper = styled.div`
+  .issue-tracking {
+    .issue-type,
+    .issue-status {
+      .title {
+        margin-bottom: 8px;
+      }
 
-export const LabelInfo = styled.i`
-  color: #ff8b8b;
-`;
+      .list {
+        padding-left: 40px;
+      }
+    }
+  }
 
-export const LabelDescription = styled.p`
-  margin: 0;
+  .bp4-form-group {
+    display: flex;
+    align-items: center;
+
+    .bp4-label {
+      flex: 0 0 140px;
+    }
+
+    .bp4-form-content {
+      flex: auto;
+    }
+  }
 `;

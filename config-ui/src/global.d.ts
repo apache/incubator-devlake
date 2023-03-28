@@ -29,7 +29,7 @@ type MixConnection = {
     entities: string[];
   }>;
   origin: Array<any>;
-  noTS: boolean;
+  transformationType?: 'none' | 'for-connection' | 'for-scope';
 };
 
 declare module '*.svg' {

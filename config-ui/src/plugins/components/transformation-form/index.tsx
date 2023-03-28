@@ -32,15 +32,17 @@ import { BitbucketTransformation } from '@/plugins/register/bitbucket';
 import { TIPS_MAP } from './misc';
 import * as API from './api';
 import * as S from './styled';
+import { TapdTransformation } from '@/plugins/register/tapd';
 
 interface Props {
   plugin: string;
   connectionId: ID;
+  scopeId: ID;
   id?: ID;
-  onCancel?: () => void;
+  onCancel?: (transformationRule?: any) => void;
 }
 
-export const TransformationForm = ({ plugin, connectionId, id, onCancel }: Props) => {
+export const TransformationForm = ({ plugin, connectionId, scopeId, id, onCancel }: Props) => {
   const [name, setName] = useState('');
   const [transformation, setTransformation] = useState({});
 
@@ -64,6 +66,7 @@ export const TransformationForm = ({ plugin, connectionId, id, onCancel }: Props
 
   useEffect(() => {
     setTransformation(data ?? config.transformation);
+    setName(data?.name ?? '');
   }, [data, config.transformation]);
 
   if (!ready) {
@@ -109,10 +112,19 @@ export const TransformationForm = ({ plugin, connectionId, id, onCancel }: Props
         {plugin === 'bitbucket' && (
           <BitbucketTransformation transformation={transformation} setTransformation={setTransformation} />
         )}
+
+        {plugin === 'tapd' && (
+          <TapdTransformation
+            connectionId={connectionId}
+            scopeId={scopeId}
+            transformation={transformation}
+            setTransformation={setTransformation}
+          />
+        )}
       </Card>
 
       <S.Btns>
-        <Button outlined intent={Intent.PRIMARY} text="Cancel" onClick={onCancel} />
+        <Button outlined intent={Intent.PRIMARY} text="Cancel" onClick={() => onCancel?.(undefined)} />
         <Button
           intent={Intent.PRIMARY}
           disabled={!name}

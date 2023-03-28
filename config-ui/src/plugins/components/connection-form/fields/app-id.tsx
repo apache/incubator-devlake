@@ -50,15 +50,7 @@ interface Props {
   setError: (error: string) => void;
 }
 
-export const ConnectionAppId = ({
-                                     label,
-                                     subLabel,
-                                     placeholder,
-                                     initialValue,
-                                     value,
-                                     setValue,
-                                     setError,
-                                   }: Props) => {
+export const ConnectionAppId = ({ label, subLabel, placeholder, initialValue, value, setValue, setError }: Props) => {
   useEffect(() => {
     setValue(initialValue);
   }, [initialValue]);

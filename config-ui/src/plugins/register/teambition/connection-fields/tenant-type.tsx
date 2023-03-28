@@ -47,12 +47,7 @@ interface Props {
   setError: (error: string) => void;
 }
 
-export const ConnectionTenantType = ({
-                                     initialValue,
-                                     value,
-                                     setValue,
-                                     setError,
-                                   }: Props) => {
+export const ConnectionTenantType = ({ initialValue, value, setValue, setError }: Props) => {
   useEffect(() => {
     setValue(initialValue);
   }, [initialValue]);
@@ -69,7 +64,11 @@ export const ConnectionTenantType = ({
     <FormGroup
       label={<S.Label>Tenant Type</S.Label>}
       labelInfo={<S.LabelInfo>*</S.LabelInfo>}
-      subLabel={<S.LabelDescription>You do not need to enter the tenant type, because teambition only supports 'organization' type currently.</S.LabelDescription>}
+      subLabel={
+        <S.LabelDescription>
+          You do not need to enter the tenant type, because teambition only supports 'organization' type currently.
+        </S.LabelDescription>
+      }
     >
       <InputGroup disabled={true} placeholder="Your API Tenant Type" value={value} onChange={handleChange} />
     </FormGroup>

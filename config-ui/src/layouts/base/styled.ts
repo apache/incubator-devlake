@@ -127,10 +127,10 @@ export const SiderMenuItem = styled.div`
 `;
 
 export const BorderContainer = styled.div`
-border: 1px solid #7497F7;
-border-radius: 4px;
-padding: 8px 12px;
-display: flex;
-justify-content: center;
-align-items: center;
+  border: 1px solid #7497f7;
+  border-radius: 4px;
+  padding: 8px 12px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
 `;
