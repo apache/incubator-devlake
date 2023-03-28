@@ -32,7 +32,7 @@ interface Props extends Pick<MillerColumnsSelectProps<ExtraType>, 'columnCount'>
   plugin: string;
   connectionId: ID;
   selectedItems?: any[];
-  firstPageToken?: string;
+  pageToken?: string;
   onChangeItems?: (selectedItems: any[]) => void;
 }
 
@@ -42,7 +42,7 @@ export const DataScopeMillerColumns = ({
   connectionId,
   selectedItems,
   onChangeItems,
-  firstPageToken,
+  pageToken,
   ...props
 }: Props) => {
   const [items, setItems] = useState<McsItem<ExtraType>[]>([]);
@@ -54,13 +54,13 @@ export const DataScopeMillerColumns = ({
     setSelectedIds((selectedItems ?? []).map((it: any) => it.id));
   }, [selectedItems]);
 
-  const getItems = async (groupId: ID | null, pageToken?: string) => {
-    if (!pageToken) {
-      pageToken = firstPageToken;
+  const getItems = async (groupId: ID | null, currentPageToken?: string) => {
+    if (!currentPageToken) {
+      currentPageToken = pageToken;
     }
     const res = await API.getScope(plugin, connectionId, {
       groupId,
-      pageToken,
+      pageToken: currentPageToken,
     });
 
     setItems([

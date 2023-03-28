@@ -38,7 +38,7 @@ export const TapdDataScope = ({ connectionId, onChangeItems, ...props }: Props) 
   );
 
   const [pageToken, setPageToken] = useState<string | undefined>(undefined);
-  const [companyId, setCompanyId] = useState<string>('55850509');
+  const [companyId, setCompanyId] = useState<string>('');
 
   const getPageToken = async (companyId: string | undefined) => {
     if (!companyId) {
