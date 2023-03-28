@@ -19,12 +19,16 @@ package models
 
 import (
 	"github.com/apache/incubator-devlake/core/models/common"
+	"github.com/apache/incubator-devlake/core/plugin"
+	"strconv"
 	"time"
 )
 
+var _ plugin.ToolLayerScope = (*GithubRepo)(nil)
+
 type GithubRepo struct {
-	ConnectionId         uint64     `json:"connectionId" gorm:"primaryKey" mapstructure:"connectionId,omitempty"`
-	GithubId             int        `json:"githubId" gorm:"primaryKey" mapstructure:"githubId"`
+	ConnectionId         uint64     `json:"connectionId" gorm:"primaryKey" validate:"required" mapstructure:"connectionId,omitempty"`
+	GithubId             int        `json:"githubId" gorm:"primaryKey" validate:"required" mapstructure:"githubId"`
 	Name                 string     `json:"name" gorm:"type:varchar(255)" mapstructure:"name,omitempty"`
 	HTMLUrl              string     `json:"HTMLUrl" gorm:"type:varchar(255)" mapstructure:"HTMLUrl,omitempty"`
 	Description          string     `json:"description" mapstructure:"description,omitempty"`
@@ -37,6 +41,14 @@ type GithubRepo struct {
 	CreatedDate          *time.Time `json:"createdDate" mapstructure:"-"`
 	UpdatedDate          *time.Time `json:"updatedDate" mapstructure:"-"`
 	common.NoPKModel     `json:"-" mapstructure:"-"`
+}
+
+func (r GithubRepo) ScopeId() string {
+	return strconv.Itoa(r.GithubId)
+}
+
+func (r GithubRepo) ScopeName() string {
+	return r.Name
 }
 
 func (GithubRepo) TableName() string {

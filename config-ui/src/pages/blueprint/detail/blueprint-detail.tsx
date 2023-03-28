@@ -22,18 +22,31 @@ import { Tabs, Tab } from '@blueprintjs/core';
 
 import { PageLoading } from '@/components';
 
+import { FromEnum } from '../types';
+
 import type { UseDetailProps } from './use-detail';
 import { useDetail } from './use-detail';
 import { Configuration } from './panel/configuration';
 import { Status } from './panel/status';
 import * as S from './styled';
 
-interface Props extends UseDetailProps {}
+interface Props extends UseDetailProps {
+  from?: FromEnum;
+  pname?: string;
+}
 
-export const BlueprintDetail = ({ id }: Props) => {
+export const BlueprintDetail = ({ from = FromEnum.project, pname, id }: Props) => {
   const [activeTab, setActiveTab] = useState<TabId>('status');
 
-  const { loading, blueprint, pipelineId, operating, onRun, onUpdate, onRefresh } = useDetail({
+  const paths = useMemo(
+    () =>
+      from === FromEnum.project
+        ? [`/projects/${pname}/${id}/connection-add`, `/projects/${pname}/${id}/`]
+        : [`/blueprints/${id}/connection-add`, `/blueprints/${id}/`],
+    [from, pname],
+  );
+
+  const { loading, blueprint, pipelineId, operating, onRun, onUpdate } = useDetail({
     id,
   });
 
@@ -57,9 +70,7 @@ export const BlueprintDetail = ({ id }: Props) => {
         <Tab
           id="configuration"
           title="Configuration"
-          panel={
-            <Configuration blueprint={blueprint} operating={operating} onUpdate={onUpdate} onRefresh={onRefresh} />
-          }
+          panel={<Configuration paths={paths} blueprint={blueprint} operating={operating} onUpdate={onUpdate} />}
         />
       </Tabs>
       {showJenkinsTips && (

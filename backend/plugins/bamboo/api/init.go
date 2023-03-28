@@ -19,18 +19,37 @@ package api
 
 import (
 	"github.com/apache/incubator-devlake/core/context"
-	helper "github.com/apache/incubator-devlake/helpers/pluginhelper/api"
+	"github.com/apache/incubator-devlake/helpers/pluginhelper/api"
+	"github.com/apache/incubator-devlake/plugins/bamboo/models"
 	"github.com/go-playground/validator/v10"
 )
 
 var vld *validator.Validate
-var connectionHelper *helper.ConnectionApiHelper
+var connectionHelper *api.ConnectionApiHelper
+var scopeHelper *api.ScopeApiHelper[models.BambooConnection, models.BambooProject, models.BambooTransformationRule]
+var remoteHelper *api.RemoteApiHelper[models.BambooConnection, models.BambooProject, models.ApiBambooProject, api.NoRemoteGroupResponse]
+var trHelper *api.TransformationRuleHelper[models.BambooTransformationRule]
+
 var basicRes context.BasicRes
 
 func Init(br context.BasicRes) {
 	basicRes = br
 	vld = validator.New()
-	connectionHelper = helper.NewConnectionHelper(
+	connectionHelper = api.NewConnectionHelper(
+		basicRes,
+		vld,
+	)
+	scopeHelper = api.NewScopeHelper[models.BambooConnection, models.BambooProject, models.BambooTransformationRule](
+		basicRes,
+		vld,
+		connectionHelper,
+	)
+	remoteHelper = api.NewRemoteHelper[models.BambooConnection, models.BambooProject, models.ApiBambooProject, api.NoRemoteGroupResponse](
+		basicRes,
+		vld,
+		connectionHelper,
+	)
+	trHelper = api.NewTransformationRuleHelper[models.BambooTransformationRule](
 		basicRes,
 		vld,
 	)

@@ -39,7 +39,7 @@ var CollectApiPullRequestReviewsMeta = plugin.SubTaskMeta{
 	Name:             "collectApiPullRequestReviews",
 	EntryPoint:       CollectApiPullRequestReviews,
 	EnabledByDefault: true,
-	Description:      "Collect PullRequestReviews data from Github api",
+	Description:      "Collect PullRequestReviews data from Github api, supports both timeFilter and diffSync.",
 	DomainTypes:      []string{plugin.DOMAIN_TYPE_CROSS, plugin.DOMAIN_TYPE_CODE_REVIEW},
 }
 

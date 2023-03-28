@@ -47,7 +47,7 @@ func ConvertStory(taskCtx plugin.SubTaskContext) errors.Error {
 	boardIdGen := didgen.NewDomainIdGenerator(&models.ZentaoProduct{})
 	cursor, err := db.Cursor(
 		dal.From(&models.ZentaoStory{}),
-		dal.Where(`_tool_zentao_stories.product = ? and 
+		dal.Where(`_tool_zentao_stories.product = ? and
 			_tool_zentao_stories.connection_id = ?`, data.Options.ProductId, data.Options.ConnectionId),
 	)
 	if err != nil {
@@ -62,7 +62,6 @@ func ConvertStory(taskCtx plugin.SubTaskContext) errors.Error {
 			Params: ZentaoApiParams{
 				ConnectionId: data.Options.ConnectionId,
 				ProductId:    data.Options.ProductId,
-				ExecutionId:  data.Options.ExecutionId,
 				ProjectId:    data.Options.ProjectId,
 			},
 			Table: RAW_STORY_TABLE,

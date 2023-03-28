@@ -19,7 +19,6 @@ package services
 
 import (
 	"encoding/json"
-	mockplugin "github.com/apache/incubator-devlake/mocks/core/plugin"
 	"testing"
 
 	"github.com/apache/incubator-devlake/core/models"
@@ -27,6 +26,8 @@ import (
 	"github.com/apache/incubator-devlake/core/models/domainlayer/code"
 	"github.com/apache/incubator-devlake/core/models/domainlayer/ticket"
 	"github.com/apache/incubator-devlake/core/plugin"
+	mockplugin "github.com/apache/incubator-devlake/mocks/core/plugin"
+	"github.com/apache/incubator-devlake/plugins/org/tasks"
 	"github.com/stretchr/testify/assert"
 )
 
@@ -68,8 +69,18 @@ func TestMakePlanV200(t *testing.T) {
 	dora := new(mockplugin.CompositeMetricPluginBlueprintV200)
 	dora.On("MakeMetricPluginPipelinePlanV200", projectName, json.RawMessage("{}")).Return(doraOutputPlan, nil)
 
+	// mock org plugin
+	org := new(mockplugin.CompositeProjectMapper)
+	orgPlan := plugin.PipelinePlan{
+		{
+			{Plugin: "org", Subtasks: []string{"setProjectMapping"}, Options: map[string]interface{}{"projectMappings": []interface{}{tasks.NewProjectMapping(projectName, githubOutputScopes)}}},
+		},
+	}
+	org.On("MapProject", projectName, githubOutputScopes).Return(orgPlan, nil)
+
 	// expectation, establish expectation before any code being launch to avoid unwanted modification
 	expectedPlan := make(plugin.PipelinePlan, 0)
+	expectedPlan = append(expectedPlan, orgPlan...)
 	expectedPlan = append(expectedPlan, githubOutputPlan...)
 	expectedPlan = append(expectedPlan, doraOutputPlan...)
 	expectedScopes := append(make([]plugin.Scope, 0), githubOutputScopes...)
@@ -77,6 +88,7 @@ func TestMakePlanV200(t *testing.T) {
 	// plugin registration
 	plugin.RegisterPlugin(githubName, github)
 	plugin.RegisterPlugin(doraName, dora)
+	plugin.RegisterPlugin("org", org)
 
 	// put them together and call GeneratePlanJsonV200
 	connections, _ := json.Marshal([]*plugin.BlueprintConnectionV200{

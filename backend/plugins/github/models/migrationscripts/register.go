@@ -34,5 +34,6 @@ func All() []plugin.MigrationScript {
 		new(addTransformationRule20221124),
 		new(concatOwnerAndName),
 		new(addStdTypeToIssue221230),
+		new(addConnectionIdToTransformationRule),
 	}
 }

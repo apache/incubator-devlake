@@ -31,14 +31,12 @@ func main() {
 	cmd := &cobra.Command{Use: "zentao"}
 
 	connectionId := cmd.Flags().Uint64P("connectionId", "c", 0, "zentao connection id")
-	executionId := cmd.Flags().IntP("executionId", "e", 8, "execution id")
 	productId := cmd.Flags().IntP("productId", "o", 8, "product id")
 	projectId := cmd.Flags().IntP("projectId", "p", 8, "project id")
 
 	cmd.Run = func(cmd *cobra.Command, args []string) {
 		runner.DirectRun(cmd, args, PluginEntry, map[string]interface{}{
 			"connectionId": *connectionId,
-			"executionId":  *executionId,
 			"productId":    *productId,
 			"projectId":    *projectId,
 		})

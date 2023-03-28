@@ -25,7 +25,6 @@ export const ZenTaoConfig: PluginConfigType = {
   type: PluginType.Connection,
   plugin: 'zentao',
   name: 'ZenTao',
-  isBeta: true,
   icon: Icon,
   sort: 100,
   connection: {
@@ -50,5 +49,5 @@ export const ZenTaoConfig: PluginConfigType = {
     ],
   },
   entities: ['TICKET'],
-  transformation: {},
+  transformation: null,
 };

@@ -39,7 +39,18 @@ export const Test = ({ plugin, values, errors }: Props) => {
 
   const handleSubmit = () => {
     onSubmit(
-      pick(values, ['endpoint', 'token', 'username', 'password', 'app_id', 'secret_key', 'proxy', 'authMethod']),
+      pick(values, [
+        'endpoint',
+        'token',
+        'username',
+        'password',
+        'proxy',
+        'authMethod',
+        'appId',
+        'secretKey',
+        'tenantId',
+        'tenantType',
+      ]),
     );
   };
 

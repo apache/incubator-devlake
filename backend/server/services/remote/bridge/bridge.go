@@ -45,8 +45,8 @@ func (b *Bridge) RemoteSubtaskEntrypointHandler(subtaskMeta models.SubtaskMeta) 
 		}
 		stream := b.invoker.Stream(subtaskMeta.EntryPointName, NewChildRemoteContext(ctx), args...)
 		for recv := range stream.Receive() {
-			if recv.err != nil {
-				return recv.err
+			if recv.Err != nil {
+				return recv.Err
 			}
 			progress := RemoteProgress{}
 			err := recv.Get(&progress)

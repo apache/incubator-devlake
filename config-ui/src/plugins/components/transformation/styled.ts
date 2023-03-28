@@ -18,39 +18,35 @@
 
 import styled from 'styled-components';
 
-export const Wrapper = styled.div`
-  .tips {
-    margin-bottom: 16px;
-    padding: 12px 24px;
-    background: #f0f4fe;
-    border: 1px solid #bdcefb;
-    border-radius: 4px;
+export const List = styled.div``;
+
+export const Item = styled.div`
+  margin-bottom: 36px;
+
+  &:last-child {
+    margin-bottom: 0;
   }
+`;
 
-  .block {
-    padding: 8px 16px;
+export const Title = styled.div`
+  display: flex;
+  align-items: center;
+  margin-bottom: 16px;
+
+  img {
+    margin-right: 4px;
+    width: 24px;
+    height: 24px;
   }
+`;
 
-  .item + .item {
-    margin-top: 16px;
-  }
+export const Action = styled.div`
+  margin-bottom: 16px;
+`;
 
-  .bp4-form-group {
-    display: flex;
-    align-items: center;
-
-    .bp4-label {
-      flex: 0 0 150px;
-    }
-
-    .bp4-form-content {
-      flex: auto;
-    }
-  }
-
-  .bp4-button-group {
-    display: flex;
-    justify-content: flex-end;
-    margin-top: 16px;
-  }
+export const Btns = styled.div`
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-top: 36px;
 `;

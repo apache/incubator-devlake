@@ -35,5 +35,6 @@ export type PluginConfigType = {
     fields: any[];
   };
   entities: string[];
+  transformationType?: 'none' | 'for-connection' | 'for-scope';
   transformation: any;
 };

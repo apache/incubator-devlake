@@ -18,47 +18,49 @@ limitations under the License.
 package models
 
 import (
+	"fmt"
 	"github.com/apache/incubator-devlake/core/models/common"
+	"github.com/apache/incubator-devlake/core/plugin"
 	helper "github.com/apache/incubator-devlake/helpers/pluginhelper/api"
 )
 
 type ZentaoProject struct {
-	common.NoPKModel
-	ConnectionId  uint64              `gorm:"primaryKey;type:BIGINT  NOT NULL"`
-	ID            int64               `json:"id" gorm:"primaryKey;type:BIGINT  NOT NULL"`
-	Project       int64               `json:"project"`
-	Model         string              `json:"model"`
-	Type          string              `json:"type"`
-	Lifetime      string              `json:"lifetime"`
-	Budget        string              `json:"budget"`
-	BudgetUnit    string              `json:"budgetUnit"`
-	Attribute     string              `json:"attribute"`
-	Percent       int                 `json:"percent"`
-	Milestone     string              `json:"milestone"`
-	Output        string              `json:"output"`
-	Auth          string              `json:"auth"`
-	Parent        int64               `json:"parent"`
-	Path          string              `json:"path"`
-	Grade         int                 `json:"grade"`
-	Name          string              `json:"name"`
-	Code          string              `json:"code"`
-	PlanBegin     *helper.Iso8601Time `json:"begin"`
-	PlanEnd       *helper.Iso8601Time `json:"end"`
-	RealBegan     *helper.Iso8601Time `json:"realBegan"`
-	RealEnd       *helper.Iso8601Time `json:"realEnd"`
-	Days          int                 `json:"days"`
-	Status        string              `json:"status"`
-	SubStatus     string              `json:"subStatus"`
-	Pri           string              `json:"pri"`
-	Description   string              `json:"desc"`
-	Version       int                 `json:"version"`
-	ParentVersion int                 `json:"parentVersion"`
-	PlanDuration  int                 `json:"planDuration"`
-	RealDuration  int                 `json:"realDuration"`
+	common.NoPKModel `json:"-"`
+	ConnectionId     uint64              `json:"connectionid" gorm:"primaryKey;type:BIGINT  NOT NULL"`
+	Id               int64               `json:"id" gorm:"primaryKey;type:BIGINT  NOT NULL"`
+	Project          int64               `json:"project"`
+	Model            string              `json:"model"`
+	Type             string              `json:"type"`
+	Lifetime         string              `json:"lifetime"`
+	Budget           string              `json:"budget"`
+	BudgetUnit       string              `json:"budgetUnit"`
+	Attribute        string              `json:"attribute"`
+	Percent          int                 `json:"percent"`
+	Milestone        string              `json:"milestone"`
+	Output           string              `json:"output"`
+	Auth             string              `json:"auth"`
+	Parent           int64               `json:"parent"`
+	Path             string              `json:"path"`
+	Grade            int                 `json:"grade"`
+	Name             string              `json:"name"`
+	Code             string              `json:"code"`
+	PlanBegin        *helper.Iso8601Time `json:"begin"`
+	PlanEnd          *helper.Iso8601Time `json:"end"`
+	RealBegan        *helper.Iso8601Time `json:"realBegan"`
+	RealEnd          *helper.Iso8601Time `json:"realEnd"`
+	Days             int                 `json:"days"`
+	Status           string              `json:"status"`
+	SubStatus        string              `json:"subStatus"`
+	Pri              string              `json:"pri"`
+	Description      string              `json:"desc"`
+	Version          int                 `json:"version"`
+	ParentVersion    int                 `json:"parentVersion"`
+	PlanDuration     int                 `json:"planDuration"`
+	RealDuration     int                 `json:"realDuration"`
 	//OpenedBy       string    `json:"openedBy"`
-	OpenedDate     *helper.Iso8601Time `json:"openedDate"`
-	OpenedVersion  string              `json:"openedVersion"`
-	LastEditedBy   string              `json:"lastEditedBy"`
+	OpenedDate    *helper.Iso8601Time `json:"openedDate"`
+	OpenedVersion string              `json:"openedVersion"`
+	//LastEditedBy   string              `json:"lastEditedBy"`
 	LastEditedDate *helper.Iso8601Time `json:"lastEditedDate"`
 	ClosedBy       string              `json:"closedBy"`
 	ClosedDate     *helper.Iso8601Time `json:"closedDate"`
@@ -110,4 +112,16 @@ type Hours struct {
 
 func (ZentaoProject) TableName() string {
 	return "_tool_zentao_projects"
+}
+
+func (p ZentaoProject) ScopeId() string {
+	return fmt.Sprintf(`project/%d`, p.Id)
+}
+
+func (p ZentaoProject) ScopeName() string {
+	return p.Name
+}
+
+func (p ZentaoProject) ConvertApiScope() plugin.ToolLayerScope {
+	return p
 }

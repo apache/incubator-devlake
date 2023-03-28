@@ -16,11 +16,12 @@
  *
  */
 
-import React, { useMemo } from 'react';
+import { useMemo } from 'react';
 
 import { DataScopeMillerColumns, DataScopeSearch } from '@/plugins';
 
 import type { ScopeItemType } from './types';
+import * as S from './styled';
 
 interface Props {
   connectionId: ID;
@@ -35,8 +36,8 @@ export const GitLabDataScope = ({ connectionId, onChangeItems, ...props }: Props
   );
 
   return (
-    <>
-      <h4>Projects *</h4>
+    <S.DataScope>
+      <h3>Projects *</h3>
       <p>Select the project you would like to sync.</p>
       <DataScopeMillerColumns
         title="Subgroups/Projects"
@@ -53,6 +54,6 @@ export const GitLabDataScope = ({ connectionId, onChangeItems, ...props }: Props
         selectedItems={selectedItems}
         onChangeItems={onChangeItems}
       />
-    </>
+    </S.DataScope>
   );
 };

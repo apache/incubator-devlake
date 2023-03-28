@@ -27,9 +27,10 @@ import * as API from './api';
 export interface UseContextValueProps {
   plugin?: string;
   filterBeta?: boolean;
+  filter?: string[];
 }
 
-export const useContextValue = ({ plugin, filterBeta = false }: UseContextValueProps) => {
+export const useContextValue = ({ plugin, filterBeta = false, filter }: UseContextValueProps) => {
   const [loading, setLoading] = useState(false);
   const [connections, setConnections] = useState<ConnectionItemType[]>([]);
 
@@ -56,13 +57,14 @@ export const useContextValue = ({ plugin, filterBeta = false }: UseContextValueP
 
     const resWithPlugin = res.map((cs, i) =>
       cs.map((it: any) => {
-        const { plugin, icon, entities } = allConnections[i];
+        const { plugin, icon, entities, transformation, transformationType } = allConnections[i];
 
         return {
           ...it,
           plugin,
           icon,
           entities,
+          transformationType: transformationType || (transformation ? 'for-connection' : 'none'),
         };
       }),
     );
@@ -76,6 +78,7 @@ export const useContextValue = ({ plugin, filterBeta = false }: UseContextValueP
         name: it.name,
         icon: it.icon,
         entities: it.entities,
+        transformationType: it.transformationType,
         endpoint: it.endpoint,
         proxy: it.proxy,
         token: it.token,
@@ -140,7 +143,7 @@ export const useContextValue = ({ plugin, filterBeta = false }: UseContextValueP
   return useMemo(
     () => ({
       loading,
-      connections,
+      connections: filter ? connections.filter((cs) => !filter.includes(cs.unique)) : connections,
       onRefresh: handleRefresh,
       onTest: handleTest,
     }),

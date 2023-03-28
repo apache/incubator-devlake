@@ -29,7 +29,7 @@ var CollectApiCommitsMeta = plugin.SubTaskMeta{
 	Name:             "collectApiCommits",
 	EntryPoint:       CollectApiCommits,
 	EnabledByDefault: false,
-	Description:      "Collect commit data from gitlab api",
+	Description:      "Collect commit data from gitlab api, does not support either timeFilter or diffSync.",
 	DomainTypes:      []string{plugin.DOMAIN_TYPE_CODE},
 }
 

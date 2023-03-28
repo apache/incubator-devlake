@@ -27,6 +27,7 @@ import (
 
 type JiraTransformationRule struct {
 	common.Model               `mapstructure:"-"`
+	ConnectionId               uint64          `mapstructure:"connectionId" json:"connectionId"`
 	Name                       string          `mapstructure:"name" json:"name" gorm:"type:varchar(255);index:idx_name_jira,unique" validate:"required"`
 	EpicKeyField               string          `mapstructure:"epicKeyField,omitempty" json:"epicKeyField" gorm:"type:varchar(255)"`
 	StoryPointField            string          `mapstructure:"storyPointField,omitempty" json:"storyPointField" gorm:"type:varchar(255)"`
@@ -35,11 +36,11 @@ type JiraTransformationRule struct {
 	TypeMappings               json.RawMessage `mapstructure:"typeMappings,omitempty" json:"typeMappings"`
 }
 
-func (r *JiraTransformationRule) TableName() string {
+func (r JiraTransformationRule) TableName() string {
 	return "_tool_jira_transformation_rules"
 }
 
-func (r *JiraTransformationRule) VerifyRegexp() errors.Error {
+func (r JiraTransformationRule) VerifyRegexp() errors.Error {
 	var err error
 	if r.RemotelinkCommitShaPattern != "" {
 		_, err = regexp.Compile(r.RemotelinkCommitShaPattern)

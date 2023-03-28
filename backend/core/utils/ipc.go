@@ -30,16 +30,11 @@ import (
 	"github.com/apache/incubator-devlake/core/errors"
 )
 
-// NoopConverter no-op converter
-var NoopConverter = func(b []byte) (any, errors.Error) {
-	return b, nil
-}
-
 // ProcessResponse wraps output of a process
 type ProcessResponse struct {
-	stdout any
-	stderr any
-	fdOut  any
+	stdout []byte
+	stderr []byte
+	fdOut  []byte
 	err    errors.Error
 }
 
@@ -52,11 +47,11 @@ type ProcessStream struct {
 
 // StreamProcessOptions options for streaming a process
 type StreamProcessOptions struct {
-	OnStdout func(b []byte) (any, errors.Error)
-	OnStderr func(b []byte) (any, errors.Error)
+	OnStdout func(b []byte)
+	OnStderr func(b []byte)
 	// UseFdOut if true, it'll open this fd to be used by the child process. Useful to isolate stdout and custom outputs
 	UseFdOut bool
-	OnFdOut  func(b []byte) (any, errors.Error)
+	OnFdOut  func(b []byte)
 }
 
 // RunProcessOptions options for running a process
@@ -96,18 +91,15 @@ func (p *ProcessStream) Cancel() errors.Error {
 	return nil
 }
 
-// GetStdout gets the stdout. The type depends on the conversion defined by StreamProcessOptions.OnStdout, otherwise it is []byte
-func (resp *ProcessResponse) GetStdout() any {
+func (resp *ProcessResponse) GetStdout() []byte {
 	return resp.stdout
 }
 
-// GetStderr gets the stderr. The type depends on the conversion defined by StreamProcessOptions.OnStderr, otherwise it is []byte
-func (resp *ProcessResponse) GetStderr() any {
+func (resp *ProcessResponse) GetStderr() []byte {
 	return resp.stderr
 }
 
-// GetFdOut gets the custom fd output. The type depends on the conversion defined by StreamProcessOptions.OnFdOut, otherwise it is []byte
-func (resp *ProcessResponse) GetFdOut() any {
+func (resp *ProcessResponse) GetFdOut() []byte {
 	return resp.fdOut
 }
 
@@ -119,24 +111,21 @@ func (resp *ProcessResponse) GetError() errors.Error {
 // RunProcess runs the cmd and blocks until its completion. All returned results will have type []byte.
 func RunProcess(cmd *exec.Cmd, opts *RunProcessOptions) (*ProcessResponse, errors.Error) {
 	stream, err := StreamProcess(cmd, &StreamProcessOptions{
-		OnStdout: func(b []byte) (any, errors.Error) {
+		OnStdout: func(b []byte) {
 			if opts.OnStdout != nil {
 				opts.OnStdout(b)
 			}
-			return NoopConverter(b)
 		},
-		OnStderr: func(b []byte) (any, errors.Error) {
+		OnStderr: func(b []byte) {
 			if opts.OnStderr != nil {
 				opts.OnStderr(b)
 			}
-			return NoopConverter(b)
 		},
 		UseFdOut: opts.UseFdOut,
-		OnFdOut: func(b []byte) (any, errors.Error) {
+		OnFdOut: func(b []byte) {
 			if opts.OnFdOut != nil {
 				opts.OnFdOut(b)
 			}
-			return NoopConverter(b)
 		},
 	})
 	if err != nil {
@@ -151,13 +140,13 @@ func RunProcess(cmd *exec.Cmd, opts *RunProcessOptions) (*ProcessResponse, error
 			break
 		}
 		if result.stdout != nil {
-			stdout = append(stdout, result.stdout.([]byte)...)
+			stdout = append(stdout, result.stdout...)
 		}
 		if result.stderr != nil {
-			stderr = append(stderr, result.stderr.([]byte)...)
+			stderr = append(stderr, result.stderr...)
 		}
 		if result.fdOut != nil {
-			fdOut = append(fdOut, result.fdOut.([]byte)...)
+			fdOut = append(fdOut, result.fdOut...)
 		}
 	}
 	return &ProcessResponse{
@@ -184,11 +173,11 @@ func StreamProcess(cmd *exec.Cmd, opts *StreamProcessOptions) (*ProcessStream, e
 	}
 	receiveStream := make(chan *ProcessResponse, 32)
 	wg := &sync.WaitGroup{}
-	stdScanner := scanOutputPipe(pipes.stdout, wg, opts.OnStdout, func(result any) *ProcessResponse {
+	stdScanner := scanOutputPipe(pipes.stdout, wg, opts.OnStdout, func(result []byte) *ProcessResponse {
 		return &ProcessResponse{stdout: result}
 	}, receiveStream)
-	errScanner, remoteErrorMsg := scanErrorPipe(pipes.stderr, receiveStream)
-	fdOutScanner := scanOutputPipe(pipes.fdOut, wg, opts.OnFdOut, func(result any) *ProcessResponse {
+	errScanner, remoteErrorMsg := scanErrorPipe(pipes.stderr, opts.OnStderr, receiveStream)
+	fdOutScanner := scanOutputPipe(pipes.fdOut, wg, opts.OnFdOut, func(result []byte) *ProcessResponse {
 		return &ProcessResponse{fdOut: result}
 	}, receiveStream)
 	wg.Add(2)
@@ -245,8 +234,8 @@ func getPipes(cmd *exec.Cmd, opts *StreamProcessOptions) (*processPipes, errors.
 	}, nil
 }
 
-func scanOutputPipe(pipe io.ReadCloser, wg *sync.WaitGroup, onReceive func([]byte) (any, errors.Error),
-	responseCreator func(any) *ProcessResponse, outboundChannel chan<- *ProcessResponse) func() {
+func scanOutputPipe(pipe io.ReadCloser, wg *sync.WaitGroup, onReceive func([]byte),
+	responseCreator func([]byte) *ProcessResponse, outboundChannel chan<- *ProcessResponse) func() {
 	return func() {
 		scanner := bufio.NewScanner(pipe)
 		scanner.Split(bufio.ScanLines)
@@ -254,17 +243,14 @@ func scanOutputPipe(pipe io.ReadCloser, wg *sync.WaitGroup, onReceive func([]byt
 			src := scanner.Bytes()
 			data := make([]byte, len(src))
 			copy(data, src)
-			if result, err := onReceive(data); err != nil {
-				outboundChannel <- &ProcessResponse{err: err}
-			} else {
-				outboundChannel <- responseCreator(result)
-			}
+			onReceive(data)
+			outboundChannel <- responseCreator(data)
 		}
 		wg.Done()
 	}
 }
 
-func scanErrorPipe(pipe io.ReadCloser, outboundChannel chan<- *ProcessResponse) (func(), *strings.Builder) {
+func scanErrorPipe(pipe io.ReadCloser, onReceive func([]byte), outboundChannel chan<- *ProcessResponse) (func(), *strings.Builder) {
 	remoteErrorMsg := &strings.Builder{}
 	return func() {
 		scanner := bufio.NewScanner(pipe)
@@ -273,6 +259,7 @@ func scanErrorPipe(pipe io.ReadCloser, outboundChannel chan<- *ProcessResponse) 
 			src := scanner.Bytes()
 			data := make([]byte, len(src))
 			copy(data, src)
+			onReceive(data)
 			outboundChannel <- &ProcessResponse{stderr: data}
 			_, _ = remoteErrorMsg.Write(src)
 			_, _ = remoteErrorMsg.WriteString("\n")

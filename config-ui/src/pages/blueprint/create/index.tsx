@@ -16,21 +16,16 @@
  *
  */
 
-import React, { useMemo } from 'react';
+import { useMemo } from 'react';
 import { useParams } from 'react-router-dom';
 
-import { PageHeader, Inspector } from '@/components';
+import { PageHeader, Workflow } from '@/components';
 import { ConnectionContextProvider } from '@/store';
 
 import { ModeEnum, FromEnum } from '../types';
 
-import { BPContext, BPContextProvider } from './bp-context';
-import { WorkFlow, Action } from './components';
-import { StepOne } from './step-one';
-import { StepTwo } from './step-two';
-import { StepThree } from './step-three';
-import { StepFour } from './step-four';
-import * as S from './styled';
+import { ContextProvider, Context } from './context';
+import { Step1, Step2, Step3, Step4 } from './components';
 
 interface Props {
   from: FromEnum;
@@ -59,32 +54,26 @@ export const BlueprintCreatePage = ({ from }: Props) => {
 
   return (
     <ConnectionContextProvider filterBeta>
-      <BPContextProvider from={from} projectName={pname}>
-        <BPContext.Consumer>
-          {({ step, mode, name, payload, showInspector, onChangeShowInspector }) => (
+      <ContextProvider from={from} projectName={pname}>
+        <Context.Consumer>
+          {({ step, mode }) => (
             <PageHeader breadcrumbs={breadcrumbs}>
-              <S.Container>
-                <WorkFlow />
-                <S.Content>
-                  {step === 1 && <StepOne from={from} />}
-                  {mode === ModeEnum.normal && step === 2 && <StepTwo />}
-                  {step === 3 && <StepThree />}
-                  {((mode === ModeEnum.normal && step === 4) || (mode === ModeEnum.advanced && step === 2)) && (
-                    <StepFour />
-                  )}
-                </S.Content>
-                <Action />
-                <Inspector
-                  isOpen={showInspector}
-                  title={name}
-                  data={payload}
-                  onClose={() => onChangeShowInspector(false)}
-                />
-              </S.Container>
+              <Workflow
+                steps={
+                  mode === ModeEnum.normal
+                    ? ['Add Data Connections', 'Set Data Scope', 'Add Transformation (Optional)', 'Set Sync Policy']
+                    : ['Create Advanced Configuration', 'Set Sync Policy']
+                }
+                activeStep={step}
+              />
+              {step === 1 && <Step1 from={from} />}
+              {mode === ModeEnum.normal && step === 2 && <Step2 />}
+              {step === 3 && <Step3 />}
+              {((mode === ModeEnum.normal && step === 4) || (mode === ModeEnum.advanced && step === 2)) && <Step4 />}
             </PageHeader>
           )}
-        </BPContext.Consumer>
-      </BPContextProvider>
+        </Context.Consumer>
+      </ContextProvider>
     </ConnectionContextProvider>
   );
 };

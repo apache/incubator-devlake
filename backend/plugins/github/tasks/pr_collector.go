@@ -39,12 +39,12 @@ var CollectApiPullRequestsMeta = plugin.SubTaskMeta{
 	Name:             "collectApiPullRequests",
 	EntryPoint:       CollectApiPullRequests,
 	EnabledByDefault: true,
-	Description:      "Collect PullRequests data from Github api",
+	Description:      "Collect PullRequests data from Github api, supports both timeFilter and diffSync.",
 	DomainTypes:      []string{plugin.DOMAIN_TYPE_CROSS, plugin.DOMAIN_TYPE_CODE_REVIEW},
 }
 
 type SimpleGithubPr struct {
-	GithubId int64
+	Number int64
 }
 
 type SimpleGithubApiPr struct {
@@ -102,7 +102,7 @@ func CollectApiPullRequests(taskCtx plugin.SubTaskContext) errors.Error {
 			BuildInputIterator: func() (helper.Iterator, errors.Error) {
 				// select pull id from database
 				cursor, err := db.Cursor(
-					dal.Select("github_id"),
+					dal.Select("number"),
 					dal.From(&models.GithubPullRequest{}),
 					dal.Where(
 						"repo_id = ? AND connection_id = ? AND state != 'closed'",
@@ -115,7 +115,7 @@ func CollectApiPullRequests(taskCtx plugin.SubTaskContext) errors.Error {
 				return helper.NewDalCursorIterator(db, cursor, reflect.TypeOf(SimpleGithubPr{}))
 			},
 			FinalizableApiCollectorCommonArgs: helper.FinalizableApiCollectorCommonArgs{
-				UrlTemplate: "repos/{{ .Params.Name }}/pulls/{{ .Input.GithubId }}",
+				UrlTemplate: "repos/{{ .Params.Name }}/pulls/{{ .Input.Number }}",
 				ResponseParser: func(res *http.Response) ([]json.RawMessage, errors.Error) {
 					body, err := io.ReadAll(res.Body)
 					if err != nil {

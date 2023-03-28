@@ -20,17 +20,35 @@ package api
 import (
 	"github.com/apache/incubator-devlake/core/context"
 	"github.com/apache/incubator-devlake/helpers/pluginhelper/api"
+	"github.com/apache/incubator-devlake/plugins/bitbucket/models"
 	"github.com/go-playground/validator/v10"
 )
 
 var vld *validator.Validate
 var connectionHelper *api.ConnectionApiHelper
+var scopeHelper *api.ScopeApiHelper[models.BitbucketConnection, models.BitbucketRepo, models.BitbucketTransformationRule]
+var remoteHelper *api.RemoteApiHelper[models.BitbucketConnection, models.BitbucketRepo, models.BitbucketApiRepo, models.GroupResponse]
+var trHelper *api.TransformationRuleHelper[models.BitbucketTransformationRule]
 var basicRes context.BasicRes
 
 func Init(br context.BasicRes) {
 	basicRes = br
 	vld = validator.New()
 	connectionHelper = api.NewConnectionHelper(
+		basicRes,
+		vld,
+	)
+	scopeHelper = api.NewScopeHelper[models.BitbucketConnection, models.BitbucketRepo, models.BitbucketTransformationRule](
+		basicRes,
+		vld,
+		connectionHelper,
+	)
+	remoteHelper = api.NewRemoteHelper[models.BitbucketConnection, models.BitbucketRepo, models.BitbucketApiRepo, models.GroupResponse](
+		basicRes,
+		vld,
+		connectionHelper,
+	)
+	trHelper = api.NewTransformationRuleHelper[models.BitbucketTransformationRule](
 		basicRes,
 		vld,
 	)

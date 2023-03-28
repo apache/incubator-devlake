@@ -16,94 +16,169 @@
  *
  */
 
-import React from 'react';
-import { ButtonGroup, Button, Intent } from '@blueprintjs/core';
+import { useState, useMemo } from 'react';
+import { Button, Intent } from '@blueprintjs/core';
 
-import { transformEntities } from '@/config';
-import { GitHubDataScope } from '@/plugins/register/github';
-import { JiraDataScope } from '@/plugins/register/jira';
-import { GitLabDataScope } from '@/plugins/register/gitlab';
-import { JenkinsDataScope } from '@/plugins/register/jenkins';
-import { BitbucketDataScope } from '@/plugins/register/bitbucket';
-import { SonarQubeDataScope } from '@/plugins/register/sonarqube';
-import { MultiSelector } from '@/components';
+import { Table, Dialog } from '@/components';
+import { DataScopeForm } from '@/plugins';
 
-import type { UseDataScope } from './use-data-scope';
-import { useDataScope } from './use-data-scope';
 import * as S from './styled';
 
-interface Props extends UseDataScope {
+interface Props {
+  connections: MixConnection[];
+  initialScope?: any[];
+  initialEntities?: string[];
+  cancelBtnProps?: {
+    text?: string;
+  };
+  submitBtnProps?: {
+    text?: string;
+  };
   onCancel?: () => void;
+  onSubmit?: (connections: MixConnection[]) => void;
+  onNext?: () => void;
 }
 
-export const DataScope = ({ plugin, connectionId, entities, onCancel, ...props }: Props) => {
-  const { saving, selectedScope, selectedEntities, onChangeScope, onChangeEntites, onSave } = useDataScope({
-    ...props,
-    plugin,
-    connectionId,
-    entities,
-  });
+export const DataScope = ({
+  connections,
+  initialScope,
+  initialEntities,
+  cancelBtnProps,
+  submitBtnProps,
+  onCancel,
+  onSubmit,
+  onNext,
+}: Props) => {
+  const [connection, setConnection] = useState<MixConnection>();
+
+  const error = useMemo(() => (!connections.every((cs) => cs.scope.length) ? true : false), [connections]);
+
+  const handleCancel = () => setConnection(undefined);
+
+  const handleSubmit = (connection: MixConnection, scope: MixConnection['scope'], origin: MixConnection['origin']) => {
+    onSubmit?.(
+      connections.map((cs) => {
+        if (cs.unique === connection.unique) {
+          return {
+            ...cs,
+            scope,
+            origin,
+          };
+        }
+        return cs;
+      }),
+    );
+    handleCancel();
+  };
+
+  if (connections.length === 1) {
+    const [{ plugin, connectionId, ...props }] = connections;
+    return (
+      <DataScopeForm
+        plugin={plugin}
+        connectionId={connectionId}
+        initialScope={initialScope}
+        initialEntities={initialEntities}
+        cancelBtnProps={cancelBtnProps}
+        submitBtnProps={submitBtnProps}
+        onCancel={onCancel}
+        onSubmit={(scope: MixConnection['scope'], origin: MixConnection['origin']) => {
+          onSubmit?.([
+            {
+              ...props,
+              plugin,
+              connectionId,
+              scope,
+              origin,
+            },
+          ]);
+          onNext?.();
+        }}
+      />
+    );
+  }
 
   return (
     <S.Wrapper>
-      <div className="block">
-        {plugin === 'github' && (
-          <GitHubDataScope connectionId={connectionId} selectedItems={selectedScope} onChangeItems={onChangeScope} />
-        )}
-
-        {plugin === 'jira' && (
-          <JiraDataScope connectionId={connectionId} selectedItems={selectedScope} onChangeItems={onChangeScope} />
-        )}
-
-        {plugin === 'gitlab' && (
-          <GitLabDataScope connectionId={connectionId} selectedItems={selectedScope} onChangeItems={onChangeScope} />
-        )}
-
-        {plugin === 'jenkins' && (
-          <JenkinsDataScope connectionId={connectionId} selectedItems={selectedScope} onChangeItems={onChangeScope} />
-        )}
-
-        {plugin === 'bitbucket' && (
-          <BitbucketDataScope connectionId={connectionId} selectedItems={selectedScope} onChangeItems={onChangeScope} />
-        )}
-
-        {plugin === 'sonarqube' && (
-          <SonarQubeDataScope connectionId={connectionId} selectedItems={selectedScope} onChangeItems={onChangeScope} />
-        )}
-      </div>
-
-      <div className="block">
-        <h3>Data Entities</h3>
-        <p>
-          <span>Select the data entities you wish to collect for the projects.</span>{' '}
-          <a
-            href="https://devlake.apache.org/docs/DataModels/DevLakeDomainLayerSchema/#data-models"
-            target="_blank"
-            rel="noreferrer"
-          >
-            Learn about data entities
-          </a>
-        </p>
-        <MultiSelector
-          items={transformEntities(entities)}
-          getKey={(item) => item.value}
-          getName={(item) => item.label}
-          selectedItems={selectedEntities}
-          onChangeItems={onChangeEntites}
-        />
-      </div>
-
-      <ButtonGroup>
-        <Button outlined disabled={saving} text="Cancel" onClick={onCancel} />
-        <Button
-          outlined
-          intent={Intent.PRIMARY}
-          loading={saving}
-          disabled={!selectedScope.length || !selectedEntities.length}
-          text="Save"
-          onClick={onSave}
-        />
-      </ButtonGroup>
+      <Table
+        columns={[
+          {
+            title: 'Data Connections',
+            dataIndex: ['icon', 'name'],
+            key: 'connection',
+            render: ({ icon, name }) => (
+              <S.ConnectionColumn>
+                <img src={icon} alt="" />
+                <span>{name}</span>
+              </S.ConnectionColumn>
+            ),
+          },
+          {
+            title: 'Data Scope',
+            dataIndex: 'origin',
+            key: 'scope',
+            render: (scope: MixConnection['origin']) =>
+              !scope.length ? (
+                <span>No Data Scope Selected</span>
+              ) : (
+                <S.ScopeColumn>
+                  {scope.map((sc, i) => (
+                    <S.ScopeItem key={i}>
+                      <span>{sc.name}</span>
+                    </S.ScopeItem>
+                  ))}
+                </S.ScopeColumn>
+              ),
+          },
+          {
+            title: '',
+            dataIndex: 'id',
+            key: 'action',
+            align: 'center',
+            render: (_, connection) => (
+              <Button
+                small
+                minimal
+                intent={Intent.PRIMARY}
+                icon="cog"
+                text="Set Data Scope"
+                onClick={() => setConnection(connection)}
+              />
+            ),
+          },
+        ]}
+        dataSource={connections}
+      />
+      <S.Btns>
+        <Button outlined intent={Intent.PRIMARY} text="Cancel" {...cancelBtnProps} onClick={onCancel} />
+        <Button intent={Intent.PRIMARY} text="Save" {...submitBtnProps} disabled={error} onClick={onNext} />
+      </S.Btns>
+      {connection && (
+        <Dialog
+          isOpen
+          title={
+            <S.DialogTitle>
+              <img src={connection.icon} alt="" />
+              <span>{connection.name}</span>
+              <span>(Set Data Scope)</span>
+            </S.DialogTitle>
+          }
+          footer={null}
+          style={{ width: 820 }}
+          onCancel={handleCancel}
+        >
+          <DataScopeForm
+            plugin={connection.plugin}
+            connectionId={connection.connectionId}
+            initialScope={initialScope}
+            initialEntities={initialEntities}
+            onCancel={handleCancel}
+            onSubmit={(scope: MixConnection['scope'], origin: MixConnection['origin']) =>
+              handleSubmit(connection, scope, origin)
+            }
+          />
+        </Dialog>
+      )}
     </S.Wrapper>
   );
 };

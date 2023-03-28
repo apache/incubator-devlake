@@ -20,11 +20,12 @@ package tasks
 import (
 	"encoding/json"
 	"fmt"
+	"net/http"
+	"net/url"
+
 	"github.com/apache/incubator-devlake/core/errors"
 	"github.com/apache/incubator-devlake/core/plugin"
 	"github.com/apache/incubator-devlake/helpers/pluginhelper/api"
-	"net/http"
-	"net/url"
 )
 
 const RAW_SPRINT_TABLE = "jira_api_sprints"
@@ -35,7 +36,7 @@ var CollectSprintsMeta = plugin.SubTaskMeta{
 	Name:             "collectSprints",
 	EntryPoint:       CollectSprints,
 	EnabledByDefault: true,
-	Description:      "collect Jira sprints",
+	Description:      "collect Jira sprints, does not support either timeFilter or diffSync.",
 	DomainTypes:      []string{plugin.DOMAIN_TYPE_TICKET},
 }
 

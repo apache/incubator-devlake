@@ -19,13 +19,17 @@ package models
 
 import (
 	"github.com/apache/incubator-devlake/core/models/common"
+	"github.com/apache/incubator-devlake/core/plugin"
 	"github.com/apache/incubator-devlake/helpers/pluginhelper/api"
 )
 
+var _ plugin.ToolLayerScope = (*SonarqubeProject)(nil)
+var _ plugin.ApiScope = (*SonarqubeApiProject)(nil)
+
 type SonarqubeProject struct {
 	common.NoPKModel `json:"-" mapstructure:"-"`
-	ConnectionId     uint64           `json:"connectionId" gorm:"primaryKey"`
-	ProjectKey       string           `json:"projectKey" gorm:"type:varchar(64);primaryKey"`
+	ConnectionId     uint64           `json:"connectionId" validate:"required" gorm:"primaryKey"`
+	ProjectKey       string           `json:"projectKey" validate:"required" gorm:"type:varchar(255);primaryKey"`
 	Name             string           `json:"name" gorm:"type:varchar(255)"`
 	Qualifier        string           `json:"qualifier" gorm:"type:varchar(255)"`
 	Visibility       string           `json:"visibility" gorm:"type:varchar(64)"`
@@ -35,4 +39,34 @@ type SonarqubeProject struct {
 
 func (SonarqubeProject) TableName() string {
 	return "_tool_sonarqube_projects"
+}
+
+func (p SonarqubeProject) ScopeId() string {
+	return p.ProjectKey
+}
+
+func (p SonarqubeProject) ScopeName() string {
+	return p.Name
+}
+
+type SonarqubeApiProject struct {
+	ProjectKey       string           `json:"key"`
+	Name             string           `json:"name"`
+	Qualifier        string           `json:"qualifier"`
+	Visibility       string           `json:"visibility"`
+	LastAnalysisDate *api.Iso8601Time `json:"lastAnalysisDate"`
+	Revision         string           `json:"revision"`
+}
+
+// Convert the API response to our DB model instance
+func (sonarqubeApiProject SonarqubeApiProject) ConvertApiScope() plugin.ToolLayerScope {
+	sonarqubeProject := SonarqubeProject{
+		ProjectKey:       sonarqubeApiProject.ProjectKey,
+		Name:             sonarqubeApiProject.Name,
+		Qualifier:        sonarqubeApiProject.Qualifier,
+		Visibility:       sonarqubeApiProject.Visibility,
+		LastAnalysisDate: sonarqubeApiProject.LastAnalysisDate,
+		Revision:         sonarqubeApiProject.Revision,
+	}
+	return sonarqubeProject
 }

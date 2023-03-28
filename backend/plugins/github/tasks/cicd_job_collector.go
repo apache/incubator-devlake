@@ -37,7 +37,7 @@ var CollectJobsMeta = plugin.SubTaskMeta{
 	Name:             "collectJobs",
 	EntryPoint:       CollectJobs,
 	EnabledByDefault: true,
-	Description:      "Collect Jobs data from Github action api",
+	Description:      "Collect Jobs data from Github action api, supports both timeFilter and diffSync.",
 	DomainTypes:      []string{plugin.DOMAIN_TYPE_CICD},
 }
 

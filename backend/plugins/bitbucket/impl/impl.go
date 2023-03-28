@@ -193,7 +193,7 @@ func (p Bitbucket) ApiResources() map[string]map[string]plugin.ApiResourceHandle
 			"DELETE": api.DeleteConnection,
 			"GET":    api.GetConnection,
 		},
-		"connections/:connectionId/scopes/*repoId": {
+		"connections/:connectionId/scopes/*scopeId": {
 			"GET":   api.GetScope,
 			"PATCH": api.UpdateScope,
 		},
@@ -207,11 +207,11 @@ func (p Bitbucket) ApiResources() map[string]map[string]plugin.ApiResourceHandle
 			"GET": api.GetScopeList,
 			"PUT": api.PutScope,
 		},
-		"transformation_rules": {
+		"connections/:connectionId/transformation_rules": {
 			"POST": api.CreateTransformationRule,
 			"GET":  api.GetTransformationRuleList,
 		},
-		"transformation_rules/:id": {
+		"connections/:connectionId/transformation_rules/:id": {
 			"PATCH": api.UpdateTransformationRule,
 			"GET":   api.GetTransformationRule,
 		},
@@ -247,13 +247,14 @@ func EnrichOptions(taskCtx plugin.TaskContext,
 		}
 	} else {
 		if taskCtx.GetDal().IsErrorNotFound(err) && op.FullName != "" {
-			var repo *tasks.BitbucketApiRepo
+			var repo *models.BitbucketApiRepo
 			repo, err = tasks.GetApiRepo(op, apiClient)
 			if err != nil {
 				return err
 			}
 			logger.Debug(fmt.Sprintf("Current repo: %s", repo.FullName))
-			scope := tasks.ConvertApiRepoToScope(repo, op.ConnectionId)
+			scope := repo.ConvertApiScope().(models.BitbucketRepo)
+			scope.ConnectionId = op.ConnectionId
 			err = taskCtx.GetDal().CreateIfNotExist(scope)
 			if err != nil {
 				return err

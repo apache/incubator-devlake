@@ -20,7 +20,7 @@ from enum import Enum
 
 from pydevlake.context import Context
 from pydevlake.subtasks import Collector, Extractor, Convertor, SubstreamCollector
-from pydevlake.model import RawModel, ToolModel, DomainModel
+from pydevlake.model import RawModel, ToolModel, ToolScope, DomainModel
 
 
 class DomainType(Enum):
@@ -90,6 +90,9 @@ class Stream:
 
     def convert(self, tool_model: ToolModel, context: Context) -> DomainModel:
         pass
+
+    def should_run_on(self, scope: ToolScope) -> bool:
+        return True
 
 
 class Substream(Stream):

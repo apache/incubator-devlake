@@ -19,11 +19,11 @@ package models
 
 import (
 	"fmt"
-	"net/http"
-
 	"github.com/apache/incubator-devlake/core/errors"
+	"github.com/apache/incubator-devlake/core/plugin"
 	"github.com/apache/incubator-devlake/helpers/pluginhelper/api"
 	"github.com/apache/incubator-devlake/helpers/pluginhelper/api/apihelperabstract"
+	"net/http"
 )
 
 // GitlabConn holds the essential information to connect to the Gitlab API
@@ -47,10 +47,10 @@ func (conn *GitlabConn) PrepareApiClient(apiClient apihelperabstract.ApiClientAb
 	// test request for access token
 	userResBody := &ApiUserResponse{}
 	res, err := apiClient.Get("user", nil, header1)
+	if err != nil {
+		return err
+	}
 	if res.StatusCode != http.StatusUnauthorized {
-		if err != nil {
-			return errors.Convert(err)
-		}
 		err = api.UnmarshalResponse(res, userResBody)
 		if err != nil {
 			return errors.Convert(err)
@@ -103,6 +103,8 @@ func (conn *GitlabConn) PrepareApiClient(apiClient apihelperabstract.ApiClientAb
 
 	return nil
 }
+
+var _ plugin.ApiConnection = (*GitlabConnection)(nil)
 
 // GitlabConnection holds GitlabConn plus ID/Name for database storage
 type GitlabConnection struct {

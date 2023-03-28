@@ -19,13 +19,18 @@ package models
 
 import (
 	"encoding/json"
-
 	"github.com/apache/incubator-devlake/core/models/common"
+	"github.com/apache/incubator-devlake/core/plugin"
+	"github.com/apache/incubator-devlake/helpers/pluginhelper/api"
 )
 
+var _ plugin.ToolLayerScope = (*BambooProject)(nil)
+var _ plugin.ApiGroup = (*api.NoRemoteGroupResponse)(nil)
+var _ plugin.ApiScope = (*ApiBambooProject)(nil)
+
 type BambooProject struct {
-	ConnectionId         uint64 `json:"connectionId" mapstructure:"connectionId" gorm:"primaryKey"`
-	ProjectKey           string `json:"projectKey" gorm:"primaryKey;type:varchar(256)"`
+	ConnectionId         uint64 `json:"connectionId" mapstructure:"connectionId" validate:"required" gorm:"primaryKey"`
+	ProjectKey           string `json:"projectKey" gorm:"primaryKey;type:varchar(256)" validate:"required"`
 	TransformationRuleId uint64 `json:"transformationRuleId,omitempty" mapstructure:"transformationRuleId"`
 	Name                 string `json:"name" gorm:"index;type:varchar(256)"`
 	Description          string `json:"description"`
@@ -34,14 +39,15 @@ type BambooProject struct {
 	common.NoPKModel     `json:"-" mapstructure:"-"`
 }
 
-func (b *BambooProject) Convert(apiProject *ApiBambooProject) {
-	b.ProjectKey = apiProject.Key
-	b.Name = apiProject.Name
-	b.Description = apiProject.Description
-	b.Href = apiProject.Link.Href
+func (p BambooProject) ScopeId() string {
+	return p.ProjectKey
 }
 
-func (b *BambooProject) TableName() string {
+func (p BambooProject) ScopeName() string {
+	return p.Name
+}
+
+func (BambooProject) TableName() string {
 	return "_tool_bamboo_projects"
 }
 
@@ -88,4 +94,13 @@ type ApiSearchResultProjects struct {
 type ApiBambooSearchProjectResponse struct {
 	ApiBambooSizeData `json:"squash"`
 	SearchResults     []ApiSearchResultProjects `json:"searchResults"`
+}
+
+func (apiProject ApiBambooProject) ConvertApiScope() plugin.ToolLayerScope {
+	b := &BambooProject{}
+	b.ProjectKey = apiProject.Key
+	b.Name = apiProject.Name
+	b.Description = apiProject.Description
+	b.Href = apiProject.Link.Href
+	return b
 }

@@ -23,6 +23,12 @@ type Params = {
   pageToken?: string;
 };
 
+export const prepareToken = (plugin: string, connectionId: ID, params: object) =>
+  request(`/plugins/${plugin}/connections/${connectionId}/remote-scopes-prepare-token`, {
+    method: 'get',
+    data: params,
+  });
+
 export const getScope = (plugin: string, connectionId: ID, params: Params) =>
   request(`/plugins/${plugin}/connections/${connectionId}/remote-scopes`, {
     method: 'get',

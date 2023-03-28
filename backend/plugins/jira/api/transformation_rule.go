@@ -18,14 +18,16 @@ limitations under the License.
 package api
 
 import (
+	"net/http"
+	"strconv"
+
 	"github.com/apache/incubator-devlake/core/dal"
 	"github.com/apache/incubator-devlake/core/errors"
 	"github.com/apache/incubator-devlake/core/plugin"
 	"github.com/apache/incubator-devlake/helpers/pluginhelper/api"
 	"github.com/apache/incubator-devlake/plugins/jira/models"
 	"github.com/apache/incubator-devlake/plugins/jira/tasks"
-	"net/http"
-	"strconv"
+	"github.com/mitchellh/mapstructure"
 )
 
 // CreateTransformationRule create transformation rule for Jira
@@ -33,24 +35,24 @@ import (
 // @Description create transformation rule for Jira
 // @Tags plugins/jira
 // @Accept application/json
+// @Param connectionId path int true "connectionId"
 // @Param transformationRule body tasks.JiraTransformationRule true "transformation rule"
 // @Success 200  {object} tasks.JiraTransformationRule
 // @Failure 400  {object} shared.ApiBody "Bad Request"
 // @Failure 500  {object} shared.ApiBody "Internal Error"
-// @Router /plugins/jira/transformation_rules [POST]
+// @Router /plugins/jira/connections/{connectionId}/transformation_rules [POST]
 func CreateTransformationRule(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, errors.Error) {
 	rule, err := makeDbTransformationRuleFromInput(input)
 	if err != nil {
 		return nil, errors.BadInput.Wrap(err, "error in makeJiraTransformationRule")
 	}
-	err = basicRes.GetDal().Create(&rule)
+	newRule := map[string]interface{}{}
+	err = errors.Convert(mapstructure.Decode(rule, &newRule))
 	if err != nil {
-		if basicRes.GetDal().IsDuplicationError(err) {
-			return nil, errors.BadInput.New("there was a transformation rule with the same name, please choose another name")
-		}
-		return nil, errors.BadInput.Wrap(err, "error on saving TransformationRule")
+		return nil, errors.BadInput.Wrap(err, "error in makeJiraTransformationRule")
 	}
-	return &plugin.ApiResourceOutput{Body: rule, Status: http.StatusOK}, nil
+	input.Body = newRule
+	return trHelper.Create(input)
 }
 
 // UpdateTransformationRule update transformation rule for Jira
@@ -59,46 +61,65 @@ func CreateTransformationRule(input *plugin.ApiResourceInput) (*plugin.ApiResour
 // @Tags plugins/jira
 // @Accept application/json
 // @Param id path int true "id"
+// @Param connectionId path int true "connectionId"
 // @Param transformationRule body tasks.JiraTransformationRule true "transformation rule"
 // @Success 200  {object} tasks.JiraTransformationRule
 // @Failure 400  {object} shared.ApiBody "Bad Request"
 // @Failure 500  {object} shared.ApiBody "Internal Error"
-// @Router /plugins/jira/transformation_rules/{id} [PATCH]
+// @Router /plugins/jira/connections/{connectionId}/transformation_rules/{id} [PATCH]
 func UpdateTransformationRule(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, errors.Error) {
+	connectionId, e := strconv.ParseUint(input.Params["connectionId"], 10, 64)
+	if e != nil || connectionId == 0 {
+		return nil, errors.Default.Wrap(e, "the connection ID should be an non-zero integer")
+	}
 	transformationRuleId, e := strconv.ParseUint(input.Params["id"], 10, 64)
 	if e != nil {
 		return nil, errors.Default.Wrap(e, "the transformation rule ID should be an integer")
 	}
-	var old models.JiraTransformationRule
-	err := basicRes.GetDal().First(&old, dal.Where("id = ?", transformationRuleId))
-	if err != nil {
-		return nil, errors.Default.Wrap(err, "error on saving TransformationRule")
-	}
-	err = api.DecodeMapStruct(input.Body, &old)
-	if err != nil {
-		return nil, errors.Default.Wrap(err, "error decoding map into transformationRule")
-	}
-	old.ID = transformationRuleId
-	err = old.VerifyRegexp()
-	if err != nil {
-		return nil, errors.Default.Wrap(err, "error verify the regexps of transformationRule")
-	}
-	err = basicRes.GetDal().Update(&old, dal.Where("id = ?", transformationRuleId))
-	if err != nil {
-		if basicRes.GetDal().IsDuplicationError(err) {
-			return nil, errors.BadInput.New("there was a transformation rule with the same name, please choose another name")
-		}
-		return nil, errors.BadInput.Wrap(err, "error on saving TransformationRule")
-	}
-	return &plugin.ApiResourceOutput{Body: old, Status: http.StatusOK}, nil
-}
-
-func makeDbTransformationRuleFromInput(input *plugin.ApiResourceInput) (*models.JiraTransformationRule, errors.Error) {
 	var req tasks.JiraTransformationRule
 	err := api.Decode(input.Body, &req, vld)
 	if err != nil {
 		return nil, err
 	}
+	var oldDB models.JiraTransformationRule
+	err = basicRes.GetDal().First(&oldDB, dal.Where("id = ?", transformationRuleId))
+	if err != nil {
+		return nil, errors.Default.Wrap(err, "error on getting TransformationRule")
+	}
+	oldTr, err := tasks.MakeTransformationRules(oldDB)
+	if err != nil {
+		return nil, err
+	}
+	err = api.DecodeMapStruct(input.Body, oldTr)
+	if err != nil {
+		return nil, err
+	}
+
+	newDB, err := oldTr.ToDb()
+	if err != nil {
+		return nil, err
+	}
+	newDB.ID = transformationRuleId
+	newDB.ConnectionId = connectionId
+	newDB.CreatedAt = oldDB.CreatedAt
+	err = basicRes.GetDal().Update(newDB)
+	if err != nil {
+		return nil, err
+	}
+	return &plugin.ApiResourceOutput{Body: newDB, Status: http.StatusOK}, err
+}
+
+func makeDbTransformationRuleFromInput(input *plugin.ApiResourceInput) (*models.JiraTransformationRule, errors.Error) {
+	connectionId, e := strconv.ParseUint(input.Params["connectionId"], 10, 64)
+	if e != nil || connectionId == 0 {
+		return nil, errors.Default.Wrap(e, "the connection ID should be an non-zero integer")
+	}
+	var req tasks.JiraTransformationRule
+	err := api.Decode(input.Body, &req, vld)
+	if err != nil {
+		return nil, err
+	}
+	req.ConnectionId = connectionId
 	return req.ToDb()
 }
 
@@ -107,39 +128,26 @@ func makeDbTransformationRuleFromInput(input *plugin.ApiResourceInput) (*models.
 // @Description return one transformation rule
 // @Tags plugins/jira
 // @Param id path int true "id"
+// @Param connectionId path int true "connectionId"
 // @Success 200  {object} tasks.JiraTransformationRule
 // @Failure 400  {object} shared.ApiBody "Bad Request"
 // @Failure 500  {object} shared.ApiBody "Internal Error"
-// @Router /plugins/jira/transformation_rules/{id} [GET]
+// @Router /plugins/jira/connections/{connectionId}/transformation_rules/{id} [GET]
 func GetTransformationRule(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, errors.Error) {
-	transformationRuleId, err := strconv.ParseUint(input.Params["id"], 10, 64)
-	if err != nil {
-		return nil, errors.Default.Wrap(err, "the transformation rule ID should be an integer")
-	}
-	var rule models.JiraTransformationRule
-	err = basicRes.GetDal().First(&rule, dal.Where("id = ?", transformationRuleId))
-	if err != nil {
-		return nil, errors.Default.Wrap(err, "error on get TransformationRule")
-	}
-	return &plugin.ApiResourceOutput{Body: rule, Status: http.StatusOK}, nil
+	return trHelper.Get(input)
 }
 
 // GetTransformationRuleList return all transformation rules
 // @Summary return all transformation rules
 // @Description return all transformation rules
 // @Tags plugins/jira
+// @Param connectionId path int true "connectionId"
 // @Param pageSize query int false "page size, default 50"
 // @Param page query int false "page size, default 1"
 // @Success 200  {object} []tasks.JiraTransformationRule
 // @Failure 400  {object} shared.ApiBody "Bad Request"
 // @Failure 500  {object} shared.ApiBody "Internal Error"
-// @Router /plugins/jira/transformation_rules [GET]
+// @Router /plugins/jira/connections/{connectionId}/transformation_rules [GET]
 func GetTransformationRuleList(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, errors.Error) {
-	var rules []models.JiraTransformationRule
-	limit, offset := api.GetLimitOffset(input.Query, "pageSize", "page")
-	err := basicRes.GetDal().All(&rules, dal.Limit(limit), dal.Offset(offset))
-	if err != nil {
-		return nil, errors.Default.Wrap(err, "error on get TransformationRule list")
-	}
-	return &plugin.ApiResourceOutput{Body: rules, Status: http.StatusOK}, nil
+	return trHelper.List(input)
 }

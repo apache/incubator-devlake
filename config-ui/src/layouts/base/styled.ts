@@ -125,3 +125,12 @@ export const SiderMenuItem = styled.div`
     margin-left: 8px;
   }
 `;
+
+export const BorderContainer = styled.div`
+  border: 1px solid #7497f7;
+  border-radius: 4px;
+  padding: 8px 12px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+`;

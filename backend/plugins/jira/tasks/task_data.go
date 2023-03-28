@@ -41,6 +41,7 @@ type TypeMapping struct {
 type TypeMappings map[string]TypeMapping
 
 type JiraTransformationRule struct {
+	ConnectionId               uint64       `mapstructure:"connectionId" json:"connectionId"`
 	Name                       string       `gorm:"type:varchar(255)" validate:"required"`
 	EpicKeyField               string       `json:"epicKeyField"`
 	StoryPointField            string       `json:"storyPointField"`
@@ -59,6 +60,7 @@ func (r *JiraTransformationRule) ToDb() (*models.JiraTransformationRule, errors.
 		return nil, errors.Default.Wrap(err, "error marshaling RemotelinkRepoPattern")
 	}
 	rule := &models.JiraTransformationRule{
+		ConnectionId:               r.ConnectionId,
 		Name:                       r.Name,
 		EpicKeyField:               r.EpicKeyField,
 		StoryPointField:            r.StoryPointField,
@@ -74,16 +76,22 @@ func (r *JiraTransformationRule) ToDb() (*models.JiraTransformationRule, errors.
 
 func MakeTransformationRules(rule models.JiraTransformationRule) (*JiraTransformationRule, errors.Error) {
 	var typeMapping TypeMappings
-	err := json.Unmarshal(rule.TypeMappings, &typeMapping)
-	if err != nil {
-		return nil, errors.Default.Wrap(err, "unable to unmarshal the typeMapping")
+	var err error
+	if len(rule.TypeMappings) > 0 {
+		err = json.Unmarshal(rule.TypeMappings, &typeMapping)
+		if err != nil {
+			return nil, errors.Default.Wrap(err, "unable to unmarshal the typeMapping")
+		}
 	}
 	var remotelinkRepoPattern []string
-	err = json.Unmarshal(rule.RemotelinkRepoPattern, &remotelinkRepoPattern)
-	if err != nil {
-		return nil, errors.Default.Wrap(err, "error unMarshaling RemotelinkRepoPattern")
+	if len(rule.RemotelinkRepoPattern) > 0 {
+		err = json.Unmarshal(rule.RemotelinkRepoPattern, &remotelinkRepoPattern)
+		if err != nil {
+			return nil, errors.Default.Wrap(err, "error unMarshaling RemotelinkRepoPattern")
+		}
 	}
 	result := &JiraTransformationRule{
+		ConnectionId:               rule.ConnectionId,
 		Name:                       rule.Name,
 		EpicKeyField:               rule.EpicKeyField,
 		StoryPointField:            rule.StoryPointField,

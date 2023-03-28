@@ -20,17 +20,29 @@ package api
 import (
 	"github.com/apache/incubator-devlake/core/context"
 	"github.com/apache/incubator-devlake/helpers/pluginhelper/api"
+	"github.com/apache/incubator-devlake/plugins/github/models"
 	"github.com/go-playground/validator/v10"
 )
 
 var vld *validator.Validate
 var connectionHelper *api.ConnectionApiHelper
+var scopeHelper *api.ScopeApiHelper[models.GithubConnection, models.GithubRepo, models.GithubTransformationRule]
 var basicRes context.BasicRes
+var trHelper *api.TransformationRuleHelper[models.GithubTransformationRule]
 
 func Init(br context.BasicRes) {
 	basicRes = br
 	vld = validator.New()
 	connectionHelper = api.NewConnectionHelper(
+		basicRes,
+		vld,
+	)
+	scopeHelper = api.NewScopeHelper[models.GithubConnection, models.GithubRepo, models.GithubTransformationRule](
+		basicRes,
+		vld,
+		connectionHelper,
+	)
+	trHelper = api.NewTransformationRuleHelper[models.GithubTransformationRule](
 		basicRes,
 		vld,
 	)

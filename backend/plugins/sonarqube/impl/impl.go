@@ -125,14 +125,14 @@ func (p Sonarqube) PrepareTaskData(taskCtx plugin.TaskContext, options map[strin
 		ApiClient: apiClient,
 	}
 	// even we have project in _tool_sonaqube_projects, we still need to collect project to update LastAnalysisDate
-	var scope *models.SonarqubeProject
-	var apiProject *tasks.SonarqubeApiProject
+	var scope models.SonarqubeProject
+	var apiProject *models.SonarqubeApiProject
 	apiProject, err = api.GetApiProject(op.ProjectKey, apiClient)
 	if err != nil {
 		return nil, err
 	}
 	logger.Debug(fmt.Sprintf("Current project: %s", apiProject.ProjectKey))
-	scope = tasks.ConvertProject(apiProject)
+	scope = apiProject.ConvertApiScope().(models.SonarqubeProject)
 	scope.ConnectionId = op.ConnectionId
 	err = taskCtx.GetDal().CreateOrUpdate(&scope)
 	if err != nil {
@@ -172,7 +172,7 @@ func (p Sonarqube) ApiResources() map[string]map[string]plugin.ApiResourceHandle
 		"connections/:connectionId/search-remote-scopes": {
 			"GET": api.SearchRemoteScopes,
 		},
-		"connections/:connectionId/scopes/:projectKey": {
+		"connections/:connectionId/scopes/:scopeId": {
 			"GET":   api.GetScope,
 			"PATCH": api.UpdateScope,
 		},

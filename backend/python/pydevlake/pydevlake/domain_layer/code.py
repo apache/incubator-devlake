@@ -36,7 +36,7 @@ class PullRequest(DomainModel, table=True):
     pull_request_key: int
     created_date: datetime
     merged_date: Optional[datetime]
-    closed_date: datetime
+    closed_date: Optional[datetime]
     type: str
     component: str
     merge_commit_sha: str
@@ -75,7 +75,7 @@ class Commit(NoPKModel, table=True):
     __tablename__ = 'commits'
     sha: str = Field(primary_key=True)
     additions: str
-    deletions: str = Optional[str]
+    deletions: Optional[str]
     dev_eq: Optional[str]
     message: str
     author_name: str

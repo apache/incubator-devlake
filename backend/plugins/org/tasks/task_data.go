@@ -17,8 +17,38 @@ limitations under the License.
 
 package tasks
 
+import "github.com/apache/incubator-devlake/core/plugin"
+
 type Options struct {
-	ConnectionId uint64 `json:"connectionId"`
+	ConnectionId    uint64           `json:"connectionId"`
+	ProjectMappings []ProjectMapping `json:"projectMappings"`
+}
+
+// ProjectMapping represents the relations between project and scopes
+type ProjectMapping struct {
+	ProjectName string  `json:"projectName"`
+	Scopes      []Scope `json:"scopes"`
+}
+
+// Scope represents a scope by specifies the table and id
+type Scope struct {
+	Table string `json:"table"`
+	RowID string `json:"rowId"`
+}
+
+// NewProjectMapping is the construct function of ProjectMapping
+func NewProjectMapping(projectName string, pluginScopes []plugin.Scope) ProjectMapping {
+	var scopes []Scope
+	for _, ps := range pluginScopes {
+		scopes = append(scopes, Scope{
+			Table: ps.TableName(),
+			RowID: ps.ScopeId(),
+		})
+	}
+	return ProjectMapping{
+		ProjectName: projectName,
+		Scopes:      scopes,
+	}
 }
 
 type TaskData struct {

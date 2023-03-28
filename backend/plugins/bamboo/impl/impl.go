@@ -19,7 +19,6 @@ package impl
 
 import (
 	"fmt"
-
 	"github.com/apache/incubator-devlake/core/context"
 	"github.com/apache/incubator-devlake/core/dal"
 	"github.com/apache/incubator-devlake/core/errors"
@@ -94,12 +93,16 @@ func (p Bamboo) SubTaskMetas() []plugin.SubTaskMeta {
 		tasks.ExtractPlanBuildMeta,
 		tasks.CollectJobBuildMeta,
 		tasks.ExtractJobBuildMeta,
-		//tasks.CollectDeployMeta,
-		//tasks.ExtractDeployMeta,
+		tasks.CollectDeployMeta,
+		tasks.ExtractDeployMeta,
+		tasks.CollectDeployBuildMeta,
+		tasks.ExtractDeployBuildMeta,
+
 		tasks.ConvertJobBuildsMeta,
 		tasks.ConvertPlanBuildsMeta,
 		tasks.ConvertPlanVcsMeta,
 		tasks.ConvertProjectsMeta,
+		tasks.ConvertDeployBuildsMeta,
 	}
 }
 
@@ -138,7 +141,7 @@ func (p Bamboo) PrepareTaskData(taskCtx plugin.TaskContext, options map[string]i
 				return nil, err
 			}
 			logger.Debug(fmt.Sprintf("Current project: %s", apiProject.Key))
-			scope.Convert(apiProject)
+			scope = apiProject.ConvertApiScope().(*models.BambooProject)
 			scope.ConnectionId = op.ConnectionId
 			err = taskCtx.GetDal().CreateIfNotExist(&scope)
 			if err != nil {
@@ -195,11 +198,11 @@ func (p Bamboo) ApiResources() map[string]map[string]plugin.ApiResourceHandler {
 			"PATCH":  api.PatchConnection,
 			"DELETE": api.DeleteConnection,
 		},
-		"transformation_rules": {
+		"connections/:connectionId/transformation_rules": {
 			"POST": api.CreateTransformationRule,
 			"GET":  api.GetTransformationRuleList,
 		},
-		"transformation_rules/:id": {
+		"connections/:connectionId/transformation_rules/:id": {
 			"PATCH": api.UpdateTransformationRule,
 			"GET":   api.GetTransformationRule,
 		},
@@ -213,7 +216,7 @@ func (p Bamboo) ApiResources() map[string]map[string]plugin.ApiResourceHandler {
 		"connections/:connectionId/search-remote-scopes": {
 			"GET": api.SearchRemoteScopes,
 		},
-		"connections/:connectionId/scopes/:projectKey": {
+		"connections/:connectionId/scopes/:scopeId": {
 			"GET":   api.GetScope,
 			"PATCH": api.UpdateScope,
 		},

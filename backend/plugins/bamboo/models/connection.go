@@ -19,6 +19,7 @@ package models
 
 import (
 	"fmt"
+	"github.com/apache/incubator-devlake/core/plugin"
 	"net/http"
 	"time"
 
@@ -26,6 +27,8 @@ import (
 	"github.com/apache/incubator-devlake/helpers/pluginhelper/api"
 	"github.com/apache/incubator-devlake/helpers/pluginhelper/api/apihelperabstract"
 )
+
+var _ plugin.ApiConnection = (*BambooConnection)(nil)
 
 type BambooConnection struct {
 	api.BaseConnection `mapstructure:",squash"`

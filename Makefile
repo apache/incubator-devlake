@@ -48,7 +48,7 @@ configure:
 	docker-compose up config-ui
 
 configure-dev:
-	cd config-ui; npm install; npm start;
+	cd config-ui; yarn; yarn start
 
 commit:
 	git cz
@@ -109,13 +109,19 @@ unit-test: mock unit-test-only
 unit-test-only:
 	make unit-test-only -C backend
 
+python-unit-test:
+	make python-unit-test -C backend
+
 e2e-test: build e2e-test-only
 
 e2e-test-only:
-	#PLUGIN_DIR=$(shell readlink -f bin/plugins) go test -timeout 300s -v ./test/...
+	make e2e-test-only -C backend
 
 e2e-plugins-test:
 	make e2e-plugins-test -C backend
+
+integration-test:
+	make integration-test -C backend
 
 lint:
 	make lint -C backend

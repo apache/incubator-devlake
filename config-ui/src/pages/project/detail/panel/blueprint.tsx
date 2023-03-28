@@ -46,5 +46,5 @@ export const BlueprintPanel = ({ project }: Props) => {
     );
   }
 
-  return <BlueprintDetail id={project.blueprint.id} />;
+  return <BlueprintDetail pname={project.name} id={project.blueprint.id} />;
 };

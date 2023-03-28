@@ -234,8 +234,8 @@ func GetTransformationRuleByRepo(repo *models.GitlabProject) (*models.GitlabTran
 func GetApiProject(
 	op *tasks.GitlabOptions,
 	apiClient aha.ApiClientAbstract,
-) (*tasks.GitlabApiProject, errors.Error) {
-	repoRes := &tasks.GitlabApiProject{}
+) (*models.GitlabApiProject, errors.Error) {
+	repoRes := &models.GitlabApiProject{}
 	res, err := apiClient.Get(fmt.Sprintf("projects/%d", op.ProjectId), nil, nil)
 	if err != nil {
 		return nil, err

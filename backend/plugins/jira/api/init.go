@@ -19,18 +19,31 @@ package api
 
 import (
 	"github.com/apache/incubator-devlake/core/context"
-	helper "github.com/apache/incubator-devlake/helpers/pluginhelper/api"
+	"github.com/apache/incubator-devlake/helpers/pluginhelper/api"
+	"github.com/apache/incubator-devlake/plugins/jira/models"
 	"github.com/go-playground/validator/v10"
 )
 
 var vld *validator.Validate
-var connectionHelper *helper.ConnectionApiHelper
+var connectionHelper *api.ConnectionApiHelper
+var scopeHelper *api.ScopeApiHelper[models.JiraConnection, models.JiraBoard, models.JiraTransformationRule]
 var basicRes context.BasicRes
+var trHelper *api.TransformationRuleHelper[models.JiraTransformationRule]
 
 func Init(br context.BasicRes) {
 	basicRes = br
 	vld = validator.New()
-	connectionHelper = helper.NewConnectionHelper(
+	connectionHelper = api.NewConnectionHelper(
+		basicRes,
+		vld,
+	)
+	scopeHelper = api.NewScopeHelper[models.JiraConnection, models.JiraBoard, models.JiraTransformationRule](
+		basicRes,
+		vld,
+		connectionHelper,
+	)
+
+	trHelper = api.NewTransformationRuleHelper[models.JiraTransformationRule](
 		basicRes,
 		vld,
 	)

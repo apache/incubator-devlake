@@ -23,8 +23,8 @@ import (
 
 // JenkinsJob db entity for jenkins job
 type JenkinsJob struct {
-	ConnectionId         uint64 `gorm:"primaryKey" mapstructure:"connectionId,omitempty" json:"connectionId"`
-	FullName             string `gorm:"primaryKey;type:varchar(255)" mapstructure:"jobFullName" json:"jobFullName"` // "path1/path2/job name"
+	ConnectionId         uint64 `gorm:"primaryKey" mapstructure:"connectionId,omitempty" validate:"required" json:"connectionId"`
+	FullName             string `gorm:"primaryKey;type:varchar(255)" mapstructure:"jobFullName" validate:"required" json:"jobFullName"` // "path1/path2/job name"
 	TransformationRuleId uint64 `mapstructure:"transformationRuleId,omitempty" json:"transformationRuleId,omitempty"`
 	Name                 string `gorm:"index;type:varchar(255)" mapstructure:"name" json:"name"`     // scope name now is same to `jobFullName`
 	Path                 string `gorm:"index;type:varchar(511)" mapstructure:"-,omitempty" json:"-"` // "job/path1/job/path2"

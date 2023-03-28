@@ -64,10 +64,10 @@ export const BitBucketConfig: PluginConfigType = {
     issueStatusInProgress: '',
     issueStatusDone: 'closed',
     issueStatusOther: 'on hold,wontfix,duplicate,invalid',
-    productionPattern: '',
-    deploymentPattern: '',
+    deploymentPattern: '(deploy|push-image)',
+    productionPattern: 'production',
     refdiff: {
-      tagsOrder: 10,
+      tagsOrder: 'reverse semver',
       tagsPattern: '/v\\d+\\.\\d+(\\.\\d+(-rc)*\\d*)*$/',
     },
   },

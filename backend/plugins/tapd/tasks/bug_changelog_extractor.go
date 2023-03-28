@@ -59,6 +59,10 @@ func ExtractBugChangelog(taskCtx plugin.SubTaskContext) errors.Error {
 				ValueBeforeParsed: bugChangelog.OldValue,
 				ValueAfterParsed:  bugChangelog.NewValue,
 			}
+			err = convertUnicode(item)
+			if err != nil {
+				return nil, err
+			}
 			if item.Field == "iteration_id" {
 				iterationFrom, iterationTo, err := parseIterationChangelog(taskCtx, item.ValueBeforeParsed, item.ValueAfterParsed)
 				if err != nil {

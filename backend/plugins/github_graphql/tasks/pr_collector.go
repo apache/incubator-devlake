@@ -123,7 +123,7 @@ var CollectPrMeta = plugin.SubTaskMeta{
 	Name:             "CollectPr",
 	EntryPoint:       CollectPr,
 	EnabledByDefault: true,
-	Description:      "Collect Pr data from GithubGraphql api",
+	Description:      "Collect Pr data from GithubGraphql api, supports both timeFilter and diffSync.",
 	DomainTypes:      []string{plugin.DOMAIN_TYPE_CODE_REVIEW},
 }
 
@@ -164,7 +164,7 @@ func CollectPr(taskCtx plugin.SubTaskContext) errors.Error {
 
 	err = collectorWithState.InitGraphQLCollector(api.GraphqlCollectorArgs{
 		GraphqlClient: data.GraphqlClient,
-		PageSize:      30,
+		PageSize:      10,
 		Incremental:   incremental,
 		/*
 			(Optional) Return query string for request, or you can plug them into UrlTemplate directly

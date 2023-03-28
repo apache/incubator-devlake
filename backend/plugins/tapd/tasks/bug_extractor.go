@@ -42,7 +42,7 @@ func ExtractBugs(taskCtx plugin.SubTaskContext) errors.Error {
 	rawDataSubTaskArgs, data := CreateRawDataSubTaskArgs(taskCtx, RAW_BUG_TABLE, false)
 	db := taskCtx.GetDal()
 	statusList := make([]models.TapdBugStatus, 0)
-	statusLanguageMap, getStdStatus, err := getDefaltStdStatusMapping(data, db, statusList)
+	statusLanguageMap, getStdStatus, err := getDefaultStdStatusMapping(data, db, statusList)
 	if err != nil {
 		return err
 	}
@@ -73,8 +73,7 @@ func ExtractBugs(taskCtx plugin.SubTaskContext) errors.Error {
 			} else {
 				toolL.StdStatus = getStdStatus(toolL.Status)
 			}
-			toolL.StdStatus = getStdStatus(toolL.Status)
-			toolL.Url = fmt.Sprintf("https://www.tapd.cn/%d/prong/stories/view/%d", toolL.WorkspaceId, toolL.Id)
+			toolL.Url = fmt.Sprintf("https://www.tapd.cn/%d/bugtrace/bugs/view?bug_id=%d", toolL.WorkspaceId, toolL.Id)
 			if strings.Contains(toolL.CurrentOwner, ";") {
 				toolL.CurrentOwner = strings.Split(toolL.CurrentOwner, ";")[0]
 			}

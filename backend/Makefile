@@ -21,6 +21,7 @@ SHA = $(shell git show -s --format=%h)
 TAG ?= $(shell git tag --points-at HEAD)
 IMAGE_REPO ?= "apache"
 VERSION = $(TAG)@$(SHA)
+PYTHON_DIR ?= "./python"
 
 go-dep:
 	go install github.com/vektra/mockery/v2@latest
@@ -29,7 +30,7 @@ go-dep:
 	go install github.com/golangci/golangci-lint/cmd/golangci-lint@v1.50.1
 
 python-dep:
-	pip install -r requirements.txt
+	pip install -r python/requirements.txt
 
 dep: go-dep python-dep
 
@@ -48,6 +49,11 @@ build-worker:
 
 build-server: swag
 	go build -ldflags "-X 'github.com/apache/incubator-devlake/core/version.Version=$(VERSION)'" -o bin/lake ./server/
+
+build-python: #don't mix this with the other build commands
+	find ./python/ -name "*.sh" | xargs chmod +x &&\
+	./python/build.sh &&\
+	./python/build_tests.sh
 
 build: build-plugin build-server
 
@@ -75,18 +81,22 @@ mock:
 
 test: unit-test e2e-test
 
-unit-test: mock unit-test-only
+unit-test: mock unit-test-only python-unit-test
 
 unit-test-only:
 	set -e; for m in $$(go list ./... | egrep -v 'test|models|e2e'); do echo $$m; go test -timeout 60s -v $$m; done
 
-e2e-test: build e2e-test-only
-
-e2e-test-only:
-	#PLUGIN_DIR=$(shell readlink -f bin/plugins) go test -timeout 300s -v ./test/...
+python-unit-test:
+	sh ./python/build.sh && sh ./python/run_tests.sh
 
 e2e-plugins-test:
 	export ENV_PATH=$(shell readlink -f .env); set -e; for m in $$(go list ./plugins/... | egrep 'e2e'); do echo $$m; go test -timeout 300s -gcflags=all=-l -v $$m; done
+
+e2e-test:
+	export PLUGIN_DIR=$(shell readlink -f bin/plugins); set -e; for m in $$(go list ./test/e2e/...); do echo $$m; go test -timeout 300s -v $$m; done
+
+integration-test:
+	export ENV_PATH=$(shell readlink -f .env); set -e; for m in $$(go list ./test/integration...); do echo $$m; go test -timeout 300s -v $$m; done
 
 lint:
 	golangci-lint run

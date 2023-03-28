@@ -1,0 +1,319 @@
+# Licensed to the Apache Software Foundation (ASF) under one or more
+# contributor license agreements.  See the NOTICE file distributed with
+# this work for additional information regarding copyright ownership.
+# The ASF licenses this file to You under the Apache License, Version 2.0
+# (the "License"); you may not use this file except in compliance with
+# the License.  You may obtain a copy of the License at
+
+#     http://www.apache.org/licenses/LICENSE-2.0
+
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+import pytest
+
+from pydevlake.testing import assert_convert, ContextBuilder
+import pydevlake.domain_layer.code as code
+import pydevlake.domain_layer.devops as devops
+
+from azuredevops.main import AzureDevOpsPlugin
+
+
+def test_builds_stream():
+    raw = {
+        'properties': {},
+        'tags': [],
+        'validationResults': [],
+        'plans': [{'planId': 'c672e778-a9e9-444a-b1e0-92f839c061e0'}],
+        'triggerInfo': {},
+        'id': 12,
+        'buildNumber': 'azure-job',
+        'status': 'completed',
+        'result': 'succeeded',
+        'queueTime': '2023-02-25T06:22:21.2237625Z',
+        'startTime': '2023-02-25T06:22:32.8097789Z',
+        'finishTime': '2023-02-25T06:23:04.0061884Z',
+        'url': 'https://dev.azure.com/testorg/7a3fd40e-2aed-4fac-bac9-511bf1a70206/_apis/build/Builds/12',
+        'definition': {
+            'drafts': [],
+            'id': 5,
+            'name': 'johndoe.test-repo',
+            'url': 'https://dev.azure.com/testorg/7a3fd40e-2aed-4fac-bac9-511bf1a70206/_apis/build/Definitions/5?revision=1',
+            'uri': 'vstfs:///Build/Definition/5',
+            'path': '\\',
+            'type': 'build',
+            'queueStatus': 'enabled',
+            'revision': 1,
+            'project': {
+                'id': '7a3fd40e-2aed-4fac-bac9-511bf1a70206',
+                'name': 'test-project',
+                'url': 'https://dev.azure.com/testorg/_apis/projects/7a3fd40e-2aed-4fac-bac9-511bf1a70206',
+                'state': 'wellFormed',
+                'revision': 11,
+                'visibility': 'private',
+                'lastUpdateTime': '2023-01-26T19:38:04.267Z'
+            }
+        },
+        'project': {
+            'id': '7a3fd40e-2aed-4fac-bac9-511bf1a70206',
+            'name': 'Test project',
+            'url': 'https://dev.azure.com/testorg/_apis/projects/7a3fd40e-2aed-4fac-bac9-511bf1a70206',
+        },
+        'uri': 'vstfs:///Build/Build/12',
+        'sourceBranch': 'refs/heads/main',
+        'sourceVersion': '40c59264e73fc5e1a6cab192f1622d26b7bd5c2a',
+        'queue': {
+            'id': 9,
+            'name': 'Azure Pipelines',
+            'pool': {'id': 9, 'name': 'Azure Pipelines', 'isHosted': True}
+        },
+        'priority': 'normal',
+        'reason': 'manual',
+        'requestedFor': {
+            'displayName': 'John Doe',
+            'url': 'https://spsprodcus5.vssps.visualstudio.com/A1def512a-251e-4668-9a5d-a4bc1f0da4aa/_apis/Identities/bc538feb-9fdd-6cf8-80e1-7c56950d0289',
+            'id': 'bc538feb-9fdd-6cf8-80e1-7c56950d0289',
+            'uniqueName': 'john.dow@merico.dev',
+            'imageUrl': 'https://dev.azure.com/testorg/_apis/GraphProfile/MemberAvatars/aad.YmM1MzhmZWItOWZkZC03Y2Y4LT3wXTXtN2M1Njk1MGQwMjg5',
+            'descriptor': 'aad.YmM1MzhmZWItOWZkZC03Y2Y4LT3wXTXtN2M1Njk1MGQwMjg5'
+        },
+        'requestedBy': {
+            'displayName': 'John Doe',
+            'url': 'https://spsprodcus5.vssps.visualstudio.com/A1def512a-251e-4668-9a5d-a4bc1f0da4aa/_apis/Identities/bc538feb-9fdd-6cf8-80e1-7c56950d0289',
+            'id': 'bc538feb-9fdd-6cf8-80e1-7c56950d0289',
+            'uniqueName': 'john.doe@merico.dev',
+            'imageUrl': 'https://dev.azure.com/testorg/_apis/GraphProfile/MemberAvatars/aad.YmM1MzhmZWItOWZkZC03Y2Y4LT3wXTXtN2M1Njk1MGQwMjg5',
+            'descriptor': 'aad.YmM1MzhmZWItOWZkZC03Y2Y4LT3wXTXtN2M1Njk1MGQwMjg5'
+        },
+        'lastChangedDate': '2023-02-25T06:23:04.343Z',
+        'lastChangedBy': {
+            'displayName': 'Microsoft.VisualStudio.Services.TFS',
+            'url': 'https://spsprodcus5.vssps.visualstudio.com/A1def512a-251e-4668-9a5d-a4bc1f0da4aa/_apis/Identities/00000002-0000-8888-8000-000000000000',
+            'id': '00000002-0000-8888-8000-000000000000',
+            'uniqueName': '00000002-0000-8888-8000-000000000000@2c895908-04e0-4952-89fd-54b0046d6288',
+            'imageUrl': 'https://dev.azure.com/testorg/_apis/GraphProfile/MemberAvatars/s2s.MDAwMDAwMDItMDAwMC04ODg4LTgwMDAtMDAwMDAwMDAwMDAwQDJjODk1OTA4LTA0ZTAtNDk1Mi04OWZkLTU0YjAwNDZkNjI4OA',
+            'descriptor': 's2s.MDAwMDAwMDItMDAwMC04ODg4LTgwMDAtMDAwMDAwMDAwMDAwQDJjODk1OTA4LTA0ZTAtNDk1Mi04OWZkLTU0YjAwNDZkNjI4OA'
+        },
+        'orchestrationPlan': {'planId': 'c672e778-a9e9-444a-b1e0-92f839c061e0'},
+        'logs': {
+            'id': 0,
+            'type': 'Container',
+            'url': 'https://dev.azure.com/testorg/7a3fd40e-2aed-4fac-bac9-511bf1a70206/_apis/build/builds/12/logs'
+        },
+        'repository': {
+            'id': 'johndoe/test-repo',
+            'type': 'GitHub'
+        },
+        'retainedByRelease': False,
+        'triggeredByBuild': None,
+        'appendCommitMessageToRunName': True
+    }
+
+    expected = [
+        devops.CICDPipeline(
+            name=12,
+            status=devops.CICDStatus.DONE,
+            created_date='2023-02-25T06:22:32.8097789Z',
+            finished_date='2023-02-25T06:23:04.0061884Z',
+            result=devops.CICDResult.SUCCESS,
+            duration_sec=28,
+            environment=devops.CICDEnvironment.PRODUCTION,
+            type=devops.CICDType.DEPLOYMENT,
+            cicd_scope_id='johndoe/test-repo'
+        ),
+        devops.CiCDPipelineCommit(
+            pipeline_id=12,
+            commit_sha='40c59264e73fc5e1a6cab192f1622d26b7bd5c2a',
+            branch='refs/heads/main',
+            repo_id='johndoe/test-repo',
+            repo='https://github.com/johndoe/test-repo'
+        )
+    ]
+
+    assert_convert(AzureDevOpsPlugin, 'builds', raw, expected)
+
+
+def test_jobs_stream():
+    ctx = (
+        ContextBuilder(AzureDevOpsPlugin)
+        .with_transformation_rule(deployment_pattern='deploy',
+                                  production_pattern='prod')
+        .build()
+    )
+    raw = {
+        'previousAttempts': [],
+        'id': 'cfa20e98-6997-523c-4233-f0a7302c929f',
+        'parentId': '9ecf18fe-987d-5811-7c63-300aecae35da',
+        'type': 'Job',
+        'name': 'deploy production',
+        'build_id': 12,  # Added by collector,
+        'repo_id': 'johndoe/test-repo',  # Added by collector,
+        'startTime': '2023-02-25T06:22:36.8066667Z',
+        'finishTime': '2023-02-25T06:22:43.2333333Z',
+        'currentOperation': None,
+        'percentComplete': None,
+        'state': 'completed',
+        'result': 'succeeded',
+        'resultCode': None,
+        'changeId': 18,
+        'lastModified': '0001-01-01T00:00:00',
+        'workerName': 'Hosted Agent',
+        'queueId': 9,
+        'order': 1,
+        'details': None,
+        'errorCount': 0,
+        'warningCount': 0,
+        'url': None,
+        'log': {
+            'id': 10,
+            'type': 'Container',
+            'url': 'https://dev.azure.com/johndoe/7a3fd40e-2aed-4fac-bac9-511bf1a70206/_apis/build/builds/12/logs/10'
+        },
+        'task': None,
+        'attempt': 1,
+        'identifier': 'job_2.__default'
+    }
+
+    expected = devops.CICDTask(
+        id='cfa20e98-6997-523c-4233-f0a7302c929f',
+        name='deploy production',
+        pipeline_id=12,
+        status=devops.CICDStatus.DONE,
+        created_date='2023-02-25T06:22:36.8066667Z',
+        finished_date='2023-02-25T06:22:43.2333333Z',
+        result=devops.CICDResult.SUCCESS,
+        type=devops.CICDType.DEPLOYMENT,
+        duration_sec=7,
+        environment=devops.CICDEnvironment.PRODUCTION,
+        cicd_scope_id='johndoe/test-repo'
+    )
+    assert_convert(AzureDevOpsPlugin, 'jobs', raw, expected, ctx)
+
+
+def test_pull_requests_stream():
+    raw = {
+        'repository': {
+            'id': '0d50ba13-f9ad-49b0-9b21-d29eda50ca33',
+            'name': 'test-repo2',
+            'url': 'https://dev.azure.com/johndoe/7a3fd40e-2aed-4fac-bac9-511bf1a70206/_apis/git/repositories/0d50ba13-f9ad-49b0-9b21-d29eda50ca33',
+            'project': {
+                'id': '7a3fd40e-2aed-4fac-bac9-511bf1a70206',
+                'name': 'test-project',
+                'state': 'unchanged',
+                'visibility': 'unchanged',
+                'lastUpdateTime': '0001-01-01T00:00:00'
+            }
+        },
+        'pullRequestId': 1,
+        'codeReviewId': 1,
+        'status': 'active',
+        'createdBy': {
+            'displayName': 'John Doe',
+            'url': 'https://spsprodcus5.vssps.visualstudio.com/A1def512a-251e-4668-9a5d-a4bc1f0da4aa/_apis/Identities/bc538feb-9fdd-6cf8-80e1-7c56950d0289',
+            '_links': {
+                'avatar': {
+                    'href': 'https://dev.azure.com/johndoe/_apis/GraphProfile/MemberAvatars/aad.YmM1MzhmZWItOWZkZC03Y2Y4LT3wXTXtN2M1Njk1MGQwMjg5'
+                }
+            },
+            'id': 'bc538feb-9fdd-6cf8-80e1-7c56950d0289',
+            'uniqueName': 'john.doe@merico.dev',
+            'imageUrl': 'https://dev.azure.com/johndoe/_api/_common/identityImage?id=bc538feb-9fdd-6cf8-80e1-7c56950d0289',
+            'descriptor': 'aad.YmM1MzhmZWItOWZkZC03Y2Y4LT3wXTXtN2M1Njk1MGQwMjg5'
+        },
+        'creationDate': '2023-02-07T04:41:26.6424314Z',
+        'title': 'ticket-2 PR',
+        'description': 'Updated main.java by ticket-2',
+        'sourceRefName': 'refs/heads/ticket-2',
+        'targetRefName': 'refs/heads/main',
+        'mergeStatus': 'succeeded',
+        'isDraft': False,
+        'mergeId': '99da29c2-4d27-4620-989f-5b59908917cd',
+        'lastMergeSourceCommit': {
+            'commitId': '85ede91717145a1e6e2bdab4cab689ac8f2fa3a2',
+            'url': 'https://dev.azure.com/johndoe/7a3fd40e-2aed-4fac-bac9-511bf1a70206/_apis/git/repositories/0d50ba13-f9ad-49b0-9b21-d29eda50ca33/commits/85ede91717145a1e6e2bdab4cab689ac8f2fa3a2'
+        },
+        'lastMergeTargetCommit': {
+            'commitId': '4bc26d92b5dbee7837a4d221035a4e2f8df120b2',
+            'url': 'https://dev.azure.com/johndoe/7a3fd40e-2aed-4fac-bac9-511bf1a70206/_apis/git/repositories/0d50ba13-f9ad-49b0-9b21-d29eda50ca33/commits/4bc26d92b5dbee7837a4d221035a4e2f8df120b2'
+        },
+        'lastMergeCommit': {
+            'commitId': 'ebc6c7a2a5e3c155510d0ba44fd4385bf7ae6e22',
+            'url': 'https://dev.azure.com/johndoe/7a3fd40e-2aed-4fac-bac9-511bf1a70206/_apis/git/repositories/0d50ba13-f9ad-49b0-9b21-d29eda50ca33/commits/ebc6c7a2a5e3c155510d0ba44fd4385bf7ae6e22'
+        },
+        'reviewers': [
+            {
+                'reviewerUrl': 'https://dev.azure.com/johndoe/7a3fd40e-2aed-4fac-bac9-511bf1a70206/_apis/git/repositories/0d50ba13-f9ad-49b0-9b21-d29eda50ca33/pullRequests/1/reviewers/bc538feb-9fdd-6cf8-80e1-7c56950d0289',
+                'vote': 0,
+                'hasDeclined': False,
+                'isFlagged': False,
+                'displayName': 'John Doe',
+                'url': 'https://spsprodcus5.vssps.visualstudio.com/A1def512a-251e-4668-9a5d-a4bc1f0da4aa/_apis/Identities/bc538feb-9fdd-6cf8-80e1-7c56950d0289',
+                '_links': {'avatar': {'href': 'https://dev.azure.com/johndoe/_apis/GraphProfile/MemberAvatars/aad.YmM1MzhmZWItOWZkZC03Y2Y4LT3wXTXtN2M1Njk1MGQwMjg5'}},
+                'id': 'bc538feb-9fdd-6cf8-80e1-7c56950d0289',
+                'uniqueName': 'john.doe@merico.dev',
+                'imageUrl': 'https://dev.azure.com/johndoe/_api/_common/identityImage?id=bc538feb-9fdd-6cf8-80e1-7c56950d0289'
+            }
+        ],
+        'labels': [
+            {
+                'id': '98db191b-f0a5-421b-8433-e982ad05fe06',
+                'name': 'feature',
+                'active': True
+            }
+        ],
+        'url': 'https://dev.azure.com/johndoe/7a3fd40e-2aed-4fac-bac9-511bf1a70206/_apis/git/repositories/0d50ba13-f9ad-49b0-9b21-d29eda50ca33/pullRequests/1',
+        'supportsIterations': True
+    }
+
+    expected = code.PullRequest(
+        base_repo_id='0d50ba13-f9ad-49b0-9b21-d29eda50ca33',
+        head_repo_id='0d50ba13-f9ad-49b0-9b21-d29eda50ca33',
+        status='active',
+        title='ticket-2 PR',
+        description='Updated main.java by ticket-2',
+        url='https://dev.azure.com/johndoe/7a3fd40e-2aed-4fac-bac9-511bf1a70206/_apis/git/repositories/0d50ba13-f9ad-49b0-9b21-d29eda50ca33/pullRequests/1',
+        author_name='John Doe',
+        author_id='bc538feb-9fdd-6cf8-80e1-7c56950d0289',
+        pull_request_key=1,
+        created_date='2023-02-07T04:41:26.6424314Z',
+        merged_date=None,
+        closed_date=None,
+        type='feature',
+        component="",
+        merge_commit_sha='ebc6c7a2a5e3c155510d0ba44fd4385bf7ae6e22',
+        head_ref='refs/heads/ticket-2',
+        base_ref='refs/heads/main',
+        head_commit_sha='85ede91717145a1e6e2bdab4cab689ac8f2fa3a2',
+        base_commit_sha='4bc26d92b5dbee7837a4d221035a4e2f8df120b2'
+    )
+
+    assert_convert(AzureDevOpsPlugin, 'gitpullrequests', raw, expected)
+
+
+def test_pull_request_commits_stream():
+    raw = {
+        'commitId': '85ede91717145a1e6e2bdab4cab689ac8f2fa3a2',
+        'author': {
+            'name': 'John Doe',
+            'email': 'john.doe@merico.dev',
+            'date': '2023-02-07T04:49:28Z'
+        },
+        'committer': {
+            'name': 'John Doe',
+            'email': 'john.doe@merico.dev',
+            'date': '2023-02-07T04:49:28Z'
+        },
+        'comment': 'Fixed main.java',
+        'url': 'https://dev.azure.com/johndoe/7a3fd40e-2aed-4fac-bac9-511bf1a70206/_apis/git/repositories/0d50ba13-f9ad-49b0-9b21-d29eda50ca33/commits/85ede91717145a1e6e2bdab4cab689ac8f2fa3a2',
+        'pull_request_id': "azuredevops:gitpullrequest:1:12345" # This is not part of the API response, but is added in collect method
+    }
+
+    expected = code.PullRequestCommit(
+        commit_sha='85ede91717145a1e6e2bdab4cab689ac8f2fa3a2',
+        pull_request_id="azuredevops:gitpullrequest:1:12345",
+    )
+
+    assert_convert(AzureDevOpsPlugin, 'gitpullrequestcommits', raw, expected)

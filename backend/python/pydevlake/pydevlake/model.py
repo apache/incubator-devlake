@@ -17,19 +17,21 @@
 import os
 from typing import Optional
 from inspect import getmodule
-
 from datetime import datetime
-from sqlalchemy import Column, String, DateTime, func
+
+import inflect
+from pydantic import AnyUrl, validator
+from sqlalchemy import Column, DateTime, func
 from sqlalchemy.orm import declared_attr
 from sqlalchemy.inspection import inspect
 from sqlmodel import SQLModel, Field
-import inflect
+
 
 inflect_engine = inflect.engine()
 
 
 class Model(SQLModel):
-    id: int = Field(primary_key=True)
+    id: Optional[int] = Field(primary_key=True)
     created_at: Optional[datetime] = Field(
         sa_column=Column(DateTime(), default=func.now())
     )
@@ -47,6 +49,13 @@ class ToolTable(Model):
 
 class Connection(ToolTable):
     name: str
+    proxy: Optional[AnyUrl]
+
+    @validator('proxy', pre=True)
+    def allow_empty_proxy(cls, proxy):
+        if proxy == "":
+            return None
+        return proxy
 
 
 class TransformationRule(ToolTable):
@@ -86,11 +95,32 @@ class NoPKModel(RawDataOrigin):
 
 
 class ToolModel(ToolTable, NoPKModel):
-    @declared_attr
-    def __tablename__(cls) -> str:
-        plugin_name = _get_plugin_name(cls)
-        plural_entity = inflect_engine.plural_noun(cls.__name__.lower())
-        return f'_tool_{plugin_name}_{plural_entity}'
+    connection_id: Optional[int] = Field(primary_key=True)
+
+    def domain_id(self):
+        """
+        Generate an identifier for domain entities
+        originates from self.
+        """
+        model_type = type(self)
+        segments = [_get_plugin_name(model_type), model_type.__name__]
+        mapper = inspect(model_type)
+        for primary_key_column in mapper.primary_key:
+            prop = mapper.get_property_by_column(primary_key_column)
+            attr_val = getattr(self, prop.key)
+            segments.append(str(attr_val))
+        return ':'.join(segments)
+
+    class Config:
+        allow_population_by_field_name = True
+
+        @classmethod
+        def alias_generator(cls, attr_name: str) -> str:
+            # Allow to set snake_cased attributes with camelCased keyword args.
+            # Useful for extractors dealing with raw data that has camelCased attributes.
+            parts = attr_name.split('_')
+            return parts[0] + ''.join(word.capitalize() for word in parts[1:])
+
 
 
 class DomainModel(NoPKModel):
@@ -104,21 +134,6 @@ class ToolScope(ToolModel):
 
 class DomainScope(DomainModel):
     pass
-
-
-def generate_domain_id(tool_model: ToolModel, connection_id: str):
-    """
-    Generate an identifier for a domain entity
-    from the tool entity it originates from.
-    """
-    model_type = type(tool_model)
-    segments = [_get_plugin_name(model_type), model_type.__name__, str(connection_id)]
-    mapper = inspect(model_type)
-    for primary_key_column in mapper.primary_key:
-        prop = mapper.get_property_by_column(primary_key_column)
-        attr_val = getattr(tool_model, prop.key)
-        segments.append(str(attr_val))
-    return ':'.join(segments)
 
 
 def _get_plugin_name(cls):

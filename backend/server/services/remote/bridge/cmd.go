@@ -18,6 +18,7 @@ limitations under the License.
 package bridge
 
 import (
+	"encoding/json"
 	"fmt"
 	"os/exec"
 
@@ -44,7 +45,7 @@ func (c *CmdInvoker) Call(methodName string, ctx plugin.ExecContext, args ...any
 	serializedArgs, err := serialize(args...)
 	if err != nil {
 		return &CallResult{
-			err: err,
+			Err: err,
 		}
 	}
 	executable, inputArgs := c.resolveCmd(methodName, serializedArgs...)
@@ -70,11 +71,10 @@ func (c *CmdInvoker) Call(methodName string, ctx plugin.ExecContext, args ...any
 	err = response.GetError()
 	if err != nil {
 		return &CallResult{
-			err: errors.Default.Wrap(err, fmt.Sprintf("failed to invoke remote function \"%s\"", methodName)),
+			Err: errors.Default.Wrap(err, fmt.Sprintf("failed to invoke remote function \"%s\"", methodName)),
 		}
 	}
-	results, err := deserialize(response.GetFdOut().([]byte))
-	return NewCallResult(results, errors.Convert(err))
+	return NewCallResult(response.GetFdOut(), nil)
 }
 
 func (c *CmdInvoker) Stream(methodName string, ctx plugin.ExecContext, args ...any) *MethodStream {
@@ -95,18 +95,15 @@ func (c *CmdInvoker) Stream(methodName string, ctx plugin.ExecContext, args ...a
 		cmd.Dir = c.workingPath
 	}
 	processHandle, err := utils.StreamProcess(cmd, &utils.StreamProcessOptions{
-		OnStdout: func(b []byte) (any, errors.Error) {
+		OnStdout: func(b []byte) {
 			msg := string(b)
 			c.logRemoteMessage(ctx.GetLogger(), msg)
-			return b, nil
 		},
-		OnStderr: func(b []byte) (any, errors.Error) {
+		OnStderr: func(b []byte) {
 			msg := string(b)
 			c.logRemoteError(ctx.GetLogger(), msg)
-			return b, nil
 		},
 		UseFdOut: true,
-		OnFdOut:  utils.NoopConverter,
 	})
 	if err != nil {
 		recvChannel <- NewStreamResult(nil, err)
@@ -133,16 +130,23 @@ func (c *CmdInvoker) Stream(methodName string, ctx plugin.ExecContext, args ...a
 			}
 			response := msg.GetFdOut()
 			if response != nil {
-				results, err := deserialize(response.([]byte))
-				if err != nil {
-					recvChannel <- NewStreamResult(nil, err)
-				} else {
-					recvChannel <- NewStreamResult(results, nil)
-				}
+				recvChannel <- NewStreamResult(response, nil)
 			}
 		}
 	}()
 	return stream
+}
+
+func serialize(args ...any) ([]string, errors.Error) {
+	var serializedArgs []string
+	for _, arg := range args {
+		serializedArg, err := json.Marshal(arg)
+		if err != nil {
+			return nil, errors.Convert(err)
+		}
+		serializedArgs = append(serializedArgs, string(serializedArg))
+	}
+	return serializedArgs, nil
 }
 
 func (c *CmdInvoker) logRemoteMessage(logger log.Logger, msg string) {

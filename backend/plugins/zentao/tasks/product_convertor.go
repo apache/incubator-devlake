@@ -29,6 +29,8 @@ import (
 	"reflect"
 )
 
+const RAW_PRODUCT_TABLE = "zentao_api_products"
+
 var _ plugin.SubTaskEntryPoint = ConvertProducts
 
 var ConvertProductMeta = plugin.SubTaskMeta{
@@ -45,8 +47,7 @@ func ConvertProducts(taskCtx plugin.SubTaskContext) errors.Error {
 	boardIdGen := didgen.NewDomainIdGenerator(&models.ZentaoProduct{})
 	cursor, err := db.Cursor(
 		dal.From(&models.ZentaoProduct{}),
-		dal.Where(`_tool_zentao_products.id = ? and 
-			_tool_zentao_products.connection_id = ?`, data.Options.ProductId, data.Options.ConnectionId),
+		dal.Where(`id = ? and connection_id = ?`, data.Options.ProductId, data.Options.ConnectionId),
 	)
 	if err != nil {
 		return err
@@ -59,7 +60,6 @@ func ConvertProducts(taskCtx plugin.SubTaskContext) errors.Error {
 			Ctx: taskCtx,
 			Params: ZentaoApiParams{
 				ConnectionId: data.Options.ConnectionId,
-				ExecutionId:  data.Options.ExecutionId,
 				ProductId:    data.Options.ProductId,
 				ProjectId:    data.Options.ProjectId,
 			},

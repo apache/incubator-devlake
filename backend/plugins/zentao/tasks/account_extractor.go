@@ -43,7 +43,6 @@ func ExtractAccount(taskCtx plugin.SubTaskContext) errors.Error {
 			Params: ZentaoApiParams{
 				ConnectionId: data.Options.ConnectionId,
 				ProductId:    data.Options.ProductId,
-				ExecutionId:  data.Options.ExecutionId,
 				ProjectId:    data.Options.ProjectId,
 			},
 			Table: RAW_ACCOUNT_TABLE,

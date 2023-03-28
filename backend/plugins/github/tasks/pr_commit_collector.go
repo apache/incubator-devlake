@@ -42,7 +42,7 @@ var CollectApiPullRequestCommitsMeta = plugin.SubTaskMeta{
 	Name:             "collectApiPullRequestCommits",
 	EntryPoint:       CollectApiPullRequestCommits,
 	EnabledByDefault: true,
-	Description:      "Collect PullRequestCommits data from Github api",
+	Description:      "Collect PullRequestCommits data from Github api, supports both timeFilter and diffSync.",
 	DomainTypes:      []string{plugin.DOMAIN_TYPE_CROSS, plugin.DOMAIN_TYPE_CODE_REVIEW},
 }
 

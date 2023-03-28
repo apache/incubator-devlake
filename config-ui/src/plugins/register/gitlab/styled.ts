@@ -18,29 +18,40 @@
 
 import styled from 'styled-components';
 
+export const DataScope = styled.div`
+  h4 {
+    margin-top: 16px;
+  }
+`;
+
 export const TransformationWrapper = styled.div`
   h3 {
-    margin: 0 0 8px;
+    margin-top: 16px;
 
     .bp4-tag {
-      margin-left: 6px;
+      margin-left: 4px;
     }
   }
 
-  p {
-    margin: 0 0 8px;
-  }
+  .radio {
+    padding-left: 20px;
+    margin-bottom: 16px;
 
-  .bp4-form-group {
-    display: flex;
-    align-items: center;
+    .input {
+      display: flex;
+      align-items: center;
 
-    .bp4-label {
-      flex: 0 0 150px;
-    }
+      & + .input {
+        margin-top: 8px;
+      }
 
-    .bp4-form-content {
-      flex: auto;
+      p {
+        color: #292b3f;
+      }
+
+      .bp4-input-group {
+        margin: 0 4px;
+      }
     }
   }
 `;

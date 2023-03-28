@@ -37,6 +37,7 @@ import { StarRocksConfig } from './register/starrocks';
 import { TAPDConfig } from './register/tapd';
 import { WebhookConfig } from './register/webook';
 import { ZenTaoConfig } from './register/zentao';
+import { TeambitionConfig } from './register/teambition';
 
 export const PluginConfig: PluginConfigType[] = [
   AEConfig,
@@ -57,6 +58,7 @@ export const PluginConfig: PluginConfigType[] = [
   SonarQubeConfig,
   StarRocksConfig,
   TAPDConfig,
+  TeambitionConfig,
   ZenTaoConfig,
   WebhookConfig,
 ].sort((a, b) => a.sort - b.sort);

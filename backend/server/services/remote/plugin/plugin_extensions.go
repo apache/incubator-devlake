@@ -49,18 +49,29 @@ func (p remoteDatasourcePlugin) MakeDataSourcePipelinePlanV200(connectionId uint
 	}
 
 	db := basicRes.GetDal()
-	var toolScopes = make([]interface{}, len(bpScopes))
+	var toolScopeTxRulePairs = make([]interface{}, len(bpScopes))
 	for i, bpScope := range bpScopes {
-		toolScope := p.scopeTabler.New()
-		err = api.CallDB(db.First, toolScope, dal.Where("id = ?", bpScope.Id))
+		wrappedToolScope := p.scopeTabler.New()
+		err = api.CallDB(db.First, wrappedToolScope, dal.Where("id = ?", bpScope.Id))
 		if err != nil {
 			return nil, nil, errors.NotFound.New("record not found")
 		}
-		toolScopes[i] = toolScope.Unwrap()
+		toolScope := models.ScopeModel{}
+		err := wrappedToolScope.To(&toolScope)
+		if err != nil {
+			return nil, nil, err
+		}
+		txRule, err := p.getTxRule(db, toolScope)
+		if err != nil {
+			return nil, nil, err
+		}
+		toolScopeTxRulePairs[i] = []interface{}{toolScope, txRule}
 	}
 
+	entities := bpScopes[0].Entities
+
 	plan_data := models.PipelineData{}
-	err = p.invoker.Call("make-pipeline", bridge.DefaultContext, toolScopes, connection.Unwrap()).Get(&plan_data)
+	err = p.invoker.Call("make-pipeline", bridge.DefaultContext, toolScopeTxRulePairs, entities, connection.Unwrap()).Get(&plan_data)
 	if err != nil {
 		return nil, nil, err
 	}

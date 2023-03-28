@@ -18,19 +18,22 @@ limitations under the License.
 package models
 
 import (
-	helper "github.com/apache/incubator-devlake/helpers/pluginhelper/api"
+	"github.com/apache/incubator-devlake/core/plugin"
+	"github.com/apache/incubator-devlake/helpers/pluginhelper/api"
 )
+
+var _ plugin.ApiConnection = (*BitbucketConnection)(nil)
 
 // BitbucketConn holds the essential information to connect to the Bitbucket API
 type BitbucketConn struct {
-	helper.RestConnection `mapstructure:",squash"`
-	helper.BasicAuth      `mapstructure:",squash"`
+	api.RestConnection `mapstructure:",squash"`
+	api.BasicAuth      `mapstructure:",squash"`
 }
 
 // BitbucketConnection holds BitbucketConn plus ID/Name for database storage
 type BitbucketConnection struct {
-	helper.BaseConnection `mapstructure:",squash"`
-	BitbucketConn         `mapstructure:",squash"`
+	api.BaseConnection `mapstructure:",squash"`
+	BitbucketConn      `mapstructure:",squash"`
 }
 
 func (BitbucketConnection) TableName() string {

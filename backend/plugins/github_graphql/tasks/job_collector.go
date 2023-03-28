@@ -92,7 +92,7 @@ var CollectGraphqlJobsMeta = plugin.SubTaskMeta{
 	Name:             "CollectGraphqlJobs",
 	EntryPoint:       CollectGraphqlJobs,
 	EnabledByDefault: true,
-	Description:      "Collect Jobs(CheckRun) data from GithubGraphql api",
+	Description:      "Collect Jobs(CheckRun) data from GithubGraphql api, supports both timeFilter and diffSync.",
 	DomainTypes:      []string{plugin.DOMAIN_TYPE_CICD},
 }
 
@@ -140,7 +140,7 @@ func CollectGraphqlJobs(taskCtx plugin.SubTaskContext) errors.Error {
 
 	err = collectorWithState.InitGraphQLCollector(helper.GraphqlCollectorArgs{
 		Input:         iterator,
-		InputStep:     60,
+		InputStep:     20,
 		Incremental:   incremental,
 		GraphqlClient: data.GraphqlClient,
 		BuildQuery: func(reqData *helper.GraphqlRequestData) (interface{}, map[string]interface{}, error) {

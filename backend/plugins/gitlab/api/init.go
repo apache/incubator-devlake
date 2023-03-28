@@ -19,18 +19,37 @@ package api
 
 import (
 	"github.com/apache/incubator-devlake/core/context"
-	helper "github.com/apache/incubator-devlake/helpers/pluginhelper/api"
+	"github.com/apache/incubator-devlake/helpers/pluginhelper/api"
+	"github.com/apache/incubator-devlake/plugins/gitlab/models"
 	"github.com/go-playground/validator/v10"
 )
 
 var vld *validator.Validate
-var connectionHelper *helper.ConnectionApiHelper
+var connectionHelper *api.ConnectionApiHelper
+var scopeHelper *api.ScopeApiHelper[models.GitlabConnection, models.GitlabProject, models.GitlabTransformationRule]
+var remoteHelper *api.RemoteApiHelper[models.GitlabConnection, models.GitlabProject, models.GitlabApiProject, models.GroupResponse]
 var basicRes context.BasicRes
+var trHelper *api.TransformationRuleHelper[models.GitlabTransformationRule]
 
 func Init(br context.BasicRes) {
 	basicRes = br
 	vld = validator.New()
-	connectionHelper = helper.NewConnectionHelper(
+	connectionHelper = api.NewConnectionHelper(
+		basicRes,
+		vld,
+	)
+	scopeHelper = api.NewScopeHelper[models.GitlabConnection, models.GitlabProject, models.GitlabTransformationRule](
+		basicRes,
+		vld,
+		connectionHelper,
+	)
+
+	remoteHelper = api.NewRemoteHelper[models.GitlabConnection, models.GitlabProject, models.GitlabApiProject, models.GroupResponse](
+		basicRes,
+		vld,
+		connectionHelper,
+	)
+	trHelper = api.NewTransformationRuleHelper[models.GitlabTransformationRule](
 		basicRes,
 		vld,
 	)

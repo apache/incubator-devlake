@@ -23,7 +23,8 @@ import time
 
 import requests as req
 
-from pydevlake import logger
+from pydevlake.logger import logger
+from pydevlake.model import Connection
 
 
 RouteArgs = Union[list[str], dict[str, str]]
@@ -83,11 +84,18 @@ class APIBase:
     Hooks are declared by decorating methods with `@request_hook` and `@response_hook`.
     Hooks are executed in the order they are declared.
     """
+    def __init__(self, connection: Connection):
+        self.connection = connection
+
     @property
     def session(self):
         if not hasattr(self, '_session'):
             self._session = req.Session()
         return self._session
+
+    @property
+    def proxy(self):
+        return self.connection.proxy
 
     @property
     def base_url(self) -> Optional[str]:
@@ -98,10 +106,15 @@ class APIBase:
         if request is ABORT:
             return ABORT
 
+        proxies = {}
+        if self.proxy:
+            proxies['http'] = self.proxy
+            proxies['https'] = self.proxy
         res = self.session.get(
             url=request.url,
             headers=request.headers,
-            params=request.query_args
+            params=request.query_args,
+            proxies=proxies
         )
 
         response = Response(
@@ -127,7 +140,7 @@ class APIBase:
 
     def get(self, *path_args, **query_args):
         parts = [self.base_url, *path_args] if self.base_url else path_args
-        url = "/".join([a.strip('/') for a in parts])
+        url = "/".join([str(a).strip('/') for a in parts])
         req = Request(url, query_args)
         return self.send(req)
 

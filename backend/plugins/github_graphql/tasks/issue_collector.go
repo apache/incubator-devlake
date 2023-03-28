@@ -77,7 +77,7 @@ var CollectIssueMeta = plugin.SubTaskMeta{
 	Name:             "CollectIssue",
 	EntryPoint:       CollectIssue,
 	EnabledByDefault: true,
-	Description:      "Collect Issue data from GithubGraphql api",
+	Description:      "Collect Issue data from GithubGraphql api, supports both timeFilter and diffSync.",
 	DomainTypes:      []string{plugin.DOMAIN_TYPE_TICKET},
 }
 

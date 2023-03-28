@@ -20,6 +20,7 @@ package tasks
 import (
 	"encoding/json"
 	"fmt"
+
 	"github.com/apache/incubator-devlake/core/errors"
 	"github.com/apache/incubator-devlake/core/plugin"
 	helper "github.com/apache/incubator-devlake/helpers/pluginhelper/api"
@@ -35,7 +36,7 @@ func ExtractJobBuild(taskCtx plugin.SubTaskContext) errors.Error {
 		RawDataSubTaskArgs: *rawDataSubTaskArgs,
 
 		Extract: func(resData *helper.RawData) ([]interface{}, errors.Error) {
-			res := &models.ApiBambooPlanBuild{}
+			res := &models.ApiBambooJobBuild{}
 			err := errors.Convert(json.Unmarshal(resData.Data, res))
 			if err != nil {
 				return nil, err
@@ -45,7 +46,7 @@ func ExtractJobBuild(taskCtx plugin.SubTaskContext) errors.Error {
 			if err != nil {
 				return nil, err
 			}
-			body := models.BambooJobBuild{}.Convert(res)
+			body := res.Convert()
 			body.ConnectionId = data.Options.ConnectionId
 			body.ProjectKey = data.Options.ProjectKey
 			body.JobKey = plan.JobKey
