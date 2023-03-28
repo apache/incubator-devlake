@@ -176,7 +176,7 @@ class Plugin(ABC):
                     "connectionId": connection.id
                 }
             ),
-            self.extra_tasks(scope, tx_rule, entity_types, connection)
+            *self.extra_tasks(scope, tx_rule, entity_types, connection)
         ]
 
     def extra_tasks(self, scope: ToolScope, tx_rule: Optional[TransformationRule],
