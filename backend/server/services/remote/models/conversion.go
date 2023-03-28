@@ -24,6 +24,7 @@ import (
 
 	"github.com/apache/incubator-devlake/core/errors"
 	"github.com/apache/incubator-devlake/core/models"
+	"gorm.io/datatypes"
 )
 
 func LoadTableModel(tableName string, schema map[string]any, encrypt bool, parentModel any) (*models.DynamicTabler, errors.Error) {
@@ -118,8 +119,9 @@ func getGoType(schema map[string]any) (reflect.Type, errors.Error) {
 	case "boolean":
 		goType = reflect.TypeOf(false)
 	case "string":
-		//TODO: distinguish stypes based on string format
 		goType = reflect.TypeOf("")
+	case "object":
+		goType = reflect.TypeOf(datatypes.JSONMap{})
 	default:
 		return nil, errors.BadInput.New(fmt.Sprintf("Unsupported type %s", jsonType))
 	}

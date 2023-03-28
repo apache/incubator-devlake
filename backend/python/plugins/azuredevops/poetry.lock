@@ -288,6 +288,18 @@ files = [
 ]
 
 [[package]]
+name = "jsonref"
+version = "1.1.0"
+description = "jsonref is a library for automatic dereferencing of JSON Reference objects for Python."
+category = "main"
+optional = false
+python-versions = ">=3.7"
+files = [
+    {file = "jsonref-1.1.0-py3-none-any.whl", hash = "sha256:590dc7773df6c21cbf948b5dac07a72a251db28b0238ceecce0a2abfa8ec30a9"},
+    {file = "jsonref-1.1.0.tar.gz", hash = "sha256:32fe8e1d85af0fdefbebce950af85590b22b60f9e95443176adbde4e1ecea552"},
+]
+
+[[package]]
 name = "mysqlclient"
 version = "2.1.1"
 description = "Python interface to MySQL"
@@ -409,6 +421,7 @@ develop = true
 [package.dependencies]
 fire = "^0.4.0"
 inflect = "^6.0.2"
+jsonref = "^1.1.0"
 mysqlclient = "^2.1.1"
 pydantic = "^1.10.2"
 pydevd-pycharm = "^231.6471.3"
