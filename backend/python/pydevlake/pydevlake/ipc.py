@@ -124,7 +124,6 @@ class PluginCommands:
         return Context(db_url, scope, connection, transformation_rule, options)
 
     def _parse(self, data: Union[str, dict, list]) -> Union[dict, list]:
-        print(data)
         if isinstance(data, (dict, list)):
             return data
         if isinstance(data, str):
