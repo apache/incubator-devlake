@@ -19,4 +19,4 @@
 import { request } from '@/utils';
 
 export const getTransformations = (plugin: string, connectionId: ID) =>
-  request(`/plugins/${plugin}/transformation_rules`);
+  request(`/plugins/${plugin}/connections/${connectionId}/transformation_rules`);
