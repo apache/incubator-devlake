@@ -40,7 +40,7 @@ var CollectAccountsMeta = plugin.SubTaskMeta{
 }
 
 func CollectAccounts(taskCtx plugin.SubTaskContext) errors.Error {
-	rawDataSubTaskArgs, data := CreateRawDataSubTaskArgs(taskCtx, RAW_USER_TABLE, false)
+	rawDataSubTaskArgs, data := CreateRawDataSubTaskArgs(taskCtx, RAW_USER_TABLE)
 	logger := taskCtx.GetLogger()
 	logger.Info("collect users")
 	collector, err := api.NewApiCollector(api.ApiCollectorArgs{

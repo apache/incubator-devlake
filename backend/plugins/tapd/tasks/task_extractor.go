@@ -39,7 +39,7 @@ var ExtractTaskMeta = plugin.SubTaskMeta{
 }
 
 func ExtractTasks(taskCtx plugin.SubTaskContext) errors.Error {
-	rawDataSubTaskArgs, data := CreateRawDataSubTaskArgs(taskCtx, RAW_TASK_TABLE, false)
+	rawDataSubTaskArgs, data := CreateRawDataSubTaskArgs(taskCtx, RAW_TASK_TABLE)
 	getTaskStdStatus := func(statusKey string) string {
 		if statusKey == "done" {
 			return ticket.DONE

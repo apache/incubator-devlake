@@ -31,7 +31,7 @@ import (
 )
 
 func ConvertIteration(taskCtx plugin.SubTaskContext) errors.Error {
-	rawDataSubTaskArgs, data := CreateRawDataSubTaskArgs(taskCtx, RAW_ITERATION_TABLE, false)
+	rawDataSubTaskArgs, data := CreateRawDataSubTaskArgs(taskCtx, RAW_ITERATION_TABLE)
 	logger := taskCtx.GetLogger()
 	db := taskCtx.GetDal()
 	logger.Info("collect iteration :%d", data.Options.WorkspaceId)

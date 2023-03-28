@@ -51,7 +51,7 @@ type BugChangelogItemResult struct {
 }
 
 func ConvertBugChangelog(taskCtx plugin.SubTaskContext) errors.Error {
-	rawDataSubTaskArgs, data := CreateRawDataSubTaskArgs(taskCtx, RAW_BUG_CHANGELOG_TABLE, false)
+	rawDataSubTaskArgs, data := CreateRawDataSubTaskArgs(taskCtx, RAW_BUG_CHANGELOG_TABLE)
 	logger := taskCtx.GetLogger()
 	db := taskCtx.GetDal()
 	statusList := make([]models.TapdBugStatus, 0)

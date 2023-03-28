@@ -32,7 +32,7 @@ const RAW_TASK_CUSTOM_FIELDS_TABLE = "tapd_api_task_custom_fields"
 var _ plugin.SubTaskEntryPoint = CollectTaskCustomFields
 
 func CollectTaskCustomFields(taskCtx plugin.SubTaskContext) errors.Error {
-	rawDataSubTaskArgs, data := CreateRawDataSubTaskArgs(taskCtx, RAW_TASK_CUSTOM_FIELDS_TABLE, false)
+	rawDataSubTaskArgs, data := CreateRawDataSubTaskArgs(taskCtx, RAW_TASK_CUSTOM_FIELDS_TABLE)
 	logger := taskCtx.GetLogger()
 	logger.Info("collect task_custom_fields")
 	collector, err := api.NewApiCollector(api.ApiCollectorArgs{

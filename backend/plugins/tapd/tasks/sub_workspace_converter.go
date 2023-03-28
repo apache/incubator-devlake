@@ -30,7 +30,7 @@ import (
 )
 
 func ConvertSubWorkspace(taskCtx plugin.SubTaskContext) errors.Error {
-	rawDataSubTaskArgs, data := CreateRawDataSubTaskArgs(taskCtx, RAW_SUB_WORKSPACE_TABLE, false)
+	rawDataSubTaskArgs, data := CreateRawDataSubTaskArgs(taskCtx, RAW_SUB_WORKSPACE_TABLE)
 	logger := taskCtx.GetLogger()
 	db := taskCtx.GetDal()
 	logger.Info("collect board:%d", data.Options.WorkspaceId)

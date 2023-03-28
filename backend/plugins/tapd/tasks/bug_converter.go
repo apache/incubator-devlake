@@ -32,7 +32,7 @@ import (
 )
 
 func ConvertBug(taskCtx plugin.SubTaskContext) errors.Error {
-	rawDataSubTaskArgs, data := CreateRawDataSubTaskArgs(taskCtx, RAW_BUG_TABLE, false)
+	rawDataSubTaskArgs, data := CreateRawDataSubTaskArgs(taskCtx, RAW_BUG_TABLE)
 	logger := taskCtx.GetLogger()
 	db := taskCtx.GetDal()
 	logger.Info("convert board:%d", data.Options.WorkspaceId)

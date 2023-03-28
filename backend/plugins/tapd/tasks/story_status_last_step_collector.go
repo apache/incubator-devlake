@@ -31,7 +31,7 @@ const RAW_STORY_STATUS_LAST_STEP_TABLE = "tapd_api_story_status_last_steps"
 var _ plugin.SubTaskEntryPoint = CollectStoryStatusLastStep
 
 func CollectStoryStatusLastStep(taskCtx plugin.SubTaskContext) errors.Error {
-	rawDataSubTaskArgs, data := CreateRawDataSubTaskArgs(taskCtx, RAW_STORY_STATUS_LAST_STEP_TABLE, false)
+	rawDataSubTaskArgs, data := CreateRawDataSubTaskArgs(taskCtx, RAW_STORY_STATUS_LAST_STEP_TABLE)
 	logger := taskCtx.GetLogger()
 	logger.Info("collect bugStatus")
 

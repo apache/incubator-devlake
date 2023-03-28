@@ -55,7 +55,7 @@ type TaskChangelogItemResult struct {
 }
 
 func ConvertTaskChangelog(taskCtx plugin.SubTaskContext) errors.Error {
-	rawDataSubTaskArgs, data := CreateRawDataSubTaskArgs(taskCtx, RAW_TASK_CHANGELOG_TABLE, false)
+	rawDataSubTaskArgs, data := CreateRawDataSubTaskArgs(taskCtx, RAW_TASK_CHANGELOG_TABLE)
 	logger := taskCtx.GetLogger()
 	db := taskCtx.GetDal()
 	customStatusMap := getStatusMapping(data)

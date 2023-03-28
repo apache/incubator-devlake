@@ -39,7 +39,7 @@ var ExtractBugMeta = plugin.SubTaskMeta{
 }
 
 func ExtractBugs(taskCtx plugin.SubTaskContext) errors.Error {
-	rawDataSubTaskArgs, data := CreateRawDataSubTaskArgs(taskCtx, RAW_BUG_TABLE, false)
+	rawDataSubTaskArgs, data := CreateRawDataSubTaskArgs(taskCtx, RAW_BUG_TABLE)
 	db := taskCtx.GetDal()
 	statusList := make([]models.TapdBugStatus, 0)
 	statusLanguageMap, getStdStatus, err := getDefaultStdStatusMapping(data, db, statusList)

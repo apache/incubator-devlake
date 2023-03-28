@@ -32,7 +32,7 @@ const RAW_SUB_WORKSPACE_TABLE = "tapd_api_sub_workspaces"
 var _ plugin.SubTaskEntryPoint = CollectSubWorkspaces
 
 func CollectSubWorkspaces(taskCtx plugin.SubTaskContext) errors.Error {
-	rawDataSubTaskArgs, data := CreateRawDataSubTaskArgs(taskCtx, RAW_SUB_WORKSPACE_TABLE, false)
+	rawDataSubTaskArgs, data := CreateRawDataSubTaskArgs(taskCtx, RAW_SUB_WORKSPACE_TABLE)
 	logger := taskCtx.GetLogger()
 	logger.Info("collect workspaces")
 	collector, err := api.NewApiCollector(api.ApiCollectorArgs{

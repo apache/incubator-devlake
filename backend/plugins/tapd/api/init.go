@@ -20,17 +20,35 @@ package api
 import (
 	"github.com/apache/incubator-devlake/core/context"
 	"github.com/apache/incubator-devlake/helpers/pluginhelper/api"
+	"github.com/apache/incubator-devlake/plugins/tapd/models"
 	"github.com/go-playground/validator/v10"
 )
 
 var vld *validator.Validate
 var connectionHelper *api.ConnectionApiHelper
 var basicRes context.BasicRes
+var scopeHelper *api.ScopeApiHelper[models.TapdConnection, models.TapdWorkspace, models.TapdTransformationRule]
+var remoteHelper *api.RemoteApiHelper[models.TapdConnection, models.TapdWorkspace, models.TapdWorkspace, api.BaseRemoteGroupResponse]
+var trHelper *api.TransformationRuleHelper[models.TapdTransformationRule]
 
 func Init(br context.BasicRes) {
 	basicRes = br
 	vld = validator.New()
 	connectionHelper = api.NewConnectionHelper(
+		basicRes,
+		vld,
+	)
+	scopeHelper = api.NewScopeHelper[models.TapdConnection, models.TapdWorkspace, models.TapdTransformationRule](
+		basicRes,
+		vld,
+		connectionHelper,
+	)
+	remoteHelper = api.NewRemoteHelper[models.TapdConnection, models.TapdWorkspace, models.TapdWorkspace, api.BaseRemoteGroupResponse](
+		basicRes,
+		vld,
+		connectionHelper,
+	)
+	trHelper = api.NewTransformationRuleHelper[models.TapdTransformationRule](
 		basicRes,
 		vld,
 	)
