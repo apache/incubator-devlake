@@ -20,7 +20,8 @@ import React, { useState, useContext } from 'react';
 import { useHistory } from 'react-router-dom';
 
 import { PageLoading } from '@/components';
-import { useRefreshData, useOperator } from '@/hooks';
+import { useRefreshData } from '@/hooks';
+import { operator } from '@/utils';
 
 import * as API from './api';
 
@@ -33,9 +34,9 @@ type ContextType = {
 
   onPrev: () => void;
   onNext: () => void;
+  saving: boolean;
+  onSave: () => void;
   onCancel: () => void;
-  operating: boolean;
-  onSubmit: (connection: MixConnection) => void;
 };
 
 export const Context = React.createContext<ContextType>({
@@ -46,9 +47,9 @@ export const Context = React.createContext<ContextType>({
   onChangeConnection: () => {},
   onPrev: () => {},
   onNext: () => {},
+  saving: false,
+  onSave: () => {},
   onCancel: () => {},
-  operating: false,
-  onSubmit: () => {},
 });
 
 interface Props {
@@ -60,40 +61,11 @@ interface Props {
 export const ContextProvider = ({ pname, id, children }: Props) => {
   const [step, setStep] = useState(1);
   const [connection, setConnection] = useState<MixConnection>();
+  const [saving, setSaving] = useState(false);
 
   const history = useHistory();
 
   const { ready, data } = useRefreshData(() => API.getBlueprint(id), [id]);
-
-  const { operating, onSubmit } = useOperator(
-    async (connection: MixConnection) => {
-      if (!connection) return;
-      const { plugin, connectionId, scope } = connection;
-
-      const payload = {
-        ...data,
-        settings: {
-          ...data.settings,
-          connections: [
-            ...data.settings.connections,
-            {
-              plugin,
-              connectionId,
-              scopes: scope.map((sc) => ({
-                id: `${sc.id}`,
-                entities: sc.entities,
-              })),
-            },
-          ],
-        },
-      };
-
-      await API.updateBlueprint(data.id, payload);
-    },
-    {
-      callback: () => history.push(pname ? `/projects/${pname}` : `/blueprints/${id}`),
-    },
-  );
 
   const handlePrev = () => {
     setStep(step - 1);
@@ -101,6 +73,37 @@ export const ContextProvider = ({ pname, id, children }: Props) => {
 
   const handleNext = () => {
     setStep(step + 1);
+  };
+
+  const handleSave = async () => {
+    if (!connection) return null;
+    const { plugin, connectionId, scope } = connection;
+    const payload = {
+      ...data,
+      settings: {
+        ...data.settings,
+        connections: [
+          ...data.settings.connections,
+          {
+            plugin,
+            connectionId,
+            scopes: scope.map((sc) => ({
+              id: `${sc.id}`,
+              entities: sc.entities,
+            })),
+          },
+        ],
+      },
+    };
+
+    const [success] = await operator(() => API.updateBlueprint(data.id, payload), {
+      setOperating: setSaving,
+    });
+
+    if (success) {
+      history.push(pname ? `/projects/${pname}` : `/blueprints/${id}`);
+      return;
+    }
   };
 
   const handleCancel = () => {
@@ -121,9 +124,9 @@ export const ContextProvider = ({ pname, id, children }: Props) => {
         onChangeConnection: setConnection,
         onPrev: handlePrev,
         onNext: handleNext,
+        saving,
+        onSave: handleSave,
         onCancel: handleCancel,
-        operating,
-        onSubmit,
       }}
     >
       {children}

@@ -23,7 +23,7 @@ import { useConnectionAdd } from '../context';
 import * as S from './styled';
 
 export const Step3 = () => {
-  const { connection, onPrev, operating, onSubmit } = useConnectionAdd();
+  const { connection, onPrev, saving, onSave } = useConnectionAdd();
 
   if (!connection) {
     return null;
@@ -33,9 +33,9 @@ export const Step3 = () => {
     <S.Wrapper>
       <Transformation
         connections={[connection]}
-        submitBtnProps={{ text: 'Save', loading: operating }}
+        submitBtnProps={{ text: 'Save', loading: saving }}
         onCancel={onPrev}
-        onNext={() => onSubmit(connection)}
+        onNext={onSave}
       />
     </S.Wrapper>
   );

@@ -74,7 +74,8 @@ export const BlueprintConnectionDetailPage = () => {
   const handleShowDataScope = () => setIsOpen(true);
   const handleHideDataScope = () => setIsOpen(false);
 
-  const handleChangeDataScope = async () => {
+  const handleChangeDataScope = async (connections: MixConnection[]) => {
+    const [connection] = connections;
     await API.updateBlueprint(blueprint.id, {
       ...blueprint,
       settings: {

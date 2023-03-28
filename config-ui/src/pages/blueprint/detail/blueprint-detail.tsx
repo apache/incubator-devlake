@@ -42,7 +42,7 @@ export const BlueprintDetail = ({ from = FromEnum.project, pname, id }: Props) =
     () =>
       from === FromEnum.project
         ? [`/projects/${pname}/${id}/connection-add`, `/projects/${pname}/${id}/`]
-        : [`/blueprints/${id}/connection-add`, `blueprints/${id}/`],
+        : [`/blueprints/${id}/connection-add`, `/blueprints/${id}/`],
     [from, pname],
   );
 
