@@ -78,7 +78,7 @@ export const TapdDataScope = ({ connectionId, onChangeItems, ...props }: Props) 
           connectionId={connectionId}
           selectedItems={selectedItems}
           onChangeItems={onChangeItems}
-          firstPageToken={pageToken}
+          pageToken={pageToken}
         />
       )}
     </>
