@@ -281,7 +281,7 @@ type FinalizableApiCollectorCommonArgs struct {
 // FinalizableApiCollectorListArgs is the arguments for the list collector
 type FinalizableApiCollectorListArgs struct {
 	FinalizableApiCollectorCommonArgs
-	GetCreated            func(item json.RawMessage) (time.Time, errors.Error)                                        // optional, leave it be `nil` if API supports filtering by updated date (Don't forget to set the Query)
+	GetCreated            func(item json.RawMessage) (time.Time, errors.Error)                                        // optional, to extract create date from a raw json of a single record, leave it be `nil` if API supports filtering by updated date (Don't forget to set the Query)
 	PageSize              int                                                                                         // required, number of records per page
 	Concurrency           int                                                                                         // required for Undetermined Strategy, number of concurrent requests
 	GetNextPageCustomData func(prevReqData *RequestData, prevPageResponse *http.Response) (interface{}, errors.Error) // required for Sequential Strategy, to extract the next page cursor from the given response
