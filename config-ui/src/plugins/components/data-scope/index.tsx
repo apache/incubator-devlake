@@ -85,9 +85,9 @@ export const DataScope = ({
         onSubmit={(scope: MixConnection['scope'], origin: MixConnection['origin']) => {
           onSubmit?.([
             {
+              ...props,
               plugin,
               connectionId,
-              ...props,
               scope,
               origin,
             },
