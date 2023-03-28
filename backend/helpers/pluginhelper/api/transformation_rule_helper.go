@@ -58,7 +58,7 @@ func (t TransformationRuleHelper[Tr]) Create(input *plugin.ApiResourceInput) (*p
 		return nil, errors.Default.Wrap(e, "the connection ID should be an non-zero integer")
 	}
 	var rule Tr
-	if err := DecodeMapStruct(input.Body, &rule); err != nil {
+	if err := DecodeMapStruct(input.Body, &rule, false); err != nil {
 		return nil, errors.Default.Wrap(err, "error in decoding transformation rule")
 	}
 	if t.validator != nil {
@@ -90,7 +90,7 @@ func (t TransformationRuleHelper[Tr]) Update(input *plugin.ApiResourceInput) (*p
 	if err != nil {
 		return nil, errors.Default.Wrap(err, "error on saving TransformationRule")
 	}
-	err = DecodeMapStruct(input.Body, &old)
+	err = DecodeMapStruct(input.Body, &old, false)
 	if err != nil {
 		return nil, errors.Default.Wrap(err, "error decoding map into transformationRule")
 	}

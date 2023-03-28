@@ -102,7 +102,7 @@ func UpdateScope(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, err
 	if err != nil {
 		return nil, errors.Default.Wrap(err, "getting TrelloBoard error")
 	}
-	err = api.DecodeMapStruct(input.Body, &board)
+	err = api.DecodeMapStruct(input.Body, &board, true)
 	if err != nil {
 		return nil, errors.Default.Wrap(err, "patch trello board error")
 	}

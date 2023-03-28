@@ -76,7 +76,7 @@ func PostCicdTask(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, er
 	}
 	// get request
 	request := &WebhookTaskRequest{}
-	err = api.DecodeMapStruct(input.Body, request)
+	err = api.DecodeMapStruct(input.Body, request, true)
 	if err != nil {
 		return &plugin.ApiResourceOutput{Body: err.Error(), Status: http.StatusBadRequest}, nil
 	}
@@ -287,7 +287,7 @@ func PostDeploymentCicdTask(input *plugin.ApiResourceInput) (*plugin.ApiResource
 	}
 	// get request
 	request := &WebhookDeployTaskRequest{}
-	err = api.DecodeMapStruct(input.Body, request)
+	err = api.DecodeMapStruct(input.Body, request, true)
 	if err != nil {
 		return &plugin.ApiResourceOutput{Body: err.Error(), Status: http.StatusBadRequest}, nil
 	}

@@ -29,45 +29,45 @@ import (
 	"github.com/mitchellh/mapstructure"
 )
 
+func DecodeHook(f reflect.Type, t reflect.Type, data interface{}) (interface{}, error) {
+	if data == nil {
+		return nil, nil
+	}
+	if t == reflect.TypeOf(json.RawMessage{}) {
+		return json.Marshal(data)
+	}
+
+	if t != reflect.TypeOf(Iso8601Time{}) && t != reflect.TypeOf(time.Time{}) {
+		return data, nil
+	}
+
+	var tt time.Time
+	var err error
+
+	switch f.Kind() {
+	case reflect.String:
+		tt, err = ConvertStringToTime(data.(string))
+	case reflect.Float64:
+		tt = time.Unix(0, int64(data.(float64))*int64(time.Millisecond))
+	case reflect.Int64:
+		tt = time.Unix(0, data.(int64)*int64(time.Millisecond))
+	}
+	if err != nil {
+		return data, nil
+	}
+
+	if t == reflect.TypeOf(Iso8601Time{}) {
+		return Iso8601Time{time: tt}, nil
+	}
+	return tt, nil
+}
+
 // DecodeMapStruct with time.Time and Iso8601Time support
-func DecodeMapStruct(input map[string]interface{}, result interface{}) errors.Error {
+func DecodeMapStruct(input map[string]interface{}, result interface{}, zeroFields bool) errors.Error {
 	decoder, err := mapstructure.NewDecoder(&mapstructure.DecoderConfig{
-		ZeroFields: true,
-		DecodeHook: mapstructure.ComposeDecodeHookFunc(
-			func(f reflect.Type, t reflect.Type, data interface{}) (interface{}, error) {
-				if data == nil {
-					return nil, nil
-				}
-				if t == reflect.TypeOf(json.RawMessage{}) {
-					return json.Marshal(data)
-				}
-
-				if t != reflect.TypeOf(Iso8601Time{}) && t != reflect.TypeOf(time.Time{}) {
-					return data, nil
-				}
-
-				var tt time.Time
-				var err error
-
-				switch f.Kind() {
-				case reflect.String:
-					tt, err = ConvertStringToTime(data.(string))
-				case reflect.Float64:
-					tt = time.Unix(0, int64(data.(float64))*int64(time.Millisecond))
-				case reflect.Int64:
-					tt = time.Unix(0, data.(int64)*int64(time.Millisecond))
-				}
-				if err != nil {
-					return data, nil
-				}
-
-				if t == reflect.TypeOf(Iso8601Time{}) {
-					return Iso8601Time{time: tt}, nil
-				}
-				return tt, nil
-			},
-		),
-		Result: result,
+		ZeroFields: zeroFields,
+		DecodeHook: mapstructure.ComposeDecodeHookFunc(DecodeHook),
+		Result:     result,
 	})
 	if err != nil {
 		return errors.Convert(err)

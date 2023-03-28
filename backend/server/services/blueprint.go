@@ -200,7 +200,7 @@ func PatchBlueprint(id uint64, body map[string]interface{}) (*models.Blueprint, 
 	}
 
 	originMode := blueprint.Mode
-	err = helper.DecodeMapStruct(body, blueprint)
+	err = helper.DecodeMapStruct(body, blueprint, true)
 	if err != nil {
 		return nil, err
 	}
