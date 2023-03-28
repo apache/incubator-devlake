@@ -94,7 +94,7 @@ export const useBPUpgrade = ({ id, onResetError }: UseBPUpgradeProps) => {
 
     if (scope.transformation) {
       // create transfromation template
-      transformationRule = await API.createTransformation(plugin, {
+      transformationRule = await API.createTransformation(plugin, connectionId, {
         ...scope.transformation,
         name: `upgrade-${plugin}-${connectionId}-${new Date().getTime()}`,
       });

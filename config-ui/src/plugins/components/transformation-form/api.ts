@@ -19,18 +19,18 @@
 import { request } from '@/utils';
 
 export const getTransformation = (plugin: string, connectionId: ID, tid: ID) =>
-  request(`/plugins/${plugin}/transformation_rules/${tid}`, {
+  request(`/plugins/${plugin}/connections/${connectionId}/transformation_rules/${tid}`, {
     method: 'get',
   });
 
 export const createTransformation = (plugin: string, connectionId: ID, paylod: any) =>
-  request(`/plugins/${plugin}/transformation_rules`, {
+  request(`/plugins/${plugin}/connections/${connectionId}/transformation_rules`, {
     method: 'post',
     data: paylod,
   });
 
 export const updateTransformation = (plugin: string, connectionId: ID, tid: ID, payload: any) =>
-  request(`/plugins/${plugin}/transformation_rules/${tid}`, {
+  request(`/plugins/${plugin}/connections/${connectionId}/transformation_rules/${tid}`, {
     method: 'patch',
     data: payload,
   });
