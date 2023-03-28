@@ -16,17 +16,14 @@
  *
  */
 
-import React, { useState, useEffect, useMemo } from 'react';
-import { FormGroup, InputGroup, Tag, Intent } from '@blueprintjs/core';
-import { uniqWith } from 'lodash';
+import React, { useEffect, useState } from 'react';
+import { FormGroup, InputGroup, Intent, Tag } from '@blueprintjs/core';
 
-import { PageLoading, HelpTooltip, ExternalLink, MultiSelector, Selector, Divider } from '@/components';
+import { Divider, ExternalLink, HelpTooltip, MultiSelector, PageLoading } from '@/components';
 import { useProxyPrefix, useRefreshData } from '@/hooks';
 
 import * as API from './api';
 import * as S from './styled';
-import {request} from "@/utils";
-import {getStoryType} from "./api";
 
 enum StandardType {
   Feature = 'FEATURE',
@@ -76,32 +73,32 @@ export const TapdTransformation = ({ connectionId, scopeId, transformation, setT
 
     const [storyType, bugType, taskType, storyStatus, bugStatus, taskStatus] = await Promise.all([
       API.getStoryType(prefix, scopeId),
-      {'BUG': 'bug'} as Record<string, string>,
-      {'TASK': 'task'} as Record<string, string>,
+      { BUG: 'bug' } as Record<string, string>,
+      { TASK: 'task' } as Record<string, string>,
       API.getStatus(prefix, scopeId, 'story'),
       API.getStatus(prefix, scopeId, 'bug'),
-      {'open': 'task-open', 'progressing': 'task-progressing', 'done': 'task-done'} as Record<string, string>,
+      { open: 'task-open', progressing: 'task-progressing', done: 'task-done' } as Record<string, string>,
     ]);
 
-    function pushIntoList(all: { id: string, name: string }[], data: Record<string, string>) {
+    function pushIntoList(all: { id: string; name: string }[], data: Record<string, string>) {
       for (let id in data) {
-        let existItem = all.find((it) => it.id === id)
+        let existItem = all.find((it) => it.id === id);
         if (existItem) {
-          existItem.name = `${existItem.name}, ${data[id]}`
+          existItem.name = `${existItem.name}, ${data[id]}`;
         } else {
-          all.push({ id, name: data[id] })
+          all.push({ id, name: data[id] });
         }
       }
     }
-    const statusList: { id: string, name: string }[] = []
-    pushIntoList(statusList, storyStatus.data)
-    pushIntoList(statusList, bugStatus.data)
-    pushIntoList(statusList, taskStatus)
+    const statusList: { id: string; name: string }[] = [];
+    pushIntoList(statusList, storyStatus.data);
+    pushIntoList(statusList, bugStatus.data);
+    pushIntoList(statusList, taskStatus);
 
-    const typeList: { id: string, name: string }[] = []
-    typeList.push(...storyType.data.map((it: any) => ({ id: it.Category.id, name: it.Category.name })))
-    pushIntoList(typeList, bugType)
-    pushIntoList(typeList, taskType)
+    const typeList: { id: string; name: string }[] = [];
+    typeList.push(...storyType.data.map((it: any) => ({ id: it.Category.id, name: it.Category.name })));
+    pushIntoList(typeList, bugType);
+    pushIntoList(typeList, taskType);
 
     return {
       statusList,
@@ -110,12 +107,12 @@ export const TapdTransformation = ({ connectionId, scopeId, transformation, setT
   }, [prefix]);
 
   useEffect(() => {
-    const typeList = Object.entries(transformation.typeMappings ?? {}).map(([key, value]: any) => ({key, value}));
+    const typeList = Object.entries(transformation.typeMappings ?? {}).map(([key, value]: any) => ({ key, value }));
     setFeatureTypeList(typeList.filter((it) => it.value === StandardType.Feature).map((it) => it.key));
     setBugTypeList(typeList.filter((it) => it.value === StandardType.Bug).map((it) => it.key));
     setIncidentTypeList(typeList.filter((it) => it.value === StandardType.Incident).map((it) => it.key));
 
-    const statusList = Object.entries(transformation.statusMappings ?? {}).map(([key, value]: any) => ({key, value}));
+    const statusList = Object.entries(transformation.statusMappings ?? {}).map(([key, value]: any) => ({ key, value }));
     setTodoStatusList(statusList.filter((it) => it.value === StandardStatus.Todo).map((it) => it.key));
     setInProgressStatusList(statusList.filter((it) => it.value === StandardStatus.InProgress).map((it) => it.key));
     setDoneStatusList(statusList.filter((it) => it.value === StandardStatus.Done).map((it) => it.key));
@@ -127,10 +124,7 @@ export const TapdTransformation = ({ connectionId, scopeId, transformation, setT
 
   const { statusList, typeList } = data;
 
-  const transformaType = (
-    its: string[],
-    standardType: string,
-  ) => {
+  const transformaType = (its: string[], standardType: string) => {
     return its.reduce((acc, cur) => {
       acc[cur] = standardType;
       return acc;
@@ -144,23 +138,24 @@ export const TapdTransformation = ({ connectionId, scopeId, transformation, setT
         <div className="issue-type">
           <div className="title">
             <span>Issue Type Mapping</span>
-            <HelpTooltip
-              content="Standardize your issue types to the following issue types to view metrics such as `Requirement lead time` and `Bug age` in built-in dashboards."
-            />
+            <HelpTooltip content="Standardize your issue types to the following issue types to view metrics such as `Requirement lead time` and `Bug age` in built-in dashboards." />
           </div>
           <div className="list">
             <FormGroup inline label="Feature">
               <MultiSelector
                 items={typeList}
-                disabledItems={typeList.filter(v => [...bugTypeList, ...incidentTypeList].includes(v.id))}
+                disabledItems={typeList.filter((v) => [...bugTypeList, ...incidentTypeList].includes(v.id))}
                 getKey={(it) => it.id}
                 getName={(it) => it.name}
-                selectedItems={typeList.filter(v => featureTypeList.includes(v.id))}
+                selectedItems={typeList.filter((v) => featureTypeList.includes(v.id))}
                 onChangeItems={(selectedItems) =>
                   setTransformation({
                     ...transformation,
                     typeMappings: {
-                      ...transformaType(selectedItems.map(v => v.id), StandardType.Feature),
+                      ...transformaType(
+                        selectedItems.map((v) => v.id),
+                        StandardType.Feature,
+                      ),
                       ...transformaType(bugTypeList, StandardType.Bug),
                       ...transformaType(incidentTypeList, StandardType.Incident),
                     },
@@ -171,16 +166,19 @@ export const TapdTransformation = ({ connectionId, scopeId, transformation, setT
             <FormGroup inline label="Bug">
               <MultiSelector
                 items={typeList}
-                disabledItems={typeList.filter(v => [...featureTypeList, ...incidentTypeList].includes(v.id))}
+                disabledItems={typeList.filter((v) => [...featureTypeList, ...incidentTypeList].includes(v.id))}
                 getKey={(it) => it.id}
                 getName={(it) => it.name}
-                selectedItems={typeList.filter(v => bugTypeList.includes(v.id))}
+                selectedItems={typeList.filter((v) => bugTypeList.includes(v.id))}
                 onChangeItems={(selectedItems) =>
                   setTransformation({
                     ...transformation,
                     typeMappings: {
                       ...transformaType(featureTypeList, StandardType.Feature),
-                      ...transformaType(selectedItems.map(v => v.id), StandardType.Bug),
+                      ...transformaType(
+                        selectedItems.map((v) => v.id),
+                        StandardType.Bug,
+                      ),
                       ...transformaType(incidentTypeList, StandardType.Incident),
                     },
                   })
@@ -200,17 +198,20 @@ export const TapdTransformation = ({ connectionId, scopeId, transformation, setT
             >
               <MultiSelector
                 items={typeList}
-                disabledItems={typeList.filter(v => [...featureTypeList, ...bugTypeList].includes(v.id))}
+                disabledItems={typeList.filter((v) => [...featureTypeList, ...bugTypeList].includes(v.id))}
                 getKey={(it) => it.id}
                 getName={(it) => it.name}
-                selectedItems={typeList.filter(v => incidentTypeList.includes(v.id))}
+                selectedItems={typeList.filter((v) => incidentTypeList.includes(v.id))}
                 onChangeItems={(selectedItems) =>
                   setTransformation({
                     ...transformation,
                     typeMappings: {
                       ...transformaType(featureTypeList, StandardType.Feature),
                       ...transformaType(bugTypeList, StandardType.Bug),
-                      ...transformaType(selectedItems.map(v => v.id), StandardType.Incident),
+                      ...transformaType(
+                        selectedItems.map((v) => v.id),
+                        StandardType.Incident,
+                      ),
                     },
                   })
                 }
@@ -221,23 +222,24 @@ export const TapdTransformation = ({ connectionId, scopeId, transformation, setT
         <div className="issue-status">
           <div className="title">
             <span>Issue Status Mapping</span>
-            <HelpTooltip
-              content="Standardize your issue statuses to the following issue statuses to view metrics such as `Requirement Delivery Rate` in built-in dashboards."
-            />
+            <HelpTooltip content="Standardize your issue statuses to the following issue statuses to view metrics such as `Requirement Delivery Rate` in built-in dashboards." />
           </div>
           <div className="list">
             <FormGroup inline label="TODO">
               <MultiSelector
                 items={statusList}
-                disabledItems={statusList.filter(v => [...inProgressStatusList, ...doneStatusList].includes(v.id))}
+                disabledItems={statusList.filter((v) => [...inProgressStatusList, ...doneStatusList].includes(v.id))}
                 getKey={(it) => it.id}
                 getName={(it) => it.name}
-                selectedItems={statusList.filter(v => todoStatusList.includes(v.id))}
+                selectedItems={statusList.filter((v) => todoStatusList.includes(v.id))}
                 onChangeItems={(selectedItems) =>
                   setTransformation({
                     ...transformation,
                     statusMappings: {
-                      ...transformaType(selectedItems.map(v => v.id), StandardStatus.Todo),
+                      ...transformaType(
+                        selectedItems.map((v) => v.id),
+                        StandardStatus.Todo,
+                      ),
                       ...transformaType(inProgressStatusList, StandardStatus.InProgress),
                       ...transformaType(doneStatusList, StandardStatus.Done),
                     },
@@ -248,16 +250,19 @@ export const TapdTransformation = ({ connectionId, scopeId, transformation, setT
             <FormGroup inline label="IN-PROGRESS">
               <MultiSelector
                 items={statusList}
-                disabledItems={statusList.filter(v => [...todoStatusList, ...doneStatusList].includes(v.id))}
+                disabledItems={statusList.filter((v) => [...todoStatusList, ...doneStatusList].includes(v.id))}
                 getKey={(it) => it.id}
                 getName={(it) => it.name}
-                selectedItems={statusList.filter(v => inProgressStatusList.includes(v.id))}
+                selectedItems={statusList.filter((v) => inProgressStatusList.includes(v.id))}
                 onChangeItems={(selectedItems) =>
                   setTransformation({
                     ...transformation,
                     statusMappings: {
                       ...transformaType(todoStatusList, StandardStatus.Todo),
-                      ...transformaType(selectedItems.map(v => v.id), StandardStatus.InProgress),
+                      ...transformaType(
+                        selectedItems.map((v) => v.id),
+                        StandardStatus.InProgress,
+                      ),
                       ...transformaType(doneStatusList, StandardStatus.Done),
                     },
                   })
@@ -267,17 +272,20 @@ export const TapdTransformation = ({ connectionId, scopeId, transformation, setT
             <FormGroup inline label="DONE">
               <MultiSelector
                 items={statusList}
-                disabledItems={statusList.filter(v => [...todoStatusList, ...inProgressStatusList].includes(v.id))}
+                disabledItems={statusList.filter((v) => [...todoStatusList, ...inProgressStatusList].includes(v.id))}
                 getKey={(it) => it.id}
                 getName={(it) => it.name}
-                selectedItems={statusList.filter(v => doneStatusList.includes(v.id))}
+                selectedItems={statusList.filter((v) => doneStatusList.includes(v.id))}
                 onChangeItems={(selectedItems) =>
                   setTransformation({
                     ...transformation,
                     statusMappings: {
                       ...transformaType(todoStatusList, StandardStatus.Todo),
                       ...transformaType(inProgressStatusList, StandardStatus.InProgress),
-                      ...transformaType(selectedItems.map(v => v.id), StandardStatus.Done),
+                      ...transformaType(
+                        selectedItems.map((v) => v.id),
+                        StandardStatus.Done,
+                      ),
                     },
                   })
                 }
@@ -306,7 +314,8 @@ export const TapdTransformation = ({ connectionId, scopeId, transformation, setT
                 content={
                   <div>
                     If you are using remote links to connect commits and issues, you can specify the commit SHA pattern.
-                    DevLake will parse the commit_sha from your tapd issues’ remote/web links and store the relationship in the table `issue_commits`.
+                    DevLake will parse the commit_sha from your tapd issues’ remote/web links and store the relationship
+                    in the table `issue_commits`.
                   </div>
                 }
               />

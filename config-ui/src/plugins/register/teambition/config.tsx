@@ -22,7 +22,7 @@ import type { PluginConfigType } from '@/plugins';
 import { PluginType } from '@/plugins';
 
 import Icon from './assets/icon.svg';
-import { ConnectionTenantId, ConnectionTenantType } from "./connection-fields";
+import { ConnectionTenantId, ConnectionTenantType } from './connection-fields';
 
 export const TeambitionConfig: PluginConfigType = {
   type: PluginType.Connection,
@@ -35,7 +35,7 @@ export const TeambitionConfig: PluginConfigType = {
     docLink: 'https://devlake.apache.org/docs/Configuration/Teambition',
     initialValues: {
       endpoint: 'https://open.teambition.com/api/',
-      tenantType: 'organization'
+      tenantType: 'organization',
     },
     fields: [
       'name',
@@ -62,7 +62,8 @@ export const TeambitionConfig: PluginConfigType = {
           error={errors.tenantId ?? ''}
           setValue={(value) => setValues({ tenantId: value })}
           setError={(value) => setErrors({ tenantId: value })}
-         initialValue={initialValues.tenantId} />
+          initialValue={initialValues.tenantId}
+        />
       ),
       ({ initialValues, values, errors, setValues, setErrors }: any) => (
         <ConnectionTenantType
@@ -72,7 +73,8 @@ export const TeambitionConfig: PluginConfigType = {
           error={errors.tenantType ?? ''}
           setValue={(value) => setValues({ tenantType: value })}
           setError={(value) => setErrors({ tenantType: value })}
-          initialValue={initialValues.tenantType} />
+          initialValue={initialValues.tenantType}
+        />
       ),
       'proxy',
       {

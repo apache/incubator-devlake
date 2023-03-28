@@ -47,12 +47,7 @@ interface Props {
   setError: (error: string) => void;
 }
 
-export const ConnectionTenantId = ({
-                                     initialValue,
-                                     value,
-                                     setValue,
-                                     setError,
-                                   }: Props) => {
+export const ConnectionTenantId = ({ initialValue, value, setValue, setError }: Props) => {
   useEffect(() => {
     setValue(initialValue);
   }, [initialValue]);

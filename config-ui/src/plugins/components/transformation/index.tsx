@@ -53,9 +53,7 @@ export const Transformation = ({
   const [connection, setConnection] = useState<MixConnection>();
   const [startStepOption, setStartStepOption] = useState<{ type: 'add' | 'edit'; id?: ID }>();
 
-  const handleCancel = () => {
-    setConnection(undefined);
-  }
+  const handleCancel = () => setConnection(undefined);
 
   const handleSubmit = async (tid: ID, connection: MixConnection, connections: MixConnection[]) => {
     const { unique, plugin, connectionId } = connection;
@@ -141,7 +139,7 @@ export const Transformation = ({
                           setConnection(cs);
                         }}
                       />
-                     )}
+                    )}
                     {cs.transformationType === 'for-scope' &&
                       (row['transformationRuleId'] ? (
                         <IconButton
@@ -175,11 +173,15 @@ export const Transformation = ({
               },
             ]}
             dataSource={cs.origin}
-            rowSelection={cs.transformationType === 'for-connection' ? {
-              rowKey: getPluginId(cs.plugin),
-              selectedRowKeys: selected[cs.unique],
-              onChange: (selectedRowKeys) => setSelected({ ...selected, [`${cs.unique}`]: selectedRowKeys }),
-            } : undefined}
+            rowSelection={
+              cs.transformationType === 'for-connection'
+                ? {
+                    rowKey: getPluginId(cs.plugin),
+                    selectedRowKeys: selected[cs.unique],
+                    onChange: (selectedRowKeys) => setSelected({ ...selected, [`${cs.unique}`]: selectedRowKeys }),
+                  }
+                : undefined
+            }
           />
         </S.Item>
       ))}

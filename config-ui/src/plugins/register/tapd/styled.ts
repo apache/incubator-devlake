@@ -20,7 +20,8 @@ import styled from 'styled-components';
 
 export const TransformationWrapper = styled.div`
   .issue-tracking {
-    .issue-type, .issue-status {
+    .issue-type,
+    .issue-status {
       .title {
         margin-bottom: 8px;
       }
