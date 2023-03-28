@@ -31,7 +31,6 @@ import (
 	"io"
 	"net/http"
 	"net/url"
-	"strings"
 )
 
 // PrepareFirstPageToken prepare first page token
@@ -68,13 +67,12 @@ func RemoteScopes(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, er
 				// if gid is empty, it means we need to query company
 				gid = "1"
 			}
-			query := initialQuery(queryData)
-
 			apiClient, err := api.NewApiClientFromConnection(context.TODO(), basicRes, &connection)
 			if err != nil {
 				return nil, errors.BadInput.Wrap(err, "failed to get create apiClient")
 			}
 			var res *http.Response
+			query := url.Values{}
 			query.Set("company_id", queryData.CustomInfo)
 			res, err = apiClient.Get("/workspaces/projects", query, nil)
 			if err != nil {
@@ -113,13 +111,13 @@ func RemoteScopes(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, er
 			if gid == "" {
 				return nil, nil
 			}
-			query := initialQuery(queryData)
 
 			apiClient, err := api.NewApiClientFromConnection(context.TODO(), basicRes, &connection)
 			if err != nil {
 				return nil, errors.BadInput.Wrap(err, "failed to get create apiClient")
 			}
 			var res *http.Response
+			query := url.Values{}
 			query.Set("company_id", queryData.CustomInfo)
 			res, err = apiClient.Get("/workspaces/projects", query, nil)
 			if err != nil {
@@ -141,63 +139,6 @@ func RemoteScopes(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, er
 			return workspaces, err
 		},
 	)
-}
-
-// SearchRemoteScopes use the Search API and only return project
-// @Summary use the Search API and only return project
-// @Description use the Search API and only return project
-// @Tags plugins/tapd
-// @Accept application/json
-// @Param connectionId path int false "connection ID"
-// @Param search query string false "search"
-// @Param page query int false "page number"
-// @Param pageSize query int false "page size per page"
-// @Success 200  {object} api.SearchRemoteScopesOutput
-// @Failure 400  {object} shared.ApiBody "Bad Request"
-// @Failure 500  {object} shared.ApiBody "Internal Error"
-// @Router /plugins/tapd/connections/{connectionId}/search-remote-scopes [GET]
-func SearchRemoteScopes(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, errors.Error) {
-	return remoteHelper.SearchRemoteScopes(input,
-		func(basicRes context2.BasicRes, queryData *api.RemoteQueryData, connection models.TapdConnection) ([]models.TapdWorkspace, errors.Error) {
-			// create api client
-			apiClient, err := api.NewApiClientFromConnection(context.TODO(), basicRes, &connection)
-			if err != nil {
-				return nil, err
-			}
-			query := initialQuery(queryData)
-			s := queryData.Search[0]
-
-			// request search
-			query.Set("sort", "name")
-			query.Set("fields", "values.name,values.full_name,values.language,values.description,values.owner.username,values.created_on,values.updated_on,values.links.clone,values.links.self,pagelen,page,size")
-			gid := ``
-			if strings.Contains(s, `/`) {
-				gid = strings.Split(s, `/`)[0]
-				s = strings.Split(s, `/`)[0]
-			}
-			query.Set("q", fmt.Sprintf(`name~"%s"`, s))
-			// list repos part
-			res, err := apiClient.Get(fmt.Sprintf("/repositories/%s", gid), query, nil)
-			if err != nil {
-				return nil, err
-			}
-			resBody := &api.BaseRemoteGroupResponse{}
-			err = api.UnmarshalResponse(res, &resBody)
-			if err != nil {
-				return nil, err
-			}
-			return nil, nil
-			//return resBody.Values, err
-		},
-	)
-}
-
-func initialQuery(queryData *api.RemoteQueryData) url.Values {
-	query := url.Values{}
-	// TAPD not support pagination
-	//query.Set("page", fmt.Sprintf("%v", queryData.Page))
-	//query.Set("pagelen", fmt.Sprintf("%v", queryData.PerPage))
-	return query
 }
 
 func GetApiWorkspace(op *tasks.TapdOptions, apiClient aha.ApiClientAbstract) (*models.TapdWorkspace, errors.Error) {
