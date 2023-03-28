@@ -107,20 +107,14 @@ type GitlabApiProject struct {
 }
 
 type GroupResponse struct {
-	Id                   int    `json:"id" group:"id"`
-	WebUrl               string `json:"web_url"`
-	Name                 string `json:"name" group:"name"`
-	Path                 string `json:"path"`
-	Description          string `json:"description"`
-	Visibility           string `json:"visibility"`
-	LfsEnabled           bool   `json:"lfs_enabled"`
-	AvatarUrl            string `json:"avatar_url"`
-	RequestAccessEnabled bool   `json:"request_access_enabled"`
-	FullName             string `json:"full_name"`
-	FullPath             string `json:"full_path"`
-	ParentId             *int   `json:"parent_id"`
-	LdapCN               string `json:"ldap_cn"`
-	LdapAccess           string `json:"ldap_access"`
+	Id          int    `json:"id" group:"id"`
+	WebUrl      string `json:"web_url"`
+	Name        string `json:"name" group:"name"`
+	Path        string `json:"path"`
+	Description string `json:"description"`
+	FullName    string `json:"full_name"`
+	FullPath    string `json:"full_path"`
+	ParentId    *int   `json:"parent_id"`
 }
 
 func (p GroupResponse) GroupId() string {
