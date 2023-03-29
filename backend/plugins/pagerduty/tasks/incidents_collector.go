@@ -52,8 +52,8 @@ type (
 		Incident json.RawMessage `json:"incident"`
 	}
 	simplifiedRawIncident struct {
-		IncidentNumber int       `json:"incident_number"`
-		CreatedAt      time.Time `json:"created_at"`
+		Number    int       `json:"number"`
+		CreatedAt time.Time `json:"created_at"`
 	}
 )
 
@@ -73,14 +73,6 @@ func CollectIncidents(taskCtx plugin.SubTaskContext) errors.Error {
 		TimeAfter:          data.TimeAfter,
 		CollectNewRecordsByList: api.FinalizableApiCollectorListArgs{
 			PageSize: 100,
-			GetCreated: func(item json.RawMessage) (time.Time, errors.Error) {
-				incident := &simplifiedRawIncident{}
-				err := json.Unmarshal(item, incident)
-				if err != nil {
-					return time.Time{}, errors.BadInput.Wrap(err, "failed to unmarshal incident")
-				}
-				return incident.CreatedAt, nil
-			},
 			GetTotalPages: func(res *http.Response, args *api.ApiCollectorArgs) (int, errors.Error) {
 				paging := pagingInfo{}
 				err := api.UnmarshalResponse(res, &paging)
@@ -120,7 +112,11 @@ func CollectIncidents(taskCtx plugin.SubTaskContext) errors.Error {
 		},
 		CollectUnfinishedDetails: api.FinalizableApiCollectorDetailArgs{
 			FinalizableApiCollectorCommonArgs: api.FinalizableApiCollectorCommonArgs{
+				// 2. "Input" here is the type: simplifiedRawIncident which is the element type of the returned iterator from BuildInputIterator
 				UrlTemplate: "incidents/{{ .Input.Number }}",
+				// 3. No custom query params/headers needed for this endpoint
+				Query: nil,
+				// 4. Parse the response for this endpoint call into a json.RawMessage
 				ResponseParser: func(res *http.Response) ([]json.RawMessage, errors.Error) {
 					rawResult := collectedIncident{}
 					err := api.UnmarshalResponse(res, &rawResult)
@@ -128,13 +124,13 @@ func CollectIncidents(taskCtx plugin.SubTaskContext) errors.Error {
 				},
 			},
 			BuildInputIterator: func() (api.Iterator, errors.Error) {
-				// select pull id from database
+				// 1. fetch individual "active/non-final" incidents from previous collections+extractions
 				cursor, err := db.Cursor(
 					dal.Select("number, created_date"),
 					dal.From(&models.Incident{}),
 					dal.Where(
-						"service_id = ? AND connection_id = ?",
-						data.Options.ServiceId, data.Options.ConnectionId,
+						"service_id = ? AND connection_id = ? AND status != ?",
+						data.Options.ServiceId, data.Options.ConnectionId, "resolved",
 					),
 				)
 				if err != nil {
