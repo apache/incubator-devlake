@@ -172,7 +172,6 @@ export const BlueprintConnectionDetailPage = () => {
       >
         <DataScope
           connections={[connection]}
-          initialScope={connection.origin}
           onCancel={handleHideDataScope}
           onSubmit={handleChangeDataScope}
           onNext={handleHideDataScope}
