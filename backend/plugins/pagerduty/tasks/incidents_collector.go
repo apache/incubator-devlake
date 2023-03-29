@@ -72,7 +72,7 @@ func CollectIncidents(taskCtx plugin.SubTaskContext) errors.Error {
 		ApiClient:          data.Client,
 		TimeAfter:          data.TimeAfter,
 		CollectNewRecordsByList: api.FinalizableApiCollectorListArgs{
-			PageSize: 1,
+			PageSize: 100,
 			GetCreated: func(item json.RawMessage) (time.Time, errors.Error) {
 				incident := &simplifiedRawIncident{}
 				err := json.Unmarshal(item, incident)
@@ -80,6 +80,14 @@ func CollectIncidents(taskCtx plugin.SubTaskContext) errors.Error {
 					return time.Time{}, errors.BadInput.Wrap(err, "failed to unmarshal incident")
 				}
 				return incident.CreatedAt, nil
+			},
+			GetTotalPages: func(res *http.Response, args *api.ApiCollectorArgs) (int, errors.Error) {
+				paging := pagingInfo{}
+				err := api.UnmarshalResponse(res, &paging)
+				if err != nil {
+					return 0, errors.BadInput.Wrap(err, "failed to determined paging count")
+				}
+				return *paging.Total, nil
 			},
 			FinalizableApiCollectorCommonArgs: api.FinalizableApiCollectorCommonArgs{
 				UrlTemplate: "incidents",
@@ -91,12 +99,13 @@ func CollectIncidents(taskCtx plugin.SubTaskContext) errors.Error {
 							// beyond 6 months Pagerduty API will just return nothing, so need to query for 'all' instead
 							query.Set("date_range", "all")
 						} else {
+							// since for PagerDuty is actually the created_at time of the incident (this is not well documented in their APIs)
 							query.Set("since", data.TimeAfter.String())
 						}
 					} else {
 						query.Set("date_range", "all")
 					}
-					query.Set("sort_by", "created_at:asc")
+					query.Set("sort_by", "created_at:desc")
 					query.Set("limit", fmt.Sprintf("%d", reqData.Pager.Size))
 					query.Set("offset", fmt.Sprintf("%d", reqData.Pager.Page))
 					query.Set("total", "true")

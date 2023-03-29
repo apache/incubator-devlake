@@ -75,10 +75,10 @@ func EncodeTaskOptions(op *PagerDutyOptions) (map[string]interface{}, errors.Err
 
 func ValidateTaskOptions(op *PagerDutyOptions) errors.Error {
 	if op.ServiceName == "" {
-		return errors.BadInput.New("no enough info for Pagerduty execution")
+		return errors.BadInput.New("not enough info for Pagerduty execution")
 	}
 	if op.ServiceId == "" {
-		return errors.BadInput.New("no enough info for Pagerduty execution")
+		return errors.BadInput.New("not enough info for Pagerduty execution")
 	}
 	// find the needed GitHub now
 	if op.ConnectionId == 0 {
