@@ -111,6 +111,7 @@ class RemoteScopeGroup(RemoteScopeTreeNode):
 
 class RemoteScope(RemoteScopeTreeNode):
     type: str = Field("scope", const=True)
+    parent_id: str = Field(..., alias="parentId")
     scope: ToolScope
 
 

@@ -111,6 +111,7 @@ class Plugin(ABC):
             scopes = [
                 msg.RemoteScope(
                     id=tool_scope.id,
+                    parent_id=group_id,
                     name=tool_scope.name,
                     scope=tool_scope
                 )
