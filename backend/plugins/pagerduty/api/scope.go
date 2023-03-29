@@ -20,6 +20,14 @@ package api
 import (
 	"github.com/apache/incubator-devlake/core/errors"
 	"github.com/apache/incubator-devlake/core/plugin"
+	"github.com/apache/incubator-devlake/helpers/pluginhelper/api"
+	"github.com/apache/incubator-devlake/plugins/pagerduty/models"
+)
+
+// Needed for Swagger doc gen
+type (
+	ScopeReq api.ScopeReq[models.Service]
+	ScopeRes api.ScopeRes[models.Service]
 )
 
 // PutScope create or update pagerduty repo
@@ -28,7 +36,7 @@ import (
 // @Tags plugins/pagerduty
 // @Accept application/json
 // @Param connectionId path int true "connection ID"
-// @Param scope body req true "json"
+// @Param scope body ScopeReq true "json"
 // @Success 200  {object} []models.Service
 // @Failure 400  {object} shared.ApiBody "Bad Request"
 // @Failure 500  {object} shared.ApiBody "Internal Error"
@@ -60,7 +68,7 @@ func UpdateScope(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, err
 // @Param connectionId path int true "connection ID"
 // @Param pageSize query int false "page size, default 50"
 // @Param page query int false "page size, default 1"
-// @Success 200  {object} []apiService
+// @Success 200  {object} []ScopeRes
 // @Failure 400  {object} shared.ApiBody "Bad Request"
 // @Failure 500  {object} shared.ApiBody "Internal Error"
 // @Router /plugins/pagerduty/connections/{connectionId}/scopes/ [GET]
@@ -74,7 +82,7 @@ func GetScopeList(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, er
 // @Tags plugins/pagerduty
 // @Param connectionId path int true "connection ID"
 // @Param repoId path int true "repo ID"
-// @Success 200  {object} apiService
+// @Success 200  {object} ScopeRes
 // @Failure 400  {object} shared.ApiBody "Bad Request"
 // @Failure 500  {object} shared.ApiBody "Internal Error"
 // @Router /plugins/pagerduty/connections/{connectionId}/scopes/{repoId} [GET]
