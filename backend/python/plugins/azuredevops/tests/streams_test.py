@@ -15,7 +15,7 @@
 
 import pytest
 
-from pydevlake.testing import assert_convert, ContextBuilder
+from pydevlake.testing import assert_stream_convert, ContextBuilder
 import pydevlake.domain_layer.code as code
 import pydevlake.domain_layer.devops as devops
 
@@ -133,7 +133,7 @@ def test_builds_stream():
         )
     ]
 
-    assert_convert(AzureDevOpsPlugin, 'builds', raw, expected)
+    assert_stream_convert(AzureDevOpsPlugin, 'builds', raw, expected)
 
 
 def test_jobs_stream():
@@ -190,7 +190,7 @@ def test_jobs_stream():
         environment=devops.CICDEnvironment.PRODUCTION,
         cicd_scope_id='johndoe/test-repo'
     )
-    assert_convert(AzureDevOpsPlugin, 'jobs', raw, expected, ctx)
+    assert_stream_convert(AzureDevOpsPlugin, 'jobs', raw, expected, ctx)
 
 
 def test_pull_requests_stream():
@@ -290,7 +290,7 @@ def test_pull_requests_stream():
         base_commit_sha='4bc26d92b5dbee7837a4d221035a4e2f8df120b2'
     )
 
-    assert_convert(AzureDevOpsPlugin, 'gitpullrequests', raw, expected)
+    assert_stream_convert(AzureDevOpsPlugin, 'gitpullrequests', raw, expected)
 
 
 def test_pull_request_commits_stream():
@@ -316,4 +316,4 @@ def test_pull_request_commits_stream():
         pull_request_id="azuredevops:gitpullrequest:1:12345",
     )
 
-    assert_convert(AzureDevOpsPlugin, 'gitpullrequestcommits', raw, expected)
+    assert_stream_convert(AzureDevOpsPlugin, 'gitpullrequestcommits', raw, expected)
