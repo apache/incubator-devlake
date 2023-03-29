@@ -127,7 +127,8 @@ func (m *ApiCollectorStateManager) Execute() errors.Error {
 //  1. The entity is a short-lived object or it is likely to be irrelevant
 //     a. ci/id pipelines are short-lived objects
 //     b. pull request might took a year to be closed or never, but it is likely irrelevant
-//  2. The entity must be Finalizable, meaning no future modifications will happen to it.
+//  2. The entity must be Finalizable, meaning no future modifications will happen to it once it
+//     enter some sort of `Closed`/`Finished` status.
 //  3. The API must fit one of the following traits:
 //     a. it supports filtering by Created Date, in this case, you must implement the filtering
 //     via the `UrlTemplate`, `Query` or `Header` hook based on the API specification.
@@ -291,5 +292,5 @@ type FinalizableApiCollectorListArgs struct {
 // FinalizableApiCollectorDetailArgs is the arguments for the detail collector
 type FinalizableApiCollectorDetailArgs struct {
 	FinalizableApiCollectorCommonArgs
-	BuildInputIterator func() (Iterator, errors.Error) // required, build an iterator which would iterate all unfinished records in the database so they can be recollected and updated
+	BuildInputIterator func() (Iterator, errors.Error) // required, create an iterator that can iterate through all Unfinalized records in the database, in order to collect them from the API
 }
