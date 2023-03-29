@@ -72,7 +72,7 @@ type TapdWorkspace struct {
 	ParentId             uint64          `gorm:"type:BIGINT" mapstructure:"parent_id,string" json:"parent_id"`
 	Creator              string          `gorm:"type:varchar(255)" mapstructure:"creator" json:"creator"`
 	Created              *helper.CSTTime `mapstructure:"created" json:"created"`
-	TransformationRuleId uint64          `mapstructure:"transformationRuleId,omitempty" json:"transformationRuleId,omitempty" mapstructure:"transformationRuleId"`
+	TransformationRuleId uint64          `mapstructure:"transformationRuleId,omitempty" json:"transformationRuleId,omitempty"`
 	common.NoPKModel     `json:"-" mapstructure:"-"`
 }
 

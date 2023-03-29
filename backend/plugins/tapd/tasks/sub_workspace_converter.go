@@ -33,7 +33,7 @@ func ConvertSubWorkspace(taskCtx plugin.SubTaskContext) errors.Error {
 	rawDataSubTaskArgs, data := CreateRawDataSubTaskArgs(taskCtx, RAW_SUB_WORKSPACE_TABLE)
 	logger := taskCtx.GetLogger()
 	db := taskCtx.GetDal()
-	logger.Info("collect board:%d", data.Options.WorkspaceId)
+	logger.Info("collect workspace: %d", data.Options.WorkspaceId)
 	clauses := []dal.Clause{
 		dal.From(&models.TapdSubWorkspace{}),
 		dal.Where("connection_id = ? AND id = ?", data.Options.ConnectionId, data.Options.WorkspaceId),
