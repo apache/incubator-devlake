@@ -16,11 +16,12 @@
 from enum import Enum
 from datetime import datetime
 from typing import Optional
+import json
 
 from sqlmodel import Field
 
 from pydevlake import Plugin, Connection, TransformationRule, Stream, ToolModel, ToolScope, RemoteScopeGroup, DomainType
-from pydevlake.domain_layer.devops import CicdScope, CICDPipeline
+from pydevlake.domain_layer.devops import CicdScope, CICDPipeline, CICDStatus, CICDResult, CICDType
 
 
 VALID_TOKEN = "this_is_a_valid_token"
@@ -51,11 +52,11 @@ class FakeStream(Stream):
 
     def collect(self, state, context):
         for p in self.fake_pipelines:
-            yield p.json(), {}
+            yield json.loads(p.json()), {}
 
     def convert(self, pipeline: FakePipeline, ctx):
-        if ctx.transformationRule:
-            env = ctx.transformationRule.env
+        if ctx.transformation_rule:
+            env = ctx.transformation_rule.env
         else:
             env = "unknown"
         yield CICDPipeline(
@@ -65,22 +66,22 @@ class FakeStream(Stream):
             result=self.convert_result(pipeline.state),
             duration_sec=self.duration(pipeline),
             environment=env,
-            type=CICDPipeline.Type.CI
+            type=CICDType.BUILD
         )
 
     def convert_status(self, state: FakePipeline.State):
         match state:
             case FakePipeline.State.FAILURE | FakePipeline.State.SUCCESS:
-                return CICDPipeline.Status.DONE
+                return CICDStatus.DONE
             case _:
-                return CICDPipeline.Status.IN_PROGRESS
+                return CICDStatus.IN_PROGRESS
 
     def convert_result(self, state: FakePipeline.State):
         match state:
             case FakePipeline.State.SUCCESS:
-                return CICDPipeline.Result.SUCCESS
+                return CICDResult.SUCCESS
             case FakePipeline.State.FAILURE:
-                return CICDPipeline.Status.FAILURE
+                return CICDResult.FAILURE
             case _:
                 return None
 
@@ -94,7 +95,7 @@ class FakeConnection(Connection):
     token: str
 
 
-class FakeProject(ToolScope):
+class FakeProject(ToolScope, table=True):
     pass
 
 
