@@ -15,6 +15,8 @@
 
 
 from urllib.parse import urlparse, parse_qsl
+
+from sqlalchemy.engine import Engine
 from sqlmodel import SQLModel, create_engine
 
 from pydevlake.model import Connection, TransformationRule
@@ -35,26 +37,29 @@ class Context:
         self._engine = None
 
     @property
-    def engine(self):
+    def engine(self) -> Engine:
         if not self._engine:
-            db_url = self.db_url
-            if not db_url:
-                raise Exception("Missing db_url setting")
-
-            # `parseTime` parameter is not understood by MySQL driver
-            # so we have to parse query args to remove it
-            connect_args = dict(parse_qsl(urlparse(self.db_url).query))
-            db_url = self.db_url.split('?')[0]
-
-            if 'parseTime' in connect_args:
-                del connect_args['parseTime']
+            db_url, args = self.get_engine_db_url()
             try:
-                self._engine = create_engine(db_url, connect_args=connect_args)
+                self._engine = create_engine(db_url, connect_args=args)
                 SQLModel.metadata.create_all(self._engine)
             except Exception as e:
                 raise Exception(f"Unable to make a database connection") from e
         return self._engine
 
     @property
-    def incremental(self):
+    def incremental(self) -> bool:
         return self.options.get('incremental') is True
+
+    def get_engine_db_url(self) -> [str, dict[str, any]]:
+        db_url = self.db_url
+        if not db_url:
+            raise Exception("Missing db_url setting")
+        db_url = db_url.replace("postgres://", "postgresql://")
+        db_url = db_url.split('?')[0]
+        # `parseTime` parameter is not understood by MySQL driver,
+        # so we have to parse query args to remove it
+        connect_args = dict(parse_qsl(urlparse(self.db_url).query))
+        if 'parseTime' in connect_args:
+            del connect_args['parseTime']
+        return db_url, connect_args

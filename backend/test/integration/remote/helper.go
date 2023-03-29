@@ -19,13 +19,15 @@ package test
 
 import (
 	"fmt"
-	"github.com/apache/incubator-devlake/core/config"
-	"github.com/apache/incubator-devlake/core/plugin"
-	"github.com/apache/incubator-devlake/test/integration/helper"
 	"os"
 	"path/filepath"
 	"testing"
 	"time"
+
+	"github.com/apache/incubator-devlake/core/config"
+	"github.com/apache/incubator-devlake/core/plugin"
+	orgPlugin "github.com/apache/incubator-devlake/plugins/org/impl"
+	"github.com/apache/incubator-devlake/test/integration/helper"
 )
 
 const (
@@ -56,7 +58,7 @@ type (
 func SetupEnv() {
 	fmt.Println("Setup test env")
 	helper.Init()
-	path := filepath.Join(helper.ProjectRoot, FAKE_PLUGIN_DIR, "start.sh") // make sure the path is correct
+	path := filepath.Join(helper.ProjectRoot, FAKE_PLUGIN_DIR, "start.sh")
 	_, err := os.Stat(path)
 	if err != nil {
 		panic(err)
@@ -72,7 +74,7 @@ func ConnectLocalServer(t *testing.T) *helper.DevlakeClient {
 		DbURL:        config.GetConfig().GetString("E2E_DB_URL"),
 		CreateServer: true,
 		TruncateDb:   true,
-		Plugins:      map[string]plugin.PluginMeta{},
+		Plugins:      map[string]plugin.PluginMeta{"org": orgPlugin.Org{}},
 	})
 	client.SetTimeout(30 * time.Second)
 	return client

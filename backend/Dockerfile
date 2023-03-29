@@ -116,7 +116,7 @@ FROM python:3.11.2-slim-bullseye as base
 ENV PYTHONUNBUFFERED=1
 
 RUN apt-get update && \
-    apt-get install -y python3-dev python3-pip tar curl libssh2-1 zlib1g libffi-dev default-libmysqlclient-dev && \
+    apt-get install -y python3-dev python3-pip tar curl libssh2-1 zlib1g libffi-dev default-libmysqlclient-dev libpq-dev && \
     apt-get clean && \
     rm -fr /usr/share/doc/* \
            /usr/share/info/* \

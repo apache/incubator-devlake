@@ -17,6 +17,7 @@
 from typing import Optional
 
 from pydantic import BaseModel, Field
+import jsonref
 
 from pydevlake.model import ToolScope
 
@@ -41,8 +42,13 @@ class DynamicModelInfo(Message):
 
     @staticmethod
     def from_model(model_class):
+        schema = model_class.schema()
+        if 'definitions' in schema:
+            # Replace $ref with actual schema
+            schema = jsonref.replace_refs(schema, proxies=False)
+            del schema['definitions']
         return DynamicModelInfo(
-            json_schema=model_class.schema(),
+            json_schema=schema,
             table_name=model_class.__tablename__
         )
 
