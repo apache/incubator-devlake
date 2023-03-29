@@ -114,7 +114,5 @@ func CreateTestScope(client *helper.DevlakeClient, connectionId uint64) any {
 			TransformationRuleId: ruleId,
 		},
 	)
-
-	client.SetTimeout(1)
 	return scope
 }

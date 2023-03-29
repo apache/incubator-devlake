@@ -19,14 +19,14 @@ package helper
 
 import (
 	"fmt"
-	"net/http"
-	"reflect"
-	"strings"
-	"time"
-
+	"github.com/apache/incubator-devlake/core/errors"
 	"github.com/apache/incubator-devlake/core/models"
 	"github.com/apache/incubator-devlake/core/plugin"
 	apiProject "github.com/apache/incubator-devlake/server/api/project"
+	"github.com/stretchr/testify/require"
+	"net/http"
+	"reflect"
+	"strings"
 )
 
 // CreateConnection FIXME
@@ -169,7 +169,7 @@ func (d *DevlakeClient) CreateTransformationRule(pluginName string, connectionId
 	return sendHttpRequest[any](d.testCtx, d.timeout, debugInfo{
 		print:      true,
 		inlineJson: false,
-	}, http.MethodPost, fmt.Sprintf("%s/plugins/%s/%d/transformation_rules",
+	}, http.MethodPost, fmt.Sprintf("%s/plugins/%s/connections/%d/transformation_rules",
 		d.Endpoint, pluginName, connectionId), nil, rules)
 }
 
@@ -177,7 +177,7 @@ func (d *DevlakeClient) ListTransformationRules(pluginName string, connectionId 
 	return sendHttpRequest[[]any](d.testCtx, d.timeout, debugInfo{
 		print:      true,
 		inlineJson: false,
-	}, http.MethodGet, fmt.Sprintf("%s/plugins/%s/%d/transformation_rules?pageSize=20&page=1",
+	}, http.MethodGet, fmt.Sprintf("%s/plugins/%s/connections/%d/transformation_rules?pageSize=20&page=1",
 		d.Endpoint, pluginName, connectionId), nil, nil)
 }
 
@@ -278,18 +278,24 @@ func (d *DevlakeClient) monitorPipeline(id uint64) models.Pipeline {
 	var previousResult models.Pipeline
 	endpoint := fmt.Sprintf("%s/pipelines/%d", d.Endpoint, id)
 	coloredPrintf("calling:\n\t%s %s\nwith:\n%s\n", http.MethodGet, endpoint, string(ToCleanJson(false, nil)))
-	for {
-		time.Sleep(1 * time.Second)
-		pipelineResult := sendHttpRequest[models.Pipeline](d.testCtx, d.timeout, debugInfo{
+	var pipelineResult models.Pipeline
+	require.NoError(d.testCtx, runWithTimeout(d.pipelineTimeout, func() (bool, errors.Error) {
+		pipelineResult = sendHttpRequest[models.Pipeline](d.testCtx, d.pipelineTimeout, debugInfo{
 			print: false,
 		}, http.MethodGet, fmt.Sprintf("%s/pipelines/%d", d.Endpoint, id), nil, nil)
-		if pipelineResult.Status == models.TASK_COMPLETED || pipelineResult.Status == models.TASK_FAILED {
+		if pipelineResult.Status == models.TASK_COMPLETED {
 			coloredPrintf("result: %s\n", ToCleanJson(true, &pipelineResult))
-			return pipelineResult
+			return true, nil
+		}
+		if pipelineResult.Status == models.TASK_FAILED {
+			coloredPrintf("result: %s\n", ToCleanJson(true, &pipelineResult))
+			return true, errors.Default.New("pipeline task failed")
 		}
 		if !reflect.DeepEqual(pipelineResult, previousResult) {
 			coloredPrintf("result: %s\n", ToCleanJson(true, &pipelineResult))
 		}
 		previousResult = pipelineResult
-	}
+		return false, nil
+	}))
+	return pipelineResult
 }

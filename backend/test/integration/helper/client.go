@@ -24,6 +24,7 @@ import (
 	goerror "errors"
 	"fmt"
 	"io"
+	"math"
 	"net/http"
 	"os"
 	"sync"
@@ -53,9 +54,9 @@ var (
 	throwawayDir           string
 	initService            = new(sync.Once)
 	dbTruncationExclusions = []string{
-		"_devlake_migration_history",
-		"_devlake_locking_stub",
-		"_devlake_locking_history",
+		migration.MigrationHistory{}.TableName(),
+		models.LockingHistory{}.TableName(),
+		models.LockingStub{}.TableName(),
 	}
 )
 
@@ -70,13 +71,14 @@ func init() {
 // DevlakeClient FIXME
 type (
 	DevlakeClient struct {
-		Endpoint string
-		db       *gorm.DB
-		log      log.Logger
-		cfg      *viper.Viper
-		testCtx  *testing.T
-		basicRes corectx.BasicRes
-		timeout  time.Duration
+		Endpoint        string
+		db              *gorm.DB
+		log             log.Logger
+		cfg             *viper.Viper
+		testCtx         *testing.T
+		basicRes        corectx.BasicRes
+		timeout         time.Duration
+		pipelineTimeout time.Duration
 	}
 	LocalClientConfig struct {
 		ServerPort           uint
@@ -87,6 +89,7 @@ type (
 		Plugins              map[string]plugin.PluginMeta
 		AdditionalMigrations func() []plugin.MigrationScript
 		Timeout              time.Duration
+		PipelineTimeout      time.Duration
 	}
 	RemoteClientConfig struct {
 		Endpoint string
@@ -104,12 +107,12 @@ func ConnectRemoteServer(t *testing.T, sbConfig *RemoteClientConfig) *DevlakeCli
 }
 
 // ConnectLocalServer spins up a local server from the config and returns a client connected to it
-func ConnectLocalServer(t *testing.T, sbConfig *LocalClientConfig) *DevlakeClient {
+func ConnectLocalServer(t *testing.T, clientConfig *LocalClientConfig) *DevlakeClient {
 	t.Helper()
 	fmt.Printf("Using test temp directory: %s\n", throwawayDir)
 	logger := logruslog.Global.Nested("test")
 	cfg := config.GetConfig()
-	cfg.Set("DB_URL", sbConfig.DbURL)
+	cfg.Set("DB_URL", clientConfig.DbURL)
 	db, err := runner.NewGormDb(cfg, logger)
 	require.NoError(t, err)
 	t.Cleanup(func() {
@@ -117,23 +120,30 @@ func ConnectLocalServer(t *testing.T, sbConfig *LocalClientConfig) *DevlakeClien
 		require.NoError(t, err)
 		require.NoError(t, d.Close())
 	})
-	addr := fmt.Sprintf("http://localhost:%d", sbConfig.ServerPort)
+	addr := fmt.Sprintf("http://localhost:%d", clientConfig.ServerPort)
 	d := &DevlakeClient{
-		Endpoint: addr,
-		db:       db,
-		log:      logger,
-		cfg:      cfg,
-		basicRes: contextimpl.NewDefaultBasicRes(cfg, logger, dalgorm.NewDalgorm(db)),
-		testCtx:  t,
-		timeout:  sbConfig.Timeout,
+		Endpoint:        addr,
+		db:              db,
+		log:             logger,
+		cfg:             cfg,
+		basicRes:        contextimpl.NewDefaultBasicRes(cfg, logger, dalgorm.NewDalgorm(db)),
+		testCtx:         t,
+		timeout:         clientConfig.Timeout,
+		pipelineTimeout: clientConfig.PipelineTimeout,
+	}
+	if d.timeout == 0 {
+		d.timeout = 10 * time.Second
+	}
+	if d.pipelineTimeout == 0 {
+		d.pipelineTimeout = 30 * time.Second
 	}
 	d.configureEncryption()
-	d.initPlugins(sbConfig)
-	if sbConfig.DropDb || sbConfig.TruncateDb {
-		d.prepareDB(sbConfig)
+	d.initPlugins(clientConfig)
+	if clientConfig.DropDb || clientConfig.TruncateDb {
+		d.prepareDB(clientConfig)
 	}
-	if sbConfig.CreateServer {
-		cfg.Set("PORT", sbConfig.ServerPort)
+	if clientConfig.CreateServer {
+		cfg.Set("PORT", clientConfig.ServerPort)
 		cfg.Set("PLUGIN_DIR", throwawayDir)
 		cfg.Set("LOGGING_DIR", throwawayDir)
 		go func() {
@@ -146,7 +156,7 @@ func ConnectLocalServer(t *testing.T, sbConfig *LocalClientConfig) *DevlakeClien
 		e := err.Unwrap()
 		return goerror.Is(e, syscall.ECONNREFUSED)
 	})
-	d.runMigrations(sbConfig)
+	d.runMigrations(clientConfig)
 	return d
 }
 
@@ -156,20 +166,12 @@ func (d *DevlakeClient) SetTimeout(timeout time.Duration) {
 }
 
 // AwaitPluginAvailability wait for this plugin to become available on the server given a timeout. Returns false if this condition does not get met.
-func (d *DevlakeClient) AwaitPluginAvailability(pluginName string, timeout time.Duration) bool {
-	timeoutCh := time.After(timeout)
-	for {
-		select {
-		case <-timeoutCh:
-			return false
-		default:
-			_, err := plugin.GetPlugin(pluginName)
-			if err == nil {
-				return true
-			}
-			time.Sleep(250 * time.Millisecond)
-		}
-	}
+func (d *DevlakeClient) AwaitPluginAvailability(pluginName string, timeout time.Duration) {
+	err := runWithTimeout(timeout, func() (bool, errors.Error) {
+		_, err := plugin.GetPlugin(pluginName)
+		return err == nil, nil
+	})
+	require.NoError(d.testCtx, err)
 }
 
 // RunPlugin manually execute a plugin directly (local server only)
@@ -310,46 +312,84 @@ func (d *DevlakeClient) prepareDB(cfg *LocalClientConfig) {
 	}
 }
 
+func runWithTimeout(timeout time.Duration, f func() (bool, errors.Error)) errors.Error {
+	if timeout == 0 {
+		timeout = math.MaxInt
+	}
+	type response struct {
+		err       errors.Error
+		completed bool
+	}
+	timer := time.After(timeout)
+	resChan := make(chan response)
+	resp := response{}
+	for {
+		go func() {
+			done, err := f()
+			resChan <- response{err, done}
+		}()
+		select {
+		case <-timer:
+			if !resp.completed {
+				return errors.Default.New(fmt.Sprintf("timed out calling function after %d miliseconds", timeout.Milliseconds()))
+			}
+			return nil
+		case resp = <-resChan:
+			if resp.err != nil {
+				return resp.err
+			}
+			if resp.completed {
+				return nil
+			}
+			time.Sleep(1 * time.Second)
+			continue
+		}
+	}
+}
+
 func sendHttpRequest[Res any](t *testing.T, timeout time.Duration, debug debugInfo, httpMethod string, endpoint string, headers map[string]string, body any) Res {
 	t.Helper()
 	b := ToJson(body)
 	if debug.print {
 		coloredPrintf("calling:\n\t%s %s\nwith:\n%s\n", httpMethod, endpoint, string(ToCleanJson(debug.inlineJson, body)))
 	}
-	timer := time.After(timeout)
-	request, err := http.NewRequest(httpMethod, endpoint, bytes.NewReader(b))
-	require.NoError(t, err)
-	request.Close = true
-	request.Header.Add("Content-Type", "application/json")
-	for header, headerVal := range headers {
-		request.Header.Add(header, headerVal)
-	}
-	for {
-		response, err := http.DefaultClient.Do(request)
-		require.NoError(t, err)
-		if timeout > 0 {
-			select {
-			case <-timer:
-			default:
-				if response.StatusCode >= 300 {
-					require.NoError(t, response.Body.Close())
-					response.Close = true
-					time.Sleep(1 * time.Second)
-					continue
-				}
-			}
+	var result Res
+	err := runWithTimeout(timeout, func() (bool, errors.Error) {
+		request, err := http.NewRequest(httpMethod, endpoint, bytes.NewReader(b))
+		if err != nil {
+			return false, errors.Convert(err)
 		}
-		require.True(t, response.StatusCode < 300, "unexpected http status code: %d", response.StatusCode)
-		var result Res
+		request.Close = true
+		request.Header.Add("Content-Type", "application/json")
+		for header, headerVal := range headers {
+			request.Header.Add(header, headerVal)
+		}
+		response, err := http.DefaultClient.Do(request)
+		if err != nil {
+			return false, errors.Convert(err)
+		}
+		if response.StatusCode >= 300 {
+			if err = response.Body.Close(); err != nil {
+				return false, errors.Convert(err)
+			}
+			response.Close = true
+			return false, errors.HttpStatus(response.StatusCode).New(fmt.Sprintf("unexpected http status code: %d", response.StatusCode))
+		}
 		b, _ = io.ReadAll(response.Body)
-		require.NoError(t, json.Unmarshal(b, &result))
+		if err = json.Unmarshal(b, &result); err != nil {
+			return false, errors.Convert(err)
+		}
 		if debug.print {
 			coloredPrintf("result: %s\n", ToCleanJson(debug.inlineJson, b))
 		}
-		require.NoError(t, response.Body.Close())
+		if err = response.Body.Close(); err != nil {
+			return false, errors.Convert(err)
+		}
 		response.Close = true
-		return result
-	}
+		return true, nil
+	})
+	require.NoError(t, err)
+	return result
 }
 
 func coloredPrintf(msg string, args ...any) {
