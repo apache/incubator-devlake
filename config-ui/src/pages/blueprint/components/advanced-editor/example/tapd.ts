@@ -22,7 +22,6 @@ const tapd = [
       plugin: 'tapd',
       options: {
         timeAfter: '2006-01-02T15:04:05Z',
-        companyId: 1,
         workspaceId: 1,
         connectionId: 1,
         pageSize: 100,

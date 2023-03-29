@@ -143,7 +143,7 @@ func RemoteScopes(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, er
 
 func GetApiWorkspace(op *tasks.TapdOptions, apiClient aha.ApiClientAbstract) (*models.TapdWorkspace, errors.Error) {
 	query := url.Values{}
-	query.Set("page", fmt.Sprintf("%v", op.WorkspaceId))
+	query.Set("workspace_id", fmt.Sprintf("%v", op.WorkspaceId))
 	res, err := apiClient.Get("workspaces/get_workspace_info", query, nil)
 	if err != nil {
 		return nil, err
@@ -163,5 +163,6 @@ func GetApiWorkspace(op *tasks.TapdOptions, apiClient aha.ApiClientAbstract) (*m
 		return nil, err
 	}
 	workspace := models.TapdWorkspace(resBody.Data.ApiTapdWorkspace)
+	workspace.ConnectionId = op.ConnectionId
 	return &workspace, nil
 }

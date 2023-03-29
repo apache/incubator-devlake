@@ -60,7 +60,10 @@ export const PipelineTask = ({ task }: Props) => {
       case ['bitbucket'].includes(config.plugin):
         name = `${name}:${options.fullName}`;
         break;
-      case ['jira', 'jenkins', 'tapd'].includes(config.plugin):
+      case ['tapd'].includes(config.plugin):
+        name = `${name}:${options.workspaceId}`;
+        break;
+      case ['jira', 'jenkins'].includes(config.plugin):
         name = `${name}:${options.scopeId}`;
         break;
       case ['sonarqube'].includes(config.plugin):

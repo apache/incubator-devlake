@@ -16,14 +16,15 @@
  *
  */
 
-import React, { useEffect, useState } from 'react';
-import { FormGroup, InputGroup, Intent, Tag } from '@blueprintjs/core';
+import React, {useEffect, useState} from 'react';
+import {FormGroup, InputGroup, Intent, Tag} from '@blueprintjs/core';
 
-import { Divider, ExternalLink, HelpTooltip, MultiSelector, PageLoading } from '@/components';
-import { useProxyPrefix, useRefreshData } from '@/hooks';
+import {Divider, ExternalLink, HelpTooltip, MultiSelector, PageLoading} from '@/components';
+import {useProxyPrefix, useRefreshData} from '@/hooks';
 
 import * as API from './api';
 import * as S from './styled';
+import {uniqWith} from "lodash";
 
 enum StandardType {
   Feature = 'FEATURE',
@@ -80,25 +81,21 @@ export const TapdTransformation = ({ connectionId, scopeId, transformation, setT
       { open: 'task-open', progressing: 'task-progressing', done: 'task-done' } as Record<string, string>,
     ]);
 
-    function pushIntoList(all: { id: string; name: string }[], data: Record<string, string>) {
-      for (let id in data) {
-        let existItem = all.find((it) => it.id === id);
-        if (existItem) {
-          existItem.name = `${existItem.name}, ${data[id]}`;
-        } else {
-          all.push({ id, name: data[id] });
-        }
-      }
-    }
-    const statusList: { id: string; name: string }[] = [];
-    pushIntoList(statusList, storyStatus.data);
-    pushIntoList(statusList, bugStatus.data);
-    pushIntoList(statusList, taskStatus);
+    const statusList: { id: string; name: string }[] =
+      uniqWith([
+        {id: 'open', name: taskStatus.open},
+        {id: 'progressing', name: taskStatus.progressing},
+        {id: 'done', name: taskStatus.done},
+        ...(Object.values(storyStatus.data) as string[]).map((it) => ({id: it, name: it})),
+        ...(Object.values(bugStatus.data) as string[]).map((it) => ({id: it, name: it})),
+      ], (a, b) => a.id === b.id);
 
-    const typeList: { id: string; name: string }[] = [];
-    typeList.push(...storyType.data.map((it: any) => ({ id: it.Category.id, name: it.Category.name })));
-    pushIntoList(typeList, bugType);
-    pushIntoList(typeList, taskType);
+
+    const typeList: { id: string; name: string }[] = [
+      ...storyType.data.map((it: any) => ({ id: it.Category.id, name: it.Category.name })),
+      { id: 'BUG', name: bugType['BUG'] },
+      { id: 'TASK', name: bugType['TASK'] }
+    ];
 
     return {
       statusList,
@@ -228,16 +225,16 @@ export const TapdTransformation = ({ connectionId, scopeId, transformation, setT
             <FormGroup inline label="TODO">
               <MultiSelector
                 items={statusList}
-                disabledItems={statusList.filter((v) => [...inProgressStatusList, ...doneStatusList].includes(v.id))}
+                disabledItems={statusList.filter((v) => [...inProgressStatusList, ...doneStatusList].includes(v.name))}
                 getKey={(it) => it.id}
                 getName={(it) => it.name}
-                selectedItems={statusList.filter((v) => todoStatusList.includes(v.id))}
+                selectedItems={statusList.filter((v) => todoStatusList.includes(v.name))}
                 onChangeItems={(selectedItems) =>
                   setTransformation({
                     ...transformation,
                     statusMappings: {
                       ...transformaType(
-                        selectedItems.map((v) => v.id),
+                        selectedItems.map((v) => v.name),
                         StandardStatus.Todo,
                       ),
                       ...transformaType(inProgressStatusList, StandardStatus.InProgress),
@@ -250,17 +247,17 @@ export const TapdTransformation = ({ connectionId, scopeId, transformation, setT
             <FormGroup inline label="IN-PROGRESS">
               <MultiSelector
                 items={statusList}
-                disabledItems={statusList.filter((v) => [...todoStatusList, ...doneStatusList].includes(v.id))}
+                disabledItems={statusList.filter((v) => [...todoStatusList, ...doneStatusList].includes(v.name))}
                 getKey={(it) => it.id}
                 getName={(it) => it.name}
-                selectedItems={statusList.filter((v) => inProgressStatusList.includes(v.id))}
+                selectedItems={statusList.filter((v) => inProgressStatusList.includes(v.name))}
                 onChangeItems={(selectedItems) =>
                   setTransformation({
                     ...transformation,
                     statusMappings: {
                       ...transformaType(todoStatusList, StandardStatus.Todo),
                       ...transformaType(
-                        selectedItems.map((v) => v.id),
+                        selectedItems.map((v) => v.name),
                         StandardStatus.InProgress,
                       ),
                       ...transformaType(doneStatusList, StandardStatus.Done),
@@ -272,10 +269,10 @@ export const TapdTransformation = ({ connectionId, scopeId, transformation, setT
             <FormGroup inline label="DONE">
               <MultiSelector
                 items={statusList}
-                disabledItems={statusList.filter((v) => [...todoStatusList, ...inProgressStatusList].includes(v.id))}
+                disabledItems={statusList.filter((v) => [...todoStatusList, ...inProgressStatusList].includes(v.name))}
                 getKey={(it) => it.id}
                 getName={(it) => it.name}
-                selectedItems={statusList.filter((v) => doneStatusList.includes(v.id))}
+                selectedItems={statusList.filter((v) => doneStatusList.includes(v.name))}
                 onChangeItems={(selectedItems) =>
                   setTransformation({
                     ...transformation,
@@ -283,7 +280,7 @@ export const TapdTransformation = ({ connectionId, scopeId, transformation, setT
                       ...transformaType(todoStatusList, StandardStatus.Todo),
                       ...transformaType(inProgressStatusList, StandardStatus.InProgress),
                       ...transformaType(
-                        selectedItems.map((v) => v.id),
+                        selectedItems.map((v) => v.name),
                         StandardStatus.Done,
                       ),
                     },
