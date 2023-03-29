@@ -75,7 +75,7 @@ class AzureDevOpsPlugin(Plugin):
         api = AzureDevOpsAPI(connection)
         for raw_repo in api.git_repos(org, proj):
             url = urlparse(raw_repo['remoteUrl'])
-            url = url._replace(netloc=f'{url.username}:{connection.pat}@{url.hostname}')
+            url = url._replace(netloc=f'{url.username}:{connection.token}@{url.hostname}')
             repo = GitRepository(**raw_repo, project_id=proj, org_id=org, url=url.geturl())
             if not repo.defaultBranch:
                 return None
