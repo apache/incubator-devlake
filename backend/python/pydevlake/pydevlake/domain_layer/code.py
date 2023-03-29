@@ -19,7 +19,7 @@ from typing import Optional
 
 from sqlmodel import Field
 
-from pydevlake.model import DomainModel, NoPKModel
+from pydevlake.model import DomainModel, DomainScope, NoPKModel
 
 
 class PullRequest(DomainModel, table=True):
@@ -143,7 +143,7 @@ class RefsPrCherryPick(DomainModel, table=True):
     parent_pr_id: str = Field(primary_key=True)
 
 
-class Repo(DomainModel, table=True):
+class Repo(DomainScope, table=True):
     __tablename__ = "repos"
     name: str
     url: str

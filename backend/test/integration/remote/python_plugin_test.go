@@ -50,6 +50,7 @@ func TestRemoteScopeGroups(t *testing.T) {
 	scope := scopeGroups[0]
 	require.Equal(t, "Group 1", scope.Name)
 	require.Equal(t, "group1", scope.Id)
+	require.Equal(t, "", scope.ParentId)
 	require.Equal(t, "group", scope.Type)
 }
 
@@ -68,6 +69,7 @@ func TestRemoteScopes(t *testing.T) {
 	scope := scopes[0]
 	require.Equal(t, "Project 1", scope.Name)
 	require.Equal(t, "p1", scope.Id)
+	require.Equal(t, "group1", scope.ParentId)
 	require.Equal(t, "scope", scope.Type)
 }
 

@@ -23,7 +23,8 @@ from pydevlake.model import ToolScope
 
 
 class Message(BaseModel):
-    pass
+    class Config:
+        allow_population_by_field_name = True
 
 
 class SubtaskMeta(BaseModel):
@@ -84,9 +85,7 @@ class RemoteProgress(Message):
 
 class PipelineTask(Message):
     plugin: str
-    # Do not snake_case this attribute,
-    # it must match the json tag name in PipelineTask go struct
-    skipOnFail: bool = False
+    skip_on_fail: bool = Field(default=False, alias="skipOnFail")
     subtasks: list[str] = Field(default_factory=list)
     options: dict[str, object] = Field(default_factory=dict)
 
@@ -112,6 +111,7 @@ class RemoteScopeGroup(RemoteScopeTreeNode):
 
 class RemoteScope(RemoteScopeTreeNode):
     type: str = Field("scope", const=True)
+    parent_id: str = Field(..., alias="parentId")
     scope: ToolScope
 
 

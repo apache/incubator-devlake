@@ -108,18 +108,20 @@ class Plugin(ABC):
 
     def make_remote_scopes(self, connection: Connection, group_id: Optional[str] = None) -> msg.RemoteScopes:
         if group_id:
-            scopes = [
-                msg.RemoteScope(
-                    id=tool_scope.id,
-                    name=tool_scope.name,
-                    scope=tool_scope
+            remote_scopes = []
+            for tool_scope in self.remote_scopes(connection, group_id):
+                tool_scope.connection_id = connection.id
+                remote_scopes.append(
+                    msg.RemoteScope(
+                        id=tool_scope.id,
+                        parent_id=group_id,
+                        name=tool_scope.name,
+                        scope=tool_scope
+                    )
                 )
-                for tool_scope
-                in self.remote_scopes(connection, group_id)
-            ]
         else:
-            scopes = self.remote_scope_groups(connection)
-        return msg.RemoteScopes(__root__=scopes)
+            remote_scopes = self.remote_scope_groups(connection)
+        return msg.RemoteScopes(__root__=remote_scopes)
 
     def make_pipeline(self, scope_tx_rule_pairs: list[ScopeTxRulePair],
                       entity_types: list[str], connection: Connection):
@@ -168,7 +170,7 @@ class Plugin(ABC):
         return [
             msg.PipelineTask(
                 plugin=self.name,
-                skipOnFail=False,
+                skip_on_fail=False,
                 subtasks=self.select_subtasks(scope, entity_types),
                 options={
                     "scopeId": scope.id,

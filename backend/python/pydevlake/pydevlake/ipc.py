@@ -35,7 +35,7 @@ def plugin_method(func):
     def send_output(send_ch: TextIO, obj: object):
         if not isinstance(obj, Message):
             raise Exception(f"Not a message: {obj}")
-        send_ch.write(obj.json(exclude_none=True))
+        send_ch.write(obj.json(exclude_none=True, by_alias=True))
         send_ch.write('\n')
         send_ch.flush()
 

@@ -13,13 +13,27 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+import os
 import pytest
-pytest.register_assert_rewrite('pydevlake.testing')
 
-from .testing import (
-    assert_stream_convert,
-    assert_stream_run,
-    assert_valid_plugin,
-    assert_plugin_run,
-    ContextBuilder
-)
+from pydevlake.testing import assert_valid_plugin, assert_plugin_run
+
+from azuredevops.models import AzureDevOpsConnection, AzureDevOpsTransformationRule
+from azuredevops.main import AzureDevOpsPlugin
+
+
+def test_valid_plugin():
+    assert_valid_plugin(AzureDevOpsPlugin())
+
+
+def test_valid_plugin_and_connection():
+    # TODO: Set AZURE_DEVOPS_TOKEN env variable in CI
+    token = os.environ.get('AZURE_DEVOPS_TOKEN')
+    if not(token):
+        pytest.skip("No Azure DevOps token provided")
+
+    plugin = AzureDevOpsPlugin()
+    connection = AzureDevOpsConnection(id=1, name='test_connection', token=token)
+    tx_rule = AzureDevOpsTransformationRule(id=1, name='test_rule')
+
+    assert_plugin_run(plugin, connection, tx_rule)
