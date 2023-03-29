@@ -168,7 +168,7 @@ class Plugin(ABC):
         return [
             msg.PipelineTask(
                 plugin=self.name,
-                skipOnFail=False,
+                skip_on_fail=False,
                 subtasks=self.select_subtasks(scope, entity_types),
                 options={
                     "scopeId": scope.id,
