@@ -210,7 +210,7 @@ func NewStatefulApiCollectorForFinalizableEntity(args FinalizableApiCollectorArg
 		PageSize:              args.CollectNewRecordsByList.PageSize,
 		Concurrency:           args.CollectNewRecordsByList.Concurrency,
 		GetNextPageCustomData: args.CollectNewRecordsByList.GetNextPageCustomData,
-		// GetTotalPages:         args.CollectNewRecordsByList.GetTotalPages,
+		GetTotalPages:         args.CollectNewRecordsByList.GetTotalPages,
 	})
 
 	if err != nil {
@@ -276,7 +276,7 @@ type FinalizableApiCollectorListArgs struct {
 	PageSize              int
 	GetNextPageCustomData func(prevReqData *RequestData, prevPageResponse *http.Response) (interface{}, errors.Error)
 	// need to consider the data missing problem: what if new data gets created during collection?
-	// GetTotalPages         func(res *http.Response, args *ApiCollectorArgs) (int, errors.Error)
+	GetTotalPages func(res *http.Response, args *ApiCollectorArgs) (int, errors.Error)
 }
 type FinalizableApiCollectorDetailArgs struct {
 	FinalizableApiCollectorCommonArgs

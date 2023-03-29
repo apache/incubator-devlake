@@ -21,7 +21,8 @@ import (
 	"encoding/json"
 	"github.com/apache/incubator-devlake/core/errors"
 	"github.com/apache/incubator-devlake/core/plugin"
-	helper "github.com/apache/incubator-devlake/helpers/pluginhelper/api"
+	"github.com/apache/incubator-devlake/helpers/pluginhelper/api"
+	"github.com/apache/incubator-devlake/plugins/pagerduty/models"
 	"github.com/apache/incubator-devlake/plugins/pagerduty/tasks"
 )
 
@@ -34,7 +35,7 @@ func MakePipelinePlan(subtaskMetas []plugin.SubTaskMeta, connectionId uint64, sc
 		if err != nil {
 			return nil, errors.Default.Wrap(err, "error unmarshalling task options")
 		}
-		var transformationRules tasks.TransformationRules
+		var transformationRules models.PagerdutyTransformationRule
 		if len(scopeElem.Transformation) > 0 {
 			err = errors.Convert(json.Unmarshal(scopeElem.Transformation, &transformationRules))
 			if err != nil {
@@ -48,7 +49,7 @@ func MakePipelinePlan(subtaskMetas []plugin.SubTaskMeta, connectionId uint64, sc
 			return nil, err
 		}
 		// subtasks
-		subtasks, err := helper.MakePipelinePlanSubtasks(subtaskMetas, scopeElem.Entities)
+		subtasks, err := api.MakePipelinePlanSubtasks(subtaskMetas, scopeElem.Entities)
 		if err != nil {
 			return nil, err
 		}

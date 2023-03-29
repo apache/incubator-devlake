@@ -76,11 +76,11 @@ func GetDefaultAPI(
 	}
 
 	if txRuleType != nil {
-		resources["transformation_rules"] = map[string]plugin.ApiResourceHandler{
+		resources["connections/:connectionId/transformation_rules"] = map[string]plugin.ApiResourceHandler{
 			"POST": papi.PostTransformationRules,
 			"GET":  papi.ListTransformationRules,
 		}
-		resources["transformation_rules/:id"] = map[string]plugin.ApiResourceHandler{
+		resources["connections/:connectionId/transformation_rules/:id"] = map[string]plugin.ApiResourceHandler{
 			"GET":   papi.GetTransformationRule,
 			"PATCH": papi.PatchTransformationRule,
 		}
