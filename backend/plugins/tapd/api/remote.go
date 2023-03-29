@@ -158,7 +158,7 @@ func GetApiWorkspace(op *tasks.TapdOptions, apiClient aha.ApiClientAbstract) (*m
 	}
 
 	var resBody models.WorkspaceResponse
-	err = errors.Convert(json.Unmarshal(body, resBody))
+	err = errors.Convert(json.Unmarshal(body, &resBody))
 	if err != nil {
 		return nil, err
 	}
