@@ -75,7 +75,7 @@ func TestConnection(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, 
 // PostConnections @Summary create circleci connection
 // @Description Create circleci connection
 // @Tags plugins/circleci
-// @Param body models.CircleciConnection true "json body"
+// @Param body body models.CircleciConnection true "json body"
 // @Success 200  {object} models.CircleciConnection
 // @Failure 400  {string} errcode.Error "Bad Request"
 // @Failure 500  {string} errcode.Error "Internal Error"
@@ -93,8 +93,8 @@ func PostConnections(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput,
 // PatchConnection @Summary patch circleci connection
 // @Description Patch circleci connection
 // @Tags plugins/circleci
-// @Param body models.CircleciConnection true "json body"
-// @Success 200  {object} models.circleciConnection
+// @Param body body models.CircleciConnection true "json body"
+// @Success 200  {object} models.CircleciConnection
 // @Failure 400  {string} errcode.Error "Bad Request"
 // @Failure 500  {string} errcode.Error "Internal Error"
 // @Router /plugins/circleci/connections/{connectionId} [PATCH]

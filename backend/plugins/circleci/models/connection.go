@@ -23,13 +23,13 @@ import (
 	"net/http"
 )
 
-// CircleciConn holds the essential information to connect to the TeambitionConn API
+// CircleciConn holds the essential information to connect to the CircleciConn API
 type CircleciConn struct {
 	helper.RestConnection `mapstructure:",squash"`
 	helper.AccessToken    `mapstructure:",squash"`
 }
 
-// CircleciConnection holds TeambitionConn plus ID/Name for database storage
+// CircleciConnection holds CircleciConn plus ID/Name for database storage
 type CircleciConnection struct {
 	helper.BaseConnection `mapstructure:",squash"`
 	CircleciConn          `mapstructure:",squash"`

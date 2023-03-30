@@ -19,12 +19,12 @@ package main
 
 import (
 	"github.com/apache/incubator-devlake/core/runner"
-	"github.com/apache/incubator-devlake/plugins/teambition/impl"
+	"github.com/apache/incubator-devlake/plugins/circleci/impl"
 	"github.com/spf13/cobra"
 )
 
 // PluginEntry Export a variable named PluginEntry for Framework to search and load
-var PluginEntry impl.Teambition //nolint
+var PluginEntry impl.Circleci //nolint
 
 // standalone mode for debugging
 func main() {

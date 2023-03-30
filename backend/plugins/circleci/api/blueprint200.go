@@ -58,7 +58,7 @@ func makeDataSourcePipelinePlanV200(
 		if stage == nil {
 			stage = plugin.PipelineStage{}
 		}
-		// construct task options for teambition
+		// construct task options for circleci
 		options := make(map[string]interface{})
 		options["projectSlug"] = bpScope.Id
 		options["connectionId"] = connectionId
