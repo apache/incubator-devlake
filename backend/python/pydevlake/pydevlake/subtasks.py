@@ -126,6 +126,11 @@ class Subtask:
             return json.loads(subtask_run.state)
         return {}
 
+    def _params(self, ctx: Context) -> str:
+        return json.dumps({
+            "connection_id": ctx.connection.id,
+            "scope_id": ctx.scope.id
+        })
 
 class SubtaskRun(SQLModel, table=True):
     """
@@ -155,12 +160,6 @@ class Collector(Subtask):
         )
         session.add(raw_model)
 
-    def _params(self, ctx: Context) -> str:
-        return json.dumps({
-            "connection_id": ctx.connection.id,
-            "scope_id": ctx.scope.id
-        })
-
     def delete(self, session, ctx):
         raw_model = self.stream.raw_model(session)
         stmt = sql.delete(raw_model).where(raw_model.params == self._params(ctx))
@@ -180,8 +179,8 @@ class Extractor(Subtask):
 
     def fetch(self, state: Dict, session: Session, ctx: Context) -> Iterable[Tuple[object, dict]]:
         raw_model = self.stream.raw_model(session)
-        # TODO: Should filter for same options?
-        for raw in session.query(raw_model).all():
+        query = session.query(raw_model).where(raw_model.params == self._params(ctx))
+        for raw in query.all():
             yield raw, state
 
     def process(self, raw: RawModel, session: Session, ctx: Context):
@@ -198,8 +197,10 @@ class Convertor(Subtask):
     def verb(self):
         return 'convert'
 
-    def fetch(self, state: Dict, session: Session, _) -> Iterable[Tuple[ToolModel, Dict]]:
-        for item in session.query(self.stream.tool_model).all():
+    def fetch(self, state: Dict, session: Session, ctx: Context) -> Iterable[Tuple[ToolModel, Dict]]:
+        model = self.stream.tool_model
+        query = session.query(model).where(model.raw_data_params == self._params(ctx))
+        for item in query.all():
             yield item, state
 
     def process(self, tool_model: ToolModel, session: Session, ctx: Context):
