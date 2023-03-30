@@ -27,6 +27,7 @@ from pydevlake.pipeline_tasks import RefDiffOptions
 
 class AzureDevOpsConnection(Connection):
     token: str
+    organization: Optional[str]
 
 
 class AzureDevOpsTransformationRule(TransformationRule):
