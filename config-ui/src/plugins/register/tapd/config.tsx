@@ -29,7 +29,7 @@ export const TAPDConfig: PluginConfigType = {
   plugin: 'tapd',
   name: 'TAPD',
   icon: Icon,
-  sort: 100,
+  sort: 9,
   connection: {
     docLink: 'https://devlake.apache.org/docs/Configuration/Tapd',
     initialValues: {
