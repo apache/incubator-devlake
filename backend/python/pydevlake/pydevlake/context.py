@@ -19,13 +19,13 @@ from urllib.parse import urlparse, parse_qsl
 from sqlalchemy.engine import Engine
 from sqlmodel import SQLModel, create_engine
 
-from pydevlake.model import Connection, TransformationRule
+from pydevlake.model import Connection, TransformationRule, ToolScope
 
 
 class Context:
     def __init__(self,
                  db_url: str,
-                 scope: str,
+                 scope: ToolScope,
                  connection: Connection,
                  transformation_rule: TransformationRule = None,
                  options: dict = None):
@@ -51,7 +51,7 @@ class Context:
     def incremental(self) -> bool:
         return self.options.get('incremental') is True
 
-    def get_engine_db_url(self) -> [str, dict[str, any]]:
+    def get_engine_db_url(self) -> tuple[str, dict[str, any]]:
         db_url = self.db_url
         if not db_url:
             raise Exception("Missing db_url setting")
