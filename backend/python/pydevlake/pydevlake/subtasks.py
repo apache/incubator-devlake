@@ -119,7 +119,7 @@ class Subtask:
             .where(SubtaskRun.subtask_name == self.name)
             .where(SubtaskRun.connection_id == connection_id)
             .where(SubtaskRun.completed != None)
-            .order_by(SubtaskRun.started)
+            .order_by(sql.desc(SubtaskRun.started))
         )
         subtask_run = session.exec(stmt).first()
         if subtask_run is not None:
@@ -130,9 +130,6 @@ class Subtask:
 class SubtaskRun(SQLModel, table=True):
     """
     Table storing information about the execution of subtasks.
-
-    #TODO: rework id uniqueness:
-    # sync with Keon about the table he created for Singer MR
     """
     id: Optional[int] = Field(primary_key=True)
     subtask_name: str
