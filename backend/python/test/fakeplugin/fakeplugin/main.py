@@ -23,7 +23,6 @@ from sqlmodel import Field
 from pydevlake import Plugin, Connection, TransformationRule, Stream, ToolModel, ToolScope, RemoteScopeGroup, DomainType
 from pydevlake.domain_layer.devops import CicdScope, CICDPipeline, CICDStatus, CICDResult, CICDType
 
-
 VALID_TOKEN = "this_is_a_valid_token"
 
 
@@ -40,18 +39,12 @@ class FakePipeline(ToolModel, table=True):
     state: State
 
 
-class FakeStream(Stream):
+class FakePipelineStream(Stream):
     tool_model = FakePipeline
     domain_types = [DomainType.CICD]
 
-    fake_pipelines = [
-        FakePipeline(id=1, state=FakePipeline.State.SUCCESS, started_at=datetime(2023, 1, 10, 11, 0, 0), finished_at=datetime(2023, 1, 10, 11, 3, 0)),
-        FakePipeline(id=2, state=FakePipeline.State.FAILURE, started_at=datetime(2023, 1, 10, 12, 0, 0), finished_at=datetime(2023, 1, 10, 12, 1, 30)),
-        FakePipeline(id=1, state=FakePipeline.State.PENDING),
-    ]
-
     def collect(self, state, context):
-        for p in self.fake_pipelines:
+        for p in self.generate_fake_pipelines():
             yield json.loads(p.json()), {}
 
     def convert(self, pipeline: FakePipeline, ctx):
@@ -89,6 +82,19 @@ class FakeStream(Stream):
         if pipeline.finished_at:
             return (pipeline.finished_at - pipeline.started_at).seconds
         return None
+
+    @classmethod
+    def generate_fake_pipelines(cls) -> list[FakePipeline]:
+        states = [FakePipeline.State.SUCCESS, FakePipeline.State.FAILURE, FakePipeline.State.PENDING]
+        fake_pipelines = []
+        for i in range(250):
+            fake_pipelines.append(FakePipeline(
+                id=i,
+                state=states[i % len(states)],
+                started_at=datetime(2023, 1, 10, 11, 0, 0, microsecond=i),
+                finished_at=datetime(2023, 1, 10, 11, 3, 0, microsecond=i),
+            ))
+        return fake_pipelines
 
 
 class FakeConnection(Connection):
@@ -149,7 +155,7 @@ class FakePlugin(Plugin):
     @property
     def streams(self):
         return [
-            FakeStream
+            FakePipelineStream
         ]
 
 
