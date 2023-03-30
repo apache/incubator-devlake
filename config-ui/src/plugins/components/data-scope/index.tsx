@@ -62,13 +62,11 @@ export const DataScope = ({ connections, cancelBtnProps, submitBtnProps, onCance
 
   if (connections.length === 1) {
     const [{ plugin, connectionId, scope, origin, ...props }] = connections;
-    const [{ entities }] = scope;
     return (
       <DataScopeForm
         plugin={plugin}
         connectionId={connectionId}
         initialScope={origin}
-        initialEntities={entities}
         cancelBtnProps={cancelBtnProps}
         submitBtnProps={submitBtnProps}
         onCancel={onCancel}
@@ -161,7 +159,6 @@ export const DataScope = ({ connections, cancelBtnProps, submitBtnProps, onCance
             plugin={connection.plugin}
             connectionId={connection.connectionId}
             initialScope={connection.origin}
-            initialEntities={connection.scope[0].entities}
             onCancel={handleCancel}
             onSubmit={(scope: MixConnection['scope'], origin: MixConnection['origin']) =>
               handleSubmit(connection, scope, origin)
