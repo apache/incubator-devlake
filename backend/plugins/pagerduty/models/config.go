@@ -17,18 +17,4 @@ limitations under the License.
 
 package models
 
-import (
-	"time"
-)
-
-// PagerDutyConfig model corresponds to docs here https://github.com/singer-io/tap-pagerduty
-type PagerDutyConfig struct {
-	Token     string    `json:"token"`
-	Email     string    `json:"email"` // Seems to be an inconsequential field
-	StartDate time.Time `json:"start_date"`
-}
-
-type PagerDutyParams struct {
-	ConnectionId uint64
-	Stream       string
-}
+//TODO rework

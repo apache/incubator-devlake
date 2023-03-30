@@ -26,6 +26,7 @@ from pydevlake import Plugin, RemoteScopeGroup, DomainType, ScopeTxRulePair
 from pydevlake.domain_layer.code import Repo
 from pydevlake.domain_layer.devops import CicdScope
 from pydevlake.pipeline_tasks import gitextractor, refdiff
+from pydevlake.api import APIException
 
 
 class AzureDevOpsPlugin(Plugin):
@@ -46,8 +47,7 @@ class AzureDevOpsPlugin(Plugin):
         yield Repo(
             name=git_repo.name,
             url=git_repo.url,
-            forked_from=git_repo.parentRepositoryUrl,
-            deleted=git_repo.isDisabled,
+            forked_from=git_repo.parentRepositoryUrl
         )
 
         yield CicdScope(
@@ -58,10 +58,14 @@ class AzureDevOpsPlugin(Plugin):
 
     def remote_scope_groups(self, connection) -> list[RemoteScopeGroup]:
         api = AzureDevOpsAPI(connection)
-        member_id = api.my_profile().json['id']
-        accounts = api.accounts(member_id).json
-        for account in accounts['value']:
-            org = account['accountName']
+        if connection.organization:
+            orgs = [connection.organization]
+        else:
+            member_id = api.my_profile().json['id']
+            accounts = api.accounts(member_id).json
+            orgs = [account['accountName'] for account in accounts['value']]
+
+        for org in orgs:
             for proj in api.projects(org):
                 proj_name = proj['name']
 
@@ -75,8 +79,11 @@ class AzureDevOpsPlugin(Plugin):
         api = AzureDevOpsAPI(connection)
         for raw_repo in api.git_repos(org, proj):
             url = urlparse(raw_repo['remoteUrl'])
-            url = url._replace(netloc=f'{url.username}:{connection.pat}@{url.hostname}')
-            repo = GitRepository(**raw_repo, project_id=proj, org_id=org, url=url.geturl())
+            url = url._replace(netloc=f'{url.username}:{connection.token}@{url.hostname}')
+            raw_repo['url'] = url.geturl()
+            raw_repo['project_id'] = proj
+            raw_repo['org_id'] = org
+            repo = GitRepository(**raw_repo)
             if not repo.defaultBranch:
                 return None
             if "parentRepository" in raw_repo:
@@ -84,17 +91,27 @@ class AzureDevOpsPlugin(Plugin):
             yield repo
 
     def test_connection(self, connection: AzureDevOpsConnection):
-        resp = AzureDevOpsAPI(connection).my_profile()
-        if resp.status != 200:
-            raise Exception(f"Invalid token: {connection.token}")
+        api = AzureDevOpsAPI(connection)
+        if connection.organization is None:
+            try:
+                api.my_profile()
+            except APIException as e:
+                if e.response.status == 401:
+                    raise Exception(f"Invalid token {e}. You may need to set organization name in connection or edit your token to set organization to 'All accessible organizations'")
+                raise
+        else:
+            try:
+                api.projects(connection.organization)
+            except APIException as e:
+                raise Exception(f"Invalid token: {e}")
 
-    def extra_tasks(self, scope: GitRepository, entity_types: list[str], connection: AzureDevOpsConnection):
+    def extra_tasks(self, scope: GitRepository, tx_rule: AzureDevOpsTransformationRule, entity_types: list[str], connection: AzureDevOpsConnection):
         if DomainType.CODE in entity_types:
             return [gitextractor(scope.url, scope.id, connection.proxy)]
         else:
             return []
 
-    def extra_stages(self, scope_tx_rule_pairs: list[ScopeTxRulePair], entity_types: list[str], connection_id: int):
+    def extra_stages(self, scope_tx_rule_pairs: list[ScopeTxRulePair], entity_types: list[str], _):
         if DomainType.CODE in entity_types:
             for scope, tx_rule in scope_tx_rule_pairs:
                 options = tx_rule.refdiff_options if tx_rule else None

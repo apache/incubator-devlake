@@ -35,7 +35,7 @@ import (
 
 // TestParseIterationChangelog tests the parseIterationChangelog function
 func TestParseIterationChangelog(t *testing.T) {
-	data := &TapdTaskData{Options: &TapdOptions{CompanyId: 1, WorkspaceId: 1, ConnectionId: 1}}
+	data := &TapdTaskData{Options: &TapdOptions{WorkspaceId: 1, ConnectionId: 1}}
 
 	// Set up the required data for testing
 	mockCtx := new(mockplugin.SubTaskContext)
@@ -138,56 +138,6 @@ func TestGetTapdTypeMappings(t *testing.T) {
 	}
 	if result[2] != "Bug" {
 		t.Errorf("getTapdTypeMappings returned incorrect value for ID 2: %s", result[2])
-	}
-}
-
-func TestGetStdTypeMappings(t *testing.T) {
-	data := &TapdTaskData{
-		Options: &TapdOptions{
-			TransformationRules: TransformationRules{
-				TypeMappings: map[string]TypeMapping{
-					"userType": {
-						StandardType: "stdType",
-					},
-				},
-			},
-		},
-	}
-	expected := map[string]string{
-		"userType": "STDTYPE",
-	}
-	result := getStdTypeMappings(data)
-	if !reflect.DeepEqual(result, expected) {
-		t.Errorf("Expected %v but got %v", expected, result)
-	}
-}
-
-func TestGetStatusMapping(t *testing.T) {
-	data := &TapdTaskData{
-		Options: &TapdOptions{
-			TransformationRules: TransformationRules{
-				StatusMappings: StatusMappings{
-					"Done":        {"已完成", "已关闭"},
-					"In Progress": {"进行中", "处理中"},
-					"To Do":       {"未开始", "草稿"},
-				},
-			},
-		},
-	}
-
-	expected := map[string]string{
-		"已完成": "Done",
-		"已关闭": "Done",
-		"进行中": "In Progress",
-		"处理中": "In Progress",
-		"未开始": "To Do",
-		"草稿":  "To Do",
-	}
-
-	result := getStatusMapping(data)
-
-	if !reflect.DeepEqual(result, expected) {
-		t.Errorf("Expected %v, but got %v", expected, result)
 	}
 }
 

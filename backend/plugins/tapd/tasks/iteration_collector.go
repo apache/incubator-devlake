@@ -33,7 +33,7 @@ const RAW_ITERATION_TABLE = "tapd_api_iterations"
 var _ plugin.SubTaskEntryPoint = CollectIterations
 
 func CollectIterations(taskCtx plugin.SubTaskContext) errors.Error {
-	rawDataSubTaskArgs, data := CreateRawDataSubTaskArgs(taskCtx, RAW_ITERATION_TABLE, false)
+	rawDataSubTaskArgs, data := CreateRawDataSubTaskArgs(taskCtx, RAW_ITERATION_TABLE)
 	logger := taskCtx.GetLogger()
 	logger.Info("collect iterations")
 	collectorWithState, err := api.NewStatefulApiCollector(*rawDataSubTaskArgs, data.TimeAfter)

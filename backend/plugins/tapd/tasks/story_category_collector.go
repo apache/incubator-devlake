@@ -32,7 +32,7 @@ const RAW_STORY_CATEGORY_TABLE = "tapd_api_story_categories"
 var _ plugin.SubTaskEntryPoint = CollectStoryCategories
 
 func CollectStoryCategories(taskCtx plugin.SubTaskContext) errors.Error {
-	rawDataSubTaskArgs, data := CreateRawDataSubTaskArgs(taskCtx, RAW_STORY_CATEGORY_TABLE, false)
+	rawDataSubTaskArgs, data := CreateRawDataSubTaskArgs(taskCtx, RAW_STORY_CATEGORY_TABLE)
 	logger := taskCtx.GetLogger()
 	logger.Info("collect story_category")
 	collector, err := api.NewApiCollector(api.ApiCollectorArgs{

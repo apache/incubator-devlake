@@ -58,7 +58,7 @@ func RegisterPlugin(router *gin.Engine, registerEndpoints func(r *gin.Engine, pl
 		}
 		remotePlugin, err := remote.NewRemotePlugin(&details.PluginInfo)
 		if err != nil {
-			shared.ApiOutputError(c, errors.Default.Wrap(err, "plugin could not be initialized"))
+			shared.ApiOutputError(c, errors.Default.Wrap(err, fmt.Sprintf("plugin %s could not be initialized", details.PluginInfo.Name)))
 			return
 		}
 		resource := ApiResource{

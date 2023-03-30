@@ -31,13 +31,6 @@ type ApiConnection interface {
 	GetRateLimitPerHour() int
 }
 
-type QueryData struct {
-	Page    int    `json:"page"`
-	PerPage int    `json:"per_page"`
-	Tag     string `json:"tag"`
-	Search  []string
-}
-
 // ApiAuthenticator is to be implemented by a Concreate Connection if Authorization is required
 type ApiAuthenticator interface {
 	// SetupAuthentication is a hook function for connection to set up authentication for the HTTP request

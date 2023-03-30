@@ -124,7 +124,7 @@ class ToolModel(ToolTable, NoPKModel):
 
 
 class DomainModel(NoPKModel):
-    id: str = Field(primary_key=True)
+    id: Optional[str] = Field(primary_key=True)
 
 
 class ToolScope(ToolModel):

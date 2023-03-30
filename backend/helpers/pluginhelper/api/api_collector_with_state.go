@@ -269,7 +269,7 @@ type FinalizableApiCollectorArgs struct {
 // FinalizableApiCollectorCommonArgs is the common arguments for both list and detail collectors
 // Note that all request-related arguments would be called or utilized before any response-related arguments
 type FinalizableApiCollectorCommonArgs struct {
-	UrlTemplate     string                                                                          // required, url path template for the request, e.g. repos/{{ .Params.Name }}/pulls
+	UrlTemplate     string                                                                          // required, url path template for the request, e.g. repos/{{ .Params.Name }}/pulls or incident/{{ .Input.Number }} (if using iterators)
 	Method          string                                                                          // optional, request method, e.g. GET(default), POST, PUT, DELETE
 	Query           func(reqData *RequestData, createdAfter *time.Time) (url.Values, errors.Error)  // optional, build query params for the request
 	Header          func(reqData *RequestData, createdAfter *time.Time) (http.Header, errors.Error) // optional, build header for the request
@@ -292,5 +292,5 @@ type FinalizableApiCollectorListArgs struct {
 // FinalizableApiCollectorDetailArgs is the arguments for the detail collector
 type FinalizableApiCollectorDetailArgs struct {
 	FinalizableApiCollectorCommonArgs
-	BuildInputIterator func() (Iterator, errors.Error) // required, create an iterator that can iterate through all Unfinalized records in the database, in order to collect them from the API
+	BuildInputIterator func() (Iterator, errors.Error) // required, create an iterator that iterates through all unfinalized records in the database. These records will be fed as the "Input" (or {{ .Input.* }} in URLTemplate) argument back into FinalizableApiCollectorCommonArgs which makes the API calls to re-collect their newest states.
 }

@@ -13,6 +13,8 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+import pytest
+pytest.register_assert_rewrite('pydevlake.testing')
 
 from .model import ToolModel, ToolScope, DomainScope, Connection, TransformationRule
 from .logger import logger

@@ -90,7 +90,7 @@ func UpdateTransformationRule(input *plugin.ApiResourceInput) (*plugin.ApiResour
 	if err != nil {
 		return nil, err
 	}
-	err = api.DecodeMapStruct(input.Body, oldTr)
+	err = api.DecodeMapStruct(input.Body, oldTr, true)
 	if err != nil {
 		return nil, err
 	}

@@ -13,7 +13,10 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-import pytest
-pytest.register_assert_rewrite('pydevlake.testing')
-
-from .testing import assert_convert, ContextBuilder
+from .testing import (
+    assert_stream_convert,
+    assert_stream_run,
+    assert_valid_plugin,
+    assert_plugin_run,
+    ContextBuilder
+)

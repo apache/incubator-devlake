@@ -31,10 +31,11 @@ type RemoteScopesOutput struct {
 }
 
 type RemoteScopesTreeNode struct {
-	Type string      `json:"type"`
-	Id   string      `json:"id"`
-	Name string      `json:"name"`
-	Data interface{} `json:"data"`
+	Type     string      `json:"type"`
+	ParentId *string     `json:"parentId"`
+	Id       string      `json:"id"`
+	Name     string      `json:"name"`
+	Data     interface{} `json:"data"`
 }
 
 func (pa *pluginAPI) GetRemoteScopes(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, errors.Error) {

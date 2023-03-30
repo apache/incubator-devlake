@@ -33,7 +33,6 @@ func TestTapdStoryCustomFieldDataFlow(t *testing.T) {
 	taskData := &tasks.TapdTaskData{
 		Options: &tasks.TapdOptions{
 			ConnectionId: 1,
-			CompanyId:    99,
 			WorkspaceId:  991,
 		},
 	}

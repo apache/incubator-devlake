@@ -31,7 +31,7 @@ const RAW_STORY_TABLE = "tapd_api_stories"
 var _ plugin.SubTaskEntryPoint = CollectStorys
 
 func CollectStorys(taskCtx plugin.SubTaskContext) errors.Error {
-	rawDataSubTaskArgs, data := CreateRawDataSubTaskArgs(taskCtx, RAW_STORY_TABLE, false)
+	rawDataSubTaskArgs, data := CreateRawDataSubTaskArgs(taskCtx, RAW_STORY_TABLE)
 	logger := taskCtx.GetLogger()
 	logger.Info("collect stories")
 	collectorWithState, err := helper.NewStatefulApiCollector(*rawDataSubTaskArgs, data.TimeAfter)

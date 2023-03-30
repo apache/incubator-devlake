@@ -18,20 +18,54 @@ limitations under the License.
 package tasks
 
 import (
+	"encoding/json"
 	"time"
 
+	"github.com/apache/incubator-devlake/core/errors"
 	helper "github.com/apache/incubator-devlake/helpers/pluginhelper/api"
 	"github.com/apache/incubator-devlake/plugins/tapd/models"
 )
 
 type TapdOptions struct {
-	ConnectionId        uint64 `mapstruct:"connectionId"`
-	WorkspaceId         uint64 `mapstruct:"workspaceId"`
-	CompanyId           uint64 `mapstruct:"companyId"`
-	PageSize            uint64 `mapstruct:"pageSize"`
-	TimeAfter           string `json:"timeAfter" mapstructure:"timeAfter,omitempty"`
-	CstZone             *time.Location
-	TransformationRules TransformationRules `json:"transformationRules"`
+	ConnectionId         uint64 `mapstruct:"connectionId"`
+	WorkspaceId          uint64 `mapstruct:"workspaceId"`
+	PageSize             uint64 `mapstruct:"pageSize"`
+	TimeAfter            string `json:"timeAfter" mapstructure:"timeAfter,omitempty"`
+	CstZone              *time.Location
+	TransformationRuleId uint64
+	TransformationRules  *TransformationRules `json:"transformationRules"`
+}
+
+func MakeTransformationRules(rule models.TapdTransformationRule) (*TransformationRules, errors.Error) {
+	var statusMapping StatusMappings
+	var typeMapping TypeMappings
+	var err error
+	if len(rule.TypeMappings) > 0 {
+		err = json.Unmarshal(rule.TypeMappings, &typeMapping)
+		if err != nil {
+			return nil, errors.Default.Wrap(err, "unable to unmarshal the typeMapping")
+		}
+	}
+	if len(rule.StatusMappings) > 0 {
+		err = json.Unmarshal(rule.StatusMappings, &statusMapping)
+		if err != nil {
+			return nil, errors.Default.Wrap(err, "unable to unmarshal the statusMapping")
+		}
+	}
+	var remotelinkRepoPattern []string
+	if len(rule.RemotelinkRepoPattern) > 0 {
+		err = json.Unmarshal(rule.RemotelinkRepoPattern, &remotelinkRepoPattern)
+		if err != nil {
+			return nil, errors.Default.Wrap(err, "error unMarshaling RemotelinkRepoPattern")
+		}
+	}
+	result := &TransformationRules{
+		RemotelinkCommitShaPattern: rule.RemotelinkCommitShaPattern,
+		RemotelinkRepoPattern:      remotelinkRepoPattern,
+		StatusMappings:             statusMapping,
+		TypeMappings:               typeMapping,
+	}
+	return result, nil
 }
 
 type TapdTaskData struct {
@@ -41,17 +75,45 @@ type TapdTaskData struct {
 	Connection *models.TapdConnection
 }
 
-type TypeMapping struct {
-	StandardType string `json:"standardType"`
+func DecodeAndValidateTaskOptions(options map[string]interface{}) (*TapdOptions, errors.Error) {
+	op, err := DecodeTaskOptions(options)
+	if err != nil {
+		return nil, err
+	}
+	err = ValidateTaskOptions(op)
+	if err != nil {
+		return nil, err
+	}
+	return op, nil
 }
 
-type OriginalStatus []string
+func DecodeTaskOptions(options map[string]interface{}) (*TapdOptions, errors.Error) {
+	var op TapdOptions
+	err := helper.Decode(options, &op, nil)
+	if err != nil {
+		return nil, err
+	}
+	return &op, nil
+}
 
-type StatusMappings map[string]OriginalStatus
+func ValidateTaskOptions(op *TapdOptions) errors.Error {
+	if op.WorkspaceId == 0 {
+		return errors.BadInput.New("no enough info for tapd execution")
+	}
+	// find the needed tapd now
+	if op.ConnectionId == 0 {
+		return errors.BadInput.New("connectionId is invalid")
+	}
+	return nil
+}
 
-type TypeMappings map[string]TypeMapping
+type StatusMappings map[string]string
+
+type TypeMappings map[string]string
 
 type TransformationRules struct {
-	TypeMappings   TypeMappings   `json:"typeMappings"`
-	StatusMappings StatusMappings `json:"statusMappings"`
+	RemotelinkCommitShaPattern string         `mapstructure:"remotelinkCommitShaPattern,omitempty" json:"remotelinkCommitShaPattern" gorm:"type:varchar(255)"`
+	RemotelinkRepoPattern      []string       `mapstructure:"remotelinkRepoPattern,omitempty" json:"remotelinkRepoPattern"`
+	TypeMappings               TypeMappings   `json:"typeMappings"`
+	StatusMappings             StatusMappings `json:"statusMappings"`
 }

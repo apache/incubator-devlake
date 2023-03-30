@@ -23,7 +23,7 @@ import (
 	"github.com/apache/incubator-devlake/core/plugin"
 	"github.com/apache/incubator-devlake/helpers/pluginhelper/api"
 	"github.com/apache/incubator-devlake/plugins/pagerduty/models"
-	"github.com/apache/incubator-devlake/plugins/pagerduty/models/generated"
+	"github.com/apache/incubator-devlake/plugins/pagerduty/models/raw"
 )
 
 var _ plugin.SubTaskEntryPoint = ExtractIncidents
@@ -33,14 +33,13 @@ func ExtractIncidents(taskCtx plugin.SubTaskContext) errors.Error {
 	extractor, err := api.NewApiExtractor(api.ApiExtractorArgs{
 		RawDataSubTaskArgs: api.RawDataSubTaskArgs{
 			Ctx: taskCtx,
-			Params: models.PagerDutyParams{
+			Params: PagerDutyParams{
 				ConnectionId: data.Options.ConnectionId,
-				Stream:       models.IncidentStream,
 			},
 			Table: RAW_INCIDENTS_TABLE,
 		},
 		Extract: func(row *api.RawData) ([]interface{}, errors.Error) {
-			incidentRaw := &generated.Incidents{}
+			incidentRaw := &raw.Incidents{}
 			err := errors.Convert(json.Unmarshal(row.Data, incidentRaw))
 			if err != nil {
 				return nil, err

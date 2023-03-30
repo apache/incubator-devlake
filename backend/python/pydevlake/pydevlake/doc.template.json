@@ -249,7 +249,7 @@
                 }
             }
         },
-        "/plugins/$plugin_name/transformation_rules": {
+        "/plugins/$plugin_name/connections/{connectionId}/transformation_rules": {
             "get": {
                 "description": "Get all transformation rules",
                 "parameters": [
@@ -300,7 +300,7 @@
                 }
             }
         },
-        "/plugins/$plugin_name/transformation_rules/{ruleId}": {
+        "/plugins/$plugin_name/connections/{connectionId}/transformation_rules/{ruleId}": {
             "get": {
                 "description": "Get a transformation rule",
                 "parameters": [

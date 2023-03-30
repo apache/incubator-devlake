@@ -81,7 +81,7 @@ func (c *ScopeApiHelper[Conn, Scope, Tr]) Put(input *plugin.ApiResourceInput) (*
 	var req struct {
 		Data []*Scope `json:"data"`
 	}
-	err := errors.Convert(DecodeMapStruct(input.Body, &req))
+	err := errors.Convert(DecodeMapStruct(input.Body, &req, true))
 	if err != nil {
 		return nil, errors.BadInput.Wrap(err, "decoding scope error")
 	}
@@ -143,7 +143,7 @@ func (c *ScopeApiHelper[Conn, Scope, Tr]) Update(input *plugin.ApiResourceInput,
 	if err != nil {
 		return &plugin.ApiResourceOutput{Body: nil, Status: http.StatusInternalServerError}, errors.Default.New("getting Scope error")
 	}
-	err = DecodeMapStruct(input.Body, &scope)
+	err = DecodeMapStruct(input.Body, &scope, true)
 	if err != nil {
 		return &plugin.ApiResourceOutput{Body: nil, Status: http.StatusInternalServerError}, errors.Default.Wrap(err, "patch scope error")
 	}

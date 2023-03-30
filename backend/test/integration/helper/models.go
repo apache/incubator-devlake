@@ -18,9 +18,10 @@ limitations under the License.
 package helper
 
 import (
+	"time"
+
 	"github.com/apache/incubator-devlake/core/plugin"
 	"github.com/apache/incubator-devlake/helpers/pluginhelper/api"
-	"time"
 )
 
 type (
