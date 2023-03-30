@@ -94,7 +94,7 @@ export const TapdTransformation = ({ connectionId, scopeId, transformation, setT
     const typeList: { id: string; name: string }[] = [
       ...storyType.data.map((it: any) => ({ id: it.Category.id, name: it.Category.name })),
       { id: 'BUG', name: bugType['BUG'] },
-      { id: 'TASK', name: bugType['TASK'] }
+      { id: 'TASK', name: taskType['TASK'] }
     ];
 
     return {
