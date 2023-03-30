@@ -26,6 +26,7 @@ from pydevlake import Plugin, RemoteScopeGroup, DomainType, ScopeTxRulePair
 from pydevlake.domain_layer.code import Repo
 from pydevlake.domain_layer.devops import CicdScope
 from pydevlake.pipeline_tasks import gitextractor, refdiff
+from pydevlake.api import APIException
 
 
 class AzureDevOpsPlugin(Plugin):
@@ -57,10 +58,14 @@ class AzureDevOpsPlugin(Plugin):
 
     def remote_scope_groups(self, connection) -> list[RemoteScopeGroup]:
         api = AzureDevOpsAPI(connection)
-        member_id = api.my_profile().json['id']
-        accounts = api.accounts(member_id).json
-        for account in accounts['value']:
-            org = account['accountName']
+        if connection.organization:
+            orgs = [connection.organization]
+        else:
+            member_id = api.my_profile().json['id']
+            accounts = api.accounts(member_id).json
+            orgs = [account['accountName'] for account in accounts['value']]
+
+        for org in orgs:
             for proj in api.projects(org):
                 proj_name = proj['name']
 
@@ -86,9 +91,19 @@ class AzureDevOpsPlugin(Plugin):
             yield repo
 
     def test_connection(self, connection: AzureDevOpsConnection):
-        resp = AzureDevOpsAPI(connection).my_profile()
-        if resp.status != 200:
-            raise Exception(f"Invalid token: {connection.token}")
+        api = AzureDevOpsAPI(connection)
+        if connection.organization is None:
+            try:
+                api.my_profile()
+            except APIException as e:
+                if e.response.status == 401:
+                    raise Exception(f"Invalid token {e}. You may need to set organization name in connection or edit your token to set organization to 'All accessible organizations'")
+                raise
+        else:
+            try:
+                api.projects(connection.organization)
+            except APIException as e:
+                raise Exception(f"Invalid token: {e}")
 
     def extra_tasks(self, scope: GitRepository, tx_rule: AzureDevOpsTransformationRule, entity_types: list[str], connection: AzureDevOpsConnection):
         if DomainType.CODE in entity_types:
