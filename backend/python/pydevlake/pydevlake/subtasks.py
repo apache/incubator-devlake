@@ -55,9 +55,12 @@ class Subtask:
                 state = dict()
 
             try:
-                for i, (data, state) in enumerate(self.fetch(state, session, ctx)):
+                records = self.fetch(state, session, ctx)
+                progress = last_progress = 0
+                for data, state in records:
+                    progress += 1
                     self.process(data, session, ctx)
-                    if i % sync_point_interval == 0 and i != 0:
+                    if progress % sync_point_interval == 0:
                         # Save current state
                         subtask_run.state = json.dumps(state)
                         session.merge(subtask_run)
@@ -65,8 +68,15 @@ class Subtask:
                         # Send progress
                         yield RemoteProgress(
                             increment=sync_point_interval,
-                            current=i
+                            current=progress
                         )
+                        last_progress = progress
+                # Send final progress
+                if progress != last_progress:
+                    yield RemoteProgress(
+                        increment=progress-last_progress,
+                        current=progress
+                    )
             except Exception as e:
                 logger.error(f'{type(e).__name__}: {e}')
                 raise e
@@ -97,7 +107,7 @@ class Subtask:
         pass
 
     @abstractmethod
-    def process(self, data: object, session: Session):
+    def process(self, data: object, session: Session, ctx: Context):
         """
         Called for all data entries returned by `fetch`.
         """
