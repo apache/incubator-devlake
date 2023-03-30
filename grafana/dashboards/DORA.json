@@ -15,8 +15,8 @@
   "editable": true,
   "gnetId": null,
   "graphTooltip": 0,
-  "id": 26,
-  "iteration": 1679477723625,
+  "id": 27,
+  "iteration": 1680142836842,
   "links": [],
   "panels": [
     {
@@ -727,7 +727,7 @@
           "hide": false,
           "metricColumn": "none",
           "rawQuery": true,
-          "rawSql": "-- Metric 2: median change lead time per month\nwith _pr_stats as (\n-- get PRs' cycle lead time in each month\n\tSELECT\n\t\tdistinct pr.id,\n\t\tdate_format(pr.merged_date,'%y/%m') as month,\n\t\tprm.pr_cycle_time\n\tFROM\n\t\tpull_requests pr\n\t\tjoin project_pr_metrics prm on prm.id = pr.id\n\t\tjoin project_mapping pm on pr.base_repo_id = pm.row_id\n\tWHERE\n\t\tpr.merged_date is not null\n\t\tand prm.pr_cycle_time is not null\n\t\tand $__timeFilter(pr.merged_date)\n),\n\n_find_median_clt_each_month_ranks as(\n\tSELECT *, percent_rank() over(PARTITION BY month order by pr_cycle_time) as ranks\n\tFROM _pr_stats\n),\n\n_clt as(\n\tSELECT month, max(pr_cycle_time) as median_change_lead_time\n\tFROM _find_median_clt_each_month_ranks\n\tWHERE ranks <= 0.5\n\tgroup by month\n),\n\n_calendar_months as(\n-- to\tdeal with the month with no incidents\n\tSELECT date_format(CAST((SYSDATE()-INTERVAL (month_index) MONTH) AS date), '%y/%m') as month\n\tFROM ( SELECT 0 month_index\n\t\t\tUNION ALL SELECT   1  UNION ALL SELECT   2 UNION ALL SELECT   3\n\t\t\tUNION ALL SELECT   4  UNION ALL SELECT   5 UNION ALL SELECT   6\n\t\t\tUNION ALL SELECT   7  UNION ALL SELECT   8 UNION ALL SELECT   9\n\t\t\tUNION ALL SELECT   10 UNION ALL SELECT  11\n\t\t) month_index\n\tWHERE (SYSDATE()-INTERVAL (month_index) MONTH) > SYSDATE()-INTERVAL 6 MONTH\t\n)\n\nSELECT \n\tcm.month,\n\tcase \n\t\twhen _clt.median_change_lead_time is null then 0 \n\t\telse _clt.median_change_lead_time/60 end as median_change_lead_time_in_hour\nFROM \n\t_calendar_months cm\n\tleft join _clt on cm.month = _clt.month\nORDER BY 1",
+          "rawSql": "-- Metric 2: median change lead time per month\nwith _pr_stats as (\n-- get PRs' cycle lead time in each month\n\tSELECT\n\t\tdistinct pr.id,\n\t\tdate_format(pr.merged_date,'%y/%m') as month,\n\t\tprm.pr_cycle_time\n\tFROM\n\t\tpull_requests pr\n\t\tjoin project_pr_metrics prm on prm.id = pr.id\n\t\tjoin project_mapping pm on pr.base_repo_id = pm.row_id\n\tWHERE\n\t\tpm.project_name in ($project) \n\t\tand pr.merged_date is not null\n\t\tand prm.pr_cycle_time is not null\n\t\tand $__timeFilter(pr.merged_date)\n),\n\n_find_median_clt_each_month_ranks as(\n\tSELECT *, percent_rank() over(PARTITION BY month order by pr_cycle_time) as ranks\n\tFROM _pr_stats\n),\n\n_clt as(\n\tSELECT month, max(pr_cycle_time) as median_change_lead_time\n\tFROM _find_median_clt_each_month_ranks\n\tWHERE ranks <= 0.5\n\tgroup by month\n),\n\n_calendar_months as(\n-- to\tdeal with the month with no incidents\n\tSELECT date_format(CAST((SYSDATE()-INTERVAL (month_index) MONTH) AS date), '%y/%m') as month\n\tFROM ( SELECT 0 month_index\n\t\t\tUNION ALL SELECT   1  UNION ALL SELECT   2 UNION ALL SELECT   3\n\t\t\tUNION ALL SELECT   4  UNION ALL SELECT   5 UNION ALL SELECT   6\n\t\t\tUNION ALL SELECT   7  UNION ALL SELECT   8 UNION ALL SELECT   9\n\t\t\tUNION ALL SELECT   10 UNION ALL SELECT  11\n\t\t) month_index\n\tWHERE (SYSDATE()-INTERVAL (month_index) MONTH) > SYSDATE()-INTERVAL 6 MONTH\t\n)\n\nSELECT \n\tcm.month,\n\tcase \n\t\twhen _clt.median_change_lead_time is null then 0 \n\t\telse _clt.median_change_lead_time/60 end as median_change_lead_time_in_hour\nFROM \n\t_calendar_months cm\n\tleft join _clt on cm.month = _clt.month\nORDER BY 1",
           "refId": "A",
           "select": [
             [
@@ -992,10 +992,10 @@
         "current": {
           "selected": true,
           "text": [
-            "All"
+            "louis-3-8"
           ],
           "value": [
-            "$__all"
+            "louis-3-8"
           ]
         },
         "datasource": "mysql",
@@ -1025,5 +1025,5 @@
   "timezone": "",
   "title": "DORA",
   "uid": "qNo8_0M4z",
-  "version": 19
+  "version": 3
 }
