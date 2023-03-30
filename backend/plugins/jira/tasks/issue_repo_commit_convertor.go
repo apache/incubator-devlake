@@ -18,8 +18,6 @@ limitations under the License.
 package tasks
 
 import (
-	"net/url"
-	"path"
 	"reflect"
 	"regexp"
 
@@ -50,9 +48,8 @@ func ConvertIssueRepoCommits(taskCtx plugin.SubTaskContext) errors.Error {
 	logger := taskCtx.GetLogger()
 	logger.Info("convert issue repo commits")
 	var commitRepoUrlRegex *regexp.Regexp
-	var err error
 	commitRepoUrlPattern := `(.*)\-\/commit`
-	commitRepoUrlRegex, err = regexp.Compile(commitRepoUrlPattern)
+	commitRepoUrlRegex, err := errors.Convert01(regexp.Compile(commitRepoUrlPattern))
 	if err != nil {
 		return errors.Default.Wrap(err, "regexp Compile commitRepoUrlPattern failed")
 	}
@@ -67,19 +64,19 @@ func ConvertIssueRepoCommits(taskCtx plugin.SubTaskContext) errors.Error {
 		}
 	}
 
-	clause := []dal.Clause{
+	clauses := []dal.Clause{
+		dal.Select("jic.*"),
 		dal.From("_tool_jira_issue_commits jic"),
 		dal.Join(`left join _tool_jira_board_issues jbi on (
 			jbi.connection_id = jic.connection_id
 			AND jbi.issue_id = jic.issue_id
 		)`),
-		dal.Select("jic.*"),
 		dal.Where("jbi.connection_id = ? AND jbi.board_id = ?", connectionId, boardId),
 		dal.Orderby("jbi.connection_id, jbi.issue_id"),
 	}
-	cursor, err := db.Cursor(clause...)
+	cursor, err := db.Cursor(clauses...)
 	if err != nil {
-		return errors.Convert(err)
+		return err
 	}
 	defer cursor.Close()
 
@@ -107,7 +104,7 @@ func ConvertIssueRepoCommits(taskCtx plugin.SubTaskContext) errors.Error {
 					item.RepoUrl = groups[1]
 				}
 			}
-			refineIssueRepoCommit(item, commitRepoUrlRegexps, issueCommit.CommitUrl)
+			api.RefineIssueRepoCommit(item, commitRepoUrlRegexps, issueCommit.CommitUrl)
 			return []interface{}{item}, nil
 		},
 	})
@@ -116,25 +113,4 @@ func ConvertIssueRepoCommits(taskCtx plugin.SubTaskContext) errors.Error {
 	}
 
 	return converter.Execute()
-}
-
-func refineIssueRepoCommit(item *crossdomain.IssueRepoCommit, repoPatterns []*regexp.Regexp, commitUrl string) *crossdomain.IssueRepoCommit {
-	u, err := url.Parse(commitUrl)
-	if err != nil {
-		return item
-	}
-	item.Host = u.Host
-	for _, pattern := range repoPatterns {
-		if pattern.MatchString(commitUrl) {
-			group := pattern.FindStringSubmatch(commitUrl)
-			if len(group) == 4 {
-				item.Namespace = group[1]
-				item.RepoName = group[2]
-				u.Path = path.Join(item.Namespace, item.RepoName+".git")
-				item.RepoUrl = u.String()
-				break
-			}
-		}
-	}
-	return item
 }

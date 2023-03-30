@@ -27,5 +27,6 @@ func All() []plugin.MigrationScript {
 		new(addInitTables),
 		new(encodeConnToken),
 		new(addTransformation),
+		new(deleteIssue),
 	}
 }

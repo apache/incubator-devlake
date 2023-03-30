@@ -52,18 +52,9 @@ func MakeTransformationRules(rule models.TapdTransformationRule) (*Transformatio
 			return nil, errors.Default.Wrap(err, "unable to unmarshal the statusMapping")
 		}
 	}
-	var remotelinkRepoPattern []string
-	if len(rule.RemotelinkRepoPattern) > 0 {
-		err = json.Unmarshal(rule.RemotelinkRepoPattern, &remotelinkRepoPattern)
-		if err != nil {
-			return nil, errors.Default.Wrap(err, "error unMarshaling RemotelinkRepoPattern")
-		}
-	}
 	result := &TransformationRules{
-		RemotelinkCommitShaPattern: rule.RemotelinkCommitShaPattern,
-		RemotelinkRepoPattern:      remotelinkRepoPattern,
-		StatusMappings:             statusMapping,
-		TypeMappings:               typeMapping,
+		StatusMappings: statusMapping,
+		TypeMappings:   typeMapping,
 	}
 	return result, nil
 }
@@ -112,8 +103,6 @@ type StatusMappings map[string]string
 type TypeMappings map[string]string
 
 type TransformationRules struct {
-	RemotelinkCommitShaPattern string         `mapstructure:"remotelinkCommitShaPattern,omitempty" json:"remotelinkCommitShaPattern" gorm:"type:varchar(255)"`
-	RemotelinkRepoPattern      []string       `mapstructure:"remotelinkRepoPattern,omitempty" json:"remotelinkRepoPattern"`
-	TypeMappings               TypeMappings   `json:"typeMappings"`
-	StatusMappings             StatusMappings `json:"statusMappings"`
+	TypeMappings   TypeMappings   `json:"typeMappings"`
+	StatusMappings StatusMappings `json:"statusMappings"`
 }

@@ -15,13 +15,29 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-package models
+package migrationscripts
 
-type TapdIssue struct {
-	ConnectionId uint64 `gorm:"primaryKey"`
-	Id           uint64 `gorm:"primaryKey;type:BIGINT" json:"id,string"`
+import (
+	"github.com/apache/incubator-devlake/core/context"
+	"github.com/apache/incubator-devlake/core/errors"
+	"github.com/apache/incubator-devlake/plugins/tapd/models/migrationscripts/archived"
+)
+
+type deleteIssue struct{}
+
+func (*deleteIssue) Up(basicRes context.BasicRes) errors.Error {
+	db := basicRes.GetDal()
+	err := db.DropTables(archived.TapdIssue{})
+	if err != nil {
+		return err
+	}
+	return db.DropColumns(`_tool_tapd_transformation_rules`, `remotelink_commit_sha_pattern`, `remotelink_repo_pattern`)
 }
 
-func (TapdIssue) TableName() string {
-	return "_tool_tapd_issues"
+func (*deleteIssue) Version() uint64 {
+	return 20230323000004
+}
+
+func (*deleteIssue) Name() string {
+	return "Tapd delete issue and remote link"
 }
