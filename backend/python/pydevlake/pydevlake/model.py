@@ -103,10 +103,12 @@ class ToolModel(ToolTable, NoPKModel):
         originates from self.
         """
         model_type = type(self)
-        segments = [_get_plugin_name(model_type), model_type.__name__]
+        segments = [_get_plugin_name(model_type), model_type.__name__, str(self.connection_id)]
         mapper = inspect(model_type)
         for primary_key_column in mapper.primary_key:
             prop = mapper.get_property_by_column(primary_key_column)
+            if prop.key == 'connection_id':
+                continue
             attr_val = getattr(self, prop.key)
             segments.append(str(attr_val))
         return ':'.join(segments)
