@@ -992,10 +992,10 @@
         "current": {
           "selected": true,
           "text": [
-            "louis-3-8"
+            "All"
           ],
           "value": [
-            "louis-3-8"
+            "$__all"
           ]
         },
         "datasource": "mysql",
