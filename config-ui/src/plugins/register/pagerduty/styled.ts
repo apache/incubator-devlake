@@ -16,21 +16,6 @@
  *
  */
 
-import { PluginType } from '../../types';
+import styled from 'styled-components';
 
-import Icon from './assets/icon.svg';
-
-export const BasePipelineConfig = {
-  type: PluginType.Pipeline,
-  plugin: undefined,
-  name: undefined,
-  icon: Icon,
-  sort: 101,
-  connection: {
-    docLink: '',
-    initialValues: {},
-    fields: [],
-  },
-  entities: [],
-  transformation: {},
-};
+export const DataScope = styled.div``;

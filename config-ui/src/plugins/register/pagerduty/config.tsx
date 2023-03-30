@@ -21,29 +21,34 @@ import { PluginType } from '@/plugins';
 
 import Icon from './assets/icon.svg';
 
-export const ZenTaoConfig: PluginConfigType = {
+export const PagerDutyConfig: PluginConfigType = {
   type: PluginType.Connection,
-  plugin: 'zentao',
-  name: 'ZenTao',
+  plugin: 'pagerduty',
+  name: 'PagerDuty',
   icon: Icon,
-  sort: 10,
+  sort: 8,
   connection: {
-    docLink: 'https://devlake.apache.org/docs/Configuration/Zentao',
+    docLink: 'https://devlake.apache.org/docs/Configuration/PagerDuty',
+    initialValues: {
+      endpoint: 'https://api.pagerduty.com/',
+    },
     fields: [
       'name',
       {
         key: 'endpoint',
-        subLabel: 'Provide the Zentao instance API endpoint (Opensource v16+). E.g. http://<host>:<port>/api.php/v1',
+        multipleVersions: {
+          cloud: 'https://api.pagerduty.com/',
+          server: '',
+        },
       },
-      'username',
-      'password',
+      'token',
       'proxy',
       {
         key: 'rateLimitPerHour',
         subLabel:
-          'By default, DevLake uses 10,000 requests/hour for data collection for ZenTao. But you can adjust the collection speed by setting up your desirable rate limit.',
-        learnMore: 'https://devlake.apache.org/docs/Configuration/Zentao/#custom-rate-limit-optional',
-        externalInfo: 'ZenTao does not specify a maximum value of rate limit.',
+          'By default, DevLake uses 10,000 requests/hour for data collection for PagerDuty. But you can adjust the collection speed by setting up your desirable rate limit.',
+        learnMore: 'https://devlake.apache.org/docs/Configuration/PagerDuty/#custom-rate-limit-optional',
+        externalInfo: 'PagerDuty does not specify a maximum value of rate limit.',
         defaultValue: 10000,
       },
     ],

@@ -30,6 +30,7 @@ import { GitLabDataScope } from '@/plugins/register/gitlab';
 import { JenkinsDataScope } from '@/plugins/register/jenkins';
 import { BitbucketDataScope } from '@/plugins/register/bitbucket';
 import { SonarQubeDataScope } from '@/plugins/register/sonarqube';
+import { PagerDutyDataScope } from '@/plugins/register/pagerduty';
 import { ZentaoDataScope } from '@/plugins/register/zentao';
 
 import * as API from './api';
@@ -147,12 +148,16 @@ export const DataScopeForm = ({
             <SonarQubeDataScope connectionId={connectionId} selectedItems={scope} onChangeItems={setScope} />
           )}
 
-          {plugin === 'zentao' && (
-            <ZentaoDataScope connectionId={connectionId} selectedItems={scope} onChangeItems={setScope} />
+          {plugin === 'pagerduty' && (
+            <PagerDutyDataScope connectionId={connectionId} selectedItems={scope} onChangeItems={setScope} />
           )}
 
           {plugin === 'tapd' && (
             <TapdDataScope connectionId={connectionId} selectedItems={scope} onChangeItems={setScope} />
+          )}
+
+          {plugin === 'zentao' && (
+            <ZentaoDataScope connectionId={connectionId} selectedItems={scope} onChangeItems={setScope} />
           )}
         </div>
 
