@@ -291,47 +291,6 @@ export const TapdTransformation = ({ connectionId, scopeId, transformation, setT
           </div>
         </div>
       </div>
-      <Divider />
-      {/* Cross-domain */}
-      <div>
-        <h2>Cross-domain</h2>
-        <p>
-          Connect `commits` and `issues` to measure metrics such as{' '}
-          <ExternalLink link="https://devlake.apache.org/docs/Metrics/BugCountPer1kLinesOfCode">
-            Bug Count per 1k Lines of Code
-          </ExternalLink>{' '}
-          or man hour distribution on different work types.
-        </p>
-        <FormGroup
-          inline
-          label={
-            <>
-              <span>Connect Commits and Tapd Issues</span>
-              <HelpTooltip
-                content={
-                  <div>
-                    If you are using remote links to connect commits and issues, you can specify the commit SHA pattern.
-                    DevLake will parse the commit_sha from your tapd issues’ remote/web links and store the relationship
-                    in the table `issue_commits`.
-                  </div>
-                }
-              />
-            </>
-          }
-        >
-          <InputGroup
-            fill
-            placeholder="/commit/([0-9a-f]{40})$"
-            value={transformation.remotelinkCommitShaPattern ?? ''}
-            onChange={(e) =>
-              setTransformation({
-                ...transformation,
-                remotelinkCommitShaPattern: e.target.value,
-              })
-            }
-          />
-        </FormGroup>
-      </div>
     </S.TransformationWrapper>
   );
 };
