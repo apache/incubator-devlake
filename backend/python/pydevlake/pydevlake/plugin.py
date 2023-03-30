@@ -116,7 +116,7 @@ class Plugin(ABC):
                         id=tool_scope.id,
                         parent_id=group_id,
                         name=tool_scope.name,
-                        scope=tool_scope
+                        data=tool_scope
                     )
                 )
         else:
