@@ -26,24 +26,36 @@ import (
 	"testing"
 )
 
-func TestImportIssueCommitDataFlow(t *testing.T) {
+func TestImportIssueRepoCommitDataFlow(t *testing.T) {
 	var plugin impl.Customize
 	dataflowTester := e2ehelper.NewDataFlowTester(t, "customize", plugin)
 
-	// create table `issue_commits`
+	// create tables `issue_repo_commits` and `issue_commits`
+	dataflowTester.FlushTabler(&crossdomain.IssueRepoCommit{})
 	dataflowTester.FlushTabler(&crossdomain.IssueCommit{})
 	svc := service.NewService(dataflowTester.Dal)
 
-	f, err1 := os.Open("raw_tables/issues_commits.csv")
+	f, err1 := os.Open("raw_tables/issue_repo_commits.csv")
 	if err1 != nil {
 		t.Fatal(err1)
 	}
 	defer f.Close()
 	// import data
-	err := svc.ImportIssueCommit(`{"ConnectionId":1,"BoardId":8}`, f)
+	err := svc.ImportIssueRepoCommit(`{"ConnectionId":1,"BoardId":8}`, f)
 	if err != nil {
 		t.Fatal(err)
 	}
+	dataflowTester.VerifyTableWithRawData(
+		crossdomain.IssueRepoCommit{},
+		"snapshot_tables/issue_repo_commits.csv",
+		[]string{
+			"issue_id",
+			"repo_url",
+			"commit_sha",
+			"host",
+			"namespace",
+			"repo_name",
+		})
 	dataflowTester.VerifyTableWithRawData(
 		crossdomain.IssueCommit{},
 		"snapshot_tables/issue_commits.csv",

@@ -98,5 +98,8 @@ func (p *Customize) ApiResources() map[string]map[string]plugin.ApiResourceHandl
 		"csvfiles/issue_commits.csv": {
 			"POST": p.handlers.ImportIssueCommit,
 		},
+		"csvfiles/issue_repo_commits.csv": {
+			"POST": p.handlers.ImportIssueRepoCommit,
+		},
 	}
 }

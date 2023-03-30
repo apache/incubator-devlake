@@ -88,6 +88,32 @@ func (h *Handlers) ImportIssueCommit(input *plugin.ApiResourceInput) (*plugin.Ap
 	return nil, h.svc.ImportIssueCommit(boardId, file)
 }
 
+// ImportIssueRepoCommit accepts a CSV file, parses and saves it to the database
+// @Summary      Upload issue_repo_commits.csv file
+// @Description  Upload issue_repo_commits.csv file
+// @Tags 		 plugins/customize
+// @Accept       multipart/form-data
+// @Param        boardId formData string true "the ID of the board"
+// @Param        file formData file true "select file to upload"
+// @Produce      json
+// @Success      200
+// @Failure 400  {object} shared.ApiBody "Bad Request"
+// @Failure 500  {object} shared.ApiBody "Internal Error"
+// @Router       /plugins/customize/csvfiles/issue_repo_commits.csv [post]
+func (h *Handlers) ImportIssueRepoCommit(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, errors.Error) {
+	file, err := h.extractFile(input)
+	if err != nil {
+		return nil, err
+	}
+	// nolint
+	defer file.Close()
+	boardId := strings.TrimSpace(input.Request.FormValue("boardId"))
+	if boardId == "" {
+		return nil, errors.Default.New("empty boardId")
+	}
+	return nil, h.svc.ImportIssueRepoCommit(boardId, file)
+}
+
 func (h *Handlers) extractFile(input *plugin.ApiResourceInput) (io.ReadCloser, errors.Error) {
 	if input.Request == nil {
 		return nil, errors.Default.New("request is nil")
