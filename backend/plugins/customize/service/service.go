@@ -178,7 +178,7 @@ func (s *Service) ImportIssueCommit(rawDataParams string, file io.ReadCloser) er
 	return s.importCSV(file, rawDataParams, s.issueCommitHandler)
 }
 
-// ImportIssueRepoCommit imports data to the table `issue_repo_commit` and `issue_commit`
+// ImportIssueRepoCommit imports data to the table `issue_repo_commits` and `issue_commits`
 func (s *Service) ImportIssueRepoCommit(rawDataParams string, file io.ReadCloser) errors.Error {
 	fields := make(map[string]struct{})
 	// get all fields of the table `issue_repo_commit`
@@ -297,7 +297,7 @@ func (s *Service) issueCommitHandler(record map[string]interface{}) errors.Error
 	return s.dal.CreateWithMap(&crossdomain.IssueCommit{}, record)
 }
 
-// issueRepoCommitHandlerFactory returns a handler that will populate the `issue_commits` and `issue_repo_commit` table
+// issueRepoCommitHandlerFactory returns a handler that will populate the `issue_commits` and `issue_repo_commits` table
 // ths issueCommitsFields is used to filter the fields that should be inserted into the `issue_commits` table
 func (s *Service) issueRepoCommitHandlerFactory(issueCommitsFields map[string]struct{}) func(record map[string]interface{}) errors.Error {
 	return func(record map[string]interface{}) errors.Error {
