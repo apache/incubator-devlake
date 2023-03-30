@@ -31,7 +31,7 @@ const RAW_BUG_CHANGELOG_TABLE = "tapd_api_bug_changelogs"
 var _ plugin.SubTaskEntryPoint = CollectBugChangelogs
 
 func CollectBugChangelogs(taskCtx plugin.SubTaskContext) errors.Error {
-	rawDataSubTaskArgs, data := CreateRawDataSubTaskArgs(taskCtx, RAW_BUG_CHANGELOG_TABLE, false)
+	rawDataSubTaskArgs, data := CreateRawDataSubTaskArgs(taskCtx, RAW_BUG_CHANGELOG_TABLE)
 	logger := taskCtx.GetLogger()
 	logger.Info("collect storyChangelogs")
 	collectorWithState, err := helper.NewStatefulApiCollector(*rawDataSubTaskArgs, data.TimeAfter)

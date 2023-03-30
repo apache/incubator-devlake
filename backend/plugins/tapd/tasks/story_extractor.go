@@ -39,7 +39,7 @@ var ExtractStoryMeta = plugin.SubTaskMeta{
 }
 
 func ExtractStories(taskCtx plugin.SubTaskContext) errors.Error {
-	rawDataSubTaskArgs, data := CreateRawDataSubTaskArgs(taskCtx, RAW_STORY_TABLE, false)
+	rawDataSubTaskArgs, data := CreateRawDataSubTaskArgs(taskCtx, RAW_STORY_TABLE)
 	db := taskCtx.GetDal()
 	statusList := make([]models.TapdStoryStatus, 0)
 	statusLanguageMap, getStdStatus, err := getDefaultStdStatusMapping(data, db, statusList)

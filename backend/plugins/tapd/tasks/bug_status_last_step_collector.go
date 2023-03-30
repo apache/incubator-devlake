@@ -30,7 +30,7 @@ const RAW_BUG_STATUS_LAST_STEP_TABLE = "tapd_api_bug_status_last_steps"
 var _ plugin.SubTaskEntryPoint = CollectBugStatusLastStep
 
 func CollectBugStatusLastStep(taskCtx plugin.SubTaskContext) errors.Error {
-	rawDataSubTaskArgs, data := CreateRawDataSubTaskArgs(taskCtx, RAW_BUG_STATUS_LAST_STEP_TABLE, false)
+	rawDataSubTaskArgs, data := CreateRawDataSubTaskArgs(taskCtx, RAW_BUG_STATUS_LAST_STEP_TABLE)
 	logger := taskCtx.GetLogger()
 	logger.Info("collect bugStatus")
 	collector, err := helper.NewApiCollector(helper.ApiCollectorArgs{

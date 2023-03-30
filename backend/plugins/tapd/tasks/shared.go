@@ -150,14 +150,13 @@ func GetRawMessageArrayFromResponse(res *http.Response) ([]json.RawMessage, erro
 
 type TapdApiParams struct {
 	ConnectionId uint64
-	CompanyId    uint64
 	WorkspaceId  uint64
 }
 
 // CreateRawDataSubTaskArgs creates a new instance of api.RawDataSubTaskArgs based on the provided
 // task context, raw table name, and a flag to determine if the company ID should be used.
 // It returns a pointer to the created api.RawDataSubTaskArgs and a pointer to the filtered TapdTaskData.
-func CreateRawDataSubTaskArgs(taskCtx plugin.SubTaskContext, rawTable string, useCompanyId bool) (*api.RawDataSubTaskArgs, *TapdTaskData) {
+func CreateRawDataSubTaskArgs(taskCtx plugin.SubTaskContext, rawTable string) (*api.RawDataSubTaskArgs, *TapdTaskData) {
 	// Retrieve task data from the provided task context and cast it to TapdTaskData
 	data := taskCtx.GetData().(*TapdTaskData)
 	// Create a filtered copy of the original data
@@ -168,12 +167,6 @@ func CreateRawDataSubTaskArgs(taskCtx plugin.SubTaskContext, rawTable string, us
 	var params = TapdApiParams{
 		ConnectionId: data.Options.ConnectionId,
 		WorkspaceId:  data.Options.WorkspaceId,
-	}
-	// Check if the company ID should be used and if it is not zero, add it to the params
-	if data.Options.CompanyId != 0 && useCompanyId {
-		params.CompanyId = data.Options.CompanyId
-	} else {
-		filteredData.Options.CompanyId = 0
 	}
 	// Create the RawDataSubTaskArgs with the task context, params, and raw table name
 	rawDataSubTaskArgs := &api.RawDataSubTaskArgs{
@@ -213,9 +206,10 @@ func getTapdTypeMappings(data *TapdTaskData, db dal.Dal, system string) (map[uin
 // It returns the created map.
 func getStdTypeMappings(data *TapdTaskData) map[string]string {
 	stdTypeMappings := make(map[string]string)
+	mapping := data.Options.TransformationRules.TypeMappings
 	// Map user types to standard types
-	for userType, stdType := range data.Options.TransformationRules.TypeMappings {
-		stdTypeMappings[userType] = strings.ToUpper(stdType.StandardType)
+	for userType, stdType := range mapping {
+		stdTypeMappings[userType] = strings.ToUpper(stdType)
 	}
 	return stdTypeMappings
 }
@@ -223,15 +217,13 @@ func getStdTypeMappings(data *TapdTaskData) map[string]string {
 // getStatusMapping creates a map of original status values to standard status values
 // based on the provided TapdTaskData. It returns the created map.
 func getStatusMapping(data *TapdTaskData) map[string]string {
-	statusMapping := make(map[string]string)
+	stdStatusMappings := make(map[string]string)
 	mapping := data.Options.TransformationRules.StatusMappings
 	// Map original status values to standard status values
-	for std, orig := range mapping {
-		for _, v := range orig {
-			statusMapping[v] = std
-		}
+	for userStatus, stdStatus := range mapping {
+		stdStatusMappings[userStatus] = strings.ToUpper(stdStatus)
 	}
-	return statusMapping
+	return stdStatusMappings
 }
 
 // getDefaultStdStatusMapping retrieves default standard status mappings for the given TapdTaskData and status list.

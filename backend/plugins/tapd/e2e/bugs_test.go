@@ -34,16 +34,15 @@ func TestTapdBugDataFlow(t *testing.T) {
 	taskData := &tasks.TapdTaskData{
 		Options: &tasks.TapdOptions{
 			ConnectionId: 1,
-			CompanyId:    99,
 			WorkspaceId:  991,
-			TransformationRules: tasks.TransformationRules{
-				TypeMappings: map[string]tasks.TypeMapping{
-					"BUG":  {StandardType: "缺陷"},
-					"TASK": {StandardType: "任务"},
+			TransformationRules: &tasks.TransformationRules{
+				TypeMappings: tasks.TypeMappings{
+					"BUG":  "缺陷",
+					"TASK": "任务",
 				},
-				StatusMappings: map[string]tasks.OriginalStatus{
-					"完成":  []string{"已关闭"},
-					"处理中": []string{"接受/处理"},
+				StatusMappings: tasks.StatusMappings{
+					"已关闭":   "完成",
+					"接受/处理": "处理中",
 				},
 			},
 		},

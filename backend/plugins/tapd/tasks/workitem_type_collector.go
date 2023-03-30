@@ -32,7 +32,7 @@ const RAW_WORKITEM_TYPE_TABLE = "tapd_api_workitem_types"
 var _ plugin.SubTaskEntryPoint = CollectWorkitemTypes
 
 func CollectWorkitemTypes(taskCtx plugin.SubTaskContext) errors.Error {
-	rawDataSubTaskArgs, data := CreateRawDataSubTaskArgs(taskCtx, RAW_WORKITEM_TYPE_TABLE, false)
+	rawDataSubTaskArgs, data := CreateRawDataSubTaskArgs(taskCtx, RAW_WORKITEM_TYPE_TABLE)
 	logger := taskCtx.GetLogger()
 	logger.Info("collect workitem_type")
 	collector, err := api.NewApiCollector(api.ApiCollectorArgs{

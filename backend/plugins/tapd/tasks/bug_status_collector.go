@@ -30,7 +30,7 @@ const RAW_BUG_STATUS_TABLE = "tapd_api_bug_status"
 var _ plugin.SubTaskEntryPoint = CollectBugStatus
 
 func CollectBugStatus(taskCtx plugin.SubTaskContext) errors.Error {
-	rawDataSubTaskArgs, data := CreateRawDataSubTaskArgs(taskCtx, RAW_BUG_STATUS_TABLE, false)
+	rawDataSubTaskArgs, data := CreateRawDataSubTaskArgs(taskCtx, RAW_BUG_STATUS_TABLE)
 	logger := taskCtx.GetLogger()
 	logger.Info("collect bugStatus")
 

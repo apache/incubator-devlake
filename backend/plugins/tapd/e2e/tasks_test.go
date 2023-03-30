@@ -35,12 +35,11 @@ func TestTapdTaskDataFlow(t *testing.T) {
 	taskData := &tasks.TapdTaskData{
 		Options: &tasks.TapdOptions{
 			ConnectionId: 1,
-			CompanyId:    99,
 			WorkspaceId:  991,
-			TransformationRules: tasks.TransformationRules{
-				TypeMappings: map[string]tasks.TypeMapping{
-					"BUG":  {StandardType: "缺陷"},
-					"TASK": {StandardType: "任务"},
+			TransformationRules: &tasks.TransformationRules{
+				TypeMappings: tasks.TypeMappings{
+					"BUG":  "缺陷",
+					"TASK": "任务",
 				},
 			},
 		},

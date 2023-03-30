@@ -31,7 +31,7 @@ const RAW_TASK_TABLE = "tapd_api_tasks"
 var _ plugin.SubTaskEntryPoint = CollectTasks
 
 func CollectTasks(taskCtx plugin.SubTaskContext) errors.Error {
-	rawDataSubTaskArgs, data := CreateRawDataSubTaskArgs(taskCtx, RAW_TASK_TABLE, false)
+	rawDataSubTaskArgs, data := CreateRawDataSubTaskArgs(taskCtx, RAW_TASK_TABLE)
 	logger := taskCtx.GetLogger()
 	logger.Info("collect tasks")
 	collectorWithState, err := helper.NewStatefulApiCollector(*rawDataSubTaskArgs, data.TimeAfter)

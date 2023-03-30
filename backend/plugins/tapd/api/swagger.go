@@ -17,6 +17,8 @@ limitations under the License.
 
 package api
 
+import "github.com/apache/incubator-devlake/plugins/tapd/tasks"
+
 // @Summary blueprints setting for tapd
 // @Description blueprint setting for tapd
 // @Tags plugins/tapd
@@ -65,17 +67,6 @@ type TapdPipelinePlan [][]struct {
 }
 
 type TransformationRules struct {
-	TypeMappings   TypeMappings   `json:"typeMappings"`
-	StatusMappings StatusMappings `json:"statusMappings"`
+	TypeMappings   tasks.TypeMappings   `json:"typeMappings"`
+	StatusMappings tasks.StatusMappings `json:"statusMappings"`
 }
-type TypeMapping struct {
-	StandardType string `json:"standardType"`
-}
-
-type StatusMappings struct {
-	TodoStatus       []string `json:"todoStatus"`
-	InProgressStatus []string `json:"inprogressStatus"`
-	DoneStatus       []string `json:"doneStatus"`
-}
-
-type TypeMappings map[string]TypeMapping

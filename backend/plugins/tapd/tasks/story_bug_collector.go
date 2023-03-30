@@ -33,7 +33,7 @@ const RAW_STORY_BUG_TABLE = "tapd_api_story_bugs"
 var _ plugin.SubTaskEntryPoint = CollectStoryBugs
 
 func CollectStoryBugs(taskCtx plugin.SubTaskContext) errors.Error {
-	rawDataSubTaskArgs, data := CreateRawDataSubTaskArgs(taskCtx, RAW_STORY_BUG_TABLE, false)
+	rawDataSubTaskArgs, data := CreateRawDataSubTaskArgs(taskCtx, RAW_STORY_BUG_TABLE)
 	db := taskCtx.GetDal()
 	collectorWithState, err := api.NewStatefulApiCollector(*rawDataSubTaskArgs, data.TimeAfter)
 	if err != nil {

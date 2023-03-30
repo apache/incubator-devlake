@@ -37,7 +37,7 @@ var ConvertAccountsMeta = plugin.SubTaskMeta{
 }
 
 func ConvertAccounts(taskCtx plugin.SubTaskContext) errors.Error {
-	rawDataSubTaskArgs, data := CreateRawDataSubTaskArgs(taskCtx, RAW_USER_TABLE, false)
+	rawDataSubTaskArgs, data := CreateRawDataSubTaskArgs(taskCtx, RAW_USER_TABLE)
 	db := taskCtx.GetDal()
 	clauses := []dal.Clause{
 		dal.From(&models.TapdAccount{}),
