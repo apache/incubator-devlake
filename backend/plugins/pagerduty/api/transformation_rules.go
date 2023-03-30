@@ -31,7 +31,7 @@ import (
 // @Success 200  {object} models.PagerdutyTransformationRule
 // @Failure 400  {object} shared.ApiBody "Bad Request"
 // @Failure 500  {object} shared.ApiBody "Internal Error"
-// @Router /plugins/pagerduty/:connectionId/transformation_rules [POST]
+// @Router /plugins/pagerduty/connections/:connectionId/transformation_rules [POST]
 func CreateTransformationRule(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, errors.Error) {
 	return trHelper.Create(input)
 }
@@ -46,7 +46,7 @@ func CreateTransformationRule(input *plugin.ApiResourceInput) (*plugin.ApiResour
 // @Success 200  {object} models.PagerdutyTransformationRule
 // @Failure 400  {object} shared.ApiBody "Bad Request"
 // @Failure 500  {object} shared.ApiBody "Internal Error"
-// @Router /plugins/pagerduty/:connectionId/transformation_rules/{id} [PATCH]
+// @Router /plugins/pagerduty/connections/:connectionId/transformation_rules/{id} [PATCH]
 func UpdateTransformationRule(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, errors.Error) {
 	return trHelper.Update(input)
 }
@@ -59,7 +59,7 @@ func UpdateTransformationRule(input *plugin.ApiResourceInput) (*plugin.ApiResour
 // @Success 200  {object} models.PagerdutyTransformationRule
 // @Failure 400  {object} shared.ApiBody "Bad Request"
 // @Failure 500  {object} shared.ApiBody "Internal Error"
-// @Router /plugins/pagerduty/:connectionId/transformation_rules/{id} [GET]
+// @Router /plugins/pagerduty/connections/:connectionId/transformation_rules/{id} [GET]
 func GetTransformationRule(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, errors.Error) {
 	return trHelper.Get(input)
 }
@@ -73,7 +73,7 @@ func GetTransformationRule(input *plugin.ApiResourceInput) (*plugin.ApiResourceO
 // @Success 200  {object} []models.PagerdutyTransformationRule
 // @Failure 400  {object} shared.ApiBody "Bad Request"
 // @Failure 500  {object} shared.ApiBody "Internal Error"
-// @Router /plugins/pagerduty/:connectionId/transformation_rules [GET]
+// @Router /plugins/pagerduty/connections/:connectionId/transformation_rules [GET]
 func GetTransformationRuleList(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, errors.Error) {
 	return trHelper.List(input)
 }

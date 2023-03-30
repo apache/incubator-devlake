@@ -22,7 +22,6 @@ import (
 	"github.com/apache/incubator-devlake/core/dal"
 	"github.com/apache/incubator-devlake/core/errors"
 	"github.com/apache/incubator-devlake/core/models/domainlayer"
-	"github.com/apache/incubator-devlake/core/models/domainlayer/devops"
 	"github.com/apache/incubator-devlake/core/models/domainlayer/didgen"
 	"github.com/apache/incubator-devlake/core/models/domainlayer/ticket"
 	"github.com/apache/incubator-devlake/core/plugin"
@@ -114,26 +113,16 @@ func makeScopesV200(bpScopes []*plugin.BlueprintScopeV200, connection *models.Pa
 	scopes := make([]plugin.Scope, 0)
 	for _, bpScope := range bpScopes {
 		service := &models.Service{}
-		// get repo from db
+		// get service from db
 		err := basicRes.GetDal().First(service, dal.Where(`connection_id = ? AND id = ?`, connection.ID, bpScope.Id))
 		if err != nil {
-			return nil, errors.Default.Wrap(err, fmt.Sprintf("fail to find service: %s", bpScope.Id))
-		}
-		// add cicd_scope to scopes
-		if utils.StringsContains(bpScope.Entities, plugin.DOMAIN_TYPE_CICD) {
-			scopeCICD := &devops.CicdScope{
-				DomainEntity: domainlayer.DomainEntity{
-					Id: didgen.NewDomainIdGenerator(&models.Service{}).Generate(connection.ID, service.Id),
-				},
-				Name: service.Name,
-			}
-			scopes = append(scopes, scopeCICD)
+			return nil, errors.Default.Wrap(err, fmt.Sprintf("failed to find service: %s", bpScope.Id))
 		}
 		// add board to scopes
 		if utils.StringsContains(bpScope.Entities, plugin.DOMAIN_TYPE_TICKET) {
 			scopeTicket := &ticket.Board{
 				DomainEntity: domainlayer.DomainEntity{
-					Id: didgen.NewDomainIdGenerator(&models.Incident{}).Generate(connection.ID, service.Id),
+					Id: didgen.NewDomainIdGenerator(&models.Service{}).Generate(connection.ID, service.Id),
 				},
 				Name: service.Name,
 			}
