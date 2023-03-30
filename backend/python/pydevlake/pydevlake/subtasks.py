@@ -4,7 +4,7 @@
 # The ASF licenses this file to You under the Apache License, Version 2.0
 # (the "License"); you may not use this file except in compliance with
 # the License.  You may obtain a copy of the License at
-import time
+
 #     http://www.apache.org/licenses/LICENSE-2.0
 
 # Unless required by applicable law or agreed to in writing, software
@@ -45,7 +45,7 @@ class Subtask:
     def verb(self) -> str:
         pass
 
-    def run(self, ctx: Context, sync_point_interval=1):
+    def run(self, ctx: Context, sync_point_interval=100):
         with Session(ctx.engine) as session:
             subtask_run = self._start_subtask(session, ctx.connection.id)
             if ctx.incremental:
@@ -57,14 +57,11 @@ class Subtask:
             try:
                 for i, (data, state) in enumerate(self.fetch(state, session, ctx)):
                     self.process(data, session, ctx)
-                    # print("yielding python progress")
                     if i % sync_point_interval == 0 and i != 0:
-
                         # Save current state
                         subtask_run.state = json.dumps(state)
                         session.merge(subtask_run)
                         session.commit()
-                        time.sleep(1)
                         # Send progress
                         yield RemoteProgress(
                             increment=sync_point_interval,

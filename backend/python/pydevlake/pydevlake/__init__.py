@@ -22,3 +22,9 @@ from .message import RemoteScopeGroup
 from .plugin import Plugin, ScopeTxRulePair
 from .stream import DomainType, Stream, Substream
 from .context import Context
+
+# the debugger hangs on startup during plugin registration (reason unknown), hence this workaround
+import sys
+if not sys.argv.__contains__('startup'):
+    from pydevlake.helpers import debugger
+    debugger.init()

@@ -24,9 +24,6 @@ from pydevlake.message import Message
 
 
 def plugin_method(func):
-    # keep this to enable debugging, and don't move this elsewhere or it can cause crashes if it gets called during the bootstrap process.
-    # noinspection PyUnresolvedReferences
-    from pydevlake.helpers import debugger
 
     def open_send_channel() -> TextIO:
         fd = 3

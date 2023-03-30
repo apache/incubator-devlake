@@ -18,7 +18,7 @@ import os
 from pydevlake import logger
 
 
-def __start__():
+def init():
     debugger = os.getenv("USE_PYTHON_DEBUGGER", default="").lower()
     if debugger == "":
         return
@@ -32,12 +32,10 @@ def __start__():
             import pydevd_pycharm as pydevd
             try:
                 pydevd.settrace(host=host, port=port, suspend=False, stdoutToServer=True, stderrToServer=True)
+                logger.info("Pycharm remote debugger successfully connected")
             except TimeoutError as e:
                 logger.error(f"Failed to connect to pycharm debugger on {host}:{port}. Make sure it is running")
         except ImportError as e:
             logger.error("Pycharm debugger library is not installed")
     else:
         logger.error(f"Unsupported Python debugger specified: {debugger}")
-
-
-__start__()
