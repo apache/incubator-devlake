@@ -133,7 +133,7 @@ func PatchProject(name string, body map[string]interface{}) (*models.ApiOutputPr
 	projectInput := &models.ApiInputProject{}
 
 	// load input
-	err := helper.DecodeMapStruct(body, projectInput)
+	err := helper.DecodeMapStruct(body, projectInput, true)
 	if err != nil {
 		return nil, err
 	}

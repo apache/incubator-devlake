@@ -74,7 +74,7 @@ func UpdateTransformationRule(input *plugin.ApiResourceInput) (*plugin.ApiResour
 	if err != nil {
 		return nil, errors.Default.Wrap(err, "error on saving TransformationRule")
 	}
-	err = api.DecodeMapStruct(input.Body, &old)
+	err = api.DecodeMapStruct(input.Body, &old, true)
 	if err != nil {
 		return nil, errors.Default.Wrap(err, "error decoding map into transformationRule")
 	}

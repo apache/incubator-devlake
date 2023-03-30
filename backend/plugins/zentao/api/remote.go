@@ -43,7 +43,7 @@ type ProjectResponse struct {
 	Values []models.ZentaoProject `json:"projects"`
 }
 
-func getGroup(basicRes context2.BasicRes, gid string, queryData *plugin.QueryData, connection models.ZentaoConnection) ([]api.BaseRemoteGroupResponse, errors.Error) {
+func getGroup(basicRes context2.BasicRes, gid string, queryData *api.RemoteQueryData, connection models.ZentaoConnection) ([]api.BaseRemoteGroupResponse, errors.Error) {
 	return []api.BaseRemoteGroupResponse{
 		{
 			Id:   `products`,
@@ -79,7 +79,7 @@ func RemoteScopes(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, er
 	} else if gid == `products` {
 		return productRemoteHelper.GetScopesFromRemote(input,
 			nil,
-			func(basicRes context2.BasicRes, gid string, queryData *plugin.QueryData, connection models.ZentaoConnection) ([]models.ZentaoProductRes, errors.Error) {
+			func(basicRes context2.BasicRes, gid string, queryData *api.RemoteQueryData, connection models.ZentaoConnection) ([]models.ZentaoProductRes, errors.Error) {
 				query := initialQuery(queryData)
 				// create api client
 				apiClient, err := api.NewApiClientFromConnection(context.TODO(), basicRes, &connection)
@@ -104,7 +104,7 @@ func RemoteScopes(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, er
 	} else if gid == `projects` {
 		return projectRemoteHelper.GetScopesFromRemote(input,
 			nil,
-			func(basicRes context2.BasicRes, gid string, queryData *plugin.QueryData, connection models.ZentaoConnection) ([]models.ZentaoProject, errors.Error) {
+			func(basicRes context2.BasicRes, gid string, queryData *api.RemoteQueryData, connection models.ZentaoConnection) ([]models.ZentaoProject, errors.Error) {
 				query := initialQuery(queryData)
 				// create api client
 				apiClient, err := api.NewApiClientFromConnection(context.TODO(), basicRes, &connection)
@@ -130,7 +130,7 @@ func RemoteScopes(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, er
 	return nil, nil
 }
 
-func initialQuery(queryData *plugin.QueryData) url.Values {
+func initialQuery(queryData *api.RemoteQueryData) url.Values {
 	query := url.Values{}
 	query.Set("page", fmt.Sprintf("%v", queryData.Page))
 	query.Set("limit", fmt.Sprintf("%v", queryData.PerPage))

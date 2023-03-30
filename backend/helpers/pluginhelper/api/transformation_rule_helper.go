@@ -28,7 +28,6 @@ import (
 	"github.com/apache/incubator-devlake/core/log"
 	"github.com/apache/incubator-devlake/core/plugin"
 	"github.com/go-playground/validator/v10"
-	"github.com/mitchellh/mapstructure"
 )
 
 // TransformationRuleHelper is used to write the CURD of transformation rule
@@ -59,17 +58,20 @@ func (t TransformationRuleHelper[Tr]) Create(input *plugin.ApiResourceInput) (*p
 		return nil, errors.Default.Wrap(e, "the connection ID should be an non-zero integer")
 	}
 	var rule Tr
-	err := Decode(input.Body, &rule, t.validator)
-	if err != nil {
-		return nil, errors.BadInput.Wrap(err, "error in decoding transformation rule")
+	if err := DecodeMapStruct(input.Body, &rule, false); err != nil {
+		return nil, errors.Default.Wrap(err, "error in decoding transformation rule")
+	}
+	if t.validator != nil {
+		if err := t.validator.Struct(rule); err != nil {
+			return nil, errors.Default.Wrap(err, "error validating transformation rule")
+		}
 	}
 	valueConnectionId := reflect.ValueOf(&rule).Elem().FieldByName("ConnectionId")
 	if valueConnectionId.IsValid() {
 		valueConnectionId.SetUint(connectionId)
 	}
 
-	err = t.db.Create(&rule)
-	if err != nil {
+	if err := t.db.Create(&rule); err != nil {
 		if t.db.IsDuplicationError(err) {
 			return nil, errors.BadInput.New("there was a transformation rule with the same name, please choose another name")
 		}
@@ -88,7 +90,7 @@ func (t TransformationRuleHelper[Tr]) Update(input *plugin.ApiResourceInput) (*p
 	if err != nil {
 		return nil, errors.Default.Wrap(err, "error on saving TransformationRule")
 	}
-	err = errors.Convert(mapstructure.Decode(input.Body, &old))
+	err = DecodeMapStruct(input.Body, &old, false)
 	if err != nil {
 		return nil, errors.Default.Wrap(err, "error decoding map into transformationRule")
 	}

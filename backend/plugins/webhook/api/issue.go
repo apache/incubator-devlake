@@ -79,7 +79,7 @@ func PostIssue(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, error
 	}
 	// get request
 	request := &WebhookIssueRequest{}
-	err = helper.DecodeMapStruct(input.Body, request)
+	err = helper.DecodeMapStruct(input.Body, request, true)
 	if err != nil {
 		return &plugin.ApiResourceOutput{Body: err.Error(), Status: http.StatusBadRequest}, nil
 	}
