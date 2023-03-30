@@ -122,18 +122,26 @@ func (m *ApiCollectorStateManager) Execute() errors.Error {
 }
 
 // NewStatefulApiCollectorForFinalizableEntity aims to add timeFilter/diffSync support for
-// APIs that do NOT support filtering data by updated date. However, it comes with the
+// APIs that do NOT support filtering data by the updated date. However, it comes with the
 // following constraints:
 //  1. The entity is a short-lived object or it is likely to be irrelevant
 //     a. ci/id pipelines are short-lived objects
 //     b. pull request might took a year to be closed or never, but it is likely irrelevant
-//  2. The entity must be Finalizable: when it is finalized, no modification forever
+//  2. The entity must be Finalizable, meaning no future modifications will happen to it once it
+//     enter some sort of `Closed`/`Finished` status.
 //  3. The API must fit one of the following traits:
-//     a. it supports filtering by Created Date, in this case, you may specify the `GetTotalPages`
-//     option to fetch data with Determined Strategy if possible.
+//     a. it supports filtering by Created Date, in this case, you must implement the filtering
+//     via the `UrlTemplate`, `Query` or `Header` hook based on the API specification.
 //     b. or sorting by Created Date in Descending order, in this case, you must use `Concurrency`
 //     or `GetNextPageCustomData` instead of `GetTotalPages` for Undetermined Strategy since we have
 //     to stop the process in the middle.
+//
+// Assuming the API fits the bill, the strategies can be categoried into:
+//   - Determined Strategy: if the API supports filtering by the Created Date, use the `GetTotalPages` hook
+//   - Undetermind Strategy: if the API supports sorting by the Created Date in Descending order and
+//     fetching by Page Number, use the `Concurrent` hook
+//   - Sequential Strategy: if the API supports sorting by the Created Date in Descending order but
+//     the next page can only be fetched by the Cursor/Token from the previous page, use the `GetNextPageCustomData` hook
 func NewStatefulApiCollectorForFinalizableEntity(args FinalizableApiCollectorArgs) (plugin.SubTask, errors.Error) {
 	// create a manager which could execute multiple collector but acts as a single subtask to callers
 	manager, err := NewStatefulApiCollector(RawDataSubTaskArgs{
@@ -258,27 +266,31 @@ type FinalizableApiCollectorArgs struct {
 	CollectUnfinishedDetails FinalizableApiCollectorDetailArgs
 }
 
+// FinalizableApiCollectorCommonArgs is the common arguments for both list and detail collectors
+// Note that all request-related arguments would be called or utilized before any response-related arguments
 type FinalizableApiCollectorCommonArgs struct {
-	UrlTemplate     string `comment:"GoTemplate for API url"`
-	Query           func(reqData *RequestData, createdAfter *time.Time) (url.Values, errors.Error)
-	Header          func(reqData *RequestData, createdAfter *time.Time) (http.Header, errors.Error)
-	MinTickInterval *time.Duration
-	ResponseParser  func(res *http.Response) ([]json.RawMessage, errors.Error)
-	AfterResponse   common.ApiClientAfterResponse
-	RequestBody     func(reqData *RequestData) map[string]interface{}
-	Method          string
+	UrlTemplate     string                                                                          // required, url path template for the request, e.g. repos/{{ .Params.Name }}/pulls or incident/{{ .Input.Number }} (if using iterators)
+	Method          string                                                                          // optional, request method, e.g. GET(default), POST, PUT, DELETE
+	Query           func(reqData *RequestData, createdAfter *time.Time) (url.Values, errors.Error)  // optional, build query params for the request
+	Header          func(reqData *RequestData, createdAfter *time.Time) (http.Header, errors.Error) // optional, build header for the request
+	RequestBody     func(reqData *RequestData) map[string]interface{}                               // optional, build request body for the request if the Method set to POST or PUT
+	MinTickInterval *time.Duration                                                                  // optional, minimum interval between two requests, some endpoints might have a more conservative rate limit than others within the same instance, you can mitigate this by setting a higher MinTickInterval to override the connection level rate limit.
+	AfterResponse   common.ApiClientAfterResponse                                                   // optional, hook to run after each response, would be called before the ResponseParser
+	ResponseParser  func(res *http.Response) ([]json.RawMessage, errors.Error)                      // required, parse the response body and return a list of entities
 }
+
+// FinalizableApiCollectorListArgs is the arguments for the list collector
 type FinalizableApiCollectorListArgs struct {
-	// optional, leave it be `nil` if API supports filtering by created date (Don't forget to set the Query)
-	GetCreated func(item json.RawMessage) (time.Time, errors.Error)
 	FinalizableApiCollectorCommonArgs
-	Concurrency           int
-	PageSize              int
-	GetNextPageCustomData func(prevReqData *RequestData, prevPageResponse *http.Response) (interface{}, errors.Error)
-	// need to consider the data missing problem: what if new data gets created during collection?
-	GetTotalPages func(res *http.Response, args *ApiCollectorArgs) (int, errors.Error)
+	GetCreated            func(item json.RawMessage) (time.Time, errors.Error)                                        // optional, to extract create date from a raw json of a single record, leave it be `nil` if API supports filtering by updated date (Don't forget to set the Query)
+	PageSize              int                                                                                         // required, number of records per page
+	Concurrency           int                                                                                         // required for Undetermined Strategy, number of concurrent requests
+	GetNextPageCustomData func(prevReqData *RequestData, prevPageResponse *http.Response) (interface{}, errors.Error) // required for Sequential Strategy, to extract the next page cursor from the given response
+	GetTotalPages         func(res *http.Response, args *ApiCollectorArgs) (int, errors.Error)                        // required for Determined Strategy, to extract the total number of pages from the given response
 }
+
+// FinalizableApiCollectorDetailArgs is the arguments for the detail collector
 type FinalizableApiCollectorDetailArgs struct {
 	FinalizableApiCollectorCommonArgs
-	BuildInputIterator func() (Iterator, errors.Error)
+	BuildInputIterator func() (Iterator, errors.Error) // required, create an iterator that iterates through all unfinalized records in the database. These records will be fed as the "Input" (or {{ .Input.* }} in URLTemplate) argument back into FinalizableApiCollectorCommonArgs which makes the API calls to re-collect their newest states.
 }
