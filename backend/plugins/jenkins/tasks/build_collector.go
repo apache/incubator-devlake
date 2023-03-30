@@ -108,7 +108,7 @@ func CollectApiBuilds(taskCtx plugin.SubTaskContext) errors.Error {
 					dal.Select("number"),
 					dal.From(&models.JenkinsBuild{}),
 					dal.Where(
-						"full_name = ? AND connection_id = ?",
+						"full_name = ? AND connection_id = ? AND result != 'SUCCESS'",
 						data.Options.JobFullName, data.Options.ConnectionId,
 					),
 				)
