@@ -51,7 +51,7 @@ type BlueprintV2Config struct {
 }
 type RemoteScopesChild struct {
 	Type     string      `json:"type"`
-	ParentId string      `json:"parentId"`
+	ParentId *string     `json:"parentId"`
 	Id       string      `json:"id"`
 	Name     string      `json:"name"`
 	Data     interface{} `json:"data"`
