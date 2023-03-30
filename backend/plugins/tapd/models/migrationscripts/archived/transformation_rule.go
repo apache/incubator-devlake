@@ -15,31 +15,21 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-package migrationscripts
+package archived
 
 import (
-	"github.com/apache/incubator-devlake/core/context"
-	"github.com/apache/incubator-devlake/core/errors"
-	"github.com/apache/incubator-devlake/plugins/tapd/models/migrationscripts/archived"
+	"encoding/json"
+	"github.com/apache/incubator-devlake/core/models/migrationscripts/archived"
 )
 
-type deleteIssue struct{}
-
-func (*deleteIssue) Up(basicRes context.BasicRes) errors.Error {
-	db := basicRes.GetDal()
-	err := db.DropTables(archived.TapdIssue{})
-	if err != nil {
-		return err
-	}
-	// drop if exist
-	_ = db.DropColumns(`_tool_tapd_transformation_rules`, `remotelink_commit_sha_pattern`, `remotelink_repo_pattern`)
-	return nil
+type TapdTransformationRule struct {
+	archived.NoPKModel
+	ConnectionId   uint64          `mapstructure:"connectionId" json:"connectionId"`
+	Name           string          `gorm:"type:varchar(255);index:idx_name_tapd,unique" validate:"required" mapstructure:"name" json:"name"`
+	TypeMappings   json.RawMessage `mapstructure:"typeMappings,omitempty" json:"typeMappings"`
+	StatusMappings json.RawMessage `mapstructure:"statusMappings,omitempty" json:"statusMappings"`
 }
 
-func (*deleteIssue) Version() uint64 {
-	return 20230323000004
-}
-
-func (*deleteIssue) Name() string {
-	return "Tapd delete issue and remote link"
+func (t TapdTransformationRule) TableName() string {
+	return "_tool_tapd_transformation_rules"
 }
