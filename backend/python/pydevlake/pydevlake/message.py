@@ -17,12 +17,14 @@
 from typing import Optional
 
 from pydantic import BaseModel, Field
+import jsonref
 
 from pydevlake.model import ToolScope
 
 
 class Message(BaseModel):
-    pass
+    class Config:
+        allow_population_by_field_name = True
 
 
 class SubtaskMeta(BaseModel):
@@ -41,8 +43,13 @@ class DynamicModelInfo(Message):
 
     @staticmethod
     def from_model(model_class):
+        schema = model_class.schema()
+        if 'definitions' in schema:
+            # Replace $ref with actual schema
+            schema = jsonref.replace_refs(schema, proxies=False)
+            del schema['definitions']
         return DynamicModelInfo(
-            json_schema=model_class.schema(),
+            json_schema=schema,
             table_name=model_class.__tablename__
         )
 
@@ -78,11 +85,9 @@ class RemoteProgress(Message):
 
 class PipelineTask(Message):
     plugin: str
-    # Do not snake_case this attribute,
-    # it must match the json tag name in PipelineTask go struct
-    skipOnFail: bool
-    subtasks: list[str]
-    options: dict[str, object]
+    skip_on_fail: bool = Field(default=False, alias="skipOnFail")
+    subtasks: list[str] = Field(default_factory=list)
+    options: dict[str, object] = Field(default_factory=dict)
 
 
 class DynamicDomainScope(Message):
@@ -106,7 +111,8 @@ class RemoteScopeGroup(RemoteScopeTreeNode):
 
 class RemoteScope(RemoteScopeTreeNode):
     type: str = Field("scope", const=True)
-    scope: ToolScope
+    parent_id: str = Field(..., alias="parentId")
+    data: ToolScope
 
 
 class RemoteScopes(Message):

@@ -200,7 +200,7 @@ func PatchBlueprint(id uint64, body map[string]interface{}) (*models.Blueprint, 
 	}
 
 	originMode := blueprint.Mode
-	err = helper.DecodeMapStruct(body, blueprint)
+	err = helper.DecodeMapStruct(body, blueprint, true)
 	if err != nil {
 		return nil, err
 	}
@@ -261,6 +261,7 @@ func createPipelineByBlueprint(blueprint *models.Blueprint) (*models.Pipeline, e
 		plan, err = blueprint.UnmarshalPlan()
 	}
 	if err != nil {
+		blueprintLog.Error(err, fmt.Sprintf("failed to MakePlanForBlueprint on blueprint:[%d][%s]", blueprint.ID, blueprint.Name))
 		return nil, err
 	}
 	newPipeline := models.NewPipeline{}
@@ -272,7 +273,7 @@ func createPipelineByBlueprint(blueprint *models.Blueprint) (*models.Pipeline, e
 	pipeline, err := CreatePipeline(&newPipeline)
 	// Return all created tasks to the User
 	if err != nil {
-		blueprintLog.Error(err, failToCreateCronJob)
+		blueprintLog.Error(err, fmt.Sprintf("%s on blueprint:[%d][%s]", failToCreateCronJob, blueprint.ID, blueprint.Name))
 		return nil, errors.Convert(err)
 	}
 	return pipeline, nil

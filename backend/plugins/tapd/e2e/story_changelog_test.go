@@ -34,24 +34,22 @@ func TestTapdStoryChangelogDataFlow(t *testing.T) {
 	taskData := &tasks.TapdTaskData{
 		Options: &tasks.TapdOptions{
 			ConnectionId: 1,
-			CompanyId:    99,
 			WorkspaceId:  991,
-			TransformationRules: tasks.TransformationRules{
-				TypeMappings: map[string]tasks.TypeMapping{
-					"Techstory": {
-						StandardType: "REQUIREMENT",
-					},
-					"技术债": {
-						StandardType: "REQUIREMENT",
-					},
-					"需求": {
-						StandardType: "REQUIREMENT",
-					},
+			TransformationRules: &tasks.TransformationRules{
+				TypeMappings: tasks.TypeMappings{
+					"Techstory": "REQUIREMENT",
+					"技术债":       "REQUIREMENT",
+					"需求":        "REQUIREMENT",
 				},
-				StatusMappings: map[string]tasks.OriginalStatus{
-					"DONE":        []string{"已关闭"},
-					"IN_PROGRESS": []string{"接受/处理", "开发中", "developing", "test-11test-11test-12"},
-					"TODO":        []string{"新", "planning", "test-11test-11test-11"},
+				StatusMappings: tasks.StatusMappings{
+					"已关闭":                   "DONE",
+					"接受/处理":                 "IN_PROGRESS",
+					"开发中":                   "IN_PROGRESS",
+					"developing":            "IN_PROGRESS",
+					"test-11test-11test-12": "IN_PROGRESS",
+					"新":                     "TODO",
+					"planning":              "TODO",
+					"test-11test-11test-11": "TODO",
 				},
 			},
 		},
@@ -77,6 +75,8 @@ func TestTapdStoryChangelogDataFlow(t *testing.T) {
 			"is_last_step",
 		),
 	)
+	// iteration
+	dataflowTester.ImportCsvIntoTabler("./snapshot_tables/_tool_tapd_iterations.csv", &models.TapdIteration{})
 
 	// import raw data table
 	dataflowTester.ImportCsvIntoRawTable("./raw_tables/_raw_tapd_api_story_changelogs.csv",

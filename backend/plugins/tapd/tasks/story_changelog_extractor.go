@@ -23,8 +23,6 @@ import (
 	"github.com/apache/incubator-devlake/core/plugin"
 	"github.com/apache/incubator-devlake/helpers/pluginhelper/api"
 	"github.com/apache/incubator-devlake/plugins/tapd/models"
-	"strconv"
-	"strings"
 )
 
 var _ plugin.SubTaskEntryPoint = ExtractStoryChangelog
@@ -38,7 +36,7 @@ var ExtractStoryChangelogMeta = plugin.SubTaskMeta{
 }
 
 func ExtractStoryChangelog(taskCtx plugin.SubTaskContext) errors.Error {
-	rawDataSubTaskArgs, data := CreateRawDataSubTaskArgs(taskCtx, RAW_STORY_CHANGELOG_TABLE, false)
+	rawDataSubTaskArgs, data := CreateRawDataSubTaskArgs(taskCtx, RAW_STORY_CHANGELOG_TABLE)
 	extractor, err := api.NewApiExtractor(api.ApiExtractorArgs{
 		RawDataSubTaskArgs: *rawDataSubTaskArgs,
 		Extract: func(row *api.RawData) ([]interface{}, errors.Error) {
@@ -108,6 +106,7 @@ func ExtractStoryChangelog(taskCtx plugin.SubTaskContext) errors.Error {
 					return nil, err
 				}
 				if item.Field == "iteration_id" {
+					// some users' tapd will not return iteration_id_from/iteration_id_to
 					iterationFrom, iterationTo, err := parseIterationChangelog(taskCtx, item.ValueBeforeParsed, item.ValueAfterParsed)
 					if err != nil {
 						return nil, err
@@ -127,26 +126,4 @@ func ExtractStoryChangelog(taskCtx plugin.SubTaskContext) errors.Error {
 	}
 
 	return extractor.Execute()
-}
-
-func unicodeToZh(s string) (string, error) {
-	// strconv.Quote(s) will add additional `"`, so we need to do `Unquote` again
-	str, err := strconv.Unquote(strings.Replace(strconv.Quote(s), `\\u`, `\u`, -1))
-	if err != nil {
-		return "", err
-	}
-	return str, nil
-}
-
-func convertUnicode(item *models.TapdStoryChangelogItem) errors.Error {
-	var err errors.Error
-	item.ValueAfterParsed, err = errors.Convert01(unicodeToZh(item.ValueAfterParsed))
-	if err != nil {
-		return err
-	}
-	item.ValueBeforeParsed, err = errors.Convert01(unicodeToZh(item.ValueBeforeParsed))
-	if err != nil {
-		return err
-	}
-	return nil
 }

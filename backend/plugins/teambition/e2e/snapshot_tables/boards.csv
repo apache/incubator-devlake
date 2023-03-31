@@ -1,0 +1,2 @@
+id,created_at,updated_at,_raw_data_params,_raw_data_table,_raw_data_id,_raw_data_remark,name,description,url,created_date,type
+teambition:TeambitionProject:1:64132c94f0d59df1c9825ab8,2023-03-23 14:24:57.160,2023-03-23 14:24:57.160,"{""ConnectionId"":1,""OrganizationId"":"""",""ProjectId"":""64132c94f0d59df1c9825ab8""}",_raw_teambition_api_projects,1,"",缺陷管理,"",https://www.teambition.com/project/64132c94f0d59df1c9825ab8,2023-03-16 14:49:56.415,""

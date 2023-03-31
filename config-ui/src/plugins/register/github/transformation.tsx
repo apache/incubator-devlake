@@ -98,7 +98,7 @@ export const GitHubTransformation = ({ transformation, setTransformation }: Prop
             <FormGroup inline label="Feature">
               <InputGroup
                 placeholder="(feat|feature|proposal|requirement)"
-                value={transformation.issueTypeRequirement}
+                value={transformation.issueTypeRequirement ?? ''}
                 onChange={(e) =>
                   setTransformation({
                     ...transformation,
@@ -110,7 +110,7 @@ export const GitHubTransformation = ({ transformation, setTransformation }: Prop
             <FormGroup inline label="Bug">
               <InputGroup
                 placeholder="(bug|broken)"
-                value={transformation.issueTypeBug}
+                value={transformation.issueTypeBug ?? ''}
                 onChange={(e) =>
                   setTransformation({
                     ...transformation,
@@ -132,7 +132,7 @@ export const GitHubTransformation = ({ transformation, setTransformation }: Prop
             >
               <InputGroup
                 placeholder="(incident|failure)"
-                value={transformation.issueTypeIncident}
+                value={transformation.issueTypeIncident ?? ''}
                 onChange={(e) =>
                   setTransformation({
                     ...transformation,
@@ -154,7 +154,7 @@ export const GitHubTransformation = ({ transformation, setTransformation }: Prop
         >
           <InputGroup
             placeholder="(highest|high|medium|low|p0|p1|p2|p3)"
-            value={transformation.issuePriority}
+            value={transformation.issuePriority ?? ''}
             onChange={(e) =>
               setTransformation({
                 ...transformation,
@@ -174,7 +174,7 @@ export const GitHubTransformation = ({ transformation, setTransformation }: Prop
         >
           <InputGroup
             placeholder="component(.*)"
-            value={transformation.issueComponent}
+            value={transformation.issueComponent ?? ''}
             onChange={(e) =>
               setTransformation({
                 ...transformation,
@@ -194,7 +194,7 @@ export const GitHubTransformation = ({ transformation, setTransformation }: Prop
         >
           <InputGroup
             placeholder="severity(.*)"
-            value={transformation.issueSeverity}
+            value={transformation.issueSeverity ?? ''}
             onChange={(e) =>
               setTransformation({
                 ...transformation,
@@ -233,7 +233,7 @@ export const GitHubTransformation = ({ transformation, setTransformation }: Prop
                 <p>The Job name that matches</p>
                 <InputGroup
                   placeholder="(deploy|push-image)"
-                  value={transformation.deploymentPattern}
+                  value={transformation.deploymentPattern ?? ''}
                   onChange={(e) =>
                     setTransformation({
                       ...transformation,
@@ -250,7 +250,7 @@ export const GitHubTransformation = ({ transformation, setTransformation }: Prop
                 <InputGroup
                   disabled={!transformation.deploymentPattern}
                   placeholder="production"
-                  value={transformation.productionPattern}
+                  value={transformation.productionPattern ?? ''}
                   onChange={(e) =>
                     setTransformation({
                       ...transformation,
@@ -290,7 +290,7 @@ export const GitHubTransformation = ({ transformation, setTransformation }: Prop
         >
           <InputGroup
             placeholder="type(.*)$"
-            value={transformation.prType}
+            value={transformation.prType ?? ''}
             onChange={(e) => setTransformation({ ...transformation, prType: e.target.value })}
           />
         </FormGroup>
@@ -305,7 +305,7 @@ export const GitHubTransformation = ({ transformation, setTransformation }: Prop
         >
           <InputGroup
             placeholder="component(.*)$"
-            value={transformation.prComponent}
+            value={transformation.prComponent ?? ''}
             onChange={(e) =>
               setTransformation({
                 ...transformation,
@@ -351,7 +351,7 @@ export const GitHubTransformation = ({ transformation, setTransformation }: Prop
           }
         >
           <TextArea
-            value={transformation.prBodyClosePattern}
+            value={transformation.prBodyClosePattern ?? ''}
             placeholder="(?mi)(fix|close|resolve|fixes|closes|resolves|fixed|closed|resolved)[s]*.*(((and )?(#|https://github.com/%s/%s/issues/)d+[ ]*)+)"
             onChange={(e) =>
               setTransformation({
@@ -384,7 +384,7 @@ export const GitHubTransformation = ({ transformation, setTransformation }: Prop
             Compare the last
             <InputGroup
               style={{ width: 60 }}
-              value={transformation.refdiff?.tagsOrder}
+              value={transformation.refdiff?.tagsOrder ?? ''}
               onChange={(e) =>
                 setTransformation({
                   ...transformation,
@@ -399,7 +399,7 @@ export const GitHubTransformation = ({ transformation, setTransformation }: Prop
             <InputGroup
               style={{ width: 200 }}
               placeholder="(regex)$"
-              value={transformation.refdiff?.tagsPattern}
+              value={transformation.refdiff?.tagsPattern ?? ''}
               onChange={(e) =>
                 setTransformation({
                   ...transformation,

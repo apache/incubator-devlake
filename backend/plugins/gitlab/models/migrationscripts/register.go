@@ -32,5 +32,6 @@ func All() []plugin.MigrationScript {
 		new(addTransformationRule20221125),
 		new(addStdTypeToIssue221230),
 		new(addIsDetailRequired20230210),
+		new(addConnectionIdToTransformationRule),
 	}
 }

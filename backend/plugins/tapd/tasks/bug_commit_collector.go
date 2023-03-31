@@ -35,7 +35,7 @@ const RAW_BUG_COMMIT_TABLE = "tapd_api_bug_commits"
 var _ plugin.SubTaskEntryPoint = CollectBugCommits
 
 func CollectBugCommits(taskCtx plugin.SubTaskContext) errors.Error {
-	rawDataSubTaskArgs, data := CreateRawDataSubTaskArgs(taskCtx, RAW_BUG_COMMIT_TABLE, false)
+	rawDataSubTaskArgs, data := CreateRawDataSubTaskArgs(taskCtx, RAW_BUG_COMMIT_TABLE)
 	db := taskCtx.GetDal()
 	collectorWithState, err := api.NewStatefulApiCollector(*rawDataSubTaskArgs, data.TimeAfter)
 	if err != nil {

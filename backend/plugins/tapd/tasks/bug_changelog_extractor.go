@@ -36,7 +36,7 @@ var ExtractBugChangelogMeta = plugin.SubTaskMeta{
 }
 
 func ExtractBugChangelog(taskCtx plugin.SubTaskContext) errors.Error {
-	rawDataSubTaskArgs, data := CreateRawDataSubTaskArgs(taskCtx, RAW_BUG_CHANGELOG_TABLE, false)
+	rawDataSubTaskArgs, data := CreateRawDataSubTaskArgs(taskCtx, RAW_BUG_CHANGELOG_TABLE)
 	extractor, err := api.NewApiExtractor(api.ApiExtractorArgs{
 		RawDataSubTaskArgs: *rawDataSubTaskArgs,
 		Extract: func(row *api.RawData) ([]interface{}, errors.Error) {
@@ -58,6 +58,10 @@ func ExtractBugChangelog(taskCtx plugin.SubTaskContext) errors.Error {
 				Field:             bugChangelog.Field,
 				ValueBeforeParsed: bugChangelog.OldValue,
 				ValueAfterParsed:  bugChangelog.NewValue,
+			}
+			err = convertUnicode(item)
+			if err != nil {
+				return nil, err
 			}
 			if item.Field == "iteration_id" {
 				iterationFrom, iterationTo, err := parseIterationChangelog(taskCtx, item.ValueBeforeParsed, item.ValueAfterParsed)

@@ -151,7 +151,7 @@ type QueueIterator struct {
 
 // HasNext increments the row curser. If we're at the end, it'll return false.
 func (q *QueueIterator) HasNext() bool {
-	return q.queue.GetAllCount() > 0
+	return q.queue.GetCount() > 0
 }
 
 // Fetch current item
@@ -167,10 +167,6 @@ func (q *QueueIterator) Fetch() (interface{}, errors.Error) {
 // Push a data into queue
 func (q *QueueIterator) Push(data interface{}) {
 	q.queue.Push(NewQueueIteratorNode(data))
-}
-
-func (q *QueueIterator) Finish(count int64) {
-	q.queue.Finish(count)
 }
 
 // Close releases resources

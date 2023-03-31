@@ -53,7 +53,7 @@ func (b *Bridge) RemoteSubtaskEntrypointHandler(subtaskMeta models.SubtaskMeta) 
 			if err != nil {
 				return err
 			}
-			if progress.Current != 0 {
+			if progress.Total != 0 {
 				ctx.SetProgress(progress.Current, progress.Total)
 			} else if progress.Increment != 0 {
 				ctx.IncProgress(progress.Increment)

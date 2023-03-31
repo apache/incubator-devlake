@@ -27,8 +27,10 @@ services:
       MYSQL_DATABASE: lake
       MYSQL_USER: merico
       MYSQL_PASSWORD: merico
-    command: --character-set-server=utf8mb4
+    command:
+      --character-set-server=utf8mb4
       --collation-server=utf8mb4_bin
+      --skip-log-bin
 
   grafana:
     image: apache/devlake-dashboard:v0.16.0

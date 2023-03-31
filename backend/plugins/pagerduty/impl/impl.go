@@ -23,7 +23,6 @@ import (
 	"github.com/apache/incubator-devlake/core/errors"
 	"github.com/apache/incubator-devlake/core/plugin"
 	helper "github.com/apache/incubator-devlake/helpers/pluginhelper/api"
-	"github.com/apache/incubator-devlake/helpers/pluginhelper/tap"
 	"github.com/apache/incubator-devlake/plugins/pagerduty/api"
 	"github.com/apache/incubator-devlake/plugins/pagerduty/models"
 	"github.com/apache/incubator-devlake/plugins/pagerduty/models/migrationscripts"
@@ -72,26 +71,28 @@ func (p PagerDuty) PrepareTaskData(taskCtx plugin.TaskContext, options map[strin
 	if err != nil {
 		return nil, errors.Default.Wrap(err, "unable to get Pagerduty connection by the given connection ID")
 	}
-	startDate, err := parseTime("start_date", options)
+	var timeAfter *time.Time
+	if op.TimeAfter != "" {
+		convertedTime, err := errors.Convert01(time.Parse(time.RFC3339, op.TimeAfter))
+		if err != nil {
+			return nil, errors.BadInput.Wrap(err, fmt.Sprintf("invalid value for `timeAfter`: %s", timeAfter))
+		}
+		timeAfter = &convertedTime
+	}
+	client, err := helper.NewApiClient(taskCtx.GetContext(), connection.Endpoint, map[string]string{
+		"Authorization": fmt.Sprintf("Token %s", connection.Token),
+	}, 0, connection.Proxy, taskCtx)
 	if err != nil {
 		return nil, err
 	}
-	config := &models.PagerDutyConfig{
-		Token:     connection.Token,
-		Email:     "", // ignore, works without it too
-		StartDate: startDate,
-	}
-	tapClient, err := tap.NewSingerTap(&tap.SingerTapConfig{
-		TapExecutable:        models.TapExecutable,
-		StreamPropertiesFile: models.StreamPropertiesFile,
-	})
+	asyncClient, err := helper.CreateAsyncApiClient(taskCtx, client, nil)
 	if err != nil {
 		return nil, err
 	}
 	return &tasks.PagerDutyTaskData{
-		Options: op,
-		Config:  config,
-		Client:  tapClient,
+		Options:   op,
+		TimeAfter: timeAfter,
+		Client:    asyncClient,
 	}, nil
 }
 
@@ -118,11 +119,38 @@ func (p PagerDuty) ApiResources() map[string]map[string]plugin.ApiResourceHandle
 			"PATCH":  api.PatchConnection,
 			"DELETE": api.DeleteConnection,
 		},
+		"connections/:connectionId/scopes/:projectId": {
+			"GET":   api.GetScope,
+			"PATCH": api.UpdateScope,
+		},
+		"connections/:connectionId/remote-scopes": {
+			"GET": api.RemoteScopes,
+		},
+		"connections/:connectionId/search-remote-scopes": {
+			"GET": api.SearchRemoteScopes,
+		},
+		"connections/:connectionId/scopes": {
+			"GET": api.GetScopeList,
+			"PUT": api.PutScope,
+		},
+		"connections/:connectionId/transformation_rules": {
+			"POST": api.CreateTransformationRule,
+			"GET":  api.GetTransformationRuleList,
+		},
+		"connections/:connectionId/transformation_rules/:id": {
+			"PATCH": api.UpdateTransformationRule,
+			"GET":   api.GetTransformationRule,
+		},
 	}
 }
 
 func (p PagerDuty) MakePipelinePlan(connectionId uint64, scope []*plugin.BlueprintScopeV100) (plugin.PipelinePlan, errors.Error) {
 	return api.MakePipelinePlan(p.SubTaskMetas(), connectionId, scope)
+}
+
+func (p PagerDuty) MakeDataSourcePipelinePlanV200(connectionId uint64, scopes []*plugin.BlueprintScopeV200, syncPolicy plugin.BlueprintSyncPolicy,
+) (plugin.PipelinePlan, []plugin.Scope, errors.Error) {
+	return api.MakeDataSourcePipelinePlanV200(p.SubTaskMetas(), connectionId, scopes, &syncPolicy)
 }
 
 func (p PagerDuty) Close(taskCtx plugin.TaskContext) errors.Error {
@@ -131,17 +159,4 @@ func (p PagerDuty) Close(taskCtx plugin.TaskContext) errors.Error {
 		return errors.Default.New(fmt.Sprintf("GetData failed when try to close %+v", taskCtx))
 	}
 	return nil
-}
-
-func parseTime(key string, opts map[string]any) (time.Time, errors.Error) {
-	var date time.Time
-	dateRaw, ok := opts[key]
-	if !ok {
-		return date, errors.BadInput.New("time input not provided")
-	}
-	date, err := time.Parse("2006-01-02T15:04:05Z", dateRaw.(string))
-	if err != nil {
-		return date, errors.BadInput.Wrap(err, "bad type input provided")
-	}
-	return date, nil
 }

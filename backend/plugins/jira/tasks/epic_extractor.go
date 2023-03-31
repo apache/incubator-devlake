@@ -54,7 +54,7 @@ func ExtractEpics(taskCtx plugin.SubTaskContext) errors.Error {
 			Table: RAW_EPIC_TABLE,
 		},
 		Extract: func(row *api.RawData) ([]interface{}, errors.Error) {
-			return extractIssues(data, mappings, true, row)
+			return extractIssues(data, mappings, row)
 		},
 	})
 	if err != nil {

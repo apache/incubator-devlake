@@ -341,6 +341,11 @@ func (d *Dalgorm) DropTables(dst ...interface{}) errors.Error {
 	return errors.Convert(d.db.Migrator().DropTable(dst...))
 }
 
+// HasTable checks if table exists
+func (d *Dalgorm) HasTable(table interface{}) bool {
+	return d.db.Migrator().HasTable(table)
+}
+
 // RenameTable renames table name
 func (d *Dalgorm) RenameTable(oldName, newName string) errors.Error {
 	return errors.Convert(d.db.Migrator().RenameTable(oldName, newName))

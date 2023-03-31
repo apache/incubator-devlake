@@ -13,10 +13,18 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+import pytest
+pytest.register_assert_rewrite('pydevlake.testing')
 
 from .model import ToolModel, ToolScope, DomainScope, Connection, TransformationRule
 from .logger import logger
 from .message import RemoteScopeGroup
-from .plugin import Plugin
+from .plugin import Plugin, ScopeTxRulePair
 from .stream import DomainType, Stream, Substream
 from .context import Context
+
+# the debugger hangs on startup during plugin registration (reason unknown), hence this workaround
+import sys
+if not sys.argv.__contains__('startup'):
+    from pydevlake.helpers import debugger
+    debugger.init()

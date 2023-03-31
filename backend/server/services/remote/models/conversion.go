@@ -24,6 +24,7 @@ import (
 
 	"github.com/apache/incubator-devlake/core/errors"
 	"github.com/apache/incubator-devlake/core/models"
+	"gorm.io/datatypes"
 )
 
 func LoadTableModel(tableName string, schema map[string]any, encrypt bool, parentModel any) (*models.DynamicTabler, errors.Error) {
@@ -90,7 +91,7 @@ func canonicalFieldName(fieldName string) string {
 func generateStructField(name string, encrypt bool, schema map[string]any) (*reflect.StructField, errors.Error) {
 	goType, err := getGoType(schema)
 	if err != nil {
-		return nil, err
+		return nil, errors.Default.Wrap(err, fmt.Sprintf("couldn't resolve type for field: \"%s\"", name))
 	}
 	sf := &reflect.StructField{
 		Name: strings.Title(name), //nolint:staticcheck
@@ -118,8 +119,9 @@ func getGoType(schema map[string]any) (reflect.Type, errors.Error) {
 	case "boolean":
 		goType = reflect.TypeOf(false)
 	case "string":
-		//TODO: distinguish stypes based on string format
 		goType = reflect.TypeOf("")
+	case "object":
+		goType = reflect.TypeOf(datatypes.JSONMap{})
 	default:
 		return nil, errors.BadInput.New(fmt.Sprintf("Unsupported type %s", jsonType))
 	}

@@ -16,17 +16,24 @@
 import datetime
 from enum import Enum
 from typing import Optional
+import re
 
 from sqlmodel import Field
 
-from pydevlake import Connection
+from pydevlake import Connection, TransformationRule
 from pydevlake.model import ToolModel, ToolScope
-
-default_date = datetime.datetime.fromisoformat("1970-01-01")
+from pydevlake.pipeline_tasks import RefDiffOptions
 
 
 class AzureDevOpsConnection(Connection):
     token: str
+    organization: Optional[str]
+
+
+class AzureDevOpsTransformationRule(TransformationRule):
+    refdiff_options: Optional[RefDiffOptions]
+    deployment_pattern: Optional[re.Pattern]
+    production_pattern: Optional[re.Pattern]
 
 
 class Project(ToolModel, table=True):
@@ -66,8 +73,8 @@ class GitPullRequest(ToolModel, table=True):
     status: Status
     created_by_id: Optional[str]
     created_by_name: Optional[str]
-    creation_date: datetime.datetime = default_date
-    closed_date: datetime.datetime = default_date
+    creation_date: datetime.datetime
+    closed_date: Optional[datetime.datetime]
     source_commit_sha: Optional[str]  # lastmergesourcecommit #base
     target_commit_sha: Optional[str]  # lastmergetargetcommit #head
     merge_commit_sha: Optional[str]
@@ -79,20 +86,19 @@ class GitPullRequest(ToolModel, table=True):
     fork_repo_id: Optional[str]
 
 
-class GitCommit(ToolModel, table=True):
+class GitPullRequestCommit(ToolModel, table=True):
     commit_sha: str = Field(primary_key=True)
-    project_id: str
-    repo_id: str
-    committer_name: str = ""
-    committer_email: str = ""
-    commit_date: datetime.datetime = default_date
-    author_name: str = ""
-    author_email: str = ""
-    authored_date: datetime.datetime = default_date
-    comment: str = ""
-    url: str = ""
-    additions: int = 0
-    deletions: int = 0
+    pull_request_id: str
+    committer_name: str
+    committer_email: str
+    commit_date: datetime.datetime
+    author_name: str
+    author_email: str
+    authored_date: datetime.datetime
+    comment: str
+    url: str
+    additions: int
+    deletions: int
 
 
 class Account(ToolModel, table=True):

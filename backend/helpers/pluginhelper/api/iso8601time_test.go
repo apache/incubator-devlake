@@ -70,17 +70,17 @@ func TestIso8601Time(t *testing.T) {
 		assert.Nil(t, err)
 
 		var record2 Iso8601TimeRecord
-		err = DecodeMapStruct(ms, &record2)
+		err = DecodeMapStruct(ms, &record2, true)
 		assert.Nil(t, err)
 		assert.Equal(t, expected, record2.Created.ToTime().UTC())
 
 		var record3 Iso8601TimeRecordP
-		err = DecodeMapStruct(ms, &record3)
+		err = DecodeMapStruct(ms, &record3, true)
 		assert.Nil(t, err)
 		assert.Equal(t, expected, record3.Created.ToTime().UTC())
 
 		var record4 TimeRecord
-		err = DecodeMapStruct(ms, &record4)
+		err = DecodeMapStruct(ms, &record4, true)
 		assert.Nil(t, err)
 		assert.Equal(t, expected, record4.Created.UTC())
 	}

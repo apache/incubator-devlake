@@ -38,22 +38,43 @@ func TestQueueIterator(t *testing.T) {
 	require.NoError(t, err)
 	data = folderRaw.(string)
 	require.Equal(t, "b", data)
-	require.True(t, it.HasNext())
+	require.False(t, it.HasNext())
+}
+
+func TestQueue(t *testing.T) {
+	q := NewQueue()
+	q.Push(NewQueueIteratorNode("a"))
+	q.Push(NewQueueIteratorNode("b"))
+
+	require.Equal(t, q.GetCount(), int64(2))
+	folderRaw := q.PullWithWorkingBlock()
+	data, ok := folderRaw.Data().(string)
+	require.True(t, ok)
+	require.Equal(t, "a", data)
+	require.Equal(t, q.GetCount(), int64(1))
+	folderRaw = q.PullWithWorkingBlock()
+	data, ok = folderRaw.Data().(string)
+	require.True(t, ok)
+	require.Equal(t, "b", data)
+	require.Equal(t, q.GetCount(), int64(0))
 
 	empty := false
 	waited := false
 	go func() {
-		data, err := it.Fetch()
-		require.Equal(t, err, nil)
-		require.Equal(t, data, nil)
-		require.False(t, it.HasNext())
+		require.Equal(t, q.GetCountWithWorkingBlock(), int64(1))
+		data, ok := q.PullWithWorkingBlock().Data().(string)
+		require.True(t, ok)
+		require.Equal(t, data, "c")
+		dataNode := q.PullWithWorkingBlock()
+		require.Equal(t, dataNode, nil)
 		empty = true
 	}()
 
 	go func() {
 		time.Sleep(100 * time.Millisecond)
+		q.Push(NewQueueIteratorNode("c"))
 		waited = true
-		it.Finish(2)
+		q.Finish(3)
 	}()
 
 	for !empty {

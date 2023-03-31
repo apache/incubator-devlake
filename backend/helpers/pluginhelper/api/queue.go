@@ -59,16 +59,28 @@ func (q *Queue) Push(node QueueNode) {
 func (q *Queue) Pull() QueueNode {
 	q.mux.Lock()
 	defer q.mux.Unlock()
+	node := q.PullWithOutLock()
+	if node != nil {
+		return node
+	} else {
+		return nil
+	}
+}
+
+func (q *Queue) PullWithWorkingBlock() QueueNode {
+	q.mux.Lock()
+	defer q.mux.Unlock()
 
 	for {
 		node := q.PullWithOutLock()
 		if node != nil {
 			q.working++
+
 			return node
 		} else if q.working > 0 {
 			q.mux.Unlock()
 
-			time.Sleep(time.Millisecond)
+			time.Sleep(time.Second)
 
 			q.mux.Lock()
 		} else {
@@ -139,12 +151,22 @@ func (q *Queue) GetCount() int64 {
 	return q.count
 }
 
-// GetCount get the node count in query and in working
-func (q *Queue) GetAllCount() int64 {
+// GetCount get the node count in query and only return zero when working zero
+func (q *Queue) GetCountWithWorkingBlock() int64 {
 	q.mux.Lock()
 	defer q.mux.Unlock()
 
-	return q.count + q.working
+	for {
+		if q.count == 0 && q.working > 0 {
+			q.mux.Unlock()
+
+			time.Sleep(time.Second)
+
+			q.mux.Lock()
+		} else {
+			return q.count
+		}
+	}
 }
 
 // NewQueue create and init a new Queue

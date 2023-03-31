@@ -45,7 +45,7 @@ func TestDecodeMapStructJsonRawMessage(t *testing.T) {
 		Settings: json.RawMessage(`{"version": "1.0.101"}`),
 		Existing: json.RawMessage(`{"hello", "world"}`),
 	}
-	err := DecodeMapStruct(input, decoded)
+	err := DecodeMapStruct(input, decoded, true)
 	fmt.Println(string(decoded.Settings))
 	assert.Nil(t, err)
 	assert.Equal(t, decoded.Id, 100)

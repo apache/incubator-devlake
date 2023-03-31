@@ -60,7 +60,7 @@ class AzureDevOpsAPI(API):
         return self.get(org, project, '_apis/git/repositories')
 
     def git_repo_pull_requests(self, org: str, project: str, repo_id: str):
-        return self.get(org, project, '_apis/git/repositories', repo_id, 'pullrequests')
+        return self.get(org, project, '_apis/git/repositories', repo_id, 'pullrequests?searchCriteria.status=all')
 
     def git_repo_pull_request_commits(self, org: str, project: str, repo_id: str, pull_request_id: int):
         return self.get(org, project, '_apis/git/repositories', repo_id, 'pullRequests', pull_request_id, 'commits')

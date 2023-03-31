@@ -83,52 +83,65 @@ func CollectIssues(taskCtx plugin.SubTaskContext) (err errors.Error) {
 			if err != nil {
 				return 0, err
 			}
+
 			pages := body.Paging.Total / args.PageSize
 			if body.Paging.Total%args.PageSize > 0 {
 				pages++
 			}
+
 			// if get more than 10000 data, that need split it
 			if pages > 100 {
+				var createdAfterUnix int64
+				var createdBeforeUnix int64
 				query := res.Request.URL.Query()
 
 				createdAfter, err := getTimeFromFormatTime(query.Get("createdAfter"))
 				if err != nil {
 					return 0, err
 				}
-				CreatedBefore, err := getTimeFromFormatTime(query.Get("createdBefore"))
+				createdBefore, err := getTimeFromFormatTime(query.Get("createdBefore"))
 				if err != nil {
 					return 0, err
 				}
 
-				createdAfterUnix := createdAfter.Unix()
-				createdBeforeUnix := CreatedBefore.Unix()
+				if createdAfter == nil {
+					createdAfterUnix = 0
+				} else {
+					createdAfterUnix = createdAfter.Unix()
+				}
 
-				// can not split it
-				if createdAfterUnix == createdBeforeUnix {
+				if createdBefore == nil {
+					createdBeforeUnix = time.Now().Unix()
+				} else {
+					createdBeforeUnix = createdBefore.Unix()
+				}
+
+				// can not split it any more
+				if createdBeforeUnix-createdAfterUnix < 1 {
 					return 100, nil
 				}
 
 				// split it
-				MidTimeUnix := (createdAfterUnix + createdBeforeUnix) / 2
-				LeftMidTime := time.Unix(MidTimeUnix, 0)
-				RightMidTime := time.Unix(MidTimeUnix+1, 0)
-
-				createdAfter.Unix()
+				MidTime := time.Unix((createdAfterUnix+createdBeforeUnix)/2+1, 0)
 
 				// left part
 				iterator.Push(&SonarqubeIssueTimeIteratorNode{
 					CreatedAfter:  createdAfter,
-					CreatedBefore: &LeftMidTime,
+					CreatedBefore: &MidTime,
 				})
 
 				// right part
 				iterator.Push(&SonarqubeIssueTimeIteratorNode{
-					CreatedAfter:  &RightMidTime,
-					CreatedBefore: CreatedBefore,
+					CreatedAfter:  &MidTime,
+					CreatedBefore: createdBefore,
 				})
 
-				iterator.Finish(1)
+				logger.Info("split [%s][%s] by mid [%s] for it has pages:[%d] and total:[%d]",
+					query.Get("createdAfter"), query.Get("createdBefore"), getFormatTimeForIssue(&MidTime), pages, body.Paging.Total)
+
+				return 0, nil
 			}
+
 			return pages, nil
 		},
 
@@ -173,12 +186,23 @@ var CollectIssuesMeta = plugin.SubTaskMeta{
 }
 
 func getFormatTimeForIssue(t *time.Time) string {
+	if t == nil {
+		return ""
+	}
 	strtime := []byte(t.Format("2006-01-02T15:04:05-0700"))
 	strtime[19] = '-'
 	return string(strtime)
 }
 
 func getTimeFromFormatTime(formatTime string) (*time.Time, errors.Error) {
+	if formatTime == "" {
+		return nil, nil
+	}
+
+	if len(formatTime) < 20 {
+		return nil, errors.Default.New(fmt.Sprintf("formatTime [%s] is too short ", formatTime))
+	}
+
 	strtime := []byte(formatTime)
 	strtime[19] = '+'
 	t, err := time.Parse("2006-01-02T15:04:05-0700", string(strtime))

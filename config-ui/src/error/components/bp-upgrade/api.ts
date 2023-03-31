@@ -26,8 +26,8 @@ export const updateBlueprint = (id: ID, payload: any) =>
     data: payload,
   });
 
-export const createTransformation = (plugin: string, payload: any) =>
-  request(`/plugins/${plugin}/transformation_rules`, {
+export const createTransformation = (plugin: string, connectionId: ID, payload: any) =>
+  request(`/plugins/${plugin}/connections/${connectionId}/transformation_rules`, {
     method: 'post',
     data: payload,
   });

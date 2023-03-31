@@ -4,7 +4,6 @@
 # The ASF licenses this file to You under the Apache License, Version 2.0
 # (the "License"); you may not use this file except in compliance with
 # the License.  You may obtain a copy of the License at
-
 #     http://www.apache.org/licenses/LICENSE-2.0
 
 # Unless required by applicable law or agreed to in writing, software
@@ -28,6 +27,9 @@ from pydevlake.ipc import PluginCommands
 from pydevlake.context import Context
 from pydevlake.stream import Stream
 from pydevlake.model import ToolScope, DomainScope, Connection, TransformationRule
+
+
+ScopeTxRulePair = tuple[ToolScope, Optional[TransformationRule]]
 
 
 class Plugin(ABC):
@@ -106,53 +108,83 @@ class Plugin(ABC):
 
     def make_remote_scopes(self, connection: Connection, group_id: Optional[str] = None) -> msg.RemoteScopes:
         if group_id:
-            scopes = [
-                msg.RemoteScope(
-                    id=tool_scope.id,
-                    name=tool_scope.name,
-                    scope=tool_scope
+            remote_scopes = []
+            for tool_scope in self.remote_scopes(connection, group_id):
+                tool_scope.connection_id = connection.id
+                remote_scopes.append(
+                    msg.RemoteScope(
+                        id=tool_scope.id,
+                        parent_id=group_id,
+                        name=tool_scope.name,
+                        data=tool_scope
+                    )
                 )
-                for tool_scope
-                in self.remote_scopes(connection, group_id)
-            ]
         else:
-            scopes = self.remote_scope_groups(connection)
-        return msg.RemoteScopes(__root__=scopes)
+            remote_scopes = self.remote_scope_groups(connection)
+        return msg.RemoteScopes(__root__=remote_scopes)
 
-    def make_pipeline(self, tool_scopes: list[ToolScope], entity_types: list[str], connection_id: int):
+    def make_pipeline(self, scope_tx_rule_pairs: list[ScopeTxRulePair],
+                      entity_types: list[str], connection: Connection):
         """
         Make a simple pipeline using the scopes declared by the plugin.
         """
-        plan = self.make_pipeline_plan(tool_scopes, entity_types, connection_id)
-        domain_scopes = [
-            msg.DynamicDomainScope(
-                type_name=type(scope).__name__,
-                data=scope.dict(exclude_unset=True)
-            )
-            for tool_scope in tool_scopes
-            for scope in self.domain_scopes(tool_scope)
-        ]
+        plan = self.make_pipeline_plan(scope_tx_rule_pairs, entity_types, connection)
+        domain_scopes = []
+        for tool_scope, _ in scope_tx_rule_pairs:
+            for scope in self.domain_scopes(tool_scope):
+                scope.id = tool_scope.domain_id()
+                domain_scopes.append(
+                    msg.DynamicDomainScope(
+                        type_name=type(scope).__name__,
+                        data=scope.dict(exclude_unset=True)
+                    )
+                )
         return msg.PipelineData(
             plan=plan,
             scopes=domain_scopes
         )
 
-    def make_pipeline_plan(self, scopes: list[ToolScope], entity_types: list[str], connection_id: int) -> list[list[msg.PipelineTask]]:
-        return [self.make_pipeline_stage(scope, entity_types, connection_id) for scope in scopes]
+    def make_pipeline_plan(self, scope_tx_rule_pairs: list[ScopeTxRulePair],
+                           entity_types: list[str], connection: Connection) -> list[list[msg.PipelineTask]]:
+        """
+        Generate a pipeline plan with one stage per scope, plus optional additional stages.
+        Redefine `extra_stages` to add stages at the end of this pipeline.
+        """
+        return [
+            *(self.make_pipeline_stage(scope, tx_rule, entity_types, connection) for scope, tx_rule in scope_tx_rule_pairs),
+            *self.extra_stages(scope_tx_rule_pairs, entity_types, connection)
+        ]
 
-    def make_pipeline_stage(self, scope: ToolScope, entity_types: list[str], connection_id: int) -> list[msg.PipelineTask]:
+    def extra_stages(self, scope_tx_rule_pairs: list[ScopeTxRulePair],
+                     entity_types: list[str], connection: Connection) -> list[list[msg.PipelineTask]]:
+        """Override this method to add extra stages to the pipeline plan"""
+        return []
+
+    def make_pipeline_stage(self, scope: ToolScope, tx_rule: Optional[TransformationRule],
+                            entity_types: list[str], connection: Connection) -> list[msg.PipelineTask]:
+        """
+        Generate a pipeline stage for the given scope, plus optional additional tasks.
+        Subtasks are selected from `entity_types` via `select_subtasks`.
+        Redefine `extra_tasks` to add tasks to this stage.
+        """
         return [
             msg.PipelineTask(
                 plugin=self.name,
-                skipOnFail=False,
+                skip_on_fail=False,
                 subtasks=self.select_subtasks(scope, entity_types),
                 options={
                     "scopeId": scope.id,
                     "scopeName": scope.name,
-                    "connectionId": connection_id
+                    "connectionId": connection.id
                 }
-            )
+            ),
+            *self.extra_tasks(scope, tx_rule, entity_types, connection)
         ]
+
+    def extra_tasks(self, scope: ToolScope, tx_rule: Optional[TransformationRule],
+                    entity_types: list[str], connection: Connection) -> list[msg.PipelineTask]:
+        """Override this method to add tasks to the given scope stage"""
+        return []
 
     def select_subtasks(self, scope: ToolScope, entity_types: list[str]) -> list[str]:
         """

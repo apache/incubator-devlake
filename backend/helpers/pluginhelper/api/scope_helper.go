@@ -81,7 +81,7 @@ func (c *ScopeApiHelper[Conn, Scope, Tr]) Put(input *plugin.ApiResourceInput) (*
 	var req struct {
 		Data []*Scope `json:"data"`
 	}
-	err := errors.Convert(DecodeMapStruct(input.Body, &req))
+	err := errors.Convert(DecodeMapStruct(input.Body, &req, true))
 	if err != nil {
 		return nil, errors.BadInput.Wrap(err, "decoding scope error")
 	}
@@ -143,7 +143,7 @@ func (c *ScopeApiHelper[Conn, Scope, Tr]) Update(input *plugin.ApiResourceInput,
 	if err != nil {
 		return &plugin.ApiResourceOutput{Body: nil, Status: http.StatusInternalServerError}, errors.Default.New("getting Scope error")
 	}
-	err = DecodeMapStruct(input.Body, &scope)
+	err = DecodeMapStruct(input.Body, &scope, true)
 	if err != nil {
 		return &plugin.ApiResourceOutput{Body: nil, Status: http.StatusInternalServerError}, errors.Default.Wrap(err, "patch scope error")
 	}
@@ -156,10 +156,28 @@ func (c *ScopeApiHelper[Conn, Scope, Tr]) Update(input *plugin.ApiResourceInput,
 	if err != nil {
 		return &plugin.ApiResourceOutput{Body: nil, Status: http.StatusInternalServerError}, errors.Default.Wrap(err, "error on saving Scope")
 	}
-	return &plugin.ApiResourceOutput{Body: &scope, Status: http.StatusOK}, nil
+	valueRepoRuleId := reflect.ValueOf(scope).FieldByName("TransformationRuleId")
+	if !valueRepoRuleId.IsValid() {
+		return &plugin.ApiResourceOutput{Body: scope, Status: http.StatusOK}, nil
+	}
+	repoRuleId := reflect.ValueOf(scope).FieldByName("TransformationRuleId").Uint()
+	var rule Tr
+	if repoRuleId > 0 {
+		err = c.db.First(&rule, dal.Where("id = ?", repoRuleId))
+		if err != nil {
+			return nil, errors.NotFound.New("transformationRule not found")
+		}
+	}
+	scopeRes := &ScopeRes[Scope]{scope, reflect.ValueOf(rule).FieldByName("Name").String()}
+
+	return &plugin.ApiResourceOutput{Body: scopeRes, Status: http.StatusOK}, nil
 }
 
+// GetScopeList returns a list of scopes. It expects a fieldName argument, which is used
+// to extract the connection ID from the input.Params map.
+
 func (c *ScopeApiHelper[Conn, Scope, Tr]) GetScopeList(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, errors.Error) {
+	// Extract the connection ID from the input.Params map
 	connectionId, _ := extractFromReqParam(input.Params)
 	if connectionId == 0 {
 		return nil, errors.BadInput.New("invalid path params")

@@ -18,22 +18,17 @@ limitations under the License.
 package api
 
 import (
+	"net/http"
+	"reflect"
+	"strconv"
+
 	"github.com/apache/incubator-devlake/core/context"
 	"github.com/apache/incubator-devlake/core/dal"
 	"github.com/apache/incubator-devlake/core/errors"
 	"github.com/apache/incubator-devlake/core/log"
-	"github.com/apache/incubator-devlake/core/models/common"
 	"github.com/apache/incubator-devlake/core/plugin"
 	"github.com/go-playground/validator/v10"
-	"github.com/mitchellh/mapstructure"
-	"net/http"
-	"strconv"
 )
-
-type AbstractTr interface {
-	dal.Tabler
-	common.Model
-}
 
 // TransformationRuleHelper is used to write the CURD of transformation rule
 type TransformationRuleHelper[Tr dal.Tabler] struct {
@@ -58,13 +53,25 @@ func NewTransformationRuleHelper[Tr dal.Tabler](
 }
 
 func (t TransformationRuleHelper[Tr]) Create(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, errors.Error) {
-	var rule Tr
-	err := Decode(input.Body, &rule, t.validator)
-	if err != nil {
-		return nil, errors.BadInput.Wrap(err, "error in decoding transformation rule")
+	connectionId, e := strconv.ParseUint(input.Params["connectionId"], 10, 64)
+	if e != nil || connectionId == 0 {
+		return nil, errors.Default.Wrap(e, "the connection ID should be an non-zero integer")
 	}
-	err = t.db.Create(&rule)
-	if err != nil {
+	var rule Tr
+	if err := DecodeMapStruct(input.Body, &rule, false); err != nil {
+		return nil, errors.Default.Wrap(err, "error in decoding transformation rule")
+	}
+	if t.validator != nil {
+		if err := t.validator.Struct(rule); err != nil {
+			return nil, errors.Default.Wrap(err, "error validating transformation rule")
+		}
+	}
+	valueConnectionId := reflect.ValueOf(&rule).Elem().FieldByName("ConnectionId")
+	if valueConnectionId.IsValid() {
+		valueConnectionId.SetUint(connectionId)
+	}
+
+	if err := t.db.Create(&rule); err != nil {
 		if t.db.IsDuplicationError(err) {
 			return nil, errors.BadInput.New("there was a transformation rule with the same name, please choose another name")
 		}
@@ -83,7 +90,7 @@ func (t TransformationRuleHelper[Tr]) Update(input *plugin.ApiResourceInput) (*p
 	if err != nil {
 		return nil, errors.Default.Wrap(err, "error on saving TransformationRule")
 	}
-	err = errors.Convert(mapstructure.Decode(input.Body, &old))
+	err = DecodeMapStruct(input.Body, &old, false)
 	if err != nil {
 		return nil, errors.Default.Wrap(err, "error decoding map into transformationRule")
 	}
@@ -111,9 +118,13 @@ func (t TransformationRuleHelper[Tr]) Get(input *plugin.ApiResourceInput) (*plug
 }
 
 func (t TransformationRuleHelper[Tr]) List(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, errors.Error) {
+	connectionId, e := strconv.ParseUint(input.Params["connectionId"], 10, 64)
+	if e != nil || connectionId == 0 {
+		return nil, errors.Default.Wrap(e, "the connection ID should be an non-zero integer")
+	}
 	var rules []Tr
 	limit, offset := GetLimitOffset(input.Query, "pageSize", "page")
-	err := t.db.All(&rules, dal.Limit(limit), dal.Offset(offset))
+	err := t.db.All(&rules, dal.Where("connection_id = ?", connectionId), dal.Limit(limit), dal.Offset(offset))
 	if err != nil {
 		return nil, errors.Default.Wrap(err, "error on get TransformationRule list")
 	}

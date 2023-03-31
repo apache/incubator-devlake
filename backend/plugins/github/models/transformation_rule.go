@@ -24,6 +24,7 @@ import (
 
 type GithubTransformationRule struct {
 	common.Model         `mapstructure:"-"`
+	ConnectionId         uint64            `mapstructure:"connectionId" json:"connectionId"`
 	Name                 string            `mapstructure:"name" json:"name" gorm:"type:varchar(255);index:idx_name_github,unique" validate:"required"`
 	PrType               string            `mapstructure:"prType,omitempty" json:"prType" gorm:"type:varchar(255)"`
 	PrComponent          string            `mapstructure:"prComponent,omitempty" json:"prComponent" gorm:"type:varchar(255)"`

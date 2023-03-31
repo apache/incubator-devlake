@@ -25,7 +25,7 @@ export const BasePipelineConfig = {
   plugin: undefined,
   name: undefined,
   icon: Icon,
-  sort: 99,
+  sort: 101,
   connection: {
     docLink: '',
     initialValues: {},

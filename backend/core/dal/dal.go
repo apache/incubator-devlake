@@ -155,6 +155,8 @@ type Dal interface {
 	AllTables() ([]string, errors.Error)
 	// DropTables drops all specified tables
 	DropTables(dst ...interface{}) errors.Error
+	// HasTable checks if table exists
+	HasTable(table interface{}) bool
 	// RenameTable renames table name
 	RenameTable(oldName, newName string) errors.Error
 	// GetColumns returns table columns in database

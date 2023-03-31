@@ -20,17 +20,31 @@ package api
 import (
 	"github.com/apache/incubator-devlake/core/context"
 	"github.com/apache/incubator-devlake/helpers/pluginhelper/api"
+	"github.com/apache/incubator-devlake/plugins/pagerduty/models"
 	"github.com/go-playground/validator/v10"
 )
 
 var vld *validator.Validate
 var connectionHelper *api.ConnectionApiHelper
+
+var scopeHelper *api.ScopeApiHelper[models.PagerDutyConnection, models.Service, models.PagerdutyTransformationRule]
+
+var trHelper *api.TransformationRuleHelper[models.PagerdutyTransformationRule]
 var basicRes context.BasicRes
 
 func Init(br context.BasicRes) {
 	basicRes = br
 	vld = validator.New()
 	connectionHelper = api.NewConnectionHelper(
+		basicRes,
+		vld,
+	)
+	scopeHelper = api.NewScopeHelper[models.PagerDutyConnection, models.Service, models.PagerdutyTransformationRule](
+		basicRes,
+		vld,
+		connectionHelper,
+	)
+	trHelper = api.NewTransformationRuleHelper[models.PagerdutyTransformationRule](
 		basicRes,
 		vld,
 	)

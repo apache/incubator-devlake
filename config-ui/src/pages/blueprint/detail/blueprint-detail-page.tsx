@@ -16,10 +16,11 @@
  *
  */
 
-import React from 'react';
 import { useParams } from 'react-router-dom';
 
 import { PageHeader, PageLoading } from '@/components';
+
+import { FromEnum } from '../types';
 
 import { useDetail } from './use-detail';
 import { BlueprintDetail } from './blueprint-detail';
@@ -40,7 +41,7 @@ export const BlueprintDetailPage = () => {
         { name: blueprint.name, path: `/blueprints/${blueprint.id}` },
       ]}
     >
-      <BlueprintDetail id={blueprint.id} />
+      <BlueprintDetail from={FromEnum.blueprint} id={blueprint.id} />
     </PageHeader>
   );
 };

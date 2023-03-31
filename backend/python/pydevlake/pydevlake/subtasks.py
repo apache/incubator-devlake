@@ -23,7 +23,7 @@ from typing import Tuple, Dict, Iterable, Optional, Generator
 import sqlalchemy.sql as sql
 from sqlmodel import Session, SQLModel, Field, select
 
-from pydevlake.model import RawModel, ToolModel, DomainModel, generate_domain_id
+from pydevlake.model import RawModel, ToolModel, DomainModel
 from pydevlake.context import Context
 from pydevlake.message import RemoteProgress
 from pydevlake import logger
@@ -55,22 +55,31 @@ class Subtask:
                 state = dict()
 
             try:
-                for i, (data, state) in enumerate(self.fetch(state, session, ctx)):
+                records = self.fetch(state, session, ctx)
+                progress = last_progress = 0
+                for data, state in records:
+                    progress += 1
                     self.process(data, session, ctx)
-
-                    if i % sync_point_interval == 0 and i != 0:
+                    if progress % sync_point_interval == 0:
                         # Save current state
                         subtask_run.state = json.dumps(state)
                         session.merge(subtask_run)
                         session.commit()
-
                         # Send progress
                         yield RemoteProgress(
                             increment=sync_point_interval,
-                            current=i
+                            current=progress
                         )
+                        last_progress = progress
+                # Send final progress
+                if progress != last_progress:
+                    yield RemoteProgress(
+                        increment=progress-last_progress,
+                        current=progress
+                    )
             except Exception as e:
                 logger.error(f'{type(e).__name__}: {e}')
+                raise e
 
             subtask_run.state = json.dumps(state)
             subtask_run.completed = datetime.now()
@@ -98,7 +107,7 @@ class Subtask:
         pass
 
     @abstractmethod
-    def process(self, data: object, session: Session):
+    def process(self, data: object, session: Session, ctx: Context):
         """
         Called for all data entries returned by `fetch`.
         """
@@ -178,9 +187,10 @@ class Extractor(Subtask):
         for raw in session.query(raw_model).all():
             yield raw, state
 
-    def process(self, raw: RawModel, session: Session, _):
+    def process(self, raw: RawModel, session: Session, ctx: Context):
         tool_model = self.stream.extract(json.loads(raw.data))
         tool_model.set_origin(raw)
+        tool_model.connection_id = ctx.connection.id
         session.merge(tool_model)
 
     def delete(self, session, ctx):
@@ -208,7 +218,7 @@ class Convertor(Subtask):
             logger.error(f'Expected a DomainModel but got a {type(domain_model)}: {domain_model}')
             return
 
-        domain_model.id = generate_domain_id(tool_model, connection_id)
+        domain_model.id = tool_model.domain_id()
         session.merge(domain_model)
 
     def delete(self, session, ctx):

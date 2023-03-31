@@ -24,7 +24,8 @@ import (
 
 type BambooTransformationRule struct {
 	common.Model
-	Name string `gorm:"type:varchar(255);index:idx_name_gitlab,unique" validate:"required" mapstructure:"name" json:"name"`
+	ConnectionId uint64 `mapstructure:"connectionId" json:"connectionId"`
+	Name         string `gorm:"type:varchar(255);index:idx_name_gitlab,unique" validate:"required" mapstructure:"name" json:"name"`
 	// should be {realRepoName: [bamboo_repoId]}
 	RepoMap           datatypes.JSONMap
 	DeploymentPattern string `mapstructure:"deploymentPattern,omitempty" json:"deploymentPattern" gorm:"type:varchar(255)"`

@@ -18,6 +18,7 @@ limitations under the License.
 package remote
 
 import (
+	"fmt"
 	"github.com/apache/incubator-devlake/core/config"
 	"github.com/apache/incubator-devlake/core/context"
 	"github.com/apache/incubator-devlake/core/errors"
@@ -36,11 +37,11 @@ func Init(br context.BasicRes) {
 
 func NewRemotePlugin(info *models.PluginInfo) (models.RemotePlugin, errors.Error) {
 	if _, ok := remotePlugins[info.Name]; ok {
-		return nil, errors.BadInput.New("plugin already registered")
+		return nil, errors.BadInput.New(fmt.Sprintf("plugin %s already registered", info.Name))
 	}
 	plugin, err := remote.NewRemotePlugin(info)
 	if err != nil {
-		return nil, errors.BadInput.New("unsupported plugin type")
+		return nil, err
 	}
 	forceMigration := config.GetConfig().GetBool("FORCE_MIGRATION")
 	err = plugin.RunMigrations(forceMigration)

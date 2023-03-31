@@ -51,17 +51,18 @@ type BugChangelogItemResult struct {
 }
 
 func ConvertBugChangelog(taskCtx plugin.SubTaskContext) errors.Error {
-	rawDataSubTaskArgs, data := CreateRawDataSubTaskArgs(taskCtx, RAW_BUG_CHANGELOG_TABLE, false)
+	rawDataSubTaskArgs, data := CreateRawDataSubTaskArgs(taskCtx, RAW_BUG_CHANGELOG_TABLE)
 	logger := taskCtx.GetLogger()
 	db := taskCtx.GetDal()
 	statusList := make([]models.TapdBugStatus, 0)
-	statusLanguageMap, getStdStatus, err := getDefaltStdStatusMapping(data, db, statusList)
+	statusLanguageMap, getStdStatus, err := getDefaultStdStatusMapping(data, db, statusList)
 	if err != nil {
 		return err
 	}
 	customStatusMap := getStatusMapping(data)
 	logger.Info("convert changelog :%d", data.Options.WorkspaceId)
 	issueIdGen := didgen.NewDomainIdGenerator(&models.TapdBug{})
+	clIterIdGen := didgen.NewDomainIdGenerator(&models.TapdIteration{})
 	clIdGen := didgen.NewDomainIdGenerator(&models.TapdBugChangelog{})
 	clauses := []dal.Clause{
 		dal.Select("tc.created, tc.id, tc.workspace_id, tc.bug_id, tc.author, _tool_tapd_bug_changelog_items.*"),
@@ -95,6 +96,19 @@ func ConvertBugChangelog(taskCtx plugin.SubTaskContext) errors.Error {
 				OriginalFromValue: cl.ValueBeforeParsed,
 				OriginalToValue:   cl.ValueAfterParsed,
 				CreatedDate:       *cl.Created,
+			}
+			if domainCl.FieldId == "iteration_id" {
+				domainCl.FieldName = "Sprint"
+				domainCl.OriginalFromValue = clIterIdGen.Generate(cl.ConnectionId, cl.IterationIdFrom)
+				domainCl.OriginalToValue = clIterIdGen.Generate(cl.ConnectionId, cl.IterationIdTo)
+				domainCl.ToValue = cl.ValueAfterParsed
+				domainCl.FromValue = cl.ValueBeforeParsed
+			}
+			if domainCl.FieldId == "current_owner" {
+				domainCl.FieldName = "assignee"
+				domainCl.OriginalFromValue = generateDomainAccountIdForUsers(cl.ValueBeforeParsed, cl.ConnectionId)
+				domainCl.OriginalToValue = generateDomainAccountIdForUsers(cl.ValueAfterParsed, cl.ConnectionId)
+
 			}
 			if domainCl.FieldName == "status" {
 				domainCl.OriginalFromValue = statusLanguageMap[domainCl.OriginalFromValue]

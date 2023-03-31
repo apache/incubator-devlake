@@ -20,7 +20,7 @@ from enum import Enum
 
 from sqlmodel import Field
 
-from pydevlake.model import DomainModel, NoPKModel
+from pydevlake.model import DomainModel, NoPKModel, DomainScope
 
 
 class CICDResult(Enum):
@@ -70,7 +70,7 @@ class CiCDPipelineCommit(NoPKModel, table=True):
     repo: str
 
 
-class CicdScope(DomainModel):
+class CicdScope(DomainScope):
     __tablename__ = 'cicd_scopes'
     name: str
     description: Optional[str]

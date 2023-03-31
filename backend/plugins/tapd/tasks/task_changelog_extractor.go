@@ -37,7 +37,7 @@ var ExtractTaskChangelogMeta = plugin.SubTaskMeta{
 }
 
 func ExtractTaskChangelog(taskCtx plugin.SubTaskContext) errors.Error {
-	rawDataSubTaskArgs, data := CreateRawDataSubTaskArgs(taskCtx, RAW_TASK_CHANGELOG_TABLE, false)
+	rawDataSubTaskArgs, data := CreateRawDataSubTaskArgs(taskCtx, RAW_TASK_CHANGELOG_TABLE)
 	extractor, err := api.NewApiExtractor(api.ApiExtractorArgs{
 		RawDataSubTaskArgs: *rawDataSubTaskArgs,
 		Extract: func(row *api.RawData) ([]interface{}, errors.Error) {
@@ -90,12 +90,20 @@ func ExtractTaskChangelog(taskCtx plugin.SubTaskContext) errors.Error {
 						}
 						results = append(results, &item)
 					}
+					err = convertUnicode(&item)
+					if err != nil {
+						return nil, err
+					}
 				default:
 					item.ConnectionId = data.Options.ConnectionId
 					item.ChangelogId = taskChangelog.Id
 					item.Field = fc.Field
 					item.ValueAfterParsed = strings.Trim(string(fc.ValueAfterParsed), `"`)
 					item.ValueBeforeParsed = strings.Trim(string(fc.ValueBeforeParsed), `"`)
+				}
+				err = convertUnicode(&item)
+				if err != nil {
+					return nil, err
 				}
 				if item.Field == "iteration_id" {
 					iterationFrom, iterationTo, err := parseIterationChangelog(taskCtx, item.ValueBeforeParsed, item.ValueAfterParsed)

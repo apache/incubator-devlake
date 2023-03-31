@@ -19,7 +19,6 @@ package tasks
 
 import (
 	"encoding/json"
-	"github.com/apache/incubator-devlake/core/dal"
 	"github.com/apache/incubator-devlake/core/errors"
 	"github.com/apache/incubator-devlake/core/plugin"
 	"github.com/apache/incubator-devlake/helpers/pluginhelper/api"
@@ -41,13 +40,13 @@ func ExtractRemotelinks(taskCtx plugin.SubTaskContext) errors.Error {
 	connectionId := data.Options.ConnectionId
 	boardId := data.Options.BoardId
 	logger := taskCtx.GetLogger()
-	db := taskCtx.GetDal()
 	logger.Info("extract remote links")
+
+	var err errors.Error
 	var commitShaRegex *regexp.Regexp
-	var err error
 	if data.Options.TransformationRules != nil && data.Options.TransformationRules.RemotelinkCommitShaPattern != "" {
 		pattern := data.Options.TransformationRules.RemotelinkCommitShaPattern
-		commitShaRegex, err = regexp.Compile(pattern)
+		commitShaRegex, err = errors.Convert01(regexp.Compile(pattern))
 		if err != nil {
 			return errors.Default.Wrap(err, "regexp Compile pattern failed")
 		}
@@ -62,18 +61,6 @@ func ExtractRemotelinks(taskCtx plugin.SubTaskContext) errors.Error {
 			commitRepoUrlRegexps = append(commitRepoUrlRegexps, pattern)
 		}
 	}
-	// select all remotelinks belongs to the board, cursor is important for low memory footprint
-	clauses := []dal.Clause{
-		dal.From(&models.JiraRemotelink{}),
-		dal.Select("*"),
-		dal.Join("left join _tool_jira_board_issues on _tool_jira_board_issues.issue_id = _tool_jira_remotelinks.issue_id"),
-		dal.Where("_tool_jira_board_issues.board_id = ? AND _tool_jira_board_issues.connection_id = ?", boardId, connectionId),
-	}
-	cursor, err := db.Cursor(clauses...)
-	if err != nil {
-		return errors.Convert(err)
-	}
-	defer cursor.Close()
 
 	extractor, err := api.NewApiExtractor(api.ApiExtractorArgs{
 		RawDataSubTaskArgs: api.RawDataSubTaskArgs{
@@ -118,29 +105,17 @@ func ExtractRemotelinks(taskCtx plugin.SubTaskContext) errors.Error {
 				}
 			}
 			if issueCommit.CommitSha == "" {
-				issueCommit.CommitSha = extractCommitSha(commitRepoUrlRegexps, remotelink.Url)
+				issueCommit.CommitSha = api.ExtractCommitSha(commitRepoUrlRegexps, remotelink.Url)
 			}
 			if issueCommit.CommitSha != "" {
 				result = append(result, issueCommit)
 			}
 			return result, nil
-		}})
-
+		},
+	})
 	if err != nil {
-		return errors.Convert(err)
+		return err
 	}
 
 	return extractor.Execute()
-}
-
-func extractCommitSha(repoPatterns []*regexp.Regexp, commitUrl string) string {
-	for _, pattern := range repoPatterns {
-		if pattern.MatchString(commitUrl) {
-			group := pattern.FindStringSubmatch(commitUrl)
-			if len(group) == 4 {
-				return group[3]
-			}
-		}
-	}
-	return ""
 }

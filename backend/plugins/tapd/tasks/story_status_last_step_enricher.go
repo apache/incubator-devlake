@@ -38,7 +38,7 @@ var EnrichStoryStatusLastStepMeta = plugin.SubTaskMeta{
 
 func EnrichStoryStatusLastStep(taskCtx plugin.SubTaskContext) errors.Error {
 	db := taskCtx.GetDal()
-	rawDataSubTaskArgs, data := CreateRawDataSubTaskArgs(taskCtx, RAW_STORY_STATUS_LAST_STEP_TABLE, false)
+	rawDataSubTaskArgs, data := CreateRawDataSubTaskArgs(taskCtx, RAW_STORY_STATUS_LAST_STEP_TABLE)
 	extractor, err := api.NewApiExtractor(api.ApiExtractorArgs{
 		RawDataSubTaskArgs: *rawDataSubTaskArgs,
 		Extract: func(row *api.RawData) ([]interface{}, errors.Error) {

@@ -28,9 +28,8 @@ export const TAPDConfig: PluginConfigType = {
   type: PluginType.Connection,
   plugin: 'tapd',
   name: 'TAPD',
-  isBeta: true,
   icon: Icon,
-  sort: 100,
+  sort: 9,
   connection: {
     docLink: 'https://devlake.apache.org/docs/Configuration/Tapd',
     initialValues: {
@@ -73,6 +72,10 @@ export const TAPDConfig: PluginConfigType = {
       },
     ],
   },
-  entities: ['TICKET'],
-  transformation: {},
+  entities: ['TICKET', 'CROSS'],
+  transformationType: 'for-scope',
+  transformation: {
+    typeMappings: {},
+    statusMappings: {},
+  },
 };

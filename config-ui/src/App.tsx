@@ -16,7 +16,6 @@
  *
  */
 
-import React from 'react';
 import { Switch, Route, Redirect } from 'react-router-dom';
 
 import { BaseLayout } from '@/layouts';
@@ -30,8 +29,8 @@ import {
   BlueprintHomePage,
   BlueprintCreatePage,
   BlueprintDetailPage,
-  TransformationHomePage,
-  TransformationDetailPage,
+  BlueprintConnectioAddPage,
+  BlueprintConnectionDetailPage,
 } from '@/pages';
 
 function App() {
@@ -41,6 +40,8 @@ function App() {
         <Route path="/" exact component={() => <Redirect to="/projects" />} />
         <Route exact path="/projects" component={() => <ProjectHomePage />} />
         <Route exact path="/projects/:pname" component={() => <ProjectDetailPage />} />
+        <Route exact path="/projects/:pname/:bid/connection-add" component={() => <BlueprintConnectioAddPage />} />
+        <Route exact path="/projects/:pname/:bid/:unique" component={() => <BlueprintConnectionDetailPage />} />
         <Route
           exact
           path="/projects/:pname/create-blueprint"
@@ -53,9 +54,8 @@ function App() {
         <Route exact path="/blueprints" component={() => <BlueprintHomePage />} />
         <Route exact path="/blueprints/create" component={() => <BlueprintCreatePage from={FromEnum.blueprint} />} />
         <Route exact path="/blueprints/:id" component={() => <BlueprintDetailPage />} />
-        <Route exact path="/transformations" component={() => <TransformationHomePage />} />
-        <Route exact path="/transformations/:plugin/create" component={() => <TransformationDetailPage />} />
-        <Route exact path="/transformations/:plugin/:tid" component={() => <TransformationDetailPage />} />
+        <Route exact path="/blueprints/:bid/connection-add" component={() => <BlueprintConnectioAddPage />} />
+        <Route exact path="/blueprints/:bid/:unique" component={() => <BlueprintConnectionDetailPage />} />
       </Switch>
     </BaseLayout>
   );

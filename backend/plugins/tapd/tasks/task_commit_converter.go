@@ -25,14 +25,16 @@ import (
 	"github.com/apache/incubator-devlake/core/plugin"
 	helper "github.com/apache/incubator-devlake/helpers/pluginhelper/api"
 	"github.com/apache/incubator-devlake/plugins/tapd/models"
+	"net/url"
 	"reflect"
+	"strings"
 )
 
 func ConvertTaskCommit(taskCtx plugin.SubTaskContext) errors.Error {
-	rawDataSubTaskArgs, data := CreateRawDataSubTaskArgs(taskCtx, RAW_TASK_COMMIT_TABLE, false)
+	rawDataSubTaskArgs, data := CreateRawDataSubTaskArgs(taskCtx, RAW_TASK_COMMIT_TABLE)
 	logger := taskCtx.GetLogger()
 	db := taskCtx.GetDal()
-	logger.Info("convert board:%d", data.Options.WorkspaceId)
+	logger.Info("convert workspace: %d", data.Options.WorkspaceId)
 
 	clauses := []dal.Clause{
 		dal.From(&models.TapdTaskCommit{}),
@@ -50,14 +52,33 @@ func ConvertTaskCommit(taskCtx plugin.SubTaskContext) errors.Error {
 		Input:              cursor,
 		Convert: func(inputRow interface{}) ([]interface{}, errors.Error) {
 			toolL := inputRow.(*models.TapdTaskCommit)
-			domainL := &crossdomain.IssueCommit{
+			results := make([]interface{}, 0, 2)
+			issueCommit := &crossdomain.IssueCommit{
 				IssueId:   issueIdGen.Generate(data.Options.ConnectionId, toolL.TaskId),
 				CommitSha: toolL.CommitId,
 			}
+			results = append(results, issueCommit)
+			if toolL.WebURL != `` {
+				u, err := errors.Convert01(url.Parse(toolL.WebURL))
+				if err != nil {
+					return nil, err
+				}
+				repoUrl := toolL.WebURL
+				if !strings.HasSuffix(repoUrl, `.git`) {
+					repoUrl = repoUrl + `.git`
+				}
+				issueRepoCommit := &crossdomain.IssueRepoCommit{
+					IssueId:   issueIdGen.Generate(data.Options.ConnectionId, toolL.TaskId),
+					RepoUrl:   repoUrl,
+					CommitSha: toolL.CommitId,
+					Host:      u.Host,
+					Namespace: strings.Split(u.Path, `/`)[1],
+					RepoName:  toolL.HookProjectName,
+				}
+				results = append(results, issueRepoCommit)
+			}
 
-			return []interface{}{
-				domainL,
-			}, nil
+			return results, nil
 		},
 	})
 	if err != nil {

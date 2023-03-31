@@ -26,14 +26,14 @@ export const ZenTaoConfig: PluginConfigType = {
   plugin: 'zentao',
   name: 'ZenTao',
   icon: Icon,
-  sort: 100,
+  sort: 10,
   connection: {
     docLink: 'https://devlake.apache.org/docs/Configuration/Zentao',
     fields: [
       'name',
       {
         key: 'endpoint',
-        subLabel: 'Provide the Zentao instance API endpoint (Opensource v16+). E.g. http://<host>:<port>/api.php/v1',
+        subLabel: 'Provide the Zentao instance API endpoint (Opensource v16+). E.g. http://<host>:<port>/api.php/v1 or http://<host>:<port>/zentao/api.php/v1',
       },
       'username',
       'password',
@@ -49,5 +49,5 @@ export const ZenTaoConfig: PluginConfigType = {
     ],
   },
   entities: ['TICKET'],
-  transformation: {},
+  transformation: null,
 };

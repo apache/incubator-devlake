@@ -58,7 +58,6 @@ func (p Tapd) GetTablesInfo() []dal.Tabler {
 		&models.TapdBugLabel{},
 		&models.TapdBugStatus{},
 		&models.TapdConnection{},
-		&models.TapdIssue{},
 		&models.TapdIteration{},
 		&models.TapdIterationBug{},
 		&models.TapdIterationStory{},
@@ -72,7 +71,6 @@ func (p Tapd) GetTablesInfo() []dal.Tabler {
 		&models.TapdStoryCustomFields{},
 		&models.TapdStoryLabel{},
 		&models.TapdStoryStatus{},
-		&models.TapdSubWorkspace{},
 		&models.TapdTask{},
 		&models.TapdTaskChangelog{},
 		&models.TapdTaskChangelogItem{},
@@ -94,10 +92,6 @@ func (p Tapd) Description() string {
 
 func (p Tapd) SubTaskMetas() []plugin.SubTaskMeta {
 	return []plugin.SubTaskMeta{
-		tasks.CollectCompanyMeta,
-		tasks.ExtractCompanyMeta,
-		tasks.CollectSubWorkspaceMeta,
-		tasks.ExtractSubWorkspaceMeta,
 		tasks.CollectWorkitemTypesMeta,
 		tasks.ExtractWorkitemTypesMeta,
 		tasks.CollectStoryCustomFieldsMeta,
@@ -142,7 +136,6 @@ func (p Tapd) SubTaskMetas() []plugin.SubTaskMeta {
 		tasks.ExtractTaskCommitMeta,
 		tasks.CollectStoryBugMeta,
 		tasks.ExtractStoryBugsMeta,
-		tasks.ConvertSubWorkspaceMeta,
 		tasks.ConvertAccountsMeta,
 		tasks.ConvertIterationMeta,
 		tasks.ConvertStoryMeta,
@@ -163,13 +156,10 @@ func (p Tapd) SubTaskMetas() []plugin.SubTaskMeta {
 
 func (p Tapd) PrepareTaskData(taskCtx plugin.TaskContext, options map[string]interface{}) (interface{}, errors.Error) {
 	logger := taskCtx.GetLogger()
-	var op tasks.TapdOptions
-	err := helper.Decode(options, &op, nil)
+	logger.Debug("%v", options)
+	op, err := tasks.DecodeAndValidateTaskOptions(options)
 	if err != nil {
 		return nil, err
-	}
-	if op.ConnectionId == 0 {
-		return nil, errors.BadInput.New("connectionId is invalid")
 	}
 	connection := &models.TapdConnection{}
 	connectionHelper := helper.NewConnectionHelper(
@@ -187,6 +177,45 @@ func (p Tapd) PrepareTaskData(taskCtx plugin.TaskContext, options map[string]int
 	if err != nil {
 		return nil, errors.Default.Wrap(err, "failed to create tapd api client")
 	}
+
+	if op.WorkspaceId != 0 {
+		var scope *models.TapdWorkspace
+		// support v100 & advance mode
+		// If we still cannot find the record in db, we have to request from remote server and save it to db
+		db := taskCtx.GetDal()
+		err = db.First(&scope, dal.Where("connection_id = ? AND id = ?", op.ConnectionId, op.WorkspaceId))
+		if err != nil && db.IsErrorNotFound(err) {
+			scope, err = api.GetApiWorkspace(op, tapdApiClient)
+			if err != nil {
+				return nil, err
+			}
+			logger.Debug(fmt.Sprintf("Current workspace: %d", scope.Id))
+			err = db.CreateIfNotExist(&scope)
+			if err != nil {
+				return nil, err
+			}
+		}
+		if err != nil {
+			return nil, errors.Default.Wrap(err, fmt.Sprintf("fail to find workspace: %d", op.WorkspaceId))
+		}
+		op.WorkspaceId = scope.Id
+		if op.TransformationRuleId == 0 {
+			op.TransformationRuleId = scope.TransformationRuleId
+		}
+	}
+
+	if op.TransformationRules == nil && op.TransformationRuleId != 0 {
+		var transformationRule models.TapdTransformationRule
+		err = taskCtx.GetDal().First(&transformationRule, dal.Where("id = ?", op.TransformationRuleId))
+		if err != nil && taskCtx.GetDal().IsErrorNotFound(err) {
+			return nil, errors.BadInput.Wrap(err, "fail to get transformationRule")
+		}
+		op.TransformationRules, err = tasks.MakeTransformationRules(transformationRule)
+		if err != nil {
+			return nil, errors.BadInput.Wrap(err, "fail to make transformationRule")
+		}
+	}
+
 	if op.PageSize == 0 {
 		op.PageSize = 100
 	}
@@ -196,22 +225,24 @@ func (p Tapd) PrepareTaskData(taskCtx plugin.TaskContext, options map[string]int
 	}
 	op.CstZone = cstZone
 	taskData := &tasks.TapdTaskData{
-		Options:    &op,
+		Options:    op,
 		ApiClient:  tapdApiClient,
 		Connection: connection,
 	}
-	var timeAfter time.Time
 	if op.TimeAfter != "" {
+		var timeAfter time.Time
 		timeAfter, err = errors.Convert01(time.Parse(time.RFC3339, op.TimeAfter))
 		if err != nil {
 			return nil, errors.BadInput.Wrap(err, "invalid value for `timeAfter`")
 		}
-	}
-	if !timeAfter.IsZero() {
 		taskData.TimeAfter = &timeAfter
 		logger.Debug("collect data updated timeAfter %s", timeAfter)
 	}
 	return taskData, nil
+}
+
+func (p Tapd) MakeDataSourcePipelinePlanV200(connectionId uint64, scopes []*plugin.BlueprintScopeV200, syncPolicy plugin.BlueprintSyncPolicy) (pp plugin.PipelinePlan, sc []plugin.Scope, err errors.Error) {
+	return api.MakeDataSourcePipelinePlanV200(p.SubTaskMetas(), connectionId, scopes, &syncPolicy)
 }
 
 func (p Tapd) RootPkgPath() string {
@@ -238,6 +269,28 @@ func (p Tapd) ApiResources() map[string]map[string]plugin.ApiResourceHandler {
 		},
 		"connections/:connectionId/proxy/rest/*path": {
 			"GET": api.Proxy,
+		},
+		"connections/:connectionId/scopes/:scopeId": {
+			"GET":   api.GetScope,
+			"PATCH": api.UpdateScope,
+		},
+		"connections/:connectionId/remote-scopes-prepare-token": {
+			"GET": api.PrepareFirstPageToken,
+		},
+		"connections/:connectionId/remote-scopes": {
+			"GET": api.RemoteScopes,
+		},
+		"connections/:connectionId/scopes": {
+			"GET": api.GetScopeList,
+			"PUT": api.PutScope,
+		},
+		"connections/:connectionId/transformation_rules": {
+			"POST": api.CreateTransformationRule,
+			"GET":  api.GetTransformationRuleList,
+		},
+		"connections/:connectionId/transformation_rules/:id": {
+			"PATCH": api.UpdateTransformationRule,
+			"GET":   api.GetTransformationRule,
 		},
 	}
 }

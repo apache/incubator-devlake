@@ -54,19 +54,19 @@ type (
 func newPlugin(info *models.PluginInfo, invoker bridge.Invoker) (*remotePluginImpl, errors.Error) {
 	connectionTabler, err := info.ConnectionModelInfo.LoadDynamicTabler(true, common.Model{})
 	if err != nil {
-		return nil, err
+		return nil, errors.Default.Wrap(err, fmt.Sprintf("Couldn't load Connection type for plugin %s", info.Name))
 	}
 
 	var txRuleTabler *coreModels.DynamicTabler
 	if info.TransformationRuleModelInfo != nil {
 		txRuleTabler, err = info.TransformationRuleModelInfo.LoadDynamicTabler(false, models.TransformationModel{})
 		if err != nil {
-			return nil, err
+			return nil, errors.Default.Wrap(err, fmt.Sprintf("Couldn't load TransformationRule type for plugin %s", info.Name))
 		}
 	}
 	scopeTabler, err := info.ScopeModelInfo.LoadDynamicTabler(false, models.ScopeModel{})
 	if err != nil {
-		return nil, err
+		return nil, errors.Default.Wrap(err, fmt.Sprintf("Couldn't load Scope type for plugin %s", info.Name))
 	}
 	p := remotePluginImpl{
 		name:                     info.Name,
@@ -129,19 +129,9 @@ func (p *remotePluginImpl) PrepareTaskData(taskCtx plugin.TaskContext, options m
 		return nil, err
 	}
 
-	var txRule interface{}
-	if scope.TransformationRuleId > 0 {
-		if p.transformationRuleTabler == nil {
-			return nil, errors.Default.New(fmt.Sprintf("Cannot load transformation rule %v: plugin %s has no transformation rule model", scope.TransformationRuleId, p.name))
-		}
-		wrappedTxRule := p.transformationRuleTabler.New()
-		err = api.CallDB(db.First, wrappedTxRule, dal.From(p.transformationRuleTabler.TableName()), dal.Where("id = ?", scope.TransformationRuleId))
-		if err != nil {
-			return nil, err
-		}
-		txRule = wrappedTxRule.Unwrap()
-	} else {
-		txRule = nil
+	txRule, err := p.getTxRule(db, scope)
+	if err != nil {
+		return nil, err
 	}
 
 	return RemotePluginTaskData{
@@ -151,6 +141,22 @@ func (p *remotePluginImpl) PrepareTaskData(taskCtx plugin.TaskContext, options m
 		TransformationRule: txRule,
 		Options:            options,
 	}, nil
+}
+
+func (p *remotePluginImpl) getTxRule(db dal.Dal, scope models.ScopeModel) (interface{}, errors.Error) {
+	if scope.TransformationRuleId > 0 {
+		if p.transformationRuleTabler == nil {
+			return nil, errors.Default.New(fmt.Sprintf("Cannot load transformation rule %v: plugin %s has no transformation rule model", scope.TransformationRuleId, p.name))
+		}
+		wrappedTxRule := p.transformationRuleTabler.New()
+		err := api.CallDB(db.First, wrappedTxRule, dal.From(p.transformationRuleTabler.TableName()), dal.Where("id = ?", scope.TransformationRuleId))
+		if err != nil {
+			return nil, err
+		}
+		return wrappedTxRule.Unwrap(), nil
+	} else {
+		return nil, nil
+	}
 }
 
 func (p *remotePluginImpl) Description() string {

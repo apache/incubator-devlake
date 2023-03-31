@@ -23,7 +23,7 @@ import { operator } from '@/utils';
 export const useOperator = <T>(
   request: (paylod?: any) => Promise<T>,
   options?: {
-    callback?: () => void;
+    callback?: (res?: any) => void;
     formatReason?: (err: unknown) => string;
     formatMessage?: () => string;
   },
@@ -31,14 +31,14 @@ export const useOperator = <T>(
   const [operating, setOperating] = useState(false);
 
   const handleSubmit = async (paylod?: any) => {
-    const [success] = await operator(() => request(paylod), {
+    const [success, res] = await operator(() => request(paylod), {
       setOperating,
       formatReason: options?.formatReason ? options?.formatMessage : (err) => (err as any).response?.data?.message,
       formatMessage: options?.formatMessage,
     });
 
     if (success) {
-      options?.callback?.();
+      options?.callback?.(res);
     }
   };
 

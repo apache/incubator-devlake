@@ -164,9 +164,6 @@ func (p Jira) PrepareTaskData(taskCtx plugin.TaskContext, options map[string]int
 		taskCtx,
 		nil,
 	)
-	if err != nil {
-		return nil, errors.BadInput.Wrap(err, "could not get connection API instance for Jira")
-	}
 	err = connectionHelper.FirstById(connection, op.ConnectionId)
 	if err != nil {
 		return nil, errors.Default.Wrap(err, "unable to get Jira connection")
@@ -291,11 +288,11 @@ func (p Jira) ApiResources() map[string]map[string]plugin.ApiResourceHandler {
 			"GET": api.GetScopeList,
 			"PUT": api.PutScope,
 		},
-		"transformation_rules": {
+		"connections/:connectionId/transformation_rules": {
 			"POST": api.CreateTransformationRule,
 			"GET":  api.GetTransformationRuleList,
 		},
-		"transformation_rules/:id": {
+		"connections/:connectionId/transformation_rules/:id": {
 			"PATCH": api.UpdateTransformationRule,
 			"GET":   api.GetTransformationRule,
 		},
