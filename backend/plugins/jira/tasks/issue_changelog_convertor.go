@@ -18,6 +18,12 @@ limitations under the License.
 package tasks
 
 import (
+	"reflect"
+	"regexp"
+	"strconv"
+	"strings"
+	"time"
+
 	"github.com/apache/incubator-devlake/core/dal"
 	"github.com/apache/incubator-devlake/core/errors"
 	"github.com/apache/incubator-devlake/core/models/domainlayer"
@@ -26,11 +32,9 @@ import (
 	"github.com/apache/incubator-devlake/core/plugin"
 	"github.com/apache/incubator-devlake/helpers/pluginhelper/api"
 	"github.com/apache/incubator-devlake/plugins/jira/models"
-	"reflect"
-	"strconv"
-	"strings"
-	"time"
 )
+
+var validID = regexp.MustCompile(`[0-9]+`)
 
 var ConvertIssueChangelogsMeta = plugin.SubTaskMeta{
 	Name:             "convertIssueChangelogs",
@@ -160,6 +164,7 @@ func convertIds(ids string, connectionId uint64, sprintIdGenerator *didgen.Domai
 	var resultSlice []string
 	for _, item := range ss {
 		item = strings.TrimSpace(item)
+		item := validID.FindString(item)
 		if item != "" {
 			id, err := strconv.ParseUint(item, 10, 64)
 			if err != nil {
