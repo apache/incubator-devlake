@@ -98,9 +98,9 @@ func (pa *pluginAPI) ListTransformationRules(input *plugin.ApiResourceInput) (*p
 	return &plugin.ApiResourceOutput{Body: txRules.Unwrap()}, nil
 }
 
-func extractTrParam(params map[string]string) (uint64, uint64, errors.Error) {
-	connectionId, _ := strconv.ParseUint(params["connectionId"], 10, 64)
-	transformationId, _ := strconv.ParseUint(params["id"], 10, 64)
+func extractTrParam(params map[string]string) (connectionId uint64, transformationId uint64, err errors.Error) {
+	connectionId, _ = strconv.ParseUint(params["connectionId"], 10, 64)
+	transformationId, _ = strconv.ParseUint(params["id"], 10, 64)
 	if connectionId == 0 {
 		return 0, 0, errors.BadInput.New("invalid connectionId")
 	}
