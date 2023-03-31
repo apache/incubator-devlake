@@ -32,6 +32,18 @@ func ToJson(x any) json.RawMessage {
 	return b
 }
 
+func ToMap(x any) map[string]any {
+	b, err := json.Marshal(x)
+	if err != nil {
+		panic(err)
+	}
+	m := map[string]any{}
+	if err = json.Unmarshal(b, &m); err != nil {
+		panic(err)
+	}
+	return m
+}
+
 // ToCleanJson FIXME
 func ToCleanJson(inline bool, x any) json.RawMessage {
 	j, err := json.Marshal(x)

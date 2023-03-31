@@ -48,13 +48,11 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v3
       - run: git config --global --add safe.directory $(pwd)
-      - name: Build Sources
+      - name: Build Python
         run: |
           cd backend
           echo "Building Python"
           make build-python
-          echo "Building Go"
-          make build
       - name: Cache test-e2e
         id: cache-test-e2e
         uses: actions/cache@v3
@@ -72,9 +70,8 @@ jobs:
         run: |
           cp .env.example .env
           cd backend
-          make e2e-test
           make e2e-plugins-test
-          make integration-test
+          make e2e-test
 
   e2e-postgres:
     runs-on: ubuntu-latest
@@ -90,13 +87,11 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v3
       - run: git config --global --add safe.directory $(pwd)
-      - name: Build Sources
+      - name: Build Python
         run: |
           cd backend
           echo "Building Python"
           make build-python
-          echo "Building Go"
-          make build
       - name: Cache test-e2e-pg
         id: cache-test-e2e-pg
         uses: actions/cache@v3
@@ -114,6 +109,5 @@ jobs:
         run: |
           cp .env.example .env
           cd backend
-          make e2e-test
           make e2e-plugins-test
-          make integration-test
+          make e2e-test

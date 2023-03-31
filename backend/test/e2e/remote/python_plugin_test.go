@@ -15,14 +15,14 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-package test
+package remote
 
 import (
 	"testing"
 
 	"github.com/apache/incubator-devlake/core/models"
 	"github.com/apache/incubator-devlake/core/plugin"
-	"github.com/apache/incubator-devlake/test/integration/helper"
+	"github.com/apache/incubator-devlake/test/helper"
 	"github.com/stretchr/testify/require"
 )
 

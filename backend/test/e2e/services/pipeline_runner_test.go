@@ -20,14 +20,15 @@ package services
 import (
 	"github.com/apache/incubator-devlake/core/models"
 	"github.com/apache/incubator-devlake/server/services"
-	_ "github.com/apache/incubator-devlake/test/e2e"
+	"github.com/apache/incubator-devlake/test/helper"
 	"github.com/stretchr/testify/assert"
 	"testing"
 )
 
 func TestComputePipelineStatus(t *testing.T) {
-	db := services.GetBasicRes().GetDal()
-	// insert fake tasks to datbase
+	client := helper.StartDevLakeServer(t, nil)
+	db := client.GetDal()
+	// insert fake tasks to database
 	pipeline := &models.Pipeline{
 		TotalTasks: 3,
 	}

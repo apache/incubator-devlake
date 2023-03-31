@@ -15,29 +15,37 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-package test
+package helper
 
 import (
+	"github.com/apache/incubator-devlake/core/config"
 	"github.com/apache/incubator-devlake/core/errors"
-	"os"
-	"path/filepath"
+	"github.com/apache/incubator-devlake/core/runner"
+	"github.com/apache/incubator-devlake/impls/logruslog"
 )
 
-func NormalizeBaseDirectory() (string, errors.Error) {
-	pwd, err := os.Getwd()
+// InitDB Bootstraps the database by getting rid of all the tables
+func InitDB(dbUrl string) {
+	logger := logruslog.Global.Nested("test-init")
+	logger.Info("Initializing database")
+	cfg := config.GetConfig()
+	cfg.Set("DB_URL", dbUrl)
+	db, err := runner.NewGormDb(cfg, logger)
 	if err != nil {
-		return "", errors.Convert(err)
+		panic(err)
 	}
-	for {
-		dir := filepath.Base(pwd)
-		if dir == "" {
-			return "", errors.Default.New("base repo directory not found")
-		}
-		if dir == "backend" {
-			break
-		}
-		pwd = filepath.Dir(pwd)
+	migrator := db.Migrator()
+	tables, err := errors.Convert01(migrator.GetTables())
+	if err != nil {
+		panic(err)
 	}
-	err = os.Chdir(pwd)
-	return pwd, errors.Convert(err)
+	logger.Info("Dropping %d existing tables", len(tables))
+	var tablesRaw []any
+	for _, table := range tables {
+		tablesRaw = append(tablesRaw, table)
+	}
+	err = errors.Convert(migrator.DropTable(tablesRaw...))
+	if err != nil {
+		panic(err)
+	}
 }
