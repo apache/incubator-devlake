@@ -17,7 +17,9 @@
 import os
 import json
 from functools import wraps
-from typing import Generator, TextIO, Optional, Union
+from typing import Generator, TextIO, Optional
+
+from fire.decorators import SetParseFn
 
 from pydevlake.context import Context
 from pydevlake.message import Message
@@ -36,7 +38,14 @@ def plugin_method(func):
         send_ch.write('\n')
         send_ch.flush()
 
+    def parse_arg(arg):
+        try:
+            return json.loads(arg)
+        except json.JSONDecodeError as e:
+            raise Exception(f"Invalid JSON {arg}: {e.msg}")
+
     @wraps(func)
+    @SetParseFn(parse_arg)
     def wrapper(self, *args):
         ret = func(self, *args)
         if ret is not None:
@@ -69,7 +78,6 @@ class PluginCommands:
 
     @plugin_method
     def test_connection(self, connection: dict):
-        connection = self._parse(connection)
         if "name" not in connection:
             connection["name"] = "Test connection"
         connection = self._plugin.connection_type(**connection)
@@ -77,12 +85,11 @@ class PluginCommands:
 
     @plugin_method
     def make_pipeline(self, scope_tx_rule_pairs: list[tuple[dict, dict]], entities: list[str], connection: dict):
-        connection = self._plugin.connection_type(**self._parse(connection))
-        entities = self._parse(entities)
+        connection = self._plugin.connection_type(**connection)
         scope_tx_rule_pairs = [
             (
-                self._plugin.tool_scope_type(**self._parse(raw_scope)),
-                self._plugin.transformation_rule_type(**self._parse(raw_tx_rule)) if raw_tx_rule else None
+                self._plugin.tool_scope_type(**raw_scope),
+                self._plugin.transformation_rule_type(**raw_tx_rule) if raw_tx_rule else None
             )
             for raw_scope, raw_tx_rule in scope_tx_rule_pairs
         ]
@@ -98,7 +105,6 @@ class PluginCommands:
 
     @plugin_method
     def remote_scopes(self, connection: dict, group_id: Optional[str] = None):
-        connection = self._parse(connection)
         c = self._plugin.connection_type(**connection)
         return self._plugin.make_remote_scopes(c, group_id)
 
@@ -106,26 +112,15 @@ class PluginCommands:
         self._plugin.startup(endpoint)
 
     def _mk_context(self, data: dict):
-        data = self._parse(data)
         db_url = data['db_url']
-        scope_dict = self._parse(data['scope'])
+        scope_dict = data['scope']
         scope = self._plugin.tool_scope_type(**scope_dict)
-        connection_dict = self._parse(data['connection'])
+        connection_dict = data['connection']
         connection = self._plugin.connection_type(**connection_dict)
         if self._plugin.transformation_rule_type:
-            transformation_rule_dict = self._parse(data['transformation_rule'])
+            transformation_rule_dict = data['transformation_rule']
             transformation_rule = self._plugin.transformation_rule_type(**transformation_rule_dict)
         else:
             transformation_rule = None
         options = data.get('options', {})
         return Context(db_url, scope, connection, transformation_rule, options)
-
-    def _parse(self, data: Union[str, dict, list]) -> Union[dict, list]:
-        if isinstance(data, (dict, list)):
-            return data
-        if isinstance(data, str):
-            try:
-                return json.loads(data)
-            except json.JSONDecodeError as e:
-                raise Exception(f"Invalid JSON: {e.msg}")
-        raise Exception(f"Invalid argument type: {type(data)}")
