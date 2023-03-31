@@ -71,7 +71,7 @@ func (c *CmdInvoker) Call(methodName string, ctx plugin.ExecContext, args ...any
 	err = response.GetError()
 	if err != nil {
 		return &CallResult{
-			Err: errors.Default.Wrap(err, fmt.Sprintf("failed to invoke remote function \"%s\"", methodName)),
+			Err: errors.Default.Wrap(err, fmt.Sprintf("get error when invoking remote function %s", methodName)),
 		}
 	}
 	return NewCallResult(response.GetFdOut(), nil)

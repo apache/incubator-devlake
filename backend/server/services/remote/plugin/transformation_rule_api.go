@@ -28,7 +28,12 @@ import (
 )
 
 func (pa *pluginAPI) PostTransformationRules(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, errors.Error) {
+	connectionId, _ := strconv.ParseUint(input.Params["connectionId"], 10, 64)
+	if connectionId == 0 {
+		return nil, errors.BadInput.New("invalid connectionId")
+	}
 	txRule := pa.txRuleType.New()
+	input.Body[`connectionId`] = connectionId
 	err := api.Decode(input.Body, txRule, vld)
 	if err != nil {
 		return nil, errors.BadInput.Wrap(err, "error in decoding transformation rule")
@@ -42,18 +47,19 @@ func (pa *pluginAPI) PostTransformationRules(input *plugin.ApiResourceInput) (*p
 }
 
 func (pa *pluginAPI) PatchTransformationRule(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, errors.Error) {
-	id, err := strconv.ParseUint(input.Params["id"], 10, 64)
+	connectionId, trId, err := extractTrParam(input.Params)
 	if err != nil {
-		return nil, errors.Default.Wrap(err, "id should be an integer")
+		return nil, err
 	}
 
 	txRule := pa.txRuleType.New()
 	db := basicRes.GetDal()
-	err = api.CallDB(db.First, txRule, dal.Where("id = ?", id))
+	err = api.CallDB(db.First, txRule, dal.Where("connection_id = ? AND id = ?", connectionId, trId))
 	if err != nil {
 		return nil, errors.Default.Wrap(err, "no transformation rule with given id")
 	}
 
+	input.Body[`connectionId`] = connectionId
 	err = api.Decode(input.Body, txRule, vld)
 	if err != nil {
 		return nil, errors.Default.Wrap(err, "decoding error")
@@ -65,7 +71,11 @@ func (pa *pluginAPI) PatchTransformationRule(input *plugin.ApiResourceInput) (*p
 func (pa *pluginAPI) GetTransformationRule(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, errors.Error) {
 	txRule := pa.txRuleType.New()
 	db := basicRes.GetDal()
-	err := api.CallDB(db.First, txRule, dal.Where("id = ?", input.Params))
+	connectionId, trId, err := extractTrParam(input.Params)
+	if err != nil {
+		return nil, err
+	}
+	err = api.CallDB(db.First, txRule, dal.Where("connection_id = ? AND id = ?", connectionId, trId))
 	if err != nil {
 		return nil, errors.Default.Wrap(err, "no transformation rule with given id")
 	}
@@ -86,4 +96,17 @@ func (pa *pluginAPI) ListTransformationRules(input *plugin.ApiResourceInput) (*p
 		return nil, err
 	}
 	return &plugin.ApiResourceOutput{Body: txRules.Unwrap()}, nil
+}
+
+func extractTrParam(params map[string]string) (uint64, uint64, errors.Error) {
+	connectionId, _ := strconv.ParseUint(params["connectionId"], 10, 64)
+	transformationId, _ := strconv.ParseUint(params["id"], 10, 64)
+	if connectionId == 0 {
+		return 0, 0, errors.BadInput.New("invalid connectionId")
+	}
+	if transformationId == 0 {
+		return 0, 0, errors.BadInput.New("invalid transformationId")
+	}
+
+	return connectionId, transformationId, nil
 }

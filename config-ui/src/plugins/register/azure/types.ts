@@ -18,6 +18,6 @@
 
 export type AzureScopeType = {
   connectionId: ID;
-  azureId: ID;
+  id: ID;
   name: string;
 };

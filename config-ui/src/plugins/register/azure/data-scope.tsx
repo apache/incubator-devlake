@@ -30,7 +30,7 @@ interface Props {
 
 export const AzureDataScope = ({ connectionId, onChangeItems, ...props }: Props) => {
   const selectedItems = useMemo(
-    () => props.selectedItems.map((it) => ({ id: `${it.azureId}`, name: it.name, data: it })),
+    () => props.selectedItems.map((it) => ({ id: `${it.id}`, name: it.name, data: it })),
     [props.selectedItems],
   );
 
