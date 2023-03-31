@@ -18,23 +18,47 @@ limitations under the License.
 package api
 
 import (
-	"github.com/stretchr/testify/require"
 	"testing"
+	"time"
+
+	"github.com/stretchr/testify/require"
 )
 
-func TestQueue(t *testing.T) {
+func TestQueueIterator(t *testing.T) {
 	it := NewQueueIterator()
-	it.Push(NewQueueIteratorNode("a"))
-	it.Push(NewQueueIteratorNode("b"))
+	it.Push("a")
+	it.Push("b")
 	require.True(t, it.HasNext())
 	folderRaw, err := it.Fetch()
 	require.NoError(t, err)
-	node := folderRaw.(*QueueIteratorNode)
-	require.Equal(t, "a", node.Data())
+	data := folderRaw.(string)
+	require.Equal(t, "a", data)
 	require.True(t, it.HasNext())
 	folderRaw, err = it.Fetch()
 	require.NoError(t, err)
-	node = folderRaw.(*QueueIteratorNode)
-	require.Equal(t, "b", node.Data())
-	require.False(t, it.HasNext())
+	data = folderRaw.(string)
+	require.Equal(t, "b", data)
+	require.True(t, it.HasNext())
+
+	empty := false
+	waited := false
+	go func() {
+		data, err := it.Fetch()
+		require.Equal(t, err, nil)
+		require.Equal(t, data, nil)
+		require.False(t, it.HasNext())
+		empty = true
+	}()
+
+	go func() {
+		time.Sleep(100 * time.Millisecond)
+		waited = true
+		it.Finish(2)
+	}()
+
+	for !empty {
+		time.Sleep(time.Millisecond)
+	}
+
+	require.True(t, waited)
 }

@@ -18,10 +18,11 @@ limitations under the License.
 package api
 
 import (
-	"github.com/apache/incubator-devlake/core/dal"
-	"github.com/apache/incubator-devlake/core/errors"
 	"reflect"
 	"time"
+
+	"github.com/apache/incubator-devlake/core/dal"
+	"github.com/apache/incubator-devlake/core/errors"
 )
 
 // Iterator FIXME ...
@@ -150,17 +151,26 @@ type QueueIterator struct {
 
 // HasNext increments the row curser. If we're at the end, it'll return false.
 func (q *QueueIterator) HasNext() bool {
-	return q.queue.GetCount() > 0
+	return q.queue.GetAllCount() > 0
 }
 
 // Fetch current item
 func (q *QueueIterator) Fetch() (interface{}, errors.Error) {
-	return q.queue.PullWithOutLock(), nil
+	node := q.queue.Pull()
+	if node == nil {
+		return nil, nil
+	} else {
+		return node.Data(), nil
+	}
 }
 
 // Push a data into queue
-func (q *QueueIterator) Push(data QueueNode) {
-	q.queue.PushWithoutLock(data)
+func (q *QueueIterator) Push(data interface{}) {
+	q.queue.Push(NewQueueIteratorNode(data))
+}
+
+func (q *QueueIterator) Finish(count int64) {
+	q.queue.Finish(count)
 }
 
 // Close releases resources
