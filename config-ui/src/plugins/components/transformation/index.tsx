@@ -120,7 +120,7 @@ export const Transformation = ({
               { title: 'Data Scope', dataIndex: 'name', key: 'name' },
               {
                 title: 'Transformation',
-                dataIndex: 'transformationRuleId',
+                dataIndex: 'transformationRuleName',
                 key: 'transformation',
                 align: 'center',
                 render: (val, row) => (
