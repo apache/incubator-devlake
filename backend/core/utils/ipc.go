@@ -243,7 +243,9 @@ func scanOutputPipe(pipe io.ReadCloser, wg *sync.WaitGroup, onReceive func([]byt
 			src := scanner.Bytes()
 			data := make([]byte, len(src))
 			copy(data, src)
-			onReceive(data)
+			if onReceive != nil {
+				onReceive(data)
+			}
 			outboundChannel <- responseCreator(data)
 		}
 		wg.Done()
@@ -259,7 +261,9 @@ func scanErrorPipe(pipe io.ReadCloser, onReceive func([]byte), outboundChannel c
 			src := scanner.Bytes()
 			data := make([]byte, len(src))
 			copy(data, src)
-			onReceive(data)
+			if onReceive != nil {
+				onReceive(data)
+			}
 			outboundChannel <- &ProcessResponse{stderr: data}
 			_, _ = remoteErrorMsg.Write(src)
 			_, _ = remoteErrorMsg.WriteString("\n")
