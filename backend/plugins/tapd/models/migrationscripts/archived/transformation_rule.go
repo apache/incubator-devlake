@@ -15,13 +15,21 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-package models
+package archived
 
-type TapdIssue struct {
-	ConnectionId uint64 `gorm:"primaryKey"`
-	Id           uint64 `gorm:"primaryKey;type:BIGINT" json:"id,string"`
+import (
+	"encoding/json"
+	"github.com/apache/incubator-devlake/core/models/migrationscripts/archived"
+)
+
+type TapdTransformationRule struct {
+	archived.NoPKModel
+	ConnectionId   uint64          `mapstructure:"connectionId" json:"connectionId"`
+	Name           string          `gorm:"type:varchar(255);index:idx_name_tapd,unique" validate:"required" mapstructure:"name" json:"name"`
+	TypeMappings   json.RawMessage `mapstructure:"typeMappings,omitempty" json:"typeMappings"`
+	StatusMappings json.RawMessage `mapstructure:"statusMappings,omitempty" json:"statusMappings"`
 }
 
-func (TapdIssue) TableName() string {
-	return "_tool_tapd_issues"
+func (t TapdTransformationRule) TableName() string {
+	return "_tool_tapd_transformation_rules"
 }

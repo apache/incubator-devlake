@@ -18,15 +18,28 @@ limitations under the License.
 package migrationscripts
 
 import (
-	"github.com/apache/incubator-devlake/core/plugin"
+	"github.com/apache/incubator-devlake/core/context"
+	"github.com/apache/incubator-devlake/core/errors"
+	"github.com/apache/incubator-devlake/plugins/tapd/models/migrationscripts/archived"
 )
 
-// All return all the migration scripts
-func All() []plugin.MigrationScript {
-	return []plugin.MigrationScript{
-		new(addInitTables),
-		new(encodeConnToken),
-		new(addTransformation),
-		new(deleteIssue),
+type deleteIssue struct{}
+
+func (*deleteIssue) Up(basicRes context.BasicRes) errors.Error {
+	db := basicRes.GetDal()
+	err := db.DropTables(archived.TapdIssue{})
+	if err != nil {
+		return err
 	}
+	// drop if exist
+	_ = db.DropColumns(`_tool_tapd_transformation_rules`, `remotelink_commit_sha_pattern`, `remotelink_repo_pattern`)
+	return nil
+}
+
+func (*deleteIssue) Version() uint64 {
+	return 20230323000004
+}
+
+func (*deleteIssue) Name() string {
+	return "Tapd delete issue and remote link"
 }

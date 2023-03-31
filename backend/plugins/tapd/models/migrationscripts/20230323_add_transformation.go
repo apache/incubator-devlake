@@ -22,7 +22,6 @@ import (
 	"github.com/apache/incubator-devlake/core/dal"
 	"github.com/apache/incubator-devlake/core/errors"
 	"github.com/apache/incubator-devlake/helpers/migrationhelper"
-	"github.com/apache/incubator-devlake/plugins/tapd/models"
 	"github.com/apache/incubator-devlake/plugins/tapd/models/migrationscripts/archived"
 )
 
@@ -122,7 +121,7 @@ func (*addTransformation) Up(basicRes context.BasicRes) errors.Error {
 
 	return migrationhelper.AutoMigrateTables(
 		basicRes,
-		&models.TapdTransformationRule{},
+		&archived.TapdTransformationRule{},
 		&TapdWorkspace20230323{},
 	)
 }

@@ -23,13 +23,11 @@ import (
 )
 
 type TapdTransformationRule struct {
-	common.Model               `mapstructure:"-"`
-	ConnectionId               uint64          `mapstructure:"connectionId" json:"connectionId"`
-	Name                       string          `gorm:"type:varchar(255);index:idx_name_tapd,unique" validate:"required" mapstructure:"name" json:"name"`
-	RemotelinkCommitShaPattern string          `mapstructure:"remotelinkCommitShaPattern,omitempty" json:"remotelinkCommitShaPattern" gorm:"type:varchar(255)"`
-	RemotelinkRepoPattern      json.RawMessage `mapstructure:"remotelinkRepoPattern,omitempty" json:"remotelinkRepoPattern"`
-	TypeMappings               json.RawMessage `mapstructure:"typeMappings,omitempty" json:"typeMappings"`
-	StatusMappings             json.RawMessage `mapstructure:"statusMappings,omitempty" json:"statusMappings"`
+	common.Model   `mapstructure:"-"`
+	ConnectionId   uint64          `mapstructure:"connectionId" json:"connectionId"`
+	Name           string          `gorm:"type:varchar(255);index:idx_name_tapd,unique" validate:"required" mapstructure:"name" json:"name"`
+	TypeMappings   json.RawMessage `mapstructure:"typeMappings,omitempty" json:"typeMappings"`
+	StatusMappings json.RawMessage `mapstructure:"statusMappings,omitempty" json:"statusMappings"`
 }
 
 func (t TapdTransformationRule) TableName() string {
