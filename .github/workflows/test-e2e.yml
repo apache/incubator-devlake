@@ -22,6 +22,8 @@ on:
     branches: [main]
     paths:
       - "**.go"
+      - 'python/**.py'
+      - 'python/**.toml'
       - "Makefile"
       - "go.mod"
       - "go.sum"
