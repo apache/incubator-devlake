@@ -40,12 +40,12 @@ export const AzureConfig: PluginConfigType = {
         key: 'token',
         label: 'Personal Access Token',
         subLabel: (
-          <p>
+          <span>
             <ExternalLink link="https://devlake.apache.org/docs/Configuration/AzureDevOps#auth-tokens">
               Learn about how to create a PAT
             </ExternalLink>{' '}
             Please select ALL ACCESSIBLE ORGANIZATIONS for the Organization field when you create the PAT.
-          </p>
+          </span>
         ),
       },
       'proxy',
