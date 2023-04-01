@@ -212,11 +212,8 @@ class Convertor(Subtask):
             self._save(tool_model, res, session, ctx.connection.id)
 
     def _save(self, tool_model: ToolModel, domain_model: DomainModel, session: Session, connection_id: int):
-        if not isinstance(domain_model, DomainModel):
-            logger.error(f'Expected a DomainModel but got a {type(domain_model)}: {domain_model}')
-            return
-
-        domain_model.id = tool_model.domain_id()
+        if isinstance(domain_model, DomainModel):
+            domain_model.id = tool_model.domain_id()
         session.merge(domain_model)
 
     def delete(self, session, ctx):
