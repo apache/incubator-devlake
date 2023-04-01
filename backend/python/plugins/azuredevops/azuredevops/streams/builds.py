@@ -31,7 +31,7 @@ class Builds(Stream):
     def collect(self, state, context) -> Iterable[tuple[object, dict]]:
         repo: GitRepository = context.scope
         api = AzureDevOpsAPI(context.connection)
-        response = api.builds(repo.org_id, repo.project_id, repo.id, repo.provider)
+        response = api.builds(repo.org_id, repo.project_id, repo.id, 'tfsgit')
         for raw_build in response:
             yield raw_build, state
 
