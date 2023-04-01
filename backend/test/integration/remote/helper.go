@@ -45,8 +45,8 @@ type (
 	FakeProject struct {
 		Id                   string `json:"id"`
 		Name                 string `json:"name"`
-		ConnectionId         uint64 `json:"connection_id"`
-		TransformationRuleId uint64 `json:"transformation_rule_id"`
+		ConnectionId         uint64 `json:"connectionId"`
+		TransformationRuleId uint64 `json:"transformationRuleId"`
 	}
 	FakeTxRule struct {
 		Id   uint64 `json:"id"`

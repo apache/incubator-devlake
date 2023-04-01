@@ -174,7 +174,7 @@ func (pa *pluginAPI) ListScopes(input *plugin.ApiResourceInput) (*plugin.ApiReso
 	}
 	var ruleIds []uint64
 	for _, scopeModel := range scopeMap {
-		if tid := uint64(scopeModel["transformation_rule_id"].(float64)); tid > 0 {
+		if tid := uint64(scopeModel["transformationRuleId"].(float64)); tid > 0 {
 			ruleIds = append(ruleIds, tid)
 		}
 	}
@@ -197,7 +197,7 @@ func (pa *pluginAPI) ListScopes(input *plugin.ApiResourceInput) (*plugin.ApiReso
 	}
 	var apiScopes []apiScopeResponse
 	for _, scope := range scopeMap {
-		txRuleName, ok := names[uint64(scope["transformation_rule_id"].(float64))]
+		txRuleName, ok := names[uint64(scope["transformationRuleId"].(float64))]
 		if ok {
 			scopeRes := apiScopeResponse{
 				Scope:                  scope,
