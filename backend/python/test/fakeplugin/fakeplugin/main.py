@@ -102,7 +102,7 @@ class FakeConnection(Connection):
 
 
 class FakeProject(ToolScope, table=True):
-    pass
+    url: str
 
 
 class FakeTransformationRule(TransformationRule):
@@ -135,7 +135,8 @@ class FakePlugin(Plugin):
             return [
                 FakeProject(
                     id='p1',
-                    name='Project 1'
+                    name='Project 1',
+                    url='http://fake.org/api/project/p1'
                 )
             ]
         else:
