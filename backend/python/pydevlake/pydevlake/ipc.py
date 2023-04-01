@@ -23,6 +23,7 @@ from fire.decorators import SetParseFn
 
 from pydevlake.context import Context
 from pydevlake.message import Message
+from pydevlake.stream import DomainType
 
 
 def plugin_method(func):
@@ -93,6 +94,7 @@ class PluginCommands:
             )
             for raw_scope, raw_tx_rule in scope_tx_rule_pairs
         ]
+        entities = [DomainType(e) for e in entities]
         return self._plugin.make_pipeline(scope_tx_rule_pairs, entities, connection)
 
     @plugin_method

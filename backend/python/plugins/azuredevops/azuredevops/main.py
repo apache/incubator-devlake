@@ -105,17 +105,15 @@ class AzureDevOpsPlugin(Plugin):
             except APIException as e:
                 raise Exception(f"Invalid token: {e}")
 
-    def extra_tasks(self, scope: GitRepository, tx_rule: AzureDevOpsTransformationRule, entity_types: list[str], connection: AzureDevOpsConnection):
+    def extra_tasks(self, scope: GitRepository, tx_rule: AzureDevOpsTransformationRule, entity_types: list[DomainType], connection: AzureDevOpsConnection):
         if DomainType.CODE in entity_types:
-            return [gitextractor(scope.url, scope.id, connection.proxy)]
-        else:
-            return []
+            yield gitextractor(scope.url, scope.id, connection.proxy)
 
-    def extra_stages(self, scope_tx_rule_pairs: list[ScopeTxRulePair], entity_types: list[str], _):
+    def extra_stages(self, scope_tx_rule_pairs: list[ScopeTxRulePair], entity_types: list[DomainType], _):
         if DomainType.CODE in entity_types:
             for scope, tx_rule in scope_tx_rule_pairs:
-                options = tx_rule.refdiff_options if tx_rule else None
-                yield refdiff(scope.id, options)
+                options = tx_rule.refdiff if tx_rule else None
+                yield [refdiff(scope.id, options)]
 
     @property
     def streams(self):
