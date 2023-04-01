@@ -71,7 +71,6 @@ func ConnectLocalServer(t *testing.T) *helper.DevlakeClient {
 }
 
 func CreateClient(t *testing.T) *helper.DevlakeClient {
-	t.Skip("Skipping Go-Python tests until they are fixed - then remove this line")
 	SetupEnv()
 	client := ConnectLocalServer(t)
 	client.AwaitPluginAvailability(PLUGIN_NAME, 60*time.Second)

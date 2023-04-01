@@ -21,6 +21,7 @@ import (
 	"fmt"
 	"github.com/apache/incubator-devlake/core/context"
 	"github.com/apache/incubator-devlake/core/errors"
+	core "github.com/apache/incubator-devlake/core/log"
 	"github.com/apache/incubator-devlake/core/plugin"
 	"sort"
 	"sync"
@@ -34,6 +35,7 @@ type scriptWithComment struct {
 type migratorImpl struct {
 	sync.Mutex
 	basicRes context.BasicRes
+	logger   core.Logger
 	executed map[string]bool
 	scripts  []*scriptWithComment
 	pending  []*scriptWithComment
@@ -54,7 +56,8 @@ func (m *migratorImpl) loadExecuted() errors.Error {
 		return errors.Default.Wrap(err, "error finding migration history records")
 	}
 	for _, record := range records {
-		m.executed[fmt.Sprintf("%s:%d", record.ScriptName, record.ScriptVersion)] = true
+		scriptId := getScriptId(record.ScriptName, record.ScriptVersion)
+		m.executed[scriptId] = true
 	}
 	return nil
 }
@@ -64,14 +67,16 @@ func (m *migratorImpl) Register(scripts []plugin.MigrationScript, comment string
 	m.Lock()
 	defer m.Unlock()
 	for _, script := range scripts {
-		key := fmt.Sprintf("%s:%d", script.Name(), script.Version())
+		scriptId := getScriptId(script.Name(), script.Version())
 		swc := &scriptWithComment{
 			script:  script,
 			comment: comment,
 		}
 		m.scripts = append(m.scripts, swc)
-		if !m.executed[key] {
+		if !m.executed[scriptId] {
 			m.pending = append(m.pending, swc)
+		} else {
+			m.logger.Debug("skipping previously executed migration script: %s", scriptId)
 		}
 	}
 }
@@ -84,10 +89,9 @@ func (m *migratorImpl) Execute() errors.Error {
 	})
 	// execute them one by one
 	db := m.basicRes.GetDal()
-	logger := m.basicRes.GetLogger().Nested("migrator")
 	for _, swc := range m.pending {
-		scriptId := fmt.Sprintf("%d-%s", swc.script.Version(), swc.script.Name())
-		logger.Info("applying migratin script %s", scriptId)
+		scriptId := getScriptId(swc.script.Name(), swc.script.Version())
+		m.logger.Info("applying migration script %s", scriptId)
 		err := swc.script.Up(m.basicRes)
 		if err != nil {
 			return err
@@ -116,10 +120,15 @@ func (m *migratorImpl) HasPendingScripts() bool {
 func NewMigrator(basicRes context.BasicRes) (plugin.Migrator, errors.Error) {
 	m := &migratorImpl{
 		basicRes: basicRes,
+		logger:   basicRes.GetLogger().Nested("migrator"),
 	}
 	err := m.loadExecuted()
 	if err != nil {
 		return nil, err
 	}
 	return m, nil
+}
+
+func getScriptId(scriptName string, scriptVersion uint64) string {
+	return fmt.Sprintf("%s:%d", scriptName, scriptVersion)
 }
