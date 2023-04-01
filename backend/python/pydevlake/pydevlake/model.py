@@ -39,7 +39,7 @@ class Model(SQLModel):
         sa_column=Column(DateTime(), default=func.now(), onupdate=func.now())
     )
 
-class ToolTable(Model):
+class ToolTable(SQLModel):
     @declared_attr
     def __tablename__(cls) -> str:
         plugin_name = _get_plugin_name(cls)
@@ -47,7 +47,7 @@ class ToolTable(Model):
         return f'_tool_{plugin_name}_{plural_entity}'
 
 
-class Connection(ToolTable):
+class Connection(ToolTable, Model):
     name: str
     proxy: Optional[AnyUrl]
 
@@ -58,7 +58,7 @@ class Connection(ToolTable):
         return proxy
 
 
-class TransformationRule(ToolTable):
+class TransformationRule(ToolTable, Model):
     name: str
 
 
