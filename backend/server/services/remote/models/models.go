@@ -69,8 +69,8 @@ type ScopeModel struct {
 }
 
 type TransformationModel struct {
-	ConnectionId uint64    `gorm:"primaryKey" json:"connectionId"`
 	Id           uint64    `gorm:"primaryKey" json:"id"`
+	ConnectionId uint64    `json:"connectionId"`
 	Name         string    `json:"name"`
 	CreatedAt    time.Time `json:"createdAt"`
 	UpdatedAt    time.Time `json:"updatedAt"`
