@@ -119,9 +119,9 @@ class PluginCommands:
         scope = self._plugin.tool_scope_type(**scope_dict)
         connection_dict = data['connection']
         connection = self._plugin.connection_type(**connection_dict)
-        if self._plugin.transformation_rule_type:
-            transformation_rule_dict = data['transformation_rule']
-            transformation_rule = self._plugin.transformation_rule_type(**transformation_rule_dict)
+        raw_tx_rule = data.get('transformation_rule')
+        if self._plugin.transformation_rule_type and raw_tx_rule:
+            transformation_rule = self._plugin.transformation_rule_type(**raw_tx_rule)
         else:
             transformation_rule = None
         options = data.get('options', {})
