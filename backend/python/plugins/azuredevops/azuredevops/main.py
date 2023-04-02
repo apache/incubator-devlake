@@ -80,6 +80,10 @@ class AzureDevOpsPlugin(Plugin):
         for raw_repo in api.git_repos(org, proj):
             raw_repo['project_id'] = proj
             raw_repo['org_id'] = org
+            # remove username from url
+            url = urlparse(raw_repo['remoteUrl'])
+            url = url._replace(netloc=url.hostname)
+            raw_repo['url'] = url.geturl()
             repo = GitRepository(**raw_repo)
             if not repo.defaultBranch:
                 continue
