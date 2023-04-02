@@ -78,9 +78,6 @@ class AzureDevOpsPlugin(Plugin):
         org, proj = group_id.split('/')
         api = AzureDevOpsAPI(connection)
         for raw_repo in api.git_repos(org, proj):
-            url = urlparse(raw_repo['remoteUrl'])
-            url = url._replace(netloc=f'{url.username}:{connection.token}@{url.hostname}')
-            raw_repo['url'] = url.geturl()
             raw_repo['project_id'] = proj
             raw_repo['org_id'] = org
             repo = GitRepository(**raw_repo)
@@ -107,7 +104,9 @@ class AzureDevOpsPlugin(Plugin):
 
     def extra_tasks(self, scope: GitRepository, tx_rule: AzureDevOpsTransformationRule, entity_types: list[DomainType], connection: AzureDevOpsConnection):
         if DomainType.CODE in entity_types:
-            yield gitextractor(scope.url, scope.id, connection.proxy)
+            url = urlparse(scope.remoteUrl)
+            url = url._replace(netloc=f'{url.username}:{connection.token}@{url.hostname}')
+            yield gitextractor(url.geturl(), scope.domain_id(), connection.proxy)
 
     def extra_stages(self, scope_tx_rule_pairs: list[ScopeTxRulePair], entity_types: list[DomainType], _):
         if DomainType.CODE in entity_types:
