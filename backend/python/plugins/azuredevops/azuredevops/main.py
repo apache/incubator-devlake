@@ -85,7 +85,7 @@ class AzureDevOpsPlugin(Plugin):
             raw_repo['org_id'] = org
             repo = GitRepository(**raw_repo)
             if not repo.defaultBranch:
-                return None
+                continue
             if "parentRepository" in raw_repo:
                 repo.parentRepositoryUrl = raw_repo["parentRepository"]["url"]
             yield repo
