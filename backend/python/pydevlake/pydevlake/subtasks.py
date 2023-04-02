@@ -185,7 +185,7 @@ class Extractor(Subtask):
 
     def process(self, raw: RawModel, session: Session, ctx: Context):
         tool_model = self.stream.extract(json.loads(raw.data))
-        tool_model.set_origin(raw)
+        tool_model.set_raw_origin(raw)
         tool_model.connection_id = ctx.connection.id
         session.merge(tool_model)
 
@@ -212,6 +212,7 @@ class Convertor(Subtask):
             self._save(tool_model, res, session, ctx.connection.id)
 
     def _save(self, tool_model: ToolModel, domain_model: DomainModel, session: Session, connection_id: int):
+        domain_model.set_tool_origin(tool_model)
         if isinstance(domain_model, DomainModel):
             domain_model.id = tool_model.domain_id()
         session.merge(domain_model)

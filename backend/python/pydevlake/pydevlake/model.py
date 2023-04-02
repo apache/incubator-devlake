@@ -79,10 +79,15 @@ class RawDataOrigin(SQLModel):
     raw_data_id: Optional[str] = Field(sa_column_kwargs={'name':'_raw_data_id'})
     raw_data_remark: Optional[str] = Field(sa_column_kwargs={'name':'_raw_data_remark'})
 
-    def set_origin(self, raw: RawModel):
+    def set_raw_origin(self, raw: RawModel):
         self.raw_data_id = raw.id
         self.raw_data_params = raw.params
         self.raw_data_table = raw.__tablename__
+
+    def set_tool_origin(self, tool_model: 'ToolModel'):
+        self.raw_data_id = tool_model.raw_data_id
+        self.raw_data_params = tool_model.raw_data_params
+        self.raw_data_table = tool_model.raw_data_table
 
 
 class NoPKModel(RawDataOrigin):

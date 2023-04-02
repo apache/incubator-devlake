@@ -105,6 +105,7 @@ def test_extract_data(stream, raw_data, ctx):
     with Session(ctx.engine) as session:
         for each in raw_data:
             raw_model = stream.raw_model(session)
+            raw_model.params = json.dumps({"connection_id": ctx.connection.id, "scope_id": ctx.scope.id})
             session.add(raw_model(data=json.dumps(each)))
         session.commit()
 
