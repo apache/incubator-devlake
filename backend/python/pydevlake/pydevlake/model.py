@@ -33,10 +33,10 @@ inflect_engine = inflect.engine()
 class Model(SQLModel):
     id: Optional[int] = Field(primary_key=True)
     created_at: Optional[datetime] = Field(
-        sa_column=Column(DateTime(), default=func.now())
+        sa_column=Column(DateTime(), default=datetime.utcnow)
     )
     updated_at: Optional[datetime] = Field(
-        sa_column=Column(DateTime(), default=func.now(), onupdate=func.now())
+        sa_column=Column(DateTime(), default=datetime.utcnow, onupdate=datetime.utcnow)
     )
 
 class ToolTable(SQLModel):
@@ -92,10 +92,10 @@ class RawDataOrigin(SQLModel):
 
 class NoPKModel(RawDataOrigin):
     created_at: Optional[datetime] = Field(
-        sa_column=Column(DateTime(), default=func.now())
+        sa_column=Column(DateTime(), default=datetime.utcnow)
     )
     updated_at: Optional[datetime] = Field(
-        sa_column=Column(DateTime(), default=func.now(), onupdate=func.now())
+        sa_column=Column(DateTime(), default=datetime.utcnow, onupdate=datetime.utcnow)
     )
 
 
