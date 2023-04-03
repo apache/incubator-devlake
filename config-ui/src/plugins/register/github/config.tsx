@@ -92,7 +92,7 @@ export const GitHubConfig: PluginConfigType = {
     prBodyClosePattern:
       '(?mi)(fix|close|resolve|fixes|closes|resolves|fixed|closed|resolved)[s]*.*(((and )?(#|https://github.com/%s/%s/issues/)d+[ ]*)+)',
     refdiff: {
-      tagsOrder: 10,
+      tagsLimit: 10,
       tagsPattern: '/v\\d+\\.\\d+(\\.\\d+(-rc)*\\d*)*$/',
     },
   },

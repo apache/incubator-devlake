@@ -67,7 +67,7 @@ export const BitBucketConfig: PluginConfigType = {
     productionPattern: '',
     deploymentPattern: '',
     refdiff: {
-      tagsOrder: 10,
+      tagsLimit: 10,
       tagsPattern: '/v\\d+\\.\\d+(\\.\\d+(-rc)*\\d*)*$/',
     },
   },

@@ -239,13 +239,13 @@ export const BitbucketTransformation = ({ transformation, setTransformation }: P
             <InputGroup
               style={{ width: 60 }}
               placeholder="10"
-              value={transformation.refdiff?.tagsOrder}
+              value={transformation.refdiff?.tagsLimit}
               onChange={(e) =>
                 setTransformation({
                   ...transformation,
                   refdiff: {
                     ...transformation?.refdiff,
-                    tagsOrder: e.target.value,
+                    tagsLimit: e.target.value,
                   },
                 })
               }

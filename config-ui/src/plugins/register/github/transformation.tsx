@@ -391,13 +391,13 @@ export const GitHubTransformation = ({ transformation, setTransformation }: Prop
             Compare the last
             <InputGroup
               style={{ width: 60 }}
-              value={transformation.refdiff?.tagsOrder}
+              value={transformation.refdiff?.tagsLimit ?? ''}
               onChange={(e) =>
                 setTransformation({
                   ...transformation,
                   refdiff: {
                     ...transformation?.refdiff,
-                    tagsOrder: e.target.value,
+                    tagsLimit: e.target.value,
                   },
                 })
               }
