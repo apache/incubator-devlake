@@ -178,6 +178,35 @@ func (s *Service) ImportIssueCommit(rawDataParams string, file io.ReadCloser) er
 	return s.importCSV(file, rawDataParams, s.issueCommitHandler)
 }
 
+// ImportIssueRepoCommit imports data to the table `issue_repo_commits` and `issue_commits`
+func (s *Service) ImportIssueRepoCommit(rawDataParams string, file io.ReadCloser) errors.Error {
+	fields := make(map[string]struct{})
+	// get all fields of the table `issue_repo_commit`
+	columns, err := s.dal.GetColumns(&crossdomain.IssueCommit{}, func(columnMeta dal.ColumnMeta) bool {
+		return true
+	})
+	if err != nil {
+		return err
+	}
+	for _, column := range columns {
+		fields[column.Name()] = struct{}{}
+	}
+	// delete old records of the table `issue_repo_commit` and `issue_commit`
+	err = s.dal.Delete(&crossdomain.IssueRepoCommit{}, dal.Where("_raw_data_params = ?", rawDataParams))
+	if err != nil {
+		return err
+	}
+	err = s.dal.Delete(&crossdomain.IssueCommit{}, dal.Where("_raw_data_params = ?", rawDataParams))
+	if err != nil {
+		return err
+	}
+	return s.importCSV(file, rawDataParams, s.issueRepoCommitHandlerFactory(fields))
+}
+
+// importCSV imports the csv file to the database,
+// the rawDataParams is used to identify the data source,
+// the recordHandler is used to handle the record, it should return an error if the record is invalid
+// the `created_at` and `updated_at` will be set to the current time
 func (s *Service) importCSV(file io.ReadCloser, rawDataParams string, recordHandler func(map[string]interface{}) errors.Error) errors.Error {
 	iterator, err := pluginhelper.NewCsvFileIteratorFromFile(file)
 	if err != nil {
@@ -266,4 +295,23 @@ func (s *Service) issueHandlerFactory(boardId string) func(record map[string]int
 
 func (s *Service) issueCommitHandler(record map[string]interface{}) errors.Error {
 	return s.dal.CreateWithMap(&crossdomain.IssueCommit{}, record)
+}
+
+// issueRepoCommitHandlerFactory returns a handler that will populate the `issue_commits` and `issue_repo_commits` table
+// ths issueCommitsFields is used to filter the fields that should be inserted into the `issue_commits` table
+func (s *Service) issueRepoCommitHandlerFactory(issueCommitsFields map[string]struct{}) func(record map[string]interface{}) errors.Error {
+	return func(record map[string]interface{}) errors.Error {
+		err := s.dal.CreateWithMap(&crossdomain.IssueRepoCommit{}, record)
+		if err != nil {
+			return err
+		}
+		for head := range record {
+			if _, exists := issueCommitsFields[head]; exists {
+				continue
+			} else {
+				delete(record, head)
+			}
+		}
+		return s.dal.CreateWithMap(&crossdomain.IssueCommit{}, record)
+	}
 }
