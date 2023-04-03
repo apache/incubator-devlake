@@ -19,7 +19,7 @@
 import styled from 'styled-components';
 import { Navbar } from '@blueprintjs/core';
 
-export const Container = styled.div`
+export const Wrapper = styled.div`
   display: flex;
   height: 100vh;
   background-color: #f9f9fa;
@@ -82,12 +82,12 @@ export const Sider = styled.div`
   }
 `;
 
-export const Inner = styled.div`
+export const Main = styled.div`
   display: flex;
   flex-direction: column;
   flex: auto;
   height: 100vh;
-  overflow: auto;
+  overflow: hidden;
 `;
 
 export const Header = styled(Navbar)`
@@ -110,11 +110,16 @@ export const Header = styled(Navbar)`
   }
 `;
 
-export const Content = styled.div`
+export const Inner = styled.div`
   flex: auto;
-  margin: 24px auto;
-  max-width: 900px;
-  width: 100%;
+  overflow: auto;
+`;
+
+export const Content = styled.div`
+  margin: 0 auto;
+  padding: 0 24px;
+  max-width: 1200px;
+  min-width: 900px;
 `;
 
 export const SiderMenuItem = styled.div`
@@ -126,11 +131,11 @@ export const SiderMenuItem = styled.div`
   }
 `;
 
-export const BorderContainer = styled.div`
-  border: 1px solid #7497f7;
-  border-radius: 4px;
-  padding: 8px 12px;
+export const DashboardIcon = styled.div`
   display: flex;
   justify-content: center;
   align-items: center;
+  padding: 8px 12px;
+  border: 1px solid #7497f7;
+  border-radius: 4px;
 `;

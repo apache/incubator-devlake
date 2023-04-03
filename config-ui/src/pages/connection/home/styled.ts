@@ -34,9 +34,7 @@ export const Wrapper = styled.div`
     display: flex;
     flex-direction: column;
     align-items: center;
-    margin-right: 24px;
-    margin-bottom: 12px;
-    padding: 8px 0;
+    padding: 16px 0;
     width: 120px;
     border: 2px solid transparent;
     cursor: pointer;
