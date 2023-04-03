@@ -20,12 +20,12 @@ package tasks
 import (
 	"context"
 	"fmt"
+	"strings"
+
 	"github.com/apache/incubator-devlake/core/dal"
 	"github.com/apache/incubator-devlake/core/errors"
 	"github.com/apache/incubator-devlake/core/plugin"
 	"github.com/apache/incubator-devlake/plugins/customize/models"
-	"strings"
-
 	"github.com/tidwall/gjson"
 )
 
@@ -85,7 +85,7 @@ func extractCustomizedFields(ctx context.Context, d dal.Dal, table, rawTable, ra
 		default:
 		}
 		row := make(map[string]interface{})
-		updates := make(map[string]string)
+		updates := make(map[string]interface{})
 		err = d.Fetch(rows, &row)
 		if err != nil {
 			return err
@@ -93,11 +93,13 @@ func extractCustomizedFields(ctx context.Context, d dal.Dal, table, rawTable, ra
 		switch blob := row["data"].(type) {
 		case []byte:
 			for field, path := range extractor {
-				updates[field] = gjson.GetBytes(blob, path).String()
+				result := gjson.GetBytes(blob, path)
+				fillInUpdates(result, field, updates)
 			}
 		case string:
 			for field, path := range extractor {
-				updates[field] = gjson.Get(blob, path).String()
+				result := gjson.Get(blob, path)
+				fillInUpdates(result, field, updates)
 			}
 		default:
 			return nil
@@ -117,7 +119,17 @@ func extractCustomizedFields(ctx context.Context, d dal.Dal, table, rawTable, ra
 	return nil
 }
 
-func mkUpdate(table string, updates map[string]string, pk map[string]interface{}) (string, []interface{}) {
+// fillInUpdates fills in the updates map with the result of the gjson query
+func fillInUpdates(result gjson.Result, field string, updates map[string]interface{}) {
+	if result.Type == gjson.Null {
+		updates[field] = nil
+	} else {
+		updates[field] = result.String()
+	}
+}
+
+// mkUpdate generates SQL statement and parameters for updating a record
+func mkUpdate(table string, updates map[string]interface{}, pk map[string]interface{}) (string, []interface{}) {
 	var params []interface{}
 	stat := fmt.Sprintf("UPDATE %s SET ", table)
 	var uu []string
