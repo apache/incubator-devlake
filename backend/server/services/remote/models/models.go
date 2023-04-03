@@ -87,8 +87,8 @@ type SubtaskMeta struct {
 }
 
 type DynamicDomainScope struct {
-	TypeName string                 `json:"type_name"`
-	Data     map[string]interface{} `json:"data"`
+	TypeName string `json:"type_name"`
+	Data     string `json:"data"`
 }
 
 type PipelineData struct {

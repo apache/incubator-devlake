@@ -18,9 +18,8 @@ limitations under the License.
 package models
 
 import (
+	"encoding/json"
 	"fmt"
-
-	"github.com/mitchellh/mapstructure"
 
 	"github.com/apache/incubator-devlake/core/errors"
 	"github.com/apache/incubator-devlake/core/models/domainlayer/code"
@@ -50,17 +49,9 @@ func (d DynamicDomainScope) Load() (plugin.Scope, errors.Error) {
 	if type_err != nil {
 		return nil, type_err
 	}
-	config := &mapstructure.DecoderConfig{
-		TagName: "json",
-		Result:  scope,
-	}
-	decoder, err := mapstructure.NewDecoder(config)
+	err := errors.Convert(json.Unmarshal([]byte(d.Data), &scope))
 	if err != nil {
-		return nil, errors.Convert(err)
-	}
-	err = decoder.Decode(d.Data)
-	if err != nil {
-		return nil, errors.Convert(err)
+		return nil, err
 	}
 	return scope, nil
 }

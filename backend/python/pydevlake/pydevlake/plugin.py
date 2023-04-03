@@ -136,7 +136,7 @@ class Plugin(ABC):
                 domain_scopes.append(
                     msg.DynamicDomainScope(
                         type_name=type(scope).__name__,
-                        data=scope.dict(exclude_unset=True)
+                        data=scope.json(exclude_unset=True)
                     )
                 )
         return msg.PipelineData(
