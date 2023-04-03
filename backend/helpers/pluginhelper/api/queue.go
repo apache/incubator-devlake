@@ -19,7 +19,7 @@ package api
 
 import (
 	"sync"
-	"sync/atomic"
+	"time"
 )
 
 // QueueNode represents a node in the queue
@@ -31,33 +31,62 @@ type QueueNode interface {
 
 // Queue represetns a queue
 type Queue struct {
-	count int64
-	head  QueueNode
-	tail  QueueNode
-	mux   sync.Mutex
+	count   int64
+	head    QueueNode
+	tail    QueueNode
+	mux     sync.Mutex
+	working int64 // working count
+}
+
+// reduce working count
+func (q *Queue) Finish(count int64) {
+	q.mux.Lock()
+	defer q.mux.Unlock()
+
+	q.working -= count
 }
 
 // Push add a node to queue
 func (q *Queue) Push(node QueueNode) {
 	q.mux.Lock()
 	defer q.mux.Unlock()
+
 	q.PushWithoutLock(node)
 }
 
 // Pull get a node from queue
-func (q *Queue) Pull(add *int64) QueueNode {
+// it will add the working count and blocked when there are no node on queue but working count not zero
+func (q *Queue) Pull() QueueNode {
+	q.mux.Lock()
+	defer q.mux.Unlock()
+	node := q.PullWithOutLock()
+	if node != nil {
+		return node
+	} else {
+		return nil
+	}
+}
+
+func (q *Queue) PullWithWorkingBlock() QueueNode {
 	q.mux.Lock()
 	defer q.mux.Unlock()
 
-	node := q.PullWithOutLock()
+	for {
+		node := q.PullWithOutLock()
+		if node != nil {
+			q.working++
 
-	if node == nil {
-		return nil
+			return node
+		} else if q.working > 0 {
+			q.mux.Unlock()
+
+			time.Sleep(time.Second)
+
+			q.mux.Lock()
+		} else {
+			return nil
+		}
 	}
-	if add != nil {
-		atomic.AddInt64(add, 1)
-	}
-	return node
 }
 
 // PushWithoutLock is no lock mode of Push
@@ -90,6 +119,7 @@ func (q *Queue) PullWithOutLock() QueueNode {
 	} else {
 		q.count = 0
 	}
+
 	return node
 }
 
@@ -104,6 +134,7 @@ func (q *Queue) CleanWithOutLock() {
 func (q *Queue) Clean() {
 	q.mux.Lock()
 	defer q.mux.Unlock()
+
 	q.CleanWithOutLock()
 }
 
@@ -116,7 +147,26 @@ func (q *Queue) GetCountWithOutLock() int64 {
 func (q *Queue) GetCount() int64 {
 	q.mux.Lock()
 	defer q.mux.Unlock()
+
 	return q.count
+}
+
+// GetCount get the node count in query and only return zero when working zero
+func (q *Queue) GetCountWithWorkingBlock() int64 {
+	q.mux.Lock()
+	defer q.mux.Unlock()
+
+	for {
+		if q.count == 0 && q.working > 0 {
+			q.mux.Unlock()
+
+			time.Sleep(time.Second)
+
+			q.mux.Lock()
+		} else {
+			return q.count
+		}
+	}
 }
 
 // NewQueue create and init a new Queue

@@ -18,23 +18,68 @@ limitations under the License.
 package api
 
 import (
-	"github.com/stretchr/testify/require"
 	"testing"
+	"time"
+
+	"github.com/stretchr/testify/require"
 )
 
-func TestQueue(t *testing.T) {
+func TestQueueIterator(t *testing.T) {
 	it := NewQueueIterator()
-	it.Push(NewQueueIteratorNode("a"))
-	it.Push(NewQueueIteratorNode("b"))
+	it.Push("a")
+	it.Push("b")
 	require.True(t, it.HasNext())
 	folderRaw, err := it.Fetch()
 	require.NoError(t, err)
-	node := folderRaw.(*QueueIteratorNode)
-	require.Equal(t, "a", node.Data())
+	data := folderRaw.(string)
+	require.Equal(t, "a", data)
 	require.True(t, it.HasNext())
 	folderRaw, err = it.Fetch()
 	require.NoError(t, err)
-	node = folderRaw.(*QueueIteratorNode)
-	require.Equal(t, "b", node.Data())
+	data = folderRaw.(string)
+	require.Equal(t, "b", data)
 	require.False(t, it.HasNext())
+}
+
+func TestQueue(t *testing.T) {
+	q := NewQueue()
+	q.Push(NewQueueIteratorNode("a"))
+	q.Push(NewQueueIteratorNode("b"))
+
+	require.Equal(t, q.GetCount(), int64(2))
+	folderRaw := q.PullWithWorkingBlock()
+	data, ok := folderRaw.Data().(string)
+	require.True(t, ok)
+	require.Equal(t, "a", data)
+	require.Equal(t, q.GetCount(), int64(1))
+	folderRaw = q.PullWithWorkingBlock()
+	data, ok = folderRaw.Data().(string)
+	require.True(t, ok)
+	require.Equal(t, "b", data)
+	require.Equal(t, q.GetCount(), int64(0))
+
+	empty := false
+	waited := false
+	go func() {
+		require.Equal(t, q.GetCountWithWorkingBlock(), int64(1))
+		data, ok := q.PullWithWorkingBlock().Data().(string)
+		require.True(t, ok)
+		require.Equal(t, data, "c")
+		dataNode := q.PullWithWorkingBlock()
+		require.Equal(t, dataNode, nil)
+		empty = true
+	}()
+
+	go func() {
+		time.Sleep(100 * time.Millisecond)
+		q.Push(NewQueueIteratorNode("c"))
+		waited = true
+		q.Finish(3)
+	}()
+
+	for !empty {
+		time.Sleep(time.Millisecond)
+	}
+
+	require.True(t, waited)
 }
