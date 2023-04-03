@@ -50,6 +50,9 @@ func CollectIssues(taskCtx plugin.SubTaskContext) (err errors.Error) {
 		},
 	)
 
+	// fix sonarqube issue do not surpport + in time
+	loc := time.FixedZone("sonarqube", -60)
+
 	rawDataSubTaskArgs, data := CreateRawDataSubTaskArgs(taskCtx, RAW_ISSUES_TABLE)
 	collector, err := helper.NewApiCollector(helper.ApiCollectorArgs{
 		RawDataSubTaskArgs: *rawDataSubTaskArgs,
@@ -66,11 +69,11 @@ func CollectIssues(taskCtx plugin.SubTaskContext) (err errors.Error) {
 			}
 
 			if input.CreatedAfter != nil {
-				query.Set("createdAfter", getFormatTimeForIssue(input.CreatedAfter))
+				query.Set("createdAfter", GetFormatTime(input.CreatedAfter, loc))
 			}
 
 			if input.CreatedBefore != nil {
-				query.Set("createdBefore", getFormatTimeForIssue(input.CreatedBefore))
+				query.Set("createdBefore", GetFormatTime(input.CreatedBefore, loc))
 			}
 
 			query.Set("p", fmt.Sprintf("%v", reqData.Pager.Page))
@@ -89,11 +92,12 @@ func CollectIssues(taskCtx plugin.SubTaskContext) (err errors.Error) {
 				pages++
 			}
 
+			query := res.Request.URL.Query()
+
 			// if get more than 10000 data, that need split it
 			if pages > 100 {
 				var createdAfterUnix int64
 				var createdBeforeUnix int64
-				query := res.Request.URL.Query()
 
 				createdAfter, err := getTimeFromFormatTime(query.Get("createdAfter"))
 				if err != nil {
@@ -137,12 +141,15 @@ func CollectIssues(taskCtx plugin.SubTaskContext) (err errors.Error) {
 				})
 
 				logger.Info("split [%s][%s] by mid [%s] for it has pages:[%d] and total:[%d]",
-					query.Get("createdAfter"), query.Get("createdBefore"), getFormatTimeForIssue(&MidTime), pages, body.Paging.Total)
+					query.Get("createdAfter"), query.Get("createdBefore"), GetFormatTime(&MidTime, loc), pages, body.Paging.Total)
 
 				return 0, nil
-			}
+			} else {
+				logger.Info("[%s][%s] has pages:[%d] and total:[%d]",
+					query.Get("createdAfter"), query.Get("createdBefore"), pages, body.Paging.Total)
 
-			return pages, nil
+				return pages, nil
+			}
 		},
 
 		ResponseParser: func(res *http.Response) ([]json.RawMessage, errors.Error) {
@@ -185,13 +192,14 @@ var CollectIssuesMeta = plugin.SubTaskMeta{
 	DomainTypes:      []string{plugin.DOMAIN_TYPE_CODE_QUALITY},
 }
 
-func getFormatTimeForIssue(t *time.Time) string {
+func GetFormatTime(t *time.Time, loc *time.Location) string {
 	if t == nil {
 		return ""
 	}
-	strtime := []byte(t.Format("2006-01-02T15:04:05-0700"))
-	strtime[19] = '-'
-	return string(strtime)
+	if loc == nil {
+		return t.Format("2006-01-02T15:04:05-0700")
+	}
+	return t.In(loc).Format("2006-01-02T15:04:05-0700")
 }
 
 func getTimeFromFormatTime(formatTime string) (*time.Time, errors.Error) {
@@ -203,12 +211,10 @@ func getTimeFromFormatTime(formatTime string) (*time.Time, errors.Error) {
 		return nil, errors.Default.New(fmt.Sprintf("formatTime [%s] is too short ", formatTime))
 	}
 
-	strtime := []byte(formatTime)
-	strtime[19] = '+'
-	t, err := time.Parse("2006-01-02T15:04:05-0700", string(strtime))
+	t, err := time.Parse("2006-01-02T15:04:05-0700", formatTime)
 
 	if err != nil {
-		return nil, errors.Default.New(fmt.Sprintf("Failed to get the time from [%s]:%s", string(strtime), err.Error()))
+		return nil, errors.Default.New(fmt.Sprintf("Failed to Parse the time from [%s]:%s", formatTime, err.Error()))
 	}
 
 	return &t, nil

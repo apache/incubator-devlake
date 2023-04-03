@@ -16,15 +16,8 @@
  *
  */
 
-import type { PluginConfigType } from '@/plugins';
-
-import { BasePipelineConfig } from '../base';
-
-import Icon from './assets/icon.svg';
-
-export const AzureConfig: PluginConfigType = {
-  ...BasePipelineConfig,
-  plugin: 'azure',
-  name: 'Azure',
-  icon: Icon,
+export type AzureScopeType = {
+  connectionId: ID;
+  id: ID;
+  name: string;
 };

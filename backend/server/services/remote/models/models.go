@@ -61,18 +61,19 @@ func (d DynamicModelInfo) LoadDynamicTabler(encrypt bool, parentModel any) (*mod
 }
 
 type ScopeModel struct {
-	common.NoPKModel
+	common.NoPKModel     `json:"-"`
 	Id                   string `gorm:"primarykey;type:varchar(255)" json:"id"`
-	ConnectionId         uint64 `gorm:"primaryKey" json:"connection_id"`
+	ConnectionId         uint64 `gorm:"primaryKey" json:"connectionId"`
 	Name                 string `json:"name" validate:"required"`
-	TransformationRuleId uint64 `json:"transformation_rule_id"`
+	TransformationRuleId uint64 `json:"transformationRuleId"`
 }
 
 type TransformationModel struct {
-	Id        uint64    `gorm:"primaryKey" json:"id"`
-	Name      string    `json:"name"`
-	CreatedAt time.Time `json:"createdAt"`
-	UpdatedAt time.Time `json:"updatedAt"`
+	Id           uint64    `gorm:"primaryKey" json:"id"`
+	ConnectionId uint64    `json:"connectionId"`
+	Name         string    `json:"name"`
+	CreatedAt    time.Time `json:"createdAt"`
+	UpdatedAt    time.Time `json:"updatedAt"`
 }
 
 type SubtaskMeta struct {

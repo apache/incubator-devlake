@@ -37,7 +37,8 @@ func GetDefaultAPI(
 	connType *models.DynamicTabler,
 	txRuleType *models.DynamicTabler,
 	scopeType *models.DynamicTabler,
-	helper *api.ConnectionApiHelper) map[string]map[string]plugin.ApiResourceHandler {
+	helper *api.ConnectionApiHelper,
+) map[string]map[string]plugin.ApiResourceHandler {
 	papi := &pluginAPI{
 		invoker:    invoker,
 		connType:   connType,

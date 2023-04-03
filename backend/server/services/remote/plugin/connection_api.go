@@ -33,7 +33,7 @@ func (pa *pluginAPI) TestConnection(input *plugin.ApiResourceInput) (*plugin.Api
 			Success: false,
 			Message: err.Error(),
 		}
-		return &plugin.ApiResourceOutput{Body: body, Status: 401}, nil
+		return &plugin.ApiResourceOutput{Body: body, Status: 500}, nil
 	} else {
 		body := shared.ApiBody{Success: true}
 		return &plugin.ApiResourceOutput{Body: body, Status: 200}, nil

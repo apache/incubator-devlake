@@ -18,6 +18,7 @@ limitations under the License.
 package plugin
 
 import (
+	"encoding/json"
 	"net/http"
 	"strconv"
 
@@ -33,8 +34,45 @@ import (
 
 // DTO that includes the transformation rule name
 type apiScopeResponse struct {
-	Scope                  any
-	TransformationRuleName string `json:"transformationRuleId,omitempty"`
+	Scope                  any    `json:"-"`
+	TransformationRuleName string `json:"transformationRuleName,omitempty"`
+}
+
+// MarshalJSON make Scope display inline
+func (r apiScopeResponse) MarshalJSON() ([]byte, error) {
+	// encode scope to map
+	scopeBytes, err := json.Marshal(r.Scope)
+	if err != nil {
+		return nil, err
+	}
+	var scopeMap map[string]interface{}
+	err = json.Unmarshal(scopeBytes, &scopeMap)
+	if err != nil {
+		return nil, err
+	}
+
+	// encode other column (transformationRuleName) to map
+	otherBytes, err := json.Marshal(struct {
+		TransformationRuleName string `json:"transformationRuleName,omitempty"`
+	}{
+		TransformationRuleName: r.TransformationRuleName,
+	})
+	if err != nil {
+		return nil, err
+	}
+
+	// merge the two maps
+	var merged map[string]interface{}
+	err = json.Unmarshal(otherBytes, &merged)
+	if err != nil {
+		return nil, err
+	}
+	for k, v := range scopeMap {
+		merged[k] = v
+	}
+
+	// encode the merged map to JSON
+	return json.Marshal(merged)
 }
 
 type request struct {
@@ -136,7 +174,7 @@ func (pa *pluginAPI) ListScopes(input *plugin.ApiResourceInput) (*plugin.ApiReso
 	}
 	var ruleIds []uint64
 	for _, scopeModel := range scopeMap {
-		if tid := uint64(scopeModel["transformation_rule_id"].(float64)); tid > 0 {
+		if tid := uint64(scopeModel["transformationRuleId"].(float64)); tid > 0 {
 			ruleIds = append(ruleIds, tid)
 		}
 	}
@@ -159,7 +197,7 @@ func (pa *pluginAPI) ListScopes(input *plugin.ApiResourceInput) (*plugin.ApiReso
 	}
 	var apiScopes []apiScopeResponse
 	for _, scope := range scopeMap {
-		txRuleName, ok := names[uint64(scope["transformation_rule_id"].(float64))]
+		txRuleName, ok := names[uint64(scope["transformationRuleId"].(float64))]
 		if ok {
 			scopeRes := apiScopeResponse{
 				Scope:                  scope,
@@ -175,7 +213,10 @@ func (pa *pluginAPI) ListScopes(input *plugin.ApiResourceInput) (*plugin.ApiReso
 func (pa *pluginAPI) GetScope(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, errors.Error) {
 	connectionId, scopeId := extractParam(input.Params)
 	if connectionId == 0 {
-		return nil, errors.BadInput.New("invalid path params")
+		return nil, errors.BadInput.New("invalid connectionId")
+	}
+	if scopeId == `` {
+		return nil, errors.BadInput.New("invalid scopeId")
 	}
 	rawScope := pa.scopeType.New()
 	db := basicRes.GetDal()
@@ -195,7 +236,7 @@ func (pa *pluginAPI) GetScope(input *plugin.ApiResourceInput) (*plugin.ApiResour
 	if scope.TransformationRuleId > 0 {
 		err = api.CallDB(db.First, &rule, dal.From(pa.txRuleType.TableName()), dal.Where("id = ?", scope.TransformationRuleId))
 		if err != nil {
-			return nil, err
+			return nil, errors.Default.Wrap(err, `no related transformationRule for scope`)
 		}
 	}
 	return &plugin.ApiResourceOutput{Body: apiScopeResponse{rawScope.Unwrap(), rule.Name}, Status: http.StatusOK}, nil
@@ -208,7 +249,7 @@ func extractParam(params map[string]string) (uint64, string) {
 }
 
 func verifyScope(scope map[string]any) errors.Error {
-	if scope["connection_id"].(float64) == 0 {
+	if connectionId, ok := scope["connectionId"]; !ok || connectionId.(float64) == 0 {
 		return errors.BadInput.New("invalid connectionId")
 	}
 

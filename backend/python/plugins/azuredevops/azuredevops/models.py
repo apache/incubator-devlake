@@ -31,7 +31,7 @@ class AzureDevOpsConnection(Connection):
 
 
 class AzureDevOpsTransformationRule(TransformationRule):
-    refdiff_options: Optional[RefDiffOptions]
+    refdiff: Optional[RefDiffOptions]
     deployment_pattern: Optional[re.Pattern]
     production_pattern: Optional[re.Pattern]
 
