@@ -15,34 +15,16 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-package e2e
+package services
 
 import (
-	"github.com/apache/incubator-devlake/core/config"
-	"github.com/apache/incubator-devlake/core/plugin"
-	"github.com/apache/incubator-devlake/server/services"
-	"github.com/apache/incubator-devlake/test"
+	"github.com/apache/incubator-devlake/test/helper"
+	"github.com/stretchr/testify/require"
+	"testing"
 )
 
-func init() {
-	_, err := test.NormalizeBaseDirectory()
-	if err != nil {
-		panic(err)
-	}
-	v := config.GetConfig()
-	encKey := v.GetString(plugin.EncodeKeyEnvStr)
-	if encKey == "" {
-		// Randomly generate a bunch of encryption keys and set them to config
-		encKey = plugin.RandomEncKey()
-		v.Set(plugin.EncodeKeyEnvStr, encKey)
-		err := config.WriteConfig(v)
-		if err != nil {
-			panic(err)
-		}
-	}
-	services.Init()
-	err = services.GetMigrator().Execute()
-	if err != nil {
-		panic(err)
-	}
+func TestStartup(t *testing.T) {
+	client := helper.StartDevLakeServer(t, nil)
+	projects := client.ListProjects()
+	require.Equal(t, 0, int(projects.Count))
 }

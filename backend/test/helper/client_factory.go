@@ -18,20 +18,20 @@ limitations under the License.
 package helper
 
 import (
-	"github.com/apache/incubator-devlake/core/errors"
-	"github.com/apache/incubator-devlake/test"
+	"github.com/apache/incubator-devlake/core/config"
+	"github.com/apache/incubator-devlake/core/plugin"
+	"testing"
 )
 
-var (
-	ProjectRoot = ""
-	Shell       = ""
-)
-
-func Init() {
-	Shell = "/bin/sh"
-	var err errors.Error
-	ProjectRoot, err = test.NormalizeBaseDirectory()
-	if err != nil {
-		panic(err.Error())
-	}
+// Creates a new in-memory DevLake server with default settings and returns a client to it
+func StartDevLakeServer(t *testing.T, loadedGoPlugins map[string]plugin.PluginMeta) *DevlakeClient {
+	client := ConnectLocalServer(t, &LocalClientConfig{
+		ServerPort:   8089,
+		DbURL:        config.GetConfig().GetString("E2E_DB_URL"),
+		CreateServer: true,
+		DropDb:       false,
+		TruncateDb:   true,
+		Plugins:      loadedGoPlugins,
+	})
+	return client
 }

@@ -23,6 +23,10 @@ import (
 	"encoding/json"
 	goerror "errors"
 	"fmt"
+	"github.com/apache/incubator-devlake/core/dal"
+	dora "github.com/apache/incubator-devlake/plugins/dora/impl"
+	org "github.com/apache/incubator-devlake/plugins/org/impl"
+	remotePlugin "github.com/apache/incubator-devlake/server/services/remote/plugin"
 	"io"
 	"math"
 	"net/http"
@@ -44,7 +48,6 @@ import (
 	"github.com/apache/incubator-devlake/impls/dalgorm"
 	"github.com/apache/incubator-devlake/impls/logruslog"
 	"github.com/apache/incubator-devlake/server/api"
-	remotePlugin "github.com/apache/incubator-devlake/server/services/remote/plugin"
 	"github.com/spf13/viper"
 	"github.com/stretchr/testify/require"
 	"gorm.io/gorm"
@@ -81,15 +84,14 @@ type (
 		pipelineTimeout time.Duration
 	}
 	LocalClientConfig struct {
-		ServerPort           uint
-		DbURL                string
-		CreateServer         bool
-		DropDb               bool
-		TruncateDb           bool
-		Plugins              map[string]plugin.PluginMeta
-		AdditionalMigrations func() []plugin.MigrationScript
-		Timeout              time.Duration
-		PipelineTimeout      time.Duration
+		ServerPort      uint
+		DbURL           string
+		CreateServer    bool
+		DropDb          bool
+		TruncateDb      bool
+		Plugins         map[string]plugin.PluginMeta
+		Timeout         time.Duration
+		PipelineTimeout time.Duration
 	}
 	RemoteClientConfig struct {
 		Endpoint string
@@ -97,9 +99,9 @@ type (
 )
 
 // ConnectRemoteServer returns a client to an existing server based on the config
-func ConnectRemoteServer(t *testing.T, sbConfig *RemoteClientConfig) *DevlakeClient {
+func ConnectRemoteServer(t *testing.T, cfg *RemoteClientConfig) *DevlakeClient {
 	return &DevlakeClient{
-		Endpoint: sbConfig.Endpoint,
+		Endpoint: cfg.Endpoint,
 		db:       nil,
 		log:      nil,
 		testCtx:  t,
@@ -137,32 +139,42 @@ func ConnectLocalServer(t *testing.T, clientConfig *LocalClientConfig) *DevlakeC
 	if d.pipelineTimeout == 0 {
 		d.pipelineTimeout = 30 * time.Second
 	}
-	d.configureEncryption()
-	d.initPlugins(clientConfig)
-	if clientConfig.DropDb || clientConfig.TruncateDb {
-		d.prepareDB(clientConfig)
-	}
 	if clientConfig.CreateServer {
+		d.configureEncryption()
+		d.initPlugins(clientConfig)
+		if clientConfig.DropDb || clientConfig.TruncateDb {
+			d.prepareDB(clientConfig)
+		}
 		cfg.Set("PORT", clientConfig.ServerPort)
 		cfg.Set("PLUGIN_DIR", throwawayDir)
 		cfg.Set("LOGGING_DIR", throwawayDir)
 		go func() {
 			initService.Do(api.CreateApiService)
 		}()
+		req, err2 := http.NewRequest(http.MethodGet, fmt.Sprintf("%s/proceed-db-migration", addr), nil)
+		require.NoError(t, err2)
+		d.forceSendHttpRequest(20, req, func(err errors.Error) bool {
+			e := err.Unwrap()
+			return goerror.Is(e, syscall.ECONNREFUSED)
+		})
+		logger.Info("New DevLake server initialized")
 	}
-	req, err2 := http.NewRequest(http.MethodGet, fmt.Sprintf("%s/proceed-db-migration", addr), nil)
-	require.NoError(t, err2)
-	d.forceSendHttpRequest(20, req, func(err errors.Error) bool {
-		e := err.Unwrap()
-		return goerror.Is(e, syscall.ECONNREFUSED)
-	})
-	d.runMigrations(clientConfig)
 	return d
 }
 
 // SetTimeout override the timeout of api requests
 func (d *DevlakeClient) SetTimeout(timeout time.Duration) {
 	d.timeout = timeout
+}
+
+// SetTimeout override the timeout of pipeline run success expectation
+func (d *DevlakeClient) SetPipelineTimeout(timeout time.Duration) {
+	d.pipelineTimeout = timeout
+}
+
+// GetDal get a reference to the dal.Dal used by the server
+func (d *DevlakeClient) GetDal() dal.Dal {
+	return dalgorm.NewDalgorm(d.db)
 }
 
 // AwaitPluginAvailability wait for this plugin to become available on the server given a timeout. Returns false if this condition does not get met.
@@ -238,13 +250,18 @@ func (d *DevlakeClient) forceSendHttpRequest(retries uint, req *http.Request, on
 	}
 }
 
-func (d *DevlakeClient) initPlugins(sbConfig *LocalClientConfig) {
-	remotePlugin.Init(d.basicRes)
+func (d *DevlakeClient) initPlugins(cfg *LocalClientConfig) {
 	d.testCtx.Helper()
-	if sbConfig.Plugins != nil {
-		for name, p := range sbConfig.Plugins {
-			require.NoError(d.testCtx, plugin.RegisterPlugin(name, p))
-		}
+	if cfg.Plugins == nil {
+		cfg.Plugins = map[string]plugin.PluginMeta{}
+	}
+	// default plugins
+	cfg.Plugins["org"] = org.Org{}
+	cfg.Plugins["dora"] = dora.Dora{}
+
+	// register and init plugins
+	for name, p := range cfg.Plugins {
+		require.NoError(d.testCtx, plugin.RegisterPlugin(name, p))
 	}
 	for _, p := range plugin.AllPlugins() {
 		if pi, ok := p.(plugin.PluginInit); ok {
@@ -252,33 +269,7 @@ func (d *DevlakeClient) initPlugins(sbConfig *LocalClientConfig) {
 			require.NoError(d.testCtx, err)
 		}
 	}
-}
-
-func (d *DevlakeClient) runMigrations(sbConfig *LocalClientConfig) {
-	d.testCtx.Helper()
-	basicRes := contextimpl.NewDefaultBasicRes(d.cfg, d.log, dalgorm.NewDalgorm(d.db))
-	getMigrator := func() plugin.Migrator {
-		migrator, err := migration.NewMigrator(basicRes)
-		require.NoError(d.testCtx, err)
-		return migrator
-	}
-	{
-		migrator := getMigrator()
-		for pluginName, pluginInst := range sbConfig.Plugins {
-			if migratable, ok := pluginInst.(plugin.PluginMigration); ok {
-				migrator.Register(migratable.MigrationScripts(), pluginName)
-			}
-		}
-		require.NoError(d.testCtx, migrator.Execute())
-	}
-	{
-		migrator := getMigrator()
-		if sbConfig.AdditionalMigrations != nil {
-			scripts := sbConfig.AdditionalMigrations()
-			migrator.Register(scripts, "extra migrations")
-		}
-		require.NoError(d.testCtx, migrator.Execute())
-	}
+	remotePlugin.Init(d.basicRes)
 }
 
 func (d *DevlakeClient) prepareDB(cfg *LocalClientConfig) {
@@ -286,6 +277,7 @@ func (d *DevlakeClient) prepareDB(cfg *LocalClientConfig) {
 	migrator := d.db.Migrator()
 	tables, err := migrator.GetTables()
 	require.NoError(d.testCtx, err)
+	d.log.Debug("Existing DB tables: %v", tables)
 	if cfg.DropDb {
 		d.log.Info("Dropping %d tables", len(tables))
 		var tablesRaw []any
@@ -295,7 +287,9 @@ func (d *DevlakeClient) prepareDB(cfg *LocalClientConfig) {
 		err = migrator.DropTable(tablesRaw...)
 		require.NoError(d.testCtx, err)
 	} else if cfg.TruncateDb {
-		d.log.Info("Truncating %d tables", len(tables)-len(dbTruncationExclusions))
+		if len(tables) > len(dbTruncationExclusions) {
+			d.log.Info("Truncating %d tables", len(tables)-len(dbTruncationExclusions))
+		}
 		for _, table := range tables {
 			excluded := false
 			for _, exclusion := range dbTruncationExclusions {

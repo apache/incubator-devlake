@@ -93,10 +93,14 @@ e2e-plugins-test:
 	export ENV_PATH=$(shell readlink -f .env); set -e; for m in $$(go list ./plugins/... | egrep 'e2e'); do echo $$m; go test -timeout 300s -gcflags=all=-l -v $$m; done
 
 e2e-test:
-	export PLUGIN_DIR=$(shell readlink -f bin/plugins); set -e; for m in $$(go list ./test/e2e/...); do echo $$m; go test -timeout 300s -v $$m; done
+	export ENV_PATH=$(shell readlink -f .env); set -e;
+	go run ./test/init.go &&\
+	for m in $$(go list ./test/e2e/...); do echo $$m; go test -p 1 -timeout 300s -v $$m; done
 
 integration-test:
-	export ENV_PATH=$(shell readlink -f .env); set -e; for m in $$(go list ./test/integration...); do echo $$m; go test -timeout 300s -v $$m; done
+	export ENV_PATH=$(shell readlink -f .env); set -e;
+	go run ./test/init.go &&\
+	for m in $$(go list ./test/integration/...); do echo $$m; go test -p 1 -timeout 300s -v $$m; done
 
 lint:
 	golangci-lint run
