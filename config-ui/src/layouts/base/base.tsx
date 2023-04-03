@@ -20,17 +20,16 @@ import React from 'react';
 import { useLocation, useHistory } from 'react-router-dom';
 import { Menu, MenuItem, Tag, Navbar, Intent, Alignment } from '@blueprintjs/core';
 
-import { Logo } from '@/components';
+import { Logo, ExternalLink } from '@/components';
 import { useVersion } from '@/store';
 
+import DashboardIcon from '@/images/icons/dashborad.svg';
 import FileIcon from '@/images/icons/file.svg';
 import GitHubIcon from '@/images/icons/github.svg';
 import SlackIcon from '@/images/icons/slack.svg';
-import DashboardIcon from '@/images/icons/dashborad.svg';
 
 import { useMenu, MenuItemType } from './use-menu';
 import * as S from './styled';
-import { BorderContainer } from './styled';
 
 interface Props {
   children: React.ReactNode;
@@ -58,7 +57,7 @@ export const BaseLayout = ({ children }: Props) => {
   };
 
   return (
-    <S.Container>
+    <S.Wrapper>
       <S.Sider>
         <Logo />
         <Menu className="menu">
@@ -99,15 +98,15 @@ export const BaseLayout = ({ children }: Props) => {
           <div className="version">{version}</div>
         </div>
       </S.Sider>
-      <S.Inner>
+      <S.Main>
         <S.Header>
           <Navbar.Group align={Alignment.RIGHT}>
-            <BorderContainer>
-              <a href={getGrafanaUrl()} rel="noreferrer" target="_blank">
+            <S.DashboardIcon>
+              <ExternalLink link={getGrafanaUrl()}>
                 <img src={DashboardIcon} alt="dashboards" />
                 <span>Dashboards</span>
-              </a>
-            </BorderContainer>
+              </ExternalLink>
+            </S.DashboardIcon>
             <Navbar.Divider />
             <a href="https://devlake.apache.org/docs/UserManuals/ConfigUI/Tutorial/" rel="noreferrer" target="_blank">
               <img src={FileIcon} alt="documents" />
@@ -134,8 +133,10 @@ export const BaseLayout = ({ children }: Props) => {
             </a>
           </Navbar.Group>
         </S.Header>
-        <S.Content>{children}</S.Content>
-      </S.Inner>
-    </S.Container>
+        <S.Inner>
+          <S.Content>{children}</S.Content>
+        </S.Inner>
+      </S.Main>
+    </S.Wrapper>
   );
 };
