@@ -92,7 +92,7 @@ class PipelineTask(Message):
 
 class DynamicDomainScope(Message):
 	type_name: str
-	data: dict
+	data: bytes
 
 
 class PipelineData(Message):

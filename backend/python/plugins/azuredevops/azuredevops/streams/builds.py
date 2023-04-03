@@ -31,12 +31,13 @@ class Builds(Stream):
     def collect(self, state, context) -> Iterable[tuple[object, dict]]:
         repo: GitRepository = context.scope
         api = AzureDevOpsAPI(context.connection)
-        response = api.builds(repo.org_id, repo.project_id, repo.id, repo.provider)
+        response = api.builds(repo.org_id, repo.project_id, repo.id, 'tfsgit')
         for raw_build in response:
             yield raw_build, state
 
     def extract(self, raw_data: dict) -> Build:
         build: Build = self.tool_model(**raw_data)
+        build.name = raw_data["definition"]["name"]
         build.project_id = raw_data["project"]["id"]
         build.repo_id = raw_data["repository"]["id"]
         build.repo_type = raw_data["repository"]["type"]
@@ -75,26 +76,29 @@ class Builds(Stream):
             case Build.Status.Postponed:
                 status = devops.CICDStatus.IN_PROGRESS
 
+        type = devops.CICDType.BUILD
+        if ctx.transformation_rule and ctx.transformation_rule.deployment_pattern.search(b.name):
+            type = devops.CICDType.DEPLOYMENT
+        environment = devops.CICDEnvironment.TESTING
+        if ctx.transformation_rule and ctx.transformation_rule.production_pattern.search(b.name):
+            environment = devops.CICDEnvironment.PRODUCTION
+
         yield devops.CICDPipeline(
-            name=b.id,
+            name=b.name,
             status=status,
             created_date=b.start_time,
             finished_date=b.finish_time,
             result=result,
             duration_sec=abs(b.finish_time.second-b.start_time.second),
-            environment=devops.CICDEnvironment.PRODUCTION,
-            type=devops.CICDType.DEPLOYMENT,
-            cicd_scope_id=b.repo_id,
+            environment=environment,
+            type=type,
+            cicd_scope_id=ctx.scope.domain_id(),
         )
 
-        repo_url = None
-        if b.repo_type == 'GitHub':
-            repo_url = f'https://github.com/{b.repo_id}'
-
         yield devops.CiCDPipelineCommit(
-            pipeline_id=b.id,
+            pipeline_id=b.domain_id(),
             commit_sha=b.source_version,
             branch=b.source_branch,
-            repo_id=b.repo_id,
-            repo=repo_url,
+            repo_id=ctx.scope.domain_id(),
+            repo=ctx.scope.url,
         )

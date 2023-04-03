@@ -65,7 +65,7 @@ func (p remoteDatasourcePlugin) MakeDataSourcePipelinePlanV200(connectionId uint
 		if err != nil {
 			return nil, nil, err
 		}
-		toolScopeTxRulePairs[i] = []interface{}{toolScope, txRule}
+		toolScopeTxRulePairs[i] = []interface{}{wrappedToolScope.Unwrap(), txRule}
 	}
 
 	entities := bpScopes[0].Entities

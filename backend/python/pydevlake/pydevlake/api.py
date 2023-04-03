@@ -289,7 +289,8 @@ class APIException(Exception):
         self.response = response
 
     def __str__(self):
-        return f'APIException: {self.response}'
+        body = self.response.body or 'no body'
+        return f'APIException: {self.response} body: {body}'
 
 
 class API(APIBase):

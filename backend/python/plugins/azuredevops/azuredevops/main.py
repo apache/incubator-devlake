@@ -78,14 +78,15 @@ class AzureDevOpsPlugin(Plugin):
         org, proj = group_id.split('/')
         api = AzureDevOpsAPI(connection)
         for raw_repo in api.git_repos(org, proj):
-            url = urlparse(raw_repo['remoteUrl'])
-            url = url._replace(netloc=f'{url.username}:{connection.token}@{url.hostname}')
-            raw_repo['url'] = url.geturl()
             raw_repo['project_id'] = proj
             raw_repo['org_id'] = org
+            # remove username from url
+            url = urlparse(raw_repo['remoteUrl'])
+            url = url._replace(netloc=url.hostname)
+            raw_repo['url'] = url.geturl()
             repo = GitRepository(**raw_repo)
             if not repo.defaultBranch:
-                return None
+                continue
             if "parentRepository" in raw_repo:
                 repo.parentRepositoryUrl = raw_repo["parentRepository"]["url"]
             yield repo
@@ -105,17 +106,17 @@ class AzureDevOpsPlugin(Plugin):
             except APIException as e:
                 raise Exception(f"Invalid token: {e}")
 
-    def extra_tasks(self, scope: GitRepository, tx_rule: AzureDevOpsTransformationRule, entity_types: list[str], connection: AzureDevOpsConnection):
+    def extra_tasks(self, scope: GitRepository, tx_rule: AzureDevOpsTransformationRule, entity_types: list[DomainType], connection: AzureDevOpsConnection):
         if DomainType.CODE in entity_types:
-            return [gitextractor(scope.url, scope.id, connection.proxy)]
-        else:
-            return []
+            url = urlparse(scope.remoteUrl)
+            url = url._replace(netloc=f'{url.username}:{connection.token}@{url.hostname}')
+            yield gitextractor(url.geturl(), scope.domain_id(), connection.proxy)
 
-    def extra_stages(self, scope_tx_rule_pairs: list[ScopeTxRulePair], entity_types: list[str], _):
+    def extra_stages(self, scope_tx_rule_pairs: list[ScopeTxRulePair], entity_types: list[DomainType], _):
         if DomainType.CODE in entity_types:
             for scope, tx_rule in scope_tx_rule_pairs:
-                options = tx_rule.refdiff_options if tx_rule else None
-                yield refdiff(scope.id, options)
+                options = tx_rule.refdiff if tx_rule else None
+                yield [refdiff(scope.id, options)]
 
     @property
     def streams(self):

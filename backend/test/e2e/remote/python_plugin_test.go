@@ -73,6 +73,11 @@ func TestRemoteScopes(t *testing.T) {
 	require.Equal(t, "group1", *scope.ParentId)
 	require.Equal(t, "scope", scope.Type)
 	require.NotNil(t, scope.Data)
+	data := scope.Data.(map[string]interface{})
+	require.Equal(t, float64(connection.ID), data["connectionId"])
+	require.Equal(t, "p1", data["id"])
+	require.Equal(t, "Project 1", data["name"])
+	require.Equal(t, "http://fake.org/api/project/p1", data["url"])
 }
 
 func TestCreateScope(t *testing.T) {
@@ -83,6 +88,11 @@ func TestCreateScope(t *testing.T) {
 
 	scopes := client.ListScopes(PLUGIN_NAME, connectionId)
 	require.Equal(t, 1, len(scopes))
+	cicd_scope := scopes[0].(map[string]interface{})
+	require.Equal(t, float64(connectionId), cicd_scope["connectionId"])
+	require.Equal(t, "p1", cicd_scope["id"])
+	require.Equal(t, "Project 1", cicd_scope["name"])
+	require.Equal(t, "http://fake.org/api/project/p1", cicd_scope["url"])
 }
 
 func TestRunPipeline(t *testing.T) {
@@ -100,7 +110,7 @@ func TestRunPipeline(t *testing.T) {
 					Subtasks: nil,
 					Options: map[string]interface{}{
 						"connectionId": conn.ID,
-						"scopeId":      "12345",
+						"scopeId":      "p1",
 					},
 				},
 			},
@@ -129,7 +139,7 @@ func TestBlueprintV200(t *testing.T) {
 				ConnectionId: connection.ID,
 				Scopes: []*plugin.BlueprintScopeV200{
 					{
-						Id:   "12345",
+						Id:   "p1",
 						Name: "Test scope",
 						Entities: []string{
 							plugin.DOMAIN_TYPE_CICD,
@@ -141,6 +151,10 @@ func TestBlueprintV200(t *testing.T) {
 			ProjectName: projectName,
 		},
 	)
+
+	plan, err := blueprint.UnmarshalPlan()
+	require.NoError(t, err)
+	_ = plan
 
 	project := client.GetProject(projectName)
 	require.Equal(t, blueprint.Name, project.Blueprint.Name)

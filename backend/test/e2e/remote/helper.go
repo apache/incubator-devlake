@@ -44,6 +44,7 @@ type (
 		Name                 string `json:"name"`
 		ConnectionId         uint64 `json:"connectionId"`
 		TransformationRuleId uint64 `json:"transformationRuleId"`
+		Url                  string `json:"url"`
 	}
 	FakeTxRule struct {
 		Id   uint64 `json:"id"`
@@ -98,9 +99,10 @@ func CreateTestScope(client *helper.DevlakeClient, connectionId uint64) any {
 	scope := client.CreateScope(PLUGIN_NAME,
 		connectionId,
 		FakeProject{
-			Id:                   "12345",
-			Name:                 "Test project",
+			Id:                   "p1",
+			Name:                 "Project 1",
 			ConnectionId:         connectionId,
+			Url:                  "http://fake.org/api/project/p1",
 			TransformationRuleId: ruleId,
 		},
 	)

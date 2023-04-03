@@ -119,20 +119,22 @@ class Subtask:
             .where(SubtaskRun.subtask_name == self.name)
             .where(SubtaskRun.connection_id == connection_id)
             .where(SubtaskRun.completed != None)
-            .order_by(SubtaskRun.started)
+            .order_by(sql.desc(SubtaskRun.started))
         )
         subtask_run = session.exec(stmt).first()
         if subtask_run is not None:
             return json.loads(subtask_run.state)
         return {}
 
+    def _params(self, ctx: Context) -> str:
+        return json.dumps({
+            "connection_id": ctx.connection.id,
+            "scope_id": ctx.scope.id
+        })
 
 class SubtaskRun(SQLModel, table=True):
     """
     Table storing information about the execution of subtasks.
-
-    #TODO: rework id uniqueness:
-    # sync with Keon about the table he created for Singer MR
     """
     id: Optional[int] = Field(primary_key=True)
     subtask_name: str
@@ -158,12 +160,6 @@ class Collector(Subtask):
         )
         session.add(raw_model)
 
-    def _params(self, ctx: Context) -> str:
-        return json.dumps({
-            "connection_id": ctx.connection.id,
-            "scope_id": ctx.scope.id
-        })
-
     def delete(self, session, ctx):
         raw_model = self.stream.raw_model(session)
         stmt = sql.delete(raw_model).where(raw_model.params == self._params(ctx))
@@ -183,13 +179,13 @@ class Extractor(Subtask):
 
     def fetch(self, state: Dict, session: Session, ctx: Context) -> Iterable[Tuple[object, dict]]:
         raw_model = self.stream.raw_model(session)
-        # TODO: Should filter for same options?
-        for raw in session.query(raw_model).all():
+        query = session.query(raw_model).where(raw_model.params == self._params(ctx))
+        for raw in query.all():
             yield raw, state
 
     def process(self, raw: RawModel, session: Session, ctx: Context):
         tool_model = self.stream.extract(json.loads(raw.data))
-        tool_model.set_origin(raw)
+        tool_model.set_raw_origin(raw)
         tool_model.connection_id = ctx.connection.id
         session.merge(tool_model)
 
@@ -201,8 +197,10 @@ class Convertor(Subtask):
     def verb(self):
         return 'convert'
 
-    def fetch(self, state: Dict, session: Session, _) -> Iterable[Tuple[ToolModel, Dict]]:
-        for item in session.query(self.stream.tool_model).all():
+    def fetch(self, state: Dict, session: Session, ctx: Context) -> Iterable[Tuple[ToolModel, Dict]]:
+        model = self.stream.tool_model
+        query = session.query(model).where(model.raw_data_params == self._params(ctx))
+        for item in query.all():
             yield item, state
 
     def process(self, tool_model: ToolModel, session: Session, ctx: Context):
@@ -214,11 +212,9 @@ class Convertor(Subtask):
             self._save(tool_model, res, session, ctx.connection.id)
 
     def _save(self, tool_model: ToolModel, domain_model: DomainModel, session: Session, connection_id: int):
-        if not isinstance(domain_model, DomainModel):
-            logger.error(f'Expected a DomainModel but got a {type(domain_model)}: {domain_model}')
-            return
-
-        domain_model.id = tool_model.domain_id()
+        domain_model.set_tool_origin(tool_model)
+        if isinstance(domain_model, DomainModel):
+            domain_model.id = tool_model.domain_id()
         session.merge(domain_model)
 
     def delete(self, session, ctx):

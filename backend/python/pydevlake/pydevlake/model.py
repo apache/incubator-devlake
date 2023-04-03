@@ -33,13 +33,13 @@ inflect_engine = inflect.engine()
 class Model(SQLModel):
     id: Optional[int] = Field(primary_key=True)
     created_at: Optional[datetime] = Field(
-        sa_column=Column(DateTime(), default=func.now())
+        sa_column=Column(DateTime(), default=datetime.utcnow)
     )
     updated_at: Optional[datetime] = Field(
-        sa_column=Column(DateTime(), default=func.now(), onupdate=func.now())
+        sa_column=Column(DateTime(), default=datetime.utcnow, onupdate=datetime.utcnow)
     )
 
-class ToolTable(Model):
+class ToolTable(SQLModel):
     @declared_attr
     def __tablename__(cls) -> str:
         plugin_name = _get_plugin_name(cls)
@@ -47,7 +47,7 @@ class ToolTable(Model):
         return f'_tool_{plugin_name}_{plural_entity}'
 
 
-class Connection(ToolTable):
+class Connection(ToolTable, Model):
     name: str
     proxy: Optional[AnyUrl]
 
@@ -58,7 +58,7 @@ class Connection(ToolTable):
         return proxy
 
 
-class TransformationRule(ToolTable):
+class TransformationRule(ToolTable, Model):
     name: str
 
 
@@ -79,18 +79,23 @@ class RawDataOrigin(SQLModel):
     raw_data_id: Optional[str] = Field(sa_column_kwargs={'name':'_raw_data_id'})
     raw_data_remark: Optional[str] = Field(sa_column_kwargs={'name':'_raw_data_remark'})
 
-    def set_origin(self, raw: RawModel):
+    def set_raw_origin(self, raw: RawModel):
         self.raw_data_id = raw.id
         self.raw_data_params = raw.params
         self.raw_data_table = raw.__tablename__
 
+    def set_tool_origin(self, tool_model: 'ToolModel'):
+        self.raw_data_id = tool_model.raw_data_id
+        self.raw_data_params = tool_model.raw_data_params
+        self.raw_data_table = tool_model.raw_data_table
+
 
 class NoPKModel(RawDataOrigin):
     created_at: Optional[datetime] = Field(
-        sa_column=Column(DateTime(), default=func.now())
+        sa_column=Column(DateTime(), default=datetime.utcnow)
     )
     updated_at: Optional[datetime] = Field(
-        sa_column=Column(DateTime(), default=func.now(), onupdate=func.now())
+        sa_column=Column(DateTime(), default=datetime.utcnow, onupdate=datetime.utcnow)
     )
 
 
@@ -103,10 +108,12 @@ class ToolModel(ToolTable, NoPKModel):
         originates from self.
         """
         model_type = type(self)
-        segments = [_get_plugin_name(model_type), model_type.__name__]
+        segments = [_get_plugin_name(model_type), model_type.__name__, str(self.connection_id)]
         mapper = inspect(model_type)
         for primary_key_column in mapper.primary_key:
             prop = mapper.get_property_by_column(primary_key_column)
+            if prop.key == 'connection_id':
+                continue
             attr_val = getattr(self, prop.key)
             segments.append(str(attr_val))
         return ':'.join(segments)

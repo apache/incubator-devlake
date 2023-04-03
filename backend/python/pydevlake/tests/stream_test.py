@@ -105,6 +105,7 @@ def test_extract_data(stream, raw_data, ctx):
     with Session(ctx.engine) as session:
         for each in raw_data:
             raw_model = stream.raw_model(session)
+            raw_model.params = json.dumps({"connection_id": ctx.connection.id, "scope_id": ctx.scope.id})
             session.add(raw_model(data=json.dumps(each)))
         session.commit()
 
@@ -121,13 +122,13 @@ def test_extract_data(stream, raw_data, ctx):
     assert bob.id == 2
 
 
-@pytest.mark.skip  # TODO fix this test
 def test_convert_data(stream, raw_data, ctx):
     with Session(ctx.engine) as session:
         for each in raw_data:
             session.add(
                 DummyToolModel(
                     id=each["i"],
+                    connection_id=ctx.connection.id,
                     name=each["n"],
                     raw_data_table="_raw_dummy_model",
                     raw_data_params=json.dumps({"connection_id": ctx.connection.id, "scope_id": ctx.scope.id})
@@ -142,7 +143,7 @@ def test_convert_data(stream, raw_data, ctx):
     alice = tool_models[0]
     bob = tool_models[1]
     assert alice.Name == 'alice'
-    assert alice.id == 'test:DummyToolModel:11:1'
+    assert alice.id == 'tests:DummyToolModel:11:1'
 
     assert bob.Name == 'bob'
-    assert bob.id == 'test:DummyToolModel:11:2'
+    assert bob.id == 'tests:DummyToolModel:11:2'

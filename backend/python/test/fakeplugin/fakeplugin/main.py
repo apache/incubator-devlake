@@ -102,7 +102,7 @@ class FakeConnection(Connection):
 
 
 class FakeProject(ToolScope, table=True):
-    pass
+    url: str
 
 
 class FakeTransformationRule(TransformationRule):
@@ -123,10 +123,11 @@ class FakePlugin(Plugin):
         return FakeTransformationRule
 
     def domain_scopes(self, project: FakeProject):
+        project_name = "_".join(project.name.lower().split(" "))
         yield CicdScope(
             id=1,
             name=project.name,
-            url=f"http://fake.org/api/project/{project.name}"
+            url=f"http://fake.org/api/project/{project_name}"
         )
 
     def remote_scopes(self, connection: FakeConnection, group_id: str):
@@ -134,7 +135,8 @@ class FakePlugin(Plugin):
             return [
                 FakeProject(
                     id='p1',
-                    name='Project 1'
+                    name='Project 1',
+                    url='http://fake.org/api/project/p1'
                 )
             ]
         else:

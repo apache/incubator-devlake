@@ -22,7 +22,18 @@ import pydevlake.domain_layer.devops as devops
 from azuredevops.main import AzureDevOpsPlugin
 
 
-def test_builds_stream():
+@pytest.fixture
+def context():
+    return (
+        ContextBuilder(AzureDevOpsPlugin())
+        .with_connection(token='token')
+        .with_transformation_rule(deployment_pattern='deploy',
+                                  production_pattern='prod')
+        .with_scope('johndoe/test-repo', url='https://github.com/johndoe/test-repo')
+        .build()
+    )
+
+def test_builds_stream(context):
     raw = {
         'properties': {},
         'tags': [],
@@ -40,7 +51,7 @@ def test_builds_stream():
         'definition': {
             'drafts': [],
             'id': 5,
-            'name': 'johndoe.test-repo',
+            'name': 'deploy_to_prod',
             'url': 'https://dev.azure.com/testorg/7a3fd40e-2aed-4fac-bac9-511bf1a70206/_apis/build/Definitions/5?revision=1',
             'uri': 'vstfs:///Build/Definition/5',
             'path': '\\',
@@ -114,7 +125,7 @@ def test_builds_stream():
 
     expected = [
         devops.CICDPipeline(
-            name=12,
+            name='deploy_to_prod',
             status=devops.CICDStatus.DONE,
             created_date='2023-02-25T06:22:32.8097789Z',
             finished_date='2023-02-25T06:23:04.0061884Z',
@@ -122,35 +133,28 @@ def test_builds_stream():
             duration_sec=28,
             environment=devops.CICDEnvironment.PRODUCTION,
             type=devops.CICDType.DEPLOYMENT,
-            cicd_scope_id='johndoe/test-repo'
+            cicd_scope_id=context.scope.domain_id()
         ),
         devops.CiCDPipelineCommit(
-            pipeline_id=12,
+            pipeline_id='azuredevops:Build:1:12',
             commit_sha='40c59264e73fc5e1a6cab192f1622d26b7bd5c2a',
             branch='refs/heads/main',
-            repo_id='johndoe/test-repo',
+            repo_id=context.scope.domain_id(),
             repo='https://github.com/johndoe/test-repo'
         )
     ]
 
-    assert_stream_convert(AzureDevOpsPlugin, 'builds', raw, expected)
+    assert_stream_convert(AzureDevOpsPlugin, 'builds', raw, expected, context)
 
 
-def test_jobs_stream():
-    ctx = (
-        ContextBuilder(AzureDevOpsPlugin)
-        .with_transformation_rule(deployment_pattern='deploy',
-                                  production_pattern='prod')
-        .build()
-    )
+def test_jobs_stream(context):
     raw = {
         'previousAttempts': [],
         'id': 'cfa20e98-6997-523c-4233-f0a7302c929f',
         'parentId': '9ecf18fe-987d-5811-7c63-300aecae35da',
         'type': 'Job',
         'name': 'deploy production',
-        'build_id': 12,  # Added by collector,
-        'repo_id': 'johndoe/test-repo',  # Added by collector,
+        'build_id': 'azuredevops:Build:1:12',  # Added by collector,
         'startTime': '2023-02-25T06:22:36.8066667Z',
         'finishTime': '2023-02-25T06:22:43.2333333Z',
         'currentOperation': None,
@@ -180,7 +184,7 @@ def test_jobs_stream():
     expected = devops.CICDTask(
         id='cfa20e98-6997-523c-4233-f0a7302c929f',
         name='deploy production',
-        pipeline_id=12,
+        pipeline_id='azuredevops:Build:1:12',
         status=devops.CICDStatus.DONE,
         created_date='2023-02-25T06:22:36.8066667Z',
         finished_date='2023-02-25T06:22:43.2333333Z',
@@ -188,9 +192,9 @@ def test_jobs_stream():
         type=devops.CICDType.DEPLOYMENT,
         duration_sec=7,
         environment=devops.CICDEnvironment.PRODUCTION,
-        cicd_scope_id='johndoe/test-repo'
+        cicd_scope_id=context.scope.domain_id()
     )
-    assert_stream_convert(AzureDevOpsPlugin, 'jobs', raw, expected, ctx)
+    assert_stream_convert(AzureDevOpsPlugin, 'jobs', raw, expected, context)
 
 
 def test_pull_requests_stream():
