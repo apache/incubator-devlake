@@ -18,13 +18,14 @@ limitations under the License.
 package e2e
 
 import (
+	"os"
+	"testing"
+
 	"github.com/apache/incubator-devlake/core/models/domainlayer/ticket"
 	"github.com/apache/incubator-devlake/helpers/e2ehelper"
 	"github.com/apache/incubator-devlake/plugins/customize/impl"
 	"github.com/apache/incubator-devlake/plugins/customize/models"
 	"github.com/apache/incubator-devlake/plugins/customize/service"
-	"os"
-	"testing"
 )
 
 func TestImportIssueDataFlow(t *testing.T) {
