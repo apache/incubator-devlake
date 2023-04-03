@@ -147,6 +147,7 @@ class Build(ToolModel, table=True):
         Succeeded = "succeeded"
 
     id: int = Field(primary_key=True)
+    name: str
     project_id: str
     repo_id: str
     repo_type: str
@@ -187,8 +188,7 @@ class Job(ToolModel, table=True):
         SucceededWithIssues = "succeededWithIssues"
 
     id: str = Field(primary_key=True)
-    build_id: int
-    repo_id: str
+    build_id: str
     parentId: Optional[str]
     type: Optional[Type]
     name: str

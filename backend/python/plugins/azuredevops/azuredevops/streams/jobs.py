@@ -35,8 +35,7 @@ class Jobs(Substream):
             yield None, state
         else:
             for raw_job in response.json["records"]:
-                raw_job["build_id"] = parent.id
-                raw_job["repo_id"] = parent.repo_id
+                raw_job["build_id"] = parent.domain_id()
                 yield raw_job, state
 
 
@@ -66,10 +65,10 @@ class Jobs(Substream):
                 status = devops.CICDStatus.IN_PROGRESS
 
         type = devops.CICDType.BUILD
-        if ctx.transformation_rule.deployment_pattern.search(j.name):
+        if ctx.transformation_rule and ctx.transformation_rule.deployment_pattern.search(j.name):
             type = devops.CICDType.DEPLOYMENT
         environment = devops.CICDEnvironment.TESTING
-        if ctx.transformation_rule.production_pattern.search(j.name):
+        if ctx.transformation_rule and ctx.transformation_rule.production_pattern.search(j.name):
             environment = devops.CICDEnvironment.PRODUCTION
 
         yield devops.CICDTask(
@@ -83,5 +82,5 @@ class Jobs(Substream):
             type=type,
             duration_sec=abs(j.finishTime.second-j.startTime.second),
             environment=environment,
-            cicd_scope_id=j.repo_id
+            cicd_scope_id=ctx.scope.domain_id()
         )

@@ -39,6 +39,8 @@ class ContextBuilder:
 
     def with_scope(self, id='s', name='test_scope', **kwargs):
         self.scope = self.plugin.tool_scope_type(id=id, name=name, **kwargs)
+        if self.connection:
+            self.scope.connection_id = self.connection.id
         return self
 
     def with_transformation_rule(self, id=1, name='test_rule', **kwargs):
@@ -61,6 +63,8 @@ def assert_stream_convert(plugin: Union[Plugin, Type[Plugin]], stream_name: str,
         plugin = plugin()
     stream = plugin.get_stream(stream_name)
     tool_model = stream.extract(raw)
+    if ctx and ctx.connection:
+        tool_model.connection_id = ctx.connection.id
     domain_models = stream.convert(tool_model, ctx)
     if not isinstance(expected, list):
         expected = [expected]
