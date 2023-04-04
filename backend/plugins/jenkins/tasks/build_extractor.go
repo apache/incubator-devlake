@@ -73,39 +73,41 @@ func ExtractApiBuilds(taskCtx plugin.SubTaskContext) errors.Error {
 				Building:          body.Building,
 				StartTime:         time.Unix(body.Timestamp/1000, 0),
 			}
-			vcs := body.ChangeSet.Kind
-			if vcs == "git" || vcs == "hg" {
-				for _, a := range body.Actions {
-					sha := ""
-					branch := ""
-					if a.LastBuiltRevision.SHA1 != "" {
-						sha = a.LastBuiltRevision.SHA1
-					}
-					if a.MercurialRevisionNumber != "" {
-						sha = a.MercurialRevisionNumber
-					}
+			// we also need to collect the commit info from the build which does not have changeSet
+			// changeSet describes the changes that were made in the build
+			for _, a := range body.Actions {
+				if a.LastBuiltRevision == nil {
+					continue
+				}
+				sha := ""
+				branch := ""
+				if a.LastBuiltRevision.SHA1 != "" {
+					sha = a.LastBuiltRevision.SHA1
+				}
+				if a.MercurialRevisionNumber != "" {
+					sha = a.MercurialRevisionNumber
+				}
 
-					if len(a.LastBuiltRevision.Branches) > 0 {
-						branch = a.LastBuiltRevision.Branches[0].Name
-					}
-					for _, url := range a.RemoteUrls {
-						if url != "" {
-							buildCommitRemoteUrl := models.JenkinsBuildCommit{
-								ConnectionId: data.Options.ConnectionId,
-								BuildName:    build.FullName,
-								CommitSha:    sha,
-								RepoUrl:      url,
-								Branch:       branch,
-							}
-							results = append(results, &buildCommitRemoteUrl)
+				if len(a.LastBuiltRevision.Branches) > 0 {
+					branch = a.LastBuiltRevision.Branches[0].Name
+				}
+				for _, url := range a.RemoteUrls {
+					if url != "" {
+						buildCommitRemoteUrl := models.JenkinsBuildCommit{
+							ConnectionId: data.Options.ConnectionId,
+							BuildName:    build.FullName,
+							CommitSha:    sha,
+							RepoUrl:      url,
+							Branch:       branch,
 						}
+						results = append(results, &buildCommitRemoteUrl)
 					}
-					if len(a.Causes) > 0 {
-						for _, cause := range a.Causes {
-							if cause.UpstreamProject != "" {
-								triggeredByBuild := fmt.Sprintf("%s #%d", cause.UpstreamProject, cause.UpstreamBuild)
-								build.TriggeredBy = triggeredByBuild
-							}
+				}
+				if len(a.Causes) > 0 {
+					for _, cause := range a.Causes {
+						if cause.UpstreamProject != "" {
+							triggeredByBuild := fmt.Sprintf("%s #%d", cause.UpstreamProject, cause.UpstreamBuild)
+							build.TriggeredBy = triggeredByBuild
 						}
 					}
 				}
