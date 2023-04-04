@@ -17,7 +17,6 @@
  */
 
 import { Switch, Route, Redirect } from 'react-router-dom';
-
 import { BaseLayout } from '@/layouts';
 import { FromEnum } from '@/pages';
 import {
@@ -32,10 +31,20 @@ import {
   BlueprintConnectioAddPage,
   BlueprintConnectionDetailPage,
 } from '@/pages';
+import { Amplify } from '@aws-amplify/core';
+import { withAuthenticator } from '@aws-amplify/ui-react';
+import '@aws-amplify/ui-react/styles.css';
+import { Auth } from '@aws-amplify/auth';
+import { awsExports } from './aws-exports';
 
-function App() {
+Amplify.configure(awsExports);
+
+function App({ signOut, user }) {
+  Auth.currentSession().then((data) => console.log('test', data.getIdToken()));
   return (
     <BaseLayout>
+      <h1>Hello {user.username}</h1>
+      <button onClick={signOut}>Sign out</button>
       <Switch>
         <Route path="/" exact component={() => <Redirect to="/projects" />} />
         <Route exact path="/projects" component={() => <ProjectHomePage />} />
@@ -61,4 +70,4 @@ function App() {
   );
 }
 
-export default App;
+export default withAuthenticator(App, { hideSignUp: true });

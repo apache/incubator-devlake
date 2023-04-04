@@ -20,6 +20,7 @@ import type { AxiosRequestConfig } from 'axios';
 import axios from 'axios';
 
 import { DEVLAKE_ENDPOINT } from '@/config';
+import { Auth } from '@aws-amplify/auth';
 
 const instance = axios.create({
   baseURL: DEVLAKE_ENDPOINT,
@@ -35,29 +36,32 @@ export type ReuqestConfig = {
 
 export const request = (path: string, config?: ReuqestConfig) => {
   const { method = 'get', data, timeout, headers, signal } = config || {};
-
   const cancelTokenSource = axios.CancelToken.source();
-  const params: any = {
-    url: path,
-    method,
-    timeout,
-    headers,
-    cancelToken: cancelTokenSource?.token,
-  };
 
-  if (['GET', 'get'].includes(method)) {
-    params.params = data;
-  } else {
-    params.data = data;
-  }
+  const requestPromise = new Promise((resolve, reject) => {
+    Auth.currentSession().then((session) => {
+      const params: any = {
+        url: path,
+        method,
+        timeout,
+        headers: { ...headers, Authorization: session.getIdToken().getJwtToken() },
+        cancelToken: cancelTokenSource?.token,
+      };
 
-  const promise = instance.request(params).then((resp) => resp.data);
+      if (['GET', 'get'].includes(method)) {
+        params.params = data;
+      } else {
+        params.data = data;
+      }
 
-  if (signal) {
-    signal.addEventListener('abort', () => {
-      cancelTokenSource?.cancel();
+      instance.request(params).then((resp) => resolve(resp.data));
+
+      if (signal) {
+        signal.addEventListener('abort', () => {
+          cancelTokenSource?.cancel();
+        });
+      }
     });
-  }
-
-  return promise;
+  });
+  return requestPromise;
 };

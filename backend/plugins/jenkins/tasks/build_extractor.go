@@ -29,7 +29,6 @@ import (
 )
 
 // this struct should be moved to `gitub_api_common.go`
-
 var ExtractApiBuildsMeta = plugin.SubTaskMeta{
 	Name:             "extractApiBuilds",
 	EntryPoint:       ExtractApiBuilds,
@@ -88,6 +87,7 @@ func ExtractApiBuilds(taskCtx plugin.SubTaskContext) errors.Error {
 					if len(a.LastBuiltRevision.Branches) > 0 {
 						branch = a.LastBuiltRevision.Branches[0].Name
 					}
+
 					for _, url := range a.RemoteUrls {
 						if url != "" {
 							buildCommitRemoteUrl := models.JenkinsBuildCommit{
