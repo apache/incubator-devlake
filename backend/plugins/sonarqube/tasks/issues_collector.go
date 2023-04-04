@@ -50,9 +50,6 @@ func CollectIssues(taskCtx plugin.SubTaskContext) (err errors.Error) {
 		},
 	)
 
-	// fix sonarqube issue do not surpport + in time
-	loc := time.FixedZone("sonarqube", -60)
-
 	rawDataSubTaskArgs, data := CreateRawDataSubTaskArgs(taskCtx, RAW_ISSUES_TABLE)
 	collector, err := helper.NewApiCollector(helper.ApiCollectorArgs{
 		RawDataSubTaskArgs: *rawDataSubTaskArgs,
@@ -69,15 +66,16 @@ func CollectIssues(taskCtx plugin.SubTaskContext) (err errors.Error) {
 			}
 
 			if input.CreatedAfter != nil {
-				query.Set("createdAfter", GetFormatTime(input.CreatedAfter, loc))
+				query.Set("createdAfter", GetFormatTime(input.CreatedAfter))
 			}
 
 			if input.CreatedBefore != nil {
-				query.Set("createdBefore", GetFormatTime(input.CreatedBefore, loc))
+				query.Set("createdBefore", GetFormatTime(input.CreatedBefore))
 			}
 
 			query.Set("p", fmt.Sprintf("%v", reqData.Pager.Page))
 			query.Set("ps", fmt.Sprintf("%v", reqData.Pager.Size))
+			query.Encode()
 			return query, nil
 		},
 		GetTotalPages: func(res *http.Response, args *helper.ApiCollectorArgs) (int, errors.Error) {
@@ -141,7 +139,7 @@ func CollectIssues(taskCtx plugin.SubTaskContext) (err errors.Error) {
 				})
 
 				logger.Info("split [%s][%s] by mid [%s] for it has pages:[%d] and total:[%d]",
-					query.Get("createdAfter"), query.Get("createdBefore"), GetFormatTime(&MidTime, loc), pages, body.Paging.Total)
+					query.Get("createdAfter"), query.Get("createdBefore"), GetFormatTime(&MidTime), pages, body.Paging.Total)
 
 				return 0, nil
 			} else {
@@ -192,14 +190,11 @@ var CollectIssuesMeta = plugin.SubTaskMeta{
 	DomainTypes:      []string{plugin.DOMAIN_TYPE_CODE_QUALITY},
 }
 
-func GetFormatTime(t *time.Time, loc *time.Location) string {
+func GetFormatTime(t *time.Time) string {
 	if t == nil {
 		return ""
 	}
-	if loc == nil {
-		return t.Format("2006-01-02T15:04:05-0700")
-	}
-	return t.In(loc).Format("2006-01-02T15:04:05-0700")
+	return t.Format("2006-01-02T15:04:05-0700")
 }
 
 func getTimeFromFormatTime(formatTime string) (*time.Time, errors.Error) {
