@@ -17,7 +17,7 @@ from typing import Iterable
 
 from azuredevops.api import AzureDevOpsAPI
 from azuredevops.models import GitRepository, GitPullRequest
-from pydevlake import Stream, DomainType
+from pydevlake import Stream, DomainType, domain_id
 import pydevlake.domain_layer.code as code
 
 
@@ -49,9 +49,12 @@ class GitPullRequests(Stream):
         return pr
 
     def convert(self, pr: GitPullRequest, ctx):
+        repo_id = ctx.scope.domain_id()
+        # If the PR is from a fork, we forge a new repo ID for the base repo but it doesn't correspond to a real repo
+        base_repo_id = domain_id(GitRepository, ctx.connection.id, pr.fork_repo_id) if pr.fork_repo_id is not None else repo_id
         yield code.PullRequest(
-            base_repo_id=(pr.fork_repo_id if pr.fork_repo_id is not None else pr.repo_id),
-            head_repo_id=pr.repo_id,
+            base_repo_id=base_repo_id,
+            head_repo_id=repo_id,
             status=pr.status.value,
             title=pr.title,
             description=pr.description,

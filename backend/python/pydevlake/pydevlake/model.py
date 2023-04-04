@@ -15,13 +15,13 @@
 
 
 import os
-from typing import Optional
+from typing import Iterable, Optional
 from inspect import getmodule
 from datetime import datetime
 
 import inflect
 from pydantic import AnyUrl, validator
-from sqlalchemy import Column, DateTime, func
+from sqlalchemy import Column, DateTime
 from sqlalchemy.orm import declared_attr
 from sqlalchemy.inspection import inspect
 from sqlmodel import SQLModel, Field
@@ -107,16 +107,16 @@ class ToolModel(ToolTable, NoPKModel):
         Generate an identifier for domain entities
         originates from self.
         """
+        return domain_id(type(self), self.connection_id, *self.primary_keys())
+
+    def primary_keys(self) -> Iterable[object]:
         model_type = type(self)
-        segments = [_get_plugin_name(model_type), model_type.__name__, str(self.connection_id)]
         mapper = inspect(model_type)
         for primary_key_column in mapper.primary_key:
             prop = mapper.get_property_by_column(primary_key_column)
             if prop.key == 'connection_id':
                 continue
-            attr_val = getattr(self, prop.key)
-            segments.append(str(attr_val))
-        return ':'.join(segments)
+            yield getattr(self, prop.key)
 
     class Config:
         allow_population_by_field_name = True
@@ -127,7 +127,6 @@ class ToolModel(ToolTable, NoPKModel):
             # Useful for extractors dealing with raw data that has camelCased attributes.
             parts = attr_name.split('_')
             return parts[0] + ''.join(word.capitalize() for word in parts[1:])
-
 
 
 class DomainModel(NoPKModel):
@@ -141,6 +140,16 @@ class ToolScope(ToolModel):
 
 class DomainScope(DomainModel):
     pass
+
+
+def domain_id(model_type, connection_id, *args):
+    """
+    Generate an identifier for domain entities
+    originates from a model of type model_type.
+    """
+    segments = [_get_plugin_name(model_type), model_type.__name__, str(connection_id)]
+    segments.extend(str(arg) for arg in args)
+    return ':'.join(segments)
 
 
 def _get_plugin_name(cls):
