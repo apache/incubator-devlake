@@ -16,15 +16,15 @@
  *
  */
 
-import React, {useEffect, useState} from 'react';
-import {FormGroup, InputGroup, Intent, Tag} from '@blueprintjs/core';
+import React, { useEffect, useState } from 'react';
+import { FormGroup, Intent, Tag } from '@blueprintjs/core';
 
-import {Divider, ExternalLink, HelpTooltip, MultiSelector, PageLoading} from '@/components';
-import {useProxyPrefix, useRefreshData} from '@/hooks';
+import { HelpTooltip, MultiSelector, PageLoading } from '@/components';
+import { useProxyPrefix, useRefreshData } from '@/hooks';
 
 import * as API from './api';
 import * as S from './styled';
-import {uniqWith} from "lodash";
+import { uniqWith } from 'lodash';
 
 enum StandardType {
   Feature = 'FEATURE',
@@ -81,20 +81,21 @@ export const TapdTransformation = ({ connectionId, scopeId, transformation, setT
       { open: 'task-open', progressing: 'task-progressing', done: 'task-done' } as Record<string, string>,
     ]);
 
-    const statusList: { id: string; name: string }[] =
-      uniqWith([
-        {id: 'open', name: taskStatus.open},
-        {id: 'progressing', name: taskStatus.progressing},
-        {id: 'done', name: taskStatus.done},
-        ...(Object.values(storyStatus.data) as string[]).map((it) => ({id: it, name: it})),
-        ...(Object.values(bugStatus.data) as string[]).map((it) => ({id: it, name: it})),
-      ], (a, b) => a.id === b.id);
-
+    const statusList: { id: string; name: string }[] = uniqWith(
+      [
+        { id: 'open', name: taskStatus.open },
+        { id: 'progressing', name: taskStatus.progressing },
+        { id: 'done', name: taskStatus.done },
+        ...(Object.values(storyStatus.data) as string[]).map((it) => ({ id: it, name: it })),
+        ...(Object.values(bugStatus.data) as string[]).map((it) => ({ id: it, name: it })),
+      ],
+      (a, b) => a.id === b.id,
+    );
 
     const typeList: { id: string; name: string }[] = [
       ...storyType.data.map((it: any) => ({ id: it.Category.id, name: it.Category.name })),
       { id: 'BUG', name: bugType['BUG'] },
-      { id: 'TASK', name: taskType['TASK'] }
+      { id: 'TASK', name: taskType['TASK'] },
     ];
 
     return {

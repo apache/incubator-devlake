@@ -20,8 +20,7 @@ import React, { useMemo } from 'react';
 import { useParams } from 'react-router-dom';
 
 import { PageHeader } from '@/components';
-import type { PluginConfigType } from '@/plugins';
-import { PluginConfig } from '@/plugins';
+import { getPluginConfig } from '@/plugins';
 import { WebHookConnection } from '@/plugins/register/webook';
 import { ConnectionContextProvider } from '@/store';
 
@@ -30,7 +29,7 @@ import { Connection } from './connection';
 export const ConnectionListPage = () => {
   const { plugin } = useParams<{ plugin: string }>();
 
-  const config = useMemo(() => PluginConfig.find((p) => p.plugin === plugin) as PluginConfigType, [plugin]);
+  const config = useMemo(() => getPluginConfig(plugin), [plugin]);
 
   return (
     <ConnectionContextProvider plugin={plugin}>

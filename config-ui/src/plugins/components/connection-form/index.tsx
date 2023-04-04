@@ -16,16 +16,15 @@
  *
  */
 
-import React, { useState, useMemo } from 'react';
+import React, { useMemo, useState } from 'react';
 import { ButtonGroup } from '@blueprintjs/core';
 
-import { PageLoading, ExternalLink } from '@/components';
+import { ExternalLink, PageLoading } from '@/components';
 import { useRefreshData } from '@/hooks';
-import type { PluginConfigType } from '@/plugins';
-import { PluginConfig } from '@/plugins';
+import { getPluginConfig } from '@/plugins';
 
 import { Form } from './fields';
-import { Test, Save } from './operate';
+import { Save, Test } from './operate';
 import * as API from './api';
 import * as S from './styled';
 
@@ -41,7 +40,7 @@ export const ConnectionForm = ({ plugin, connectionId }: Props) => {
   const {
     name,
     connection: { docLink, fields, initialValues },
-  } = useMemo(() => PluginConfig.find((p) => p.plugin === plugin) as PluginConfigType, [plugin]);
+  } = useMemo(() => getPluginConfig(plugin), [plugin]);
 
   const { ready, data } = useRefreshData(async () => {
     if (!connectionId) {

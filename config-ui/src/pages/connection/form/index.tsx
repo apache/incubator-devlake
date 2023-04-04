@@ -20,13 +20,12 @@ import React, { useMemo } from 'react';
 import { useParams } from 'react-router-dom';
 
 import { PageHeader } from '@/components';
-import type { PluginConfigType } from '@/plugins';
-import { PluginConfig, ConnectionForm } from '@/plugins';
+import { ConnectionForm, getPluginConfig } from '@/plugins';
 
 export const ConnectionFormPage = () => {
   const { plugin, cid } = useParams<{ plugin: string; cid?: string }>();
 
-  const { name } = useMemo(() => PluginConfig.find((p) => p.plugin === plugin) as PluginConfigType, [plugin]);
+  const { name } = useMemo(() => getPluginConfig(plugin), [plugin]);
 
   return (
     <PageHeader

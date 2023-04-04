@@ -15,7 +15,7 @@
  * limitations under the License.
  *
  */
-import React, { useCallback, useEffect, useMemo } from 'react';
+import React, { useCallback, useMemo } from 'react';
 import { Tag } from '@blueprintjs/core';
 import { TimePrecision } from '@blueprintjs/datetime';
 import { DateInput2 } from '@blueprintjs/datetime2';

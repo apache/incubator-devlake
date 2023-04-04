@@ -16,13 +16,12 @@
  *
  */
 
-import { useState, useEffect, useMemo } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { Button, Intent } from '@blueprintjs/core';
 
 import { Card, MultiSelector } from '@/components';
 import { transformEntities } from '@/config';
-import type { PluginConfigType } from '@/plugins';
-import { PluginConfig, getPluginId } from '@/plugins';
+import { getPluginConfig, getPluginId } from '@/plugins';
 
 import { GitHubDataScope } from '@/plugins/register/github';
 import { JiraDataScope } from '@/plugins/register/jira';
@@ -67,7 +66,7 @@ export const DataScopeForm = ({
   const [scope, setScope] = useState<any>([]);
   const [entities, setEntites] = useState<string[]>([]);
 
-  const config = useMemo(() => PluginConfig.find((p) => p.plugin === plugin) as PluginConfigType, []);
+  const config = useMemo(() => getPluginConfig(plugin), []);
 
   const error = useMemo(
     () => (!scope.length || !entities.length ? 'No Data Scope is Selected' : ''),

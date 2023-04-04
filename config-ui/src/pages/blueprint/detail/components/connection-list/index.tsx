@@ -19,7 +19,7 @@
 import { useMemo } from 'react';
 import { Link } from 'react-router-dom';
 
-import { PluginConfig } from '@/plugins';
+import { getPluginConfig } from '@/plugins';
 
 import type { BlueprintType } from '../../../types';
 
@@ -36,7 +36,7 @@ export const ConnectionList = ({ path, blueprint }: Props) => {
       blueprint.settings?.connections
         .filter((cs) => cs.plugin !== 'webhook')
         .map((cs: any) => {
-          const plugin = PluginConfig.find((p) => p.plugin === cs.plugin) as any;
+          const plugin = getPluginConfig(cs.plugin);
           return {
             unique: `${cs.plugin}-${cs.connectionId}`,
             icon: plugin.icon,

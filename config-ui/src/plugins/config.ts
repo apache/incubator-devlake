@@ -40,6 +40,7 @@ import { TAPDConfig } from './register/tapd';
 import { WebhookConfig } from './register/webook';
 import { ZenTaoConfig } from './register/zentao';
 import { TeambitionConfig } from './register/teambition';
+import { BasePipelineConfig } from '@/plugins/register/base';
 
 export const PluginConfig: PluginConfigType[] = [
   AEConfig,
@@ -66,3 +67,16 @@ export const PluginConfig: PluginConfigType[] = [
   ZenTaoConfig,
   WebhookConfig,
 ].sort((a, b) => a.sort - b.sort);
+
+// get plugin config by plugin name
+export function getPluginConfig(pluginName: string): PluginConfigType {
+  let pluginConfig = PluginConfig.find((plugin) => plugin.plugin === pluginName) as PluginConfigType;
+  if (!pluginConfig) {
+    pluginConfig = {
+      ...BasePipelineConfig,
+      plugin: pluginName,
+      name: pluginName,
+    } as PluginConfigType;
+  }
+  return pluginConfig;
+}
