@@ -16,13 +16,12 @@
  *
  */
 
-import { useState, useEffect, useMemo } from 'react';
-import { InputGroup, Button, Intent } from '@blueprintjs/core';
+import { useEffect, useMemo, useState } from 'react';
+import { Button, InputGroup, Intent } from '@blueprintjs/core';
 
-import { PageLoading, ExternalLink, Card } from '@/components';
-import { useRefreshData, useOperator } from '@/hooks';
-import type { PluginConfigType } from '@/plugins';
-import { PluginConfig } from '@/plugins';
+import { Card, ExternalLink, PageLoading } from '@/components';
+import { useOperator, useRefreshData } from '@/hooks';
+import { getPluginConfig } from '@/plugins';
 import { GitHubTransformation } from '@/plugins/register/github';
 import { JiraTransformation } from '@/plugins/register/jira';
 import { GitLabTransformation } from '@/plugins/register/gitlab';
@@ -47,7 +46,7 @@ export const TransformationForm = ({ plugin, connectionId, scopeId, id, onCancel
   const [name, setName] = useState('');
   const [transformation, setTransformation] = useState({});
 
-  const config = useMemo(() => PluginConfig.find((p) => p.plugin === plugin) as PluginConfigType, []);
+  const config = useMemo(() => getPluginConfig(plugin), []);
 
   const { ready, data } = useRefreshData(async () => {
     if (!id) return null;

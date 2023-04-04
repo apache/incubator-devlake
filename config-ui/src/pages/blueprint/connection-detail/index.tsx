@@ -17,15 +17,14 @@
  */
 
 import { useState } from 'react';
-import { useParams, useHistory } from 'react-router-dom';
+import { useHistory, useParams } from 'react-router-dom';
 import { Button, Intent, Position } from '@blueprintjs/core';
 import { Popover2 } from '@blueprintjs/popover2';
 
-import { PageHeader, PageLoading, Dialog } from '@/components';
+import { Dialog, PageHeader, PageLoading } from '@/components';
 import { EntitiesLabel } from '@/config';
 import { useRefreshData } from '@/hooks';
-import type { PluginConfigType } from '@/plugins';
-import { PluginConfig, DataScope, Transformation } from '@/plugins';
+import { DataScope, getPluginConfig, Transformation } from '@/plugins';
 
 import * as API from './api';
 import * as S from './styled';
@@ -44,7 +43,7 @@ export const BlueprintConnectionDetailPage = () => {
     const scope = blueprint.settings.connections.find(
       (cs: any) => cs.plugin === plugin && cs.connectionId === +connectionId,
     ).scopes;
-    const config = PluginConfig.find((p) => p.plugin === plugin) as PluginConfigType;
+    const config = getPluginConfig(plugin);
     const origin = await Promise.all(scope.map((sc: any) => API.getDataScope(plugin, connectionId, sc.id)));
 
     return {

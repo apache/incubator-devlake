@@ -20,11 +20,10 @@ import React, { useMemo } from 'react';
 import { Intent } from '@blueprintjs/core';
 
 import { TextTooltip } from '@/components';
-import type { PluginConfigType } from '@/plugins';
-import { PluginConfig } from '@/plugins';
+import { getPluginConfig } from '@/plugins';
 
-import type { TaskType } from '../../types';
-import { StatusEnum } from '../../types';
+import type { TaskType } from '@/pages';
+import { StatusEnum } from '@/pages';
 
 import { PipelineDuration } from '../duration';
 import { PipelineRerun } from '../rerun';
@@ -39,7 +38,7 @@ export const PipelineTask = ({ task }: Props) => {
   const { id, beganAt, finishedAt, status, message, progressDetail } = task;
 
   const [icon, name] = useMemo(() => {
-    const config = PluginConfig.find((p) => p.plugin === task.plugin) as PluginConfigType;
+    const config = getPluginConfig(task.plugin);
     const options = JSON.parse(task.options);
 
     let name = config.name;

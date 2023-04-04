@@ -16,9 +16,9 @@
  *
  */
 
-import React, { useEffect, useState } from 'react';
-import { Icon, Collapse, Button } from '@blueprintjs/core';
-import { sortBy, groupBy } from 'lodash';
+import React, { useState } from 'react';
+import { Button, Collapse, Icon } from '@blueprintjs/core';
+import { groupBy, sortBy } from 'lodash';
 
 import { Loading } from '@/components';
 import { useAutoRefresh } from '@/hooks';
