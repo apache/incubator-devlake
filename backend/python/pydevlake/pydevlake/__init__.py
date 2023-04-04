@@ -16,7 +16,7 @@
 import pytest
 pytest.register_assert_rewrite('pydevlake.testing')
 
-from .model import ToolModel, ToolScope, DomainScope, Connection, TransformationRule
+from .model import ToolModel, ToolScope, DomainScope, Connection, TransformationRule, domain_id
 from .logger import logger
 from .message import RemoteScopeGroup
 from .plugin import Plugin, ScopeTxRulePair
