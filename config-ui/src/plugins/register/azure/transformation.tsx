@@ -148,13 +148,13 @@ export const AzureTransformation = ({ transformation, setTransformation }: Props
             <InputGroup
               style={{ width: 60 }}
               placeholder="10"
-              value={transformation.refdiff?.tagsOrder}
+              value={transformation.refdiff?.tagsLimit}
               onChange={(e) =>
                 setTransformation({
                   ...transformation,
                   refdiff: {
                     ...transformation?.refdiff,
-                    tagsOrder: e.target.value,
+                    tagsLimit: e.target.value,
                   },
                 })
               }

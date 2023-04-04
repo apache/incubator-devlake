@@ -67,7 +67,7 @@ export const BitBucketConfig: PluginConfigType = {
     deploymentPattern: '(deploy|push-image)',
     productionPattern: 'production',
     refdiff: {
-      tagsOrder: 'reverse semver',
+      tagsLimit: 10,
       tagsPattern: '/v\\d+\\.\\d+(\\.\\d+(-rc)*\\d*)*$/',
     },
   },
