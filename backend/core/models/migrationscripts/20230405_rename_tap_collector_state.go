@@ -16,3 +16,30 @@ limitations under the License.
 */
 
 package migrationscripts
+
+import (
+	"github.com/apache/incubator-devlake/core/context"
+	"github.com/apache/incubator-devlake/core/errors"
+	"github.com/apache/incubator-devlake/core/plugin"
+)
+
+var _ plugin.MigrationScript = (*renameCollectorTapStateTable)(nil)
+
+type renameCollectorTapStateTable struct{}
+
+func (*renameCollectorTapStateTable) Up(basicRes context.BasicRes) errors.Error {
+	db := basicRes.GetDal()
+	err := db.RenameTable("_devlake_collector_state", "_devlake_collector_tap_state")
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
+func (*renameCollectorTapStateTable) Version() uint64 {
+	return 20230405000001
+}
+
+func (*renameCollectorTapStateTable) Name() string {
+	return "Rename Collector state table for Singer Taps"
+}
