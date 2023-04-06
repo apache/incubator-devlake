@@ -81,9 +81,6 @@ func CalculateChangeLeadTime(taskCtx plugin.SubTaskContext) errors.Error {
 			projectPrMetric.Id = pr.Id
 			projectPrMetric.ProjectName = data.Options.ProjectName
 
-			// will be the very beginning of the pr
-			earlistDate := pr.CreatedDate
-
 			// Calculate PR coding time
 			if firstCommit != nil {
 				codingTime := int64(pr.CreatedDate.Sub(firstCommit.AuthoredDate).Seconds())
@@ -94,10 +91,6 @@ func CalculateChangeLeadTime(taskCtx plugin.SubTaskContext) errors.Error {
 				}
 				projectPrMetric.PrCodingTime = processNegativeValue(codingTime)
 				projectPrMetric.FirstCommitSha = firstCommit.Sha
-				// update the earlist date if the first commit is earlier than the pr created date
-				if earlistDate.After(firstCommit.AuthoredDate) {
-					earlistDate = firstCommit.AuthoredDate
-				}
 			}
 
 			// Get the first review for the PR
@@ -107,6 +100,7 @@ func CalculateChangeLeadTime(taskCtx plugin.SubTaskContext) errors.Error {
 			}
 
 			// Calculate PR pickup time and PR review time
+			prDuring := processNegativeValue(int64(pr.MergedDate.Sub(pr.CreatedDate).Minutes()))
 			if firstReview != nil {
 				projectPrMetric.PrPickupTime = processNegativeValue(int64(firstReview.CreatedDate.Sub(pr.CreatedDate).Minutes()))
 				projectPrMetric.PrReviewTime = processNegativeValue(int64(pr.MergedDate.Sub(firstReview.CreatedDate).Minutes()))
@@ -124,13 +118,25 @@ func CalculateChangeLeadTime(taskCtx plugin.SubTaskContext) errors.Error {
 				timespan := deployment.TaskFinishedDate.Sub(*pr.MergedDate)
 				projectPrMetric.PrDeployTime = processNegativeValue(int64(timespan.Minutes()))
 				projectPrMetric.DeploymentId = deployment.TaskId
-
-				// calculate the cycle time by the earliest date and deployment time
-				// if deployment is nil, just let PrCycleTime to be nil
-				cycleTimeInMins := int64(deployment.TaskFinishedDate.Sub(earlistDate).Minutes())
-				projectPrMetric.PrCycleTime = &cycleTimeInMins
 			} else {
 				logger.Debug("deploy time of pr %v is nil\n", pr.PullRequestKey)
+			}
+
+			// Calculate PR cycle time
+			if deployment == nil {
+				// Return the projectPrMetric with nill cycle time
+				return []interface{}{projectPrMetric}, nil
+			}
+			var result int64
+			if projectPrMetric.PrCodingTime != nil {
+				result += *projectPrMetric.PrCodingTime
+			}
+			if prDuring != nil {
+				result += *prDuring
+			}
+			result += *projectPrMetric.PrDeployTime
+			if result > 0 {
+				projectPrMetric.PrCycleTime = &result
 			}
 
 			// Return the projectPrMetric
