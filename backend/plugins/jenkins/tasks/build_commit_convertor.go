@@ -18,6 +18,8 @@ limitations under the License.
 package tasks
 
 import (
+	"reflect"
+
 	"github.com/apache/incubator-devlake/core/dal"
 	"github.com/apache/incubator-devlake/core/errors"
 	"github.com/apache/incubator-devlake/core/models/domainlayer/devops"
@@ -25,7 +27,6 @@ import (
 	"github.com/apache/incubator-devlake/core/plugin"
 	"github.com/apache/incubator-devlake/helpers/pluginhelper/api"
 	"github.com/apache/incubator-devlake/plugins/jenkins/models"
-	"reflect"
 )
 
 var ConvertBuildReposMeta = plugin.SubTaskMeta{
@@ -74,7 +75,7 @@ func ConvertBuildRepos(taskCtx plugin.SubTaskContext) errors.Error {
 				PipelineId: buildIdGen.Generate(jenkinsBuildCommit.ConnectionId, jenkinsBuildCommit.BuildName),
 				CommitSha:  jenkinsBuildCommit.CommitSha,
 				Branch:     jenkinsBuildCommit.Branch,
-				Repo:       jenkinsBuildCommit.RepoUrl,
+				RepoUrl:    jenkinsBuildCommit.RepoUrl,
 			}
 			return []interface{}{
 				build,
