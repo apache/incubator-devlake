@@ -58,7 +58,7 @@ type (
 
 // TableName the table name
 func (*RawState) TableName() string {
-	return "_devlake_collector_state"
+	return "_devlake_collector_tap_state"
 }
 
 // FromState converts State to RawState
