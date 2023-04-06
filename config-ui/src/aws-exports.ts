@@ -15,31 +15,16 @@
  * limitations under the License.
  *
  */
-
-import path from 'path';
-import { defineConfig } from 'vite';
-import react from '@vitejs/plugin-react';
-
-// https://vitejs.dev/config/
-export default defineConfig({
-  plugins: [react()],
-  server: {
-    port: 4000,
-    proxy: {
-      '/api': {
-        target: 'http://localhost:8080/',
-        changeOrigin: true,
-        rewrite: (path) => path.replace(/^\/api/, ''),
-      },
-    },
+export const awsExports = {
+  region: import.meta.env.VITE_AUTH_REGION,
+  userPoolId: import.meta.env.VITE_AUTH_USER_POOL_ID,
+  userPoolWebClientId: import.meta.env.VITE_AUTH_USER_POOL_WEB_CLIENT_ID,
+  cookieStorage: {
+    domain: import.meta.env.VITE_AUTH_COOKIE_STORAGE_DOMAIN,
+    path: '/',
+    expires: 365,
+    sameSite: 'strict',
+    secure: true,
   },
-
-  define: {
-    global: {},
-  },
-  resolve: {
-    alias: {
-      '@': path.join(__dirname, './src'),
-    },
-  },
-});
+  authenticationFlowType: 'USER_SRP_AUTH',
+};

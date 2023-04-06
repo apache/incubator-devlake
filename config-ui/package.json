@@ -22,10 +22,15 @@
     ]
   },
   "dependencies": {
+    "@aws-amplify/ui-react": "^4.3.10",
     "@blueprintjs/core": "^4.13.0",
     "@blueprintjs/datetime2": "^0.9.6",
     "@blueprintjs/popover2": "^1.10.2",
     "@blueprintjs/select": "^4.8.12",
+    "@testing-library/jest-dom": "^5.16.5",
+    "@testing-library/react": "^13.4.0",
+    "@testing-library/user-event": "^13.5.0",
+    "aws-amplify": "^5.0.18",
     "axios": "^0.21.4",
     "classnames": "^2.3.2",
     "cron-parser": "^4.3.0",

@@ -46,23 +46,37 @@ services:
   #     POSTGRES_PASSWORD: merico
 
   grafana:
-    image: mericodev/devlake-dashboard:latest
+    image: apache/devlake-dashboard:v0.16.1-beta11
     build:
       context: grafana/
     ports:
-      - "3002:3000"
+      - "3000:3000"
     volumes:
       - grafana-storage:/var/lib/grafana
     environment:
-      GF_SERVER_ROOT_URL: "http://localhost:4000/grafana"
+      GF_SERVER_ROOT_URL: "http://localhost:3000"
       GF_USERS_DEFAULT_THEME: "light"
       MYSQL_URL: mysql:3306
       MYSQL_DATABASE: lake
       MYSQL_USER: merico
       MYSQL_PASSWORD: merico
+      GF_AUTH_DISABLE_LOGIN_FORM: "false"
+      GF_AUTH_BASIC_ENABLED: "true"
+      GF_AUTH_GENERIC_OAUTH_ENABLED: "true"
+      GF_AUTH_GENERIC_OAUTH_AUTO_LOGIN: "false"
+      GF_AUTH_GENERIC_OAUTH_ALLOW_SIGN_UP: "true"
+      GF_AUTH_GENERIC_OAUTH_NAME: "OAuth"
+      GF_AUTH_GENERIC_OAUTH_SCOPES: "email profile aws.cognito.signin.user.admin openid"
+      GF_AUTH_GENERIC_OAUTH_CLIENT_ID: "4uut890afumsphn0amsml17jit"
+      GF_AUTH_GENERIC_OAUTH_AUTH_URL: "https://devlake-test.auth.us-east-2.amazoncognito.com/oauth2/authorize"
+      GF_AUTH_GENERIC_OAUTH_TOKEN_URL: "https://devlake-test.auth.us-east-2.amazoncognito.com/oauth2/token"
+      GF_AUTH_GENERIC_OAUTH_API_URL: "https://devlake-test.auth.us-east-2.amazoncognito.com/oauth2/userInfo"
+      GF_AUTH_GENERIC_OAUTH_SIGNOUT_REDIRECT_URL: "https://devlake-test.auth.us-east-2.amazoncognito.com/logout?client_id=4uut890afumsphn0amsml17jit&logout_uri=http://localhost:3000/login"
+      GF_AUTH_GENERIC_OAUTH_ROLE_ATTRIBUTE_PATH: "('cognito:groups' | contains([*], 'Admin') && 'GrafanaAdmin' || 'Viewer')"
+      GF_AUTH_GENERIC_OAUTH_ALLOW_ASSIGN_GRAFANA_ADMIN: "true"
     restart: always
-    depends_on:
-      - mysql
+#    depends_on:
+#      - mysql
 
   devlake:
     image: mericodev/devlake:latest
@@ -91,12 +105,12 @@ services:
     env_file:
       - ./.env
     environment:
-      DEVLAKE_ENDPOINT: devlake:8080
+      DEVLAKE_ENDPOINT: 127.0.0.1:8080
       GRAFANA_ENDPOINT: grafana:3000
       #ADMIN_USER: devlake
       #ADMIN_PASS: letsdivein
-    depends_on:
-      - devlake
+#    depends_on:
+#      - devlake
 
 volumes:
   mysql-storage:
