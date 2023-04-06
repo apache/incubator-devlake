@@ -52,10 +52,20 @@ class GitPullRequests(Stream):
         repo_id = ctx.scope.domain_id()
         # If the PR is from a fork, we forge a new repo ID for the base repo but it doesn't correspond to a real repo
         base_repo_id = domain_id(GitRepository, ctx.connection.id, pr.fork_repo_id) if pr.fork_repo_id is not None else repo_id
+
+        # Use the same status values as GitHub plugin
+        status = None
+        if pr.status == GitPullRequest.Status.Abandoned:
+            status = 'CLOSED'
+        elif pr.status == GitPullRequest.Status.Active:
+            status = 'OPEN'
+        elif pr.status == GitPullRequest.Status.Completed:
+            status = 'MERGED'
+
         yield code.PullRequest(
             base_repo_id=base_repo_id,
             head_repo_id=repo_id,
-            status=pr.status.value,
+            status=status,
             title=pr.title,
             description=pr.description,
             url=pr.url,

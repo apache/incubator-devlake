@@ -275,7 +275,7 @@ def test_pull_requests_stream(context):
     expected = code.PullRequest(
         base_repo_id='azuredevops:GitRepository:1:johndoe/test-repo',
         head_repo_id='azuredevops:GitRepository:1:johndoe/test-repo',
-        status='active',
+        status='OPEN',
         title='ticket-2 PR',
         description='Updated main.java by ticket-2',
         url='https://dev.azure.com/johndoe/7a3fd40e-2aed-4fac-bac9-511bf1a70206/_apis/git/repositories/0d50ba13-f9ad-49b0-9b21-d29eda50ca33/pullRequests/1',
