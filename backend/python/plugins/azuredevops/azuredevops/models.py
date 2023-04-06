@@ -46,14 +46,14 @@ class GitRepository(ToolScope, table=True):
     url: str
     sshUrl: str
     remoteUrl: str
-    defaultBranch: Optional[str]
-    project_id: str  # = Field(foreign_key=Project.id)
+    default_branch: Optional[str]
+    project_id: str
     org_id: str
     size: int
     isDisabled: bool
     isInMaintenance: bool
     isFork: Optional[bool]
-    parentRepositoryUrl: Optional[str]
+    parent_repository_url: Optional[str] # parentRepository?/url
 
 
 # https://learn.microsoft.com/en-us/rest/api/azure/devops/git/pull-requests/get-pull-requests?view=azure-devops-rest-7.1&tabs=HTTP#identityrefwithvote
