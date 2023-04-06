@@ -36,108 +36,51 @@ class AzureDevOpsTransformationRule(TransformationRule):
     production_pattern: Optional[re.Pattern]
 
 
-class Project(ToolModel, table=True):
-    id: str = Field(primary_key=True)
-    name: str
-    url: str
-
-
 class GitRepository(ToolScope, table=True):
     url: str
-    sshUrl: str
     remoteUrl: str
     default_branch: Optional[str]
     project_id: str
     org_id: str
-    size: int
-    isDisabled: bool
-    isInMaintenance: bool
-    isFork: Optional[bool]
     parent_repository_url: Optional[str] # parentRepository?/url
 
 
-# https://learn.microsoft.com/en-us/rest/api/azure/devops/git/pull-requests/get-pull-requests?view=azure-devops-rest-7.1&tabs=HTTP#identityrefwithvote
 class GitPullRequest(ToolModel, table=True):
     class Status(Enum):
         Abandoned = "abandoned"
         Active = "active"
-        All = "all"
         Completed = "completed"
-        NotSet = "notSet"
 
-    id: int = Field(primary_key=True)
-    project_id: Optional[str]
+    pull_request_id: int = Field(primary_key=True)
     description: Optional[str]
-    code_review_id: int = 0
-    repo_id: Optional[str]
     status: Status
     created_by_id: Optional[str]
     created_by_name: Optional[str]
     creation_date: datetime.datetime
     closed_date: Optional[datetime.datetime]
-    source_commit_sha: Optional[str]  # lastmergesourcecommit #base
-    target_commit_sha: Optional[str]  # lastmergetargetcommit #head
-    merge_commit_sha: Optional[str]
+    source_commit_sha: Optional[str] # lastMergeSourceCommit/commitId
+    target_commit_sha: Optional[str] # lastMergeTargetCommit/commitId
+    merge_commit_sha: Optional[str] # lastMergeCommit/commitId
     url: Optional[str]
     type: Optional[str]
     title: Optional[str]
     target_ref_name: Optional[str]
     source_ref_name: Optional[str]
-    fork_repo_id: Optional[str]
+    fork_repo_id: Optional[str] # forkSource?/repository/id
 
 
 class GitPullRequestCommit(ToolModel, table=True):
-    commit_sha: str = Field(primary_key=True)
+    commit_id: str = Field(primary_key=True)
     pull_request_id: str
-    committer_name: str
-    committer_email: str
-    commit_date: datetime.datetime
-    author_name: str
-    author_email: str
-    authored_date: datetime.datetime
-    comment: str
-    url: str
-    additions: int
-    deletions: int
-
-
-class Account(ToolModel, table=True):
-    class Type(Enum):
-        Organization = "organization"
-        Personal = "personal"
-
-    class Status(Enum):
-        Deleted = "deleted"
-        Disabled = "disabled"
-        Enabled = "enabled"
-        Moved = "moved"
-        Non = "none"
-
-    account_id: str = Field(primary_key=True)
-    account_name: str
-    account_owner: str
-    account_type: Type
-    account_status: Status
-    organization_name: str
-    namespace_id: str
 
 
 class Build(ToolModel, table=True):
     class Status(Enum):
-        All = "all"
         Cancelling = "cancelling"
         Completed = "completed"
         InProgress = "inProgress"
-        Non = "none"
         NotStarted = "notStarted"
         Postponed = "postponed"
-
-    class Priority(Enum):
-        AboveNormal = "aboveNormal"
-        BelowNormal = "belowNormal"
-        High = "high"
-        Low = "low"
-        Normal = "normal"
 
     class Result(Enum):
         Canceled = "canceled"
@@ -147,33 +90,16 @@ class Build(ToolModel, table=True):
         Succeeded = "succeeded"
 
     id: int = Field(primary_key=True)
-    name: str
-    project_id: str
-    repo_id: str
-    repo_type: str
-    build_number: str
-    build_number_revision: Optional[str]
-    controller_id: Optional[str]
-    definition_id: Optional[str]
-    deleted: Optional[bool]
+    name: str # /definition/name
     start_time: Optional[datetime.datetime]
     finish_time: Optional[datetime.datetime]
     status: Status
-    tags: list[str] = []
-    priority: Priority
-    build_result: Result
+    result: Result
     source_branch: str
     source_version: str
 
 
 class Job(ToolModel, table=True):
-    class Type(Enum):
-        Task = "Task"
-        Job = "Job"
-        Checkpoint = "Checkpoint"
-        Stage = "Stage"
-        Phase = "Phase"
-
     class State(Enum):
         Completed = "completed"
         InProgress = "inProgress"
@@ -189,19 +115,8 @@ class Job(ToolModel, table=True):
 
     id: str = Field(primary_key=True)
     build_id: str
-    parentId: Optional[str]
-    type: Optional[Type]
     name: str
     startTime: datetime.datetime
     finishTime: datetime.datetime
-    lastModified: datetime.datetime
-    currentOperation: Optional[int]
-    percentComplete: Optional[int]
     state: State
     result: Result
-    resultCode: Optional[int]
-    changeId: Optional[int]
-    workerName: Optional[str]
-    order: Optional[int]
-    errorCount: Optional[int]
-    warningCount: Optional[int]
