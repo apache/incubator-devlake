@@ -1,4 +1,4 @@
-pipeline_id,commit_sha,branch,repo_id,repo
+pipeline_id,commit_sha,branch,repo_id,repo_url
 github:GithubRun:1:134018330:2559400712,5dd23ddff8621e6ae36eb24b20d4c4a06dd73dc9,Fix_rm_redundancy_code,github:GithubRepo:1:134018330,
 github:GithubRun:1:134018330:2559400713,5dd23ddff8621e6ae36eb24b20d4c4a06dd73dc9,Fix_rm_redundancy_code,github:GithubRepo:1:134018330,
 github:GithubRun:1:134018330:2559400714,5dd23ddff8621e6ae36eb24b20d4c4a06dd73dc9,Fix_rm_redundancy_code,github:GithubRepo:1:134018330,
