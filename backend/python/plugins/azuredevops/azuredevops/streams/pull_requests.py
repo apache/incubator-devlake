@@ -34,10 +34,8 @@ class GitPullRequests(Stream):
 
     def extract(self, raw_data: dict) -> GitPullRequest:
         pr = GitPullRequest(**raw_data)
-        pr.id = raw_data["pullRequestId"]
         pr.created_by_id = raw_data["createdBy"]["id"]
         pr.created_by_name = raw_data["createdBy"]["displayName"]
-        pr.repo_id = raw_data["repository"]["id"]
         pr.source_commit_sha = raw_data["lastMergeSourceCommit"]["commitId"]
         pr.target_commit_sha = raw_data["lastMergeTargetCommit"]["commitId"]
         pr.merge_commit_sha = raw_data["lastMergeCommit"]["commitId"]
@@ -71,7 +69,7 @@ class GitPullRequests(Stream):
             url=pr.url,
             author_name=pr.created_by_name,
             author_id=pr.created_by_id,
-            pull_request_key=pr.id,
+            pull_request_key=pr.pull_request_id,
             created_date=pr.creation_date,
             merged_date=pr.closed_date,
             closed_date=pr.closed_date,

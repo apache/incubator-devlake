@@ -20,7 +20,7 @@ import iso8601 as iso8601
 from azuredevops.api import AzureDevOpsAPI
 from azuredevops.models import GitRepository
 from azuredevops.models import Build
-from pydevlake import Context, DomainType, Stream, logger
+from pydevlake import Context, DomainType, Stream
 import pydevlake.domain_layer.devops as devops
 
 
@@ -38,12 +38,6 @@ class Builds(Stream):
     def extract(self, raw_data: dict) -> Build:
         build: Build = self.tool_model(**raw_data)
         build.name = raw_data["definition"]["name"]
-        build.project_id = raw_data["project"]["id"]
-        build.repo_id = raw_data["repository"]["id"]
-        build.repo_type = raw_data["repository"]["type"]
-        build.build_number = raw_data["buildNumber"]
-        build.tags = ",".join(raw_data["tags"])
-        build.build_result = Build.Result(raw_data["result"])
         trigger_info: dict = raw_data["triggerInfo"]
         if "ci.sourceSha" in trigger_info: # this key is not guaranteed to be in here per docs
             assert build.source_version == trigger_info["ci.sourceSha"]
@@ -51,19 +45,17 @@ class Builds(Stream):
 
     def convert(self, b: Build, ctx: Context):
         result = None
-        if b.build_result == Build.Result.Canceled:
+        if b.result == Build.Result.Canceled:
             result = devops.CICDResult.ABORT
-        elif b.build_result == Build.Result.Failed:
+        elif b.result == Build.Result.Failed:
             result = devops.CICDResult.FAILURE
-        elif b.build_result == Build.Result.PartiallySucceeded:
+        elif b.result == Build.Result.PartiallySucceeded:
             result = devops.CICDResult.SUCCESS
-        elif b.build_result ==  Build.Result.Succeeded:
+        elif b.result ==  Build.Result.Succeeded:
             result = devops.CICDResult.SUCCESS
 
         status = None
-        if b.status == Build.Status.All:
-            status = devops.CICDStatus.IN_PROGRESS
-        elif b.status == Build.Status.Cancelling:
+        if b.status == Build.Status.Cancelling:
             status = devops.CICDStatus.DONE
         elif b.status == Build.Status.Completed:
             status = devops.CICDStatus.DONE
