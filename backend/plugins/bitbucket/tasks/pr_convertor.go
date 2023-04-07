@@ -18,6 +18,8 @@ limitations under the License.
 package tasks
 
 import (
+	"reflect"
+
 	"github.com/apache/incubator-devlake/core/dal"
 	"github.com/apache/incubator-devlake/core/errors"
 	"github.com/apache/incubator-devlake/core/models/domainlayer"
@@ -26,14 +28,13 @@ import (
 	plugin "github.com/apache/incubator-devlake/core/plugin"
 	"github.com/apache/incubator-devlake/helpers/pluginhelper/api"
 	"github.com/apache/incubator-devlake/plugins/bitbucket/models"
-	"reflect"
 )
 
 var ConvertPullRequestsMeta = plugin.SubTaskMeta{
 	Name:             "convertPullRequests",
 	EntryPoint:       ConvertPullRequests,
 	EnabledByDefault: true,
-	Required:         true,
+	Required:         false,
 	Description:      "ConvertPullRequests data from Bitbucket api",
 	DomainTypes:      []string{plugin.DOMAIN_TYPE_CODE_REVIEW},
 }

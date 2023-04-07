@@ -253,7 +253,7 @@ func EnrichOptions(taskCtx plugin.TaskContext,
 				return err
 			}
 			logger.Debug(fmt.Sprintf("Current repo: %s", repo.FullName))
-			scope := repo.ConvertApiScope().(models.BitbucketRepo)
+			scope := repo.ConvertApiScope().(*models.BitbucketRepo)
 			scope.ConnectionId = op.ConnectionId
 			err = taskCtx.GetDal().CreateIfNotExist(scope)
 			if err != nil {

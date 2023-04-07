@@ -18,12 +18,13 @@ limitations under the License.
 package e2e
 
 import (
+	"testing"
+
 	"github.com/apache/incubator-devlake/core/models/domainlayer/devops"
 	"github.com/apache/incubator-devlake/helpers/e2ehelper"
 	"github.com/apache/incubator-devlake/plugins/jenkins/impl"
 	"github.com/apache/incubator-devlake/plugins/jenkins/models"
 	"github.com/apache/incubator-devlake/plugins/jenkins/tasks"
-	"testing"
 )
 
 func TestJenkinsBuildsDataFlow(t *testing.T) {
@@ -142,7 +143,7 @@ func TestJenkinsBuildsDataFlow(t *testing.T) {
 		e2ehelper.ColumnWithRawData(
 			"pipeline_id",
 			"repo_id",
-			"repo",
+			"repo_url",
 			"branch",
 			"commit_sha",
 		),

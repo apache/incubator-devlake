@@ -15,21 +15,31 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-package devops
+package migrationscripts
 
 import (
-	"github.com/apache/incubator-devlake/core/models/common"
+	"github.com/apache/incubator-devlake/core/context"
+	"github.com/apache/incubator-devlake/core/errors"
+	"github.com/apache/incubator-devlake/core/plugin"
 )
 
-type CiCDPipelineCommit struct {
-	common.NoPKModel
-	PipelineId string `gorm:"primaryKey;type:varchar(255)"`
-	CommitSha  string `gorm:"primaryKey;type:varchar(255)"`
-	Branch     string `gorm:"type:varchar(255)"`
-	RepoId     string `gorm:"index;type:varchar(255)"`
-	RepoUrl    string
+var _ plugin.MigrationScript = (*renameCicdPipelineRepoToRepoUrl)(nil)
+
+type renameCicdPipelineRepoToRepoUrl struct{}
+
+func (*renameCicdPipelineRepoToRepoUrl) Up(basicRes context.BasicRes) errors.Error {
+	db := basicRes.GetDal()
+	err := db.RenameColumn("cicd_pipeline_commits", "repo", "repo_url")
+	if err != nil {
+		return err
+	}
+	return nil
 }
 
-func (CiCDPipelineCommit) TableName() string {
-	return "cicd_pipeline_commits"
+func (*renameCicdPipelineRepoToRepoUrl) Version() uint64 {
+	return 20230406170701
+}
+
+func (*renameCicdPipelineRepoToRepoUrl) Name() string {
+	return "Rename cicd_piopeline_commits repo to repo_url"
 }

@@ -18,6 +18,8 @@ limitations under the License.
 package tasks
 
 import (
+	"reflect"
+
 	"github.com/apache/incubator-devlake/core/dal"
 	"github.com/apache/incubator-devlake/core/errors"
 	"github.com/apache/incubator-devlake/core/models/domainlayer"
@@ -26,7 +28,6 @@ import (
 	plugin "github.com/apache/incubator-devlake/core/plugin"
 	"github.com/apache/incubator-devlake/helpers/pluginhelper/api"
 	bitbucketModels "github.com/apache/incubator-devlake/plugins/bitbucket/models"
-	"reflect"
 )
 
 const RAW_ACCOUNT_TABLE = "bitbucket_api_accounts"
@@ -35,7 +36,7 @@ var ConvertAccountsMeta = plugin.SubTaskMeta{
 	Name:             "convertAccounts",
 	EntryPoint:       ConvertAccounts,
 	EnabledByDefault: true,
-	Required:         true,
+	Required:         false,
 	Description:      "Convert tool layer table bitbucket_accounts into  domain layer table accounts",
 	DomainTypes:      []string{plugin.DOMAIN_TYPE_CROSS},
 }

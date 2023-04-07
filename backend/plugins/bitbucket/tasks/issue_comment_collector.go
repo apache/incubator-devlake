@@ -29,7 +29,7 @@ var CollectApiIssueCommentsMeta = plugin.SubTaskMeta{
 	Name:             "collectApiIssueComments",
 	EntryPoint:       CollectApiIssueComments,
 	EnabledByDefault: true,
-	Required:         true,
+	Required:         false,
 	Description:      "Collect issue comments data from bitbucket api",
 	DomainTypes:      []string{plugin.DOMAIN_TYPE_TICKET},
 }

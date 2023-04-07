@@ -76,5 +76,6 @@ func All() []plugin.MigrationScript {
 		new(removeCreatedDateAfterFromCollectorMeta20230223),
 		new(addHostNamespaceRepoName),
 		new(renameCollectorTapStateTable),
+		new(renameCicdPipelineRepoToRepoUrl),
 	}
 }

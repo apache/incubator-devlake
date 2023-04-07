@@ -20,6 +20,10 @@ package api
 import (
 	"crypto/md5"
 	"fmt"
+	"net/http"
+	"reflect"
+	"time"
+
 	"github.com/apache/incubator-devlake/core/dal"
 	"github.com/apache/incubator-devlake/core/errors"
 	"github.com/apache/incubator-devlake/core/models/domainlayer"
@@ -29,9 +33,6 @@ import (
 	"github.com/apache/incubator-devlake/core/plugin"
 	"github.com/apache/incubator-devlake/helpers/pluginhelper/api"
 	"github.com/apache/incubator-devlake/plugins/webhook/models"
-	"net/http"
-	"reflect"
-	"time"
 
 	"github.com/go-playground/validator/v10"
 )
@@ -351,7 +352,7 @@ func PostDeploymentCicdTask(input *plugin.ApiResourceInput) (*plugin.ApiResource
 		PipelineId: pipelineId,
 		CommitSha:  request.CommitSha,
 		Branch:     ``,
-		Repo:       request.RepoUrl,
+		RepoUrl:    request.RepoUrl,
 	}
 
 	mayRelatedRepo := code.Repo{}
