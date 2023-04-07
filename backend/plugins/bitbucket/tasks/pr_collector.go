@@ -31,7 +31,7 @@ var CollectApiPullRequestsMeta = plugin.SubTaskMeta{
 	Name:             "collectApiPullRequests",
 	EntryPoint:       CollectApiPullRequests,
 	EnabledByDefault: true,
-	Required:         true,
+	Required:         false,
 	Description:      "Collect PullRequests data from Bitbucket api",
 	DomainTypes:      []string{plugin.DOMAIN_TYPE_CODE_REVIEW},
 }

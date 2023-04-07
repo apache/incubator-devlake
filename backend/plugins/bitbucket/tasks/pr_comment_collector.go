@@ -29,7 +29,7 @@ var CollectApiPrCommentsMeta = plugin.SubTaskMeta{
 	Name:             "collectApiPullRequestsComments",
 	EntryPoint:       CollectApiPullRequestsComments,
 	EnabledByDefault: true,
-	Required:         true,
+	Required:         false,
 	Description:      "Collect pull requests comments data from bitbucket api",
 	DomainTypes:      []string{plugin.DOMAIN_TYPE_CODE_REVIEW},
 }

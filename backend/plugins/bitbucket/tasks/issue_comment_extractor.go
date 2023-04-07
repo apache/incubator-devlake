@@ -19,11 +19,12 @@ package tasks
 
 import (
 	"encoding/json"
+	"time"
+
 	"github.com/apache/incubator-devlake/core/errors"
 	plugin "github.com/apache/incubator-devlake/core/plugin"
 	"github.com/apache/incubator-devlake/helpers/pluginhelper/api"
 	"github.com/apache/incubator-devlake/plugins/bitbucket/models"
-	"time"
 )
 
 type BitbucketIssueCommentsResponse struct {
@@ -48,7 +49,7 @@ var ExtractApiIssueCommentsMeta = plugin.SubTaskMeta{
 	Name:             "extractApiIssueComments",
 	EntryPoint:       ExtractApiIssueComments,
 	EnabledByDefault: true,
-	Required:         true,
+	Required:         false,
 	Description:      "Extract raw issue comments data into tool layer table BitbucketIssueComments",
 	DomainTypes:      []string{plugin.DOMAIN_TYPE_TICKET},
 }
