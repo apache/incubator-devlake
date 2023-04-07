@@ -22,14 +22,16 @@ import (
 	"encoding/json"
 	goerror "errors"
 	"fmt"
-	"github.com/apache/incubator-devlake/core/models"
-	"github.com/apache/incubator-devlake/core/plugin"
-	"github.com/spf13/cobra"
 	"io"
 	"os"
 	"os/signal"
 	"runtime"
 	"syscall"
+
+	"github.com/apache/incubator-devlake/core/models"
+	"github.com/apache/incubator-devlake/core/models/migrationscripts"
+	"github.com/apache/incubator-devlake/core/plugin"
+	"github.com/spf13/cobra"
 )
 
 // RunCmd FIXME ...
@@ -69,6 +71,7 @@ func DirectRun(cmd *cobra.Command, args []string, pluginTask plugin.PluginTask, 
 	if err != nil {
 		panic(err)
 	}
+	migrator.Register(migrationscripts.All(), "Framework")
 	if migratable, ok := pluginTask.(plugin.PluginMigration); ok {
 		migrator.Register(migratable.MigrationScripts(), cmd.Use)
 	}
