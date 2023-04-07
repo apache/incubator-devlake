@@ -20,7 +20,8 @@ import { useEffect, useMemo, useState } from 'react';
 import { Button, InputGroup, Intent } from '@blueprintjs/core';
 
 import { Card, ExternalLink, PageLoading } from '@/components';
-import { useOperator, useRefreshData } from '@/hooks';
+import { useRefreshData } from '@/hooks';
+import { operator } from '@/utils';
 import { getPluginConfig } from '@/plugins';
 import { GitHubTransformation } from '@/plugins/register/github';
 import { JiraTransformation } from '@/plugins/register/jira';
@@ -43,6 +44,7 @@ interface Props {
 }
 
 export const TransformationForm = ({ plugin, connectionId, scopeId, id, onCancel }: Props) => {
+  const [saving, setSaving] = useState(false);
   const [name, setName] = useState('');
   const [transformation, setTransformation] = useState({});
 
@@ -53,21 +55,27 @@ export const TransformationForm = ({ plugin, connectionId, scopeId, id, onCancel
     return API.getTransformation(plugin, connectionId, id);
   }, [id]);
 
-  const { operating, onSubmit } = useOperator(
-    (payload) =>
-      id
-        ? API.updateTransformation(plugin, connectionId, id, payload)
-        : API.createTransformation(plugin, connectionId, payload),
-    {
-      callback: onCancel,
-      formatMessage: () => 'Transformation created successfully',
-    },
-  );
-
   useEffect(() => {
     setTransformation(data ?? config.transformation);
     setName(data?.name ?? '');
   }, [data, config.transformation]);
+
+  const handleSubmit = async () => {
+    const [success] = await operator(
+      () =>
+        id
+          ? API.updateTransformation(plugin, connectionId, id, { ...transformation, name })
+          : API.createTransformation(plugin, connectionId, { ...transformation, name }),
+      {
+        setOperating: setSaving,
+        formatMessage: () => 'Transformation created successfully',
+      },
+    );
+
+    if (success) {
+      onCancel?.();
+    }
+  };
 
   if (!ready) {
     return <PageLoading />;
@@ -129,13 +137,7 @@ export const TransformationForm = ({ plugin, connectionId, scopeId, id, onCancel
 
       <S.Btns>
         <Button outlined intent={Intent.PRIMARY} text="Cancel" onClick={() => onCancel?.(undefined)} />
-        <Button
-          intent={Intent.PRIMARY}
-          disabled={!name}
-          loading={operating}
-          text="Save"
-          onClick={() => onSubmit({ ...transformation, name })}
-        />
+        <Button intent={Intent.PRIMARY} disabled={!name} loading={saving} text="Save" onClick={handleSubmit} />
       </S.Btns>
     </S.Wrapper>
   );

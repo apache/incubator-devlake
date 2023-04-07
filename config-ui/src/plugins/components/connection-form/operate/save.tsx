@@ -16,11 +16,11 @@
  *
  */
 
-import React, { useMemo } from 'react';
+import { useState, useMemo } from 'react';
 import { useHistory } from 'react-router-dom';
 import { Button, Intent } from '@blueprintjs/core';
 
-import { useOperator } from '@/hooks';
+import { operator } from '@/utils';
 
 import * as API from '../api';
 
@@ -32,27 +32,29 @@ interface Props {
 }
 
 export const Save = ({ plugin, connectionId, values, errors }: Props) => {
+  const [saving, setSaving] = useState(false);
   const history = useHistory();
 
-  const { operating, onSubmit } = useOperator(
-    (paylaod) =>
-      !connectionId ? API.createConnection(plugin, paylaod) : API.updateConnection(plugin, connectionId, paylaod),
-    {
-      callback: () => history.push(`/connections/${plugin}`),
-    },
-  );
+  const handleSubmit = async () => {
+    const [success] = await operator(
+      () => (!connectionId ? API.createConnection(plugin, values) : API.updateConnection(plugin, connectionId, values)),
+      {
+        setOperating: setSaving,
+      },
+    );
+
+    if (success) {
+      history.push(`/connections/${plugin}`);
+    }
+  };
 
   const disabled = useMemo(() => {
     return Object.values(errors).some((value) => value);
   }, [errors]);
 
-  const handleSubmit = () => {
-    onSubmit(values);
-  };
-
   return (
     <Button
-      loading={operating}
+      loading={saving}
       disabled={disabled}
       intent={Intent.PRIMARY}
       outlined
