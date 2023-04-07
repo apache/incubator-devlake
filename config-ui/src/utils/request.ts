@@ -39,31 +39,47 @@ export const request = (path: string, config?: ReuqestConfig) => {
   const cancelTokenSource = axios.CancelToken.source();
 
   const requestPromise = new Promise((resolve, reject) => {
-    Auth.currentSession().then((session) => {
-      const params: any = {
-        url: path,
-        method,
-        timeout,
-        headers: { ...headers, Authorization: session.getIdToken().getJwtToken() },
-        cancelToken: cancelTokenSource?.token,
-      };
-
-      if (['GET', 'get'].includes(method)) {
-        params.params = data;
-      } else {
-        params.data = data;
-      }
-
+    const params: any = {
+      url: path,
+      method,
+      timeout,
+      headers,
+      cancelToken: cancelTokenSource?.token,
+    };
+    if (path === '/version') {
       // Return the request result to the outer Promise
-      instance.request(params).then((resp) => resolve(resp.data));
-
+      instance.request(params).then((resp) => {
+        resolve(resp.data);
+      });
       if (signal) {
         signal.addEventListener('abort', () => {
           cancelTokenSource?.cancel();
         });
       }
-    }); // If Auth.currentSession fails, pass the error to the outer Promise
-  });
+    }
+    Auth.currentSession()
+      .then((session) => {
+        params.headers = { ...params.headers, Authorization: session.getIdToken().getJwtToken() };
 
+        console.log(path);
+        if (['GET', 'get'].includes(method)) {
+          params.params = data;
+        } else {
+          params.data = data;
+        }
+
+        // Return the request result to the outer Promise
+        instance.request(params).then((resp) => {
+          resolve(resp.data);
+        });
+
+        if (signal) {
+          signal.addEventListener('abort', () => {
+            cancelTokenSource?.cancel();
+          });
+        }
+      })
+      .catch((err) => console.log('test111' + err)); // If Auth.currentSession fails, pass the error to the outer Promise
+  });
   return requestPromise as Promise<any>;
 };

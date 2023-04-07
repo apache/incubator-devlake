@@ -40,7 +40,4 @@ export default defineConfig({
       './runtimeConfig': './runtimeConfig.browser',
     },
   },
-  optimizeDeps: {
-    exclude: ['@juggle/resize-observer'],
-  },
 });

@@ -36,6 +36,7 @@ import { withAuthenticator } from '@aws-amplify/ui-react';
 import '@aws-amplify/ui-react/styles.css';
 import { Auth } from '@aws-amplify/auth';
 import { awsExports } from './aws-exports';
+import { CookieStorage } from 'amazon-cognito-identity-js';
 import { WithAuthenticatorProps } from '@aws-amplify/ui-react/dist/types/components/Authenticator/withAuthenticator';
 
 Amplify.configure(awsExports);
