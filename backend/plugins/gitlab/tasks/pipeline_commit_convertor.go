@@ -41,6 +41,12 @@ func ConvertPipelineCommits(taskCtx plugin.SubTaskContext) errors.Error {
 	db := taskCtx.GetDal()
 	data := taskCtx.GetData().(*GitlabTaskData)
 
+	repo := &gitlabModels.GitlabProject{}
+	err := db.First(repo, dal.Where("gitlab_id = ? and connection_id = ?", data.Options.ProjectId, data.Options.ConnectionId))
+	if err != nil {
+		return err
+	}
+
 	cursor, err := db.Cursor(dal.From(gitlabModels.GitlabPipelineProject{}),
 		dal.Where("project_id = ? and connection_id = ?", data.Options.ProjectId, data.Options.ConnectionId))
 	if err != nil {
@@ -70,6 +76,7 @@ func ConvertPipelineCommits(taskCtx plugin.SubTaskContext) errors.Error {
 				Branch:     gitlabPipelineCommit.Ref,
 				RepoId: didgen.NewDomainIdGenerator(&gitlabModels.GitlabProject{}).
 					Generate(gitlabPipelineCommit.ConnectionId, gitlabPipelineCommit.ProjectId),
+				RepoUrl: repo.WebUrl,
 			}
 
 			return []interface{}{
