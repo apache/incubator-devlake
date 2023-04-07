@@ -16,10 +16,10 @@ limitations under the License.
 -->
 
 <!--
-____  _______     __  _        _    _  _______ 
+____  _______     __  _        _    _  _______
 |  _ \| ____\ \   / / | |      / \  | |/ / ____|
-| | | |  _|  \ \ / /  | |     / _ \ | ' /|  _|  
-| |_| | |___  \ V /   | |___ / ___ \| . \| |___ 
+| | | |  _|  \ \ / /  | |     / _ \ | ' /|  _|
+| |_| | |___  \ V /   | |___ / ___ \| . \| |___
 |____/|_____|  \_/    |_____/_/   \_\_|\_\_____|
 
 
@@ -44,6 +44,12 @@ https://github.com/apache/incubator-devlake/wiki
   </head>
   <body>
     <div id="root"></div>
+    <script>
+      if (typeof window.global === 'undefined') {
+        window.global = window;
+      }
+    </script>
+    }
     <script type="module" src="/src/main.tsx"></script>
   </body>
 </html>

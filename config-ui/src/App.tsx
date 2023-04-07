@@ -36,14 +36,15 @@ import { withAuthenticator } from '@aws-amplify/ui-react';
 import '@aws-amplify/ui-react/styles.css';
 import { Auth } from '@aws-amplify/auth';
 import { awsExports } from './aws-exports';
+import { WithAuthenticatorProps } from '@aws-amplify/ui-react/dist/types/components/Authenticator/withAuthenticator';
 
 Amplify.configure(awsExports);
 
-function App({ signOut, user }) {
+function App({ signOut, user }: WithAuthenticatorProps) {
   Auth.currentSession().then((data) => console.log('test', data.getIdToken()));
   return (
     <BaseLayout>
-      <h1>Hello {user.username}</h1>
+      <h1>Hello {user?.username}</h1>
       <button onClick={signOut}>Sign out</button>
       <Switch>
         <Route path="/" exact component={() => <Redirect to="/projects" />} />
