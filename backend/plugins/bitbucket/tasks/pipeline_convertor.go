@@ -18,6 +18,9 @@ limitations under the License.
 package tasks
 
 import (
+	"reflect"
+	"time"
+
 	"github.com/apache/incubator-devlake/core/dal"
 	"github.com/apache/incubator-devlake/core/errors"
 	"github.com/apache/incubator-devlake/core/models/domainlayer"
@@ -26,8 +29,6 @@ import (
 	plugin "github.com/apache/incubator-devlake/core/plugin"
 	"github.com/apache/incubator-devlake/helpers/pluginhelper/api"
 	"github.com/apache/incubator-devlake/plugins/bitbucket/models"
-	"reflect"
-	"time"
 )
 
 var ConvertPipelineMeta = plugin.SubTaskMeta{
@@ -41,6 +42,12 @@ var ConvertPipelineMeta = plugin.SubTaskMeta{
 func ConvertPipelines(taskCtx plugin.SubTaskContext) errors.Error {
 	rawDataSubTaskArgs, data := CreateRawDataSubTaskArgs(taskCtx, RAW_PIPELINE_TABLE)
 	db := taskCtx.GetDal()
+
+	repo := &models.BitbucketRepo{}
+	err := db.First(repo, dal.Where("connection_id = ? AND bitbucket_id = ?", data.Options.ConnectionId, data.Options.FullName))
+	if err != nil {
+		return err
+	}
 
 	cursor, err := db.Cursor(dal.From(models.BitbucketPipeline{}))
 	if err != nil {
@@ -68,6 +75,7 @@ func ConvertPipelines(taskCtx plugin.SubTaskContext) errors.Error {
 					Generate(bitbucketPipeline.ConnectionId, bitbucketPipeline.RepoId),
 				CommitSha: bitbucketPipeline.CommitSha,
 				Branch:    bitbucketPipeline.RefName,
+				RepoUrl:   repo.HTMLUrl,
 			}
 			domainPipeline := &devops.CICDPipeline{
 				DomainEntity: domainlayer.DomainEntity{

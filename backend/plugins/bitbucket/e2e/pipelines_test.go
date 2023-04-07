@@ -18,8 +18,9 @@ limitations under the License.
 package e2e
 
 import (
-	"github.com/apache/incubator-devlake/core/models/domainlayer/devops"
 	"testing"
+
+	"github.com/apache/incubator-devlake/core/models/domainlayer/devops"
 
 	"github.com/apache/incubator-devlake/helpers/e2ehelper"
 	"github.com/apache/incubator-devlake/plugins/bitbucket/impl"
@@ -65,6 +66,7 @@ func TestBitbucketPipelineDataFlow(t *testing.T) {
 	// verify conversion
 	dataflowTester.FlushTabler(&devops.CiCDPipelineCommit{})
 	dataflowTester.FlushTabler(&devops.CICDPipeline{})
+	dataflowTester.ImportCsvIntoTabler("./snapshot_tables/_tool_bitbucket_repos.csv", &models.BitbucketRepo{})
 	dataflowTester.Subtask(tasks.ConvertPipelineMeta, taskData)
 	dataflowTester.VerifyTable(
 		devops.CICDPipeline{},
