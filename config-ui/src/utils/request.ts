@@ -54,6 +54,7 @@ export const request = (path: string, config?: ReuqestConfig) => {
         params.data = data;
       }
 
+      // Return the request result to the outer Promise
       instance.request(params).then((resp) => resolve(resp.data));
 
       if (signal) {
@@ -61,7 +62,8 @@ export const request = (path: string, config?: ReuqestConfig) => {
           cancelTokenSource?.cancel();
         });
       }
-    });
+    }); // If Auth.currentSession fails, pass the error to the outer Promise
   });
-  return requestPromise;
+
+  return requestPromise as Promise<any>;
 };

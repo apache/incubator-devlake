@@ -34,12 +34,13 @@ export default defineConfig({
     },
   },
 
-  define: {
-    global: {},
-  },
   resolve: {
     alias: {
       '@': path.join(__dirname, './src'),
+      './runtimeConfig': './runtimeConfig.browser',
     },
+  },
+  optimizeDeps: {
+    exclude: ['@juggle/resize-observer'],
   },
 });
