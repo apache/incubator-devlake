@@ -119,10 +119,6 @@ func (p PagerDuty) ApiResources() map[string]map[string]plugin.ApiResourceHandle
 			"PATCH":  api.PatchConnection,
 			"DELETE": api.DeleteConnection,
 		},
-		"connections/:connectionId/scopes/:projectId": {
-			"GET":   api.GetScope,
-			"PATCH": api.UpdateScope,
-		},
 		"connections/:connectionId/remote-scopes": {
 			"GET": api.RemoteScopes,
 		},
@@ -132,6 +128,10 @@ func (p PagerDuty) ApiResources() map[string]map[string]plugin.ApiResourceHandle
 		"connections/:connectionId/scopes": {
 			"GET": api.GetScopeList,
 			"PUT": api.PutScope,
+		},
+		"connections/:connectionId/scopes/:scopeId": {
+			"GET":   api.GetScope,
+			"PATCH": api.UpdateScope,
 		},
 		"connections/:connectionId/transformation_rules": {
 			"POST": api.CreateTransformationRule,

@@ -30,9 +30,9 @@ type (
 	ScopeRes api.ScopeRes[models.Service]
 )
 
-// PutScope create or update pagerduty repo
-// @Summary create or update pagerduty repo
-// @Description Create or update pagerduty repo
+// PutScope create or update pagerduty service
+// @Summary create or update pagerduty service
+// @Description Create or update pagerduty service
 // @Tags plugins/pagerduty
 // @Accept application/json
 // @Param connectionId path int true "connection ID"
@@ -45,18 +45,18 @@ func PutScope(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, errors
 	return scopeHelper.Put(input)
 }
 
-// UpdateScope patch to pagerduty repo
-// @Summary patch to pagerduty repo
-// @Description patch to pagerduty repo
+// UpdateScope patch to pagerduty service
+// @Summary patch to pagerduty service
+// @Description patch to pagerduty service
 // @Tags plugins/pagerduty
 // @Accept application/json
 // @Param connectionId path int true "connection ID"
-// @Param repoId path int true "repo ID"
+// @Param serviceId path string true "service ID"
 // @Param scope body models.Service true "json"
 // @Success 200  {object} models.Service
 // @Failure 400  {object} shared.ApiBody "Bad Request"
 // @Failure 500  {object} shared.ApiBody "Internal Error"
-// @Router /plugins/pagerduty/connections/{connectionId}/scopes/{repoId} [PATCH]
+// @Router /plugins/pagerduty/connections/{connectionId}/scopes/{serviceId} [PATCH]
 func UpdateScope(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, errors.Error) {
 	return scopeHelper.Update(input, "id")
 }
@@ -76,16 +76,16 @@ func GetScopeList(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, er
 	return scopeHelper.GetScopeList(input)
 }
 
-// GetScope get one PagerDuty repo
-// @Summary get one PagerDuty repo
-// @Description get one PagerDuty repo
+// GetScope get one PagerDuty service
+// @Summary get one PagerDuty service
+// @Description get one PagerDuty service
 // @Tags plugins/pagerduty
 // @Param connectionId path int true "connection ID"
-// @Param repoId path int true "repo ID"
+// @Param serviceId path int true "service ID"
 // @Success 200  {object} ScopeRes
 // @Failure 400  {object} shared.ApiBody "Bad Request"
 // @Failure 500  {object} shared.ApiBody "Internal Error"
-// @Router /plugins/pagerduty/connections/{connectionId}/scopes/{repoId} [GET]
+// @Router /plugins/pagerduty/connections/{connectionId}/scopes/{serviceId} [GET]
 func GetScope(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, errors.Error) {
 	return scopeHelper.GetScope(input, "id")
 }
