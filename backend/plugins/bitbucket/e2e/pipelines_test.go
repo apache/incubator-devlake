@@ -23,6 +23,7 @@ import (
 	"github.com/apache/incubator-devlake/core/models/domainlayer/devops"
 
 	"github.com/apache/incubator-devlake/helpers/e2ehelper"
+	helper "github.com/apache/incubator-devlake/helpers/pluginhelper/api"
 	"github.com/apache/incubator-devlake/plugins/bitbucket/impl"
 	"github.com/apache/incubator-devlake/plugins/bitbucket/models"
 	"github.com/apache/incubator-devlake/plugins/bitbucket/tasks"
@@ -33,11 +34,15 @@ func TestBitbucketPipelineDataFlow(t *testing.T) {
 	var bitbucket impl.Bitbucket
 	dataflowTester := e2ehelper.NewDataFlowTester(t, "bitbucket", bitbucket)
 
+	regexEnricher := helper.NewRegexEnricher()
+	_ = regexEnricher.TryAdd(devops.DEPLOYMENT, "main")
+	_ = regexEnricher.TryAdd(devops.PRODUCTION, "pipeline")
 	taskData := &tasks.BitbucketTaskData{
 		Options: &tasks.BitbucketOptions{
 			ConnectionId: 1,
 			FullName:     "likyh/likyhphp",
 		},
+		RegexEnricher: regexEnricher,
 	}
 	// import raw data table
 	dataflowTester.ImportCsvIntoRawTable("./raw_tables/_raw_bitbucket_api_pipelines.csv", "_raw_bitbucket_api_pipelines")
@@ -56,6 +61,8 @@ func TestBitbucketPipelineDataFlow(t *testing.T) {
 			"ref_name",
 			"web_url",
 			"duration_in_seconds",
+			"type",
+			"environment",
 			"_raw_data_params",
 			"_raw_data_table",
 			"_raw_data_id",

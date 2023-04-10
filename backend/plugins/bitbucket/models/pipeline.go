@@ -18,8 +18,9 @@ limitations under the License.
 package models
 
 import (
-	"github.com/apache/incubator-devlake/core/models/common"
 	"time"
+
+	"github.com/apache/incubator-devlake/core/models/common"
 )
 
 type BitbucketPipeline struct {
@@ -31,6 +32,8 @@ type BitbucketPipeline struct {
 	RepoId            string `gorm:"type:varchar(255)"`
 	CommitSha         string `gorm:"type:varchar(255)"`
 	WebUrl            string `gorm:"type:varchar(255)"`
+	Type              string `gorm:"type:varchar(255)"`
+	Environment       string `gorm:"type:varchar(255)"`
 	DurationInSeconds uint64
 
 	BitbucketCreatedOn  *time.Time
