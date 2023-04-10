@@ -15,8 +15,8 @@
   "editable": true,
   "gnetId": null,
   "graphTooltip": 0,
-  "id": 27,
-  "iteration": 1680142836842,
+  "id": 28,
+  "iteration": 1681113037519,
   "links": [],
   "panels": [
     {
@@ -892,6 +892,8 @@
             "lineWidth": 1
           },
           "mappings": [],
+          "max": 1,
+          "min": 0,
           "thresholds": {
             "mode": "percentage",
             "steps": [
@@ -938,7 +940,9 @@
         },
         "orientation": "auto",
         "showValue": "auto",
-        "text": {},
+        "text": {
+          "valueSize": 1
+        },
         "tooltip": {
           "mode": "single"
         }
@@ -1025,5 +1029,5 @@
   "timezone": "",
   "title": "DORA",
   "uid": "qNo8_0M4z",
-  "version": 3
+  "version": 5
 }
