@@ -43,6 +43,12 @@ func ConvertRuns(taskCtx plugin.SubTaskContext) errors.Error {
 	data := taskCtx.GetData().(*GithubTaskData)
 	repoId := data.Options.GithubId
 
+	repo := &models.GithubRepo{}
+	err := db.First(repo, dal.Where("connection_id = ? AND github_id = ?", data.Options.ConnectionId, data.Options.GithubId))
+	if err != nil {
+		return err
+	}
+
 	pipeline := &models.GithubRun{}
 	cursor, err := db.Cursor(
 		dal.Select("id, repo_id, connection_id, name, head_sha, head_branch, status, conclusion, github_created_at, github_updated_at,_raw_data_remark, _raw_data_id, _raw_data_table, _raw_data_params"),
@@ -99,7 +105,7 @@ func ConvertRuns(taskCtx plugin.SubTaskContext) errors.Error {
 					data.Options.ConnectionId, line.RepoId, line.ID),
 				CommitSha: line.HeadSha,
 				Branch:    line.HeadBranch,
-				RepoId:    repoIdGen.Generate(data.Options.ConnectionId, repoId),
+				RepoUrl:   repo.HTMLUrl,
 			}
 
 			return []interface{}{
