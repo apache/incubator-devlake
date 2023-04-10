@@ -105,6 +105,7 @@ func ConvertRuns(taskCtx plugin.SubTaskContext) errors.Error {
 					data.Options.ConnectionId, line.RepoId, line.ID),
 				CommitSha: line.HeadSha,
 				Branch:    line.HeadBranch,
+				RepoId:    repoIdGen.Generate(data.Options.ConnectionId, repoId),
 				RepoUrl:   repo.HTMLUrl,
 			}
 
