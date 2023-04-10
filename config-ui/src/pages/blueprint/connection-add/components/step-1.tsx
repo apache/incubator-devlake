@@ -19,6 +19,7 @@
 import { Button, Intent } from '@blueprintjs/core';
 
 import { Table } from '@/components';
+import { getPluginConfig } from '@/plugins';
 import type { ConnectionItemType } from '@/store';
 import { ConnectionContextProvider, ConnectionContextConsumer } from '@/store';
 
@@ -44,6 +45,7 @@ export const Step1 = () => {
                 onChange: (selectedRowKeys) => {
                   const unique = selectedRowKeys[0];
                   const connection = connections.find((cs) => cs.unique === unique) as ConnectionItemType;
+                  const config = getPluginConfig(connection.plugin);
                   onChangeConnection({
                     unique: connection.unique,
                     plugin: connection.plugin,
@@ -52,7 +54,7 @@ export const Step1 = () => {
                     icon: connection.icon,
                     scope: [],
                     origin: [],
-                    transformationType: connection.transformationType,
+                    transformationType: config.transformationType,
                   });
                 },
               }}
