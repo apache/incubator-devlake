@@ -41,7 +41,10 @@ export const BlueprintDetail = ({ from = FromEnum.project, pname, id }: Props) =
   const paths = useMemo(
     () =>
       from === FromEnum.project
-        ? [`/projects/${pname}/${id}/connection-add`, `/projects/${pname}/${id}/`]
+        ? [
+            `/projects/${window.encodeURIComponent(pname ?? '')}/${id}/connection-add`,
+            `/projects/${window.encodeURIComponent(pname ?? '')}/${id}/`,
+          ]
         : [`/blueprints/${id}/connection-add`, `/blueprints/${id}/`],
     [from, pname],
   );
