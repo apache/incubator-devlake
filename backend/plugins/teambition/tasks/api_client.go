@@ -18,10 +18,12 @@ limitations under the License.
 package tasks
 
 import (
+	"fmt"
 	"github.com/apache/incubator-devlake/core/errors"
 	"github.com/apache/incubator-devlake/core/plugin"
 	"github.com/apache/incubator-devlake/helpers/pluginhelper/api"
 	"github.com/apache/incubator-devlake/plugins/teambition/models"
+	"net/http"
 )
 
 func NewTeambitionApiClient(taskCtx plugin.TaskContext, connection *models.TeambitionConnection) (*api.ApiAsyncClient, errors.Error) {
@@ -43,6 +45,21 @@ func NewTeambitionApiClient(taskCtx plugin.TaskContext, connection *models.Teamb
 	if err != nil {
 		return nil, err
 	}
+
+	asyncApiClient.SetAfterFunction(func(res *http.Response) errors.Error {
+		if res.StatusCode == http.StatusUnauthorized {
+			return errors.Unauthorized.New("authentication failed, please check your AccessToken")
+		}
+		resBody := TeambitionComRes[any]{}
+		err = api.UnmarshalResponse(res, &resBody)
+		if err != nil {
+			return err
+		}
+		if resBody.Code != http.StatusOK {
+			return errors.HttpStatus(resBody.Code).New(fmt.Sprintf("unexpected code: %d, %s", resBody.Code, resBody.ErrorMessage))
+		}
+		return nil
+	})
 
 	return asyncApiClient, nil
 }

@@ -27,6 +27,10 @@ type TestConnectionPayload = {
   username?: string;
   password?: string;
   authMethod?: string;
+  appId?: string;
+  secretKey?: string;
+  tenantId?: string;
+  tenantType?: string;
 };
 
 export const testConnection = (plugin: string, data: TestConnectionPayload) =>
