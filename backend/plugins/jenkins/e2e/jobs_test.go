@@ -44,7 +44,7 @@ func TestJenkinsJobsDataFlow(t *testing.T) {
 	}
 
 	dataflowTester.FlushTabler(&devops.CicdScope{})
-	dataflowTester.ImportCsvIntoTabler("./snapshot_tables/_tool_jenkins_jobs.csv", &models.JenkinsJob{})
+	dataflowTester.ImportCsvIntoTabler("./raw_tables/_tool_jenkins_jobs.csv", &models.JenkinsJob{})
 	dataflowTester.Subtask(tasks.ConvertJobsMeta, taskData)
 	dataflowTester.VerifyTableWithOptions(&devops.CicdScope{}, e2ehelper.TableOptions{
 		CSVRelPath:  "./snapshot_tables/cicd_scopes.csv",
