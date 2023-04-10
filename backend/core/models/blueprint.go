@@ -55,6 +55,35 @@ type BlueprintSettings struct {
 	AfterPlan   json.RawMessage `json:"after_plan"`
 }
 
+// UpdateConnections unmarshals the connections on this BlueprintSettings
+func (bps *BlueprintSettings) UnmarshalConnections() ([]*plugin.BlueprintConnectionV200, errors.Error) {
+	var connections []*plugin.BlueprintConnectionV200
+	err := json.Unmarshal(bps.Connections, &connections)
+	if err != nil {
+		return nil, errors.Default.Wrap(err, `unmarshal connections fail`)
+	}
+	return connections, nil
+}
+
+// UpdateConnections updates the connections on this BlueprintSettings reference according to the updater function
+func (bps *BlueprintSettings) UpdateConnections(updater func(c *plugin.BlueprintConnectionV200) errors.Error) errors.Error {
+	conns, err := bps.UnmarshalConnections()
+	if err != nil {
+		return err
+	}
+	for _, conn := range conns {
+		err = updater(conn)
+		if err != nil {
+			return err
+		}
+		bps.Connections, err = errors.Convert01(json.Marshal(&conn))
+		if err != nil {
+			return err
+		}
+	}
+	return nil
+}
+
 // UnmarshalPlan unmarshals Plan in JSON to strong-typed plugin.PipelinePlan
 func (bp *Blueprint) UnmarshalPlan() (plugin.PipelinePlan, errors.Error) {
 	var plan plugin.PipelinePlan
@@ -63,6 +92,29 @@ func (bp *Blueprint) UnmarshalPlan() (plugin.PipelinePlan, errors.Error) {
 		return nil, errors.Default.Wrap(err, `unmarshal plan fail`)
 	}
 	return plan, nil
+}
+
+// UnmarshalSettings unmarshals the BlueprintSettings on the Blueprint
+func (bp *Blueprint) UnmarshalSettings() (BlueprintSettings, errors.Error) {
+	var settings BlueprintSettings
+	err := errors.Convert(json.Unmarshal(bp.Settings, &settings))
+	if err != nil {
+		return settings, errors.Default.Wrap(err, `unmarshal settings fail`)
+	}
+	return settings, nil
+}
+
+// GetConnections Gets all the blueprint connections for this blueprint
+func (bp *Blueprint) GetConnections() ([]*plugin.BlueprintConnectionV200, errors.Error) {
+	settings, err := bp.UnmarshalSettings()
+	if err != nil {
+		return nil, err
+	}
+	conns, err := settings.UnmarshalConnections()
+	if err != nil {
+		return nil, err
+	}
+	return conns, nil
 }
 
 func (Blueprint) TableName() string {

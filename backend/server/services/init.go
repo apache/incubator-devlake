@@ -37,6 +37,7 @@ import (
 var cfg config.ConfigReader
 var logger log.Logger
 var db dal.Dal
+
 var basicRes context.BasicRes
 var migrator plugin.Migrator
 var cronManager *cron.Cron

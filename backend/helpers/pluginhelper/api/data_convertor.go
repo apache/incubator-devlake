@@ -106,7 +106,6 @@ func (converter *DataConverter) Execute() errors.Error {
 		if err != nil {
 			return errors.Default.Wrap(err, "error calling Converter plugin implementation")
 		}
-
 		for _, result := range results {
 			// get the batch operator for the specific type
 			batch, err := divider.ForType(reflect.TypeOf(result))

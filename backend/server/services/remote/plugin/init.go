@@ -28,6 +28,7 @@ import (
 
 var (
 	connectionHelper *api.ConnectionApiHelper
+	scopeHelper      *api.GenericScopeHelper
 	basicRes         context.BasicRes
 	vld              *validator.Validate
 )
@@ -39,6 +40,7 @@ func Init(br context.BasicRes) {
 		br,
 		vld,
 	)
+	scopeHelper = api.NewGenericScopeHelper(basicRes)
 }
 
 func NewRemotePlugin(info *models.PluginInfo) (models.RemotePlugin, errors.Error) {

@@ -71,6 +71,7 @@ func ConvertIncidents(taskCtx plugin.SubTaskContext) errors.Error {
 			Ctx: taskCtx,
 			Params: PagerDutyParams{
 				ConnectionId: data.Options.ConnectionId,
+				ScopeId:      data.Options.ServiceId,
 			},
 			Table: RAW_INCIDENTS_TABLE,
 		},

@@ -135,8 +135,8 @@ func (r *RemoteApiHelper[Conn, Scope, ApiScope, Group]) GetScopesFromRemote(inpu
 	getGroup func(basicRes coreContext.BasicRes, gid string, queryData *RemoteQueryData, connection Conn) ([]Group, errors.Error),
 	getScope func(basicRes coreContext.BasicRes, gid string, queryData *RemoteQueryData, connection Conn) ([]ApiScope, errors.Error),
 ) (*plugin.ApiResourceOutput, errors.Error) {
-	connectionId, _ := extractFromReqParam(input.Params)
-	if connectionId == 0 {
+	params := extractFromReqParam(input.Params)
+	if params == nil || params.connectionId == 0 {
 		return nil, errors.BadInput.New("invalid connectionId")
 	}
 
@@ -245,8 +245,8 @@ func (r *RemoteApiHelper[Conn, Scope, ApiScope, Group]) GetScopesFromRemote(inpu
 }
 
 func (r *RemoteApiHelper[Conn, Scope, ApiScope, Group]) SearchRemoteScopes(input *plugin.ApiResourceInput, searchScope func(basicRes coreContext.BasicRes, queryData *RemoteQueryData, connection Conn) ([]ApiScope, errors.Error)) (*plugin.ApiResourceOutput, errors.Error) {
-	connectionId, _ := extractFromReqParam(input.Params)
-	if connectionId == 0 {
+	params := extractFromReqParam(input.Params)
+	if params == nil || params.connectionId == 0 {
 		return nil, errors.BadInput.New("invalid connectionId")
 	}
 

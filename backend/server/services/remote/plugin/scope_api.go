@@ -19,6 +19,7 @@ package plugin
 
 import (
 	"encoding/json"
+	"gorm.io/gorm"
 	"net/http"
 	"strconv"
 
@@ -240,6 +241,27 @@ func (pa *pluginAPI) GetScope(input *plugin.ApiResourceInput) (*plugin.ApiResour
 		}
 	}
 	return &plugin.ApiResourceOutput{Body: apiScopeResponse{rawScope.Unwrap(), rule.Name}, Status: http.StatusOK}, nil
+}
+
+func (pa *pluginAPI) DeleteScope(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, errors.Error) {
+	db := basicRes.GetDal()
+	return scopeHelper.Delete(input, "scope_id",
+		func(connectionId uint64, scopeId string) errors.Error {
+			rawScope := pa.scopeType.New()
+			return api.CallDB(db.Delete, rawScope, dal.Where("connection_id = ? AND id = ?", connectionId, scopeId))
+		},
+		func(connectionId uint64) errors.Error {
+			connection := pa.connType.New()
+			err := connectionHelper.FirstById(connection, connectionId)
+			if err != nil {
+				if errors.Is(err, gorm.ErrRecordNotFound) {
+					return errors.BadInput.New("Invalid Connection Id")
+				}
+				return err
+			}
+			return nil
+		},
+	)
 }
 
 func extractParam(params map[string]string) (uint64, string) {

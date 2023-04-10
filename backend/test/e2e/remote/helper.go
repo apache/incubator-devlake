@@ -46,6 +46,13 @@ type (
 		TransformationRuleId uint64 `json:"transformationRuleId"`
 		Url                  string `json:"url"`
 	}
+	FakeScope struct {
+		Id                   string `json:"id"`
+		Name                 string `json:"name"`
+		ConnectionId         uint64 `json:"connectionId"`
+		TransformationRuleId uint64 `json:"transformationRuleId"`
+		Url                  string `json:"url"`
+	}
 	FakeTxRule struct {
 		Id   uint64 `json:"id"`
 		Name string `json:"name"`
@@ -78,7 +85,7 @@ func CreateTestConnection(client *helper.DevlakeClient) *helper.Connection {
 	return connection
 }
 
-func CreateTestScope(client *helper.DevlakeClient, connectionId uint64) any {
+func CreateTestScope(client *helper.DevlakeClient, connectionId uint64) *FakeScope {
 	res := client.CreateTransformationRule(PLUGIN_NAME, connectionId, FakeTxRule{Name: "Tx rule", Env: "test env"})
 	rule, ok := res.(map[string]interface{})
 	if !ok {
@@ -86,9 +93,9 @@ func CreateTestScope(client *helper.DevlakeClient, connectionId uint64) any {
 	}
 	ruleId := uint64(rule["id"].(float64))
 
-	scope := client.CreateScope(PLUGIN_NAME,
+	scopeRaw := client.CreateScope(PLUGIN_NAME,
 		connectionId,
-		FakeProject{
+		FakeScope{
 			Id:                   "p1",
 			Name:                 "Project 1",
 			ConnectionId:         connectionId,
@@ -96,5 +103,6 @@ func CreateTestScope(client *helper.DevlakeClient, connectionId uint64) any {
 			TransformationRuleId: ruleId,
 		},
 	)
+	scope := helper.FromMap[FakeScope](scopeRaw.([]any)[0].(map[string]any))
 	return scope
 }

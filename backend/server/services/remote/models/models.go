@@ -49,6 +49,7 @@ type PluginInfo struct {
 	Description                 string            `json:"description"`
 	PluginPath                  string            `json:"plugin_path" validate:"required"`
 	SubtaskMetas                []SubtaskMeta     `json:"subtask_metas" validate:"dive"`
+	Tables                      []string          `json:"tables"`
 }
 
 type DynamicModelInfo struct {

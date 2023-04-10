@@ -129,7 +129,7 @@ func TestBlueprintV200(t *testing.T) {
 	client.CreateProject(&helper.ProjectConfig{
 		ProjectName: projectName,
 	})
-	CreateTestScope(client, connection.ID)
+	scope := CreateTestScope(client, connection.ID)
 
 	blueprint := client.CreateBasicBlueprintV2(
 		"Test blueprint",
@@ -160,6 +160,9 @@ func TestBlueprintV200(t *testing.T) {
 	require.Equal(t, blueprint.Name, project.Blueprint.Name)
 	pipeline := client.TriggerBlueprint(blueprint.ID)
 	require.Equal(t, pipeline.Status, models.TASK_COMPLETED)
+	bps := client.DeleteScope(PLUGIN_NAME, connection.ID, scope.Id)
+	require.Equal(t, 1, len(bps))
+	require.Equal(t, blueprint.ID, bps[0].ID)
 }
 
 func TestCreateTxRule(t *testing.T) {
