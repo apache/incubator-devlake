@@ -18,13 +18,14 @@ limitations under the License.
 package e2e
 
 import (
+	"testing"
+
 	"github.com/apache/incubator-devlake/core/models/common"
 	"github.com/apache/incubator-devlake/core/models/domainlayer/devops"
 	"github.com/apache/incubator-devlake/helpers/e2ehelper"
 	"github.com/apache/incubator-devlake/plugins/gitlab/impl"
 	"github.com/apache/incubator-devlake/plugins/gitlab/models"
 	"github.com/apache/incubator-devlake/plugins/gitlab/tasks"
-	"testing"
 )
 
 func TestGitlabPipelineDataFlow(t *testing.T) {
@@ -41,6 +42,7 @@ func TestGitlabPipelineDataFlow(t *testing.T) {
 	}
 	// import raw data table
 	dataflowTester.ImportCsvIntoRawTable("./raw_tables/_raw_gitlab_api_pipeline.csv", "_raw_gitlab_api_pipeline")
+	dataflowTester.ImportCsvIntoTabler("./raw_tables/_tool_gitlab_projects.csv", &models.GitlabProject{})
 
 	// verify extraction
 	dataflowTester.FlushTabler(&models.GitlabPipeline{})
