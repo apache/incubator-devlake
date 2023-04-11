@@ -18,8 +18,9 @@ limitations under the License.
 package models
 
 import (
-	"github.com/apache/incubator-devlake/core/models/common"
 	"time"
+
+	"github.com/apache/incubator-devlake/core/models/common"
 )
 
 type BitbucketPipelineStep struct {
@@ -30,6 +31,7 @@ type BitbucketPipelineStep struct {
 	Trigger           string `gorm:"type:varchar(255)"`
 	State             string `gorm:"type:varchar(255)"`
 	Result            string `gorm:"type:varchar(255)"`
+	RepoId            string `gorm:"type:varchar(255)"`
 	MaxTime           int
 	StartedOn         *time.Time
 	CompletedOn       *time.Time

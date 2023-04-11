@@ -50,7 +50,10 @@ func ConvertPipelineSteps(taskCtx plugin.SubTaskContext) errors.Error {
 		return err
 	}
 
-	cursor, err := db.Cursor(dal.From(models.BitbucketPipelineStep{}))
+	cursor, err := db.Cursor(
+		dal.From(models.BitbucketPipelineStep{}),
+		dal.Where("connection_id = ? AND repo_id = ?", data.Options.ConnectionId, data.Options.FullName),
+	)
 	if err != nil {
 		return err
 	}

@@ -19,11 +19,12 @@ package tasks
 
 import (
 	"encoding/json"
+	"time"
+
 	"github.com/apache/incubator-devlake/core/errors"
 	"github.com/apache/incubator-devlake/core/plugin"
 	helper "github.com/apache/incubator-devlake/helpers/pluginhelper/api"
 	"github.com/apache/incubator-devlake/plugins/bitbucket/models"
-	"time"
 )
 
 var _ plugin.SubTaskEntryPoint = ExtractPipelineSteps
@@ -84,6 +85,7 @@ func ExtractPipelineSteps(taskCtx plugin.SubTaskContext) errors.Error {
 				Trigger:           apiPipelineStep.Trigger.Type,
 				State:             apiPipelineStep.State.Name,
 				Result:            apiPipelineStep.State.Result.Name,
+				RepoId:            data.Options.FullName,
 				MaxTime:           apiPipelineStep.MaxTime,
 				StartedOn:         apiPipelineStep.StartedOn,
 				CompletedOn:       apiPipelineStep.CompletedOn,

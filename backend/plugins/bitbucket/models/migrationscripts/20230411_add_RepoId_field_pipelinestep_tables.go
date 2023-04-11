@@ -18,20 +18,21 @@ limitations under the License.
 package migrationscripts
 
 import (
-	plugin "github.com/apache/incubator-devlake/core/plugin"
+	"github.com/apache/incubator-devlake/core/context"
+	"github.com/apache/incubator-devlake/core/errors"
+	"github.com/apache/incubator-devlake/plugins/bitbucket/models/migrationscripts/archived"
 )
 
-// All return all the migration scripts
-func All() []plugin.MigrationScript {
-	return []plugin.MigrationScript{
-		new(addInitTables20220803),
-		new(addPipeline20220914),
-		new(addPrCommits20221008),
-		new(addDeployment20221013),
-		new(addRepoIdAndCommitShaField20221014),
-		new(addScope20230206),
-		new(addPipelineStep20230215),
-		new(addConnectionIdToTransformationRule),
-		new(addRepoIdField20230411),
-	}
+type addRepoIdField20230411 struct{}
+
+func (*addRepoIdField20230411) Up(basicRes context.BasicRes) errors.Error {
+	return basicRes.GetDal().AutoMigrate(&archived.BitbucketPipelineStep20230411{})
+}
+
+func (*addRepoIdField20230411) Version() uint64 {
+	return 2023041111938
+}
+
+func (*addRepoIdField20230411) Name() string {
+	return "add column `repo_id` and `commit_sha` at _tool_bitbucket_pipelines"
 }
