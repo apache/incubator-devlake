@@ -42,14 +42,6 @@ func ConvertPipelineSteps(taskCtx plugin.SubTaskContext) errors.Error {
 	rawDataSubTaskArgs, data := CreateRawDataSubTaskArgs(taskCtx, RAW_PIPELINE_STEPS_TABLE)
 	db := taskCtx.GetDal()
 
-	deploymentPattern := data.Options.DeploymentPattern
-	productionPattern := data.Options.ProductionPattern
-	regexEnricher := api.NewRegexEnricher()
-	err := regexEnricher.AddRegexp(deploymentPattern, productionPattern)
-	if err != nil {
-		return err
-	}
-
 	cursor, err := db.Cursor(dal.From(models.BitbucketPipelineStep{}))
 	if err != nil {
 		return err
@@ -109,14 +101,6 @@ func ConvertPipelineSteps(taskCtx plugin.SubTaskContext) errors.Error {
 					domainTask.Environment = devops.TESTING
 				}
 			}
-			if domainTask.Type == `` {
-				domainTask.Type = regexEnricher.GetEnrichResult(deploymentPattern, bitbucketPipelineStep.Name, devops.DEPLOYMENT)
-				if domainTask.Type != `` {
-					// only check env after type recognized
-					domainTask.Environment = regexEnricher.GetEnrichResult(productionPattern, bitbucketPipelineStep.Name, devops.PRODUCTION)
-				}
-			}
-
 			return []interface{}{
 				domainTask,
 			}, nil

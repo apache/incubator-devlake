@@ -19,9 +19,10 @@ package api
 
 import (
 	"fmt"
+	"regexp"
+
 	"github.com/apache/incubator-devlake/core/errors"
 	"github.com/apache/incubator-devlake/core/models/domainlayer/devops"
-	"regexp"
 )
 
 // RegexEnricher process value with regex pattern
@@ -36,6 +37,7 @@ func NewRegexEnricher() *RegexEnricher {
 }
 
 // AddRegexp will add compiled regular expression for pattern to regexpMap
+// TODO: to be removed
 func (r *RegexEnricher) AddRegexp(patterns ...string) errors.Error {
 	for _, pattern := range patterns {
 		if len(pattern) > 0 {
@@ -52,6 +54,7 @@ func (r *RegexEnricher) AddRegexp(patterns ...string) errors.Error {
 // GetEnrichResult will get compiled regular expression from map by pattern,
 // and check if v matches compiled regular expression,
 // lastly, will return corresponding value(result or empty)
+// TODO: to be removed
 func (r *RegexEnricher) GetEnrichResult(pattern string, v string, result string) string {
 	if result == devops.PRODUCTION && pattern == "" {
 		return result
@@ -60,6 +63,36 @@ func (r *RegexEnricher) GetEnrichResult(pattern string, v string, result string)
 	if regex != nil {
 		if flag := regex.FindString(v); flag != "" {
 			return result
+		}
+	}
+	return ""
+}
+
+// TryAdd a named regexp if given pattern is not empty
+func (r *RegexEnricher) TryAdd(name, pattern string) errors.Error {
+	if pattern == "" {
+		return nil
+	}
+	if _, ok := r.regexpMap[name]; ok {
+		return errors.Default.New(fmt.Sprintf("Regex pattern with name: %s already exists", name))
+	}
+	regex, err := errors.Convert01(regexp.Compile(pattern))
+	if err != nil {
+		return errors.BadInput.Wrap(err, fmt.Sprintf("Fail to compile pattern for regex pattern: %s", pattern))
+	}
+	r.regexpMap[name] = regex
+	return nil
+}
+
+// ReturnNameIfMatched will return name if any of the targets matches the regex with the given name
+func (r *RegexEnricher) ReturnNameIfMatched(name string, targets ...string) string {
+	if regex, ok := r.regexpMap[name]; !ok {
+		return ""
+	} else {
+		for _, target := range targets {
+			if regex.MatchString(target) {
+				return name
+			}
 		}
 	}
 	return ""

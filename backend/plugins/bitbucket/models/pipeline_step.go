@@ -18,8 +18,9 @@ limitations under the License.
 package models
 
 import (
-	"github.com/apache/incubator-devlake/core/models/common"
 	"time"
+
+	"github.com/apache/incubator-devlake/core/models/common"
 )
 
 type BitbucketPipelineStep struct {
@@ -36,6 +37,8 @@ type BitbucketPipelineStep struct {
 	DurationInSeconds int
 	BuildSecondsUsed  int
 	RunNumber         int
+	Type              string `gorm:"type:varchar(255)"`
+	Environment       string `gorm:"type:varchar(255)"`
 	common.NoPKModel
 }
 
