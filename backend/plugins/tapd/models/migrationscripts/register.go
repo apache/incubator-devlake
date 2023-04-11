@@ -28,5 +28,6 @@ func All() []plugin.MigrationScript {
 		new(encodeConnToken),
 		new(addTransformation),
 		new(deleteIssue),
+		new(modifyCustomFieldName),
 	}
 }
