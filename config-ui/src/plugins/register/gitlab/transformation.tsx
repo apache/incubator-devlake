@@ -68,7 +68,7 @@ export const GitLabTransformation = ({ transformation, setTransformation }: Prop
               <ExternalLink link="https://docs.gitlab.com/ee/ci/jobs/">See it here</ExternalLink>
             </p>
             <div className="input">
-              <p>The Job name that matches</p>
+              <p>The job name that matches</p>
               <InputGroup
                 placeholder="(deploy|push-image)"
                 value={transformation.deploymentPattern}
@@ -84,7 +84,7 @@ export const GitLabTransformation = ({ transformation, setTransformation }: Prop
               </p>
             </div>
             <div className="input">
-              <p>The Job name that matches</p>
+              <p>The job name that matches</p>
               <InputGroup
                 disabled={!transformation.deploymentPattern}
                 placeholder="production"

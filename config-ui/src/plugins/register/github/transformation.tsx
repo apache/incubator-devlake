@@ -230,7 +230,7 @@ export const GitHubTransformation = ({ transformation, setTransformation }: Prop
                 </ExternalLink>
               </p>
               <div className="input">
-                <p>The Job name that matches</p>
+                <p>The job name that matches</p>
                 <InputGroup
                   placeholder="(deploy|push-image)"
                   value={transformation.deploymentPattern ?? ''}
@@ -246,7 +246,7 @@ export const GitHubTransformation = ({ transformation, setTransformation }: Prop
                 </p>
               </div>
               <div className="input">
-                <p>The Job name that matches</p>
+                <p>The job name that matches</p>
                 <InputGroup
                   disabled={!transformation.deploymentPattern}
                   placeholder="production"

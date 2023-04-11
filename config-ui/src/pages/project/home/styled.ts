@@ -31,7 +31,13 @@ export const DialogInner = styled.div`
     display: flex;
     margin-top: 8px;
 
+    & > .bp4-control {
+      margin: 0;
+    }
+
     & > p {
+      display: flex;
+      align-items: center;
       margin: 0 0 0 16px;
     }
   }

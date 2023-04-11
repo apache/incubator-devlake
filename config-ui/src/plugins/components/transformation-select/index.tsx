@@ -16,7 +16,7 @@
  *
  */
 
-import { useState, useMemo } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { Button, Intent } from '@blueprintjs/core';
 
 import { Dialog, PageLoading, Table, IconButton } from '@/components';
@@ -28,19 +28,35 @@ import * as S from './styled';
 
 interface Props {
   plugin: string;
-  // use for add or edit transformation directly
-  startStepOption?: { type: 'add' | 'edit'; id?: ID };
   connectionId: ID;
   scopeId: ID;
+  transformationId?: ID;
+  transformationType: MixConnection['transformationType'];
   onCancel: () => void;
   onSubmit: (tid: ID) => void;
 }
 
-export const TransformationSelect = ({ plugin, startStepOption, connectionId, scopeId, onCancel, onSubmit }: Props) => {
-  const [step, setStep] = useState(startStepOption ? 2 : 1);
-  const [type, setType] = useState<'add' | 'edit'>(startStepOption?.type ?? 'add');
-  const [selectedId, setSelectedId] = useState<ID>(startStepOption?.id ?? '');
-  const [updatedId, setUpdatedId] = useState<ID>(startStepOption?.id ?? '');
+export const TransformationSelect = ({
+  plugin,
+  connectionId,
+  scopeId,
+  transformationId,
+  transformationType,
+  onCancel,
+  onSubmit,
+}: Props) => {
+  const [step, setStep] = useState(1);
+  const [type, setType] = useState<'add' | 'edit'>('add');
+  const [selectedId, setSelectedId] = useState<ID>();
+  const [updatedId, setUpdatedId] = useState<ID>();
+
+  useEffect(() => setSelectedId(transformationId), [transformationId]);
+
+  useEffect(() => {
+    setStep(transformationType === 'for-scope' ? 2 : 1);
+    setType(transformationType === 'for-scope' && transformationId ? 'edit' : 'add');
+    setUpdatedId(transformationType === 'for-scope' && transformationId ? transformationId : undefined);
+  }, [transformationId, transformationType]);
 
   const { ready, data } = useRefreshData(() => API.getTransformations(plugin, connectionId), [step]);
 
@@ -58,7 +74,6 @@ export const TransformationSelect = ({ plugin, startStepOption, connectionId, sc
   const handleNewTransformation = () => {
     setStep(2);
     setType('add');
-    setSelectedId('');
   };
 
   const handleEditTransformation = (id: ID) => {
@@ -67,13 +82,12 @@ export const TransformationSelect = ({ plugin, startStepOption, connectionId, sc
     setUpdatedId(id);
   };
 
-  const handleReset = () => {
+  const handleReset = (tr?: any) => {
+    if (transformationType === 'for-scope') {
+      return tr ? onSubmit(tr.id) : onCancel();
+    }
     setStep(1);
     setUpdatedId('');
-  };
-
-  const handleResetWithStartStepOption = (tr?: any) => {
-    tr ? onSubmit(tr.id) : onCancel();
   };
 
   const handleSubmit = () => !!selectedId && onSubmit(selectedId);
@@ -123,7 +137,7 @@ export const TransformationSelect = ({ plugin, startStepOption, connectionId, sc
           connectionId={connectionId}
           scopeId={scopeId}
           id={updatedId}
-          onCancel={startStepOption ? handleResetWithStartStepOption : handleReset}
+          onCancel={handleReset}
         />
       )}
     </Dialog>
