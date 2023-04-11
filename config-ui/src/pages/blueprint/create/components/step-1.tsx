@@ -17,6 +17,7 @@
  */
 
 import { useMemo } from 'react';
+import { Link } from 'react-router-dom';
 import { InputGroup, Icon, Button, Intent } from '@blueprintjs/core';
 
 import { Card, Divider, MultiSelector, Loading } from '@/components';
@@ -77,8 +78,10 @@ export const Step1 = ({ from }: Props) => {
           <Card className="card">
             <h2>Add Data Connections</h2>
             <Divider />
-            <h3>Select Connections</h3>
-            <p>Select from existing or create new connections</p>
+            <p>
+              If you have not created any connections yet, please <Link to="/connections">create connections</Link>{' '}
+              first.
+            </p>
             <MultiSelector
               placeholder="Select Connections..."
               items={connections}
