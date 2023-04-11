@@ -78,5 +78,8 @@ export function getPluginConfig(pluginName: string): PluginConfigType {
       name: pluginName,
     } as PluginConfigType;
   }
-  return pluginConfig;
+  return {
+    ...pluginConfig,
+    transformationType: pluginConfig.transformationType || (pluginConfig.transformation ? 'for-connection' : 'none'),
+  };
 }
