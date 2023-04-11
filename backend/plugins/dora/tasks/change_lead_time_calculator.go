@@ -123,7 +123,10 @@ func CalculateChangeLeadTime(taskCtx plugin.SubTaskContext) errors.Error {
 			}
 
 			// Calculate PR cycle time
-			projectPrMetric.PrCycleTime = nil
+			if deployment == nil || projectPrMetric.PrDeployTime == nil {
+				// Return the projectPrMetric with nill cycle time
+				return []interface{}{projectPrMetric}, nil
+			}
 			var result int64
 			if projectPrMetric.PrCodingTime != nil {
 				result += *projectPrMetric.PrCodingTime
@@ -131,9 +134,7 @@ func CalculateChangeLeadTime(taskCtx plugin.SubTaskContext) errors.Error {
 			if prDuring != nil {
 				result += *prDuring
 			}
-			if projectPrMetric.PrDeployTime != nil {
-				result += *projectPrMetric.PrDeployTime
-			}
+			result += *projectPrMetric.PrDeployTime
 			if result > 0 {
 				projectPrMetric.PrCycleTime = &result
 			}
