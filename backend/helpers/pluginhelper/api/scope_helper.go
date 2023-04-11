@@ -117,6 +117,7 @@ func (c *ScopeApiHelper[Conn, Scope, Tr]) Put(input *plugin.ApiResourceInput) (*
 			return nil, err
 		}
 	}
+	// Save the scopes to the database
 	if req.Data != nil && len(req.Data) > 0 {
 		err = c.save(&req.Data)
 		if err != nil {
@@ -124,8 +125,12 @@ func (c *ScopeApiHelper[Conn, Scope, Tr]) Put(input *plugin.ApiResourceInput) (*
 		}
 	}
 
-	// Save the scopes to the database
-	return &plugin.ApiResourceOutput{Body: req.Data, Status: http.StatusOK}, nil
+	apiScopes, err := c.addTransformationName(req.Data)
+	if err != nil {
+		return nil, err
+	}
+
+	return &plugin.ApiResourceOutput{Body: apiScopes, Status: http.StatusOK}, nil
 }
 
 func (c *ScopeApiHelper[Conn, Scope, Tr]) Update(input *plugin.ApiResourceInput, fieldName string) (*plugin.ApiResourceOutput, errors.Error) {
@@ -196,32 +201,9 @@ func (c *ScopeApiHelper[Conn, Scope, Tr]) GetScopeList(input *plugin.ApiResource
 		return nil, err
 	}
 
-	var ruleIds []uint64
-	for _, scope := range scopes {
-		valueRepoRuleId := reflect.ValueOf(scope).Elem().FieldByName("TransformationRuleId")
-		if !valueRepoRuleId.IsValid() {
-			return &plugin.ApiResourceOutput{Body: scopes, Status: http.StatusOK}, nil
-		}
-		ruleId := reflect.ValueOf(scope).Elem().FieldByName("TransformationRuleId").Uint()
-		if ruleId > 0 {
-			ruleIds = append(ruleIds, ruleId)
-		}
-	}
-	var rules []*Tr
-	if len(ruleIds) > 0 {
-		err = c.db.All(&rules, dal.Where("id IN (?)", ruleIds))
-		if err != nil {
-			return nil, err
-		}
-	}
-	names := make(map[uint64]string)
-	for _, rule := range rules {
-		// Get the reflect.Value of the i-th struct pointer in the slice
-		names[reflect.ValueOf(rule).Elem().FieldByName("ID").Uint()] = reflect.ValueOf(rule).Elem().FieldByName("Name").String()
-	}
-	apiScopes := make([]ScopeRes[Scope], 0)
-	for _, scope := range scopes {
-		apiScopes = append(apiScopes, ScopeRes[Scope]{*scope, names[reflect.ValueOf(scope).Elem().FieldByName("TransformationRuleId").Uint()]})
+	apiScopes, err := c.addTransformationName(scopes)
+	if err != nil {
+		return nil, err
 	}
 	return &plugin.ApiResourceOutput{Body: apiScopes, Status: http.StatusOK}, nil
 }
@@ -275,6 +257,37 @@ func (c *ScopeApiHelper[Conn, Scope, Tr]) VerifyConnection(connId uint64) errors
 		return err
 	}
 	return nil
+}
+
+func (c *ScopeApiHelper[Conn, Scope, Tr]) addTransformationName(scopes []*Scope) ([]ScopeRes[Scope], errors.Error) {
+	var ruleIds []uint64
+	for _, scope := range scopes {
+		valueRepoRuleId := reflect.ValueOf(scope).Elem().FieldByName("TransformationRuleId")
+		if !valueRepoRuleId.IsValid() {
+			break
+		}
+		ruleId := reflect.ValueOf(scope).Elem().FieldByName("TransformationRuleId").Uint()
+		if ruleId > 0 {
+			ruleIds = append(ruleIds, ruleId)
+		}
+	}
+	var rules []*Tr
+	if len(ruleIds) > 0 {
+		err := c.db.All(&rules, dal.Where("id IN (?)", ruleIds))
+		if err != nil {
+			return nil, err
+		}
+	}
+	names := make(map[uint64]string)
+	for _, rule := range rules {
+		// Get the reflect.Value of the i-th struct pointer in the slice
+		names[reflect.ValueOf(rule).Elem().FieldByName("ID").Uint()] = reflect.ValueOf(rule).Elem().FieldByName("Name").String()
+	}
+	apiScopes := make([]ScopeRes[Scope], 0)
+	for _, scope := range scopes {
+		apiScopes = append(apiScopes, ScopeRes[Scope]{*scope, names[reflect.ValueOf(scope).Elem().FieldByName("TransformationRuleId").Uint()]})
+	}
+	return apiScopes, nil
 }
 
 func (c *ScopeApiHelper[Conn, Scope, Tr]) save(scope interface{}) errors.Error {
