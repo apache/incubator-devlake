@@ -51,9 +51,12 @@ export const Transformation = ({
 }: Props) => {
   const [selected, setSelected] = useState<Record<string, ID[]>>({});
   const [connection, setConnection] = useState<MixConnection>();
-  const [startStepOption, setStartStepOption] = useState<{ type: 'add' | 'edit'; id?: ID }>();
+  const [tid, setTid] = useState<ID>();
 
-  const handleCancel = () => setConnection(undefined);
+  const handleCancel = () => {
+    setConnection(undefined);
+    setTid(undefined);
+  };
 
   const handleSubmit = async (tid: ID, connection: MixConnection, connections: MixConnection[]) => {
     const { unique, plugin, connectionId } = connection;
@@ -106,10 +109,7 @@ export const Transformation = ({
                 intent={Intent.PRIMARY}
                 icon="annotation"
                 disabled={!selected[cs.unique] || !selected[cs.unique].length}
-                onClick={() => {
-                  setStartStepOption(undefined);
-                  setConnection(cs);
-                }}
+                onClick={() => setConnection(cs)}
               >
                 Select Transformation
               </Button>
@@ -126,48 +126,18 @@ export const Transformation = ({
                 render: (val, row) => (
                   <div>
                     <span>{val ?? 'N/A'}</span>
-                    {cs.transformationType === 'for-connection' && (
-                      <IconButton
-                        icon="annotation"
-                        tooltip="Select Transformation"
-                        onClick={() => {
-                          setSelected({
-                            ...selected,
-                            [`${cs.unique}`]: [row[getPluginId(cs.plugin)]],
-                          });
-                          setStartStepOption(undefined);
-                          setConnection(cs);
-                        }}
-                      />
-                    )}
-                    {cs.transformationType === 'for-scope' &&
-                      (row['transformationRuleId'] ? (
-                        <IconButton
-                          icon="annotation"
-                          tooltip="Edit Transformation"
-                          onClick={() => {
-                            setSelected({
-                              ...selected,
-                              [`${cs.unique}`]: [row[getPluginId(cs.plugin)]],
-                            });
-                            setStartStepOption({ type: 'edit', id: row['transformationRuleId'] });
-                            setConnection(cs);
-                          }}
-                        />
-                      ) : (
-                        <IconButton
-                          icon="annotation"
-                          tooltip="Add Transformation"
-                          onClick={() => {
-                            setSelected({
-                              ...selected,
-                              [`${cs.unique}`]: [row[getPluginId(cs.plugin)]],
-                            });
-                            setStartStepOption({ type: 'add' });
-                            setConnection(cs);
-                          }}
-                        />
-                      ))}
+                    <IconButton
+                      icon="link"
+                      tooltip="Link Transformation"
+                      onClick={() => {
+                        setSelected({
+                          ...selected,
+                          [`${cs.unique}`]: [row[getPluginId(cs.plugin)]],
+                        });
+                        setConnection(cs);
+                        setTid(row.transformationRuleId);
+                      }}
+                    />
                   </div>
                 ),
               },
@@ -194,9 +164,10 @@ export const Transformation = ({
       {connection && (
         <TransformationSelect
           plugin={connection.plugin}
-          startStepOption={startStepOption}
           connectionId={connection.connectionId}
           scopeId={selected[connection.unique][0]}
+          transformationId={tid}
+          transformationType={connection.transformationType}
           onCancel={handleCancel}
           onSubmit={(tid) => handleSubmit(tid, connection, connections)}
         />
