@@ -16,10 +16,10 @@
  *
  */
 
-import React from 'react';
+import { useState } from 'react';
 
 import { IconButton } from '@/components';
-import { useOperator } from '@/hooks';
+import { operator } from '@/utils';
 
 import { StatusEnum } from '../../types';
 import * as API from '../../api';
@@ -32,15 +32,23 @@ interface Props {
 }
 
 export const PipelineCancel = ({ id, status }: Props) => {
+  const [canceling, setCanceling] = useState(false);
+
   const { setVersion } = usePipeline();
 
-  const { operating, onSubmit } = useOperator(() => API.deletePipeline(id), {
-    callback: () => setVersion((v) => v + 1),
-  });
+  const handleSubmit = async () => {
+    const [success] = await operator(() => API.deletePipeline(id), {
+      setOperating: setCanceling,
+    });
+
+    if (success) {
+      setVersion((v) => v + 1);
+    }
+  };
 
   if (![StatusEnum.ACTIVE, StatusEnum.RUNNING, StatusEnum.RERUN].includes(status)) {
     return null;
   }
 
-  return <IconButton loading={operating} icon="disable" tooltip="Cancel" onClick={onSubmit} />;
+  return <IconButton loading={canceling} icon="disable" tooltip="Cancel" onClick={handleSubmit} />;
 };
