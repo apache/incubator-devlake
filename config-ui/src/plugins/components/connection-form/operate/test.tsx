@@ -16,11 +16,11 @@
  *
  */
 
-import React, { useMemo } from 'react';
+import { useState, useMemo } from 'react';
 import { Button } from '@blueprintjs/core';
 import { pick } from 'lodash';
 
-import { useOperator } from '@/hooks';
+import { operator } from '@/utils';
 
 import * as API from '../api';
 
@@ -31,28 +31,35 @@ interface Props {
 }
 
 export const Test = ({ plugin, values, errors }: Props) => {
-  const { operating, onSubmit } = useOperator((payload) => API.testConnection(plugin, payload));
+  const [testing, setTesting] = useState(false);
 
   const disabled = useMemo(() => {
     return Object.values(errors).some((value) => value);
   }, [errors]);
 
-  const handleSubmit = () => {
-    onSubmit(
-      pick(values, [
-        'endpoint',
-        'token',
-        'username',
-        'password',
-        'proxy',
-        'authMethod',
-        'appId',
-        'secretKey',
-        'tenantId',
-        'tenantType',
-      ]),
+  const handleSubmit = async () => {
+    await operator(
+      () =>
+        API.testConnection(
+          plugin,
+          pick(values, [
+            'endpoint',
+            'token',
+            'username',
+            'password',
+            'proxy',
+            'authMethod',
+            'appId',
+            'secretKey',
+            'tenantId',
+            'tenantType',
+          ]),
+        ),
+      {
+        setOperating: setTesting,
+      },
     );
   };
 
-  return <Button loading={operating} disabled={disabled} outlined text="Test Connection" onClick={handleSubmit} />;
+  return <Button loading={testing} disabled={disabled} outlined text="Test Connection" onClick={handleSubmit} />;
 };

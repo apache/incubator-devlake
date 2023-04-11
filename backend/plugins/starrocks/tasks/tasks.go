@@ -247,7 +247,19 @@ func copyDataToDst(dc *DataConfigParams, columnMap map[string]string, orderBy st
 		dal.Orderby(orderBy),
 	)
 	if err != nil {
-		return err
+		if strings.Contains(err.Error(), "cached plan must not change result type") {
+			logger.Warn(err, "skip err: cached plan must not change result type")
+			rows, err = db.Cursor(
+				dal.From(table),
+				dal.Orderby(orderBy),
+			)
+			if err != nil {
+				return err
+			}
+		} else {
+			return err
+		}
+
 	}
 	defer rows.Close()
 

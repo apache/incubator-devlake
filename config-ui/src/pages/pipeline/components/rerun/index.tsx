@@ -15,11 +15,10 @@
  * limitations under the License.
  *
  */
-
-import React from 'react';
+import { useState } from 'react';
 
 import { IconButton } from '@/components';
-import { useOperator } from '@/hooks';
+import { operator } from '@/utils';
 
 import { StatusEnum } from '../../types';
 import * as API from '../../api';
@@ -33,19 +32,27 @@ interface Props {
 }
 
 export const PipelineRerun = ({ type, id, status }: Props) => {
+  const [reruning, setReruning] = useState(false);
+
   const { setVersion } = usePipeline();
 
-  const { operating, onSubmit } = useOperator(() => (type === 'task' ? API.taskRerun(id) : API.pipelineRerun(id)), {
-    callback: () => setVersion((v) => v + 1),
-  });
+  const handleSubmit = async () => {
+    const [success] = await operator(() => (type === 'task' ? API.taskRerun(id) : API.pipelineRerun(id)), {
+      setOperating: setReruning,
+    });
+
+    if (success) {
+      setVersion((v) => v + 1);
+    }
+  };
 
   if (![StatusEnum.COMPLETED, StatusEnum.PARTIAL, StatusEnum.FAILED, StatusEnum.CANCELLED].includes(status)) {
     return null;
   }
 
   if (type === 'task') {
-    return <IconButton loading={operating} icon="repeat" tooltip="Rerun task" onClick={onSubmit} />;
+    return <IconButton loading={reruning} icon="repeat" tooltip="Rerun task" onClick={handleSubmit} />;
   }
 
-  return <IconButton loading={operating} icon="repeat" tooltip="Rerun failed tasks" onClick={onSubmit} />;
+  return <IconButton loading={reruning} icon="repeat" tooltip="Rerun failed tasks" onClick={handleSubmit} />;
 };

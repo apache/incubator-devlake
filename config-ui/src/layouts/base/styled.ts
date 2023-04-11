@@ -112,6 +112,7 @@ export const Header = styled(Navbar)`
 
 export const Inner = styled.div`
   flex: auto;
+  margin-top: 24px;
   overflow: auto;
 `;
 

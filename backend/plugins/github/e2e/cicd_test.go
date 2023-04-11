@@ -47,6 +47,7 @@ func TestGithubCICDDataFlow(t *testing.T) {
 	// import raw data table
 	// SELECT * FROM _raw_github_api_runs INTO OUTFILE "/tmp/_raw_github_api_runs.csv" FIELDS TERMINATED BY ',' OPTIONALLY ENCLOSED BY '"' LINES TERMINATED BY '\r\n';
 	dataflowTester.ImportCsvIntoRawTable("./raw_tables/_raw_github_api_runs.csv", "_raw_github_api_runs")
+	dataflowTester.ImportCsvIntoTabler("./raw_tables/_tool_github_repos.csv", &models.GithubRepo{})
 
 	// verify extraction
 	dataflowTester.FlushTabler(&models.GithubRun{})

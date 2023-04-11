@@ -38,6 +38,8 @@ type BitbucketPipelineStep struct {
 	DurationInSeconds int
 	BuildSecondsUsed  int
 	RunNumber         int
+	Type              string `gorm:"type:varchar(255)"`
+	Environment       string `gorm:"type:varchar(255)"`
 	common.NoPKModel
 }
 

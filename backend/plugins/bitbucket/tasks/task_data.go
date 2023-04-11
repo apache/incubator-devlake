@@ -35,9 +35,10 @@ type BitbucketOptions struct {
 }
 
 type BitbucketTaskData struct {
-	Options   *BitbucketOptions
-	ApiClient *api.ApiAsyncClient
-	TimeAfter *time.Time
+	Options       *BitbucketOptions
+	ApiClient     *api.ApiAsyncClient
+	TimeAfter     *time.Time
+	RegexEnricher *api.RegexEnricher
 }
 
 func DecodeAndValidateTaskOptions(options map[string]interface{}) (*BitbucketOptions, errors.Error) {

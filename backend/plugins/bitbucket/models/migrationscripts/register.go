@@ -32,6 +32,7 @@ func All() []plugin.MigrationScript {
 		new(addScope20230206),
 		new(addPipelineStep20230215),
 		new(addConnectionIdToTransformationRule),
+		new(addTypeEnvToPipelineAndStep),
 		new(addRepoIdField20230411),
 	}
 }

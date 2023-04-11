@@ -17,10 +17,12 @@
  */
 
 import { useMemo } from 'react';
+import { Link } from 'react-router-dom';
 import { InputGroup, Icon, Button, Intent } from '@blueprintjs/core';
 
-import { useConnection, ConnectionStatusEnum } from '@/store';
 import { Card, Divider, MultiSelector, Loading } from '@/components';
+import { getPluginConfig } from '@/plugins';
+import { useConnection, ConnectionStatusEnum } from '@/store';
 
 import { ModeEnum, FromEnum } from '../../types';
 import { AdvancedEditor } from '../../components';
@@ -76,8 +78,10 @@ export const Step1 = ({ from }: Props) => {
           <Card className="card">
             <h2>Add Data Connections</h2>
             <Divider />
-            <h3>Select Connections</h3>
-            <p>Select from existing or create new connections</p>
+            <p>
+              If you have not created any connections yet, please <Link to="/connections">create connections</Link>{' '}
+              first.
+            </p>
             <MultiSelector
               placeholder="Select Connections..."
               items={connections}
@@ -91,16 +95,19 @@ export const Step1 = ({ from }: Props) => {
                   onTest(lastItem);
                 }
                 onChangeConnections(
-                  selectedItems.map((sc) => ({
-                    unique: sc.unique,
-                    plugin: sc.plugin,
-                    connectionId: sc.id,
-                    name: sc.name,
-                    icon: sc.icon,
-                    scope: [],
-                    origin: [],
-                    transformationType: sc.transformationType,
-                  })),
+                  selectedItems.map((sc) => {
+                    const config = getPluginConfig(sc.plugin);
+                    return {
+                      unique: sc.unique,
+                      plugin: sc.plugin,
+                      connectionId: sc.id,
+                      name: sc.name,
+                      icon: sc.icon,
+                      scope: [],
+                      origin: [],
+                      transformationType: config.transformationType,
+                    };
+                  }),
                 );
               }}
             />

@@ -73,11 +73,11 @@ type LastBuiltRevision struct {
 }
 
 type Action struct {
-	Class                   string            `json:"_class,omitempty"`
-	LastBuiltRevision       LastBuiltRevision `json:"lastBuiltRevision,omitempty"`
-	MercurialRevisionNumber string            `json:"mercurialRevisionNumber"`
-	RemoteUrls              []string          `json:"remoteUrls"`
-	Causes                  []Cause           `json:"causes"`
+	Class                   string             `json:"_class,omitempty"`
+	LastBuiltRevision       *LastBuiltRevision `json:"lastBuiltRevision,omitempty"`
+	MercurialRevisionNumber string             `json:"mercurialRevisionNumber"`
+	RemoteUrls              []string           `json:"remoteUrls"`
+	Causes                  []Cause            `json:"causes"`
 }
 type ChangeSet struct {
 	Class     string     `json:"_class"`

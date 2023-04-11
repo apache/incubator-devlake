@@ -88,7 +88,7 @@ func (c *ScopeApiHelper[Conn, Scope, Tr]) Put(input *plugin.ApiResourceInput) (*
 	// Extract the connection ID from the input.Params map
 	connectionId, _ := extractFromReqParam(input.Params)
 	if connectionId == 0 {
-		return nil, errors.BadInput.New("invalid connectionId or scopeId")
+		return nil, errors.BadInput.New("invalid connectionId")
 	}
 	err = c.VerifyConnection(connectionId)
 	if err != nil {
@@ -131,8 +131,11 @@ func (c *ScopeApiHelper[Conn, Scope, Tr]) Put(input *plugin.ApiResourceInput) (*
 func (c *ScopeApiHelper[Conn, Scope, Tr]) Update(input *plugin.ApiResourceInput, fieldName string) (*plugin.ApiResourceOutput, errors.Error) {
 	connectionId, scopeId := extractFromReqParam(input.Params)
 
-	if connectionId == 0 || len(scopeId) == 0 || scopeId == "0" {
+	if connectionId == 0 {
 		return &plugin.ApiResourceOutput{Body: nil, Status: http.StatusInternalServerError}, errors.BadInput.New("invalid connectionId")
+	}
+	if len(scopeId) == 0 || scopeId == "0" {
+		return &plugin.ApiResourceOutput{Body: nil, Status: http.StatusInternalServerError}, errors.BadInput.New("invalid scopeId")
 	}
 	err := c.VerifyConnection(connectionId)
 	if err != nil {
@@ -180,7 +183,7 @@ func (c *ScopeApiHelper[Conn, Scope, Tr]) GetScopeList(input *plugin.ApiResource
 	// Extract the connection ID from the input.Params map
 	connectionId, _ := extractFromReqParam(input.Params)
 	if connectionId == 0 {
-		return nil, errors.BadInput.New("invalid path params")
+		return nil, errors.BadInput.New("invalid path params: \"connectionId\" not set")
 	}
 	err := c.VerifyConnection(connectionId)
 	if err != nil {
@@ -225,8 +228,11 @@ func (c *ScopeApiHelper[Conn, Scope, Tr]) GetScopeList(input *plugin.ApiResource
 
 func (c *ScopeApiHelper[Conn, Scope, Tr]) GetScope(input *plugin.ApiResourceInput, fieldName string) (*plugin.ApiResourceOutput, errors.Error) {
 	connectionId, scopeId := extractFromReqParam(input.Params)
-	if connectionId == 0 || len(scopeId) == 0 || scopeId == "0" {
-		return nil, errors.BadInput.New("invalid path params")
+	if connectionId == 0 {
+		return nil, errors.BadInput.New("invalid path params: \"connectionId\" not set")
+	}
+	if len(scopeId) == 0 || scopeId == "0" {
+		return nil, errors.BadInput.New("invalid path params: \"scopeId\" not set/invalid")
 	}
 	err := c.VerifyConnection(connectionId)
 	if err != nil {

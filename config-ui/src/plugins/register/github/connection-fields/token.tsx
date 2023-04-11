@@ -110,7 +110,7 @@ export const Token = ({ endpoint, proxy, initialValue, value, error, setValue, s
       subLabel={
         <S.LabelDescription>
           Add one or more personal token(s) for authentication from you and your organization members. Multiple tokens
-          (from different GitHub accounts, NOT from one account) can help speed up the data collection process.
+          (from different GitHub accounts, NOT from one account) can help speed up the data collection process.{' '}
           <ExternalLink link="https://devlake.apache.org/docs/Configuration/GitHub/#auth-tokens">
             Learn how to create a personal access token
           </ExternalLink>
