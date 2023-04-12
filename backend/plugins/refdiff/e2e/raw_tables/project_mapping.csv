@@ -1,5 +1,6 @@
 project_name,table,row_id
 project1,repos,github:GithubRepo:1:484251804
+project1,cicd_scopes,github:GithubRepo:1:484251804
 project2,repos,github:GithubRepo:1:384111310
 project3,boards,jira:JiraBoard:1:68
 
