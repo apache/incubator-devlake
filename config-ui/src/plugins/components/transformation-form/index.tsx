@@ -61,7 +61,7 @@ export const TransformationForm = ({ plugin, connectionId, scopeId, id, onCancel
   }, [data, config.transformation]);
 
   const handleSubmit = async () => {
-    const [success] = await operator(
+    const [success, res] = await operator(
       () =>
         id
           ? API.updateTransformation(plugin, connectionId, id, { ...transformation, name })
@@ -73,7 +73,7 @@ export const TransformationForm = ({ plugin, connectionId, scopeId, id, onCancel
     );
 
     if (success) {
-      onCancel?.();
+      onCancel?.(res);
     }
   };
 
