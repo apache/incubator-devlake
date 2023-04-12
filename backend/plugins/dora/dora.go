@@ -30,12 +30,10 @@ var PluginEntry impl.Dora //nolint
 func main() {
 	cmd := &cobra.Command{Use: "dora"}
 
-	repoId := cmd.Flags().StringP("repoId", "r", "", "repo id")
 	projectName := cmd.Flags().StringP("projectName", "p", "", "project name")
 
 	cmd.Run = func(cmd *cobra.Command, args []string) {
 		runner.DirectRun(cmd, args, PluginEntry, map[string]interface{}{
-			"repoId":      *repoId,
 			"projectName": *projectName,
 		})
 	}
