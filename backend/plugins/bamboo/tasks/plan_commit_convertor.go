@@ -67,6 +67,7 @@ func ConvertPlanVcs(taskCtx plugin.SubTaskContext) errors.Error {
 			domainPlanVcs := &devops.CiCDPipelineCommit{
 				PipelineId: planBuildIdGen.Generate(data.Options.ConnectionId, line.PlanBuildKey),
 				CommitSha:  line.VcsRevisionKey,
+				RepoUrl:    line.RepositoryName,
 			}
 			domainPlanVcs.RepoId = repoMap[line.RepositoryId]
 			return []interface{}{
