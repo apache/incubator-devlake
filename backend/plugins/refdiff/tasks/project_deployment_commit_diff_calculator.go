@@ -18,12 +18,13 @@ limitations under the License.
 package tasks
 
 import (
+	"reflect"
+
 	"github.com/apache/incubator-devlake/core/dal"
 	"github.com/apache/incubator-devlake/core/errors"
 	"github.com/apache/incubator-devlake/core/models/domainlayer/code"
 	"github.com/apache/incubator-devlake/core/plugin"
 	"github.com/apache/incubator-devlake/plugins/refdiff/utils"
-	"reflect"
 )
 
 func CommitDiffConvertor(pipelineCommitShaList []string, existFinishedCommitDiff []code.FinishedCommitsDiff) (commitPairs []code.CommitsDiff, finishedCommitDiffs []code.FinishedCommitsDiff) {
@@ -53,8 +54,8 @@ func CalculateProjectDeploymentCommitsDiff(taskCtx plugin.SubTaskContext) errors
 
 	cursorScope, err := db.Cursor(
 		dal.Select("row_id"),
-		dal.From("project_mapping"),
-		dal.Where("project_name = ?", projectName),
+		dal.From("project_mapping pm"),
+		dal.Where("pm.project_name = ? and pm.table = ?", projectName, "cicd_scopes"),
 	)
 	if err != nil {
 		return err
@@ -83,7 +84,7 @@ func CalculateProjectDeploymentCommitsDiff(taskCtx plugin.SubTaskContext) errors
 			dal.From("cicd_tasks ct"),
 			dal.Join("left join cicd_pipelines cp on cp.id = ct.pipeline_id"),
 			dal.Join("left join cicd_pipeline_commits cpc on cpc.pipeline_id = cp.id"),
-			dal.Where("ct.type = ? and commit_sha != ? and repo_id=? ", "DEPLOYMENT", "", scopeId),
+			dal.Where("ct.environment = ? and ct.type = ? and ct.result = ? and commit_sha != ? and repo_id=? ", "PRODUCTION", "DEPLOYMENT", "SUCCESS", "", scopeId),
 			dal.Orderby("ct.started_date"),
 		)
 		if err != nil {

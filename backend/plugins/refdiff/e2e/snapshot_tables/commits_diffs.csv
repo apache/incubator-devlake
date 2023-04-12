@@ -1,4 +1,3 @@
-commit_sha,new_commit_sha,old_commit_sha,sorting_index
-commit_sha2,commit_sha2,commit_sha1,1
-commit_sha4,commit_sha4,commit_sha2,1
-commit_sha7,commit_sha4,commit_sha2,2
+new_commit_sha,old_commit_sha,commit_sha,sorting_index
+commit_sha2,commit_sha1,commit_sha2,1
+commit_sha4,commit_sha2,commit_sha4,1
