@@ -77,5 +77,6 @@ func All() []plugin.MigrationScript {
 		new(addHostNamespaceRepoName),
 		new(renameCollectorTapStateTable),
 		new(renameCicdPipelineRepoToRepoUrl),
+		new(addCicdDeploymentCommits),
 	}
 }

@@ -120,6 +120,7 @@ func (p Bitbucket) SubTaskMetas() []plugin.SubTaskMeta {
 		tasks.ConvertIssueCommentsMeta,
 		tasks.ConvertPipelineMeta,
 		tasks.ConvertPipelineStepMeta,
+		tasks.ConvertiDeploymentMeta,
 	}
 }
 
