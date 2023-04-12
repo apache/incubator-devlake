@@ -69,6 +69,8 @@ func CollectWorklogs(taskCtx plugin.SubTaskContext) errors.Error {
 			clauses,
 			dal.Where("i.updated > ?", collectorWithState.LatestState.LatestSuccessStart),
 		)
+	} else {
+		clauses = append(clauses, dal.Where("i.changelog_total > 100"))
 	}
 
 	// construct the input iterator
