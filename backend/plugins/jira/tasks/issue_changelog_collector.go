@@ -69,7 +69,7 @@ func CollectIssueChangelogs(taskCtx plugin.SubTaskContext) errors.Error {
 		dal.Select("i.issue_id AS issue_id, i.updated AS update_time"),
 		dal.From("_tool_jira_board_issues bi"),
 		dal.Join("LEFT JOIN _tool_jira_issues i ON (bi.connection_id = i.connection_id AND bi.issue_id = i.issue_id)"),
-		dal.Where("bi.connection_id=? and bi.board_id = ? AND i.std_type != ?", data.Options.ConnectionId, data.Options.BoardId, "Epic"),
+		dal.Where("bi.connection_id=? and bi.board_id = ? AND i.std_type != ? and i.changelog_total > 100", data.Options.ConnectionId, data.Options.BoardId, "Epic"),
 	}
 	incremental := collectorWithState.IsIncremental()
 	if incremental && collectorWithState.LatestState.LatestSuccessStart != nil {
@@ -77,8 +77,6 @@ func CollectIssueChangelogs(taskCtx plugin.SubTaskContext) errors.Error {
 			clauses,
 			dal.Where("i.updated > ?", collectorWithState.LatestState.LatestSuccessStart),
 		)
-	} else {
-		clauses = append(clauses, dal.Where("i.changelog_total > 100"))
 	}
 
 	if logger.IsLevelEnabled(log.LOG_DEBUG) {
