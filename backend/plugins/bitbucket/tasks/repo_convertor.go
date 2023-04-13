@@ -20,20 +20,22 @@ package tasks
 import (
 	"encoding/json"
 	"fmt"
+	"io"
+	"net/http"
+	"path"
+	"reflect"
+
 	"github.com/apache/incubator-devlake/core/dal"
 	"github.com/apache/incubator-devlake/core/errors"
 	"github.com/apache/incubator-devlake/core/models/domainlayer"
 	"github.com/apache/incubator-devlake/core/models/domainlayer/code"
+	"github.com/apache/incubator-devlake/core/models/domainlayer/devops"
 	"github.com/apache/incubator-devlake/core/models/domainlayer/didgen"
 	"github.com/apache/incubator-devlake/core/models/domainlayer/ticket"
 	plugin "github.com/apache/incubator-devlake/core/plugin"
 	"github.com/apache/incubator-devlake/helpers/pluginhelper/api"
 	aha "github.com/apache/incubator-devlake/helpers/pluginhelper/api/apihelperabstract"
 	"github.com/apache/incubator-devlake/plugins/bitbucket/models"
-	"io"
-	"net/http"
-	"path"
-	"reflect"
 )
 
 const RAW_REPOSITORIES_TABLE = "bitbucket_api_repositories"
@@ -87,7 +89,7 @@ func ConvertRepo(taskCtx plugin.SubTaskContext) errors.Error {
 
 	cursor, err := db.Cursor(
 		dal.From(&models.BitbucketRepo{}),
-		dal.Where("bitbucket_id = ?", repoId),
+		dal.Where("connection_id = ? AND bitbucket_id = ?", data.Options.ConnectionId, repoId),
 	)
 	if err != nil {
 		return err
@@ -102,9 +104,12 @@ func ConvertRepo(taskCtx plugin.SubTaskContext) errors.Error {
 		RawDataSubTaskArgs: *rawDataSubTaskArgs,
 		Convert: func(inputRow interface{}) ([]interface{}, errors.Error) {
 			repository := inputRow.(*models.BitbucketRepo)
+
+			repoId := repoIdGen.Generate(data.Options.ConnectionId, repository.BitbucketId)
+
 			domainRepository := &code.Repo{
 				DomainEntity: domainlayer.DomainEntity{
-					Id: repoIdGen.Generate(data.Options.ConnectionId, repository.BitbucketId),
+					Id: repoId,
 				},
 				Name:        repository.Name,
 				Url:         repository.HTMLUrl,
@@ -116,7 +121,17 @@ func ConvertRepo(taskCtx plugin.SubTaskContext) errors.Error {
 
 			domainBoard := &ticket.Board{
 				DomainEntity: domainlayer.DomainEntity{
-					Id: repoIdGen.Generate(data.Options.ConnectionId, repository.BitbucketId),
+					Id: repoId,
+				},
+				Name:        repository.Name,
+				Url:         fmt.Sprintf("%s/%s", repository.HTMLUrl, "issues"),
+				Description: repository.Description,
+				CreatedDate: repository.CreatedDate,
+			}
+
+			domainCicdScope := &devops.CicdScope{
+				DomainEntity: domainlayer.DomainEntity{
+					Id: repoId,
 				},
 				Name:        repository.Name,
 				Url:         fmt.Sprintf("%s/%s", repository.HTMLUrl, "issues"),
@@ -127,6 +142,7 @@ func ConvertRepo(taskCtx plugin.SubTaskContext) errors.Error {
 			return []interface{}{
 				domainRepository,
 				domainBoard,
+				domainCicdScope,
 			}, nil
 		},
 	})
