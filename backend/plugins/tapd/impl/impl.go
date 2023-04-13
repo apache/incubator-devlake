@@ -85,6 +85,9 @@ func (p Tapd) GetTablesInfo() []dal.Tabler {
 		&models.TapdWorklog{},
 		&models.TapdWorkspace{},
 		&models.TapdWorkspaceIteration{},
+		&models.TapdStoryCustomFieldValue{},
+		&models.TapdTaskCustomFieldValue{},
+		&models.TapdBugCustomFieldValue{},
 	}
 }
 
@@ -158,6 +161,9 @@ func (p Tapd) SubTaskMetas() []plugin.SubTaskMeta {
 		tasks.ConvertStoryLabelsMeta,
 		tasks.ConvertTaskLabelsMeta,
 		tasks.ConvertBugLabelsMeta,
+		tasks.EnrichStoryCustomFieldMeta,
+		tasks.EnrichBugCustomFieldMeta,
+		tasks.EnrichTaskCustomFieldMeta,
 	}
 }
 
