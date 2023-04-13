@@ -173,7 +173,9 @@ func (i Issue) toToolLayer(connectionId uint64) *models.JiraIssue {
 		CreatorDisplayName: i.Fields.Creator.DisplayName,
 		Created:            i.Fields.Created.ToTime(),
 		Updated:            i.Fields.Updated.ToTime(),
-		ChangelogTotal:     i.Changelog.Total,
+	}
+	if i.Changelog != nil {
+		result.ChangelogTotal = i.Changelog.Total
 	}
 	if i.Fields.Epic != nil {
 		result.EpicKey = i.Fields.Epic.Key
