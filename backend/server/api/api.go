@@ -19,6 +19,7 @@ package api
 
 import (
 	"fmt"
+	"github.com/apache/incubator-devlake/server/api/login"
 	"net/http"
 	"strconv"
 	"strings"
@@ -54,31 +55,56 @@ Alternatively, you may downgrade back to the previous DevLake version.
 // @host localhost:8080
 // @BasePath /
 func CreateApiService() {
+	// Initialize services
 	services.Init()
+	// Get configuration
 	v := config.GetConfig()
+	// Set gin mode
 	gin.SetMode(v.GetString("MODE"))
+	// Create a gin router
 	router := gin.Default()
+
+	// Check if AWS Cognito is enabled
+	awsCognitoEnabled := v.GetBool("AWS_ENABLE_COGNITO")
+	if awsCognitoEnabled {
+		// Add login endpoint
+		router.POST("/login", login.Login)
+		// Use AuthenticationMiddleware for protected routes
+		router.Use(services.AuthenticationMiddleware)
+	}
+
+	// Check if remote plugins are enabled
 	remotePluginsEnabled := v.GetBool("ENABLE_REMOTE_PLUGINS")
 	if remotePluginsEnabled {
+		// Add endpoint to register remote plugins
 		router.POST("/plugins/register", remote.RegisterPlugin(router, registerPluginEndpoints))
 	}
-	// Wait for user confirmation if db migration is needed
+
+	// Endpoint to proceed database migration
 	router.GET("/proceed-db-migration", func(ctx *gin.Context) {
+		// Check if migration requires confirmation
 		if !services.MigrationRequireConfirmation() {
+			// Return success response
 			shared.ApiOutputSuccess(ctx, nil, http.StatusOK)
 			return
 		}
+		// Execute database migration
 		err := services.ExecuteMigration()
 		if err != nil {
+			// Return error response
 			shared.ApiOutputError(ctx, errors.Default.Wrap(err, "error executing migration"))
 			return
 		}
+		// Return success response
 		shared.ApiOutputSuccess(ctx, nil, http.StatusOK)
 	})
+
+	// Restrict access if database migration is required
 	router.Use(func(ctx *gin.Context) {
 		if !services.MigrationRequireConfirmation() {
 			return
 		}
+		// Return error response
 		shared.ApiOutputError(
 			ctx,
 			errors.HttpStatus(http.StatusPreconditionRequired).New(DB_MIGRATION_REQUIRED),
@@ -86,34 +112,47 @@ func CreateApiService() {
 		ctx.Abort()
 	})
 
+	// Add swagger handler
 	router.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerFiles.Handler))
 
-	//endpoint debug log
+	// Add debug logging for endpoints
 	gin.DebugPrintRouteFunc = func(httpMethod, absolutePath, handlerName string, nuHandlers int) {
 		logruslog.Global.Printf("endpoint %v %v %v %v", httpMethod, absolutePath, handlerName, nuHandlers)
 	}
 
-	// CORS CONFIG
+	// Enable CORS
 	router.Use(cors.New(cors.Config{
-		AllowOrigins:     []string{"*"},
-		AllowMethods:     []string{"PUT", "PATCH", "POST", "GET", "OPTIONS"},
-		AllowHeaders:     []string{"Origin", "Content-Type"},
-		ExposeHeaders:    []string{"Content-Length"},
+		// Allow all origins
+		AllowOrigins: []string{"*"},
+		// Allow common methods
+		AllowMethods: []string{"PUT", "PATCH", "POST", "GET", "OPTIONS"},
+		// Allow common headers
+		AllowHeaders: []string{"Origin", "Content-Type"},
+		// Expose these headers
+		ExposeHeaders: []string{"Content-Length"},
+		// Allow credentials
 		AllowCredentials: true,
-		MaxAge:           120 * time.Hour,
+		// Cache for 2 hours
+		MaxAge: 120 * time.Hour,
 	}))
 
+	// Register API endpoints
 	RegisterRouter(router)
-	port := v.GetString("PORT")
-	port = strings.TrimLeft(port, ":")
 	if remotePluginsEnabled {
 		go bootstrapRemotePlugins(v)
 	}
+	// Get port from config
+	port := v.GetString("PORT")
+	// Trim any : from the start
+	port = strings.TrimLeft(port, ":")
+	// Convert to int
 	portNum, err := strconv.Atoi(port)
 	if err != nil {
+		// Panic if PORT is not an int
 		panic(fmt.Errorf("PORT [%s] must be int: %s", port, err.Error()))
 	}
 
+	// Start the server
 	err = router.Run(fmt.Sprintf("0.0.0.0:%d", portNum))
 	if err != nil {
 		panic(err)
@@ -121,12 +160,17 @@ func CreateApiService() {
 }
 
 func bootstrapRemotePlugins(v *viper.Viper) {
+	// Get port from config
 	port := v.GetString("PORT")
+	// Trim any : from the start
 	port = strings.TrimLeft(port, ":")
+	// Convert to int
 	portNum, err := strconv.Atoi(port)
 	if err != nil {
+		// Panic if PORT is not an int
 		panic(fmt.Errorf("PORT [%s] must be int: %s", port, err.Error()))
 	}
+	// Bootstrap remote plugins
 	err = bridge.Bootstrap(v, portNum)
 	if err != nil {
 		logruslog.Global.Error(err, "")
