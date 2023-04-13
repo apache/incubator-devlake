@@ -45,6 +45,14 @@ type RawDataOrigin struct {
 	RawDataRemark string `gorm:"column:_raw_data_remark" json:"_raw_data_remark"`
 }
 
+type GetRawDataOrigin interface {
+	GetRawDataOrigin() *RawDataOrigin
+}
+
+func (c *RawDataOrigin) GetRawDataOrigin() *RawDataOrigin {
+	return c
+}
+
 func NewNoPKModel() NoPKModel {
 	now := time.Now()
 	return NoPKModel{
