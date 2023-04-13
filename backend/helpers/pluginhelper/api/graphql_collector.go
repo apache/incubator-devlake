@@ -134,15 +134,22 @@ func (collector *GraphqlCollector) Execute() errors.Error {
 	if err != nil {
 		return errors.Default.Wrap(err, "error running auto-migrate")
 	}
+
+	divider := NewBatchSaveDivider(collector.args.Ctx, collector.args.BatchSize, collector.table, collector.params)
+
 	// flush data if not incremental collection
-	if !collector.args.Incremental {
+	if collector.args.Incremental {
+		// re extract data for new transformation rules
+		err = collector.ExtractExistRawData(divider)
+		if err != nil {
+			collector.checkError(err)
+		}
+	} else {
 		err = db.Delete(&RawData{}, dal.From(collector.table), dal.Where("params = ?", collector.params))
 		if err != nil {
 			return errors.Default.Wrap(err, "error deleting data from collector")
 		}
 	}
-
-	divider := NewBatchSaveDivider(collector.args.Ctx, collector.args.BatchSize, collector.table, collector.params)
 
 	collector.args.Ctx.SetProgress(0, -1)
 	if collector.args.Input != nil {
@@ -207,11 +214,6 @@ func (collector *GraphqlCollector) exec(divider *BatchSaveDivider, input interfa
 	reqData.Pager = &CursorPager{
 		SkipCursor: nil,
 		Size:       collector.args.PageSize,
-	}
-	err = collector.ExtractExistRawData(divider, reqData)
-	if err != nil {
-		collector.checkError(err)
-		return
 	}
 	if collector.args.GetPageInfo != nil {
 		collector.fetchOneByOne(divider, reqData)
@@ -280,7 +282,7 @@ func (collector *GraphqlCollector) BatchSaveWithOrigin(divider *BatchSaveDivider
 }
 
 // ExtractExistRawData will extract data from existing data from raw layer if increment
-func (collector *GraphqlCollector) ExtractExistRawData(divider *BatchSaveDivider, reqData *GraphqlRequestData) errors.Error {
+func (collector *GraphqlCollector) ExtractExistRawData(divider *BatchSaveDivider) errors.Error {
 	// load data from database
 	db := collector.args.Ctx.GetDal()
 	logger := collector.args.Ctx.GetLogger()
@@ -304,7 +306,7 @@ func (collector *GraphqlCollector) ExtractExistRawData(divider *BatchSaveDivider
 	row := &RawData{}
 
 	// get the type of query and variables
-	query, variables, _ := collector.args.BuildQuery(reqData)
+	query, variables, _ := collector.args.BuildQuery(nil)
 
 	// prgress
 	collector.args.Ctx.SetProgress(0, -1)

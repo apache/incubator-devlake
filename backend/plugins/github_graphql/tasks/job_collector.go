@@ -144,8 +144,11 @@ func CollectGraphqlJobs(taskCtx plugin.SubTaskContext) errors.Error {
 		Incremental:   incremental,
 		GraphqlClient: data.GraphqlClient,
 		BuildQuery: func(reqData *helper.GraphqlRequestData) (interface{}, map[string]interface{}, error) {
-			workflowRuns := reqData.Input.([]interface{})
 			query := &GraphqlQueryCheckRunWrapper{}
+			if reqData == nil {
+				return query, map[string]interface{}{}, nil
+			}
+			workflowRuns := reqData.Input.([]interface{})
 			checkSuiteIds := []map[string]interface{}{}
 			for _, iWorkflowRuns := range workflowRuns {
 				workflowRun := iWorkflowRuns.(*SimpleWorkflowRun)

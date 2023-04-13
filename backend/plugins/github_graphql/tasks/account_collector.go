@@ -100,8 +100,11 @@ func CollectAccount(taskCtx plugin.SubTaskContext) errors.Error {
 		InputStep:     100,
 		GraphqlClient: data.GraphqlClient,
 		BuildQuery: func(reqData *helper.GraphqlRequestData) (interface{}, map[string]interface{}, error) {
-			accounts := reqData.Input.([]interface{})
 			query := &GraphqlQueryAccountWrapper{}
+			if reqData == nil {
+				return query, map[string]interface{}{}, nil
+			}
+			accounts := reqData.Input.([]interface{})
 			users := []map[string]interface{}{}
 			for _, iAccount := range accounts {
 				account := iAccount.(*SimpleAccount)
