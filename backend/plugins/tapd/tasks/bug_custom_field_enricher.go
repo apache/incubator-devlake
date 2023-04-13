@@ -39,7 +39,7 @@ var EnrichBugCustomFieldMeta = plugin.SubTaskMeta{
 }
 
 func EnrichBugCustomFields(taskCtx plugin.SubTaskContext) errors.Error {
-	rawDataSubTaskArgs, data := CreateRawDataSubTaskArgs(taskCtx, RAW_STORY_TABLE)
+	rawDataSubTaskArgs, data := CreateRawDataSubTaskArgs(taskCtx, RAW_BUG_TABLE, false)
 	db := taskCtx.GetDal()
 	clauses := []dal.Clause{
 		dal.From(&models.TapdBugCustomFields{}),

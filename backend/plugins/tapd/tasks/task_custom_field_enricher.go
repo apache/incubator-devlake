@@ -39,7 +39,7 @@ var EnrichTaskCustomFieldMeta = plugin.SubTaskMeta{
 }
 
 func EnrichTaskCustomFields(taskCtx plugin.SubTaskContext) errors.Error {
-	rawDataSubTaskArgs, data := CreateRawDataSubTaskArgs(taskCtx, RAW_STORY_TABLE)
+	rawDataSubTaskArgs, data := CreateRawDataSubTaskArgs(taskCtx, RAW_TASK_TABLE, false)
 	db := taskCtx.GetDal()
 	clauses := []dal.Clause{
 		dal.From(&models.TapdTaskCustomFields{}),
