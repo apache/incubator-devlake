@@ -221,6 +221,11 @@ func (p Jira) PrepareTaskData(taskCtx plugin.TaskContext, options map[string]int
 		}
 	}
 
+	// set default page size
+	if op.PageSize <= 0 || op.PageSize > 100 {
+		op.PageSize = 100
+	}
+
 	info, code, err := tasks.GetJiraServerInfo(jiraApiClient)
 	if err != nil || code != http.StatusOK || info == nil {
 		return nil, errors.HttpStatus(code).Wrap(err, "fail to get Jira server info")

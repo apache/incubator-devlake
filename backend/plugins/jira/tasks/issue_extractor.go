@@ -95,6 +95,10 @@ func extractIssues(data *JiraTaskData, mappings *typeMappings, row *api.RawData)
 		return nil, err
 	}
 	var results []interface{}
+	// if the field `created` is nil, ignore it
+	if apiIssue.Fields.Created == nil {
+		return results, nil
+	}
 	sprints, issue, worklogs, changelogs, changelogItems, users := apiIssue.ExtractEntities(data.Options.ConnectionId)
 	for _, sprintId := range sprints {
 		sprintIssue := &models.JiraSprintIssue{
