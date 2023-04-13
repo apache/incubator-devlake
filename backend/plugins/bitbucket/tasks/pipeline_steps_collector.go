@@ -23,7 +23,7 @@ import (
 	helper "github.com/apache/incubator-devlake/helpers/pluginhelper/api"
 )
 
-const RAW_PIPELINE_STEPS_TABLE = "bitbucket_pipeline_steps"
+const RAW_PIPELINE_STEPS_TABLE = "bitbucket_api_pipeline_steps"
 
 var _ plugin.SubTaskEntryPoint = CollectPipelineSteps
 

@@ -42,14 +42,6 @@ func ConvertPipelineSteps(taskCtx plugin.SubTaskContext) errors.Error {
 	rawDataSubTaskArgs, data := CreateRawDataSubTaskArgs(taskCtx, RAW_PIPELINE_STEPS_TABLE)
 	db := taskCtx.GetDal()
 
-	deploymentPattern := data.Options.DeploymentPattern
-	productionPattern := data.Options.ProductionPattern
-	regexEnricher := api.NewRegexEnricher()
-	err := regexEnricher.AddRegexp(deploymentPattern, productionPattern)
-	if err != nil {
-		return err
-	}
-
 	cursor, err := db.Cursor(
 		dal.From(models.BitbucketPipelineStep{}),
 		dal.Where("connection_id = ? AND repo_id = ?", data.Options.ConnectionId, data.Options.FullName),
