@@ -18,22 +18,29 @@ limitations under the License.
 package migrationscripts
 
 import (
-	"github.com/apache/incubator-devlake/core/plugin"
+	"github.com/apache/incubator-devlake/core/context"
+	"github.com/apache/incubator-devlake/core/errors"
+	"github.com/apache/incubator-devlake/helpers/migrationhelper"
 )
 
-// All return all the migration scripts
-func All() []plugin.MigrationScript {
-	return []plugin.MigrationScript{
-		new(addSourceTable20220407),
-		new(renameSourceTable20220505),
-		new(addInitTables20220716),
-		new(addTransformationRule20221116),
-		new(addProjectName20221215),
-		new(addJiraMultiAuth20230129),
-		new(removeIssueStdStoryPoint),
-		new(addCommitRepoPattern),
-		new(expandRemotelinkUrl),
-		new(addConnectionIdToTransformationRule),
-		new(addChangeTotal20230412),
-	}
+type jiraIssue20230412 struct {
+	ChangelogTotal int
+}
+
+func (jiraIssue20230412) TableName() string {
+	return "_tool_jira_issues"
+}
+
+type addChangeTotal20230412 struct{}
+
+func (script *addChangeTotal20230412) Up(basicRes context.BasicRes) errors.Error {
+	return migrationhelper.AutoMigrateTables(basicRes, &jiraIssue20230412{})
+}
+
+func (*addChangeTotal20230412) Version() uint64 {
+	return 20230412142316
+}
+
+func (*addChangeTotal20230412) Name() string {
+	return "add changelog_total field to _tool_jira_issues"
 }

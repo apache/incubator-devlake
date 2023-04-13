@@ -57,18 +57,28 @@ func CollectWorklogs(taskCtx plugin.SubTaskContext) errors.Error {
 		return err
 	}
 
+	// filter out issue_ids that needed collection
 	clauses := []dal.Clause{
-		dal.Select("i.issue_id AS issue_id, i.updated AS update_time"),
+		dal.Select("i.issue_id, i.updated AS update_time"),
 		dal.From("_tool_jira_board_issues bi"),
 		dal.Join("LEFT JOIN _tool_jira_issues i ON (bi.connection_id = i.connection_id AND bi.issue_id = i.issue_id)"),
-		dal.Where("bi.connection_id=? and bi.board_id = ?", data.Options.ConnectionId, data.Options.BoardId),
+		dal.Join("LEFT JOIN _tool_jira_worklogs wl ON (wl.connection_id = i.connection_id AND wl.issue_id = i.issue_id)"),
+		dal.Where("i.updated > i.created AND bi.connection_id = ?  AND bi.board_id = ?  ", data.Options.ConnectionId, data.Options.BoardId),
+		dal.Groupby("i.issue_id, i.updated"),
 	}
 	incremental := collectorWithState.IsIncremental()
-	if incremental && collectorWithState.LatestState.LatestSuccessStart != nil {
-		clauses = append(
-			clauses,
-			dal.Where("i.updated > ?", collectorWithState.LatestState.LatestSuccessStart),
-		)
+	if incremental {
+		clauses = append(clauses, dal.Having("i.updated > ? AND (i.updated > max(wl.issue_updated) OR (max(wl.issue_updated) IS NULL AND COUNT(wl.worklog_id) > 0))", collectorWithState.LatestState.LatestSuccessStart))
+	} else {
+		/*
+			i.updated > max(rl.issue_updated) was deleted because for non-incremental collection,
+			max(rl.issue_updated) will only be one of null, less or equal to i.updated
+			so i.updated > max(rl.issue_updated) is always false.
+			max(c.issue_updated) IS NULL AND COUNT(c.worklog_id) > 0 infers the issue has more than 100 worklogs,
+			because we collected worklogs when collecting issues, and assign worklog.issue_updated if num of worklogs < 100,
+			and max(c.issue_updated) IS NULL AND COUNT(c.worklog_id) > 0 means all worklogs for the issue were not assigned issue_updated
+		*/
+		clauses = append(clauses, dal.Having("max(wl.issue_updated) IS NULL AND COUNT(wl.worklog_id) > 0"))
 	}
 
 	// construct the input iterator

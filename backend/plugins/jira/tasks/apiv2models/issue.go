@@ -19,10 +19,11 @@ package apiv2models
 
 import (
 	"encoding/json"
+	"time"
+
 	"github.com/apache/incubator-devlake/core/errors"
 	helper "github.com/apache/incubator-devlake/helpers/pluginhelper/api"
 	"github.com/apache/incubator-devlake/plugins/jira/models"
-	"time"
 
 	"gorm.io/datatypes"
 )
@@ -172,6 +173,9 @@ func (i Issue) toToolLayer(connectionId uint64) *models.JiraIssue {
 		CreatorDisplayName: i.Fields.Creator.DisplayName,
 		Created:            i.Fields.Created.ToTime(),
 		Updated:            i.Fields.Updated.ToTime(),
+	}
+	if i.Changelog != nil {
+		result.ChangelogTotal = i.Changelog.Total
 	}
 	if i.Fields.Epic != nil {
 		result.EpicKey = i.Fields.Epic.Key

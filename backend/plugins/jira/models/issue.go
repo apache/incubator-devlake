@@ -63,6 +63,7 @@ type JiraIssue struct {
 	StdType                  string `gorm:"type:varchar(255)"`
 	StdStatus                string `gorm:"type:varchar(255)"`
 	AllFields                datatypes.JSONMap
+	ChangelogTotal           int
 	common.NoPKModel
 }
 
