@@ -15,20 +15,22 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-package migrationscripts
+package models
 
 import (
-	"github.com/apache/incubator-devlake/core/plugin"
+	"github.com/apache/incubator-devlake/core/models/common"
 )
 
-// All return all the migration scripts
-func All() []plugin.MigrationScript {
-	return []plugin.MigrationScript{
-		new(addInitTables),
-		new(encodeConnToken),
-		new(addTransformation),
-		new(deleteIssue),
-		new(modifyCustomFieldName),
-		new(addCustomFieldValue),
-	}
+type TapdStoryCustomFieldValue struct {
+	ConnectionId uint64 `gorm:"primaryKey;type:BIGINT  NOT NULL"`
+	WorkspaceId  uint64 `json:"workspace_id,string"`
+	StoryId      uint64 `gorm:"primaryKey;type:BIGINT  NOT NULL"`
+	CustomField  string `gorm:"primaryKey;type:varchar(40) NOT NULL"` //TapdStoryCustomFields.custom_field
+	Name         string `json:"name" gorm:"type:varchar(255)"`        // TapdStoryCustomFields.name
+	CustomValue  string
+	common.NoPKModel
+}
+
+func (TapdStoryCustomFieldValue) TableName() string {
+	return "_tool_tapd_story_custom_field_value"
 }
