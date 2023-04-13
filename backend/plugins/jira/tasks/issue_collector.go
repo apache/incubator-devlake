@@ -81,7 +81,7 @@ func CollectIssues(taskCtx plugin.SubTaskContext) errors.Error {
 
 	err = collectorWithState.InitCollector(api.ApiCollectorArgs{
 		ApiClient:   data.ApiClient,
-		PageSize:    100,
+		PageSize:    data.Options.PageSize,
 		Incremental: incremental,
 		/*
 			url may use arbitrary variables from different connection in any order, we need GoTemplate to allow more

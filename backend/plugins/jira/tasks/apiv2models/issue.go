@@ -75,7 +75,7 @@ type Issue struct {
 			WatchCount int    `json:"watchCount"`
 			IsWatching bool   `json:"isWatching"`
 		} `json:"watches"`
-		Created helper.Iso8601Time `json:"created"`
+		Created *helper.Iso8601Time `json:"created"`
 		Epic    *struct {
 			ID      int    `json:"id"`
 			Key     string `json:"key"`
