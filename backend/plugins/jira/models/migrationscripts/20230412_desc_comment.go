@@ -18,24 +18,34 @@ limitations under the License.
 package migrationscripts
 
 import (
+	"github.com/apache/incubator-devlake/core/context"
+	"github.com/apache/incubator-devlake/core/errors"
 	"github.com/apache/incubator-devlake/core/plugin"
+	"github.com/apache/incubator-devlake/helpers/migrationhelper"
+	"github.com/apache/incubator-devlake/plugins/jira/models/migrationscripts/archived"
 )
 
-// All return all the migration scripts
-func All() []plugin.MigrationScript {
-	return []plugin.MigrationScript{
-		new(addSourceTable20220407),
-		new(renameSourceTable20220505),
-		new(addInitTables20220716),
-		new(addTransformationRule20221116),
-		new(addProjectName20221215),
-		new(addJiraMultiAuth20230129),
-		new(removeIssueStdStoryPoint),
-		new(addCommitRepoPattern),
-		new(expandRemotelinkUrl),
-		new(addConnectionIdToTransformationRule),
-		new(addChangeTotal20230412),
-		new(expandRemotelinkSelfUrl),
-		new(addDescAndComments),
-	}
+var _ plugin.MigrationScript = (*expandRemotelinkUrl)(nil)
+
+type jiraIssue20230412_2 struct {
+	Description  string
+	CommentTotal int64
+}
+
+func (jiraIssue20230412_2) TableName() string {
+	return "_tool_jira_issues"
+}
+
+type addDescAndComments struct{}
+
+func (script *addDescAndComments) Up(basicRes context.BasicRes) errors.Error {
+	return migrationhelper.AutoMigrateTables(basicRes, &jiraIssue20230412_2{}, &archived.JiraIssueComment{})
+}
+
+func (*addDescAndComments) Version() uint64 {
+	return 20230412000011
+}
+
+func (*addDescAndComments) Name() string {
+	return "add issue desc and comments"
 }

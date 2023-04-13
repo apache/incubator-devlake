@@ -66,6 +66,7 @@ func TestIssueDataFlow(t *testing.T) {
 	dataflowTester.FlushTabler(&models.JiraIssue{})
 	dataflowTester.FlushTabler(&models.JiraBoardIssue{})
 	dataflowTester.FlushTabler(&models.JiraSprintIssue{})
+	dataflowTester.FlushTabler(&models.JiraIssueComment{})
 	dataflowTester.FlushTabler(&models.JiraIssueChangelogs{})
 	dataflowTester.FlushTabler(&models.JiraIssueChangelogItems{})
 	dataflowTester.FlushTabler(&models.JiraWorklog{})
@@ -102,6 +103,7 @@ func TestIssueDataFlow(t *testing.T) {
 			"self",
 			"issue_key",
 			"summary",
+			"description",
 			"type",
 			"epic_key",
 			"status_name",
@@ -131,6 +133,7 @@ func TestIssueDataFlow(t *testing.T) {
 			"std_status",
 			"icon_url",
 			"changelog_total",
+			"comment_total",
 		),
 	)
 

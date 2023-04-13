@@ -15,27 +15,27 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-package migrationscripts
+package archived
 
 import (
-	"github.com/apache/incubator-devlake/core/plugin"
+	"github.com/apache/incubator-devlake/core/models/migrationscripts/archived"
+	"time"
 )
 
-// All return all the migration scripts
-func All() []plugin.MigrationScript {
-	return []plugin.MigrationScript{
-		new(addSourceTable20220407),
-		new(renameSourceTable20220505),
-		new(addInitTables20220716),
-		new(addTransformationRule20221116),
-		new(addProjectName20221215),
-		new(addJiraMultiAuth20230129),
-		new(removeIssueStdStoryPoint),
-		new(addCommitRepoPattern),
-		new(expandRemotelinkUrl),
-		new(addConnectionIdToTransformationRule),
-		new(addChangeTotal20230412),
-		new(expandRemotelinkSelfUrl),
-		new(addDescAndComments),
-	}
+type JiraIssueComment struct {
+	archived.NoPKModel
+	ConnectionId       uint64 `gorm:"primaryKey"`
+	IssueId            uint64 `gorm:"primarykey"`
+	ComentId           string `gorm:"primarykey"`
+	Self               string `gorm:"type:varchar(255)"`
+	Body               string
+	CreatorAccountId   string    `gorm:"type:varchar(255)"`
+	CreatorDisplayName string    `gorm:"type:varchar(255)"`
+	Created            time.Time `json:"created"`
+	Updated            time.Time `json:"updated"`
+	IssueUpdated       *time.Time
+}
+
+func (JiraIssueComment) TableName() string {
+	return "_tool_jira_issue_comments"
 }

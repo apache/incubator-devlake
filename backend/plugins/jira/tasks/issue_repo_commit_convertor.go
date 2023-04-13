@@ -88,7 +88,7 @@ func ConvertIssueRepoCommits(taskCtx plugin.SubTaskContext) errors.Error {
 				ConnectionId: connectionId,
 				BoardId:      boardId,
 			},
-			Table: RAW_REMOTELINK_TABLE,
+			Table: RAW_ISSUE_TABLE,
 		},
 		InputRowType: reflect.TypeOf(models.JiraIssueCommit{}),
 		Input:        cursor,
