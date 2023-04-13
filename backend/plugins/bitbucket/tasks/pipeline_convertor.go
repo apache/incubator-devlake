@@ -48,8 +48,12 @@ func ConvertPipelines(taskCtx plugin.SubTaskContext) errors.Error {
 	if err != nil {
 		return err
 	}
+	repoId := didgen.NewDomainIdGenerator(&models.BitbucketRepo{}).Generate(repo.ConnectionId, repo.BitbucketId)
 
-	cursor, err := db.Cursor(dal.From(models.BitbucketPipeline{}))
+	cursor, err := db.Cursor(
+		dal.From(models.BitbucketPipeline{}),
+		dal.Where("connection_id = ? AND repo_id = ?", data.Options.ConnectionId, data.Options.FullName),
+	)
 	if err != nil {
 		return err
 	}
@@ -71,11 +75,10 @@ func ConvertPipelines(taskCtx plugin.SubTaskContext) errors.Error {
 			results := make([]interface{}, 0, 2)
 			domainPipelineCommit := &devops.CiCDPipelineCommit{
 				PipelineId: pipelineIdGen.Generate(data.Options.ConnectionId, bitbucketPipeline.BitbucketId),
-				RepoId: didgen.NewDomainIdGenerator(&models.BitbucketRepo{}).
-					Generate(bitbucketPipeline.ConnectionId, bitbucketPipeline.RepoId),
-				CommitSha: bitbucketPipeline.CommitSha,
-				Branch:    bitbucketPipeline.RefName,
-				RepoUrl:   repo.HTMLUrl,
+				RepoId:     repoId,
+				CommitSha:  bitbucketPipeline.CommitSha,
+				Branch:     bitbucketPipeline.RefName,
+				RepoUrl:    repo.HTMLUrl,
 			}
 			domainPipeline := &devops.CICDPipeline{
 				DomainEntity: domainlayer.DomainEntity{
@@ -99,6 +102,7 @@ func ConvertPipelines(taskCtx plugin.SubTaskContext) errors.Error {
 				CreatedDate:  createdAt,
 				DurationSec:  bitbucketPipeline.DurationInSeconds,
 				FinishedDate: bitbucketPipeline.BitbucketCompleteOn,
+				CicdScopeId:  repoId,
 			}
 			results = append(results, domainPipelineCommit, domainPipeline)
 			return results, nil

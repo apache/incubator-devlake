@@ -19,8 +19,11 @@ package e2e
 
 import (
 	"encoding/json"
+	"testing"
+
 	"github.com/apache/incubator-devlake/core/errors"
 	"github.com/apache/incubator-devlake/core/models/domainlayer/code"
+	"github.com/apache/incubator-devlake/core/models/domainlayer/devops"
 	"github.com/apache/incubator-devlake/core/models/domainlayer/ticket"
 	"github.com/apache/incubator-devlake/helpers/e2ehelper"
 	"github.com/apache/incubator-devlake/helpers/pluginhelper"
@@ -28,7 +31,6 @@ import (
 	"github.com/apache/incubator-devlake/plugins/bitbucket/models"
 	"github.com/apache/incubator-devlake/plugins/bitbucket/tasks"
 	"github.com/stretchr/testify/assert"
-	"testing"
 )
 
 func TestRepoDataFlow(t *testing.T) {
@@ -79,6 +81,7 @@ func TestRepoDataFlow(t *testing.T) {
 	// verify extraction
 	dataflowTester.FlushTabler(&code.Repo{})
 	dataflowTester.FlushTabler(&ticket.Board{})
+	dataflowTester.FlushTabler(&devops.CicdScope{})
 	dataflowTester.Subtask(tasks.ConvertRepoMeta, taskData)
 	dataflowTester.VerifyTable(
 		code.Repo{},
@@ -97,6 +100,17 @@ func TestRepoDataFlow(t *testing.T) {
 	dataflowTester.VerifyTable(
 		ticket.Board{},
 		"./snapshot_tables/boards.csv",
+		e2ehelper.ColumnWithRawData(
+			"id",
+			"name",
+			"description",
+			"url",
+			"created_date",
+		),
+	)
+	dataflowTester.VerifyTable(
+		devops.CicdScope{},
+		"./snapshot_tables/cicd_scopes.csv",
 		e2ehelper.ColumnWithRawData(
 			"id",
 			"name",
