@@ -18,13 +18,14 @@ limitations under the License.
 package api
 
 import (
+	"reflect"
+	"testing"
+	"time"
+
 	"github.com/apache/incubator-devlake/core/models/common"
 	"github.com/apache/incubator-devlake/helpers/unithelper"
 	mockcontext "github.com/apache/incubator-devlake/mocks/core/context"
 	mockdal "github.com/apache/incubator-devlake/mocks/core/dal"
-	"reflect"
-	"testing"
-	"time"
 
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
@@ -66,7 +67,7 @@ func TestBatchSaveDivider(t *testing.T) {
 		},
 	)
 
-	divider := NewBatchSaveDivider(mockRes, 10, "", "")
+	divider := NewBatchSaveDivider(mockRes, 10, "a", "b")
 
 	// for same type should return the same BatchSave
 	jiraIssue1, err := divider.ForType(reflect.TypeOf(&MockJirIssueBsd{}))
