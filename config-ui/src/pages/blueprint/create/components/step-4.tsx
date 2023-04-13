@@ -63,8 +63,8 @@ export const Step4 = () => {
       <S.Btns>
         <Button intent={Intent.PRIMARY} outlined text="Previous Step" onClick={onPrev} />
         <div>
-          <Button intent={Intent.PRIMARY} text="Save Blueprint" onClick={onSave} />
-          <Button intent={Intent.PRIMARY} outlined text="Save and Run Now" onClick={onSaveAndRun} />
+          <Button intent={Intent.PRIMARY} outlined text="Save Blueprint" onClick={onSave} />
+          <Button intent={Intent.PRIMARY} text="Save and Run Now" onClick={onSaveAndRun} />
         </div>
       </S.Btns>
     </S.Wrapper>
