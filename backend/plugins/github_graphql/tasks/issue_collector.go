@@ -116,13 +116,16 @@ func CollectIssue(taskCtx plugin.SubTaskContext) errors.Error {
 		PageSize:      100,
 		Incremental:   incremental,
 		BuildQuery: func(reqData *helper.GraphqlRequestData) (interface{}, map[string]interface{}, error) {
+			query := &GraphqlQueryIssueWrapper{}
+			if reqData == nil {
+				return query, map[string]interface{}{}, nil
+			}
 			since := helper.DateTime{}
 			if incremental {
 				since = helper.DateTime{Time: *collectorWithState.LatestState.LatestSuccessStart}
 			} else if collectorWithState.TimeAfter != nil {
 				since = helper.DateTime{Time: *collectorWithState.TimeAfter}
 			}
-			query := &GraphqlQueryIssueWrapper{}
 			ownerName := strings.Split(data.Options.Name, "/")
 			variables := map[string]interface{}{
 				"since":      since,

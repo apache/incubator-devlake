@@ -109,6 +109,7 @@ type JiraOptions struct {
 	TransformationRules  *JiraTransformationRule `json:"transformationRules"`
 	ScopeId              string
 	TransformationRuleId uint64
+	PageSize             int
 }
 
 type JiraTaskData struct {

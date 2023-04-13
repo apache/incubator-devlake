@@ -41,5 +41,5 @@ func (*addCicdDeploymentCommits) Version() uint64 {
 }
 
 func (*addCicdDeploymentCommits) Name() string {
-	return "Rename cicd_piopeline_commits repo to repo_url"
+	return "Rename cicd_pipeline_commits repo to repo_url"
 }

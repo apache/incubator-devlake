@@ -425,7 +425,7 @@ func (collector *ApiCollector) fetchAsync(reqData *RequestData, handler func(int
 		items, err := collector.args.ResponseParser(res)
 		if err != nil {
 			if errors.Is(err, ErrFinishCollect) {
-				logger.Info("a fetch stop by parser, reqInput: #%d", reqData.Params)
+				logger.Info("a fetch stop by parser, reqInput: #%s", reqData.Params)
 				handler = nil
 			} else {
 				return errors.Default.Wrap(err, fmt.Sprintf("error parsing response from %s", apiUrl))

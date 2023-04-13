@@ -171,6 +171,9 @@ func CollectPr(taskCtx plugin.SubTaskContext) errors.Error {
 		*/
 		BuildQuery: func(reqData *api.GraphqlRequestData) (interface{}, map[string]interface{}, error) {
 			query := &GraphqlQueryPrWrapper{}
+			if reqData == nil {
+				return query, map[string]interface{}{}, nil
+			}
 			ownerName := strings.Split(data.Options.Name, "/")
 			variables := map[string]interface{}{
 				"pageSize":   graphql.Int(reqData.Pager.Size),
@@ -191,12 +194,11 @@ func CollectPr(taskCtx plugin.SubTaskContext) errors.Error {
 			results := make([]interface{}, 0, 1)
 			isFinish := false
 			for _, rawL := range prs {
-				// collect all data even though in increment mode because of existing data extracting
+				// collect data even though in increment mode because of updating existing data
 				if collectorWithState.TimeAfter != nil && !collectorWithState.TimeAfter.Before(rawL.UpdatedAt) {
 					isFinish = true
 					break
 				}
-				//If this is a pr, ignore
 				githubPr, err := convertGithubPullRequest(rawL, data.Options.ConnectionId, data.Options.GithubId)
 				if err != nil {
 					return nil, err
