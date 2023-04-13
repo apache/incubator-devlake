@@ -18,8 +18,9 @@ limitations under the License.
 package devops
 
 import (
-	"github.com/apache/incubator-devlake/core/models/domainlayer"
 	"time"
+
+	"github.com/apache/incubator-devlake/core/models/domainlayer"
 )
 
 type CICDPipeline struct {
@@ -101,7 +102,7 @@ func GetStatus(rule *StatusRule, input interface{}) string {
 	}
 	for _, done := range rule.Done {
 		if done == input {
-			return FAILURE
+			return DONE
 		}
 	}
 	for _, manual := range rule.Manual {

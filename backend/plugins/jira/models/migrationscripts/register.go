@@ -34,5 +34,6 @@ func All() []plugin.MigrationScript {
 		new(addCommitRepoPattern),
 		new(expandRemotelinkUrl),
 		new(addConnectionIdToTransformationRule),
+		new(addChangeTotal20230412),
 	}
 }

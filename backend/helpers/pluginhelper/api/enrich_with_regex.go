@@ -26,6 +26,7 @@ import (
 )
 
 // RegexEnricher process value with regex pattern
+// TODO: remove Enricher from naming since it is more like a util function
 type RegexEnricher struct {
 	// This field will store compiled regular expression for every pattern
 	regexpMap map[string]*regexp.Regexp

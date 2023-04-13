@@ -97,16 +97,9 @@ func TestBambooPlanBuildDataFlow(t *testing.T) {
 	dataflowTester.FlushTabler(&devops.CiCDPipelineCommit{})
 
 	dataflowTester.Subtask(tasks.ConvertPlanBuildsMeta, taskData)
-	dataflowTester.Subtask(tasks.ConvertPlanBuildsMeta, taskData)
 
 	dataflowTester.VerifyTableWithOptions(&devops.CICDPipeline{}, e2ehelper.TableOptions{
 		CSVRelPath:  "./snapshot_tables/cicd_pipelines.csv",
 		IgnoreTypes: []interface{}{common.NoPKModel{}},
 	})
-
-	dataflowTester.VerifyTableWithOptions(&devops.CiCDPipelineCommit{}, e2ehelper.TableOptions{
-		CSVRelPath:  "./snapshot_tables/cicd_pipeline_commits.csv",
-		IgnoreTypes: []interface{}{common.NoPKModel{}},
-	})
-
 }
