@@ -83,6 +83,7 @@ func (p Dora) Settings() interface{} {
 func (p Dora) SubTaskMetas() []plugin.SubTaskMeta {
 	return []plugin.SubTaskMeta{
 		tasks.DeploymentCommitsGeneratorMeta,
+		tasks.EnrichPrevSuccessDeploymentCommitMeta,
 		tasks.EnrichTaskEnvMeta,
 		tasks.CalculateChangeLeadTimeMeta,
 		tasks.ConnectIncidentToDeploymentMeta,
