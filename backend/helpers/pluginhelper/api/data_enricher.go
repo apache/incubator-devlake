@@ -29,7 +29,11 @@ import (
 )
 
 // DataEnrichHandler Accepts row from the Input and produces arbitrary records.
+<<<<<<< HEAD
 // you are free to modify given `row` in place and include it in returned result for it to be saved.
+=======
+// you are free to modify given `row` in place and include it in returned result.
+>>>>>>> 70139dd52 (feat: add data_enricher helper)
 type DataEnrichHandler[InputRowType any] func(row *InputRowType) ([]interface{}, errors.Error)
 
 // DataEnricherArgs includes the arguments needed for data enrichment
@@ -41,7 +45,12 @@ type DataEnricherArgs[InputRowType any] struct {
 	BatchSize int
 }
 
+<<<<<<< HEAD
 // DataEnricher helps you enrich Data with Cancellation and BatchSave supports
+=======
+// DataEnricher helps you enrich Data in place
+// It reads rows from specified Iterator, and feed it into `Enrich` handler
+>>>>>>> 70139dd52 (feat: add data_enricher helper)
 type DataEnricher[InputRowType any] struct {
 	args *DataEnricherArgs[InputRowType]
 }
@@ -90,7 +99,11 @@ func (enricher *DataEnricher[InputRowType]) Execute() errors.Error {
 
 		results, err := enricher.args.Enrich(inputRow)
 		if err != nil {
+<<<<<<< HEAD
 			return errors.Default.Wrap(err, "error calling plugin implementation")
+=======
+			return errors.Default.Wrap(err, "error calling Converter plugin implementation")
+>>>>>>> 70139dd52 (feat: add data_enricher helper)
 		}
 
 		for _, result := range results {
@@ -120,5 +133,10 @@ func (enricher *DataEnricher[InputRowType]) Execute() errors.Error {
 	return divider.Close()
 }
 
+<<<<<<< HEAD
 // Check if DataEnricher implements SubTask interface
 var _ plugin.SubTask = (*DataEnricher[any])(nil)
+=======
+// Check if DataConverter implements SubTask interface
+var _ plugin.SubTask = (*DataConverter)(nil)
+>>>>>>> 70139dd52 (feat: add data_enricher helper)
