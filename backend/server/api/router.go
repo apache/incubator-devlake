@@ -25,14 +25,12 @@ import (
 	"github.com/apache/incubator-devlake/core/plugin"
 	"github.com/apache/incubator-devlake/server/api/blueprints"
 	"github.com/apache/incubator-devlake/server/api/domainlayer"
-	"github.com/apache/incubator-devlake/server/api/ping"
 	"github.com/apache/incubator-devlake/server/api/pipelines"
 	"github.com/apache/incubator-devlake/server/api/plugininfo"
 	"github.com/apache/incubator-devlake/server/api/project"
 	"github.com/apache/incubator-devlake/server/api/push"
 	"github.com/apache/incubator-devlake/server/api/shared"
 	"github.com/apache/incubator-devlake/server/api/task"
-	"github.com/apache/incubator-devlake/server/api/version"
 	"github.com/apache/incubator-devlake/server/services"
 
 	"github.com/gin-gonic/gin"
@@ -57,8 +55,8 @@ func RegisterRouter(r *gin.Engine) {
 
 	r.GET("/pipelines/:pipelineId/logging.tar.gz", pipelines.DownloadLogs)
 
-	r.GET("/ping", ping.Get)
-	r.GET("/version", version.Get)
+	//r.GET("/ping", ping.Get)
+	//r.GET("/version", version.Get)
 	r.POST("/push/:tableName", push.Post)
 	r.GET("/domainlayer/repos", domainlayer.ReposIndex)
 

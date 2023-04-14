@@ -17,11 +17,12 @@
  */
 
 import React from 'react';
-import { useLocation, useHistory } from 'react-router-dom';
-import { Menu, MenuItem, Tag, Navbar, Intent, Alignment } from '@blueprintjs/core';
+import { useLocation } from 'react-router-dom';
+import { Menu, MenuItem, Tag, Navbar, Intent, Alignment, Button } from '@blueprintjs/core';
 
 import { Logo, ExternalLink } from '@/components';
 import { useVersion } from '@/store';
+import { history } from '@/utils/history';
 
 import DashboardIcon from '@/images/icons/dashborad.svg';
 import FileIcon from '@/images/icons/file.svg';
@@ -38,7 +39,6 @@ interface Props {
 export const BaseLayout = ({ children }: Props) => {
   const menu = useMenu();
   const { pathname } = useLocation();
-  const history = useHistory();
   const { version } = useVersion();
 
   const handlePushPath = (it: MenuItemType) => {
@@ -131,6 +131,10 @@ export const BaseLayout = ({ children }: Props) => {
               <img src={SlackIcon} alt="slack" />
               <span>Slack</span>
             </a>
+            <Navbar.Divider />
+            <Button intent={Intent.NONE} onClick={handleSignOut}>
+              Sign Out
+            </Button>
           </Navbar.Group>
         </S.Header>
         <S.Inner>
@@ -139,4 +143,11 @@ export const BaseLayout = ({ children }: Props) => {
       </S.Main>
     </S.Wrapper>
   );
+};
+
+const handleSignOut = () => {
+  // Clear user authentication information (e.g. token)
+  localStorage.removeItem(`accessToken`);
+  // Redirect user to the login page
+  history.push('/login');
 };
