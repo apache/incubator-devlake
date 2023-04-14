@@ -20,7 +20,7 @@ package login
 import (
 	"github.com/apache/incubator-devlake/core/errors"
 	"github.com/apache/incubator-devlake/server/api/shared"
-	"github.com/apache/incubator-devlake/server/services"
+	"github.com/apache/incubator-devlake/server/services/auth"
 	"net/http"
 
 	"github.com/gin-gonic/gin"
@@ -64,7 +64,7 @@ func Login(ctx *gin.Context) {
 		shared.ApiOutputError(ctx, errors.BadInput.Wrap(err, shared.BadRequestBody))
 		return
 	}
-	res, err := services.SignIn(services.CreateCognitoClient(), loginReq.Username, loginReq.Password)
+	res, err := auth.SignIn(auth.CreateCognitoClient(), loginReq.Username, loginReq.Password)
 	if err != nil {
 		shared.ApiOutputError(ctx, errors.Default.Wrap(err, "error signing in"))
 		return
