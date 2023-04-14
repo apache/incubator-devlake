@@ -18,6 +18,7 @@
 
 import type { AxiosRequestConfig } from 'axios';
 import axios from 'axios';
+import { history } from '@/utils/history';
 
 import { DEVLAKE_ENDPOINT } from '@/config';
 
@@ -35,13 +36,12 @@ export type ReuqestConfig = {
 
 export const request = (path: string, config?: ReuqestConfig) => {
   const { method = 'get', data, timeout, headers, signal } = config || {};
-
   const cancelTokenSource = axios.CancelToken.source();
   const params: any = {
     url: path,
     method,
     timeout,
-    headers,
+    headers: { ...headers, Authorization: `Bearer ${localStorage.getItem('accessToken')}` },
     cancelToken: cancelTokenSource?.token,
   };
 
@@ -50,6 +50,16 @@ export const request = (path: string, config?: ReuqestConfig) => {
   } else {
     params.data = data;
   }
+
+  instance.interceptors.response.use(
+    (response) => response,
+    (error) => {
+      if (error.response && error.response.status === 401) {
+        console.log('401 error');
+        history.push('/login');
+      }
+    },
+  );
 
   const promise = instance.request(params).then((resp) => resp.data);
 

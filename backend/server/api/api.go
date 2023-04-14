@@ -20,6 +20,9 @@ package api
 import (
 	"fmt"
 	"github.com/apache/incubator-devlake/server/api/login"
+	"github.com/apache/incubator-devlake/server/api/ping"
+	"github.com/apache/incubator-devlake/server/api/version"
+	"github.com/apache/incubator-devlake/server/services/auth"
 	"net/http"
 	"strconv"
 	"strings"
@@ -66,11 +69,16 @@ func CreateApiService() {
 
 	// Check if AWS Cognito is enabled
 	awsCognitoEnabled := v.GetBool("AWS_ENABLE_COGNITO")
+
+	// For both protected and unprotected routes
+	router.GET("/ping", ping.Get)
+	router.GET("/version", version.Get)
+
 	if awsCognitoEnabled {
 		// Add login endpoint
 		router.POST("/login", login.Login)
 		// Use AuthenticationMiddleware for protected routes
-		router.Use(services.AuthenticationMiddleware)
+		router.Use(auth.AuthenticationMiddleware)
 	}
 
 	// Check if remote plugins are enabled
