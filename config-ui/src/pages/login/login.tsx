@@ -16,53 +16,58 @@
  *
  */
 
-import { request } from '@/utils';
-import React, { useState, ChangeEvent, FormEvent } from 'react';
+import { useState } from 'react';
 import { useHistory } from 'react-router-dom';
+import { FormGroup, InputGroup, Button, Intent } from '@blueprintjs/core';
+
+import { operator } from '@/utils';
+
+import * as API from './api';
+import * as S from './styld';
 
 export const LoginPage = () => {
-  const [username, setUsername] = useState<string>('');
-  const [password, setPassword] = useState<string>('');
+  const [username, setUsername] = useState('');
+  const [password, setPassword] = useState('');
+
   const history = useHistory();
 
-  const handleSubmit = (e: FormEvent) => {
-    e.preventDefault();
-    const payload = { username, password };
-    try {
-      login(payload).then((r) => {
-        localStorage.setItem('accessToken', r.AuthenticationResult.AccessToken);
-        history.push('/projects');
-      });
-    } catch (error) {
-      console.error('Error during login:', error);
-      // Handle login error here, e.g. show a message to the user
+  const handleSubmit = async () => {
+    const [success, res] = await operator(() => API.login({ username, password }), {
+      formatReason: (error) => 'Login failed',
+    });
+
+    if (success) {
+      localStorage.setItem('accessToken', res.AuthenticationResult.AccessToken);
+      history.push('/');
     }
+
+    setUsername('');
+    setPassword('');
   };
 
   return (
-    <div>
-      <h2>"login"</h2>
-      <form onSubmit={handleSubmit}>
-        <div>
-          <label>Username:</label>
-          <input
-            type="text"
+    <S.Wrapper>
+      <S.Inner>
+        <h2>DevLake Login</h2>
+        <FormGroup label="Username">
+          <InputGroup
+            placeholder="Username"
             value={username}
-            onChange={(e: ChangeEvent<HTMLInputElement>) => setUsername(e.target.value)}
+            onChange={(e) => setUsername((e.target as HTMLInputElement).value)}
           />
-        </div>
-        <div>
-          <label>Password:</label>
-          <input
+        </FormGroup>
+        <FormGroup label="Password">
+          <InputGroup
             type="password"
+            placeholder="Password"
             value={password}
-            onChange={(e: ChangeEvent<HTMLInputElement>) => setPassword(e.target.value)}
+            onChange={(e) => setPassword((e.target as HTMLInputElement).value)}
           />
-        </div>
-        <button type="submit">login</button>
-      </form>
-    </div>
+        </FormGroup>
+        <Button intent={Intent.PRIMARY} onClick={handleSubmit}>
+          Login
+        </Button>
+      </S.Inner>
+    </S.Wrapper>
   );
 };
-
-export const login = (payload: any) => request(`/login`, { method: 'post', data: payload });

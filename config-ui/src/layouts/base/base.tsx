@@ -132,7 +132,7 @@ export const BaseLayout = ({ children }: Props) => {
               <span>Slack</span>
             </a>
             <Navbar.Divider />
-            <Button intent={Intent.NONE} onClick={handleSignOut}>
+            <Button small intent={Intent.NONE} onClick={handleSignOut}>
               Sign Out
             </Button>
           </Navbar.Group>
