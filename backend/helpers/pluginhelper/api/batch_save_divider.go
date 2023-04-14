@@ -19,12 +19,13 @@ package api
 
 import (
 	"fmt"
+	"reflect"
+
 	"github.com/apache/incubator-devlake/core/context"
 	"github.com/apache/incubator-devlake/core/dal"
 	"github.com/apache/incubator-devlake/core/errors"
 	"github.com/apache/incubator-devlake/core/log"
 	"github.com/apache/incubator-devlake/core/models/common"
-	"reflect"
 )
 
 // BatchSaveDivider creates and caches BatchSave, this is helpful when dealing with massive amount of data records
@@ -76,12 +77,14 @@ func (d *BatchSaveDivider) ForType(rowType reflect.Type) (*BatchSave, errors.Err
 		}
 		// all good, delete outdated records before we insertion
 		d.log.Debug("deleting outdate records for %s", rowElemType.Name())
-		err = d.db.Delete(
-			row,
-			dal.Where("_raw_data_table = ? AND _raw_data_params = ?", d.table, d.params),
-		)
-		if err != nil {
-			return nil, err
+		if d.table != "" && d.params != "" {
+			err = d.db.Delete(
+				row,
+				dal.Where("_raw_data_table = ? AND _raw_data_params = ?", d.table, d.params),
+			)
+			if err != nil {
+				return nil, err
+			}
 		}
 	}
 	return batch, nil

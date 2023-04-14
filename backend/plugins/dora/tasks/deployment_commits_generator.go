@@ -77,7 +77,7 @@ func GenerateDeploymentCommits(taskCtx plugin.SubTaskContext) errors.Error {
 		`),
 		dal.From("cicd_pipeline_commits pc"),
 		dal.Join("LEFT JOIN cicd_pipelines p ON (p.id = pc.pipeline_id)"),
-		dal.Join("LEFT JOIN project_mapping pm ON (pm.table = ? AND pm.row_id = p.cicd_scope_id)"),
+		dal.Join("LEFT JOIN project_mapping pm ON (pm.table = 'cicd_scopes' AND pm.row_id = p.cicd_scope_id)"),
 		dal.Where(
 			`
 			pm.project_name = ? AND (
@@ -85,7 +85,7 @@ func GenerateDeploymentCommits(taskCtx plugin.SubTaskContext) errors.Error {
 					SELECT 1 FROM cicd_tasks t WHERE t.pipeline_id = p.id AND t.type = p.type
 				)
 			)
-			`, devops.STAGING, devops.PRODUCTION, "cicd_scopes", data.Options.ProjectName, devops.DEPLOYMENT,
+			`, devops.TESTING, devops.STAGING, devops.PRODUCTION, data.Options.ProjectName, devops.DEPLOYMENT,
 		),
 	)
 	if err != nil {
