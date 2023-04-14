@@ -1,0 +1,173 @@
+/*
+Licensed to the Apache Software Foundation (ASF) under one or more
+contributor license agreements.  See the NOTICE file distributed with
+this work for additional information regarding copyright ownership.
+The ASF licenses this file to You under the Apache License, Version 2.0
+(the "License"); you may not use this file except in compliance with
+the License.  You may obtain a copy of the License at
+
+    http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
+*/
+
+package tasks
+
+import (
+	"context"
+	"reflect"
+
+	"github.com/apache/incubator-devlake/core/dal"
+	"github.com/apache/incubator-devlake/core/errors"
+	"github.com/apache/incubator-devlake/core/models/domainlayer/code"
+	"github.com/apache/incubator-devlake/core/plugin"
+	"github.com/apache/incubator-devlake/helpers/pluginhelper/api"
+	"github.com/apache/incubator-devlake/plugins/refdiff/utils"
+)
+
+var CalculateDeploymentCommitsDiffMeta = plugin.SubTaskMeta{
+	Name:             "calculateDeploymentCommitsDiff",
+	EntryPoint:       CalculateDeploymentCommitsDiff,
+	EnabledByDefault: true,
+	Description:      "Calculate commits diff between deployments in the specified project",
+	DomainTypes:      []string{plugin.DOMAIN_TYPE_CODE},
+}
+
+func CalculateDeploymentCommitsDiff(taskCtx plugin.SubTaskContext) errors.Error {
+	data := taskCtx.GetData().(*RefdiffTaskData)
+	db := taskCtx.GetDal()
+	ctx := taskCtx.GetContext()
+	logger := taskCtx.GetLogger()
+
+	if data.Options.ProjectName == "" {
+		return nil
+	}
+
+	// step 1. construct a commit node graph and batch save
+	graph, err := loadCommitGraph(ctx, db, data)
+	if err != nil {
+		return err
+	}
+	batch_save, err := api.NewBatchSave(taskCtx, reflect.TypeOf(&code.CommitsDiff{}), 1000)
+	if err != nil {
+		return err
+	}
+
+	// step 2. select all deployment commits with prev_success_deployment_commit_id not empty in the project
+	cursor, err := db.Cursor(
+		dal.Select("dc.id, dc.commit_sha, p.commit_sha as prev_commit_sha"),
+		dal.From("cicd_deployment_commits dc"),
+		dal.Join("LEFT JOIN project_mapping pm ON (pm.table = 'cicd_scopes' AND pm.row_id = dc.cicd_scope_id)"),
+		dal.Join("LEFT JOIN cicd_deployment_commits p ON (dc.prev_success_deployment_commit_id = p.id)"),
+		dal.Where(
+			`
+			pm.project_name = ?
+			AND dc.prev_success_deployment_commit_id IS NOT NULL
+			AND dc.prev_success_deployment_commit_id <> ''
+			`,
+			data.Options.ProjectName,
+		),
+		dal.Orderby(`dc.cicd_scope_id, dc.repo_url, dc.environment, dc.started_date`),
+	)
+	if err != nil {
+		return err
+	}
+	defer cursor.Close()
+	projectName := data.Options.ProjectName
+	if projectName == "" {
+		return nil
+	}
+
+	// step 3. iterate all deployment_commits and calculate diff
+	taskCtx.SetProgress(0, 0)
+	for cursor.Next() {
+		select {
+		case <-ctx.Done():
+			return errors.Convert(ctx.Err())
+		default:
+		}
+		deploymentCommitPair := &deploymentCommitPair{}
+		err = db.Fetch(cursor, deploymentCommitPair)
+		if err != nil {
+			return err
+		}
+
+		// step 3.1. check if the diff has been calculated
+		count, err := db.Count(
+			dal.From("finished_commits_diffs"),
+			dal.Where("new_commit_sha = ? AND old_commit_sha = ?", deploymentCommitPair.CommitSha, deploymentCommitPair.PrevCommitSha),
+		)
+		if err != nil {
+			return err
+		}
+		if count > 0 {
+			continue
+		}
+
+		// step 3.2. calculate diff
+		lostSha, oldCount, newCount := graph.CalculateLostSha(deploymentCommitPair.PrevCommitSha, deploymentCommitPair.CommitSha)
+		for i, sha := range lostSha {
+			commitsDiff := &code.CommitsDiff{
+				NewCommitSha: deploymentCommitPair.CommitSha,
+				OldCommitSha: deploymentCommitPair.PrevCommitSha,
+				CommitSha:    sha,
+				SortingIndex: i + 1,
+			}
+			batch_save.Add(commitsDiff)
+		}
+		batch_save.Flush()
+		// mark commits_diff were calculated, no need to do it again in the future
+		finishedCommitsDiff := &code.FinishedCommitsDiff{
+			NewCommitSha: deploymentCommitPair.CommitSha,
+			OldCommitSha: deploymentCommitPair.PrevCommitSha,
+		}
+		err = db.CreateOrUpdate(finishedCommitsDiff)
+		if err != nil {
+			return err
+		}
+
+		logger.Info(
+			"total %d commits of difference found between [new][%s] and [old][%s(total:%d)]",
+			newCount,
+			deploymentCommitPair.CommitSha,
+			deploymentCommitPair.PrevCommitSha,
+			oldCount,
+		)
+		taskCtx.IncProgress(1)
+	}
+	return nil
+}
+
+type deploymentCommitPair struct {
+	Id            string
+	CommitSha     string
+	PrevCommitSha string
+}
+
+func loadCommitGraph(ctx context.Context, db dal.Dal, data *RefdiffTaskData) (*utils.CommitNodeGraph, errors.Error) {
+	graph := utils.NewCommitNodeGraph()
+
+	cursor, err := db.Cursor(
+		dal.Select("cp.commit_sha, cp.parent_commit_sha"),
+		dal.From("commit_parents cp"),
+		dal.Join("LEFT JOIN repo_commits rc ON (rc.commit_sha = cp.commit_sha)"),
+		dal.Join("LEFT JOIN project_mapping pm ON (pm.table = 'repos' AND pm.row_id = rc.repo_id)"),
+		dal.Where("pm.project_name = ?", data.Options.ProjectName),
+	)
+	if err != nil {
+		return nil, err
+	}
+	defer cursor.Close()
+
+	commitParent := &code.CommitParent{}
+	for cursor.Next() {
+		err = db.Fetch(cursor, commitParent)
+		graph.AddParent(commitParent.CommitSha, commitParent.ParentCommitSha)
+	}
+
+	return graph, nil
+}

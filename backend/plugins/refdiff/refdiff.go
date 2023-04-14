@@ -37,17 +37,15 @@ func main() {
 	tagsLimit := refdiffCmd.Flags().IntP("tags-limit", "l", 2, "tags limit")
 	tagsOrder := refdiffCmd.Flags().StringP("tags-order", "d", "", "tags order")
 
-	_ = refdiffCmd.MarkFlagRequired("repo-id")
+	projectName := refdiffCmd.Flags().StringP("project-name", "P", "", "project name")
+
+	// _ = refdiffCmd.MarkFlagRequired("repo-id")
 	//_ = refdiffCmd.MarkFlagRequired("new-ref")
 	//_ = refdiffCmd.MarkFlagRequired("old-ref")
 
 	refdiffCmd.Run = func(cmd *cobra.Command, args []string) {
 		pairs := make([]map[string]string, 0, 1)
-		if *newRef == "" && *oldRef == "" {
-			if *tagsPattern == "" {
-				panic("You must set at least one part of '-p' or '-n -o' for tagsPattern or newRef,oldRef")
-			}
-		} else {
+		if *newRef != "" && *oldRef != "" {
 			pairs = append(pairs, map[string]string{
 				"NewRef": *newRef,
 				"OldRef": *oldRef,
@@ -60,6 +58,7 @@ func main() {
 			"tagsPattern": *tagsPattern,
 			"tagsLimit":   *tagsLimit,
 			"tagsOrder":   *tagsOrder,
+			"projectName": *projectName,
 		})
 	}
 	runner.RunCmd(refdiffCmd)
