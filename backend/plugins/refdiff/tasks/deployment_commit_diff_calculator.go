@@ -47,18 +47,10 @@ func CalculateDeploymentCommitsDiff(taskCtx plugin.SubTaskContext) errors.Error 
 		return nil
 	}
 
-	// step 1. construct a commit node graph and batch save
-	graph, err := loadCommitGraph(ctx, db, data)
-	if err != nil {
-		return err
-	}
-	batch_save, err := api.NewBatchSave(taskCtx, reflect.TypeOf(&code.CommitsDiff{}), 1000)
-	if err != nil {
-		return err
-	}
-
-	// step 2. select all deployment commits with prev_success_deployment_commit_id not empty in the project
-	cursor, err := db.Cursor(
+	// step 1. select all deployment commits that need to be calculated
+	pairs := make([]*deploymentCommitPair, 0)
+	err := db.All(
+		&pairs,
 		dal.Select("dc.id, dc.commit_sha, p.commit_sha as prev_commit_sha"),
 		dal.From("cicd_deployment_commits dc"),
 		dal.Join("LEFT JOIN project_mapping pm ON (pm.table = 'cicd_scopes' AND pm.row_id = dc.cicd_scope_id)"),
@@ -68,6 +60,11 @@ func CalculateDeploymentCommitsDiff(taskCtx plugin.SubTaskContext) errors.Error 
 			pm.project_name = ?
 			AND dc.prev_success_deployment_commit_id IS NOT NULL
 			AND dc.prev_success_deployment_commit_id <> ''
+			AND NOT EXISTS (
+				SELECT 1
+				FROM finished_commits_diffs fcd
+				WHERE fcd.new_commit_sha = dc.commit_sha AND fcd.old_commit_sha = p.commit_sha
+			)
 			`,
 			data.Options.ProjectName,
 		),
@@ -76,54 +73,48 @@ func CalculateDeploymentCommitsDiff(taskCtx plugin.SubTaskContext) errors.Error 
 	if err != nil {
 		return err
 	}
-	defer cursor.Close()
-	projectName := data.Options.ProjectName
-	if projectName == "" {
+	pairsCount := len(pairs)
+	if pairsCount == 0 {
+		// graph is expensive, we should avoid creating one for nothing
 		return nil
 	}
 
-	// step 3. iterate all deployment_commits and calculate diff
-	taskCtx.SetProgress(0, 0)
-	for cursor.Next() {
+	// step 2. construct a commit node graph and batch save
+	graph, err := loadCommitGraph(ctx, db, data)
+	if err != nil {
+		return err
+	}
+	batch_save, err := api.NewBatchSave(taskCtx, reflect.TypeOf(&code.CommitsDiff{}), 1000)
+	if err != nil {
+		return err
+	}
+
+	// step 3. iterate all pairs and calculate diff
+	taskCtx.SetProgress(0, pairsCount)
+	for _, pair := range pairs {
 		select {
 		case <-ctx.Done():
 			return errors.Convert(ctx.Err())
 		default:
 		}
-		deploymentCommitPair := &deploymentCommitPair{}
-		err = db.Fetch(cursor, deploymentCommitPair)
-		if err != nil {
-			return err
-		}
-
-		// step 3.1. check if the diff has been calculated
-		count, err := db.Count(
-			dal.From("finished_commits_diffs"),
-			dal.Where("new_commit_sha = ? AND old_commit_sha = ?", deploymentCommitPair.CommitSha, deploymentCommitPair.PrevCommitSha),
-		)
-		if err != nil {
-			return err
-		}
-		if count > 0 {
-			continue
-		}
-
-		// step 3.2. calculate diff
-		lostSha, oldCount, newCount := graph.CalculateLostSha(deploymentCommitPair.PrevCommitSha, deploymentCommitPair.CommitSha)
+		lostSha, oldCount, newCount := graph.CalculateLostSha(pair.PrevCommitSha, pair.CommitSha)
 		for i, sha := range lostSha {
 			commitsDiff := &code.CommitsDiff{
-				NewCommitSha: deploymentCommitPair.CommitSha,
-				OldCommitSha: deploymentCommitPair.PrevCommitSha,
+				NewCommitSha: pair.CommitSha,
+				OldCommitSha: pair.PrevCommitSha,
 				CommitSha:    sha,
 				SortingIndex: i + 1,
 			}
 			batch_save.Add(commitsDiff)
 		}
-		batch_save.Flush()
+		err := batch_save.Flush()
+		if err != nil {
+			return err
+		}
 		// mark commits_diff were calculated, no need to do it again in the future
 		finishedCommitsDiff := &code.FinishedCommitsDiff{
-			NewCommitSha: deploymentCommitPair.CommitSha,
-			OldCommitSha: deploymentCommitPair.PrevCommitSha,
+			NewCommitSha: pair.CommitSha,
+			OldCommitSha: pair.PrevCommitSha,
 		}
 		err = db.CreateOrUpdate(finishedCommitsDiff)
 		if err != nil {
@@ -133,8 +124,8 @@ func CalculateDeploymentCommitsDiff(taskCtx plugin.SubTaskContext) errors.Error 
 		logger.Info(
 			"total %d commits of difference found between [new][%s] and [old][%s(total:%d)]",
 			newCount,
-			deploymentCommitPair.CommitSha,
-			deploymentCommitPair.PrevCommitSha,
+			pair.CommitSha,
+			pair.PrevCommitSha,
 			oldCount,
 		)
 		taskCtx.IncProgress(1)
@@ -165,6 +156,11 @@ func loadCommitGraph(ctx context.Context, db dal.Dal, data *RefdiffTaskData) (*u
 
 	commitParent := &code.CommitParent{}
 	for cursor.Next() {
+		select {
+		case <-ctx.Done():
+			return nil, errors.Convert(ctx.Err())
+		default:
+		}
 		err = db.Fetch(cursor, commitParent)
 		graph.AddParent(commitParent.CommitSha, commitParent.ParentCommitSha)
 	}
