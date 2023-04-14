@@ -105,9 +105,12 @@ func CalculateDeploymentCommitsDiff(taskCtx plugin.SubTaskContext) errors.Error 
 				CommitSha:    sha,
 				SortingIndex: i + 1,
 			}
-			batch_save.Add(commitsDiff)
+			err = batch_save.Add(commitsDiff)
+			if err != nil {
+				return err
+			}
 		}
-		err := batch_save.Flush()
+		err = batch_save.Flush()
 		if err != nil {
 			return err
 		}
@@ -162,6 +165,9 @@ func loadCommitGraph(ctx context.Context, db dal.Dal, data *RefdiffTaskData) (*u
 		default:
 		}
 		err = db.Fetch(cursor, commitParent)
+		if err != nil {
+			return nil, err
+		}
 		graph.AddParent(commitParent.CommitSha, commitParent.ParentCommitSha)
 	}
 
