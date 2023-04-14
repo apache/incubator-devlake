@@ -18,16 +18,17 @@ limitations under the License.
 package e2e
 
 import (
+	"testing"
+
 	"github.com/apache/incubator-devlake/core/models/domainlayer/code"
 	"github.com/apache/incubator-devlake/core/models/domainlayer/crossdomain"
 	"github.com/apache/incubator-devlake/core/models/domainlayer/devops"
 	"github.com/apache/incubator-devlake/helpers/e2ehelper"
 	"github.com/apache/incubator-devlake/plugins/refdiff/impl"
 	"github.com/apache/incubator-devlake/plugins/refdiff/tasks"
-	"testing"
 )
 
-func TestRepoDataFlow(t *testing.T) {
+func TestDeploymentCommitDiffDataFlow(t *testing.T) {
 
 	var plugin impl.RefDiff
 	dataflowTester := e2ehelper.NewDataFlowTester(t, "refdiff", plugin)
@@ -39,23 +40,21 @@ func TestRepoDataFlow(t *testing.T) {
 	}
 
 	// import raw data table
-	dataflowTester.ImportCsvIntoTabler("./raw_tables/project_mapping.csv", &crossdomain.ProjectMapping{})
-	dataflowTester.ImportCsvIntoTabler("./raw_tables/cicd_tasks.csv", &devops.CICDTask{})
-	dataflowTester.ImportCsvIntoTabler("./raw_tables/cicd_pipelines.csv", &devops.CICDPipeline{})
-	dataflowTester.ImportCsvIntoTabler("./raw_tables/cicd_pipeline_commits.csv", &devops.CiCDPipelineCommit{})
-	dataflowTester.ImportCsvIntoTabler("./raw_tables/repo_commits.csv", &code.RepoCommit{})
-	dataflowTester.ImportCsvIntoTabler("./raw_tables/commit_parents.csv", &code.CommitParent{})
+	dataflowTester.ImportCsvIntoTabler("./deployment_commit_diff/project_mapping.csv", &crossdomain.ProjectMapping{})
+	dataflowTester.ImportCsvIntoTabler("./deployment_commit_diff/repo_commits.csv", &code.RepoCommit{})
+	dataflowTester.ImportCsvIntoTabler("./deployment_commit_diff/commit_parents.csv", &code.CommitParent{})
+	dataflowTester.ImportCsvIntoTabler("./deployment_commit_diff/cicd_deployment_commits.csv", &devops.CicdDeploymentCommit{})
 
 	// verify extraction
 	dataflowTester.FlushTabler(&code.CommitsDiff{})
 	dataflowTester.FlushTabler(&code.FinishedCommitsDiff{})
 
-	dataflowTester.Subtask(tasks.CalculateProjectDeploymentCommitsDiffMeta, taskData)
+	dataflowTester.Subtask(tasks.CalculateDeploymentCommitsDiffMeta, taskData)
 	dataflowTester.VerifyTableWithOptions(&code.CommitsDiff{}, e2ehelper.TableOptions{
-		CSVRelPath: "./snapshot_tables/commits_diffs.csv",
+		CSVRelPath: "./deployment_commit_diff/commits_diffs.csv",
 	})
 
 	dataflowTester.VerifyTableWithOptions(&code.FinishedCommitsDiff{}, e2ehelper.TableOptions{
-		CSVRelPath: "./snapshot_tables/finished_commits_diffs.csv",
+		CSVRelPath: "./deployment_commit_diff/finished_commits_diffs.csv",
 	})
 }
