@@ -21,6 +21,7 @@ import axios from 'axios';
 import { history } from '@/utils/history';
 
 import { DEVLAKE_ENDPOINT } from '@/config';
+import { toast } from '@/components/toast';
 
 const instance = axios.create({
   baseURL: DEVLAKE_ENDPOINT,
@@ -55,7 +56,7 @@ export const request = (path: string, config?: ReuqestConfig) => {
     (response) => response,
     (error) => {
       if (error.response && error.response.status === 401) {
-        console.log('401 error');
+        toast.error('Please log in first');
         history.push('/login');
       }
     },
