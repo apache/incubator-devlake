@@ -23,6 +23,7 @@ import (
 	"io"
 	"net/http"
 	"net/url"
+	"time"
 
 	"github.com/apache/incubator-devlake/core/errors"
 	"github.com/apache/incubator-devlake/core/plugin"
@@ -66,18 +67,8 @@ func CollectIssues(taskCtx plugin.SubTaskContext) errors.Error {
 	// build jql
 	// IMPORTANT: we have to keep paginated data in a consistence order to avoid data-missing, if we sort issues by
 	//  `updated`, issue will be jumping between pages if it got updated during the collection process
-	jql := "created is not null ORDER BY created ASC"
-
-	// timer filter
-	if data.TimeAfter != nil {
-		jql = fmt.Sprintf("updated >= '%v' AND %v", data.TimeAfter.Format("2006/01/02 15:04"), jql)
-	}
-
-	// diff sync
 	incremental := collectorWithState.IsIncremental()
-	if incremental {
-		jql = fmt.Sprintf("updated >= '%v' AND %v", collectorWithState.LatestState.LatestSuccessStart.Format("2006/01/02 15:04"), jql)
-	}
+	jql := buildJQL(data.TimeAfter, collectorWithState.LatestState.LatestSuccessStart, incremental)
 
 	err = collectorWithState.InitCollector(api.ApiCollectorArgs{
 		ApiClient:   data.ApiClient,
@@ -143,4 +134,25 @@ func CollectIssues(taskCtx plugin.SubTaskContext) errors.Error {
 	}
 
 	return collectorWithState.Execute()
+}
+
+// buildJQL build jql based on timeAfter and incremental mode
+func buildJQL(timeAfter, latestSuccessStart *time.Time, isIncremental bool) string {
+	jql := "ORDER BY created ASC"
+	var moment time.Time
+	if timeAfter != nil {
+		moment = *timeAfter
+	}
+	// if isIncremental is true, we should not collect data before latestSuccessStart
+	if isIncremental {
+		// subtract 24 hours to avoid missing data due to time zone difference
+		latest := latestSuccessStart.Add(-24 * time.Hour)
+		if latest.After(moment) {
+			moment = latest
+		}
+	}
+	if !moment.IsZero() {
+		jql = fmt.Sprintf("updated >= '%s' %s", moment.In(time.UTC).Format("2006/01/02 15:04"), jql)
+	}
+	return jql
 }
