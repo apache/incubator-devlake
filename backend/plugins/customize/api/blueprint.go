@@ -22,7 +22,6 @@ import (
 	"github.com/apache/incubator-devlake/core/errors"
 	"github.com/apache/incubator-devlake/core/plugin"
 	helper "github.com/apache/incubator-devlake/helpers/pluginhelper/api"
-	"github.com/apache/incubator-devlake/plugins/jira/tasks"
 	_ "github.com/apache/incubator-devlake/server/api/shared"
 )
 
@@ -35,10 +34,7 @@ func MakePipelinePlan(subtaskMetas []plugin.SubTaskMeta, connectionId uint64, sc
 		if err != nil {
 			return nil, errors.Convert(err)
 		}
-		_, err := tasks.DecodeAndValidateTaskOptions(taskOptions)
-		if err != nil {
-			return nil, err
-		}
+
 		// subtasks
 		subtasks, err := helper.MakePipelinePlanSubtasks(subtaskMetas, scopeElem.Entities)
 		if err != nil {
