@@ -63,7 +63,7 @@ func (p RefDiff) SubTaskMetas() []plugin.SubTaskMeta {
 		tasks.CalculateCommitsDiffMeta,
 		tasks.CalculateIssuesDiffMeta,
 		tasks.CalculatePrCherryPickMeta,
-		tasks.CalculateProjectDeploymentCommitsDiffMeta,
+		tasks.CalculateDeploymentCommitsDiffMeta,
 	}
 }
 

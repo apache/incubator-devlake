@@ -19,12 +19,13 @@ package api
 
 import (
 	"fmt"
+	"reflect"
+	"strings"
+
 	"github.com/apache/incubator-devlake/core/context"
 	"github.com/apache/incubator-devlake/core/dal"
 	"github.com/apache/incubator-devlake/core/errors"
 	"github.com/apache/incubator-devlake/core/log"
-	"reflect"
-	"strings"
 )
 
 // BatchSave performs mulitple records persistence of a specific type in one sql query to improve the performance
@@ -106,6 +107,9 @@ func (c *BatchSave) Add(slot interface{}) errors.Error {
 
 // Flush save cached records into database
 func (c *BatchSave) Flush() errors.Error {
+	if c.current == 0 {
+		return nil
+	}
 	clauses := make([]dal.Clause, 0)
 	if c.tableName != "" {
 		clauses = append(clauses, dal.From(c.tableName))

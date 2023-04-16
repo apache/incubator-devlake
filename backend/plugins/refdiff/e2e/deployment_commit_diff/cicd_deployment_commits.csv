@@ -1,0 +1,7 @@
+id,result,started_date,cicd_pipeline_id,cicd_scope_id,repo_url,environment,prev_success_deployment_commit_id,commit_sha,created_date
+1,SUCCESS,2023-04-10T06:51:47.000+00:00,pipeline1,github:GithubRepo:1:484251804,REPO111,PRODUCTION,,commit_sha1,2023-4-10 6:51:47
+2,SUCCESS,2023-04-10T06:53:51.000+00:00,pipeline2,github:GithubRepo:1:484251804,REPO111,PRODUCTION,1,commit_sha2,2023-4-10 6:53:51
+3,SUCCESS,2023-04-13T07:21:16.000+00:00,pipeline3,github:GithubRepo:1:484251804,REPO111,PRODUCTION,2,commit_sha4,2023-4-13 7:21:16
+4,SUCCESS,2023-04-13T07:22:14.000+00:00,pipeline4,github:GithubRepo:1:384111310,REPO222,PRODUCTION,,commit_sha10,2023-4-13 7:22:14
+5,SUCCESS,2023-04-13T07:28:14.000+00:00,pipeline5,github:GithubRepo:1:384111310,REPO222,PRODUCTION,5,commit_sha11,2023-4-13 7:28:14
+6,SUCCESS,2023-04-13T07:29:34.000+00:00,pipeline4,github:GithubRepo:1:384111310,REPO222,PRODUCTION,6,commit_sha12,2023-4-13 7:29:34
