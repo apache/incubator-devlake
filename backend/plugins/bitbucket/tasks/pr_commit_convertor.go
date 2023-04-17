@@ -18,13 +18,14 @@ limitations under the License.
 package tasks
 
 import (
+	"reflect"
+
 	"github.com/apache/incubator-devlake/core/dal"
 	"github.com/apache/incubator-devlake/core/errors"
 	"github.com/apache/incubator-devlake/core/models/domainlayer/code"
 	"github.com/apache/incubator-devlake/core/models/domainlayer/didgen"
 	"github.com/apache/incubator-devlake/core/plugin"
 	helper "github.com/apache/incubator-devlake/helpers/pluginhelper/api"
-	"reflect"
 
 	bitbucketModels "github.com/apache/incubator-devlake/plugins/bitbucket/models"
 )
@@ -40,15 +41,12 @@ var ConvertPrCommitsMeta = plugin.SubTaskMeta{
 func ConvertPullRequestCommits(taskCtx plugin.SubTaskContext) (err errors.Error) {
 	rawDataSubTaskArgs, data := CreateRawDataSubTaskArgs(taskCtx, RAW_PULL_REQUEST_COMMITS_TABLE)
 	db := taskCtx.GetDal()
-	repoId := data.Options.FullName
 
 	pullIdGen := didgen.NewDomainIdGenerator(&bitbucketModels.BitbucketPullRequest{})
 
 	cursor, err := db.Cursor(
 		dal.From(&bitbucketModels.BitbucketPrCommit{}),
-		dal.Join(`left join _tool_bitbucket_pull_requests on _tool_bitbucket_pull_requests.bitbucket_id = _tool_bitbucket_pull_request_commits.pull_request_id`),
-		dal.Where("_tool_bitbucket_pull_requests.repo_id = ? and _tool_bitbucket_pull_requests.connection_id = ?", repoId, data.Options.ConnectionId),
-		dal.Orderby("pull_request_id ASC"),
+		dal.Where("connection_id = ? AND repo_id = ?", data.Options.ConnectionId, data.Options.FullName),
 	)
 	if err != nil {
 		return err
@@ -60,10 +58,10 @@ func ConvertPullRequestCommits(taskCtx plugin.SubTaskContext) (err errors.Error)
 		Input:              cursor,
 		RawDataSubTaskArgs: *rawDataSubTaskArgs,
 		Convert: func(inputRow interface{}) ([]interface{}, errors.Error) {
-			bitbucketPullRequestCommit := inputRow.(*bitbucketModels.BitbucketPrCommit)
+			prCommit := inputRow.(*bitbucketModels.BitbucketPrCommit)
 			domainPrCommit := &code.PullRequestCommit{
-				CommitSha:     bitbucketPullRequestCommit.CommitSha,
-				PullRequestId: pullIdGen.Generate(data.Options.ConnectionId, data.Options.FullName, bitbucketPullRequestCommit.PullRequestId),
+				CommitSha:     prCommit.CommitSha,
+				PullRequestId: pullIdGen.Generate(prCommit.ConnectionId, prCommit.RepoId, prCommit.PullRequestId),
 			}
 			return []interface{}{
 				domainPrCommit,

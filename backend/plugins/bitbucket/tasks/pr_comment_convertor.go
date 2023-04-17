@@ -18,6 +18,8 @@ limitations under the License.
 package tasks
 
 import (
+	"reflect"
+
 	"github.com/apache/incubator-devlake/core/dal"
 	"github.com/apache/incubator-devlake/core/errors"
 	"github.com/apache/incubator-devlake/core/models/domainlayer"
@@ -26,7 +28,6 @@ import (
 	plugin "github.com/apache/incubator-devlake/core/plugin"
 	"github.com/apache/incubator-devlake/helpers/pluginhelper/api"
 	"github.com/apache/incubator-devlake/plugins/bitbucket/models"
-	"reflect"
 )
 
 var ConvertPrCommentsMeta = plugin.SubTaskMeta{
@@ -40,13 +41,10 @@ var ConvertPrCommentsMeta = plugin.SubTaskMeta{
 func ConvertPullRequestComments(taskCtx plugin.SubTaskContext) errors.Error {
 	rawDataSubTaskArgs, data := CreateRawDataSubTaskArgs(taskCtx, RAW_PULL_REQUEST_COMMENTS_TABLE)
 	db := taskCtx.GetDal()
-	repoId := data.Options.FullName
 
 	cursor, err := db.Cursor(
 		dal.From(&models.BitbucketPrComment{}),
-		dal.Join("left join _tool_bitbucket_pull_requests "+
-			"on _tool_bitbucket_pull_requests.bitbucket_id = _tool_bitbucket_pull_request_comments.pull_request_id"),
-		dal.Where("repo_id = ? and _tool_bitbucket_pull_requests.connection_id = ?", repoId, data.Options.ConnectionId),
+		dal.Where("connection_id = ? AND repo_id = ?", data.Options.ConnectionId, data.Options.FullName),
 	)
 	if err != nil {
 		return err
@@ -62,16 +60,16 @@ func ConvertPullRequestComments(taskCtx plugin.SubTaskContext) errors.Error {
 		Input:              cursor,
 		RawDataSubTaskArgs: *rawDataSubTaskArgs,
 		Convert: func(inputRow interface{}) ([]interface{}, errors.Error) {
-			bitbucketPullRequestComment := inputRow.(*models.BitbucketPrComment)
+			prComment := inputRow.(*models.BitbucketPrComment)
 			domainPrComment := &code.PullRequestComment{
 				DomainEntity: domainlayer.DomainEntity{
-					Id: domainIdGeneratorComment.Generate(data.Options.ConnectionId, bitbucketPullRequestComment.BitbucketId),
+					Id: domainIdGeneratorComment.Generate(prComment.ConnectionId, prComment.BitbucketId),
 				},
-				PullRequestId: prIdGen.Generate(data.Options.ConnectionId, data.Options.FullName, bitbucketPullRequestComment.PullRequestId),
-				AccountId:     accountIdGen.Generate(data.Options.ConnectionId, bitbucketPullRequestComment.AuthorId),
-				CreatedDate:   bitbucketPullRequestComment.CreatedAt,
-				Body:          bitbucketPullRequestComment.Body,
-				Type:          bitbucketPullRequestComment.Type,
+				PullRequestId: prIdGen.Generate(prComment.ConnectionId, prComment.RepoId, prComment.PullRequestId),
+				AccountId:     accountIdGen.Generate(prComment.ConnectionId, prComment.AuthorId),
+				CreatedDate:   prComment.CreatedAt,
+				Body:          prComment.Body,
+				Type:          prComment.Type,
 				CommitSha:     "",
 				Position:      0,
 			}

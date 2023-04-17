@@ -19,11 +19,12 @@ package tasks
 
 import (
 	"encoding/json"
+	"strings"
+	"time"
+
 	"github.com/apache/incubator-devlake/core/errors"
 	"github.com/apache/incubator-devlake/core/plugin"
 	helper "github.com/apache/incubator-devlake/helpers/pluginhelper/api"
-	"strings"
-	"time"
 
 	"github.com/apache/incubator-devlake/plugins/bitbucket/models"
 )
@@ -89,8 +90,9 @@ func ExtractApiPullRequestCommits(taskCtx plugin.SubTaskContext) errors.Error {
 
 			bitbucketPullRequestCommit := &models.BitbucketPrCommit{
 				ConnectionId:  data.Options.ConnectionId,
-				CommitSha:     apiPullRequestCommit.Hash,
+				RepoId:        repoId,
 				PullRequestId: pull.BitbucketId,
+				CommitSha:     apiPullRequestCommit.Hash,
 			}
 			if err != nil {
 				return nil, err
