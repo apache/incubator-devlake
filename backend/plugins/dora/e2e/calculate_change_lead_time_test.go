@@ -18,6 +18,8 @@ limitations under the License.
 package e2e
 
 import (
+	"testing"
+
 	"github.com/apache/incubator-devlake/core/models/common"
 	"github.com/apache/incubator-devlake/core/models/domainlayer/code"
 	"github.com/apache/incubator-devlake/core/models/domainlayer/crossdomain"
@@ -25,7 +27,6 @@ import (
 	"github.com/apache/incubator-devlake/helpers/e2ehelper"
 	"github.com/apache/incubator-devlake/plugins/dora/impl"
 	"github.com/apache/incubator-devlake/plugins/dora/tasks"
-	"testing"
 )
 
 func TestCalculateCLTimeDataFlow(t *testing.T) {
@@ -35,31 +36,27 @@ func TestCalculateCLTimeDataFlow(t *testing.T) {
 	taskData := &tasks.DoraTaskData{
 		Options: &tasks.DoraOptions{
 			ProjectName: "project1",
-			TransformationRules: tasks.TransformationRules{
-				ProductionPattern: "(?i)deploy",
-			},
 		},
 	}
 
 	dataflowTester.FlushTabler(&code.PullRequest{})
 
 	// import raw data table
-	dataflowTester.ImportCsvIntoTabler("./raw_tables/cicd_tasks.csv", &devops.CICDTask{})
-	dataflowTester.ImportCsvIntoTabler("./raw_tables/pull_requests.csv", &code.PullRequest{})
-	dataflowTester.ImportCsvIntoTabler("./raw_tables/commits_diffs.csv", &code.CommitsDiff{})
-	dataflowTester.ImportCsvIntoTabler("./raw_tables/cicd_pipeline_commits.csv", &devops.CiCDPipelineCommit{})
-	dataflowTester.ImportCsvIntoTabler("./raw_tables/project_mapping.csv", &crossdomain.ProjectMapping{})
-	dataflowTester.ImportCsvIntoTabler("./raw_tables/commits.csv", &code.Commit{})
-	dataflowTester.ImportCsvIntoTabler("./raw_tables/pull_request_comments.csv", &code.PullRequestComment{})
-	dataflowTester.ImportCsvIntoTabler("./raw_tables/pull_request_commits.csv", &code.PullRequestCommit{})
-	dataflowTester.ImportCsvIntoTabler("./raw_tables/repos.csv", &code.Repo{})
-	dataflowTester.ImportCsvIntoTabler("./raw_tables/cicd_scopes.csv", &devops.CicdScope{})
+	dataflowTester.ImportCsvIntoTabler("./change_lead_time/project_mapping.csv", &crossdomain.ProjectMapping{})
+	dataflowTester.ImportCsvIntoTabler("./change_lead_time/repos.csv", &code.Repo{})
+	dataflowTester.ImportCsvIntoTabler("./change_lead_time/cicd_scopes.csv", &devops.CicdScope{})
+	dataflowTester.ImportCsvIntoTabler("./change_lead_time/pull_requests.csv", &code.PullRequest{})
+	dataflowTester.ImportCsvIntoTabler("./change_lead_time/cicd_deployment_commits.csv", &devops.CicdDeploymentCommit{})
+	dataflowTester.ImportCsvIntoTabler("./change_lead_time/commits_diffs.csv", &code.CommitsDiff{})
+	dataflowTester.ImportCsvIntoTabler("./change_lead_time/commits.csv", &code.Commit{})
+	dataflowTester.ImportCsvIntoTabler("./change_lead_time/pull_request_comments.csv", &code.PullRequestComment{})
+	dataflowTester.ImportCsvIntoTabler("./change_lead_time/pull_request_commits.csv", &code.PullRequestCommit{})
 
 	// verify converter
 	dataflowTester.FlushTabler(&crossdomain.ProjectPrMetric{})
 	dataflowTester.Subtask(tasks.CalculateChangeLeadTimeMeta, taskData)
 	dataflowTester.VerifyTableWithOptions(&crossdomain.ProjectPrMetric{}, e2ehelper.TableOptions{
-		CSVRelPath:  "./snapshot_tables/project_pr_metrics.csv",
+		CSVRelPath:  "./change_lead_time/project_pr_metrics.csv",
 		IgnoreTypes: []interface{}{common.NoPKModel{}},
 	})
 }
