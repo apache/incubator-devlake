@@ -86,6 +86,7 @@ func ExtractPipelineSteps(taskCtx plugin.SubTaskContext) errors.Error {
 				Trigger:           apiPipelineStep.Trigger.Type,
 				State:             apiPipelineStep.State.Name,
 				Result:            apiPipelineStep.State.Result.Name,
+				RepoId:            data.Options.FullName,
 				MaxTime:           apiPipelineStep.MaxTime,
 				StartedOn:         apiPipelineStep.StartedOn,
 				CompletedOn:       apiPipelineStep.CompletedOn,

@@ -18,8 +18,9 @@ limitations under the License.
 package archived
 
 import (
-	"github.com/apache/incubator-devlake/core/models/migrationscripts/archived"
 	"time"
+
+	"github.com/apache/incubator-devlake/core/models/migrationscripts/archived"
 )
 
 type BitbucketPipelineStep struct {
@@ -40,5 +41,13 @@ type BitbucketPipelineStep struct {
 }
 
 func (BitbucketPipelineStep) TableName() string {
+	return "_tool_bitbucket_pipeline_steps"
+}
+
+type BitbucketPipelineStep20230411 struct {
+	RepoId string `gorm:"type:varchar(255)"`
+}
+
+func (BitbucketPipelineStep20230411) TableName() string {
 	return "_tool_bitbucket_pipeline_steps"
 }
