@@ -64,6 +64,7 @@ func ExtractApiPullRequestsComments(taskCtx plugin.SubTaskContext) errors.Error 
 
 			toolprComment, err := convertPullRequestComment(prComment)
 			toolprComment.ConnectionId = data.Options.ConnectionId
+			toolprComment.RepoId = data.Options.FullName
 			if err != nil {
 				return nil, err
 			}
