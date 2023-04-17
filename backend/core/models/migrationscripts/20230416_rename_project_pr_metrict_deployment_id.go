@@ -15,25 +15,26 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-package crossdomain
+package migrationscripts
 
 import (
-	"github.com/apache/incubator-devlake/core/models/domainlayer"
+	"github.com/apache/incubator-devlake/core/context"
+	"github.com/apache/incubator-devlake/core/errors"
+	"github.com/apache/incubator-devlake/core/plugin"
 )
 
-type ProjectPrMetric struct {
-	domainlayer.DomainEntity
-	ProjectName        string `gorm:"primaryKey;type:varchar(100)"`
-	FirstCommitSha     string
-	PrCodingTime       *int64
-	FirstReviewId      string
-	PrPickupTime       *int64
-	PrReviewTime       *int64
-	DeploymentCommitId string
-	PrDeployTime       *int64
-	PrCycleTime        *int64
+var _ plugin.MigrationScript = (*renameDeploymentIdForPrProjectMetric)(nil)
+
+type renameDeploymentIdForPrProjectMetric struct{}
+
+func (*renameDeploymentIdForPrProjectMetric) Up(basicRes context.BasicRes) errors.Error {
+	return basicRes.GetDal().RenameColumn("project_pr_metrics", "deployment_id", "deployment_commit_id")
 }
 
-func (ProjectPrMetric) TableName() string {
-	return "project_pr_metrics"
+func (*renameDeploymentIdForPrProjectMetric) Version() uint64 {
+	return 20230416080701
+}
+
+func (*renameDeploymentIdForPrProjectMetric) Name() string {
+	return "Rename project_pr_metrics.deployment_id to deployment_commit_id"
 }
