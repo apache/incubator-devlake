@@ -232,12 +232,3 @@ func computeTimeSpan(start, end *time.Time) *int64 {
 	}
 	return &minutes
 }
-
-// deploymentPair is a struct representing a deployment pair with fields for task ID, repo ID, new and old commit SHAs, and task finished date.
-type deploymentPair struct {
-	TaskId             string
-	RepoId             string
-	NewDeployCommitSha string
-	OldDeployCommitSha string
-	TaskFinishedDate   *time.Time
-}
