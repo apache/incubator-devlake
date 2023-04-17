@@ -41,12 +41,19 @@ export const BaseLayout = ({ children }: Props) => {
   const { pathname } = useLocation();
   const { version } = useVersion();
 
+  const token = window.localStorage.getItem('accessToken');
+
   const handlePushPath = (it: MenuItemType) => {
     if (!it.target) {
       history.push(it.path);
     } else {
       window.open(it.path, '_blank');
     }
+  };
+
+  const handleSignOut = () => {
+    localStorage.removeItem(`accessToken`);
+    history.push('/login');
   };
 
   const getGrafanaUrl = () => {
@@ -131,10 +138,14 @@ export const BaseLayout = ({ children }: Props) => {
               <img src={SlackIcon} alt="slack" />
               <span>Slack</span>
             </a>
-            <Navbar.Divider />
-            <Button small intent={Intent.NONE} onClick={handleSignOut}>
-              Sign Out
-            </Button>
+            {token && (
+              <>
+                <Navbar.Divider />
+                <Button small intent={Intent.NONE} onClick={handleSignOut}>
+                  Sign Out
+                </Button>
+              </>
+            )}
           </Navbar.Group>
         </S.Header>
         <S.Inner>
@@ -143,11 +154,4 @@ export const BaseLayout = ({ children }: Props) => {
       </S.Main>
     </S.Wrapper>
   );
-};
-
-const handleSignOut = () => {
-  // Clear user authentication information (e.g. token)
-  localStorage.removeItem(`accessToken`);
-  // Redirect user to the login page
-  history.push('/login');
 };
