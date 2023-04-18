@@ -67,7 +67,7 @@ class CiCDPipelineCommit(NoPKModel, table=True):
     commit_sha: str = Field(primary_key=True)
     branch: str
     repo_id: str
-    repo: str
+    repo_url: str
 
 
 class CicdScope(DomainScope):

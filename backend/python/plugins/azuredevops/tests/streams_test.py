@@ -140,7 +140,7 @@ def test_builds_stream(context):
             commit_sha='40c59264e73fc5e1a6cab192f1622d26b7bd5c2a',
             branch='refs/heads/main',
             repo_id=context.scope.domain_id(),
-            repo='https://github.com/johndoe/test-repo'
+            repo_url='https://github.com/johndoe/test-repo'
         )
     ]
 

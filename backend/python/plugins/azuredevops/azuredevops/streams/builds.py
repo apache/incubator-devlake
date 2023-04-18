@@ -100,5 +100,5 @@ class Builds(Stream):
             commit_sha=b.source_version,
             branch=b.source_branch,
             repo_id=ctx.scope.domain_id(),
-            repo=ctx.scope.url,
+            repo_url=ctx.scope.url,
         )
