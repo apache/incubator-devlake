@@ -28,7 +28,7 @@ import (
 var EnrichPrevSuccessDeploymentCommitMeta = plugin.SubTaskMeta{
 	Name:             "enrichPrevSuccessDeploymentCommits",
 	EntryPoint:       EnrichPrevSuccessDeploymentCommit,
-	EnabledByDefault: true,
+	EnabledByDefault: false,
 	Description:      "filling the prev_success_deployment_commit_id for cicd_deployment_commits table",
 	DomainTypes:      []string{plugin.DOMAIN_TYPE_CODE},
 }
@@ -88,7 +88,6 @@ func EnrichPrevSuccessDeploymentCommit(taskCtx plugin.SubTaskContext) errors.Err
 
 			// now, simply connect the consecurtive deployment to its previous one
 			deploymentCommit.PrevSuccessDeploymentCommitId = prev_success_deployment_id
-			println("paire", deploymentCommit.Id, prev_cicd_scope_id)
 
 			// preserve variables for the next record
 			prev_cicd_scope_id = deploymentCommit.CicdScopeId
