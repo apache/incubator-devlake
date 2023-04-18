@@ -95,7 +95,7 @@ export const GitHubTransformation = ({ transformation, setTransformation }: Prop
             <HelpTooltip content="DevLake defines three standard types of issues: FEATURE, BUG and INCIDENT. Set your issues to these three types with issue labels that match the RegEx." />
           </div>
           <div className="list">
-            <FormGroup inline label="Feature">
+            <FormGroup inline label="Requirement">
               <InputGroup
                 placeholder="(feat|feature|proposal|requirement)"
                 value={transformation.issueTypeRequirement ?? ''}
