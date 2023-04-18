@@ -18,14 +18,12 @@ import base64
 
 from pydevlake.api import API, request_hook, Paginator, Request
 
-from azuredevops.models import AzureDevOpsConnection
-
 
 class AzurePaginator(Paginator):
     def get_items(self, response) -> Optional[list[object]]:
         return response.json['value']
 
-    def get_next_page_id(self, response) -> Optional[int | str]:
+    def get_next_page_id(self, response) -> Optional[str]:
         return response.headers.get('x-ms-continuation')
 
     def set_next_page_param(self, request, next_page_id):
