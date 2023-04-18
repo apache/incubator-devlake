@@ -73,19 +73,18 @@ func CreateApiService() {
 	// For both protected and unprotected routes
 	router.GET("/ping", ping.Get)
 	router.GET("/version", version.Get)
+	// Check if remote plugins are enabled
+	remotePluginsEnabled := v.GetBool("ENABLE_REMOTE_PLUGINS")
+	if remotePluginsEnabled {
+		// Add endpoint to register remote plugins
+		router.POST("/plugins/register", remote.RegisterPlugin(router, registerPluginEndpoints))
+	}
 
 	if awsCognitoEnabled {
 		// Add login endpoint
 		router.POST("/login", login.Login)
 		// Use AuthenticationMiddleware for protected routes
 		router.Use(auth.AuthenticationMiddleware)
-	}
-
-	// Check if remote plugins are enabled
-	remotePluginsEnabled := v.GetBool("ENABLE_REMOTE_PLUGINS")
-	if remotePluginsEnabled {
-		// Add endpoint to register remote plugins
-		router.POST("/plugins/register", remote.RegisterPlugin(router, registerPluginEndpoints))
 	}
 
 	// Endpoint to proceed database migration
