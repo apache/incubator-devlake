@@ -31,32 +31,3 @@ export const LabelInfo = styled.i`
 export const LabelDescription = styled.p`
   margin: 0;
 `;
-
-export const Endpoint = styled.div`
-  p {
-    margin: 10px 0;
-  }
-`;
-
-export const Token = styled.div`
-  display: flex;
-  align-items: center;
-  margin-bottom: 8px;
-
-  .input {
-    display: flex;
-    align-items: center;
-  }
-
-  .info {
-    margin-left: 4px;
-
-    span.error {
-      color: ${Colors.RED3};
-    }
-
-    span.success {
-      color: ${Colors.GREEN3};
-    }
-  }
-`;
