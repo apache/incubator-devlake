@@ -111,7 +111,7 @@ RUN cd /usr/local/deps/target/lib && \
     done
 
 
-FROM python:3.11.2-slim-bullseye as base
+FROM python:3.9.9-slim-bullseye as base
 
 ENV PYTHONUNBUFFERED=1
 
@@ -136,7 +136,6 @@ WORKDIR /app
 # Setup Python
 COPY python/ /app/python/
 RUN python3 -m pip install --no-cache --upgrade pip setuptools && \
-    python3 -m pip install --no-cache dbt-mysql dbt-postgres && \
     python3 -m pip install --no-cache -r python/requirements.txt && \
     rm -fr /usr/share/python-wheels/*
 # Setup Python Poetry package manager

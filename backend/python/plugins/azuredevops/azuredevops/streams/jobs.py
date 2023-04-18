@@ -41,28 +41,26 @@ class Jobs(Substream):
 
     def convert(self, j: Job, ctx: Context) -> Iterable[devops.CICDPipeline]:
         result = None
-        match j.result:
-            case Job.Result.Abandoned:
-                result = devops.CICDResult.ABORT
-            case Job.Result.Canceled:
-                result = devops.CICDResult.ABORT
-            case Job.Result.Failed:
-                result = devops.CICDResult.FAILURE
-            case Job.Result.Skipped:
-                result = devops.CICDResult.ABORT
-            case Job.Result.Succeeded:
-                result = devops.CICDResult.SUCCESS
-            case Job.Result.SucceededWithIssues:
-                result = devops.CICDResult.FAILURE
+        if j.result == Job.Result.Abandoned:
+            result = devops.CICDResult.ABORT
+        elif j.result == Job.Result.Canceled:
+            result = devops.CICDResult.ABORT
+        elif j.result == Job.Result.Failed:
+            result = devops.CICDResult.FAILURE
+        elif j.result == Job.Result.Skipped:
+            result = devops.CICDResult.ABORT
+        elif j.result == Job.Result.Succeeded:
+            result = devops.CICDResult.SUCCESS
+        elif j.result == Job.Result.SucceededWithIssues:
+            result = devops.CICDResult.FAILURE
 
         status = None
-        match j.state:
-            case Job.State.Completed:
-                status = devops.CICDStatus.DONE
-            case Job.State.InProgress:
-                status = devops.CICDStatus.IN_PROGRESS
-            case Job.State.Pending:
-                status = devops.CICDStatus.IN_PROGRESS
+        if j.state == Job.State.Completed:
+            status = devops.CICDStatus.DONE
+        elif j.state == Job.State.InProgress:
+            status = devops.CICDStatus.IN_PROGRESS
+        if j.state == Job.State.Pending:
+            status = devops.CICDStatus.IN_PROGRESS
 
         type = devops.CICDType.BUILD
         if ctx.transformation_rule and ctx.transformation_rule.deployment_pattern.search(j.name):

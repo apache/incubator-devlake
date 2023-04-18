@@ -18,13 +18,14 @@ limitations under the License.
 package e2e
 
 import (
+	"testing"
+
 	"github.com/apache/incubator-devlake/core/models/domainlayer/code"
 	"github.com/apache/incubator-devlake/core/models/domainlayer/ticket"
 	"github.com/apache/incubator-devlake/helpers/e2ehelper"
 	"github.com/apache/incubator-devlake/plugins/bitbucket/impl"
 	"github.com/apache/incubator-devlake/plugins/bitbucket/models"
 	"github.com/apache/incubator-devlake/plugins/bitbucket/tasks"
-	"testing"
 )
 
 func TestCommentDataFlow(t *testing.T) {
@@ -71,6 +72,7 @@ func TestCommentDataFlow(t *testing.T) {
 		e2ehelper.ColumnWithRawData(
 			"connection_id",
 			"bitbucket_id",
+			"repo_id",
 			"pull_request_id",
 			"author_name",
 			"author_id",

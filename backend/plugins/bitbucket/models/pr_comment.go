@@ -18,14 +18,16 @@ limitations under the License.
 package models
 
 import (
-	"github.com/apache/incubator-devlake/core/models/common"
 	"time"
+
+	"github.com/apache/incubator-devlake/core/models/common"
 )
 
 type BitbucketPrComment struct {
 	ConnectionId       uint64 `gorm:"primaryKey"`
 	BitbucketId        int    `gorm:"primaryKey"`
-	PullRequestId      int    `gorm:"index"`
+	RepoId             string `gorm:"index:pr"` // PullRequestId is not unique across multiple repos of a connection
+	PullRequestId      int    `gorm:"index:pr"`
 	AuthorId           string `gorm:"type:varchar(255)"`
 	AuthorName         string `gorm:"type:varchar(255)"`
 	BitbucketCreatedAt time.Time

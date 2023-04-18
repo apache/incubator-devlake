@@ -41,7 +41,7 @@ RUN \
     cp *libgit2* /tmp/deps/ &&\
     cp -r ../include /tmp/deps/include
 
-FROM python:3.11.2-slim-bullseye
+FROM python:3.9.9-slim-bullseye
 
 RUN apt -y update && apt -y upgrade && apt -y install tzdata make tar curl gcc g++ pkg-config git \
     libssh2-1 zlib1g libffi-dev  \

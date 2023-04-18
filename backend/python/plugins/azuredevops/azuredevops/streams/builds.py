@@ -51,30 +51,28 @@ class Builds(Stream):
 
     def convert(self, b: Build, ctx: Context):
         result = None
-        match b.build_result:
-            case Build.Result.Canceled:
-                result = devops.CICDResult.ABORT
-            case Build.Result.Failed:
-                result = devops.CICDResult.FAILURE
-            case Build.Result.PartiallySucceeded:
-                result = devops.CICDResult.SUCCESS
-            case Build.Result.Succeeded:
-                result = devops.CICDResult.SUCCESS
+        if b.build_result == Build.Result.Canceled:
+            result = devops.CICDResult.ABORT
+        elif b.build_result == Build.Result.Failed:
+            result = devops.CICDResult.FAILURE
+        elif b.build_result == Build.Result.PartiallySucceeded:
+            result = devops.CICDResult.SUCCESS
+        elif b.build_result ==  Build.Result.Succeeded:
+            result = devops.CICDResult.SUCCESS
 
         status = None
-        match b.status:
-            case Build.Status.All:
-                status = devops.CICDStatus.IN_PROGRESS
-            case Build.Status.Cancelling:
-                status = devops.CICDStatus.DONE
-            case Build.Status.Completed:
-                status = devops.CICDStatus.DONE
-            case Build.Status.InProgress:
-                status = devops.CICDStatus.IN_PROGRESS
-            case Build.Status.NotStarted:
-                status = devops.CICDStatus.IN_PROGRESS
-            case Build.Status.Postponed:
-                status = devops.CICDStatus.IN_PROGRESS
+        if b.status == Build.Status.All:
+            status = devops.CICDStatus.IN_PROGRESS
+        elif b.status == Build.Status.Cancelling:
+            status = devops.CICDStatus.DONE
+        elif b.status == Build.Status.Completed:
+            status = devops.CICDStatus.DONE
+        elif b.status ==  Build.Status.InProgress:
+            status = devops.CICDStatus.IN_PROGRESS
+        elif b.status == Build.Status.NotStarted:
+            status = devops.CICDStatus.IN_PROGRESS
+        elif b.status ==  Build.Status.Postponed:
+            status = devops.CICDStatus.IN_PROGRESS
 
         type = devops.CICDType.BUILD
         if ctx.transformation_rule and ctx.transformation_rule.deployment_pattern.search(b.name):
@@ -100,5 +98,5 @@ class Builds(Stream):
             commit_sha=b.source_version,
             branch=b.source_branch,
             repo_id=ctx.scope.domain_id(),
-            repo=ctx.scope.url,
+            repo_url=ctx.scope.url,
         )
