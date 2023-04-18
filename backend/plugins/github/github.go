@@ -46,7 +46,8 @@ func main() {
 	issueTypeBug := cmd.Flags().String("issueTypeBug", "^(bug|failure|error)$", "issue type bug")
 	issueTypeIncident := cmd.Flags().String("issueTypeIncident", "", "issue type incident")
 	issueTypeRequirement := cmd.Flags().String("issueTypeRequirement", "^(feat|feature|proposal|requirement)$", "issue type requirement")
-	deploymentPattern := cmd.Flags().String("deploymentPattern", "(?i)deploy", "deploy tag name")
+	deploymentPattern := cmd.Flags().StringP("deployment", "", "", "deployment pattern")
+	productionPattern := cmd.Flags().StringP("production", "", "", "production pattern")
 
 	cmd.Run = func(cmd *cobra.Command, args []string) {
 		runner.DirectRun(cmd, args, PluginEntry, map[string]interface{}{
@@ -65,6 +66,7 @@ func main() {
 				"issueTypeIncident":    *issueTypeIncident,
 				"issueTypeRequirement": *issueTypeRequirement,
 				"deploymentPattern":    *deploymentPattern,
+				"productionPattern":    *productionPattern,
 			},
 		})
 	}

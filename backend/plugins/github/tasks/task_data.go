@@ -45,6 +45,7 @@ type GithubTaskData struct {
 	ApiClient     *helper.ApiAsyncClient
 	GraphqlClient *helper.GraphqlAsyncClient
 	TimeAfter     *time.Time
+	RegexEnricher *helper.RegexEnricher
 }
 
 type GithubApiParams struct {

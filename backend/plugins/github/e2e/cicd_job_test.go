@@ -19,6 +19,7 @@ package e2e
 
 import (
 	"github.com/apache/incubator-devlake/core/models/common"
+	helper "github.com/apache/incubator-devlake/helpers/pluginhelper/api"
 	"testing"
 
 	"github.com/apache/incubator-devlake/core/models/domainlayer/devops"
@@ -28,48 +29,20 @@ import (
 	"github.com/apache/incubator-devlake/plugins/github/tasks"
 )
 
-func TestGithubCICDDataFlow(t *testing.T) {
+func TestGithubCICDJobDataFlow(t *testing.T) {
 	var github impl.Github
 	dataflowTester := e2ehelper.NewDataFlowTester(t, "github", github)
-
+	regexEnricher := helper.NewRegexEnricher()
+	_ = regexEnricher.TryAdd(devops.DEPLOYMENT, "deploywindows.*")
+	_ = regexEnricher.TryAdd(devops.PRODUCTION, "deploywindows.*")
 	taskData := &tasks.GithubTaskData{
 		Options: &tasks.GithubOptions{
 			ConnectionId: 1,
 			Name:         "panjf2000/ants",
 			GithubId:     134018330,
-			GithubTransformationRule: &models.GithubTransformationRule{
-				DeploymentPattern: `deploy.*`,
-				ProductionPattern: `deploywindows.*`,
-			},
 		},
+		RegexEnricher: regexEnricher,
 	}
-
-	// import raw data table
-	// SELECT * FROM _raw_github_api_runs INTO OUTFILE "/tmp/_raw_github_api_runs.csv" FIELDS TERMINATED BY ',' OPTIONALLY ENCLOSED BY '"' LINES TERMINATED BY '\r\n';
-	dataflowTester.ImportCsvIntoRawTable("./raw_tables/_raw_github_api_runs.csv", "_raw_github_api_runs")
-	dataflowTester.ImportCsvIntoTabler("./raw_tables/_tool_github_repos.csv", &models.GithubRepo{})
-
-	// verify extraction
-	dataflowTester.FlushTabler(&models.GithubRun{})
-	dataflowTester.FlushTabler(&devops.CICDPipeline{})
-	dataflowTester.FlushTabler(&devops.CiCDPipelineCommit{})
-
-	dataflowTester.Subtask(tasks.ExtractRunsMeta, taskData)
-	dataflowTester.VerifyTableWithOptions(&models.GithubRun{}, e2ehelper.TableOptions{
-		CSVRelPath:  "./snapshot_tables/_tool_github_runs.csv",
-		IgnoreTypes: []interface{}{common.NoPKModel{}},
-	})
-
-	dataflowTester.Subtask(tasks.ConvertRunsMeta, taskData)
-	dataflowTester.VerifyTableWithOptions(&devops.CICDPipeline{}, e2ehelper.TableOptions{
-		CSVRelPath:  "./snapshot_tables/cicd_pipelines.csv",
-		IgnoreTypes: []interface{}{common.NoPKModel{}},
-	})
-
-	dataflowTester.VerifyTableWithOptions(&devops.CiCDPipelineCommit{}, e2ehelper.TableOptions{
-		CSVRelPath:  "./snapshot_tables/cicd_pipeline_commits.csv",
-		IgnoreTypes: []interface{}{common.NoPKModel{}},
-	})
 
 	// import raw data table
 	// SELECT * FROM _raw_github_api_jobs INTO OUTFILE "/tmp/_raw_github_api_jobs.csv" FIELDS TERMINATED BY ',' OPTIONALLY ENCLOSED BY '"' LINES TERMINATED BY '\r\n';

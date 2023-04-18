@@ -46,10 +46,6 @@ func ConvertJobs(taskCtx plugin.SubTaskContext) (err errors.Error) {
 	db := taskCtx.GetDal()
 	data := taskCtx.GetData().(*GithubTaskData)
 	repoId := data.Options.GithubId
-	deploymentPattern := data.Options.DeploymentPattern
-	productionPattern := data.Options.ProductionPattern
-	regexEnricher := api.NewRegexEnricher()
-	err = regexEnricher.AddRegexp(deploymentPattern, productionPattern)
 	if err != nil {
 		return err
 	}
@@ -87,9 +83,9 @@ func ConvertJobs(taskCtx plugin.SubTaskContext) (err errors.Error) {
 				FinishedDate: line.CompletedAt,
 				PipelineId:   runIdGen.Generate(data.Options.ConnectionId, line.RepoId, line.RunID),
 				CicdScopeId:  repoIdGen.Generate(data.Options.ConnectionId, line.RepoId),
+				Type:         line.Type,
+				Environment:  line.Environment,
 			}
-			domainJob.Type = regexEnricher.GetEnrichResult(deploymentPattern, line.Name, devops.DEPLOYMENT)
-			domainJob.Environment = regexEnricher.GetEnrichResult(productionPattern, line.Name, devops.PRODUCTION)
 
 			if strings.Contains(line.Conclusion, "SUCCESS") {
 				domainJob.Result = devops.SUCCESS
