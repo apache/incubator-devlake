@@ -1,0 +1,7 @@
+id,base_repo_id,author_id,merge_commit_sha,created_date,merged_date,_raw_data_remark,base_commit_sha,head_commit_sha
+pr1,repo1,a,pr_merge_commit1,2023-4-11 4:51:47,2023-4-11 5:51:47,deployment_commit 5,,
+pr2,repo1,a,pr_merge_commit2,2023-4-12 4:51:47,2023-4-12 5:51:47,deployment_commit 5,,
+pr3,repo1,a,pr_merge_commit3,2023-4-11 6:53:51,2023-4-14 6:53:51,deployment_commit 6,,
+pr4,repo1,,pr_merge_commit4,2023-4-13 7:55:01,2023-4-13 8:55:01,,,
+pr5,repo1,,pr_merge_commit5,2023-4-13 7:55:01,,,,
+pr6,repo1,,pr_merge_commit6,2023-4-13 7:55:01,,,,
