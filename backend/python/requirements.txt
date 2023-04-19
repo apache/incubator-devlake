@@ -1,3 +1,5 @@
-# runtime miscellaneous dependencies
+# runtime dependencies
 setuptools
 wheel
+dbt-mysql
+dbt-postgres

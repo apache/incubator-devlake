@@ -21,7 +21,7 @@ services:
       - mysql-storage:/var/lib/mysql
     restart: always
     ports:
-      - "127.0.0.1:3306:3306"
+      - 3306:3306
     environment:
       MYSQL_ROOT_PASSWORD: admin
       MYSQL_DATABASE: lake
@@ -32,25 +32,10 @@ services:
       --collation-server=utf8mb4_bin
       --skip-log-bin
 
-
-  # postgres:
-  #   image: postgres:14.2
-  #   volumes:
-  #     - postgres-storage:/var/lib/postgresql
-  #   restart: always
-  #   ports:
-  #     - 127.0.0.1:5432:5432
-  #   environment:
-  #     POSTGRES_DB: lake
-  #     POSTGRES_USER: merico
-  #     POSTGRES_PASSWORD: merico
-
   grafana:
-    image: mericodev/devlake-dashboard:latest
-    build:
-      context: grafana/
+    image: apache/devlake-dashboard:v0.16.0
     ports:
-      - "3002:3000"
+      - 3002:3000
     volumes:
       - grafana-storage:/var/lib/grafana
     environment:
@@ -65,14 +50,9 @@ services:
       - mysql
 
   devlake:
-    image: mericodev/devlake:latest
-    build:
-      context: backend
-      args:
-        HTTPS_PROXY: "${HTTPS_PROXY}"
-        GOPROXY: "${GOPROXY}"
+    image: apache/devlake:v0.16.0
     ports:
-      - "127.0.0.1:8080:8080"
+      - 8080:8080
     restart: always
     volumes:
       - ./.env:/app/.env
@@ -83,22 +63,19 @@ services:
       - mysql
 
   config-ui:
-    image: mericodev/devlake-config-ui:latest
-    build:
-      context: "config-ui"
+    image: apache/devlake-config-ui:v0.16.0
     ports:
-      - "4000:4000"
+      - 4000:4000
     env_file:
       - ./.env
     environment:
       DEVLAKE_ENDPOINT: devlake:8080
       GRAFANA_ENDPOINT: grafana:3000
       #ADMIN_USER: devlake
-      #ADMIN_PASS: letsdivein
+      #ADMIN_PASS: merico
     depends_on:
       - devlake
 
 volumes:
   mysql-storage:
   grafana-storage:
-  postgres-storage:
