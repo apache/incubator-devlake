@@ -37,6 +37,8 @@ import (
 	"reflect"
 )
 
+type NoTransformation struct{}
+
 // ScopeApiHelper is used to write the CURD of scopes
 type ScopeApiHelper[Conn any, Scope any, Tr any] struct {
 	log        log.Logger
@@ -261,12 +263,14 @@ func (c *ScopeApiHelper[Conn, Scope, Tr]) VerifyConnection(connId uint64) errors
 
 func (c *ScopeApiHelper[Conn, Scope, Tr]) addTransformationName(scopes []*Scope) ([]ScopeRes[Scope], errors.Error) {
 	var ruleIds []uint64
+
+	apiScopes := make([]ScopeRes[Scope], 0)
 	for _, scope := range scopes {
 		valueRepoRuleId := reflect.ValueOf(scope).Elem().FieldByName("TransformationRuleId")
 		if !valueRepoRuleId.IsValid() {
 			break
 		}
-		ruleId := reflect.ValueOf(scope).Elem().FieldByName("TransformationRuleId").Uint()
+		ruleId := valueRepoRuleId.Uint()
 		if ruleId > 0 {
 			ruleIds = append(ruleIds, ruleId)
 		}
@@ -283,10 +287,20 @@ func (c *ScopeApiHelper[Conn, Scope, Tr]) addTransformationName(scopes []*Scope)
 		// Get the reflect.Value of the i-th struct pointer in the slice
 		names[reflect.ValueOf(rule).Elem().FieldByName("ID").Uint()] = reflect.ValueOf(rule).Elem().FieldByName("Name").String()
 	}
-	apiScopes := make([]ScopeRes[Scope], 0)
+
 	for _, scope := range scopes {
-		apiScopes = append(apiScopes, ScopeRes[Scope]{*scope, names[reflect.ValueOf(scope).Elem().FieldByName("TransformationRuleId").Uint()]})
+		valueRepoRuleId := reflect.ValueOf(scope).Elem().FieldByName("TransformationRuleId")
+		if valueRepoRuleId.IsValid() {
+			ruleId := valueRepoRuleId.Uint()
+			if ruleId > 0 {
+				apiScopes = append(apiScopes, ScopeRes[Scope]{*scope, names[ruleId]})
+				continue
+			}
+		}
+
+		apiScopes = append(apiScopes, ScopeRes[Scope]{*scope, ""})
 	}
+
 	return apiScopes, nil
 }
 

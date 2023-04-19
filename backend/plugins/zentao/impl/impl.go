@@ -19,6 +19,7 @@ package impl
 
 import (
 	"fmt"
+
 	"github.com/apache/incubator-devlake/core/context"
 	"github.com/apache/incubator-devlake/core/errors"
 	"github.com/apache/incubator-devlake/core/plugin"
@@ -136,6 +137,9 @@ func (p Zentao) ApiResources() map[string]map[string]plugin.ApiResourceHandler {
 		"connections/:connectionId/scopes/project/:scopeId": {
 			"GET":   api.GetProjectScope,
 			"PATCH": api.UpdateProjectScope,
+		},
+		"connections/:connectionId/scopes/:scopeId": {
+			"GET": api.GeScope,
 		},
 		"connections/:connectionId/remote-scopes": {
 			"GET": api.RemoteScopes,

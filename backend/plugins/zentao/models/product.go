@@ -19,53 +19,56 @@ package models
 
 import (
 	"fmt"
+
 	"github.com/apache/incubator-devlake/core/models/common"
 	"github.com/apache/incubator-devlake/core/plugin"
 	helper "github.com/apache/incubator-devlake/helpers/pluginhelper/api"
 )
 
 type ZentaoProductRes struct {
-	ID             int64               `json:"id"`
-	Program        int                 `json:"program"`
-	Name           string              `json:"name"`
-	Code           string              `json:"code"`
-	Bind           string              `json:"bind"`
-	Line           int                 `json:"line"`
-	Type           string              `json:"type"`
-	Status         string              `json:"status"`
-	SubStatus      string              `json:"subStatus"`
-	Description    string              `json:"desc"`
-	PO             *ZentaoAccount      `json:"PO"`
-	QD             *ZentaoAccount      `json:"QD"`
-	RD             *ZentaoAccount      `json:"RD"`
-	Feedback       interface{}         `json:"feedback"`
-	Acl            string              `json:"acl"`
-	Whitelist      []interface{}       `json:"whitelist"`
-	Reviewer       string              `json:"reviewer"`
-	CreatedBy      *ZentaoAccount      `json:"createdBy"`
-	CreatedDate    *helper.Iso8601Time `json:"createdDate"`
-	CreatedVersion string              `json:"createdVersion"`
-	OrderIn        int                 `json:"order"`
-	Vision         string              `json:"vision"`
-	Deleted        string              `json:"deleted"`
+	ID             int64               `json:"id" mapstructure:"id"`
+	Program        int                 `json:"program" mapstructure:"program"`
+	Name           string              `json:"name" mapstructure:"name"`
+	Code           string              `json:"code" mapstructure:"code"`
+	Bind           string              `json:"bind" mapstructure:"bind"`
+	Line           int                 `json:"line" mapstructure:"line"`
+	Type           string              `json:"type" mapstructure:"type"`
+	Status         string              `json:"status" mapstructure:"status"`
+	SubStatus      string              `json:"subStatus" mapstructure:"subStatus"`
+	Description    string              `json:"desc" mapstructure:"desc"`
+	PO             *ZentaoAccount      `json:"po" mapstructure:"po"`
+	QD             *ZentaoAccount      `json:"qd" mapstructure:"qd"`
+	RD             *ZentaoAccount      `json:"rd" mapstructure:"rd"`
+	Feedback       interface{}         `json:"feedback" mapstructure:"feedback"`
+	Acl            string              `json:"acl" mapstructure:"acl"`
+	Whitelist      []interface{}       `json:"whitelist" mapstructure:"whitelist"`
+	Reviewer       string              `json:"reviewer" mapstructure:"reviewer"`
+	CreatedBy      *ZentaoAccount      `json:"createdBy" mapstructure:"createdBy"`
+	CreatedDate    *helper.Iso8601Time `json:"createdDate" mapstructure:"createdDate"`
+	CreatedVersion string              `json:"createdVersion" mapstructure:"createdVersion"`
+	OrderIn        int                 `json:"order" mapstructure:"order"`
+	Vision         string              `json:"vision" mapstructure:"vision"`
+	Deleted        string              `json:"deleted" mapstructure:"deleted"`
 	Stories        struct {
-		Active    int `json:"active"`
-		Reviewing int `json:"reviewing"`
+		Active    int `json:"active" mapstructure:"active"`
+		Reviewing int `json:"reviewing" mapstructure:"reviewing"`
 		int       `json:""`
-		Draft     int `json:"draft"`
-		Closed    int `json:"closed"`
-		Changing  int `json:"changing"`
+		Draft     int `json:"draft" mapstructure:"draft"`
+		Closed    int `json:"closed" mapstructure:"closed"`
+		Changing  int `json:"changing" mapstructure:"changing"`
 	} `json:"stories"`
-	Plans      int     `json:"plans"`
-	Releases   int     `json:"releases"`
-	Builds     int     `json:"builds"`
-	Cases      int     `json:"cases"`
-	Projects   int     `json:"projects"`
-	Executions int     `json:"executions"`
-	Bugs       int     `json:"bugs"`
-	Docs       int     `json:"docs"`
-	Progress   float64 `json:"progress"`
-	CaseReview bool    `json:"caseReview"`
+	Plans      int     `json:"plans" mapstructure:"plans"`
+	Releases   int     `json:"releases" mapstructure:"releases"`
+	Builds     int     `json:"builds" mapstructure:"builds"`
+	Cases      int     `json:"cases" mapstructure:"cases"`
+	Projects   int     `json:"projects" mapstructure:"projects"`
+	Executions int     `json:"executions" mapstructure:"executions"`
+	Bugs       int     `json:"bugs" mapstructure:"bugs"`
+	Docs       int     `json:"docs" mapstructure:"docs"`
+	Progress   float64 `json:"progress" mapstructure:"progress"`
+	CaseReview bool    `json:"caseReview" mapstructure:"caseReview"`
+
+	TransformationRuleId uint64 `json:"transformationRuleId" gorm:"-"`
 }
 
 func getAccountId(account *ZentaoAccount) int64 {
@@ -83,7 +86,8 @@ func (res ZentaoProductRes) ConvertApiScope() plugin.ToolLayerScope {
 		Code:           res.Code,
 		Bind:           res.Bind,
 		Line:           res.Line,
-		Type:           `product/` + res.Type,
+		Type:           `product`,
+		ProductType:    res.Type,
 		Status:         res.Status,
 		SubStatus:      res.SubStatus,
 		Description:    res.Description,
@@ -112,37 +116,40 @@ func (res ZentaoProductRes) ConvertApiScope() plugin.ToolLayerScope {
 
 type ZentaoProduct struct {
 	common.NoPKModel `json:"-"`
-	ConnectionId     uint64 `json:"connectionid" gorm:"primaryKey;type:BIGINT  NOT NULL"`
-	Id               int64  `json:"id" gorm:"primaryKey;type:BIGINT  NOT NULL"`
-	Program          int    `json:"program"`
-	Name             string `json:"name"`
-	Code             string `json:"code"`
-	Bind             string `json:"bind"`
-	Line             int    `json:"line"`
-	Type             string `json:"type"`
-	Status           string `json:"status"`
-	SubStatus        string `json:"subStatus"`
-	Description      string `json:"desc"`
+	ConnectionId     uint64 `json:"connectionid" mapstructure:"connectionid" gorm:"primaryKey;type:BIGINT  NOT NULL"`
+	Id               int64  `json:"id" mapstructure:"id" gorm:"primaryKey;type:BIGINT  NOT NULL"`
+	Program          int    `json:"program" mapstructure:"program"`
+	Name             string `json:"name" mapstructure:"name"`
+	Code             string `json:"code" mapstructure:"code"`
+	Bind             string `json:"bind" mapstructure:"bind"`
+	Line             int    `json:"line" mapstructure:"line"`
+	Type             string `json:"type" mapstructure:"type"`
+	ProductType      string `json:"productType" mapstructure:"productType"`
+	Status           string `json:"status" mapstructure:"status"`
+	SubStatus        string `json:"subStatus" mapstructure:"subStatus"`
+	Description      string `json:"desc" mapstructure:"desc"`
 	POId             int64
 	QDId             int64
 	RDId             int64
-	Acl              string `json:"acl"`
-	Reviewer         string `json:"reviewer"`
+	Acl              string `json:"acl" mapstructure:"acl"`
+	Reviewer         string `json:"reviewer" mapstructure:"reviewer"`
 	CreatedById      int64
-	CreatedDate      *helper.Iso8601Time `json:"createdDate"`
-	CreatedVersion   string              `json:"createdVersion"`
-	OrderIn          int                 `json:"order"`
-	Deleted          string              `json:"deleted"`
-	Plans            int                 `json:"plans"`
-	Releases         int                 `json:"releases"`
-	Builds           int                 `json:"builds"`
-	Cases            int                 `json:"cases"`
-	Projects         int                 `json:"projects"`
-	Executions       int                 `json:"executions"`
-	Bugs             int                 `json:"bugs"`
-	Docs             int                 `json:"docs"`
-	Progress         float64             `json:"progress"`
-	CaseReview       bool                `json:"caseReview"`
+	CreatedDate      *helper.Iso8601Time `json:"createdDate" mapstructure:"createdDate"`
+	CreatedVersion   string              `json:"createdVersion" mapstructure:"createdVersion"`
+	OrderIn          int                 `json:"order" mapstructure:"order"`
+	Deleted          string              `json:"deleted" mapstructure:"deleted"`
+	Plans            int                 `json:"plans" mapstructure:"plans"`
+	Releases         int                 `json:"releases" mapstructure:"releases"`
+	Builds           int                 `json:"builds" mapstructure:"builds"`
+	Cases            int                 `json:"cases" mapstructure:"cases"`
+	Projects         int                 `json:"projects" mapstructure:"projects"`
+	Executions       int                 `json:"executions" mapstructure:"executions"`
+	Bugs             int                 `json:"bugs" mapstructure:"bugs"`
+	Docs             int                 `json:"docs" mapstructure:"docs"`
+	Progress         float64             `json:"progress" mapstructure:"progress"`
+	CaseReview       bool                `json:"caseReview" mapstructure:"caseReview"`
+
+	TransformationRuleId uint64 `json:"transformationRuleId" gorm:"-"`
 }
 
 func (ZentaoProduct) TableName() string {

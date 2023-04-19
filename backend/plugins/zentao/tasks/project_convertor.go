@@ -18,6 +18,8 @@ limitations under the License.
 package tasks
 
 import (
+	"reflect"
+
 	"github.com/apache/incubator-devlake/core/dal"
 	"github.com/apache/incubator-devlake/core/errors"
 	"github.com/apache/incubator-devlake/core/models/domainlayer"
@@ -26,7 +28,6 @@ import (
 	"github.com/apache/incubator-devlake/core/plugin"
 	"github.com/apache/incubator-devlake/helpers/pluginhelper/api"
 	"github.com/apache/incubator-devlake/plugins/zentao/models"
-	"reflect"
 )
 
 const RAW_PROJECT_TABLE = "zentao_api_projects"
@@ -75,7 +76,7 @@ func ConvertProjects(taskCtx plugin.SubTaskContext) errors.Error {
 				Name:        toolProject.Name,
 				Description: toolProject.Description,
 				CreatedDate: toolProject.OpenedDate.ToNullableTime(),
-				Type:        toolProject.Type,
+				Type:        toolProject.Type + "/" + toolProject.ProjectType,
 			}
 			results := make([]interface{}, 0)
 			results = append(results, domainBoard)
