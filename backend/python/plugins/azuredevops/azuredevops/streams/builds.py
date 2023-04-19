@@ -35,14 +35,6 @@ class Builds(Stream):
         for raw_build in response:
             yield raw_build, state
 
-    def extract(self, raw_data: dict) -> Build:
-        build: Build = self.tool_model(**raw_data)
-        build.name = raw_data["definition"]["name"]
-        trigger_info: dict = raw_data["triggerInfo"]
-        if "ci.sourceSha" in trigger_info: # this key is not guaranteed to be in here per docs
-            assert build.source_version == trigger_info["ci.sourceSha"]
-        return build
-
     def convert(self, b: Build, ctx: Context):
         result = None
         if b.result == Build.Result.Canceled:
