@@ -18,6 +18,9 @@ limitations under the License.
 package tasks
 
 import (
+	"reflect"
+	"time"
+
 	"github.com/apache/incubator-devlake/core/dal"
 	"github.com/apache/incubator-devlake/core/errors"
 	"github.com/apache/incubator-devlake/core/models/common"
@@ -27,8 +30,6 @@ import (
 	"github.com/apache/incubator-devlake/core/plugin"
 	"github.com/apache/incubator-devlake/helpers/pluginhelper/api"
 	"github.com/apache/incubator-devlake/plugins/jenkins/models"
-	"reflect"
-	"time"
 )
 
 type JenkinsBuildWithRepoStage struct {
@@ -133,7 +134,7 @@ func ConvertStages(taskCtx plugin.SubTaskContext) (err errors.Error) {
 				Result:       jenkinsTaskResult,
 				Status:       jenkinsTaskStatus,
 				DurationSec:  uint64(body.DurationMillis / 1000),
-				StartedDate:  time.Unix(durationSec, 0),
+				StartedDate:  startedDate,
 				FinishedDate: jenkinsTaskFinishedDate,
 				CicdScopeId:  jobIdGen.Generate(body.ConnectionId, data.Options.JobFullName),
 			}
