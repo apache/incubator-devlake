@@ -21,6 +21,7 @@ from enum import Enum
 from pydevlake.context import Context
 from pydevlake.subtasks import Collector, Extractor, Convertor, SubstreamCollector
 from pydevlake.model import RawModel, ToolModel, ToolScope, DomainModel
+from pydevlake.extractor import autoextract
 
 
 class DomainType(Enum):
@@ -86,7 +87,7 @@ class Stream:
         pass
 
     def extract(self, raw_data: dict) -> ToolModel:
-        return self.tool_model(**raw_data)
+        return autoextract(raw_data, self.tool_model)
 
     def convert(self, tool_model: ToolModel, context: Context) -> DomainModel:
         pass

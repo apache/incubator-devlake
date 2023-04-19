@@ -233,7 +233,7 @@ class Users(Stream):
     def collect(self, state, context) -> Iterable[Tuple[object, dict]]:
         pass
 
-    def extract(self, raw_data, context) -> ToolUser:
+    def extract(self, raw_data) -> ToolUser:
         pass
 
     def convert(self, user: ToolUser, context) -> Iterable[DomainUser]:
@@ -251,9 +251,19 @@ The `collect` method takes a `state` dictionary and a context object and yields 
 The last state that the plugin yielded for a given connection will be reused during the next collection.
 The plugin can use this `state` to store information necessary to perform incremental collection of data.
 
-The `extract` method takes a raw data object and a context object and returns a tool model. This method has a default implementation that uses the `tool_model` class attribute to create a new instance of the tool model and set its attributes from the raw data (`self.tool_model(**raw_data)`).
-If the raw data collected from the datasource and is simple enough and well aligned with your tool model, you can omit this method.
-Otherwise, you can override it to deal with e.g. nested data structures.
+The `extract` method takes a raw data object and returns a tool model.
+This method has a default implementation that populates an instance of the `tool_model` class with the raw data.
+When you need to extract a nested value from JSON raw data, you can specify a JSON pointer (see RFC 6901) in the as `source` argument to a `Field` declaration.
+
+```python
+class User(ToolModel, table=True):
+    id: str = Field(primary_key=True)
+    name: str
+    email: str
+    address: str = Field(source="/contactInfo/address")
+```
+
+Here the address field will be populated with the value of the `address` property of the `contactInfo` object property of the JSON object.
 
 The `convert` method takes a tool-specific user model and convert it into domain level user models.
 Here the two models align quite well, the conversion is trivial:
