@@ -16,19 +16,8 @@
  *
  */
 
-import React, { useEffect, useState } from 'react';
-import {
-  FormGroup,
-  InputGroup,
-  TextArea,
-  Tag,
-  RadioGroup,
-  Radio,
-  Icon,
-  Collapse,
-  Intent,
-  Colors,
-} from '@blueprintjs/core';
+import React, { useState, useEffect } from 'react';
+import { FormGroup, InputGroup, TextArea, Tag, Switch, Radio, Icon, Collapse, Intent, Colors } from '@blueprintjs/core';
 
 import { ExternalLink, HelpTooltip, Divider } from '@/components';
 
@@ -40,7 +29,7 @@ interface Props {
 }
 
 export const GitHubTransformation = ({ transformation, setTransformation }: Props) => {
-  const [enableCICD, setEnableCICD] = useState(1);
+  const [enableCICD, setEnableCICD] = useState(true);
   const [openAdditionalSettings, setOpenAdditionalSettings] = useState(false);
 
   useEffect(() => {
@@ -49,21 +38,23 @@ export const GitHubTransformation = ({ transformation, setTransformation }: Prop
     }
   }, [transformation]);
 
-  const handleChangeCICDEnable = (e: number) => {
-    if (e === 0) {
+  const handleChangeCICDEnable = (e: React.FormEvent<HTMLInputElement>) => {
+    const checked = (e.target as HTMLInputElement).checked;
+
+    if (checked) {
+      setTransformation({
+        ...transformation,
+        deploymentPattern: '(deploy|push-image)',
+        productionPattern: 'production',
+      });
+    } else {
       setTransformation({
         ...transformation,
         deploymentPattern: undefined,
         productionPattern: undefined,
       });
-    } else {
-      setTransformation({
-        ...transformation,
-        deploymentPattern: '',
-        productionPattern: '',
-      });
     }
-    setEnableCICD(e);
+    setEnableCICD(checked);
   };
 
   const handleChangeAdditionalSettingsOpen = () => {
@@ -77,7 +68,7 @@ export const GitHubTransformation = ({ transformation, setTransformation }: Prop
   };
 
   return (
-    <S.TransformationWrapper>
+    <S.Transformation>
       {/* Issue Tracking */}
       <div className="issue-tracking">
         <h2>Issue Tracking</h2>
@@ -206,68 +197,66 @@ export const GitHubTransformation = ({ transformation, setTransformation }: Prop
       </div>
       <Divider />
       {/* CI/CD */}
-      <div className="ci-cd">
+      <S.CICD>
         <h2>CI/CD</h2>
         <h3>
           <span>Deployment</span>
-          <Tag minimal intent={Intent.PRIMARY}>
+          <Tag minimal intent={Intent.PRIMARY} style={{ marginLeft: 8 }}>
             DORA
           </Tag>
+          <div className="switch">
+            <span>Enable</span>
+            <Switch alignIndicator="right" inline checked={enableCICD} onChange={handleChangeCICDEnable} />
+          </div>
         </h3>
-        <p>Tell DevLake what CI jobs are Deployments.</p>
-        <RadioGroup
-          selectedValue={enableCICD}
-          onChange={(e) => handleChangeCICDEnable(+(e.target as HTMLInputElement).value)}
-        >
-          <Radio label="Detect Deployment from Jobs in GitHub Action" value={1} />
-          {enableCICD === 1 && (
-            <div className="radio">
-              <p>
-                Please fill in the following RegEx, as DevLake ONLY accounts for deployments in the production
-                environment for DORA metrics. Not sure what a GitHub Action job is?{' '}
-                <ExternalLink link="https://docs.github.com/en/actions/using-jobs/using-jobs-in-a-workflow">
-                  See it here
-                </ExternalLink>
-              </p>
-              <div className="input">
-                <p>The job name that matches</p>
-                <InputGroup
-                  placeholder="(deploy|push-image)"
-                  value={transformation.deploymentPattern ?? ''}
-                  onChange={(e) =>
-                    setTransformation({
-                      ...transformation,
-                      deploymentPattern: e.target.value,
-                    })
-                  }
-                />
-                <p>
-                  will be registered as a `Deployment` in DevLake. <span style={{ color: '#E34040' }}>*</span>
-                </p>
-              </div>
-              <div className="input">
-                <p>The job name that matches</p>
-                <InputGroup
-                  disabled={!transformation.deploymentPattern}
-                  placeholder="production"
-                  value={transformation.productionPattern ?? ''}
-                  onChange={(e) =>
-                    setTransformation({
-                      ...transformation,
-                      productionPattern: e.target.value,
-                    })
-                  }
-                />
-                <p>
-                  will be registered as a `Deployment` to the Production environment in DevLake.
-                  <HelpTooltip content="If you leave this field empty, all data will be tagged as in the Production environment. " />
-                </p>
-              </div>
+        {enableCICD && (
+          <>
+            <p>
+              Use Regular Expression to define Deployments in DevLake in order to measure DORA metrics.{' '}
+              <ExternalLink link="https://devlake.apache.org/docs/Configuration/GitHub#step-3---adding-transformation-rules-optional">
+                Learn more
+              </ExternalLink>
+            </p>
+            <div style={{ marginTop: 16 }}>Convert a GitHub Workflow run as a DevLake Deployment when: </div>
+            <div className="text">
+              <span>
+                The name of the <strong>GitHub workflow run</strong> or <strong>one of its jobs</strong> matches
+              </span>
+              <InputGroup
+                style={{ width: 224, margin: '0 8px' }}
+                placeholder="(deploy|push-image)"
+                value={transformation.deploymentPattern ?? ''}
+                onChange={(e) =>
+                  setTransformation({
+                    ...transformation,
+                    deploymentPattern: e.target.value,
+                    productionPattern: !e.target.value ? '' : transformation.productionPattern,
+                  })
+                }
+              />
+              <i style={{ color: '#E34040' }}>*</i>
+              <HelpTooltip content="GitHub Workflow Runs: https://docs.github.com/en/actions/managing-workflow-runs/manually-running-a-workflow" />
             </div>
-          )}
-          <Radio label="Not using any GitHub entities as Deployment" value={0} />
-        </RadioGroup>
-      </div>
+            <div className="text">
+              <span>If the name also matches</span>
+              <InputGroup
+                style={{ width: 120, margin: '0 8px' }}
+                disabled={!transformation.deploymentPattern}
+                placeholder="prod(.*)"
+                value={transformation.productionPattern ?? ''}
+                onChange={(e) =>
+                  setTransformation({
+                    ...transformation,
+                    productionPattern: e.target.value,
+                  })
+                }
+              />
+              <span>, this Deployment is a ‘Production Deployment’</span>
+              <HelpTooltip content="If you leave this field empty, all DevLake Deployments will be tagged as in the Production environment. " />
+            </div>
+          </>
+        )}
+      </S.CICD>
       <Divider />
       {/* Code Review */}
       <div>
@@ -414,6 +403,6 @@ export const GitHubTransformation = ({ transformation, setTransformation }: Prop
           </div>
         </Collapse>
       </div>
-    </S.TransformationWrapper>
+    </S.Transformation>
   );
 };
