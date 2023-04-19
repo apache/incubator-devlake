@@ -53,6 +53,7 @@ type GithubRun struct {
 	RerunURL         string     `json:"rerun_url" gorm:"type:varchar(255)"`
 	WorkflowURL      string     `json:"workflow_url" gorm:"type:varchar(255)"`
 	Type             string     `json:"type" gorm:"type:varchar(255)"`
+	Environment      string     `gorm:"type:varchar(255)"`
 }
 
 func (GithubRun) TableName() string {

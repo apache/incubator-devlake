@@ -19,6 +19,7 @@ package impl
 
 import (
 	"fmt"
+	"github.com/apache/incubator-devlake/core/models/domainlayer/devops"
 	"time"
 
 	"github.com/apache/incubator-devlake/core/context"
@@ -165,9 +166,18 @@ func (p Github) PrepareTaskData(taskCtx plugin.TaskContext, options map[string]i
 		return nil, err
 	}
 
+	regexEnricher := helper.NewRegexEnricher()
+	if err = regexEnricher.TryAdd(devops.DEPLOYMENT, op.DeploymentPattern); err != nil {
+		return nil, errors.BadInput.Wrap(err, "invalid value for `deploymentPattern`")
+	}
+	if err = regexEnricher.TryAdd(devops.PRODUCTION, op.ProductionPattern); err != nil {
+		return nil, errors.BadInput.Wrap(err, "invalid value for `productionPattern`")
+	}
+
 	taskData := &tasks.GithubTaskData{
-		Options:   op,
-		ApiClient: apiClient,
+		Options:       op,
+		ApiClient:     apiClient,
+		RegexEnricher: regexEnricher,
 	}
 
 	if op.TimeAfter != "" {

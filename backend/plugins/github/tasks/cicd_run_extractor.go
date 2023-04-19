@@ -20,6 +20,7 @@ package tasks
 import (
 	"encoding/json"
 	"github.com/apache/incubator-devlake/core/errors"
+	"github.com/apache/incubator-devlake/core/models/domainlayer/devops"
 	"github.com/apache/incubator-devlake/core/plugin"
 	"github.com/apache/incubator-devlake/helpers/pluginhelper/api"
 	"github.com/apache/incubator-devlake/plugins/github/models"
@@ -83,8 +84,8 @@ func ExtractRuns(taskCtx plugin.SubTaskContext) errors.Error {
 				CancelURL:        githubRun.CancelURL,
 				RerunURL:         githubRun.RerunURL,
 				WorkflowURL:      githubRun.WorkflowURL,
-				// TODO
-				//Type: "CI/CD",
+				Type:             data.RegexEnricher.ReturnNameIfMatched(devops.DEPLOYMENT, githubRun.Name),
+				Environment:      data.RegexEnricher.ReturnNameIfMatched(devops.PRODUCTION, githubRun.Name),
 			}
 			results = append(results, githubRunResult)
 			return results, nil
