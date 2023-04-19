@@ -18,9 +18,7 @@ from enum import Enum
 from typing import Optional
 import re
 
-from sqlmodel import Field
-
-from pydevlake import Connection, TransformationRule
+from pydevlake import Field, Connection, TransformationRule
 from pydevlake.model import ToolModel, ToolScope
 from pydevlake.pipeline_tasks import RefDiffOptions
 
@@ -42,7 +40,7 @@ class GitRepository(ToolScope, table=True):
     default_branch: Optional[str]
     project_id: str
     org_id: str
-    parent_repository_url: Optional[str] # parentRepository?/url
+    parent_repository_url: Optional[str] = Field(source='parentRepository/url')
 
 
 class GitPullRequest(ToolModel, table=True):
@@ -54,19 +52,19 @@ class GitPullRequest(ToolModel, table=True):
     pull_request_id: int = Field(primary_key=True)
     description: Optional[str]
     status: Status
-    created_by_id: Optional[str]
-    created_by_name: Optional[str]
+    created_by_id: str = Field(source='/createdBy/id')
+    created_by_name: str = Field(source='/createdBy/displayName')
     creation_date: datetime.datetime
     closed_date: Optional[datetime.datetime]
-    source_commit_sha: Optional[str] # lastMergeSourceCommit/commitId
-    target_commit_sha: Optional[str] # lastMergeTargetCommit/commitId
-    merge_commit_sha: Optional[str] # lastMergeCommit/commitId
+    source_commit_sha: str = Field(source='/lastMergeSourceCommit/commitId')
+    target_commit_sha: str = Field(source='/lastMergeTargetCommit/commitId')
+    merge_commit_sha: str = Field(source='/lastMergeCommit/commitId')
     url: Optional[str]
-    type: Optional[str]
+    type: Optional[str] = Field(source='/labels/0/name') # TODO: get this off transformation rules regex
     title: Optional[str]
     target_ref_name: Optional[str]
     source_ref_name: Optional[str]
-    fork_repo_id: Optional[str] # forkSource?/repository/id
+    fork_repo_id: Optional[str] = Field(source='/forkSource/repository/id')
 
 
 class GitPullRequestCommit(ToolModel, table=True):
@@ -90,7 +88,7 @@ class Build(ToolModel, table=True):
         Succeeded = "succeeded"
 
     id: int = Field(primary_key=True)
-    name: str # /definition/name
+    name: str = Field(source='/definition/name')
     start_time: Optional[datetime.datetime]
     finish_time: Optional[datetime.datetime]
     status: Status

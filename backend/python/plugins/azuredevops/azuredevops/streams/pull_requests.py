@@ -32,20 +32,6 @@ class GitPullRequests(Stream):
         for raw_pr in response:
             yield raw_pr, state
 
-    def extract(self, raw_data: dict) -> GitPullRequest:
-        pr = GitPullRequest(**raw_data)
-        pr.created_by_id = raw_data["createdBy"]["id"]
-        pr.created_by_name = raw_data["createdBy"]["displayName"]
-        pr.source_commit_sha = raw_data["lastMergeSourceCommit"]["commitId"]
-        pr.target_commit_sha = raw_data["lastMergeTargetCommit"]["commitId"]
-        pr.merge_commit_sha = raw_data["lastMergeCommit"]["commitId"]
-        if "labels" in raw_data:
-            # TODO get this off transformation rules regex
-            pr.type = raw_data["labels"][0]["name"]
-        if "forkSource" in raw_data:
-            pr.fork_repo_id = raw_data["forkSource"]["repository"]["id"]
-        return pr
-
     def convert(self, pr: GitPullRequest, ctx):
         repo_id = ctx.scope.domain_id()
         # If the PR is from a fork, we forge a new repo ID for the base repo but it doesn't correspond to a real repo
