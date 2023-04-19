@@ -1,12 +1,12 @@
 # Pydevlake
 
-A framework to write data collection plugins for [DevLake](https://devlake.apache.org/). The framework source code
-can be found in [here](./pydevlake) and the plugin source code [here](./pydevlake).
+Pydevlake is a framework for writing plugins plugins for [DevLake](https://devlake.apache.org/). The framework source code
+can be found in [here](./pydevlake).
 
 
 # How to create a new plugin
 
-## Create plugin project
+## Create the plugin project
 
 
 Make sure you have [Poetry](https://python-poetry.org/docs/#installation) installed.
@@ -15,7 +15,7 @@ This will generate a new directory for your plugin.
 
 In the `pyproject.toml` file and add the following line at the end of the `[tool.poetry.dependencies]` section:
 ```
-pydevlake = { path = "../../pydevlake", develop = false }
+pydevlake = { path = "../../pydevlake", develop = true }
 ```
 
 Now run `poetry install`.
@@ -25,24 +25,40 @@ Now run `poetry install`.
 Create a `main.py` file with the following content:
 
 ```python
-from pydevlake import Plugin, Connection
+from typing import Iterable
+
+import pydevlake as dl
 
 
-class MyPluginConnection(Connection):
+class MyPluginConnection(dl.Connection):
     pass
 
 
-class MyPlugin(Plugin):
-    @property
-    def connection_type(self):
-        return MyPluginConnection
+class MyPluginTransformationRule(dl.TransformationRule):
+    pass
+
+
+class MyPluginToolScope(dl.ToolScope):
+    pass
+
+
+class MyPlugin(dl.Plugin):
+    connection_type = MyPluginConnection
+    transformation_rule_type =  MyPluginTransformationRule
+    tool_scope_type = MyPluginToolScope
+    streams = []
+
+    def domain_scopes(self, tool_scope: MyScope) -> Iterable[dl.DomainScope]:
+        ...
+
+    def remote_scope_groups(self, connection: MyPluginConnection) -> Iterable[dl.RemoteScopeGroup]:
+        ...
+
+    def remote_scopes(self, connection, group_id: str) -> Iterable[MyPluginToolScope]:
+        ...
 
     def test_connection(self, connection: MyPluginConnection):
-        pass
-
-    @property
-    def streams(self):
-        return []
+        ...
 
 
 if __name__ == '__main__':
@@ -50,20 +66,122 @@ if __name__ == '__main__':
 ```
 
 This file is the entry point to your plugin.
-It specifies three things:
-- the parameters that your plugin needs to collect data, e.g. the url and credentials to connect to the datasource or custom options
-- how to validate that some given parameters allows to connect to the datasource, e.g. test whether the credentials are correct
-- the list of data streams that this plugin can collect
+It specifies three datatypes:
+- A connection that groups the parameters that your plugin needs to collect data, e.g. the url and credentials to connect to the datasource
+- A transformation rule that groups the parameters that your plugin uses to convert some data, e.g. regexes to match issue type from name.
+- A tool layer scope type that represents the top-level entity of this plugin, e.g. a board, a repository, a project, etc.
+
+The plugin class declares what are its connection, transformation rule and tool scope types.
+It also declares its list of streams, and is responsible to define 4 methods that we'll cover hereafter.
 
 
 ### Connection parameters
 
-The parameters of your plugin are defined as class attributes of the connection class.
-For example to add a `url` parameter of type `str` edit `MyPLuginConnection` as follow:
+The parameters of your plugin split between those that are required to connect to the datasource that are grouped in your connection class
+and those that are used to customize conversion to domain models that are grouped in your transformation rule class.
+For example, to add `url` and `token` parameter, edit `MyPluginConnection` as follow:
 
 ```python
 class MyPluginConnection(Connection):
     url: str
+    token: str
+```
+
+All plugin methods that have a connection parameter will be called with an instance of this class.
+Note that you should not define `__init__`.
+
+### Transformation rule parameters
+
+
+Transformation rules are used to customize the conversion of data from the tool layer to the domain layer. For example, you can define a regex to match issue type from issue name.
+
+```python
+class MyPluginTransformationRule(TransformationRule):
+    issue_type_regex: str
+```
+
+Not all plugins need transformation rules, so you can omit this class.
+
+
+### Tool scope type
+
+The tool scope type is the top-level entity type of your plugin.
+For example, a board, a repository, a project, etc.
+A scope is connected to a connection, and all other collected entities are related to a scope.
+For example, a plugin for Jira will have a tool scope type of `Board`, and all other entities, such as issues, will belong to a single board.
+
+
+### Implement domain_scopes method
+
+
+The `domain_scopes` method should return the list of domain scopes that are related to a given tool scope. Usually, this consists of a single domain scope, but it can be more than one for plugins that collect data from multiple domains.
+
+
+```python
+from pydevlake.domain_layer.devops import CicdScope
+...
+
+class MyPlugin(dl.Plugin):
+    ...
+
+    def domain_scopes(self, tool_scope: MyPluginToolScope) -> list[dl.DomainScope]:
+        yield CicdScope(
+            name=tool_scope.name,
+            description=tool_scope.description,
+            url=tool_scope.url,
+        )
+
+```
+
+
+### Implement `remote_scope` and `remote_scope_groups` method
+
+Those two methods are used by DevLake to list the available scopes in the datasource.
+The `remote_scope_groups` method should return a list of scope "groups" and the `remote_scopes` method should return the list of tool scopes in a given group.
+
+
+```python
+class MyPlugin(dl.Plugin):
+    ...
+
+    def remote_scope_groups(self, connection: MyPluginConnection) -> Iterable[dl.RemoteScopeGroup]:
+        api = ...
+        response = ...
+        for raw_group in response:
+            yield RemoteScopeGroup(
+                id=raw_group.id,
+                name=raw_group.name,
+            )
+
+    def remote_scopes(self, connection, group_id: str) -> Iterable[MyPluginToolScope]:
+        api = ...
+        response = ...
+        for raw_scope in response:
+            yield MyPluginToolScope(
+                id=raw_scope['id'],
+                name=raw_scope['name'],
+                description=raw_scope['description'],
+                url=raw_scope['url'],
+            )
+```
+
+### Implement `test_connection` method
+
+The `test_connection` method is used to test if a given connection is valid.
+It should check that the connection credentials are valid.
+If the connection is not valid, it should raise an exception.
+
+```python
+class MyPlugin(dl.Plugin):
+    ...
+
+    def test_connection(self, connection: MyPluginConnection):
+        api = ...
+        response = ...
+        if response.status_code != 401:
+            raise Exception("Invalid credentials")
+        if response.status_code != 200:
+            raise Exception(f"Connection error {response}")
 ```
 
 
@@ -92,6 +210,9 @@ class User(ToolModel, table=True):
 Your tool model must declare at least one attribute as a primary key, like `id` in the example above.
 It must inherit from `ToolModel`, which in turn inherit from `SQLModel`, the base class of an [ORM of the same name](https://sqlmodel.tiangolo.com/).
 You can use `SQLModel` features like [declaring relationships with other models](https://sqlmodel.tiangolo.com/tutorial/relationship-attributes/).
+Do not forget `table=True`, otherwise no table will be created in the database. You can omit it for abstract model classes.
+
+To facilitate or even eliminate extraction, your tool models should be close to the raw data you collect. Note that if you collect data from a JSON REST API that uses camelCased properties, you can still define snake_cased attributes in your model. The camelCased attributes aliases will be generated, so no special care is needed during extraction.
 
 
 ### Create the stream class
@@ -100,16 +221,19 @@ Create a new file for your first stream in a `streams` directory.
 
 ```python
 from pydevlake import Stream, DomainType
-from pydevlake.domain_layer.crossdomain import User as DomainUser
+import pydevlake.domain_layer.crossdomain as cross
 
-from myplugin.models import User as ToolUser
+from myplugin.models import User
 
 
 class Users(Stream):
     tool_model = ToolUser
-    domain_types = [DomainType.CROSS]
+    domain_models = [cross.User]
 
     def collect(self, state, context) -> Iterable[Tuple[object, dict]]:
+        pass
+
+    def extract(self, raw_data, context) -> ToolUser:
         pass
 
     def convert(self, user: ToolUser, context) -> Iterable[DomainUser]:
@@ -119,13 +243,17 @@ class Users(Stream):
 This stream will collect raw user data, e.g. as parsed JSON objects, extract this raw data as your
 tool-specific user model, then convert them into domain-layer user models.
 
-The `tool_model` class attribute declares the tool model class that is extracted by this strem.
-The `domain_types` class attribute is a list of domain types this stream is about.
+The `tool_model` class attribute declares the tool model class that is extracted by this stream.
+The `domain_domain` class attribute is a list of domain models that are converted from the tool model.
+Most of the time, you will convert a tool model into a single domain model, but need to convert it into multiple domain models.
 
 The `collect` method takes a `state` dictionary and a context object and yields tuples of raw data and new state.
 The last state that the plugin yielded for a given connection will be reused during the next collection.
 The plugin can use this `state` to store information necessary to perform incremental collection of data.
 
+The `extract` method takes a raw data object and a context object and returns a tool model. This method has a default implementation that uses the `tool_model` class attribute to create a new instance of the tool model and set its attributes from the raw data (`self.tool_model(**raw_data)`).
+If the raw data collected from the datasource and is simple enough and well aligned with your tool model, you can omit this method.
+Otherwise, you can override it to deal with e.g. nested data structures.
 
 The `convert` method takes a tool-specific user model and convert it into domain level user models.
 Here the two models align quite well, the conversion is trivial:
@@ -138,6 +266,30 @@ def convert(self, user: ToolUser, context: Context) -> Iterable[DomainUser]:
         email=user.email
     )
 ```
+
+
+#### Substreams
+
+Sometimes, a datasource is organized hierarchically. For example, in Jira an issue have many comments.
+In this case, you can create a substream to collect the comments of an issue.
+A substream is a stream that is executed for each element of a parent stream.
+The parent tool model, in our example an issue, is passed to the substream `collect` method as the `parent` argument.
+
+```python
+import pydevlake as dl
+import pydevlake.domain_layer.ticket as ticket
+
+from myplugin.streams.issues import Issues
+
+class Comments(dl.Substream):
+    tool_model = IssueComment
+    domain_models = [ticket.IssueComment]
+    parent_stream = Issues
+
+    def collect(self, state, context, parent: Issue) -> Iterable[Tuple[object, dict]]:
+        ...
+```
+
 
 ### Create an API wrapper
 
@@ -312,30 +464,6 @@ CTX='{"db_url":"sqlite+pysqlite:///:memory:", "connection": {...your connection 
 poetry run myplugin/main.py $CTX users 3>&1
 ```
 
-
-# Test the plugin with DevLake
-
-To test your plugin together with DevLake, you first need to create a connection for your plugin and get its id.
-One easy way to do that is to run DevLake with `make dev` and then to create the connection with a POST
-request to your plugin connection API:
-
-```console
-curl -X 'POST' \
-  'http://localhost:8080/plugins/myplugin/connections' \
-  -d '{...connection JSON object...}'
-```
-
-You should get the created connection with his id (which is 1 for the first created connection) in the response.
-
-Now that a connection for your plugin exists in DevLake database, we can try to run your plugin using `backend/server/services/remote/run/run.go` script:
-
-```console
-cd backend
-go run server/services/remote/run/run.go  -c 1 -p python/plugins/myplugin/myplugin/main.py
-```
-
-This script takes a connection id (`-c` flag) and the path to your plugin `main.py` file (`-p` flag).
-You can also send options as a JSON object (`-o` flag).
 
 # Automated tests
 Make sure you have unit-tests written for your plugin code. The test files should end with `_test.py`, and are discovered and
