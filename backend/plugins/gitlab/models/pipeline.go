@@ -40,6 +40,9 @@ type GitlabPipeline struct {
 	FinishedAt      *time.Time
 	Coverage        string
 
+	Type        string `gorm:"type:varchar(255)"`
+	Environment string `gorm:"type:varchar(255)"`
+
 	IsDetailRequired bool
 
 	common.NoPKModel

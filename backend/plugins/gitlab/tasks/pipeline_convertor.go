@@ -92,6 +92,8 @@ func ConvertPipelines(taskCtx plugin.SubTaskContext) errors.Error {
 				CreatedDate:  createdAt,
 				FinishedDate: gitlabPipeline.GitlabUpdatedAt,
 				CicdScopeId:  projectIdGen.Generate(data.Options.ConnectionId, gitlabPipeline.ProjectId),
+				Environment:  gitlabPipeline.Environment,
+				Type:         gitlabPipeline.Type,
 			}
 
 			// rebuild the FinishedDate and DurationSec by Status
