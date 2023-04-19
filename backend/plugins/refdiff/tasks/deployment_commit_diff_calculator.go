@@ -58,8 +58,6 @@ func CalculateDeploymentCommitsDiff(taskCtx plugin.SubTaskContext) errors.Error 
 		dal.Where(
 			`
 			pm.project_name = ?
-			AND dc.prev_success_deployment_commit_id IS NOT NULL
-			AND dc.prev_success_deployment_commit_id <> ''
 			AND NOT EXISTS (
 				SELECT 1
 				FROM finished_commits_diffs fcd

@@ -112,30 +112,47 @@ func (p Dora) MigrationScripts() []plugin.MigrationScript {
 }
 
 func (p Dora) MakeMetricPluginPipelinePlanV200(projectName string, options json.RawMessage) (plugin.PipelinePlan, errors.Error) {
-	plan := plugin.PipelinePlan{}
 	op := &tasks.DoraOptions{}
 	err := json.Unmarshal(options, op)
 	if err != nil {
 		return nil, errors.Default.WrapRaw(err)
 	}
-	stageDeploymentCommitdiff := plugin.PipelineStage{
+	plan := plugin.PipelinePlan{
 		{
-			Plugin:   "refdiff",
-			Subtasks: []string{"calculateProjectDeploymentCommitsDiff"},
-			Options: map[string]interface{}{
-				"projectName": projectName,
+			{
+				Plugin: "dora",
+				Options: map[string]interface{}{
+					"projectName": projectName,
+				},
+				Subtasks: []string{
+					"generateDeploymentCommits",
+					"enrichPrevSuccessDeploymentCommits",
+				},
+			},
+		},
+		{
+			{
+				Plugin: "refdiff",
+				Options: map[string]interface{}{
+					"projectName": projectName,
+				},
+				Subtasks: []string{
+					"calculateDeploymentCommitsDiff",
+				},
+			},
+		},
+		{
+			{
+				Plugin: "dora",
+				Options: map[string]interface{}{
+					"projectName": projectName,
+				},
+				Subtasks: []string{
+					"calculateChangeLeadTime",
+					"ConnectIncidentToDeployment",
+				},
 			},
 		},
 	}
-	stageDora := plugin.PipelineStage{
-		{
-			Plugin: "dora",
-			Options: map[string]interface{}{
-				"projectName": projectName,
-			},
-		},
-	}
-	plan = append(plan, stageDeploymentCommitdiff, stageDora)
-
 	return plan, nil
 }
