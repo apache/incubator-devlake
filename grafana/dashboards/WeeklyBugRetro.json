@@ -16,7 +16,7 @@
   "gnetId": null,
   "graphTooltip": 0,
   "id": 13,
-  "iteration": 1669391436348,
+  "iteration": 1681785827220,
   "links": [],
   "panels": [
     {
@@ -179,7 +179,7 @@
           "metricColumn": "none",
           "queryType": "randomWalk",
           "rawQuery": true,
-          "rawSql": "select\n  case when component != '' then component else 'Issue-without-component' end as component,\n  count(*) as 'Issue Number'\nfrom\n  lake.issues as i\n  join lake.board_issues bi on i.id = bi.issue_id\n  join boards b on bi.board_id = b.id\nwhere\n  i.type in ($issue_type)\n  and date(i.created_date) BETWEEN curdate() - INTERVAL WEEKDAY(curdate())+7 DAY AND curdate() - INTERVAL WEEKDAY(curdate())+1 DAY\n  and b.id in ($board_id)\ngroup by 1",
+          "rawSql": "select\n  priority,\n  count(*) as 'Issue Number'\nfrom\n  lake.issues as i\n  join lake.board_issues bi on i.id = bi.issue_id\n  join boards b on bi.board_id = b.id\nwhere\n  i.type in ($issue_type)\n  and date(i.created_date) BETWEEN curdate() - INTERVAL WEEKDAY(curdate())+7 DAY AND curdate() - INTERVAL WEEKDAY(curdate())+1 DAY\n  and b.id in ($board_id)\ngroup by 1",
           "refId": "A",
           "select": [
             [
@@ -203,7 +203,7 @@
           ]
         }
       ],
-      "title": "Previous Week New Bug Count by Components",
+      "title": "Previous Week New Bug Count by Priority",
       "type": "piechart"
     },
     {
@@ -1027,7 +1027,7 @@
           "metricColumn": "none",
           "queryType": "randomWalk",
           "rawQuery": true,
-          "rawSql": "select \n  i.issue_key as 'Issue Number',\n  i.title as 'Title',\n  (TIMESTAMPDIFF(MINUTE, i.created_date,NOW()))/1440 as 'Queue Time in Days',\n  i.url as 'Url'\nfrom \n  lake.issues i\n\tjoin board_issues bi on i.id = bi.issue_id\n\tjoin boards b on bi.board_id = b.id\nwhere\n  i.type in ($issue_type)\n  and i.status != 'DONE'\n  and b.id in ($board_id)\norder by 'Queue Time' desc",
+          "rawSql": "select \n  i.issue_key as 'Issue Number',\n  i.title as 'Title',\n  (TIMESTAMPDIFF(MINUTE, i.created_date,NOW()))/1440 as 'Queue Time in Days',\n  i.url as 'Url',\n  priority\nfrom \n  lake.issues i\n\tjoin board_issues bi on i.id = bi.issue_id\n\tjoin boards b on bi.board_id = b.id\nwhere\n  i.type in ($issue_type)\n  and i.status != 'DONE'\n  and b.id in ($board_id)\n  and priority in ($priority)\norder by 'Queue Time' desc",
           "refId": "A",
           "select": [
             [
@@ -1273,7 +1273,7 @@
           ]
         }
       ],
-      "title": "Bugs to be Triaged [All History]",
+      "title": "Bugs to be Triaged Sort by Queue Time [All History]",
       "type": "table"
     },
     {
@@ -1573,7 +1573,7 @@
       },
       "id": 30,
       "options": {
-        "content": "<br/>\n\nThis dashboard is created based on this [data schema](https://devlake.apache.org/docs/DataModels/DevLakeDomainLayerSchema). Want to add more metrics? Please follow the [guide](https://devlake.apache.org/docs/Configuration/Dashboards/GrafanaUserGuide).",
+        "content": "<br/>\n\nThis dashboard is created based on this [data schema](https://devlake.apache.org/docs/DataModels/DevLakeDomainLayerSchema). Want to add more metrics? Please follow the [guide](https://devlake.apache.org/docs/UserManuals/Dashboards/GrafanaUserGuide).",
         "mode": "markdown"
       },
       "pluginVersion": "8.0.6",
@@ -1595,8 +1595,8 @@
         "allValue": null,
         "current": {
           "selected": false,
-          "text": "All",
-          "value": "$__all"
+          "text": "apache/incubator-devlake",
+          "value": "github:GithubRepo:1:384111310"
         },
         "datasource": "mysql",
         "definition": "select concat(name, '-', id) as text from boards",
@@ -1638,6 +1638,34 @@
         "skipUrlSync": false,
         "sort": 0,
         "type": "query"
+      },
+      {
+        "allValue": null,
+        "current": {
+          "selected": true,
+          "text": [
+            "All"
+          ],
+          "value": [
+            "$__all"
+          ]
+        },
+        "datasource": "mysql",
+        "definition": "select distinct priority from issues",
+        "description": null,
+        "error": null,
+        "hide": 0,
+        "includeAll": true,
+        "label": "Priority",
+        "multi": true,
+        "name": "priority",
+        "options": [],
+        "query": "select distinct priority from issues",
+        "refresh": 1,
+        "regex": "",
+        "skipUrlSync": false,
+        "sort": 0,
+        "type": "query"
       }
     ]
   },
@@ -1649,5 +1677,5 @@
   "timezone": "",
   "title": "Weekly Bug Retro",
   "uid": "-5EKA5w7k",
-  "version": 15
+  "version": 23
 }
