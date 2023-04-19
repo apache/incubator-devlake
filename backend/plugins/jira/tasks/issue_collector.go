@@ -20,6 +20,8 @@ package tasks
 import (
 	"encoding/json"
 	"fmt"
+	"github.com/apache/incubator-devlake/core/dal"
+	"github.com/apache/incubator-devlake/plugins/jira/models"
 	"io"
 	"net/http"
 	"net/url"
@@ -44,7 +46,7 @@ var CollectIssuesMeta = plugin.SubTaskMeta{
 
 func CollectIssues(taskCtx plugin.SubTaskContext) errors.Error {
 	data := taskCtx.GetData().(*JiraTaskData)
-
+	logger := taskCtx.GetLogger()
 	collectorWithState, err := api.NewStatefulApiCollector(api.RawDataSubTaskArgs{
 		Ctx: taskCtx,
 		/*
@@ -68,7 +70,13 @@ func CollectIssues(taskCtx plugin.SubTaskContext) errors.Error {
 	// IMPORTANT: we have to keep paginated data in a consistence order to avoid data-missing, if we sort issues by
 	//  `updated`, issue will be jumping between pages if it got updated during the collection process
 	incremental := collectorWithState.IsIncremental()
-	jql := buildJQL(data.TimeAfter, collectorWithState.LatestState.LatestSuccessStart, incremental)
+	loc, err := getTimeZone(taskCtx)
+	if err != nil {
+		logger.Info("failed to get timezone, err: %v", err)
+	} else {
+		logger.Info("got user's timezone: %v", loc.String())
+	}
+	jql := buildJQL(data.TimeAfter, collectorWithState.LatestState.LatestSuccessStart, incremental, loc)
 
 	err = collectorWithState.InitCollector(api.ApiCollectorArgs{
 		ApiClient:   data.ApiClient,
@@ -137,22 +145,95 @@ func CollectIssues(taskCtx plugin.SubTaskContext) errors.Error {
 }
 
 // buildJQL build jql based on timeAfter and incremental mode
-func buildJQL(timeAfter, latestSuccessStart *time.Time, isIncremental bool) string {
+func buildJQL(timeAfter, latestSuccessStart *time.Time, isIncremental bool, location *time.Location) string {
 	jql := "ORDER BY created ASC"
 	var moment time.Time
 	if timeAfter != nil {
 		moment = *timeAfter
 	}
 	// if isIncremental is true, we should not collect data before latestSuccessStart
-	if isIncremental {
-		// subtract 24 hours to avoid missing data due to time zone difference
-		latest := latestSuccessStart.Add(-24 * time.Hour)
-		if latest.After(moment) {
-			moment = latest
-		}
+	if isIncremental && latestSuccessStart.After(moment) {
+		moment = *latestSuccessStart
 	}
 	if !moment.IsZero() {
-		jql = fmt.Sprintf("updated >= '%s' %s", moment.In(time.UTC).Format("2006/01/02 15:04"), jql)
+		if location != nil {
+			moment = moment.In(location)
+		} else {
+			moment = moment.In(time.UTC).Add(-24 * time.Hour)
+		}
+		jql = fmt.Sprintf("updated >= '%s' %s", moment.Format("2006/01/02 15:04"), jql)
 	}
 	return jql
+}
+
+// getTimeZone get user's timezone from jira API
+func getTimeZone(taskCtx plugin.SubTaskContext) (*time.Location, errors.Error) {
+	data := taskCtx.GetData().(*JiraTaskData)
+	connectionId := data.Options.ConnectionId
+	var conn models.JiraConnection
+	err := taskCtx.GetDal().First(&conn, dal.Where("id = ?", connectionId))
+	if err != nil {
+		return nil, err
+	}
+	var resp *http.Response
+	var path string
+	var query url.Values
+	if data.JiraServerInfo.DeploymentType == models.DeploymentServer {
+		path = "api/2/user"
+		query = url.Values{"username": []string{conn.Username}}
+	} else {
+		path = "api/3/user"
+		var accountId string
+		accountId, err = getAccountId(data.ApiClient, conn.Username)
+		if err != nil {
+			return nil, err
+		}
+		query = url.Values{"accountId": []string{accountId}}
+	}
+	resp, err = data.ApiClient.Get(path, query, nil)
+	if err != nil {
+		return nil, err
+	}
+	defer resp.Body.Close()
+	var timeZone struct {
+		TimeZone string `json:"timeZone"`
+	}
+	err = errors.Convert(json.NewDecoder(resp.Body).Decode(&timeZone))
+	if err != nil {
+		return nil, err
+	}
+	tz, err := errors.Convert01(time.LoadLocation(timeZone.TimeZone))
+	if err != nil {
+		return nil, err
+	}
+	if tz == nil {
+		return nil, errors.Default.New(fmt.Sprintf("invalid time zone: %s", timeZone.TimeZone))
+	}
+	return tz, nil
+}
+
+func getAccountId(client *api.ApiAsyncClient, username string) (string, errors.Error) {
+	resp, err := client.Get("api/3/user/picker", url.Values{"query": []string{username}}, nil)
+	if err != nil {
+		return "", err
+	}
+	defer resp.Body.Close()
+	var accounts struct {
+		Users []struct {
+			AccountID   string `json:"accountId"`
+			AccountType string `json:"accountType"`
+			HTML        string `json:"html"`
+			DisplayName string `json:"displayName"`
+		} `json:"users"`
+		Total  int    `json:"total"`
+		Header string `json:"header"`
+	}
+	err = errors.Convert(json.NewDecoder(resp.Body).Decode(&accounts))
+	if err != nil {
+		return "", err
+	}
+	if len(accounts.Users) == 0 {
+		return "", errors.Default.New("no user found")
+	}
+	return accounts.Users[0].AccountID, nil
 }
