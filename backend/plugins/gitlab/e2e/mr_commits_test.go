@@ -18,6 +18,7 @@ limitations under the License.
 package e2e
 
 import (
+	"github.com/apache/incubator-devlake/core/models/common"
 	"github.com/apache/incubator-devlake/core/models/domainlayer/code"
 	"github.com/apache/incubator-devlake/helpers/e2ehelper"
 	"github.com/apache/incubator-devlake/plugins/gitlab/impl"
@@ -117,27 +118,18 @@ func TestGitlabMrCommitDataFlow(t *testing.T) {
 		),
 	)
 
-	dataflowTester.VerifyTable(
-		models.GitlabMrCommit{},
-		"./snapshot_tables/_tool_gitlab_mr_commits.csv",
-		e2ehelper.ColumnWithRawData(
-			"connection_id",
-			"merge_request_id",
-			"commit_sha",
-		),
-	)
+	dataflowTester.VerifyTableWithOptions(models.GitlabMrCommit{}, e2ehelper.TableOptions{
+		CSVRelPath:  "./snapshot_tables/_tool_gitlab_mr_commits.csv",
+		IgnoreTypes: []interface{}{common.Model{}},
+	})
 
 	// verify conversion
 	dataflowTester.FlushTabler(&code.PullRequestCommit{})
 	dataflowTester.Subtask(tasks.ConvertApiMrCommitsMeta, taskData)
-	dataflowTester.VerifyTable(
-		code.PullRequestCommit{},
-		"./snapshot_tables/pull_request_commits.csv",
-		e2ehelper.ColumnWithRawData(
-			"commit_sha",
-			"pull_request_id",
-		),
-	)
+	dataflowTester.VerifyTableWithOptions(code.PullRequestCommit{}, e2ehelper.TableOptions{
+		CSVRelPath:  "./snapshot_tables/pull_request_commits.csv",
+		IgnoreTypes: []interface{}{common.Model{}},
+	})
 
 	// verify conversion
 	dataflowTester.FlushTabler(&code.Commit{})
