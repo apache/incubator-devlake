@@ -19,8 +19,9 @@ package tasks
 
 import (
 	"encoding/json"
-	"github.com/apache/incubator-devlake/core/errors"
 	"strings"
+
+	"github.com/apache/incubator-devlake/core/errors"
 
 	"github.com/apache/incubator-devlake/core/plugin"
 	helper "github.com/apache/incubator-devlake/helpers/pluginhelper/api"
@@ -105,9 +106,10 @@ func ExtractApiPullRequestCommits(taskCtx plugin.SubTaskContext) errors.Error {
 			results = append(results, githubCommit)
 
 			githubPullRequestCommit := &models.GithubPrCommit{
-				ConnectionId:  data.Options.ConnectionId,
-				CommitSha:     apiPullRequestCommit.Sha,
-				PullRequestId: pull.GithubId,
+				ConnectionId:       data.Options.ConnectionId,
+				CommitSha:          apiPullRequestCommit.Sha,
+				PullRequestId:      pull.GithubId,
+				CommitAuthoredDate: githubCommit.AuthoredDate,
 			}
 			if err != nil {
 				return nil, err

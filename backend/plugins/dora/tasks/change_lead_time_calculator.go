@@ -85,8 +85,8 @@ func CalculateChangeLeadTime(taskCtx plugin.SubTaskContext) errors.Error {
 			}
 			// Calculate PR coding time
 			if firstCommit != nil {
-				projectPrMetric.PrCodingTime = computeTimeSpan(&firstCommit.AuthoredDate, &pr.CreatedDate)
-				projectPrMetric.FirstCommitSha = firstCommit.Sha
+				projectPrMetric.PrCodingTime = computeTimeSpan(&firstCommit.CommitAuthoredDate, &pr.CreatedDate)
+				projectPrMetric.FirstCommitSha = firstCommit.CommitSha
 			}
 
 			// Get the first review for the PR
@@ -141,15 +141,14 @@ func CalculateChangeLeadTime(taskCtx plugin.SubTaskContext) errors.Error {
 }
 
 // getFirstCommit takes a PR ID and a database connection as input, and returns the first commit of the PR.
-func getFirstCommit(prId string, db dal.Dal) (*code.Commit, errors.Error) {
-	// Initialize a commit object
-	commit := &code.Commit{}
+func getFirstCommit(prId string, db dal.Dal) (*code.PullRequestCommit, errors.Error) {
+	// Initialize a pull_request_commit object
+	commit := &code.PullRequestCommit{}
 	// Define the SQL clauses for the database query
 	commitClauses := []dal.Clause{
-		dal.From(&code.Commit{}), // Select from the "commits" table
-		dal.Join("left join pull_request_commits on commits.sha = pull_request_commits.commit_sha"), // Join with the "pull_request_commits" table
-		dal.Where("pull_request_commits.pull_request_id = ?", prId),                                 // Filter by the PR ID
-		dal.Orderby("commits.authored_date ASC"),                                                    // Order by the authored date of the commits (ascending)
+		dal.From(&code.PullRequestCommit{}),                          // Select from the "pull_request_commits" table
+		dal.Where("pull_request_commits.pull_request_id = ?", prId),  // Filter by the PR ID
+		dal.Orderby("pull_request_commits.commit_authored_date ASC"), // Order by the authored date of the commits (ascending)
 	}
 
 	// Execute the query and retrieve the first commit

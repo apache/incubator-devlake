@@ -79,5 +79,6 @@ func All() []plugin.MigrationScript {
 		new(renameCicdPipelineRepoToRepoUrl),
 		new(addCicdDeploymentCommits),
 		new(renameDeploymentIdForPrProjectMetric),
+		new(addCommitAuthoredDate),
 	}
 }
