@@ -38,6 +38,7 @@ export const LoginPage = () => {
 
     if (success) {
       localStorage.setItem('accessToken', res.AuthenticationResult.AccessToken);
+      document.cookie = 'access_token=' + res.AuthenticationResult.AccessToken + '; path=/';
       history.push('/');
     }
 
