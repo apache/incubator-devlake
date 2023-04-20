@@ -18,24 +18,38 @@ limitations under the License.
 package migrationscripts
 
 import (
+	"time"
+
+	"github.com/apache/incubator-devlake/core/context"
+	"github.com/apache/incubator-devlake/core/errors"
 	"github.com/apache/incubator-devlake/core/plugin"
+	"github.com/apache/incubator-devlake/helpers/migrationhelper"
 )
 
-// All return all the migration scripts
-func All() []plugin.MigrationScript {
-	return []plugin.MigrationScript{
-		new(addInitTables),
-		new(addGithubRunsTable),
-		new(addGithubJobsTable),
-		new(addGithubPipelineTable),
-		new(deleteGithubPipelineTable),
-		new(addHeadRepoIdFieldInGithubPr),
-		new(addEnableGraphqlForConnection),
-		new(addTransformationRule20221124),
-		new(concatOwnerAndName),
-		new(addStdTypeToIssue221230),
-		new(addConnectionIdToTransformationRule),
-		new(addEnvToRunAndJob),
-		new(addGithubCommitAuthoredDate),
-	}
+var _ plugin.MigrationScript = (*addGithubCommitAuthoredDate)(nil)
+
+type GithubPrCommit20230419 struct {
+	CommitAuthoredDate time.Time
+}
+
+func (GithubPrCommit20230419) TableName() string {
+	return "_tool_github_pull_request_commits"
+}
+
+type addGithubCommitAuthoredDate struct{}
+
+func (script *addGithubCommitAuthoredDate) Up(basicRes context.BasicRes) errors.Error {
+
+	return migrationhelper.AutoMigrateTables(
+		basicRes,
+		&GithubPrCommit20230419{},
+	)
+}
+
+func (*addGithubCommitAuthoredDate) Version() uint64 {
+	return 20230419135127
+}
+
+func (*addGithubCommitAuthoredDate) Name() string {
+	return "add commit_authored_date to _tool_github_pull_request_commits table"
 }

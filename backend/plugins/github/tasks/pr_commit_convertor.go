@@ -18,6 +18,8 @@ limitations under the License.
 package tasks
 
 import (
+	"reflect"
+
 	"github.com/apache/incubator-devlake/core/dal"
 	"github.com/apache/incubator-devlake/core/errors"
 	"github.com/apache/incubator-devlake/core/models/domainlayer/code"
@@ -25,7 +27,6 @@ import (
 	"github.com/apache/incubator-devlake/core/plugin"
 	"github.com/apache/incubator-devlake/helpers/pluginhelper/api"
 	"github.com/apache/incubator-devlake/plugins/github/models"
-	"reflect"
 )
 
 var ConvertPullRequestCommitsMeta = plugin.SubTaskMeta{
@@ -68,8 +69,9 @@ func ConvertPullRequestCommits(taskCtx plugin.SubTaskContext) (err errors.Error)
 		Convert: func(inputRow interface{}) ([]interface{}, errors.Error) {
 			githubPullRequestCommit := inputRow.(*models.GithubPrCommit)
 			domainPrCommit := &code.PullRequestCommit{
-				CommitSha:     githubPullRequestCommit.CommitSha,
-				PullRequestId: pullIdGen.Generate(data.Options.ConnectionId, githubPullRequestCommit.PullRequestId),
+				CommitSha:          githubPullRequestCommit.CommitSha,
+				PullRequestId:      pullIdGen.Generate(data.Options.ConnectionId, githubPullRequestCommit.PullRequestId),
+				CommitAuthoredDate: githubPullRequestCommit.CommitAuthoredDate,
 			}
 			return []interface{}{
 				domainPrCommit,
