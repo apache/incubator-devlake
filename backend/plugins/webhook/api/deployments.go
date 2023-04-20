@@ -40,6 +40,7 @@ type WebhookDeployTaskRequest struct {
 	RepoUrl   string `mapstructure:"repo_url" validate:"required"`
 	CommitSha string `mapstructure:"commit_sha" validate:"required"`
 	RefName   string `mapstructure:"ref_name"`
+	Result    string `mapstructure:"result"`
 	// start_time and end_time is more readable for users,
 	// StartedDate and FinishedDate is same as columns in db.
 	// So they all keep.
@@ -98,6 +99,9 @@ func PostDeploymentCicdTask(input *plugin.ApiResourceInput) (*plugin.ApiResource
 		now := time.Now()
 		request.FinishedDate = &now
 	}
+	if request.Result == "" {
+		request.Result = devops.SUCCESS
+	}
 	duration := uint64(request.FinishedDate.Sub(*request.StartedDate).Seconds())
 
 	// create a deployment_commit record
@@ -108,7 +112,7 @@ func PostDeploymentCicdTask(input *plugin.ApiResourceInput) (*plugin.ApiResource
 		CicdPipelineId: pipelineId,
 		CicdScopeId:    scopeId,
 		Name:           fmt.Sprintf(`deployment for %s`, request.CommitSha),
-		Result:         devops.SUCCESS,
+		Result:         request.Result,
 		Status:         devops.DONE,
 		Environment:    request.Environment,
 		CreatedDate:    *request.CreatedDate,
