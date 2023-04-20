@@ -26,32 +26,32 @@ import (
 	"github.com/apache/incubator-devlake/helpers/migrationhelper"
 )
 
-var _ plugin.MigrationScript = (*addBitbucketCommitAuthoredDate)(nil)
+var _ plugin.MigrationScript = (*addGiteeCommitAuthorInfo)(nil)
 
-type BitbucketPrCommit20230420 struct {
-	CommitAuthorName   string `gorm:"type:varchar(255)"`
-	CommitAuthorEmail  string `gorm:"type:varchar(255)"`
+type GiteePrCommit20230419 struct {
+	CommitAuthorName   string `gorm:"type:varchar(255)"` // Author name
+	CommitAuthorEmail  string `gorm:"type:varchar(255)"` // Author email
 	CommitAuthoredDate time.Time
 }
 
-func (BitbucketPrCommit20230420) TableName() string {
-	return "_tool_bitbucket_pull_request_commits"
+func (GiteePrCommit20230419) TableName() string {
+	return "_tool_gitee_pull_request_commits"
 }
 
-type addBitbucketCommitAuthoredDate struct{}
+type addGiteeCommitAuthorInfo struct{}
 
-func (script *addBitbucketCommitAuthoredDate) Up(basicRes context.BasicRes) errors.Error {
+func (script *addGiteeCommitAuthorInfo) Up(basicRes context.BasicRes) errors.Error {
 
 	return migrationhelper.AutoMigrateTables(
 		basicRes,
-		&BitbucketPrCommit20230420{},
+		&GiteePrCommit20230419{},
 	)
 }
 
-func (*addBitbucketCommitAuthoredDate) Version() uint64 {
+func (*addGiteeCommitAuthorInfo) Version() uint64 {
 	return 20230420135129
 }
 
-func (*addBitbucketCommitAuthoredDate) Name() string {
-	return "add commit_authored_date to _tool_bitbucket_pull_request_commits table"
+func (*addGiteeCommitAuthorInfo) Name() string {
+	return "add commit author info to _tool_gitee_pull_request_commits table"
 }

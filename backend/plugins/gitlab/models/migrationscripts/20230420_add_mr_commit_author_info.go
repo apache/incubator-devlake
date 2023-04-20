@@ -26,32 +26,32 @@ import (
 	"github.com/apache/incubator-devlake/helpers/migrationhelper"
 )
 
-var _ plugin.MigrationScript = (*addGithubCommitAuthoredDate)(nil)
+var _ plugin.MigrationScript = (*addGitlabCommitAuthorInfo)(nil)
 
-type GithubPrCommit20230419 struct {
-	CommitAuthorName   string
-	CommitAuthorEmail  string
+type GitlabMrCommit20230420 struct {
+	CommitAuthorName   string `gorm:"type:varchar(255)"` // Author name
+	CommitAuthorEmail  string `gorm:"type:varchar(255)"` // Author email
 	CommitAuthoredDate time.Time
 }
 
-func (GithubPrCommit20230419) TableName() string {
-	return "_tool_github_pull_request_commits"
+func (GitlabMrCommit20230420) TableName() string {
+	return "_tool_gitlab_mr_commits"
 }
 
-type addGithubCommitAuthoredDate struct{}
+type addGitlabCommitAuthorInfo struct{}
 
-func (script *addGithubCommitAuthoredDate) Up(basicRes context.BasicRes) errors.Error {
+func (script *addGitlabCommitAuthorInfo) Up(basicRes context.BasicRes) errors.Error {
 
 	return migrationhelper.AutoMigrateTables(
 		basicRes,
-		&GithubPrCommit20230419{},
+		&GitlabMrCommit20230420{},
 	)
 }
 
-func (*addGithubCommitAuthoredDate) Version() uint64 {
-	return 20230419135127
+func (*addGitlabCommitAuthorInfo) Version() uint64 {
+	return 20230420135129
 }
 
-func (*addGithubCommitAuthoredDate) Name() string {
-	return "add commit_authored_date to _tool_github_pull_request_commits table"
+func (*addGitlabCommitAuthorInfo) Name() string {
+	return "add commit author info to _tool_gitlab_mr_commits table"
 }

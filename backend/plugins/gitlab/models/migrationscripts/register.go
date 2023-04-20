@@ -33,7 +33,7 @@ func All() []plugin.MigrationScript {
 		new(addStdTypeToIssue221230),
 		new(addIsDetailRequired20230210),
 		new(addConnectionIdToTransformationRule),
-		new(addGitlabCommitAuthoredDate),
+		new(addGitlabCommitAuthorInfo),
 		new(addTypeEnvToPipeline),
 	}
 }

@@ -27,8 +27,8 @@ type GithubPrCommit struct {
 	ConnectionId       uint64 `gorm:"primaryKey"`
 	CommitSha          string `gorm:"primaryKey;type:varchar(40)"`
 	PullRequestId      int    `gorm:"primaryKey;autoIncrement:false"`
-	CommitAuthorName   string
-	CommitAuthorEmail  string
+	CommitAuthorName   string `gorm:"type:varchar(255)"` // Author name
+	CommitAuthorEmail  string `gorm:"type:varchar(255)"` // Author email
 	CommitAuthoredDate time.Time
 	common.NoPKModel
 }

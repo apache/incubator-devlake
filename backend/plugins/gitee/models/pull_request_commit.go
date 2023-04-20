@@ -19,12 +19,16 @@ package models
 
 import (
 	"github.com/apache/incubator-devlake/core/models/common"
+	"time"
 )
 
 type GiteePullRequestCommit struct {
-	ConnectionId  uint64 `gorm:"primaryKey"`
-	CommitSha     string `gorm:"primaryKey;type:varchar(40)"`
-	PullRequestId int    `gorm:"primaryKey;autoIncrement:false"`
+	ConnectionId       uint64 `gorm:"primaryKey"`
+	CommitSha          string `gorm:"primaryKey;type:varchar(40)"`
+	PullRequestId      int    `gorm:"primaryKey;autoIncrement:false"`
+	CommitAuthorName   string `gorm:"type:varchar(255)"` // Author name
+	CommitAuthorEmail  string `gorm:"type:varchar(255)"` // Author email
+	CommitAuthoredDate time.Time
 	common.NoPKModel
 }
 
