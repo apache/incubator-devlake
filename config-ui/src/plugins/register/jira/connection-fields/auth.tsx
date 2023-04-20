@@ -16,7 +16,7 @@
  *
  */
 
-import React, { useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
 import { FormGroup, RadioGroup, Radio, InputGroup } from '@blueprintjs/core';
 
 import { ExternalLink } from '@/components';
@@ -25,109 +25,185 @@ import * as S from './styled';
 
 type Method = 'BasicAuth' | 'AccessToken';
 
-type Value = {
-  authMethod: Method;
-  username: string;
-  password: string;
-  token: string;
-};
-
 interface Props {
-  initialValue: Value;
-  value: Value;
-  error: string;
-  setValue: (value: Value) => void;
-  setError: (value: string) => void;
+  initialValues: any;
+  values: any;
+  errors: any;
+  setValues: (value: any) => void;
+  setErrors: (value: any) => void;
 }
 
-export const Auth = ({ initialValue, value, error, setValue, setError }: Props) => {
+export const Auth = ({ initialValues, values, errors, setValues, setErrors }: Props) => {
+  const [version, setVersion] = useState('cloud');
+
   useEffect(() => {
-    setValue(initialValue);
-  }, [initialValue]);
+    setValues({
+      endpoint: initialValues.endpoint,
+      authMethod: initialValues.authMethod ?? 'BasicAuth',
+      username: initialValues.username,
+      password: initialValues.password,
+      token: initialValues.token,
+    });
+  }, [
+    initialValues.endpoint,
+    initialValues.authMethod,
+    initialValues.username,
+    initialValues.password,
+    initialValues.token,
+  ]);
 
   useEffect(() => {
     const required =
-      (value.authMethod === 'BasicAuth' && value.username && value.password) ||
-      (value.authMethod === 'AccessToken' && value.token);
-    setError(required ? '' : 'auth is required');
-  }, [value]);
+      (values.authMethod === 'BasicAuth' && values.username && values.password) ||
+      (values.authMethod === 'AccessToken' && values.token);
+    setErrors({
+      endpoint: !values.endpoint ? 'endpoint is required' : '',
+      auth: required ? '' : 'auth is required',
+    });
+  }, [values]);
+
+  const handleChangeVersion = (e: React.FormEvent<HTMLInputElement>) => {
+    const version = (e.target as HTMLInputElement).value;
+
+    setValues({
+      endpoint: '',
+      authMethod: 'BasicAuth',
+      username: undefined,
+      password: undefined,
+      token: undefined,
+    });
+
+    setVersion(version);
+  };
+
+  const handleChangeEndpoint = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setValues({
+      endpoint: e.target.value,
+    });
+  };
 
   const handleChangeMethod = (e: React.FormEvent<HTMLInputElement>) => {
-    setValue({
-      ...value,
+    setValues({
       authMethod: (e.target as HTMLInputElement).value as Method,
+      username: undefined,
+      password: undefined,
+      token: undefined,
     });
   };
 
   const handleChangeUsername = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setValue({
-      ...value,
+    setValues({
       username: e.target.value,
     });
   };
 
   const handleChangePassword = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setValue({
-      ...value,
+    setValues({
       password: e.target.value,
     });
   };
 
   const handleChangeToken = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setValue({
-      ...value,
+    setValues({
       token: e.target.value,
     });
   };
 
+  console.log(errors);
+
   return (
-    <FormGroup label={<S.Label>Authentication Method</S.Label>} labelInfo={<S.LabelInfo>*</S.LabelInfo>}>
-      <RadioGroup inline selectedValue={value.authMethod} onChange={handleChangeMethod}>
-        <Radio value="BasicAuth">Basic Authentication</Radio>
-        <Radio value="AccessToken">Using Personal Access Token</Radio>
-      </RadioGroup>
-      {value.authMethod === 'BasicAuth' && (
+    <>
+      <FormGroup label={<S.Label>Jira Version</S.Label>} labelInfo={<S.LabelInfo>*</S.LabelInfo>}>
+        <RadioGroup inline selectedValue={version} onChange={handleChangeVersion}>
+          <Radio value="cloud">Jira Cloud</Radio>
+          <Radio value="server">Jira Server</Radio>
+        </RadioGroup>
+
+        <FormGroup
+          style={{ marginTop: 8, marginBottom: 0 }}
+          label={<S.Label>Endpoint URL</S.Label>}
+          labelInfo={<S.LabelInfo>*</S.LabelInfo>}
+          subLabel={
+            <S.LabelDescription>
+              {version === 'cloud'
+                ? 'Provide the Jira instance API endpoint. For Jira Cloud, e.g. https://your-company.atlassian.net/rest/. Please note that the endpoint URL should end with /.'
+                : ''}
+              {version === 'server'
+                ? 'Provide the Jira instance API endpoint. For Jira Server, e.g. https://jira.your-company.com/rest/. Please note that the endpoint URL should end with /.'
+                : ''}
+            </S.LabelDescription>
+          }
+        >
+          <InputGroup placeholder="Your Endpoint URL" value={values.endpoint} onChange={handleChangeEndpoint} />
+        </FormGroup>
+      </FormGroup>
+
+      {version === 'cloud' && (
         <>
-          <FormGroup label={<S.Label>Username/e-mail</S.Label>} labelInfo={<S.LabelInfo>*</S.LabelInfo>}>
-            <InputGroup placeholder="Your Username/e-mail" value={value.username} onChange={handleChangeUsername} />
+          <FormGroup label={<S.Label>E-Mail</S.Label>} labelInfo={<S.LabelInfo>*</S.LabelInfo>}>
+            <InputGroup placeholder="Your E-Mail" value={values.username} onChange={handleChangeUsername} />
           </FormGroup>
           <FormGroup
-            label={<S.Label>Token/Password</S.Label>}
+            label={<S.Label>Personal Access Token</S.Label>}
             labelInfo={<S.LabelInfo>*</S.LabelInfo>}
             subLabel={
               <S.LabelDescription>
-                For Jira Cloud, please enter your{' '}
-                <ExternalLink link="https://confluence.atlassian.com/enterprise/using-personal-access-tokens-1026032365.html">
-                  Personal Access Token
-                </ExternalLink>{' '}
-                For Jira Server v8+, please enter the password of your Jira account.
+                <ExternalLink link="https://devlake.apache.org/docs/Configuration/Jira#api-token">
+                  Learn about how to create a PAT
+                </ExternalLink>
               </S.LabelDescription>
             }
           >
             <InputGroup
               type="password"
-              placeholder="Your Token/Password"
-              value={value.password}
+              placeholder="Your PAT"
+              value={values.password}
               onChange={handleChangePassword}
             />
           </FormGroup>
         </>
       )}
-      {value.authMethod === 'AccessToken' && (
-        <FormGroup
-          label={<S.Label>Personal Access Token</S.Label>}
-          labelInfo={<S.LabelInfo>*</S.LabelInfo>}
-          subLabel={
-            <S.LabelDescription>
-              <ExternalLink link="https://confluence.atlassian.com/enterprise/using-personal-access-tokens-1026032365.html">
-                Learn about how to create PAT
-              </ExternalLink>
-            </S.LabelDescription>
-          }
-        >
-          <InputGroup type="password" placeholder="Your PAT" value={value.token} onChange={handleChangeToken} />
-        </FormGroup>
+
+      {version === 'server' && (
+        <>
+          <FormGroup label={<S.Label>Authentication Method</S.Label>} labelInfo={<S.LabelInfo>*</S.LabelInfo>}>
+            <RadioGroup inline selectedValue={values.authMethod} onChange={handleChangeMethod}>
+              <Radio value="BasicAuth">Basic Authentication</Radio>
+              <Radio value="AccessToken">Using Personal Access Token</Radio>
+            </RadioGroup>
+          </FormGroup>
+          {values.authMethod === 'BasicAuth' && (
+            <>
+              <FormGroup label={<S.Label>Username</S.Label>} labelInfo={<S.LabelInfo>*</S.LabelInfo>}>
+                <InputGroup placeholder="Your Username" value={values.username} onChange={handleChangeUsername} />
+              </FormGroup>
+              <FormGroup label={<S.Label>Password</S.Label>} labelInfo={<S.LabelInfo>*</S.LabelInfo>}>
+                <InputGroup
+                  type="password"
+                  placeholder="Your Password"
+                  value={values.password}
+                  onChange={handleChangePassword}
+                />
+              </FormGroup>
+            </>
+          )}
+          {values.authMethod === 'AccessToken' && (
+            <FormGroup
+              label={<S.Label>Personal Access Token</S.Label>}
+              labelInfo={<S.LabelInfo>*</S.LabelInfo>}
+              subLabel={
+                <S.LabelDescription>
+                  <ExternalLink link="https://devlake.apache.org/docs/Configuration/Jira#personal-access-token">
+                    Learn about how to create a PAT
+                  </ExternalLink>
+                </S.LabelDescription>
+              }
+            >
+              <InputGroup type="password" placeholder="Your PAT" value={values.token} onChange={handleChangeToken} />
+            </FormGroup>
+          )}
+        </>
       )}
-    </FormGroup>
+    </>
   );
 };
