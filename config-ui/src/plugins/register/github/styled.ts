@@ -24,7 +24,7 @@ export const DataScope = styled.div`
   }
 `;
 
-export const TransformationWrapper = styled.div`
+export const Transformation = styled.div`
   .issue-tracking {
     .issue-type {
       .title {
@@ -33,38 +33,6 @@ export const TransformationWrapper = styled.div`
 
       .list {
         padding-left: 40px;
-      }
-    }
-  }
-
-  .ci-cd {
-    h3 {
-      margin-top: 16px;
-
-      .bp4-tag {
-        margin-left: 4px;
-      }
-    }
-
-    .radio {
-      padding-left: 20px;
-      margin-bottom: 16px;
-
-      .input {
-        display: flex;
-        align-items: center;
-
-        & + .input {
-          margin-top: 8px;
-        }
-
-        p {
-          color: #292b3f;
-        }
-
-        .bp4-input-group {
-          margin: 0 4px;
-        }
       }
     }
   }
@@ -111,6 +79,35 @@ export const TransformationWrapper = styled.div`
 
     .bp4-form-content {
       flex: auto;
+    }
+  }
+`;
+
+export const CICD = styled.div`
+  h3 {
+    margin-top: 16px;
+
+    .switch {
+      display: inline-flex;
+      align-items: center;
+      margin-left: 16px;
+      font-size: 14px;
+      font-weight: 400;
+
+      .bp4-switch {
+        margin-bottom: 0;
+      }
+    }
+  }
+
+  .text {
+    display: flex;
+    align-items: baseline;
+    margin-top: 16px;
+    padding-left: 24px;
+
+    .bp4-radio {
+      margin-right: 0;
     }
   }
 `;

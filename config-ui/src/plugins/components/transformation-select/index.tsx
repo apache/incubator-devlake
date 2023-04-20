@@ -93,7 +93,7 @@ export const TransformationSelect = ({
   const handleSubmit = () => !!selectedId && onSubmit(selectedId);
 
   return (
-    <Dialog isOpen title={title} footer={null} style={{ width: 820 }} onCancel={onCancel}>
+    <Dialog isOpen title={title} footer={null} style={{ width: 960 }} onCancel={onCancel}>
       {!ready || !data ? (
         <PageLoading />
       ) : step === 1 ? (
