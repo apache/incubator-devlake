@@ -19,6 +19,7 @@ package models
 
 import (
 	"github.com/apache/incubator-devlake/core/models/common"
+	"time"
 )
 
 // This Model is intended to save commits that are associated to a merge request
@@ -28,9 +29,10 @@ import (
 // Thus a "Merge Request Commit" needs to be considered as distinct from a "Commit"
 
 type GitlabMrCommit struct {
-	ConnectionId   uint64 `gorm:"primaryKey"`
-	CommitSha      string `gorm:"primaryKey;type:varchar(40)"`
-	MergeRequestId int    `gorm:"primaryKey;autoIncrement:false"`
+	ConnectionId       uint64 `gorm:"primaryKey"`
+	CommitSha          string `gorm:"primaryKey;type:varchar(40)"`
+	MergeRequestId     int    `gorm:"primaryKey;autoIncrement:false"`
+	CommitAuthoredDate *time.Time
 	common.NoPKModel
 }
 
