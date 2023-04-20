@@ -24,12 +24,12 @@ import (
 )
 
 type GithubPrCommit struct {
-	ConnectionId        uint64 `gorm:"primaryKey"`
-	CommitSha           string `gorm:"primaryKey;type:varchar(40)"`
-	PullRequestId       int    `gorm:"primaryKey;autoIncrement:false"`
-	CommitAuthoredName  string
-	CommitAuthoredEmail string
-	CommitAuthoredDate  time.Time
+	ConnectionId       uint64 `gorm:"primaryKey"`
+	CommitSha          string `gorm:"primaryKey;type:varchar(40)"`
+	PullRequestId      int    `gorm:"primaryKey;autoIncrement:false"`
+	CommitAuthorName   string
+	CommitAuthorEmail  string
+	CommitAuthoredDate time.Time
 	common.NoPKModel
 }
 

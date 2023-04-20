@@ -106,12 +106,12 @@ func ExtractApiPullRequestCommits(taskCtx plugin.SubTaskContext) errors.Error {
 			results = append(results, githubCommit)
 
 			githubPullRequestCommit := &models.GithubPrCommit{
-				ConnectionId:        data.Options.ConnectionId,
-				CommitSha:           apiPullRequestCommit.Sha,
-				PullRequestId:       pull.GithubId,
-				CommitAuthoredName:  githubCommit.AuthorName,
-				CommitAuthoredEmail: githubCommit.AuthorEmail,
-				CommitAuthoredDate:  githubCommit.AuthoredDate,
+				ConnectionId:       data.Options.ConnectionId,
+				CommitSha:          apiPullRequestCommit.Sha,
+				PullRequestId:      pull.GithubId,
+				CommitAuthorName:   githubCommit.AuthorName,
+				CommitAuthorEmail:  githubCommit.AuthorEmail,
+				CommitAuthoredDate: githubCommit.AuthoredDate,
 			}
 			if err != nil {
 				return nil, err

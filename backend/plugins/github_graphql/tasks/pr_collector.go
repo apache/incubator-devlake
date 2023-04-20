@@ -279,12 +279,12 @@ func CollectPr(taskCtx plugin.SubTaskContext) errors.Error {
 					results = append(results, githubCommit)
 
 					githubPullRequestCommit := &models.GithubPrCommit{
-						ConnectionId:        data.Options.ConnectionId,
-						CommitSha:           apiPullRequestCommit.Commit.Oid,
-						PullRequestId:       githubPr.GithubId,
-						CommitAuthoredName:  githubCommit.AuthorName,
-						CommitAuthoredEmail: githubCommit.AuthorEmail,
-						CommitAuthoredDate:  githubCommit.AuthoredDate,
+						ConnectionId:       data.Options.ConnectionId,
+						CommitSha:          apiPullRequestCommit.Commit.Oid,
+						PullRequestId:      githubPr.GithubId,
+						CommitAuthorName:   githubCommit.AuthorName,
+						CommitAuthorEmail:  githubCommit.AuthorEmail,
+						CommitAuthoredDate: githubCommit.AuthoredDate,
 					}
 					if err != nil {
 						return nil, err
