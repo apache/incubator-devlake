@@ -46,7 +46,7 @@ type WebhookDeployTaskRequest struct {
 	// So they all keep.
 	CreatedDate  *time.Time `mapstructure:"create_time"`
 	StartedDate  *time.Time `mapstructure:"start_time" validate:"required"`
-	FinishedDate *time.Time `mapstructure:"end_time" validate:"required"`
+	FinishedDate *time.Time `mapstructure:"end_time"`
 	Environment  string     `validate:"omitempty,oneof=PRODUCTION STAGING TESTING DEVELOPMENT"`
 }
 
