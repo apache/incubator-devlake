@@ -29,7 +29,9 @@ import (
 var _ plugin.MigrationScript = (*addCommitAuthoredDate)(nil)
 
 type PullRequestCommit20230419 struct {
-	CommitAuthoredDate time.Time
+	CommitAuthoredName  string
+	CommitAuthoredEmail string
+	CommitAuthoredDate  time.Time
 }
 
 func (PullRequestCommit20230419) TableName() string {

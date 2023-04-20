@@ -79,6 +79,8 @@ func TestPrCommitDataFlow(t *testing.T) {
 			"connection_id",
 			"commit_sha",
 			"pull_request_id",
+			"commit_authored_name",
+			"commit_authored_email",
 			"commit_authored_date",
 			"_raw_data_params",
 			"_raw_data_table",
@@ -96,6 +98,8 @@ func TestPrCommitDataFlow(t *testing.T) {
 		[]string{
 			"commit_sha",
 			"pull_request_id",
+			"commit_authored_name",
+			"commit_authored_email",
 			"commit_authored_date",
 			"_raw_data_params",
 			"_raw_data_table",

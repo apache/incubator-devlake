@@ -282,6 +282,8 @@ func CollectPr(taskCtx plugin.SubTaskContext) errors.Error {
 						ConnectionId:       data.Options.ConnectionId,
 						CommitSha:          apiPullRequestCommit.Commit.Oid,
 						PullRequestId:      githubPr.GithubId,
+						CommitAuthorName:   githubCommit.AuthorName,
+						CommitAuthorEmail:  githubCommit.AuthorEmail,
 						CommitAuthoredDate: githubCommit.CommittedDate,
 					}
 					if err != nil {
