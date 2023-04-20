@@ -94,6 +94,10 @@ func PostDeploymentCicdTask(input *plugin.ApiResourceInput) (*plugin.ApiResource
 	if request.Environment == "" {
 		request.Environment = devops.PRODUCTION
 	}
+	if request.FinishedDate == nil {
+		now := time.Now()
+		request.FinishedDate = &now
+	}
 	duration := uint64(request.FinishedDate.Sub(*request.StartedDate).Seconds())
 
 	// create a deployment_commit record
