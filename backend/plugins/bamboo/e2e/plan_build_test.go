@@ -93,6 +93,8 @@ func TestBambooPlanBuildDataFlow(t *testing.T) {
 			"state",
 			"build_state",
 			"plan_result_key",
+			"type",
+			"environment",
 		),
 	)
 

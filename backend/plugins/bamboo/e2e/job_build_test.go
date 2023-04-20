@@ -95,6 +95,8 @@ func TestBambooJobBuildDataFlow(t *testing.T) {
 			"state",
 			"build_state",
 			"job_result_key",
+			"type",
+			"environment",
 		),
 	)
 
