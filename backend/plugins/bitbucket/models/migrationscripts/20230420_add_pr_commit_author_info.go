@@ -26,32 +26,32 @@ import (
 	"github.com/apache/incubator-devlake/helpers/migrationhelper"
 )
 
-var _ plugin.MigrationScript = (*addCommitAuthoredDate)(nil)
+var _ plugin.MigrationScript = (*addBitbucketCommitAuthorInfo)(nil)
 
-type PullRequestCommit20230419 struct {
+type BitbucketPrCommit20230420 struct {
 	CommitAuthorName   string `gorm:"type:varchar(255)"`
 	CommitAuthorEmail  string `gorm:"type:varchar(255)"`
 	CommitAuthoredDate time.Time
 }
 
-func (PullRequestCommit20230419) TableName() string {
-	return "pull_request_commits"
+func (BitbucketPrCommit20230420) TableName() string {
+	return "_tool_bitbucket_pull_request_commits"
 }
 
-type addCommitAuthoredDate struct{}
+type addBitbucketCommitAuthorInfo struct{}
 
-func (script *addCommitAuthoredDate) Up(basicRes context.BasicRes) errors.Error {
+func (script *addBitbucketCommitAuthorInfo) Up(basicRes context.BasicRes) errors.Error {
 
 	return migrationhelper.AutoMigrateTables(
 		basicRes,
-		&PullRequestCommit20230419{},
+		&BitbucketPrCommit20230420{},
 	)
 }
 
-func (*addCommitAuthoredDate) Version() uint64 {
-	return 20230419145129
+func (*addBitbucketCommitAuthorInfo) Version() uint64 {
+	return 20230420135129
 }
 
-func (*addCommitAuthoredDate) Name() string {
-	return "add commit author info to pull_request_commits table"
+func (*addBitbucketCommitAuthorInfo) Name() string {
+	return "add commit author info to _tool_bitbucket_pull_request_commits table"
 }

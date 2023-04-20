@@ -36,6 +36,6 @@ func All() []plugin.MigrationScript {
 		new(addStdTypeToIssue221230),
 		new(addConnectionIdToTransformationRule),
 		new(addEnvToRunAndJob),
-		new(addGithubCommitAuthoredDate),
+		new(addGithubCommitAuthorInfo),
 	}
 }

@@ -35,6 +35,6 @@ func All() []plugin.MigrationScript {
 		new(addTypeEnvToPipelineAndStep),
 		new(addRepoIdField20230411),
 		new(addRepoIdToPr),
-		new(addBitbucketCommitAuthoredDate),
+		new(addBitbucketCommitAuthorInfo),
 	}
 }
