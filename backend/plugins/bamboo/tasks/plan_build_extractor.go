@@ -21,6 +21,7 @@ import (
 	"encoding/json"
 
 	"github.com/apache/incubator-devlake/core/errors"
+	"github.com/apache/incubator-devlake/core/models/domainlayer/devops"
 	"github.com/apache/incubator-devlake/core/plugin"
 	helper "github.com/apache/incubator-devlake/helpers/pluginhelper/api"
 	"github.com/apache/incubator-devlake/plugins/bamboo/models"
@@ -49,6 +50,8 @@ func ExtractPlanBuild(taskCtx plugin.SubTaskContext) errors.Error {
 			body.ConnectionId = data.Options.ConnectionId
 			body.ProjectKey = data.Options.ProjectKey
 			body.PlanKey = plan.PlanKey
+			body.Type = data.RegexEnricher.ReturnNameIfMatched(devops.DEPLOYMENT, body.PlanName)
+			body.Environment = data.RegexEnricher.ReturnNameIfMatched(devops.PRODUCTION, body.PlanName)
 
 			results := make([]interface{}, 0)
 			results = append(results, body)

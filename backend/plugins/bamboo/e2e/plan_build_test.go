@@ -23,6 +23,7 @@ import (
 	"github.com/apache/incubator-devlake/core/models/common"
 	"github.com/apache/incubator-devlake/core/models/domainlayer/devops"
 	"github.com/apache/incubator-devlake/helpers/e2ehelper"
+	helper "github.com/apache/incubator-devlake/helpers/pluginhelper/api"
 	"github.com/apache/incubator-devlake/plugins/bamboo/impl"
 	"github.com/apache/incubator-devlake/plugins/bamboo/models"
 	"github.com/apache/incubator-devlake/plugins/bamboo/tasks"
@@ -42,7 +43,10 @@ func TestBambooPlanBuildDataFlow(t *testing.T) {
 				ProductionPattern: "(?i)compile",
 			},
 		},
+		RegexEnricher: helper.NewRegexEnricher(),
 	}
+	taskData.RegexEnricher.TryAdd(devops.DEPLOYMENT, taskData.Options.DeploymentPattern)
+	taskData.RegexEnricher.TryAdd(devops.PRODUCTION, taskData.Options.ProductionPattern)
 	// import raw data table
 	// SELECT * FROM _raw_bamboo_api_job_build INTO OUTFILE "/tmp/_raw_bamboo_api_job_build.csv" FIELDS TERMINATED BY ',' OPTIONALLY ENCLOSED BY '"' LINES TERMINATED BY '\r\n';
 	dataflowTester.ImportCsvIntoRawTable("./raw_tables/_raw_bamboo_api_plan_build.csv", "_raw_bamboo_api_plan_build")
