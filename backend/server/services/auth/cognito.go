@@ -22,17 +22,19 @@ import (
 	"encoding/base64"
 	"encoding/json"
 	"fmt"
-	"github.com/apache/incubator-devlake/core/config"
-	"github.com/aws/aws-sdk-go/aws"
-	"github.com/aws/aws-sdk-go/aws/session"
-	"github.com/aws/aws-sdk-go/service/cognitoidentityprovider"
-	"github.com/dgrijalva/jwt-go"
-	"github.com/gin-gonic/gin"
 	"io"
 	"math/big"
 	"net/http"
 	"strings"
 	"sync"
+
+	"github.com/apache/incubator-devlake/core/config"
+	"github.com/apache/incubator-devlake/impls/logruslog"
+	"github.com/aws/aws-sdk-go/aws"
+	"github.com/aws/aws-sdk-go/aws/session"
+	"github.com/aws/aws-sdk-go/service/cognitoidentityprovider"
+	"github.com/dgrijalva/jwt-go"
+	"github.com/gin-gonic/gin"
 )
 
 var (
@@ -40,6 +42,7 @@ var (
 	jwksCache Jwks
 	//jwksCacheMx is a mutex to lock the jwksCache
 	jwksCacheMx sync.Mutex
+	logger      = logruslog.Global.Nested("auth")
 )
 
 func CreateCognitoClient() *cognitoidentityprovider.CognitoIdentityProvider {
@@ -163,6 +166,7 @@ func AuthenticationMiddleware(ctx *gin.Context) {
 
 	// Check if the token is invalid
 	if err != nil || !token.Valid {
+		logger.Error(err, "Invalid token")
 		http.Error(ctx.Writer, "Invalid token", http.StatusUnauthorized)
 		ctx.Abort()
 	}
