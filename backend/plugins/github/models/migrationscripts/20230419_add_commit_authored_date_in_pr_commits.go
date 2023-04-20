@@ -29,9 +29,9 @@ import (
 var _ plugin.MigrationScript = (*addGithubCommitAuthoredDate)(nil)
 
 type GithubPrCommit20230419 struct {
-	CommitAuthoredName  string
-	CommitAuthoredEmail string
-	CommitAuthoredDate  time.Time
+	CommitAuthorName   string
+	CommitAuthorEmail  string
+	CommitAuthoredDate time.Time
 }
 
 func (GithubPrCommit20230419) TableName() string {

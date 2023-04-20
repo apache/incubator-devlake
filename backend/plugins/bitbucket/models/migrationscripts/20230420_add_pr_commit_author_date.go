@@ -29,9 +29,9 @@ import (
 var _ plugin.MigrationScript = (*addBitbucketCommitAuthoredDate)(nil)
 
 type BitbucketPrCommit20230420 struct {
-	CommitAuthoredName  string `gorm:"type:varchar(255)"`
-	CommitAuthoredEmail string `gorm:"type:varchar(255)"`
-	CommitAuthoredDate  time.Time
+	CommitAuthorName   string `gorm:"type:varchar(255)"`
+	CommitAuthorEmail  string `gorm:"type:varchar(255)"`
+	CommitAuthoredDate time.Time
 }
 
 func (BitbucketPrCommit20230420) TableName() string {

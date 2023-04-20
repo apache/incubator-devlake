@@ -67,11 +67,11 @@ func ConvertApiMergeRequestsCommits(taskCtx plugin.SubTaskContext) errors.Error 
 		Convert: func(inputRow interface{}) ([]interface{}, errors.Error) {
 			GitlabMrCommit := inputRow.(*models.GitlabMrCommit)
 			domainPrcommit := &code.PullRequestCommit{
-				CommitSha:           GitlabMrCommit.CommitSha,
-				PullRequestId:       domainIdGenerator.Generate(data.Options.ConnectionId, GitlabMrCommit.MergeRequestId),
-				CommitAuthoredName:  GitlabMrCommit.CommitAuthorName,
-				CommitAuthoredEmail: GitlabMrCommit.CommitAuthorEmail,
-				CommitAuthoredDate:  *GitlabMrCommit.CommitAuthoredDate,
+				CommitSha:          GitlabMrCommit.CommitSha,
+				PullRequestId:      domainIdGenerator.Generate(data.Options.ConnectionId, GitlabMrCommit.MergeRequestId),
+				CommitAuthorName:   GitlabMrCommit.CommitAuthorName,
+				CommitAuthorEmail:  GitlabMrCommit.CommitAuthorEmail,
+				CommitAuthoredDate: *GitlabMrCommit.CommitAuthoredDate,
 			}
 			return []interface{}{
 				domainPrcommit,

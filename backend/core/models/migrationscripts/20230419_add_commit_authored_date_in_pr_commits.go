@@ -29,9 +29,9 @@ import (
 var _ plugin.MigrationScript = (*addCommitAuthoredDate)(nil)
 
 type PullRequestCommit20230419 struct {
-	CommitAuthoredName  string
-	CommitAuthoredEmail string
-	CommitAuthoredDate  time.Time
+	CommitAuthorName   string `gorm:"type:varchar(255)"`
+	CommitAuthorEmail  string `gorm:"type:varchar(255)"`
+	CommitAuthoredDate time.Time
 }
 
 func (PullRequestCommit20230419) TableName() string {
@@ -49,7 +49,7 @@ func (script *addCommitAuthoredDate) Up(basicRes context.BasicRes) errors.Error 
 }
 
 func (*addCommitAuthoredDate) Version() uint64 {
-	return 20230419145127
+	return 20230419145129
 }
 
 func (*addCommitAuthoredDate) Name() string {

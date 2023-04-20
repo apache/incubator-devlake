@@ -1,4 +1,4 @@
-connection_id,commit_sha,pull_request_id,commit_authored_name,commit_authored_email,commit_authored_date,_raw_data_params,_raw_data_table,_raw_data_id,_raw_data_remark
+connection_id,commit_sha,pull_request_id,commit_author_name,commit_author_email,commit_authored_date,_raw_data_params,_raw_data_table,_raw_data_id,_raw_data_remark
 1,00691c648a5b7d28dba5bcafa05d9bbccdf4d933,502102437,Lance,cainiao666999@gmail.com,2020-10-15T03:25:44.000+00:00,"{""ConnectionId"":1,""Name"":""panjf2000/ants""}",_raw_github_api_pull_request_commits,68,
 1,013e846d496ecc5f61fb83fec3283f30fce18c30,696437287,exfly,exflyg@gmail.com,2021-07-25T04:02:27.000+00:00,"{""ConnectionId"":1,""Name"":""panjf2000/ants""}",_raw_github_api_pull_request_commits,79,
 1,01cb40f8fb4dd5550cd274cfca16c8a874a21481,216254598,andy pan,panjf2000@gmail.com,2018-08-08T09:22:56.000+00:00,"{""ConnectionId"":1,""Name"":""panjf2000/ants""}",_raw_github_api_pull_request_commits,26,

@@ -23,13 +23,13 @@ import (
 )
 
 type BitbucketPrCommit struct {
-	ConnectionId        uint64 `gorm:"primaryKey"`
-	RepoId              string `gorm:"primaryKey"` // PullRequestId is not unique across multiple repos of a connection
-	PullRequestId       int    `gorm:"primaryKey;autoIncrement:false"`
-	CommitSha           string `gorm:"primaryKey;type:varchar(40)"`
-	CommitAuthoredName  string
-	CommitAuthoredEmail string
-	CommitAuthoredDate  time.Time
+	ConnectionId       uint64 `gorm:"primaryKey"`
+	RepoId             string `gorm:"primaryKey"` // PullRequestId is not unique across multiple repos of a connection
+	PullRequestId      int    `gorm:"primaryKey;autoIncrement:false"`
+	CommitSha          string `gorm:"primaryKey;type:varchar(40)"`
+	CommitAuthorName   string
+	CommitAuthorEmail  string
+	CommitAuthoredDate time.Time
 	common.NoPKModel
 }
 
