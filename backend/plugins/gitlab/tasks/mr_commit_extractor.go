@@ -60,6 +60,8 @@ func ExtractApiMergeRequestsCommits(taskCtx plugin.SubTaskContext) errors.Error 
 				CommitSha:          gitlabApiCommit.GitlabId,
 				MergeRequestId:     input.GitlabId,
 				ConnectionId:       data.Options.ConnectionId,
+				CommitAuthorEmail:  gitlabApiCommit.AuthorEmail,
+				CommitAuthorName:   gitlabApiCommit.AuthorName,
 				CommitAuthoredDate: api.Iso8601TimeToTime(&gitlabApiCommit.AuthoredDate),
 			}
 			gitlabProjectCommit := &models.GitlabProjectCommit{

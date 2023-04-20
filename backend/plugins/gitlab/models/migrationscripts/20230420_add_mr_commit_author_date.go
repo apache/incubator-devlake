@@ -29,6 +29,8 @@ import (
 var _ plugin.MigrationScript = (*addGitlabCommitAuthoredDate)(nil)
 
 type GitlabMrCommit20230420 struct {
+	CommitAuthorName   string `gorm:"type:varchar(255)"` // Author name
+	CommitAuthorEmail  string `gorm:"type:varchar(255)"` // Author email
 	CommitAuthoredDate time.Time
 }
 
@@ -47,7 +49,7 @@ func (script *addGitlabCommitAuthoredDate) Up(basicRes context.BasicRes) errors.
 }
 
 func (*addGitlabCommitAuthoredDate) Version() uint64 {
-	return 20230420135127
+	return 20230420135129
 }
 
 func (*addGitlabCommitAuthoredDate) Name() string {

@@ -32,6 +32,8 @@ type GitlabMrCommit struct {
 	ConnectionId       uint64 `gorm:"primaryKey"`
 	CommitSha          string `gorm:"primaryKey;type:varchar(40)"`
 	MergeRequestId     int    `gorm:"primaryKey;autoIncrement:false"`
+	CommitAuthorName   string `gorm:"type:varchar(255)"` // Author name
+	CommitAuthorEmail  string `gorm:"type:varchar(255)"` // Author email
 	CommitAuthoredDate *time.Time
 	common.NoPKModel
 }
