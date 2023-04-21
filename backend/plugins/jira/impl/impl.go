@@ -110,6 +110,9 @@ func (p Jira) SubTaskMetas() []plugin.SubTaskMeta {
 
 		tasks.ConvertIssueLabelsMeta,
 
+		tasks.CollectIssueCommentsMeta,
+		tasks.ExtractIssueCommentsMeta,
+
 		tasks.CollectIssueChangelogsMeta,
 		tasks.ExtractIssueChangelogsMeta,
 
@@ -127,9 +130,8 @@ func (p Jira) SubTaskMetas() []plugin.SubTaskMeta {
 		tasks.ConvertBoardMeta,
 
 		tasks.ConvertIssuesMeta,
-
+		tasks.ConvertIssueCommentsMeta,
 		tasks.ConvertWorklogsMeta,
-
 		tasks.ConvertIssueChangelogsMeta,
 
 		tasks.ConvertSprintsMeta,
