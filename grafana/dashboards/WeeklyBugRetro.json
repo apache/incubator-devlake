@@ -15,8 +15,8 @@
   "editable": true,
   "gnetId": null,
   "graphTooltip": 0,
-  "id": 13,
-  "iteration": 1681785827220,
+  "id": 15,
+  "iteration": 1682063078047,
   "links": [],
   "panels": [
     {
@@ -203,7 +203,7 @@
           ]
         }
       ],
-      "title": "Previous Week New Bug Count by Priority",
+      "title": "Previous Week New Bug Count by Components",
       "type": "piechart"
     },
     {
@@ -1595,8 +1595,8 @@
         "allValue": null,
         "current": {
           "selected": false,
-          "text": "apache/incubator-devlake",
-          "value": "github:GithubRepo:1:384111310"
+          "text": "All",
+          "value": "$__all"
         },
         "datasource": "mysql",
         "definition": "select concat(name, '-', id) as text from boards",
@@ -1638,34 +1638,6 @@
         "skipUrlSync": false,
         "sort": 0,
         "type": "query"
-      },
-      {
-        "allValue": null,
-        "current": {
-          "selected": true,
-          "text": [
-            "All"
-          ],
-          "value": [
-            "$__all"
-          ]
-        },
-        "datasource": "mysql",
-        "definition": "select distinct priority from issues",
-        "description": null,
-        "error": null,
-        "hide": 0,
-        "includeAll": true,
-        "label": "Priority",
-        "multi": true,
-        "name": "priority",
-        "options": [],
-        "query": "select distinct priority from issues",
-        "refresh": 1,
-        "regex": "",
-        "skipUrlSync": false,
-        "sort": 0,
-        "type": "query"
       }
     ]
   },
@@ -1677,5 +1649,5 @@
   "timezone": "",
   "title": "Weekly Bug Retro",
   "uid": "-5EKA5w7k",
-  "version": 23
+  "version": 3
 }
