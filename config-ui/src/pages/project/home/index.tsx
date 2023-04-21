@@ -128,8 +128,10 @@ export const ProjectHomePage = () => {
               <p>
                 <a href="https://devlake.apache.org/docs/UserManuals/DORA/" rel="noreferrer" target="_blank">
                   DORA metrics
-                </a>{' '}
-                <span>are four widely-adopted metrics for measuring software delivery performance.</span>
+                </a>
+                <span style={{ marginLeft: 4 }}>
+                  are four widely-adopted metrics for measuring software delivery performance.
+                </span>
               </p>
             </div>
           </div>
