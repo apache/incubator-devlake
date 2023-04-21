@@ -34,6 +34,8 @@ func (u *addInitTables) Up(basicRes context.BasicRes) errors.Error {
 	err := db.DropTables(
 		&archived.FeishuConnection{},
 		&archived.FeishuMeetingTopUserItem{},
+		&archived.FeishuChatItem{},
+		&archived.FeishuMessage{},
 	)
 	if err != nil {
 		return err
@@ -43,6 +45,8 @@ func (u *addInitTables) Up(basicRes context.BasicRes) errors.Error {
 		basicRes,
 		&archived.FeishuConnection{},
 		&archived.FeishuMeetingTopUserItem{},
+		&archived.FeishuChatItem{},
+		&archived.FeishuMessage{},
 	)
 	if err != nil {
 		return err
@@ -55,6 +59,10 @@ func (u *addInitTables) Up(basicRes context.BasicRes) errors.Error {
 	connection.SecretKey = basicRes.GetConfig(`FEISHU_APPSCRECT`)
 	connection.Name = `Feishu`
 	if connection.Endpoint != `` && connection.AppId != `` && connection.SecretKey != `` && encodeKey != `` {
+		connection.SecretKey, err = plugin.Encrypt(encodeKey, connection.SecretKey)
+		if err != nil {
+			return err
+		}
 		// update from .env and save to db
 		err = db.CreateIfNotExist(connection)
 		if err != nil {
@@ -65,7 +73,7 @@ func (u *addInitTables) Up(basicRes context.BasicRes) errors.Error {
 }
 
 func (*addInitTables) Version() uint64 {
-	return 20220714000001
+	return 20230421000001
 }
 
 func (*addInitTables) Name() string {

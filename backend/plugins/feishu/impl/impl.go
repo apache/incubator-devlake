@@ -59,6 +59,12 @@ func (p Feishu) Description() string {
 
 func (p Feishu) SubTaskMetas() []plugin.SubTaskMeta {
 	return []plugin.SubTaskMeta{
+		tasks.CollectChatMeta,
+		tasks.ExtractChatItemMeta,
+
+		tasks.CollectMessageMeta,
+		tasks.ExtractMessageMeta,
+
 		tasks.CollectMeetingTopUserItemMeta,
 		tasks.ExtractMeetingTopUserItemMeta,
 	}
