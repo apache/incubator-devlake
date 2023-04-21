@@ -15,8 +15,8 @@
   "editable": true,
   "gnetId": null,
   "graphTooltip": 0,
-  "id": 12,
-  "iteration": 1673353935665,
+  "id": 7,
+  "iteration": 1682062968493,
   "links": [],
   "panels": [
     {
@@ -2778,5 +2778,5 @@
   "timezone": "",
   "title": "Engineering Throughput and Cycle Time - Team View",
   "uid": "nJ1ijje7k",
-  "version": 2
+  "version": 6
 }

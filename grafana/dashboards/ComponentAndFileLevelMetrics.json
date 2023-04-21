@@ -16,8 +16,8 @@
   "editable": true,
   "gnetId": null,
   "graphTooltip": 0,
-  "id": 17,
-  "iteration": 1677030964408,
+  "id": 20,
+  "iteration": 1682062815355,
   "links": [],
   "panels": [
     {
@@ -991,7 +991,7 @@
       {
         "allValue": null,
         "current": {
-          "selected": false,
+          "selected": true,
           "text": [
             "All"
           ],
@@ -1061,5 +1061,5 @@
   "timezone": "",
   "title": "Component and File-level Metrics",
   "uid": "KxUh7IG4z",
-  "version": 4
+  "version": 3
 }
