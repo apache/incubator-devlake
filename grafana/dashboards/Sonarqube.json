@@ -15,8 +15,8 @@
   "editable": true,
   "gnetId": null,
   "graphTooltip": 0,
-  "id": 2,
-  "iteration": 1678275507113,
+  "id": 29,
+  "iteration": 1682063057579,
   "links": [],
   "panels": [
     {
@@ -927,7 +927,7 @@
       {
         "allValue": null,
         "current": {
-          "selected": false,
+          "selected": true,
           "text": [
             "All"
           ],
@@ -955,7 +955,7 @@
       {
         "allValue": null,
         "current": {
-          "selected": false,
+          "selected": true,
           "text": [
             "All"
           ],
@@ -983,7 +983,7 @@
       {
         "allValue": null,
         "current": {
-          "selected": false,
+          "selected": true,
           "text": [
             "All"
           ],
@@ -1054,5 +1054,5 @@
   "timezone": "",
   "title": "SonarQube",
   "uid": "WA0qbuJ4k",
-  "version": 5
+  "version": 1
 }
