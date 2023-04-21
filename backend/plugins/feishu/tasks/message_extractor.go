@@ -59,8 +59,14 @@ func ExtractMessage(taskCtx plugin.SubTaskContext) errors.Error {
 			message.SenderType = body.Sender.SenderType
 			message.Deleted = body.Deleted
 			createTimestamp, err := errors.Convert01(strconv.Atoi(body.CreateTime))
+			if err != nil {
+				return nil, err
+			}
 			message.CreateTime = time.UnixMilli(int64(createTimestamp))
 			updateTimestamp, err := errors.Convert01(strconv.Atoi(body.UpdateTime))
+			if err != nil {
+				return nil, err
+			}
 			message.UpdateTime = time.UnixMilli(int64(updateTimestamp))
 			message.Updated = body.Updated
 			return []interface{}{message}, nil
