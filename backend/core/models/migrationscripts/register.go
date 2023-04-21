@@ -78,5 +78,7 @@ func All() []plugin.MigrationScript {
 		new(renameCollectorTapStateTable),
 		new(renameCicdPipelineRepoToRepoUrl),
 		new(addCicdDeploymentCommits),
+		new(renameDeploymentIdForPrProjectMetric),
+		new(addCommitAuthoredDate),
 	}
 }

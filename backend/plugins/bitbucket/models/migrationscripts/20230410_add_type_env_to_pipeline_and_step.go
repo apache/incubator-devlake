@@ -48,7 +48,7 @@ func (u *addTypeEnvToPipelineAndStep) Up(baseRes context.BasicRes) errors.Error 
 }
 
 func (*addTypeEnvToPipelineAndStep) Version() uint64 {
-	return 20230322150357
+	return 20230410150357
 }
 
 func (*addTypeEnvToPipelineAndStep) Name() string {

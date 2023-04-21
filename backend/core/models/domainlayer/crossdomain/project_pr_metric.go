@@ -23,15 +23,15 @@ import (
 
 type ProjectPrMetric struct {
 	domainlayer.DomainEntity
-	ProjectName    string `gorm:"primaryKey;type:varchar(100)"`
-	FirstCommitSha string
-	PrCodingTime   *int64
-	FirstReviewId  string
-	PrPickupTime   *int64
-	PrReviewTime   *int64
-	DeploymentId   string
-	PrDeployTime   *int64
-	PrCycleTime    *int64
+	ProjectName        string `gorm:"primaryKey;type:varchar(100)"`
+	FirstCommitSha     string
+	PrCodingTime       *int64
+	FirstReviewId      string
+	PrPickupTime       *int64
+	PrReviewTime       *int64
+	DeploymentCommitId string
+	PrDeployTime       *int64
+	PrCycleTime        *int64
 }
 
 func (ProjectPrMetric) TableName() string {

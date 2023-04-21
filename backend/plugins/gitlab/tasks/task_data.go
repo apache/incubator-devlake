@@ -39,6 +39,7 @@ type GitlabTaskData struct {
 	ApiClient     *helper.ApiAsyncClient
 	ProjectCommit *models.GitlabProjectCommit
 	TimeAfter     *time.Time
+	RegexEnricher *helper.RegexEnricher
 }
 
 func DecodeAndValidateTaskOptions(options map[string]interface{}) (*GitlabOptions, errors.Error) {

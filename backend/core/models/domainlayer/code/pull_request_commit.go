@@ -18,12 +18,17 @@ limitations under the License.
 package code
 
 import (
+	"time"
+
 	"github.com/apache/incubator-devlake/core/models/common"
 )
 
 type PullRequestCommit struct {
-	CommitSha     string `gorm:"primaryKey;type:varchar(40)"`
-	PullRequestId string `json:"id" gorm:"primaryKey;type:varchar(255);comment:This key is generated based on details from the original plugin"` // format: <Plugin>:<Entity>:<PK0>:<PK1>
+	CommitSha          string `gorm:"primaryKey;type:varchar(40)"`
+	PullRequestId      string `json:"id" gorm:"primaryKey;type:varchar(255);comment:This key is generated based on details from the original plugin"` // format: <Plugin>:<Entity>:<PK0>:<PK1>
+	CommitAuthorName   string `gorm:"type:varchar(255)"`
+	CommitAuthorEmail  string `gorm:"type:varchar(255)"`
+	CommitAuthoredDate time.Time
 	common.NoPKModel
 }
 

@@ -96,21 +96,21 @@ export const DataScopeForm = ({
       const data = await Promise.all(scope.map((sc: any) => getDataScope(sc)));
       const res =
         plugin === 'zentao'
-          ? await Promise.all([
-              API.updateDataScopeWithType(plugin, connectionId, 'product', {
+          ? [
+              ...(await API.updateDataScopeWithType(plugin, connectionId, 'product', {
                 data: data.filter((s) => s.type !== 'project'),
-              }),
-              API.updateDataScopeWithType(plugin, connectionId, 'project', {
+              })),
+              ...(await API.updateDataScopeWithType(plugin, connectionId, 'project', {
                 data: data.filter((s) => s.type === 'project'),
-              }),
-            ])
+              })),
+            ]
           : await API.updateDataScope(plugin, connectionId, {
               data,
             });
 
       onSubmit?.(
         res.map((it: any) => ({
-          id: it[getPluginId(plugin)],
+          id: plugin === 'zentao' ? `${it.type}/${it.id}` : it[getPluginId(plugin)],
           entities,
         })),
         res,

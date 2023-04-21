@@ -41,7 +41,7 @@ export const Header = styled.ul`
     display: flex;
     justify-content: space-between;
     align-items: center;
-    flex: 0 0 45%;
+    flex: 0 0 30%;
     padding: 8px 12px;
 
     &.ready,
@@ -76,7 +76,7 @@ export const Tasks = styled.ul`
   align-items: flex-start;
 
   li {
-    flex: 0 0 45%;
+    flex: 0 0 30%;
     padding-bottom: 8px;
     overflow: hidden;
   }

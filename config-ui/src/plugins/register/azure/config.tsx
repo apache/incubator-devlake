@@ -62,7 +62,7 @@ export const AzureConfig: PluginConfigType = {
   entities: ['CODE', 'CODEREVIEW', 'CROSS', 'CICD'],
   transformation: {
     deploymentPattern: '(deploy|push-image)',
-    productionPattern: 'production',
+    productionPattern: 'prod(.*)',
     refdiff: {
       tagsLimit: 10,
       tagsPattern: '/v\\d+\\.\\d+(\\.\\d+(-rc)*\\d*)*$/',

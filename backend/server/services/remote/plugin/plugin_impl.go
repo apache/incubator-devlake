@@ -164,11 +164,12 @@ func (p *remotePluginImpl) Description() string {
 }
 
 func (p *remotePluginImpl) RootPkgPath() string {
-	// RootPkgPath is only used to find to which plugin a given type belongs.
-	// This in turn is only used by DomainIdGenerator.
-	// Remote plugins define tool layer types in another language,
-	// so the reflective implementation of NewDomainIdGenerator cannot work.
-	return ""
+	// RootPkgPath is used by DomainIdGenerator to find the name of the plugin that defines a given type.
+	// While remote plugins do not use the DomainIdGenerator, we still need to implement this function.
+	// Indeed, DomainIdGenerator uses FindPluginNameBySubPkgPath that returns the name of the first plugin
+	// whose RootPkgPath is a prefix of the type package path.
+	// So we forge a fake package path that is not a prefix of any go plugin package path.
+	return "github.com/apache/incubator-devlake/services/remote/fakepackages/" + p.name
 }
 
 func (p *remotePluginImpl) ApiResources() map[string]map[string]plugin.ApiResourceHandler {

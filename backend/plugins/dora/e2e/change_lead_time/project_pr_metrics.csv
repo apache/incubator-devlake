@@ -1,0 +1,5 @@
+id,project_name,first_commit_sha,pr_coding_time,first_review_id,pr_pickup_time,pr_review_time,deployment_commit_id,pr_deploy_time,pr_cycle_time
+pr1,project1,08d2f2b6de0fa8de4d0e2b55b4b9a2e244214029,1440,comment02,5,55,5,2978,4478
+pr2,project1,2537845559d8db99e9cda6190f32b50ec979c722,,comment04,1,60,5,1538,1598
+pr3,project1,55f445997abbd5918da59d202d28762cd56fbd44,5883,comment07,,5760,6,,
+pr4,project1,5ad0c09c447c19338f1dfbb65d89a3728962b3b7,11704,comment10,1500,,,,

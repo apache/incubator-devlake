@@ -18,6 +18,9 @@ limitations under the License.
 package tasks
 
 import (
+	"reflect"
+	"time"
+
 	"github.com/apache/incubator-devlake/core/dal"
 	"github.com/apache/incubator-devlake/core/errors"
 	"github.com/apache/incubator-devlake/core/models/domainlayer/code"
@@ -25,8 +28,6 @@ import (
 	"github.com/apache/incubator-devlake/core/models/domainlayer/devops"
 	"github.com/apache/incubator-devlake/core/plugin"
 	"github.com/apache/incubator-devlake/helpers/pluginhelper/api"
-	"reflect"
-	"time"
 )
 
 // CalculateChangeLeadTimeOldMeta will be removed in v0.17
@@ -47,10 +48,8 @@ func CalculateChangeLeadTimeOld(taskCtx plugin.SubTaskContext) errors.Error {
 	enricher, err := api.NewDataConverter(api.DataConverterArgs{
 		RawDataSubTaskArgs: api.RawDataSubTaskArgs{
 			Ctx:    taskCtx,
-			Params: DoraApiParams{
-				// TODO
-			},
-			Table: "pull_requests",
+			Params: DoraApiParams{},
+			Table:  "pull_requests",
 		},
 		BatchSize:    100,
 		InputRowType: reflect.TypeOf(code.PullRequest{}),
@@ -68,22 +67,16 @@ func CalculateChangeLeadTimeOld(taskCtx plugin.SubTaskContext) errors.Error {
 				return nil, err
 			}
 			if firstCommit != nil {
-				codingTime := int64(pr.CreatedDate.Sub(firstCommit.AuthoredDate).Seconds())
-				if codingTime/60 == 0 && codingTime%60 > 0 {
-					codingTime = 1
-				} else {
-					codingTime = codingTime / 60
-				}
-				projectPrMetric.PrCodingTime = processNegativeValue(codingTime)
-				projectPrMetric.FirstCommitSha = firstCommit.Sha
+				projectPrMetric.PrCodingTime = computeTimeSpan(&firstCommit.CommitAuthoredDate, &pr.CreatedDate)
+				projectPrMetric.FirstCommitSha = firstCommit.CommitSha
 			}
 			firstReview, err := getFirstReview(pr.Id, pr.AuthorId, db)
 			if err != nil {
 				return nil, err
 			}
 			if firstReview != nil {
-				projectPrMetric.PrPickupTime = processNegativeValue(int64(firstReview.CreatedDate.Sub(pr.CreatedDate).Minutes()))
-				projectPrMetric.PrReviewTime = processNegativeValue(int64(pr.MergedDate.Sub(firstReview.CreatedDate).Minutes()))
+				projectPrMetric.PrPickupTime = computeTimeSpan(&pr.CreatedDate, &firstReview.CreatedDate)
+				projectPrMetric.PrReviewTime = computeTimeSpan(&firstReview.CreatedDate, pr.MergedDate)
 				projectPrMetric.FirstReviewId = firstReview.Id
 			}
 			deployment, err := getDeploymentOld(devops.PRODUCTION, *pr.MergedDate, db)
@@ -91,9 +84,8 @@ func CalculateChangeLeadTimeOld(taskCtx plugin.SubTaskContext) errors.Error {
 				return nil, err
 			}
 			if deployment != nil && deployment.FinishedDate != nil {
-				timespan := deployment.FinishedDate.Sub(*pr.MergedDate)
-				projectPrMetric.PrDeployTime = processNegativeValue(int64(timespan.Minutes()))
-				projectPrMetric.DeploymentId = deployment.Id
+				projectPrMetric.PrDeployTime = computeTimeSpan(pr.MergedDate, deployment.FinishedDate)
+				projectPrMetric.DeploymentCommitId = deployment.Id
 			} else {
 				log.Debug("deploy time of pr %v is nil\n", pr.PullRequestKey)
 			}

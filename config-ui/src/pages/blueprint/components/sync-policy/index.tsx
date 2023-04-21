@@ -76,11 +76,10 @@ export const SyncPolicy = ({
         </div>
       )}
       <div className="block" style={{ display: 'flex' }}>
-        <div className="left" style={{ flex: '0 0 500px' }}>
+        <div className="left" style={{ flex: '0 0 400px', marginRight: 100 }}>
           <h3>Frequency</h3>
           <p>
-            Blueprints will run on creation and recurringly based on the schedule. The time shown below is your LOCAL
-            time.
+            Blueprints will run on creation and recurringly based on the schedule. The time shown is your LOCAL time.
           </p>
           <RadioGroup selectedValue={cron.value} onChange={handleChangeFrequency}>
             {options.map(({ value, label, subLabel }) => (

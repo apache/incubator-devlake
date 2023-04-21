@@ -35,5 +35,7 @@ func All() []plugin.MigrationScript {
 		new(concatOwnerAndName),
 		new(addStdTypeToIssue221230),
 		new(addConnectionIdToTransformationRule),
+		new(addEnvToRunAndJob),
+		new(addGithubCommitAuthorInfo),
 	}
 }

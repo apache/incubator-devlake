@@ -93,9 +93,12 @@ func ExtractApiPullRequestCommits(taskCtx plugin.SubTaskContext) errors.Error {
 			results = append(results, giteeCommit)
 
 			giteePullRequestCommit := &models.GiteePullRequestCommit{
-				ConnectionId:  data.Options.ConnectionId,
-				CommitSha:     apiPullRequestCommit.Sha,
-				PullRequestId: pull.GiteeId,
+				ConnectionId:       data.Options.ConnectionId,
+				CommitSha:          apiPullRequestCommit.Sha,
+				PullRequestId:      pull.GiteeId,
+				CommitAuthorEmail:  apiPullRequestCommit.Commit.Author.Email,
+				CommitAuthorName:   apiPullRequestCommit.Commit.Author.Name,
+				CommitAuthoredDate: apiPullRequestCommit.Commit.Author.Date.ToTime(),
 			}
 			if err != nil {
 				return nil, err
