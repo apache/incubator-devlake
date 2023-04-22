@@ -197,7 +197,7 @@ def test_jobs_stream(context):
     assert_stream_convert(AzureDevOpsPlugin, 'jobs', raw, expected, context)
 
 
-def test_pull_requests_stream():
+def test_pull_requests_stream(context):
     raw = {
         'repository': {
             'id': '0d50ba13-f9ad-49b0-9b21-d29eda50ca33',
@@ -273,9 +273,9 @@ def test_pull_requests_stream():
     }
 
     expected = code.PullRequest(
-        base_repo_id='0d50ba13-f9ad-49b0-9b21-d29eda50ca33',
-        head_repo_id='0d50ba13-f9ad-49b0-9b21-d29eda50ca33',
-        status='active',
+        base_repo_id='azuredevops:GitRepository:1:johndoe/test-repo',
+        head_repo_id='azuredevops:GitRepository:1:johndoe/test-repo',
+        status='OPEN',
         title='ticket-2 PR',
         description='Updated main.java by ticket-2',
         url='https://dev.azure.com/johndoe/7a3fd40e-2aed-4fac-bac9-511bf1a70206/_apis/git/repositories/0d50ba13-f9ad-49b0-9b21-d29eda50ca33/pullRequests/1',
@@ -294,7 +294,7 @@ def test_pull_requests_stream():
         base_commit_sha='4bc26d92b5dbee7837a4d221035a4e2f8df120b2'
     )
 
-    assert_stream_convert(AzureDevOpsPlugin, 'gitpullrequests', raw, expected)
+    assert_stream_convert(AzureDevOpsPlugin, 'gitpullrequests', raw, expected, context)
 
 
 def test_pull_request_commits_stream():
