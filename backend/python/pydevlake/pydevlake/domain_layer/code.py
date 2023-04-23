@@ -57,8 +57,8 @@ class PullRequestCommit(NoPKModel, table=True):
     commit_sha: str = Field(primary_key=True)
     pull_request_id: str = Field(primary_key=True)
     commit_authored_name: str
-    commit_authored_email: str
-    commit_authored_date: datetime
+    commit_author_email: str
+    commit_author_date: datetime
 
 
 class PullRequestComment(DomainModel, table=True):

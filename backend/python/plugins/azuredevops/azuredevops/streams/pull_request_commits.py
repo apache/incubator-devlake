@@ -39,7 +39,7 @@ class GitPullRequestCommits(Substream):
         yield code.PullRequestCommit(
             commit_sha=commit.commit_id,
             pull_request_id=commit.pull_request_id,
-            commit_authored_name=commit.author_name,
-            commit_authored_email=commit.author_email,
+            commit_author_name=commit.author_name,
+            commit_author_email=commit.author_email,
             commit_authored_date=commit.author_date
         )
