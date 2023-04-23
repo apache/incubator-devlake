@@ -25,7 +25,7 @@ import (
 	"github.com/apache/incubator-devlake/core/models/domainlayer"
 	"github.com/apache/incubator-devlake/core/models/domainlayer/devops"
 	"github.com/apache/incubator-devlake/core/models/domainlayer/didgen"
-	plugin "github.com/apache/incubator-devlake/core/plugin"
+	"github.com/apache/incubator-devlake/core/plugin"
 	"github.com/apache/incubator-devlake/helpers/pluginhelper/api"
 	"github.com/apache/incubator-devlake/plugins/bitbucket/models"
 )
@@ -96,14 +96,15 @@ func ConvertDeployments(taskCtx plugin.SubTaskContext) errors.Error {
 					Done:    []string{"COMPLETED", "UNDEPLOYED"},
 					Default: devops.IN_PROGRESS,
 				}, bitbucketDeployment.Status),
-				Environment: bitbucketDeployment.Environment,
-				CreatedDate: *bitbucketDeployment.CreatedOn,
-				StartedDate: bitbucketDeployment.StartedOn,
-				DurationSec: duration,
-				CommitSha:   bitbucketDeployment.CommitSha,
-				RefName:     bitbucketDeployment.RefName,
-				RepoId:      repoId,
-				RepoUrl:     repo.HTMLUrl,
+				Environment:  bitbucketDeployment.Environment,
+				CreatedDate:  *bitbucketDeployment.CreatedOn,
+				StartedDate:  bitbucketDeployment.StartedOn,
+				FinishedDate: bitbucketDeployment.CompletedOn,
+				DurationSec:  duration,
+				CommitSha:    bitbucketDeployment.CommitSha,
+				RefName:      bitbucketDeployment.RefName,
+				RepoId:       repoId,
+				RepoUrl:      repo.HTMLUrl,
 			}
 			return []interface{}{domainDeployCommit}, nil
 		},
