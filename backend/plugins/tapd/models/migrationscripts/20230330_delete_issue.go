@@ -27,13 +27,8 @@ type deleteIssue struct{}
 
 func (*deleteIssue) Up(basicRes context.BasicRes) errors.Error {
 	db := basicRes.GetDal()
-	err := db.DropTables(archived.TapdIssue{})
-	if err != nil {
-		return err
-	}
-	// drop if exist
-	_ = db.DropColumns(`_tool_tapd_transformation_rules`, `remotelink_commit_sha_pattern`, `remotelink_repo_pattern`)
-	return nil
+
+	return db.DropTables(archived.TapdIssue{})
 }
 
 func (*deleteIssue) Version() uint64 {
