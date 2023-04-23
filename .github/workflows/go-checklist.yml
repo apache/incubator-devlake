@@ -26,7 +26,8 @@ on:
       - "go.sum"
 
 permissions:
-  issues: write # to create an issue when link check fails
+  contents: write
+  pull-requests: write
 
 jobs:
   checklist_job:
