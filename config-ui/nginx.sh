@@ -28,7 +28,7 @@ export DNS=$(grep nameserver /etc/resolv.conf | awk '{print $2}')
 export DNS_VALID=${DNS_VALID:-300s}
 export DEVLAKE_ENDPOINT_PROTO=${DEVLAKE_ENDPOINT_PROTO:-http}
 export GRAFANA_ENDPOINT_PROTO=${GRAFANA_ENDPOINT_PROTO:-http}
-envsubst '${DEVLAKE_ENDPOINT} ${DEVLAKE_ENDPOINT_PROTO} ${GRAFANA_ENDPOINT} ${GRAFANA_ENDPOINT_PROTO} ${SERVER_CONF} ${DNS} ${DNS_VALID}' \
+envsubst '${DEVLAKE_ENDPOINT} ${DEVLAKE_ENDPOINT_PROTO} ${GRAFANA_ENDPOINT} ${GRAFANA_ENDPOINT_PROTO} ${USE_EXTERNAL_GRAFANA} ${SERVER_CONF} ${DNS} ${DNS_VALID}' \
     < /etc/nginx/conf.d/default.conf.tpl \
     > /etc/nginx/conf.d/default.conf
 nginx -g 'daemon off;'
