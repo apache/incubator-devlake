@@ -63,6 +63,8 @@ type BambooJobBuild struct {
 	ReasonSummary            string     `json:"reasonSummary"`
 	State                    string     `json:"state"`
 	BuildState               string     `json:"buildState"`
+	Type                     string     `gorm:"type:varchar(255)"`
+	Environment              string     `gorm:"type:varchar(255)"`
 	JobResultKey             string
 	common.NoPKModel
 }

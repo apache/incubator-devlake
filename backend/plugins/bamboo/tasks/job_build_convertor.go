@@ -20,11 +20,10 @@ package tasks
 import (
 	"reflect"
 
-	"github.com/apache/incubator-devlake/core/models/domainlayer/devops"
-
 	"github.com/apache/incubator-devlake/core/dal"
 	"github.com/apache/incubator-devlake/core/errors"
 	"github.com/apache/incubator-devlake/core/models/domainlayer"
+	"github.com/apache/incubator-devlake/core/models/domainlayer/devops"
 	"github.com/apache/incubator-devlake/core/models/domainlayer/didgen"
 	"github.com/apache/incubator-devlake/core/plugin"
 	"github.com/apache/incubator-devlake/helpers/pluginhelper/api"
@@ -42,13 +41,6 @@ var ConvertJobBuildsMeta = plugin.SubTaskMeta{
 func ConvertJobBuilds(taskCtx plugin.SubTaskContext) errors.Error {
 	db := taskCtx.GetDal()
 	rawDataSubTaskArgs, data := CreateRawDataSubTaskArgs(taskCtx, RAW_JOB_BUILD_TABLE)
-	deploymentPattern := data.Options.DeploymentPattern
-	productionPattern := data.Options.ProductionPattern
-	regexEnricher := api.NewRegexEnricher()
-	err := regexEnricher.AddRegexp(deploymentPattern, productionPattern)
-	if err != nil {
-		return err
-	}
 	cursor, err := db.Cursor(
 		dal.From(&models.BambooJobBuild{}),
 		dal.Where("connection_id = ? and project_key = ?", data.Options.ConnectionId, data.Options.ProjectKey))
@@ -87,8 +79,8 @@ func ConvertJobBuilds(taskCtx plugin.SubTaskContext) errors.Error {
 				}, line.LifeCycleState),
 			}
 
-			domainJobBuild.Type = regexEnricher.GetEnrichResult(deploymentPattern, line.JobName, devops.DEPLOYMENT)
-			domainJobBuild.Environment = regexEnricher.GetEnrichResult(productionPattern, line.JobName, devops.PRODUCTION)
+			domainJobBuild.Type = line.Type
+			domainJobBuild.Environment = line.Environment
 
 			return []interface{}{
 				domainJobBuild,

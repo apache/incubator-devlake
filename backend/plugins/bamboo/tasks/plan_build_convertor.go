@@ -20,11 +20,10 @@ package tasks
 import (
 	"reflect"
 
-	"github.com/apache/incubator-devlake/core/models/domainlayer/devops"
-
 	"github.com/apache/incubator-devlake/core/dal"
 	"github.com/apache/incubator-devlake/core/errors"
 	"github.com/apache/incubator-devlake/core/models/domainlayer"
+	"github.com/apache/incubator-devlake/core/models/domainlayer/devops"
 	"github.com/apache/incubator-devlake/core/models/domainlayer/didgen"
 	"github.com/apache/incubator-devlake/core/plugin"
 	"github.com/apache/incubator-devlake/helpers/pluginhelper/api"
@@ -86,8 +85,8 @@ func ConvertPlanBuilds(taskCtx plugin.SubTaskContext) errors.Error {
 				}, line.LifeCycleState),
 			}
 
-			domainPlanBuild.Type = regexEnricher.GetEnrichResult(deploymentPattern, line.PlanName, devops.DEPLOYMENT)
-			domainPlanBuild.Environment = regexEnricher.GetEnrichResult(productionPattern, line.PlanName, devops.PRODUCTION)
+			domainPlanBuild.Type = line.Type
+			domainPlanBuild.Environment = line.Environment
 
 			return []interface{}{
 				domainPlanBuild,
