@@ -27,10 +27,12 @@ func Test_buildJQL(t *testing.T) {
 	timeAfter := base
 	add48 := base.Add(48 * time.Hour)
 	minus48 := base.Add(-48 * time.Hour)
+	loc, _ := time.LoadLocation("Asia/Shanghai")
 	type args struct {
 		timeAfter          *time.Time
 		latestSuccessStart *time.Time
 		isIncremental      bool
+		location           *time.Location
 	}
 	tests := []struct {
 		name string
@@ -51,8 +53,9 @@ func Test_buildJQL(t *testing.T) {
 				timeAfter:          nil,
 				latestSuccessStart: &add48,
 				isIncremental:      true,
+				location:           loc,
 			},
-			want: "updated >= '2021/02/04 04:05' ORDER BY created ASC",
+			want: "updated >= '2021/02/05 12:05' ORDER BY created ASC",
 		},
 		{
 			name: "test incremental",
@@ -60,8 +63,9 @@ func Test_buildJQL(t *testing.T) {
 				timeAfter:          &base,
 				latestSuccessStart: nil,
 				isIncremental:      false,
+				location:           loc,
 			},
-			want: "updated >= '2021/02/03 04:05' ORDER BY created ASC",
+			want: "updated >= '2021/02/03 12:05' ORDER BY created ASC",
 		},
 		{
 			name: "test incremental",
@@ -76,16 +80,26 @@ func Test_buildJQL(t *testing.T) {
 			name: "test incremental",
 			args: args{
 				timeAfter:          &timeAfter,
+				latestSuccessStart: &add48,
+				isIncremental:      true,
+				location:           loc,
+			},
+			want: "updated >= '2021/02/05 12:05' ORDER BY created ASC",
+		},
+		{
+			name: "test incremental",
+			args: args{
+				timeAfter:          &timeAfter,
 				latestSuccessStart: &minus48,
 				isIncremental:      true,
 			},
-			want: "updated >= '2021/02/03 04:05' ORDER BY created ASC",
+			want: "updated >= '2021/02/02 04:05' ORDER BY created ASC",
 		},
 	}
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			if got := buildJQL(tt.args.timeAfter, tt.args.latestSuccessStart, tt.args.isIncremental); got != tt.want {
+			if got := buildJQL(tt.args.timeAfter, tt.args.latestSuccessStart, tt.args.isIncremental, tt.args.location); got != tt.want {
 				t.Errorf("buildJQL() = %v, want %v", got, tt.want)
 			}
 		})

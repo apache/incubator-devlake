@@ -18,6 +18,9 @@ limitations under the License.
 package tasks
 
 import (
+	"reflect"
+	"time"
+
 	"github.com/apache/incubator-devlake/core/dal"
 	"github.com/apache/incubator-devlake/core/errors"
 	"github.com/apache/incubator-devlake/core/models/domainlayer"
@@ -26,8 +29,6 @@ import (
 	"github.com/apache/incubator-devlake/core/plugin"
 	"github.com/apache/incubator-devlake/helpers/pluginhelper/api"
 	"github.com/apache/incubator-devlake/plugins/jenkins/models"
-	"reflect"
-	"time"
 )
 
 var ConvertBuildsToCICDMeta = plugin.SubTaskMeta{
@@ -41,13 +42,6 @@ var ConvertBuildsToCICDMeta = plugin.SubTaskMeta{
 func ConvertBuildsToCICD(taskCtx plugin.SubTaskContext) (err errors.Error) {
 	db := taskCtx.GetDal()
 	data := taskCtx.GetData().(*JenkinsTaskData)
-	deploymentPattern := data.Options.DeploymentPattern
-	productionPattern := data.Options.ProductionPattern
-	regexEnricher := api.NewRegexEnricher()
-	err = regexEnricher.AddRegexp(deploymentPattern, productionPattern)
-	if err != nil {
-		return err
-	}
 	clauses := []dal.Clause{
 		dal.From("_tool_jenkins_builds"),
 		dal.Where(`_tool_jenkins_builds.connection_id = ?
@@ -108,6 +102,8 @@ func ConvertBuildsToCICD(taskCtx plugin.SubTaskContext) (err errors.Error) {
 				DurationSec:  uint64(durationSec),
 				CreatedDate:  jenkinsBuild.StartTime,
 				CicdScopeId:  jobIdGen.Generate(jenkinsBuild.ConnectionId, data.Options.JobFullName),
+				Type:         data.RegexEnricher.ReturnNameIfMatched(devops.DEPLOYMENT, jenkinsBuild.FullName),
+				Environment:  data.RegexEnricher.ReturnNameIfMatched(devops.PRODUCTION, jenkinsBuild.FullName),
 			}
 			jenkinsPipeline.RawDataOrigin = jenkinsBuild.RawDataOrigin
 			results = append(results, jenkinsPipeline)
@@ -124,12 +120,10 @@ func ConvertBuildsToCICD(taskCtx plugin.SubTaskContext) (err errors.Error) {
 					StartedDate:  jenkinsBuild.StartTime,
 					FinishedDate: jenkinsPipelineFinishedDate,
 					CicdScopeId:  jobIdGen.Generate(jenkinsBuild.ConnectionId, data.Options.JobFullName),
+					Type:         data.RegexEnricher.ReturnNameIfMatched(devops.DEPLOYMENT, jenkinsBuild.FullName),
+					Environment:  data.RegexEnricher.ReturnNameIfMatched(devops.PRODUCTION, jenkinsBuild.FullName),
+					PipelineId:   buildIdGen.Generate(jenkinsBuild.ConnectionId, jenkinsBuild.FullName),
 				}
-				jenkinsTask.Type = regexEnricher.GetEnrichResult(deploymentPattern, jenkinsTask.Name, devops.DEPLOYMENT)
-				jenkinsTask.Environment = regexEnricher.GetEnrichResult(productionPattern, jenkinsTask.Name, devops.PRODUCTION)
-
-				jenkinsTask.PipelineId = buildIdGen.Generate(jenkinsBuild.ConnectionId, jenkinsBuild.FullName)
-				jenkinsTask.RawDataOrigin = jenkinsBuild.RawDataOrigin
 				results = append(results, jenkinsTask)
 
 			}

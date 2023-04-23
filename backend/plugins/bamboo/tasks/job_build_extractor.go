@@ -22,6 +22,7 @@ import (
 	"fmt"
 
 	"github.com/apache/incubator-devlake/core/errors"
+	"github.com/apache/incubator-devlake/core/models/domainlayer/devops"
 	"github.com/apache/incubator-devlake/core/plugin"
 	helper "github.com/apache/incubator-devlake/helpers/pluginhelper/api"
 	"github.com/apache/incubator-devlake/plugins/bamboo/models"
@@ -53,6 +54,8 @@ func ExtractJobBuild(taskCtx plugin.SubTaskContext) errors.Error {
 			body.PlanKey = plan.PlanKey
 			body.PlanName = plan.PlanName
 			body.PlanBuildKey = fmt.Sprintf("%s-%v", plan.PlanKey, body.Number)
+			body.Type = data.RegexEnricher.ReturnNameIfMatched(devops.DEPLOYMENT, body.JobName)
+			body.Environment = data.RegexEnricher.ReturnNameIfMatched(devops.PRODUCTION, body.JobName)
 			results := make([]interface{}, 0)
 			results = append(results, body)
 			for _, v := range res.VcsRevisions.VcsRevision {

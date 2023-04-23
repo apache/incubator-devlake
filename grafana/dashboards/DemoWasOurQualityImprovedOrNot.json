@@ -109,7 +109,7 @@
           "metricColumn": "none",
           "queryType": "randomWalk",
           "rawQuery": true,
-          "rawSql": "with line_of_code as (\n\tselect \n\t  DATE_ADD(date(authored_date), INTERVAL -DAY(date(authored_date))+1 DAY) as time,\n\t  sum(additions + deletions) as line_count\n\tfrom \n\t  commits\n\twhere \n\t  message not like 'Merge%'\n\t  and $__timeFilter(authored_date)\n\tgroup by 1\n),\n\n\nbug_count as(\n  select \n    DATE_ADD(date(created_date), INTERVAL -DAY(date(created_date))+1 DAY) as time,\n    count(*) as bug_count\n  from issues i\n  where \n    type = 'Bug'\n    and $__timeFilter(created_date)\n  group by 1\n),\n\n\nbug_count_per_1k_loc as(\n  select \n    loc.time,\n    1.0 * bc.bug_count / loc.line_count * 1000 as bug_count_per_1k_loc\n  from \n    line_of_code loc\n    left join bug_count bc on bc.time = loc.time\n  where\n    bc.bug_count is not null \n    and loc.line_count is not null \n    and loc.line_count != 0\n)\n\nselect \n  date_format(time,'%M %Y') as month,\n  bug_count_per_1k_loc as 'Bug Count per 1000 Lines of Code'\nfrom bug_count_per_1k_loc \norder by time;",
+          "rawSql": "with line_of_code as (\n\tselect \n\t  DATE_ADD(date(authored_date), INTERVAL -DAY(date(authored_date))+1 DAY) as time,\n\t  sum(additions + deletions) as line_count\n\tfrom \n\t  commits\n\twhere \n\t  message not like 'Merge%'\n\t  and $__timeFilter(authored_date)\n\tgroup by 1\n),\n\n\nbug_count as(\n  select \n    DATE_ADD(date(created_date), INTERVAL -DAY(date(created_date))+1 DAY) as time,\n    count(*) as bug_count\n  from issues i\n  where \n    type = 'BUG'\n    and $__timeFilter(created_date)\n  group by 1\n),\n\n\nbug_count_per_1k_loc as(\n  select \n    loc.time,\n    1.0 * bc.bug_count / loc.line_count * 1000 as bug_count_per_1k_loc\n  from \n    line_of_code loc\n    left join bug_count bc on bc.time = loc.time\n  where\n    bc.bug_count is not null \n    and loc.line_count is not null \n    and loc.line_count != 0\n)\n\nselect \n  date_format(time,'%M %Y') as month,\n  bug_count_per_1k_loc as 'Bug Count per 1000 Lines of Code'\nfrom bug_count_per_1k_loc \norder by time;",
           "refId": "A",
           "select": [
             [
@@ -216,5 +216,5 @@
   "timezone": "",
   "title": "Demo-Was our quality improved or not?",
   "uid": "G4DEk75nz",
-  "version": 2
+  "version": 4
 }

@@ -86,7 +86,7 @@ export const GitHubConfig: PluginConfigType = {
     issueComponent: 'component(.*)',
     issueSeverity: 'severity(.*)',
     deploymentPattern: '(deploy|push-image)',
-    productionPattern: 'production',
+    productionPattern: 'prod(.*)',
     prType: 'type(.*)',
     prComponent: 'component(.*)',
     prBodyClosePattern:

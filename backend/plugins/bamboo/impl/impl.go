@@ -19,9 +19,11 @@ package impl
 
 import (
 	"fmt"
+
 	"github.com/apache/incubator-devlake/core/context"
 	"github.com/apache/incubator-devlake/core/dal"
 	"github.com/apache/incubator-devlake/core/errors"
+	"github.com/apache/incubator-devlake/core/models/domainlayer/devops"
 	"github.com/apache/incubator-devlake/core/plugin"
 	helper "github.com/apache/incubator-devlake/helpers/pluginhelper/api"
 	"github.com/apache/incubator-devlake/plugins/bamboo/api"
@@ -169,9 +171,17 @@ func (p Bamboo) PrepareTaskData(taskCtx plugin.TaskContext, options map[string]i
 	if op.BambooTransformationRule == nil && op.TransformationRuleId == 0 {
 		op.BambooTransformationRule = new(models.BambooTransformationRule)
 	}
+	regexEnricher := helper.NewRegexEnricher()
+	if err := regexEnricher.TryAdd(devops.DEPLOYMENT, op.DeploymentPattern); err != nil {
+		return nil, errors.BadInput.Wrap(err, "invalid value for `deploymentPattern`")
+	}
+	if err := regexEnricher.TryAdd(devops.PRODUCTION, op.ProductionPattern); err != nil {
+		return nil, errors.BadInput.Wrap(err, "invalid value for `productionPattern`")
+	}
 	return &tasks.BambooTaskData{
-		Options:   op,
-		ApiClient: apiClient,
+		Options:       op,
+		ApiClient:     apiClient,
+		RegexEnricher: regexEnricher,
 	}, nil
 }
 

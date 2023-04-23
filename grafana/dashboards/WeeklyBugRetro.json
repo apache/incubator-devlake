@@ -1595,8 +1595,8 @@
         "allValue": null,
         "current": {
           "selected": false,
-          "text": "apache/incubator-devlake",
-          "value": "github:GithubRepo:1:384111310"
+          "text": "All",
+          "value": "$__all"
         },
         "datasource": "mysql",
         "definition": "select concat(name, '-', id) as text from boards",

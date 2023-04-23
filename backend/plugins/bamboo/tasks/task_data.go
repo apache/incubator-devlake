@@ -24,8 +24,9 @@ import (
 )
 
 type BambooTaskData struct {
-	Options   *models.BambooOptions
-	ApiClient *helper.ApiAsyncClient
+	Options       *models.BambooOptions
+	ApiClient     *helper.ApiAsyncClient
+	RegexEnricher *helper.RegexEnricher
 }
 
 func DecodeAndValidateTaskOptions(options map[string]interface{}) (*models.BambooOptions, errors.Error) {

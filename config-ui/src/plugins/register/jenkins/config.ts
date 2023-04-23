@@ -51,6 +51,6 @@ export const JenkinsConfig: PluginConfigType = {
   entities: ['CICD'],
   transformation: {
     deploymentPattern: '(deploy|push-image)',
-    productionPattern: 'production',
+    productionPattern: 'prod(.*)',
   },
 };

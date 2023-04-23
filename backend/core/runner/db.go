@@ -85,7 +85,7 @@ func NewGormDbEx(configReader config.ConfigReader, logger log.Logger, sessionCon
 	var db *gorm.DB
 	switch strings.ToLower(u.Scheme) {
 	case "mysql":
-		dbUrl = fmt.Sprintf("%s@tcp(%s)%s?%s", getUserString(u), u.Host, u.Path, u.RawQuery)
+		dbUrl = fmt.Sprintf("%s@tcp(%s)%s?%s", getUserString(u), u.Host, u.Path, addLocal(u.Query()))
 		db, err = gorm.Open(mysql.Open(dbUrl), dbConfig)
 	case "postgresql", "postgres", "pg":
 		db, err = gorm.Open(postgres.Open(dbUrl), dbConfig)
@@ -113,4 +113,12 @@ func getUserString(u *url.URL) string {
 		userString = fmt.Sprintf("%s:%s", userString, password)
 	}
 	return userString
+}
+
+// addLocal adds loc=Local to the query string if it's not already there
+func addLocal(query url.Values) string {
+	if query.Get("loc") == "" {
+		query.Set("loc", "Local")
+	}
+	return query.Encode()
 }

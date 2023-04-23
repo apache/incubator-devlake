@@ -108,7 +108,7 @@
           "group": [],
           "metricColumn": "none",
           "rawQuery": true,
-          "rawSql": "with _requirements as(\n  select \n    DATE_ADD(date(resolution_date), INTERVAL -DAY(date(resolution_date))+1 DAY) as time,\n    avg(lead_time_minutes)/1440 as lead_time_days\n  from issues i\n  where \n    type = 'Requirement'\n    and $__timeFilter(resolution_date)\n  group by time\n)\n\nselect\n  date_format(time,'%M %Y') as month,\n  lead_time_days as 'Average Requirement Lead Time (day)'\nfrom _requirements\norder by time asc",
+          "rawSql": "with _requirements as(\n  select \n    DATE_ADD(date(resolution_date), INTERVAL -DAY(date(resolution_date))+1 DAY) as time,\n    avg(lead_time_minutes)/1440 as lead_time_days\n  from issues i\n  where \n    type = 'REQUIREMENT'\n    and $__timeFilter(resolution_date)\n  group by time\n)\n\nselect\n  date_format(time,'%M %Y') as month,\n  lead_time_days as 'Average Requirement Lead Time (day)'\nfrom _requirements\norder by time asc",
           "refId": "A",
           "select": [
             [
@@ -219,5 +219,5 @@
   "timezone": "",
   "title": "Demo-How fast do we respond to customer requirements?",
   "uid": "SupYz7c7z",
-  "version": 2
+  "version": 4
 }

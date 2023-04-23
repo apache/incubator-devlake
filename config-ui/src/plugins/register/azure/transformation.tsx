@@ -17,9 +17,9 @@
  */
 
 import React, { useState, useEffect } from 'react';
-import { Tag, RadioGroup, Radio, InputGroup, Icon, Collapse, Intent } from '@blueprintjs/core';
+import { Tag, Switch, Radio, InputGroup, Icon, Collapse, Intent } from '@blueprintjs/core';
 
-import { ExternalLink, HelpTooltip } from '@/components';
+import { Divider, ExternalLink, HelpTooltip } from '@/components';
 
 import * as S from './styled';
 
@@ -29,7 +29,7 @@ interface Props {
 }
 
 export const AzureTransformation = ({ transformation, setTransformation }: Props) => {
-  const [enableCICD, setEnableCICD] = useState(1);
+  const [enableCICD, setEnableCICD] = useState(true);
   const [openAdditionalSettings, setOpenAdditionalSettings] = useState(false);
 
   useEffect(() => {
@@ -38,21 +38,23 @@ export const AzureTransformation = ({ transformation, setTransformation }: Props
     }
   }, [transformation]);
 
-  const handleChangeCICDEnable = (e: number) => {
-    if (e === 0) {
+  const handleChangeCICDEnable = (e: React.FormEvent<HTMLInputElement>) => {
+    const checked = (e.target as HTMLInputElement).checked;
+
+    if (checked) {
+      setTransformation({
+        ...transformation,
+        deploymentPattern: '(deploy|push-image)',
+        productionPattern: 'production',
+      });
+    } else {
       setTransformation({
         ...transformation,
         deploymentPattern: undefined,
         productionPattern: undefined,
       });
-    } else {
-      setTransformation({
-        ...transformation,
-        deploymentPattern: '',
-        productionPattern: '',
-      });
     }
-    setEnableCICD(e);
+    setEnableCICD(checked);
   };
 
   const handleChangeAdditionalSettingsOpen = () => {
@@ -67,67 +69,67 @@ export const AzureTransformation = ({ transformation, setTransformation }: Props
 
   return (
     <S.Transfromation>
-      <div className="ci-cd">
+      <S.CICD>
         <h2>CI/CD</h2>
         <h3>
           <span>Deployment</span>
-          <Tag minimal intent={Intent.PRIMARY} style={{ marginLeft: 4, fontWeight: 400 }}>
+          <Tag minimal intent={Intent.PRIMARY} style={{ marginLeft: 8 }}>
             DORA
           </Tag>
+          <div className="switch">
+            <span>Enable</span>
+            <Switch alignIndicator="right" inline checked={enableCICD} onChange={handleChangeCICDEnable} />
+          </div>
         </h3>
-        <p>Tell DevLake what CI builds are Deployments.</p>
-        <RadioGroup
-          selectedValue={enableCICD}
-          onChange={(e) => handleChangeCICDEnable(+(e.target as HTMLInputElement).value)}
-        >
-          <Radio label="Detect Deployment from Builds in Azure Pipelines" value={1} />
-          {enableCICD === 1 && (
-            <div className="radio">
-              <p>
-                Please fill in the following RegEx, as DevLake ONLY accounts for deployments in the production
-                environment for DORA metrics. Not sure what an Azure Build is?
-                <ExternalLink link="https://learn.microsoft.com/en-us/azure/devops/pipelines/get-started/what-is-azure-pipelines?view=azure-devops#continuous-testing">
-                  See it here
-                </ExternalLink>
-              </p>
-              <div className="input">
-                <p>The Build name that matches</p>
-                <InputGroup
-                  placeholder="(?i)deploy"
-                  value={transformation.deploymentPattern}
-                  onChange={(e) =>
-                    setTransformation({
-                      ...transformation,
-                      deploymentPattern: e.target.value,
-                    })
-                  }
-                />
-                <p>
-                  will be registered as a `Deployment` in DevLake. <span style={{ color: '#E34040' }}>*</span>
-                </p>
-              </div>
-              <div className="input">
-                <p>The Build name that matches</p>
-                <InputGroup
-                  placeholder="(?i)production"
-                  value={transformation.productionPattern}
-                  onChange={(e) =>
-                    setTransformation({
-                      ...transformation,
-                      productionPattern: e.target.value,
-                    })
-                  }
-                />
-                <p>
-                  will be registered as a `Deployment` to the Production environment in DevLake.
-                  <HelpTooltip content="If you leave this field empty, all data will be tagged as in the Production environment. " />
-                </p>
-              </div>
+        {enableCICD && (
+          <>
+            <p>
+              Use Regular Expression to define Deployments in DevLake in order to measure DORA metrics.{' '}
+              <ExternalLink link="https://devlake.apache.org/docs/Configuration/GitHub#step-3---adding-transformation-rules-optional">
+                Learn more
+              </ExternalLink>
+            </p>
+            <div style={{ marginTop: 16 }}>Convert a Azure Pipeline Run as a DevLake Deployment when: </div>
+            <div className="text">
+              <span>
+                The name of the <strong>Azure pipeline</strong> or <strong>one of its jobs</strong> matches
+              </span>
+              <InputGroup
+                style={{ width: 224, margin: '0 8px' }}
+                placeholder="(deploy|push-image)"
+                value={transformation.deploymentPattern ?? ''}
+                onChange={(e) =>
+                  setTransformation({
+                    ...transformation,
+                    deploymentPattern: e.target.value,
+                    productionPattern: !e.target.value ? '' : transformation.productionPattern,
+                  })
+                }
+              />
+              <i style={{ color: '#E34040' }}>*</i>
+              <HelpTooltip content="Azure Pipelines: https://learn.microsoft.com/en-us/azure/devops/pipelines/get-started/what-is-azure-pipelines?view=azure-devops#continuous-testing" />
             </div>
-          )}
-          <Radio label="Not using Builds in Azure Pipelines as Deployments" value={0} />
-        </RadioGroup>
-      </div>
+            <div className="text">
+              <span>If the name also matches</span>
+              <InputGroup
+                style={{ width: 120, margin: '0 8px' }}
+                disabled={!transformation.deploymentPattern}
+                placeholder="prod(.*)"
+                value={transformation.productionPattern ?? ''}
+                onChange={(e) =>
+                  setTransformation({
+                    ...transformation,
+                    productionPattern: e.target.value,
+                  })
+                }
+              />
+              <span>, this Deployment is a ‘Production Deployment’</span>
+              <HelpTooltip content="If you leave this field empty, all DevLake Deployments will be tagged as in the Production environment. " />
+            </div>
+          </>
+        )}
+      </S.CICD>
+      <Divider />
       {/* Additional Settings */}
       <div className="additional-settings">
         <h2 onClick={handleChangeAdditionalSettingsOpen}>

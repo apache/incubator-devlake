@@ -36,9 +36,9 @@ type BambooDeployBuild struct {
 	FinishedDate          *time.Time `json:"finishedDate"`
 	ReasonSummary         string     `json:"reasonSummary"`
 
-	ProjectKey string `json:"project_key" gorm:"index"`
-	PlanKey    string `json:"plan_key" gorm:"index"`
-
+	ProjectKey  string `json:"project_key" gorm:"index"`
+	PlanKey     string `json:"plan_key" gorm:"index"`
+	Environment string `gorm:"type:varchar(255)"`
 	ApiBambooOperations
 	common.NoPKModel
 }

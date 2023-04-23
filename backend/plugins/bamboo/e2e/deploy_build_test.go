@@ -23,6 +23,7 @@ import (
 	"github.com/apache/incubator-devlake/core/models/common"
 	"github.com/apache/incubator-devlake/core/models/domainlayer/devops"
 	"github.com/apache/incubator-devlake/helpers/e2ehelper"
+	helper "github.com/apache/incubator-devlake/helpers/pluginhelper/api"
 	"github.com/apache/incubator-devlake/plugins/bamboo/impl"
 	"github.com/apache/incubator-devlake/plugins/bamboo/models"
 	"github.com/apache/incubator-devlake/plugins/bamboo/tasks"
@@ -33,12 +34,17 @@ func TestBambooDeployBuildDataFlow(t *testing.T) {
 	dataflowTester := e2ehelper.NewDataFlowTester(t, "bamboo", bamboo)
 	taskData := &tasks.BambooTaskData{
 		Options: &models.BambooOptions{
-			ConnectionId:             1,
-			ProjectKey:               "TEST1",
-			BambooTransformationRule: new(models.BambooTransformationRule),
+			ConnectionId: 1,
+			ProjectKey:   "TEST1",
+			BambooTransformationRule: &models.BambooTransformationRule{
+				DeploymentPattern: "(?i)release",
+				ProductionPattern: "(?i)release",
+			},
 		},
+		RegexEnricher: helper.NewRegexEnricher(),
 	}
-
+	taskData.RegexEnricher.TryAdd(devops.DEPLOYMENT, taskData.Options.DeploymentPattern)
+	taskData.RegexEnricher.TryAdd(devops.PRODUCTION, taskData.Options.ProductionPattern)
 	// import raw data table
 	dataflowTester.ImportCsvIntoRawTable("./raw_tables/_raw_bamboo_api_deploy_build.csv", "_raw_bamboo_api_deploy_build")
 
@@ -68,6 +74,7 @@ func TestBambooDeployBuildDataFlow(t *testing.T) {
 			"can_execute",
 			"allowed_to_create_version",
 			"allowed_to_set_version_status",
+			"environment",
 		),
 	)
 

@@ -17,10 +17,11 @@
  */
 
 import React, { useMemo, useState, useEffect } from 'react';
-import { FormGroup, InputGroup, Tag, Radio, Icon, Collapse, Intent, Checkbox } from '@blueprintjs/core';
+import { FormGroup, InputGroup, Tag, Radio, Icon, Collapse, Intent, Switch } from '@blueprintjs/core';
 
 import { ExternalLink, HelpTooltip, Divider, MultiSelector } from '@/components';
 
+import ExampleJpg from './assets/bitbucket-example.jpg';
 import * as S from './styled';
 
 interface Props {
@@ -31,7 +32,8 @@ interface Props {
 const ALL_STATES = ['new', 'open', 'resolved', 'closed', 'on hold', 'wontfix', 'duplicate', 'invalid'];
 
 export const BitbucketTransformation = ({ transformation, setTransformation }: Props) => {
-  const [enableCICD, setEnableCICD] = useState(false);
+  const [enableCICD, setEnableCICD] = useState(true);
+  const [useCustom, setUseCustom] = useState(false);
   const [openAdditionalSettings, setOpenAdditionalSettings] = useState(false);
 
   useEffect(() => {
@@ -50,15 +52,42 @@ export const BitbucketTransformation = ({ transformation, setTransformation }: P
     [transformation],
   );
 
-  const handleChangeCICDEnable = (b: boolean) => {
-    if (!b) {
+  const handleChangeUseCustom = (uc: boolean) => {
+    if (!uc) {
       setTransformation({
         ...transformation,
         deploymentPattern: '',
         productionPattern: '',
       });
+    } else {
+      setTransformation({
+        ...transformation,
+        deploymentPattern: '(deploy|push-image)',
+        productionPattern: '',
+      });
     }
-    setEnableCICD(b);
+
+    setUseCustom(uc);
+  };
+
+  const handleChangeCICDEnable = (e: React.FormEvent<HTMLInputElement>) => {
+    const checked = (e.target as HTMLInputElement).checked;
+
+    if (checked) {
+      setUseCustom(false);
+      setTransformation({
+        ...transformation,
+        deploymentPattern: '',
+        productionPattern: '',
+      });
+    } else {
+      setTransformation({
+        ...transformation,
+        deploymentPattern: undefined,
+        productionPattern: undefined,
+      });
+    }
+    setEnableCICD(checked);
   };
 
   const handleChangeAdditionalSettingsOpen = () => {
@@ -72,7 +101,7 @@ export const BitbucketTransformation = ({ transformation, setTransformation }: P
   };
 
   return (
-    <S.TransformationWrapper>
+    <S.Transformation>
       {/* Issue Tracking */}
       <div className="issue-tracking">
         <h2>Issue Tracking</h2>
@@ -141,69 +170,54 @@ export const BitbucketTransformation = ({ transformation, setTransformation }: P
       </div>
       <Divider />
       {/* CI/CD */}
-      <div className="ci-cd">
+      <S.CICD>
         <h2>CI/CD</h2>
         <h3>
           <span>Deployment</span>
-          <Tag minimal intent={Intent.PRIMARY}>
+          <Tag minimal intent={Intent.PRIMARY} style={{ marginLeft: 8 }}>
             DORA
           </Tag>
-        </h3>
-        <p>
-          DevLake uses BitBucket{' '}
-          <ExternalLink link="https://support.atlassian.com/bitbucket-cloud/docs/set-up-and-monitor-deployments/">
-            deployments
-          </ExternalLink>{' '}
-          as DevLake deployments. If you are NOT using BitBucket deployments, DevLake provides the option to detect
-          deployments from BitBucket pipeline steps.{' '}
-          <ExternalLink link="https://devlake.apache.org/docs/Configuration/BitBucket#step-3---adding-transformation-rules-optional">
-            Learn more
-          </ExternalLink>
-        </p>
-        <Checkbox
-          label="Detect Deployments from Pipeline steps in BitBucket"
-          checked={enableCICD}
-          onChange={(e) => handleChangeCICDEnable((e.target as HTMLInputElement).checked)}
-        />
-        {enableCICD && (
-          <div className="radio">
-            <div className="input">
-              <p>The Pipeline step name that matches</p>
-              <InputGroup
-                placeholder="(deploy|push-image)"
-                value={transformation.deploymentPattern}
-                onChange={(e) =>
-                  setTransformation({
-                    ...transformation,
-                    deploymentPattern: e.target.value,
-                  })
-                }
-              />
-              <p>
-                will be registered as a `Deployment` in DevLake. <span style={{ color: '#E34040' }}>*</span>
-              </p>
-            </div>
-            <div className="input">
-              <p>The Pipeline step name that matches</p>
-              <InputGroup
-                disabled={!transformation.deploymentPattern}
-                placeholder="production"
-                value={transformation.productionPattern}
-                onChange={(e) =>
-                  setTransformation({
-                    ...transformation,
-                    productionPattern: e.target.value,
-                  })
-                }
-              />
-              <p>
-                will be registered as a `Deployment` to the Production environment in DevLake.
-                <HelpTooltip content="If you leave this field empty, all data will be tagged as in the Production environment. " />
-              </p>
-            </div>
+          <div className="switch">
+            <span>Enable</span>
+            <Switch alignIndicator="right" inline checked={enableCICD} onChange={handleChangeCICDEnable} />
           </div>
+        </h3>
+        {enableCICD && (
+          <>
+            <p>
+              Use Regular Expression to define Deployments in DevLake in order to measure DORA metrics.{' '}
+              <ExternalLink link="https://devlake.apache.org/docs/Configuration/GitHub#step-3---adding-transformation-rules-optional">
+                Learn more
+              </ExternalLink>
+            </p>
+            <div style={{ margin: '16px 0' }}>Convert a BitBucket Pipeline as a DevLake Deployment when: </div>
+            <div className="text">
+              <Radio checked={!useCustom} onChange={() => handleChangeUseCustom(false)} />
+              <span>It has one or more BitBucket deployments. See the example.</span>
+              <HelpTooltip content={<img src={ExampleJpg} alt="" width={400} />} />
+            </div>
+            <div className="text">
+              <Radio checked={useCustom} onChange={() => handleChangeUseCustom(true)} />
+              <div style={{ display: 'flex', alignItems: 'center' }}>
+                <span>Its branch/tag name or one of its pipeline steps’ names matches</span>
+                <InputGroup
+                  style={{ width: 224, margin: '0 8px' }}
+                  placeholder="(deploy|push-image)"
+                  value={transformation.deploymentPattern ?? ''}
+                  onChange={(e) =>
+                    setTransformation({
+                      ...transformation,
+                      deploymentPattern: e.target.value,
+                      productionPattern: !e.target.value ? '' : transformation.productionPattern,
+                    })
+                  }
+                />
+                <HelpTooltip content="If you leave this field empty, all DevLake Deployments will be tagged as in the Production environment. " />
+              </div>
+            </div>
+          </>
         )}
-      </div>
+      </S.CICD>
       <Divider />
       {/* Additional Settings */}
       <div className="additional-settings">
@@ -255,6 +269,6 @@ export const BitbucketTransformation = ({ transformation, setTransformation }: P
           </div>
         </Collapse>
       </div>
-    </S.TransformationWrapper>
+    </S.Transformation>
   );
 };
