@@ -24,6 +24,7 @@ import (
 
 	"github.com/apache/incubator-devlake/core/context"
 	"github.com/apache/incubator-devlake/core/dal"
+	"github.com/apache/incubator-devlake/core/models/domainlayer/devops"
 
 	"github.com/apache/incubator-devlake/core/errors"
 	"github.com/apache/incubator-devlake/core/plugin"
@@ -131,10 +132,18 @@ func (p Jenkins) PrepareTaskData(taskCtx plugin.TaskContext, options map[string]
 			return nil, errors.BadInput.Wrap(err, "invalid value for `timeAfter`")
 		}
 	}
+	regexEnricher := helper.NewRegexEnricher()
+	if err := regexEnricher.TryAdd(devops.DEPLOYMENT, op.DeploymentPattern); err != nil {
+		return nil, errors.BadInput.Wrap(err, "invalid value for `deploymentPattern`")
+	}
+	if err := regexEnricher.TryAdd(devops.PRODUCTION, op.ProductionPattern); err != nil {
+		return nil, errors.BadInput.Wrap(err, "invalid value for `productionPattern`")
+	}
 	taskData := &tasks.JenkinsTaskData{
-		Options:    op,
-		ApiClient:  apiClient,
-		Connection: connection,
+		Options:       op,
+		ApiClient:     apiClient,
+		Connection:    connection,
+		RegexEnricher: regexEnricher,
 	}
 	if !timeAfter.IsZero() {
 		taskData.TimeAfter = &timeAfter
