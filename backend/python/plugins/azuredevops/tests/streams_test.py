@@ -318,8 +318,8 @@ def test_pull_request_commits_stream():
     expected = code.PullRequestCommit(
         commit_sha='85ede91717145a1e6e2bdab4cab689ac8f2fa3a2',
         pull_request_id="azuredevops:gitpullrequest:1:12345",
-        commit_authored_name='John Doe',
-        commit_author_date='2023-02-07T04:49:28Z',
+        commit_author_name='John Doe',
+        commit_authored_date='2023-02-07T04:49:28Z',
         commit_author_email='john.doe@merico.dev'
     )
 
