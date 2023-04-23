@@ -24,6 +24,10 @@ on:
       - "**.go"
       - "go.mod"
       - "go.sum"
+
+permissions:
+  issues: write # to create an issue when link check fails
+
 jobs:
   checklist_job:
     runs-on: ubuntu-latest
