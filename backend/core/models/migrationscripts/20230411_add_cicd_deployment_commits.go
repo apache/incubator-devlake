@@ -37,9 +37,9 @@ func (*addCicdDeploymentCommits) Up(basicRes context.BasicRes) errors.Error {
 }
 
 func (*addCicdDeploymentCommits) Version() uint64 {
-	return 20230411150701
+	return 20230411150702
 }
 
 func (*addCicdDeploymentCommits) Name() string {
-	return "Rename cicd_pipeline_commits repo to repo_url"
+	return "add cicd_deployment_commits table"
 }

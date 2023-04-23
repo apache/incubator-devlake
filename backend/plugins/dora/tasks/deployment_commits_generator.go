@@ -123,6 +123,7 @@ func GenerateDeploymentCommits(taskCtx plugin.SubTaskContext) errors.Error {
 				RepoId:         pipelineCommit.RepoId,
 				RepoUrl:        pipelineCommit.RepoUrl,
 			}
+			domainDeployCommit.FinishedDate = pipelineCommit.FinishedDate
 			if pipelineCommit.FinishedDate != nil && pipelineCommit.DurationSec != nil {
 				s := pipelineCommit.FinishedDate.Add(-time.Duration(*pipelineCommit.DurationSec) * time.Second)
 				domainDeployCommit.StartedDate = &s
