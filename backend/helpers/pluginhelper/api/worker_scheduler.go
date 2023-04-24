@@ -136,11 +136,11 @@ func (s *WorkerScheduler) checkError(err interface{}) {
 	if err == nil {
 		return
 	}
-	switch err.(type) {
+	switch e := err.(type) {
 	case error:
-		s.appendError(err.(error))
+		s.appendError(e)
 	default:
-		s.appendError(fmt.Errorf("%v", err))
+		s.appendError(fmt.Errorf("%v", e))
 	}
 }
 
