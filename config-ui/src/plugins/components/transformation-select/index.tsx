@@ -63,7 +63,7 @@ export const TransformationSelect = ({
   const title = useMemo(() => {
     switch (true) {
       case step === 1:
-        return 'Select Transformation';
+        return 'Associate Transformation';
       case type === 'add':
         return 'Add New Transformation';
       case type === 'edit':

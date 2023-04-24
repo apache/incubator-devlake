@@ -107,11 +107,11 @@ export const Transformation = ({
             <S.Action>
               <Button
                 intent={Intent.PRIMARY}
-                icon="annotation"
+                icon="many-to-one"
                 disabled={!selected[cs.unique] || !selected[cs.unique].length}
                 onClick={() => setConnection(cs)}
               >
-                Select Transformation
+                Associate Transformation
               </Button>
             </S.Action>
           )}
@@ -127,8 +127,8 @@ export const Transformation = ({
                   <div>
                     <span>{val ?? 'N/A'}</span>
                     <IconButton
-                      icon="link"
-                      tooltip="Link Transformation"
+                      icon="one-to-one"
+                      tooltip="Associate Transformation"
                       onClick={() => {
                         setSelected({
                           ...selected,
