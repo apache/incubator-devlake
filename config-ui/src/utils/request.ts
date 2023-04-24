@@ -51,13 +51,18 @@ export const request = (path: string, config?: ReuqestConfig) => {
   } else {
     params.data = data;
   }
+  const missingAuthHeader = 'Authorization header is missing';
+  const invalidToken = 'Invalid token';
 
   instance.interceptors.response.use(
     (response) => response,
     (error) => {
       if (error.response && error.response.status === 401) {
-        toast.error('Please log in first');
-        history.push('/login');
+        // only handle when data contains missingAuthHeader or invalidToken
+        if (error.response.data.includes(missingAuthHeader) || error.response.data.includes(invalidToken)) {
+          toast.error('Please login first');
+          history.push('/login');
+        }
       }
     },
   );
