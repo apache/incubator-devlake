@@ -67,9 +67,8 @@ func RunTask(
 			default:
 				e = fmt.Errorf("%v", et)
 			}
-			if !dbPipeline.SkipOnFail {
-				err = errors.Default.Wrap(e, fmt.Sprintf("run task failed with panic (%s)", utils.GatherCallFrames(0)))
-			}
+			err = errors.Default.Wrap(e, fmt.Sprintf("run task failed with panic (%s)", utils.GatherCallFrames(0)))
+			logger.Error(err, "run task failed with panic")
 		}
 		finishedAt := time.Now()
 		spentSeconds := finishedAt.Unix() - beganAt.Unix()
@@ -113,6 +112,10 @@ func RunTask(
 		)
 		if dbe != nil {
 			logger.Error(dbe, "update pipeline state failed")
+		}
+		// not return err if the `SkipOnFail` is true
+		if dbPipeline.SkipOnFail {
+			err = nil
 		}
 	}()
 
