@@ -35,22 +35,11 @@ class GitPullRequestCommits(Substream):
             raw_commit["pull_request_id"] = parent.domain_id()
             yield raw_commit, state
 
-    def extract(self, raw_data: dict) -> GitPullRequestCommit:
-        return GitPullRequestCommit(
-            **raw_data,
-            commit_sha = raw_data["commitId"],
-            author_name = raw_data["author"]["name"],
-            author_email = raw_data["author"]["email"],
-            authored_date = raw_data["author"]["date"],
-            committer_name = raw_data["committer"]["name"],
-            committer_email = raw_data["committer"]["email"],
-            commit_date = raw_data["committer"]["date"],
-            additions = raw_data["changeCounts"]["Add"] if "changeCounts" in raw_data else 0,
-            deletions = raw_data["changeCounts"]["Delete"] if "changeCounts" in raw_data else 0
-        )
-
     def convert(self, commit: GitPullRequestCommit, context) -> Iterable[code.PullRequestCommit]:
         yield code.PullRequestCommit(
-            commit_sha=commit.commit_sha,
+            commit_sha=commit.commit_id,
             pull_request_id=commit.pull_request_id,
+            commit_author_name=commit.author_name,
+            commit_author_email=commit.author_email,
+            commit_authored_date=commit.author_date
         )

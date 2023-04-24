@@ -15,7 +15,7 @@
   "editable": true,
   "gnetId": null,
   "graphTooltip": 0,
-  "id": 10,
+  "id": 2,
   "links": [
     {
       "asDropdown": false,
@@ -114,7 +114,7 @@
           "metricColumn": "none",
           "queryType": "randomWalk",
           "rawQuery": true,
-          "rawSql": "with bugs as(\n  select \n    DATE_ADD(date(created_date), INTERVAL -DAY(date(created_date))+1 DAY) as time,\n    count(*) as bug_count\n  from issues i\n  where \n    type = 'Bug'\n    and $__timeFilter(created_date)\n  group by 1\n  order by 1 desc\n)\n\nselect\n  date_format(time,'%M %Y') as month,\n  bug_count as 'Bug Count over Month'\nfrom bugs\norder by time asc",
+          "rawSql": "with bugs as(\n  select \n    DATE_ADD(date(created_date), INTERVAL -DAY(date(created_date))+1 DAY) as time,\n    count(*) as bug_count\n  from issues i\n  where \n    type = 'BUG'\n    and $__timeFilter(created_date)\n  group by 1\n  order by 1 desc\n)\n\nselect\n  date_format(time,'%M %Y') as month,\n  bug_count as 'Bug Count over Month'\nfrom bugs\norder by time asc",
           "refId": "A",
           "select": [
             [
@@ -249,7 +249,7 @@
           "metricColumn": "none",
           "queryType": "randomWalk",
           "rawQuery": true,
-          "rawSql": "select \n    title,\n    description,\n    case when assignee_id = '' then '-' else assignee_name end as assignee,\n    status,\n    created_date,\n    url\n  from issues i\n  where \n    type = 'Bug'\n    and $__timeFilter(created_date)\n  order by created_date desc",
+          "rawSql": "select \n    title,\n    description,\n    case when assignee_id = '' then '-' else assignee_name end as assignee,\n    status,\n    created_date,\n    url\n  from issues i\n  where \n    type = 'BUG'\n    and $__timeFilter(created_date)\n  order by created_date desc",
           "refId": "A",
           "select": [
             [
@@ -311,5 +311,5 @@
   "timezone": "",
   "title": "Demo-Detailed Bug Info",
   "uid": "s48Lzn5nz",
-  "version": 2
+  "version": 8
 }

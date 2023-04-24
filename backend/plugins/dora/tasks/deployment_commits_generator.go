@@ -117,6 +117,7 @@ func GenerateDeploymentCommits(taskCtx plugin.SubTaskContext) errors.Error {
 				Status:         pipelineCommit.Status,
 				Environment:    pipelineCommit.Environment,
 				CreatedDate:    *pipelineCommit.CreatedDate,
+				FinishedDate:   pipelineCommit.FinishedDate,
 				DurationSec:    pipelineCommit.DurationSec,
 				CommitSha:      pipelineCommit.CommitSha,
 				RefName:        pipelineCommit.Branch,

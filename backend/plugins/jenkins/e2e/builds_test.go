@@ -22,6 +22,7 @@ import (
 
 	"github.com/apache/incubator-devlake/core/models/domainlayer/devops"
 	"github.com/apache/incubator-devlake/helpers/e2ehelper"
+	"github.com/apache/incubator-devlake/helpers/pluginhelper/api"
 	"github.com/apache/incubator-devlake/plugins/jenkins/impl"
 	"github.com/apache/incubator-devlake/plugins/jenkins/models"
 	"github.com/apache/incubator-devlake/plugins/jenkins/tasks"
@@ -32,17 +33,17 @@ func TestJenkinsBuildsDataFlow(t *testing.T) {
 	var jenkins impl.Jenkins
 	dataflowTester := e2ehelper.NewDataFlowTester(t, "jenkins", jenkins)
 
+	regexEnricher := api.NewRegexEnricher()
+	_ = regexEnricher.TryAdd(devops.DEPLOYMENT, `test-sub-sub-dir\/devlake.*`)
+	_ = regexEnricher.TryAdd(devops.PRODUCTION, `test-sub-sub-dir\/devlake.*`)
 	taskData := &tasks.JenkinsTaskData{
 		Options: &tasks.JenkinsOptions{
 			ConnectionId: 1,
 			JobName:      `devlake`,
 			JobFullName:  `Test-jenkins-dir/test-jenkins-sub-dir/test-sub-sub-dir/devlake`,
 			JobPath:      `job/Test-jenkins-dir/job/test-jenkins-sub-dir/job/test-sub-sub-dir/`,
-			JenkinsTransformationRule: &models.JenkinsTransformationRule{
-				DeploymentPattern: `test-sub-sub-dir\/devlake.*`,
-				ProductionPattern: `test-sub-sub-dir\/devlake.*`,
-			},
 		},
+		RegexEnricher: regexEnricher,
 	}
 
 	dataflowTester.FlushTabler(&models.JenkinsBuild{})

@@ -62,13 +62,6 @@ var ConvertStagesMeta = plugin.SubTaskMeta{
 func ConvertStages(taskCtx plugin.SubTaskContext) (err errors.Error) {
 	db := taskCtx.GetDal()
 	data := taskCtx.GetData().(*JenkinsTaskData)
-	deploymentPattern := data.Options.DeploymentPattern
-	productionPattern := data.Options.ProductionPattern
-	regexEnricher := api.NewRegexEnricher()
-	err = regexEnricher.AddRegexp(deploymentPattern, productionPattern)
-	if err != nil {
-		return err
-	}
 	clauses := []dal.Clause{
 		dal.Select(`tjb.connection_id, tjs.build_name, tjs.id, tjs._raw_data_remark, tjs.name,
 			tjs._raw_data_id, tjs._raw_data_table, tjs._raw_data_params,
@@ -137,11 +130,9 @@ func ConvertStages(taskCtx plugin.SubTaskContext) (err errors.Error) {
 				StartedDate:  startedDate,
 				FinishedDate: jenkinsTaskFinishedDate,
 				CicdScopeId:  jobIdGen.Generate(body.ConnectionId, data.Options.JobFullName),
+				Type:         data.RegexEnricher.ReturnNameIfMatched(devops.DEPLOYMENT, body.Name),
+				Environment:  data.RegexEnricher.ReturnNameIfMatched(devops.PRODUCTION, body.Name),
 			}
-			jenkinsTask.Type = regexEnricher.GetEnrichResult(deploymentPattern, jenkinsTask.Name, devops.DEPLOYMENT)
-			jenkinsTask.Environment = regexEnricher.GetEnrichResult(productionPattern, jenkinsTask.Name, devops.PRODUCTION)
-			jenkinsTask.RawDataOrigin = body.RawDataOrigin
-
 			results = append(results, jenkinsTask)
 			return results, nil
 		},

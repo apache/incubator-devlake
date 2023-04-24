@@ -17,7 +17,7 @@ from typing import Iterable
 
 from azuredevops.api import AzureDevOpsAPI
 from azuredevops.models import GitRepository, GitPullRequest
-from pydevlake import Stream, DomainType
+from pydevlake import Stream, DomainType, domain_id
 import pydevlake.domain_layer.code as code
 
 
@@ -32,33 +32,30 @@ class GitPullRequests(Stream):
         for raw_pr in response:
             yield raw_pr, state
 
-    def extract(self, raw_data: dict) -> GitPullRequest:
-        pr = GitPullRequest(**raw_data)
-        pr.id = raw_data["pullRequestId"]
-        pr.created_by_id = raw_data["createdBy"]["id"]
-        pr.created_by_name = raw_data["createdBy"]["displayName"]
-        pr.repo_id = raw_data["repository"]["id"]
-        pr.source_commit_sha = raw_data["lastMergeSourceCommit"]["commitId"]
-        pr.target_commit_sha = raw_data["lastMergeTargetCommit"]["commitId"]
-        pr.merge_commit_sha = raw_data["lastMergeCommit"]["commitId"]
-        if "labels" in raw_data:
-            # TODO get this off transformation rules regex
-            pr.type = raw_data["labels"][0]["name"]
-        if "forkSource" in raw_data:
-            pr.fork_repo_id = raw_data["forkSource"]["repository"]["id"]
-        return pr
-
     def convert(self, pr: GitPullRequest, ctx):
+        repo_id = ctx.scope.domain_id()
+        # If the PR is from a fork, we forge a new repo ID for the base repo but it doesn't correspond to a real repo
+        base_repo_id = domain_id(GitRepository, ctx.connection.id, pr.fork_repo_id) if pr.fork_repo_id is not None else repo_id
+
+        # Use the same status values as GitHub plugin
+        status = None
+        if pr.status == GitPullRequest.Status.Abandoned:
+            status = 'CLOSED'
+        elif pr.status == GitPullRequest.Status.Active:
+            status = 'OPEN'
+        elif pr.status == GitPullRequest.Status.Completed:
+            status = 'MERGED'
+
         yield code.PullRequest(
-            base_repo_id=(pr.fork_repo_id if pr.fork_repo_id is not None else pr.repo_id),
-            head_repo_id=pr.repo_id,
-            status=pr.status.value,
+            base_repo_id=base_repo_id,
+            head_repo_id=repo_id,
+            status=status,
             title=pr.title,
             description=pr.description,
             url=pr.url,
             author_name=pr.created_by_name,
             author_id=pr.created_by_id,
-            pull_request_key=pr.id,
+            pull_request_key=pr.pull_request_id,
             created_date=pr.creation_date,
             merged_date=pr.closed_date,
             closed_date=pr.closed_date,

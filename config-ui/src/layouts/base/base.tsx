@@ -17,11 +17,12 @@
  */
 
 import React from 'react';
-import { useLocation, useHistory } from 'react-router-dom';
-import { Menu, MenuItem, Tag, Navbar, Intent, Alignment } from '@blueprintjs/core';
+import { useLocation } from 'react-router-dom';
+import { Menu, MenuItem, Tag, Navbar, Intent, Alignment, Button } from '@blueprintjs/core';
 
 import { Logo, ExternalLink } from '@/components';
 import { useVersion } from '@/store';
+import { history } from '@/utils/history';
 
 import DashboardIcon from '@/images/icons/dashborad.svg';
 import FileIcon from '@/images/icons/file.svg';
@@ -38,8 +39,9 @@ interface Props {
 export const BaseLayout = ({ children }: Props) => {
   const menu = useMenu();
   const { pathname } = useLocation();
-  const history = useHistory();
   const { version } = useVersion();
+
+  const token = window.localStorage.getItem('accessToken');
 
   const handlePushPath = (it: MenuItemType) => {
     if (!it.target) {
@@ -47,6 +49,11 @@ export const BaseLayout = ({ children }: Props) => {
     } else {
       window.open(it.path, '_blank');
     }
+  };
+
+  const handleSignOut = () => {
+    localStorage.removeItem(`accessToken`);
+    history.push('/login');
   };
 
   const getGrafanaUrl = () => {
@@ -131,6 +138,14 @@ export const BaseLayout = ({ children }: Props) => {
               <img src={SlackIcon} alt="slack" />
               <span>Slack</span>
             </a>
+            {token && (
+              <>
+                <Navbar.Divider />
+                <Button small intent={Intent.NONE} onClick={handleSignOut}>
+                  Sign Out
+                </Button>
+              </>
+            )}
           </Navbar.Group>
         </S.Header>
         <S.Inner>

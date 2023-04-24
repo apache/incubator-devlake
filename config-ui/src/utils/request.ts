@@ -18,8 +18,10 @@
 
 import type { AxiosRequestConfig } from 'axios';
 import axios from 'axios';
+import { history } from '@/utils/history';
 
 import { DEVLAKE_ENDPOINT } from '@/config';
+import { toast } from '@/components/toast';
 
 const instance = axios.create({
   baseURL: DEVLAKE_ENDPOINT,
@@ -35,13 +37,17 @@ export type ReuqestConfig = {
 
 export const request = (path: string, config?: ReuqestConfig) => {
   const { method = 'get', data, timeout, headers, signal } = config || {};
-
   const cancelTokenSource = axios.CancelToken.source();
+  const token = localStorage.getItem('accessToken');
+  var h = { ...headers };
+  if (token) {
+    h.Authorization = `Bearer ${token}`;
+  }
   const params: any = {
     url: path,
     method,
     timeout,
-    headers,
+    headers: h,
     cancelToken: cancelTokenSource?.token,
   };
 
@@ -50,6 +56,21 @@ export const request = (path: string, config?: ReuqestConfig) => {
   } else {
     params.data = data;
   }
+  const missingAuthHeader = 'Authorization header is missing';
+  const invalidToken = 'Invalid token';
+
+  instance.interceptors.response.use(
+    (response) => response,
+    (error) => {
+      if (error.response && error.response.status === 401) {
+        // only handle when data contains missingAuthHeader or invalidToken
+        if (error.response.data.includes(missingAuthHeader) || error.response.data.includes(invalidToken)) {
+          toast.error('Please login first');
+          history.push('/login');
+        }
+      }
+    },
+  );
 
   const promise = instance.request(params).then((resp) => resp.data);
 

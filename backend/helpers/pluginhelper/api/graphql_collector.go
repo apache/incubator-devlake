@@ -305,9 +305,6 @@ func (collector *GraphqlCollector) ExtractExistRawData(divider *BatchSaveDivider
 	defer cursor.Close()
 	row := &RawData{}
 
-	// get the type of query and variables
-	query, variables, _ := collector.args.BuildQuery(nil)
-
 	// prgress
 	collector.args.Ctx.SetProgress(0, -1)
 	ctx := collector.args.Ctx.GetContext()
@@ -318,6 +315,8 @@ func (collector *GraphqlCollector) ExtractExistRawData(divider *BatchSaveDivider
 			return errors.Convert(ctx.Err())
 		default:
 		}
+		// get the type of query and variables. For each iteration, the query should be a different object
+		query, variables, _ := collector.args.BuildQuery(nil)
 		err = db.Fetch(cursor, row)
 		if err != nil {
 			return errors.Default.Wrap(err, "error fetching row")

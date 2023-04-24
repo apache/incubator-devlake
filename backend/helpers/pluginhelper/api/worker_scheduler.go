@@ -19,6 +19,7 @@ package api
 
 import (
 	"context"
+	"fmt"
 	"sync"
 	"sync/atomic"
 	"time"
@@ -135,7 +136,12 @@ func (s *WorkerScheduler) checkError(err interface{}) {
 	if err == nil {
 		return
 	}
-	s.appendError(err.(error))
+	switch e := err.(type) {
+	case error:
+		s.appendError(e)
+	default:
+		s.appendError(fmt.Errorf("%v", e))
+	}
 }
 
 // HasError return if any error occurred

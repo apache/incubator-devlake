@@ -117,6 +117,7 @@ func PostDeploymentCicdTask(input *plugin.ApiResourceInput) (*plugin.ApiResource
 		Environment:    request.Environment,
 		CreatedDate:    *request.CreatedDate,
 		StartedDate:    request.StartedDate,
+		FinishedDate:   request.FinishedDate,
 		DurationSec:    &duration,
 		CommitSha:      request.CommitSha,
 		RefName:        request.RefName,

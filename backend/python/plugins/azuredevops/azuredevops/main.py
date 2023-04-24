@@ -47,7 +47,7 @@ class AzureDevOpsPlugin(Plugin):
         yield Repo(
             name=git_repo.name,
             url=git_repo.url,
-            forked_from=git_repo.parentRepositoryUrl
+            forked_from=git_repo.parent_repository_url
         )
 
         yield CicdScope(
@@ -85,10 +85,10 @@ class AzureDevOpsPlugin(Plugin):
             url = url._replace(netloc=url.hostname)
             raw_repo['url'] = url.geturl()
             repo = GitRepository(**raw_repo)
-            if not repo.defaultBranch:
+            if not repo.default_branch:
                 continue
             if "parentRepository" in raw_repo:
-                repo.parentRepositoryUrl = raw_repo["parentRepository"]["url"]
+                repo.parent_repository_url = raw_repo["parentRepository"]["url"]
             yield repo
 
     def test_connection(self, connection: AzureDevOpsConnection):

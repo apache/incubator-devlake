@@ -31,6 +31,7 @@ type CicdDeploymentCommit struct {
 	Environment                   string `gorm:"type:varchar(255)"`
 	CreatedDate                   time.Time
 	StartedDate                   *time.Time
+	FinishedDate                  *time.Time
 	DurationSec                   *uint64
 	CommitSha                     string `gorm:"primaryKey;type:varchar(255)"`
 	RefName                       string `gorm:"type:varchar(255)"`
