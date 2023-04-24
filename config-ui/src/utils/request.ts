@@ -38,11 +38,16 @@ export type ReuqestConfig = {
 export const request = (path: string, config?: ReuqestConfig) => {
   const { method = 'get', data, timeout, headers, signal } = config || {};
   const cancelTokenSource = axios.CancelToken.source();
+  const token = localStorage.getItem('accessToken');
+  var h = { ...headers };
+  if (token) {
+    h.Authorization = `Bearer ${token}`;
+  }
   const params: any = {
     url: path,
     method,
     timeout,
-    headers: { ...headers, Authorization: `Bearer ${localStorage.getItem('accessToken')}` },
+    headers: h,
     cancelToken: cancelTokenSource?.token,
   };
 
