@@ -109,9 +109,8 @@ func CalculateChangeLeadTime(taskCtx plugin.SubTaskContext) errors.Error {
 			}
 
 			// Calculate PR deploy time
-			if deployment != nil && deployment.StartedDate != nil {
-				deploymentFinishedDate := deployment.StartedDate.Add(time.Duration(*deployment.DurationSec) * time.Second)
-				projectPrMetric.PrDeployTime = computeTimeSpan(pr.MergedDate, &deploymentFinishedDate)
+			if deployment != nil && deployment.FinishedDate != nil {
+				projectPrMetric.PrDeployTime = computeTimeSpan(pr.MergedDate, deployment.FinishedDate)
 				projectPrMetric.DeploymentCommitId = deployment.Id
 			} else {
 				logger.Debug("deploy time of pr %v is nil\n", pr.PullRequestKey)
