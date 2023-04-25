@@ -21,22 +21,21 @@ import (
 	"fmt"
 	"net/http"
 
-	"github.com/apache/incubator-devlake/core/errors"
-	"github.com/apache/incubator-devlake/core/plugin"
-	"github.com/apache/incubator-devlake/server/api/shared"
-	"github.com/apache/incubator-devlake/server/services/remote"
-
-	"github.com/RaveNoX/go-jsonmerge"
 	"github.com/gin-gonic/gin"
 	"github.com/go-playground/validator/v10"
 	ginSwagger "github.com/swaggo/gin-swagger"
 	"github.com/swaggo/gin-swagger/swaggerFiles"
 	"github.com/swaggo/swag"
+
+	"github.com/apache/incubator-devlake/core/errors"
+	"github.com/apache/incubator-devlake/core/plugin"
+	"github.com/apache/incubator-devlake/server/api/shared"
+	"github.com/apache/incubator-devlake/server/services/remote"
+	"github.com/apache/incubator-devlake/server/services/remote/models"
 )
 
 var (
-	vld        = validator.New()
-	cachedDocs = map[string]*swag.Spec{}
+	vld = validator.New()
 )
 
 type ApiResource struct {
@@ -47,61 +46,62 @@ type ApiResource struct {
 // TODO add swagger doc
 func RegisterPlugin(router *gin.Engine, registerEndpoints func(r *gin.Engine, pluginName string, apiResources map[string]map[string]plugin.ApiResourceHandler)) func(*gin.Context) {
 	return func(c *gin.Context) {
-		var details PluginDetails
-		if err := c.ShouldBindJSON(&details); err != nil {
+		var pluginInfo models.PluginInfo
+		if err := c.ShouldBindJSON(&pluginInfo); err != nil {
 			shared.ApiOutputError(c, errors.BadInput.Wrap(err, shared.BadRequestBody))
 			return
 		}
-		if err := vld.Struct(&details); err != nil {
+		if err := vld.Struct(&pluginInfo); err != nil {
 			shared.ApiOutputError(c, errors.BadInput.Wrap(err, shared.BadRequestBody))
 			return
 		}
-		remotePlugin, err := remote.NewRemotePlugin(&details.PluginInfo)
+		remotePlugin, err := remote.NewRemotePlugin(&pluginInfo)
 		if err != nil {
-			shared.ApiOutputError(c, errors.Default.Wrap(err, fmt.Sprintf("plugin %s could not be initialized", details.PluginInfo.Name)))
+			shared.ApiOutputError(c, errors.Default.Wrap(err, fmt.Sprintf("plugin %s could not be initialized", pluginInfo.Name)))
 			return
 		}
 		resource := ApiResource{
-			PluginName: details.PluginInfo.Name,
+			PluginName: pluginInfo.Name,
 			Resources:  remotePlugin.ApiResources(),
 		}
 		registerEndpoints(router, resource.PluginName, resource.Resources)
-		registerSwagger(router, &details.Swagger)
+		err = registerPluginOpenApiSpec(router, pluginInfo.Name, remotePlugin)
+		if err != nil {
+			shared.ApiOutputError(c, err)
+			return
+		}
 		shared.ApiOutputSuccess(c, nil, http.StatusOK)
 	}
 }
 
-func registerSwagger(router *gin.Engine, doc *SwaggerDoc) {
-	if spec, ok := cachedDocs[doc.Name]; ok {
-		spec.SwaggerTemplate = combineSpecs(spec.SwaggerTemplate, string(doc.Spec))
-	} else {
-		spec = &swag.Spec{
-			Version:          "",
-			Host:             "",
-			BasePath:         "",
-			Schemes:          nil,
-			Title:            "",
-			Description:      "",
-			InfoInstanceName: doc.Name,
-			SwaggerTemplate:  string(doc.Spec),
-		}
-		swag.Register(doc.Name, spec)
-		cachedDocs[doc.Name] = spec
-		router.GET(fmt.Sprintf("/plugins/swagger/%s/*any", doc.Resource), ginSwagger.CustomWrapHandler(
+// This function registers the open API spec provided by a plugin that implements PluginOpenApiSpec interface
+// This makes make the plugin's API doc available at /plugins/swagger/<plugin-name>/index.html via swagger UI.
+func registerPluginOpenApiSpec(router *gin.Engine, pluginName string, pluginOpenApiSpec plugin.PluginOpenApiSpec) errors.Error {
+	spec := &swag.Spec{
+		Version:          "",
+		Host:             "",
+		BasePath:         "",
+		Schemes:          nil,
+		Title:            "",
+		Description:      "",
+		InfoInstanceName: pluginName,
+		SwaggerTemplate:  pluginOpenApiSpec.OpenApiSpec(),
+	}
+	swag.Register(pluginName, spec)
+	router.GET(
+		fmt.Sprintf("/plugins/swagger/%s/*any", pluginName),
+		ginSwagger.CustomWrapHandler(
 			&ginSwagger.Config{
 				URL:                      "doc.json",
 				DocExpansion:             "list",
-				InstanceName:             doc.Name,
-				Title:                    "",
+				InstanceName:             pluginName,
+				Title:                    fmt.Sprintf("%s API", pluginName),
 				DefaultModelsExpandDepth: 1,
 				DeepLinking:              true,
 				PersistAuthorization:     false,
 			},
-			swaggerFiles.Handler))
-	}
-}
-
-func combineSpecs(spec1 string, spec2 string) string {
-	res, _ := jsonmerge.Merge(spec1, spec2)
-	return res.(string)
+			swaggerFiles.Handler,
+		),
+	)
+	return nil
 }

@@ -66,17 +66,6 @@ class PluginInfo(Message):
     type: str = "python-poetry"
 
 
-class SwaggerDoc(Message):
-    name: str
-    resource: str
-    spec: dict
-
-
-class PluginDetails(Message):
-    plugin_info: PluginInfo
-    swagger: SwaggerDoc
-
-
 class RemoteProgress(Message):
     increment: int = 0
     current: int = 0

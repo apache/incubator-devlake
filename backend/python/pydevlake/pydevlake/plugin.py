@@ -22,7 +22,6 @@ import fire
 
 import pydevlake.message as msg
 from pydevlake.subtasks import Subtask
-from pydevlake.docgen import generate_doc
 from pydevlake.ipc import PluginCommands
 from pydevlake.context import Context
 from pydevlake.stream import Stream, DomainType
@@ -204,15 +203,8 @@ class Plugin(ABC):
         return stream
 
     def startup(self, endpoint: str):
-        details = msg.PluginDetails(
-            plugin_info=self.plugin_info(),
-            swagger=msg.SwaggerDoc(
-                name=self.name,
-                resource=self.name,
-                spec=generate_doc(self.name, self.connection_type, self.transformation_rule_type)
-            )
-        )
-        resp = requests.post(f"{endpoint}/plugins/register", data=details.json())
+        plugin_info = self.plugin_info().json()
+        resp = requests.post(f"{endpoint}/plugins/register", data=plugin_info)
         if resp.status_code != 200:
             raise Exception(f"unexpected http status code {resp.status_code}: {resp.content}")
 
