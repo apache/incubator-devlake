@@ -14,9 +14,11 @@
 
 
 from typing import Type, Union, Iterable, Optional
-import sys
 from abc import ABC, abstractmethod
+from pathlib import Path
+import os
 import requests
+import sys
 
 import fire
 
@@ -241,7 +243,11 @@ class Plugin(ABC):
     def _plugin_path(self):
         module_name = type(self).__module__
         module = sys.modules[module_name]
-        return module.__file__
+        pluginMainPath = Path(module.__file__)
+        run_sh_path = pluginMainPath.parent.parent / "run.sh"
+        assert run_sh_path.exists(), f"run.sh not found at {run_sh_path.parent}"
+        assert os.access(run_sh_path, os.X_OK), f"run.sh is not executable"
+        return str(run_sh_path)
 
     @classmethod
     def start(cls):

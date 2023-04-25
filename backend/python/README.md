@@ -74,6 +74,24 @@ It specifies three datatypes:
 The plugin class declares what are its connection, transformation rule and tool scope types.
 It also declares its list of streams, and is responsible to define 4 methods that we'll cover hereafter.
 
+We also need to create two shell scripts in the plugin root directory to build and run the plugin.
+Create a `build.sh` file with the following content:
+
+```bash
+#!/bin/bash
+
+cd "$(dirname "$0")"
+poetry install
+```
+
+And a `run.sh` file with the following content:
+
+```bash
+#!/bin/bash
+
+cd "$(dirname "$0")"
+poetry run python myplugin/main.py "$@"
+```
 
 ### Connection parameters
 

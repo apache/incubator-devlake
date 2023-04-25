@@ -16,18 +16,5 @@
 # limitations under the License.
 #
 
-if [ -z "$1" ]; then
-  cd "$(dirname "$0")"
-  cd plugins
-else
-  cd "$1"
-fi
-
-for plugin_dir in $(ls -d */build.sh); do
-  echo "Building remote plugin: $plugin_dir" &&\
-  $plugin_dir
-  exit_code=$?
-  if [ $exit_code != 0 ]; then
-    exit $exit_code
-  fi
-done
+cd "$(dirname "$0")"
+poetry install

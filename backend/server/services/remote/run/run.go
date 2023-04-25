@@ -38,7 +38,7 @@ func main() {
 	_ = cmd.MarkFlagRequired("connectionId")
 
 	cmd.Run = func(cmd *cobra.Command, args []string) {
-		invoker := bridge.NewPythonPoetryCmdInvoker(*pluginPath)
+		invoker := bridge.NewCmdInvoker(*pluginPath)
 
 		pluginInfo := models.PluginInfo{}
 		err := invoker.Call("plugin-info", bridge.DefaultContext).Get(&pluginInfo)
