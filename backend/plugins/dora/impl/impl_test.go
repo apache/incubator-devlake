@@ -19,9 +19,10 @@ package impl
 
 import (
 	"encoding/json"
+	"testing"
+
 	"github.com/apache/incubator-devlake/core/plugin"
 	"github.com/stretchr/testify/assert"
-	"testing"
 )
 
 func TestMakeMetricPluginPipelinePlanV200(t *testing.T) {
@@ -38,14 +39,28 @@ func TestMakeMetricPluginPipelinePlanV200(t *testing.T) {
 	doraOutputPlan := plugin.PipelinePlan{
 		plugin.PipelineStage{
 			{
+				Plugin:   "dora",
+				Subtasks: []string{
+					"generateDeploymentCommits",
+					"enrichPrevSuccessDeploymentCommits",
+				},
+				Options:  map[string]interface{}{"projectName": projectName},
+			},
+		},
+		plugin.PipelineStage{
+			{
 				Plugin:   "refdiff",
-				Subtasks: []string{"calculateProjectDeploymentCommitsDiff"},
+				Subtasks: []string{"calculateDeploymentCommitsDiff"},
 				Options:  map[string]interface{}{"projectName": projectName},
 			},
 		},
 		plugin.PipelineStage{
 			{
 				Plugin:  "dora",
+				Subtasks: []string{
+					"calculateChangeLeadTime",
+					"ConnectIncidentToDeployment",
+				},
 				Options: map[string]interface{}{"projectName": projectName},
 			},
 		},
