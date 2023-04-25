@@ -126,7 +126,7 @@ export const ProjectHomePage = () => {
                 onChange={(e) => setEnableDora((e.target as HTMLInputElement).checked)}
               />
               <p>
-                <a href="https://devlake.apache.org/docs/UserManuals/DORA/" rel="noreferrer" target="_blank">
+                <a href="https://devlake.apache.org/docs/DORA/" rel="noreferrer" target="_blank">
                   DORA metrics
                 </a>
                 <span style={{ marginLeft: 4 }}>
