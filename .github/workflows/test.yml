@@ -41,6 +41,7 @@ jobs:
     runs-on: ${{ matrix.os }}
     container: mericodev/lake-builder:latest
     steps:
+    - uses: actions/checkout@v3
     - name: Checkout code
       uses: actions/checkout@v3
     - run: git config --global --add safe.directory $(pwd)
