@@ -41,6 +41,10 @@ func Init(br context.BasicRes) {
 		basicRes,
 		vld,
 		connectionHelper,
+		&api.ReflectionParameters{
+			ScopeIdFieldName:  "BoardID",
+			ScopeIdColumnName: "board_id",
+		},
 	)
 
 	trHelper = api.NewTransformationRuleHelper[models.JiraTransformationRule](

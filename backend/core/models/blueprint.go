@@ -117,6 +117,25 @@ func (bp *Blueprint) GetConnections() ([]*plugin.BlueprintConnectionV200, errors
 	return conns, nil
 }
 
+// GetScopes Gets all the scopes across all the connections for this blueprint
+func (bp *Blueprint) GetScopes() ([]*plugin.BlueprintScopeV200, errors.Error) {
+	conns, err := bp.GetConnections()
+	if err != nil {
+		return nil, err
+	}
+	visited := map[string]any{}
+	var result []*plugin.BlueprintScopeV200
+	for _, conn := range conns {
+		for _, scope := range conn.Scopes {
+			if _, ok := visited[scope.Id]; !ok {
+				result = append(result, scope)
+				visited[scope.Id] = true
+			}
+		}
+	}
+	return result, nil
+}
+
 func (Blueprint) TableName() string {
 	return "_devlake_blueprints"
 }

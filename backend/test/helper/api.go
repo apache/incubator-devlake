@@ -26,6 +26,7 @@ import (
 	"github.com/apache/incubator-devlake/core/errors"
 	"github.com/apache/incubator-devlake/core/models"
 	"github.com/apache/incubator-devlake/core/plugin"
+	"github.com/apache/incubator-devlake/helpers/pluginhelper/api"
 	"github.com/apache/incubator-devlake/server/api/blueprints"
 	apiProject "github.com/apache/incubator-devlake/server/api/project"
 	"github.com/stretchr/testify/require"
@@ -167,15 +168,20 @@ func (d *DevlakeClient) UpdateScope(pluginName string, connectionId uint64, scop
 	}, http.MethodPatch, fmt.Sprintf("%s/plugins/%s/connections/%d/scopes/%s", d.Endpoint, pluginName, connectionId, scopeId), nil, scope)
 }
 
-func (d *DevlakeClient) ListScopes(pluginName string, connectionId uint64) []any {
-	return sendHttpRequest[[]any](d.testCtx, d.timeout, debugInfo{
+func (d *DevlakeClient) ListScopes(pluginName string, connectionId uint64) []ScopeResponse {
+	scopesRaw := sendHttpRequest[[]map[string]any](d.testCtx, d.timeout, debugInfo{
 		print:      true,
 		inlineJson: false,
-	}, http.MethodGet, fmt.Sprintf("%s/plugins/%s/connections/%d/scopes", d.Endpoint, pluginName, connectionId), nil, nil)
+	}, http.MethodGet, fmt.Sprintf("%s/plugins/%s/connections/%d/scopes?blueprints=true", d.Endpoint, pluginName, connectionId), nil, nil)
+	var responses []ScopeResponse
+	for _, scopeRaw := range scopesRaw {
+		responses = append(responses, getScopeResponse(scopeRaw))
+	}
+	return responses
 }
 
 func (d *DevlakeClient) GetScope(pluginName string, connectionId uint64, scopeId string) any {
-	return sendHttpRequest[any](d.testCtx, d.timeout, debugInfo{
+	return sendHttpRequest[api.ScopeRes[any]](d.testCtx, d.timeout, debugInfo{
 		print:      true,
 		inlineJson: false,
 	}, http.MethodGet, fmt.Sprintf("%s/plugins/%s/connections/%d/scopes/%s", d.Endpoint, pluginName, connectionId, scopeId), nil, nil)
@@ -337,4 +343,19 @@ func (d *DevlakeClient) monitorPipeline(id uint64) models.Pipeline {
 		return false, nil
 	}))
 	return pipelineResult
+}
+
+func getScopeResponse(scopeRaw map[string]any) ScopeResponse {
+	response := ScopeResponse{
+		Scope: scopeRaw,
+	}
+	bpRaw, ok := scopeRaw["blueprints"]
+	if ok {
+		response.Blueprints = Cast[[]*models.Blueprint](bpRaw)
+	}
+	trName, ok := scopeRaw["transformation_rule_name"]
+	if ok {
+		response.TransformationRuleName = trName.(string)
+	}
+	return response
 }

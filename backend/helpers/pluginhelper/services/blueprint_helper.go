@@ -138,29 +138,31 @@ func (b *BlueprintManager) GetDbBlueprint(blueprintId uint64) (*models.Blueprint
 	return blueprint, nil
 }
 
-// GetBlueprintsByScope returns all blueprints that have this scopeId
-func (b *BlueprintManager) GetBlueprintsByScope(scopeId string) ([]*models.Blueprint, errors.Error) {
+// GetBlueprintsByScopes returns all blueprints that have these scopeIds
+func (b *BlueprintManager) GetBlueprintsByScopes(scopeIds ...string) (map[string][]*models.Blueprint, errors.Error) {
 	bps, _, err := b.GetDbBlueprints(&GetBlueprintQuery{})
 	if err != nil {
 		return nil, err
 	}
-	var filteredBps []*models.Blueprint
+	scopeMap := map[string][]*models.Blueprint{}
 	for _, bp := range bps {
-		connections, err := bp.GetConnections()
+		scopes, err := bp.GetScopes()
 		if err != nil {
 			return nil, err
 		}
-	loop:
-		for _, connection := range connections {
-			for _, scope := range connection.Scopes {
-				if scope.Id == scopeId {
-					filteredBps = append(filteredBps, bp)
-					break loop
+		for _, scope := range scopes {
+			if contains(scopeIds, scope.Id) {
+				if inserted, ok := scopeMap[scope.Id]; !ok {
+					scopeMap[scope.Id] = []*models.Blueprint{bp}
+				} else {
+					inserted = append(inserted, bp)
+					scopeMap[scope.Id] = inserted
 				}
+				break
 			}
 		}
 	}
-	return filteredBps, nil
+	return scopeMap, nil
 }
 
 // GetBlueprintConnections returns the connections associated with this blueprint Id
@@ -195,4 +197,13 @@ func (b *BlueprintManager) fillBlueprintDetail(blueprint *models.Blueprint) erro
 		return errors.Internal.Wrap(err, "error getting the blueprint labels from database")
 	}
 	return nil
+}
+
+func contains(list []string, target string) bool {
+	for _, t := range list {
+		if t == target {
+			return true
+		}
+	}
+	return false
 }

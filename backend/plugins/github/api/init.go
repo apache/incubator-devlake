@@ -41,6 +41,10 @@ func Init(br context.BasicRes) {
 		basicRes,
 		vld,
 		connectionHelper,
+		&api.ReflectionParameters{
+			ScopeIdFieldName:  "GithubId",
+			ScopeIdColumnName: "github_id",
+		},
 	)
 	trHelper = api.NewTransformationRuleHelper[models.GithubTransformationRule](
 		basicRes,

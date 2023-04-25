@@ -61,7 +61,7 @@ func PutScope(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, errors
 // @Router /plugins/jenkins/connections/{connectionId}/scopes/{scopeId} [PATCH]
 func UpdateScope(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, errors.Error) {
 	input.Params["scopeId"] = strings.TrimLeft(input.Params["scopeId"], "/")
-	return scopeHelper.Update(input, "full_name")
+	return scopeHelper.Update(input)
 }
 
 // GetScopeList get Jenkins jobs
@@ -91,5 +91,5 @@ func GetScopeList(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, er
 // @Router /plugins/jenkins/connections/{connectionId}/scopes/{scopeId} [GET]
 func GetScope(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, errors.Error) {
 	input.Params["scopeId"] = strings.TrimLeft(input.Params["scopeId"], "/")
-	return scopeHelper.GetScope(input, "full_name")
+	return scopeHelper.GetScope(input)
 }

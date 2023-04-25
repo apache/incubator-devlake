@@ -245,7 +245,7 @@ func (pa *pluginAPI) GetScope(input *plugin.ApiResourceInput) (*plugin.ApiResour
 
 func (pa *pluginAPI) DeleteScope(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, errors.Error) {
 	db := basicRes.GetDal()
-	return scopeHelper.Delete(input, "scope_id",
+	return scopeHelper.Delete(input,
 		func(connectionId uint64, scopeId string) errors.Error {
 			rawScope := pa.scopeType.New()
 			return api.CallDB(db.Delete, rawScope, dal.Where("connection_id = ? AND id = ?", connectionId, scopeId))

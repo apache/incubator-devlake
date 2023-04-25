@@ -40,7 +40,11 @@ func Init(br context.BasicRes) {
 		br,
 		vld,
 	)
-	scopeHelper = api.NewGenericScopeHelper(basicRes)
+	scopeHelper = api.NewGenericScopeHelper(basicRes, &api.ReflectionParameters{
+		ScopeIdFieldName:  "Id",
+		ScopeIdColumnName: "id",
+		RawScopeParamName: "scope_id",
+	})
 }
 
 func NewRemotePlugin(info *models.PluginInfo) (models.RemotePlugin, errors.Error) {

@@ -41,6 +41,10 @@ func Init(br context.BasicRes) {
 		basicRes,
 		vld,
 		connectionHelper,
+		&api.ReflectionParameters{
+			ScopeIdFieldName:  "FullName",
+			ScopeIdColumnName: "full_name",
+		},
 	)
 	trHelper = api.NewTransformationRuleHelper[models.JenkinsTransformationRule](
 		basicRes,

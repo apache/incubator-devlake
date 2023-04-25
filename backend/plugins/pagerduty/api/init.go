@@ -43,6 +43,11 @@ func Init(br context.BasicRes) {
 		basicRes,
 		vld,
 		connectionHelper,
+		&api.ReflectionParameters{
+			ScopeIdFieldName:  "Id",
+			ScopeIdColumnName: "id",
+			RawScopeParamName: "ScopeId",
+		},
 	)
 	trHelper = api.NewTransformationRuleHelper[models.PagerdutyTransformationRule](
 		basicRes,
