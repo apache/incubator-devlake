@@ -25,6 +25,7 @@ import (
 
 	"github.com/apache/incubator-devlake/core/dal"
 	"github.com/apache/incubator-devlake/core/errors"
+	"github.com/apache/incubator-devlake/core/models/domainlayer/devops"
 	"github.com/apache/incubator-devlake/core/plugin"
 	helper "github.com/apache/incubator-devlake/helpers/pluginhelper/api"
 	"github.com/apache/incubator-devlake/plugins/github/models"
@@ -190,6 +191,8 @@ func CollectGraphqlJobs(taskCtx plugin.SubTaskContext) errors.Error {
 						CompletedAt:  checkRun.CompletedAt,
 						Name:         checkRun.Name,
 						Steps:        paramsBytes,
+						Type:         data.RegexEnricher.ReturnNameIfMatched(devops.DEPLOYMENT, checkRun.Name),
+						Environment:  data.RegexEnricher.ReturnNameIfMatched(devops.PRODUCTION, checkRun.Name),
 						// these columns can not fill by graphql
 						//HeadSha:       ``,  // use _tool_github_runs
 						//RunURL:        ``,
