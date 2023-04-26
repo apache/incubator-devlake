@@ -72,7 +72,7 @@ func ValidateTaskOptions(op *JenkinsOptions) (*JenkinsOptions, errors.Error) {
 		op.JobPath = `job/` + strings.Join(strings.Split(op.JobFullName[:i], `/`), `/job/`)
 	} else {
 		op.JobName = op.JobFullName
-		op.JobPath = ``
+		op.JobPath = `view/all`
 	}
 	if op.JenkinsTransformationRule == nil && op.TransformationRuleId == 0 {
 		op.JenkinsTransformationRule = new(models.JenkinsTransformationRule)

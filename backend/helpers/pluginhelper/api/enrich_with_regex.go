@@ -22,7 +22,6 @@ import (
 	"regexp"
 
 	"github.com/apache/incubator-devlake/core/errors"
-	"github.com/apache/incubator-devlake/core/models/domainlayer/devops"
 )
 
 // RegexEnricher process value with regex pattern
@@ -57,8 +56,8 @@ func (r *RegexEnricher) AddRegexp(patterns ...string) errors.Error {
 // lastly, will return corresponding value(result or empty)
 // TODO: to be removed
 func (r *RegexEnricher) GetEnrichResult(pattern string, v string, result string) string {
-	if result == devops.PRODUCTION && pattern == "" {
-		return result
+	if pattern == "" {
+		return ""
 	}
 	regex := r.regexpMap[pattern]
 	if regex != nil {

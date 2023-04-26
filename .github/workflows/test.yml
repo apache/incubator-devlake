@@ -18,6 +18,8 @@
 name: unit-test
 
 on:
+  push:
+    branches: [main]
   pull_request:
     branches: [ main ]
     paths:
@@ -43,10 +45,12 @@ jobs:
     steps:
     - name: Checkout code
       uses: actions/checkout@v3
-    - run: git config --global --add safe.directory $(pwd)
+    - name: Set git config
+      run: git config --global --add safe.directory $(pwd)
     - name: Build Python
       run: |
         cd backend
+        echo "Building Python"
         make build-python
     - name: Cache unit-test
       id: cache-unit-test

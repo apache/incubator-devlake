@@ -99,7 +99,7 @@ func CollectIncidents(taskCtx plugin.SubTaskContext) errors.Error {
 					}
 					query.Set("sort_by", "created_at:desc")
 					query.Set("limit", fmt.Sprintf("%d", reqData.Pager.Size))
-					query.Set("offset", fmt.Sprintf("%d", reqData.Pager.Page))
+					query.Set("offset", fmt.Sprintf("%d", reqData.Pager.Skip))
 					query.Set("total", "true")
 					return query, nil
 				},

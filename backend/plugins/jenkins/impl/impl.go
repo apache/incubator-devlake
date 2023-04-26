@@ -238,17 +238,7 @@ func EnrichOptions(taskCtx plugin.TaskContext,
 		}
 	}
 
-	pathSplit := strings.Split(op.JobFullName, "/")
-	lastOne := len(pathSplit)
-
-	// Multi-level directory assembly
-	path := "job/" + strings.Join(pathSplit, "/job/")
-	if path == "job/" {
-		path = ""
-	}
-	name := pathSplit[lastOne-1]
-
-	err = api.GetJob(apiClient, path, name, op.JobFullName, 100, func(job *models.Job, isPath bool) errors.Error {
+	err = api.GetJob(apiClient, op.JobPath, op.JobName, op.JobFullName, 100, func(job *models.Job, isPath bool) errors.Error {
 		log.Debug(fmt.Sprintf("Current job: %s", job.FullName))
 		op.Name = job.Name
 		op.JobPath = job.Path

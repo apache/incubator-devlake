@@ -50,7 +50,7 @@ export const PipelineTask = ({ task }: Props) => {
       case ['gitextractor'].includes(config.plugin):
         name = `${name}:${options.repoId}`;
         break;
-      case ['dora', 'refdiff'].includes(config.plugin):
+      case ['dora'].includes(config.plugin):
         name = `${name}:${options.projectName}`;
         break;
       case ['gitlab'].includes(config.plugin):
@@ -74,6 +74,9 @@ export const PipelineTask = ({ task }: Props) => {
         } else {
           name = `${name}:product/${options.productId}`;
         }
+        break;
+      case ['refdiff'].includes(config.plugin):
+        name = `${name}:${options.repoId ?? options.projectName}`;
         break;
     }
 
