@@ -84,9 +84,9 @@ func ConvertDeployments(taskCtx plugin.SubTaskContext) errors.Error {
 				DomainEntity: domainlayer.DomainEntity{
 					Id: idGen.Generate(data.Options.ConnectionId, bitbucketDeployment.BitbucketId),
 				},
-				CicdScopeId:    repoId,
-				CicdPipelineId: pipelineIdGen.Generate(data.Options.ConnectionId, bitbucketDeployment.PipelineId),
-				Name:           bitbucketDeployment.Name,
+				CicdScopeId:      repoId,
+				CicdDeploymentId: pipelineIdGen.Generate(data.Options.ConnectionId, bitbucketDeployment.PipelineId),
+				Name:             bitbucketDeployment.Name,
 				Result: devops.GetResult(&devops.ResultRule{
 					Failed:  []string{"UNDEPLOYED"},
 					Success: []string{"COMPLETED"},
