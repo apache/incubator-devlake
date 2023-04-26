@@ -40,7 +40,7 @@ var ConnectIncidentToDeploymentMeta = plugin.SubTaskMeta{
 }
 
 type simpleCicdDeploymentCommit struct {
-	Id           string `gorm:"primaryKey;type:varchar(255)"`
+	Id           string
 	FinishedDate *time.Time
 }
 
@@ -84,21 +84,21 @@ func ConnectIncidentToDeployment(taskCtx plugin.SubTaskContext) errors.Error {
 
 			cicdDeploymentCommit := &devops.CicdDeploymentCommit{}
 			cicdDeploymentCommitClauses := []dal.Clause{
-				dal.Select("cicd_deployment_commits.cicd_deployment_id as id, max(cicd_deployment_commits.finished_date) as finished_date"),
+				dal.Select("cicd_deployment_commits.cicd_deployment_id as id, cicd_deployment_commits.finished_date as finished_date"),
 				dal.From(cicdDeploymentCommit),
 				dal.Join("left join project_mapping pm on cicd_deployment_commits.cicd_scope_id = pm.row_id"),
 				dal.Where(
-					`cicd_deployment_commits.result = ?
+					`cicd_deployment_commits.finished_date < ?
+					    and cicd_deployment_commits.result = ?
 						and cicd_deployment_commits.environment = ?
 						and pm.table = ?
 						and pm.project_name = ?`,
-					devops.SUCCESS, devops.PRODUCTION, "cicd_scopes", data.Options.ProjectName,
+					issue.CreatedDate, devops.SUCCESS, devops.PRODUCTION, "cicd_scopes", data.Options.ProjectName,
 				),
-				dal.Groupby("cicd_deployment_commits.cicd_deployment_id"),
 				dal.Orderby("finished_date DESC"),
 				dal.Limit(1),
-				dal.Having("max(cicd_deployment_commits.finished_date) <= ?", issue.CreatedDate),
 			}
+
 			scdc := &simpleCicdDeploymentCommit{}
 			err = db.All(scdc, cicdDeploymentCommitClauses...)
 			if err != nil {
@@ -110,9 +110,9 @@ func ConnectIncidentToDeployment(taskCtx plugin.SubTaskContext) errors.Error {
 			}
 			if scdc.Id != "" {
 				projectIssueMetric.DeploymentId = scdc.Id
+				return []interface{}{projectIssueMetric}, nil
 			}
-
-			return []interface{}{projectIssueMetric}, nil
+			return nil, nil
 		},
 	})
 	if err != nil {
