@@ -16,38 +16,51 @@
  *
  */
 
-import { useState, useMemo } from 'react';
+import { useState } from 'react';
+import { Icon, ButtonGroup, Button, Colors, Intent } from '@blueprintjs/core';
 import { useHistory } from 'react-router-dom';
 
+import { Card } from '@/components';
 import { operator } from '@/utils';
 
 import * as API from './api';
 
-export interface UseDBMigrateProps {
-  onResetError: () => void;
-}
-
-export const useDBMigrate = ({ onResetError }: UseDBMigrateProps) => {
-  const [processing, setProcessing] = useState(false);
+export const DBMigratePage = () => {
+  const [operating, setOperating] = useState(false);
 
   const history = useHistory();
 
   const handleSubmit = async () => {
     const [success] = await operator(() => API.migrate(), {
-      setOperating: setProcessing,
+      setOperating: setOperating,
     });
 
     if (success) {
-      onResetError();
       history.push('/');
     }
   };
 
-  return useMemo(
-    () => ({
-      processing,
-      onSubmit: handleSubmit,
-    }),
-    [processing],
+  return (
+    <Card>
+      <h2>
+        <Icon icon="outdated" color={Colors.ORANGE5} size={20} />
+        <span>New Migration Scripts Detected</span>
+      </h2>
+      <p>
+        If you have already started, please wait for database migrations to complete, do <strong>NOT</strong> close your
+        browser at this time.
+      </p>
+      <p className="warning">
+        Warning: Performing migration may wipe collected data for consistency and re-collecting data may be required.
+      </p>
+      <ButtonGroup>
+        <Button
+          loading={operating}
+          text="Proceed to Database Migration"
+          intent={Intent.PRIMARY}
+          onClick={handleSubmit}
+        />
+      </ButtonGroup>
+    </Card>
   );
 };

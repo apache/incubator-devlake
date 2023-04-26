@@ -21,3 +21,4 @@ export * from './connection';
 export * from './blueprint';
 export * from './pipeline';
 export * from './offline';
+export * from './db-migrate';

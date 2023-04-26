@@ -16,6 +16,5 @@
  *
  */
 
-export * from './db-migrate';
 export * from './default';
 export * from './bp-upgrade';
