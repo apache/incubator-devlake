@@ -40,6 +40,11 @@ export const BitbucketTransformation = ({ transformation, setTransformation }: P
     if (transformation.refdiff) {
       setOpenAdditionalSettings(true);
     }
+    if (transformation.deploymentPattern) {
+      setUseCustom(true);
+    } else {
+      setUseCustom(false);
+    }
   }, [transformation]);
 
   const selectedStates = useMemo(
