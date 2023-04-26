@@ -24,7 +24,7 @@ import (
 type CicdDeploymentCommit struct {
 	DomainEntity
 	CicdScopeId                   string `gorm:"index;type:varchar(255)"`
-	CicdPipelineId                string `gorm:"type:varchar(255)"` // if it is converted from a cicd_pipeline_commit
+	CicdDeploymentId              string `gorm:"type:varchar(255)"` // if it is converted from a cicd_pipeline_commit
 	Name                          string `gorm:"type:varchar(255)"`
 	Result                        string `gorm:"type:varchar(100)"`
 	Status                        string `gorm:"type:varchar(100)"`

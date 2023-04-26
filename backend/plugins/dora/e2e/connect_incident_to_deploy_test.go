@@ -18,6 +18,8 @@ limitations under the License.
 package e2e
 
 import (
+	"testing"
+
 	"github.com/apache/incubator-devlake/core/models/common"
 	"github.com/apache/incubator-devlake/core/models/domainlayer/crossdomain"
 	"github.com/apache/incubator-devlake/core/models/domainlayer/devops"
@@ -25,7 +27,6 @@ import (
 	"github.com/apache/incubator-devlake/helpers/e2ehelper"
 	"github.com/apache/incubator-devlake/plugins/dora/impl"
 	"github.com/apache/incubator-devlake/plugins/dora/tasks"
-	"testing"
 )
 
 func TestConnectIncidentToDeploymentDataFlow(t *testing.T) {
@@ -41,7 +42,7 @@ func TestConnectIncidentToDeploymentDataFlow(t *testing.T) {
 		},
 	}
 	// import raw data table
-	dataflowTester.ImportCsvIntoTabler("./raw_tables/cicd_tasks.csv", &devops.CICDTask{})
+	dataflowTester.ImportCsvIntoTabler("./prev_success_deployment_commit/cicd_deployment_commits_after.csv", &devops.CicdDeploymentCommit{})
 	dataflowTester.ImportCsvIntoTabler("./raw_tables/project_mapping.csv", &crossdomain.ProjectMapping{})
 	dataflowTester.ImportCsvIntoTabler("./raw_tables/board_issues.csv", &ticket.BoardIssue{})
 	dataflowTester.ImportCsvIntoTabler("./raw_tables/issues.csv", &ticket.Issue{})

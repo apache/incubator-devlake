@@ -1,4 +1,4 @@
-id,result,started_date,duration_sec,cicd_pipeline_id,cicd_scope_id,repo_url,environment,prev_success_deployment_commit_id,_raw_data_remark,commit_sha,created_date,finished_date
+id,result,started_date,duration_sec,cicd_deployment_id,cicd_scope_id,repo_url,environment,prev_success_deployment_commit_id,_raw_data_remark,commit_sha,created_date,finished_date
 1,SUCCESS,2023-04-10T06:51:47.000+00:00,60,pipeline1,cicd1,REPO111,PRODUCTION,,project1,commit1,2023-4-10 6:51:47,2023-04-10T06:52:47.000+00:00
 2,SUCCESS,2023-04-10T06:53:51.000+00:00,60,pipeline1,cicd1,REPO222,PRODUCTION,,project1,commit2,2023-4-10 6:53:51,2023-04-10T06:54:51.000+00:00
 3,SUCCESS,2023-04-13T07:21:16.000+00:00,60,pipeline2,cicd2,REPO111,PRODUCTION,,,commit3,2023-4-13 7:21:16,2023-04-13T07:22:16.000+00:00

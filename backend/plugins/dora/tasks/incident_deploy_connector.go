@@ -18,6 +18,9 @@ limitations under the License.
 package tasks
 
 import (
+	"reflect"
+	"time"
+
 	"github.com/apache/incubator-devlake/core/dal"
 	"github.com/apache/incubator-devlake/core/errors"
 	"github.com/apache/incubator-devlake/core/models/domainlayer"
@@ -26,7 +29,6 @@ import (
 	"github.com/apache/incubator-devlake/core/models/domainlayer/ticket"
 	"github.com/apache/incubator-devlake/core/plugin"
 	"github.com/apache/incubator-devlake/helpers/pluginhelper/api"
-	"reflect"
 )
 
 var ConnectIncidentToDeploymentMeta = plugin.SubTaskMeta{
@@ -35,6 +37,11 @@ var ConnectIncidentToDeploymentMeta = plugin.SubTaskMeta{
 	EnabledByDefault: true,
 	Description:      "Connect incident issue to deployment",
 	DomainTypes:      []string{plugin.DOMAIN_TYPE_CICD},
+}
+
+type simpleCicdDeploymentCommit struct {
+	Id           string
+	FinishedDate *time.Time
 }
 
 func ConnectIncidentToDeployment(taskCtx plugin.SubTaskContext) errors.Error {
@@ -74,22 +81,26 @@ func ConnectIncidentToDeployment(taskCtx plugin.SubTaskContext) errors.Error {
 				},
 				ProjectName: data.Options.ProjectName,
 			}
-			cicdTask := &devops.CICDTask{}
-			cicdTakClauses := []dal.Clause{
-				dal.From(cicdTask),
-				dal.Join("left join project_mapping pm on cicd_tasks.cicd_scope_id = pm.row_id"),
+
+			cicdDeploymentCommit := &devops.CicdDeploymentCommit{}
+			cicdDeploymentCommitClauses := []dal.Clause{
+				dal.Select("cicd_deployment_commits.cicd_deployment_id as id, cicd_deployment_commits.finished_date as finished_date"),
+				dal.From(cicdDeploymentCommit),
+				dal.Join("left join project_mapping pm on cicd_deployment_commits.cicd_scope_id = pm.row_id"),
 				dal.Where(
-					`cicd_tasks.finished_date < ? 
-								and cicd_tasks.result = ? 
-								and cicd_tasks.environment = ?
-								and cicd_tasks.type = ?
-								and pm.table = ?
-								and pm.project_name = ?`,
-					issue.CreatedDate, devops.SUCCESS, devops.PRODUCTION, devops.DEPLOYMENT, "cicd_scopes", data.Options.ProjectName,
+					`cicd_deployment_commits.finished_date < ?
+					    and cicd_deployment_commits.result = ?
+						and cicd_deployment_commits.environment = ?
+						and pm.table = ?
+						and pm.project_name = ?`,
+					issue.CreatedDate, devops.SUCCESS, devops.PRODUCTION, "cicd_scopes", data.Options.ProjectName,
 				),
-				dal.Orderby("cicd_tasks.finished_date DESC"),
+				dal.Orderby("finished_date DESC"),
+				dal.Limit(1),
 			}
-			err = db.First(cicdTask, cicdTakClauses...)
+
+			scdc := &simpleCicdDeploymentCommit{}
+			err = db.All(scdc, cicdDeploymentCommitClauses...)
 			if err != nil {
 				if db.IsErrorNotFound(err) {
 					return nil, nil
@@ -97,9 +108,11 @@ func ConnectIncidentToDeployment(taskCtx plugin.SubTaskContext) errors.Error {
 					return nil, err
 				}
 			}
-			projectIssueMetric.DeploymentId = cicdTask.Id
-
-			return []interface{}{projectIssueMetric}, nil
+			if scdc.Id != "" {
+				projectIssueMetric.DeploymentId = scdc.Id
+				return []interface{}{projectIssueMetric}, nil
+			}
+			return nil, nil
 		},
 	})
 	if err != nil {

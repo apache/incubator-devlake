@@ -46,21 +46,21 @@ func EnrichPrevSuccessDeploymentCommit(taskCtx plugin.SubTaskContext) errors.Err
 	db := taskCtx.GetDal()
 	data := taskCtx.GetData().(*DoraTaskData)
 	// step 1. select all successful deployments in the project and sort them by cicd_scope_id, repo_url, env
-	// and started_date
+	// and finished_date
 	cursor, err := db.Cursor(
 		dal.Select("dc.*"),
 		dal.From("cicd_deployment_commits dc"),
 		dal.Join("LEFT JOIN project_mapping pm ON (pm.table = 'cicd_scopes' AND pm.row_id = dc.cicd_scope_id)"),
 		dal.Where(
 			`
-			dc.started_date IS NOT NULL
+			dc.finished_date IS NOT NULL
 			AND dc.environment IS NOT NULL AND dc.environment != ''
 			AND dc.repo_url IS NOT NULL AND dc.repo_url != '' 
 			AND pm.project_name = ? AND dc.result = ?
 			`,
 			data.Options.ProjectName, devops.SUCCESS,
 		),
-		dal.Orderby(`dc.cicd_scope_id, dc.repo_url, dc.environment, dc.started_date`),
+		dal.Orderby(`dc.cicd_scope_id, dc.repo_url, dc.environment, dc.finished_date`),
 	)
 	if err != nil {
 		return err

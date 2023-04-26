@@ -37,7 +37,7 @@ func (*addCicdDeploymentCommits) Up(basicRes context.BasicRes) errors.Error {
 }
 
 func (*addCicdDeploymentCommits) Version() uint64 {
-	return 20230411150702
+	return 20230426150702
 }
 
 func (*addCicdDeploymentCommits) Name() string {
