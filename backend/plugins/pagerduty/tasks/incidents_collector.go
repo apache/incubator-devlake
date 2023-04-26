@@ -92,7 +92,7 @@ func CollectIncidents(taskCtx plugin.SubTaskContext) errors.Error {
 							query.Set("date_range", "all")
 						} else {
 							// since for PagerDuty is actually the created_at time of the incident (this is not well documented in their APIs)
-							query.Set("since", data.TimeAfter.String())
+							query.Set("since", createdAfter.String())
 						}
 					} else {
 						query.Set("date_range", "all")
