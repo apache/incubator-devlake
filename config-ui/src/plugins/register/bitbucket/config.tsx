@@ -64,8 +64,8 @@ export const BitBucketConfig: PluginConfigType = {
     issueStatusInProgress: '',
     issueStatusDone: 'closed',
     issueStatusOther: 'on hold,wontfix,duplicate,invalid',
-    deploymentPattern: '(deploy|push-image)',
-    productionPattern: 'prod(.*)',
+    deploymentPattern: '',
+    productionPattern: '',
     refdiff: {
       tagsLimit: 10,
       tagsPattern: '/v\\d+\\.\\d+(\\.\\d+(-rc)*\\d*)*$/',
