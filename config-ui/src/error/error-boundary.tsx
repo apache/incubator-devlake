@@ -21,7 +21,7 @@ import React from 'react';
 import { Logo } from '@/components';
 
 import { Error } from './types';
-import { DBMigrate, Offline, Default, BPUpgrade } from './components';
+import { Default, BPUpgrade } from './components';
 
 import * as S from './styled';
 
@@ -65,8 +65,6 @@ export class ErrorBoundary extends React.Component<Props, State> {
       <S.Wrapper>
         <Logo />
         <S.Inner>
-          {error === Error.DB_NEED_MIGRATE && <DBMigrate onResetError={this.handleResetError} />}
-          {error === Error.API_OFFLINE && <Offline onResetError={this.handleResetError} />}
           {error === Error.BP_NEED_TO_UPGRADE && <BPUpgrade onResetError={this.handleResetError} />}
           {!Object.keys(Error).includes(error) && <Default error={error} onResetError={this.handleResetError} />}
         </S.Inner>
