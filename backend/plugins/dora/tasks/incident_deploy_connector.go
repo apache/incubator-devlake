@@ -108,7 +108,9 @@ func ConnectIncidentToDeployment(taskCtx plugin.SubTaskContext) errors.Error {
 					return nil, err
 				}
 			}
-			projectIssueMetric.DeploymentId = scdc.Id
+			if scdc.Id != "" {
+				projectIssueMetric.DeploymentId = scdc.Id
+			}
 
 			return []interface{}{projectIssueMetric}, nil
 		},
