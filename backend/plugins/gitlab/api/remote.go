@@ -20,13 +20,14 @@ package api
 import (
 	"context"
 	"fmt"
+	"net/http"
+	"net/url"
+
 	context2 "github.com/apache/incubator-devlake/core/context"
 	"github.com/apache/incubator-devlake/core/errors"
 	"github.com/apache/incubator-devlake/core/plugin"
 	"github.com/apache/incubator-devlake/helpers/pluginhelper/api"
 	"github.com/apache/incubator-devlake/plugins/gitlab/models"
-	"net/http"
-	"net/url"
 )
 
 // RemoteScopes list all available scope for users
@@ -57,6 +58,9 @@ func RemoteScopes(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, er
 					return nil, err
 				}
 			} else {
+				if gid[:6] == "group:" {
+					gid = gid[6:]
+				}
 				res, err = apiClient.Get(fmt.Sprintf("groups/%s/subgroups", gid), query, nil)
 				if err != nil {
 					return nil, err
@@ -67,6 +71,7 @@ func RemoteScopes(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, er
 			if err != nil {
 				return nil, err
 			}
+
 			return resBody, err
 		},
 		func(basicRes context2.BasicRes, gid string, queryData *api.RemoteQueryData, connection models.GitlabConnection) ([]models.GitlabApiProject, errors.Error) {
@@ -83,6 +88,9 @@ func RemoteScopes(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, er
 				}
 			} else {
 				query.Set("with_shared", "false")
+				if gid[:6] == "group:" {
+					gid = gid[6:]
+				}
 				res, err = apiClient.Get(fmt.Sprintf("/groups/%s/projects", gid), query, nil)
 				if err != nil {
 					return nil, err
