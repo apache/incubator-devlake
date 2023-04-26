@@ -16,5 +16,4 @@
  *
  */
 
-export * from './version';
 export * from './connections';

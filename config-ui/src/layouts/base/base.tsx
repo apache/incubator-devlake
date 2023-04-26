@@ -20,8 +20,8 @@ import React from 'react';
 import { useLocation } from 'react-router-dom';
 import { Menu, MenuItem, Tag, Navbar, Intent, Alignment, Button } from '@blueprintjs/core';
 
-import { Logo, ExternalLink } from '@/components';
-import { useVersion } from '@/store';
+import { PageLoading, Logo, ExternalLink } from '@/components';
+import { useRefreshData } from '@/hooks';
 import { history } from '@/utils/history';
 
 import DashboardIcon from '@/images/icons/dashborad.svg';
@@ -30,6 +30,7 @@ import GitHubIcon from '@/images/icons/github.svg';
 import SlackIcon from '@/images/icons/slack.svg';
 
 import { useMenu, MenuItemType } from './use-menu';
+import * as API from './api';
 import * as S from './styled';
 
 interface Props {
@@ -39,7 +40,8 @@ interface Props {
 export const BaseLayout = ({ children }: Props) => {
   const menu = useMenu();
   const { pathname } = useLocation();
-  const { version } = useVersion();
+
+  const { ready, data } = useRefreshData<{ version: string }>(() => API.getVersion(), []);
 
   const token = window.localStorage.getItem('accessToken');
 
@@ -62,6 +64,10 @@ export const BaseLayout = ({ children }: Props) => {
 
     return import.meta.env.DEV ? `${protocol}//${hostname}:3002${suffix}` : `/grafana${suffix}`;
   };
+
+  if (!ready || !data) {
+    return <PageLoading />;
+  }
 
   return (
     <S.Wrapper>
@@ -102,7 +108,7 @@ export const BaseLayout = ({ children }: Props) => {
         </Menu>
         <div className="copyright">
           <div>Apache 2.0 License</div>
-          <div className="version">{version}</div>
+          <div className="version">{data.version}</div>
         </div>
       </S.Sider>
       <S.Main>
