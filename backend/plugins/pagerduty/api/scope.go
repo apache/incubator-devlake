@@ -68,6 +68,7 @@ func UpdateScope(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, err
 // @Param connectionId path int true "connection ID"
 // @Param pageSize query int false "page size, default 50"
 // @Param page query int false "page size, default 1"
+// @Param blueprints query bool false "also return blueprints using these scopes as part of the payload"
 // @Success 200  {object} []ScopeRes
 // @Failure 400  {object} shared.ApiBody "Bad Request"
 // @Failure 500  {object} shared.ApiBody "Internal Error"
@@ -82,6 +83,7 @@ func GetScopeList(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, er
 // @Tags plugins/pagerduty
 // @Param connectionId path int true "connection ID"
 // @Param serviceId path int true "service ID"
+// @Param blueprints query bool false "also return blueprints using this scope as part of the payload"
 // @Success 200  {object} ScopeRes
 // @Failure 400  {object} shared.ApiBody "Bad Request"
 // @Failure 500  {object} shared.ApiBody "Internal Error"
@@ -90,6 +92,17 @@ func GetScope(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, errors
 	return scopeHelper.GetScope(input)
 }
 
+// DeleteScope delete plugin data associated with the scope and optionally the scope itself
+// @Summary delete plugin data associated with the scope and optionally the scope itself
+// @Description delete data associated with plugin scope
+// @Tags plugins/pagerduty
+// @Param connectionId path int true "connection ID"
+// @Param serviceId path int true "service ID"
+// @Param delete_data_only query bool false "Only delete the scope data, not the scope itself"
+// @Success 200
+// @Failure 400  {object} shared.ApiBody "Bad Request"
+// @Failure 500  {object} shared.ApiBody "Internal Error"
+// @Router /plugins/pagerduty/connections/{connectionId}/scopes/{serviceId} [DELETE]
 func DeleteScope(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, errors.Error) {
 	return scopeHelper.Delete(input)
 }

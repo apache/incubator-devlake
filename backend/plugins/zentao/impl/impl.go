@@ -131,12 +131,14 @@ func (p Zentao) ApiResources() map[string]map[string]plugin.ApiResourceHandler {
 			"PUT": api.PutProjectScope,
 		},
 		"connections/:connectionId/scopes/product/:scopeId": {
-			"GET":   api.GetProductScope,
-			"PATCH": api.UpdateProductScope,
+			"GET":    api.GetProductScope,
+			"PATCH":  api.UpdateProductScope,
+			"DELETE": api.DeleteProductScope,
 		},
 		"connections/:connectionId/scopes/project/:scopeId": {
-			"GET":   api.GetProjectScope,
-			"PATCH": api.UpdateProjectScope,
+			"GET":    api.GetProjectScope,
+			"PATCH":  api.UpdateProjectScope,
+			"DELETE": api.DeleteProjectScope,
 		},
 		"connections/:connectionId/remote-scopes": {
 			"GET": api.RemoteScopes,

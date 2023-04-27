@@ -215,8 +215,9 @@ func (p Github) ApiResources() map[string]map[string]plugin.ApiResourceHandler {
 			"DELETE": api.DeleteConnection,
 		},
 		"connections/:connectionId/scopes/:scopeId": {
-			"GET":   api.GetScope,
-			"PATCH": api.UpdateScope,
+			"GET":    api.GetScope,
+			"PATCH":  api.UpdateScope,
+			"DELETE": api.DeleteScope,
 		},
 		"connections/:connectionId/scopes": {
 			"GET": api.GetScopeList,

@@ -258,8 +258,9 @@ func (p Gitlab) ApiResources() map[string]map[string]plugin.ApiResourceHandler {
 			"GET":    api.GetConnection,
 		},
 		"connections/:connectionId/scopes/:scopeId": {
-			"GET":   api.GetScope,
-			"PATCH": api.UpdateScope,
+			"GET":    api.GetScope,
+			"PATCH":  api.UpdateScope,
+			"DELETE": api.DeleteScope,
 		},
 		"connections/:connectionId/remote-scopes": {
 			"GET": api.RemoteScopes,

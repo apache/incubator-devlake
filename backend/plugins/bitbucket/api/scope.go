@@ -19,6 +19,7 @@ package api
 
 import (
 	"github.com/apache/incubator-devlake/core/errors"
+	coreModel "github.com/apache/incubator-devlake/core/models"
 	"github.com/apache/incubator-devlake/core/plugin"
 	"github.com/apache/incubator-devlake/helpers/pluginhelper/api"
 	"github.com/apache/incubator-devlake/plugins/bitbucket/models"
@@ -27,7 +28,8 @@ import (
 
 type ScopeRes struct {
 	models.BitbucketRepo
-	TransformationRuleName string `json:"transformationRuleName,omitempty"`
+	TransformationRuleName string                `json:"transformationRuleName,omitempty"`
+	Blueprints             []coreModel.Blueprint `json:"blueprints,omitempty"`
 }
 
 type ScopeReq api.ScopeReq[models.BitbucketRepo]
@@ -55,6 +57,7 @@ func PutScope(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, errors
 // @Param connectionId path int true "connection ID"
 // @Param scopeId path string true "repo ID"
 // @Param scope body models.BitbucketRepo true "json"
+// @Param blueprints query bool false "also return blueprints using these scopes as part of the payload"
 // @Success 200  {object} models.BitbucketRepo
 // @Failure 400  {object} shared.ApiBody "Bad Request"
 // @Failure 500  {object} shared.ApiBody "Internal Error"
@@ -71,6 +74,7 @@ func UpdateScope(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, err
 // @Param connectionId path int true "connection ID"
 // @Param pageSize query int false "page size, default 50"
 // @Param page query int false "page size, default 1"
+// @Param blueprints query bool false "also return blueprints using these scopes as part of the payload"
 // @Success 200  {object} []ScopeRes
 // @Failure 400  {object} shared.ApiBody "Bad Request"
 // @Failure 500  {object} shared.ApiBody "Internal Error"
@@ -92,4 +96,19 @@ func GetScopeList(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, er
 func GetScope(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, errors.Error) {
 	input.Params["scopeId"] = strings.TrimLeft(input.Params["scopeId"], "/")
 	return scopeHelper.GetScope(input)
+}
+
+// DeleteScope delete plugin data associated with the scope and optionally the scope itself
+// @Summary delete plugin data associated with the scope and optionally the scope itself
+// @Description delete data associated with plugin scope
+// @Tags plugins/bitbucket
+// @Param connectionId path int true "connection ID"
+// @Param scopeId path int true "repo ID"
+// @Param delete_data_only query bool false "Only delete the scope data, not the scope itself"
+// @Success 200
+// @Failure 400  {object} shared.ApiBody "Bad Request"
+// @Failure 500  {object} shared.ApiBody "Internal Error"
+// @Router /plugins/bitbucket/connections/{connectionId}/scopes/{scopeId} [DELETE]
+func DeleteScope(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, errors.Error) {
+	return scopeHelper.Delete(input)
 }
