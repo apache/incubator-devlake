@@ -24,6 +24,11 @@ import (
 	"github.com/apache/incubator-devlake/plugins/sonarqube/models"
 )
 
+type ScopeRes struct {
+	models.SonarqubeProject
+	TransformationRuleName string `json:"transformationRuleName,omitempty"`
+}
+
 type ScopeReq api.ScopeReq[models.SonarqubeProject]
 
 // PutScope create or update sonarqube project
@@ -62,7 +67,7 @@ func UpdateScope(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, err
 // @Description get Sonarqube projects
 // @Tags plugins/sonarqube
 // @Param connectionId path int false "connection ID"
-// @Success 200  {object} []models.SonarqubeProject
+// @Success 200  {object} []ScopeRes
 // @Failure 400  {object} shared.ApiBody "Bad Request"
 // @Failure 500  {object} shared.ApiBody "Internal Error"
 // @Router /plugins/sonarqube/connections/{connectionId}/scopes/ [GET]
@@ -78,7 +83,7 @@ func GetScopeList(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, er
 // @Param scopeId path string false "project key"
 // @Param pageSize query int false "page size, default 50"
 // @Param page query int false "page size, default 1"
-// @Success 200  {object} models.SonarqubeProject
+// @Success 200  {object} ScopeRes
 // @Failure 400  {object} shared.ApiBody "Bad Request"
 // @Failure 500  {object} shared.ApiBody "Internal Error"
 // @Router /plugins/sonarqube/connections/{connectionId}/scopes/{scopeId} [GET]
