@@ -95,7 +95,7 @@ export const AzureTransformation = ({ transformation, setTransformation }: Props
                 The name of the <strong>Azure pipeline</strong> or <strong>one of its jobs</strong> matches
               </span>
               <InputGroup
-                style={{ width: 224, margin: '0 8px' }}
+                style={{ width: 200, margin: '0 8px' }}
                 placeholder="(deploy|push-image)"
                 value={transformation.deploymentPattern ?? ''}
                 onChange={(e) =>
@@ -112,7 +112,7 @@ export const AzureTransformation = ({ transformation, setTransformation }: Props
             <div className="text">
               <span>If the name also matches</span>
               <InputGroup
-                style={{ width: 120, margin: '0 8px' }}
+                style={{ width: 200, margin: '0 8px' }}
                 disabled={!transformation.deploymentPattern}
                 placeholder="prod(.*)"
                 value={transformation.productionPattern ?? ''}

@@ -206,7 +206,7 @@ export const BitbucketTransformation = ({ transformation, setTransformation }: P
               <div style={{ display: 'flex', alignItems: 'center' }}>
                 <span>Its branch/tag name or one of its pipeline steps’ names matches</span>
                 <InputGroup
-                  style={{ width: 224, margin: '0 8px' }}
+                  style={{ width: 200, margin: '0 8px' }}
                   placeholder="(deploy|push-image)"
                   value={transformation.deploymentPattern ?? ''}
                   onChange={(e) =>
