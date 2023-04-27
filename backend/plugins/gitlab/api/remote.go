@@ -109,9 +109,10 @@ func RemoteScopes(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, er
 
 	// get gid and pageData
 	gid := groupId[0]
-	if len(gid) >= 6 {
-		if gid[:6] == "group:" {
-			gid = gid[6:]
+	rgid := gid
+	if len(rgid) >= 6 {
+		if rgid[:6] == "group:" {
+			rgid = rgid[6:]
 		}
 	}
 	pageData, err := GetPageDataFromPageToken(pageToken[0])
@@ -139,7 +140,7 @@ func RemoteScopes(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, er
 			query.Set("top_level_only", "true")
 			res, err = apiClient.Get("groups", query, nil)
 		} else {
-			res, err = apiClient.Get(fmt.Sprintf("groups/%s/subgroups", gid), query, nil)
+			res, err = apiClient.Get(fmt.Sprintf("groups/%s/subgroups", rgid), query, nil)
 		}
 		if err != nil {
 			return nil, err
@@ -203,7 +204,7 @@ func RemoteScopes(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, er
 			res, err = apiClient.Get(fmt.Sprintf("users/%d/projects", apiClient.GetData(models.GitlabApiClientData_UserId)), query, nil)
 		} else {
 			query.Set("with_shared", "false")
-			res, err = apiClient.Get(fmt.Sprintf("/groups/%s/projects", gid), query, nil)
+			res, err = apiClient.Get(fmt.Sprintf("/groups/%s/projects", rgid), query, nil)
 		}
 		if err != nil {
 			return nil, err
