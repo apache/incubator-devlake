@@ -27,6 +27,30 @@ const instance = axios.create({
   baseURL: DEVLAKE_ENDPOINT,
 });
 
+const Errors = ['Authorization header is missing', 'Invalid token'];
+
+instance.interceptors.response.use(
+  (response) => response,
+  (error) => {
+    const status = error.response?.status;
+
+    if (status === 401 && Errors.some((err) => error.response.data.includes(err))) {
+      toast.error('Please login first');
+      history.push('/login');
+    }
+
+    if (status === 428) {
+      history.push('/db-migrate');
+    }
+
+    if (status === 500) {
+      history.push('/offline');
+    }
+
+    return Promise.reject(error);
+  },
+);
+
 export type ReuqestConfig = {
   method?: AxiosRequestConfig['method'];
   data?: unknown;
@@ -37,17 +61,18 @@ export type ReuqestConfig = {
 
 export const request = (path: string, config?: ReuqestConfig) => {
   const { method = 'get', data, timeout, headers, signal } = config || {};
+
   const cancelTokenSource = axios.CancelToken.source();
   const token = localStorage.getItem('accessToken');
-  var h = { ...headers };
-  if (token) {
-    h.Authorization = `Bearer ${token}`;
-  }
+
   const params: any = {
     url: path,
     method,
     timeout,
-    headers: h,
+    headers: {
+      ...headers,
+      Authorization: token ? `Bearer ${token}` : '',
+    },
     cancelToken: cancelTokenSource?.token,
   };
 
@@ -56,21 +81,6 @@ export const request = (path: string, config?: ReuqestConfig) => {
   } else {
     params.data = data;
   }
-  const missingAuthHeader = 'Authorization header is missing';
-  const invalidToken = 'Invalid token';
-
-  instance.interceptors.response.use(
-    (response) => response,
-    (error) => {
-      if (error.response && error.response.status === 401) {
-        // only handle when data contains missingAuthHeader or invalidToken
-        if (error.response.data.includes(missingAuthHeader) || error.response.data.includes(invalidToken)) {
-          toast.error('Please login first');
-          history.push('/login');
-        }
-      }
-    },
-  );
 
   const promise = instance.request(params).then((resp) => resp.data);
 

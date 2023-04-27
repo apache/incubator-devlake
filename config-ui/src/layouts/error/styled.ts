@@ -16,38 +16,43 @@
  *
  */
 
-import { useState, useMemo } from 'react';
-import { useHistory } from 'react-router-dom';
+import styled from 'styled-components';
+import { Colors } from '@blueprintjs/core';
 
-import { operator } from '@/utils';
+export const Wrapper = styled.div`
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding-top: 100px;
+  height: 100vh;
+  background-color: #f9f9fa;
+  box-sizing: border-box;
+`;
 
-import * as API from './api';
+export const Inner = styled.div`
+  margin: 32px auto 0;
+  width: 640px;
 
-export interface UseDBMigrateProps {
-  onResetError: () => void;
-}
+  h2 {
+    display: flex;
+    align-items: center;
+    margin: 0;
 
-export const useDBMigrate = ({ onResetError }: UseDBMigrateProps) => {
-  const [processing, setProcessing] = useState(false);
-
-  const history = useHistory();
-
-  const handleSubmit = async () => {
-    const [success] = await operator(() => API.migrate(), {
-      setOperating: setProcessing,
-    });
-
-    if (success) {
-      onResetError();
-      history.push('/');
+    .bp4-icon {
+      margin-right: 4px;
     }
-  };
+  }
 
-  return useMemo(
-    () => ({
-      processing,
-      onSubmit: handleSubmit,
-    }),
-    [processing],
-  );
-};
+  p {
+    margin: 16px 0;
+
+    &.warning {
+      color: ${Colors.ORANGE5};
+    }
+  }
+
+  .bp4-button-group {
+    display: flex;
+    justify-content: center;
+  }
+`;

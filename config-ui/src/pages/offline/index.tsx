@@ -16,26 +16,47 @@
  *
  */
 
-import React, { useMemo } from 'react';
+import { useMemo } from 'react';
+import { useHistory } from 'react-router-dom';
 import { Icon, Tag, ButtonGroup, Button, Intent, Colors, IconName } from '@blueprintjs/core';
 
-import { Card } from '@/components';
 import { DEVLAKE_ENDPOINT } from '@/config';
+import { Card } from '@/components';
+import { useAutoRefresh } from '@/hooks';
 
-import type { UseOfflineProps } from './use-offline';
-import { useOffline } from './use-offline';
+import * as API from './api';
 
-interface Props extends UseOfflineProps {}
+export const OfflinePage = () => {
+  const history = useHistory();
 
-export const Offline = ({ ...props }: Props) => {
-  const { processing, offline, onRefresh, onContinue } = useOffline({
-    ...props,
-  });
+  const { loading, data } = useAutoRefresh<{ online: boolean }>(
+    async () => {
+      try {
+        await API.ping();
+        return { online: true };
+      } catch {
+        return { online: false };
+      }
+    },
+    [],
+    {
+      cancel: (data) => {
+        return data?.online ?? false;
+      },
+      retryLimit: 2,
+    },
+  );
+
+  const { online } = data || { online: false };
 
   const [icon, color, text] = useMemo(
-    () => [offline ? 'offline' : 'endorsed', offline ? Colors.RED3 : Colors.GREEN3, offline ? 'Offline' : 'Online'],
-    [offline],
+    () => [online ? 'endorsed' : 'offline', online ? Colors.GREEN3 : Colors.RED3, data ? 'Online' : 'Offline'],
+    [online],
   );
+
+  const handleContinue = () => {
+    history.push('/');
+  };
 
   return (
     <Card>
@@ -47,21 +68,21 @@ export const Offline = ({ ...props }: Props) => {
       <p>
         <Tag>DEVLAKE_ENDPOINT: {DEVLAKE_ENDPOINT}</Tag>
       </p>
-      {offline ? (
+      {!online ? (
         <>
           <p>
             Please wait for the&nbsp;
             <strong>Lake API</strong> to start before accessing the <strong>Configuration Interface</strong>.
           </p>
           <ButtonGroup>
-            <Button loading={processing} icon="refresh" intent={Intent.PRIMARY} text="Refresh" onClick={onRefresh} />
+            <Button loading={loading} icon="refresh" intent={Intent.PRIMARY} text="Refresh" />
           </ButtonGroup>
         </>
       ) : (
         <>
           <p>Connectivity to the Lake API service was successful.</p>
           <ButtonGroup>
-            <Button intent={Intent.PRIMARY} text="Continue" onClick={onContinue} />
+            <Button intent={Intent.PRIMARY} text="Continue" onClick={handleContinue} />
             <Button
               icon="help"
               text="Read Documentation"

@@ -16,18 +16,29 @@
  *
  */
 
-import React from 'react';
+import { useState } from 'react';
 import { Icon, ButtonGroup, Button, Colors, Intent } from '@blueprintjs/core';
+import { useHistory } from 'react-router-dom';
 
 import { Card } from '@/components';
+import { operator } from '@/utils';
 
-import type { UseDBMigrateProps } from './use-db-migrate';
-import { useDBMigrate } from './use-db-migrate';
+import * as API from './api';
 
-interface Props extends UseDBMigrateProps {}
+export const DBMigratePage = () => {
+  const [operating, setOperating] = useState(false);
 
-export const DBMigrate = ({ ...props }: Props) => {
-  const { processing, onSubmit } = useDBMigrate({ ...props });
+  const history = useHistory();
+
+  const handleSubmit = async () => {
+    const [success] = await operator(() => API.migrate(), {
+      setOperating: setOperating,
+    });
+
+    if (success) {
+      history.push('/');
+    }
+  };
 
   return (
     <Card>
@@ -43,7 +54,12 @@ export const DBMigrate = ({ ...props }: Props) => {
         Warning: Performing migration may wipe collected data for consistency and re-collecting data may be required.
       </p>
       <ButtonGroup>
-        <Button loading={processing} text="Proceed to Database Migration" intent={Intent.PRIMARY} onClick={onSubmit} />
+        <Button
+          loading={operating}
+          text="Proceed to Database Migration"
+          intent={Intent.PRIMARY}
+          onClick={handleSubmit}
+        />
       </ButtonGroup>
     </Card>
   );
