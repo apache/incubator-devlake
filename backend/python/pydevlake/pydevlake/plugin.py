@@ -17,7 +17,6 @@ from typing import Type, Union, Iterable, Optional
 from abc import ABC, abstractmethod
 from pathlib import Path
 import os
-import requests
 import sys
 
 import fire
@@ -203,12 +202,6 @@ class Plugin(ABC):
         if stream is None:
             raise Exception(f'Unkown stream {stream_name}')
         return stream
-
-    def startup(self, endpoint: str):
-        plugin_info = self.plugin_info().json()
-        resp = requests.post(f"{endpoint}/plugins/register", data=plugin_info)
-        if resp.status_code != 200:
-            raise Exception(f"unexpected http status code {resp.status_code}: {resp.content}")
 
     def plugin_info(self) -> msg.PluginInfo:
         subtask_metas = [

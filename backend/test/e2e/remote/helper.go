@@ -53,17 +53,6 @@ type (
 	}
 )
 
-func SetupEnv() {
-	fmt.Println("Setup test env")
-	path := filepath.Join(helper.ProjectRoot, FAKE_PLUGIN_DIR, "start.sh")
-	_, err := os.Stat(path)
-	if err != nil {
-		panic(err)
-	}
-	_ = os.Setenv("REMOTE_PLUGINS_STARTUP_PATH", path)
-	_ = os.Setenv("ENABLE_REMOTE_PLUGINS", "true")
-}
-
 func ConnectLocalServer(t *testing.T) *helper.DevlakeClient {
 	fmt.Println("Connect to server")
 	client := helper.StartDevLakeServer(t, nil)
@@ -72,7 +61,8 @@ func ConnectLocalServer(t *testing.T) *helper.DevlakeClient {
 }
 
 func CreateClient(t *testing.T) *helper.DevlakeClient {
-	SetupEnv()
+	path := filepath.Join(helper.ProjectRoot, FAKE_PLUGIN_DIR)
+	_ = os.Setenv("REMOTE_PLUGIN_DIR", path)
 	client := ConnectLocalServer(t)
 	client.AwaitPluginAvailability(PLUGIN_NAME, 60*time.Second)
 	return client
