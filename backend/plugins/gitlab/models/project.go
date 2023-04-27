@@ -18,10 +18,11 @@ limitations under the License.
 package models
 
 import (
-	"github.com/apache/incubator-devlake/core/plugin"
-	helper "github.com/apache/incubator-devlake/helpers/pluginhelper/api"
 	"strconv"
 	"time"
+
+	"github.com/apache/incubator-devlake/core/plugin"
+	helper "github.com/apache/incubator-devlake/helpers/pluginhelper/api"
 
 	"github.com/apache/incubator-devlake/core/models/common"
 )
@@ -118,7 +119,7 @@ type GroupResponse struct {
 }
 
 func (p GroupResponse) GroupId() string {
-	return strconv.Itoa(p.Id)
+	return "group:" + strconv.Itoa(p.Id)
 }
 
 func (p GroupResponse) GroupName() string {
