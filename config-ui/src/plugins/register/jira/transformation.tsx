@@ -128,7 +128,7 @@ export const JiraTransformation = ({ connectionId, transformation, setTransforma
                   DevLake defines three standard types of issues: FEATURE, BUG and INCIDENT. Standardize your Jira issue
                   types to these three types so that DevLake can calculate metrics such as{' '}
                   <ExternalLink link="https://devlake.apache.org/docs/Metrics/RequirementLeadTime">
-                    Feature Lead Time
+                    Requirement Lead Time
                   </ExternalLink>
                   , <ExternalLink link="https://devlake.apache.org/docs/Metrics/BugAge">Bug Age</ExternalLink>,
                   <ExternalLink link="https://devlake.apache.org/docs/Metrics/MTTR">
@@ -140,7 +140,7 @@ export const JiraTransformation = ({ connectionId, transformation, setTransforma
             />
           </div>
           <div className="list">
-            <FormGroup inline label="Feature">
+            <FormGroup inline label="Requirement">
               <MultiSelector
                 items={issueTypes}
                 disabledItems={[...bugItems, ...incidentItems]}
