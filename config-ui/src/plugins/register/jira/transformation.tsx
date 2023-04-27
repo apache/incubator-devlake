@@ -17,7 +17,8 @@
  */
 
 import React, { useState, useEffect, useMemo } from 'react';
-import { FormGroup, InputGroup, Tag, Intent } from '@blueprintjs/core';
+import { FormGroup, InputGroup, Tag, Icon, Intent } from '@blueprintjs/core';
+import { Popover2 } from '@blueprintjs/popover2';
 import { uniqWith } from 'lodash';
 
 import { PageLoading, HelpTooltip, ExternalLink, MultiSelector, Selector, Divider } from '@/components';
@@ -122,13 +123,14 @@ export const JiraTransformation = ({ connectionId, transformation, setTransforma
         <div className="issue-type">
           <div className="title">
             <span>Issue Type</span>
-            <HelpTooltip
+            <Popover2
+              position="top"
               content={
-                <div>
+                <div style={{ padding: '8px 12px', color: '#ffffff', backgroundColor: 'rgba(0,0,0,.8)' }}>
                   DevLake defines three standard types of issues: FEATURE, BUG and INCIDENT. Standardize your Jira issue
                   types to these three types so that DevLake can calculate metrics such as{' '}
                   <ExternalLink link="https://devlake.apache.org/docs/Metrics/RequirementLeadTime">
-                    Feature Lead Time
+                    Requirement Lead Time
                   </ExternalLink>
                   , <ExternalLink link="https://devlake.apache.org/docs/Metrics/BugAge">Bug Age</ExternalLink>,
                   <ExternalLink link="https://devlake.apache.org/docs/Metrics/MTTR">
@@ -137,10 +139,12 @@ export const JiraTransformation = ({ connectionId, transformation, setTransforma
                   , etc.
                 </div>
               }
-            />
+            >
+              <Icon icon="help" size={12} color="#94959f" style={{ marginLeft: 4, cursor: 'pointer' }} />
+            </Popover2>
           </div>
           <div className="list">
-            <FormGroup inline label="Feature">
+            <FormGroup inline label="Requirement">
               <MultiSelector
                 items={issueTypes}
                 disabledItems={[...bugItems, ...incidentItems]}

@@ -27,7 +27,7 @@ import * as S from './styled';
 import { uniqWith } from 'lodash';
 
 enum StandardType {
-  Feature = 'FEATURE',
+  Requirement = 'Requirement',
   Bug = 'BUG',
   Incident = 'INCIDENT',
 }
@@ -106,7 +106,7 @@ export const TapdTransformation = ({ connectionId, scopeId, transformation, setT
 
   useEffect(() => {
     const typeList = Object.entries(transformation.typeMappings ?? {}).map(([key, value]: any) => ({ key, value }));
-    setFeatureTypeList(typeList.filter((it) => it.value === StandardType.Feature).map((it) => it.key));
+    setFeatureTypeList(typeList.filter((it) => it.value === StandardType.Requirement).map((it) => it.key));
     setBugTypeList(typeList.filter((it) => it.value === StandardType.Bug).map((it) => it.key));
     setIncidentTypeList(typeList.filter((it) => it.value === StandardType.Incident).map((it) => it.key));
 
@@ -139,7 +139,7 @@ export const TapdTransformation = ({ connectionId, scopeId, transformation, setT
             <HelpTooltip content="Standardize your issue types to the following issue types to view metrics such as `Requirement lead time` and `Bug age` in built-in dashboards." />
           </div>
           <div className="list">
-            <FormGroup inline label="Feature">
+            <FormGroup inline label="Requirement">
               <MultiSelector
                 items={typeList}
                 disabledItems={typeList.filter((v) => [...bugTypeList, ...incidentTypeList].includes(v.id))}
@@ -152,7 +152,7 @@ export const TapdTransformation = ({ connectionId, scopeId, transformation, setT
                     typeMappings: {
                       ...transformaType(
                         selectedItems.map((v) => v.id),
-                        StandardType.Feature,
+                        StandardType.Requirement,
                       ),
                       ...transformaType(bugTypeList, StandardType.Bug),
                       ...transformaType(incidentTypeList, StandardType.Incident),
@@ -172,7 +172,7 @@ export const TapdTransformation = ({ connectionId, scopeId, transformation, setT
                   setTransformation({
                     ...transformation,
                     typeMappings: {
-                      ...transformaType(featureTypeList, StandardType.Feature),
+                      ...transformaType(featureTypeList, StandardType.Requirement),
                       ...transformaType(
                         selectedItems.map((v) => v.id),
                         StandardType.Bug,
@@ -204,7 +204,7 @@ export const TapdTransformation = ({ connectionId, scopeId, transformation, setT
                   setTransformation({
                     ...transformation,
                     typeMappings: {
-                      ...transformaType(featureTypeList, StandardType.Feature),
+                      ...transformaType(featureTypeList, StandardType.Requirement),
                       ...transformaType(bugTypeList, StandardType.Bug),
                       ...transformaType(
                         selectedItems.map((v) => v.id),

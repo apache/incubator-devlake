@@ -77,7 +77,7 @@ export const JenkinsTransformation = ({ transformation, setTransformation }: Pro
                 The name of the <strong>Jenkins build</strong> or <strong>one of its jobs</strong> matches
               </span>
               <InputGroup
-                style={{ width: 224, margin: '0 8px' }}
+                style={{ width: 200, margin: '0 8px' }}
                 placeholder="(deploy|push-image)"
                 value={transformation.deploymentPattern ?? ''}
                 onChange={(e) =>

@@ -38,12 +38,6 @@ export const useMenu = () => {
     () =>
       [
         {
-          key: 'project',
-          title: 'Projects',
-          icon: 'home',
-          path: '/projects',
-        },
-        {
           key: 'connection',
           title: 'Connections',
           icon: 'data-connection',
@@ -57,6 +51,12 @@ export const useMenu = () => {
             path: `/connections/${it.plugin}`,
             isBeta: it.isBeta,
           })),
+        },
+        {
+          key: 'project',
+          title: 'Projects',
+          icon: 'home',
+          path: '/projects',
         },
         {
           key: 'advanced',
