@@ -144,12 +144,12 @@ export const Auth = ({ initialValues, values, errors, setValues, setErrors }: Pr
             <InputGroup placeholder="Your E-Mail" value={values.username} onChange={handleChangeUsername} />
           </FormGroup>
           <FormGroup
-            label={<S.Label>Personal Access Token</S.Label>}
+            label={<S.Label>API Token</S.Label>}
             labelInfo={<S.LabelInfo>*</S.LabelInfo>}
             subLabel={
               <S.LabelDescription>
                 <ExternalLink link="https://devlake.apache.org/docs/Configuration/Jira#api-token">
-                  Learn about how to create a PAT
+                  Learn about how to create an API Token
                 </ExternalLink>
               </S.LabelDescription>
             }
