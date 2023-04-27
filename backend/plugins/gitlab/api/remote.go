@@ -109,6 +109,11 @@ func RemoteScopes(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, er
 
 	// get gid and pageData
 	gid := groupId[0]
+	if len(gid) >= 6 {
+		if gid[:6] == "group:" {
+			gid = gid[6:]
+		}
+	}
 	pageData, err := GetPageDataFromPageToken(pageToken[0])
 	if err != nil {
 		return nil, errors.BadInput.New("failed to get paget token")
@@ -150,7 +155,7 @@ func RemoteScopes(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, er
 		for _, group := range resBody {
 			child := RemoteScopesChild{
 				Type: TypeGroup,
-				Id:   strconv.Itoa(group.Id),
+				Id:   "group:" + strconv.Itoa(group.Id),
 				Name: group.Name,
 				// don't need to save group into data
 				Data: nil,
