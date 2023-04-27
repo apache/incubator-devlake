@@ -19,9 +19,9 @@ package api
 
 import (
 	"fmt"
-	"github.com/apache/incubator-devlake/core/errors"
-	"github.com/apache/incubator-devlake/core/models/domainlayer/devops"
 	"regexp"
+
+	"github.com/apache/incubator-devlake/core/errors"
 )
 
 // RegexEnricher process value with regex pattern
@@ -53,8 +53,8 @@ func (r *RegexEnricher) AddRegexp(patterns ...string) errors.Error {
 // and check if v matches compiled regular expression,
 // lastly, will return corresponding value(result or empty)
 func (r *RegexEnricher) GetEnrichResult(pattern string, v string, result string) string {
-	if result == devops.PRODUCTION && pattern == "" {
-		return result
+	if pattern == "" {
+		return ""
 	}
 	regex := r.regexpMap[pattern]
 	if regex != nil {
