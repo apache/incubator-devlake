@@ -64,6 +64,6 @@ jobs:
           ${{ runner.os }}-go-
     - name: Unit tests
       run: |
-        cp .env.example .env
+        cp env.example .env
         cd backend
         make unit-test
