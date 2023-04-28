@@ -26,6 +26,7 @@ import { history } from '@/utils/history';
 
 import DashboardIcon from '@/images/icons/dashborad.svg';
 import FileIcon from '@/images/icons/file.svg';
+import APIIcon from '@/images/icons/api.svg';
 import GitHubIcon from '@/images/icons/github.svg';
 import SlackIcon from '@/images/icons/slack.svg';
 
@@ -125,6 +126,11 @@ export const BaseLayout = ({ children }: Props) => {
               <img src={FileIcon} alt="documents" />
               <span>Docs</span>
             </a>
+            <Navbar.Divider />
+            <ExternalLink link="/api/swagger/index.html">
+              <img src={APIIcon} alt="api" />
+              <span>API</span>
+            </ExternalLink>
             <Navbar.Divider />
             <a
               href="https://github.com/apache/incubator-devlake"
