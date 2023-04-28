@@ -17,7 +17,7 @@
  */
 
 import React, { useMemo, useState, useEffect } from 'react';
-import { FormGroup, InputGroup, Tag, Radio, Icon, Collapse, Intent, Switch, Checkbox } from '@blueprintjs/core';
+import { FormGroup, InputGroup, Tag, Intent, Checkbox } from '@blueprintjs/core';
 
 import { ExternalLink, HelpTooltip, Divider, MultiSelector } from '@/components';
 
@@ -33,12 +33,8 @@ const ALL_STATES = ['new', 'open', 'resolved', 'closed', 'on hold', 'wontfix', '
 
 export const BitbucketTransformation = ({ transformation, setTransformation }: Props) => {
   const [useCustom, setUseCustom] = useState(false);
-  const [openAdditionalSettings, setOpenAdditionalSettings] = useState(false);
 
   useEffect(() => {
-    if (transformation.refdiff) {
-      setOpenAdditionalSettings(true);
-    }
     if (transformation.deploymentPattern || transformation.productionPattern) {
       setUseCustom(true);
     } else {
@@ -57,33 +53,17 @@ export const BitbucketTransformation = ({ transformation, setTransformation }: P
   );
 
   const handleChangeUseCustom = (e: React.FormEvent<HTMLInputElement>) => {
-    const val = (e.target as HTMLInputElement).checked;
+    const checked = (e.target as HTMLInputElement).checked;
 
-    if (!val) {
+    if (!checked) {
       setTransformation({
         ...transformation,
         deploymentPattern: '',
         productionPattern: '',
       });
-    } else {
-      setTransformation({
-        ...transformation,
-        deploymentPattern: '(deploy|push-image)',
-        productionPattern: 'prod(.*)',
-      });
     }
 
-    setUseCustom(val);
-  };
-
-  const handleChangeAdditionalSettingsOpen = () => {
-    setOpenAdditionalSettings(!openAdditionalSettings);
-    if (!openAdditionalSettings) {
-      setTransformation({
-        ...transformation,
-        refdiff: null,
-      });
-    }
+    setUseCustom(checked);
   };
 
   return (
@@ -216,57 +196,6 @@ export const BitbucketTransformation = ({ transformation, setTransformation }: P
           <HelpTooltip content="If you leave this field empty, all Deployments will be tagged as in the Production environment. " />
         </div>
       </S.CICD>
-      <Divider />
-      {/* Additional Settings */}
-      <div className="additional-settings">
-        <h2 onClick={handleChangeAdditionalSettingsOpen}>
-          <Icon icon={!openAdditionalSettings ? 'chevron-up' : 'chevron-down'} size={18} />
-          <span>Additional Settings</span>
-        </h2>
-        <Collapse isOpen={openAdditionalSettings}>
-          <div className="radio">
-            <Radio defaultChecked />
-            <p>
-              Enable the <ExternalLink link="https://devlake.apache.org/docs/Plugins/refdiff">RefDiff</ExternalLink>{' '}
-              plugin to pre-calculate version-based metrics
-              <HelpTooltip content="Calculate the commits diff between two consecutive tags that match the following RegEx. Issues closed by PRs which contain these commits will also be calculated. The result will be shown in table.refs_commits_diffs and table.refs_issues_diffs." />
-            </p>
-          </div>
-          <div className="refdiff">
-            Compare the last
-            <InputGroup
-              style={{ width: 60 }}
-              placeholder="10"
-              value={transformation.refdiff?.tagsLimit}
-              onChange={(e) =>
-                setTransformation({
-                  ...transformation,
-                  refdiff: {
-                    ...transformation?.refdiff,
-                    tagsLimit: e.target.value,
-                  },
-                })
-              }
-            />
-            tags that match the
-            <InputGroup
-              style={{ width: 200 }}
-              placeholder="v\d+\.\d+(\.\d+(-rc)*\d*)*$"
-              value={transformation.refdiff?.tagsPattern}
-              onChange={(e) =>
-                setTransformation({
-                  ...transformation,
-                  refdiff: {
-                    ...transformation?.refdiff,
-                    tagsPattern: e.target.value,
-                  },
-                })
-              }
-            />
-            for calculation
-          </div>
-        </Collapse>
-      </div>
     </S.Transformation>
   );
 };

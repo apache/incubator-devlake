@@ -19,7 +19,7 @@
 import { useEffect, useMemo, useState } from 'react';
 import { Button, InputGroup, Intent } from '@blueprintjs/core';
 
-import { Card, ExternalLink, PageLoading } from '@/components';
+import { Card, ExternalLink, PageLoading, Divider } from '@/components';
 import { useRefreshData } from '@/hooks';
 import { operator } from '@/utils';
 import { getPluginConfig } from '@/plugins';
@@ -29,11 +29,12 @@ import { GitLabTransformation } from '@/plugins/register/gitlab';
 import { JenkinsTransformation } from '@/plugins/register/jenkins';
 import { BitbucketTransformation } from '@/plugins/register/bitbucket';
 import { AzureTransformation } from '@/plugins/register/azure';
+import { TapdTransformation } from '@/plugins/register/tapd';
 
 import { TIPS_MAP } from './misc';
+import { AdditionalSettings } from './fields';
 import * as API from './api';
 import * as S from './styled';
-import { TapdTransformation } from '@/plugins/register/tapd';
 
 interface Props {
   plugin: string;
@@ -47,6 +48,7 @@ export const TransformationForm = ({ plugin, connectionId, scopeId, id, onCancel
   const [saving, setSaving] = useState(false);
   const [name, setName] = useState('');
   const [transformation, setTransformation] = useState({});
+  const [hasRefDiff, setHasRefDiff] = useState(false);
 
   const config = useMemo(() => getPluginConfig(plugin), []);
 
@@ -57,6 +59,7 @@ export const TransformationForm = ({ plugin, connectionId, scopeId, id, onCancel
 
   useEffect(() => {
     setTransformation(data ?? config.transformation);
+    setHasRefDiff(!!config.transformation.refdiff);
     setName(data?.name ?? '');
   }, [data, config.transformation]);
 
@@ -132,6 +135,13 @@ export const TransformationForm = ({ plugin, connectionId, scopeId, id, onCancel
             transformation={transformation}
             setTransformation={setTransformation}
           />
+        )}
+
+        {hasRefDiff && (
+          <>
+            <Divider />
+            <AdditionalSettings transformation={transformation} setTransformation={setTransformation} />
+          </>
         )}
       </Card>
 

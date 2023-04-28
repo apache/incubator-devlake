@@ -16,48 +16,4 @@
  *
  */
 
-import styled from 'styled-components';
-
-export const Transfromation = styled.div`
-  .bp4-form-group {
-    display: flex;
-    align-items: center;
-
-    .bp4-label {
-      flex: 0 0 140px;
-    }
-
-    .bp4-form-content {
-      flex: auto;
-    }
-  }
-`;
-
-export const CICD = styled.div`
-  h3 {
-    margin-top: 16px;
-
-    .switch {
-      display: inline-flex;
-      align-items: center;
-      margin-left: 16px;
-      font-size: 14px;
-      font-weight: 400;
-
-      .bp4-switch {
-        margin-bottom: 0;
-      }
-    }
-  }
-
-  .text {
-    display: flex;
-    align-items: baseline;
-    margin-top: 16px;
-    padding-left: 24px;
-
-    .bp4-radio {
-      margin-right: 0;
-    }
-  }
-`;
+export * from './additional-settings';
