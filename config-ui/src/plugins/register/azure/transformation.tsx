@@ -16,10 +16,10 @@
  *
  */
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Tag, Switch, InputGroup, Intent } from '@blueprintjs/core';
 
-import { Divider, ExternalLink, HelpTooltip } from '@/components';
+import { ExternalLink, HelpTooltip } from '@/components';
 
 import * as S from './styled';
 
@@ -30,6 +30,12 @@ interface Props {
 
 export const AzureTransformation = ({ transformation, setTransformation }: Props) => {
   const [enableCICD, setEnableCICD] = useState(true);
+
+  useEffect(() => {
+    if (!transformation.deploymentPattern) {
+      setEnableCICD(false);
+    }
+  }, [transformation]);
 
   const handleChangeCICDEnable = (e: React.FormEvent<HTMLInputElement>) => {
     const checked = (e.target as HTMLInputElement).checked;

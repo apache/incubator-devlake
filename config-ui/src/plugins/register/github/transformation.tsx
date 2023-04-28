@@ -16,7 +16,7 @@
  *
  */
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { FormGroup, InputGroup, TextArea, Tag, Switch, Icon, Intent, Colors } from '@blueprintjs/core';
 
 import { ExternalLink, HelpTooltip, Divider } from '@/components';
@@ -30,6 +30,12 @@ interface Props {
 
 export const GitHubTransformation = ({ transformation, setTransformation }: Props) => {
   const [enableCICD, setEnableCICD] = useState(true);
+
+  useEffect(() => {
+    if (!transformation.deploymentPattern) {
+      setEnableCICD(false);
+    }
+  }, [transformation]);
 
   const handleChangeEnableCICD = (e: React.FormEvent<HTMLInputElement>) => {
     const checked = (e.target as HTMLInputElement).checked;
