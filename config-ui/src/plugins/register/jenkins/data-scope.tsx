@@ -16,8 +16,6 @@
  *
  */
 
-import React from 'react';
-
 import type { ScopeItemType } from './types';
 
 import { MillerColumns } from './components';
