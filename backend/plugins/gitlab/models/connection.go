@@ -19,11 +19,12 @@ package models
 
 import (
 	"fmt"
+	"net/http"
+
 	"github.com/apache/incubator-devlake/core/errors"
 	"github.com/apache/incubator-devlake/core/plugin"
 	"github.com/apache/incubator-devlake/helpers/pluginhelper/api"
 	"github.com/apache/incubator-devlake/helpers/pluginhelper/api/apihelperabstract"
-	"net/http"
 )
 
 // GitlabConn holds the essential information to connect to the Gitlab API
@@ -55,7 +56,9 @@ func (conn *GitlabConn) PrepareApiClient(apiClient apihelperabstract.ApiClientAb
 		if err != nil {
 			return errors.Convert(err)
 		}
-
+		if res.StatusCode == http.StatusUnauthorized {
+			return errors.HttpStatus(http.StatusBadRequest).New("StatusUnauthorized error while testing connection")
+		}
 		if res.StatusCode != http.StatusOK {
 			return errors.HttpStatus(res.StatusCode).New("unexpected status code while testing connection")
 		}
@@ -73,7 +76,9 @@ func (conn *GitlabConn) PrepareApiClient(apiClient apihelperabstract.ApiClientAb
 		if err != nil {
 			return errors.Convert(err)
 		}
-
+		if res.StatusCode == http.StatusUnauthorized {
+			return errors.HttpStatus(http.StatusBadRequest).New("StatusUnauthorized error while testing connection[PrivateToken]")
+		}
 		if res.StatusCode != http.StatusOK {
 			return errors.HttpStatus(res.StatusCode).New("unexpected status code while testing connection[PrivateToken]")
 		}

@@ -20,8 +20,9 @@ package api
 import (
 	"context"
 	"fmt"
-	"github.com/apache/incubator-devlake/server/api/shared"
 	"net/http"
+
+	"github.com/apache/incubator-devlake/server/api/shared"
 
 	"github.com/apache/incubator-devlake/core/errors"
 	"github.com/apache/incubator-devlake/core/plugin"
@@ -60,7 +61,7 @@ func TestConnection(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, 
 		return nil, err
 	}
 	if res.StatusCode == http.StatusUnauthorized {
-		return nil, errors.Unauthorized.New(fmt.Sprintf("verify token failed for %s", connection.Username))
+		return nil, errors.HttpStatus(http.StatusBadRequest).New(fmt.Sprintf("verify token failed for %s", connection.Username))
 	}
 	if res.StatusCode != http.StatusOK {
 		return nil, errors.HttpStatus(res.StatusCode).New(fmt.Sprintf("unexpected status code: %d", res.StatusCode))
