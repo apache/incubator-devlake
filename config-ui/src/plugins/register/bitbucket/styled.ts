@@ -94,12 +94,14 @@ export const CICD = styled.div`
     }
   }
 
-  .text {
+  .text,
+  .sub-text {
     display: flex;
     align-items: baseline;
+    margin-bottom: 8px;
+  }
 
-    .bp4-radio {
-      margin-right: 0;
-    }
+  .sub-text {
+    padding-left: 28px;
   }
 `;
