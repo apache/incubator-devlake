@@ -36,42 +36,29 @@ type request struct {
 }
 
 func (pa *pluginAPI) PutScope(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, errors.Error) {
-	connectionId, _ := extractParam(input.Params)
-	if connectionId == 0 {
-		return nil, errors.BadInput.New("invalid connectionId")
-	}
 	var scopes request
 	err := errors.Convert(mapstructure.Decode(input.Body, &scopes))
 	if err != nil {
 		return nil, errors.BadInput.Wrap(err, "decoding scope error")
 	}
-	keeper := make(map[string]struct{})
-	var createdScopes []any
-	for _, scopeRaw := range scopes.Data {
-		err = verifyScope(scopeRaw)
+	var slice []*any
+	for _, scope := range scopes.Data {
+		obj := pa.scopeType.NewValue()
+		err = mapTo(scope, obj)
 		if err != nil {
 			return nil, err
 		}
-		scopeId := scopeRaw["id"].(string)
-		if _, ok := keeper[scopeId]; ok {
-			return nil, errors.BadInput.New("duplicated item")
-		} else {
-			keeper[scopeId] = struct{}{}
-		}
-		scope := pa.scopeType.New()
-		err = scope.From(&scopeRaw)
-		if err != nil {
-			return nil, err
-		}
-		// I don't know the reflection logic to do this in a batch...
-		err = api.CallDB(basicRes.GetDal().CreateOrUpdate, scope)
-		if err != nil {
-			return nil, errors.Default.Wrap(err, "error on saving scope")
-		}
-		createdScopes = append(createdScopes, scope.Unwrap())
+		slice = append(slice, &obj)
 	}
-
-	return &plugin.ApiResourceOutput{Body: createdScopes, Status: http.StatusOK}, nil
+	apiScopes, err := scopeHelper.Put(input, slice)
+	if err != nil {
+		return nil, err
+	}
+	response, err := convertScopeResponse(apiScopes...)
+	if err != nil {
+		return nil, err
+	}
+	return &plugin.ApiResourceOutput{Body: response, Status: http.StatusOK}, nil
 }
 
 func (pa *pluginAPI) PatchScope(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, errors.Error) {
@@ -105,18 +92,9 @@ func (pa *pluginAPI) ListScopes(input *plugin.ApiResourceInput) (*plugin.ApiReso
 	if err != nil {
 		return nil, err
 	}
-	var response []api.ScopeRes[models.ScopeModel]
-	for _, scope := range scopes {
-		scopeModel := models.ScopeModel{}
-		err = mapTo(scope.Scope, &scopeModel)
-		if err != nil {
-			return nil, err
-		}
-		response = append(response, api.ScopeRes[models.ScopeModel]{
-			Scope:                  scopeModel,
-			TransformationRuleName: scope.TransformationRuleName,
-			Blueprints:             scope.Blueprints,
-		})
+	response, err := convertScopeResponse(scopes...)
+	if err != nil {
+		return nil, err
 	}
 	return &plugin.ApiResourceOutput{Body: response, Status: http.StatusOK}, nil
 }
@@ -126,17 +104,11 @@ func (pa *pluginAPI) GetScope(input *plugin.ApiResourceInput) (*plugin.ApiResour
 	if err != nil {
 		return nil, err
 	}
-	scopeModel := models.ScopeModel{}
-	err = mapTo(scope.Scope, &scopeModel)
+	response, err := convertScopeResponse(scope)
 	if err != nil {
 		return nil, err
 	}
-	response := api.ScopeRes[models.ScopeModel]{
-		Scope:                  scopeModel,
-		TransformationRuleName: scope.TransformationRuleName,
-		Blueprints:             scope.Blueprints,
-	}
-	return &plugin.ApiResourceOutput{Body: response, Status: http.StatusOK}, nil
+	return &plugin.ApiResourceOutput{Body: response[0], Status: http.StatusOK}, nil
 }
 
 func (pa *pluginAPI) DeleteScope(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, errors.Error) {
@@ -163,6 +135,23 @@ func verifyScope(scope map[string]any) errors.Error {
 	}
 
 	return nil
+}
+
+func convertScopeResponse(scopes ...*api.ScopeRes[any]) ([]api.ScopeRes[models.ScopeModel], errors.Error) {
+	var response []api.ScopeRes[models.ScopeModel]
+	for _, scope := range scopes {
+		scopeModel := models.ScopeModel{}
+		err := mapTo(scope.Scope, &scopeModel)
+		if err != nil {
+			return nil, err
+		}
+		response = append(response, api.ScopeRes[models.ScopeModel]{
+			Scope:                  scopeModel,
+			TransformationRuleName: scope.TransformationRuleName,
+			Blueprints:             scope.Blueprints,
+		})
+	}
+	return response, nil
 }
 
 func mapTo(x any, y any) errors.Error {

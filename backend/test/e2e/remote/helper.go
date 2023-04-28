@@ -63,7 +63,7 @@ type (
 func ConnectLocalServer(t *testing.T) *helper.DevlakeClient {
 	fmt.Println("Connect to server")
 	client := helper.StartDevLakeServer(t, nil)
-	client.SetTimeout(30 * time.Second)
+	client.SetTimeout(0 * time.Second)
 	return client
 }
 

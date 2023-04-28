@@ -18,14 +18,17 @@ limitations under the License.
 package plugin
 
 import (
+	"encoding/json"
 	"fmt"
 	"github.com/apache/incubator-devlake/core/dal"
 	"github.com/apache/incubator-devlake/core/errors"
 	"github.com/apache/incubator-devlake/core/models"
 	"github.com/apache/incubator-devlake/core/plugin"
 	"github.com/apache/incubator-devlake/helpers/pluginhelper/api"
+	"github.com/apache/incubator-devlake/impls/dalgorm"
 	"github.com/apache/incubator-devlake/server/services/remote/bridge"
 	"gorm.io/gorm"
+	"reflect"
 )
 
 type pluginAPI struct {
@@ -105,12 +108,38 @@ func createScopeHelper(pa *pluginAPI) *api.GenericScopeHelper[any, any] {
 	return api.NewGenericScopeHelper[any, any](
 		basicRes,
 		params,
+		nil,
 		func(connectionId uint64) errors.Error {
 			connection := pa.connType.New()
 			err := connectionHelper.FirstById(connection, connectionId)
 			if err != nil {
 				if errors.Is(err, gorm.ErrRecordNotFound) {
 					return errors.BadInput.New("Invalid Connection Id")
+				}
+				return err
+			}
+			return nil
+		},
+		func(scopes []*any) errors.Error {
+			var targets []map[string]any
+			for _, x := range scopes {
+				ifc := reflect.ValueOf(*x).Elem().Interface()
+				j, err := errors.Convert01(json.Marshal(ifc))
+				if err != nil {
+					return err
+				}
+				m := map[string]any{}
+				err = errors.Convert(json.Unmarshal(j, &m))
+				if err != nil {
+					return err
+				}
+				m = dalgorm.ToDatabaseMap(pa.scopeType.TableName(), m) //or use api.DecodeMapStruct?
+				targets = append(targets, m)
+			}
+			err := api.CallDB(db.Create, &targets, dal.From(pa.scopeType.TableName()))
+			if err != nil {
+				if db.IsDuplicationError(err) {
+					return errors.BadInput.Wrap(err, "the scope already exists")
 				}
 				return err
 			}

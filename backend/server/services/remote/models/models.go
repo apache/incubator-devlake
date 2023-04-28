@@ -22,6 +22,7 @@ import (
 	"github.com/apache/incubator-devlake/core/models"
 	"github.com/apache/incubator-devlake/core/models/common"
 	"github.com/apache/incubator-devlake/core/plugin"
+	"time"
 )
 
 const (
@@ -60,11 +61,13 @@ func (d DynamicModelInfo) LoadDynamicTabler(encrypt bool, parentModel any) (*mod
 }
 
 type ScopeModel struct {
-	common.NoPKModel     `json:"-"`
-	Id                   string `gorm:"primarykey;type:varchar(255)" json:"id"`
-	ConnectionId         uint64 `gorm:"primaryKey" json:"connectionId"`
-	Name                 string `json:"name" validate:"required"`
-	TransformationRuleId uint64 `json:"transformationRuleId"`
+	common.RawDataOrigin `swaggerignore:"true"`
+	CreatedAt            time.Time `json:"createdAt"`
+	UpdatedAt            time.Time `json:"updatedAt"`
+	Id                   string    `gorm:"primarykey;type:varchar(255)" json:"id"`
+	ConnectionId         uint64    `gorm:"primaryKey" json:"connectionId"`
+	Name                 string    `json:"name" validate:"required"`
+	TransformationRuleId uint64    `json:"transformationRuleId"`
 }
 
 type TransformationModel struct {

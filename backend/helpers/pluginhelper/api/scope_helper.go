@@ -52,14 +52,15 @@ type (
 	// ScopeApiHelper is used to write the CURD of scopes
 	ScopeApiHelper[Conn any, Scope any, Tr any] struct {
 		*GenericScopeHelper[Scope, Tr]
-		validator  *validator.Validate
 		connHelper *ConnectionApiHelper
 	}
 	GenericScopeHelper[Scope any, Tr any] struct {
 		log                      log.Logger
 		db                       dal.Dal
+		validator                *validator.Validate
 		reflectionParams         *ReflectionParameters
 		connectionVerifier       func(connectionId uint64) errors.Error
+		scopeSaver               func(scope []*Scope) errors.Error
 		scopeGetter              func(connectionId uint64, scopeId string) (Scope, errors.Error)
 		scopeLister              func(input *plugin.ApiResourceInput, connectionId uint64) ([]*Scope, errors.Error)
 		scopeDeleter             func(connectionId uint64, scopeId string) errors.Error
@@ -95,7 +96,9 @@ type (
 func NewGenericScopeHelper[Scope any, Tr any](
 	basicRes context.BasicRes,
 	params *ReflectionParameters,
+	validator *validator.Validate,
 	connectionVerifier func(connectionId uint64) errors.Error,
+	scopeSaver func(scopes []*Scope) errors.Error,
 	scopeGetter func(connectionId uint64, scopeId string) (Scope, errors.Error),
 	scopeLister func(input *plugin.ApiResourceInput, connectionId uint64) ([]*Scope, errors.Error),
 	scopeDeleter func(connectionId uint64, scopeId string) errors.Error,
@@ -112,8 +115,10 @@ func NewGenericScopeHelper[Scope any, Tr any](
 	return &GenericScopeHelper[Scope, Tr]{
 		log:                      basicRes.GetLogger(),
 		db:                       basicRes.GetDal(),
+		validator:                validator,
 		reflectionParams:         params,
 		connectionVerifier:       connectionVerifier,
+		scopeSaver:               scopeSaver,
 		scopeGetter:              scopeGetter,
 		scopeLister:              scopeLister,
 		scopeDeleter:             scopeDeleter,
@@ -142,12 +147,23 @@ func NewScopeHelper[Conn any, Scope any, Tr any](
 		GenericScopeHelper: NewGenericScopeHelper[Scope, Tr](
 			basicRes,
 			params,
+			vld,
 			func(connectionId uint64) errors.Error {
 				var conn Conn
 				err := connHelper.FirstById(&conn, connectionId)
 				if err != nil {
 					if errors.Is(err, gorm.ErrRecordNotFound) {
 						return errors.BadInput.New("Invalid Connection Id")
+					}
+					return err
+				}
+				return nil
+			},
+			func(scopes []*Scope) errors.Error {
+				err := basicRes.GetDal().CreateOrUpdate(&scopes)
+				if err != nil {
+					if basicRes.GetDal().IsDuplicationError(err) {
+						return errors.BadInput.New("the scope already exists")
 					}
 					return err
 				}
@@ -188,7 +204,6 @@ func NewScopeHelper[Conn any, Scope any, Tr any](
 				return rules, err
 			},
 		),
-		validator:  vld,
 		connHelper: connHelper,
 	}
 }
@@ -215,62 +230,22 @@ func (c *ScopeApiHelper[Conn, Scope, Tr]) Put(input *plugin.ApiResourceInput) (*
 		return nil, errors.BadInput.Wrap(err, "decoding scope error")
 	}
 	// Extract the connection ID from the input.Params map
-	params := extractFromReqParam(input)
-	if params.connectionId == 0 {
-		return nil, errors.BadInput.New("invalid connectionId")
-	}
-	err = c.VerifyConnection(params.connectionId)
+	apiScopes, err := c.GenericScopeHelper.Put(input, req.Data)
 	if err != nil {
 		return nil, err
 	}
-	// Create a map to keep track of primary key values
-	keeper := make(map[string]struct{})
-
-	// Set the CreatedDate and UpdatedDate fields to the current time for each scope
-	now := time.Now()
-	for _, v := range req.Data {
-		// Ensure that the primary key value is unique
-		primaryValueStr := returnPrimaryKeyValue(*v)
-		if _, ok := keeper[primaryValueStr]; ok {
-			return nil, errors.BadInput.New("duplicated item")
-		} else {
-			keeper[primaryValueStr] = struct{}{}
-		}
-
-		// Set the connection ID, CreatedDate, and UpdatedDate fields
-		setScopeFields(v, params.connectionId, &now, &now)
-
-		// Verify that the primary key value is valid
-		err = VerifyScope(v, c.validator)
-		if err != nil {
-			return nil, err
-		}
-	}
-	// Save the scopes to the database
-	if req.Data != nil && len(req.Data) > 0 {
-		err = c.save(&req.Data)
-		if err != nil {
-			return nil, err
-		}
-	}
-
-	apiScopes, err := c.addTransformationName(req.Data)
-	if err != nil {
-		return nil, err
-	}
-
 	return &plugin.ApiResourceOutput{Body: apiScopes, Status: http.StatusOK}, nil
 }
 
 func (c *ScopeApiHelper[Conn, Scope, Tr]) Update(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, errors.Error) {
-	params := extractFromReqParam(input)
+	params := c.extractFromReqParam(input)
 	if params.connectionId == 0 {
 		return nil, errors.BadInput.New("invalid connectionId")
 	}
 	if len(params.scopeId) == 0 {
 		return nil, errors.BadInput.New("invalid scopeId")
 	}
-	err := c.VerifyConnection(params.connectionId)
+	err := c.connectionVerifier(params.connectionId)
 	if err != nil {
 		return &plugin.ApiResourceOutput{Body: nil, Status: http.StatusInternalServerError}, err
 	}
@@ -312,8 +287,6 @@ func (c *ScopeApiHelper[Conn, Scope, Tr]) Update(input *plugin.ApiResourceInput)
 	return &plugin.ApiResourceOutput{Body: scopeRes, Status: http.StatusOK}, nil
 }
 
-// GetScopeList returns a list of scopes. It expects a fieldName argument, which is used
-// to extract the connection ID from the input.Params map.
 func (c *ScopeApiHelper[Conn, Scope, Tr]) GetScopeList(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, errors.Error) {
 	scopes, err := c.GenericScopeHelper.GetScopeList(input)
 	if err != nil {
@@ -338,8 +311,59 @@ func (c *ScopeApiHelper[Conn, Scope, Tr]) Delete(input *plugin.ApiResourceInput)
 	return &plugin.ApiResourceOutput{Body: nil, Status: http.StatusOK}, nil
 }
 
+func (c *GenericScopeHelper[Scope, Tr]) Put(input *plugin.ApiResourceInput, scopes []*Scope) ([]*ScopeRes[Scope], errors.Error) {
+	params := c.extractFromReqParam(input)
+	if params.connectionId == 0 {
+		return nil, errors.BadInput.New("invalid connectionId")
+	}
+	err := c.connectionVerifier(params.connectionId)
+	if err != nil {
+		return nil, err
+	}
+	// Create a map to keep track of primary key values
+	keeper := make(map[string]struct{})
+
+	// Set the CreatedDate and UpdatedDate fields to the current time for each scope
+	now := time.Now()
+	for _, scope := range scopes {
+		// Ensure that the primary key value is unique (for validatable types)
+		if c.validator != nil {
+			primaryValueStr := returnPrimaryKeyValue(scope)
+			if _, ok := keeper[primaryValueStr]; ok {
+				return nil, errors.BadInput.New("duplicated item")
+			} else {
+				keeper[primaryValueStr] = struct{}{}
+			}
+		}
+		b, _ := json.Marshal(scope)
+		_ = b
+		// Set the connection ID, CreatedDate, and UpdatedDate fields
+		setScopeFields(scope, params.connectionId, &now, &now)
+
+		//Verify that the primary key value is valid
+		err = VerifyScope(scope, c.validator)
+		if err != nil {
+			return nil, err
+		}
+	}
+	// Save the scopes to the database
+	if scopes != nil && len(scopes) > 0 {
+		err = c.scopeSaver(scopes)
+		if err != nil {
+			return nil, err
+		}
+	}
+
+	apiScopes, err := c.addTransformationName(scopes)
+	if err != nil {
+		return nil, err
+	}
+
+	return apiScopes, nil
+}
+
 func (c *GenericScopeHelper[Scope, Tr]) GetScopeList(input *plugin.ApiResourceInput) ([]*ScopeRes[Scope], errors.Error) {
-	params := extractFromGetReqParam(input)
+	params := c.extractFromGetReqParam(input)
 	if params.connectionId == 0 {
 		return nil, errors.BadInput.New("invalid path params: \"connectionId\" not set")
 	}
@@ -358,7 +382,7 @@ func (c *GenericScopeHelper[Scope, Tr]) GetScopeList(input *plugin.ApiResourceIn
 	if params.loadBlueprints {
 		scopesById := c.mapByScopeId(apiScopes)
 		var scopeIds []string
-		for id, _ := range scopesById {
+		for id := range scopesById {
 			scopeIds = append(scopeIds, id)
 		}
 		blueprintMap, err := serviceHelper.NewBlueprintManager(c.db).GetBlueprintsByScopes(scopeIds...)
@@ -375,20 +399,17 @@ func (c *GenericScopeHelper[Scope, Tr]) GetScopeList(input *plugin.ApiResourceIn
 		}
 		if len(blueprintMap) > 0 {
 			var danglingIds []string
-			for k, _ := range blueprintMap {
-				danglingIds = append(danglingIds, k)
+			for bpId := range blueprintMap {
+				danglingIds = append(danglingIds, bpId)
 			}
 			c.log.Warn(nil, "The following dangling scopes were found: %v", danglingIds)
 		}
 	}
-	b, err0 := json.Marshal(&apiScopes)
-	_ = b
-	_ = err0
 	return apiScopes, nil
 }
 
 func (c *GenericScopeHelper[Scope, Tr]) GetScope(input *plugin.ApiResourceInput) (*ScopeRes[Scope], errors.Error) {
-	params := extractFromGetReqParam(input)
+	params := c.extractFromGetReqParam(input)
 	if params == nil || params.connectionId == 0 {
 		return nil, errors.BadInput.New("invalid path params: \"connectionId\" not set")
 	}
@@ -436,7 +457,7 @@ func (c *GenericScopeHelper[Scope, Tr]) GetScope(input *plugin.ApiResourceInput)
 }
 
 func (c *GenericScopeHelper[Scope, Tr]) Delete(input *plugin.ApiResourceInput) errors.Error {
-	params := extractFromDeleteReqParam(input)
+	params := c.extractFromDeleteReqParam(input)
 	if params == nil || params.connectionId == 0 {
 		return errors.BadInput.New("invalid path params: \"connectionId\" not set")
 	}
@@ -495,18 +516,6 @@ func (c *GenericScopeHelper[Scope, Tr]) Delete(input *plugin.ApiResourceInput) e
 	return nil
 }
 
-func (c *ScopeApiHelper[Conn, Scope, Tr]) VerifyConnection(connId uint64) errors.Error {
-	var conn Conn
-	err := c.connHelper.FirstById(&conn, connId)
-	if err != nil {
-		if errors.Is(err, gorm.ErrRecordNotFound) {
-			return errors.BadInput.New("Invalid Connection Id")
-		}
-		return err
-	}
-	return nil
-}
-
 func (c *GenericScopeHelper[Scope, Tr]) addTransformationName(scopes []*Scope) ([]*ScopeRes[Scope], errors.Error) {
 	var ruleIds []uint64
 	for _, scope := range scopes {
@@ -556,18 +565,7 @@ func (c *GenericScopeHelper[Scope, Tr]) mapByScopeId(scopes []*ScopeRes[Scope]) 
 	return scopeMap
 }
 
-func (c *ScopeApiHelper[Conn, Scope, Tr]) save(scope interface{}) errors.Error {
-	err := c.db.CreateOrUpdate(scope)
-	if err != nil {
-		if c.db.IsDuplicationError(err) {
-			return errors.BadInput.New("the scope already exists")
-		}
-		return err
-	}
-	return nil
-}
-
-func extractFromReqParam(input *plugin.ApiResourceInput) *requestParams {
+func (c *GenericScopeHelper[Scope, Tr]) extractFromReqParam(input *plugin.ApiResourceInput) *requestParams {
 	connectionId, err := strconv.ParseUint(input.Params["connectionId"], 10, 64)
 	if err != nil || connectionId == 0 {
 		connectionId = 0
@@ -581,8 +579,8 @@ func extractFromReqParam(input *plugin.ApiResourceInput) *requestParams {
 	}
 }
 
-func extractFromDeleteReqParam(input *plugin.ApiResourceInput) *deleteRequestParams {
-	params := extractFromReqParam(input)
+func (c *GenericScopeHelper[Scope, Tr]) extractFromDeleteReqParam(input *plugin.ApiResourceInput) *deleteRequestParams {
+	params := c.extractFromReqParam(input)
 	var err errors.Error
 	var deleteDataOnly bool
 	{
@@ -600,8 +598,8 @@ func extractFromDeleteReqParam(input *plugin.ApiResourceInput) *deleteRequestPar
 	}
 }
 
-func extractFromGetReqParam(input *plugin.ApiResourceInput) *getRequestParams {
-	params := extractFromReqParam(input)
+func (c *GenericScopeHelper[Scope, Tr]) extractFromGetReqParam(input *plugin.ApiResourceInput) *getRequestParams {
+	params := c.extractFromReqParam(input)
 	var err errors.Error
 	var loadBlueprints bool
 	{
@@ -624,11 +622,12 @@ func setScopeFields(p interface{}, connectionId uint64, createdDate *time.Time, 
 	if pType.Kind() != reflect.Ptr {
 		panic("expected a pointer to a struct")
 	}
-	pValue := reflect.ValueOf(p).Elem()
-
+	pValue := reflectValue(p)
 	// set connectionId
 	connIdField := pValue.FieldByName("ConnectionId")
 	connIdField.SetUint(connectionId)
+
+	// TODO might need to change these to CreatedAt and UpdatedAt
 
 	// set CreatedDate
 	createdDateField := pValue.FieldByName("CreatedDate")
@@ -657,8 +656,8 @@ func setScopeFields(p interface{}, connectionId uint64, createdDate *time.Time, 
 func returnPrimaryKeyValue(p interface{}) string {
 	result := ""
 	// get the type and value of the input interface using reflection
-	t := reflect.TypeOf(p)
-	v := reflect.ValueOf(p)
+	t := reflectType(p)
+	v := reflectValue(p)
 	// iterate over each field in the struct type
 	for i := 0; i < t.NumField(); i++ {
 		// get the i-th field
@@ -751,12 +750,25 @@ func getPluginTables(pluginName string) ([]string, errors.Error) {
 }
 
 func reflectField(obj any, fieldName string) reflect.Value {
+	return reflectValue(obj).FieldByName(fieldName)
+}
+
+func reflectValue(obj any) reflect.Value {
 	val := reflect.ValueOf(obj)
-	if val.Kind() == reflect.Ptr {
+	kind := val.Kind()
+	for kind == reflect.Ptr || kind == reflect.Interface {
 		val = val.Elem()
+		kind = val.Kind()
 	}
-	if val.Kind() == reflect.Interface {
-		val = val.Elem()
+	return val
+}
+
+func reflectType(obj any) reflect.Type {
+	typ := reflect.TypeOf(obj)
+	kind := typ.Kind()
+	for kind == reflect.Ptr {
+		typ = typ.Elem()
+		kind = typ.Kind()
 	}
-	return val.FieldByName(fieldName)
+	return typ
 }

@@ -41,10 +41,14 @@ func NewDynamicTabler(tableName string, objType reflect.Type) *DynamicTabler {
 	}
 }
 
+func (d *DynamicTabler) NewValue() any {
+	return reflect.New(d.objType).Interface()
+}
+
 func (d *DynamicTabler) New() *DynamicTabler {
 	return &DynamicTabler{
 		objType: d.objType,
-		wrapped: reflect.New(d.objType).Interface(),
+		wrapped: d.NewValue(),
 		table:   d.table,
 	}
 }
