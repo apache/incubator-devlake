@@ -64,15 +64,16 @@ export const request = (path: string, config?: ReuqestConfig) => {
 
   const cancelTokenSource = axios.CancelToken.source();
   const token = localStorage.getItem('accessToken');
+  const h = { ...headers };
+  if (token) {
+    h.Authorization = `Bearer ${token}`;
+  }
 
   const params: any = {
     url: path,
     method,
     timeout,
-    headers: {
-      ...headers,
-      Authorization: token ? `Bearer ${token}` : '',
-    },
+    headers: h,
     cancelToken: cancelTokenSource?.token,
   };
 
