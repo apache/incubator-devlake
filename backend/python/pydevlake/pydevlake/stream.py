@@ -80,8 +80,7 @@ class Stream:
             __tablename__ = table_name
 
         self._raw_model = StreamRawModel
-        if session is not None:
-            RawModel.metadata.create_all(session.get_bind())
+        RawModel.metadata.create_all(session.get_bind())
         return self._raw_model
 
     @property

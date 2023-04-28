@@ -86,7 +86,7 @@ func TestCreateScope(t *testing.T) {
 
 	CreateTestScope(client, connectionId)
 
-	scopes := client.ListScopes(PLUGIN_NAME, connectionId)
+	scopes := client.ListScopes(PLUGIN_NAME, connectionId, false)
 	require.Equal(t, 1, len(scopes))
 	cicd_scope := helper.Cast[FakeProject](scopes[0])
 	require.Equal(t, connectionId, cicd_scope.ConnectionId)
@@ -158,11 +158,13 @@ func TestBlueprintV200(t *testing.T) {
 
 	project := client.GetProject(projectName)
 	require.Equal(t, blueprint.Name, project.Blueprint.Name)
-	pipeline := client.TriggerBlueprint(blueprint.ID)
-	require.Equal(t, pipeline.Status, models.TASK_COMPLETED)
-	bps := client.DeleteScope(PLUGIN_NAME, connection.ID, scope.Id)
-	require.Equal(t, 1, len(bps))
-	require.Equal(t, blueprint.ID, bps[0].ID)
+	client.TriggerBlueprint(blueprint.ID)
+	scopesResponse := client.ListScopes(PLUGIN_NAME, connection.ID, true)
+	require.Equal(t, 1, len(scopesResponse))
+	require.Equal(t, 1, len(scopesResponse[0].Blueprints))
+	client.DeleteScope(PLUGIN_NAME, connection.ID, scope.Id, false)
+	scopesResponse = client.ListScopes(PLUGIN_NAME, connection.ID, true)
+	require.Equal(t, 0, len(scopesResponse))
 }
 
 func TestCreateTxRule(t *testing.T) {

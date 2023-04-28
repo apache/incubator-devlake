@@ -82,6 +82,15 @@ func (d *DynamicTabler) Unwrap() any {
 	return d.wrapped
 }
 
+func (d *DynamicTabler) UnwrapSlice() []any {
+	var arr []any
+	slice := reflect.ValueOf(d.wrapped).Elem()
+	for i := 0; i < slice.Len(); i++ {
+		arr = append(arr, slice.Index(i).Interface())
+	}
+	return arr
+}
+
 func (d *DynamicTabler) TableName() string {
 	return d.table
 }

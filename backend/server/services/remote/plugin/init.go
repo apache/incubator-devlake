@@ -28,7 +28,7 @@ import (
 
 var (
 	connectionHelper *api.ConnectionApiHelper
-	scopeHelper      *api.GenericScopeHelper
+	scopeHelper      *api.GenericScopeHelper[any, any]
 	basicRes         context.BasicRes
 	vld              *validator.Validate
 )
@@ -40,11 +40,6 @@ func Init(br context.BasicRes) {
 		br,
 		vld,
 	)
-	scopeHelper = api.NewGenericScopeHelper(basicRes, &api.ReflectionParameters{
-		ScopeIdFieldName:  "Id",
-		ScopeIdColumnName: "id",
-		RawScopeParamName: "scope_id",
-	})
 }
 
 func NewRemotePlugin(info *models.PluginInfo) (models.RemotePlugin, errors.Error) {

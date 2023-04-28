@@ -18,10 +18,14 @@ limitations under the License.
 package plugin
 
 import (
+	"fmt"
+	"github.com/apache/incubator-devlake/core/dal"
+	"github.com/apache/incubator-devlake/core/errors"
 	"github.com/apache/incubator-devlake/core/models"
 	"github.com/apache/incubator-devlake/core/plugin"
 	"github.com/apache/incubator-devlake/helpers/pluginhelper/api"
 	"github.com/apache/incubator-devlake/server/services/remote/bridge"
+	"gorm.io/gorm"
 )
 
 type pluginAPI struct {
@@ -87,6 +91,76 @@ func GetDefaultAPI(
 			"PATCH": papi.PatchTransformationRule,
 		}
 	}
-
+	scopeHelper = createScopeHelper(papi)
 	return resources
+}
+
+func createScopeHelper(pa *pluginAPI) *api.GenericScopeHelper[any, any] {
+	db := basicRes.GetDal()
+	params := &api.ReflectionParameters{
+		ScopeIdFieldName:  "Id",
+		ScopeIdColumnName: "id",
+		RawScopeParamName: "scope_id",
+	}
+	return api.NewGenericScopeHelper[any, any](
+		basicRes,
+		params,
+		func(connectionId uint64) errors.Error {
+			connection := pa.connType.New()
+			err := connectionHelper.FirstById(connection, connectionId)
+			if err != nil {
+				if errors.Is(err, gorm.ErrRecordNotFound) {
+					return errors.BadInput.New("Invalid Connection Id")
+				}
+				return err
+			}
+			return nil
+		},
+		func(connectionId uint64, scopeId string) (any, errors.Error) {
+			query := dal.Where(fmt.Sprintf("connection_id = ? AND %s = ?", params.ScopeIdColumnName), connectionId, scopeId)
+			scope := pa.scopeType.New()
+			err := api.CallDB(db.First, scope, query)
+			if basicRes.GetDal().IsErrorNotFound(err) {
+				return scope, errors.NotFound.New("Scope not found")
+			}
+			return scope.Unwrap(), nil
+		},
+		func(input *plugin.ApiResourceInput, connectionId uint64) ([]*any, errors.Error) {
+			limit, offset := api.GetLimitOffset(input.Query, "pageSize", "page")
+			scopes := pa.scopeType.NewSlice()
+			err := api.CallDB(db.All, scopes, dal.Where("connection_id = ?", connectionId), dal.Limit(limit), dal.Offset(offset))
+			if err != nil {
+				return nil, err
+			}
+			var result []*any
+			for _, scope := range scopes.UnwrapSlice() {
+				result = append(result, &scope)
+			}
+			return result, nil
+		},
+		func(connectionId uint64, scopeId string) errors.Error {
+			rawScope := pa.scopeType.New()
+			return api.CallDB(db.Delete, rawScope, dal.Where("connection_id = ? AND id = ?", connectionId, scopeId))
+		},
+		func(ruleId uint64) (any, errors.Error) {
+			rule := pa.txRuleType.New()
+			err := api.CallDB(db.First, rule, dal.Where("id = ?", ruleId))
+			if err != nil {
+				return rule, errors.NotFound.New("transformationRule not found")
+			}
+			return rule.Unwrap(), nil
+		},
+		func(ruleIds []uint64) ([]*any, errors.Error) {
+			rules := pa.txRuleType.NewSlice()
+			err := api.CallDB(db.All, rules, dal.Where("id IN (?)", ruleIds))
+			if err != nil {
+				return nil, err
+			}
+			var result []*any
+			for _, scope := range rules.UnwrapSlice() {
+				result = append(result, &scope)
+			}
+			return result, nil
+		},
+	)
 }

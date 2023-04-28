@@ -19,11 +19,9 @@ package plugin
 
 import (
 	"encoding/json"
-	"gorm.io/gorm"
+	"github.com/apache/incubator-devlake/server/services/remote/models"
 	"net/http"
 	"strconv"
-
-	"github.com/apache/incubator-devlake/server/services/remote/models"
 
 	"github.com/mitchellh/mapstructure"
 
@@ -32,49 +30,6 @@ import (
 	"github.com/apache/incubator-devlake/core/plugin"
 	"github.com/apache/incubator-devlake/helpers/pluginhelper/api"
 )
-
-// DTO that includes the transformation rule name
-type apiScopeResponse struct {
-	Scope                  any    `json:"-"`
-	TransformationRuleName string `json:"transformationRuleName,omitempty"`
-}
-
-// MarshalJSON make Scope display inline
-func (r apiScopeResponse) MarshalJSON() ([]byte, error) {
-	// encode scope to map
-	scopeBytes, err := json.Marshal(r.Scope)
-	if err != nil {
-		return nil, err
-	}
-	var scopeMap map[string]interface{}
-	err = json.Unmarshal(scopeBytes, &scopeMap)
-	if err != nil {
-		return nil, err
-	}
-
-	// encode other column (transformationRuleName) to map
-	otherBytes, err := json.Marshal(struct {
-		TransformationRuleName string `json:"transformationRuleName,omitempty"`
-	}{
-		TransformationRuleName: r.TransformationRuleName,
-	})
-	if err != nil {
-		return nil, err
-	}
-
-	// merge the two maps
-	var merged map[string]interface{}
-	err = json.Unmarshal(otherBytes, &merged)
-	if err != nil {
-		return nil, err
-	}
-	for k, v := range scopeMap {
-		merged[k] = v
-	}
-
-	// encode the merged map to JSON
-	return json.Marshal(merged)
-}
 
 type request struct {
 	Data []map[string]any `json:"data"`
@@ -146,122 +101,50 @@ func (pa *pluginAPI) PatchScope(input *plugin.ApiResourceInput) (*plugin.ApiReso
 }
 
 func (pa *pluginAPI) ListScopes(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, errors.Error) {
-	connectionId, _ := extractParam(input.Params)
-	if connectionId == 0 {
-		return nil, errors.BadInput.New("invalid connectionId")
-	}
-	limit, offset := api.GetLimitOffset(input.Query, "pageSize", "page")
-
-	if limit > 100 {
-		return nil, errors.BadInput.New("Page limit cannot exceed 100")
-	}
-	db := basicRes.GetDal()
-	scopes := pa.scopeType.NewSlice()
-	err := api.CallDB(db.All, scopes, dal.Where("connection_id = ?", connectionId), dal.Limit(limit), dal.Offset(offset))
+	scopes, err := scopeHelper.GetScopeList(input)
 	if err != nil {
 		return nil, err
 	}
-	var scopeMap []map[string]any
-	err = scopes.To(&scopeMap)
-	if err != nil {
-		return nil, err
-	}
-	if pa.txRuleType == nil {
-		var apiScopes []apiScopeResponse
-		for _, scope := range scopeMap {
-			apiScopes = append(apiScopes, apiScopeResponse{Scope: scope})
-		}
-		return &plugin.ApiResourceOutput{Body: apiScopes, Status: http.StatusOK}, nil
-	}
-	var ruleIds []uint64
-	for _, scopeModel := range scopeMap {
-		if tid := uint64(scopeModel["transformationRuleId"].(float64)); tid > 0 {
-			ruleIds = append(ruleIds, tid)
-		}
-	}
-	rules := pa.txRuleType.NewSlice()
-	if len(ruleIds) > 0 {
-		err = api.CallDB(db.All, rules, dal.Select("id, name"),
-			dal.Where("id IN (?)", ruleIds))
+	var response []api.ScopeRes[models.ScopeModel]
+	for _, scope := range scopes {
+		scopeModel := models.ScopeModel{}
+		err = mapTo(scope.Scope, &scopeModel)
 		if err != nil {
 			return nil, err
 		}
+		response = append(response, api.ScopeRes[models.ScopeModel]{
+			Scope:                  scopeModel,
+			TransformationRuleName: scope.TransformationRuleName,
+			Blueprints:             scope.Blueprints,
+		})
 	}
-	var transformationModels []models.TransformationModel
-	err = rules.To(&transformationModels)
-	if err != nil {
-		return nil, err
-	}
-	names := make(map[uint64]string)
-	for _, t := range transformationModels {
-		names[t.Id] = t.Name
-	}
-	var apiScopes []apiScopeResponse
-	for _, scope := range scopeMap {
-		txRuleName, ok := names[uint64(scope["transformationRuleId"].(float64))]
-		if ok {
-			scopeRes := apiScopeResponse{
-				Scope:                  scope,
-				TransformationRuleName: txRuleName,
-			}
-			apiScopes = append(apiScopes, scopeRes)
-		}
-	}
-
-	return &plugin.ApiResourceOutput{Body: apiScopes, Status: http.StatusOK}, nil
+	return &plugin.ApiResourceOutput{Body: response, Status: http.StatusOK}, nil
 }
 
 func (pa *pluginAPI) GetScope(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, errors.Error) {
-	connectionId, scopeId := extractParam(input.Params)
-	if connectionId == 0 {
-		return nil, errors.BadInput.New("invalid connectionId")
-	}
-	if scopeId == `` {
-		return nil, errors.BadInput.New("invalid scopeId")
-	}
-	rawScope := pa.scopeType.New()
-	db := basicRes.GetDal()
-	err := api.CallDB(db.First, rawScope, dal.Where("connection_id = ? AND id = ?", connectionId, scopeId))
-	if db.IsErrorNotFound(err) {
-		return nil, errors.NotFound.New("record not found")
-	}
+	scope, err := scopeHelper.GetScope(input)
 	if err != nil {
 		return nil, err
 	}
-	var scope models.ScopeModel
-	err = rawScope.To(&scope)
+	scopeModel := models.ScopeModel{}
+	err = mapTo(scope.Scope, &scopeModel)
 	if err != nil {
 		return nil, err
 	}
-	var rule models.TransformationModel
-	if scope.TransformationRuleId > 0 {
-		err = api.CallDB(db.First, &rule, dal.From(pa.txRuleType.TableName()), dal.Where("id = ?", scope.TransformationRuleId))
-		if err != nil {
-			return nil, errors.Default.Wrap(err, `no related transformationRule for scope`)
-		}
+	response := api.ScopeRes[models.ScopeModel]{
+		Scope:                  scopeModel,
+		TransformationRuleName: scope.TransformationRuleName,
+		Blueprints:             scope.Blueprints,
 	}
-	return &plugin.ApiResourceOutput{Body: apiScopeResponse{rawScope.Unwrap(), rule.Name}, Status: http.StatusOK}, nil
+	return &plugin.ApiResourceOutput{Body: response, Status: http.StatusOK}, nil
 }
 
 func (pa *pluginAPI) DeleteScope(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, errors.Error) {
-	db := basicRes.GetDal()
-	return scopeHelper.Delete(input,
-		func(connectionId uint64, scopeId string) errors.Error {
-			rawScope := pa.scopeType.New()
-			return api.CallDB(db.Delete, rawScope, dal.Where("connection_id = ? AND id = ?", connectionId, scopeId))
-		},
-		func(connectionId uint64) errors.Error {
-			connection := pa.connType.New()
-			err := connectionHelper.FirstById(connection, connectionId)
-			if err != nil {
-				if errors.Is(err, gorm.ErrRecordNotFound) {
-					return errors.BadInput.New("Invalid Connection Id")
-				}
-				return err
-			}
-			return nil
-		},
-	)
+	err := scopeHelper.Delete(input)
+	if err != nil {
+		return nil, err
+	}
+	return &plugin.ApiResourceOutput{Body: nil, Status: http.StatusOK}, nil
 }
 
 func extractParam(params map[string]string) (uint64, string) {
@@ -279,5 +162,16 @@ func verifyScope(scope map[string]any) errors.Error {
 		return errors.BadInput.New("invalid scope ID")
 	}
 
+	return nil
+}
+
+func mapTo(x any, y any) errors.Error {
+	b, err := json.Marshal(x)
+	if err != nil {
+		return errors.Convert(err)
+	}
+	if err = json.Unmarshal(b, y); err != nil {
+		return errors.Convert(err)
+	}
 	return nil
 }
