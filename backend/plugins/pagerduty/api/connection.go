@@ -49,6 +49,11 @@ func TestConnection(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, 
 	if err != nil {
 		return nil, err
 	}
+
+	if response.StatusCode == http.StatusUnauthorized {
+		return nil, errors.HttpStatus(http.StatusBadRequest).New("StatusUnauthorized error while testing connection")
+	}
+
 	if response.StatusCode == http.StatusOK {
 		return &plugin.ApiResourceOutput{Body: nil, Status: http.StatusOK}, nil
 	}

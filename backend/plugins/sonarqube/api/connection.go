@@ -19,12 +19,13 @@ package api
 
 import (
 	"context"
+	"net/http"
+
 	"github.com/apache/incubator-devlake/core/errors"
 	"github.com/apache/incubator-devlake/core/plugin"
 	"github.com/apache/incubator-devlake/helpers/pluginhelper/api"
 	"github.com/apache/incubator-devlake/plugins/sonarqube/models"
 	"github.com/apache/incubator-devlake/server/api/shared"
-	"net/http"
 )
 
 type validation struct {
@@ -75,7 +76,7 @@ func TestConnection(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, 
 		}
 		return &plugin.ApiResourceOutput{Body: body, Status: 200}, nil
 	case 401: // error secretKey or nonceStr
-		return &plugin.ApiResourceOutput{Body: false, Status: res.StatusCode}, nil
+		return &plugin.ApiResourceOutput{Body: false, Status: http.StatusBadRequest}, nil
 	default: // unknow what happen , back to user
 		return &plugin.ApiResourceOutput{Body: res.Body, Status: res.StatusCode}, nil
 	}

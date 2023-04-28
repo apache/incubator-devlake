@@ -19,6 +19,7 @@ package models
 
 import (
 	"fmt"
+	"net/http"
 
 	"github.com/apache/incubator-devlake/core/errors"
 	helper "github.com/apache/incubator-devlake/helpers/pluginhelper/api"
@@ -42,6 +43,11 @@ func (conn *FeishuConn) PrepareApiClient(apiClient apihelperabstract.ApiClientAb
 	if err != nil {
 		return err
 	}
+
+	if tokenRes.StatusCode == http.StatusUnauthorized {
+		return errors.HttpStatus(http.StatusBadRequest).New("StatusUnauthorized error when get tenant_access_token")
+	}
+
 	tokenResBody := &apimodels.ApiAccessTokenResponse{}
 	err = helper.UnmarshalResponse(tokenRes, tokenResBody)
 	if err != nil {

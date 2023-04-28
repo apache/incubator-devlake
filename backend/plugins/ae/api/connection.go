@@ -60,7 +60,7 @@ func TestConnection(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, 
 	case 200: // right StatusCode
 		return &plugin.ApiResourceOutput{Body: true, Status: 200}, nil
 	case 401: // error secretKey or nonceStr
-		return &plugin.ApiResourceOutput{Body: false, Status: res.StatusCode}, nil
+		return &plugin.ApiResourceOutput{Body: false, Status: http.StatusBadRequest}, nil
 	default: // unknow what happen , back to user
 		return &plugin.ApiResourceOutput{Body: res.Body, Status: res.StatusCode}, nil
 	}

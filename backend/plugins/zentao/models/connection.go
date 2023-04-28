@@ -19,6 +19,7 @@ package models
 
 import (
 	"fmt"
+	"net/http"
 
 	"github.com/apache/incubator-devlake/core/errors"
 	helper "github.com/apache/incubator-devlake/helpers/pluginhelper/api"
@@ -36,6 +37,11 @@ func (connection ZentaoConn) PrepareApiClient(apiClient apihelperabstract.ApiCli
 	if err != nil {
 		return err
 	}
+
+	if tokenRes.StatusCode == http.StatusUnauthorized {
+		return errors.HttpStatus(http.StatusBadRequest).New("StatusUnauthorized error while to request access token")
+	}
+
 	tokenResBody := &ApiAccessTokenResponse{}
 	err = helper.UnmarshalResponse(tokenRes, tokenResBody)
 	if err != nil {
