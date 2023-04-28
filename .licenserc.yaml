@@ -28,7 +28,7 @@ header:
     - 'logs'
     - 'mocks'
     - 'vendor'
-    - '.env.example'
+    - 'env.example'
     - '**/*.log'
     - '**/env.example'
     - '**/*.csv'
