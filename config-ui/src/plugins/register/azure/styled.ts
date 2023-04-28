@@ -19,38 +19,6 @@
 import styled from 'styled-components';
 
 export const Transfromation = styled.div`
-  .additional-settings {
-    h2 {
-      display: flex;
-      align-items: center;
-      cursor: pointer;
-    }
-
-    .radio {
-      display: flex;
-      align-items: center;
-      margin: 8px 0 16px;
-
-      p {
-        margin: 0;
-      }
-
-      .bp4-control {
-        margin: 0;
-      }
-    }
-
-    .refdiff {
-      display: flex;
-      align-items: center;
-      padding-left: 20px;
-
-      .bp4-input-group {
-        margin: 0 8px;
-      }
-    }
-  }
-
   .bp4-form-group {
     display: flex;
     align-items: center;

@@ -17,7 +17,7 @@
  */
 
 import React, { useState, useEffect } from 'react';
-import { FormGroup, InputGroup, TextArea, Tag, Switch, Radio, Icon, Collapse, Intent, Colors } from '@blueprintjs/core';
+import { FormGroup, InputGroup, TextArea, Tag, Switch, Icon, Intent, Colors } from '@blueprintjs/core';
 
 import { ExternalLink, HelpTooltip, Divider } from '@/components';
 
@@ -30,41 +30,25 @@ interface Props {
 
 export const GitHubTransformation = ({ transformation, setTransformation }: Props) => {
   const [enableCICD, setEnableCICD] = useState(true);
-  const [openAdditionalSettings, setOpenAdditionalSettings] = useState(false);
 
   useEffect(() => {
-    if (transformation.refdiff) {
-      setOpenAdditionalSettings(true);
+    if (!transformation.deploymentPattern) {
+      setEnableCICD(false);
     }
   }, [transformation]);
 
-  const handleChangeCICDEnable = (e: React.FormEvent<HTMLInputElement>) => {
+  const handleChangeEnableCICD = (e: React.FormEvent<HTMLInputElement>) => {
     const checked = (e.target as HTMLInputElement).checked;
 
-    if (checked) {
-      setTransformation({
-        ...transformation,
-        deploymentPattern: '(deploy|push-image)',
-        productionPattern: 'production',
-      });
-    } else {
+    if (!checked) {
       setTransformation({
         ...transformation,
         deploymentPattern: undefined,
         productionPattern: undefined,
       });
     }
-    setEnableCICD(checked);
-  };
 
-  const handleChangeAdditionalSettingsOpen = () => {
-    setOpenAdditionalSettings(!openAdditionalSettings);
-    if (!openAdditionalSettings) {
-      setTransformation({
-        ...transformation,
-        refdiff: null,
-      });
-    }
+    setEnableCICD(checked);
   };
 
   return (
@@ -206,7 +190,7 @@ export const GitHubTransformation = ({ transformation, setTransformation }: Prop
           </Tag>
           <div className="switch">
             <span>Enable</span>
-            <Switch alignIndicator="right" inline checked={enableCICD} onChange={handleChangeCICDEnable} />
+            <Switch alignIndicator="right" inline checked={enableCICD} onChange={handleChangeEnableCICD} />
           </div>
         </h3>
         {enableCICD && (
@@ -352,56 +336,6 @@ export const GitHubTransformation = ({ transformation, setTransformation }: Prop
             rows={2}
           />
         </FormGroup>
-      </div>
-      <Divider />
-      {/* Additional Settings */}
-      <div className="additional-settings">
-        <h2 onClick={handleChangeAdditionalSettingsOpen}>
-          <Icon icon={!openAdditionalSettings ? 'chevron-up' : 'chevron-down'} size={18} />
-          <span>Additional Settings</span>
-        </h2>
-        <Collapse isOpen={openAdditionalSettings}>
-          <div className="radio">
-            <Radio defaultChecked />
-            <p>
-              Enable the <ExternalLink link="https://devlake.apache.org/docs/Plugins/refdiff">RefDiff</ExternalLink>{' '}
-              plugin to pre-calculate version-based metrics
-              <HelpTooltip content="Calculate the commits diff between two consecutive tags that match the following RegEx. Issues closed by PRs which contain these commits will also be calculated. The result will be shown in table.refs_commits_diffs and table.refs_issues_diffs." />
-            </p>
-          </div>
-          <div className="refdiff">
-            Compare the last
-            <InputGroup
-              style={{ width: 60 }}
-              value={transformation.refdiff?.tagsLimit ?? ''}
-              onChange={(e) =>
-                setTransformation({
-                  ...transformation,
-                  refdiff: {
-                    ...transformation?.refdiff,
-                    tagsLimit: e.target.value,
-                  },
-                })
-              }
-            />
-            tags that match the
-            <InputGroup
-              style={{ width: 200 }}
-              placeholder="(regex)$"
-              value={transformation.refdiff?.tagsPattern ?? ''}
-              onChange={(e) =>
-                setTransformation({
-                  ...transformation,
-                  refdiff: {
-                    ...transformation?.refdiff,
-                    tagsPattern: e.target.value,
-                  },
-                })
-              }
-            />
-            for calculation
-          </div>
-        </Collapse>
       </div>
     </S.Transformation>
   );

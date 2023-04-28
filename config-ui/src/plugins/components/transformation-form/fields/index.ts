@@ -16,22 +16,4 @@
  *
  */
 
-import type { ScopeItemType } from './types';
-
-import { MillerColumns } from './components';
-
-interface Props {
-  connectionId: ID;
-  selectedItems: ScopeItemType[];
-  onChangeItems: (selectedItems: ScopeItemType[]) => void;
-}
-
-export const JenkinsDataScope = ({ connectionId, selectedItems, onChangeItems }: Props) => {
-  return (
-    <>
-      <h3>Jobs *</h3>
-      <p>Select the jobs you would like to sync.</p>
-      <MillerColumns connectionId={connectionId} selectedItems={selectedItems} onChangeItems={onChangeItems} />
-    </>
-  );
-};
+export * from './additional-settings';

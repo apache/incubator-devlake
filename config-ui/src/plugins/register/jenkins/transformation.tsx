@@ -16,7 +16,7 @@
  *
  */
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Tag, Intent, Switch, InputGroup } from '@blueprintjs/core';
 
 import * as S from './styled';
@@ -30,22 +30,23 @@ interface Props {
 export const JenkinsTransformation = ({ transformation, setTransformation }: Props) => {
   const [enableCICD, setEnableCICD] = useState(true);
 
+  useEffect(() => {
+    if (!transformation.deploymentPattern) {
+      setEnableCICD(false);
+    }
+  }, [transformation]);
+
   const handleChangeCICDEnable = (e: React.FormEvent<HTMLInputElement>) => {
     const checked = (e.target as HTMLInputElement).checked;
 
-    if (checked) {
-      setTransformation({
-        ...transformation,
-        deploymentPattern: '(deploy|push-image)',
-        productionPattern: 'production',
-      });
-    } else {
+    if (!checked) {
       setTransformation({
         ...transformation,
         deploymentPattern: undefined,
         productionPattern: undefined,
       });
     }
+
     setEnableCICD(checked);
   };
 
