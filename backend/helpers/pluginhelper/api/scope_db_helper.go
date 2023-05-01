@@ -94,7 +94,7 @@ func (s *ScopeDatabaseHelperImpl[Conn, Scope, Tr]) ListScopes(input *plugin.ApiR
 
 func (s *ScopeDatabaseHelperImpl[Conn, Scope, Tr]) DeleteScope(connectionId uint64, scopeId string) errors.Error {
 	scope := new(Scope)
-	err := s.db.Delete(&scope, dal.Where(fmt.Sprintf("connection_id = ? AND %s = ?", s.params.ScopeIdFieldName),
+	err := s.db.Delete(&scope, dal.Where(fmt.Sprintf("connection_id = ? AND %s = ?", s.params.ScopeIdColumnName),
 		connectionId, scopeId))
 	return err
 }

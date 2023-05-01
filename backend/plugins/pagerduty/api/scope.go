@@ -99,7 +99,7 @@ func GetScope(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, errors
 // @Param connectionId path int true "connection ID"
 // @Param serviceId path int true "service ID"
 // @Param delete_data_only query bool false "Only delete the scope data, not the scope itself"
-// @Success 200
+// @Success 200  {object} []models.Blueprint "list of blueprints impacted by the deletion"
 // @Failure 400  {object} shared.ApiBody "Bad Request"
 // @Failure 500  {object} shared.ApiBody "Internal Error"
 // @Router /plugins/pagerduty/connections/{connectionId}/scopes/{serviceId} [DELETE]

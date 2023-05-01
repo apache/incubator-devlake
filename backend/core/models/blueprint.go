@@ -71,15 +71,23 @@ func (bps *BlueprintSettings) UpdateConnections(updater func(c *plugin.Blueprint
 	if err != nil {
 		return err
 	}
-	for _, conn := range conns {
+	for i, conn := range conns {
 		err = updater(conn)
 		if err != nil {
 			return err
 		}
-		bps.Connections, err = errors.Convert01(json.Marshal(&conn))
-		if err != nil {
-			return err
-		}
+		//if len(conn.Scopes) == 0 { // if nothing's left, just get rid of it
+		//	bps.Connections = nil
+		//} else {
+		conns[i] = conn
+		//if err != nil {
+		//	return err
+		//}
+		//}
+	}
+	bps.Connections, err = errors.Convert01(json.Marshal(&conns))
+	if err != nil {
+		return err
 	}
 	return nil
 }
@@ -115,6 +123,20 @@ func (bp *Blueprint) GetConnections() ([]*plugin.BlueprintConnectionV200, errors
 		return nil, err
 	}
 	return conns, nil
+}
+
+// UpdateSettings updates the blueprint instance with this settings reference
+func (bp *Blueprint) UpdateSettings(settings *BlueprintSettings) errors.Error {
+	if settings.Connections == nil {
+		bp.Settings = nil
+	} else {
+		settingsRaw, err := errors.Convert01(json.Marshal(settings))
+		if err != nil {
+			return err
+		}
+		bp.Settings = settingsRaw
+	}
+	return nil
 }
 
 // GetScopes Gets all the scopes across all the connections for this blueprint

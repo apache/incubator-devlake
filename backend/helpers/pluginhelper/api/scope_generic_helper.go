@@ -231,8 +231,8 @@ func (c *GenericScopeApiHelper[Conn, Scope, Tr]) GetScope(input *plugin.ApiResou
 			if err != nil {
 				return nil, err
 			}
+			transformationRuleName = reflect.ValueOf(rule).FieldByName("Name").String()
 		}
-		transformationRuleName = reflect.ValueOf(rule).FieldByName("Name").String()
 	}
 	var blueprints []*models.Blueprint
 	if params.loadBlueprints {
@@ -252,64 +252,79 @@ func (c *GenericScopeApiHelper[Conn, Scope, Tr]) GetScope(input *plugin.ApiResou
 	return scopeRes, nil
 }
 
-func (c *GenericScopeApiHelper[Conn, Scope, Tr]) DeleteScope(input *plugin.ApiResourceInput) errors.Error {
+func (c *GenericScopeApiHelper[Conn, Scope, Tr]) DeleteScope(input *plugin.ApiResourceInput) ([]*models.Blueprint, errors.Error) {
 	params := c.extractFromDeleteReqParam(input)
 	if params == nil || params.connectionId == 0 {
-		return errors.BadInput.New("invalid path params: \"connectionId\" not set")
+		return nil, errors.BadInput.New("invalid path params: \"connectionId\" not set")
 	}
 	if len(params.scopeId) == 0 || params.scopeId == "0" {
-		return errors.BadInput.New("invalid path params: \"scopeId\" not set/invalid")
+		return nil, errors.BadInput.New("invalid path params: \"scopeId\" not set/invalid")
 	}
 	err := c.dbHelper.VerifyConnection(params.connectionId)
 	if err != nil {
-		return err
+		return nil, err
 	}
 	db := c.db
 	bpManager := serviceHelper.NewBlueprintManager(db)
 	blueprintsMap, err := bpManager.GetBlueprintsByScopes(params.scopeId)
 	if err != nil {
-		return err
+		return nil, err
 	}
 	blueprints := blueprintsMap[params.scopeId]
 	// find all tables for this plugin
 	tables, err := getPluginTables(params.plugin)
 	if err != nil {
-		return err
+		return nil, err
 	}
 	// delete all the plugin records referencing this scope
 	if c.reflectionParams.RawScopeParamName != "" {
 		for _, table := range tables {
 			err = db.Exec(createDeleteQuery(table, c.reflectionParams.RawScopeParamName, params.scopeId))
 			if err != nil {
-				return err
+				return nil, err
 			}
 		}
 	}
+	var impactedBlueprints []*models.Blueprint
 	if !params.deleteDataOnly {
 		// DeleteScope the scope itself
 		err = c.dbHelper.DeleteScope(params.connectionId, params.scopeId)
 		if err != nil {
-			return err
+			return nil, err
 		}
 		// update the blueprints (remove scope reference from them)
 		for _, blueprint := range blueprints {
 			settings, _ := blueprint.UnmarshalSettings()
+			var changed bool
 			err = settings.UpdateConnections(func(c *plugin.BlueprintConnectionV200) errors.Error {
-				var filteredScopes []*plugin.BlueprintScopeV200
+				var retainedScopes []*plugin.BlueprintScopeV200
 				for _, bpScope := range c.Scopes {
-					if bpScope.Id != params.scopeId { // keep the ones NOT equal to this scope
-						filteredScopes = append(filteredScopes, bpScope)
+					if bpScope.Id == params.scopeId { // we'll be removing this one
+						changed = true
+					} else {
+						retainedScopes = append(retainedScopes, bpScope)
 					}
 				}
-				c.Scopes = filteredScopes
+				c.Scopes = retainedScopes
 				return nil
 			})
 			if err != nil {
-				return errors.Default.Wrap(err, fmt.Sprintf("error removing scope %s from blueprint %d", params.scopeId, blueprint.ID))
+				return nil, errors.Default.Wrap(err, fmt.Sprintf("error removing scope %s from blueprint %d", params.scopeId, blueprint.ID))
+			}
+			if changed {
+				err = blueprint.UpdateSettings(&settings)
+				if err != nil {
+					return nil, err
+				}
+				err = bpManager.SaveDbBlueprint(blueprint)
+				if err != nil {
+					return nil, err
+				}
+				impactedBlueprints = append(impactedBlueprints, blueprint)
 			}
 		}
 	}
-	return nil
+	return impactedBlueprints, nil
 }
 
 func (c *GenericScopeApiHelper[Conn, Scope, Tr]) addTransformationName(scopes []*Scope) ([]*ScopeRes[Scope], errors.Error) {

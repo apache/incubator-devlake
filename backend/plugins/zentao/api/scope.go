@@ -141,7 +141,7 @@ func GetProjectScope(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput,
 // @Param connectionId path int true "connection ID"
 // @Param scopeId path int true "scope ID (repo ID)"
 // @Param delete_data_only query bool false "Only delete the scope data, not the scope itself"
-// @Success 200
+// @Success 200  {object} []models.Blueprint "list of blueprints impacted by the deletion"
 // @Failure 400  {object} shared.ApiBody "Bad Request"
 // @Failure 500  {object} shared.ApiBody "Internal Error"
 // @Router /plugins/zentao/connections/{connectionId}/scopes/{scopeId} [DELETE]
@@ -156,7 +156,7 @@ func DeleteProductScope(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutp
 // @Param connectionId path int true "connection ID"
 // @Param scopeId path int true "scope ID (repo ID)"
 // @Param delete_data_only query bool false "Only delete the scope data, not the scope itself"
-// @Success 200
+// @Success 200  {object} []models.Blueprint "list of blueprints impacted by the deletion"
 // @Failure 400  {object} shared.ApiBody "Bad Request"
 // @Failure 500  {object} shared.ApiBody "Internal Error"
 // @Router /plugins/zentao/connections/{connectionId}/scopes/{scopeId} [DELETE]

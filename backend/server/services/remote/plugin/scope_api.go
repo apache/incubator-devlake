@@ -112,11 +112,11 @@ func (pa *pluginAPI) GetScope(input *plugin.ApiResourceInput) (*plugin.ApiResour
 }
 
 func (pa *pluginAPI) DeleteScope(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, errors.Error) {
-	err := scopeHelper.DeleteScope(input)
+	bps, err := scopeHelper.DeleteScope(input)
 	if err != nil {
 		return nil, err
 	}
-	return &plugin.ApiResourceOutput{Body: nil, Status: http.StatusOK}, nil
+	return &plugin.ApiResourceOutput{Body: bps, Status: http.StatusOK}, nil
 }
 
 func extractParam(params map[string]string) (uint64, string) {
