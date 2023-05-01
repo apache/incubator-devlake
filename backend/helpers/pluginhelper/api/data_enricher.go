@@ -35,7 +35,7 @@ type DataEnrichHandler[InputRowType any] func(row *InputRowType) ([]interface{},
 // DataEnricherArgs includes the arguments needed for data enrichment
 type DataEnricherArgs[InputRowType any] struct {
 	Ctx       plugin.SubTaskContext
-	Name      string // Enricher name, which will be put into _raw_data_remark
+	Name      string // Enricher name, which will be PutScopes into _raw_data_remark
 	Input     dal.Rows
 	Enrich    DataEnrichHandler[InputRowType]
 	BatchSize int

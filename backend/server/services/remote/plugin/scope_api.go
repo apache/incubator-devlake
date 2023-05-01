@@ -50,7 +50,7 @@ func (pa *pluginAPI) PutScope(input *plugin.ApiResourceInput) (*plugin.ApiResour
 		}
 		slice = append(slice, &obj)
 	}
-	apiScopes, err := scopeHelper.Put(input, slice)
+	apiScopes, err := scopeHelper.PutScopes(input, slice)
 	if err != nil {
 		return nil, err
 	}
@@ -88,7 +88,7 @@ func (pa *pluginAPI) PatchScope(input *plugin.ApiResourceInput) (*plugin.ApiReso
 }
 
 func (pa *pluginAPI) ListScopes(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, errors.Error) {
-	scopes, err := scopeHelper.GetScopeList(input)
+	scopes, err := scopeHelper.GetScopes(input)
 	if err != nil {
 		return nil, err
 	}
@@ -112,7 +112,7 @@ func (pa *pluginAPI) GetScope(input *plugin.ApiResourceInput) (*plugin.ApiResour
 }
 
 func (pa *pluginAPI) DeleteScope(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, errors.Error) {
-	err := scopeHelper.Delete(input)
+	err := scopeHelper.DeleteScope(input)
 	if err != nil {
 		return nil, err
 	}

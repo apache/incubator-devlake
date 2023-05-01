@@ -37,14 +37,17 @@ func Init(br context.BasicRes) {
 		basicRes,
 		vld,
 	)
+	params := &api.ReflectionParameters{
+		ScopeIdFieldName:  "BoardID",
+		ScopeIdColumnName: "board_id",
+	}
 	scopeHelper = api.NewScopeHelper[models.JiraConnection, models.JiraBoard, models.JiraTransformationRule](
 		basicRes,
 		vld,
 		connectionHelper,
-		&api.ReflectionParameters{
-			ScopeIdFieldName:  "BoardID",
-			ScopeIdColumnName: "board_id",
-		},
+		api.NewScopeDatabaseHelperImpl[models.JiraConnection, models.JiraBoard, models.JiraTransformationRule](
+			basicRes, connectionHelper, params),
+		params,
 	)
 
 	trHelper = api.NewTransformationRuleHelper[models.JiraTransformationRule](

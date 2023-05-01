@@ -38,14 +38,17 @@ func Init(br context.BasicRes) {
 		basicRes,
 		vld,
 	)
+	params := &api.ReflectionParameters{
+		ScopeIdFieldName:  "BitbucketId",
+		ScopeIdColumnName: "bitbucket_id",
+	}
 	scopeHelper = api.NewScopeHelper[models.BitbucketConnection, models.BitbucketRepo, models.BitbucketTransformationRule](
 		basicRes,
 		vld,
 		connectionHelper,
-		&api.ReflectionParameters{
-			ScopeIdFieldName:  "BitbucketId",
-			ScopeIdColumnName: "bitbucket_id",
-		},
+		api.NewScopeDatabaseHelperImpl[models.BitbucketConnection, models.BitbucketRepo, models.BitbucketTransformationRule](
+			basicRes, connectionHelper, params),
+		params,
 	)
 	remoteHelper = api.NewRemoteHelper[models.BitbucketConnection, models.BitbucketRepo, models.BitbucketApiRepo, models.GroupResponse](
 		basicRes,
