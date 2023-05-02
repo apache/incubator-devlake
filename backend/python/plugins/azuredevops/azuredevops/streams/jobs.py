@@ -32,8 +32,9 @@ class Jobs(Substream):
         api = AzureDevOpsAPI(context.connection)
         response = api.jobs(repo.org_id, repo.project_id, parent.id)
         for raw_job in response.json["records"]:
-            raw_job["build_id"] = parent.domain_id()
-            yield raw_job, state
+            if raw_job["type"] == "Job":
+                raw_job["build_id"] = parent.domain_id()
+                yield raw_job, state
 
     def convert(self, j: Job, ctx: Context) -> Iterable[devops.CICDPipeline]:
         result = None
