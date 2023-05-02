@@ -49,6 +49,7 @@ func Init(br context.BasicRes) {
 		api.NewScopeDatabaseHelperImpl[models.TapdConnection, models.TapdWorkspace, models.TapdTransformationRule](
 			basicRes, connectionHelper, params),
 		params,
+		&api.ScopeHelperOptions{},
 	)
 	remoteHelper = api.NewRemoteHelper[models.TapdConnection, models.TapdWorkspace, models.TapdWorkspace, api.BaseRemoteGroupResponse](
 		basicRes,

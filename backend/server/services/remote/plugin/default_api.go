@@ -103,5 +103,6 @@ func createScopeHelper(pa *pluginAPI) *api.GenericScopeApiHelper[any, any, any] 
 		connectionHelper,
 		NewScopeDatabaseHelperImpl(pa, basicRes, params),
 		params,
+		&api.ScopeHelperOptions{},
 	)
 }

@@ -51,10 +51,11 @@ func NewScopeHelper[Conn any, Scope any, Tr any](
 	connHelper *ConnectionApiHelper,
 	dbHelper ScopeDatabaseHelper[Conn, Scope, Tr],
 	params *ReflectionParameters,
+	opts *ScopeHelperOptions,
 ) *ScopeApiHelper[Conn, Scope, Tr] {
 	return &ScopeApiHelper[Conn, Scope, Tr]{
 		NewGenericScopeHelper[Conn, Scope, Tr](
-			basicRes, vld, connHelper, dbHelper, params),
+			basicRes, vld, connHelper, dbHelper, params, opts),
 	}
 }
 

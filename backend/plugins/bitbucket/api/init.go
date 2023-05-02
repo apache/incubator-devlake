@@ -49,6 +49,7 @@ func Init(br context.BasicRes) {
 		api.NewScopeDatabaseHelperImpl[models.BitbucketConnection, models.BitbucketRepo, models.BitbucketTransformationRule](
 			basicRes, connectionHelper, params),
 		params,
+		&api.ScopeHelperOptions{},
 	)
 	remoteHelper = api.NewRemoteHelper[models.BitbucketConnection, models.BitbucketRepo, models.BitbucketApiRepo, models.GroupResponse](
 		basicRes,

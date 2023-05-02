@@ -50,6 +50,7 @@ func Init(br context.BasicRes) {
 		api.NewScopeDatabaseHelperImpl[models.BambooConnection, models.BambooProject, models.BambooTransformationRule](
 			basicRes, connectionHelper, params),
 		params,
+		&api.ScopeHelperOptions{},
 	)
 	remoteHelper = api.NewRemoteHelper[models.BambooConnection, models.BambooProject, models.ApiBambooProject, api.NoRemoteGroupResponse](
 		basicRes,

@@ -49,6 +49,7 @@ func Init(br context.BasicRes) {
 		api.NewScopeDatabaseHelperImpl[models.GitlabConnection, models.GitlabProject, models.GitlabTransformationRule](
 			basicRes, connectionHelper, params),
 		params,
+		&api.ScopeHelperOptions{},
 	)
 
 	remoteHelper = api.NewRemoteHelper[models.GitlabConnection, models.GitlabProject, models.GitlabApiProject, models.GroupResponse](

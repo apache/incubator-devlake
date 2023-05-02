@@ -48,6 +48,7 @@ func Init(br context.BasicRes) {
 		api.NewScopeDatabaseHelperImpl[models.JenkinsConnection, models.JenkinsJob, models.JenkinsTransformationRule](
 			basicRes, connectionHelper, params),
 		params,
+		&api.ScopeHelperOptions{},
 	)
 	trHelper = api.NewTransformationRuleHelper[models.JenkinsTransformationRule](
 		basicRes,

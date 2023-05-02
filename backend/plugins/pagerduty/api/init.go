@@ -51,6 +51,7 @@ func Init(br context.BasicRes) {
 		api.NewScopeDatabaseHelperImpl[models.PagerDutyConnection, models.Service, models.PagerdutyTransformationRule](
 			basicRes, connectionHelper, params),
 		params,
+		&api.ScopeHelperOptions{},
 	)
 	trHelper = api.NewTransformationRuleHelper[models.PagerdutyTransformationRule](
 		basicRes,

@@ -19,9 +19,12 @@ package api
 
 import (
 	"github.com/apache/incubator-devlake/core/context"
+	"github.com/apache/incubator-devlake/core/dal"
+	"github.com/apache/incubator-devlake/core/errors"
 	"github.com/apache/incubator-devlake/helpers/pluginhelper/api"
 	"github.com/apache/incubator-devlake/plugins/github/models"
 	"github.com/go-playground/validator/v10"
+	"strconv"
 )
 
 var vld *validator.Validate
@@ -40,6 +43,7 @@ func Init(br context.BasicRes) {
 	params := &api.ReflectionParameters{
 		ScopeIdFieldName:  "GithubId",
 		ScopeIdColumnName: "github_id",
+		RawScopeParamName: "Name",
 	}
 	scopeHelper = api.NewScopeHelper[models.GithubConnection, models.GithubRepo, models.GithubTransformationRule](
 		basicRes,
@@ -48,6 +52,22 @@ func Init(br context.BasicRes) {
 		api.NewScopeDatabaseHelperImpl[models.GithubConnection, models.GithubRepo, models.GithubTransformationRule](
 			basicRes, connectionHelper, params),
 		params,
+		&api.ScopeHelperOptions{
+			GetScopeParamValue: func(db dal.Dal, scopeId string) (string, errors.Error) {
+				id, err := errors.Convert01(strconv.ParseInt(scopeId, 10, 64))
+				if err != nil {
+					return "", err
+				}
+				repo := models.GithubRepo{
+					GithubId: int(id),
+				}
+				err = db.First(&repo)
+				if err != nil {
+					return "", err
+				}
+				return repo.Name, nil
+			},
+		},
 	)
 	trHelper = api.NewTransformationRuleHelper[models.GithubTransformationRule](
 		basicRes,

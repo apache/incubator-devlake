@@ -51,12 +51,17 @@ type (
 		validator        *validator.Validate
 		reflectionParams *ReflectionParameters
 		dbHelper         ScopeDatabaseHelper[Conn, Scope, Tr]
+		bpManager        *serviceHelper.BlueprintManager
 		connHelper       *ConnectionApiHelper
+		opts             *ScopeHelperOptions
 	}
 	ReflectionParameters struct {
 		ScopeIdFieldName  string
 		ScopeIdColumnName string
 		RawScopeParamName string
+	}
+	ScopeHelperOptions struct {
+		GetScopeParamValue func(db dal.Dal, scopeId string) (string, errors.Error)
 	}
 )
 
@@ -83,12 +88,16 @@ func NewGenericScopeHelper[Conn any, Scope any, Tr any](
 	connHelper *ConnectionApiHelper,
 	dbHelper ScopeDatabaseHelper[Conn, Scope, Tr],
 	params *ReflectionParameters,
+	opts *ScopeHelperOptions,
 ) *GenericScopeApiHelper[Conn, Scope, Tr] {
 	if connHelper == nil {
-		return nil
+		panic("nil connHelper")
 	}
 	if params == nil {
 		panic("reflection params not provided")
+	}
+	if opts == nil {
+		opts = &ScopeHelperOptions{}
 	}
 	tablesCacheLoader.Do(func() {
 		var err errors.Error
@@ -103,7 +112,9 @@ func NewGenericScopeHelper[Conn any, Scope any, Tr any](
 		validator:        vld,
 		reflectionParams: params,
 		dbHelper:         dbHelper,
+		bpManager:        serviceHelper.NewBlueprintManager(basicRes.GetDal()),
 		connHelper:       connHelper,
+		opts:             opts,
 	}
 }
 
@@ -181,7 +192,7 @@ func (c *GenericScopeApiHelper[Conn, Scope, Tr]) GetScopes(input *plugin.ApiReso
 		for id := range scopesById {
 			scopeIds = append(scopeIds, id)
 		}
-		blueprintMap, err := serviceHelper.NewBlueprintManager(c.db).GetBlueprintsByScopes(scopeIds...)
+		blueprintMap, err := c.bpManager.GetBlueprintsByScopes(scopeIds...)
 		if err != nil {
 			return nil, errors.Default.Wrap(err, "error getting blueprints for scope")
 		}
@@ -216,7 +227,6 @@ func (c *GenericScopeApiHelper[Conn, Scope, Tr]) GetScope(input *plugin.ApiResou
 	if err != nil {
 		return nil, err
 	}
-	db := c.db
 	scope, err := c.dbHelper.GetScope(params.connectionId, params.scopeId)
 	if err != nil {
 		return nil, err
@@ -236,7 +246,7 @@ func (c *GenericScopeApiHelper[Conn, Scope, Tr]) GetScope(input *plugin.ApiResou
 	}
 	var blueprints []*models.Blueprint
 	if params.loadBlueprints {
-		blueprintMap, err := serviceHelper.NewBlueprintManager(db).GetBlueprintsByScopes(params.scopeId)
+		blueprintMap, err := c.bpManager.GetBlueprintsByScopes(params.scopeId)
 		if err != nil {
 			return nil, errors.Default.Wrap(err, "error getting blueprints for scope")
 		}
@@ -265,8 +275,7 @@ func (c *GenericScopeApiHelper[Conn, Scope, Tr]) DeleteScope(input *plugin.ApiRe
 		return nil, err
 	}
 	db := c.db
-	bpManager := serviceHelper.NewBlueprintManager(db)
-	blueprintsMap, err := bpManager.GetBlueprintsByScopes(params.scopeId)
+	blueprintsMap, err := c.bpManager.GetBlueprintsByScopes(params.scopeId)
 	if err != nil {
 		return nil, err
 	}
@@ -278,8 +287,15 @@ func (c *GenericScopeApiHelper[Conn, Scope, Tr]) DeleteScope(input *plugin.ApiRe
 	}
 	// delete all the plugin records referencing this scope
 	if c.reflectionParams.RawScopeParamName != "" {
+		scopeParamValue := params.scopeId
+		if c.opts.GetScopeParamValue != nil {
+			scopeParamValue, err = c.opts.GetScopeParamValue(c.db, params.scopeId)
+			if err != nil {
+				return nil, err
+			}
+		}
 		for _, table := range tables {
-			err = db.Exec(createDeleteQuery(table, c.reflectionParams.RawScopeParamName, params.scopeId))
+			err = db.Exec(createDeleteQuery(table, c.reflectionParams.RawScopeParamName, scopeParamValue))
 			if err != nil {
 				return nil, err
 			}
@@ -287,7 +303,7 @@ func (c *GenericScopeApiHelper[Conn, Scope, Tr]) DeleteScope(input *plugin.ApiRe
 	}
 	var impactedBlueprints []*models.Blueprint
 	if !params.deleteDataOnly {
-		// DeleteScope the scope itself
+		// Delete the scope itself
 		err = c.dbHelper.DeleteScope(params.connectionId, params.scopeId)
 		if err != nil {
 			return nil, err
@@ -316,7 +332,7 @@ func (c *GenericScopeApiHelper[Conn, Scope, Tr]) DeleteScope(input *plugin.ApiRe
 				if err != nil {
 					return nil, err
 				}
-				err = bpManager.SaveDbBlueprint(blueprint)
+				err = c.bpManager.SaveDbBlueprint(blueprint)
 				if err != nil {
 					return nil, err
 				}
@@ -546,7 +562,11 @@ func getPluginTables(pluginName string) ([]string, errors.Error) {
 		// collect tool tables
 		tablesInfo := pluginModel.GetTablesInfo()
 		for _, table := range tablesInfo {
-			tables = append(tables, table.TableName())
+			// we only care about tables with RawOrigin
+			_, ok = reflect.TypeOf(table).Elem().FieldByName("RawDataParams")
+			if ok {
+				tables = append(tables, table.TableName())
+			}
 		}
 		// collect domain tables
 		for _, domainTable := range domaininfo.GetDomainTablesInfo() {

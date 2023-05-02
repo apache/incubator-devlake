@@ -56,6 +56,7 @@ func Init(br context.BasicRes) {
 		api.NewScopeDatabaseHelperImpl[models.ZentaoConnection, models.ZentaoProduct, api.NoTransformation](
 			basicRes, connectionHelper, productParams),
 		productParams,
+		&api.ScopeHelperOptions{},
 	)
 	projectParams := &api.ReflectionParameters{
 		ScopeIdFieldName:  "Project",
@@ -68,6 +69,7 @@ func Init(br context.BasicRes) {
 		api.NewScopeDatabaseHelperImpl[models.ZentaoConnection, models.ZentaoProject, api.NoTransformation](
 			basicRes, connectionHelper, projectParams),
 		projectParams,
+		&api.ScopeHelperOptions{},
 	)
 	productRemoteHelper = api.NewRemoteHelper[models.ZentaoConnection, models.ZentaoProduct, models.ZentaoProductRes, api.BaseRemoteGroupResponse](
 		basicRes,

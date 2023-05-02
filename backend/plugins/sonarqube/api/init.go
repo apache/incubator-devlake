@@ -48,6 +48,7 @@ func Init(br context.BasicRes) {
 		api.NewScopeDatabaseHelperImpl[models.SonarqubeConnection, models.SonarqubeProject, any](
 			basicRes, connectionHelper, params),
 		params,
+		&api.ScopeHelperOptions{},
 	)
 	remoteHelper = api.NewRemoteHelper[models.SonarqubeConnection, models.SonarqubeProject, models.SonarqubeApiProject, api.NoRemoteGroupResponse](
 		basicRes,
