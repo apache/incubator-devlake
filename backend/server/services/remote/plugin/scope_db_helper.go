@@ -18,15 +18,15 @@ limitations under the License.
 package plugin
 
 import (
-	"encoding/json"
 	"fmt"
 	"github.com/apache/incubator-devlake/core/context"
 	"github.com/apache/incubator-devlake/core/dal"
 	"github.com/apache/incubator-devlake/core/errors"
 	"github.com/apache/incubator-devlake/core/plugin"
 	"github.com/apache/incubator-devlake/helpers/pluginhelper/api"
-	"github.com/apache/incubator-devlake/impls/dalgorm"
+	"github.com/apache/incubator-devlake/server/services/remote/models"
 	"reflect"
+	"time"
 )
 
 type ScopeDatabaseHelperImpl struct {
@@ -58,26 +58,19 @@ func (s *ScopeDatabaseHelperImpl) VerifyConnection(connectionId uint64) errors.E
 }
 
 func (s *ScopeDatabaseHelperImpl) SaveScope(scopes []*any) errors.Error {
-	var targets []map[string]any
-	for _, x := range scopes {
-		ifc := reflect.ValueOf(*x).Elem().Interface()
-		j, err := errors.Convert01(json.Marshal(ifc))
-		if err != nil {
+	now := time.Now()
+	return s.saveScope(scopes, &now, &now)
+}
+
+func (s *ScopeDatabaseHelperImpl) UpdateScope(connectionId uint64, scopeId string, scope any) errors.Error {
+	// Update API on Gorm doesn't work with dynamic models. Need to do delete + create instead, unfortunately.
+	if err := s.DeleteScope(connectionId, scopeId); err != nil {
+		if !s.db.IsErrorNotFound(err) {
 			return err
 		}
-		m := map[string]any{}
-		err = errors.Convert(json.Unmarshal(j, &m))
-		if err != nil {
-			return err
-		}
-		m = dalgorm.ToDatabaseMap(s.pa.scopeType.TableName(), m)
-		targets = append(targets, m)
 	}
-	err := api.CallDB(s.db.Create, &targets, dal.From(s.pa.scopeType.TableName()))
-	if err != nil {
-		return errors.Default.Wrap(err, "could not save scope")
-	}
-	return nil
+	now := time.Now()
+	return s.saveScope([]*any{&scope}, nil, &now)
 }
 
 func (s *ScopeDatabaseHelperImpl) GetScope(connectionId uint64, scopeId string) (any, errors.Error) {
@@ -131,6 +124,23 @@ func (s *ScopeDatabaseHelperImpl) ListTransformationRules(ruleIds []uint64) ([]*
 		result = append(result, &rule)
 	}
 	return result, nil
+}
+
+func (s *ScopeDatabaseHelperImpl) saveScope(scopes []*any, createdAt *time.Time, updatedAt *time.Time) errors.Error {
+	var targets []map[string]any
+	for _, x := range scopes {
+		ifc := reflect.ValueOf(*x).Elem().Interface()
+		m, err := models.ToDatabaseMap(s.pa.scopeType.TableName(), ifc, createdAt, updatedAt)
+		if err != nil {
+			return err
+		}
+		targets = append(targets, m)
+	}
+	err := api.CallDB(s.db.Create, &targets, dal.From(s.pa.scopeType.TableName()))
+	if err != nil {
+		return errors.Default.Wrap(err, "could not save scope")
+	}
+	return nil
 }
 
 var _ api.ScopeDatabaseHelper[any, any, any] = &ScopeDatabaseHelperImpl{}

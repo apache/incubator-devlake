@@ -18,8 +18,9 @@ limitations under the License.
 package dalgorm
 
 import (
+	"github.com/apache/incubator-devlake/helpers/pluginhelper/api"
 	"gorm.io/gorm/schema"
-	"time"
+	"reflect"
 )
 
 // ToDatabaseMap convert the map to a format that can be inserted into a SQL database
@@ -28,10 +29,13 @@ func ToDatabaseMap(tableName string, m map[string]any) map[string]any {
 	newMap := map[string]any{}
 	for k, v := range m {
 		k = strategy.ColumnName(tableName, k)
+		if reflect.ValueOf(v).IsZero() {
+			continue
+		}
 		if str, ok := v.(string); ok {
-			t, err := time.Parse("0001-01-01T00:00:00Z", str) //time needs special handling
+			t, err := api.ConvertStringToTime(str)
 			if err == nil {
-				if t.Second() == 0 { // 0 time is not permitted - just skip the column
+				if t.Second() == 0 {
 					continue
 				}
 				v = t

@@ -18,14 +18,10 @@ limitations under the License.
 package plugin
 
 import (
-	"encoding/json"
 	"github.com/apache/incubator-devlake/server/services/remote/models"
-	"net/http"
-	"strconv"
-
 	"github.com/mitchellh/mapstructure"
+	"net/http"
 
-	"github.com/apache/incubator-devlake/core/dal"
 	"github.com/apache/incubator-devlake/core/errors"
 	"github.com/apache/incubator-devlake/core/plugin"
 	"github.com/apache/incubator-devlake/helpers/pluginhelper/api"
@@ -44,7 +40,7 @@ func (pa *pluginAPI) PutScope(input *plugin.ApiResourceInput) (*plugin.ApiResour
 	var slice []*any
 	for _, scope := range scopes.Data {
 		obj := pa.scopeType.NewValue()
-		err = mapTo(scope, obj)
+		err = models.MapTo(scope, obj)
 		if err != nil {
 			return nil, err
 		}
@@ -61,30 +57,16 @@ func (pa *pluginAPI) PutScope(input *plugin.ApiResourceInput) (*plugin.ApiResour
 	return &plugin.ApiResourceOutput{Body: response, Status: http.StatusOK}, nil
 }
 
-func (pa *pluginAPI) PatchScope(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, errors.Error) {
-	connectionId, scopeId := extractParam(input.Params)
-	if connectionId == 0 {
-		return nil, errors.BadInput.New("invalid connectionId")
-	}
-	db := basicRes.GetDal()
-	scope := pa.scopeType.New()
-	err := api.CallDB(db.First, scope, dal.Where("connection_id = ? AND id = ?", connectionId, scopeId))
-	if err != nil {
-		return nil, errors.Default.Wrap(err, "scope not found")
-	}
-	err = verifyScope(input.Body)
+func (pa *pluginAPI) UpdateScope(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, errors.Error) {
+	apiScopes, err := scopeHelper.UpdateScope(input)
 	if err != nil {
 		return nil, err
 	}
-	err = scope.From(&input.Body)
+	response, err := convertScopeResponse(apiScopes)
 	if err != nil {
-		return nil, errors.Default.Wrap(err, "patch scope error")
+		return nil, err
 	}
-	err = api.CallDB(db.Update, scope)
-	if err != nil {
-		return nil, errors.Default.Wrap(err, "error on saving scope")
-	}
-	return &plugin.ApiResourceOutput{Body: scope.Unwrap(), Status: http.StatusOK}, nil
+	return &plugin.ApiResourceOutput{Body: response, Status: http.StatusOK}, nil
 }
 
 func (pa *pluginAPI) ListScopes(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, errors.Error) {
@@ -119,48 +101,29 @@ func (pa *pluginAPI) DeleteScope(input *plugin.ApiResourceInput) (*plugin.ApiRes
 	return &plugin.ApiResourceOutput{Body: bps, Status: http.StatusOK}, nil
 }
 
-func extractParam(params map[string]string) (uint64, string) {
-	connectionId, _ := strconv.ParseUint(params["connectionId"], 10, 64)
-	scopeId := params["scopeId"]
-	return connectionId, scopeId
-}
-
-func verifyScope(scope map[string]any) errors.Error {
-	if connectionId, ok := scope["connectionId"]; !ok || connectionId.(float64) == 0 {
-		return errors.BadInput.New("invalid connectionId")
-	}
-
-	if scope["id"] == "" {
-		return errors.BadInput.New("invalid scope ID")
-	}
-
-	return nil
-}
-
-func convertScopeResponse(scopes ...*api.ScopeRes[any]) ([]api.ScopeRes[models.ScopeModel], errors.Error) {
-	var response []api.ScopeRes[models.ScopeModel]
+// convertScopeResponse adapt the "remote" scopes to a serializable api.ScopeRes
+func convertScopeResponse(scopes ...*api.ScopeRes[any]) ([]map[string]any, errors.Error) {
+	var responses []map[string]any
 	for _, scope := range scopes {
-		scopeModel := models.ScopeModel{}
-		err := mapTo(scope.Scope, &scopeModel)
+		resMap := map[string]any{}
+		err := models.MapTo(api.ScopeRes[map[string]any]{
+			Scope:                  nil, //ignore intentionally
+			TransformationRuleName: scope.TransformationRuleName,
+			Blueprints:             scope.Blueprints,
+		}, &resMap)
 		if err != nil {
 			return nil, err
 		}
-		response = append(response, api.ScopeRes[models.ScopeModel]{
-			Scope:                  scopeModel,
-			TransformationRuleName: scope.TransformationRuleName,
-			Blueprints:             scope.Blueprints,
-		})
+		scopeMap := map[string]any{}
+		err = models.MapTo(scope.Scope, &scopeMap)
+		if err != nil {
+			return nil, err
+		}
+		delete(resMap, "Scope")
+		for k, v := range scopeMap {
+			resMap[k] = v
+		}
+		responses = append(responses, resMap)
 	}
-	return response, nil
-}
-
-func mapTo(x any, y any) errors.Error {
-	b, err := json.Marshal(x)
-	if err != nil {
-		return errors.Convert(err)
-	}
-	if err = json.Unmarshal(b, y); err != nil {
-		return errors.Convert(err)
-	}
-	return nil
+	return responses, nil
 }

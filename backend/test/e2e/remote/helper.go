@@ -46,13 +46,6 @@ type (
 		TransformationRuleId uint64 `json:"transformationRuleId"`
 		Url                  string `json:"url"`
 	}
-	FakeScope struct {
-		Id                   string `json:"id"`
-		Name                 string `json:"name"`
-		ConnectionId         uint64 `json:"connectionId"`
-		TransformationRuleId uint64 `json:"transformationRuleId"`
-		Url                  string `json:"url"`
-	}
 	FakeTxRule struct {
 		Id   uint64 `json:"id"`
 		Name string `json:"name"`
@@ -85,10 +78,10 @@ func CreateTestConnection(client *helper.DevlakeClient) *helper.Connection {
 	return connection
 }
 
-func CreateTestScope(client *helper.DevlakeClient, rule *FakeTxRule, connectionId uint64) *FakeScope {
-	scopes := helper.Cast[[]FakeScope](client.CreateScope(PLUGIN_NAME,
+func CreateTestScope(client *helper.DevlakeClient, rule *FakeTxRule, connectionId uint64) *FakeProject {
+	scopes := helper.Cast[[]FakeProject](client.CreateScope(PLUGIN_NAME,
 		connectionId,
-		FakeScope{
+		FakeProject{
 			Id:                   "p1",
 			Name:                 "Project 1",
 			ConnectionId:         connectionId,

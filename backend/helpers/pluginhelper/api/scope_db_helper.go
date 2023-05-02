@@ -28,6 +28,7 @@ import (
 type ScopeDatabaseHelper[Conn any, Scope any, Tr any] interface {
 	VerifyConnection(connectionId uint64) errors.Error
 	SaveScope(scopes []*Scope) errors.Error
+	UpdateScope(connectionId uint64, scopeId string, scope Scope) errors.Error
 	GetScope(connectionId uint64, scopeId string) (Scope, errors.Error)
 	ListScopes(input *plugin.ApiResourceInput, connectionId uint64) ([]*Scope, errors.Error)
 	DeleteScope(connectionId uint64, scopeId string) errors.Error
@@ -72,6 +73,10 @@ func (s *ScopeDatabaseHelperImpl[Conn, Scope, Tr]) SaveScope(scopes []*Scope) er
 		return err
 	}
 	return nil
+}
+
+func (s *ScopeDatabaseHelperImpl[Conn, Scope, Tr]) UpdateScope(connectionId uint64, scopeId string, scope Scope) errors.Error {
+	return s.db.Update(&scope)
 }
 
 func (s *ScopeDatabaseHelperImpl[Conn, Scope, Tr]) GetScope(connectionId uint64, scopeId string) (Scope, errors.Error) {

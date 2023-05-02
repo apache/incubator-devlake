@@ -127,25 +127,14 @@ func (c *GenericScopeApiHelper[Conn, Scope, Tr]) PutScopes(input *plugin.ApiReso
 	if err != nil {
 		return nil, errors.Default.Wrap(err, fmt.Sprintf("error verifying connection for connection ID %d", params.connectionId))
 	}
-	// Create a map to keep track of primary key values
-	keeper := make(map[string]struct{})
-
-	// Set the CreatedDate and UpdatedDate fields to the current time for each scope
+	err = c.validatePrimaryKeys(scopes)
+	if err != nil {
+		return nil, err
+	}
 	now := time.Now()
 	for _, scope := range scopes {
-		// Ensure that the primary key value is unique (for validatable types)
-		if c.validator != nil {
-			primaryValueStr := returnPrimaryKeyValue(scope)
-			if _, ok := keeper[primaryValueStr]; ok {
-				return nil, errors.BadInput.New("duplicate scope was requested")
-			} else {
-				keeper[primaryValueStr] = struct{}{}
-			}
-		}
 		// Set the connection ID, CreatedDate, and UpdatedDate fields
 		setScopeFields(scope, params.connectionId, &now, &now)
-
-		//Verify that the primary key value is valid
 		err = VerifyScope(scope, c.validator)
 		if err != nil {
 			return nil, errors.Default.Wrap(err, "error verifying scope")
@@ -158,13 +147,48 @@ func (c *GenericScopeApiHelper[Conn, Scope, Tr]) PutScopes(input *plugin.ApiReso
 			return nil, errors.Default.Wrap(err, "error saving scope")
 		}
 	}
-
 	apiScopes, err := c.addTransformationName(scopes...)
 	if err != nil {
 		return nil, errors.Default.Wrap(err, "error associating transformation to scope")
 	}
-
+	b, _ := json.Marshal(apiScopes[0].Scope)
+	_ = b
 	return apiScopes, nil
+}
+
+func (c *GenericScopeApiHelper[Conn, Scope, Tr]) UpdateScope(input *plugin.ApiResourceInput) (*ScopeRes[Scope], errors.Error) {
+	params := c.extractFromReqParam(input)
+	if params.connectionId == 0 {
+		return nil, errors.BadInput.New("invalid connectionId")
+	}
+	if len(params.scopeId) == 0 {
+		return nil, errors.BadInput.New("invalid scopeId")
+	}
+	err := c.dbHelper.VerifyConnection(params.connectionId)
+	if err != nil {
+		return nil, err
+	}
+	scope, err := c.dbHelper.GetScope(params.connectionId, params.scopeId)
+	if err != nil {
+		return nil, err
+	}
+	err = DecodeMapStruct(input.Body, &scope, false)
+	if err != nil {
+		return nil, errors.Default.Wrap(err, "patch scope error")
+	}
+	err = VerifyScope(&scope, c.validator)
+	if err != nil {
+		return nil, errors.Default.Wrap(err, "Invalid scope")
+	}
+	err = c.dbHelper.UpdateScope(params.connectionId, params.scopeId, scope)
+	if err != nil {
+		return nil, errors.Default.Wrap(err, "error on saving Scope")
+	}
+	scopeRes, err := c.addTransformationName(&scope)
+	if err != nil {
+		return nil, err
+	}
+	return scopeRes[0], nil
 }
 
 func (c *GenericScopeApiHelper[Conn, Scope, Tr]) GetScopes(input *plugin.ApiResourceInput) ([]*ScopeRes[Scope], errors.Error) {
@@ -500,6 +524,23 @@ func VerifyScope(scope interface{}, vld *validator.Validate) errors.Error {
 		}
 		if err := vld.Struct(scope); err != nil {
 			return errors.Default.Wrap(err, "error validating target")
+		}
+	}
+	return nil
+}
+
+func (c *GenericScopeApiHelper[Conn, Scope, Tr]) validatePrimaryKeys(scopes []*Scope) errors.Error {
+	if c.validator == nil {
+		return nil
+	}
+	keeper := make(map[string]struct{})
+	for _, scope := range scopes {
+		// Ensure that the primary key value is unique
+		primaryValueStr := returnPrimaryKeyValue(scope)
+		if _, ok := keeper[primaryValueStr]; ok {
+			return errors.BadInput.New("duplicate scope was requested")
+		} else {
+			keeper[primaryValueStr] = struct{}{}
 		}
 	}
 	return nil

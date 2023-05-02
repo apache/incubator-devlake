@@ -18,15 +18,12 @@ limitations under the License.
 package api
 
 import (
-	"fmt"
 	"github.com/apache/incubator-devlake/core/context"
-	"github.com/apache/incubator-devlake/core/dal"
 	"github.com/apache/incubator-devlake/core/errors"
 	"github.com/apache/incubator-devlake/core/models"
 	"github.com/apache/incubator-devlake/core/plugin"
 	"github.com/go-playground/validator/v10"
 	"net/http"
-	"reflect"
 )
 
 type (
@@ -79,53 +76,11 @@ func (c *ScopeApiHelper[Conn, Scope, Tr]) Put(input *plugin.ApiResourceInput) (*
 }
 
 func (c *ScopeApiHelper[Conn, Scope, Tr]) Update(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, errors.Error) {
-	params := c.extractFromReqParam(input)
-	if params.connectionId == 0 {
-		return nil, errors.BadInput.New("invalid connectionId")
-	}
-	if len(params.scopeId) == 0 {
-		return nil, errors.BadInput.New("invalid scopeId")
-	}
-	err := c.dbHelper.VerifyConnection(params.connectionId)
+	apiScope, err := c.GenericScopeApiHelper.UpdateScope(input)
 	if err != nil {
-		return &plugin.ApiResourceOutput{Body: nil, Status: http.StatusInternalServerError}, err
+		return nil, err
 	}
-	var scope Scope
-	err = c.db.First(&scope, dal.Where(fmt.Sprintf("connection_id = ? AND %s = ?", c.reflectionParams.ScopeIdColumnName), params.connectionId, params.scopeId))
-	if err != nil {
-		return &plugin.ApiResourceOutput{Body: nil, Status: http.StatusInternalServerError}, errors.Default.New("getting Scope error")
-	}
-	err = DecodeMapStruct(input.Body, &scope, true)
-	if err != nil {
-		return &plugin.ApiResourceOutput{Body: nil, Status: http.StatusInternalServerError}, errors.Default.Wrap(err, "patch scope error")
-	}
-	err = VerifyScope(&scope, c.validator)
-	if err != nil {
-		return &plugin.ApiResourceOutput{Body: nil, Status: http.StatusInternalServerError}, errors.Default.Wrap(err, "Invalid scope")
-	}
-
-	err = c.db.Update(scope)
-	if err != nil {
-		return &plugin.ApiResourceOutput{Body: nil, Status: http.StatusInternalServerError}, errors.Default.Wrap(err, "error on saving Scope")
-	}
-	valueRepoRuleId := reflect.ValueOf(scope).FieldByName("TransformationRuleId")
-	if !valueRepoRuleId.IsValid() {
-		return &plugin.ApiResourceOutput{Body: scope, Status: http.StatusOK}, nil
-	}
-	repoRuleId := reflect.ValueOf(scope).FieldByName("TransformationRuleId").Uint()
-	var rule Tr
-	if repoRuleId > 0 {
-		err = c.db.First(&rule, dal.Where("id = ?", repoRuleId))
-		if err != nil {
-			return nil, errors.NotFound.New("transformationRule not found")
-		}
-	}
-	scopeRes := &ScopeRes[Scope]{
-		Scope:                  scope,
-		TransformationRuleName: reflect.ValueOf(rule).FieldByName("Name").String(),
-	}
-
-	return &plugin.ApiResourceOutput{Body: scopeRes, Status: http.StatusOK}, nil
+	return &plugin.ApiResourceOutput{Body: apiScope, Status: http.StatusOK}, nil
 }
 
 func (c *ScopeApiHelper[Conn, Scope, Tr]) GetScopeList(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, errors.Error) {
