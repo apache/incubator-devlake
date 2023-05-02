@@ -31,6 +31,20 @@ type GiteeOptions struct {
 	models.TransformationRules `mapstructure:"transformationRules" json:"transformationRules"`
 }
 
+type GiteeApiParams struct {
+	ConnectionId uint64
+	Repo         string
+	Owner        string
+}
+
+func (g *GiteeOptions) GetParams() any {
+	return GiteeApiParams{
+		ConnectionId: g.ConnectionId,
+		Repo:         g.Repo,
+		Owner:        g.Owner,
+	}
+}
+
 type GiteeTaskData struct {
 	Options   *GiteeOptions
 	ApiClient *api.ApiAsyncClient

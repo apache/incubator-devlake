@@ -39,12 +39,9 @@ func ExtractApiStages(taskCtx plugin.SubTaskContext) errors.Error {
 	data := taskCtx.GetData().(*JenkinsTaskData)
 	extractor, err := api.NewApiExtractor(api.ApiExtractorArgs{
 		RawDataSubTaskArgs: api.RawDataSubTaskArgs{
-			Params: JenkinsApiParams{
-				ConnectionId: data.Options.ConnectionId,
-				FullName:     data.Options.JobFullName,
-			},
-			Ctx:   taskCtx,
-			Table: RAW_STAGE_TABLE,
+			Options: data.Options,
+			Ctx:     taskCtx,
+			Table:   RAW_STAGE_TABLE,
 		},
 		Extract: func(row *api.RawData) ([]interface{}, errors.Error) {
 			body := &models.Stage{}

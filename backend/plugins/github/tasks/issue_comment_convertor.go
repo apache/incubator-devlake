@@ -60,12 +60,9 @@ func ConvertIssueComments(taskCtx plugin.SubTaskContext) errors.Error {
 		InputRowType: reflect.TypeOf(models.GithubIssueComment{}),
 		Input:        cursor,
 		RawDataSubTaskArgs: api.RawDataSubTaskArgs{
-			Ctx: taskCtx,
-			Params: GithubApiParams{
-				ConnectionId: data.Options.ConnectionId,
-				Name:         data.Options.Name,
-			},
-			Table: RAW_COMMENTS_TABLE,
+			Ctx:     taskCtx,
+			Options: data.Options,
+			Table:   RAW_COMMENTS_TABLE,
 		},
 		Convert: func(inputRow interface{}) ([]interface{}, errors.Error) {
 			githubIssueComment := inputRow.(*models.GithubIssueComment)

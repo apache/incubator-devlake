@@ -60,12 +60,9 @@ func ConvertPipelineCommits(taskCtx plugin.SubTaskContext) errors.Error {
 		InputRowType: reflect.TypeOf(gitlabModels.GitlabPipelineProject{}),
 		Input:        cursor,
 		RawDataSubTaskArgs: helper.RawDataSubTaskArgs{
-			Ctx: taskCtx,
-			Params: GitlabApiParams{
-				ConnectionId: data.Options.ConnectionId,
-				ProjectId:    data.Options.ProjectId,
-			},
-			Table: RAW_PIPELINE_TABLE,
+			Ctx:     taskCtx,
+			Options: data.Options,
+			Table:   RAW_PIPELINE_TABLE,
 		},
 		Convert: func(inputRow interface{}) ([]interface{}, errors.Error) {
 			gitlabPipelineCommit := inputRow.(*gitlabModels.GitlabPipelineProject)

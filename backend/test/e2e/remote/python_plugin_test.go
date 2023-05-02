@@ -84,7 +84,8 @@ func TestCreateScope(t *testing.T) {
 	client := CreateClient(t)
 	var connectionId uint64 = 1
 
-	CreateTestScope(client, connectionId)
+	rule := CreateTestTransformationRule(client, connectionId)
+	CreateTestScope(client, rule, connectionId)
 
 	scopes := client.ListScopes(PLUGIN_NAME, connectionId, false)
 	require.Equal(t, 1, len(scopes))
@@ -99,7 +100,8 @@ func TestRunPipeline(t *testing.T) {
 	client := CreateClient(t)
 	conn := CreateTestConnection(client)
 
-	CreateTestScope(client, conn.ID)
+	rule := CreateTestTransformationRule(client, conn.ID)
+	CreateTestScope(client, rule, conn.ID)
 
 	pipeline := client.RunPipeline(models.NewPipeline{
 		Name: "remote_test",
@@ -129,7 +131,8 @@ func TestBlueprintV200(t *testing.T) {
 	client.CreateProject(&helper.ProjectConfig{
 		ProjectName: projectName,
 	})
-	scope := CreateTestScope(client, connection.ID)
+	rule := CreateTestTransformationRule(client, connection.ID)
+	scope := CreateTestScope(client, rule, connection.ID)
 
 	blueprint := client.CreateBasicBlueprintV2(
 		"Test blueprint",
@@ -162,7 +165,8 @@ func TestBlueprintV200(t *testing.T) {
 	scopesResponse := client.ListScopes(PLUGIN_NAME, connection.ID, true)
 	require.Equal(t, 1, len(scopesResponse))
 	require.Equal(t, 1, len(scopesResponse[0].Blueprints))
-	client.DeleteScope(PLUGIN_NAME, connection.ID, scope.Id, false)
+	bps := client.DeleteScope(PLUGIN_NAME, connection.ID, scope.Id, false)
+	require.Equal(t, 1, len(bps))
 	scopesResponse = client.ListScopes(PLUGIN_NAME, connection.ID, true)
 	require.Equal(t, 0, len(scopesResponse))
 }

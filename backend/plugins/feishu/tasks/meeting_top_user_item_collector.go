@@ -43,11 +43,9 @@ func CollectMeetingTopUserItem(taskCtx plugin.SubTaskContext) errors.Error {
 	}
 	collector, err := api.NewApiCollector(api.ApiCollectorArgs{
 		RawDataSubTaskArgs: api.RawDataSubTaskArgs{
-			Ctx: taskCtx,
-			Params: FeishuApiParams{
-				ConnectionId: data.Options.ConnectionId,
-			},
-			Table: RAW_MEETING_TOP_USER_ITEM_TABLE,
+			Ctx:     taskCtx,
+			Options: data.Options,
+			Table:   RAW_MEETING_TOP_USER_ITEM_TABLE,
 		},
 		ApiClient:   data.ApiClient,
 		Incremental: false,

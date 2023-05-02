@@ -103,11 +103,9 @@ func GenerateDeploymentCommits(taskCtx plugin.SubTaskContext) errors.Error {
 
 	enricher, err := api.NewDataConverter(api.DataConverterArgs{
 		RawDataSubTaskArgs: api.RawDataSubTaskArgs{
-			Ctx: taskCtx,
-			Params: DoraApiParams{
-				ProjectName: data.Options.ProjectName,
-			},
-			Table: "cicd_pipeline_commits",
+			Ctx:     taskCtx,
+			Options: data.Options,
+			Table:   "cicd_pipeline_commits",
 		},
 		InputRowType: reflect.TypeOf(pipelineCommitEx{}),
 		Input:        cursor,

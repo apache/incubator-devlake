@@ -74,12 +74,9 @@ func ExtractCard(taskCtx plugin.SubTaskContext) errors.Error {
 
 	extractor, err := api.NewApiExtractor(api.ApiExtractorArgs{
 		RawDataSubTaskArgs: api.RawDataSubTaskArgs{
-			Ctx: taskCtx,
-			Params: TrelloApiParams{
-				ConnectionId: taskData.Options.ConnectionId,
-				BoardId:      taskData.Options.BoardId,
-			},
-			Table: RAW_CARD_TABLE,
+			Ctx:     taskCtx,
+			Options: taskData.Options,
+			Table:   RAW_CARD_TABLE,
 		},
 		Extract: func(resData *api.RawData) ([]interface{}, errors.Error) {
 			apiCard := &TrelloApiCard{}

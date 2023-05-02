@@ -33,9 +33,8 @@ func ToDatabaseMap(tableName string, m map[string]any) map[string]any {
 			if err == nil {
 				if t.Second() == 0 { // 0 time is not permitted - just skip the column
 					continue
-				} else {
-					v = t
 				}
+				v = t
 			}
 		}
 		newMap[k] = v

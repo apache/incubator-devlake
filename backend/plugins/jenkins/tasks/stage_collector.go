@@ -72,12 +72,9 @@ func CollectApiStages(taskCtx plugin.SubTaskContext) errors.Error {
 
 	collector, err := api.NewApiCollector(api.ApiCollectorArgs{
 		RawDataSubTaskArgs: api.RawDataSubTaskArgs{
-			Params: JenkinsApiParams{
-				ConnectionId: data.Options.ConnectionId,
-				FullName:     data.Options.JobFullName,
-			},
-			Ctx:   taskCtx,
-			Table: RAW_STAGE_TABLE,
+			Options: data.Options,
+			Ctx:     taskCtx,
+			Table:   RAW_STAGE_TABLE,
 		},
 		ApiClient:   data.ApiClient,
 		Input:       iterator,

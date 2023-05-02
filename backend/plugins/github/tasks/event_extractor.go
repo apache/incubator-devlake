@@ -48,12 +48,9 @@ func ExtractApiEvents(taskCtx plugin.SubTaskContext) errors.Error {
 
 	extractor, err := api.NewApiExtractor(api.ApiExtractorArgs{
 		RawDataSubTaskArgs: api.RawDataSubTaskArgs{
-			Ctx: taskCtx,
-			Params: GithubApiParams{
-				ConnectionId: data.Options.ConnectionId,
-				Name:         data.Options.Name,
-			},
-			Table: RAW_EVENTS_TABLE,
+			Ctx:     taskCtx,
+			Options: data.Options,
+			Table:   RAW_EVENTS_TABLE,
 		},
 		Extract: func(row *api.RawData) ([]interface{}, errors.Error) {
 			body := &IssueEvent{}

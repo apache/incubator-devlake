@@ -52,12 +52,9 @@ func ConvertAccounts(taskCtx plugin.SubTaskContext) errors.Error {
 		InputRowType: reflect.TypeOf(gitlabModels.GitlabAccount{}),
 		Input:        cursor,
 		RawDataSubTaskArgs: api.RawDataSubTaskArgs{
-			Ctx: taskCtx,
-			Params: GitlabApiParams{
-				ConnectionId: data.Options.ConnectionId,
-				ProjectId:    data.Options.ProjectId,
-			},
-			Table: RAW_USER_TABLE,
+			Ctx:     taskCtx,
+			Options: data.Options,
+			Table:   RAW_USER_TABLE,
 		},
 		Convert: func(inputRow interface{}) ([]interface{}, errors.Error) {
 			GitlabAccount := inputRow.(*gitlabModels.GitlabAccount)

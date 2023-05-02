@@ -38,7 +38,6 @@ var ExtractRemotelinksMeta = plugin.SubTaskMeta{
 func ExtractRemotelinks(taskCtx plugin.SubTaskContext) errors.Error {
 	data := taskCtx.GetData().(*JiraTaskData)
 	connectionId := data.Options.ConnectionId
-	boardId := data.Options.BoardId
 	logger := taskCtx.GetLogger()
 	logger.Info("extract remote links")
 
@@ -64,12 +63,9 @@ func ExtractRemotelinks(taskCtx plugin.SubTaskContext) errors.Error {
 
 	extractor, err := api.NewApiExtractor(api.ApiExtractorArgs{
 		RawDataSubTaskArgs: api.RawDataSubTaskArgs{
-			Ctx: taskCtx,
-			Params: JiraApiParams{
-				ConnectionId: connectionId,
-				BoardId:      boardId,
-			},
-			Table: RAW_REMOTELINK_TABLE,
+			Ctx:     taskCtx,
+			Options: data.Options,
+			Table:   RAW_REMOTELINK_TABLE,
 		},
 		Extract: func(row *api.RawData) ([]interface{}, errors.Error) {
 			var result []interface{}

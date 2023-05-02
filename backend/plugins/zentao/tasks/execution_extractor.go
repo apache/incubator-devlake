@@ -46,13 +46,9 @@ func ExtractExecutions(taskCtx plugin.SubTaskContext) errors.Error {
 
 	extractor, err := api.NewApiExtractor(api.ApiExtractorArgs{
 		RawDataSubTaskArgs: api.RawDataSubTaskArgs{
-			Ctx: taskCtx,
-			Params: ZentaoApiParams{
-				ConnectionId: data.Options.ConnectionId,
-				ProductId:    data.Options.ProductId,
-				ProjectId:    data.Options.ProjectId,
-			},
-			Table: RAW_EXECUTION_TABLE,
+			Ctx:     taskCtx,
+			Options: data.Options,
+			Table:   RAW_EXECUTION_TABLE,
 		},
 		Extract: func(row *api.RawData) ([]interface{}, errors.Error) {
 			res := &models.ZentaoExecutionRes{}

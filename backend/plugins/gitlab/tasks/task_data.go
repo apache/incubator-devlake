@@ -33,6 +33,17 @@ type GitlabOptions struct {
 	TimeAfter                        string
 	*models.GitlabTransformationRule `mapstructure:"transformationRules" json:"transformationRules"`
 }
+type GitlabApiParams struct {
+	ConnectionId uint64
+	ProjectId    int
+}
+
+func (g *GitlabOptions) GetParams() any {
+	return GitlabApiParams{
+		ConnectionId: g.ConnectionId,
+		ProjectId:    g.ProjectId,
+	}
+}
 
 type GitlabTaskData struct {
 	Options       *GitlabOptions

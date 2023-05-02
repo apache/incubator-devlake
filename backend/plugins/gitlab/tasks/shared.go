@@ -34,11 +34,6 @@ import (
 	helper "github.com/apache/incubator-devlake/helpers/pluginhelper/api"
 )
 
-type GitlabApiParams struct {
-	ConnectionId uint64
-	ProjectId    int
-}
-
 type GitlabInput struct {
 	GitlabId int
 	Iid      int
@@ -140,12 +135,9 @@ func GetQuery(reqData *helper.RequestData) (url.Values, errors.Error) {
 func CreateRawDataSubTaskArgs(taskCtx plugin.SubTaskContext, Table string) (*helper.RawDataSubTaskArgs, *GitlabTaskData) {
 	data := taskCtx.GetData().(*GitlabTaskData)
 	RawDataSubTaskArgs := &helper.RawDataSubTaskArgs{
-		Ctx: taskCtx,
-		Params: GitlabApiParams{
-			ProjectId:    data.Options.ProjectId,
-			ConnectionId: data.Options.ConnectionId,
-		},
-		Table: Table,
+		Ctx:     taskCtx,
+		Options: data.Options,
+		Table:   Table,
 	}
 	return RawDataSubTaskArgs, data
 }

@@ -94,12 +94,9 @@ func ConvertIssueChangelogs(taskCtx plugin.SubTaskContext) errors.Error {
 	accountIdGen := didgen.NewDomainIdGenerator(&models.JiraAccount{})
 	converter, err := api.NewDataConverter(api.DataConverterArgs{
 		RawDataSubTaskArgs: api.RawDataSubTaskArgs{
-			Ctx: taskCtx,
-			Params: JiraApiParams{
-				ConnectionId: connectionId,
-				BoardId:      boardId,
-			},
-			Table: RAW_CHANGELOG_TABLE,
+			Ctx:     taskCtx,
+			Options: data.Options,
+			Table:   RAW_CHANGELOG_TABLE,
 		},
 		InputRowType: reflect.TypeOf(IssueChangelogItemResult{}),
 		Input:        cursor,

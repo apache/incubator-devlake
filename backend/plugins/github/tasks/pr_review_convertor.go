@@ -61,12 +61,9 @@ func ConvertPullRequestReviews(taskCtx plugin.SubTaskContext) errors.Error {
 		InputRowType: reflect.TypeOf(models.GithubPrReview{}),
 		Input:        cursor,
 		RawDataSubTaskArgs: api.RawDataSubTaskArgs{
-			Ctx: taskCtx,
-			Params: GithubApiParams{
-				ConnectionId: data.Options.ConnectionId,
-				Name:         data.Options.Name,
-			},
-			Table: RAW_PR_REVIEW_TABLE,
+			Ctx:     taskCtx,
+			Options: data.Options,
+			Table:   RAW_PR_REVIEW_TABLE,
 		},
 		Convert: func(inputRow interface{}) ([]interface{}, errors.Error) {
 			githubPullRequestReview := inputRow.(*models.GithubPrReview)

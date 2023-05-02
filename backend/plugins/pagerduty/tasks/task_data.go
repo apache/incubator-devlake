@@ -44,6 +44,13 @@ type PagerDutyParams struct {
 	ScopeId      string
 }
 
+func (p *PagerDutyOptions) GetParams() any {
+	return PagerDutyParams{
+		ConnectionId: p.ConnectionId,
+		ScopeId:      p.ServiceId,
+	}
+}
+
 func DecodeAndValidateTaskOptions(options map[string]interface{}) (*PagerDutyOptions, errors.Error) {
 	op, err := DecodeTaskOptions(options)
 	if err != nil {

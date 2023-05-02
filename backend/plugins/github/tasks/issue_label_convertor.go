@@ -55,12 +55,9 @@ func ConvertIssueLabels(taskCtx plugin.SubTaskContext) errors.Error {
 
 	converter, err := api.NewDataConverter(api.DataConverterArgs{
 		RawDataSubTaskArgs: api.RawDataSubTaskArgs{
-			Ctx: taskCtx,
-			Params: GithubApiParams{
-				ConnectionId: data.Options.ConnectionId,
-				Name:         data.Options.Name,
-			},
-			Table: RAW_ISSUE_TABLE,
+			Ctx:     taskCtx,
+			Options: data.Options,
+			Table:   RAW_ISSUE_TABLE,
 		},
 		InputRowType: reflect.TypeOf(models.GithubIssueLabel{}),
 		Input:        cursor,

@@ -90,12 +90,9 @@ func CollectAccount(taskCtx plugin.SubTaskContext) errors.Error {
 
 	collector, err := helper.NewGraphqlCollector(helper.GraphqlCollectorArgs{
 		RawDataSubTaskArgs: helper.RawDataSubTaskArgs{
-			Ctx: taskCtx,
-			Params: githubTasks.GithubApiParams{
-				ConnectionId: data.Options.ConnectionId,
-				Name:         data.Options.Name,
-			},
-			Table: RAW_ACCOUNTS_TABLE,
+			Ctx:     taskCtx,
+			Options: data.Options,
+			Table:   RAW_ACCOUNTS_TABLE,
 		},
 		Input:         iterator,
 		InputStep:     100,

@@ -45,12 +45,9 @@ func ExtractMember(taskCtx plugin.SubTaskContext) errors.Error {
 
 	extractor, err := api.NewApiExtractor(api.ApiExtractorArgs{
 		RawDataSubTaskArgs: api.RawDataSubTaskArgs{
-			Ctx: taskCtx,
-			Params: TrelloApiParams{
-				ConnectionId: taskData.Options.ConnectionId,
-				BoardId:      taskData.Options.BoardId,
-			},
-			Table: RAW_MEMBER_TABLE,
+			Ctx:     taskCtx,
+			Options: taskData.Options,
+			Table:   RAW_MEMBER_TABLE,
 		},
 		Extract: func(resData *api.RawData) ([]interface{}, errors.Error) {
 			apiMember := &TrelloApiMember{}

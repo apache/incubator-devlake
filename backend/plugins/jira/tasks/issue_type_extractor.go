@@ -41,12 +41,9 @@ func ExtractIssueType(taskCtx plugin.SubTaskContext) errors.Error {
 	logger.Info("extract IssueType, connection_id=%d, board_id=%d", connectionId, boardId)
 	extractor, err := api.NewApiExtractor(api.ApiExtractorArgs{
 		RawDataSubTaskArgs: api.RawDataSubTaskArgs{
-			Ctx: taskCtx,
-			Params: JiraApiParams{
-				ConnectionId: connectionId,
-				BoardId:      boardId,
-			},
-			Table: RAW_ISSUE_TYPE_TABLE,
+			Ctx:     taskCtx,
+			Options: data.Options,
+			Table:   RAW_ISSUE_TYPE_TABLE,
 		},
 		Extract: func(row *api.RawData) ([]interface{}, errors.Error) {
 			issueType := &models.JiraIssueType{}

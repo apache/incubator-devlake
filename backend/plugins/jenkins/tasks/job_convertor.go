@@ -60,12 +60,9 @@ func ConvertJobs(taskCtx plugin.SubTaskContext) errors.Error {
 		InputRowType: reflect.TypeOf(models.JenkinsJob{}),
 		Input:        cursor,
 		RawDataSubTaskArgs: api.RawDataSubTaskArgs{
-			Params: JenkinsApiParams{
-				ConnectionId: data.Options.ConnectionId,
-				FullName:     data.Options.JobFullName,
-			},
-			Ctx:   taskCtx,
-			Table: RAW_JOB_TABLE,
+			Options: data.Options,
+			Ctx:     taskCtx,
+			Table:   RAW_JOB_TABLE,
 		},
 		Convert: func(inputRow interface{}) ([]interface{}, errors.Error) {
 			jenkinsJob := inputRow.(*models.JenkinsJob)

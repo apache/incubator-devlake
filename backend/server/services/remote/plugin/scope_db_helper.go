@@ -26,7 +26,6 @@ import (
 	"github.com/apache/incubator-devlake/core/plugin"
 	"github.com/apache/incubator-devlake/helpers/pluginhelper/api"
 	"github.com/apache/incubator-devlake/impls/dalgorm"
-	"gorm.io/gorm"
 	"reflect"
 )
 
@@ -50,7 +49,7 @@ func (s *ScopeDatabaseHelperImpl) VerifyConnection(connectionId uint64) errors.E
 	conn := s.pa.connType.New()
 	err := s.connHelper.FirstById(conn, connectionId)
 	if err != nil {
-		if errors.Is(err, gorm.ErrRecordNotFound) {
+		if s.db.IsErrorNotFound(err) {
 			return errors.BadInput.New("Invalid Connection Id")
 		}
 		return err
@@ -71,15 +70,12 @@ func (s *ScopeDatabaseHelperImpl) SaveScope(scopes []*any) errors.Error {
 		if err != nil {
 			return err
 		}
-		m = dalgorm.ToDatabaseMap(s.pa.scopeType.TableName(), m) //or use api.DecodeMapStruct?
+		m = dalgorm.ToDatabaseMap(s.pa.scopeType.TableName(), m)
 		targets = append(targets, m)
 	}
 	err := api.CallDB(s.db.Create, &targets, dal.From(s.pa.scopeType.TableName()))
 	if err != nil {
-		if s.db.IsDuplicationError(err) {
-			return errors.BadInput.Wrap(err, "the scope already exists")
-		}
-		return err
+		return errors.Default.Wrap(err, "could not save scope")
 	}
 	return nil
 }
@@ -88,8 +84,8 @@ func (s *ScopeDatabaseHelperImpl) GetScope(connectionId uint64, scopeId string) 
 	query := dal.Where(fmt.Sprintf("connection_id = ? AND %s = ?", s.params.ScopeIdColumnName), connectionId, scopeId)
 	scope := s.pa.scopeType.New()
 	err := api.CallDB(s.db.First, scope, query)
-	if basicRes.GetDal().IsErrorNotFound(err) {
-		return scope, errors.NotFound.New("Scope not found")
+	if err != nil {
+		return nil, errors.Default.Wrap(err, "could not get scope")
 	}
 	return scope.Unwrap(), nil
 }
@@ -103,6 +99,7 @@ func (s *ScopeDatabaseHelperImpl) ListScopes(input *plugin.ApiResourceInput, con
 	}
 	var result []*any
 	for _, scope := range scopes.UnwrapSlice() {
+		scope := scope
 		result = append(result, &scope)
 	}
 	return result, nil
@@ -111,14 +108,13 @@ func (s *ScopeDatabaseHelperImpl) ListScopes(input *plugin.ApiResourceInput, con
 func (s *ScopeDatabaseHelperImpl) DeleteScope(connectionId uint64, scopeId string) errors.Error {
 	rawScope := s.pa.scopeType.New()
 	return api.CallDB(s.db.Delete, rawScope, dal.Where("connection_id = ? AND id = ?", connectionId, scopeId))
-
 }
 
 func (s *ScopeDatabaseHelperImpl) GetTransformationRule(ruleId uint64) (any, errors.Error) {
 	rule := s.pa.txRuleType.New()
 	err := api.CallDB(s.db.First, rule, dal.Where("id = ?", ruleId))
 	if err != nil {
-		return rule, errors.NotFound.New("transformationRule not found")
+		return rule, err
 	}
 	return rule.Unwrap(), nil
 }
@@ -130,8 +126,9 @@ func (s *ScopeDatabaseHelperImpl) ListTransformationRules(ruleIds []uint64) ([]*
 		return nil, err
 	}
 	var result []*any
-	for _, scope := range rules.UnwrapSlice() {
-		result = append(result, &scope)
+	for _, rule := range rules.UnwrapSlice() {
+		rule := rule
+		result = append(result, &rule)
 	}
 	return result, nil
 }

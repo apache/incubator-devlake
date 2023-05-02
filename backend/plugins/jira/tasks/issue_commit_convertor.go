@@ -63,12 +63,9 @@ func ConvertIssueCommits(taskCtx plugin.SubTaskContext) errors.Error {
 	issueIdGenerator := didgen.NewDomainIdGenerator(&models.JiraIssue{})
 	converter, err := api.NewDataConverter(api.DataConverterArgs{
 		RawDataSubTaskArgs: api.RawDataSubTaskArgs{
-			Ctx: taskCtx,
-			Params: JiraApiParams{
-				ConnectionId: connectionId,
-				BoardId:      boardId,
-			},
-			Table: RAW_REMOTELINK_TABLE,
+			Ctx:     taskCtx,
+			Options: data.Options,
+			Table:   RAW_REMOTELINK_TABLE,
 		},
 		InputRowType: reflect.TypeOf(models.JiraIssueCommit{}),
 		Input:        cursor,

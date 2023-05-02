@@ -59,12 +59,9 @@ func ConvertJobs(taskCtx plugin.SubTaskContext) (err errors.Error) {
 		InputRowType: reflect.TypeOf(gitlabModels.GitlabJob{}),
 		Input:        cursor,
 		RawDataSubTaskArgs: api.RawDataSubTaskArgs{
-			Ctx: taskCtx,
-			Params: GitlabApiParams{
-				ConnectionId: data.Options.ConnectionId,
-				ProjectId:    data.Options.ProjectId,
-			},
-			Table: RAW_JOB_TABLE,
+			Ctx:     taskCtx,
+			Options: data.Options,
+			Table:   RAW_JOB_TABLE,
 		},
 		Convert: func(inputRow interface{}) ([]interface{}, errors.Error) {
 			gitlabJob := inputRow.(*gitlabModels.GitlabJob)

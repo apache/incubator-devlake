@@ -54,12 +54,9 @@ func CollectAccounts(taskCtx plugin.SubTaskContext) errors.Error {
 	}
 	collector, err := api.NewApiCollector(api.ApiCollectorArgs{
 		RawDataSubTaskArgs: api.RawDataSubTaskArgs{
-			Ctx: taskCtx,
-			Params: GithubApiParams{
-				ConnectionId: data.Options.ConnectionId,
-				Name:         data.Options.Name,
-			},
-			Table: RAW_ACCOUNT_TABLE,
+			Ctx:     taskCtx,
+			Options: data.Options,
+			Table:   RAW_ACCOUNT_TABLE,
 		},
 		ApiClient:   data.ApiClient,
 		Input:       iterator,

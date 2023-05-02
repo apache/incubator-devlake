@@ -23,7 +23,6 @@ import (
 	"github.com/apache/incubator-devlake/core/dal"
 	"github.com/apache/incubator-devlake/core/errors"
 	"github.com/apache/incubator-devlake/core/plugin"
-	"gorm.io/gorm"
 )
 
 type ScopeDatabaseHelper[Conn any, Scope any, Tr any] interface {
@@ -56,7 +55,7 @@ func (s *ScopeDatabaseHelperImpl[Conn, Scope, Tr]) VerifyConnection(connectionId
 	var conn Conn
 	err := s.connHelper.FirstById(&conn, connectionId)
 	if err != nil {
-		if errors.Is(err, gorm.ErrRecordNotFound) {
+		if s.db.IsErrorNotFound(err) {
 			return errors.BadInput.New("Invalid Connection Id")
 		}
 		return err
@@ -79,10 +78,7 @@ func (s *ScopeDatabaseHelperImpl[Conn, Scope, Tr]) GetScope(connectionId uint64,
 	query := dal.Where(fmt.Sprintf("connection_id = ? AND %s = ?", s.params.ScopeIdColumnName), connectionId, scopeId)
 	var scope Scope
 	err := s.db.First(&scope, query)
-	if s.db.IsErrorNotFound(err) {
-		return scope, errors.NotFound.New("Scope not found")
-	}
-	return scope, nil
+	return scope, err
 }
 
 func (s *ScopeDatabaseHelperImpl[Conn, Scope, Tr]) ListScopes(input *plugin.ApiResourceInput, connectionId uint64) ([]*Scope, errors.Error) {
@@ -102,10 +98,7 @@ func (s *ScopeDatabaseHelperImpl[Conn, Scope, Tr]) DeleteScope(connectionId uint
 func (s *ScopeDatabaseHelperImpl[Conn, Scope, Tr]) GetTransformationRule(ruleId uint64) (Tr, errors.Error) {
 	var rule Tr
 	err := s.db.First(&rule, dal.Where("id = ?", ruleId))
-	if err != nil {
-		return rule, errors.NotFound.New("transformationRule not found")
-	}
-	return rule, nil
+	return rule, err
 }
 
 func (s *ScopeDatabaseHelperImpl[Conn, Scope, Tr]) ListTransformationRules(ruleIds []uint64) ([]*Tr, errors.Error) {

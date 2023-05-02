@@ -47,12 +47,9 @@ func CollectSprints(taskCtx plugin.SubTaskContext) errors.Error {
 	jql := "ORDER BY created ASC"
 	collector, err := api.NewApiCollector(api.ApiCollectorArgs{
 		RawDataSubTaskArgs: api.RawDataSubTaskArgs{
-			Ctx: taskCtx,
-			Params: JiraApiParams{
-				ConnectionId: data.Options.ConnectionId,
-				BoardId:      data.Options.BoardId,
-			},
-			Table: RAW_SPRINT_TABLE,
+			Ctx:     taskCtx,
+			Options: data.Options,
+			Table:   RAW_SPRINT_TABLE,
 		},
 		ApiClient:   data.ApiClient,
 		PageSize:    50,

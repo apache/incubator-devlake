@@ -64,13 +64,9 @@ func CollectTask(taskCtx plugin.SubTaskContext) errors.Error {
 
 	collector, err := api.NewApiCollector(api.ApiCollectorArgs{
 		RawDataSubTaskArgs: api.RawDataSubTaskArgs{
-			Ctx: taskCtx,
-			Params: ZentaoApiParams{
-				ConnectionId: data.Options.ConnectionId,
-				ProductId:    data.Options.ProductId,
-				ProjectId:    data.Options.ProjectId,
-			},
-			Table: RAW_TASK_TABLE,
+			Ctx:     taskCtx,
+			Options: data.Options,
+			Table:   RAW_TASK_TABLE,
 		},
 		Input:       iterator,
 		ApiClient:   data.ApiClient,

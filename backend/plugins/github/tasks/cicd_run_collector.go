@@ -63,12 +63,9 @@ func CollectRuns(taskCtx plugin.SubTaskContext) errors.Error {
 	db := taskCtx.GetDal()
 	collector, err := helper.NewStatefulApiCollectorForFinalizableEntity(helper.FinalizableApiCollectorArgs{
 		RawDataSubTaskArgs: helper.RawDataSubTaskArgs{
-			Ctx: taskCtx,
-			Params: GithubApiParams{
-				ConnectionId: data.Options.ConnectionId,
-				Name:         data.Options.Name,
-			},
-			Table: RAW_RUN_TABLE,
+			Ctx:     taskCtx,
+			Options: data.Options,
+			Table:   RAW_RUN_TABLE,
 		},
 		ApiClient: data.ApiClient,
 		TimeAfter: data.TimeAfter,

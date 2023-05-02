@@ -187,8 +187,8 @@ func (d *DevlakeClient) GetScope(pluginName string, connectionId uint64, scopeId
 	}, http.MethodGet, fmt.Sprintf("%s/plugins/%s/connections/%d/scopes/%s?blueprints=%v", d.Endpoint, pluginName, connectionId, scopeId, listBlueprints), nil, nil)
 }
 
-func (d *DevlakeClient) DeleteScope(pluginName string, connectionId uint64, scopeId string, deleteDataOnly bool) {
-	_ = sendHttpRequest[any](d.testCtx, d.timeout, debugInfo{
+func (d *DevlakeClient) DeleteScope(pluginName string, connectionId uint64, scopeId string, deleteDataOnly bool) []models.Blueprint {
+	return sendHttpRequest[[]models.Blueprint](d.testCtx, d.timeout, debugInfo{
 		print:      true,
 		inlineJson: false,
 	}, http.MethodDelete, fmt.Sprintf("%s/plugins/%s/connections/%d/scopes/%s?delete_data_only=%v", d.Endpoint, pluginName, connectionId, scopeId, deleteDataOnly), nil, nil)

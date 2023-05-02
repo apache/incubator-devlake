@@ -46,12 +46,9 @@ func CollectWorklogs(taskCtx plugin.SubTaskContext) errors.Error {
 	logger := taskCtx.GetLogger()
 
 	collectorWithState, err := api.NewStatefulApiCollector(api.RawDataSubTaskArgs{
-		Ctx: taskCtx,
-		Params: JiraApiParams{
-			ConnectionId: data.Options.ConnectionId,
-			BoardId:      data.Options.BoardId,
-		},
-		Table: RAW_WORKLOGS_TABLE,
+		Ctx:     taskCtx,
+		Options: data.Options,
+		Table:   RAW_WORKLOGS_TABLE,
 	}, data.TimeAfter)
 	if err != nil {
 		return err

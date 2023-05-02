@@ -83,10 +83,7 @@ func ExtractApiIssues(taskCtx plugin.SubTaskContext) errors.Error {
 				This struct will be JSONEncoded and stored into database along with raw data itself, to identity minimal
 				set of data to be process, for example, we process JiraIssues by Board
 			*/
-			Params: GithubApiParams{
-				ConnectionId: data.Options.ConnectionId,
-				Name:         data.Options.Name,
-			},
+			Options: data.Options,
 			/*
 				Table store raw data
 			*/

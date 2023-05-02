@@ -37,3 +37,10 @@ type TrelloApiParams struct {
 	ConnectionId uint64
 	BoardId      string
 }
+
+func (t *TrelloOptions) GetParams() any {
+	return TrelloApiParams{
+		ConnectionId: t.ConnectionId,
+		BoardId:      t.BoardId,
+	}
+}

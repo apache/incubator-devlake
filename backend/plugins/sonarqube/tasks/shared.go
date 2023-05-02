@@ -35,14 +35,10 @@ func CreateRawDataSubTaskArgs(taskCtx plugin.SubTaskContext, rawTable string) (*
 	filteredData := *data
 	filteredData.Options = &SonarqubeOptions{}
 	*filteredData.Options = *data.Options
-	var params = SonarqubeApiParams{
-		ConnectionId: data.Options.ConnectionId,
-		ProjectKey:   data.Options.ProjectKey,
-	}
 	rawDataSubTaskArgs := &api.RawDataSubTaskArgs{
-		Ctx:    taskCtx,
-		Params: params,
-		Table:  rawTable,
+		Ctx:     taskCtx,
+		Options: data.Options,
+		Table:   rawTable,
 	}
 	return rawDataSubTaskArgs, &filteredData
 }

@@ -41,12 +41,9 @@ var CollectApiCommitsMeta = plugin.SubTaskMeta{
 func CollectApiCommits(taskCtx plugin.SubTaskContext) errors.Error {
 	data := taskCtx.GetData().(*GithubTaskData)
 	collectorWithState, err := helper.NewStatefulApiCollector(helper.RawDataSubTaskArgs{
-		Ctx: taskCtx,
-		Params: GithubApiParams{
-			ConnectionId: data.Options.ConnectionId,
-			Name:         data.Options.Name,
-		},
-		Table: RAW_COMMIT_TABLE,
+		Ctx:     taskCtx,
+		Options: data.Options,
+		Table:   RAW_COMMIT_TABLE,
 	}, data.TimeAfter)
 	if err != nil {
 		return err

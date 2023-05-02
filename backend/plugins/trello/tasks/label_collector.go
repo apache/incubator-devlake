@@ -42,12 +42,9 @@ func CollectLabel(taskCtx plugin.SubTaskContext) errors.Error {
 
 	collector, err := api.NewApiCollector(api.ApiCollectorArgs{
 		RawDataSubTaskArgs: api.RawDataSubTaskArgs{
-			Ctx: taskCtx,
-			Params: TrelloApiParams{
-				ConnectionId: taskData.Options.ConnectionId,
-				BoardId:      taskData.Options.BoardId,
-			},
-			Table: RAW_LABEL_TABLE,
+			Ctx:     taskCtx,
+			Options: taskData.Options,
+			Table:   RAW_LABEL_TABLE,
 		},
 		ApiClient:   taskData.ApiClient,
 		UrlTemplate: "1/boards/{{ .Params.BoardId }}/labels",

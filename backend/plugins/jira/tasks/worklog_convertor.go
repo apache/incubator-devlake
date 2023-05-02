@@ -65,12 +65,9 @@ func ConvertWorklogs(taskCtx plugin.SubTaskContext) errors.Error {
 	issueIdGen := didgen.NewDomainIdGenerator(&models.JiraIssue{})
 	converter, err := api.NewDataConverter(api.DataConverterArgs{
 		RawDataSubTaskArgs: api.RawDataSubTaskArgs{
-			Ctx: taskCtx,
-			Params: JiraApiParams{
-				ConnectionId: data.Options.ConnectionId,
-				BoardId:      data.Options.BoardId,
-			},
-			Table: RAW_WORKLOGS_TABLE,
+			Ctx:     taskCtx,
+			Options: data.Options,
+			Table:   RAW_WORKLOGS_TABLE,
 		},
 		InputRowType: reflect.TypeOf(models.JiraWorklog{}),
 		Input:        cursor,

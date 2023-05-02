@@ -42,12 +42,9 @@ func ExtractStatus(taskCtx plugin.SubTaskContext) errors.Error {
 	logger.Info("extract Status, connection_id=%d, board_id=%d", connectionId, boardId)
 	extractor, err := api.NewApiExtractor(api.ApiExtractorArgs{
 		RawDataSubTaskArgs: api.RawDataSubTaskArgs{
-			Ctx: taskCtx,
-			Params: JiraApiParams{
-				ConnectionId: connectionId,
-				BoardId:      boardId,
-			},
-			Table: RAW_STATUS_TABLE,
+			Ctx:     taskCtx,
+			Options: data.Options,
+			Table:   RAW_STATUS_TABLE,
 		},
 		Extract: func(row *api.RawData) ([]interface{}, errors.Error) {
 			var apiStatus apiv2models.Status

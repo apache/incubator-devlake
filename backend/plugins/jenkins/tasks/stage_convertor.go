@@ -65,8 +65,8 @@ func ConvertStages(taskCtx plugin.SubTaskContext) (err errors.Error) {
 	clauses := []dal.Clause{
 		dal.Select(`tjb.connection_id, tjs.build_name, tjs.id, tjs._raw_data_remark, tjs.name,
 			tjs._raw_data_id, tjs._raw_data_table, tjs._raw_data_params,
-			tjs.status, tjs.start_time_millis, tjs.duration_millis, 
-			tjs.pause_duration_millis, tjs.type, 
+			tjs.status, tjs.start_time_millis, tjs.duration_millis,
+			tjs.pause_duration_millis, tjs.type,
 			tjb.triggered_by, tjb.building`),
 		dal.From("_tool_jenkins_stages tjs"),
 		dal.Join("left join _tool_jenkins_builds tjb on tjs.build_name = tjb.full_name"),
@@ -87,12 +87,9 @@ func ConvertStages(taskCtx plugin.SubTaskContext) (err errors.Error) {
 		InputRowType: reflect.TypeOf(JenkinsBuildWithRepoStage{}),
 		Input:        cursor,
 		RawDataSubTaskArgs: api.RawDataSubTaskArgs{
-			Params: JenkinsApiParams{
-				ConnectionId: data.Options.ConnectionId,
-				FullName:     data.Options.JobFullName,
-			},
-			Ctx:   taskCtx,
-			Table: RAW_STAGE_TABLE,
+			Options: data.Options,
+			Ctx:     taskCtx,
+			Table:   RAW_STAGE_TABLE,
 		},
 		Convert: func(inputRow interface{}) ([]interface{}, errors.Error) {
 			body := inputRow.(*JenkinsBuildWithRepoStage)

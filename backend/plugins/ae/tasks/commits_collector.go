@@ -34,12 +34,9 @@ func CollectCommits(taskCtx plugin.SubTaskContext) errors.Error {
 	data := taskCtx.GetData().(*AeTaskData)
 	collector, err := api.NewApiCollector(api.ApiCollectorArgs{
 		RawDataSubTaskArgs: api.RawDataSubTaskArgs{
-			Ctx: taskCtx,
-			Params: AeApiParams{
-				ConnectionId: data.Options.ConnectionId,
-				ProjectId:    data.Options.ProjectId,
-			},
-			Table: RAW_COMMITS_TABLE,
+			Ctx:     taskCtx,
+			Options: data.Options,
+			Table:   RAW_COMMITS_TABLE,
 		},
 		ApiClient:   data.ApiClient,
 		PageSize:    2000,

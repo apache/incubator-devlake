@@ -76,14 +76,7 @@ func (bps *BlueprintSettings) UpdateConnections(updater func(c *plugin.Blueprint
 		if err != nil {
 			return err
 		}
-		//if len(conn.Scopes) == 0 { // if nothing's left, just get rid of it
-		//	bps.Connections = nil
-		//} else {
 		conns[i] = conn
-		//if err != nil {
-		//	return err
-		//}
-		//}
 	}
 	bps.Connections, err = errors.Convert01(json.Marshal(&conns))
 	if err != nil {

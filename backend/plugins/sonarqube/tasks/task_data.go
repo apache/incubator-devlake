@@ -44,6 +44,13 @@ type SonarqubeTaskData struct {
 	LastAnalysisDate *time.Time
 }
 
+func (p *SonarqubeOptions) GetParams() any {
+	return SonarqubeApiParams{
+		ConnectionId: p.ConnectionId,
+		ProjectKey:   p.ProjectKey,
+	}
+}
+
 func DecodeAndValidateTaskOptions(options map[string]interface{}) (*SonarqubeOptions, errors.Error) {
 	var op SonarqubeOptions
 	if err := api.Decode(options, &op, nil); err != nil {

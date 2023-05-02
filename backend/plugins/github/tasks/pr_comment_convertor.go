@@ -61,12 +61,9 @@ func ConvertPullRequestComments(taskCtx plugin.SubTaskContext) errors.Error {
 		InputRowType: reflect.TypeOf(models.GithubPrComment{}),
 		Input:        cursor,
 		RawDataSubTaskArgs: api.RawDataSubTaskArgs{
-			Ctx: taskCtx,
-			Params: GithubApiParams{
-				ConnectionId: data.Options.ConnectionId,
-				Name:         data.Options.Name,
-			},
-			Table: RAW_COMMENTS_TABLE,
+			Ctx:     taskCtx,
+			Options: data.Options,
+			Table:   RAW_COMMENTS_TABLE,
 		},
 		Convert: func(inputRow interface{}) ([]interface{}, errors.Error) {
 			githubPullRequestComment := inputRow.(*models.GithubPrComment)

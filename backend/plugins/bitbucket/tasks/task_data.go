@@ -34,6 +34,18 @@ type BitbucketOptions struct {
 	*models.BitbucketTransformationRule `mapstructure:"transformationRules,omitempty" json:"transformationRules"`
 }
 
+type BitbucketApiParams struct {
+	ConnectionId uint64
+	FullName     string
+}
+
+func (b *BitbucketOptions) GetParams() any {
+	return BitbucketApiParams{
+		ConnectionId: b.ConnectionId,
+		FullName:     b.FullName,
+	}
+}
+
 type BitbucketTaskData struct {
 	Options       *BitbucketOptions
 	ApiClient     *api.ApiAsyncClient

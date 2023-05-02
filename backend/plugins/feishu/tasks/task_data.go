@@ -31,6 +31,12 @@ type FeishuOptions struct {
 	NumOfDaysToCollect float64 `json:"numOfDaysToCollect"`
 }
 
+func (f *FeishuOptions) GetParams() any {
+	return FeishuOptions{
+		ConnectionId: f.ConnectionId,
+	}
+}
+
 type FeishuTaskData struct {
 	Options                  *FeishuOptions
 	ApiClient                *helper.ApiAsyncClient

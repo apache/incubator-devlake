@@ -53,6 +53,13 @@ type GithubApiParams struct {
 	Name         string
 }
 
+func (g *GithubOptions) GetParams() any {
+	return GithubApiParams{
+		ConnectionId: g.ConnectionId,
+		Name:         g.Name,
+	}
+}
+
 func DecodeAndValidateTaskOptions(options map[string]interface{}) (*GithubOptions, errors.Error) {
 	op, err := DecodeTaskOptions(options)
 	if err != nil {

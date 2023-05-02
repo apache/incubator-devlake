@@ -28,11 +28,12 @@ import (
 var _ plugin.SubTaskEntryPoint = ExtractCommitter
 
 func ExtractCommitter(taskCtx plugin.SubTaskContext) errors.Error {
+	data := taskCtx.GetData().(*IclaTaskData)
 	extractor, err := api.NewApiExtractor(api.ApiExtractorArgs{
 		RawDataSubTaskArgs: api.RawDataSubTaskArgs{
-			Ctx:    taskCtx,
-			Params: IclaApiParams{},
-			Table:  RAW_COMMITTER_TABLE,
+			Ctx:     taskCtx,
+			Options: data.Options,
+			Table:   RAW_COMMITTER_TABLE,
 		},
 		Extract: func(resData *api.RawData) ([]interface{}, errors.Error) {
 			names := &map[string]string{}

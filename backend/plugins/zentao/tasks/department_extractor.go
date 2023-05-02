@@ -39,13 +39,9 @@ func ExtractDepartment(taskCtx plugin.SubTaskContext) errors.Error {
 	data := taskCtx.GetData().(*ZentaoTaskData)
 	extractor, err := api.NewApiExtractor(api.ApiExtractorArgs{
 		RawDataSubTaskArgs: api.RawDataSubTaskArgs{
-			Ctx: taskCtx,
-			Params: ZentaoApiParams{
-				ConnectionId: data.Options.ConnectionId,
-				ProductId:    data.Options.ProductId,
-				ProjectId:    data.Options.ProjectId,
-			},
-			Table: RAW_DEPARTMENT_TABLE,
+			Ctx:     taskCtx,
+			Options: data.Options,
+			Table:   RAW_DEPARTMENT_TABLE,
 		},
 		Extract: func(row *api.RawData) ([]interface{}, errors.Error) {
 			department := &models.ZentaoDepartment{}

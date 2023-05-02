@@ -33,12 +33,9 @@ const RAW_COMMENTS_TABLE = "github_api_comments"
 func CollectApiComments(taskCtx plugin.SubTaskContext) errors.Error {
 	data := taskCtx.GetData().(*GithubTaskData)
 	collectorWithState, err := helper.NewStatefulApiCollector(helper.RawDataSubTaskArgs{
-		Ctx: taskCtx,
-		Params: GithubApiParams{
-			ConnectionId: data.Options.ConnectionId,
-			Name:         data.Options.Name,
-		},
-		Table: RAW_COMMENTS_TABLE,
+		Ctx:     taskCtx,
+		Options: data.Options,
+		Table:   RAW_COMMENTS_TABLE,
 	}, data.TimeAfter)
 	if err != nil {
 		return err

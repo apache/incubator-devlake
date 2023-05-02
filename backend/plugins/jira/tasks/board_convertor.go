@@ -57,12 +57,9 @@ func ConvertBoard(taskCtx plugin.SubTaskContext) errors.Error {
 	defer cursor.Close()
 	converter, err := api.NewDataConverter(api.DataConverterArgs{
 		RawDataSubTaskArgs: api.RawDataSubTaskArgs{
-			Ctx: taskCtx,
-			Params: JiraApiParams{
-				ConnectionId: data.Options.ConnectionId,
-				BoardId:      data.Options.BoardId,
-			},
-			Table: RAW_BOARD_TABLE,
+			Ctx:     taskCtx,
+			Options: data.Options,
+			Table:   RAW_BOARD_TABLE,
 		},
 		InputRowType: reflect.TypeOf(models.JiraBoard{}),
 		Input:        cursor,

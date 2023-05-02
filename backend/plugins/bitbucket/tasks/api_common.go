@@ -31,11 +31,6 @@ import (
 	"time"
 )
 
-type BitbucketApiParams struct {
-	ConnectionId uint64
-	FullName     string
-}
-
 type BitbucketInput struct {
 	BitbucketId int
 }
@@ -55,12 +50,9 @@ type BitbucketPagination struct {
 func CreateRawDataSubTaskArgs(taskCtx plugin.SubTaskContext, Table string) (*api.RawDataSubTaskArgs, *BitbucketTaskData) {
 	data := taskCtx.GetData().(*BitbucketTaskData)
 	RawDataSubTaskArgs := &api.RawDataSubTaskArgs{
-		Ctx: taskCtx,
-		Params: BitbucketApiParams{
-			ConnectionId: data.Options.ConnectionId,
-			FullName:     data.Options.FullName,
-		},
-		Table: Table,
+		Ctx:     taskCtx,
+		Options: data.Options,
+		Table:   Table,
 	}
 	return RawDataSubTaskArgs, data
 }

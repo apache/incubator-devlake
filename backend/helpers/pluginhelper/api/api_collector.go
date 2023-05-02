@@ -356,7 +356,7 @@ func (collector *ApiCollector) generateUrl(pager *Pager, input interface{}) (str
 	var buf bytes.Buffer
 	err := collector.urlTemplate.Execute(&buf, &RequestData{
 		Pager:  pager,
-		Params: collector.args.Params,
+		Params: collector.args.Options.GetParams(),
 		Input:  input,
 	})
 	if err != nil {

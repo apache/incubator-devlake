@@ -35,13 +35,9 @@ func CollectAccount(taskCtx plugin.SubTaskContext) errors.Error {
 	data := taskCtx.GetData().(*ZentaoTaskData)
 	collector, err := api.NewApiCollector(api.ApiCollectorArgs{
 		RawDataSubTaskArgs: api.RawDataSubTaskArgs{
-			Ctx: taskCtx,
-			Params: ZentaoApiParams{
-				ConnectionId: data.Options.ConnectionId,
-				ProductId:    data.Options.ProductId,
-				ProjectId:    data.Options.ProjectId,
-			},
-			Table: RAW_ACCOUNT_TABLE,
+			Ctx:     taskCtx,
+			Options: data.Options,
+			Table:   RAW_ACCOUNT_TABLE,
 		},
 		ApiClient:   data.ApiClient,
 		PageSize:    100,

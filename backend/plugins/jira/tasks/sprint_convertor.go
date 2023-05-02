@@ -64,12 +64,9 @@ func ConvertSprints(taskCtx plugin.SubTaskContext) errors.Error {
 	boardIdGen := didgen.NewDomainIdGenerator(&models.JiraBoard{})
 	converter, err = api.NewDataConverter(api.DataConverterArgs{
 		RawDataSubTaskArgs: api.RawDataSubTaskArgs{
-			Ctx: taskCtx,
-			Params: JiraApiParams{
-				ConnectionId: data.Options.ConnectionId,
-				BoardId:      data.Options.BoardId,
-			},
-			Table: RAW_SPRINT_TABLE,
+			Ctx:     taskCtx,
+			Options: data.Options,
+			Table:   RAW_SPRINT_TABLE,
 		},
 		InputRowType: reflect.TypeOf(models.JiraSprint{}),
 		Input:        cursor,

@@ -57,12 +57,9 @@ func ConvertIssueLabels(taskCtx plugin.SubTaskContext) errors.Error {
 
 	converter, err := helper.NewDataConverter(helper.DataConverterArgs{
 		RawDataSubTaskArgs: helper.RawDataSubTaskArgs{
-			Ctx: taskCtx,
-			Params: JiraApiParams{
-				ConnectionId: data.Options.ConnectionId,
-				BoardId:      data.Options.BoardId,
-			},
-			Table: RAW_ISSUE_TABLE,
+			Ctx:     taskCtx,
+			Options: data.Options,
+			Table:   RAW_ISSUE_TABLE,
 		},
 		InputRowType: reflect.TypeOf(models.JiraIssueLabel{}),
 		Input:        cursor,
