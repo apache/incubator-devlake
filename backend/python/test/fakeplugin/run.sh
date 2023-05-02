@@ -16,23 +16,5 @@
 # limitations under the License.
 #
 
-build() {
-    python_dir=$1
-    cd "$python_dir" &&\
-    poetry install &&\
-    cd -
-    exit_code=$?
-    if [ $exit_code != 0 ]; then
-      exit $exit_code
-    fi
-}
-
-cd "${0%/*}" # make sure we're in the correct dir
-
-poetry config virtualenvs.create true
-
-for plugin_dir in $(find test/ -name "*.toml"); do
-  plugin_dir=$(dirname $plugin_dir)
-  echo "Building Python test plugin in: $plugin_dir" &&\
-  build "$plugin_dir"
-done
+cd "$(dirname "$0")"
+poetry run python fakeplugin/main.py "$@"

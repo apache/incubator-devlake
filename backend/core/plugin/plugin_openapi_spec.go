@@ -15,21 +15,12 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-package remote
+package plugin
 
-import (
-	"encoding/json"
-
-	"github.com/apache/incubator-devlake/server/services/remote/models"
-)
-
-type SwaggerDoc struct {
-	Name     string          `json:"name" validate:"required"`
-	Resource string          `json:"resource" validate:"required"`
-	Spec     json.RawMessage `json:"spec" validate:"required"`
-}
-
-type PluginDetails struct {
-	PluginInfo models.PluginInfo `json:"plugin_info" validate:"required"`
-	Swagger    SwaggerDoc        `json:"swagger" validate:"required"`
+// PluginApiSpec let a plugin document its API with an OpenAPI spec.
+// This is useful for remote plugins because whose standardized API spec template
+// need to be instantiated with remote plugin's specific schemas,
+// something that is not supported by swaggo.
+type PluginOpenApiSpec interface {
+	OpenApiSpec() string
 }

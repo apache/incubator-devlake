@@ -63,20 +63,18 @@ class FakePipelineStream(Stream):
         )
 
     def convert_status(self, state: FakePipeline.State):
-        match state:
-            case FakePipeline.State.FAILURE | FakePipeline.State.SUCCESS:
-                return CICDStatus.DONE
-            case _:
-                return CICDStatus.IN_PROGRESS
+        if state == FakePipeline.State.FAILURE or state == FakePipeline.State.SUCCESS:
+            return CICDStatus.DONE
+        else:
+            return CICDStatus.IN_PROGRESS
 
     def convert_result(self, state: FakePipeline.State):
-        match state:
-            case FakePipeline.State.SUCCESS:
-                return CICDResult.SUCCESS
-            case FakePipeline.State.FAILURE:
-                return CICDResult.FAILURE
-            case _:
-                return None
+        if state == FakePipeline.State.SUCCESS:
+            return CICDResult.SUCCESS
+        elif state == FakePipeline.State.FAILURE:
+            return CICDResult.FAILURE
+        else:
+            return None
 
     def duration(self, pipeline: FakePipeline):
         if pipeline.finished_at:

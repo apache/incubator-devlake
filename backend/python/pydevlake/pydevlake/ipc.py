@@ -110,9 +110,6 @@ class PluginCommands:
         c = self._plugin.connection_type(**connection)
         return self._plugin.make_remote_scopes(c, group_id)
 
-    def startup(self, endpoint: str):
-        self._plugin.startup(endpoint)
-
     def _mk_context(self, data: dict):
         db_url = data['db_url']
         scope_dict = data['scope']

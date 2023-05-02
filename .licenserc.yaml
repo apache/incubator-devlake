@@ -33,7 +33,7 @@ header:
     - '**/env.example'
     - '**/*.csv'
     - '**/*.json'
-    - '**/*.template.json'
+    - '**/*.json.tmpl'
     - '**/*.sql'
     - '**/*.svg'
     - '**/*.png'

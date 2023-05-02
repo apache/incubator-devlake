@@ -28,6 +28,7 @@ import (
 	"github.com/apache/incubator-devlake/helpers/pluginhelper/api"
 	"github.com/apache/incubator-devlake/server/services/remote/bridge"
 	"github.com/apache/incubator-devlake/server/services/remote/models"
+	"github.com/apache/incubator-devlake/server/services/remote/plugin/doc"
 )
 
 type (
@@ -41,6 +42,7 @@ type (
 		scopeTabler              *coreModels.DynamicTabler
 		transformationRuleTabler *coreModels.DynamicTabler
 		resources                map[string]map[string]plugin.ApiResourceHandler
+		openApiSpec              string
 	}
 	RemotePluginTaskData struct {
 		DbUrl              string                 `json:"db_url"`
@@ -68,6 +70,10 @@ func newPlugin(info *models.PluginInfo, invoker bridge.Invoker) (*remotePluginIm
 	if err != nil {
 		return nil, errors.Default.Wrap(err, fmt.Sprintf("Couldn't load Scope type for plugin %s", info.Name))
 	}
+	openApiSpec, err := doc.GenerateOpenApiSpec(info)
+	if err != nil {
+		return nil, errors.Default.Wrap(err, fmt.Sprintf("Couldn't generate OpenAPI spec for plugin %s", info.Name))
+	}
 	p := remotePluginImpl{
 		name:                     info.Name,
 		invoker:                  invoker,
@@ -77,6 +83,7 @@ func newPlugin(info *models.PluginInfo, invoker bridge.Invoker) (*remotePluginIm
 		scopeTabler:              scopeTabler,
 		transformationRuleTabler: txRuleTabler,
 		resources:                GetDefaultAPI(invoker, connectionTabler, txRuleTabler, scopeTabler, connectionHelper),
+		openApiSpec:              *openApiSpec,
 	}
 	remoteBridge := bridge.NewBridge(invoker)
 	for _, subtask := range info.SubtaskMetas {
@@ -193,6 +200,10 @@ func (p *remotePluginImpl) RunMigrations(forceMigrate bool) errors.Error {
 	}
 	err = p.invoker.Call("run-migrations", bridge.DefaultContext, forceMigrate).Err
 	return err
+}
+
+func (p *remotePluginImpl) OpenApiSpec() string {
+	return p.openApiSpec
 }
 
 var _ models.RemotePlugin = (*remotePluginImpl)(nil)
