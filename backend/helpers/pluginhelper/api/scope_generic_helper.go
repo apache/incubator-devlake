@@ -590,7 +590,7 @@ func getPluginTables(pluginName string) ([]string, errors.Error) {
 		tablesInfo := pluginModel.GetTablesInfo()
 		for _, table := range tablesInfo {
 			// we only care about tables with RawOrigin
-			_, ok = reflect.TypeOf(table).Elem().FieldByName("RawDataParams")
+			ok = hasField(table, "RawDataParams")
 			if ok {
 				tables = append(tables, table.TableName())
 			}
@@ -598,7 +598,7 @@ func getPluginTables(pluginName string) ([]string, errors.Error) {
 		// collect domain tables
 		for _, domainTable := range domaininfo.GetDomainTablesInfo() {
 			// we only care about tables with RawOrigin
-			_, ok = reflect.TypeOf(domainTable).Elem().FieldByName("RawDataParams")
+			ok = hasField(domainTable, "RawDataParams")
 			if ok {
 				tables = append(tables, domainTable.TableName())
 			}
@@ -609,6 +609,11 @@ func getPluginTables(pluginName string) ([]string, errors.Error) {
 
 func reflectField(obj any, fieldName string) reflect.Value {
 	return reflectValue(obj).FieldByName(fieldName)
+}
+
+func hasField(obj any, fieldName string) bool {
+	_, ok := reflectType(obj).FieldByName(fieldName)
+	return ok
 }
 
 func reflectValue(obj any) reflect.Value {
