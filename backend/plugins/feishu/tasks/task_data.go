@@ -32,7 +32,7 @@ type FeishuOptions struct {
 }
 
 func (f *FeishuOptions) GetParams() any {
-	return FeishuOptions{
+	return FeishuApiParams{
 		ConnectionId: f.ConnectionId,
 	}
 }

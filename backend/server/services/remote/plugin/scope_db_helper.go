@@ -59,7 +59,7 @@ func (s *ScopeDatabaseHelperImpl) VerifyConnection(connectionId uint64) errors.E
 
 func (s *ScopeDatabaseHelperImpl) SaveScope(scopes []*any) errors.Error {
 	now := time.Now()
-	return s.saveScope(scopes, &now, &now)
+	return s.save(scopes, &now, &now)
 }
 
 func (s *ScopeDatabaseHelperImpl) UpdateScope(connectionId uint64, scopeId string, scope any) errors.Error {
@@ -70,7 +70,7 @@ func (s *ScopeDatabaseHelperImpl) UpdateScope(connectionId uint64, scopeId strin
 		}
 	}
 	now := time.Now()
-	return s.saveScope([]*any{&scope}, nil, &now)
+	return s.save([]*any{&scope}, nil, &now)
 }
 
 func (s *ScopeDatabaseHelperImpl) GetScope(connectionId uint64, scopeId string) (any, errors.Error) {
@@ -126,7 +126,7 @@ func (s *ScopeDatabaseHelperImpl) ListTransformationRules(ruleIds []uint64) ([]*
 	return result, nil
 }
 
-func (s *ScopeDatabaseHelperImpl) saveScope(scopes []*any, createdAt *time.Time, updatedAt *time.Time) errors.Error {
+func (s *ScopeDatabaseHelperImpl) save(scopes []*any, createdAt *time.Time, updatedAt *time.Time) errors.Error {
 	var targets []map[string]any
 	for _, x := range scopes {
 		ifc := reflect.ValueOf(*x).Elem().Interface()
