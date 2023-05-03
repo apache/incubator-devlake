@@ -30,10 +30,6 @@ import (
 	"github.com/apache/incubator-devlake/server/services/remote/models"
 )
 
-func init() {
-	config.GetConfig().GetString("OPEN_API_SPEC_PATH")
-}
-
 func GenerateOpenApiSpec(pluginInfo *models.PluginInfo) (*string, errors.Error) {
 	connectionSchema, err := json.Marshal(pluginInfo.ConnectionModelInfo.JsonSchema)
 	if err != nil {
