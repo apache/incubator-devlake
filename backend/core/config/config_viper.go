@@ -76,6 +76,7 @@ func setDefaultValue(v *viper.Viper) {
 	v.SetDefault("TEMPORAL_TASK_QUEUE", "DEVLAKE_TASK_QUEUE")
 	v.SetDefault("TAP_PROPERTIES_DIR", "resources/tap")
 	v.SetDefault("REMOTE_PLUGIN_DIR", "python/plugins")
+	v.SetDefault("SWAGGER_DOCS_DIR", "resources/swagger")
 }
 
 // replaceNewEnvItemInOldContent replace old config to new config in env file content

@@ -19,16 +19,20 @@ package doc
 
 import (
 	"encoding/json"
+	"github.com/apache/incubator-devlake/core/config"
 	"io"
 	"os"
-	"path"
-	"runtime"
+	"path/filepath"
 	"strings"
 	"text/template"
 
 	"github.com/apache/incubator-devlake/core/errors"
 	"github.com/apache/incubator-devlake/server/services/remote/models"
 )
+
+func init() {
+	config.GetConfig().GetString("OPEN_API_SPEC_PATH")
+}
 
 func GenerateOpenApiSpec(pluginInfo *models.PluginInfo) (*string, errors.Error) {
 	connectionSchema, err := json.Marshal(pluginInfo.ConnectionModelInfo.JsonSchema)
@@ -62,7 +66,11 @@ func GenerateOpenApiSpec(pluginInfo *models.PluginInfo) (*string, errors.Error) 
 }
 
 func specTemplate() (*template.Template, errors.Error) {
-	file, err := os.Open(specTemplatePath())
+	path := config.GetConfig().GetString("SWAGGER_DOCS_DIR")
+	if path == "" {
+		return nil, errors.Default.New("path for Swagger docs resources is not set")
+	}
+	file, err := os.Open(filepath.Join(path, "open_api_spec.json.tmpl"))
 	if err != nil {
 		return nil, errors.Default.Wrap(err, "could not open swagger doc template")
 	}
@@ -75,9 +83,4 @@ func specTemplate() (*template.Template, errors.Error) {
 		return nil, errors.Default.Wrap(err, "could not parse swagger doc template")
 	}
 	return specTemplate, nil
-}
-
-func specTemplatePath() string {
-	_, currentFile, _, _ := runtime.Caller(0)
-	return path.Join(path.Dir(currentFile), "open_api_spec.json.tmpl")
 }
