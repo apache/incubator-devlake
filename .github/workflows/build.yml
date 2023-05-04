@@ -17,8 +17,7 @@
 
 name: Build-Images-Push-Docker
 env:
-  DOCKERHUB_USERNAME: ${{ secrets.DOCKERHUB_USER }}
-  DOCKERHUB_TOKEN: ${{ secrets.DOCKERHUB_TOKEN }}
+  REGISTRY: ghcr.io
 on:
   push:
     tags:
@@ -36,18 +35,19 @@ jobs:
       - name: Login to DockerHub
         uses: docker/login-action@v2
         with:
-          username: ${{ env.DOCKERHUB_USERNAME }}
-          password: ${{ env.DOCKERHUB_TOKEN }}
+          registry: ${{ env.REGISTRY }}
+          username:  ${{ github.actor }}
+          password:  ${{ secrets.GITHUB_TOKEN }}
       - name: Build and push lake image
-        uses: docker/build-push-action@v3
+        uses: docker/build-push-action@v4
         with:
           context: ./backend
           push: true
           target: builder
-          tags: ${{ secrets.DOCKERHUB_OWNER }}/devlake:amd64-builder
+          tags: ${{ env.REGISTRY }}/telia-oss/devlake:amd64-builder
           platforms: linux/amd64
-          cache-from: ${{ secrets.DOCKERHUB_OWNER }}/devlake:amd64-builder
-          cache-to: ${{ secrets.DOCKERHUB_OWNER }}/devlake:amd64-builder
+          cache-from: ${{ env.REGISTRY }}/telia-oss/devlake:amd64-builder
+          cache-to: ${{ env.REGISTRY }}/telia-oss/devlake:amd64-builder
   build-and-push-base:
     name: Build and Push devlake base
     runs-on: ubuntu-latest
@@ -60,18 +60,19 @@ jobs:
       - name: Login to DockerHub
         uses: docker/login-action@v2
         with:
-          username: ${{ env.DOCKERHUB_USERNAME }}
-          password: ${{ env.DOCKERHUB_TOKEN }}
+          registry: ${{ env.REGISTRY }}
+          username:  ${{ github.actor }}
+          password:  ${{ secrets.GITHUB_TOKEN }}
       - name: Build and push lake image
-        uses: docker/build-push-action@v3
+        uses: docker/build-push-action@v4
         with:
           context: ./backend
           push: true
           target: base
-          tags: ${{ secrets.DOCKERHUB_OWNER }}/devlake:base
+          tags: ${{ env.REGISTRY }}/telia-oss/devlake:base
           platforms: linux/amd64,linux/arm64
-          cache-from: ${{ secrets.DOCKERHUB_OWNER }}/devlake:base
-          cache-to: ${{ secrets.DOCKERHUB_OWNER }}/devlake:base
+          cache-from: ${{ env.REGISTRY }}/telia-oss/devlake:base
+          cache-to: ${{ env.REGISTRY }}/telia-oss/devlake:base
   build-devlake:
     needs: build-and-push-builder
     name: Build and cache devlake
@@ -91,21 +92,22 @@ jobs:
       - name: Login to DockerHub
         uses: docker/login-action@v2
         with:
-          username: ${{ env.DOCKERHUB_USERNAME }}
-          password: ${{ env.DOCKERHUB_TOKEN }}
+          registry: ${{ env.REGISTRY }}
+          username:  ${{ github.actor }}
+          password:  ${{ secrets.GITHUB_TOKEN }}
       - uses: actions/cache@v3
         with:
           path: /tmp/devlake-build-cache-${{ matrix.platform }}
           key: buildx-devlake-build-cache-${{ github.run_id }}-${{ matrix.platform }}
       - name: Build and cache lake build
-        uses: docker/build-push-action@v3
+        uses: docker/build-push-action@v4
         with:
           context: ./backend
           push: false
           target: build
-          tags: ${{ secrets.DOCKERHUB_OWNER }}/devlake:build-cache-${{ matrix.platform }}
+          tags: ${{ env.REGISTRY }}/telia-oss/devlake:build-cache-${{ matrix.platform }}
           platforms: linux/${{ matrix.platform }}
-          cache-from: ${{ secrets.DOCKERHUB_OWNER }}/devlake:amd64-builder
+          cache-from: ${{ env.REGISTRY }}/telia-oss/devlake:amd64-builder
           cache-to: type=local,mode=min,dest=/tmp/devlake-build-cache-${{ matrix.platform }}
           build-args: |
             TAG=${{ github.ref_name }}
@@ -126,8 +128,9 @@ jobs:
       - name: Login to DockerHub
         uses: docker/login-action@v2
         with:
-          username: ${{ env.DOCKERHUB_USERNAME }}
-          password: ${{ env.DOCKERHUB_TOKEN }}
+          registry: ${{ env.REGISTRY }}
+          username:  ${{ github.actor }}
+          password:  ${{ secrets.GITHUB_TOKEN }}
       - uses: actions/cache@v3
         with:
           path: /tmp/devlake-build-cache-amd64
@@ -139,22 +142,22 @@ jobs:
       - name: Get push tags
         id: get_push_tags
         run: |
-          image_name=${{ secrets.DOCKERHUB_OWNER }}/devlake
+          image_name=${{ env.REGISTRY }}/telia-oss/devlake
           if printf ${{ github.ref_name }} | grep -Pq '^v(\d+).(\d+).(\d+)$'; then
               echo "TAGS=${image_name}:latest,${image_name}:${{ github.ref_name }}" >> $GITHUB_OUTPUT
           else
               echo "TAGS=${image_name}:${{ github.ref_name }}" >> $GITHUB_OUTPUT
           fi
       - name: Build and push lake image
-        uses: docker/build-push-action@v3
+        uses: docker/build-push-action@v4
         with:
           context: ./backend
           push: true
           tags: ${{ steps.get_push_tags.outputs.TAGS }}
           platforms: linux/amd64,linux/arm64
           cache-from: |
-            ${{ secrets.DOCKERHUB_OWNER }}/devlake:amd64-builder
-            ${{ secrets.DOCKERHUB_OWNER }}/devlake:base
+            ${{ env.REGISTRY }}/telia-oss/devlake:amd64-builder
+            ${{ env.REGISTRY }}/telia-oss/devlake:base
             type=local,src=/tmp/devlake-build-cache-amd64
             type=local,src=/tmp/devlake-build-cache-arm64
           build-args: |
@@ -199,19 +202,20 @@ jobs:
       - name: Login to DockerHub
         uses: docker/login-action@v2
         with:
-          username: ${{ env.DOCKERHUB_USERNAME }}
-          password: ${{ env.DOCKERHUB_TOKEN }}
+          registry: ${{ env.REGISTRY }}
+          username:  ${{ github.actor }}
+          password:  ${{ secrets.GITHUB_TOKEN }}
       - name: Get push tags
         id: get_push_tags
         run: |
-          image_name=${{ secrets.DOCKERHUB_OWNER }}/${{ matrix.build.image }}
+          image_name=${{ env.REGISTRY }}/telia-oss/${{ matrix.build.image }}
           if printf ${{ github.ref_name }} | grep -Pq '^v(\d+).(\d+).(\d+)$'; then
               echo "TAGS=${image_name}:latest,${image_name}:${{ github.ref_name }}" >> $GITHUB_OUTPUT
           else
               echo "TAGS=${image_name}:${{ github.ref_name }}" >> $GITHUB_OUTPUT
           fi
       - name: Build and push ${{ matrix.build.name }} image
-        uses: docker/build-push-action@v3
+        uses: docker/build-push-action@v4
         with:
           context: ${{ matrix.build.context }}
           push: true
