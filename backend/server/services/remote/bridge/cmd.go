@@ -21,6 +21,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"os/exec"
+	"path"
 
 	"github.com/apache/incubator-devlake/core/errors"
 	"github.com/apache/incubator-devlake/core/log"
@@ -34,10 +35,18 @@ type CmdInvoker struct {
 	workingPath string
 }
 
-func NewCmdInvoker(workingPath string, resolveCmd func(methodName string, args ...string) (string, []string)) *CmdInvoker {
+func NewCmdInvoker(execPath string) *CmdInvoker {
+	// Split the path into dir and file
+	dir, file := path.Split(execPath)
+	resolveCmd := func(methodName string, args ...string) (string, []string) {
+		allArgs := []string{methodName}
+		allArgs = append(allArgs, args...)
+		return fmt.Sprintf("./%s", file), allArgs
+	}
+
 	return &CmdInvoker{
 		resolveCmd:  resolveCmd,
-		workingPath: workingPath,
+		workingPath: dir,
 	}
 }
 

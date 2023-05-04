@@ -22,22 +22,30 @@ import (
 	"io/fs"
 	"path/filepath"
 	goplugin "plugin"
-	"strconv"
 	"strings"
 
 	"github.com/apache/incubator-devlake/core/context"
 	"github.com/apache/incubator-devlake/core/errors"
 	"github.com/apache/incubator-devlake/core/plugin"
 	"github.com/apache/incubator-devlake/server/services/remote"
+	"github.com/apache/incubator-devlake/server/services/remote/bridge"
+	"github.com/apache/incubator-devlake/server/services/remote/models"
 )
 
 // LoadPlugins load plugins from local directory
 func LoadPlugins(basicRes context.BasicRes) errors.Error {
-	remote_plugins_enabled, err := strconv.ParseBool(basicRes.GetConfig("ENABLE_REMOTE_PLUGINS"))
-	if err == nil && remote_plugins_enabled {
-		remote.Init(basicRes)
+	err := LoadGoPlugins(basicRes)
+	if err != nil {
+		return err
 	}
+	err = LoadRemotePlugins(basicRes)
+	if err != nil {
+		return err
+	}
+	return nil
+}
 
+func LoadGoPlugins(basicRes context.BasicRes) errors.Error {
 	pluginsDir := basicRes.GetConfig("PLUGIN_DIR")
 	walkErr := filepath.WalkDir(pluginsDir, func(path string, d fs.DirEntry, err error) error {
 		if err != nil {
@@ -66,7 +74,7 @@ func LoadPlugins(basicRes context.BasicRes) errors.Error {
 			}
 			err = plugin.RegisterPlugin(pluginName, pluginMeta)
 			if err != nil {
-				return nil
+				return err
 			}
 
 			basicRes.GetLogger().Info(`plugin loaded %s`, pluginName)
@@ -74,4 +82,42 @@ func LoadPlugins(basicRes context.BasicRes) errors.Error {
 		return nil
 	})
 	return errors.Convert(walkErr)
+}
+
+func LoadRemotePlugins(basicRes context.BasicRes) errors.Error {
+	remotePluginDir := basicRes.GetConfig("REMOTE_PLUGIN_DIR")
+	if remotePluginDir != "" {
+		basicRes.GetLogger().Info("Loading remote plugins")
+		remote.Init(basicRes)
+		walkErr := filepath.WalkDir(remotePluginDir, func(path string, d fs.DirEntry, err error) error {
+			if err != nil {
+				return err
+			}
+			fileName := d.Name()
+			if fileName == "run.sh" {
+				invoker := bridge.NewCmdInvoker(path)
+				result := invoker.Call("plugin-info", bridge.DefaultContext)
+				if result.Err != nil {
+					return errors.Default.Wrap(result.Err, "Error calling plugin-info")
+				}
+				pluginInfo := &models.PluginInfo{}
+				err := result.Get(pluginInfo)
+				if err != nil {
+					return err
+				}
+				remotePlugin, err := remote.NewRemotePlugin(pluginInfo)
+				if err != nil {
+					return err
+				}
+				err = plugin.RegisterPlugin(pluginInfo.Name, remotePlugin)
+				if err != nil {
+					return err
+				}
+				basicRes.GetLogger().Info(`remote plugin loaded %s`, pluginInfo.Name)
+			}
+			return nil
+		})
+		return errors.Convert(walkErr)
+	}
+	return nil
 }

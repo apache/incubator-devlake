@@ -19,8 +19,9 @@ package api
 
 import (
 	"context"
-	"github.com/apache/incubator-devlake/server/api/shared"
 	"net/http"
+
+	"github.com/apache/incubator-devlake/server/api/shared"
 
 	"github.com/apache/incubator-devlake/core/errors"
 	"github.com/apache/incubator-devlake/core/plugin"
@@ -57,6 +58,11 @@ func TestConnection(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, 
 	if err != nil {
 		return nil, errors.BadInput.Wrap(err, "verify token failed")
 	}
+
+	if res.StatusCode == http.StatusUnauthorized {
+		return nil, errors.HttpStatus(http.StatusBadRequest).New("StatusUnauthorized error while testing connection")
+	}
+
 	if res.StatusCode != http.StatusOK {
 		return nil, errors.HttpStatus(res.StatusCode).New("unexpected status code while testing connection")
 	}

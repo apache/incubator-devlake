@@ -87,8 +87,6 @@ func (p Dora) SubTaskMetas() []plugin.SubTaskMeta {
 		tasks.EnrichTaskEnvMeta,
 		tasks.CalculateChangeLeadTimeMeta,
 		tasks.ConnectIncidentToDeploymentMeta,
-		tasks.CalculateChangeLeadTimeOldMeta,
-		tasks.ConnectIncidentToDeploymentOldMeta,
 	}
 }
 

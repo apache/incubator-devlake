@@ -46,6 +46,16 @@ class ToolTable(SQLModel):
         plural_entity = inflect_engine.plural_noun(cls.__name__.lower())
         return f'_tool_{plugin_name}_{plural_entity}'
 
+    class Config:
+        allow_population_by_field_name = True
+
+        @classmethod
+        def alias_generator(cls, attr_name: str) -> str:
+            # Allow to set snake_cased attributes with camelCased keyword args.
+            # Useful for extractors dealing with raw data that has camelCased attributes.
+            parts = attr_name.split('_')
+            return parts[0] + ''.join(word.capitalize() for word in parts[1:])
+
 
 class Connection(ToolTable, Model):
     name: str
@@ -117,16 +127,6 @@ class ToolModel(ToolTable, NoPKModel):
             if prop.key == 'connection_id':
                 continue
             yield getattr(self, prop.key)
-
-    class Config:
-        allow_population_by_field_name = True
-
-        @classmethod
-        def alias_generator(cls, attr_name: str) -> str:
-            # Allow to set snake_cased attributes with camelCased keyword args.
-            # Useful for extractors dealing with raw data that has camelCased attributes.
-            parts = attr_name.split('_')
-            return parts[0] + ''.join(word.capitalize() for word in parts[1:])
 
 
 class DomainModel(NoPKModel):

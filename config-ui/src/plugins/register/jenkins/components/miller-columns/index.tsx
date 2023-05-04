@@ -67,6 +67,7 @@ export const MillerColumns = ({ connectionId, selectedItems, onChangeItems }: Pr
 
   return (
     <MillerColumnsSelect
+      showSelectAll
       items={items}
       getCanExpand={(it) => it.type === 'folder'}
       onExpand={onExpand}

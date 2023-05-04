@@ -16,7 +16,7 @@
  *
  */
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Tag, Intent, Switch, InputGroup } from '@blueprintjs/core';
 
 import * as S from './styled';
@@ -30,22 +30,23 @@ interface Props {
 export const JenkinsTransformation = ({ transformation, setTransformation }: Props) => {
   const [enableCICD, setEnableCICD] = useState(true);
 
+  useEffect(() => {
+    if (!transformation.deploymentPattern) {
+      setEnableCICD(false);
+    }
+  }, [transformation]);
+
   const handleChangeCICDEnable = (e: React.FormEvent<HTMLInputElement>) => {
     const checked = (e.target as HTMLInputElement).checked;
 
-    if (checked) {
-      setTransformation({
-        ...transformation,
-        deploymentPattern: '(deploy|push-image)',
-        productionPattern: 'production',
-      });
-    } else {
+    if (!checked) {
       setTransformation({
         ...transformation,
         deploymentPattern: undefined,
         productionPattern: undefined,
       });
     }
+
     setEnableCICD(checked);
   };
 
@@ -77,7 +78,7 @@ export const JenkinsTransformation = ({ transformation, setTransformation }: Pro
                 The name of the <strong>Jenkins build</strong> or <strong>one of its jobs</strong> matches
               </span>
               <InputGroup
-                style={{ width: 224, margin: '0 8px' }}
+                style={{ width: 200, margin: '0 8px' }}
                 placeholder="(deploy|push-image)"
                 value={transformation.deploymentPattern ?? ''}
                 onChange={(e) =>

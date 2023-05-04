@@ -23,7 +23,7 @@ import (
 )
 
 type TapdTransformationRule struct {
-	archived.NoPKModel
+	archived.Model
 	ConnectionId   uint64          `mapstructure:"connectionId" json:"connectionId"`
 	Name           string          `gorm:"type:varchar(255);index:idx_name_tapd,unique" validate:"required" mapstructure:"name" json:"name"`
 	TypeMappings   json.RawMessage `mapstructure:"typeMappings,omitempty" json:"typeMappings"`

@@ -15,24 +15,12 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-package bridge
+package plugin
 
-import (
-	"path/filepath"
-	"strings"
-)
-
-const (
-	poetryExec = "poetry"
-	pythonExec = "python"
-)
-
-func NewPythonPoetryCmdInvoker(scriptPath string) *CmdInvoker {
-	tomlPath := filepath.Dir(filepath.Dir(scriptPath)) //the main entrypoint expected to be at toplevel
-	scriptPath = strings.TrimPrefix(scriptPath, tomlPath+"/")
-	return NewCmdInvoker(tomlPath, func(methodName string, args ...string) (string, []string) {
-		allArgs := []string{"run", pythonExec, scriptPath, methodName}
-		allArgs = append(allArgs, args...)
-		return poetryExec, allArgs
-	})
+// PluginApiSpec let a plugin document its API with an OpenAPI spec.
+// This is useful for remote plugins because whose standardized API spec template
+// need to be instantiated with remote plugin's specific schemas,
+// something that is not supported by swaggo.
+type PluginOpenApiSpec interface {
+	OpenApiSpec() string
 }

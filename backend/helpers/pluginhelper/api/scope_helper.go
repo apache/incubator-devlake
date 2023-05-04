@@ -289,16 +289,13 @@ func (c *ScopeApiHelper[Conn, Scope, Tr]) addTransformationName(scopes []*Scope)
 	}
 
 	for _, scope := range scopes {
-		valueRepoRuleId := reflect.ValueOf(scope).Elem().FieldByName("TransformationRuleId")
-		if valueRepoRuleId.IsValid() {
-			ruleId := valueRepoRuleId.Uint()
-			if ruleId > 0 {
-				apiScopes = append(apiScopes, ScopeRes[Scope]{*scope, names[ruleId]})
-				continue
-			}
+		field := reflect.ValueOf(scope).Elem().FieldByName("TransformationRuleId")
+		if field.IsValid() {
+			apiScopes = append(apiScopes, ScopeRes[Scope]{*scope, names[field.Uint()]})
+		} else {
+			apiScopes = append(apiScopes, ScopeRes[Scope]{Scope: *scope, TransformationRuleName: ""})
 		}
 
-		apiScopes = append(apiScopes, ScopeRes[Scope]{*scope, ""})
 	}
 
 	return apiScopes, nil

@@ -18,6 +18,7 @@ limitations under the License.
 package e2e
 
 import (
+	"github.com/apache/incubator-devlake/core/models/common"
 	"github.com/apache/incubator-devlake/core/models/domainlayer/crossdomain"
 	"github.com/apache/incubator-devlake/helpers/e2ehelper"
 	"github.com/apache/incubator-devlake/plugins/tapd/impl"
@@ -71,6 +72,7 @@ func TestTapdTaskCommitDataFlow(t *testing.T) {
 	)
 
 	dataflowTester.FlushTabler(&crossdomain.IssueCommit{})
+	dataflowTester.FlushTabler(&crossdomain.IssueRepoCommit{})
 	dataflowTester.Subtask(tasks.ConvertTaskCommitMeta, taskData)
 	dataflowTester.VerifyTable(
 		crossdomain.IssueCommit{},
@@ -80,4 +82,8 @@ func TestTapdTaskCommitDataFlow(t *testing.T) {
 			"commit_sha",
 		),
 	)
+	dataflowTester.VerifyTableWithOptions(crossdomain.IssueRepoCommit{}, e2ehelper.TableOptions{
+		CSVRelPath:  "./snapshot_tables/issue_repo_commits_task.csv",
+		IgnoreTypes: []interface{}{common.NoPKModel{}},
+	})
 }

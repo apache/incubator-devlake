@@ -42,7 +42,7 @@ func Init(br context.BasicRes) {
 }
 
 func NewRemotePlugin(info *models.PluginInfo) (models.RemotePlugin, errors.Error) {
-	invoker := bridge.NewPythonPoetryCmdInvoker(info.PluginPath)
+	invoker := bridge.NewCmdInvoker(info.PluginPath)
 	plugin, err := newPlugin(info, invoker)
 
 	if err != nil {

@@ -65,6 +65,10 @@ func TestConnection(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, 
 		return nil, err
 	}
 
+	if res.StatusCode == http.StatusUnauthorized {
+		return nil, errors.HttpStatus(http.StatusBadRequest).New("StatusUnauthorized error when testing api or read_api permissions")
+	}
+
 	if res.StatusCode == http.StatusForbidden {
 		return nil, errors.BadInput.New("token need api or read_api permissions scope")
 	}

@@ -19,9 +19,10 @@ package models
 
 import (
 	"fmt"
-	"github.com/apache/incubator-devlake/core/plugin"
 	"net/http"
 	"time"
+
+	"github.com/apache/incubator-devlake/core/plugin"
 
 	"github.com/apache/incubator-devlake/core/errors"
 	"github.com/apache/incubator-devlake/helpers/pluginhelper/api"
@@ -53,6 +54,10 @@ func (conn *BambooConn) PrepareApiClient(apiClient apihelperabstract.ApiClientAb
 		return errors.HttpStatus(400).New(fmt.Sprintf("Get failed %s", err.Error()))
 	}
 	repo := &ApiBambooServerInfo{}
+
+	if res.StatusCode == http.StatusUnauthorized {
+		return errors.HttpStatus(http.StatusBadRequest).New("StatusUnauthorized error")
+	}
 
 	if res.StatusCode != http.StatusOK {
 		return errors.HttpStatus(res.StatusCode).New(fmt.Sprintf("unexpected status code: %d", res.StatusCode))

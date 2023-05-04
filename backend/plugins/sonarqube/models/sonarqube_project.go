@@ -28,13 +28,13 @@ var _ plugin.ApiScope = (*SonarqubeApiProject)(nil)
 
 type SonarqubeProject struct {
 	common.NoPKModel `json:"-" mapstructure:"-"`
-	ConnectionId     uint64           `json:"connectionId" validate:"required" gorm:"primaryKey"`
-	ProjectKey       string           `json:"projectKey" validate:"required" gorm:"type:varchar(255);primaryKey"`
-	Name             string           `json:"name" gorm:"type:varchar(255)"`
-	Qualifier        string           `json:"qualifier" gorm:"type:varchar(255)"`
-	Visibility       string           `json:"visibility" gorm:"type:varchar(64)"`
-	LastAnalysisDate *api.Iso8601Time `json:"lastAnalysisDate"`
-	Revision         string           `json:"revision" gorm:"type:varchar(128)"`
+	ConnectionId     uint64           `json:"connectionId" validate:"required" gorm:"primaryKey" mapstructure:"connectionId"`
+	ProjectKey       string           `json:"projectKey" validate:"required" gorm:"type:varchar(255);primaryKey" mapstructure:"projectKey"`
+	Name             string           `json:"name" gorm:"type:varchar(255)" mapstructure:"name"`
+	Qualifier        string           `json:"qualifier" gorm:"type:varchar(255)" mapstructure:"qualifier"`
+	Visibility       string           `json:"visibility" gorm:"type:varchar(64)" mapstructure:"visibility"`
+	LastAnalysisDate *api.Iso8601Time `json:"lastAnalysisDate" mapstructure:"lastAnalysisDate"`
+	Revision         string           `json:"revision" gorm:"type:varchar(128)" mapstructure:"revision"`
 }
 
 func (SonarqubeProject) TableName() string {

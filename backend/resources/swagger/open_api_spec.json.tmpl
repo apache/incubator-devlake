@@ -1,11 +1,11 @@
 {
     "info": {
-        "title": "$plugin_name plugin documentation",
+        "title": "{{.PluginName}} plugin documentation",
         "version": "1.0.0"
     },
     "openapi": "3.0.2",
     "paths": {
-        "/plugins/$plugin_name/connections/{connectionId}": {
+        "/plugins/{{.PluginName}}/connections/{connectionId}": {
             "get": {
                 "description": "Get a connection",
                 "parameters": [
@@ -72,7 +72,7 @@
                 }
             }
         },
-        "/plugins/$plugin_name/connections": {
+        "/plugins/{{.PluginName}}/connections": {
             "get": {
                 "description": "Get all connections",
                 "responses": {
@@ -115,7 +115,7 @@
                 }
             }
         },
-        "/plugins/$plugin_name/test": {
+        "/plugins/{{.PluginName}}/test": {
             "post": {
                 "description": "Test if a connection is valid",
                 "parameters": [
@@ -138,7 +138,7 @@
                 }
             }
         },
-        "/plugins/$plugin_name/connections/{connectionId}/scopes/{scopeId}": {
+        "/plugins/{{.PluginName}}/connections/{connectionId}/scopes/{scopeId}": {
             "get": {
                 "description": "Get a scope",
                 "parameters": [
@@ -192,7 +192,7 @@
                 }
             }
         },
-        "/plugins/$plugin_name/connections/{connectionId}/scopes": {
+        "/plugins/{{.PluginName}}/connections/{connectionId}/scopes": {
             "get": {
                 "description": "Get all scopes",
                 "parameters": [
@@ -249,7 +249,7 @@
                 }
             }
         },
-        "/plugins/$plugin_name/connections/{connectionId}/transformation_rules": {
+        "/plugins/{{.PluginName}}/connections/{connectionId}/transformation_rules": {
             "get": {
                 "description": "Get all transformation rules",
                 "parameters": [
@@ -300,7 +300,7 @@
                 }
             }
         },
-        "/plugins/$plugin_name/connections/{connectionId}/transformation_rules/{ruleId}": {
+        "/plugins/{{.PluginName}}/connections/{connectionId}/transformation_rules/{ruleId}": {
             "get": {
                 "description": "Get a transformation rule",
                 "parameters": [
@@ -351,8 +351,8 @@
     },
     "components": {
         "schemas": {
-            "connection": $connection_schema,
-            "transformationRule": $transformation_rule_schema,
+            "connection": {{.ConnectionSchema}},
+            "transformationRule": {{.TransformationRuleSchema}},
             "scope": {
                 "title": "Scope",
                 "type": "object",

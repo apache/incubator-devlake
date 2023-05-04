@@ -20,13 +20,14 @@ package api
 import (
 	"context"
 	"fmt"
+	"net/http"
+
 	"github.com/apache/incubator-devlake/core/errors"
 	"github.com/apache/incubator-devlake/core/plugin"
 	"github.com/apache/incubator-devlake/helpers/pluginhelper/api"
 	"github.com/apache/incubator-devlake/plugins/teambition/models"
 	"github.com/apache/incubator-devlake/plugins/teambition/tasks"
 	"github.com/apache/incubator-devlake/server/api/shared"
-	"net/http"
 )
 
 type TeambitionTestConnResponse struct {
@@ -61,6 +62,9 @@ func TestConnection(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, 
 		return nil, err
 	}
 
+	if res.StatusCode == http.StatusUnauthorized {
+		return nil, errors.HttpStatus(http.StatusBadRequest).New("StatusUnauthorized error while testing connection")
+	}
 	if res.StatusCode != http.StatusOK {
 		return nil, errors.HttpStatus(res.StatusCode).New(fmt.Sprintf("unexpected status code: %d", res.StatusCode))
 	}
@@ -70,7 +74,10 @@ func TestConnection(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, 
 		return nil, err
 	}
 	if resBody.Code != http.StatusOK {
-		return nil, errors.HttpStatus(res.StatusCode).New(fmt.Sprintf("unexpected status code: %d", res.StatusCode))
+		return nil, errors.HttpStatus(http.StatusBadRequest).New("StatusUnauthorized on body while testing connection")
+	}
+	if resBody.Code != http.StatusOK {
+		return nil, errors.HttpStatus(resBody.Code).New(fmt.Sprintf("unexpected body status code: %d", resBody.Code))
 	}
 
 	body := TeambitionTestConnResponse{}

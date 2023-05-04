@@ -17,7 +17,5 @@
  */
 
 export enum Error {
-  API_OFFLINE = 'API_OFFLINE',
-  DB_NEED_MIGRATE = 'DB_NEED_MIGRATE',
   BP_NEED_TO_UPGRADE = 'BP_NEED_TO_UPGRADE',
 }

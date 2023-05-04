@@ -24,12 +24,14 @@ export const useAutoRefresh = <T>(
   option?: {
     cancel?: (data?: T) => boolean;
     interval?: number;
+    retryLimit?: number;
   },
 ) => {
   const [loading, setLoading] = useState(false);
   const [data, setData] = useState<T>();
 
   const timer = useRef<any>();
+  const retryCount = useRef<number>(0);
 
   useEffect(() => {
     setLoading(true);
@@ -44,15 +46,14 @@ export const useAutoRefresh = <T>(
 
   useEffect(() => {
     timer.current = setInterval(() => {
-      request().then((data: T) => {
-        setData(data);
-      });
+      retryCount.current += 1;
+      request().then((data) => setData(data));
     }, option?.interval ?? 5000);
     return () => clearInterval(timer.current);
   }, [...deps]);
 
   useEffect(() => {
-    if (option?.cancel?.(data)) {
+    if (option?.cancel?.(data) || (option?.retryLimit && option?.retryLimit <= retryCount.current)) {
       clearInterval(timer.current);
     }
   }, [data]);

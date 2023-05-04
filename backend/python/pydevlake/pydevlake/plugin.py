@@ -14,15 +14,15 @@
 
 
 from typing import Type, Union, Iterable, Optional
-import sys
 from abc import ABC, abstractmethod
-import requests
+from pathlib import Path
+import os
+import sys
 
 import fire
 
 import pydevlake.message as msg
 from pydevlake.subtasks import Subtask
-from pydevlake.docgen import generate_doc
 from pydevlake.ipc import PluginCommands
 from pydevlake.context import Context
 from pydevlake.stream import Stream, DomainType
@@ -203,19 +203,6 @@ class Plugin(ABC):
             raise Exception(f'Unkown stream {stream_name}')
         return stream
 
-    def startup(self, endpoint: str):
-        details = msg.PluginDetails(
-            plugin_info=self.plugin_info(),
-            swagger=msg.SwaggerDoc(
-                name=self.name,
-                resource=self.name,
-                spec=generate_doc(self.name, self.connection_type, self.transformation_rule_type)
-            )
-        )
-        resp = requests.post(f"{endpoint}/plugins/register", data=details.json())
-        if resp.status_code != 200:
-            raise Exception(f"unexpected http status code {resp.status_code}: {resp.content}")
-
     def plugin_info(self) -> msg.PluginInfo:
         subtask_metas = [
             msg.SubtaskMeta(
@@ -249,7 +236,11 @@ class Plugin(ABC):
     def _plugin_path(self):
         module_name = type(self).__module__
         module = sys.modules[module_name]
-        return module.__file__
+        pluginMainPath = Path(module.__file__)
+        run_sh_path = pluginMainPath.parent.parent / "run.sh"
+        assert run_sh_path.exists(), f"run.sh not found at {run_sh_path.parent}"
+        assert os.access(run_sh_path, os.X_OK), f"run.sh is not executable"
+        return str(run_sh_path)
 
     @classmethod
     def start(cls):

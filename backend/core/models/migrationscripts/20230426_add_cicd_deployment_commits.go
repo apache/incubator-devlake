@@ -15,21 +15,31 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-package remote
+package migrationscripts
 
 import (
-	"encoding/json"
-
-	"github.com/apache/incubator-devlake/server/services/remote/models"
+	"github.com/apache/incubator-devlake/core/context"
+	"github.com/apache/incubator-devlake/core/errors"
+	"github.com/apache/incubator-devlake/core/models/migrationscripts/archived"
+	"github.com/apache/incubator-devlake/core/plugin"
+	"github.com/apache/incubator-devlake/helpers/migrationhelper"
 )
 
-type SwaggerDoc struct {
-	Name     string          `json:"name" validate:"required"`
-	Resource string          `json:"resource" validate:"required"`
-	Spec     json.RawMessage `json:"spec" validate:"required"`
+var _ plugin.MigrationScript = (*addCicdDeploymentCommits)(nil)
+
+type addCicdDeploymentCommits struct{}
+
+func (*addCicdDeploymentCommits) Up(basicRes context.BasicRes) errors.Error {
+	return migrationhelper.AutoMigrateTables(
+		basicRes,
+		&archived.CicdDeploymentCommit{},
+	)
 }
 
-type PluginDetails struct {
-	PluginInfo models.PluginInfo `json:"plugin_info" validate:"required"`
-	Swagger    SwaggerDoc        `json:"swagger" validate:"required"`
+func (*addCicdDeploymentCommits) Version() uint64 {
+	return 20230426150702
+}
+
+func (*addCicdDeploymentCommits) Name() string {
+	return "add cicd_deployment_commits table"
 }

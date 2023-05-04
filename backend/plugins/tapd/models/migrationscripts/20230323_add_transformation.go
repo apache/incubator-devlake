@@ -131,5 +131,5 @@ func (*addTransformation) Version() uint64 {
 }
 
 func (*addTransformation) Name() string {
-	return "Tapd add transformation"
+	return "Tapd add transformation, update _raw_data_params"
 }

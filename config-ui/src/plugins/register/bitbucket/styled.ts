@@ -31,38 +31,6 @@ export const Transformation = styled.div`
     }
   }
 
-  .additional-settings {
-    h2 {
-      display: flex;
-      align-items: center;
-      cursor: pointer;
-    }
-
-    .radio {
-      display: flex;
-      align-items: center;
-      margin: 8px 0 16px;
-
-      p {
-        margin: 0;
-      }
-
-      .bp4-control {
-        margin: 0;
-      }
-    }
-
-    .refdiff {
-      display: flex;
-      align-items: center;
-      padding-left: 20px;
-
-      .bp4-input-group {
-        margin: 0 8px;
-      }
-    }
-  }
-
   .bp4-form-group {
     display: flex;
     align-items: center;
@@ -94,12 +62,14 @@ export const CICD = styled.div`
     }
   }
 
-  .text {
+  .text,
+  .sub-text {
     display: flex;
     align-items: baseline;
+    margin-bottom: 8px;
+  }
 
-    .bp4-radio {
-      margin-right: 0;
-    }
+  .sub-text {
+    padding-left: 28px;
   }
 `;

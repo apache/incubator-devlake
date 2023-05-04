@@ -19,9 +19,11 @@
 import { Switch, Route, Redirect, Router } from 'react-router-dom';
 import { LoginPage } from './pages/login/login';
 import { history } from './utils/history';
-import { BaseLayout } from '@/layouts';
+import { ErrorLayout, BaseLayout } from '@/layouts';
 import { FromEnum } from '@/pages';
 import {
+  OfflinePage,
+  DBMigratePage,
   ProjectHomePage,
   ProjectDetailPage,
   ConnectionHomePage,
@@ -39,6 +41,27 @@ function App() {
     <Router history={history}>
       <Switch>
         <Route exact path="/login" component={() => <LoginPage />} />
+
+        <Route
+          exact
+          path="/offline"
+          component={() => (
+            <ErrorLayout>
+              <OfflinePage />
+            </ErrorLayout>
+          )}
+        />
+
+        <Route
+          exact
+          path="/db-mirgate"
+          component={() => (
+            <ErrorLayout>
+              <DBMigratePage />
+            </ErrorLayout>
+          )}
+        />
+
         <Route
           path="/"
           component={() => (

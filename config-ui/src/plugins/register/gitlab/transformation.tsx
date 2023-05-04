@@ -16,7 +16,7 @@
  *
  */
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Tag, Intent, Switch, InputGroup } from '@blueprintjs/core';
 
 import { ExternalLink, HelpTooltip } from '@/components';
@@ -31,22 +31,23 @@ interface Props {
 export const GitLabTransformation = ({ transformation, setTransformation }: Props) => {
   const [enableCICD, setEnableCICD] = useState(true);
 
+  useEffect(() => {
+    if (!transformation.deploymentPattern) {
+      setEnableCICD(false);
+    }
+  }, [transformation]);
+
   const handleChangeCICDEnable = (e: React.FormEvent<HTMLInputElement>) => {
     const checked = (e.target as HTMLInputElement).checked;
 
-    if (checked) {
-      setTransformation({
-        ...transformation,
-        deploymentPattern: '(deploy|push-image)',
-        productionPattern: 'production',
-      });
-    } else {
+    if (!checked) {
       setTransformation({
         ...transformation,
         deploymentPattern: undefined,
         productionPattern: undefined,
       });
     }
+
     setEnableCICD(checked);
   };
 
@@ -78,7 +79,7 @@ export const GitLabTransformation = ({ transformation, setTransformation }: Prop
                 The name of the <strong>GitLab pipeline</strong> or <strong>one of its jobs</strong> matches
               </span>
               <InputGroup
-                style={{ width: 224, margin: '0 8px' }}
+                style={{ width: 200, margin: '0 8px' }}
                 placeholder="(deploy|push-image)"
                 value={transformation.deploymentPattern ?? ''}
                 onChange={(e) =>
@@ -95,7 +96,7 @@ export const GitLabTransformation = ({ transformation, setTransformation }: Prop
             <div className="text">
               <span>If the name also matches</span>
               <InputGroup
-                style={{ width: 120, margin: '0 8px' }}
+                style={{ width: 200, margin: '0 8px' }}
                 disabled={!transformation.deploymentPattern}
                 placeholder="prod(.*)"
                 value={transformation.productionPattern ?? ''}

@@ -15,6 +15,39 @@
  * limitations under the License.
  *
  */
+import styled from 'styled-components';
 
-export * from './types';
-export * from './context';
+export const AdditionalSettings = styled.div`
+  h2 {
+    display: flex;
+    align-items: center;
+
+    .bp4-switch {
+      margin: 0;
+    }
+  }
+
+  .radio {
+    display: flex;
+    align-items: center;
+    margin: 8px 0 16px;
+
+    p {
+      margin: 0;
+    }
+
+    .bp4-control {
+      margin: 0;
+    }
+  }
+
+  .refdiff {
+    display: flex;
+    align-items: center;
+    padding-left: 20px;
+
+    .bp4-input-group {
+      margin: 0 8px;
+    }
+  }
+`;

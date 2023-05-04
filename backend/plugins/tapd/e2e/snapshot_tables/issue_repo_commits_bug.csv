@@ -1,0 +1,7 @@
+issue_id,repo_url,commit_sha,host,namespace,repo_name
+tapd:TapdBug:1:1137469667001000002,https://gitlab.com/merico-dev/ee/tapd-test.git,ca5cd69aa0af3fb457d1975e58db2f430eca6d7e,gitlab.com,merico-dev,Tapd Test
+tapd:TapdBug:1:1137469667001000006,https://gitlab.com/merico-dev/ee/tapd-test.git,0d55ae5b75b08ef8f657f95cd15d48ee8fcedc10,gitlab.com,merico-dev,Tapd Test
+tapd:TapdBug:1:1137469667001000006,https://gitlab.com/merico-dev/ee/tapd-test.git,461bc8c6a334c9d443fe6f147897cea1d777cb71,gitlab.com,merico-dev,Tapd Test
+tapd:TapdBug:1:1137469667001000006,https://gitlab.com/merico-dev/ee/tapd-test.git,5c908856f64c9286ec974f9088ea7825d87b8553,gitlab.com,merico-dev,Tapd Test
+tapd:TapdBug:1:1137469667001000006,https://gitlab.com/merico-dev/ee/tapd-test.git,d81557aef2025ec5a43c8d39bb2d9f18b48c9af1,gitlab.com,merico-dev,Tapd Test
+tapd:TapdBug:1:1137469667001009015,https://gitlab.com/merico-dev/ee/tapd-test.git,7649df9ea8c066b61955a47d66aa1983c8834033,gitlab.com,merico-dev,Tapd Test

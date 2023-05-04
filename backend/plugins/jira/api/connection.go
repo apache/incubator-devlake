@@ -20,10 +20,11 @@ package api
 import (
 	"context"
 	"fmt"
-	"github.com/apache/incubator-devlake/server/api/shared"
 	"net/http"
 	"net/url"
 	"strings"
+
+	"github.com/apache/incubator-devlake/server/api/shared"
 
 	"github.com/apache/incubator-devlake/core/errors"
 	"github.com/apache/incubator-devlake/core/plugin"
@@ -82,7 +83,7 @@ func TestConnection(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, 
 		return nil, errors.NotFound.New(fmt.Sprintf("Seems like an invalid Endpoint URL, please try %s", restUrl.String()))
 	}
 	if res.StatusCode == http.StatusUnauthorized {
-		return nil, errors.HttpStatus(res.StatusCode).New("Error username/password")
+		return nil, errors.HttpStatus(http.StatusBadRequest).New("Error username/password")
 	}
 
 	resBody := &models.JiraServerInfo{}
@@ -111,7 +112,7 @@ func TestConnection(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, 
 
 	errMsg := ""
 	if res.StatusCode == http.StatusUnauthorized {
-		return nil, errors.HttpStatus(res.StatusCode).New("it might you use the right token(password) but with the wrong username.please check your username/password")
+		return nil, errors.HttpStatus(http.StatusBadRequest).New("it might you use the right token(password) but with the wrong username.please check your username/password")
 	}
 
 	if res.StatusCode != http.StatusOK {

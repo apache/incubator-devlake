@@ -19,29 +19,28 @@ package api
 
 import (
 	"fmt"
-	"github.com/apache/incubator-devlake/server/api/login"
-	"github.com/apache/incubator-devlake/server/api/ping"
-	"github.com/apache/incubator-devlake/server/api/version"
-	"github.com/apache/incubator-devlake/server/services/auth"
 	"net/http"
 	"strconv"
 	"strings"
 	"time"
 
-	"github.com/apache/incubator-devlake/core/config"
-	"github.com/apache/incubator-devlake/core/errors"
-	"github.com/apache/incubator-devlake/impls/logruslog"
-	_ "github.com/apache/incubator-devlake/server/api/docs"
-	"github.com/apache/incubator-devlake/server/api/remote"
-	"github.com/apache/incubator-devlake/server/api/shared"
-	"github.com/apache/incubator-devlake/server/services"
-	"github.com/apache/incubator-devlake/server/services/remote/bridge"
-
 	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
-	"github.com/spf13/viper"
 	ginSwagger "github.com/swaggo/gin-swagger"
 	"github.com/swaggo/gin-swagger/swaggerFiles"
+	"github.com/swaggo/swag"
+
+	"github.com/apache/incubator-devlake/core/config"
+	"github.com/apache/incubator-devlake/core/errors"
+	"github.com/apache/incubator-devlake/core/plugin"
+	"github.com/apache/incubator-devlake/impls/logruslog"
+	_ "github.com/apache/incubator-devlake/server/api/docs"
+	"github.com/apache/incubator-devlake/server/api/login"
+	"github.com/apache/incubator-devlake/server/api/ping"
+	"github.com/apache/incubator-devlake/server/api/shared"
+	"github.com/apache/incubator-devlake/server/api/version"
+	"github.com/apache/incubator-devlake/server/services"
+	"github.com/apache/incubator-devlake/server/services/auth"
 )
 
 const DB_MIGRATION_REQUIRED = `
@@ -73,12 +72,6 @@ func CreateApiService() {
 	// For both protected and unprotected routes
 	router.GET("/ping", ping.Get)
 	router.GET("/version", version.Get)
-	// Check if remote plugins are enabled
-	remotePluginsEnabled := v.GetBool("ENABLE_REMOTE_PLUGINS")
-	if remotePluginsEnabled {
-		// Add endpoint to register remote plugins
-		router.POST("/plugins/register", remote.RegisterPlugin(router, registerPluginEndpoints))
-	}
 
 	if awsCognitoEnabled {
 		// Add login endpoint
@@ -119,8 +112,9 @@ func CreateApiService() {
 		ctx.Abort()
 	})
 
-	// Add swagger handler
+	// Add swagger handlers
 	router.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerFiles.Handler))
+	registerExtraOpenApiSpecs(router)
 
 	// Add debug logging for endpoints
 	gin.DebugPrintRouteFunc = func(httpMethod, absolutePath, handlerName string, nuHandlers int) {
@@ -145,9 +139,6 @@ func CreateApiService() {
 
 	// Register API endpoints
 	RegisterRouter(router)
-	if remotePluginsEnabled {
-		go bootstrapRemotePlugins(v)
-	}
 	// Get port from config
 	port := v.GetString("PORT")
 	// Trim any : from the start
@@ -166,20 +157,29 @@ func CreateApiService() {
 	}
 }
 
-func bootstrapRemotePlugins(v *viper.Viper) {
-	// Get port from config
-	port := v.GetString("PORT")
-	// Trim any : from the start
-	port = strings.TrimLeft(port, ":")
-	// Convert to int
-	portNum, err := strconv.Atoi(port)
-	if err != nil {
-		// Panic if PORT is not an int
-		panic(fmt.Errorf("PORT [%s] must be int: %s", port, err.Error()))
-	}
-	// Bootstrap remote plugins
-	err = bridge.Bootstrap(v, portNum)
-	if err != nil {
-		logruslog.Global.Error(err, "")
+func registerExtraOpenApiSpecs(router *gin.Engine) {
+	for name, pluginMeta := range plugin.AllPlugins() {
+		if pluginOpenApiSpec, ok := pluginMeta.(plugin.PluginOpenApiSpec); ok {
+			spec := &swag.Spec{
+				InfoInstanceName: name,
+				SwaggerTemplate:  pluginOpenApiSpec.OpenApiSpec(),
+			}
+			swag.Register(name, spec)
+			router.GET(
+				fmt.Sprintf("/plugins/swagger/%s/*any", name),
+				ginSwagger.CustomWrapHandler(
+					&ginSwagger.Config{
+						URL:                      "doc.json",
+						DocExpansion:             "list",
+						InstanceName:             name,
+						Title:                    fmt.Sprintf("%s API", name),
+						DefaultModelsExpandDepth: 1,
+						DeepLinking:              true,
+						PersistAuthorization:     false,
+					},
+					swaggerFiles.Handler,
+				),
+			)
+		}
 	}
 }

@@ -18,6 +18,8 @@
 # This action run e2e test for pull requests
 name: test-e2e
 on:
+  push:
+    branches: [main]
   pull_request:
     branches: [main]
     paths:
@@ -49,8 +51,6 @@ jobs:
         uses: actions/checkout@v3
       - run: git config --global --add safe.directory $(pwd)
       - name: Build Python
-        with:
-          python-version: 3.9.9
         run: |
           cd backend
           echo "Building Python"
@@ -70,7 +70,7 @@ jobs:
           DB_URL: mysql://root:root@db:3306/lake?charset=utf8mb4&parseTime=True
           E2E_DB_URL: mysql://root:root@db:3306/lake?charset=utf8mb4&parseTime=True
         run: |
-          cp .env.example .env
+          cp env.example .env
           cd backend
           make e2e-plugins-test
           make e2e-test
@@ -90,8 +90,6 @@ jobs:
         uses: actions/checkout@v3
       - run: git config --global --add safe.directory $(pwd)
       - name: Build Python
-        with:
-          python-version: 3.9.9
         run: |
           cd backend
           echo "Building Python"
@@ -111,7 +109,7 @@ jobs:
           DB_URL: postgres://merico:merico@db:5432/lake
           E2E_DB_URL: postgres://merico:merico@db:5432/lake
         run: |
-          cp .env.example .env
+          cp env.example .env
           cd backend
           make e2e-plugins-test
           make e2e-test

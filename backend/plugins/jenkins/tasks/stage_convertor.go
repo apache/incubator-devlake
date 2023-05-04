@@ -106,9 +106,9 @@ func ConvertStages(taskCtx plugin.SubTaskContext) (err errors.Error) {
 			results := make([]interface{}, 0)
 			if body.Status == "SUCCESS" {
 				jenkinsTaskResult = devops.SUCCESS
-			} else if body.Result == "FAILED" {
+			} else if body.Status == "FAILED" {
 				jenkinsTaskResult = devops.FAILURE
-			} else if body.Result == "ABORTED" {
+			} else if body.Status == "ABORTED" {
 				jenkinsTaskResult = devops.ABORT
 			} else {
 				jenkinsTaskResult = ""
