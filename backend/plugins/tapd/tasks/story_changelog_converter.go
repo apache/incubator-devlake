@@ -111,10 +111,20 @@ func ConvertStoryChangelog(taskCtx plugin.SubTaskContext) errors.Error {
 			}
 			if domainCl.FieldName == "iteration_id" {
 				domainCl.FieldName = "Sprint"
-				domainCl.OriginalFromValue = clIterIdGen.Generate(cl.ConnectionId, cl.IterationIdFrom)
-				domainCl.OriginalToValue = clIterIdGen.Generate(cl.ConnectionId, cl.IterationIdTo)
-				domainCl.ToValue = cl.ValueAfterParsed
-				domainCl.FromValue = cl.ValueBeforeParsed
+				if cl.IterationIdFrom == 0 {
+					domainCl.OriginalFromValue = ""
+					domainCl.FromValue = ""
+				} else {
+					domainCl.OriginalFromValue = clIterIdGen.Generate(cl.ConnectionId, cl.IterationIdFrom)
+					domainCl.FromValue = cl.ValueBeforeParsed
+				}
+				if cl.IterationIdTo == 0 {
+					domainCl.OriginalToValue = ""
+					domainCl.ToValue = ""
+				} else {
+					domainCl.OriginalToValue = clIterIdGen.Generate(cl.ConnectionId, cl.IterationIdTo)
+					domainCl.ToValue = cl.ValueAfterParsed
+				}
 			}
 			if domainCl.FieldName == "workitem_type_id" {
 				// As OriginalFromValue is value_before_parsed, so we don't need to transform id to name
