@@ -158,7 +158,7 @@ func (d *DevlakeClient) ListProjects() apiProject.PaginatedProjects {
 	}, http.MethodGet, fmt.Sprintf("%s/projects", d.Endpoint), nil, nil)
 }
 
-func (d *DevlakeClient) CreateScope(pluginName string, connectionId uint64, scopes ...any) any {
+func (d *DevlakeClient) CreateScopes(pluginName string, connectionId uint64, scopes ...any) any {
 	request := map[string]any{
 		"data": scopes,
 	}

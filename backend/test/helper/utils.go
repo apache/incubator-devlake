@@ -23,6 +23,7 @@ import (
 	"fmt"
 	"os"
 	"path/filepath"
+	"reflect"
 	"strings"
 
 	"github.com/apache/incubator-devlake/core/plugin"
@@ -74,6 +75,15 @@ func Cast[T any](m any) T {
 		panic(err)
 	}
 	return *t
+}
+
+func Contains[T any](list []T, elem any) bool {
+	for _, x := range list {
+		if reflect.DeepEqual(x, elem) {
+			return true
+		}
+	}
+	return false
 }
 
 func readFile(path string) ([]string, error) {

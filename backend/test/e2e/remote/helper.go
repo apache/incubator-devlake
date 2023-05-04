@@ -91,7 +91,7 @@ func CreateTestConnection(client *helper.DevlakeClient) *helper.Connection {
 }
 
 func CreateTestScope(client *helper.DevlakeClient, config *FakeScopeConfig, connectionId uint64) *FakeProject {
-	scopes := helper.Cast[[]FakeProject](client.CreateScope(PLUGIN_NAME,
+	scopes := helper.Cast[[]FakeProject](client.CreateScopes(PLUGIN_NAME,
 		connectionId,
 		FakeProject{
 			Id:            "p1",
