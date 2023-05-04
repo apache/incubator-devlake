@@ -56,8 +56,6 @@ type ZentaoProduct struct {
 	Docs               int                 `json:"docs" mapstructure:"docs"`
 	Progress           float64             `json:"progress" mapstructure:"progress"`
 	CaseReview         bool                `json:"caseReview" mapstructure:"caseReview"`
-
-	TransformationRuleId uint64 `json:"transformationRuleId" gorm:"-"`
 }
 
 func (ZentaoProduct) TableName() string {

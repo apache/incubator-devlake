@@ -18,8 +18,6 @@ limitations under the License.
 package api
 
 import (
-	"net/http"
-
 	"github.com/apache/incubator-devlake/core/errors"
 	"github.com/apache/incubator-devlake/core/plugin"
 	"github.com/apache/incubator-devlake/helpers/pluginhelper/api"
@@ -130,25 +128,4 @@ func GetProductScope(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput,
 // @Router /plugins/zentao/connections/{connectionId}/scopes/project/{scopeId} [GET]
 func GetProjectScope(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, errors.Error) {
 	return projectScopeHelper.GetScope(input, "id")
-}
-
-// GetScope get one product or project
-// @Summary get one product or project
-// @Description get one product or project
-// @Tags plugins/zentao
-// @Param connectionId path int true "connection ID"
-// @Param scopeId path int true "scope ID"
-// @Success 200  {object} ProductScopeRes
-// @Success 200  {object} ProjectScopeRes
-// @Failure 400  {object} shared.ApiBody "Bad Request"
-// @Failure 500  {object} shared.ApiBody "Internal Error"
-// @Router /plugins/zentao/connections/{connectionId}/scopes/{scopeId} [GET]
-func GeScope(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, errors.Error) {
-	output, err := productScopeHelper.GetScope(input, "id")
-	if err != nil {
-		if err.GetType().GetHttpCode() == http.StatusNotFound {
-			return projectScopeHelper.GetScope(input, "id")
-		}
-	}
-	return output, err
 }

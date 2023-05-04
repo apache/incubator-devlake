@@ -138,9 +138,6 @@ func (p Zentao) ApiResources() map[string]map[string]plugin.ApiResourceHandler {
 			"GET":   api.GetProjectScope,
 			"PATCH": api.UpdateProjectScope,
 		},
-		"connections/:connectionId/scopes/:scopeId": {
-			"GET": api.GeScope,
-		},
 		"connections/:connectionId/remote-scopes": {
 			"GET": api.RemoteScopes,
 		},
