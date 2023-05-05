@@ -38,7 +38,7 @@ export const Endpoint = styled.div`
   }
 `;
 
-export const Token = styled.div`
+export const Input = styled.div`
   margin-bottom: 8px;
 
   .input {
