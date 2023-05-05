@@ -23,38 +23,39 @@ import (
 )
 
 type ZentaoProduct struct {
-	ConnectionId   uint64 `gorm:"primaryKey;type:BIGINT  NOT NULL"`
-	Id             int64  `json:"id" gorm:"primaryKey;type:BIGINT  NOT NULL"`
-	Program        int    `json:"program"`
-	Name           string `json:"name"`
-	Code           string `json:"code"`
-	Bind           string `json:"bind"`
-	Line           int    `json:"line"`
-	Type           string `json:"type"`
-	Status         string `json:"status"`
-	SubStatus      string `json:"subStatus"`
-	Description    string `json:"desc"`
-	POId           int64
-	QDId           int64
-	RDId           int64
-	Acl            string `json:"acl"`
-	Reviewer       string `json:"reviewer"`
-	CreatedById    int64
-	CreatedDate    *helper.Iso8601Time `json:"createdDate"`
-	CreatedVersion string              `json:"createdVersion"`
-	OrderIn        int                 `json:"order"`
-	Deleted        string              `json:"deleted"`
-	Plans          int                 `json:"plans"`
-	Releases       int                 `json:"releases"`
-	Builds         int                 `json:"builds"`
-	Cases          int                 `json:"cases"`
-	Projects       int                 `json:"projects"`
-	Executions     int                 `json:"executions"`
-	Bugs           int                 `json:"bugs"`
-	Docs           int                 `json:"docs"`
-	Progress       float64             `json:"progress"`
-	CaseReview     bool                `json:"caseReview"`
-	archived.NoPKModel
+	archived.NoPKModel `json:"-"`
+	ConnectionId       uint64 `json:"connectionid" mapstructure:"connectionid" gorm:"primaryKey;type:BIGINT  NOT NULL"`
+	Id                 int64  `json:"id" mapstructure:"id" gorm:"primaryKey;type:BIGINT  NOT NULL"`
+	Program            int    `json:"program" mapstructure:"program"`
+	Name               string `json:"name" mapstructure:"name"`
+	Code               string `json:"code" mapstructure:"code"`
+	Bind               string `json:"bind" mapstructure:"bind"`
+	Line               int    `json:"line" mapstructure:"line"`
+	Type               string `json:"type" mapstructure:"type"`
+	ProductType        string `json:"productType" mapstructure:"productType"`
+	Status             string `json:"status" mapstructure:"status"`
+	SubStatus          string `json:"subStatus" mapstructure:"subStatus"`
+	Description        string `json:"desc" mapstructure:"desc"`
+	POId               int64
+	QDId               int64
+	RDId               int64
+	Acl                string `json:"acl" mapstructure:"acl"`
+	Reviewer           string `json:"reviewer" mapstructure:"reviewer"`
+	CreatedById        int64
+	CreatedDate        *helper.Iso8601Time `json:"createdDate" mapstructure:"createdDate"`
+	CreatedVersion     string              `json:"createdVersion" mapstructure:"createdVersion"`
+	OrderIn            int                 `json:"order" mapstructure:"order"`
+	Deleted            string              `json:"deleted" mapstructure:"deleted"`
+	Plans              int                 `json:"plans" mapstructure:"plans"`
+	Releases           int                 `json:"releases" mapstructure:"releases"`
+	Builds             int                 `json:"builds" mapstructure:"builds"`
+	Cases              int                 `json:"cases" mapstructure:"cases"`
+	Projects           int                 `json:"projects" mapstructure:"projects"`
+	Executions         int                 `json:"executions" mapstructure:"executions"`
+	Bugs               int                 `json:"bugs" mapstructure:"bugs"`
+	Docs               int                 `json:"docs" mapstructure:"docs"`
+	Progress           float64             `json:"progress" mapstructure:"progress"`
+	CaseReview         bool                `json:"caseReview" mapstructure:"caseReview"`
 }
 
 func (ZentaoProduct) TableName() string {

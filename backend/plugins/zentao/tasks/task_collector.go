@@ -20,14 +20,15 @@ package tasks
 import (
 	"encoding/json"
 	"fmt"
+	"net/http"
+	"net/url"
+	"reflect"
+
 	"github.com/apache/incubator-devlake/core/dal"
 	"github.com/apache/incubator-devlake/core/errors"
 	"github.com/apache/incubator-devlake/core/plugin"
 	"github.com/apache/incubator-devlake/helpers/pluginhelper/api"
 	"github.com/apache/incubator-devlake/plugins/zentao/models"
-	"net/http"
-	"net/url"
-	"reflect"
 )
 
 const RAW_TASK_TABLE = "zentao_api_tasks"
@@ -40,9 +41,12 @@ var _ plugin.SubTaskEntryPoint = CollectTask
 
 func CollectTask(taskCtx plugin.SubTaskContext) errors.Error {
 	data := taskCtx.GetData().(*ZentaoTaskData)
+
+	// this collect only work for project
 	if data.Options.ProjectId == 0 {
 		return nil
 	}
+
 	cursor, err := taskCtx.GetDal().Cursor(
 		dal.Select(`id`),
 		dal.From(&models.ZentaoExecution{}),

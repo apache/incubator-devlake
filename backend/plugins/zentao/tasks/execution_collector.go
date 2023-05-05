@@ -20,22 +20,26 @@ package tasks
 import (
 	"encoding/json"
 	"fmt"
+	"net/http"
+	"net/url"
+
 	"github.com/apache/incubator-devlake/core/errors"
 	"github.com/apache/incubator-devlake/core/plugin"
 	"github.com/apache/incubator-devlake/helpers/pluginhelper/api"
-	"net/http"
-	"net/url"
 )
 
 const RAW_EXECUTION_TABLE = "zentao_api_executions"
 
-var _ plugin.SubTaskEntryPoint = CollectExecution
+var _ plugin.SubTaskEntryPoint = CollectExecutions
 
-func CollectExecution(taskCtx plugin.SubTaskContext) errors.Error {
+func CollectExecutions(taskCtx plugin.SubTaskContext) errors.Error {
 	data := taskCtx.GetData().(*ZentaoTaskData)
+
+	// this collect only work for project
 	if data.Options.ProjectId == 0 {
 		return nil
 	}
+
 	collector, err := api.NewApiCollector(api.ApiCollectorArgs{
 		RawDataSubTaskArgs: api.RawDataSubTaskArgs{
 			Ctx: taskCtx,
@@ -73,8 +77,8 @@ func CollectExecution(taskCtx plugin.SubTaskContext) errors.Error {
 }
 
 var CollectExecutionMeta = plugin.SubTaskMeta{
-	Name:             "CollectExecution",
-	EntryPoint:       CollectExecution,
+	Name:             "collectExecutions",
+	EntryPoint:       CollectExecutions,
 	EnabledByDefault: true,
 	Description:      "Collect Execution data from Zentao api",
 	DomainTypes:      []string{plugin.DOMAIN_TYPE_TICKET},

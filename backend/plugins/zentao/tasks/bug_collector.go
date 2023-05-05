@@ -20,11 +20,12 @@ package tasks
 import (
 	"encoding/json"
 	"fmt"
+	"net/http"
+	"net/url"
+
 	"github.com/apache/incubator-devlake/core/errors"
 	"github.com/apache/incubator-devlake/core/plugin"
 	"github.com/apache/incubator-devlake/helpers/pluginhelper/api"
-	"net/http"
-	"net/url"
 )
 
 const RAW_BUG_TABLE = "zentao_api_bugs"
@@ -33,9 +34,12 @@ var _ plugin.SubTaskEntryPoint = CollectBug
 
 func CollectBug(taskCtx plugin.SubTaskContext) errors.Error {
 	data := taskCtx.GetData().(*ZentaoTaskData)
+
+	// this collect only work for product
 	if data.Options.ProductId == 0 {
 		return nil
 	}
+
 	collector, err := api.NewApiCollector(api.ApiCollectorArgs{
 		RawDataSubTaskArgs: api.RawDataSubTaskArgs{
 			Ctx: taskCtx,
