@@ -43,10 +43,7 @@
       "type": "text"
     },
     {
-      "datasource": {
-        "type": "mysql",
-        "uid": "2vxSE-sVz"
-      },
+      "datasource": "mysql",
       "description": "",
       "fieldConfig": {
         "defaults": {
@@ -171,10 +168,7 @@
       "pluginVersion": "8.4.7",
       "targets": [
         {
-          "datasource": {
-            "type": "mysql",
-            "uid": "2vxSE-sVz"
-          },
+          "datasource": "mysql",
           "format": "table",
           "group": [],
           "metricColumn": "none",
@@ -208,10 +202,7 @@
       "type": "table"
     },
     {
-      "datasource": {
-        "type": "mysql",
-        "uid": "2vxSE-sVz"
-      },
+      "datasource": "mysql",
       "fieldConfig": {
         "defaults": {
           "color": {
@@ -277,10 +268,7 @@
       "pluginVersion": "8.4.7",
       "targets": [
         {
-          "datasource": {
-            "type": "mysql",
-            "uid": "2vxSE-sVz"
-          },
+          "datasource": "mysql",
           "format": "table",
           "group": [],
           "metricColumn": "none",
@@ -314,10 +302,7 @@
       "type": "stat"
     },
     {
-      "datasource": {
-        "type": "mysql",
-        "uid": "2vxSE-sVz"
-      },
+      "datasource": "mysql",
       "fieldConfig": {
         "defaults": {
           "color": {
@@ -383,10 +368,7 @@
       "pluginVersion": "8.4.7",
       "targets": [
         {
-          "datasource": {
-            "type": "mysql",
-            "uid": "2vxSE-sVz"
-          },
+          "datasource": "mysql",
           "format": "table",
           "group": [],
           "metricColumn": "none",
@@ -420,10 +402,7 @@
       "type": "stat"
     },
     {
-      "datasource": {
-        "type": "mysql",
-        "uid": "2vxSE-sVz"
-      },
+      "datasource": "mysql",
       "fieldConfig": {
         "defaults": {
           "color": {
@@ -493,10 +472,7 @@
       "pluginVersion": "8.4.7",
       "targets": [
         {
-          "datasource": {
-            "type": "mysql",
-            "uid": "2vxSE-sVz"
-          },
+          "datasource": "mysql",
           "format": "table",
           "group": [],
           "metricColumn": "none",
@@ -530,10 +506,7 @@
       "type": "stat"
     },
     {
-      "datasource": {
-        "type": "mysql",
-        "uid": "2vxSE-sVz"
-      },
+      "datasource": "mysql",
       "fieldConfig": {
         "defaults": {
           "color": {
@@ -599,10 +572,7 @@
       "pluginVersion": "8.4.7",
       "targets": [
         {
-          "datasource": {
-            "type": "mysql",
-            "uid": "2vxSE-sVz"
-          },
+          "datasource": "mysql",
           "format": "table",
           "group": [],
           "metricColumn": "none",
@@ -636,10 +606,7 @@
       "type": "stat"
     },
     {
-      "datasource": {
-        "type": "mysql",
-        "uid": "2vxSE-sVz"
-      },
+      "datasource": "mysql",
       "fieldConfig": {
         "defaults": {
           "color": {
@@ -707,10 +674,7 @@
       },
       "targets": [
         {
-          "datasource": {
-            "type": "mysql",
-            "uid": "2vxSE-sVz"
-          },
+          "datasource": "mysql",
           "format": "table",
           "group": [],
           "metricColumn": "none",
@@ -744,10 +708,7 @@
       "type": "barchart"
     },
     {
-      "datasource": {
-        "type": "mysql",
-        "uid": "2vxSE-sVz"
-      },
+      "datasource": "mysql",
       "description": "",
       "fieldConfig": {
         "defaults": {
@@ -813,10 +774,7 @@
       "pluginVersion": "8.0.6",
       "targets": [
         {
-          "datasource": {
-            "type": "mysql",
-            "uid": "2vxSE-sVz"
-          },
+          "datasource": "mysql",
           "format": "table",
           "group": [],
           "hide": false,
@@ -850,10 +808,7 @@
       "type": "barchart"
     },
     {
-      "datasource": {
-        "type": "mysql",
-        "uid": "2vxSE-sVz"
-      },
+      "datasource": "mysql",
       "description": "",
       "fieldConfig": {
         "defaults": {
@@ -940,10 +895,7 @@
       "pluginVersion": "8.0.6",
       "targets": [
         {
-          "datasource": {
-            "type": "mysql",
-            "uid": "2vxSE-sVz"
-          },
+          "datasource": "mysql",
           "format": "table",
           "group": [],
           "hide": false,
@@ -977,10 +929,7 @@
       "type": "barchart"
     },
     {
-      "datasource": {
-        "type": "mysql",
-        "uid": "2vxSE-sVz"
-      },
+      "datasource": "mysql",
       "description": "",
       "fieldConfig": {
         "defaults": {
@@ -1065,10 +1014,7 @@
       "pluginVersion": "8.0.6",
       "targets": [
         {
-          "datasource": {
-            "type": "mysql",
-            "uid": "2vxSE-sVz"
-          },
+          "datasource": "mysql",
           "format": "table",
           "group": [],
           "hide": false,
@@ -1118,10 +1064,7 @@
             "Experience"
           ]
         },
-        "datasource": {
-          "type": "mysql",
-          "uid": "2vxSE-sVz"
-        },
+        "datasource": "mysql",
         "definition": "select distinct name from teams",
         "hide": 0,
         "includeAll": true,
