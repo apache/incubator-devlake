@@ -18,6 +18,8 @@ limitations under the License.
 package tasks
 
 import (
+	"reflect"
+
 	"github.com/apache/incubator-devlake/core/dal"
 	"github.com/apache/incubator-devlake/core/errors"
 	"github.com/apache/incubator-devlake/core/models/domainlayer"
@@ -26,7 +28,6 @@ import (
 	"github.com/apache/incubator-devlake/core/plugin"
 	"github.com/apache/incubator-devlake/helpers/pluginhelper/api"
 	"github.com/apache/incubator-devlake/plugins/zentao/models"
-	"reflect"
 )
 
 const RAW_PRODUCT_TABLE = "zentao_api_products"
@@ -75,7 +76,7 @@ func ConvertProducts(taskCtx plugin.SubTaskContext) errors.Error {
 				Name:        toolProduct.Name,
 				Description: toolProduct.Description,
 				CreatedDate: toolProduct.CreatedDate.ToNullableTime(),
-				Type:        toolProduct.Type,
+				Type:        toolProduct.Type + "/" + toolProduct.ProductType,
 			}
 			results := make([]interface{}, 0)
 			results = append(results, domainBoard)
