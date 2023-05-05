@@ -24,7 +24,6 @@ import (
 	"io"
 	"net/http"
 	"net/url"
-	"strings"
 
 	"github.com/apache/incubator-devlake/core/errors"
 
@@ -90,6 +89,8 @@ func makePipelinePlan(
 		if err != nil {
 			return nil, err
 		}
+
+		connection.SetRepository(op.Name)
 
 		// refdiff
 		if refdiffRules, ok := transformationRules["refdiff"]; ok && refdiffRules != nil {
@@ -167,7 +168,7 @@ func addGitex(entities []string,
 ) (plugin.PipelineStage, errors.Error) {
 	if utils.StringsContains(entities, plugin.DOMAIN_TYPE_CODE) {
 		// here is the tricky part, we have to obtain the repo id beforehand
-		token := strings.Split(connection.Token, ",")[0]
+		token := connection.GetToken()
 		cloneUrl, err := errors.Convert01(url.Parse(repo.CloneUrl))
 		if err != nil {
 			return nil, err

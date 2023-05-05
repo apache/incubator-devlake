@@ -27,6 +27,8 @@ type TestConnectionPayload = {
   username?: string;
   password?: string;
   authMethod?: string;
+  appId?: string;
+  secretKey?: string;
 };
 
 export const testConnection = (plugin: string, data: TestConnectionPayload) =>

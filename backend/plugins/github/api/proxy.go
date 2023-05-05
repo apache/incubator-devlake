@@ -21,6 +21,7 @@ import (
 	"context"
 	"encoding/json"
 	"io"
+	"strconv"
 	"time"
 
 	"github.com/apache/incubator-devlake/core/errors"
@@ -39,6 +40,16 @@ func Proxy(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, errors.Er
 	if err != nil {
 		return nil, err
 	}
+	if input.Params["installationid"] != "" {
+		//parse int
+		installationID, err := strconv.Atoi(input.Params["installationid"])
+		if err != nil {
+			return nil, errors.AsLakeErrorType(err)
+		}
+
+		connection.SetInstallationID(installationID)
+	}
+
 	apiClient, err := helper.NewApiClientFromConnection(context.TODO(), basicRes, connection)
 	if err != nil {
 		return nil, err

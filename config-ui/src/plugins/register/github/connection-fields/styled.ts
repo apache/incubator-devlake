@@ -38,7 +38,7 @@ export const Endpoint = styled.div`
   }
 `;
 
-export const Token = styled.div`
+export const Input = styled.div`
   display: flex;
   align-items: center;
   margin-bottom: 8px;

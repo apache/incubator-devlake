@@ -16,27 +16,33 @@
  *
  */
 
-export enum ConnectionStatusEnum {
-  ONLINE = 'online',
-  OFFLINE = 'offline',
-  TESTING = 'testing',
-  NULL = 'null',
+import React, { useEffect } from 'react';
+import { FormGroup, RadioGroup, Radio } from '@blueprintjs/core';
+
+import * as S from './styled';
+
+interface Props {
+  initialValue: string;
+  value: string;
+  setValue: (value: string) => void;
 }
 
-export type ConnectionItemType = {
-  unique: string;
-  status: ConnectionStatusEnum;
-  plugin: string;
-  id: ID;
-  name: string;
-  icon: string;
-  entities: string[];
-  endpoint: string;
-  proxy: string;
-  token?: string;
-  username?: string;
-  password?: string;
-  authMethod?: string;
-  appId?: string;
-  secretKey?: string;
+export const Authentication = ({ initialValue, value, setValue }: Props) => {
+
+  useEffect(() => {
+    setValue(initialValue);
+  }, [initialValue]);
+
+  return (
+    <FormGroup label={<S.Label>Authentication type</S.Label>} labelInfo={<S.LabelInfo>*</S.LabelInfo>}>
+      <RadioGroup inline selectedValue={value || initialValue} onChange={(e) => {
+        setValue((e.target as any).value);
+      }}>
+        <Radio value="AccessToken">Github Access Token</Radio>
+        <Radio value="AppKey">
+          Github App
+        </Radio>
+      </RadioGroup>
+    </FormGroup>
+  );
 };

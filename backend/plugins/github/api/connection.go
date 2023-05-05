@@ -27,6 +27,7 @@ import (
 	"github.com/apache/incubator-devlake/helpers/pluginhelper/api"
 	"github.com/apache/incubator-devlake/plugins/github/models"
 	"github.com/apache/incubator-devlake/server/api/shared"
+	"github.com/mitchellh/mapstructure"
 )
 
 var requirePermission = []string{"repo:status", "repo_deployment", "read:user", "read:org"}
@@ -47,66 +48,98 @@ type GithubTestConnResponse struct {
 func TestConnection(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, errors.Error) {
 	// process input
 	var conn models.GithubConn
-	err := api.Decode(input.Body, &conn, vld)
-	if err != nil {
-		return nil, err
+	e := mapstructure.Decode(input.Body, &conn)
+	if e != nil {
+		return nil, errors.Convert(e)
+	}
+	e = vld.StructExcept(conn, "GithubAppKey", "GithubAccessToken")
+	if e != nil {
+		return nil, errors.Convert(e)
 	}
 
 	apiClient, err := api.NewApiClientFromConnection(context.TODO(), basicRes, &conn)
 	if err != nil {
 		return nil, err
 	}
-	res, err := apiClient.Get("user", nil, nil)
-	if err != nil {
-		return nil, errors.BadInput.Wrap(err, "verify token failed")
-	}
-
-	if res.StatusCode == http.StatusUnauthorized {
-		return nil, errors.HttpStatus(http.StatusBadRequest).New("StatusUnauthorized error when testing connection")
-	}
-
-	if res.StatusCode != http.StatusOK {
-		return nil, errors.HttpStatus(res.StatusCode).New("unexpected status code while testing connection")
-	}
-
-	githubUserOfToken := &models.GithubUserOfToken{}
-	err = api.UnmarshalResponse(res, githubUserOfToken)
-	if err != nil {
-		return nil, errors.BadInput.Wrap(err, "verify token failed")
-	} else if githubUserOfToken.Login == "" {
-		return nil, errors.BadInput.Wrap(err, "invalid token")
-	}
-
-	// for github classic token, check permission
-	if strings.HasPrefix(conn.Token, "ghp_") {
-		scopes := res.Header.Get("X-OAuth-Scopes")
-		for _, permission := range requirePermission {
-			if !strings.Contains(scopes, permission) {
-				if permission == "repo:status" || permission == "repo_deployment" {
-					// If the missing permission is repo:status or repo_deployment, check if the repo permission is present
-					if strings.Contains(scopes, "repo") {
-						continue
-					}
-				}
-				if permission == "read:user" {
-					if strings.Contains(scopes, "user") {
-						continue
-					}
-				}
-				if permission == "read:org" {
-					if strings.Contains(scopes, "admin:org") {
-						continue
-					}
-				}
-				return nil, errors.BadInput.New("insufficient token permission")
-			}
-		}
-	}
 
 	githubApiResponse := &GithubTestConnResponse{}
-	githubApiResponse.Success = true
-	githubApiResponse.Message = "success"
-	githubApiResponse.Login = githubUserOfToken.Login
+
+	if conn.AuthMethod == "AppKey" {
+		res, err := apiClient.Get("app", nil, nil)
+
+		if err != nil {
+			return nil, errors.BadInput.Wrap(err, "verify token failed")
+		}
+		if res.StatusCode != http.StatusOK {
+			return nil, errors.HttpStatus(res.StatusCode).New("unexpected status code while testing connection")
+		}
+
+		githubApp := &models.GithubApp{}
+		err = api.UnmarshalResponse(res, githubApp)
+		if err != nil {
+			return nil, errors.BadInput.Wrap(err, "verify token failed")
+		} else if githubApp.Slug == "" {
+			return nil, errors.BadInput.Wrap(err, "invalid token")
+		}
+
+		githubApiResponse.Success = true
+		githubApiResponse.Message = "success"
+		githubApiResponse.Login = githubApp.Slug
+	} else if conn.AuthMethod == "AccessToken" {
+		res, err := apiClient.Get("user", nil, nil)
+		if err != nil {
+			return nil, errors.BadInput.Wrap(err, "verify token failed")
+		}
+
+		if res.StatusCode == http.StatusUnauthorized {
+			return nil, errors.HttpStatus(http.StatusBadRequest).New("StatusUnauthorized error when testing connection")
+		}
+
+		if res.StatusCode != http.StatusOK {
+			return nil, errors.HttpStatus(res.StatusCode).New("unexpected status code while testing connection")
+		}
+
+		githubUserOfToken := &models.GithubUserOfToken{}
+		err = api.UnmarshalResponse(res, githubUserOfToken)
+		if err != nil {
+			return nil, errors.BadInput.Wrap(err, "verify token failed")
+		} else if githubUserOfToken.Login == "" {
+			return nil, errors.BadInput.Wrap(err, "invalid token")
+		}
+
+		// for github classic token, check permission
+		if strings.HasPrefix(conn.Token, "ghp_") {
+			scopes := res.Header.Get("X-OAuth-Scopes")
+			for _, permission := range requirePermission {
+				if !strings.Contains(scopes, permission) {
+					if permission == "repo:status" || permission == "repo_deployment" {
+						// If the missing permission is repo:status or repo_deployment, check if the repo permission is present
+						if strings.Contains(scopes, "repo") {
+							continue
+						}
+					}
+					if permission == "read:user" {
+						if strings.Contains(scopes, "user") {
+							continue
+						}
+					}
+					if permission == "read:org" {
+						if strings.Contains(scopes, "admin:org") {
+							continue
+						}
+					}
+					return nil, errors.BadInput.New("insufficient token permission")
+				}
+			}
+		} else {
+			return nil, errors.BadInput.New("invalid authentication method")
+		}
+
+		githubApiResponse.Success = true
+		githubApiResponse.Message = "success"
+		githubApiResponse.Login = githubUserOfToken.Login
+	}
+
 	return &plugin.ApiResourceOutput{Body: githubApiResponse, Status: http.StatusOK}, nil
 }
 

@@ -54,6 +54,7 @@ export const Token = ({ endpoint, proxy, initialValue, value, error, setValue, s
 
     try {
       const res = await API.testConnection({
+        authMethod: 'AccessToken',
         endpoint,
         proxy,
         token,
@@ -82,6 +83,10 @@ export const Token = ({ endpoint, proxy, initialValue, value, error, setValue, s
 
   useEffect(() => {
     setError(value ? '' : 'token is required');
+
+    return () => {
+      setError('');
+    }
   }, [value]);
 
   useEffect(() => {
@@ -118,7 +123,7 @@ export const Token = ({ endpoint, proxy, initialValue, value, error, setValue, s
       }
     >
       {tokens.map(({ value, status, from }, i) => (
-        <S.Token key={i}>
+        <S.Input key={i}>
           <InputGroup
             placeholder="Token"
             type="password"
@@ -131,7 +136,7 @@ export const Token = ({ endpoint, proxy, initialValue, value, error, setValue, s
             {status === 'invalid' && <span className="error">Invalid</span>}
             {status === 'valid' && <span className="success">Valid From: {from}</span>}
           </div>
-        </S.Token>
+        </S.Input>
       ))}
       <div className="action">
         <Button outlined small intent={Intent.PRIMARY} text="Another Token" icon="plus" onClick={handleCreateToken} />

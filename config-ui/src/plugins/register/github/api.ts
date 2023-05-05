@@ -25,6 +25,16 @@ type PaginationParams = {
 
 export const getUser = (prefix: string) => request(`${prefix}/user`);
 
+export const getAppInstallations = (prefix: string) => request(`${prefix}/app/installations`);
+
+export const getInstallationRepos = (connectionId: string | number, installationId: string, params: PaginationParams) =>
+  request(`/plugins/github/connections/${connectionId}/installations/${installationId}/proxy/rest/installation/repositories`, {
+    method: 'get',
+    data: {
+      ...params,
+    },
+  });
+
 export const getUserOrgs = (prefix: string, params: PaginationParams) =>
   request(`${prefix}/user/orgs`, {
     method: 'get',

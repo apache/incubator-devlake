@@ -54,7 +54,7 @@ func TestConnection(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, 
 	if e != nil {
 		return nil, errors.Convert(e)
 	}
-	e = vld.StructExcept(connection, "BasicAuth", "AccessToken")
+	e = vld.StructExcept(connection, "AppId", "SecretKey", "AccessToken")
 	if e != nil {
 		return nil, errors.Convert(e)
 	}

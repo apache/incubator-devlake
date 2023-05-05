@@ -18,9 +18,9 @@ limitations under the License.
 package api
 
 import (
+	"context"
 	"fmt"
 	"net/url"
-	"strings"
 	"time"
 
 	"github.com/apache/incubator-devlake/core/dal"
@@ -43,6 +43,13 @@ func MakeDataSourcePipelinePlanV200(subtaskMetas []plugin.SubTaskMeta, connectio
 	// get the connection info for url
 	connection := &models.GithubConnection{}
 	err := connectionHelper.FirstById(connection, connectionId)
+	if err != nil {
+		return nil, nil, err
+	}
+
+	// needed for the connection to populate its access tokens
+	// if AppKey authentication method is selected
+	_, err = helper.NewApiClientFromConnection(context.TODO(), basicRes, connection)
 	if err != nil {
 		return nil, nil, err
 	}
@@ -110,6 +117,9 @@ func makeDataSourcePipelinePlanV200(
 			GithubId:     githubRepo.GithubId,
 			Name:         githubRepo.Name,
 		}
+
+		connection.SetRepository(op.Name)
+
 		if syncPolicy.TimeAfter != nil {
 			op.TimeAfter = syncPolicy.TimeAfter.Format(time.RFC3339)
 		}
@@ -128,7 +138,7 @@ func makeDataSourcePipelinePlanV200(
 			if err != nil {
 				return nil, err
 			}
-			token := strings.Split(connection.Token, ",")[0]
+			token := connection.GetToken()
 			cloneUrl.User = url.UserPassword("git", token)
 			stage = append(stage, &plugin.PipelineTask{
 				Plugin: "gitextractor",

@@ -20,11 +20,11 @@ package impl
 import (
 	"context"
 	"fmt"
-	"github.com/apache/incubator-devlake/core/models/domainlayer/devops"
 	"net/url"
 	"reflect"
-	"strings"
 	"time"
+
+	"github.com/apache/incubator-devlake/core/models/domainlayer/devops"
 
 	"github.com/apache/incubator-devlake/core/dal"
 	"github.com/apache/incubator-devlake/core/errors"
@@ -142,6 +142,7 @@ func (p GithubGraphql) PrepareTaskData(taskCtx plugin.TaskContext, options map[s
 	if err != nil {
 		return nil, errors.Default.Wrap(err, "unable to get github connection by the given connection ID: %v")
 	}
+	connection.SetRepository(op.Name)
 
 	apiClient, err := githubTasks.CreateApiClient(taskCtx, connection)
 	if err != nil {
@@ -153,9 +154,8 @@ func (p GithubGraphql) PrepareTaskData(taskCtx plugin.TaskContext, options map[s
 		return nil, err
 	}
 
-	tokens := strings.Split(connection.Token, ",")
 	src := oauth2.StaticTokenSource(
-		&oauth2.Token{AccessToken: tokens[0]},
+		&oauth2.Token{AccessToken: connection.GetToken()},
 	)
 	httpClient := oauth2.NewClient(taskCtx.GetContext(), src)
 	endpoint, err := errors.Convert01(url.JoinPath(connection.Endpoint, `graphql`))
