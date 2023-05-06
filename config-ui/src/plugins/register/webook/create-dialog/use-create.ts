@@ -54,11 +54,11 @@ export const useCreate = ({ onSubmitAfter }: UseCreateProps) => {
       setRecord({
         postIssuesEndpoint: `${prefix}${res.postIssuesEndpoint}`,
         closeIssuesEndpoint: `${prefix}${res.closeIssuesEndpoint}`,
-        postDeploymentsCurl: `curl ${prefix}${res.postPipelineDeployTaskEndpoint} -X 'POST' -d "{
-        \\"commit_sha\\":\\"the sha of deployment commit\\",
-        \\"repo_url\\":\\"the repo URL of the deployment commit\\",
-        \\"start_time\\":\\"Optional, eg. 2020-01-01T12:00:00+00:00\\"
-      }"`,
+        postDeploymentsCurl: `curl ${prefix}${res.postPipelineDeployTaskEndpoint}-X 'POST' -d '{
+          \\"commit_sha\\":\\"the sha of deployment commit\\",
+          \\"repo_url\\":\\"the repo URL of the deployment commit\\",
+          \\"start_time\\":\\"eg. 2020-01-01T12:00:00+00:00\\"
+        }'`,
       });
     } else if (success) {
       onSubmitAfter?.(res.id);
