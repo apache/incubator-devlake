@@ -25,12 +25,17 @@ import (
 	"github.com/apache/incubator-devlake/plugins/gitlab/models"
 )
 
+func init() {
+	RegisterSubtaskMeta(&ExtractApiCommitsMeta)
+}
+
 var ExtractApiCommitsMeta = plugin.SubTaskMeta{
 	Name:             "extractApiCommits",
 	EntryPoint:       ExtractApiCommits,
 	EnabledByDefault: false,
 	Description:      "Extract raw commit data into tool layer table GitlabCommit,GitlabAccount and GitlabProjectCommit",
 	DomainTypes:      []string{plugin.DOMAIN_TYPE_CODE},
+	Dependencies:     []*plugin.SubTaskMeta{&CollectApiCommitsMeta},
 }
 
 func ExtractApiCommits(taskCtx plugin.SubTaskContext) errors.Error {

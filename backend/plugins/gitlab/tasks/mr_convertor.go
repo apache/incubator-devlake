@@ -30,12 +30,17 @@ import (
 	"github.com/apache/incubator-devlake/plugins/gitlab/models"
 )
 
+func init() {
+	RegisterSubtaskMeta(&ConvertApiMergeRequestsMeta)
+}
+
 var ConvertApiMergeRequestsMeta = plugin.SubTaskMeta{
 	Name:             "convertApiMergeRequests",
 	EntryPoint:       ConvertApiMergeRequests,
 	EnabledByDefault: true,
 	Description:      "Add domain layer PullRequest according to GitlabMergeRequest",
 	DomainTypes:      []string{plugin.DOMAIN_TYPE_CODE_REVIEW},
+	Dependencies:     []*plugin.SubTaskMeta{&ConvertProjectMeta},
 }
 
 func ConvertApiMergeRequests(taskCtx plugin.SubTaskContext) errors.Error {

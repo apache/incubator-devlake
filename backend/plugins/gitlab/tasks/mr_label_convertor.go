@@ -28,12 +28,17 @@ import (
 	"reflect"
 )
 
+func init() {
+	RegisterSubtaskMeta(&ConvertMrLabelsMeta)
+}
+
 var ConvertMrLabelsMeta = plugin.SubTaskMeta{
 	Name:             "convertMrLabels",
 	EntryPoint:       ConvertMrLabels,
 	EnabledByDefault: true,
 	Description:      "Convert tool layer table gitlab_mr_labels into  domain layer table pull_request_labels",
 	DomainTypes:      []string{plugin.DOMAIN_TYPE_CODE_REVIEW},
+	Dependencies:     []*plugin.SubTaskMeta{&ConvertIssueLabelsMeta},
 }
 
 func ConvertMrLabels(taskCtx plugin.SubTaskContext) errors.Error {
@@ -43,9 +48,9 @@ func ConvertMrLabels(taskCtx plugin.SubTaskContext) errors.Error {
 	clauses := []dal.Clause{
 		dal.Select("*"),
 		dal.From(&models.GitlabMrLabel{}),
-		dal.Join(`left join _tool_gitlab_merge_requests on 
+		dal.Join(`left join _tool_gitlab_merge_requests on
 			_tool_gitlab_merge_requests.gitlab_id = _tool_gitlab_mr_labels.mr_id`),
-		dal.Where(`_tool_gitlab_merge_requests.project_id = ? 
+		dal.Where(`_tool_gitlab_merge_requests.project_id = ?
 			and _tool_gitlab_merge_requests.connection_id = ?`,
 			projectId, data.Options.ConnectionId),
 		dal.Orderby("mr_id ASC"),

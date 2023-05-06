@@ -33,6 +33,10 @@ import (
 	"github.com/apache/incubator-devlake/plugins/gitlab/models"
 )
 
+func init() {
+	RegisterSubtaskMeta(&CollectApiJobsMeta)
+}
+
 const RAW_JOB_TABLE = "gitlab_api_job"
 
 type SimpleGitlabApiJob struct {
@@ -46,6 +50,7 @@ var CollectApiJobsMeta = plugin.SubTaskMeta{
 	EnabledByDefault: true,
 	Description:      "Collect job data from gitlab api, supports both timeFilter and diffSync.",
 	DomainTypes:      []string{plugin.DOMAIN_TYPE_CICD},
+	Dependencies:     []*plugin.SubTaskMeta{&ExtractApiPipelineDetailsMeta},
 }
 
 func CollectApiJobs(taskCtx plugin.SubTaskContext) errors.Error {

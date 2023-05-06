@@ -27,6 +27,10 @@ import (
 	"github.com/apache/incubator-devlake/plugins/gitlab/models"
 )
 
+func init() {
+	RegisterSubtaskMeta(&ExtractApiPipelinesMeta)
+}
+
 type ApiDetailedStatus struct {
 	Icon        string
 	Text        string
@@ -61,6 +65,7 @@ var ExtractApiPipelinesMeta = plugin.SubTaskMeta{
 	EnabledByDefault: true,
 	Description:      "Extract raw pipelines data into tool layer table GitlabPipeline",
 	DomainTypes:      []string{plugin.DOMAIN_TYPE_CICD},
+	Dependencies:     []*plugin.SubTaskMeta{&CollectApiPipelinesMeta},
 }
 
 func ExtractApiPipelines(taskCtx plugin.SubTaskContext) errors.Error {

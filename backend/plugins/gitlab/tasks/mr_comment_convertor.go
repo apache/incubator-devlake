@@ -29,12 +29,17 @@ import (
 	"reflect"
 )
 
+func init() {
+	RegisterSubtaskMeta(&ConvertMrCommentMeta)
+}
+
 var ConvertMrCommentMeta = plugin.SubTaskMeta{
 	Name:             "convertMergeRequestComment",
 	EntryPoint:       ConvertMergeRequestComment,
 	EnabledByDefault: true,
 	Description:      "Add domain layer Comment according to GitlabMrComment",
 	DomainTypes:      []string{plugin.DOMAIN_TYPE_CODE_REVIEW},
+	Dependencies:     []*plugin.SubTaskMeta{&ConvertApiMergeRequestsMeta},
 }
 
 func ConvertMergeRequestComment(taskCtx plugin.SubTaskContext) errors.Error {
@@ -42,10 +47,10 @@ func ConvertMergeRequestComment(taskCtx plugin.SubTaskContext) errors.Error {
 	db := taskCtx.GetDal()
 	clauses := []dal.Clause{
 		dal.From(&models.GitlabMrComment{}),
-		dal.Join(`left join _tool_gitlab_merge_requests on 
-			_tool_gitlab_merge_requests.gitlab_id = 
+		dal.Join(`left join _tool_gitlab_merge_requests on
+			_tool_gitlab_merge_requests.gitlab_id =
 			_tool_gitlab_mr_comments.merge_request_id`),
-		dal.Where(`_tool_gitlab_merge_requests.project_id = ? 
+		dal.Where(`_tool_gitlab_merge_requests.project_id = ?
 			and _tool_gitlab_mr_comments.connection_id = ?`,
 			data.Options.ProjectId, data.Options.ConnectionId),
 	}

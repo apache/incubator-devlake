@@ -23,6 +23,10 @@ import (
 	helper "github.com/apache/incubator-devlake/helpers/pluginhelper/api"
 )
 
+func init() {
+	RegisterSubtaskMeta(&CollectTagMeta)
+}
+
 const RAW_TAG_TABLE = "gitlab_api_tag"
 
 var CollectTagMeta = plugin.SubTaskMeta{
@@ -31,6 +35,7 @@ var CollectTagMeta = plugin.SubTaskMeta{
 	EnabledByDefault: false,
 	Description:      "Collect tag data from gitlab api, does not support either timeFilter or diffSync.",
 	DomainTypes:      []string{plugin.DOMAIN_TYPE_CODE},
+	Dependencies:     []*plugin.SubTaskMeta{&ExtractApiMergeRequestDetailsMeta},
 }
 
 func CollectApiTag(taskCtx plugin.SubTaskContext) errors.Error {

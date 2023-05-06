@@ -28,6 +28,10 @@ import (
 	"github.com/apache/incubator-devlake/plugins/gitlab/models"
 )
 
+func init() {
+	RegisterSubtaskMeta(&ExtractApiMergeRequestsMeta)
+}
+
 type MergeRequestRes struct {
 	GitlabId        int `json:"id"`
 	Iid             int
@@ -75,6 +79,7 @@ var ExtractApiMergeRequestsMeta = plugin.SubTaskMeta{
 	EnabledByDefault: true,
 	Description:      "Extract raw merge requests data into tool layer table GitlabMergeRequest and GitlabReviewer",
 	DomainTypes:      []string{plugin.DOMAIN_TYPE_CODE_REVIEW},
+	Dependencies:     []*plugin.SubTaskMeta{&CollectApiMergeRequestsMeta},
 }
 
 func ExtractApiMergeRequests(taskCtx plugin.SubTaskContext) errors.Error {

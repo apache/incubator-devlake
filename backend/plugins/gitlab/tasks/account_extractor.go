@@ -26,12 +26,17 @@ import (
 	"github.com/apache/incubator-devlake/plugins/gitlab/models"
 )
 
+func init() {
+	RegisterSubtaskMeta(&ExtractAccountsMeta)
+}
+
 var ExtractAccountsMeta = plugin.SubTaskMeta{
 	Name:             "extractAccounts",
 	EntryPoint:       ExtractAccounts,
 	EnabledByDefault: true,
 	Description:      "Extract raw workspace data into tool layer table _tool_gitlab_accounts",
 	DomainTypes:      []string{plugin.DOMAIN_TYPE_CROSS},
+	Dependencies:     []*plugin.SubTaskMeta{&CollectAccountsMeta},
 }
 
 func ExtractAccounts(taskCtx plugin.SubTaskContext) errors.Error {

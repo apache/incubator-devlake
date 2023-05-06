@@ -25,6 +25,10 @@ import (
 	"github.com/apache/incubator-devlake/plugins/gitlab/models"
 )
 
+func init() {
+	RegisterSubtaskMeta(&ExtractApiMrNotesMeta)
+}
+
 type MergeRequestNote struct {
 	GitlabId        int    `json:"id"`
 	MergeRequestId  int    `json:"noteable_id"`
@@ -48,6 +52,7 @@ var ExtractApiMrNotesMeta = plugin.SubTaskMeta{
 	EnabledByDefault: true,
 	Description:      "Extract raw merge requests notes data into tool layer table GitlabMrNote",
 	DomainTypes:      []string{plugin.DOMAIN_TYPE_CODE_REVIEW},
+	Dependencies:     []*plugin.SubTaskMeta{&CollectApiMrNotesMeta},
 }
 
 func ExtractApiMergeRequestsNotes(taskCtx plugin.SubTaskContext) errors.Error {

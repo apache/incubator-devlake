@@ -27,12 +27,17 @@ import (
 	"time"
 )
 
+func init() {
+	RegisterSubtaskMeta(&EnrichMergeRequestsMeta)
+}
+
 var EnrichMergeRequestsMeta = plugin.SubTaskMeta{
 	Name:             "enrichMrs",
 	EntryPoint:       EnrichMergeRequests,
 	EnabledByDefault: true,
 	Description:      "Enrich merge requests data from GitlabCommit, GitlabMrNote and GitlabMergeRequest",
 	DomainTypes:      []string{plugin.DOMAIN_TYPE_CODE_REVIEW},
+	Dependencies:     []*plugin.SubTaskMeta{&ExtractApiJobsMeta},
 }
 
 func EnrichMergeRequests(taskCtx plugin.SubTaskContext) errors.Error {
