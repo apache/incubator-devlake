@@ -16,8 +16,8 @@
  *
  */
 
-import React from 'react';
-import { useParams } from 'react-router-dom';
+import { useState, useEffect } from 'react';
+import { useParams, useLocation, useHistory } from 'react-router-dom';
 import { Tabs, Tab } from '@blueprintjs/core';
 
 import { PageHeader, PageLoading } from '@/components';
@@ -27,9 +27,26 @@ import { BlueprintPanel, IncomingWebhooksPanel, SettingsPanel } from './panel';
 import * as S from './styled';
 
 export const ProjectDetailPage = () => {
+  const [tabId, setTabId] = useState('bp');
+
   const { pname } = useParams<{ pname: string }>();
+  const { search } = useLocation();
+  const history = useHistory();
+
+  const query = new URLSearchParams(search);
+  const urlTabId = query.get('tabId');
+
+  useEffect(() => {
+    setTabId(urlTabId ?? 'bp');
+  }, [urlTabId]);
 
   const { loading, project, saving, onUpdate, onSelectWebhook, onCreateWebhook, onDeleteWebhook } = useProject(pname);
+
+  const handleChangeTabId = (tabId: string) => {
+    query.delete('tabId');
+    query.append('tabId', tabId);
+    history.push({ search: query.toString() });
+  };
 
   if (loading || !project) {
     return <PageLoading />;
@@ -43,7 +60,7 @@ export const ProjectDetailPage = () => {
       ]}
     >
       <S.Wrapper>
-        <Tabs>
+        <Tabs selectedTabId={tabId} onChange={handleChangeTabId}>
           <Tab id="bp" title="Blueprint" panel={<BlueprintPanel project={project} />} />
           <Tab
             id="iw"
