@@ -64,6 +64,7 @@ func DecodeHook(f reflect.Type, t reflect.Type, data interface{}) (interface{}, 
 
 // DecodeMapStruct with time.Time and Iso8601Time support
 func DecodeMapStruct(input map[string]interface{}, result interface{}, zeroFields bool) errors.Error {
+	result = models.UnwrapObject(result)
 	decoder, err := mapstructure.NewDecoder(&mapstructure.DecoderConfig{
 		ZeroFields: zeroFields,
 		DecodeHook: mapstructure.ComposeDecodeHookFunc(DecodeHook),
