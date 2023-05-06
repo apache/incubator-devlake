@@ -346,16 +346,7 @@ func (d *DevlakeClient) monitorPipeline(id uint64) models.Pipeline {
 }
 
 func getScopeResponse(scopeRaw map[string]any) ScopeResponse {
-	response := ScopeResponse{
-		Scope: scopeRaw,
-	}
-	bpRaw, ok := scopeRaw["blueprints"]
-	if ok {
-		response.Blueprints = Cast[[]*models.Blueprint](bpRaw)
-	}
-	trName, ok := scopeRaw["transformation_rule_name"]
-	if ok {
-		response.TransformationRuleName = trName.(string)
-	}
+	response := Cast[ScopeResponse](scopeRaw)
+	response.Scope = scopeRaw
 	return response
 }

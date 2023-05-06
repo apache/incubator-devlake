@@ -87,7 +87,7 @@ func TestCreateScope(t *testing.T) {
 	scopes := client.ListScopes(PLUGIN_NAME, conn.ID, false)
 	require.Equal(t, 1, len(scopes))
 
-	cicdScope := helper.Cast[FakeProject](scopes[0])
+	cicdScope := helper.Cast[FakeProject](scopes[0].Scope)
 	require.Equal(t, conn.ID, cicdScope.ConnectionId)
 	require.Equal(t, "p1", cicdScope.Id)
 	require.Equal(t, "Project 1", cicdScope.Name)
