@@ -73,11 +73,11 @@ func TestRemoteScopes(t *testing.T) {
 	require.Equal(t, "group1", *scope.ParentId)
 	require.Equal(t, "scope", scope.Type)
 	require.NotNil(t, scope.Data)
-	data := scope.Data.(map[string]interface{})
-	require.Equal(t, float64(connection.ID), data["connectionId"])
-	require.Equal(t, "p1", data["id"])
-	require.Equal(t, "Project 1", data["name"])
-	require.Equal(t, "http://fake.org/api/project/p1", data["url"])
+	cicdScope := helper.Cast[FakeProject](scope.Data)
+	require.Equal(t, connection.ID, cicdScope.ConnectionId)
+	require.Equal(t, "p1", cicdScope.Id)
+	require.Equal(t, "Project 1", cicdScope.Name)
+	require.Equal(t, "http://fake.org/api/project/p1", cicdScope.Url)
 }
 
 func TestCreateScope(t *testing.T) {
@@ -88,11 +88,11 @@ func TestCreateScope(t *testing.T) {
 
 	scopes := client.ListScopes(PLUGIN_NAME, connectionId)
 	require.Equal(t, 1, len(scopes))
-	cicd_scope := scopes[0].(map[string]interface{})
-	require.Equal(t, float64(connectionId), cicd_scope["connectionId"])
-	require.Equal(t, "p1", cicd_scope["id"])
-	require.Equal(t, "Project 1", cicd_scope["name"])
-	require.Equal(t, "http://fake.org/api/project/p1", cicd_scope["url"])
+	cicd_scope := helper.Cast[FakeProject](scopes[0])
+	require.Equal(t, connectionId, cicd_scope.ConnectionId)
+	require.Equal(t, "p1", cicd_scope.Id)
+	require.Equal(t, "Project 1", cicd_scope.Name)
+	require.Equal(t, "http://fake.org/api/project/p1", cicd_scope.Url)
 }
 
 func TestRunPipeline(t *testing.T) {
@@ -158,5 +158,33 @@ func TestBlueprintV200(t *testing.T) {
 
 	project := client.GetProject(projectName)
 	require.Equal(t, blueprint.Name, project.Blueprint.Name)
-	client.TriggerBlueprint(blueprint.ID)
+	pipeline := client.TriggerBlueprint(blueprint.ID)
+	require.Equal(t, pipeline.Status, models.TASK_COMPLETED)
+}
+
+func TestCreateTxRule(t *testing.T) {
+	client := CreateClient(t)
+	connection := CreateTestConnection(client)
+
+	res := client.CreateTransformationRule(PLUGIN_NAME, connection.ID, FakeTxRule{Name: "Tx rule", Env: "test env"})
+	txRule := helper.Cast[FakeTxRule](res)
+
+	res = client.GetTransformationRule(PLUGIN_NAME, connection.ID, txRule.Id)
+	txRule = helper.Cast[FakeTxRule](res)
+	require.Equal(t, "Tx rule", txRule.Name)
+	require.Equal(t, "test env", txRule.Env)
+}
+
+func TestUpdateTxRule(t *testing.T) {
+	client := CreateClient(t)
+	connection := CreateTestConnection(client)
+	res := client.CreateTransformationRule(PLUGIN_NAME, connection.ID, FakeTxRule{Name: "old name", Env: "old env"})
+	oldTxRule := helper.Cast[FakeTxRule](res)
+
+	client.PatchTransformationRule(PLUGIN_NAME, connection.ID, oldTxRule.Id, FakeTxRule{Name: "new name", Env: "new env"})
+
+	res = client.GetTransformationRule(PLUGIN_NAME, connection.ID, oldTxRule.Id)
+	txRule := helper.Cast[FakeTxRule](res)
+	require.Equal(t, "new name", txRule.Name)
+	require.Equal(t, "new env", txRule.Env)
 }

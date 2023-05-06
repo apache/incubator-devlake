@@ -19,14 +19,15 @@ package helper
 
 import (
 	"fmt"
+	"net/http"
+	"reflect"
+	"strings"
+
 	"github.com/apache/incubator-devlake/core/errors"
 	"github.com/apache/incubator-devlake/core/models"
 	"github.com/apache/incubator-devlake/core/plugin"
 	apiProject "github.com/apache/incubator-devlake/server/api/project"
 	"github.com/stretchr/testify/require"
-	"net/http"
-	"reflect"
-	"strings"
 )
 
 // CreateConnection FIXME
@@ -173,12 +174,28 @@ func (d *DevlakeClient) CreateTransformationRule(pluginName string, connectionId
 		d.Endpoint, pluginName, connectionId), nil, rules)
 }
 
+func (d *DevlakeClient) PatchTransformationRule(pluginName string, connectionId uint64, txRuleId uint64, rule any) any {
+	return sendHttpRequest[any](d.testCtx, d.timeout, debugInfo{
+		print:      true,
+		inlineJson: false,
+	}, http.MethodPatch, fmt.Sprintf("%s/plugins/%s/connections/%d/transformation_rules/%d",
+		d.Endpoint, pluginName, connectionId, txRuleId), nil, rule)
+}
+
 func (d *DevlakeClient) ListTransformationRules(pluginName string, connectionId uint64) []any {
 	return sendHttpRequest[[]any](d.testCtx, d.timeout, debugInfo{
 		print:      true,
 		inlineJson: false,
 	}, http.MethodGet, fmt.Sprintf("%s/plugins/%s/connections/%d/transformation_rules?pageSize=20&page=1",
 		d.Endpoint, pluginName, connectionId), nil, nil)
+}
+
+func (d *DevlakeClient) GetTransformationRule(pluginName string, connectionId uint64, txRuleId uint64) any {
+	return sendHttpRequest[any](d.testCtx, d.timeout, debugInfo{
+		print:      true,
+		inlineJson: false,
+	}, http.MethodGet, fmt.Sprintf("%s/plugins/%s/connections/%d/transformation_rules/%d",
+		d.Endpoint, pluginName, connectionId, txRuleId), nil, nil)
 }
 
 func (d *DevlakeClient) RemoteScopes(query RemoteScopesQuery) RemoteScopesOutput {
