@@ -34,7 +34,7 @@ func (pa *pluginAPI) PostTransformationRules(input *plugin.ApiResourceInput) (*p
 	}
 	txRule := pa.txRuleType.New()
 	input.Body[`connectionId`] = connectionId
-	err := api.Decode(input.Body, txRule, vld)
+	err := api.DecodeMapStruct(input.Body, txRule, false)
 	if err != nil {
 		return nil, errors.BadInput.Wrap(err, "error in decoding transformation rule")
 	}
@@ -60,11 +60,16 @@ func (pa *pluginAPI) PatchTransformationRule(input *plugin.ApiResourceInput) (*p
 	}
 
 	input.Body[`connectionId`] = connectionId
-	err = api.Decode(input.Body, txRule, vld)
+	input.Body[`id`] = trId
+	err = api.DecodeMapStruct(input.Body, txRule, false)
 	if err != nil {
 		return nil, errors.Default.Wrap(err, "decoding error")
 	}
 
+	err = api.CallDB(db.Update, txRule)
+	if err != nil {
+		return nil, err
+	}
 	return &plugin.ApiResourceOutput{Body: txRule.Unwrap(), Status: http.StatusOK}, nil
 }
 
