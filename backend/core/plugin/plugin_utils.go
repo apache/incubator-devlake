@@ -140,6 +140,6 @@ func AesDecrypt(crypted, key []byte) ([]byte, errors.Error) {
 }
 
 // RandomEncKey will return a random string of length 128
-func RandomEncKey() string {
+func RandomEncKey() (string, errors.Error) {
 	return utils.RandLetterBytes(128)
 }

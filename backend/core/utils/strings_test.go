@@ -15,31 +15,50 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-package main
+package utils
 
 import (
-	"github.com/apache/incubator-devlake/core/config"
+	"testing"
+
 	"github.com/apache/incubator-devlake/core/errors"
-	"github.com/apache/incubator-devlake/core/plugin"
-	_ "github.com/apache/incubator-devlake/core/version"
-	"github.com/apache/incubator-devlake/server/api"
+	"github.com/stretchr/testify/assert"
 )
 
-func main() {
-	v := config.GetConfig()
-	encKey := v.GetString(plugin.EncodeKeyEnvStr)
-	if encKey == "" {
-		var err errors.Error
-		// Randomly generate a bunch of encryption keys and set them to config
-		encKey, err = plugin.RandomEncKey()
-		if err != nil {
-			panic(err)
-		}
-		v.Set(plugin.EncodeKeyEnvStr, encKey)
-		err = config.WriteConfig(v)
-		if err != nil {
-			panic(err)
-		}
+func TestRandLetterBytes(t *testing.T) {
+	type args struct {
+		n int
 	}
-	api.CreateApiService()
+	tests := []struct {
+		name  string
+		args  args
+		want1 errors.Error
+	}{
+		{
+			"test1",
+			args{0},
+			nil,
+		},
+		{
+			"test1",
+			args{-1},
+			errors.Default.New("n must be greater than 0"),
+		},
+		{
+			"test2",
+			args{10},
+			nil,
+		},
+		{
+			"test3",
+			args{128},
+			nil,
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			got, got1 := RandLetterBytes(tt.args.n)
+			t.Log(got)
+			assert.Equalf(t, tt.want1, got1, "RandLetterBytes(%v)", tt.args.n)
+		})
+	}
 }
