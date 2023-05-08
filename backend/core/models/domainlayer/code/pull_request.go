@@ -18,19 +18,21 @@ limitations under the License.
 package code
 
 import (
-	"github.com/apache/incubator-devlake/core/models/domainlayer"
 	"time"
+
+	"github.com/apache/incubator-devlake/core/models/domainlayer"
 )
 
 type PullRequest struct {
 	domainlayer.DomainEntity
-	BaseRepoId  string `gorm:"index"`
-	HeadRepoId  string `gorm:"index"`
-	Status      string `gorm:"type:varchar(100);comment:open/closed or other"`
-	Title       string
-	Description string
-	Url         string `gorm:"type:varchar(255)"`
-	AuthorName  string `gorm:"type:varchar(100)"`
+	BaseRepoId     string `gorm:"index"`
+	HeadRepoId     string `gorm:"index"`
+	Status         string `gorm:"type:varchar(100);comment:open/closed or other"`
+	OriginalStatus string `gorm:"type:varchar(100)"`
+	Title          string
+	Description    string
+	Url            string `gorm:"type:varchar(255)"`
+	AuthorName     string `gorm:"type:varchar(100)"`
 	//User		   domainUser.User `gorm:"foreignKey:AuthorId"`
 	AuthorId       string `gorm:"type:varchar(100)"`
 	ParentPrId     string `gorm:"index;type:varchar(100)"`
