@@ -16,18 +16,21 @@
  *
  */
 
-export * from './action';
-export * from './alert';
-export * from './card';
-export * from './dialog';
-export * from './divider';
-export * from './inspector';
-export * from './loading';
-export * from './logo';
-export * from './no-data';
-export * from './page-header';
-export * from './selector';
-export * from './table';
-export * from './toast';
-export * from './tooltip';
-export * from './workflow';
+import styled from 'styled-components';
+
+const Wrapper = styled.div`
+  padding: 24px;
+  background: #f0f4fe;
+  border: 1px solid #bdcefb;
+  border-radius: 4px;
+`;
+
+interface Props {
+  style?: React.CSSProperties;
+  content?: React.ReactNode;
+  children?: React.ReactNode;
+}
+
+export const Alert = ({ style, content, children }: Props) => {
+  return <Wrapper style={style}>{content ?? children}</Wrapper>;
+};
