@@ -70,6 +70,8 @@ worker:
 
 dev: build-plugin build-python run
 
+godev: build-plugin run
+
 debug: build-plugin-debug
 	dlv debug server/main.go
 
