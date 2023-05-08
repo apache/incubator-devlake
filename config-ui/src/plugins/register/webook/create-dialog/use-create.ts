@@ -22,15 +22,12 @@ import { operator } from '@/utils';
 
 import * as API from '../api';
 
-export interface UseCreateProps {
-  onSubmitAfter?: (id: ID) => void;
-}
-
-export const useCreate = ({ onSubmitAfter }: UseCreateProps) => {
+export const useCreate = () => {
   const [saving, setSaving] = useState(false);
   const [step, setStep] = useState(1);
   const [name, setName] = useState('');
   const [record, setRecord] = useState({
+    id: 0,
     postIssuesEndpoint: '',
     closeIssuesEndpoint: '',
     postDeploymentsCurl: '',
@@ -49,9 +46,10 @@ export const useCreate = ({ onSubmitAfter }: UseCreateProps) => {
       },
     );
 
-    if (success && !onSubmitAfter) {
+    if (success) {
       setStep(2);
       setRecord({
+        id: res.id,
         postIssuesEndpoint: `${prefix}${res.postIssuesEndpoint}`,
         closeIssuesEndpoint: `${prefix}${res.closeIssuesEndpoint}`,
         postDeploymentsCurl: `curl ${prefix}${res.postPipelineDeployTaskEndpoint}-X 'POST' -d '{
@@ -60,8 +58,6 @@ export const useCreate = ({ onSubmitAfter }: UseCreateProps) => {
           \\"start_time\\":\\"eg. 2020-01-01T12:00:00+00:00\\"
         }'`,
       });
-    } else if (success) {
-      onSubmitAfter?.(res.id);
     }
   };
 

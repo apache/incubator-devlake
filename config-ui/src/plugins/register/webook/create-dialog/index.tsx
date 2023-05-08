@@ -16,25 +16,23 @@
  *
  */
 
-import React, { useMemo } from 'react';
+import { useMemo } from 'react';
 import { InputGroup, Icon } from '@blueprintjs/core';
 import { CopyToClipboard } from 'react-copy-to-clipboard';
 
 import { Dialog, toast } from '@/components';
 
-import type { UseCreateProps } from './use-create';
 import { useCreate } from './use-create';
 import * as S from './styled';
 
-interface Props extends UseCreateProps {
+interface Props {
   isOpen: boolean;
   onCancel: () => void;
+  onSubmitAfter?: (id: ID) => void;
 }
 
-export const WebhookCreateDialog = ({ isOpen, onCancel, ...props }: Props) => {
-  const { saving, step, name, record, onChangeName, onSubmit } = useCreate({
-    ...props,
-  });
+export const WebhookCreateDialog = ({ isOpen, onCancel, onSubmitAfter }: Props) => {
+  const { saving, step, name, record, onChangeName, onSubmit } = useCreate();
 
   const [okText, okDisabled] = useMemo(
     () => [step === 1 ? 'Generate POST URL' : 'Done', step === 1 && !name],
@@ -46,6 +44,7 @@ export const WebhookCreateDialog = ({ isOpen, onCancel, ...props }: Props) => {
       onSubmit();
     } else {
       onCancel();
+      onSubmitAfter?.(record.id);
     }
   };
 
