@@ -54,7 +54,7 @@ function App() {
 
         <Route
           exact
-          path="/db-mirgate"
+          path="/db-migrate"
           component={() => (
             <ErrorLayout>
               <DBMigratePage />
