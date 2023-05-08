@@ -22,18 +22,15 @@ import (
 	"encoding/hex"
 	"encoding/json"
 	"fmt"
-	"github.com/apache/incubator-devlake/core/errors"
-	"github.com/apache/incubator-devlake/core/models"
 	"io"
-	"math/rand"
 	"net/http"
 	"strings"
 	"time"
-)
 
-func init() {
-	rand.Seed(time.Now().UnixNano())
-}
+	"github.com/apache/incubator-devlake/core/errors"
+	"github.com/apache/incubator-devlake/core/models"
+	"github.com/apache/incubator-devlake/core/utils"
+)
 
 // NotificationService FIXME ...
 type NotificationService struct {
@@ -74,7 +71,7 @@ func (n *NotificationService) sendNotification(notificationType models.Notificat
 	notification.Data = string(dataJson)
 	notification.Type = notificationType
 	notification.Endpoint = n.EndPoint
-	nonce := randSeq(16)
+	nonce := utils.RandLetterBytes(16)
 	notification.Nonce = nonce
 
 	err = db.Create(&notification)
@@ -102,14 +99,4 @@ func (n *NotificationService) sendNotification(notificationType models.Notificat
 func (n *NotificationService) signature(input, nouce string) string {
 	sum := sha256.Sum256([]byte(input + n.Secret + nouce))
 	return hex.EncodeToString(sum[:])
-}
-
-var letters = []rune("abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ")
-
-func randSeq(n int) string {
-	b := make([]rune, n)
-	for i := range b {
-		b[i] = letters[rand.Intn(len(letters))]
-	}
-	return string(b)
 }
