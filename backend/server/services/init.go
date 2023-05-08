@@ -18,6 +18,9 @@ limitations under the License.
 package services
 
 import (
+	"sync"
+	"time"
+
 	"github.com/apache/incubator-devlake/core/config"
 	"github.com/apache/incubator-devlake/core/context"
 	"github.com/apache/incubator-devlake/core/dal"
@@ -28,10 +31,9 @@ import (
 	"github.com/apache/incubator-devlake/core/runner"
 	"github.com/apache/incubator-devlake/impls/dalgorm"
 	"github.com/apache/incubator-devlake/impls/logruslog"
+	"github.com/apache/incubator-devlake/server/services/auth"
 	"github.com/go-playground/validator/v10"
 	"github.com/robfig/cron/v3"
-	"sync"
-	"time"
 )
 
 var cfg config.ConfigReader
@@ -78,6 +80,8 @@ func GetMigrator() plugin.Migrator {
 // Init the services module
 func Init() {
 	InitResources()
+
+	auth.InitProvider(basicRes)
 
 	// lock the database to avoid multiple devlake instances from sharing the same one
 	lockDb()
