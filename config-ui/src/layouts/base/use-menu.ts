@@ -42,9 +42,7 @@ export const useMenu = () => {
           title: 'Connections',
           icon: 'data-connection',
           path: '/connections',
-          children: PluginConfig.filter((p) =>
-            [PluginType.Connection, PluginType.Incoming_Connection].includes(p.type),
-          ).map((it) => ({
+          children: PluginConfig.filter((p) => p.type === PluginType.Connection).map((it) => ({
             key: it.plugin,
             title: it.name,
             iconUrl: it.icon,

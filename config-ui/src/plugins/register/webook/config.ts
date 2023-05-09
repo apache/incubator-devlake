@@ -16,16 +16,15 @@
  *
  */
 
-import type { PluginConfigType } from '@/plugins';
 import { PluginType } from '@/plugins';
 
 import Icon from './assets/icon.svg';
 import { BasePipelineConfig } from '../base';
 
-export const WebhookConfig: PluginConfigType = {
+export const WebhookConfig = {
   ...BasePipelineConfig,
   plugin: 'webhook',
   name: 'Webhook',
-  type: PluginType.Incoming_Connection,
+  type: PluginType.Connection,
   icon: Icon,
 };

@@ -18,7 +18,6 @@
 
 export enum PluginType {
   Connection = 'connection',
-  Incoming_Connection = 'incoming_connection',
   Pipeline = 'pipeline',
 }
 
