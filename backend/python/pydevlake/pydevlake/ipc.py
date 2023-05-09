@@ -101,8 +101,8 @@ class PluginCommands:
         return self._plugin.make_pipeline(scope_tx_rule_pairs, entities, connection)
 
     @plugin_method
-    def run_migrations(self, force: bool):
-        self._plugin.run_migrations(force)
+    def run_migrations(self, db_url, force: bool):
+        self._plugin.run_migrations(create_db_engine(db_url), force)
 
     @plugin_method
     def plugin_info(self):
