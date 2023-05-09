@@ -18,12 +18,13 @@ limitations under the License.
 package e2e
 
 import (
+	"testing"
+
 	"github.com/apache/incubator-devlake/core/models/domainlayer/code"
 	"github.com/apache/incubator-devlake/helpers/e2ehelper"
 	"github.com/apache/incubator-devlake/plugins/bitbucket/impl"
 	"github.com/apache/incubator-devlake/plugins/bitbucket/models"
 	"github.com/apache/incubator-devlake/plugins/bitbucket/tasks"
-	"testing"
 )
 
 func TestPrDataFlow(t *testing.T) {
@@ -99,6 +100,7 @@ func TestPrDataFlow(t *testing.T) {
 			"base_repo_id",
 			"head_repo_id",
 			"status",
+			"original_status",
 			"title",
 			"description",
 			"url",

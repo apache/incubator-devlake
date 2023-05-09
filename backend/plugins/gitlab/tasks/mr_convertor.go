@@ -90,8 +90,10 @@ func ConvertApiMergeRequests(taskCtx plugin.SubTaskContext) errors.Error {
 				domainPr.Status = code.OPEN
 			} else if gitlabMr.State == "merged" {
 				domainPr.Status = code.MERGED
-			} else {
+			} else if gitlabMr.State == "closed" || gitlabMr.State == "locked" {
 				domainPr.Status = code.CLOSED
+			} else {
+				domainPr.Status = gitlabMr.State
 			}
 
 			return []interface{}{
