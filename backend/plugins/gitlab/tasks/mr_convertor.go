@@ -18,6 +18,8 @@ limitations under the License.
 package tasks
 
 import (
+	"reflect"
+
 	"github.com/apache/incubator-devlake/core/dal"
 	"github.com/apache/incubator-devlake/core/errors"
 	"github.com/apache/incubator-devlake/core/models/domainlayer"
@@ -26,7 +28,6 @@ import (
 	"github.com/apache/incubator-devlake/core/plugin"
 	helper "github.com/apache/incubator-devlake/helpers/pluginhelper/api"
 	"github.com/apache/incubator-devlake/plugins/gitlab/models"
-	"reflect"
 )
 
 var ConvertApiMergeRequestsMeta = plugin.SubTaskMeta{
@@ -69,7 +70,7 @@ func ConvertApiMergeRequests(taskCtx plugin.SubTaskContext) errors.Error {
 				},
 				HeadRepoId:     domainRepoIdGenerator.Generate(data.Options.ConnectionId, gitlabMr.SourceProjectId),
 				BaseRepoId:     domainRepoIdGenerator.Generate(data.Options.ConnectionId, gitlabMr.TargetProjectId),
-				Status:         gitlabMr.State,
+				OriginalStatus: gitlabMr.State,
 				PullRequestKey: gitlabMr.Iid,
 				Title:          gitlabMr.Title,
 				Description:    gitlabMr.Description,
@@ -84,6 +85,13 @@ func ConvertApiMergeRequests(taskCtx plugin.SubTaskContext) errors.Error {
 				HeadRef:        gitlabMr.SourceBranch,
 				BaseRef:        gitlabMr.TargetBranch,
 				Component:      gitlabMr.Component,
+			}
+			if gitlabMr.State == "opened" {
+				domainPr.Status = code.OPEN
+			} else if gitlabMr.State == "merged" {
+				domainPr.Status = code.MERGED
+			} else {
+				domainPr.Status = code.CLOSED
 			}
 
 			return []interface{}{
