@@ -36,7 +36,10 @@ type AeAppKey helper.AppKey
 
 // SetupAuthentication sets up the HTTP Request Authentication
 func (aak *AeAppKey) SetupAuthentication(req *http.Request) errors.Error {
-	nonceStr := utils.RandLetterBytes(8)
+	nonceStr, err := utils.RandLetterBytes(8)
+	if err != nil {
+		return err
+	}
 	timestamp := fmt.Sprintf("%v", time.Now().Unix())
 	sign := signRequest(req.URL.Query(), aak.AppId, aak.SecretKey, nonceStr, timestamp)
 	req.Header.Set("x-ae-app-id", aak.AppId)

@@ -30,7 +30,7 @@ func TestEncodeAndDecode(t *testing.T) {
 	var TestEncode string
 	var TestDecode string
 
-	encKey := RandomEncKey()
+	encKey, _ := RandomEncKey()
 	// encryption test
 	TestEncode, err = Encrypt(encKey, TestStr)
 	assert.Empty(t, err)
@@ -44,7 +44,7 @@ func TestEncodeAndDecode(t *testing.T) {
 }
 
 func TestEncode(t *testing.T) {
-	encKey := RandomEncKey()
+	encKey, _ := RandomEncKey()
 	type args struct {
 		Input string
 	}

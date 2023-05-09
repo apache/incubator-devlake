@@ -71,7 +71,10 @@ func (n *NotificationService) sendNotification(notificationType models.Notificat
 	notification.Data = string(dataJson)
 	notification.Type = notificationType
 	notification.Endpoint = n.EndPoint
-	nonce := utils.RandLetterBytes(16)
+	nonce, err1 := utils.RandLetterBytes(16)
+	if err1 != nil {
+		return err1
+	}
 	notification.Nonce = nonce
 
 	err = db.Create(&notification)
