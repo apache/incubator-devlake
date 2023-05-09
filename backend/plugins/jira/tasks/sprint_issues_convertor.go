@@ -60,9 +60,12 @@ func ConvertSprintIssues(taskCtx plugin.SubTaskContext) errors.Error {
 		InputRowType: reflect.TypeOf(models.JiraSprintIssue{}),
 		Input:        cursor,
 		RawDataSubTaskArgs: api.RawDataSubTaskArgs{
-			Ctx:     taskCtx,
-			Options: data.Options,
-			Table:   RAW_ISSUE_TABLE,
+			Ctx: taskCtx,
+			Params: JiraApiParams{
+				ConnectionId: data.Options.ConnectionId,
+				BoardId:      data.Options.BoardId,
+			},
+			Table: RAW_ISSUE_TABLE,
 		},
 		Convert: func(inputRow interface{}) ([]interface{}, errors.Error) {
 			jiraSprintIssue := inputRow.(*models.JiraSprintIssue)

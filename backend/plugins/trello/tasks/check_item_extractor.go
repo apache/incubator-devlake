@@ -60,9 +60,12 @@ func ExtractCheckItem(taskCtx plugin.SubTaskContext) errors.Error {
 
 	extractor, err := api.NewApiExtractor(api.ApiExtractorArgs{
 		RawDataSubTaskArgs: api.RawDataSubTaskArgs{
-			Ctx:     taskCtx,
-			Options: taskData.Options,
-			Table:   RAW_CHECK_ITEM_TABLE,
+			Ctx: taskCtx,
+			Params: TrelloApiParams{
+				ConnectionId: taskData.Options.ConnectionId,
+				BoardId:      taskData.Options.BoardId,
+			},
+			Table: RAW_CHECK_ITEM_TABLE,
 		},
 		Extract: func(resData *api.RawData) ([]interface{}, errors.Error) {
 			apiCheckItem := &TrelloApiChecklist{}

@@ -58,9 +58,13 @@ func ConvertProducts(taskCtx plugin.SubTaskContext) errors.Error {
 		InputRowType: reflect.TypeOf(models.ZentaoProduct{}),
 		Input:        cursor,
 		RawDataSubTaskArgs: api.RawDataSubTaskArgs{
-			Ctx:     taskCtx,
-			Options: data.Options,
-			Table:   RAW_PRODUCT_TABLE,
+			Ctx: taskCtx,
+			Params: ZentaoApiParams{
+				ConnectionId: data.Options.ConnectionId,
+				ProductId:    data.Options.ProductId,
+				ProjectId:    data.Options.ProjectId,
+			},
+			Table: RAW_PRODUCT_TABLE,
 		},
 		Convert: func(inputRow interface{}) ([]interface{}, errors.Error) {
 			toolProduct := inputRow.(*models.ZentaoProduct)

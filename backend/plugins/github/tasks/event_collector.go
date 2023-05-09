@@ -54,9 +54,12 @@ func CollectApiEvents(taskCtx plugin.SubTaskContext) errors.Error {
 
 	collector, err := helper.NewStatefulApiCollectorForFinalizableEntity(helper.FinalizableApiCollectorArgs{
 		RawDataSubTaskArgs: helper.RawDataSubTaskArgs{
-			Ctx:     taskCtx,
-			Options: data.Options,
-			Table:   RAW_EVENTS_TABLE,
+			Ctx: taskCtx,
+			Params: GithubApiParams{
+				ConnectionId: data.Options.ConnectionId,
+				Name:         data.Options.Name,
+			},
+			Table: RAW_EVENTS_TABLE,
 		},
 		ApiClient: data.ApiClient,
 		TimeAfter: data.TimeAfter, // set to nil to disable timeFilter

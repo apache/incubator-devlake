@@ -41,9 +41,12 @@ func CollectStatus(taskCtx plugin.SubTaskContext) errors.Error {
 
 	collector, err := api.NewApiCollector(api.ApiCollectorArgs{
 		RawDataSubTaskArgs: api.RawDataSubTaskArgs{
-			Ctx:     taskCtx,
-			Options: data.Options,
-			Table:   RAW_STATUS_TABLE,
+			Ctx: taskCtx,
+			Params: JiraApiParams{
+				ConnectionId: data.Options.ConnectionId,
+				BoardId:      data.Options.BoardId,
+			},
+			Table: RAW_STATUS_TABLE,
 		},
 		ApiClient:     data.ApiClient,
 		UrlTemplate:   "api/2/status",

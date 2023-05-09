@@ -47,9 +47,12 @@ func CollectJobs(taskCtx plugin.SubTaskContext) errors.Error {
 
 	// state manager
 	collectorWithState, err := api.NewStatefulApiCollector(api.RawDataSubTaskArgs{
-		Ctx:     taskCtx,
-		Options: data.Options,
-		Table:   RAW_JOB_TABLE,
+		Ctx: taskCtx,
+		Params: GithubApiParams{
+			ConnectionId: data.Options.ConnectionId,
+			Name:         data.Options.Name,
+		},
+		Table: RAW_JOB_TABLE,
 	}, data.TimeAfter)
 	if err != nil {
 		return err
@@ -83,9 +86,12 @@ func CollectJobs(taskCtx plugin.SubTaskContext) errors.Error {
 	// collect jobs
 	err = collectorWithState.InitCollector(api.ApiCollectorArgs{
 		RawDataSubTaskArgs: api.RawDataSubTaskArgs{
-			Ctx:     taskCtx,
-			Options: data.Options,
-			Table:   RAW_JOB_TABLE,
+			Ctx: taskCtx,
+			Params: GithubApiParams{
+				ConnectionId: data.Options.ConnectionId,
+				Name:         data.Options.Name,
+			},
+			Table: RAW_JOB_TABLE,
 		},
 		ApiClient:   data.ApiClient,
 		PageSize:    100,

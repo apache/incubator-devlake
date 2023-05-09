@@ -98,9 +98,12 @@ func CollectIssue(taskCtx plugin.SubTaskContext) errors.Error {
 	}
 
 	collectorWithState, err := helper.NewStatefulApiCollector(helper.RawDataSubTaskArgs{
-		Ctx:     taskCtx,
-		Options: data.Options,
-		Table:   RAW_ISSUES_TABLE,
+		Ctx: taskCtx,
+		Params: githubTasks.GithubApiParams{
+			ConnectionId: data.Options.ConnectionId,
+			Name:         data.Options.Name,
+		},
+		Table: RAW_ISSUES_TABLE,
 	}, data.TimeAfter)
 	if err != nil {
 		return err

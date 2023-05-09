@@ -68,9 +68,12 @@ func ConvertMilestones(taskCtx plugin.SubTaskContext) errors.Error {
 
 	converter, err := api.NewDataConverter(api.DataConverterArgs{
 		RawDataSubTaskArgs: api.RawDataSubTaskArgs{
-			Ctx:     taskCtx,
-			Options: data.Options,
-			Table:   RAW_MILESTONE_TABLE,
+			Ctx: taskCtx,
+			Params: GithubApiParams{
+				ConnectionId: connectionId,
+				Name:         data.Options.Name,
+			},
+			Table: RAW_MILESTONE_TABLE,
 		},
 		InputRowType: reflect.TypeOf(MilestoneConverterModel{}),
 		Input:        cursor,

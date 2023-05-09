@@ -63,9 +63,12 @@ func ConvertJobs(taskCtx plugin.SubTaskContext) (err errors.Error) {
 	repoIdGen := didgen.NewDomainIdGenerator(&models.GithubRepo{})
 	converter, err := api.NewDataConverter(api.DataConverterArgs{
 		RawDataSubTaskArgs: api.RawDataSubTaskArgs{
-			Ctx:     taskCtx,
-			Options: data.Options,
-			Table:   RAW_JOB_TABLE,
+			Ctx: taskCtx,
+			Params: GithubApiParams{
+				ConnectionId: data.Options.ConnectionId,
+				Name:         data.Options.Name,
+			},
+			Table: RAW_JOB_TABLE,
 		},
 		InputRowType: reflect.TypeOf(models.GithubJob{}),
 		Input:        cursor,

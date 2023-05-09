@@ -105,9 +105,12 @@ func CollectGraphqlJobs(taskCtx plugin.SubTaskContext) errors.Error {
 	data := taskCtx.GetData().(*githubTasks.GithubTaskData)
 
 	collectorWithState, err := helper.NewStatefulApiCollector(helper.RawDataSubTaskArgs{
-		Ctx:     taskCtx,
-		Options: data.Options,
-		Table:   RAW_GRAPHQL_JOBS_TABLE,
+		Ctx: taskCtx,
+		Params: githubTasks.GithubApiParams{
+			ConnectionId: data.Options.ConnectionId,
+			Name:         data.Options.Name,
+		},
+		Table: RAW_GRAPHQL_JOBS_TABLE,
 	}, data.TimeAfter)
 	if err != nil {
 		return err

@@ -32,19 +32,6 @@ type TeambitionOptions struct {
 	TransformationRules TransformationRules `json:"transformationRules"`
 }
 
-type TeambitionApiParams struct {
-	ConnectionId   uint64
-	OrganizationId string
-	ProjectId      string
-}
-
-func (t *TeambitionOptions) GetParams() any {
-	return TeambitionApiParams{
-		ConnectionId: t.ConnectionId,
-		ProjectId:    t.ProjectId,
-	}
-}
-
 type TeambitionTaskData struct {
 	Options   *TeambitionOptions
 	ApiClient *helper.ApiAsyncClient

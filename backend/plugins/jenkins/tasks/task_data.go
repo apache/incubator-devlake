@@ -51,13 +51,6 @@ type JenkinsTaskData struct {
 	RegexEnricher *api.RegexEnricher
 }
 
-func (j *JenkinsOptions) GetParams() any {
-	return JenkinsApiParams{
-		ConnectionId: j.ConnectionId,
-		FullName:     j.JobFullName,
-	}
-}
-
 func DecodeTaskOptions(options map[string]interface{}) (*JenkinsOptions, errors.Error) {
 	var op JenkinsOptions
 	err := api.Decode(options, &op, nil)

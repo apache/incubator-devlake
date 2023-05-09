@@ -32,9 +32,12 @@ func CollectProject(taskCtx plugin.SubTaskContext) errors.Error {
 	data := taskCtx.GetData().(*AeTaskData)
 	collector, err := api.NewApiCollector(api.ApiCollectorArgs{
 		RawDataSubTaskArgs: api.RawDataSubTaskArgs{
-			Ctx:     taskCtx,
-			Options: data.Options,
-			Table:   RAW_PROJECT_TABLE,
+			Ctx: taskCtx,
+			Params: AeApiParams{
+				ConnectionId: data.Options.ConnectionId,
+				ProjectId:    data.Options.ProjectId,
+			},
+			Table: RAW_PROJECT_TABLE,
 		},
 		ApiClient:   data.ApiClient,
 		UrlTemplate: "projects/{{ .Params.ProjectId }}",

@@ -54,9 +54,12 @@ func CollectIssueChangelogs(taskCtx plugin.SubTaskContext) errors.Error {
 	db := taskCtx.GetDal()
 
 	collectorWithState, err := api.NewStatefulApiCollector(api.RawDataSubTaskArgs{
-		Ctx:     taskCtx,
-		Options: data.Options,
-		Table:   RAW_CHANGELOG_TABLE,
+		Ctx: taskCtx,
+		Params: JiraApiParams{
+			ConnectionId: data.Options.ConnectionId,
+			BoardId:      data.Options.BoardId,
+		},
+		Table: RAW_CHANGELOG_TABLE,
 	}, data.TimeAfter)
 	if err != nil {
 		return err

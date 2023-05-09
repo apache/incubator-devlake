@@ -32,9 +32,11 @@ func ExtractIncidents(taskCtx plugin.SubTaskContext) errors.Error {
 	data := taskCtx.GetData().(*PagerDutyTaskData)
 	extractor, err := api.NewApiExtractor(api.ApiExtractorArgs{
 		RawDataSubTaskArgs: api.RawDataSubTaskArgs{
-			Ctx:     taskCtx,
-			Options: data.Options,
-			Table:   RAW_INCIDENTS_TABLE,
+			Ctx: taskCtx,
+			Params: PagerDutyParams{
+				ConnectionId: data.Options.ConnectionId,
+			},
+			Table: RAW_INCIDENTS_TABLE,
 		},
 		Extract: func(row *api.RawData) ([]interface{}, errors.Error) {
 			incidentRaw := &raw.Incidents{}

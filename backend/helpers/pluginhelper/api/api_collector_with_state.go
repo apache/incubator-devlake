@@ -147,6 +147,7 @@ func NewStatefulApiCollectorForFinalizableEntity(args FinalizableApiCollectorArg
 	manager, err := NewStatefulApiCollector(RawDataSubTaskArgs{
 		Ctx:     args.Ctx,
 		Options: args.Options,
+		Params:  args.Params,
 		Table:   args.Table,
 	}, args.TimeAfter)
 	if err != nil {

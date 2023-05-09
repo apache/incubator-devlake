@@ -27,6 +27,12 @@ import (
 	"strings"
 )
 
+type TeambitionApiParams struct {
+	ConnectionId   uint64
+	OrganizationId string
+	ProjectId      string
+}
+
 type TeambitionComRes[T any] struct {
 	NextPageToken string `json:"nextPageToken"`
 	TotalSize     int    `json:"totalSize"`
@@ -90,10 +96,14 @@ func CreateRawDataSubTaskArgs(taskCtx plugin.SubTaskContext, rawTable string) (*
 	filteredData := *data
 	filteredData.Options = &TeambitionOptions{}
 	*filteredData.Options = *data.Options
+	params := TeambitionApiParams{
+		ConnectionId: data.Options.ConnectionId,
+		ProjectId:    data.Options.ProjectId,
+	}
 	rawDataSubTaskArgs := &api.RawDataSubTaskArgs{
-		Ctx:     taskCtx,
-		Options: data.Options,
-		Table:   rawTable,
+		Ctx:    taskCtx,
+		Params: params,
+		Table:  rawTable,
 	}
 	return rawDataSubTaskArgs, &filteredData
 }

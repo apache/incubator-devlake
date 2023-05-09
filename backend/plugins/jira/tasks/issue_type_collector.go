@@ -50,9 +50,12 @@ func CollectIssueTypes(taskCtx plugin.SubTaskContext) errors.Error {
 	}
 	collector, err := api.NewApiCollector(api.ApiCollectorArgs{
 		RawDataSubTaskArgs: api.RawDataSubTaskArgs{
-			Ctx:     taskCtx,
-			Options: data.Options,
-			Table:   RAW_ISSUE_TYPE_TABLE,
+			Ctx: taskCtx,
+			Params: JiraApiParams{
+				ConnectionId: data.Options.ConnectionId,
+				BoardId:      data.Options.BoardId,
+			},
+			Table: RAW_ISSUE_TYPE_TABLE,
 		},
 		ApiClient:   data.ApiClient,
 		Concurrency: 1,

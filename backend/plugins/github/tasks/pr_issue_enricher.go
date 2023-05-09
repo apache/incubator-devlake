@@ -64,9 +64,12 @@ func EnrichPullRequestIssues(taskCtx plugin.SubTaskContext) (err errors.Error) {
 		InputRowType: reflect.TypeOf(models.GithubPullRequest{}),
 		Input:        cursor,
 		RawDataSubTaskArgs: api.RawDataSubTaskArgs{
-			Ctx:     taskCtx,
-			Options: data.Options,
-			Table:   RAW_PULL_REQUEST_TABLE,
+			Ctx: taskCtx,
+			Params: GithubApiParams{
+				ConnectionId: data.Options.ConnectionId,
+				Name:         data.Options.Name,
+			},
+			Table: RAW_PULL_REQUEST_TABLE,
 		},
 		Convert: func(inputRow interface{}) ([]interface{}, errors.Error) {
 			githubPullRequst := inputRow.(*models.GithubPullRequest)

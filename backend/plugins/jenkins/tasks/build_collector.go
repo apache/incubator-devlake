@@ -58,9 +58,12 @@ func CollectApiBuilds(taskCtx plugin.SubTaskContext) errors.Error {
 	db := taskCtx.GetDal()
 	collector, err := helper.NewStatefulApiCollectorForFinalizableEntity(helper.FinalizableApiCollectorArgs{
 		RawDataSubTaskArgs: helper.RawDataSubTaskArgs{
-			Options: data.Options,
-			Ctx:     taskCtx,
-			Table:   RAW_BUILD_TABLE,
+			Params: JenkinsApiParams{
+				ConnectionId: data.Options.ConnectionId,
+				FullName:     data.Options.JobFullName,
+			},
+			Ctx:   taskCtx,
+			Table: RAW_BUILD_TABLE,
 		},
 		ApiClient: data.ApiClient,
 		TimeAfter: data.TimeAfter,

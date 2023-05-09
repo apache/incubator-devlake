@@ -32,10 +32,6 @@ type IclaOptions struct {
 	Tasks []string `json:"tasks,omitempty"`
 }
 
-func (i *IclaOptions) GetParams() any {
-	return IclaApiParams{}
-}
-
 type IclaTaskData struct {
 	Options   *IclaOptions
 	ApiClient *helper.ApiAsyncClient

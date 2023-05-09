@@ -65,9 +65,12 @@ func CollectAccounts(taskCtx plugin.SubTaskContext) errors.Error {
 
 	collector, err := api.NewApiCollector(api.ApiCollectorArgs{
 		RawDataSubTaskArgs: api.RawDataSubTaskArgs{
-			Ctx:     taskCtx,
-			Options: data.Options,
-			Table:   RAW_USERS_TABLE,
+			Ctx: taskCtx,
+			Params: JiraApiParams{
+				ConnectionId: data.Options.ConnectionId,
+				BoardId:      data.Options.BoardId,
+			},
+			Table: RAW_USERS_TABLE,
 		},
 		ApiClient:   data.ApiClient,
 		Input:       iterator,

@@ -46,9 +46,12 @@ func ExtractEpics(taskCtx plugin.SubTaskContext) errors.Error {
 	}
 	extractor, err := api.NewApiExtractor(api.ApiExtractorArgs{
 		RawDataSubTaskArgs: api.RawDataSubTaskArgs{
-			Ctx:     taskCtx,
-			Options: data.Options,
-			Table:   RAW_EPIC_TABLE,
+			Ctx: taskCtx,
+			Params: JiraApiParams{
+				ConnectionId: data.Options.ConnectionId,
+				BoardId:      data.Options.BoardId,
+			},
+			Table: RAW_EPIC_TABLE,
 		},
 		Extract: func(row *api.RawData) ([]interface{}, errors.Error) {
 			return extractIssues(data, mappings, row)

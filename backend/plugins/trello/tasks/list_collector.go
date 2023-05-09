@@ -42,9 +42,12 @@ func CollectList(taskCtx plugin.SubTaskContext) errors.Error {
 
 	collector, err := api.NewApiCollector(api.ApiCollectorArgs{
 		RawDataSubTaskArgs: api.RawDataSubTaskArgs{
-			Ctx:     taskCtx,
-			Options: data.Options,
-			Table:   RAW_LIST_TABLE,
+			Ctx: taskCtx,
+			Params: TrelloApiParams{
+				ConnectionId: data.Options.ConnectionId,
+				BoardId:      data.Options.BoardId,
+			},
+			Table: RAW_LIST_TABLE,
 		},
 		ApiClient:   data.ApiClient,
 		UrlTemplate: "1/boards/{{ .Params.BoardId }}/lists",

@@ -55,9 +55,12 @@ func CollectEpics(taskCtx plugin.SubTaskContext) errors.Error {
 	jql := "ORDER BY created ASC"
 	collector, err := api.NewApiCollector(api.ApiCollectorArgs{
 		RawDataSubTaskArgs: api.RawDataSubTaskArgs{
-			Ctx:     taskCtx,
-			Options: data.Options,
-			Table:   RAW_EPIC_TABLE,
+			Ctx: taskCtx,
+			Params: JiraApiParams{
+				ConnectionId: data.Options.ConnectionId,
+				BoardId:      data.Options.BoardId,
+			},
+			Table: RAW_EPIC_TABLE,
 		},
 		ApiClient:   data.ApiClient,
 		PageSize:    100,
@@ -107,12 +110,12 @@ func GetEpicKeysIterator(db dal.Dal, data *JiraTaskData, batchSize int) (api.Ite
 		dal.Join(`
 			LEFT JOIN _tool_jira_board_issues bi ON (
 			i.connection_id = bi.connection_id
-			AND
+			AND 
 			i.issue_id = bi.issue_id
 		)`),
 		dal.Where(`
 			i.connection_id = ?
-			AND
+			AND 
 			bi.board_id = ?
 			AND
 			i.epic_key != ''

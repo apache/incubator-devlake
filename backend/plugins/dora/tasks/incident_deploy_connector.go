@@ -65,9 +65,11 @@ func ConnectIncidentToDeployment(taskCtx plugin.SubTaskContext) errors.Error {
 
 	enricher, err := api.NewDataConverter(api.DataConverterArgs{
 		RawDataSubTaskArgs: api.RawDataSubTaskArgs{
-			Ctx:     taskCtx,
-			Options: data.Options,
-			Table:   "issues",
+			Ctx: taskCtx,
+			Params: DoraApiParams{
+				ProjectName: data.Options.ProjectName,
+			},
+			Table: "issues",
 		},
 		InputRowType: reflect.TypeOf(ticket.Issue{}),
 		Input:        cursor,

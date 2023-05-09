@@ -124,13 +124,6 @@ type JiraApiParams struct {
 	BoardId      uint64
 }
 
-func (j *JiraOptions) GetParams() any {
-	return JiraApiParams{
-		ConnectionId: j.ConnectionId,
-		BoardId:      j.BoardId,
-	}
-}
-
 func DecodeAndValidateTaskOptions(options map[string]interface{}) (*JiraOptions, errors.Error) {
 	var op JiraOptions
 	err := api.Decode(options, &op, nil)

@@ -35,9 +35,13 @@ func CollectDepartment(taskCtx plugin.SubTaskContext) errors.Error {
 	data := taskCtx.GetData().(*ZentaoTaskData)
 	collector, err := api.NewApiCollector(api.ApiCollectorArgs{
 		RawDataSubTaskArgs: api.RawDataSubTaskArgs{
-			Ctx:     taskCtx,
-			Options: data.Options,
-			Table:   RAW_DEPARTMENT_TABLE,
+			Ctx: taskCtx,
+			Params: ZentaoApiParams{
+				ConnectionId: data.Options.ConnectionId,
+				ProductId:    data.Options.ProductId,
+				ProjectId:    data.Options.ProjectId,
+			},
+			Table: RAW_DEPARTMENT_TABLE,
 		},
 		ApiClient:   data.ApiClient,
 		PageSize:    100,

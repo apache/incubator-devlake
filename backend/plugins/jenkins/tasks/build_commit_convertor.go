@@ -44,8 +44,8 @@ func ConvertBuildRepos(taskCtx plugin.SubTaskContext) errors.Error {
 	clauses := []dal.Clause{
 		dal.Select("*"),
 		dal.From(&models.JenkinsBuildCommit{}),
-		dal.Join(`left join _tool_jenkins_builds tjb
-						on _tool_jenkins_build_commits.build_name = tjb.full_name
+		dal.Join(`left join _tool_jenkins_builds tjb 
+						on _tool_jenkins_build_commits.build_name = tjb.full_name 
 						and _tool_jenkins_build_commits.connection_id = tjb.connection_id`),
 		dal.Where(`_tool_jenkins_build_commits.connection_id = ?
 							and tjb.job_path = ? and tjb.job_name = ?`,
@@ -62,9 +62,12 @@ func ConvertBuildRepos(taskCtx plugin.SubTaskContext) errors.Error {
 		InputRowType: reflect.TypeOf(models.JenkinsBuildCommit{}),
 		Input:        cursor,
 		RawDataSubTaskArgs: api.RawDataSubTaskArgs{
-			Options: data.Options,
-			Ctx:     taskCtx,
-			Table:   RAW_BUILD_TABLE,
+			Params: JenkinsApiParams{
+				ConnectionId: data.Options.ConnectionId,
+				FullName:     data.Options.JobFullName,
+			},
+			Ctx:   taskCtx,
+			Table: RAW_BUILD_TABLE,
 		},
 		Convert: func(inputRow interface{}) ([]interface{}, errors.Error) {
 			jenkinsBuildCommit := inputRow.(*models.JenkinsBuildCommit)

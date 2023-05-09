@@ -67,9 +67,11 @@ func ConnectUserAccountsExact(taskCtx plugin.SubTaskContext) errors.Error {
 		InputRowType: reflect.TypeOf(crossdomain.Account{}),
 		Input:        cursor,
 		RawDataSubTaskArgs: api.RawDataSubTaskArgs{
-			Ctx:     taskCtx,
-			Options: data.Options,
-			Table:   "users",
+			Ctx: taskCtx,
+			Params: Params{
+				ConnectionId: data.Options.ConnectionId,
+			},
+			Table: "users",
 		},
 
 		Convert: func(inputRow interface{}) ([]interface{}, errors.Error) {

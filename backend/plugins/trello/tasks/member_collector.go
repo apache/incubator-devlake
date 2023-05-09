@@ -42,9 +42,12 @@ func CollectMember(taskCtx plugin.SubTaskContext) errors.Error {
 
 	collector, err := api.NewApiCollector(api.ApiCollectorArgs{
 		RawDataSubTaskArgs: api.RawDataSubTaskArgs{
-			Ctx:     taskCtx,
-			Options: taskData.Options,
-			Table:   RAW_MEMBER_TABLE,
+			Ctx: taskCtx,
+			Params: TrelloApiParams{
+				ConnectionId: taskData.Options.ConnectionId,
+				BoardId:      taskData.Options.BoardId,
+			},
+			Table: RAW_MEMBER_TABLE,
 		},
 		ApiClient:   taskData.ApiClient,
 		UrlTemplate: "1/boards/{{ .Params.BoardId }}/members",

@@ -48,14 +48,6 @@ type ZentaoTaskData struct {
 	ApiClient *helper.ApiAsyncClient
 }
 
-func (t *ZentaoOptions) GetParams() any {
-	return ZentaoApiParams{
-		ConnectionId: t.ConnectionId,
-		ProductId:    t.ProductId,
-		ProjectId:    t.ProjectId,
-	}
-}
-
 func DecodeAndValidateTaskOptions(options map[string]interface{}) (*ZentaoOptions, error) {
 	var op ZentaoOptions
 	err := mapstructure.Decode(options, &op)

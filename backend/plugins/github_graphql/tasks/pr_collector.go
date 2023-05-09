@@ -149,9 +149,12 @@ func CollectPr(taskCtx plugin.SubTaskContext) errors.Error {
 	}
 
 	collectorWithState, err := api.NewStatefulApiCollector(api.RawDataSubTaskArgs{
-		Ctx:     taskCtx,
-		Options: data.Options,
-		Table:   RAW_PRS_TABLE,
+		Ctx: taskCtx,
+		Params: tasks.GithubApiParams{
+			ConnectionId: data.Options.ConnectionId,
+			Name:         data.Options.Name,
+		},
+		Table: RAW_PRS_TABLE,
 	}, data.TimeAfter)
 	if err != nil {
 		return err

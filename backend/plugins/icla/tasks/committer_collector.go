@@ -35,9 +35,9 @@ func CollectCommitter(taskCtx plugin.SubTaskContext) errors.Error {
 
 	collector, err := api.NewApiCollector(api.ApiCollectorArgs{
 		RawDataSubTaskArgs: api.RawDataSubTaskArgs{
-			Ctx:     taskCtx,
-			Options: data.Options,
-			Table:   RAW_COMMITTER_TABLE,
+			Ctx:    taskCtx,
+			Params: IclaApiParams{},
+			Table:  RAW_COMMITTER_TABLE,
 		},
 		ApiClient:   data.ApiClient,
 		Incremental: false,

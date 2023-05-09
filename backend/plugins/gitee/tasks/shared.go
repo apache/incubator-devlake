@@ -44,6 +44,12 @@ type RateLimitInfo struct {
 	Remaining int
 }
 
+type GiteeApiParams struct {
+	ConnectionId uint64
+	Repo         string
+	Owner        string
+}
+
 type GiteeInput struct {
 	Repo  string
 	Owner string
@@ -85,9 +91,13 @@ func GetRawMessageFromResponse(res *http.Response) ([]json.RawMessage, errors.Er
 func CreateRawDataSubTaskArgs(taskCtx plugin.SubTaskContext, Table string) (*api.RawDataSubTaskArgs, *GiteeTaskData) {
 	data := taskCtx.GetData().(*GiteeTaskData)
 	RawDataSubTaskArgs := &api.RawDataSubTaskArgs{
-		Ctx:     taskCtx,
-		Options: data.Options,
-		Table:   Table,
+		Ctx: taskCtx,
+		Params: GiteeApiParams{
+			ConnectionId: data.Options.ConnectionId,
+			Repo:         data.Options.Repo,
+			Owner:        data.Options.Owner,
+		},
+		Table: Table,
 	}
 	return RawDataSubTaskArgs, data
 }

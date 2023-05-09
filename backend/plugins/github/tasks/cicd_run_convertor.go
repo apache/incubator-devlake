@@ -64,9 +64,12 @@ func ConvertRuns(taskCtx plugin.SubTaskContext) errors.Error {
 	runIdGen := didgen.NewDomainIdGenerator(&models.GithubRun{})
 	converter, err := api.NewDataConverter(api.DataConverterArgs{
 		RawDataSubTaskArgs: api.RawDataSubTaskArgs{
-			Ctx:     taskCtx,
-			Options: data.Options,
-			Table:   RAW_RUN_TABLE,
+			Ctx: taskCtx,
+			Params: GithubApiParams{
+				ConnectionId: data.Options.ConnectionId,
+				Name:         data.Options.Name,
+			},
+			Table: RAW_RUN_TABLE,
 		},
 		InputRowType: reflect.TypeOf(models.GithubRun{}),
 		Input:        cursor,

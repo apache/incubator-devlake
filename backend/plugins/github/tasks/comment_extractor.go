@@ -50,9 +50,12 @@ func ExtractApiComments(taskCtx plugin.SubTaskContext) errors.Error {
 
 	extractor, err := helper.NewApiExtractor(helper.ApiExtractorArgs{
 		RawDataSubTaskArgs: helper.RawDataSubTaskArgs{
-			Ctx:     taskCtx,
-			Options: data.Options,
-			Table:   RAW_COMMENTS_TABLE,
+			Ctx: taskCtx,
+			Params: GithubApiParams{
+				ConnectionId: data.Options.ConnectionId,
+				Name:         data.Options.Name,
+			},
+			Table: RAW_COMMENTS_TABLE,
 		},
 		Extract: func(row *helper.RawData) ([]interface{}, errors.Error) {
 			apiComment := &IssueComment{}

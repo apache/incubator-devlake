@@ -33,10 +33,3 @@ type BambooOptions struct {
 	TransformationRuleId      uint64   `mapstructure:"transformationRuleId" json:"transformationRuleId"`
 	*BambooTransformationRule `mapstructure:"transformationRules" json:"transformationRules"`
 }
-
-func (b *BambooOptions) GetParams() any {
-	return BambooApiParams{
-		ConnectionId: b.ConnectionId,
-		ProjectKey:   b.ProjectKey,
-	}
-}

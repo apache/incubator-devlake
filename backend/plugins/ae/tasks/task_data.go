@@ -26,13 +26,6 @@ type AeOptions struct {
 	ProjectId    int
 }
 
-func (a *AeOptions) GetParams() any {
-	return AeApiParams{
-		ConnectionId: a.ConnectionId,
-		ProjectId:    a.ProjectId,
-	}
-}
-
 type AeTaskData struct {
 	Options   *AeOptions
 	ApiClient *helper.ApiAsyncClient

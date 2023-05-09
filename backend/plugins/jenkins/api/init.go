@@ -37,18 +37,10 @@ func Init(br context.BasicRes) {
 		basicRes,
 		vld,
 	)
-	params := &api.ReflectionParameters{
-		ScopeIdFieldName:  "FullName",
-		ScopeIdColumnName: "full_name",
-	}
 	scopeHelper = api.NewScopeHelper[models.JenkinsConnection, models.JenkinsJob, models.JenkinsTransformationRule](
 		basicRes,
 		vld,
 		connectionHelper,
-		api.NewScopeDatabaseHelperImpl[models.JenkinsConnection, models.JenkinsJob, models.JenkinsTransformationRule](
-			basicRes, connectionHelper, params),
-		params,
-		&api.ScopeHelperOptions{},
 	)
 	trHelper = api.NewTransformationRuleHelper[models.JenkinsTransformationRule](
 		basicRes,

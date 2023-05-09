@@ -58,9 +58,12 @@ func ConvertPipelines(taskCtx plugin.SubTaskContext) errors.Error {
 		InputRowType: reflect.TypeOf(gitlabModels.GitlabPipeline{}),
 		Input:        cursor,
 		RawDataSubTaskArgs: helper.RawDataSubTaskArgs{
-			Ctx:     taskCtx,
-			Options: data.Options,
-			Table:   RAW_PIPELINE_TABLE,
+			Ctx: taskCtx,
+			Params: GitlabApiParams{
+				ConnectionId: data.Options.ConnectionId,
+				ProjectId:    data.Options.ProjectId,
+			},
+			Table: RAW_PIPELINE_TABLE,
 		},
 		Convert: func(inputRow interface{}) ([]interface{}, errors.Error) {
 			gitlabPipeline := inputRow.(*gitlabModels.GitlabPipeline)

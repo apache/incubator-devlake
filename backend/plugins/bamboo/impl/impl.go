@@ -227,9 +227,8 @@ func (p Bamboo) ApiResources() map[string]map[string]plugin.ApiResourceHandler {
 			"GET": api.SearchRemoteScopes,
 		},
 		"connections/:connectionId/scopes/:scopeId": {
-			"GET":    api.GetScope,
-			"PATCH":  api.UpdateScope,
-			"DELETE": api.DeleteScope,
+			"GET":   api.GetScope,
+			"PATCH": api.UpdateScope,
 		},
 	}
 }

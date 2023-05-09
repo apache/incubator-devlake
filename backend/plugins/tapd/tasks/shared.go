@@ -148,6 +148,11 @@ func GetRawMessageArrayFromResponse(res *http.Response) ([]json.RawMessage, erro
 	return data.Data, err
 }
 
+type TapdApiParams struct {
+	ConnectionId uint64
+	WorkspaceId  uint64
+}
+
 // CreateRawDataSubTaskArgs creates a new instance of api.RawDataSubTaskArgs based on the provided
 // task context, raw table name, and a flag to determine if the company ID should be used.
 // It returns a pointer to the created api.RawDataSubTaskArgs and a pointer to the filtered TapdTaskData.
@@ -158,11 +163,16 @@ func CreateRawDataSubTaskArgs(taskCtx plugin.SubTaskContext, rawTable string) (*
 	filteredData := *data
 	filteredData.Options = &TapdOptions{}
 	*filteredData.Options = *data.Options
+	// Set up TapdApiParams based on the original data
+	var params = TapdApiParams{
+		ConnectionId: data.Options.ConnectionId,
+		WorkspaceId:  data.Options.WorkspaceId,
+	}
 	// Create the RawDataSubTaskArgs with the task context, params, and raw table name
 	rawDataSubTaskArgs := &api.RawDataSubTaskArgs{
-		Ctx:     taskCtx,
-		Options: data.Options,
-		Table:   rawTable,
+		Ctx:    taskCtx,
+		Params: params,
+		Table:  rawTable,
 	}
 	// Return the created RawDataSubTaskArgs and the filtered TapdTaskData
 	return rawDataSubTaskArgs, &filteredData

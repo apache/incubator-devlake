@@ -24,12 +24,6 @@ type Options struct {
 	ProjectMappings []ProjectMapping `json:"projectMappings"`
 }
 
-func (o *Options) GetParams() any {
-	return Params{
-		ConnectionId: o.ConnectionId,
-	}
-}
-
 // ProjectMapping represents the relations between project and scopes
 type ProjectMapping struct {
 	ProjectName string  `json:"projectName"`

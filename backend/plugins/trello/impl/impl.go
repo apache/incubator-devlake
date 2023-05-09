@@ -167,9 +167,8 @@ func (p Trello) ApiResources() map[string]map[string]plugin.ApiResourceHandler {
 			"GET":   api.GetTransformationRule,
 		},
 		"connections/:connectionId/scopes/:boardId": {
-			"GET":    api.GetScope,
-			"PATCH":  api.UpdateScope,
-			"DELETE": api.DeleteScope,
+			"GET":   api.GetScope,
+			"PATCH": api.UpdateScope,
 		},
 		"connections/:connectionId/scopes": {
 			"GET": api.GetScopeList,

@@ -36,18 +36,6 @@ type TapdOptions struct {
 	TransformationRules  *TransformationRules `json:"transformationRules"`
 }
 
-type TapdApiParams struct {
-	ConnectionId uint64
-	WorkspaceId  uint64
-}
-
-func (t *TapdOptions) GetParams() any {
-	return TapdApiParams{
-		ConnectionId: t.ConnectionId,
-		WorkspaceId:  t.WorkspaceId,
-	}
-}
-
 func MakeTransformationRules(rule models.TapdTransformationRule) (*TransformationRules, errors.Error) {
 	var statusMapping StatusMappings
 	var typeMapping TypeMappings

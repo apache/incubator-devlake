@@ -42,9 +42,12 @@ func ExtractApiBuilds(taskCtx plugin.SubTaskContext) errors.Error {
 	data := taskCtx.GetData().(*JenkinsTaskData)
 	extractor, err := api.NewApiExtractor(api.ApiExtractorArgs{
 		RawDataSubTaskArgs: api.RawDataSubTaskArgs{
-			Options: data.Options,
-			Ctx:     taskCtx,
-			Table:   RAW_BUILD_TABLE,
+			Params: JenkinsApiParams{
+				ConnectionId: data.Options.ConnectionId,
+				FullName:     data.Options.JobFullName,
+			},
+			Ctx:   taskCtx,
+			Table: RAW_BUILD_TABLE,
 		},
 		Extract: func(row *api.RawData) ([]interface{}, errors.Error) {
 			body := &models.ApiBuildResponse{}

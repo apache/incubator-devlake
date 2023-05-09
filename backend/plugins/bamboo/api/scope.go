@@ -19,7 +19,6 @@ package api
 
 import (
 	"github.com/apache/incubator-devlake/core/errors"
-	coreModel "github.com/apache/incubator-devlake/core/models"
 	"github.com/apache/incubator-devlake/core/plugin"
 	"github.com/apache/incubator-devlake/helpers/pluginhelper/api"
 	"github.com/apache/incubator-devlake/plugins/bamboo/models"
@@ -27,8 +26,7 @@ import (
 
 type ScopeRes struct {
 	models.BambooProject
-	TransformationRuleName string                `json:"transformationRuleName,omitempty"`
-	Blueprints             []coreModel.Blueprint `json:"blueprints,omitempty"`
+	TransformationRuleName string `json:"transformationRuleName,omitempty"`
 }
 
 type ScopeReq api.ScopeReq[models.BambooProject]
@@ -61,7 +59,7 @@ func PutScope(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, errors
 // @Failure 500  {object} shared.ApiBody "Internal Error"
 // @Router /plugins/bamboo/connections/{connectionId}/scopes/{scopeId} [PATCH]
 func UpdateScope(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, errors.Error) {
-	return scopeHelper.Update(input)
+	return scopeHelper.Update(input, "project_key")
 }
 
 // GetScopeList get Bamboo projects
@@ -85,26 +83,10 @@ func GetScopeList(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, er
 // @Param scopeId path int false "project ID"
 // @Param pageSize query int false "page size, default 50"
 // @Param page query int false "page size, default 1"
-// @Param blueprints query bool false "also return blueprints using these scopes as part of the payload"
 // @Success 200  {object} ScopeRes
 // @Failure 400  {object} shared.ApiBody "Bad Request"
 // @Failure 500  {object} shared.ApiBody "Internal Error"
 // @Router /plugins/bamboo/connections/{connectionId}/scopes/{scopeId} [GET]
 func GetScope(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, errors.Error) {
-	return scopeHelper.GetScope(input)
-}
-
-// DeleteScope delete plugin data associated with the scope and optionally the scope itself
-// @Summary delete plugin data associated with the scope and optionally the scope itself
-// @Description delete data associated with plugin scope
-// @Tags plugins/bamboo
-// @Param connectionId path int true "connection ID"
-// @Param scopeId path int true "project ID"
-// @Param delete_data_only query bool false "Only delete the scope data, not the scope itself"
-// @Success 200  {object} []models.Blueprint "list of blueprints impacted by the deletion"
-// @Failure 400  {object} shared.ApiBody "Bad Request"
-// @Failure 500  {object} shared.ApiBody "Internal Error"
-// @Router /plugins/bamboo/connections/{connectionId}/scopes/{scopeId} [DELETE]
-func DeleteScope(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, errors.Error) {
-	return scopeHelper.Delete(input)
+	return scopeHelper.GetScope(input, "project_key")
 }

@@ -63,8 +63,10 @@ func CalculateChangeLeadTime(taskCtx plugin.SubTaskContext) errors.Error {
 		RawDataSubTaskArgs: api.RawDataSubTaskArgs{
 			Ctx: taskCtx,
 			// table and params are essential for deleting data from the target table
-			Options: data.Options,
-			Table:   "pull_requests",
+			Params: DoraApiParams{
+				ProjectName: data.Options.ProjectName,
+			},
+			Table: "pull_requests",
 		},
 		BatchSize:    100,
 		InputRowType: reflect.TypeOf(code.PullRequest{}),

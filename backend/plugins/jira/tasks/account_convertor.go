@@ -40,6 +40,7 @@ var ConvertAccountsMeta = plugin.SubTaskMeta{
 func ConvertAccounts(taskCtx plugin.SubTaskContext) errors.Error {
 	data := taskCtx.GetData().(*JiraTaskData)
 	connectionId := data.Options.ConnectionId
+	boardId := data.Options.BoardId
 	logger := taskCtx.GetLogger()
 	db := taskCtx.GetDal()
 	logger.Info("convert account")
@@ -57,9 +58,12 @@ func ConvertAccounts(taskCtx plugin.SubTaskContext) errors.Error {
 	accountIdGen := didgen.NewDomainIdGenerator(&models.JiraAccount{})
 	converter, err := api.NewDataConverter(api.DataConverterArgs{
 		RawDataSubTaskArgs: api.RawDataSubTaskArgs{
-			Ctx:     taskCtx,
-			Options: data.Options,
-			Table:   RAW_USERS_TABLE,
+			Ctx: taskCtx,
+			Params: JiraApiParams{
+				ConnectionId: connectionId,
+				BoardId:      boardId,
+			},
+			Table: RAW_USERS_TABLE,
 		},
 		InputRowType: reflect.TypeOf(models.JiraAccount{}),
 		Input:        cursor,

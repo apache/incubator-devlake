@@ -39,12 +39,6 @@ type DoraOptions struct {
 	TransformationRules `mapstructure:"transformationRules" json:"transformationRules"`
 }
 
-func (d *DoraOptions) GetParams() any {
-	return DoraApiParams{
-		ProjectName: d.ProjectName,
-	}
-}
-
 type DoraTaskData struct {
 	Options *DoraOptions
 }
