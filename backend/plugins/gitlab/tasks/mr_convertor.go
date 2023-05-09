@@ -86,13 +86,14 @@ func ConvertApiMergeRequests(taskCtx plugin.SubTaskContext) errors.Error {
 				BaseRef:        gitlabMr.TargetBranch,
 				Component:      gitlabMr.Component,
 			}
-			if gitlabMr.State == "opened" {
+			switch gitlabMr.State {
+			case "opened":
 				domainPr.Status = code.OPEN
-			} else if gitlabMr.State == "merged" {
+			case "merged":
 				domainPr.Status = code.MERGED
-			} else if gitlabMr.State == "closed" || gitlabMr.State == "locked" {
+			case "closed", "locked":
 				domainPr.Status = code.CLOSED
-			} else {
+			default:
 				domainPr.Status = gitlabMr.State
 			}
 

@@ -87,15 +87,17 @@ func ConvertPullRequests(taskCtx plugin.SubTaskContext) errors.Error {
 				HeadRef:        pr.HeadRef,
 				HeadCommitSha:  pr.HeadCommitSha,
 			}
-			if pr.State == "OPEN" {
+			switch pr.State {
+			case "OPEN":
 				domainPr.Status = code.OPEN
-			} else if pr.State == "MERGED" {
+			case "MERGED":
 				domainPr.Status = code.MERGED
-			} else if pr.State == "DECLINED" {
+			case "DECLINED":
 				domainPr.Status = code.CLOSED
-			} else {
+			default:
 				domainPr.Status = pr.State
 			}
+
 			return []interface{}{
 				domainPr,
 			}, nil
