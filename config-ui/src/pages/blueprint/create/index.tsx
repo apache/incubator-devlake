@@ -53,7 +53,7 @@ export const BlueprintCreatePage = ({ from }: Props) => {
   );
 
   return (
-    <ConnectionContextProvider filterBeta>
+    <ConnectionContextProvider filterBeta filterPlugin={['webhook']}>
       <ContextProvider from={from} projectName={pname}>
         <Context.Consumer>
           {({ step, mode }) => (

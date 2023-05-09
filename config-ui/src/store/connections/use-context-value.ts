@@ -27,18 +27,20 @@ import * as API from './api';
 export interface UseContextValueProps {
   plugin?: string;
   filterBeta?: boolean;
+  filterPlugin?: string[];
   filter?: string[];
 }
 
-export const useContextValue = ({ plugin, filterBeta = false, filter }: UseContextValueProps) => {
+export const useContextValue = ({ plugin, filterBeta = false, filterPlugin, filter }: UseContextValueProps) => {
   const [loading, setLoading] = useState(false);
   const [connections, setConnections] = useState<ConnectionItemType[]>([]);
 
   const allConnections = useMemo(
     () =>
       PluginConfig.filter((p) => p.type === PluginType.Connection)
-        .filter((p) => (plugin ? p.plugin === plugin : true))
-        .filter((p) => (filterBeta ? !p.isBeta : true)),
+        .filter((p) => (filterBeta ? !p.isBeta : true))
+        .filter((p) => (filterPlugin ? !filterPlugin.includes(p.plugin) : true))
+        .filter((p) => (plugin ? p.plugin === plugin : true)),
     [plugin],
   );
 
