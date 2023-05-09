@@ -27,12 +27,6 @@ import (
 	"github.com/apache/incubator-devlake/plugins/github/models"
 )
 
-const (
-	OPEN   = "OPEN"
-	CLOSED = "CLOSED"
-	MERGED = "MERGED"
-)
-
 var ExtractApiPullRequestsMeta = plugin.SubTaskMeta{
 	Name:             "extractApiPullRequests",
 	EntryPoint:       ExtractApiPullRequests,
@@ -188,13 +182,6 @@ func convertGithubPullRequest(pull *GithubApiPullRequest, connId uint64, repoId 
 	}
 	if pull.Head.Repo != nil {
 		githubPull.HeadRepoId = pull.Head.Repo.GithubId
-	}
-	if pull.State == "open" {
-		githubPull.State = OPEN
-	} else if pull.State == "closed" && pull.MergedAt != nil {
-		githubPull.State = MERGED
-	} else {
-		githubPull.State = CLOSED
 	}
 
 	return githubPull, nil

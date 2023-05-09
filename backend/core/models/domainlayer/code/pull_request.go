@@ -23,6 +23,12 @@ import (
 	"github.com/apache/incubator-devlake/core/models/domainlayer"
 )
 
+const (
+	OPEN   = "OPEN"
+	CLOSED = "CLOSED"
+	MERGED = "MERGED"
+)
+
 type PullRequest struct {
 	domainlayer.DomainEntity
 	BaseRepoId     string `gorm:"index"`
