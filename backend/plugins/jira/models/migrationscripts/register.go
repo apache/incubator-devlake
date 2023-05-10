@@ -33,5 +33,6 @@ func All() []plugin.MigrationScript {
 		new(removeIssueStdStoryPoint),
 		new(addCommitRepoPattern),
 		new(expandRemotelinkUrl),
+		new(expandRemotelinkSelfUrl),
 	}
 }
