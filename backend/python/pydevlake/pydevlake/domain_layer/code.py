@@ -27,6 +27,7 @@ class PullRequest(DomainModel, table=True):
     base_repo_id: str
     head_repo_id: str
     status: str
+    original_status: str
     title: str
     description: str
     url: str
