@@ -35,14 +35,14 @@ import (
 	"github.com/aws/aws-sdk-go/aws/session"
 	"github.com/aws/aws-sdk-go/service/cognitoidentityprovider"
 	"github.com/dgrijalva/jwt-go"
-	"github.com/gin-gonic/gin"
 )
 
 type AwsCognitorProvider struct {
-	jwks     Jwks
-	logger   log.Logger
-	client   *cognitoidentityprovider.CognitoIdentityProvider
-	clientId *string
+	jwks         Jwks
+	logger       log.Logger
+	client       *cognitoidentityprovider.CognitoIdentityProvider
+	clientId     *string
+	expectClaims jwt.MapClaims
 }
 
 func NewCognitoProvider(basicRes context.BasicRes) *AwsCognitorProvider {
@@ -69,6 +69,14 @@ func NewCognitoProvider(basicRes context.BasicRes) *AwsCognitorProvider {
 	err := cgt.fetchJWKS(jwksURL)
 	if err != nil {
 		panic(err)
+	}
+	// Optional expect claims
+	expect_claims := strings.TrimSpace(v.GetString("AWS_AUTH_EXPECT_CLAIMS"))
+	if expect_claims != "" {
+		e := json.Unmarshal([]byte(expect_claims), &cgt.expectClaims)
+		if e != nil {
+			panic(e)
+		}
 	}
 	return cgt
 }
@@ -128,21 +136,9 @@ func (cgt *AwsCognitorProvider) SignIn(loginReq *LoginRequest) (*LoginResponse, 
 	return loginRes, nil
 }
 
-func (cgt *AwsCognitorProvider) CheckAuth(ctx *gin.Context) errors.Error {
-	// Get the Auth header
-	authHeader := ctx.GetHeader("Authorization")
-	if authHeader == "" {
-		return errors.Unauthorized.New("Authorization header is missing")
-	}
-
-	// Split the header into "Bearer" and the actual token
-	bearerToken := strings.Split(authHeader, " ")
-	if len(bearerToken) != 2 {
-		return errors.Unauthorized.New("Invalid Authorization header")
-	}
-
+func (cgt *AwsCognitorProvider) CheckAuth(tokenString string) (*jwt.Token, errors.Error) {
 	// Parse the JWT token
-	token, err := jwt.Parse(bearerToken[1], func(token *jwt.Token) (interface{}, error) {
+	token, err := jwt.Parse(tokenString, func(token *jwt.Token) (interface{}, error) {
 		// Check the signing method
 		if _, ok := token.Method.(*jwt.SigningMethodRSA); !ok {
 			return nil, errors.Unauthorized.New(fmt.Sprintf("Unexpected signing method: %v", token.Header["alg"]))
@@ -171,10 +167,23 @@ func (cgt *AwsCognitorProvider) CheckAuth(ctx *gin.Context) errors.Error {
 	// Check if the token is invalid
 	if err != nil || !token.Valid {
 		cgt.logger.Error(err, "Invalid token")
-		return errors.Unauthorized.New("Invalid token")
+		return nil, errors.Unauthorized.New("Invalid token")
 	}
-	ctx.Set("token", token)
-	return nil
+
+	// verify claims
+	if len(cgt.expectClaims) > 0 {
+		if actualClaims, ok := token.Claims.(jwt.MapClaims); ok {
+			for key, expected := range cgt.expectClaims {
+				if expected != actualClaims[key] {
+					return nil, errors.Unauthorized.New("Invalid token")
+				}
+			}
+		} else {
+			return nil, errors.Unauthorized.New("Invalid token")
+		}
+	}
+
+	return token, nil
 }
 
 func pemHeader(encodedKey string) []byte {

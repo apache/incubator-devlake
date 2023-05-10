@@ -48,6 +48,11 @@ func Login(ctx *gin.Context) {
 		shared.ApiOutputError(ctx, errors.Default.Wrap(err, "error signing in"))
 		return
 	}
+	token, err := auth.Provider.CheckAuth(*res.AuthenticationResult.AccessToken)
+	if err != nil {
+		shared.ApiOutputAbort(ctx, err)
+	}
+	ctx.Set("token", token)
 	shared.ApiOutputSuccess(ctx, res, http.StatusOK)
 }
 

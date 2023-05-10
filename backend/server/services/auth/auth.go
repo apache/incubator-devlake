@@ -18,10 +18,12 @@ limitations under the License.
 package auth
 
 import (
-	"net/http"
+	"strings"
 
 	"github.com/apache/incubator-devlake/core/context"
 	"github.com/apache/incubator-devlake/core/errors"
+	"github.com/apache/incubator-devlake/server/api/shared"
+	"github.com/dgrijalva/jwt-go"
 	"github.com/gin-gonic/gin"
 )
 
@@ -61,7 +63,7 @@ type AuthProvider interface {
 	SignIn(*LoginRequest) (*LoginResponse, errors.Error)
 	NewPassword(*NewPasswordRequest) (*LoginResponse, errors.Error)
 	// ChangePassword(ctx *gin.Context, oldPassword, newPassword string) errors.Error
-	CheckAuth(ctx *gin.Context) errors.Error
+	CheckAuth(token string) (*jwt.Token, errors.Error)
 }
 
 var Provider AuthProvider
@@ -79,11 +81,26 @@ func Middleware(ctx *gin.Context) {
 	if Provider == nil {
 		return
 	}
-	err := Provider.CheckAuth(ctx)
-	if err != nil {
-		http.Error(ctx.Writer, err.Error(), err.GetType().GetHttpCode())
-		ctx.Abort()
+	// Get the Auth header
+	authHeader := ctx.GetHeader("Authorization")
+	if authHeader == "" {
+		shared.ApiOutputAbort(ctx, errors.Unauthorized.New("Authorization header is missing"))
+		return
 	}
+
+	// Split the header into "Bearer" and the actual token
+	bearerToken := strings.Split(authHeader, " ")
+	if len(bearerToken) != 2 {
+		shared.ApiOutputAbort(ctx, errors.Unauthorized.New("Invalid Authorization header"))
+		return
+	}
+	token, err := Provider.CheckAuth(bearerToken[1])
+	if err != nil {
+		shared.ApiOutputAbort(ctx, err)
+		return
+	}
+
+	ctx.Set("token", token)
 }
 
 func Enabled() bool {
