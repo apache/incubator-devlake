@@ -16,8 +16,9 @@
  *
  */
 
-import { useState, useEffect, useCallback, useMemo } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 
+import type { PluginConfigType } from '@/plugins';
 import { PluginConfig, PluginType } from '@/plugins';
 
 import type { ConnectionItemType } from './types';
@@ -31,114 +32,122 @@ export interface UseContextValueProps {
   filter?: string[];
 }
 
-export const useContextValue = ({ plugin, filterBeta = false, filterPlugin, filter }: UseContextValueProps) => {
-  const [loading, setLoading] = useState(false);
+export const useContextValue = ({ plugin, filterBeta, filterPlugin, filter }: UseContextValueProps) => {
+  const [loading, setLoading] = useState(true);
   const [connections, setConnections] = useState<ConnectionItemType[]>([]);
 
-  const allConnections = useMemo(
+  const plugins = useMemo(
     () =>
       PluginConfig.filter((p) => p.type === PluginType.Connection)
+        .filter((p) => (plugin ? p.plugin === plugin : true))
         .filter((p) => (filterBeta ? !p.isBeta : true))
-        .filter((p) => (filterPlugin ? !filterPlugin.includes(p.plugin) : true))
-        .filter((p) => (plugin ? p.plugin === plugin : true)),
+        .filter((p) => (filterPlugin ? !filterPlugin.includes(p.plugin) : true)),
     [plugin],
   );
 
   const getConnection = async (plugin: string) => {
     try {
-      return await API.getConnection(plugin);
+      const res = await API.getConnection(plugin);
+      const { icon, entities } = plugins.find((p) => p.plugin === plugin) as PluginConfigType;
+
+      return res.map((connection) => ({
+        ...connection,
+        plugin,
+        icon,
+        entities,
+      }));
     } catch {
       return [];
     }
   };
 
-  const handleRefresh = useCallback(async () => {
-    setLoading(true);
+  const testConnection = async ({
+    plugin,
+    endpoint,
+    proxy,
+    token,
+    username,
+    password,
+    authMethod,
+  }: ConnectionItemType) => {
+    try {
+      const res = await API.testConnection(plugin, {
+        endpoint,
+        proxy,
+        token,
+        username,
+        password,
+        authMethod,
+      });
+      return res.success ? ConnectionStatusEnum.ONLINE : ConnectionStatusEnum.OFFLINE;
+    } catch {
+      return ConnectionStatusEnum.OFFLINE;
+    }
+  };
 
-    const res = await Promise.all(allConnections.map((cs) => getConnection(cs.plugin)));
+  const transformConnection = (connections: Omit<ConnectionItemType, 'unique' | 'status'>[]) => {
+    return connections.map((it) => ({
+      unique: `${it.plugin}-${it.id}`,
+      status: ConnectionStatusEnum.NULL,
+      plugin: it.plugin,
+      id: it.id,
+      name: it.name,
+      icon: it.icon,
+      entities: it.entities,
+      endpoint: it.endpoint,
+      proxy: it.proxy,
+      token: it.token,
+      username: it.username,
+      password: it.password,
+      authMethod: it.authMethod,
+    }));
+  };
 
-    const resWithPlugin = res.map((cs, i) =>
-      cs.map((it: any) => {
-        const { plugin, icon, entities } = allConnections[i];
+  const handleRefresh = async (plugin?: string) => {
+    if (plugin) {
+      const res = await getConnection(plugin);
+      setConnections([...connections.filter((cs) => cs.plugin !== plugin), ...transformConnection(res)]);
+      return;
+    }
 
-        return {
-          ...it,
-          plugin,
-          icon,
-          entities,
-        };
-      }),
-    );
+    const res = await Promise.all(plugins.map((cs) => getConnection(cs.plugin)));
 
-    setConnections(
-      resWithPlugin.flat().map((it) => ({
-        unique: `${it.plugin}-${it.id}`,
-        status: ConnectionStatusEnum.NULL,
-        plugin: it.plugin,
-        id: it.id,
-        name: it.name,
-        icon: it.icon,
-        entities: it.entities,
-        endpoint: it.endpoint,
-        proxy: it.proxy,
-        token: it.token,
-        username: it.username,
-        password: it.password,
-        authMethod: it.authMethod,
-      })),
-    );
-
+    setConnections(transformConnection(res.flat()));
     setLoading(false);
-  }, [allConnections]);
+  };
+
+  const handleTest = async (unique: string) => {
+    setConnections((connections) =>
+      connections.map((cs) =>
+        cs.unique === unique
+          ? {
+              ...cs,
+              status: ConnectionStatusEnum.TESTING,
+            }
+          : cs,
+      ),
+    );
+
+    console.log(connections);
+
+    const connection = connections.find((cs) => cs.unique === unique) as ConnectionItemType;
+    const status = await testConnection(connection);
+
+    setConnections((connections) =>
+      connections.map((cs) =>
+        cs.unique === unique
+          ? {
+              ...cs,
+              status,
+            }
+          : cs,
+      ),
+    );
+  };
 
   useEffect(() => {
     handleRefresh();
-  }, [allConnections]);
-
-  const handleTest = useCallback(
-    async (selectedConnection: ConnectionItemType) => {
-      setConnections((connections) =>
-        connections.map((cs) =>
-          cs.unique === selectedConnection.unique
-            ? {
-                ...cs,
-                status: ConnectionStatusEnum.TESTING,
-              }
-            : cs,
-        ),
-      );
-
-      const { plugin, endpoint, proxy, token, username, password, authMethod } = selectedConnection;
-
-      let status = ConnectionStatusEnum.OFFLINE;
-
-      try {
-        const res = await API.testConnection(plugin, {
-          endpoint,
-          proxy,
-          token,
-          username,
-          password,
-          authMethod,
-        });
-        status = res.success ? ConnectionStatusEnum.ONLINE : ConnectionStatusEnum.OFFLINE;
-      } catch {
-        status = ConnectionStatusEnum.OFFLINE;
-      }
-
-      setConnections((connections) =>
-        connections.map((cs) =>
-          cs.unique === selectedConnection.unique
-            ? {
-                ...cs,
-                status,
-              }
-            : cs,
-        ),
-      );
-    },
-    [connections],
-  );
+  }, []);
 
   return useMemo(
     () => ({
