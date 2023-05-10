@@ -16,29 +16,41 @@
  *
  */
 
-import React, { useMemo } from 'react';
-import { useParams } from 'react-router-dom';
+import styled from 'styled-components';
 
-import { PageHeader } from '@/components';
-import { ConnectionForm, getPluginConfig } from '@/plugins';
+export const Wrapper = styled.div`
+  .top {
+    display: flex;
+    justify-content: space-between;
 
-export const ConnectionFormPage = () => {
-  const { plugin, cid } = useParams<{ plugin: string; cid?: string }>();
+    h3 {
+      margin-bottom: 16px;
+    }
+  }
 
-  const { name } = useMemo(() => getPluginConfig(plugin), [plugin]);
+  .authentication {
+    h3 {
+      span 
+    }
+  }
+`;
 
-  return (
-    <PageHeader
-      breadcrumbs={[
-        { name: 'Connections', path: '/connections' },
-        { name, path: `/connections/${plugin}` },
-        {
-          name: cid ? cid : 'Create a New Connection',
-          path: `/connections/${plugin}/${cid ? cid : 'create'}`,
-        },
-      ]}
-    >
-      <ConnectionForm plugin={plugin} connectionId={cid} />
-    </PageHeader>
-  );
-};
+export const DialogTitle = styled.div`
+  display: flex;
+  align-items: center;
+
+  img {
+    margin-right: 8px;
+    width: 24px;
+  }
+`;
+
+export const DialogBody = styled.div`
+  display: flex;
+  align-items: center;
+
+  .bp4-icon {
+    margin-right: 8px;
+    color: #f4be55;
+  }
+`;
