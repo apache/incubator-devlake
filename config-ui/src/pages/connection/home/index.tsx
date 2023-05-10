@@ -16,59 +16,77 @@
  *
  */
 
-import React, { useMemo } from 'react';
+import { useMemo } from 'react';
 import { useHistory } from 'react-router-dom';
 import { Tag, Intent } from '@blueprintjs/core';
 
+import type { PluginConfigType } from '@/plugins';
 import { PluginConfig, PluginType } from '@/plugins';
+import { ConnectionContextProvider, ConnectionContextConsumer } from '@/store';
 
+import { Count } from './count';
 import * as S from './styled';
 
 export const ConnectionHomePage = () => {
   const history = useHistory();
 
-  const [connections, webhook] = useMemo(
+  const [plugins, webhook] = useMemo(
     () => [
-      PluginConfig.filter((p) => p.type === PluginType.Connection),
-      PluginConfig.filter((p) => p.plugin === 'webhook'),
+      PluginConfig.filter((p) => p.type === PluginType.Connection && p.plugin !== 'webhook'),
+      PluginConfig.find((p) => p.plugin === 'webhook') as PluginConfigType,
     ],
     [],
   );
 
   return (
-    <S.Wrapper>
-      <div className="block">
-        <h2>Data Connections</h2>
-        <p>Connections are available for data collection.</p>
-        <ul>
-          {connections.map((cs) => (
-            <li key={cs.plugin} onClick={() => history.push(`/connections/${cs.plugin}`)}>
-              <img src={cs.icon} alt="" />
-              <span>{cs.name}</span>
-              {cs.isBeta && (
-                <Tag intent={Intent.WARNING} round>
-                  beta
-                </Tag>
-              )}
-            </li>
-          ))}
-        </ul>
-      </div>
-      <div className="block">
-        <h2>Webhooks</h2>
-        <p>
-          You can use webhooks to import deployments and incidents from the unsupported data integrations to calculate
-          DORA metrics, etc. Please note: webhooks cannot be created or managed in Blueprints.
-        </p>
-        <ul>
-          {webhook.map((cs) => (
-            <li key={cs.plugin} onClick={() => history.push(`/connections/${cs.plugin}`)}>
-              <img src={cs.icon} alt="" />
-              <span>{cs.name}</span>
-            </li>
-          ))}
-        </ul>
-      </div>
-    </S.Wrapper>
+    <ConnectionContextProvider>
+      <ConnectionContextConsumer>
+        {({ connections }) => (
+          <S.Wrapper>
+            <div className="block">
+              <h1>Connections</h1>
+              <h5>
+                Create and manage data connections from the following data sources or Webhooks to be used in syncing
+                data in your Projects.
+              </h5>
+            </div>
+            <div className="block">
+              <h2>Data Connections</h2>
+              <h5>
+                You can create and manage data connections for the following data sources and use them in your Projects.
+              </h5>
+              <ul>
+                {plugins.map((p) => (
+                  <li key={p.plugin} onClick={() => history.push(`/connections/${p.plugin}`)}>
+                    <img src={p.icon} alt="" />
+                    <span className="name">{p.name}</span>
+                    <Count count={connections.filter((cs) => cs.plugin === p.plugin).length} />
+                    {p.isBeta && (
+                      <Tag intent={Intent.WARNING} round>
+                        beta
+                      </Tag>
+                    )}
+                  </li>
+                ))}
+              </ul>
+            </div>
+            <div className="block">
+              <h2>Webhooks</h2>
+              <h5>
+                You can use webhooks to import deployments and incidents from the unsupported data integrations to
+                calculate DORA metrics, etc.
+              </h5>
+              <ul>
+                <li onClick={() => history.push(`/connections/${webhook.plugin}`)}>
+                  <img src={webhook.icon} alt="" />
+                  <span className="name">{webhook.name}</span>
+                  <Count count={connections.filter((cs) => cs.plugin === 'webhook').length} />
+                </li>
+              </ul>
+            </div>
+          </S.Wrapper>
+        )}
+      </ConnectionContextConsumer>
+    </ConnectionContextProvider>
   );
 };

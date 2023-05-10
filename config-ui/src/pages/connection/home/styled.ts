@@ -19,8 +19,12 @@
 import styled from 'styled-components';
 
 export const Wrapper = styled.div`
+  h5 {
+    margin-top: 12px;
+  }
+
   .block + .block {
-    margin-top: 24px;
+    margin-top: 36px;
   }
 
   ul {
@@ -34,34 +38,50 @@ export const Wrapper = styled.div`
     display: flex;
     flex-direction: column;
     align-items: center;
-    padding: 16px 0;
-    width: 120px;
-    border: 2px solid transparent;
+    margin-top: 24px;
+    margin-right: 30px;
+    padding: 20px 0;
+    width: 160px;
+    border-radius: 8px;
+    box-shadow: 0px 2.4px 4.8px -0.8px rgba(0, 0, 0, 0.1), 0px 1.6px 8px rgba(0, 0, 0, 0.07);
+    box-sizing: border-box;
     cursor: pointer;
     transition: all 0.2s linear;
 
     &:hover {
       background-color: #eeeeee;
-      border-color: #7497f7;
-      box-shadow: 0 2px 2px 0 rgb(0 0 0 / 16%), 0 0 2px 0 rgb(0 0 0 / 12%);
-    }
-
-    &:last-child {
-      margin-right: 0;
     }
 
     & > img {
-      width: 45px;
+      width: 60px;
+      margin-bottom: 8px;
     }
 
-    & > span {
-      margin-top: 4px;
+    & > .name {
+      position: relative;
+      margin-bottom: 8px;
+      padding-bottom: 8px;
+
+      &::after {
+        position: absolute;
+        bottom: 0;
+        left: 50%;
+        margin-left: -44px;
+        content: '';
+        width: 88px;
+        height: 1px;
+        background-color: #dbdcdf;
+      }
     }
 
     & > .bp4-tag {
       position: absolute;
-      top: -4px;
-      right: 4px;
+      top: 0;
+      right: 0;
     }
   }
+`;
+
+export const Count = styled.span`
+  color: #70727f;
 `;

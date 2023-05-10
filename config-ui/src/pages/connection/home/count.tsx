@@ -16,15 +16,12 @@
  *
  */
 
-import { PluginType } from '@/plugins';
+import * as S from './styled';
 
-import Icon from './assets/icon.svg';
-import { BasePipelineConfig } from '../base';
+interface Props {
+  count: number;
+}
 
-export const WebhookConfig = {
-  ...BasePipelineConfig,
-  plugin: 'webhook',
-  name: 'Webhook',
-  type: PluginType.Connection,
-  icon: Icon,
+export const Count = ({ count }: Props) => {
+  return <S.Count>{count ? `${count} connections` : 'No connection'}</S.Count>;
 };

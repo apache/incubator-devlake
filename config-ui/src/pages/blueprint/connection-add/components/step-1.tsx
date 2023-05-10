@@ -31,7 +31,7 @@ export const Step1 = () => {
   const { filter, connection, onChangeConnection, onCancel, onNext } = useConnectionAdd();
 
   return (
-    <ConnectionContextProvider filterBeta filter={filter}>
+    <ConnectionContextProvider filterBeta filterPlugin={['webhook']} filter={filter}>
       <ConnectionContextConsumer>
         {({ connections }) => (
           <S.Wrapper>
