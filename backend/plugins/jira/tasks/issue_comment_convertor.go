@@ -32,7 +32,7 @@ import (
 var ConvertIssueCommentsMeta = plugin.SubTaskMeta{
 	Name:             "ConvertIssueComments",
 	EntryPoint:       ConvertIssueComments,
-	EnabledByDefault: true,
+	EnabledByDefault: false,
 	Description:      "convert Jira issue comments",
 	DomainTypes:      []string{plugin.DOMAIN_TYPE_CROSS},
 }
