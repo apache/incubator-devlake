@@ -198,7 +198,8 @@ func (p *remotePluginImpl) RunMigrations(forceMigrate bool) errors.Error {
 			return err
 		}
 	}
-	err = p.invoker.Call("run-migrations", bridge.DefaultContext, forceMigrate).Err
+	dbUrl := basicRes.GetConfig("db_url")
+	err = p.invoker.Call("run-migrations", bridge.DefaultContext, dbUrl, forceMigrate).Err
 	return err
 }
 

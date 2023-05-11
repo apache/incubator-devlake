@@ -19,7 +19,10 @@ import json
 from functools import wraps
 from typing import Generator, TextIO, Optional
 
+from urllib.parse import urlparse, parse_qsl
 from fire.decorators import SetParseFn
+from sqlmodel import create_engine
+from sqlalchemy.engine import Engine
 
 from pydevlake.context import Context
 from pydevlake.message import Message
@@ -98,8 +101,8 @@ class PluginCommands:
         return self._plugin.make_pipeline(scope_tx_rule_pairs, entities, connection)
 
     @plugin_method
-    def run_migrations(self, force: bool):
-        self._plugin.run_migrations(force)
+    def run_migrations(self, db_url, force: bool):
+        self._plugin.run_migrations(create_db_engine(db_url), force)
 
     @plugin_method
     def plugin_info(self):
@@ -122,4 +125,20 @@ class PluginCommands:
         else:
             transformation_rule = None
         options = data.get('options', {})
-        return Context(db_url, scope, connection, transformation_rule, options)
+        return Context(create_db_engine(db_url), scope, connection, transformation_rule, options)
+
+def create_db_engine(db_url) -> Engine:
+    # SQLAlchemy doesn't understand postgres:// scheme
+    db_url = db_url.replace("postgres://", "postgresql://")
+    # Remove query args
+    base_url = db_url.split('?')[0]
+    # `parseTime` parameter is not understood by MySQL driver,
+    # so we have to parse query args to remove it
+    connect_args = dict(parse_qsl(urlparse(db_url).query))
+    if 'parseTime' in connect_args:
+        del connect_args['parseTime']
+    try:
+        engine = create_engine(base_url, connect_args=connect_args)
+        return engine
+    except Exception as e:
+        raise Exception(f"Unable to make a database connection") from e

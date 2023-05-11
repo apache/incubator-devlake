@@ -22,7 +22,7 @@ from datetime import datetime
 import inflect
 from pydantic import AnyUrl, validator
 from sqlalchemy import Column, DateTime
-from sqlalchemy.orm import declared_attr
+from sqlalchemy.orm import declared_attr, Session
 from sqlalchemy.inspection import inspect
 from sqlmodel import SQLModel, Field
 
@@ -55,6 +55,13 @@ class ToolTable(SQLModel):
             # Useful for extractors dealing with raw data that has camelCased attributes.
             parts = attr_name.split('_')
             return parts[0] + ''.join(word.capitalize() for word in parts[1:])
+
+    @classmethod
+    def migrate(cls, session: Session):
+        """
+        Redefine this method to perform migration on this tool model.
+        """
+        pass
 
 
 class Connection(ToolTable, Model):
@@ -163,3 +170,15 @@ def _get_plugin_name(cls):
     # that is not a python module
     depth = len(module.__name__.split('.')) + 1
     return path_segments[-depth]
+
+
+class SubtaskRun(SQLModel, table=True):
+    """
+    Table storing information about the execution of subtasks.
+    """
+    id: Optional[int] = Field(primary_key=True)
+    subtask_name: str
+    connection_id: int
+    started: datetime
+    completed: Optional[datetime]
+    state: str # JSON encoded dict of atomic values
