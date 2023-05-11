@@ -16,5 +16,31 @@
  *
  */
 
-export * from './connections';
-export * from './tips';
+import React, { useState, useContext } from 'react';
+
+const TipsContext = React.createContext<{
+  text: React.ReactNode;
+  setText: React.Dispatch<React.SetStateAction<React.ReactNode>>;
+}>({
+  text: '',
+  setText: () => {},
+});
+
+export const TipsContextProvider = ({ children }: { children: React.ReactNode }) => {
+  const [text, setText] = useState<React.ReactNode>();
+
+  return (
+    <TipsContext.Provider
+      value={{
+        text,
+        setText,
+      }}
+    >
+      {children}
+    </TipsContext.Provider>
+  );
+};
+
+export const TipsContextConsumer = TipsContext.Consumer;
+
+export const useTips = () => useContext(TipsContext);

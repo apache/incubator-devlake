@@ -16,5 +16,4 @@
  *
  */
 
-export * from './connections';
-export * from './tips';
+export * from './context';
