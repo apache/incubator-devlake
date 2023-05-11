@@ -33,6 +33,11 @@ export const Wrapper = styled.div`
       span 
     }
   }
+
+  .action {
+    margin-top: 36px;
+    margin-bottom: 24px;
+  }
 `;
 
 export const DialogTitle = styled.div`

@@ -16,28 +16,31 @@
  *
  */
 
-import type { ScopeItemType } from './types';
+import React, { useState, useContext } from 'react';
 
-import { MillerColumns } from './components/miller-columns';
+const TipsContext = React.createContext<{
+  text: React.ReactNode;
+  setText: React.Dispatch<React.SetStateAction<React.ReactNode>>;
+}>({
+  text: '',
+  setText: () => {},
+});
 
-interface Props {
-  connectionId: ID;
-  disabledItems?: ScopeItemType[];
-  selectedItems: ScopeItemType[];
-  onChangeItems: (selectedItems: ScopeItemType[]) => void;
-}
+export const TipsContextProvider = ({ children }: { children: React.ReactNode }) => {
+  const [text, setText] = useState<React.ReactNode>();
 
-export const JiraDataScope = ({ connectionId, disabledItems, selectedItems, onChangeItems }: Props) => {
   return (
-    <>
-      <h3>Boards *</h3>
-      <p>Select the boards you would like to sync.</p>
-      <MillerColumns
-        connectionId={connectionId}
-        disabledItems={disabledItems}
-        selectedItems={selectedItems}
-        onChangeItems={onChangeItems}
-      />
-    </>
+    <TipsContext.Provider
+      value={{
+        text,
+        setText,
+      }}
+    >
+      {children}
+    </TipsContext.Provider>
   );
 };
+
+export const TipsContextConsumer = TipsContext.Consumer;
+
+export const useTips = () => useContext(TipsContext);

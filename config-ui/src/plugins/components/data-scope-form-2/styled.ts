@@ -16,28 +16,17 @@
  *
  */
 
-import type { ScopeItemType } from './types';
+import styled from 'styled-components';
 
-import { MillerColumns } from './components/miller-columns';
+export const Wrapper = styled.div`
+  .action {
+    display: flex;
+    align-items: center;
+    justify-content: end;
+    margin-top: 36px;
 
-interface Props {
-  connectionId: ID;
-  disabledItems?: ScopeItemType[];
-  selectedItems: ScopeItemType[];
-  onChangeItems: (selectedItems: ScopeItemType[]) => void;
-}
-
-export const JiraDataScope = ({ connectionId, disabledItems, selectedItems, onChangeItems }: Props) => {
-  return (
-    <>
-      <h3>Boards *</h3>
-      <p>Select the boards you would like to sync.</p>
-      <MillerColumns
-        connectionId={connectionId}
-        disabledItems={disabledItems}
-        selectedItems={selectedItems}
-        onChangeItems={onChangeItems}
-      />
-    </>
-  );
-};
+    .bp4-button + .bp4-button {
+      margin-left: 8px;
+    }
+  }
+`;

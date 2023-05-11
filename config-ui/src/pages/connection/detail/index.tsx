@@ -20,11 +20,12 @@ import { useState } from 'react';
 import { useParams, useHistory } from 'react-router-dom';
 import { Button, Icon, Intent } from '@blueprintjs/core';
 
-import { PageHeader, Dialog, IconButton } from '@/components';
+import { PageHeader, Dialog, IconButton, Table } from '@/components';
 import { transformEntities } from '@/config';
-import { ConnectionForm } from '@/plugins';
+import { useRefreshData } from '@/hooks';
+import { ConnectionForm, DataScopeForm2 } from '@/plugins';
 import type { ConnectionItemType } from '@/store';
-import { ConnectionContextProvider, useConnection, ConnectionStatus } from '@/store';
+import { ConnectionContextProvider, useConnection, ConnectionStatus, useTips } from '@/store';
 import { operator } from '@/utils';
 
 import * as API from './api';
@@ -36,14 +37,34 @@ interface Props {
 }
 
 const ConnectionDetail = ({ plugin, id }: Props) => {
-  const [type, setType] = useState<'deleteConnection' | 'updateConnection'>();
+  const [type, setType] = useState<'deleteConnection' | 'updateConnection' | 'createDataScope'>();
   const [operating, setOperating] = useState(false);
+  const [version, setVersion] = useState(1);
 
   const history = useHistory();
   const { connections, onRefresh, onTest } = useConnection();
+  const { setText } = useTips();
+  const { ready, data } = useRefreshData(() => API.getDataScope(plugin, id), [version]);
+
   const { unique, status, name, icon, entities } = connections.find(
     (cs) => cs.unique === `${plugin}-${id}`,
   ) as ConnectionItemType;
+
+  const handleHideDialog = () => {
+    setType(undefined);
+  };
+
+  const handleShowTips = () => {
+    setText(
+      <div>
+        <Icon icon="warning-sign" style={{ marginRight: 8 }} color="#F4BE55" />
+        <span>
+          The transformation of certain data scope has been updated. If you would like to re-transform the data in the
+          related project(s), please go to the Project page and do so.
+        </span>
+      </div>,
+    );
+  };
 
   const handleShowDeleteDialog = () => {
     setType('deleteConnection');
@@ -65,12 +86,18 @@ const ConnectionDetail = ({ plugin, id }: Props) => {
   };
 
   const handleUpdate = () => {
-    setType(undefined);
     onRefresh(plugin);
+    handleHideDialog();
   };
 
-  const handleHideDialog = () => {
-    setType(undefined);
+  const handleShowCreateDataScopeDialog = () => {
+    setType('createDataScope');
+  };
+
+  const handleCreateDataScope = () => {
+    setVersion((v) => v + 1);
+    handleShowTips();
+    handleHideDialog();
   };
 
   return (
@@ -102,6 +129,25 @@ const ConnectionDetail = ({ plugin, id }: Props) => {
             </span>
           </div>
         </div>
+        <div className="action">
+          <Button intent={Intent.PRIMARY} icon="add" text="Add Data Scope" onClick={handleShowCreateDataScopeDialog} />
+        </div>
+        <Table
+          loading={!ready}
+          columns={[
+            {
+              title: 'Data Scope',
+              dataIndex: 'name',
+              key: 'name',
+            },
+          ]}
+          dataSource={data}
+          noData={{
+            text: 'Add data to this connection.',
+            btnText: 'Add Data Scope',
+            onCreate: handleShowCreateDataScopeDialog,
+          }}
+        />
       </S.Wrapper>
       {type === 'deleteConnection' && (
         <Dialog
@@ -123,9 +169,9 @@ const ConnectionDetail = ({ plugin, id }: Props) => {
       )}
       {type === 'updateConnection' && (
         <Dialog
+          isOpen
           style={{ width: 820 }}
           footer={null}
-          isOpen
           title={
             <S.DialogTitle>
               <img src={icon} alt="" />
@@ -137,6 +183,28 @@ const ConnectionDetail = ({ plugin, id }: Props) => {
           <ConnectionForm plugin={plugin} connectionId={id} onSuccess={handleUpdate} />
         </Dialog>
       )}
+      {type === 'createDataScope' && (
+        <Dialog
+          isOpen
+          style={{ width: 820 }}
+          footer={null}
+          title={
+            <S.DialogTitle>
+              <img src={icon} alt="" />
+              <span>Add Data Scope: {name}</span>
+            </S.DialogTitle>
+          }
+          onCancel={handleHideDialog}
+        >
+          <DataScopeForm2
+            plugin={plugin}
+            connectionId={id}
+            disabledScope={data}
+            onCancel={handleHideDialog}
+            onSubmit={handleCreateDataScope}
+          />
+        </Dialog>
+      )}
     </PageHeader>
   );
 };
@@ -146,7 +214,7 @@ export const ConnectionDetailPage = () => {
 
   return (
     <ConnectionContextProvider plugin={plugin}>
-      <ConnectionDetail plugin={plugin} id={id} />
+      <ConnectionDetail plugin={plugin} id={+id} />
     </ConnectionContextProvider>
   );
 };

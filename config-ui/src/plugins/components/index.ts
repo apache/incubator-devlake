@@ -19,6 +19,7 @@
 export * from './connection-form';
 export * from './data-scope';
 export * from './data-scope-form';
+export * from './data-scope-form-2';
 export * from './data-scope-miller-columns';
 export * from './data-scope-search';
 export * from './transformation';

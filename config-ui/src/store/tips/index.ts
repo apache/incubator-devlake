@@ -16,28 +16,4 @@
  *
  */
 
-import type { ScopeItemType } from './types';
-
-import { MillerColumns } from './components/miller-columns';
-
-interface Props {
-  connectionId: ID;
-  disabledItems?: ScopeItemType[];
-  selectedItems: ScopeItemType[];
-  onChangeItems: (selectedItems: ScopeItemType[]) => void;
-}
-
-export const JiraDataScope = ({ connectionId, disabledItems, selectedItems, onChangeItems }: Props) => {
-  return (
-    <>
-      <h3>Boards *</h3>
-      <p>Select the boards you would like to sync.</p>
-      <MillerColumns
-        connectionId={connectionId}
-        disabledItems={disabledItems}
-        selectedItems={selectedItems}
-        onChangeItems={onChangeItems}
-      />
-    </>
-  );
-};
+export * from './context';

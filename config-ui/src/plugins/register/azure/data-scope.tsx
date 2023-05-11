@@ -16,7 +16,7 @@
  *
  */
 
-import React, { useMemo } from 'react';
+import { useMemo } from 'react';
 
 import { DataScopeMillerColumns } from '@/plugins';
 
@@ -24,6 +24,7 @@ import type { AzureScopeType } from './types';
 
 interface Props {
   connectionId: ID;
+  disabledItems?: AzureScopeType[];
   selectedItems: AzureScopeType[];
   onChangeItems: (selectedItems: AzureScopeType[]) => void;
 }
@@ -34,6 +35,11 @@ export const AzureDataScope = ({ connectionId, onChangeItems, ...props }: Props)
     [props.selectedItems],
   );
 
+  const disabledItems = useMemo(
+    () => (props.disabledItems ?? []).map((it) => ({ id: `${it.id}`, name: it.name, data: it })),
+    [props.disabledItems],
+  );
+
   return (
     <>
       <h4>Add Repositories by Selecting from the Directory</h4>
@@ -41,6 +47,7 @@ export const AzureDataScope = ({ connectionId, onChangeItems, ...props }: Props)
       <DataScopeMillerColumns
         plugin="azuredevops"
         connectionId={connectionId}
+        disabledItems={disabledItems}
         selectedItems={selectedItems}
         onChangeItems={onChangeItems}
       />

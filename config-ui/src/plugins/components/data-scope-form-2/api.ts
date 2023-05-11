@@ -16,28 +16,19 @@
  *
  */
 
-import type { ScopeItemType } from './types';
+import { request } from '@/utils';
 
-import { MillerColumns } from './components/miller-columns';
+export const getDataScope = (plugin: string, connectionId: ID, scopeId: string) =>
+  request(`/plugins/${plugin}/connections/${connectionId}/scopes/${scopeId}`);
 
-interface Props {
-  connectionId: ID;
-  disabledItems?: ScopeItemType[];
-  selectedItems: ScopeItemType[];
-  onChangeItems: (selectedItems: ScopeItemType[]) => void;
-}
+export const updateDataScope = (plugin: string, connectionId: ID, payload: any) =>
+  request(`/plugins/${plugin}/connections/${connectionId}/scopes`, {
+    method: 'put',
+    data: payload,
+  });
 
-export const JiraDataScope = ({ connectionId, disabledItems, selectedItems, onChangeItems }: Props) => {
-  return (
-    <>
-      <h3>Boards *</h3>
-      <p>Select the boards you would like to sync.</p>
-      <MillerColumns
-        connectionId={connectionId}
-        disabledItems={disabledItems}
-        selectedItems={selectedItems}
-        onChangeItems={onChangeItems}
-      />
-    </>
-  );
-};
+export const updateDataScopeWithType = (plugin: string, connectionId: ID, type: string, payload: any) =>
+  request(`/plugins/${plugin}/connections/${connectionId}/${type}/scopes`, {
+    method: 'put',
+    data: payload,
+  });

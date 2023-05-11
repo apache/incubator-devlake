@@ -16,7 +16,7 @@
  *
  */
 
-import React, { useMemo } from 'react';
+import { useMemo } from 'react';
 
 import { DataScopeMillerColumns } from '@/plugins';
 
@@ -24,6 +24,7 @@ import type { ScopeItemType } from './types';
 
 interface Props {
   connectionId: ID;
+  disabledItems?: ScopeItemType[];
   selectedItems: ScopeItemType[];
   onChangeItems: (selectedItems: ScopeItemType[]) => void;
 }
@@ -39,6 +40,16 @@ export const ZentaoDataScope = ({ connectionId, onChangeItems, ...props }: Props
     [props.selectedItems],
   );
 
+  const disabledItems = useMemo(
+    () =>
+      (props.disabledItems ?? []).map((it) => ({
+        id: it.type === 'project' ? `project/${it.id}` : `product/${it.id}`,
+        name: it.name,
+        data: it,
+      })),
+    [props.disabledItems],
+  );
+
   return (
     <>
       <h3>Repositories *</h3>
@@ -46,6 +57,7 @@ export const ZentaoDataScope = ({ connectionId, onChangeItems, ...props }: Props
       <DataScopeMillerColumns
         plugin="zentao"
         connectionId={connectionId}
+        disabledItems={disabledItems}
         selectedItems={selectedItems}
         onChangeItems={onChangeItems}
       />

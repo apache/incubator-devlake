@@ -20,3 +20,5 @@ import { request } from '@/utils';
 
 export const deleteConnection = (plugin: string, id: ID) =>
   request(`/plugins/${plugin}/connections/${id}`, { method: 'delete' });
+
+export const getDataScope = (plugin: string, id: ID) => request(`/plugins/${plugin}/connections/${id}/scopes`);

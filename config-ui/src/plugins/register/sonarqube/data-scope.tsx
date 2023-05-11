@@ -16,7 +16,7 @@
  *
  */
 
-import React, { useMemo } from 'react';
+import { useMemo } from 'react';
 
 import { DataScopeMillerColumns } from '@/plugins';
 
@@ -24,6 +24,7 @@ import type { SonarQubeScopeType } from './types';
 
 interface Props {
   connectionId: ID;
+  disabledItems?: SonarQubeScopeType[];
   selectedItems: SonarQubeScopeType[];
   onChangeItems: (selectedItems: SonarQubeScopeType[]) => void;
 }
@@ -32,6 +33,11 @@ export const SonarQubeDataScope = ({ connectionId, onChangeItems, ...props }: Pr
   const selectedItems = useMemo(
     () => props.selectedItems.map((it) => ({ id: it.projectKey, data: it })),
     [props.selectedItems],
+  );
+
+  const disabledItems = useMemo(
+    () => (props.disabledItems ?? []).map((it) => ({ id: it.projectKey, data: it })),
+    [props.disabledItems],
   );
 
   return (
@@ -43,6 +49,7 @@ export const SonarQubeDataScope = ({ connectionId, onChangeItems, ...props }: Pr
         title="Projects"
         plugin="sonarqube"
         connectionId={connectionId}
+        disabledItems={disabledItems}
         selectedItems={selectedItems}
         onChangeItems={onChangeItems}
       />
