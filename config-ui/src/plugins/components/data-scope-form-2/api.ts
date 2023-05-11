@@ -16,46 +16,19 @@
  *
  */
 
-import styled from 'styled-components';
+import { request } from '@/utils';
 
-export const Wrapper = styled.div`
-  .top {
-    display: flex;
-    justify-content: space-between;
+export const getDataScope = (plugin: string, connectionId: ID, scopeId: string) =>
+  request(`/plugins/${plugin}/connections/${connectionId}/scopes/${scopeId}`);
 
-    h3 {
-      margin-bottom: 16px;
-    }
-  }
+export const updateDataScope = (plugin: string, connectionId: ID, payload: any) =>
+  request(`/plugins/${plugin}/connections/${connectionId}/scopes`, {
+    method: 'put',
+    data: payload,
+  });
 
-  .authentication {
-    h3 {
-      span 
-    }
-  }
-
-  .action {
-    margin-top: 36px;
-    margin-bottom: 24px;
-  }
-`;
-
-export const DialogTitle = styled.div`
-  display: flex;
-  align-items: center;
-
-  img {
-    margin-right: 8px;
-    width: 24px;
-  }
-`;
-
-export const DialogBody = styled.div`
-  display: flex;
-  align-items: center;
-
-  .bp4-icon {
-    margin-right: 8px;
-    color: #f4be55;
-  }
-`;
+export const updateDataScopeWithType = (plugin: string, connectionId: ID, type: string, payload: any) =>
+  request(`/plugins/${plugin}/connections/${connectionId}/${type}/scopes`, {
+    method: 'put',
+    data: payload,
+  });
