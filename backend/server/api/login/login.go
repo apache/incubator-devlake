@@ -31,7 +31,7 @@ import (
 // @Description post login
 // @Tags framework/login
 // @Accept application/json
-// @Param blueprint body auth.LoginRequest true "json"
+// @Param login body auth.LoginRequest true "json"
 // @Success 200  {object} LoginResponse
 // @Failure 400  {object} shared.ApiBody "Bad Request"
 // @Failure 500  {object} shared.ApiBody "Internal Error"
@@ -62,7 +62,7 @@ func Login(ctx *gin.Context) {
 // @Description post NewPassword
 // @Tags framework/NewPassword
 // @Accept application/json
-// @Param blueprint body auth.NewPasswordRequest true "json"
+// @Param newpassword body auth.NewPasswordRequest true "json"
 // @Success 200  {object} shared.ApiBody
 // @Failure 400  {object} shared.ApiBody "Bad Request"
 // @Failure 500  {object} shared.ApiBody "Internal Error"
