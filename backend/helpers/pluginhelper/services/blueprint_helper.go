@@ -138,7 +138,7 @@ func (b *BlueprintManager) GetDbBlueprint(blueprintId uint64) (*models.Blueprint
 	return blueprint, nil
 }
 
-// GetBlueprintsByScopes returns all blueprints that have these scopeIds
+// GetBlueprintsByScopes returns all blueprints that have these scopeIds and this connection Id
 func (b *BlueprintManager) GetBlueprintsByScopes(connectionId uint64, scopeIds ...string) (map[string][]*models.Blueprint, errors.Error) {
 	bps, _, err := b.GetDbBlueprints(&GetBlueprintQuery{})
 	if err != nil {

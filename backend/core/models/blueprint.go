@@ -132,7 +132,7 @@ func (bp *Blueprint) UpdateSettings(settings *BlueprintSettings) errors.Error {
 	return nil
 }
 
-// GetScopes Gets all the scopes across all the connections for this blueprint
+// GetScopes Gets all the scopes for a given connection for this blueprint. Returns an empty slice if none found.
 func (bp *Blueprint) GetScopes(connectionId uint64) ([]*plugin.BlueprintScopeV200, errors.Error) {
 	conns, err := bp.GetConnections()
 	if err != nil {
