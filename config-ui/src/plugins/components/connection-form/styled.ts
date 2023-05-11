@@ -21,7 +21,7 @@ import styled from 'styled-components';
 export const Wrapper = styled.div``;
 
 export const Tips = styled.div`
-  margin-bottom: 36px;
+  margin-bottom: 24px;
   padding: 24px;
   color: #3c5088;
   background: #f0f4fe;
@@ -30,11 +30,6 @@ export const Tips = styled.div`
 `;
 
 export const Form = styled.div`
-  padding: 24px;
-  background: #ffffff;
-  box-shadow: 0px 2.4px 4.8px -0.8px rgba(0, 0, 0, 0.1), 0px 1.6px 8px rgba(0, 0, 0, 0.07);
-  border-radius: 8px;
-
   .bp4-form-group label.bp4-label {
     margin: 0 0 8px 0;
   }

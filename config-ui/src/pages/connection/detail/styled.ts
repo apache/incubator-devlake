@@ -16,5 +16,41 @@
  *
  */
 
-export * from './test';
-export * from './save';
+import styled from 'styled-components';
+
+export const Wrapper = styled.div`
+  .top {
+    display: flex;
+    justify-content: space-between;
+
+    h3 {
+      margin-bottom: 16px;
+    }
+  }
+
+  .authentication {
+    h3 {
+      span 
+    }
+  }
+`;
+
+export const DialogTitle = styled.div`
+  display: flex;
+  align-items: center;
+
+  img {
+    margin-right: 8px;
+    width: 24px;
+  }
+`;
+
+export const DialogBody = styled.div`
+  display: flex;
+  align-items: center;
+
+  .bp4-icon {
+    margin-right: 8px;
+    color: #f4be55;
+  }
+`;
