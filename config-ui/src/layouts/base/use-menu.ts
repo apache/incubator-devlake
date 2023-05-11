@@ -19,8 +19,6 @@
 import { useMemo } from 'react';
 import { IconName } from '@blueprintjs/core';
 
-import { PluginConfig, PluginType } from '@/plugins';
-
 export type MenuItemType = {
   key: string;
   title: string;
@@ -42,13 +40,6 @@ export const useMenu = () => {
           title: 'Connections',
           icon: 'data-connection',
           path: '/connections',
-          children: PluginConfig.filter((p) => p.type === PluginType.Connection).map((it) => ({
-            key: it.plugin,
-            title: it.name,
-            iconUrl: it.icon,
-            path: `/connections/${it.plugin}`,
-            isBeta: it.isBeta,
-          })),
         },
         {
           key: 'project',

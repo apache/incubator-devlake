@@ -85,3 +85,13 @@ export const Wrapper = styled.div`
 export const Count = styled.span`
   color: #70727f;
 `;
+
+export const DialogTitle = styled.div`
+  display: flex;
+  align-items: center;
+
+  img {
+    margin-right: 8px;
+    width: 24px;
+  }
+`;

@@ -16,13 +16,10 @@
  *
  */
 
-import { Icon, Colors, Position, Intent } from '@blueprintjs/core';
-import { Tooltip2 } from '@blueprintjs/popover2';
 import styled from 'styled-components';
 
-import { Loading } from '@/components';
+import { IconButton } from '@/components';
 
-import type { ConnectionItemType } from './types';
 import { ConnectionStatusEnum } from './types';
 
 const Wrapper = styled.div`
@@ -30,47 +27,39 @@ const Wrapper = styled.div`
   align-items: center;
 
   & > span.online {
-    color: ${Colors.GREEN3};
+    color: #4db764;
   }
 
   & > span.offline {
-    color: ${Colors.RED3};
-  }
-
-  & > span.testing {
-    color: #7497f7;
+    color: #e34040;
   }
 `;
 
 const STATUS_MAP = {
-  [`${ConnectionStatusEnum.NULL}`]: 'Init',
+  [`${ConnectionStatusEnum.NULL}`]: 'Test',
   [`${ConnectionStatusEnum.TESTING}`]: 'Testing',
-  [`${ConnectionStatusEnum.ONLINE}`]: 'Online',
-  [`${ConnectionStatusEnum.OFFLINE}`]: 'Offline',
+  [`${ConnectionStatusEnum.ONLINE}`]: 'Connected',
+  [`${ConnectionStatusEnum.OFFLINE}`]: 'Disconnected',
 };
 
 interface Props {
-  connection: ConnectionItemType;
-  onTest: (connection: ConnectionItemType) => void;
+  status: ConnectionStatusEnum;
+  unique: string;
+  onTest: (unique: string) => void;
 }
 
-export const ConnectionStatus = ({ connection, onTest }: Props) => {
-  const { status } = connection;
-
+export const ConnectionStatus = ({ status, unique, onTest }: Props) => {
   return (
     <Wrapper>
-      {status === ConnectionStatusEnum.TESTING && <Loading size={14} style={{ marginRight: 4 }} />}
-      {status === ConnectionStatusEnum.OFFLINE && (
-        <Tooltip2 intent={Intent.PRIMARY} position={Position.TOP} content="Retry">
-          <Icon
-            size={14}
-            icon="repeat"
-            style={{ marginRight: 4, color: Colors.RED3, cursor: 'pointer' }}
-            onClick={() => onTest(connection)}
-          />
-        </Tooltip2>
-      )}
       <span className={status}>{STATUS_MAP[status]}</span>
+      {status !== ConnectionStatusEnum.ONLINE && (
+        <IconButton
+          loading={status === ConnectionStatusEnum.TESTING}
+          icon="repeat"
+          tooltip="Retry"
+          onClick={() => onTest(unique)}
+        />
+      )}
     </Wrapper>
   );
 };

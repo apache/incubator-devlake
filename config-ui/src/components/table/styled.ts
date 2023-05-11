@@ -32,13 +32,7 @@ export const THeader = styled.thead`
 
 export const TBody = styled.tbody``;
 
-export const TR = styled.tr`
-  &:last-child {
-    td {
-      border-bottom: none;
-    }
-  }
-`;
+export const TR = styled.tr``;
 
 export const TH = styled.th`
   padding: 12px 16px;
