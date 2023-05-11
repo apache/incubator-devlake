@@ -80,7 +80,8 @@ class Stream:
             __tablename__ = table_name
 
         self._raw_model = StreamRawModel
-        RawModel.metadata.create_all(session.get_bind())
+        table = RawModel.metadata.tables[table_name]
+        table.create(session.get_bind(), checkfirst=True)
         return self._raw_model
 
     def collect(self, state, context) -> Iterable[tuple[object, dict]]:

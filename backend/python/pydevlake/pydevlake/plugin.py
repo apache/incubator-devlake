@@ -20,13 +20,16 @@ import os
 import sys
 
 import fire
+from sqlmodel import SQLModel, Session
+from sqlalchemy.inspection import inspect
+from sqlalchemy.engine import Engine
 
 import pydevlake.message as msg
 from pydevlake.subtasks import Subtask
 from pydevlake.ipc import PluginCommands
 from pydevlake.context import Context
 from pydevlake.stream import Stream, DomainType
-from pydevlake.model import ToolScope, DomainScope, Connection, TransformationRule
+from pydevlake.model import ToolScope, DomainScope, Connection, TransformationRule, SubtaskRun
 
 
 ScopeTxRulePair = tuple[ToolScope, Optional[TransformationRule]]
@@ -102,9 +105,23 @@ class Plugin(ABC):
     def convert(self, ctx: Context, stream: str):
         yield from self.get_stream(stream).convertor.run(ctx)
 
-    def run_migrations(self, force: bool):
-        # TODO: Create tables
-        pass
+    def run_migrations(self, engine: Engine, force: bool = False):
+        # NOTE: Not sure what "force" is for
+        # TODO: Support migration for transformation rule and connection tables
+        # They are currently created on go-side.
+        tool_models = [stream.tool_model for stream in self._streams.values()]
+        tool_models.append(self.tool_scope_type)
+        inspector = inspect(engine)
+        tables = SQLModel.metadata.tables
+        with Session(engine) as session:
+            for model in tool_models:
+                if inspector.has_table(model.__tablename__):
+                    # TODO: Add version table and migrate if needed
+                    model.migrate(session)
+                else:
+                    tables[model.__tablename__].create(engine)
+            session.commit()
+        tables[SubtaskRun.__tablename__].create(engine, checkfirst=True)
 
     def make_remote_scopes(self, connection: Connection, group_id: Optional[str] = None) -> msg.RemoteScopes:
         if group_id:
