@@ -58,13 +58,13 @@ func (p Slack) Description() string {
 
 func (p Slack) SubTaskMetas() []plugin.SubTaskMeta {
 	return []plugin.SubTaskMeta{
-		//tasks.CollectChannelMeta,
-		//tasks.ExtractChannelMeta,
-		//
-		//tasks.CollectChannelMessageMeta,
-		//tasks.ExtractChannelMessageMeta,
+		tasks.CollectChannelMeta,
+		tasks.ExtractChannelMeta,
 
-		//tasks.CollectThreadMeta,
+		tasks.CollectChannelMessageMeta,
+		tasks.ExtractChannelMessageMeta,
+
+		tasks.CollectThreadMeta,
 		tasks.ExtractThreadMeta,
 	}
 }

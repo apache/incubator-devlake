@@ -265,7 +265,8 @@ func (collector *ApiCollector) fetchPagesSequentially(reqData *RequestData) {
 			reqData.CustomData = customData
 			reqData.Pager.Skip += collector.args.PageSize
 			reqData.Pager.Page += 1
-			return collect()
+			collector.args.ApiClient.NextTick(collect)
+			return nil
 		})
 		return nil
 	}
