@@ -27,14 +27,12 @@ const instance = axios.create({
   baseURL: DEVLAKE_ENDPOINT,
 });
 
-const Errors = ['Authorization header is missing', 'Invalid token'];
-
 instance.interceptors.response.use(
   (response) => response,
   (error) => {
     const status = error.response?.status;
 
-    if (status === 401 && Errors.some((err) => error.response.data.includes(err))) {
+    if (status === 401) {
       toast.error('Please login first');
       history.push('/login');
     }

@@ -70,6 +70,9 @@ worker:
 
 dev: build-plugin build-python run
 
+godev: 
+	DISABLED_REMOTE_PLUGINS=true make build-plugin run
+
 debug: build-plugin-debug
 	dlv debug server/main.go
 

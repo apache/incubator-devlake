@@ -57,27 +57,25 @@ Alternatively, you may downgrade back to the previous DevLake version.
 // @host localhost:8080
 // @BasePath /
 func CreateApiService() {
-	// Initialize services
-	services.Init()
 	// Get configuration
 	v := config.GetConfig()
+	// Initialize services
+	services.Init()
 	// Set gin mode
 	gin.SetMode(v.GetString("MODE"))
 	// Create a gin router
 	router := gin.Default()
 
-	// Check if AWS Cognito is enabled
-	awsCognitoEnabled := v.GetBool("AWS_ENABLE_COGNITO")
-
 	// For both protected and unprotected routes
 	router.GET("/ping", ping.Get)
 	router.GET("/version", version.Get)
 
-	if awsCognitoEnabled {
+	if auth.Enabled() {
 		// Add login endpoint
 		router.POST("/login", login.Login)
+		router.POST("/login/newpassword", login.NewPassword)
 		// Use AuthenticationMiddleware for protected routes
-		router.Use(auth.AuthenticationMiddleware)
+		router.Use(auth.Middleware)
 	}
 
 	// Endpoint to proceed database migration
