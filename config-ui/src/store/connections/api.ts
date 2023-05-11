@@ -18,7 +18,18 @@
 
 import { request } from '@/utils';
 
-export const getConnection = (plugin: string) => request(`/plugins/${plugin}/connections`);
+type GetConnectionRes = {
+  id: ID;
+  name: string;
+  endpoint: string;
+  proxy: string;
+  token?: string;
+  username?: string;
+  password?: string;
+  authMethod?: string;
+};
+
+export const getConnection = (plugin: string): Promise<GetConnectionRes[]> => request(`/plugins/${plugin}/connections`);
 
 type TestConnectionPayload = {
   endpoint: string;

@@ -16,11 +16,10 @@
  *
  */
 
-import React from 'react';
-
 import { ExternalLink } from '@/components';
-import type { PluginConfigType } from '@/plugins';
-import { PluginType } from '@/plugins';
+
+import type { PluginConfigType } from '../../types';
+import { PluginType } from '../../types';
 
 import Icon from './assets/icon.svg';
 import { BaseURL } from './connection-fields';

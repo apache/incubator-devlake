@@ -92,7 +92,7 @@ export const Step1 = ({ from }: Props) => {
               onChangeItems={(selectedItems) => {
                 const lastItem = selectedItems[selectedItems.length - 1];
                 if (lastItem) {
-                  onTest(lastItem);
+                  onTest(lastItem.unique);
                 }
                 onChangeConnections(
                   selectedItems.map((sc) => {
@@ -124,7 +124,7 @@ export const Step1 = ({ from }: Props) => {
                           size={14}
                           icon="repeat"
                           style={{ marginRight: 4, cursor: 'pointer' }}
-                          onClick={() => onTest(cs)}
+                          onClick={() => onTest(cs.unique)}
                         />
                       )}
                       {cs.status}

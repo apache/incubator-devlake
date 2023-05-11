@@ -24,7 +24,7 @@ export const Title = styled.div`
   display: flex;
   align-items: center;
   justify-content: space-between;
-  margin-bottom: 24px;
+  margin-bottom: 36px;
 `;
 
 export const Content = styled.div``;
@@ -35,7 +35,7 @@ export const Breadcrumbs = styled.ul`
 `;
 
 export const Breadcrumb = styled.li`
-  font-size: 20px;
+  font-size: 24px;
   font-weight: 600;
 
   a {
