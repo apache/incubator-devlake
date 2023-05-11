@@ -31,7 +31,7 @@ import (
 // @Description post login
 // @Tags framework/login
 // @Accept application/json
-// @Param blueprint body aut.LoginRequest true "json"
+// @Param blueprint body auth.LoginRequest true "json"
 // @Success 200  {object} LoginResponse
 // @Failure 400  {object} shared.ApiBody "Bad Request"
 // @Failure 500  {object} shared.ApiBody "Internal Error"
@@ -48,11 +48,13 @@ func Login(ctx *gin.Context) {
 		shared.ApiOutputError(ctx, errors.Default.Wrap(err, "error signing in"))
 		return
 	}
+	if res.AuthenticationResult != nil && res.AuthenticationResult.AccessToken != nil {
 	token, err := auth.Provider.CheckAuth(*res.AuthenticationResult.AccessToken)
 	if err != nil {
 		shared.ApiOutputAbort(ctx, err)
 	}
 	ctx.Set("token", token)
+	}
 	shared.ApiOutputSuccess(ctx, res, http.StatusOK)
 }
 
