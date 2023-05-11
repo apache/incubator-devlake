@@ -49,11 +49,11 @@ func Login(ctx *gin.Context) {
 		return
 	}
 	if res.AuthenticationResult != nil && res.AuthenticationResult.AccessToken != nil {
-	token, err := auth.Provider.CheckAuth(*res.AuthenticationResult.AccessToken)
-	if err != nil {
-		shared.ApiOutputAbort(ctx, err)
-	}
-	ctx.Set("token", token)
+		token, err := auth.Provider.CheckAuth(*res.AuthenticationResult.AccessToken)
+		if err != nil {
+			shared.ApiOutputAbort(ctx, err)
+		}
+		ctx.Set("token", token)
 	}
 	shared.ApiOutputSuccess(ctx, res, http.StatusOK)
 }
