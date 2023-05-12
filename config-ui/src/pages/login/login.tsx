@@ -31,8 +31,14 @@ export const LoginPage = () => {
   const [username, setUsername] = useState(localStorage.getItem('username') || '');
   const [password, setPassword] = useState('');
   const [newPassword, setNewPassword] = useState('');
+  const [confirmNewPassword, setConfirmNewPassword] = useState('');
   const [challenge, setChallenge] = useState('');
   const [session, setSession] = useState('');
+  const loginDisabled =
+    !username ||
+    !password ||
+    (challenge === 'NEW_PASSWORD_REQUIRED' &&
+      (!newPassword || !confirmNewPassword || newPassword !== confirmNewPassword));
 
   const history = useHistory();
 
@@ -94,16 +100,26 @@ export const LoginPage = () => {
           />
         </FormGroup>
         {challenge === 'NEW_PASSWORD_REQUIRED' && (
-          <FormGroup label="Set New Password">
-            <InputGroup
-              type="password"
-              placeholder="Please set a new Password for your account"
-              value={newPassword}
-              onChange={(e) => setNewPassword((e.target as HTMLInputElement).value)}
-            />
-          </FormGroup>
+          <>
+            <FormGroup label="Set New Password">
+              <InputGroup
+                type="password"
+                placeholder="Please set a new Password for your account"
+                value={newPassword}
+                onChange={(e) => setNewPassword((e.target as HTMLInputElement).value)}
+              />
+            </FormGroup>
+            <FormGroup label="Confirm New Password">
+              <InputGroup
+                type="password"
+                placeholder="Please repeat your New Password"
+                value={confirmNewPassword}
+                onChange={(e) => setConfirmNewPassword((e.target as HTMLInputElement).value)}
+              />
+            </FormGroup>
+          </>
         )}
-        <Button intent={Intent.PRIMARY} onClick={handleSubmit}>
+        <Button intent={Intent.PRIMARY} onClick={handleSubmit} disabled={loginDisabled}>
           Login
         </Button>
       </S.Inner>
