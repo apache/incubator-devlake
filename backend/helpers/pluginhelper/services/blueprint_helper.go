@@ -139,14 +139,14 @@ func (b *BlueprintManager) GetDbBlueprint(blueprintId uint64) (*models.Blueprint
 }
 
 // GetBlueprintsByScopes returns all blueprints that have these scopeIds
-func (b *BlueprintManager) GetBlueprintsByScopes(scopeIds ...string) (map[string][]*models.Blueprint, errors.Error) {
+func (b *BlueprintManager) GetBlueprintsByScopes(connectionId uint64, scopeIds ...string) (map[string][]*models.Blueprint, errors.Error) {
 	bps, _, err := b.GetDbBlueprints(&GetBlueprintQuery{})
 	if err != nil {
 		return nil, err
 	}
 	scopeMap := map[string][]*models.Blueprint{}
 	for _, bp := range bps {
-		scopes, err := bp.GetScopes()
+		scopes, err := bp.GetScopes(connectionId)
 		if err != nil {
 			return nil, err
 		}

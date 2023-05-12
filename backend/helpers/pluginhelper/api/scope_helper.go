@@ -252,7 +252,7 @@ func (c *ScopeApiHelper[Conn, Scope, Tr]) GetScopeList(input *plugin.ApiResource
 		for id := range scopesById {
 			scopeIds = append(scopeIds, id)
 		}
-		blueprintMap, err := c.bpManager.GetBlueprintsByScopes(scopeIds...)
+		blueprintMap, err := c.bpManager.GetBlueprintsByScopes(params.connectionId, scopeIds...)
 		if err != nil {
 			return nil, errors.Default.Wrap(err, fmt.Sprintf("error getting blueprints for scopes from connection %d", params.connectionId))
 		}
@@ -330,13 +330,13 @@ func (c *ScopeApiHelper[Conn, Scope, Tr]) DeleteScope(input *plugin.ApiResourceI
 		return nil, errors.Default.Wrap(err, fmt.Sprintf("error verifying connection for connection ID %d", params.connectionId))
 	}
 	db := c.db
-	blueprintsMap, err := c.bpManager.GetBlueprintsByScopes(params.scopeId)
+	blueprintsMap, err := c.bpManager.GetBlueprintsByScopes(params.connectionId, params.scopeId)
 	if err != nil {
 		return nil, errors.Default.Wrap(err, fmt.Sprintf("error retrieving scope with scope ID %s", params.scopeId))
 	}
 	blueprints := blueprintsMap[params.scopeId]
 	// find all tables for this plugin
-	tables, err := getPluginTables(params.plugin)
+	tables, err := getAffectedTables(params.plugin)
 	if err != nil {
 		return nil, errors.Default.Wrap(err, fmt.Sprintf("error getting database tables managed by plugin %s", params.plugin))
 	}
@@ -619,14 +619,16 @@ func (sr *ScopeRes[T]) MarshalJSON() ([]byte, error) {
 
 func createDeleteQuery(tableName string, scopeIdKey string, scopeId string) string {
 	column := "_raw_data_params"
-	if strings.HasPrefix(tableName, "_raw_") {
+	if tableName == (models.CollectorLatestState{}.TableName()) {
+		column = "raw_data_params"
+	} else if strings.HasPrefix(tableName, "_raw_") {
 		column = "params"
 	}
 	query := `DELETE FROM ` + tableName + ` WHERE ` + column + ` LIKE '%"` + scopeIdKey + `":"` + scopeId + `"%'`
 	return query
 }
 
-func getPluginTables(pluginName string) ([]string, errors.Error) {
+func getAffectedTables(pluginName string) ([]string, errors.Error) {
 	var tables []string
 	meta, err := plugin.GetPlugin(pluginName)
 	if err != nil {
@@ -658,6 +660,8 @@ func getPluginTables(pluginName string) ([]string, errors.Error) {
 				tables = append(tables, domainTable.TableName())
 			}
 		}
+		// additional tables
+		tables = append(tables, models.CollectorLatestState{}.TableName())
 	}
 	return tables, nil
 }

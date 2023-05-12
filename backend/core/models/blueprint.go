@@ -133,7 +133,7 @@ func (bp *Blueprint) UpdateSettings(settings *BlueprintSettings) errors.Error {
 }
 
 // GetScopes Gets all the scopes across all the connections for this blueprint
-func (bp *Blueprint) GetScopes() ([]*plugin.BlueprintScopeV200, errors.Error) {
+func (bp *Blueprint) GetScopes(connectionId uint64) ([]*plugin.BlueprintScopeV200, errors.Error) {
 	conns, err := bp.GetConnections()
 	if err != nil {
 		return nil, err
@@ -141,6 +141,9 @@ func (bp *Blueprint) GetScopes() ([]*plugin.BlueprintScopeV200, errors.Error) {
 	visited := map[string]any{}
 	var result []*plugin.BlueprintScopeV200
 	for _, conn := range conns {
+		if conn.ConnectionId != connectionId {
+			continue
+		}
 		for _, scope := range conn.Scopes {
 			if _, ok := visited[scope.Id]; !ok {
 				result = append(result, scope)
