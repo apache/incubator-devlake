@@ -70,14 +70,6 @@ class GitPullRequest(ToolModel, table=True):
     source_ref_name: Optional[str]
     fork_repo_id: Optional[str] = Field(source='/forkSource/repository/id')
 
-    @classmethod
-    def migrate(self, session: Session):
-        dialect = session.bind.dialect.name
-        if dialect == 'mysql':
-            session.execute(f'ALTER TABLE {self.__tablename__} MODIFY COLUMN description TEXT')
-        elif dialect == 'postgresql':
-            session.execute(f'ALTER TABLE {self.__tablename__} ALTER COLUMN description TYPE TEXT')
-
 
 class GitPullRequestCommit(ToolModel, table=True):
     commit_id: str = Field(primary_key=True)
