@@ -18,28 +18,45 @@ limitations under the License.
 package tasks
 
 import (
+	"encoding/json"
 	"github.com/apache/incubator-devlake/core/errors"
 	"github.com/apache/incubator-devlake/core/plugin"
 	"github.com/apache/incubator-devlake/helpers/pluginhelper/api"
 	"github.com/apache/incubator-devlake/plugins/feishu/models"
 )
 
-// const AUTH_ENDPOINT = "https://open.feishu.cn"
-// const ENDPOINT = "https://open.feishu.cn/open-apis/vc/v1"
+var _ plugin.SubTaskEntryPoint = ExtractChatItem
 
-func NewFeishuApiClient(taskCtx plugin.TaskContext, connection *models.FeishuConnection) (*api.ApiAsyncClient, errors.Error) {
-	apiClient, err := api.NewApiClientFromConnection(taskCtx.GetContext(), taskCtx, connection)
-	if err != nil {
-		return nil, err
-	}
-
-	// create async api client
-	asyncApiClient, err := api.CreateAsyncApiClient(taskCtx, apiClient, &api.ApiRateLimitCalculator{
-		UserRateLimitPerHour: connection.RateLimitPerHour,
+func ExtractChatItem(taskCtx plugin.SubTaskContext) errors.Error {
+	data := taskCtx.GetData().(*FeishuTaskData)
+	extractor, err := api.NewApiExtractor(api.ApiExtractorArgs{
+		RawDataSubTaskArgs: api.RawDataSubTaskArgs{
+			Ctx: taskCtx,
+			Params: FeishuApiParams{
+				ConnectionId: data.Options.ConnectionId,
+			},
+			Table: RAW_CHAT_TABLE,
+		},
+		Extract: func(row *api.RawData) ([]interface{}, errors.Error) {
+			body := &models.FeishuChatItem{}
+			err := errors.Convert(json.Unmarshal(row.Data, body))
+			if err != nil {
+				return nil, err
+			}
+			body.ConnectionId = data.Options.ConnectionId
+			return []interface{}{body}, nil
+		},
 	})
 	if err != nil {
-		return nil, err
+		return err
 	}
 
-	return asyncApiClient, nil
+	return extractor.Execute()
+}
+
+var ExtractChatItemMeta = plugin.SubTaskMeta{
+	Name:             "extractChatItem",
+	EntryPoint:       ExtractChatItem,
+	EnabledByDefault: true,
+	Description:      "Extract raw chats data into tool layer table feishu_meeting_top_user_item",
 }

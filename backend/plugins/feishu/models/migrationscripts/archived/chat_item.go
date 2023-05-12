@@ -15,22 +15,25 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-package tasks
+package archived
 
 import (
-	helper "github.com/apache/incubator-devlake/helpers/pluginhelper/api"
+	"github.com/apache/incubator-devlake/core/models/migrationscripts/archived"
 )
 
-type FeishuApiParams struct {
-	ConnectionId uint64 `json:"connectionId"`
+type FeishuChatItem struct {
+	archived.NoPKModel `json:"-"`
+	ConnectionId       uint64 `gorm:"primaryKey"`
+	ChatId             string `json:"chat_id" gorm:"primaryKey"`
+	Avatar             string `json:"avatar"`
+	Description        string `json:"description"`
+	External           bool   `json:"external"`
+	Name               string `json:"name"`
+	OwnerId            string `json:"owner_id"`
+	OwnerIdType        string `json:"owner_id_type"`
+	TenantKey          string `json:"tenant_key"`
 }
 
-type FeishuOptions struct {
-	ConnectionId       uint64  `json:"connectionId"`
-	NumOfDaysToCollect float64 `json:"numOfDaysToCollect"`
-}
-
-type FeishuTaskData struct {
-	Options   *FeishuOptions
-	ApiClient *helper.ApiAsyncClient
+func (FeishuChatItem) TableName() string {
+	return "_tool_feishu_chats"
 }
