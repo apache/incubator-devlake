@@ -20,33 +20,34 @@ package tasks
 import (
 	"github.com/apache/incubator-devlake/core/dal"
 	"github.com/apache/incubator-devlake/core/errors"
-	"github.com/apache/incubator-devlake/core/models/domainlayer/crossdomain"
+	"github.com/apache/incubator-devlake/core/models/domainlayer"
 	"github.com/apache/incubator-devlake/core/models/domainlayer/didgen"
+	"github.com/apache/incubator-devlake/core/models/domainlayer/ticket"
 	"github.com/apache/incubator-devlake/core/plugin"
 	"github.com/apache/incubator-devlake/helpers/pluginhelper/api"
 	"github.com/apache/incubator-devlake/plugins/jira/models"
 	"reflect"
 )
 
-var ConvertIssueCommitsMeta = plugin.SubTaskMeta{
-	Name:             "convertIssueCommits",
-	EntryPoint:       ConvertIssueCommits,
-	EnabledByDefault: true,
-	Description:      "convert Jira issue commits",
+var ConvertIssueCommentsMeta = plugin.SubTaskMeta{
+	Name:             "ConvertIssueComments",
+	EntryPoint:       ConvertIssueComments,
+	EnabledByDefault: false,
+	Description:      "convert Jira issue comments",
 	DomainTypes:      []string{plugin.DOMAIN_TYPE_CROSS},
 }
 
-func ConvertIssueCommits(taskCtx plugin.SubTaskContext) errors.Error {
+func ConvertIssueComments(taskCtx plugin.SubTaskContext) errors.Error {
 	data := taskCtx.GetData().(*JiraTaskData)
 	db := taskCtx.GetDal()
 	connectionId := data.Options.ConnectionId
 	boardId := data.Options.BoardId
 	logger := taskCtx.GetLogger()
-	logger.Info("convert issue commits")
+	logger.Info("convert issue comments")
 
 	clauses := []dal.Clause{
 		dal.Select("jic.*"),
-		dal.From("_tool_jira_issue_commits jic"),
+		dal.From("_tool_jira_issue_comments jic"),
 		dal.Join(`left join _tool_jira_board_issues jbi on (
 			jbi.connection_id = jic.connection_id
 			AND jbi.issue_id = jic.issue_id
@@ -60,7 +61,9 @@ func ConvertIssueCommits(taskCtx plugin.SubTaskContext) errors.Error {
 	}
 	defer cursor.Close()
 
-	issueIdGenerator := didgen.NewDomainIdGenerator(&models.JiraIssue{})
+	issueIdGen := didgen.NewDomainIdGenerator(&models.JiraIssue{})
+	accountIdGen := didgen.NewDomainIdGenerator(&models.JiraAccount{})
+
 	converter, err := api.NewDataConverter(api.DataConverterArgs{
 		RawDataSubTaskArgs: api.RawDataSubTaskArgs{
 			Ctx: taskCtx,
@@ -68,18 +71,23 @@ func ConvertIssueCommits(taskCtx plugin.SubTaskContext) errors.Error {
 				ConnectionId: connectionId,
 				BoardId:      boardId,
 			},
-			Table: RAW_ISSUE_TABLE,
+			Table: RAW_ISSUE_COMMENT_TABLE,
 		},
-		InputRowType: reflect.TypeOf(models.JiraIssueCommit{}),
+		InputRowType: reflect.TypeOf(models.JiraIssueComment{}),
 		Input:        cursor,
 		Convert: func(inputRow interface{}) ([]interface{}, errors.Error) {
 			var result []interface{}
-			issueCommit := inputRow.(*models.JiraIssueCommit)
-			item := &crossdomain.IssueCommit{
-				IssueId:   issueIdGenerator.Generate(connectionId, issueCommit.IssueId),
-				CommitSha: issueCommit.CommitSha,
+			issueComment := inputRow.(*models.JiraIssueComment)
+			domainIssueComment := &ticket.IssueComment{
+				DomainEntity: domainlayer.DomainEntity{
+					Id: issueIdGen.Generate(data.Options.ConnectionId, issueComment.IssueId),
+				},
+				IssueId:     issueIdGen.Generate(data.Options.ConnectionId, issueComment.IssueId),
+				Body:        issueComment.Body,
+				AccountId:   accountIdGen.Generate(data.Options.ConnectionId, issueComment.CreatorAccountId),
+				CreatedDate: issueComment.Created,
 			}
-			result = append(result, item)
+			result = append(result, domainIssueComment)
 			return result, nil
 		},
 	})

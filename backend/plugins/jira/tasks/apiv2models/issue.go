@@ -114,8 +114,8 @@ type Issue struct {
 				Name      string `json:"name"`
 			} `json:"statusCategory"`
 		} `json:"status"`
-		Timeoriginalestimate *int64      `json:"timeoriginalestimate"`
-		Description          interface{} `json:"description"`
+		Timeoriginalestimate *int64 `json:"timeoriginalestimate"`
+		Description          string `json:"description"`
 		Timetracking         *struct {
 			RemainingEstimate        string `json:"remainingEstimate"`
 			TimeSpent                string `json:"timeSpent"`
@@ -144,6 +144,13 @@ type Issue struct {
 			Total      int       `json:"total"`
 			Worklogs   []Worklog `json:"worklogs"`
 		} `json:"worklog"`
+		Comment struct {
+			Comments   []Comment `json:"comments"`
+			Self       string    `json:"self"`
+			MaxResults int       `json:"maxResults"`
+			Total      int       `json:"total"`
+			StartAt    int       `json:"startAt"`
+		} `json:"comment"`
 	} `json:"fields"`
 	Changelog *struct {
 		StartAt    int         `json:"startAt"`
@@ -165,6 +172,7 @@ func (i Issue) toToolLayer(connectionId uint64) *models.JiraIssue {
 		IssueKey:           i.Key,
 		StoryPoint:         workload,
 		Summary:            i.Fields.Summary,
+		Description:        i.Fields.Description,
 		Type:               i.Fields.Issuetype.ID,
 		StatusName:         i.Fields.Status.Name,
 		StatusKey:          i.Fields.Status.StatusCategory.Key,
@@ -230,14 +238,25 @@ func (i *Issue) SetAllFields(raw datatypes.JSON) errors.Error {
 	return nil
 }
 
-func (i Issue) ExtractEntities(connectionId uint64) ([]uint64, *models.JiraIssue, []*models.JiraWorklog, []*models.JiraIssueChangelogs, []*models.JiraIssueChangelogItems, []*models.JiraAccount) {
+func (i Issue) ExtractEntities(connectionId uint64) ([]uint64, *models.JiraIssue, []*models.JiraIssueComment, []*models.JiraWorklog, []*models.JiraIssueChangelogs, []*models.JiraIssueChangelogItems, []*models.JiraAccount) {
 	issue := i.toToolLayer(connectionId)
+	var comments []*models.JiraIssueComment
 	var worklogs []*models.JiraWorklog
 	var changelogs []*models.JiraIssueChangelogs
 	var changelogItems []*models.JiraIssueChangelogItems
 	var users []*models.JiraAccount
 	var sprints []uint64
 
+	if i.Fields.Comment.Total > 0 {
+		issue.CommentTotal = int64(i.Fields.Comment.Total)
+		var issueUpdated *time.Time
+		if len(i.Fields.Comment.Comments) <= i.Fields.Comment.Total {
+			issueUpdated = i.Fields.Updated.ToNullableTime()
+		}
+		for _, c := range i.Fields.Comment.Comments {
+			comments = append(comments, c.ToToolLayer(connectionId, i.ID, issueUpdated))
+		}
+	}
 	if i.Fields.Worklog != nil {
 		var issueUpdated *time.Time
 		if len(i.Fields.Worklog.Worklogs) <= i.Fields.Worklog.Total {
@@ -281,5 +300,5 @@ func (i Issue) ExtractEntities(connectionId uint64) ([]uint64, *models.JiraIssue
 			users = append(users, assignee)
 		}
 	}
-	return sprints, issue, worklogs, changelogs, changelogItems, users
+	return sprints, issue, comments, worklogs, changelogs, changelogItems, users
 }
