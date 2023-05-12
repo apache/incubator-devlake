@@ -46,8 +46,9 @@ func (u *addCalendarMonths) Up(baseRes context.BasicRes) errors.Error {
 		return err
 	}
 	now := time.Now()
-	startDate := now.AddDate(-2, 0, 0)
-	endDate := now.AddDate(10, 0, 0)
+	firstDayOfMonth := time.Date(now.Year(), now.Month(), 1, 0, 0, 0, 0, now.Location())
+	startDate := firstDayOfMonth.AddDate(-2, 0, 0)
+	endDate := firstDayOfMonth.AddDate(10, 0, 0)
 
 	var months []calendarMonths
 	for d := endDate; d.After(startDate); d = d.AddDate(0, -1, 0) {
