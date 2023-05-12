@@ -81,3 +81,27 @@ func NewPassword(ctx *gin.Context) {
 	}
 	shared.ApiOutputSuccess(ctx, res, http.StatusOK)
 }
+
+// @Summary post RefreshToken
+// @Description post RefreshToken
+// @Tags framework/RefreshToken
+// @Accept application/json
+// @Param refreshtoken body auth.RefreshTokenRequest true "json"
+// @Success 200  {object} shared.ApiBody
+// @Failure 400  {object} shared.ApiBody "Bad Request"
+// @Failure 500  {object} shared.ApiBody "Internal Error"
+// @Router /password [post]
+func RefreshToken(ctx *gin.Context) {
+	req := &auth.RefreshTokenRequest{}
+	err := ctx.ShouldBind(req)
+	if err != nil {
+		shared.ApiOutputError(ctx, errors.BadInput.Wrap(err, shared.BadRequestBody))
+		return
+	}
+	res, err := auth.Provider.RefreshToken(req)
+	if err != nil {
+		shared.ApiOutputError(ctx, errors.BadInput.Wrap(err, "failed to refresh token"))
+		return
+	}
+	shared.ApiOutputSuccess(ctx, res, http.StatusOK)
+}
