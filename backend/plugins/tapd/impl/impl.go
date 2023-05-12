@@ -95,6 +95,7 @@ func (p Tapd) Description() string {
 
 func (p Tapd) SubTaskMetas() []plugin.SubTaskMeta {
 	return []plugin.SubTaskMeta{
+		tasks.ConvertWorkspaceMeta,
 		tasks.CollectWorkitemTypesMeta,
 		tasks.ExtractWorkitemTypesMeta,
 		tasks.CollectStoryCustomFieldsMeta,
