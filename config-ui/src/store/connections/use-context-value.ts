@@ -128,8 +128,6 @@ export const useContextValue = ({ plugin, filterBeta, filterPlugin, filter }: Us
       ),
     );
 
-    console.log(connections);
-
     const connection = connections.find((cs) => cs.unique === unique) as ConnectionItemType;
     const status = await testConnection(connection);
 
