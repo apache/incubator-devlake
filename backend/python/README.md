@@ -100,11 +100,15 @@ and those that are used to customize conversion to domain models that are groupe
 For example, to add `url` and `token` parameter, edit `MyPluginConnection` as follow:
 
 ```python
+from pydantic import SecretStr
+
 class MyPluginConnection(Connection):
     url: str
-    token: str
+    token: SecretStr
 ```
 
+Using type `SecretStr` instead of `str` will encode the value in the database.
+To get the `str` value, you need to call `get_secret_value()`: `connection.token.get_secret_value()`.
 All plugin methods that have a connection parameter will be called with an instance of this class.
 Note that you should not define `__init__`.
 
@@ -481,7 +485,8 @@ class UserComments(Substream):
         """
         This method will be called for each user collected from parent stream Users.
         """
-        for json in MyPluginAPI(context.connection.token).user_comments(user.id):
+        api = MyPluginAPI(context.connection.token.get_secret_value())
+        for json in api.user_comments(user.id):
             yield json, state
     ...
 ```

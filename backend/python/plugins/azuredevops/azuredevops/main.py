@@ -109,7 +109,7 @@ class AzureDevOpsPlugin(Plugin):
     def extra_tasks(self, scope: GitRepository, tx_rule: AzureDevOpsTransformationRule, entity_types: list[DomainType], connection: AzureDevOpsConnection):
         if DomainType.CODE in entity_types:
             url = urlparse(scope.remoteUrl)
-            url = url._replace(netloc=f'{url.username}:{connection.token}@{url.hostname}')
+            url = url._replace(netloc=f'{url.username}:{connection.token.get_secret_value()}@{url.hostname}')
             yield gitextractor(url.geturl(), scope.domain_id(), connection.proxy)
 
     def extra_stages(self, scope_tx_rule_pairs: list[ScopeTxRulePair], entity_types: list[DomainType], _):
