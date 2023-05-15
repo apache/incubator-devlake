@@ -18,6 +18,8 @@ from enum import Enum
 from typing import Optional
 import re
 
+from sqlmodel import Session
+
 from pydevlake import Field, Connection, TransformationRule
 from pydevlake.model import ToolModel, ToolScope
 from pydevlake.pipeline_tasks import RefDiffOptions
@@ -121,3 +123,14 @@ class Job(ToolModel, table=True):
     finishTime: datetime.datetime
     state: State
     result: Result
+
+    @classmethod
+    def migrate(self, session: Session):
+        dialect = session.bind.dialect.name
+        if dialect == 'mysql':
+            session.execute(f'ALTER TABLE {self.__tablename__} DROP PRIMARY KEY')
+        elif dialect == 'postgresql':
+            session.execute(f'ALTER TABLE {self.__tablename__} DROP CONSTRAINT {self.__tablename__}_pkey')
+        else:
+            raise Exception(f'Unsupported dialect {dialect}')
+        session.execute(f'ALTER TABLE {self.__tablename__} ADD PRIMARY KEY (id, build_id)')
