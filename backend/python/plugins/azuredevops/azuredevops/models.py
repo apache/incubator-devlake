@@ -126,5 +126,11 @@ class Job(ToolModel, table=True):
 
     @classmethod
     def migrate(self, session: Session):
-        session.execute(f'ALTER TABLE {self.__tablename__} DROP PRIMARY KEY')
+        dialect = session.bind.dialect.name
+        if dialect == 'mysql':
+            session.execute(f'ALTER TABLE {self.__tablename__} DROP PRIMARY KEY')
+        elif dialect == 'postgresql':
+            session.execute(f'ALTER TABLE {self.__tablename__} DROP CONSTRAINT {self.__tablename__}_pkey')
+        else:
+            raise Exception(f'Unsupported dialect {dialect}')
         session.execute(f'ALTER TABLE {self.__tablename__} ADD PRIMARY KEY (id, build_id)')
