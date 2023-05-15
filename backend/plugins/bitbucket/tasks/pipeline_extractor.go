@@ -101,7 +101,7 @@ func ExtractApiPipelines(taskCtx plugin.SubTaskContext) errors.Error {
 				BitbucketCreatedOn:  api.Iso8601TimeToTime(bitbucketApiPipeline.CreatedOn),
 				BitbucketCompleteOn: api.Iso8601TimeToTime(bitbucketApiPipeline.CompletedOn),
 				Type:                data.RegexEnricher.ReturnNameIfMatched(devops.DEPLOYMENT, bitbucketApiPipeline.Target.RefName),
-				Environment:         data.RegexEnricher.ReturnNameIfMatched(devops.PRODUCTION, bitbucketApiPipeline.Target.RefName),
+				Environment:         data.RegexEnricher.ReturnNameIfOmittedOrMatched(devops.PRODUCTION, bitbucketApiPipeline.Target.RefName),
 			}
 			if err != nil {
 				return nil, err

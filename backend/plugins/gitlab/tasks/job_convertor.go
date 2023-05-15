@@ -18,6 +18,8 @@ limitations under the License.
 package tasks
 
 import (
+	"reflect"
+
 	"github.com/apache/incubator-devlake/core/dal"
 	"github.com/apache/incubator-devlake/core/errors"
 	"github.com/apache/incubator-devlake/core/models/domainlayer"
@@ -26,7 +28,6 @@ import (
 	"github.com/apache/incubator-devlake/core/plugin"
 	"github.com/apache/incubator-devlake/helpers/pluginhelper/api"
 	gitlabModels "github.com/apache/incubator-devlake/plugins/gitlab/models"
-	"reflect"
 )
 
 var ConvertJobMeta = plugin.SubTaskMeta{
@@ -40,10 +41,7 @@ var ConvertJobMeta = plugin.SubTaskMeta{
 func ConvertJobs(taskCtx plugin.SubTaskContext) (err errors.Error) {
 	db := taskCtx.GetDal()
 	data := taskCtx.GetData().(*GitlabTaskData)
-	deploymentPattern := data.Options.DeploymentPattern
-	productionPattern := data.Options.ProductionPattern
-	regexEnricher := api.NewRegexEnricher()
-	err = regexEnricher.AddRegexp(deploymentPattern, productionPattern)
+	regexEnricher := data.RegexEnricher
 
 	cursor, err := db.Cursor(dal.From(gitlabModels.GitlabJob{}),
 		dal.Where("project_id = ? and connection_id = ?", data.Options.ProjectId, data.Options.ConnectionId))
@@ -99,8 +97,8 @@ func ConvertJobs(taskCtx plugin.SubTaskContext) (err errors.Error) {
 				FinishedDate: gitlabJob.FinishedAt,
 				CicdScopeId:  projectIdGen.Generate(data.Options.ConnectionId, gitlabJob.ProjectId),
 			}
-			domainJob.Type = regexEnricher.GetEnrichResult(deploymentPattern, gitlabJob.Name, devops.DEPLOYMENT)
-			domainJob.Environment = regexEnricher.GetEnrichResult(productionPattern, gitlabJob.Name, devops.PRODUCTION)
+			domainJob.Type = regexEnricher.ReturnNameIfMatched(devops.DEPLOYMENT, gitlabJob.Name)
+			domainJob.Environment = regexEnricher.ReturnNameIfOmittedOrMatched(devops.PRODUCTION, gitlabJob.Name)
 
 			return []interface{}{
 				domainJob,
