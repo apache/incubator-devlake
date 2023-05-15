@@ -32,7 +32,7 @@ import (
 // @Tags framework/login
 // @Accept application/json
 // @Param login body auth.LoginRequest true "json"
-// @Success 200  {object} LoginResponse
+// @Success 200  {object} auth.LoginResponse
 // @Failure 400  {object} shared.ApiBody "Bad Request"
 // @Failure 500  {object} shared.ApiBody "Internal Error"
 // @Router /login [post]
@@ -63,7 +63,7 @@ func Login(ctx *gin.Context) {
 // @Tags framework/NewPassword
 // @Accept application/json
 // @Param newpassword body auth.NewPasswordRequest true "json"
-// @Success 200  {object} shared.ApiBody
+// @Success 200  {object} auth.LoginResponse
 // @Failure 400  {object} shared.ApiBody "Bad Request"
 // @Failure 500  {object} shared.ApiBody "Internal Error"
 // @Router /password [post]
@@ -77,6 +77,30 @@ func NewPassword(ctx *gin.Context) {
 	res, err := auth.Provider.NewPassword(newPasswordReq)
 	if err != nil {
 		shared.ApiOutputError(ctx, errors.BadInput.Wrap(err, "failed to set new password"))
+		return
+	}
+	shared.ApiOutputSuccess(ctx, res, http.StatusOK)
+}
+
+// @Summary post RefreshToken
+// @Description post RefreshToken
+// @Tags framework/RefreshToken
+// @Accept application/json
+// @Param refreshtoken body auth.RefreshTokenRequest true "json"
+// @Success 200  {object} auth.LoginResponse
+// @Failure 400  {object} shared.ApiBody "Bad Request"
+// @Failure 500  {object} shared.ApiBody "Internal Error"
+// @Router /password [post]
+func RefreshToken(ctx *gin.Context) {
+	req := &auth.RefreshTokenRequest{}
+	err := ctx.ShouldBind(req)
+	if err != nil {
+		shared.ApiOutputError(ctx, errors.BadInput.Wrap(err, shared.BadRequestBody))
+		return
+	}
+	res, err := auth.Provider.RefreshToken(req)
+	if err != nil {
+		shared.ApiOutputError(ctx, errors.BadInput.Wrap(err, "failed to refresh token"))
 		return
 	}
 	shared.ApiOutputSuccess(ctx, res, http.StatusOK)

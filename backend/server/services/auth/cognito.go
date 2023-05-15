@@ -113,11 +113,14 @@ func (cgt *AwsCognitoProvider) SignIn(loginReq *LoginRequest) (*LoginResponse, e
 	}
 
 	// Call Cognito to get auth tokens
+	return cgt.initiateAuth(input)
+}
+
+func (cgt *AwsCognitoProvider) initiateAuth(input *cognitoidentityprovider.InitiateAuthInput) (*LoginResponse, errors.Error) {
 	response, err := cgt.client.InitiateAuth(input)
 	if err != nil {
 		return nil, errors.BadInput.New(err.Error())
 	}
-
 	loginRes := &LoginResponse{
 		ChallengeName:       response.ChallengeName,
 		ChallengeParameters: response.ChallengeParameters,
@@ -132,7 +135,6 @@ func (cgt *AwsCognitoProvider) SignIn(loginReq *LoginRequest) (*LoginResponse, e
 			TokenType:    response.AuthenticationResult.TokenType,
 		}
 	}
-
 	return loginRes, nil
 }
 
@@ -164,7 +166,15 @@ func (cgt *AwsCognitoProvider) CheckAuth(tokenString string) (*jwt.Token, errors
 		return nil, fmt.Errorf("Public key not found")
 	})
 
-	// Check if the token is invalid
+	if err != nil {
+		if ve, ok := err.(*jwt.ValidationError); ok {
+			if ve.Errors == jwt.ValidationErrorExpired {
+				return nil, errors.Forbidden.New("Token expired")
+			}
+		}
+	}
+
+	// Check if the token is valid
 	if err != nil || !token.Valid {
 		cgt.logger.Error(err, "Invalid token")
 		return nil, errors.Unauthorized.New("Invalid token")
@@ -175,11 +185,11 @@ func (cgt *AwsCognitoProvider) CheckAuth(tokenString string) (*jwt.Token, errors
 		if actualClaims, ok := token.Claims.(jwt.MapClaims); ok {
 			for key, expected := range cgt.expectClaims {
 				if expected != actualClaims[key] {
-					return nil, errors.Unauthorized.New("Invalid token")
+					return nil, errors.Unauthorized.New("Invalid token: expected claims do not match")
 				}
 			}
 		} else {
-			return nil, errors.Unauthorized.New("Invalid token")
+			return nil, errors.Unauthorized.New("Invalid token: expected claims do not match")
 		}
 	}
 
@@ -234,6 +244,18 @@ func (cgt *AwsCognitoProvider) NewPassword(newPasswordReq *NewPasswordRequest) (
 		}
 	}
 	return loginRes, nil
+}
+
+func (cgt *AwsCognitoProvider) RefreshToken(req *RefreshTokenRequest) (*LoginResponse, errors.Error) {
+	// Create the input for InitiateAuth
+	input := &cognitoidentityprovider.InitiateAuthInput{
+		AuthFlow: aws.String(cognitoidentityprovider.AuthFlowTypeRefreshTokenAuth),
+		ClientId: cgt.clientId,
+		AuthParameters: map[string]*string{
+			"REFRESH_TOKEN": aws.String(req.RefreshToken),
+		},
+	}
+	return cgt.initiateAuth(input)
 }
 
 // func (cgt *AwsCognitorProvider) ChangePassword(ctx *gin.Context, oldPassword, newPassword string) errors.Error {

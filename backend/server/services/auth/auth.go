@@ -55,10 +55,15 @@ type NewPasswordRequest struct {
 	Session     string `json:"session"`
 }
 
+type RefreshTokenRequest struct {
+	RefreshToken string `json:"refreshToken"`
+}
+
 // auth provider interface
 type AuthProvider interface {
 	SignIn(*LoginRequest) (*LoginResponse, errors.Error)
 	NewPassword(*NewPasswordRequest) (*LoginResponse, errors.Error)
+	RefreshToken(*RefreshTokenRequest) (*LoginResponse, errors.Error)
 	// ChangePassword(ctx *gin.Context, oldPassword, newPassword string) errors.Error
 	CheckAuth(token string) (*jwt.Token, errors.Error)
 }

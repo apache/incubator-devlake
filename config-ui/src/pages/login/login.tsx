@@ -68,6 +68,7 @@ export const LoginPage = () => {
         setSession(res.session);
       } else {
         localStorage.setItem('accessToken', res.authenticationResult.accessToken);
+        localStorage.setItem('refreshToken', res.authenticationResult.refreshToken);
         document.cookie = 'access_token=' + res.authenticationResult.accessToken + '; path=/';
         setUsername('');
         setPassword('');

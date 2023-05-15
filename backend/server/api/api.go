@@ -74,6 +74,7 @@ func CreateApiService() {
 		// Add login endpoint
 		router.POST("/login", login.Login)
 		router.POST("/login/newpassword", login.NewPassword)
+		router.POST("/login/refreshtoken", login.RefreshToken)
 		// Use AuthenticationMiddleware for protected routes
 		router.Use(auth.Middleware)
 	}
