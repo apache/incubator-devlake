@@ -84,7 +84,7 @@ func (r *RegexEnricher) TryAdd(name, pattern string) errors.Error {
 	return nil
 }
 
-// ReturnNameIfMatched will return name if any of the targets matches the regex with the given name
+// ReturnNameIfMatched will return name if any of the targets matches the regex associated with the given name
 func (r *RegexEnricher) ReturnNameIfMatched(name string, targets ...string) string {
 	if regex, ok := r.regexpMap[name]; !ok {
 		return ""
@@ -96,4 +96,12 @@ func (r *RegexEnricher) ReturnNameIfMatched(name string, targets ...string) stri
 		}
 	}
 	return ""
+}
+
+// ReturnNameIfMatchedOrOmitted returns the given name if regex of the given name is omitted or fallback to ReturnNameIfMatched
+func (r *RegexEnricher) ReturnNameIfOmittedOrMatched(name string, targets ...string) string {
+	if _, ok := r.regexpMap[name]; !ok {
+		return name
+	}
+	return r.ReturnNameIfMatched(name, targets...)
 }
