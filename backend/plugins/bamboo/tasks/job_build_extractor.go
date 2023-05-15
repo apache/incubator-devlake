@@ -55,7 +55,7 @@ func ExtractJobBuild(taskCtx plugin.SubTaskContext) errors.Error {
 			body.PlanName = plan.PlanName
 			body.PlanBuildKey = fmt.Sprintf("%s-%v", plan.PlanKey, body.Number)
 			body.Type = data.RegexEnricher.ReturnNameIfMatched(devops.DEPLOYMENT, body.JobName)
-			body.Environment = data.RegexEnricher.ReturnNameIfMatched(devops.PRODUCTION, body.JobName)
+			body.Environment = data.RegexEnricher.ReturnNameIfOmittedOrMatched(devops.PRODUCTION, body.JobName)
 			results := make([]interface{}, 0)
 			results = append(results, body)
 			for _, v := range res.VcsRevisions.VcsRevision {
