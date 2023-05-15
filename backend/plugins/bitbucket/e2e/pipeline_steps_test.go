@@ -34,8 +34,8 @@ func TestBitbucketPipelineStepsDataFlow(t *testing.T) {
 	dataflowTester := e2ehelper.NewDataFlowTester(t, "bitbucket", bitbucket)
 
 	regexEnricher := helper.NewRegexEnricher()
-	_ = regexEnricher.TryAdd(devops.DEPLOYMENT, "main")
-	_ = regexEnricher.TryAdd(devops.PRODUCTION, "pipeline")
+	_ = regexEnricher.TryAdd(devops.DEPLOYMENT, "staging")
+	// _ = regexEnricher.TryAdd(devops.PRODUCTION, "pipeline") // when production regex is omitted, all steps will be treated as production
 	taskData := &tasks.BitbucketTaskData{
 		Options: &tasks.BitbucketOptions{
 			ConnectionId: 1,
@@ -67,6 +67,8 @@ func TestBitbucketPipelineStepsDataFlow(t *testing.T) {
 			"run_number",
 			//"trigger",
 			//"result",
+			"type",
+			"environment",
 		),
 	)
 

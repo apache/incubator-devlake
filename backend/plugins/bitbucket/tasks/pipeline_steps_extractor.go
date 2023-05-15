@@ -94,7 +94,7 @@ func ExtractPipelineSteps(taskCtx plugin.SubTaskContext) errors.Error {
 				BuildSecondsUsed:  apiPipelineStep.BuildSecondsUsed,
 				RunNumber:         apiPipelineStep.RunNumber,
 				Type:              data.RegexEnricher.ReturnNameIfMatched(devops.DEPLOYMENT, apiPipelineStep.Name),
-				Environment:       data.RegexEnricher.ReturnNameIfMatched(devops.PRODUCTION, apiPipelineStep.Name),
+				Environment:       data.RegexEnricher.ReturnNameIfOmittedOrMatched(devops.PRODUCTION, apiPipelineStep.Name),
 			}
 			return []interface{}{
 				bitbucketStep,
