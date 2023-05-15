@@ -18,9 +18,10 @@ limitations under the License.
 package e2e
 
 import (
+	"testing"
+
 	"github.com/apache/incubator-devlake/core/models/common"
 	helper "github.com/apache/incubator-devlake/helpers/pluginhelper/api"
-	"testing"
 
 	"github.com/apache/incubator-devlake/core/models/domainlayer/devops"
 	"github.com/apache/incubator-devlake/helpers/e2ehelper"
@@ -34,7 +35,6 @@ func TestGithubCICDJobDataFlow(t *testing.T) {
 	dataflowTester := e2ehelper.NewDataFlowTester(t, "github", github)
 	regexEnricher := helper.NewRegexEnricher()
 	_ = regexEnricher.TryAdd(devops.DEPLOYMENT, "deploywindows.*")
-	_ = regexEnricher.TryAdd(devops.PRODUCTION, "deploywindows.*")
 	taskData := &tasks.GithubTaskData{
 		Options: &tasks.GithubOptions{
 			ConnectionId: 1,
@@ -48,16 +48,24 @@ func TestGithubCICDJobDataFlow(t *testing.T) {
 	// SELECT * FROM _raw_github_api_jobs INTO OUTFILE "/tmp/_raw_github_api_jobs.csv" FIELDS TERMINATED BY ',' OPTIONALLY ENCLOSED BY '"' LINES TERMINATED BY '\r\n';
 	dataflowTester.ImportCsvIntoRawTable("./raw_tables/_raw_github_api_jobs.csv", "_raw_github_api_jobs")
 
+	// verify when production regex is omitted
+	dataflowTester.FlushTabler(&models.GithubJob{})
+	dataflowTester.Subtask(tasks.ExtractJobsMeta, taskData)
+	dataflowTester.VerifyTableWithOptions(&models.GithubJob{}, e2ehelper.TableOptions{
+		CSVRelPath:  "./snapshot_tables/_tool_github_jobs_no_prod_env.csv",
+		IgnoreTypes: []interface{}{common.NoPKModel{}},
+	})
+
+	_ = regexEnricher.TryAdd(devops.PRODUCTION, "deploywindows.*")
 	// verify extraction
 	dataflowTester.FlushTabler(&models.GithubJob{})
-	dataflowTester.FlushTabler(&devops.CICDTask{})
-
 	dataflowTester.Subtask(tasks.ExtractJobsMeta, taskData)
 	dataflowTester.VerifyTableWithOptions(&models.GithubJob{}, e2ehelper.TableOptions{
 		CSVRelPath:  "./snapshot_tables/_tool_github_jobs.csv",
 		IgnoreTypes: []interface{}{common.NoPKModel{}},
 	})
 
+	dataflowTester.FlushTabler(&devops.CICDTask{})
 	dataflowTester.Subtask(tasks.ConvertJobsMeta, taskData)
 	dataflowTester.VerifyTableWithOptions(&devops.CICDTask{}, e2ehelper.TableOptions{
 		CSVRelPath:  "./snapshot_tables/cicd_tasks.csv",

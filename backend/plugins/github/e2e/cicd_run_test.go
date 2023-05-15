@@ -18,9 +18,10 @@ limitations under the License.
 package e2e
 
 import (
+	"testing"
+
 	"github.com/apache/incubator-devlake/core/models/common"
 	helper "github.com/apache/incubator-devlake/helpers/pluginhelper/api"
-	"testing"
 
 	"github.com/apache/incubator-devlake/core/models/domainlayer/devops"
 	"github.com/apache/incubator-devlake/helpers/e2ehelper"
@@ -34,7 +35,6 @@ func TestGithubCICDRunDataFlow(t *testing.T) {
 	dataflowTester := e2ehelper.NewDataFlowTester(t, "github", github)
 	regexEnricher := helper.NewRegexEnricher()
 	_ = regexEnricher.TryAdd(devops.DEPLOYMENT, "CodeQL.*")
-	_ = regexEnricher.TryAdd(devops.PRODUCTION, "CodeQL.*")
 	taskData := &tasks.GithubTaskData{
 		Options: &tasks.GithubOptions{
 			ConnectionId: 1,
@@ -49,17 +49,25 @@ func TestGithubCICDRunDataFlow(t *testing.T) {
 	dataflowTester.ImportCsvIntoRawTable("./raw_tables/_raw_github_api_runs.csv", "_raw_github_api_runs")
 	dataflowTester.ImportCsvIntoTabler("./raw_tables/_tool_github_repos.csv", &models.GithubRepo{})
 
+	// verify when production regex is omitted
+	dataflowTester.FlushTabler(&models.GithubRun{})
+	dataflowTester.Subtask(tasks.ExtractRunsMeta, taskData)
+	dataflowTester.VerifyTableWithOptions(&models.GithubRun{}, e2ehelper.TableOptions{
+		CSVRelPath:  "./snapshot_tables/_tool_github_runs_no_prod_regex.csv",
+		IgnoreTypes: []interface{}{common.NoPKModel{}},
+	})
+
 	// verify extraction
 	dataflowTester.FlushTabler(&models.GithubRun{})
-	dataflowTester.FlushTabler(&devops.CICDPipeline{})
-	dataflowTester.FlushTabler(&devops.CiCDPipelineCommit{})
-
+	_ = regexEnricher.TryAdd(devops.PRODUCTION, "CodeQL.*")
 	dataflowTester.Subtask(tasks.ExtractRunsMeta, taskData)
 	dataflowTester.VerifyTableWithOptions(&models.GithubRun{}, e2ehelper.TableOptions{
 		CSVRelPath:  "./snapshot_tables/_tool_github_runs.csv",
 		IgnoreTypes: []interface{}{common.NoPKModel{}},
 	})
 
+	dataflowTester.FlushTabler(&devops.CICDPipeline{})
+	dataflowTester.FlushTabler(&devops.CiCDPipelineCommit{})
 	dataflowTester.Subtask(tasks.ConvertRunsMeta, taskData)
 	dataflowTester.VerifyTableWithOptions(&devops.CICDPipeline{}, e2ehelper.TableOptions{
 		CSVRelPath:  "./snapshot_tables/cicd_pipelines.csv",

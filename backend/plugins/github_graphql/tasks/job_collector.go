@@ -192,7 +192,7 @@ func CollectGraphqlJobs(taskCtx plugin.SubTaskContext) errors.Error {
 						Name:         checkRun.Name,
 						Steps:        paramsBytes,
 						Type:         data.RegexEnricher.ReturnNameIfMatched(devops.DEPLOYMENT, checkRun.Name),
-						Environment:  data.RegexEnricher.ReturnNameIfMatched(devops.PRODUCTION, checkRun.Name),
+						Environment:  data.RegexEnricher.ReturnNameIfOmittedOrMatched(devops.PRODUCTION, checkRun.Name),
 						// these columns can not fill by graphql
 						//HeadSha:       ``,  // use _tool_github_runs
 						//RunURL:        ``,
