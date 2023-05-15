@@ -36,7 +36,6 @@ func TestGitlabPipelineDataFlow(t *testing.T) {
 
 	regexEnricher := api.NewRegexEnricher()
 	_ = regexEnricher.TryAdd(devops.DEPLOYMENT, "EE-7121")
-	_ = regexEnricher.TryAdd(devops.PRODUCTION, "EE-7121")
 
 	taskData := &tasks.GitlabTaskData{
 		Options: &tasks.GitlabOptions{
@@ -51,7 +50,20 @@ func TestGitlabPipelineDataFlow(t *testing.T) {
 	dataflowTester.ImportCsvIntoRawTable("./raw_tables/_raw_gitlab_api_pipeline.csv", "_raw_gitlab_api_pipeline")
 	dataflowTester.ImportCsvIntoTabler("./raw_tables/_tool_gitlab_projects.csv", &models.GitlabProject{})
 
+	// verify env when production is omitted
+	dataflowTester.FlushTabler(&models.GitlabPipeline{})
+	dataflowTester.FlushTabler(&models.GitlabPipelineProject{})
+	dataflowTester.Subtask(tasks.ExtractApiPipelinesMeta, taskData)
+	dataflowTester.VerifyTable(
+		models.GitlabPipeline{},
+		"./snapshot_tables/_tool_gitlab_pipelines_no_prod_regex.csv",
+		e2ehelper.ColumnWithRawData(
+			"environment",
+		),
+	)
+
 	// verify extraction
+	_ = regexEnricher.TryAdd(devops.PRODUCTION, "EE-7121")
 	dataflowTester.FlushTabler(&models.GitlabPipeline{})
 	dataflowTester.FlushTabler(&models.GitlabPipelineProject{})
 	dataflowTester.Subtask(tasks.ExtractApiPipelinesMeta, taskData)
