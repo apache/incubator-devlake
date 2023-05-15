@@ -60,7 +60,7 @@ class GitPullRequest(ToolModel, table=True):
     closed_date: Optional[datetime.datetime]
     source_commit_sha: str = Field(source='/lastMergeSourceCommit/commitId')
     target_commit_sha: str = Field(source='/lastMergeTargetCommit/commitId')
-    merge_commit_sha: str = Field(source='/lastMergeCommit/commitId')
+    merge_commit_sha: Optional[str] = Field(source='/lastMergeCommit/commitId')
     url: Optional[str]
     type: Optional[str] = Field(source='/labels/0/name') # TODO: get this off transformation rules regex
     title: Optional[str]
