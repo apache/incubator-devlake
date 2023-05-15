@@ -32,7 +32,7 @@ import (
 // @Tags framework/login
 // @Accept application/json
 // @Param login body auth.LoginRequest true "json"
-// @Success 200  {object} LoginResponse
+// @Success 200  {object} auth.LoginResponse
 // @Failure 400  {object} shared.ApiBody "Bad Request"
 // @Failure 500  {object} shared.ApiBody "Internal Error"
 // @Router /login [post]
@@ -63,7 +63,7 @@ func Login(ctx *gin.Context) {
 // @Tags framework/NewPassword
 // @Accept application/json
 // @Param newpassword body auth.NewPasswordRequest true "json"
-// @Success 200  {object} shared.ApiBody
+// @Success 200  {object} auth.LoginResponse
 // @Failure 400  {object} shared.ApiBody "Bad Request"
 // @Failure 500  {object} shared.ApiBody "Internal Error"
 // @Router /password [post]
@@ -87,7 +87,7 @@ func NewPassword(ctx *gin.Context) {
 // @Tags framework/RefreshToken
 // @Accept application/json
 // @Param refreshtoken body auth.RefreshTokenRequest true "json"
-// @Success 200  {object} shared.ApiBody
+// @Success 200  {object} auth.LoginResponse
 // @Failure 400  {object} shared.ApiBody "Bad Request"
 // @Failure 500  {object} shared.ApiBody "Internal Error"
 // @Router /password [post]
