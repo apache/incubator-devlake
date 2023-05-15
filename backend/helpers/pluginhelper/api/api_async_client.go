@@ -181,13 +181,14 @@ func (apiClient *ApiAsyncClient) DoAsync(
 
 		// check
 		needRetry := false
+		errMessage := "unknown"
 		if err != nil {
 			needRetry = true
+			errMessage = err.Error()
 		} else if res.StatusCode >= HttpMinStatusRetryCode {
 			needRetry = true
-			err = errors.HttpStatus(res.StatusCode).New(
-				fmt.Sprintf("Http DoAsync error calling [%s %s]. Response: %s", method, path, string(respBody)),
-			)
+			errMessage = fmt.Sprintf("Http DoAsync error calling [%s %s]. Response: %s", method, path, string(respBody))
+			err = errors.HttpStatus(res.StatusCode).New(errMessage)
 		}
 
 		//  if it needs retry, check and retry
@@ -205,7 +206,7 @@ func (apiClient *ApiAsyncClient) DoAsync(
 		}
 
 		if err != nil {
-			err = errors.Default.Wrap(err, fmt.Sprintf("retry exceeded %d times calling %s", retry, path))
+			err = errors.Default.Wrap(err, fmt.Sprintf("Retry exceeded %d times calling %s. The last error was: %s", retry, path, errMessage))
 			apiClient.logger.Error(err, "")
 			return errors.Convert(err)
 		}
