@@ -2452,7 +2452,7 @@
           "group": [],
           "hide": false,
           "metricColumn": "none",
-          "rawQuery": true, 
+          "rawQuery": true,
           "rawSql": "-- Metric 3: median time to restore service - MTTR\nwith _incidents as (\n-- get the number of incidents created each month\n\tSELECT\n\t  distinct i.id,\n\t\tdate_format(i.created_date,'%y/%m') as month,\n\t\tcast(lead_time_minutes as signed) as lead_time_minutes\n\tFROM\n\t\tissues i\n\t  join board_issues bi on i.id = bi.issue_id\n\t  join boards b on bi.board_id = b.id\n\t  join project_mapping pm on b.id = pm.row_id and pm.`table` = 'boards'\n\tWHERE\n\t  pm.project_name in ($project)\n\t\tand i.type = 'INCIDENT'\n\t\tand i.lead_time_minutes is not null\n),\n\n_find_median_mttr_each_month_ranks as(\n\tSELECT *, percent_rank() over(PARTITION BY month order by lead_time_minutes) as ranks\n\tFROM _incidents\n),\n\n_mttr as(\n\tSELECT month, max(lead_time_minutes) as median_time_to_resolve\n\tFROM _find_median_mttr_each_month_ranks\n\tWHERE ranks <= 0.5\n\tGROUP BY month\n)\n\nSELECT \n\tcm.month,\n\tcase \n\t\twhen m.median_time_to_resolve is null then 0 \n\t\telse m.median_time_to_resolve/60 end as median_time_to_resolve_in_hour\nFROM \n\tcalendar_months cm\n\tLEFT JOIN _mttr m on cm.month = m.month\nWHERE $__timeFilter(month_timestamp)",
           "refId": "A",
           "select": [

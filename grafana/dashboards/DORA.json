@@ -3,10 +3,7 @@
     "list": [
       {
         "builtIn": 1,
-        "datasource": {
-          "type": "datasource",
-          "uid": "grafana"
-        },
+        "datasource": "-- Grafana --",
         "enable": true,
         "hide": true,
         "iconColor": "rgba(0, 211, 255, 1)",
@@ -16,17 +13,14 @@
     ]
   },
   "editable": true,
-  "fiscalYearStartMonth": 0,
+  "gnetId": null,
   "graphTooltip": 0,
-  "id": 28,
+  "id": 21,
+  "iteration": 1683877262059,
   "links": [],
-  "liveNow": false,
   "panels": [
     {
-      "datasource": {
-        "type": "mysql",
-        "uid": "aWmAxgs4k"
-      },
+      "datasource": "mysql",
       "description": "",
       "fieldConfig": {
         "defaults": {
@@ -36,11 +30,8 @@
           },
           "custom": {
             "align": "auto",
-            "cellOptions": {
-              "type": "auto"
-            },
-            "filterable": false,
-            "inspect": false
+            "displayMode": "auto",
+            "filterable": false
           },
           "mappings": [],
           "noValue": "-",
@@ -62,10 +53,8 @@
             },
             "properties": [
               {
-                "id": "custom.cellOptions",
-                "value": {
-                  "type": "color-text"
-                }
+                "id": "custom.displayMode",
+                "value": "color-text"
               },
               {
                 "id": "color",
@@ -83,10 +72,8 @@
             },
             "properties": [
               {
-                "id": "custom.cellOptions",
-                "value": {
-                  "type": "color-text"
-                }
+                "id": "custom.displayMode",
+                "value": "color-text"
               },
               {
                 "id": "color",
@@ -104,10 +91,8 @@
             },
             "properties": [
               {
-                "id": "custom.cellOptions",
-                "value": {
-                  "type": "color-text"
-                }
+                "id": "custom.displayMode",
+                "value": "color-text"
               },
               {
                 "id": "color",
@@ -125,10 +110,8 @@
             },
             "properties": [
               {
-                "id": "custom.cellOptions",
-                "value": {
-                  "type": "color-text"
-                }
+                "id": "custom.displayMode",
+                "value": "color-text"
               },
               {
                 "id": "color",
@@ -149,25 +132,12 @@
       },
       "id": 8,
       "options": {
-        "cellHeight": "sm",
-        "footer": {
-          "countRows": false,
-          "fields": "",
-          "reducer": [
-            "sum"
-          ],
-          "show": false
-        },
         "showHeader": true,
         "sortBy": []
       },
-      "pluginVersion": "9.5.1",
+      "pluginVersion": "8.0.6",
       "targets": [
         {
-          "datasource": {
-            "type": "mysql",
-            "uid": "aWmAxgs4k"
-          },
           "format": "table",
           "group": [],
           "metricColumn": "none",
@@ -201,10 +171,7 @@
       "type": "table"
     },
     {
-      "datasource": {
-        "type": "mysql",
-        "uid": "aWmAxgs4k"
-      },
+      "datasource": "mysql",
       "fieldConfig": {
         "defaults": {
           "color": {
@@ -267,13 +234,9 @@
         "text": {},
         "textMode": "auto"
       },
-      "pluginVersion": "9.5.1",
+      "pluginVersion": "8.0.6",
       "targets": [
         {
-          "datasource": {
-            "type": "mysql",
-            "uid": "aWmAxgs4k"
-          },
           "format": "table",
           "group": [],
           "metricColumn": "none",
@@ -307,10 +270,7 @@
       "type": "stat"
     },
     {
-      "datasource": {
-        "type": "mysql",
-        "uid": "aWmAxgs4k"
-      },
+      "datasource": "mysql",
       "fieldConfig": {
         "defaults": {
           "color": {
@@ -373,13 +333,9 @@
         "text": {},
         "textMode": "auto"
       },
-      "pluginVersion": "9.5.1",
+      "pluginVersion": "8.0.6",
       "targets": [
         {
-          "datasource": {
-            "type": "mysql",
-            "uid": "aWmAxgs4k"
-          },
           "format": "table",
           "group": [],
           "metricColumn": "none",
@@ -413,10 +369,7 @@
       "type": "stat"
     },
     {
-      "datasource": {
-        "type": "mysql",
-        "uid": "aWmAxgs4k"
-      },
+      "datasource": "mysql",
       "fieldConfig": {
         "defaults": {
           "color": {
@@ -483,13 +436,9 @@
         "text": {},
         "textMode": "auto"
       },
-      "pluginVersion": "9.5.1",
+      "pluginVersion": "8.0.6",
       "targets": [
         {
-          "datasource": {
-            "type": "mysql",
-            "uid": "aWmAxgs4k"
-          },
           "format": "table",
           "group": [],
           "metricColumn": "none",
@@ -523,10 +472,7 @@
       "type": "stat"
     },
     {
-      "datasource": {
-        "type": "mysql",
-        "uid": "aWmAxgs4k"
-      },
+      "datasource": "mysql",
       "fieldConfig": {
         "defaults": {
           "color": {
@@ -589,13 +535,9 @@
         "text": {},
         "textMode": "auto"
       },
-      "pluginVersion": "9.5.1",
+      "pluginVersion": "8.0.6",
       "targets": [
         {
-          "datasource": {
-            "type": "mysql",
-            "uid": "aWmAxgs4k"
-          },
           "format": "table",
           "group": [],
           "metricColumn": "none",
@@ -629,18 +571,13 @@
       "type": "stat"
     },
     {
-      "datasource": {
-        "type": "mysql",
-        "uid": "aWmAxgs4k"
-      },
+      "datasource": "mysql",
       "fieldConfig": {
         "defaults": {
           "color": {
             "mode": "palette-classic"
           },
           "custom": {
-            "axisCenteredZero": false,
-            "axisColorMode": "text",
             "axisLabel": "",
             "axisPlacement": "auto",
             "axisSoftMin": 0,
@@ -651,13 +588,7 @@
               "tooltip": false,
               "viz": false
             },
-            "lineWidth": 1,
-            "scaleDistribution": {
-              "type": "linear"
-            },
-            "thresholdsStyle": {
-              "mode": "off"
-            }
+            "lineWidth": 1
           },
           "mappings": [],
           "thresholds": {
@@ -684,34 +615,22 @@
       },
       "id": 2,
       "options": {
-        "barRadius": 0,
         "barWidth": 0.6,
-        "fullHighlight": false,
         "groupWidth": 0.7,
         "legend": {
           "calcs": [],
           "displayMode": "list",
-          "placement": "bottom",
-          "showLegend": true
+          "placement": "bottom"
         },
         "orientation": "auto",
         "showValue": "auto",
-        "stacking": "none",
         "text": {},
         "tooltip": {
-          "mode": "single",
-          "sort": "none"
-        },
-        "xTickLabelRotation": 0,
-        "xTickLabelSpacing": 0
+          "mode": "single"
+        }
       },
       "targets": [
         {
-          "datasource": {
-            "type": "mysql",
-            "uid": "aWmAxgs4k"
-          },
-          "editorMode": "code",
           "format": "table",
           "group": [],
           "metricColumn": "none",
@@ -729,23 +648,6 @@
               }
             ]
           ],
-          "sql": {
-            "columns": [
-              {
-                "parameters": [],
-                "type": "function"
-              }
-            ],
-            "groupBy": [
-              {
-                "property": {
-                  "type": "string"
-                },
-                "type": "groupBy"
-              }
-            ],
-            "limit": 50
-          },
           "table": "_devlake_blueprints",
           "timeColumn": "created_at",
           "timeColumnType": "timestamp",
@@ -762,10 +664,7 @@
       "type": "barchart"
     },
     {
-      "datasource": {
-        "type": "mysql",
-        "uid": "aWmAxgs4k"
-      },
+      "datasource": "mysql",
       "description": "",
       "fieldConfig": {
         "defaults": {
@@ -773,8 +672,6 @@
             "mode": "palette-classic"
           },
           "custom": {
-            "axisCenteredZero": false,
-            "axisColorMode": "text",
             "axisLabel": "Hours",
             "axisPlacement": "auto",
             "axisSoftMin": 0,
@@ -785,13 +682,7 @@
               "tooltip": false,
               "viz": false
             },
-            "lineWidth": 1,
-            "scaleDistribution": {
-              "type": "linear"
-            },
-            "thresholdsStyle": {
-              "mode": "off"
-            }
+            "lineWidth": 1
           },
           "mappings": [],
           "thresholds": {
@@ -814,35 +705,23 @@
       },
       "id": 6,
       "options": {
-        "barRadius": 0,
         "barWidth": 0.7,
-        "fullHighlight": false,
         "groupWidth": 0.7,
         "legend": {
           "calcs": [],
           "displayMode": "list",
-          "placement": "bottom",
-          "showLegend": true
+          "placement": "bottom"
         },
         "orientation": "auto",
         "showValue": "auto",
-        "stacking": "none",
         "text": {},
         "tooltip": {
-          "mode": "single",
-          "sort": "none"
-        },
-        "xTickLabelRotation": 0,
-        "xTickLabelSpacing": 0
+          "mode": "single"
+        }
       },
       "pluginVersion": "8.0.6",
       "targets": [
         {
-          "datasource": {
-            "type": "mysql",
-            "uid": "aWmAxgs4k"
-          },
-          "editorMode": "code",
           "format": "table",
           "group": [],
           "hide": false,
@@ -860,23 +739,6 @@
               }
             ]
           ],
-          "sql": {
-            "columns": [
-              {
-                "parameters": [],
-                "type": "function"
-              }
-            ],
-            "groupBy": [
-              {
-                "property": {
-                  "type": "string"
-                },
-                "type": "groupBy"
-              }
-            ],
-            "limit": 50
-          },
           "table": "ae_projects",
           "timeColumn": "ae_create_time",
           "timeColumnType": "timestamp",
@@ -889,14 +751,13 @@
           ]
         }
       ],
+      "timeFrom": null,
+      "timeShift": null,
       "title": "Median Lead Time for Changes",
       "type": "barchart"
     },
     {
-      "datasource": {
-        "type": "mysql",
-        "uid": "aWmAxgs4k"
-      },
+      "datasource": "mysql",
       "description": "",
       "fieldConfig": {
         "defaults": {
@@ -904,8 +765,6 @@
             "mode": "palette-classic"
           },
           "custom": {
-            "axisCenteredZero": false,
-            "axisColorMode": "text",
             "axisLabel": "Hours",
             "axisPlacement": "auto",
             "axisSoftMin": 0,
@@ -916,13 +775,7 @@
               "tooltip": false,
               "viz": false
             },
-            "lineWidth": 1,
-            "scaleDistribution": {
-              "type": "linear"
-            },
-            "thresholdsStyle": {
-              "mode": "off"
-            }
+            "lineWidth": 1
           },
           "mappings": [],
           "thresholds": {
@@ -966,35 +819,23 @@
       },
       "id": 9,
       "options": {
-        "barRadius": 0,
         "barWidth": 0.6,
-        "fullHighlight": false,
         "groupWidth": 0.7,
         "legend": {
           "calcs": [],
           "displayMode": "list",
-          "placement": "bottom",
-          "showLegend": true
+          "placement": "bottom"
         },
         "orientation": "auto",
         "showValue": "auto",
-        "stacking": "none",
         "text": {},
         "tooltip": {
-          "mode": "single",
-          "sort": "none"
-        },
-        "xTickLabelRotation": 0,
-        "xTickLabelSpacing": 0
+          "mode": "single"
+        }
       },
       "pluginVersion": "8.0.6",
       "targets": [
         {
-          "datasource": {
-            "type": "mysql",
-            "uid": "aWmAxgs4k"
-          },
-          "editorMode": "code",
           "format": "table",
           "group": [],
           "hide": false,
@@ -1012,23 +853,6 @@
               }
             ]
           ],
-          "sql": {
-            "columns": [
-              {
-                "parameters": [],
-                "type": "function"
-              }
-            ],
-            "groupBy": [
-              {
-                "property": {
-                  "type": "string"
-                },
-                "type": "groupBy"
-              }
-            ],
-            "limit": 50
-          },
           "table": "ae_projects",
           "timeColumn": "ae_create_time",
           "timeColumnType": "timestamp",
@@ -1041,14 +865,13 @@
           ]
         }
       ],
+      "timeFrom": null,
+      "timeShift": null,
       "title": "Median Time to Restore Service",
       "type": "barchart"
     },
     {
-      "datasource": {
-        "type": "mysql",
-        "uid": "aWmAxgs4k"
-      },
+      "datasource": "mysql",
       "description": "",
       "fieldConfig": {
         "defaults": {
@@ -1056,8 +879,6 @@
             "mode": "palette-classic"
           },
           "custom": {
-            "axisCenteredZero": false,
-            "axisColorMode": "text",
             "axisLabel": "",
             "axisPlacement": "auto",
             "axisSoftMin": 0,
@@ -1068,13 +889,7 @@
               "tooltip": false,
               "viz": false
             },
-            "lineWidth": 1,
-            "scaleDistribution": {
-              "type": "linear"
-            },
-            "thresholdsStyle": {
-              "mode": "off"
-            }
+            "lineWidth": 1
           },
           "mappings": [],
           "max": 1,
@@ -1116,35 +931,23 @@
       },
       "id": 5,
       "options": {
-        "barRadius": 0,
         "barWidth": 0.6,
-        "fullHighlight": false,
         "groupWidth": 0.7,
         "legend": {
           "calcs": [],
           "displayMode": "list",
-          "placement": "bottom",
-          "showLegend": true
+          "placement": "bottom"
         },
         "orientation": "auto",
         "showValue": "auto",
-        "stacking": "none",
         "text": {},
         "tooltip": {
-          "mode": "single",
-          "sort": "none"
-        },
-        "xTickLabelRotation": 0,
-        "xTickLabelSpacing": 0
+          "mode": "single"
+        }
       },
       "pluginVersion": "8.0.6",
       "targets": [
         {
-          "datasource": {
-            "type": "mysql",
-            "uid": "aWmAxgs4k"
-          },
-          "editorMode": "code",
           "format": "table",
           "group": [],
           "hide": false,
@@ -1162,23 +965,6 @@
               }
             ]
           ],
-          "sql": {
-            "columns": [
-              {
-                "parameters": [],
-                "type": "function"
-              }
-            ],
-            "groupBy": [
-              {
-                "property": {
-                  "type": "string"
-                },
-                "type": "groupBy"
-              }
-            ],
-            "limit": 50
-          },
           "table": "ae_projects",
           "timeColumn": "ae_create_time",
           "timeColumnType": "timestamp",
@@ -1191,17 +977,20 @@
           ]
         }
       ],
+      "timeFrom": null,
+      "timeShift": null,
       "title": "Change Failure Rate",
       "type": "barchart"
     }
   ],
   "refresh": "",
-  "schemaVersion": 38,
+  "schemaVersion": 30,
   "style": "dark",
   "tags": [],
   "templating": {
     "list": [
       {
+        "allValue": null,
         "current": {
           "selected": true,
           "text": [
@@ -1211,11 +1000,10 @@
             "$__all"
           ]
         },
-        "datasource": {
-          "type": "mysql",
-          "uid": "aWmAxgs4k"
-        },
+        "datasource": "mysql",
         "definition": "select distinct name from projects",
+        "description": null,
+        "error": null,
         "hide": 0,
         "includeAll": true,
         "label": "Project",
@@ -1239,6 +1027,5 @@
   "timezone": "",
   "title": "DORA",
   "uid": "qNo8_0M4z",
-  "version": 17,
-  "weekStart": ""
+  "version": 2
 }
