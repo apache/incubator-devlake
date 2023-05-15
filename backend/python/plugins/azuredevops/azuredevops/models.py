@@ -60,7 +60,7 @@ class GitPullRequest(ToolModel, table=True):
     closed_date: Optional[datetime.datetime]
     source_commit_sha: str = Field(source='/lastMergeSourceCommit/commitId')
     target_commit_sha: str = Field(source='/lastMergeTargetCommit/commitId')
-    merge_commit_sha: str = Field(source='/lastMergeCommit/commitId')
+    merge_commit_sha: Optional[str] = Field(source='/lastMergeCommit/commitId')
     url: Optional[str]
     type: Optional[str] = Field(source='/labels/0/name') # TODO: get this off transformation rules regex
     title: Optional[str]
@@ -70,7 +70,11 @@ class GitPullRequest(ToolModel, table=True):
 
     @classmethod
     def migrate(self, session: Session):
-        session.execute(f'ALTER TABLE {self.__tablename__} MODIFY COLUMN description TEXT')
+        dialect = session.bind.dialect.name
+        if dialect == 'mysql':
+            session.execute(f'ALTER TABLE {self.__tablename__} MODIFY COLUMN description TEXT')
+        elif dialect == 'postgresql':
+            session.execute(f'ALTER TABLE {self.__tablename__} ALTER COLUMN description TYPE TEXT')
 
 
 class GitPullRequestCommit(ToolModel, table=True):
