@@ -49,18 +49,19 @@ instance.interceptors.response.use(
             data: {
               refreshToken: refreshToken,
             },
-          })
-            .then((resp) => {
+          }).then(
+            (resp) => {
               localStorage.setItem('accessToken', resp.authenticationResult.accessToken);
               refreshingToken = null;
               return resp;
-            })
-            .catch((err) => {
+            },
+            (err) => {
               refreshingToken = null;
               toast.error('Please login first');
               history.push('/login');
               return Promise.reject(err);
-            });
+            },
+          );
         return refreshingToken.then(() => {
           const originalRequest = error.config;
           originalRequest._retry = true;
