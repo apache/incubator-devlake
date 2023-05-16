@@ -34,8 +34,6 @@ export const CrossDomain = ({ transformation, setTransformation }: Props) => {
   const [repoTips, setRepoTips] = useState(false);
   const [repoLinks, setRepoLinks] = useState([]);
 
-  // console.log(transformation);
-
   useEffect(() => {
     if (transformation.remotelinkCommitShaPattern) {
       setRadio('commitSha');
