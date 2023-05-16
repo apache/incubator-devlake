@@ -48,7 +48,7 @@ func CalculateCommitsDiff(taskCtx plugin.SubTaskContext) errors.Error {
 
 		count, err := db.Count(
 			dal.Select("*"),
-			dal.From("finished_commits_diffs"),
+			dal.From("_tool_refdiff_finished_commits_diffs"),
 			dal.Where("new_commit_sha = ? and old_commit_sha = ?", pair[0], pair[1]))
 		if err != nil {
 			return err

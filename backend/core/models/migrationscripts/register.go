@@ -82,5 +82,6 @@ func All() []plugin.MigrationScript {
 		new(addCommitAuthoredDate),
 		new(addOriginalStatusToPullRequest20230508),
 		new(addCalendarMonths),
+		new(renameFinishedCommitsDiffs),
 	}
 }
