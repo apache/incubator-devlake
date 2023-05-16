@@ -37,7 +37,7 @@ func (*renameFinishedCommitsDiffs) Up(basicRes context.BasicRes) errors.Error {
 }
 
 func (*renameFinishedCommitsDiffs) Version() uint64 {
-	return 20230516000001
+	return 20230516000002
 }
 
 func (*renameFinishedCommitsDiffs) Name() string {
