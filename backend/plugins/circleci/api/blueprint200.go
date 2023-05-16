@@ -19,6 +19,7 @@ package api
 
 import (
 	"fmt"
+	"github.com/apache/incubator-devlake/core/models/domainlayer/devops"
 	"github.com/apache/incubator-devlake/plugins/circleci/models"
 	"time"
 
@@ -26,7 +27,6 @@ import (
 	"github.com/apache/incubator-devlake/core/errors"
 	"github.com/apache/incubator-devlake/core/models/domainlayer"
 	"github.com/apache/incubator-devlake/core/models/domainlayer/didgen"
-	"github.com/apache/incubator-devlake/core/models/domainlayer/ticket"
 	"github.com/apache/incubator-devlake/core/plugin"
 	"github.com/apache/incubator-devlake/core/utils"
 	helper "github.com/apache/incubator-devlake/helpers/pluginhelper/api"
@@ -93,8 +93,8 @@ func makeScopesV200(bpScopes []*plugin.BlueprintScopeV200, connectionId uint64) 
 			return nil, errors.Default.Wrap(err, fmt.Sprintf("fail to find project %s", bpScope.Id))
 		}
 		// add board to scopes
-		if utils.StringsContains(bpScope.Entities, plugin.DOMAIN_TYPE_TICKET) {
-			domainBoard := &ticket.Board{
+		if utils.StringsContains(bpScope.Entities, plugin.DOMAIN_TYPE_CICD) {
+			domainBoard := &devops.CicdScope{
 				DomainEntity: domainlayer.DomainEntity{
 					Id: didgen.NewDomainIdGenerator(&models.CircleciProject{}).Generate(project.ConnectionId, project.Id),
 				},
