@@ -18,7 +18,7 @@ from enum import Enum
 from typing import Optional
 import re
 
-from sqlmodel import Session
+from sqlmodel import Session, Column, Text
 
 from pydevlake import Field, Connection, TransformationRule
 from pydevlake.model import ToolModel, ToolScope
@@ -52,7 +52,7 @@ class GitPullRequest(ToolModel, table=True):
         Completed = "completed"
 
     pull_request_id: int = Field(primary_key=True)
-    description: Optional[str]
+    description: Optional[str] = Field(sa_column=Column(Text))
     status: Status
     created_by_id: str = Field(source='/createdBy/id')
     created_by_name: str = Field(source='/createdBy/displayName')
@@ -60,13 +60,21 @@ class GitPullRequest(ToolModel, table=True):
     closed_date: Optional[datetime.datetime]
     source_commit_sha: str = Field(source='/lastMergeSourceCommit/commitId')
     target_commit_sha: str = Field(source='/lastMergeTargetCommit/commitId')
-    merge_commit_sha: str = Field(source='/lastMergeCommit/commitId')
+    merge_commit_sha: Optional[str] = Field(source='/lastMergeCommit/commitId')
     url: Optional[str]
     type: Optional[str] = Field(source='/labels/0/name') # TODO: get this off transformation rules regex
     title: Optional[str]
     target_ref_name: Optional[str]
     source_ref_name: Optional[str]
     fork_repo_id: Optional[str] = Field(source='/forkSource/repository/id')
+
+    @classmethod
+    def migrate(self, session: Session):
+        dialect = session.bind.dialect.name
+        if dialect == 'mysql':
+            session.execute(f'ALTER TABLE {self.__tablename__} MODIFY COLUMN description TEXT')
+        elif dialect == 'postgresql':
+            session.execute(f'ALTER TABLE {self.__tablename__} ALTER COLUMN description TYPE TEXT')
 
 
 class GitPullRequestCommit(ToolModel, table=True):
