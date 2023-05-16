@@ -16,20 +16,43 @@
  *
  */
 
-import ReactDOM from 'react-dom';
-import { BrowserRouter } from 'react-router-dom';
+import styled from 'styled-components';
+import { Colors } from '@blueprintjs/core';
 
-import { ErrorBoundary } from '@/components';
+export const Wrapper = styled.div`
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding-top: 100px;
+  height: 100vh;
+  background-color: #f9f9fa;
+  box-sizing: border-box;
+`;
 
-import App from './App';
+export const Inner = styled.div`
+  margin: 32px auto 0;
+  width: 640px;
 
-import './index.css';
+  h2 {
+    display: flex;
+    align-items: center;
+    margin: 0;
 
-ReactDOM.render(
-  <BrowserRouter>
-    <ErrorBoundary>
-      <App />
-    </ErrorBoundary>
-  </BrowserRouter>,
-  document.getElementById('root'),
-);
+    .bp4-icon {
+      margin-right: 4px;
+    }
+  }
+
+  p {
+    margin: 16px 0;
+
+    &.warning {
+      color: ${Colors.ORANGE5};
+    }
+  }
+
+  .bp4-button-group {
+    display: flex;
+    justify-content: center;
+  }
+`;
