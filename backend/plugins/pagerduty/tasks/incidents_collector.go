@@ -73,13 +73,12 @@ func CollectIncidents(taskCtx plugin.SubTaskContext) errors.Error {
 		TimeAfter:          data.TimeAfter,
 		CollectNewRecordsByList: api.FinalizableApiCollectorListArgs{
 			PageSize: 100,
-			GetTotalPages: func(res *http.Response, args *api.ApiCollectorArgs) (int, errors.Error) {
-				paging := pagingInfo{}
-				err := api.UnmarshalResponse(res, &paging)
-				if err != nil {
-					return 0, errors.BadInput.Wrap(err, "failed to determined paging count")
+			GetNextPageCustomData: func(prevReqData *api.RequestData, prevPageResponse *http.Response) (interface{}, errors.Error) {
+				pager := prevReqData.Pager
+				if pager.Skip+pager.Size >= 10_000 { // API limit. Can't exceed this or it'll error out
+					return nil, api.ErrFinishCollect
 				}
-				return *paging.Total, nil
+				return nil, nil
 			},
 			FinalizableApiCollectorCommonArgs: api.FinalizableApiCollectorCommonArgs{
 				UrlTemplate: "incidents",
@@ -97,7 +96,8 @@ func CollectIncidents(taskCtx plugin.SubTaskContext) errors.Error {
 					} else {
 						query.Set("date_range", "all")
 					}
-					query.Set("sort_by", "created_at:desc")
+					query.Set("service_ids[]", data.Options.ServiceId)
+					query.Set("sort_by", "created_at:desc") // the newest entries will be fetched first
 					query.Set("limit", fmt.Sprintf("%d", reqData.Pager.Size))
 					query.Set("offset", fmt.Sprintf("%d", reqData.Pager.Skip))
 					query.Set("total", "true")
