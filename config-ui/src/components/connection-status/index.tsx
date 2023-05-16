@@ -19,8 +19,7 @@
 import styled from 'styled-components';
 
 import { IconButton } from '@/components';
-
-import { ConnectionStatusEnum } from './types';
+import { ConnectionStatusEnum } from '@/store';
 
 const Wrapper = styled.div`
   display: inline-flex;
