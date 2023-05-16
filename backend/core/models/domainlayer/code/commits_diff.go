@@ -45,5 +45,5 @@ type FinishedCommitsDiff struct {
 }
 
 func (FinishedCommitsDiff) TableName() string {
-	return "finished_commits_diffs"
+	return "_tool_refdiff_finished_commits_diffs"
 }

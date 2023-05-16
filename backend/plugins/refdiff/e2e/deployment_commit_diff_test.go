@@ -55,6 +55,6 @@ func TestDeploymentCommitDiffDataFlow(t *testing.T) {
 	})
 
 	dataflowTester.VerifyTableWithOptions(&code.FinishedCommitsDiff{}, e2ehelper.TableOptions{
-		CSVRelPath: "./deployment_commit_diff/finished_commits_diffs.csv",
+		CSVRelPath: "./deployment_commit_diff/_tool_refdiff_finished_commits_diffs.csv",
 	})
 }

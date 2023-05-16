@@ -60,7 +60,7 @@ func CalculateDeploymentCommitsDiff(taskCtx plugin.SubTaskContext) errors.Error 
 			pm.project_name = ?
 			AND NOT EXISTS (
 				SELECT 1
-				FROM finished_commits_diffs fcd
+				FROM _tool_refdiff_finished_commits_diffs fcd
 				WHERE fcd.new_commit_sha = dc.commit_sha AND fcd.old_commit_sha = p.commit_sha
 			)
 			`,

@@ -113,13 +113,6 @@ class RefCommit(NoPKModel, table=True):
     new_commit_sha: str
     old_commit_sha: str
 
-
-class FinishedCommitsDiff(NoPKModel, table=True):
-    __tablename__ = 'finished_commits_diffs'
-    new_commit_sha: str = Field(primary_key=True)
-    old_commit_sha: str = Field(primary_key=True)
-
-
 class Component(NoPKModel, table=True):
     __tablename__ = 'components'
     repo_id: str
