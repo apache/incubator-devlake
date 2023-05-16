@@ -16,23 +16,8 @@
  *
  */
 
-import ReactDOM from 'react-dom';
-import { BrowserRouter } from 'react-router-dom';
+import { useContext } from 'react';
 
-import { ErrorBoundary } from '@/components';
-import { TipsContextProvider } from '@/store';
+import { TipsContext } from '@/store';
 
-import App from './App';
-
-import './index.css';
-
-ReactDOM.render(
-  <BrowserRouter>
-    <ErrorBoundary>
-      <TipsContextProvider>
-        <App />
-      </TipsContextProvider>
-    </ErrorBoundary>
-  </BrowserRouter>,
-  document.getElementById('root'),
-);
+export const useTips = () => useContext(TipsContext);
