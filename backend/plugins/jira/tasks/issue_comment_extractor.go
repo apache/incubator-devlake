@@ -19,6 +19,7 @@ package tasks
 
 import (
 	"encoding/json"
+
 	"github.com/apache/incubator-devlake/core/errors"
 	"github.com/apache/incubator-devlake/core/plugin"
 	"github.com/apache/incubator-devlake/helpers/pluginhelper/api"
@@ -29,7 +30,7 @@ import (
 var _ plugin.SubTaskEntryPoint = ExtractIssueComments
 
 var ExtractIssueCommentsMeta = plugin.SubTaskMeta{
-	Name:             "extractIssueChangelogs",
+	Name:             "extractIssueComments",
 	EntryPoint:       ExtractIssueComments,
 	EnabledByDefault: false,
 	Description:      "extract Jira Issue comments",
