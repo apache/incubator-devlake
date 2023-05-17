@@ -130,6 +130,7 @@ func TestCommentDataFlow(t *testing.T) {
 			"body",
 			"account_id",
 			"created_date",
+			"updated_date",
 			"_raw_data_params",
 			"_raw_data_table",
 			"_raw_data_id",

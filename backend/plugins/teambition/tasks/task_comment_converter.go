@@ -19,6 +19,8 @@ package tasks
 
 import (
 	"encoding/json"
+	"reflect"
+
 	"github.com/apache/incubator-devlake/core/dal"
 	"github.com/apache/incubator-devlake/core/errors"
 	"github.com/apache/incubator-devlake/core/models/domainlayer"
@@ -26,7 +28,6 @@ import (
 	"github.com/apache/incubator-devlake/core/plugin"
 	helper "github.com/apache/incubator-devlake/helpers/pluginhelper/api"
 	"github.com/apache/incubator-devlake/plugins/teambition/models"
-	"reflect"
 )
 
 var ConvertTaskCommentsMeta = plugin.SubTaskMeta{
@@ -66,6 +67,10 @@ func ConvertTaskComments(taskCtx plugin.SubTaskContext) errors.Error {
 				AccountId:   getAccountIdGen().Generate(userTool.ConnectionId, userTool.CreatorId),
 				CreatedDate: userTool.CreateTime.ToTime(),
 			}
+			if !userTool.UpdateTime.ToTime().IsZero() {
+				issueComment.UpdatedDate = userTool.UpdateTime.ToNullableTime()
+			}
+
 			comment := &models.TeambitionTaskComment{}
 			err := json.Unmarshal([]byte(userTool.Content), comment)
 			if err != nil {
