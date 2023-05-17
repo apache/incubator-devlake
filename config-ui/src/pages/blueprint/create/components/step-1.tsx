@@ -21,8 +21,9 @@ import { Link } from 'react-router-dom';
 import { InputGroup, Icon, Button, Intent } from '@blueprintjs/core';
 
 import { Card, Divider, MultiSelector, Loading } from '@/components';
+import { useConnections } from '@/hooks';
 import { getPluginConfig } from '@/plugins';
-import { useConnection, ConnectionStatusEnum } from '@/store';
+import { ConnectionStatusEnum } from '@/store';
 
 import { ModeEnum, FromEnum } from '../../types';
 import { AdvancedEditor } from '../../components';
@@ -37,7 +38,7 @@ interface Props {
 }
 
 export const Step1 = ({ from }: Props) => {
-  const { connections, onTest } = useConnection();
+  const { connections, onTest } = useConnections({ filterBeta: true, filterPlugin: ['webhook'] });
   const { mode, name, rawPlan, onChangeMode, onChangeName, onChangeConnections, onChangeRawPlan, onNext, ...props } =
     useCreate();
 

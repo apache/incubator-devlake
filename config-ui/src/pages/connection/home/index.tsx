@@ -20,9 +20,10 @@ import { useState, useMemo } from 'react';
 import { Tag, Intent } from '@blueprintjs/core';
 
 import { Dialog } from '@/components';
+import { useConnections } from '@/hooks';
 import type { PluginConfigType } from '@/plugins';
-import { PluginConfig, PluginType, ConnectionForm, ConnectionList } from '@/plugins';
-import { ConnectionContextProvider, useConnection } from '@/store';
+import { PluginConfig, PluginType, ConnectionList, ConnectionForm } from '@/plugins';
+import { ConnectionContextProvider } from '@/store';
 
 import * as S from './styled';
 
@@ -30,7 +31,7 @@ export const ConnectionHome = () => {
   const [type, setType] = useState<'list' | 'form'>();
   const [pluginConfig, setPluginConfig] = useState<PluginConfigType>();
 
-  const { connections, onRefresh } = useConnection();
+  const { connections, onRefresh } = useConnections();
 
   const [plugins, webhook] = useMemo(
     () => [

@@ -16,32 +16,31 @@
  *
  */
 
-import React, { useState } from 'react';
+import { useState } from 'react';
 import { ButtonGroup, Button, Intent } from '@blueprintjs/core';
 
 import { Table, ColumnType, ExternalLink, IconButton } from '@/components';
+import { useConnections } from '@/hooks';
 
 import type { WebhookItemType } from '../types';
 import { WebhookCreateDialog } from '../create-dialog';
 import { WebhookDeleteDialog } from '../delete-dialog';
 import { WebhookViewOrEditDialog } from '../view-or-edit-dialog';
 
-import type { UseConnectionProps } from './use-connection';
-import { useConnection } from './use-connection';
 import * as S from './styled';
 
 type Type = 'add' | 'edit' | 'show' | 'delete';
 
-interface Props extends UseConnectionProps {
+interface Props {
   onCreateAfter?: (id: ID) => void;
   onDeleteAfter?: (id: ID) => void;
 }
 
-export const WebHookConnection = ({ onCreateAfter, onDeleteAfter, ...props }: Props) => {
+export const WebHookConnection = ({ onCreateAfter, onDeleteAfter }: Props) => {
   const [type, setType] = useState<Type>();
   const [record, setRecord] = useState<WebhookItemType>();
 
-  const { loading, connections, onRefresh } = useConnection({ ...props });
+  const { connections, onRefresh } = useConnections({ plugin: 'webhook' });
 
   const handleHideDialog = () => {
     setType(undefined);
@@ -85,7 +84,6 @@ export const WebHookConnection = ({ onCreateAfter, onDeleteAfter, ...props }: Pr
         <Button icon="plus" text="Add a Webhook" intent={Intent.PRIMARY} onClick={() => handleShowDialog('add')} />
       </ButtonGroup>
       <Table
-        loading={loading}
         columns={columns}
         dataSource={connections}
         noData={{
@@ -126,7 +124,7 @@ export const WebHookConnection = ({ onCreateAfter, onDeleteAfter, ...props }: Pr
           isOpen
           initialValues={record}
           onCancel={handleHideDialog}
-          onSubmitAfter={onRefresh}
+          onSubmitAfter={() => onRefresh()}
         />
       )}
     </S.Wrapper>

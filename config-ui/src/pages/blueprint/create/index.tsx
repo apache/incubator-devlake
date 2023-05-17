@@ -20,7 +20,6 @@ import { useMemo } from 'react';
 import { useParams } from 'react-router-dom';
 
 import { PageHeader, Workflow } from '@/components';
-import { ConnectionContextProvider } from '@/store';
 
 import { ModeEnum, FromEnum } from '../types';
 
@@ -53,27 +52,25 @@ export const BlueprintCreatePage = ({ from }: Props) => {
   );
 
   return (
-    <ConnectionContextProvider filterBeta filterPlugin={['webhook']}>
-      <ContextProvider from={from} projectName={pname}>
-        <Context.Consumer>
-          {({ step, mode }) => (
-            <PageHeader breadcrumbs={breadcrumbs}>
-              <Workflow
-                steps={
-                  mode === ModeEnum.normal
-                    ? ['Add Data Connections', 'Set Data Scope', 'Add Transformation (Optional)', 'Set Sync Policy']
-                    : ['Create Advanced Configuration', 'Set Sync Policy']
-                }
-                activeStep={step}
-              />
-              {step === 1 && <Step1 from={from} />}
-              {mode === ModeEnum.normal && step === 2 && <Step2 />}
-              {step === 3 && <Step3 />}
-              {((mode === ModeEnum.normal && step === 4) || (mode === ModeEnum.advanced && step === 2)) && <Step4 />}
-            </PageHeader>
-          )}
-        </Context.Consumer>
-      </ContextProvider>
-    </ConnectionContextProvider>
+    <ContextProvider from={from} projectName={pname}>
+      <Context.Consumer>
+        {({ step, mode }) => (
+          <PageHeader breadcrumbs={breadcrumbs}>
+            <Workflow
+              steps={
+                mode === ModeEnum.normal
+                  ? ['Add Data Connections', 'Set Data Scope', 'Add Transformation (Optional)', 'Set Sync Policy']
+                  : ['Create Advanced Configuration', 'Set Sync Policy']
+              }
+              activeStep={step}
+            />
+            {step === 1 && <Step1 from={from} />}
+            {mode === ModeEnum.normal && step === 2 && <Step2 />}
+            {step === 3 && <Step3 />}
+            {((mode === ModeEnum.normal && step === 4) || (mode === ModeEnum.advanced && step === 2)) && <Step4 />}
+          </PageHeader>
+        )}
+      </Context.Consumer>
+    </ContextProvider>
   );
 };

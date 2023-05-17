@@ -19,6 +19,7 @@
 import { useMemo } from 'react';
 import { Link } from 'react-router-dom';
 
+import { useConnections } from '@/hooks';
 import { getPluginConfig } from '@/plugins';
 
 import type { BlueprintType } from '../../../types';
@@ -31,16 +32,21 @@ interface Props {
 }
 
 export const ConnectionList = ({ path, blueprint }: Props) => {
-  const connections = useMemo(
+  const { onGet } = useConnections();
+
+  const list = useMemo(
     () =>
       blueprint.settings?.connections
         .filter((cs) => cs.plugin !== 'webhook')
         .map((cs: any) => {
+          const unique = `${cs.plugin}-${cs.connectionId}`;
           const plugin = getPluginConfig(cs.plugin);
+          const connection = onGet(unique);
+
           return {
-            unique: `${cs.plugin}-${cs.connectionId}`,
+            unique,
             icon: plugin.icon,
-            name: plugin.name,
+            name: connection.name,
             scope: cs.scopes,
           };
         })
@@ -50,7 +56,7 @@ export const ConnectionList = ({ path, blueprint }: Props) => {
 
   return (
     <S.List>
-      {connections.map((cs) => (
+      {list.map((cs) => (
         <S.Item key={cs.unique}>
           <div className="title">
             <img src={cs.icon} alt="" />
