@@ -20,6 +20,29 @@
   "links": [],
   "panels": [
     {
+      "datasource": null,
+      "gridPos": {
+        "h": 6,
+        "w": 24,
+        "x": 0,
+        "y": 0
+      },
+      "id": 16,
+      "options": {
+        "content": "- See [how to config](https://devlake.apache.org/docs/DORA) this dashboard\n- Data Sources Required: \n  - `Deployments` from Jenkins, GitLab CI, GitHub Action, webhook, etc. \n  - `Pull Requests` from GitHub PRs, GitLab MRs, BitBucket PRs, Azure DevOps PRs, etc.\n  - `Incidents` from Jira issues, GitHub issues, TAPD issues, PagerDuty Incidents, etc. \n- Transformation Required: Define `deployments` and `incidents` in [data transformations](https://devlake.apache.org/docs/Configuration/Tutorial#step-3---add-transformations-optional) while configuring the blueprint of a project.\n- You can validate/debug this dashboard with the [DORA validation dashboard](/grafana/d/KGkUnV-Vz/dora-dashboard-validation)",
+        "mode": "markdown"
+      },
+      "pluginVersion": "8.0.6",
+      "targets": [
+        {
+          "queryType": "randomWalk",
+          "refId": "A"
+        }
+      ],
+      "title": "Dashboard Introduction",
+      "type": "text"
+    },
+    {
       "datasource": "mysql",
       "description": "",
       "fieldConfig": {
@@ -128,7 +151,7 @@
         "h": 6,
         "w": 24,
         "x": 0,
-        "y": 0
+        "y": 6
       },
       "id": 8,
       "options": {
@@ -216,7 +239,7 @@
         "h": 5,
         "w": 6,
         "x": 0,
-        "y": 6
+        "y": 12
       },
       "id": 11,
       "options": {
@@ -315,7 +338,7 @@
         "h": 5,
         "w": 6,
         "x": 6,
-        "y": 6
+        "y": 12
       },
       "id": 12,
       "options": {
@@ -418,7 +441,7 @@
         "h": 5,
         "w": 6,
         "x": 12,
-        "y": 6
+        "y": 12
       },
       "id": 13,
       "options": {
@@ -517,7 +540,7 @@
         "h": 5,
         "w": 6,
         "x": 18,
-        "y": 6
+        "y": 12
       },
       "id": 14,
       "options": {
@@ -611,7 +634,7 @@
         "h": 8,
         "w": 12,
         "x": 0,
-        "y": 11
+        "y": 17
       },
       "id": 2,
       "options": {
@@ -701,7 +724,7 @@
         "h": 8,
         "w": 12,
         "x": 12,
-        "y": 11
+        "y": 17
       },
       "id": 6,
       "options": {
@@ -815,7 +838,7 @@
         "h": 8,
         "w": 12,
         "x": 0,
-        "y": 19
+        "y": 25
       },
       "id": 9,
       "options": {
@@ -927,7 +950,7 @@
         "h": 8,
         "w": 12,
         "x": 12,
-        "y": 19
+        "y": 25
       },
       "id": 5,
       "options": {
@@ -940,7 +963,9 @@
         },
         "orientation": "auto",
         "showValue": "auto",
-        "text": {},
+        "text": {
+          "valueSize": 12
+        },
         "tooltip": {
           "mode": "single"
         }
