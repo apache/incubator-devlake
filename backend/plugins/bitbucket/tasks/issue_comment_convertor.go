@@ -70,7 +70,7 @@ func ConvertIssueComments(taskCtx plugin.SubTaskContext) errors.Error {
 				},
 				IssueId:     issueIdGen.Generate(data.Options.ConnectionId, data.Options.FullName, bitbucketIssueComment.IssueId),
 				AccountId:   accountIdGen.Generate(data.Options.ConnectionId, bitbucketIssueComment.AuthorId),
-				CreatedDate: bitbucketIssueComment.CreatedAt,
+				CreatedDate: bitbucketIssueComment.BitbucketCreatedAt,
 				Body:        bitbucketIssueComment.Body,
 			}
 			if bitbucketIssueComment.BitbucketUpdatedAt != nil {
