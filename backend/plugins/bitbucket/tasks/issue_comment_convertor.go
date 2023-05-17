@@ -41,13 +41,13 @@ var ConvertIssueCommentsMeta = plugin.SubTaskMeta{
 func ConvertIssueComments(taskCtx plugin.SubTaskContext) errors.Error {
 	rawDataSubTaskArgs, data := CreateRawDataSubTaskArgs(taskCtx, RAW_ISSUE_COMMENTS_TABLE)
 	db := taskCtx.GetDal()
-	repoId := data.Options.FullName
+	//repoId := data.Options.FullName
 
 	cursor, err := db.Cursor(
 		dal.From(&models.BitbucketIssueComment{}),
 		dal.Join("left join _tool_bitbucket_issues "+
 			"on _tool_bitbucket_issues.bitbucket_id = _tool_bitbucket_issue_comments.issue_id"),
-		dal.Where("repo_id = ? and _tool_bitbucket_issues.connection_id = ?", repoId, data.Options.ConnectionId),
+		//dal.Where("repo_id = ? and _tool_bitbucket_issues.connection_id = ?", repoId, data.Options.ConnectionId),
 	)
 	if err != nil {
 		return err
