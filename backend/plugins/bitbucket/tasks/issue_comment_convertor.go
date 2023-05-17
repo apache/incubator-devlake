@@ -71,10 +71,8 @@ func ConvertIssueComments(taskCtx plugin.SubTaskContext) errors.Error {
 				IssueId:     issueIdGen.Generate(data.Options.ConnectionId, data.Options.FullName, bitbucketIssueComment.IssueId),
 				AccountId:   accountIdGen.Generate(data.Options.ConnectionId, bitbucketIssueComment.AuthorId),
 				CreatedDate: bitbucketIssueComment.BitbucketCreatedAt,
+				UpdatedDate: bitbucketIssueComment.BitbucketUpdatedAt,
 				Body:        bitbucketIssueComment.Body,
-			}
-			if bitbucketIssueComment.BitbucketUpdatedAt != nil {
-				domainIssueComment.UpdatedDate = bitbucketIssueComment.BitbucketUpdatedAt
 			}
 			return []interface{}{
 				domainIssueComment,

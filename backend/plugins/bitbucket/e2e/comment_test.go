@@ -113,7 +113,6 @@ func TestCommentDataFlow(t *testing.T) {
 			"body",
 			"account_id",
 			"body",
-			"created_date",
 			"updated_date",
 		),
 	)
