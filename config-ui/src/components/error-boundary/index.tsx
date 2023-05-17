@@ -17,15 +17,16 @@
  */
 
 import React from 'react';
+import type { RouteComponentProps } from 'react-router';
+import { withRouter } from 'react-router-dom';
+import { Icon, ButtonGroup, Button, Intent, Colors } from '@blueprintjs/core';
 
-import { Logo } from '@/components';
-
-import { Error } from './types';
-import { Default, BPUpgrade } from './components';
+import { Logo } from '../logo';
+import { Card } from '../card';
 
 import * as S from './styled';
 
-type Props = {
+type Props = RouteComponentProps & {
   children: React.ReactNode;
 };
 
@@ -34,7 +35,7 @@ type State = {
   error?: any;
 };
 
-export class ErrorBoundary extends React.Component<Props, State> {
+class ErrorBoundary extends React.Component<Props, State> {
   constructor(props: Props) {
     super(props);
     this.state = { hasError: false };
@@ -56,6 +57,7 @@ export class ErrorBoundary extends React.Component<Props, State> {
 
   render() {
     const { hasError, error } = this.state;
+    const { history } = this.props;
 
     if (!hasError) {
       return this.props.children;
@@ -65,10 +67,30 @@ export class ErrorBoundary extends React.Component<Props, State> {
       <S.Wrapper>
         <Logo />
         <S.Inner>
-          {error === Error.BP_NEED_TO_UPGRADE && <BPUpgrade onResetError={this.handleResetError} />}
-          {!Object.keys(Error).includes(error) && <Default error={error} onResetError={this.handleResetError} />}
+          <Card>
+            <h2>
+              <Icon icon="error" color={Colors.RED5} size={20} />
+              <span>{error?.toString() || 'Unknown Error'}</span>
+            </h2>
+            <p>
+              Please try again, if the problem persists include the above error message when filing a bug report on{' '}
+              <strong>GitHub</strong>. You can also message us on <strong>Slack</strong> to engage with community
+              members for solutions to common issues.
+            </p>
+            <ButtonGroup>
+              <Button text="Continue" intent={Intent.PRIMARY} onClick={() => history.push('/')} />
+              <Button
+                text="Visit GitHub"
+                onClick={() =>
+                  window.open('https://github.com/apache/incubator-devlake', '_blank', 'noopener,noreferrer')
+                }
+              />
+            </ButtonGroup>
+          </Card>
         </S.Inner>
       </S.Wrapper>
     );
   }
 }
+
+export default withRouter(ErrorBoundary);

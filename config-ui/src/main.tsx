@@ -19,7 +19,7 @@
 import ReactDOM from 'react-dom';
 import { BrowserRouter } from 'react-router-dom';
 
-import { ErrorBoundary } from '@/error';
+import { ErrorBoundary } from '@/components';
 
 import App from './App';
 
