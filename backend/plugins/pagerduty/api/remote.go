@@ -302,7 +302,7 @@ func DecodeFromPageToken(pageToken string) (*PageData, errors.Error) {
 
 func GetQueryFromPageData(pageData *PageData) (url.Values, errors.Error) {
 	query := url.Values{}
-	query.Set("offset", fmt.Sprintf("%v", pageData.Page))
+	query.Set("offset", fmt.Sprintf("%v", pageData.Page*pageData.PerPage))
 	query.Set("limit", fmt.Sprintf("%v", pageData.PerPage))
 	return query, nil
 }
