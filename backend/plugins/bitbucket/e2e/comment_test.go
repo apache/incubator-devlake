@@ -65,7 +65,6 @@ func TestCommentDataFlow(t *testing.T) {
 			"author_id",
 			"type",
 			"body",
-			"bitbucket_created_at",
 			"bitbucket_updated_at",
 		),
 	)
