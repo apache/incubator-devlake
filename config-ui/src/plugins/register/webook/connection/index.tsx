@@ -32,11 +32,12 @@ import * as S from './styled';
 type Type = 'add' | 'edit' | 'show' | 'delete';
 
 interface Props {
+  filterIds?: ID[];
   onCreateAfter?: (id: ID) => void;
   onDeleteAfter?: (id: ID) => void;
 }
 
-export const WebHookConnection = ({ onCreateAfter, onDeleteAfter }: Props) => {
+export const WebHookConnection = ({ filterIds, onCreateAfter, onDeleteAfter }: Props) => {
   const [type, setType] = useState<Type>();
   const [record, setRecord] = useState<WebhookItemType>();
 
@@ -85,7 +86,7 @@ export const WebHookConnection = ({ onCreateAfter, onDeleteAfter }: Props) => {
       </ButtonGroup>
       <Table
         columns={columns}
-        dataSource={connections}
+        dataSource={connections.filter((cs) => (filterIds ? filterIds.includes(cs.id) : true))}
         noData={{
           text: (
             <>

@@ -121,7 +121,7 @@ export const TransformationSelect = ({
             rowSelection={{
               rowKey: 'id',
               type: 'radio',
-              selectedRowKeys: selectedId ? [selectedId] : [],
+              selectedRowKeys: selectedId ? [`${selectedId}`] : [],
               onChange: (selectedRowKeys) => setSelectedId(selectedRowKeys[0]),
             }}
             noShadow
