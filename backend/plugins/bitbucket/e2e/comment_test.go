@@ -64,6 +64,9 @@ func TestCommentDataFlow(t *testing.T) {
 			"author_name",
 			"author_id",
 			"type",
+			"body",
+			"bitbucket_created_at",
+			"bitbucket_updated_at",
 		),
 	)
 	dataflowTester.VerifyTable(
@@ -109,6 +112,9 @@ func TestCommentDataFlow(t *testing.T) {
 			"issue_id",
 			"body",
 			"account_id",
+			"body",
+			"created_date",
+			"updated_date",
 		),
 	)
 

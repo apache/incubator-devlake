@@ -15,23 +15,36 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-package ticket
+package migrationscripts
 
 import (
 	"time"
 
-	"github.com/apache/incubator-devlake/core/models/domainlayer"
+	"github.com/apache/incubator-devlake/core/context"
+	"github.com/apache/incubator-devlake/core/errors"
+	"github.com/apache/incubator-devlake/core/plugin"
 )
 
-type IssueComment struct {
-	domainlayer.DomainEntity
-	IssueId     string `gorm:"index"`
-	Body        string
-	AccountId   string `gorm:"type:varchar(255)"`
-	CreatedDate time.Time
+var _ plugin.MigrationScript = (*addUpdatedDateToIssueComments)(nil)
+
+type addUpdatedDateToIssueComments struct{}
+
+type issueComments20230517 struct {
 	UpdatedDate *time.Time
 }
 
-func (IssueComment) TableName() string {
+func (issueComments20230517) TableName() string {
 	return "issue_comments"
+}
+
+func (script *addUpdatedDateToIssueComments) Up(basicRes context.BasicRes) errors.Error {
+	return basicRes.GetDal().AutoMigrate(&issueComments20230517{})
+}
+
+func (*addUpdatedDateToIssueComments) Version() uint64 {
+	return 20230517162121
+}
+
+func (*addUpdatedDateToIssueComments) Name() string {
+	return "add updated_date to issue_comments"
 }

@@ -18,6 +18,8 @@ limitations under the License.
 package tasks
 
 import (
+	"reflect"
+
 	"github.com/apache/incubator-devlake/core/dal"
 	"github.com/apache/incubator-devlake/core/errors"
 	"github.com/apache/incubator-devlake/core/models/domainlayer"
@@ -26,7 +28,6 @@ import (
 	"github.com/apache/incubator-devlake/core/plugin"
 	helper "github.com/apache/incubator-devlake/helpers/pluginhelper/api"
 	"github.com/apache/incubator-devlake/plugins/gitee/models"
-	"reflect"
 )
 
 var ConvertIssueCommentsMeta = plugin.SubTaskMeta{
@@ -70,6 +71,9 @@ func ConvertIssueComments(taskCtx plugin.SubTaskContext) errors.Error {
 				Body:        giteeIssueComment.Body,
 				AccountId:   accountIdGen.Generate(data.Options.ConnectionId, giteeIssueComment.AuthorUserId),
 				CreatedDate: giteeIssueComment.GiteeCreatedAt,
+			}
+			if !giteeIssueComment.GiteeUpdatedAt.IsZero() {
+				domainIssueComment.UpdatedDate = &giteeIssueComment.GiteeUpdatedAt
 			}
 			return []interface{}{
 				domainIssueComment,

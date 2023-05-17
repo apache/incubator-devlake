@@ -84,5 +84,6 @@ func All() []plugin.MigrationScript {
 		new(addCalendarMonths),
 		new(modifyPrLabelsAndComments),
 		new(renameFinishedCommitsDiffs),
+		new(addUpdatedDateToIssueComments),
 	}
 }
