@@ -21,7 +21,6 @@ import (
 	"github.com/apache/incubator-devlake/core/dal"
 	"github.com/apache/incubator-devlake/core/errors"
 	"github.com/apache/incubator-devlake/core/models/domainlayer"
-	"github.com/apache/incubator-devlake/core/models/domainlayer/devops"
 	"github.com/apache/incubator-devlake/core/models/domainlayer/didgen"
 	"github.com/apache/incubator-devlake/core/models/domainlayer/ticket"
 	"github.com/apache/incubator-devlake/core/plugin"
@@ -62,15 +61,7 @@ func ConvertServices(taskCtx plugin.SubTaskContext) errors.Error {
 				Name: service.Name,
 				Url:  service.Url,
 			}
-			domainCicdScope := &devops.CicdScope{
-				DomainEntity: domainlayer.DomainEntity{
-					Id: didgen.NewDomainIdGenerator(service).Generate(service.ConnectionId, service.Id),
-				},
-				Name: service.Name,
-				Url:  service.Url,
-			}
 			return []interface{}{
-				domainCicdScope,
 				domainBoard,
 			}, nil
 		},
