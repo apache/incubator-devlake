@@ -19,6 +19,8 @@ package tasks
 
 import (
 	"fmt"
+	"reflect"
+
 	"github.com/apache/incubator-devlake/core/dal"
 	"github.com/apache/incubator-devlake/core/errors"
 	"github.com/apache/incubator-devlake/core/models/domainlayer"
@@ -30,7 +32,6 @@ import (
 	"github.com/apache/incubator-devlake/core/plugin"
 	"github.com/apache/incubator-devlake/helpers/pluginhelper/api"
 	"github.com/apache/incubator-devlake/plugins/github/models"
-	"reflect"
 )
 
 const RAW_REPOSITORIES_TABLE = "github_api_repositories"
@@ -66,7 +67,7 @@ func ConvertRepo(taskCtx plugin.SubTaskContext) errors.Error {
 
 	cursor, err := db.Cursor(
 		dal.From(&models.GithubRepo{}),
-		dal.Where("github_id = ?", repoId),
+		dal.Where("github_id = ? and connection_id = ?", repoId, data.Options.ConnectionId),
 	)
 	if err != nil {
 		return err
