@@ -54,6 +54,7 @@ func (p PagerDuty) SubTaskMetas() []plugin.SubTaskMeta {
 		tasks.CollectIncidentsMeta,
 		tasks.ExtractIncidentsMeta,
 		tasks.ConvertIncidentsMeta,
+		tasks.ConvertServicesMeta,
 	}
 }
 

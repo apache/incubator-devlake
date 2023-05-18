@@ -66,6 +66,7 @@ func ConvertIncidents(taskCtx plugin.SubTaskContext) errors.Error {
 	defer cursor.Close()
 	seenIncidents := map[int]*IncidentWithUser{}
 	idGen := didgen.NewDomainIdGenerator(&models.Incident{})
+	serviceIdGen := didgen.NewDomainIdGenerator(&models.Service{})
 	converter, err := api.NewDataConverter(api.DataConverterArgs{
 		RawDataSubTaskArgs: api.RawDataSubTaskArgs{
 			Ctx: taskCtx,
@@ -107,7 +108,12 @@ func ConvertIncidents(taskCtx plugin.SubTaskContext) errors.Error {
 				AssigneeName:    user.Name,
 			}
 			seenIncidents[incident.Number] = combined
+			boardIssue := &ticket.BoardIssue{
+				BoardId: serviceIdGen.Generate(data.Options.ConnectionId, data.Options.ServiceId),
+				IssueId: domainIssue.Id,
+			}
 			return []interface{}{
+				boardIssue,
 				domainIssue,
 			}, nil
 		},
