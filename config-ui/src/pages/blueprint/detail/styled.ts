@@ -23,6 +23,10 @@ export const Wrapper = styled.div`
 `;
 
 export const ConfigurationPanel = styled.div`
+  h3 {
+    margin-bottom: 16px;
+  }
+
   .top {
     display: flex;
     align-items: flex-start;
@@ -90,6 +94,10 @@ export const ActionColumn = styled.div`
 `;
 
 export const StatusPanel = styled.div`
+  h3 {
+    margin-bottom: 16px;
+  }
+
   & > .info {
     display: flex;
     justify-content: flex-end;

@@ -16,31 +16,27 @@
  *
  */
 
-import React, { useState, useContext } from 'react';
+import React, { useState } from 'react';
 
-const TipsContext = React.createContext<{
-  text: React.ReactNode;
-  setText: React.Dispatch<React.SetStateAction<React.ReactNode>>;
+export const TipsContext = React.createContext<{
+  tips: React.ReactNode;
+  setTips: React.Dispatch<React.SetStateAction<React.ReactNode>>;
 }>({
-  text: '',
-  setText: () => {},
+  tips: '',
+  setTips: () => {},
 });
 
 export const TipsContextProvider = ({ children }: { children: React.ReactNode }) => {
-  const [text, setText] = useState<React.ReactNode>();
+  const [tips, setTips] = useState<React.ReactNode>();
 
   return (
     <TipsContext.Provider
       value={{
-        text,
-        setText,
+        tips,
+        setTips,
       }}
     >
       {children}
     </TipsContext.Provider>
   );
 };
-
-export const TipsContextConsumer = TipsContext.Consumer;
-
-export const useTips = () => useContext(TipsContext);

@@ -21,8 +21,7 @@ import { useLocation } from 'react-router-dom';
 import { Menu, MenuItem, Tag, Navbar, Intent, Alignment, Button } from '@blueprintjs/core';
 
 import { PageLoading, Logo, ExternalLink } from '@/components';
-import { useRefreshData } from '@/hooks';
-import { TipsContextProvider, TipsContextConsumer } from '@/store';
+import { useTips, useRefreshData } from '@/hooks';
 import { history } from '@/utils/history';
 
 import DashboardIcon from '@/images/icons/dashborad.svg';
@@ -42,7 +41,7 @@ interface Props {
 export const BaseLayout = ({ children }: Props) => {
   const menu = useMenu();
   const { pathname } = useLocation();
-
+  const { tips } = useTips();
   const { ready, data } = useRefreshData<{ version: string }>(() => API.getVersion(), []);
 
   const token = window.localStorage.getItem('accessToken');
@@ -72,106 +71,100 @@ export const BaseLayout = ({ children }: Props) => {
   }
 
   return (
-    <TipsContextProvider>
-      <TipsContextConsumer>
-        {({ text }) => (
-          <S.Wrapper>
-            <S.Sider>
-              <Logo />
-              <Menu className="menu">
-                {menu.map((it) => {
-                  const paths = [it.path, ...(it.children ?? []).map((cit) => cit.path)];
-                  const active = !!paths.find((path) => pathname.includes(path));
-                  return (
-                    <MenuItem
-                      key={it.key}
-                      className="menu-item"
-                      text={it.title}
-                      icon={it.icon}
-                      active={active}
-                      onClick={() => handlePushPath(it)}
-                    >
-                      {it.children?.map((cit) => (
-                        <MenuItem
-                          key={cit.key}
-                          className="sub-menu-item"
-                          text={
-                            <S.SiderMenuItem>
-                              <span>{cit.title}</span>
-                              {cit.isBeta && <Tag intent={Intent.WARNING}>beta</Tag>}
-                            </S.SiderMenuItem>
-                          }
-                          icon={cit.icon ?? <img src={cit.iconUrl} width={16} alt="" />}
-                          active={pathname.includes(cit.path)}
-                          disabled={cit.disabled}
-                          onClick={() => handlePushPath(cit)}
-                        />
-                      ))}
-                    </MenuItem>
-                  );
-                })}
-              </Menu>
-              <div className="copyright">
-                <div>Apache 2.0 License</div>
-                <div className="version">{data.version}</div>
-              </div>
-            </S.Sider>
-            <S.Main>
-              <S.Header>
-                <Navbar.Group align={Alignment.RIGHT}>
-                  <S.DashboardIcon>
-                    <ExternalLink link={getGrafanaUrl()}>
-                      <img src={DashboardIcon} alt="dashboards" />
-                      <span>Dashboards</span>
-                    </ExternalLink>
-                  </S.DashboardIcon>
-                  <Navbar.Divider />
-                  <a href="https://devlake.apache.org/docs/Configuration/Tutorial" rel="noreferrer" target="_blank">
-                    <img src={FileIcon} alt="documents" />
-                    <span>Docs</span>
-                  </a>
-                  <Navbar.Divider />
-                  <ExternalLink link="/api/swagger/index.html">
-                    <img src={APIIcon} alt="api" />
-                    <span>API</span>
-                  </ExternalLink>
-                  <Navbar.Divider />
-                  <a
-                    href="https://github.com/apache/incubator-devlake"
-                    rel="noreferrer"
-                    target="_blank"
-                    className="navIconLink"
-                  >
-                    <img src={GitHubIcon} alt="github" />
-                    <span>GitHub</span>
-                  </a>
-                  <Navbar.Divider />
-                  <a
-                    href="https://join.slack.com/t/devlake-io/shared_invite/zt-17b6vuvps-x98pqseoUagM7EAmKC82xQ"
-                    rel="noreferrer"
-                    target="_blank"
-                  >
-                    <img src={SlackIcon} alt="slack" />
-                    <span>Slack</span>
-                  </a>
-                  {token && (
-                    <>
-                      <Navbar.Divider />
-                      <Button small intent={Intent.NONE} onClick={handleSignOut}>
-                        Sign Out
-                      </Button>
-                    </>
-                  )}
-                </Navbar.Group>
-              </S.Header>
-              <S.Inner>
-                <S.Content>{children}</S.Content>
-              </S.Inner>
-              {text && <S.Tips>{text}</S.Tips>}
-            </S.Main>
-          </S.Wrapper>
-        )}
-      </TipsContextConsumer>
-    </TipsContextProvider>
+    <S.Wrapper>
+      <S.Sider>
+        <Logo />
+        <Menu className="menu">
+          {menu.map((it) => {
+            const paths = [it.path, ...(it.children ?? []).map((cit) => cit.path)];
+            const active = !!paths.find((path) => pathname.includes(path));
+            return (
+              <MenuItem
+                key={it.key}
+                className="menu-item"
+                text={it.title}
+                icon={it.icon}
+                active={active}
+                onClick={() => handlePushPath(it)}
+              >
+                {it.children?.map((cit) => (
+                  <MenuItem
+                    key={cit.key}
+                    className="sub-menu-item"
+                    text={
+                      <S.SiderMenuItem>
+                        <span>{cit.title}</span>
+                        {cit.isBeta && <Tag intent={Intent.WARNING}>beta</Tag>}
+                      </S.SiderMenuItem>
+                    }
+                    icon={cit.icon ?? <img src={cit.iconUrl} width={16} alt="" />}
+                    active={pathname.includes(cit.path)}
+                    disabled={cit.disabled}
+                    onClick={() => handlePushPath(cit)}
+                  />
+                ))}
+              </MenuItem>
+            );
+          })}
+        </Menu>
+        <div className="copyright">
+          <div>Apache 2.0 License</div>
+          <div className="version">{data.version}</div>
+        </div>
+      </S.Sider>
+      <S.Main>
+        <S.Header>
+          <Navbar.Group align={Alignment.RIGHT}>
+            <S.DashboardIcon>
+              <ExternalLink link={getGrafanaUrl()}>
+                <img src={DashboardIcon} alt="dashboards" />
+                <span>Dashboards</span>
+              </ExternalLink>
+            </S.DashboardIcon>
+            <Navbar.Divider />
+            <a href="https://devlake.apache.org/docs/Configuration/Tutorial" rel="noreferrer" target="_blank">
+              <img src={FileIcon} alt="documents" />
+              <span>Docs</span>
+            </a>
+            <Navbar.Divider />
+            <ExternalLink link="/api/swagger/index.html">
+              <img src={APIIcon} alt="api" />
+              <span>API</span>
+            </ExternalLink>
+            <Navbar.Divider />
+            <a
+              href="https://github.com/apache/incubator-devlake"
+              rel="noreferrer"
+              target="_blank"
+              className="navIconLink"
+            >
+              <img src={GitHubIcon} alt="github" />
+              <span>GitHub</span>
+            </a>
+            <Navbar.Divider />
+            <a
+              href="https://join.slack.com/t/devlake-io/shared_invite/zt-17b6vuvps-x98pqseoUagM7EAmKC82xQ"
+              rel="noreferrer"
+              target="_blank"
+            >
+              <img src={SlackIcon} alt="slack" />
+              <span>Slack</span>
+            </a>
+            {token && (
+              <>
+                <Navbar.Divider />
+                <Button small intent={Intent.NONE} onClick={handleSignOut}>
+                  Sign Out
+                </Button>
+              </>
+            )}
+          </Navbar.Group>
+        </S.Header>
+        <S.Inner>
+          <S.Content>{children}</S.Content>
+        </S.Inner>
+        {tips && <S.Tips>{tips}</S.Tips>}
+      </S.Main>
+    </S.Wrapper>
   );
 };

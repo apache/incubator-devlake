@@ -19,9 +19,8 @@
 import { Button, Intent } from '@blueprintjs/core';
 
 import { Table } from '@/components';
+import { useConnections } from '@/hooks';
 import { getPluginConfig } from '@/plugins';
-import type { ConnectionItemType } from '@/store';
-import { ConnectionContextProvider, ConnectionContextConsumer } from '@/store';
 
 import { useConnectionAdd } from '../context';
 
@@ -29,47 +28,42 @@ import * as S from './styled';
 
 export const Step1 = () => {
   const { filter, connection, onChangeConnection, onCancel, onNext } = useConnectionAdd();
+  const { connections, onGet } = useConnections({ filter, filterBeta: true, filterPlugin: ['webhook'] });
 
   return (
-    <ConnectionContextProvider filterBeta filterPlugin={['webhook']} filter={filter}>
-      <ConnectionContextConsumer>
-        {({ connections }) => (
-          <S.Wrapper>
-            <Table
-              columns={[{ title: 'Data Connection', dataIndex: 'name', key: 'name' }]}
-              dataSource={connections}
-              rowSelection={{
-                rowKey: 'unique',
-                type: 'radio',
-                selectedRowKeys: connection?.unique ? [connection?.unique] : [],
-                onChange: (selectedRowKeys) => {
-                  const unique = selectedRowKeys[0];
-                  const connection = connections.find((cs) => cs.unique === unique) as ConnectionItemType;
-                  const config = getPluginConfig(connection.plugin);
-                  onChangeConnection({
-                    unique: connection.unique,
-                    plugin: connection.plugin,
-                    connectionId: connection.id,
-                    name: connection.name,
-                    icon: connection.icon,
-                    scope: [],
-                    origin: [],
-                    transformationType: config.transformationType,
-                  });
-                },
-              }}
-            />
-            <S.Action>
-              <Button outlined intent={Intent.PRIMARY} onClick={onCancel}>
-                Cancel
-              </Button>
-              <Button intent={Intent.PRIMARY} disabled={!connection} onClick={onNext}>
-                Next Step
-              </Button>
-            </S.Action>
-          </S.Wrapper>
-        )}
-      </ConnectionContextConsumer>
-    </ConnectionContextProvider>
+    <S.Wrapper>
+      <Table
+        columns={[{ title: 'Data Connection', dataIndex: 'name', key: 'name' }]}
+        dataSource={connections}
+        rowSelection={{
+          rowKey: 'unique',
+          type: 'radio',
+          selectedRowKeys: connection?.unique ? [connection?.unique] : [],
+          onChange: (selectedRowKeys) => {
+            const unique = selectedRowKeys[0];
+            const connection = onGet(unique);
+            const config = getPluginConfig(connection.plugin);
+            onChangeConnection({
+              unique: connection.unique,
+              plugin: connection.plugin,
+              connectionId: connection.id,
+              name: connection.name,
+              icon: connection.icon,
+              scope: [],
+              origin: [],
+              transformationType: config.transformationType,
+            });
+          },
+        }}
+      />
+      <S.Action>
+        <Button outlined intent={Intent.PRIMARY} onClick={onCancel}>
+          Cancel
+        </Button>
+        <Button intent={Intent.PRIMARY} disabled={!connection} onClick={onNext}>
+          Next Step
+        </Button>
+      </S.Action>
+    </S.Wrapper>
   );
 };

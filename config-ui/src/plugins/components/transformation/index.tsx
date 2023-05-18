@@ -49,7 +49,7 @@ export const Transformation = ({
   onSubmit,
   onNext,
 }: Props) => {
-  const [selected, setSelected] = useState<Record<string, ID[]>>({});
+  const [selected, setSelected] = useState<Record<string, string[]>>({});
   const [connection, setConnection] = useState<MixConnection>();
   const [tid, setTid] = useState<ID>();
 

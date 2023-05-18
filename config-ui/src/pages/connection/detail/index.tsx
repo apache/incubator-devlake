@@ -22,10 +22,8 @@ import { Button, Icon, Intent } from '@blueprintjs/core';
 
 import { PageHeader, Dialog, IconButton, Table } from '@/components';
 import { transformEntities } from '@/config';
-import { useRefreshData } from '@/hooks';
-import { ConnectionForm, DataScopeForm2 } from '@/plugins';
-import type { ConnectionItemType } from '@/store';
-import { ConnectionContextProvider, useConnection, ConnectionStatus, useTips } from '@/store';
+import { useTips, useConnections, useRefreshData } from '@/hooks';
+import { ConnectionForm, ConnectionStatus, DataScopeForm2 } from '@/plugins';
 import { operator } from '@/utils';
 
 import * as API from './api';
@@ -42,20 +40,18 @@ const ConnectionDetail = ({ plugin, id }: Props) => {
   const [version, setVersion] = useState(1);
 
   const history = useHistory();
-  const { connections, onRefresh, onTest } = useConnection();
-  const { setText } = useTips();
+  const { onGet, onTest, onRefresh } = useConnections();
+  const { setTips } = useTips();
   const { ready, data } = useRefreshData(() => API.getDataScope(plugin, id), [version]);
 
-  const { unique, status, name, icon, entities } = connections.find(
-    (cs) => cs.unique === `${plugin}-${id}`,
-  ) as ConnectionItemType;
+  const { unique, status, name, icon, entities } = onGet(`${plugin}-${id}`);
 
   const handleHideDialog = () => {
     setType(undefined);
   };
 
   const handleShowTips = () => {
-    setText(
+    setTips(
       <div>
         <Icon icon="warning-sign" style={{ marginRight: 8 }} color="#F4BE55" />
         <span>
@@ -212,9 +208,5 @@ const ConnectionDetail = ({ plugin, id }: Props) => {
 export const ConnectionDetailPage = () => {
   const { plugin, id } = useParams<{ plugin: string; id: string }>();
 
-  return (
-    <ConnectionContextProvider plugin={plugin}>
-      <ConnectionDetail plugin={plugin} id={+id} />
-    </ConnectionContextProvider>
-  );
+  return <ConnectionDetail plugin={plugin} id={+id} />;
 };

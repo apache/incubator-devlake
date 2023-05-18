@@ -16,5 +16,8 @@
  *
  */
 
-export * from './types';
-export * from './context';
+import { useContext } from 'react';
+
+import { TipsContext } from '@/store';
+
+export const useTips = () => useContext(TipsContext);

@@ -20,7 +20,8 @@ import { Link } from 'react-router-dom';
 import { Button, Intent } from '@blueprintjs/core';
 
 import { Table } from '@/components';
-import { ConnectionStatus, useConnection } from '@/store';
+import { useConnections } from '@/hooks';
+import { ConnectionStatus } from '@/plugins';
 
 import { WebHookConnection } from '@/plugins/register/webook';
 
@@ -38,7 +39,7 @@ export const ConnectionList = ({ plugin, onCreate }: Props) => {
 };
 
 const BaseList = ({ plugin, onCreate }: Props) => {
-  const { connections, onTest } = useConnection();
+  const { connections, onTest } = useConnections();
 
   return (
     <>
