@@ -20,10 +20,10 @@ import { useState } from 'react';
 import { useParams, useHistory } from 'react-router-dom';
 import { Button, Icon, Intent } from '@blueprintjs/core';
 
-import { PageHeader, Dialog, IconButton, ConnectionStatus, Table } from '@/components';
+import { PageHeader, Dialog, IconButton, Table } from '@/components';
 import { transformEntities } from '@/config';
 import { useTips, useConnections, useRefreshData } from '@/hooks';
-import { ConnectionForm, DataScopeForm2 } from '@/plugins';
+import { ConnectionForm, ConnectionStatus, DataScopeForm2 } from '@/plugins';
 import { operator } from '@/utils';
 
 import * as API from './api';

@@ -19,7 +19,6 @@
 export * from './action';
 export * from './alert';
 export * from './card';
-export * from './connection-status';
 export * from './dialog';
 export * from './divider';
 export { default as ErrorBoundary } from './error-boundary';
