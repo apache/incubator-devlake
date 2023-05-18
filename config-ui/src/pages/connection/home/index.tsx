@@ -17,13 +17,12 @@
  */
 
 import { useState, useMemo } from 'react';
-import { Link } from 'react-router-dom';
-import { Tag, Intent, Button } from '@blueprintjs/core';
+import { Tag, Intent } from '@blueprintjs/core';
 
-import { Dialog, Table } from '@/components';
+import { Dialog } from '@/components';
 import type { PluginConfigType } from '@/plugins';
-import { PluginConfig, PluginType, ConnectionForm } from '@/plugins';
-import { ConnectionContextProvider, useConnection, ConnectionStatus } from '@/store';
+import { PluginConfig, PluginType, ConnectionForm, ConnectionList } from '@/plugins';
+import { ConnectionContextProvider, useConnection } from '@/store';
 
 import * as S from './styled';
 
@@ -31,7 +30,7 @@ export const ConnectionHome = () => {
   const [type, setType] = useState<'list' | 'form'>();
   const [pluginConfig, setPluginConfig] = useState<PluginConfigType>();
 
-  const { connections, onRefresh, onTest } = useConnection();
+  const { connections, onRefresh } = useConnection();
 
   const [plugins, webhook] = useMemo(
     () => [
@@ -61,7 +60,7 @@ export const ConnectionHome = () => {
     setPluginConfig(undefined);
   };
 
-  const handleCreateSuccess = async (unqie: string, plugin: string) => {
+  const handleCreateSuccess = async (plugin: string) => {
     onRefresh(plugin);
     setType('list');
   };
@@ -122,40 +121,7 @@ export const ConnectionHome = () => {
           footer={null}
           onCancel={handleHideDialog}
         >
-          <Table
-            noShadow
-            columns={[
-              {
-                title: 'Connection Name',
-                dataIndex: 'name',
-                key: 'name',
-              },
-              {
-                title: 'Status',
-                dataIndex: ['status', 'unique'],
-                key: 'status',
-                render: ({ status, unique }) => <ConnectionStatus status={status} unique={unique} onTest={onTest} />,
-              },
-              {
-                title: '',
-                dataIndex: ['plugin', 'id'],
-                key: 'link',
-                width: 100,
-                render: ({ plugin, id }) => <Link to={`/connections/${plugin}/${id}`}>Details</Link>,
-              },
-            ]}
-            dataSource={connections.filter((cs) => cs.plugin === pluginConfig.plugin)}
-            noData={{
-              text: 'There is no data connection yet. Please add a new connection.',
-            }}
-          />
-          <Button
-            style={{ marginTop: 16 }}
-            intent={Intent.PRIMARY}
-            icon="add"
-            text="Create a New Connection"
-            onClick={handleShowFormDialog}
-          />
+          <ConnectionList plugin={pluginConfig.plugin} onCreate={handleShowFormDialog} />
         </Dialog>
       )}
       {type === 'form' && pluginConfig && (
@@ -171,10 +137,7 @@ export const ConnectionHome = () => {
           footer={null}
           onCancel={handleHideDialog}
         >
-          <ConnectionForm
-            plugin={pluginConfig.plugin}
-            onSuccess={(unique) => handleCreateSuccess(unique, pluginConfig.plugin)}
-          />
+          <ConnectionForm plugin={pluginConfig.plugin} onSuccess={() => handleCreateSuccess(pluginConfig.plugin)} />
         </Dialog>
       )}
     </S.Wrapper>

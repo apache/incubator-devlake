@@ -17,6 +17,7 @@
  */
 
 export * from './connection-form';
+export * from './connection-list';
 export * from './data-scope';
 export * from './data-scope-form';
 export * from './data-scope-form-2';
