@@ -788,14 +788,14 @@
     {
       "datasource": null,
       "gridPos": {
-        "h": 4,
+        "h": 7,
         "w": 24,
         "x": 0,
         "y": 27
       },
-      "id": 65,
+      "id": 72,
       "options": {
-        "content": "- See the definition and calculation logic of [Median Lead Time for Changes](https://devlake.apache.org/docs/Metrics/LeadTimeForChanges)\n- Data Sources Required: \n  - `Deployments` from Jenkins, GitLab CI, GitHub Action, BitBucket Pipelines, or Webhook, etc. \n  - `Pull Requests` from GitHub PRs, GitLab MRs, BitBucket PRs, Azure DevOps PRs, etc.\n- Transformation Required: Define `deployments` in [data transformations](https://devlake.apache.org/docs/Configuration/Tutorial#step-3---add-transformations-optional) while configuring the blueprint of a project.",
+        "content": "- See the definition and calculation logic of [Median Lead Time for Changes](https://devlake.apache.org/docs/Metrics/LeadTimeForChanges)\n- Data Sources Required: \n  - `Deployments` from Jenkins, GitLab CI, GitHub Action, BitBucket Pipelines, or Webhook, etc. \n  - `Pull Requests` from GitHub PRs, GitLab MRs, BitBucket PRs, Azure DevOps PRs, etc.\n- Transformation Required: Define `deployments` in [data transformations](https://devlake.apache.org/docs/Configuration/Tutorial#step-3---add-transformations-optional) while configuring the blueprint of a project.\n- Validatation Steps below:\n  - Step 1 - check the data integrity of PRs in table `pull_requests`\n  - Step 2 - check the data integrity of deployment_commit in table `cicd_deployment_commits`\n  - Step 3 - check if a deployment_commit is associated with the correct PR in table `project_pr_metrics`\n  - Step 4 - check if metrics like PR Coding/Pickup/Review/Deploy/cycle time are correct in table `project_pr_metrics`\n  - Step 5 - check if the median lead time for changes in each month is correct",
         "mode": "markdown"
       },
       "pluginVersion": "8.0.6",
@@ -837,7 +837,7 @@
         "h": 5,
         "w": 16,
         "x": 0,
-        "y": 31
+        "y": 34
       },
       "id": 18,
       "options": {
@@ -924,7 +924,7 @@
         "h": 6,
         "w": 8,
         "x": 16,
-        "y": 31
+        "y": 34
       },
       "id": 40,
       "options": {
@@ -1069,7 +1069,7 @@
         "h": 3,
         "w": 16,
         "x": 0,
-        "y": 36
+        "y": 39
       },
       "id": 53,
       "options": {
@@ -1148,7 +1148,7 @@
         "h": 7,
         "w": 8,
         "x": 16,
-        "y": 37
+        "y": 40
       },
       "id": 38,
       "options": {
@@ -1240,7 +1240,7 @@
         "h": 4,
         "w": 16,
         "x": 0,
-        "y": 39
+        "y": 42
       },
       "id": 12,
       "options": {
@@ -1316,7 +1316,7 @@
           ]
         }
       ],
-      "title": "Step 1-3. Check if the No. of records in proejct_pr_metrics is the same as the No. of MERGED PRs in pull_requests",
+      "title": "Step 1-3. Check if the No. of records in project_pr_metrics is the same as the No. of MERGED PRs in the selected project(s)",
       "type": "gauge"
     },
     {
@@ -1371,7 +1371,7 @@
         "h": 4,
         "w": 16,
         "x": 0,
-        "y": 43
+        "y": 46
       },
       "id": 68,
       "options": {
@@ -1511,7 +1511,7 @@
         "h": 7,
         "w": 8,
         "x": 16,
-        "y": 44
+        "y": 47
       },
       "id": 51,
       "options": {
@@ -1596,7 +1596,7 @@
         "h": 4,
         "w": 16,
         "x": 0,
-        "y": 47
+        "y": 50
       },
       "id": 69,
       "options": {
@@ -1611,7 +1611,7 @@
           "metricColumn": "none",
           "queryType": "randomWalk",
           "rawQuery": true,
-          "rawSql": "-- This query can be used to test if the column `deployment_commit_id` is associated with the correct PR\nWITH pr_merge_commits AS (\n\tSELECT\n\t\tppm.id AS pr_id,\n\t\tppm.deployment_commit_id AS id_1,\n\t\tpr.merge_commit_sha,\n\t\tppm.project_name \n\tFROM\n\t\tproject_pr_metrics ppm\n\t\tLEFT JOIN pull_requests pr ON ppm.id = pr.id \n\tWHERE\n\t\tppm.project_name in ($project) \n\t\tAND ppm.id = '$pr_id'\n\t),\n\t_deployment_commits AS (\n\tSELECT DISTINCT\n\t\tcdc1.id AS id_2,\n\t\tcdc1.prev_success_deployment_commit_id,\n\t\tcdc1.commit_sha AS new_commit_sha,\n\t\tcdc2.commit_sha AS old_commit_sha,\n\t\tcdc1.finished_date,\n\t\tcd.commit_sha AS deployed_commits \n\tFROM\n\t\tcicd_deployment_commits cdc1\n\t\tLEFT JOIN cicd_deployment_commits cdc2 ON cdc1.prev_success_deployment_commit_id = cdc2.id\n\t\tJOIN commits_diffs cd ON cdc1.commit_sha = cd.new_commit_sha \n\t\tAND COALESCE ( cdc2.commit_sha, '' ) = cd.old_commit_sha\n\t\tJOIN project_mapping pm ON cdc1.cicd_scope_id = pm.row_id \n\tWHERE\n\t\tcdc1.result = 'SUCCESS' \n\t\tAND cdc1.environment = 'PRODUCTION' \n\t\tAND pm.project_name in ($project)\n\t),\n\t_find_deployment_commit_id_from_pr AS (\n\tSELECT\n\t\tpmc.pr_id,\n\t\tpmc.id_1,\n\t\tpmc.merge_commit_sha,\n\t\tpmc.project_name,\n\t\tdc.id_2,\n\t\tdc.prev_success_deployment_commit_id,\n\t\tdc.deployed_commits,\n\t\trank() over ( PARTITION BY pr_id ORDER BY dc.finished_date ) AS deployment_rank \n\tFROM\n\t\tpr_merge_commits pmc\n\t\tLEFT JOIN _deployment_commits dc ON pmc.merge_commit_sha = dc.deployed_commits \n\t) SELECT\n\tpr_id,\n\t-- If `id_1` equals `id_2`, then pass\n\tid_1,\n\tid_2,\n\tcase when id_1 = COALESCE(id_2,'') then 'YES' else 'NO' end as if_the_mapping_logic_is_correct\nFROM\n\t_find_deployment_commit_id_from_pr \nWHERE\n\tdeployment_rank = 1",
+          "rawSql": "-- This query can be used to test if the column `deployment_commit_id` is associated with the correct PR\nWITH pr_merge_commits AS (\n\tSELECT\n\t\tppm.id AS pr_id,\n\t\tppm.deployment_commit_id AS id_1,\n\t\tpr.merge_commit_sha,\n\t\tppm.project_name \n\tFROM\n\t\tproject_pr_metrics ppm\n\t\tLEFT JOIN pull_requests pr ON ppm.id = pr.id \n\tWHERE\n\t\tppm.project_name in ($project) \n\t\tAND ppm.id = '$pr_id'\n\t),\n\t_deployment_commits AS (\n\tSELECT DISTINCT\n\t\tcdc1.id AS id_2,\n\t\tcdc1.prev_success_deployment_commit_id,\n\t\tcdc1.commit_sha AS new_commit_sha,\n\t\tcdc2.commit_sha AS old_commit_sha,\n\t\tcdc1.finished_date,\n\t\tcd.commit_sha AS deployed_commits \n\tFROM\n\t\tcicd_deployment_commits cdc1\n\t\tLEFT JOIN cicd_deployment_commits cdc2 ON cdc1.prev_success_deployment_commit_id = cdc2.id\n\t\tJOIN commits_diffs cd ON cdc1.commit_sha = cd.new_commit_sha \n\t\tAND COALESCE ( cdc2.commit_sha, '' ) = cd.old_commit_sha\n\t\tJOIN project_mapping pm ON cdc1.cicd_scope_id = pm.row_id \n\tWHERE\n\t\tcdc1.result = 'SUCCESS' \n\t\tAND cdc1.environment = 'PRODUCTION' \n\t\tAND pm.project_name in ($project)\n\t),\n\t_find_deployment_commit_id_from_pr AS (\n\tSELECT\n\t\tpmc.pr_id,\n\t\tpmc.id_1,\n\t\tpmc.merge_commit_sha,\n\t\tpmc.project_name,\n\t\tdc.id_2,\n\t\tdc.prev_success_deployment_commit_id,\n\t\tdc.deployed_commits,\n\t\trank() over ( PARTITION BY pr_id ORDER BY dc.finished_date ) AS deployment_rank \n\tFROM\n\t\tpr_merge_commits pmc\n\t\tLEFT JOIN _deployment_commits dc ON pmc.merge_commit_sha = dc.deployed_commits \n\t) SELECT\n\tpr_id,\n\t-- If `id_1` equals `id_2`, then pass\n\tid_1 as deployment_commit_id,\n-- \tid_2,\n\tcase when id_1 = COALESCE(id_2,'') then 'YES' else 'NO' end as if_the_mapping_logic_is_correct\nFROM\n\t_find_deployment_commit_id_from_pr \nWHERE\n\tdeployment_rank = 1",
           "refId": "A",
           "select": [
             [
@@ -1635,7 +1635,7 @@
           ]
         }
       ],
-      "title": "Step 3. Check if the mapping logic between `pull requests` and `depoloyment commits` is correct",
+      "title": "Step 3. Check if a `pull request` is associated with the correct `depoloyment commit` in table project_pr_metrics",
       "type": "table"
     },
     {
@@ -1666,7 +1666,7 @@
         "h": 4,
         "w": 12,
         "x": 0,
-        "y": 51
+        "y": 54
       },
       "id": 52,
       "options": {
@@ -1769,7 +1769,7 @@
         "h": 4,
         "w": 12,
         "x": 12,
-        "y": 51
+        "y": 54
       },
       "id": 54,
       "options": {
@@ -1872,7 +1872,7 @@
         "h": 4,
         "w": 12,
         "x": 0,
-        "y": 55
+        "y": 58
       },
       "id": 55,
       "options": {
@@ -1975,7 +1975,7 @@
         "h": 4,
         "w": 12,
         "x": 12,
-        "y": 55
+        "y": 58
       },
       "id": 56,
       "options": {
@@ -2078,7 +2078,7 @@
         "h": 4,
         "w": 12,
         "x": 0,
-        "y": 59
+        "y": 62
       },
       "id": 57,
       "options": {
@@ -2209,7 +2209,7 @@
         "h": 8,
         "w": 24,
         "x": 0,
-        "y": 63
+        "y": 66
       },
       "id": 70,
       "options": {
@@ -2259,7 +2259,7 @@
         "h": 1,
         "w": 24,
         "x": 0,
-        "y": 71
+        "y": 74
       },
       "id": 26,
       "panels": [],
@@ -2272,7 +2272,7 @@
         "h": 4,
         "w": 24,
         "x": 0,
-        "y": 72
+        "y": 75
       },
       "id": 66,
       "options": {
@@ -2294,7 +2294,7 @@
         "h": 4,
         "w": 24,
         "x": 0,
-        "y": 76
+        "y": 79
       },
       "id": 67,
       "options": {
@@ -2353,7 +2353,7 @@
         "h": 6,
         "w": 16,
         "x": 0,
-        "y": 80
+        "y": 83
       },
       "id": 31,
       "options": {
@@ -2445,7 +2445,7 @@
         "h": 10,
         "w": 8,
         "x": 16,
-        "y": 80
+        "y": 83
       },
       "id": 42,
       "options": {
@@ -2541,7 +2541,7 @@
         "h": 4,
         "w": 16,
         "x": 0,
-        "y": 86
+        "y": 89
       },
       "id": 14,
       "options": {
@@ -2589,7 +2589,7 @@
         "h": 15,
         "w": 16,
         "x": 0,
-        "y": 90
+        "y": 93
       },
       "id": 61,
       "options": {
@@ -2665,7 +2665,7 @@
         "h": 10,
         "w": 8,
         "x": 16,
-        "y": 90
+        "y": 93
       },
       "id": 46,
       "options": {
@@ -2766,7 +2766,7 @@
         "h": 8,
         "w": 8,
         "x": 16,
-        "y": 100
+        "y": 103
       },
       "id": 44,
       "options": {
@@ -2863,7 +2863,7 @@
         "h": 13,
         "w": 8,
         "x": 0,
-        "y": 105
+        "y": 108
       },
       "id": 58,
       "options": {
@@ -2949,7 +2949,7 @@
         "h": 13,
         "w": 8,
         "x": 8,
-        "y": 105
+        "y": 108
       },
       "id": 59,
       "options": {
@@ -3048,7 +3048,7 @@
         "h": 10,
         "w": 8,
         "x": 16,
-        "y": 108
+        "y": 111
       },
       "id": 48,
       "options": {
