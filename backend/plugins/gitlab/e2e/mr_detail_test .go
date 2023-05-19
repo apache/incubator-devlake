@@ -28,7 +28,7 @@ import (
 	"github.com/apache/incubator-devlake/plugins/gitlab/tasks"
 )
 
-func TestGitlabMrDataFlow(t *testing.T) {
+func TestGitlabMrDetailDataFlow(t *testing.T) {
 
 	var gitlab impl.Gitlab
 	dataflowTester := e2ehelper.NewDataFlowTester(t, "gitlab", gitlab)
@@ -42,14 +42,14 @@ func TestGitlabMrDataFlow(t *testing.T) {
 	}
 	// import raw data table
 	dataflowTester.ImportCsvIntoRawTable("./raw_tables/_raw_gitlab_api_merge_requests.csv",
-		"_raw_gitlab_api_merge_requests")
+		"_raw_gitlab_api_merge_request_details")
 
 	// verify extraction
 	dataflowTester.FlushTabler(&models.GitlabMergeRequest{})
 	dataflowTester.FlushTabler(&models.GitlabMrLabel{})
-	dataflowTester.Subtask(tasks.ExtractApiMergeRequestsMeta, taskData)
+	dataflowTester.Subtask(tasks.ExtractApiMergeRequestDetailsMeta, taskData)
 	dataflowTester.VerifyTableWithOptions(&models.GitlabMergeRequest{}, e2ehelper.TableOptions{
-		CSVRelPath:  "./snapshot_tables/_tool_gitlab_merge_requests.csv",
+		CSVRelPath:  "./snapshot_tables/_tool_gitlab_merge_request_details.csv",
 		IgnoreTypes: []interface{}{common.NoPKModel{}},
 	})
 	dataflowTester.VerifyTableWithOptions(&models.GitlabMrLabel{}, e2ehelper.TableOptions{
