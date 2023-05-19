@@ -18,9 +18,10 @@ limitations under the License.
 package models
 
 import (
+	"time"
+
 	"github.com/apache/incubator-devlake/core/models/common"
 	"github.com/apache/incubator-devlake/core/plugin"
-	"time"
 )
 
 var _ plugin.ToolLayerScope = (*BitbucketRepo)(nil)
@@ -66,7 +67,7 @@ type BitbucketApiRepo struct {
 	Language    string `json:"language"`
 	Description string `json:"description"`
 	Owner       struct {
-		Username string `json:"username"`
+		Displayname string `json:"display_name"`
 	} `json:"owner"`
 	CreatedAt *time.Time `json:"created_on"`
 	UpdatedAt *time.Time `json:"updated_on"`
@@ -89,7 +90,7 @@ func (b BitbucketApiRepo) ConvertApiScope() plugin.ToolLayerScope {
 	scope.Language = b.Language
 	scope.Description = b.Description
 	scope.Name = b.Name
-	scope.Owner = b.Owner.Username
+	scope.Owner = b.Owner.Displayname
 	scope.HTMLUrl = b.Links.Html.Href
 
 	scope.CloneUrl = ""
