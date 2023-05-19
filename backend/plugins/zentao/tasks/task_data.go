@@ -19,7 +19,10 @@ package tasks
 
 import (
 	"fmt"
+
+	"github.com/apache/incubator-devlake/core/dal"
 	"github.com/apache/incubator-devlake/core/errors"
+	"github.com/apache/incubator-devlake/core/runner"
 	helper "github.com/apache/incubator-devlake/helpers/pluginhelper/api"
 	"github.com/mitchellh/mapstructure"
 )
@@ -41,6 +44,12 @@ type ZentaoOptions struct {
 	TimeAfter string `json:"timeAfter" mapstructure:"timeAfter,omitempty"`
 	//TransformationRuleId                uint64 `json:"transformationZentaoeId" mapstructure:"transformationRuleId,omitempty"`
 	//*models.ZentaoTransformationRule `mapstructure:"transformationRules,omitempty" json:"transformationRules"`
+
+	RemoteDb dal.Dal
+
+	// if it isn't empty
+	// try to connect databases and run the dbget tasks to collect and extract data from db
+	runner.BaseDbConfigReader
 }
 
 type ZentaoTaskData struct {

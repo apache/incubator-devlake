@@ -23,7 +23,9 @@ import (
 	"github.com/apache/incubator-devlake/core/context"
 	"github.com/apache/incubator-devlake/core/errors"
 	"github.com/apache/incubator-devlake/core/plugin"
+	"github.com/apache/incubator-devlake/core/runner"
 	helper "github.com/apache/incubator-devlake/helpers/pluginhelper/api"
+	"github.com/apache/incubator-devlake/impls/dalgorm"
 	"github.com/apache/incubator-devlake/plugins/zentao/api"
 	"github.com/apache/incubator-devlake/plugins/zentao/models"
 	"github.com/apache/incubator-devlake/plugins/zentao/models/migrationscripts"
@@ -54,6 +56,7 @@ func (p Zentao) SubTaskMetas() []plugin.SubTaskMeta {
 	return []plugin.SubTaskMeta{
 		tasks.ConvertProductMeta,
 		tasks.ConvertProjectMeta,
+		tasks.DBGetChangelogMeta,
 		tasks.CollectExecutionMeta,
 		tasks.ExtractExecutionMeta,
 		tasks.ConvertExecutionMeta,
@@ -93,6 +96,19 @@ func (p Zentao) PrepareTaskData(taskCtx plugin.TaskContext, options map[string]i
 	apiClient, err := tasks.NewZentaoApiClient(taskCtx, connection)
 	if err != nil {
 		return nil, errors.Default.Wrap(err, "unable to get Zentao API client instance: %v")
+	}
+
+	if op.DbUrl != "" && op.RemoteDb == nil {
+		if op.DbLoggingLevel == "" {
+			op.DbLoggingLevel = taskCtx.GetConfig("DB_LOGGING_LEVEL")
+		}
+
+		rgorm, err := runner.NewGormDb(&op.BaseDbConfigReader, taskCtx.GetLogger())
+		if err != nil {
+			return nil, errors.Default.Wrap(err, fmt.Sprintf("failed to connect to the zentao remote databases %s", op.DbUrl))
+		}
+
+		op.RemoteDb = dalgorm.NewDalgorm(rgorm)
 	}
 
 	return &tasks.ZentaoTaskData{
