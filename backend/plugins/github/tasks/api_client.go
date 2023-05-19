@@ -83,3 +83,10 @@ func CreateApiClient(taskCtx plugin.TaskContext, connection *models.GithubConnec
 	}
 	return asyncApiClient, nil
 }
+
+func ignoreHTTPStatus422(res *http.Response) errors.Error {
+	if res.StatusCode == http.StatusUnprocessableEntity {
+		return api.ErrIgnoreAndContinue
+	}
+	return nil
+}

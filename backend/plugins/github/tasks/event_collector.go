@@ -83,6 +83,7 @@ func CollectApiEvents(taskCtx plugin.SubTaskContext) errors.Error {
 					}
 					return items, nil
 				},
+				AfterResponse: ignoreHTTPStatus422,
 			},
 			GetCreated: func(item json.RawMessage) (time.Time, errors.Error) {
 				e := &SimpleGithubApiEvents{}
@@ -118,6 +119,7 @@ func CollectApiEvents(taskCtx plugin.SubTaskContext) errors.Error {
 					res.Body.Close()
 					return []json.RawMessage{body}, nil
 				},
+				AfterResponse: ignoreHTTPStatus422,
 			},
 		},
 	})
