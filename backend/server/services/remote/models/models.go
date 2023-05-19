@@ -18,8 +18,6 @@ limitations under the License.
 package models
 
 import (
-	"time"
-
 	"github.com/apache/incubator-devlake/core/errors"
 	"github.com/apache/incubator-devlake/core/models"
 	"github.com/apache/incubator-devlake/core/models/common"
@@ -49,7 +47,15 @@ type PluginInfo struct {
 	Description                 string            `json:"description"`
 	PluginPath                  string            `json:"plugin_path" validate:"required"`
 	SubtaskMetas                []SubtaskMeta     `json:"subtask_metas" validate:"dive"`
+	Tables                      []string          `json:"tables"`
 }
+
+// Type aliases used by the API helper for better readability
+type (
+	RemoteScope          any
+	RemoteTransformation any
+	RemoteConnection     any
+)
 
 type DynamicModelInfo struct {
 	JsonSchema map[string]any `json:"json_schema" validate:"required"`
@@ -61,7 +67,7 @@ func (d DynamicModelInfo) LoadDynamicTabler(encrypt bool, parentModel any) (*mod
 }
 
 type ScopeModel struct {
-	common.NoPKModel     `json:"-"`
+	common.NoPKModel     `swaggerignore:"true"`
 	Id                   string `gorm:"primarykey;type:varchar(255)" json:"id"`
 	ConnectionId         uint64 `gorm:"primaryKey" json:"connectionId"`
 	Name                 string `json:"name" validate:"required"`
@@ -69,11 +75,9 @@ type ScopeModel struct {
 }
 
 type TransformationModel struct {
-	Id           uint64    `gorm:"primaryKey" json:"id"`
-	ConnectionId uint64    `json:"connectionId"`
-	Name         string    `json:"name"`
-	CreatedAt    time.Time `json:"createdAt"`
-	UpdatedAt    time.Time `json:"updatedAt"`
+	common.Model
+	ConnectionId uint64 `json:"connectionId"`
+	Name         string `json:"name"`
 }
 
 type SubtaskMeta struct {

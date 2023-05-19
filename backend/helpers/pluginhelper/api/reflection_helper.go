@@ -15,19 +15,35 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-package models
+package api
 
-import (
-	"github.com/apache/incubator-devlake/core/errors"
-	"github.com/apache/incubator-devlake/core/plugin"
-)
+import "reflect"
 
-// RemotePlugin API supported by plugins running in different/remote processes
-type RemotePlugin interface {
-	plugin.PluginApi
-	plugin.PluginTask
-	plugin.PluginMeta
-	plugin.PluginOpenApiSpec
-	plugin.PluginModel
-	RunMigrations(forceMigrate bool) errors.Error
+func reflectField(obj any, fieldName string) reflect.Value {
+	return reflectValue(obj).FieldByName(fieldName)
+}
+
+func hasField(obj any, fieldName string) bool {
+	_, ok := reflectType(obj).FieldByName(fieldName)
+	return ok
+}
+
+func reflectValue(obj any) reflect.Value {
+	val := reflect.ValueOf(obj)
+	kind := val.Kind()
+	for kind == reflect.Ptr || kind == reflect.Interface {
+		val = val.Elem()
+		kind = val.Kind()
+	}
+	return val
+}
+
+func reflectType(obj any) reflect.Type {
+	typ := reflect.TypeOf(obj)
+	kind := typ.Kind()
+	for kind == reflect.Ptr {
+		typ = typ.Elem()
+		kind = typ.Kind()
+	}
+	return typ
 }
