@@ -163,6 +163,12 @@ func (apiClient *ApiAsyncClient) DoAsync(
 
 		apiClient.logger.Debug("endpoint: %s  method: %s  header: %s  body: %s query: %s", path, method, header, body, query)
 		res, err = apiClient.Do(method, path, query, body, header)
+		if err == ErrIgnoreAndContinue {
+			// make sure defer func got be executed
+			err = nil //nolint
+			return nil
+		}
+
 		// make sure response body is read successfully, or we might have to retry
 		if err == nil {
 			// make sure response.Body stream will be closed to avoid running out of file handle
@@ -172,11 +178,6 @@ func (apiClient *ApiAsyncClient) DoAsync(
 			if err == nil {
 				res.Body = io.NopCloser(bytes.NewBuffer(respBody))
 			}
-		}
-		if err == ErrIgnoreAndContinue {
-			// make sure defer func got be executed
-			err = nil //nolint
-			return nil
 		}
 
 		// check
