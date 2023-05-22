@@ -216,7 +216,6 @@ func (i Issue) toToolLayer(connectionId uint64) *models.JiraIssue {
 	if i.Fields.Timespent != nil {
 		result.SpentMinutes = *i.Fields.Timespent / 60
 	}
-	stripZeroByte(result)
 	return result
 }
 

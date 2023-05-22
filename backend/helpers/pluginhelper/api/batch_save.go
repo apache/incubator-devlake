@@ -83,6 +83,7 @@ func (c *BatchSave) Add(slot interface{}) errors.Error {
 	if reflect.ValueOf(slot).Kind() != reflect.Ptr {
 		return errors.Default.New("slot is not a pointer")
 	}
+	stripZeroByte(slot)
 	// deduplication
 	key := getKeyValue(slot, c.primaryKey)
 
@@ -146,4 +147,14 @@ func getKeyValue(iface interface{}, primaryKey []reflect.StructField) string {
 		}
 	}
 	return strings.Join(ss, ":")
+}
+
+func stripZeroByte(ifc interface{}) {
+	v := reflect.ValueOf(ifc).Elem()
+	for i := 0; i < v.NumField(); i++ {
+		if v.Field(i).Type() == reflect.TypeOf("") {
+			stripped := strings.ReplaceAll(v.Field(i).String(), "\u0000", "")
+			v.Field(i).Set(reflect.ValueOf(stripped))
+		}
+	}
 }

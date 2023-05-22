@@ -15,14 +15,20 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-package apiv2models
+package api
 
 import (
-	"github.com/apache/incubator-devlake/plugins/jira/models"
 	"testing"
 )
 
 func Test_stripZeroByte(t *testing.T) {
+	type foo struct {
+		Field      string
+		FromString string
+		ToString   string
+		From       *string
+	}
+	from := "Earth\u0000"
 	type args struct {
 		ifc interface{}
 	}
@@ -33,10 +39,11 @@ func Test_stripZeroByte(t *testing.T) {
 		{
 			name: "Test_stripZeroByte",
 			args: args{
-				ifc: &models.JiraIssueChangelogItems{
+				ifc: &foo{
 					Field:      "home\u0000",
 					FromString: "Earth",
 					ToString:   "Mars\u0000",
+					From:       &from,
 				},
 			},
 		},
@@ -44,14 +51,17 @@ func Test_stripZeroByte(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			stripZeroByte(tt.args.ifc)
-			if tt.args.ifc.(*models.JiraIssueChangelogItems).Field != "home" {
-				t.Errorf("stripZeroByte() = %v, want %v", tt.args.ifc.(*models.JiraIssueChangelogItems).Field, "home")
+			if tt.args.ifc.(*foo).Field != "home" {
+				t.Errorf("stripZeroByte() = %v, want %v", tt.args.ifc.(*foo).Field, "home")
 			}
-			if tt.args.ifc.(*models.JiraIssueChangelogItems).FromString != "Earth" {
-				t.Errorf("stripZeroByte() = %v, want %v", tt.args.ifc.(*models.JiraIssueChangelogItems).FromString, "Earth")
+			if tt.args.ifc.(*foo).FromString != "Earth" {
+				t.Errorf("stripZeroByte() = %v, want %v", tt.args.ifc.(*foo).FromString, "Earth")
 			}
-			if tt.args.ifc.(*models.JiraIssueChangelogItems).ToString != "Mars" {
-				t.Errorf("stripZeroByte() = %v, want %v", tt.args.ifc.(*models.JiraIssueChangelogItems).ToString, "Mars")
+			if tt.args.ifc.(*foo).ToString != "Mars" {
+				t.Errorf("stripZeroByte() = %v, want %v", tt.args.ifc.(*foo).ToString, "Mars")
+			}
+			if *tt.args.ifc.(*foo).From != from {
+				t.Errorf("stripZeroByte() = %v, want %v", *tt.args.ifc.(*foo).From, "Earth")
 			}
 		})
 	}
