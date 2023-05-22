@@ -28,14 +28,14 @@ type fixRunNameToText struct{}
 type githubRun20230518_old struct {
 	ConnectionId uint64 `gorm:"primaryKey"`
 	RepoId       int    `gorm:"primaryKey"`
-
-	Name string `gorm:"type:varchar(255)"`
+	ID           int    `gorm:"primaryKey;autoIncrement:false"`
+	Name         string `gorm:"type:varchar(255)"`
 }
 type githubRun20230518 struct {
 	ConnectionId uint64 `gorm:"primaryKey"`
 	RepoId       int    `gorm:"primaryKey"`
-
-	Name string `gorm:"type:text"`
+	ID           int    `gorm:"primaryKey;autoIncrement:false"`
+	Name         string `gorm:"type:text"`
 }
 
 func (*fixRunNameToText) Up(baseRes context.BasicRes) errors.Error {
@@ -48,6 +48,7 @@ func (*fixRunNameToText) Up(baseRes context.BasicRes) errors.Error {
 			return &githubRun20230518{
 				ConnectionId: src.ConnectionId,
 				RepoId:       src.RepoId,
+				ID:           src.ID,
 				Name:         src.Name,
 			}, nil
 		},
@@ -61,7 +62,7 @@ func (*fixRunNameToText) Up(baseRes context.BasicRes) errors.Error {
 }
 
 func (*fixRunNameToText) Version() uint64 {
-	return 20230518000001
+	return 20230518000002
 }
 
 func (*fixRunNameToText) Name() string {
