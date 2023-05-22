@@ -16,8 +16,8 @@
  *
  */
 
-import React, { useEffect, useState } from 'react';
-import { FormGroup, InputGroup, Button, Intent } from '@blueprintjs/core';
+import { useEffect, useState } from 'react';
+import { FormGroup, InputGroup, Button, Icon, Intent } from '@blueprintjs/core';
 
 import { ExternalLink } from '@/components';
 
@@ -29,6 +29,7 @@ type TokenItem = {
   value: string;
   status: 'idle' | 'valid' | 'invalid';
   from?: string;
+  message?: string;
 };
 
 interface Props {
@@ -42,7 +43,7 @@ interface Props {
 }
 
 export const Token = ({ endpoint, proxy, initialValue, value, error, setValue, setError }: Props) => {
-  const [tokens, setTokens] = useState<TokenItem[]>([{ value: '', status: 'idle' }]);
+  const [tokens, setTokens] = useState<TokenItem[]>([{ value: '', status: 'idle', message: '' }]);
 
   const testToken = async (token: string): Promise<TokenItem> => {
     if (!endpoint || !token) {
@@ -62,6 +63,7 @@ export const Token = ({ endpoint, proxy, initialValue, value, error, setValue, s
         value: token,
         status: 'valid',
         from: res.login,
+        message: res.message,
       };
     } catch {
       return {
@@ -117,20 +119,28 @@ export const Token = ({ endpoint, proxy, initialValue, value, error, setValue, s
         </S.LabelDescription>
       }
     >
-      {tokens.map(({ value, status, from }, i) => (
+      {tokens.map(({ value, status, from, message }, i) => (
         <S.Token key={i}>
-          <InputGroup
-            placeholder="Token"
-            type="password"
-            value={value ?? ''}
-            onChange={(e) => handleChangeToken(i, e.target.value)}
-            onBlur={() => handleTestToken(i)}
-          />
-          <Button minimal icon="cross" onClick={() => handleRemoveToken(i)} />
-          <div className="info">
-            {status === 'invalid' && <span className="error">Invalid</span>}
-            {status === 'valid' && <span className="success">Valid From: {from}</span>}
+          <div className="input">
+            <InputGroup
+              placeholder="Token"
+              type="password"
+              value={value ?? ''}
+              onChange={(e) => handleChangeToken(i, e.target.value)}
+              onBlur={() => handleTestToken(i)}
+            />
+            <Button minimal icon="cross" onClick={() => handleRemoveToken(i)} />
+            <div className="info">
+              {status === 'invalid' && <span className="error">Invalid</span>}
+              {status === 'valid' && <span className="success">Valid From: {from}</span>}
+            </div>
           </div>
+          {message && (
+            <div className="warning">
+              <Icon icon="warning-sign" color="#F4BE55" style={{ marginRight: 4 }} />
+              {message}
+            </div>
+          )}
         </S.Token>
       ))}
       <div className="action">
