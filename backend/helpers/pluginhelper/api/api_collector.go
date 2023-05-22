@@ -127,7 +127,7 @@ func NewApiCollector(args ApiCollectorArgs) (*ApiCollector, errors.Error) {
 		apiCollector.SetAfterResponse(args.AfterResponse)
 	} else {
 		apiCollector.SetAfterResponse(func(res *http.Response) errors.Error {
-			if res.StatusCode == http.StatusUnauthorized || res.StatusCode == http.StatusUnprocessableEntity {
+			if res.StatusCode == http.StatusUnauthorized {
 				return errors.Unauthorized.New("authentication failed, please check your AccessToken")
 			}
 			return nil

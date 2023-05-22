@@ -27,7 +27,7 @@ type GithubRun struct {
 	ConnectionId     uint64     `gorm:"primaryKey"`
 	RepoId           int        `gorm:"primaryKey"`
 	ID               int        `json:"id" gorm:"primaryKey;autoIncrement:false"`
-	Name             string     `json:"name" gorm:"type:varchar(255)"`
+	Name             string     `json:"name" gorm:"type:text"`
 	NodeID           string     `json:"node_id" gorm:"type:varchar(255)"`
 	HeadBranch       string     `json:"head_branch" gorm:"type:varchar(255)"`
 	HeadSha          string     `json:"head_sha" gorm:"type:varchar(255)"`

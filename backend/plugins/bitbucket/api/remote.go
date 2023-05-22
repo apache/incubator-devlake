@@ -20,14 +20,15 @@ package api
 import (
 	"context"
 	"fmt"
+	"net/http"
+	"net/url"
+	"strings"
+
 	context2 "github.com/apache/incubator-devlake/core/context"
 	"github.com/apache/incubator-devlake/core/errors"
 	"github.com/apache/incubator-devlake/core/plugin"
 	"github.com/apache/incubator-devlake/helpers/pluginhelper/api"
 	"github.com/apache/incubator-devlake/plugins/bitbucket/models"
-	"net/http"
-	"net/url"
-	"strings"
 )
 
 // RemoteScopes list all available scope for users
@@ -81,7 +82,7 @@ func RemoteScopes(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, er
 				return nil, errors.BadInput.Wrap(err, "failed to get create apiClient")
 			}
 			var res *http.Response
-			query.Set("fields", "values.name,values.full_name,values.language,values.description,values.owner.username,values.created_on,values.updated_on,values.links.clone,values.links.self,pagelen,page,size")
+			query.Set("fields", "values.name,values.full_name,values.language,values.description,values.owner.display_name,values.created_on,values.updated_on,values.links.clone,values.links.html,pagelen,page,size")
 			// list projects part
 			res, err = apiClient.Get(fmt.Sprintf("/repositories/%s", gid), query, nil)
 			if err != nil {
