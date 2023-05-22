@@ -28,14 +28,14 @@
   "panels": [
     {
       "gridPos": {
-        "h": 2,
+        "h": 6,
         "w": 24,
         "x": 0,
         "y": 0
       },
       "id": 16,
       "options": {
-        "content": "Data Source Required: GitHub. You also need to do team configuration to use this dashboard.",
+				"content": "- See [how to config](https://devlake.apache.org/docs/DORA) this dashboard\n- Data Sources Required: \n - `Deployments` from Jenkins, GitLab CI, GitHub Action, webhook, etc. \n - `Pull Requests` from GitHub PRs, GitLab MRs, BitBucket PRs, Azure DevOps PRs, etc.\n - `Incidents` from Jira issues, GitHub issues, TAPD issues, PagerDuty Incidents, etc. \n- Transformation Required: Define `deployments` and `incidents` in [data transformations](https://devlake.apache.org/docs/Configuration/Tutorial#step-3---add-transformations-optional) while configuring the blueprint of a project.\n- You can validate/debug this dashboard with the [DORA validation dashboard](/grafana/d/KGkUnV-Vz/dora-dashboard-validation) \n - You also need to do [team configuration](https://devlake.apache.org/docs/Configuration/TeamConfiguration) to use this dashboard.",
         "mode": "markdown"
       },
       "pluginVersion": "8.4.7",
