@@ -28,7 +28,6 @@ func GetTablesByDomainLayer(domainLayer string) []string {
 	case "code":
 		return []string{
 			"commits_diffs",
-			"finished_commits_diffs",
 			"pull_requests",
 			"commits",
 			"refs_pr_cherrypicks",

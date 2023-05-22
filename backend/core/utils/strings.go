@@ -17,6 +17,14 @@ limitations under the License.
 
 package utils
 
+import (
+	"crypto/rand"
+	"github.com/apache/incubator-devlake/core/errors"
+	"math/big"
+)
+
+const letterBytes = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789"
+
 // StringsUniq returns a new String Slice contains deduped elements from `source`
 func StringsUniq(source []string) []string {
 	book := make(map[string]bool, len(source))
@@ -38,4 +46,22 @@ func StringsContains(slice []string, target string) bool {
 		}
 	}
 	return false
+}
+
+// RandLetterBytes returns a cryptographically secure random string with given length n
+func RandLetterBytes(n int) (string, errors.Error) {
+	if n < 0 {
+		return "", errors.Default.New("n must be greater than 0")
+	}
+	ret := make([]byte, n)
+	bi := big.NewInt(int64(len(letterBytes)))
+	for i := 0; i < n; i++ {
+		num, err := rand.Int(rand.Reader, bi)
+		if err != nil {
+			return "", errors.Convert(err)
+		}
+		ret[i] = letterBytes[num.Int64()]
+	}
+
+	return string(ret), nil
 }

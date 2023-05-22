@@ -18,6 +18,8 @@ from enum import Enum
 from typing import Optional
 import re
 
+from sqlmodel import Session, Column, Text
+
 from pydevlake import Field, Connection, TransformationRule
 from pydevlake.model import ToolModel, ToolScope
 from pydevlake.pipeline_tasks import RefDiffOptions
@@ -44,27 +46,35 @@ class GitRepository(ToolScope, table=True):
 
 
 class GitPullRequest(ToolModel, table=True):
-    class Status(Enum):
+    class PRStatus(Enum):
         Abandoned = "abandoned"
         Active = "active"
         Completed = "completed"
 
     pull_request_id: int = Field(primary_key=True)
-    description: Optional[str]
-    status: Status
+    description: Optional[str] = Field(sa_column=Column(Text))
+    status: PRStatus
     created_by_id: str = Field(source='/createdBy/id')
     created_by_name: str = Field(source='/createdBy/displayName')
     creation_date: datetime.datetime
     closed_date: Optional[datetime.datetime]
     source_commit_sha: str = Field(source='/lastMergeSourceCommit/commitId')
     target_commit_sha: str = Field(source='/lastMergeTargetCommit/commitId')
-    merge_commit_sha: str = Field(source='/lastMergeCommit/commitId')
+    merge_commit_sha: Optional[str] = Field(source='/lastMergeCommit/commitId')
     url: Optional[str]
     type: Optional[str] = Field(source='/labels/0/name') # TODO: get this off transformation rules regex
     title: Optional[str]
     target_ref_name: Optional[str]
     source_ref_name: Optional[str]
     fork_repo_id: Optional[str] = Field(source='/forkSource/repository/id')
+
+    @classmethod
+    def migrate(self, session: Session):
+        dialect = session.bind.dialect.name
+        if dialect == 'mysql':
+            session.execute(f'ALTER TABLE {self.__tablename__} MODIFY COLUMN description TEXT')
+        elif dialect == 'postgresql':
+            session.execute(f'ALTER TABLE {self.__tablename__} ALTER COLUMN description TYPE TEXT')
 
 
 class GitPullRequestCommit(ToolModel, table=True):
@@ -76,14 +86,14 @@ class GitPullRequestCommit(ToolModel, table=True):
 
 
 class Build(ToolModel, table=True):
-    class Status(Enum):
+    class BuildStatus(Enum):
         Cancelling = "cancelling"
         Completed = "completed"
         InProgress = "inProgress"
         NotStarted = "notStarted"
         Postponed = "postponed"
 
-    class Result(Enum):
+    class BuildResult(Enum):
         Canceled = "canceled"
         Failed = "failed"
         Non = "none"
@@ -94,19 +104,19 @@ class Build(ToolModel, table=True):
     name: str = Field(source='/definition/name')
     start_time: Optional[datetime.datetime]
     finish_time: Optional[datetime.datetime]
-    status: Status
-    result: Result
+    status: BuildStatus
+    result: BuildResult
     source_branch: str
     source_version: str
 
 
 class Job(ToolModel, table=True):
-    class State(Enum):
+    class JobState(Enum):
         Completed = "completed"
         InProgress = "inProgress"
         Pending = "pending"
 
-    class Result(Enum):
+    class JobResult(Enum):
         Abandoned = "abandoned"
         Canceled = "canceled"
         Failed = "failed"
@@ -115,9 +125,20 @@ class Job(ToolModel, table=True):
         SucceededWithIssues = "succeededWithIssues"
 
     id: str = Field(primary_key=True)
-    build_id: str
+    build_id: str = Field(primary_key=True)
     name: str
     startTime: datetime.datetime
     finishTime: datetime.datetime
-    state: State
-    result: Result
+    state: JobState
+    result: JobResult
+
+    @classmethod
+    def migrate(self, session: Session):
+        dialect = session.bind.dialect.name
+        if dialect == 'mysql':
+            session.execute(f'ALTER TABLE {self.__tablename__} DROP PRIMARY KEY')
+        elif dialect == 'postgresql':
+            session.execute(f'ALTER TABLE {self.__tablename__} DROP CONSTRAINT {self.__tablename__}_pkey')
+        else:
+            raise Exception(f'Unsupported dialect {dialect}')
+        session.execute(f'ALTER TABLE {self.__tablename__} ADD PRIMARY KEY (id, build_id)')

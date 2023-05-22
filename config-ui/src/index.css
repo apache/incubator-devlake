@@ -38,28 +38,30 @@ h6 {
 }
 
 h1 {
-  font-size: 20px;
+  font-size: 24px;
 }
 
 h2 {
-  font-size: 18px;
+  font-size: 20px;
 }
 
 h3 {
-  margin-bottom: 8px;
-  font-size: 16px;
+  font-size: 18px;
 }
 
 h4 {
-  font-size: 14px;
+  font-size: 16px;
+  font-weight: 400;
 }
 
 h5 {
-  font-size: 12px;
+  font-size: 14px;
+  font-weight: 400;
 }
 
 h6 {
-  font-size: 10px;
+  font-size: 12px;
+  font-weight: 400;
 }
 
 ul {

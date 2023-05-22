@@ -17,13 +17,13 @@
 from abc import abstractmethod
 import json
 from datetime import datetime
-from typing import Tuple, Dict, Iterable, Optional, Generator
+from typing import Tuple, Dict, Iterable, Generator
 
 
 import sqlalchemy.sql as sql
-from sqlmodel import Session, SQLModel, Field, select
+from sqlmodel import Session, select
 
-from pydevlake.model import RawModel, ToolModel, DomainModel
+from pydevlake.model import RawModel, ToolModel, DomainModel, SubtaskRun
 from pydevlake.context import Context
 from pydevlake.message import RemoteProgress
 from pydevlake import logger
@@ -130,18 +130,7 @@ class Subtask:
         return json.dumps({
             "connection_id": ctx.connection.id,
             "scope_id": ctx.scope.id
-        })
-
-class SubtaskRun(SQLModel, table=True):
-    """
-    Table storing information about the execution of subtasks.
-    """
-    id: Optional[int] = Field(primary_key=True)
-    subtask_name: str
-    connection_id: int
-    started: datetime
-    completed: Optional[datetime]
-    state: str # JSON encoded dict of atomic values
+        }, separators=(',', ':'))
 
 
 class Collector(Subtask):

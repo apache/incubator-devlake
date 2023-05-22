@@ -21,7 +21,7 @@ import { useLocation } from 'react-router-dom';
 import { Menu, MenuItem, Tag, Navbar, Intent, Alignment, Button } from '@blueprintjs/core';
 
 import { PageLoading, Logo, ExternalLink } from '@/components';
-import { useRefreshData } from '@/hooks';
+import { useTips, useRefreshData } from '@/hooks';
 import { history } from '@/utils/history';
 
 import DashboardIcon from '@/images/icons/dashborad.svg';
@@ -41,7 +41,7 @@ interface Props {
 export const BaseLayout = ({ children }: Props) => {
   const menu = useMenu();
   const { pathname } = useLocation();
-
+  const { tips } = useTips();
   const { ready, data } = useRefreshData<{ version: string }>(() => API.getVersion(), []);
 
   const token = window.localStorage.getItem('accessToken');
@@ -163,6 +163,7 @@ export const BaseLayout = ({ children }: Props) => {
         <S.Inner>
           <S.Content>{children}</S.Content>
         </S.Inner>
+        {tips && <S.Tips>{tips}</S.Tips>}
       </S.Main>
     </S.Wrapper>
   );

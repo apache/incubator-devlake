@@ -38,9 +38,11 @@ func LoadPlugins(basicRes context.BasicRes) errors.Error {
 	if err != nil {
 		return err
 	}
-	err = LoadRemotePlugins(basicRes)
-	if err != nil {
-		return err
+	if !basicRes.GetConfigReader().GetBool("DISABLED_REMOTE_PLUGINS") {
+		err = LoadRemotePlugins(basicRes)
+		if err != nil {
+			return err
+		}
 	}
 	return nil
 }

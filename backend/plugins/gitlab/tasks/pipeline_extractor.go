@@ -95,7 +95,7 @@ func ExtractApiPipelines(taskCtx plugin.SubTaskContext) errors.Error {
 				ConnectionId:    data.Options.ConnectionId,
 
 				Type:        data.RegexEnricher.ReturnNameIfMatched(devops.DEPLOYMENT, gitlabApiPipeline.Ref),
-				Environment: data.RegexEnricher.ReturnNameIfMatched(devops.PRODUCTION, gitlabApiPipeline.Ref),
+				Environment: data.RegexEnricher.ReturnNameIfOmittedOrMatched(devops.PRODUCTION, gitlabApiPipeline.Ref),
 
 				IsDetailRequired: false,
 			}

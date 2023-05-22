@@ -23,7 +23,7 @@ export const TIPS_MAP: Record<string, { name: string; link: string }> = {
   },
   gitlab: {
     name: 'GitLab',
-    link: 'https://devlake.apache.org/docs/Configuration/GitLab#step-3---adding-transformation-rules-optional'
+    link: 'https://devlake.apache.org/docs/Configuration/GitLab#step-3---adding-transformation-rules-optional',
   },
   jira: {
     name: 'Jira',
@@ -31,18 +31,18 @@ export const TIPS_MAP: Record<string, { name: string; link: string }> = {
   },
   jenkins: {
     name: 'Jenkins',
-    link: 'https://devlake.apache.org/docs/Configuration/Jenkins#step-3---adding-transformation-rules-optional'
+    link: 'https://devlake.apache.org/docs/Configuration/Jenkins#step-3---adding-transformation-rules-optional',
   },
   bitbucket: {
     name: 'BitBucket',
-    link: 'https://devlake.apache.org/docs/Configuration/BitBucket#step-3---adding-transformation-rules-optional'
+    link: 'https://devlake.apache.org/docs/Configuration/BitBucket#step-3---adding-transformation-rules-optional',
   },
   azuredevops: {
     name: 'Azure DevOps',
-    link: 'https://devlake.apache.org/docs/Configuration/Jenkins#step-3---adding-transformation-rules-optional'
+    link: 'https://devlake.apache.org/docs/Configuration/Jenkins#step-3---adding-transformation-rules-optional',
   },
   tapd: {
-    name:'TAPD',
-    link: 'https://devlake.apache.org/docs/Configuration/Tapd#step-3---adding-transformation-rules-optional'
+    name: 'TAPD',
+    link: 'https://devlake.apache.org/docs/Configuration/Tapd#step-3---adding-transformation-rules-optional',
   },
 };

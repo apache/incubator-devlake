@@ -58,13 +58,11 @@ func TestRemoteScopeGroups(t *testing.T) {
 func TestRemoteScopes(t *testing.T) {
 	client := CreateClient(t)
 	connection := CreateTestConnection(client)
-
 	output := client.RemoteScopes(helper.RemoteScopesQuery{
 		PluginName:   PLUGIN_NAME,
 		ConnectionId: connection.ID,
 		GroupId:      "group1",
 	})
-
 	scopes := output.Children
 	require.Equal(t, 1, len(scopes))
 	scope := scopes[0]
@@ -73,34 +71,37 @@ func TestRemoteScopes(t *testing.T) {
 	require.Equal(t, "group1", *scope.ParentId)
 	require.Equal(t, "scope", scope.Type)
 	require.NotNil(t, scope.Data)
-	data := scope.Data.(map[string]interface{})
-	require.Equal(t, float64(connection.ID), data["connectionId"])
-	require.Equal(t, "p1", data["id"])
-	require.Equal(t, "Project 1", data["name"])
-	require.Equal(t, "http://fake.org/api/project/p1", data["url"])
+	cicdScope := helper.Cast[FakeProject](scope.Data)
+	require.Equal(t, connection.ID, cicdScope.ConnectionId)
+	require.Equal(t, "p1", cicdScope.Id)
+	require.Equal(t, "Project 1", cicdScope.Name)
+	require.Equal(t, "http://fake.org/api/project/p1", cicdScope.Url)
 }
 
 func TestCreateScope(t *testing.T) {
 	client := CreateClient(t)
-	var connectionId uint64 = 1
+	conn := CreateTestConnection(client)
+	rule := CreateTestTransformationRule(client, conn.ID)
+	scope := CreateTestScope(client, rule, conn.ID)
 
-	CreateTestScope(client, connectionId)
-
-	scopes := client.ListScopes(PLUGIN_NAME, connectionId)
+	scopes := client.ListScopes(PLUGIN_NAME, conn.ID, false)
 	require.Equal(t, 1, len(scopes))
-	cicd_scope := scopes[0].(map[string]interface{})
-	require.Equal(t, float64(connectionId), cicd_scope["connectionId"])
-	require.Equal(t, "p1", cicd_scope["id"])
-	require.Equal(t, "Project 1", cicd_scope["name"])
-	require.Equal(t, "http://fake.org/api/project/p1", cicd_scope["url"])
+
+	cicdScope := helper.Cast[FakeProject](scopes[0].Scope)
+	require.Equal(t, conn.ID, cicdScope.ConnectionId)
+	require.Equal(t, "p1", cicdScope.Id)
+	require.Equal(t, "Project 1", cicdScope.Name)
+	require.Equal(t, "http://fake.org/api/project/p1", cicdScope.Url)
+
+	cicdScope.Name = "scope-name-2"
+	client.UpdateScope(PLUGIN_NAME, conn.ID, cicdScope.Id, scope)
 }
 
 func TestRunPipeline(t *testing.T) {
 	client := CreateClient(t)
 	conn := CreateTestConnection(client)
-
-	CreateTestScope(client, conn.ID)
-
+	rule := CreateTestTransformationRule(client, conn.ID)
+	scope := CreateTestScope(client, rule, conn.ID)
 	pipeline := client.RunPipeline(models.NewPipeline{
 		Name: "remote_test",
 		Plan: []plugin.PipelineStage{
@@ -110,13 +111,12 @@ func TestRunPipeline(t *testing.T) {
 					Subtasks: nil,
 					Options: map[string]interface{}{
 						"connectionId": conn.ID,
-						"scopeId":      "p1",
+						"scopeId":      scope.Id,
 					},
 				},
 			},
 		},
 	})
-
 	require.Equal(t, models.TASK_COMPLETED, pipeline.Status)
 	require.Equal(t, 1, pipeline.FinishedTasks)
 	require.Equal(t, "", pipeline.ErrorName)
@@ -129,7 +129,8 @@ func TestBlueprintV200(t *testing.T) {
 	client.CreateProject(&helper.ProjectConfig{
 		ProjectName: projectName,
 	})
-	CreateTestScope(client, connection.ID)
+	rule := CreateTestTransformationRule(client, connection.ID)
+	scope := CreateTestScope(client, rule, connection.ID)
 
 	blueprint := client.CreateBasicBlueprintV2(
 		"Test blueprint",
@@ -139,7 +140,7 @@ func TestBlueprintV200(t *testing.T) {
 				ConnectionId: connection.ID,
 				Scopes: []*plugin.BlueprintScopeV200{
 					{
-						Id:   "p1",
+						Id:   scope.Id,
 						Name: "Test scope",
 						Entities: []string{
 							plugin.DOMAIN_TYPE_CICD,
@@ -159,4 +160,38 @@ func TestBlueprintV200(t *testing.T) {
 	project := client.GetProject(projectName)
 	require.Equal(t, blueprint.Name, project.Blueprint.Name)
 	client.TriggerBlueprint(blueprint.ID)
+	scopesResponse := client.ListScopes(PLUGIN_NAME, connection.ID, true)
+	require.Equal(t, 1, len(scopesResponse))
+	require.Equal(t, 1, len(scopesResponse[0].Blueprints))
+	bps := client.DeleteScope(PLUGIN_NAME, connection.ID, scope.Id, false)
+	require.Equal(t, 1, len(bps))
+	scopesResponse = client.ListScopes(PLUGIN_NAME, connection.ID, true)
+	require.Equal(t, 0, len(scopesResponse))
+}
+
+func TestCreateTxRule(t *testing.T) {
+	client := CreateClient(t)
+	connection := CreateTestConnection(client)
+
+	res := client.CreateTransformationRule(PLUGIN_NAME, connection.ID, FakeTxRule{Name: "Tx rule", Env: "test env"})
+	txRule := helper.Cast[FakeTxRule](res)
+
+	res = client.GetTransformationRule(PLUGIN_NAME, connection.ID, txRule.Id)
+	txRule = helper.Cast[FakeTxRule](res)
+	require.Equal(t, "Tx rule", txRule.Name)
+	require.Equal(t, "test env", txRule.Env)
+}
+
+func TestUpdateTxRule(t *testing.T) {
+	client := CreateClient(t)
+	connection := CreateTestConnection(client)
+	res := client.CreateTransformationRule(PLUGIN_NAME, connection.ID, FakeTxRule{Name: "old name", Env: "old env"})
+	oldTxRule := helper.Cast[FakeTxRule](res)
+
+	client.PatchTransformationRule(PLUGIN_NAME, connection.ID, oldTxRule.Id, FakeTxRule{Name: "new name", Env: "new env"})
+
+	res = client.GetTransformationRule(PLUGIN_NAME, connection.ID, oldTxRule.Id)
+	txRule := helper.Cast[FakeTxRule](res)
+	require.Equal(t, "new name", txRule.Name)
+	require.Equal(t, "new env", txRule.Env)
 }

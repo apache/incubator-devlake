@@ -127,7 +127,7 @@ func NewApiCollector(args ApiCollectorArgs) (*ApiCollector, errors.Error) {
 		apiCollector.SetAfterResponse(args.AfterResponse)
 	} else {
 		apiCollector.SetAfterResponse(func(res *http.Response) errors.Error {
-			if res.StatusCode == http.StatusUnauthorized || res.StatusCode == http.StatusUnprocessableEntity {
+			if res.StatusCode == http.StatusUnauthorized {
 				return errors.Unauthorized.New("authentication failed, please check your AccessToken")
 			}
 			return nil
@@ -265,7 +265,8 @@ func (collector *ApiCollector) fetchPagesSequentially(reqData *RequestData) {
 			reqData.CustomData = customData
 			reqData.Pager.Skip += collector.args.PageSize
 			reqData.Pager.Page += 1
-			return collect()
+			collector.args.ApiClient.NextTick(collect)
+			return nil
 		})
 		return nil
 	}
@@ -353,10 +354,14 @@ func (collector *ApiCollector) fetchPagesUndetermined(reqData *RequestData) {
 }
 
 func (collector *ApiCollector) generateUrl(pager *Pager, input interface{}) (string, errors.Error) {
+	params := collector.args.Params
+	if collector.args.Options != nil {
+		params = collector.args.Options.GetParams()
+	}
 	var buf bytes.Buffer
 	err := collector.urlTemplate.Execute(&buf, &RequestData{
 		Pager:  pager,
-		Params: collector.args.Params,
+		Params: params,
 		Input:  input,
 	})
 	if err != nil {

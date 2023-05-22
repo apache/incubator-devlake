@@ -49,7 +49,7 @@ export const Transformation = ({
   onSubmit,
   onNext,
 }: Props) => {
-  const [selected, setSelected] = useState<Record<string, ID[]>>({});
+  const [selected, setSelected] = useState<Record<string, string[]>>({});
   const [connection, setConnection] = useState<MixConnection>();
   const [tid, setTid] = useState<ID>();
 
@@ -123,23 +123,26 @@ export const Transformation = ({
                 dataIndex: 'transformationRuleName',
                 key: 'transformation',
                 align: 'center',
-                render: (val, row) => (
-                  <div>
-                    <span>{val ?? 'N/A'}</span>
-                    <IconButton
-                      icon="one-to-one"
-                      tooltip="Associate Transformation"
-                      onClick={() => {
-                        setSelected({
-                          ...selected,
-                          [`${cs.unique}`]: [row[getPluginId(cs.plugin)]],
-                        });
-                        setConnection(cs);
-                        setTid(row.transformationRuleId);
-                      }}
-                    />
-                  </div>
-                ),
+                render: (val, row) =>
+                  cs.transformationType === 'none' ? (
+                    'N/A'
+                  ) : (
+                    <div>
+                      <span>{val ?? 'N/A'}</span>
+                      <IconButton
+                        icon="one-to-one"
+                        tooltip="Associate Transformation"
+                        onClick={() => {
+                          setSelected({
+                            ...selected,
+                            [`${cs.unique}`]: [row[getPluginId(cs.plugin)]],
+                          });
+                          setConnection(cs);
+                          setTid(row.transformationRuleId);
+                        }}
+                      />
+                    </div>
+                  ),
               },
             ]}
             dataSource={cs.origin}

@@ -24,11 +24,10 @@ import { FromEnum } from '@/pages';
 import {
   OfflinePage,
   DBMigratePage,
+  ConnectionHomePage,
+  ConnectionDetailPage,
   ProjectHomePage,
   ProjectDetailPage,
-  ConnectionHomePage,
-  ConnectionListPage,
-  ConnectionFormPage,
   BlueprintHomePage,
   BlueprintCreatePage,
   BlueprintDetailPage,
@@ -54,7 +53,7 @@ function App() {
 
         <Route
           exact
-          path="/db-mirgate"
+          path="/db-migrate"
           component={() => (
             <ErrorLayout>
               <DBMigratePage />
@@ -67,7 +66,9 @@ function App() {
           component={() => (
             <BaseLayout>
               <Switch>
-                <Route exact path="/" component={() => <Redirect to="/projects" />} />
+                <Route exact path="/" component={() => <Redirect to="/connections" />} />
+                <Route exact path="/connections" component={() => <ConnectionHomePage />} />
+                <Route exact path="/connections/:plugin/:id" component={() => <ConnectionDetailPage />} />
                 <Route exact path="/projects" component={() => <ProjectHomePage />} />
                 <Route exact path="/projects/:pname" component={() => <ProjectDetailPage />} />
                 <Route
@@ -81,10 +82,6 @@ function App() {
                   path="/projects/:pname/create-blueprint"
                   component={() => <BlueprintCreatePage from={FromEnum.project} />}
                 />
-                <Route exact path="/connections" component={() => <ConnectionHomePage />} />
-                <Route exact path="/connections/:plugin" component={() => <ConnectionListPage />} />
-                <Route exact path="/connections/:plugin/create" component={() => <ConnectionFormPage />} />
-                <Route exact path="/connections/:plugin/:cid" component={() => <ConnectionFormPage />} />
                 <Route exact path="/blueprints" component={() => <BlueprintHomePage />} />
                 <Route
                   exact

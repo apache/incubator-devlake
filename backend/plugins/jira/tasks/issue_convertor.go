@@ -91,6 +91,7 @@ func ConvertIssues(taskCtx plugin.SubTaskContext) errors.Error {
 				IconURL:                 jiraIssue.IconURL,
 				IssueKey:                jiraIssue.IssueKey,
 				Title:                   jiraIssue.Summary,
+				Description:             jiraIssue.Description,
 				EpicKey:                 jiraIssue.EpicKey,
 				Type:                    jiraIssue.StdType,
 				OriginalType:            jiraIssue.Type,

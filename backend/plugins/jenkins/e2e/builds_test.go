@@ -35,7 +35,6 @@ func TestJenkinsBuildsDataFlow(t *testing.T) {
 
 	regexEnricher := api.NewRegexEnricher()
 	_ = regexEnricher.TryAdd(devops.DEPLOYMENT, `test-sub-sub-dir\/devlake.*`)
-	_ = regexEnricher.TryAdd(devops.PRODUCTION, `test-sub-sub-dir\/devlake.*`)
 	taskData := &tasks.JenkinsTaskData{
 		Options: &tasks.JenkinsOptions{
 			ConnectionId: 1,
@@ -102,9 +101,23 @@ func TestJenkinsBuildsDataFlow(t *testing.T) {
 		},
 	)
 
-	dataflowTester.Subtask(tasks.ConvertBuildsToCICDMeta, taskData)
 	dataflowTester.Subtask(tasks.ConvertBuildReposMeta, taskData)
+	dataflowTester.Subtask(tasks.ConvertBuildsToCICDMeta, taskData)
 
+	// verify env when prod env is omitted
+	dataflowTester.Subtask(tasks.ConvertBuildsToCICDMeta, taskData)
+	dataflowTester.VerifyTable(
+		devops.CICDTask{},
+		"./snapshot_tables/cicd_tasks_no_prod_regex.csv",
+		e2ehelper.ColumnWithRawData(
+			"environment",
+		),
+	)
+
+	// continue
+	_ = regexEnricher.TryAdd(devops.PRODUCTION, `test-sub-sub-dir\/devlake.*`)
+	dataflowTester.FlushTabler(&devops.CICDTask{})
+	dataflowTester.Subtask(tasks.ConvertBuildsToCICDMeta, taskData)
 	dataflowTester.VerifyTable(
 		devops.CICDTask{},
 		"./snapshot_tables/cicd_tasks.csv",

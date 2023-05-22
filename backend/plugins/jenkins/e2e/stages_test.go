@@ -34,7 +34,6 @@ func TestJenkinsStagesDataFlow(t *testing.T) {
 
 	regexEnricher := api.NewRegexEnricher()
 	_ = regexEnricher.TryAdd(devops.DEPLOYMENT, `gitlabAutoSync`)
-	_ = regexEnricher.TryAdd(devops.PRODUCTION, `gitlabAutoSync`)
 	taskData := &tasks.JenkinsTaskData{
 		Options: &tasks.JenkinsOptions{
 			ConnectionId: 1,
@@ -75,6 +74,18 @@ func TestJenkinsStagesDataFlow(t *testing.T) {
 		),
 	)
 
+	// verify env when production regex is omitted
+	dataflowTester.FlushTabler(&devops.CICDTask{})
+	dataflowTester.Subtask(tasks.ConvertStagesMeta, taskData)
+	dataflowTester.VerifyTable(
+		devops.CICDTask{},
+		"./snapshot_tables/cicd_tasks_after_stages_no_prod_regex.csv",
+		e2ehelper.ColumnWithRawData(
+			"environment",
+		),
+	)
+
+	_ = regexEnricher.TryAdd(devops.PRODUCTION, `gitlabAutoSync`)
 	dataflowTester.FlushTabler(&devops.CICDTask{})
 	dataflowTester.Subtask(tasks.ConvertStagesMeta, taskData)
 	dataflowTester.VerifyTable(

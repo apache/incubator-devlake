@@ -18,8 +18,9 @@ limitations under the License.
 package ticket
 
 import (
-	"github.com/apache/incubator-devlake/core/models/domainlayer"
 	"time"
+
+	"github.com/apache/incubator-devlake/core/models/domainlayer"
 )
 
 type IssueComment struct {
@@ -28,6 +29,7 @@ type IssueComment struct {
 	Body        string
 	AccountId   string `gorm:"type:varchar(255)"`
 	CreatedDate time.Time
+	UpdatedDate *time.Time
 }
 
 func (IssueComment) TableName() string {

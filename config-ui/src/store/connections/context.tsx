@@ -16,32 +16,143 @@
  *
  */
 
-import React, { useContext } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 
 import { PageLoading } from '@/components';
 
+import type { PluginConfigType } from '@/plugins';
+import { PluginConfig, PluginType } from '@/plugins';
+
 import type { ConnectionItemType } from './types';
-import type { UseContextValueProps } from './use-context-value';
-import { useContextValue } from './use-context-value';
+import { ConnectionStatusEnum } from './types';
+import * as API from './api';
 
-const ConnectionContext = React.createContext<{
+export const ConnectionContext = React.createContext<{
   connections: ConnectionItemType[];
-  onRefresh: () => void;
-  onTest: (selectedConnection: ConnectionItemType) => void;
-}>({
-  connections: [],
-  onRefresh: () => {},
-  onTest: () => {},
-});
+  onGet: (unique: string) => ConnectionItemType;
+  onTest: (unique: string) => void;
+  onRefresh: (plugin?: string) => void;
+}>(undefined!);
 
-interface Props extends UseContextValueProps {
+interface Props {
   children?: React.ReactNode;
 }
 
 export const ConnectionContextProvider = ({ children, ...props }: Props) => {
-  const { loading, connections, onRefresh, onTest } = useContextValue({
-    ...props,
-  });
+  const [loading, setLoading] = useState(true);
+  const [connections, setConnections] = useState<ConnectionItemType[]>([]);
+
+  const plugins = useMemo(() => PluginConfig.filter((p) => p.type === PluginType.Connection), []);
+
+  const queryConnection = async (plugin: string) => {
+    try {
+      const res = await API.getConnection(plugin);
+      const { name, icon, isBeta, entities } = plugins.find((p) => p.plugin === plugin) as PluginConfigType;
+
+      return res.map((connection) => ({
+        ...connection,
+        plugin,
+        pluginName: name,
+        icon,
+        isBeta: isBeta ?? false,
+        entities,
+      }));
+    } catch {
+      return [];
+    }
+  };
+
+  const testConnection = async ({
+    plugin,
+    endpoint,
+    proxy,
+    token,
+    username,
+    password,
+    authMethod,
+  }: ConnectionItemType) => {
+    try {
+      const res = await API.testConnection(plugin, {
+        endpoint,
+        proxy,
+        token,
+        username,
+        password,
+        authMethod,
+      });
+      return res.success ? ConnectionStatusEnum.ONLINE : ConnectionStatusEnum.OFFLINE;
+    } catch {
+      return ConnectionStatusEnum.OFFLINE;
+    }
+  };
+
+  const transformConnection = (connections: Omit<ConnectionItemType, 'unique' | 'status'>[]) => {
+    return connections.map((it) => ({
+      unique: `${it.plugin}-${it.id}`,
+      plugin: it.plugin,
+      pluginName: it.pluginName,
+      id: it.id,
+      name: it.name,
+      status: ConnectionStatusEnum.NULL,
+      icon: it.icon,
+      isBeta: it.isBeta,
+      entities: it.entities,
+      endpoint: it.endpoint,
+      proxy: it.proxy,
+      token: it.token,
+      username: it.username,
+      password: it.password,
+      authMethod: it.authMethod,
+    }));
+  };
+
+  const handleGet = (unique: string) => {
+    return connections.find((cs) => cs.unique === unique) as ConnectionItemType;
+  };
+
+  const handleTest = async (unique: string) => {
+    setConnections((connections) =>
+      connections.map((cs) =>
+        cs.unique === unique
+          ? {
+              ...cs,
+              status: ConnectionStatusEnum.TESTING,
+            }
+          : cs,
+      ),
+    );
+
+    const connection = handleGet(unique);
+    const status = await testConnection(connection);
+
+    setConnections((connections) =>
+      connections.map((cs) =>
+        cs.unique === unique
+          ? {
+              ...cs,
+              status,
+            }
+          : cs,
+      ),
+    );
+  };
+
+  const handleRefresh = async (plugin?: string) => {
+    if (plugin) {
+      const res = await queryConnection(plugin);
+      setConnections([...connections.filter((cs) => cs.plugin !== plugin), ...transformConnection(res)]);
+      return;
+    }
+
+    const res = await Promise.all(plugins.map((cs) => queryConnection(cs.plugin)));
+
+    setConnections(transformConnection(res.flat()));
+    setLoading(false);
+  };
+
+  useEffect(() => {
+    handleRefresh();
+  }, []);
 
   if (loading) {
     return <PageLoading />;
@@ -51,15 +162,12 @@ export const ConnectionContextProvider = ({ children, ...props }: Props) => {
     <ConnectionContext.Provider
       value={{
         connections,
-        onRefresh,
-        onTest,
+        onGet: handleGet,
+        onTest: handleTest,
+        onRefresh: handleRefresh,
       }}
     >
       {children}
     </ConnectionContext.Provider>
   );
 };
-
-export const ConnectionContextConsumer = ConnectionContext.Consumer;
-
-export const useConnection = () => useContext(ConnectionContext);

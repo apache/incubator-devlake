@@ -18,13 +18,14 @@ limitations under the License.
 package code
 
 import (
-	"github.com/apache/incubator-devlake/core/models/domainlayer"
 	"time"
+
+	"github.com/apache/incubator-devlake/core/models/domainlayer"
 )
 
 type PullRequestComment struct {
 	domainlayer.DomainEntity
-	PullRequestId string `gorm:"index"`
+	PullRequestId string `gorm:"index;varchar(255)"`
 	Body          string
 	AccountId     string `gorm:"type:varchar(255)"`
 	CreatedDate   time.Time

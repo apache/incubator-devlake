@@ -75,7 +75,7 @@ export const JenkinsTransformation = ({ transformation, setTransformation }: Pro
             <div style={{ marginTop: 16 }}>Convert a Jenkins Build as a DevLake Deployment when: </div>
             <div className="text">
               <span>
-                The name of the <strong>Jenkins build</strong> or <strong>one of its jobs</strong> matches
+                The name of the <strong>Jenkins job</strong> or <strong>one of its stages</strong> matches
               </span>
               <InputGroup
                 style={{ width: 200, margin: '0 8px' }}

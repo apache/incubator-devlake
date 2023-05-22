@@ -35,6 +35,7 @@ type JiraIssue struct {
 	IconURL                  string `gorm:"type:varchar(255);column:icon_url"`
 	IssueKey                 string `gorm:"type:varchar(255)"`
 	Summary                  string
+	Description              string
 	Type                     string `gorm:"type:varchar(255)"`
 	EpicKey                  string `gorm:"type:varchar(255)"`
 	StatusName               string `gorm:"type:varchar(255)"`
@@ -59,6 +60,7 @@ type JiraIssue struct {
 	Created                  time.Time
 	Updated                  time.Time `gorm:"index"`
 	SpentMinutes             int64
+	CommentTotal             int64
 	LeadTimeMinutes          uint
 	StdType                  string `gorm:"type:varchar(255)"`
 	StdStatus                string `gorm:"type:varchar(255)"`

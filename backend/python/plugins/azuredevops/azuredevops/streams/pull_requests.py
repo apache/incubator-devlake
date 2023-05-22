@@ -39,17 +39,18 @@ class GitPullRequests(Stream):
 
         # Use the same status values as GitHub plugin
         status = None
-        if pr.status == GitPullRequest.Status.Abandoned:
+        if pr.status == GitPullRequest.PRStatus.Abandoned:
             status = 'CLOSED'
-        elif pr.status == GitPullRequest.Status.Active:
+        elif pr.status == GitPullRequest.PRStatus.Active:
             status = 'OPEN'
-        elif pr.status == GitPullRequest.Status.Completed:
+        elif pr.status == GitPullRequest.PRStatus.Completed:
             status = 'MERGED'
 
         yield code.PullRequest(
             base_repo_id=base_repo_id,
             head_repo_id=repo_id,
             status=status,
+            original_status=pr.status.value,
             title=pr.title,
             description=pr.description,
             url=pr.url,

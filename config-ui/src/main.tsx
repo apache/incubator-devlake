@@ -19,7 +19,8 @@
 import ReactDOM from 'react-dom';
 import { BrowserRouter } from 'react-router-dom';
 
-import { ErrorBoundary } from '@/error';
+import { ErrorBoundary } from '@/components';
+import { ConnectionContextProvider, TipsContextProvider } from '@/store';
 
 import App from './App';
 
@@ -28,7 +29,11 @@ import './index.css';
 ReactDOM.render(
   <BrowserRouter>
     <ErrorBoundary>
-      <App />
+      <ConnectionContextProvider>
+        <TipsContextProvider>
+          <App />
+        </TipsContextProvider>
+      </ConnectionContextProvider>
     </ErrorBoundary>
   </BrowserRouter>,
   document.getElementById('root'),

@@ -144,7 +144,10 @@ func (t *DataFlowTester) ImportCsvIntoRawTable(csvRelPath string, rawTableName s
 }
 
 func (t *DataFlowTester) importCsv(csvRelPath string, dst schema.Tabler, nullable bool) {
-	csvIter, _ := pluginhelper.NewCsvFileIterator(csvRelPath)
+	csvIter, err := pluginhelper.NewCsvFileIterator(csvRelPath)
+	if err != nil {
+		panic(err)
+	}
 	defer csvIter.Close()
 	t.FlushTabler(dst)
 	// load rows and insert into target table

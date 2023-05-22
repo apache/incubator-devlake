@@ -16,7 +16,7 @@
  *
  */
 
-import React, { useState, useMemo } from 'react';
+import { useState, useMemo } from 'react';
 import type { TabId } from '@blueprintjs/core';
 import { Tabs, Tab } from '@blueprintjs/core';
 
@@ -53,11 +53,6 @@ export const BlueprintDetail = ({ from = FromEnum.project, pname, id }: Props) =
     id,
   });
 
-  const showJenkinsTips = useMemo(() => {
-    const jenkins = blueprint && blueprint.settings?.connections.find((cs) => cs.plugin === 'jenkins');
-    return jenkins && !jenkins.scopes.length;
-  }, [blueprint]);
-
   if (loading || !blueprint) {
     return <PageLoading />;
   }
@@ -76,11 +71,6 @@ export const BlueprintDetail = ({ from = FromEnum.project, pname, id }: Props) =
           panel={<Configuration paths={paths} blueprint={blueprint} operating={operating} onUpdate={onUpdate} />}
         />
       </Tabs>
-      {showJenkinsTips && (
-        <S.JenkinsTips>
-          <p>Please add the "Jenkins jobs" to collect before this Blueprint can run again.</p>
-        </S.JenkinsTips>
-      )}
     </S.Wrapper>
   );
 };

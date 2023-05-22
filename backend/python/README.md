@@ -232,6 +232,25 @@ Do not forget `table=True`, otherwise no table will be created in the database. 
 
 To facilitate or even eliminate extraction, your tool models should be close to the raw data you collect. Note that if you collect data from a JSON REST API that uses camelCased properties, you can still define snake_cased attributes in your model. The camelCased attributes aliases will be generated, so no special care is needed during extraction.
 
+#### Migration of tool models
+
+Tool models, connection, scope and transformation rule types are stored in the DevLake database.
+When you change the definition of one of those types, you need to migrate the database.
+You should implement the migration logic in the model class by defining a `migrate` class method. This method takes a sqlalchemy session as argument that you can use to
+execute SQL `ALTER TABLE` statements.
+
+```python
+class User(ToolModel, table=True):
+    id: str = Field(primary_key=True)
+    name: str
+    email: str
+    age: int
+
+    @classmethod
+    def migrate(cls, session):
+        session.execute(f"ALTER TABLE {cls.__tablename__} ADD COLUMN age INT")
+```
+
 
 ### Create the stream class
 
