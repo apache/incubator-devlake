@@ -67,10 +67,10 @@ func DBGetActionHistory(taskCtx plugin.SubTaskContext) errors.Error {
 }
 
 var DBGetChangelogMeta = plugin.SubTaskMeta{
-	Name:             "DBGetAction",
+	Name:             "DBGetChangelog",
 	EntryPoint:       DBGetActionHistory,
 	EnabledByDefault: true,
-	Description:      "get action and history data from Zentao databases",
+	Description:      "get action and history data to be changelog from Zentao databases",
 	DomainTypes:      []string{plugin.DOMAIN_TYPE_TICKET},
 }
 

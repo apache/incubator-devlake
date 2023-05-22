@@ -60,6 +60,7 @@ func (connection ZentaoConn) PrepareApiClient(apiClient apihelperabstract.ApiCli
 type ZentaoConn struct {
 	helper.RestConnection `mapstructure:",squash"`
 	helper.BasicAuth      `mapstructure:",squash"`
+	DbUrl                 string `mapstructure:"dbUrl"  json:"dbUrl" gorm:"serializer:encdec"`
 }
 
 // ZentaoConnection holds ZentaoConn plus ID/Name for database storage

@@ -19,6 +19,9 @@ package api
 
 import (
 	"fmt"
+	"strings"
+	"time"
+
 	"github.com/apache/incubator-devlake/core/dal"
 	"github.com/apache/incubator-devlake/core/errors"
 	"github.com/apache/incubator-devlake/core/models/domainlayer"
@@ -30,8 +33,6 @@ import (
 	"github.com/apache/incubator-devlake/plugins/zentao/models"
 	"github.com/apache/incubator-devlake/plugins/zentao/tasks"
 	"github.com/go-playground/validator/v10"
-	"strings"
-	"time"
 )
 
 func MakeDataSourcePipelinePlanV200(subtaskMetas []plugin.SubTaskMeta, connectionId uint64, bpScopes []*plugin.BlueprintScopeV200, syncPolicy *plugin.BlueprintSyncPolicy) (plugin.PipelinePlan, []plugin.Scope, errors.Error) {
@@ -81,6 +82,7 @@ func makePipelinePlanV200(
 				return nil, nil, errors.Default.Wrap(err, fmt.Sprintf("fail to find zentao project %s", bpScope.Id))
 			}
 			op.ProjectId = scope.Id
+			op.DbUrl = connection.DbUrl
 
 			if utils.StringsContains(bpScope.Entities, plugin.DOMAIN_TYPE_TICKET) {
 				scopeTicket := &ticket.Board{
@@ -100,6 +102,7 @@ func makePipelinePlanV200(
 				return nil, nil, errors.Default.Wrap(err, fmt.Sprintf("fail to find zentao product %s", bpScope.Id))
 			}
 			op.ProductId = scope.Id
+			op.DbUrl = connection.DbUrl
 
 			if utils.StringsContains(bpScope.Entities, plugin.DOMAIN_TYPE_TICKET) {
 				scopeTicket := &ticket.Board{
