@@ -42,7 +42,6 @@ func (c Changelog) ToToolLayer(connectionId, issueId uint64, issueUpdated *time.
 		Created:           c.Created.ToTime(),
 		IssueUpdated:      issueUpdated,
 	}
-	stripZeroByte(changelog)
 	return changelog, c.Author.ToToolLayer(connectionId)
 }
 
@@ -66,7 +65,6 @@ func (c ChangelogItem) ToToolLayer(connectionId, changelogId uint64) *models.Jir
 		ToValue:      c.ToValue,
 		ToString:     c.ToString,
 	}
-	stripZeroByte(item)
 	return item
 }
 
