@@ -19,6 +19,7 @@ package api
 
 import (
 	"context"
+	"fmt"
 	"net/http"
 	"strings"
 
@@ -29,11 +30,31 @@ import (
 	"github.com/apache/incubator-devlake/server/api/shared"
 )
 
-var requirePermission = []string{"repo:status", "repo_deployment", "read:user", "read:org"}
+var publicPermissions = []string{"repo:status", "repo_deployment", "read:user", "read:org"}
+var privatePermissions = []string{"repo"}
+var parentPermissions = map[string]string{
+	"repo:status":     "repo",
+	"repo_deployment": "repo",
+	"read:user":       "user",
+	"read:org":        "admin:org",
+}
+
+// findMissingPerms returns the missing required permissions from the given user permissions
+func findMissingPerms(userPerms map[string]bool, requiredPerms []string) []string {
+	missingPerms := make([]string, 0)
+	for _, pp := range requiredPerms {
+		// either the specific permission or its parent permission(larger) is granted
+		if !userPerms[pp] && !userPerms[parentPermissions[pp]] {
+			missingPerms = append(missingPerms, pp)
+		}
+	}
+	return missingPerms
+}
 
 type GithubTestConnResponse struct {
 	shared.ApiBody
-	Login string `json:"login"`
+	Login   string `json:"login"`
+	Warning bool   `json:"warning"`
 }
 
 // @Summary test github connection
@@ -77,35 +98,41 @@ func TestConnection(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, 
 		return nil, errors.BadInput.Wrap(err, "invalid token")
 	}
 
+	success := false
+	warning := false
+	messages := []string{}
 	// for github classic token, check permission
 	if strings.HasPrefix(conn.Token, "ghp_") {
 		scopes := res.Header.Get("X-OAuth-Scopes")
-		for _, permission := range requirePermission {
-			if !strings.Contains(scopes, permission) {
-				if permission == "repo:status" || permission == "repo_deployment" {
-					// If the missing permission is repo:status or repo_deployment, check if the repo permission is present
-					if strings.Contains(scopes, "repo") {
-						continue
-					}
-				}
-				if permission == "read:user" {
-					if strings.Contains(scopes, "user") {
-						continue
-					}
-				}
-				if permission == "read:org" {
-					if strings.Contains(scopes, "admin:org") {
-						continue
-					}
-				}
-				return nil, errors.BadInput.New("insufficient token permission")
-			}
+		// convert "X-OAuth-Scopes" header to user permissions map
+		userPerms := map[string]bool{}
+		for _, userPerm := range strings.Split(scopes, ", ") {
+			userPerms[userPerm] = true
+		}
+		// check public repo permission
+		missingPubPerms := findMissingPerms(userPerms, publicPermissions)
+		success = len(missingPubPerms) == 0
+		if !success {
+			messages = append(messages, fmt.Sprintf(
+				"%s is/are required to collect data from Public Repos",
+				strings.Join(missingPubPerms, ", "),
+			))
+		}
+		// check private repo permission
+		missingPriPerms := findMissingPerms(userPerms, privatePermissions)
+		warning = len(missingPriPerms) > 0
+		if warning {
+			messages = append(messages, fmt.Sprintf(
+				"%s is/are required to collect data from Private Repos",
+				strings.Join(missingPriPerms, ", "),
+			))
 		}
 	}
 
 	githubApiResponse := &GithubTestConnResponse{}
-	githubApiResponse.Success = true
-	githubApiResponse.Message = "success"
+	githubApiResponse.Success = success
+	githubApiResponse.Warning = warning
+	githubApiResponse.Message = strings.Join(messages, ";\n")
 	githubApiResponse.Login = githubUserOfToken.Login
 	return &plugin.ApiResourceOutput{Body: githubApiResponse, Status: http.StatusOK}, nil
 }
