@@ -39,7 +39,7 @@ func (ZentaoRemoteDbHistory) TableName() string {
 }
 
 type ZentaoRemoteDbAction struct {
-	Id         int       `gorm:"column:aid"`
+	Id         int       `gorm:"column:id"`
 	ObjectType string    `gorm:"column:objectType"`
 	ObjectId   int       `gorm:"column:objectID"`
 	Product    string    `gorm:"column:product"`
@@ -51,7 +51,7 @@ type ZentaoRemoteDbAction struct {
 	Comment    string    `gorm:"column:comment"`
 	Extra      string    `gorm:"column:extra"`
 	Read       string    `gorm:"column:read"`
-	Version    string    `gorm:"column:version"`
+	Vision     string    `gorm:"column:vision"`
 	Efforted   string    `gorm:"column:efforted"`
 }
 
@@ -63,13 +63,14 @@ type ZentaoRemoteDbActionHistory struct {
 	ZentaoRemoteDbAction
 	ZentaoRemoteDbHistoryBase
 
+	ActionId  int `gorm:"column:aid"`
 	HistoryId int `gorm:"column:hid"`
 }
 
 func (ah *ZentaoRemoteDbActionHistory) Convert() *ZentaoChangelogCom {
 	return &ZentaoChangelogCom{
 		&ZentaoChangelog{
-			Id:         int64(ah.Id),
+			Id:         int64(ah.ActionId),
 			ObjectId:   ah.ObjectId,
 			Execution:  ah.Execution,
 			Actor:      ah.Actor,
@@ -77,8 +78,7 @@ func (ah *ZentaoRemoteDbActionHistory) Convert() *ZentaoChangelogCom {
 			Extra:      ah.Extra,
 			ObjectType: ah.ObjectType,
 			Project:    ah.Project,
-			Product:    ah.Product,
-			Version:    ah.Version,
+			Vision:     ah.Vision,
 			Comment:    ah.Comment,
 			Efforted:   ah.Efforted,
 			Date:       ah.Date,

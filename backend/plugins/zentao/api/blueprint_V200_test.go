@@ -76,15 +76,23 @@ func TestMakeDataSourcePipelinePlanV200(t *testing.T) {
 	assert.Nil(t, err)
 	basicRes = NewMockBasicRes()
 
+	baseDbConfigReader := map[string]interface{}{
+		"DbIdleConns":    int(0),
+		"DbLoggingLevel": "",
+		"DbMaxConns":     int(0),
+		"DbUrl":          "",
+	}
 	expectPlan := plugin.PipelinePlan{
 		plugin.PipelineStage{
 			{
 				Plugin:   "zentao",
 				Subtasks: []string{},
 				Options: map[string]interface{}{
-					"ConnectionId": uint64(1),
-					"productId":    int64(0),
-					"projectId":    int64(1),
+					"ConnectionId":       uint64(1),
+					"productId":          int64(0),
+					"projectId":          int64(1),
+					"BaseDbConfigReader": baseDbConfigReader,
+					"RemoteDb":           nil,
 				},
 			},
 		},
@@ -93,9 +101,11 @@ func TestMakeDataSourcePipelinePlanV200(t *testing.T) {
 				Plugin:   "zentao",
 				Subtasks: []string{},
 				Options: map[string]interface{}{
-					"ConnectionId": uint64(1),
-					"productId":    int64(1),
-					"projectId":    int64(0),
+					"ConnectionId":       uint64(1),
+					"productId":          int64(1),
+					"projectId":          int64(0),
+					"BaseDbConfigReader": baseDbConfigReader,
+					"RemoteDb":           nil,
 				},
 			},
 		},

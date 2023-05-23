@@ -52,15 +52,21 @@ func DBGetActionHistory(taskCtx plugin.SubTaskContext) errors.Error {
 			return err
 		}
 		zcc.Changelog.ConnectionId = data.Options.ConnectionId
-		batch.Add(zcc.Changelog)
-
+		zcc.Changelog.Product = int(data.Options.ProductId)
+		err = batch.Add(zcc.Changelog)
+		if err != nil {
+			return err
+		}
 		if zcc.ChangelogDetail.Id != 0 {
 			batch, err = divider.ForType(reflect.TypeOf(zcc.ChangelogDetail))
 			if err != nil {
 				return err
 			}
 			zcc.ChangelogDetail.ConnectionId = data.Options.ConnectionId
-			batch.Add(zcc.ChangelogDetail)
+			err = batch.Add(zcc.ChangelogDetail)
+			if err != nil {
+				return err
+			}
 		}
 		return nil
 	})
@@ -101,7 +107,6 @@ func dBGetActionHistory(op *ZentaoOptions, callback func(*models.ZentaoChangelog
 
 	for cursor.Next() {
 		actionHistory := &models.ZentaoRemoteDbActionHistory{}
-
 		err = rdb.Fetch(cursor, actionHistory)
 		if err != nil {
 			return err

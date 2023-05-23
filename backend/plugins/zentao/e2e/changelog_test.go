@@ -21,6 +21,7 @@ import (
 	"testing"
 
 	"github.com/apache/incubator-devlake/core/config"
+	"github.com/apache/incubator-devlake/core/models/common"
 	"github.com/apache/incubator-devlake/core/runner"
 	"github.com/apache/incubator-devlake/helpers/e2ehelper"
 	"github.com/apache/incubator-devlake/impls/dalgorm"
@@ -39,16 +40,19 @@ func TestZentaoDbGetDataFlow(t *testing.T) {
 		Options: &tasks.ZentaoOptions{
 			ConnectionId: 1,
 			ProjectId:    0,
-			ProductId:    3,
+			ProductId:    1,
 
 			BaseDbConfigReader: runner.BaseDbConfigReader{
-				DbUrl:          "mysql://root:merico@sshd-proxy:3306/zentao?charset=utf8mb4&parseTime=True",
+				DbUrl:          cfg.GetString(`E2E_DB_URL`),
 				DbLoggingLevel: cfg.GetString("DB_LOGGING_LEVEL"),
 				DbIdleConns:    cfg.GetInt("DB_IDLE_CONNS"),
 				DbMaxConns:     cfg.GetInt("DB_MAX_CONNS"),
 			},
 		},
 	}
+
+	dataflowTester.ImportCsvIntoTabler("./raw_tables/zt_action.csv", models.ZentaoRemoteDbAction{})
+	dataflowTester.ImportCsvIntoTabler("./raw_tables/zt_history.csv", models.ZentaoRemoteDbHistory{})
 
 	rgorm, err := runner.NewGormDb(&taskData.Options.BaseDbConfigReader, dataflowTester.Log)
 	if err != nil {
@@ -61,4 +65,32 @@ func TestZentaoDbGetDataFlow(t *testing.T) {
 	dataflowTester.FlushTabler(&models.ZentaoChangelogDetail{})
 	dataflowTester.Subtask(tasks.DBGetChangelogMeta, taskData)
 
+	dataflowTester.VerifyTable(
+		models.ZentaoChangelog{},
+		"./snapshot_tables/_tool_zentao_changelog.csv",
+		e2ehelper.ColumnWithRawData(
+			"connection_id",
+			"id",
+			"object_id",
+			"execution",
+			"actor",
+			"action",
+			"extra",
+			"object_type",
+			"project",
+			"product",
+			"vision",
+			"comment",
+			"efforted",
+			"date",
+			"'read'",
+		),
+	)
+
+	dataflowTester.VerifyTableWithOptions(
+		&models.ZentaoChangelogDetail{},
+		e2ehelper.TableOptions{
+			CSVRelPath:  "./snapshot_tables/_tool_zentao_changelog_detail.csv",
+			IgnoreTypes: []interface{}{common.NoPKModel{}},
+		})
 }

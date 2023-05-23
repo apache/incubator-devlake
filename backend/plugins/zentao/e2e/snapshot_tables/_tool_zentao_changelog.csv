@@ -1,0 +1,13 @@
+connection_id,id,object_id,execution,actor,action,extra,object_type,project,product,vision,comment,efforted,date,read,_raw_data_params,_raw_data_table,_raw_data_id,_raw_data_remark
+1,112,1,1,admin,112,,execution,0,1,rnd,,0,2021-04-28T11:06:58.000+00:00,read,,,0,
+1,113,2,2,admin,113,,execution,0,1,rnd,,0,2021-04-28T11:08:02.000+00:00,read,,,0,
+1,114,1,1,admin,114,,bug,0,1,rnd,,0,2021-04-28T11:09:08.000+00:00,read,,,0,
+1,115,2,1,admin,115,,bug,0,1,rnd,,0,2021-04-28T11:09:08.000+00:00,read,,,0,
+1,116,3,1,admin,116,,bug,0,1,rnd,,0,2021-04-28T11:09:08.000+00:00,read,,,0,
+1,117,4,1,admin,117,,bug,0,1,rnd,,0,2021-04-28T11:09:08.000+00:00,read,,,0,
+1,118,1,1,admin,118,,testtask,0,1,rnd,,0,2021-04-28T11:10:06.000+00:00,read,,,0,
+1,119,1,0,admin,119,,productplan,0,1,rnd,,0,2021-04-28T11:11:10.000+00:00,read,,,0,
+1,120,1,1,admin,120,,execution,0,1,rnd,,0,2021-04-28T11:12:22.000+00:00,read,,,0,
+1,165,10,1,dev1,165,,task,7,1,rnd,,0,2021-04-28T13:17:54.000+00:00,read,,,0,
+1,166,11,1,dev1,166,,task,7,1,rnd,,0,2021-04-28T13:18:45.000+00:00,read,,,0,
+1,169,14,1,dev2,169,,task,7,1,rnd,,0,2021-04-28T13:19:54.000+00:00,read,,,0,
