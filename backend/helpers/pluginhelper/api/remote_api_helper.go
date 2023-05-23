@@ -160,7 +160,7 @@ func (r *RemoteApiHelper[Conn, Scope, ApiScope, Group]) GetScopesFromRemote(inpu
 	gid := groupId[0]
 	queryData, err := getPageDataFromPageToken(pageToken[0])
 	if err != nil {
-		return nil, errors.BadInput.New("failed to get paget token")
+		return nil, errors.BadInput.New("failed to get page token")
 	}
 
 	outputBody := &RemoteScopesOutput{}
@@ -244,7 +244,9 @@ func (r *RemoteApiHelper[Conn, Scope, ApiScope, Group]) GetScopesFromRemote(inpu
 	return &plugin.ApiResourceOutput{Body: outputBody, Status: http.StatusOK}, nil
 }
 
-func (r *RemoteApiHelper[Conn, Scope, ApiScope, Group]) SearchRemoteScopes(input *plugin.ApiResourceInput, searchScope func(basicRes coreContext.BasicRes, queryData *RemoteQueryData, connection Conn) ([]ApiScope, errors.Error)) (*plugin.ApiResourceOutput, errors.Error) {
+func (r *RemoteApiHelper[Conn, Scope, ApiScope, Group]) SearchRemoteScopes(input *plugin.ApiResourceInput,
+	searchScope func(basicRes coreContext.BasicRes, queryData *RemoteQueryData, connection Conn) ([]ApiScope, errors.Error),
+) (*plugin.ApiResourceOutput, errors.Error) {
 	connectionId, err := errors.Convert01(strconv.ParseUint(input.Params["connectionId"], 10, 64))
 	if err != nil || connectionId == 0 {
 		return nil, errors.BadInput.New("invalid connectionId")

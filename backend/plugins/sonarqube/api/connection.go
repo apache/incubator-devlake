@@ -36,6 +36,7 @@ type SonarqubeTestConnResponse struct {
 	Connection *models.SonarqubeConn
 }
 
+// TestConnection test sonarqube connection options
 // @Summary test sonarqube connection
 // @Description Test sonarqube Connection
 // @Tags plugins/sonarqube
@@ -82,6 +83,7 @@ func TestConnection(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, 
 	}
 }
 
+// PostConnections create sonarqube connection
 // @Summary create sonarqube connection
 // @Description Create sonarqube connection
 // @Tags plugins/sonarqube
@@ -100,10 +102,12 @@ func PostConnections(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput,
 	return &plugin.ApiResourceOutput{Body: connection, Status: http.StatusOK}, nil
 }
 
+// PatchConnection patch sonarqube connection
 // @Summary patch sonarqube connection
 // @Description Patch sonarqube connection
 // @Tags plugins/sonarqube
 // @Param body body models.SonarqubeConnection true "json body"
+// @Param connectionId path int false "connection ID"
 // @Success 200  {object} models.SonarqubeConnection
 // @Failure 400  {string} errcode.Error "Bad Request"
 // @Failure 500  {string} errcode.Error "Internal Error"
@@ -117,9 +121,11 @@ func PatchConnection(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput,
 	return &plugin.ApiResourceOutput{Body: connection}, nil
 }
 
+// DeleteConnection delete a sonarqube connection
 // @Summary delete a sonarqube connection
 // @Description Delete a sonarqube connection
 // @Tags plugins/sonarqube
+// @Param connectionId path int false "connection ID"
 // @Success 200  {object} models.SonarqubeConnection
 // @Failure 400  {string} errcode.Error "Bad Request"
 // @Failure 500  {string} errcode.Error "Internal Error"
@@ -134,6 +140,7 @@ func DeleteConnection(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput
 	return &plugin.ApiResourceOutput{Body: connection}, err
 }
 
+// ListConnections get all sonarqube connections
 // @Summary get all sonarqube connections
 // @Description Get all sonarqube connections
 // @Tags plugins/sonarqube
@@ -150,9 +157,11 @@ func ListConnections(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput,
 	return &plugin.ApiResourceOutput{Body: connections, Status: http.StatusOK}, nil
 }
 
+// GetConnection get sonarqube connection detail
 // @Summary get sonarqube connection detail
 // @Description Get sonarqube connection detail
 // @Tags plugins/sonarqube
+// @Param connectionId path int false "connection ID"
 // @Success 200  {object} models.SonarqubeConnection
 // @Failure 400  {string} errcode.Error "Bad Request"
 // @Failure 500  {string} errcode.Error "Internal Error"

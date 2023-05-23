@@ -73,6 +73,7 @@ func RemoteScopes(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, er
 // @Tags plugins/sonarqube
 // @Accept application/json
 // @Param connectionId path int false "connection ID"
+// @Param search query string false "search keyword"
 // @Param page query int false "page number"
 // @Param pageSize query int false "page size per page"
 // @Success 200  {object} api.SearchRemoteScopesOutput
@@ -80,9 +81,8 @@ func RemoteScopes(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, er
 // @Failure 500  {object} shared.ApiBody "Internal Error"
 // @Router /plugins/sonarqube/connections/{connectionId}/search-remote-scopes [GET]
 func SearchRemoteScopes(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, errors.Error) {
-	return remoteHelper.GetScopesFromRemote(input,
-		nil,
-		func(basicRes context2.BasicRes, gid string, queryData *api.RemoteQueryData, connection models.SonarqubeConnection) ([]models.SonarqubeApiProject, errors.Error) {
+	return remoteHelper.SearchRemoteScopes(input,
+		func(basicRes context2.BasicRes, queryData *api.RemoteQueryData, connection models.SonarqubeConnection) ([]models.SonarqubeApiProject, errors.Error) {
 			query := initialQuery(queryData)
 			query.Set("q", queryData.Search[0])
 			// create api client
