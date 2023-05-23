@@ -20,6 +20,7 @@ package tasks
 import (
 	"encoding/json"
 	"regexp"
+	"strings"
 
 	"github.com/apache/incubator-devlake/core/errors"
 	"github.com/apache/incubator-devlake/core/models/domainlayer/ticket"
@@ -180,17 +181,14 @@ func convertGithubIssue(issue *IssuesResponse, connectionId uint64, repositoryId
 
 func convertGithubLabels(issueRegexes *IssueRegexes, issue *IssuesResponse, githubIssue *models.GithubIssue) ([]interface{}, errors.Error) {
 	var results []interface{}
-	joinedLabels := ""
-	for i, label := range issue.Labels {
+	var joinedLabels []string
+	for _, label := range issue.Labels {
 		results = append(results, &models.GithubIssueLabel{
 			ConnectionId: githubIssue.ConnectionId,
 			IssueId:      githubIssue.GithubId,
 			LabelName:    label.Name,
 		})
-		if i > 0 {
-			joinedLabels += ","
-		}
-		joinedLabels += label.Name
+		joinedLabels = append(joinedLabels, label.Name)
 
 		if issueRegexes.SeverityRegex != nil {
 			groups := issueRegexes.SeverityRegex.FindStringSubmatch(label.Name)
@@ -219,7 +217,8 @@ func convertGithubLabels(issueRegexes *IssueRegexes, issue *IssuesResponse, gith
 		}
 	}
 	if len(joinedLabels) > 0 {
-		githubIssue.Type = joinedLabels
+		joinedLabelsString := strings.Join(joinedLabels, ",")
+		githubIssue.Type = joinedLabelsString
 	}
 	return results, nil
 }

@@ -243,17 +243,14 @@ func convertGithubIssue(milestoneMap map[int]int, issue GraphqlQueryIssue, conne
 
 func convertGithubLabels(issueRegexes *githubTasks.IssueRegexes, issue GraphqlQueryIssue, githubIssue *models.GithubIssue) ([]interface{}, errors.Error) {
 	var results []interface{}
-	joinedLabels := ""
-	for i, label := range issue.Labels.Nodes {
+	var joinedLabels []string
+	for _, label := range issue.Labels.Nodes {
 		results = append(results, &models.GithubIssueLabel{
 			ConnectionId: githubIssue.ConnectionId,
 			IssueId:      githubIssue.GithubId,
 			LabelName:    label.Name,
 		})
-		if i > 0 {
-			joinedLabels += ","
-		}
-		joinedLabels += label.Name
+		joinedLabels = append(joinedLabels, label.Name)
 
 		if issueRegexes.SeverityRegex != nil {
 			groups := issueRegexes.SeverityRegex.FindStringSubmatch(label.Name)
@@ -282,7 +279,8 @@ func convertGithubLabels(issueRegexes *githubTasks.IssueRegexes, issue GraphqlQu
 		}
 	}
 	if len(joinedLabels) > 0 {
-		githubIssue.Type = joinedLabels
+		joinedLabelsString := strings.Join(joinedLabels, ",")
+		githubIssue.Type = joinedLabelsString
 	}
 	return results, nil
 }
