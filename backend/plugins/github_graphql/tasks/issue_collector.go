@@ -243,12 +243,15 @@ func convertGithubIssue(milestoneMap map[int]int, issue GraphqlQueryIssue, conne
 
 func convertGithubLabels(issueRegexes *githubTasks.IssueRegexes, issue GraphqlQueryIssue, githubIssue *models.GithubIssue) ([]interface{}, errors.Error) {
 	var results []interface{}
+	var joinedLabels []string
 	for _, label := range issue.Labels.Nodes {
 		results = append(results, &models.GithubIssueLabel{
 			ConnectionId: githubIssue.ConnectionId,
 			IssueId:      githubIssue.GithubId,
 			LabelName:    label.Name,
 		})
+		joinedLabels = append(joinedLabels, label.Name)
+
 		if issueRegexes.SeverityRegex != nil {
 			groups := issueRegexes.SeverityRegex.FindStringSubmatch(label.Name)
 			if len(groups) > 1 {
@@ -267,24 +270,16 @@ func convertGithubLabels(issueRegexes *githubTasks.IssueRegexes, issue GraphqlQu
 				githubIssue.Priority = groups[1]
 			}
 		}
-		if issueRegexes.TypeBugRegex != nil {
-			if ok := issueRegexes.TypeBugRegex.MatchString(label.Name); ok {
-				githubIssue.StdType = ticket.BUG
-				githubIssue.Type = label.Name
-			}
+		if issueRegexes.TypeRequirementRegex != nil && issueRegexes.TypeRequirementRegex.MatchString(label.Name) {
+			githubIssue.StdType = ticket.REQUIREMENT
+		} else if issueRegexes.TypeBugRegex != nil && issueRegexes.TypeBugRegex.MatchString(label.Name) {
+			githubIssue.StdType = ticket.BUG
+		} else if issueRegexes.TypeIncidentRegex != nil && issueRegexes.TypeIncidentRegex.MatchString(label.Name) {
+			githubIssue.StdType = ticket.INCIDENT
 		}
-		if issueRegexes.TypeRequirementRegex != nil {
-			if ok := issueRegexes.TypeRequirementRegex.MatchString(label.Name); ok {
-				githubIssue.StdType = ticket.REQUIREMENT
-				githubIssue.Type = label.Name
-			}
-		}
-		if issueRegexes.TypeIncidentRegex != nil {
-			if ok := issueRegexes.TypeIncidentRegex.MatchString(label.Name); ok {
-				githubIssue.StdType = ticket.INCIDENT
-				githubIssue.Type = label.Name
-			}
-		}
+	}
+	if len(joinedLabels) > 0 {
+		githubIssue.Type = strings.Join(joinedLabels, ",")
 	}
 	return results, nil
 }
