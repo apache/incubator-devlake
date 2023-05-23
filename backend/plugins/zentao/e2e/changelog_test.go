@@ -83,7 +83,6 @@ func TestZentaoDbGetDataFlow(t *testing.T) {
 			"comment",
 			"efforted",
 			"date",
-			"'read'",
 		),
 	)
 
