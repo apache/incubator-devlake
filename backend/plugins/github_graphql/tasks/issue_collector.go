@@ -279,8 +279,7 @@ func convertGithubLabels(issueRegexes *githubTasks.IssueRegexes, issue GraphqlQu
 		}
 	}
 	if len(joinedLabels) > 0 {
-		joinedLabelsString := strings.Join(joinedLabels, ",")
-		githubIssue.Type = joinedLabelsString
+		githubIssue.Type = strings.Join(joinedLabels, ",")
 	}
 	return results, nil
 }

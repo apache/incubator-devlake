@@ -217,8 +217,7 @@ func convertGithubLabels(issueRegexes *IssueRegexes, issue *IssuesResponse, gith
 		}
 	}
 	if len(joinedLabels) > 0 {
-		joinedLabelsString := strings.Join(joinedLabels, ",")
-		githubIssue.Type = joinedLabelsString
+		githubIssue.Type = strings.Join(joinedLabels, ",")
 	}
 	return results, nil
 }
