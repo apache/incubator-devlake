@@ -33,15 +33,16 @@ const (
 )
 
 type PluginInfo struct {
-	Name                        string              `json:"name" validate:"required"`
-	Description                 string              `json:"description"`
-	ConnectionModelInfo         *DynamicModelInfo   `json:"connection_model_info" validate:"required"`
-	TransformationRuleModelInfo *DynamicModelInfo   `json:"transformation_rule_model_info"`
-	ScopeModelInfo              *DynamicModelInfo   `json:"scope_model_info" validate:"required"`
-	ToolModelInfos              []*DynamicModelInfo `json:"tool_model_infos"`
-	PluginPath                  string              `json:"plugin_path" validate:"required"`
-	SubtaskMetas                []SubtaskMeta       `json:"subtask_metas"`
-	Extension                   PluginExtension     `json:"extension"`
+	Name                        string                  `json:"name" validate:"required"`
+	Description                 string                  `json:"description"`
+	ConnectionModelInfo         *DynamicModelInfo       `json:"connection_model_info" validate:"required"`
+	TransformationRuleModelInfo *DynamicModelInfo       `json:"transformation_rule_model_info"`
+	ScopeModelInfo              *DynamicModelInfo       `json:"scope_model_info" validate:"required"`
+	ToolModelInfos              []*DynamicModelInfo     `json:"tool_model_infos"`
+	MigrationScripts            []RemoteMigrationScript `json:"migration_scripts"`
+	PluginPath                  string                  `json:"plugin_path" validate:"required"`
+	SubtaskMetas                []SubtaskMeta           `json:"subtask_metas"`
+	Extension                   PluginExtension         `json:"extension"`
 }
 
 // Type aliases used by the API helper for better readability

@@ -43,6 +43,7 @@ type (
 		scopeTabler              *coreModels.DynamicTabler
 		transformationRuleTabler *coreModels.DynamicTabler
 		toolModelTablers         []*coreModels.DynamicTabler
+		migrationScripts         []plugin.MigrationScript
 		resources                map[string]map[string]plugin.ApiResourceHandler
 		openApiSpec              string
 	}
@@ -84,6 +85,11 @@ func newPlugin(info *models.PluginInfo, invoker bridge.Invoker) (*remotePluginIm
 	if err != nil {
 		return nil, errors.Default.Wrap(err, fmt.Sprintf("Couldn't generate OpenAPI spec for plugin %s", info.Name))
 	}
+	scripts := make([]plugin.MigrationScript, 0)
+	for _, script := range info.MigrationScripts {
+		script := script
+		scripts = append(scripts, &script)
+	}
 	p := remotePluginImpl{
 		name:                     info.Name,
 		invoker:                  invoker,
@@ -93,6 +99,7 @@ func newPlugin(info *models.PluginInfo, invoker bridge.Invoker) (*remotePluginIm
 		scopeTabler:              scopeTabler,
 		transformationRuleTabler: txRuleTabler,
 		toolModelTablers:         toolModelTablers,
+		migrationScripts:         scripts,
 		resources:                GetDefaultAPI(invoker, connectionTabler, txRuleTabler, scopeTabler, connectionHelper),
 		openApiSpec:              *openApiSpec,
 	}
@@ -204,7 +211,7 @@ func (p *remotePluginImpl) ApiResources() map[string]map[string]plugin.ApiResour
 	return p.resources
 }
 
-func (p *remotePluginImpl) RunMigrations(forceMigrate bool) errors.Error {
+func (p *remotePluginImpl) RunAutoMigrations() errors.Error {
 	db := basicRes.GetDal()
 	err := api.CallDB(db.AutoMigrate, p.connectionTabler.New())
 	if err != nil {
@@ -226,13 +233,15 @@ func (p *remotePluginImpl) RunMigrations(forceMigrate bool) errors.Error {
 			return err
 		}
 	}
-	dbUrl := basicRes.GetConfig("db_url")
-	err = p.invoker.Call("run-migrations", bridge.DefaultContext, dbUrl, forceMigrate).Err
-	return err
+	return nil
 }
 
 func (p *remotePluginImpl) OpenApiSpec() string {
 	return p.openApiSpec
+}
+
+func (p *remotePluginImpl) MigrationScripts() []plugin.MigrationScript {
+	return p.migrationScripts
 }
 
 var _ models.RemotePlugin = (*remotePluginImpl)(nil)

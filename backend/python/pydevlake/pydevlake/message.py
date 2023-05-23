@@ -20,6 +20,7 @@ from pydantic import BaseModel, Field
 import jsonref
 
 from pydevlake.model import ToolScope
+from pydevlake.migration import MigrationScript
 
 
 class Message(BaseModel):
@@ -65,6 +66,7 @@ class PluginInfo(Message):
     transformation_rule_model_info: Optional[DynamicModelInfo]
     scope_model_info: DynamicModelInfo
     tool_model_infos: list[DynamicModelInfo]
+    migration_scripts: list[MigrationScript]
     plugin_path: str
     subtask_metas: list[SubtaskMeta]
     extension: str = "datasource"

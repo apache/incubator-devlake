@@ -29,5 +29,6 @@ type RemotePlugin interface {
 	plugin.PluginMeta
 	plugin.PluginOpenApiSpec
 	plugin.PluginModel
-	RunMigrations(forceMigrate bool) errors.Error
+	plugin.PluginMigration
+	RunAutoMigrations() errors.Error
 }

@@ -59,13 +59,6 @@ class ToolTable(SQLModel):
             parts = attr_name.split('_')
             return parts[0] + ''.join(word.capitalize() for word in parts[1:])
 
-    @classmethod
-    def migrate(cls, session: Session):
-        """
-        Redefine this method to perform migration on this tool model.
-        """
-        pass
-
 
 class Connection(ToolTable, Model):
     name: str

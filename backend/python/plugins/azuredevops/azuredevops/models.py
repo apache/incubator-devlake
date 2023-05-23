@@ -18,13 +18,12 @@ from enum import Enum
 from typing import Optional
 import re
 
-from sqlmodel import Session
 from pydantic import SecretStr
 
 from pydevlake import Field, Connection, TransformationRule
 from pydevlake.model import ToolModel, ToolScope
 from pydevlake.pipeline_tasks import RefDiffOptions
-
+from pydevlake.migration import migration, MigrationScriptBuilder, Dialect
 
 
 class AzureDevOpsConnection(Connection):
@@ -126,13 +125,14 @@ class Job(ToolModel, table=True):
     state: JobState
     result: JobResult
 
-    @classmethod
-    def migrate(self, session: Session):
-        dialect = session.bind.dialect.name
-        if dialect == 'mysql':
-            session.execute(f'ALTER TABLE {self.__tablename__} DROP PRIMARY KEY')
-        elif dialect == 'postgresql':
-            session.execute(f'ALTER TABLE {self.__tablename__} DROP CONSTRAINT {self.__tablename__}_pkey')
-        else:
-            raise Exception(f'Unsupported dialect {dialect}')
-        session.execute(f'ALTER TABLE {self.__tablename__} ADD PRIMARY KEY (id, build_id)')
+
+@migration(20230524181430)
+def add_build_id_as_job_primary_key(b: MigrationScriptBuilder):
+    # NOTE: We can't add a column to the primary key of an existing table
+    # so we have to drop the primary key constraint first,
+    # which is done differently in MySQL and PostgreSQL,
+    # and then add the new composite primary key.
+    table = Job.__tablename__
+    b.execute(f'ALTER TABLE {table} DROP PRIMARY KEY', Dialect.MYSQL)
+    b.execute(f'ALTER TABLE {table} DROP CONSTRAINT {table}_pkey', Dialect.POSTGRESQL)
+    b.execute(f'ALTER TABLE {table} ADD PRIMARY KEY (id, build_id)')
