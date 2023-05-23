@@ -38,8 +38,9 @@ runs:
       shell: bash
       env:
         GH_TOKEN: ${{ github.token }}
-        REPOSITORY: ${{ github.repository }}
         PR_NUMBER: ${{ github.event.pull_request.number }}
+        PR_TITLE: ${{ github.event.pull_request.title }}
+        PR_BODY: ${{ github.event.pull_request.body }}
         LABEL_NAME: ${{ github.event.label.name }}
         AUTHOR_EMAIL: ${{ inputs.author_email }}
         AUTHOR_NAME: ${{ inputs.author_name }}

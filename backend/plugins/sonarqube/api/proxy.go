@@ -27,6 +27,16 @@ import (
 	"github.com/apache/incubator-devlake/plugins/sonarqube/models"
 )
 
+// Proxy proxy api request to upstream sonarqube
+// @Summary proxy api request to upstream sonarqube
+// @Description Proxy HTTP GET request to the sonarqube behind this connection.
+// @Tags plugins/sonarqube
+// @Param connectionId path int false "connection ID"
+// @Param path path string false "API Path"
+// @Success 200  {object} interface{} "Success"
+// @Failure 400  {string} errcode.Error "Bad Request"
+// @Failure 500  {string} errcode.Error "Internal Error"
+// @Router /plugins/sonarqube/connections/{connectionId}/proxy/rest/{path} [GET]
 func Proxy(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, errors.Error) {
 	connection := &models.SonarqubeConnection{}
 	err := connectionHelper.First(connection, input.Params)
