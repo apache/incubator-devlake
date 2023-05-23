@@ -21,12 +21,13 @@ import (
 	"encoding/base64"
 	"encoding/json"
 	"fmt"
+	"net/http"
+	"strconv"
+
 	coreContext "github.com/apache/incubator-devlake/core/context"
 	"github.com/apache/incubator-devlake/core/errors"
 	"github.com/apache/incubator-devlake/core/plugin"
 	"github.com/go-playground/validator/v10"
-	"net/http"
-	"strconv"
 )
 
 type RemoteScopesChild struct {
@@ -160,7 +161,7 @@ func (r *RemoteApiHelper[Conn, Scope, ApiScope, Group]) GetScopesFromRemote(inpu
 	gid := groupId[0]
 	queryData, err := getPageDataFromPageToken(pageToken[0])
 	if err != nil {
-		return nil, errors.BadInput.New("failed to get paget token")
+		return nil, errors.BadInput.New("failed to get page token")
 	}
 
 	outputBody := &RemoteScopesOutput{}

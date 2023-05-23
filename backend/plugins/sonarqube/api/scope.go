@@ -67,10 +67,12 @@ func UpdateScope(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, err
 // @Description get Sonarqube projects
 // @Tags plugins/sonarqube
 // @Param connectionId path int false "connection ID"
+// @Param pageSize query int false "page size, default 50"
+// @Param page query int false "page size, default 1"
 // @Success 200  {object} []ScopeRes
 // @Failure 400  {object} shared.ApiBody "Bad Request"
 // @Failure 500  {object} shared.ApiBody "Internal Error"
-// @Router /plugins/sonarqube/connections/{connectionId}/scopes/ [GET]
+// @Router /plugins/sonarqube/connections/{connectionId}/scopes [GET]
 func GetScopeList(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, errors.Error) {
 	return scopeHelper.GetScopeList(input)
 }
@@ -81,8 +83,6 @@ func GetScopeList(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, er
 // @Tags plugins/sonarqube
 // @Param connectionId path int false "connection ID"
 // @Param scopeId path string false "project key"
-// @Param pageSize query int false "page size, default 50"
-// @Param page query int false "page size, default 1"
 // @Success 200  {object} ScopeRes
 // @Failure 400  {object} shared.ApiBody "Bad Request"
 // @Failure 500  {object} shared.ApiBody "Internal Error"
