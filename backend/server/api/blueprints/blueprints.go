@@ -216,3 +216,27 @@ func GetBlueprintPipelines(c *gin.Context) {
 	}
 	shared.ApiOutputSuccess(c, shared.ResponsePipelines{Pipelines: pipelines, Count: count}, http.StatusOK)
 }
+
+// @Summary delete blueprint by id
+// @Description delete blueprint by id
+// @Tags framework/blueprints
+// @Accept application/json
+// @Param blueprintId path int true "blueprint id"
+// @Success 200
+// @Failure 400  {object} shared.ApiBody "Bad Request"
+// @Failure 500  {object} shared.ApiBody "Internal Error"
+// @Router /blueprints/{blueprintId} [delete]
+func Delete(c *gin.Context) {
+	blueprintId := c.Param("blueprintId")
+	id, err := strconv.ParseUint(blueprintId, 10, 64)
+	if err != nil {
+		shared.ApiOutputError(c, errors.BadInput.Wrap(err, "bad blueprintId format supplied"))
+		return
+	}
+	err = services.DeleteBlueprint(id)
+	if err != nil {
+		shared.ApiOutputError(c, errors.Default.Wrap(err, "error deleting blueprint"))
+		return
+	}
+	shared.ApiOutputSuccess(c, nil, http.StatusOK)
+}

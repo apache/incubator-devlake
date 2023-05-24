@@ -15,19 +15,18 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-package apiv2models
+package ticket
 
-import (
-	"reflect"
-	"strings"
-)
+import "github.com/apache/incubator-devlake/core/models/common"
 
-func stripZeroByte(ifc interface{}) {
-	v := reflect.ValueOf(ifc).Elem()
-	for i := 0; i < v.NumField(); i++ {
-		if v.Field(i).Type() == reflect.TypeOf("") {
-			stripped := strings.ReplaceAll(v.Field(i).String(), "\u0000", "")
-			v.Field(i).Set(reflect.ValueOf(stripped))
-		}
-	}
+type IssueAssignee struct {
+	IssueId      string `gorm:"primaryKey;type:varchar(255)"`
+	AssigneeId   string `gorm:"primaryKey;type:varchar(255)"`
+	AssigneeName string `gorm:"type:varchar(255)"`
+
+	common.NoPKModel
+}
+
+func (IssueAssignee) TableName() string {
+	return "issue_assignees"
 }

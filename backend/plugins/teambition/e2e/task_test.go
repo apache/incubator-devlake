@@ -87,12 +87,21 @@ func TestTeambitionTask(t *testing.T) {
 		},
 	)
 
+	dataflowTester.FlushTabler(&ticket.IssueAssignee{})
 	dataflowTester.FlushTabler(&ticket.Issue{})
 	dataflowTester.Subtask(tasks.ConvertTasksMeta, taskData)
 	dataflowTester.VerifyTableWithOptions(
 		ticket.Issue{},
 		e2ehelper.TableOptions{
 			CSVRelPath:   "./snapshot_tables/issues.csv",
+			IgnoreFields: []string{"created_date", "logged_date", "started_date", "updated_date", "resolution_date"},
+			IgnoreTypes:  []interface{}{domainlayer.DomainEntity{}},
+		},
+	)
+	dataflowTester.VerifyTableWithOptions(
+		ticket.IssueAssignee{},
+		e2ehelper.TableOptions{
+			CSVRelPath:   "./snapshot_tables/issue_assignees.csv",
 			IgnoreFields: []string{"created_date", "logged_date", "started_date", "updated_date", "resolution_date"},
 			IgnoreTypes:  []interface{}{domainlayer.DomainEntity{}},
 		},

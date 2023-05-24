@@ -50,6 +50,5 @@ func (c Comment) ToToolLayer(connectionId uint64, issueId uint64, issueUpdated *
 		result.CreatorAccountId = c.Author.getAccountId()
 		result.CreatorDisplayName = c.Author.DisplayName
 	}
-	stripZeroByte(result)
 	return result
 }

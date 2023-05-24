@@ -19,6 +19,9 @@ package remote
 
 import (
 	"fmt"
+	"github.com/apache/incubator-devlake/core/models"
+	"github.com/apache/incubator-devlake/core/plugin"
+	"github.com/stretchr/testify/require"
 	"os"
 	"path/filepath"
 	"testing"
@@ -50,6 +53,13 @@ type (
 		Id   uint64 `json:"id"`
 		Name string `json:"name"`
 		Env  string `json:"env"`
+	}
+	BlueprintTestParams struct {
+		connection *helper.Connection
+		projects   []models.ApiOutputProject
+		blueprints []models.Blueprint
+		rule       *FakeTxRule
+		scope      *FakeProject
 	}
 )
 
@@ -95,4 +105,53 @@ func CreateTestScope(client *helper.DevlakeClient, rule *FakeTxRule, connectionI
 func CreateTestTransformationRule(client *helper.DevlakeClient, connectionId uint64) *FakeTxRule {
 	rule := helper.Cast[FakeTxRule](client.CreateTransformationRule(PLUGIN_NAME, connectionId, FakeTxRule{Name: "Tx rule", Env: "test env"}))
 	return &rule
+}
+
+func CreateTestBlueprints(t *testing.T, client *helper.DevlakeClient, count int) *BlueprintTestParams {
+	t.Helper()
+	connection := CreateTestConnection(client)
+	rule := CreateTestTransformationRule(client, connection.ID)
+	scope := CreateTestScope(client, rule, connection.ID)
+	var bps []models.Blueprint
+	var projects []models.ApiOutputProject
+	for i := 1; i <= count; i++ {
+		projectName := fmt.Sprintf("Test project %d", i)
+		client.CreateProject(&helper.ProjectConfig{
+			ProjectName: projectName,
+		})
+		blueprint := client.CreateBasicBlueprintV2(
+			fmt.Sprintf("Test blueprint %d", i),
+			&helper.BlueprintV2Config{
+				Connection: &plugin.BlueprintConnectionV200{
+					Plugin:       "fake",
+					ConnectionId: connection.ID,
+					Scopes: []*plugin.BlueprintScopeV200{
+						{
+							Id:   scope.Id,
+							Name: "Test scope",
+							Entities: []string{
+								plugin.DOMAIN_TYPE_CICD,
+							},
+						},
+					},
+				},
+				SkipOnFail:  true,
+				ProjectName: projectName,
+			},
+		)
+		plan, err := blueprint.UnmarshalPlan()
+		require.NoError(t, err)
+		_ = plan
+		bps = append(bps, blueprint)
+		project := client.GetProject(projectName)
+		require.Equal(t, blueprint.Name, project.Blueprint.Name)
+		projects = append(projects, project)
+	}
+	return &BlueprintTestParams{
+		connection: connection,
+		projects:   projects,
+		blueprints: bps,
+		rule:       rule,
+		scope:      scope,
+	}
 }
