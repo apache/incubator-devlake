@@ -224,6 +224,19 @@ func PatchBlueprint(id uint64, body map[string]interface{}) (*models.Blueprint, 
 	return blueprint, nil
 }
 
+// DeleteBlueprint FIXME ...
+func DeleteBlueprint(id uint64) errors.Error {
+	bp, err := bpManager.GetDbBlueprint(id)
+	if err != nil {
+		return err
+	}
+	err = bpManager.DeleteBlueprint(bp.ID)
+	if err != nil {
+		return errors.Default.Wrap(err, "Failed to delete the blueprint")
+	}
+	return nil
+}
+
 // ReloadBlueprints FIXME ...
 func ReloadBlueprints(c *cron.Cron) errors.Error {
 	enable := true
