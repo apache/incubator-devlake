@@ -28,6 +28,7 @@ import (
 	"github.com/apache/incubator-devlake/plugins/zentao/impl"
 	"github.com/apache/incubator-devlake/plugins/zentao/models"
 	"github.com/apache/incubator-devlake/plugins/zentao/tasks"
+	"github.com/spf13/viper"
 )
 
 func TestZentaoDbGetDataFlow(t *testing.T) {
@@ -42,19 +43,23 @@ func TestZentaoDbGetDataFlow(t *testing.T) {
 			ProjectId:    0,
 			ProductId:    1,
 
-			BaseDbConfigReader: runner.BaseDbConfigReader{
-				DbUrl:          cfg.GetString(`E2E_DB_URL`),
-				DbLoggingLevel: cfg.GetString("DB_LOGGING_LEVEL"),
-				DbIdleConns:    cfg.GetInt("DB_IDLE_CONNS"),
-				DbMaxConns:     cfg.GetInt("DB_MAX_CONNS"),
-			},
+			DbUrl:          cfg.GetString(`E2E_DB_URL`),
+			DbLoggingLevel: cfg.GetString("DB_LOGGING_LEVEL"),
+			DbIdleConns:    cfg.GetInt("DB_IDLE_CONNS"),
+			DbMaxConns:     cfg.GetInt("DB_MAX_CONNS"),
 		},
 	}
 
 	dataflowTester.ImportCsvIntoTabler("./raw_tables/zt_action.csv", models.ZentaoRemoteDbAction{})
 	dataflowTester.ImportCsvIntoTabler("./raw_tables/zt_history.csv", models.ZentaoRemoteDbHistory{})
 
-	rgorm, err := runner.NewGormDb(&taskData.Options.BaseDbConfigReader, dataflowTester.Log)
+	v := viper.New()
+	v.Set("DB_URL", taskData.Options.DbUrl)
+	v.Set("DB_LOGGING_LEVEL", taskData.Options.DbLoggingLevel)
+	v.Set("DB_IDLE_CONNS", taskData.Options.DbIdleConns)
+	v.Set("DbMaxConns", taskData.Options.DbMaxConns)
+
+	rgorm, err := runner.NewGormDb(v, dataflowTester.Log)
 	if err != nil {
 		return
 	}

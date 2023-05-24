@@ -30,6 +30,7 @@ import (
 	"github.com/apache/incubator-devlake/plugins/zentao/models"
 	"github.com/apache/incubator-devlake/plugins/zentao/models/migrationscripts"
 	"github.com/apache/incubator-devlake/plugins/zentao/tasks"
+	"github.com/spf13/viper"
 )
 
 // make sure interface is implemented
@@ -103,7 +104,13 @@ func (p Zentao) PrepareTaskData(taskCtx plugin.TaskContext, options map[string]i
 			op.DbLoggingLevel = taskCtx.GetConfig("DB_LOGGING_LEVEL")
 		}
 
-		rgorm, err := runner.NewGormDb(&op.BaseDbConfigReader, taskCtx.GetLogger())
+		v := viper.New()
+		v.Set("DB_URL", op.DbUrl)
+		v.Set("DB_LOGGING_LEVEL", op.DbLoggingLevel)
+		v.Set("DB_IDLE_CONNS", op.DbIdleConns)
+		v.Set("DbMaxConns", op.DbMaxConns)
+
+		rgorm, err := runner.NewGormDb(v, taskCtx.GetLogger())
 		if err != nil {
 			return nil, errors.Default.Wrap(err, fmt.Sprintf("failed to connect to the zentao remote databases %s", op.DbUrl))
 		}

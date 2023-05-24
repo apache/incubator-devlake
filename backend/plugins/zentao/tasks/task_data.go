@@ -22,7 +22,6 @@ import (
 
 	"github.com/apache/incubator-devlake/core/dal"
 	"github.com/apache/incubator-devlake/core/errors"
-	"github.com/apache/incubator-devlake/core/runner"
 	helper "github.com/apache/incubator-devlake/helpers/pluginhelper/api"
 	"github.com/mitchellh/mapstructure"
 )
@@ -47,9 +46,10 @@ type ZentaoOptions struct {
 
 	RemoteDb dal.Dal
 
-	// if it isn't empty
-	// try to connect databases and run the dbget tasks to collect and extract data from db
-	runner.BaseDbConfigReader
+	DbIdleConns    int    `json:"dbIdleConns" mapstructure:"dbIdleConns"`
+	DbLoggingLevel string `json:"dbLoggingLevel" mapstructure:"dbLoggingLevel"`
+	DbMaxConns     int    `json:"dbMaxConns" mapstructure:"dbMaxConns"`
+	DbUrl          string `json:"dbUrl" mapstructure:"dbUrl"`
 }
 
 type ZentaoTaskData struct {
