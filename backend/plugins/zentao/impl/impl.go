@@ -99,7 +99,12 @@ func (p Zentao) PrepareTaskData(taskCtx plugin.TaskContext, options map[string]i
 		return nil, errors.Default.Wrap(err, "unable to get Zentao API client instance: %v")
 	}
 
-	if connection.DbUrl != "" && op.RemoteDb == nil {
+	data := &tasks.ZentaoTaskData{
+		Options:   op,
+		ApiClient: apiClient,
+	}
+
+	if connection.DbUrl != "" {
 		if connection.DbLoggingLevel == "" {
 			connection.DbLoggingLevel = taskCtx.GetConfig("DB_LOGGING_LEVEL")
 		}
@@ -123,13 +128,10 @@ func (p Zentao) PrepareTaskData(taskCtx plugin.TaskContext, options map[string]i
 			return nil, errors.Default.Wrap(err, fmt.Sprintf("failed to connect to the zentao remote databases %s", connection.DbUrl))
 		}
 
-		op.RemoteDb = dalgorm.NewDalgorm(rgorm)
+		data.RemoteDb = dalgorm.NewDalgorm(rgorm)
 	}
 
-	return &tasks.ZentaoTaskData{
-		Options:   op,
-		ApiClient: apiClient,
-	}, nil
+	return data, nil
 }
 
 // PkgPath information lost when compiled as plugin(.so)

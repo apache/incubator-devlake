@@ -247,7 +247,6 @@ func EnrichOptions(taskCtx plugin.TaskContext,
 		return err
 	}
 	logger := taskCtx.GetLogger()
-	// for advanced mode or others which we only have name, for bp v200, we have githubId
 	err = taskCtx.GetDal().First(&repo, dal.Where(
 		"connection_id = ? AND bitbucket_id = ?",
 		op.ConnectionId, op.FullName))

@@ -34,7 +34,7 @@ func DBGetActionHistory(taskCtx plugin.SubTaskContext) errors.Error {
 	data := taskCtx.GetData().(*ZentaoTaskData)
 
 	// skip if no RemoteDb
-	if data.Options.RemoteDb == nil {
+	if data.RemoteDb == nil {
 		return nil
 	}
 
@@ -46,7 +46,7 @@ func DBGetActionHistory(taskCtx plugin.SubTaskContext) errors.Error {
 		}
 	}()
 
-	return dBGetActionHistory(data.Options, func(zcc *models.ZentaoChangelogCom) errors.Error {
+	return dBGetActionHistory(data, func(zcc *models.ZentaoChangelogCom) errors.Error {
 		batch, err := divider.ForType(reflect.TypeOf(zcc.Changelog))
 		if err != nil {
 			return err
@@ -81,8 +81,8 @@ var DBGetChangelogMeta = plugin.SubTaskMeta{
 }
 
 // it is work for zentao version 18.3
-func dBGetActionHistory(op *ZentaoOptions, callback func(*models.ZentaoChangelogCom) errors.Error) errors.Error {
-	rdb := op.RemoteDb
+func dBGetActionHistory(data *ZentaoTaskData, callback func(*models.ZentaoChangelogCom) errors.Error) errors.Error {
+	rdb := data.RemoteDb
 	atn := (models.ZentaoRemoteDbAction{}).TableName()
 	htn := (models.ZentaoRemoteDbHistory{}).TableName()
 
@@ -91,11 +91,11 @@ func dBGetActionHistory(op *ZentaoOptions, callback func(*models.ZentaoChangelog
 		dal.From(atn),
 	}
 
-	if op.ProductId != 0 {
-		clause = append(clause, dal.Where(fmt.Sprintf("%s.product = ?", atn), fmt.Sprintf(",%d,", op.ProductId)))
+	if data.Options.ProductId != 0 {
+		clause = append(clause, dal.Where(fmt.Sprintf("%s.product = ?", atn), fmt.Sprintf(",%d,", data.Options.ProductId)))
 	}
-	if op.ProjectId != 0 {
-		clause = append(clause, dal.Where(fmt.Sprintf("%s.project = ?", atn), op.ProjectId))
+	if data.Options.ProjectId != 0 {
+		clause = append(clause, dal.Where(fmt.Sprintf("%s.project = ?", atn), data.Options.ProjectId))
 	}
 	clause = append(clause, dal.Join(fmt.Sprintf("LEFT JOIN %s on %s.action = %s.id", htn, htn, atn)))
 

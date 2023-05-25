@@ -44,16 +44,11 @@ type ZentaoOptions struct {
 	//TransformationRuleId                uint64 `json:"transformationZentaoeId" mapstructure:"transformationRuleId,omitempty"`
 	//*models.ZentaoTransformationRule `mapstructure:"transformationRules,omitempty" json:"transformationRules"`
 
-	RemoteDb dal.Dal
-
-	DbIdleConns    int    `json:"dbIdleConns" mapstructure:"dbIdleConns"`
-	DbLoggingLevel string `json:"dbLoggingLevel" mapstructure:"dbLoggingLevel"`
-	DbMaxConns     int    `json:"dbMaxConns" mapstructure:"dbMaxConns"`
-	DbUrl          string `json:"dbUrl" mapstructure:"dbUrl"`
 }
 
 type ZentaoTaskData struct {
 	Options   *ZentaoOptions
+	RemoteDb  dal.Dal
 	ApiClient *helper.ApiAsyncClient
 }
 

@@ -58,7 +58,7 @@ func TestZentaoDbGetDataFlow(t *testing.T) {
 	if err != nil {
 		return
 	}
-	taskData.Options.RemoteDb = dalgorm.NewDalgorm(rgorm)
+	taskData.RemoteDb = dalgorm.NewDalgorm(rgorm)
 
 	// verify conversion
 	dataflowTester.FlushTabler(&models.ZentaoChangelog{})
