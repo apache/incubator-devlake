@@ -82,7 +82,6 @@ func makePipelinePlanV200(
 				return nil, nil, errors.Default.Wrap(err, fmt.Sprintf("fail to find zentao project %s", bpScope.Id))
 			}
 			op.ProjectId = scope.Id
-			op.DbUrl = connection.DbUrl
 
 			if utils.StringsContains(bpScope.Entities, plugin.DOMAIN_TYPE_TICKET) {
 				scopeTicket := &ticket.Board{
@@ -102,7 +101,6 @@ func makePipelinePlanV200(
 				return nil, nil, errors.Default.Wrap(err, fmt.Sprintf("fail to find zentao product %s", bpScope.Id))
 			}
 			op.ProductId = scope.Id
-			op.DbUrl = connection.DbUrl
 
 			if utils.StringsContains(bpScope.Entities, plugin.DOMAIN_TYPE_TICKET) {
 				scopeTicket := &ticket.Board{

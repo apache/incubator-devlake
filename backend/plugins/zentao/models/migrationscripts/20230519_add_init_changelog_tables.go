@@ -28,7 +28,10 @@ type addInitChangelogTables struct{}
 
 // This object conforms to what the frontend currently sends.
 type ZentaoConnection20230522 struct {
-	DbUrl string `mapstructure:"dbUrl"  json:"dbUrl" gorm:"serializer:encdec"`
+	DbUrl          string `mapstructure:"dbUrl"  json:"dbUrl" gorm:"serializer:encdec"`
+	DbIdleConns    int    `json:"dbIdleConns" mapstructure:"dbIdleConns"`
+	DbLoggingLevel string `json:"dbLoggingLevel" mapstructure:"dbLoggingLevel"`
+	DbMaxConns     int    `json:"dbMaxConns" mapstructure:"dbMaxConns"`
 }
 
 func (ZentaoConnection20230522) TableName() string {
@@ -53,7 +56,7 @@ func (*addInitChangelogTables) Up(basicRes context.BasicRes) errors.Error {
 }
 
 func (*addInitChangelogTables) Version() uint64 {
-	return 20230524000001
+	return 20230525000001
 }
 
 func (*addInitChangelogTables) Name() string {

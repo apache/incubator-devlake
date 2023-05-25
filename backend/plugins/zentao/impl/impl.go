@@ -99,20 +99,28 @@ func (p Zentao) PrepareTaskData(taskCtx plugin.TaskContext, options map[string]i
 		return nil, errors.Default.Wrap(err, "unable to get Zentao API client instance: %v")
 	}
 
-	if op.DbUrl != "" && op.RemoteDb == nil {
-		if op.DbLoggingLevel == "" {
-			op.DbLoggingLevel = taskCtx.GetConfig("DB_LOGGING_LEVEL")
+	if connection.DbUrl != "" && op.RemoteDb == nil {
+		if connection.DbLoggingLevel == "" {
+			connection.DbLoggingLevel = taskCtx.GetConfig("DB_LOGGING_LEVEL")
+		}
+
+		if connection.DbIdleConns == 0 {
+			connection.DbIdleConns = taskCtx.GetConfigReader().GetInt("DB_IDLE_CONNS")
+		}
+
+		if connection.DbMaxConns == 0 {
+			connection.DbMaxConns = taskCtx.GetConfigReader().GetInt("DB_MAX_CONNS")
 		}
 
 		v := viper.New()
-		v.Set("DB_URL", op.DbUrl)
-		v.Set("DB_LOGGING_LEVEL", op.DbLoggingLevel)
-		v.Set("DB_IDLE_CONNS", op.DbIdleConns)
-		v.Set("DbMaxConns", op.DbMaxConns)
+		v.Set("DB_URL", connection.DbUrl)
+		v.Set("DB_LOGGING_LEVEL", connection.DbLoggingLevel)
+		v.Set("DB_IDLE_CONNS", connection.DbIdleConns)
+		v.Set("DbMaxConns", connection.DbMaxConns)
 
 		rgorm, err := runner.NewGormDb(v, taskCtx.GetLogger())
 		if err != nil {
-			return nil, errors.Default.Wrap(err, fmt.Sprintf("failed to connect to the zentao remote databases %s", op.DbUrl))
+			return nil, errors.Default.Wrap(err, fmt.Sprintf("failed to connect to the zentao remote databases %s", connection.DbUrl))
 		}
 
 		op.RemoteDb = dalgorm.NewDalgorm(rgorm)

@@ -42,11 +42,6 @@ func TestZentaoDbGetDataFlow(t *testing.T) {
 			ConnectionId: 1,
 			ProjectId:    0,
 			ProductId:    1,
-
-			DbUrl:          cfg.GetString(`E2E_DB_URL`),
-			DbLoggingLevel: cfg.GetString("DB_LOGGING_LEVEL"),
-			DbIdleConns:    cfg.GetInt("DB_IDLE_CONNS"),
-			DbMaxConns:     cfg.GetInt("DB_MAX_CONNS"),
 		},
 	}
 
@@ -54,10 +49,10 @@ func TestZentaoDbGetDataFlow(t *testing.T) {
 	dataflowTester.ImportCsvIntoTabler("./raw_tables/zt_history.csv", models.ZentaoRemoteDbHistory{})
 
 	v := viper.New()
-	v.Set("DB_URL", taskData.Options.DbUrl)
-	v.Set("DB_LOGGING_LEVEL", taskData.Options.DbLoggingLevel)
-	v.Set("DB_IDLE_CONNS", taskData.Options.DbIdleConns)
-	v.Set("DbMaxConns", taskData.Options.DbMaxConns)
+	v.Set("DB_URL", cfg.GetString(`E2E_DB_URL`))
+	v.Set("DB_LOGGING_LEVEL", cfg.GetString("DB_LOGGING_LEVEL"))
+	v.Set("DB_IDLE_CONNS", cfg.GetInt("DB_IDLE_CONNS"))
+	v.Set("DbMaxConns", cfg.GetInt("DB_MAX_CONNS"))
 
 	rgorm, err := runner.NewGormDb(v, dataflowTester.Log)
 	if err != nil {
