@@ -33,19 +33,6 @@ type TestConnectionRequest struct {
 	BasicAuth `mapstructure:",squash"`
 }
 
-// This object conforms to what the frontend currently expects.
-type ZentaoResponse struct {
-	Name string `json:"name"`
-	ID   int64  `json:"id"`
-	ZentaoConnection
-}
-
-// Using User because it requires authentication.
-type ApiUserResponse struct {
-	Id   int64
-	Name string `json:"name"`
-}
-
 func (ZentaoConnection) TableName() string {
 	return "_tool_zentao_connections"
 }
