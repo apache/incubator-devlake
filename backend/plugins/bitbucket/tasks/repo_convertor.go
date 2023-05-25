@@ -111,7 +111,7 @@ func ConvertRepo(taskCtx plugin.SubTaskContext) errors.Error {
 				DomainEntity: domainlayer.DomainEntity{
 					Id: repoId,
 				},
-				Name:        repository.Name,
+				Name:        repository.BitbucketId,
 				Url:         repository.HTMLUrl,
 				Description: repository.Description,
 				Language:    repository.Language,
@@ -123,7 +123,7 @@ func ConvertRepo(taskCtx plugin.SubTaskContext) errors.Error {
 				DomainEntity: domainlayer.DomainEntity{
 					Id: repoId,
 				},
-				Name:        repository.Name,
+				Name:        repository.BitbucketId,
 				Url:         fmt.Sprintf("%s/%s", repository.HTMLUrl, "issues"),
 				Description: repository.Description,
 				CreatedDate: repository.CreatedDate,
@@ -133,7 +133,7 @@ func ConvertRepo(taskCtx plugin.SubTaskContext) errors.Error {
 				DomainEntity: domainlayer.DomainEntity{
 					Id: repoId,
 				},
-				Name:        repository.Name,
+				Name:        repository.BitbucketId,
 				Url:         fmt.Sprintf("%s/%s", repository.HTMLUrl, "issues"),
 				Description: repository.Description,
 				CreatedDate: repository.CreatedDate,
