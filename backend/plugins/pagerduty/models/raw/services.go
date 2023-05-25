@@ -19,7 +19,7 @@ package raw
 
 import "time"
 
-type Services struct {
+type Service struct {
 	// AcknowledgementTimeout corresponds to the JSON schema field
 	// "acknowledgement_timeout".
 	AcknowledgementTimeout *int `json:"acknowledgement_timeout,omitempty"`
