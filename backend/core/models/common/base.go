@@ -28,6 +28,11 @@ type Model struct {
 	UpdatedAt time.Time `json:"updatedAt"`
 }
 
+type ScopeConfig struct {
+	Model
+	Entities []string `gorm:"type:json;serializer:json" json:"entities" mapstructure:"entities"`
+}
+
 type NoPKModel struct {
 	CreatedAt     time.Time `json:"createdAt"`
 	UpdatedAt     time.Time `json:"updatedAt"`

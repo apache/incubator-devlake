@@ -22,7 +22,7 @@ import (
 	"github.com/apache/incubator-devlake/core/dal"
 	"github.com/apache/incubator-devlake/core/errors"
 	"github.com/apache/incubator-devlake/helpers/migrationhelper"
-	"github.com/apache/incubator-devlake/plugins/bamboo/models"
+	"github.com/apache/incubator-devlake/plugins/bamboo/models/migrationscripts/archived"
 )
 
 type addConnectionIdToTransformationRule struct{}
@@ -39,7 +39,7 @@ func (u *addConnectionIdToTransformationRule) Up(baseRes context.BasicRes) error
 	if err != nil {
 		return err
 	}
-	var scopes []models.BambooProject
+	var scopes []archived.BambooProject
 	err = baseRes.GetDal().All(&scopes)
 	if err != nil {
 		return err
@@ -54,14 +54,14 @@ func (u *addConnectionIdToTransformationRule) Up(baseRes context.BasicRes) error
 	// set connection_id for rules
 	for trId, cId := range idMap {
 		err = baseRes.GetDal().UpdateColumn(
-			&models.BambooTransformationRule{}, "connection_id", cId,
+			&archived.BambooTransformationRule{}, "connection_id", cId,
 			dal.Where("id = ?", trId))
 		if err != nil {
 			return err
 		}
 	}
 	// delete all rules that are not referenced.
-	return baseRes.GetDal().Delete(&models.BambooTransformationRule{}, dal.Where("connection_id = ? OR connection_id = ?", nil, 0))
+	return baseRes.GetDal().Delete(&archived.BambooTransformationRule{}, dal.Where("connection_id = ? OR connection_id = ?", nil, 0))
 }
 
 func (*addConnectionIdToTransformationRule) Version() uint64 {

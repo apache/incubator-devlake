@@ -22,16 +22,16 @@ import (
 	"gorm.io/datatypes"
 )
 
-type BambooTransformationRule struct {
-	common.Model
-	ConnectionId uint64 `mapstructure:"connectionId" json:"connectionId"`
-	Name         string `gorm:"type:varchar(255);index:idx_name_gitlab,unique" validate:"required" mapstructure:"name" json:"name"`
+type BambooScopeConfig struct {
+	common.ScopeConfig `mapstructure:",squash" json:",inline" gorm:"embedded"`
+	ConnectionId       uint64 `mapstructure:"connectionId" json:"connectionId"`
+	Name               string `gorm:"type:varchar(255);index:idx_name_gitlab,unique" validate:"required" mapstructure:"name" json:"name"`
 	// should be {realRepoName: [bamboo_repoId]}
 	RepoMap           datatypes.JSONMap
 	DeploymentPattern string `mapstructure:"deploymentPattern,omitempty" json:"deploymentPattern" gorm:"type:varchar(255)"`
 	ProductionPattern string `mapstructure:"productionPattern,omitempty" json:"productionPattern" gorm:"type:varchar(255)"`
 }
 
-func (BambooTransformationRule) TableName() string {
-	return "_tool_bamboo_transformation_rules"
+func (BambooScopeConfig) TableName() string {
+	return "_tool_bamboo_scope_configs"
 }

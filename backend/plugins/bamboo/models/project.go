@@ -19,6 +19,7 @@ package models
 
 import (
 	"encoding/json"
+
 	"github.com/apache/incubator-devlake/core/models/common"
 	"github.com/apache/incubator-devlake/core/plugin"
 	"github.com/apache/incubator-devlake/helpers/pluginhelper/api"
@@ -29,14 +30,14 @@ var _ plugin.ApiGroup = (*api.NoRemoteGroupResponse)(nil)
 var _ plugin.ApiScope = (*ApiBambooProject)(nil)
 
 type BambooProject struct {
-	ConnectionId         uint64 `json:"connectionId" mapstructure:"connectionId" validate:"required" gorm:"primaryKey"`
-	ProjectKey           string `json:"projectKey" gorm:"primaryKey;type:varchar(256)" validate:"required"`
-	TransformationRuleId uint64 `json:"transformationRuleId,omitempty" mapstructure:"transformationRuleId"`
-	Name                 string `json:"name" gorm:"index;type:varchar(256)"`
-	Description          string `json:"description"`
-	Href                 string `json:"link"`
-	Rel                  string `json:"rel" gorm:"type:varchar(100)"`
-	common.NoPKModel     `json:"-" mapstructure:"-"`
+	ConnectionId     uint64 `json:"connectionId" mapstructure:"connectionId" validate:"required" gorm:"primaryKey"`
+	ProjectKey       string `json:"projectKey" gorm:"primaryKey;type:varchar(256)" validate:"required"`
+	ScopeConfigId    uint64 `json:"scopeConfigId,omitempty" mapstructure:"scopeConfigId"`
+	Name             string `json:"name" gorm:"index;type:varchar(256)"`
+	Description      string `json:"description"`
+	Href             string `json:"link"`
+	Rel              string `json:"rel" gorm:"type:varchar(100)"`
+	common.NoPKModel `json:"-" mapstructure:"-"`
 }
 
 func (p BambooProject) ScopeId() string {

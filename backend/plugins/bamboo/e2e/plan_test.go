@@ -33,9 +33,9 @@ func TestBambooPlanDataFlow(t *testing.T) {
 
 	taskData := &tasks.BambooTaskData{
 		Options: &models.BambooOptions{
-			ConnectionId:             3,
-			ProjectKey:               "TEST1",
-			BambooTransformationRule: new(models.BambooTransformationRule),
+			ConnectionId:      3,
+			ProjectKey:        "TEST1",
+			BambooScopeConfig: new(models.BambooScopeConfig),
 		},
 	}
 	// import raw data table

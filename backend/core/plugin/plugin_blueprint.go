@@ -124,10 +124,10 @@ type BlueprintConnectionV200 struct {
 }
 
 // BlueprintScopeV200 contains the `id` and `name` for a specific scope
-// transformationRuleId should be deduced by the ScopeId
 type BlueprintScopeV200 struct {
-	Id       string   `json:"id"`
-	Name     string   `json:"name"`
+	Id   string `json:"id"`
+	Name string `json:"name"`
+	// Deprecated: Entities is moved to the ScopeConfig struct
 	Entities []string `json:"entities"`
 }
 

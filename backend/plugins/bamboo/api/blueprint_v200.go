@@ -19,6 +19,7 @@ package api
 
 import (
 	"fmt"
+
 	"github.com/apache/incubator-devlake/plugins/bamboo/models"
 
 	"github.com/apache/incubator-devlake/core/errors"
@@ -64,14 +65,19 @@ func makeScopeV200(connectionId uint64, scopes []*plugin.BlueprintScopeV200) ([]
 		id := didgen.NewDomainIdGenerator(&models.BambooProject{}).Generate(connectionId, scope.Id)
 
 		// get project from db
-		BambooProject, err := GetProjectByConnectionIdAndscopeId(connectionId, scope.Id)
+		project, err := GetProjectByConnectionIdAndscopeId(connectionId, scope.Id)
+		if err != nil {
+			return nil, err
+		}
+
+		scopeConfig, err := GetScopeConfigByproject(project)
 		if err != nil {
 			return nil, err
 		}
 
 		// add cicd_scope to scopes
-		if utils.StringsContains(scope.Entities, plugin.DOMAIN_TYPE_CICD) {
-			scopeCICD := devops.NewCicdScope(id, BambooProject.Name)
+		if utils.StringsContains(scopeConfig.Entities, plugin.DOMAIN_TYPE_CICD) {
+			scopeCICD := devops.NewCicdScope(id, project.Name)
 
 			sc = append(sc, scopeCICD)
 		}
@@ -95,8 +101,7 @@ func makePipelinePlanV200(
 			return nil, err
 		}
 
-		// get transformationRuleId
-		transformationRules, err := GetTransformationRuleByproject(project)
+		scopeConfig, err := GetScopeConfigByproject(project)
 		if err != nil {
 			return nil, err
 		}
@@ -105,10 +110,10 @@ func makePipelinePlanV200(
 		options := make(map[string]interface{})
 		options["connectionId"] = connection.ID
 		options["projectKey"] = scope.Id
-		options["transformationRuleId"] = transformationRules.ID
+		options["scopeConfigId"] = scopeConfig.ID
 
 		// construct subtasks
-		subtasks, err := helper.MakePipelinePlanSubtasks(subtaskMetas, scope.Entities)
+		subtasks, err := helper.MakePipelinePlanSubtasks(subtaskMetas, scopeConfig.Entities)
 		if err != nil {
 			return nil, err
 		}
@@ -140,22 +145,22 @@ func GetProjectByConnectionIdAndscopeId(connectionId uint64, scopeId string) (*m
 	return project, nil
 }
 
-// GetTransformationRuleByproject get the GetTransformationRule by project
-func GetTransformationRuleByproject(project *models.BambooProject) (*models.BambooTransformationRule, errors.Error) {
-	transformationRules := &models.BambooTransformationRule{}
-	transformationRuleId := project.TransformationRuleId
-	if transformationRuleId != 0 {
+// GetScopeConfigByproject get the BambooScopeConfig by project
+func GetScopeConfigByproject(project *models.BambooProject) (*models.BambooScopeConfig, errors.Error) {
+	scopeConfig := &models.BambooScopeConfig{}
+	scopeConfigId := project.ScopeConfigId
+	if scopeConfigId != 0 {
 		db := basicRes.GetDal()
-		err := db.First(transformationRules, dal.Where("id = ?", transformationRuleId))
+		err := db.First(scopeConfig, dal.Where("id = ?", scopeConfigId))
 		if err != nil {
 			if db.IsErrorNotFound(err) {
-				return nil, errors.Default.Wrap(err, fmt.Sprintf("can not find transformationRules by transformationRuleId [%d]", transformationRuleId))
+				return nil, errors.Default.Wrap(err, fmt.Sprintf("can not find ScopeConfig by ScopeConfig [%d]", scopeConfigId))
 			}
-			return nil, errors.Default.Wrap(err, fmt.Sprintf("fail to find transformationRules by transformationRuleId [%d]", transformationRuleId))
+			return nil, errors.Default.Wrap(err, fmt.Sprintf("fail to find ScopeConfig by ScopeConfig [%d]", scopeConfigId))
 		}
 	} else {
-		transformationRules.ID = 0
+		scopeConfig.ID = 0
 	}
 
-	return transformationRules, nil
+	return scopeConfig, nil
 }

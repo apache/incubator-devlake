@@ -38,7 +38,7 @@ func main() {
 		runner.DirectRun(cmd, args, PluginEntry, map[string]interface{}{
 			"connectionId": *connectionId,
 			"projectKey":   *projectKey,
-			"transformationRules": map[string]string{
+			"scopeConfig": map[string]string{
 				"deploymentPattern": *deploymentPattern,
 				"productionPattern": *productionPattern,
 			},
