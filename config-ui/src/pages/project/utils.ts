@@ -16,24 +16,6 @@
  *
  */
 
-import styled from 'styled-components';
+export const decodeName = (name: string) => window.decodeURIComponent(name);
 
-export const DialogWrapper = styled.div`
-  .bp4-form-group + .bp4-form-group {
-    margin-top: 40px;
-    margin-bottom: 0;
-  }
-`;
-
-export const Label = styled.label`
-  font-size: 16px;
-  font-weight: 600;
-`;
-
-export const LabelInfo = styled.i`
-  color: #ff8b8b;
-`;
-
-export const LabelDescription = styled.p`
-  margin: 0;
-`;
+export const encodeName = (name: string) => window.encodeURIComponent(name);

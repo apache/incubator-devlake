@@ -23,7 +23,15 @@ type GetProjectsParams = {
   pageSize: number;
 };
 
-export const getProjects = (params: GetProjectsParams) => request('/projects', { data: params });
+type GetProjectsResponse = {
+  projects: Array<{
+    name: string;
+  }>;
+  counts: number;
+};
+
+export const getProjects = (params: GetProjectsParams): Promise<GetProjectsResponse> =>
+  request('/projects', { data: params });
 
 type CreateProjectPayload = {
   name: string;
@@ -37,6 +45,12 @@ type CreateProjectPayload = {
 
 export const createProject = (payload: CreateProjectPayload) =>
   request('/projects', {
+    method: 'post',
+    data: payload,
+  });
+
+export const createBlueprint = (payload: any) =>
+  request('/blueprints', {
     method: 'post',
     data: payload,
   });
