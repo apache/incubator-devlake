@@ -53,6 +53,7 @@ build-server: swag
 build-python: #don't mix this with the other build commands
 	find ./python/ -name "*.sh" | xargs chmod +x &&\
 	sh python/build.sh
+	sh python/build.sh python/test
 
 build: build-plugin build-server
 
@@ -89,7 +90,7 @@ build-pydevlake:
 	poetry install -C python/pydevlake
 
 python-unit-test: build-pydevlake
-	sh python/build.sh test &&\
+	sh python/build.sh python/test &&\
 	sh ./python/run_tests.sh
 
 e2e-plugins-test:

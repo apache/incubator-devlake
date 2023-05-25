@@ -46,14 +46,14 @@ class GitRepository(ToolScope, table=True):
 
 
 class GitPullRequest(ToolModel, table=True):
-    class Status(Enum):
+    class PRStatus(Enum):
         Abandoned = "abandoned"
         Active = "active"
         Completed = "completed"
 
     pull_request_id: int = Field(primary_key=True)
     description: Optional[str] = Field(sa_column=Column(Text))
-    status: Status
+    status: PRStatus
     created_by_id: str = Field(source='/createdBy/id')
     created_by_name: str = Field(source='/createdBy/displayName')
     creation_date: datetime.datetime
@@ -86,14 +86,14 @@ class GitPullRequestCommit(ToolModel, table=True):
 
 
 class Build(ToolModel, table=True):
-    class Status(Enum):
+    class BuildStatus(Enum):
         Cancelling = "cancelling"
         Completed = "completed"
         InProgress = "inProgress"
         NotStarted = "notStarted"
         Postponed = "postponed"
 
-    class Result(Enum):
+    class BuildResult(Enum):
         Canceled = "canceled"
         Failed = "failed"
         Non = "none"
@@ -104,19 +104,19 @@ class Build(ToolModel, table=True):
     name: str = Field(source='/definition/name')
     start_time: Optional[datetime.datetime]
     finish_time: Optional[datetime.datetime]
-    status: Status
-    result: Result
+    status: BuildStatus
+    result: BuildResult
     source_branch: str
     source_version: str
 
 
 class Job(ToolModel, table=True):
-    class State(Enum):
+    class JobState(Enum):
         Completed = "completed"
         InProgress = "inProgress"
         Pending = "pending"
 
-    class Result(Enum):
+    class JobResult(Enum):
         Abandoned = "abandoned"
         Canceled = "canceled"
         Failed = "failed"
@@ -125,7 +125,7 @@ class Job(ToolModel, table=True):
         SucceededWithIssues = "succeededWithIssues"
 
     id: str = Field(primary_key=True)
-    build_id: str
+    build_id: str = Field(primary_key=True)
     name: str
     startTime: datetime.datetime
     finishTime: datetime.datetime

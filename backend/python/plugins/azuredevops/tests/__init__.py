@@ -12,27 +12,3 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-
-
-from sqlalchemy.engine import Engine
-
-from pydevlake.model import Connection, TransformationRule, ToolScope
-
-
-class Context:
-    def __init__(self,
-                 engine: Engine,
-                 scope: ToolScope,
-                 connection: Connection,
-                 transformation_rule: TransformationRule = None,
-                 options: dict = None):
-        self.engine = engine
-        self.scope = scope
-        self.connection = connection
-        self.transformation_rule = transformation_rule
-        self.options = options or {}
-        self._engine = None
-
-    @property
-    def incremental(self) -> bool:
-        return self.options.get('incremental') is True

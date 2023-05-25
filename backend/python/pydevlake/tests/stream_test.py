@@ -17,7 +17,7 @@
 import json
 
 import pytest
-from sqlmodel import Session, Field
+from sqlmodel import SQLModel, Session, Field, create_engine
 
 from pydevlake import Stream, Connection, Context, DomainType
 from pydevlake.model import ToolModel, DomainModel, ToolScope
@@ -59,6 +59,12 @@ class DummyConnection(Connection):
 
 
 @pytest.fixture
+def engine():
+    engine = create_engine("sqlite+pysqlite:///:memory:")
+    SQLModel.metadata.create_all(engine)
+    return engine
+
+@pytest.fixture
 def raw_data():
     return [
         {"i": 1, "n": "alice"},
@@ -77,9 +83,9 @@ def scope():
 
 
 @pytest.fixture
-def ctx(connection, scope):
+def ctx(connection, scope, engine):
     return Context(
-        db_url="sqlite+pysqlite:///:memory:",
+        engine=engine,
         scope=scope,
         connection=connection,
         options={}
