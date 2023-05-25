@@ -16,6 +16,7 @@
  *
  */
 
-export * from './request';
+export * from './history';
 export * from './operator';
+export * from './request';
 export * from './time';
