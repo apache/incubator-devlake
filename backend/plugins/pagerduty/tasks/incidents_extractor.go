@@ -39,7 +39,7 @@ func ExtractIncidents(taskCtx plugin.SubTaskContext) errors.Error {
 			Table: RAW_INCIDENTS_TABLE,
 		},
 		Extract: func(row *api.RawData) ([]interface{}, errors.Error) {
-			incidentRaw := &raw.Incidents{}
+			incidentRaw := &raw.Incident{}
 			err := errors.Convert(json.Unmarshal(row.Data, incidentRaw))
 			if err != nil {
 				return nil, err
