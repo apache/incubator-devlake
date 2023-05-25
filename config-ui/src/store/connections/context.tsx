@@ -70,6 +70,8 @@ export const ConnectionContextProvider = ({ children, ...props }: Props) => {
     username,
     password,
     authMethod,
+    secretKey,
+    appId,
   }: ConnectionItemType) => {
     try {
       const res = await API.testConnection(plugin, {
@@ -79,6 +81,8 @@ export const ConnectionContextProvider = ({ children, ...props }: Props) => {
         username,
         password,
         authMethod,
+        secretKey,
+        appId,
       });
       return res.success ? ConnectionStatusEnum.ONLINE : ConnectionStatusEnum.OFFLINE;
     } catch {
@@ -103,8 +107,12 @@ export const ConnectionContextProvider = ({ children, ...props }: Props) => {
       username: it.username,
       password: it.password,
       authMethod: it.authMethod,
+      secretKey: it.secretKey,
+      appId: it.appId,
     }));
   };
+
+
 
   const handleGet = (unique: string) => {
     return connections.find((cs) => cs.unique === unique) as ConnectionItemType;

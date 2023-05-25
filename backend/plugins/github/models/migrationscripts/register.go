@@ -38,5 +38,6 @@ func All() []plugin.MigrationScript {
 		new(addEnvToRunAndJob),
 		new(addGithubCommitAuthorInfo),
 		new(fixRunNameToText),
+		new(addGithubMultiAuth),
 	}
 }
