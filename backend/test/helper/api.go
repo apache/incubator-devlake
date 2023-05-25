@@ -101,7 +101,14 @@ func (d *DevlakeClient) GetBlueprint(blueprintId uint64) models.Blueprint {
 	return sendHttpRequest[models.Blueprint](d.testCtx, d.timeout, debugInfo{
 		print:      true,
 		inlineJson: false,
-	}, http.MethodGet, fmt.Sprintf("%s/blueprint/%d", d.Endpoint, blueprintId), nil, nil)
+	}, http.MethodGet, fmt.Sprintf("%s/blueprints/%d", d.Endpoint, blueprintId), nil, nil)
+}
+
+func (d *DevlakeClient) DeleteBlueprint(blueprintId uint64) {
+	sendHttpRequest[any](d.testCtx, d.timeout, debugInfo{
+		print:      true,
+		inlineJson: false,
+	}, http.MethodDelete, fmt.Sprintf("%s/blueprints/%d", d.Endpoint, blueprintId), nil, nil)
 }
 
 func (d *DevlakeClient) CreateProject(project *ProjectConfig) models.ApiOutputProject {

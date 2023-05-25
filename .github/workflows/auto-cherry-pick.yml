@@ -27,6 +27,9 @@ jobs:
   cherry-pick:
     if: github.event.pull_request.merged == true && startsWith(github.event.label.name, 'needs-cherrypick-')
     runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      pull-requests: write
     steps:
       - uses: actions/checkout@v3
       - name: Cherry Pick

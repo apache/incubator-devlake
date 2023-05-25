@@ -20,6 +20,7 @@ package api
 import (
 	"context"
 	"net/http"
+	"strings"
 
 	"github.com/apache/incubator-devlake/server/api/shared"
 
@@ -49,6 +50,10 @@ func TestConnection(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, 
 	err = api.Decode(input.Body, &connection, vld)
 	if err != nil {
 		return nil, err
+	}
+	// Check if the URL contains "/api"
+	if strings.Contains(connection.Endpoint, "/api") {
+		return nil, errors.HttpStatus(http.StatusBadRequest).New("Invalid URL. Please use the base URL without /api")
 	}
 	// test connection
 	apiClient, err := api.NewApiClientFromConnection(context.TODO(), basicRes, &connection)
