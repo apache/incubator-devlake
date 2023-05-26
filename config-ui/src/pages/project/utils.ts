@@ -16,7 +16,6 @@
  *
  */
 
-export * from './step-1';
-export * from './step-2';
-export * from './step-3';
-export * from './step-4';
+export const decodeName = (name: string) => window.decodeURIComponent(name);
+
+export const encodeName = (name: string) => window.encodeURIComponent(name);

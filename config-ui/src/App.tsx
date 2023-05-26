@@ -17,11 +17,9 @@
  */
 
 import { Switch, Route, Redirect, Router } from 'react-router-dom';
-import { LoginPage } from './pages/login/login';
-import { history } from './utils/history';
 import { ErrorLayout, BaseLayout } from '@/layouts';
-import { FromEnum } from '@/pages';
 import {
+  LoginPage,
   OfflinePage,
   DBMigratePage,
   ConnectionHomePage,
@@ -29,11 +27,11 @@ import {
   ProjectHomePage,
   ProjectDetailPage,
   BlueprintHomePage,
-  BlueprintCreatePage,
   BlueprintDetailPage,
   BlueprintConnectioAddPage,
   BlueprintConnectionDetailPage,
 } from '@/pages';
+import { history } from '@/utils';
 
 function App() {
   return (
@@ -77,17 +75,7 @@ function App() {
                   component={() => <BlueprintConnectioAddPage />}
                 />
                 <Route exact path="/projects/:pname/:bid/:unique" component={() => <BlueprintConnectionDetailPage />} />
-                <Route
-                  exact
-                  path="/projects/:pname/create-blueprint"
-                  component={() => <BlueprintCreatePage from={FromEnum.project} />}
-                />
                 <Route exact path="/blueprints" component={() => <BlueprintHomePage />} />
-                <Route
-                  exact
-                  path="/blueprints/create"
-                  component={() => <BlueprintCreatePage from={FromEnum.blueprint} />}
-                />
                 <Route exact path="/blueprints/:id" component={() => <BlueprintDetailPage />} />
                 <Route exact path="/blueprints/:bid/connection-add" component={() => <BlueprintConnectioAddPage />} />
                 <Route exact path="/blueprints/:bid/:unique" component={() => <BlueprintConnectionDetailPage />} />

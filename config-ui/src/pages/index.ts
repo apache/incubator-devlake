@@ -16,9 +16,10 @@
  *
  */
 
-export * from './project';
-export * from './connection';
 export * from './blueprint';
-export * from './pipeline';
-export * from './offline';
+export * from './connection';
 export * from './db-migrate';
+export * from './login';
+export * from './offline';
+export * from './pipeline';
+export * from './project';

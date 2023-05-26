@@ -16,18 +16,4 @@
  *
  */
 
-import { Transformation } from '@/plugins';
-
-import { useCreate } from '../context';
-
-import * as S from './styled';
-
-export const Step3 = () => {
-  const { connections, onChangeConnections, onPrev, onNext } = useCreate();
-
-  return (
-    <S.Wrapper>
-      <Transformation connections={connections} onCancel={onPrev} onSubmit={onChangeConnections} onNext={onNext} />
-    </S.Wrapper>
-  );
-};
+export * from './login';
