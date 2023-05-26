@@ -73,6 +73,7 @@ func (at *AccessToken) GetAccessTokenAuthenticator() plugin.ApiAuthenticator {
 type AppKey struct {
 	AppId     string `mapstructure:"appId" validate:"required" json:"appId"`
 	SecretKey string `mapstructure:"secretKey" validate:"required" json:"secretKey" gorm:"serializer:encdec"`
+	AuthCode  string `mapstructure:"authCode" validate:"required" json:"authCode" gorm:"serializer:encdec"`
 }
 
 // SetupAuthentication sets up the request headers for authentication

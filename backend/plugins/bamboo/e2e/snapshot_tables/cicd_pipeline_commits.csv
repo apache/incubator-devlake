@@ -1,3 +1,0 @@
-pipeline_id,commit_sha,branch,repo_id,repo_url,_raw_data_params,_raw_data_table,_raw_data_id,_raw_data_remark
-bamboo:BambooPlanBuild:3:TEST1-TEST2-1,207fc4666c4d356b474ed951ffe38cc2ad97499e,,,devlake-website,"{""connectionId"":3,""ProjectKey"":""TEST2""}",_raw_bamboo_api_job_build,3,
-bamboo:BambooPlanBuild:3:TEST1-TEST2-1,caab17b6dc3532b7f78f418a192c050320a30e46,,,devlake-test,"{""connectionId"":3,""ProjectKey"":""TEST2""}",_raw_bamboo_api_plan_build,15,

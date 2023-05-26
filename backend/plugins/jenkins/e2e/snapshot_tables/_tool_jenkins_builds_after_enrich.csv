@@ -1,9 +1,0 @@
-connection_id,full_name,job_name,duration,has_stages
-1,Test-jenkins-dir/test-jenkins-sub-dir/test-sub-sub-dir/devlake#11,devlake,14820,1
-1,Test-jenkins-dir/test-jenkins-sub-dir/test-sub-sub-dir/devlake#17,devlake,57,0
-1,Test-jenkins-dir/test-jenkins-sub-dir/test-sub-sub-dir/devlake#21,devlake,2121,0
-1,Test-jenkins-dir/test-jenkins-sub-dir/test-sub-sub-dir/devlake#23,devlake,61,0
-1,Test-jenkins-dir/test-jenkins-sub-dir/test-sub-sub-dir/devlake#27,devlake,4,0
-1,Test-jenkins-dir/test-jenkins-sub-dir/test-sub-sub-dir/devlake#31,devlake,1587,0
-1,Test-jenkins-dir/test-jenkins-sub-dir/test-sub-sub-dir/devlake#37,devlake,3,0
-1,Test-jenkins-dir/test-jenkins-sub-dir/test-sub-sub-dir/devlake#47,devlake,6,0

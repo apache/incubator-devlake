@@ -1,2 +1,0 @@
-id,params,data,url,input,created_at
-51,"{""ConnectionId"":1,""WorkspaceId"":991}","{""status"":1,""data"":{""new"":""新"",""in_progress"":""接受/处理"",""resolved"":""\u5df2\u89e3\u51b3"",""verified"":""\u5df2\u9a8c\u8bc1"",""reopened"":""\u91cd\u65b0\u6253\u5f00"",""rejected"":""\u5df2\u62d2\u7edd"",""closed"":""\u5df2\u5173\u95ed""},""info"":""success""}",https://api.tapd.cn/workflows/status_map?system=bug&workspace_id=46949574,null,2022-10-18 11:21:13.320
