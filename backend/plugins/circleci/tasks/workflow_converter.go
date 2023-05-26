@@ -85,6 +85,7 @@ func ConvertWorkflows(taskCtx plugin.SubTaskContext) errors.Error {
 						CommitSha:  p.Vcs.Revision,
 						Branch:     p.Vcs.Branch,
 						RepoId:     p.Vcs.OriginRepositoryUrl,
+						RepoUrl:    p.Vcs.OriginRepositoryUrl,
 					})
 				}
 			}
