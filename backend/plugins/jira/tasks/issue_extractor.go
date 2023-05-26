@@ -99,7 +99,7 @@ func extractIssues(data *JiraTaskData, mappings *typeMappings, row *api.RawData)
 	if apiIssue.Fields.Created == nil {
 		return results, nil
 	}
-	sprints, issue, worklogs, changelogs, changelogItems, users := apiIssue.ExtractEntities(data.Options.ConnectionId)
+	sprints, issue, comments, worklogs, changelogs, changelogItems, users := apiIssue.ExtractEntities(data.Options.ConnectionId)
 	for _, sprintId := range sprints {
 		sprintIssue := &models.JiraSprintIssue{
 			ConnectionId:     data.Options.ConnectionId,
@@ -138,6 +138,9 @@ func extractIssues(data *JiraTaskData, mappings *typeMappings, row *api.RawData)
 		issue.StdStatus = value.StandardStatus
 	}
 	results = append(results, issue)
+	for _, comment := range comments {
+		results = append(results, comment)
+	}
 	for _, worklog := range worklogs {
 		results = append(results, worklog)
 	}

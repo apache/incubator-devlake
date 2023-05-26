@@ -1,0 +1,12 @@
+id,name,pipeline_id,result,status,type,environment,duration_sec,started_date,finished_date,cicd_scope_id
+gitlab:GitlabJob:1:100,compile,gitlab:GitlabPipeline:1:485877118,SUCCESS,DONE,DEPLOYMENT,PRODUCTION,2,2022-07-25T15:06:57.051+00:00,2022-07-25T15:06:59.885+00:00,gitlab:GitlabProject:1:44
+gitlab:GitlabJob:1:101,format,gitlab:GitlabPipeline:1:485877118,SUCCESS,DONE,DEPLOYMENT,PRODUCTION,3,2022-07-25T15:13:37.206+00:00,2022-07-25T15:13:40.246+00:00,gitlab:GitlabProject:1:44
+gitlab:GitlabJob:1:102,format,gitlab:GitlabPipeline:1:485877118,SUCCESS,DONE,DEPLOYMENT,PRODUCTION,2,2022-07-25T15:30:22.560+00:00,2022-07-25T15:30:25.315+00:00,gitlab:GitlabProject:1:44
+gitlab:GitlabJob:1:103,format,gitlab:GitlabPipeline:1:485877118,SUCCESS,DONE,DEPLOYMENT,PRODUCTION,2,2022-07-25T15:30:55.671+00:00,2022-07-25T15:30:58.650+00:00,gitlab:GitlabProject:1:44
+gitlab:GitlabJob:1:104,format,gitlab:GitlabPipeline:1:485817670,SUCCESS,DONE,,,2,2022-07-25T15:32:04.954+00:00,2022-07-25T15:32:07.726+00:00,gitlab:GitlabProject:1:44
+gitlab:GitlabJob:1:105,compile,gitlab:GitlabPipeline:1:485817670,FAILURE,DONE,,,3,2022-07-25T15:32:07.953+00:00,2022-07-25T15:32:11.077+00:00,gitlab:GitlabProject:1:44
+gitlab:GitlabJob:1:106,format,gitlab:GitlabPipeline:1:485817670,SUCCESS,DONE,,,2,2022-07-25T15:33:26.382+00:00,2022-07-25T15:33:29.356+00:00,gitlab:GitlabProject:1:44
+gitlab:GitlabJob:1:107,format,gitlab:GitlabPipeline:1:457475337,SUCCESS,DONE,,,2,2022-07-25T15:34:23.665+00:00,2022-07-25T15:34:26.392+00:00,gitlab:GitlabProject:1:44
+gitlab:GitlabJob:1:108,format,gitlab:GitlabPipeline:1:457475337,SUCCESS,DONE,,,2,2022-07-25T15:35:11.707+00:00,2022-07-25T15:35:14.224+00:00,gitlab:GitlabProject:1:44
+gitlab:GitlabJob:1:109,compile,gitlab:GitlabPipeline:1:457475337,SUCCESS,DONE,DEPLOYMENT,PRODUCTION,3,2022-07-25T15:35:14.724+00:00,2022-07-25T15:35:17.828+00:00,gitlab:GitlabProject:1:44
+gitlab:GitlabJob:1:110,format,gitlab:GitlabPipeline:1:457475337,SUCCESS,DONE,,,2,2022-07-25T15:36:18.097+00:00,2022-07-25T15:36:20.954+00:00,gitlab:GitlabProject:1:44

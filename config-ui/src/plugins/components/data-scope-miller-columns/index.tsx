@@ -31,6 +31,7 @@ interface Props extends Pick<MillerColumnsSelectProps<ExtraType>, 'columnCount'>
   title?: string;
   plugin: string;
   connectionId: ID;
+  disabledItems?: any[];
   selectedItems?: any[];
   pageToken?: string;
   onChangeItems?: (selectedItems: any[]) => void;
@@ -40,6 +41,7 @@ export const DataScopeMillerColumns = ({
   title,
   plugin,
   connectionId,
+  disabledItems,
   selectedItems,
   onChangeItems,
   pageToken,
@@ -47,12 +49,17 @@ export const DataScopeMillerColumns = ({
 }: Props) => {
   const [items, setItems] = useState<McsItem<ExtraType>[]>([]);
   const [selectedIds, setSelectedIds] = useState<ID[]>([]);
+  const [disabledIds, setDisabledIds] = useState<ID[]>([]);
   const [loadedIds, setLoadedIds] = useState<ID[]>([]);
   const [nextTokenMap, setNextTokenMap] = useState<Record<ID, string>>({});
 
   useEffect(() => {
-    setSelectedIds((selectedItems ?? []).map((it: any) => it.id));
+    setSelectedIds((selectedItems ?? []).map((it) => it.id));
   }, [selectedItems]);
+
+  useEffect(() => {
+    setDisabledIds((disabledItems ?? []).map((it) => it.id));
+  }, [disabledItems]);
 
   const getItems = async (groupId: ID | null, currentPageToken?: string) => {
     if (!currentPageToken) {
@@ -122,6 +129,7 @@ export const DataScopeMillerColumns = ({
       columnHeight={300}
       renderTitle={renderTitle}
       renderLoading={renderLoading}
+      disabledIds={disabledIds}
       selectedIds={selectedIds}
       onSelectItemIds={handleChangeItems}
       {...props}

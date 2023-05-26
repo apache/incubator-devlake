@@ -17,5 +17,4 @@
  */
 
 export * from './home';
-export * from './list';
-export * from './form';
+export * from './detail';

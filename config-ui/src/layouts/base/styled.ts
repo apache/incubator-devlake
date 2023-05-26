@@ -82,14 +82,6 @@ export const Sider = styled.div`
   }
 `;
 
-export const Main = styled.div`
-  display: flex;
-  flex-direction: column;
-  flex: auto;
-  height: 100vh;
-  overflow: hidden;
-`;
-
 export const Header = styled(Navbar)`
   flex: 0 0 50px;
   background-color: #f9f9fa;
@@ -110,6 +102,14 @@ export const Header = styled(Navbar)`
   }
 `;
 
+export const Main = styled.div`
+  display: flex;
+  flex-direction: column;
+  flex: auto;
+  height: 100vh;
+  overflow: hidden;
+`;
+
 export const Inner = styled.div`
   flex: auto;
   margin-top: 24px;
@@ -122,6 +122,15 @@ export const Content = styled.div`
   padding: 0 24px;
   max-width: 1200px;
   min-width: 900px;
+`;
+
+export const Tips = styled.div`
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 14px 0;
+  color: #fff;
+  background-color: #3c5088;
 `;
 
 export const SiderMenuItem = styled.div`

@@ -33,11 +33,9 @@ func ConvertServices(taskCtx plugin.SubTaskContext) errors.Error {
 	db := taskCtx.GetDal()
 	data := taskCtx.GetData().(*PagerDutyTaskData)
 	rawDataSubTaskArgs := &helper.RawDataSubTaskArgs{
-		Ctx: taskCtx,
-		Params: PagerDutyParams{
-			ConnectionId: data.Options.ConnectionId,
-		},
-		Table: "pagerduty_services",
+		Ctx:     taskCtx,
+		Options: data.Options,
+		Table:   "pagerduty_services",
 	}
 	clauses := []dal.Clause{
 		dal.Select("services.*"),

@@ -18,55 +18,89 @@ limitations under the License.
 package login
 
 import (
+	"net/http"
+
 	"github.com/apache/incubator-devlake/core/errors"
 	"github.com/apache/incubator-devlake/server/api/shared"
 	"github.com/apache/incubator-devlake/server/services/auth"
-	"net/http"
 
 	"github.com/gin-gonic/gin"
 )
-
-type LoginRequest struct {
-	Username string `json:"username"`
-	Password string `json:"password"`
-}
-
-type LoginResponse struct {
-	AuthenticationResult AuthenticationResult `json:"AuthenticationResult"`
-	ChallengeName        interface{}          `json:"ChallengeName"`
-	ChallengeParameters  ChallengeParameters  `json:"ChallengeParameters"`
-	Session              interface{}          `json:"Session"`
-}
-type AuthenticationResult struct {
-	AccessToken       string      `json:"AccessToken"`
-	ExpiresIn         int         `json:"ExpiresIn"`
-	IDToken           string      `json:"IdToken"`
-	NewDeviceMetadata interface{} `json:"NewDeviceMetadata"`
-	RefreshToken      string      `json:"RefreshToken"`
-	TokenType         string      `json:"TokenType"`
-}
-type ChallengeParameters struct {
-}
 
 // @Summary post login
 // @Description post login
 // @Tags framework/login
 // @Accept application/json
-// @Param blueprint body LoginRequest true "json"
-// @Success 200  {object} LoginResponse
+// @Param login body auth.LoginRequest true "json"
+// @Success 200  {object} auth.LoginResponse
 // @Failure 400  {object} shared.ApiBody "Bad Request"
 // @Failure 500  {object} shared.ApiBody "Internal Error"
 // @Router /login [post]
 func Login(ctx *gin.Context) {
-	loginReq := &LoginRequest{}
+	loginReq := &auth.LoginRequest{}
 	err := ctx.ShouldBind(loginReq)
 	if err != nil {
 		shared.ApiOutputError(ctx, errors.BadInput.Wrap(err, shared.BadRequestBody))
 		return
 	}
-	res, err := auth.SignIn(auth.CreateCognitoClient(), loginReq.Username, loginReq.Password)
+	res, err := auth.Provider.SignIn(loginReq)
 	if err != nil {
 		shared.ApiOutputError(ctx, errors.Default.Wrap(err, "error signing in"))
+		return
+	}
+	if res.AuthenticationResult != nil && res.AuthenticationResult.AccessToken != nil {
+		token, err := auth.Provider.CheckAuth(*res.AuthenticationResult.AccessToken)
+		if err != nil {
+			shared.ApiOutputAbort(ctx, err)
+		}
+		ctx.Set("token", token)
+	}
+	shared.ApiOutputSuccess(ctx, res, http.StatusOK)
+}
+
+// @Summary post NewPassword
+// @Description post NewPassword
+// @Tags framework/NewPassword
+// @Accept application/json
+// @Param newpassword body auth.NewPasswordRequest true "json"
+// @Success 200  {object} auth.LoginResponse
+// @Failure 400  {object} shared.ApiBody "Bad Request"
+// @Failure 500  {object} shared.ApiBody "Internal Error"
+// @Router /password [post]
+func NewPassword(ctx *gin.Context) {
+	newPasswordReq := &auth.NewPasswordRequest{}
+	err := ctx.ShouldBind(newPasswordReq)
+	if err != nil {
+		shared.ApiOutputError(ctx, errors.BadInput.Wrap(err, shared.BadRequestBody))
+		return
+	}
+	res, err := auth.Provider.NewPassword(newPasswordReq)
+	if err != nil {
+		shared.ApiOutputError(ctx, errors.BadInput.Wrap(err, "failed to set new password"))
+		return
+	}
+	shared.ApiOutputSuccess(ctx, res, http.StatusOK)
+}
+
+// @Summary post RefreshToken
+// @Description post RefreshToken
+// @Tags framework/RefreshToken
+// @Accept application/json
+// @Param refreshtoken body auth.RefreshTokenRequest true "json"
+// @Success 200  {object} auth.LoginResponse
+// @Failure 400  {object} shared.ApiBody "Bad Request"
+// @Failure 500  {object} shared.ApiBody "Internal Error"
+// @Router /password [post]
+func RefreshToken(ctx *gin.Context) {
+	req := &auth.RefreshTokenRequest{}
+	err := ctx.ShouldBind(req)
+	if err != nil {
+		shared.ApiOutputError(ctx, errors.BadInput.Wrap(err, shared.BadRequestBody))
+		return
+	}
+	res, err := auth.Provider.RefreshToken(req)
+	if err != nil {
+		shared.ApiOutputError(ctx, errors.BadInput.Wrap(err, "failed to refresh token"))
 		return
 	}
 	shared.ApiOutputSuccess(ctx, res, http.StatusOK)

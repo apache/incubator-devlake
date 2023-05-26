@@ -27,6 +27,7 @@ class PullRequest(DomainModel, table=True):
     base_repo_id: str
     head_repo_id: str
     status: str
+    original_status: str
     title: str
     description: str
     url: str
@@ -111,13 +112,6 @@ class RefCommit(NoPKModel, table=True):
     old_ref_id: str = Field(primary_key=True)
     new_commit_sha: str
     old_commit_sha: str
-
-
-class FinishedCommitsDiff(NoPKModel, table=True):
-    __tablename__ = 'finished_commits_diffs'
-    new_commit_sha: str = Field(primary_key=True)
-    old_commit_sha: str = Field(primary_key=True)
-
 
 class Component(NoPKModel, table=True):
     __tablename__ = 'components'

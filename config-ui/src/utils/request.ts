@@ -27,16 +27,49 @@ const instance = axios.create({
   baseURL: DEVLAKE_ENDPOINT,
 });
 
-const Errors = ['Authorization header is missing', 'Invalid token'];
+var refreshingToken: Promise<any> | null = null;
 
 instance.interceptors.response.use(
   (response) => response,
   (error) => {
     const status = error.response?.status;
 
-    if (status === 401 && Errors.some((err) => error.response.data.includes(err))) {
+    if (status === 401) {
       toast.error('Please login first');
       history.push('/login');
+    }
+
+    if (status === 403) {
+      var refreshToken = localStorage.getItem('refreshToken');
+      if (refreshToken) {
+        refreshingToken =
+          refreshingToken ||
+          request('/login/refreshtoken', {
+            method: 'POST',
+            data: {
+              refreshToken: refreshToken,
+            },
+          }).then(
+            (resp) => {
+              localStorage.setItem('accessToken', resp.authenticationResult.accessToken);
+              refreshingToken = null;
+              return resp;
+            },
+            (err) => {
+              refreshingToken = null;
+              toast.error('Please login first');
+              history.push('/login');
+              return Promise.reject(err);
+            },
+          );
+        return refreshingToken.then(() => {
+          const originalRequest = error.config;
+          originalRequest._retry = true;
+          return Promise.resolve(request(originalRequest.url, originalRequest));
+        });
+      } else {
+        history.push('/login');
+      }
     }
 
     if (status === 428) {

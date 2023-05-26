@@ -50,6 +50,7 @@ class GitPullRequests(Stream):
             base_repo_id=base_repo_id,
             head_repo_id=repo_id,
             status=status,
+            original_status=pr.status.value,
             title=pr.title,
             description=pr.description,
             url=pr.url,

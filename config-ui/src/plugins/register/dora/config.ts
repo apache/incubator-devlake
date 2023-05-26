@@ -16,7 +16,7 @@
  *
  */
 
-import type { PluginConfigType } from '@/plugins';
+import type { PluginConfigType } from '../../types';
 
 import { BasePipelineConfig } from '../base';
 

@@ -17,13 +17,14 @@
  */
 
 import React, { useState, useEffect, useMemo } from 'react';
-import { FormGroup, InputGroup, Tag, Icon, Intent } from '@blueprintjs/core';
+import { FormGroup, Tag, Icon, Intent } from '@blueprintjs/core';
 import { Popover2 } from '@blueprintjs/popover2';
 import { uniqWith } from 'lodash';
 
 import { PageLoading, HelpTooltip, ExternalLink, MultiSelector, Selector, Divider } from '@/components';
 import { useProxyPrefix, useRefreshData } from '@/hooks';
 
+import { CrossDomain } from './transformation-fields';
 import * as API from './api';
 import * as S from './styled';
 
@@ -111,9 +112,9 @@ export const JiraTransformation = ({ connectionId, transformation, setTransforma
       return acc;
     }, {} as any);
   };
+
   return (
     <S.TransformationWrapper>
-      {/* Issue Tracking */}
       <div className="issue-tracking">
         <h2>Issue Tracking</h2>
         <p>
@@ -240,47 +241,7 @@ export const JiraTransformation = ({ connectionId, transformation, setTransforma
         </FormGroup>
       </div>
       <Divider />
-      {/* Cross-domain */}
-      <div>
-        <h2>Cross-domain</h2>
-        <p>
-          Connect `commits` and `issues` to measure metrics such as{' '}
-          <ExternalLink link="https://devlake.apache.org/docs/Metrics/BugCountPer1kLinesOfCode">
-            Bug Count per 1k Lines of Code
-          </ExternalLink>{' '}
-          or man hour distribution on different work types.
-        </p>
-        <FormGroup
-          inline
-          label={
-            <>
-              <span>Connect GitLab Commits and Jira Issues</span>
-              <HelpTooltip
-                content={
-                  <div>
-                    If you are using GitLab’s{' '}
-                    <ExternalLink link="https://docs.gitlab.com/ee/integration/jira/">Jira integration</ExternalLink>,
-                    specify the commit SHA pattern. DevLake will parse the commit_sha from your Jira issues’ remote/web
-                    links and store the relationship in the table `issue_commits`.
-                  </div>
-                }
-              />
-            </>
-          }
-        >
-          <InputGroup
-            fill
-            placeholder="/commit/([0-9a-f]{40})$"
-            value={transformation.remotelinkCommitShaPattern ?? ''}
-            onChange={(e) =>
-              setTransformation({
-                ...transformation,
-                remotelinkCommitShaPattern: e.target.value,
-              })
-            }
-          />
-        </FormGroup>
-      </div>
+      <CrossDomain transformation={transformation} setTransformation={setTransformation} />
     </S.TransformationWrapper>
   );
 };

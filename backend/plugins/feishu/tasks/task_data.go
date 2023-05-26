@@ -19,7 +19,6 @@ package tasks
 
 import (
 	helper "github.com/apache/incubator-devlake/helpers/pluginhelper/api"
-	"github.com/apache/incubator-devlake/plugins/feishu/models"
 )
 
 type FeishuApiParams struct {
@@ -32,7 +31,6 @@ type FeishuOptions struct {
 }
 
 type FeishuTaskData struct {
-	Options                  *FeishuOptions
-	ApiClient                *helper.ApiAsyncClient
-	FeishuMeetingTopUserItem *models.FeishuMeetingTopUserItem
+	Options   *FeishuOptions
+	ApiClient *helper.ApiAsyncClient
 }

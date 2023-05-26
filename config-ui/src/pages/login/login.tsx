@@ -25,25 +25,58 @@ import { operator } from '@/utils';
 import * as API from './api';
 import * as S from './styld';
 
+const NEW_PASSWORD_REQUIRED = 'NEW_PASSWORD_REQUIRED';
+
 export const LoginPage = () => {
-  const [username, setUsername] = useState('');
+  const [username, setUsername] = useState(localStorage.getItem('username') || '');
   const [password, setPassword] = useState('');
+  const [newPassword, setNewPassword] = useState('');
+  const [confirmNewPassword, setConfirmNewPassword] = useState('');
+  const [challenge, setChallenge] = useState('');
+  const [session, setSession] = useState('');
+  const loginDisabled =
+    !username ||
+    !password ||
+    (challenge === 'NEW_PASSWORD_REQUIRED' &&
+      (!newPassword || !confirmNewPassword || newPassword !== confirmNewPassword));
 
   const history = useHistory();
 
+  // () =>
   const handleSubmit = async () => {
-    const [success, res] = await operator(() => API.login({ username, password }), {
-      formatReason: (error) => 'Login failed',
-    });
+    var request: () => Promise<any>;
 
-    if (success) {
-      localStorage.setItem('accessToken', res.AuthenticationResult.AccessToken);
-      document.cookie = 'access_token=' + res.AuthenticationResult.AccessToken + '; path=/';
-      history.push('/');
+    switch (challenge) {
+      case NEW_PASSWORD_REQUIRED:
+        request = () => API.newPassword({ username, session, newPassword });
+        break;
+      default:
+        request = () => API.login({ username, password });
+        break;
     }
 
-    setUsername('');
-    setPassword('');
+    const [success, res] = await operator(request, {
+      formatReason: (error) => {
+        const e = error as any;
+        return e?.response?.data?.causes[0];
+      },
+    });
+    localStorage.setItem('username', username);
+    if (success) {
+      if (res.challengeName) {
+        setChallenge(res.challengeName);
+        setSession(res.session);
+      } else {
+        localStorage.setItem('accessToken', res.authenticationResult.accessToken);
+        localStorage.setItem('refreshToken', res.authenticationResult.refreshToken);
+        document.cookie = 'access_token=' + res.authenticationResult.accessToken + '; path=/';
+        setUsername('');
+        setPassword('');
+        setChallenge('');
+        setSession('');
+        history.push('/');
+      }
+    }
   };
 
   return (
@@ -54,6 +87,7 @@ export const LoginPage = () => {
           <InputGroup
             placeholder="Username"
             value={username}
+            disabled={challenge !== ''}
             onChange={(e) => setUsername((e.target as HTMLInputElement).value)}
           />
         </FormGroup>
@@ -62,10 +96,31 @@ export const LoginPage = () => {
             type="password"
             placeholder="Password"
             value={password}
+            disabled={challenge !== ''}
             onChange={(e) => setPassword((e.target as HTMLInputElement).value)}
           />
         </FormGroup>
-        <Button intent={Intent.PRIMARY} onClick={handleSubmit}>
+        {challenge === 'NEW_PASSWORD_REQUIRED' && (
+          <>
+            <FormGroup label="Set New Password">
+              <InputGroup
+                type="password"
+                placeholder="Please set a new Password for your account"
+                value={newPassword}
+                onChange={(e) => setNewPassword((e.target as HTMLInputElement).value)}
+              />
+            </FormGroup>
+            <FormGroup label="Confirm New Password">
+              <InputGroup
+                type="password"
+                placeholder="Please repeat your New Password"
+                value={confirmNewPassword}
+                onChange={(e) => setConfirmNewPassword((e.target as HTMLInputElement).value)}
+              />
+            </FormGroup>
+          </>
+        )}
+        <Button intent={Intent.PRIMARY} onClick={handleSubmit} disabled={loginDisabled}>
           Login
         </Button>
       </S.Inner>

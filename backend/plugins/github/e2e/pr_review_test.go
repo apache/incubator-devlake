@@ -20,6 +20,7 @@ package e2e
 import (
 	"testing"
 
+	"github.com/apache/incubator-devlake/core/models/domainlayer/code"
 	"github.com/apache/incubator-devlake/helpers/e2ehelper"
 	"github.com/apache/incubator-devlake/plugins/github/impl"
 	"github.com/apache/incubator-devlake/plugins/github/models"
@@ -44,7 +45,6 @@ func TestPrReviewDataFlow(t *testing.T) {
 
 	// verify extraction
 	dataflowTester.FlushTabler(&models.GithubReviewer{})
-	dataflowTester.FlushTabler(&models.GithubAccount{})
 	dataflowTester.FlushTabler(&models.GithubPrReview{})
 	dataflowTester.Subtask(tasks.ExtractApiPullRequestReviewsMeta, taskData)
 	dataflowTester.VerifyTable(
@@ -80,14 +80,22 @@ func TestPrReviewDataFlow(t *testing.T) {
 			"_raw_data_remark",
 		},
 	)
+
+	dataflowTester.FlushTabler(&code.PullRequestComment{})
+	dataflowTester.Subtask(tasks.ConvertPullRequestReviewsMeta, taskData)
 	dataflowTester.VerifyTable(
-		models.GithubRepoAccount{},
-		"./snapshot_tables/_tool_github_accounts_in_review.csv",
+		code.PullRequestComment{},
+		"./snapshot_tables/pull_request_review_comments.csv",
 		[]string{
-			"connection_id",
+			"pull_request_id",
+			"body",
 			"account_id",
-			"repo_github_id",
-			"login",
+			"created_date",
+			"commit_sha",
+			"position",
+			"type",
+			"review_id",
+			"status",
 		},
 	)
 }

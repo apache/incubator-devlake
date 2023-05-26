@@ -19,6 +19,7 @@ package api
 
 import (
 	"context"
+	"fmt"
 	"net/http"
 	"strings"
 
@@ -27,13 +28,35 @@ import (
 	"github.com/apache/incubator-devlake/helpers/pluginhelper/api"
 	"github.com/apache/incubator-devlake/plugins/github/models"
 	"github.com/apache/incubator-devlake/server/api/shared"
+	"github.com/mitchellh/mapstructure"
 )
 
-var requirePermission = []string{"repo:status", "repo_deployment", "read:user", "read:org"}
+var publicPermissions = []string{"repo:status", "repo_deployment", "read:user", "read:org"}
+var privatePermissions = []string{"repo"}
+var parentPermissions = map[string]string{
+	"repo:status":     "repo",
+	"repo_deployment": "repo",
+	"read:user":       "user",
+	"read:org":        "admin:org",
+}
+
+// findMissingPerms returns the missing required permissions from the given user permissions
+func findMissingPerms(userPerms map[string]bool, requiredPerms []string) []string {
+	missingPerms := make([]string, 0)
+	for _, pp := range requiredPerms {
+		// either the specific permission or its parent permission(larger) is granted
+		if !userPerms[pp] && !userPerms[parentPermissions[pp]] {
+			missingPerms = append(missingPerms, pp)
+		}
+	}
+	return missingPerms
+}
 
 type GithubTestConnResponse struct {
 	shared.ApiBody
-	Login string `json:"login"`
+	Login         string                         `json:"login"`
+	Warning       bool                           `json:"warning"`
+	Installations []models.GithubAppInstallation `json:"installations"`
 }
 
 // @Summary test github connection
@@ -47,66 +70,130 @@ type GithubTestConnResponse struct {
 func TestConnection(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, errors.Error) {
 	// process input
 	var conn models.GithubConn
-	err := api.Decode(input.Body, &conn, vld)
-	if err != nil {
-		return nil, err
+	e := mapstructure.Decode(input.Body, &conn)
+	if e != nil {
+		return nil, errors.Convert(e)
+	}
+	e = vld.StructExcept(conn, "GithubAppKey", "GithubAccessToken")
+	if e != nil {
+		return nil, errors.Convert(e)
 	}
 
 	apiClient, err := api.NewApiClientFromConnection(context.TODO(), basicRes, &conn)
 	if err != nil {
 		return nil, err
 	}
-	res, err := apiClient.Get("user", nil, nil)
-	if err != nil {
-		return nil, errors.BadInput.Wrap(err, "verify token failed")
-	}
-
-	if res.StatusCode == http.StatusUnauthorized {
-		return nil, errors.HttpStatus(http.StatusBadRequest).New("StatusUnauthorized error when testing connection")
-	}
-
-	if res.StatusCode != http.StatusOK {
-		return nil, errors.HttpStatus(res.StatusCode).New("unexpected status code while testing connection")
-	}
-
-	githubUserOfToken := &models.GithubUserOfToken{}
-	err = api.UnmarshalResponse(res, githubUserOfToken)
-	if err != nil {
-		return nil, errors.BadInput.Wrap(err, "verify token failed")
-	} else if githubUserOfToken.Login == "" {
-		return nil, errors.BadInput.Wrap(err, "invalid token")
-	}
-
-	// for github classic token, check permission
-	if strings.HasPrefix(conn.Token, "ghp_") {
-		scopes := res.Header.Get("X-OAuth-Scopes")
-		for _, permission := range requirePermission {
-			if !strings.Contains(scopes, permission) {
-				if permission == "repo:status" || permission == "repo_deployment" {
-					// If the missing permission is repo:status or repo_deployment, check if the repo permission is present
-					if strings.Contains(scopes, "repo") {
-						continue
-					}
-				}
-				if permission == "read:user" {
-					if strings.Contains(scopes, "user") {
-						continue
-					}
-				}
-				if permission == "read:org" {
-					if strings.Contains(scopes, "admin:org") {
-						continue
-					}
-				}
-				return nil, errors.BadInput.New("insufficient token permission")
-			}
-		}
-	}
 
 	githubApiResponse := &GithubTestConnResponse{}
-	githubApiResponse.Success = true
-	githubApiResponse.Message = "success"
-	githubApiResponse.Login = githubUserOfToken.Login
+
+	if conn.AuthMethod == "AppKey" {
+		jwt, err := conn.GithubAppKey.CreateJwt()
+		if err != nil {
+			return nil, err
+		}
+
+		res, err := apiClient.Get("app", nil, http.Header{
+			"Authorization": []string{fmt.Sprintf("Bearer %s", jwt)},
+		})
+
+		if err != nil {
+			return nil, errors.BadInput.Wrap(err, "verify token failed")
+		}
+		if res.StatusCode != http.StatusOK {
+			return nil, errors.HttpStatus(res.StatusCode).New("unexpected status code while testing connection")
+		}
+
+		githubApp := &models.GithubApp{}
+		err = api.UnmarshalResponse(res, githubApp)
+		if err != nil {
+			return nil, errors.BadInput.Wrap(err, "verify token failed")
+		} else if githubApp.Slug == "" {
+			return nil, errors.BadInput.Wrap(err, "invalid token")
+		}
+
+		res, err = apiClient.Get("app/installations", nil, http.Header{
+			"Authorization": []string{fmt.Sprintf("Bearer %s", jwt)},
+		})
+
+		if err != nil {
+			return nil, errors.BadInput.Wrap(err, "verify token failed")
+		}
+		if res.StatusCode != http.StatusOK {
+			return nil, errors.HttpStatus(res.StatusCode).New("unexpected status code while testing connection")
+		}
+
+		githubAppInstallations := &[]models.GithubAppInstallation{}
+		err = api.UnmarshalResponse(res, githubAppInstallations)
+		if err != nil {
+			return nil, errors.BadInput.Wrap(err, "verify token failed")
+		}
+
+		githubApiResponse.Success = true
+		githubApiResponse.Message = "success"
+		githubApiResponse.Login = githubApp.Slug
+		githubApiResponse.Installations = *githubAppInstallations
+
+	} else if conn.AuthMethod == "AccessToken" {
+		res, err := apiClient.Get("user", nil, nil)
+		if err != nil {
+			return nil, errors.BadInput.Wrap(err, "verify token failed")
+		}
+
+		if res.StatusCode == http.StatusUnauthorized {
+			return nil, errors.HttpStatus(http.StatusBadRequest).New("StatusUnauthorized error when testing connection")
+		}
+
+		if res.StatusCode != http.StatusOK {
+			return nil, errors.HttpStatus(res.StatusCode).New("unexpected status code while testing connection")
+		}
+
+		githubUserOfToken := &models.GithubUserOfToken{}
+		err = api.UnmarshalResponse(res, githubUserOfToken)
+		if err != nil {
+			return nil, errors.BadInput.Wrap(err, "verify token failed")
+		} else if githubUserOfToken.Login == "" {
+			return nil, errors.BadInput.Wrap(err, "invalid token")
+		}
+
+		success := false
+		warning := false
+		messages := []string{}
+		// for github classic token, check permission
+		if strings.HasPrefix(conn.Token, "ghp_") {
+			scopes := res.Header.Get("X-OAuth-Scopes")
+			// convert "X-OAuth-Scopes" header to user permissions map
+			userPerms := map[string]bool{}
+			for _, userPerm := range strings.Split(scopes, ", ") {
+				userPerms[userPerm] = true
+			}
+			// check public repo permission
+			missingPubPerms := findMissingPerms(userPerms, publicPermissions)
+			success = len(missingPubPerms) == 0
+			if !success {
+				messages = append(messages, fmt.Sprintf(
+					"%s is/are required to collect data from Public Repos",
+					strings.Join(missingPubPerms, ", "),
+				))
+			}
+			// check private repo permission
+			missingPriPerms := findMissingPerms(userPerms, privatePermissions)
+			warning = len(missingPriPerms) > 0
+			if warning {
+				messages = append(messages, fmt.Sprintf(
+					"%s is/are required to collect data from Private Repos",
+					strings.Join(missingPriPerms, ", "),
+				))
+			}
+		}
+
+		githubApiResponse.Success = success
+		githubApiResponse.Warning = warning
+		githubApiResponse.Message = strings.Join(messages, ";\n")
+		githubApiResponse.Login = githubUserOfToken.Login
+	} else {
+		return nil, errors.BadInput.New("invalid authentication method")
+	}
+
 	return &plugin.ApiResourceOutput{Body: githubApiResponse, Status: http.StatusOK}, nil
 }
 

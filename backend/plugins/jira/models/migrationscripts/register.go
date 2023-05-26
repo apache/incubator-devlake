@@ -36,5 +36,6 @@ func All() []plugin.MigrationScript {
 		new(addConnectionIdToTransformationRule),
 		new(addChangeTotal20230412),
 		new(expandRemotelinkSelfUrl),
+		new(addDescAndComments),
 	}
 }

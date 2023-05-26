@@ -16,31 +16,38 @@
  *
  */
 
-import React, { useMemo, useState } from 'react';
-import { ButtonGroup } from '@blueprintjs/core';
+import { useMemo, useState } from 'react';
+import { ButtonGroup, Button, Intent } from '@blueprintjs/core';
+import { pick } from 'lodash';
 
 import { ExternalLink, PageLoading } from '@/components';
 import { useRefreshData } from '@/hooks';
 import { getPluginConfig } from '@/plugins';
+import { operator } from '@/utils';
 
 import { Form } from './fields';
-import { Save, Test } from './operate';
 import * as API from './api';
 import * as S from './styled';
 
 interface Props {
   plugin: string;
   connectionId?: ID;
+  onSuccess?: () => void;
 }
 
-export const ConnectionForm = ({ plugin, connectionId }: Props) => {
+export const ConnectionForm = ({ plugin, connectionId, onSuccess }: Props) => {
   const [values, setValues] = useState<Record<string, any>>({});
   const [errors, setErrors] = useState<Record<string, any>>({});
+  const [operating, setOperating] = useState(false);
 
   const {
     name,
     connection: { docLink, fields, initialValues },
   } = useMemo(() => getPluginConfig(plugin), [plugin]);
+
+  const disabled = useMemo(() => {
+    return Object.values(errors).some((value) => value);
+  }, [errors]);
 
   const { ready, data } = useRefreshData(async () => {
     if (!connectionId) {
@@ -49,6 +56,45 @@ export const ConnectionForm = ({ plugin, connectionId }: Props) => {
 
     return API.getConnection(plugin, connectionId);
   }, [plugin, connectionId]);
+
+  const handleTest = async () => {
+    await operator(
+      () =>
+        API.testConnection(
+          plugin,
+          pick(values, [
+            'endpoint',
+            'token',
+            'username',
+            'password',
+            'proxy',
+            'authMethod',
+            'appId',
+            'secretKey',
+            'tenantId',
+            'tenantType',
+          ]),
+        ),
+      {
+        setOperating,
+        formatMessage: () => 'Test Connection Successfully.',
+      },
+    );
+  };
+
+  const handleSave = async () => {
+    const [success] = await operator(
+      () => (!connectionId ? API.createConnection(plugin, values) : API.updateConnection(plugin, connectionId, values)),
+      {
+        setOperating,
+        formatMessage: () => (!connectionId ? 'Create a New Connection Successful.' : 'Update Connection Successful.'),
+      },
+    );
+
+    if (success) {
+      onSuccess?.();
+    }
+  };
 
   if (connectionId && !ready) {
     return <PageLoading />;
@@ -71,8 +117,15 @@ export const ConnectionForm = ({ plugin, connectionId }: Props) => {
           setErrors={setErrors}
         />
         <ButtonGroup className="btns">
-          <Test plugin={plugin} values={values} errors={errors} />
-          <Save plugin={plugin} connectionId={connectionId} values={values} errors={errors} />
+          <Button loading={operating} disabled={disabled} outlined text="Test Connection" onClick={handleTest} />
+          <Button
+            loading={operating}
+            disabled={disabled}
+            intent={Intent.PRIMARY}
+            outlined
+            text="Save Connection"
+            onClick={handleSave}
+          />
         </ButtonGroup>
       </S.Form>
     </S.Wrapper>

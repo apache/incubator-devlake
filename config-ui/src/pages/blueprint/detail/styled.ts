@@ -23,6 +23,10 @@ export const Wrapper = styled.div`
 `;
 
 export const ConfigurationPanel = styled.div`
+  h3 {
+    margin-bottom: 16px;
+  }
+
   .top {
     display: flex;
     align-items: flex-start;
@@ -90,6 +94,10 @@ export const ActionColumn = styled.div`
 `;
 
 export const StatusPanel = styled.div`
+  h3 {
+    margin-bottom: 16px;
+  }
+
   & > .info {
     display: flex;
     justify-content: flex-end;
@@ -106,22 +114,5 @@ export const StatusPanel = styled.div`
 
   .block + .block {
     margin-top: 32px;
-  }
-`;
-
-export const JenkinsTips = styled.div`
-  position: fixed;
-  right: 0;
-  bottom: 0;
-  left: 200px;
-  background-color: #3c5088;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  height: 36px;
-
-  p {
-    margin: 0;
-    color: #fff;
   }
 `;

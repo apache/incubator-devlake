@@ -18,13 +18,14 @@ limitations under the License.
 package e2e
 
 import (
+	"testing"
+
 	"github.com/apache/incubator-devlake/core/models/common"
 	"github.com/apache/incubator-devlake/core/models/domainlayer/code"
 	"github.com/apache/incubator-devlake/helpers/e2ehelper"
 	"github.com/apache/incubator-devlake/plugins/gitlab/impl"
 	"github.com/apache/incubator-devlake/plugins/gitlab/models"
 	"github.com/apache/incubator-devlake/plugins/gitlab/tasks"
-	"testing"
 )
 
 func TestGitlabMrDataFlow(t *testing.T) {

@@ -69,7 +69,7 @@ func ConvertPullRequests(taskCtx plugin.SubTaskContext) errors.Error {
 				},
 				BaseRepoId:     repoIdGen.Generate(data.Options.ConnectionId, pr.BaseRepoId),
 				HeadRepoId:     repoIdGen.Generate(data.Options.ConnectionId, pr.HeadRepoId),
-				Status:         pr.State,
+				OriginalStatus: pr.State,
 				Title:          pr.Title,
 				Url:            pr.Url,
 				AuthorId:       domainUserIdGen.Generate(data.Options.ConnectionId, pr.AuthorId),
@@ -87,6 +87,17 @@ func ConvertPullRequests(taskCtx plugin.SubTaskContext) errors.Error {
 				HeadRef:        pr.HeadRef,
 				HeadCommitSha:  pr.HeadCommitSha,
 			}
+			switch pr.State {
+			case "OPEN":
+				domainPr.Status = code.OPEN
+			case "MERGED":
+				domainPr.Status = code.MERGED
+			case "DECLINED":
+				domainPr.Status = code.CLOSED
+			default:
+				domainPr.Status = pr.State
+			}
+
 			return []interface{}{
 				domainPr,
 			}, nil

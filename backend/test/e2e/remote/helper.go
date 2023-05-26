@@ -19,6 +19,9 @@ package remote
 
 import (
 	"fmt"
+	"github.com/apache/incubator-devlake/core/models"
+	"github.com/apache/incubator-devlake/core/plugin"
+	"github.com/stretchr/testify/require"
 	"os"
 	"path/filepath"
 	"testing"
@@ -51,6 +54,13 @@ type (
 		Name string `json:"name"`
 		Env  string `json:"env"`
 	}
+	BlueprintTestParams struct {
+		connection *helper.Connection
+		projects   []models.ApiOutputProject
+		blueprints []models.Blueprint
+		rule       *FakeTxRule
+		scope      *FakeProject
+	}
 )
 
 func ConnectLocalServer(t *testing.T) *helper.DevlakeClient {
@@ -78,23 +88,70 @@ func CreateTestConnection(client *helper.DevlakeClient) *helper.Connection {
 	return connection
 }
 
-func CreateTestScope(client *helper.DevlakeClient, connectionId uint64) any {
-	res := client.CreateTransformationRule(PLUGIN_NAME, connectionId, FakeTxRule{Name: "Tx rule", Env: "test env"})
-	rule, ok := res.(map[string]interface{})
-	if !ok {
-		panic("Cannot cast transform rule")
-	}
-	ruleId := uint64(rule["id"].(float64))
-
-	scope := client.CreateScope(PLUGIN_NAME,
+func CreateTestScope(client *helper.DevlakeClient, rule *FakeTxRule, connectionId uint64) *FakeProject {
+	scopes := helper.Cast[[]FakeProject](client.CreateScope(PLUGIN_NAME,
 		connectionId,
 		FakeProject{
 			Id:                   "p1",
 			Name:                 "Project 1",
 			ConnectionId:         connectionId,
 			Url:                  "http://fake.org/api/project/p1",
-			TransformationRuleId: ruleId,
+			TransformationRuleId: rule.Id,
 		},
-	)
-	return scope
+	))
+	return &scopes[0]
+}
+
+func CreateTestTransformationRule(client *helper.DevlakeClient, connectionId uint64) *FakeTxRule {
+	rule := helper.Cast[FakeTxRule](client.CreateTransformationRule(PLUGIN_NAME, connectionId, FakeTxRule{Name: "Tx rule", Env: "test env"}))
+	return &rule
+}
+
+func CreateTestBlueprints(t *testing.T, client *helper.DevlakeClient, count int) *BlueprintTestParams {
+	t.Helper()
+	connection := CreateTestConnection(client)
+	rule := CreateTestTransformationRule(client, connection.ID)
+	scope := CreateTestScope(client, rule, connection.ID)
+	var bps []models.Blueprint
+	var projects []models.ApiOutputProject
+	for i := 1; i <= count; i++ {
+		projectName := fmt.Sprintf("Test project %d", i)
+		client.CreateProject(&helper.ProjectConfig{
+			ProjectName: projectName,
+		})
+		blueprint := client.CreateBasicBlueprintV2(
+			fmt.Sprintf("Test blueprint %d", i),
+			&helper.BlueprintV2Config{
+				Connection: &plugin.BlueprintConnectionV200{
+					Plugin:       "fake",
+					ConnectionId: connection.ID,
+					Scopes: []*plugin.BlueprintScopeV200{
+						{
+							Id:   scope.Id,
+							Name: "Test scope",
+							Entities: []string{
+								plugin.DOMAIN_TYPE_CICD,
+							},
+						},
+					},
+				},
+				SkipOnFail:  true,
+				ProjectName: projectName,
+			},
+		)
+		plan, err := blueprint.UnmarshalPlan()
+		require.NoError(t, err)
+		_ = plan
+		bps = append(bps, blueprint)
+		project := client.GetProject(projectName)
+		require.Equal(t, blueprint.Name, project.Blueprint.Name)
+		projects = append(projects, project)
+	}
+	return &BlueprintTestParams{
+		connection: connection,
+		projects:   projects,
+		blueprints: bps,
+		rule:       rule,
+		scope:      scope,
+	}
 }

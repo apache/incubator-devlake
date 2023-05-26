@@ -18,7 +18,6 @@
 
 import { useState, useEffect, useMemo } from 'react';
 
-import { Error } from '@/error';
 import { operator } from '@/utils';
 
 import type { BlueprintType } from '@/pages';
@@ -33,19 +32,11 @@ export const useDetail = ({ id }: UseDetailProps) => {
   const [operating, setOperating] = useState(false);
   const [blueprint, setBlueprint] = useState<BlueprintType>();
   const [pipelineId, setPipelineId] = useState<ID>();
-  const [, setError] = useState();
 
   const getBlueprint = async () => {
     setLoading(true);
     try {
       const [bpRes, plRes] = await Promise.all([API.getBlueprint(id), API.getBlueprintPipelines(id)]);
-
-      // need to upgrade 2.0.0
-      if (bpRes.settings?.version === '1.0.0') {
-        setError(() => {
-          throw Error.BP_NEED_TO_UPGRADE;
-        });
-      }
 
       setBlueprint(bpRes);
       setPipelineId(plRes.pipelines?.[0]?.id);
@@ -61,7 +52,6 @@ export const useDetail = ({ id }: UseDetailProps) => {
   const handleRun = async () => {
     const [success] = await operator(() => API.runBlueprint(id), {
       setOperating,
-      formatReason: (err) => (err as any).response?.data?.message,
     });
 
     if (success) {

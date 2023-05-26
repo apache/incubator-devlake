@@ -37,5 +37,7 @@ func All() []plugin.MigrationScript {
 		new(addConnectionIdToTransformationRule),
 		new(addEnvToRunAndJob),
 		new(addGithubCommitAuthorInfo),
+		new(fixRunNameToText),
+		new(addGithubMultiAuth),
 	}
 }
