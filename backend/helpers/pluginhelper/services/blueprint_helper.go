@@ -25,7 +25,7 @@ import (
 	"github.com/apache/incubator-devlake/core/models/common"
 )
 
-type DatabaseHelper struct {
+type BlueprintManager struct {
 	db dal.Dal
 }
 
@@ -37,24 +37,24 @@ type GetBlueprintQuery struct {
 	PageSize    int
 }
 
-func NewDatabaseHelper(db dal.Dal) *DatabaseHelper {
-	return &DatabaseHelper{
+func NewBlueprintManager(db dal.Dal) *BlueprintManager {
+	return &BlueprintManager{
 		db: db,
 	}
 }
 
 // SaveDbBlueprint accepts a Blueprint instance and upsert it to database
-func (d *DatabaseHelper) SaveDbBlueprint(blueprint *models.Blueprint) errors.Error {
+func (b *BlueprintManager) SaveDbBlueprint(blueprint *models.Blueprint) errors.Error {
 	var err error
 	if blueprint.ID != 0 {
-		err = d.db.Update(&blueprint)
+		err = b.db.Update(&blueprint)
 	} else {
-		err = d.db.Create(&blueprint)
+		err = b.db.Create(&blueprint)
 	}
 	if err != nil {
 		return errors.Default.Wrap(err, "error creating DB blueprint")
 	}
-	err = d.db.Delete(&models.DbBlueprintLabel{}, dal.Where(`blueprint_id = ?`, blueprint.ID))
+	err = b.db.Delete(&models.DbBlueprintLabel{}, dal.Where(`blueprint_id = ?`, blueprint.ID))
 	if err != nil {
 		return errors.Default.Wrap(err, "error delete DB blueprint's old labelModels")
 	}
@@ -66,7 +66,7 @@ func (d *DatabaseHelper) SaveDbBlueprint(blueprint *models.Blueprint) errors.Err
 				Name:        blueprint.Labels[i],
 			})
 		}
-		err = d.db.Create(&blueprintLabels)
+		err = b.db.Create(&blueprintLabels)
 		if err != nil {
 			return errors.Default.Wrap(err, "error creating DB blueprint's labelModels")
 		}
@@ -75,7 +75,7 @@ func (d *DatabaseHelper) SaveDbBlueprint(blueprint *models.Blueprint) errors.Err
 }
 
 // GetDbBlueprints returns a paginated list of Blueprints based on `query`
-func (d *DatabaseHelper) GetDbBlueprints(query *GetBlueprintQuery) ([]*models.Blueprint, int64, errors.Error) {
+func (b *BlueprintManager) GetDbBlueprints(query *GetBlueprintQuery) ([]*models.Blueprint, int64, errors.Error) {
 	// process query parameters
 	clauses := []dal.Clause{dal.From(&models.Blueprint{})}
 	if query.Enable != nil {
@@ -92,7 +92,7 @@ func (d *DatabaseHelper) GetDbBlueprints(query *GetBlueprintQuery) ([]*models.Bl
 	}
 
 	// count total records
-	count, err := d.db.Count(clauses...)
+	count, err := b.db.Count(clauses...)
 	if err != nil {
 		return nil, 0, err
 	}
@@ -105,14 +105,14 @@ func (d *DatabaseHelper) GetDbBlueprints(query *GetBlueprintQuery) ([]*models.Bl
 		clauses = append(clauses, dal.Limit(query.PageSize))
 	}
 	dbBlueprints := make([]*models.Blueprint, 0)
-	err = d.db.All(&dbBlueprints, clauses...)
+	err = b.db.All(&dbBlueprints, clauses...)
 	if err != nil {
 		return nil, 0, errors.Default.Wrap(err, "error getting DB count of blueprints")
 	}
 
 	// load labels for blueprints
 	for _, dbBlueprint := range dbBlueprints {
-		err = d.fillBlueprintDetail(dbBlueprint)
+		err = b.fillBlueprintDetail(dbBlueprint)
 		if err != nil {
 			return nil, 0, err
 		}
@@ -122,16 +122,16 @@ func (d *DatabaseHelper) GetDbBlueprints(query *GetBlueprintQuery) ([]*models.Bl
 }
 
 // GetDbBlueprint returns the detail of a given Blueprint ID
-func (d *DatabaseHelper) GetDbBlueprint(blueprintId uint64) (*models.Blueprint, errors.Error) {
+func (b *BlueprintManager) GetDbBlueprint(blueprintId uint64) (*models.Blueprint, errors.Error) {
 	blueprint := &models.Blueprint{}
-	err := d.db.First(blueprint, dal.Where("id = ?", blueprintId))
+	err := b.db.First(blueprint, dal.Where("id = ?", blueprintId))
 	if err != nil {
-		if d.db.IsErrorNotFound(err) {
+		if b.db.IsErrorNotFound(err) {
 			return nil, errors.NotFound.Wrap(err, "could not find blueprint in DB")
 		}
 		return nil, errors.Default.Wrap(err, "error getting blueprint from DB")
 	}
-	err = d.fillBlueprintDetail(blueprint)
+	err = b.fillBlueprintDetail(blueprint)
 	if err != nil {
 		return nil, err
 	}
@@ -139,8 +139,8 @@ func (d *DatabaseHelper) GetDbBlueprint(blueprintId uint64) (*models.Blueprint, 
 }
 
 // GetBlueprintsByScopes returns all blueprints that have these scopeIds and this connection Id
-func (d *DatabaseHelper) GetBlueprintsByScopes(connectionId uint64, scopeIds ...string) (map[string][]*models.Blueprint, errors.Error) {
-	bps, _, err := d.GetDbBlueprints(&GetBlueprintQuery{})
+func (b *BlueprintManager) GetBlueprintsByScopes(connectionId uint64, scopeIds ...string) (map[string][]*models.Blueprint, errors.Error) {
+	bps, _, err := b.GetDbBlueprints(&GetBlueprintQuery{})
 	if err != nil {
 		return nil, err
 	}
@@ -166,16 +166,16 @@ func (d *DatabaseHelper) GetBlueprintsByScopes(connectionId uint64, scopeIds ...
 }
 
 // GetDbBlueprintByProjectName returns the detail of a given projectName
-func (d *DatabaseHelper) GetDbBlueprintByProjectName(projectName string) (*models.Blueprint, errors.Error) {
+func (b *BlueprintManager) GetDbBlueprintByProjectName(projectName string) (*models.Blueprint, errors.Error) {
 	dbBlueprint := &models.Blueprint{}
-	err := d.db.First(dbBlueprint, dal.Where("project_name = ?", projectName))
+	err := b.db.First(dbBlueprint, dal.Where("project_name = ?", projectName))
 	if err != nil {
-		if d.db.IsErrorNotFound(err) {
+		if b.db.IsErrorNotFound(err) {
 			return nil, errors.NotFound.Wrap(err, fmt.Sprintf("could not find blueprint in DB by projectName %s", projectName))
 		}
 		return nil, errors.Default.Wrap(err, fmt.Sprintf("error getting blueprint from DB by projectName %s", projectName))
 	}
-	err = d.fillBlueprintDetail(dbBlueprint)
+	err = b.fillBlueprintDetail(dbBlueprint)
 	if err != nil {
 		return nil, err
 	}
@@ -183,17 +183,17 @@ func (d *DatabaseHelper) GetDbBlueprintByProjectName(projectName string) (*model
 }
 
 // DeleteBlueprint deletes a blueprint by its id
-func (d *DatabaseHelper) DeleteBlueprint(id uint64) errors.Error {
+func (b *BlueprintManager) DeleteBlueprint(id uint64) errors.Error {
 	dbBlueprint := &models.Blueprint{
 		Model: common.Model{
 			ID: id,
 		},
 	}
-	return d.db.Delete(&dbBlueprint)
+	return b.db.Delete(&dbBlueprint)
 }
 
-func (d *DatabaseHelper) fillBlueprintDetail(blueprint *models.Blueprint) errors.Error {
-	err := d.db.Pluck("name", &blueprint.Labels, dal.From(&models.DbBlueprintLabel{}), dal.Where("blueprint_id = ?", blueprint.ID))
+func (b *BlueprintManager) fillBlueprintDetail(blueprint *models.Blueprint) errors.Error {
+	err := b.db.Pluck("name", &blueprint.Labels, dal.From(&models.DbBlueprintLabel{}), dal.Where("blueprint_id = ?", blueprint.ID))
 	if err != nil {
 		return errors.Internal.Wrap(err, "error getting the blueprint labels from database")
 	}
