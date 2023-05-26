@@ -18,6 +18,8 @@ limitations under the License.
 package api
 
 import (
+	"strings"
+
 	"github.com/apache/incubator-devlake/core/models/common"
 )
 
@@ -34,9 +36,13 @@ type RestConnection struct {
 	RateLimitPerHour int    `comment:"api request rate limit per hour" json:"rateLimitPerHour"`
 }
 
-// GetEndpoint returns the API endpoint of the connection
+// GetEndpoint returns the API endpoint of the connection, which always ends with "/"
 func (rc RestConnection) GetEndpoint() string {
-	return rc.Endpoint
+	// make sure the endpoint ends with "/"
+	if rc.Endpoint == "" || strings.HasSuffix(rc.Endpoint, "/") {
+		return rc.Endpoint
+	}
+	return rc.Endpoint + "/"
 }
 
 // GetProxy returns the proxy for the connection
