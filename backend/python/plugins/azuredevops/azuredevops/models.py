@@ -129,8 +129,8 @@ class Job(ToolModel, table=True):
     name: str
     startTime: datetime.datetime
     finishTime: datetime.datetime
-    state: State
-    result: Result
+    state: JobState
+    result: JobResult
 
     @classmethod
     def migrate(self, session: Session):
