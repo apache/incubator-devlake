@@ -20,7 +20,6 @@ package api
 import (
 	"github.com/apache/incubator-devlake/core/context"
 	"github.com/apache/incubator-devlake/core/errors"
-	"github.com/apache/incubator-devlake/core/models"
 	"github.com/apache/incubator-devlake/core/plugin"
 	"github.com/go-playground/validator/v10"
 	"net/http"
@@ -30,12 +29,6 @@ type (
 	// ScopeApiHelper is used to write the CURD of scopes
 	ScopeApiHelper[Conn any, Scope any, Tr any] struct {
 		*GenericScopeApiHelper[Conn, Scope, Tr]
-	}
-	ScopeRes[T any] struct {
-		Scope                  T                   `mapstructure:",squash"`
-		TransformationRuleName string              `mapstructure:"transformationRuleName,omitempty"`
-		Blueprints             []*models.Blueprint `mapstructure:"blueprints,omitempty"`
-		Projects               []*models.Project   `mapstructure:"projects,omitempty"`
 	}
 	ScopeReq[T any] struct {
 		Data []*T `json:"data"`

@@ -55,6 +55,11 @@ type (
 		connHelper       *ConnectionApiHelper
 		opts             *ScopeHelperOptions
 	}
+	ScopeRes[T any] struct {
+		Scope                  T                   `mapstructure:",squash"`
+		TransformationRuleName string              `mapstructure:"transformationRuleName,omitempty"`
+		Blueprints             []*models.Blueprint `mapstructure:"blueprints,omitempty"`
+	}
 	ReflectionParameters struct {
 		ScopeIdFieldName  string
 		ScopeIdColumnName string
@@ -79,7 +84,6 @@ type (
 	getRequestParams struct {
 		requestParams
 		loadBlueprints bool
-		loadProjects   bool
 	}
 )
 
@@ -207,7 +211,7 @@ func (c *GenericScopeApiHelper[Conn, Scope, Tr]) GetScopes(input *plugin.ApiReso
 	if err != nil {
 		return nil, errors.Default.Wrap(err, "error associating transformations with scopes")
 	}
-	if params.loadBlueprints || params.loadProjects {
+	if params.loadBlueprints {
 		scopesById := c.mapByScopeId(apiScopes)
 		var scopeIds []string
 		for id := range scopesById {
@@ -220,16 +224,7 @@ func (c *GenericScopeApiHelper[Conn, Scope, Tr]) GetScopes(input *plugin.ApiReso
 		apiScopes = nil
 		for scopeId, scope := range scopesById {
 			if bps, ok := blueprintMap[scopeId]; ok {
-				if params.loadBlueprints {
-					scope.Blueprints = bps
-				}
-				if params.loadProjects {
-					projects, err := c.getProjectsFromBlueprints(bps)
-					if err != nil {
-						return nil, err
-					}
-					scope.Projects = projects
-				}
+				scope.Blueprints = bps
 				delete(blueprintMap, scopeId)
 			}
 			apiScopes = append(apiScopes, scope)
@@ -267,7 +262,7 @@ func (c *GenericScopeApiHelper[Conn, Scope, Tr]) GetScope(input *plugin.ApiResou
 		return nil, errors.Default.Wrap(err, fmt.Sprintf("error associating transformation with scope %s", params.scopeId))
 	}
 	scopeRes := apiScopes[0]
-	if params.loadBlueprints || params.loadProjects {
+	if params.loadBlueprints {
 		blueprintMap, err := c.serviceDbHelper.GetBlueprintsByScopes(params.connectionId, params.scopeId)
 		if err != nil {
 			return nil, errors.Default.Wrap(err, fmt.Sprintf("error getting blueprints for scope with scope ID %s", params.scopeId))
@@ -276,13 +271,6 @@ func (c *GenericScopeApiHelper[Conn, Scope, Tr]) GetScope(input *plugin.ApiResou
 			bps := blueprintMap[params.scopeId]
 			if params.loadBlueprints {
 				scopeRes.Blueprints = bps
-			}
-			if params.loadProjects {
-				projects, err := c.getProjectsFromBlueprints(bps)
-				if err != nil {
-					return nil, err
-				}
-				scopeRes.Projects = projects
 			}
 		}
 	}
@@ -383,18 +371,6 @@ func (c *GenericScopeApiHelper[Conn, Scope, Tr]) mapByScopeId(scopes []*ScopeRes
 	return scopeMap
 }
 
-func (c *GenericScopeApiHelper[Conn, Scope, Tr]) getProjectsFromBlueprints(bps []*models.Blueprint) ([]*models.Project, errors.Error) {
-	projectsMap, err := c.serviceDbHelper.GetProjectsByBlueprints(bps)
-	if err != nil {
-		return nil, errors.Default.Wrap(err, "error getting associated projects of blueprints")
-	}
-	var projects []*models.Project
-	for _, project := range projectsMap {
-		projects = append(projects, project)
-	}
-	return projects, nil
-}
-
 func (c *GenericScopeApiHelper[Conn, Scope, Tr]) extractFromReqParam(input *plugin.ApiResourceInput) *requestParams {
 	connectionId, err := strconv.ParseUint(input.Params["connectionId"], 10, 64)
 	if err != nil || connectionId == 0 {
@@ -441,20 +417,9 @@ func (c *GenericScopeApiHelper[Conn, Scope, Tr]) extractFromGetReqParam(input *p
 			loadBlueprints = false
 		}
 	}
-	var loadProjects bool
-	{
-		lprojs, ok := input.Query["projects"]
-		if ok {
-			loadProjects, err = errors.Convert01(strconv.ParseBool(lprojs[0]))
-		}
-		if err != nil {
-			loadProjects = false
-		}
-	}
 	return &getRequestParams{
 		requestParams:  *params,
 		loadBlueprints: loadBlueprints,
-		loadProjects:   loadProjects,
 	}
 }
 

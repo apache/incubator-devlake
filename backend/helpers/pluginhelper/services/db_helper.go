@@ -23,7 +23,6 @@ import (
 	"github.com/apache/incubator-devlake/core/errors"
 	"github.com/apache/incubator-devlake/core/models"
 	"github.com/apache/incubator-devlake/core/models/common"
-	"github.com/apache/incubator-devlake/core/plugin"
 )
 
 type DatabaseHelper struct {
@@ -166,15 +165,6 @@ func (d *DatabaseHelper) GetBlueprintsByScopes(connectionId uint64, scopeIds ...
 	return scopeMap, nil
 }
 
-// GetBlueprintConnections returns the connections associated with this blueprint Id
-func (d *DatabaseHelper) GetBlueprintConnections(blueprintId uint64) ([]*plugin.BlueprintConnectionV200, errors.Error) {
-	bp, err := d.GetDbBlueprint(blueprintId)
-	if err != nil {
-		return nil, err
-	}
-	return bp.GetConnections()
-}
-
 // GetDbBlueprintByProjectName returns the detail of a given projectName
 func (d *DatabaseHelper) GetDbBlueprintByProjectName(projectName string) (*models.Blueprint, errors.Error) {
 	dbBlueprint := &models.Blueprint{}
@@ -200,43 +190,6 @@ func (d *DatabaseHelper) DeleteBlueprint(id uint64) errors.Error {
 		},
 	}
 	return d.db.Delete(&dbBlueprint)
-}
-
-func (d *DatabaseHelper) GetProjectsByBlueprints(bps []*models.Blueprint) (map[uint64]*models.Project, errors.Error) {
-	var ids []uint64
-	for _, bp := range bps {
-		ids = append(ids, bp.ID)
-	}
-	return d.GetProjectsByBlueprintIds(ids)
-}
-
-// GetBlueprintsByScopes returns all blueprints that have these scopeIds and this connection Id
-func (d *DatabaseHelper) GetProjectsByBlueprintIds(ids []uint64) (map[uint64]*models.Project, errors.Error) {
-	cursor, err := d.db.Cursor(
-		dal.Select("bp.id", "p.*"),
-		dal.From("_devlake_blueprints AS bp"),
-		dal.Join(`JOIN projects AS p ON bp.project_name = p.name`),
-		dal.Where("bp.id IN (?)", ids),
-	)
-	if err != nil {
-		return nil, err
-	}
-	defer cursor.Close()
-	type ProjectQueryResult struct {
-		Id uint64
-		models.Project
-	}
-	resultsMap := map[uint64]*models.Project{}
-	for cursor.Next() {
-		result := ProjectQueryResult{}
-		err = d.db.Fetch(cursor, &result)
-		if err != nil {
-			return nil, err
-		}
-		resultsMap[result.Id] = &result.Project
-	}
-
-	return resultsMap, nil
 }
 
 func (d *DatabaseHelper) fillBlueprintDetail(blueprint *models.Blueprint) errors.Error {
