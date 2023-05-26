@@ -55,6 +55,11 @@ type (
 		connHelper       *ConnectionApiHelper
 		opts             *ScopeHelperOptions
 	}
+	ScopeRes[T any] struct {
+		Scope                  T                   `mapstructure:",squash"`
+		TransformationRuleName string              `mapstructure:"transformationRuleName,omitempty"`
+		Blueprints             []*models.Blueprint `mapstructure:"blueprints,omitempty"`
+	}
 	ReflectionParameters struct {
 		ScopeIdFieldName  string
 		ScopeIdColumnName string
@@ -256,17 +261,15 @@ func (c *GenericScopeApiHelper[Conn, Scope, Tr]) GetScope(input *plugin.ApiResou
 		return nil, errors.Default.Wrap(err, fmt.Sprintf("error associating transformation with scope %s", params.scopeId))
 	}
 	scopeRes := apiScopes[0]
-	var blueprints []*models.Blueprint
 	if params.loadBlueprints {
 		blueprintMap, err := c.bpManager.GetBlueprintsByScopes(params.connectionId, params.scopeId)
 		if err != nil {
 			return nil, errors.Default.Wrap(err, fmt.Sprintf("error getting blueprints for scope with scope ID %s", params.scopeId))
 		}
 		if len(blueprintMap) == 1 {
-			blueprints = blueprintMap[params.scopeId]
+			scopeRes.Blueprints = blueprintMap[params.scopeId]
 		}
 	}
-	scopeRes.Blueprints = blueprints
 	return scopeRes, nil
 }
 

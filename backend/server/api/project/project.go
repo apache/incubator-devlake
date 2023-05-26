@@ -99,7 +99,7 @@ func PostProject(c *gin.Context) {
 
 	projectOutput, err := services.CreateProject(projectInput)
 	if err != nil {
-		shared.ApiOutputError(c, errors.BadInput.Wrap(err, "error creating project"))
+		shared.ApiOutputError(c, errors.Default.Wrap(err, "error creating project"))
 		return
 	}
 
@@ -127,9 +127,27 @@ func PatchProject(c *gin.Context) {
 
 	projectOutput, err := services.PatchProject(projectName, body)
 	if err != nil {
-		shared.ApiOutputError(c, errors.BadInput.Wrap(err, "error patch project"))
+		shared.ApiOutputError(c, errors.Default.Wrap(err, "error patch project"))
 		return
 	}
 
 	shared.ApiOutputSuccess(c, projectOutput, http.StatusCreated)
+}
+
+// @Summary Delete a project
+// @Description Delete a project
+// @Tags framework/projects
+// @Accept application/json
+// @Success 200
+// @Failure 400  {string} errcode.Error "Bad Request"
+// @Failure 500  {string} errcode.Error "Internal Error"
+// @Router /projects/:projectName [delete]
+func DeleteProject(c *gin.Context) {
+	projectName := c.Param("projectName")[1:]
+	err := services.DeleteProject(projectName)
+	if err != nil {
+		shared.ApiOutputError(c, errors.Default.Wrap(err, "error deleting project"))
+		return
+	}
+	shared.ApiOutputSuccess(c, nil, http.StatusOK)
 }

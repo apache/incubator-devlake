@@ -67,7 +67,7 @@ func RegisterRouter(r *gin.Engine) {
 	// project api
 	r.GET("/projects/*projectName", project.GetProject)
 	r.PATCH("/projects/*projectName", project.PatchProject)
-	//r.DELETE("/projects/:projectName", project.DeleteProject)
+	r.DELETE("/projects/*projectName", project.DeleteProject)
 	r.POST("/projects", project.PostProject)
 	r.GET("/projects", project.GetProjects)
 
