@@ -298,7 +298,7 @@ func TestScopeApiHelper_Put(t *testing.T) {
 	params := &ReflectionParameters{}
 	dbHelper := NewScopeDatabaseHelperImpl[TestConnection, TestRepo, TestTransformationRule](mockRes, connHelper, params)
 	// create a mock ScopeApiHelper with a mock database connection
-	apiHelper := NewScopeHelper2[TestConnection, TestRepo, TestTransformationRule](mockRes, nil, connHelper, dbHelper, params, nil)
+	apiHelper := NewScopeHelper[TestConnection, TestRepo, TestTransformationRule](mockRes, nil, connHelper, dbHelper, params, nil)
 	// test a successful call to Put
 	_, err := apiHelper.Put(input)
 	assert.NoError(t, err)

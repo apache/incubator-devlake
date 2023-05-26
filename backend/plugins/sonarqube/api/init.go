@@ -37,10 +37,18 @@ func Init(br context.BasicRes) {
 		basicRes,
 		vld,
 	)
-	scopeHelper = api.NewScopeHelper[models.SonarqubeConnection, models.SonarqubeProject, interface{}](
+	params := &api.ReflectionParameters{
+		ScopeIdFieldName:  "ProjectKey",
+		ScopeIdColumnName: "project_key",
+	}
+	scopeHelper = api.NewScopeHelper[models.SonarqubeConnection, models.SonarqubeProject, any](
 		basicRes,
 		vld,
 		connectionHelper,
+		api.NewScopeDatabaseHelperImpl[models.SonarqubeConnection, models.SonarqubeProject, any](
+			basicRes, connectionHelper, params),
+		params,
+		nil,
 	)
 	remoteHelper = api.NewRemoteHelper[models.SonarqubeConnection, models.SonarqubeProject, models.SonarqubeApiProject, api.NoRemoteGroupResponse](
 		basicRes,
