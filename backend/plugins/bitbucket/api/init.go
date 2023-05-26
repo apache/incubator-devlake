@@ -26,9 +26,9 @@ import (
 
 var vld *validator.Validate
 var connectionHelper *api.ConnectionApiHelper
-var scopeHelper *api.ScopeApiHelper[models.BitbucketConnection, models.BitbucketRepo, models.BitbucketTransformationRule]
+var scopeHelper *api.ScopeApiHelper[models.BitbucketConnection, models.BitbucketRepo, models.BitbucketScopeConfig]
 var remoteHelper *api.RemoteApiHelper[models.BitbucketConnection, models.BitbucketRepo, models.BitbucketApiRepo, models.GroupResponse]
-var trHelper *api.TransformationRuleHelper[models.BitbucketTransformationRule]
+var scHelper *api.ScopeConfigHelper[models.BitbucketScopeConfig]
 var basicRes context.BasicRes
 
 func Init(br context.BasicRes) {
@@ -42,11 +42,11 @@ func Init(br context.BasicRes) {
 		ScopeIdFieldName:  "BitbucketId",
 		ScopeIdColumnName: "bitbucket_id",
 	}
-	scopeHelper = api.NewScopeHelper[models.BitbucketConnection, models.BitbucketRepo, models.BitbucketTransformationRule](
+	scopeHelper = api.NewScopeHelper[models.BitbucketConnection, models.BitbucketRepo, models.BitbucketScopeConfig](
 		basicRes,
 		vld,
 		connectionHelper,
-		api.NewScopeDatabaseHelperImpl[models.BitbucketConnection, models.BitbucketRepo, models.BitbucketTransformationRule](
+		api.NewScopeDatabaseHelperImpl[models.BitbucketConnection, models.BitbucketRepo, models.BitbucketScopeConfig](
 			basicRes, connectionHelper, params),
 		params,
 		nil,
@@ -56,7 +56,7 @@ func Init(br context.BasicRes) {
 		vld,
 		connectionHelper,
 	)
-	trHelper = api.NewTransformationRuleHelper[models.BitbucketTransformationRule](
+	scHelper = api.NewScopeConfigHelper[models.BitbucketScopeConfig](
 		basicRes,
 		vld,
 	)

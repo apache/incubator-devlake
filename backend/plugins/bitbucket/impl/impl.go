@@ -52,8 +52,8 @@ func (p Bitbucket) Scope() interface{} {
 	return &models.BitbucketRepo{}
 }
 
-func (p Bitbucket) TransformationRule() interface{} {
-	return &models.BitbucketTransformationRule{}
+func (p Bitbucket) ScopeConfig() interface{} {
+	return &models.BitbucketScopeConfig{}
 }
 
 func (p Bitbucket) Init(basicRes context.BasicRes) errors.Error {
@@ -218,13 +218,13 @@ func (p Bitbucket) ApiResources() map[string]map[string]plugin.ApiResourceHandle
 			"GET": api.GetScopeList,
 			"PUT": api.PutScope,
 		},
-		"connections/:connectionId/transformation_rules": {
-			"POST": api.CreateTransformationRule,
-			"GET":  api.GetTransformationRuleList,
+		"connections/:connectionId/scope_configs": {
+			"POST": api.CreateScopeConfig,
+			"GET":  api.GetScopeConfigList,
 		},
-		"connections/:connectionId/transformation_rules/:id": {
-			"PATCH": api.UpdateTransformationRule,
-			"GET":   api.GetTransformationRule,
+		"connections/:connectionId/scope_configs/:id": {
+			"PATCH": api.UpdateScopeConfig,
+			"GET":   api.GetScopeConfig,
 		},
 	}
 }
@@ -252,8 +252,8 @@ func EnrichOptions(taskCtx plugin.TaskContext,
 		"connection_id = ? AND bitbucket_id = ?",
 		op.ConnectionId, op.FullName))
 	if err == nil {
-		if op.TransformationRuleId == 0 {
-			op.TransformationRuleId = repo.TransformationRuleId
+		if op.ScopeConfigId == 0 {
+			op.ScopeConfigId = repo.ScopeConfigId
 		}
 	} else {
 		if taskCtx.GetDal().IsErrorNotFound(err) && op.FullName != "" {
@@ -273,18 +273,18 @@ func EnrichOptions(taskCtx plugin.TaskContext,
 			return errors.Default.Wrap(err, fmt.Sprintf("fail to find repo %s", op.FullName))
 		}
 	}
-	// Set GithubTransformationRule if it's nil, this has lower priority
-	if op.BitbucketTransformationRule == nil && op.TransformationRuleId != 0 {
-		var transformationRule models.BitbucketTransformationRule
+	// Set GithubScopeConfig if it's nil, this has lower priority
+	if op.BitbucketScopeConfig == nil && op.ScopeConfigId != 0 {
+		var scopeConfig models.BitbucketScopeConfig
 		db := taskCtx.GetDal()
-		err = db.First(&transformationRule, dal.Where("id = ?", repo.TransformationRuleId))
+		err = db.First(&scopeConfig, dal.Where("id = ?", repo.ScopeConfigId))
 		if err != nil && !db.IsErrorNotFound(err) {
-			return errors.BadInput.Wrap(err, "fail to get transformationRule")
+			return errors.BadInput.Wrap(err, "fail to get scopeConfig")
 		}
-		op.BitbucketTransformationRule = &transformationRule
+		op.BitbucketScopeConfig = &scopeConfig
 	}
-	if op.BitbucketTransformationRule == nil && op.TransformationRuleId == 0 {
-		op.BitbucketTransformationRule = new(models.BitbucketTransformationRule)
+	if op.BitbucketScopeConfig == nil && op.ScopeConfigId == 0 {
+		op.BitbucketScopeConfig = new(models.BitbucketScopeConfig)
 	}
 	return err
 }

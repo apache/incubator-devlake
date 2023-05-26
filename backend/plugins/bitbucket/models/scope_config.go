@@ -22,13 +22,13 @@ import (
 	"gorm.io/datatypes"
 )
 
-type BitbucketTransformationRule struct {
-	common.Model      `mapstructure:"-"`
-	ConnectionId      uint64            `mapstructure:"connectionId" json:"connectionId"`
-	Name              string            `mapstructure:"name" json:"name" gorm:"type:varchar(255);index:idx_name_github,unique" validate:"required"`
-	DeploymentPattern string            `mapstructure:"deploymentPattern,omitempty" json:"deploymentPattern" gorm:"type:varchar(255)"`
-	ProductionPattern string            `mapstructure:"productionPattern,omitempty" json:"productionPattern" gorm:"type:varchar(255)"`
-	Refdiff           datatypes.JSONMap `mapstructure:"refdiff,omitempty" json:"refdiff" swaggertype:"object" format:"json"`
+type BitbucketScopeConfig struct {
+	common.ScopeConfig `mapstructure:",squash" json:",inline" gorm:"embedded"`
+	ConnectionId       uint64            `mapstructure:"connectionId" json:"connectionId"`
+	Name               string            `mapstructure:"name" json:"name" gorm:"type:varchar(255);index:idx_name_github,unique" validate:"required"`
+	DeploymentPattern  string            `mapstructure:"deploymentPattern,omitempty" json:"deploymentPattern" gorm:"type:varchar(255)"`
+	ProductionPattern  string            `mapstructure:"productionPattern,omitempty" json:"productionPattern" gorm:"type:varchar(255)"`
+	Refdiff            datatypes.JSONMap `mapstructure:"refdiff,omitempty" json:"refdiff" swaggertype:"object" format:"json"`
 
 	// a string array, split by `,`.
 	IssueStatusTodo       string `mapstructure:"issueStatusTodo,omitempty" json:"issueStatusTodo" gorm:"type:varchar(255)"`
@@ -37,6 +37,6 @@ type BitbucketTransformationRule struct {
 	IssueStatusOther      string `mapstructure:"issueStatusOther,omitempty" json:"issueStatusOther" gorm:"type:varchar(255)"`
 }
 
-func (BitbucketTransformationRule) TableName() string {
-	return "_tool_bitbucket_transformation_rules"
+func (BitbucketScopeConfig) TableName() string {
+	return "_tool_bitbucket_scope_configs"
 }
