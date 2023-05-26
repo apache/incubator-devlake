@@ -18,23 +18,15 @@
 
 import { request } from '@/utils';
 
-export const getProject = (name: string) => request(`/projects/${name}`);
+import type { ProjectType, BlueprintType } from '@/pages';
 
-type UpdateProjectPayload = {
-  name: string;
-  description: string;
-  metrics: Array<{
-    pluginName: string;
-    pluginOption: string;
-    enable: boolean;
-  }>;
-};
+export const getProject = (name: string): Promise<ProjectType> => request(`/projects/${name}`);
 
-export const updateProject = (name: string, payload: UpdateProjectPayload) =>
+export const updateProject = (name: string, payload: Omit<ProjectType, 'blueprint'>) =>
   request(`/projects/${name}`, {
     method: 'patch',
     data: payload,
   });
 
-export const updateBlueprint = (id: ID, payload: any) =>
+export const updateBlueprint = (id: ID, payload: BlueprintType) =>
   request(`/blueprints/${id}`, { method: 'patch', data: payload });

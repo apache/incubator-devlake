@@ -26,7 +26,7 @@ import { cronPresets } from '@/config';
 import { useRefreshData } from '@/hooks';
 import { formatTime, operator } from '@/utils';
 
-import { encodeName } from '../utils';
+import { validName, encodeName } from '../utils';
 import { ModeEnum } from '../../blueprint';
 
 import * as API from './api';
@@ -54,7 +54,7 @@ export const ProjectHomePage = () => {
   };
 
   const handleCreate = async () => {
-    if (!/^(\w|-|\/)+$/.test(name)) {
+    if (!validName(name)) {
       toast.error('Please enter alphanumeric or underscore');
       return;
     }

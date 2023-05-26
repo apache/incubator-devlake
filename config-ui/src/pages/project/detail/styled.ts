@@ -24,17 +24,3 @@ export const Wrapper = styled.div`
     justify-content: center;
   }
 `;
-
-export const Settings = styled.div`
-  .block + .block {
-    margin-top: 24px;
-  }
-
-  .bp4-control {
-    margin-bottom: 0;
-  }
-
-  .bp4-input-group {
-    width: 386px;
-  }
-`;

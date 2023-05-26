@@ -16,6 +16,11 @@
  *
  */
 
-export * from './blueprint';
-export * from './incoming-webhooks';
-export * from './settings';
+import type { BlueprintType } from '@/pages';
+
+export type ProjectType = {
+  name: string;
+  description: string;
+  blueprint: BlueprintType;
+  metrics: Array<{ pluginName: string; pluginOption: string; enable: boolean }>;
+};

@@ -36,7 +36,7 @@ export type BlueprintType = {
     connections: Array<{
       plugin: string;
       connectionId: ID;
-      scopes: Array<{
+      scopes?: Array<{
         id: string;
         entities: string[];
       }>;

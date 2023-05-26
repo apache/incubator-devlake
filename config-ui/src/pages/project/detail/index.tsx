@@ -21,13 +21,17 @@ import { useParams, useLocation, useHistory } from 'react-router-dom';
 import { Tabs, Tab } from '@blueprintjs/core';
 
 import { PageHeader, PageLoading } from '@/components';
+import { useRefreshData } from '@/hooks';
+import { BlueprintDetail } from '@/pages';
 
-import { useProject } from './use-project';
-import { BlueprintPanel, IncomingWebhooksPanel, SettingsPanel } from './panel';
+import { WebhooksPanel } from './webhooks-panel';
+import { SettingsPanel } from './settings-panel';
+import * as API from './api';
 import * as S from './styled';
 
 export const ProjectDetailPage = () => {
-  const [tabId, setTabId] = useState('bp');
+  const [tabId, setTabId] = useState('blueprint');
+  const [version, setVersion] = useState(1);
 
   const { pname } = useParams<{ pname: string }>();
   const { search } = useLocation();
@@ -37,10 +41,10 @@ export const ProjectDetailPage = () => {
   const urlTabId = query.get('tabId');
 
   useEffect(() => {
-    setTabId(urlTabId ?? 'bp');
+    setTabId(urlTabId ?? 'blueprint');
   }, [urlTabId]);
 
-  const { loading, project, saving, onUpdate, onSelectWebhook, onCreateWebhook, onDeleteWebhook } = useProject(pname);
+  const { ready, data } = useRefreshData(() => Promise.all([API.getProject(pname)]), [version]);
 
   const handleChangeTabId = (tabId: string) => {
     query.delete('tabId');
@@ -48,9 +52,15 @@ export const ProjectDetailPage = () => {
     history.push({ search: query.toString() });
   };
 
-  if (loading || !project) {
+  const handleRefresh = () => {
+    setVersion((v) => v + 1);
+  };
+
+  if (!ready || !data) {
     return <PageLoading />;
   }
+
+  const [project] = data;
 
   return (
     <PageHeader
@@ -61,22 +71,13 @@ export const ProjectDetailPage = () => {
     >
       <S.Wrapper>
         <Tabs selectedTabId={tabId} onChange={handleChangeTabId}>
-          <Tab id="bp" title="Blueprint" panel={<BlueprintPanel project={project} />} />
+          <Tab id="blueprint" title="Blueprint" panel={<BlueprintDetail id={project.blueprint.id} />} />
           <Tab
-            id="iw"
+            id="webhook"
             title="Incoming Webhooks"
-            disabled={!project.blueprint}
-            panel={
-              <IncomingWebhooksPanel
-                project={project}
-                saving={saving}
-                onSelectWebhook={onSelectWebhook}
-                onCreateWebhook={onCreateWebhook}
-                onDeleteWebhook={onDeleteWebhook}
-              />
-            }
+            panel={<WebhooksPanel project={project} onRefresh={handleRefresh} />}
           />
-          <Tab id="st" title="Settings" panel={<SettingsPanel project={project} onUpdate={onUpdate} />} />
+          <Tab id="settings" title="Settings" panel={<SettingsPanel project={project} />} />
         </Tabs>
       </S.Wrapper>
     </PageHeader>
