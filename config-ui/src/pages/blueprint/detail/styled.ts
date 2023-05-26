@@ -23,73 +23,53 @@ export const Wrapper = styled.div`
 `;
 
 export const ConfigurationPanel = styled.div`
+  .block + .block {
+    margin-top: 36px;
+  }
+
   h3 {
     margin-bottom: 16px;
   }
 
-  .top {
-    display: flex;
-    align-items: flex-start;
-    justify-content: space-between;
-
-    ul {
-      display: flex;
-      align-items: flex-start;
-
-      li + li {
-        margin-left: 48px;
-      }
-    }
-
-    .detail {
-      .bp4-icon {
-        margin-left: 4px;
-        cursor: pointer;
-      }
-    }
-  }
-
-  .bottom {
-    margin-top: 24px;
-
-    h3 {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-    }
-
-    .btns {
-      margin-top: 16px;
-      text-align: right;
-    }
+  .btns {
+    margin-top: 16px;
+    text-align: right;
   }
 `;
 
-export const ConnectionColumn = styled.div`
+export const ConnectionList = styled.ul`
   display: flex;
   align-items: center;
-
-  img {
-    margin-right: 4px;
-    width: 20px;
-  }
 `;
 
-export const ActionColumn = styled.div`
-  display: inline-flex;
-  flex-direction: column;
-  align-items: flex-start;
+export const ConnectionItem = styled.li`
+  margin-right: 24px;
+  padding: 12px 16px;
+  width: 280px;
+  background: #ffffff;
+  box-shadow: 0px 2.4px 4.8px -0.8px rgba(0, 0, 0, 0.1), 0px 1.6px 8px rgba(0, 0, 0, 0.07);
+  border-radius: 4px;
 
-  .item + .item {
-    margin-top: 8px;
+  &:last-child {
+    margin-right: 0;
   }
 
-  .item {
-    cursor: pointer;
+  .title {
+    display: flex;
+    align-items: center;
 
-    .bp4-icon {
-      margin-right: 4px;
+    img {
+      width: 24px;
+      height: 24px;
     }
+
+    span {
+      margin-left: 8px;
+    }
+  }
+
+  .count {
+    margin: 24px 0;
   }
 `;
 
@@ -103,12 +83,8 @@ export const StatusPanel = styled.div`
     justify-content: flex-end;
     align-items: center;
 
-    & > span {
+    & > * {
       margin-left: 16px;
-    }
-
-    .bp4-switch {
-      margin-bottom: 0;
     }
   }
 

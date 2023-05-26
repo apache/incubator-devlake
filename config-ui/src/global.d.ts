@@ -24,11 +24,7 @@ type MixConnection = {
   connectionId: ID;
   name: string;
   icon: string;
-  scope: Array<{
-    id: string;
-    entities: string[];
-  }>;
-  origin: Array<any>;
+  scope: Array<any>;
   transformationType?: 'none' | 'for-connection' | 'for-scope';
 };
 

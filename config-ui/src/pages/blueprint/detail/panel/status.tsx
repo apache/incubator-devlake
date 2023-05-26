@@ -16,11 +16,12 @@
  *
  */
 
-import React, { useMemo } from 'react';
-import { Button, Intent } from '@blueprintjs/core';
+import { useMemo } from 'react';
+import { Button, Intent, Position } from '@blueprintjs/core';
+import { Tooltip2 } from '@blueprintjs/popover2';
 
-import { getCron } from '@/config';
 import { Card } from '@/components';
+import { getCron } from '@/config';
 import { PipelineContextProvider, PipelineInfo, PipelineTasks, PipelineHistorical } from '@/pages';
 import { formatTime } from '@/utils';
 
@@ -38,22 +39,29 @@ interface Props {
 export const Status = ({ blueprint, pipelineId, operating, onRun }: Props) => {
   const cron = useMemo(() => getCron(blueprint.isManual, blueprint.cronConfig), [blueprint]);
 
-  const handleRunNow = () => onRun();
-
   return (
     <S.StatusPanel>
       <div className="info">
         <span>{cron.value === 'manual' ? 'Manual' : `Next Run: ${formatTime(cron.nextTime, 'YYYY-MM-DD HH:mm')}`}</span>
-        <span>
+        <Tooltip2
+          position={Position.TOP}
+          content="It is recommended to re-transform your data in this project if you have updated the transformation of the data scope in this project."
+        >
           <Button
             disabled={!blueprint.enable}
             loading={operating}
-            small
             intent={Intent.PRIMARY}
-            text="Run Now"
-            onClick={handleRunNow}
+            text="Re-transform Data"
+            onClick={onRun}
           />
-        </span>
+        </Tooltip2>
+        <Button
+          disabled={!blueprint.enable}
+          loading={operating}
+          intent={Intent.PRIMARY}
+          text="Collect All Data"
+          onClick={onRun}
+        />
       </div>
       <PipelineContextProvider>
         <div className="block">

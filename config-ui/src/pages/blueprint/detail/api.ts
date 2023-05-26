@@ -18,7 +18,9 @@
 
 import { request } from '@/utils';
 
-export const getBlueprint = (id: ID) => request(`/blueprints/${id}`);
+import type { BlueprintType } from '../types';
+
+export const getBlueprint = (id: ID): Promise<BlueprintType> => request(`/blueprints/${id}`);
 
 export const getBlueprintPipelines = (id: ID) => request(`/blueprints/${id}/pipelines`);
 
