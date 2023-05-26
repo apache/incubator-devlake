@@ -291,6 +291,14 @@ func DeleteProject(name string) errors.Error {
 	if err != nil {
 		return err
 	}
+	bp, err := bpManager.GetDbBlueprintByProjectName(name)
+	if err != nil {
+		return err
+	}
+	err = bpManager.DeleteBlueprint(bp.ID)
+	if err != nil {
+		return err
+	}
 	return nil
 }
 
