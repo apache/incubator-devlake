@@ -58,7 +58,7 @@ func ConvertIncidents(taskCtx plugin.SubTaskContext) errors.Error {
 		dal.From("_tool_pagerduty_incidents AS pi"),
 		dal.Join(`LEFT JOIN _tool_pagerduty_assignments AS pa ON pa.incident_number = pi.number`),
 		dal.Join(`LEFT JOIN _tool_pagerduty_users AS pu ON pa.user_id = pu.id`),
-		dal.Where("pi.connection_id = ?", data.Options.ConnectionId),
+		dal.Where("pi.connection_id = ? AND pi.service_id = ?", data.Options.ConnectionId, data.Options.ServiceId),
 	)
 	if err != nil {
 		return err
