@@ -18,46 +18,17 @@
 
 import styled from 'styled-components';
 
-export const Wrapper = styled.div``;
-
-export const ConnectionColumn = styled.div`
-  display: flex;
-  align-items: center;
-
-  img {
-    margin-right: 4px;
-    width: 20px;
-  }
-`;
-
-export const ScopeColumn = styled.ul``;
-
-export const ScopeItem = styled.li`
-  margin-bottom: 4px;
-
-  &:last-child {
-    margin-bottom: 0;
+export const Wrapper = styled.div`
+  .action {
+    margin-top: 24px;
   }
 
-  .bp4-button {
-    margin-left: 6px;
+  .search {
+    margin-top: 24px;
+    margin-bottom: 24px;
   }
-`;
 
-export const Btns = styled.div`
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  margin-top: 36px;
-`;
-
-export const DialogTitle = styled.div`
-  display: flex;
-  align-items: center;
-
-  img {
-    margin-right: 4px;
-    width: 24px;
-    height: 24px;
+  .btns {
+    display: flex;
   }
 `;

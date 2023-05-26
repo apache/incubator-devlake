@@ -18,17 +18,5 @@
 
 import { request } from '@/utils';
 
-export const getDataScope = (plugin: string, connectionId: ID, scopeId: string) =>
-  request(`/plugins/${plugin}/connections/${connectionId}/scopes/${scopeId}`);
-
-export const updateDataScope = (plugin: string, connectionId: ID, payload: any) =>
-  request(`/plugins/${plugin}/connections/${connectionId}/scopes`, {
-    method: 'put',
-    data: payload,
-  });
-
-export const updateDataScopeWithType = (plugin: string, connectionId: ID, type: string, payload: any) =>
-  request(`/plugins/${plugin}/connections/${connectionId}/${type}/scopes`, {
-    method: 'put',
-    data: payload,
-  });
+export const getDataScope = (plugin: string, connectionId: ID) =>
+  request(`/plugins/${plugin}/connections/${connectionId}/scopes`);
