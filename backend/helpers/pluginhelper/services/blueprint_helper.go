@@ -23,6 +23,7 @@ import (
 	"github.com/apache/incubator-devlake/core/errors"
 	"github.com/apache/incubator-devlake/core/models"
 	"github.com/apache/incubator-devlake/core/models/common"
+	"github.com/apache/incubator-devlake/impls/logruslog"
 )
 
 type BlueprintManager struct {
@@ -184,12 +185,29 @@ func (b *BlueprintManager) GetDbBlueprintByProjectName(projectName string) (*mod
 
 // DeleteBlueprint deletes a blueprint by its id
 func (b *BlueprintManager) DeleteBlueprint(id uint64) errors.Error {
-	dbBlueprint := &models.Blueprint{
+	var err errors.Error
+	tx := b.db.Begin()
+	defer func() {
+		if r := recover(); r != nil || err != nil {
+			err = tx.Rollback()
+			if err != nil {
+				logruslog.Global.Error(err, "DeleteBlueprint: failed to rollback")
+			}
+		}
+	}()
+	err = tx.Delete(&models.DbBlueprintLabel{}, dal.Where("blueprint_id = ?", id))
+	if err != nil {
+		return err
+	}
+	err = tx.Delete(&models.Blueprint{
 		Model: common.Model{
 			ID: id,
 		},
+	})
+	if err != nil {
+		return err
 	}
-	return b.db.Delete(&dbBlueprint)
+	return tx.Commit()
 }
 
 func (b *BlueprintManager) fillBlueprintDetail(blueprint *models.Blueprint) errors.Error {
