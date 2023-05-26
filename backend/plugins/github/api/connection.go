@@ -23,12 +23,13 @@ import (
 	"net/http"
 	"strings"
 
+	"github.com/mitchellh/mapstructure"
+
 	"github.com/apache/incubator-devlake/core/errors"
 	"github.com/apache/incubator-devlake/core/plugin"
 	"github.com/apache/incubator-devlake/helpers/pluginhelper/api"
 	"github.com/apache/incubator-devlake/plugins/github/models"
 	"github.com/apache/incubator-devlake/server/api/shared"
-	"github.com/mitchellh/mapstructure"
 )
 
 var publicPermissions = []string{"repo:status", "repo_deployment", "read:user", "read:org"}
