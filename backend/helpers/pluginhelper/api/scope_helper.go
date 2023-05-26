@@ -125,9 +125,9 @@ func (c *ScopeApiHelper[Conn, Scope, Tr]) GetScope(input *plugin.ApiResourceInpu
 }
 
 func (c *ScopeApiHelper[Conn, Scope, Tr]) Delete(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, errors.Error) {
-	bps, err := c.DeleteScope(input)
+	err := c.DeleteScope(input)
 	if err != nil {
 		return nil, err
 	}
-	return &plugin.ApiResourceOutput{Body: bps, Status: http.StatusOK}, nil
+	return &plugin.ApiResourceOutput{Body: nil, Status: http.StatusOK}, nil
 }

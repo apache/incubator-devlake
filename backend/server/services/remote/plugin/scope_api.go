@@ -94,11 +94,11 @@ func (pa *pluginAPI) GetScope(input *plugin.ApiResourceInput) (*plugin.ApiResour
 }
 
 func (pa *pluginAPI) DeleteScope(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, errors.Error) {
-	bps, err := scopeHelper.DeleteScope(input)
+	err := scopeHelper.DeleteScope(input)
 	if err != nil {
 		return nil, err
 	}
-	return &plugin.ApiResourceOutput{Body: bps, Status: http.StatusOK}, nil
+	return &plugin.ApiResourceOutput{Body: nil, Status: http.StatusOK}, nil
 }
 
 // convertScopeResponse adapt the "remote" scopes to a serializable api.ScopeRes
