@@ -16,21 +16,23 @@
  *
  */
 
-export * from './action';
-export * from './alert';
-export * from './buttons';
-export * from './card';
-export * from './dialog';
-export * from './divider';
-export { default as ErrorBoundary } from './error-boundary';
-export * from './form-item';
-export * from './inspector';
-export * from './loading';
-export * from './logo';
-export * from './no-data';
-export * from './page-header';
-export * from './selector';
-export * from './table';
-export * from './toast';
-export * from './tooltip';
-export * from './workflow';
+import styled from 'styled-components';
+
+const Wrapper = styled.div`
+  display: flex;
+  align-items: center;
+  justify-content: end;
+  margin-top: 24px;
+
+  .bp4-button + .bp4-button {
+    margin-left: 8px;
+  }
+`;
+
+interface Props {
+  children: React.ReactNode;
+}
+
+export const Buttons = ({ children }: Props) => {
+  return <Wrapper>{children}</Wrapper>;
+};
