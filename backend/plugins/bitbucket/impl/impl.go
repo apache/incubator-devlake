@@ -19,6 +19,7 @@ package impl
 
 import (
 	"fmt"
+	"strings"
 	"time"
 
 	"github.com/apache/incubator-devlake/core/context"
@@ -185,8 +186,18 @@ func (p Bitbucket) MigrationScripts() []plugin.MigrationScript {
 	return migrationscripts.All()
 }
 
-func (p Bitbucket) MakeDataSourcePipelinePlanV200(connectionId uint64, scopes []*plugin.BlueprintScopeV200, syncPolicy plugin.BlueprintSyncPolicy) (pp plugin.PipelinePlan, sc []plugin.Scope, err errors.Error) {
-	return api.MakeDataSourcePipelinePlanV200(p.SubTaskMetas(), connectionId, scopes, &syncPolicy)
+func (p Bitbucket) MakeDataSourcePipelinePlanV200(connectionId uint64, scopes []*plugin.BlueprintScopeV200, syncPolicy plugin.BlueprintSyncPolicy, skipCollectors bool) (pp plugin.PipelinePlan, sc []plugin.Scope, err errors.Error) {
+	var subTaskMetas []plugin.SubTaskMeta
+	if skipCollectors {
+		for _, subTaskMeta := range p.SubTaskMetas() {
+			if !strings.Contains(subTaskMeta.Name, "collect") {
+				subTaskMetas = append(subTaskMetas, subTaskMeta)
+			}
+		}
+	} else {
+		subTaskMetas = p.SubTaskMetas()
+	}
+	return api.MakeDataSourcePipelinePlanV200(subTaskMetas, connectionId, scopes, &syncPolicy)
 }
 
 func (p Bitbucket) ApiResources() map[string]map[string]plugin.ApiResourceHandler {

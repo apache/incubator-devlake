@@ -32,9 +32,10 @@ func GeneratePlanJsonV200(
 	syncPolicy plugin.BlueprintSyncPolicy,
 	sources *models.BlueprintSettings,
 	metrics map[string]json.RawMessage,
+	skipCollectors bool,
 ) (plugin.PipelinePlan, errors.Error) {
 	// generate plan and collect scopes
-	plan, scopes, err := genPlanJsonV200(projectName, syncPolicy, sources, metrics)
+	plan, scopes, err := genPlanJsonV200(projectName, syncPolicy, sources, metrics, skipCollectors)
 	if err != nil {
 		return nil, err
 	}
@@ -56,6 +57,7 @@ func genPlanJsonV200(
 	syncPolicy plugin.BlueprintSyncPolicy,
 	sources *models.BlueprintSettings,
 	metrics map[string]json.RawMessage,
+	skipCollectors bool,
 ) (plugin.PipelinePlan, []plugin.Scope, errors.Error) {
 	connections := make([]*plugin.BlueprintConnectionV200, 0)
 	err := errors.Convert(json.Unmarshal(sources.Connections, &connections))
@@ -84,6 +86,7 @@ func genPlanJsonV200(
 				connection.ConnectionId,
 				connection.Scopes,
 				syncPolicy,
+				skipCollectors,
 			)
 			if err != nil {
 				return nil, nil, err

@@ -19,6 +19,7 @@ package impl
 
 import (
 	"fmt"
+	"strings"
 
 	"github.com/apache/incubator-devlake/core/context"
 	"github.com/apache/incubator-devlake/core/errors"
@@ -179,8 +180,18 @@ func (p Zentao) ApiResources() map[string]map[string]plugin.ApiResourceHandler {
 	}
 }
 
-func (p Zentao) MakeDataSourcePipelinePlanV200(connectionId uint64, scopes []*plugin.BlueprintScopeV200, syncPolicy plugin.BlueprintSyncPolicy) (pp plugin.PipelinePlan, sc []plugin.Scope, err errors.Error) {
-	return api.MakeDataSourcePipelinePlanV200(p.SubTaskMetas(), connectionId, scopes, &syncPolicy)
+func (p Zentao) MakeDataSourcePipelinePlanV200(connectionId uint64, scopes []*plugin.BlueprintScopeV200, syncPolicy plugin.BlueprintSyncPolicy, skipCollectors bool) (pp plugin.PipelinePlan, sc []plugin.Scope, err errors.Error) {
+	var subTaskMetas []plugin.SubTaskMeta
+	if skipCollectors {
+		for _, subTaskMeta := range p.SubTaskMetas() {
+			if !strings.Contains(subTaskMeta.Name, "collect") {
+				subTaskMetas = append(subTaskMetas, subTaskMeta)
+			}
+		}
+	} else {
+		subTaskMetas = p.SubTaskMetas()
+	}
+	return api.MakeDataSourcePipelinePlanV200(subTaskMetas, connectionId, scopes, &syncPolicy)
 }
 
 func (p Zentao) Close(taskCtx plugin.TaskContext) errors.Error {

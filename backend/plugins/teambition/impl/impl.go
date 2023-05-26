@@ -19,6 +19,9 @@ package impl
 
 import (
 	"fmt"
+	"strings"
+	"time"
+
 	"github.com/apache/incubator-devlake/core/context"
 	"github.com/apache/incubator-devlake/core/dal"
 	"github.com/apache/incubator-devlake/core/errors"
@@ -28,7 +31,6 @@ import (
 	"github.com/apache/incubator-devlake/plugins/teambition/models"
 	"github.com/apache/incubator-devlake/plugins/teambition/models/migrationscripts"
 	"github.com/apache/incubator-devlake/plugins/teambition/tasks"
-	"time"
 )
 
 // make sure interface is implemented
@@ -94,8 +96,18 @@ func (p Teambition) SubTaskMetas() []plugin.SubTaskMeta {
 	}
 }
 
-func (p Teambition) MakeDataSourcePipelinePlanV200(connectionId uint64, scopes []*plugin.BlueprintScopeV200, syncPolicy plugin.BlueprintSyncPolicy) (pp plugin.PipelinePlan, sc []plugin.Scope, err errors.Error) {
-	return api.MakeDataSourcePipelinePlanV200(p.SubTaskMetas(), connectionId, scopes, &syncPolicy)
+func (p Teambition) MakeDataSourcePipelinePlanV200(connectionId uint64, scopes []*plugin.BlueprintScopeV200, syncPolicy plugin.BlueprintSyncPolicy, skipCollectors bool) (pp plugin.PipelinePlan, sc []plugin.Scope, err errors.Error) {
+	var subTaskMetas []plugin.SubTaskMeta
+	if skipCollectors {
+		for _, subTaskMeta := range p.SubTaskMetas() {
+			if !strings.Contains(subTaskMeta.Name, "collect") {
+				subTaskMetas = append(subTaskMetas, subTaskMeta)
+			}
+		}
+	} else {
+		subTaskMetas = p.SubTaskMetas()
+	}
+	return api.MakeDataSourcePipelinePlanV200(subTaskMetas, connectionId, scopes, &syncPolicy)
 }
 
 func (p Teambition) PrepareTaskData(taskCtx plugin.TaskContext, options map[string]interface{}) (interface{}, errors.Error) {

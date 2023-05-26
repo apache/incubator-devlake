@@ -42,7 +42,7 @@ func (p remoteMetricPlugin) MakeMetricPluginPipelinePlanV200(projectName string,
 	return nil, errors.Internal.New("Remote metric plugins not supported")
 }
 
-func (p remoteDatasourcePlugin) MakeDataSourcePipelinePlanV200(connectionId uint64, bpScopes []*plugin.BlueprintScopeV200, syncPolicy plugin.BlueprintSyncPolicy) (plugin.PipelinePlan, []plugin.Scope, errors.Error) {
+func (p remoteDatasourcePlugin) MakeDataSourcePipelinePlanV200(connectionId uint64, bpScopes []*plugin.BlueprintScopeV200, syncPolicy plugin.BlueprintSyncPolicy, skipCollectors bool) (plugin.PipelinePlan, []plugin.Scope, errors.Error) {
 	connection := p.connectionTabler.New()
 	err := connectionHelper.FirstById(connection, connectionId)
 	if err != nil {
