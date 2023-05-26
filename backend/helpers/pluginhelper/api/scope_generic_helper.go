@@ -50,8 +50,8 @@ type (
 		db               dal.Dal
 		validator        *validator.Validate
 		reflectionParams *ReflectionParameters
-		dbHelper         ScopeDatabaseHelper[Conn, Scope, Tr]
-		bpManager        *serviceHelper.BlueprintManager
+		scopeDbHelper    ScopeDatabaseHelper[Conn, Scope, Tr]
+		serviceDbHelper  *serviceHelper.DatabaseHelper
 		connHelper       *ConnectionApiHelper
 		opts             *ScopeHelperOptions
 	}
@@ -79,6 +79,7 @@ type (
 	getRequestParams struct {
 		requestParams
 		loadBlueprints bool
+		loadProjects   bool
 	}
 )
 
@@ -86,7 +87,7 @@ func NewGenericScopeHelper[Conn any, Scope any, Tr any](
 	basicRes context.BasicRes,
 	vld *validator.Validate,
 	connHelper *ConnectionApiHelper,
-	dbHelper ScopeDatabaseHelper[Conn, Scope, Tr],
+	scopeDbHelper ScopeDatabaseHelper[Conn, Scope, Tr],
 	params *ReflectionParameters,
 	opts *ScopeHelperOptions,
 ) *GenericScopeApiHelper[Conn, Scope, Tr] {
@@ -111,8 +112,8 @@ func NewGenericScopeHelper[Conn any, Scope any, Tr any](
 		db:               basicRes.GetDal(),
 		validator:        vld,
 		reflectionParams: params,
-		dbHelper:         dbHelper,
-		bpManager:        serviceHelper.NewBlueprintManager(basicRes.GetDal()),
+		scopeDbHelper:    scopeDbHelper,
+		serviceDbHelper:  serviceHelper.NewDatabaseHelper(basicRes.GetDal()),
 		connHelper:       connHelper,
 		opts:             opts,
 	}
@@ -123,7 +124,7 @@ func (c *GenericScopeApiHelper[Conn, Scope, Tr]) PutScopes(input *plugin.ApiReso
 	if params.connectionId == 0 {
 		return nil, errors.BadInput.New("invalid connectionId")
 	}
-	err := c.dbHelper.VerifyConnection(params.connectionId)
+	err := c.scopeDbHelper.VerifyConnection(params.connectionId)
 	if err != nil {
 		return nil, errors.Default.Wrap(err, fmt.Sprintf("error verifying connection for connection ID %d", params.connectionId))
 	}
@@ -142,7 +143,7 @@ func (c *GenericScopeApiHelper[Conn, Scope, Tr]) PutScopes(input *plugin.ApiReso
 	}
 	// Save the scopes to the database
 	if len(scopes) > 0 {
-		err = c.dbHelper.SaveScope(scopes)
+		err = c.scopeDbHelper.SaveScope(scopes)
 		if err != nil {
 			return nil, errors.Default.Wrap(err, "error saving scope")
 		}
@@ -162,11 +163,11 @@ func (c *GenericScopeApiHelper[Conn, Scope, Tr]) UpdateScope(input *plugin.ApiRe
 	if len(params.scopeId) == 0 {
 		return nil, errors.BadInput.New("invalid scopeId")
 	}
-	err := c.dbHelper.VerifyConnection(params.connectionId)
+	err := c.scopeDbHelper.VerifyConnection(params.connectionId)
 	if err != nil {
 		return nil, err
 	}
-	scope, err := c.dbHelper.GetScope(params.connectionId, params.scopeId)
+	scope, err := c.scopeDbHelper.GetScope(params.connectionId, params.scopeId)
 	if err != nil {
 		return nil, err
 	}
@@ -178,7 +179,7 @@ func (c *GenericScopeApiHelper[Conn, Scope, Tr]) UpdateScope(input *plugin.ApiRe
 	if err != nil {
 		return nil, errors.Default.Wrap(err, "Invalid scope")
 	}
-	err = c.dbHelper.UpdateScope(params.connectionId, params.scopeId, &scope)
+	err = c.scopeDbHelper.UpdateScope(params.connectionId, params.scopeId, &scope)
 	if err != nil {
 		return nil, errors.Default.Wrap(err, "error on saving Scope")
 	}
@@ -194,11 +195,11 @@ func (c *GenericScopeApiHelper[Conn, Scope, Tr]) GetScopes(input *plugin.ApiReso
 	if params.connectionId == 0 {
 		return nil, errors.BadInput.New("invalid path params: \"connectionId\" not set")
 	}
-	err := c.dbHelper.VerifyConnection(params.connectionId)
+	err := c.scopeDbHelper.VerifyConnection(params.connectionId)
 	if err != nil {
 		return nil, errors.Default.Wrap(err, fmt.Sprintf("error verifying connection for connection ID %d", params.connectionId))
 	}
-	scopes, err := c.dbHelper.ListScopes(input, params.connectionId)
+	scopes, err := c.scopeDbHelper.ListScopes(input, params.connectionId)
 	if err != nil {
 		return nil, errors.Default.Wrap(err, fmt.Sprintf("error verifying connection for connection ID %d", params.connectionId))
 	}
@@ -206,20 +207,29 @@ func (c *GenericScopeApiHelper[Conn, Scope, Tr]) GetScopes(input *plugin.ApiReso
 	if err != nil {
 		return nil, errors.Default.Wrap(err, "error associating transformations with scopes")
 	}
-	if params.loadBlueprints {
+	if params.loadBlueprints || params.loadProjects {
 		scopesById := c.mapByScopeId(apiScopes)
 		var scopeIds []string
 		for id := range scopesById {
 			scopeIds = append(scopeIds, id)
 		}
-		blueprintMap, err := c.bpManager.GetBlueprintsByScopes(params.connectionId, scopeIds...)
+		blueprintMap, err := c.serviceDbHelper.GetBlueprintsByScopes(params.connectionId, scopeIds...)
 		if err != nil {
 			return nil, errors.Default.Wrap(err, fmt.Sprintf("error getting blueprints for scopes from connection %d", params.connectionId))
 		}
 		apiScopes = nil
 		for scopeId, scope := range scopesById {
 			if bps, ok := blueprintMap[scopeId]; ok {
-				scope.Blueprints = bps
+				if params.loadBlueprints {
+					scope.Blueprints = bps
+				}
+				if params.loadProjects {
+					projects, err := c.getProjectsFromBlueprints(bps)
+					if err != nil {
+						return nil, err
+					}
+					scope.Projects = projects
+				}
 				delete(blueprintMap, scopeId)
 			}
 			apiScopes = append(apiScopes, scope)
@@ -231,6 +241,7 @@ func (c *GenericScopeApiHelper[Conn, Scope, Tr]) GetScopes(input *plugin.ApiReso
 			}
 			c.log.Warn(nil, "The following dangling scopes were found: %v", danglingIds)
 		}
+
 	}
 	return apiScopes, nil
 }
@@ -243,11 +254,11 @@ func (c *GenericScopeApiHelper[Conn, Scope, Tr]) GetScope(input *plugin.ApiResou
 	if len(params.scopeId) == 0 || params.scopeId == "0" {
 		return nil, errors.BadInput.New("invalid path params: \"scopeId\" not set/invalid")
 	}
-	err := c.dbHelper.VerifyConnection(params.connectionId)
+	err := c.scopeDbHelper.VerifyConnection(params.connectionId)
 	if err != nil {
 		return nil, errors.Default.Wrap(err, fmt.Sprintf("error verifying connection for connection ID %d", params.connectionId))
 	}
-	scope, err := c.dbHelper.GetScope(params.connectionId, params.scopeId)
+	scope, err := c.scopeDbHelper.GetScope(params.connectionId, params.scopeId)
 	if err != nil {
 		return nil, errors.Default.Wrap(err, fmt.Sprintf("error retrieving scope with scope ID %s", params.scopeId))
 	}
@@ -256,17 +267,25 @@ func (c *GenericScopeApiHelper[Conn, Scope, Tr]) GetScope(input *plugin.ApiResou
 		return nil, errors.Default.Wrap(err, fmt.Sprintf("error associating transformation with scope %s", params.scopeId))
 	}
 	scopeRes := apiScopes[0]
-	var blueprints []*models.Blueprint
-	if params.loadBlueprints {
-		blueprintMap, err := c.bpManager.GetBlueprintsByScopes(params.connectionId, params.scopeId)
+	if params.loadBlueprints || params.loadProjects {
+		blueprintMap, err := c.serviceDbHelper.GetBlueprintsByScopes(params.connectionId, params.scopeId)
 		if err != nil {
 			return nil, errors.Default.Wrap(err, fmt.Sprintf("error getting blueprints for scope with scope ID %s", params.scopeId))
 		}
 		if len(blueprintMap) == 1 {
-			blueprints = blueprintMap[params.scopeId]
+			bps := blueprintMap[params.scopeId]
+			if params.loadBlueprints {
+				scopeRes.Blueprints = bps
+			}
+			if params.loadProjects {
+				projects, err := c.getProjectsFromBlueprints(bps)
+				if err != nil {
+					return nil, err
+				}
+				scopeRes.Projects = projects
+			}
 		}
 	}
-	scopeRes.Blueprints = blueprints
 	return scopeRes, nil
 }
 
@@ -278,7 +297,7 @@ func (c *GenericScopeApiHelper[Conn, Scope, Tr]) DeleteScope(input *plugin.ApiRe
 	if len(params.scopeId) == 0 || params.scopeId == "0" {
 		return errors.BadInput.New("invalid path params: \"scopeId\" not set/invalid")
 	}
-	err := c.dbHelper.VerifyConnection(params.connectionId)
+	err := c.scopeDbHelper.VerifyConnection(params.connectionId)
 	if err != nil {
 		return errors.Default.Wrap(err, fmt.Sprintf("error verifying connection for connection ID %d", params.connectionId))
 	}
@@ -303,7 +322,7 @@ func (c *GenericScopeApiHelper[Conn, Scope, Tr]) DeleteScope(input *plugin.ApiRe
 	}
 	if !params.deleteDataOnly {
 		// Delete the scope itself
-		err = c.dbHelper.DeleteScope(params.connectionId, params.scopeId)
+		err = c.scopeDbHelper.DeleteScope(params.connectionId, params.scopeId)
 		if err != nil {
 			return errors.Default.Wrap(err, fmt.Sprintf("error deleting scope %s", params.scopeId))
 		}
@@ -330,7 +349,7 @@ func (c *GenericScopeApiHelper[Conn, Scope, Tr]) addTransformationName(scopes ..
 	var rules []*Tr
 	var err errors.Error
 	if len(ruleIds) > 0 {
-		rules, err = c.dbHelper.ListTransformationRules(ruleIds)
+		rules, err = c.scopeDbHelper.ListTransformationRules(ruleIds)
 		if err != nil {
 			return nil, err
 		}
@@ -362,6 +381,18 @@ func (c *GenericScopeApiHelper[Conn, Scope, Tr]) mapByScopeId(scopes []*ScopeRes
 		scopeMap[scopeId] = scope
 	}
 	return scopeMap
+}
+
+func (c *GenericScopeApiHelper[Conn, Scope, Tr]) getProjectsFromBlueprints(bps []*models.Blueprint) ([]*models.Project, errors.Error) {
+	projectsMap, err := c.serviceDbHelper.GetProjectsByBlueprints(bps)
+	if err != nil {
+		return nil, errors.Default.Wrap(err, "error getting associated projects of blueprints")
+	}
+	var projects []*models.Project
+	for _, project := range projectsMap {
+		projects = append(projects, project)
+	}
+	return projects, nil
 }
 
 func (c *GenericScopeApiHelper[Conn, Scope, Tr]) extractFromReqParam(input *plugin.ApiResourceInput) *requestParams {
@@ -410,9 +441,20 @@ func (c *GenericScopeApiHelper[Conn, Scope, Tr]) extractFromGetReqParam(input *p
 			loadBlueprints = false
 		}
 	}
+	var loadProjects bool
+	{
+		lprojs, ok := input.Query["projects"]
+		if ok {
+			loadProjects, err = errors.Convert01(strconv.ParseBool(lprojs[0]))
+		}
+		if err != nil {
+			loadProjects = false
+		}
+	}
 	return &getRequestParams{
 		requestParams:  *params,
 		loadBlueprints: loadBlueprints,
+		loadProjects:   loadProjects,
 	}
 }
 
@@ -507,7 +549,7 @@ func (c *GenericScopeApiHelper[Conn, Scope, Tr]) validatePrimaryKeys(scopes []*S
 }
 
 func (c *GenericScopeApiHelper[Conn, Scope, Tr]) updateBlueprints(connectionId uint64, scopeId string) errors.Error {
-	blueprintsMap, err := c.bpManager.GetBlueprintsByScopes(connectionId, scopeId)
+	blueprintsMap, err := c.serviceDbHelper.GetBlueprintsByScopes(connectionId, scopeId)
 	if err != nil {
 		return errors.Default.Wrap(err, fmt.Sprintf("error retrieving scope with scope ID %s", scopeId))
 	}
@@ -536,7 +578,7 @@ func (c *GenericScopeApiHelper[Conn, Scope, Tr]) updateBlueprints(connectionId u
 			if err != nil {
 				return errors.Default.Wrap(err, fmt.Sprintf("error writing new settings into blueprint %s", blueprint.Name))
 			}
-			err = c.bpManager.SaveDbBlueprint(blueprint)
+			err = c.serviceDbHelper.SaveDbBlueprint(blueprint)
 			if err != nil {
 				return errors.Default.Wrap(err, fmt.Sprintf("error saving the updated blueprint %s", blueprint.Name))
 			}

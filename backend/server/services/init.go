@@ -41,7 +41,7 @@ var cfg config.ConfigReader
 var logger log.Logger
 var db dal.Dal
 
-var bpManager *services.BlueprintManager
+var dbHelper *services.DatabaseHelper
 var basicRes context.BasicRes
 var migrator plugin.Migrator
 var cronManager *cron.Cron
@@ -60,7 +60,7 @@ func InitResources() {
 	cfg = basicRes.GetConfigReader()
 	logger = basicRes.GetLogger()
 	db = basicRes.GetDal()
-	bpManager = services.NewBlueprintManager(db)
+	dbHelper = services.NewDatabaseHelper(db)
 	// initialize db migrator
 	migrator, err = runner.InitMigrator(basicRes)
 	if err != nil {

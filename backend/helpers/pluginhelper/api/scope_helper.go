@@ -35,6 +35,7 @@ type (
 		Scope                  T                   `mapstructure:",squash"`
 		TransformationRuleName string              `mapstructure:"transformationRuleName,omitempty"`
 		Blueprints             []*models.Blueprint `mapstructure:"blueprints,omitempty"`
+		Projects               []*models.Project   `mapstructure:"projects,omitempty"`
 	}
 	ScopeReq[T any] struct {
 		Data []*T `json:"data"`

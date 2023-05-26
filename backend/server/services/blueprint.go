@@ -64,7 +64,7 @@ func CreateBlueprint(blueprint *models.Blueprint) errors.Error {
 	if err != nil {
 		return err
 	}
-	err = bpManager.SaveDbBlueprint(blueprint)
+	err = dbHelper.SaveDbBlueprint(blueprint)
 	if err != nil {
 		return err
 	}
@@ -77,7 +77,7 @@ func CreateBlueprint(blueprint *models.Blueprint) errors.Error {
 
 // GetBlueprints returns a paginated list of Blueprints based on `query`
 func GetBlueprints(query *BlueprintQuery) ([]*models.Blueprint, int64, errors.Error) {
-	blueprints, count, err := bpManager.GetDbBlueprints(&services.GetBlueprintQuery{
+	blueprints, count, err := dbHelper.GetDbBlueprints(&services.GetBlueprintQuery{
 		Enable:      query.Enable,
 		IsManual:    query.IsManual,
 		Label:       query.Label,
@@ -92,7 +92,7 @@ func GetBlueprints(query *BlueprintQuery) ([]*models.Blueprint, int64, errors.Er
 
 // GetBlueprint returns the detail of a given Blueprint ID
 func GetBlueprint(blueprintId uint64) (*models.Blueprint, errors.Error) {
-	blueprint, err := bpManager.GetDbBlueprint(blueprintId)
+	blueprint, err := dbHelper.GetDbBlueprint(blueprintId)
 	if err != nil {
 		if db.IsErrorNotFound(err) {
 			return nil, errors.NotFound.New("blueprint not found")
@@ -107,7 +107,7 @@ func GetBlueprintByProjectName(projectName string) (*models.Blueprint, errors.Er
 	if projectName == "" {
 		return nil, errors.Internal.New("can not use the empty projectName to search the unique blueprint")
 	}
-	blueprint, err := bpManager.GetDbBlueprintByProjectName(projectName)
+	blueprint, err := dbHelper.GetDbBlueprintByProjectName(projectName)
 	if err != nil {
 		// Allow specific projectName to fail to find the corresponding blueprint
 		if db.IsErrorNotFound(err) {
@@ -184,7 +184,7 @@ func saveBlueprint(blueprint *models.Blueprint) (*models.Blueprint, errors.Error
 	if err != nil {
 		return nil, errors.BadInput.WrapRaw(err)
 	}
-	err = bpManager.SaveDbBlueprint(blueprint)
+	err = dbHelper.SaveDbBlueprint(blueprint)
 	if err != nil {
 		return nil, err
 	}
@@ -226,11 +226,11 @@ func PatchBlueprint(id uint64, body map[string]interface{}) (*models.Blueprint, 
 
 // DeleteBlueprint FIXME ...
 func DeleteBlueprint(id uint64) errors.Error {
-	bp, err := bpManager.GetDbBlueprint(id)
+	bp, err := dbHelper.GetDbBlueprint(id)
 	if err != nil {
 		return err
 	}
-	err = bpManager.DeleteBlueprint(bp.ID)
+	err = dbHelper.DeleteBlueprint(bp.ID)
 	if err != nil {
 		return errors.Default.Wrap(err, "Failed to delete the blueprint")
 	}
@@ -241,7 +241,7 @@ func DeleteBlueprint(id uint64) errors.Error {
 func ReloadBlueprints(c *cron.Cron) errors.Error {
 	enable := true
 	isManual := false
-	blueprints, _, err := bpManager.GetDbBlueprints(&services.GetBlueprintQuery{
+	blueprints, _, err := dbHelper.GetDbBlueprints(&services.GetBlueprintQuery{
 		Enable:   &enable,
 		IsManual: &isManual,
 	})
