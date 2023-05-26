@@ -16,20 +16,25 @@
  *
  */
 
-export * from './action';
-export * from './alert';
-export * from './card';
-export * from './dialog';
-export * from './divider';
-export { default as ErrorBoundary } from './error-boundary';
-export * from './form-item';
-export * from './inspector';
-export * from './loading';
-export * from './logo';
-export * from './no-data';
-export * from './page-header';
-export * from './selector';
-export * from './table';
-export * from './toast';
-export * from './tooltip';
-export * from './workflow';
+import { FormGroup } from '@blueprintjs/core';
+
+import * as S from './styled';
+
+interface Props {
+  label?: React.ReactNode;
+  subLabel?: React.ReactNode;
+  required?: boolean;
+  children: React.ReactNode;
+}
+
+export const FormItem = ({ label, subLabel, required, children }: Props) => {
+  return (
+    <FormGroup
+      label={<S.Label>{label}</S.Label>}
+      subLabel={<S.subLabel>{subLabel}</S.subLabel>}
+      labelInfo={required ? <S.LabelInfo>*</S.LabelInfo> : null}
+    >
+      {children}
+    </FormGroup>
+  );
+};

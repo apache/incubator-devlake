@@ -16,20 +16,17 @@
  *
  */
 
-export * from './action';
-export * from './alert';
-export * from './card';
-export * from './dialog';
-export * from './divider';
-export { default as ErrorBoundary } from './error-boundary';
-export * from './form-item';
-export * from './inspector';
-export * from './loading';
-export * from './logo';
-export * from './no-data';
-export * from './page-header';
-export * from './selector';
-export * from './table';
-export * from './toast';
-export * from './tooltip';
-export * from './workflow';
+import styled from 'styled-components';
+
+export const Label = styled.label`
+  font-size: 16px;
+  font-weight: 600;
+`;
+
+export const LabelInfo = styled.i`
+  color: #ff8b8b;
+`;
+
+export const subLabel = styled.p`
+  margin: 0;
+`;
