@@ -66,7 +66,7 @@ func PutScope(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, errors
 // @Failure 500  {object} shared.ApiBody "Internal Error"
 // @Router /plugins/jira/connections/{connectionId}/scopes/{scopeId} [PATCH]
 func UpdateScope(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, errors.Error) {
-	return scopeHelper.Update(input, "board_id")
+	return scopeHelper.Update(input)
 }
 
 // GetScopeList get Jira boards
@@ -76,6 +76,7 @@ func UpdateScope(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, err
 // @Param connectionId path int false "connection ID"
 // @Param pageSize query int false "page size, default 50"
 // @Param page query int false "page size, default 1"
+// @Param blueprints query bool false "also return blueprints using these scopes as part of the payload"
 // @Success 200  {object} []ScopeRes
 // @Failure 400  {object} shared.ApiBody "Bad Request"
 // @Failure 500  {object} shared.ApiBody "Internal Error"
@@ -95,7 +96,22 @@ func GetScopeList(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, er
 // @Failure 500  {object} shared.ApiBody "Internal Error"
 // @Router /plugins/jira/connections/{connectionId}/scopes/{scopeId} [GET]
 func GetScope(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, errors.Error) {
-	return scopeHelper.GetScope(input, "board_id")
+	return scopeHelper.GetScope(input)
+}
+
+// DeleteScope delete plugin data associated with the scope and optionally the scope itself
+// @Summary delete plugin data associated with the scope and optionally the scope itself
+// @Description delete data associated with plugin scope
+// @Tags plugins/jira
+// @Param connectionId path int true "connection ID"
+// @Param scopeId path int true "scope ID"
+// @Param delete_data_only query bool false "Only delete the scope data, not the scope itself"
+// @Success 200
+// @Failure 400  {object} shared.ApiBody "Bad Request"
+// @Failure 500  {object} shared.ApiBody "Internal Error"
+// @Router /plugins/jira/connections/{connectionId}/scopes/{scopeId} [DELETE]
+func DeleteScope(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, errors.Error) {
+	return scopeHelper.Delete(input)
 }
 
 func GetApiJira(op *tasks.JiraOptions, apiClient aha.ApiClientAbstract) (*apiv2models.Board, errors.Error) {

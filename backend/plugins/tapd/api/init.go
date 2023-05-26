@@ -38,10 +38,18 @@ func Init(br context.BasicRes) {
 		basicRes,
 		vld,
 	)
+	params := &api.ReflectionParameters{
+		ScopeIdFieldName:  "Id",
+		ScopeIdColumnName: "id",
+	}
 	scopeHelper = api.NewScopeHelper[models.TapdConnection, models.TapdWorkspace, models.TapdTransformationRule](
 		basicRes,
 		vld,
 		connectionHelper,
+		api.NewScopeDatabaseHelperImpl[models.TapdConnection, models.TapdWorkspace, models.TapdTransformationRule](
+			basicRes, connectionHelper, params),
+		params,
+		nil,
 	)
 	remoteHelper = api.NewRemoteHelper[models.TapdConnection, models.TapdWorkspace, models.TapdWorkspace, api.BaseRemoteGroupResponse](
 		basicRes,

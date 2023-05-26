@@ -44,7 +44,7 @@ func Init(br context.BasicRes) {
 		ScopeIdColumnName: "id",
 		RawScopeParamName: "ScopeId",
 	}
-	scopeHelper = api.NewScopeHelper2[models.PagerDutyConnection, models.Service, models.PagerdutyTransformationRule](
+	scopeHelper = api.NewScopeHelper[models.PagerDutyConnection, models.Service, models.PagerdutyTransformationRule](
 		basicRes,
 		vld,
 		connectionHelper,

@@ -41,25 +41,8 @@ type (
 	}
 )
 
-// Kept for backward compatibility. Use NewScopeHelper2 instead until we do a mass refactor
-func NewScopeHelper[Conn any, Scope any, Tr any](
-	basicRes context.BasicRes,
-	vld *validator.Validate,
-	connHelper *ConnectionApiHelper,
-) *ScopeApiHelper[Conn, Scope, Tr] {
-	reflectionParams := ReflectionParameters{}
-	return NewScopeHelper2[Conn, Scope, Tr](
-		basicRes,
-		vld,
-		connHelper,
-		NewScopeDatabaseHelperImpl[Conn, Scope, Tr](basicRes, connHelper, &reflectionParams),
-		&reflectionParams,
-		nil,
-	)
-}
-
 // NewScopeHelper creates a ScopeHelper for scopes management
-func NewScopeHelper2[Conn any, Scope any, Tr any](
+func NewScopeHelper[Conn any, Scope any, Tr any](
 	basicRes context.BasicRes,
 	vld *validator.Validate,
 	connHelper *ConnectionApiHelper,
@@ -92,11 +75,7 @@ func (c *ScopeApiHelper[Conn, Scope, Tr]) Put(input *plugin.ApiResourceInput) (*
 	return &plugin.ApiResourceOutput{Body: apiScopes, Status: http.StatusOK}, nil
 }
 
-// TODO remove fieldName param in the future and adjust plugins to use reflection params on init
-func (c *ScopeApiHelper[Conn, Scope, Tr]) Update(input *plugin.ApiResourceInput, fieldName string) (*plugin.ApiResourceOutput, errors.Error) {
-	if fieldName != "" {
-		c.reflectionParams.ScopeIdColumnName = fieldName //for backward compatibility
-	}
+func (c *ScopeApiHelper[Conn, Scope, Tr]) Update(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, errors.Error) {
 	apiScope, err := c.GenericScopeApiHelper.UpdateScope(input)
 	if err != nil {
 		return nil, err
@@ -112,11 +91,7 @@ func (c *ScopeApiHelper[Conn, Scope, Tr]) GetScopeList(input *plugin.ApiResource
 	return &plugin.ApiResourceOutput{Body: scopes, Status: http.StatusOK}, nil
 }
 
-// TODO remove fieldName param in the future and adjust plugins to use reflection params on init
-func (c *ScopeApiHelper[Conn, Scope, Tr]) GetScope(input *plugin.ApiResourceInput, fieldName string) (*plugin.ApiResourceOutput, errors.Error) {
-	if fieldName != "" {
-		c.reflectionParams.ScopeIdColumnName = fieldName //for backward compatibility
-	}
+func (c *ScopeApiHelper[Conn, Scope, Tr]) GetScope(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, errors.Error) {
 	scope, err := c.GenericScopeApiHelper.GetScope(input)
 	if err != nil {
 		return nil, err

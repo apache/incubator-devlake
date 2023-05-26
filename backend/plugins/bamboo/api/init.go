@@ -39,10 +39,18 @@ func Init(br context.BasicRes) {
 		basicRes,
 		vld,
 	)
+	params := &api.ReflectionParameters{
+		ScopeIdFieldName:  "ProjectKey",
+		ScopeIdColumnName: "project_key",
+	}
 	scopeHelper = api.NewScopeHelper[models.BambooConnection, models.BambooProject, models.BambooScopeConfig](
 		basicRes,
 		vld,
 		connectionHelper,
+		api.NewScopeDatabaseHelperImpl[models.BambooConnection, models.BambooProject, models.BambooScopeConfig](
+			basicRes, connectionHelper, params),
+		params,
+		nil,
 	)
 	remoteHelper = api.NewRemoteHelper[models.BambooConnection, models.BambooProject, models.ApiBambooProject, api.NoRemoteGroupResponse](
 		basicRes,

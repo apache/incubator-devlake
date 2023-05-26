@@ -81,7 +81,7 @@ func PutProjectScope(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput,
 // @Failure 500  {object} shared.ApiBody "Internal Error"
 // @Router /plugins/zentao/connections/{connectionId}/scopes/product/{scopeId} [PATCH]
 func UpdateProductScope(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, errors.Error) {
-	return productScopeHelper.Update(input, "id")
+	return productScopeHelper.Update(input)
 }
 
 // UpdateProjectScope patch to zentao project
@@ -97,7 +97,7 @@ func UpdateProductScope(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutp
 // @Failure 500  {object} shared.ApiBody "Internal Error"
 // @Router /plugins/zentao/connections/{connectionId}/scopes/project/{scopeId} [PATCH]
 func UpdateProjectScope(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, errors.Error) {
-	return projectScopeHelper.Update(input, "id")
+	return projectScopeHelper.Update(input)
 }
 
 // TODO GetScopeList get zentao projects and products
@@ -113,7 +113,7 @@ func UpdateProjectScope(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutp
 // @Failure 500  {object} shared.ApiBody "Internal Error"
 // @Router /plugins/zentao/connections/{connectionId}/scopes/product/{scopeId} [GET]
 func GetProductScope(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, errors.Error) {
-	return productScopeHelper.GetScope(input, "id")
+	return productScopeHelper.GetScope(input)
 }
 
 // GetProjectScope get one project
@@ -127,5 +127,35 @@ func GetProductScope(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput,
 // @Failure 500  {object} shared.ApiBody "Internal Error"
 // @Router /plugins/zentao/connections/{connectionId}/scopes/project/{scopeId} [GET]
 func GetProjectScope(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, errors.Error) {
-	return projectScopeHelper.GetScope(input, "id")
+	return projectScopeHelper.GetScope(input)
+}
+
+// DeleteScope delete plugin data associated with the scope and optionally the scope itself
+// @Summary delete plugin data associated with the scope and optionally the scope itself
+// @Description delete data associated with plugin scope
+// @Tags plugins/zentao
+// @Param connectionId path int true "connection ID"
+// @Param scopeId path int true "scope ID"
+// @Param delete_data_only query bool false "Only delete the scope data, not the scope itself"
+// @Success 200
+// @Failure 400  {object} shared.ApiBody "Bad Request"
+// @Failure 500  {object} shared.ApiBody "Internal Error"
+// @Router /plugins/zentao/connections/{connectionId}/scopes/product/{scopeId} [DELETE]
+func DeleteProductScope(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, errors.Error) {
+	return productScopeHelper.Delete(input)
+}
+
+// DeleteScope delete plugin data associated with the scope and optionally the scope itself
+// @Summary delete plugin data associated with the scope and optionally the scope itself
+// @Description delete data associated with plugin scope
+// @Tags plugins/zentao
+// @Param connectionId path int true "connection ID"
+// @Param scopeId path int true "scope ID"
+// @Param delete_data_only query bool false "Only delete the scope data, not the scope itself"
+// @Success 200
+// @Failure 400  {object} shared.ApiBody "Bad Request"
+// @Failure 500  {object} shared.ApiBody "Internal Error"
+// @Router /plugins/zentao/connections/{connectionId}/scopes/project/{scopeId} [DELETE]
+func DeleteProjectScope(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, errors.Error) {
+	return projectScopeHelper.Delete(input)
 }
