@@ -32,7 +32,6 @@ var _ plugin.SubTaskEntryPoint = ExtractJobBuild
 
 func ExtractJobBuild(taskCtx plugin.SubTaskContext) errors.Error {
 	rawDataSubTaskArgs, data := CreateRawDataSubTaskArgs(taskCtx, RAW_JOB_BUILD_TABLE)
-	//repoMap := getRepoMap(data.Options.BambooTransformationRule.RepoMap)
 	extractor, err := helper.NewApiExtractor(helper.ApiExtractorArgs{
 		RawDataSubTaskArgs: *rawDataSubTaskArgs,
 

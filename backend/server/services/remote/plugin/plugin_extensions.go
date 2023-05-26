@@ -69,7 +69,8 @@ func (p remoteDatasourcePlugin) MakeDataSourcePipelinePlanV200(connectionId uint
 		toolScopeTxRulePairs[i] = []interface{}{wrappedToolScope.Unwrap(), txRule}
 	}
 
-	entities := bpScopes[0].Entities
+	// TODO: @camille: no need to pass the entities separately as they are already in the scope config (tx rule)
+	entities := []string{}
 
 	plan_data := models.PipelineData{}
 	err = p.invoker.Call("make-pipeline", bridge.DefaultContext, toolScopeTxRulePairs, entities, connection.Unwrap()).Get(&plan_data)
