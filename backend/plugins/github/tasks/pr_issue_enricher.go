@@ -18,15 +18,16 @@ limitations under the License.
 package tasks
 
 import (
+	"reflect"
+	"regexp"
+	"strconv"
+	"strings"
+
 	"github.com/apache/incubator-devlake/core/dal"
 	"github.com/apache/incubator-devlake/core/errors"
 	"github.com/apache/incubator-devlake/core/plugin"
 	"github.com/apache/incubator-devlake/helpers/pluginhelper/api"
 	"github.com/apache/incubator-devlake/plugins/github/models"
-	"reflect"
-	"regexp"
-	"strconv"
-	"strings"
 )
 
 var EnrichPullRequestIssuesMeta = plugin.SubTaskMeta{
@@ -43,7 +44,7 @@ func EnrichPullRequestIssues(taskCtx plugin.SubTaskContext) (err errors.Error) {
 	repoId := data.Options.GithubId
 
 	var prBodyCloseRegex *regexp.Regexp
-	prBodyClosePattern := data.Options.PrBodyClosePattern
+	prBodyClosePattern := data.Options.ScopeConfig.PrBodyClosePattern
 	//the pattern before the issue number, sometimes, the issue number is #1098, sometimes it is https://xxx/#1098
 	prBodyClosePattern = strings.Replace(prBodyClosePattern, "%s", data.Options.Name, 1)
 	if len(prBodyClosePattern) > 0 {

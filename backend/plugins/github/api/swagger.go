@@ -18,18 +18,15 @@ limitations under the License.
 package api
 
 import (
-	"github.com/apache/incubator-devlake/core/plugin"
 	"github.com/apache/incubator-devlake/plugins/github/tasks"
 )
 
-// @Summary pipelines plan for github
-// @Description pipelines plan for github
+type GithubTaskOptions tasks.GithubOptions
+
+// @Summary github task options for pipelines
+// @Description This is a dummy API to demonstrate the available task options for github pipelines
 // @Tags plugins/github
 // @Accept application/json
-// @Param pipeline body GithubPipelinePlan true "json"
-// @Router /pipelines/github/pipeline-plan [post]
+// @Param pipeline body GithubTaskOptions true "json"
+// @Router /pipelines/github/pipeline-task [post]
 func _() {}
-
-type GithubPipelineTask plugin.GenericPipelineTask[tasks.GithubOptions]
-
-type GithubPipelinePlan [][]GithubPipelineTask

@@ -73,7 +73,7 @@ type IssueRegexes struct {
 func ExtractApiIssues(taskCtx plugin.SubTaskContext) errors.Error {
 	data := taskCtx.GetData().(*GithubTaskData)
 
-	config := data.Options.GithubScopeConfig
+	config := data.Options.ScopeConfig
 	issueRegexes, err := NewIssueRegexes(config)
 	if err != nil {
 		return nil

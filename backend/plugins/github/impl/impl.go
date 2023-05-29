@@ -168,10 +168,10 @@ func (p Github) PrepareTaskData(taskCtx plugin.TaskContext, options map[string]i
 	}
 
 	regexEnricher := helper.NewRegexEnricher()
-	if err = regexEnricher.TryAdd(devops.DEPLOYMENT, op.DeploymentPattern); err != nil {
+	if err = regexEnricher.TryAdd(devops.DEPLOYMENT, op.ScopeConfig.DeploymentPattern); err != nil {
 		return nil, errors.BadInput.Wrap(err, "invalid value for `deploymentPattern`")
 	}
-	if err = regexEnricher.TryAdd(devops.PRODUCTION, op.ProductionPattern); err != nil {
+	if err = regexEnricher.TryAdd(devops.PRODUCTION, op.ScopeConfig.ProductionPattern); err != nil {
 		return nil, errors.BadInput.Wrap(err, "invalid value for `productionPattern`")
 	}
 
@@ -290,17 +290,17 @@ func EnrichOptions(taskCtx plugin.TaskContext,
 		}
 	}
 	// Set GithubScopeConfig if it's nil, this has lower priority
-	if op.GithubScopeConfig == nil && op.ScopeConfigId != 0 {
+	if op.ScopeConfig == nil && op.ScopeConfigId != 0 {
 		var scopeConfig models.GithubScopeConfig
 		db := taskCtx.GetDal()
 		err = db.First(&scopeConfig, dal.Where("id = ?", githubRepo.ScopeConfigId))
 		if err != nil && !db.IsErrorNotFound(err) {
 			return errors.BadInput.Wrap(err, "fail to get scopeConfig")
 		}
-		op.GithubScopeConfig = &scopeConfig
+		op.ScopeConfig = &scopeConfig
 	}
-	if op.GithubScopeConfig == nil && op.ScopeConfigId == 0 {
-		op.GithubScopeConfig = new(models.GithubScopeConfig)
+	if op.ScopeConfig == nil && op.ScopeConfigId == 0 {
+		op.ScopeConfig = new(models.GithubScopeConfig)
 	}
 	return err
 }
