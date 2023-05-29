@@ -19,7 +19,6 @@ package impl
 
 import (
 	"fmt"
-	"strings"
 
 	"github.com/apache/incubator-devlake/core/context"
 	"github.com/apache/incubator-devlake/core/dal"
@@ -180,18 +179,8 @@ func (p Trello) ApiResources() map[string]map[string]plugin.ApiResourceHandler {
 	}
 }
 
-func (p Trello) MakeDataSourcePipelinePlanV200(connectionId uint64, scopes []*plugin.BlueprintScopeV200, syncPolicy plugin.BlueprintSyncPolicy, skipCollectors bool) (plugin.PipelinePlan, []plugin.Scope, errors.Error) {
-	var subTaskMetas []plugin.SubTaskMeta
-	if skipCollectors {
-		for _, subTaskMeta := range p.SubTaskMetas() {
-			if !strings.Contains(subTaskMeta.Name, "collect") {
-				subTaskMetas = append(subTaskMetas, subTaskMeta)
-			}
-		}
-	} else {
-		subTaskMetas = p.SubTaskMetas()
-	}
-	return api.MakePipelinePlanV200(subTaskMetas, connectionId, scopes, &syncPolicy)
+func (p Trello) MakeDataSourcePipelinePlanV200(connectionId uint64, scopes []*plugin.BlueprintScopeV200, syncPolicy plugin.BlueprintSyncPolicy) (plugin.PipelinePlan, []plugin.Scope, errors.Error) {
+	return api.MakePipelinePlanV200(p.SubTaskMetas(), connectionId, scopes, &syncPolicy)
 }
 
 func (p Trello) Close(taskCtx plugin.TaskContext) errors.Error {

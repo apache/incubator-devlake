@@ -20,6 +20,7 @@ package services
 import (
 	"encoding/json"
 	"fmt"
+	"strings"
 
 	"github.com/apache/incubator-devlake/core/errors"
 	"github.com/apache/incubator-devlake/core/models"
@@ -86,7 +87,6 @@ func genPlanJsonV200(
 				connection.ConnectionId,
 				connection.Scopes,
 				syncPolicy,
-				skipCollectors,
 			)
 			if err != nil {
 				return nil, nil, err
@@ -100,6 +100,24 @@ func genPlanJsonV200(
 			)
 		}
 	}
+	// skip collectors
+	if skipCollectors {
+		for i, plan := range sourcePlans {
+			for j, stage := range plan {
+				for k, task := range stage {
+					newSubtasks := make([]string, 0, len(task.Subtasks))
+					for _, subtask := range task.Subtasks {
+						if !strings.Contains(strings.ToLower(subtask), "collect") {
+							newSubtasks = append(newSubtasks, subtask)
+						}
+					}
+					task.Subtasks = newSubtasks
+					sourcePlans[i][j][k] = task
+				}
+			}
+		}
+	}
+
 	// make plans for metric plugins
 	metricPlans := make([]plugin.PipelinePlan, len(metrics))
 	i := 0

@@ -19,7 +19,6 @@ package impl
 
 import (
 	"fmt"
-	"strings"
 	"time"
 
 	"github.com/apache/incubator-devlake/core/context"
@@ -65,18 +64,8 @@ func (p Gitlab) TransformationRule() interface{} {
 	return &models.GitlabTransformationRule{}
 }
 
-func (p Gitlab) MakeDataSourcePipelinePlanV200(connectionId uint64, scopes []*plugin.BlueprintScopeV200, syncPolicy plugin.BlueprintSyncPolicy, skipCollectors bool) (plugin.PipelinePlan, []plugin.Scope, errors.Error) {
-	var subTaskMetas []plugin.SubTaskMeta
-	if skipCollectors {
-		for _, subTaskMeta := range p.SubTaskMetas() {
-			if !strings.Contains(subTaskMeta.Name, "collect") {
-				subTaskMetas = append(subTaskMetas, subTaskMeta)
-			}
-		}
-	} else {
-		subTaskMetas = p.SubTaskMetas()
-	}
-	return api.MakePipelinePlanV200(subTaskMetas, connectionId, scopes, &syncPolicy)
+func (p Gitlab) MakeDataSourcePipelinePlanV200(connectionId uint64, scopes []*plugin.BlueprintScopeV200, syncPolicy plugin.BlueprintSyncPolicy) (plugin.PipelinePlan, []plugin.Scope, errors.Error) {
+	return api.MakePipelinePlanV200(p.SubTaskMetas(), connectionId, scopes, &syncPolicy)
 }
 
 func (p Gitlab) GetTablesInfo() []dal.Tabler {

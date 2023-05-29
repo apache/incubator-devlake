@@ -113,7 +113,6 @@ type DataSourcePluginBlueprintV200 interface {
 		connectionId uint64,
 		scopes []*BlueprintScopeV200,
 		syncPolicy BlueprintSyncPolicy,
-		skipCollectors bool,
 	) (PipelinePlan, []Scope, errors.Error)
 }
 

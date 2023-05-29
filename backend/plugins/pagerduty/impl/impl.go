@@ -19,7 +19,6 @@ package impl
 
 import (
 	"fmt"
-	"strings"
 	"time"
 
 	"github.com/apache/incubator-devlake/core/context"
@@ -164,18 +163,9 @@ func (p PagerDuty) MakePipelinePlan(connectionId uint64, scope []*plugin.Bluepri
 	return api.MakePipelinePlan(p.SubTaskMetas(), connectionId, scope)
 }
 
-func (p PagerDuty) MakeDataSourcePipelinePlanV200(connectionId uint64, scopes []*plugin.BlueprintScopeV200, syncPolicy plugin.BlueprintSyncPolicy, skipCollectors bool) (plugin.PipelinePlan, []plugin.Scope, errors.Error) {
-	var subTaskMetas []plugin.SubTaskMeta
-	if skipCollectors {
-		for _, subTaskMeta := range p.SubTaskMetas() {
-			if !strings.Contains(subTaskMeta.Name, "collect") {
-				subTaskMetas = append(subTaskMetas, subTaskMeta)
-			}
-		}
-	} else {
-		subTaskMetas = p.SubTaskMetas()
-	}
-	return api.MakeDataSourcePipelinePlanV200(subTaskMetas, connectionId, scopes, &syncPolicy)
+func (p PagerDuty) MakeDataSourcePipelinePlanV200(connectionId uint64, scopes []*plugin.BlueprintScopeV200, syncPolicy plugin.BlueprintSyncPolicy,
+) (plugin.PipelinePlan, []plugin.Scope, errors.Error) {
+	return api.MakeDataSourcePipelinePlanV200(p.SubTaskMetas(), connectionId, scopes, &syncPolicy)
 }
 
 func (p PagerDuty) Close(taskCtx plugin.TaskContext) errors.Error {
