@@ -19,12 +19,16 @@
 import styled from 'styled-components';
 
 export const Wrapper = styled.div`
-  margin-top: 36px;
-`;
+  .action {
+    margin-top: 24px;
+  }
 
-export const Action = styled.div`
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  margin-top: 36px;
+  .search {
+    margin-top: 24px;
+    margin-bottom: 24px;
+  }
+
+  .btns {
+    display: flex;
+  }
 `;

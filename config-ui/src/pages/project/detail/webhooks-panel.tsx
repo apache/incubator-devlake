@@ -22,25 +22,20 @@ import { Button, Intent } from '@blueprintjs/core';
 import { Alert, NoData } from '@/components';
 import type { WebhookItemType } from '@/plugins/register/webook';
 import { WebhookCreateDialog, WebhookSelectorDialog, WebHookConnection } from '@/plugins/register/webook';
+import { operator } from '@/utils';
 
 import type { ProjectType } from '../types';
 
+import * as API from './api';
+
 interface Props {
   project: ProjectType;
-  saving: boolean;
-  onSelectWebhook: (items: WebhookItemType[]) => void;
-  onCreateWebhook: (id: ID) => any;
-  onDeleteWebhook: (id: ID) => any;
+  onRefresh: () => void;
 }
 
-export const IncomingWebhooksPanel = ({
-  project,
-  saving,
-  onSelectWebhook,
-  onCreateWebhook,
-  onDeleteWebhook,
-}: Props) => {
+export const WebhooksPanel = ({ project, onRefresh }: Props) => {
   const [type, setType] = useState<'selectExist' | 'create'>();
+  const [operating, setOperating] = useState(false);
 
   const webhookIds = useMemo(
     () =>
@@ -54,6 +49,74 @@ export const IncomingWebhooksPanel = ({
 
   const handleCancel = () => {
     setType(undefined);
+  };
+
+  const handleCreate = async (id: ID) => {
+    const payload = {
+      ...project.blueprint,
+      settings: {
+        ...project.blueprint.settings,
+        connections: [
+          ...project.blueprint.settings.connections,
+          {
+            plugin: 'webhook',
+            connectionId: id,
+          },
+        ],
+      },
+    };
+
+    const [success] = await operator(() => API.updateBlueprint(project.blueprint.id, payload), {
+      setOperating,
+    });
+
+    if (success) {
+      onRefresh();
+    }
+  };
+
+  const handleSelect = async (items: WebhookItemType[]) => {
+    const payload = {
+      ...project.blueprint,
+      settings: {
+        ...project.blueprint.settings,
+        connections: [
+          ...project.blueprint.settings.connections,
+          ...items.map((it) => ({
+            plugin: 'webhook',
+            connectionId: it.id,
+          })),
+        ],
+      },
+    };
+
+    const [success] = await operator(() => API.updateBlueprint(project.blueprint.id, payload), {
+      setOperating,
+    });
+
+    if (success) {
+      onRefresh();
+    }
+  };
+
+  const handleDelete = async (id: ID) => {
+    const payload = {
+      ...project.blueprint,
+      settings: {
+        ...project.blueprint.settings,
+        connections: project.blueprint.settings.connections.filter(
+          (cs: any) => !(cs.plugin === 'webhook' && cs.connectionId === id),
+        ),
+      },
+    };
+
+    const [success] = await operator(() => API.updateBlueprint(project.blueprint.id, payload), {
+      setOperating,
+    });
+
+    if (success) {
+      onRefresh();
+    }
   };
 
   return (
@@ -86,13 +149,13 @@ export const IncomingWebhooksPanel = ({
               </>
             }
           />
-          {type === 'create' && <WebhookCreateDialog isOpen onCancel={handleCancel} onSubmitAfter={onCreateWebhook} />}
+          {type === 'create' && <WebhookCreateDialog isOpen onCancel={handleCancel} onSubmitAfter={handleCreate} />}
           {type === 'selectExist' && (
-            <WebhookSelectorDialog isOpen saving={saving} onCancel={handleCancel} onSubmit={onSelectWebhook} />
+            <WebhookSelectorDialog isOpen saving={operating} onCancel={handleCancel} onSubmit={handleSelect} />
           )}
         </>
       ) : (
-        <WebHookConnection filterIds={webhookIds} onCreateAfter={onCreateWebhook} onDeleteAfter={onDeleteWebhook} />
+        <WebHookConnection filterIds={webhookIds} onCreateAfter={handleCreate} onDeleteAfter={handleDelete} />
       )}
     </>
   );

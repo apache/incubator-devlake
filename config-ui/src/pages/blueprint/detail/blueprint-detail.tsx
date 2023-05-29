@@ -16,46 +16,66 @@
  *
  */
 
-import { useState, useMemo } from 'react';
+import { useState } from 'react';
 import type { TabId } from '@blueprintjs/core';
-import { Tabs, Tab } from '@blueprintjs/core';
+import { Tabs, Tab, Switch } from '@blueprintjs/core';
 
 import { PageLoading } from '@/components';
+import { useRefreshData } from '@/hooks';
+import { operator } from '@/utils';
 
-import { FromEnum } from '../types';
-
-import type { UseDetailProps } from './use-detail';
-import { useDetail } from './use-detail';
 import { Configuration } from './panel/configuration';
 import { Status } from './panel/status';
+import * as API from './api';
 import * as S from './styled';
 
-interface Props extends UseDetailProps {
-  from?: FromEnum;
-  pname?: string;
+interface Props {
+  id: ID;
 }
 
-export const BlueprintDetail = ({ from = FromEnum.project, pname, id }: Props) => {
-  const [activeTab, setActiveTab] = useState<TabId>('status');
+export const BlueprintDetail = ({ id }: Props) => {
+  const [activeTab, setActiveTab] = useState<TabId>('configuration');
+  const [version, setVersion] = useState(1);
+  const [operating, setOperating] = useState(false);
 
-  const paths = useMemo(
-    () =>
-      from === FromEnum.project
-        ? [
-            `/projects/${window.encodeURIComponent(pname ?? '')}/${id}/connection-add`,
-            `/projects/${window.encodeURIComponent(pname ?? '')}/${id}/`,
-          ]
-        : [`/blueprints/${id}/connection-add`, `/blueprints/${id}/`],
-    [from, pname],
+  const { ready, data } = useRefreshData(
+    async () => Promise.all([API.getBlueprint(id), API.getBlueprintPipelines(id)]),
+    [version],
   );
 
-  const { loading, blueprint, pipelineId, operating, onRun, onUpdate } = useDetail({
-    id,
-  });
-
-  if (loading || !blueprint) {
+  if (!ready || !data) {
     return <PageLoading />;
   }
+
+  const [blueprint, pipelines] = data;
+
+  const handleUpdate = async (payload: any, callback?: () => void) => {
+    const [success] = await operator(
+      () =>
+        API.updateBlueprint(id, {
+          ...blueprint,
+          ...payload,
+        }),
+      {
+        setOperating,
+      },
+    );
+
+    if (success) {
+      setVersion((v) => v + 1);
+      callback?.();
+    }
+  };
+
+  const handleRun = async () => {
+    const [success] = await operator(() => API.runBlueprint(id), {
+      setOperating,
+    });
+
+    if (success) {
+      setVersion((v) => v + 1);
+    }
+  };
 
   return (
     <S.Wrapper>
@@ -63,12 +83,21 @@ export const BlueprintDetail = ({ from = FromEnum.project, pname, id }: Props) =
         <Tab
           id="status"
           title="Status"
-          panel={<Status blueprint={blueprint} pipelineId={pipelineId} operating={operating} onRun={onRun} />}
+          panel={
+            <Status blueprint={blueprint} pipelineId={pipelines?.[0]?.id} operating={operating} onRun={handleRun} />
+          }
         />
         <Tab
           id="configuration"
           title="Configuration"
-          panel={<Configuration paths={paths} blueprint={blueprint} operating={operating} onUpdate={onUpdate} />}
+          panel={<Configuration blueprint={blueprint} operating={operating} onUpdate={handleUpdate} />}
+        />
+        <Tabs.Expander />
+        <Switch
+          style={{ marginBottom: 0 }}
+          label="Blueprint Enabled"
+          checked={blueprint.enable}
+          onChange={(e) => handleUpdate({ enable: (e.target as HTMLInputElement).checked })}
         />
       </Tabs>
     </S.Wrapper>

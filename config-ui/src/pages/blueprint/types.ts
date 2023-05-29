@@ -21,11 +21,6 @@ export enum ModeEnum {
   normal = 'NORMAL',
 }
 
-export enum FromEnum {
-  project = 'project',
-  blueprint = 'blueprint',
-}
-
 export type BlueprintType = {
   id: ID;
   enable: boolean;
@@ -41,7 +36,7 @@ export type BlueprintType = {
     connections: Array<{
       plugin: string;
       connectionId: ID;
-      scopes: Array<{
+      scopes?: Array<{
         id: string;
         entities: string[];
       }>;

@@ -16,6 +16,25 @@
  *
  */
 
-export * from './blueprint';
-export * from './incoming-webhooks';
-export * from './settings';
+import { FormGroup } from '@blueprintjs/core';
+
+import * as S from './styled';
+
+interface Props {
+  label?: React.ReactNode;
+  subLabel?: React.ReactNode;
+  required?: boolean;
+  children: React.ReactNode;
+}
+
+export const FormItem = ({ label, subLabel, required, children }: Props) => {
+  return (
+    <FormGroup
+      label={<S.Label>{label}</S.Label>}
+      subLabel={<S.subLabel>{subLabel}</S.subLabel>}
+      labelInfo={required ? <S.LabelInfo>*</S.LabelInfo> : null}
+    >
+      {children}
+    </FormGroup>
+  );
+};

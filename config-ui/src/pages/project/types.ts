@@ -16,5 +16,11 @@
  *
  */
 
-export * from './advanced-editor';
-export * from './sync-policy';
+import type { BlueprintType } from '@/pages';
+
+export type ProjectType = {
+  name: string;
+  description: string;
+  blueprint: BlueprintType;
+  metrics: Array<{ pluginName: string; pluginOption: string; enable: boolean }>;
+};

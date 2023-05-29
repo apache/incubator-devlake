@@ -16,29 +16,23 @@
  *
  */
 
-import { DataScope } from '@/plugins';
+import styled from 'styled-components';
 
-import { useConnectionAdd } from '../context';
+const Wrapper = styled.div`
+  display: flex;
+  align-items: center;
+  justify-content: end;
+  margin-top: 24px;
 
-import * as S from './styled';
-
-export const Step2 = () => {
-  const { connection, onChangeConnection, onPrev, onNext } = useConnectionAdd();
-
-  if (!connection) {
-    return null;
+  .bp4-button + .bp4-button {
+    margin-left: 8px;
   }
+`;
 
-  return (
-    <S.Wrapper>
-      <DataScope
-        connections={[connection]}
-        cancelBtnProps={{ text: 'Previous Step' }}
-        submitBtnProps={{ text: 'Next Step' }}
-        onCancel={onPrev}
-        onSubmit={(connections) => onChangeConnection(connections[0])}
-        onNext={onNext}
-      />
-    </S.Wrapper>
-  );
+interface Props {
+  children: React.ReactNode;
+}
+
+export const Buttons = ({ children }: Props) => {
+  return <Wrapper>{children}</Wrapper>;
 };

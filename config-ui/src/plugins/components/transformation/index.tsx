@@ -76,14 +76,14 @@ export const Transformation = ({
           return cs;
         }
 
-        const origin = cs.origin.map((sc) => {
+        const scope = cs.scope.map((sc) => {
           if (!scopeIds.includes(sc[getPluginId(cs.plugin)])) {
             return sc;
           }
           return scopes.find((it) => it[getPluginId(cs.plugin)] === sc[getPluginId(cs.plugin)]);
         });
 
-        return { ...cs, origin };
+        return { ...cs, scope };
       }),
     );
     setSelected({
@@ -145,7 +145,7 @@ export const Transformation = ({
                   ),
               },
             ]}
-            dataSource={cs.origin}
+            dataSource={cs.scope}
             rowSelection={
               cs.transformationType === 'for-connection'
                 ? {

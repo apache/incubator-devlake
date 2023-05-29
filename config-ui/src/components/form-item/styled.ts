@@ -16,9 +16,17 @@
  *
  */
 
-import { request } from '@/utils';
+import styled from 'styled-components';
 
-export const getBlueprint = (id: ID) => request(`/blueprints/${id}`);
+export const Label = styled.label`
+  font-size: 16px;
+  font-weight: 600;
+`;
 
-export const updateBlueprint = (id: ID, payload: any) =>
-  request(`/blueprints/${id}`, { method: 'patch', data: payload });
+export const LabelInfo = styled.i`
+  color: #ff8b8b;
+`;
+
+export const subLabel = styled.p`
+  margin: 0;
+`;

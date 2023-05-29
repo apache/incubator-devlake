@@ -17,106 +17,167 @@
  */
 
 import { useState, useEffect, useMemo } from 'react';
-import { useHistory } from 'react-router-dom';
-import { Icon, Button, Switch, Colors, Intent } from '@blueprintjs/core';
-import dayjs from 'dayjs';
+import { Link } from 'react-router-dom';
+import { Button, Intent } from '@blueprintjs/core';
 
-import { getCron } from '@/config';
+import { IconButton, Table, NoData } from '@/components';
+import { useConnections } from '@/hooks';
+import { getPluginConfig } from '@/plugins';
 
 import type { BlueprintType } from '../../types';
 import { ModeEnum } from '../../types';
 import { validRawPlan } from '../../utils';
-import { AdvancedEditor } from '../../components';
 
-import { UpdateNameDialog, UpdatePolicyDialog, ConnectionList } from '../components';
+import { AdvancedEditor, UpdateNameDialog, UpdatePolicyDialog, AddConnectionDialog } from '../components';
 import * as S from '../styled';
 
-type Type = 'name' | 'frequency' | 'scope' | 'transformation';
-
 interface Props {
-  paths: string[];
   blueprint: BlueprintType;
   operating: boolean;
-  onUpdate: (bp: any) => void;
+  onUpdate: (payload: any, callback?: () => void) => void;
 }
 
-export const Configuration = ({ paths, blueprint, operating, onUpdate }: Props) => {
-  const [type, setType] = useState<Type>();
+export const Configuration = ({ blueprint, operating, onUpdate }: Props) => {
+  const [type, setType] = useState<'name' | 'policy' | 'add-connection'>();
   const [rawPlan, setRawPlan] = useState('');
-
-  const history = useHistory();
 
   useEffect(() => {
     setRawPlan(JSON.stringify(blueprint.plan, null, '  '));
   }, [blueprint]);
 
-  const cron = useMemo(() => getCron(blueprint.isManual, blueprint.cronConfig), [blueprint]);
+  const { onGet } = useConnections();
+
+  const connections = useMemo(
+    () =>
+      blueprint.settings?.connections
+        .filter((cs) => cs.plugin !== 'webhook')
+        .map((cs: any) => {
+          const unique = `${cs.plugin}-${cs.connectionId}`;
+          const plugin = getPluginConfig(cs.plugin);
+          const connection = onGet(unique);
+
+          return {
+            unique,
+            icon: plugin.icon,
+            name: connection.name,
+            scope: cs.scopes,
+          };
+        })
+        .filter(Boolean),
+    [blueprint],
+  );
 
   const handleCancel = () => {
     setType(undefined);
   };
 
-  const handleUpdateName = async (name: string) => {
-    await onUpdate({ name });
-    handleCancel();
+  const handleShowNameDialog = () => {
+    setType('name');
   };
 
-  const handleUpdatePolicy = async (policy: any) => {
-    await onUpdate(policy);
-    handleCancel();
+  const handleShowPolicyDialog = () => {
+    setType('policy');
   };
 
-  const handleToggleEnabled = (checked: boolean) => onUpdate({ enable: checked });
-
-  const handleUpdatePlan = () =>
-    onUpdate({
-      plan: !validRawPlan(rawPlan) ? JSON.parse(rawPlan) : JSON.stringify([[]], null, '  '),
-    });
+  const handleShowAddConnectionDialog = () => {
+    setType('add-connection');
+  };
 
   return (
     <S.ConfigurationPanel>
-      <div className="top">
-        <ul>
-          <li>
-            <h3>Name</h3>
-            <div className="detail">
-              <span>{blueprint.name}</span>
-              <Icon icon="annotation" color={Colors.BLUE2} onClick={() => setType('name')} />
-            </div>
-          </li>
-          <li>
-            <h3>Sync Policy</h3>
-            <div className="detail">
-              <span>
-                {cron.label} {cron.value !== 'manual' ? dayjs(cron.nextTime).format('HH:mm A') : null}
-              </span>
-              <Icon icon="annotation" color={Colors.BLUE2} onClick={() => setType('frequency')} />
-            </div>
-          </li>
-        </ul>
-        <Switch
-          label="Blueprint Enabled"
-          checked={blueprint.enable}
-          onChange={(e) => handleToggleEnabled((e.target as HTMLInputElement).checked)}
+      <div className="block">
+        <h3>Blueprint Name</h3>
+        <div>
+          <span>{blueprint.name}</span>
+          <IconButton icon="annotation" tooltip="Edit" onClick={handleShowNameDialog} />
+        </div>
+      </div>
+      <div className="block">
+        <h3>
+          <span>Sync Policy</span>
+          <IconButton icon="annotation" tooltip="Edit" onClick={handleShowPolicyDialog} />
+        </h3>
+        <Table
+          columns={[
+            {
+              title: 'Data Time Range',
+              dataIndex: 'timeRange',
+              key: 'timeRange',
+            },
+            {
+              title: 'Sync Frequency',
+              dataIndex: 'frequency',
+              key: 'frequency',
+            },
+            {
+              title: 'Skip Failed Tasks',
+              dataIndex: 'skipFailed',
+              key: 'skipFailed',
+            },
+          ]}
+          dataSource={[
+            {
+              timeRange: blueprint.settings.timeAfter,
+              frequency: blueprint.cronConfig,
+              skipFailed: blueprint.skipOnFail,
+            },
+          ]}
         />
       </div>
       {blueprint.mode === ModeEnum.normal && (
-        <div className="bottom">
-          <h3>
-            <span>Connections</span>
-            <Button small intent={Intent.PRIMARY} onClick={() => history.push(paths[0])}>
-              Add a Connection
-            </Button>
-          </h3>
-          <ConnectionList path={paths[1]} blueprint={blueprint} />
+        <div className="block">
+          <h3>Data Connections</h3>
+          {!connections.length ? (
+            <NoData
+              text={
+                <>
+                  If you have not created data connections yet, please <Link to="/connections">create connections</Link>{' '}
+                  first and then add them to the project.
+                </>
+              }
+              action={
+                <Button
+                  intent={Intent.PRIMARY}
+                  icon="add"
+                  text="Add a Connection"
+                  onClick={handleShowAddConnectionDialog}
+                />
+              }
+            />
+          ) : (
+            <S.ConnectionList>
+              {connections.map((cs) => (
+                <S.ConnectionItem key={cs.unique}>
+                  <div className="title">
+                    <img src={cs.icon} alt="" />
+                    <span>{cs.name}</span>
+                  </div>
+                  <div className="count">
+                    <span>{cs.scope.length} data scope</span>
+                  </div>
+                  <div className="link">
+                    <Link to={`${cs.unique}`}>View Detail</Link>
+                  </div>
+                </S.ConnectionItem>
+              ))}
+            </S.ConnectionList>
+          )}
         </div>
       )}
       {blueprint.mode === ModeEnum.advanced && (
-        <div className="bottom">
+        <div className="block">
           <h3>JSON Configuration</h3>
           <AdvancedEditor value={rawPlan} onChange={setRawPlan} />
           <div className="btns">
-            <Button intent={Intent.PRIMARY} text="Save" onClick={handleUpdatePlan} />
+            <Button
+              intent={Intent.PRIMARY}
+              text="Save"
+              onClick={() =>
+                onUpdate({
+                  plan: !validRawPlan(rawPlan) ? JSON.parse(rawPlan) : JSON.stringify([[]], null, '  '),
+                })
+              }
+            />
           </div>
         </div>
       )}
@@ -125,10 +186,10 @@ export const Configuration = ({ paths, blueprint, operating, onUpdate }: Props) 
           name={blueprint.name}
           operating={operating}
           onCancel={handleCancel}
-          onSubmit={handleUpdateName}
+          onSubmit={(name) => onUpdate({ name }, handleCancel)}
         />
       )}
-      {type === 'frequency' && (
+      {type === 'policy' && (
         <UpdatePolicyDialog
           blueprint={blueprint}
           isManual={blueprint.isManual}
@@ -137,8 +198,11 @@ export const Configuration = ({ paths, blueprint, operating, onUpdate }: Props) 
           timeAfter={blueprint.settings?.timeAfter}
           operating={operating}
           onCancel={handleCancel}
-          onSubmit={handleUpdatePolicy}
+          onSubmit={(payload) => onUpdate(payload, handleCancel)}
         />
+      )}
+      {type === 'add-connection' && (
+        <AddConnectionDialog onCancel={handleCancel} onSubmit={(value) => console.log(value)} />
       )}
     </S.ConfigurationPanel>
   );
