@@ -157,7 +157,9 @@ class Collector(Subtask):
 
 class SubstreamCollector(Collector):
     def fetch(self, state: Dict, session, ctx: Context):
-        for parent in session.exec(sql.select(self.stream.parent_stream.tool_model)).scalars():
+        parent_model = self.stream.parent_stream.tool_model
+        query = session.query(parent_model).where(parent_model.raw_data_params == self._params(ctx))
+        for parent in query.all():
             yield from self.stream.collect(state, ctx, parent)
 
 
