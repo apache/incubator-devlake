@@ -19,13 +19,14 @@ package tasks
 
 import (
 	"encoding/json"
+	"strings"
+	"time"
+
 	"github.com/apache/incubator-devlake/core/errors"
 	"github.com/apache/incubator-devlake/core/models/domainlayer/ticket"
 	plugin "github.com/apache/incubator-devlake/core/plugin"
 	"github.com/apache/incubator-devlake/helpers/pluginhelper/api"
 	"github.com/apache/incubator-devlake/plugins/bitbucket/models"
-	"strings"
-	"time"
 )
 
 type IssuesResponse struct {
@@ -62,7 +63,7 @@ var ExtractApiIssuesMeta = plugin.SubTaskMeta{
 
 func ExtractApiIssues(taskCtx plugin.SubTaskContext) errors.Error {
 	rawDataSubTaskArgs, data := CreateRawDataSubTaskArgs(taskCtx, RAW_ISSUE_TABLE)
-	issueStatusMap, err := newIssueStatusMap(data.Options.BitbucketTransformationRule)
+	issueStatusMap, err := newIssueStatusMap(data.Options.BitbucketScopeConfig)
 	if err != nil {
 		return err
 	}
@@ -153,7 +154,7 @@ func convertBitbucketIssue(issue *IssuesResponse, connectionId uint64, repositor
 	return bitbucketIssue, nil
 }
 
-func newIssueStatusMap(config *models.BitbucketTransformationRule) (map[string]string, errors.Error) {
+func newIssueStatusMap(config *models.BitbucketScopeConfig) (map[string]string, errors.Error) {
 	issueStatusMap := make(map[string]string, 3)
 	if config == nil {
 		return issueStatusMap, nil

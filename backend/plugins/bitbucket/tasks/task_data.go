@@ -26,12 +26,12 @@ import (
 )
 
 type BitbucketOptions struct {
-	ConnectionId                        uint64   `json:"connectionId" mapstructure:"connectionId,omitempty"`
-	Tasks                               []string `json:"tasks,omitempty" mapstructure:",omitempty"`
-	FullName                            string   `json:"fullName" mapstructure:"fullName"`
-	TimeAfter                           string   `json:"timeAfter" mapstructure:"timeAfter,omitempty"`
-	TransformationRuleId                uint64   `json:"transformationRuleId" mapstructure:"transformationRuleId,omitempty"`
-	*models.BitbucketTransformationRule `mapstructure:"transformationRules,omitempty" json:"transformationRules"`
+	ConnectionId                 uint64   `json:"connectionId" mapstructure:"connectionId,omitempty"`
+	Tasks                        []string `json:"tasks,omitempty" mapstructure:",omitempty"`
+	FullName                     string   `json:"fullName" mapstructure:"fullName"`
+	TimeAfter                    string   `json:"timeAfter" mapstructure:"timeAfter,omitempty"`
+	ScopeConfigId                uint64   `json:"scopeConfigId" mapstructure:"scopeConfigId,omitempty"`
+	*models.BitbucketScopeConfig `mapstructure:"scopeConfigs,omitempty" json:"scopeConfigs"`
 }
 
 type BitbucketTaskData struct {

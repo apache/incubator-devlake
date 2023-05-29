@@ -22,25 +22,30 @@ import (
 	"github.com/apache/incubator-devlake/core/dal"
 	"github.com/apache/incubator-devlake/core/errors"
 	"github.com/apache/incubator-devlake/helpers/migrationhelper"
-	"github.com/apache/incubator-devlake/plugins/bitbucket/models"
 )
 
 type addConnectionIdToTransformationRule struct{}
 
-type transformationRule20220322 struct {
+type repo20230322 struct {
+	ConnectionId         uint64 `json:"connectionId" gorm:"primaryKey" validate:"required" mapstructure:"connectionId,omitempty"`
+	BitbucketId          string `json:"bitbucketId" gorm:"primaryKey;type:varchar(255)" validate:"required" mapstructure:"bitbucketId"`
+	TransformationRuleId uint64 `json:"transformationRuleId,omitempty" mapstructure:"transformationRuleId,omitempty"`
+}
+type transformationRule20230322 struct {
+	ID           uint64 `gorm:"primaryKey" json:"id"`
 	ConnectionId uint64
 }
 
-func (transformationRule20220322) TableName() string {
+func (transformationRule20230322) TableName() string {
 	return "_tool_bitbucket_transformation_rules"
 }
 
 func (u *addConnectionIdToTransformationRule) Up(baseRes context.BasicRes) errors.Error {
-	err := migrationhelper.AutoMigrateTables(baseRes, &transformationRule20220322{})
+	err := migrationhelper.AutoMigrateTables(baseRes, &transformationRule20230322{})
 	if err != nil {
 		return err
 	}
-	var scopes []models.BitbucketRepo
+	var scopes []repo20230322
 	err = baseRes.GetDal().All(&scopes)
 	if err != nil {
 		return err
@@ -55,14 +60,14 @@ func (u *addConnectionIdToTransformationRule) Up(baseRes context.BasicRes) error
 	// set connection_id for rules
 	for trId, cId := range idMap {
 		err = baseRes.GetDal().UpdateColumn(
-			&models.BitbucketTransformationRule{}, "connection_id", cId,
+			&transformationRule20230322{}, "connection_id", cId,
 			dal.Where("id = ?", trId))
 		if err != nil {
 			return err
 		}
 	}
 	// delete all rules that are not referenced.
-	return baseRes.GetDal().Delete(&models.BitbucketTransformationRule{}, dal.Where("connection_id IS NULL OR connection_id = 0"))
+	return baseRes.GetDal().Delete(&transformationRule20230322{}, dal.Where("connection_id IS NULL OR connection_id = 0"))
 }
 
 func (*addConnectionIdToTransformationRule) Version() uint64 {
