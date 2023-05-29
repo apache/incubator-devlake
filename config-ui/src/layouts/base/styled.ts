@@ -16,13 +16,13 @@
  *
  */
 
-import styled from 'styled-components';
 import { Navbar } from '@blueprintjs/core';
+import styled from 'styled-components';
 
 export const Wrapper = styled.div`
   display: flex;
   height: 100vh;
-  background-color: #f9f9fa;
+  background-color: #e6f5f5;
   overflow: hidden;
 `;
 
@@ -92,7 +92,7 @@ export const Main = styled.div`
 
 export const Header = styled(Navbar)`
   flex: 0 0 50px;
-  background-color: #f9f9fa;
+  background-color: #e6f5f5;
   box-shadow: none;
 
   a {
