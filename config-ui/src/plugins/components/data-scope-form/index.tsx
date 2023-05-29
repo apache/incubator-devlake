@@ -32,6 +32,7 @@ import { AzureDataScope } from '@/plugins/register/azure';
 import { SonarQubeDataScope } from '@/plugins/register/sonarqube';
 import { PagerDutyDataScope } from '@/plugins/register/pagerduty';
 import { ZentaoDataScope } from '@/plugins/register/zentao';
+import { KubeDeploymentDataScope } from '@/plugins/register/myplug';
 
 import * as API from './api';
 import * as S from './styled';
@@ -126,6 +127,10 @@ export const DataScopeForm = ({
         <div className="block">
           {plugin === 'github' && (
             <GitHubDataScope connectionId={connectionId} selectedItems={scope} onChangeItems={setScope} />
+          )}
+
+          {plugin === 'kube_deployment' && (
+            <KubeDeploymentDataScope connectionId={connectionId} selectedItems={scope} onChangeItems={setScope} />
           )}
 
           {plugin === 'jira' && (

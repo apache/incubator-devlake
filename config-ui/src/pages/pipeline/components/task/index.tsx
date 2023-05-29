@@ -75,6 +75,13 @@ export const PipelineTask = ({ task }: Props) => {
           name = `${name}:product/${options.productId}`;
         }
         break;
+      case ['kube_deployment'].includes(config.plugin):
+        if (options.projectId) {
+          name = `${name}:project/${options.id}`;
+        } else {
+          name = `${name}:product/${options.id}`;
+        }
+        break;
       case ['refdiff'].includes(config.plugin):
         name = `${name}:${options.repoId ?? options.projectName}`;
         break;

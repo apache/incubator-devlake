@@ -30,6 +30,7 @@ import { JenkinsTransformation } from '@/plugins/register/jenkins';
 import { BitbucketTransformation } from '@/plugins/register/bitbucket';
 import { AzureTransformation } from '@/plugins/register/azure';
 import { TapdTransformation } from '@/plugins/register/tapd';
+import { KubeDeploymentTransformation } from '@/plugins/register/myplug';
 
 import { TIPS_MAP } from './misc';
 import { AdditionalSettings } from './fields';
@@ -136,6 +137,14 @@ export const TransformationForm = ({ plugin, connectionId, scopeId, id, onCancel
             setTransformation={setTransformation}
           />
         )}
+
+        {plugin === 'kube_deployment' && (
+          <KubeDeploymentTransformation
+            connectionId={connectionId}
+            transformation={transformation}
+            setTransformation={setTransformation} />
+        )}
+
 
         {hasRefDiff && (
           <>

@@ -40,6 +40,7 @@ import { TAPDConfig } from './register/tapd';
 import { WebhookConfig } from './register/webook';
 import { ZenTaoConfig } from './register/zentao';
 import { TeambitionConfig } from './register/teambition';
+import { KubeDeploymentConfig } from './register/myplug';
 import { BasePipelineConfig } from '@/plugins/register/base';
 
 export const PluginConfig: PluginConfigType[] = [
@@ -66,6 +67,7 @@ export const PluginConfig: PluginConfigType[] = [
   TeambitionConfig,
   ZenTaoConfig,
   WebhookConfig,
+  KubeDeploymentConfig,
 ].sort((a, b) => a.sort - b.sort);
 
 // get plugin config by plugin name

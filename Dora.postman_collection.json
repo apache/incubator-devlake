@@ -1,0 +1,132 @@
+{
+	"info": {
+		"_postman_id": "11d6ceff-e6a5-43ad-8b56-fa713b7e8d9c",
+		"name": "Dora",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "21650771"
+	},
+	"item": [
+		{
+			"name": "Get all connections",
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"authMethod\": \"BasicAuth\",\n    \"createdAt\": \"string\",\n    \"endpoint\": \"string\",\n    \"id\": 0,\n    \"name\": \"string\",\n    \"password\": \"string\",\n    \"proxy\": \"string\",\n    \"rateLimitPerHour\": 0,\n    \"token\": \"string\",\n    \"updatedAt\": \"string\",\n    \"username\": \"string\"\n}"
+				},
+				"url": {
+					"raw": "http://localhost:8080/plugins/myplug/connections",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8080",
+					"path": [
+						"plugins",
+						"myplug",
+						"connections"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Create connection for plugin",
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"authMethod\": \"BasicAuth\",\n    \"createdAt\": \"\",\n    \"endpoint\": \"http://52.149.239.40:5000/\",\n    \"id\": 1,\n    \"name\": \"testing api\",\n    \"password\": \"\",\n    \"proxy\": \"\",\n    \"rateLimitPerHour\": 0,\n    \"token\": \"\",\n    \"updatedAt\": \"\",\n    \"username\": \"\"\n}"
+				},
+				"url": {
+					"raw": "http://localhost:8080/plugins/kube_deployment/connections",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8080",
+					"path": [
+						"plugins",
+						"kube_deployment",
+						"connections"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Test Plugin Connection",
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"endpoint\": \"http://localhost:8081/\",\n    \"username\": \"aaaaa\",\n    \"password\": \"aaaaaa\",\n    \"authMethod\": \"BasicAuth\"\n}"
+				},
+				"url": {
+					"raw": "http://localhost:8080/plugins/kube_deployment/test",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8080",
+					"path": [
+						"plugins",
+						"kube_deployment",
+						"test"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Trigger Collector and Extractor",
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"name\": \"extract and collect\",\n    \"plan\": [\n        [\n            {\n                \"plugin\": \"kube_deployment\",\n                \"options\": {\n                    \"connectionId\": 1\n                }\n            }\n        ]\n    ]\n}"
+				},
+				"url": {
+					"raw": "http://localhost:8080/pipelines",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8080",
+					"path": [
+						"pipelines"
+					]
+				}
+			},
+			"response": []
+		}
+	]
+}
