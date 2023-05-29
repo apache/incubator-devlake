@@ -21,9 +21,8 @@ import { useParams, useHistory } from 'react-router-dom';
 import { Button, Icon, Intent } from '@blueprintjs/core';
 
 import { PageHeader, Dialog, IconButton, Table } from '@/components';
-import { transformEntities } from '@/config';
 import { useTips, useConnections, useRefreshData } from '@/hooks';
-import { ConnectionForm, ConnectionStatus, DataScopeForm2 } from '@/plugins';
+import { ConnectionForm, ConnectionStatus, DataScopeSelectRemote, getPluginId } from '@/plugins';
 import { operator } from '@/utils';
 
 import * as API from './api';
@@ -35,16 +34,19 @@ interface Props {
 }
 
 const ConnectionDetail = ({ plugin, id }: Props) => {
-  const [type, setType] = useState<'deleteConnection' | 'updateConnection' | 'createDataScope'>();
+  const [type, setType] = useState<
+    'deleteConnection' | 'updateConnection' | 'createDataScope' | 'clearDataScope' | 'deleteDataScope'
+  >();
   const [operating, setOperating] = useState(false);
   const [version, setVersion] = useState(1);
+  const [scopeId, setScopeId] = useState<ID>();
 
   const history = useHistory();
   const { onGet, onTest, onRefresh } = useConnections();
   const { setTips } = useTips();
   const { ready, data } = useRefreshData(() => API.getDataScope(plugin, id), [version]);
 
-  const { unique, status, name, icon, entities } = onGet(`${plugin}-${id}`);
+  const { unique, status, name, icon } = onGet(`${plugin}-${id}`);
 
   const handleHideDialog = () => {
     setType(undefined);
@@ -96,6 +98,31 @@ const ConnectionDetail = ({ plugin, id }: Props) => {
     handleHideDialog();
   };
 
+  const handleShowClearDataScopeDialog = (scopeId: ID) => {
+    setType('clearDataScope');
+    setScopeId(scopeId);
+  };
+
+  const handleShowDeleteDataScopeDialog = (scopeId: ID) => {
+    setType('deleteDataScope');
+    setScopeId(scopeId);
+  };
+
+  const handleDeleteDataScope = async (onlyData: boolean) => {
+    if (!scopeId) return;
+
+    const [success] = await operator(() => API.deleteDataScope(plugin, id, scopeId, onlyData), {
+      setOperating,
+      formatMessage: () => (onlyData ? 'Clear historical data successful.' : 'Delete Data Scope successful.'),
+    });
+
+    if (success) {
+      setVersion((v) => v + 1);
+      handleShowTips();
+      handleHideDialog();
+    }
+  };
+
   return (
     <PageHeader
       breadcrumbs={[
@@ -105,25 +132,10 @@ const ConnectionDetail = ({ plugin, id }: Props) => {
       extra={<Button intent={Intent.DANGER} icon="trash" text="Delete Connection" onClick={handleShowDeleteDialog} />}
     >
       <S.Wrapper>
-        <div className="top">
-          <div className="entities">
-            <h3>Data Entities</h3>
-            <span>
-              {transformEntities(entities)
-                .map((it) => it.label)
-                .join(',')}
-            </span>
-          </div>
-          <div className="authentication">
-            <h3>
-              <span>Authentication</span>
-              <IconButton icon="annotation" tooltip="Edit Connection" onClick={handleShowUpdateDialog} />
-            </h3>
-            <span>Status: </span>
-            <span>
-              Status: <ConnectionStatus status={status} unique={unique} onTest={onTest} />
-            </span>
-          </div>
+        <div className="authentication">
+          <span style={{ marginRight: 4 }}>Authentication Status:</span>
+          <ConnectionStatus status={status} unique={unique} onTest={onTest} />
+          <IconButton icon="annotation" tooltip="Edit Connection" onClick={handleShowUpdateDialog} />
         </div>
         <div className="action">
           <Button intent={Intent.PRIMARY} icon="add" text="Add Data Scope" onClick={handleShowCreateDataScopeDialog} />
@@ -135,6 +147,26 @@ const ConnectionDetail = ({ plugin, id }: Props) => {
               title: 'Data Scope',
               dataIndex: 'name',
               key: 'name',
+            },
+            {
+              title: '',
+              dataIndex: getPluginId(plugin),
+              key: 'id',
+              width: 100,
+              render: (id) => (
+                <>
+                  <IconButton
+                    icon="unarchive"
+                    tooltip="Clear historical data"
+                    onClick={() => handleShowClearDataScopeDialog(id)}
+                  />
+                  <IconButton
+                    icon="trash"
+                    tooltip="Delete Data Scope"
+                    onClick={() => handleShowDeleteDataScopeDialog(id)}
+                  />
+                </>
+              ),
             },
           ]}
           dataSource={data}
@@ -148,6 +180,7 @@ const ConnectionDetail = ({ plugin, id }: Props) => {
       {type === 'deleteConnection' && (
         <Dialog
           isOpen
+          style={{ width: 820 }}
           title="Would you like to delete this Data Connection?"
           okText="Confirm"
           okLoading={operating}
@@ -192,13 +225,48 @@ const ConnectionDetail = ({ plugin, id }: Props) => {
           }
           onCancel={handleHideDialog}
         >
-          <DataScopeForm2
+          <DataScopeSelectRemote
             plugin={plugin}
             connectionId={id}
             disabledScope={data}
             onCancel={handleHideDialog}
             onSubmit={handleCreateDataScope}
           />
+        </Dialog>
+      )}
+      {type === 'clearDataScope' && (
+        <Dialog
+          isOpen
+          style={{ width: 820 }}
+          title="Would you like to clear the historical data of the selected Data Scope?"
+          okText="Confirm"
+          okLoading={operating}
+          onCancel={handleHideDialog}
+          onOk={() => handleDeleteDataScope(true)}
+        >
+          <S.DialogBody>
+            <Icon icon="warning-sign" />
+            <span>This operation cannot be undone.</span>
+          </S.DialogBody>
+        </Dialog>
+      )}
+      {type === 'deleteDataScope' && (
+        <Dialog
+          isOpen
+          style={{ width: 820 }}
+          title="Would you like to delete the selected Data Scope?"
+          okText="Confirm"
+          okLoading={operating}
+          onCancel={handleHideDialog}
+          onOk={() => handleDeleteDataScope(false)}
+        >
+          <S.DialogBody>
+            <Icon icon="warning-sign" />
+            <span>
+              This operation cannot be undone. Deleting Data Scope will delete all data that have been collected in the
+              past.
+            </span>
+          </S.DialogBody>
         </Dialog>
       )}
     </PageHeader>

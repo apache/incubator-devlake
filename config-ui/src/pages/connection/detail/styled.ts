@@ -19,18 +19,13 @@
 import styled from 'styled-components';
 
 export const Wrapper = styled.div`
-  .top {
-    display: flex;
-    justify-content: space-between;
-
-    h3 {
-      margin-bottom: 16px;
-    }
-  }
-
   .authentication {
-    h3 {
-      span 
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+
+    & > .bp4-popover2-target {
+      margin-left: 8px;
     }
   }
 
