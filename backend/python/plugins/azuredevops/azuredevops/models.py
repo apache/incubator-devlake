@@ -38,7 +38,7 @@ class AzureDevOpsTransformationRule(TransformationRule):
 
 class GitRepository(ToolScope, table=True):
     url: str
-    remoteUrl: str
+    remote_url: str
     default_branch: Optional[str]
     project_id: str
     org_id: str
