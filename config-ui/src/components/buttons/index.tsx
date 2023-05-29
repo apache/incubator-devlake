@@ -18,11 +18,24 @@
 
 import styled from 'styled-components';
 
-const Wrapper = styled.div`
+const Wrapper = styled.div<{ align: 'left' | 'right' | 'center' }>`
   display: flex;
   align-items: center;
-  justify-content: end;
   margin-top: 24px;
+
+  ${({ align }) => {
+    if (align === 'left') {
+      return 'justify-content: flex-start;';
+    }
+
+    if (align === 'right') {
+      return 'justify-content: flex-end;';
+    }
+
+    if (align === 'center') {
+      return 'justify-content: space-around;';
+    }
+  }}
 
   .bp4-button + .bp4-button {
     margin-left: 8px;
@@ -30,9 +43,10 @@ const Wrapper = styled.div`
 `;
 
 interface Props {
+  align?: 'left' | 'right' | 'center';
   children: React.ReactNode;
 }
 
-export const Buttons = ({ children }: Props) => {
-  return <Wrapper>{children}</Wrapper>;
+export const Buttons = ({ align = 'right', children }: Props) => {
+  return <Wrapper align={align}>{children}</Wrapper>;
 };
