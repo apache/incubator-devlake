@@ -17,10 +17,11 @@
  */
 
 import { useState } from 'react';
+import { useHistory } from 'react-router-dom';
 import type { TabId } from '@blueprintjs/core';
-import { Tabs, Tab, Switch } from '@blueprintjs/core';
+import { Tabs, Tab, Switch, Button, Icon, Intent } from '@blueprintjs/core';
 
-import { PageLoading } from '@/components';
+import { PageLoading, Dialog } from '@/components';
 import { useRefreshData } from '@/hooks';
 import { operator } from '@/utils';
 
@@ -37,6 +38,9 @@ export const BlueprintDetail = ({ id }: Props) => {
   const [activeTab, setActiveTab] = useState<TabId>('configuration');
   const [version, setVersion] = useState(1);
   const [operating, setOperating] = useState(false);
+  const [isOpen, setIsOpen] = useState(false);
+
+  const history = useHistory();
 
   const { ready, data } = useRefreshData(
     async () => Promise.all([API.getBlueprint(id), API.getBlueprintPipelines(id)]),
@@ -77,6 +81,25 @@ export const BlueprintDetail = ({ id }: Props) => {
     }
   };
 
+  const handleShowDeleteDialog = () => {
+    setIsOpen(true);
+  };
+
+  const handleHideDeleteDialog = () => {
+    setIsOpen(false);
+  };
+
+  const handleDelete = async () => {
+    const [success] = await operator(() => API.deleteBluprint(id), {
+      setOperating,
+      formatMessage: () => 'Delete blueprint successful.',
+    });
+
+    if (success) {
+      history.push('/blueprints');
+    }
+  };
+
   return (
     <S.Wrapper>
       <Tabs selectedTabId={activeTab} onChange={(at) => setActiveTab(at)}>
@@ -99,7 +122,26 @@ export const BlueprintDetail = ({ id }: Props) => {
           checked={blueprint.enable}
           onChange={(e) => handleUpdate({ enable: (e.target as HTMLInputElement).checked })}
         />
+        <Button intent={Intent.DANGER} text="Delete Blueprint" onClick={handleShowDeleteDialog} />
       </Tabs>
+      <Dialog
+        isOpen={isOpen}
+        style={{ width: 820 }}
+        title="Are you sure you want to delete this Blueprint?"
+        okText="Confirm"
+        okLoading={operating}
+        onCancel={handleHideDeleteDialog}
+        onOk={handleDelete}
+      >
+        <S.DialogBody>
+          <Icon icon="warning-sign" />
+          <span>
+            Please note: deleting the Blueprint will not delete the historical data of the Data Scopes in this
+            Blueprint. If you would like to delete the historical data of Data Scopes, please visit the Connection page
+            and do so.
+          </span>
+        </S.DialogBody>
+      </Dialog>
     </S.Wrapper>
   );
 };
