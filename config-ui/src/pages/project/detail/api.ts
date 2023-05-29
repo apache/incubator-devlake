@@ -30,3 +30,8 @@ export const updateProject = (name: string, payload: Omit<ProjectType, 'blueprin
 
 export const updateBlueprint = (id: ID, payload: BlueprintType) =>
   request(`/blueprints/${id}`, { method: 'patch', data: payload });
+
+export const deleteProject = (name: string) =>
+  request(`/projects/${name}`, {
+    method: 'delete',
+  });
