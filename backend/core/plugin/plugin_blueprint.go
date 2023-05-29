@@ -38,6 +38,19 @@ type PipelineStage []*PipelineTask
 // PipelinePlan consist of multiple PipelineStages, they will be executed in sequential order
 type PipelinePlan []PipelineStage
 
+// IsEmpty checks if a PipelinePlan is empty
+func (plan PipelinePlan) IsEmpty() bool {
+	if len(plan) == 0 {
+		return true
+	}
+	for _, stage := range plan {
+		if len(stage) > 0 {
+			return false
+		}
+	}
+	return true
+}
+
 // PluginBlueprintV100 is used to support Blueprint Normal model, for Plugin and Blueprint to
 // collaboarte and generate a sophisticated Pipeline Plan based on User Settings.
 // V100 doesn't support Project, and being deprecated, please use PluginBlueprintV200 instead

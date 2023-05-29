@@ -34,6 +34,7 @@ import (
 
 var (
 	blueprintLog = logruslog.Global.Nested("blueprint")
+	ErrEmptyPlan = errors.Default.New("empty plan")
 )
 
 // BlueprintQuery is a query for GetBlueprints
@@ -51,6 +52,10 @@ type BlueprintJob struct {
 func (bj BlueprintJob) Run() {
 	blueprint := bj.Blueprint
 	pipeline, err := createPipelineByBlueprint(blueprint)
+	if err == ErrEmptyPlan {
+		blueprintLog.Info("Empty plan, blueprint id:[%d] blueprint name:[%s]", blueprint.ID, blueprint.Name)
+		return
+	}
 	if err != nil {
 		blueprintLog.Error(err, fmt.Sprintf("run cron job failed on blueprint:[%d][%s]", blueprint.ID, blueprint.Name))
 	} else {
@@ -160,10 +165,6 @@ func validateBlueprintAndMakePlan(blueprint *models.Blueprint) errors.Error {
 		err = errors.Convert(json.Unmarshal(blueprint.Plan, &plan))
 		if err != nil {
 			return errors.Default.Wrap(err, "invalid plan")
-		}
-		// tasks should not be empty
-		if len(plan) == 0 || len(plan[0]) == 0 {
-			return errors.Default.New("empty plan")
 		}
 	} else if blueprint.Mode == models.BLUEPRINT_MODE_NORMAL {
 		plan, err := MakePlanForBlueprint(blueprint)
@@ -293,6 +294,23 @@ func createPipelineByBlueprint(blueprint *models.Blueprint) (*models.Pipeline, e
 	newPipeline.BlueprintId = blueprint.ID
 	newPipeline.Labels = blueprint.Labels
 	newPipeline.SkipOnFail = blueprint.SkipOnFail
+
+	// if the plan is empty, we should not create the pipeline
+	var shouldCreatePipeline bool
+	for _, stage := range plan {
+		for _, task := range stage {
+			switch task.Plugin {
+			case "org", "refdiff", "dora":
+			default:
+				if !plan.IsEmpty() {
+					shouldCreatePipeline = true
+				}
+			}
+		}
+	}
+	if !shouldCreatePipeline {
+		return nil, ErrEmptyPlan
+	}
 	pipeline, err := CreatePipeline(&newPipeline)
 	// Return all created tasks to the User
 	if err != nil {
