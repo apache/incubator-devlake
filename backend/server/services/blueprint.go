@@ -34,6 +34,7 @@ import (
 
 var (
 	blueprintLog = logruslog.Global.Nested("blueprint")
+	ErrEmptyPlan = errors.Default.New("empty plan")
 )
 
 // BlueprintQuery is a query for GetBlueprints
@@ -51,6 +52,10 @@ type BlueprintJob struct {
 func (bj BlueprintJob) Run() {
 	blueprint := bj.Blueprint
 	pipeline, err := createPipelineByBlueprint(blueprint)
+	if err == ErrEmptyPlan {
+		blueprintLog.Info("Empty plan, blueprint id:[%d] blueprint name:[%s]", blueprint.ID, blueprint.Name)
+		return
+	}
 	if err != nil {
 		blueprintLog.Error(err, fmt.Sprintf("run cron job failed on blueprint:[%d][%s]", blueprint.ID, blueprint.Name))
 	} else {
@@ -293,6 +298,20 @@ func createPipelineByBlueprint(blueprint *models.Blueprint) (*models.Pipeline, e
 	newPipeline.BlueprintId = blueprint.ID
 	newPipeline.Labels = blueprint.Labels
 	newPipeline.SkipOnFail = blueprint.SkipOnFail
+
+	var shouldCreatePipeline bool
+	for _, stage := range plan {
+		for _, task := range stage {
+			switch task.Plugin {
+			case "org", "refdiff", "dora":
+			default:
+				shouldCreatePipeline = true
+			}
+		}
+	}
+	if !shouldCreatePipeline {
+		return nil, ErrEmptyPlan
+	}
 	pipeline, err := CreatePipeline(&newPipeline)
 	// Return all created tasks to the User
 	if err != nil {
