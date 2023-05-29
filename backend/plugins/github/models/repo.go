@@ -18,29 +18,30 @@ limitations under the License.
 package models
 
 import (
-	"github.com/apache/incubator-devlake/core/models/common"
-	"github.com/apache/incubator-devlake/core/plugin"
 	"strconv"
 	"time"
+
+	"github.com/apache/incubator-devlake/core/models/common"
+	"github.com/apache/incubator-devlake/core/plugin"
 )
 
 var _ plugin.ToolLayerScope = (*GithubRepo)(nil)
 
 type GithubRepo struct {
-	ConnectionId         uint64     `json:"connectionId" gorm:"primaryKey" validate:"required" mapstructure:"connectionId,omitempty"`
-	GithubId             int        `json:"githubId" gorm:"primaryKey" validate:"required" mapstructure:"githubId"`
-	Name                 string     `json:"name" gorm:"type:varchar(255)" mapstructure:"name,omitempty"`
-	HTMLUrl              string     `json:"HTMLUrl" gorm:"type:varchar(255)" mapstructure:"HTMLUrl,omitempty"`
-	Description          string     `json:"description" mapstructure:"description,omitempty"`
-	TransformationRuleId uint64     `json:"transformationRuleId,omitempty" mapstructure:"transformationRuleId,omitempty"`
-	OwnerId              int        `json:"ownerId" mapstructure:"ownerId,omitempty"`
-	Language             string     `json:"language" gorm:"type:varchar(255)" mapstructure:"language,omitempty"`
-	ParentGithubId       int        `json:"parentId" mapstructure:"parentGithubId,omitempty"`
-	ParentHTMLUrl        string     `json:"parentHtmlUrl" mapstructure:"parentHtmlUrl,omitempty"`
-	CloneUrl             string     `json:"cloneUrl" gorm:"type:varchar(255)" mapstructure:"cloneUrl,omitempty"`
-	CreatedDate          *time.Time `json:"createdDate" mapstructure:"-"`
-	UpdatedDate          *time.Time `json:"updatedDate" mapstructure:"-"`
-	common.NoPKModel     `json:"-" mapstructure:"-"`
+	ConnectionId     uint64     `json:"connectionId" gorm:"primaryKey" validate:"required" mapstructure:"connectionId,omitempty"`
+	GithubId         int        `json:"githubId" gorm:"primaryKey" validate:"required" mapstructure:"githubId"`
+	Name             string     `json:"name" gorm:"type:varchar(255)" mapstructure:"name,omitempty"`
+	HTMLUrl          string     `json:"HTMLUrl" gorm:"type:varchar(255)" mapstructure:"HTMLUrl,omitempty"`
+	Description      string     `json:"description" mapstructure:"description,omitempty"`
+	ScopeConfigId    uint64     `json:"scopeConfigId,omitempty" mapstructure:"scopeConfigId,omitempty"`
+	OwnerId          int        `json:"ownerId" mapstructure:"ownerId,omitempty"`
+	Language         string     `json:"language" gorm:"type:varchar(255)" mapstructure:"language,omitempty"`
+	ParentGithubId   int        `json:"parentId" mapstructure:"parentGithubId,omitempty"`
+	ParentHTMLUrl    string     `json:"parentHtmlUrl" mapstructure:"parentHtmlUrl,omitempty"`
+	CloneUrl         string     `json:"cloneUrl" gorm:"type:varchar(255)" mapstructure:"cloneUrl,omitempty"`
+	CreatedDate      *time.Time `json:"createdDate" mapstructure:"-"`
+	UpdatedDate      *time.Time `json:"updatedDate" mapstructure:"-"`
+	common.NoPKModel `json:"-" mapstructure:"-"`
 }
 
 func (r GithubRepo) ScopeId() string {

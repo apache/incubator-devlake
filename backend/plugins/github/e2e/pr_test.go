@@ -36,7 +36,7 @@ func TestPrDataFlow(t *testing.T) {
 			ConnectionId: 1,
 			Name:         "panjf2000/ants",
 			GithubId:     134018330,
-			GithubTransformationRule: &models.GithubTransformationRule{
+			GithubScopeConfig: &models.GithubScopeConfig{
 				PrType:             "type/(.*)$",
 				PrComponent:        "component/(.*)$",
 				PrBodyClosePattern: "(?mi)(fix|close|resolve|fixes|closes|resolves|fixed|closed|resolved)[\\s]*.*(((and )?(#|https:\\/\\/github.com\\/%s\\/issues\\/)\\d+[ ]*)+)",

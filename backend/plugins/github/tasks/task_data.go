@@ -29,15 +29,14 @@ import (
 )
 
 type GithubOptions struct {
-	ConnectionId                     uint64   `json:"connectionId" mapstructure:"connectionId,omitempty"`
-	TransformationRuleId             uint64   `json:"transformationRuleId" mapstructure:"transformationRuleId,omitempty"`
-	GithubId                         int      `json:"githubId" mapstructure:"githubId,omitempty"`
-	Tasks                            []string `json:"tasks,omitempty" mapstructure:",omitempty"`
-	TimeAfter                        string   `json:"timeAfter" mapstructure:"timeAfter,omitempty"`
-	Owner                            string   `json:"owner" mapstructure:"owner,omitempty"`
-	Repo                             string   `json:"repo"  mapstructure:"repo,omitempty"`
-	Name                             string   `json:"name"  mapstructure:"name,omitempty"`
-	*models.GithubTransformationRule `mapstructure:"transformationRules,omitempty" json:"transformationRules"`
+	ConnectionId              uint64 `json:"connectionId" mapstructure:"connectionId,omitempty"`
+	ScopeConfigId             uint64 `json:"scopeConfigId" mapstructure:"scopeConfigId,omitempty"`
+	GithubId                  int    `json:"githubId" mapstructure:"githubId,omitempty"`
+	TimeAfter                 string `json:"timeAfter" mapstructure:"timeAfter,omitempty"`
+	Owner                     string `json:"owner" mapstructure:"owner,omitempty"`
+	Repo                      string `json:"repo"  mapstructure:"repo,omitempty"`
+	Name                      string `json:"name"  mapstructure:"name,omitempty"`
+	*models.GithubScopeConfig `mapstructure:"scopeConfigs,omitempty" json:"scopeConfig"`
 }
 
 type GithubTaskData struct {

@@ -26,7 +26,7 @@ import (
 
 type ScopeRes struct {
 	models.GithubRepo
-	TransformationRuleName string `json:"transformationRuleName,omitempty"`
+	ScopeConfigName string `json:"scopeConfigName,omitempty"`
 }
 
 type ScopeReq api.ScopeReq[models.GithubRepo]

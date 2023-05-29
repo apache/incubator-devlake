@@ -131,7 +131,7 @@ var _ plugin.SubTaskEntryPoint = CollectPr
 
 func CollectPr(taskCtx plugin.SubTaskContext) errors.Error {
 	data := taskCtx.GetData().(*tasks.GithubTaskData)
-	config := data.Options.GithubTransformationRule
+	config := data.Options.GithubScopeConfig
 	var labelTypeRegex *regexp.Regexp
 	var labelComponentRegex *regexp.Regexp
 	var err errors.Error

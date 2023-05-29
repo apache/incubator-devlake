@@ -23,6 +23,7 @@ import (
 
 // All return all the migration scripts
 func All() []plugin.MigrationScript {
+	println("github register.go")
 	return []plugin.MigrationScript{
 		new(addInitTables),
 		new(addGithubRunsTable),
@@ -39,5 +40,6 @@ func All() []plugin.MigrationScript {
 		new(addGithubCommitAuthorInfo),
 		new(fixRunNameToText),
 		new(addGithubMultiAuth),
+		new(renameTr2ScopeConfig),
 	}
 }

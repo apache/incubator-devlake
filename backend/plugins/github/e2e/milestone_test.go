@@ -18,12 +18,13 @@ limitations under the License.
 package e2e
 
 import (
+	"testing"
+
 	"github.com/apache/incubator-devlake/core/models/domainlayer/ticket"
 	"github.com/apache/incubator-devlake/helpers/e2ehelper"
 	"github.com/apache/incubator-devlake/plugins/github/impl"
 	"github.com/apache/incubator-devlake/plugins/github/models"
 	"github.com/apache/incubator-devlake/plugins/github/tasks"
-	"testing"
 )
 
 func TestMilestoneDataFlow(t *testing.T) {
@@ -35,7 +36,7 @@ func TestMilestoneDataFlow(t *testing.T) {
 			ConnectionId: 1,
 			Name:         "panjf2000/ants",
 			GithubId:     134018330,
-			GithubTransformationRule: &models.GithubTransformationRule{
+			GithubScopeConfig: &models.GithubScopeConfig{
 				PrType:               "type/(.*)$",
 				PrComponent:          "component/(.*)$",
 				PrBodyClosePattern:   "(?mi)(fix|close|resolve|fixes|closes|resolves|fixed|closed|resolved)[\\s]*.*(((and )?(#|https:\\/\\/github.com\\/%s\\/issues\\/)\\d+[ ]*)+)",
