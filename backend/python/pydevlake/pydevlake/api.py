@@ -326,7 +326,7 @@ class API(APIBase):
 
     @response_hook
     def handle_error(self, response):
-        if response.status != HTTPStatus.OK:
+        if response.status >= 400:
             raise APIException(response)
 
     @response_hook
