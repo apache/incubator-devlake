@@ -18,14 +18,15 @@ limitations under the License.
 package models
 
 import (
+	"time"
+
 	"github.com/apache/incubator-devlake/core/models/common"
 	helper "github.com/apache/incubator-devlake/helpers/pluginhelper/api"
-	"time"
 )
 
 type TapdStoryCommit struct {
 	ConnectionId uint64 `gorm:"primaryKey"`
-	Id           uint64 `gorm:"primaryKey;type:BIGINT" json:"id,string"`
+	Id           uint64 `gorm:"primaryKey;type:BIGINT NOT NULL;autoIncrement:false" json:"id,string"`
 
 	UserId          string          `json:"user_id" gorm:"type:varchar(255)"`
 	HookUserName    string          `json:"hook_user_name" gorm:"type:varchar(255)"`

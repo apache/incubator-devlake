@@ -93,7 +93,7 @@ type ZentaoBugRes struct {
 type ZentaoBug struct {
 	common.NoPKModel
 	ConnectionId   uint64              `gorm:"primaryKey;type:BIGINT  NOT NULL"`
-	ID             int64               `json:"id" gorm:"primaryKey;type:BIGINT  NOT NULL"`
+	ID             int64               `json:"id" gorm:"primaryKey;type:BIGINT  NOT NULL;autoIncrement:false"`
 	Project        int64               `json:"project"`
 	Product        int64               `json:"product"`
 	Injection      int                 `json:"injection"`

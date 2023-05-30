@@ -20,7 +20,6 @@ package e2ehelper
 import (
 	"context"
 	"database/sql"
-	"encoding/json"
 	"fmt"
 	"os"
 	"strconv"
@@ -134,7 +133,7 @@ func (t *DataFlowTester) ImportCsvIntoRawTable(csvRelPath string, rawTableName s
 	// load rows and insert into target table
 	for csvIter.HasNext() {
 		toInsertValues := csvIter.Fetch()
-		toInsertValues[`data`] = json.RawMessage(toInsertValues[`data`].(string))
+		toInsertValues[`data`] = []byte(toInsertValues[`data`].(string))
 		result := t.Db.Table(rawTableName).Create(toInsertValues)
 		if result.Error != nil {
 			panic(result.Error)
