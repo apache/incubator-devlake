@@ -112,8 +112,6 @@ export const ConnectionContextProvider = ({ children, ...props }: Props) => {
     }));
   };
 
-
-
   const handleGet = (unique: string) => {
     return connections.find((cs) => cs.unique === unique) as ConnectionItemType;
   };
