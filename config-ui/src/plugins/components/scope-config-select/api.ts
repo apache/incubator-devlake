@@ -16,12 +16,22 @@
  *
  */
 
-export * from './connection-form';
-export * from './connection-list';
-export * from './connection-status';
-export * from './data-scope-miller-columns';
-export * from './data-scope-search';
-export * from './data-scope-select';
-export * from './data-scope-select-remote';
-export * from './scope-config-form';
-export * from './scope-config-select';
+import { request } from '@/utils';
+
+export const getScopeConfigs = (plugin: string, connectionId: ID) =>
+  request(`/plugins/${plugin}/connections/${connectionId}/scope_configs`);
+
+export const getScopeConfig = (plugin: string, connectionId: ID, id: ID) =>
+  request(`/plugins/${plugin}/connections/${connectionId}/scope_configs/${id}`);
+
+export const createScopeConfig = (plugin: string, connectionId: ID, payload: any) =>
+  request(`/plugins/${plugin}/connections/${connectionId}/scope_configs`, {
+    method: 'post',
+    data: payload,
+  });
+
+export const updateScopeConfig = (plugin: string, connectionId: ID, id: ID, payload: any) =>
+  request(`/plugins/${plugin}/connections/${connectionId}/scope_configs/${id}`, {
+    method: 'patch',
+    data: payload,
+  });

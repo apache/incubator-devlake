@@ -16,12 +16,4 @@
  *
  */
 
-export * from './connection-form';
-export * from './connection-list';
-export * from './connection-status';
-export * from './data-scope-miller-columns';
-export * from './data-scope-search';
-export * from './data-scope-select';
-export * from './data-scope-select-remote';
-export * from './scope-config-form';
-export * from './scope-config-select';
+export * from './additional-settings';
