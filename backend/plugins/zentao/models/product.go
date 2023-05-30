@@ -115,7 +115,7 @@ func (res ZentaoProductRes) ConvertApiScope() plugin.ToolLayerScope {
 type ZentaoProduct struct {
 	common.NoPKModel `json:"-"`
 	ConnectionId     uint64 `json:"connectionId" mapstructure:"connectionId" gorm:"primaryKey;type:BIGINT  NOT NULL"`
-	Id               int64  `json:"id" mapstructure:"id" gorm:"primaryKey;type:BIGINT  NOT NULL"`
+	Id               int64  `json:"id" mapstructure:"id" gorm:"primaryKey;type:BIGINT  NOT NULL;autoIncrement:false"`
 	Program          int    `json:"program" mapstructure:"program"`
 	Name             string `json:"name" mapstructure:"name"`
 	Code             string `json:"code" mapstructure:"code"`

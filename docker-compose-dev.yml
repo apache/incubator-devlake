@@ -33,17 +33,17 @@ services:
       --skip-log-bin
 
 
-  # postgres:
-  #   image: postgres:14.2
-  #   volumes:
-  #     - postgres-storage:/var/lib/postgresql
-  #   restart: always
-  #   ports:
-  #     - 127.0.0.1:5432:5432
-  #   environment:
-  #     POSTGRES_DB: lake
-  #     POSTGRES_USER: merico
-  #     POSTGRES_PASSWORD: merico
+  postgres:
+    image: postgres:14.2
+    volumes:
+      - postgres-storage:/var/lib/postgresql
+    restart: always
+    ports:
+      - 127.0.0.1:5432:5432
+    environment:
+      POSTGRES_DB: lake
+      POSTGRES_USER: merico
+      POSTGRES_PASSWORD: merico
 
   grafana:
     image: mericodev/devlake-dashboard:latest

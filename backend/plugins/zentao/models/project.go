@@ -28,7 +28,7 @@ import (
 type ZentaoProject struct {
 	common.NoPKModel `json:"-"`
 	ConnectionId     uint64              `json:"connectionid" mapstructure:"connectionid" gorm:"primaryKey;type:BIGINT  NOT NULL"`
-	Id               int64               `json:"id" mapstructure:"id" gorm:"primaryKey;type:BIGINT  NOT NULL"`
+	Id               int64               `json:"id" mapstructure:"id" gorm:"primaryKey;type:BIGINT  NOT NULL;autoIncrement:false"`
 	Project          int64               `json:"project" mapstructure:"project"`
 	Model            string              `json:"model" mapstructure:"model"`
 	Type             string              `json:"type" mapstructure:"type"`

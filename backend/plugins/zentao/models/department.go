@@ -23,7 +23,7 @@ import (
 
 type ZentaoDepartment struct {
 	ConnectionId uint64 `gorm:"primaryKey;type:BIGINT  NOT NULL"`
-	ID           int64  `json:"id" gorm:"primaryKey;type:BIGINT  NOT NULL" `
+	ID           int64  `json:"id" gorm:"primaryKey;type:BIGINT  NOT NULL;autoIncrement:false" `
 	Name         string `json:"name" gorm:"type:varchar(100);index"`
 	Parent       int64  `json:"parent" gorm:"type:BIGINT  NOT NULL"`
 	Path         string `json:"path" gorm:"type:varchar(100)"`
