@@ -20,11 +20,12 @@ package impl
 import (
 	"context"
 	"fmt"
-	"github.com/apache/incubator-devlake/core/models/domainlayer/devops"
 	"net/url"
 	"reflect"
 	"strings"
 	"time"
+
+	"github.com/apache/incubator-devlake/core/models/domainlayer/devops"
 
 	"github.com/apache/incubator-devlake/core/dal"
 	"github.com/apache/incubator-devlake/core/errors"
@@ -57,8 +58,8 @@ func (p GithubGraphql) Scope() interface{} {
 	return &models.GithubRepo{}
 }
 
-func (p GithubGraphql) TransformationRule() interface{} {
-	return &models.GithubTransformationRule{}
+func (p GithubGraphql) ScopeConfig() interface{} {
+	return &models.GithubScopeConfig{}
 }
 
 func (p GithubGraphql) Description() string {

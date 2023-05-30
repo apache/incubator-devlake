@@ -22,62 +22,62 @@ import (
 	"github.com/apache/incubator-devlake/core/plugin"
 )
 
-// CreateTransformationRule create transformation rule for Github
-// @Summary create transformation rule for Github
-// @Description create transformation rule for Github
+// CreateScopeConfig create scope config for Github
+// @Summary create scope config for Github
+// @Description create scope config for Github
 // @Tags plugins/github
 // @Accept application/json
 // @Param connectionId path int true "connectionId"
-// @Param transformationRule body models.GithubTransformationRule true "transformation rule"
-// @Success 200  {object} models.GithubTransformationRule
+// @Param scopeConfig body models.GithubScopeConfig true "scope config"
+// @Success 200  {object} models.GithubScopeConfig
 // @Failure 400  {object} shared.ApiBody "Bad Request"
 // @Failure 500  {object} shared.ApiBody "Internal Error"
-// @Router /plugins/github/connections/{connectionId}/transformation_rules [POST]
-func CreateTransformationRule(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, errors.Error) {
-	return trHelper.Create(input)
+// @Router /plugins/github/connections/{connectionId}/scope_configs [POST]
+func CreateScopeConfig(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, errors.Error) {
+	return scHelper.Create(input)
 }
 
-// UpdateTransformationRule update transformation rule for Github
-// @Summary update transformation rule for Github
-// @Description update transformation rule for Github
+// UpdateScopeConfig update scope config for Github
+// @Summary update scope config for Github
+// @Description update scope config for Github
 // @Tags plugins/github
 // @Accept application/json
 // @Param id path int true "id"
 // @Param connectionId path int true "connectionId"
-// @Param transformationRule body models.GithubTransformationRule true "transformation rule"
-// @Success 200  {object} models.GithubTransformationRule
+// @Param scopeConfig body models.GithubScopeConfig true "scope config"
+// @Success 200  {object} models.GithubScopeConfig
 // @Failure 400  {object} shared.ApiBody "Bad Request"
 // @Failure 500  {object} shared.ApiBody "Internal Error"
-// @Router /plugins/github/connections/{connectionId}/transformation_rules/{id} [PATCH]
-func UpdateTransformationRule(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, errors.Error) {
-	return trHelper.Update(input)
+// @Router /plugins/github/connections/{connectionId}/scope_configs/{id} [PATCH]
+func UpdateScopeConfig(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, errors.Error) {
+	return scHelper.Update(input)
 }
 
-// GetTransformationRule return one transformation rule
-// @Summary return one transformation rule
-// @Description return one transformation rule
+// GetScopeConfig return one scope config
+// @Summary return one scope config
+// @Description return one scope config
 // @Tags plugins/github
 // @Param id path int true "id"
 // @Param connectionId path int true "connectionId"
-// @Success 200  {object} models.GithubTransformationRule
+// @Success 200  {object} models.GithubScopeConfig
 // @Failure 400  {object} shared.ApiBody "Bad Request"
 // @Failure 500  {object} shared.ApiBody "Internal Error"
-// @Router /plugins/github/connections/{connectionId}/transformation_rules/{id} [GET]
-func GetTransformationRule(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, errors.Error) {
-	return trHelper.Get(input)
+// @Router /plugins/github/connections/{connectionId}/scope_configs/{id} [GET]
+func GetScopeConfig(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, errors.Error) {
+	return scHelper.Get(input)
 }
 
-// GetTransformationRuleList return all transformation rules
-// @Summary return all transformation rules
-// @Description return all transformation rules
+// GetScopeConfigList return all scope configs
+// @Summary return all scope configs
+// @Description return all scope configs
 // @Tags plugins/github
 // @Param pageSize query int false "page size, default 50"
 // @Param page query int false "page size, default 1"
 // @Param connectionId path int true "connectionId"
-// @Success 200  {object} []models.GithubTransformationRule
+// @Success 200  {object} []models.GithubScopeConfig
 // @Failure 400  {object} shared.ApiBody "Bad Request"
 // @Failure 500  {object} shared.ApiBody "Internal Error"
-// @Router /plugins/github/connections/{connectionId}/transformation_rules [GET]
-func GetTransformationRuleList(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, errors.Error) {
-	return trHelper.List(input)
+// @Router /plugins/github/connections/{connectionId}/scope_configs [GET]
+func GetScopeConfigList(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, errors.Error) {
+	return scHelper.List(input)
 }

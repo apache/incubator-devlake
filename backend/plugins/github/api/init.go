@@ -18,20 +18,21 @@ limitations under the License.
 package api
 
 import (
+	"strconv"
+
 	"github.com/apache/incubator-devlake/core/context"
 	"github.com/apache/incubator-devlake/core/dal"
 	"github.com/apache/incubator-devlake/core/errors"
 	"github.com/apache/incubator-devlake/helpers/pluginhelper/api"
 	"github.com/apache/incubator-devlake/plugins/github/models"
 	"github.com/go-playground/validator/v10"
-	"strconv"
 )
 
 var vld *validator.Validate
 var connectionHelper *api.ConnectionApiHelper
-var scopeHelper *api.ScopeApiHelper[models.GithubConnection, models.GithubRepo, models.GithubTransformationRule]
+var scopeHelper *api.ScopeApiHelper[models.GithubConnection, models.GithubRepo, models.GithubScopeConfig]
 var basicRes context.BasicRes
-var trHelper *api.TransformationRuleHelper[models.GithubTransformationRule]
+var scHelper *api.ScopeConfigHelper[models.GithubScopeConfig]
 
 func Init(br context.BasicRes) {
 	basicRes = br
@@ -45,11 +46,11 @@ func Init(br context.BasicRes) {
 		ScopeIdColumnName: "github_id",
 		RawScopeParamName: "Name",
 	}
-	scopeHelper = api.NewScopeHelper[models.GithubConnection, models.GithubRepo, models.GithubTransformationRule](
+	scopeHelper = api.NewScopeHelper[models.GithubConnection, models.GithubRepo, models.GithubScopeConfig](
 		basicRes,
 		vld,
 		connectionHelper,
-		api.NewScopeDatabaseHelperImpl[models.GithubConnection, models.GithubRepo, models.GithubTransformationRule](
+		api.NewScopeDatabaseHelperImpl[models.GithubConnection, models.GithubRepo, models.GithubScopeConfig](
 			basicRes, connectionHelper, params),
 		params,
 		&api.ScopeHelperOptions{
@@ -69,7 +70,7 @@ func Init(br context.BasicRes) {
 			},
 		},
 	)
-	trHelper = api.NewTransformationRuleHelper[models.GithubTransformationRule](
+	scHelper = api.NewScopeConfigHelper[models.GithubScopeConfig](
 		basicRes,
 		vld,
 	)

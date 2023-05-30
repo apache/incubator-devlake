@@ -22,8 +22,8 @@ import (
 	"gorm.io/datatypes"
 )
 
-type GithubTransformationRule struct {
-	common.Model         `mapstructure:"-"`
+type GithubScopeConfig struct {
+	common.ScopeConfig   `mapstructure:",squash" json:",inline" gorm:"embedded"`
 	ConnectionId         uint64            `mapstructure:"connectionId" json:"connectionId"`
 	Name                 string            `mapstructure:"name" json:"name" gorm:"type:varchar(255);index:idx_name_github,unique" validate:"required"`
 	PrType               string            `mapstructure:"prType,omitempty" json:"prType" gorm:"type:varchar(255)"`
@@ -40,6 +40,6 @@ type GithubTransformationRule struct {
 	Refdiff              datatypes.JSONMap `mapstructure:"refdiff,omitempty" json:"refdiff" swaggertype:"object" format:"json"`
 }
 
-func (GithubTransformationRule) TableName() string {
-	return "_tool_github_transformation_rules"
+func (GithubScopeConfig) TableName() string {
+	return "_tool_github_scope_configs"
 }

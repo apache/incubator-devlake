@@ -62,8 +62,7 @@ func TestMakeDataSourcePipelinePlanV200(t *testing.T) {
 	// Refresh Global Variables and set the sql mock
 	basicRes = NewMockBasicRes()
 	bs := &plugin.BlueprintScopeV200{
-		Entities: []string{"CODE", "TICKET"},
-		Id:       "1",
+		Id: "1",
 	}
 	bpScopes := make([]*plugin.BlueprintScopeV200, 0)
 	bpScopes = append(bpScopes, bs)
@@ -135,18 +134,21 @@ func TestMakeDataSourcePipelinePlanV200(t *testing.T) {
 // NewMockBasicRes FIXME ...
 func NewMockBasicRes() *mockcontext.BasicRes {
 	testGithubRepo := &models.GithubRepo{
-		ConnectionId:         1,
-		GithubId:             12345,
-		Name:                 "test/testRepo",
-		CloneUrl:             "https://this_is_cloneUrl",
-		TransformationRuleId: 1,
+		ConnectionId:  1,
+		GithubId:      12345,
+		Name:          "test/testRepo",
+		CloneUrl:      "https://this_is_cloneUrl",
+		ScopeConfigId: 1,
 	}
 
-	testTransformationRule := &models.GithubTransformationRule{
-		Model: common.Model{
-			ID: 1,
+	testScopeConfig := &models.GithubScopeConfig{
+		ScopeConfig: common.ScopeConfig{
+			Model: common.Model{
+				ID: 1,
+			},
+			Entities: []string{"CODE", "TICKET"},
 		},
-		Name:   "github transformation rule",
+		Name:   "github scope config",
 		PrType: "hey,man,wasup",
 		Refdiff: map[string]interface{}{
 			"tagsPattern": "pattern",
@@ -157,15 +159,23 @@ func NewMockBasicRes() *mockcontext.BasicRes {
 	mockRes := new(mockcontext.BasicRes)
 	mockDal := new(mockdal.Dal)
 
-	mockDal.On("First", mock.Anything, mock.Anything).Run(func(args mock.Arguments) {
+	mockDal.On("First", mock.AnythingOfType("*models.GithubRepo"), mock.Anything).Run(func(args mock.Arguments) {
 		dst := args.Get(0).(*models.GithubRepo)
 		*dst = *testGithubRepo
-	}).Return(nil).Once()
+	}).Return(nil)
 
-	mockDal.On("First", mock.Anything, mock.Anything).Run(func(args mock.Arguments) {
-		dst := args.Get(0).(*models.GithubTransformationRule)
-		*dst = *testTransformationRule
-	}).Return(nil).Once()
+	mockDal.On("First", mock.AnythingOfType("*models.GithubScopeConfig"), mock.Anything).Run(func(args mock.Arguments) {
+		dst := args.Get(0).(*models.GithubScopeConfig)
+		*dst = *testScopeConfig
+	}).Return(nil)
+	// mockDal.On("First", mock.Anything, mock.Anything).Run(func(args mock.Arguments) {
+	// 	switch dst := args.Get(0).(type) {
+	// 	case *models.GithubRepo:
+	// 		*dst = *testGithubRepo
+	// 	case *models.GithubScopeConfig:
+	// 		*dst = *testScopeConfig
+	// 	}
+	// }).Return(nil)
 
 	mockRes.On("GetDal").Return(mockDal)
 	mockRes.On("GetConfig", mock.Anything).Return("")

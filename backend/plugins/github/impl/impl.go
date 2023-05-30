@@ -19,8 +19,9 @@ package impl
 
 import (
 	"fmt"
-	"github.com/apache/incubator-devlake/core/models/domainlayer/devops"
 	"time"
+
+	"github.com/apache/incubator-devlake/core/models/domainlayer/devops"
 
 	"github.com/apache/incubator-devlake/core/context"
 	"github.com/apache/incubator-devlake/core/dal"
@@ -38,7 +39,7 @@ var _ plugin.PluginInit = (*Github)(nil)
 var _ plugin.PluginTask = (*Github)(nil)
 var _ plugin.PluginApi = (*Github)(nil)
 var _ plugin.PluginModel = (*Github)(nil)
-var _ plugin.PluginBlueprintV100 = (*Github)(nil)
+var _ plugin.DataSourcePluginBlueprintV200 = (*Github)(nil)
 var _ plugin.CloseablePluginTask = (*Github)(nil)
 var _ plugin.PluginSource = (*Github)(nil)
 
@@ -52,8 +53,8 @@ func (p Github) Scope() interface{} {
 	return &models.GithubRepo{}
 }
 
-func (p Github) TransformationRule() interface{} {
-	return &models.GithubTransformationRule{}
+func (p Github) ScopeConfig() interface{} {
+	return &models.GithubScopeConfig{}
 }
 
 func (p Github) Init(basicRes context.BasicRes) errors.Error {
@@ -167,10 +168,10 @@ func (p Github) PrepareTaskData(taskCtx plugin.TaskContext, options map[string]i
 	}
 
 	regexEnricher := helper.NewRegexEnricher()
-	if err = regexEnricher.TryAdd(devops.DEPLOYMENT, op.DeploymentPattern); err != nil {
+	if err = regexEnricher.TryAdd(devops.DEPLOYMENT, op.ScopeConfig.DeploymentPattern); err != nil {
 		return nil, errors.BadInput.Wrap(err, "invalid value for `deploymentPattern`")
 	}
-	if err = regexEnricher.TryAdd(devops.PRODUCTION, op.ProductionPattern); err != nil {
+	if err = regexEnricher.TryAdd(devops.PRODUCTION, op.ScopeConfig.ProductionPattern); err != nil {
 		return nil, errors.BadInput.Wrap(err, "invalid value for `productionPattern`")
 	}
 
@@ -223,22 +224,18 @@ func (p Github) ApiResources() map[string]map[string]plugin.ApiResourceHandler {
 			"GET": api.GetScopeList,
 			"PUT": api.PutScope,
 		},
-		"connections/:connectionId/transformation_rules": {
-			"POST": api.CreateTransformationRule,
-			"GET":  api.GetTransformationRuleList,
+		"connections/:connectionId/scope_configs": {
+			"POST": api.CreateScopeConfig,
+			"GET":  api.GetScopeConfigList,
 		},
-		"connections/:connectionId/transformation_rules/:id": {
-			"PATCH": api.UpdateTransformationRule,
-			"GET":   api.GetTransformationRule,
+		"connections/:connectionId/scope_configs/:id": {
+			"PATCH": api.UpdateScopeConfig,
+			"GET":   api.GetScopeConfig,
 		},
 		"connections/:connectionId/proxy/rest/*path": {
 			"GET": api.Proxy,
 		},
 	}
-}
-
-func (p Github) MakePipelinePlan(connectionId uint64, scope []*plugin.BlueprintScopeV100) (plugin.PipelinePlan, errors.Error) {
-	return api.MakePipelinePlan(p.SubTaskMetas(), connectionId, scope)
 }
 
 func (p Github) MakeDataSourcePipelinePlanV200(connectionId uint64, scopes []*plugin.BlueprintScopeV200, syncPolicy plugin.BlueprintSyncPolicy) (pp plugin.PipelinePlan, sc []plugin.Scope, err errors.Error) {
@@ -271,8 +268,8 @@ func EnrichOptions(taskCtx plugin.TaskContext,
 	if err == nil {
 		op.Name = githubRepo.Name
 		op.GithubId = githubRepo.GithubId
-		if op.TransformationRuleId == 0 {
-			op.TransformationRuleId = githubRepo.TransformationRuleId
+		if op.ScopeConfigId == 0 {
+			op.ScopeConfigId = githubRepo.ScopeConfigId
 		}
 	} else {
 		if taskCtx.GetDal().IsErrorNotFound(err) && op.Name != "" {
@@ -292,18 +289,18 @@ func EnrichOptions(taskCtx plugin.TaskContext,
 			return errors.Default.Wrap(err, fmt.Sprintf("fail to find repo %s", op.Name))
 		}
 	}
-	// Set GithubTransformationRule if it's nil, this has lower priority
-	if op.GithubTransformationRule == nil && op.TransformationRuleId != 0 {
-		var transformationRule models.GithubTransformationRule
+	// Set GithubScopeConfig if it's nil, this has lower priority
+	if op.ScopeConfig == nil && op.ScopeConfigId != 0 {
+		var scopeConfig models.GithubScopeConfig
 		db := taskCtx.GetDal()
-		err = db.First(&transformationRule, dal.Where("id = ?", githubRepo.TransformationRuleId))
+		err = db.First(&scopeConfig, dal.Where("id = ?", githubRepo.ScopeConfigId))
 		if err != nil && !db.IsErrorNotFound(err) {
-			return errors.BadInput.Wrap(err, "fail to get transformationRule")
+			return errors.BadInput.Wrap(err, "fail to get scopeConfig")
 		}
-		op.GithubTransformationRule = &transformationRule
+		op.ScopeConfig = &scopeConfig
 	}
-	if op.GithubTransformationRule == nil && op.TransformationRuleId == 0 {
-		op.GithubTransformationRule = new(models.GithubTransformationRule)
+	if op.ScopeConfig == nil && op.ScopeConfigId == 0 {
+		op.ScopeConfig = new(models.GithubScopeConfig)
 	}
 	return err
 }
