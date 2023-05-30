@@ -83,6 +83,10 @@ export const Configuration = ({ blueprint, operating, onUpdate }: Props) => {
     setType('add-connection');
   };
 
+  const handleAddConnection = (value: any) => {
+    console.log(value);
+  };
+
   return (
     <S.ConfigurationPanel>
       <div className="block">
@@ -201,9 +205,7 @@ export const Configuration = ({ blueprint, operating, onUpdate }: Props) => {
           onSubmit={(payload) => onUpdate(payload, handleCancel)}
         />
       )}
-      {type === 'add-connection' && (
-        <AddConnectionDialog onCancel={handleCancel} onSubmit={(value) => console.log(value)} />
-      )}
+      {type === 'add-connection' && <AddConnectionDialog onCancel={handleCancel} onSubmit={handleAddConnection} />}
     </S.ConfigurationPanel>
   );
 };

@@ -20,9 +20,16 @@ import { useState } from 'react';
 import { useParams, useHistory } from 'react-router-dom';
 import { Button, Icon, Intent } from '@blueprintjs/core';
 
-import { PageHeader, Dialog, IconButton, Table } from '@/components';
+import { PageHeader, Buttons, Dialog, IconButton, Table } from '@/components';
 import { useTips, useConnections, useRefreshData } from '@/hooks';
-import { ConnectionForm, ConnectionStatus, DataScopeSelectRemote, getPluginId } from '@/plugins';
+import {
+  ConnectionForm,
+  ConnectionStatus,
+  DataScopeSelectRemote,
+  getPluginId,
+  ScopeConfigForm,
+  ScopeConfigSelect,
+} from '@/plugins';
 import { operator } from '@/utils';
 
 import * as API from './api';
@@ -35,16 +42,23 @@ interface Props {
 
 const ConnectionDetail = ({ plugin, id }: Props) => {
   const [type, setType] = useState<
-    'deleteConnection' | 'updateConnection' | 'createDataScope' | 'clearDataScope' | 'deleteDataScope'
+    | 'deleteConnection'
+    | 'updateConnection'
+    | 'createDataScope'
+    | 'clearDataScope'
+    | 'deleteDataScope'
+    | 'associateScopeConfig'
   >();
   const [operating, setOperating] = useState(false);
   const [version, setVersion] = useState(1);
   const [scopeId, setScopeId] = useState<ID>();
+  const [scopeIds, setScopeIds] = useState<ID[]>([]);
+  const [scopeConfigId, setScopeConfigId] = useState<ID>();
 
   const history = useHistory();
   const { onGet, onTest, onRefresh } = useConnections();
   const { setTips } = useTips();
-  const { ready, data } = useRefreshData(() => API.getDataScope(plugin, id), [version]);
+  const { ready, data } = useRefreshData(() => API.getDataScopes(plugin, id), [version]);
 
   const { unique, status, name, icon } = onGet(`${plugin}-${id}`);
 
@@ -123,6 +137,36 @@ const ConnectionDetail = ({ plugin, id }: Props) => {
     }
   };
 
+  const handleShowScopeConfigSelectDialog = (scopeIds: ID[]) => {
+    setType('associateScopeConfig');
+    setScopeIds(scopeIds);
+  };
+
+  const handleAssociateScopeConfig = async (trId: ID) => {
+    const [success] = await operator(
+      () =>
+        Promise.all(
+          scopeIds.map(async (scopeId) => {
+            const scope = await API.getDataScope(plugin, id, scopeId);
+            return API.updateDataScope(plugin, id, scopeId, {
+              ...scope,
+              scopeConfigId: +trId,
+            });
+          }),
+        ),
+      {
+        setOperating,
+        formatMessage: () => `Associate scope config successful.`,
+      },
+    );
+
+    if (success) {
+      setVersion((v) => v + 1);
+      handleShowTips();
+      handleHideDialog();
+    }
+  };
+
   return (
     <PageHeader
       breadcrumbs={[
@@ -137,9 +181,17 @@ const ConnectionDetail = ({ plugin, id }: Props) => {
           <ConnectionStatus status={status} unique={unique} onTest={onTest} />
           <IconButton icon="annotation" tooltip="Edit Connection" onClick={handleShowUpdateDialog} />
         </div>
-        <div className="action">
+        <Buttons position="top" align="left">
           <Button intent={Intent.PRIMARY} icon="add" text="Add Data Scope" onClick={handleShowCreateDataScopeDialog} />
-        </div>
+          {plugin !== 'tapd' && (
+            <Button
+              intent={Intent.PRIMARY}
+              icon="many-to-one"
+              text="Associate Scope Config"
+              onClick={() => handleShowScopeConfigSelectDialog(scopeIds)}
+            />
+          )}
+        </Buttons>
         <Table
           loading={!ready}
           columns={[
@@ -147,6 +199,27 @@ const ConnectionDetail = ({ plugin, id }: Props) => {
               title: 'Data Scope',
               dataIndex: 'name',
               key: 'name',
+            },
+            {
+              title: 'Scope Config',
+              dataIndex: 'scopeConfigName',
+              key: 'scopeConfig',
+              width: 400,
+              render: (val, row) => (
+                <>
+                  <span>{val ?? 'No Scope Config'}</span>
+                  <IconButton
+                    icon="link"
+                    tooltip="Associate Scope Config"
+                    onClick={() => {
+                      handleShowScopeConfigSelectDialog([row[getPluginId(plugin)]]);
+                      if (plugin === 'tapd') {
+                        setScopeConfigId(row.scopeConfigId);
+                      }
+                    }}
+                  />
+                </>
+              ),
             },
             {
               title: '',
@@ -174,6 +247,11 @@ const ConnectionDetail = ({ plugin, id }: Props) => {
             text: 'Add data to this connection.',
             btnText: 'Add Data Scope',
             onCreate: handleShowCreateDataScopeDialog,
+          }}
+          rowSelection={{
+            rowKey: getPluginId(plugin),
+            selectedRowKeys: scopeIds,
+            onChange: (selectedRowKeys) => setScopeIds(selectedRowKeys),
           }}
         />
       </S.Wrapper>
@@ -267,6 +345,27 @@ const ConnectionDetail = ({ plugin, id }: Props) => {
               past.
             </span>
           </S.DialogBody>
+        </Dialog>
+      )}
+      {type === 'associateScopeConfig' && (
+        <Dialog isOpen style={{ width: 820 }} footer={null} title="Associate Scope Config" onCancel={handleHideDialog}>
+          {plugin === 'tapd' ? (
+            <ScopeConfigForm
+              plugin={plugin}
+              connectionId={id}
+              scopeId={scopeIds[0]}
+              scopeConfigId={scopeConfigId}
+              onCancel={handleHideDialog}
+              onSubmit={handleAssociateScopeConfig}
+            />
+          ) : (
+            <ScopeConfigSelect
+              plugin={plugin}
+              connectionId={id}
+              onCancel={handleHideDialog}
+              onSubmit={handleAssociateScopeConfig}
+            />
+          )}
         </Dialog>
       )}
     </PageHeader>

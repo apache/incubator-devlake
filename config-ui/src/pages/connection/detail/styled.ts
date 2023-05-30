@@ -23,15 +23,6 @@ export const Wrapper = styled.div`
     display: flex;
     align-items: center;
     justify-content: flex-end;
-
-    & > .bp4-popover2-target {
-      margin-left: 8px;
-    }
-  }
-
-  .action {
-    margin-top: 36px;
-    margin-bottom: 24px;
   }
 `;
 
