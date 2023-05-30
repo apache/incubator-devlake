@@ -26,9 +26,9 @@ import (
 
 var vld *validator.Validate
 var connectionHelper *api.ConnectionApiHelper
-var scopeHelper *api.ScopeApiHelper[models.JenkinsConnection, models.JenkinsJob, models.JenkinsTransformationRule]
+var scopeHelper *api.ScopeApiHelper[models.JenkinsConnection, models.JenkinsJob, models.JenkinsScopeConfig]
 var basicRes context.BasicRes
-var trHelper *api.TransformationRuleHelper[models.JenkinsTransformationRule]
+var scHelper *api.ScopeConfigHelper[models.JenkinsScopeConfig]
 
 func Init(br context.BasicRes) {
 	basicRes = br
@@ -41,16 +41,16 @@ func Init(br context.BasicRes) {
 		ScopeIdFieldName:  "FullName",
 		ScopeIdColumnName: "full_name",
 	}
-	scopeHelper = api.NewScopeHelper[models.JenkinsConnection, models.JenkinsJob, models.JenkinsTransformationRule](
+	scopeHelper = api.NewScopeHelper[models.JenkinsConnection, models.JenkinsJob, models.JenkinsScopeConfig](
 		basicRes,
 		vld,
 		connectionHelper,
-		api.NewScopeDatabaseHelperImpl[models.JenkinsConnection, models.JenkinsJob, models.JenkinsTransformationRule](
+		api.NewScopeDatabaseHelperImpl[models.JenkinsConnection, models.JenkinsJob, models.JenkinsScopeConfig](
 			basicRes, connectionHelper, params),
 		params,
 		nil,
 	)
-	trHelper = api.NewTransformationRuleHelper[models.JenkinsTransformationRule](
+	scHelper = api.NewScopeConfigHelper[models.JenkinsScopeConfig](
 		basicRes,
 		vld,
 	)

@@ -15,20 +15,18 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-package models
+package api
 
 import (
-	"github.com/apache/incubator-devlake/core/models/common"
+	"github.com/apache/incubator-devlake/plugins/jenkins/tasks"
 )
 
-type JenkinsTransformationRule struct {
-	common.Model      `mapstructure:"-"`
-	ConnectionId      uint64 `mapstructure:"connectionId" json:"connectionId"`
-	Name              string `gorm:"type:varchar(255);index:idx_name_jenkins,unique" validate:"required" mapstructure:"name" json:"name"`
-	DeploymentPattern string `gorm:"type:varchar(255)" mapstructure:"deploymentPattern,omitempty" json:"deploymentPattern"`
-	ProductionPattern string `gorm:"type:varchar(255)" mapstructure:"productionPattern,omitempty" json:"productionPattern"`
-}
+type JenkinsTaskOptions tasks.JenkinsOptions
 
-func (t JenkinsTransformationRule) TableName() string {
-	return "_tool_jenkins_transformation_rules"
-}
+// @Summary jenkins task options for pipelines
+// @Description This is a dummy API to demonstrate the available task options for jenkins pipelines
+// @Tags plugins/jenkins
+// @Accept application/json
+// @Param pipeline body JenkinsTaskOptions true "json"
+// @Router /pipelines/jenkins/pipeline-task [post]
+func _() {}
