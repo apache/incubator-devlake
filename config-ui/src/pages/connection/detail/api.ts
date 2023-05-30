@@ -22,3 +22,11 @@ export const deleteConnection = (plugin: string, id: ID) =>
   request(`/plugins/${plugin}/connections/${id}`, { method: 'delete' });
 
 export const getDataScope = (plugin: string, id: ID) => request(`/plugins/${plugin}/connections/${id}/scopes`);
+
+export const deleteDataScope = (plugin: string, id: ID, scopeId: ID, onlyData: boolean) =>
+  request(`/plugins/${plugin}/connections/${id}/scopes/${scopeId}`, {
+    method: 'delete',
+    data: {
+      delete_data_only: onlyData,
+    },
+  });
