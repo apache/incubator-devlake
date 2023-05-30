@@ -29,35 +29,21 @@ import { BitbucketDataScope } from '@/plugins/register/bitbucket';
 import { AzureDataScope } from '@/plugins/register/azure';
 import { SonarQubeDataScope } from '@/plugins/register/sonarqube';
 import { PagerDutyDataScope } from '@/plugins/register/pagerduty';
+import { TapdDataScope } from '@/plugins/register/tapd';
 import { ZentaoDataScope } from '@/plugins/register/zentao';
 
 import * as API from './api';
 import * as S from './styled';
-import { TapdDataScope } from '@/plugins/register/tapd';
 
 interface Props {
   plugin: string;
   connectionId: ID;
   disabledScope?: any[];
-  cancelBtnProps?: {
-    text?: string;
-  };
-  submitBtnProps?: {
-    text?: string;
-  };
   onCancel?: () => void;
   onSubmit?: (origin: any) => void;
 }
 
-export const DataScopeForm2 = ({
-  plugin,
-  connectionId,
-  disabledScope,
-  onSubmit,
-  onCancel,
-  cancelBtnProps,
-  submitBtnProps,
-}: Props) => {
+export const DataScopeSelectRemote = ({ plugin, connectionId, disabledScope, onSubmit, onCancel }: Props) => {
   const [operating, setOperating] = useState(false);
   const [scope, setScope] = useState<any>([]);
 
@@ -192,19 +178,11 @@ export const DataScopeForm2 = ({
       )}
 
       <div className="action">
-        <Button
-          outlined
-          intent={Intent.PRIMARY}
-          text="Cancel"
-          {...cancelBtnProps}
-          disabled={operating}
-          onClick={onCancel}
-        />
+        <Button outlined intent={Intent.PRIMARY} text="Cancel" disabled={operating} onClick={onCancel} />
         <Button
           outlined
           intent={Intent.PRIMARY}
           text="Save"
-          {...submitBtnProps}
           loading={operating}
           disabled={!!error}
           onClick={handleSubmit}

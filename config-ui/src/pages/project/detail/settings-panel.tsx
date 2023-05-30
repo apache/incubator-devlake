@@ -18,15 +18,16 @@
 
 import { useEffect, useState } from 'react';
 import { useHistory } from 'react-router-dom';
-import { InputGroup, Checkbox, Button, Intent } from '@blueprintjs/core';
+import { InputGroup, Checkbox, Button, Icon, Intent } from '@blueprintjs/core';
 
-import { Card, FormItem, Buttons, toast } from '@/components';
+import { Card, FormItem, Buttons, toast, Dialog } from '@/components';
 import { operator } from '@/utils';
 
 import type { ProjectType } from '../types';
 import { validName } from '../utils';
 
 import * as API from './api';
+import * as S from './styled';
 
 interface Props {
   project: ProjectType;
@@ -36,6 +37,7 @@ export const SettingsPanel = ({ project }: Props) => {
   const [name, setName] = useState('');
   const [enableDora, setEnableDora] = useState(false);
   const [operating, setOperating] = useState(false);
+  const [isOpen, setIsOpen] = useState(false);
 
   const history = useHistory();
 
@@ -75,21 +77,62 @@ export const SettingsPanel = ({ project }: Props) => {
     }
   };
 
+  const handleShowDeleteDialog = () => {
+    setIsOpen(true);
+  };
+
+  const handleHideDeleteDialog = () => {
+    setIsOpen(false);
+  };
+
+  const handleDelete = async () => {
+    const [success] = await operator(() => API.deleteProject(project.name), {
+      setOperating,
+      formatMessage: () => 'Delete project successful.',
+    });
+
+    if (success) {
+      history.push(`/projects`);
+    }
+  };
+
   return (
-    <Card>
-      <FormItem label="Project Name" subLabel="Edit your project name with letters, numbers, -, _ or /" required>
-        <InputGroup style={{ width: 386 }} value={name} onChange={(e) => setName(e.target.value)} />
-      </FormItem>
-      <FormItem subLabel="DORA metrics are four widely-adopted metrics for measuring software delivery performance.">
-        <Checkbox
-          label="Enable DORA Metrics"
-          checked={enableDora}
-          onChange={(e) => setEnableDora((e.target as HTMLInputElement).checked)}
-        />
-      </FormItem>
-      <Buttons>
-        <Button text="Save" loading={operating} disabled={!name} intent={Intent.PRIMARY} onClick={handleUpdate} />
+    <>
+      <Card>
+        <FormItem label="Project Name" subLabel="Edit your project name with letters, numbers, -, _ or /" required>
+          <InputGroup style={{ width: 386 }} value={name} onChange={(e) => setName(e.target.value)} />
+        </FormItem>
+        <FormItem subLabel="DORA metrics are four widely-adopted metrics for measuring software delivery performance.">
+          <Checkbox
+            label="Enable DORA Metrics"
+            checked={enableDora}
+            onChange={(e) => setEnableDora((e.target as HTMLInputElement).checked)}
+          />
+        </FormItem>
+        <Buttons align="left">
+          <Button text="Save" loading={operating} disabled={!name} intent={Intent.PRIMARY} onClick={handleUpdate} />
+        </Buttons>
+      </Card>
+      <Buttons align="center">
+        <Button intent={Intent.DANGER} text="Delete Project" onClick={handleShowDeleteDialog} />
       </Buttons>
-    </Card>
+      <Dialog
+        isOpen={isOpen}
+        style={{ width: 820 }}
+        title="Are you sure you want to delete this Project?"
+        okText="Confirm"
+        okLoading={operating}
+        onCancel={handleHideDeleteDialog}
+        onOk={handleDelete}
+      >
+        <S.DialogBody>
+          <Icon icon="warning-sign" />
+          <span>
+            This operation cannot be undone. Deleting a Data Connection will delete all data that have been collected in
+            this Connection.
+          </span>
+        </S.DialogBody>
+      </Dialog>
+    </>
   );
 };

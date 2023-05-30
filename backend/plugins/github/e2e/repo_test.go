@@ -40,7 +40,7 @@ func TestRepoDataFlow(t *testing.T) {
 			ConnectionId: 1,
 			Name:         "panjf2000/ants",
 			GithubId:     134018330,
-			GithubTransformationRule: &models.GithubTransformationRule{
+			ScopeConfig: &models.GithubScopeConfig{
 				PrType:      "type/(.*)$",
 				PrComponent: "component/(.*)$",
 			},

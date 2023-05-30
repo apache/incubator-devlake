@@ -22,6 +22,16 @@ export const Wrapper = styled.div`
   padding-bottom: 24px;
 `;
 
+export const DialogBody = styled.div`
+  display: flex;
+  align-items: center;
+
+  .bp4-icon {
+    margin-right: 8px;
+    color: #f4be55;
+  }
+`;
+
 export const ConfigurationPanel = styled.div`
   .block + .block {
     margin-top: 36px;

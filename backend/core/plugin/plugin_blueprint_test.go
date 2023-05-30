@@ -15,31 +15,39 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-package migrationscripts
+package plugin
 
 import (
-	"github.com/apache/incubator-devlake/core/plugin"
+	"github.com/stretchr/testify/assert"
+	"testing"
 )
 
-// All return all the migration scripts
-func All() []plugin.MigrationScript {
-	println("github register.go")
-	return []plugin.MigrationScript{
-		new(addInitTables),
-		new(addGithubRunsTable),
-		new(addGithubJobsTable),
-		new(addGithubPipelineTable),
-		new(deleteGithubPipelineTable),
-		new(addHeadRepoIdFieldInGithubPr),
-		new(addEnableGraphqlForConnection),
-		new(addTransformationRule20221124),
-		new(concatOwnerAndName),
-		new(addStdTypeToIssue221230),
-		new(addConnectionIdToTransformationRule),
-		new(addEnvToRunAndJob),
-		new(addGithubCommitAuthorInfo),
-		new(fixRunNameToText),
-		new(addGithubMultiAuth),
-		new(renameTr2ScopeConfig),
+func TestPipelinePlan_IsEmpty(t *testing.T) {
+	tests := []struct {
+		name string
+		plan PipelinePlan
+		want bool
+	}{
+		{
+			name: "empty",
+			plan: PipelinePlan{},
+			want: true,
+		},
+		{
+			name: "empty",
+			plan: []PipelineStage{{}, {}},
+			want: true,
+		},
+		{
+			name: "empty",
+			plan: []PipelineStage{{}, {&PipelineTask{}}},
+			want: false,
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			t.Log("length of plan is", len(tt.plan))
+			assert.Equalf(t, tt.want, tt.plan.IsEmpty(), "IsEmpty()")
+		})
 	}
 }

@@ -24,20 +24,6 @@ import (
 	"github.com/apache/incubator-devlake/core/errors"
 )
 
-// PipelineTask represents a smallest unit of execution inside a PipelinePlan
-type PipelineTask struct {
-	// Plugin name
-	Plugin   string                 `json:"plugin" binding:"required"`
-	Subtasks []string               `json:"subtasks"`
-	Options  map[string]interface{} `json:"options"`
-}
-
-// PipelineStage consist of multiple PipelineTasks, they will be executed in parallel
-type PipelineStage []*PipelineTask
-
-// PipelinePlan consist of multiple PipelineStages, they will be executed in sequential order
-type PipelinePlan []PipelineStage
-
 // PluginBlueprintV100 is used to support Blueprint Normal model, for Plugin and Blueprint to
 // collaboarte and generate a sophisticated Pipeline Plan based on User Settings.
 // V100 doesn't support Project, and being deprecated, please use PluginBlueprintV200 instead

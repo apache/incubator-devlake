@@ -55,7 +55,7 @@ func main() {
 			"owner":        *owner,
 			"repo":         *repo,
 			"timeAfter":    *timeAfter,
-			"transformationRules": map[string]interface{}{
+			"scopeConfig": map[string]interface{}{
 				"prType":               *prType,
 				"prComponent":          *prComponent,
 				"prBodyClosePattern":   *prBodyClosePattern,

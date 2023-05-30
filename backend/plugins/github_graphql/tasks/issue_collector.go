@@ -86,7 +86,7 @@ var _ plugin.SubTaskEntryPoint = CollectIssue
 func CollectIssue(taskCtx plugin.SubTaskContext) errors.Error {
 	db := taskCtx.GetDal()
 	data := taskCtx.GetData().(*githubTasks.GithubTaskData)
-	config := data.Options.GithubTransformationRule
+	config := data.Options.ScopeConfig
 	issueRegexes, err := githubTasks.NewIssueRegexes(config)
 	if err != nil {
 		return nil

@@ -73,7 +73,7 @@ type IssueRegexes struct {
 func ExtractApiIssues(taskCtx plugin.SubTaskContext) errors.Error {
 	data := taskCtx.GetData().(*GithubTaskData)
 
-	config := data.Options.GithubTransformationRule
+	config := data.Options.ScopeConfig
 	issueRegexes, err := NewIssueRegexes(config)
 	if err != nil {
 		return nil
@@ -222,7 +222,7 @@ func convertGithubLabels(issueRegexes *IssueRegexes, issue *IssuesResponse, gith
 	return results, nil
 }
 
-func NewIssueRegexes(config *models.GithubTransformationRule) (*IssueRegexes, errors.Error) {
+func NewIssueRegexes(config *models.GithubScopeConfig) (*IssueRegexes, errors.Error) {
 	var issueRegexes IssueRegexes
 	if config == nil {
 		return &issueRegexes, nil
