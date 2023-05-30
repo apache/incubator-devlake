@@ -21,6 +21,7 @@ import (
 	"fmt"
 	"time"
 
+	"github.com/apache/incubator-devlake/core/context"
 	"github.com/apache/incubator-devlake/core/dal"
 	"github.com/apache/incubator-devlake/core/errors"
 	"github.com/apache/incubator-devlake/core/models/domainlayer"
@@ -34,11 +35,11 @@ import (
 
 func MakeDataSourcePipelinePlanV200(subtaskMetas []plugin.SubTaskMeta, connectionId uint64, bpScopes []*plugin.BlueprintScopeV200, syncPolicy *plugin.BlueprintSyncPolicy) (plugin.PipelinePlan, []plugin.Scope, errors.Error) {
 	plan := make(plugin.PipelinePlan, len(bpScopes))
-	plan, err := makeDataSourcePipelinePlanV200(subtaskMetas, plan, bpScopes, connectionId, syncPolicy)
+	plan, err := makeDataSourcePipelinePlanV200(basicRes, subtaskMetas, plan, bpScopes, connectionId, syncPolicy)
 	if err != nil {
 		return nil, nil, err
 	}
-	scopes, err := makeScopesV200(bpScopes, connectionId)
+	scopes, err := makeScopesV200(basicRes, bpScopes, connectionId)
 	if err != nil {
 		return nil, nil, err
 	}
@@ -46,7 +47,7 @@ func MakeDataSourcePipelinePlanV200(subtaskMetas []plugin.SubTaskMeta, connectio
 	return plan, scopes, nil
 }
 
-func getScopeConfigByScopeId(scopeId string) (*models.JiraScopeConfig, errors.Error) {
+func getScopeConfigByScopeId(basicRes context.BasicRes, scopeId string) (*models.JiraScopeConfig, errors.Error) {
 	db := basicRes.GetDal()
 	scopeConfig := &models.JiraScopeConfig{}
 	err := db.First(scopeConfig,
@@ -62,6 +63,7 @@ func getScopeConfigByScopeId(scopeId string) (*models.JiraScopeConfig, errors.Er
 }
 
 func makeDataSourcePipelinePlanV200(
+	basicRes context.BasicRes,
 	subtaskMetas []plugin.SubTaskMeta,
 	plan plugin.PipelinePlan,
 	bpScopes []*plugin.BlueprintScopeV200,
@@ -81,7 +83,7 @@ func makeDataSourcePipelinePlanV200(
 			options["timeAfter"] = syncPolicy.TimeAfter.Format(time.RFC3339)
 		}
 
-		scopeConfig, err := getScopeConfigByScopeId(bpScope.Id)
+		scopeConfig, err := getScopeConfigByScopeId(basicRes, bpScope.Id)
 		if err != nil {
 			return nil, err
 		}
@@ -101,7 +103,11 @@ func makeDataSourcePipelinePlanV200(
 	return plan, nil
 }
 
-func makeScopesV200(bpScopes []*plugin.BlueprintScopeV200, connectionId uint64) ([]plugin.Scope, errors.Error) {
+func makeScopesV200(
+	basicRes context.BasicRes,
+	bpScopes []*plugin.BlueprintScopeV200,
+	connectionId uint64,
+) ([]plugin.Scope, errors.Error) {
 	scopes := make([]plugin.Scope, 0)
 	for _, bpScope := range bpScopes {
 		jiraBoard := &models.JiraBoard{}
@@ -112,7 +118,7 @@ func makeScopesV200(bpScopes []*plugin.BlueprintScopeV200, connectionId uint64) 
 		if err != nil {
 			return nil, errors.Default.Wrap(err, fmt.Sprintf("fail to find board %s", bpScope.Id))
 		}
-		scopeConfig, err := getScopeConfigByScopeId(bpScope.Id)
+		scopeConfig, err := getScopeConfigByScopeId(basicRes, bpScope.Id)
 		if err != nil {
 			return nil, err
 		}

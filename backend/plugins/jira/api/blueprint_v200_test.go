@@ -20,6 +20,7 @@ package api
 import (
 	"testing"
 
+	"github.com/apache/incubator-devlake/core/models/common"
 	"github.com/apache/incubator-devlake/core/models/domainlayer"
 	"github.com/apache/incubator-devlake/core/models/domainlayer/ticket"
 	"github.com/apache/incubator-devlake/core/plugin"
@@ -43,10 +44,10 @@ func TestMakeDataSourcePipelinePlanV200(t *testing.T) {
 	bpScopes := make([]*plugin.BlueprintScopeV200, 0)
 	bpScopes = append(bpScopes, bs)
 	plan := make(plugin.PipelinePlan, len(bpScopes))
-	plan, err = makeDataSourcePipelinePlanV200(nil, plan, bpScopes, uint64(1), syncPolicy)
-	assert.Nil(t, err)
 	basicRes = NewMockBasicRes()
-	scopes, err := makeScopesV200(bpScopes, uint64(1))
+	plan, err = makeDataSourcePipelinePlanV200(basicRes, nil, plan, bpScopes, uint64(1), syncPolicy)
+	assert.Nil(t, err)
+	scopes, err := makeScopesV200(basicRes, bpScopes, uint64(1))
 	assert.Nil(t, err)
 
 	expectPlan := plugin.PipelinePlan{
@@ -82,14 +83,23 @@ func NewMockBasicRes() *mockcontext.BasicRes {
 		BoardId:      10,
 		Name:         "a",
 	}
+	scopeConfig := &models.JiraScopeConfig{
+		ScopeConfig: common.ScopeConfig{
+			Entities: []string{plugin.DOMAIN_TYPE_TICKET},
+		},
+	}
 
 	mockRes := new(mockcontext.BasicRes)
 	mockDal := new(mockdal.Dal)
 
-	mockDal.On("First", mock.Anything, mock.Anything).Run(func(args mock.Arguments) {
+	mockDal.On("First", mock.AnythingOfType("*models.JiraScopeConfig"), mock.Anything).Run(func(args mock.Arguments) {
+		dst := args.Get(0).(*models.JiraScopeConfig)
+		*dst = *scopeConfig
+	}).Return(nil)
+	mockDal.On("First", mock.AnythingOfType("*models.JiraBoard"), mock.Anything).Run(func(args mock.Arguments) {
 		dst := args.Get(0).(*models.JiraBoard)
 		*dst = *jiraBoard
-	}).Return(nil).Once()
+	}).Return(nil)
 
 	mockRes.On("GetDal").Return(mockDal)
 	mockRes.On("GetConfig", mock.Anything).Return("")
