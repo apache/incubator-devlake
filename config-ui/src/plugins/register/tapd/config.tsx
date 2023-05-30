@@ -72,7 +72,6 @@ export const TAPDConfig: PluginConfigType = {
     ],
   },
   entities: ['TICKET', 'CROSS'],
-  transformationType: 'for-scope',
   transformation: {
     typeMappings: {},
     statusMappings: {},
