@@ -19,6 +19,8 @@ package impl
 
 import (
 	"fmt"
+	"time"
+
 	"github.com/apache/incubator-devlake/core/context"
 	"github.com/apache/incubator-devlake/core/dal"
 	"github.com/apache/incubator-devlake/core/errors"
@@ -28,7 +30,6 @@ import (
 	"github.com/apache/incubator-devlake/plugins/teambition/models"
 	"github.com/apache/incubator-devlake/plugins/teambition/models/migrationscripts"
 	"github.com/apache/incubator-devlake/plugins/teambition/tasks"
-	"time"
 )
 
 // make sure interface is implemented
