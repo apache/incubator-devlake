@@ -18,6 +18,8 @@ limitations under the License.
 package api
 
 import (
+	"testing"
+
 	"github.com/apache/incubator-devlake/core/models/domainlayer"
 	"github.com/apache/incubator-devlake/core/models/domainlayer/ticket"
 	"github.com/apache/incubator-devlake/core/plugin"
@@ -27,7 +29,6 @@ import (
 	"github.com/apache/incubator-devlake/plugins/jira/models"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
-	"testing"
 )
 
 func TestMakeDataSourcePipelinePlanV200(t *testing.T) {
@@ -36,8 +37,7 @@ func TestMakeDataSourcePipelinePlanV200(t *testing.T) {
 	err := plugin.RegisterPlugin("jira", mockMeta)
 	assert.Nil(t, err)
 	bs := &plugin.BlueprintScopeV200{
-		Entities: []string{"TICKET"},
-		Id:       "10",
+		Id: "10",
 	}
 	syncPolicy := &plugin.BlueprintSyncPolicy{}
 	bpScopes := make([]*plugin.BlueprintScopeV200, 0)

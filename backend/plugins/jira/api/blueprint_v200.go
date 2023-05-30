@@ -46,6 +46,21 @@ func MakeDataSourcePipelinePlanV200(subtaskMetas []plugin.SubTaskMeta, connectio
 	return plan, scopes, nil
 }
 
+func getScopeConfigByScopeId(scopeId string) (*models.JiraScopeConfig, errors.Error) {
+	db := basicRes.GetDal()
+	scopeConfig := &models.JiraScopeConfig{}
+	err := db.First(scopeConfig,
+		dal.Select("sc.*"),
+		dal.From("_tool_jira_scope_configs sc"),
+		dal.Join("LEFT JOIN _tool_jira_boards b ON (b.scope_config_id = sc.id)"),
+		dal.Where("b.board_id = ?", scopeId),
+	)
+	if err != nil {
+		return nil, err
+	}
+	return scopeConfig, nil
+}
+
 func makeDataSourcePipelinePlanV200(
 	subtaskMetas []plugin.SubTaskMeta,
 	plan plugin.PipelinePlan,
@@ -66,7 +81,12 @@ func makeDataSourcePipelinePlanV200(
 			options["timeAfter"] = syncPolicy.TimeAfter.Format(time.RFC3339)
 		}
 
-		subtasks, err := helper.MakePipelinePlanSubtasks(subtaskMetas, bpScope.Entities)
+		scopeConfig, err := getScopeConfigByScopeId(bpScope.Id)
+		if err != nil {
+			return nil, err
+		}
+
+		subtasks, err := helper.MakePipelinePlanSubtasks(subtaskMetas, scopeConfig.Entities)
 		if err != nil {
 			return nil, err
 		}
@@ -92,8 +112,12 @@ func makeScopesV200(bpScopes []*plugin.BlueprintScopeV200, connectionId uint64) 
 		if err != nil {
 			return nil, errors.Default.Wrap(err, fmt.Sprintf("fail to find board %s", bpScope.Id))
 		}
+		scopeConfig, err := getScopeConfigByScopeId(bpScope.Id)
+		if err != nil {
+			return nil, err
+		}
 		// add board to scopes
-		if utils.StringsContains(bpScope.Entities, plugin.DOMAIN_TYPE_TICKET) {
+		if utils.StringsContains(scopeConfig.Entities, plugin.DOMAIN_TYPE_TICKET) {
 			domainBoard := &ticket.Board{
 				DomainEntity: domainlayer.DomainEntity{
 					Id: didgen.NewDomainIdGenerator(&models.JiraBoard{}).Generate(jiraBoard.ConnectionId, jiraBoard.BoardId),

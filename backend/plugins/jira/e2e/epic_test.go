@@ -18,12 +18,13 @@ limitations under the License.
 package e2e
 
 import (
+	"testing"
+
 	"github.com/apache/incubator-devlake/core/models/common"
 	"github.com/apache/incubator-devlake/helpers/e2ehelper"
 	"github.com/apache/incubator-devlake/plugins/jira/impl"
 	"github.com/apache/incubator-devlake/plugins/jira/models"
 	"github.com/apache/incubator-devlake/plugins/jira/tasks"
-	"testing"
 
 	"github.com/stretchr/testify/require"
 )
@@ -33,9 +34,9 @@ func TestEpicDataflow(t *testing.T) {
 	dataflowTester := e2ehelper.NewDataFlowTester(t, "jira", plugin)
 	taskData := &tasks.JiraTaskData{
 		Options: &tasks.JiraOptions{
-			ConnectionId:        1,
-			BoardId:             93,
-			TransformationRules: &tasks.JiraTransformationRule{StoryPointField: "customfield_10024"},
+			ConnectionId: 1,
+			BoardId:      93,
+			ScopeConfig:  &tasks.JiraScopeConfig{StoryPointField: "customfield_10024"},
 		},
 	}
 

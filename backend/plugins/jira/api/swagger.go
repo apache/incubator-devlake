@@ -21,44 +21,12 @@ import (
 	"github.com/apache/incubator-devlake/plugins/jira/tasks"
 )
 
-// @Summary blueprints setting for jira
-// @Description blueprint setting for jira
+type JiraTaskOptions tasks.JiraOptions
+
+// @Summary jira task options for pipelines
+// @Description This is a dummy API to demonstrate the available task options for jira pipelines
 // @Tags plugins/jira
 // @Accept application/json
-// @Param blueprint-setting body JiraBlueprintSetting true "json"
-// @Router /blueprints/jira/blueprint-setting [post]
+// @Param pipeline body JiraTaskOptions true "json"
+// @Router /pipelines/jira/pipeline-task [post]
 func _() {}
-
-type JiraBlueprintSetting []struct {
-	Version     string `json:"version"`
-	Connections []struct {
-		Plugin       string `json:"plugin"`
-		ConnectionID int    `json:"connectionId"`
-		Scope        []struct {
-			Transformation tasks.JiraTransformationRule `json:"transformation"`
-			Options        struct {
-				BoardId uint64 `json:"boardId"`
-				Since   string `json:"since"`
-			} `json:"options"`
-			Entities []string `json:"entities"`
-		} `json:"scopes"`
-	} `json:"connections"`
-}
-
-// @Summary pipelines plan for jira
-// @Description pipelines plan for jira
-// @Tags plugins/jira
-// @Accept application/json
-// @Param pipeline-plan body JiraPipelinePlan true "json"
-// @Router /pipelines/jira/pipeline-plan [post]
-func _() {}
-
-type JiraPipelinePlan [][]struct {
-	Plugin   string   `json:"plugin"`
-	Subtasks []string `json:"subtasks"`
-	Options  struct {
-		BoardID             int                          `json:"boardId"`
-		ConnectionID        int                          `json:"connectionId"`
-		TransformationRules tasks.JiraTransformationRule `json:"transformationRules"`
-	} `json:"options"`
-}
