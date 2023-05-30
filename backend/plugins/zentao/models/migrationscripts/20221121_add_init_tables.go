@@ -37,6 +37,7 @@ func (*addInitTables) Up(basicRes context.BasicRes) errors.Error {
 		&archived.ZentaoBug{},
 		&archived.ZentaoTask{},
 		&archived.ZentaoDepartment{},
+		&archived.ZentaoTransformationRule{},
 		"_tool_zentao_bugs`",
 		"_tool_zentao_executions`",
 		"_tool_zentao_products`",
@@ -57,11 +58,12 @@ func (*addInitTables) Up(basicRes context.BasicRes) errors.Error {
 		&archived.ZentaoTask{},
 		&archived.ZentaoAccount{},
 		&archived.ZentaoDepartment{},
+		&archived.ZentaoTransformationRule{},
 	)
 }
 
 func (*addInitTables) Version() uint64 {
-	return 20230529000001
+	return 20230530000001
 }
 
 func (*addInitTables) Name() string {

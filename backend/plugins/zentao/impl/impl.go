@@ -21,6 +21,7 @@ import (
 	"fmt"
 
 	"github.com/apache/incubator-devlake/core/context"
+	"github.com/apache/incubator-devlake/core/dal"
 	"github.com/apache/incubator-devlake/core/errors"
 	"github.com/apache/incubator-devlake/core/plugin"
 	"github.com/apache/incubator-devlake/core/runner"
@@ -106,6 +107,18 @@ func (p Zentao) PrepareTaskData(taskCtx plugin.TaskContext, options map[string]i
 	apiClient, err := tasks.NewZentaoApiClient(taskCtx, connection)
 	if err != nil {
 		return nil, errors.Default.Wrap(err, "unable to get Zentao API client instance: %v")
+	}
+
+	if op.TransformationRules == nil && op.TransformationRuleId != 0 {
+		var transformationRule models.ZentaoTransformationRule
+		err = taskCtx.GetDal().First(&transformationRule, dal.Where("id = ?", op.TransformationRuleId))
+		if err != nil && taskCtx.GetDal().IsErrorNotFound(err) {
+			return nil, errors.BadInput.Wrap(err, "fail to get transformationRule")
+		}
+		op.TransformationRules, err = tasks.MakeTransformationRules(transformationRule)
+		if err != nil {
+			return nil, errors.BadInput.Wrap(err, "fail to make transformationRule")
+		}
 	}
 
 	data := &tasks.ZentaoTaskData{

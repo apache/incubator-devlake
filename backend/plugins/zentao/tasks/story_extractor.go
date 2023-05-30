@@ -21,6 +21,7 @@ import (
 	"encoding/json"
 
 	"github.com/apache/incubator-devlake/core/errors"
+	"github.com/apache/incubator-devlake/core/models/domainlayer/ticket"
 	"github.com/apache/incubator-devlake/core/plugin"
 	"github.com/apache/incubator-devlake/helpers/pluginhelper/api"
 	"github.com/apache/incubator-devlake/plugins/zentao/models"
@@ -43,6 +44,8 @@ func ExtractStory(taskCtx plugin.SubTaskContext) errors.Error {
 	if data.Options.ProductId == 0 {
 		return nil
 	}
+
+	statusMapping := getStoryStatusMapping(data)
 
 	extractor, err := api.NewApiExtractor(api.ApiExtractorArgs{
 		RawDataSubTaskArgs: api.RawDataSubTaskArgs{
@@ -119,6 +122,17 @@ func ExtractStory(taskCtx plugin.SubTaskContext) errors.Error {
 				Actions:          res.Actions,
 				Url:              row.Url,
 			}
+
+			if len(statusMapping) != 0 {
+				story.StdStatus = statusMapping[story.Stage]
+			} else {
+				story.StdStatus = ticket.GetStatus(&ticket.StatusRule{
+					Done:    []string{"closed"},
+					Todo:    []string{"wait"},
+					Default: ticket.IN_PROGRESS,
+				}, story.Stage)
+			}
+
 			results := make([]interface{}, 0)
 			results = append(results, story)
 			return results, nil

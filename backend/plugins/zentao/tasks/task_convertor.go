@@ -91,13 +91,8 @@ func ConvertTask(taskCtx plugin.SubTaskContext) errors.Error {
 				AssigneeName:    toolEntity.AssignedToName,
 				Url:             toolEntity.Url,
 				OriginalProject: getOriginalProject(data),
+				Status:          toolEntity.StdStatus,
 			}
-
-			ticket.GetStatus(&ticket.StatusRule{
-				Done:    []string{"done", "closed", "cancel"},
-				Todo:    []string{"wait"},
-				Default: ticket.IN_PROGRESS,
-			}, toolEntity.Status)
 
 			if toolEntity.ClosedDate != nil {
 				domainEntity.LeadTimeMinutes = int64(toolEntity.ClosedDate.ToNullableTime().Sub(toolEntity.OpenedDate.ToTime()).Minutes())

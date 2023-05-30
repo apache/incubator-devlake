@@ -19,6 +19,7 @@ package tasks
 
 import (
 	"net/http"
+	"strings"
 
 	"github.com/apache/incubator-devlake/core/errors"
 	"github.com/apache/incubator-devlake/helpers/pluginhelper/api"
@@ -80,4 +81,49 @@ func getOriginalProject(data *ZentaoTaskData) string {
 		return data.ProductName
 	}
 	return ""
+}
+
+// getBugStatusMapping creates a map of original status values to bug issue standard status values
+// based on the provided ZentaoTaskData. It returns the created map.
+func getBugStatusMapping(data *ZentaoTaskData) map[string]string {
+	stdStatusMappings := make(map[string]string)
+	if data.Options.TransformationRules == nil {
+		return stdStatusMappings
+	}
+	mapping := data.Options.TransformationRules.BugStatusMappings
+	// Map original status values to standard status values
+	for userStatus, stdStatus := range mapping {
+		stdStatusMappings[userStatus] = strings.ToUpper(stdStatus)
+	}
+	return stdStatusMappings
+}
+
+// getStoryStatusMapping creates a map of original status values to story issue standard status values
+// based on the provided ZentaoTaskData. It returns the created map.
+func getStoryStatusMapping(data *ZentaoTaskData) map[string]string {
+	stdStatusMappings := make(map[string]string)
+	if data.Options.TransformationRules == nil {
+		return stdStatusMappings
+	}
+	mapping := data.Options.TransformationRules.StoryStatusMappings
+	// Map original status values to standard status values
+	for userStatus, stdStatus := range mapping {
+		stdStatusMappings[userStatus] = strings.ToUpper(stdStatus)
+	}
+	return stdStatusMappings
+}
+
+// getTaskStatusMapping creates a map of original status values to task issue standard status values
+// based on the provided ZentaoTaskData. It returns the created map.
+func getTaskStatusMapping(data *ZentaoTaskData) map[string]string {
+	stdStatusMappings := make(map[string]string)
+	if data.Options.TransformationRules == nil {
+		return stdStatusMappings
+	}
+	mapping := data.Options.TransformationRules.TaskStatusMappings
+	// Map original status values to standard status values
+	for userStatus, stdStatus := range mapping {
+		stdStatusMappings[userStatus] = strings.ToUpper(stdStatus)
+	}
+	return stdStatusMappings
 }

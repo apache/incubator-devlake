@@ -37,6 +37,7 @@ var projectScopeHelper *api.ScopeApiHelper[models.ZentaoConnection, models.Zenta
 var productRemoteHelper *api.RemoteApiHelper[models.ZentaoConnection, models.ZentaoProduct, models.ZentaoProductRes, api.BaseRemoteGroupResponse]
 var projectRemoteHelper *api.RemoteApiHelper[models.ZentaoConnection, models.ZentaoProject, models.ZentaoProject, api.NoRemoteGroupResponse]
 var basicRes context.BasicRes
+var trHelper *api.TransformationRuleHelper[models.ZentaoTransformationRule]
 
 func Init(br context.BasicRes) {
 	basicRes = br

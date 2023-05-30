@@ -90,6 +90,7 @@ func ConvertStory(taskCtx plugin.SubTaskContext) errors.Error {
 				AssigneeName:    toolEntity.AssignedToName,
 				Url:             toolEntity.Url,
 				OriginalProject: getOriginalProject(data),
+				Status:          toolEntity.StdStatus,
 			}
 
 			if domainEntity.OriginalStatus == "closed-closed" {

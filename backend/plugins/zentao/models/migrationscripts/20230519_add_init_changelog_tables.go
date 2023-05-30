@@ -56,7 +56,7 @@ func (*addInitChangelogTables) Up(basicRes context.BasicRes) errors.Error {
 }
 
 func (*addInitChangelogTables) Version() uint64 {
-	return 20230529000002
+	return 20230530000002
 }
 
 func (*addInitChangelogTables) Name() string {

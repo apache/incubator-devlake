@@ -91,6 +91,7 @@ func ConvertBug(taskCtx plugin.SubTaskContext) errors.Error {
 				Severity:        string(rune(toolEntity.Severity)),
 				Url:             toolEntity.Url,
 				OriginalProject: getOriginalProject(data),
+				Status:          toolEntity.StdStatus,
 			}
 
 			ticket.GetStatus(&ticket.StatusRule{

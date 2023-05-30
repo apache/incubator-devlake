@@ -160,7 +160,8 @@ type ZentaoTask struct {
 	NeedConfirm        bool                `json:"needConfirm"`
 	Progress           float64             `json:"progress"`
 	Actions            datatypes.JSON      `json:"actions"`
-	Url                string              `json"url"`
+	Url                string              `json:"url"`
+	StdStatus          string              `json:"stdStatus" gorm:"type:varchar(20)"`
 }
 
 func (ZentaoTask) TableName() string {

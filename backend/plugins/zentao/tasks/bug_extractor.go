@@ -21,6 +21,7 @@ import (
 	"encoding/json"
 
 	"github.com/apache/incubator-devlake/core/errors"
+	"github.com/apache/incubator-devlake/core/models/domainlayer/ticket"
 	"github.com/apache/incubator-devlake/core/plugin"
 	"github.com/apache/incubator-devlake/helpers/pluginhelper/api"
 	"github.com/apache/incubator-devlake/plugins/zentao/models"
@@ -43,6 +44,8 @@ func ExtractBug(taskCtx plugin.SubTaskContext) errors.Error {
 	if data.Options.ProductId == 0 {
 		return nil
 	}
+
+	statusMapping := getBugStatusMapping(data)
 
 	extractor, err := api.NewApiExtractor(api.ApiExtractorArgs{
 		RawDataSubTaskArgs: api.RawDataSubTaskArgs{
@@ -132,6 +135,16 @@ func ExtractBug(taskCtx plugin.SubTaskContext) errors.Error {
 				Actions:        res.Actions,
 				Url:            row.Url,
 			}
+
+			if len(statusMapping) != 0 {
+				bug.StdStatus = statusMapping[bug.Status]
+			} else {
+				bug.StdStatus = ticket.GetStatus(&ticket.StatusRule{
+					Done:    []string{"resolved"},
+					Default: ticket.IN_PROGRESS,
+				}, bug.Status)
+			}
+
 			results := make([]interface{}, 0)
 			results = append(results, bug)
 			return results, nil
