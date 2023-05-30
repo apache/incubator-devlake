@@ -24,3 +24,13 @@ export const Wrapper = styled.div`
     justify-content: center;
   }
 `;
+
+export const DialogBody = styled.div`
+  display: flex;
+  align-items: center;
+
+  .bp4-icon {
+    margin-right: 8px;
+    color: #f4be55;
+  }
+`;
