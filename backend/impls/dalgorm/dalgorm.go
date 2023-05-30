@@ -347,6 +347,28 @@ func (d *Dalgorm) HasTable(table interface{}) bool {
 	return d.db.Migrator().HasTable(table)
 }
 
+// HasColumn checks if column exists
+func (d *Dalgorm) HasColumn(table interface{}, columnName string) bool {
+	migrator := d.db.Migrator()
+	// Workaround in case table is a string
+	// which cause migrator.HasColumn to panic
+	// see: https://github.com/go-gorm/gorm/issues/5809
+	_, isString := table.(string)
+	if isString {
+		columnTypes, err := migrator.ColumnTypes(table)
+		if err != nil {
+			return false
+		}
+		for _, columnType := range columnTypes {
+			if columnType.Name() == columnName {
+				return true
+			}
+		}
+		return false
+	}
+	return migrator.HasColumn(table, columnName)
+}
+
 // RenameTable renames table name
 func (d *Dalgorm) RenameTable(oldName, newName string) errors.Error {
 	err := d.db.Migrator().RenameTable(oldName, newName)
