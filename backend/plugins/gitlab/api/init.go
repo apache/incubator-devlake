@@ -26,10 +26,10 @@ import (
 
 var vld *validator.Validate
 var connectionHelper *api.ConnectionApiHelper
-var scopeHelper *api.ScopeApiHelper[models.GitlabConnection, models.GitlabProject, models.GitlabTransformationRule]
+var scopeHelper *api.ScopeApiHelper[models.GitlabConnection, models.GitlabProject, models.GitlabScopeConfig]
 var remoteHelper *api.RemoteApiHelper[models.GitlabConnection, models.GitlabProject, models.GitlabApiProject, models.GroupResponse]
 var basicRes context.BasicRes
-var trHelper *api.TransformationRuleHelper[models.GitlabTransformationRule]
+var scHelper *api.ScopeConfigHelper[models.GitlabScopeConfig]
 
 func Init(br context.BasicRes) {
 	basicRes = br
@@ -42,11 +42,11 @@ func Init(br context.BasicRes) {
 		ScopeIdFieldName:  "GitlabId",
 		ScopeIdColumnName: "gitlab_id",
 	}
-	scopeHelper = api.NewScopeHelper[models.GitlabConnection, models.GitlabProject, models.GitlabTransformationRule](
+	scopeHelper = api.NewScopeHelper[models.GitlabConnection, models.GitlabProject, models.GitlabScopeConfig](
 		basicRes,
 		vld,
 		connectionHelper,
-		api.NewScopeDatabaseHelperImpl[models.GitlabConnection, models.GitlabProject, models.GitlabTransformationRule](
+		api.NewScopeDatabaseHelperImpl[models.GitlabConnection, models.GitlabProject, models.GitlabScopeConfig](
 			basicRes, connectionHelper, params),
 		params,
 		nil,
@@ -56,7 +56,7 @@ func Init(br context.BasicRes) {
 		vld,
 		connectionHelper,
 	)
-	trHelper = api.NewTransformationRuleHelper[models.GitlabTransformationRule](
+	scHelper = api.NewScopeConfigHelper[models.GitlabScopeConfig](
 		basicRes,
 		vld,
 	)

@@ -35,5 +35,6 @@ func All() []plugin.MigrationScript {
 		new(addConnectionIdToTransformationRule),
 		new(addGitlabCommitAuthorInfo),
 		new(addTypeEnvToPipeline),
+		new(renameTr2ScopeConfig),
 	}
 }
