@@ -24,7 +24,7 @@ class AzurePaginator(Paginator):
         return response.json['value']
 
     def get_next_page_id(self, response) -> Optional[str]:
-        return response.headers.get('x-ms-continuation')
+        return response.headers.get('x-ms-continuationtoken')
 
     def set_next_page_param(self, request, next_page_id):
         request.query_args['continuationToken'] = next_page_id
