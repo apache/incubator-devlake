@@ -127,3 +127,18 @@ func getTaskStatusMapping(data *ZentaoTaskData) map[string]string {
 	}
 	return stdStatusMappings
 }
+
+// getStdTypeMappings creates a map of user type to standard type based on the provided ZentaoTaskData.
+// It returns the created map.
+func getStdTypeMappings(data *ZentaoTaskData) map[string]string {
+	stdTypeMappings := make(map[string]string)
+	if data.Options.TransformationRules == nil {
+		return stdTypeMappings
+	}
+	mapping := data.Options.TransformationRules.TypeMappings
+	// Map user types to standard types
+	for userType, stdType := range mapping {
+		stdTypeMappings[userType] = strings.ToUpper(stdType)
+	}
+	return stdTypeMappings
+}

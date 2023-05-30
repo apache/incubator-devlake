@@ -47,9 +47,12 @@ type ZentaoOptions struct {
 	TransformationRules  *TransformationRules `json:"transformationRules" mapstructure:"transformationRules,omitempty"`
 }
 
+type TypeMappings map[string]string
+
 type StatusMappings map[string]string
 
 type TransformationRules struct {
+	TypeMappings        TypeMappings   `json:"typeMappings"`
 	BugStatusMappings   StatusMappings `json:"bugStatusMappings"`
 	StoryStatusMappings StatusMappings `json:"storyStatusMappings"`
 	TaskStatusMappings  StatusMappings `json:"taskStatusMappings"`
@@ -59,7 +62,14 @@ func MakeTransformationRules(rule models.ZentaoTransformationRule) (*Transformat
 	var bugStatusMapping StatusMappings
 	var storyStatusMapping StatusMappings
 	var taskStatusMapping StatusMappings
+	var typeMapping TypeMappings
 	var err error
+	if len(rule.TypeMappings) > 0 {
+		err = json.Unmarshal(rule.TypeMappings, &typeMapping)
+		if err != nil {
+			return nil, errors.Default.Wrap(err, "unable to unmarshal the typeMapping")
+		}
+	}
 	if len(rule.BugStatusMappings) > 0 {
 		err = json.Unmarshal(rule.BugStatusMappings, &bugStatusMapping)
 		if err != nil {
@@ -79,6 +89,7 @@ func MakeTransformationRules(rule models.ZentaoTransformationRule) (*Transformat
 		}
 	}
 	result := &TransformationRules{
+		TypeMappings:        typeMapping,
 		BugStatusMappings:   bugStatusMapping,
 		StoryStatusMappings: storyStatusMapping,
 		TaskStatusMappings:  taskStatusMapping,

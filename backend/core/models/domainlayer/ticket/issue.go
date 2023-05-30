@@ -64,8 +64,42 @@ const (
 	INCIDENT    = "INCIDENT"
 	TASK        = "TASK"
 
+	// status
 	TODO        = "TODO"
 	DONE        = "DONE"
 	IN_PROGRESS = "IN_PROGRESS"
 	OTHER       = "OTHER"
 )
+
+type StatusRule struct {
+	InProgress []string
+	Todo       []string
+	Done       []string
+	Other      []string
+	Default    string
+}
+
+// GetStatus compare the input with rule for return the enmu value of status
+func GetStatus(rule *StatusRule, input interface{}) string {
+	for _, inp := range rule.InProgress {
+		if inp == input {
+			return IN_PROGRESS
+		}
+	}
+	for _, Todo := range rule.Todo {
+		if Todo == input {
+			return TODO
+		}
+	}
+	for _, done := range rule.Done {
+		if done == input {
+			return DONE
+		}
+	}
+	for _, Other := range rule.Other {
+		if Other == input {
+			return OTHER
+		}
+	}
+	return rule.Default
+}

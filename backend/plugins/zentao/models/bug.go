@@ -164,6 +164,7 @@ type ZentaoBug struct {
 	Actions        datatypes.JSON      `json:"actions"`
 	Url            string              `json:"url"`
 	StdStatus      string              `json:"stdStatus" gorm:"type:varchar(20)"`
+	StdType        string              `json:"stdType" gorm:"type:varchar(20)"`
 }
 
 func (ZentaoBug) TableName() string {

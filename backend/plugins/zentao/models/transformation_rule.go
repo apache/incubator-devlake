@@ -27,6 +27,7 @@ type ZentaoTransformationRule struct {
 	common.Model        `mapstructure:"-"`
 	ConnectionId        uint64          `mapstructure:"connectionId" json:"connectionId"`
 	Name                string          `gorm:"type:varchar(255);index:idx_name_zentao,unique" validate:"required" mapstructure:"name" json:"name"`
+	TypeMappings        json.RawMessage `mapstructure:"typeMappings,omitempty" json:"typeMappings"`
 	BugStatusMappings   json.RawMessage `mapstructure:"bugStatusMappings,omitempty" json:"bugStatusMappings"`
 	StoryStatusMappings json.RawMessage `mapstructure:"storyStatusMappings,omitempty" json:"storyStatusMappings"`
 	TaskStatusMappings  json.RawMessage `mapstructure:"taskStatusMappings,omitempty" json:"taskStatusMappings"`

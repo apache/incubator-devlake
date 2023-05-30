@@ -94,11 +94,6 @@ func ConvertBug(taskCtx plugin.SubTaskContext) errors.Error {
 				Status:          toolEntity.StdStatus,
 			}
 
-			ticket.GetStatus(&ticket.StatusRule{
-				Done:    []string{"resolved"},
-				Default: ticket.IN_PROGRESS,
-			}, toolEntity.Status)
-
 			if toolEntity.ClosedDate != nil {
 				domainEntity.LeadTimeMinutes = int64(toolEntity.ClosedDate.ToNullableTime().Sub(toolEntity.OpenedDate.ToTime()).Minutes())
 			}
