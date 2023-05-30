@@ -18,10 +18,12 @@ limitations under the License.
 package tasks
 
 import (
+	"fmt"
 	"reflect"
 
 	"github.com/apache/incubator-devlake/core/dal"
 	"github.com/apache/incubator-devlake/core/errors"
+	"github.com/apache/incubator-devlake/core/models/common"
 	"github.com/apache/incubator-devlake/core/models/domainlayer"
 	"github.com/apache/incubator-devlake/core/models/domainlayer/didgen"
 	"github.com/apache/incubator-devlake/core/models/domainlayer/ticket"
@@ -30,31 +32,52 @@ import (
 	"github.com/apache/incubator-devlake/plugins/zentao/models"
 )
 
-var _ plugin.SubTaskEntryPoint = ConvertExecutions
+var _ plugin.SubTaskEntryPoint = ConvertChangelog
 
-var ConvertExecutionMeta = plugin.SubTaskMeta{
-	Name:             "convertExecutions",
-	EntryPoint:       ConvertExecutions,
+var ConvertChangelogMeta = plugin.SubTaskMeta{
+	Name:             "ConvertChangelog",
+	EntryPoint:       ConvertChangelog,
 	EnabledByDefault: true,
-	Description:      "convert Zentao executions",
+	Description:      "convert Zentao changelog",
 	DomainTypes:      []string{plugin.DOMAIN_TYPE_TICKET},
 }
 
-func ConvertExecutions(taskCtx plugin.SubTaskContext) errors.Error {
+type ZentaoChangelogSelect struct {
+	common.NoPKModel `json:"-"`
+
+	models.ZentaoChangelog
+	models.ZentaoChangelogDetail
+	models.ZentaoAccount
+
+	CID  int64 `json:"cid" mapstructure:"cid" gorm:"column:cid"`
+	CDID int64 `json:"cdid" mapstructure:"cdid" gorm:"column:cdid"`
+}
+
+func ConvertChangelog(taskCtx plugin.SubTaskContext) errors.Error {
 	data := taskCtx.GetData().(*ZentaoTaskData)
 	db := taskCtx.GetDal()
-	executionIdGen := didgen.NewDomainIdGenerator(&models.ZentaoExecution{})
-	projectIdGen := didgen.NewDomainIdGenerator(&models.ZentaoProject{})
+	changelogIdGen := didgen.NewDomainIdGenerator(&models.ZentaoChangelogDetail{})
+	cn := models.ZentaoChangelog{}.TableName()
+	cdn := models.ZentaoChangelogDetail{}.TableName()
+	an := models.ZentaoAccount{}.TableName()
 	cursor, err := db.Cursor(
-		dal.From(&models.ZentaoExecution{}),
-		dal.Where(`project_id = ? and connection_id = ?`, data.Options.ProjectId, data.Options.ConnectionId),
+		dal.Select(fmt.Sprintf("*,%s.id cid,%s.id cdid ", cn, cdn)),
+		dal.From(&models.ZentaoChangelog{}),
+		dal.Join(fmt.Sprintf("LEFT JOIN %s on %s.changelog_id = %s.id", cdn, cdn, cn)),
+		dal.Join(fmt.Sprintf("LEFT JOIN %s on %s.realname = %s.actor", an, an, cn)),
+		dal.Where(fmt.Sprintf(`%s.product = ? and %s.project = ? and %s.connection_id = ?`,
+			cn, cn, cn),
+			data.Options.ProductId,
+			data.Options.ProjectId,
+			data.Options.ConnectionId),
 	)
 	if err != nil {
 		return err
 	}
 	defer cursor.Close()
+
 	convertor, err := api.NewDataConverter(api.DataConverterArgs{
-		InputRowType: reflect.TypeOf(models.ZentaoExecution{}),
+		InputRowType: reflect.TypeOf(ZentaoChangelogSelect{}),
 		Input:        cursor,
 		RawDataSubTaskArgs: api.RawDataSubTaskArgs{
 			Ctx: taskCtx,
@@ -63,43 +86,30 @@ func ConvertExecutions(taskCtx plugin.SubTaskContext) errors.Error {
 				ProductId:    data.Options.ProductId,
 				ProjectId:    data.Options.ProjectId,
 			},
-			Table: RAW_EXECUTION_TABLE,
+			Table: RAW_ACCOUNT_TABLE,
 		},
 		Convert: func(inputRow interface{}) ([]interface{}, errors.Error) {
-			toolExecution := inputRow.(*models.ZentaoExecution)
+			cl := inputRow.(*ZentaoChangelogSelect)
 
-			domainStatus := ``
-			switch toolExecution.Status {
-			case `wait`:
-				domainStatus = `FUTURE`
-			case `doing`:
-				domainStatus = `ACTIVE`
-			case `suspended`:
-				domainStatus = `SUSPENDED`
-			case `closed`:
-			case `done`:
-				domainStatus = `CLOSED`
-			}
-
-			sprint := &ticket.Sprint{
+			domainCl := &ticket.IssueChangelogs{
 				DomainEntity: domainlayer.DomainEntity{
-					Id: executionIdGen.Generate(toolExecution.ConnectionId, toolExecution.Id),
+					Id: changelogIdGen.Generate(data.Options.ConnectionId, cl.CID, cl.CDID),
 				},
-				Name:            toolExecution.Name,
-				Url:             toolExecution.Path,
-				Status:          domainStatus,
-				StartedDate:     toolExecution.RealBegan.ToNullableTime(),
-				EndedDate:       toolExecution.RealEnd.ToNullableTime(),
-				CompletedDate:   toolExecution.PlanEnd.ToNullableTime(),
-				OriginalBoardID: projectIdGen.Generate(toolExecution.ConnectionId, data.Options.ProjectId),
+				IssueId:           fmt.Sprintf("%d", cl.ObjectId),
+				AuthorId:          fmt.Sprintf("%d", cl.ZentaoAccount.ID),
+				AuthorName:        cl.Actor,
+				FieldId:           cl.Field,
+				FieldName:         cl.Field,
+				OriginalFromValue: cl.Old,
+				OriginalToValue:   cl.New,
+				FromValue:         cl.Old,
+				ToValue:           cl.New,
+				CreatedDate:       cl.Date,
 			}
-			boardSprint := &ticket.BoardSprint{
-				BoardId:  projectIdGen.Generate(toolExecution.ConnectionId, toolExecution.Id),
-				SprintId: sprint.Id,
-			}
-			results := make([]interface{}, 0)
-			results = append(results, sprint, boardSprint)
-			return results, nil
+
+			return []interface{}{
+				domainCl,
+			}, nil
 		},
 	})
 

@@ -92,6 +92,7 @@ type ZentaoBug struct {
 	Needconfirm    bool                `json:"needconfirm"`
 	StatusName     string              `json:"statusName"`
 	ProductStatus  string              `json:"productStatus"`
+	Url            string              `json:"url"`
 }
 
 func (ZentaoBug) TableName() string {

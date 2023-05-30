@@ -18,10 +18,11 @@ limitations under the License.
 package tasks
 
 import (
+	"net/http"
+
 	"github.com/apache/incubator-devlake/core/errors"
 	"github.com/apache/incubator-devlake/helpers/pluginhelper/api"
 	"github.com/apache/incubator-devlake/plugins/zentao/models"
-	"net/http"
 )
 
 func GetTotalPagesFromResponse(res *http.Response, args *api.ApiCollectorArgs) (int, errors.Error) {
@@ -47,6 +48,36 @@ func getAccountId(account *models.ZentaoAccount) int64 {
 func getAccountName(account *models.ZentaoAccount) string {
 	if account != nil {
 		return account.Realname
+	}
+	return ""
+}
+
+// get the Priority string for zentao
+func getPriority(pri int) string {
+	switch pri {
+	case 2:
+		return "High"
+	case 3:
+		return "Middle"
+	case 4:
+		return "Low"
+	default:
+		if pri <= 1 {
+			return "VeryHigh"
+		}
+		if pri >= 5 {
+			return "VeryLow"
+		}
+	}
+	return "Error"
+}
+
+func getOriginalProject(data *ZentaoTaskData) string {
+	if data.Options.ProjectId != 0 {
+		return data.ProjectName
+	}
+	if data.Options.ProductId != 0 {
+		return data.ProductName
 	}
 	return ""
 }

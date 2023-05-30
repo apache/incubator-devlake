@@ -82,6 +82,7 @@ type ZentaoStory struct {
 	Deleted          bool                `json:"deleted"`
 	PriOrder         string              `json:"priOrder"`
 	PlanTitle        string              `json:"planTitle"`
+	Url              string              `json:"url"`
 }
 
 func (ZentaoStory) TableName() string {

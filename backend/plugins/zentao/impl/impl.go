@@ -57,22 +57,30 @@ func (p Zentao) SubTaskMetas() []plugin.SubTaskMeta {
 	return []plugin.SubTaskMeta{
 		tasks.ConvertProductMeta,
 		tasks.ConvertProjectMeta,
+
 		tasks.DBGetChangelogMeta,
+		tasks.ConvertChangelogMeta,
+
 		tasks.CollectExecutionMeta,
 		tasks.ExtractExecutionMeta,
 		tasks.ConvertExecutionMeta,
+
 		tasks.CollectStoryMeta,
 		tasks.ExtractStoryMeta,
 		tasks.ConvertStoryMeta,
+
 		tasks.CollectBugMeta,
 		tasks.ExtractBugMeta,
 		tasks.ConvertBugMeta,
+
 		tasks.CollectTaskMeta,
 		tasks.ExtractTaskMeta,
 		tasks.ConvertTaskMeta,
+
 		tasks.CollectAccountMeta,
 		tasks.ExtractAccountMeta,
 		tasks.ConvertAccountMeta,
+
 		tasks.CollectDepartmentMeta,
 		tasks.ExtractDepartmentMeta,
 		tasks.ConvertDepartmentMeta,

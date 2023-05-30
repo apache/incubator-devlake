@@ -20,6 +20,7 @@ package models
 import (
 	"github.com/apache/incubator-devlake/core/models/common"
 	helper "github.com/apache/incubator-devlake/helpers/pluginhelper/api"
+	"gorm.io/datatypes"
 )
 
 type ZentaoTaskRes struct {
@@ -158,6 +159,8 @@ type ZentaoTask struct {
 	PriOrder           string              `json:"priOrder"`
 	NeedConfirm        bool                `json:"needConfirm"`
 	Progress           float64             `json:"progress"`
+	Actions            datatypes.JSON      `json:"actions"`
+	Url                string              `json"url"`
 }
 
 func (ZentaoTask) TableName() string {

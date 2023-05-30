@@ -89,6 +89,7 @@ type ZentaoTask struct {
 	PriOrder           string              `json:"priOrder"`
 	NeedConfirm        bool                `json:"needConfirm"`
 	Progress           float64             `json:"progress"`
+	Url                string              `json:"url"`
 }
 
 func (ZentaoTask) TableName() string {

@@ -18,6 +18,9 @@ limitations under the License.
 package tasks
 
 import (
+	"reflect"
+	"strconv"
+
 	"github.com/apache/incubator-devlake/core/dal"
 	"github.com/apache/incubator-devlake/core/errors"
 	"github.com/apache/incubator-devlake/core/models/domainlayer"
@@ -26,8 +29,6 @@ import (
 	"github.com/apache/incubator-devlake/core/plugin"
 	"github.com/apache/incubator-devlake/helpers/pluginhelper/api"
 	"github.com/apache/incubator-devlake/plugins/zentao/models"
-	"reflect"
-	"strconv"
 )
 
 var _ plugin.SubTaskEntryPoint = ConvertTask
@@ -73,30 +74,31 @@ func ConvertTask(taskCtx plugin.SubTaskContext) errors.Error {
 				DomainEntity: domainlayer.DomainEntity{
 					Id: taskIdGen.Generate(toolEntity.ConnectionId, toolEntity.ID),
 				},
-				IssueKey:       strconv.FormatInt(toolEntity.ID, 10),
-				Title:          toolEntity.Name,
-				Description:    toolEntity.Description,
-				Type:           ticket.TASK,
-				OriginalType:   toolEntity.Type,
-				OriginalStatus: toolEntity.Status,
-				ResolutionDate: toolEntity.ClosedDate.ToNullableTime(),
-				CreatedDate:    toolEntity.OpenedDate.ToNullableTime(),
-				UpdatedDate:    toolEntity.LastEditedDate.ToNullableTime(),
-				ParentIssueId:  storyIdGen.Generate(data.Options.ConnectionId, toolEntity.Parent),
-				Priority:       string(rune(toolEntity.Pri)),
-				CreatorId:      strconv.FormatInt(toolEntity.OpenedById, 10),
-				CreatorName:    toolEntity.OpenedByName,
-				AssigneeId:     strconv.FormatInt(toolEntity.AssignedToId, 10),
-				AssigneeName:   toolEntity.AssignedToName,
+				IssueKey:        strconv.FormatInt(toolEntity.ID, 10),
+				Title:           toolEntity.Name,
+				Description:     toolEntity.Description,
+				Type:            ticket.TASK,
+				OriginalType:    toolEntity.Type + "." + toolEntity.Mode,
+				OriginalStatus:  toolEntity.Status,
+				ResolutionDate:  toolEntity.ClosedDate.ToNullableTime(),
+				CreatedDate:     toolEntity.OpenedDate.ToNullableTime(),
+				UpdatedDate:     toolEntity.LastEditedDate.ToNullableTime(),
+				ParentIssueId:   storyIdGen.Generate(data.Options.ConnectionId, toolEntity.Parent),
+				Priority:        getPriority(toolEntity.Pri),
+				CreatorId:       strconv.FormatInt(toolEntity.OpenedById, 10),
+				CreatorName:     toolEntity.OpenedByName,
+				AssigneeId:      strconv.FormatInt(toolEntity.AssignedToId, 10),
+				AssigneeName:    toolEntity.AssignedToName,
+				Url:             toolEntity.Url,
+				OriginalProject: getOriginalProject(data),
 			}
-			switch toolEntity.Status {
-			case "done", "closed", "cancel":
-				domainEntity.Status = ticket.DONE
-			case "wait":
-				domainEntity.Status = ticket.TODO
-			default:
-				domainEntity.Status = ticket.IN_PROGRESS
-			}
+
+			ticket.GetStatus(&ticket.StatusRule{
+				Done:    []string{"done", "closed", "cancel"},
+				Todo:    []string{"wait"},
+				Default: ticket.IN_PROGRESS,
+			}, toolEntity.Status)
+
 			if toolEntity.ClosedDate != nil {
 				domainEntity.LeadTimeMinutes = int64(toolEntity.ClosedDate.ToNullableTime().Sub(toolEntity.OpenedDate.ToTime()).Minutes())
 			}

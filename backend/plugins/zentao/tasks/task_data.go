@@ -19,7 +19,6 @@ package tasks
 
 import (
 	"fmt"
-	"time"
 
 	"github.com/apache/incubator-devlake/core/dal"
 	"github.com/apache/incubator-devlake/core/errors"
@@ -48,10 +47,11 @@ type ZentaoOptions struct {
 }
 
 type ZentaoTaskData struct {
-	Options   *ZentaoOptions
-	RemoteDb  dal.Dal
-	TimeAfter *time.Time
-	ApiClient *helper.ApiAsyncClient
+	Options     *ZentaoOptions
+	RemoteDb    dal.Dal
+	ProjectName string
+	ProductName string
+	ApiClient   *helper.ApiAsyncClient
 }
 
 func DecodeAndValidateTaskOptions(options map[string]interface{}) (*ZentaoOptions, error) {
