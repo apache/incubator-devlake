@@ -24,7 +24,7 @@ import { Popover2 } from '@blueprintjs/popover2';
 import { Dialog, PageHeader, PageLoading } from '@/components';
 import { EntitiesLabel } from '@/config';
 import { useRefreshData } from '@/hooks';
-import { DataScopeSelect, getPluginConfig, Transformation } from '@/plugins';
+import { DataScopeSelect, getPluginConfig } from '@/plugins';
 
 import * as API from './api';
 import * as S from './styled';
@@ -59,7 +59,6 @@ export const BlueprintConnectionDetailPage = () => {
         icon: config.icon,
         scope,
         origin,
-        transformationType: config.transformationType,
       },
     };
   }, [version]);
@@ -73,33 +72,6 @@ export const BlueprintConnectionDetailPage = () => {
   const handleShowDataScope = () => setIsOpen(true);
   const handleHideDataScope = () => setIsOpen(false);
 
-  const handleChangeDataScope = async (connections: MixConnection[]) => {
-    const [connection] = connections;
-    await API.updateBlueprint(blueprint.id, {
-      ...blueprint,
-      settings: {
-        ...blueprint.settings,
-        connections: blueprint.settings.connections.map((cs: any) => {
-          if (cs.plugin === connection.plugin && cs.connectionId === connection.connectionId) {
-            return {
-              ...cs,
-              scopes: connection.scope.map((sc: any) => ({
-                id: `${sc.id}`,
-                entities: sc.entities,
-              })),
-            };
-          }
-          return cs;
-        }),
-      },
-    });
-    setVersion((v) => v + 1);
-  };
-
-  const handleChangeTransformation = () => {
-    setVersion((v) => v + 1);
-  };
-
   const handleRemoveConnection = async () => {
     await API.updateBlueprint(blueprint.id, {
       ...blueprint,
@@ -111,6 +83,11 @@ export const BlueprintConnectionDetailPage = () => {
       },
     });
     history.push(pname ? `/projects/:${pname}` : `/blueprints/${blueprint.id}`);
+  };
+
+  const handleChangeDataScope = (scope: any) => {
+    console.log(scope);
+    setVersion((v) => v + 1);
   };
 
   return (
@@ -161,7 +138,6 @@ export const BlueprintConnectionDetailPage = () => {
           ))}
         </ul>
       </S.Entities>
-      <Transformation connections={[connection]} noFooter onSubmit={handleChangeTransformation} />
       <Dialog
         isOpen={isOpen}
         title="Change Data Scope"
@@ -169,7 +145,12 @@ export const BlueprintConnectionDetailPage = () => {
         style={{ width: 820 }}
         onCancel={handleHideDataScope}
       >
-        <DataScopeSelect plugin={connection.plugin} connectionId={connection.connectionId} />
+        <DataScopeSelect
+          plugin={connection.plugin}
+          connectionId={connection.connectionId}
+          onCancel={handleHideDataScope}
+          onSubmit={handleChangeDataScope}
+        />
       </Dialog>
     </PageHeader>
   );

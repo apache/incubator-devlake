@@ -45,7 +45,7 @@ export const GitHubConfig: PluginConfigType = {
           server: ' ',
         },
       },
-      ({ initialValues, values, errors, setValues, setErrors }: any) => (
+      ({ initialValues, values, setValues }: any) => (
         <Authentication
           key="authMethod"
           initialValue={initialValues.authMethod ?? ''}
@@ -54,8 +54,9 @@ export const GitHubConfig: PluginConfigType = {
         />
       ),
       ({ initialValues, values, errors, setValues, setErrors }: any) =>
-        (values.authMethod || initialValues.authMethod) == 'AccessToken' ? (
+        (values.authMethod || initialValues.authMethod) === 'AccessToken' ? (
           <Token
+            key="token"
             endpoint={values.endpoint}
             proxy={values.proxy}
             initialValue={initialValues.token ?? ''}

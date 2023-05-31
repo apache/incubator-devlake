@@ -69,10 +69,14 @@ export const GithubApp = ({ endpoint, proxy, initialValue, value, error, setValu
         secretKey: '',
         installationId: '',
       });
-    }
+    };
   }, [value.appId, value.secretKey, value.installationId]);
 
-  const testConfiguration = async (appId?: string, secretKey?: string, installationId?: number): Promise<GithubAppSettings> => {
+  const testConfiguration = async (
+    appId?: string,
+    secretKey?: string,
+    installationId?: number,
+  ): Promise<GithubAppSettings> => {
     if (!endpoint || !appId || !secretKey) {
       return {
         appId,
@@ -110,7 +114,7 @@ export const GithubApp = ({ endpoint, proxy, initialValue, value, error, setValu
   };
 
   const handleChangeAppId = (value: string) => {
-    setSettings({ ...settings, appId: value });;
+    setSettings({ ...settings, appId: value });
   };
 
   const handleChangeClientSecret = (value: string) => {
@@ -127,7 +131,6 @@ export const GithubApp = ({ endpoint, proxy, initialValue, value, error, setValu
     setSettings(res);
   };
 
-
   useEffect(() => {
     checkConfig(initialValue.appId, initialValue.secretKey, initialValue.installationId);
   }, [initialValue.appId, initialValue.secretKey, initialValue.installationId, endpoint]);
@@ -136,7 +139,6 @@ export const GithubApp = ({ endpoint, proxy, initialValue, value, error, setValu
     setValue({ appId: settings.appId, secretKey: settings.secretKey, installationId: settings.installationId });
   }, [settings.appId, settings.secretKey, settings.installationId]);
 
-
   return (
     <FormGroup
       label={<S.Label>Github App settings</S.Label>}
@@ -144,9 +146,7 @@ export const GithubApp = ({ endpoint, proxy, initialValue, value, error, setValu
       subLabel={
         <S.LabelDescription>
           Input information about your Github App{' '}
-          <ExternalLink link="https://TODO">
-            Learn how to create a github app
-          </ExternalLink>
+          <ExternalLink link="https://TODO">Learn how to create a github app</ExternalLink>
         </S.LabelDescription>
       }
     >
@@ -184,7 +184,7 @@ export const GithubApp = ({ endpoint, proxy, initialValue, value, error, setValu
       <S.Input>
         <Select2
           items={settings.installations ?? []}
-          activeItem={settings.installations?.find(e => e.id === settings.installationId)}
+          activeItem={settings.installations?.find((e) => e.id === settings.installationId)}
           itemPredicate={(query, item) => item.account.login.toLowerCase().includes(query.toLowerCase())}
           itemRenderer={(item, { handleClick, handleFocus, modifiers }) => {
             return (
@@ -197,7 +197,7 @@ export const GithubApp = ({ endpoint, proxy, initialValue, value, error, setValu
                 onFocus={handleFocus}
                 roleStructure="listoption"
                 text={item.account.login}
-            />
+              />
             );
           }}
           onItemSelect={(item) => {
@@ -207,9 +207,13 @@ export const GithubApp = ({ endpoint, proxy, initialValue, value, error, setValu
           popoverProps={{ minimal: true }}
         >
           <Button
-            text={settings.installations?.find(e => e.id === settings.installationId)?.account.login ?? 'Select App installation'}
+            text={
+              settings.installations?.find((e) => e.id === settings.installationId)?.account.login ??
+              'Select App installation'
+            }
             rightIcon="double-caret-vertical"
-            placeholder="Select App installation" />
+            placeholder="Select App installation"
+          />
         </Select2>
       </S.Input>
     </FormGroup>

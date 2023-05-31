@@ -16,24 +16,22 @@
  *
  */
 
-import styled from 'styled-components';
+import { request } from '@/utils';
 
-export const Wrapper = styled.div``;
+export const getScopeConfigs = (plugin: string, connectionId: ID) =>
+  request(`/plugins/${plugin}/connections/${connectionId}/scope_configs`);
 
-export const Tips = styled.div`
-  padding: 24px;
-  background: #f0f4fe;
-  border: 1px solid #bdcefb;
-  border-radius: 4px;
-`;
+export const getScopeConfig = (plugin: string, connectionId: ID, id: ID) =>
+  request(`/plugins/${plugin}/connections/${connectionId}/scope_configs/${id}`);
 
-export const Btns = styled.div`
-  display: flex;
-  align-items: center;
-  justify-content: end;
-  margin-top: 24px;
+export const createScopeConfig = (plugin: string, connectionId: ID, payload: any) =>
+  request(`/plugins/${plugin}/connections/${connectionId}/scope_configs`, {
+    method: 'post',
+    data: payload,
+  });
 
-  .bp4-button + .bp4-button {
-    margin-left: 4px;
-  }
-`;
+export const updateScopeConfig = (plugin: string, connectionId: ID, id: ID, payload: any) =>
+  request(`/plugins/${plugin}/connections/${connectionId}/scope_configs/${id}`, {
+    method: 'patch',
+    data: payload,
+  });

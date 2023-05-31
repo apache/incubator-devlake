@@ -16,37 +16,19 @@
  *
  */
 
-import styled from 'styled-components';
+import { request } from '@/utils';
 
-export const List = styled.div``;
+export const getScopeConfig = (plugin: string, connectionId: ID, id: ID) =>
+  request(`/plugins/${plugin}/connections/${connectionId}/scope_configs/${id}`);
 
-export const Item = styled.div`
-  margin-bottom: 36px;
+export const createScopeConfig = (plugin: string, connectionId: ID, payload: any) =>
+  request(`/plugins/${plugin}/connections/${connectionId}/scope_configs`, {
+    method: 'post',
+    data: payload,
+  });
 
-  &:last-child {
-    margin-bottom: 0;
-  }
-`;
-
-export const Title = styled.div`
-  display: flex;
-  align-items: center;
-  margin-bottom: 16px;
-
-  img {
-    margin-right: 4px;
-    width: 24px;
-    height: 24px;
-  }
-`;
-
-export const Action = styled.div`
-  margin-bottom: 16px;
-`;
-
-export const Btns = styled.div`
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  margin-top: 36px;
-`;
+export const updateScopeConfig = (plugin: string, connectionId: ID, id: ID, payload: any) =>
+  request(`/plugins/${plugin}/connections/${connectionId}/scope_configs/${id}`, {
+    method: 'patch',
+    data: payload,
+  });

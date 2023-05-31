@@ -16,8 +16,6 @@
  *
  */
 
-import { Intent } from '@blueprintjs/core';
-
 import { toast } from '@/components';
 
 export type OperateConfig = {
