@@ -20,6 +20,7 @@ package models
 import (
 	"github.com/apache/incubator-devlake/core/models/common"
 	helper "github.com/apache/incubator-devlake/helpers/pluginhelper/api"
+	"gorm.io/datatypes"
 )
 
 type ZentaoTaskRes struct {
@@ -84,11 +85,12 @@ type ZentaoTaskRes struct {
 	} `json:"latestStoryVersion"`
 	StoryStatus interface {
 	} `json:"storyStatus"`
-	AssignedToRealName string  `json:"assignedToRealName"`
-	PriOrder           string  `json:"priOrder"`
-	Delay              int     `json:"delay"`
-	NeedConfirm        bool    `json:"needConfirm"`
-	Progress           float64 `json:"progress"`
+	AssignedToRealName string         `json:"assignedToRealName"`
+	PriOrder           string         `json:"priOrder"`
+	Delay              int            `json:"delay"`
+	NeedConfirm        bool           `json:"needConfirm"`
+	Progress           float64        `json:"progress"`
+	Actions            datatypes.JSON `json:"actions"`
 }
 
 type ZentaoTask struct {
@@ -158,6 +160,7 @@ type ZentaoTask struct {
 	PriOrder           string              `json:"priOrder"`
 	NeedConfirm        bool                `json:"needConfirm"`
 	Progress           float64             `json:"progress"`
+	Actions            datatypes.JSON      `json:"actions"`
 }
 
 func (ZentaoTask) TableName() string {

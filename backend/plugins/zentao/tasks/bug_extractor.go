@@ -129,6 +129,7 @@ func ExtractBug(taskCtx plugin.SubTaskContext) errors.Error {
 				Needconfirm:    res.Needconfirm,
 				StatusName:     res.StatusName,
 				ProductStatus:  res.ProductStatus,
+				Actions:        res.Actions,
 			}
 			results := make([]interface{}, 0)
 			results = append(results, bug)

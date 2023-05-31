@@ -128,6 +128,7 @@ func ExtractTask(taskCtx plugin.SubTaskContext) errors.Error {
 				NeedConfirm:        res.NeedConfirm,
 				//ProductType:        res.ProductType,
 				Progress: res.Progress,
+				Actions:  res.Actions,
 			}
 			results := make([]interface{}, 0)
 			results = append(results, task)
