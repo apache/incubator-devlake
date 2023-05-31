@@ -41,6 +41,7 @@ type PagerDutyTaskData struct {
 
 type PagerDutyParams struct {
 	ConnectionId uint64
+	ServiceId    string
 }
 
 func DecodeAndValidateTaskOptions(options map[string]interface{}) (*PagerDutyOptions, errors.Error) {
