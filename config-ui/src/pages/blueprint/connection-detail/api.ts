@@ -26,5 +26,5 @@ export const updateBlueprint = (id: ID, payload: any) =>
 export const getConnection = (plugin: string, connectionId: ID) =>
   request(`/plugins/${plugin}/connections/${connectionId}`);
 
-export const getDataScope = (plugin: string, connectionId: ID, scopeId: ID) =>
-  request(`/plugins/${plugin}/connections/${connectionId}/scopes/${scopeId}`);
+export const getDataScopes = (plugin: string, connectionId: ID) =>
+  request(`/plugins/${plugin}/connections/${connectionId}/scopes`);

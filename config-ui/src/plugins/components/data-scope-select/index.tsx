@@ -17,9 +17,9 @@
  */
 
 import { useState, useEffect } from 'react';
-import { Button, InputGroup, Intent } from '@blueprintjs/core';
+import { Button, Intent } from '@blueprintjs/core';
 
-import { FormItem, ExternalLink, Table, Buttons } from '@/components';
+import { PageLoading, FormItem, ExternalLink, Buttons, Table } from '@/components';
 import { useRefreshData } from '@/hooks';
 import { getPluginId } from '@/plugins';
 
@@ -48,49 +48,67 @@ export const DataScopeSelect = ({ plugin, connectionId, initialScope, onSubmit, 
     onSubmit?.(scope);
   };
 
+  if (!ready || !data) {
+    return <PageLoading />;
+  }
+
   return (
     <FormItem
       label="Select Data Scope"
       subLabel={
-        <>
-          {' '}
-          Select the data scope in this Connection that you wish to associate with this Project. If you wish to add more
-          Data Scope to this Connection, please{' '}
-          <ExternalLink link={`/connections/${plugin}/${connectionId}`}>go to the Connection page</ExternalLink>.
-        </>
+        data.length ? (
+          <>
+            Select the data scope in this Connection that you wish to associate with this Project. If you wish to add
+            more Data Scope to this Connection, please{' '}
+            <ExternalLink link={`/connections/${plugin}/${connectionId}`}>go to the Connection page</ExternalLink>.
+          </>
+        ) : (
+          <>
+            There is no Data Scope in this connection yet, please{' '}
+            <ExternalLink link={`/connections/${plugin}/${connectionId}`}>
+              add Data Scope and manage their Scope Configs
+            </ExternalLink>{' '}
+            first.
+          </>
+        )
       }
       required
     >
-      <S.Wrapper>
-        <div className="action">
-          <Button intent={Intent.PRIMARY} icon="refresh" text="Refresh Data Scope" />
-        </div>
-        <div className="search">
-          <InputGroup placeholder="Search for Data Scopes" />
-        </div>
-        <Table
-          noShadow
-          loading={!ready}
-          columns={[
-            {
-              title: 'Data Scope',
-              dataIndex: 'name',
-              key: 'name',
-            },
-          ]}
-          dataSource={data}
-          rowSelection={{
-            rowKey: getPluginId(plugin),
-            type: 'checkbox',
-            selectedRowKeys: scopeIds as string[],
-            onChange: (selectedRowKeys) => setScopeIds(selectedRowKeys),
-          }}
-        />
-        <Buttons>
-          <Button outlined intent={Intent.PRIMARY} text="Cancel" onClick={onCancel} />
-          <Button intent={Intent.PRIMARY} text="Save" onClick={handleSubmit} />
-        </Buttons>
-      </S.Wrapper>
+      {data.length ? (
+        <S.Wrapper>
+          <Buttons position="top" align="left">
+            <Button intent={Intent.PRIMARY} icon="refresh" text="Refresh Data Scope" />
+          </Buttons>
+          <Table
+            noShadow
+            loading={!ready}
+            columns={[
+              {
+                title: 'Data Scope',
+                dataIndex: 'name',
+                key: 'name',
+              },
+            ]}
+            dataSource={data}
+            rowSelection={{
+              rowKey: getPluginId(plugin),
+              type: 'checkbox',
+              selectedRowKeys: scopeIds as string[],
+              onChange: (selectedRowKeys) => setScopeIds(selectedRowKeys),
+            }}
+          />
+          <Buttons>
+            <Button outlined intent={Intent.PRIMARY} text="Cancel" onClick={onCancel} />
+            <Button disabled={!scopeIds.length} intent={Intent.PRIMARY} text="Save" onClick={handleSubmit} />
+          </Buttons>
+        </S.Wrapper>
+      ) : (
+        <S.Wrapper>
+          <ExternalLink link={`/connections/${plugin}/${connectionId}`}>
+            <Button intent={Intent.PRIMARY} icon="add" text="Add Data Scope" />
+          </ExternalLink>
+        </S.Wrapper>
+      )}
     </FormItem>
   );
 };

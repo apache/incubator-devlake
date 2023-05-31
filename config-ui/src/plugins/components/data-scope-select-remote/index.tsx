@@ -39,8 +39,8 @@ interface Props {
   plugin: string;
   connectionId: ID;
   disabledScope?: any[];
-  onCancel?: () => void;
-  onSubmit?: (origin: any) => void;
+  onCancel: () => void;
+  onSubmit: (origin: any) => void;
 }
 
 export const DataScopeSelectRemote = ({ plugin, connectionId, disabledScope, onSubmit, onCancel }: Props) => {
@@ -79,9 +79,10 @@ export const DataScopeSelectRemote = ({ plugin, connectionId, disabledScope, onS
               data,
             });
 
-      onSubmit?.(res);
+      onSubmit(res);
     } finally {
       setOperating(false);
+      onCancel();
     }
   };
 

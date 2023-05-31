@@ -19,16 +19,5 @@
 import styled from 'styled-components';
 
 export const Wrapper = styled.div`
-  .action {
-    margin-top: 24px;
-  }
-
-  .search {
-    margin-top: 24px;
-    margin-bottom: 24px;
-  }
-
-  .btns {
-    display: flex;
-  }
+  margin-top: 24px;
 `;

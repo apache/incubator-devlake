@@ -20,16 +20,16 @@ import { useState, useEffect, useMemo } from 'react';
 import { Link } from 'react-router-dom';
 import { Button, Intent } from '@blueprintjs/core';
 
-import { IconButton, Table, NoData } from '@/components';
+import { IconButton, Table, NoData, Buttons } from '@/components';
 import { useConnections } from '@/hooks';
 import { getPluginConfig } from '@/plugins';
 
-import type { BlueprintType } from '../../types';
-import { ModeEnum } from '../../types';
-import { validRawPlan } from '../../utils';
+import type { BlueprintType } from '../types';
+import { ModeEnum } from '../types';
+import { validRawPlan } from '../utils';
 
-import { AdvancedEditor, UpdateNameDialog, UpdatePolicyDialog, AddConnectionDialog } from '../components';
-import * as S from '../styled';
+import { AdvancedEditor, UpdateNameDialog, UpdatePolicyDialog, AddConnectionDialog } from './components';
+import * as S from './styled';
 
 interface Props {
   blueprint: BlueprintType;
@@ -37,7 +37,7 @@ interface Props {
   onUpdate: (payload: any, callback?: () => void) => void;
 }
 
-export const Configuration = ({ blueprint, operating, onUpdate }: Props) => {
+export const ConfigurationPanel = ({ blueprint, operating, onUpdate }: Props) => {
   const [type, setType] = useState<'name' | 'policy' | 'add-connection'>();
   const [rawPlan, setRawPlan] = useState('');
 
@@ -81,10 +81,6 @@ export const Configuration = ({ blueprint, operating, onUpdate }: Props) => {
 
   const handleShowAddConnectionDialog = () => {
     setType('add-connection');
-  };
-
-  const handleAddConnection = (value: any) => {
-    console.log(value);
   };
 
   return (
@@ -149,22 +145,32 @@ export const Configuration = ({ blueprint, operating, onUpdate }: Props) => {
               }
             />
           ) : (
-            <S.ConnectionList>
-              {connections.map((cs) => (
-                <S.ConnectionItem key={cs.unique}>
-                  <div className="title">
-                    <img src={cs.icon} alt="" />
-                    <span>{cs.name}</span>
-                  </div>
-                  <div className="count">
-                    <span>{cs.scope.length} data scope</span>
-                  </div>
-                  <div className="link">
-                    <Link to={`${cs.unique}`}>View Detail</Link>
-                  </div>
-                </S.ConnectionItem>
-              ))}
-            </S.ConnectionList>
+            <>
+              <Buttons position="top" align="left">
+                <Button
+                  intent={Intent.PRIMARY}
+                  icon="add"
+                  text="Add a Connection"
+                  onClick={handleShowAddConnectionDialog}
+                />
+              </Buttons>
+              <S.ConnectionList>
+                {connections.map((cs) => (
+                  <S.ConnectionItem key={cs.unique}>
+                    <div className="title">
+                      <img src={cs.icon} alt="" />
+                      <span>{cs.name}</span>
+                    </div>
+                    <div className="count">
+                      <span>{cs.scope.length} data scope</span>
+                    </div>
+                    <div className="link">
+                      <Link to={`/blueprints/${blueprint.id}/${cs.unique}`}>Edit Data Scope and Scope Config</Link>
+                    </div>
+                  </S.ConnectionItem>
+                ))}
+              </S.ConnectionList>
+            </>
           )}
         </div>
       )}
@@ -205,7 +211,17 @@ export const Configuration = ({ blueprint, operating, onUpdate }: Props) => {
           onSubmit={(payload) => onUpdate(payload, handleCancel)}
         />
       )}
-      {type === 'add-connection' && <AddConnectionDialog onCancel={handleCancel} onSubmit={handleAddConnection} />}
+      {type === 'add-connection' && (
+        <AddConnectionDialog
+          disabled={connections.map((cs) => cs.unique)}
+          onCancel={handleCancel}
+          onSubmit={(connection) =>
+            onUpdate({
+              settings: { ...blueprint.settings, connections: [...blueprint.settings.connections, connection] },
+            })
+          }
+        />
+      )}
     </S.ConfigurationPanel>
   );
 };

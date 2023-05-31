@@ -24,7 +24,8 @@ export const getBlueprint = (id: ID): Promise<BlueprintType> => request(`/bluepr
 
 export const getBlueprintPipelines = (id: ID) => request(`/blueprints/${id}/pipelines`);
 
-export const runBlueprint = (id: ID) => request(`/blueprints/${id}/trigger`, { method: 'post' });
+export const runBlueprint = (id: ID, skipCollectors: boolean) =>
+  request(`/blueprints/${id}/trigger`, { method: 'post', data: { skipCollectors } });
 
 export const updateBlueprint = (id: ID, payload: any) =>
   request(`/blueprints/${id}`, { method: 'patch', data: payload });
