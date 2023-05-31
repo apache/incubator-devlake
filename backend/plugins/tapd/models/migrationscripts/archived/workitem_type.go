@@ -24,7 +24,7 @@ import (
 
 type TapdWorkitemType struct {
 	ConnectionId   uint64          `gorm:"primaryKey;type:BIGINT  NOT NULL"`
-	Id             uint64          `gorm:"primaryKey;type:BIGINT  NOT NULL" json:"id,string"`
+	Id             uint64          `gorm:"primaryKey;type:BIGINT  NOT NULL;autoIncrement:false" json:"id,string"`
 	WorkspaceId    uint64          `json:"workspace_id,string"`
 	EntityType     string          `gorm:"type:varchar(255)" json:"entity_type"`
 	Name           string          `gorm:"type:varchar(255)" json:"name"`

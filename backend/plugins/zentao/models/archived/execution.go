@@ -24,7 +24,7 @@ import (
 
 type ZentaoExecution struct {
 	ConnectionId   uint64              `gorm:"primaryKey;type:BIGINT  NOT NULL"`
-	Id             int64               `json:"id" gorm:"primaryKey;type:BIGINT  NOT NULL"`
+	Id             int64               `json:"id" gorm:"primaryKey;type:BIGINT  NOT NULL;autoIncrement:false"`
 	Project        int64               `json:"project"`
 	Model          string              `json:"model"`
 	Type           string              `json:"type"`
