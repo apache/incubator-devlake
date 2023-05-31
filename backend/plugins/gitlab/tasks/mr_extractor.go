@@ -79,7 +79,7 @@ var ExtractApiMergeRequestsMeta = plugin.SubTaskMeta{
 
 func ExtractApiMergeRequests(taskCtx plugin.SubTaskContext) errors.Error {
 	rawDataSubTaskArgs, data := CreateRawDataSubTaskArgs(taskCtx, RAW_MERGE_REQUEST_TABLE)
-	config := data.Options.GitlabTransformationRule
+	config := data.Options.ScopeConfig
 	var labelTypeRegex *regexp.Regexp
 	var labelComponentRegex *regexp.Regexp
 	var prType = config.PrType

@@ -42,21 +42,20 @@ import (
 
 func TestMakeDataSourcePipelinePlanV200(t *testing.T) {
 	const testConnectionID uint64 = 1
-	const testTransformationRuleId uint64 = 2
+	const testScopeConfigId uint64 = 2
 	const testID int = 37
 	const testGitlabEndPoint string = "https://gitlab.com/api/v4/"
 	const testHttpUrlToRepo string = "https://this_is_cloneUrl"
 	const testToken string = "nddtf"
 	const testName string = "gitlab-test"
-	const testTransformationRuleName string = "github transformation rule"
+	const testScopeConfigName string = "gitlab scope config"
 	const testProxy string = ""
 
 	syncPolicy := &plugin.BlueprintSyncPolicy{}
 	bpScopes := []*plugin.BlueprintScopeV200{
 		{
-			Entities: []string{plugin.DOMAIN_TYPE_CODE, plugin.DOMAIN_TYPE_TICKET, plugin.DOMAIN_TYPE_CICD},
-			Id:       strconv.Itoa(testID),
-			Name:     testName,
+			Id:   strconv.Itoa(testID),
+			Name: testName,
 		},
 	}
 
@@ -65,16 +64,19 @@ func TestMakeDataSourcePipelinePlanV200(t *testing.T) {
 		GitlabId:     testID,
 		Name:         testName,
 
-		TransformationRuleId: testTransformationRuleId,
-		CreatedDate:          &time.Time{},
-		HttpUrlToRepo:        testHttpUrlToRepo,
+		ScopeConfigId: testScopeConfigId,
+		CreatedDate:   &time.Time{},
+		HttpUrlToRepo: testHttpUrlToRepo,
 	}
 
-	var testTransformationRule = &models.GitlabTransformationRule{
-		Model: common.Model{
-			ID: testTransformationRuleId,
+	var testScopeConfig = &models.GitlabScopeConfig{
+		ScopeConfig: common.ScopeConfig{
+			Model: common.Model{
+				ID: testScopeConfigId,
+			},
+			Entities: []string{plugin.DOMAIN_TYPE_CODE, plugin.DOMAIN_TYPE_TICKET, plugin.DOMAIN_TYPE_CICD},
 		},
-		Name:   testTransformationRuleName,
+		Name:   testScopeConfigName,
 		PrType: "hey,man,wasup",
 		Refdiff: map[string]interface{}{
 			"tagsPattern": "pattern",
@@ -132,9 +134,9 @@ func TestMakeDataSourcePipelinePlanV200(t *testing.T) {
 					tasks.ExtractApiPipelinesMeta.Name,
 				},
 				Options: map[string]interface{}{
-					"connectionId":         uint64(1),
-					"projectId":            testID,
-					"transformationRuleId": testTransformationRuleId,
+					"connectionId":  uint64(1),
+					"projectId":     testID,
+					"scopeConfigId": testScopeConfigId,
 				},
 			},
 			{
@@ -180,20 +182,20 @@ func TestMakeDataSourcePipelinePlanV200(t *testing.T) {
 
 	// Refresh Global Variables and set the sql mock
 	basicRes = unithelper.DummyBasicRes(func(mockDal *mockdal.Dal) {
-		mockDal.On("First", mock.Anything, mock.Anything).Run(func(args mock.Arguments) {
+		mockDal.On("First", mock.AnythingOfType("*models.GitlabConnection"), mock.Anything).Run(func(args mock.Arguments) {
 			dst := args.Get(0).(*models.GitlabConnection)
 			*dst = *testGitlabConnection
-		}).Return(nil).Once()
+		}).Return(nil)
 
-		mockDal.On("First", mock.Anything, mock.Anything).Run(func(args mock.Arguments) {
+		mockDal.On("First", mock.AnythingOfType("*models.GitlabProject"), mock.Anything).Run(func(args mock.Arguments) {
 			dst := args.Get(0).(*models.GitlabProject)
 			*dst = *testGitlabProject
-		}).Return(nil).Twice()
+		}).Return(nil)
 
-		mockDal.On("First", mock.Anything, mock.Anything).Run(func(args mock.Arguments) {
-			dst := args.Get(0).(*models.GitlabTransformationRule)
-			*dst = *testTransformationRule
-		}).Return(nil).Once()
+		mockDal.On("First", mock.AnythingOfType("*models.GitlabScopeConfig"), mock.Anything).Run(func(args mock.Arguments) {
+			dst := args.Get(0).(*models.GitlabScopeConfig)
+			*dst = *testScopeConfig
+		}).Return(nil)
 	})
 	connectionHelper = helper.NewConnectionHelper(
 		basicRes,

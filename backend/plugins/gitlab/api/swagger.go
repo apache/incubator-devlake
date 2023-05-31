@@ -17,38 +17,16 @@ limitations under the License.
 
 package api
 
-// @Summary blueprints setting for gitlab
-// @Description blueprint setting for gitlab
+import (
+	"github.com/apache/incubator-devlake/plugins/gitlab/tasks"
+)
+
+type GitlabTaskOptions tasks.GitlabOptions
+
+// @Summary gitlab task options for pipelines
+// @Description This is a dummy API to demonstrate the available task options for gitlab pipelines
 // @Tags plugins/gitlab
 // @Accept application/json
-// @Param blueprint body GitlabBlueprintSetting true "json"
-// @Router /blueprints/gitlab/blueprint-setting [post]
+// @Param pipeline body GitlabTaskOptions true "json"
+// @Router /pipelines/gitlab/pipeline-task [post]
 func _() {}
-
-type GitlabBlueprintSetting []struct {
-	Version     string `json:"version"`
-	Connections []struct {
-		Plugin       string `json:"plugin"`
-		ConnectionID int    `json:"connectionId"`
-		Scope        []struct {
-			Transformation CodeTransformationRules `json:"transformation"`
-			Options        struct {
-				ProjectId int `json:"projectId"`
-				Since     string
-			} `json:"options"`
-			Entities []string `json:"entities"`
-		} `json:"scopes"`
-	} `json:"connections"`
-}
-
-type CodeTransformationRules struct {
-	PrType               string `mapstructure:"prType" json:"prType"`
-	PrComponent          string `mapstructure:"prComponent" json:"prComponent"`
-	PrBodyClosePattern   string `mapstructure:"prBodyClosePattern" json:"prBodyClosePattern"`
-	IssueSeverity        string `mapstructure:"issueSeverity" json:"issueSeverity"`
-	IssuePriority        string `mapstructure:"issuePriority" json:"issuePriority"`
-	IssueComponent       string `mapstructure:"issueComponent" json:"issueComponent"`
-	IssueTypeBug         string `mapstructure:"issueTypeBug" json:"issueTypeBug"`
-	IssueTypeIncident    string `mapstructure:"issueTypeIncident" json:"issueTypeIncident"`
-	IssueTypeRequirement string `mapstructure:"issueTypeRequirement" json:"issueTypeRequirement"`
-}

@@ -18,9 +18,10 @@ limitations under the License.
 package e2e
 
 import (
+	"testing"
+
 	"github.com/apache/incubator-devlake/core/models/common"
 	"github.com/apache/incubator-devlake/core/models/domainlayer/devops"
-	"testing"
 
 	"github.com/apache/incubator-devlake/core/models/domainlayer/crossdomain"
 	"github.com/apache/incubator-devlake/core/models/domainlayer/ticket"
@@ -39,9 +40,9 @@ func TestGitlabProjectDataFlow(t *testing.T) {
 
 	taskData := &tasks.GitlabTaskData{
 		Options: &tasks.GitlabOptions{
-			ConnectionId:             1,
-			ProjectId:                12345678,
-			GitlabTransformationRule: new(models.GitlabTransformationRule),
+			ConnectionId: 1,
+			ProjectId:    12345678,
+			ScopeConfig:  new(models.GitlabScopeConfig),
 		},
 	}
 
