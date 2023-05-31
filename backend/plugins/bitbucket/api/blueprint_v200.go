@@ -130,7 +130,7 @@ func makeDataSourcePipelinePlanV200(
 		}
 
 		// add gitex stage
-		if utils.StringsContains(bpScope.Entities, plugin.DOMAIN_TYPE_CODE) {
+		if utils.StringsContains(scopeConfig.Entities, plugin.DOMAIN_TYPE_CODE) {
 			cloneUrl, err := errors.Convert01(url.Parse(repo.CloneUrl))
 			if err != nil {
 				return nil, err
@@ -153,16 +153,23 @@ func makeDataSourcePipelinePlanV200(
 
 func makeScopesV200(bpScopes []*plugin.BlueprintScopeV200, connection *models.BitbucketConnection) ([]plugin.Scope, errors.Error) {
 	scopes := make([]plugin.Scope, 0)
+	db := basicRes.GetDal()
 	for _, bpScope := range bpScopes {
 		repo := &models.BitbucketRepo{}
 		// get repo from db
-		err := basicRes.GetDal().First(repo, dal.Where(`connection_id = ? AND bitbucket_id = ?`, connection.ID, bpScope.Id))
+		err := db.First(repo, dal.Where(`connection_id = ? AND bitbucket_id = ?`, connection.ID, bpScope.Id))
 		if err != nil {
 			return nil, errors.Default.Wrap(err, fmt.Sprintf("fail to find repo%s", bpScope.Id))
 		}
-		if utils.StringsContains(bpScope.Entities, plugin.DOMAIN_TYPE_CODE_REVIEW) ||
-			utils.StringsContains(bpScope.Entities, plugin.DOMAIN_TYPE_CODE) ||
-			utils.StringsContains(bpScope.Entities, plugin.DOMAIN_TYPE_CROSS) {
+		scopeConfig := &models.BitbucketScopeConfig{}
+		// get scope configs from db
+		err = db.First(scopeConfig, dal.Where(`id = ?`, repo.ScopeConfigId))
+		if err != nil && !db.IsErrorNotFound(err) {
+			return nil, err
+		}
+		if utils.StringsContains(scopeConfig.Entities, plugin.DOMAIN_TYPE_CODE_REVIEW) ||
+			utils.StringsContains(scopeConfig.Entities, plugin.DOMAIN_TYPE_CODE) ||
+			utils.StringsContains(scopeConfig.Entities, plugin.DOMAIN_TYPE_CROSS) {
 			// if we don't need to collect gitex, we need to add repo to scopes here
 			scopeRepo := &code.Repo{
 				DomainEntity: domainlayer.DomainEntity{
@@ -173,7 +180,7 @@ func makeScopesV200(bpScopes []*plugin.BlueprintScopeV200, connection *models.Bi
 			scopes = append(scopes, scopeRepo)
 		}
 		// add cicd_scope to scopes
-		if utils.StringsContains(bpScope.Entities, plugin.DOMAIN_TYPE_CICD) {
+		if utils.StringsContains(scopeConfig.Entities, plugin.DOMAIN_TYPE_CICD) {
 			scopeCICD := &devops.CicdScope{
 				DomainEntity: domainlayer.DomainEntity{
 					Id: didgen.NewDomainIdGenerator(&models.BitbucketRepo{}).Generate(connection.ID, repo.BitbucketId),
@@ -183,7 +190,7 @@ func makeScopesV200(bpScopes []*plugin.BlueprintScopeV200, connection *models.Bi
 			scopes = append(scopes, scopeCICD)
 		}
 		// add board to scopes
-		if utils.StringsContains(bpScope.Entities, plugin.DOMAIN_TYPE_TICKET) {
+		if utils.StringsContains(scopeConfig.Entities, plugin.DOMAIN_TYPE_TICKET) {
 			scopeTicket := &ticket.Board{
 				DomainEntity: domainlayer.DomainEntity{
 					Id: didgen.NewDomainIdGenerator(&models.BitbucketRepo{}).Generate(connection.ID, repo.BitbucketId),

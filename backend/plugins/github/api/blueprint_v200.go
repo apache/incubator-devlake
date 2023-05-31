@@ -175,7 +175,6 @@ func makeScopesV200(bpScopes []*plugin.BlueprintScopeV200, connection *models.Gi
 			return nil, err
 		}
 
-		basicRes.GetDal().First(scopeConfig, dal.Where(`id = ?`, githubRepo.ScopeConfigId))
 		if utils.StringsContains(scopeConfig.Entities, plugin.DOMAIN_TYPE_CODE_REVIEW) ||
 			utils.StringsContains(scopeConfig.Entities, plugin.DOMAIN_TYPE_CODE) ||
 			utils.StringsContains(scopeConfig.Entities, plugin.DOMAIN_TYPE_CROSS) {

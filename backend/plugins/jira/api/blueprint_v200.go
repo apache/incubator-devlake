@@ -47,14 +47,14 @@ func MakeDataSourcePipelinePlanV200(subtaskMetas []plugin.SubTaskMeta, connectio
 	return plan, scopes, nil
 }
 
-func getScopeConfigByScopeId(basicRes context.BasicRes, scopeId string) (*models.JiraScopeConfig, errors.Error) {
+func getScopeConfigByScopeId(basicRes context.BasicRes, connectionId uint64, scopeId string) (*models.JiraScopeConfig, errors.Error) {
 	db := basicRes.GetDal()
 	scopeConfig := &models.JiraScopeConfig{}
 	err := db.First(scopeConfig,
-		dal.Select("sc.*"),
-		dal.From("_tool_jira_scope_configs sc"),
-		dal.Join("LEFT JOIN _tool_jira_boards b ON (b.scope_config_id = sc.id)"),
-		dal.Where("b.board_id = ?", scopeId),
+		dal.Select("c.*"),
+		dal.From("_tool_jira_scope_configs c"),
+		dal.Join("LEFT JOIN _tool_jira_boards s ON (s.scope_config_id = c.id)"),
+		dal.Where("s.connection_id = ? AND s.board_id = ?", connectionId, scopeId),
 	)
 	if err != nil {
 		return nil, err
@@ -83,7 +83,7 @@ func makeDataSourcePipelinePlanV200(
 			options["timeAfter"] = syncPolicy.TimeAfter.Format(time.RFC3339)
 		}
 
-		scopeConfig, err := getScopeConfigByScopeId(basicRes, bpScope.Id)
+		scopeConfig, err := getScopeConfigByScopeId(basicRes, connectionId, bpScope.Id)
 		if err != nil {
 			return nil, err
 		}
@@ -118,7 +118,7 @@ func makeScopesV200(
 		if err != nil {
 			return nil, errors.Default.Wrap(err, fmt.Sprintf("fail to find board %s", bpScope.Id))
 		}
-		scopeConfig, err := getScopeConfigByScopeId(basicRes, bpScope.Id)
+		scopeConfig, err := getScopeConfigByScopeId(basicRes, connectionId, bpScope.Id)
 		if err != nil {
 			return nil, err
 		}
