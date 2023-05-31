@@ -61,8 +61,7 @@ func TestMakeDataSourcePipelinePlanV200(t *testing.T) {
 	// Refresh Global Variables and set the sql mock
 	basicRes = NewMockBasicRes()
 	bs := &plugin.BlueprintScopeV200{
-		Entities: []string{"CODE", "TICKET"},
-		Id:       "1",
+		Id: "1",
 	}
 	bpScopes := make([]*plugin.BlueprintScopeV200, 0)
 	bpScopes = append(bpScopes, bs)
@@ -142,6 +141,7 @@ func NewMockBasicRes() *mockcontext.BasicRes {
 
 	testScopeConfig := &models.BitbucketScopeConfig{
 		ScopeConfig: common.ScopeConfig{
+			Entities: []string{"CODE", "TICKET"},
 			Model: common.Model{
 				ID: 1,
 			},
@@ -157,15 +157,15 @@ func NewMockBasicRes() *mockcontext.BasicRes {
 	mockRes := new(mockcontext.BasicRes)
 	mockDal := new(mockdal.Dal)
 
-	mockDal.On("First", mock.Anything, mock.Anything).Run(func(args mock.Arguments) {
+	mockDal.On("First", mock.AnythingOfType("*models.BitbucketRepo"), mock.Anything).Run(func(args mock.Arguments) {
 		dst := args.Get(0).(*models.BitbucketRepo)
 		*dst = *testBitbucketRepo
-	}).Return(nil).Once()
+	}).Return(nil)
 
-	mockDal.On("First", mock.Anything, mock.Anything).Run(func(args mock.Arguments) {
+	mockDal.On("First", mock.AnythingOfType("*models.BitbucketScopeConfig"), mock.Anything).Run(func(args mock.Arguments) {
 		dst := args.Get(0).(*models.BitbucketScopeConfig)
 		*dst = *testScopeConfig
-	}).Return(nil).Once()
+	}).Return(nil)
 
 	mockRes.On("GetDal").Return(mockDal)
 	mockRes.On("GetConfig", mock.Anything).Return("")
