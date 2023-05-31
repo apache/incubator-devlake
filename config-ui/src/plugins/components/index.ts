@@ -23,6 +23,5 @@ export * from './data-scope-miller-columns';
 export * from './data-scope-search';
 export * from './data-scope-select';
 export * from './data-scope-select-remote';
-export * from './transformation';
-export * from './transformation-form';
-export * from './transformation-select';
+export * from './scope-config-form';
+export * from './scope-config-select';

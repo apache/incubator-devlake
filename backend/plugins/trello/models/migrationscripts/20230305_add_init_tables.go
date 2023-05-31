@@ -21,7 +21,7 @@ import (
 	"github.com/apache/incubator-devlake/core/context"
 	"github.com/apache/incubator-devlake/core/errors"
 	"github.com/apache/incubator-devlake/helpers/migrationhelper"
-	"github.com/apache/incubator-devlake/plugins/trello/models"
+	"github.com/apache/incubator-devlake/plugins/trello/models/migrationscripts/archived"
 )
 
 type addInitTables struct{}
@@ -29,14 +29,14 @@ type addInitTables struct{}
 func (*addInitTables) Up(basicRes context.BasicRes) errors.Error {
 	return migrationhelper.AutoMigrateTables(
 		basicRes,
-		&models.TrelloConnection{},
-		&models.TrelloBoard{},
-		&models.TrelloList{},
-		&models.TrelloCard{},
-		&models.TrelloLabel{},
-		&models.TrelloMember{},
-		&models.TrelloCheckItem{},
-		&models.TrelloTransformationRule{},
+		&archived.TrelloConnection{},
+		&archived.TrelloBoard{},
+		&archived.TrelloList{},
+		&archived.TrelloCard{},
+		&archived.TrelloLabel{},
+		&archived.TrelloMember{},
+		&archived.TrelloCheckItem{},
+		&archived.TrelloTransformationRule{},
 	)
 }
 

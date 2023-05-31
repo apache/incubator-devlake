@@ -51,7 +51,7 @@ func main() {
 			"projectId":    *projectId,
 			"connectionId": *connectionId,
 			"timeAfter":    *timeAfter,
-			"transformationRules": map[string]interface{}{
+			"scopeConfig": map[string]interface{}{
 				"prType":               *prType,
 				"prComponent":          *prComponent,
 				"prBodyClosePattern":   *prBodyClosePattern,

@@ -164,25 +164,3 @@ func GetConnection(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, e
 	}
 	return &plugin.ApiResourceOutput{Body: connection}, err
 }
-
-// @Summary pipelines plan for gitlab
-// @Description pipelines plan for gitlab
-// @Tags plugins/gitlab
-// @Accept application/json
-// @Param blueprint body GitlabPipelinePlan true "json"
-// @Router /pipelines/gitlab/pipeline-plan [post]
-func PostGitlabPipeline(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, errors.Error) {
-	blueprint := &GitlabPipelinePlan{}
-	return &plugin.ApiResourceOutput{Body: blueprint, Status: http.StatusOK}, nil
-}
-
-type GitlabPipelinePlan [][]struct {
-	Plugin   string   `json:"plugin"`
-	Subtasks []string `json:"subtasks"`
-	Options  struct {
-		ConnectionID   int `json:"connectionId"`
-		ProjectId      int `json:"projectId"`
-		Since          string
-		Transformation models.GitlabTransformationRule `json:"transformation"`
-	} `json:"options"`
-}

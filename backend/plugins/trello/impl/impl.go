@@ -19,6 +19,7 @@ package impl
 
 import (
 	"fmt"
+
 	"github.com/apache/incubator-devlake/core/context"
 	"github.com/apache/incubator-devlake/core/dal"
 	"github.com/apache/incubator-devlake/core/errors"
@@ -158,13 +159,13 @@ func (p Trello) ApiResources() map[string]map[string]plugin.ApiResourceHandler {
 		"connections/:connectionId/proxy/rest/*path": {
 			"GET": api.Proxy,
 		},
-		"transformation_rules": {
-			"POST": api.CreateTransformationRule,
-			"GET":  api.GetTransformationRuleList,
+		"connections/:connectionId/scope_configs": {
+			"POST": api.CreateScopeConfig,
+			"GET":  api.GetScopeConfigList,
 		},
-		"transformation_rules/:id": {
-			"PATCH": api.UpdateTransformationRule,
-			"GET":   api.GetTransformationRule,
+		"connections/:connectionId/scope_configs/:id": {
+			"PATCH": api.UpdateScopeConfig,
+			"GET":   api.GetScopeConfig,
 		},
 		"connections/:connectionId/scopes/:boardId": {
 			"GET":    api.GetScope,

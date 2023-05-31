@@ -15,6 +15,8 @@
 
 from typing import Iterable
 
+from http import HTTPStatus
+
 from azuredevops.api import AzureDevOpsAPI
 from azuredevops.models import Job, Build, GitRepository
 from azuredevops.streams.builds import Builds
@@ -31,6 +33,10 @@ class Jobs(Substream):
         repo: GitRepository = context.scope
         api = AzureDevOpsAPI(context.connection)
         response = api.jobs(repo.org_id, repo.project_id, parent.id)
+        # If a build has failed before any jobs have started, e.g. due to a
+        # bad YAML file, then the jobs endpoint will return a 204 NO CONTENT.
+        if response.status == HTTPStatus.NO_CONTENT:
+            return
         for raw_job in response.json["records"]:
             if raw_job["type"] == "Job":
                 raw_job["build_id"] = parent.domain_id()

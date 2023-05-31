@@ -40,7 +40,8 @@ type TypeMapping struct {
 
 type TypeMappings map[string]TypeMapping
 
-type JiraTransformationRule struct {
+type JiraScopeConfig struct {
+	Entities                   []string     `json:"entities"`
 	ConnectionId               uint64       `mapstructure:"connectionId" json:"connectionId"`
 	Name                       string       `gorm:"type:varchar(255)" validate:"required"`
 	EpicKeyField               string       `json:"epicKeyField"`
@@ -50,7 +51,7 @@ type JiraTransformationRule struct {
 	TypeMappings               TypeMappings `json:"typeMappings"`
 }
 
-func (r *JiraTransformationRule) ToDb() (*models.JiraTransformationRule, errors.Error) {
+func (r *JiraScopeConfig) ToDb() (*models.JiraScopeConfig, errors.Error) {
 	blob, err := json.Marshal(r.TypeMappings)
 	if err != nil {
 		return nil, errors.Default.Wrap(err, "error marshaling TypeMappings")
@@ -59,7 +60,7 @@ func (r *JiraTransformationRule) ToDb() (*models.JiraTransformationRule, errors.
 	if err != nil {
 		return nil, errors.Default.Wrap(err, "error marshaling RemotelinkRepoPattern")
 	}
-	rule := &models.JiraTransformationRule{
+	scopeConfig := &models.JiraScopeConfig{
 		ConnectionId:               r.ConnectionId,
 		Name:                       r.Name,
 		EpicKeyField:               r.EpicKeyField,
@@ -68,13 +69,14 @@ func (r *JiraTransformationRule) ToDb() (*models.JiraTransformationRule, errors.
 		RemotelinkRepoPattern:      remotelinkRepoPattern,
 		TypeMappings:               blob,
 	}
-	if err1 := rule.VerifyRegexp(); err1 != nil {
+	scopeConfig.Entities = r.Entities
+	if err1 := scopeConfig.VerifyRegexp(); err1 != nil {
 		return nil, err1
 	}
-	return rule, nil
+	return scopeConfig, nil
 }
 
-func MakeTransformationRules(rule models.JiraTransformationRule) (*JiraTransformationRule, errors.Error) {
+func MakeScopeConfig(rule models.JiraScopeConfig) (*JiraScopeConfig, errors.Error) {
 	var typeMapping TypeMappings
 	var err error
 	if len(rule.TypeMappings) > 0 {
@@ -90,7 +92,8 @@ func MakeTransformationRules(rule models.JiraTransformationRule) (*JiraTransform
 			return nil, errors.Default.Wrap(err, "error unMarshaling RemotelinkRepoPattern")
 		}
 	}
-	result := &JiraTransformationRule{
+	result := &JiraScopeConfig{
+		Entities:                   rule.Entities,
 		ConnectionId:               rule.ConnectionId,
 		Name:                       rule.Name,
 		EpicKeyField:               rule.EpicKeyField,
@@ -103,13 +106,13 @@ func MakeTransformationRules(rule models.JiraTransformationRule) (*JiraTransform
 }
 
 type JiraOptions struct {
-	ConnectionId         uint64 `json:"connectionId"`
-	BoardId              uint64 `json:"boardId"`
-	TimeAfter            string
-	TransformationRules  *JiraTransformationRule `json:"transformationRules"`
-	ScopeId              string
-	TransformationRuleId uint64
-	PageSize             int
+	ConnectionId  uint64 `json:"connectionId"`
+	BoardId       uint64 `json:"boardId"`
+	TimeAfter     string
+	ScopeConfig   *JiraScopeConfig `json:"scopeConfig"`
+	ScopeId       string
+	ScopeConfigId uint64
+	PageSize      int
 }
 
 type JiraTaskData struct {

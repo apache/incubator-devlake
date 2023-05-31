@@ -105,7 +105,7 @@ export const useMillerColumns = ({ connectionId }: UseMillerColumnsProps) => {
               title: appInstallationRepos.repositories[0].owner.login,
               type: 'org',
             } as any,
-          ])
+          ]);
         }
       } else {
         const user = await API.getUser(prefix);
@@ -127,7 +127,7 @@ export const useMillerColumns = ({ connectionId }: UseMillerColumnsProps) => {
           },
           ...formatOrgs(orgs),
         ]);
-    }
+      }
     })();
   }, [prefix]);
 

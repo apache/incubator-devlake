@@ -20,6 +20,13 @@ package tasks
 import (
 	"encoding/json"
 	"fmt"
+	"io"
+	"net/http"
+	"net/url"
+	"reflect"
+	"strconv"
+	"strings"
+
 	"github.com/apache/incubator-devlake/core/dal"
 	"github.com/apache/incubator-devlake/core/errors"
 	"github.com/apache/incubator-devlake/core/models/domainlayer/didgen"
@@ -27,12 +34,6 @@ import (
 	"github.com/apache/incubator-devlake/core/plugin"
 	"github.com/apache/incubator-devlake/helpers/pluginhelper/api"
 	"github.com/apache/incubator-devlake/plugins/tapd/models"
-	"io"
-	"net/http"
-	"net/url"
-	"reflect"
-	"strconv"
-	"strings"
 )
 
 type Page struct {
@@ -206,10 +207,10 @@ func getTapdTypeMappings(data *TapdTaskData, db dal.Dal, system string) (map[uin
 // It returns the created map.
 func getStdTypeMappings(data *TapdTaskData) map[string]string {
 	stdTypeMappings := make(map[string]string)
-	if data.Options.TransformationRules == nil {
+	if data.Options.ScopeConfig == nil {
 		return stdTypeMappings
 	}
-	mapping := data.Options.TransformationRules.TypeMappings
+	mapping := data.Options.ScopeConfig.TypeMappings
 	// Map user types to standard types
 	for userType, stdType := range mapping {
 		stdTypeMappings[userType] = strings.ToUpper(stdType)
@@ -221,10 +222,10 @@ func getStdTypeMappings(data *TapdTaskData) map[string]string {
 // based on the provided TapdTaskData. It returns the created map.
 func getStatusMapping(data *TapdTaskData) map[string]string {
 	stdStatusMappings := make(map[string]string)
-	if data.Options.TransformationRules == nil {
+	if data.Options.ScopeConfig == nil {
 		return stdStatusMappings
 	}
-	mapping := data.Options.TransformationRules.StatusMappings
+	mapping := data.Options.ScopeConfig.StatusMappings
 	// Map original status values to standard status values
 	for userStatus, stdStatus := range mapping {
 		stdStatusMappings[userStatus] = strings.ToUpper(stdStatus)

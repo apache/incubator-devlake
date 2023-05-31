@@ -30,5 +30,6 @@ func All() []plugin.MigrationScript {
 		new(deleteIssue),
 		new(modifyCustomFieldName),
 		new(addCustomFieldValue),
+		new(renameTr2ScopeConfig),
 	}
 }

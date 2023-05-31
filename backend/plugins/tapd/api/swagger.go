@@ -17,56 +17,16 @@ limitations under the License.
 
 package api
 
-import "github.com/apache/incubator-devlake/plugins/tapd/tasks"
+import (
+	"github.com/apache/incubator-devlake/plugins/tapd/tasks"
+)
 
-// @Summary blueprints setting for tapd
-// @Description blueprint setting for tapd
+type TapdTaskOptions tasks.TapdOptions
+
+// @Summary tapd task options for pipelines
+// @Description This is a dummy API to demonstrate the available task options for tapd pipelines
 // @Tags plugins/tapd
 // @Accept application/json
-// @Param blueprint body TapdBlueprintSetting true "json"
-// @Router /blueprints/tapd/blueprint-setting [post]
+// @Param pipeline body TapdTaskOptions true "json"
+// @Router /pipelines/tapd/pipeline-task [post]
 func _() {}
-
-type TapdBlueprintSetting []struct {
-	Version     string `json:"version"`
-	Connections []struct {
-		Plugin       string `json:"plugin"`
-		ConnectionID int    `json:"connectionId"`
-		Scope        []struct {
-			Options struct {
-				WorkspaceId         uint64   `mapstruct:"workspaceId"`
-				CompanyId           uint64   `mapstruct:"companyId"`
-				Tasks               []string `mapstruct:"tasks,omitempty"`
-				Since               string
-				TransformationRules TransformationRules `json:"transformationRules"`
-			} `json:"options"`
-			Entities []string `json:"entities"`
-		} `json:"scopes"`
-	} `json:"connections"`
-}
-
-// @Summary pipelines plan for tapd
-// @Description pipelines plan for tapd
-// @Tags plugins/tapd
-// @Accept application/json
-// @Param pipeline body TapdPipelinePlan true "json"
-// @Router /pipelines/tapd/pipeline-plan [post]
-func _() {}
-
-type TapdPipelinePlan [][]struct {
-	Plugin   string   `json:"plugin"`
-	Subtasks []string `json:"subtasks"`
-	Options  struct {
-		ConnectionId        uint64   `mapstruct:"connectionId"`
-		WorkspaceId         uint64   `mapstruct:"workspaceId"`
-		CompanyId           uint64   `mapstruct:"companyId"`
-		Tasks               []string `mapstruct:"tasks,omitempty"`
-		Since               string
-		TransformationRules TransformationRules `json:"transformationRules"`
-	} `json:"options"`
-}
-
-type TransformationRules struct {
-	TypeMappings   tasks.TypeMappings   `json:"typeMappings"`
-	StatusMappings tasks.StatusMappings `json:"statusMappings"`
-}

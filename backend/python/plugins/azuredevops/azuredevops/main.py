@@ -108,7 +108,7 @@ class AzureDevOpsPlugin(Plugin):
 
     def extra_tasks(self, scope: GitRepository, tx_rule: AzureDevOpsTransformationRule, entity_types: list[DomainType], connection: AzureDevOpsConnection):
         if DomainType.CODE in entity_types:
-            url = urlparse(scope.remoteUrl)
+            url = urlparse(scope.remote_url)
             url = url._replace(netloc=f'{url.username}:{connection.token}@{url.hostname}')
             yield gitextractor(url.geturl(), scope.domain_id(), connection.proxy)
 

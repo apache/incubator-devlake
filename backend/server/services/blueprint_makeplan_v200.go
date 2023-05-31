@@ -20,6 +20,7 @@ package services
 import (
 	"encoding/json"
 	"fmt"
+	"strings"
 
 	"github.com/apache/incubator-devlake/core/errors"
 	"github.com/apache/incubator-devlake/core/models"
@@ -32,9 +33,10 @@ func GeneratePlanJsonV200(
 	syncPolicy plugin.BlueprintSyncPolicy,
 	sources *models.BlueprintSettings,
 	metrics map[string]json.RawMessage,
+	skipCollectors bool,
 ) (plugin.PipelinePlan, errors.Error) {
 	// generate plan and collect scopes
-	plan, scopes, err := genPlanJsonV200(projectName, syncPolicy, sources, metrics)
+	plan, scopes, err := genPlanJsonV200(projectName, syncPolicy, sources, metrics, skipCollectors)
 	if err != nil {
 		return nil, err
 	}
@@ -56,6 +58,7 @@ func genPlanJsonV200(
 	syncPolicy plugin.BlueprintSyncPolicy,
 	sources *models.BlueprintSettings,
 	metrics map[string]json.RawMessage,
+	skipCollectors bool,
 ) (plugin.PipelinePlan, []plugin.Scope, errors.Error) {
 	connections := make([]*plugin.BlueprintConnectionV200, 0)
 	err := errors.Convert(json.Unmarshal(sources.Connections, &connections))
@@ -97,6 +100,24 @@ func genPlanJsonV200(
 			)
 		}
 	}
+	// skip collectors
+	if skipCollectors {
+		for i, plan := range sourcePlans {
+			for j, stage := range plan {
+				for k, task := range stage {
+					newSubtasks := make([]string, 0, len(task.Subtasks))
+					for _, subtask := range task.Subtasks {
+						if !strings.Contains(strings.ToLower(subtask), "collect") {
+							newSubtasks = append(newSubtasks, subtask)
+						}
+					}
+					task.Subtasks = newSubtasks
+					sourcePlans[i][j][k] = task
+				}
+			}
+		}
+	}
+
 	// make plans for metric plugins
 	metricPlans := make([]plugin.PipelinePlan, len(metrics))
 	i := 0

@@ -24,7 +24,7 @@ import (
 
 type TapdStory struct {
 	ConnectionId    uint64          `gorm:"primaryKey"`
-	Id              uint64          `gorm:"primaryKey;type:BIGINT" json:"id,string"`
+	Id              uint64          `gorm:"primaryKey;type:BIGINT;autoIncrement:false" json:"id,string"`
 	WorkitemTypeId  uint64          `json:"workitem_type_id,string"`
 	Name            string          `gorm:"type:varchar(255)" json:"name"`
 	Description     string          `json:"description"`

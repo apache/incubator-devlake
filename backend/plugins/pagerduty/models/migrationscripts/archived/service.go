@@ -25,7 +25,7 @@ type (
 	Service struct {
 		common.NoPKModel
 		ConnectionId uint64 `gorm:"primaryKey"`
-		Id           string `gorm:"primaryKey"`
+		Id           string `gorm:"primaryKey;autoIncremental:false"`
 		Url          string
 		Name         string
 	}

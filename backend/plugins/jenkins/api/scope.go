@@ -27,7 +27,7 @@ import (
 
 type ScopeRes struct {
 	models.JenkinsJob
-	TransformationRuleName string `json:"transformationRuleName,omitempty"`
+	ScopeConfigName string `json:"scopeConfigName,omitempty"`
 }
 
 type ScopeReq api.ScopeReq[models.JenkinsJob]

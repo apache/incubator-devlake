@@ -40,7 +40,6 @@ var _ interface {
 	plugin.PluginTask
 	plugin.PluginModel
 	plugin.PluginMigration
-	plugin.PluginBlueprintV100
 	plugin.DataSourcePluginBlueprintV200
 	plugin.CloseablePluginTask
 	plugin.PluginSource
@@ -57,8 +56,8 @@ func (p Jira) Scope() interface{} {
 	return &models.JiraBoard{}
 }
 
-func (p Jira) TransformationRule() interface{} {
-	return &models.JiraTransformationRule{}
+func (p Jira) ScopeConfig() interface{} {
+	return &models.JiraScopeConfig{}
 }
 
 func (p *Jira) Init(basicRes context.BasicRes) errors.Error {
@@ -207,19 +206,19 @@ func (p Jira) PrepareTaskData(taskCtx plugin.TaskContext, options map[string]int
 			return nil, errors.Default.Wrap(err, fmt.Sprintf("fail to find board%s", op.ScopeId))
 		}
 		op.BoardId = jiraBoard.BoardId
-		if op.TransformationRuleId == 0 {
-			op.TransformationRuleId = jiraBoard.TransformationRuleId
+		if op.ScopeConfigId == 0 {
+			op.ScopeConfigId = jiraBoard.ScopeConfigId
 		}
 	}
-	if op.TransformationRules == nil && op.TransformationRuleId != 0 {
-		var transformationRule models.JiraTransformationRule
-		err = taskCtx.GetDal().First(&transformationRule, dal.Where("id = ?", op.TransformationRuleId))
+	if op.ScopeConfig == nil && op.ScopeConfigId != 0 {
+		var scopeConfig models.JiraScopeConfig
+		err = taskCtx.GetDal().First(&scopeConfig, dal.Where("id = ?", op.ScopeConfigId))
 		if err != nil && db.IsErrorNotFound(err) {
-			return nil, errors.BadInput.Wrap(err, "fail to get transformationRule")
+			return nil, errors.BadInput.Wrap(err, "fail to get scopeConfig")
 		}
-		op.TransformationRules, err = tasks.MakeTransformationRules(transformationRule)
+		op.ScopeConfig, err = tasks.MakeScopeConfig(scopeConfig)
 		if err != nil {
-			return nil, errors.BadInput.Wrap(err, "fail to make transformationRule")
+			return nil, errors.BadInput.Wrap(err, "fail to make scopeConfig")
 		}
 	}
 
@@ -247,10 +246,6 @@ func (p Jira) PrepareTaskData(taskCtx plugin.TaskContext, options map[string]int
 		logger.Debug("collect data created from %s", timeAfter)
 	}
 	return taskData, nil
-}
-
-func (p Jira) MakePipelinePlan(connectionId uint64, scope []*plugin.BlueprintScopeV100) (plugin.PipelinePlan, errors.Error) {
-	return api.MakePipelinePlanV100(p.SubTaskMetas(), connectionId, scope)
 }
 
 func (p Jira) MakeDataSourcePipelinePlanV200(connectionId uint64, scopes []*plugin.BlueprintScopeV200, syncPolicy plugin.BlueprintSyncPolicy) (pp plugin.PipelinePlan, sc []plugin.Scope, err errors.Error) {
@@ -296,13 +291,13 @@ func (p Jira) ApiResources() map[string]map[string]plugin.ApiResourceHandler {
 			"GET": api.GetScopeList,
 			"PUT": api.PutScope,
 		},
-		"connections/:connectionId/transformation_rules": {
-			"POST": api.CreateTransformationRule,
-			"GET":  api.GetTransformationRuleList,
+		"connections/:connectionId/scope_configs": {
+			"POST": api.CreateScopeConfig,
+			"GET":  api.GetScopeConfigList,
 		},
-		"connections/:connectionId/transformation_rules/:id": {
-			"PATCH": api.UpdateTransformationRule,
-			"GET":   api.GetTransformationRule,
+		"connections/:connectionId/scope_configs/:id": {
+			"PATCH": api.UpdateScopeConfig,
+			"GET":   api.GetScopeConfig,
 		},
 	}
 }

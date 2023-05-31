@@ -19,26 +19,27 @@ package models
 
 import (
 	"fmt"
+
 	"github.com/apache/incubator-devlake/core/models/common"
 	"github.com/apache/incubator-devlake/core/plugin"
 	helper "github.com/apache/incubator-devlake/helpers/pluginhelper/api"
 )
 
 type ApiTapdWorkspace struct {
-	ConnectionId         uint64          `gorm:"primaryKey;type:BIGINT  NOT NULL"`
-	Id                   uint64          `gorm:"primaryKey;type:BIGINT" json:"id,string"`
-	Name                 string          `gorm:"type:varchar(255)" json:"name"`
-	PrettyName           string          `gorm:"type:varchar(255)" json:"pretty_name"`
-	Category             string          `gorm:"type:varchar(255)" json:"category"`
-	Status               string          `gorm:"type:varchar(255)" json:"status"`
-	Description          string          `json:"description"`
-	BeginDate            *helper.CSTTime `json:"begin_date"`
-	EndDate              *helper.CSTTime `json:"end_date"`
-	ExternalOn           string          `gorm:"type:varchar(255)" json:"external_on"`
-	ParentId             uint64          `gorm:"type:BIGINT" json:"parent_id,string"`
-	Creator              string          `gorm:"type:varchar(255)" json:"creator"`
-	Created              *helper.CSTTime `json:"created"`
-	TransformationRuleId uint64          `json:"transformationRuleId,omitempty" mapstructure:"transformationRuleId"`
+	ConnectionId  uint64          `gorm:"primaryKey;type:BIGINT  NOT NULL"`
+	Id            uint64          `gorm:"primaryKey;type:BIGINT NOT NULL;autoIncrement:false" json:"id,string"`
+	Name          string          `gorm:"type:varchar(255)" json:"name"`
+	PrettyName    string          `gorm:"type:varchar(255)" json:"pretty_name"`
+	Category      string          `gorm:"type:varchar(255)" json:"category"`
+	Status        string          `gorm:"type:varchar(255)" json:"status"`
+	Description   string          `json:"description"`
+	BeginDate     *helper.CSTTime `json:"begin_date"`
+	EndDate       *helper.CSTTime `json:"end_date"`
+	ExternalOn    string          `gorm:"type:varchar(255)" json:"external_on"`
+	ParentId      uint64          `gorm:"type:BIGINT" json:"parent_id,string"`
+	Creator       string          `gorm:"type:varchar(255)" json:"creator"`
+	Created       *helper.CSTTime `json:"created"`
+	ScopeConfigId uint64          `json:"scopeConfigId,omitempty" mapstructure:"scopeConfigId"`
 	common.NoPKModel
 }
 
@@ -59,21 +60,21 @@ type WorkspaceResponse struct {
 }
 
 type TapdWorkspace struct {
-	ConnectionId         uint64          `gorm:"primaryKey;type:BIGINT  NOT NULL" mapstructure:"connection_id" json:"connection_id"`
-	Id                   uint64          `gorm:"primaryKey;type:BIGINT" mapstructure:"id" json:"id"`
-	Name                 string          `gorm:"type:varchar(255)" mapstructure:"name" json:"name"`
-	PrettyName           string          `gorm:"type:varchar(255)" mapstructure:"pretty_name" json:"pretty_name"`
-	Category             string          `gorm:"type:varchar(255)" mapstructure:"category" json:"category"`
-	Status               string          `gorm:"type:varchar(255)" mapstructure:"status" json:"status"`
-	Description          string          `mapstructure:"description" json:"description"`
-	BeginDate            *helper.CSTTime `mapstructure:"begin_date" json:"begin_date"`
-	EndDate              *helper.CSTTime `mapstructure:"end_date" json:"end_date"`
-	ExternalOn           string          `gorm:"type:varchar(255)" mapstructure:"external_on" json:"external_on"`
-	ParentId             uint64          `gorm:"type:BIGINT" mapstructure:"parent_id,string" json:"parent_id"`
-	Creator              string          `gorm:"type:varchar(255)" mapstructure:"creator" json:"creator"`
-	Created              *helper.CSTTime `mapstructure:"created" json:"created"`
-	TransformationRuleId uint64          `mapstructure:"transformationRuleId,omitempty" json:"transformationRuleId,omitempty"`
-	common.NoPKModel     `json:"-" mapstructure:"-"`
+	ConnectionId     uint64          `gorm:"primaryKey;type:BIGINT  NOT NULL" mapstructure:"connection_id" json:"connection_id"`
+	Id               uint64          `gorm:"primaryKey;type:BIGINT" mapstructure:"id" json:"id"`
+	Name             string          `gorm:"type:varchar(255)" mapstructure:"name" json:"name"`
+	PrettyName       string          `gorm:"type:varchar(255)" mapstructure:"pretty_name" json:"pretty_name"`
+	Category         string          `gorm:"type:varchar(255)" mapstructure:"category" json:"category"`
+	Status           string          `gorm:"type:varchar(255)" mapstructure:"status" json:"status"`
+	Description      string          `mapstructure:"description" json:"description"`
+	BeginDate        *helper.CSTTime `mapstructure:"begin_date" json:"begin_date"`
+	EndDate          *helper.CSTTime `mapstructure:"end_date" json:"end_date"`
+	ExternalOn       string          `gorm:"type:varchar(255)" mapstructure:"external_on" json:"external_on"`
+	ParentId         uint64          `gorm:"type:BIGINT" mapstructure:"parent_id,string" json:"parent_id"`
+	Creator          string          `gorm:"type:varchar(255)" mapstructure:"creator" json:"creator"`
+	Created          *helper.CSTTime `mapstructure:"created" json:"created"`
+	ScopeConfigId    uint64          `mapstructure:"scopeConfigId,omitempty" json:"scopeConfigId,omitempty"`
+	common.NoPKModel `json:"-" mapstructure:"-"`
 }
 
 func (TapdWorkspace) TableName() string {

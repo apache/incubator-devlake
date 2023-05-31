@@ -18,10 +18,19 @@
 
 import styled from 'styled-components';
 
-const Wrapper = styled.div<{ align: 'left' | 'right' | 'center' }>`
+const Wrapper = styled.div<{ position: 'top' | 'bottom'; align: 'left' | 'right' | 'center' }>`
   display: flex;
   align-items: center;
-  margin-top: 24px;
+
+  ${({ position }) => {
+    if (position === 'top') {
+      return 'margin-bottom: 24px;';
+    }
+
+    if (position === 'bottom') {
+      return 'margin-top: 24px;';
+    }
+  }}
 
   ${({ align }) => {
     if (align === 'left') {
@@ -43,10 +52,15 @@ const Wrapper = styled.div<{ align: 'left' | 'right' | 'center' }>`
 `;
 
 interface Props {
+  position?: 'top' | 'bottom';
   align?: 'left' | 'right' | 'center';
   children: React.ReactNode;
 }
 
-export const Buttons = ({ align = 'right', children }: Props) => {
-  return <Wrapper align={align}>{children}</Wrapper>;
+export const Buttons = ({ position = 'bottom', align = 'right', children }: Props) => {
+  return (
+    <Wrapper position={position} align={align}>
+      {children}
+    </Wrapper>
+  );
 };

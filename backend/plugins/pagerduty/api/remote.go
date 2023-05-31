@@ -22,14 +22,15 @@ import (
 	"encoding/base64"
 	"encoding/json"
 	"fmt"
+	"net/http"
+	"net/url"
+	"strconv"
+
 	"github.com/apache/incubator-devlake/core/errors"
 	"github.com/apache/incubator-devlake/core/plugin"
 	"github.com/apache/incubator-devlake/helpers/pluginhelper/api"
 	"github.com/apache/incubator-devlake/plugins/pagerduty/models"
 	"github.com/apache/incubator-devlake/plugins/pagerduty/models/raw"
-	"net/http"
-	"net/url"
-	"strconv"
 )
 
 type RemoteScopesChild struct {
@@ -130,10 +131,10 @@ func RemoteScopes(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, er
 			Id:   service.Id,
 			Name: service.Name,
 			Data: models.Service{
-				Url:                  service.HtmlUrl,
-				Id:                   service.Id,
-				TransformationRuleId: 0, // this is not determined here
-				Name:                 service.Name,
+				Url:           service.HtmlUrl,
+				Id:            service.Id,
+				ScopeConfigId: 0, // this is not determined here
+				Name:          service.Name,
 			},
 		}
 		outputBody.Children = append(outputBody.Children, child)

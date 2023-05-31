@@ -24,7 +24,7 @@ import (
 
 type AEProject struct {
 	ConnectionId uint64 `gorm:"primaryKey"`
-	Id           int    `gorm:"primaryKey;type:varchar(255)"`
+	Id           int    `gorm:"primaryKey;type:varchar(255);autoIncrement:false"`
 	GitUrl       string `gorm:"type:varchar(255);comment:url of the repo in github"`
 	Priority     int
 	AECreateTime *time.Time

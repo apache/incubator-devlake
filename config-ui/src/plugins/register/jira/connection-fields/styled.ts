@@ -16,7 +16,6 @@
  *
  */
 
-import { Colors } from '@blueprintjs/core';
 import styled from 'styled-components';
 
 export const Label = styled.label`

@@ -19,6 +19,8 @@ package impl
 
 import (
 	"fmt"
+	"time"
+
 	"github.com/apache/incubator-devlake/core/context"
 	"github.com/apache/incubator-devlake/core/dal"
 	"github.com/apache/incubator-devlake/core/errors"
@@ -28,7 +30,6 @@ import (
 	"github.com/apache/incubator-devlake/plugins/pagerduty/models"
 	"github.com/apache/incubator-devlake/plugins/pagerduty/models/migrationscripts"
 	"github.com/apache/incubator-devlake/plugins/pagerduty/tasks"
-	"time"
 )
 
 // make sure interface is implemented
@@ -38,7 +39,7 @@ var _ plugin.PluginTask = (*PagerDuty)(nil)
 var _ plugin.PluginApi = (*PagerDuty)(nil)
 
 var _ plugin.PluginModel = (*PagerDuty)(nil)
-var _ plugin.PluginBlueprintV100 = (*PagerDuty)(nil)
+var _ plugin.DataSourcePluginBlueprintV200 = (*PagerDuty)(nil)
 var _ plugin.CloseablePluginTask = (*PagerDuty)(nil)
 
 type PagerDuty struct{}
@@ -147,19 +148,15 @@ func (p PagerDuty) ApiResources() map[string]map[string]plugin.ApiResourceHandle
 			"PATCH":  api.UpdateScope,
 			"DELETE": api.DeleteScope,
 		},
-		"connections/:connectionId/transformation_rules": {
-			"POST": api.CreateTransformationRule,
-			"GET":  api.GetTransformationRuleList,
+		"connections/:connectionId/scope_configs": {
+			"POST": api.CreateScopeConfig,
+			"GET":  api.GetScopeConfigList,
 		},
-		"connections/:connectionId/transformation_rules/:id": {
-			"PATCH": api.UpdateTransformationRule,
-			"GET":   api.GetTransformationRule,
+		"connections/:connectionId/scope_configs/:id": {
+			"PATCH": api.UpdateScopeConfig,
+			"GET":   api.GetScopeConfig,
 		},
 	}
-}
-
-func (p PagerDuty) MakePipelinePlan(connectionId uint64, scope []*plugin.BlueprintScopeV100) (plugin.PipelinePlan, errors.Error) {
-	return api.MakePipelinePlan(p.SubTaskMetas(), connectionId, scope)
 }
 
 func (p PagerDuty) MakeDataSourcePipelinePlanV200(connectionId uint64, scopes []*plugin.BlueprintScopeV200, syncPolicy plugin.BlueprintSyncPolicy,

@@ -88,7 +88,7 @@ export const Token = ({ endpoint, proxy, initialValue, value, error, setValue, s
 
     return () => {
       setError('');
-    }
+    };
   }, [value]);
 
   useEffect(() => {

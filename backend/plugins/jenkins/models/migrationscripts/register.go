@@ -33,5 +33,6 @@ func All() []plugin.MigrationScript {
 		new(addTransformationRule20221128),
 		new(addFullNameForBuilds),
 		new(addConnectionIdToTransformationRule),
+		new(renameTr2ScopeConfig),
 	}
 }

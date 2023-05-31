@@ -22,25 +22,34 @@ import (
 	"github.com/apache/incubator-devlake/core/dal"
 	"github.com/apache/incubator-devlake/core/errors"
 	"github.com/apache/incubator-devlake/helpers/migrationhelper"
-	"github.com/apache/incubator-devlake/plugins/jira/models"
 )
 
 type addConnectionIdToTransformationRule struct{}
 
-type transformationRule20220322 struct {
+type board20230322 struct {
+	ConnectionId         uint64 `json:"connectionId" mapstructure:"connectionId" validate:"required" gorm:"primaryKey"`
+	BoardId              uint64 `json:"boardId" mapstructure:"boardId" validate:"required" gorm:"primaryKey"`
+	TransformationRuleId uint64 `json:"scopeConfigId,omitempty" mapstructure:"scopeConfigId"`
+}
+
+func (board20230322) TableName() string {
+	return "_tool_jira_boards"
+}
+
+type transformationRule20230322 struct {
 	ConnectionId uint64
 }
 
-func (transformationRule20220322) TableName() string {
+func (transformationRule20230322) TableName() string {
 	return "_tool_jira_transformation_rules"
 }
 
 func (u *addConnectionIdToTransformationRule) Up(baseRes context.BasicRes) errors.Error {
-	err := migrationhelper.AutoMigrateTables(baseRes, &transformationRule20220322{})
+	err := migrationhelper.AutoMigrateTables(baseRes, &transformationRule20230322{})
 	if err != nil {
 		return err
 	}
-	var scopes []models.JiraBoard
+	var scopes []board20230322
 	err = baseRes.GetDal().All(&scopes)
 	if err != nil {
 		return err
@@ -55,14 +64,14 @@ func (u *addConnectionIdToTransformationRule) Up(baseRes context.BasicRes) error
 	// set connection_id for rules
 	for trId, cId := range idMap {
 		err = baseRes.GetDal().UpdateColumn(
-			&models.JiraTransformationRule{}, "connection_id", cId,
+			&board20230322{}, "connection_id", cId,
 			dal.Where("id = ?", trId))
 		if err != nil {
 			return err
 		}
 	}
 	// delete all rules that are not referenced.
-	return baseRes.GetDal().Delete(&models.JiraTransformationRule{}, dal.Where("connection_id IS NULL OR connection_id = 0"))
+	return baseRes.GetDal().Delete(&board20230322{}, dal.Where("connection_id IS NULL OR connection_id = 0"))
 }
 
 func (*addConnectionIdToTransformationRule) Version() uint64 {
