@@ -90,6 +90,7 @@ func TestIncidentDataFlow(t *testing.T) {
 		},
 	)
 	dataflowTester.FlushTabler(&ticket.Issue{})
+	dataflowTester.FlushTabler(&ticket.IssueAssignee{})
 	dataflowTester.Subtask(tasks.ConvertIncidentsMeta, taskData)
 	dataflowTester.VerifyTableWithOptions(
 		ticket.Issue{},
@@ -99,4 +100,8 @@ func TestIncidentDataFlow(t *testing.T) {
 			IgnoreFields: []string{"original_project"},
 		},
 	)
+	dataflowTester.VerifyTableWithOptions(ticket.IssueAssignee{}, e2ehelper.TableOptions{
+		CSVRelPath:  "./snapshot_tables/issue_assignees.csv",
+		IgnoreTypes: []interface{}{common.NoPKModel{}},
+	})
 }

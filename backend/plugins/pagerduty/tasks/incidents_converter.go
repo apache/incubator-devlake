@@ -103,19 +103,25 @@ func ConvertIncidents(taskCtx plugin.SubTaskContext) errors.Error {
 				LeadTimeMinutes: leadTime,
 				Priority:        string(incident.Urgency),
 			}
+			var result []interface{}
 			if combined.User != nil {
 				domainIssue.AssigneeId = combined.User.Id
 				domainIssue.AssigneeName = combined.User.Name
+				issueAssignee := &ticket.IssueAssignee{
+					IssueId:      domainIssue.Id,
+					AssigneeId:   domainIssue.AssigneeId,
+					AssigneeName: domainIssue.AssigneeName,
+				}
+				result = append(result, issueAssignee)
 			}
+			result = append(result, domainIssue)
 			seenIncidents[incident.Number] = combined
 			boardIssue := &ticket.BoardIssue{
 				BoardId: serviceIdGen.Generate(data.Options.ConnectionId, data.Options.ServiceId),
 				IssueId: domainIssue.Id,
 			}
-			return []interface{}{
-				boardIssue,
-				domainIssue,
-			}, nil
+			result = append(result, boardIssue)
+			return result, nil
 		},
 	})
 	if err != nil {

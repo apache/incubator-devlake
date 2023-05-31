@@ -128,6 +128,7 @@ func (p Github) SubTaskMetas() []plugin.SubTaskMeta {
 		tasks.EnrichPullRequestIssuesMeta,
 		tasks.ConvertRepoMeta,
 		tasks.ConvertIssuesMeta,
+		tasks.ConvertIssueAssigneeMeta,
 		tasks.ConvertCommitsMeta,
 		tasks.ConvertIssueLabelsMeta,
 		tasks.ConvertPullRequestCommitsMeta,

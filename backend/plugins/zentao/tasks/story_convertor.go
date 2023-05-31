@@ -96,6 +96,15 @@ func ConvertStory(taskCtx plugin.SubTaskContext) errors.Error {
 			default:
 				domainEntity.Status = ticket.IN_PROGRESS
 			}
+			var results []interface{}
+			if domainEntity.AssigneeId != "" {
+				issueAssignee := &ticket.IssueAssignee{
+					IssueId:      domainEntity.Id,
+					AssigneeId:   domainEntity.AssigneeId,
+					AssigneeName: domainEntity.AssigneeName,
+				}
+				results = append(results, issueAssignee)
+			}
 			if toolEntity.ClosedDate != nil {
 				domainEntity.LeadTimeMinutes = int64(toolEntity.ClosedDate.ToNullableTime().Sub(toolEntity.OpenedDate.ToTime()).Minutes())
 			}
@@ -103,7 +112,6 @@ func ConvertStory(taskCtx plugin.SubTaskContext) errors.Error {
 				BoardId: boardIdGen.Generate(data.Options.ConnectionId, data.Options.ProductId),
 				IssueId: domainEntity.Id,
 			}
-			results := make([]interface{}, 0)
 			results = append(results, domainEntity, domainBoardIssue)
 			return results, nil
 		},

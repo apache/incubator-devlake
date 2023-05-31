@@ -113,8 +113,15 @@ func ConvertIssues(taskCtx plugin.SubTaskContext) errors.Error {
 			if jiraIssue.CreatorDisplayName != "" {
 				issue.CreatorName = jiraIssue.CreatorDisplayName
 			}
+			var result []interface{}
 			if jiraIssue.AssigneeAccountId != "" {
 				issue.AssigneeId = accountIdGen.Generate(data.Options.ConnectionId, jiraIssue.AssigneeAccountId)
+				issueAssignee := &ticket.IssueAssignee{
+					IssueId:      issue.Id,
+					AssigneeId:   issue.AssigneeId,
+					AssigneeName: issue.AssigneeName,
+				}
+				result = append(result, issueAssignee)
 			}
 			if jiraIssue.AssigneeDisplayName != "" {
 				issue.AssigneeName = jiraIssue.AssigneeDisplayName
@@ -122,14 +129,13 @@ func ConvertIssues(taskCtx plugin.SubTaskContext) errors.Error {
 			if jiraIssue.ParentId != 0 {
 				issue.ParentIssueId = issueIdGen.Generate(data.Options.ConnectionId, jiraIssue.ParentId)
 			}
+			result = append(result, issue)
 			boardIssue := &ticket.BoardIssue{
 				BoardId: boardId,
 				IssueId: issue.Id,
 			}
-			return []interface{}{
-				issue,
-				boardIssue,
-			}, nil
+			result = append(result, boardIssue)
+			return result, nil
 		},
 	})
 	if err != nil {

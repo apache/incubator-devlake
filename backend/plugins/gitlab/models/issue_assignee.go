@@ -15,32 +15,19 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-package migrationscripts
+package models
 
-import (
-	"github.com/apache/incubator-devlake/core/plugin"
-)
+import "github.com/apache/incubator-devlake/core/models/common"
 
-// All return all the migration scripts
-func All() []plugin.MigrationScript {
-	println("github register.go")
-	return []plugin.MigrationScript{
-		new(addInitTables),
-		new(addGithubRunsTable),
-		new(addGithubJobsTable),
-		new(addGithubPipelineTable),
-		new(deleteGithubPipelineTable),
-		new(addHeadRepoIdFieldInGithubPr),
-		new(addEnableGraphqlForConnection),
-		new(addTransformationRule20221124),
-		new(concatOwnerAndName),
-		new(addStdTypeToIssue221230),
-		new(addConnectionIdToTransformationRule),
-		new(addEnvToRunAndJob),
-		new(addGithubCommitAuthorInfo),
-		new(fixRunNameToText),
-		new(addGithubMultiAuth),
-		new(renameTr2ScopeConfig),
-		new(addGithubIssueAssignee),
-	}
+type GitlabIssueAssignee struct {
+	common.NoPKModel
+	ConnectionId uint64 `gorm:"primaryKey"`
+	GitlabId     int    `gorm:"primaryKey"`
+	ProjectId    int    `gorm:"primaryKey"`
+	AssigneeId   int    `gorm:"primaryKey"`
+	AssigneeName string `gorm:"type:varchar(255)"`
+}
+
+func (GitlabIssueAssignee) TableName() string {
+	return "_tool_gitlab_issue_assignees"
 }

@@ -38,10 +38,10 @@ func TestTapdStoryDataFlow(t *testing.T) {
 			WorkspaceId:  991,
 			TransformationRules: &tasks.TransformationRules{
 				TypeMappings: tasks.TypeMappings{
-					"BUG":      "缺陷",
-					"TASK":     "任务",
-					"需求":     "故事需求",
-					"技术债":   "技术需求债务",
+					"BUG":  "缺陷",
+					"TASK": "任务",
+					"需求":   "故事需求",
+					"技术债":  "技术需求债务",
 					"长篇故事": "Epic需求",
 				},
 			},
@@ -100,6 +100,7 @@ func TestTapdStoryDataFlow(t *testing.T) {
 	dataflowTester.FlushTabler(&ticket.BoardIssue{})
 	dataflowTester.FlushTabler(&ticket.SprintIssue{})
 	dataflowTester.FlushTabler(&ticket.IssueLabel{})
+	dataflowTester.FlushTabler(&ticket.IssueAssignee{})
 	dataflowTester.Subtask(tasks.ConvertStoryMeta, taskData)
 	dataflowTester.VerifyTableWithOptions(&ticket.Issue{}, e2ehelper.TableOptions{
 		CSVRelPath:  "./snapshot_tables/issues_story.csv",
@@ -122,6 +123,11 @@ func TestTapdStoryDataFlow(t *testing.T) {
 			"sprint_id",
 		),
 	)
+	dataflowTester.VerifyTableWithOptions(ticket.IssueAssignee{}, e2ehelper.TableOptions{
+		CSVRelPath:  "./snapshot_tables/story_issue_assignees.csv",
+		IgnoreTypes: []interface{}{common.NoPKModel{}},
+	})
+
 	dataflowTester.Subtask(tasks.ConvertStoryLabelsMeta, taskData)
 	dataflowTester.VerifyTable(
 		ticket.IssueLabel{},

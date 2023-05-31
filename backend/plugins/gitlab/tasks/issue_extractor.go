@@ -256,7 +256,7 @@ func ExtractApiIssues(taskCtx plugin.SubTaskContext) errors.Error {
 			results = append(results, gitlabIssue)
 
 			for _, v := range body.Assignees {
-				GitlabAssignee := &models.GitlabAccount{
+				assignee := &models.GitlabAccount{
 					ConnectionId: data.Options.ConnectionId,
 					Username:     v.Username,
 					Name:         v.Name,
@@ -264,7 +264,14 @@ func ExtractApiIssues(taskCtx plugin.SubTaskContext) errors.Error {
 					AvatarUrl:    v.AvatarUrl,
 					WebUrl:       v.WebUrl,
 				}
-				results = append(results, GitlabAssignee)
+				issueAssignee := &models.GitlabIssueAssignee{
+					ConnectionId: data.Options.ConnectionId,
+					GitlabId:     gitlabIssue.GitlabId,
+					ProjectId:    gitlabIssue.ProjectId,
+					AssigneeId:   v.Id,
+					AssigneeName: v.Username,
+				}
+				results = append(results, assignee, issueAssignee)
 			}
 
 			return results, nil

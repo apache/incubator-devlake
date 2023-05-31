@@ -51,7 +51,8 @@ type IssuesResponse struct {
 	Labels []struct {
 		Name string `json:"name"`
 	} `json:"labels"`
-	Assignee  *GithubAccountResponse
+	Assignee  *GithubAccountResponse  `json:"assignee"`
+	Assignees []GithubAccountResponse `json:"assignees"`
 	User      *GithubAccountResponse
 	Milestone *struct {
 		Id int
@@ -128,6 +129,16 @@ func ExtractApiIssues(taskCtx plugin.SubTaskContext) errors.Error {
 					return nil, err
 				}
 				results = append(results, relatedUser)
+			}
+			for _, assignee := range body.Assignees {
+				issueAssignee := &models.GithubIssueAssignee{
+					ConnectionId: githubIssue.ConnectionId,
+					IssueId:      githubIssue.GithubId,
+					RepoId:       githubIssue.RepoId,
+					AssigneeId:   assignee.Id,
+					AssigneeName: assignee.Login,
+				}
+				results = append(results, issueAssignee)
 			}
 			if body.User != nil {
 				githubIssue.AuthorId = body.User.Id

@@ -100,11 +100,19 @@ func ConvertTask(taskCtx plugin.SubTaskContext) errors.Error {
 			if toolEntity.ClosedDate != nil {
 				domainEntity.LeadTimeMinutes = int64(toolEntity.ClosedDate.ToNullableTime().Sub(toolEntity.OpenedDate.ToTime()).Minutes())
 			}
+			var results []interface{}
+			if domainEntity.AssigneeId != "" {
+				issueAssignee := &ticket.IssueAssignee{
+					IssueId:      domainEntity.Id,
+					AssigneeId:   domainEntity.AssigneeId,
+					AssigneeName: domainEntity.AssigneeName,
+				}
+				results = append(results, issueAssignee)
+			}
 			domainBoardIssue := &ticket.BoardIssue{
 				BoardId: boardIdGen.Generate(data.Options.ConnectionId, toolEntity.Execution),
 				IssueId: domainEntity.Id,
 			}
-			results := make([]interface{}, 0)
 			results = append(results, domainEntity, domainBoardIssue)
 			return results, nil
 		},
