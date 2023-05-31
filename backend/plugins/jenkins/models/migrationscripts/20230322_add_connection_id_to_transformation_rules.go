@@ -22,25 +22,34 @@ import (
 	"github.com/apache/incubator-devlake/core/dal"
 	"github.com/apache/incubator-devlake/core/errors"
 	"github.com/apache/incubator-devlake/helpers/migrationhelper"
-	"github.com/apache/incubator-devlake/plugins/jenkins/models"
 )
 
 type addConnectionIdToTransformationRule struct{}
 
-type transformationRule20220322 struct {
+type job20230322 struct {
+	ConnectionId         uint64 `gorm:"primaryKey" mapstructure:"connectionId,omitempty" validate:"required" json:"connectionId"`
+	FullName             string `gorm:"primaryKey;type:varchar(255)" mapstructure:"jobFullName" validate:"required" json:"jobFullName"` // "path1/path2/job name"
+	TransformationRuleId uint64 `mapstructure:"transformationRuleId,omitempty" json:"transformationRuleId,omitempty"`
+}
+
+func (job20230322) TableName() string {
+	return "_tool_jenkins_jobs"
+}
+
+type transformationRule20230322 struct {
 	ConnectionId uint64
 }
 
-func (transformationRule20220322) TableName() string {
+func (transformationRule20230322) TableName() string {
 	return "_tool_jenkins_transformation_rules"
 }
 
 func (u *addConnectionIdToTransformationRule) Up(baseRes context.BasicRes) errors.Error {
-	err := migrationhelper.AutoMigrateTables(baseRes, &transformationRule20220322{})
+	err := migrationhelper.AutoMigrateTables(baseRes, &transformationRule20230322{})
 	if err != nil {
 		return err
 	}
-	var scopes []models.JenkinsJob
+	var scopes []job20230322
 	err = baseRes.GetDal().All(&scopes)
 	if err != nil {
 		return err
@@ -55,14 +64,14 @@ func (u *addConnectionIdToTransformationRule) Up(baseRes context.BasicRes) error
 	// set connection_id for rules
 	for trId, cId := range idMap {
 		err = baseRes.GetDal().UpdateColumn(
-			&models.JenkinsTransformationRule{}, "connection_id", cId,
+			&job20230322{}, "connection_id", cId,
 			dal.Where("id = ?", trId))
 		if err != nil {
 			return err
 		}
 	}
 	// delete all rules that are not referenced.
-	return baseRes.GetDal().Delete(&models.JenkinsTransformationRule{}, dal.Where("connection_id IS NULL OR connection_id = 0"))
+	return baseRes.GetDal().Delete(&job20230322{}, dal.Where("connection_id IS NULL OR connection_id = 0"))
 }
 
 func (*addConnectionIdToTransformationRule) Version() uint64 {

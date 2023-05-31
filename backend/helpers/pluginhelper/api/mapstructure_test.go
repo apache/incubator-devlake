@@ -20,8 +20,9 @@ package api
 import (
 	"encoding/json"
 	"fmt"
-	"github.com/apache/incubator-devlake/core/errors"
 	"testing"
+
+	"github.com/apache/incubator-devlake/core/errors"
 
 	"github.com/stretchr/testify/assert"
 )
@@ -56,4 +57,25 @@ func TestDecodeMapStructJsonRawMessage(t *testing.T) {
 	assert.Nil(t, err)
 	assert.Equal(t, settings["version"], "1.0.0")
 	assert.Equal(t, decoded.Existing, json.RawMessage(`{"hello", "world"}`))
+}
+
+type StringSliceField struct {
+	Entities []string `gorm:"type:json;serializer:json" mapstructure:"entities"`
+}
+
+func TestStringSliceFieldShouldBeOverwrited(t *testing.T) {
+	decoded := &StringSliceField{
+		Entities: []string{"hello", "world"},
+	}
+	input := map[string]interface{}{
+		"entities": []string{"foo"},
+	}
+	err := DecodeMapStruct(input, decoded, true)
+	assert.Nil(t, err)
+	assert.Equal(t, decoded.Entities, []string{"foo"})
+
+	input = map[string]interface{}{}
+	err = DecodeMapStruct(input, decoded, true)
+	assert.Nil(t, err)
+	assert.Equal(t, decoded.Entities, []string{"foo"})
 }

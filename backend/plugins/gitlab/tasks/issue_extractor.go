@@ -19,12 +19,13 @@ package tasks
 
 import (
 	"encoding/json"
+	"regexp"
+
 	"github.com/apache/incubator-devlake/core/errors"
 	"github.com/apache/incubator-devlake/core/models/domainlayer/ticket"
 	"github.com/apache/incubator-devlake/core/plugin"
 	"github.com/apache/incubator-devlake/helpers/pluginhelper/api"
 	"github.com/apache/incubator-devlake/plugins/gitlab/models"
-	"regexp"
 )
 
 var ExtractApiIssuesMeta = plugin.SubTaskMeta{
@@ -127,7 +128,7 @@ type IssuesResponse struct {
 
 func ExtractApiIssues(taskCtx plugin.SubTaskContext) errors.Error {
 	rawDataSubTaskArgs, data := CreateRawDataSubTaskArgs(taskCtx, RAW_ISSUE_TABLE)
-	config := data.Options.GitlabTransformationRule
+	config := data.Options.ScopeConfig
 	var issueSeverityRegex *regexp.Regexp
 	var issueComponentRegex *regexp.Regexp
 	var issuePriorityRegex *regexp.Regexp

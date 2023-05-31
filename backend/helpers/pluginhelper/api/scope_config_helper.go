@@ -90,7 +90,7 @@ func (t ScopeConfigHelper[Tr]) Update(input *plugin.ApiResourceInput) (*plugin.A
 	if err != nil {
 		return nil, errors.Default.Wrap(err, "error on saving ScopeConfig")
 	}
-	err = DecodeMapStruct(input.Body, &old, false)
+	err = DecodeMapStruct(input.Body, &old, true)
 	if err != nil {
 		return nil, errors.Default.Wrap(err, "error decoding map into scopeConfig")
 	}

@@ -32,15 +32,15 @@ type JenkinsApiParams struct {
 }
 
 type JenkinsOptions struct {
-	ConnectionId                      uint64 `json:"connectionId"`
-	ScopeId                           string
-	TransformationRuleId              uint64 `json:"transformationRuleId"`
-	JobFullName                       string `json:"jobFullName"` // "path1/path2/job name"
-	JobName                           string `json:"jobName"`     // "job name"
-	JobPath                           string `json:"jobPath"`     // "job/path1/job/path2"
-	TimeAfter                         string
-	Tasks                             []string `json:"tasks,omitempty"`
-	*models.JenkinsTransformationRule `mapstructure:"transformationRules" json:"transformationRules"`
+	ConnectionId  uint64 `json:"connectionId"`
+	ScopeId       string
+	ScopeConfigId uint64 `json:"scopeConfigId"`
+	JobFullName   string `json:"jobFullName"` // "path1/path2/job name"
+	JobName       string `json:"jobName"`     // "job name"
+	JobPath       string `json:"jobPath"`     // "job/path1/job/path2"
+	TimeAfter     string
+	Tasks         []string                   `json:"tasks,omitempty"`
+	ScopeConfig   *models.JenkinsScopeConfig `mapstructure:"scopeConfig" json:"scopeConfig"`
 }
 
 type JenkinsTaskData struct {
@@ -74,8 +74,8 @@ func ValidateTaskOptions(op *JenkinsOptions) (*JenkinsOptions, errors.Error) {
 		op.JobName = op.JobFullName
 		op.JobPath = `view/all`
 	}
-	if op.JenkinsTransformationRule == nil && op.TransformationRuleId == 0 {
-		op.JenkinsTransformationRule = new(models.JenkinsTransformationRule)
+	if op.ScopeConfig == nil && op.ScopeConfigId == 0 {
+		op.ScopeConfig = new(models.JenkinsScopeConfig)
 	}
 	return op, nil
 }

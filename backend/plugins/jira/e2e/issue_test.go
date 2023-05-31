@@ -35,7 +35,7 @@ func TestIssueDataFlow(t *testing.T) {
 		Options: &tasks.JiraOptions{
 			ConnectionId: 2,
 			BoardId:      8,
-			TransformationRules: &tasks.JiraTransformationRule{
+			ScopeConfig: &tasks.JiraScopeConfig{
 				StoryPointField: "customfield_10024",
 				TypeMappings: map[string]tasks.TypeMapping{
 					"子任务": {

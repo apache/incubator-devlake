@@ -25,18 +25,18 @@ import (
 	"github.com/apache/incubator-devlake/plugins/jira/models"
 )
 
-func TestMakeTransformationRules(t *testing.T) {
+func TestMakeScopeConfigs(t *testing.T) {
 	type args struct {
-		rule models.JiraTransformationRule
+		rule models.JiraScopeConfig
 	}
 	tests := []struct {
 		name  string
 		args  args
-		want  *JiraTransformationRule
+		want  *JiraScopeConfig
 		want1 errors.Error
 	}{
 		{"non-null RemotelinkRepoPattern",
-			args{rule: models.JiraTransformationRule{
+			args{rule: models.JiraScopeConfig{
 				Name:                       "name",
 				EpicKeyField:               "epic",
 				StoryPointField:            "story",
@@ -44,7 +44,7 @@ func TestMakeTransformationRules(t *testing.T) {
 				RemotelinkRepoPattern:      []byte(`["abc","efg"]`),
 				TypeMappings:               []byte(`{"10040":{"standardType":"Incident","statusMappings":null}}`),
 			}},
-			&JiraTransformationRule{
+			&JiraScopeConfig{
 				Name:                       "name",
 				EpicKeyField:               "epic",
 				StoryPointField:            "story",
@@ -59,11 +59,11 @@ func TestMakeTransformationRules(t *testing.T) {
 		},
 
 		{"null RemotelinkRepoPattern",
-			args{rule: models.JiraTransformationRule{
+			args{rule: models.JiraScopeConfig{
 				RemotelinkRepoPattern: nil,
 				TypeMappings:          nil,
 			}},
-			&JiraTransformationRule{
+			&JiraScopeConfig{
 				RemotelinkRepoPattern: nil,
 				TypeMappings:          nil,
 			},
@@ -72,12 +72,12 @@ func TestMakeTransformationRules(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			got, got1 := MakeTransformationRules(tt.args.rule)
+			got, got1 := MakeScopeConfig(tt.args.rule)
 			if !reflect.DeepEqual(got, tt.want) {
-				t.Errorf("MakeTransformationRules() got = %v, want %v", got, tt.want)
+				t.Errorf("MakeScopeConfig() got = %v, want %v", got, tt.want)
 			}
 			if !reflect.DeepEqual(got1, tt.want1) {
-				t.Errorf("MakeTransformationRules() got1 = %v, want %v", got1, tt.want1)
+				t.Errorf("MakeScopeConfig() got1 = %v, want %v", got1, tt.want1)
 			}
 		})
 	}

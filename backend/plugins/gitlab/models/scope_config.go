@@ -22,8 +22,8 @@ import (
 	"gorm.io/datatypes"
 )
 
-type GitlabTransformationRule struct {
-	common.Model
+type GitlabScopeConfig struct {
+	common.ScopeConfig   `mapstructure:",squash" json:",inline" gorm:"embedded"`
 	ConnectionId         uint64            `mapstructure:"connectionId" json:"connectionId"`
 	Name                 string            `gorm:"type:varchar(255);index:idx_name_gitlab,unique" validate:"required" mapstructure:"name" json:"name"`
 	PrType               string            `mapstructure:"prType" json:"prType"`
@@ -40,6 +40,6 @@ type GitlabTransformationRule struct {
 	Refdiff              datatypes.JSONMap `mapstructure:"refdiff,omitempty" json:"refdiff" swaggertype:"object" format:"json"`
 }
 
-func (t GitlabTransformationRule) TableName() string {
-	return "_tool_gitlab_transformation_rules"
+func (t GitlabScopeConfig) TableName() string {
+	return "_tool_gitlab_scope_configs"
 }

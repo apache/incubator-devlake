@@ -39,7 +39,6 @@ var _ interface {
 	plugin.PluginTask
 	plugin.PluginModel
 	plugin.PluginMigration
-	plugin.PluginBlueprintV100
 	plugin.DataSourcePluginBlueprintV200
 	plugin.CloseablePluginTask
 	plugin.PluginSource
@@ -60,8 +59,8 @@ func (p Gitlab) Scope() interface{} {
 	return &models.GitlabProject{}
 }
 
-func (p Gitlab) TransformationRule() interface{} {
-	return &models.GitlabTransformationRule{}
+func (p Gitlab) ScopeConfig() interface{} {
+	return &models.GitlabScopeConfig{}
 }
 
 func (p Gitlab) MakeDataSourcePipelinePlanV200(connectionId uint64, scopes []*plugin.BlueprintScopeV200, syncPolicy plugin.BlueprintSyncPolicy) (plugin.PipelinePlan, []plugin.Scope, errors.Error) {
@@ -197,24 +196,24 @@ func (p Gitlab) PrepareTaskData(taskCtx plugin.TaskContext, options map[string]i
 		}
 	}
 
-	if op.GitlabTransformationRule == nil && op.TransformationRuleId != 0 {
-		var transformationRule models.GitlabTransformationRule
+	if op.ScopeConfig == nil && op.ScopeConfigId != 0 {
+		var scopeConfig models.GitlabScopeConfig
 		db := taskCtx.GetDal()
-		err = db.First(&transformationRule, dal.Where("id = ?", op.TransformationRuleId))
+		err = db.First(&scopeConfig, dal.Where("id = ?", op.ScopeConfigId))
 		if err != nil {
 			if db.IsErrorNotFound(err) {
-				return nil, errors.Default.Wrap(err, fmt.Sprintf("can not find transformationRules by transformationRuleId [%d]", op.TransformationRuleId))
+				return nil, errors.Default.Wrap(err, fmt.Sprintf("can not find scopeConfigs by scopeConfigId [%d]", op.ScopeConfigId))
 			}
-			return nil, errors.Default.Wrap(err, fmt.Sprintf("fail to find transformationRules by transformationRuleId [%d]", op.TransformationRuleId))
+			return nil, errors.Default.Wrap(err, fmt.Sprintf("fail to find scopeConfigs by scopeConfigId [%d]", op.ScopeConfigId))
 		}
-		op.GitlabTransformationRule = &transformationRule
+		op.ScopeConfig = &scopeConfig
 	}
 
 	regexEnricher := helper.NewRegexEnricher()
-	if err := regexEnricher.TryAdd(devops.DEPLOYMENT, op.DeploymentPattern); err != nil {
+	if err := regexEnricher.TryAdd(devops.DEPLOYMENT, op.ScopeConfig.DeploymentPattern); err != nil {
 		return nil, errors.BadInput.Wrap(err, "invalid value for `deploymentPattern`")
 	}
-	if err := regexEnricher.TryAdd(devops.PRODUCTION, op.ProductionPattern); err != nil {
+	if err := regexEnricher.TryAdd(devops.PRODUCTION, op.ScopeConfig.ProductionPattern); err != nil {
 		return nil, errors.BadInput.Wrap(err, "invalid value for `productionPattern`")
 	}
 
@@ -237,10 +236,6 @@ func (p Gitlab) RootPkgPath() string {
 
 func (p Gitlab) MigrationScripts() []plugin.MigrationScript {
 	return migrationscripts.All()
-}
-
-func (p Gitlab) MakePipelinePlan(connectionId uint64, scope []*plugin.BlueprintScopeV100) (plugin.PipelinePlan, errors.Error) {
-	return api.MakePipelinePlan(p.SubTaskMetas(), connectionId, scope)
 }
 
 func (p Gitlab) ApiResources() map[string]map[string]plugin.ApiResourceHandler {
@@ -272,13 +267,13 @@ func (p Gitlab) ApiResources() map[string]map[string]plugin.ApiResourceHandler {
 			"GET": api.GetScopeList,
 			"PUT": api.PutScope,
 		},
-		"connections/:connectionId/transformation_rules": {
-			"POST": api.CreateTransformationRule,
-			"GET":  api.GetTransformationRuleList,
+		"connections/:connectionId/scope_configs": {
+			"POST": api.CreateScopeConfig,
+			"GET":  api.GetScopeConfigList,
 		},
-		"connections/:connectionId/transformation_rules/:id": {
-			"PATCH": api.UpdateTransformationRule,
-			"GET":   api.GetTransformationRule,
+		"connections/:connectionId/scope_configs/:id": {
+			"PATCH": api.UpdateScopeConfig,
+			"GET":   api.GetScopeConfig,
 		},
 		"connections/:connectionId/proxy/rest/*path": {
 			"GET": api.Proxy,

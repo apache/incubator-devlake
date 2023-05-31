@@ -18,9 +18,10 @@ limitations under the License.
 package e2e
 
 import (
+	"testing"
+
 	"github.com/apache/incubator-devlake/core/models/common"
 	"github.com/apache/incubator-devlake/core/models/domainlayer/devops"
-	"testing"
 
 	"github.com/apache/incubator-devlake/helpers/e2ehelper"
 	"github.com/apache/incubator-devlake/plugins/jenkins/impl"
@@ -35,11 +36,11 @@ func TestJenkinsJobsDataFlow(t *testing.T) {
 
 	taskData := &tasks.JenkinsTaskData{
 		Options: &tasks.JenkinsOptions{
-			ConnectionId:              1,
-			JobName:                   `devlake`,
-			JobFullName:               `Test-jenkins-dir/test-jenkins-sub-dir/test-sub-sub-dir/devlake`,
-			JobPath:                   `job/Test-jenkins-dir/job/test-jenkins-sub-dir/job/test-sub-sub-dir/`,
-			JenkinsTransformationRule: new(models.JenkinsTransformationRule),
+			ConnectionId: 1,
+			JobName:      `devlake`,
+			JobFullName:  `Test-jenkins-dir/test-jenkins-sub-dir/test-sub-sub-dir/devlake`,
+			JobPath:      `job/Test-jenkins-dir/job/test-jenkins-sub-dir/job/test-sub-sub-dir/`,
+			ScopeConfig:  new(models.JenkinsScopeConfig),
 		},
 	}
 

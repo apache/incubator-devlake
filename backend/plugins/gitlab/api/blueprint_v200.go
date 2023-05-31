@@ -84,8 +84,13 @@ func makeScopeV200(connectionId uint64, scopes []*plugin.BlueprintScopeV200) ([]
 			return nil, err
 		}
 
-		if utils.StringsContains(scope.Entities, plugin.DOMAIN_TYPE_CODE_REVIEW) ||
-			utils.StringsContains(scope.Entities, plugin.DOMAIN_TYPE_CODE) {
+		scopeConfig, err := GetScopeConfigByRepo(gitlabProject)
+		if err != nil {
+			return nil, err
+		}
+
+		if utils.StringsContains(scopeConfig.Entities, plugin.DOMAIN_TYPE_CODE_REVIEW) ||
+			utils.StringsContains(scopeConfig.Entities, plugin.DOMAIN_TYPE_CODE) {
 			// if we don't need to collect gitex, we need to add repo to scopes here
 			scopeRepo := code.NewRepo(id, gitlabProject.Name)
 
@@ -96,14 +101,14 @@ func makeScopeV200(connectionId uint64, scopes []*plugin.BlueprintScopeV200) ([]
 		}
 
 		// add cicd_scope to scopes
-		if utils.StringsContains(scope.Entities, plugin.DOMAIN_TYPE_CICD) {
+		if utils.StringsContains(scopeConfig.Entities, plugin.DOMAIN_TYPE_CICD) {
 			scopeCICD := devops.NewCicdScope(id, gitlabProject.Name)
 
 			sc = append(sc, scopeCICD)
 		}
 
 		// add board to scopes
-		if utils.StringsContains(scope.Entities, plugin.DOMAIN_TYPE_TICKET) {
+		if utils.StringsContains(scopeConfig.Entities, plugin.DOMAIN_TYPE_TICKET) {
 			scopeTicket := ticket.NewBoard(id, gitlabProject.Name)
 
 			sc = append(sc, scopeTicket)
@@ -128,8 +133,8 @@ func makePipelinePlanV200(
 			return nil, err
 		}
 
-		// get transformationRuleId
-		transformationRules, err := GetTransformationRuleByRepo(repo)
+		// get scopeConfigId
+		scopeConfig, err := GetScopeConfigByRepo(repo)
 		if err != nil {
 			return nil, err
 		}
@@ -144,13 +149,13 @@ func makePipelinePlanV200(
 		options := make(map[string]interface{})
 		options["connectionId"] = connection.ID
 		options["projectId"] = intScopeId
-		options["transformationRuleId"] = transformationRules.ID
+		options["scopeConfigId"] = scopeConfig.ID
 		if syncPolicy.TimeAfter != nil {
 			options["timeAfter"] = syncPolicy.TimeAfter.Format(time.RFC3339)
 		}
 
 		// construct subtasks
-		subtasks, err := helper.MakePipelinePlanSubtasks(subtaskMetas, scope.Entities)
+		subtasks, err := helper.MakePipelinePlanSubtasks(subtaskMetas, scopeConfig.Entities)
 		if err != nil {
 			return nil, err
 		}
@@ -162,7 +167,7 @@ func makePipelinePlanV200(
 		})
 
 		// collect git data by gitextractor if CODE was requested
-		if utils.StringsContains(scope.Entities, plugin.DOMAIN_TYPE_CODE) {
+		if utils.StringsContains(scopeConfig.Entities, plugin.DOMAIN_TYPE_CODE) {
 			cloneUrl, err := errors.Convert01(url.Parse(repo.HttpUrlToRepo))
 			if err != nil {
 				return nil, err
@@ -181,10 +186,10 @@ func makePipelinePlanV200(
 		plans = append(plans, stage)
 
 		// refdiff part
-		if transformationRules.Refdiff != nil {
+		if scopeConfig.Refdiff != nil {
 			task := &plugin.PipelineTask{
 				Plugin:  "refdiff",
-				Options: transformationRules.Refdiff,
+				Options: scopeConfig.Refdiff,
 			}
 			plans = append(plans, plugin.PipelineStage{task})
 		}
@@ -211,24 +216,24 @@ func GetRepoByConnectionIdAndscopeId(connectionId uint64, scopeId string) (*mode
 	return repo, nil
 }
 
-// GetTransformationRuleByRepo get the GetTransformationRule by Repo
-func GetTransformationRuleByRepo(repo *models.GitlabProject) (*models.GitlabTransformationRule, errors.Error) {
-	transformationRules := &models.GitlabTransformationRule{}
-	transformationRuleId := repo.TransformationRuleId
-	if transformationRuleId != 0 {
+// GetScopeConfigByRepo get the GetScopeConfig by Repo
+func GetScopeConfigByRepo(repo *models.GitlabProject) (*models.GitlabScopeConfig, errors.Error) {
+	scopeConfigs := &models.GitlabScopeConfig{}
+	scopeConfigId := repo.ScopeConfigId
+	if scopeConfigId != 0 {
 		db := basicRes.GetDal()
-		err := db.First(transformationRules, dal.Where("id = ?", transformationRuleId))
+		err := db.First(scopeConfigs, dal.Where("id = ?", scopeConfigId))
 		if err != nil {
 			if db.IsErrorNotFound(err) {
-				return nil, errors.Default.Wrap(err, fmt.Sprintf("can not find transformationRules by transformationRuleId [%d]", transformationRuleId))
+				return nil, errors.Default.Wrap(err, fmt.Sprintf("can not find scopeConfig by id [%d]", scopeConfigId))
 			}
-			return nil, errors.Default.Wrap(err, fmt.Sprintf("fail to find transformationRules by transformationRuleId [%d]", transformationRuleId))
+			return nil, errors.Default.Wrap(err, fmt.Sprintf("fail to find scopeConfig by id [%d]", scopeConfigId))
 		}
 	} else {
-		transformationRules.ID = 0
+		scopeConfigs.ID = 0
 	}
 
-	return transformationRules, nil
+	return scopeConfigs, nil
 }
 
 func GetApiProject(

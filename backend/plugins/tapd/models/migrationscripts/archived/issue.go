@@ -19,7 +19,7 @@ package archived
 
 type TapdIssue struct {
 	ConnectionId uint64 `gorm:"primaryKey"`
-	Id           uint64 `gorm:"primaryKey;type:BIGINT" json:"id,string"`
+	Id           uint64 `gorm:"primaryKey;type:BIGINT;autoIncrement:false" json:"id,string"`
 }
 
 func (TapdIssue) TableName() string {

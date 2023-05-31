@@ -21,7 +21,16 @@ import { request } from '@/utils';
 export const deleteConnection = (plugin: string, id: ID) =>
   request(`/plugins/${plugin}/connections/${id}`, { method: 'delete' });
 
-export const getDataScope = (plugin: string, id: ID) => request(`/plugins/${plugin}/connections/${id}/scopes`);
+export const getDataScopes = (plugin: string, id: ID) => request(`/plugins/${plugin}/connections/${id}/scopes`);
+
+export const getDataScope = (plugin: string, id: ID, scopeId: ID) =>
+  request(`/plugins/${plugin}/connections/${id}/scopes/${scopeId}`);
+
+export const updateDataScope = (plugin: string, id: ID, scopeId: ID, payload: any) =>
+  request(`/plugins/${plugin}/connections/${id}/scopes/${scopeId}`, {
+    method: 'patch',
+    data: payload,
+  });
 
 export const deleteDataScope = (plugin: string, id: ID, scopeId: ID, onlyData: boolean) =>
   request(`/plugins/${plugin}/connections/${id}/scopes/${scopeId}`, {

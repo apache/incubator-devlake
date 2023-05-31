@@ -26,9 +26,9 @@ import (
 
 var vld *validator.Validate
 var connectionHelper *api.ConnectionApiHelper
-var scopeHelper *api.ScopeApiHelper[models.JiraConnection, models.JiraBoard, models.JiraTransformationRule]
+var scopeHelper *api.ScopeApiHelper[models.JiraConnection, models.JiraBoard, models.JiraScopeConfig]
 var basicRes context.BasicRes
-var trHelper *api.TransformationRuleHelper[models.JiraTransformationRule]
+var scHelper *api.ScopeConfigHelper[models.JiraScopeConfig]
 
 func Init(br context.BasicRes) {
 	basicRes = br
@@ -41,16 +41,16 @@ func Init(br context.BasicRes) {
 		ScopeIdFieldName:  "BoardID",
 		ScopeIdColumnName: "board_id",
 	}
-	scopeHelper = api.NewScopeHelper[models.JiraConnection, models.JiraBoard, models.JiraTransformationRule](
+	scopeHelper = api.NewScopeHelper[models.JiraConnection, models.JiraBoard, models.JiraScopeConfig](
 		basicRes,
 		vld,
 		connectionHelper,
-		api.NewScopeDatabaseHelperImpl[models.JiraConnection, models.JiraBoard, models.JiraTransformationRule](
+		api.NewScopeDatabaseHelperImpl[models.JiraConnection, models.JiraBoard, models.JiraScopeConfig](
 			basicRes, connectionHelper, params),
 		params,
 		nil,
 	)
-	trHelper = api.NewTransformationRuleHelper[models.JiraTransformationRule](
+	scHelper = api.NewScopeConfigHelper[models.JiraScopeConfig](
 		basicRes,
 		vld,
 	)

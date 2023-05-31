@@ -27,9 +27,9 @@ import (
 var vld *validator.Validate
 var connectionHelper *api.ConnectionApiHelper
 
-var scopeHelper *api.ScopeApiHelper[models.PagerDutyConnection, models.Service, models.PagerdutyTransformationRule]
+var scopeHelper *api.ScopeApiHelper[models.PagerDutyConnection, models.Service, models.PagerdutyScopeConfig]
 
-var trHelper *api.TransformationRuleHelper[models.PagerdutyTransformationRule]
+var scHelper *api.ScopeConfigHelper[models.PagerdutyScopeConfig]
 var basicRes context.BasicRes
 
 func Init(br context.BasicRes) {
@@ -44,16 +44,16 @@ func Init(br context.BasicRes) {
 		ScopeIdColumnName: "id",
 		RawScopeParamName: "ScopeId",
 	}
-	scopeHelper = api.NewScopeHelper[models.PagerDutyConnection, models.Service, models.PagerdutyTransformationRule](
+	scopeHelper = api.NewScopeHelper[models.PagerDutyConnection, models.Service, models.PagerdutyScopeConfig](
 		basicRes,
 		vld,
 		connectionHelper,
-		api.NewScopeDatabaseHelperImpl[models.PagerDutyConnection, models.Service, models.PagerdutyTransformationRule](
+		api.NewScopeDatabaseHelperImpl[models.PagerDutyConnection, models.Service, models.PagerdutyScopeConfig](
 			basicRes, connectionHelper, params),
 		params,
 		&api.ScopeHelperOptions{},
 	)
-	trHelper = api.NewTransformationRuleHelper[models.PagerdutyTransformationRule](
+	scHelper = api.NewScopeConfigHelper[models.PagerdutyScopeConfig](
 		basicRes,
 		vld,
 	)

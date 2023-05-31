@@ -20,9 +20,11 @@ package api
 import (
 	"encoding/base64"
 	"fmt"
-	"github.com/apache/incubator-devlake/core/plugin"
 	"net/http"
+	"reflect"
 	"strings"
+
+	"github.com/apache/incubator-devlake/core/plugin"
 
 	"github.com/apache/incubator-devlake/core/errors"
 	"github.com/go-playground/validator/v10"
@@ -148,16 +150,38 @@ func (ma *MultiAuth) ValidateConnection(connection interface{}, v *validator.Val
 	validationErrors := v.Struct(connection).(validator.ValidationErrors)
 	if validationErrors != nil {
 		filteredValidationErrors := make(validator.ValidationErrors, 0)
+		connType := reflect.TypeOf(connection).Elem()
 		for _, e := range validationErrors {
-			// JiraConnection.JiraConn.BasicAuth.Username
 			ns := strings.Split(e.Namespace(), ".")
 			if len(ns) > 1 {
-				// BasicAuth
+				// case 1: using the origin Authenticator directly, e.g. BasicAuth in JiraConnection.JiraConn.BasicAuth.Username
 				authName := ns[len(ns)-2]
 				if plugin.ALL_AUTH[authName] && authName != ma.AuthMethod {
 					continue
 				}
-				filteredValidationErrors = append(filteredValidationErrors, e)
+				// case 2: embed origin Authenticator, e.g. GithubAppKey from
+				// https://github.com/apache/incubator-devlake/blob/16f97a1a7605d5ce7cf391bbec1270eec7c77b6e/backend/plugins/github/models/connection.go#L41
+				// skip the error if the field doesn't belong to the current authMethod
+				shouldInclude := true
+				t := connType
+				// search from outer to inner of the struct to see if any field has tag `authMethod`
+				for _, n := range ns[1:] {
+					if field, ok := t.FieldByName(n); ok {
+						authMethod := field.Tag.Get("authMethod")
+						// drop error if authMethod was marked and it doesn't equal to current AutheMethod
+						if authMethod != "" && authMethod != ma.AuthMethod {
+							shouldInclude = false
+							break
+						}
+						t = field.Type
+						if t.Kind() == reflect.Ptr {
+							t = t.Elem()
+						}
+					}
+				}
+				if shouldInclude {
+					filteredValidationErrors = append(filteredValidationErrors, e)
+				}
 			}
 		}
 		if len(filteredValidationErrors) > 0 {

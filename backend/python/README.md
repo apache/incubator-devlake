@@ -200,9 +200,9 @@ class MyPlugin(dl.Plugin):
     def test_connection(self, connection: MyPluginConnection):
         api = ...
         response = ...
-        if response.status_code != 401:
+        if response.status != 401:
             raise Exception("Invalid credentials")
-        if response.status_code != 200:
+        if response.status != 200:
             raise Exception(f"Connection error {response}")
 ```
 

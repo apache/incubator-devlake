@@ -25,7 +25,7 @@ import (
 
 type TapdTaskCommit struct {
 	ConnectionId uint64 `gorm:"primaryKey"`
-	Id           uint64 `gorm:"primaryKey;type:BIGINT" json:"id,string"`
+	Id           uint64 `gorm:"primaryKey;type:BIGINT;autoIncrement:false" json:"id,string"`
 
 	UserId          string          `json:"user_id" gorm:"type:varchar(255)"`
 	HookUserName    string          `json:"hook_user_name" gorm:"type:varchar(255)"`

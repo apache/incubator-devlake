@@ -28,20 +28,21 @@ interface Props {
 }
 
 export const Authentication = ({ initialValue, value, setValue }: Props) => {
-
   useEffect(() => {
     setValue(initialValue);
   }, [initialValue]);
 
   return (
     <FormGroup label={<S.Label>Authentication type</S.Label>} labelInfo={<S.LabelInfo>*</S.LabelInfo>}>
-      <RadioGroup inline selectedValue={value || initialValue} onChange={(e) => {
-        setValue((e.target as any).value);
-      }}>
+      <RadioGroup
+        inline
+        selectedValue={value || initialValue}
+        onChange={(e) => {
+          setValue((e.target as any).value);
+        }}
+      >
         <Radio value="AccessToken">Github Access Token</Radio>
-        <Radio value="AppKey">
-          Github App
-        </Radio>
+        <Radio value="AppKey">Github App</Radio>
       </RadioGroup>
     </FormGroup>
   );

@@ -18,11 +18,12 @@ limitations under the License.
 package e2e
 
 import (
+	"testing"
+
 	"github.com/apache/incubator-devlake/helpers/e2ehelper"
 	"github.com/apache/incubator-devlake/plugins/jira/impl"
 	"github.com/apache/incubator-devlake/plugins/jira/models"
 	"github.com/apache/incubator-devlake/plugins/jira/tasks"
-	"testing"
 )
 
 func TestRemotelinkDataFlow(t *testing.T) {
@@ -33,7 +34,7 @@ func TestRemotelinkDataFlow(t *testing.T) {
 		Options: &tasks.JiraOptions{
 			ConnectionId: 2,
 			BoardId:      8,
-			TransformationRules: &tasks.JiraTransformationRule{
+			ScopeConfig: &tasks.JiraScopeConfig{
 				RemotelinkCommitShaPattern: ".*/commit/(.*)",
 				RemotelinkRepoPattern:      []string{`https://example.com/(?P<namespace>\S+)/(?P<repo_name>\S+)/-/commits/(?P<commit_sha>\w{40})`},
 			},

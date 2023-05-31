@@ -20,17 +20,4 @@ import styled from 'styled-components';
 
 export const Wrapper = styled.div``;
 
-export const Aciton = styled.div`
-  margin-bottom: 16px;
-`;
-
-export const Btns = styled.div`
-  display: flex;
-  align-items: center;
-  justify-content: end;
-  margin-top: 24px;
-
-  .bp4-button + .bp4-button {
-    margin-left: 4px;
-  }
-`;
+export const DialogBody = styled.div``;

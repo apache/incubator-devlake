@@ -33,7 +33,7 @@ import (
 
 type ScopeRes struct {
 	models.JiraBoard
-	TransformationRuleName string `json:"transformationRuleName,omitempty"`
+	ScopeConfigName string `json:"scopeConfigName,omitempty"`
 }
 
 type ScopeReq api.ScopeReq[models.JiraBoard]
