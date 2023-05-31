@@ -20,6 +20,7 @@ package tasks
 import (
 	"encoding/json"
 	"fmt"
+	"io"
 	"net/http"
 	"net/url"
 	"reflect"
@@ -31,79 +32,98 @@ import (
 	"github.com/apache/incubator-devlake/plugins/zentao/models"
 )
 
-const RAW_TASK_TABLE = "zentao_api_tasks"
+const RAW_BUG_COMMITS_TABLE = "zentao_api_bug_commits"
 
-type ExecuteInput struct {
-	Id int64
+var _ plugin.SubTaskEntryPoint = CollectBugCommits
+
+var CollectBugCommitsMeta = plugin.SubTaskMeta{
+	Name:             "collectBugCommits",
+	EntryPoint:       CollectBugCommits,
+	EnabledByDefault: true,
+	Description:      "Collect Bug Commits data from Zentao api",
+	DomainTypes:      []string{plugin.DOMAIN_TYPE_TICKET},
 }
 
-var _ plugin.SubTaskEntryPoint = CollectTask
-
-func CollectTask(taskCtx plugin.SubTaskContext) errors.Error {
+func CollectBugCommits(taskCtx plugin.SubTaskContext) errors.Error {
+	db := taskCtx.GetDal()
 	data := taskCtx.GetData().(*ZentaoTaskData)
 
-	// this collect only work for project
-	if data.Options.ProjectId == 0 {
-		return nil
-	}
-
-	cursor, err := taskCtx.GetDal().Cursor(
-		dal.Select(`id`),
-		dal.From(&models.ZentaoExecution{}),
-		dal.Where(`project_id = ? and connection_id = ?`, data.Options.ProjectId, data.Options.ConnectionId),
-	)
-	if err != nil {
-		return err
-	}
-	defer cursor.Close()
-
-	iterator, err := api.NewDalCursorIterator(taskCtx.GetDal(), cursor, reflect.TypeOf(ExecuteInput{}))
+	// state manager
+	collectorWithState, err := api.NewStatefulApiCollector(api.RawDataSubTaskArgs{
+		Ctx: taskCtx,
+		Params: ZentaoApiParams{
+			ConnectionId: data.Options.ConnectionId,
+			ProductId:    data.Options.ProductId,
+		},
+		Table: RAW_BUG_COMMITS_TABLE,
+	}, data.TimeAfter)
 	if err != nil {
 		return err
 	}
 
-	collector, err := api.NewApiCollector(api.ApiCollectorArgs{
+	// load bugs id from db
+	clauses := []dal.Clause{
+		dal.Select("id"),
+		dal.From(&models.ZentaoBug{}),
+		dal.Where(
+			"product = ? AND connection_id = ?",
+			data.Options.ProductId, data.Options.ConnectionId,
+		),
+	}
+	// incremental collection
+	incremental := collectorWithState.IsIncremental()
+	if incremental {
+		clauses = append(
+			clauses,
+			dal.Where("updated_at > ?", collectorWithState.LatestState.LatestSuccessStart),
+		)
+	}
+	cursor, err := db.Cursor(clauses...)
+	if err != nil {
+		return err
+	}
+	iterator, err := api.NewDalCursorIterator(db, cursor, reflect.TypeOf(SimpleZentaoBug{}))
+	if err != nil {
+		return err
+	}
+	// collect bug commits
+	err = collectorWithState.InitCollector(api.ApiCollectorArgs{
 		RawDataSubTaskArgs: api.RawDataSubTaskArgs{
 			Ctx: taskCtx,
 			Params: ZentaoApiParams{
 				ConnectionId: data.Options.ConnectionId,
 				ProductId:    data.Options.ProductId,
-				ProjectId:    data.Options.ProjectId,
 			},
-			Table: RAW_TASK_TABLE,
+			Table: RAW_BUG_COMMITS_TABLE,
 		},
-		Input:       iterator,
 		ApiClient:   data.ApiClient,
 		PageSize:    100,
-		UrlTemplate: "/executions/{{ .Input.Id }}/tasks",
+		Input:       iterator,
+		Incremental: incremental,
+		UrlTemplate: "bugs/{{ .Input.ID }}",
 		Query: func(reqData *api.RequestData) (url.Values, errors.Error) {
 			query := url.Values{}
 			query.Set("page", fmt.Sprintf("%v", reqData.Pager.Page))
-			query.Set("limit", fmt.Sprintf("%v", reqData.Pager.Size))
+			query.Set("per_page", fmt.Sprintf("%v", reqData.Pager.Size))
 			return query, nil
 		},
 		GetTotalPages: GetTotalPagesFromResponse,
 		ResponseParser: func(res *http.Response) ([]json.RawMessage, errors.Error) {
-			var data struct {
-				Task []json.RawMessage `json:"tasks"`
-			}
-			err := api.UnmarshalResponse(res, &data)
+			body, err := io.ReadAll(res.Body)
 			if err != nil {
-				return nil, errors.Default.Wrap(err, "error reading endpoint response by Zentao bug collector")
+				return nil, errors.Convert(err)
 			}
-			return data.Task, nil
+			res.Body.Close()
+			return []json.RawMessage{body}, nil
 		},
 	})
 	if err != nil {
 		return err
 	}
-	return collector.Execute()
+
+	return collectorWithState.Execute()
 }
 
-var CollectTaskMeta = plugin.SubTaskMeta{
-	Name:             "collectTask",
-	EntryPoint:       CollectTask,
-	EnabledByDefault: true,
-	Description:      "Collect Task data from Zentao api",
-	DomainTypes:      []string{plugin.DOMAIN_TYPE_TICKET},
+type SimpleZentaoBug struct {
+	ID int64 `json:"id"`
 }

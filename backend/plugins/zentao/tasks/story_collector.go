@@ -80,7 +80,7 @@ func CollectStory(taskCtx plugin.SubTaskContext) errors.Error {
 }
 
 var CollectStoryMeta = plugin.SubTaskMeta{
-	Name:             "CollectStory",
+	Name:             "collectStory",
 	EntryPoint:       CollectStory,
 	EnabledByDefault: true,
 	Description:      "Collect Story data from Zentao api",

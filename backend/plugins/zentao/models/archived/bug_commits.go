@@ -15,17 +15,21 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-package migrationscripts
+package archived
 
 import (
-	"github.com/apache/incubator-devlake/core/plugin"
+	"github.com/apache/incubator-devlake/core/models/migrationscripts/archived"
 )
 
-// All return all the migration scripts
-func All() []plugin.MigrationScript {
-	return []plugin.MigrationScript{
-		new(addInitTables),
-		new(addInitChangelogTables),
-		new(addIssueCommitsTables),
-	}
+type ZentaoBugCommits struct {
+	archived.NoPKModel
+	ConnectionId uint64   `gorm:"primaryKey;type:BIGINT  NOT NULL"`
+	ID           int64    `json:"id" gorm:"primaryKey;type:BIGINT  NOT NULL;autoIncrement:false"`
+	Project      int64    `json:"project"`
+	Product      int64    `json:"product"`
+	Actions      []string `gorm:"type:json;serializer:json" json:"actions" mapstructure:"actions"`
+}
+
+func (ZentaoBugCommits) TableName() string {
+	return "_tool_zentao_bug_commits"
 }

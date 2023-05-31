@@ -20,7 +20,6 @@ package models
 import (
 	"github.com/apache/incubator-devlake/core/models/common"
 	helper "github.com/apache/incubator-devlake/helpers/pluginhelper/api"
-	"gorm.io/datatypes"
 )
 
 type ZentaoBugRes struct {
@@ -89,7 +88,6 @@ type ZentaoBugRes struct {
 	Needconfirm    bool                `json:"needconfirm"`
 	StatusName     string              `json:"statusName"`
 	ProductStatus  string              `json:"productStatus"`
-	Actions        datatypes.JSON      `json:"actions"`
 }
 
 type ZentaoBug struct {
@@ -162,7 +160,6 @@ type ZentaoBug struct {
 	Needconfirm    bool                `json:"needconfirm"`
 	StatusName     string              `json:"statusName"`
 	ProductStatus  string              `json:"productStatus"`
-	Actions        datatypes.JSON      `json:"actions"`
 }
 
 func (ZentaoBug) TableName() string {

@@ -72,7 +72,7 @@ func CollectAccount(taskCtx plugin.SubTaskContext) errors.Error {
 }
 
 var CollectAccountMeta = plugin.SubTaskMeta{
-	Name:             "CollectAccount",
+	Name:             "collectAccount",
 	EntryPoint:       CollectAccount,
 	EnabledByDefault: true,
 	Description:      "Collect Account data from Zentao api",

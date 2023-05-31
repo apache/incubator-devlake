@@ -19,6 +19,7 @@ package tasks
 
 import (
 	"fmt"
+	"time"
 
 	"github.com/apache/incubator-devlake/core/dal"
 	"github.com/apache/incubator-devlake/core/errors"
@@ -49,6 +50,7 @@ type ZentaoOptions struct {
 type ZentaoTaskData struct {
 	Options   *ZentaoOptions
 	RemoteDb  dal.Dal
+	TimeAfter *time.Time
 	ApiClient *helper.ApiAsyncClient
 }
 
