@@ -24,7 +24,7 @@ import (
 type ZentaoAccount struct {
 	archived.NoPKModel
 	ConnectionId uint64 `gorm:"primaryKey;type:BIGINT  NOT NULL"`
-	ID           int64  `json:"id" gorm:"primaryKey;type:BIGINT  NOT NULL" `
+	ID           int64  `json:"id" gorm:"primaryKey;type:BIGINT  NOT NULL;autoIncrement:false" `
 	Account      string `json:"account" gorm:"type:varchar(100);index"`
 	Avatar       string `json:"avatar" gorm:"type:varchar(255)"`
 	Realname     string `json:"realname" gorm:"type:varchar(100);index"`

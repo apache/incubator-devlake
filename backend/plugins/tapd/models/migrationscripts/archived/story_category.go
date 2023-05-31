@@ -24,7 +24,7 @@ import (
 
 type TapdStoryCategory struct {
 	ConnectionId uint64          `gorm:"primaryKey"`
-	Id           uint64          `gorm:"primaryKey;type:BIGINT" json:"id,string"`
+	Id           uint64          `gorm:"primaryKey;type:BIGINT;autoIncrement:false" json:"id,string"`
 	Name         string          `json:"name" gorm:"type:varchar(255)"`
 	Description  string          `json:"description"`
 	ParentId     uint64          `json:"parent_id,string"`

@@ -40,6 +40,10 @@ func (transformationRule20230322) TableName() string {
 	return "_tool_bitbucket_transformation_rules"
 }
 
+func (repo20230322) TableName() string {
+	return "_tool_bitbucket_repos"
+}
+
 func (u *addConnectionIdToTransformationRule) Up(baseRes context.BasicRes) errors.Error {
 	err := migrationhelper.AutoMigrateTables(baseRes, &transformationRule20230322{})
 	if err != nil {
