@@ -15,18 +15,18 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-package models
+package api
 
 import (
-	"github.com/apache/incubator-devlake/core/models/common"
+	"github.com/apache/incubator-devlake/plugins/pagerduty/tasks"
 )
 
-type PagerdutyTransformationRule struct {
-	common.Model `mapstructure:"-"`
-	Name         string `mapstructure:"name" json:"name" gorm:"type:varchar(255);index:idx_name_github,unique" validate:"required"`
-	ConnectionId uint64
-}
+type PagerdutyTaskOptions tasks.PagerDutyOptions
 
-func (PagerdutyTransformationRule) TableName() string {
-	return "_tool_pagerduty_transformation_rules"
-}
+// @Summary pagerduty task options for pipelines
+// @Description This is a dummy API to demonstrate the available task options for pagerduty pipelines
+// @Tags plugins/pagerduty
+// @Accept application/json
+// @Param pipeline body PagerDutyTaskOptions true "json"
+// @Router /pipelines/pagerduty/pipeline-task [post]
+func _() {}

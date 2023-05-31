@@ -19,6 +19,8 @@ package api
 
 import (
 	"fmt"
+	"time"
+
 	"github.com/apache/incubator-devlake/core/dal"
 	"github.com/apache/incubator-devlake/core/errors"
 	"github.com/apache/incubator-devlake/core/models/domainlayer"
@@ -30,7 +32,6 @@ import (
 	"github.com/apache/incubator-devlake/plugins/pagerduty/models"
 	"github.com/apache/incubator-devlake/plugins/pagerduty/tasks"
 	"github.com/go-playground/validator/v10"
-	"time"
 )
 
 func MakeDataSourcePipelinePlanV200(subtaskMetas []plugin.SubTaskMeta, connectionId uint64, bpScopes []*plugin.BlueprintScopeV200, syncPolicy *plugin.BlueprintSyncPolicy,
@@ -71,10 +72,10 @@ func makeDataSourcePipelinePlanV200(
 		if err != nil {
 			return nil, errors.Default.Wrap(err, fmt.Sprintf("fail to find service %s", bpScope.Id))
 		}
-		transformationRule := &models.PagerdutyTransformationRule{}
-		// get transformation rules from db
+		scopeConfig := &models.PagerdutyScopeConfig{}
+		// get scope configs from db
 		db := basicRes.GetDal()
-		err = db.First(transformationRule, dal.Where(`id = ?`, service.TransformationRuleId))
+		err = db.First(scopeConfig, dal.Where(`id = ?`, service.ScopeConfigId))
 		if err != nil && !db.IsErrorNotFound(err) {
 			return nil, err
 		}
@@ -93,7 +94,7 @@ func makeDataSourcePipelinePlanV200(
 			return nil, err
 		}
 		var subtasks []string
-		subtasks, err = api.MakePipelinePlanSubtasks(subtaskMetas, bpScope.Entities)
+		subtasks, err = api.MakePipelinePlanSubtasks(subtaskMetas, scopeConfig.Entities)
 		if err != nil {
 			return nil, err
 		}
@@ -112,14 +113,21 @@ func makeDataSourcePipelinePlanV200(
 func makeScopesV200(bpScopes []*plugin.BlueprintScopeV200, connection *models.PagerDutyConnection) ([]plugin.Scope, errors.Error) {
 	scopes := make([]plugin.Scope, 0)
 	for _, bpScope := range bpScopes {
-		service := &models.Service{}
+		db := basicRes.GetDal()
 		// get service from db
-		err := basicRes.GetDal().First(service, dal.Where(`connection_id = ? AND id = ?`, connection.ID, bpScope.Id))
+		service := &models.Service{}
+		err := db.First(service, dal.Where(`connection_id = ? AND id = ?`, connection.ID, bpScope.Id))
 		if err != nil {
 			return nil, errors.Default.Wrap(err, fmt.Sprintf("failed to find service: %s", bpScope.Id))
 		}
+		// get scope configs from db
+		scopeConfig := &models.PagerdutyScopeConfig{}
+		err = db.First(scopeConfig, dal.Where(`id = ?`, service.ScopeConfigId))
+		if err != nil && !db.IsErrorNotFound(err) {
+			return nil, err
+		}
 		// add board to scopes
-		if utils.StringsContains(bpScope.Entities, plugin.DOMAIN_TYPE_TICKET) {
+		if utils.StringsContains(scopeConfig.Entities, plugin.DOMAIN_TYPE_TICKET) {
 			scopeTicket := &ticket.Board{
 				DomainEntity: domainlayer.DomainEntity{
 					Id: didgen.NewDomainIdGenerator(&models.Service{}).Generate(connection.ID, service.Id),
