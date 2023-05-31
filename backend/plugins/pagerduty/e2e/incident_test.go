@@ -19,6 +19,8 @@ package e2e
 
 import (
 	"fmt"
+	"testing"
+
 	"github.com/apache/incubator-devlake/core/models/common"
 	"github.com/apache/incubator-devlake/core/models/domainlayer/ticket"
 	"github.com/apache/incubator-devlake/helpers/e2ehelper"
@@ -26,36 +28,35 @@ import (
 	"github.com/apache/incubator-devlake/plugins/pagerduty/models"
 	"github.com/apache/incubator-devlake/plugins/pagerduty/tasks"
 	"github.com/stretchr/testify/require"
-	"testing"
 )
 
 func TestIncidentDataFlow(t *testing.T) {
 	var plugin impl.PagerDuty
 	dataflowTester := e2ehelper.NewDataFlowTester(t, "pagerduty", plugin)
-	rule := models.PagerdutyTransformationRule{
+	scopeConfig := models.PagerdutyScopeConfig{
 		Name: "rule1",
 	}
 	options := tasks.PagerDutyOptions{
-		ConnectionId:                1,
-		ServiceId:                   "PIKL83L",
-		ServiceName:                 "DevService",
-		Tasks:                       nil,
-		PagerdutyTransformationRule: &rule,
+		ConnectionId:         1,
+		ServiceId:            "PIKL83L",
+		ServiceName:          "DevService",
+		Tasks:                nil,
+		PagerdutyScopeConfig: &scopeConfig,
 	}
 	taskData := &tasks.PagerDutyTaskData{
 		Options: &options,
 	}
 
-	dataflowTester.FlushTabler(&models.PagerdutyTransformationRule{})
+	dataflowTester.FlushTabler(&models.PagerdutyScopeConfig{})
 	dataflowTester.FlushTabler(&models.Service{})
 	// tx-rule
-	require.NoError(t, dataflowTester.Dal.CreateOrUpdate(&rule))
+	require.NoError(t, dataflowTester.Dal.CreateOrUpdate(&scopeConfig))
 	service := models.Service{
-		ConnectionId:         options.ConnectionId,
-		Url:                  fmt.Sprintf("https://keon-test.pagerduty.com/service-directory/%s", options.ServiceId),
-		Id:                   options.ServiceId,
-		TransformationRuleId: rule.ID,
-		Name:                 options.ServiceName,
+		ConnectionId:  options.ConnectionId,
+		Url:           fmt.Sprintf("https://keon-test.pagerduty.com/service-directory/%s", options.ServiceId),
+		Id:            options.ServiceId,
+		ScopeConfigId: scopeConfig.ID,
+		Name:          options.ServiceName,
 	}
 	// scope
 	require.NoError(t, dataflowTester.Dal.CreateOrUpdate(&service))

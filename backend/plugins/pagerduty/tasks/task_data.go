@@ -18,10 +18,11 @@ limitations under the License.
 package tasks
 
 import (
+	"time"
+
 	"github.com/apache/incubator-devlake/core/errors"
 	"github.com/apache/incubator-devlake/helpers/pluginhelper/api"
 	"github.com/apache/incubator-devlake/plugins/pagerduty/models"
-	"time"
 )
 
 type PagerDutyOptions struct {
@@ -30,7 +31,7 @@ type PagerDutyOptions struct {
 	ServiceId    string   `json:"service_id,omitempty"`
 	ServiceName  string   `json:"service_name,omitempty"`
 	Tasks        []string `json:"tasks,omitempty"`
-	*models.PagerdutyTransformationRule
+	*models.PagerdutyScopeConfig
 }
 
 type PagerDutyTaskData struct {

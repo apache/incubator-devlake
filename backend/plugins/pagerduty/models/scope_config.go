@@ -15,22 +15,18 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-package archived
+package models
 
 import (
 	"github.com/apache/incubator-devlake/core/models/common"
 )
 
-type (
-	Service struct {
-		common.NoPKModel
-		ConnectionId uint64 `gorm:"primaryKey"`
-		Id           string `gorm:"primaryKey;autoIncremental:false"`
-		Url          string
-		Name         string
-	}
-)
+type PagerdutyScopeConfig struct {
+	common.ScopeConfig `mapstructure:",squash" json:",inline" gorm:"embedded"`
+	Name               string `mapstructure:"name" json:"name" gorm:"type:varchar(255);index:idx_name_github,unique" validate:"required"`
+	ConnectionId       uint64
+}
 
-func (Service) TableName() string {
-	return "_tool_pagerduty_services"
+func (PagerdutyScopeConfig) TableName() string {
+	return "_tool_pagerduty_scope_configs"
 }

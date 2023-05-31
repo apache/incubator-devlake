@@ -23,11 +23,11 @@ import (
 
 type Service struct {
 	common.NoPKModel
-	ConnectionId         uint64 `json:"connection_id" mapstructure:"connectionId,omitempty" gorm:"primaryKey" `
-	Url                  string `json:"url" mapstructure:"url"`
-	Id                   string `json:"id" mapstructure:"id" gorm:"primaryKey" `
-	TransformationRuleId uint64 `json:"transformation_rule_id" mapstructure:"transformation_rule_id,omitempty"` //keys to PagerdutyTransformationRules.ID
-	Name                 string `json:"name" mapstructure:"name"`
+	ConnectionId  uint64 `json:"connection_id" mapstructure:"connectionId,omitempty" gorm:"primaryKey" `
+	Id            string `json:"id" mapstructure:"id" gorm:"primaryKey;autoIncrement:false" `
+	Url           string `json:"url" mapstructure:"url"`
+	ScopeConfigId uint64 `json:"scopeConfigId" mapstructure:"scopeConfigId,omitempty"` //keys to PagerdutyScopeConfigs.ID
+	Name          string `json:"name" mapstructure:"name"`
 }
 
 func (Service) TableName() string {
