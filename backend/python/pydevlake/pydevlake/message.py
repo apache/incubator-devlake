@@ -20,6 +20,7 @@ from pydantic import BaseModel, Field
 import jsonref
 
 from pydevlake.model import ToolScope
+from pydevlake.migration import MigrationScript
 
 
 class Message(BaseModel):
@@ -48,6 +49,10 @@ class DynamicModelInfo(Message):
             # Replace $ref with actual schema
             schema = jsonref.replace_refs(schema, proxies=False)
             del schema['definitions']
+        # Pydantic forgets to put type in enums
+        for prop in schema['properties'].values():
+            if 'type' not in prop and 'enum' in prop:
+                prop['type'] = 'string'
         return DynamicModelInfo(
             json_schema=schema,
             table_name=model_class.__tablename__
@@ -60,11 +65,11 @@ class PluginInfo(Message):
     connection_model_info: DynamicModelInfo
     transformation_rule_model_info: Optional[DynamicModelInfo]
     scope_model_info: DynamicModelInfo
+    tool_model_infos: list[DynamicModelInfo]
+    migration_scripts: list[MigrationScript]
     plugin_path: str
     subtask_metas: list[SubtaskMeta]
     extension: str = "datasource"
-    type: str = "python-poetry"
-    tables: list[str]
 
 
 class RemoteProgress(Message):

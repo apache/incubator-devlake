@@ -36,7 +36,7 @@ class AzureDevOpsAPI(API):
 
     @request_hook
     def authenticate(self, request: Request):
-        token_b64 = base64.b64encode((':' + self.connection.token).encode()).decode()
+        token_b64 = base64.b64encode((':' + self.connection.token.get_secret_value()).encode()).decode()
         request.headers['Authorization'] = 'Basic ' + token_b64
 
     @request_hook

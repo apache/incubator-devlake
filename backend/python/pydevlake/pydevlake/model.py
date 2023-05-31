@@ -20,7 +20,7 @@ from inspect import getmodule
 from datetime import datetime
 
 import inflect
-from pydantic import AnyUrl, validator
+from pydantic import AnyUrl, SecretStr, validator
 from sqlalchemy import Column, DateTime
 from sqlalchemy.orm import declared_attr, Session
 from sqlalchemy.inspection import inspect
@@ -48,6 +48,9 @@ class ToolTable(SQLModel):
 
     class Config:
         allow_population_by_field_name = True
+        json_encoders = {
+            SecretStr: lambda v: v.get_secret_value() if v else None
+        }
 
         @classmethod
         def alias_generator(cls, attr_name: str) -> str:
@@ -55,13 +58,6 @@ class ToolTable(SQLModel):
             # Useful for extractors dealing with raw data that has camelCased attributes.
             parts = attr_name.split('_')
             return parts[0] + ''.join(word.capitalize() for word in parts[1:])
-
-    @classmethod
-    def migrate(cls, session: Session):
-        """
-        Redefine this method to perform migration on this tool model.
-        """
-        pass
 
 
 class Connection(ToolTable, Model):

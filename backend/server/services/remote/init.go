@@ -19,7 +19,7 @@ package remote
 
 import (
 	"fmt"
-	"github.com/apache/incubator-devlake/core/config"
+
 	"github.com/apache/incubator-devlake/core/context"
 	"github.com/apache/incubator-devlake/core/errors"
 	pluginCore "github.com/apache/incubator-devlake/core/plugin"
@@ -43,8 +43,7 @@ func NewRemotePlugin(info *models.PluginInfo) (models.RemotePlugin, errors.Error
 	if err != nil {
 		return nil, err
 	}
-	forceMigration := config.GetConfig().GetBool("FORCE_MIGRATION")
-	err = plugin.RunMigrations(forceMigration)
+	err = plugin.RunAutoMigrations()
 	if err != nil {
 		return nil, err
 	}

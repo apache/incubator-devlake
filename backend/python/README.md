@@ -100,11 +100,15 @@ and those that are used to customize conversion to domain models that are groupe
 For example, to add `url` and `token` parameter, edit `MyPluginConnection` as follow:
 
 ```python
+from pydantic import SecretStr
+
 class MyPluginConnection(Connection):
     url: str
-    token: str
+    token: SecretStr
 ```
 
+Using type `SecretStr` instead of `str` will encode the value in the database.
+To get the `str` value, you need to call `get_secret_value()`: `connection.token.get_secret_value()`.
 All plugin methods that have a connection parameter will be called with an instance of this class.
 Note that you should not define `__init__`.
 
@@ -235,20 +239,28 @@ To facilitate or even eliminate extraction, your tool models should be close to 
 #### Migration of tool models
 
 Tool models, connection, scope and transformation rule types are stored in the DevLake database.
-When you change the definition of one of those types, you need to migrate the database.
-You should implement the migration logic in the model class by defining a `migrate` class method. This method takes a sqlalchemy session as argument that you can use to
-execute SQL `ALTER TABLE` statements.
+When you change the definition of one of those types, the database needs to be migrated.
+Automatic migration takes care of most modifications, but some changes require manual migration. For example, automatic migration never drops columns. Another example is adding a column to the primary key of a table, you need to write a script that remove the primary key constraint and add a new compound primary key.
+
+To declare a new migration script, you decorate a function with the `migration` decorator. The function name should describe what the script does. The `migration` decorator takes a version number that should be a 14 digits timestamp in the format `YYYYMMDDhhmmss`. The function takes a `MigrationScriptBuilder` as a parameter. This builder exposes methods to execute migration operations.
+
+##### Migration operations
+
+The `MigrationScriptBuilder` exposes the following methods:
+- `execute(sql: str, dialect: Optional[Dialect])`: execute a raw SQL statement. The `dialect` parameter is used to execute the SQL statement only if the database is of the given dialect. If `dialect` is `None`, the statement is executed unconditionally.
+- `drop_column(table: str, column: str)`: drop a column from a table
+- `drop_table(table: str)`: drop a table
+
 
 ```python
-class User(ToolModel, table=True):
-    id: str = Field(primary_key=True)
-    name: str
-    email: str
-    age: int
+from pydevlake.migration import MigrationScriptBuilder, migration, Dialect
 
-    @classmethod
-    def migrate(cls, session):
-        session.execute(f"ALTER TABLE {cls.__tablename__} ADD COLUMN age INT")
+@migration(20230524181430)
+def add_build_id_as_job_primary_key(b: MigrationScriptBuilder):
+    table = Job.__tablename__
+    b.execute(f'ALTER TABLE {table} DROP PRIMARY KEY', Dialect.MYSQL)
+    b.execute(f'ALTER TABLE {table} DROP CONSTRAINT {table}_pkey', Dialect.POSTGRESQL)
+    b.execute(f'ALTER TABLE {table} ADD PRIMARY KEY (id, build_id)')
 ```
 
 
@@ -481,7 +493,8 @@ class UserComments(Substream):
         """
         This method will be called for each user collected from parent stream Users.
         """
-        for json in MyPluginAPI(context.connection.token).user_comments(user.id):
+        api = MyPluginAPI(context.connection.token.get_secret_value())
+        for json in api.user_comments(user.id):
             yield json, state
     ...
 ```
