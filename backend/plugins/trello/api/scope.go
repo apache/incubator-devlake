@@ -18,20 +18,9 @@ limitations under the License.
 package api
 
 import (
-	"github.com/apache/incubator-devlake/plugins/trello/models"
-
 	"github.com/apache/incubator-devlake/core/errors"
 	"github.com/apache/incubator-devlake/core/plugin"
 )
-
-type apiBoard struct {
-	models.TrelloBoard
-	ScopeConfigName string `json:"scopeConfigName,omitempty"`
-}
-
-type req struct {
-	Data []*models.TrelloBoard `json:"data"`
-}
 
 // PutScope create or update trello board
 // @Summary create or update trello board
