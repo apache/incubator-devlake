@@ -15,17 +15,24 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-package migrationscripts
+package archived
 
 import (
-	"github.com/apache/incubator-devlake/core/plugin"
+	"github.com/apache/incubator-devlake/core/models/migrationscripts/archived"
 )
 
-// All return all the migration scripts
-func All() []plugin.MigrationScript {
-	return []plugin.MigrationScript{
-		new(addInitTables),
-		new(addConnectionIdToTransformationRule),
-		new(renameTr2ScopeConfig),
-	}
+type TrelloCheckItem struct {
+	ID            string `gorm:"primaryKey;type:varchar(255)"`
+	Name          string `gorm:"type:varchar(255)"`
+	State         string `gorm:"type:varchar(255)"`
+	IDChecklist   string `gorm:"type:varchar(255)"`
+	ChecklistName string `gorm:"type:varchar(255)"`
+	IDBoard       string `gorm:"type:varchar(255)"`
+	IDCard        string `gorm:"type:varchar(255)"`
+	Pos           float64
+	archived.NoPKModel
+}
+
+func (TrelloCheckItem) TableName() string {
+	return "_tool_trello_check_items"
 }

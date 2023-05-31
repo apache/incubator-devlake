@@ -15,17 +15,17 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-package migrationscripts
+package archived
 
 import (
-	"github.com/apache/incubator-devlake/core/plugin"
+	"github.com/apache/incubator-devlake/core/models/migrationscripts/archived"
 )
 
-// All return all the migration scripts
-func All() []plugin.MigrationScript {
-	return []plugin.MigrationScript{
-		new(addInitTables),
-		new(addConnectionIdToTransformationRule),
-		new(renameTr2ScopeConfig),
-	}
+type TrelloTransformationRule struct {
+	archived.Model `mapstructure:"-"`
+	Name           string `mapstructure:"name" json:"name" gorm:"type:varchar(255);index:idx_name_trello,unique" validate:"required"`
+}
+
+func (TrelloTransformationRule) TableName() string {
+	return "_tool_trello_transformation_rules"
 }

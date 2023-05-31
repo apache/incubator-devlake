@@ -19,10 +19,11 @@ package api
 
 import (
 	"fmt"
+	"time"
+
 	"github.com/apache/incubator-devlake/core/dal"
 	"github.com/apache/incubator-devlake/core/models/domainlayer"
 	"github.com/apache/incubator-devlake/core/models/domainlayer/ticket"
-	"time"
 
 	"github.com/apache/incubator-devlake/plugins/trello/models"
 
@@ -52,17 +53,23 @@ func MakePipelinePlanV200(subtaskMetas []plugin.SubTaskMeta, connectionId uint64
 func makeScopeV200(connectionId uint64, scopes []*plugin.BlueprintScopeV200) ([]plugin.Scope, errors.Error) {
 	sc := make([]plugin.Scope, 0, len(scopes))
 
+	db := basicRes.GetDal()
 	for _, scope := range scopes {
 		trelloBoard := &models.TrelloBoard{}
 		// get board from db
-		err := basicRes.GetDal().First(trelloBoard,
-			dal.Where(`connection_id = ? and board_id = ?`,
-				connectionId, scope.Id))
+		err := db.First(trelloBoard,
+			dal.Where(`connection_id = ? and board_id = ?`, connectionId, scope.Id))
 		if err != nil {
 			return nil, errors.Default.Wrap(err, fmt.Sprintf("fail to find board %s", scope.Id))
 		}
+		// get scope config from db
+		scopeConfig := &models.TrelloScopeConfig{}
+		err = db.First(scopeConfig, dal.Where(`id = ?`, trelloBoard.ScopeConfigId))
+		if err != nil {
+			return nil, errors.Default.Wrap(err, fmt.Sprintf("fail to find scope config %d", trelloBoard.ScopeConfigId))
+		}
 		// add board to scopes
-		if utils.StringsContains(scope.Entities, plugin.DOMAIN_TYPE_TICKET) {
+		if utils.StringsContains(scopeConfig.Entities, plugin.DOMAIN_TYPE_TICKET) {
 			domainBoard := &ticket.Board{
 				DomainEntity: domainlayer.DomainEntity{
 					Id: didgen.NewDomainIdGenerator(&models.TrelloConnection{}).Generate(trelloBoard.ConnectionId, trelloBoard.BoardId),
@@ -77,6 +84,7 @@ func makeScopeV200(connectionId uint64, scopes []*plugin.BlueprintScopeV200) ([]
 }
 
 func makePipelinePlanV200(subtaskMetas []plugin.SubTaskMeta, plan plugin.PipelinePlan, scopes []*plugin.BlueprintScopeV200, connectionId uint64, syncPolicy *plugin.BlueprintSyncPolicy) (plugin.PipelinePlan, errors.Error) {
+	db := basicRes.GetDal()
 	for i, scope := range scopes {
 		stage := plan[i]
 		if stage == nil {
@@ -91,8 +99,21 @@ func makePipelinePlanV200(subtaskMetas []plugin.SubTaskMeta, plan plugin.Pipelin
 			options["timeAfter"] = syncPolicy.TimeAfter.Format(time.RFC3339)
 		}
 
+		// get board from db
+		trelloBoard := &models.TrelloBoard{}
+		err := db.First(trelloBoard,
+			dal.Where(`connection_id = ? and board_id = ?`, connectionId, scope.Id))
+		if err != nil {
+			return nil, errors.Default.Wrap(err, fmt.Sprintf("fail to find board %s", scope.Id))
+		}
+		// get scope config from db
+		scopeConfig := &models.TrelloScopeConfig{}
+		err = db.First(scopeConfig, dal.Where(`id = ?`, trelloBoard.ScopeConfigId))
+		if err != nil {
+			return nil, errors.Default.Wrap(err, fmt.Sprintf("fail to find scope config %d", trelloBoard.ScopeConfigId))
+		}
 		// construct subtasks
-		subtasks, err := helper.MakePipelinePlanSubtasks(subtaskMetas, scope.Entities)
+		subtasks, err := helper.MakePipelinePlanSubtasks(subtaskMetas, scopeConfig.Entities)
 		if err != nil {
 			return nil, err
 		}

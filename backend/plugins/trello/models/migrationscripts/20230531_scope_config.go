@@ -21,29 +21,36 @@ import (
 	"github.com/apache/incubator-devlake/core/context"
 	"github.com/apache/incubator-devlake/core/errors"
 	"github.com/apache/incubator-devlake/helpers/migrationhelper"
-	"github.com/apache/incubator-devlake/plugins/trello/models/migrationscripts/archived"
 )
 
-type addInitTables struct{}
-
-func (*addInitTables) Up(basicRes context.BasicRes) errors.Error {
-	return migrationhelper.AutoMigrateTables(
-		basicRes,
-		&archived.TrelloConnection{},
-		&archived.TrelloBoard{},
-		&archived.TrelloList{},
-		&archived.TrelloCard{},
-		&archived.TrelloLabel{},
-		&archived.TrelloMember{},
-		&archived.TrelloCheckItem{},
-		&archived.TrelloTransformationRule{},
-	)
+type renameTr2ScopeConfig struct {
 }
 
-func (*addInitTables) Version() uint64 {
-	return 20230305000014
+type scopeConfig20230531 struct {
+	Entities []string `gorm:"type:json" json:"entities"`
 }
 
-func (*addInitTables) Name() string {
-	return "trello init schemas"
+func (scopeConfig20230531) TableName() string {
+	return "_tool_trello_scope_configs"
+}
+
+func (u *renameTr2ScopeConfig) Up(baseRes context.BasicRes) errors.Error {
+	db := baseRes.GetDal()
+	err := db.RenameColumn("_tool_trello_boards", "transformation_rule_id", "scope_config_id")
+	if err != nil {
+		return err
+	}
+	err = db.RenameTable("_tool_trello_transformation_rules", "_tool_trello_scope_configs")
+	if err != nil {
+		return err
+	}
+	return migrationhelper.AutoMigrateTables(baseRes, &scopeConfig20230531{})
+}
+
+func (*renameTr2ScopeConfig) Version() uint64 {
+	return 20230531150250
+}
+
+func (*renameTr2ScopeConfig) Name() string {
+	return "rename transformation rule to scope config for trello"
 }
