@@ -19,17 +19,18 @@ package models
 
 import (
 	"encoding/json"
+
 	"github.com/apache/incubator-devlake/core/models/common"
 )
 
-type TapdTransformationRule struct {
-	common.Model   `mapstructure:"-"`
-	ConnectionId   uint64          `mapstructure:"connectionId" json:"connectionId"`
-	Name           string          `gorm:"type:varchar(255);index:idx_name_tapd,unique" validate:"required" mapstructure:"name" json:"name"`
-	TypeMappings   json.RawMessage `mapstructure:"typeMappings,omitempty" json:"typeMappings"`
-	StatusMappings json.RawMessage `mapstructure:"statusMappings,omitempty" json:"statusMappings"`
+type TapdScopeConfig struct {
+	common.ScopeConfig `mapstructure:",squash" json:",inline" gorm:"embedded"`
+	ConnectionId       uint64          `mapstructure:"connectionId" json:"connectionId"`
+	Name               string          `gorm:"type:varchar(255);index:idx_name_tapd,unique" validate:"required" mapstructure:"name" json:"name"`
+	TypeMappings       json.RawMessage `mapstructure:"typeMappings,omitempty" json:"typeMappings"`
+	StatusMappings     json.RawMessage `mapstructure:"statusMappings,omitempty" json:"statusMappings"`
 }
 
-func (t TapdTransformationRule) TableName() string {
-	return "_tool_tapd_transformation_rules"
+func (t TapdScopeConfig) TableName() string {
+	return "_tool_tapd_scope_configs"
 }

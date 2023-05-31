@@ -206,20 +206,20 @@ func (p Tapd) PrepareTaskData(taskCtx plugin.TaskContext, options map[string]int
 			return nil, errors.Default.Wrap(err, fmt.Sprintf("fail to find workspace: %d", op.WorkspaceId))
 		}
 		op.WorkspaceId = scope.Id
-		if op.TransformationRuleId == 0 {
-			op.TransformationRuleId = scope.TransformationRuleId
+		if op.ScopeConfigId == 0 {
+			op.ScopeConfigId = scope.ScopeConfigId
 		}
 	}
 
-	if op.TransformationRules == nil && op.TransformationRuleId != 0 {
-		var transformationRule models.TapdTransformationRule
-		err = taskCtx.GetDal().First(&transformationRule, dal.Where("id = ?", op.TransformationRuleId))
+	if op.ScopeConfig == nil && op.ScopeConfigId != 0 {
+		var scopeConfig models.TapdScopeConfig
+		err = taskCtx.GetDal().First(&scopeConfig, dal.Where("id = ?", op.ScopeConfigId))
 		if err != nil && taskCtx.GetDal().IsErrorNotFound(err) {
-			return nil, errors.BadInput.Wrap(err, "fail to get transformationRule")
+			return nil, errors.BadInput.Wrap(err, "fail to get scopeConfig")
 		}
-		op.TransformationRules, err = tasks.MakeTransformationRules(transformationRule)
+		op.ScopeConfig, err = tasks.MakeScopeConfigs(scopeConfig)
 		if err != nil {
-			return nil, errors.BadInput.Wrap(err, "fail to make transformationRule")
+			return nil, errors.BadInput.Wrap(err, "fail to make scopeConfig")
 		}
 	}
 
@@ -292,13 +292,13 @@ func (p Tapd) ApiResources() map[string]map[string]plugin.ApiResourceHandler {
 			"GET": api.GetScopeList,
 			"PUT": api.PutScope,
 		},
-		"connections/:connectionId/transformation_rules": {
-			"POST": api.CreateTransformationRule,
-			"GET":  api.GetTransformationRuleList,
+		"connections/:connectionId/scope_configs": {
+			"POST": api.CreateScopeConfig,
+			"GET":  api.GetScopeConfigList,
 		},
-		"connections/:connectionId/transformation_rules/:id": {
-			"PATCH": api.UpdateTransformationRule,
-			"GET":   api.GetTransformationRule,
+		"connections/:connectionId/scope_configs/:id": {
+			"PATCH": api.UpdateScopeConfig,
+			"GET":   api.GetScopeConfig,
 		},
 	}
 }

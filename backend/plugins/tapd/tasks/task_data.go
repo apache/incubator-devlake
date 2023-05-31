@@ -27,16 +27,16 @@ import (
 )
 
 type TapdOptions struct {
-	ConnectionId         uint64 `mapstruct:"connectionId"`
-	WorkspaceId          uint64 `mapstruct:"workspaceId"`
-	PageSize             uint64 `mapstruct:"pageSize"`
-	TimeAfter            string `json:"timeAfter" mapstructure:"timeAfter,omitempty"`
-	CstZone              *time.Location
-	TransformationRuleId uint64
-	TransformationRules  *TransformationRules `json:"transformationRules"`
+	ConnectionId  uint64 `mapstruct:"connectionId"`
+	WorkspaceId   uint64 `mapstruct:"workspaceId"`
+	PageSize      uint64 `mapstruct:"pageSize"`
+	TimeAfter     string `json:"timeAfter" mapstructure:"timeAfter,omitempty"`
+	CstZone       *time.Location
+	ScopeConfigId uint64
+	ScopeConfig   *TapdScopeConfig `json:"scopeConfigs"`
 }
 
-func MakeTransformationRules(rule models.TapdTransformationRule) (*TransformationRules, errors.Error) {
+func MakeScopeConfigs(rule models.TapdScopeConfig) (*TapdScopeConfig, errors.Error) {
 	var statusMapping StatusMappings
 	var typeMapping TypeMappings
 	var err error
@@ -52,7 +52,7 @@ func MakeTransformationRules(rule models.TapdTransformationRule) (*Transformatio
 			return nil, errors.Default.Wrap(err, "unable to unmarshal the statusMapping")
 		}
 	}
-	result := &TransformationRules{
+	result := &TapdScopeConfig{
 		StatusMappings: statusMapping,
 		TypeMappings:   typeMapping,
 	}
@@ -102,7 +102,7 @@ type StatusMappings map[string]string
 
 type TypeMappings map[string]string
 
-type TransformationRules struct {
+type TapdScopeConfig struct {
 	TypeMappings   TypeMappings   `json:"typeMappings"`
 	StatusMappings StatusMappings `json:"statusMappings"`
 }
