@@ -20,6 +20,7 @@ package models
 import (
 	"github.com/apache/incubator-devlake/core/models/common"
 	helper "github.com/apache/incubator-devlake/helpers/pluginhelper/api"
+	"gorm.io/datatypes"
 )
 
 type ZentaoBugRes struct {
@@ -88,12 +89,13 @@ type ZentaoBugRes struct {
 	Needconfirm    bool                `json:"needconfirm"`
 	StatusName     string              `json:"statusName"`
 	ProductStatus  string              `json:"productStatus"`
+	Actions        datatypes.JSON      `json:"actions"`
 }
 
 type ZentaoBug struct {
 	common.NoPKModel
 	ConnectionId   uint64              `gorm:"primaryKey;type:BIGINT  NOT NULL"`
-	ID             int64               `json:"id" gorm:"primaryKey;type:BIGINT  NOT NULL"`
+	ID             int64               `json:"id" gorm:"primaryKey;type:BIGINT  NOT NULL;autoIncrement:false"`
 	Project        int64               `json:"project"`
 	Product        int64               `json:"product"`
 	Injection      int                 `json:"injection"`
@@ -160,6 +162,7 @@ type ZentaoBug struct {
 	Needconfirm    bool                `json:"needconfirm"`
 	StatusName     string              `json:"statusName"`
 	ProductStatus  string              `json:"productStatus"`
+	Actions        datatypes.JSON      `json:"actions"`
 }
 
 func (ZentaoBug) TableName() string {

@@ -116,6 +116,7 @@ func ExtractStory(taskCtx plugin.SubTaskContext) errors.Error {
 				Deleted:          res.Deleted,
 				PriOrder:         res.PriOrder,
 				PlanTitle:        res.PlanTitle,
+				Actions:          res.Actions,
 			}
 			results := make([]interface{}, 0)
 			results = append(results, story)
