@@ -72,6 +72,7 @@ func ConvertIncidents(taskCtx plugin.SubTaskContext) errors.Error {
 			Ctx: taskCtx,
 			Params: PagerDutyParams{
 				ConnectionId: data.Options.ConnectionId,
+				ServiceId:    data.Options.ServiceId,
 			},
 			Table: RAW_INCIDENTS_TABLE,
 		},
@@ -104,8 +105,10 @@ func ConvertIncidents(taskCtx plugin.SubTaskContext) errors.Error {
 				UpdatedDate:     &incident.UpdatedDate,
 				LeadTimeMinutes: leadTime,
 				Priority:        string(incident.Urgency),
-				AssigneeId:      user.Id,
-				AssigneeName:    user.Name,
+			}
+			if user != nil {
+				domainIssue.AssigneeId = user.Id
+				domainIssue.AssigneeName = user.Name
 			}
 			seenIncidents[incident.Number] = combined
 			boardIssue := &ticket.BoardIssue{
