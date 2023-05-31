@@ -47,6 +47,7 @@ func TestGitlabIssueDataFlow(t *testing.T) {
 	dataflowTester.FlushTabler(&models.GitlabIssue{})
 	dataflowTester.FlushTabler(&models.GitlabAccount{})
 	dataflowTester.FlushTabler(&models.GitlabIssueLabel{})
+	dataflowTester.FlushTabler(&models.GitlabIssueAssignee{})
 	dataflowTester.Subtask(tasks.ExtractApiIssuesMeta, taskData)
 	dataflowTester.VerifyTable(
 		models.GitlabIssue{},
