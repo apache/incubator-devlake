@@ -20,7 +20,6 @@ package models
 import (
 	"github.com/apache/incubator-devlake/core/models/common"
 	helper "github.com/apache/incubator-devlake/helpers/pluginhelper/api"
-	"gorm.io/datatypes"
 )
 
 type ZentaoStoryRes struct {
@@ -138,7 +137,6 @@ type ZentaoStory struct {
 	Deleted          bool                `json:"deleted"`
 	PriOrder         string              `json:"priOrder"`
 	PlanTitle        string              `json:"planTitle"`
-	Actions          datatypes.JSON      `json:"actions"`
 	Url              string              `json:"url"`
 	StdStatus        string              `json:"stdStatus" gorm:"type:varchar(20)"`
 	StdType          string              `json:"stdType" gorm:"type:varchar(20)"`

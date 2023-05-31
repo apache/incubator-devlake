@@ -45,7 +45,8 @@ func ExtractStory(taskCtx plugin.SubTaskContext) errors.Error {
 		return nil
 	}
 
-	statusMapping := getStoryStatusMapping(data)
+	statusMappings := getStoryStatusMapping(data)
+	stdTypeMappings := getStdTypeMappings(data)
 
 	extractor, err := api.NewApiExtractor(api.ApiExtractorArgs{
 		RawDataSubTaskArgs: api.RawDataSubTaskArgs{
@@ -119,12 +120,16 @@ func ExtractStory(taskCtx plugin.SubTaskContext) errors.Error {
 				Deleted:          res.Deleted,
 				PriOrder:         res.PriOrder,
 				PlanTitle:        res.PlanTitle,
-				Actions:          res.Actions,
 				Url:              row.Url,
 			}
 
-			if len(statusMapping) != 0 {
-				story.StdStatus = statusMapping[story.Stage]
+			story.StdType = stdTypeMappings[story.Type]
+			if story.StdType == "" {
+				story.StdType = ticket.REQUIREMENT
+			}
+
+			if len(statusMappings) != 0 {
+				story.StdStatus = statusMappings[story.Stage]
 			} else {
 				story.StdStatus = ticket.GetStatus(&ticket.StatusRule{
 					Done:    []string{"closed"},

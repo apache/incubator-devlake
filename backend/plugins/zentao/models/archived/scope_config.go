@@ -23,15 +23,16 @@ import (
 	"github.com/apache/incubator-devlake/core/models/migrationscripts/archived"
 )
 
-type ZentaoTransformationRule struct {
-	archived.Model      `mapstructure:"-"`
-	ConnectionId        uint64          `mapstructure:"connectionId" json:"connectionId"`
-	Name                string          `gorm:"type:varchar(255);index:idx_name_zentao,unique" validate:"required" mapstructure:"name" json:"name"`
-	BugStatusMappings   json.RawMessage `mapstructure:"bugStatusMappings,omitempty" json:"bugStatusMappings"`
-	StoryStatusMappings json.RawMessage `mapstructure:"storyStatusMappings,omitempty" json:"storyStatusMappings"`
-	TaskStatusMappings  json.RawMessage `mapstructure:"taskStatusMappings,omitempty" json:"taskStatusMappings"`
+type ZentaoScopeConfig struct {
+	archived.ScopeConfig `mapstructure:",squash" json:",inline" gorm:"embedded"`
+	ConnectionId         uint64          `mapstructure:"connectionId" json:"connectionId"`
+	Name                 string          `gorm:"type:varchar(255);index:idx_name_tapd,unique" validate:"required" mapstructure:"name" json:"name"`
+	TypeMappings         json.RawMessage `mapstructure:"typeMappings,omitempty" json:"typeMappings"`
+	BugStatusMappings    json.RawMessage `mapstructure:"bugStatusMappings,omitempty" json:"bugStatusMappings"`
+	StoryStatusMappings  json.RawMessage `mapstructure:"storyStatusMappings,omitempty" json:"storyStatusMappings"`
+	TaskStatusMappings   json.RawMessage `mapstructure:"taskStatusMappings,omitempty" json:"taskStatusMappings"`
 }
 
-func (t ZentaoTransformationRule) TableName() string {
-	return "_tool_zentao_transformation_rules"
+func (t ZentaoScopeConfig) TableName() string {
+	return "_tool_zentao_scope_configs"
 }

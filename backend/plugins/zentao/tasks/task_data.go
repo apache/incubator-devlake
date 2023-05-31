@@ -20,6 +20,7 @@ package tasks
 import (
 	"encoding/json"
 	"fmt"
+	"time"
 
 	"github.com/apache/incubator-devlake/core/dal"
 	"github.com/apache/incubator-devlake/core/errors"
@@ -42,23 +43,23 @@ type ZentaoOptions struct {
 	ProductId    int64  `json:"productId" mapstructure:"productId"`
 	ProjectId    int64  `json:"projectId" mapstructure:"projectId"`
 	// TODO not support now
-	TimeAfter            string               `json:"timeAfter" mapstructure:"timeAfter,omitempty"`
-	TransformationRuleId uint64               `json:"transformationZentaoeId" mapstructure:"transformationRuleId,omitempty"`
-	TransformationRules  *TransformationRules `json:"transformationRules" mapstructure:"transformationRules,omitempty"`
+	TimeAfter     string              `json:"timeAfter" mapstructure:"timeAfter,omitempty"`
+	ScopeConfigId uint64              `json:"scopeConfigId" mapstructure:"scopeConfigId,omitempty"`
+	ScopeConfigs  *ZentaoScopeConfigs `json:"scopeConfigs" mapstructure:"scopeConfigs,omitempty"`
 }
 
 type TypeMappings map[string]string
 
 type StatusMappings map[string]string
 
-type TransformationRules struct {
+type ZentaoScopeConfigs struct {
 	TypeMappings        TypeMappings   `json:"typeMappings"`
 	BugStatusMappings   StatusMappings `json:"bugStatusMappings"`
 	StoryStatusMappings StatusMappings `json:"storyStatusMappings"`
 	TaskStatusMappings  StatusMappings `json:"taskStatusMappings"`
 }
 
-func MakeTransformationRules(rule models.ZentaoTransformationRule) (*TransformationRules, errors.Error) {
+func MakeScopeConfigs(rule models.ZentaoScopeConfig) (*ZentaoScopeConfigs, errors.Error) {
 	var bugStatusMapping StatusMappings
 	var storyStatusMapping StatusMappings
 	var taskStatusMapping StatusMappings
@@ -88,7 +89,7 @@ func MakeTransformationRules(rule models.ZentaoTransformationRule) (*Transformat
 			return nil, errors.Default.Wrap(err, "unable to unmarshal the statusMapping")
 		}
 	}
-	result := &TransformationRules{
+	result := &ZentaoScopeConfigs{
 		TypeMappings:        typeMapping,
 		BugStatusMappings:   bugStatusMapping,
 		StoryStatusMappings: storyStatusMapping,
@@ -98,8 +99,10 @@ func MakeTransformationRules(rule models.ZentaoTransformationRule) (*Transformat
 }
 
 type ZentaoTaskData struct {
-	Options     *ZentaoOptions
-	RemoteDb    dal.Dal
+	Options  *ZentaoOptions
+	RemoteDb dal.Dal
+
+	TimeAfter   *time.Time
 	ProjectName string
 	ProductName string
 	ApiClient   *helper.ApiAsyncClient

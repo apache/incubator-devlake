@@ -87,10 +87,10 @@ func getOriginalProject(data *ZentaoTaskData) string {
 // based on the provided ZentaoTaskData. It returns the created map.
 func getBugStatusMapping(data *ZentaoTaskData) map[string]string {
 	stdStatusMappings := make(map[string]string)
-	if data.Options.TransformationRules == nil {
+	if data.Options.ScopeConfigs == nil {
 		return stdStatusMappings
 	}
-	mapping := data.Options.TransformationRules.BugStatusMappings
+	mapping := data.Options.ScopeConfigs.BugStatusMappings
 	// Map original status values to standard status values
 	for userStatus, stdStatus := range mapping {
 		stdStatusMappings[userStatus] = strings.ToUpper(stdStatus)
@@ -102,10 +102,10 @@ func getBugStatusMapping(data *ZentaoTaskData) map[string]string {
 // based on the provided ZentaoTaskData. It returns the created map.
 func getStoryStatusMapping(data *ZentaoTaskData) map[string]string {
 	stdStatusMappings := make(map[string]string)
-	if data.Options.TransformationRules == nil {
+	if data.Options.ScopeConfigs == nil {
 		return stdStatusMappings
 	}
-	mapping := data.Options.TransformationRules.StoryStatusMappings
+	mapping := data.Options.ScopeConfigs.StoryStatusMappings
 	// Map original status values to standard status values
 	for userStatus, stdStatus := range mapping {
 		stdStatusMappings[userStatus] = strings.ToUpper(stdStatus)
@@ -117,10 +117,10 @@ func getStoryStatusMapping(data *ZentaoTaskData) map[string]string {
 // based on the provided ZentaoTaskData. It returns the created map.
 func getTaskStatusMapping(data *ZentaoTaskData) map[string]string {
 	stdStatusMappings := make(map[string]string)
-	if data.Options.TransformationRules == nil {
+	if data.Options.ScopeConfigs == nil {
 		return stdStatusMappings
 	}
-	mapping := data.Options.TransformationRules.TaskStatusMappings
+	mapping := data.Options.ScopeConfigs.TaskStatusMappings
 	// Map original status values to standard status values
 	for userStatus, stdStatus := range mapping {
 		stdStatusMappings[userStatus] = strings.ToUpper(stdStatus)
@@ -132,10 +132,10 @@ func getTaskStatusMapping(data *ZentaoTaskData) map[string]string {
 // It returns the created map.
 func getStdTypeMappings(data *ZentaoTaskData) map[string]string {
 	stdTypeMappings := make(map[string]string)
-	if data.Options.TransformationRules == nil {
+	if data.Options.ScopeConfigs == nil {
 		return stdTypeMappings
 	}
-	mapping := data.Options.TransformationRules.TypeMappings
+	mapping := data.Options.ScopeConfigs.TypeMappings
 	// Map user types to standard types
 	for userType, stdType := range mapping {
 		stdTypeMappings[userType] = strings.ToUpper(stdType)

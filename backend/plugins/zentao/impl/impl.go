@@ -109,15 +109,15 @@ func (p Zentao) PrepareTaskData(taskCtx plugin.TaskContext, options map[string]i
 		return nil, errors.Default.Wrap(err, "unable to get Zentao API client instance: %v")
 	}
 
-	if op.TransformationRules == nil && op.TransformationRuleId != 0 {
-		var transformationRule models.ZentaoTransformationRule
-		err = taskCtx.GetDal().First(&transformationRule, dal.Where("id = ?", op.TransformationRuleId))
+	if op.ScopeConfigs == nil && op.ScopeConfigId != 0 {
+		var scopeConfig models.ZentaoScopeConfig
+		err = taskCtx.GetDal().First(&scopeConfig, dal.Where("id = ?", op.ScopeConfigId))
 		if err != nil && taskCtx.GetDal().IsErrorNotFound(err) {
-			return nil, errors.BadInput.Wrap(err, "fail to get transformationRule")
+			return nil, errors.BadInput.Wrap(err, "fail to get ScopeConfigs")
 		}
-		op.TransformationRules, err = tasks.MakeTransformationRules(transformationRule)
+		op.ScopeConfigs, err = tasks.MakeScopeConfigs(scopeConfig)
 		if err != nil {
-			return nil, errors.BadInput.Wrap(err, "fail to make transformationRule")
+			return nil, errors.BadInput.Wrap(err, "fail to make ScopeConfigs")
 		}
 	}
 

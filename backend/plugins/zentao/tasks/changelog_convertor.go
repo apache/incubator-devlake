@@ -46,11 +46,21 @@ type ZentaoChangelogSelect struct {
 	common.NoPKModel `json:"-"`
 
 	models.ZentaoChangelog
-	models.ZentaoChangelogDetail
-	models.ZentaoAccount
+	ChangelogId int64  `json:"changelogId" mapstructure:"changelogId" gorm:"primaryKey;type:BIGINT  NOT NULL"`
+	Field       string `json:"field" mapstructure:"field"`
+	Old         string `json:"old" mapstructure:"old"`
+	New         string `json:"new" mapstructure:"new"`
+	Diff        string `json:"diff" mapstructure:"diff"`
+
+	Account  string `json:"account" gorm:"type:varchar(100);index"`
+	Avatar   string `json:"avatar" gorm:"type:varchar(255)"`
+	Realname string `json:"realname" gorm:"type:varchar(100);index"`
+	Role     string `json:"role" gorm:"type:varchar(100);index"`
+	Dept     int64  `json:"dept" gorm:"type:BIGINT  NOT NULL;index"`
 
 	CID  int64 `json:"cid" mapstructure:"cid" gorm:"column:cid"`
 	CDID int64 `json:"cdid" mapstructure:"cdid" gorm:"column:cdid"`
+	AID  int64 `json:"aid" mapstructure:"aid" gorm:"column:aid"`
 }
 
 func ConvertChangelog(taskCtx plugin.SubTaskContext) errors.Error {
@@ -61,7 +71,7 @@ func ConvertChangelog(taskCtx plugin.SubTaskContext) errors.Error {
 	cdn := models.ZentaoChangelogDetail{}.TableName()
 	an := models.ZentaoAccount{}.TableName()
 	cursor, err := db.Cursor(
-		dal.Select(fmt.Sprintf("*,%s.id cid,%s.id cdid ", cn, cdn)),
+		dal.Select(fmt.Sprintf("*,%s.id cid,%s.id cdid,%s.id aid ", cn, cdn, an)),
 		dal.From(&models.ZentaoChangelog{}),
 		dal.Join(fmt.Sprintf("LEFT JOIN %s on %s.changelog_id = %s.id", cdn, cdn, cn)),
 		dal.Join(fmt.Sprintf("LEFT JOIN %s on %s.realname = %s.actor", an, an, cn)),
@@ -96,7 +106,7 @@ func ConvertChangelog(taskCtx plugin.SubTaskContext) errors.Error {
 					Id: changelogIdGen.Generate(data.Options.ConnectionId, cl.CID, cl.CDID),
 				},
 				IssueId:           fmt.Sprintf("%d", cl.ObjectId),
-				AuthorId:          fmt.Sprintf("%d", cl.ZentaoAccount.ID),
+				AuthorId:          fmt.Sprintf("%d", cl.AID),
 				AuthorName:        cl.Actor,
 				FieldId:           cl.Field,
 				FieldName:         cl.Field,

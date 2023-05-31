@@ -45,7 +45,8 @@ func ExtractBug(taskCtx plugin.SubTaskContext) errors.Error {
 		return nil
 	}
 
-	statusMapping := getBugStatusMapping(data)
+	statusMappings := getBugStatusMapping(data)
+	stdTypeMappings := getStdTypeMappings(data)
 
 	extractor, err := api.NewApiExtractor(api.ApiExtractorArgs{
 		RawDataSubTaskArgs: api.RawDataSubTaskArgs{
@@ -132,12 +133,16 @@ func ExtractBug(taskCtx plugin.SubTaskContext) errors.Error {
 				Needconfirm:    res.Needconfirm,
 				StatusName:     res.StatusName,
 				ProductStatus:  res.ProductStatus,
-				Actions:        res.Actions,
 				Url:            row.Url,
 			}
 
-			if len(statusMapping) != 0 {
-				bug.StdStatus = statusMapping[bug.Status]
+			bug.StdType = stdTypeMappings[bug.Type]
+			if bug.StdType == "" {
+				bug.StdType = ticket.BUG
+			}
+
+			if len(statusMappings) != 0 {
+				bug.StdStatus = statusMappings[bug.Status]
 			} else {
 				bug.StdStatus = ticket.GetStatus(&ticket.StatusRule{
 					Done:    []string{"resolved"},

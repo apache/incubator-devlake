@@ -31,13 +31,13 @@ type MixScopes struct {
 
 var vld *validator.Validate
 var connectionHelper *api.ConnectionApiHelper
-var productScopeHelper *api.ScopeApiHelper[models.ZentaoConnection, models.ZentaoProduct, api.NoTransformation]
-var projectScopeHelper *api.ScopeApiHelper[models.ZentaoConnection, models.ZentaoProject, api.NoTransformation]
+var productScopeHelper *api.ScopeApiHelper[models.ZentaoConnection, models.ZentaoProduct, models.ZentaoScopeConfig]
+var projectScopeHelper *api.ScopeApiHelper[models.ZentaoConnection, models.ZentaoProject, models.ZentaoScopeConfig]
 
 var productRemoteHelper *api.RemoteApiHelper[models.ZentaoConnection, models.ZentaoProduct, models.ZentaoProductRes, api.BaseRemoteGroupResponse]
 var projectRemoteHelper *api.RemoteApiHelper[models.ZentaoConnection, models.ZentaoProject, models.ZentaoProject, api.NoRemoteGroupResponse]
 var basicRes context.BasicRes
-var trHelper *api.TransformationRuleHelper[models.ZentaoTransformationRule]
+var scHelper *api.ScopeConfigHelper[models.ZentaoScopeConfig]
 
 func Init(br context.BasicRes) {
 	basicRes = br
@@ -50,11 +50,11 @@ func Init(br context.BasicRes) {
 		ScopeIdFieldName:  "Id",
 		ScopeIdColumnName: "id",
 	}
-	productScopeHelper = api.NewScopeHelper[models.ZentaoConnection, models.ZentaoProduct, api.NoTransformation](
+	productScopeHelper = api.NewScopeHelper[models.ZentaoConnection, models.ZentaoProduct, models.ZentaoScopeConfig](
 		basicRes,
 		vld,
 		connectionHelper,
-		api.NewScopeDatabaseHelperImpl[models.ZentaoConnection, models.ZentaoProduct, api.NoTransformation](
+		api.NewScopeDatabaseHelperImpl[models.ZentaoConnection, models.ZentaoProduct, models.ZentaoScopeConfig](
 			basicRes, connectionHelper, productParams),
 		productParams,
 		nil,
@@ -63,11 +63,11 @@ func Init(br context.BasicRes) {
 		ScopeIdFieldName:  "Project",
 		ScopeIdColumnName: "project",
 	}
-	projectScopeHelper = api.NewScopeHelper[models.ZentaoConnection, models.ZentaoProject, api.NoTransformation](
+	projectScopeHelper = api.NewScopeHelper[models.ZentaoConnection, models.ZentaoProject, models.ZentaoScopeConfig](
 		basicRes,
 		vld,
 		connectionHelper,
-		api.NewScopeDatabaseHelperImpl[models.ZentaoConnection, models.ZentaoProject, api.NoTransformation](
+		api.NewScopeDatabaseHelperImpl[models.ZentaoConnection, models.ZentaoProject, models.ZentaoScopeConfig](
 			basicRes, connectionHelper, projectParams),
 		projectParams,
 		nil,

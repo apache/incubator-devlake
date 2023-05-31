@@ -45,7 +45,8 @@ func ExtractTask(taskCtx plugin.SubTaskContext) errors.Error {
 		return nil
 	}
 
-	statusMapping := getTaskStatusMapping(data)
+	statusMappings := getTaskStatusMapping(data)
+	stdTypeMappings := getStdTypeMappings(data)
 
 	extractor, err := api.NewApiExtractor(api.ApiExtractorArgs{
 		RawDataSubTaskArgs: api.RawDataSubTaskArgs{
@@ -131,12 +132,16 @@ func ExtractTask(taskCtx plugin.SubTaskContext) errors.Error {
 				NeedConfirm:        res.NeedConfirm,
 				//ProductType:        res.ProductType,
 				Progress: res.Progress,
-				Actions:  res.Actions,
 				Url:      row.Url,
 			}
 
-			if len(statusMapping) != 0 {
-				task.StdStatus = statusMapping[task.Status]
+			task.StdType = stdTypeMappings[task.Type]
+			if task.StdType == "" {
+				task.StdType = ticket.TASK
+			}
+
+			if len(statusMappings) != 0 {
+				task.StdStatus = statusMappings[task.Status]
 			} else {
 				task.StdStatus = ticket.GetStatus(&ticket.StatusRule{
 					Done:    []string{"done", "closed", "cancel"},
