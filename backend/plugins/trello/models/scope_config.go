@@ -21,11 +21,12 @@ import (
 	"github.com/apache/incubator-devlake/core/models/common"
 )
 
-type TrelloTransformationRule struct {
-	common.Model `mapstructure:"-"`
-	Name         string `mapstructure:"name" json:"name" gorm:"type:varchar(255);index:idx_name_trello,unique" validate:"required"`
+type TrelloScopeConfig struct {
+	common.ScopeConfig `mapstructure:",squash" json:",inline" gorm:"embedded"`
+	ConnectionId       uint64 `mapstructure:"connectionId" json:"connectionId"`
+	Name               string `mapstructure:"name" json:"name" gorm:"type:varchar(255);index:idx_name_trello,unique" validate:"required"`
 }
 
-func (TrelloTransformationRule) TableName() string {
-	return "_tool_trello_transformation_rules"
+func (TrelloScopeConfig) TableName() string {
+	return "_tool_trello_scope_configs"
 }
