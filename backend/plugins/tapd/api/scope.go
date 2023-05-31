@@ -27,7 +27,7 @@ import (
 
 type ScopeRes struct {
 	models.TapdWorkspace
-	TransformationRuleName string `json:"transformationRuleName,omitempty"`
+	ScopeConfigName string `json:"scopeConfigName,omitempty"`
 }
 
 type TapdScopeReq api.ScopeReq[models.TapdWorkspace]

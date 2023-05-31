@@ -18,14 +18,26 @@ limitations under the License.
 package migrationscripts
 
 import (
-	"github.com/apache/incubator-devlake/core/plugin"
+	"github.com/apache/incubator-devlake/core/context"
+	"github.com/apache/incubator-devlake/core/errors"
+	"github.com/apache/incubator-devlake/helpers/migrationhelper"
+	"github.com/apache/incubator-devlake/plugins/zentao/models/archived"
 )
 
-// All return all the migration scripts
-func All() []plugin.MigrationScript {
-	return []plugin.MigrationScript{
-		new(addInitTables),
-		new(addConnectionIdToTransformationRule),
-		new(renameTr2ScopeConfig),
-	}
+type addIssueCommitsTables struct{}
+
+func (*addIssueCommitsTables) Up(basicRes context.BasicRes) errors.Error {
+
+	return migrationhelper.AutoMigrateTables(
+		basicRes,
+		&archived.ZentaoBugCommits{},
+	)
+}
+
+func (*addIssueCommitsTables) Version() uint64 {
+	return 20230531000001
+}
+
+func (*addIssueCommitsTables) Name() string {
+	return "zentao add issue commits tables"
 }

@@ -22,11 +22,11 @@ import (
 )
 
 type TrelloBoard struct {
-	common.NoPKModel     `json:"-" mapstructure:"-"`
-	ConnectionId         uint64 `json:"connectionId" mapstructure:"connectionId" gorm:"primaryKey"`
-	BoardId              string `json:"boardId" mapstructure:"boardId" gorm:"type:varchar(255)"`
-	TransformationRuleId uint64 `json:"transformationRuleId,omitempty" mapstructure:"transformationRuleId"`
-	Name                 string `json:"name" mapstructure:"name" gorm:"type:varchar(255)"`
+	common.NoPKModel `json:"-" mapstructure:"-"`
+	ConnectionId     uint64 `json:"connectionId" mapstructure:"connectionId" gorm:"primaryKey"`
+	BoardId          string `json:"boardId" mapstructure:"boardId" gorm:"type:varchar(255)"`
+	ScopeConfigId    uint64 `json:"scopeConfigId,omitempty" mapstructure:"scopeConfigId"`
+	Name             string `json:"name" mapstructure:"name" gorm:"type:varchar(255)"`
 }
 
 func (TrelloBoard) TableName() string {

@@ -79,7 +79,7 @@ func CollectBug(taskCtx plugin.SubTaskContext) errors.Error {
 }
 
 var CollectBugMeta = plugin.SubTaskMeta{
-	Name:             "CollectBug",
+	Name:             "collectBug",
 	EntryPoint:       CollectBug,
 	EnabledByDefault: true,
 	Description:      "Collect Bug data from Zentao api",

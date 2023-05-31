@@ -15,17 +15,22 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-package migrationscripts
+package models
 
 import (
-	"github.com/apache/incubator-devlake/core/plugin"
+	"encoding/json"
+
+	"github.com/apache/incubator-devlake/core/models/common"
 )
 
-// All return all the migration scripts
-func All() []plugin.MigrationScript {
-	return []plugin.MigrationScript{
-		new(addInitTables),
-		new(addConnectionIdToTransformationRule),
-		new(renameTr2ScopeConfig),
-	}
+type TapdScopeConfig struct {
+	common.ScopeConfig `mapstructure:",squash" json:",inline" gorm:"embedded"`
+	ConnectionId       uint64          `mapstructure:"connectionId" json:"connectionId"`
+	Name               string          `gorm:"type:varchar(255);index:idx_name_tapd,unique" validate:"required" mapstructure:"name" json:"name"`
+	TypeMappings       json.RawMessage `mapstructure:"typeMappings,omitempty" json:"typeMappings"`
+	StatusMappings     json.RawMessage `mapstructure:"statusMappings,omitempty" json:"statusMappings"`
+}
+
+func (t TapdScopeConfig) TableName() string {
+	return "_tool_tapd_scope_configs"
 }

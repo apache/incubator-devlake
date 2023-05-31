@@ -20,17 +20,37 @@ package api
 import (
 	"github.com/apache/incubator-devlake/core/context"
 	"github.com/apache/incubator-devlake/helpers/pluginhelper/api"
+	"github.com/apache/incubator-devlake/plugins/trello/models"
 	"github.com/go-playground/validator/v10"
 )
 
 var vld *validator.Validate
 var connectionHelper *api.ConnectionApiHelper
+var scopeHelper *api.ScopeApiHelper[models.TrelloConnection, models.TrelloBoard, models.TrelloScopeConfig]
 var basicRes context.BasicRes
+var scHelper *api.ScopeConfigHelper[models.TrelloScopeConfig]
 
 func Init(br context.BasicRes) {
 	basicRes = br
 	vld = validator.New()
 	connectionHelper = api.NewConnectionHelper(
+		basicRes,
+		vld,
+	)
+	params := &api.ReflectionParameters{
+		ScopeIdFieldName:  "BoardId",
+		ScopeIdColumnName: "board_id",
+	}
+	scopeHelper = api.NewScopeHelper[models.TrelloConnection, models.TrelloBoard, models.TrelloScopeConfig](
+		basicRes,
+		vld,
+		connectionHelper,
+		api.NewScopeDatabaseHelperImpl[models.TrelloConnection, models.TrelloBoard, models.TrelloScopeConfig](
+			basicRes, connectionHelper, params),
+		params,
+		nil,
+	)
+	scHelper = api.NewScopeConfigHelper[models.TrelloScopeConfig](
 		basicRes,
 		vld,
 	)

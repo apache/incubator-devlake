@@ -15,21 +15,21 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-package models
+package archived
 
 import (
-	"encoding/json"
-	"github.com/apache/incubator-devlake/core/models/common"
+	"github.com/apache/incubator-devlake/core/models/migrationscripts/archived"
 )
 
-type TapdTransformationRule struct {
-	common.Model   `mapstructure:"-"`
-	ConnectionId   uint64          `mapstructure:"connectionId" json:"connectionId"`
-	Name           string          `gorm:"type:varchar(255);index:idx_name_tapd,unique" validate:"required" mapstructure:"name" json:"name"`
-	TypeMappings   json.RawMessage `mapstructure:"typeMappings,omitempty" json:"typeMappings"`
-	StatusMappings json.RawMessage `mapstructure:"statusMappings,omitempty" json:"statusMappings"`
+type ZentaoBugCommits struct {
+	archived.NoPKModel
+	ConnectionId uint64   `gorm:"primaryKey;type:BIGINT  NOT NULL"`
+	ID           int64    `json:"id" gorm:"primaryKey;type:BIGINT  NOT NULL;autoIncrement:false"`
+	Project      int64    `json:"project"`
+	Product      int64    `json:"product"`
+	Actions      []string `gorm:"type:json;serializer:json" json:"actions" mapstructure:"actions"`
 }
 
-func (t TapdTransformationRule) TableName() string {
-	return "_tool_tapd_transformation_rules"
+func (ZentaoBugCommits) TableName() string {
+	return "_tool_zentao_bug_commits"
 }

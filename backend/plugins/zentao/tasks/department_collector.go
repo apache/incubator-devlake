@@ -71,7 +71,7 @@ func CollectDepartment(taskCtx plugin.SubTaskContext) errors.Error {
 }
 
 var CollectDepartmentMeta = plugin.SubTaskMeta{
-	Name:             "CollectDepartment",
+	Name:             "collectDepartment",
 	EntryPoint:       CollectDepartment,
 	EnabledByDefault: true,
 	Description:      "Collect Department data from Zentao api",
