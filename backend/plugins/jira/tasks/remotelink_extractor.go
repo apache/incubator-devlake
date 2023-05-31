@@ -19,12 +19,13 @@ package tasks
 
 import (
 	"encoding/json"
+	"regexp"
+
 	"github.com/apache/incubator-devlake/core/errors"
 	"github.com/apache/incubator-devlake/core/plugin"
 	"github.com/apache/incubator-devlake/helpers/pluginhelper/api"
 	"github.com/apache/incubator-devlake/plugins/jira/models"
 	"github.com/apache/incubator-devlake/plugins/jira/tasks/apiv2models"
-	"regexp"
 )
 
 var ExtractRemotelinksMeta = plugin.SubTaskMeta{
@@ -44,16 +45,16 @@ func ExtractRemotelinks(taskCtx plugin.SubTaskContext) errors.Error {
 
 	var err errors.Error
 	var commitShaRegex *regexp.Regexp
-	if data.Options.TransformationRules != nil && data.Options.TransformationRules.RemotelinkCommitShaPattern != "" {
-		pattern := data.Options.TransformationRules.RemotelinkCommitShaPattern
+	if data.Options.ScopeConfig != nil && data.Options.ScopeConfig.RemotelinkCommitShaPattern != "" {
+		pattern := data.Options.ScopeConfig.RemotelinkCommitShaPattern
 		commitShaRegex, err = errors.Convert01(regexp.Compile(pattern))
 		if err != nil {
 			return errors.Default.Wrap(err, "regexp Compile pattern failed")
 		}
 	}
 	var commitRepoUrlRegexps []*regexp.Regexp
-	if tr := data.Options.TransformationRules; tr != nil {
-		for _, s := range tr.RemotelinkRepoPattern {
+	if sc := data.Options.ScopeConfig; sc != nil {
+		for _, s := range sc.RemotelinkRepoPattern {
 			pattern, e := regexp.Compile(s)
 			if e != nil {
 				return errors.Convert(e)

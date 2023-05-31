@@ -113,8 +113,8 @@ func extractIssues(data *JiraTaskData, mappings *typeMappings, row *api.RawData)
 	if issue.ResolutionDate != nil {
 		issue.LeadTimeMinutes = uint(issue.ResolutionDate.Unix()-issue.Created.Unix()) / 60
 	}
-	if data.Options.TransformationRules != nil && data.Options.TransformationRules.StoryPointField != "" {
-		unknownStoryPoint := apiIssue.Fields.AllFields[data.Options.TransformationRules.StoryPointField]
+	if data.Options.ScopeConfig != nil && data.Options.ScopeConfig.StoryPointField != "" {
+		unknownStoryPoint := apiIssue.Fields.AllFields[data.Options.ScopeConfig.StoryPointField]
 		switch sp := unknownStoryPoint.(type) {
 		case string:
 			// string, try to parse
@@ -196,8 +196,8 @@ func getTypeMappings(data *JiraTaskData, db dal.Dal) (*typeMappings, errors.Erro
 	}
 	stdTypeMappings := make(map[string]string)
 	standardStatusMappings := make(map[string]StatusMappings)
-	if data.Options.TransformationRules != nil {
-		for userType, stdType := range data.Options.TransformationRules.TypeMappings {
+	if data.Options.ScopeConfig != nil {
+		for userType, stdType := range data.Options.ScopeConfig.TypeMappings {
 			stdTypeMappings[userType] = strings.ToUpper(stdType.StandardType)
 			standardStatusMappings[userType] = stdType.StatusMappings
 		}

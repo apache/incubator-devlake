@@ -30,63 +30,63 @@ import (
 	"github.com/mitchellh/mapstructure"
 )
 
-// CreateTransformationRule create transformation rule for Jira
-// @Summary create transformation rule for Jira
-// @Description create transformation rule for Jira
+// CreateScopeConfig create scope config for Jira
+// @Summary create scope config for Jira
+// @Description create scope config for Jira
 // @Tags plugins/jira
 // @Accept application/json
 // @Param connectionId path int true "connectionId"
-// @Param transformationRule body tasks.JiraTransformationRule true "transformation rule"
-// @Success 200  {object} tasks.JiraTransformationRule
+// @Param scopeConfig body tasks.JiraScopeConfig true "scope config"
+// @Success 200  {object} tasks.JiraScopeConfig
 // @Failure 400  {object} shared.ApiBody "Bad Request"
 // @Failure 500  {object} shared.ApiBody "Internal Error"
-// @Router /plugins/jira/connections/{connectionId}/transformation_rules [POST]
-func CreateTransformationRule(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, errors.Error) {
-	rule, err := makeDbTransformationRuleFromInput(input)
+// @Router /plugins/jira/connections/{connectionId}/scope_configs [POST]
+func CreateScopeConfig(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, errors.Error) {
+	rule, err := makeDbScopeConfigFromInput(input)
 	if err != nil {
-		return nil, errors.BadInput.Wrap(err, "error in makeJiraTransformationRule")
+		return nil, errors.BadInput.Wrap(err, "error in makeJiraScopeConfig")
 	}
 	newRule := map[string]interface{}{}
 	err = errors.Convert(mapstructure.Decode(rule, &newRule))
 	if err != nil {
-		return nil, errors.BadInput.Wrap(err, "error in makeJiraTransformationRule")
+		return nil, errors.BadInput.Wrap(err, "error in makeJiraScopeConfig")
 	}
 	input.Body = newRule
-	return trHelper.Create(input)
+	return scHelper.Create(input)
 }
 
-// UpdateTransformationRule update transformation rule for Jira
-// @Summary update transformation rule for Jira
-// @Description update transformation rule for Jira
+// UpdateScopeConfig update scope config for Jira
+// @Summary update scope config for Jira
+// @Description update scope config for Jira
 // @Tags plugins/jira
 // @Accept application/json
 // @Param id path int true "id"
 // @Param connectionId path int true "connectionId"
-// @Param transformationRule body tasks.JiraTransformationRule true "transformation rule"
-// @Success 200  {object} tasks.JiraTransformationRule
+// @Param scopeConfig body tasks.JiraScopeConfig true "scope config"
+// @Success 200  {object} tasks.JiraScopeConfig
 // @Failure 400  {object} shared.ApiBody "Bad Request"
 // @Failure 500  {object} shared.ApiBody "Internal Error"
-// @Router /plugins/jira/connections/{connectionId}/transformation_rules/{id} [PATCH]
-func UpdateTransformationRule(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, errors.Error) {
+// @Router /plugins/jira/connections/{connectionId}/scope_configs/{id} [PATCH]
+func UpdateScopeConfig(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, errors.Error) {
 	connectionId, e := strconv.ParseUint(input.Params["connectionId"], 10, 64)
 	if e != nil || connectionId == 0 {
 		return nil, errors.Default.Wrap(e, "the connection ID should be an non-zero integer")
 	}
-	transformationRuleId, e := strconv.ParseUint(input.Params["id"], 10, 64)
+	scopeConfigId, e := strconv.ParseUint(input.Params["id"], 10, 64)
 	if e != nil {
-		return nil, errors.Default.Wrap(e, "the transformation rule ID should be an integer")
+		return nil, errors.Default.Wrap(e, "the scope config ID should be an integer")
 	}
-	var req tasks.JiraTransformationRule
+	var req tasks.JiraScopeConfig
 	err := api.Decode(input.Body, &req, vld)
 	if err != nil {
 		return nil, err
 	}
-	var oldDB models.JiraTransformationRule
-	err = basicRes.GetDal().First(&oldDB, dal.Where("id = ?", transformationRuleId))
+	var oldDB models.JiraScopeConfig
+	err = basicRes.GetDal().First(&oldDB, dal.Where("id = ?", scopeConfigId))
 	if err != nil {
-		return nil, errors.Default.Wrap(err, "error on getting TransformationRule")
+		return nil, errors.Default.Wrap(err, "error on getting ScopeConfig")
 	}
-	oldTr, err := tasks.MakeTransformationRules(oldDB)
+	oldTr, err := tasks.MakeScopeConfig(oldDB)
 	if err != nil {
 		return nil, err
 	}
@@ -99,7 +99,7 @@ func UpdateTransformationRule(input *plugin.ApiResourceInput) (*plugin.ApiResour
 	if err != nil {
 		return nil, err
 	}
-	newDB.ID = transformationRuleId
+	newDB.ID = scopeConfigId
 	newDB.ConnectionId = connectionId
 	newDB.CreatedAt = oldDB.CreatedAt
 	err = basicRes.GetDal().Update(newDB)
@@ -109,12 +109,12 @@ func UpdateTransformationRule(input *plugin.ApiResourceInput) (*plugin.ApiResour
 	return &plugin.ApiResourceOutput{Body: newDB, Status: http.StatusOK}, err
 }
 
-func makeDbTransformationRuleFromInput(input *plugin.ApiResourceInput) (*models.JiraTransformationRule, errors.Error) {
+func makeDbScopeConfigFromInput(input *plugin.ApiResourceInput) (*models.JiraScopeConfig, errors.Error) {
 	connectionId, e := strconv.ParseUint(input.Params["connectionId"], 10, 64)
 	if e != nil || connectionId == 0 {
 		return nil, errors.Default.Wrap(e, "the connection ID should be an non-zero integer")
 	}
-	var req tasks.JiraTransformationRule
+	var req tasks.JiraScopeConfig
 	err := api.Decode(input.Body, &req, vld)
 	if err != nil {
 		return nil, err
@@ -123,31 +123,31 @@ func makeDbTransformationRuleFromInput(input *plugin.ApiResourceInput) (*models.
 	return req.ToDb()
 }
 
-// GetTransformationRule return one transformation rule
-// @Summary return one transformation rule
-// @Description return one transformation rule
+// GetScopeConfig return one scope config
+// @Summary return one scope config
+// @Description return one scope config
 // @Tags plugins/jira
 // @Param id path int true "id"
 // @Param connectionId path int true "connectionId"
-// @Success 200  {object} tasks.JiraTransformationRule
+// @Success 200  {object} tasks.JiraScopeConfig
 // @Failure 400  {object} shared.ApiBody "Bad Request"
 // @Failure 500  {object} shared.ApiBody "Internal Error"
-// @Router /plugins/jira/connections/{connectionId}/transformation_rules/{id} [GET]
-func GetTransformationRule(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, errors.Error) {
-	return trHelper.Get(input)
+// @Router /plugins/jira/connections/{connectionId}/scope_configs/{id} [GET]
+func GetScopeConfig(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, errors.Error) {
+	return scHelper.Get(input)
 }
 
-// GetTransformationRuleList return all transformation rules
-// @Summary return all transformation rules
-// @Description return all transformation rules
+// GetScopeConfigList return all scope configs
+// @Summary return all scope configs
+// @Description return all scope configs
 // @Tags plugins/jira
 // @Param connectionId path int true "connectionId"
 // @Param pageSize query int false "page size, default 50"
 // @Param page query int false "page size, default 1"
-// @Success 200  {object} []tasks.JiraTransformationRule
+// @Success 200  {object} []tasks.JiraScopeConfig
 // @Failure 400  {object} shared.ApiBody "Bad Request"
 // @Failure 500  {object} shared.ApiBody "Internal Error"
-// @Router /plugins/jira/connections/{connectionId}/transformation_rules [GET]
-func GetTransformationRuleList(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, errors.Error) {
-	return trHelper.List(input)
+// @Router /plugins/jira/connections/{connectionId}/scope_configs [GET]
+func GetScopeConfigList(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, errors.Error) {
+	return scHelper.List(input)
 }
