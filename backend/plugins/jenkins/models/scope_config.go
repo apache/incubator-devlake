@@ -15,24 +15,20 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-package migrationscripts
+package models
 
 import (
-	"github.com/apache/incubator-devlake/core/plugin"
+	"github.com/apache/incubator-devlake/core/models/common"
 )
 
-// All return all the migration scripts
-func All() []plugin.MigrationScript {
-	return []plugin.MigrationScript{
-		new(addInitTables),
-		new(modifyAllEntities),
-		new(modifyJenkinsBuild),
-		new(addJobFields),
-		new(addJobPathForBuilds),
-		new(changeIndexOfJobPath),
-		new(addTransformationRule20221128),
-		new(addFullNameForBuilds),
-		new(addConnectionIdToTransformationRule),
-		new(renameTr2ScopeConfig),
-	}
+type JenkinsScopeConfig struct {
+	common.ScopeConfig `mapstructure:",squash" json:",inline" gorm:"embedded"`
+	ConnectionId       uint64 `mapstructure:"connectionId" json:"connectionId"`
+	Name               string `gorm:"type:varchar(255);index:idx_name_jenkins,unique" validate:"required" mapstructure:"name" json:"name"`
+	DeploymentPattern  string `gorm:"type:varchar(255)" mapstructure:"deploymentPattern,omitempty" json:"deploymentPattern"`
+	ProductionPattern  string `gorm:"type:varchar(255)" mapstructure:"productionPattern,omitempty" json:"productionPattern"`
+}
+
+func (t JenkinsScopeConfig) TableName() string {
+	return "_tool_jenkins_scope_configs"
 }

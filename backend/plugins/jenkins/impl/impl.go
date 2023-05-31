@@ -43,6 +43,7 @@ var _ plugin.PluginModel = (*Jenkins)(nil)
 var _ plugin.PluginMigration = (*Jenkins)(nil)
 var _ plugin.CloseablePluginTask = (*Jenkins)(nil)
 var _ plugin.PluginSource = (*Jenkins)(nil)
+var _ plugin.DataSourcePluginBlueprintV200 = (*Jenkins)(nil)
 
 type Jenkins struct{}
 
@@ -59,8 +60,8 @@ func (p Jenkins) Scope() interface{} {
 	return &models.JenkinsJob{}
 }
 
-func (p Jenkins) TransformationRule() interface{} {
-	return &models.JenkinsTransformationRule{}
+func (p Jenkins) ScopeConfig() interface{} {
+	return &models.JenkinsScopeConfig{}
 }
 
 func (p Jenkins) GetTablesInfo() []dal.Tabler {
@@ -133,10 +134,10 @@ func (p Jenkins) PrepareTaskData(taskCtx plugin.TaskContext, options map[string]
 		}
 	}
 	regexEnricher := helper.NewRegexEnricher()
-	if err := regexEnricher.TryAdd(devops.DEPLOYMENT, op.DeploymentPattern); err != nil {
+	if err := regexEnricher.TryAdd(devops.DEPLOYMENT, op.ScopeConfig.DeploymentPattern); err != nil {
 		return nil, errors.BadInput.Wrap(err, "invalid value for `deploymentPattern`")
 	}
-	if err := regexEnricher.TryAdd(devops.PRODUCTION, op.ProductionPattern); err != nil {
+	if err := regexEnricher.TryAdd(devops.PRODUCTION, op.ScopeConfig.ProductionPattern); err != nil {
 		return nil, errors.BadInput.Wrap(err, "invalid value for `productionPattern`")
 	}
 	taskData := &tasks.JenkinsTaskData{
@@ -158,10 +159,6 @@ func (p Jenkins) RootPkgPath() string {
 
 func (p Jenkins) MigrationScripts() []plugin.MigrationScript {
 	return migrationscripts.All()
-}
-
-func (p Jenkins) MakePipelinePlan(connectionId uint64, scope []*plugin.BlueprintScopeV100) (plugin.PipelinePlan, errors.Error) {
-	return api.MakePipelinePlanV100(p.SubTaskMetas(), connectionId, scope)
 }
 
 func (p Jenkins) MakeDataSourcePipelinePlanV200(connectionId uint64, scopes []*plugin.BlueprintScopeV200, syncPolicy plugin.BlueprintSyncPolicy) (pp plugin.PipelinePlan, sc []plugin.Scope, err errors.Error) {
@@ -191,13 +188,13 @@ func (p Jenkins) ApiResources() map[string]map[string]plugin.ApiResourceHandler 
 			"GET": api.GetScopeList,
 			"PUT": api.PutScope,
 		},
-		"connections/:connectionId/transformation_rules": {
-			"POST": api.CreateTransformationRule,
-			"GET":  api.GetTransformationRuleList,
+		"connections/:connectionId/scope_configs": {
+			"POST": api.CreateScopeConfig,
+			"GET":  api.GetScopeConfigList,
 		},
-		"connections/:connectionId/transformation_rules/:id": {
-			"PATCH": api.UpdateTransformationRule,
-			"GET":   api.GetTransformationRule,
+		"connections/:connectionId/scope_configs/:id": {
+			"PATCH": api.UpdateScopeConfig,
+			"GET":   api.GetScopeConfig,
 		},
 		"connections/:connectionId/proxy/rest/*path": {
 			"GET": api.Proxy,
@@ -229,19 +226,18 @@ func EnrichOptions(taskCtx plugin.TaskContext,
 	}
 	log := taskCtx.GetLogger()
 
-	// for advanced mode or others which we only have name, for bp v200, we have TransformationRuleId
+	// for advanced mode or others which we only have name, for bp v200, we have ScopeConfigId
 	err = taskCtx.GetDal().First(jenkinsJob,
 		dal.Where(`connection_id = ? and full_name = ?`,
 			op.ConnectionId, op.JobFullName))
 	if err == nil {
-		if op.TransformationRuleId == 0 {
-			op.TransformationRuleId = jenkinsJob.TransformationRuleId
+		if op.ScopeConfigId == 0 {
+			op.ScopeConfigId = jenkinsJob.ScopeConfigId
 		}
 	}
 
 	err = api.GetJob(apiClient, op.JobPath, op.JobName, op.JobFullName, 100, func(job *models.Job, isPath bool) errors.Error {
 		log.Debug(fmt.Sprintf("Current job: %s", job.FullName))
-		op.Name = job.Name
 		op.JobPath = job.Path
 		jenkinsJob := ConvertJobToJenkinsJob(job, op)
 		err = taskCtx.GetDal().CreateIfNotExist(jenkinsJob)
@@ -254,18 +250,18 @@ func EnrichOptions(taskCtx plugin.TaskContext,
 	if !strings.HasSuffix(op.JobPath, "/") {
 		op.JobPath = fmt.Sprintf("%s/", op.JobPath)
 	}
-	// We only set op.JenkinsTransformationRule when it's nil and we have op.TransformationRuleId != 0
-	if op.JenkinsTransformationRule.DeploymentPattern == "" && op.JenkinsTransformationRule.ProductionPattern == "" && op.TransformationRuleId != 0 {
-		var transformationRule models.JenkinsTransformationRule
-		err = taskCtx.GetDal().First(&transformationRule, dal.Where("id = ?", op.TransformationRuleId))
+	// We only set op.JenkinsScopeConfig when it's nil and we have op.ScopeConfigId != 0
+	if op.ScopeConfig.DeploymentPattern == "" && op.ScopeConfig.ProductionPattern == "" && op.ScopeConfigId != 0 {
+		var scopeConfig models.JenkinsScopeConfig
+		err = taskCtx.GetDal().First(&scopeConfig, dal.Where("id = ?", op.ScopeConfigId))
 		if err != nil {
-			return errors.BadInput.Wrap(err, "fail to get transformationRule")
+			return errors.BadInput.Wrap(err, "fail to get scopeConfig")
 		}
-		op.JenkinsTransformationRule = &transformationRule
+		op.ScopeConfig = &scopeConfig
 	}
 
-	if op.JenkinsTransformationRule.DeploymentPattern == "" && op.JenkinsTransformationRule.ProductionPattern == "" && op.TransformationRuleId == 0 {
-		op.JenkinsTransformationRule = new(models.JenkinsTransformationRule)
+	if op.ScopeConfig.DeploymentPattern == "" && op.ScopeConfig.ProductionPattern == "" && op.ScopeConfigId == 0 {
+		op.ScopeConfig = new(models.JenkinsScopeConfig)
 	}
 
 	return nil
@@ -273,16 +269,16 @@ func EnrichOptions(taskCtx plugin.TaskContext,
 
 func ConvertJobToJenkinsJob(job *models.Job, op *tasks.JenkinsOptions) *models.JenkinsJob {
 	return &models.JenkinsJob{
-		ConnectionId:         op.ConnectionId,
-		FullName:             job.FullName,
-		TransformationRuleId: op.TransformationRuleId,
-		Name:                 job.Name,
-		Path:                 job.Path,
-		Class:                job.Class,
-		Color:                job.Color,
-		Base:                 job.Base,
-		Url:                  job.URL,
-		Description:          job.Description,
-		PrimaryView:          job.URL + job.Path + job.Class,
+		ConnectionId:  op.ConnectionId,
+		FullName:      job.FullName,
+		ScopeConfigId: op.ScopeConfigId,
+		Name:          job.Name,
+		Path:          job.Path,
+		Class:         job.Class,
+		Color:         job.Color,
+		Base:          job.Base,
+		Url:           job.URL,
+		Description:   job.Description,
+		PrimaryView:   job.URL + job.Path + job.Class,
 	}
 }
