@@ -47,8 +47,8 @@ type GithubAppKey struct {
 type GithubConn struct {
 	helper.RestConnection `mapstructure:",squash"`
 	helper.MultiAuth      `mapstructure:",squash"`
-	GithubAccessToken     `mapstructure:",squash"`
-	GithubAppKey          `mapstructure:",squash"`
+	GithubAccessToken     `mapstructure:",squash" authMethod:"AccessToken"`
+	GithubAppKey          `mapstructure:",squash" authMethod:"AppKey"`
 }
 
 // PrepareApiClient splits Token to tokens for SetupAuthentication to utilize
