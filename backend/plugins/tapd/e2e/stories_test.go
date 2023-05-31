@@ -18,13 +18,14 @@ limitations under the License.
 package e2e
 
 import (
+	"testing"
+
 	"github.com/apache/incubator-devlake/core/models/common"
 	"github.com/apache/incubator-devlake/core/models/domainlayer/ticket"
 	"github.com/apache/incubator-devlake/helpers/e2ehelper"
 	"github.com/apache/incubator-devlake/plugins/tapd/impl"
 	"github.com/apache/incubator-devlake/plugins/tapd/models"
 	"github.com/apache/incubator-devlake/plugins/tapd/tasks"
-	"testing"
 )
 
 func TestTapdStoryDataFlow(t *testing.T) {
@@ -36,12 +37,12 @@ func TestTapdStoryDataFlow(t *testing.T) {
 		Options: &tasks.TapdOptions{
 			ConnectionId: 1,
 			WorkspaceId:  991,
-			TransformationRules: &tasks.TransformationRules{
+			ScopeConfig: &tasks.TapdScopeConfig{
 				TypeMappings: tasks.TypeMappings{
-					"BUG":      "缺陷",
-					"TASK":     "任务",
-					"需求":     "故事需求",
-					"技术债":   "技术需求债务",
+					"BUG":  "缺陷",
+					"TASK": "任务",
+					"需求":   "故事需求",
+					"技术债":  "技术需求债务",
 					"长篇故事": "Epic需求",
 				},
 			},

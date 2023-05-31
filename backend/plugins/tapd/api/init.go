@@ -27,9 +27,9 @@ import (
 var vld *validator.Validate
 var connectionHelper *api.ConnectionApiHelper
 var basicRes context.BasicRes
-var scopeHelper *api.ScopeApiHelper[models.TapdConnection, models.TapdWorkspace, models.TapdTransformationRule]
+var scopeHelper *api.ScopeApiHelper[models.TapdConnection, models.TapdWorkspace, models.TapdScopeConfig]
 var remoteHelper *api.RemoteApiHelper[models.TapdConnection, models.TapdWorkspace, models.TapdWorkspace, api.BaseRemoteGroupResponse]
-var trHelper *api.TransformationRuleHelper[models.TapdTransformationRule]
+var scHelper *api.ScopeConfigHelper[models.TapdScopeConfig]
 
 func Init(br context.BasicRes) {
 	basicRes = br
@@ -42,11 +42,11 @@ func Init(br context.BasicRes) {
 		ScopeIdFieldName:  "Id",
 		ScopeIdColumnName: "id",
 	}
-	scopeHelper = api.NewScopeHelper[models.TapdConnection, models.TapdWorkspace, models.TapdTransformationRule](
+	scopeHelper = api.NewScopeHelper[models.TapdConnection, models.TapdWorkspace, models.TapdScopeConfig](
 		basicRes,
 		vld,
 		connectionHelper,
-		api.NewScopeDatabaseHelperImpl[models.TapdConnection, models.TapdWorkspace, models.TapdTransformationRule](
+		api.NewScopeDatabaseHelperImpl[models.TapdConnection, models.TapdWorkspace, models.TapdScopeConfig](
 			basicRes, connectionHelper, params),
 		params,
 		nil,
@@ -56,7 +56,7 @@ func Init(br context.BasicRes) {
 		vld,
 		connectionHelper,
 	)
-	trHelper = api.NewTransformationRuleHelper[models.TapdTransformationRule](
+	scHelper = api.NewScopeConfigHelper[models.TapdScopeConfig](
 		basicRes,
 		vld,
 	)
