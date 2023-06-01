@@ -86,7 +86,7 @@ func (ah *ZentaoRemoteDbActionHistory) Convert() *ZentaoChangelogCom {
 		},
 		&ZentaoChangelogDetail{
 			Id:          int64(ah.HistoryId),
-			ChangelogId: int64(ah.Id),
+			ChangelogId: int64(ah.ActionId),
 			Field:       ah.Field,
 			Old:         ah.Old,
 			New:         ah.New,

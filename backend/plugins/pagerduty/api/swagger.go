@@ -21,7 +21,7 @@ import (
 	"github.com/apache/incubator-devlake/plugins/pagerduty/tasks"
 )
 
-type PagerdutyTaskOptions tasks.PagerDutyOptions
+type PagerDutyTaskOptions tasks.PagerDutyOptions
 
 // @Summary pagerduty task options for pipelines
 // @Description This is a dummy API to demonstrate the available task options for pagerduty pipelines

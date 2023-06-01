@@ -21,6 +21,7 @@ import (
 	"encoding/json"
 
 	"github.com/apache/incubator-devlake/core/errors"
+	"github.com/apache/incubator-devlake/core/models/domainlayer/ticket"
 	"github.com/apache/incubator-devlake/core/plugin"
 	"github.com/apache/incubator-devlake/helpers/pluginhelper/api"
 	"github.com/apache/incubator-devlake/plugins/zentao/models"
@@ -43,6 +44,9 @@ func ExtractTask(taskCtx plugin.SubTaskContext) errors.Error {
 	if data.Options.ProjectId == 0 {
 		return nil
 	}
+
+	statusMappings := getTaskStatusMapping(data)
+	stdTypeMappings := getStdTypeMappings(data)
 
 	extractor, err := api.NewApiExtractor(api.ApiExtractorArgs{
 		RawDataSubTaskArgs: api.RawDataSubTaskArgs{
@@ -128,7 +132,24 @@ func ExtractTask(taskCtx plugin.SubTaskContext) errors.Error {
 				NeedConfirm:        res.NeedConfirm,
 				//ProductType:        res.ProductType,
 				Progress: res.Progress,
+				Url:      row.Url,
 			}
+
+			task.StdType = stdTypeMappings[task.Type]
+			if task.StdType == "" {
+				task.StdType = ticket.TASK
+			}
+
+			if len(statusMappings) != 0 {
+				task.StdStatus = statusMappings[task.Status]
+			} else {
+				task.StdStatus = ticket.GetStatus(&ticket.StatusRule{
+					Done:    []string{"done", "closed", "cancel"},
+					Todo:    []string{"wait"},
+					Default: ticket.IN_PROGRESS,
+				}, task.Status)
+			}
+
 			results := make([]interface{}, 0)
 			results = append(results, task)
 			return results, nil

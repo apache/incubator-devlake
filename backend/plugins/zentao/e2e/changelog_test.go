@@ -22,6 +22,7 @@ import (
 
 	"github.com/apache/incubator-devlake/core/config"
 	"github.com/apache/incubator-devlake/core/models/common"
+	"github.com/apache/incubator-devlake/core/models/domainlayer/ticket"
 	"github.com/apache/incubator-devlake/core/runner"
 	"github.com/apache/incubator-devlake/helpers/e2ehelper"
 	"github.com/apache/incubator-devlake/impls/dalgorm"
@@ -90,6 +91,15 @@ func TestZentaoDbGetDataFlow(t *testing.T) {
 		&models.ZentaoChangelogDetail{},
 		e2ehelper.TableOptions{
 			CSVRelPath:  "./snapshot_tables/_tool_zentao_changelog_detail.csv",
+			IgnoreTypes: []interface{}{common.NoPKModel{}},
+		})
+
+	dataflowTester.FlushTabler(&ticket.IssueChangelogs{})
+	dataflowTester.Subtask(tasks.ConvertChangelogMeta, taskData)
+	dataflowTester.VerifyTableWithOptions(
+		&ticket.IssueChangelogs{},
+		e2ehelper.TableOptions{
+			CSVRelPath:  "./snapshot_tables/issue_changelogs.csv",
 			IgnoreTypes: []interface{}{common.NoPKModel{}},
 		})
 }

@@ -20,6 +20,12 @@ package api
 import (
 	"encoding/json"
 	"fmt"
+	"reflect"
+	"strconv"
+	"strings"
+	"sync"
+	"time"
+
 	"github.com/apache/incubator-devlake/core/context"
 	"github.com/apache/incubator-devlake/core/dal"
 	"github.com/apache/incubator-devlake/core/errors"
@@ -30,11 +36,6 @@ import (
 	serviceHelper "github.com/apache/incubator-devlake/helpers/pluginhelper/services"
 	"github.com/go-playground/validator/v10"
 	"github.com/mitchellh/mapstructure"
-	"reflect"
-	"strconv"
-	"strings"
-	"sync"
-	"time"
 )
 
 var (
@@ -42,7 +43,7 @@ var (
 	tablesCacheLoader = new(sync.Once)
 )
 
-type NoTransformation struct{}
+type NoScopeConfig struct{}
 
 type (
 	GenericScopeApiHelper[Conn any, Scope any, Tr any] struct {

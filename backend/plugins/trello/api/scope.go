@@ -20,7 +20,11 @@ package api
 import (
 	"github.com/apache/incubator-devlake/core/errors"
 	"github.com/apache/incubator-devlake/core/plugin"
+	"github.com/apache/incubator-devlake/helpers/pluginhelper/api"
+	"github.com/apache/incubator-devlake/plugins/trello/models"
 )
+
+type ScopeReq api.ScopeReq[models.TrelloBoard]
 
 // PutScope create or update trello board
 // @Summary create or update trello board
@@ -28,7 +32,7 @@ import (
 // @Tags plugins/trello
 // @Accept application/json
 // @Param connectionId path int false "connection ID"
-// @Param scope body req true "json"
+// @Param scope body ScopeReq true "json"
 // @Success 200  {object} []models.TrelloBoard
 // @Failure 400  {object} shared.ApiBody "Bad Request"
 // @Failure 500  {object} shared.ApiBody "Internal Error"
@@ -60,7 +64,7 @@ func UpdateScope(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, err
 // @Param connectionId path int false "connection ID"
 // @Param pageSize query int false "page size, default 50"
 // @Param page query int false "page size, default 1"
-// @Success 200  {object} []apiBoard
+// @Success 200  {object} []models.TrelloBoard
 // @Failure 400  {object} shared.ApiBody "Bad Request"
 // @Failure 500  {object} shared.ApiBody "Internal Error"
 // @Router /plugins/trello/connections/{connectionId}/scopes/ [GET]

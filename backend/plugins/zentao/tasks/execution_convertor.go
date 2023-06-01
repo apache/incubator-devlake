@@ -18,6 +18,8 @@ limitations under the License.
 package tasks
 
 import (
+	"reflect"
+
 	"github.com/apache/incubator-devlake/core/dal"
 	"github.com/apache/incubator-devlake/core/errors"
 	"github.com/apache/incubator-devlake/core/models/domainlayer"
@@ -26,7 +28,6 @@ import (
 	"github.com/apache/incubator-devlake/core/plugin"
 	"github.com/apache/incubator-devlake/helpers/pluginhelper/api"
 	"github.com/apache/incubator-devlake/plugins/zentao/models"
-	"reflect"
 )
 
 var _ plugin.SubTaskEntryPoint = ConvertExecutions
@@ -89,8 +90,8 @@ func ConvertExecutions(taskCtx plugin.SubTaskContext) errors.Error {
 				Status:          domainStatus,
 				StartedDate:     toolExecution.RealBegan.ToNullableTime(),
 				EndedDate:       toolExecution.RealEnd.ToNullableTime(),
-				CompletedDate:   toolExecution.ClosedDate.ToNullableTime(),
-				OriginalBoardID: projectIdGen.Generate(toolExecution.ConnectionId, toolExecution.Id),
+				CompletedDate:   toolExecution.PlanEnd.ToNullableTime(),
+				OriginalBoardID: projectIdGen.Generate(toolExecution.ConnectionId, data.Options.ProjectId),
 			}
 			boardSprint := &ticket.BoardSprint{
 				BoardId:  projectIdGen.Generate(toolExecution.ConnectionId, toolExecution.Id),

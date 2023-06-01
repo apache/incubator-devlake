@@ -26,14 +26,14 @@ import (
 
 type ProductScopeRes struct {
 	models.ZentaoProduct
-	TransformationRuleName string `json:"transformationRuleName,omitempty"`
+	ScopeConfigName string `json:"scopeConfigName,omitempty"`
 }
 
 type ProductScopeReq api.ScopeReq[models.ZentaoProduct]
 
 type ProjectScopeRes struct {
 	models.ZentaoProject
-	TransformationRuleName string `json:"transformationRuleName,omitempty"`
+	ScopeConfigName string `json:"scopeConfigName,omitempty"`
 }
 
 type ProjectScopeReq api.ScopeReq[models.ZentaoProject]

@@ -18,6 +18,7 @@ limitations under the License.
 package tasks
 
 import (
+	"fmt"
 	"reflect"
 
 	"github.com/apache/incubator-devlake/core/dal"
@@ -69,6 +70,8 @@ func ConvertProjects(taskCtx plugin.SubTaskContext) errors.Error {
 		Convert: func(inputRow interface{}) ([]interface{}, errors.Error) {
 			toolProject := inputRow.(*models.ZentaoProject)
 
+			data.ProjectName = toolProject.Name
+
 			domainBoard := &ticket.Board{
 				DomainEntity: domainlayer.DomainEntity{
 					Id: boardIdGen.Generate(toolProject.ConnectionId, toolProject.Id),
@@ -77,6 +80,7 @@ func ConvertProjects(taskCtx plugin.SubTaskContext) errors.Error {
 				Description: toolProject.Description,
 				CreatedDate: toolProject.OpenedDate.ToNullableTime(),
 				Type:        toolProject.Type + "/" + toolProject.ProjectType,
+				Url:         fmt.Sprintf("/project-index-%d.html", data.Options.ProjectId),
 			}
 			results := make([]interface{}, 0)
 			results = append(results, domainBoard)

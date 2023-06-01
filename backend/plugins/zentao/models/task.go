@@ -158,6 +158,9 @@ type ZentaoTask struct {
 	PriOrder           string              `json:"priOrder"`
 	NeedConfirm        bool                `json:"needConfirm"`
 	Progress           float64             `json:"progress"`
+	Url                string              `json:"url"`
+	StdStatus          string              `json:"stdStatus" gorm:"type:varchar(20)"`
+	StdType            string              `json:"stdType" gorm:"type:varchar(20)"`
 }
 
 func (ZentaoTask) TableName() string {

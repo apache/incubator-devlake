@@ -21,6 +21,7 @@ import (
 	"fmt"
 
 	"github.com/apache/incubator-devlake/core/context"
+	"github.com/apache/incubator-devlake/core/dal"
 	"github.com/apache/incubator-devlake/core/errors"
 	"github.com/apache/incubator-devlake/core/plugin"
 	"github.com/apache/incubator-devlake/core/runner"
@@ -57,22 +58,30 @@ func (p Zentao) SubTaskMetas() []plugin.SubTaskMeta {
 	return []plugin.SubTaskMeta{
 		tasks.ConvertProductMeta,
 		tasks.ConvertProjectMeta,
+
 		tasks.DBGetChangelogMeta,
+		tasks.ConvertChangelogMeta,
+
 		tasks.CollectExecutionMeta,
 		tasks.ExtractExecutionMeta,
 		tasks.ConvertExecutionMeta,
+
 		tasks.CollectStoryMeta,
 		tasks.ExtractStoryMeta,
 		tasks.ConvertStoryMeta,
+
 		tasks.CollectBugMeta,
 		tasks.ExtractBugMeta,
 		tasks.ConvertBugMeta,
+
 		tasks.CollectTaskMeta,
 		tasks.ExtractTaskMeta,
 		tasks.ConvertTaskMeta,
+
 		tasks.CollectAccountMeta,
 		tasks.ExtractAccountMeta,
 		tasks.ConvertAccountMeta,
+
 		tasks.CollectDepartmentMeta,
 		tasks.ExtractDepartmentMeta,
 		tasks.ConvertDepartmentMeta,
@@ -98,6 +107,18 @@ func (p Zentao) PrepareTaskData(taskCtx plugin.TaskContext, options map[string]i
 	apiClient, err := tasks.NewZentaoApiClient(taskCtx, connection)
 	if err != nil {
 		return nil, errors.Default.Wrap(err, "unable to get Zentao API client instance: %v")
+	}
+
+	if op.ScopeConfigs == nil && op.ScopeConfigId != 0 {
+		var scopeConfig models.ZentaoScopeConfig
+		err = taskCtx.GetDal().First(&scopeConfig, dal.Where("id = ?", op.ScopeConfigId))
+		if err != nil && taskCtx.GetDal().IsErrorNotFound(err) {
+			return nil, errors.BadInput.Wrap(err, "fail to get ScopeConfigs")
+		}
+		op.ScopeConfigs, err = tasks.MakeScopeConfigs(scopeConfig)
+		if err != nil {
+			return nil, errors.BadInput.Wrap(err, "fail to make ScopeConfigs")
+		}
 	}
 
 	data := &tasks.ZentaoTaskData{

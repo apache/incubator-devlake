@@ -18,10 +18,12 @@ limitations under the License.
 package tasks
 
 import (
+	"net/http"
+	"strings"
+
 	"github.com/apache/incubator-devlake/core/errors"
 	"github.com/apache/incubator-devlake/helpers/pluginhelper/api"
 	"github.com/apache/incubator-devlake/plugins/zentao/models"
-	"net/http"
 )
 
 func GetTotalPagesFromResponse(res *http.Response, args *api.ApiCollectorArgs) (int, errors.Error) {
@@ -49,4 +51,94 @@ func getAccountName(account *models.ZentaoAccount) string {
 		return account.Realname
 	}
 	return ""
+}
+
+// get the Priority string for zentao
+func getPriority(pri int) string {
+	switch pri {
+	case 2:
+		return "High"
+	case 3:
+		return "Middle"
+	case 4:
+		return "Low"
+	default:
+		if pri <= 1 {
+			return "VeryHigh"
+		}
+		if pri >= 5 {
+			return "VeryLow"
+		}
+	}
+	return "Error"
+}
+
+func getOriginalProject(data *ZentaoTaskData) string {
+	if data.Options.ProjectId != 0 {
+		return data.ProjectName
+	}
+	if data.Options.ProductId != 0 {
+		return data.ProductName
+	}
+	return ""
+}
+
+// getBugStatusMapping creates a map of original status values to bug issue standard status values
+// based on the provided ZentaoTaskData. It returns the created map.
+func getBugStatusMapping(data *ZentaoTaskData) map[string]string {
+	stdStatusMappings := make(map[string]string)
+	if data.Options.ScopeConfigs == nil {
+		return stdStatusMappings
+	}
+	mapping := data.Options.ScopeConfigs.BugStatusMappings
+	// Map original status values to standard status values
+	for userStatus, stdStatus := range mapping {
+		stdStatusMappings[userStatus] = strings.ToUpper(stdStatus)
+	}
+	return stdStatusMappings
+}
+
+// getStoryStatusMapping creates a map of original status values to story issue standard status values
+// based on the provided ZentaoTaskData. It returns the created map.
+func getStoryStatusMapping(data *ZentaoTaskData) map[string]string {
+	stdStatusMappings := make(map[string]string)
+	if data.Options.ScopeConfigs == nil {
+		return stdStatusMappings
+	}
+	mapping := data.Options.ScopeConfigs.StoryStatusMappings
+	// Map original status values to standard status values
+	for userStatus, stdStatus := range mapping {
+		stdStatusMappings[userStatus] = strings.ToUpper(stdStatus)
+	}
+	return stdStatusMappings
+}
+
+// getTaskStatusMapping creates a map of original status values to task issue standard status values
+// based on the provided ZentaoTaskData. It returns the created map.
+func getTaskStatusMapping(data *ZentaoTaskData) map[string]string {
+	stdStatusMappings := make(map[string]string)
+	if data.Options.ScopeConfigs == nil {
+		return stdStatusMappings
+	}
+	mapping := data.Options.ScopeConfigs.TaskStatusMappings
+	// Map original status values to standard status values
+	for userStatus, stdStatus := range mapping {
+		stdStatusMappings[userStatus] = strings.ToUpper(stdStatus)
+	}
+	return stdStatusMappings
+}
+
+// getStdTypeMappings creates a map of user type to standard type based on the provided ZentaoTaskData.
+// It returns the created map.
+func getStdTypeMappings(data *ZentaoTaskData) map[string]string {
+	stdTypeMappings := make(map[string]string)
+	if data.Options.ScopeConfigs == nil {
+		return stdTypeMappings
+	}
+	mapping := data.Options.ScopeConfigs.TypeMappings
+	// Map user types to standard types
+	for userType, stdType := range mapping {
+		stdTypeMappings[userType] = strings.ToUpper(stdType)
+	}
+	return stdTypeMappings
 }

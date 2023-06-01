@@ -18,12 +18,14 @@ limitations under the License.
 package tasks
 
 import (
+	"encoding/json"
 	"fmt"
 	"time"
 
 	"github.com/apache/incubator-devlake/core/dal"
 	"github.com/apache/incubator-devlake/core/errors"
 	helper "github.com/apache/incubator-devlake/helpers/pluginhelper/api"
+	"github.com/apache/incubator-devlake/plugins/zentao/models"
 	"github.com/mitchellh/mapstructure"
 )
 
@@ -41,17 +43,69 @@ type ZentaoOptions struct {
 	ProductId    int64  `json:"productId" mapstructure:"productId"`
 	ProjectId    int64  `json:"projectId" mapstructure:"projectId"`
 	// TODO not support now
-	TimeAfter string `json:"timeAfter" mapstructure:"timeAfter,omitempty"`
-	//TransformationRuleId                uint64 `json:"transformationZentaoeId" mapstructure:"transformationRuleId,omitempty"`
-	//*models.ZentaoTransformationRule `mapstructure:"transformationRules,omitempty" json:"transformationRules"`
+	TimeAfter     string              `json:"timeAfter" mapstructure:"timeAfter,omitempty"`
+	ScopeConfigId uint64              `json:"scopeConfigId" mapstructure:"scopeConfigId,omitempty"`
+	ScopeConfigs  *ZentaoScopeConfigs `json:"scopeConfigs" mapstructure:"scopeConfigs,omitempty"`
+}
 
+type TypeMappings map[string]string
+
+type StatusMappings map[string]string
+
+type ZentaoScopeConfigs struct {
+	TypeMappings        TypeMappings   `json:"typeMappings"`
+	BugStatusMappings   StatusMappings `json:"bugStatusMappings"`
+	StoryStatusMappings StatusMappings `json:"storyStatusMappings"`
+	TaskStatusMappings  StatusMappings `json:"taskStatusMappings"`
+}
+
+func MakeScopeConfigs(rule models.ZentaoScopeConfig) (*ZentaoScopeConfigs, errors.Error) {
+	var bugStatusMapping StatusMappings
+	var storyStatusMapping StatusMappings
+	var taskStatusMapping StatusMappings
+	var typeMapping TypeMappings
+	var err error
+	if len(rule.TypeMappings) > 0 {
+		err = json.Unmarshal(rule.TypeMappings, &typeMapping)
+		if err != nil {
+			return nil, errors.Default.Wrap(err, "unable to unmarshal the typeMapping")
+		}
+	}
+	if len(rule.BugStatusMappings) > 0 {
+		err = json.Unmarshal(rule.BugStatusMappings, &bugStatusMapping)
+		if err != nil {
+			return nil, errors.Default.Wrap(err, "unable to unmarshal the statusMapping")
+		}
+	}
+	if len(rule.StoryStatusMappings) > 0 {
+		err = json.Unmarshal(rule.StoryStatusMappings, &storyStatusMapping)
+		if err != nil {
+			return nil, errors.Default.Wrap(err, "unable to unmarshal the statusMapping")
+		}
+	}
+	if len(rule.TaskStatusMappings) > 0 {
+		err = json.Unmarshal(rule.TaskStatusMappings, &taskStatusMapping)
+		if err != nil {
+			return nil, errors.Default.Wrap(err, "unable to unmarshal the statusMapping")
+		}
+	}
+	result := &ZentaoScopeConfigs{
+		TypeMappings:        typeMapping,
+		BugStatusMappings:   bugStatusMapping,
+		StoryStatusMappings: storyStatusMapping,
+		TaskStatusMappings:  taskStatusMapping,
+	}
+	return result, nil
 }
 
 type ZentaoTaskData struct {
-	Options   *ZentaoOptions
-	RemoteDb  dal.Dal
-	TimeAfter *time.Time
-	ApiClient *helper.ApiAsyncClient
+	Options  *ZentaoOptions
+	RemoteDb dal.Dal
+
+	TimeAfter   *time.Time
+	ProjectName string
+	ProductName string
+	ApiClient   *helper.ApiAsyncClient
 }
 
 func DecodeAndValidateTaskOptions(options map[string]interface{}) (*ZentaoOptions, error) {

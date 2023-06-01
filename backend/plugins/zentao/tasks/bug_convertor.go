@@ -74,28 +74,26 @@ func ConvertBug(taskCtx plugin.SubTaskContext) errors.Error {
 				DomainEntity: domainlayer.DomainEntity{
 					Id: bugIdGen.Generate(toolEntity.ConnectionId, toolEntity.ID),
 				},
-				IssueKey:       strconv.FormatInt(toolEntity.ID, 10),
-				Title:          toolEntity.Title,
-				Type:           ticket.BUG,
-				OriginalType:   toolEntity.Type,
-				OriginalStatus: toolEntity.Status,
-				ResolutionDate: toolEntity.ClosedDate.ToNullableTime(),
-				CreatedDate:    toolEntity.OpenedDate.ToNullableTime(),
-				UpdatedDate:    toolEntity.LastEditedDate.ToNullableTime(),
-				ParentIssueId:  storyIdGen.Generate(data.Options.ConnectionId, toolEntity.Story),
-				Priority:       string(rune(toolEntity.Pri)),
-				CreatorId:      strconv.FormatInt(toolEntity.OpenedById, 10),
-				CreatorName:    toolEntity.OpenedByName,
-				AssigneeId:     strconv.FormatInt(toolEntity.AssignedToId, 10),
-				AssigneeName:   toolEntity.AssignedToName,
-				Severity:       string(rune(toolEntity.Severity)),
+				IssueKey:        strconv.FormatInt(toolEntity.ID, 10),
+				Title:           toolEntity.Title,
+				Type:            ticket.BUG,
+				OriginalType:    toolEntity.Type,
+				OriginalStatus:  toolEntity.Status,
+				ResolutionDate:  toolEntity.ClosedDate.ToNullableTime(),
+				CreatedDate:     toolEntity.OpenedDate.ToNullableTime(),
+				UpdatedDate:     toolEntity.LastEditedDate.ToNullableTime(),
+				ParentIssueId:   storyIdGen.Generate(data.Options.ConnectionId, toolEntity.Story),
+				Priority:        getPriority(toolEntity.Pri),
+				CreatorId:       strconv.FormatInt(toolEntity.OpenedById, 10),
+				CreatorName:     toolEntity.OpenedByName,
+				AssigneeId:      strconv.FormatInt(toolEntity.AssignedToId, 10),
+				AssigneeName:    toolEntity.AssignedToName,
+				Severity:        string(rune(toolEntity.Severity)),
+				Url:             toolEntity.Url,
+				OriginalProject: getOriginalProject(data),
+				Status:          toolEntity.StdStatus,
 			}
-			switch toolEntity.Status {
-			case "resolved":
-				domainEntity.Status = ticket.DONE
-			default:
-				domainEntity.Status = ticket.IN_PROGRESS
-			}
+
 			if toolEntity.ClosedDate != nil {
 				domainEntity.LeadTimeMinutes = int64(toolEntity.ClosedDate.ToNullableTime().Sub(toolEntity.OpenedDate.ToTime()).Minutes())
 			}
