@@ -30,12 +30,13 @@ const Wrapper = styled.div`
 `;
 
 interface Props {
-  content: string;
+  style?: React.CSSProperties;
+  content: React.ReactNode;
 }
 
-export const Message = ({ content }: Props) => {
+export const Message = ({ style, content }: Props) => {
   return (
-    <Wrapper>
+    <Wrapper style={style}>
       <Icon icon="warning-sign" size={24} color="#f4be55" />
       <span>{content}</span>
     </Wrapper>

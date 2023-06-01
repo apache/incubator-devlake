@@ -92,7 +92,7 @@ export const BlueprintConnectionDetailPage = () => {
     );
 
     if (success) {
-      history.push(`/blueprints/${blueprint.id}`);
+      history.push(pname ? `/projects/${pname}` : `/blueprints/${blueprint.id}`);
     }
   };
 
@@ -175,7 +175,7 @@ export const BlueprintConnectionDetailPage = () => {
       <Table columns={[{ title: 'Data Scope', dataIndex: 'name', key: 'name' }]} dataSource={scopes} />
       <Dialog
         isOpen={isOpen}
-        title="Change Data Scope"
+        title="Manage Data Scope"
         footer={null}
         style={{ width: 820 }}
         onCancel={handleHideDataScope}
@@ -183,6 +183,7 @@ export const BlueprintConnectionDetailPage = () => {
         <DataScopeSelect
           plugin={connection.plugin}
           connectionId={connection.id}
+          showWarning
           initialScope={scopes}
           onCancel={handleHideDataScope}
           onSubmit={handleChangeDataScope}
