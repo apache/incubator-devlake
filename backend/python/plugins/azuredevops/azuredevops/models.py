@@ -98,7 +98,7 @@ class Build(ToolModel, table=True):
     start_time: Optional[datetime.datetime]
     finish_time: Optional[datetime.datetime]
     status: BuildStatus
-    result: BuildResult
+    result: Optional[BuildResult]
     source_branch: str
     source_version: str
 
