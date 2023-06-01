@@ -32,7 +32,7 @@ import * as S from './styled';
 interface Props {
   plugin: string;
   connectionId?: ID;
-  onSuccess?: () => void;
+  onSuccess?: (id: ID) => void;
 }
 
 export const ConnectionForm = ({ plugin, connectionId, onSuccess }: Props) => {
@@ -83,7 +83,7 @@ export const ConnectionForm = ({ plugin, connectionId, onSuccess }: Props) => {
   };
 
   const handleSave = async () => {
-    const [success] = await operator(
+    const [success, res] = await operator(
       () => (!connectionId ? API.createConnection(plugin, values) : API.updateConnection(plugin, connectionId, values)),
       {
         setOperating,
@@ -92,7 +92,7 @@ export const ConnectionForm = ({ plugin, connectionId, onSuccess }: Props) => {
     );
 
     if (success) {
-      onSuccess?.();
+      onSuccess?.(res.id);
     }
   };
 

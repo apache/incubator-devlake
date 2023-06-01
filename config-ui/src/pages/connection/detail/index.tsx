@@ -16,7 +16,7 @@
  *
  */
 
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useParams, useHistory } from 'react-router-dom';
 import { Button, Icon, Intent } from '@blueprintjs/core';
 
@@ -35,12 +35,7 @@ import { operator } from '@/utils';
 import * as API from './api';
 import * as S from './styled';
 
-interface Props {
-  plugin: string;
-  id: ID;
-}
-
-const ConnectionDetail = ({ plugin, id }: Props) => {
+export const ConnectionDetailPage = () => {
   const [type, setType] = useState<
     | 'deleteConnection'
     | 'updateConnection'
@@ -55,12 +50,17 @@ const ConnectionDetail = ({ plugin, id }: Props) => {
   const [scopeIds, setScopeIds] = useState<ID[]>([]);
   const [scopeConfigId, setScopeConfigId] = useState<ID>();
 
+  const { plugin, id } = useParams<{ plugin: string; id: string }>();
   const history = useHistory();
   const { onGet, onTest, onRefresh } = useConnections();
   const { setTips } = useTips();
   const { ready, data } = useRefreshData(() => API.getDataScopes(plugin, id), [version]);
 
-  const { unique, status, name, icon } = onGet(`${plugin}-${id}`);
+  const { unique, status, name, icon } = onGet(`${plugin}-${id}`) || {};
+
+  useEffect(() => {
+    onTest(`${plugin}-${id}`);
+  }, [plugin, id]);
 
   const handleHideDialog = () => {
     setType(undefined);
@@ -89,6 +89,7 @@ const ConnectionDetail = ({ plugin, id }: Props) => {
     });
 
     if (success) {
+      onRefresh(plugin);
       history.push('/connections');
     }
   };
@@ -370,10 +371,4 @@ const ConnectionDetail = ({ plugin, id }: Props) => {
       )}
     </PageHeader>
   );
-};
-
-export const ConnectionDetailPage = () => {
-  const { plugin, id } = useParams<{ plugin: string; id: string }>();
-
-  return <ConnectionDetail plugin={plugin} id={+id} />;
 };
