@@ -18,6 +18,8 @@
 
 import { request } from '@/utils';
 
+export const getProject = (pname: string) => request(`/projects/${pname}`);
+
 export const getBlueprint = (id: ID) => request(`/blueprints/${id}`);
 
 export const updateBlueprint = (id: ID, payload: any) =>

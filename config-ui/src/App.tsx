@@ -68,6 +68,7 @@ function App() {
                 <Route exact path="/connections/:plugin/:id" component={() => <ConnectionDetailPage />} />
                 <Route exact path="/projects" component={() => <ProjectHomePage />} />
                 <Route exact path="/projects/:pname" component={() => <ProjectDetailPage />} />
+                <Route exact path="/projects/:pname/:unique" component={() => <BlueprintConnectionDetailPage />} />
                 <Route exact path="/blueprints" component={() => <BlueprintHomePage />} />
                 <Route exact path="/blueprints/:id" component={() => <BlueprintDetailPage />} />
                 <Route exact path="/blueprints/:bid/:unique" component={() => <BlueprintConnectionDetailPage />} />

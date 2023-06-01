@@ -22,7 +22,7 @@ import { Tabs, Tab } from '@blueprintjs/core';
 
 import { PageHeader, PageLoading } from '@/components';
 import { useRefreshData } from '@/hooks';
-import { BlueprintDetail } from '@/pages';
+import { BlueprintDetail, FromEnum } from '@/pages';
 
 import { WebhooksPanel } from './webhooks-panel';
 import { SettingsPanel } from './settings-panel';
@@ -71,7 +71,11 @@ export const ProjectDetailPage = () => {
     >
       <S.Wrapper>
         <Tabs selectedTabId={tabId} onChange={handleChangeTabId}>
-          <Tab id="blueprint" title="Blueprint" panel={<BlueprintDetail id={project.blueprint.id} />} />
+          <Tab
+            id="blueprint"
+            title="Blueprint"
+            panel={<BlueprintDetail id={project.blueprint.id} from={FromEnum.project} />}
+          />
           <Tab
             id="webhook"
             title="Incoming Webhooks"

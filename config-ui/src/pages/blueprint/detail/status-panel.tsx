@@ -16,53 +16,133 @@
  *
  */
 
-import { useMemo } from 'react';
-import { Button, Intent, Position } from '@blueprintjs/core';
+import { useState, useMemo } from 'react';
+import { useHistory } from 'react-router-dom';
+import { Button, Switch, Icon, Intent, Position } from '@blueprintjs/core';
 import { Tooltip2 } from '@blueprintjs/popover2';
 
-import { Card } from '@/components';
+import { Card, IconButton, Dialog } from '@/components';
 import { getCron } from '@/config';
 import { PipelineContextProvider, PipelineInfo, PipelineTasks, PipelineHistorical } from '@/pages';
-import { formatTime } from '@/utils';
+import { formatTime, operator } from '@/utils';
 
-import type { BlueprintType } from '../types';
+import { BlueprintType, FromEnum } from '../types';
 
+import * as API from './api';
 import * as S from './styled';
 
 interface Props {
+  from: FromEnum;
   blueprint: BlueprintType;
   pipelineId?: ID;
-  operating: boolean;
-  onRun: (skipCollectors: boolean) => void;
+  onRefresh: () => void;
 }
 
-export const StatusPanel = ({ blueprint, pipelineId, operating, onRun }: Props) => {
+export const StatusPanel = ({ from, blueprint, pipelineId, onRefresh }: Props) => {
+  const [isOpen, setIsOpen] = useState(false);
+  const [operating, setOperating] = useState(false);
+
+  const history = useHistory();
+
   const cron = useMemo(() => getCron(blueprint.isManual, blueprint.cronConfig), [blueprint]);
+
+  const handleShowDeleteDialog = () => {
+    setIsOpen(true);
+  };
+
+  const handleHideDeleteDialog = () => {
+    setIsOpen(false);
+  };
+
+  const handleRun = async (skipCollectors: boolean) => {
+    const [success] = await operator(() => API.runBlueprint(blueprint.id, skipCollectors), {
+      setOperating,
+      formatMessage: () => 'Trigger blueprint successful.',
+    });
+
+    if (success) {
+      onRefresh();
+    }
+  };
+
+  const handleUpdate = async (payload: any) => {
+    const [success] = await operator(
+      () =>
+        API.updateBlueprint(blueprint.id, {
+          ...blueprint,
+          ...payload,
+        }),
+      {
+        setOperating,
+        formatMessage: () => 'Update blueprint successful.',
+      },
+    );
+
+    if (success) {
+      onRefresh();
+    }
+  };
+
+  const handleDelete = async () => {
+    const [success] = await operator(() => API.deleteBluprint(blueprint.id), {
+      setOperating,
+      formatMessage: () => 'Delete blueprint successful.',
+    });
+
+    if (success) {
+      history.push('/blueprints');
+    }
+  };
 
   return (
     <S.StatusPanel>
-      <div className="info">
-        <span>{cron.value === 'manual' ? 'Manual' : `Next Run: ${formatTime(cron.nextTime, 'YYYY-MM-DD HH:mm')}`}</span>
-        <Tooltip2
-          position={Position.TOP}
-          content="It is recommended to re-transform your data in this project if you have updated the transformation of the data scope in this project."
-        >
+      {from === FromEnum.project && (
+        <S.ProjectACtion>
+          <span>
+            {cron.value === 'manual' ? 'Manual' : `Next Run: ${formatTime(cron.nextTime, 'YYYY-MM-DD HH:mm')}`}
+          </span>
+          <Tooltip2
+            position={Position.TOP}
+            content="It is recommended to re-transform your data in this project if you have updated the transformation of the data scope in this project."
+          >
+            <Button
+              disabled={!blueprint.enable}
+              loading={operating}
+              intent={Intent.PRIMARY}
+              text="Re-transform Data"
+              onClick={() => handleRun(true)}
+            />
+          </Tooltip2>
           <Button
             disabled={!blueprint.enable}
             loading={operating}
             intent={Intent.PRIMARY}
-            text="Re-transform Data"
-            onClick={() => onRun(true)}
+            text="Collect All Data"
+            onClick={() => handleRun(false)}
           />
-        </Tooltip2>
-        <Button
-          disabled={!blueprint.enable}
-          loading={operating}
-          intent={Intent.PRIMARY}
-          text="Collect All Data"
-          onClick={() => onRun(false)}
-        />
-      </div>
+        </S.ProjectACtion>
+      )}
+
+      {from === FromEnum.blueprint && (
+        <S.BlueprintAction>
+          <Button text="Run Now" onClick={() => handleRun(false)} />
+          <Switch
+            style={{ marginBottom: 0 }}
+            label="Blueprint Enabled"
+            disabled={!!blueprint.projectName}
+            checked={blueprint.enable}
+            onChange={(e) => handleUpdate({ enable: (e.target as HTMLInputElement).checked })}
+          />
+          <IconButton
+            loading={operating}
+            disabled={!!blueprint.projectName}
+            icon="trash"
+            tooltip="Delete Blueprint"
+            onClick={handleShowDeleteDialog}
+          />
+        </S.BlueprintAction>
+      )}
+
       <PipelineContextProvider>
         <div className="block">
           <h3>Current Pipeline</h3>
@@ -82,6 +162,25 @@ export const StatusPanel = ({ blueprint, pipelineId, operating, onRun }: Props) 
           <PipelineHistorical blueprintId={blueprint.id} />
         </div>
       </PipelineContextProvider>
+
+      <Dialog
+        isOpen={isOpen}
+        style={{ width: 820 }}
+        title="Are you sure you want to delete this Blueprint?"
+        okText="Confirm"
+        okLoading={operating}
+        onCancel={handleHideDeleteDialog}
+        onOk={handleDelete}
+      >
+        <S.DialogBody>
+          <Icon icon="warning-sign" />
+          <span>
+            Please note: deleting the Blueprint will not delete the historical data of the Data Scopes in this
+            Blueprint. If you would like to delete the historical data of Data Scopes, please visit the Connection page
+            and do so.
+          </span>
+        </S.DialogBody>
+      </Dialog>
     </S.StatusPanel>
   );
 };

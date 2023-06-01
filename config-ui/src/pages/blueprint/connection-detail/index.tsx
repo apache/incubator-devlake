@@ -33,13 +33,22 @@ export const BlueprintConnectionDetailPage = () => {
   const [version, setVersion] = useState(1);
   const [isOpen, setIsOpen] = useState(false);
 
-  const { bid, unique } = useParams<{ bid: string; unique: string }>();
+  const { pname, bid, unique } = useParams<{ pname?: string; bid?: string; unique: string }>();
   const history = useHistory();
+
+  const getBlueprint = async (pname?: string, bid?: string) => {
+    if (pname) {
+      const res = await API.getProject(pname);
+      return res.blueprint;
+    }
+
+    return API.getBlueprint(bid as any);
+  };
 
   const { ready, data } = useRefreshData(async () => {
     const [plugin, connectionId] = unique.split('-');
     const [blueprint, connection, scopes] = await Promise.all([
-      API.getBlueprint(bid),
+      getBlueprint(pname, bid),
       API.getConnection(plugin, connectionId),
       API.getDataScopes(plugin, connectionId),
     ]);
@@ -58,7 +67,7 @@ export const BlueprintConnectionDetailPage = () => {
       },
       scopes: scopes.filter((sc: any) => scopeIds.includes(sc[getPluginId(plugin)])),
     };
-  }, [version]);
+  }, [version, pname, bid]);
 
   if (!ready || !data) {
     return <PageLoading />;
@@ -118,10 +127,20 @@ export const BlueprintConnectionDetailPage = () => {
 
   return (
     <PageHeader
-      breadcrumbs={[
-        { name: blueprint.name, path: `/blueprints/${bid}` },
-        { name: `Connection - ${connection.name}`, path: '' },
-      ]}
+      breadcrumbs={
+        pname
+          ? [
+              { name: 'Projects', path: '/projects' },
+              { name: pname, path: `/projects/${pname}` },
+              { name: `Connection - ${connection.name}`, path: '' },
+            ]
+          : [
+              { name: 'Advanced', path: '/blueprints' },
+              { name: 'Blueprints', path: '/blueprints' },
+              { name: bid as any, path: `/blueprints/${bid}` },
+              { name: `Connection - ${connection.name}`, path: '' },
+            ]
+      }
     >
       <S.Top>
         <span>

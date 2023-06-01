@@ -23,23 +23,26 @@ import { Button, Intent } from '@blueprintjs/core';
 import { IconButton, Table, NoData, Buttons } from '@/components';
 import { useConnections } from '@/hooks';
 import { getPluginConfig } from '@/plugins';
+import { operator } from '@/utils';
 
-import type { BlueprintType } from '../types';
+import { BlueprintType, FromEnum } from '../types';
 import { ModeEnum } from '../types';
 import { validRawPlan } from '../utils';
 
 import { AdvancedEditor, UpdateNameDialog, UpdatePolicyDialog, AddConnectionDialog } from './components';
+import * as API from './api';
 import * as S from './styled';
 
 interface Props {
+  from: FromEnum;
   blueprint: BlueprintType;
-  operating: boolean;
-  onUpdate: (payload: any, callback?: () => void) => void;
+  onRefresh: () => void;
 }
 
-export const ConfigurationPanel = ({ blueprint, operating, onUpdate }: Props) => {
+export const ConfigurationPanel = ({ from, blueprint, onRefresh }: Props) => {
   const [type, setType] = useState<'name' | 'policy' | 'add-connection'>();
   const [rawPlan, setRawPlan] = useState('');
+  const [operating, setOperating] = useState(false);
 
   useEffect(() => {
     setRawPlan(JSON.stringify(blueprint.plan, null, '  '));
@@ -81,6 +84,25 @@ export const ConfigurationPanel = ({ blueprint, operating, onUpdate }: Props) =>
 
   const handleShowAddConnectionDialog = () => {
     setType('add-connection');
+  };
+
+  const handleUpdate = async (payload: any) => {
+    const [success] = await operator(
+      () =>
+        API.updateBlueprint(blueprint.id, {
+          ...blueprint,
+          ...payload,
+        }),
+      {
+        setOperating,
+        formatMessage: () => 'Update blueprint successful.',
+      },
+    );
+
+    if (success) {
+      onRefresh();
+      handleCancel();
+    }
   };
 
   return (
@@ -165,7 +187,15 @@ export const ConfigurationPanel = ({ blueprint, operating, onUpdate }: Props) =>
                       <span>{cs.scope.length} data scope</span>
                     </div>
                     <div className="link">
-                      <Link to={`/blueprints/${blueprint.id}/${cs.unique}`}>Edit Data Scope and Scope Config</Link>
+                      <Link
+                        to={
+                          from === FromEnum.blueprint
+                            ? `/blueprints/${blueprint.id}/${cs.unique}`
+                            : `/projects/${blueprint.projectName}/${cs.unique}`
+                        }
+                      >
+                        Edit Data Scope and Scope Config
+                      </Link>
                     </div>
                   </S.ConnectionItem>
                 ))}
@@ -183,7 +213,7 @@ export const ConfigurationPanel = ({ blueprint, operating, onUpdate }: Props) =>
               intent={Intent.PRIMARY}
               text="Save"
               onClick={() =>
-                onUpdate({
+                handleUpdate({
                   plan: !validRawPlan(rawPlan) ? JSON.parse(rawPlan) : JSON.stringify([[]], null, '  '),
                 })
               }
@@ -196,7 +226,7 @@ export const ConfigurationPanel = ({ blueprint, operating, onUpdate }: Props) =>
           name={blueprint.name}
           operating={operating}
           onCancel={handleCancel}
-          onSubmit={(name) => onUpdate({ name }, handleCancel)}
+          onSubmit={(name) => handleUpdate({ name })}
         />
       )}
       {type === 'policy' && (
@@ -208,7 +238,7 @@ export const ConfigurationPanel = ({ blueprint, operating, onUpdate }: Props) =>
           timeAfter={blueprint.settings?.timeAfter}
           operating={operating}
           onCancel={handleCancel}
-          onSubmit={(payload) => onUpdate(payload, handleCancel)}
+          onSubmit={(payload) => handleUpdate(payload)}
         />
       )}
       {type === 'add-connection' && (
@@ -216,7 +246,7 @@ export const ConfigurationPanel = ({ blueprint, operating, onUpdate }: Props) =>
           disabled={connections.map((cs) => cs.unique)}
           onCancel={handleCancel}
           onSubmit={(connection) =>
-            onUpdate({
+            handleUpdate({
               settings: { ...blueprint.settings, connections: [...blueprint.settings.connections, connection] },
             })
           }
