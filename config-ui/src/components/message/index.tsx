@@ -16,22 +16,28 @@
  *
  */
 
-export * from './action';
-export * from './alert';
-export * from './buttons';
-export * from './card';
-export * from './dialog';
-export * from './divider';
-export { default as ErrorBoundary } from './error-boundary';
-export * from './form-item';
-export * from './inspector';
-export * from './loading';
-export * from './logo';
-export * from './message';
-export * from './no-data';
-export * from './page-header';
-export * from './selector';
-export * from './table';
-export * from './toast';
-export * from './tooltip';
-export * from './workflow';
+import { Icon } from '@blueprintjs/core';
+import styled from 'styled-components';
+
+const Wrapper = styled.div`
+  display: flex;
+  align-items: center;
+  font-size: 12px;
+
+  & > .bp4-icon {
+    margin-right: 8px;
+  }
+`;
+
+interface Props {
+  content: string;
+}
+
+export const Message = ({ content }: Props) => {
+  return (
+    <Wrapper>
+      <Icon icon="warning-sign" size={24} color="#f4be55" />
+      <span>{content}</span>
+    </Wrapper>
+  );
+};
