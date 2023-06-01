@@ -61,6 +61,10 @@ export const ScopeConfigForm = ({ plugin, connectionId, scopeId, scopeConfigId, 
   }, [config.transformation]);
 
   useEffect(() => {
+    setEntities(config.entities);
+  }, [config.entities]);
+
+  useEffect(() => {
     if (!scopeConfigId) return;
 
     (async () => {
