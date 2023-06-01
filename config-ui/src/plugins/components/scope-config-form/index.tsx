@@ -20,7 +20,7 @@ import { useState, useEffect, useMemo } from 'react';
 import { omit } from 'lodash';
 import { InputGroup, Button, Intent } from '@blueprintjs/core';
 
-import { Alert, ExternalLink, Card, FormItem, MultiSelector, Buttons, Divider } from '@/components';
+import { Alert, ExternalLink, Card, FormItem, MultiSelector, Message, Buttons, Divider } from '@/components';
 import { transformEntities, EntitiesLabel } from '@/config';
 import { getPluginConfig } from '@/plugins';
 import { GitHubTransformation } from '@/plugins/register/github';
@@ -40,13 +40,22 @@ import * as S from './styled';
 interface Props {
   plugin: string;
   connectionId: ID;
+  showWarning?: boolean;
   scopeId?: ID;
   scopeConfigId?: ID;
   onCancel?: () => void;
   onSubmit?: (trId: string) => void;
 }
 
-export const ScopeConfigForm = ({ plugin, connectionId, scopeId, scopeConfigId, onCancel, onSubmit }: Props) => {
+export const ScopeConfigForm = ({
+  plugin,
+  connectionId,
+  showWarning = false,
+  scopeId,
+  scopeConfigId,
+  onCancel,
+  onSubmit,
+}: Props) => {
   const [step, setStep] = useState(1);
   const [name, setName] = useState('');
   const [entities, setEntities] = useState<string[]>([]);
@@ -141,6 +150,13 @@ export const ScopeConfigForm = ({ plugin, connectionId, scopeId, scopeConfigId, 
                 onChangeItems={(its) => setEntities(its.map((it) => it.value))}
               />
             </FormItem>
+            {showWarning && (
+              <Message
+                content="Please note: if you edit Data Entities and expect to see the Dashboards updated, you will need to visit
+                  the Project page of the Data Scope that has been associated with this Scope Config and click on “Collect
+                  All Data”."
+              />
+            )}
           </Card>
           <Buttons>
             <Button outlined intent={Intent.PRIMARY} text="Cancel" onClick={onCancel} />
@@ -151,6 +167,13 @@ export const ScopeConfigForm = ({ plugin, connectionId, scopeId, scopeConfigId, 
       {step === 2 && (
         <>
           <Card>
+            {showWarning && (
+              <>
+                <Message content="Please note: if you only edit the following Scope Configs without editing Data Entities in the previous step, you will only need to re-transform data on the Project page to see the Dashboard updated." />
+                <Divider />
+              </>
+            )}
+
             {plugin === 'github' && (
               <GitHubTransformation
                 entities={entities}
