@@ -16,7 +16,6 @@
  *
  */
 
-import React from 'react';
 import { Button, Intent, Position, IconName } from '@blueprintjs/core';
 import { Tooltip2 } from '@blueprintjs/popover2';
 
@@ -24,13 +23,14 @@ interface Props {
   icon: IconName;
   tooltip: string;
   loading?: boolean;
+  disabled?: boolean;
   onClick?: () => void;
 }
 
-export const IconButton = ({ icon, tooltip, loading, onClick }: Props) => {
+export const IconButton = ({ icon, tooltip, loading, disabled, onClick }: Props) => {
   return (
     <Tooltip2 intent={Intent.PRIMARY} position={Position.TOP} content={tooltip}>
-      <Button loading={loading} minimal intent={Intent.PRIMARY} icon={icon} onClick={onClick} />
+      <Button loading={loading} disabled={disabled} minimal intent={Intent.PRIMARY} icon={icon} onClick={onClick} />
     </Tooltip2>
   );
 };
