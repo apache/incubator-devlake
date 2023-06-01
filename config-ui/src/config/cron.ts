@@ -49,7 +49,7 @@ export const getCron = (isManual: boolean, config: string) => {
     return {
       label: 'Manual',
       value: 'manual',
-      description: 'Manual',
+      description: '',
       config: '',
       nextTime: '',
     };
@@ -65,7 +65,7 @@ export const getCron = (isManual: boolean, config: string) => {
       }
     : {
         label: 'Custom',
-        value: 'custom',
+        value: '',
         description: 'Custom',
         config,
         nextTime: getNextTime(config),

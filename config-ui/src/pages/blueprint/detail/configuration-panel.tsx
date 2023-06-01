@@ -21,9 +21,10 @@ import { Link } from 'react-router-dom';
 import { Button, Intent } from '@blueprintjs/core';
 
 import { IconButton, Table, NoData, Buttons } from '@/components';
+import { getCron } from '@/config';
 import { useConnections } from '@/hooks';
 import { getPluginConfig } from '@/plugins';
-import { operator } from '@/utils';
+import { formatTime, operator } from '@/utils';
 
 import { BlueprintType, FromEnum } from '../types';
 import { ModeEnum } from '../types';
@@ -125,22 +126,31 @@ export const ConfigurationPanel = ({ from, blueprint, onRefresh }: Props) => {
               title: 'Data Time Range',
               dataIndex: 'timeRange',
               key: 'timeRange',
+              render: (val) => `${formatTime(val)} to Now`,
             },
             {
               title: 'Sync Frequency',
               dataIndex: 'frequency',
               key: 'frequency',
+              align: 'center',
+              render: (val, row) => {
+                const cron = getCron(row.isManual, val);
+                return `${cron.label}${cron.description}`;
+              },
             },
             {
               title: 'Skip Failed Tasks',
               dataIndex: 'skipFailed',
               key: 'skipFailed',
+              align: 'center',
+              render: (val) => (val ? 'Enabled' : 'Disabled'),
             },
           ]}
           dataSource={[
             {
               timeRange: blueprint.settings.timeAfter,
               frequency: blueprint.cronConfig,
+              isManual: blueprint.isManual,
               skipFailed: blueprint.skipOnFail,
             },
           ]}

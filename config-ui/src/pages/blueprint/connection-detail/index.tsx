@@ -144,7 +144,7 @@ export const BlueprintConnectionDetailPage = () => {
     >
       <S.Top>
         <span>
-          If you would like to manage Data Entities and Data Scope of this Connection, please{' '}
+          If you would like to edit the Data Scope or Scope Config of this Connection, please{' '}
           <ExternalLink link={`/connections/${connection.plugin}/${connection.id}`}>
             go to the Connection detail page
           </ExternalLink>
@@ -168,6 +168,9 @@ export const BlueprintConnectionDetailPage = () => {
       </S.Top>
       <Buttons position="top" align="left">
         <Button intent={Intent.PRIMARY} icon="annotation" text="Manage Data Scope" onClick={handleShowDataScope} />
+        <ExternalLink style={{ marginLeft: 8 }} link={`/connections/${connection.plugin}/${connection.id}`}>
+          <Button intent={Intent.PRIMARY} icon="annotation" text="Edit Data Scope or Scope Config" />
+        </ExternalLink>
       </Buttons>
       <Table columns={[{ title: 'Data Scope', dataIndex: 'name', key: 'name' }]} dataSource={scopes} />
       <Dialog
