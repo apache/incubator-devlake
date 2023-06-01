@@ -169,7 +169,7 @@ export const BlueprintConnectionDetailPage = () => {
       <Buttons position="top" align="left">
         <Button intent={Intent.PRIMARY} icon="annotation" text="Manage Data Scope" onClick={handleShowDataScope} />
         <ExternalLink style={{ marginLeft: 8 }} link={`/connections/${connection.plugin}/${connection.id}`}>
-          <Button intent={Intent.PRIMARY} icon="annotation" text="Edit Data Scope or Scope Config" />
+          <Button intent={Intent.PRIMARY} icon="annotation" text="Edit Scope Config" />
         </ExternalLink>
       </Buttons>
       <Table columns={[{ title: 'Data Scope', dataIndex: 'name', key: 'name' }]} dataSource={scopes} />

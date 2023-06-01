@@ -19,6 +19,13 @@
 import styled from 'styled-components';
 
 export const Wrapper = styled.div`
+  .top {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 24px;
+  }
+
   .authentication {
     display: flex;
     align-items: center;

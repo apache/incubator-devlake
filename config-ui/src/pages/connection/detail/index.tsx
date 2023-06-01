@@ -176,10 +176,13 @@ export const ConnectionDetailPage = () => {
       extra={<Button intent={Intent.DANGER} icon="trash" text="Delete Connection" onClick={handleShowDeleteDialog} />}
     >
       <S.Wrapper>
-        <div className="authentication">
-          <span style={{ marginRight: 4 }}>Authentication Status:</span>
-          <ConnectionStatus status={status} unique={unique} onTest={onTest} />
-          <IconButton icon="annotation" tooltip="Edit Connection" onClick={handleShowUpdateDialog} />
+        <div className="top">
+          <div>Please note: In order to view DORA metrics, you will need to add Scope Configs.</div>
+          <div className="authentication">
+            <span style={{ marginRight: 4 }}>Authentication Status:</span>
+            <ConnectionStatus status={status} unique={unique} onTest={onTest} />
+            <IconButton icon="annotation" tooltip="Edit Connection" onClick={handleShowUpdateDialog} />
+          </div>
         </div>
         <Buttons position="top" align="left">
           <Button intent={Intent.PRIMARY} icon="add" text="Add Data Scope" onClick={handleShowCreateDataScopeDialog} />
