@@ -19,7 +19,7 @@
 import { useState, useEffect } from 'react';
 import { Radio, Icon, Collapse, InputGroup, Button, Intent } from '@blueprintjs/core';
 
-import { ExternalLink, IconButton } from '@/components';
+import { ExternalLink, IconButton, Divider } from '@/components';
 import JiraIssueTipsImg from '@/images/jira-issue-tips.png';
 
 import * as S from './styled';

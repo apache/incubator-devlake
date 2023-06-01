@@ -23,11 +23,12 @@ import * as S from './styled';
 import { ExternalLink, HelpTooltip } from '@/components';
 
 interface Props {
+  entities: string[];
   transformation: any;
   setTransformation: React.Dispatch<React.SetStateAction<any>>;
 }
 
-export const JenkinsTransformation = ({ transformation, setTransformation }: Props) => {
+export const JenkinsTransformation = ({ entities, transformation, setTransformation }: Props) => {
   const [enableCICD, setEnableCICD] = useState(true);
 
   useEffect(() => {
@@ -52,66 +53,68 @@ export const JenkinsTransformation = ({ transformation, setTransformation }: Pro
 
   return (
     <S.Transformation>
-      <S.CICD>
-        <h2>CI/CD</h2>
-        <h3>
-          <span>Deployment</span>
-          <Tag minimal intent={Intent.PRIMARY} style={{ marginLeft: 8 }}>
-            DORA
-          </Tag>
-          <div className="switch">
-            <span>Enable</span>
-            <Switch alignIndicator="right" inline checked={enableCICD} onChange={handleChangeCICDEnable} />
-          </div>
-        </h3>
-        {enableCICD && (
-          <>
-            <p>
-              Use Regular Expression to define Deployments in DevLake in order to measure DORA metrics.{' '}
-              <ExternalLink link="https://devlake.apache.org/docs/Configuration/GitHub#step-3---adding-transformation-rules-optional">
-                Learn more
-              </ExternalLink>
-            </p>
-            <div style={{ marginTop: 16 }}>Convert a Jenkins Build as a DevLake Deployment when: </div>
-            <div className="text">
-              <span>
-                The name of the <strong>Jenkins job</strong> or <strong>one of its stages</strong> matches
-              </span>
-              <InputGroup
-                style={{ width: 200, margin: '0 8px' }}
-                placeholder="(deploy|push-image)"
-                value={transformation.deploymentPattern ?? ''}
-                onChange={(e) =>
-                  setTransformation({
-                    ...transformation,
-                    deploymentPattern: e.target.value,
-                    productionPattern: !e.target.value ? '' : transformation.productionPattern,
-                  })
-                }
-              />
-              <i style={{ color: '#E34040' }}>*</i>
-              <HelpTooltip content="Jenkins Builds: https://www.jenkins.io/doc/pipeline/steps/pipeline-build-step/" />
+      {entities.includes('CICD') && (
+        <S.CICD>
+          <h2>CI/CD</h2>
+          <h3>
+            <span>Deployment</span>
+            <Tag minimal intent={Intent.PRIMARY} style={{ marginLeft: 8 }}>
+              DORA
+            </Tag>
+            <div className="switch">
+              <span>Enable</span>
+              <Switch alignIndicator="right" inline checked={enableCICD} onChange={handleChangeCICDEnable} />
             </div>
-            <div className="text">
-              <span>If the name also matches</span>
-              <InputGroup
-                style={{ width: 120, margin: '0 8px' }}
-                disabled={!transformation.deploymentPattern}
-                placeholder="prod(.*)"
-                value={transformation.productionPattern ?? ''}
-                onChange={(e) =>
-                  setTransformation({
-                    ...transformation,
-                    productionPattern: e.target.value,
-                  })
-                }
-              />
-              <span>, this Deployment is a ‘Production Deployment’</span>
-              <HelpTooltip content="If you leave this field empty, all DevLake Deployments will be tagged as in the Production environment. " />
-            </div>
-          </>
-        )}
-      </S.CICD>
+          </h3>
+          {enableCICD && (
+            <>
+              <p>
+                Use Regular Expression to define Deployments in DevLake in order to measure DORA metrics.{' '}
+                <ExternalLink link="https://devlake.apache.org/docs/Configuration/GitHub#step-3---adding-transformation-rules-optional">
+                  Learn more
+                </ExternalLink>
+              </p>
+              <div style={{ marginTop: 16 }}>Convert a Jenkins Build as a DevLake Deployment when: </div>
+              <div className="text">
+                <span>
+                  The name of the <strong>Jenkins job</strong> or <strong>one of its stages</strong> matches
+                </span>
+                <InputGroup
+                  style={{ width: 200, margin: '0 8px' }}
+                  placeholder="(deploy|push-image)"
+                  value={transformation.deploymentPattern ?? ''}
+                  onChange={(e) =>
+                    setTransformation({
+                      ...transformation,
+                      deploymentPattern: e.target.value,
+                      productionPattern: !e.target.value ? '' : transformation.productionPattern,
+                    })
+                  }
+                />
+                <i style={{ color: '#E34040' }}>*</i>
+                <HelpTooltip content="Jenkins Builds: https://www.jenkins.io/doc/pipeline/steps/pipeline-build-step/" />
+              </div>
+              <div className="text">
+                <span>If the name also matches</span>
+                <InputGroup
+                  style={{ width: 120, margin: '0 8px' }}
+                  disabled={!transformation.deploymentPattern}
+                  placeholder="prod(.*)"
+                  value={transformation.productionPattern ?? ''}
+                  onChange={(e) =>
+                    setTransformation({
+                      ...transformation,
+                      productionPattern: e.target.value,
+                    })
+                  }
+                />
+                <span>, this Deployment is a ‘Production Deployment’</span>
+                <HelpTooltip content="If you leave this field empty, all DevLake Deployments will be tagged as in the Production environment. " />
+              </div>
+            </>
+          )}
+        </S.CICD>
+      )}
     </S.Transformation>
   );
 };

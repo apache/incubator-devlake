@@ -19,16 +19,17 @@
 import React, { useState, useEffect } from 'react';
 import { Tag, Intent, Switch, InputGroup } from '@blueprintjs/core';
 
-import { ExternalLink, HelpTooltip } from '@/components';
+import { ExternalLink, HelpTooltip, Divider } from '@/components';
 
 import * as S from './styled';
 
 interface Props {
+  entities: string[];
   transformation: any;
   setTransformation: React.Dispatch<React.SetStateAction<any>>;
 }
 
-export const GitLabTransformation = ({ transformation, setTransformation }: Props) => {
+export const GitLabTransformation = ({ entities, transformation, setTransformation }: Props) => {
   const [enableCICD, setEnableCICD] = useState(true);
 
   useEffect(() => {
@@ -53,66 +54,69 @@ export const GitLabTransformation = ({ transformation, setTransformation }: Prop
 
   return (
     <S.Transformation>
-      <S.CICD>
-        <h2>CI/CD</h2>
-        <h3>
-          <span>Deployment</span>
-          <Tag minimal intent={Intent.PRIMARY} style={{ marginLeft: 8 }}>
-            DORA
-          </Tag>
-          <div className="switch">
-            <span>Enable</span>
-            <Switch alignIndicator="right" inline checked={enableCICD} onChange={handleChangeCICDEnable} />
-          </div>
-        </h3>
-        {enableCICD && (
-          <>
-            <p>
-              Use Regular Expression to define Deployments in DevLake in order to measure DORA metrics.{' '}
-              <ExternalLink link="https://devlake.apache.org/docs/Configuration/GitHub#step-3---adding-transformation-rules-optional">
-                Learn more
-              </ExternalLink>
-            </p>
-            <div style={{ marginTop: 16 }}>Convert a GitLab Pipeline as a DevLake Deployment when: </div>
-            <div className="text">
-              <span>
-                The name of the <strong>GitLab pipeline</strong> or <strong>one of its jobs</strong> matches
-              </span>
-              <InputGroup
-                style={{ width: 200, margin: '0 8px' }}
-                placeholder="(deploy|push-image)"
-                value={transformation.deploymentPattern ?? ''}
-                onChange={(e) =>
-                  setTransformation({
-                    ...transformation,
-                    deploymentPattern: e.target.value,
-                    productionPattern: !e.target.value ? '' : transformation.productionPattern,
-                  })
-                }
-              />
-              <i style={{ color: '#E34040' }}>*</i>
-              <HelpTooltip content="GitLab Pipelines: https://docs.gitlab.com/ee/ci/pipelines/" />
+      {entities.includes('CICD') && (
+        <S.CICD>
+          <h2>CI/CD</h2>
+          <h3>
+            <span>Deployment</span>
+            <Tag minimal intent={Intent.PRIMARY} style={{ marginLeft: 8 }}>
+              DORA
+            </Tag>
+            <div className="switch">
+              <span>Enable</span>
+              <Switch alignIndicator="right" inline checked={enableCICD} onChange={handleChangeCICDEnable} />
             </div>
-            <div className="text">
-              <span>If the name also matches</span>
-              <InputGroup
-                style={{ width: 200, margin: '0 8px' }}
-                disabled={!transformation.deploymentPattern}
-                placeholder="prod(.*)"
-                value={transformation.productionPattern ?? ''}
-                onChange={(e) =>
-                  setTransformation({
-                    ...transformation,
-                    productionPattern: e.target.value,
-                  })
-                }
-              />
-              <span>, this Deployment is a ‘Production Deployment’</span>
-              <HelpTooltip content="If you leave this field empty, all DevLake Deployments will be tagged as in the Production environment. " />
-            </div>
-          </>
-        )}
-      </S.CICD>
+          </h3>
+          {enableCICD && (
+            <>
+              <p>
+                Use Regular Expression to define Deployments in DevLake in order to measure DORA metrics.{' '}
+                <ExternalLink link="https://devlake.apache.org/docs/Configuration/GitHub#step-3---adding-transformation-rules-optional">
+                  Learn more
+                </ExternalLink>
+              </p>
+              <div style={{ marginTop: 16 }}>Convert a GitLab Pipeline as a DevLake Deployment when: </div>
+              <div className="text">
+                <span>
+                  The name of the <strong>GitLab pipeline</strong> or <strong>one of its jobs</strong> matches
+                </span>
+                <InputGroup
+                  style={{ width: 200, margin: '0 8px' }}
+                  placeholder="(deploy|push-image)"
+                  value={transformation.deploymentPattern ?? ''}
+                  onChange={(e) =>
+                    setTransformation({
+                      ...transformation,
+                      deploymentPattern: e.target.value,
+                      productionPattern: !e.target.value ? '' : transformation.productionPattern,
+                    })
+                  }
+                />
+                <i style={{ color: '#E34040' }}>*</i>
+                <HelpTooltip content="GitLab Pipelines: https://docs.gitlab.com/ee/ci/pipelines/" />
+              </div>
+              <div className="text">
+                <span>If the name also matches</span>
+                <InputGroup
+                  style={{ width: 200, margin: '0 8px' }}
+                  disabled={!transformation.deploymentPattern}
+                  placeholder="prod(.*)"
+                  value={transformation.productionPattern ?? ''}
+                  onChange={(e) =>
+                    setTransformation({
+                      ...transformation,
+                      productionPattern: e.target.value,
+                    })
+                  }
+                />
+                <span>, this Deployment is a ‘Production Deployment’</span>
+                <HelpTooltip content="If you leave this field empty, all DevLake Deployments will be tagged as in the Production environment. " />
+              </div>
+            </>
+          )}
+          <Divider />
+        </S.CICD>
+      )}
     </S.Transformation>
   );
 };

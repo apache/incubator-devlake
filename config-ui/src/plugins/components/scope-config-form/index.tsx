@@ -77,6 +77,10 @@ export const ScopeConfigForm = ({ plugin, connectionId, scopeId, scopeConfigId, 
     })();
   }, [scopeConfigId]);
 
+  const handlePrevStep = () => {
+    setStep(1);
+  };
+
   const handleNextStep = () => {
     setStep(2);
   };
@@ -148,11 +152,16 @@ export const ScopeConfigForm = ({ plugin, connectionId, scopeId, scopeConfigId, 
         <>
           <Card>
             {plugin === 'github' && (
-              <GitHubTransformation transformation={transformation} setTransformation={setTransformation} />
+              <GitHubTransformation
+                entities={entities}
+                transformation={transformation}
+                setTransformation={setTransformation}
+              />
             )}
 
             {plugin === 'jira' && (
               <JiraTransformation
+                entities={entities}
                 connectionId={connectionId}
                 transformation={transformation}
                 setTransformation={setTransformation}
@@ -160,23 +169,40 @@ export const ScopeConfigForm = ({ plugin, connectionId, scopeId, scopeConfigId, 
             )}
 
             {plugin === 'gitlab' && (
-              <GitLabTransformation transformation={transformation} setTransformation={setTransformation} />
+              <GitLabTransformation
+                entities={entities}
+                transformation={transformation}
+                setTransformation={setTransformation}
+              />
             )}
 
             {plugin === 'jenkins' && (
-              <JenkinsTransformation transformation={transformation} setTransformation={setTransformation} />
+              <JenkinsTransformation
+                entities={entities}
+                transformation={transformation}
+                setTransformation={setTransformation}
+              />
             )}
 
             {plugin === 'bitbucket' && (
-              <BitbucketTransformation transformation={transformation} setTransformation={setTransformation} />
+              <BitbucketTransformation
+                entities={entities}
+                transformation={transformation}
+                setTransformation={setTransformation}
+              />
             )}
 
             {plugin === 'azuredevops' && (
-              <AzureTransformation transformation={transformation} setTransformation={setTransformation} />
+              <AzureTransformation
+                entities={entities}
+                transformation={transformation}
+                setTransformation={setTransformation}
+              />
             )}
 
             {plugin === 'tapd' && scopeId && (
               <TapdTransformation
+                entities={entities}
                 connectionId={connectionId}
                 scopeId={scopeId}
                 transformation={transformation}
@@ -184,15 +210,10 @@ export const ScopeConfigForm = ({ plugin, connectionId, scopeId, scopeConfigId, 
               />
             )}
 
-            {hasRefDiff && (
-              <>
-                <Divider />
-                <AdditionalSettings transformation={transformation} setTransformation={setTransformation} />
-              </>
-            )}
+            {hasRefDiff && <AdditionalSettings transformation={transformation} setTransformation={setTransformation} />}
           </Card>
           <Buttons>
-            <Button outlined intent={Intent.PRIMARY} text="Cancel" onClick={onCancel} />
+            <Button outlined intent={Intent.PRIMARY} text="Prev" onClick={handlePrevStep} />
             <Button loading={operating} intent={Intent.PRIMARY} text="Save" onClick={handleSubmit} />
           </Buttons>
         </>
