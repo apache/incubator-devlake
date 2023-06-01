@@ -25,18 +25,18 @@ import { getCron } from '@/config';
 import { PipelineContextProvider, PipelineInfo, PipelineTasks, PipelineHistorical } from '@/pages';
 import { formatTime } from '@/utils';
 
-import type { BlueprintType } from '../../types';
+import type { BlueprintType } from '../types';
 
-import * as S from '../styled';
+import * as S from './styled';
 
 interface Props {
   blueprint: BlueprintType;
   pipelineId?: ID;
   operating: boolean;
-  onRun: () => void;
+  onRun: (skipCollectors: boolean) => void;
 }
 
-export const Status = ({ blueprint, pipelineId, operating, onRun }: Props) => {
+export const StatusPanel = ({ blueprint, pipelineId, operating, onRun }: Props) => {
   const cron = useMemo(() => getCron(blueprint.isManual, blueprint.cronConfig), [blueprint]);
 
   return (
@@ -52,7 +52,7 @@ export const Status = ({ blueprint, pipelineId, operating, onRun }: Props) => {
             loading={operating}
             intent={Intent.PRIMARY}
             text="Re-transform Data"
-            onClick={onRun}
+            onClick={() => onRun(true)}
           />
         </Tooltip2>
         <Button
@@ -60,7 +60,7 @@ export const Status = ({ blueprint, pipelineId, operating, onRun }: Props) => {
           loading={operating}
           intent={Intent.PRIMARY}
           text="Collect All Data"
-          onClick={onRun}
+          onClick={() => onRun(false)}
         />
       </div>
       <PipelineContextProvider>

@@ -109,7 +109,6 @@ const ConnectionDetail = ({ plugin, id }: Props) => {
   const handleCreateDataScope = () => {
     setVersion((v) => v + 1);
     handleShowTips();
-    handleHideDialog();
   };
 
   const handleShowClearDataScopeDialog = (scopeId: ID) => {

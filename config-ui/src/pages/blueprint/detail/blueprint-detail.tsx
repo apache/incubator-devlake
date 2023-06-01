@@ -25,8 +25,8 @@ import { PageLoading, Dialog } from '@/components';
 import { useRefreshData } from '@/hooks';
 import { operator } from '@/utils';
 
-import { Configuration } from './panel/configuration';
-import { Status } from './panel/status';
+import { ConfigurationPanel } from './configuration-panel';
+import { StatusPanel } from './status-panel';
 import * as API from './api';
 import * as S from './styled';
 
@@ -62,6 +62,7 @@ export const BlueprintDetail = ({ id }: Props) => {
         }),
       {
         setOperating,
+        formatMessage: () => 'Update blueprint successful.',
       },
     );
 
@@ -71,9 +72,10 @@ export const BlueprintDetail = ({ id }: Props) => {
     }
   };
 
-  const handleRun = async () => {
-    const [success] = await operator(() => API.runBlueprint(id), {
+  const handleRun = async (skipCollectors: boolean) => {
+    const [success] = await operator(() => API.runBlueprint(id, skipCollectors), {
       setOperating,
+      formatMessage: () => 'Trigger blueprint successful.',
     });
 
     if (success) {
@@ -107,13 +109,18 @@ export const BlueprintDetail = ({ id }: Props) => {
           id="status"
           title="Status"
           panel={
-            <Status blueprint={blueprint} pipelineId={pipelines?.[0]?.id} operating={operating} onRun={handleRun} />
+            <StatusPanel
+              blueprint={blueprint}
+              pipelineId={pipelines?.[0]?.id}
+              operating={operating}
+              onRun={handleRun}
+            />
           }
         />
         <Tab
           id="configuration"
           title="Configuration"
-          panel={<Configuration blueprint={blueprint} operating={operating} onUpdate={handleUpdate} />}
+          panel={<ConfigurationPanel blueprint={blueprint} operating={operating} onUpdate={handleUpdate} />}
         />
         <Tabs.Expander />
         <Switch

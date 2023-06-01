@@ -16,29 +16,42 @@
  *
  */
 
-import { useState } from 'react';
+import { useState, useMemo } from 'react';
 import { Button, Intent } from '@blueprintjs/core';
 
 import { Dialog, FormItem, Selector, Buttons } from '@/components';
 import { useConnections } from '@/hooks';
-import { DataScopeSelect } from '@/plugins';
+import { DataScopeSelect, getPluginId } from '@/plugins';
 import type { ConnectionItemType } from '@/store';
 
 interface Props {
+  disabled: string[];
   onCancel: () => void;
   onSubmit: (value: any) => void;
 }
 
-export const AddConnectionDialog = ({ onCancel, onSubmit }: Props) => {
+export const AddConnectionDialog = ({ disabled = [], onCancel, onSubmit }: Props) => {
   const [step, setStep] = useState(1);
   const [selectedConnection, setSelectedConnection] = useState<ConnectionItemType>();
 
   const { connections } = useConnections();
 
-  const handleSubmit = (scope: any) => console.log(scope);
+  const disabledItems = useMemo(
+    () => connections.filter((cs) => (disabled.length ? disabled.includes(cs.unique) : false)),
+    [disabled],
+  );
+
+  const handleSubmit = (scope: any) => {
+    if (!selectedConnection) return;
+    onSubmit({
+      plugin: selectedConnection.plugin,
+      connectionId: selectedConnection.id,
+      scopes: scope.map((sc: any) => ({ id: `${sc[getPluginId(selectedConnection.plugin)]}` })),
+    });
+  };
 
   return (
-    <Dialog style={{ width: 820 }} isOpen title={`Add a Connection - Step ${step}`} footer={null}>
+    <Dialog style={{ width: 820 }} isOpen title={`Add a Connection - Step ${step}`} footer={null} onCancel={onCancel}>
       {step === 1 && (
         <FormItem
           label="Data Connections"
@@ -47,6 +60,7 @@ export const AddConnectionDialog = ({ onCancel, onSubmit }: Props) => {
         >
           <Selector
             items={connections}
+            disabledItems={disabledItems}
             getKey={(it) => it.unique}
             getName={(it) => it.name}
             selectedItem={selectedConnection}

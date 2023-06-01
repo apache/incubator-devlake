@@ -18,15 +18,11 @@
 
 import styled from 'styled-components';
 
-export const Action = styled.div`
+export const Top = styled.div`
   display: flex;
   align-items: center;
   justify-content: space-between;
-  margin-bottom: 24px;
-
-  .bp4-button + .bp4-button {
-    margin-left: 8px;
-  }
+  margin-bottom: 36px;
 `;
 
 export const ActionDelete = styled.div`

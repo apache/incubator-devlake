@@ -38,7 +38,6 @@ export type BlueprintType = {
       connectionId: ID;
       scopes?: Array<{
         id: string;
-        entities: string[];
       }>;
     }>;
   };
