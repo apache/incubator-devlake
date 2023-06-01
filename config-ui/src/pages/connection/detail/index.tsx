@@ -184,6 +184,7 @@ const ConnectionDetail = ({ plugin, id }: Props) => {
           <Button intent={Intent.PRIMARY} icon="add" text="Add Data Scope" onClick={handleShowCreateDataScopeDialog} />
           {plugin !== 'tapd' && (
             <Button
+              disabled={!scopeIds.length}
               intent={Intent.PRIMARY}
               icon="many-to-one"
               text="Associate Scope Config"
