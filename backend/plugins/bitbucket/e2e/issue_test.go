@@ -20,6 +20,7 @@ package e2e
 import (
 	"testing"
 
+	"github.com/apache/incubator-devlake/core/models/common"
 	"github.com/apache/incubator-devlake/core/models/domainlayer/ticket"
 	"github.com/apache/incubator-devlake/helpers/e2ehelper"
 	"github.com/apache/incubator-devlake/plugins/bitbucket/impl"
@@ -96,6 +97,7 @@ func TestIssueDataFlow(t *testing.T) {
 	// verify issue conversion
 	dataflowTester.FlushTabler(&ticket.Issue{})
 	dataflowTester.FlushTabler(&ticket.BoardIssue{})
+	dataflowTester.FlushTabler(&ticket.IssueAssignee{})
 	dataflowTester.Subtask(tasks.ConvertIssuesMeta, taskData)
 	dataflowTester.VerifyTable(
 		ticket.Issue{},
@@ -135,5 +137,8 @@ func TestIssueDataFlow(t *testing.T) {
 			"issue_id",
 		),
 	)
-
+	dataflowTester.VerifyTableWithOptions(ticket.IssueAssignee{}, e2ehelper.TableOptions{
+		CSVRelPath:  "./snapshot_tables/issue_assignees.csv",
+		IgnoreTypes: []interface{}{common.NoPKModel{}},
+	})
 }

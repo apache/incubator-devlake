@@ -18,6 +18,8 @@ limitations under the License.
 package tasks
 
 import (
+	"reflect"
+
 	"github.com/apache/incubator-devlake/core/dal"
 	"github.com/apache/incubator-devlake/core/errors"
 	"github.com/apache/incubator-devlake/core/models/domainlayer"
@@ -26,7 +28,6 @@ import (
 	"github.com/apache/incubator-devlake/core/plugin"
 	helper "github.com/apache/incubator-devlake/helpers/pluginhelper/api"
 	"github.com/apache/incubator-devlake/plugins/gitee/models"
-	"reflect"
 )
 
 var ConvertIssuesMeta = plugin.SubTaskMeta{
@@ -70,9 +71,7 @@ func ConvertIssues(taskCtx plugin.SubTaskContext) errors.Error {
 				Description:     issue.Body,
 				Priority:        issue.Priority,
 				Type:            issue.Type,
-				AssigneeId:      accountIdGen.Generate(data.Options.ConnectionId, issue.AssigneeId),
 				AssigneeName:    issue.AssigneeName,
-				CreatorId:       accountIdGen.Generate(data.Options.ConnectionId, issue.AuthorId),
 				CreatorName:     issue.AuthorName,
 				LeadTimeMinutes: int64(issue.LeadTimeMinutes),
 				Url:             issue.Url,
@@ -82,19 +81,31 @@ func ConvertIssues(taskCtx plugin.SubTaskContext) errors.Error {
 				Severity:        issue.Severity,
 				Component:       issue.Component,
 			}
+			var result []interface{}
+			if issue.AssigneeId != 0 {
+				domainIssue.AssigneeId = accountIdGen.Generate(data.Options.ConnectionId, issue.AssigneeId)
+				issueAssignee := &ticket.IssueAssignee{
+					IssueId:      domainIssue.Id,
+					AssigneeId:   domainIssue.AssigneeId,
+					AssigneeName: domainIssue.AssigneeName,
+				}
+				result = append(result, issueAssignee)
+			}
+			if issue.AuthorId != 0 {
+				domainIssue.CreatorId = accountIdGen.Generate(data.Options.ConnectionId, issue.AuthorId)
+			}
 			if issue.State == "closed" {
 				domainIssue.Status = ticket.DONE
 			} else {
 				domainIssue.Status = ticket.TODO
 			}
+			result = append(result, domainIssue)
 			boardIssue := &ticket.BoardIssue{
 				BoardId: boardIdGen.Generate(data.Options.ConnectionId, repoId),
 				IssueId: domainIssue.Id,
 			}
-			return []interface{}{
-				domainIssue,
-				boardIssue,
-			}, nil
+			result = append(result, boardIssue)
+			return result, nil
 		},
 	})
 	if err != nil {

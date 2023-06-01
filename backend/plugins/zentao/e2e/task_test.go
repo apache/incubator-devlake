@@ -18,13 +18,14 @@ limitations under the License.
 package e2e
 
 import (
+	"testing"
+
 	"github.com/apache/incubator-devlake/core/models/common"
 	"github.com/apache/incubator-devlake/core/models/domainlayer/ticket"
 	"github.com/apache/incubator-devlake/helpers/e2ehelper"
 	"github.com/apache/incubator-devlake/plugins/zentao/impl"
 	"github.com/apache/incubator-devlake/plugins/zentao/models"
 	"github.com/apache/incubator-devlake/plugins/zentao/tasks"
-	"testing"
 )
 
 func TestZentaoTaskDataFlow(t *testing.T) {
@@ -54,6 +55,7 @@ func TestZentaoTaskDataFlow(t *testing.T) {
 
 	dataflowTester.FlushTabler(&ticket.Issue{})
 	dataflowTester.FlushTabler(&ticket.BoardIssue{})
+	dataflowTester.FlushTabler(&ticket.IssueAssignee{})
 	dataflowTester.Subtask(tasks.ConvertTaskMeta, taskData)
 	dataflowTester.VerifyTableWithOptions(&ticket.Issue{}, e2ehelper.TableOptions{
 		CSVRelPath:   "./snapshot_tables/issues_task.csv",
@@ -62,6 +64,10 @@ func TestZentaoTaskDataFlow(t *testing.T) {
 	})
 	dataflowTester.VerifyTableWithOptions(&ticket.BoardIssue{}, e2ehelper.TableOptions{
 		CSVRelPath:  "./snapshot_tables/board_issues_task.csv",
+		IgnoreTypes: []interface{}{common.NoPKModel{}},
+	})
+	dataflowTester.VerifyTableWithOptions(ticket.IssueAssignee{}, e2ehelper.TableOptions{
+		CSVRelPath:  "./snapshot_tables/task_issue_assignees.csv",
 		IgnoreTypes: []interface{}{common.NoPKModel{}},
 	})
 }

@@ -1,0 +1,10 @@
+issue_id,assignee_id,assignee_name
+github:GithubIssue:1:1,github:GithubAccount:1:1,name1
+github:GithubIssue:1:1,github:GithubAccount:1:2,name2
+github:GithubIssue:1:1,github:GithubAccount:1:3,name3
+github:GithubIssue:1:1,github:GithubAccount:1:4,name4
+github:GithubIssue:1:1,github:GithubAccount:1:5,name5
+github:GithubIssue:1:1,github:GithubAccount:1:6,name6
+github:GithubIssue:1:1,github:GithubAccount:1:7,name7
+github:GithubIssue:1:1,github:GithubAccount:1:8,name8
+github:GithubIssue:1:1,github:GithubAccount:1:9,name9

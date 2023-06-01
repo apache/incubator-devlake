@@ -171,6 +171,16 @@ func CollectIssue(taskCtx plugin.SubTaskContext) errors.Error {
 					}
 					results = append(results, relatedUser)
 				}
+				for _, assignee := range issue.AssigneeList.Assignees {
+					issueAssignee := &models.GithubIssueAssignee{
+						ConnectionId: githubIssue.ConnectionId,
+						IssueId:      githubIssue.GithubId,
+						RepoId:       githubIssue.RepoId,
+						AssigneeId:   assignee.Id,
+						AssigneeName: assignee.Login,
+					}
+					results = append(results, issueAssignee)
+				}
 			}
 			if isFinish {
 				return results, helper.ErrFinishCollect

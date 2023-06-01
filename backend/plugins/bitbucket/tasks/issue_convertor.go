@@ -80,22 +80,28 @@ func ConvertIssues(taskCtx plugin.SubTaskContext) errors.Error {
 				Severity:        issue.Severity,
 				Component:       issue.Component,
 			}
-			if issue.AssigneeName != "" {
+			var result []interface{}
+			if issue.AssigneeId != "" {
 				domainIssue.AssigneeName = issue.AssigneeName
 				domainIssue.AssigneeId = accountIdGen.Generate(data.Options.ConnectionId, issue.AssigneeId)
+				issueAssignee := &ticket.IssueAssignee{
+					IssueId:      domainIssue.Id,
+					AssigneeId:   domainIssue.AssigneeId,
+					AssigneeName: domainIssue.AssigneeName,
+				}
+				result = append(result, issueAssignee)
 			}
-			if issue.AuthorName != "" {
+			if issue.AuthorId != "" {
 				domainIssue.CreatorName = issue.AuthorName
 				domainIssue.CreatorId = accountIdGen.Generate(data.Options.ConnectionId, issue.AuthorId)
 			}
+			result = append(result, domainIssue)
 			boardIssue := &ticket.BoardIssue{
 				BoardId: boardIdGen.Generate(data.Options.ConnectionId, repoId),
 				IssueId: domainIssue.Id,
 			}
-			return []interface{}{
-				domainIssue,
-				boardIssue,
-			}, nil
+			result = append(result, boardIssue)
+			return result, nil
 		},
 	})
 	if err != nil {

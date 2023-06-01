@@ -120,6 +120,7 @@ func (p Gitlab) SubTaskMetas() []plugin.SubTaskMeta {
 		tasks.ConvertMrCommentMeta,
 		tasks.ConvertApiMrCommitsMeta,
 		tasks.ConvertIssuesMeta,
+		tasks.ConvertIssueAssigneeMeta,
 		tasks.ConvertIssueLabelsMeta,
 		tasks.ConvertMrLabelsMeta,
 		tasks.ConvertCommitsMeta,

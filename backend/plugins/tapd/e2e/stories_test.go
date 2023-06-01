@@ -101,6 +101,7 @@ func TestTapdStoryDataFlow(t *testing.T) {
 	dataflowTester.FlushTabler(&ticket.BoardIssue{})
 	dataflowTester.FlushTabler(&ticket.SprintIssue{})
 	dataflowTester.FlushTabler(&ticket.IssueLabel{})
+	dataflowTester.FlushTabler(&ticket.IssueAssignee{})
 	dataflowTester.Subtask(tasks.ConvertStoryMeta, taskData)
 	dataflowTester.VerifyTableWithOptions(&ticket.Issue{}, e2ehelper.TableOptions{
 		CSVRelPath:  "./snapshot_tables/issues_story.csv",
@@ -123,6 +124,11 @@ func TestTapdStoryDataFlow(t *testing.T) {
 			"sprint_id",
 		),
 	)
+	dataflowTester.VerifyTableWithOptions(ticket.IssueAssignee{}, e2ehelper.TableOptions{
+		CSVRelPath:  "./snapshot_tables/story_issue_assignees.csv",
+		IgnoreTypes: []interface{}{common.NoPKModel{}},
+	})
+
 	dataflowTester.Subtask(tasks.ConvertStoryLabelsMeta, taskData)
 	dataflowTester.VerifyTable(
 		ticket.IssueLabel{},
