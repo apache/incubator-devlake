@@ -23,11 +23,24 @@ import (
 
 type ZentaoBugCommits struct {
 	archived.NoPKModel
-	ConnectionId uint64   `gorm:"primaryKey;type:BIGINT  NOT NULL"`
-	ID           int64    `json:"id" gorm:"primaryKey;type:BIGINT  NOT NULL;autoIncrement:false"`
-	Project      int64    `json:"project"`
-	Product      int64    `json:"product"`
-	Actions      []string `gorm:"type:json;serializer:json" json:"actions" mapstructure:"actions"`
+	ConnectionId uint64 `gorm:"primaryKey;type:BIGINT  NOT NULL"`
+	ID           int    `json:"id" gorm:"primaryKey;type:BIGINT  NOT NULL;autoIncrement:false"`
+	ObjectType   string `json:"objectType"`
+	ObjectID     int    `json:"objectID"`
+	Product      int64  `json:"product"`
+	Project      int64  `json:"project"`
+	Execution    int    `json:"execution"`
+	Actor        string `json:"actor"`
+	Action       string `json:"action"`
+	Date         string `json:"date"`
+	Comment      string `json:"comment"`
+	Extra        string `json:"extra"`
+	Host         string `json:"host"`         //the host part of extra
+	RepoRevision string `json:"repoRevision"` // the repoRevisionJson part of extra
+	ActionRead   string `json:"actionRead"`
+	Vision       string `json:"vision"`
+	Efforted     int    `json:"efforted"`
+	ActionDesc   string `json:"cctionDesc"`
 }
 
 func (ZentaoBugCommits) TableName() string {

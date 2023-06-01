@@ -59,33 +59,37 @@ func (p Zentao) SubTaskMetas() []plugin.SubTaskMeta {
 		tasks.ConvertProductMeta,
 		tasks.ConvertProjectMeta,
 
-		tasks.DBGetChangelogMeta,
-		tasks.ConvertChangelogMeta,
+		// tasks.DBGetChangelogMeta,
+		// tasks.ConvertChangelogMeta,
 
-		tasks.CollectExecutionMeta,
-		tasks.ExtractExecutionMeta,
-		tasks.ConvertExecutionMeta,
+		// tasks.CollectExecutionMeta,
+		// tasks.ExtractExecutionMeta,
+		// tasks.ConvertExecutionMeta,
 
-		tasks.CollectStoryMeta,
-		tasks.ExtractStoryMeta,
-		tasks.ConvertStoryMeta,
+		// tasks.CollectStoryMeta,
+		// tasks.ExtractStoryMeta,
+		// tasks.ConvertStoryMeta,
 
-		tasks.CollectBugMeta,
-		tasks.ExtractBugMeta,
-		tasks.ConvertBugMeta,
+		// tasks.CollectBugMeta,
+		// tasks.ExtractBugMeta,
+		// tasks.ConvertBugMeta,
 
-		tasks.CollectTaskMeta,
-		tasks.ExtractTaskMeta,
-		tasks.ConvertTaskMeta,
+		// tasks.CollectTaskMeta,
+		// tasks.ExtractTaskMeta,
+		// tasks.ConvertTaskMeta,
 
-		tasks.CollectAccountMeta,
-		tasks.ExtractAccountMeta,
-		tasks.ConvertAccountMeta,
+		// tasks.CollectAccountMeta,
+		// tasks.ExtractAccountMeta,
+		// tasks.ConvertAccountMeta,
 
-		tasks.CollectDepartmentMeta,
-		tasks.ExtractDepartmentMeta,
-		tasks.ConvertDepartmentMeta,
-		tasks.CollectBugCommitsMeta,
+		// tasks.CollectDepartmentMeta,
+		// tasks.ExtractDepartmentMeta,
+		// tasks.ConvertDepartmentMeta,
+
+		// tasks.CollectBugCommitsMeta,
+		// tasks.ExtractBugCommitsMeta,
+		//tasks.ConvertBugCommitsMeta,
+		tasks.CollectBugRepoCommitsMeta,
 	}
 }
 
