@@ -43,6 +43,12 @@ type ProjectResponse struct {
 	Values []models.ZentaoProject `json:"projects"`
 }
 
+func (pr *ProjectResponse) ConvertFix() {
+	for i, _ := range pr.Values {
+		pr.Values[i].ConvertFix()
+	}
+}
+
 func getGroup(basicRes context2.BasicRes, gid string, queryData *api.RemoteQueryData, connection models.ZentaoConnection) ([]api.BaseRemoteGroupResponse, errors.Error) {
 	return []api.BaseRemoteGroupResponse{
 		{
@@ -124,6 +130,9 @@ func RemoteScopes(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, er
 				if err != nil {
 					return nil, err
 				}
+
+				resBody.ConvertFix()
+
 				return resBody.Values, nil
 			})
 	}

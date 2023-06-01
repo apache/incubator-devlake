@@ -64,9 +64,11 @@ type ZentaoProject struct {
 	OpenedVersion string              `json:"openedVersion" mapstructure:"openedVersion"`
 	//LastEditedBy   string              `json:"lastEditedBy" mapstructure:"lastEditedBy"`
 	LastEditedDate *helper.Iso8601Time `json:"lastEditedDate" mapstructure:"lastEditedDate"`
-	ClosedBy       string              `json:"closedBy" mapstructure:"closedBy"`
+	ClosedBy       string
+	ClosedByRes    interface{}         `json:"closedBy" mapstructure:"closedBy" gorm:'-'`
 	ClosedDate     *helper.Iso8601Time `json:"closedDate" mapstructure:"closedDate"`
-	CanceledBy     string              `json:"canceledBy" mapstructure:"canceledBy"`
+	CanceledBy     string
+	CanceledByRes  interface{}         `json:"canceledBy" mapstructure:"canceledBy" gorm:'-'`
 	CanceledDate   *helper.Iso8601Time `json:"canceledDate" mapstructure:"canceledDate"`
 	SuspendedDate  *helper.Iso8601Time `json:"suspendedDate" mapstructure:"suspendedDate"`
 	PO             string              `json:"po" mapstructure:"po"`
@@ -110,6 +112,22 @@ type Hours struct {
 	HoursTotalLeft     float64 `json:"totalLeft" mapstructure:"totalLeft"`
 	HoursProgress      float64 `json:"progress" mapstructure:"progress"`
 	HoursTotalReal     float64 `json:"totalReal" mapstructure:"totalReal"`
+}
+
+func (zp *ZentaoProject) ConvertFix() {
+	switch cb := zp.ClosedByRes.(type) {
+	case string:
+		zp.ClosedBy = cb
+	default:
+		zp.ClosedBy = fmt.Sprintf("%v", cb)
+	}
+
+	switch cb := zp.CanceledByRes.(type) {
+	case string:
+		zp.CanceledBy = cb
+	default:
+		zp.CanceledBy = fmt.Sprintf("%v", cb)
+	}
 }
 
 func (ZentaoProject) TableName() string {
