@@ -64,3 +64,86 @@ type ZentaoBugCommits struct {
 func (ZentaoBugCommits) TableName() string {
 	return "_tool_zentao_bug_commits"
 }
+
+type ZentaoBugRepoCommitsRes struct {
+	Title string `json:"title"`
+	Log   struct {
+		Revision  string `json:"revision"`
+		Committer string `json:"committer"`
+		Time      string `json:"time"`
+		Comment   string `json:"comment"`
+		Change    struct {
+			TestYaml struct {
+				Action  string `json:"action"`
+				Kind    string `json:"kind"`
+				OldPath string `json:"oldPath"`
+			} `json:"/test.yaml"`
+		} `json:"change"`
+		Commit string `json:"commit"`
+	} `json:"log"`
+	Repo struct {
+		ID                 string `json:"id"`
+		Product            string `json:"product"`
+		Projects           string `json:"projects"`
+		Name               string `json:"name"`
+		Path               string `json:"path"`
+		Prefix             string `json:"prefix"`
+		Encoding           string `json:"encoding"`
+		Scm                string `json:"SCM"`
+		Client             string `json:"client"`
+		ServiceHost        string `json:"serviceHost"`
+		ServiceProject     string `json:"serviceProject"`
+		Commits            string `json:"commits"`
+		Account            string `json:"account"`
+		Password           string `json:"password"`
+		Encrypt            string `json:"encrypt"`
+		ACL                any    `json:"acl"`
+		Synced             string `json:"synced"`
+		LastSync           string `json:"lastSync"`
+		Desc               string `json:"desc"`
+		Extra              string `json:"extra"`
+		PreMerge           string `json:"preMerge"`
+		Job                string `json:"job"`
+		FileServerURL      any    `json:"fileServerUrl"`
+		FileServerAccount  string `json:"fileServerAccount"`
+		FileServerPassword string `json:"fileServerPassword"`
+		Deleted            string `json:"deleted"`
+		CodePath           string `json:"codePath"`
+		GitService         string `json:"gitService"`
+		Project            string `json:"project"`
+	} `json:"repo"`
+	Path    string `json:"path"`
+	Type    string `json:"type"`
+	Changes struct {
+		TestYaml struct {
+			Action  string `json:"action"`
+			Kind    string `json:"kind"`
+			OldPath string `json:"oldPath"`
+			View    string `json:"view"`
+			Diff    string `json:"diff"`
+		} `json:"/test.yaml"`
+	} `json:"changes"`
+	RepoID      string `json:"repoID"`
+	BranchID    bool   `json:"branchID"`
+	ObjectID    string `json:"objectID"`
+	Revision    string `json:"revision"`
+	ParentDir   string `json:"parentDir"`
+	OldRevision string `json:"oldRevision"`
+	PreAndNext  struct {
+		Pre  string `json:"pre"`
+		Next string `json:"next"`
+	} `json:"preAndNext"`
+	Pager any `json:"pager"`
+}
+
+type ZentaoBugRepoCommits struct {
+	common.NoPKModel
+	ConnectionId uint64 `gorm:"primaryKey;type:BIGINT  NOT NULL"`
+	IssueId      string `gorm:"primaryKey;type:varchar(255)"` // the bug id
+	RepoUrl      string `gorm:"primaryKey;type:varchar(255)"`
+	CommitSha    string `gorm:"primaryKey;type:varchar(255)"`
+}
+
+func (ZentaoBugRepoCommits) TableName() string {
+	return "_tool_zentao_bug_repo_commits"
+}

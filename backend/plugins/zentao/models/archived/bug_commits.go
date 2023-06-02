@@ -18,6 +18,7 @@ limitations under the License.
 package archived
 
 import (
+	"github.com/apache/incubator-devlake/core/models/common"
 	"github.com/apache/incubator-devlake/core/models/migrationscripts/archived"
 )
 
@@ -45,4 +46,16 @@ type ZentaoBugCommits struct {
 
 func (ZentaoBugCommits) TableName() string {
 	return "_tool_zentao_bug_commits"
+}
+
+type ZentaoBugRepoCommits struct {
+	common.NoPKModel
+	ConnectionId uint64 `gorm:"primaryKey;type:BIGINT  NOT NULL"`
+	IssueId      string `gorm:"primaryKey;type:varchar(255)"` // the bug id
+	RepoUrl      string `gorm:"primaryKey;type:varchar(255)"`
+	CommitSha    string `gorm:"primaryKey;type:varchar(255)"`
+}
+
+func (ZentaoBugRepoCommits) TableName() string {
+	return "_tool_zentao_bug_repo_commits"
 }

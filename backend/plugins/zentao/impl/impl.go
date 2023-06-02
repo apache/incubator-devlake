@@ -88,8 +88,9 @@ func (p Zentao) SubTaskMetas() []plugin.SubTaskMeta {
 
 		tasks.CollectBugCommitsMeta,
 		tasks.ExtractBugCommitsMeta,
-		//tasks.ConvertBugCommitsMeta,
+		tasks.ConvertBugCommitsMeta,
 		tasks.CollectBugRepoCommitsMeta,
+		tasks.ExtractBugRepoCommitsMeta,
 	}
 }
 
