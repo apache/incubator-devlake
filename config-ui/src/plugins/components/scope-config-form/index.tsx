@@ -114,10 +114,15 @@ export const ScopeConfigForm = ({
   return (
     <S.Wrapper>
       {TIPS_MAP[plugin] && (
-        <Alert style={{ marginBottom: 24 }}>
-          To learn about how {TIPS_MAP[plugin].name} transformation is used in DevLake,{' '}
-          <ExternalLink link={TIPS_MAP[plugin].link}>check out this doc</ExternalLink>.
-        </Alert>
+        <Alert
+          style={{ marginBottom: 24 }}
+          content={
+            <>
+              To learn about how {TIPS_MAP[plugin].name} transformation is used in DevLake,{' '}
+              <ExternalLink link={TIPS_MAP[plugin].link}>check out this doc</ExternalLink>.
+            </>
+          }
+        />
       )}
       {step === 1 && (
         <>
@@ -157,7 +162,7 @@ export const ScopeConfigForm = ({
               />
             )}
           </Card>
-          <Buttons>
+          <Buttons position="bottom" align="right">
             <Button outlined intent={Intent.PRIMARY} text="Cancel" onClick={onCancel} />
             <Button disabled={!name || !entities.length} intent={Intent.PRIMARY} text="Next" onClick={handleNextStep} />
           </Buttons>
@@ -234,7 +239,7 @@ export const ScopeConfigForm = ({
 
             {hasRefDiff && <AdditionalSettings transformation={transformation} setTransformation={setTransformation} />}
           </Card>
-          <Buttons>
+          <Buttons position="bottom" align="right">
             <Button outlined intent={Intent.PRIMARY} text="Prev" onClick={handlePrevStep} />
             <Button loading={operating} intent={Intent.PRIMARY} text="Save" onClick={handleSubmit} />
           </Buttons>

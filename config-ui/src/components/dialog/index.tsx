@@ -16,7 +16,6 @@
  *
  */
 
-import React from 'react';
 import { Button, Icon, Intent, Classes } from '@blueprintjs/core';
 
 import * as S from './styled';

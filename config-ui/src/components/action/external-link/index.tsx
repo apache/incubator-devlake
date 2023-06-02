@@ -16,8 +16,6 @@
  *
  */
 
-import React from 'react';
-
 interface Props {
   link: string;
   children: React.ReactNode;

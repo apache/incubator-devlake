@@ -36,6 +36,16 @@ import * as API from './api';
 import * as S from './styled';
 
 export const ConnectionDetailPage = () => {
+  const { plugin, id } = useParams<{ plugin: string; id: string }>();
+  return <ConnectionDetail plugin={plugin} connectionId={+id} />;
+};
+
+interface Props {
+  plugin: string;
+  connectionId: ID;
+}
+
+const ConnectionDetail = ({ plugin, connectionId }: Props) => {
   const [type, setType] = useState<
     | 'deleteConnection'
     | 'updateConnection'
@@ -50,17 +60,16 @@ export const ConnectionDetailPage = () => {
   const [scopeIds, setScopeIds] = useState<ID[]>([]);
   const [scopeConfigId, setScopeConfigId] = useState<ID>();
 
-  const { plugin, id } = useParams<{ plugin: string; id: string }>();
   const history = useHistory();
   const { onGet, onTest, onRefresh } = useConnections();
   const { setTips } = useTips();
-  const { ready, data } = useRefreshData(() => API.getDataScopes(plugin, id), [version]);
+  const { ready, data } = useRefreshData(() => API.getDataScopes(plugin, connectionId), [version]);
 
-  const { unique, status, name, icon } = onGet(`${plugin}-${id}`) || {};
+  const { unique, status, name, icon } = onGet(`${plugin}-${connectionId}`) || {};
 
   useEffect(() => {
-    onTest(`${plugin}-${id}`);
-  }, [plugin, id]);
+    onTest(`${plugin}-${connectionId}`);
+  }, [plugin, connectionId]);
 
   const handleHideDialog = () => {
     setType(undefined);
@@ -83,7 +92,7 @@ export const ConnectionDetailPage = () => {
   };
 
   const handleDelete = async () => {
-    const [success] = await operator(() => API.deleteConnection(plugin, id), {
+    const [success] = await operator(() => API.deleteConnection(plugin, connectionId), {
       setOperating,
       formatMessage: () => 'Delete Connection Successful.',
     });
@@ -109,6 +118,7 @@ export const ConnectionDetailPage = () => {
 
   const handleCreateDataScope = () => {
     setVersion((v) => v + 1);
+    handleHideDialog();
     handleShowTips();
   };
 
@@ -125,7 +135,7 @@ export const ConnectionDetailPage = () => {
   const handleDeleteDataScope = async (onlyData: boolean) => {
     if (!scopeId) return;
 
-    const [success] = await operator(() => API.deleteDataScope(plugin, id, scopeId, onlyData), {
+    const [success] = await operator(() => API.deleteDataScope(plugin, connectionId, scopeId, onlyData), {
       setOperating,
       formatMessage: () => (onlyData ? 'Clear historical data successful.' : 'Delete Data Scope successful.'),
     });
@@ -147,8 +157,8 @@ export const ConnectionDetailPage = () => {
       () =>
         Promise.all(
           scopeIds.map(async (scopeId) => {
-            const scope = await API.getDataScope(plugin, id, scopeId);
-            return API.updateDataScope(plugin, id, scopeId, {
+            const scope = await API.getDataScope(plugin, connectionId, scopeId);
+            return API.updateDataScope(plugin, connectionId, scopeId, {
               ...scope,
               scopeConfigId: +trId,
             });
@@ -184,7 +194,7 @@ export const ConnectionDetailPage = () => {
             <IconButton icon="annotation" tooltip="Edit Connection" onClick={handleShowUpdateDialog} />
           </div>
         </div>
-        <Buttons position="top" align="left">
+        <Buttons>
           <Button intent={Intent.PRIMARY} icon="add" text="Add Data Scope" onClick={handleShowCreateDataScopeDialog} />
           {plugin !== 'tapd' && (
             <Button
@@ -206,20 +216,18 @@ export const ConnectionDetailPage = () => {
             },
             {
               title: 'Scope Config',
-              dataIndex: 'scopeConfigName',
+              dataIndex: 'scopeConfig',
               key: 'scopeConfig',
               width: 400,
-              render: (val, row) => (
+              render: (_, row) => (
                 <>
-                  <span>{val ?? 'No Scope Config'}</span>
+                  <span>{row.scopeConfigId ? 'Configured' : 'N/A'}</span>
                   <IconButton
                     icon="link"
                     tooltip="Associate Scope Config"
                     onClick={() => {
                       handleShowScopeConfigSelectDialog([row[getPluginId(plugin)]]);
-                      if (plugin === 'tapd') {
-                        setScopeConfigId(row.scopeConfigId);
-                      }
+                      setScopeConfigId(row.scopeConfigId);
                     }}
                   />
                 </>
@@ -291,7 +299,7 @@ export const ConnectionDetailPage = () => {
           }
           onCancel={handleHideDialog}
         >
-          <ConnectionForm plugin={plugin} connectionId={id} onSuccess={handleUpdate} />
+          <ConnectionForm plugin={plugin} connectionId={connectionId} onSuccess={handleUpdate} />
         </Dialog>
       )}
       {type === 'createDataScope' && (
@@ -309,7 +317,7 @@ export const ConnectionDetailPage = () => {
         >
           <DataScopeSelectRemote
             plugin={plugin}
-            connectionId={id}
+            connectionId={connectionId}
             disabledScope={data}
             onCancel={handleHideDialog}
             onSubmit={handleCreateDataScope}
@@ -356,7 +364,7 @@ export const ConnectionDetailPage = () => {
           {plugin === 'tapd' ? (
             <ScopeConfigForm
               plugin={plugin}
-              connectionId={id}
+              connectionId={connectionId}
               scopeId={scopeIds[0]}
               scopeConfigId={scopeConfigId}
               onCancel={handleHideDialog}
@@ -365,7 +373,8 @@ export const ConnectionDetailPage = () => {
           ) : (
             <ScopeConfigSelect
               plugin={plugin}
-              connectionId={id}
+              connectionId={connectionId}
+              scopeConfigId={scopeConfigId}
               onCancel={handleHideDialog}
               onSubmit={handleAssociateScopeConfig}
             />

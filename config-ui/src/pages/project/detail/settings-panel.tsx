@@ -109,11 +109,11 @@ export const SettingsPanel = ({ project }: Props) => {
             onChange={(e) => setEnableDora((e.target as HTMLInputElement).checked)}
           />
         </FormItem>
-        <Buttons align="left">
+        <Buttons position="bottom">
           <Button text="Save" loading={operating} disabled={!name} intent={Intent.PRIMARY} onClick={handleUpdate} />
         </Buttons>
       </Card>
-      <Buttons align="center">
+      <Buttons position="bottom" align="center">
         <Button intent={Intent.DANGER} text="Delete Project" onClick={handleShowDeleteDialog} />
       </Buttons>
       <Dialog

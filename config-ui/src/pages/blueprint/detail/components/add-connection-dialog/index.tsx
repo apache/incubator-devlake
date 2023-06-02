@@ -66,7 +66,7 @@ export const AddConnectionDialog = ({ disabled = [], onCancel, onSubmit }: Props
             selectedItem={selectedConnection}
             onChangeItem={(selectedItem) => setSelectedConnection(selectedItem)}
           />
-          <Buttons>
+          <Buttons position="bottom" align="right">
             <Button outlined intent={Intent.PRIMARY} text="Cancel" onClick={onCancel} />
             <Button disabled={!selectedConnection} intent={Intent.PRIMARY} text="Next" onClick={() => setStep(2)} />
           </Buttons>

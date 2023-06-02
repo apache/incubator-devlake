@@ -16,8 +16,6 @@
  *
  */
 
-import React from 'react';
-
 import LogoImg from '@/images/devlake-logo.svg';
 import LogoTextImg from '@/images/devlake-textmark.svg';
 

@@ -121,17 +121,22 @@ export const WebhooksPanel = ({ project, onRefresh }: Props) => {
 
   return (
     <>
-      <Alert style={{ marginBottom: 24, color: '#3C5088' }}>
-        <div>
-          The data pushed by Webhooks will only be calculated for DORA in the next run of the Blueprint of this project
-          because DORA relies on the post-processing of "deployments," "incidents," and "pull requests" triggered by
-          running the blueprint.
-        </div>
-        <div style={{ marginTop: 16 }}>
-          To calculate DORA after receiving Webhook data immediately, you can visit the{' '}
-          <b style={{ textDecoration: 'underline' }}>Status tab</b> of the Blueprint page and click on Run Now.
-        </div>
-      </Alert>
+      <Alert
+        style={{ marginBottom: 24, color: '#3C5088' }}
+        content={
+          <>
+            <div>
+              The data pushed by Webhooks will only be calculated for DORA in the next run of the Blueprint of this
+              project because DORA relies on the post-processing of "deployments," "incidents," and "pull requests"
+              triggered by running the blueprint.
+            </div>
+            <div style={{ marginTop: 16 }}>
+              To calculate DORA after receiving Webhook data immediately, you can visit the{' '}
+              <b style={{ textDecoration: 'underline' }}>Status tab</b> of the Blueprint page and click on Run Now.
+            </div>
+          </>
+        }
+      />
       {!webhookIds.length ? (
         <>
           <NoData

@@ -27,10 +27,9 @@ const Wrapper = styled.div`
 
 interface Props {
   style?: React.CSSProperties;
-  content?: React.ReactNode;
-  children?: React.ReactNode;
+  content: React.ReactNode;
 }
 
-export const Alert = ({ style, content, children }: Props) => {
-  return <Wrapper style={style}>{content ?? children}</Wrapper>;
+export const Alert = ({ style, content }: Props) => {
+  return <Wrapper style={style}>{content}</Wrapper>;
 };

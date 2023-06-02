@@ -16,7 +16,6 @@
  *
  */
 
-import React from 'react';
 import { Icon, Position } from '@blueprintjs/core';
 import { Tooltip2 } from '@blueprintjs/popover2';
 import styled from 'styled-components';

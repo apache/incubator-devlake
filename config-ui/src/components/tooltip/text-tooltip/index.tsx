@@ -16,7 +16,6 @@
  *
  */
 
-import React from 'react';
 import type { IntentProps } from '@blueprintjs/core';
 import { Position } from '@blueprintjs/core';
 import { Tooltip2 } from '@blueprintjs/popover2';

@@ -100,7 +100,7 @@ export const DataScopeSelect = ({
               }
             />
           ) : (
-            <Buttons position="top" align="left">
+            <Buttons>
               <Button intent={Intent.PRIMARY} icon="refresh" text="Refresh Data Scope" onClick={handleRefresh} />
             </Buttons>
           )}
@@ -128,7 +128,7 @@ export const DataScopeSelect = ({
               onChange: (selectedRowKeys) => setScopeIds(selectedRowKeys),
             }}
           />
-          <Buttons>
+          <Buttons position="bottom" align="right">
             <Button outlined intent={Intent.PRIMARY} text="Cancel" onClick={onCancel} />
             <Button disabled={!scopeIds.length} intent={Intent.PRIMARY} text="Save" onClick={handleSubmit} />
           </Buttons>

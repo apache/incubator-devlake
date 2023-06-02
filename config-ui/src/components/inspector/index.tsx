@@ -16,7 +16,6 @@
  *
  */
 
-import React from 'react';
 import { Drawer, DrawerSize, Classes, IconName } from '@blueprintjs/core';
 
 import * as S from './styled';

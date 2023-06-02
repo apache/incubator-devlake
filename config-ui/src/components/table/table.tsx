@@ -16,8 +16,6 @@
  *
  */
 
-import React from 'react';
-
 import type { TableContentProps } from './components';
 import { TableLoading, TableNoData, TableContent } from './components';
 
