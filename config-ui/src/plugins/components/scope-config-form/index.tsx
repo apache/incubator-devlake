@@ -20,7 +20,7 @@ import { useState, useEffect, useMemo } from 'react';
 import { omit } from 'lodash';
 import { InputGroup, Button, Intent } from '@blueprintjs/core';
 
-import { Alert, ExternalLink, Card, FormItem, MultiSelector, Buttons, Divider } from '@/components';
+import { Alert, ExternalLink, Card, FormItem, MultiSelector, Message, Buttons, Divider } from '@/components';
 import { transformEntities, EntitiesLabel } from '@/config';
 import { getPluginConfig } from '@/plugins';
 import { GitHubTransformation } from '@/plugins/register/github';
@@ -40,13 +40,22 @@ import * as S from './styled';
 interface Props {
   plugin: string;
   connectionId: ID;
+  showWarning?: boolean;
   scopeId?: ID;
   scopeConfigId?: ID;
   onCancel?: () => void;
   onSubmit?: (trId: string) => void;
 }
 
-export const ScopeConfigForm = ({ plugin, connectionId, scopeId, scopeConfigId, onCancel, onSubmit }: Props) => {
+export const ScopeConfigForm = ({
+  plugin,
+  connectionId,
+  showWarning = false,
+  scopeId,
+  scopeConfigId,
+  onCancel,
+  onSubmit,
+}: Props) => {
   const [step, setStep] = useState(1);
   const [name, setName] = useState('');
   const [entities, setEntities] = useState<string[]>([]);
@@ -61,6 +70,10 @@ export const ScopeConfigForm = ({ plugin, connectionId, scopeId, scopeConfigId, 
   }, [config.transformation]);
 
   useEffect(() => {
+    setEntities(config.entities);
+  }, [config.entities]);
+
+  useEffect(() => {
     if (!scopeConfigId) return;
 
     (async () => {
@@ -72,6 +85,10 @@ export const ScopeConfigForm = ({ plugin, connectionId, scopeId, scopeConfigId, 
       } catch {}
     })();
   }, [scopeConfigId]);
+
+  const handlePrevStep = () => {
+    setStep(1);
+  };
 
   const handleNextStep = () => {
     setStep(2);
@@ -133,6 +150,13 @@ export const ScopeConfigForm = ({ plugin, connectionId, scopeId, scopeConfigId, 
                 onChangeItems={(its) => setEntities(its.map((it) => it.value))}
               />
             </FormItem>
+            {showWarning && (
+              <Message
+                content="Please note: if you edit Data Entities and expect to see the Dashboards updated, you will need to visit
+                  the Project page of the Data Scope that has been associated with this Scope Config and click on “Collect
+                  All Data”."
+              />
+            )}
           </Card>
           <Buttons>
             <Button outlined intent={Intent.PRIMARY} text="Cancel" onClick={onCancel} />
@@ -143,12 +167,24 @@ export const ScopeConfigForm = ({ plugin, connectionId, scopeId, scopeConfigId, 
       {step === 2 && (
         <>
           <Card>
+            {showWarning && (
+              <>
+                <Message content="Please note: if you only edit the following Scope Configs without editing Data Entities in the previous step, you will only need to re-transform data on the Project page to see the Dashboard updated." />
+                <Divider />
+              </>
+            )}
+
             {plugin === 'github' && (
-              <GitHubTransformation transformation={transformation} setTransformation={setTransformation} />
+              <GitHubTransformation
+                entities={entities}
+                transformation={transformation}
+                setTransformation={setTransformation}
+              />
             )}
 
             {plugin === 'jira' && (
               <JiraTransformation
+                entities={entities}
                 connectionId={connectionId}
                 transformation={transformation}
                 setTransformation={setTransformation}
@@ -156,23 +192,40 @@ export const ScopeConfigForm = ({ plugin, connectionId, scopeId, scopeConfigId, 
             )}
 
             {plugin === 'gitlab' && (
-              <GitLabTransformation transformation={transformation} setTransformation={setTransformation} />
+              <GitLabTransformation
+                entities={entities}
+                transformation={transformation}
+                setTransformation={setTransformation}
+              />
             )}
 
             {plugin === 'jenkins' && (
-              <JenkinsTransformation transformation={transformation} setTransformation={setTransformation} />
+              <JenkinsTransformation
+                entities={entities}
+                transformation={transformation}
+                setTransformation={setTransformation}
+              />
             )}
 
             {plugin === 'bitbucket' && (
-              <BitbucketTransformation transformation={transformation} setTransformation={setTransformation} />
+              <BitbucketTransformation
+                entities={entities}
+                transformation={transformation}
+                setTransformation={setTransformation}
+              />
             )}
 
             {plugin === 'azuredevops' && (
-              <AzureTransformation transformation={transformation} setTransformation={setTransformation} />
+              <AzureTransformation
+                entities={entities}
+                transformation={transformation}
+                setTransformation={setTransformation}
+              />
             )}
 
             {plugin === 'tapd' && scopeId && (
               <TapdTransformation
+                entities={entities}
                 connectionId={connectionId}
                 scopeId={scopeId}
                 transformation={transformation}
@@ -180,15 +233,10 @@ export const ScopeConfigForm = ({ plugin, connectionId, scopeId, scopeConfigId, 
               />
             )}
 
-            {hasRefDiff && (
-              <>
-                <Divider />
-                <AdditionalSettings transformation={transformation} setTransformation={setTransformation} />
-              </>
-            )}
+            {hasRefDiff && <AdditionalSettings transformation={transformation} setTransformation={setTransformation} />}
           </Card>
           <Buttons>
-            <Button outlined intent={Intent.PRIMARY} text="Cancel" onClick={onCancel} />
+            <Button outlined intent={Intent.PRIMARY} text="Prev" onClick={handlePrevStep} />
             <Button loading={operating} intent={Intent.PRIMARY} text="Save" onClick={handleSubmit} />
           </Buttons>
         </>

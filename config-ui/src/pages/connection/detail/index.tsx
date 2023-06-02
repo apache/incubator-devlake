@@ -16,7 +16,7 @@
  *
  */
 
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useParams, useHistory } from 'react-router-dom';
 import { Button, Icon, Intent } from '@blueprintjs/core';
 
@@ -35,12 +35,7 @@ import { operator } from '@/utils';
 import * as API from './api';
 import * as S from './styled';
 
-interface Props {
-  plugin: string;
-  id: ID;
-}
-
-const ConnectionDetail = ({ plugin, id }: Props) => {
+export const ConnectionDetailPage = () => {
   const [type, setType] = useState<
     | 'deleteConnection'
     | 'updateConnection'
@@ -55,12 +50,17 @@ const ConnectionDetail = ({ plugin, id }: Props) => {
   const [scopeIds, setScopeIds] = useState<ID[]>([]);
   const [scopeConfigId, setScopeConfigId] = useState<ID>();
 
+  const { plugin, id } = useParams<{ plugin: string; id: string }>();
   const history = useHistory();
   const { onGet, onTest, onRefresh } = useConnections();
   const { setTips } = useTips();
   const { ready, data } = useRefreshData(() => API.getDataScopes(plugin, id), [version]);
 
-  const { unique, status, name, icon } = onGet(`${plugin}-${id}`);
+  const { unique, status, name, icon } = onGet(`${plugin}-${id}`) || {};
+
+  useEffect(() => {
+    onTest(`${plugin}-${id}`);
+  }, [plugin, id]);
 
   const handleHideDialog = () => {
     setType(undefined);
@@ -89,6 +89,7 @@ const ConnectionDetail = ({ plugin, id }: Props) => {
     });
 
     if (success) {
+      onRefresh(plugin);
       history.push('/connections');
     }
   };
@@ -175,15 +176,19 @@ const ConnectionDetail = ({ plugin, id }: Props) => {
       extra={<Button intent={Intent.DANGER} icon="trash" text="Delete Connection" onClick={handleShowDeleteDialog} />}
     >
       <S.Wrapper>
-        <div className="authentication">
-          <span style={{ marginRight: 4 }}>Authentication Status:</span>
-          <ConnectionStatus status={status} unique={unique} onTest={onTest} />
-          <IconButton icon="annotation" tooltip="Edit Connection" onClick={handleShowUpdateDialog} />
+        <div className="top">
+          <div>Please note: In order to view DORA metrics, you will need to add Scope Configs.</div>
+          <div className="authentication">
+            <span style={{ marginRight: 4 }}>Authentication Status:</span>
+            <ConnectionStatus status={status} unique={unique} onTest={onTest} />
+            <IconButton icon="annotation" tooltip="Edit Connection" onClick={handleShowUpdateDialog} />
+          </div>
         </div>
         <Buttons position="top" align="left">
           <Button intent={Intent.PRIMARY} icon="add" text="Add Data Scope" onClick={handleShowCreateDataScopeDialog} />
           {plugin !== 'tapd' && (
             <Button
+              disabled={!scopeIds.length}
               intent={Intent.PRIMARY}
               icon="many-to-one"
               text="Associate Scope Config"
@@ -369,10 +374,4 @@ const ConnectionDetail = ({ plugin, id }: Props) => {
       )}
     </PageHeader>
   );
-};
-
-export const ConnectionDetailPage = () => {
-  const { plugin, id } = useParams<{ plugin: string; id: string }>();
-
-  return <ConnectionDetail plugin={plugin} id={+id} />;
 };

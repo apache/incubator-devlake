@@ -55,6 +55,7 @@ const BaseList = ({ plugin, onCreate }: Props) => {
             title: 'Status',
             dataIndex: ['status', 'unique'],
             key: 'status',
+            width: 150,
             render: ({ status, unique }) => <ConnectionStatus status={status} unique={unique} onTest={onTest} />,
           },
           {

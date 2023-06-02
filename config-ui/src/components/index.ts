@@ -27,6 +27,7 @@ export * from './form-item';
 export * from './inspector';
 export * from './loading';
 export * from './logo';
+export * from './message';
 export * from './no-data';
 export * from './page-header';
 export * from './selector';

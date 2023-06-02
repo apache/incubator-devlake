@@ -88,17 +88,27 @@ export const StatusPanel = styled.div`
     margin-bottom: 16px;
   }
 
-  & > .info {
-    display: flex;
-    justify-content: flex-end;
-    align-items: center;
-
-    & > * {
-      margin-left: 16px;
-    }
-  }
-
   .block + .block {
     margin-top: 32px;
+  }
+`;
+
+export const ProjectACtion = styled.div`
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+
+  & > * {
+    margin-left: 16px;
+  }
+`;
+
+export const BlueprintAction = styled.div`
+  display: flex;
+  justify-content: center;
+  align-items: center;
+
+  & > .bp4-switch {
+    margin: 0 8px;
   }
 `;

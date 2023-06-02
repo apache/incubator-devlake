@@ -35,12 +35,13 @@ enum StandardType {
 }
 
 interface Props {
+  entities: string[];
   connectionId: ID;
   transformation: any;
   setTransformation: React.Dispatch<React.SetStateAction<any>>;
 }
 
-export const JiraTransformation = ({ connectionId, transformation, setTransformation }: Props) => {
+export const JiraTransformation = ({ entities, connectionId, transformation, setTransformation }: Props) => {
   const [requirements, setRequirements] = useState<string[]>([]);
   const [bugs, setBugs] = useState<string[]>([]);
   const [incidents, setIncidents] = useState<string[]>([]);
@@ -115,133 +116,137 @@ export const JiraTransformation = ({ connectionId, transformation, setTransforma
 
   return (
     <S.TransformationWrapper>
-      <div className="issue-tracking">
-        <h2>Issue Tracking</h2>
-        <p>
-          Tell DevLake what types of Jira issues you are using as features, bugs and incidents, and what field as `Epic
-          Link` or `Story Points`.
-        </p>
-        <div className="issue-type">
-          <div className="title">
-            <span>Issue Type</span>
-            <Popover2
-              position="top"
-              content={
-                <div style={{ padding: '8px 12px', color: '#ffffff', backgroundColor: 'rgba(0,0,0,.8)' }}>
-                  DevLake defines three standard types of issues: FEATURE, BUG and INCIDENT. Standardize your Jira issue
-                  types to these three types so that DevLake can calculate metrics such as{' '}
-                  <ExternalLink link="https://devlake.apache.org/docs/Metrics/RequirementLeadTime">
-                    Requirement Lead Time
-                  </ExternalLink>
-                  , <ExternalLink link="https://devlake.apache.org/docs/Metrics/BugAge">Bug Age</ExternalLink>,
-                  <ExternalLink link="https://devlake.apache.org/docs/Metrics/MTTR">
-                    DORA - Median Time to Restore Service
-                  </ExternalLink>
-                  , etc.
-                </div>
-              }
-            >
-              <Icon icon="help" size={12} color="#94959f" style={{ marginLeft: 4, cursor: 'pointer' }} />
-            </Popover2>
+      {entities.includes('TICKET') && (
+        <div className="issue-tracking">
+          <h2>Issue Tracking</h2>
+          <p>
+            Tell DevLake what types of Jira issues you are using as features, bugs and incidents, and what field as
+            `Epic Link` or `Story Points`.
+          </p>
+          <div className="issue-type">
+            <div className="title">
+              <span>Issue Type</span>
+              <Popover2
+                position="top"
+                content={
+                  <div style={{ padding: '8px 12px', color: '#ffffff', backgroundColor: 'rgba(0,0,0,.8)' }}>
+                    DevLake defines three standard types of issues: FEATURE, BUG and INCIDENT. Standardize your Jira
+                    issue types to these three types so that DevLake can calculate metrics such as{' '}
+                    <ExternalLink link="https://devlake.apache.org/docs/Metrics/RequirementLeadTime">
+                      Requirement Lead Time
+                    </ExternalLink>
+                    , <ExternalLink link="https://devlake.apache.org/docs/Metrics/BugAge">Bug Age</ExternalLink>,
+                    <ExternalLink link="https://devlake.apache.org/docs/Metrics/MTTR">
+                      DORA - Median Time to Restore Service
+                    </ExternalLink>
+                    , etc.
+                  </div>
+                }
+              >
+                <Icon icon="help" size={12} color="#94959f" style={{ marginLeft: 4, cursor: 'pointer' }} />
+              </Popover2>
+            </div>
+            <div className="list">
+              <FormGroup inline label="Requirement">
+                <MultiSelector
+                  items={issueTypes}
+                  disabledItems={[...bugItems, ...incidentItems]}
+                  getKey={(it) => it.id}
+                  getName={(it) => it.name}
+                  getIcon={(it) => it.iconUrl}
+                  selectedItems={requirementItems}
+                  onChangeItems={(selectedItems) =>
+                    setTransformation({
+                      ...transformation,
+                      typeMappings: {
+                        ...transformaType(selectedItems, StandardType.Requirement),
+                        ...transformaType(bugItems, StandardType.Bug),
+                        ...transformaType(incidentItems, StandardType.Incident),
+                      },
+                    })
+                  }
+                />
+              </FormGroup>
+              <FormGroup inline label="Bug">
+                <MultiSelector
+                  items={issueTypes}
+                  disabledItems={[...requirementItems, ...incidentItems]}
+                  getKey={(it) => it.id}
+                  getName={(it) => it.name}
+                  getIcon={(it) => it.iconUrl}
+                  selectedItems={bugItems}
+                  onChangeItems={(selectedItems) =>
+                    setTransformation({
+                      ...transformation,
+                      typeMappings: {
+                        ...transformaType(requirementItems, StandardType.Requirement),
+                        ...transformaType(selectedItems, StandardType.Bug),
+                        ...transformaType(incidentItems, StandardType.Incident),
+                      },
+                    })
+                  }
+                />
+              </FormGroup>
+              <FormGroup
+                inline
+                label={
+                  <>
+                    <span>Incident</span>
+                    <Tag intent={Intent.PRIMARY} style={{ marginLeft: 4 }}>
+                      DORA
+                    </Tag>
+                  </>
+                }
+              >
+                <MultiSelector
+                  items={issueTypes}
+                  disabledItems={[...requirementItems, ...bugItems]}
+                  getKey={(it) => it.id}
+                  getName={(it) => it.name}
+                  getIcon={(it) => it.iconUrl}
+                  selectedItems={incidentItems}
+                  onChangeItems={(selectedItems) =>
+                    setTransformation({
+                      ...transformation,
+                      typeMappings: {
+                        ...transformaType(requirementItems, StandardType.Requirement),
+                        ...transformaType(bugItems, StandardType.Bug),
+                        ...transformaType(selectedItems, StandardType.Incident),
+                      },
+                    })
+                  }
+                />
+              </FormGroup>
+            </div>
           </div>
-          <div className="list">
-            <FormGroup inline label="Requirement">
-              <MultiSelector
-                items={issueTypes}
-                disabledItems={[...bugItems, ...incidentItems]}
-                getKey={(it) => it.id}
-                getName={(it) => it.name}
-                getIcon={(it) => it.iconUrl}
-                selectedItems={requirementItems}
-                onChangeItems={(selectedItems) =>
-                  setTransformation({
-                    ...transformation,
-                    typeMappings: {
-                      ...transformaType(selectedItems, StandardType.Requirement),
-                      ...transformaType(bugItems, StandardType.Bug),
-                      ...transformaType(incidentItems, StandardType.Incident),
-                    },
-                  })
-                }
-              />
-            </FormGroup>
-            <FormGroup inline label="Bug">
-              <MultiSelector
-                items={issueTypes}
-                disabledItems={[...requirementItems, ...incidentItems]}
-                getKey={(it) => it.id}
-                getName={(it) => it.name}
-                getIcon={(it) => it.iconUrl}
-                selectedItems={bugItems}
-                onChangeItems={(selectedItems) =>
-                  setTransformation({
-                    ...transformation,
-                    typeMappings: {
-                      ...transformaType(requirementItems, StandardType.Requirement),
-                      ...transformaType(selectedItems, StandardType.Bug),
-                      ...transformaType(incidentItems, StandardType.Incident),
-                    },
-                  })
-                }
-              />
-            </FormGroup>
-            <FormGroup
-              inline
-              label={
-                <>
-                  <span>Incident</span>
-                  <Tag intent={Intent.PRIMARY} style={{ marginLeft: 4 }}>
-                    DORA
-                  </Tag>
-                </>
-              }
-            >
-              <MultiSelector
-                items={issueTypes}
-                disabledItems={[...requirementItems, ...bugItems]}
-                getKey={(it) => it.id}
-                getName={(it) => it.name}
-                getIcon={(it) => it.iconUrl}
-                selectedItems={incidentItems}
-                onChangeItems={(selectedItems) =>
-                  setTransformation({
-                    ...transformation,
-                    typeMappings: {
-                      ...transformaType(requirementItems, StandardType.Requirement),
-                      ...transformaType(bugItems, StandardType.Bug),
-                      ...transformaType(selectedItems, StandardType.Incident),
-                    },
-                  })
-                }
-              />
-            </FormGroup>
-          </div>
-        </div>
-        <FormGroup
-          inline
-          label={
-            <>
-              <span>Story Points</span>
-              <HelpTooltip content="Choose the issue field you are using as `Story Points`." />
-            </>
-          }
-        >
-          <Selector
-            items={fields}
-            getKey={(it) => it.id}
-            getName={(it) => it.name}
-            selectedItem={fields.find((it) => it.id === transformation.storyPointField)}
-            onChangeItem={(selectedItem) =>
-              setTransformation({
-                ...transformation,
-                storyPointField: selectedItem.id,
-              })
+          <FormGroup
+            inline
+            label={
+              <>
+                <span>Story Points</span>
+                <HelpTooltip content="Choose the issue field you are using as `Story Points`." />
+              </>
             }
-          />
-        </FormGroup>
-      </div>
-      <Divider />
-      <CrossDomain transformation={transformation} setTransformation={setTransformation} />
+          >
+            <Selector
+              items={fields}
+              getKey={(it) => it.id}
+              getName={(it) => it.name}
+              selectedItem={fields.find((it) => it.id === transformation.storyPointField)}
+              onChangeItem={(selectedItem) =>
+                setTransformation({
+                  ...transformation,
+                  storyPointField: selectedItem.id,
+                })
+              }
+            />
+          </FormGroup>
+          <Divider />
+        </div>
+      )}
+      {entities.includes('CROSS') && (
+        <CrossDomain transformation={transformation} setTransformation={setTransformation} />
+      )}
     </S.TransformationWrapper>
   );
 };

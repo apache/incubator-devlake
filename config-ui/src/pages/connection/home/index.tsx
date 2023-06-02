@@ -17,21 +17,22 @@
  */
 
 import { useState, useMemo } from 'react';
+import { useHistory } from 'react-router-dom';
 import { Tag, Intent } from '@blueprintjs/core';
 
 import { Dialog } from '@/components';
 import { useConnections } from '@/hooks';
 import type { PluginConfigType } from '@/plugins';
 import { PluginConfig, PluginType, ConnectionList, ConnectionForm } from '@/plugins';
-import { ConnectionContextProvider } from '@/store';
 
 import * as S from './styled';
 
-export const ConnectionHome = () => {
+export const ConnectionHomePage = () => {
   const [type, setType] = useState<'list' | 'form'>();
   const [pluginConfig, setPluginConfig] = useState<PluginConfigType>();
 
   const { connections, onRefresh } = useConnections();
+  const history = useHistory();
 
   const [plugins, webhook] = useMemo(
     () => [
@@ -61,9 +62,9 @@ export const ConnectionHome = () => {
     setPluginConfig(undefined);
   };
 
-  const handleCreateSuccess = async (plugin: string) => {
+  const handleCreateSuccess = async (plugin: string, id: ID) => {
     onRefresh(plugin);
-    setType('list');
+    history.push(`/connections/${plugin}/${id}`);
   };
 
   return (
@@ -138,17 +139,12 @@ export const ConnectionHome = () => {
           footer={null}
           onCancel={handleHideDialog}
         >
-          <ConnectionForm plugin={pluginConfig.plugin} onSuccess={() => handleCreateSuccess(pluginConfig.plugin)} />
+          <ConnectionForm
+            plugin={pluginConfig.plugin}
+            onSuccess={(id) => handleCreateSuccess(pluginConfig.plugin, id)}
+          />
         </Dialog>
       )}
     </S.Wrapper>
-  );
-};
-
-export const ConnectionHomePage = () => {
-  return (
-    <ConnectionContextProvider>
-      <ConnectionHome />
-    </ConnectionContextProvider>
   );
 };

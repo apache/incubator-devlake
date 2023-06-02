@@ -19,7 +19,7 @@
 import { useState, useEffect } from 'react';
 import { Button, Intent } from '@blueprintjs/core';
 
-import { PageLoading, FormItem, ExternalLink, Buttons, Table } from '@/components';
+import { PageLoading, FormItem, ExternalLink, Message, Buttons, Table } from '@/components';
 import { useRefreshData } from '@/hooks';
 import { getPluginId } from '@/plugins';
 
@@ -29,19 +29,30 @@ import * as S from './styled';
 interface Props {
   plugin: string;
   connectionId: ID;
+  showWarning?: boolean;
   initialScope?: any[];
   onCancel?: () => void;
   onSubmit?: (scope: any) => void;
 }
 
-export const DataScopeSelect = ({ plugin, connectionId, initialScope, onSubmit, onCancel }: Props) => {
+export const DataScopeSelect = ({
+  plugin,
+  connectionId,
+  showWarning = false,
+  initialScope,
+  onSubmit,
+  onCancel,
+}: Props) => {
+  const [version, setVersion] = useState(1);
   const [scopeIds, setScopeIds] = useState<ID[]>([]);
 
-  const { ready, data } = useRefreshData(() => API.getDataScope(plugin, connectionId));
+  const { ready, data } = useRefreshData(() => API.getDataScope(plugin, connectionId), [version]);
 
   useEffect(() => {
     setScopeIds((initialScope ?? data ?? []).map((sc: any) => sc[getPluginId(plugin)]) ?? []);
   }, [data]);
+
+  const handleRefresh = () => setVersion((v) => v + 1);
 
   const handleSubmit = () => {
     const scope = data.filter((it: any) => scopeIds.includes(it[getPluginId(plugin)]));
@@ -76,9 +87,23 @@ export const DataScopeSelect = ({ plugin, connectionId, initialScope, onSubmit, 
     >
       {data.length ? (
         <S.Wrapper>
-          <Buttons position="top" align="left">
-            <Button intent={Intent.PRIMARY} icon="refresh" text="Refresh Data Scope" />
-          </Buttons>
+          {showWarning ? (
+            <Message
+              style={{ marginBottom: 24 }}
+              content={
+                <>
+                  Unchecking Data Scope below will only remove it from the current Project and will not delete the
+                  historical data. If you would like to delete the data of Data Scope, please{' '}
+                  <ExternalLink link={`/connections/${plugin}/${connectionId}`}>go to the Connection page</ExternalLink>
+                  .
+                </>
+              }
+            />
+          ) : (
+            <Buttons position="top" align="left">
+              <Button intent={Intent.PRIMARY} icon="refresh" text="Refresh Data Scope" onClick={handleRefresh} />
+            </Buttons>
+          )}
           <Table
             noShadow
             loading={!ready}

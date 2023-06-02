@@ -20,6 +20,8 @@ import { useParams } from 'react-router-dom';
 
 import { PageHeader } from '@/components';
 
+import { FromEnum } from '../types';
+
 import { BlueprintDetail } from './blueprint-detail';
 
 export const BlueprintDetailPage = () => {
@@ -28,11 +30,12 @@ export const BlueprintDetailPage = () => {
   return (
     <PageHeader
       breadcrumbs={[
+        { name: 'Advanced', path: '/blueprints' },
         { name: 'Blueprints', path: '/blueprints' },
-        // { name: blueprint.name, path: `/blueprints/${id}` },
+        { name: id, path: `/blueprints/${id}` },
       ]}
     >
-      <BlueprintDetail id={id} />
+      <BlueprintDetail id={id} from={FromEnum.blueprint} />
     </PageHeader>
   );
 };

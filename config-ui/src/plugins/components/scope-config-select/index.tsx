@@ -50,6 +50,7 @@ export const ScopeConfigSelect = ({ plugin, connectionId, onCancel, onSubmit }: 
 
   const handleHideDialog = () => {
     setIsOpen(false);
+    setUpdatedId(undefined);
   };
 
   const handleUpdate = async (id: ID) => {
@@ -92,10 +93,17 @@ export const ScopeConfigSelect = ({ plugin, connectionId, onCancel, onSubmit }: 
         <Button outlined intent={Intent.PRIMARY} text="Cancel" onClick={onCancel} />
         <Button disabled={!trId} intent={Intent.PRIMARY} text="Save" onClick={() => trId && onSubmit?.(trId)} />
       </Buttons>
-      <Dialog style={{ width: 820 }} footer={null} isOpen={isOpen} title="Add Scope Config" onCancel={handleHideDialog}>
+      <Dialog
+        style={{ width: 820 }}
+        footer={null}
+        isOpen={isOpen}
+        title={!updatedId ? 'Add Scope Config' : 'Edit Scope Config'}
+        onCancel={handleHideDialog}
+      >
         <ScopeConfigForm
           plugin={plugin}
           connectionId={connectionId}
+          showWarning={!!updatedId}
           scopeConfigId={updatedId}
           onCancel={onCancel}
           onSubmit={handleSubmit}

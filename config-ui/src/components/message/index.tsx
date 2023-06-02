@@ -16,35 +16,29 @@
  *
  */
 
-export enum ModeEnum {
-  advanced = 'ADVANCED',
-  normal = 'NORMAL',
+import { Icon } from '@blueprintjs/core';
+import styled from 'styled-components';
+
+const Wrapper = styled.div`
+  display: flex;
+  align-items: center;
+  font-size: 12px;
+
+  & > .bp4-icon {
+    margin-right: 8px;
+  }
+`;
+
+interface Props {
+  style?: React.CSSProperties;
+  content: React.ReactNode;
 }
 
-export enum FromEnum {
-  project = 'PROJECT',
-  blueprint = 'BLUEPRINT',
-}
-
-export type BlueprintType = {
-  projectName: string;
-  id: ID;
-  enable: boolean;
-  name: string;
-  mode: ModeEnum;
-  isManual: boolean;
-  cronConfig: string;
-  skipOnFail: boolean;
-  plan: any;
-  settings: {
-    version: string;
-    timeAfter: null | string;
-    connections: Array<{
-      plugin: string;
-      connectionId: ID;
-      scopes?: Array<{
-        id: string;
-      }>;
-    }>;
-  };
+export const Message = ({ style, content }: Props) => {
+  return (
+    <Wrapper style={style}>
+      <Icon icon="warning-sign" size={24} color="#f4be55" />
+      <span>{content}</span>
+    </Wrapper>
+  );
 };
