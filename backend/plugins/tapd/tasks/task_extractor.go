@@ -75,7 +75,7 @@ func ExtractTasks(taskCtx plugin.SubTaskContext) errors.Error {
 			if strings.Contains(toolL.Owner, ";") {
 				toolL.Owner = strings.Split(toolL.Owner, ";")[0]
 			}
-			toolL.Url = fmt.Sprintf("https://www.tapd.cn/%d/prong/stories/view/%d", toolL.WorkspaceId, toolL.Id)
+			toolL.Url = fmt.Sprintf("https://www.tapd.cn/%d/prong/tasks/view/%d", toolL.WorkspaceId, toolL.Id)
 
 			workSpaceTask := &models.TapdWorkSpaceTask{
 				ConnectionId: data.Options.ConnectionId,
