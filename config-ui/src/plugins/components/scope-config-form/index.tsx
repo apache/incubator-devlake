@@ -43,8 +43,8 @@ interface Props {
   showWarning?: boolean;
   scopeId?: ID;
   scopeConfigId?: ID;
-  onCancel?: () => void;
-  onSubmit?: (trId: string) => void;
+  onCancel: () => void;
+  onSubmit: (trId: string) => void;
 }
 
 export const ScopeConfigForm = ({
@@ -107,8 +107,7 @@ export const ScopeConfigForm = ({
     );
 
     if (success) {
-      onCancel?.();
-      onSubmit?.(res.id);
+      onSubmit(res.id);
     }
   };
 

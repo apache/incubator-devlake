@@ -113,6 +113,12 @@ export const DataScopeSelect = ({
                 dataIndex: 'name',
                 key: 'name',
               },
+              {
+                title: 'Scope Config',
+                dataIndex: 'scopeConfig',
+                key: 'scopeConfig',
+                render: (_, row) => (row.scopeConfigId ? 'Configured' : 'N/A'),
+              },
             ]}
             dataSource={data}
             rowSelection={{

@@ -16,7 +16,7 @@
  *
  */
 
-import { useState, useMemo } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { Button, Intent } from '@blueprintjs/core';
 
 import { Buttons, Table, IconButton, Dialog } from '@/components';
@@ -30,19 +30,24 @@ import * as S from './styled';
 interface Props {
   plugin: string;
   connectionId: ID;
-  onCancel?: () => void;
-  onSubmit?: (trId: string) => void;
+  scopeConfigId?: ID;
+  onCancel: () => void;
+  onSubmit: (trId: ID) => void;
 }
 
-export const ScopeConfigSelect = ({ plugin, connectionId, onCancel, onSubmit }: Props) => {
+export const ScopeConfigSelect = ({ plugin, connectionId, scopeConfigId, onCancel, onSubmit }: Props) => {
   const [version, setVersion] = useState(1);
-  const [trId, setTrId] = useState<string>();
+  const [trId, setTrId] = useState<ID>();
   const [isOpen, setIsOpen] = useState(false);
   const [updatedId, setUpdatedId] = useState<ID>();
 
   const { ready, data } = useRefreshData(() => API.getScopeConfigs(plugin, connectionId), [version]);
 
   const dataSource = useMemo(() => (data ? data : []), [data]);
+
+  useEffect(() => {
+    setTrId(scopeConfigId);
+  }, [scopeConfigId]);
 
   const handleShowDialog = () => {
     setIsOpen(true);
@@ -58,9 +63,10 @@ export const ScopeConfigSelect = ({ plugin, connectionId, onCancel, onSubmit }: 
     handleShowDialog();
   };
 
-  const handleSubmit = async () => {
+  const handleSubmit = async (trId: ID) => {
     handleHideDialog();
     setVersion((v) => v + 1);
+    setTrId(trId);
   };
 
   return (
@@ -84,8 +90,8 @@ export const ScopeConfigSelect = ({ plugin, connectionId, onCancel, onSubmit }: 
         rowSelection={{
           rowKey: 'id',
           type: 'radio',
-          selectedRowKeys: trId ? [`${trId}`] : [],
-          onChange: (selectedRowKeys) => setTrId(`${selectedRowKeys[0]}`),
+          selectedRowKeys: trId ? [trId] : [],
+          onChange: (selectedRowKeys) => setTrId(selectedRowKeys[0]),
         }}
         noShadow
       />

@@ -19,8 +19,6 @@
 import { useMemo, useState } from 'react';
 import { Button, Intent } from '@blueprintjs/core';
 
-import { getPluginId } from '@/plugins';
-
 import { GitHubDataScope } from '@/plugins/register/github';
 import { JiraDataScope } from '@/plugins/register/jira';
 import { GitLabDataScope } from '@/plugins/register/gitlab';
@@ -31,6 +29,7 @@ import { SonarQubeDataScope } from '@/plugins/register/sonarqube';
 import { PagerDutyDataScope } from '@/plugins/register/pagerduty';
 import { TapdDataScope } from '@/plugins/register/tapd';
 import { ZentaoDataScope } from '@/plugins/register/zentao';
+import { operator } from '@/utils';
 
 import * as API from './api';
 import * as S from './styled';
@@ -49,40 +48,29 @@ export const DataScopeSelectRemote = ({ plugin, connectionId, disabledScope, onS
 
   const error = useMemo(() => (!scope.length ? 'No Data Scope is Selected' : ''), [scope]);
 
-  const getDataScope = async (scope: any) => {
-    try {
-      const res = await API.getDataScope(plugin, connectionId, scope[getPluginId(plugin)]);
-      return {
-        ...scope,
-        transformationRuleId: res.transformationRuleId,
-      };
-    } catch {
-      return scope;
-    }
-  };
-
   const handleSubmit = async () => {
-    setOperating(true);
-    try {
-      const data = await Promise.all(scope.map((sc: any) => getDataScope(sc)));
-      const res =
+    const [success, res] = await operator(
+      async () =>
         plugin === 'zentao'
           ? [
               ...(await API.updateDataScopeWithType(plugin, connectionId, 'product', {
-                data: data.filter((s) => s.type !== 'project'),
+                data: scope.filter((s: any) => s.type !== 'project'),
               })),
               ...(await API.updateDataScopeWithType(plugin, connectionId, 'project', {
-                data: data.filter((s) => s.type === 'project'),
+                data: scope.filter((s: any) => s.type === 'project'),
               })),
             ]
-          : await API.updateDataScope(plugin, connectionId, {
-              data,
-            });
+          : API.updateDataScope(plugin, connectionId, {
+              data: scope,
+            }),
+      {
+        setOperating,
+        formatMessage: () => 'Add data scope successful.',
+      },
+    );
 
+    if (success) {
       onSubmit(res);
-    } finally {
-      setOperating(false);
-      onCancel();
     }
   };
 
