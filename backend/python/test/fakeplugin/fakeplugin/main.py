@@ -18,10 +18,9 @@ from datetime import datetime
 from typing import Optional
 import json
 
-from sqlmodel import Field
 from pydantic import SecretStr
 
-from pydevlake import Plugin, Connection, TransformationRule, Stream, ToolModel, ToolScope, RemoteScopeGroup, DomainType
+from pydevlake import Plugin, Connection, TransformationRule, Stream, ToolModel, ToolScope, RemoteScopeGroup, DomainType, Field
 from pydevlake.domain_layer.devops import CicdScope, CICDPipeline, CICDStatus, CICDResult, CICDType
 
 VALID_TOKEN = "this_is_a_valid_token"
