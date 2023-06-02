@@ -127,18 +127,31 @@ class Job(ToolModel, table=True):
     id: str = Field(primary_key=True)
     build_id: str = Field(primary_key=True)
     name: str
-    startTime: datetime.datetime
-    finishTime: datetime.datetime
+    startTime: Optional[datetime.datetime]
+    finishTime: Optional[datetime.datetime]
     state: JobState
-    result: JobResult
+    result: Optional[JobResult]
 
     @classmethod
     def migrate(self, session: Session):
         dialect = session.bind.dialect.name
-        if dialect == 'mysql':
-            session.execute(f'ALTER TABLE {self.__tablename__} DROP PRIMARY KEY')
-        elif dialect == 'postgresql':
-            session.execute(f'ALTER TABLE {self.__tablename__} DROP CONSTRAINT {self.__tablename__}_pkey')
-        else:
+        if dialect not in ['mysql', 'postgresql']:
             raise Exception(f'Unsupported dialect {dialect}')
-        session.execute(f'ALTER TABLE {self.__tablename__} ADD PRIMARY KEY (id, build_id)')
+        table = self.__tablename__
+
+        # Add build_id column and add it tp primary key
+        if dialect == 'mysql':
+            session.execute(f'ALTER TABLE {table} DROP PRIMARY KEY')
+        elif dialect == 'postgresql':
+            session.execute(f'ALTER TABLE {table} DROP CONSTRAINT {table}_pkey')
+        session.execute(f'ALTER TABLE {table} ADD PRIMARY KEY (id, build_id)')
+
+        # Make columns nullable
+        if dialect == 'mysql':
+            session.execute(f'ALTER TABLE {table} MODIFY COLUMN startTime DATETIME NULL')
+            session.execute(f'ALTER TABLE {table} MODIFY COLUMN finishTime DATETIME NULL')
+            session.execute(f'ALTER TABLE {table} MODIFY COLUMN result VARCHAR(255) NULL')
+        elif dialect == 'postgresql':
+            session.execute(f'ALTER TABLE {table} ALTER COLUMN "startTime" DROP NOT NULL')
+            session.execute(f'ALTER TABLE {table} ALTER COLUMN "finishTime" DROP NOT NULL')
+            session.execute(f'ALTER TABLE {table} ALTER COLUMN "result" DROP NOT NULL')
