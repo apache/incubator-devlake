@@ -21,8 +21,8 @@ from datetime import datetime
 
 import inflect
 from pydantic import AnyUrl, SecretStr, validator
-from sqlalchemy import Column, DateTime
-from sqlalchemy.orm import declared_attr, Session
+from sqlalchemy import Column, DateTime, Text
+from sqlalchemy.orm import declared_attr
 from sqlalchemy.inspection import inspect
 from sqlmodel import SQLModel, Field
 
@@ -169,6 +169,7 @@ def _get_plugin_name(cls):
 
 
 class SubtaskRun(SQLModel, table=True):
+    __tablename__ = '_pydevlake_subtask_runs'
     """
     Table storing information about the execution of subtasks.
     """
@@ -177,4 +178,4 @@ class SubtaskRun(SQLModel, table=True):
     connection_id: int
     started: datetime
     completed: Optional[datetime]
-    state: str # JSON encoded dict of atomic values
+    state: str = Field(sa_column=Column(Text)) # JSON encoded dict of atomic values
