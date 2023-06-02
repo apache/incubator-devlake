@@ -52,6 +52,11 @@ func Init(br context.BasicRes) {
 		params,
 		nil,
 	)
+	remoteHelper = api.NewRemoteHelper[models.JenkinsConnection, models.JenkinsJob, models.Job, models.Job](
+		basicRes,
+		vld,
+		connectionHelper,
+	)
 	scHelper = api.NewScopeConfigHelper[models.JenkinsScopeConfig](
 		basicRes,
 		vld,

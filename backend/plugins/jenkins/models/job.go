@@ -42,7 +42,7 @@ func (JenkinsJob) TableName() string {
 }
 
 func (j JenkinsJob) ScopeId() string {
-	return j.Path + "job/" + j.Name + "/"
+	return j.FullName
 }
 
 func (j JenkinsJob) ScopeName() string {

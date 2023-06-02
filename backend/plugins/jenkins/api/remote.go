@@ -52,6 +52,7 @@ func RemoteScopes(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, er
 			_, err = GetJobsPage(apiClient, gid, queryData.Page-1, queryData.PerPage, func(job *models.Job) errors.Error {
 				// this is a group
 				if job.Jobs != nil {
+					job.Path = gid
 					resBody = append(resBody, *job)
 				}
 				return nil
@@ -72,6 +73,7 @@ func RemoteScopes(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, er
 			_, err = GetJobsPage(apiClient, gid, queryData.Page-1, queryData.PerPage, func(job *models.Job) errors.Error {
 				// this is only a job
 				if job.Jobs == nil {
+					job.Path = gid
 					resBody = append(resBody, *job)
 				}
 				return nil
@@ -117,7 +119,7 @@ func SearchRemoteScopes(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutp
 						}
 						count++
 					}
-					if len(resBody) > 0 {
+					if len(resBody) > queryData.PerPage {
 						return breakError
 					}
 				}
@@ -127,6 +129,6 @@ func SearchRemoteScopes(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutp
 				return nil, errors.BadInput.Wrap(err, "failed to get create apiClient")
 			}
 
-			return resBody, err
+			return resBody, nil
 		})
 }
