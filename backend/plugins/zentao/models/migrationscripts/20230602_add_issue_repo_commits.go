@@ -32,11 +32,13 @@ func (*addIssueRepoCommitsTables) Up(basicRes context.BasicRes) errors.Error {
 		basicRes,
 		&archived.ZentaoBugCommit{},
 		&archived.ZentaoBugRepoCommit{},
+		&archived.ZentaoStoryCommit{},
+		&archived.ZentaoStoryRepoCommit{},
 	)
 }
 
 func (*addIssueRepoCommitsTables) Version() uint64 {
-	return 20230602000001
+	return 20230602000011
 }
 
 func (*addIssueRepoCommitsTables) Name() string {
