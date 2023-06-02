@@ -36,6 +36,9 @@ class Builds(Stream):
             yield raw_build, state
 
     def convert(self, b: Build, ctx: Context):
+        if not b.start_time:
+            return
+
         result = None
         if b.result == Build.BuildResult.Canceled:
             result = devops.CICDResult.ABORT
@@ -65,13 +68,18 @@ class Builds(Stream):
         if ctx.transformation_rule and ctx.transformation_rule.production_pattern.search(b.name):
             environment = devops.CICDEnvironment.PRODUCTION
 
+        if b.finish_time:
+            duration_sec = abs(b.finish_time.second - b.start_time.second)
+        else:
+            duration_sec = 0
+
         yield devops.CICDPipeline(
             name=b.name,
             status=status,
             created_date=b.start_time,
             finished_date=b.finish_time,
             result=result,
-            duration_sec=abs(b.finish_time.second-b.start_time.second),
+            duration_sec=duration_sec,
             environment=environment,
             type=type,
             cicd_scope_id=ctx.scope.domain_id(),

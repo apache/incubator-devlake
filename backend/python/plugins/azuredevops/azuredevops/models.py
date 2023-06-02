@@ -120,10 +120,10 @@ class Job(ToolModel, table=True):
     id: str = Field(primary_key=True)
     build_id: str = Field(primary_key=True)
     name: str
-    startTime: datetime.datetime
-    finishTime: datetime.datetime
+    start_time: Optional[datetime.datetime]
+    finish_time: Optional[datetime.datetime]
     state: JobState
-    result: JobResult
+    result: Optional[JobResult]
 
 
 @migration(20230524181430)
