@@ -97,9 +97,11 @@ func (s *ScopeDatabaseHelperImpl[Conn, Scope, Tr]) GetScopeAndConfig(connectionI
 	scopeConfig := new(Tr)
 	scIdField := reflectField(scope, "ScopeConfigId")
 	if scIdField.IsValid() {
-		err = s.db.First(scopeConfig, dal.Where("id = ?", scIdField.Uint()))
-		if err != nil {
-			return nil, nil, err
+		if scIdField.Uint() != 0 {
+			err = s.db.First(scopeConfig, dal.Where("id = ?", scIdField.Uint()))
+			if err != nil {
+				return nil, nil, err
+			}
 		}
 	}
 	entitiesField := reflectField(scopeConfig, "Entities")

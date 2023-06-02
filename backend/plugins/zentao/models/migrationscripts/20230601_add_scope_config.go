@@ -56,6 +56,22 @@ func (task20230601) TableName() string {
 	return "_tool_zentao_tasks"
 }
 
+type project20230602 struct {
+	ScopeConfigId uint64 `json:"scopeConfigId,omitempty" mapstructure:"scopeConfigId"`
+}
+
+func (project20230602) TableName() string {
+	return "_tool_zentao_projects"
+}
+
+type product20230602 struct {
+	ScopeConfigId uint64 `json:"scopeConfigId,omitempty" mapstructure:"scopeConfigId"`
+}
+
+func (product20230602) TableName() string {
+	return "_tool_zentao_products"
+}
+
 func (*addScopeConfigTables) Up(basicRes context.BasicRes) errors.Error {
 
 	return migrationhelper.AutoMigrateTables(
@@ -64,11 +80,13 @@ func (*addScopeConfigTables) Up(basicRes context.BasicRes) errors.Error {
 		&bug20230601{},
 		&story20230601{},
 		&task20230601{},
+		&project20230602{},
+		&product20230602{},
 	)
 }
 
 func (*addScopeConfigTables) Version() uint64 {
-	return 20230601000001
+	return 20230602000001
 }
 
 func (*addScopeConfigTables) Name() string {

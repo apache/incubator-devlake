@@ -44,7 +44,7 @@ type ProjectResponse struct {
 }
 
 func (pr *ProjectResponse) ConvertFix() {
-	for i, _ := range pr.Values {
+	for i := range pr.Values {
 		pr.Values[i].ConvertFix()
 	}
 }

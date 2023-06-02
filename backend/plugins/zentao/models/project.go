@@ -65,10 +65,10 @@ type ZentaoProject struct {
 	//LastEditedBy   string              `json:"lastEditedBy" mapstructure:"lastEditedBy"`
 	LastEditedDate *helper.Iso8601Time `json:"lastEditedDate" mapstructure:"lastEditedDate"`
 	ClosedBy       string
-	ClosedByRes    interface{}         `json:"closedBy" mapstructure:"closedBy" gorm:'-'`
+	ClosedByRes    interface{}         `json:"closedBy" mapstructure:"closedBy" gorm:"-"`
 	ClosedDate     *helper.Iso8601Time `json:"closedDate" mapstructure:"closedDate"`
 	CanceledBy     string
-	CanceledByRes  interface{}         `json:"canceledBy" mapstructure:"canceledBy" gorm:'-'`
+	CanceledByRes  interface{}         `json:"canceledBy" mapstructure:"canceledBy" gorm:"-"`
 	CanceledDate   *helper.Iso8601Time `json:"canceledDate" mapstructure:"canceledDate"`
 	SuspendedDate  *helper.Iso8601Time `json:"suspendedDate" mapstructure:"suspendedDate"`
 	PO             string              `json:"po" mapstructure:"po"`
@@ -93,6 +93,7 @@ type ZentaoProject struct {
 	TotalLeft     float64 `json:"totalLeft" mapstructure:"totalLeft"`
 	Progress      float64 `json:"progress" mapstructure:"progress"`
 	TotalReal     int     `json:"totalReal" mapstructure:"totalReal"`
+	ScopeConfigId uint64  `json:"scopeConfigId,omitempty" mapstructure:"scopeConfigId"`
 }
 type PM struct {
 	PmId       int64  `json:"id" mapstructure:"id"`
@@ -114,20 +115,30 @@ type Hours struct {
 	HoursTotalReal     float64 `json:"totalReal" mapstructure:"totalReal"`
 }
 
-func (zp *ZentaoProject) ConvertFix() {
-	switch cb := zp.ClosedByRes.(type) {
+func (p *ZentaoProject) ConvertFix() {
+	switch cb := p.ClosedByRes.(type) {
 	case string:
-		zp.ClosedBy = cb
+		p.ClosedBy = cb
 	default:
-		zp.ClosedBy = fmt.Sprintf("%v", cb)
+		if cb == nil {
+			p.ClosedBy = ""
+		} else {
+			p.ClosedBy = fmt.Sprintf("%v", cb)
+		}
 	}
+	p.ClosedByRes = p.ClosedBy
 
-	switch cb := zp.CanceledByRes.(type) {
+	switch cb := p.CanceledByRes.(type) {
 	case string:
-		zp.CanceledBy = cb
+		p.CanceledBy = cb
 	default:
-		zp.CanceledBy = fmt.Sprintf("%v", cb)
+		if cb == nil {
+			p.CanceledBy = ""
+		} else {
+			p.CanceledBy = fmt.Sprintf("%v", cb)
+		}
 	}
+	p.CanceledByRes = p.CanceledBy
 }
 
 func (ZentaoProject) TableName() string {

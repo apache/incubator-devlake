@@ -127,28 +127,18 @@ func TestMakeDataSourcePipelinePlanV200(t *testing.T) {
 // mockBasicRes FIXME ...
 func mockBasicRes() {
 	testZentaoProduct := &models.ZentaoProduct{
-		ConnectionId: 1,
-		Id:           1,
-		Name:         "test/testRepo",
-		Type:         `product/normal`,
-		//ScopeConfigId: 1,
+		ConnectionId:  1,
+		Id:            1,
+		Name:          "test/testRepo",
+		Type:          `product/normal`,
+		ScopeConfigId: 0,
 	}
 	testZentaoProject := &models.ZentaoProject{
-		ConnectionId: 1,
-		Id:           1,
-		Name:         "test/testRepo",
-		Type:         `project`,
-		//ScopeConfigId: 1,
-	}
-
-	testScopeConfig := &models.ZentaoScopeConfig{
-		ScopeConfig: common.ScopeConfig{
-			Entities: []string{"TICKET"},
-			Model: common.Model{
-				ID: 1,
-			},
-		},
-		Name: "Zentao scope config",
+		ConnectionId:  1,
+		Id:            1,
+		Name:          "test/testRepo",
+		Type:          `project`,
+		ScopeConfigId: 0,
 	}
 	mockRes := unithelper.DummyBasicRes(func(mockDal *mockdal.Dal) {
 		mockDal.On("First", mock.AnythingOfType("*models.ZentaoProject"), mock.Anything).Run(func(args mock.Arguments) {
@@ -162,8 +152,7 @@ func mockBasicRes() {
 		}).Return(nil)
 
 		mockDal.On("First", mock.AnythingOfType("*models.ZentaoScopeConfig"), mock.Anything).Run(func(args mock.Arguments) {
-			dst := args.Get(0).(*models.ZentaoScopeConfig)
-			*dst = *testScopeConfig
+			panic("The empty scope should not call First() for ZentaoScopeConfig")
 		}).Return(nil)
 	})
 	Init(mockRes)
