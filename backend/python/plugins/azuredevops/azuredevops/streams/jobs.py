@@ -43,6 +43,9 @@ class Jobs(Substream):
                 yield raw_job, state
 
     def convert(self, j: Job, ctx: Context) -> Iterable[devops.CICDPipeline]:
+        if not j.start_time:
+            return
+
         result = None
         if j.result == Job.JobResult.Abandoned:
             result = devops.CICDResult.ABORT
@@ -72,16 +75,21 @@ class Jobs(Substream):
         if ctx.transformation_rule and ctx.transformation_rule.production_pattern.search(j.name):
             environment = devops.CICDEnvironment.PRODUCTION
 
+        if j.finish_time:
+            duration_sec = abs(j.finish_time.second-j.start_time.second)
+        else:
+            duration_sec = 0
+
         yield devops.CICDTask(
             id=j.id,
             name=j.name,
             pipeline_id=j.build_id,
             status=status,
-            created_date=j.startTime,
-            finished_date=j.finishTime,
+            created_date=j.start_time,
+            finished_date=j.finish_time,
             result=result,
             type=type,
-            duration_sec=abs(j.finishTime.second-j.startTime.second),
+            duration_sec=duration_sec,
             environment=environment,
             cicd_scope_id=ctx.scope.domain_id()
         )
