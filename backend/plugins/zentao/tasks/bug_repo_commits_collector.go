@@ -74,7 +74,7 @@ func CollectBugRepoCommits(taskCtx plugin.SubTaskContext) errors.Error {
 				ProductId:    data.Options.ProductId,
 				ProjectId:    data.Options.ProjectId,
 			},
-			Table: RAW_BUG_COMMITS_TABLE,
+			Table: RAW_BUG_REPO_COMMITS_TABLE,
 		},
 		ApiClient:   data.ApiClient,
 		Input:       iterator,
