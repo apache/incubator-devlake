@@ -44,6 +44,7 @@ func ExtractBugRepoCommits(taskCtx plugin.SubTaskContext) errors.Error {
 	if data.Options.ProductId == 0 {
 		return nil
 	}
+	re := regexp.MustCompile(`(\d+)(?:,\s*(\d+))*`)
 
 	extractor, err := api.NewApiExtractor(api.ApiExtractorArgs{
 		RawDataSubTaskArgs: api.RawDataSubTaskArgs{
@@ -63,7 +64,6 @@ func ExtractBugRepoCommits(taskCtx plugin.SubTaskContext) errors.Error {
 			}
 
 			results := make([]interface{}, 0)
-			re := regexp.MustCompile(`(\d+)(?:,\s*(\d+))*`)
 			match := re.FindStringSubmatch(res.Log.Comment)
 			for i := 1; i < len(match); i++ {
 				if match[i] != "" {

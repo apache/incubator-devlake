@@ -46,6 +46,7 @@ func ExtractBugCommits(taskCtx plugin.SubTaskContext) errors.Error {
 		return nil
 	}
 
+	re := regexp.MustCompile(`href='(.*?)'`)
 	extractor, err := api.NewApiExtractor(api.ApiExtractorArgs{
 		RawDataSubTaskArgs: api.RawDataSubTaskArgs{
 			Ctx: taskCtx,
@@ -85,7 +86,6 @@ func ExtractBugCommits(taskCtx plugin.SubTaskContext) errors.Error {
 				ActionDesc:   res.Desc,
 			}
 
-			re := regexp.MustCompile(`href='(.*?)'`)
 			match := re.FindStringSubmatch(res.Extra)
 			if len(match) > 1 {
 				bugCommits.Extra = match[1]

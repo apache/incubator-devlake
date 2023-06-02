@@ -18,6 +18,7 @@ limitations under the License.
 package tasks
 
 import (
+	"fmt"
 	"net/http"
 	"net/url"
 	"strings"
@@ -154,6 +155,10 @@ func parseRepoUrl(repoUrl string) (string, string, string, error) {
 	host := parsedUrl.Host
 	host = strings.TrimPrefix(host, "www.")
 	pathParts := strings.Split(parsedUrl.Path, "/")
+	if len(pathParts) < 3 {
+		return "", "", "", fmt.Errorf("invaild RepoUrl: %s", repoUrl)
+	}
+
 	namespace := pathParts[1]
 	repoName := pathParts[2]
 
