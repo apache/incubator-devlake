@@ -16,7 +16,7 @@
  *
  */
 
-import React, { useState } from 'react';
+import { useState } from 'react';
 import { Button, Collapse, Icon } from '@blueprintjs/core';
 import { groupBy, sortBy } from 'lodash';
 

@@ -16,7 +16,6 @@
  *
  */
 
-import React from 'react';
 import { Icon, IconName } from '@blueprintjs/core';
 import classNames from 'classnames';
 

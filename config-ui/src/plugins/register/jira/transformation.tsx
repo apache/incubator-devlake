@@ -16,7 +16,7 @@
  *
  */
 
-import React, { useState, useEffect, useMemo } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { FormGroup, Tag, Icon, Intent } from '@blueprintjs/core';
 import { Popover2 } from '@blueprintjs/popover2';
 import { uniqWith } from 'lodash';

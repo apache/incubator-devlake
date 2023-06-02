@@ -16,7 +16,7 @@
  *
  */
 
-import React, { useMemo } from 'react';
+import { useMemo } from 'react';
 import { Intent } from '@blueprintjs/core';
 
 import { TextTooltip } from '@/components';

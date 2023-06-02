@@ -16,8 +16,6 @@
  *
  */
 
-import React from 'react';
-
 import { ConnectionName } from './name';
 import { ConnectionEndpoint } from './endpoint';
 import { ConnectionUsername } from './username';

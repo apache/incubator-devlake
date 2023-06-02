@@ -16,7 +16,7 @@
  *
  */
 
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { Tag, Switch, InputGroup, Intent } from '@blueprintjs/core';
 
 import { ExternalLink, HelpTooltip } from '@/components';

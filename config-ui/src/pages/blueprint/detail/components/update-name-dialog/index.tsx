@@ -16,7 +16,7 @@
  *
  */
 
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { InputGroup } from '@blueprintjs/core';
 
 import { Dialog } from '@/components';

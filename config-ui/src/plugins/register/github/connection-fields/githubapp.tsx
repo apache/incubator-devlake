@@ -16,7 +16,7 @@
  *
  */
 
-import React, { useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Button, FormGroup, InputGroup, MenuItem, TextArea } from '@blueprintjs/core';
 import { Select2 } from '@blueprintjs/select';
 

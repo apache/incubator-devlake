@@ -16,7 +16,7 @@
  *
  */
 
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import type { McsID, McsItem, McsColumn } from 'miller-columns-select';
 import MillerColumnsSelect from 'miller-columns-select';
 

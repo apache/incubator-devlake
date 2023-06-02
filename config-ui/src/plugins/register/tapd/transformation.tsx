@@ -16,7 +16,7 @@
  *
  */
 
-import React, { useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { FormGroup, Intent, Tag } from '@blueprintjs/core';
 
 import { HelpTooltip, MultiSelector, PageLoading } from '@/components';

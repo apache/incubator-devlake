@@ -16,7 +16,7 @@
  *
  */
 
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import MillerColumnsSelect from 'miller-columns-select';
 
 import { Loading } from '@/components';
