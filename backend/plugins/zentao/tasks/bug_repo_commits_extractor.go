@@ -67,8 +67,10 @@ func ExtractBugRepoCommits(taskCtx plugin.SubTaskContext) errors.Error {
 			match := re.FindStringSubmatch(res.Log.Comment)
 			for i := 1; i < len(match); i++ {
 				if match[i] != "" {
-					bugRepoCommits := &models.ZentaoBugRepoCommits{
+					bugRepoCommits := &models.ZentaoBugRepoCommit{
 						ConnectionId: data.Options.ConnectionId,
+						Product:      data.Options.ProductId,
+						Project:      data.Options.ProjectId,
 						RepoUrl:      res.Repo.CodePath,
 						CommitSha:    res.Revision,
 						IssueId:      match[i], // bug id

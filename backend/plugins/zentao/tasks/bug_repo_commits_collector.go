@@ -45,37 +45,16 @@ func CollectBugRepoCommits(taskCtx plugin.SubTaskContext) errors.Error {
 	db := taskCtx.GetDal()
 	data := taskCtx.GetData().(*ZentaoTaskData)
 
-	// state manager
-	collectorWithState, err := api.NewStatefulApiCollector(api.RawDataSubTaskArgs{
-		Ctx: taskCtx,
-		Params: ZentaoApiParams{
-			ConnectionId: data.Options.ConnectionId,
-			ProductId:    data.Options.ProductId,
-			ProjectId:    data.Options.ProjectId,
-		},
-		Table: RAW_BUG_REPO_COMMITS_TABLE,
-	}, data.TimeAfter)
-	if err != nil {
-		return err
-	}
 	// load bugs id from db
 	clauses := []dal.Clause{
 		dal.Select("object_id, repo_revision"),
-		dal.From(&models.ZentaoBugCommits{}),
+		dal.From(&models.ZentaoBugCommit{}),
 		dal.Where(
 			"product = ? AND connection_id = ?",
 			data.Options.ProductId, data.Options.ConnectionId,
 		),
 	}
-	// TO DO: update_at--->xxx
-	// incremental collection
-	incremental := collectorWithState.IsIncremental()
-	if incremental {
-		clauses = append(
-			clauses,
-			dal.Where("updated_at > ?", collectorWithState.LatestState.LatestSuccessStart),
-		)
-	}
+
 	cursor, err := db.Cursor(clauses...)
 	if err != nil {
 		return err
@@ -87,7 +66,7 @@ func CollectBugRepoCommits(taskCtx plugin.SubTaskContext) errors.Error {
 	}
 
 	// collect bug repo commits
-	err = collectorWithState.InitCollector(api.ApiCollectorArgs{
+	collector, err := api.NewApiCollector(api.ApiCollectorArgs{
 		RawDataSubTaskArgs: api.RawDataSubTaskArgs{
 			Ctx: taskCtx,
 			Params: ZentaoApiParams{
@@ -99,7 +78,6 @@ func CollectBugRepoCommits(taskCtx plugin.SubTaskContext) errors.Error {
 		},
 		ApiClient:   data.ApiClient,
 		Input:       iterator,
-		Incremental: incremental,
 		UrlTemplate: "../..{{ .Input.RepoRevision }}",
 		ResponseParser: func(res *http.Response) ([]json.RawMessage, errors.Error) {
 			var result RepoRevisionResponse
@@ -111,12 +89,13 @@ func CollectBugRepoCommits(taskCtx plugin.SubTaskContext) errors.Error {
 			return []json.RawMessage{byteData}, nil
 
 		},
+		AfterResponse: ignoreHTTPStatus404,
 	})
 	if err != nil {
 		return err
 	}
 
-	return collectorWithState.Execute()
+	return collector.Execute()
 }
 
 type SimpleZentaoBugCommit struct {

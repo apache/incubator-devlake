@@ -19,6 +19,7 @@ package tasks
 
 import (
 	"net/http"
+	"net/url"
 	"strings"
 
 	"github.com/apache/incubator-devlake/core/errors"
@@ -141,4 +142,30 @@ func getStdTypeMappings(data *ZentaoTaskData) map[string]string {
 		stdTypeMappings[userType] = strings.ToUpper(stdType)
 	}
 	return stdTypeMappings
+}
+
+// parseRepoUrl parses a repository URL and returns the host, namespace, and repository name.
+func parseRepoUrl(repoUrl string) (string, string, string, error) {
+	parsedUrl, err := url.Parse(repoUrl)
+	if err != nil {
+		return "", "", "", err
+	}
+
+	host := parsedUrl.Host
+	host = strings.TrimPrefix(host, "www.")
+	pathParts := strings.Split(parsedUrl.Path, "/")
+	namespace := pathParts[1]
+	repoName := pathParts[2]
+
+	return host, namespace, repoName, nil
+}
+
+func ignoreHTTPStatus404(res *http.Response) errors.Error {
+	if res.StatusCode == http.StatusUnauthorized {
+		return errors.Unauthorized.New("authentication failed, please check your AccessToken")
+	}
+	if res.StatusCode == http.StatusNotFound {
+		return api.ErrIgnoreAndContinue
+	}
+	return nil
 }

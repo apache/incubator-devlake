@@ -30,8 +30,8 @@ func (*addIssueRepoCommitsTables) Up(basicRes context.BasicRes) errors.Error {
 
 	return migrationhelper.AutoMigrateTables(
 		basicRes,
-		&archived.ZentaoBugCommits{},
-		&archived.ZentaoBugRepoCommits{},
+		&archived.ZentaoBugCommit{},
+		&archived.ZentaoBugRepoCommit {},
 	)
 }
 

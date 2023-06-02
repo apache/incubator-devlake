@@ -67,7 +67,7 @@ func ExtractBugCommits(taskCtx plugin.SubTaskContext) errors.Error {
 				return nil, nil
 			}
 
-			bugCommits := &models.ZentaoBugCommits{
+			bugCommits := &models.ZentaoBugCommit{
 				ConnectionId: data.Options.ConnectionId,
 				ID:           res.ID,
 				ObjectType:   res.ObjectType,

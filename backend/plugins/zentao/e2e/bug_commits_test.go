@@ -21,6 +21,7 @@ import (
 	"testing"
 
 	"github.com/apache/incubator-devlake/core/models/common"
+	"github.com/apache/incubator-devlake/core/models/domainlayer/crossdomain"
 	"github.com/apache/incubator-devlake/helpers/e2ehelper"
 	"github.com/apache/incubator-devlake/plugins/zentao/impl"
 	"github.com/apache/incubator-devlake/plugins/zentao/models"
@@ -40,29 +41,36 @@ func TestZentaoBugCommitsDataFlow(t *testing.T) {
 		},
 	}
 
-	// import raw data table
+	// import _raw_zentao_api_bug_commits raw data table
 	dataflowTester.ImportCsvIntoRawTable("./raw_tables/_raw_zentao_api_bug_commits.csv",
 		"_raw_zentao_api_bug_commits")
 
-	// verify extraction
-	dataflowTester.FlushTabler(&models.ZentaoBugCommits{})
+	// verify bug commit extraction
+	dataflowTester.FlushTabler(&models.ZentaoBugCommit{})
 	dataflowTester.Subtask(tasks.ExtractBugCommitsMeta, taskData)
-	dataflowTester.VerifyTableWithOptions(&models.ZentaoBugCommits{}, e2ehelper.TableOptions{
+	dataflowTester.VerifyTableWithOptions(&models.ZentaoBugCommit{}, e2ehelper.TableOptions{
 		CSVRelPath:  "./snapshot_tables/_tool_zentao_bug_commits.csv",
 		IgnoreTypes: []interface{}{common.NoPKModel{}},
 	})
 
-	// // verify conversion
-	// dataflowTester.FlushTabler(&ticket.Issue{})
-	// dataflowTester.FlushTabler(&ticket.BoardIssue{})
-	// dataflowTester.Subtask(tasks.ConvertBugMeta, taskData)
-	// dataflowTester.VerifyTableWithOptions(&ticket.Issue{}, e2ehelper.TableOptions{
-	// 	CSVRelPath:   "./snapshot_tables/issues_bug.csv",
-	// 	IgnoreTypes:  []interface{}{common.NoPKModel{}},
-	// 	IgnoreFields: []string{"original_project"},
-	// })
-	// dataflowTester.VerifyTableWithOptions(&ticket.BoardIssue{}, e2ehelper.TableOptions{
-	// 	CSVRelPath:  "./snapshot_tables/board_issues_bug.csv",
-	// 	IgnoreTypes: []interface{}{common.NoPKModel{}},
-	// })
+	// import _raw_zentao_api_bug_repo_commits raw data table
+	dataflowTester.ImportCsvIntoRawTable("./raw_tables/_raw_zentao_api_bug_repo_commits.csv",
+		"_raw_zentao_api_bug_repo_commits")
+
+	// verify bug repo commit extraction
+	dataflowTester.FlushTabler(&models.ZentaoBugCommit{})
+	dataflowTester.Subtask(tasks.ExtractBugRepoCommitsMeta, taskData)
+	dataflowTester.VerifyTableWithOptions(&models.ZentaoBugRepoCommit{}, e2ehelper.TableOptions{
+		CSVRelPath:  "./snapshot_tables/_tool_zentao_bug_repo_commits.csv",
+		IgnoreTypes: []interface{}{common.NoPKModel{}},
+	})
+
+	// verify bug repo commit conversion
+	dataflowTester.FlushTabler(&crossdomain.IssueRepoCommit{})
+	dataflowTester.Subtask(tasks.ConvertBugRepoCommitsMeta, taskData)
+	dataflowTester.VerifyTableWithOptions(&crossdomain.IssueRepoCommit{}, e2ehelper.TableOptions{
+		CSVRelPath:  "./snapshot_tables/issue_bug_repo_commits.csv",
+		IgnoreTypes: []interface{}{common.NoPKModel{}},
+	})
+
 }

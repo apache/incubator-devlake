@@ -61,20 +61,19 @@ func CollectBugCommits(taskCtx plugin.SubTaskContext) errors.Error {
 
 	// load bugs id from db
 	clauses := []dal.Clause{
-		dal.Select("id"),
+		dal.Select("id, last_edited_date"),
 		dal.From(&models.ZentaoBug{}),
 		dal.Where(
 			"product = ? AND connection_id = ?",
 			data.Options.ProductId, data.Options.ConnectionId,
 		),
 	}
-	// TO DO: update_at-->xxx
 	// incremental collection
 	incremental := collectorWithState.IsIncremental()
 	if incremental {
 		clauses = append(
 			clauses,
-			dal.Where("updated_at > ?", collectorWithState.LatestState.LatestSuccessStart),
+			dal.Where("last_edited_date is not null and last_edited_date > ?", collectorWithState.LatestState.LatestSuccessStart),
 		)
 	}
 	cursor, err := db.Cursor(clauses...)
@@ -112,6 +111,7 @@ func CollectBugCommits(taskCtx plugin.SubTaskContext) errors.Error {
 			return data.Actions, nil
 
 		},
+		AfterResponse: ignoreHTTPStatus404,
 	})
 	if err != nil {
 		return err

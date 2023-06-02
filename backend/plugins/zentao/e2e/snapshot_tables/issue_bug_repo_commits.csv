@@ -1,0 +1,2 @@
+issue_id,repo_url,commit_sha,host,namespace,repo_name
+zentao:ZentaoBugRepoCommit:1:6094,http://devlake.gitlab.com/root/zentao-test,9ed3c33883a203e0cc90c44be40d105b23d98156,devlake.gitlab.com,root,zentao-test
