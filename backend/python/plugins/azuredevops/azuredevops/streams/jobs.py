@@ -79,10 +79,10 @@ class Jobs(Substream):
             status = devops.CICDStatus.IN_PROGRESS
 
         type = devops.CICDType.BUILD
-        if ctx.transformation_rule and ctx.transformation_rule.deployment_pattern.search(j.name):
+        if ctx.scope_config.deployment_pattern and ctx.scope_config.deployment_pattern.search(j.name):
             type = devops.CICDType.DEPLOYMENT
         environment = devops.CICDEnvironment.TESTING
-        if ctx.transformation_rule and ctx.transformation_rule.production_pattern.search(j.name):
+        if ctx.scope_config.production_pattern and ctx.scope_config.production_pattern.search(j.name):
             environment = devops.CICDEnvironment.PRODUCTION
 
         if j.finish_time:

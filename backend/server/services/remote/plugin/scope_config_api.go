@@ -27,80 +27,80 @@ import (
 	"github.com/apache/incubator-devlake/helpers/pluginhelper/api"
 )
 
-func (pa *pluginAPI) PostTransformationRules(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, errors.Error) {
+func (pa *pluginAPI) PostScopeConfigs(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, errors.Error) {
 	connectionId, _ := strconv.ParseUint(input.Params["connectionId"], 10, 64)
 	if connectionId == 0 {
 		return nil, errors.BadInput.New("invalid connectionId")
 	}
-	txRule := pa.txRuleType.New()
+	scopeConfig := pa.scopeConfigType.New()
 	input.Body[`connectionId`] = connectionId
-	err := api.DecodeMapStruct(input.Body, txRule, false)
+	err := api.DecodeMapStruct(input.Body, scopeConfig, false)
 	if err != nil {
-		return nil, errors.BadInput.Wrap(err, "error in decoding transformation rule")
+		return nil, errors.BadInput.Wrap(err, "error in decoding scope config")
 	}
 	db := basicRes.GetDal()
-	err = api.CallDB(db.Create, txRule)
+	err = api.CallDB(db.Create, scopeConfig)
 	if err != nil {
 		return nil, err
 	}
-	return &plugin.ApiResourceOutput{Body: txRule.Unwrap(), Status: http.StatusOK}, nil
+	return &plugin.ApiResourceOutput{Body: scopeConfig.Unwrap(), Status: http.StatusOK}, nil
 }
 
-func (pa *pluginAPI) PatchTransformationRule(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, errors.Error) {
+func (pa *pluginAPI) PatchScopeConfig(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, errors.Error) {
 	connectionId, trId, err := extractTrParam(input.Params)
 	if err != nil {
 		return nil, err
 	}
 
-	txRule := pa.txRuleType.New()
+	scopeConfig := pa.scopeConfigType.New()
 	db := basicRes.GetDal()
-	err = api.CallDB(db.First, txRule, dal.Where("connection_id = ? AND id = ?", connectionId, trId))
+	err = api.CallDB(db.First, scopeConfig, dal.Where("connection_id = ? AND id = ?", connectionId, trId))
 	if err != nil {
-		return nil, errors.Default.Wrap(err, "no transformation rule with given id")
+		return nil, errors.Default.Wrap(err, "no scope config with given id")
 	}
 
 	input.Body[`connectionId`] = connectionId
 	input.Body[`id`] = trId
-	err = api.DecodeMapStruct(input.Body, txRule, false)
+	err = api.DecodeMapStruct(input.Body, scopeConfig, false)
 	if err != nil {
 		return nil, errors.Default.Wrap(err, "decoding error")
 	}
 
-	err = api.CallDB(db.Update, txRule)
+	err = api.CallDB(db.Update, scopeConfig)
 	if err != nil {
 		return nil, err
 	}
-	return &plugin.ApiResourceOutput{Body: txRule.Unwrap(), Status: http.StatusOK}, nil
+	return &plugin.ApiResourceOutput{Body: scopeConfig.Unwrap(), Status: http.StatusOK}, nil
 }
 
-func (pa *pluginAPI) GetTransformationRule(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, errors.Error) {
-	txRule := pa.txRuleType.New()
+func (pa *pluginAPI) GetScopeConfig(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, errors.Error) {
+	scopeConfig := pa.scopeConfigType.New()
 	db := basicRes.GetDal()
 	connectionId, trId, err := extractTrParam(input.Params)
 	if err != nil {
 		return nil, err
 	}
-	err = api.CallDB(db.First, txRule, dal.Where("connection_id = ? AND id = ?", connectionId, trId))
+	err = api.CallDB(db.First, scopeConfig, dal.Where("connection_id = ? AND id = ?", connectionId, trId))
 	if err != nil {
-		return nil, errors.Default.Wrap(err, "no transformation rule with given id")
+		return nil, errors.Default.Wrap(err, "no scope config with given id")
 	}
 
-	return &plugin.ApiResourceOutput{Body: txRule.Unwrap()}, nil
+	return &plugin.ApiResourceOutput{Body: scopeConfig.Unwrap()}, nil
 }
 
-func (pa *pluginAPI) ListTransformationRules(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, errors.Error) {
-	txRules := pa.txRuleType.NewSlice()
+func (pa *pluginAPI) ListScopeConfigs(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, errors.Error) {
+	scopeConfigs := pa.scopeConfigType.NewSlice()
 	limit, offset := api.GetLimitOffset(input.Query, "pageSize", "page")
 	if limit > 100 {
 		return nil, errors.BadInput.New("pageSize cannot exceed 100")
 	}
 
 	db := basicRes.GetDal()
-	err := api.CallDB(db.All, txRules, dal.Limit(limit), dal.Offset(offset))
+	err := api.CallDB(db.All, scopeConfigs, dal.Limit(limit), dal.Offset(offset))
 	if err != nil {
 		return nil, err
 	}
-	return &plugin.ApiResourceOutput{Body: txRules.Unwrap()}, nil
+	return &plugin.ApiResourceOutput{Body: scopeConfigs.Unwrap()}, nil
 }
 
 func extractTrParam(params map[string]string) (connectionId uint64, transformationId uint64, err errors.Error) {

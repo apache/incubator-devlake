@@ -81,8 +81,8 @@ func TestRemoteScopes(t *testing.T) {
 func TestCreateScope(t *testing.T) {
 	client := CreateClient(t)
 	conn := CreateTestConnection(client)
-	rule := CreateTestTransformationRule(client, conn.ID)
-	scope := CreateTestScope(client, rule, conn.ID)
+	scopeConfig := CreateTestScopeConfig(client, conn.ID)
+	scope := CreateTestScope(client, scopeConfig, conn.ID)
 
 	scopes := client.ListScopes(PLUGIN_NAME, conn.ID, false)
 	require.Equal(t, 1, len(scopes))
@@ -100,8 +100,8 @@ func TestCreateScope(t *testing.T) {
 func TestRunPipeline(t *testing.T) {
 	client := CreateClient(t)
 	conn := CreateTestConnection(client)
-	rule := CreateTestTransformationRule(client, conn.ID)
-	scope := CreateTestScope(client, rule, conn.ID)
+	scopeConfig := CreateTestScopeConfig(client, conn.ID)
+	scope := CreateTestScope(client, scopeConfig, conn.ID)
 	pipeline := client.RunPipeline(models.NewPipeline{
 		Name: "remote_test",
 		Plan: []plugin.PipelineStage{
@@ -151,29 +151,31 @@ func TestBlueprintV200_withBlueprintDeletion(t *testing.T) {
 	require.Equal(t, params.blueprints[1].ID, bpsList.Blueprints[0].ID)
 }
 
-func TestCreateTxRule(t *testing.T) {
+func TestCreateScopeConfig(t *testing.T) {
 	client := CreateClient(t)
 	connection := CreateTestConnection(client)
+	scopeConfig := FakeScopeConfig{Name: "Scope config", Env: "test env", Entities: []string{"CICD"}}
 
-	res := client.CreateTransformationRule(PLUGIN_NAME, connection.ID, FakeTxRule{Name: "Tx rule", Env: "test env"})
-	txRule := helper.Cast[FakeTxRule](res)
+	res := client.CreateScopeConfig(PLUGIN_NAME, connection.ID, scopeConfig)
+	scopeConfig = helper.Cast[FakeScopeConfig](res)
 
-	res = client.GetTransformationRule(PLUGIN_NAME, connection.ID, txRule.Id)
-	txRule = helper.Cast[FakeTxRule](res)
-	require.Equal(t, "Tx rule", txRule.Name)
-	require.Equal(t, "test env", txRule.Env)
+	res = client.GetScopeConfig(PLUGIN_NAME, connection.ID, scopeConfig.Id)
+	scopeConfig = helper.Cast[FakeScopeConfig](res)
+	require.Equal(t, "Scope config", scopeConfig.Name)
+	require.Equal(t, "test env", scopeConfig.Env)
+	require.Equal(t, []string{"CICD"}, scopeConfig.Entities)
 }
 
-func TestUpdateTxRule(t *testing.T) {
+func TestUpdateScopeConfig(t *testing.T) {
 	client := CreateClient(t)
 	connection := CreateTestConnection(client)
-	res := client.CreateTransformationRule(PLUGIN_NAME, connection.ID, FakeTxRule{Name: "old name", Env: "old env"})
-	oldTxRule := helper.Cast[FakeTxRule](res)
+	res := client.CreateScopeConfig(PLUGIN_NAME, connection.ID, FakeScopeConfig{Name: "old name", Env: "old env", Entities: []string{}})
+	oldscopeConfig := helper.Cast[FakeScopeConfig](res)
 
-	client.PatchTransformationRule(PLUGIN_NAME, connection.ID, oldTxRule.Id, FakeTxRule{Name: "new name", Env: "new env"})
+	client.PatchScopeConfig(PLUGIN_NAME, connection.ID, oldscopeConfig.Id, FakeScopeConfig{Name: "new name", Env: "new env", Entities: []string{"CICD"}})
 
-	res = client.GetTransformationRule(PLUGIN_NAME, connection.ID, oldTxRule.Id)
-	txRule := helper.Cast[FakeTxRule](res)
-	require.Equal(t, "new name", txRule.Name)
-	require.Equal(t, "new env", txRule.Env)
+	res = client.GetScopeConfig(PLUGIN_NAME, connection.ID, oldscopeConfig.Id)
+	scopeConfig := helper.Cast[FakeScopeConfig](res)
+	require.Equal(t, "new name", scopeConfig.Name)
+	require.Equal(t, "new env", scopeConfig.Env)
 }

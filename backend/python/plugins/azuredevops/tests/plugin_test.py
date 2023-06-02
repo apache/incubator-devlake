@@ -18,7 +18,7 @@ import pytest
 
 from pydevlake.testing import assert_valid_plugin, assert_plugin_run
 
-from azuredevops.models import AzureDevOpsConnection, AzureDevOpsTransformationRule
+from azuredevops.models import AzureDevOpsConnection, GitRepositoryConfig
 from azuredevops.main import AzureDevOpsPlugin
 
 
@@ -34,6 +34,6 @@ def test_valid_plugin_and_connection():
 
     plugin = AzureDevOpsPlugin()
     connection = AzureDevOpsConnection(id=1, name='test_connection', token=token)
-    tx_rule = AzureDevOpsTransformationRule(id=1, name='test_rule')
+    scope_config = GitRepositoryConfig(id=1, name='test_config')
 
-    assert_plugin_run(plugin, connection, tx_rule)
+    assert_plugin_run(plugin, connection, scope_config)

@@ -18,6 +18,7 @@ import os
 from typing import Iterable, Optional
 from inspect import getmodule
 from datetime import datetime
+from enum import Enum
 
 import inflect
 from pydantic import AnyUrl, SecretStr, validator
@@ -70,9 +71,18 @@ class Connection(ToolTable, Model):
             return None
         return proxy
 
+class DomainType(Enum):
+    CODE = "CODE"
+    TICKET = "TICKET"
+    CODE_REVIEW = "CODEREVIEW"
+    CROSS = "CROSS"
+    CICD = "CICD"
+    CODE_QUALITY = "CODEQUALITY"
 
-class TransformationRule(ToolTable, Model):
+
+class ScopeConfig(ToolTable, Model):
     name: str
+    domain_types: list[DomainType] = Field(default_factory=list, alias="entities")
 
 
 class RawModel(SQLModel):
