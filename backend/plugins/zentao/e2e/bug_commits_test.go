@@ -58,7 +58,7 @@ func TestZentaoBugCommitsDataFlow(t *testing.T) {
 		"_raw_zentao_api_bug_repo_commits")
 
 	// verify bug repo commit extraction
-	dataflowTester.FlushTabler(&models.ZentaoBugCommit{})
+	dataflowTester.FlushTabler(&models.ZentaoBugRepoCommit{})
 	dataflowTester.Subtask(tasks.ExtractBugRepoCommitsMeta, taskData)
 	dataflowTester.VerifyTableWithOptions(&models.ZentaoBugRepoCommit{}, e2ehelper.TableOptions{
 		CSVRelPath:  "./snapshot_tables/_tool_zentao_bug_repo_commits.csv",
