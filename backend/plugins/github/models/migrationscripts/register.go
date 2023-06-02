@@ -23,7 +23,6 @@ import (
 
 // All return all the migration scripts
 func All() []plugin.MigrationScript {
-	println("github register.go")
 	return []plugin.MigrationScript{
 		new(addInitTables),
 		new(addGithubRunsTable),

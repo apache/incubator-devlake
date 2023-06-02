@@ -18,9 +18,10 @@ limitations under the License.
 package plugin
 
 import (
+	"net/http"
+
 	"github.com/apache/incubator-devlake/server/services/remote/models"
 	"github.com/mitchellh/mapstructure"
-	"net/http"
 
 	"github.com/apache/incubator-devlake/core/errors"
 	"github.com/apache/incubator-devlake/core/plugin"
@@ -103,8 +104,8 @@ func (pa *pluginAPI) DeleteScope(input *plugin.ApiResourceInput) (*plugin.ApiRes
 
 // convertScopeResponse adapt the "remote" scopes to a serializable api.ScopeRes
 func convertScopeResponse(scopes ...*api.ScopeRes[models.RemoteScope]) ([]map[string]any, errors.Error) {
-	var responses []map[string]any
-	for _, scope := range scopes {
+	responses := make([]map[string]any, len(scopes))
+	for i, scope := range scopes {
 		resMap := map[string]any{}
 		err := models.MapTo(api.ScopeRes[map[string]any]{
 			Scope:                  nil, //ignore intentionally
@@ -123,7 +124,7 @@ func convertScopeResponse(scopes ...*api.ScopeRes[models.RemoteScope]) ([]map[st
 		for k, v := range scopeMap {
 			resMap[k] = v
 		}
-		responses = append(responses, resMap)
+		responses[i] = resMap
 	}
 	return responses, nil
 }
