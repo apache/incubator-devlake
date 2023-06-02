@@ -30,55 +30,71 @@ import (
 	aha "github.com/apache/incubator-devlake/helpers/pluginhelper/api/apihelperabstract"
 )
 
+func GetJobsPage(
+	apiClient aha.ApiClientAbstract,
+	path string,
+	page int,
+	pageSize int,
+	callback func(job *models.Job) errors.Error,
+) (int, errors.Error) {
+	i := page * pageSize
+	var data struct {
+		Jobs []json.RawMessage `json:"jobs"`
+	}
+
+	// set query
+	query := url.Values{}
+	treeValue := fmt.Sprintf("jobs[name,class,url,color,base,jobs,upstreamProjects[name]]{%d,%d}", i, i+pageSize)
+	query.Set("tree", treeValue)
+
+	res, err := apiClient.Get(path+"/api/json", query, nil)
+	if err != nil {
+		return 0, err
+	}
+
+	err = helper.UnmarshalResponse(res, &data)
+	if err != nil {
+		// In some directories, after testing
+		// it is found that if the second page is empty, a 500 error will be returned.
+		// So we don't think it's an error to return 500 in this case
+		if i > 0 && res.StatusCode == http.StatusInternalServerError {
+			return 0, nil
+		}
+		return 0, err
+	}
+
+	for _, rawJobs := range data.Jobs {
+		job := &models.Job{}
+		err1 := json.Unmarshal(rawJobs, job)
+		if err1 != nil {
+			return len(data.Jobs), errors.Convert(err1)
+		}
+
+		err = callback(job)
+		if err != nil {
+			return len(data.Jobs), err
+		}
+	}
+
+	return len(data.Jobs), nil
+}
+
 func GetJobs(
 	apiClient aha.ApiClientAbstract,
 	path string,
 	pageSize int,
 	callback func(job *models.Job) errors.Error,
 ) errors.Error {
-	for i := 0; ; i += pageSize {
-		var data struct {
-			Jobs []json.RawMessage `json:"jobs"`
-		}
-
-		// set query
-		query := url.Values{}
-		treeValue := fmt.Sprintf("jobs[name,class,url,color,base,jobs,upstreamProjects[name]]{%d,%d}", i, i+pageSize)
-		query.Set("tree", treeValue)
-
-		res, err := apiClient.Get(path+"/api/json", query, nil)
+	for i := 0; ; i++ {
+		count, err := GetJobsPage(apiClient, path, i, pageSize, callback)
 		if err != nil {
 			return err
 		}
-
-		err = helper.UnmarshalResponse(res, &data)
-		if err != nil {
-			// In some directories, after testing
-			// it is found that if the second page is empty, a 500 error will be returned.
-			// So we don't think it's an error to return 500 in this case
-			if i > 0 && res.StatusCode == http.StatusInternalServerError {
-				return nil
-			}
-			return err
-		}
-
-		for _, rawJobs := range data.Jobs {
-			job := &models.Job{}
-			err1 := json.Unmarshal(rawJobs, job)
-			if err1 != nil {
-				return errors.Convert(err1)
-			}
-
-			err = callback(job)
-			if err != nil {
-				return err
-			}
-		}
-
-		if len(data.Jobs) < pageSize {
-			return nil
+		if count < pageSize {
+			break
 		}
 	}
+	return nil
 }
 
 func GetJob(

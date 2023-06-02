@@ -17,6 +17,10 @@ limitations under the License.
 
 package models
 
+import (
+	"github.com/apache/incubator-devlake/core/plugin"
+)
+
 type Job struct {
 	FullName         string    `gorm:"primaryKey;type:varchar(255)"`
 	Path             string    `gorm:"primaryKey;type:varchar(511)"`
@@ -29,6 +33,28 @@ type Job struct {
 	UpstreamProjects []Project `json:"upstreamProjects"`
 	Jobs             *[]Job    `json:"jobs" gorm:"-"`
 	*PrimaryView     `json:"primaryView"`
+}
+
+func (j Job) GroupId() string {
+	return j.Path + "job/" + j.Name + "/"
+}
+
+func (j Job) GroupName() string {
+	return j.Name
+}
+
+func (j Job) ConvertApiScope() plugin.ToolLayerScope {
+	return &JenkinsJob{
+		FullName:    j.FullName,
+		Name:        j.Name,
+		Path:        j.Path,
+		Class:       j.Class,
+		Color:       j.Color,
+		Base:        j.Base,
+		Url:         j.URL,
+		Description: j.Description,
+		PrimaryView: j.URL + j.Path + j.Class,
+	}
 }
 
 type Project struct {
