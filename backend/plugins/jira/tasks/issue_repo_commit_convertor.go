@@ -33,7 +33,7 @@ import (
 var ConvertIssueRepoCommitsMeta = plugin.SubTaskMeta{
 	Name:             "convertIssueRepoCommits",
 	EntryPoint:       ConvertIssueRepoCommits,
-	EnabledByDefault: false,
+	EnabledByDefault: true,
 	Description:      "convert Jira issue repo commits",
 	DomainTypes:      []string{plugin.DOMAIN_TYPE_CROSS},
 }
@@ -97,6 +97,7 @@ func ConvertIssueRepoCommits(taskCtx plugin.SubTaskContext) errors.Error {
 			item := &crossdomain.IssueRepoCommit{
 				IssueId:   issueIdGenerator.Generate(connectionId, issueCommit.IssueId),
 				CommitSha: issueCommit.CommitSha,
+				RepoUrl:   issueCommit.RepoUrl,
 			}
 			if commitRepoUrlRegex != nil {
 				groups := commitRepoUrlRegex.FindStringSubmatch(issueCommit.CommitUrl)

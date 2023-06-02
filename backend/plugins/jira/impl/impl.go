@@ -136,6 +136,9 @@ func (p Jira) SubTaskMetas() []plugin.SubTaskMeta {
 		tasks.ConvertSprintsMeta,
 		tasks.ConvertSprintIssuesMeta,
 
+		tasks.CollectDevelopmentPanelMeta,
+		tasks.ExtractDevelopmentPanelMeta,
+
 		tasks.ConvertIssueCommitsMeta,
 		tasks.ConvertIssueRepoCommitsMeta,
 
@@ -298,6 +301,9 @@ func (p Jira) ApiResources() map[string]map[string]plugin.ApiResourceHandler {
 		"connections/:connectionId/scope_configs/:id": {
 			"PATCH": api.UpdateScopeConfig,
 			"GET":   api.GetScopeConfig,
+		},
+		"connections/:connectionId/application_types": {
+			"GET": api.GetApplicationTypes,
 		},
 	}
 }

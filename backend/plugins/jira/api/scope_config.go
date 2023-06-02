@@ -18,7 +18,11 @@ limitations under the License.
 package api
 
 import (
+	"context"
+	"fmt"
 	"net/http"
+	"net/url"
+	"sort"
 	"strconv"
 
 	"github.com/apache/incubator-devlake/core/dal"
@@ -150,4 +154,68 @@ func GetScopeConfig(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, 
 // @Router /plugins/jira/connections/{connectionId}/scope_configs [GET]
 func GetScopeConfigList(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, errors.Error) {
 	return scHelper.List(input)
+}
+
+// GetApplicationTypes return issue application types
+// @Summary return issue application types
+// @Description return issue application types
+// @Tags plugins/jira
+// @Param connectionId path int true "connectionId"
+// @Param key query string false "issue key"
+// @Success 200  {object} []string
+// @Failure 400  {object} shared.ApiBody "Bad Request"
+// @Failure 500  {object} shared.ApiBody "Internal Error"
+// @Router /plugins/jira/connections/{connectionId}/application_types [GET]
+func GetApplicationTypes(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, errors.Error) {
+	var connection models.JiraConnection
+	err := connectionHelper.First(&connection, input.Params)
+	if err != nil {
+		return nil, err
+	}
+	key := input.Query.Get("key")
+	if key == "" {
+		return nil, errors.BadInput.New("key is empty")
+	}
+
+	apiClient, err := api.NewApiClientFromConnection(context.TODO(), basicRes, &connection)
+	if err != nil {
+		return nil, err
+	}
+
+	var res *http.Response
+	res, err = apiClient.Get(fmt.Sprintf("api/2/issue/%s", key), nil, nil)
+	if err != nil {
+		return nil, err
+	}
+	var issue struct {
+		Id string `json:"id"`
+	}
+	err = api.UnmarshalResponse(res, &issue)
+	if err != nil {
+		return nil, err
+	}
+	// get application types
+	query := url.Values{}
+	query.Set("issueId", issue.Id)
+	res, err = apiClient.Get("dev-status/1.0/issue/summary", query, nil)
+	if err != nil {
+		return nil, err
+	}
+	var summary struct {
+		Summary struct {
+			Repository struct {
+				ByInstanceType map[string]interface{} `json:"byInstanceType"`
+			} `json:"repository"`
+		} `json:"summary"`
+	}
+	err = api.UnmarshalResponse(res, &summary)
+	if err != nil {
+		return nil, err
+	}
+	var types []string
+	for k := range summary.Summary.Repository.ByInstanceType {
+		types = append(types, k)
+	}
+	sort.Strings(types)
+	return &plugin.ApiResourceOutput{Body: types, Status: http.StatusOK}, nil
 }
