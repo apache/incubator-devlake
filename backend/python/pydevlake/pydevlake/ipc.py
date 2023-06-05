@@ -27,6 +27,7 @@ from sqlalchemy.engine import Engine
 from pydevlake.context import Context
 from pydevlake.message import Message
 from pydevlake.stream import DomainType
+from pydevlake.model import SubtaskRun
 
 
 def plugin_method(func):
@@ -135,6 +136,8 @@ def create_db_engine(db_url) -> Engine:
         del connect_args['parseTime']
     try:
         engine = create_engine(base_url, connect_args=connect_args)
+        tables = SubtaskRun.metadata.tables
+        tables[SubtaskRun.__tablename__].create(engine, checkfirst=True)
         return engine
     except Exception as e:
         raise Exception(f"Unable to make a database connection") from e
