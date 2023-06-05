@@ -1,0 +1,3 @@
+connection_id,id,object_type,object_id,product,project,execution,actor,action,date,comment,extra,host,repo_revision,action_read,vision,efforted,action_desc
+1,37659,task,135,0,48,49,Administrator,linked2revision,2023-05-30 21:05:56,,http://54.158.1.10:30001/repo-revision-1-0-ad92faa87e6eaf121d382f0f775cd6b98c5e65fe.json,54.158.1.10:30001,/repo-revision-1-0-ad92faa87e6eaf121d382f0f775cd6b98c5e65fe.json,1,rnd,0,"2023-05-30 21:05:56, 由 <strong>Administrator</strong> 关联到代码提交 <strong><a href='http://54.158.1.10:30001/repo-revision-1-0-ad92faa87e6eaf121d382f0f775cd6b98c5e65fe.json'  >ad92faa87e</a>
+</strong>。"

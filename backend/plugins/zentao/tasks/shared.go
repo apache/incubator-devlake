@@ -156,11 +156,14 @@ func parseRepoUrl(repoUrl string) (string, string, string, error) {
 	host = strings.TrimPrefix(host, "www.")
 	pathParts := strings.Split(parsedUrl.Path, "/")
 	if len(pathParts) < 3 {
-		return "", "", "", fmt.Errorf("invaild RepoUrl: %s", repoUrl)
+		return "", "", "", fmt.Errorf("invalid RepoUrl: %s", repoUrl)
 	}
 
-	namespace := pathParts[1]
-	repoName := pathParts[2]
+	namespace := strings.Join(pathParts[1:len(pathParts)-1], "/")
+	repoName := pathParts[len(pathParts)-1]
+	if repoName == "" {
+		return "", "", "", fmt.Errorf("invalid RepoUrl: %s (empty repository name)", repoUrl)
+	}
 
 	return host, namespace, repoName, nil
 }

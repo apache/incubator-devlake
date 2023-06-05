@@ -1,0 +1,2 @@
+issue_id,repo_url,commit_sha,host,namespace,repo_name
+zentao:ZentaoTaskRepoCommit:1:135,http://devlake.gitlab.com/root/zentao-test,ad92faa87e6eaf121d382f0f775cd6b98c5e65fe,devlake.gitlab.com,root,zentao-test
