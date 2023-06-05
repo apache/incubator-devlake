@@ -44,7 +44,7 @@ import (
 // @Success 200  {object} tasks.JiraScopeConfig
 // @Failure 400  {object} shared.ApiBody "Bad Request"
 // @Failure 500  {object} shared.ApiBody "Internal Error"
-// @Router /plugins/jira/connections/{connectionId}/scope_configs [POST]
+// @Router /plugins/jira/connections/{connectionId}/scope-configs [POST]
 func CreateScopeConfig(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, errors.Error) {
 	rule, err := makeDbScopeConfigFromInput(input)
 	if err != nil {
@@ -70,7 +70,7 @@ func CreateScopeConfig(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutpu
 // @Success 200  {object} tasks.JiraScopeConfig
 // @Failure 400  {object} shared.ApiBody "Bad Request"
 // @Failure 500  {object} shared.ApiBody "Internal Error"
-// @Router /plugins/jira/connections/{connectionId}/scope_configs/{id} [PATCH]
+// @Router /plugins/jira/connections/{connectionId}/scope-configs/{id} [PATCH]
 func UpdateScopeConfig(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, errors.Error) {
 	connectionId, e := strconv.ParseUint(input.Params["connectionId"], 10, 64)
 	if e != nil || connectionId == 0 {
@@ -136,7 +136,7 @@ func makeDbScopeConfigFromInput(input *plugin.ApiResourceInput) (*models.JiraSco
 // @Success 200  {object} tasks.JiraScopeConfig
 // @Failure 400  {object} shared.ApiBody "Bad Request"
 // @Failure 500  {object} shared.ApiBody "Internal Error"
-// @Router /plugins/jira/connections/{connectionId}/scope_configs/{id} [GET]
+// @Router /plugins/jira/connections/{connectionId}/scope-configs/{id} [GET]
 func GetScopeConfig(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, errors.Error) {
 	return scHelper.Get(input)
 }
@@ -151,7 +151,7 @@ func GetScopeConfig(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, 
 // @Success 200  {object} []tasks.JiraScopeConfig
 // @Failure 400  {object} shared.ApiBody "Bad Request"
 // @Failure 500  {object} shared.ApiBody "Internal Error"
-// @Router /plugins/jira/connections/{connectionId}/scope_configs [GET]
+// @Router /plugins/jira/connections/{connectionId}/scope-configs [GET]
 func GetScopeConfigList(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, errors.Error) {
 	return scHelper.List(input)
 }
@@ -165,7 +165,7 @@ func GetScopeConfigList(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutp
 // @Success 200  {object} []string
 // @Failure 400  {object} shared.ApiBody "Bad Request"
 // @Failure 500  {object} shared.ApiBody "Internal Error"
-// @Router /plugins/jira/connections/{connectionId}/application_types [GET]
+// @Router /plugins/jira/connections/{connectionId}/application-types [GET]
 func GetApplicationTypes(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, errors.Error) {
 	var connection models.JiraConnection
 	err := connectionHelper.First(&connection, input.Params)
@@ -218,4 +218,98 @@ func GetApplicationTypes(input *plugin.ApiResourceInput) (*plugin.ApiResourceOut
 	}
 	sort.Strings(types)
 	return &plugin.ApiResourceOutput{Body: types, Status: http.StatusOK}, nil
+}
+
+// GetCommitsURLs return some commits URLs
+// @Summary return some commits URLs, at most 5
+// @Description return some commits URLs, at most 5
+// @Tags plugins/jira
+// @Param connectionId path int true "connectionId"
+// @Param key query string true "issue key"
+// @Param applicationType query string true "application type"
+// @Success 200  {object} []string
+// @Failure 400  {object} shared.ApiBody "Bad Request"
+// @Failure 500  {object} shared.ApiBody "Internal Error"
+// @Router /plugins/jira/connections/{connectionId}/dev-panel-commits [GET]
+func GetCommitsURLs(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, errors.Error) {
+	var connection models.JiraConnection
+	err := connectionHelper.First(&connection, input.Params)
+	if err != nil {
+		return nil, err
+	}
+	// get issue key
+	key := input.Query.Get("key")
+	if key == "" {
+		return nil, errors.BadInput.New("key is empty")
+	}
+	// get application types
+	applicationType := input.Query.Get("applicationType")
+	if applicationType == "" {
+		return nil, errors.BadInput.New("applicationType is empty")
+	}
+	// get issue ID from issue key
+	apiClient, err := api.NewApiClientFromConnection(context.TODO(), basicRes, &connection)
+	if err != nil {
+		return nil, err
+	}
+
+	var res *http.Response
+	res, err = apiClient.Get(fmt.Sprintf("api/2/issue/%s", key), nil, nil)
+	if err != nil {
+		return nil, err
+	}
+	var issue struct {
+		Id string `json:"id"`
+	}
+	err = api.UnmarshalResponse(res, &issue)
+	if err != nil {
+		return nil, err
+	}
+	// get commits
+	query := url.Values{}
+	query.Set("issueId", issue.Id)
+	query.Set("applicationType", applicationType)
+	query.Set("dataType", "repository")
+	res, err = apiClient.Get("dev-status/1.0/issue/detail", query, nil)
+	if err != nil {
+		return nil, err
+	}
+	type commit struct {
+		ID              string          `json:"id"`
+		DisplayID       string          `json:"displayId"`
+		AuthorTimestamp api.Iso8601Time `json:"authorTimestamp"`
+		URL             string          `json:"url"`
+	}
+	var detail struct {
+		Detail []struct {
+			Repositories []struct {
+				Commits []commit `json:"commits"`
+			} `json:"repositories"`
+		} `json:"detail"`
+	}
+
+	err = api.UnmarshalResponse(res, &detail)
+	if err != nil {
+		return nil, err
+	}
+	var commits []commit
+	for _, item := range detail.Detail {
+		for _, repo := range item.Repositories {
+			commits = append(commits, repo.Commits...)
+		}
+	}
+
+	// sort by authorTimestamp
+	sort.Slice(commits, func(i, j int) bool {
+		return commits[i].AuthorTimestamp.ToTime().After(commits[j].AuthorTimestamp.ToTime())
+	})
+	// return at most 5 commits
+	var commitURLs []string
+	for i, cmt := range commits {
+		if i >= 5 {
+			break
+		}
+		commitURLs = append(commitURLs, cmt.URL)
+	}
+	return &plugin.ApiResourceOutput{Body: commitURLs, Status: http.StatusOK}, nil
 }

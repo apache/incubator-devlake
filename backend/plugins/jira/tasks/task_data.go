@@ -57,6 +57,9 @@ func (r *JiraScopeConfig) ToDb() (*models.JiraScopeConfig, errors.Error) {
 	if err != nil {
 		return nil, errors.Default.Wrap(err, "error marshaling TypeMappings")
 	}
+	if r.ApplicationType != "" && len(r.RemotelinkRepoPattern) == 0 {
+		return nil, errors.Default.New("error remotelinkRepoPattern is empty")
+	}
 	remotelinkRepoPattern, err := json.Marshal(r.RemotelinkRepoPattern)
 	if err != nil {
 		return nil, errors.Default.Wrap(err, "error marshaling RemotelinkRepoPattern")

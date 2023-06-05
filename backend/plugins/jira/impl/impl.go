@@ -302,8 +302,11 @@ func (p Jira) ApiResources() map[string]map[string]plugin.ApiResourceHandler {
 			"PATCH": api.UpdateScopeConfig,
 			"GET":   api.GetScopeConfig,
 		},
-		"connections/:connectionId/application_types": {
+		"connections/:connectionId/application-types": {
 			"GET": api.GetApplicationTypes,
+		},
+		"connections/:connectionId/dev-panel-commits": {
+			"GET": api.GetCommitsURLs,
 		},
 	}
 }
