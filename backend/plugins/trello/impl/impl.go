@@ -159,11 +159,11 @@ func (p Trello) ApiResources() map[string]map[string]plugin.ApiResourceHandler {
 		"connections/:connectionId/proxy/rest/*path": {
 			"GET": api.Proxy,
 		},
-		"connections/:connectionId/scope_configs": {
+		"connections/:connectionId/scope-configs": {
 			"POST": api.CreateScopeConfig,
 			"GET":  api.GetScopeConfigList,
 		},
-		"connections/:connectionId/scope_configs/:id": {
+		"connections/:connectionId/scope-configs/:id": {
 			"PATCH": api.UpdateScopeConfig,
 			"GET":   api.GetScopeConfig,
 		},

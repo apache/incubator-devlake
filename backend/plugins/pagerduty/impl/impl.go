@@ -148,11 +148,11 @@ func (p PagerDuty) ApiResources() map[string]map[string]plugin.ApiResourceHandle
 			"PATCH":  api.UpdateScope,
 			"DELETE": api.DeleteScope,
 		},
-		"connections/:connectionId/scope_configs": {
+		"connections/:connectionId/scope-configs": {
 			"POST": api.CreateScopeConfig,
 			"GET":  api.GetScopeConfigList,
 		},
-		"connections/:connectionId/scope_configs/:id": {
+		"connections/:connectionId/scope-configs/:id": {
 			"PATCH": api.UpdateScopeConfig,
 			"GET":   api.GetScopeConfig,
 		},
