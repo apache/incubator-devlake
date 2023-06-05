@@ -18,7 +18,6 @@ limitations under the License.
 package archived
 
 import (
-	"github.com/apache/incubator-devlake/core/models/common"
 	"github.com/apache/incubator-devlake/core/models/migrationscripts/archived"
 )
 
@@ -49,7 +48,7 @@ func (ZentaoStoryCommit) TableName() string {
 }
 
 type ZentaoStoryRepoCommit struct {
-	common.NoPKModel
+	archived.NoPKModel
 	ConnectionId uint64 `gorm:"primaryKey;type:BIGINT  NOT NULL"`
 	Product      int64  `json:"product"`
 	Project      int64  `json:"project"`
