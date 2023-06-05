@@ -42,7 +42,7 @@ var _ interface {
 	plugin.PluginMigration
 	plugin.DataSourcePluginBlueprintV200
 	plugin.CloseablePluginTask
-	plugin.PluginSource
+	// plugin.PluginSource
 } = (*Jira)(nil)
 
 type Jira struct {

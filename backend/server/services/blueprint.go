@@ -335,8 +335,7 @@ func MakePlanForBlueprint(blueprint *models.Blueprint, skipCollectors bool) (plu
 	var plan plugin.PipelinePlan
 	switch bpSettings.Version {
 	case "1.0.0":
-		// Notice: v1 not complete SkipOnFail & TimeAfter
-		plan, err = GeneratePlanJsonV100(bpSettings)
+		return nil, errors.BadInput.New("Blueprint v1.0.0 had been deprecated, please se v2.0.0 instead")
 	case "2.0.0":
 		// load project metric plugins and convert it to a map
 		metrics := make(map[string]json.RawMessage)

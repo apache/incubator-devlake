@@ -18,11 +18,8 @@ limitations under the License.
 package api
 
 import (
-	"fmt"
 	"time"
 
-	"github.com/apache/incubator-devlake/core/context"
-	"github.com/apache/incubator-devlake/core/dal"
 	"github.com/apache/incubator-devlake/core/errors"
 	"github.com/apache/incubator-devlake/core/models/domainlayer"
 	"github.com/apache/incubator-devlake/core/models/domainlayer/devops"
@@ -35,11 +32,11 @@ import (
 
 func MakeDataSourcePipelinePlanV200(subtaskMetas []plugin.SubTaskMeta, connectionId uint64, bpScopes []*plugin.BlueprintScopeV200, syncPolicy *plugin.BlueprintSyncPolicy) (plugin.PipelinePlan, []plugin.Scope, errors.Error) {
 	plan := make(plugin.PipelinePlan, len(bpScopes))
-	plan, err := makeDataSourcePipelinePlanV200(basicRes, subtaskMetas, plan, bpScopes, connectionId, syncPolicy)
+	plan, err := makeDataSourcePipelinePlanV200(subtaskMetas, plan, bpScopes, connectionId, syncPolicy)
 	if err != nil {
 		return nil, nil, err
 	}
-	scopes, err := makeScopesV200(basicRes, bpScopes, connectionId)
+	scopes, err := makeScopesV200(bpScopes, connectionId)
 	if err != nil {
 		return nil, nil, err
 	}
@@ -47,23 +44,7 @@ func MakeDataSourcePipelinePlanV200(subtaskMetas []plugin.SubTaskMeta, connectio
 	return plan, scopes, nil
 }
 
-func getScopeConfigByScopeId(basicRes context.BasicRes, connectionId uint64, scopeId string) (*models.JenkinsScopeConfig, errors.Error) {
-	db := basicRes.GetDal()
-	scopeConfig := &models.JenkinsScopeConfig{}
-	err := db.First(scopeConfig,
-		dal.Select("c.*"),
-		dal.From("_tool_jenkins_scope_configs c"),
-		dal.Join("LEFT JOIN _tool_jenkins_jobs s ON (s.scope_config_id = c.id)"),
-		dal.Where("s.connection_id = ? AND s.full_name = ?", connectionId, scopeId),
-	)
-	if err != nil {
-		return nil, err
-	}
-	return scopeConfig, nil
-}
-
 func makeDataSourcePipelinePlanV200(
-	basicRes context.BasicRes,
 	subtaskMetas []plugin.SubTaskMeta,
 	plan plugin.PipelinePlan,
 	bpScopes []*plugin.BlueprintScopeV200,
@@ -85,7 +66,8 @@ func makeDataSourcePipelinePlanV200(
 			options["timeAfter"] = syncPolicy.TimeAfter.Format(time.RFC3339)
 		}
 
-		scopeConfig, err := getScopeConfigByScopeId(basicRes, connectionId, bpScope.Id)
+		// get scope config from db
+		_, scopeConfig, err := scopeHelper.DbHelper().GetScopeAndConfig(connectionId, bpScope.Id)
 		if err != nil {
 			return nil, err
 		}
@@ -106,22 +88,13 @@ func makeDataSourcePipelinePlanV200(
 }
 
 func makeScopesV200(
-	basicRes context.BasicRes,
 	bpScopes []*plugin.BlueprintScopeV200,
 	connectionId uint64,
 ) ([]plugin.Scope, errors.Error) {
 	scopes := make([]plugin.Scope, 0)
 	for _, bpScope := range bpScopes {
-		jenkinsJob := &models.JenkinsJob{}
-		// get repo from db
-		err := basicRes.GetDal().First(jenkinsJob,
-			dal.Where(`connection_id = ? and full_name = ?`,
-				connectionId, bpScope.Id))
-		if err != nil {
-			return nil, errors.Default.Wrap(err, fmt.Sprintf("fail to find jenkinsJob%s", bpScope.Id))
-		}
-
-		scopeConfig, err := getScopeConfigByScopeId(basicRes, connectionId, bpScope.Id)
+		// get job and scope config from db
+		jenkinsJob, scopeConfig, err := scopeHelper.DbHelper().GetScopeAndConfig(connectionId, bpScope.Id)
 		if err != nil {
 			return nil, err
 		}

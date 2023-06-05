@@ -28,7 +28,6 @@ import (
 	"github.com/apache/incubator-devlake/core/models/domainlayer/codequality"
 	"github.com/apache/incubator-devlake/core/models/domainlayer/didgen"
 	"github.com/apache/incubator-devlake/core/plugin"
-	"github.com/apache/incubator-devlake/core/utils"
 	helper "github.com/apache/incubator-devlake/helpers/pluginhelper/api"
 	aha "github.com/apache/incubator-devlake/helpers/pluginhelper/api/apihelperabstract"
 	"github.com/apache/incubator-devlake/plugins/sonarqube/models"
@@ -65,7 +64,7 @@ func makeDataSourcePipelinePlanV200(
 		options["connectionId"] = connectionId
 		options["projectKey"] = bpScope.Id
 
-		subtasks, err := helper.MakePipelinePlanSubtasks(subtaskMetas, bpScope.Entities)
+		subtasks, err := helper.MakePipelinePlanSubtasks(subtaskMetas, plugin.DOMAIN_TYPES)
 		if err != nil {
 			return nil, err
 		}
@@ -92,15 +91,15 @@ func makeScopesV200(bpScopes []*plugin.BlueprintScopeV200, connectionId uint64) 
 			return nil, errors.Default.Wrap(err, fmt.Sprintf("fail to find sonarqube project %s", bpScope.Id))
 		}
 		// add board to scopes
-		if utils.StringsContains(bpScope.Entities, plugin.DOMAIN_TYPE_CODE_QUALITY) {
-			stProject := &codequality.CqProject{
-				DomainEntity: domainlayer.DomainEntity{
-					Id: didgen.NewDomainIdGenerator(&models.SonarqubeProject{}).Generate(sonarqubeProject.ConnectionId, sonarqubeProject.ProjectKey),
-				},
-				Name: sonarqubeProject.Name,
-			}
-			scopes = append(scopes, stProject)
+		// if utils.StringsContains(bpScope.Entities, plugin.DOMAIN_TYPE_CODE_QUALITY) {
+		stProject := &codequality.CqProject{
+			DomainEntity: domainlayer.DomainEntity{
+				Id: didgen.NewDomainIdGenerator(&models.SonarqubeProject{}).Generate(sonarqubeProject.ConnectionId, sonarqubeProject.ProjectKey),
+			},
+			Name: sonarqubeProject.Name,
 		}
+		scopes = append(scopes, stProject)
+		// }
 	}
 	return scopes, nil
 }

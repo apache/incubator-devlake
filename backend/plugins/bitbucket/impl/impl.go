@@ -40,7 +40,9 @@ var _ plugin.PluginApi = (*Bitbucket)(nil)
 var _ plugin.PluginModel = (*Bitbucket)(nil)
 var _ plugin.PluginMigration = (*Bitbucket)(nil)
 var _ plugin.CloseablePluginTask = (*Bitbucket)(nil)
-var _ plugin.PluginSource = (*Bitbucket)(nil)
+var _ plugin.DataSourcePluginBlueprintV200 = (*Bitbucket)(nil)
+
+// var _ plugin.PluginSource = (*Bitbucket)(nil)
 
 type Bitbucket string
 

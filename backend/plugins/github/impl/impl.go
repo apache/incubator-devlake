@@ -41,7 +41,8 @@ var _ plugin.PluginApi = (*Github)(nil)
 var _ plugin.PluginModel = (*Github)(nil)
 var _ plugin.DataSourcePluginBlueprintV200 = (*Github)(nil)
 var _ plugin.CloseablePluginTask = (*Github)(nil)
-var _ plugin.PluginSource = (*Github)(nil)
+
+// var _ plugin.PluginSource = (*Github)(nil)
 
 type Github struct{}
 

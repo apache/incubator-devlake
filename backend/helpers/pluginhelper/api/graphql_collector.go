@@ -20,14 +20,15 @@ package api
 import (
 	"context"
 	"encoding/json"
+	"net/http"
+	"reflect"
+	"time"
+
 	"github.com/apache/incubator-devlake/core/dal"
 	"github.com/apache/incubator-devlake/core/errors"
 	"github.com/apache/incubator-devlake/core/models/common"
 	plugin "github.com/apache/incubator-devlake/core/plugin"
 	"github.com/merico-dev/graphql"
-	"net/http"
-	"reflect"
-	"time"
 )
 
 // CursorPager contains pagination information for a graphql request
@@ -139,7 +140,7 @@ func (collector *GraphqlCollector) Execute() errors.Error {
 
 	// flush data if not incremental collection
 	if collector.args.Incremental {
-		// re extract data for new transformation rules
+		// re extract data for new scope config
 		err = collector.ExtractExistRawData(divider)
 		if err != nil {
 			collector.checkError(err)

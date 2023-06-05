@@ -42,9 +42,9 @@ type PluginIcon interface {
 }
 
 // PluginSource abstracts data sources
-type PluginSource interface {
-	Connection() interface{}
-	Scope() interface{}
-	// Deprecated: rename to ScopeConfig
-	// TransformationRule() interface{}
-}
+// type PluginSource interface {
+// 	Connection() interface{}
+// 	Scope() interface{}
+// Deprecated: rename to ScopeConfig
+// ScopeConfig() interface{}
+// }

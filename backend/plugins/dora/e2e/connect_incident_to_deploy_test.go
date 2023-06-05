@@ -36,9 +36,6 @@ func TestConnectIncidentToDeploymentDataFlow(t *testing.T) {
 	taskData := &tasks.DoraTaskData{
 		Options: &tasks.DoraOptions{
 			ProjectName: "project1",
-			TransformationRules: tasks.TransformationRules{
-				ProductionPattern: "(?i)deploy",
-			},
 		},
 	}
 	// import raw data table

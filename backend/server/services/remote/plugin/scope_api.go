@@ -108,9 +108,9 @@ func convertScopeResponse(scopes ...*api.ScopeRes[models.RemoteScope]) ([]map[st
 	for i, scope := range scopes {
 		resMap := map[string]any{}
 		err := models.MapTo(api.ScopeRes[map[string]any]{
-			Scope:                  nil, //ignore intentionally
-			TransformationRuleName: scope.TransformationRuleName,
-			Blueprints:             scope.Blueprints,
+			Scope:           nil, //ignore intentionally
+			ScopeConfigName: scope.ScopeConfigName,
+			Blueprints:      scope.Blueprints,
 		}, &resMap)
 		if err != nil {
 			return nil, err

@@ -38,10 +38,10 @@ var _ plugin.PluginInit = (*Bamboo)(nil)
 var _ plugin.PluginTask = (*Bamboo)(nil)
 var _ plugin.PluginModel = (*Bamboo)(nil)
 var _ plugin.PluginMigration = (*Bamboo)(nil)
-var _ plugin.PluginBlueprintV100 = (*Bamboo)(nil)
 var _ plugin.DataSourcePluginBlueprintV200 = (*Bamboo)(nil)
 var _ plugin.CloseablePluginTask = (*Bamboo)(nil)
-var _ plugin.PluginSource = (*Bamboo)(nil)
+
+// var _ plugin.PluginSource = (*Bamboo)(nil)
 
 type Bamboo struct{}
 
@@ -230,10 +230,6 @@ func (p Bamboo) ApiResources() map[string]map[string]plugin.ApiResourceHandler {
 			"DELETE": api.DeleteScope,
 		},
 	}
-}
-
-func (p Bamboo) MakePipelinePlan(connectionId uint64, scope []*plugin.BlueprintScopeV100) (plugin.PipelinePlan, errors.Error) {
-	return nil, errors.Default.New("Bamboo does not support blueprint v100")
 }
 
 func (p Bamboo) Close(taskCtx plugin.TaskContext) errors.Error {

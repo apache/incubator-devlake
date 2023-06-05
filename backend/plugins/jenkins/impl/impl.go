@@ -42,7 +42,8 @@ var _ plugin.PluginApi = (*Jenkins)(nil)
 var _ plugin.PluginModel = (*Jenkins)(nil)
 var _ plugin.PluginMigration = (*Jenkins)(nil)
 var _ plugin.CloseablePluginTask = (*Jenkins)(nil)
-var _ plugin.PluginSource = (*Jenkins)(nil)
+
+// var _ plugin.PluginSource = (*Jenkins)(nil)
 var _ plugin.DataSourcePluginBlueprintV200 = (*Jenkins)(nil)
 
 type Jenkins struct{}

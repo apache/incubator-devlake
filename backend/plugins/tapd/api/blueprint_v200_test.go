@@ -24,7 +24,7 @@ import (
 	"github.com/apache/incubator-devlake/core/models/domainlayer"
 	"github.com/apache/incubator-devlake/core/models/domainlayer/ticket"
 	"github.com/apache/incubator-devlake/core/plugin"
-	mockcontext "github.com/apache/incubator-devlake/mocks/core/context"
+	"github.com/apache/incubator-devlake/helpers/unithelper"
 	mockdal "github.com/apache/incubator-devlake/mocks/core/dal"
 	mockplugin "github.com/apache/incubator-devlake/mocks/core/plugin"
 	"github.com/apache/incubator-devlake/plugins/tapd/models"
@@ -44,10 +44,10 @@ func TestMakeDataSourcePipelinePlanV200(t *testing.T) {
 	bpScopes := make([]*plugin.BlueprintScopeV200, 0)
 	bpScopes = append(bpScopes, bs)
 	plan := make(plugin.PipelinePlan, len(bpScopes))
-	basicRes := NewMockBasicRes()
-	plan, err = makeDataSourcePipelinePlanV200(basicRes, nil, plan, bpScopes, uint64(1), syncPolicy)
+	mockBasicRes()
+	plan, err = makeDataSourcePipelinePlanV200(nil, plan, bpScopes, uint64(1), syncPolicy)
 	assert.Nil(t, err)
-	scopes, err := makeScopesV200(basicRes, bpScopes, uint64(1))
+	scopes, err := makeScopesV200(bpScopes, uint64(1))
 	assert.Nil(t, err)
 
 	expectPlan := plugin.PipelinePlan{
@@ -76,8 +76,7 @@ func TestMakeDataSourcePipelinePlanV200(t *testing.T) {
 	assert.Equal(t, expectScopes, scopes)
 }
 
-// NewMockBasicRes FIXME ...
-func NewMockBasicRes() *mockcontext.BasicRes {
+func mockBasicRes() {
 	tapdWorkspace := &models.TapdWorkspace{
 		ConnectionId: 1,
 		Id:           10,
@@ -88,21 +87,16 @@ func NewMockBasicRes() *mockcontext.BasicRes {
 			Entities: []string{plugin.DOMAIN_TYPE_TICKET},
 		},
 	}
-
-	mockRes := new(mockcontext.BasicRes)
-	mockDal := new(mockdal.Dal)
-
-	mockDal.On("First", mock.AnythingOfType("*models.TapdScopeConfig"), mock.Anything).Run(func(args mock.Arguments) {
-		dst := args.Get(0).(*models.TapdScopeConfig)
-		*dst = *scopeConfig
-	}).Return(nil)
-	mockDal.On("First", mock.AnythingOfType("*models.TapdWorkspace"), mock.Anything).Run(func(args mock.Arguments) {
-		dst := args.Get(0).(*models.TapdWorkspace)
-		*dst = *tapdWorkspace
-	}).Return(nil)
-
-	mockRes.On("GetDal").Return(mockDal)
-	mockRes.On("GetConfig", mock.Anything).Return("")
-
-	return mockRes
+	// Refresh Global Variables and set the sql mock
+	mockRes := unithelper.DummyBasicRes(func(mockDal *mockdal.Dal) {
+		mockDal.On("First", mock.AnythingOfType("*models.TapdScopeConfig"), mock.Anything).Run(func(args mock.Arguments) {
+			dst := args.Get(0).(*models.TapdScopeConfig)
+			*dst = *scopeConfig
+		}).Return(nil)
+		mockDal.On("First", mock.AnythingOfType("*models.TapdWorkspace"), mock.Anything).Run(func(args mock.Arguments) {
+			dst := args.Get(0).(*models.TapdWorkspace)
+			*dst = *tapdWorkspace
+		}).Return(nil)
+	})
+	Init(mockRes)
 }

@@ -19,8 +19,9 @@ package models
 
 import (
 	"encoding/json"
-	"github.com/apache/incubator-devlake/core/errors"
 	"reflect"
+
+	"github.com/apache/incubator-devlake/core/errors"
 
 	"github.com/apache/incubator-devlake/core/dal"
 )
@@ -84,6 +85,10 @@ func (d *DynamicTabler) Set(x any) {
 
 func (d *DynamicTabler) Unwrap() any {
 	return d.wrapped
+}
+
+func (d *DynamicTabler) UnwrapPtr() *any {
+	return &d.wrapped
 }
 
 func (d *DynamicTabler) UnwrapSlice() []any {

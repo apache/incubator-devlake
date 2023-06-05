@@ -26,7 +26,7 @@ import (
 	"github.com/apache/incubator-devlake/core/models/domainlayer/ticket"
 	"github.com/apache/incubator-devlake/core/plugin"
 	helper "github.com/apache/incubator-devlake/helpers/pluginhelper/api"
-	mockcontext "github.com/apache/incubator-devlake/mocks/core/context"
+	"github.com/apache/incubator-devlake/helpers/unithelper"
 	mockdal "github.com/apache/incubator-devlake/mocks/core/dal"
 	mockplugin "github.com/apache/incubator-devlake/mocks/core/plugin"
 	"github.com/apache/incubator-devlake/plugins/github/models"
@@ -60,7 +60,7 @@ func TestMakeDataSourcePipelinePlanV200(t *testing.T) {
 	err := plugin.RegisterPlugin("github", mockMeta)
 	assert.Nil(t, err)
 	// Refresh Global Variables and set the sql mock
-	basicRes = NewMockBasicRes()
+	mockBasicRes()
 	bs := &plugin.BlueprintScopeV200{
 		Id: "1",
 	}
@@ -71,7 +71,6 @@ func TestMakeDataSourcePipelinePlanV200(t *testing.T) {
 	plan := make(plugin.PipelinePlan, len(bpScopes))
 	plan, err = makeDataSourcePipelinePlanV200(nil, plan, bpScopes, connection, syncPolicy)
 	assert.Nil(t, err)
-	basicRes = NewMockBasicRes()
 	scopes, err := makeScopesV200(bpScopes, connection)
 	assert.Nil(t, err)
 
@@ -131,8 +130,7 @@ func TestMakeDataSourcePipelinePlanV200(t *testing.T) {
 	assert.Equal(t, expectScopes, scopes)
 }
 
-// NewMockBasicRes FIXME ...
-func NewMockBasicRes() *mockcontext.BasicRes {
+func mockBasicRes() {
 	testGithubRepo := &models.GithubRepo{
 		ConnectionId:  1,
 		GithubId:      12345,
@@ -156,29 +154,17 @@ func NewMockBasicRes() *mockcontext.BasicRes {
 			"tagsOrder":   "reverse semver",
 		},
 	}
-	mockRes := new(mockcontext.BasicRes)
-	mockDal := new(mockdal.Dal)
+	// Refresh Global Variables and set the sql mock
+	mockRes := unithelper.DummyBasicRes(func(mockDal *mockdal.Dal) {
+		mockDal.On("First", mock.AnythingOfType("*models.GithubRepo"), mock.Anything).Run(func(args mock.Arguments) {
+			dst := args.Get(0).(*models.GithubRepo)
+			*dst = *testGithubRepo
+		}).Return(nil)
 
-	mockDal.On("First", mock.AnythingOfType("*models.GithubRepo"), mock.Anything).Run(func(args mock.Arguments) {
-		dst := args.Get(0).(*models.GithubRepo)
-		*dst = *testGithubRepo
-	}).Return(nil)
-
-	mockDal.On("First", mock.AnythingOfType("*models.GithubScopeConfig"), mock.Anything).Run(func(args mock.Arguments) {
-		dst := args.Get(0).(*models.GithubScopeConfig)
-		*dst = *testScopeConfig
-	}).Return(nil)
-	// mockDal.On("First", mock.Anything, mock.Anything).Run(func(args mock.Arguments) {
-	// 	switch dst := args.Get(0).(type) {
-	// 	case *models.GithubRepo:
-	// 		*dst = *testGithubRepo
-	// 	case *models.GithubScopeConfig:
-	// 		*dst = *testScopeConfig
-	// 	}
-	// }).Return(nil)
-
-	mockRes.On("GetDal").Return(mockDal)
-	mockRes.On("GetConfig", mock.Anything).Return("")
-
-	return mockRes
+		mockDal.On("First", mock.AnythingOfType("*models.GithubScopeConfig"), mock.Anything).Run(func(args mock.Arguments) {
+			dst := args.Get(0).(*models.GithubScopeConfig)
+			*dst = *testScopeConfig
+		}).Return(nil)
+	})
+	Init(mockRes)
 }

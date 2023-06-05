@@ -19,14 +19,15 @@ package plugin
 
 import (
 	"fmt"
+	"reflect"
+	"time"
+
 	"github.com/apache/incubator-devlake/core/context"
 	"github.com/apache/incubator-devlake/core/dal"
 	"github.com/apache/incubator-devlake/core/errors"
 	"github.com/apache/incubator-devlake/core/plugin"
 	"github.com/apache/incubator-devlake/helpers/pluginhelper/api"
 	"github.com/apache/incubator-devlake/server/services/remote/models"
-	"reflect"
-	"time"
 )
 
 type ScopeDatabaseHelperImpl struct {
@@ -74,14 +75,15 @@ func (s *ScopeDatabaseHelperImpl) UpdateScope(connectionId uint64, scopeId strin
 	return s.save([]*models.RemoteScope{scope}, nil, &now)
 }
 
-func (s *ScopeDatabaseHelperImpl) GetScope(connectionId uint64, scopeId string) (models.RemoteScope, errors.Error) {
+func (s *ScopeDatabaseHelperImpl) GetScope(connectionId uint64, scopeId string) (*models.RemoteScope, errors.Error) {
 	query := dal.Where(fmt.Sprintf("connection_id = ? AND %s = ?", s.params.ScopeIdColumnName), connectionId, scopeId)
 	scope := s.pa.scopeType.New()
 	err := api.CallDB(s.db.First, scope, query)
 	if err != nil {
 		return nil, errors.Default.Wrap(err, "could not get scope")
 	}
-	return scope.Unwrap(), nil
+	// @keon @camille: not sure if this is correct
+	return (*models.RemoteScope)(scope.UnwrapPtr()), nil
 }
 
 func (s *ScopeDatabaseHelperImpl) ListScopes(input *plugin.ApiResourceInput, connectionId uint64) ([]*models.RemoteScope, errors.Error) {

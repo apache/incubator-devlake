@@ -18,11 +18,9 @@ limitations under the License.
 package api
 
 import (
-	"fmt"
 	"net/url"
 	"time"
 
-	"github.com/apache/incubator-devlake/core/dal"
 	"github.com/apache/incubator-devlake/core/errors"
 	"github.com/apache/incubator-devlake/core/models/domainlayer"
 	"github.com/apache/incubator-devlake/core/models/domainlayer/code"
@@ -34,11 +32,9 @@ import (
 	helper "github.com/apache/incubator-devlake/helpers/pluginhelper/api"
 	"github.com/apache/incubator-devlake/plugins/bitbucket/models"
 	"github.com/apache/incubator-devlake/plugins/bitbucket/tasks"
-	"github.com/go-playground/validator/v10"
 )
 
 func MakeDataSourcePipelinePlanV200(subtaskMetas []plugin.SubTaskMeta, connectionId uint64, bpScopes []*plugin.BlueprintScopeV200, syncPolicy *plugin.BlueprintSyncPolicy) (plugin.PipelinePlan, []plugin.Scope, errors.Error) {
-	connectionHelper := helper.NewConnectionHelper(basicRes, validator.New())
 	// get the connection info for url
 	connection := &models.BitbucketConnection{}
 	err := connectionHelper.FirstById(connection, connectionId)
@@ -66,23 +62,14 @@ func makeDataSourcePipelinePlanV200(
 	connection *models.BitbucketConnection,
 	syncPolicy *plugin.BlueprintSyncPolicy,
 ) (plugin.PipelinePlan, errors.Error) {
-	var err errors.Error
 	for i, bpScope := range bpScopes {
 		stage := plan[i]
 		if stage == nil {
 			stage = plugin.PipelineStage{}
 		}
-		repo := &models.BitbucketRepo{}
-		// get repo from db
-		err = basicRes.GetDal().First(repo, dal.Where(`connection_id = ? AND bitbucket_id = ?`, connection.ID, bpScope.Id))
+		// get repo and scope config from db
+		repo, scopeConfig, err := scopeHelper.DbHelper().GetScopeAndConfig(connection.ID, bpScope.Id)
 		if err != nil {
-			return nil, errors.Default.Wrap(err, fmt.Sprintf("fail to find repo %s", bpScope.Id))
-		}
-		scopeConfig := &models.BitbucketScopeConfig{}
-		// get scope configs from db
-		db := basicRes.GetDal()
-		err = db.First(scopeConfig, dal.Where(`id = ?`, repo.ScopeConfigId))
-		if err != nil && !db.IsErrorNotFound(err) {
 			return nil, err
 		}
 		// refdiff
@@ -153,18 +140,9 @@ func makeDataSourcePipelinePlanV200(
 
 func makeScopesV200(bpScopes []*plugin.BlueprintScopeV200, connection *models.BitbucketConnection) ([]plugin.Scope, errors.Error) {
 	scopes := make([]plugin.Scope, 0)
-	db := basicRes.GetDal()
 	for _, bpScope := range bpScopes {
-		repo := &models.BitbucketRepo{}
-		// get repo from db
-		err := db.First(repo, dal.Where(`connection_id = ? AND bitbucket_id = ?`, connection.ID, bpScope.Id))
+		repo, scopeConfig, err := scopeHelper.DbHelper().GetScopeAndConfig(connection.ID, bpScope.Id)
 		if err != nil {
-			return nil, errors.Default.Wrap(err, fmt.Sprintf("fail to find repo%s", bpScope.Id))
-		}
-		scopeConfig := &models.BitbucketScopeConfig{}
-		// get scope configs from db
-		err = db.First(scopeConfig, dal.Where(`id = ?`, repo.ScopeConfigId))
-		if err != nil && !db.IsErrorNotFound(err) {
 			return nil, err
 		}
 		if utils.StringsContains(scopeConfig.Entities, plugin.DOMAIN_TYPE_CODE_REVIEW) ||

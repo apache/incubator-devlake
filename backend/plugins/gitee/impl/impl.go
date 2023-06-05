@@ -119,38 +119,6 @@ func (p Gitee) PrepareTaskData(taskCtx plugin.TaskContext, options map[string]in
 		return nil, errors.BadInput.New("repo is required for Gitee execution")
 	}
 
-	if op.PrType == "" {
-		op.PrType = "type/(.*)$"
-	}
-
-	if op.PrComponent == "" {
-		op.PrComponent = "component/(.*)$"
-	}
-
-	if op.IssueSeverity == "" {
-		op.IssueSeverity = "severity/(.*)$"
-	}
-
-	if op.IssuePriority == "" {
-		op.IssuePriority = "^(highest|high|medium|low)$"
-	}
-
-	if op.IssueComponent == "" {
-		op.IssueComponent = "component/(.*)$"
-	}
-
-	if op.IssueTypeBug == "" {
-		op.IssueTypeBug = "^(bug|failure|error)$"
-	}
-
-	if op.IssueTypeIncident == "" {
-		op.IssueTypeIncident = ""
-	}
-
-	if op.IssueTypeRequirement == "" {
-		op.IssueTypeRequirement = "^(feat|feature|proposal|requirement)$"
-	}
-
 	if op.ConnectionId == 0 {
 		return nil, errors.BadInput.New("connectionId is invalid")
 	}
@@ -205,10 +173,6 @@ func (p Gitee) ApiResources() map[string]map[string]plugin.ApiResourceHandler {
 			"DELETE": api.DeleteConnection,
 		},
 	}
-}
-
-func (p Gitee) MakePipelinePlan(connectionId uint64, scope []*plugin.BlueprintScopeV100) (plugin.PipelinePlan, errors.Error) {
-	return api.MakePipelinePlan(p.SubTaskMetas(), connectionId, scope)
 }
 
 func (p Gitee) Close(taskCtx plugin.TaskContext) errors.Error {

@@ -18,17 +18,18 @@ limitations under the License.
 package tasks
 
 import (
+	"time"
+
 	"github.com/apache/incubator-devlake/core/errors"
 	"github.com/apache/incubator-devlake/helpers/pluginhelper/api"
 	"github.com/apache/incubator-devlake/plugins/gitee/models"
-	"time"
 )
 
 type GiteeOptions struct {
-	ConnectionId               uint64 `json:"connectionId"`
-	Owner                      string
-	Repo                       string
-	models.TransformationRules `mapstructure:"transformationRules" json:"transformationRules"`
+	ConnectionId uint64 `json:"connectionId"`
+	Owner        string
+	Repo         string
+	ScopeConfig  models.GiteeScopeConfig `mapstructure:"scopeConfig" json:"scopeConfig"`
 }
 
 type GiteeTaskData struct {
@@ -49,36 +50,6 @@ func DecodeAndValidateTaskOptions(options map[string]interface{}) (*GiteeOptions
 	}
 	if op.Repo == "" {
 		return nil, errors.BadInput.New("repo is required for GitHub execution")
-	}
-	if op.PrType == "" {
-		op.PrType = "type/(.*)$"
-	}
-	if op.PrComponent == "" {
-		op.PrComponent = "component/(.*)$"
-	}
-	if op.PrBodyClosePattern == "" {
-		op.PrBodyClosePattern = "(?mi)(fix|close|resolve|fixes|closes|resolves|fixed|closed|resolved)[\\s]*.*(((and )?(#|https:\\/\\/github.com\\/%s\\/%s\\/issues\\/)\\d+[ ]*)+)"
-	}
-	if op.IssueSeverity == "" {
-		op.IssueSeverity = "severity/(.*)$"
-	}
-	if op.IssuePriority == "" {
-		op.IssuePriority = "^(highest|high|medium|low)$"
-	}
-	if op.IssueComponent == "" {
-		op.IssueComponent = "component/(.*)$"
-	}
-	if op.IssueTypeBug == "" {
-		op.IssueTypeBug = "^(bug|failure|error)$"
-	}
-	if op.IssueTypeIncident == "" {
-		op.IssueTypeIncident = ""
-	}
-	if op.IssueTypeRequirement == "" {
-		op.IssueTypeRequirement = "^(feat|feature|proposal|requirement)$"
-	}
-	if op.DeploymentPattern == "" {
-		op.DeploymentPattern = "(?i)deploy"
 	}
 
 	// find the needed GitHub now

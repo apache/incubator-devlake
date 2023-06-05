@@ -53,9 +53,6 @@ func (p Customize) SubTaskMetas() []plugin.SubTaskMeta {
 	}
 }
 
-func (p Customize) MakePipelinePlan(connectionId uint64, scope []*plugin.BlueprintScopeV100) (plugin.PipelinePlan, errors.Error) {
-	return api.MakePipelinePlan(p.SubTaskMetas(), connectionId, scope)
-}
 func (p Customize) PrepareTaskData(taskCtx plugin.TaskContext, options map[string]interface{}) (interface{}, errors.Error) {
 	var op tasks.Options
 	var err error

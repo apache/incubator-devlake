@@ -34,5 +34,6 @@ func DummyBasicRes(callback func(mockDal *mockdal.Dal)) *mockcontext.BasicRes {
 	mockRes.On("GetDal").Return(mockDal)
 	mockRes.On("GetLogger").Return(mockLog)
 	mockRes.On("GetConfig", mock.Anything).Return("")
+	mockDal.On("AllTables").Return(nil, nil)
 	return mockRes
 }

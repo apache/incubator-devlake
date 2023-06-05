@@ -57,9 +57,9 @@ type (
 		opts             *ScopeHelperOptions
 	}
 	ScopeRes[T any] struct {
-		Scope                  T                   `mapstructure:",squash"`
-		TransformationRuleName string              `mapstructure:"transformationRuleName,omitempty"`
-		Blueprints             []*models.Blueprint `mapstructure:"blueprints,omitempty"`
+		Scope           T                   `mapstructure:",squash"`
+		ScopeConfigName string              `mapstructure:"scopeConfigName,omitempty"`
+		Blueprints      []*models.Blueprint `mapstructure:"blueprints,omitempty"`
 	}
 	ReflectionParameters struct {
 		ScopeIdFieldName  string
@@ -124,6 +124,10 @@ func NewGenericScopeHelper[Conn any, Scope any, Tr any](
 	}
 }
 
+func (c *GenericScopeApiHelper[Conn, Scope, Tr]) DbHelper() ScopeDatabaseHelper[Conn, Scope, Tr] {
+	return c.dbHelper
+}
+
 func (c *GenericScopeApiHelper[Conn, Scope, Tr]) PutScopes(input *plugin.ApiResourceInput, scopes []*Scope) ([]*ScopeRes[Scope], errors.Error) {
 	params := c.extractFromReqParam(input)
 	if params.connectionId == 0 {
@@ -153,9 +157,9 @@ func (c *GenericScopeApiHelper[Conn, Scope, Tr]) PutScopes(input *plugin.ApiReso
 			return nil, errors.Default.Wrap(err, "error saving scope")
 		}
 	}
-	apiScopes, err := c.addTransformationName(scopes...)
+	apiScopes, err := c.addScopeConfigName(scopes...)
 	if err != nil {
-		return nil, errors.Default.Wrap(err, "error associating transformation to scope")
+		return nil, errors.Default.Wrap(err, "error associating scope config to scope")
 	}
 	return apiScopes, nil
 }
@@ -176,19 +180,19 @@ func (c *GenericScopeApiHelper[Conn, Scope, Tr]) UpdateScope(input *plugin.ApiRe
 	if err != nil {
 		return nil, err
 	}
-	err = DecodeMapStruct(input.Body, &scope, false)
+	err = DecodeMapStruct(input.Body, scope, false)
 	if err != nil {
 		return nil, errors.Default.Wrap(err, "patch scope error")
 	}
-	err = VerifyScope(&scope, c.validator)
+	err = VerifyScope(scope, c.validator)
 	if err != nil {
 		return nil, errors.Default.Wrap(err, "Invalid scope")
 	}
-	err = c.dbHelper.UpdateScope(params.connectionId, params.scopeId, &scope)
+	err = c.dbHelper.UpdateScope(params.connectionId, params.scopeId, scope)
 	if err != nil {
 		return nil, errors.Default.Wrap(err, "error on saving Scope")
 	}
-	scopeRes, err := c.addTransformationName(&scope)
+	scopeRes, err := c.addScopeConfigName(scope)
 	if err != nil {
 		return nil, err
 	}
@@ -208,9 +212,9 @@ func (c *GenericScopeApiHelper[Conn, Scope, Tr]) GetScopes(input *plugin.ApiReso
 	if err != nil {
 		return nil, errors.Default.Wrap(err, fmt.Sprintf("error verifying connection for connection ID %d", params.connectionId))
 	}
-	apiScopes, err := c.addTransformationName(scopes...)
+	apiScopes, err := c.addScopeConfigName(scopes...)
 	if err != nil {
-		return nil, errors.Default.Wrap(err, "error associating transformations with scopes")
+		return nil, errors.Default.Wrap(err, "error associating scope configs with scopes")
 	}
 	if params.loadBlueprints {
 		scopesById := c.mapByScopeId(apiScopes)
@@ -257,9 +261,9 @@ func (c *GenericScopeApiHelper[Conn, Scope, Tr]) GetScope(input *plugin.ApiResou
 	if err != nil {
 		return nil, errors.Default.Wrap(err, fmt.Sprintf("error retrieving scope with scope ID %s", params.scopeId))
 	}
-	apiScopes, err := c.addTransformationName(&scope)
+	apiScopes, err := c.addScopeConfigName(scope)
 	if err != nil {
-		return nil, errors.Default.Wrap(err, fmt.Sprintf("error associating transformation with scope %s", params.scopeId))
+		return nil, errors.Default.Wrap(err, fmt.Sprintf("error associating scope config with scope %s", params.scopeId))
 	}
 	scopeRes := apiScopes[0]
 	if params.loadBlueprints {
@@ -319,14 +323,14 @@ func (c *GenericScopeApiHelper[Conn, Scope, Tr]) DeleteScope(input *plugin.ApiRe
 	return nil
 }
 
-func (c *GenericScopeApiHelper[Conn, Scope, Tr]) addTransformationName(scopes ...*Scope) ([]*ScopeRes[Scope], errors.Error) {
+func (c *GenericScopeApiHelper[Conn, Scope, Tr]) addScopeConfigName(scopes ...*Scope) ([]*ScopeRes[Scope], errors.Error) {
 	var ruleIds []uint64
 	for _, scope := range scopes {
-		valueRepoRuleId := reflectField(scope, "TransformationRuleId")
+		valueRepoRuleId := reflectField(scope, "ScopeConfigId")
 		if !valueRepoRuleId.IsValid() {
 			break
 		}
-		ruleId := reflectField(scope, "TransformationRuleId").Uint()
+		ruleId := reflectField(scope, "ScopeConfigId").Uint()
 		if ruleId > 0 {
 			ruleIds = append(ruleIds, ruleId)
 		}
@@ -334,7 +338,7 @@ func (c *GenericScopeApiHelper[Conn, Scope, Tr]) addTransformationName(scopes ..
 	var rules []*Tr
 	var err errors.Error
 	if len(ruleIds) > 0 {
-		rules, err = c.dbHelper.ListTransformationRules(ruleIds)
+		rules, err = c.dbHelper.ListScopeConfigs(ruleIds)
 		if err != nil {
 			return nil, err
 		}
@@ -346,14 +350,14 @@ func (c *GenericScopeApiHelper[Conn, Scope, Tr]) addTransformationName(scopes ..
 	}
 	apiScopes := make([]*ScopeRes[Scope], 0)
 	for _, scope := range scopes {
-		txRuleField := reflectField(scope, "TransformationRuleId")
-		txRuleName := ""
-		if txRuleField.IsValid() {
-			txRuleName = names[txRuleField.Uint()]
+		scIdField := reflectField(scope, "ScopeConfigId")
+		scName := ""
+		if scIdField.IsValid() {
+			scName = names[scIdField.Uint()]
 		}
 		apiScopes = append(apiScopes, &ScopeRes[Scope]{
-			Scope:                  *scope,
-			TransformationRuleName: txRuleName,
+			Scope:           *scope,
+			ScopeConfigName: scName,
 		})
 	}
 	return apiScopes, nil

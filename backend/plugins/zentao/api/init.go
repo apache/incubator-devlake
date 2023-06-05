@@ -82,4 +82,8 @@ func Init(br context.BasicRes) {
 		vld,
 		connectionHelper,
 	)
+	scHelper = api.NewScopeConfigHelper[models.ZentaoScopeConfig](
+		basicRes,
+		vld,
+	)
 }

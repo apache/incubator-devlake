@@ -25,7 +25,6 @@ import (
 	"github.com/apache/incubator-devlake/core/errors"
 	"github.com/apache/incubator-devlake/core/utils"
 
-	"github.com/apache/incubator-devlake/core/dal"
 	"github.com/apache/incubator-devlake/core/models/domainlayer/devops"
 	"github.com/apache/incubator-devlake/core/models/domainlayer/didgen"
 	plugin "github.com/apache/incubator-devlake/core/plugin"
@@ -65,12 +64,7 @@ func makeScopeV200(connectionId uint64, scopes []*plugin.BlueprintScopeV200) ([]
 		id := didgen.NewDomainIdGenerator(&models.BambooProject{}).Generate(connectionId, scope.Id)
 
 		// get project from db
-		project, err := GetProjectByConnectionIdAndscopeId(connectionId, scope.Id)
-		if err != nil {
-			return nil, err
-		}
-
-		scopeConfig, err := GetScopeConfigByproject(project)
+		project, scopeConfig, err := scopeHelper.DbHelper().GetScopeAndConfig(connectionId, scope.Id)
 		if err != nil {
 			return nil, err
 		}
@@ -96,12 +90,7 @@ func makePipelinePlanV200(
 		var stage plugin.PipelineStage
 		var err errors.Error
 		// get project
-		project, err := GetProjectByConnectionIdAndscopeId(connection.ID, scope.Id)
-		if err != nil {
-			return nil, err
-		}
-
-		scopeConfig, err := GetScopeConfigByproject(project)
+		_, scopeConfig, err := scopeHelper.DbHelper().GetScopeAndConfig(connection.ID, scope.Id)
 		if err != nil {
 			return nil, err
 		}
@@ -127,40 +116,4 @@ func makePipelinePlanV200(
 		plans = append(plans, stage)
 	}
 	return plans, nil
-}
-
-// GetProjectByConnectionIdAndscopeId get tbe project by the connectionId and the scopeId
-func GetProjectByConnectionIdAndscopeId(connectionId uint64, scopeId string) (*models.BambooProject, errors.Error) {
-	key := scopeId
-	project := &models.BambooProject{}
-	db := basicRes.GetDal()
-	err := db.First(project, dal.Where("connection_id = ? AND project_key = ?", connectionId, key))
-	if err != nil {
-		if db.IsErrorNotFound(err) {
-			return nil, errors.Default.Wrap(err, fmt.Sprintf("can not find project by connection [%d] scope [%s]", connectionId, scopeId))
-		}
-		return nil, errors.Default.Wrap(err, fmt.Sprintf("fail to find project by connection [%d] scope [%s]", connectionId, scopeId))
-	}
-
-	return project, nil
-}
-
-// GetScopeConfigByproject get the BambooScopeConfig by project
-func GetScopeConfigByproject(project *models.BambooProject) (*models.BambooScopeConfig, errors.Error) {
-	scopeConfig := &models.BambooScopeConfig{}
-	scopeConfigId := project.ScopeConfigId
-	if scopeConfigId != 0 {
-		db := basicRes.GetDal()
-		err := db.First(scopeConfig, dal.Where("id = ?", scopeConfigId))
-		if err != nil {
-			if db.IsErrorNotFound(err) {
-				return nil, errors.Default.Wrap(err, fmt.Sprintf("can not find ScopeConfig by ScopeConfig [%d]", scopeConfigId))
-			}
-			return nil, errors.Default.Wrap(err, fmt.Sprintf("fail to find ScopeConfig by ScopeConfig [%d]", scopeConfigId))
-		}
-	} else {
-		scopeConfig.ID = 0
-	}
-
-	return scopeConfig, nil
 }

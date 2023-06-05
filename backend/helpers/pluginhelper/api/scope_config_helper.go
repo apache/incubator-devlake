@@ -30,14 +30,14 @@ import (
 	"github.com/go-playground/validator/v10"
 )
 
-// ScopeConfigHelper is used to write the CURD of transformation rule
+// ScopeConfigHelper is used to write the CURD of scope config
 type ScopeConfigHelper[Tr dal.Tabler] struct {
 	log       log.Logger
 	db        dal.Dal
 	validator *validator.Validate
 }
 
-// NewScopeConfigHelper creates a ScopeConfigHelper for transformation rule management
+// NewScopeConfigHelper creates a ScopeConfigHelper for scope config management
 func NewScopeConfigHelper[Tr dal.Tabler](
 	basicRes context.BasicRes,
 	vld *validator.Validate,
@@ -59,11 +59,11 @@ func (t ScopeConfigHelper[Tr]) Create(input *plugin.ApiResourceInput) (*plugin.A
 	}
 	var rule Tr
 	if err := DecodeMapStruct(input.Body, &rule, false); err != nil {
-		return nil, errors.Default.Wrap(err, "error in decoding transformation rule")
+		return nil, errors.Default.Wrap(err, "error in decoding scope config")
 	}
 	if t.validator != nil {
 		if err := t.validator.Struct(rule); err != nil {
-			return nil, errors.Default.Wrap(err, "error validating transformation rule")
+			return nil, errors.Default.Wrap(err, "error validating scope config")
 		}
 	}
 	valueConnectionId := reflect.ValueOf(&rule).Elem().FieldByName("ConnectionId")
@@ -73,7 +73,7 @@ func (t ScopeConfigHelper[Tr]) Create(input *plugin.ApiResourceInput) (*plugin.A
 
 	if err := t.db.Create(&rule); err != nil {
 		if t.db.IsDuplicationError(err) {
-			return nil, errors.BadInput.New("there was a transformation rule with the same name, please choose another name")
+			return nil, errors.BadInput.New("there was a scope config with the same name, please choose another name")
 		}
 		return nil, errors.BadInput.Wrap(err, "error on saving ScopeConfig")
 	}
@@ -83,7 +83,7 @@ func (t ScopeConfigHelper[Tr]) Create(input *plugin.ApiResourceInput) (*plugin.A
 func (t ScopeConfigHelper[Tr]) Update(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, errors.Error) {
 	scopeConfigId, e := strconv.ParseUint(input.Params["id"], 10, 64)
 	if e != nil {
-		return nil, errors.Default.Wrap(e, "the transformation rule ID should be an integer")
+		return nil, errors.Default.Wrap(e, "the scope config ID should be an integer")
 	}
 	var old Tr
 	err := t.db.First(&old, dal.Where("id = ?", scopeConfigId))
@@ -97,7 +97,7 @@ func (t ScopeConfigHelper[Tr]) Update(input *plugin.ApiResourceInput) (*plugin.A
 	err = t.db.Update(&old, dal.Where("id = ?", scopeConfigId))
 	if err != nil {
 		if t.db.IsDuplicationError(err) {
-			return nil, errors.BadInput.New("there was a transformation rule with the same name, please choose another name")
+			return nil, errors.BadInput.New("there was a scope config with the same name, please choose another name")
 		}
 		return nil, errors.BadInput.Wrap(err, "error on saving ScopeConfig")
 	}
@@ -107,7 +107,7 @@ func (t ScopeConfigHelper[Tr]) Update(input *plugin.ApiResourceInput) (*plugin.A
 func (t ScopeConfigHelper[Tr]) Get(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, errors.Error) {
 	scopeConfigId, err := strconv.ParseUint(input.Params["id"], 10, 64)
 	if err != nil {
-		return nil, errors.Default.Wrap(err, "the transformation rule ID should be an integer")
+		return nil, errors.Default.Wrap(err, "the scope config ID should be an integer")
 	}
 	var rule Tr
 	err = t.db.First(&rule, dal.Where("id = ?", scopeConfigId))

@@ -18,6 +18,10 @@ limitations under the License.
 package api
 
 import (
+	"reflect"
+	"testing"
+	"time"
+
 	"github.com/apache/incubator-devlake/core/models/common"
 	"github.com/apache/incubator-devlake/core/plugin"
 	"github.com/apache/incubator-devlake/helpers/unithelper"
@@ -28,9 +32,6 @@ import (
 	"github.com/stretchr/testify/mock"
 	"gorm.io/datatypes"
 	"gorm.io/gorm"
-	"reflect"
-	"testing"
-	"time"
 )
 
 type TestModel struct {
@@ -39,20 +40,20 @@ type TestModel struct {
 }
 
 type TestRepo struct {
-	ConnectionId         uint64     `json:"connectionId" gorm:"primaryKey" mapstructure:"connectionId,omitempty"`
-	GithubId             int        `json:"githubId" gorm:"primaryKey" mapstructure:"githubId"`
-	Name                 string     `json:"name" gorm:"type:varchar(255)" mapstructure:"name,omitempty"`
-	HTMLUrl              string     `json:"HTMLUrl" gorm:"type:varchar(255)" mapstructure:"HTMLUrl,omitempty"`
-	Description          string     `json:"description" mapstructure:"description,omitempty"`
-	TransformationRuleId uint64     `json:"transformationRuleId,omitempty" mapstructure:"transformationRuleId,omitempty"`
-	OwnerId              int        `json:"ownerId" mapstructure:"ownerId,omitempty"`
-	Language             string     `json:"language" gorm:"type:varchar(255)" mapstructure:"language,omitempty"`
-	ParentGithubId       int        `json:"parentId" mapstructure:"parentGithubId,omitempty"`
-	ParentHTMLUrl        string     `json:"parentHtmlUrl" mapstructure:"parentHtmlUrl,omitempty"`
-	CloneUrl             string     `json:"cloneUrl" gorm:"type:varchar(255)" mapstructure:"cloneUrl,omitempty"`
-	CreatedDate          *time.Time `json:"createdDate" mapstructure:"-"`
-	UpdatedDate          *time.Time `json:"updatedDate" mapstructure:"-"`
-	common.NoPKModel     `json:"-" mapstructure:"-"`
+	ConnectionId     uint64     `json:"connectionId" gorm:"primaryKey" mapstructure:"connectionId,omitempty"`
+	GithubId         int        `json:"githubId" gorm:"primaryKey" mapstructure:"githubId"`
+	Name             string     `json:"name" gorm:"type:varchar(255)" mapstructure:"name,omitempty"`
+	HTMLUrl          string     `json:"HTMLUrl" gorm:"type:varchar(255)" mapstructure:"HTMLUrl,omitempty"`
+	Description      string     `json:"description" mapstructure:"description,omitempty"`
+	ScopeConfigId    uint64     `json:"scopeConfigId,omitempty" mapstructure:"scopeConfigId,omitempty"`
+	OwnerId          int        `json:"ownerId" mapstructure:"ownerId,omitempty"`
+	Language         string     `json:"language" gorm:"type:varchar(255)" mapstructure:"language,omitempty"`
+	ParentGithubId   int        `json:"parentId" mapstructure:"parentGithubId,omitempty"`
+	ParentHTMLUrl    string     `json:"parentHtmlUrl" mapstructure:"parentHtmlUrl,omitempty"`
+	CloneUrl         string     `json:"cloneUrl" gorm:"type:varchar(255)" mapstructure:"cloneUrl,omitempty"`
+	CreatedDate      *time.Time `json:"createdDate" mapstructure:"-"`
+	UpdatedDate      *time.Time `json:"updatedDate" mapstructure:"-"`
+	common.NoPKModel `json:"-" mapstructure:"-"`
 }
 
 func (TestRepo) TableName() string {
@@ -113,7 +114,7 @@ func TestVerifyScope(t *testing.T) {
 	}
 }
 
-type TestTransformationRule struct {
+type TestScopeConfig struct {
 	common.Model         `mapstructure:"-"`
 	Name                 string            `mapstructure:"name" json:"name" gorm:"type:varchar(255);index:idx_name_github,unique" validate:"required"`
 	PrType               string            `mapstructure:"prType,omitempty" json:"prType" gorm:"type:varchar(255)"`
@@ -130,8 +131,8 @@ type TestTransformationRule struct {
 	Refdiff              datatypes.JSONMap `mapstructure:"refdiff,omitempty" json:"refdiff" swaggertype:"object" format:"json"`
 }
 
-func (TestTransformationRule) TableName() string {
-	return "_tool_github_transformation_rules"
+func (TestScopeConfig) TableName() string {
+	return "_tool_github_scope_configs"
 }
 
 func TestSetScopeFields(t *testing.T) {
@@ -265,40 +266,40 @@ func TestScopeApiHelper_Put(t *testing.T) {
 	input := &plugin.ApiResourceInput{Params: map[string]string{"connectionId": "123"}, Body: map[string]interface{}{
 		"data": []map[string]interface{}{
 			{
-				"HTMLUrl":              "string",
-				"githubId":             1,
-				"cloneUrl":             "string",
-				"connectionId":         1,
-				"createdAt":            "string",
-				"createdDate":          "string",
-				"description":          "string",
-				"language":             "string",
-				"name":                 "string",
-				"owner":                "string",
-				"transformationRuleId": 0,
-				"updatedAt":            "string",
-				"updatedDate":          "string",
+				"HTMLUrl":       "string",
+				"githubId":      1,
+				"cloneUrl":      "string",
+				"connectionId":  1,
+				"createdAt":     "string",
+				"createdDate":   "string",
+				"description":   "string",
+				"language":      "string",
+				"name":          "string",
+				"owner":         "string",
+				"scopeConfigId": 0,
+				"updatedAt":     "string",
+				"updatedDate":   "string",
 			},
 			{
-				"HTMLUrl":              "11",
-				"githubId":             2,
-				"cloneUrl":             "string",
-				"connectionId":         1,
-				"createdAt":            "string",
-				"createdDate":          "string",
-				"description":          "string",
-				"language":             "string",
-				"name":                 "string",
-				"owner":                "string",
-				"transformationRuleId": 0,
-				"updatedAt":            "string",
-				"updatedDate":          "string",
+				"HTMLUrl":       "11",
+				"githubId":      2,
+				"cloneUrl":      "string",
+				"connectionId":  1,
+				"createdAt":     "string",
+				"createdDate":   "string",
+				"description":   "string",
+				"language":      "string",
+				"name":          "string",
+				"owner":         "string",
+				"scopeConfigId": 0,
+				"updatedAt":     "string",
+				"updatedDate":   "string",
 			}}}}
 
 	params := &ReflectionParameters{}
-	dbHelper := NewScopeDatabaseHelperImpl[TestConnection, TestRepo, TestTransformationRule](mockRes, connHelper, params)
+	dbHelper := NewScopeDatabaseHelperImpl[TestConnection, TestRepo, TestScopeConfig](mockRes, connHelper, params)
 	// create a mock ScopeApiHelper with a mock database connection
-	apiHelper := NewScopeHelper[TestConnection, TestRepo, TestTransformationRule](mockRes, nil, connHelper, dbHelper, params, nil)
+	apiHelper := NewScopeHelper[TestConnection, TestRepo, TestScopeConfig](mockRes, nil, connHelper, dbHelper, params, nil)
 	// test a successful call to Put
 	_, err := apiHelper.Put(input)
 	assert.NoError(t, err)
