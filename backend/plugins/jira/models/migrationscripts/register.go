@@ -38,5 +38,7 @@ func All() []plugin.MigrationScript {
 		new(expandRemotelinkSelfUrl),
 		new(addDescAndComments),
 		new(renameTr2ScopeConfig),
+		new(addRepoUrl),
+		new(addApplicationType),
 	}
 }

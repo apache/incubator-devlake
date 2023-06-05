@@ -34,6 +34,7 @@ type JiraScopeConfig struct {
 	RemotelinkCommitShaPattern string          `mapstructure:"remotelinkCommitShaPattern,omitempty" json:"remotelinkCommitShaPattern" gorm:"type:varchar(255)"`
 	RemotelinkRepoPattern      json.RawMessage `mapstructure:"remotelinkRepoPattern,omitempty" json:"remotelinkRepoPattern"`
 	TypeMappings               json.RawMessage `mapstructure:"typeMappings,omitempty" json:"typeMappings"`
+	ApplicationType            string          `mapstructure:"applicationType,omitempty" json:"applicationType" gorm:"type:varchar(255)"`
 }
 
 func (r JiraScopeConfig) TableName() string {

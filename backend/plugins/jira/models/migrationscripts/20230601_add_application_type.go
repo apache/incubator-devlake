@@ -15,21 +15,32 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-package models
+package migrationscripts
 
 import (
-	"github.com/apache/incubator-devlake/core/models/common"
+	"github.com/apache/incubator-devlake/core/context"
+	"github.com/apache/incubator-devlake/core/errors"
+	"github.com/apache/incubator-devlake/helpers/migrationhelper"
 )
 
-type JiraIssueCommit struct {
-	common.NoPKModel
-	ConnectionId uint64 `gorm:"primaryKey"`
-	IssueId      uint64 `gorm:"primaryKey"`
-	CommitSha    string `gorm:"primaryKey;type:varchar(40)"`
-	CommitUrl    string
-	RepoUrl      string
+type scopeConfig20230601 struct {
+	ApplicationType string `gorm:"type:varchar(255)"`
 }
 
-func (JiraIssueCommit) TableName() string {
-	return "_tool_jira_issue_commits"
+func (scopeConfig20230601) TableName() string {
+	return "_tool_jira_scope_configs"
+}
+
+type addApplicationType struct{}
+
+func (script *addApplicationType) Up(basicRes context.BasicRes) errors.Error {
+	return migrationhelper.AutoMigrateTables(basicRes, &scopeConfig20230601{})
+}
+
+func (*addApplicationType) Version() uint64 {
+	return 20230601213738
+}
+
+func (*addApplicationType) Name() string {
+	return "add application_type to _tool_jira_scope_configs"
 }

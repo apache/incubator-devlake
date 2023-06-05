@@ -49,6 +49,7 @@ type JiraScopeConfig struct {
 	RemotelinkCommitShaPattern string       `json:"remotelinkCommitShaPattern"`
 	RemotelinkRepoPattern      []string     `json:"remotelinkRepoPattern"`
 	TypeMappings               TypeMappings `json:"typeMappings"`
+	ApplicationType            string       `json:"applicationType"`
 }
 
 func (r *JiraScopeConfig) ToDb() (*models.JiraScopeConfig, errors.Error) {
@@ -68,6 +69,7 @@ func (r *JiraScopeConfig) ToDb() (*models.JiraScopeConfig, errors.Error) {
 		RemotelinkCommitShaPattern: r.RemotelinkCommitShaPattern,
 		RemotelinkRepoPattern:      remotelinkRepoPattern,
 		TypeMappings:               blob,
+		ApplicationType:            r.ApplicationType,
 	}
 	scopeConfig.Entities = r.Entities
 	if err1 := scopeConfig.VerifyRegexp(); err1 != nil {
@@ -101,6 +103,7 @@ func MakeScopeConfig(rule models.JiraScopeConfig) (*JiraScopeConfig, errors.Erro
 		RemotelinkCommitShaPattern: rule.RemotelinkCommitShaPattern,
 		RemotelinkRepoPattern:      remotelinkRepoPattern,
 		TypeMappings:               typeMapping,
+		ApplicationType:            rule.ApplicationType,
 	}
 	return result, nil
 }
