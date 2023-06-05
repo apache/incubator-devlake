@@ -29,7 +29,6 @@ var connectionHelper *api.ConnectionApiHelper
 
 var scopeHelper *api.ScopeApiHelper[models.PagerDutyConnection, models.Service, models.PagerdutyScopeConfig]
 
-var scHelper *api.ScopeConfigHelper[models.PagerdutyScopeConfig]
 var basicRes context.BasicRes
 
 func Init(br context.BasicRes) {
@@ -52,9 +51,5 @@ func Init(br context.BasicRes) {
 			basicRes, connectionHelper, params),
 		params,
 		&api.ScopeHelperOptions{},
-	)
-	scHelper = api.NewScopeConfigHelper[models.PagerdutyScopeConfig](
-		basicRes,
-		vld,
 	)
 }
