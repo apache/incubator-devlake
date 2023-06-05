@@ -42,9 +42,9 @@ type dstTaskEncryption221221 struct {
 }
 
 func (script *encryptTask221221) Up(basicRes context.BasicRes) errors.Error {
-	encKey := basicRes.GetConfig(plugin.EncodeKeyEnvStr)
-	if encKey == "" {
-		return errors.BadInput.New("invalid encKey")
+	encryptionSecret := basicRes.GetConfig(plugin.EncodeKeyEnvStr)
+	if encryptionSecret == "" {
+		return errors.BadInput.New("invalid encryptionSecret")
 	}
 	err := migrationhelper.TransformColumns(
 		basicRes,
@@ -52,7 +52,7 @@ func (script *encryptTask221221) Up(basicRes context.BasicRes) errors.Error {
 		"_devlake_tasks",
 		[]string{"options"},
 		func(src *srcTaskEncryption221221) (*dstTaskEncryption221221, errors.Error) {
-			options, err := plugin.Encrypt(encKey, string(src.Options))
+			options, err := plugin.Encrypt(encryptionSecret, string(src.Options))
 			if err != nil {
 				return nil, err
 			}

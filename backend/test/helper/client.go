@@ -23,10 +23,6 @@ import (
 	"encoding/json"
 	goerror "errors"
 	"fmt"
-	"github.com/apache/incubator-devlake/core/dal"
-	dora "github.com/apache/incubator-devlake/plugins/dora/impl"
-	org "github.com/apache/incubator-devlake/plugins/org/impl"
-	remotePlugin "github.com/apache/incubator-devlake/server/services/remote/plugin"
 	"io"
 	"math"
 	"net/http"
@@ -35,6 +31,11 @@ import (
 	"syscall"
 	"testing"
 	"time"
+
+	"github.com/apache/incubator-devlake/core/dal"
+	dora "github.com/apache/incubator-devlake/plugins/dora/impl"
+	org "github.com/apache/incubator-devlake/plugins/org/impl"
+	remotePlugin "github.com/apache/incubator-devlake/server/services/remote/plugin"
 
 	"github.com/apache/incubator-devlake/core/config"
 	corectx "github.com/apache/incubator-devlake/core/context"
@@ -140,7 +141,8 @@ func ConnectLocalServer(t *testing.T, clientConfig *LocalClientConfig) *DevlakeC
 		d.pipelineTimeout = 30 * time.Second
 	}
 	if clientConfig.CreateServer {
-		d.configureEncryption()
+		err := d.configureEncryption()
+		require.NoError(t, err)
 		d.initPlugins(clientConfig)
 		if clientConfig.DropDb || clientConfig.TruncateDb {
 			d.prepareDB(clientConfig)
@@ -213,22 +215,13 @@ func (d *DevlakeClient) RunPlugin(ctx context.Context, pluginName string, plugin
 	)
 }
 
-func (d *DevlakeClient) configureEncryption() {
+func (d *DevlakeClient) configureEncryption() errors.Error {
 	v := config.GetConfig()
-	encKey := v.GetString(plugin.EncodeKeyEnvStr)
-	if encKey == "" {
-		var err errors.Error
-		// Randomly generate a bunch of encryption keys and set them to config
-		encKey, err = plugin.RandomEncKey()
-		if err != nil {
-			panic(err)
-		}
-		v.Set(plugin.EncodeKeyEnvStr, encKey)
-		err = config.WriteConfig(v)
-		if err != nil {
-			panic(err)
-		}
+	encryptionSecret := v.GetString(plugin.EncodeKeyEnvStr)
+	if encryptionSecret == "" {
+		return errors.Default.New("encryption secret not set")
 	}
+	return nil
 }
 
 func (d *DevlakeClient) forceSendHttpRequest(retries uint, req *http.Request, onError func(err errors.Error) bool) {

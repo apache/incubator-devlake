@@ -30,7 +30,7 @@ import (
 
 // ConnectionApiHelper is used to write the CURD of connection
 type ConnectionApiHelper struct {
-	encKey    string
+	encryptionSecret    string
 	log       log.Logger
 	db        dal.Dal
 	validator *validator.Validate
@@ -45,7 +45,7 @@ func NewConnectionHelper(
 		vld = validator.New()
 	}
 	return &ConnectionApiHelper{
-		encKey:    basicRes.GetConfig(plugin.EncodeKeyEnvStr),
+		encryptionSecret:    basicRes.GetConfig(plugin.EncodeKeyEnvStr),
 		log:       basicRes.GetLogger(),
 		db:        basicRes.GetDal(),
 		validator: vld,

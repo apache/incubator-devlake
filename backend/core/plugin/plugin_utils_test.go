@@ -30,13 +30,13 @@ func TestEncodeAndDecode(t *testing.T) {
 	var TestEncode string
 	var TestDecode string
 
-	encKey, _ := RandomEncKey()
+	encryptionSecret, _ := RandomEncryptionSecret()
 	// encryption test
-	TestEncode, err = Encrypt(encKey, TestStr)
+	TestEncode, err = Encrypt(encryptionSecret, TestStr)
 	assert.Empty(t, err)
 
 	// decrypt test
-	TestDecode, err = Decrypt(encKey, TestEncode)
+	TestDecode, err = Decrypt(encryptionSecret, TestEncode)
 	assert.Empty(t, err)
 
 	// Verify decryption result
@@ -44,7 +44,7 @@ func TestEncodeAndDecode(t *testing.T) {
 }
 
 func TestEncode(t *testing.T) {
-	encKey, _ := RandomEncKey()
+	encryptionSecret, _ := RandomEncryptionSecret()
 	type args struct {
 		Input string
 	}
@@ -61,7 +61,7 @@ func TestEncode(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			got, err := Encrypt(encKey, tt.args.Input)
+			got, err := Encrypt(encryptionSecret, tt.args.Input)
 			if (err != nil) != tt.wantErr {
 				t.Errorf("Encode() error = %v, wantErr %v", err, tt.wantErr)
 				return

@@ -34,7 +34,7 @@ var _ schema.SerializerInterface = (*EncDecSerializer)(nil)
 // EncDecSerializer is responsible for field encryption/decryption in Application Level
 // Ref: https://gorm.io/docs/serializer.html
 type EncDecSerializer struct {
-	encKey string
+	encryptionSecret string
 }
 
 // Scan implements serializer interface
@@ -52,7 +52,7 @@ func (es *EncDecSerializer) Scan(ctx context.Context, field *schema.Field, dst r
 			return fmt.Errorf("failed to decrypt value: %#v", dbValue)
 		}
 
-		decrypted, err := plugin.Decrypt(es.encKey, base64str)
+		decrypted, err := plugin.Decrypt(es.encryptionSecret, base64str)
 		if err != nil {
 			return err
 		}
@@ -81,10 +81,10 @@ func (es *EncDecSerializer) Value(ctx context.Context, field *schema.Field, dst 
 	default:
 		return nil, fmt.Errorf("failed to encrypt value: %#v", fieldValue)
 	}
-	return plugin.Encrypt(es.encKey, target)
+	return plugin.Encrypt(es.encryptionSecret, target)
 }
 
 // Init the encdec serializer
-func Init(encKey string) {
-	schema.RegisterSerializer("encdec", &EncDecSerializer{encKey: encKey})
+func Init(encryptionSecret string) {
+	schema.RegisterSerializer("encdec", &EncDecSerializer{encryptionSecret: encryptionSecret})
 }

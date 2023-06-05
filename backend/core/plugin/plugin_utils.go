@@ -29,15 +29,15 @@ import (
 	"github.com/apache/incubator-devlake/core/utils"
 )
 
-const EncodeKeyEnvStr = "ENCODE_KEY"
+const EncodeKeyEnvStr = "ENCRYPTION_SECRET"
 
 // TODO: maybe move encryption/decryption into helper?
-// AES + Base64 encryption using ENCODE_KEY in .env as key
-func Encrypt(encKey, plainText string) (string, errors.Error) {
+// AES + Base64 encryption using ENCRYPTION_SECRET in .env as key
+func Encrypt(encryptionSecret, plainText string) (string, errors.Error) {
 	// add suffix to the data part
 	inputBytes := append([]byte(plainText), 123, 110, 100, 100, 116, 102, 125)
 	// perform encryption
-	output, err := AesEncrypt(inputBytes, []byte(encKey))
+	output, err := AesEncrypt(inputBytes, []byte(encryptionSecret))
 	if err != nil {
 		return plainText, err
 	}
@@ -45,12 +45,12 @@ func Encrypt(encKey, plainText string) (string, errors.Error) {
 	return base64.StdEncoding.EncodeToString(output), nil
 }
 
-// Base64 + AES decryption using ENCODE_KEY in .env as key
-func Decrypt(encKey, encryptedText string) (string, errors.Error) {
+// Base64 + AES decryption using ENCRYPTION_SECRET in .env as key
+func Decrypt(encryptionSecret, encryptedText string) (string, errors.Error) {
 	// when encryption key is not set
-	if encKey == "" {
+	if encryptionSecret == "" {
 		// return error message
-		return encryptedText, errors.Default.New("encKey is required")
+		return encryptedText, errors.Default.New("encryptionSecret is required")
 	}
 
 	// Decode Base64
@@ -59,7 +59,7 @@ func Decrypt(encKey, encryptedText string) (string, errors.Error) {
 		return encryptedText, errors.Convert(err1)
 	}
 	// perform AES decryption
-	output, err2 := AesDecrypt(decodingFromBase64, []byte(encKey))
+	output, err2 := AesDecrypt(decodingFromBase64, []byte(encryptionSecret))
 	if err2 != nil {
 		return encryptedText, err2
 	}
@@ -75,7 +75,7 @@ func Decrypt(encKey, encryptedText string) (string, errors.Error) {
 			return string(output), nil
 		}
 	}
-	return "", errors.Default.New("invalid encKey")
+	return "", errors.Default.New("invalid encryptionSecret")
 }
 
 // PKCS7Padding PKCS7 padding
@@ -139,7 +139,7 @@ func AesDecrypt(crypted, key []byte) ([]byte, errors.Error) {
 	return origData, nil
 }
 
-// RandomEncKey will return a random string of length 128
-func RandomEncKey() (string, errors.Error) {
+// RandomEncryptionSecret will return a random string of length 128
+func RandomEncryptionSecret() (string, errors.Error) {
 	return utils.RandLetterBytes(128)
 }

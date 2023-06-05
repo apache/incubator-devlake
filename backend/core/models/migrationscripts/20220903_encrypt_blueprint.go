@@ -36,9 +36,9 @@ type BlueprintEncryption0904 struct {
 }
 
 func (script *encryptBlueprint) Up(basicRes context.BasicRes) errors.Error {
-	encKey := basicRes.GetConfig(plugin.EncodeKeyEnvStr)
-	if encKey == "" {
-		return errors.BadInput.New("invalid encKey")
+	encryptionSecret := basicRes.GetConfig(plugin.EncodeKeyEnvStr)
+	if encryptionSecret == "" {
+		return errors.BadInput.New("invalid encryptionSecret")
 	}
 	err := migrationhelper.TransformColumns(
 		basicRes,
@@ -46,11 +46,11 @@ func (script *encryptBlueprint) Up(basicRes context.BasicRes) errors.Error {
 		"_devlake_blueprints",
 		[]string{"plan", "settings"},
 		func(src *BlueprintEncryption0904) (*BlueprintEncryption0904, errors.Error) {
-			plan, err := plugin.Encrypt(encKey, src.Plan)
+			plan, err := plugin.Encrypt(encryptionSecret, src.Plan)
 			if err != nil {
 				return nil, err
 			}
-			settings, err := plugin.Encrypt(encKey, src.Settings)
+			settings, err := plugin.Encrypt(encryptionSecret, src.Settings)
 			if err != nil {
 				return nil, err
 			}
