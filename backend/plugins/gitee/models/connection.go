@@ -51,7 +51,7 @@ type ApiUserResponse struct {
 	Name string `json:"name"`
 }
 
-type TransformationRules struct {
+type GiteeScopeConfig struct {
 	PrType               string `mapstructure:"prType" env:"GITEE_PR_TYPE" json:"prType"`
 	PrComponent          string `mapstructure:"prComponent" env:"GITEE_PR_COMPONENT" json:"prComponent"`
 	PrBodyClosePattern   string `mapstructure:"prBodyClosePattern" json:"prBodyClosePattern"`

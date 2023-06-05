@@ -35,7 +35,6 @@ import (
 	"github.com/apache/incubator-devlake/helpers/unithelper"
 	"github.com/apache/incubator-devlake/plugins/gitlab/models"
 	"github.com/apache/incubator-devlake/plugins/gitlab/tasks"
-	"github.com/go-playground/validator/v10"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
 )
@@ -181,7 +180,7 @@ func TestMakeDataSourcePipelinePlanV200(t *testing.T) {
 	assert.Equal(t, err, nil)
 
 	// Refresh Global Variables and set the sql mock
-	basicRes = unithelper.DummyBasicRes(func(mockDal *mockdal.Dal) {
+	mockRes := unithelper.DummyBasicRes(func(mockDal *mockdal.Dal) {
 		mockDal.On("First", mock.AnythingOfType("*models.GitlabConnection"), mock.Anything).Run(func(args mock.Arguments) {
 			dst := args.Get(0).(*models.GitlabConnection)
 			*dst = *testGitlabConnection
@@ -197,10 +196,7 @@ func TestMakeDataSourcePipelinePlanV200(t *testing.T) {
 			*dst = *testScopeConfig
 		}).Return(nil)
 	})
-	connectionHelper = helper.NewConnectionHelper(
-		basicRes,
-		validator.New(),
-	)
+	Init(mockRes)
 
 	plans, scopes, err := MakePipelinePlanV200(testSubTaskMeta, testConnectionID, bpScopes, syncPolicy)
 	assert.Equal(t, err, nil)

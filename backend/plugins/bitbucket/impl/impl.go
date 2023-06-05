@@ -40,7 +40,9 @@ var _ plugin.PluginApi = (*Bitbucket)(nil)
 var _ plugin.PluginModel = (*Bitbucket)(nil)
 var _ plugin.PluginMigration = (*Bitbucket)(nil)
 var _ plugin.CloseablePluginTask = (*Bitbucket)(nil)
-var _ plugin.PluginSource = (*Bitbucket)(nil)
+var _ plugin.DataSourcePluginBlueprintV200 = (*Bitbucket)(nil)
+
+// var _ plugin.PluginSource = (*Bitbucket)(nil)
 
 type Bitbucket string
 
@@ -218,11 +220,11 @@ func (p Bitbucket) ApiResources() map[string]map[string]plugin.ApiResourceHandle
 			"GET": api.GetScopeList,
 			"PUT": api.PutScope,
 		},
-		"connections/:connectionId/scope_configs": {
+		"connections/:connectionId/scope-configs": {
 			"POST": api.CreateScopeConfig,
 			"GET":  api.GetScopeConfigList,
 		},
-		"connections/:connectionId/scope_configs/:id": {
+		"connections/:connectionId/scope-configs/:id": {
 			"PATCH": api.UpdateScopeConfig,
 			"GET":   api.GetScopeConfig,
 		},

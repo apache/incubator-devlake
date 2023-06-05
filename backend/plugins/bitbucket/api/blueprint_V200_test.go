@@ -26,7 +26,7 @@ import (
 	"github.com/apache/incubator-devlake/core/models/domainlayer/ticket"
 	"github.com/apache/incubator-devlake/core/plugin"
 	helper "github.com/apache/incubator-devlake/helpers/pluginhelper/api"
-	mockcontext "github.com/apache/incubator-devlake/mocks/core/context"
+	"github.com/apache/incubator-devlake/helpers/unithelper"
 	mockdal "github.com/apache/incubator-devlake/mocks/core/dal"
 	mockplugin "github.com/apache/incubator-devlake/mocks/core/plugin"
 	"github.com/apache/incubator-devlake/plugins/bitbucket/models"
@@ -59,7 +59,7 @@ func TestMakeDataSourcePipelinePlanV200(t *testing.T) {
 	err := plugin.RegisterPlugin("bitbucket", mockMeta)
 	assert.Nil(t, err)
 	// Refresh Global Variables and set the sql mock
-	basicRes = NewMockBasicRes()
+	mockBasicRes()
 	bs := &plugin.BlueprintScopeV200{
 		Id: "1",
 	}
@@ -70,7 +70,6 @@ func TestMakeDataSourcePipelinePlanV200(t *testing.T) {
 	plan := make(plugin.PipelinePlan, len(bpScopes))
 	plan, err = makeDataSourcePipelinePlanV200(nil, plan, bpScopes, connection, syncPolicy)
 	assert.Nil(t, err)
-	basicRes = NewMockBasicRes()
 	scopes, err := makeScopesV200(bpScopes, connection)
 	assert.Nil(t, err)
 
@@ -129,8 +128,7 @@ func TestMakeDataSourcePipelinePlanV200(t *testing.T) {
 	assert.Equal(t, expectScopes, scopes)
 }
 
-// NewMockBasicRes FIXME ...
-func NewMockBasicRes() *mockcontext.BasicRes {
+func mockBasicRes() {
 	testBitbucketRepo := &models.BitbucketRepo{
 		ConnectionId:  1,
 		BitbucketId:   "likyh/likyhphp",
@@ -154,21 +152,17 @@ func NewMockBasicRes() *mockcontext.BasicRes {
 			"tagsOrder":   "reverse semver",
 		},
 	}
-	mockRes := new(mockcontext.BasicRes)
-	mockDal := new(mockdal.Dal)
+	// Refresh Global Variables and set the sql mock
+	mockRes := unithelper.DummyBasicRes(func(mockDal *mockdal.Dal) {
+		mockDal.On("First", mock.AnythingOfType("*models.BitbucketRepo"), mock.Anything).Run(func(args mock.Arguments) {
+			dst := args.Get(0).(*models.BitbucketRepo)
+			*dst = *testBitbucketRepo
+		}).Return(nil)
 
-	mockDal.On("First", mock.AnythingOfType("*models.BitbucketRepo"), mock.Anything).Run(func(args mock.Arguments) {
-		dst := args.Get(0).(*models.BitbucketRepo)
-		*dst = *testBitbucketRepo
-	}).Return(nil)
-
-	mockDal.On("First", mock.AnythingOfType("*models.BitbucketScopeConfig"), mock.Anything).Run(func(args mock.Arguments) {
-		dst := args.Get(0).(*models.BitbucketScopeConfig)
-		*dst = *testScopeConfig
-	}).Return(nil)
-
-	mockRes.On("GetDal").Return(mockDal)
-	mockRes.On("GetConfig", mock.Anything).Return("")
-
-	return mockRes
+		mockDal.On("First", mock.AnythingOfType("*models.BitbucketScopeConfig"), mock.Anything).Run(func(args mock.Arguments) {
+			dst := args.Get(0).(*models.BitbucketScopeConfig)
+			*dst = *testScopeConfig
+		}).Return(nil)
+	})
+	Init(mockRes)
 }

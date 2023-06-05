@@ -31,7 +31,6 @@ import (
 	"github.com/apache/incubator-devlake/core/errors"
 	"github.com/apache/incubator-devlake/core/utils"
 
-	"github.com/apache/incubator-devlake/core/dal"
 	"github.com/apache/incubator-devlake/core/models/domainlayer/code"
 	"github.com/apache/incubator-devlake/core/models/domainlayer/devops"
 	"github.com/apache/incubator-devlake/core/models/domainlayer/didgen"
@@ -79,12 +78,7 @@ func makeScopeV200(connectionId uint64, scopes []*plugin.BlueprintScopeV200) ([]
 		id := didgen.NewDomainIdGenerator(&models.GitlabProject{}).Generate(connectionId, intScopeId)
 
 		// get repo from db
-		gitlabProject, err := GetRepoByConnectionIdAndscopeId(connectionId, scope.Id)
-		if err != nil {
-			return nil, err
-		}
-
-		scopeConfig, err := GetScopeConfigByRepo(gitlabProject)
+		gitlabProject, scopeConfig, err := scopeHelper.DbHelper().GetScopeAndConfig(connectionId, scope.Id)
 		if err != nil {
 			return nil, err
 		}
@@ -128,13 +122,7 @@ func makePipelinePlanV200(
 		var stage plugin.PipelineStage
 		var err errors.Error
 		// get repo
-		repo, err := GetRepoByConnectionIdAndscopeId(connection.ID, scope.Id)
-		if err != nil {
-			return nil, err
-		}
-
-		// get scopeConfigId
-		scopeConfig, err := GetScopeConfigByRepo(repo)
+		gitlabProject, scopeConfig, err := scopeHelper.DbHelper().GetScopeAndConfig(connection.ID, scope.Id)
 		if err != nil {
 			return nil, err
 		}
@@ -168,7 +156,7 @@ func makePipelinePlanV200(
 
 		// collect git data by gitextractor if CODE was requested
 		if utils.StringsContains(scopeConfig.Entities, plugin.DOMAIN_TYPE_CODE) {
-			cloneUrl, err := errors.Convert01(url.Parse(repo.HttpUrlToRepo))
+			cloneUrl, err := errors.Convert01(url.Parse(gitlabProject.HttpUrlToRepo))
 			if err != nil {
 				return nil, err
 			}
@@ -177,7 +165,7 @@ func makePipelinePlanV200(
 				Plugin: "gitextractor",
 				Options: map[string]interface{}{
 					"url":    cloneUrl.String(),
-					"repoId": didgen.NewDomainIdGenerator(&models.GitlabProject{}).Generate(connection.ID, repo.GitlabId),
+					"repoId": didgen.NewDomainIdGenerator(&models.GitlabProject{}).Generate(connection.ID, gitlabProject.GitlabId),
 					"proxy":  connection.Proxy,
 				},
 			})
@@ -195,45 +183,6 @@ func makePipelinePlanV200(
 		}
 	}
 	return plans, nil
-}
-
-// GetRepoByConnectionIdAndscopeId get tbe repo by the connectionId and the scopeId
-func GetRepoByConnectionIdAndscopeId(connectionId uint64, scopeId string) (*models.GitlabProject, errors.Error) {
-	gitlabId, e := strconv.Atoi(scopeId)
-	if e != nil {
-		return nil, errors.Default.Wrap(e, fmt.Sprintf("scopeId %s is not integer", scopeId))
-	}
-	repo := &models.GitlabProject{}
-	db := basicRes.GetDal()
-	err := db.First(repo, dal.Where("connection_id = ? AND gitlab_id = ?", connectionId, gitlabId))
-	if err != nil {
-		if db.IsErrorNotFound(err) {
-			return nil, errors.Default.Wrap(err, fmt.Sprintf("can not find repo by connection [%d] scope [%s]", connectionId, scopeId))
-		}
-		return nil, errors.Default.Wrap(err, fmt.Sprintf("fail to find repo by connection [%d] scope [%s]", connectionId, scopeId))
-	}
-
-	return repo, nil
-}
-
-// GetScopeConfigByRepo get the GetScopeConfig by Repo
-func GetScopeConfigByRepo(repo *models.GitlabProject) (*models.GitlabScopeConfig, errors.Error) {
-	scopeConfigs := &models.GitlabScopeConfig{}
-	scopeConfigId := repo.ScopeConfigId
-	if scopeConfigId != 0 {
-		db := basicRes.GetDal()
-		err := db.First(scopeConfigs, dal.Where("id = ?", scopeConfigId))
-		if err != nil {
-			if db.IsErrorNotFound(err) {
-				return nil, errors.Default.Wrap(err, fmt.Sprintf("can not find scopeConfig by id [%d]", scopeConfigId))
-			}
-			return nil, errors.Default.Wrap(err, fmt.Sprintf("fail to find scopeConfig by id [%d]", scopeConfigId))
-		}
-	} else {
-		scopeConfigs.ID = 0
-	}
-
-	return scopeConfigs, nil
 }
 
 func GetApiProject(

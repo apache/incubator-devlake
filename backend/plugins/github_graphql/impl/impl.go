@@ -46,7 +46,8 @@ var _ plugin.PluginTask = (*GithubGraphql)(nil)
 var _ plugin.PluginApi = (*GithubGraphql)(nil)
 var _ plugin.PluginModel = (*GithubGraphql)(nil)
 var _ plugin.CloseablePluginTask = (*GithubGraphql)(nil)
-var _ plugin.PluginSource = (*GithubGraphql)(nil)
+
+// var _ plugin.PluginSource = (*GithubGraphql)(nil)
 
 type GithubGraphql struct{}
 

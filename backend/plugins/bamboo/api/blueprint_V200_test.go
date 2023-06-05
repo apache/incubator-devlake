@@ -31,7 +31,6 @@ import (
 	"github.com/apache/incubator-devlake/helpers/unithelper"
 	"github.com/apache/incubator-devlake/plugins/bamboo/models"
 	"github.com/apache/incubator-devlake/plugins/bamboo/tasks"
-	"github.com/go-playground/validator/v10"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
 )
@@ -131,21 +130,22 @@ func TestMakeDataSourcePipelinePlanV200(t *testing.T) {
 
 	// Refresh Global Variables and set the sql mock
 	basicRes = unithelper.DummyBasicRes(func(mockDal *mockdal.Dal) {
-		mockDal.On("First", mock.Anything, mock.Anything).Run(func(args mock.Arguments) {
-			switch dst := args.Get(0).(type) {
-			case *models.BambooConnection:
-				*dst = *testBambooConnection
-			case *models.BambooProject:
-				*dst = *testBambooProject
-			case *models.BambooScopeConfig:
-				*dst = *testScopeConfig
-			}
+		mockDal.On("First", mock.AnythingOfType("*models.BambooConnection"), mock.Anything).Run(func(args mock.Arguments) {
+			dst := args.Get(0).(*models.BambooConnection)
+			*dst = *testBambooConnection
+		}).Return(nil)
+
+		mockDal.On("First", mock.AnythingOfType("*models.BambooProject"), mock.Anything).Run(func(args mock.Arguments) {
+			dst := args.Get(0).(*models.BambooProject)
+			*dst = *testBambooProject
+		}).Return(nil)
+
+		mockDal.On("First", mock.AnythingOfType("*models.BambooScopeConfig"), mock.Anything).Run(func(args mock.Arguments) {
+			dst := args.Get(0).(*models.BambooScopeConfig)
+			*dst = *testScopeConfig
 		}).Return(nil)
 	})
-	connectionHelper = helper.NewConnectionHelper(
-		basicRes,
-		validator.New(),
-	)
+	Init(basicRes)
 
 	plans, scopes, err := MakePipelinePlanV200(testSubTaskMeta, testConnectionID, bpScopes, syncPolicy)
 	assert.Equal(t, err, nil)

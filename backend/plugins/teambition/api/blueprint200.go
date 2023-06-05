@@ -19,8 +19,9 @@ package api
 
 import (
 	"fmt"
-	"github.com/apache/incubator-devlake/plugins/teambition/models"
 	"time"
+
+	"github.com/apache/incubator-devlake/plugins/teambition/models"
 
 	"github.com/apache/incubator-devlake/core/dal"
 	"github.com/apache/incubator-devlake/core/errors"
@@ -28,7 +29,6 @@ import (
 	"github.com/apache/incubator-devlake/core/models/domainlayer/didgen"
 	"github.com/apache/incubator-devlake/core/models/domainlayer/ticket"
 	"github.com/apache/incubator-devlake/core/plugin"
-	"github.com/apache/incubator-devlake/core/utils"
 	helper "github.com/apache/incubator-devlake/helpers/pluginhelper/api"
 )
 
@@ -66,7 +66,7 @@ func makeDataSourcePipelinePlanV200(
 			options["timeAfter"] = syncPolicy.TimeAfter.Format(time.RFC3339)
 		}
 
-		subtasks, err := helper.MakePipelinePlanSubtasks(subtaskMetas, bpScope.Entities)
+		subtasks, err := helper.MakePipelinePlanSubtasks(subtaskMetas, plugin.DOMAIN_TYPES)
 		if err != nil {
 			return nil, err
 		}
@@ -93,15 +93,15 @@ func makeScopesV200(bpScopes []*plugin.BlueprintScopeV200, connectionId uint64) 
 			return nil, errors.Default.Wrap(err, fmt.Sprintf("fail to find project %s", bpScope.Id))
 		}
 		// add board to scopes
-		if utils.StringsContains(bpScope.Entities, plugin.DOMAIN_TYPE_TICKET) {
-			domainBoard := &ticket.Board{
-				DomainEntity: domainlayer.DomainEntity{
-					Id: didgen.NewDomainIdGenerator(&models.TeambitionProject{}).Generate(project.ConnectionId, project.Id),
-				},
-				Name: project.Name,
-			}
-			scopes = append(scopes, domainBoard)
+		// if utils.StringsContains(bpScope.Entities, plugin.DOMAIN_TYPE_TICKET) {
+		domainBoard := &ticket.Board{
+			DomainEntity: domainlayer.DomainEntity{
+				Id: didgen.NewDomainIdGenerator(&models.TeambitionProject{}).Generate(project.ConnectionId, project.Id),
+			},
+			Name: project.Name,
 		}
+		scopes = append(scopes, domainBoard)
+		// }
 	}
 	return scopes, nil
 }

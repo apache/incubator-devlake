@@ -41,7 +41,8 @@ var _ plugin.PluginApi = (*Github)(nil)
 var _ plugin.PluginModel = (*Github)(nil)
 var _ plugin.DataSourcePluginBlueprintV200 = (*Github)(nil)
 var _ plugin.CloseablePluginTask = (*Github)(nil)
-var _ plugin.PluginSource = (*Github)(nil)
+
+// var _ plugin.PluginSource = (*Github)(nil)
 
 type Github struct{}
 
@@ -225,11 +226,11 @@ func (p Github) ApiResources() map[string]map[string]plugin.ApiResourceHandler {
 			"GET": api.GetScopeList,
 			"PUT": api.PutScope,
 		},
-		"connections/:connectionId/scope_configs": {
+		"connections/:connectionId/scope-configs": {
 			"POST": api.CreateScopeConfig,
 			"GET":  api.GetScopeConfigList,
 		},
-		"connections/:connectionId/scope_configs/:id": {
+		"connections/:connectionId/scope-configs/:id": {
 			"PATCH": api.UpdateScopeConfig,
 			"GET":   api.GetScopeConfig,
 		},

@@ -18,10 +18,8 @@ limitations under the License.
 package api
 
 import (
-	"fmt"
 	"time"
 
-	"github.com/apache/incubator-devlake/core/dal"
 	"github.com/apache/incubator-devlake/core/errors"
 	"github.com/apache/incubator-devlake/core/models/domainlayer"
 	"github.com/apache/incubator-devlake/core/models/domainlayer/didgen"
@@ -31,15 +29,13 @@ import (
 	"github.com/apache/incubator-devlake/helpers/pluginhelper/api"
 	"github.com/apache/incubator-devlake/plugins/pagerduty/models"
 	"github.com/apache/incubator-devlake/plugins/pagerduty/tasks"
-	"github.com/go-playground/validator/v10"
 )
 
 func MakeDataSourcePipelinePlanV200(subtaskMetas []plugin.SubTaskMeta, connectionId uint64, bpScopes []*plugin.BlueprintScopeV200, syncPolicy *plugin.BlueprintSyncPolicy,
 ) (plugin.PipelinePlan, []plugin.Scope, errors.Error) {
-	connHelper := api.NewConnectionHelper(basicRes, validator.New())
 	// get the connection info for url
 	connection := &models.PagerDutyConnection{}
-	err := connHelper.FirstById(connection, connectionId)
+	err := connectionHelper.FirstById(connection, connectionId)
 	if err != nil {
 		return nil, nil, err
 	}
@@ -64,19 +60,10 @@ func makeDataSourcePipelinePlanV200(
 	connection *models.PagerDutyConnection,
 	syncPolicy *plugin.BlueprintSyncPolicy,
 ) (plugin.PipelinePlan, errors.Error) {
-	var err errors.Error
 	for i, bpScope := range bpScopes {
-		service := &models.Service{}
-		// get repo from db
-		err = basicRes.GetDal().First(service, dal.Where(`connection_id = ? AND id = ?`, connection.ID, bpScope.Id))
+		// get board and scope config from db
+		service, scopeConfig, err := scopeHelper.DbHelper().GetScopeAndConfig(connection.ID, bpScope.Id)
 		if err != nil {
-			return nil, errors.Default.Wrap(err, fmt.Sprintf("fail to find service %s", bpScope.Id))
-		}
-		scopeConfig := &models.PagerdutyScopeConfig{}
-		// get scope configs from db
-		db := basicRes.GetDal()
-		err = db.First(scopeConfig, dal.Where(`id = ?`, service.ScopeConfigId))
-		if err != nil && !db.IsErrorNotFound(err) {
 			return nil, err
 		}
 		// construct task options for pagerduty
@@ -113,17 +100,9 @@ func makeDataSourcePipelinePlanV200(
 func makeScopesV200(bpScopes []*plugin.BlueprintScopeV200, connection *models.PagerDutyConnection) ([]plugin.Scope, errors.Error) {
 	scopes := make([]plugin.Scope, 0)
 	for _, bpScope := range bpScopes {
-		db := basicRes.GetDal()
-		// get service from db
-		service := &models.Service{}
-		err := db.First(service, dal.Where(`connection_id = ? AND id = ?`, connection.ID, bpScope.Id))
+		// get board and scope config from db
+		service, scopeConfig, err := scopeHelper.DbHelper().GetScopeAndConfig(connection.ID, bpScope.Id)
 		if err != nil {
-			return nil, errors.Default.Wrap(err, fmt.Sprintf("failed to find service: %s", bpScope.Id))
-		}
-		// get scope configs from db
-		scopeConfig := &models.PagerdutyScopeConfig{}
-		err = db.First(scopeConfig, dal.Where(`id = ?`, service.ScopeConfigId))
-		if err != nil && !db.IsErrorNotFound(err) {
 			return nil, err
 		}
 		// add board to scopes

@@ -24,7 +24,7 @@ import (
 	"github.com/apache/incubator-devlake/core/models/domainlayer"
 	"github.com/apache/incubator-devlake/core/models/domainlayer/devops"
 	"github.com/apache/incubator-devlake/core/plugin"
-	mockcontext "github.com/apache/incubator-devlake/mocks/core/context"
+	"github.com/apache/incubator-devlake/helpers/unithelper"
 	mockdal "github.com/apache/incubator-devlake/mocks/core/dal"
 	mockplugin "github.com/apache/incubator-devlake/mocks/core/plugin"
 	"github.com/apache/incubator-devlake/plugins/jenkins/models"
@@ -45,12 +45,11 @@ func TestMakeDataSourcePipelinePlanV200(t *testing.T) {
 	bpScopes := make([]*plugin.BlueprintScopeV200, 0)
 	bpScopes = append(bpScopes, bs)
 
-	basicRes = NewMockBasicRes()
+	mockBasicRes()
 	plan := make(plugin.PipelinePlan, len(bpScopes))
-	plan, err = makeDataSourcePipelinePlanV200(basicRes, nil, plan, bpScopes, 1, syncPolicy)
+	plan, err = makeDataSourcePipelinePlanV200(nil, plan, bpScopes, 1, syncPolicy)
 	assert.Nil(t, err)
-	basicRes = NewMockBasicRes()
-	scopes, err := makeScopesV200(basicRes, bpScopes, 1)
+	scopes, err := makeScopesV200(bpScopes, 1)
 	assert.Nil(t, err)
 
 	expectPlan := plugin.PipelinePlan{
@@ -79,8 +78,7 @@ func TestMakeDataSourcePipelinePlanV200(t *testing.T) {
 	assert.Equal(t, expectScopes, scopes)
 }
 
-// NewMockBasicRes FIXME ...
-func NewMockBasicRes() *mockcontext.BasicRes {
+func mockBasicRes() {
 	jenkinsJob := &models.JenkinsJob{
 		ConnectionId: 1,
 		FullName:     "a/b/ccc",
@@ -92,20 +90,16 @@ func NewMockBasicRes() *mockcontext.BasicRes {
 		},
 	}
 
-	mockRes := new(mockcontext.BasicRes)
-	mockDal := new(mockdal.Dal)
-
-	mockDal.On("First", mock.AnythingOfType("*models.JenkinsScopeConfig"), mock.Anything).Run(func(args mock.Arguments) {
-		dst := args.Get(0).(*models.JenkinsScopeConfig)
-		*dst = *scopeConfig
-	}).Return(nil)
-	mockDal.On("First", mock.AnythingOfType("*models.JenkinsJob"), mock.Anything).Run(func(args mock.Arguments) {
-		dst := args.Get(0).(*models.JenkinsJob)
-		*dst = *jenkinsJob
-	}).Return(nil)
-
-	mockRes.On("GetDal").Return(mockDal)
-	mockRes.On("GetConfig", mock.Anything).Return("")
-
-	return mockRes
+	// Refresh Global Variables and set the sql mock
+	mockRes := unithelper.DummyBasicRes(func(mockDal *mockdal.Dal) {
+		mockDal.On("First", mock.AnythingOfType("*models.JenkinsScopeConfig"), mock.Anything).Run(func(args mock.Arguments) {
+			dst := args.Get(0).(*models.JenkinsScopeConfig)
+			*dst = *scopeConfig
+		}).Return(nil)
+		mockDal.On("First", mock.AnythingOfType("*models.JenkinsJob"), mock.Anything).Run(func(args mock.Arguments) {
+			dst := args.Get(0).(*models.JenkinsJob)
+			*dst = *jenkinsJob
+		}).Return(nil)
+	})
+	Init(mockRes)
 }

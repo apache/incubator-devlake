@@ -18,11 +18,9 @@ limitations under the License.
 package api
 
 import (
-	"fmt"
 	"strings"
 	"time"
 
-	"github.com/apache/incubator-devlake/core/dal"
 	"github.com/apache/incubator-devlake/core/errors"
 	"github.com/apache/incubator-devlake/core/models/domainlayer"
 	"github.com/apache/incubator-devlake/core/models/domainlayer/didgen"
@@ -60,7 +58,6 @@ func makePipelinePlanV200(
 	connection *models.ZentaoConnection,
 	syncPolicy *plugin.BlueprintSyncPolicy,
 ) (plugin.PipelinePlan, []plugin.Scope, errors.Error) {
-	var err errors.Error
 	domainScopes := make([]plugin.Scope, 0)
 	for i, bpScope := range bpScopes {
 		stage := plan[i]
@@ -74,16 +71,17 @@ func makePipelinePlanV200(
 
 		scopeType := strings.Split(bpScope.Id, `/`)[0]
 		scopeId := strings.Split(bpScope.Id, `/`)[1]
+
+		var entities []string
 		if scopeType == `project` {
-			scope := &models.ZentaoProject{}
-			// get repo from db
-			err = basicRes.GetDal().First(scope, dal.Where(`connection_id = ? AND id = ?`, connection.ID, scopeId))
+			scope, scopeConfig, err := projectScopeHelper.DbHelper().GetScopeAndConfig(connection.ID, scopeId)
 			if err != nil {
-				return nil, nil, errors.Default.Wrap(err, fmt.Sprintf("fail to find zentao project %s", bpScope.Id))
+				return nil, nil, err
 			}
 			op.ProjectId = scope.Id
+			entities = scopeConfig.Entities
 
-			if utils.StringsContains(bpScope.Entities, plugin.DOMAIN_TYPE_TICKET) {
+			if utils.StringsContains(scopeConfig.Entities, plugin.DOMAIN_TYPE_TICKET) {
 				scopeTicket := &ticket.Board{
 					DomainEntity: domainlayer.DomainEntity{
 						Id: didgen.NewDomainIdGenerator(&models.ZentaoProject{}).Generate(connection.ID, scope.Id),
@@ -94,15 +92,14 @@ func makePipelinePlanV200(
 				domainScopes = append(domainScopes, scopeTicket)
 			}
 		} else {
-			scope := &models.ZentaoProduct{}
-			// get repo from db
-			err = basicRes.GetDal().First(scope, dal.Where(`connection_id = ? AND id = ?`, connection.ID, scopeId))
+			scope, scopeConfig, err := productScopeHelper.DbHelper().GetScopeAndConfig(connection.ID, scopeId)
 			if err != nil {
-				return nil, nil, errors.Default.Wrap(err, fmt.Sprintf("fail to find zentao product %s", bpScope.Id))
+				return nil, nil, err
 			}
 			op.ProductId = scope.Id
+			entities = scopeConfig.Entities
 
-			if utils.StringsContains(bpScope.Entities, plugin.DOMAIN_TYPE_TICKET) {
+			if utils.StringsContains(scopeConfig.Entities, plugin.DOMAIN_TYPE_TICKET) {
 				scopeTicket := &ticket.Board{
 					DomainEntity: domainlayer.DomainEntity{
 						Id: didgen.NewDomainIdGenerator(&models.ZentaoProduct{}).Generate(connection.ID, scope.Id),
@@ -122,7 +119,7 @@ func makePipelinePlanV200(
 			return nil, nil, err
 		}
 
-		subtasks, err := helper.MakePipelinePlanSubtasks(subtaskMetas, bpScope.Entities)
+		subtasks, err := helper.MakePipelinePlanSubtasks(subtaskMetas, entities)
 		if err != nil {
 			return nil, nil, err
 		}

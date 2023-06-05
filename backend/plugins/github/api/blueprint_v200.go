@@ -40,11 +40,9 @@ import (
 	aha "github.com/apache/incubator-devlake/helpers/pluginhelper/api/apihelperabstract"
 	"github.com/apache/incubator-devlake/plugins/github/models"
 	"github.com/apache/incubator-devlake/plugins/github/tasks"
-	"github.com/go-playground/validator/v10"
 )
 
 func MakeDataSourcePipelinePlanV200(subtaskMetas []plugin.SubTaskMeta, connectionId uint64, bpScopes []*plugin.BlueprintScopeV200, syncPolicy *plugin.BlueprintSyncPolicy) (plugin.PipelinePlan, []plugin.Scope, errors.Error) {
-	connectionHelper := helper.NewConnectionHelper(basicRes, validator.New())
 	// get the connection info for url
 	connection := &models.GithubConnection{}
 	err := connectionHelper.FirstById(connection, connectionId)
@@ -79,23 +77,14 @@ func makeDataSourcePipelinePlanV200(
 	connection *models.GithubConnection,
 	syncPolicy *plugin.BlueprintSyncPolicy,
 ) (plugin.PipelinePlan, errors.Error) {
-	var err errors.Error
 	for i, bpScope := range bpScopes {
 		stage := plan[i]
 		if stage == nil {
 			stage = plugin.PipelineStage{}
 		}
-		githubRepo := &models.GithubRepo{}
-		// get repo from db
-		err = basicRes.GetDal().First(githubRepo, dal.Where(`connection_id = ? AND github_id = ?`, connection.ID, bpScope.Id))
+		// get repo and scope config from db
+		githubRepo, scopeConfig, err := scopeHelper.DbHelper().GetScopeAndConfig(connection.ID, bpScope.Id)
 		if err != nil {
-			return nil, errors.Default.Wrap(err, fmt.Sprintf("fail to find repo %s", bpScope.Id))
-		}
-		scopeConfig := &models.GithubScopeConfig{}
-		// get scope configs from db
-		db := basicRes.GetDal()
-		err = db.First(scopeConfig, dal.Where(`id = ?`, githubRepo.ScopeConfigId))
-		if err != nil && !db.IsErrorNotFound(err) {
 			return nil, err
 		}
 		// refdiff

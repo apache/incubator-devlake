@@ -26,17 +26,10 @@ type DoraApiParams struct {
 	ProjectName string
 }
 
-type TransformationRules struct {
-	ProductionPattern string `mapstructure:"productionPattern" json:"productionPattern"`
-	StagingPattern    string `mapstructure:"stagingPattern" json:"stagingPattern"`
-	TestingPattern    string `mapstructure:"testingPattern" json:"testingPattern"`
-}
-
 type DoraOptions struct {
-	Tasks               []string `json:"tasks,omitempty"`
-	Since               string
-	ProjectName         string `json:"projectName"`
-	TransformationRules `mapstructure:"transformationRules" json:"transformationRules"`
+	Tasks       []string `json:"tasks,omitempty"`
+	Since       string
+	ProjectName string `json:"projectName"`
 }
 
 type DoraTaskData struct {

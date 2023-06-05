@@ -19,6 +19,8 @@ package api
 
 import (
 	"fmt"
+	"reflect"
+
 	"github.com/apache/incubator-devlake/core/context"
 	"github.com/apache/incubator-devlake/core/dal"
 	"github.com/apache/incubator-devlake/core/errors"
@@ -29,11 +31,12 @@ type ScopeDatabaseHelper[Conn any, Scope any, Tr any] interface {
 	VerifyConnection(connectionId uint64) errors.Error
 	SaveScope(scopes []*Scope) errors.Error
 	UpdateScope(connectionId uint64, scopeId string, scope *Scope) errors.Error
-	GetScope(connectionId uint64, scopeId string) (Scope, errors.Error)
+	GetScope(connectionId uint64, scopeId string) (*Scope, errors.Error)
 	ListScopes(input *plugin.ApiResourceInput, connectionId uint64) ([]*Scope, errors.Error)
 	DeleteScope(connectionId uint64, scopeId string) errors.Error
-	GetTransformationRule(ruleId uint64) (Tr, errors.Error)
-	ListTransformationRules(ruleIds []uint64) ([]*Tr, errors.Error)
+	GetScopeConfig(ruleId uint64) (Tr, errors.Error)
+	ListScopeConfigs(ruleIds []uint64) ([]*Tr, errors.Error)
+	GetScopeAndConfig(connectionId uint64, scopeId string) (*Scope, *Tr, errors.Error)
 }
 
 type ScopeDatabaseHelperImpl[Conn any, Scope any, Tr any] struct {
@@ -79,11 +82,31 @@ func (s *ScopeDatabaseHelperImpl[Conn, Scope, Tr]) UpdateScope(connectionId uint
 	return s.db.Update(&scope)
 }
 
-func (s *ScopeDatabaseHelperImpl[Conn, Scope, Tr]) GetScope(connectionId uint64, scopeId string) (Scope, errors.Error) {
+func (s *ScopeDatabaseHelperImpl[Conn, Scope, Tr]) GetScope(connectionId uint64, scopeId string) (*Scope, errors.Error) {
 	query := dal.Where(fmt.Sprintf("connection_id = ? AND %s = ?", s.params.ScopeIdColumnName), connectionId, scopeId)
-	var scope Scope
-	err := s.db.First(&scope, query)
+	scope := new(Scope)
+	err := s.db.First(scope, query)
 	return scope, err
+}
+
+func (s *ScopeDatabaseHelperImpl[Conn, Scope, Tr]) GetScopeAndConfig(connectionId uint64, scopeId string) (*Scope, *Tr, errors.Error) {
+	scope, err := s.GetScope(connectionId, scopeId)
+	if err != nil {
+		return nil, nil, err
+	}
+	scopeConfig := new(Tr)
+	scIdField := reflectField(scope, "ScopeConfigId")
+	if scIdField.IsValid() {
+		err = s.db.First(scopeConfig, dal.Where("id = ?", scIdField.Uint()))
+		if err != nil {
+			return nil, nil, err
+		}
+	}
+	entitiesField := reflectField(scopeConfig, "Entities")
+	if entitiesField.IsValid() && entitiesField.IsNil() {
+		entitiesField.Set(reflect.ValueOf(plugin.DOMAIN_TYPES))
+	}
+	return scope, scopeConfig, nil
 }
 
 func (s *ScopeDatabaseHelperImpl[Conn, Scope, Tr]) ListScopes(input *plugin.ApiResourceInput, connectionId uint64) ([]*Scope, errors.Error) {
@@ -100,13 +123,13 @@ func (s *ScopeDatabaseHelperImpl[Conn, Scope, Tr]) DeleteScope(connectionId uint
 	return err
 }
 
-func (s *ScopeDatabaseHelperImpl[Conn, Scope, Tr]) GetTransformationRule(ruleId uint64) (Tr, errors.Error) {
+func (s *ScopeDatabaseHelperImpl[Conn, Scope, Tr]) GetScopeConfig(ruleId uint64) (Tr, errors.Error) {
 	var rule Tr
 	err := s.db.First(&rule, dal.Where("id = ?", ruleId))
 	return rule, err
 }
 
-func (s *ScopeDatabaseHelperImpl[Conn, Scope, Tr]) ListTransformationRules(ruleIds []uint64) ([]*Tr, errors.Error) {
+func (s *ScopeDatabaseHelperImpl[Conn, Scope, Tr]) ListScopeConfigs(ruleIds []uint64) ([]*Tr, errors.Error) {
 	var rules []*Tr
 	err := s.db.All(&rules, dal.Where("id IN (?)", ruleIds))
 	return rules, err

@@ -19,13 +19,14 @@ package remote
 
 import (
 	"fmt"
-	"github.com/apache/incubator-devlake/core/models"
-	"github.com/apache/incubator-devlake/core/plugin"
-	"github.com/stretchr/testify/require"
 	"os"
 	"path/filepath"
 	"testing"
 	"time"
+
+	"github.com/apache/incubator-devlake/core/models"
+	"github.com/apache/incubator-devlake/core/plugin"
+	"github.com/stretchr/testify/require"
 
 	"github.com/apache/incubator-devlake/test/helper"
 )
@@ -129,9 +130,6 @@ func CreateTestBlueprints(t *testing.T, client *helper.DevlakeClient, count int)
 						{
 							Id:   scope.Id,
 							Name: "Test scope",
-							Entities: []string{
-								plugin.DOMAIN_TYPE_CICD,
-							},
 						},
 					},
 				},

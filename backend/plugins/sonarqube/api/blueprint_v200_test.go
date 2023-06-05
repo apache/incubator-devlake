@@ -18,6 +18,8 @@ limitations under the License.
 package api
 
 import (
+	"testing"
+
 	"github.com/apache/incubator-devlake/core/models/domainlayer"
 	"github.com/apache/incubator-devlake/core/models/domainlayer/codequality"
 	"github.com/apache/incubator-devlake/core/plugin"
@@ -27,7 +29,6 @@ import (
 	"github.com/apache/incubator-devlake/plugins/sonarqube/models"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
-	"testing"
 )
 
 func TestMakeDataSourcePipelinePlanV200(t *testing.T) {
@@ -36,8 +37,7 @@ func TestMakeDataSourcePipelinePlanV200(t *testing.T) {
 	err := plugin.RegisterPlugin("sonarqube", mockMeta)
 	assert.Nil(t, err)
 	bs := &plugin.BlueprintScopeV200{
-		Entities: []string{"CODEQUALITY"},
-		Id:       "f5a50c63-2e8f-4107-9014-853f6f467757",
+		Id: "f5a50c63-2e8f-4107-9014-853f6f467757",
 	}
 	syncPolicy := &plugin.BlueprintSyncPolicy{}
 	bpScopes := make([]*plugin.BlueprintScopeV200, 0)

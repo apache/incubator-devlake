@@ -273,29 +273,6 @@ func (d *DevlakeClient) SearchRemoteScopes(query SearchRemoteScopesQuery) Search
 		nil, nil)
 }
 
-// CreateBasicBlueprint FIXME
-func (d *DevlakeClient) CreateBasicBlueprint(name string, connection *plugin.BlueprintConnectionV100) models.Blueprint {
-	settings := &models.BlueprintSettings{
-		Version:     "1.0.0",
-		Connections: ToJson([]*plugin.BlueprintConnectionV100{connection}),
-	}
-	blueprint := models.Blueprint{
-		Name:       name,
-		Mode:       models.BLUEPRINT_MODE_NORMAL,
-		Plan:       nil,
-		Enable:     true,
-		CronConfig: "manual",
-		IsManual:   true,
-		Settings:   ToJson(settings),
-	}
-	d.testCtx.Helper()
-	blueprint = sendHttpRequest[models.Blueprint](d.testCtx, d.timeout, debugInfo{
-		print:      true,
-		inlineJson: false,
-	}, http.MethodPost, fmt.Sprintf("%s/blueprints", d.Endpoint), nil, &blueprint)
-	return blueprint
-}
-
 // TriggerBlueprint FIXME
 func (d *DevlakeClient) TriggerBlueprint(blueprintId uint64) models.Pipeline {
 	d.testCtx.Helper()

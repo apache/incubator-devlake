@@ -25,7 +25,7 @@ package api
 // @Router /pipelines/gitee/pipeline-plan [post]
 func _() {}
 
-type CodeTransformationRules struct {
+type GiteeScopeConfig struct {
 	PrType               string `mapstructure:"prType" json:"prType"`
 	PrComponent          string `mapstructure:"prComponent" json:"prComponent"`
 	PrBodyClosePattern   string `mapstructure:"prBodyClosePattern" json:"prBodyClosePattern"`
@@ -40,10 +40,10 @@ type GiteePipelinePlan [][]struct {
 	Plugin   string   `json:"plugin"`
 	Subtasks []string `json:"subtasks"`
 	Options  struct {
-		ConnectionID   int    `json:"connectionId"`
-		Owner          string `json:"owner"`
-		Repo           string `json:"repo"`
-		Since          string
-		Transformation CodeTransformationRules `json:"transformation"`
+		ConnectionID int    `json:"connectionId"`
+		Owner        string `json:"owner"`
+		Repo         string `json:"repo"`
+		Since        string
+		ScopeConfig  GiteeScopeConfig `json:"scopeConfig"`
 	} `json:"options"`
 }

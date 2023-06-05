@@ -41,7 +41,7 @@ var _ interface {
 	plugin.PluginMigration
 	plugin.DataSourcePluginBlueprintV200
 	plugin.CloseablePluginTask
-	plugin.PluginSource
+	// plugin.PluginSource
 } = (*Sonarqube)(nil)
 
 type Sonarqube struct{}
