@@ -21,7 +21,7 @@ import (
 	"github.com/apache/incubator-devlake/core/models/migrationscripts/archived"
 )
 
-type ZentaoBugCommit struct {
+type ZentaoStoryCommit struct {
 	archived.NoPKModel
 	ConnectionId uint64 `gorm:"primaryKey;type:BIGINT  NOT NULL"`
 	ID           int    `json:"id" gorm:"primaryKey;type:BIGINT  NOT NULL;autoIncrement:false"`
@@ -43,20 +43,20 @@ type ZentaoBugCommit struct {
 	ActionDesc   string `json:"cctionDesc"`
 }
 
-func (ZentaoBugCommit) TableName() string {
-	return "_tool_zentao_bug_commits"
+func (ZentaoStoryCommit) TableName() string {
+	return "_tool_zentao_story_commits"
 }
 
-type ZentaoBugRepoCommit struct {
+type ZentaoStoryRepoCommit struct {
 	archived.NoPKModel
 	ConnectionId uint64 `gorm:"primaryKey;type:BIGINT  NOT NULL"`
 	Product      int64  `json:"product"`
 	Project      int64  `json:"project"`
-	IssueId      string `gorm:"primaryKey;type:varchar(255)"` // the bug id
+	IssueId      string `gorm:"primaryKey;type:varchar(255)"` // the story id
 	RepoUrl      string `gorm:"primaryKey;type:varchar(255)"`
 	CommitSha    string `gorm:"primaryKey;type:varchar(255)"`
 }
 
-func (ZentaoBugRepoCommit) TableName() string {
-	return "_tool_zentao_bug_repo_commits"
+func (ZentaoStoryRepoCommit) TableName() string {
+	return "_tool_zentao_story_repo_commits"
 }

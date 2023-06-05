@@ -24,20 +24,25 @@ import (
 	"github.com/apache/incubator-devlake/plugins/zentao/models/archived"
 )
 
-type addIssueCommitsTables struct{}
+type addIssueRepoCommitsTables struct{}
 
-func (*addIssueCommitsTables) Up(basicRes context.BasicRes) errors.Error {
+func (*addIssueRepoCommitsTables) Up(basicRes context.BasicRes) errors.Error {
 
 	return migrationhelper.AutoMigrateTables(
 		basicRes,
-		&archived.ZentaoBugCommits{},
+		&archived.ZentaoBugCommit{},
+		&archived.ZentaoBugRepoCommit{},
+		&archived.ZentaoStoryCommit{},
+		&archived.ZentaoStoryRepoCommit{},
+		&archived.ZentaoTaskCommit{},
+		&archived.ZentaoTaskRepoCommit{},
 	)
 }
 
-func (*addIssueCommitsTables) Version() uint64 {
-	return 20230531000001
+func (*addIssueRepoCommitsTables) Version() uint64 {
+	return 20230605000011
 }
 
-func (*addIssueCommitsTables) Name() string {
-	return "zentao add issue commits tables"
+func (*addIssueRepoCommitsTables) Name() string {
+	return "zentao add issue repo commits tables"
 }

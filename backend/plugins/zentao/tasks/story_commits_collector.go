@@ -29,19 +29,19 @@ import (
 	"github.com/apache/incubator-devlake/plugins/zentao/models"
 )
 
-const RAW_BUG_COMMITS_TABLE = "zentao_api_bug_commits"
+const RAW_STORY_COMMITS_TABLE = "zentao_api_story_commits"
 
-var _ plugin.SubTaskEntryPoint = CollectBugCommits
+var _ plugin.SubTaskEntryPoint = CollectStoryCommits
 
-var CollectBugCommitsMeta = plugin.SubTaskMeta{
-	Name:             "collectBugCommits",
-	EntryPoint:       CollectBugCommits,
+var CollectStoryCommitsMeta = plugin.SubTaskMeta{
+	Name:             "collectStoryCommits",
+	EntryPoint:       CollectStoryCommits,
 	EnabledByDefault: true,
-	Description:      "Collect Bug Commits data from Zentao api",
+	Description:      "Collect Story Commits data from Zentao api",
 	DomainTypes:      []string{plugin.DOMAIN_TYPE_TICKET},
 }
 
-func CollectBugCommits(taskCtx plugin.SubTaskContext) errors.Error {
+func CollectStoryCommits(taskCtx plugin.SubTaskContext) errors.Error {
 	db := taskCtx.GetDal()
 	data := taskCtx.GetData().(*ZentaoTaskData)
 
@@ -53,16 +53,16 @@ func CollectBugCommits(taskCtx plugin.SubTaskContext) errors.Error {
 			ProductId:    data.Options.ProductId,
 			ProjectId:    data.Options.ProjectId,
 		},
-		Table: RAW_BUG_COMMITS_TABLE,
+		Table: RAW_STORY_COMMITS_TABLE,
 	}, data.TimeAfter)
 	if err != nil {
 		return err
 	}
 
-	// load bugs id from db
+	// load stories id from db
 	clauses := []dal.Clause{
 		dal.Select("id, last_edited_date"),
-		dal.From(&models.ZentaoBug{}),
+		dal.From(&models.ZentaoStory{}),
 		dal.Where(
 			"product = ? AND connection_id = ?",
 			data.Options.ProductId, data.Options.ConnectionId,
@@ -80,11 +80,13 @@ func CollectBugCommits(taskCtx plugin.SubTaskContext) errors.Error {
 	if err != nil {
 		return err
 	}
-	iterator, err := api.NewDalCursorIterator(db, cursor, reflect.TypeOf(SimpleZentaoBug{}))
+
+	iterator, err := api.NewDalCursorIterator(db, cursor, reflect.TypeOf(SimpleZentaoStory{}))
 	if err != nil {
 		return err
 	}
-	// collect bug commits
+
+	// collect story commits
 	err = collectorWithState.InitCollector(api.ApiCollectorArgs{
 		RawDataSubTaskArgs: api.RawDataSubTaskArgs{
 			Ctx: taskCtx,
@@ -93,13 +95,13 @@ func CollectBugCommits(taskCtx plugin.SubTaskContext) errors.Error {
 				ProductId:    data.Options.ProductId,
 				ProjectId:    data.Options.ProjectId,
 			},
-			Table: RAW_BUG_COMMITS_TABLE,
+			Table: RAW_STORY_COMMITS_TABLE,
 		},
 		ApiClient:   data.ApiClient,
 		PageSize:    100,
 		Input:       iterator,
 		Incremental: incremental,
-		UrlTemplate: "bugs/{{ .Input.ID }}",
+		UrlTemplate: "stories/{{ .Input.ID }}",
 		ResponseParser: func(res *http.Response) ([]json.RawMessage, errors.Error) {
 			var data struct {
 				Actions []json.RawMessage `json:"actions"`
@@ -120,6 +122,6 @@ func CollectBugCommits(taskCtx plugin.SubTaskContext) errors.Error {
 	return collectorWithState.Execute()
 }
 
-type SimpleZentaoBug struct {
+type SimpleZentaoStory struct {
 	ID int64 `json:"id"`
 }

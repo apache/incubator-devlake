@@ -18,7 +18,9 @@ limitations under the License.
 package tasks
 
 import (
+	"fmt"
 	"net/http"
+	"net/url"
 	"strings"
 
 	"github.com/apache/incubator-devlake/core/errors"
@@ -141,4 +143,37 @@ func getStdTypeMappings(data *ZentaoTaskData) map[string]string {
 		stdTypeMappings[userType] = strings.ToUpper(stdType)
 	}
 	return stdTypeMappings
+}
+
+// parseRepoUrl parses a repository URL and returns the host, namespace, and repository name.
+func parseRepoUrl(repoUrl string) (string, string, string, error) {
+	parsedUrl, err := url.Parse(repoUrl)
+	if err != nil {
+		return "", "", "", err
+	}
+
+	host := parsedUrl.Host
+	host = strings.TrimPrefix(host, "www.")
+	pathParts := strings.Split(parsedUrl.Path, "/")
+	if len(pathParts) < 3 {
+		return "", "", "", fmt.Errorf("invalid RepoUrl: %s", repoUrl)
+	}
+
+	namespace := strings.Join(pathParts[1:len(pathParts)-1], "/")
+	repoName := pathParts[len(pathParts)-1]
+	if repoName == "" {
+		return "", "", "", fmt.Errorf("invalid RepoUrl: %s (empty repository name)", repoUrl)
+	}
+
+	return host, namespace, repoName, nil
+}
+
+func ignoreHTTPStatus404(res *http.Response) errors.Error {
+	if res.StatusCode == http.StatusUnauthorized {
+		return errors.Unauthorized.New("authentication failed, please check your AccessToken")
+	}
+	if res.StatusCode == http.StatusNotFound {
+		return api.ErrIgnoreAndContinue
+	}
+	return nil
 }

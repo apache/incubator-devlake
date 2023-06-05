@@ -21,7 +21,7 @@ import (
 	"github.com/apache/incubator-devlake/core/models/common"
 )
 
-type ZentaoBugCommitsRes struct {
+type ZentaoTaskCommitsRes struct {
 	ID         int    `json:"id" gorm:"primaryKey;type:BIGINT  NOT NULL;autoIncrement:false"`
 	ObjectType string `json:"objectType"`
 	ObjectID   int    `json:"objectID"`
@@ -39,7 +39,7 @@ type ZentaoBugCommitsRes struct {
 	Desc       string `json:"desc"`
 }
 
-type ZentaoBugCommit struct {
+type ZentaoTaskCommit struct {
 	common.NoPKModel
 	ConnectionId uint64 `gorm:"primaryKey;type:BIGINT  NOT NULL"`
 	ID           int    `json:"id" gorm:"primaryKey;type:BIGINT  NOT NULL;autoIncrement:false"`
@@ -61,11 +61,11 @@ type ZentaoBugCommit struct {
 	ActionDesc   string `json:"cctionDesc"`
 }
 
-func (ZentaoBugCommit) TableName() string {
-	return "_tool_zentao_bug_commits"
+func (ZentaoTaskCommit) TableName() string {
+	return "_tool_zentao_task_commits"
 }
 
-type ZentaoBugRepoCommitsRes struct {
+type ZentaoTaskRepoCommitsRes struct {
 	Title string `json:"title"`
 	Log   struct {
 		Revision  string `json:"revision"`
@@ -136,16 +136,16 @@ type ZentaoBugRepoCommitsRes struct {
 	Pager any `json:"pager"`
 }
 
-type ZentaoBugRepoCommit struct {
+type ZentaoTaskRepoCommit struct {
 	common.NoPKModel
 	ConnectionId uint64 `gorm:"primaryKey;type:BIGINT  NOT NULL"`
 	Product      int64  `json:"product"`
 	Project      int64  `json:"project"`
-	IssueId      string `gorm:"primaryKey;type:varchar(255)"` // the bug id
+	IssueId      string `gorm:"primaryKey;type:varchar(255)"` // the task id
 	RepoUrl      string `gorm:"primaryKey;type:varchar(255)"`
 	CommitSha    string `gorm:"primaryKey;type:varchar(255)"`
 }
 
-func (ZentaoBugRepoCommit) TableName() string {
-	return "_tool_zentao_bug_repo_commits"
+func (ZentaoTaskRepoCommit) TableName() string {
+	return "_tool_zentao_task_repo_commits"
 }
