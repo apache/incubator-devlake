@@ -18,6 +18,8 @@ limitations under the License.
 package main
 
 import (
+	"os"
+
 	"github.com/apache/incubator-devlake/core/config"
 	"github.com/apache/incubator-devlake/core/plugin"
 	_ "github.com/apache/incubator-devlake/core/version"
@@ -26,9 +28,12 @@ import (
 
 func main() {
 	v := config.GetConfig()
-	encryptionSecret := v.GetString(plugin.EncodeKeyEnvStr)
+	encryptionSecret := os.Getenv("ENCRYPTION_SECRET")
 	if encryptionSecret == "" {
-		panic("ENCRYPTION_SECRET must be set in .env file")
+		encryptionSecret = v.GetString(plugin.EncodeKeyEnvStr)
+		if encryptionSecret == "" {
+			panic("ENCRYPTION_SECRET must be set in environment variable or .env file")
+		}
 	}
 	api.CreateApiService()
 }
