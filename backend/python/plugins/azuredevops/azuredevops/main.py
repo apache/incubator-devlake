@@ -91,6 +91,21 @@ class AzureDevOpsPlugin(Plugin):
                 repo.parent_repository_url = raw_repo["parentRepository"]["url"]
             yield repo
 
+        for endpoint in api.endpoints(org, proj):
+            provider = endpoint['type']
+            res = api.external_repositories(org, proj, provider, endpoint['id'])
+            for repo in res.json['repositories']:
+                props = repo['properties']
+                yield GitRepository(
+                    id=repo['id'],
+                    name=repo['name'],
+                    project_id=proj,
+                    org_id=org,
+                    provider=provider,
+                    url=props['cloneUrl'],
+                    defaultBranch=props.get('defaultBranch', 'main')
+                )
+
     def test_connection(self, connection: AzureDevOpsConnection):
         api = AzureDevOpsAPI(connection)
         if connection.organization is None:
@@ -107,7 +122,7 @@ class AzureDevOpsPlugin(Plugin):
                 raise Exception(f"Invalid token: {e}")
 
     def extra_tasks(self, scope: GitRepository, tx_rule: AzureDevOpsTransformationRule, entity_types: list[DomainType], connection: AzureDevOpsConnection):
-        if DomainType.CODE in entity_types:
+        if DomainType.CODE in entity_types and not scope.is_external():
             url = urlparse(scope.remote_url)
             url = url._replace(netloc=f'{url.username}:{connection.token.get_secret_value()}@{url.hostname}')
             yield gitextractor(url.geturl(), scope.domain_id(), connection.proxy)
@@ -115,8 +130,9 @@ class AzureDevOpsPlugin(Plugin):
     def extra_stages(self, scope_tx_rule_pairs: list[ScopeTxRulePair], entity_types: list[DomainType], _):
         if DomainType.CODE in entity_types:
             for scope, tx_rule in scope_tx_rule_pairs:
-                options = tx_rule.refdiff if tx_rule else None
-                yield [refdiff(scope.id, options)]
+                if not scope.is_external():
+                    options = tx_rule.refdiff if tx_rule else None
+                    yield [refdiff(scope.id, options)]
 
     @property
     def streams(self):

@@ -23,6 +23,7 @@ import fire
 
 import pydevlake.message as msg
 from pydevlake.subtasks import Subtask
+from pydevlake.logger import logger
 from pydevlake.ipc import PluginCommands
 from pydevlake.context import Context
 from pydevlake.stream import Stream, DomainType
@@ -95,13 +96,20 @@ class Plugin(ABC):
         pass
 
     def collect(self, ctx: Context, stream: str):
-        yield from self.get_stream(stream).collector.run(ctx)
+        return self._run_stream(ctx, stream, 'collector')
 
     def extract(self, ctx: Context, stream: str):
-        yield from self.get_stream(stream).extractor.run(ctx)
+        return self._run_stream(ctx, stream, 'extractor')
 
     def convert(self, ctx: Context, stream: str):
-        yield from self.get_stream(stream).convertor.run(ctx)
+        return self._run_stream(ctx, stream, 'convertor')
+
+    def _run_stream(self, ctx: Context, stream_name: str, subtask: str):
+        stream = self.get_stream(stream_name)
+        if stream.should_run_on(ctx.scope):
+            yield from getattr(stream, subtask).run(ctx)
+        else:
+            logger.info(f"Skipping stream {stream.name} for scope {ctx.scope.name}")
 
     def make_remote_scopes(self, connection: Connection, group_id: Optional[str] = None) -> msg.RemoteScopes:
         if group_id:
@@ -125,6 +133,7 @@ class Plugin(ABC):
         """
         Make a simple pipeline using the scopes declared by the plugin.
         """
+        entity_types = entity_types or list(DomainType)
         plan = self.make_pipeline_plan(scope_tx_rule_pairs, entity_types, connection)
         domain_scopes = []
         for tool_scope, _ in scope_tx_rule_pairs:
@@ -194,7 +203,7 @@ class Plugin(ABC):
                     subtasks.append(subtask.name)
         return subtasks
 
-    def get_stream(self, stream_name: str):
+    def get_stream(self, stream_name: str) -> Stream:
         stream = self._streams.get(stream_name)
         if stream is None:
             raise Exception(f'Unknown stream {stream_name}')
@@ -207,7 +216,7 @@ class Plugin(ABC):
                 entry_point_name=subtask.verb,
                 arguments=[subtask.stream.name],
                 required=True,
-                enabled_by_default=True,
+                enabled_by_default=False,
                 description=subtask.description,
                 domain_types=[dm.value for dm in subtask.stream.domain_types]
             )

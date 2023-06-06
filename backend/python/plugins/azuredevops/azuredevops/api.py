@@ -74,3 +74,9 @@ class AzureDevOpsAPI(API):
 
     def jobs(self, org: str, project: str, build_id: int):
         return self.get(org, project, '_apis/build/builds', build_id, 'timeline')
+
+    def endpoints(self, org: str, project: str):
+        return self.get(org, project, '_apis/serviceendpoint/endpoints')
+
+    def external_repositories(self, org: str, project: str, provider: str, endpoint_id: str):
+        return self.get(org, project, '_apis/sourceProviders', provider, 'repositories', serviceEndpointId=endpoint_id)
