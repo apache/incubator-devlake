@@ -18,16 +18,17 @@ limitations under the License.
 package api
 
 import (
+	"strings"
+
 	"github.com/apache/incubator-devlake/core/errors"
 	"github.com/apache/incubator-devlake/core/plugin"
 	"github.com/apache/incubator-devlake/helpers/pluginhelper/api"
 	"github.com/apache/incubator-devlake/plugins/jenkins/models"
-	"strings"
 )
 
 type ScopeRes struct {
 	models.JenkinsJob
-	ScopeConfigName string `json:"scopeConfigName,omitempty"`
+	api.ScopeResDoc[models.JenkinsScopeConfig]
 }
 
 type ScopeReq api.ScopeReq[models.JenkinsJob]

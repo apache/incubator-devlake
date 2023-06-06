@@ -20,6 +20,9 @@ package api
 import (
 	"encoding/json"
 	"fmt"
+	"io"
+	"net/http"
+
 	"github.com/apache/incubator-devlake/core/errors"
 	"github.com/apache/incubator-devlake/core/plugin"
 	"github.com/apache/incubator-devlake/helpers/pluginhelper/api"
@@ -27,13 +30,11 @@ import (
 	"github.com/apache/incubator-devlake/plugins/jira/models"
 	"github.com/apache/incubator-devlake/plugins/jira/tasks"
 	"github.com/apache/incubator-devlake/plugins/jira/tasks/apiv2models"
-	"io"
-	"net/http"
 )
 
 type ScopeRes struct {
 	models.JiraBoard
-	ScopeConfigName string `json:"scopeConfigName,omitempty"`
+	api.ScopeResDoc[models.JiraScopeConfig]
 }
 
 type ScopeReq api.ScopeReq[models.JiraBoard]

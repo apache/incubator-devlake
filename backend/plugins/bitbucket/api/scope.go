@@ -28,7 +28,7 @@ import (
 
 type ScopeRes struct {
 	models.BitbucketRepo
-	ScopeConfigName string `json:"scopeConfigName,omitempty"`
+	api.ScopeResDoc[models.BitbucketScopeConfig]
 }
 
 type ScopeReq api.ScopeReq[models.BitbucketRepo]

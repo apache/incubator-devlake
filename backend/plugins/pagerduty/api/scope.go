@@ -24,11 +24,12 @@ import (
 	"github.com/apache/incubator-devlake/plugins/pagerduty/models"
 )
 
-// Needed for Swagger doc gen
-type (
-	ScopeReq api.ScopeReq[models.Service]
-	ScopeRes api.ScopeRes[models.Service]
-)
+type ScopeRes struct {
+	models.Service
+	api.ScopeResDoc[any]
+}
+
+type ScopeReq api.ScopeReq[models.Service]
 
 // PutScope create or update pagerduty service
 // @Summary create or update pagerduty service
@@ -37,7 +38,7 @@ type (
 // @Accept application/json
 // @Param connectionId path int true "connection ID"
 // @Param scope body ScopeReq true "json"
-// @Success 200  {object} []models.Service
+// @Success 200  {object} []ScopeRes
 // @Failure 400  {object} shared.ApiBody "Bad Request"
 // @Failure 500  {object} shared.ApiBody "Internal Error"
 // @Router /plugins/pagerduty/connections/{connectionId}/scopes [PUT]
