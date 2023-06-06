@@ -16,8 +16,6 @@
  *
  */
 
-import React from 'react';
-
 import Img from '@/images/no-data.svg';
 import { Card } from '@/components';
 

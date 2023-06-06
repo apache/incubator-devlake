@@ -16,8 +16,6 @@
  *
  */
 
-import React from 'react';
-
 import { Loading } from './loading';
 import * as S from './styled';
 

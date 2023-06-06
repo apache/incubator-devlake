@@ -16,7 +16,7 @@
  *
  */
 
-import React, { useEffect } from 'react';
+import { useEffect } from 'react';
 import { FormGroup, Switch } from '@blueprintjs/core';
 
 import * as S from './styled';

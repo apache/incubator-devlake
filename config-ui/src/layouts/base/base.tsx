@@ -16,7 +16,6 @@
  *
  */
 
-import React from 'react';
 import { useLocation } from 'react-router-dom';
 import { Menu, MenuItem, Tag, Navbar, Intent, Alignment, Button } from '@blueprintjs/core';
 

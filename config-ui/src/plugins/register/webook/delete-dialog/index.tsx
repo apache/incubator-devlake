@@ -16,8 +16,6 @@
  *
  */
 
-import React from 'react';
-
 import { Dialog } from '@/components';
 
 import type { UseDeleteProps } from './use-delete';

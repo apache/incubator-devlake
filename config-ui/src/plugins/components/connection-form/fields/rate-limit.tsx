@@ -33,7 +33,7 @@
  *
  */
 
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { FormGroup, Switch, NumericInput } from '@blueprintjs/core';
 
 import { ExternalLink } from '@/components';

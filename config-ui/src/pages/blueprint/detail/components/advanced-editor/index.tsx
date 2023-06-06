@@ -16,7 +16,6 @@
  *
  */
 
-import React from 'react';
 import { TextArea, ButtonGroup, Button, Menu, MenuItem, Position } from '@blueprintjs/core';
 import { Popover2 } from '@blueprintjs/popover2';
 import styled from 'styled-components';

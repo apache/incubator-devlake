@@ -16,7 +16,7 @@
  *
  */
 
-import React, { useMemo } from 'react';
+import { useMemo } from 'react';
 import dayjs from 'dayjs';
 import { Checkbox, FormGroup, InputGroup, Radio, RadioGroup } from '@blueprintjs/core';
 

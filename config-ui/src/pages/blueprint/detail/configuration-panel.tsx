@@ -178,7 +178,7 @@ export const ConfigurationPanel = ({ from, blueprint, onRefresh }: Props) => {
             />
           ) : (
             <>
-              <Buttons position="top" align="left">
+              <Buttons>
                 <Button
                   intent={Intent.PRIMARY}
                   icon="add"

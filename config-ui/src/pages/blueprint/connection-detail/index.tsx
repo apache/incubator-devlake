@@ -166,13 +166,28 @@ export const BlueprintConnectionDetailPage = () => {
           </Button>
         </Popover2>
       </S.Top>
-      <Buttons position="top" align="left">
+      <Buttons>
         <Button intent={Intent.PRIMARY} icon="annotation" text="Manage Data Scope" onClick={handleShowDataScope} />
         <ExternalLink style={{ marginLeft: 8 }} link={`/connections/${connection.plugin}/${connection.id}`}>
           <Button intent={Intent.PRIMARY} icon="annotation" text="Edit Scope Config" />
         </ExternalLink>
       </Buttons>
-      <Table columns={[{ title: 'Data Scope', dataIndex: 'name', key: 'name' }]} dataSource={scopes} />
+      <Table
+        columns={[
+          {
+            title: 'Data Scope',
+            dataIndex: 'name',
+            key: 'name',
+          },
+          {
+            title: 'Scope Config',
+            dataIndex: 'scopeConfig',
+            key: 'scopeConfig',
+            render: (_, row) => (row.scopeConfigId ? 'Configured' : 'N/A'),
+          },
+        ]}
+        dataSource={scopes}
+      />
       <Dialog
         isOpen={isOpen}
         title="Manage Data Scope"

@@ -16,7 +16,7 @@
  *
  */
 
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { MenuItem, Checkbox, Intent } from '@blueprintjs/core';
 import { MultiSelect2 } from '@blueprintjs/select';
 

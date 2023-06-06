@@ -16,7 +16,6 @@
  *
  */
 
-import React from 'react';
 import { InputGroup, Icon } from '@blueprintjs/core';
 import { CopyToClipboard } from 'react-copy-to-clipboard';
 

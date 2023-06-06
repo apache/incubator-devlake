@@ -57,7 +57,7 @@ interface Props {
   children: React.ReactNode;
 }
 
-export const Buttons = ({ position = 'bottom', align = 'right', children }: Props) => {
+export const Buttons = ({ position = 'top', align = 'left', children }: Props) => {
   return (
     <Wrapper position={position} align={align}>
       {children}
