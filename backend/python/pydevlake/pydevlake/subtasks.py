@@ -132,6 +132,10 @@ class Subtask:
             "scope_id": ctx.scope.id
         }, separators=(',', ':'))
 
+    @abstractmethod
+    def delete(self, session, ctx):
+        pass
+
 
 class Collector(Subtask):
     @property
@@ -181,7 +185,8 @@ class Extractor(Subtask):
         session.merge(tool_model)
 
     def delete(self, session, ctx):
-        pass
+        model = self.stream.tool_model
+        session.execute(sql.delete(model).where(model.raw_data_params == self._params(ctx)))
 
 class Convertor(Subtask):
     @property
