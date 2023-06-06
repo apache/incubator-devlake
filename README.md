@@ -87,9 +87,8 @@ Please read the [contribution guidelines](https://devlake.apache.org/community) 
 
 ## 💙 Community
 
-- <a href="https://join.slack.com/t/devlake-io/shared_invite/zt-18uayb6ut-cHOjiYcBwERQ8VVPZ9cQQw" target="_blank">Slack</a>: Message us on Slack
-- Wechat Community:<br/>
-  ![](resources/img/wechat_community_barcode.png)
+- Slack: Message us on <a href="https://join.slack.com/t/devlake-io/shared_invite/zt-18uayb6ut-cHOjiYcBwERQ8VVPZ9cQQw" target="_blank">Slack</a> 
+- Wechat Community: [Check the barcode](resources/img/wechat_community_barcode.png)
 
 ## 📄 License<a id="license"></a>
 
