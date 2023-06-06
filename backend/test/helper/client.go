@@ -23,10 +23,6 @@ import (
 	"encoding/json"
 	goerror "errors"
 	"fmt"
-	"github.com/apache/incubator-devlake/core/dal"
-	dora "github.com/apache/incubator-devlake/plugins/dora/impl"
-	org "github.com/apache/incubator-devlake/plugins/org/impl"
-	remotePlugin "github.com/apache/incubator-devlake/server/services/remote/plugin"
 	"io"
 	"math"
 	"net/http"
@@ -35,6 +31,11 @@ import (
 	"syscall"
 	"testing"
 	"time"
+
+	"github.com/apache/incubator-devlake/core/dal"
+	dora "github.com/apache/incubator-devlake/plugins/dora/impl"
+	org "github.com/apache/incubator-devlake/plugins/org/impl"
+	remotePlugin "github.com/apache/incubator-devlake/server/services/remote/plugin"
 
 	"github.com/apache/incubator-devlake/core/config"
 	corectx "github.com/apache/incubator-devlake/core/context"
@@ -215,15 +216,16 @@ func (d *DevlakeClient) RunPlugin(ctx context.Context, pluginName string, plugin
 
 func (d *DevlakeClient) configureEncryption() {
 	v := config.GetConfig()
-	encKey := v.GetString(plugin.EncodeKeyEnvStr)
-	if encKey == "" {
+	encryptionSecret := v.GetString(plugin.EncodeKeyEnvStr)
+	// only test environment should have this set
+	if encryptionSecret == "" {
 		var err errors.Error
 		// Randomly generate a bunch of encryption keys and set them to config
-		encKey, err = plugin.RandomEncKey()
+		encryptionSecret, err = plugin.RandomEncryptionSecret()
 		if err != nil {
 			panic(err)
 		}
-		v.Set(plugin.EncodeKeyEnvStr, encKey)
+		v.Set(plugin.EncodeKeyEnvStr, encryptionSecret)
 		err = config.WriteConfig(v)
 		if err != nil {
 			panic(err)

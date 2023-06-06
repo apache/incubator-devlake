@@ -35,9 +35,9 @@ type PipelineEncryption0904 struct {
 }
 
 func (script *encryptPipeline) Up(basicRes context.BasicRes) errors.Error {
-	encKey := basicRes.GetConfig(plugin.EncodeKeyEnvStr)
-	if encKey == "" {
-		return errors.BadInput.New("invalid encKey")
+	encryptionSecret := basicRes.GetConfig(plugin.EncodeKeyEnvStr)
+	if encryptionSecret == "" {
+		return errors.BadInput.New("invalid encryptionSecret")
 	}
 	err := migrationhelper.TransformColumns(
 		basicRes,
@@ -45,7 +45,7 @@ func (script *encryptPipeline) Up(basicRes context.BasicRes) errors.Error {
 		"_devlake_pipelines",
 		[]string{"plan"},
 		func(src *PipelineEncryption0904) (*PipelineEncryption0904, errors.Error) {
-			plan, err := plugin.Encrypt(encKey, src.Plan)
+			plan, err := plugin.Encrypt(encryptionSecret, src.Plan)
 			if err != nil {
 				return nil, err
 			}
