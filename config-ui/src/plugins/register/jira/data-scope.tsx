@@ -16,9 +16,11 @@
  *
  */
 
-import type { ScopeItemType } from './types';
+import { useMemo } from 'react';
 
-import { MillerColumns } from './components/miller-columns';
+import { DataScopeMillerColumns } from '@/plugins';
+
+import type { ScopeItemType } from './types';
 
 interface Props {
   connectionId: ID;
@@ -27,12 +29,24 @@ interface Props {
   onChangeItems: (selectedItems: ScopeItemType[]) => void;
 }
 
-export const JiraDataScope = ({ connectionId, disabledItems, selectedItems, onChangeItems }: Props) => {
+export const JiraDataScope = ({ connectionId, onChangeItems, ...props }: Props) => {
+  const selectedItems = useMemo(
+    () => props.selectedItems.map((it) => ({ id: `${it.boardId}`, name: it.name, data: it })),
+    [props.selectedItems],
+  );
+
+  const disabledItems = useMemo(
+    () => (props.disabledItems ?? []).map((it) => ({ id: `${it.boardId}`, name: it.name, data: it })),
+    [props.disabledItems],
+  );
+
   return (
     <>
       <h3>Boards *</h3>
       <p>Select the boards you would like to sync.</p>
-      <MillerColumns
+      <DataScopeMillerColumns
+        plugin="jira"
+        columnCount={1}
         connectionId={connectionId}
         disabledItems={disabledItems}
         selectedItems={selectedItems}
