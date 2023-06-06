@@ -28,7 +28,7 @@ func main() {
 	v := config.GetConfig()
 	encryptionSecret := v.GetString(plugin.EncodeKeyEnvStr)
 	if encryptionSecret == "" {
-		panic("ENCRYPTION_SECRET must be set in .env file")
+		panic("ENCRYPTION_SECRET must be set in environment variable or .env file")
 	}
 	api.CreateApiService()
 }
