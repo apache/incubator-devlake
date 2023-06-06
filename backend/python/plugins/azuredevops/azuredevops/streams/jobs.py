@@ -21,6 +21,7 @@ from azuredevops.api import AzureDevOpsAPI
 from azuredevops.models import Job, Build, GitRepository
 from azuredevops.streams.builds import Builds
 from pydevlake import Context, Substream, DomainType
+from pydevlake.api import APIException
 import pydevlake.domain_layer.devops as devops
 
 
@@ -32,7 +33,16 @@ class Jobs(Substream):
     def collect(self, state, context, parent: Build) -> Iterable[tuple[object, dict]]:
         repo: GitRepository = context.scope
         api = AzureDevOpsAPI(context.connection)
-        response = api.jobs(repo.org_id, repo.project_id, parent.id)
+        try:
+            response = api.jobs(repo.org_id, repo.project_id, parent.id)
+        except APIException as e:
+            # Asking for the timeline of a deleted build returns a 204.
+            # But a "deleted" build may be "cleaned" (i.e. deleted for real)
+            # after some time. In this case, the timeline endpoint returns a
+            # 404 instead.
+            if e.response.status == HTTPStatus.NOT_FOUND:
+                return
+            raise
         # If a build has failed before any jobs have started, e.g. due to a
         # bad YAML file, then the jobs endpoint will return a 204 NO CONTENT.
         if response.status == HTTPStatus.NO_CONTENT:
