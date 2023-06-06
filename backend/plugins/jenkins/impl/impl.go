@@ -180,6 +180,12 @@ func (p Jenkins) ApiResources() map[string]map[string]plugin.ApiResourceHandler 
 			"DELETE": api.DeleteConnection,
 			"GET":    api.GetConnection,
 		},
+		"connections/:connectionId/remote-scopes": {
+			"GET": api.RemoteScopes,
+		},
+		"connections/:connectionId/search-remote-scopes": {
+			"GET": api.SearchRemoteScopes,
+		},
 		"connections/:connectionId/scopes/*scopeId": {
 			"GET":    api.GetScope,
 			"PATCH":  api.UpdateScope,
@@ -240,7 +246,11 @@ func EnrichOptions(taskCtx plugin.TaskContext,
 	err = api.GetJob(apiClient, op.JobPath, op.JobName, op.JobFullName, 100, func(job *models.Job, isPath bool) errors.Error {
 		log.Debug(fmt.Sprintf("Current job: %s", job.FullName))
 		op.JobPath = job.Path
-		jenkinsJob := ConvertJobToJenkinsJob(job, op)
+		jenkinsJob := job.ConvertApiScope().(models.JenkinsJob)
+
+		jenkinsJob.ConnectionId = op.ConnectionId
+		jenkinsJob.ScopeConfigId = op.ScopeConfigId
+
 		err = taskCtx.GetDal().CreateIfNotExist(jenkinsJob)
 		return err
 	})
@@ -266,20 +276,4 @@ func EnrichOptions(taskCtx plugin.TaskContext,
 	}
 
 	return nil
-}
-
-func ConvertJobToJenkinsJob(job *models.Job, op *tasks.JenkinsOptions) *models.JenkinsJob {
-	return &models.JenkinsJob{
-		ConnectionId:  op.ConnectionId,
-		FullName:      job.FullName,
-		ScopeConfigId: op.ScopeConfigId,
-		Name:          job.Name,
-		Path:          job.Path,
-		Class:         job.Class,
-		Color:         job.Color,
-		Base:          job.Base,
-		Url:           job.URL,
-		Description:   job.Description,
-		PrimaryView:   job.URL + job.Path + job.Class,
-	}
 }

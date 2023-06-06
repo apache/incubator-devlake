@@ -40,3 +40,11 @@ type JenkinsJob struct {
 func (JenkinsJob) TableName() string {
 	return "_tool_jenkins_jobs"
 }
+
+func (j JenkinsJob) ScopeId() string {
+	return j.FullName
+}
+
+func (j JenkinsJob) ScopeName() string {
+	return j.Name
+}
