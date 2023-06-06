@@ -18,6 +18,8 @@ limitations under the License.
 package api
 
 import (
+	"strconv"
+
 	"github.com/apache/incubator-devlake/core/context"
 	"github.com/apache/incubator-devlake/core/dal"
 	"github.com/apache/incubator-devlake/core/errors"
@@ -25,15 +27,14 @@ import (
 	"github.com/apache/incubator-devlake/core/models"
 	plugin "github.com/apache/incubator-devlake/core/plugin"
 	"github.com/go-playground/validator/v10"
-	"strconv"
 )
 
 // ConnectionApiHelper is used to write the CURD of connection
 type ConnectionApiHelper struct {
-	encryptionSecret    string
-	log       log.Logger
-	db        dal.Dal
-	validator *validator.Validate
+	encryptionSecret string
+	log              log.Logger
+	db               dal.Dal
+	validator        *validator.Validate
 }
 
 // NewConnectionHelper creates a ConnectionHelper for connection management
@@ -45,10 +46,10 @@ func NewConnectionHelper(
 		vld = validator.New()
 	}
 	return &ConnectionApiHelper{
-		encryptionSecret:    basicRes.GetConfig(plugin.EncodeKeyEnvStr),
-		log:       basicRes.GetLogger(),
-		db:        basicRes.GetDal(),
-		validator: vld,
+		encryptionSecret: basicRes.GetConfig(plugin.EncodeKeyEnvStr),
+		log:              basicRes.GetLogger(),
+		db:               basicRes.GetDal(),
+		validator:        vld,
 	}
 }
 

@@ -141,8 +141,7 @@ func ConnectLocalServer(t *testing.T, clientConfig *LocalClientConfig) *DevlakeC
 		d.pipelineTimeout = 30 * time.Second
 	}
 	if clientConfig.CreateServer {
-		err := d.configureEncryption()
-		require.NoError(t, err)
+		d.configureEncryption()
 		d.initPlugins(clientConfig)
 		if clientConfig.DropDb || clientConfig.TruncateDb {
 			d.prepareDB(clientConfig)
@@ -215,13 +214,23 @@ func (d *DevlakeClient) RunPlugin(ctx context.Context, pluginName string, plugin
 	)
 }
 
-func (d *DevlakeClient) configureEncryption() errors.Error {
+func (d *DevlakeClient) configureEncryption() {
 	v := config.GetConfig()
 	encryptionSecret := v.GetString(plugin.EncodeKeyEnvStr)
+	// only test environment should have this set
 	if encryptionSecret == "" {
-		return errors.Default.New("encryption secret not set")
+		var err errors.Error
+		// Randomly generate a bunch of encryption keys and set them to config
+		encryptionSecret, err = plugin.RandomEncryptionSecret()
+		if err != nil {
+			panic(err)
+		}
+		v.Set(plugin.EncodeKeyEnvStr, encryptionSecret)
+		err = config.WriteConfig(v)
+		if err != nil {
+			panic(err)
+		}
 	}
-	return nil
 }
 
 func (d *DevlakeClient) forceSendHttpRequest(retries uint, req *http.Request, onError func(err errors.Error) bool) {
