@@ -15,8 +15,6 @@
 
 from typing import Iterable
 
-import iso8601 as iso8601
-
 from azuredevops.api import AzureDevOpsAPI
 from azuredevops.models import GitRepository
 from azuredevops.models import Build
