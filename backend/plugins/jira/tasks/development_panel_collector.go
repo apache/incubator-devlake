@@ -19,7 +19,10 @@ package tasks
 
 import (
 	"encoding/json"
+	"fmt"
+	"io"
 	"net/http"
+	"net/url"
 	"reflect"
 
 	"github.com/apache/incubator-devlake/core/dal"
@@ -29,36 +32,35 @@ import (
 	"github.com/apache/incubator-devlake/plugins/jira/tasks/apiv2models"
 )
 
-const RAW_REMOTELINK_TABLE = "jira_api_remotelinks"
+const RAW_DEVELOPMENT_PANEL = "jira_api_development_panels"
 
-var _ plugin.SubTaskEntryPoint = CollectRemotelinks
+var _ plugin.SubTaskEntryPoint = CollectDevelopmentPanel
 
-var CollectRemotelinksMeta = plugin.SubTaskMeta{
-	Name:             "collectRemotelinks",
-	EntryPoint:       CollectRemotelinks,
+var CollectDevelopmentPanelMeta = plugin.SubTaskMeta{
+	Name:             "collectDevelopmentPanel",
+	EntryPoint:       CollectDevelopmentPanel,
 	EnabledByDefault: true,
-	Description:      "collect Jira remote links, supports both timeFilter and diffSync.",
-	DomainTypes:      []string{plugin.DOMAIN_TYPE_TICKET},
+	Description:      "collect Jira development panel",
+	DomainTypes:      []string{plugin.DOMAIN_TYPE_TICKET, plugin.DOMAIN_TYPE_CROSS},
 }
 
-func CollectRemotelinks(taskCtx plugin.SubTaskContext) errors.Error {
+func CollectDevelopmentPanel(taskCtx plugin.SubTaskContext) errors.Error {
 	data := taskCtx.GetData().(*JiraTaskData)
 	transformationRule := data.Options.TransformationRules
-	// if the following condition is true, it means that the task is not enabled
-	if transformationRule != nil && transformationRule.ApplicationType != "" {
+	// if the condition is true, it means that the task is not enabled
+	if transformationRule == nil || transformationRule.ApplicationType == "" {
 		return nil
 	}
 	db := taskCtx.GetDal()
 	logger := taskCtx.GetLogger()
-	logger.Info("collect remotelink")
-
 	collectorWithState, err := api.NewStatefulApiCollector(api.RawDataSubTaskArgs{
 		Ctx: taskCtx,
 		Params: JiraApiParams{
 			ConnectionId: data.Options.ConnectionId,
 			BoardId:      data.Options.BoardId,
 		},
-		Table: RAW_REMOTELINK_TABLE,
+
+		Table: RAW_DEVELOPMENT_PANEL,
 	}, data.TimeAfter)
 	if err != nil {
 		return err
@@ -80,7 +82,7 @@ func CollectRemotelinks(taskCtx plugin.SubTaskContext) errors.Error {
 
 	cursor, err := db.Cursor(clauses...)
 	if err != nil {
-		logger.Error(err, "collect remotelink error")
+		logger.Error(err, "collect development panel error")
 		return err
 	}
 
@@ -94,26 +96,37 @@ func CollectRemotelinks(taskCtx plugin.SubTaskContext) errors.Error {
 		ApiClient:   data.ApiClient,
 		Input:       iterator,
 		Incremental: incremental,
-		UrlTemplate: "api/2/issue/{{ .Input.IssueId }}/remotelink",
+		// the URL looks like:
+		// https://merico.atlassian.net/rest/dev-status/1.0/issue/detail?issueId=25184&applicationType=GitLab&dataType=repository
+		UrlTemplate: "dev-status/1.0/issue/detail",
+		Query: func(reqData *api.RequestData) (url.Values, errors.Error) {
+			query := url.Values{}
+			query.Set("issueId", fmt.Sprintf("%d", reqData.Input.(*apiv2models.Input).IssueId))
+			query.Set("applicationType", transformationRule.ApplicationType)
+			query.Set("dataType", "repository")
+			return query, nil
+		},
+
 		ResponseParser: func(res *http.Response) ([]json.RawMessage, errors.Error) {
-			if res.StatusCode == http.StatusNotFound {
+			blob, err := io.ReadAll(res.Body)
+			if err != nil {
+				return nil, errors.Convert(err)
+			}
+			var raw apiv2models.DevelopmentPanel
+			err = json.Unmarshal(blob, &raw)
+			if err != nil {
+				return nil, errors.Convert(err)
+			}
+			if len(raw.Detail) == 0 {
 				return nil, nil
 			}
-			var result []json.RawMessage
-			err := api.UnmarshalResponse(res, &result)
-			if err != nil {
-				return nil, err
-			}
-			return result, nil
+			return []json.RawMessage{blob}, nil
 		},
-		AfterResponse: ignoreHTTPStatus404,
+		AfterResponse: ignoreHTTPStatus400,
 	})
 	if err != nil {
 		return err
 	}
-	err = collectorWithState.Execute()
-	if err != nil {
-		return err
-	}
-	return nil
+
+	return collectorWithState.Execute()
 }

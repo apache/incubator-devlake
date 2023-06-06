@@ -135,6 +135,9 @@ func (p Jira) SubTaskMetas() []plugin.SubTaskMeta {
 		tasks.ConvertSprintsMeta,
 		tasks.ConvertSprintIssuesMeta,
 
+		tasks.CollectDevelopmentPanelMeta,
+		tasks.ExtractDevelopmentPanelMeta,
+
 		tasks.ConvertIssueCommitsMeta,
 		tasks.ConvertIssueRepoCommitsMeta,
 
@@ -300,6 +303,12 @@ func (p Jira) ApiResources() map[string]map[string]plugin.ApiResourceHandler {
 		"connections/:connectionId/transformation_rules/:id": {
 			"PATCH": api.UpdateTransformationRule,
 			"GET":   api.GetTransformationRule,
+		},
+		"connections/:connectionId/application-types": {
+			"GET": api.GetApplicationTypes,
+		},
+		"connections/:connectionId/dev-panel-commits": {
+			"GET": api.GetCommitsURLs,
 		},
 	}
 }

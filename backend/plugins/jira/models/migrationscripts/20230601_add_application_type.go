@@ -18,25 +18,29 @@ limitations under the License.
 package migrationscripts
 
 import (
-	"github.com/apache/incubator-devlake/core/plugin"
+	"github.com/apache/incubator-devlake/core/context"
+	"github.com/apache/incubator-devlake/core/errors"
+	"github.com/apache/incubator-devlake/helpers/migrationhelper"
 )
 
-// All return all the migration scripts
-func All() []plugin.MigrationScript {
-	return []plugin.MigrationScript{
-		new(addSourceTable20220407),
-		new(renameSourceTable20220505),
-		new(addInitTables20220716),
-		new(addTransformationRule20221116),
-		new(addProjectName20221215),
-		new(addJiraMultiAuth20230129),
-		new(removeIssueStdStoryPoint),
-		new(addCommitRepoPattern),
-		new(expandRemotelinkUrl),
-		new(addConnectionIdToTransformationRule),
-		new(addChangeTotal20230412),
-		new(expandRemotelinkSelfUrl),
-		new(addRepoUrl),
-		new(addApplicationType),
-	}
+type transformationRule20230601 struct {
+	ApplicationType string `gorm:"type:varchar(255)"`
+}
+
+func (transformationRule20230601) TableName() string {
+	return "_tool_jira_transformation_rules"
+}
+
+type addApplicationType struct{}
+
+func (script *addApplicationType) Up(basicRes context.BasicRes) errors.Error {
+	return migrationhelper.AutoMigrateTables(basicRes, &transformationRule20230601{})
+}
+
+func (*addApplicationType) Version() uint64 {
+	return 20230601213737
+}
+
+func (*addApplicationType) Name() string {
+	return "add application_type to _tool_jira_transformation_rules"
 }
