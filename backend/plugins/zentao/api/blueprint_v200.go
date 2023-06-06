@@ -73,39 +73,40 @@ func makePipelinePlanV200(
 		scopeId := strings.Split(bpScope.Id, `/`)[1]
 
 		var entities []string
+
 		if scopeType == `project` {
-			scope, scopeConfig, err := projectScopeHelper.DbHelper().GetScopeAndConfig(connection.ID, scopeId)
+			project, scopeConfig, err := projectScopeHelper.DbHelper().GetScopeAndConfig(connection.ID, scopeId)
 			if err != nil {
 				return nil, nil, err
 			}
-			op.ProjectId = scope.Id
+			op.ProjectId = project.Id
 			entities = scopeConfig.Entities
 
-			if utils.StringsContains(scopeConfig.Entities, plugin.DOMAIN_TYPE_TICKET) {
+			if utils.StringsContains(entities, plugin.DOMAIN_TYPE_TICKET) {
 				scopeTicket := &ticket.Board{
 					DomainEntity: domainlayer.DomainEntity{
-						Id: didgen.NewDomainIdGenerator(&models.ZentaoProject{}).Generate(connection.ID, scope.Id),
+						Id: didgen.NewDomainIdGenerator(&models.ZentaoProject{}).Generate(connection.ID, project.Id),
 					},
-					Name: scope.Name,
-					Type: scope.Type,
+					Name: project.Name,
+					Type: project.Type,
 				}
 				domainScopes = append(domainScopes, scopeTicket)
 			}
 		} else {
-			scope, scopeConfig, err := productScopeHelper.DbHelper().GetScopeAndConfig(connection.ID, scopeId)
+			product, scopeConfig, err := productScopeHelper.DbHelper().GetScopeAndConfig(connection.ID, scopeId)
 			if err != nil {
 				return nil, nil, err
 			}
-			op.ProductId = scope.Id
+			op.ProductId = product.Id
 			entities = scopeConfig.Entities
 
-			if utils.StringsContains(scopeConfig.Entities, plugin.DOMAIN_TYPE_TICKET) {
+			if utils.StringsContains(entities, plugin.DOMAIN_TYPE_TICKET) {
 				scopeTicket := &ticket.Board{
 					DomainEntity: domainlayer.DomainEntity{
-						Id: didgen.NewDomainIdGenerator(&models.ZentaoProduct{}).Generate(connection.ID, scope.Id),
+						Id: didgen.NewDomainIdGenerator(&models.ZentaoProduct{}).Generate(connection.ID, product.Id),
 					},
-					Name: scope.Name,
-					Type: scope.Type,
+					Name: product.Name,
+					Type: product.Type,
 				}
 				domainScopes = append(domainScopes, scopeTicket)
 			}

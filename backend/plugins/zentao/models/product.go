@@ -146,6 +146,7 @@ type ZentaoProduct struct {
 	Docs             int                 `json:"docs" mapstructure:"docs"`
 	Progress         float64             `json:"progress" mapstructure:"progress"`
 	CaseReview       bool                `json:"caseReview" mapstructure:"caseReview"`
+	ScopeConfigId    uint64              `json:"scopeConfigId,omitempty" mapstructure:"scopeConfigId"`
 }
 
 func (ZentaoProduct) TableName() string {
