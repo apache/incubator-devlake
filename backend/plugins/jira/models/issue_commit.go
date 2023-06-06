@@ -27,6 +27,7 @@ type JiraIssueCommit struct {
 	IssueId      uint64 `gorm:"primaryKey"`
 	CommitSha    string `gorm:"primaryKey;type:varchar(40)"`
 	CommitUrl    string
+	RepoUrl      string
 }
 
 func (JiraIssueCommit) TableName() string {
