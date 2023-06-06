@@ -48,7 +48,7 @@ export const PipelineTask = ({ task }: Props) => {
         name = `${name}:${options.name}`;
         break;
       case ['gitextractor'].includes(config.plugin):
-        name = `${name}:${options.repoId}`;
+        name = `${name}:${options.name}`;
         break;
       case ['dora'].includes(config.plugin):
         name = `${name}:${options.projectName}`;

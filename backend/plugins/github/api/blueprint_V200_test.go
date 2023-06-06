@@ -90,6 +90,7 @@ func TestMakeDataSourcePipelinePlanV200(t *testing.T) {
 				Options: map[string]interface{}{
 					"proxy":  "",
 					"repoId": "github:GithubRepo:1:12345",
+					"name":   "test/testRepo",
 					"url":    "https://git:123@this_is_cloneUrl",
 				},
 			},

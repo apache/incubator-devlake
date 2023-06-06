@@ -88,6 +88,7 @@ func TestMakeDataSourcePipelinePlanV200(t *testing.T) {
 				Options: map[string]interface{}{
 					"proxy":  "",
 					"repoId": "bitbucket:BitbucketRepo:1:likyh/likyhphp",
+					"name":   "likyh/likyhphp",
 					"url":    "https://Username:Password@this_is_cloneUrl",
 				},
 			},
