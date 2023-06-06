@@ -412,7 +412,7 @@
           "hide": false,
           "metricColumn": "none",
           "rawQuery": true,
-          "rawSql": "SELECT\n  DATE_ADD(date(i.created_date), INTERVAL -$interval(date(i.created_date))+1 DAY) as time,\n  sum(case when i.status = 'DONE' then i.story_point else 0 end) as 'Story Points Completed'\nFROM issues i\n\tjoin board_issues bi on i.id = bi.issue_id\n\tjoin boards b on bi.board_id = b.id\n\tjoin project_mapping pm on b.id = pm.row_id\nWHERE\n  $__timeFilter(i.created_date)\n  and pm.project_name in ($project)\ngroup by 1",
+          "rawSql": "SELECT\n  DATE_ADD(date(i.resolution_date), INTERVAL -$interval(date(i.resolution_date))+1 DAY) as time,\n  sum(case when i.status = 'DONE' then i.story_point else 0 end) as 'Story Points Completed'\nFROM issues i\n\tjoin board_issues bi on i.id = bi.issue_id\n\tjoin boards b on bi.board_id = b.id\n\tjoin project_mapping pm on b.id = pm.row_id\nWHERE\n  $__timeFilter(i.resolution_date)\n  and pm.project_name in ($project)\ngroup by 1\norder by 1",
           "refId": "A",
           "select": [
             [
