@@ -21,12 +21,14 @@ import (
 	"github.com/apache/incubator-devlake/core/context"
 	"github.com/apache/incubator-devlake/helpers/pluginhelper/api"
 	"github.com/apache/incubator-devlake/plugins/jira/models"
+	"github.com/apache/incubator-devlake/plugins/jira/tasks/apiv2models"
 	"github.com/go-playground/validator/v10"
 )
 
 var vld *validator.Validate
 var connectionHelper *api.ConnectionApiHelper
 var scopeHelper *api.ScopeApiHelper[models.JiraConnection, models.JiraBoard, models.JiraScopeConfig]
+var remoteHelper *api.RemoteApiHelper[models.JiraConnection, models.JiraBoard, apiv2models.Board, api.NoRemoteGroupResponse]
 var basicRes context.BasicRes
 var scHelper *api.ScopeConfigHelper[models.JiraScopeConfig]
 
@@ -49,6 +51,12 @@ func Init(br context.BasicRes) {
 			basicRes, connectionHelper, params),
 		params,
 		nil,
+	)
+
+	remoteHelper = api.NewRemoteHelper[models.JiraConnection, models.JiraBoard, apiv2models.Board, api.NoRemoteGroupResponse](
+		basicRes,
+		vld,
+		connectionHelper,
 	)
 	scHelper = api.NewScopeConfigHelper[models.JiraScopeConfig](
 		basicRes,

@@ -18,6 +18,7 @@ limitations under the License.
 package apiv2models
 
 import (
+	"github.com/apache/incubator-devlake/core/plugin"
 	"github.com/apache/incubator-devlake/plugins/jira/models"
 )
 
@@ -37,16 +38,21 @@ type Board struct {
 	} `json:"location"`
 }
 
-func (b Board) ToToolLayer(connectionId uint64) *models.JiraBoard {
+func (b Board) ConvertApiScope() plugin.ToolLayerScope {
 	result := &models.JiraBoard{
-		ConnectionId: connectionId,
-		BoardId:      b.ID,
-		Name:         b.Name,
-		Self:         b.Self,
-		Type:         b.Type,
+		BoardId: b.ID,
+		Name:    b.Name,
+		Self:    b.Self,
+		Type:    b.Type,
 	}
 	if b.Location != nil {
 		result.ProjectId = b.Location.ProjectId
 	}
+	return result
+}
+
+func (b Board) ToToolLayer(connectionId uint64) *models.JiraBoard {
+	result := b.ConvertApiScope().(*models.JiraBoard)
+	result.ConnectionId = connectionId
 	return result
 }

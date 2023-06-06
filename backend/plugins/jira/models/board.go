@@ -18,6 +18,8 @@ limitations under the License.
 package models
 
 import (
+	"fmt"
+
 	"github.com/apache/incubator-devlake/core/models/common"
 )
 
@@ -30,6 +32,14 @@ type JiraBoard struct {
 	Name             string `json:"name" mapstructure:"name" gorm:"type:varchar(255)"`
 	Self             string `json:"self" mapstructure:"self" gorm:"type:varchar(255)"`
 	Type             string `json:"type" mapstructure:"type" gorm:"type:varchar(100)"`
+}
+
+func (b JiraBoard) ScopeId() string {
+	return fmt.Sprintf("%d", b.BoardId)
+}
+
+func (b JiraBoard) ScopeName() string {
+	return b.Name
 }
 
 func (JiraBoard) TableName() string {
