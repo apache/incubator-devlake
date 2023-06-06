@@ -40,7 +40,7 @@ func Init(br context.BasicRes) {
 		vld,
 	)
 	params := &api.ReflectionParameters{
-		ScopeIdFieldName:  "BoardID",
+		ScopeIdFieldName:  "BoardId",
 		ScopeIdColumnName: "board_id",
 	}
 	scopeHelper = api.NewScopeHelper[models.JiraConnection, models.JiraBoard, models.JiraScopeConfig](
