@@ -56,10 +56,16 @@ type (
 		connHelper       *ConnectionApiHelper
 		opts             *ScopeHelperOptions
 	}
-	ScopeRes[T any] struct {
-		Scope           T                   `mapstructure:",squash"`
-		ScopeConfigName string              `mapstructure:"scopeConfigName,omitempty"`
-		Blueprints      []*models.Blueprint `mapstructure:"blueprints,omitempty"`
+	// as of golang v1.20, embedding generic fields is not supported
+	// let's divide the struct into two parts for swagger doc to work
+	// https://stackoverflow.com/questions/66118867/go-generics-is-it-possible-to-embed-generic-structs
+	ScopeResDoc[ScopeConfig any] struct {
+		ScopeConfig *ScopeConfig        `mapstructure:"scopeConfig,omitempty" json:"scopeConfig"`
+		Blueprints  []*models.Blueprint `mapstructure:"blueprints,omitempty" json:"blueprints"`
+	}
+	ScopeRes[Scope any, ScopeConfig any] struct {
+		Scope                    *Scope                   `mapstructure:",squash"` // ideally we need this field to be embedded in the struct
+		ScopeResDoc[ScopeConfig] `mapstructure:",squash"` // however, only this type of embeding is supported as of golang 1.20
 	}
 	ReflectionParameters struct {
 		ScopeIdFieldName  string
@@ -128,7 +134,7 @@ func (c *GenericScopeApiHelper[Conn, Scope, Tr]) DbHelper() ScopeDatabaseHelper[
 	return c.dbHelper
 }
 
-func (c *GenericScopeApiHelper[Conn, Scope, Tr]) PutScopes(input *plugin.ApiResourceInput, scopes []*Scope) ([]*ScopeRes[Scope], errors.Error) {
+func (c *GenericScopeApiHelper[Conn, Scope, Tr]) PutScopes(input *plugin.ApiResourceInput, scopes []*Scope) ([]*ScopeRes[Scope, Tr], errors.Error) {
 	params := c.extractFromReqParam(input)
 	if params.connectionId == 0 {
 		return nil, errors.BadInput.New("invalid connectionId")
@@ -157,14 +163,14 @@ func (c *GenericScopeApiHelper[Conn, Scope, Tr]) PutScopes(input *plugin.ApiReso
 			return nil, errors.Default.Wrap(err, "error saving scope")
 		}
 	}
-	apiScopes, err := c.addScopeConfigName(scopes...)
+	apiScopes, err := c.addScopeConfig(scopes...)
 	if err != nil {
 		return nil, errors.Default.Wrap(err, "error associating scope config to scope")
 	}
 	return apiScopes, nil
 }
 
-func (c *GenericScopeApiHelper[Conn, Scope, Tr]) UpdateScope(input *plugin.ApiResourceInput) (*ScopeRes[Scope], errors.Error) {
+func (c *GenericScopeApiHelper[Conn, Scope, Tr]) UpdateScope(input *plugin.ApiResourceInput) (*ScopeRes[Scope, Tr], errors.Error) {
 	params := c.extractFromReqParam(input)
 	if params.connectionId == 0 {
 		return nil, errors.BadInput.New("invalid connectionId")
@@ -192,14 +198,14 @@ func (c *GenericScopeApiHelper[Conn, Scope, Tr]) UpdateScope(input *plugin.ApiRe
 	if err != nil {
 		return nil, errors.Default.Wrap(err, "error on saving Scope")
 	}
-	scopeRes, err := c.addScopeConfigName(scope)
+	scopeRes, err := c.addScopeConfig(scope)
 	if err != nil {
 		return nil, err
 	}
 	return scopeRes[0], nil
 }
 
-func (c *GenericScopeApiHelper[Conn, Scope, Tr]) GetScopes(input *plugin.ApiResourceInput) ([]*ScopeRes[Scope], errors.Error) {
+func (c *GenericScopeApiHelper[Conn, Scope, Tr]) GetScopes(input *plugin.ApiResourceInput) ([]*ScopeRes[Scope, Tr], errors.Error) {
 	params := c.extractFromGetReqParam(input)
 	if params.connectionId == 0 {
 		return nil, errors.BadInput.New("invalid path params: \"connectionId\" not set")
@@ -212,7 +218,7 @@ func (c *GenericScopeApiHelper[Conn, Scope, Tr]) GetScopes(input *plugin.ApiReso
 	if err != nil {
 		return nil, errors.Default.Wrap(err, fmt.Sprintf("error verifying connection for connection ID %d", params.connectionId))
 	}
-	apiScopes, err := c.addScopeConfigName(scopes...)
+	apiScopes, err := c.addScopeConfig(scopes...)
 	if err != nil {
 		return nil, errors.Default.Wrap(err, "error associating scope configs with scopes")
 	}
@@ -245,7 +251,7 @@ func (c *GenericScopeApiHelper[Conn, Scope, Tr]) GetScopes(input *plugin.ApiReso
 	return apiScopes, nil
 }
 
-func (c *GenericScopeApiHelper[Conn, Scope, Tr]) GetScope(input *plugin.ApiResourceInput) (*ScopeRes[Scope], errors.Error) {
+func (c *GenericScopeApiHelper[Conn, Scope, Tr]) GetScope(input *plugin.ApiResourceInput) (*ScopeRes[Scope, Tr], errors.Error) {
 	params := c.extractFromGetReqParam(input)
 	if params == nil || params.connectionId == 0 {
 		return nil, errors.BadInput.New("invalid path params: \"connectionId\" not set")
@@ -261,7 +267,7 @@ func (c *GenericScopeApiHelper[Conn, Scope, Tr]) GetScope(input *plugin.ApiResou
 	if err != nil {
 		return nil, errors.Default.Wrap(err, fmt.Sprintf("error retrieving scope with scope ID %s", params.scopeId))
 	}
-	apiScopes, err := c.addScopeConfigName(scope)
+	apiScopes, err := c.addScopeConfig(scope)
 	if err != nil {
 		return nil, errors.Default.Wrap(err, fmt.Sprintf("error associating scope config with scope %s", params.scopeId))
 	}
@@ -323,48 +329,26 @@ func (c *GenericScopeApiHelper[Conn, Scope, Tr]) DeleteScope(input *plugin.ApiRe
 	return nil
 }
 
-func (c *GenericScopeApiHelper[Conn, Scope, Tr]) addScopeConfigName(scopes ...*Scope) ([]*ScopeRes[Scope], errors.Error) {
-	var ruleIds []uint64
-	for _, scope := range scopes {
-		valueRepoRuleId := reflectField(scope, "ScopeConfigId")
-		if !valueRepoRuleId.IsValid() {
-			break
+func (c *GenericScopeApiHelper[Conn, Scope, Tr]) addScopeConfig(scopes ...*Scope) ([]*ScopeRes[Scope, Tr], errors.Error) {
+	apiScopes := make([]*ScopeRes[Scope, Tr], len(scopes))
+	for i, scope := range scopes {
+		apiScopes[i] = &ScopeRes[Scope, Tr]{
+			Scope: scope,
 		}
-		ruleId := reflectField(scope, "ScopeConfigId").Uint()
-		if ruleId > 0 {
-			ruleIds = append(ruleIds, ruleId)
-		}
-	}
-	var rules []*Tr
-	var err errors.Error
-	if len(ruleIds) > 0 {
-		rules, err = c.dbHelper.ListScopeConfigs(ruleIds)
-		if err != nil {
-			return nil, err
-		}
-	}
-	names := make(map[uint64]string)
-	for _, rule := range rules {
-		// Get the reflect.Value of the i-th struct pointer in the slice
-		names[reflectField(rule, "ID").Uint()] = reflectField(rule, "Name").String()
-	}
-	apiScopes := make([]*ScopeRes[Scope], 0)
-	for _, scope := range scopes {
 		scIdField := reflectField(scope, "ScopeConfigId")
-		scName := ""
-		if scIdField.IsValid() {
-			scName = names[scIdField.Uint()]
+		if scIdField.IsValid() && scIdField.Uint() > 0 {
+			scopeConfig, err := c.dbHelper.GetScopeConfig(scIdField.Uint())
+			if err != nil {
+				return nil, err
+			}
+			apiScopes[i].ScopeConfig = scopeConfig
 		}
-		apiScopes = append(apiScopes, &ScopeRes[Scope]{
-			Scope:           *scope,
-			ScopeConfigName: scName,
-		})
 	}
 	return apiScopes, nil
 }
 
-func (c *GenericScopeApiHelper[Conn, Scope, Tr]) mapByScopeId(scopes []*ScopeRes[Scope]) map[string]*ScopeRes[Scope] {
-	scopeMap := map[string]*ScopeRes[Scope]{}
+func (c *GenericScopeApiHelper[Conn, Scope, Tr]) mapByScopeId(scopes []*ScopeRes[Scope, Tr]) map[string]*ScopeRes[Scope, Tr] {
+	scopeMap := map[string]*ScopeRes[Scope, Tr]{}
 	for _, scope := range scopes {
 		scopeId := fmt.Sprintf("%v", reflectField(scope.Scope, c.reflectionParams.ScopeIdFieldName).Interface())
 		scopeMap[scopeId] = scope
@@ -574,7 +558,7 @@ func (c *GenericScopeApiHelper[Conn, Scope, Tr]) transactionalDelete(tables []st
 }
 
 // Implement MarshalJSON method to flatten all fields
-func (sr *ScopeRes[T]) MarshalJSON() ([]byte, error) {
+func (sr *ScopeRes[T, Y]) MarshalJSON() ([]byte, error) {
 	var flatMap map[string]interface{}
 	err := mapstructure.Decode(sr, &flatMap)
 	if err != nil {
