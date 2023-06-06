@@ -15,27 +15,21 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-package migrationscripts
+package archived
 
 import (
-	"github.com/apache/incubator-devlake/core/plugin"
+	"github.com/apache/incubator-devlake/core/models/migrationscripts/archived"
 )
 
-// All return all the migration scripts
-func All() []plugin.MigrationScript {
-	return []plugin.MigrationScript{
-		new(addInitTables),
-		new(addGitlabCI),
-		new(addPipelineID),
-		new(addPipelineProjects),
-		new(fixDurationToFloat8),
-		new(addTransformationRule20221125),
-		new(addStdTypeToIssue221230),
-		new(addIsDetailRequired20230210),
-		new(addConnectionIdToTransformationRule),
-		new(addGitlabCommitAuthorInfo),
-		new(addTypeEnvToPipeline),
-		new(renameTr2ScopeConfig),
-		new(addGitlabIssueAssignee),
-	}
+type GitlabIssueAssignee struct {
+	archived.NoPKModel
+	ConnectionId uint64 `gorm:"primaryKey"`
+	GitlabId     int    `gorm:"primaryKey"`
+	ProjectId    int    `gorm:"primaryKey"`
+	AssigneeId   int    `gorm:"primaryKey"`
+	AssigneeName string `gorm:"type:varchar(255)"`
+}
+
+func (GitlabIssueAssignee) TableName() string {
+	return "_tool_gitlab_issue_assignees"
 }

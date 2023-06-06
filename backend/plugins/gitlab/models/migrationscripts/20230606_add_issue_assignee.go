@@ -18,24 +18,30 @@ limitations under the License.
 package migrationscripts
 
 import (
-	"github.com/apache/incubator-devlake/core/plugin"
+	"github.com/apache/incubator-devlake/core/context"
+	"github.com/apache/incubator-devlake/core/errors"
+	"github.com/apache/incubator-devlake/helpers/migrationhelper"
+	"github.com/apache/incubator-devlake/plugins/gitlab/models/migrationscripts/archived"
 )
 
-// All return all the migration scripts
-func All() []plugin.MigrationScript {
-	return []plugin.MigrationScript{
-		new(addInitTables),
-		new(addGitlabCI),
-		new(addPipelineID),
-		new(addPipelineProjects),
-		new(fixDurationToFloat8),
-		new(addTransformationRule20221125),
-		new(addStdTypeToIssue221230),
-		new(addIsDetailRequired20230210),
-		new(addConnectionIdToTransformationRule),
-		new(addGitlabCommitAuthorInfo),
-		new(addTypeEnvToPipeline),
-		new(renameTr2ScopeConfig),
-		new(addGitlabIssueAssignee),
+type addGitlabIssueAssignee struct{}
+
+func (*addGitlabIssueAssignee) Up(baseRes context.BasicRes) errors.Error {
+	err := migrationhelper.AutoMigrateTables(
+		baseRes,
+		&archived.GitlabIssueAssignee{},
+	)
+	if err != nil {
+		return err
 	}
+
+	return nil
+}
+
+func (*addGitlabIssueAssignee) Version() uint64 {
+	return 20230606110339
+}
+
+func (*addGitlabIssueAssignee) Name() string {
+	return "add _tool_gitlab_issue_assignees table"
 }
