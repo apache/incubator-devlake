@@ -71,9 +71,17 @@ export const TAPDConfig: PluginConfigType = {
       },
     ],
   },
-  entities: ['TICKET', 'CROSS'],
-  transformation: {
-    typeMappings: {},
-    statusMappings: {},
+  dataScope: {
+    millerColumns: {
+      title: 'Workspaces *',
+      subTitle: 'Type in the company ID to list all the workspaces you want to sync.',
+    },
+  },
+  scopeConfig: {
+    entities: ['TICKET', 'CROSS'],
+    transformation: {
+      typeMappings: {},
+      statusMappings: {},
+    },
   },
 };

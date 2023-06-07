@@ -53,6 +53,10 @@ export const PagerDutyConfig: PluginConfigType = {
       },
     ],
   },
-  entities: ['TICKET'],
-  transformation: null,
+  dataScope: {
+    millerColumns: {
+      title: 'PagerDuty Services *',
+      subTitle: 'You can either add services by searching or selecting from the following directory.',
+    },
+  },
 };

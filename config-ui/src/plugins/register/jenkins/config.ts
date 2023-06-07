@@ -48,9 +48,17 @@ export const JenkinsConfig: PluginConfigType = {
       },
     ],
   },
-  entities: ['CICD'],
-  transformation: {
-    deploymentPattern: '(deploy|push-image)',
-    productionPattern: 'prod(.*)',
+  dataScope: {
+    millerColumns: {
+      title: 'Jobs *',
+      subTitle: 'Select the jobs you would like to sync.',
+    },
+  },
+  scopeConfig: {
+    entities: ['CICD'],
+    transformation: {
+      deploymentPattern: '(deploy|push-image)',
+      productionPattern: 'prod(.*)',
+    },
   },
 };

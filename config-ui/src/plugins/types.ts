@@ -33,6 +33,19 @@ export type PluginConfigType = {
     initialValues?: Record<string, any>;
     fields: any[];
   };
-  entities: string[];
-  transformation: any;
+  dataScope: {
+    millerColumns: {
+      title: string;
+      subTitle: string;
+      firstColumnTitle?: string;
+    };
+    search?: {
+      title?: string;
+      subTitle?: string;
+    };
+  };
+  scopeConfig?: {
+    entities: string[];
+    transformation: any;
+  };
 };
