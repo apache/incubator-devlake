@@ -25,14 +25,14 @@ import { Auth } from './connection-fields';
 export const KubeDeploymentConfig: PluginConfigType = {
   type: PluginType.Connection,
   plugin: 'kube_deployment',
-  name: 'Kube Deployment',
+  name: 'Kubernetes',
   icon: Icon,
   sort: 3,
   connection: {
     docLink: 'https://devlake.apache.org/docs/Configuration/Jira',
     fields: [
       'name',
-      ({ initialValues, values, errors, setValues, setErrors }: any) => (
+      ({ initialValues, values, errors, setValues, setErrors, setValuesDefault }: any) => (
         <Auth
           key="auth"
           initialValues={initialValues}
@@ -40,6 +40,7 @@ export const KubeDeploymentConfig: PluginConfigType = {
           errors={errors}
           setValues={setValues}
           setErrors={setErrors}
+          setValuesDefault={setValuesDefault}
         />
       ),
       // 'proxy',
@@ -56,11 +57,10 @@ export const KubeDeploymentConfig: PluginConfigType = {
   },
   // entities: ['TICKET', 'CROSS'],
   entities: ['CICD'],
-  transformation: null
+  transformation: null,
   // {
   //   storyPointField: '',
   //   typeMappings: {},
   //   remotelinkCommitShaPattern: '/commit/([0-9a-f]{40})$/',
   // }
-  ,
 };

@@ -16,14 +16,10 @@
  *
  */
 
-import React, { useState, useEffect } from 'react';
-import { FormGroup, RadioGroup, Radio, InputGroup } from '@blueprintjs/core';
+import { FormGroup, InputGroup, Radio, RadioGroup } from '@blueprintjs/core';
 
-import { ExternalLink } from '@/components';
-
+import { useEffect } from 'react';
 import * as S from './styled';
-
-type Method = 'BasicAuth' | 'AccessToken';
 
 interface Props {
   initialValues: any;
@@ -31,179 +27,319 @@ interface Props {
   errors: any;
   setValues: (value: any) => void;
   setErrors: (value: any) => void;
+  // this will be the original setValues function, to provide full control to the state
+  setValuesDefault: React.Dispatch<React.SetStateAction<Record<string, any>>>;
 }
 
-export const Auth = ({ initialValues, values, errors, setValues, setErrors }: Props) => {
-  const [version, setVersion] = useState('cloud');
+interface AzureAuth {
+  providerType: 'azure';
+  subscriptionID: string;
+  clientID: string;
+  clientSecret: string;
+  tenantID: string;
+  resourceGroupName: string;
+  clusterName: string;
+}
+
+interface AWSAuth {
+  providerType: 'aws';
+  accessKeyID: string;
+  secretAccessKey: string;
+  clusterName: string;
+  awsRegion: string;
+}
+
+interface OpenShiftAuth {
+  providerType: 'openShift';
+  authenticationURLForOpenshift: string;
+}
+
+type AuthType = AzureAuth['providerType'] | AWSAuth['providerType'] | OpenShiftAuth['providerType'];
+
+export const Auth = ({ initialValues, values, errors, setValues, setErrors, setValuesDefault }: Props) => {
+  console.log('initialValues', initialValues);
 
   useEffect(() => {
-    setValues({
-      endpoint: initialValues.endpoint,
-      authMethod: initialValues.authMethod ?? 'BasicAuth',
-      username: initialValues.username,
-      password: initialValues.password,
-      token: initialValues.token,
-    });
-  }, [
-    initialValues.endpoint,
-    initialValues.authMethod,
-    initialValues.username,
-    initialValues.password,
-    initialValues.token,
-  ]);
-
-  useEffect(() => {
-    const required =
-      (values.authMethod === 'BasicAuth' && values.username && values.password) ||
-      (values.authMethod === 'AccessToken' && values.token);
-    setErrors({
-      endpoint: !values.endpoint ? 'endpoint is required' : '',
-      auth: required ? '' : 'auth is required',
-    });
+    // all fields in the 3 auth types are required, if any fields is empty string or undefined, set error
+    if (values.credentials?.providerType === 'azure') {
+      if (
+        values.subscriptionID === '' ||
+        values.clientID === '' ||
+        values.clientSecret === '' ||
+        values.tenantID === '' ||
+        values.resourceGroupName === '' ||
+        values.clusterName === ''
+      ) {
+        setErrors({
+          error: 'Required',
+        });
+        // unset errors
+      } else {
+        setErrors({ error: '' });
+      }
+    } else if (values.credentials?.providerType === 'aws') {
+      if (
+        values.accessKeyID === '' ||
+        values.secretAccessKey === '' ||
+        values.clusterName === '' ||
+        values.awsRegion === ''
+      ) {
+        setErrors({
+          error: 'Required',
+        });
+      } else {
+        setErrors({ error: '' });
+      }
+    } else if (values.credentials?.providerType === 'openShift') {
+      if (values.authenticationURLForOpenshift === '') {
+        setErrors({
+          error: 'Required',
+        });
+      } else {
+        setErrors({ error: '' });
+      }
+    }
   }, [values]);
-
-  const handleChangeVersion = (e: React.FormEvent<HTMLInputElement>) => {
-    const version = (e.target as HTMLInputElement).value;
-
-    setValues({
-      endpoint: '',
-      authMethod: 'BasicAuth',
-      username: undefined,
-      password: undefined,
-      token: undefined,
-    });
-
-    setVersion(version);
-  };
-
-  const handleChangeEndpoint = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setValues({
-      endpoint: e.target.value,
-    });
-  };
-
-  const handleChangeMethod = (e: React.FormEvent<HTMLInputElement>) => {
-    setValues({
-      authMethod: (e.target as HTMLInputElement).value as Method,
-      username: undefined,
-      password: undefined,
-      token: undefined,
-    });
-  };
-
-  const handleChangeUsername = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setValues({
-      username: e.target.value,
-    });
-  };
-
-  const handleChangePassword = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setValues({
-      password: e.target.value,
-    });
-  };
-
-  const handleChangeToken = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setValues({
-      token: e.target.value,
-    });
-  };
 
   console.log(errors);
 
+  const defaultValues = {
+    authMethod: 'AccessToken',
+    endpoint: 'http://127.0.0.1:5002/v1',
+    id: 23,
+    proxy: '',
+    rateLimitPerHour: 0,
+  };
+
+  const handleChangeAuthType = (authType: AuthType) => {
+    switch (authType) {
+      case 'azure':
+        setValuesDefault((prev) => ({
+          ...defaultValues,
+          name: prev.name,
+
+          credentials: {
+            providerType: 'azure',
+            subscriptionID: '',
+            clientID: '',
+            clientSecret: '',
+            tenantID: '',
+            resourceGroupName: '',
+            clusterName: '',
+          },
+        }));
+        break;
+      case 'aws':
+        setValuesDefault((prev) => ({
+          ...defaultValues,
+          name: prev.name,
+
+          credentials: { providerType: 'aws', accessKeyID: '', clusterName: '', awsRegion: '', secretAccessKey: '' },
+        }));
+        break;
+      case 'openShift':
+        setValuesDefault((prev) => ({
+          ...defaultValues,
+          name: prev.name,
+
+          credentials: { providerType: 'openShift', authenticationURLForOpenshift: '' },
+        }));
+        break;
+    }
+  };
+
   return (
     <>
-      <FormGroup
-        style={{ marginTop: 8, marginBottom: 0 }}
-        label={<S.Label>Endpoint URL</S.Label>}
-        labelInfo={<S.LabelInfo>*</S.LabelInfo>}
-        subLabel={
-          <S.LabelDescription>
-            Plugin endpoint URL.
-          </S.LabelDescription>
-        }
+      <RadioGroup
+        inline={true}
+        selectedValue={values.credentials?.providerType}
+        onChange={(e) => handleChangeAuthType(e.currentTarget.value as AuthType)}
       >
-        <InputGroup placeholder="Your Endpoint URL" value={values.endpoint} onChange={handleChangeEndpoint} />
-      </FormGroup>
+        <Radio label="Azure" value="azure" />
+        <Radio label="AWS" value="aws" />
+        <Radio label="OpenShift" value="openShift" />
+      </RadioGroup>
 
-      {/* {version === 'cloud' && (
+      {values.credentials?.providerType === 'azure' && (
         <>
-          <FormGroup label={<S.Label>E-Mail</S.Label>} labelInfo={<S.LabelInfo>*</S.LabelInfo>}>
-            <InputGroup placeholder="Your E-Mail" value={values.username} onChange={handleChangeUsername} />
-          </FormGroup>
-          <FormGroup
-            label={<S.Label>API Token</S.Label>}
-            labelInfo={<S.LabelInfo>*</S.LabelInfo>}
-            subLabel={
-              <S.LabelDescription>
-                <ExternalLink link="https://devlake.apache.org/docs/Configuration/Jira#api-token">
-                  Learn about how to create an API Token
-                </ExternalLink>
-              </S.LabelDescription>
-            }
-          >
+          <FormGroup style={{ marginTop: 8, marginBottom: 0 }} label={<S.Label>Subscription ID</S.Label>}>
             <InputGroup
-              type="password"
-              placeholder="Your PAT"
-              value={values.password}
-              onChange={handleChangePassword}
+              placeholder="Your Subscription ID"
+              value={(values.credentials as AzureAuth).subscriptionID}
+              onChange={(e) =>
+                setValuesDefault((prev) => ({
+                  ...prev,
+                  credentials: {
+                    ...prev.credentials,
+                    subscriptionID: e.target.value,
+                  },
+                }))
+              }
+            />
+          </FormGroup>
+          <FormGroup style={{ marginTop: 8, marginBottom: 0 }} label={<S.Label>Client ID</S.Label>}>
+            <InputGroup
+              placeholder="Your Client ID"
+              value={(values.credentials as AzureAuth).clientID}
+              onChange={(e) =>
+                setValuesDefault((prev) => ({
+                  ...prev,
+                  credentials: {
+                    ...prev.credentials,
+                    clientID: e.target.value,
+                  },
+                }))
+              }
+            />
+          </FormGroup>
+          <FormGroup style={{ marginTop: 8, marginBottom: 0 }} label={<S.Label>Client Secret</S.Label>}>
+            <InputGroup
+              placeholder="Your Client Secret"
+              value={(values.credentials as AzureAuth).clientSecret}
+              onChange={(e) =>
+                setValuesDefault((prev) => ({
+                  ...prev,
+                  credentials: {
+                    ...prev.credentials,
+                    clientSecret: e.target.value,
+                  },
+                }))
+              }
+            />
+          </FormGroup>
+          <FormGroup style={{ marginTop: 8, marginBottom: 0 }} label={<S.Label>Tenant ID</S.Label>}>
+            <InputGroup
+              placeholder="Your Tenant ID"
+              value={(values.credentials as AzureAuth).tenantID}
+              onChange={(e) =>
+                setValuesDefault((prev) => ({
+                  ...prev,
+                  credentials: {
+                    ...prev.credentials,
+                    tenantID: e.target.value,
+                  },
+                }))
+              }
+            />
+          </FormGroup>
+          <FormGroup style={{ marginTop: 8, marginBottom: 0 }} label={<S.Label>Resource Group Name</S.Label>}>
+            <InputGroup
+              placeholder="Your Resource Group Name"
+              value={(values.credentials as AzureAuth).resourceGroupName}
+              onChange={(e) =>
+                setValuesDefault((prev) => ({
+                  ...prev,
+                  credentials: {
+                    ...prev.credentials,
+                    resourceGroupName: e.target.value,
+                  },
+                }))
+              }
+            />
+          </FormGroup>
+          <FormGroup style={{ marginTop: 8, marginBottom: 0 }} label={<S.Label>Cluster name</S.Label>}>
+            <InputGroup
+              placeholder="Your Cluster name"
+              value={(values.credentials as AzureAuth).clusterName}
+              onChange={(e) =>
+                setValuesDefault((prev) => ({
+                  ...prev,
+                  credentials: {
+                    ...prev.credentials,
+                    clusterName: e.target.value,
+                  },
+                }))
+              }
             />
           </FormGroup>
         </>
-      )} */}
-      <>
-        <FormGroup label={<S.Label>Username</S.Label>} labelInfo={<S.LabelInfo>*</S.LabelInfo>}>
-          <InputGroup placeholder="Your Username" value={values.username} onChange={handleChangeUsername} />
-        </FormGroup>
-        <FormGroup label={<S.Label>Password</S.Label>} labelInfo={<S.LabelInfo>*</S.LabelInfo>}>
+      )}
+
+      {values.credentials?.providerType === 'aws' && (
+        <>
+          <FormGroup style={{ marginTop: 8, marginBottom: 0 }} label={<S.Label>Access Key ID</S.Label>}>
+            <InputGroup
+              placeholder="Your Access Key ID"
+              value={(values.credentials as AWSAuth).accessKeyID}
+              onChange={(e) =>
+                setValuesDefault((prev) => ({
+                  ...prev,
+                  credentials: {
+                    ...prev.credentials,
+                    accessKeyID: e.target.value,
+                  },
+                }))
+              }
+            />
+          </FormGroup>
+          <FormGroup style={{ marginTop: 8, marginBottom: 0 }} label={<S.Label>Secret Access Key</S.Label>}>
+            <InputGroup
+              placeholder="Your Secret Access Key"
+              value={(values.credentials as AWSAuth).secretAccessKey}
+              onChange={(e) =>
+                setValuesDefault((prev) => ({
+                  ...prev,
+                  credentials: {
+                    ...prev.credentials,
+                    secretAccessKey: e.target.value,
+                  },
+                }))
+              }
+            />
+          </FormGroup>
+          <FormGroup style={{ marginTop: 8, marginBottom: 0 }} label={<S.Label>Cluster Name</S.Label>}>
+            <InputGroup
+              placeholder=" Your Cluster Name"
+              value={(values.credentials as AWSAuth).clusterName}
+              onChange={(e) =>
+                setValuesDefault((prev) => ({
+                  ...prev,
+                  credentials: {
+                    ...prev.credentials,
+                    clusterName: e.target.value,
+                  },
+                }))
+              }
+            />
+          </FormGroup>
+          <FormGroup style={{ marginTop: 8, marginBottom: 0 }} label={<S.Label>AWS Region</S.Label>}>
+            <InputGroup
+              placeholder="Your AWS Region"
+              value={(values.credentials as AWSAuth).awsRegion}
+              onChange={(e) =>
+                setValuesDefault((prev) => ({
+                  ...prev,
+                  credentials: {
+                    ...prev.credentials,
+                    awsRegion: e.target.value,
+                  },
+                }))
+              }
+            />
+          </FormGroup>
+        </>
+      )}
+
+      {values.credentials?.providerType === 'openShift' && (
+        <FormGroup
+          style={{ marginTop: 8, marginBottom: 0 }}
+          label={<S.Label>Authentication URL for Openshift</S.Label>}
+        >
           <InputGroup
-            type="password"
-            placeholder="Your Password"
-            value={values.password}
-            onChange={handleChangePassword}
+            placeholder="Authentication URL for Openshift"
+            value={(values.credentials as OpenShiftAuth).authenticationURLForOpenshift}
+            onChange={(e) =>
+              setValuesDefault((prev) => ({
+                ...prev,
+                credentials: {
+                  ...prev.credentials,
+                  authenticationURLForOpenshift: e.target.value,
+                },
+              }))
+            }
           />
         </FormGroup>
-      </>
-      {/* {version === 'server' && (
-        <>
-          <FormGroup label={<S.Label>Authentication Method</S.Label>} labelInfo={<S.LabelInfo>*</S.LabelInfo>}>
-            <RadioGroup inline selectedValue={values.authMethod} onChange={handleChangeMethod}>
-              <Radio value="BasicAuth">Basic Authentication</Radio>
-              <Radio value="AccessToken">Using Personal Access Token</Radio>
-            </RadioGroup>
-          </FormGroup>
-          {values.authMethod === 'BasicAuth' && (
-            <>
-              <FormGroup label={<S.Label>Username</S.Label>} labelInfo={<S.LabelInfo>*</S.LabelInfo>}>
-                <InputGroup placeholder="Your Username" value={values.username} onChange={handleChangeUsername} />
-              </FormGroup>
-              <FormGroup label={<S.Label>Password</S.Label>} labelInfo={<S.LabelInfo>*</S.LabelInfo>}>
-                <InputGroup
-                  type="password"
-                  placeholder="Your Password"
-                  value={values.password}
-                  onChange={handleChangePassword}
-                />
-              </FormGroup>
-            </>
-          )}
-          {values.authMethod === 'AccessToken' && (
-            <FormGroup
-              label={<S.Label>Personal Access Token</S.Label>}
-              labelInfo={<S.LabelInfo>*</S.LabelInfo>}
-              subLabel={
-                <S.LabelDescription>
-                  <ExternalLink link="https://devlake.apache.org/docs/Configuration/Jira#personal-access-token">
-                    Learn about how to create a PAT
-                  </ExternalLink>
-                </S.LabelDescription>
-              }
-            >
-              <InputGroup type="password" placeholder="Your PAT" value={values.token} onChange={handleChangeToken} />
-            </FormGroup>
-          )}
-        </>
-      )} */}
+      )}
     </>
   );
 };

@@ -16,9 +16,8 @@
  *
  */
 
-import { useState, useMemo } from 'react';
 import { Button } from '@blueprintjs/core';
-import { pick } from 'lodash';
+import { useMemo, useState } from 'react';
 
 import { operator } from '@/utils';
 
@@ -38,27 +37,9 @@ export const Test = ({ plugin, values, errors }: Props) => {
   }, [errors]);
 
   const handleSubmit = async () => {
-    await operator(
-      () =>
-        API.testConnection(
-          plugin,
-          pick(values, [
-            'endpoint',
-            'token',
-            'username',
-            'password',
-            'proxy',
-            'authMethod',
-            'appId',
-            'secretKey',
-            'tenantId',
-            'tenantType',
-          ]),
-        ),
-      {
-        setOperating: setTesting,
-      },
-    );
+    await operator(() => API.testConnection(plugin, values), {
+      setOperating: setTesting,
+    });
   };
 
   return <Button loading={testing} disabled={disabled} outlined text="Test Connection" onClick={handleSubmit} />;
