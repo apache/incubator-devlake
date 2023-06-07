@@ -18,7 +18,9 @@ limitations under the License.
 package impl
 
 import (
+	"encoding/json"
 	"fmt"
+	"reflect"
 	"time"
 
 	"github.com/apache/incubator-devlake/core/context"
@@ -27,6 +29,7 @@ import (
 	"github.com/apache/incubator-devlake/core/plugin"
 	helper "github.com/apache/incubator-devlake/helpers/pluginhelper/api"
 	"github.com/apache/incubator-devlake/plugins/kube_deployment/api"
+	kubeDeploymentHelper "github.com/apache/incubator-devlake/plugins/kube_deployment/helper"
 	"github.com/apache/incubator-devlake/plugins/kube_deployment/models"
 	"github.com/apache/incubator-devlake/plugins/kube_deployment/models/migrationscripts"
 	"github.com/apache/incubator-devlake/plugins/kube_deployment/tasks"
@@ -43,7 +46,7 @@ var _ plugin.CloseablePluginTask = (*KubeDeployment)(nil)
 type KubeDeployment struct{}
 
 func (p KubeDeployment) Connection() interface{} {
-	return &models.KubeDeploymentConnection{}
+	return &models.KubeConnection{}
 }
 
 func (p KubeDeployment) Scope() interface{} {
@@ -52,7 +55,7 @@ func (p KubeDeployment) Scope() interface{} {
 
 func (p KubeDeployment) GetTablesInfo() []dal.Tabler {
 	return []dal.Tabler{
-		&models.KubeDeploymentConnection{},
+		&models.KubeConnection{},
 		&models.KubeDeploymentRevision{},
 		&models.KubeDeployment{},
 	}
@@ -84,8 +87,12 @@ func (p KubeDeployment) PrepareTaskData(taskCtx plugin.TaskContext, options map[
 		taskCtx,
 		nil,
 	)
-	connection := &models.KubeDeploymentConnection{}
+	connection := &models.KubeConnection{}
+	fmt.Println("Connection ID -->", op.ConnectionId)
 	err = connectionHelper.FirstById(connection, op.ConnectionId)
+	println("Credentials -->", connection.Credentials)
+	strType := reflect.TypeOf(connection.Credentials)
+	fmt.Println(strType) // Output: string
 	if err != nil {
 		return nil, errors.Default.Wrap(err, "unable to get KubeDeployment connection by the given connection ID")
 	}
@@ -94,9 +101,17 @@ func (p KubeDeployment) PrepareTaskData(taskCtx plugin.TaskContext, options map[
 	if err != nil {
 		return nil, errors.Default.Wrap(err, "unable to get KubeDeployment API client instance")
 	}
+
+	var kubeAPIClientParams map[string]interface{}
+	// Define a struct to hold the JSON data
+
+	// Convert the string to a JSON object
+	json.Unmarshal([]byte(connection.Credentials), &kubeAPIClientParams)
+
 	taskData := &tasks.KubeDeploymentTaskData{
-		Options:   op,
-		ApiClient: apiClient,
+		Options:       op,
+		ApiClient:     apiClient,
+		KubeAPIClient: kubeDeploymentHelper.NewKubeApiClient(kubeAPIClientParams),
 	}
 	var createdDateAfter time.Time
 	if op.CreatedDateAfter != "" {
@@ -134,6 +149,12 @@ func (p KubeDeployment) ApiResources() map[string]map[string]plugin.ApiResourceH
 			"GET":    api.GetConnection,
 			"PATCH":  api.PatchConnection,
 			"DELETE": api.DeleteConnection,
+		},
+		"connections/:connectionId/namespaces": {
+			"GET": api.GetNameSpaces,
+		},
+		"connections/:connectionId/:namespace/deployments": {
+			"GET": api.GetDeployments,
 		},
 		"connections/:connectionId/proxy/rest/*path": {
 			"GET": api.Proxy,

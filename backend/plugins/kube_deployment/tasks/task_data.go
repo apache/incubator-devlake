@@ -24,10 +24,13 @@ import (
 	"github.com/apache/incubator-devlake/core/plugin"
 	"github.com/apache/incubator-devlake/helpers/pluginhelper/api"
 	helper "github.com/apache/incubator-devlake/helpers/pluginhelper/api"
+	kubeDeploymentHelper "github.com/apache/incubator-devlake/plugins/kube_deployment/helper"
 )
 
 type KubeDeploymentApiParams struct {
-	ConnectionId uint64 `json:"connectionId"`
+	ConnectionId   uint64 `json:"connectionId"`
+	Namespace      string `json:"namespace" mapstructure:"namespace,omitempty"`
+	DeploymentName string `json:"deploymentName" mapstructure:"deploymentName,omitempty"`
 }
 
 type KubeDeploymentOptions struct {
@@ -38,11 +41,14 @@ type KubeDeploymentOptions struct {
 	ConnectionId     uint64   `json:"connectionId"`
 	Tasks            []string `json:"tasks,omitempty"`
 	CreatedDateAfter string   `json:"createdDateAfter" mapstructure:"createdDateAfter,omitempty"`
+	Namespace        string   `json:"namespace" mapstructure:"namespace,omitempty"`
+	DeploymentName   string   `json:"deploymentName" mapstructure:"deploymentName,omitempty"`
 }
 
 type KubeDeploymentTaskData struct {
 	Options          *KubeDeploymentOptions
 	ApiClient        *api.ApiAsyncClient
+	KubeAPIClient    *kubeDeploymentHelper.KubeApiClient
 	CreatedDateAfter *time.Time
 }
 

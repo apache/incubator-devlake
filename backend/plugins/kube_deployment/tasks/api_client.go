@@ -28,7 +28,7 @@ import (
 	"github.com/apache/incubator-devlake/plugins/kube_deployment/models"
 )
 
-func NewKubeDeploymentApiClient(taskCtx plugin.TaskContext, connection *models.KubeDeploymentConnection) (*helper.ApiAsyncClient, errors.Error) {
+func NewKubeDeploymentApiClient(taskCtx plugin.TaskContext, connection *models.KubeConnection) (*helper.ApiAsyncClient, errors.Error) {
 	// create synchronize api client so we can calculate api rate limit dynamically
 	headers := map[string]string{
 		// "Authorization": fmt.Sprintf("Bearer %v", connection.Token),

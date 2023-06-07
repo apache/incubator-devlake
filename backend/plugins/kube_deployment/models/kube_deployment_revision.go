@@ -24,8 +24,10 @@ import (
 type KubeDeploymentRevision struct {
 	common.NoPKModel  `json:"-"`
 	ConnectionId      uint64    `gorm:"primaryKey"`
-	Id                string    `json:"revision_number" gorm:"primaryKey"`
+	Id                string    `json:"id" gorm:"primaryKey"`
+	Namespace         string    `json:"namespace"`
 	DeploymentName    string    `json:"deployment_name"`
+	RevisionNumber    uint32    `json:"revision_number"`
 	CreationTimestamp time.Time `json:"creation_timestamp"`
 }
 

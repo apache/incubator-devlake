@@ -25,7 +25,7 @@ type KubeConnection struct {
 	Endpoint         string `gorm:"type:varchar(255)"`
 	Proxy            string `json:"proxy" gorm:"type:varchar(255)"`
 	RateLimitPerHour int    `comment:"api request rate limit per hour"`
-	Token            string `gorm:"type:varchar(255)"`
+	Token            string `gorm:"type:text"`
 }
 
 func (KubeConnection) TableName() string {

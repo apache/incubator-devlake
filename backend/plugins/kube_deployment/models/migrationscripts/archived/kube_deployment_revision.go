@@ -24,7 +24,7 @@ import (
 type KubeDeploymentRevision struct {
 	archived.NoPKModel `json:"-"`
 	ConnectionId       uint64    `gorm:"primaryKey"`
-	Id                 string    `json:"revision_number" gorm:"primaryKey"`
+	Id                 string    `json:"id" gorm:"primaryKey"`
 	DeploymentName     string    `json:"deployment_name"`
 	CreationTimestamp  time.Time `json:"creation_timestamp"`
 }

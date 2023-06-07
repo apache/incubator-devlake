@@ -30,7 +30,7 @@ import (
 
 func Proxy(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, errors.Error) {
 	fmt.Print("Proxy___xxx")
-	connection := &models.KubeDeploymentConnection{}
+	connection := &models.KubeConnection{}
 	err := connectionHelper.First(connection, input.Params)
 	if err != nil {
 		return nil, err

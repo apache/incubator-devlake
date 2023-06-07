@@ -29,13 +29,16 @@ var PluginEntry impl.KubeDeployment //nolint
 // standalone mode for debugging
 func main() {
 	cmd := &cobra.Command{Use: "KubeDeployment"}
-	// connectionId := cmd.Flags().Uint64P("connectionId", "c", 0, "crypto asset connection id")
-	// _ = cmd.MarkFlagRequired("connectionId")
+	connectionId := cmd.Flags().Uint64P("connectionId", "c", 0, "connection id")
+	_ = cmd.MarkFlagRequired("connectionId")
+
+	namespace := cmd.Flags().Uint64P("namespace", "c", 1, "namespace")
 
 	cmd.Run = func(cmd *cobra.Command, args []string) {
 		runner.DirectRun(cmd, args, PluginEntry, map[string]interface{}{
-			// "connectionId": connectionId,
-			"connectionId": 1,
+			"connectionId": connectionId,
+			"namespace":    *namespace,
+			// "connectionId": 1,
 		})
 	}
 	runner.RunCmd(cmd)

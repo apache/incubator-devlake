@@ -19,18 +19,24 @@ import (
 	helper "github.com/apache/incubator-devlake/helpers/pluginhelper/api"
 )
 
+// type AccessToken struct {
+// 	ClientId     string `mapstructure:"clientId" validate:"required" json:"clientId" gorm:"serializer:encdec"`
+// 	ClientSecret string `mapstructure:"ClientSecret" validate:"required" json:"ClientSecret" gorm:"serializer:encdec"`
+// }
+
 // KubeDeploymentConn holds the essential information to connect to the Crypto Asset API
-type KubeDeploymentConn struct {
+type KubeConn struct {
 	helper.RestConnection `mapstructure:",squash"`
 	// helper.AccessToken    `mapstructure:",squash"`
+	Credentials string `mapstructure:"credentials" validate:"required" json:"credentials" gorm:"serializer:encdec"`
 }
 
 // KubeDeploymentConnection holds KubeDeploymentConn plus ID/Name for database storage
-type KubeDeploymentConnection struct {
+type KubeConnection struct {
 	helper.BaseConnection `mapstructure:",squash"`
-	KubeDeploymentConn    `mapstructure:",squash"`
+	KubeConn              `mapstructure:",squash"`
 }
 
-func (KubeDeploymentConnection) TableName() string {
+func (KubeConnection) TableName() string {
 	return "_tool_kube_connections"
 }
