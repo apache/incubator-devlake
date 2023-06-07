@@ -133,7 +133,6 @@ class Plugin(ABC):
         """
         Make a simple pipeline using the scopes declared by the plugin.
         """
-        entity_types = entity_types or list(DomainType)
         plan = self.make_pipeline_plan(scope_config_pairs, connection)
         domain_scopes = []
         for tool_scope, _ in scope_config_pairs:
