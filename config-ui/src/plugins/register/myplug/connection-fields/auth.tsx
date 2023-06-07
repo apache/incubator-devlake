@@ -61,7 +61,7 @@ export const Auth = ({ initialValues, values, errors, setValues, setErrors, setV
 
   useEffect(() => {
     // all fields in the 3 auth types are required, if any fields is empty string or undefined, set error
-    if (values.providerType === 'azure') {
+    if (values.credentials?.providerType === 'azure') {
       if (
         values.subscriptionID === '' ||
         values.clientID === '' ||
@@ -77,7 +77,7 @@ export const Auth = ({ initialValues, values, errors, setValues, setErrors, setV
       } else {
         setErrors({ error: '' });
       }
-    } else if (values.providerType === 'aws') {
+    } else if (values.credentials?.providerType === 'aws') {
       if (
         values.accessKeyID === '' ||
         values.secretAccessKey === '' ||
@@ -90,7 +90,7 @@ export const Auth = ({ initialValues, values, errors, setValues, setErrors, setV
       } else {
         setErrors({ error: '' });
       }
-    } else if (values.providerType === 'openShift') {
+    } else if (values.credentials?.providerType === 'openShift') {
       if (values.authenticationURLForOpenshift === '') {
         setErrors({
           error: 'Required',
@@ -116,36 +116,33 @@ export const Auth = ({ initialValues, values, errors, setValues, setErrors, setV
       case 'azure':
         setValuesDefault((prev) => ({
           ...defaultValues,
-
           name: prev.name,
-          providerType: 'azure',
-          subscriptionID: '',
-          clientID: '',
-          clientSecret: '',
-          tenantID: '',
-          resourceGroupName: '',
-          clusterName: '',
+
+          credentials: {
+            providerType: 'azure',
+            subscriptionID: '',
+            clientID: '',
+            clientSecret: '',
+            tenantID: '',
+            resourceGroupName: '',
+            clusterName: '',
+          },
         }));
         break;
       case 'aws':
         setValuesDefault((prev) => ({
           ...defaultValues,
-
           name: prev.name,
-          providerType: 'aws',
-          accessKeyID: '',
-          clusterName: '',
-          awsRegion: '',
-          secretAccessKey: '',
+
+          credentials: { providerType: 'aws', accessKeyID: '', clusterName: '', awsRegion: '', secretAccessKey: '' },
         }));
         break;
       case 'openShift':
         setValuesDefault((prev) => ({
           ...defaultValues,
-
           name: prev.name,
-          providerType: 'openShift',
-          authenticationURLForOpenshift: '',
+
+          credentials: { providerType: 'openShift', authenticationURLForOpenshift: '' },
         }));
         break;
     }
@@ -155,7 +152,7 @@ export const Auth = ({ initialValues, values, errors, setValues, setErrors, setV
     <>
       <RadioGroup
         inline={true}
-        selectedValue={values.providerType}
+        selectedValue={values.credentials?.providerType}
         onChange={(e) => handleChangeAuthType(e.currentTarget.value as AuthType)}
       >
         <Radio label="Azure" value="azure" />
@@ -163,138 +160,182 @@ export const Auth = ({ initialValues, values, errors, setValues, setErrors, setV
         <Radio label="OpenShift" value="openShift" />
       </RadioGroup>
 
-      {values.providerType === 'azure' && (
+      {values.credentials?.providerType === 'azure' && (
         <>
           <FormGroup style={{ marginTop: 8, marginBottom: 0 }} label={<S.Label>Subscription ID</S.Label>}>
             <InputGroup
               placeholder="Your Subscription ID"
-              value={(values as AzureAuth).subscriptionID}
+              value={(values.credentials as AzureAuth).subscriptionID}
               onChange={(e) =>
-                setValues({
-                  subscriptionID: e.target.value,
-                })
+                setValuesDefault((prev) => ({
+                  ...prev,
+                  credentials: {
+                    ...prev.credentials,
+                    subscriptionID: e.target.value,
+                  },
+                }))
               }
             />
           </FormGroup>
           <FormGroup style={{ marginTop: 8, marginBottom: 0 }} label={<S.Label>Client ID</S.Label>}>
             <InputGroup
               placeholder="Your Client ID"
-              value={(values as AzureAuth).clientID}
+              value={(values.credentials as AzureAuth).clientID}
               onChange={(e) =>
-                setValues({
-                  clientID: e.target.value,
-                })
+                setValuesDefault((prev) => ({
+                  ...prev,
+                  credentials: {
+                    ...prev.credentials,
+                    clientID: e.target.value,
+                  },
+                }))
               }
             />
           </FormGroup>
           <FormGroup style={{ marginTop: 8, marginBottom: 0 }} label={<S.Label>Client Secret</S.Label>}>
             <InputGroup
               placeholder="Your Client Secret"
-              value={(values as AzureAuth).clientSecret}
+              value={(values.credentials as AzureAuth).clientSecret}
               onChange={(e) =>
-                setValues({
-                  clientSecret: e.target.value,
-                })
+                setValuesDefault((prev) => ({
+                  ...prev,
+                  credentials: {
+                    ...prev.credentials,
+                    clientSecret: e.target.value,
+                  },
+                }))
               }
             />
           </FormGroup>
           <FormGroup style={{ marginTop: 8, marginBottom: 0 }} label={<S.Label>Tenant ID</S.Label>}>
             <InputGroup
               placeholder="Your Tenant ID"
-              value={(values as AzureAuth).tenantID}
+              value={(values.credentials as AzureAuth).tenantID}
               onChange={(e) =>
-                setValues({
-                  tenantID: e.target.value,
-                })
+                setValuesDefault((prev) => ({
+                  ...prev,
+                  credentials: {
+                    ...prev.credentials,
+                    tenantID: e.target.value,
+                  },
+                }))
               }
             />
           </FormGroup>
           <FormGroup style={{ marginTop: 8, marginBottom: 0 }} label={<S.Label>Resource Group Name</S.Label>}>
             <InputGroup
               placeholder="Your Resource Group Name"
-              value={(values as AzureAuth).resourceGroupName}
+              value={(values.credentials as AzureAuth).resourceGroupName}
               onChange={(e) =>
-                setValues({
-                  resourceGroupName: e.target.value,
-                })
+                setValuesDefault((prev) => ({
+                  ...prev,
+                  credentials: {
+                    ...prev.credentials,
+                    resourceGroupName: e.target.value,
+                  },
+                }))
               }
             />
           </FormGroup>
           <FormGroup style={{ marginTop: 8, marginBottom: 0 }} label={<S.Label>Cluster name</S.Label>}>
             <InputGroup
               placeholder="Your Cluster name"
-              value={(values as AzureAuth).clusterName}
+              value={(values.credentials as AzureAuth).clusterName}
               onChange={(e) =>
-                setValues({
-                  clusterName: e.target.value,
-                })
+                setValuesDefault((prev) => ({
+                  ...prev,
+                  credentials: {
+                    ...prev.credentials,
+                    clusterName: e.target.value,
+                  },
+                }))
               }
             />
           </FormGroup>
         </>
       )}
 
-      {values.providerType === 'aws' && (
+      {values.credentials?.providerType === 'aws' && (
         <>
           <FormGroup style={{ marginTop: 8, marginBottom: 0 }} label={<S.Label>Access Key ID</S.Label>}>
             <InputGroup
               placeholder="Your Access Key ID"
-              value={(values as AWSAuth).accessKeyID}
+              value={(values.credentials as AWSAuth).accessKeyID}
               onChange={(e) =>
-                setValues({
-                  accessKeyID: e.target.value,
-                })
+                setValuesDefault((prev) => ({
+                  ...prev,
+                  credentials: {
+                    ...prev.credentials,
+                    accessKeyID: e.target.value,
+                  },
+                }))
               }
             />
           </FormGroup>
           <FormGroup style={{ marginTop: 8, marginBottom: 0 }} label={<S.Label>Secret Access Key</S.Label>}>
             <InputGroup
               placeholder="Your Secret Access Key"
-              value={(values as AWSAuth).secretAccessKey}
+              value={(values.credentials as AWSAuth).secretAccessKey}
               onChange={(e) =>
-                setValues({
-                  secretAccessKey: e.target.value,
-                })
+                setValuesDefault((prev) => ({
+                  ...prev,
+                  credentials: {
+                    ...prev.credentials,
+                    secretAccessKey: e.target.value,
+                  },
+                }))
               }
             />
           </FormGroup>
           <FormGroup style={{ marginTop: 8, marginBottom: 0 }} label={<S.Label>Cluster Name</S.Label>}>
             <InputGroup
               placeholder=" Your Cluster Name"
-              value={(values as AWSAuth).clusterName}
+              value={(values.credentials as AWSAuth).clusterName}
               onChange={(e) =>
-                setValues({
-                  clusterName: e.target.value,
-                })
+                setValuesDefault((prev) => ({
+                  ...prev,
+                  credentials: {
+                    ...prev.credentials,
+                    clusterName: e.target.value,
+                  },
+                }))
               }
             />
           </FormGroup>
           <FormGroup style={{ marginTop: 8, marginBottom: 0 }} label={<S.Label>AWS Region</S.Label>}>
             <InputGroup
               placeholder="Your AWS Region"
-              value={(values as AWSAuth).awsRegion}
+              value={(values.credentials as AWSAuth).awsRegion}
               onChange={(e) =>
-                setValues({
-                  awsRegion: e.target.value,
-                })
+                setValuesDefault((prev) => ({
+                  ...prev,
+                  credentials: {
+                    ...prev.credentials,
+                    awsRegion: e.target.value,
+                  },
+                }))
               }
             />
           </FormGroup>
         </>
       )}
 
-      {values.providerType === 'openShift' && (
+      {values.credentials?.providerType === 'openShift' && (
         <FormGroup
           style={{ marginTop: 8, marginBottom: 0 }}
           label={<S.Label>Authentication URL for Openshift</S.Label>}
         >
           <InputGroup
             placeholder="Authentication URL for Openshift"
-            value={(values as OpenShiftAuth).authenticationURLForOpenshift}
+            value={(values.credentials as OpenShiftAuth).authenticationURLForOpenshift}
             onChange={(e) =>
-              setValues({
-                authenticationURLForOpenshift: e.target.value,
-              })
+              setValuesDefault((prev) => ({
+                ...prev,
+                credentials: {
+                  ...prev.credentials,
+                  authenticationURLForOpenshift: e.target.value,
+                },
+              }))
             }
           />
         </FormGroup>
