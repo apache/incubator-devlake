@@ -153,13 +153,7 @@ func (b *BlueprintManager) GetBlueprintsByScopes(connectionId uint64, scopeIds .
 		}
 		for _, scope := range scopes {
 			if contains(scopeIds, scope.Id) {
-				if inserted, ok := scopeMap[scope.Id]; !ok {
-					scopeMap[scope.Id] = []*models.Blueprint{bp}
-				} else {
-					inserted = append(inserted, bp)
-					scopeMap[scope.Id] = inserted
-				}
-				break
+				scopeMap[scope.Id] = append(scopeMap[scope.Id], bp)
 			}
 		}
 	}

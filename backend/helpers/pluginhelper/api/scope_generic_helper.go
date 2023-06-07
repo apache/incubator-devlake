@@ -222,7 +222,8 @@ func (c *GenericScopeApiHelper[Conn, Scope, Tr]) GetScopes(input *plugin.ApiReso
 	if err != nil {
 		return nil, errors.Default.Wrap(err, "error associating scope configs with scopes")
 	}
-	if params.loadBlueprints {
+	// return empty array rather than nil in case of no scopes
+	if len(apiScopes) > 0 && params.loadBlueprints {
 		scopesById := c.mapByScopeId(apiScopes)
 		var scopeIds []string
 		for id := range scopesById {
