@@ -27,7 +27,7 @@ type DependencySorter struct {
 	metas []*plugin.SubTaskMeta
 }
 
-func GetDependencySorter(metas []*plugin.SubTaskMeta) SubTaskMetaSorter {
+func NewDependencySorter(metas []*plugin.SubTaskMeta) SubTaskMetaSorter {
 	return &DependencySorter{metas: metas}
 }
 
@@ -39,11 +39,11 @@ func (d *DependencySorter) Sort() ([]plugin.SubTaskMeta, error) {
 func topologicalSort(metas []*plugin.SubTaskMeta) ([]plugin.SubTaskMeta, error) {
 	// which state will make a cycle
 	dependenciesMap := make(map[string][]string)
-	nameMetaMap := make(map[string]plugin.SubTaskMeta)
+	nameMetaMap := make(map[string]*plugin.SubTaskMeta)
 
 	for _, item := range metas {
 		if item != nil {
-			nameMetaMap[item.Name] = *item
+			nameMetaMap[item.Name] = item
 		}
 
 		if _, ok := dependenciesMap[item.Name]; !ok {
@@ -56,7 +56,7 @@ func topologicalSort(metas []*plugin.SubTaskMeta) ([]plugin.SubTaskMeta, error) 
 				dependenciesMap[item.Name] = make([]string, 0)
 			}
 		} else {
-			return nil, fmt.Errorf("got duplicate subtaskmeta in list")
+			return nil, fmt.Errorf("duplicate subtaskmetas detected in list: %s", item.Name)
 		}
 	}
 
@@ -73,7 +73,7 @@ func topologicalSort(metas []*plugin.SubTaskMeta) ([]plugin.SubTaskMeta, error) 
 			}
 		}
 		if len(tmpList) == 0 {
-			return nil, fmt.Errorf("got error dependency map %v, please check if exist loop", dependenciesMap)
+			return nil, fmt.Errorf("cyclic dependency detected: %v", dependenciesMap)
 		}
 
 		// remove item in dependencies map
@@ -86,15 +86,15 @@ func topologicalSort(metas []*plugin.SubTaskMeta) ([]plugin.SubTaskMeta, error) 
 		}
 
 		sort.Strings(tmpList)
+		// convert item to subtaskmeta by name, and append to orderedSubtaskList
 		for _, item := range tmpList {
 			value, ok := nameMetaMap[item]
 			if !ok {
-				return nil, fmt.Errorf("failed get metas by name %s", item)
+				return nil, fmt.Errorf("illeagal subtaskmeta detected %s", item)
 			}
-			orderedSubtaskList = append(orderedSubtaskList, value)
+			orderedSubtaskList = append(orderedSubtaskList, *value)
 		}
 	}
-
 	return orderedSubtaskList, nil
 }
 

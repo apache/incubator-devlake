@@ -24,7 +24,7 @@ import (
 )
 
 func TestGetSubtaskList(t *testing.T) {
-	sorter := subTaskMetaSorter.GetDependencySorter(SubTaskMetaList)
+	sorter := subTaskMetaSorter.NewDependencySorter(SubTaskMetaList)
 	list, err := sorter.Sort()
 	if err != nil {
 		t.Error(err)

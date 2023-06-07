@@ -49,7 +49,7 @@ type Gitlab string
 
 func init() {
 	// check subtask meta loop when init subtask meta
-	if _, err := subTaskMetaSorter.GetDependencySorter(tasks.SubTaskMetaList).Sort(); err != nil {
+	if _, err := subTaskMetaSorter.NewDependencySorter(tasks.SubTaskMetaList).Sort(); err != nil {
 		panic(err)
 	}
 }
@@ -102,11 +102,10 @@ func (p Gitlab) Description() string {
 }
 
 func (p Gitlab) SubTaskMetas() []plugin.SubTaskMeta {
-	list, err := subTaskMetaSorter.GetDependencySorter(tasks.SubTaskMetaList).Sort()
+	list, err := subTaskMetaSorter.NewDependencySorter(tasks.SubTaskMetaList).Sort()
 	if err != nil {
 		panic(err)
 	}
-
 	return list
 }
 
