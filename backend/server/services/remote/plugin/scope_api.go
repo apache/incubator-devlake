@@ -102,30 +102,25 @@ func (pa *pluginAPI) DeleteScope(input *plugin.ApiResourceInput) (*plugin.ApiRes
 	return &plugin.ApiResourceOutput{Body: nil, Status: http.StatusOK}, nil
 }
 
-// convertScopeResponse adapt the "remote" scopes to a serializable api.ScopeRes
+// convertScopeResponse adapt the "remote" scopes to a serializable api.ScopeRes. This code is needed because squashed mapstructure don't work
+// with dynamic/runtime structs used by remote plugins
 func convertScopeResponse(scopes ...*api.ScopeRes[models.RemoteScope, models.RemoteTransformation]) ([]map[string]any, errors.Error) {
 	responses := make([]map[string]any, len(scopes))
-	// @keon @camille please help refactoring this, why don't we use mapstructure?
-	// for i, scope := range scopes {
-	// 	resMap := map[string]any{}
-	// 	err := models.MapTo(api.ScopeRes[map[string]any, ]{
-	// 		Scope: nil, //ignore intentionally
-	// 		ScopeConfig: scope.ScopeConfig,
-	// 		Blueprints:  scope.Blueprints,
-	// 	}, &resMap)
-	// 	if err != nil {
-	// 		return nil, err
-	// 	}
-	// 	scopeMap := map[string]any{}
-	// 	err = models.MapTo(scope.Scope, &scopeMap)
-	// 	if err != nil {
-	// 		return nil, err
-	// 	}
-	// 	delete(resMap, "Scope")
-	// 	for k, v := range scopeMap {
-	// 		resMap[k] = v
-	// 	}
-	// 	responses[i] = resMap
-	// }
+	for i, scope := range scopes {
+		resMap := map[string]any{}
+		err := models.MapTo(scope.ScopeResDoc, &resMap)
+		if err != nil {
+			return nil, err
+		}
+		scopeMap := map[string]any{}
+		err = models.MapTo(scope.Scope, &scopeMap)
+		if err != nil {
+			return nil, err
+		}
+		for k, v := range scopeMap {
+			resMap[k] = v
+		}
+		responses[i] = resMap
+	}
 	return responses, nil
 }

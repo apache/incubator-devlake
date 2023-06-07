@@ -38,9 +38,9 @@ type (
 	}
 
 	ScopeResponse struct {
-		Scope                  any
-		TransformationRuleName string
-		Blueprints             []*models.Blueprint
+		Scope       any
+		ScopeConfig any
+		Blueprints  []*models.Blueprint
 	}
 )
 
