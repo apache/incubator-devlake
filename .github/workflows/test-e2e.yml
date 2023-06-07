@@ -70,7 +70,7 @@ jobs:
           DB_URL: mysql://root:root@db:3306/lake?charset=utf8mb4&parseTime=True
           E2E_DB_URL: mysql://root:root@db:3306/lake?charset=utf8mb4&parseTime=True
         run: |
-          cp env.example .env
+          cp env.example backend/.env
           cd backend
           make e2e-plugins-test
           make e2e-test
@@ -109,7 +109,7 @@ jobs:
           DB_URL: postgres://merico:merico@db:5432/lake
           E2E_DB_URL: postgres://merico:merico@db:5432/lake
         run: |
-          cp env.example .env
+          cp env.example backend/.env
           cd backend
           make e2e-plugins-test
           make e2e-test

@@ -71,7 +71,7 @@ worker:
 
 dev: build-plugin build-python run
 
-godev: 
+godev:
 	DISABLED_REMOTE_PLUGINS=true make build-plugin run
 
 debug: build-plugin-debug
@@ -87,7 +87,12 @@ test: unit-test e2e-test
 unit-test: mock unit-test-only python-unit-test
 
 unit-test-only:
-	set -e; for m in $$(go list ./... | egrep -v 'test|models|e2e'); do echo $$m; go test -timeout 60s -v $$m; done
+	set -e;\
+	exit_code=0;\
+	for m in $$(go list ./... | egrep -v 'test|models|e2e'); do \
+  		echo $$m; go test -timeout 60s -v $$m || exit_code=$$?; \
+	done; \
+	exit $$exit_code
 
 build-pydevlake:
 	poetry install -C python/pydevlake
@@ -97,17 +102,33 @@ python-unit-test: build-pydevlake
 	sh ./python/run_tests.sh
 
 e2e-plugins-test:
-	export ENV_PATH=$(shell readlink -f .env); set -e; for m in $$(go list ./plugins/... | egrep 'e2e'); do echo $$m; go test -timeout 300s -gcflags=all=-l -v $$m; done
+	exit_code=0;\
+	export ENV_PATH=$(shell readlink -f .env);\
+	set -e;\
+	for m in $$(go list ./plugins/... | egrep 'e2e'); do \
+		echo $$m; go test -timeout 300s -gcflags=all=-l -v $$m || exit_code=$$?; \
+	done; \
+	exit $$exit_code
 
 e2e-test:
-	export ENV_PATH=$(shell readlink -f .env); set -e;
-	go run ./test/init.go &&\
-	for m in $$(go list ./test/e2e/...); do echo $$m; go test -p 1 -timeout 300s -v $$m; done
+	export ENV_PATH=$(shell readlink -f .env);\
+	set -e;\
+	go run ./test/init.go || exit $$?;\
+	exit_code=0;\
+	for m in $$(go list ./test/e2e/...); do \
+		echo $$m; go test -p 1 -timeout 300s -v $$m || exit_code=$$?; \
+	done; \
+	exit $$exit_code
 
 integration-test:
-	export ENV_PATH=$(shell readlink -f .env); set -e;
-	go run ./test/init.go &&\
-	for m in $$(go list ./test/integration/...); do echo $$m; go test -p 1 -timeout 300s -v $$m; done
+	export ENV_PATH=$(shell readlink -f .env);\
+	set -e;\
+	go run ./test/init.go || exit $$?;\
+	exit_code=0;\
+	for m in $$(go list ./test/integration/...); do \
+		echo $$m; go test -p 1 -timeout 300s -v $$m || exit_code=$$?; \
+    done; \
+	exit $$exit_code
 
 lint:
 	golangci-lint run
