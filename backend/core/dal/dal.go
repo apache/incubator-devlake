@@ -157,6 +157,8 @@ type Dal interface {
 	DropTables(dst ...interface{}) errors.Error
 	// HasTable checks if table exists
 	HasTable(table interface{}) bool
+	// HasColumn checks if column exists
+	HasColumn(table interface{}, columnName string) bool
 	// RenameTable renames table name
 	RenameTable(oldName, newName string) errors.Error
 	// GetColumns returns table columns in database

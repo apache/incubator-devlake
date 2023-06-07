@@ -16,8 +16,8 @@
  *
  */
 
-import { useEffect, useState } from 'react';
-import { useParams, useHistory } from 'react-router-dom';
+import { useState, useEffect, useMemo } from 'react';
+import { useParams, useHistory, Link } from 'react-router-dom';
 import { Button, Icon, Intent } from '@blueprintjs/core';
 
 import { PageHeader, Buttons, Dialog, IconButton, Table } from '@/components';
@@ -26,6 +26,7 @@ import {
   ConnectionForm,
   ConnectionStatus,
   DataScopeSelectRemote,
+  getPluginConfig,
   getPluginId,
   ScopeConfigForm,
   ScopeConfigSelect,
@@ -67,6 +68,8 @@ const ConnectionDetail = ({ plugin, connectionId }: Props) => {
 
   const { unique, status, name, icon } = onGet(`${plugin}-${connectionId}`) || {};
 
+  const pluginConfig = useMemo(() => getPluginConfig(plugin), [plugin]);
+
   useEffect(() => {
     onTest(`${plugin}-${connectionId}`);
   }, [plugin, connectionId]);
@@ -74,6 +77,8 @@ const ConnectionDetail = ({ plugin, connectionId }: Props) => {
   const handleHideDialog = () => {
     setType(undefined);
   };
+
+  console.log(data);
 
   const handleShowTips = () => {
     setTips(
@@ -196,7 +201,7 @@ const ConnectionDetail = ({ plugin, connectionId }: Props) => {
         </div>
         <Buttons>
           <Button intent={Intent.PRIMARY} icon="add" text="Add Data Scope" onClick={handleShowCreateDataScopeDialog} />
-          {plugin !== 'tapd' && (
+          {plugin !== 'tapd' && pluginConfig.scopeConfig && (
             <Button
               disabled={!scopeIds.length}
               intent={Intent.PRIMARY}
@@ -215,21 +220,37 @@ const ConnectionDetail = ({ plugin, connectionId }: Props) => {
               key: 'name',
             },
             {
+              title: 'Project',
+              dataIndex: 'blueprints',
+              key: 'project',
+              render: (blueprints) => (
+                <>
+                  {blueprints?.length
+                    ? blueprints?.map((bp: any) =>
+                        bp.projectName ? <Link to={`/projects/${bp.projectName}`}>{bp.projectName}</Link> : '-',
+                      )
+                    : '-'}
+                </>
+              ),
+            },
+            {
               title: 'Scope Config',
               dataIndex: 'scopeConfig',
               key: 'scopeConfig',
               width: 400,
               render: (_, row) => (
                 <>
-                  <span>{row.scopeConfigId ? 'Configured' : 'N/A'}</span>
-                  <IconButton
-                    icon="link"
-                    tooltip="Associate Scope Config"
-                    onClick={() => {
-                      handleShowScopeConfigSelectDialog([row[getPluginId(plugin)]]);
-                      setScopeConfigId(row.scopeConfigId);
-                    }}
-                  />
+                  <span>{row.scopeConfigId ? row.scopeConfig?.name : 'N/A'}</span>
+                  {pluginConfig.scopeConfig && (
+                    <IconButton
+                      icon="link"
+                      tooltip="Associate Scope Config"
+                      onClick={() => {
+                        handleShowScopeConfigSelectDialog([row[getPluginId(plugin)]]);
+                        setScopeConfigId(row.scopeConfigId);
+                      }}
+                    />
+                  )}
                 </>
               ),
             },

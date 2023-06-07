@@ -26,7 +26,7 @@ import (
 
 type ScopeRes struct {
 	models.GitlabProject
-	ScopeConfigName string `json:"scopeConfigName,omitempty"`
+	api.ScopeResDoc[models.GitlabScopeConfig]
 }
 
 type ScopeReq api.ScopeReq[models.GitlabProject]

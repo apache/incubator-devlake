@@ -26,26 +26,26 @@ import (
 )
 
 type pluginAPI struct {
-	invoker    bridge.Invoker
-	connType   *models.DynamicTabler
-	txRuleType *models.DynamicTabler
-	scopeType  *models.DynamicTabler
-	helper     *api.ConnectionApiHelper
+	invoker         bridge.Invoker
+	connType        *models.DynamicTabler
+	scopeType       *models.DynamicTabler
+	scopeConfigType *models.DynamicTabler
+	helper          *api.ConnectionApiHelper
 }
 
 func GetDefaultAPI(
 	invoker bridge.Invoker,
 	connType *models.DynamicTabler,
-	txRuleType *models.DynamicTabler,
+	scopeConfigType *models.DynamicTabler,
 	scopeType *models.DynamicTabler,
 	helper *api.ConnectionApiHelper,
 ) map[string]map[string]plugin.ApiResourceHandler {
 	papi := &pluginAPI{
-		invoker:    invoker,
-		connType:   connType,
-		txRuleType: txRuleType,
-		scopeType:  scopeType,
-		helper:     helper,
+		invoker:         invoker,
+		connType:        connType,
+		scopeConfigType: scopeConfigType,
+		scopeType:       scopeType,
+		helper:          helper,
 	}
 
 	resources := map[string]map[string]plugin.ApiResourceHandler{
@@ -70,6 +70,14 @@ func GetDefaultAPI(
 			"PATCH":  papi.UpdateScope,
 			"DELETE": papi.DeleteScope,
 		},
+		"connections/:connectionId/scope-configs": {
+			"POST": papi.PostScopeConfigs,
+			"GET":  papi.ListScopeConfigs,
+		},
+		"connections/:connectionId/scope-configs/:id": {
+			"GET":   papi.GetScopeConfig,
+			"PATCH": papi.PatchScopeConfig,
+		},
 		"connections/:connectionId/remote-scopes": {
 			"GET": papi.GetRemoteScopes,
 		},
@@ -78,27 +86,17 @@ func GetDefaultAPI(
 		},
 	}
 
-	if txRuleType != nil {
-		resources["connections/:connectionId/transformation_rules"] = map[string]plugin.ApiResourceHandler{
-			"POST": papi.PostTransformationRules,
-			"GET":  papi.ListTransformationRules,
-		}
-		resources["connections/:connectionId/transformation_rules/:id"] = map[string]plugin.ApiResourceHandler{
-			"GET":   papi.GetTransformationRule,
-			"PATCH": papi.PatchTransformationRule,
-		}
-	}
 	scopeHelper = createScopeHelper(papi)
 	return resources
 }
 
-func createScopeHelper(pa *pluginAPI) *api.GenericScopeApiHelper[remoteModel.RemoteConnection, remoteModel.RemoteScope, remoteModel.RemoteTransformation] {
+func createScopeHelper(pa *pluginAPI) *api.GenericScopeApiHelper[remoteModel.RemoteConnection, remoteModel.RemoteScope, remoteModel.RemoteScopeConfig] {
 	params := &api.ReflectionParameters{
 		ScopeIdFieldName:  "Id",
 		ScopeIdColumnName: "id",
 		RawScopeParamName: "scope_id",
 	}
-	return api.NewGenericScopeHelper[remoteModel.RemoteConnection, remoteModel.RemoteScope, remoteModel.RemoteTransformation](
+	return api.NewGenericScopeHelper[remoteModel.RemoteConnection, remoteModel.RemoteScope, remoteModel.RemoteScopeConfig](
 		basicRes,
 		nil,
 		connectionHelper,

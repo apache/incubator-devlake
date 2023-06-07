@@ -19,12 +19,9 @@ package plugin
 
 import (
 	"encoding/json"
-	"fmt"
 
-	"github.com/apache/incubator-devlake/core/dal"
 	"github.com/apache/incubator-devlake/core/errors"
 	"github.com/apache/incubator-devlake/core/plugin"
-	"github.com/apache/incubator-devlake/helpers/pluginhelper/api"
 	"github.com/apache/incubator-devlake/server/services/remote/bridge"
 	"github.com/apache/incubator-devlake/server/services/remote/models"
 )
@@ -50,30 +47,17 @@ func (p remoteDatasourcePlugin) MakeDataSourcePipelinePlanV200(connectionId uint
 	}
 
 	db := basicRes.GetDal()
-	var toolScopeTxRulePairs = make([]interface{}, len(bpScopes))
+	var toolScopeConfigPairs = make([]interface{}, len(bpScopes))
 	for i, bpScope := range bpScopes {
-		wrappedToolScope := p.scopeTabler.New()
-		err = api.CallDB(db.First, wrappedToolScope, dal.Where("id = ?", bpScope.Id))
-		if err != nil {
-			return nil, nil, errors.Default.Wrap(err, fmt.Sprintf("error getting scope %s", bpScope.Name))
-		}
-		toolScope := models.ScopeModel{}
-		err := wrappedToolScope.To(&toolScope)
+		toolScope, scopeConfig, err := p.getScopeAndConfig(db, connectionId, bpScope.Id)
 		if err != nil {
 			return nil, nil, err
 		}
-		txRule, err := p.getTxRule(db, toolScope)
-		if err != nil {
-			return nil, nil, err
-		}
-		toolScopeTxRulePairs[i] = []interface{}{wrappedToolScope.Unwrap(), txRule}
+		toolScopeConfigPairs[i] = []interface{}{toolScope, scopeConfig}
 	}
 
-	// TODO: @camille: no need to pass the entities separately as they are already in the scope config (tx rule)
-	entities := []string{}
-
 	plan_data := models.PipelineData{}
-	err = p.invoker.Call("make-pipeline", bridge.DefaultContext, toolScopeTxRulePairs, entities, connection.Unwrap()).Get(&plan_data)
+	err = p.invoker.Call("make-pipeline", bridge.DefaultContext, toolScopeConfigPairs, connection.Unwrap()).Get(&plan_data)
 	if err != nil {
 		return nil, nil, err
 	}

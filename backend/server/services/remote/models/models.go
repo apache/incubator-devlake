@@ -33,23 +33,23 @@ const (
 )
 
 type PluginInfo struct {
-	Name                        string                  `json:"name" validate:"required"`
-	Description                 string                  `json:"description"`
-	ConnectionModelInfo         *DynamicModelInfo       `json:"connection_model_info" validate:"required"`
-	TransformationRuleModelInfo *DynamicModelInfo       `json:"transformation_rule_model_info"`
-	ScopeModelInfo              *DynamicModelInfo       `json:"scope_model_info" validate:"required"`
-	ToolModelInfos              []*DynamicModelInfo     `json:"tool_model_infos"`
-	MigrationScripts            []RemoteMigrationScript `json:"migration_scripts"`
-	PluginPath                  string                  `json:"plugin_path" validate:"required"`
-	SubtaskMetas                []SubtaskMeta           `json:"subtask_metas"`
-	Extension                   PluginExtension         `json:"extension"`
+	Name                 string                  `json:"name" validate:"required"`
+	Description          string                  `json:"description"`
+	ConnectionModelInfo  *DynamicModelInfo       `json:"connection_model_info" validate:"required"`
+	ScopeConfigModelInfo *DynamicModelInfo       `json:"scope_config_model_info"`
+	ScopeModelInfo       *DynamicModelInfo       `json:"scope_model_info" validate:"required"`
+	ToolModelInfos       []*DynamicModelInfo     `json:"tool_model_infos"`
+	MigrationScripts     []RemoteMigrationScript `json:"migration_scripts"`
+	PluginPath           string                  `json:"plugin_path" validate:"required"`
+	SubtaskMetas         []SubtaskMeta           `json:"subtask_metas"`
+	Extension            PluginExtension         `json:"extension"`
 }
 
 // Type aliases used by the API helper for better readability
 type (
-	RemoteScope          any
-	RemoteTransformation any
-	RemoteConnection     any
+	RemoteScope       any
+	RemoteScopeConfig any
+	RemoteConnection  any
 )
 
 type DynamicModelInfo struct {
@@ -62,17 +62,17 @@ func (d DynamicModelInfo) LoadDynamicTabler(parentModel any) (*models.DynamicTab
 }
 
 type ScopeModel struct {
-	common.NoPKModel     `swaggerignore:"true"`
-	Id                   string `gorm:"primarykey;type:varchar(255)" json:"id"`
-	ConnectionId         uint64 `gorm:"primaryKey" json:"connectionId"`
-	Name                 string `json:"name" validate:"required"`
-	TransformationRuleId uint64 `json:"transformationRuleId"`
+	common.NoPKModel `swaggerignore:"true"`
+	Id               string `gorm:"primarykey;type:varchar(255)" json:"id"`
+	ConnectionId     uint64 `gorm:"primaryKey" json:"connectionId"`
+	Name             string `json:"name" validate:"required"`
+	ScopeConfigId    uint64 `json:"scopeConfigId"`
 }
 
-type TransformationModel struct {
-	common.Model
-	ConnectionId uint64 `json:"connectionId"`
-	Name         string `json:"name"`
+type ScopeConfigModel struct {
+	common.ScopeConfig `mapstructure:",squash"`
+	ConnectionId       uint64 `json:"connectionId"`
+	Name               string `json:"name"`
 }
 
 type SubtaskMeta struct {

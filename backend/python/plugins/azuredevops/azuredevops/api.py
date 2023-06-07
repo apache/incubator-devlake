@@ -70,7 +70,13 @@ class AzureDevOpsAPI(API):
         return self.get(org, project, '_apis/git/repositories', repo_id, 'commits')
 
     def builds(self, org: str, project: str, repository_id: str, provider: str):
-        return self.get(org, project, '_apis/build/builds', repositoryId=repository_id, repositoryType=provider)
+        return self.get(org, project, '_apis/build/builds', repositoryId=repository_id, repositoryType=provider, deletedFilter='excludeDeleted')
 
     def jobs(self, org: str, project: str, build_id: int):
         return self.get(org, project, '_apis/build/builds', build_id, 'timeline')
+
+    def endpoints(self, org: str, project: str):
+        return self.get(org, project, '_apis/serviceendpoint/endpoints')
+
+    def external_repositories(self, org: str, project: str, provider: str, endpoint_id: str):
+        return self.get(org, project, '_apis/sourceProviders', provider, 'repositories', serviceEndpointId=endpoint_id)

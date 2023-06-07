@@ -16,21 +16,11 @@
 
 from typing import Iterable, Type
 from abc import abstractmethod
-from enum import Enum
 
 from pydevlake.context import Context
 from pydevlake.subtasks import Collector, Extractor, Convertor, SubstreamCollector
-from pydevlake.model import RawModel, ToolModel, ToolScope, DomainModel
+from pydevlake.model import RawModel, ToolModel, ToolScope, DomainModel, DomainType
 from pydevlake.extractor import autoextract
-
-
-class DomainType(Enum):
-    CODE = "CODE"
-    TICKET = "TICKET"
-    CODE_REVIEW = "CODEREVIEW"
-    CROSS = "CROSS"
-    CICD = "CICD"
-    CODE_QUALITY = "CODEQUALITY"
 
 
 class Stream:

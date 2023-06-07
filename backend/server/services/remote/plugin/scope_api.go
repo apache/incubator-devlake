@@ -102,16 +102,13 @@ func (pa *pluginAPI) DeleteScope(input *plugin.ApiResourceInput) (*plugin.ApiRes
 	return &plugin.ApiResourceOutput{Body: nil, Status: http.StatusOK}, nil
 }
 
-// convertScopeResponse adapt the "remote" scopes to a serializable api.ScopeRes
-func convertScopeResponse(scopes ...*api.ScopeRes[models.RemoteScope]) ([]map[string]any, errors.Error) {
+// convertScopeResponse adapt the "remote" scopes to a serializable api.ScopeRes. This code is needed because squashed mapstructure don't work
+// with dynamic/runtime structs used by remote plugins
+func convertScopeResponse(scopes ...*api.ScopeRes[models.RemoteScope, models.RemoteScopeConfig]) ([]map[string]any, errors.Error) {
 	responses := make([]map[string]any, len(scopes))
 	for i, scope := range scopes {
 		resMap := map[string]any{}
-		err := models.MapTo(api.ScopeRes[map[string]any]{
-			Scope:           nil, //ignore intentionally
-			ScopeConfigName: scope.ScopeConfigName,
-			Blueprints:      scope.Blueprints,
-		}, &resMap)
+		err := models.MapTo(scope.ScopeResDoc, &resMap)
 		if err != nil {
 			return nil, err
 		}
@@ -120,7 +117,6 @@ func convertScopeResponse(scopes ...*api.ScopeRes[models.RemoteScope]) ([]map[st
 		if err != nil {
 			return nil, err
 		}
-		delete(resMap, "Scope")
 		for k, v := range scopeMap {
 			resMap[k] = v
 		}

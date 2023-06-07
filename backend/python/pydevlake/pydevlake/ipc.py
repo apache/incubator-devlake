@@ -26,8 +26,7 @@ from sqlalchemy.engine import Engine
 
 from pydevlake.context import Context
 from pydevlake.message import Message
-from pydevlake.stream import DomainType
-from pydevlake.model import SubtaskRun
+from pydevlake.model import DomainType, SubtaskRun
 
 
 def plugin_method(func):
@@ -89,17 +88,16 @@ class PluginCommands:
         self._plugin.test_connection(connection)
 
     @plugin_method
-    def make_pipeline(self, scope_tx_rule_pairs: list[tuple[dict, dict]], entities: list[str], connection: dict):
+    def make_pipeline(self, scope_config_pairs: list[tuple[dict, dict]], connection: dict):
         connection = self._plugin.connection_type(**connection)
-        scope_tx_rule_pairs = [
+        scope_config_pairs = [
             (
                 self._plugin.tool_scope_type(**raw_scope),
-                self._plugin.transformation_rule_type(**raw_tx_rule) if raw_tx_rule else None
+                self._plugin.scope_config_type(**raw_config)
             )
-            for raw_scope, raw_tx_rule in scope_tx_rule_pairs
+            for raw_scope, raw_config in scope_config_pairs
         ]
-        entities = [DomainType(e) for e in entities]
-        return self._plugin.make_pipeline(scope_tx_rule_pairs, entities, connection)
+        return self._plugin.make_pipeline(scope_config_pairs, connection)
 
     @plugin_method
     def plugin_info(self):
@@ -116,13 +114,10 @@ class PluginCommands:
         scope = self._plugin.tool_scope_type(**scope_dict)
         connection_dict = data['connection']
         connection = self._plugin.connection_type(**connection_dict)
-        raw_tx_rule = data.get('transformation_rule')
-        if self._plugin.transformation_rule_type and raw_tx_rule:
-            transformation_rule = self._plugin.transformation_rule_type(**raw_tx_rule)
-        else:
-            transformation_rule = None
+        scope_config_dict = data['scope_config']
+        scope_config = self._plugin.scope_config_type(**scope_config_dict)
         options = data.get('options', {})
-        return Context(create_db_engine(db_url), scope, connection, transformation_rule, options)
+        return Context(create_db_engine(db_url), connection, scope, scope_config, options)
 
 def create_db_engine(db_url) -> Engine:
     # SQLAlchemy doesn't understand postgres:// scheme

@@ -15,20 +15,25 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-package models
+package migrationscripts
 
 import (
-	"github.com/apache/incubator-devlake/core/models/common"
+	"github.com/apache/incubator-devlake/core/context"
+	"github.com/apache/incubator-devlake/core/errors"
 )
 
-type Service struct {
-	common.NoPKModel
-	ConnectionId uint64 `json:"connection_id" mapstructure:"connectionId,omitempty" gorm:"primaryKey" `
-	Id           string `json:"id" mapstructure:"id" gorm:"primaryKey;autoIncrement:false" `
-	Url          string `json:"url" mapstructure:"url"`
-	Name         string `json:"name" mapstructure:"name"`
+type removeScopeConfig struct {
 }
 
-func (Service) TableName() string {
-	return "_tool_pagerduty_services"
+func (u *removeScopeConfig) Up(baseRes context.BasicRes) errors.Error {
+	db := baseRes.GetDal()
+	return db.DropTables("_tool_pagerduty_scope_configs")
+}
+
+func (*removeScopeConfig) Version() uint64 {
+	return 20230605130109
+}
+
+func (*removeScopeConfig) Name() string {
+	return "remove _tool_pagerduty_scope_configs table"
 }

@@ -29,5 +29,6 @@ func All() []plugin.MigrationScript {
 		new(addPagerdutyConnectionFields20230123),
 		new(addTransformationRulesToService20230303),
 		new(renameTr2ScopeConfig),
+		new(removeScopeConfig),
 	}
 }

@@ -165,6 +165,7 @@ func makePipelinePlanV200(
 				Plugin: "gitextractor",
 				Options: map[string]interface{}{
 					"url":    cloneUrl.String(),
+					"name":   gitlabProject.Name,
 					"repoId": didgen.NewDomainIdGenerator(&models.GitlabProject{}).Generate(connection.ID, gitlabProject.GitlabId),
 					"proxy":  connection.Proxy,
 				},

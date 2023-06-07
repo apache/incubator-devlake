@@ -48,13 +48,29 @@ func (o ExecuteOperation) Execute(dal dal.Dal) errors.Error {
 
 var _ Operation = (*ExecuteOperation)(nil)
 
+type AddColumnOperation struct {
+	Table      string         `json:"table"`
+	Column     string         `json:"column"`
+	ColumnType dal.ColumnType `json:"column_type"`
+}
+
+func (o AddColumnOperation) Execute(dal dal.Dal) errors.Error {
+	if dal.HasColumn(o.Table, o.Column) {
+		return dal.DropColumns(o.Table, o.Column)
+	}
+	return dal.AddColumn(o.Table, o.Column, o.ColumnType)
+}
+
 type DropColumnOperation struct {
 	Table  string `json:"table"`
 	Column string `json:"column"`
 }
 
 func (o DropColumnOperation) Execute(dal dal.Dal) errors.Error {
-	return dal.DropColumns(o.Table, o.Column)
+	if dal.HasColumn(o.Table, o.Column) {
+		return dal.DropColumns(o.Table, o.Column)
+	}
+	return nil
 }
 
 var _ Operation = (*DropColumnOperation)(nil)
@@ -65,10 +81,33 @@ type DropTableOperation struct {
 }
 
 func (o DropTableOperation) Execute(dal dal.Dal) errors.Error {
-	return dal.DropTables(o.Table)
+	if dal.HasTable(o.Table) {
+		return dal.DropTables(o.Table)
+	}
+	return nil
 }
 
 var _ Operation = (*DropTableOperation)(nil)
+
+type RenameTableOperation struct {
+	OldName string `json:"old_name"`
+	NewName string `json:"new_name"`
+}
+
+func (o RenameTableOperation) Execute(dal dal.Dal) errors.Error {
+	if !dal.HasTable(o.OldName) {
+		return nil
+	}
+	if dal.HasTable(o.NewName) {
+		err := dal.DropTables(o.NewName)
+		if err != nil {
+			return err
+		}
+	}
+	return dal.RenameTable(o.OldName, o.NewName)
+}
+
+var _ Operation = (*RenameTableOperation)(nil)
 
 type RemoteMigrationScript struct {
 	operations []Operation
@@ -102,10 +141,14 @@ func (s *RemoteMigrationScript) UnmarshalJSON(data []byte) error {
 		switch operationType {
 		case "execute":
 			operation = &ExecuteOperation{}
+		case "add_column":
+			operation = &AddColumnOperation{}
 		case "drop_column":
 			operation = &DropColumnOperation{}
 		case "drop_table":
 			operation = &DropTableOperation{}
+		case "rename_table":
+			operation = &RenameTableOperation{}
 		default:
 			return errors.BadInput.New("unsupported operation type")
 		}

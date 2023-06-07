@@ -34,7 +34,7 @@ class MyPluginConnection(dl.Connection):
     pass
 
 
-class MyPluginTransformationRule(dl.TransformationRule):
+class MyPluginScopeConfig(dl.ScopeConfig):
     pass
 
 
@@ -44,8 +44,8 @@ class MyPluginToolScope(dl.ToolScope):
 
 class MyPlugin(dl.Plugin):
     connection_type = MyPluginConnection
-    transformation_rule_type =  MyPluginTransformationRule
     tool_scope_type = MyPluginToolScope
+    scope_config_type =  MyPluginScopeConfig
     streams = []
 
     def domain_scopes(self, tool_scope: MyScope) -> Iterable[dl.DomainScope]:
@@ -68,10 +68,11 @@ if __name__ == '__main__':
 This file is the entry point to your plugin.
 It specifies three datatypes:
 - A connection that groups the parameters that your plugin needs to collect data, e.g. the url and credentials to connect to the datasource
-- A transformation rule that groups the parameters that your plugin uses to convert some data, e.g. regexes to match issue type from name.
 - A tool layer scope type that represents the top-level entity of this plugin, e.g. a board, a repository, a project, etc.
+- A scope config that contains the domain entities for a given scope and the the parameters that your plugin uses to convert some data, e.g. regexes to match issue type from name.
 
-The plugin class declares what are its connection, transformation rule and tool scope types.
+
+The plugin class declares what are its connection, tool scope, and scope config types.
 It also declares its list of streams, and is responsible to define 4 methods that we'll cover hereafter.
 
 We also need to create two shell scripts in the plugin root directory to build and run the plugin.
@@ -96,7 +97,7 @@ poetry run python myplugin/main.py "$@"
 ### Connection parameters
 
 The parameters of your plugin split between those that are required to connect to the datasource that are grouped in your connection class
-and those that are used to customize conversion to domain models that are grouped in your transformation rule class.
+and those that are used to customize conversion to domain models that are grouped in your scope config class.
 For example, to add `url` and `token` parameter, edit `MyPluginConnection` as follow:
 
 ```python
@@ -112,17 +113,16 @@ To get the `str` value, you need to call `get_secret_value()`: `connection.token
 All plugin methods that have a connection parameter will be called with an instance of this class.
 Note that you should not define `__init__`.
 
-### Transformation rule parameters
+### Scope config
 
-
-Transformation rules are used to customize the conversion of data from the tool layer to the domain layer. For example, you can define a regex to match issue type from issue name.
+A scope config contains the list of domain entities to collect and optionally some parameters used to customize the conversion of data from the tool layer to the domain layer. For example, you can define a regex to match issue type from issue name.
 
 ```python
-class MyPluginTransformationRule(TransformationRule):
+class MyPluginScopeConfig(ScopeConfig):
     issue_type_regex: str
 ```
 
-Not all plugins need transformation rules, so you can omit this class.
+If your plugin does not require any such conversion parameter, leave this class empty.
 
 
 ### Tool scope type
@@ -238,7 +238,7 @@ To facilitate or even eliminate extraction, your tool models should be close to 
 
 #### Migration of tool models
 
-Tool models, connection, scope and transformation rule types are stored in the DevLake database.
+Tool models, connection, scope and scope config types are stored in the DevLake database.
 When you change the definition of one of those types, the database needs to be migrated.
 Automatic migration takes care of most modifications, but some changes require manual migration. For example, automatic migration never drops columns. Another example is adding a column to the primary key of a table, you need to write a script that remove the primary key constraint and add a new compound primary key.
 

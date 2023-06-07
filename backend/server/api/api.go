@@ -26,8 +26,8 @@ import (
 
 	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
+	swaggerFiles "github.com/swaggo/files"
 	ginSwagger "github.com/swaggo/gin-swagger"
-	"github.com/swaggo/gin-swagger/swaggerFiles"
 	"github.com/swaggo/swag"
 
 	"github.com/apache/incubator-devlake/core/config"
@@ -35,12 +35,10 @@ import (
 	"github.com/apache/incubator-devlake/core/plugin"
 	"github.com/apache/incubator-devlake/impls/logruslog"
 	_ "github.com/apache/incubator-devlake/server/api/docs"
-	"github.com/apache/incubator-devlake/server/api/login"
 	"github.com/apache/incubator-devlake/server/api/ping"
 	"github.com/apache/incubator-devlake/server/api/shared"
 	"github.com/apache/incubator-devlake/server/api/version"
 	"github.com/apache/incubator-devlake/server/services"
-	"github.com/apache/incubator-devlake/server/services/auth"
 )
 
 const DB_MIGRATION_REQUIRED = `
@@ -69,15 +67,6 @@ func CreateApiService() {
 	// For both protected and unprotected routes
 	router.GET("/ping", ping.Get)
 	router.GET("/version", version.Get)
-
-	if auth.Enabled() {
-		// Add login endpoint
-		router.POST("/login", login.Login)
-		router.POST("/login/newpassword", login.NewPassword)
-		router.POST("/login/refreshtoken", login.RefreshToken)
-		// Use AuthenticationMiddleware for protected routes
-		router.Use(auth.Middleware)
-	}
 
 	// Endpoint to proceed database migration
 	router.GET("/proceed-db-migration", func(ctx *gin.Context) {

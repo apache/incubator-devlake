@@ -17,66 +17,30 @@
  */
 
 import type { PluginConfigType } from './types';
-import { BasePipelineConfig } from './register/base';
-import { AEConfig } from './register/ae';
 import { AzureConfig } from './register/azure';
 import { BitBucketConfig } from './register/bitbucket';
-import { CustomizeConfig } from './register/customize';
-import { DBTConfig } from './register/dbt';
-import { DORAConfig } from './register/dora';
-import { FeiShuConfig } from './register/feishu';
-import { GiteeConfig } from './register/gitee';
-import { GitExtractorConfig } from './register/gitextractor';
 import { GitHubConfig } from './register/github';
-import { GitHubGraphqlConfig } from './register/github_graphql';
 import { GitLabConfig } from './register/gitlab';
 import { JenkinsConfig } from './register/jenkins';
 import { JiraConfig } from './register/jira';
-import { OrgConfig } from './register/org';
 import { PagerDutyConfig } from './register/pagerduty';
-import { RefDiffConfig } from './register/refdiff';
 import { SonarQubeConfig } from './register/sonarqube';
-import { StarRocksConfig } from './register/starrocks';
 import { TAPDConfig } from './register/tapd';
 import { WebhookConfig } from './register/webook';
 import { TeambitionConfig } from './register/teambition';
 import { ZenTaoConfig } from './register/zentao';
 
 export const PluginConfig: PluginConfigType[] = [
-  AEConfig,
   AzureConfig,
   BitBucketConfig,
-  CustomizeConfig,
-  DBTConfig,
-  DORAConfig,
-  FeiShuConfig,
-  GiteeConfig,
-  GitExtractorConfig,
   GitHubConfig,
-  GitHubGraphqlConfig,
   GitLabConfig,
   JenkinsConfig,
   JiraConfig,
-  OrgConfig,
   PagerDutyConfig,
-  RefDiffConfig,
   SonarQubeConfig,
-  StarRocksConfig,
   TAPDConfig,
   TeambitionConfig,
   ZenTaoConfig,
   WebhookConfig,
 ].sort((a, b) => a.sort - b.sort);
-
-// get plugin config by plugin name
-export function getPluginConfig(pluginName: string): PluginConfigType {
-  let pluginConfig = PluginConfig.find((plugin) => plugin.plugin === pluginName) as PluginConfigType;
-  if (!pluginConfig) {
-    pluginConfig = {
-      ...BasePipelineConfig,
-      plugin: pluginName,
-      name: pluginName,
-    } as PluginConfigType;
-  }
-  return pluginConfig;
-}

@@ -188,49 +188,49 @@ func (d *DevlakeClient) ListScopes(pluginName string, connectionId uint64, listB
 }
 
 func (d *DevlakeClient) GetScope(pluginName string, connectionId uint64, scopeId string, listBlueprints bool) any {
-	return sendHttpRequest[api.ScopeRes[any]](d.testCtx, d.timeout, debugInfo{
+	return sendHttpRequest[api.ScopeRes[any, any]](d.testCtx, d.timeout, debugInfo{
 		print:      true,
 		inlineJson: false,
 	}, http.MethodGet, fmt.Sprintf("%s/plugins/%s/connections/%d/scopes/%s?blueprints=%v", d.Endpoint, pluginName, connectionId, scopeId, listBlueprints), nil, nil)
 }
 
-func (d *DevlakeClient) DeleteScope(pluginName string, connectionId uint64, scopeId string, deleteDataOnly bool) []models.Blueprint {
-	return sendHttpRequest[[]models.Blueprint](d.testCtx, d.timeout, debugInfo{
+func (d *DevlakeClient) DeleteScope(pluginName string, connectionId uint64, scopeId string, deleteDataOnly bool) {
+	sendHttpRequest[any](d.testCtx, d.timeout, debugInfo{
 		print:      true,
 		inlineJson: false,
 	}, http.MethodDelete, fmt.Sprintf("%s/plugins/%s/connections/%d/scopes/%s?delete_data_only=%v", d.Endpoint, pluginName, connectionId, scopeId, deleteDataOnly), nil, nil)
 }
 
-func (d *DevlakeClient) CreateTransformationRule(pluginName string, connectionId uint64, rules any) any {
+func (d *DevlakeClient) CreateScopeConfig(pluginName string, connectionId uint64, scopeConfig any) any {
 	return sendHttpRequest[any](d.testCtx, d.timeout, debugInfo{
 		print:      true,
 		inlineJson: false,
-	}, http.MethodPost, fmt.Sprintf("%s/plugins/%s/connections/%d/transformation_rules",
-		d.Endpoint, pluginName, connectionId), nil, rules)
+	}, http.MethodPost, fmt.Sprintf("%s/plugins/%s/connections/%d/scope-configs",
+		d.Endpoint, pluginName, connectionId), nil, scopeConfig)
 }
 
-func (d *DevlakeClient) PatchTransformationRule(pluginName string, connectionId uint64, txRuleId uint64, rule any) any {
+func (d *DevlakeClient) PatchScopeConfig(pluginName string, connectionId uint64, scopeConfigId uint64, scopeConfig any) any {
 	return sendHttpRequest[any](d.testCtx, d.timeout, debugInfo{
 		print:      true,
 		inlineJson: false,
-	}, http.MethodPatch, fmt.Sprintf("%s/plugins/%s/connections/%d/transformation_rules/%d",
-		d.Endpoint, pluginName, connectionId, txRuleId), nil, rule)
+	}, http.MethodPatch, fmt.Sprintf("%s/plugins/%s/connections/%d/scope-configs/%d",
+		d.Endpoint, pluginName, connectionId, scopeConfigId), nil, scopeConfig)
 }
 
-func (d *DevlakeClient) ListTransformationRules(pluginName string, connectionId uint64) []any {
+func (d *DevlakeClient) ListScopeConfigs(pluginName string, connectionId uint64) []any {
 	return sendHttpRequest[[]any](d.testCtx, d.timeout, debugInfo{
 		print:      true,
 		inlineJson: false,
-	}, http.MethodGet, fmt.Sprintf("%s/plugins/%s/connections/%d/transformation_rules?pageSize=20&page=1",
+	}, http.MethodGet, fmt.Sprintf("%s/plugins/%s/connections/%d/scope-configs?pageSize=20&page=1",
 		d.Endpoint, pluginName, connectionId), nil, nil)
 }
 
-func (d *DevlakeClient) GetTransformationRule(pluginName string, connectionId uint64, txRuleId uint64) any {
+func (d *DevlakeClient) GetScopeConfig(pluginName string, connectionId uint64, scopeConfigId uint64) any {
 	return sendHttpRequest[any](d.testCtx, d.timeout, debugInfo{
 		print:      true,
 		inlineJson: false,
-	}, http.MethodGet, fmt.Sprintf("%s/plugins/%s/connections/%d/transformation_rules/%d",
-		d.Endpoint, pluginName, connectionId, txRuleId), nil, nil)
+	}, http.MethodGet, fmt.Sprintf("%s/plugins/%s/connections/%d/scope-configs/%d",
+		d.Endpoint, pluginName, connectionId, scopeConfigId), nil, nil)
 }
 
 func (d *DevlakeClient) RemoteScopes(query RemoteScopesQuery) RemoteScopesOutput {

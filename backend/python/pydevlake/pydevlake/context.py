@@ -16,20 +16,20 @@
 
 from sqlalchemy.engine import Engine
 
-from pydevlake.model import Connection, TransformationRule, ToolScope
+from pydevlake.model import Connection, ScopeConfig, ToolScope
 
 
 class Context:
     def __init__(self,
                  engine: Engine,
-                 scope: ToolScope,
                  connection: Connection,
-                 transformation_rule: TransformationRule = None,
+                 scope: ToolScope,
+                 scope_config: ScopeConfig = None,
                  options: dict = None):
         self.engine = engine
-        self.scope = scope
         self.connection = connection
-        self.transformation_rule = transformation_rule
+        self.scope = scope
+        self.scope_config = scope_config
         self.options = options or {}
         self._engine = None
 

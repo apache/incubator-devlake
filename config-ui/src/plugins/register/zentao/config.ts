@@ -49,6 +49,10 @@ export const ZenTaoConfig: PluginConfigType = {
       },
     ],
   },
-  entities: ['TICKET'],
-  transformation: null,
+  dataScope: {
+    millerColumns: {
+      title: 'Repositories *',
+      subTitle: 'Select the repositories you would like to sync.',
+    },
+  },
 };

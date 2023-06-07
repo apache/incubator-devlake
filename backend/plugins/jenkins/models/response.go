@@ -18,6 +18,8 @@ limitations under the License.
 package models
 
 import (
+	"strings"
+
 	"github.com/apache/incubator-devlake/core/plugin"
 )
 
@@ -44,6 +46,23 @@ func (j Job) GroupName() string {
 }
 
 func (j Job) ConvertApiScope() plugin.ToolLayerScope {
+	if j.FullName == "" {
+		if j.Name != "" || j.Path != "" {
+			beforeNames := strings.Split(j.Path, "/")
+			befornName := ""
+			for i, part := range beforeNames {
+				if i%2 == 0 && part == "job" {
+					continue
+				}
+				if part == "" {
+					continue
+				}
+				befornName += part + "/"
+			}
+			j.FullName = befornName + j.Name
+		}
+	}
+
 	return &JenkinsJob{
 		FullName:    j.FullName,
 		Name:        j.Name,

@@ -18,14 +18,16 @@ limitations under the License.
 package tasks
 
 import (
+	"strings"
+
 	"github.com/apache/incubator-devlake/core/errors"
 	"github.com/apache/incubator-devlake/core/plugin"
 	"github.com/apache/incubator-devlake/plugins/gitextractor/parser"
-	"strings"
 )
 
 type GitExtractorOptions struct {
 	RepoId     string `json:"repoId"`
+	Name       string `jsno:"name"`
 	Url        string `json:"url"`
 	User       string `json:"user"`
 	Password   string `json:"password"`

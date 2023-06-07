@@ -18,19 +18,20 @@ limitations under the License.
 package api
 
 import (
+	"strings"
+
 	"github.com/apache/incubator-devlake/core/errors"
 	"github.com/apache/incubator-devlake/core/plugin"
 	"github.com/apache/incubator-devlake/helpers/pluginhelper/api"
 	"github.com/apache/incubator-devlake/plugins/tapd/models"
-	"strings"
 )
 
 type ScopeRes struct {
 	models.TapdWorkspace
-	ScopeConfigName string `json:"scopeConfigName,omitempty"`
+	api.ScopeResDoc[models.TapdScopeConfig]
 }
 
-type TapdScopeReq api.ScopeReq[models.TapdWorkspace]
+type ScopeReq api.ScopeReq[models.TapdWorkspace]
 
 // PutScope create or update tapd job
 // @Summary create or update tapd job
@@ -38,7 +39,7 @@ type TapdScopeReq api.ScopeReq[models.TapdWorkspace]
 // @Tags plugins/tapd
 // @Accept application/json
 // @Param connectionId path int false "connection ID"
-// @Param scope body TapdScopeReq true "json"
+// @Param scope body ScopeReq true "json"
 // @Success 200  {object} []models.TapdWorkspace
 // @Failure 400  {object} shared.ApiBody "Bad Request"
 // @Failure 500  {object} shared.ApiBody "Internal Error"

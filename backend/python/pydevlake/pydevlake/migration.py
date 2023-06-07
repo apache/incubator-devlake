@@ -34,6 +34,13 @@ class Execute(BaseModel):
     dialect: Optional[Dialect] = None
 
 
+class AddColumn(BaseModel):
+    type: Literal["add_column"] = "add_column"
+    table: str
+    column: str
+    column_type: str
+
+
 class DropColumn(BaseModel):
     type: Literal["drop_column"] = "drop_column"
     table: str
@@ -45,8 +52,21 @@ class DropTable(BaseModel):
     table: str
 
 
+class RenameColumn(BaseModel):
+    type: Literal["rename_column"] = "rename_column"
+    table: str
+    old_name: str
+    new_name: str
+
+
+class RenameTable(BaseModel):
+    type: Literal["rename_table"] = "rename_table"
+    old_name: str
+    new_name: str
+
+
 Operation = Annotated[
-    Union[Execute, DropColumn, DropTable],
+    Union[Execute, AddColumn, DropColumn, RenameColumn, DropTable, RenameTable],
     Field(discriminator="type")
 ]
 
@@ -68,17 +88,35 @@ class MigrationScriptBuilder:
         """
         self.operations.append(Execute(sql=sql, dialect=dialect))
 
+    def add_column(self, table: str, column: str, type: str):
+        """
+        Adds a column to a table if it does not exist.
+        """
+        self.operations.append(AddColumn(table=table, column=column, column_type=type))
+
     def drop_column(self, table: str, column: str):
         """
-        Drops a column from a table.
+        Drops a column from a table if it exist.
         """
         self.operations.append(DropColumn(table=table, column=column))
 
+    def rename_column(self, table: str, old_name: str, new_name: str):
+        """
+        Renames a column in a table.
+        """
+        self.operations.append(RenameColumn(table=table, old_name=old_name, new_name=new_name))
+
     def drop_table(self, table: str):
         """
-        Drops a table.
+        Drops a table if it exists.
         """
         self.operations.append(DropTable(table=table))
+
+    def rename_table(self, old_name: str, new_name: str):
+        """
+        Renames a table if it exists and the new name is not already taken.
+        """
+        self.operations.append(RenameTable(old_name=old_name, new_name=new_name))
 
 
 def migration(version: int, name: Optional[str] = None):

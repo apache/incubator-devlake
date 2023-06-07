@@ -44,22 +44,23 @@ type (
 		Token string `json:"token"`
 	}
 	FakeProject struct {
-		Id                   string `json:"id"`
-		Name                 string `json:"name"`
-		ConnectionId         uint64 `json:"connectionId"`
-		TransformationRuleId uint64 `json:"transformationRuleId"`
-		Url                  string `json:"url"`
+		Id            string `json:"id"`
+		Name          string `json:"name"`
+		ConnectionId  uint64 `json:"connectionId"`
+		ScopeConfigId uint64 `json:"scopeConfigId"`
+		Url           string `json:"url"`
 	}
-	FakeTxRule struct {
-		Id   uint64 `json:"id"`
-		Name string `json:"name"`
-		Env  string `json:"env"`
+	FakeScopeConfig struct {
+		Id       uint64   `json:"id"`
+		Name     string   `json:"name"`
+		Env      string   `json:"env"`
+		Entities []string `json:"entities"`
 	}
 	BlueprintTestParams struct {
 		connection *helper.Connection
 		projects   []models.ApiOutputProject
 		blueprints []models.Blueprint
-		rule       *FakeTxRule
+		config     *FakeScopeConfig
 		scope      *FakeProject
 	}
 )
@@ -89,30 +90,30 @@ func CreateTestConnection(client *helper.DevlakeClient) *helper.Connection {
 	return connection
 }
 
-func CreateTestScope(client *helper.DevlakeClient, rule *FakeTxRule, connectionId uint64) *FakeProject {
+func CreateTestScope(client *helper.DevlakeClient, config *FakeScopeConfig, connectionId uint64) *FakeProject {
 	scopes := helper.Cast[[]FakeProject](client.CreateScope(PLUGIN_NAME,
 		connectionId,
 		FakeProject{
-			Id:                   "p1",
-			Name:                 "Project 1",
-			ConnectionId:         connectionId,
-			Url:                  "http://fake.org/api/project/p1",
-			TransformationRuleId: rule.Id,
+			Id:            "p1",
+			Name:          "Project 1",
+			ConnectionId:  connectionId,
+			Url:           "http://fake.org/api/project/p1",
+			ScopeConfigId: config.Id,
 		},
 	))
 	return &scopes[0]
 }
 
-func CreateTestTransformationRule(client *helper.DevlakeClient, connectionId uint64) *FakeTxRule {
-	rule := helper.Cast[FakeTxRule](client.CreateTransformationRule(PLUGIN_NAME, connectionId, FakeTxRule{Name: "Tx rule", Env: "test env"}))
-	return &rule
+func CreateTestScopeConfig(client *helper.DevlakeClient, connectionId uint64) *FakeScopeConfig {
+	config := helper.Cast[FakeScopeConfig](client.CreateScopeConfig(PLUGIN_NAME, connectionId, FakeScopeConfig{Name: "Scope config", Env: "test env", Entities: []string{"CICD"}}))
+	return &config
 }
 
 func CreateTestBlueprints(t *testing.T, client *helper.DevlakeClient, count int) *BlueprintTestParams {
 	t.Helper()
 	connection := CreateTestConnection(client)
-	rule := CreateTestTransformationRule(client, connection.ID)
-	scope := CreateTestScope(client, rule, connection.ID)
+	config := CreateTestScopeConfig(client, connection.ID)
+	scope := CreateTestScope(client, config, connection.ID)
 	var bps []models.Blueprint
 	var projects []models.ApiOutputProject
 	for i := 1; i <= count; i++ {
@@ -149,7 +150,7 @@ func CreateTestBlueprints(t *testing.T, client *helper.DevlakeClient, count int)
 		connection: connection,
 		projects:   projects,
 		blueprints: bps,
-		rule:       rule,
+		config:     config,
 		scope:      scope,
 	}
 }

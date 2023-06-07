@@ -16,6 +16,11 @@
  *
  */
 
+import PluginIcon from '@/images/plugin-icon.svg';
+
+import { PluginConfig } from './config';
+import { PluginConfigType, PluginType } from './types';
+
 export const getPluginId = (plugin: string) => {
   switch (plugin) {
     case 'github':
@@ -33,4 +38,29 @@ export const getPluginId = (plugin: string) => {
     default:
       return 'id';
   }
+};
+
+export const getPluginConfig = (name: string): PluginConfigType => {
+  let pluginConfig = PluginConfig.find((plugin) => plugin.plugin === name) as PluginConfigType;
+  if (!pluginConfig) {
+    pluginConfig = {
+      type: PluginType.Pipeline,
+      plugin: name,
+      name: name,
+      icon: PluginIcon,
+      sort: 101,
+      connection: {
+        docLink: '',
+        initialValues: {},
+        fields: [],
+      },
+      dataScope: {
+        millerColumns: {
+          title: '',
+          subTitle: '',
+        },
+      },
+    };
+  }
+  return pluginConfig;
 };

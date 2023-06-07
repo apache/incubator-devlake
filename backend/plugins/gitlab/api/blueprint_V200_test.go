@@ -143,6 +143,7 @@ func TestMakeDataSourcePipelinePlanV200(t *testing.T) {
 				Options: map[string]interface{}{
 					"proxy":  "",
 					"repoId": expectRepoId,
+					"name":   testName,
 					"url":    "https://git:nddtf@this_is_cloneUrl",
 				},
 			},

@@ -15,8 +15,6 @@
 
 from typing import Iterable
 
-import iso8601 as iso8601
-
 from azuredevops.api import AzureDevOpsAPI
 from azuredevops.models import GitRepository
 from azuredevops.models import Build
@@ -31,7 +29,7 @@ class Builds(Stream):
     def collect(self, state, context) -> Iterable[tuple[object, dict]]:
         repo: GitRepository = context.scope
         api = AzureDevOpsAPI(context.connection)
-        response = api.builds(repo.org_id, repo.project_id, repo.id, 'tfsgit')
+        response = api.builds(repo.org_id, repo.project_id, repo.id, repo.provider)
         for raw_build in response:
             yield raw_build, state
 
@@ -62,10 +60,10 @@ class Builds(Stream):
             status = devops.CICDStatus.IN_PROGRESS
 
         type = devops.CICDType.BUILD
-        if ctx.transformation_rule and ctx.transformation_rule.deployment_pattern.search(b.name):
+        if ctx.scope_config.deployment_pattern and ctx.scope_config.deployment_pattern.search(b.name):
             type = devops.CICDType.DEPLOYMENT
         environment = devops.CICDEnvironment.TESTING
-        if ctx.transformation_rule and ctx.transformation_rule.production_pattern.search(b.name):
+        if ctx.scope_config.production_pattern and ctx.scope_config.production_pattern.search(b.name):
             environment = devops.CICDEnvironment.PRODUCTION
 
         if b.finish_time:
