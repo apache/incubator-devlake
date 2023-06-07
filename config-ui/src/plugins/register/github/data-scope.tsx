@@ -16,8 +16,11 @@
  *
  */
 
+import { useMemo } from 'react';
+
+import { DataScopeMillerColumns, DataScopeSearch } from '@/plugins';
+
 import type { ScopeItemType } from './types';
-import { MillerColumns, RepoSelector } from './components';
 import * as S from './styled';
 
 interface Props {
@@ -27,12 +30,24 @@ interface Props {
   onChangeItems: (selectedItems: ScopeItemType[]) => void;
 }
 
-export const GitHubDataScope = ({ connectionId, disabledItems, selectedItems, onChangeItems }: Props) => {
+export const GitHubDataScope = ({ connectionId, onChangeItems, ...props }: Props) => {
+  const selectedItems = useMemo(
+    () => props.selectedItems.map((it) => ({ id: `${it.githubId}`, name: it.name, data: it })),
+    [props.selectedItems],
+  );
+
+  const disabledItems = useMemo(
+    () => (props.disabledItems ?? []).map((it) => ({ id: `${it.githubId}`, name: it.name, data: it })),
+    [props.disabledItems],
+  );
+
   return (
     <S.DataScope>
       <h3>Repositories *</h3>
       <p>Select the repositories you would like to sync.</p>
-      <MillerColumns
+      <DataScopeMillerColumns
+        title="Organizations/Owners"
+        plugin="github"
         connectionId={connectionId}
         disabledItems={disabledItems}
         selectedItems={selectedItems}
@@ -40,9 +55,10 @@ export const GitHubDataScope = ({ connectionId, disabledItems, selectedItems, on
       />
       <h4>Add repositories outside of your organizations</h4>
       <p>Search for repositories and add to them</p>
-      <RepoSelector
-        disabledItems={disabledItems}
+      <DataScopeSearch
+        plugin="github"
         connectionId={connectionId}
+        disabledItems={disabledItems}
         selectedItems={selectedItems}
         onChangeItems={onChangeItems}
       />
