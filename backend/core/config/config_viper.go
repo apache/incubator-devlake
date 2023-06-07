@@ -47,15 +47,17 @@ func GetConfig() *viper.Viper {
 func initConfig(v *viper.Viper) {
 	v.SetConfigName(getConfigName())
 	v.SetConfigType("env")
-	envPath := getEnvPath()
-	// AddConfigPath adds a path for Viper to search for the config file in.
-	v.AddConfigPath("./../../../../..")
-	v.AddConfigPath("./../../../..")
-	v.AddConfigPath("./../../..")
-	v.AddConfigPath("./../..")
-	v.AddConfigPath("./../")
-	v.AddConfigPath("./")
-	v.AddConfigPath(envPath)
+
+	if envFile := os.Getenv("ENV_FILE"); envFile != "" {
+		v.SetConfigFile(envFile)
+	} else {
+		v.SetConfigFile("./.env")
+	}
+	if _, err := os.Stat(v.ConfigFileUsed()); err == nil {
+		if err := v.ReadInConfig(); err != nil {
+			panic(fmt.Errorf("failed to read configuration file: %v", err))
+		}
+	}
 }
 
 func getConfigName() string {
