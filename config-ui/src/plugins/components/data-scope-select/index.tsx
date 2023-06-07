@@ -117,7 +117,7 @@ export const DataScopeSelect = ({
                 title: 'Scope Config',
                 dataIndex: 'scopeConfig',
                 key: 'scopeConfig',
-                render: (_, row) => (row.scopeConfigId ? 'Configured' : 'N/A'),
+                render: (_, row) => (row.scopeConfigId ? row.scopeConfig?.name : 'N/A'),
               },
             ]}
             dataSource={data}

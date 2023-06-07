@@ -59,9 +59,10 @@ export const BlueprintHomePage = () => {
           }
         })
         .map((it) => {
-          const connections = it.settings.connections
-            .filter((cs) => cs.plugin !== 'webhook')
-            .map((cs) => onGet(`${cs.plugin}-${cs.connectionId}`));
+          const connections =
+            it.settings?.connections
+              .filter((cs) => cs.plugin !== 'webhook')
+              .map((cs) => onGet(`${cs.plugin}-${cs.connectionId}`)) ?? [];
           return {
             ...it,
             connections: connections.map((cs) => cs.name),

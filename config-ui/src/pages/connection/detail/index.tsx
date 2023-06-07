@@ -17,7 +17,7 @@
  */
 
 import { useEffect, useState } from 'react';
-import { useParams, useHistory } from 'react-router-dom';
+import { useParams, useHistory, Link } from 'react-router-dom';
 import { Button, Icon, Intent } from '@blueprintjs/core';
 
 import { PageHeader, Buttons, Dialog, IconButton, Table } from '@/components';
@@ -215,13 +215,27 @@ const ConnectionDetail = ({ plugin, connectionId }: Props) => {
               key: 'name',
             },
             {
+              title: 'Project',
+              dataIndex: 'blueprints',
+              key: 'project',
+              render: (blueprints) => (
+                <>
+                  {blueprints?.length
+                    ? blueprints?.map((bp: any) =>
+                        bp.projectName ? <Link to={`/projects/${bp.projectName}`}>{bp.projectName}</Link> : '-',
+                      )
+                    : '-'}
+                </>
+              ),
+            },
+            {
               title: 'Scope Config',
               dataIndex: 'scopeConfig',
               key: 'scopeConfig',
               width: 400,
               render: (_, row) => (
                 <>
-                  <span>{row.scopeConfigId ? 'Configured' : 'N/A'}</span>
+                  <span>{row.scopeConfigId ? row.scopeConfig?.name : 'N/A'}</span>
                   <IconButton
                     icon="link"
                     tooltip="Associate Scope Config"
