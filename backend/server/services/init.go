@@ -32,7 +32,6 @@ import (
 	"github.com/apache/incubator-devlake/helpers/pluginhelper/services"
 	"github.com/apache/incubator-devlake/impls/dalgorm"
 	"github.com/apache/incubator-devlake/impls/logruslog"
-	"github.com/apache/incubator-devlake/server/services/auth"
 	"github.com/go-playground/validator/v10"
 	"github.com/robfig/cron/v3"
 )
@@ -83,8 +82,6 @@ func GetMigrator() plugin.Migrator {
 // Init the services module
 func Init() {
 	InitResources()
-
-	auth.InitProvider(basicRes)
 
 	// lock the database to avoid multiple devlake instances from sharing the same one
 	lockDb()
