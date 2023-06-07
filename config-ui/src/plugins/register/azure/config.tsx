@@ -58,13 +58,21 @@ export const AzureConfig: PluginConfigType = {
       },
     ],
   },
-  entities: ['CODE', 'CODEREVIEW', 'CROSS', 'CICD'],
-  transformation: {
-    deploymentPattern: '(deploy|push-image)',
-    productionPattern: 'prod(.*)',
-    refdiff: {
-      tagsLimit: 10,
-      tagsPattern: '/v\\d+\\.\\d+(\\.\\d+(-rc)*\\d*)*$/',
+  dataScope: {
+    millerColumns: {
+      title: 'Add Repositories by Selecting from the Directory',
+      subTitle: 'The following directory lists out all repositories in your organizations.',
+    },
+  },
+  scopeConfig: {
+    entities: ['CODE', 'CODEREVIEW', 'CROSS', 'CICD'],
+    transformation: {
+      deploymentPattern: '(deploy|push-image)',
+      productionPattern: 'prod(.*)',
+      refdiff: {
+        tagsLimit: 10,
+        tagsPattern: '/v\\d+\\.\\d+(\\.\\d+(-rc)*\\d*)*$/',
+      },
     },
   },
 };

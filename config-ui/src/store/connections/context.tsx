@@ -47,7 +47,7 @@ export const ConnectionContextProvider = ({ children, ...props }: Props) => {
   const queryConnection = async (plugin: string) => {
     try {
       const res = await API.getConnection(plugin);
-      const { name, icon, isBeta, entities } = plugins.find((p) => p.plugin === plugin) as PluginConfigType;
+      const { name, icon, isBeta, scopeConfig } = plugins.find((p) => p.plugin === plugin) as PluginConfigType;
 
       return res.map((connection) => ({
         ...connection,
@@ -55,7 +55,7 @@ export const ConnectionContextProvider = ({ children, ...props }: Props) => {
         pluginName: name,
         icon,
         isBeta: isBeta ?? false,
-        entities,
+        entities: scopeConfig?.entities ?? [],
       }));
     } catch {
       return [];

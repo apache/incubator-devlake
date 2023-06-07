@@ -66,12 +66,12 @@ export const ScopeConfigForm = ({
   const config = useMemo(() => getPluginConfig(plugin), []);
 
   useEffect(() => {
-    setHasRefDiff(!!config.transformation.refdiff);
-  }, [config.transformation]);
+    setHasRefDiff(!!config.scopeConfig?.transformation.refdiff);
+  }, [config.scopeConfig?.transformation]);
 
   useEffect(() => {
-    setEntities(config.entities);
-  }, [config.entities]);
+    setEntities(config.scopeConfig?.entities ?? []);
+  }, [config.scopeConfig?.entities]);
 
   useEffect(() => {
     if (!scopeConfigId) return;
@@ -147,7 +147,7 @@ export const ScopeConfigForm = ({
               required
             >
               <MultiSelector
-                items={transformEntities(config.entities)}
+                items={transformEntities(config.scopeConfig?.entities ?? [])}
                 getKey={(it) => it.value}
                 getName={(it) => it.label}
                 selectedItems={entities.map((it) => ({ label: EntitiesLabel[it], value: it }))}

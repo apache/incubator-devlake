@@ -18,12 +18,6 @@
 
 import styled from 'styled-components';
 
-export const DataScope = styled.div`
-  h4 {
-    margin-top: 16px;
-  }
-`;
-
 export const Transformation = styled.div``;
 
 export const CICD = styled.div`
