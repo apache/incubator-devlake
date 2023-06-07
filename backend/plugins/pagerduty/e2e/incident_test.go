@@ -52,11 +52,10 @@ func TestIncidentDataFlow(t *testing.T) {
 	// tx-rule
 	require.NoError(t, dataflowTester.Dal.CreateOrUpdate(&scopeConfig))
 	service := models.Service{
-		ConnectionId:  options.ConnectionId,
-		Url:           fmt.Sprintf("https://keon-test.pagerduty.com/service-directory/%s", options.ServiceId),
-		Id:            options.ServiceId,
-		ScopeConfigId: scopeConfig.ID,
-		Name:          options.ServiceName,
+		ConnectionId: options.ConnectionId,
+		Url:          fmt.Sprintf("https://keon-test.pagerduty.com/service-directory/%s", options.ServiceId),
+		Id:           options.ServiceId,
+		Name:         options.ServiceName,
 	}
 	// scope
 	require.NoError(t, dataflowTester.Dal.CreateOrUpdate(&service))
