@@ -32,7 +32,7 @@ interface Props {
   onChangeItems: (selectedItems: ScopeItemType[]) => void;
 }
 
-export const TapdDataScope = ({ connectionId, onChangeItems, ...props }: Props) => {
+export const DataScope = ({ connectionId, onChangeItems, ...props }: Props) => {
   const selectedItems = useMemo(
     () => props.selectedItems.map((it) => ({ id: `${it.id}`, name: it.name, data: it })),
     [props.selectedItems],

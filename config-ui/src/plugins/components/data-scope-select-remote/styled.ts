@@ -18,15 +18,4 @@
 
 import styled from 'styled-components';
 
-export const Wrapper = styled.div`
-  .action {
-    display: flex;
-    align-items: center;
-    justify-content: end;
-    margin-top: 36px;
-
-    .bp4-button + .bp4-button {
-      margin-left: 8px;
-    }
-  }
-`;
+export const Wrapper = styled.div``;

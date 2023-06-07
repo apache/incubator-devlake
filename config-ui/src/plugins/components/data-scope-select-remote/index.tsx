@@ -16,20 +16,15 @@
  *
  */
 
-import { useMemo, useState } from 'react';
+import React, { useMemo, useState } from 'react';
 import { Button, Intent } from '@blueprintjs/core';
 
-import { GitHubDataScope } from '@/plugins/register/github';
-import { JiraDataScope } from '@/plugins/register/jira';
-import { GitLabDataScope } from '@/plugins/register/gitlab';
-import { JenkinsDataScope } from '@/plugins/register/jenkins';
-import { BitbucketDataScope } from '@/plugins/register/bitbucket';
-import { AzureDataScope } from '@/plugins/register/azure';
-import { SonarQubeDataScope } from '@/plugins/register/sonarqube';
-import { PagerDutyDataScope } from '@/plugins/register/pagerduty';
-import { TapdDataScope } from '@/plugins/register/tapd';
-import { ZentaoDataScope } from '@/plugins/register/zentao';
+import { Buttons } from '@/components';
+import { getPluginId, getPluginConfig } from '@/plugins';
 import { operator } from '@/utils';
+
+import { DataScopeMillerColumns } from '../data-scope-miller-columns';
+import { DataScopeSearch } from '../data-scope-search';
 
 import * as API from './api';
 import * as S from './styled';
@@ -46,7 +41,19 @@ export const DataScopeSelectRemote = ({ plugin, connectionId, disabledScope, onS
   const [operating, setOperating] = useState(false);
   const [scope, setScope] = useState<any>([]);
 
+  const pluginConfig = useMemo(() => getPluginConfig(plugin), [plugin]);
+
   const error = useMemo(() => (!scope.length ? 'No Data Scope is Selected' : ''), [scope]);
+
+  const selectedItems = useMemo(
+    () => scope.map((it: any) => ({ id: `${it[getPluginId(plugin)]}`, name: it.name, data: it })),
+    [scope],
+  );
+
+  const disabledItems = useMemo(
+    () => (disabledScope ?? []).map((it) => ({ id: `${it[getPluginId(plugin)]}`, name: it.name, data: it })),
+    [disabledScope],
+  );
 
   const handleSubmit = async () => {
     const [success, res] = await operator(
@@ -76,97 +83,30 @@ export const DataScopeSelectRemote = ({ plugin, connectionId, disabledScope, onS
 
   return (
     <S.Wrapper>
-      {plugin === 'github' && (
-        <GitHubDataScope
-          connectionId={connectionId}
-          disabledItems={disabledScope}
-          selectedItems={scope}
-          onChangeItems={setScope}
-        />
+      <h3>{pluginConfig.dataScope.millerColumns.title}</h3>
+      <p>{pluginConfig.dataScope.millerColumns.subTitle}</p>
+      <DataScopeMillerColumns
+        title={pluginConfig.dataScope.millerColumns?.firstColumnTitle}
+        plugin={plugin}
+        connectionId={connectionId}
+        disabledItems={disabledItems}
+        selectedItems={selectedItems}
+        onChangeItems={setScope}
+      />
+      {pluginConfig.dataScope.search && (
+        <>
+          <h4>{pluginConfig.dataScope.search.title}</h4>
+          <p>{pluginConfig.dataScope.search.subTitle}</p>
+          <DataScopeSearch
+            plugin={plugin}
+            connectionId={connectionId}
+            disabledItems={disabledItems}
+            selectedItems={selectedItems}
+            onChangeItems={setScope}
+          />
+        </>
       )}
-
-      {plugin === 'jira' && (
-        <JiraDataScope
-          connectionId={connectionId}
-          disabledItems={disabledScope}
-          selectedItems={scope}
-          onChangeItems={setScope}
-        />
-      )}
-
-      {plugin === 'gitlab' && (
-        <GitLabDataScope
-          connectionId={connectionId}
-          disabledItems={disabledScope}
-          selectedItems={scope}
-          onChangeItems={setScope}
-        />
-      )}
-
-      {plugin === 'jenkins' && (
-        <JenkinsDataScope
-          connectionId={connectionId}
-          disabledItems={disabledScope}
-          selectedItems={scope}
-          onChangeItems={setScope}
-        />
-      )}
-
-      {plugin === 'bitbucket' && (
-        <BitbucketDataScope
-          disabledItems={disabledScope}
-          connectionId={connectionId}
-          selectedItems={scope}
-          onChangeItems={setScope}
-        />
-      )}
-
-      {plugin === 'azuredevops' && (
-        <AzureDataScope
-          disabledItems={disabledScope}
-          connectionId={connectionId}
-          selectedItems={scope}
-          onChangeItems={setScope}
-        />
-      )}
-
-      {plugin === 'sonarqube' && (
-        <SonarQubeDataScope
-          disabledItems={disabledScope}
-          connectionId={connectionId}
-          selectedItems={scope}
-          onChangeItems={setScope}
-        />
-      )}
-
-      {plugin === 'pagerduty' && (
-        <PagerDutyDataScope
-          connectionId={connectionId}
-          disabledItems={disabledScope}
-          selectedItems={scope}
-          onChangeItems={setScope}
-        />
-      )}
-
-      {plugin === 'tapd' && (
-        <TapdDataScope
-          connectionId={connectionId}
-          disabledItems={disabledScope}
-          selectedItems={scope}
-          onChangeItems={setScope}
-        />
-      )}
-
-      {plugin === 'zentao' && (
-        <ZentaoDataScope
-          connectionId={connectionId}
-          disabledItems={disabledScope}
-          selectedItems={scope}
-          onChangeItems={setScope}
-        />
-      )}
-
-      <div className="action">
+      <Buttons position="bottom" align="right">
         <Button outlined intent={Intent.PRIMARY} text="Cancel" disabled={operating} onClick={onCancel} />
         <Button
           outlined
@@ -176,7 +116,7 @@ export const DataScopeSelectRemote = ({ plugin, connectionId, disabledScope, onS
           disabled={!!error}
           onClick={handleSubmit}
         />
-      </div>
+      </Buttons>
     </S.Wrapper>
   );
 };

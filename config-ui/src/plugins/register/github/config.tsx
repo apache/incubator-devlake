@@ -96,23 +96,36 @@ export const GitHubConfig: PluginConfigType = {
       },
     ],
   },
-  entities: ['CODE', 'TICKET', 'CODEREVIEW', 'CROSS', 'CICD'],
-  transformation: {
-    issueTypeRequirement: '(feat|feature|proposal|requirement)',
-    issueTypeBug: '(bug|broken)',
-    issueTypeIncident: '(incident|failure)',
-    issuePriority: '(highest|high|medium|low|p0|p1|p2|p3)',
-    issueComponent: 'component(.*)',
-    issueSeverity: 'severity(.*)',
-    deploymentPattern: '(deploy|push-image)',
-    productionPattern: 'prod(.*)',
-    prType: 'type(.*)',
-    prComponent: 'component(.*)',
-    prBodyClosePattern:
-      '(?mi)(fix|close|resolve|fixes|closes|resolves|fixed|closed|resolved)[s]*.*(((and )?(#|https://github.com/%s/%s/issues/)d+[ ]*)+)',
-    refdiff: {
-      tagsLimit: 10,
-      tagsPattern: '/v\\d+\\.\\d+(\\.\\d+(-rc)*\\d*)*$/',
+  dataScope: {
+    millerColumns: {
+      title: 'Repositories *',
+      subTitle: 'Select the repositories you would like to sync.',
+      firstColumnTitle: 'Organizations/Owners',
+    },
+    search: {
+      title: 'Add repositories outside of your organizations',
+      subTitle: 'Search for repositories and add to them',
+    },
+  },
+  scopeConfig: {
+    entities: ['CODE', 'TICKET', 'CODEREVIEW', 'CROSS', 'CICD'],
+    transformation: {
+      issueTypeRequirement: '(feat|feature|proposal|requirement)',
+      issueTypeBug: '(bug|broken)',
+      issueTypeIncident: '(incident|failure)',
+      issuePriority: '(highest|high|medium|low|p0|p1|p2|p3)',
+      issueComponent: 'component(.*)',
+      issueSeverity: 'severity(.*)',
+      deploymentPattern: '(deploy|push-image)',
+      productionPattern: 'prod(.*)',
+      prType: 'type(.*)',
+      prComponent: 'component(.*)',
+      prBodyClosePattern:
+        '(?mi)(fix|close|resolve|fixes|closes|resolves|fixed|closed|resolved)[s]*.*(((and )?(#|https://github.com/%s/%s/issues/)d+[ ]*)+)',
+      refdiff: {
+        tagsLimit: 10,
+        tagsPattern: '/v\\d+\\.\\d+(\\.\\d+(-rc)*\\d*)*$/',
+      },
     },
   },
 };
