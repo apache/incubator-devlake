@@ -22,8 +22,8 @@ from sqlmodel import create_engine
 from pydevlake.context import Context
 from pydevlake.plugin import Plugin
 from pydevlake.message import RemoteScopeGroup, PipelineTask
-from pydevlake.model import DomainModel, Connection, DomainScope, ToolModel, ToolScope, TransformationRule
-from pydevlake.stream import DomainType, Stream
+from pydevlake.model import DomainModel, Connection, DomainScope, ToolModel, ToolScope, ScopeConfig, DomainType
+from pydevlake.stream import Stream
 
 
 class ContextBuilder:
@@ -33,7 +33,7 @@ class ContextBuilder:
         self.plugin = plugin
         self.connection = None
         self.scope = None
-        self.transformation_rule = None
+        self.scope_config = None
 
     def with_connection(self, id=1, name='test_connection', **kwargs):
         self.connection = self.plugin.connection_type(id=id, name=name, **kwargs)
@@ -45,17 +45,21 @@ class ContextBuilder:
             self.scope.connection_id = self.connection.id
         return self
 
-    def with_transformation_rule(self, id=1, name='test_rule', **kwargs):
-        self.transformation_rule = self.plugin.transformation_rule_type(id=id, name=name, **kwargs)
+    def with_scope_config(self, id=1, name='test_config', **kwargs):
+        self.scope_config = self.plugin.scope_config_type(id=id, name=name, **kwargs)
         return self
 
     def build(self):
-        return Context(
-            engine=create_engine('sqlite:///:memory:'),
-            scope=self.scope,
-            connection=self.connection,
-            transformation_rule=self.transformation_rule
-        )
+        return make_context(self.connection, self.scope, self.scope_config)
+
+
+def make_context(connection, scope, scope_config):
+    return Context(
+        engine=create_engine('sqlite:///:memory:'),
+        scope=scope,
+        connection=connection,
+        scope_config=scope_config
+    )
 
 
 def assert_stream_convert(plugin: Union[Plugin, Type[Plugin]], stream_name: str,
@@ -76,11 +80,11 @@ def assert_stream_convert(plugin: Union[Plugin, Type[Plugin]], stream_name: str,
         assert res == exp
 
 
-def assert_stream_run(stream: Stream, connection: Connection, scope: ToolScope, transformation_rule: Optional[TransformationRule] = None):
+def assert_stream_run(stream: Stream, connection: Connection, scope: ToolScope, scope_config: ScopeConfig):
     """
     Test that a stream can run all 3 steps without error.
     """
-    ctx = ContextBuilder().with_connection(connection).with_scope(scope).with_transformation_rule(transformation_rule).build()
+    ctx = make_context(connection, scope, scope_config)
     stream.collector.run(ctx)
     stream.extractor.run(ctx)
     stream.convertor.run(ctx)
@@ -107,9 +111,9 @@ def assert_valid_tool_scope_type(plugin: Plugin):
     assert issubclass(tool_scope_type, ToolScope), 'tool_scope_type must be a subclass of ToolScope'
 
 
-def assert_valid_transformation_rule_type(plugin: Plugin):
-    transformation_rule_type = plugin.transformation_rule_type
-    assert issubclass(transformation_rule_type, TransformationRule), 'transformation_rule_type must be a subclass of TransformationRule'
+def assert_valid_scope_config_type(plugin: Plugin):
+    scope_config_type = plugin.scope_config_type
+    assert issubclass(scope_config_type, ScopeConfig), 'scope_config_type must be a subclass of ScopeConfig'
 
 
 def assert_valid_streams(plugin: Plugin):
@@ -165,9 +169,9 @@ def assert_valid_remote_scopes(plugin: Plugin, connection: Connection, group_id:
     return tool_scopes
 
 
-def assert_valid_pipeline_plan(plugin: Plugin, connection: Connection, tool_scope: ToolScope, transformation_rule: Optional[TransformationRule] = None) -> list[list[PipelineTask]]:
+def assert_valid_pipeline_plan(plugin: Plugin, connection: Connection, tool_scope: ToolScope, scope_config: ScopeConfig) -> list[list[PipelineTask]]:
     plan = plugin.make_pipeline_plan(
-        [(tool_scope, transformation_rule)],
+        [(tool_scope, scope_config)],
         [domain_type.value for domain_type in DomainType],
         connection
     )
@@ -182,18 +186,18 @@ def assert_valid_plugin(plugin: Plugin):
     assert_valid_description(plugin)
     assert_valid_connection_type(plugin)
     assert_valid_tool_scope_type(plugin)
-    assert_valid_transformation_rule_type(plugin)
+    assert_valid_scope_config_type(plugin)
     assert_valid_streams(plugin)
 
 
-def assert_plugin_run(plugin: Plugin, connection: Connection, transformation_rule: Optional[TransformationRule] = None):
+def assert_plugin_run(plugin: Plugin, connection: Connection, scope_config: ScopeConfig):
     assert_valid_plugin(plugin)
     assert_valid_connection(plugin, connection)
     groups = assert_valid_remote_scope_groups(plugin, connection)
     scope = assert_valid_remote_scopes(plugin, connection, groups[0].id)[0]
     assert_valid_domain_scopes(plugin, scope)
-    assert_valid_pipeline_plan(plugin, connection, scope, transformation_rule)
+    assert_valid_pipeline_plan(plugin, connection, scope, scope_config)
     for stream in plugin.streams:
         if isinstance(stream, type):
             stream = stream(plugin.name)
-        assert_stream_run(stream, connection, scope, transformation_rule)
+        assert_stream_run(stream, connection, scope, scope_config)

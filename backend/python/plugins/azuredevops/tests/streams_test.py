@@ -27,7 +27,7 @@ def context():
     return (
         ContextBuilder(AzureDevOpsPlugin())
         .with_connection(token='token')
-        .with_transformation_rule(deployment_pattern='deploy',
+        .with_scope_config(deployment_pattern='deploy',
                                   production_pattern='prod')
         .with_scope('johndoe/test-repo', url='https://github.com/johndoe/test-repo')
         .build()

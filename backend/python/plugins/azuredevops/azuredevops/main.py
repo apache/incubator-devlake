@@ -16,13 +16,13 @@
 from urllib.parse import urlparse
 
 from azuredevops.api import AzureDevOpsAPI
-from azuredevops.models import AzureDevOpsConnection, GitRepository, AzureDevOpsTransformationRule
+from azuredevops.models import AzureDevOpsConnection, GitRepository, GitRepositoryConfig
 from azuredevops.streams.builds import Builds
 from azuredevops.streams.jobs import Jobs
 from azuredevops.streams.pull_request_commits import GitPullRequestCommits
 from azuredevops.streams.pull_requests import GitPullRequests
 
-from pydevlake import Plugin, RemoteScopeGroup, DomainType, ScopeTxRulePair
+from pydevlake import Plugin, RemoteScopeGroup, DomainType, ScopeConfigPair
 from pydevlake.domain_layer.code import Repo
 from pydevlake.domain_layer.devops import CicdScope
 from pydevlake.pipeline_tasks import gitextractor, refdiff
@@ -40,8 +40,8 @@ class AzureDevOpsPlugin(Plugin):
         return GitRepository
 
     @property
-    def transformation_rule_type(self):
-        return AzureDevOpsTransformationRule
+    def scope_config_type(self):
+        return GitRepositoryConfig
 
     def domain_scopes(self, git_repo: GitRepository):
         yield Repo(
@@ -121,18 +121,17 @@ class AzureDevOpsPlugin(Plugin):
             except APIException as e:
                 raise Exception(f"Invalid token: {e}")
 
-    def extra_tasks(self, scope: GitRepository, tx_rule: AzureDevOpsTransformationRule, entity_types: list[DomainType], connection: AzureDevOpsConnection):
-        if DomainType.CODE in entity_types and not scope.is_external():
+    def extra_tasks(self, scope: GitRepository, scope_config: GitRepositoryConfig, connection: AzureDevOpsConnection):
+        if DomainType.CODE in scope_config.entity_types and not scope.is_external():
             url = urlparse(scope.remote_url)
             url = url._replace(netloc=f'{url.username}:{connection.token.get_secret_value()}@{url.hostname}')
             yield gitextractor(url.geturl(), scope.domain_id(), connection.proxy)
 
-    def extra_stages(self, scope_tx_rule_pairs: list[ScopeTxRulePair], entity_types: list[DomainType], _):
-        if DomainType.CODE in entity_types:
-            for scope, tx_rule in scope_tx_rule_pairs:
+    def extra_stages(self, scope_config_pairs: list[ScopeConfigPair], _):
+        if DomainType.CODE in config.entity_types:
+            for scope, config in scope_config_pairs:
                 if not scope.is_external():
-                    options = tx_rule.refdiff if tx_rule else None
-                    yield [refdiff(scope.id, options)]
+                    yield [refdiff(scope.id, config.refdiff)]
 
     @property
     def streams(self):

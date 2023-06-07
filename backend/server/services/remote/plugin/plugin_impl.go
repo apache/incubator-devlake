@@ -34,25 +34,25 @@ import (
 
 type (
 	remotePluginImpl struct {
-		name                     string
-		subtaskMetas             []plugin.SubTaskMeta
-		pluginPath               string
-		description              string
-		invoker                  bridge.Invoker
-		connectionTabler         *coreModels.DynamicTabler
-		scopeTabler              *coreModels.DynamicTabler
-		transformationRuleTabler *coreModels.DynamicTabler
-		toolModelTablers         []*coreModels.DynamicTabler
-		migrationScripts         []plugin.MigrationScript
-		resources                map[string]map[string]plugin.ApiResourceHandler
-		openApiSpec              string
+		name              string
+		subtaskMetas      []plugin.SubTaskMeta
+		pluginPath        string
+		description       string
+		invoker           bridge.Invoker
+		connectionTabler  *coreModels.DynamicTabler
+		scopeTabler       *coreModels.DynamicTabler
+		scopeConfigTabler *coreModels.DynamicTabler
+		toolModelTablers  []*coreModels.DynamicTabler
+		migrationScripts  []plugin.MigrationScript
+		resources         map[string]map[string]plugin.ApiResourceHandler
+		openApiSpec       string
 	}
 	RemotePluginTaskData struct {
-		DbUrl              string                 `json:"db_url"`
-		Scope              interface{}            `json:"scope"`
-		Connection         interface{}            `json:"connection"`
-		TransformationRule interface{}            `json:"transformation_rule"`
-		Options            map[string]interface{} `json:"options"`
+		DbUrl       string                 `json:"db_url"`
+		Scope       interface{}            `json:"scope"`
+		Connection  interface{}            `json:"connection"`
+		ScopeConfig interface{}            `json:"scope_config"`
+		Options     map[string]interface{} `json:"options"`
 	}
 )
 
@@ -61,17 +61,13 @@ func newPlugin(info *models.PluginInfo, invoker bridge.Invoker) (*remotePluginIm
 	if err != nil {
 		return nil, errors.Default.Wrap(err, fmt.Sprintf("Couldn't load Connection type for plugin %s", info.Name))
 	}
-
-	var txRuleTabler *coreModels.DynamicTabler
-	if info.TransformationRuleModelInfo != nil {
-		txRuleTabler, err = info.TransformationRuleModelInfo.LoadDynamicTabler(models.TransformationModel{})
-		if err != nil {
-			return nil, errors.Default.Wrap(err, fmt.Sprintf("Couldn't load TransformationRule type for plugin %s", info.Name))
-		}
-	}
 	scopeTabler, err := info.ScopeModelInfo.LoadDynamicTabler(models.ScopeModel{})
 	if err != nil {
 		return nil, errors.Default.Wrap(err, fmt.Sprintf("Couldn't load Scope type for plugin %s", info.Name))
+	}
+	scopeConfigTabler, err := info.ScopeConfigModelInfo.LoadDynamicTabler(models.ScopeConfigModel{})
+	if err != nil {
+		return nil, errors.Default.Wrap(err, fmt.Sprintf("Couldn't load ScopeConfig type for plugin %s", info.Name))
 	}
 	toolModelTablers := make([]*coreModels.DynamicTabler, len(info.ToolModelInfos))
 	for i, toolModelInfo := range info.ToolModelInfos {
@@ -91,17 +87,17 @@ func newPlugin(info *models.PluginInfo, invoker bridge.Invoker) (*remotePluginIm
 		scripts = append(scripts, &script)
 	}
 	p := remotePluginImpl{
-		name:                     info.Name,
-		invoker:                  invoker,
-		pluginPath:               info.PluginPath,
-		description:              info.Description,
-		connectionTabler:         connectionTabler,
-		scopeTabler:              scopeTabler,
-		transformationRuleTabler: txRuleTabler,
-		toolModelTablers:         toolModelTablers,
-		migrationScripts:         scripts,
-		resources:                GetDefaultAPI(invoker, connectionTabler, txRuleTabler, scopeTabler, connectionHelper),
-		openApiSpec:              *openApiSpec,
+		name:              info.Name,
+		invoker:           invoker,
+		pluginPath:        info.PluginPath,
+		description:       info.Description,
+		connectionTabler:  connectionTabler,
+		scopeTabler:       scopeTabler,
+		scopeConfigTabler: scopeConfigTabler,
+		toolModelTablers:  toolModelTablers,
+		migrationScripts:  scripts,
+		resources:         GetDefaultAPI(invoker, connectionTabler, scopeConfigTabler, scopeTabler, connectionHelper),
+		openApiSpec:       *openApiSpec,
 	}
 	remoteBridge := bridge.NewBridge(invoker)
 	for _, subtask := range info.SubtaskMetas {
@@ -153,45 +149,41 @@ func (p *remotePluginImpl) PrepareTaskData(taskCtx plugin.TaskContext, options m
 	}
 
 	db := taskCtx.GetDal()
-	wrappedScope := p.scopeTabler.New()
-	err = api.CallDB(db.First, wrappedScope, dal.Where("connection_id = ? AND id = ?", connectionId, scopeId))
-	if err != nil {
-		return nil, errors.BadInput.New("Invalid scope id")
-	}
-	var scope models.ScopeModel
-	err = wrappedScope.To(&scope)
-	if err != nil {
-		return nil, err
-	}
-
-	txRule, err := p.getTxRule(db, scope)
+	scope, scopeConfig, err := p.getScopeAndConfig(db, connectionId, scopeId)
 	if err != nil {
 		return nil, err
 	}
 
 	return RemotePluginTaskData{
-		DbUrl:              dbUrl,
-		Scope:              wrappedScope.Unwrap(),
-		Connection:         connection,
-		TransformationRule: txRule,
-		Options:            options,
+		DbUrl:       dbUrl,
+		Scope:       scope,
+		Connection:  connection,
+		ScopeConfig: scopeConfig,
+		Options:     options,
 	}, nil
 }
 
-func (p *remotePluginImpl) getTxRule(db dal.Dal, scope models.ScopeModel) (interface{}, errors.Error) {
-	if scope.TransformationRuleId > 0 {
-		if p.transformationRuleTabler == nil {
-			return nil, errors.Default.New(fmt.Sprintf("Cannot load transformation rule %v: plugin %s has no transformation rule model", scope.TransformationRuleId, p.name))
-		}
-		wrappedTxRule := p.transformationRuleTabler.New()
-		err := api.CallDB(db.First, wrappedTxRule, dal.From(p.transformationRuleTabler.TableName()), dal.Where("id = ?", scope.TransformationRuleId))
-		if err != nil {
-			return nil, err
-		}
-		return wrappedTxRule.Unwrap(), nil
-	} else {
-		return nil, nil
+func (p *remotePluginImpl) getScopeAndConfig(db dal.Dal, connectionId uint64, scopeId string) (interface{}, interface{}, errors.Error) {
+	wrappedScope := p.scopeTabler.New()
+	err := api.CallDB(db.First, wrappedScope, dal.Where("connection_id = ? AND id = ?", connectionId, scopeId))
+	if err != nil {
+		return nil, nil, errors.BadInput.New("Invalid scope id")
 	}
+	scope := models.ScopeModel{}
+	err = wrappedScope.To(&scope)
+	if err != nil {
+		return nil, nil, errors.BadInput.Wrap(err, "Invalid scope")
+	}
+	wrappedScopeConfig := p.scopeConfigTabler.New()
+	err = api.CallDB(db.First, wrappedScopeConfig, dal.From(p.scopeConfigTabler.TableName()), dal.Where("id = ?", scope.ScopeConfigId))
+	if err != nil {
+		return nil, nil, err
+	}
+
+	if err != nil {
+		return nil, nil, err
+	}
+	return wrappedScope.Unwrap(), wrappedScopeConfig.Unwrap(), nil
 }
 
 func (p *remotePluginImpl) Description() string {
@@ -221,11 +213,9 @@ func (p *remotePluginImpl) RunAutoMigrations() errors.Error {
 	if err != nil {
 		return err
 	}
-	if p.transformationRuleTabler != nil {
-		err = api.CallDB(db.AutoMigrate, p.transformationRuleTabler.New())
-		if err != nil {
-			return err
-		}
+	err = api.CallDB(db.AutoMigrate, p.scopeConfigTabler.New())
+	if err != nil {
+		return err
 	}
 	for _, toolModelTabler := range p.toolModelTablers {
 		err = api.CallDB(db.AutoMigrate, toolModelTabler.New())

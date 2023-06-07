@@ -31,7 +31,7 @@ import (
 )
 
 type ScopeDatabaseHelperImpl struct {
-	api.ScopeDatabaseHelper[models.RemoteConnection, models.RemoteScope, models.RemoteTransformation]
+	api.ScopeDatabaseHelper[models.RemoteConnection, models.RemoteScope, models.RemoteScopeConfig]
 	pa         *pluginAPI
 	db         dal.Dal
 	params     *api.ReflectionParameters
@@ -106,25 +106,26 @@ func (s *ScopeDatabaseHelperImpl) DeleteScope(connectionId uint64, scopeId strin
 	return api.CallDB(s.db.Delete, rawScope, dal.Where("connection_id = ? AND id = ?", connectionId, scopeId))
 }
 
-func (s *ScopeDatabaseHelperImpl) GetTransformationRule(ruleId uint64) (models.RemoteTransformation, errors.Error) {
-	rule := s.pa.txRuleType.New()
-	err := api.CallDB(s.db.First, rule, dal.Where("id = ?", ruleId))
-	if err != nil {
-		return rule, err
-	}
-	return rule.Unwrap(), nil
-}
-
-func (s *ScopeDatabaseHelperImpl) ListTransformationRules(ruleIds []uint64) ([]*models.RemoteTransformation, errors.Error) {
-	rules := s.pa.txRuleType.NewSlice()
-	err := api.CallDB(s.db.All, rules, dal.Where("id IN (?)", ruleIds))
+func (s *ScopeDatabaseHelperImpl) GetScopeConfig(configId uint64) (*models.RemoteScopeConfig, errors.Error) {
+	config := s.pa.scopeConfigType.New()
+	err := api.CallDB(s.db.First, config, dal.Where("id = ?", configId))
 	if err != nil {
 		return nil, err
 	}
-	var result []*models.RemoteTransformation
-	for _, rule := range rules.UnwrapSlice() {
-		rule := rule.(models.RemoteTransformation)
-		result = append(result, &rule)
+	unwrapped := config.Unwrap().(models.RemoteScopeConfig)
+	return &unwrapped, nil
+}
+
+func (s *ScopeDatabaseHelperImpl) ListScopeConfigs(configIds []uint64) ([]*models.RemoteScopeConfig, errors.Error) {
+	configs := s.pa.scopeConfigType.NewSlice()
+	err := api.CallDB(s.db.All, configs, dal.Where("id IN (?)", configIds))
+	if err != nil {
+		return nil, err
+	}
+	var result []*models.RemoteScopeConfig
+	for _, config := range configs.UnwrapSlice() {
+		config := config.(models.RemoteScopeConfig)
+		result = append(result, &config)
 	}
 	return result, nil
 }
@@ -146,4 +147,4 @@ func (s *ScopeDatabaseHelperImpl) save(scopes []*models.RemoteScope, createdAt *
 	return nil
 }
 
-var _ api.ScopeDatabaseHelper[models.RemoteConnection, models.RemoteScope, models.RemoteTransformation] = &ScopeDatabaseHelperImpl{}
+var _ api.ScopeDatabaseHelper[models.RemoteConnection, models.RemoteScope, models.RemoteScopeConfig] = &ScopeDatabaseHelperImpl{}

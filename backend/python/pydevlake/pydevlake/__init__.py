@@ -33,11 +33,11 @@ def Field(*args, primary_key: bool=False, source: Optional[str]=None, **kwargs):
     return _Field(*args, **kwargs, primary_key=primary_key, schema_extra=schema_extra)
 
 
-from .model import ToolModel, ToolScope, DomainScope, Connection, TransformationRule, domain_id
+from .model import ToolModel, ToolScope, DomainScope, Connection, ScopeConfig, DomainType, domain_id
 from .logger import logger
 from .message import RemoteScopeGroup
-from .plugin import Plugin, ScopeTxRulePair
-from .stream import DomainType, Stream, Substream
+from .plugin import Plugin, ScopeConfigPair
+from .stream import Stream, Substream
 from .context import Context
 
 # the debugger hangs on startup during plugin registration (reason unknown), hence this workaround

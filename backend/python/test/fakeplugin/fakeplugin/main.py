@@ -20,7 +20,7 @@ import json
 
 from pydantic import SecretStr
 
-from pydevlake import Plugin, Connection, TransformationRule, Stream, ToolModel, ToolScope, RemoteScopeGroup, DomainType, Field
+from pydevlake import Plugin, Connection, Stream, ToolModel, ToolScope, ScopeConfig, RemoteScopeGroup, DomainType, Field
 from pydevlake.domain_layer.devops import CicdScope, CICDPipeline, CICDStatus, CICDResult, CICDType
 
 VALID_TOKEN = "this_is_a_valid_token"
@@ -48,10 +48,7 @@ class FakePipelineStream(Stream):
             yield json.loads(p.json()), {}
 
     def convert(self, pipeline: FakePipeline, ctx):
-        if ctx.transformation_rule:
-            env = ctx.transformation_rule.env
-        else:
-            env = "unknown"
+        env = ctx.scope_config.env
         yield CICDPipeline(
             name=pipeline.id,
             status=self.convert_status(pipeline.state),
@@ -103,7 +100,7 @@ class FakeProject(ToolScope, table=True):
     url: str
 
 
-class FakeTransformationRule(TransformationRule):
+class FakeScopeConfig(ScopeConfig):
     env: str
 
 
@@ -117,8 +114,8 @@ class FakePlugin(Plugin):
         return FakeProject
 
     @property
-    def transformation_rule_type(self):
-        return FakeTransformationRule
+    def scope_config_type(self):
+        return FakeScopeConfig
 
     def domain_scopes(self, project: FakeProject):
         project_name = "_".join(project.name.lower().split(" "))

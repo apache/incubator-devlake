@@ -19,12 +19,13 @@ package doc
 
 import (
 	"encoding/json"
-	"github.com/apache/incubator-devlake/core/config"
 	"io"
 	"os"
 	"path/filepath"
 	"strings"
 	"text/template"
+
+	"github.com/apache/incubator-devlake/core/config"
 
 	"github.com/apache/incubator-devlake/core/errors"
 	"github.com/apache/incubator-devlake/server/services/remote/models"
@@ -39,9 +40,9 @@ func GenerateOpenApiSpec(pluginInfo *models.PluginInfo) (*string, errors.Error) 
 	if err != nil {
 		return nil, errors.Default.Wrap(err, "scope schema is not valid JSON")
 	}
-	txRuleSchema, err := json.Marshal(pluginInfo.TransformationRuleModelInfo.JsonSchema)
+	scopeConfigSchema, err := json.Marshal(pluginInfo.ScopeConfigModelInfo.JsonSchema)
 	if err != nil {
-		return nil, errors.Default.Wrap(err, "transformation rule schema is not valid JSON")
+		return nil, errors.Default.Wrap(err, "scope config schema is not valid JSON")
 	}
 	specTemplate, tmplErr := specTemplate()
 	if tmplErr != nil {
@@ -49,10 +50,10 @@ func GenerateOpenApiSpec(pluginInfo *models.PluginInfo) (*string, errors.Error) 
 	}
 	writer := &strings.Builder{}
 	err = specTemplate.Execute(writer, map[string]interface{}{
-		"PluginName":               pluginInfo.Name,
-		"ConnectionSchema":         string(connectionSchema),
-		"ScopeSchema":              string(scopeSchema),
-		"TransformationRuleSchema": string(txRuleSchema),
+		"PluginName":        pluginInfo.Name,
+		"ConnectionSchema":  string(connectionSchema),
+		"ScopeSchema":       string(scopeSchema),
+		"ScopeConfigSchema": string(scopeConfigSchema),
 	})
 	if err != nil {
 		return nil, errors.Default.Wrap(err, "could not execute swagger doc template")

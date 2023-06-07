@@ -53,8 +53,7 @@ class DynamicModelInfo(Message):
         for prop in schema['properties'].values():
             if 'type' not in prop and 'enum' in prop:
                 prop['type'] = 'string'
-        return DynamicModelInfo(
-            json_schema=schema,
+        return DynamicModelInfo(            json_schema=schema,
             table_name=model_class.__tablename__
         )
 
@@ -63,8 +62,8 @@ class PluginInfo(Message):
     name: str
     description: str
     connection_model_info: DynamicModelInfo
-    transformation_rule_model_info: Optional[DynamicModelInfo]
     scope_model_info: DynamicModelInfo
+    scope_config_model_info: Optional[DynamicModelInfo]
     tool_model_infos: list[DynamicModelInfo]
     migration_scripts: list[MigrationScript]
     plugin_path: str
