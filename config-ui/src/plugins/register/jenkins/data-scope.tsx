@@ -16,9 +16,11 @@
  *
  */
 
-import type { ScopeItemType } from './types';
+import { useMemo } from 'react';
 
-import { MillerColumns } from './components';
+import { DataScopeMillerColumns } from '@/plugins';
+
+import type { ScopeItemType } from './types';
 
 interface Props {
   connectionId: ID;
@@ -27,12 +29,28 @@ interface Props {
   onChangeItems: (selectedItems: ScopeItemType[]) => void;
 }
 
-export const JenkinsDataScope = ({ connectionId, disabledItems, selectedItems, onChangeItems }: Props) => {
+export const JenkinsDataScope = ({ connectionId, onChangeItems, ...props }: Props) => {
+  const selectedItems = useMemo(
+    () => props.selectedItems.map((it) => ({ id: `${it.jobFullName}`, name: it.name, data: it })),
+    [props.selectedItems],
+  );
+
+  const disabledItems = useMemo(
+    () => (props.disabledItems ?? []).map((it) => ({ id: `${it.jobFullName}`, name: it.name, data: it })),
+    [props.disabledItems],
+  );
+
   return (
     <>
       <h3>Jobs *</h3>
       <p>Select the jobs you would like to sync.</p>
-      <MillerColumns connectionId={connectionId} selectedItems={selectedItems} onChangeItems={onChangeItems} />
+      <DataScopeMillerColumns
+        plugin="jenkins"
+        connectionId={connectionId}
+        disabledItems={disabledItems}
+        selectedItems={selectedItems}
+        onChangeItems={onChangeItems}
+      />
     </>
   );
 };
