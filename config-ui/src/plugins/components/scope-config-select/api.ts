@@ -19,19 +19,19 @@
 import { request } from '@/utils';
 
 export const getScopeConfigs = (plugin: string, connectionId: ID) =>
-  request(`/plugins/${plugin}/connections/${connectionId}/scope_configs`);
+  request(`/plugins/${plugin}/connections/${connectionId}/scope-configs`);
 
 export const getScopeConfig = (plugin: string, connectionId: ID, id: ID) =>
-  request(`/plugins/${plugin}/connections/${connectionId}/scope_configs/${id}`);
+  request(`/plugins/${plugin}/connections/${connectionId}/scope-configs/${id}`);
 
 export const createScopeConfig = (plugin: string, connectionId: ID, payload: any) =>
-  request(`/plugins/${plugin}/connections/${connectionId}/scope_configs`, {
+  request(`/plugins/${plugin}/connections/${connectionId}/scope-configs`, {
     method: 'post',
     data: payload,
   });
 
 export const updateScopeConfig = (plugin: string, connectionId: ID, id: ID, payload: any) =>
-  request(`/plugins/${plugin}/connections/${connectionId}/scope_configs/${id}`, {
+  request(`/plugins/${plugin}/connections/${connectionId}/scope-configs/${id}`, {
     method: 'patch',
     data: payload,
   });
