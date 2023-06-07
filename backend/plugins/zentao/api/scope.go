@@ -108,7 +108,7 @@ func UpdateProjectScope(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutp
 // @Tags plugins/zentao
 // @Param connectionId path int true "connection ID"
 // @Param scopeId path int true "scope ID"
-// @Success 200  {object} ProductScopeRes
+// @Success 200  {object} models.ZentaoProject
 // @Failure 400  {object} shared.ApiBody "Bad Request"
 // @Failure 500  {object} shared.ApiBody "Internal Error"
 // @Router /plugins/zentao/connections/{connectionId}/scopes/product/{scopeId} [GET]
@@ -122,7 +122,7 @@ func GetProductScope(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput,
 // @Tags plugins/zentao
 // @Param connectionId path int true "connection ID"
 // @Param scopeId path int true "scope ID"
-// @Success 200  {object} ProjectScopeRes
+// @Success 200  {object} models.ZentaoProject
 // @Failure 400  {object} shared.ApiBody "Bad Request"
 // @Failure 500  {object} shared.ApiBody "Internal Error"
 // @Router /plugins/zentao/connections/{connectionId}/scopes/project/{scopeId} [GET]

@@ -38,7 +38,7 @@ type ScopeReq api.ScopeReq[models.Service]
 // @Accept application/json
 // @Param connectionId path int true "connection ID"
 // @Param scope body ScopeReq true "json"
-// @Success 200  {object} []ScopeRes
+// @Success 200  {object} []models.Service
 // @Failure 400  {object} shared.ApiBody "Bad Request"
 // @Failure 500  {object} shared.ApiBody "Internal Error"
 // @Router /plugins/pagerduty/connections/{connectionId}/scopes [PUT]
@@ -70,7 +70,7 @@ func UpdateScope(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, err
 // @Param pageSize query int false "page size, default 50"
 // @Param page query int false "page size, default 1"
 // @Param blueprints query bool false "also return blueprints using these scopes as part of the payload"
-// @Success 200  {object} []ScopeRes
+// @Success 200  {object} []models.Service
 // @Failure 400  {object} shared.ApiBody "Bad Request"
 // @Failure 500  {object} shared.ApiBody "Internal Error"
 // @Router /plugins/pagerduty/connections/{connectionId}/scopes/ [GET]
@@ -85,7 +85,7 @@ func GetScopeList(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, er
 // @Param connectionId path int true "connection ID"
 // @Param serviceId path int true "service ID"
 // @Param blueprints query bool false "also return blueprints using this scope as part of the payload"
-// @Success 200  {object} ScopeRes
+// @Success 200  {object} models.Service
 // @Failure 400  {object} shared.ApiBody "Bad Request"
 // @Failure 500  {object} shared.ApiBody "Internal Error"
 // @Router /plugins/pagerduty/connections/{connectionId}/scopes/{serviceId} [GET]
