@@ -16,17 +16,15 @@
  *
  */
 
-import React from 'react';
-
-import { ConnectionName } from './name';
+import { ConnectionAppId } from './app-id';
 import { ConnectionEndpoint } from './endpoint';
-import { ConnectionUsername } from './username';
+import { ConnectionName } from './name';
 import { ConnectionPassword } from './password';
-import { ConnectionToken } from './token';
 import { ConnectionProxy } from './proxy';
 import { ConnectionRateLimit } from './rate-limit';
-import { ConnectionAppId } from './app-id';
 import { ConnectionSecretKey } from './secret-key';
+import { ConnectionToken } from './token';
+import { ConnectionUsername } from './username';
 
 interface Props {
   name: string;
@@ -34,7 +32,7 @@ interface Props {
   initialValues: any;
   values: any;
   errors: any;
-  setValues: (values: any) => void;
+  setValues: React.Dispatch<React.SetStateAction<Record<string, any>>>;
   setErrors: (errors: any) => void;
 }
 
@@ -62,6 +60,8 @@ export const Form = ({ name, fields, initialValues, values, errors, setValues, s
           setValues: onValues,
           errors,
           setErrors: onErrors,
+          // this will be the original setValues function, to provide full control to the state
+          setValuesDefault: setValues,
         });
       }
 
