@@ -26,7 +26,6 @@ import (
 
 type ScopeRes struct {
 	models.SonarqubeProject
-	TransformationRuleName string `json:"transformationRuleName,omitempty"`
 }
 
 type ScopeReq api.ScopeReq[models.SonarqubeProject]

@@ -103,28 +103,29 @@ func (pa *pluginAPI) DeleteScope(input *plugin.ApiResourceInput) (*plugin.ApiRes
 }
 
 // convertScopeResponse adapt the "remote" scopes to a serializable api.ScopeRes
-func convertScopeResponse(scopes ...*api.ScopeRes[models.RemoteScope]) ([]map[string]any, errors.Error) {
+func convertScopeResponse(scopes ...*api.ScopeRes[models.RemoteScope, models.RemoteTransformation]) ([]map[string]any, errors.Error) {
 	responses := make([]map[string]any, len(scopes))
-	for i, scope := range scopes {
-		resMap := map[string]any{}
-		err := models.MapTo(api.ScopeRes[map[string]any]{
-			Scope:           nil, //ignore intentionally
-			ScopeConfigName: scope.ScopeConfigName,
-			Blueprints:      scope.Blueprints,
-		}, &resMap)
-		if err != nil {
-			return nil, err
-		}
-		scopeMap := map[string]any{}
-		err = models.MapTo(scope.Scope, &scopeMap)
-		if err != nil {
-			return nil, err
-		}
-		delete(resMap, "Scope")
-		for k, v := range scopeMap {
-			resMap[k] = v
-		}
-		responses[i] = resMap
-	}
+	// @keon @camille please help refactoring this, why don't we use mapstructure?
+	// for i, scope := range scopes {
+	// 	resMap := map[string]any{}
+	// 	err := models.MapTo(api.ScopeRes[map[string]any, ]{
+	// 		Scope: nil, //ignore intentionally
+	// 		ScopeConfig: scope.ScopeConfig,
+	// 		Blueprints:  scope.Blueprints,
+	// 	}, &resMap)
+	// 	if err != nil {
+	// 		return nil, err
+	// 	}
+	// 	scopeMap := map[string]any{}
+	// 	err = models.MapTo(scope.Scope, &scopeMap)
+	// 	if err != nil {
+	// 		return nil, err
+	// 	}
+	// 	delete(resMap, "Scope")
+	// 	for k, v := range scopeMap {
+	// 		resMap[k] = v
+	// 	}
+	// 	responses[i] = resMap
+	// }
 	return responses, nil
 }

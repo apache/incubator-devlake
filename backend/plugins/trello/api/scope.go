@@ -24,6 +24,10 @@ import (
 	"github.com/apache/incubator-devlake/plugins/trello/models"
 )
 
+type ScopeRes struct {
+	models.TrelloBoard
+}
+
 type ScopeReq api.ScopeReq[models.TrelloBoard]
 
 // PutScope create or update trello board

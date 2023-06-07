@@ -26,7 +26,7 @@ import (
 
 type ScopeRes struct {
 	models.GithubRepo
-	ScopeConfigName string `json:"scopeConfigName,omitempty"`
+	api.ScopeResDoc[models.GithubScopeConfig]
 }
 
 type ScopeReq api.ScopeReq[models.GithubRepo]
@@ -38,7 +38,7 @@ type ScopeReq api.ScopeReq[models.GithubRepo]
 // @Accept application/json
 // @Param connectionId path int true "connection ID"
 // @Param scope body ScopeReq true "json"
-// @Success 200  {object} []models.GithubRepo
+// @Success 200  {object} []ScopeRes
 // @Failure 400  {object} shared.ApiBody "Bad Request"
 // @Failure 500  {object} shared.ApiBody "Internal Error"
 // @Router /plugins/github/connections/{connectionId}/scopes [PUT]
@@ -54,7 +54,7 @@ func PutScope(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, errors
 // @Param connectionId path int true "connection ID"
 // @Param scopeId path int true "scope ID"
 // @Param scope body models.GithubRepo true "json"
-// @Success 200  {object} models.GithubRepo
+// @Success 200  {object} ScopeRes
 // @Failure 400  {object} shared.ApiBody "Bad Request"
 // @Failure 500  {object} shared.ApiBody "Internal Error"
 // @Router /plugins/github/connections/{connectionId}/scopes/{scopeId} [PATCH]
@@ -73,7 +73,7 @@ func UpdateScope(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, err
 // @Success 200  {object} []ScopeRes
 // @Failure 400  {object} shared.ApiBody "Bad Request"
 // @Failure 500  {object} shared.ApiBody "Internal Error"
-// @Router /plugins/github/connections/{connectionId}/scopes/ [GET]
+// @Router /plugins/github/connections/{connectionId}/scopes [GET]
 func GetScopeList(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, errors.Error) {
 	return scopeHelper.GetScopeList(input)
 }

@@ -188,7 +188,7 @@ func (d *DevlakeClient) ListScopes(pluginName string, connectionId uint64, listB
 }
 
 func (d *DevlakeClient) GetScope(pluginName string, connectionId uint64, scopeId string, listBlueprints bool) any {
-	return sendHttpRequest[api.ScopeRes[any]](d.testCtx, d.timeout, debugInfo{
+	return sendHttpRequest[api.ScopeRes[any, any]](d.testCtx, d.timeout, debugInfo{
 		print:      true,
 		inlineJson: false,
 	}, http.MethodGet, fmt.Sprintf("%s/plugins/%s/connections/%d/scopes/%s?blueprints=%v", d.Endpoint, pluginName, connectionId, scopeId, listBlueprints), nil, nil)

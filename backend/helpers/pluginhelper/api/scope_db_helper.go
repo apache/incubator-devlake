@@ -34,7 +34,7 @@ type ScopeDatabaseHelper[Conn any, Scope any, Tr any] interface {
 	GetScope(connectionId uint64, scopeId string) (*Scope, errors.Error)
 	ListScopes(input *plugin.ApiResourceInput, connectionId uint64) ([]*Scope, errors.Error)
 	DeleteScope(connectionId uint64, scopeId string) errors.Error
-	GetScopeConfig(ruleId uint64) (Tr, errors.Error)
+	GetScopeConfig(ruleId uint64) (*Tr, errors.Error)
 	ListScopeConfigs(ruleIds []uint64) ([]*Tr, errors.Error)
 	GetScopeAndConfig(connectionId uint64, scopeId string) (*Scope, *Tr, errors.Error)
 }
@@ -125,10 +125,10 @@ func (s *ScopeDatabaseHelperImpl[Conn, Scope, Tr]) DeleteScope(connectionId uint
 	return err
 }
 
-func (s *ScopeDatabaseHelperImpl[Conn, Scope, Tr]) GetScopeConfig(ruleId uint64) (Tr, errors.Error) {
+func (s *ScopeDatabaseHelperImpl[Conn, Scope, Tr]) GetScopeConfig(ruleId uint64) (*Tr, errors.Error) {
 	var rule Tr
 	err := s.db.First(&rule, dal.Where("id = ?", ruleId))
-	return rule, err
+	return &rule, err
 }
 
 func (s *ScopeDatabaseHelperImpl[Conn, Scope, Tr]) ListScopeConfigs(ruleIds []uint64) ([]*Tr, errors.Error) {

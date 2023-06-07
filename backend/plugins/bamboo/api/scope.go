@@ -26,7 +26,7 @@ import (
 
 type ScopeRes struct {
 	models.BambooProject
-	ScopeConfigName string `json:"scopeConfigName,omitempty"`
+	api.ScopeResDoc[models.BambooScopeConfig]
 }
 
 type ScopeReq api.ScopeReq[models.BambooProject]
