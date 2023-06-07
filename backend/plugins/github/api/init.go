@@ -33,6 +33,7 @@ var connectionHelper *api.ConnectionApiHelper
 var scopeHelper *api.ScopeApiHelper[models.GithubConnection, models.GithubRepo, models.GithubScopeConfig]
 var basicRes context.BasicRes
 var scHelper *api.ScopeConfigHelper[models.GithubScopeConfig]
+var remoteHelper *api.RemoteApiHelper[models.GithubConnection, models.GithubRepo, repo, org]
 
 func Init(br context.BasicRes) {
 	basicRes = br
@@ -73,5 +74,10 @@ func Init(br context.BasicRes) {
 	scHelper = api.NewScopeConfigHelper[models.GithubScopeConfig](
 		basicRes,
 		vld,
+	)
+	remoteHelper = api.NewRemoteHelper[models.GithubConnection, models.GithubRepo, repo, org](
+		basicRes,
+		vld,
+		connectionHelper,
 	)
 }
