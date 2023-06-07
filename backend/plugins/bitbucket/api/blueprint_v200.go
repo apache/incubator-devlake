@@ -127,6 +127,7 @@ func makeDataSourcePipelinePlanV200(
 				Plugin: "gitextractor",
 				Options: map[string]interface{}{
 					"url":    cloneUrl.String(),
+					"name":   repo.BitbucketId,
 					"repoId": didgen.NewDomainIdGenerator(&models.BitbucketRepo{}).Generate(connection.ID, repo.BitbucketId),
 					"proxy":  connection.Proxy,
 				},
