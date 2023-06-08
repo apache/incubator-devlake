@@ -79,7 +79,7 @@ func initConfig(v *viper.Viper) {
 
 	if _, err := os.Stat(v.ConfigFileUsed()); err != nil {
 		if os.IsNotExist(err) {
-			logrus.Info("no [.env] file, please make sure you have set the environment variable.", err)
+			logrus.Info("no [.env] file, please make sure you have set the environment variable.")
 		} else {
 			panic(fmt.Errorf("failed to get config file info: %v", err))
 		}
@@ -87,11 +87,12 @@ func initConfig(v *viper.Viper) {
 		if err := v.ReadInConfig(); err != nil {
 			panic(fmt.Errorf("failed to read configuration file: %v", err))
 		}
+		// This line is essential for reading
+		v.WatchConfig()
 	}
+
 	v.AutomaticEnv()
 	setDefaultValue(v)
-	// This line is essential for reading
-	v.WatchConfig()
 }
 
 func getConfigName() string {
