@@ -29,10 +29,12 @@ import (
 	"github.com/apache/incubator-devlake/core/utils"
 	helper "github.com/apache/incubator-devlake/helpers/pluginhelper/api"
 	"github.com/apache/incubator-devlake/plugins/kube_deployment/models"
+	"github.com/apache/incubator-devlake/plugins/kube_deployment/tasks"
 )
 
 func MakeDataSourcePipelinePlanV200(subtaskMetas []plugin.SubTaskMeta, connectionId uint64, bpScopes []*plugin.BlueprintScopeV200, syncPolicy *plugin.BlueprintSyncPolicy) (plugin.PipelinePlan, []plugin.Scope, errors.Error) {
 	plan := make(plugin.PipelinePlan, len(bpScopes))
+	fmt.Println(len(bpScopes), "__len_scopes")
 	plan, err := makeDataSourcePipelinePlanV200(subtaskMetas, plan, bpScopes, connectionId, syncPolicy)
 	if err != nil {
 		return nil, nil, err
@@ -57,15 +59,33 @@ func makeDataSourcePipelinePlanV200(
 		if stage == nil {
 			stage = plugin.PipelineStage{}
 		}
-		// construct task options for Kubernetes deployment
-		options := make(map[string]interface{})
-		options["connectionId"] = connectionId
-		options["id"] = bpScope.Id
+		fmt.Println("bpScope_id: ", bpScope.Id)
+		fmt.Println("bpScope_name: ", bpScope.Name)
+		kubeDeployment := &models.KubeDeployment{}
+		var err errors.Error
+		err = basicRes.GetDal().First(kubeDeployment, dal.Where("connection_id = ? and id = ?", connectionId, bpScope.Id))
+		if err != nil {
+			return nil, errors.Default.Wrap(err, fmt.Sprintf("fail to find kube deployment details %s", bpScope.Id))
+		}
+		fmt.Println("kubeDeployment_name: ", kubeDeployment.Name)
+		op := &tasks.KubeDeploymentOptions{
+			ConnectionId:   connectionId,
+			Namespace:      "default", // TODO: get from kubeDeployment table
+			DeploymentName: kubeDeployment.Name,
+		}
+
+		var options map[string]interface{}
+		err = helper.Decode(op, &options, nil)
+		if err != nil {
+			return nil, err
+		}
 
 		subtasks, err := helper.MakePipelinePlanSubtasks(subtaskMetas, bpScope.Entities)
 		if err != nil {
 			return nil, err
 		}
+
+		fmt.Println("subtasks: ", options)
 		stage = append(stage, &plugin.PipelineTask{
 			Plugin:   "kube_deployment",
 			Subtasks: subtasks,

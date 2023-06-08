@@ -19,6 +19,7 @@ package tasks
 
 import (
 	"encoding/json"
+	"fmt"
 
 	"github.com/apache/incubator-devlake/core/errors"
 	"github.com/apache/incubator-devlake/core/plugin"
@@ -30,13 +31,16 @@ var _ plugin.SubTaskEntryPoint = ExtractKubeDeploymentRevisions
 
 func ExtractKubeDeploymentRevisions(taskCtx plugin.SubTaskContext) errors.Error {
 	data := taskCtx.GetData().(*KubeDeploymentTaskData)
+	fmt.Println("ooooppppp")
 	extractor, err := api.NewApiExtractor(api.ApiExtractorArgs{
 		RawDataSubTaskArgs: api.RawDataSubTaskArgs{
 			Ctx: taskCtx,
 			Params: KubeDeploymentApiParams{
-				ConnectionId: data.Options.ConnectionId,
+				ConnectionId:   data.Options.ConnectionId,
+				DeploymentName: data.Options.DeploymentName,
+				Namespace:      data.Options.Namespace,
 			},
-			Table: RAW_CRYPTO_ASSET_TABLE,
+			Table: RAW_KUBE_DEPLOYMENT_REVISION_TABLE,
 		},
 		Extract: func(row *api.RawData) ([]interface{}, errors.Error) {
 			println("Extracting KubeDeploymentRevisions %v", row.Data)
