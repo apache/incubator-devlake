@@ -25,6 +25,7 @@ import (
 	"strings"
 
 	"github.com/apache/incubator-devlake/core/errors"
+	"github.com/sirupsen/logrus"
 
 	goerror "github.com/cockroachdb/errors"
 
@@ -44,36 +45,53 @@ func GetConfig() *viper.Viper {
 }
 
 func initConfig(v *viper.Viper) {
-	v.SetConfigName(getConfigName())
-	v.SetConfigType("env")
-	paths := []string{
-		"./../../../../..",
-		"./../../../..",
-		"./../../..",
-		"./../..",
-		"./../",
-		"./",
-	}
-	for _, path := range paths {
-		v.AddConfigPath(path)
-	}
-
 	if envFile := os.Getenv("ENV_FILE"); envFile != "" {
 		v.SetConfigFile(envFile)
 	} else {
-		v.SetConfigFile(".env")
+		v.SetConfigName(getConfigName())
+		v.SetConfigType("env")
+		envPath := getEnvPath()
+		v.AddConfigPath(envPath)
+
+		paths := []string{
+			"./../../../../..",
+			"./../../../..",
+			"./../../..",
+			"./../..",
+			"./..",
+			"./",
+		}
+		for _, path := range paths {
+			v.AddConfigPath(path)
+		}
+
+		for _, path := range paths {
+			filePath := filepath.Join(path, getConfigName())
+			fileInfo, err := os.Stat(filePath)
+			if err == nil && !fileInfo.IsDir() {
+				envFile = filePath
+				break
+			}
+		}
+		v.SetConfigFile(envFile)
 	}
 
-	if _, err := os.Stat(v.ConfigFileUsed()); err == nil {
+	if _, err := os.Stat(v.ConfigFileUsed()); err != nil {
+		if os.IsNotExist(err) {
+			logrus.Info("no [.env] file, please make sure you have set the environment variable.")
+		} else {
+			panic(fmt.Errorf("failed to get config file info: %v", err))
+		}
+	} else {
 		if err := v.ReadInConfig(); err != nil {
 			panic(fmt.Errorf("failed to read configuration file: %v", err))
 		}
+		// This line is essential for reading
+		v.WatchConfig()
 	}
 
 	v.AutomaticEnv()
 	setDefaultValue(v)
-	// This line is essential for reading
-	v.WatchConfig()
 }
 
 func getConfigName() string {
@@ -88,7 +106,6 @@ func getEnvPath() string {
 
 // Set default value for no .env or .env not set it
 func setDefaultValue(v *viper.Viper) {
-	v.SetDefault("DB_URL", "mysql://merico:merico@mysql:3306/lake?charset=utf8mb4&parseTime=True")
 	v.SetDefault("PORT", "8080")
 	v.SetDefault("PLUGIN_DIR", "bin/plugins")
 	v.SetDefault("TEMPORAL_TASK_QUEUE", "DEVLAKE_TASK_QUEUE")
