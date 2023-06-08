@@ -45,7 +45,6 @@ func GetConfig() *viper.Viper {
 }
 
 func initConfig(v *viper.Viper) {
-
 	if envFile := os.Getenv("ENV_FILE"); envFile != "" {
 		v.SetConfigFile(envFile)
 	} else {
