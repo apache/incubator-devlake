@@ -16,23 +16,19 @@
  *
  */
 
+import { Alignment, Button, Intent, Menu, MenuItem, Navbar, Tag } from '@blueprintjs/core';
 import React from 'react';
 import { useLocation } from 'react-router-dom';
-import { Menu, MenuItem, Tag, Navbar, Intent, Alignment, Button } from '@blueprintjs/core';
 
-import { PageLoading, Logo, ExternalLink } from '@/components';
+import { ExternalLink, Logo, PageLoading } from '@/components';
 import { useRefreshData } from '@/hooks';
 import { history } from '@/utils/history';
 
 import DashboardIcon from '@/images/icons/dashborad.svg';
-import FileIcon from '@/images/icons/file.svg';
-import APIIcon from '@/images/icons/api.svg';
-import GitHubIcon from '@/images/icons/github.svg';
-import SlackIcon from '@/images/icons/slack.svg';
 
-import { useMenu, MenuItemType } from './use-menu';
 import * as API from './api';
 import * as S from './styled';
+import { MenuItemType, useMenu } from './use-menu';
 
 interface Props {
   children: React.ReactNode;
@@ -122,34 +118,6 @@ export const BaseLayout = ({ children }: Props) => {
               </ExternalLink>
             </S.DashboardIcon>
             <Navbar.Divider />
-            <a href="https://devlake.apache.org/docs/Configuration/Tutorial" rel="noreferrer" target="_blank">
-              <img src={FileIcon} alt="documents" />
-              <span>Docs</span>
-            </a>
-            <Navbar.Divider />
-            <ExternalLink link="/api/swagger/index.html">
-              <img src={APIIcon} alt="api" />
-              <span>API</span>
-            </ExternalLink>
-            <Navbar.Divider />
-            <a
-              href="https://github.com/apache/incubator-devlake"
-              rel="noreferrer"
-              target="_blank"
-              className="navIconLink"
-            >
-              <img src={GitHubIcon} alt="github" />
-              <span>GitHub</span>
-            </a>
-            <Navbar.Divider />
-            <a
-              href="https://join.slack.com/t/devlake-io/shared_invite/zt-17b6vuvps-x98pqseoUagM7EAmKC82xQ"
-              rel="noreferrer"
-              target="_blank"
-            >
-              <img src={SlackIcon} alt="slack" />
-              <span>Slack</span>
-            </a>
             {token && (
               <>
                 <Navbar.Divider />
