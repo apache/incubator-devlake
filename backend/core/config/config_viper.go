@@ -46,11 +46,22 @@ func GetConfig() *viper.Viper {
 func initConfig(v *viper.Viper) {
 	v.SetConfigName(getConfigName())
 	v.SetConfigType("env")
+	paths := []string{
+		"./../../../../..",
+		"./../../../..",
+		"./../../..",
+		"./../..",
+		"./../",
+		"./",
+	}
+	for _, path := range paths {
+		v.AddConfigPath(path)
+	}
 
 	if envFile := os.Getenv("ENV_FILE"); envFile != "" {
 		v.SetConfigFile(envFile)
 	} else {
-		v.SetConfigFile("../.env")
+		v.SetConfigFile(".env")
 	}
 
 	if _, err := os.Stat(v.ConfigFileUsed()); err == nil {
