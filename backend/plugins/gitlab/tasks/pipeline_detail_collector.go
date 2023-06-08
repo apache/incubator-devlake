@@ -28,6 +28,10 @@ import (
 	helper "github.com/apache/incubator-devlake/helpers/pluginhelper/api"
 )
 
+func init() {
+	RegisterSubtaskMeta(&CollectApiPipelineDetailsMeta)
+}
+
 const RAW_PIPELINE_DETAILS_TABLE = "gitlab_api_pipeline_details"
 
 var CollectApiPipelineDetailsMeta = plugin.SubTaskMeta{
@@ -36,6 +40,7 @@ var CollectApiPipelineDetailsMeta = plugin.SubTaskMeta{
 	EnabledByDefault: true,
 	Description:      "Collect pipeline details data from gitlab api, supports both timeFilter and diffSync.",
 	DomainTypes:      []string{plugin.DOMAIN_TYPE_CICD},
+	Dependencies:     []*plugin.SubTaskMeta{&ExtractApiPipelinesMeta},
 }
 
 func CollectApiPipelineDetails(taskCtx plugin.SubTaskContext) errors.Error {

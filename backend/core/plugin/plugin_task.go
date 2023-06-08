@@ -97,6 +97,7 @@ type SubTaskMeta struct {
 	EnabledByDefault bool
 	Description      string
 	DomainTypes      []string
+	Dependencies     []*SubTaskMeta
 }
 
 // PluginTask Implement this interface to let framework run tasks for you

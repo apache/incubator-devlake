@@ -25,6 +25,10 @@ import (
 	"github.com/apache/incubator-devlake/plugins/gitlab/models"
 )
 
+func init() {
+	RegisterSubtaskMeta(&ExtractTagMeta)
+}
+
 type GitlabApiTag struct {
 	Name      string
 	Message   string
@@ -42,6 +46,7 @@ var ExtractTagMeta = plugin.SubTaskMeta{
 	EnabledByDefault: false,
 	Description:      "Extract raw tag data into tool layer table GitlabTag",
 	DomainTypes:      []string{plugin.DOMAIN_TYPE_CODE},
+	Dependencies:     []*plugin.SubTaskMeta{&CollectTagMeta},
 }
 
 func ExtractApiTag(taskCtx plugin.SubTaskContext) errors.Error {

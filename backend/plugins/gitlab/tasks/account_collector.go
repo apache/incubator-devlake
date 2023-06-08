@@ -30,6 +30,10 @@ import (
 	"golang.org/x/mod/semver"
 )
 
+func init() {
+	RegisterSubtaskMeta(&CollectAccountsMeta)
+}
+
 const RAW_USER_TABLE = "gitlab_api_users"
 
 var CollectAccountsMeta = plugin.SubTaskMeta{
@@ -38,6 +42,7 @@ var CollectAccountsMeta = plugin.SubTaskMeta{
 	EnabledByDefault: true,
 	Description:      "collect gitlab users, does not support either timeFilter or diffSync.",
 	DomainTypes:      []string{plugin.DOMAIN_TYPE_CROSS},
+	Dependencies:     []*plugin.SubTaskMeta{&EnrichMergeRequestsMeta},
 }
 
 func CollectAccounts(taskCtx plugin.SubTaskContext) errors.Error {

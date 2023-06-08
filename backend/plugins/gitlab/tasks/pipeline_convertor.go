@@ -32,12 +32,17 @@ import (
 	gitlabModels "github.com/apache/incubator-devlake/plugins/gitlab/models"
 )
 
+func init() {
+	RegisterSubtaskMeta(&ConvertPipelineMeta)
+}
+
 var ConvertPipelineMeta = plugin.SubTaskMeta{
 	Name:             "convertPipelines",
 	EntryPoint:       ConvertPipelines,
 	EnabledByDefault: true,
 	Description:      "Convert tool layer table gitlab_pipeline into domain layer table pipeline",
 	DomainTypes:      []string{plugin.DOMAIN_TYPE_CICD},
+	Dependencies:     []*plugin.SubTaskMeta{&ConvertCommitsMeta},
 }
 
 func ConvertPipelines(taskCtx plugin.SubTaskContext) errors.Error {

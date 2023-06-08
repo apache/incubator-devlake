@@ -28,12 +28,17 @@ import (
 	"reflect"
 )
 
+func init() {
+	RegisterSubtaskMeta(&ConvertApiMrCommitsMeta)
+}
+
 var ConvertApiMrCommitsMeta = plugin.SubTaskMeta{
 	Name:             "convertApiMergeRequestsCommits",
 	EntryPoint:       ConvertApiMergeRequestsCommits,
 	EnabledByDefault: true,
 	Description:      "Add domain layer PullRequestCommit according to GitlabMrCommit",
 	DomainTypes:      []string{plugin.DOMAIN_TYPE_CODE_REVIEW},
+	Dependencies:     []*plugin.SubTaskMeta{&ConvertMrCommentMeta},
 }
 
 func ConvertApiMergeRequestsCommits(taskCtx plugin.SubTaskContext) errors.Error {
@@ -42,10 +47,10 @@ func ConvertApiMergeRequestsCommits(taskCtx plugin.SubTaskContext) errors.Error 
 
 	clauses := []dal.Clause{
 		dal.From(&models.GitlabMrCommit{}),
-		dal.Join(`left join _tool_gitlab_merge_requests 
-			on _tool_gitlab_merge_requests.gitlab_id = 
+		dal.Join(`left join _tool_gitlab_merge_requests
+			on _tool_gitlab_merge_requests.gitlab_id =
 			_tool_gitlab_mr_commits.merge_request_id`),
-		dal.Where(`_tool_gitlab_merge_requests.project_id = ? 
+		dal.Where(`_tool_gitlab_merge_requests.project_id = ?
 			and _tool_gitlab_merge_requests.connection_id = ?`,
 			data.Options.ProjectId, data.Options.ConnectionId),
 		dal.Orderby("merge_request_id ASC"),

@@ -28,12 +28,17 @@ import (
 	"reflect"
 )
 
+func init() {
+	RegisterSubtaskMeta(&ConvertCommitsMeta)
+}
+
 var ConvertCommitsMeta = plugin.SubTaskMeta{
 	Name:             "convertApiCommits",
 	EntryPoint:       ConvertApiCommits,
 	EnabledByDefault: false,
 	Description:      "Update domain layer commit according to GitlabCommit",
 	DomainTypes:      []string{plugin.DOMAIN_TYPE_CODE},
+	Dependencies:     []*plugin.SubTaskMeta{&ConvertMrLabelsMeta},
 }
 
 func ConvertApiCommits(taskCtx plugin.SubTaskContext) errors.Error {
