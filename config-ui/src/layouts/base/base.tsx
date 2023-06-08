@@ -16,6 +16,7 @@
  *
  */
 
+import { useEffect, useState } from 'react';
 import { useLocation } from 'react-router-dom';
 import { Menu, MenuItem, Tag, Navbar, Intent, Alignment, Button } from '@blueprintjs/core';
 
@@ -43,7 +44,10 @@ export const BaseLayout = ({ children }: Props) => {
   const { tips } = useTips();
   const { ready, data } = useRefreshData<{ version: string }>(() => API.getVersion(), []);
 
-  const token = window.localStorage.getItem('accessToken');
+  const [userInfo, setUserInfo] = useState<API.UserInfo | null>(null);
+  useEffect(() => {
+    API.getUserInfo().then(setUserInfo);
+  }, []);
 
   const handlePushPath = (it: MenuItemType) => {
     if (!it.target) {
@@ -51,11 +55,6 @@ export const BaseLayout = ({ children }: Props) => {
     } else {
       window.open(it.path, '_blank');
     }
-  };
-
-  const handleSignOut = () => {
-    localStorage.removeItem(`accessToken`);
-    history.push('/login');
   };
 
   const getGrafanaUrl = () => {
@@ -149,12 +148,12 @@ export const BaseLayout = ({ children }: Props) => {
               <img src={SlackIcon} alt="slack" />
               <span>Slack</span>
             </a>
-            {token && (
+            {userInfo && userInfo.logoutURI && (
               <>
                 <Navbar.Divider />
-                <Button small intent={Intent.NONE} onClick={handleSignOut}>
-                  Sign Out
-                </Button>
+                <span>{userInfo.email}</span>
+                <Navbar.Divider />
+                <a href={userInfo.logoutURI}>Sign Out</a>
               </>
             )}
           </Navbar.Group>
