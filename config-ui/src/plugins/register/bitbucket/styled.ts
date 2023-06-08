@@ -54,7 +54,7 @@ export const CICD = styled.div`
       align-items: center;
       margin-left: 16px;
       font-size: 14px;
-      font-weight: 400;
+      font-weight: 500;
 
       .bp4-switch {
         margin-bottom: 0;

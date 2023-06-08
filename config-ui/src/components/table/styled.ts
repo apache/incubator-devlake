@@ -42,7 +42,7 @@ export const TR = styled.tr`
 
 export const TH = styled.th`
   padding: 12px 16px;
-  font-weight: 400;
+  font-weight: 500;
   border-bottom: 1px solid #dbdcdf;
 
   label.bp4-control {
