@@ -23,7 +23,7 @@ import (
 	"github.com/apache/incubator-devlake/core/dal"
 	"github.com/apache/incubator-devlake/core/errors"
 	"github.com/apache/incubator-devlake/core/models/domainlayer"
-	"github.com/apache/incubator-devlake/core/models/domainlayer/codequality"
+	"github.com/apache/incubator-devlake/core/models/domainlayer/devops"
 	"github.com/apache/incubator-devlake/core/models/domainlayer/didgen"
 	"github.com/apache/incubator-devlake/core/plugin"
 	"github.com/apache/incubator-devlake/core/utils"
@@ -108,11 +108,10 @@ func makeScopesV200(bpScopes []*plugin.BlueprintScopeV200, connectionId uint64) 
 		if err != nil {
 			return nil, errors.Default.Wrap(err, fmt.Sprintf("fail to find deployment %s", bpScope.Id))
 		}
-		// add board to scopes
-		if utils.StringsContains(bpScope.Entities, plugin.DOMAIN_TYPE_CODE_QUALITY) {
-			stProject := &codequality.CqProject{
+		if utils.StringsContains(bpScope.Entities, plugin.DOMAIN_TYPE_CICD) {
+			stProject := &devops.CicdScope{
 				DomainEntity: domainlayer.DomainEntity{
-					Id: didgen.NewDomainIdGenerator(&models.KubeDeployment{}).Generate(kubeDeployment.ConnectionId, kubeDeployment.Id),
+					Id: didgen.NewDomainIdGenerator(&models.KubeDeployment{}).Generate(kubeDeployment.ConnectionId, kubeDeployment.Name),
 				},
 				Name: kubeDeployment.Name,
 			}
