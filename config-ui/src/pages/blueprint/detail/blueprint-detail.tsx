@@ -39,10 +39,10 @@ export const BlueprintDetail = ({ id, from }: Props) => {
   const [activeTab, setActiveTab] = useState<TabId>(from === FromEnum.project ? 'configuration' : 'status');
   const [version, setVersion] = useState(1);
 
-  const { ready, data } = useRefreshData(
-    async () => Promise.all([API.getBlueprint(id), API.getBlueprintPipelines(id)]),
-    [version],
-  );
+  const { ready, data } = useRefreshData(async () => {
+    const [bpRes, pipelineRes] = await Promise.all([API.getBlueprint(id), API.getBlueprintPipelines(id)]);
+    return [bpRes, pipelineRes.pipelines[0]];
+  }, [version]);
 
   const handleRefresh = () => setVersion((v) => v + 1);
 
@@ -50,7 +50,7 @@ export const BlueprintDetail = ({ id, from }: Props) => {
     return <PageLoading />;
   }
 
-  const [blueprint, pipelines] = data;
+  const [blueprint, lastPipeline] = data;
 
   return (
     <S.Wrapper>
@@ -59,7 +59,7 @@ export const BlueprintDetail = ({ id, from }: Props) => {
           id="status"
           title="Status"
           panel={
-            <StatusPanel from={from} blueprint={blueprint} pipelineId={pipelines?.[0]?.id} onRefresh={handleRefresh} />
+            <StatusPanel from={from} blueprint={blueprint} pipelineId={lastPipeline?.id} onRefresh={handleRefresh} />
           }
         />
         <Tab
