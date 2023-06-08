@@ -28,7 +28,6 @@ import (
 
 	goerror "github.com/cockroachdb/errors"
 
-	"github.com/sirupsen/logrus"
 	"github.com/spf13/afero"
 	"github.com/spf13/viper"
 )
@@ -47,17 +46,34 @@ func GetConfig() *viper.Viper {
 func initConfig(v *viper.Viper) {
 	v.SetConfigName(getConfigName())
 	v.SetConfigType("env")
+	paths := []string{
+		"./../../../../..",
+		"./../../../..",
+		"./../../..",
+		"./../..",
+		"./../",
+		"./",
+	}
+	for _, path := range paths {
+		v.AddConfigPath(path)
+	}
 
 	if envFile := os.Getenv("ENV_FILE"); envFile != "" {
 		v.SetConfigFile(envFile)
 	} else {
-		v.SetConfigFile("./.env")
+		v.SetConfigFile(".env")
 	}
+
 	if _, err := os.Stat(v.ConfigFileUsed()); err == nil {
 		if err := v.ReadInConfig(); err != nil {
 			panic(fmt.Errorf("failed to read configuration file: %v", err))
 		}
 	}
+
+	v.AutomaticEnv()
+	setDefaultValue(v)
+	// This line is essential for reading
+	v.WatchConfig()
 }
 
 func getConfigName() string {
@@ -179,13 +195,4 @@ func init() {
 	// create the object and load the .env file
 	v = viper.New()
 	initConfig(v)
-	err := v.ReadInConfig()
-	if err != nil {
-		logrus.Warn("Failed to read [.env] file:", err)
-	}
-	v.AutomaticEnv()
-
-	setDefaultValue(v)
-	// This line is essential for reading and writing
-	v.WatchConfig()
 }

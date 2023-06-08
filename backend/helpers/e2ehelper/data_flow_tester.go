@@ -101,7 +101,7 @@ func NewDataFlowTester(t *testing.T, pluginName string, pluginMeta plugin.Plugin
 	cfg := config.GetConfig()
 	e2eDbUrl := cfg.GetString(`E2E_DB_URL`)
 	if e2eDbUrl == `` {
-		panic(errors.Default.New(`e2e can only run with E2E_DB_URL, please set it in .env`))
+		panic(errors.Default.New(`e2e can only run with E2E_DB_URL, please set it in environment variable or .env file`))
 	}
 	cfg.Set(`DB_URL`, cfg.GetString(`E2E_DB_URL`))
 	db, err := runner.NewGormDb(cfg, logruslog.Global)

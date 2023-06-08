@@ -77,7 +77,7 @@ func NewGormDbEx(configReader config.ConfigReader, logger log.Logger, sessionCon
 	}
 	dbUrl := configReader.GetString("DB_URL")
 	if dbUrl == "" {
-		return nil, errors.BadInput.New("DB_URL is required")
+		return nil, errors.BadInput.New("DB_URL is required, please set it in environment variable or .env file")
 	}
 	u, err := url.Parse(dbUrl)
 	if err != nil {
