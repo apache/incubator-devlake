@@ -27,50 +27,10 @@ const instance = axios.create({
   baseURL: DEVLAKE_ENDPOINT,
 });
 
-var refreshingToken: Promise<any> | null = null;
-
 instance.interceptors.response.use(
   (response) => response,
   (error) => {
     const status = error.response?.status;
-
-    if (status === 401) {
-      toast.error('Please login first');
-      history.push('/login');
-    }
-
-    if (status === 403) {
-      var refreshToken = localStorage.getItem('refreshToken');
-      if (refreshToken) {
-        refreshingToken =
-          refreshingToken ||
-          request('/login/refreshtoken', {
-            method: 'POST',
-            data: {
-              refreshToken: refreshToken,
-            },
-          }).then(
-            (resp) => {
-              localStorage.setItem('accessToken', resp.authenticationResult.accessToken);
-              refreshingToken = null;
-              return resp;
-            },
-            (err) => {
-              refreshingToken = null;
-              toast.error('Please login first');
-              history.push('/login');
-              return Promise.reject(err);
-            },
-          );
-        return refreshingToken.then(() => {
-          const originalRequest = error.config;
-          originalRequest._retry = true;
-          return Promise.resolve(request(originalRequest.url, originalRequest));
-        });
-      } else {
-        history.push('/login');
-      }
-    }
 
     if (status === 428) {
       history.push('/db-migrate');
@@ -84,7 +44,8 @@ instance.interceptors.response.use(
   },
 );
 
-export type ReuqestConfig = {
+export type RequestConfig = {
+  baseURL?: string;
   method?: AxiosRequestConfig['method'];
   data?: unknown;
   timeout?: number;
@@ -92,7 +53,7 @@ export type ReuqestConfig = {
   headers?: Record<string, string>;
 };
 
-export const request = (path: string, config?: ReuqestConfig) => {
+export const request = (path: string, config?: RequestConfig) => {
   const { method = 'get', data, timeout, headers, signal } = config || {};
 
   const cancelTokenSource = axios.CancelToken.source();
@@ -103,6 +64,7 @@ export const request = (path: string, config?: ReuqestConfig) => {
   }
 
   const params: any = {
+    baseURL: config?.baseURL,
     url: path,
     method,
     timeout,

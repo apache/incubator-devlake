@@ -19,7 +19,6 @@
 import { Switch, Route, Redirect, Router } from 'react-router-dom';
 import { ErrorLayout, BaseLayout } from '@/layouts';
 import {
-  LoginPage,
   OfflinePage,
   DBMigratePage,
   ConnectionHomePage,
@@ -36,8 +35,6 @@ function App() {
   return (
     <Router history={history}>
       <Switch>
-        <Route exact path="/login" component={() => <LoginPage />} />
-
         <Route
           exact
           path="/offline"

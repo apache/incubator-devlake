@@ -18,4 +18,11 @@
 
 import { request } from '@/utils';
 
+export type UserInfo = {
+  user: string;
+  email: string;
+  logoutURI: string;
+};
+
 export const getVersion = () => request('/version');
+export const getUserInfo = (): Promise<UserInfo> => request('/userinfo');
