@@ -144,7 +144,7 @@ export const PipelineHistorical = ({ blueprintId }: Props) => {
       <Table columns={columns} dataSource={data} />
       {JSON && <Inspector isOpen title={`Pipeline ${JSON?.id}`} data={JSON} onClose={() => setJSON(null)} />}
       {ID && (
-        <Dialog style={{ width: 720 }} isOpen title={`Pipeline ${ID}`} footer={null} onCancel={() => setID(null)}>
+        <Dialog style={{ width: 820 }} isOpen title={`Pipeline ${ID}`} footer={null} onCancel={() => setID(null)}>
           <PipelineTasks id={ID} />
         </Dialog>
       )}
