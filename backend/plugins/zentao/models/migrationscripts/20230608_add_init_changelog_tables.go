@@ -27,14 +27,14 @@ import (
 type addInitChangelogTables struct{}
 
 // This object conforms to what the frontend currently sends.
-type ZentaoConnection20230522 struct {
+type ZentaoConnection20230608 struct {
 	DbUrl          string `mapstructure:"dbUrl"  json:"dbUrl" gorm:"serializer:encdec"`
 	DbIdleConns    int    `json:"dbIdleConns" mapstructure:"dbIdleConns"`
 	DbLoggingLevel string `json:"dbLoggingLevel" mapstructure:"dbLoggingLevel"`
 	DbMaxConns     int    `json:"dbMaxConns" mapstructure:"dbMaxConns"`
 }
 
-func (ZentaoConnection20230522) TableName() string {
+func (ZentaoConnection20230608) TableName() string {
 	return "_tool_zentao_connections"
 }
 
@@ -51,12 +51,12 @@ func (*addInitChangelogTables) Up(basicRes context.BasicRes) errors.Error {
 		basicRes,
 		&archived.ZentaoChangelog{},
 		&archived.ZentaoChangelogDetail{},
-		&ZentaoConnection20230522{},
+		&ZentaoConnection20230608{},
 	)
 }
 
 func (*addInitChangelogTables) Version() uint64 {
-	return 20230530000002
+	return 20230608000001
 }
 
 func (*addInitChangelogTables) Name() string {

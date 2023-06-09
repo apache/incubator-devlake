@@ -34,7 +34,7 @@ type ZentaoChangelog struct {
 	Extra              string    `json:"extra" mapstructure:"extra"`
 	ObjectType         string    `json:"objectType" mapstructure:"objectType"`
 	Project            int       `json:"project" mapstructure:"project"`
-	Product            string    `json:"product" mapstructure:"product"`
+	Product            int       `json:"product" mapstructure:"product"`
 	Vision             string    `json:"vision" mapstructure:"vision"`
 	Comment            string    `json:"comment" mapstructure:"comment"`
 	Efforted           string    `json:"efforted" mapstructure:"efforted"`
