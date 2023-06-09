@@ -128,8 +128,8 @@ class AzureDevOpsPlugin(Plugin):
             yield gitextractor(url.geturl(), scope.domain_id(), connection.proxy)
 
     def extra_stages(self, scope_config_pairs: list[ScopeConfigPair], _):
-        if DomainType.CODE in config.entity_types:
-            for scope, config in scope_config_pairs:
+        for scope, config in scope_config_pairs:
+            if DomainType.CODE in config.entity_types:
                 if not scope.is_external():
                     yield [refdiff(scope.id, config.refdiff)]
 
