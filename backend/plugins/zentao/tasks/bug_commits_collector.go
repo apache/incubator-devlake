@@ -120,6 +120,6 @@ func CollectBugCommits(taskCtx plugin.SubTaskContext) errors.Error {
 }
 
 type SimpleZentaoBug struct {
-	ID int64 `json:"id"`
+	ID             int64            `json:"id"`
 	LastEditedDate *api.Iso8601Time `json:"lastEditedDate"`
 }

@@ -122,6 +122,6 @@ func CollectStoryCommits(taskCtx plugin.SubTaskContext) errors.Error {
 }
 
 type SimpleZentaoStory struct {
-	ID             int64        `json:"id"`
+	ID             int64            `json:"id"`
 	LastEditedDate *api.Iso8601Time `json:"lastEditedDate"`
 }
