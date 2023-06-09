@@ -22,7 +22,7 @@ from azuredevops.streams.jobs import Jobs
 from azuredevops.streams.pull_request_commits import GitPullRequestCommits
 from azuredevops.streams.pull_requests import GitPullRequests
 
-from pydevlake import Plugin, RemoteScopeGroup, DomainType, ScopeConfigPair
+from pydevlake import Plugin, RemoteScopeGroup, DomainType, ScopeConfigPair, TestConnectionResult
 from pydevlake.domain_layer.code import Repo
 from pydevlake.domain_layer.devops import CicdScope
 from pydevlake.pipeline_tasks import gitextractor, refdiff
@@ -106,20 +106,22 @@ class AzureDevOpsPlugin(Plugin):
                     defaultBranch=props.get('defaultBranch', 'main')
                 )
 
-    def test_connection(self, connection: AzureDevOpsConnection):
+    def test_connection(self, connection: AzureDevOpsConnection) -> TestConnectionResult:
         api = AzureDevOpsAPI(connection)
-        if connection.organization is None:
-            try:
-                api.my_profile()
-            except APIException as e:
-                if e.response.status == 401:
-                    raise Exception(f"Invalid token {e}. You may need to set organization name in connection or edit your token to set organization to 'All accessible organizations'")
-                raise
-        else:
-            try:
-                api.projects(connection.organization)
-            except APIException as e:
-                raise Exception(f"Invalid token: {e}")
+        message = None
+        hint = None
+        try:
+            if connection.organization is None:
+                hint = "You may need to edit your token to set organization to 'All accessible organizations"
+                res = api.my_profile()
+            else:
+                hint = "Organization name may be incorrect or your token may not have access to the organization."
+                res = api.projects(connection.organization)
+        except APIException as e:
+            res = e.response
+            if res.status == 401:
+                message = f"Invalid token. {hint}"
+        return TestConnectionResult.from_api_response(res, message)
 
     def extra_tasks(self, scope: GitRepository, scope_config: GitRepositoryConfig, connection: AzureDevOpsConnection):
         if DomainType.CODE in scope_config.entity_types and not scope.is_external():

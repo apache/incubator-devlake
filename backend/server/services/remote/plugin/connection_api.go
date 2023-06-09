@@ -18,6 +18,7 @@ limitations under the License.
 package plugin
 
 import (
+	"fmt"
 	"net/http"
 
 	"github.com/apache/incubator-devlake/core/errors"
@@ -26,17 +27,27 @@ import (
 	"github.com/apache/incubator-devlake/server/services/remote/bridge"
 )
 
+type TestConnectionResult struct {
+	Success bool   `json:"success"`
+	Message string `json:"message"`
+	Status  int    `json:"status"`
+}
+
 func (pa *pluginAPI) TestConnection(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, errors.Error) {
-	err := pa.invoker.Call("test-connection", bridge.DefaultContext, input.Body).Err
+	var result TestConnectionResult
+	err := pa.invoker.Call("test-connection", bridge.DefaultContext, input.Body).Get(&result)
 	if err != nil {
 		body := shared.ApiBody{
 			Success: false,
-			Message: err.Error(),
+			Message: fmt.Sprintf("Error while testing connection: %s", err.Error()),
 		}
-		return &plugin.ApiResourceOutput{Body: body, Status: 400}, nil
+		return &plugin.ApiResourceOutput{Body: body, Status: 500}, nil
 	} else {
-		body := shared.ApiBody{Success: true}
-		return &plugin.ApiResourceOutput{Body: body, Status: 200}, nil
+		body := shared.ApiBody{
+			Success: result.Success,
+			Message: result.Message,
+		}
+		return &plugin.ApiResourceOutput{Body: body, Status: result.Status}, nil
 	}
 }
 

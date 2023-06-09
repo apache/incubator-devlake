@@ -22,6 +22,7 @@ import sys
 import fire
 
 import pydevlake.message as msg
+from pydevlake.api import APIException
 from pydevlake.subtasks import Subtask
 from pydevlake.logger import logger
 from pydevlake.ipc import PluginCommands
@@ -68,7 +69,7 @@ class Plugin(ABC):
         return None
 
     @abstractmethod
-    def test_connection(self, connection: Connection):
+    def test_connection(self, connection: Connection) -> msg.TestConnectionResult:
         """
         Test if the the connection with the datasource can be established with the given connection.
         Must raise an exception if the connection can't be established.
