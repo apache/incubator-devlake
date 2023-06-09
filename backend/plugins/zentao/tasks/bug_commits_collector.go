@@ -96,7 +96,6 @@ func CollectBugCommits(taskCtx plugin.SubTaskContext) errors.Error {
 			Table: RAW_BUG_COMMITS_TABLE,
 		},
 		ApiClient:   data.ApiClient,
-		PageSize:    100,
 		Input:       iterator,
 		Incremental: incremental,
 		UrlTemplate: "bugs/{{ .Input.ID }}",
@@ -122,4 +121,5 @@ func CollectBugCommits(taskCtx plugin.SubTaskContext) errors.Error {
 
 type SimpleZentaoBug struct {
 	ID int64 `json:"id"`
+	LastEditedDate *api.Iso8601Time `json:"lastEditedDate"`
 }

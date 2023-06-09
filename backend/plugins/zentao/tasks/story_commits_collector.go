@@ -98,7 +98,6 @@ func CollectStoryCommits(taskCtx plugin.SubTaskContext) errors.Error {
 			Table: RAW_STORY_COMMITS_TABLE,
 		},
 		ApiClient:   data.ApiClient,
-		PageSize:    100,
 		Input:       iterator,
 		Incremental: incremental,
 		UrlTemplate: "stories/{{ .Input.ID }}",
@@ -123,5 +122,6 @@ func CollectStoryCommits(taskCtx plugin.SubTaskContext) errors.Error {
 }
 
 type SimpleZentaoStory struct {
-	ID int64 `json:"id"`
+	ID             int64        `json:"id"`
+	LastEditedDate *api.Iso8601Time `json:"lastEditedDate"`
 }
