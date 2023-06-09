@@ -21,6 +21,7 @@ import (
 	"context"
 	"fmt"
 	"net/url"
+	"net/http"
 	"reflect"
 	"time"
 
@@ -158,6 +159,17 @@ func (p GithubGraphql) PrepareTaskData(taskCtx plugin.TaskContext, options map[s
 		&oauth2.Token{AccessToken: connection.GetToken()},
 	)
 	httpClient := oauth2.NewClient(taskCtx.GetContext(), src)
+    proxy := connection.GetProxy()
+    if proxy != "" {
+        pu, err := url.Parse(proxy)
+        if err != nil {
+            return nil, errors.Convert(err)
+        }
+        if pu.Scheme == "http" || pu.Scheme == "socks5" {
+            httpClient.Transport.(*http.Transport).Proxy = http.ProxyURL(pu)
+        }
+    }
+
 	endpoint, err := errors.Convert01(url.JoinPath(connection.Endpoint, `graphql`))
 	if err != nil {
 		return nil, errors.BadInput.Wrap(err, fmt.Sprintf("malformed connection endpoint supplied: %s", connection.Endpoint))
