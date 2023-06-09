@@ -38,18 +38,23 @@ type TypeMapping struct {
 	StatusMappings StatusMappings `json:"statusMappings"`
 }
 
+type CommitUrlPattern struct {
+	Pattern string `json:"pattern"`
+	Regex   string `json:"regex"`
+}
+
 type TypeMappings map[string]TypeMapping
 
 type JiraScopeConfig struct {
-	Entities                   []string     `json:"entities"`
-	ConnectionId               uint64       `mapstructure:"connectionId" json:"connectionId"`
-	Name                       string       `gorm:"type:varchar(255)" validate:"required"`
-	EpicKeyField               string       `json:"epicKeyField"`
-	StoryPointField            string       `json:"storyPointField"`
-	RemotelinkCommitShaPattern string       `json:"remotelinkCommitShaPattern"`
-	RemotelinkRepoPattern      []string     `json:"remotelinkRepoPattern"`
-	TypeMappings               TypeMappings `json:"typeMappings"`
-	ApplicationType            string       `json:"applicationType"`
+	Entities                   []string           `json:"entities"`
+	ConnectionId               uint64             `mapstructure:"connectionId" json:"connectionId"`
+	Name                       string             `gorm:"type:varchar(255)" validate:"required"`
+	EpicKeyField               string             `json:"epicKeyField"`
+	StoryPointField            string             `json:"storyPointField"`
+	RemotelinkCommitShaPattern string             `json:"remotelinkCommitShaPattern"`
+	RemotelinkRepoPattern      []CommitUrlPattern `json:"remotelinkRepoPattern"`
+	TypeMappings               TypeMappings       `json:"typeMappings"`
+	ApplicationType            string             `json:"applicationType"`
 }
 
 func (r *JiraScopeConfig) ToDb() (*models.JiraScopeConfig, errors.Error) {
@@ -90,7 +95,7 @@ func MakeScopeConfig(rule models.JiraScopeConfig) (*JiraScopeConfig, errors.Erro
 			return nil, errors.Default.Wrap(err, "unable to unmarshal the typeMapping")
 		}
 	}
-	var remotelinkRepoPattern []string
+	var remotelinkRepoPattern []CommitUrlPattern
 	if len(rule.RemotelinkRepoPattern) > 0 {
 		err = json.Unmarshal(rule.RemotelinkRepoPattern, &remotelinkRepoPattern)
 		if err != nil {
