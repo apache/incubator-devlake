@@ -135,7 +135,7 @@ func ExtractTask(taskCtx plugin.SubTaskContext) errors.Error {
 				Url:      row.Url,
 			}
 
-			task.StdType = stdTypeMappings[task.Type]
+			task.StdType = stdTypeMappings[task.Type+"."+task.Mode]
 			if task.StdType == "" {
 				task.StdType = ticket.TASK
 			}
