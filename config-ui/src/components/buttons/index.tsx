@@ -42,7 +42,7 @@ const Wrapper = styled.div<{ position: 'top' | 'bottom'; align: 'left' | 'right'
     }
 
     if (align === 'center') {
-      return 'justify-content: space-around;';
+      return 'justify-content: center;';
     }
   }}
 
