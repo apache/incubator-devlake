@@ -51,10 +51,12 @@ func CollectApiMergeRequestsNotes(taskCtx plugin.SubTaskContext) errors.Error {
 	}
 	defer iterator.Close()
 
+	incremental := collectorWithState.IsIncremental()
+
 	err = collectorWithState.InitCollector(helper.ApiCollectorArgs{
 		ApiClient:      data.ApiClient,
 		PageSize:       100,
-		Incremental:    false,
+		Incremental:    incremental,
 		Input:          iterator,
 		UrlTemplate:    "projects/{{ .Params.ProjectId }}/merge_requests/{{ .Input.Iid }}/notes?system=false",
 		Query:          GetQuery,

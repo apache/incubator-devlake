@@ -45,7 +45,8 @@ func CollectApiMergeRequestsCommits(taskCtx plugin.SubTaskContext) errors.Error 
 		return err
 	}
 
-	iterator, err := GetMergeRequestsIterator(taskCtx, collectorWithState)
+	// Due to the inability of incremental updates to handle force push on commits, we are temporarily abandoning incremental updates and passing nil to process the full data.
+	iterator, err := GetMergeRequestsIterator(taskCtx, nil)
 	if err != nil {
 		return err
 	}
