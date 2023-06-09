@@ -71,10 +71,16 @@ class GitPullRequest(ToolModel, table=True):
     @classmethod
     def migrate(self, session: Session):
         dialect = session.bind.dialect.name
+        if dialect not in ['mysql', 'postgresql']:
+            raise Exception(f'Unsupported dialect {dialect}')
+        table = self.__tablename__
+
         if dialect == 'mysql':
-            session.execute(f'ALTER TABLE {self.__tablename__} MODIFY COLUMN description TEXT')
+            session.execute(f'ALTER TABLE {table} MODIFY COLUMN description TEXT')
+            session.execute(f'ALTER TABLE {table} MODIFY COLUMN merge_commit_sha VARCHAR(255) NULL')
         elif dialect == 'postgresql':
-            session.execute(f'ALTER TABLE {self.__tablename__} ALTER COLUMN description TYPE TEXT')
+            session.execute(f'ALTER TABLE {table} ALTER COLUMN description TYPE TEXT')
+            session.execute(f'ALTER TABLE {table} ALTER COLUMN merge_commit_sha DROP NOT NULL')
 
 
 class GitPullRequestCommit(ToolModel, table=True):
@@ -108,6 +114,19 @@ class Build(ToolModel, table=True):
     result: Optional[BuildResult]
     source_branch: str
     source_version: str
+
+    @classmethod
+    def migrate(self, session: Session):
+        dialect = session.bind.dialect.name
+        if dialect not in ['mysql', 'postgresql']:
+            raise Exception(f'Unsupported dialect {dialect}')
+        table = self.__tablename__
+
+        # Make column result nullable
+        if dialect == 'mysql':
+            session.execute(f'ALTER TABLE {table} MODIFY COLUMN result VARCHAR(255) NULL')
+        elif dialect == 'postgresql':
+            session.execute(f'ALTER TABLE {table} ALTER COLUMN "result" DROP NOT NULL')
 
 
 class Job(ToolModel, table=True):
