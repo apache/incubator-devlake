@@ -16,7 +16,7 @@
 from typing import Optional
 import base64
 
-from pydevlake.api import API, request_hook, Paginator, Request
+from pydevlake.api import API, APIException, Paginator, Request, Response, request_hook, response_hook
 
 
 class AzurePaginator(Paginator):
@@ -42,6 +42,14 @@ class AzureDevOpsAPI(API):
     @request_hook
     def set_api_version(self, request: Request):
         request.query_args['api-version'] = "7.0"
+
+    @response_hook
+    def change_203_to_401(self, response: Response):
+        # When the token is invalid, Azure DevOps returns a 302 that resolves to a sign-in page with status 203
+        # We want to change that to a 401 and raise an exception
+        if response.status == 203:
+            response.status = 401
+            raise APIException(response)
 
     def my_profile(self):
         req = Request('https://app.vssps.visualstudio.com/_apis/profile/profiles/me')

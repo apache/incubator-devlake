@@ -57,7 +57,7 @@ class MyPlugin(dl.Plugin):
     def remote_scopes(self, connection, group_id: str) -> Iterable[MyPluginToolScope]:
         ...
 
-    def test_connection(self, connection: MyPluginConnection):
+    def test_connection(self, connection: MyPluginConnection) -> dl.TestConnectionResult:
         ...
 
 
@@ -191,19 +191,17 @@ class MyPlugin(dl.Plugin):
 
 The `test_connection` method is used to test if a given connection is valid.
 It should check that the connection credentials are valid.
-If the connection is not valid, it should raise an exception.
+It should make an authenticated request to the API and return a `TestConnectionResult`.
+There is a convenience static method `from_api_response` to create a `TestConnectionResult` object from an API response.
 
 ```python
 class MyPlugin(dl.Plugin):
     ...
 
-    def test_connection(self, connection: MyPluginConnection):
-        api = ...
-        response = ...
-        if response.status != 401:
-            raise Exception("Invalid credentials")
-        if response.status != 200:
-            raise Exception(f"Connection error {response}")
+    def test_connection(self, connection: MyPluginConnection) -> dl.TestConnectionResult:
+        api = ... # Create API client
+        response = ... # Make authenticated request to API
+        return dl.TestConnection.from_api_response(response)
 ```
 
 
