@@ -30,3 +30,6 @@ export const getConnection = (plugin: string, connectionId: ID) =>
 
 export const getDataScopes = (plugin: string, connectionId: ID) =>
   request(`/plugins/${plugin}/connections/${connectionId}/scopes`);
+
+export const runBlueprint = (id: ID, skipCollectors: boolean) =>
+  request(`/blueprints/${id}/trigger`, { method: 'post', data: { skipCollectors } });

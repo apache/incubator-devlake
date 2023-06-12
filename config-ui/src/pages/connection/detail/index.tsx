@@ -20,7 +20,7 @@ import { useState, useEffect, useMemo } from 'react';
 import { useParams, useHistory, Link } from 'react-router-dom';
 import { Button, Icon, Intent } from '@blueprintjs/core';
 
-import { PageHeader, Buttons, Dialog, IconButton, Table } from '@/components';
+import { PageHeader, Buttons, Dialog, IconButton, Table, Message } from '@/components';
 import { useTips, useConnections, useRefreshData } from '@/hooks';
 import {
   ConnectionForm,
@@ -72,22 +72,11 @@ const ConnectionDetail = ({ plugin, connectionId }: Props) => {
 
   useEffect(() => {
     onTest(`${plugin}-${connectionId}`);
+    return () => setTips('');
   }, [plugin, connectionId]);
 
   const handleHideDialog = () => {
     setType(undefined);
-  };
-
-  const handleShowTips = () => {
-    setTips(
-      <div>
-        <Icon icon="warning-sign" style={{ marginRight: 8 }} color="#F4BE55" />
-        <span>
-          The transformation of certain data scope has been updated. If you would like to re-transform the data in the
-          related project(s), please go to the Project page and do so.
-        </span>
-      </div>,
-    );
   };
 
   const handleShowDeleteDialog = () => {
@@ -122,7 +111,6 @@ const ConnectionDetail = ({ plugin, connectionId }: Props) => {
   const handleCreateDataScope = () => {
     setVersion((v) => v + 1);
     handleHideDialog();
-    handleShowTips();
   };
 
   const handleShowClearDataScopeDialog = (scopeId: ID) => {
@@ -145,7 +133,6 @@ const ConnectionDetail = ({ plugin, connectionId }: Props) => {
 
     if (success) {
       setVersion((v) => v + 1);
-      handleShowTips();
       handleHideDialog();
     }
   };
@@ -175,7 +162,12 @@ const ConnectionDetail = ({ plugin, connectionId }: Props) => {
 
     if (success) {
       setVersion((v) => v + 1);
-      handleShowTips();
+      setTips(
+        <Message
+          content="Scope Config(s) have been updated. If you would like to re-transform or re-collect the data in the related
+        project(s), please go to the Project page and do so."
+        />,
+      );
       handleHideDialog();
     }
   };
