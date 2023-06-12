@@ -21,6 +21,7 @@ import jsonref
 
 from pydevlake.model import ToolScope
 from pydevlake.migration import MigrationScript
+from pydevlake.api import Response
 
 
 class Message(BaseModel):
@@ -111,3 +112,20 @@ class RemoteScope(RemoteScopeTreeNode):
 
 class RemoteScopes(Message):
     __root__: list[RemoteScopeTreeNode]
+
+
+class TestConnectionResult(Message):
+    success: bool
+    message: str
+    status: int
+
+    @staticmethod
+    def from_api_response(response: Response, message: str = None):
+        success = response.status == 200
+        if not message:
+            message = "Connection successful" if success else "Connection failed"
+        return TestConnectionResult(
+            success=success,
+            message=message,
+            status=response.status
+        )

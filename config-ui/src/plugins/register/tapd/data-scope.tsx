@@ -16,7 +16,7 @@
  *
  */
 
-import { useMemo, useState } from 'react';
+import { useState } from 'react';
 
 import { DataScopeMillerColumns } from '@/plugins';
 
@@ -32,17 +32,7 @@ interface Props {
   onChangeItems: (selectedItems: ScopeItemType[]) => void;
 }
 
-export const DataScope = ({ connectionId, onChangeItems, ...props }: Props) => {
-  const selectedItems = useMemo(
-    () => props.selectedItems.map((it) => ({ id: `${it.id}`, name: it.name, data: it })),
-    [props.selectedItems],
-  );
-
-  const disabledItems = useMemo(
-    () => (props.disabledItems ?? []).map((it) => ({ id: `${it.id}`, name: it.name, data: it })),
-    [props.disabledItems],
-  );
-
+export const DataScope = ({ connectionId, disabledItems, selectedItems, onChangeItems }: Props) => {
   const [pageToken, setPageToken] = useState<string | undefined>(undefined);
   const [companyId, setCompanyId] = useState<string>(
     localStorage.getItem(`plugin/tapd/connections/${connectionId}/company_id`) || '',
@@ -61,7 +51,7 @@ export const DataScope = ({ connectionId, onChangeItems, ...props }: Props) => {
 
   return (
     <>
-      <h3>Workspaces *</h3>
+      <h4>Workspaces *</h4>
       <p>Type in the company ID to list all the workspaces you want to sync. </p>
       <ExternalLink link="https://www.tapd.cn/help/show#1120003271001000103">
         Learn about how to get your company ID

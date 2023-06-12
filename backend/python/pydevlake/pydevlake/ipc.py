@@ -26,7 +26,7 @@ from sqlalchemy.engine import Engine
 
 from pydevlake.context import Context
 from pydevlake.message import Message
-from pydevlake.model import DomainType, SubtaskRun
+from pydevlake.model import SubtaskRun
 
 
 def plugin_method(func):
@@ -85,7 +85,7 @@ class PluginCommands:
         if "name" not in connection:
             connection["name"] = "Test connection"
         connection = self._plugin.connection_type(**connection)
-        self._plugin.test_connection(connection)
+        return self._plugin.test_connection(connection)
 
     @plugin_method
     def make_pipeline(self, scope_config_pairs: list[tuple[dict, dict]], connection: dict):

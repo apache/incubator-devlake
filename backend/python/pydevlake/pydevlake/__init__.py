@@ -35,7 +35,7 @@ def Field(*args, primary_key: bool=False, source: Optional[str]=None, **kwargs):
 
 from .model import ToolModel, ToolScope, DomainScope, Connection, ScopeConfig, DomainType, domain_id
 from .logger import logger
-from .message import RemoteScopeGroup
+from .message import RemoteScopeGroup, TestConnectionResult
 from .plugin import Plugin, ScopeConfigPair
 from .stream import Stream, Substream
 from .context import Context
