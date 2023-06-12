@@ -16,14 +16,14 @@
  *
  */
 
-import React, { useMemo, useState } from 'react';
+import { Button, Checkbox, InputGroup, Intent } from '@blueprintjs/core';
+import { useMemo, useState } from 'react';
 import { Link, useHistory } from 'react-router-dom';
-import { Button, InputGroup, Checkbox, Intent } from '@blueprintjs/core';
 
-import { PageHeader, Table, ColumnType, Dialog, IconButton } from '@/components';
+import { ColumnType, Dialog, IconButton, PageHeader, Table } from '@/components';
 
-import { useProject } from './use-project';
 import * as S from './styled';
+import { useProject } from './use-project';
 
 type ProjectItem = {
   name: string;
@@ -66,11 +66,25 @@ export const ProjectHomePage = () => {
           dataIndex: 'name',
           key: 'action',
           width: 100,
-          align: 'center',
+          align: 'right',
           render: (name: any) => (
             <IconButton
               icon="cog"
               tooltip="Detail"
+              onClick={() => history.push(`/projects/${window.encodeURIComponent(name)}`)}
+            />
+          ),
+        },
+        {
+          title: '',
+          dataIndex: 'name',
+          key: 'action',
+          width: 100,
+          align: 'center',
+          render: (name: any) => (
+            <IconButton
+              icon="trash"
+              tooltip="Delete"
               onClick={() => history.push(`/projects/${window.encodeURIComponent(name)}`)}
             />
           ),

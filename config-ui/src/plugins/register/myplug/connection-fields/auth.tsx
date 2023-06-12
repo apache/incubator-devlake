@@ -57,9 +57,8 @@ interface OpenShiftAuth {
 type AuthType = AzureAuth['providerType'] | AWSAuth['providerType'] | OpenShiftAuth['providerType'];
 
 export const Auth = ({ initialValues, values, errors, setValues, setErrors, setValuesDefault }: Props) => {
-  console.log('initialValues', initialValues);
-
   useEffect(() => {
+    console.log(1)
     // all fields in the 3 auth types are required, if any fields is empty string or undefined, set error
     if (values.credentials?.providerType === 'azure') {
       if (
@@ -101,6 +100,28 @@ export const Auth = ({ initialValues, values, errors, setValues, setErrors, setV
     }
   }, [values]);
 
+  // setInitialValues
+  useEffect(() => {
+    console.log(2)
+    if (initialValues.credentials?.providerType === 'azure') {
+      setValuesDefault((prev) => ({
+        ...prev,
+        credentials: initialValues.credentials,
+      }));
+    } else if (initialValues.credentials?.providerType === 'aws') {
+      setValuesDefault((prev) => ({
+        ...prev,
+        credentials: initialValues.credentials,
+
+      }));
+    } else if (initialValues.credentials?.providerType === 'openShift') {
+      setValuesDefault((prev) => ({
+        ...prev,
+        credentials: initialValues.credentials,
+      }));
+    }
+  }, [initialValues.credentials]);
+
   console.log(errors);
 
   const defaultValues = {
@@ -114,6 +135,15 @@ export const Auth = ({ initialValues, values, errors, setValues, setErrors, setV
   const handleChangeAuthType = (authType: AuthType) => {
     switch (authType) {
       case 'azure':
+        if (initialValues.credentials?.providerType === 'azure') {
+          setValuesDefault((prev) => ({
+            ...defaultValues,
+            name: prev.name,
+
+            credentials: initialValues.credentials,
+          }));
+          break;
+        }
         setValuesDefault((prev) => ({
           ...defaultValues,
           name: prev.name,
@@ -130,6 +160,15 @@ export const Auth = ({ initialValues, values, errors, setValues, setErrors, setV
         }));
         break;
       case 'aws':
+        if (initialValues.credentials?.providerType === 'aws') {
+          setValuesDefault((prev) => ({
+            ...defaultValues,
+            name: prev.name,
+
+            credentials: initialValues.credentials,
+          }));
+          break;
+        }
         setValuesDefault((prev) => ({
           ...defaultValues,
           name: prev.name,
@@ -138,6 +177,15 @@ export const Auth = ({ initialValues, values, errors, setValues, setErrors, setV
         }));
         break;
       case 'openShift':
+        if (initialValues.credentials?.providerType === 'openShift') {
+          setValuesDefault((prev) => ({
+            ...defaultValues,
+            name: prev.name,
+
+            credentials: initialValues.credentials,
+          }));
+          break;
+        }
         setValuesDefault((prev) => ({
           ...defaultValues,
           name: prev.name,
