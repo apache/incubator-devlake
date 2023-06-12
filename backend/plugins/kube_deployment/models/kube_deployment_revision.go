@@ -29,6 +29,7 @@ type KubeDeploymentRevision struct {
 	DeploymentName    string    `json:"deployment_name"`
 	RevisionNumber    uint32    `json:"revision_number"`
 	CreationTimestamp time.Time `json:"creation_timestamp"`
+	CicdScopeId       string    `json:"cicd_scope_id"`
 }
 
 func (KubeDeploymentRevision) TableName() string {

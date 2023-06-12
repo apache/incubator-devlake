@@ -25,5 +25,6 @@ func All() []plugin.MigrationScript {
 		new(addInitTables),
 		new(addDataScopeDeploymentTable),
 		new(addNamespaceRevisionToDeploymentRevision),
+		new(addCicdScopeIdToDeploymentRevision),
 	}
 }

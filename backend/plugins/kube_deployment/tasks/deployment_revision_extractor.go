@@ -43,7 +43,7 @@ func ExtractKubeDeploymentRevisions(taskCtx plugin.SubTaskContext) errors.Error 
 			Table: RAW_KUBE_DEPLOYMENT_REVISION_TABLE,
 		},
 		Extract: func(row *api.RawData) ([]interface{}, errors.Error) {
-			println("Extracting KubeDeploymentRevisions %v", row.Data)
+			println("Extracting KubeDeploymentRevisions %v", string(row.Data))
 			body := &models.KubeDeploymentRevision{}
 			err := errors.Convert(json.Unmarshal(row.Data, body))
 			if err != nil {

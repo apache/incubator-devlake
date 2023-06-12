@@ -28,11 +28,12 @@ import (
 
 	"github.com/apache/incubator-devlake/core/dal"
 	"github.com/apache/incubator-devlake/core/errors"
+	"github.com/apache/incubator-devlake/core/models/domainlayer/didgen"
 	"github.com/apache/incubator-devlake/core/plugin"
 	"github.com/apache/incubator-devlake/helpers/pluginhelper/api"
 	"gorm.io/datatypes"
 
-	// "github.com/apache/incubator-devlake/helpers/pluginhelper/api"
+	"github.com/apache/incubator-devlake/plugins/kube_deployment/models"
 
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 )
@@ -111,12 +112,15 @@ func CollectKubeDeploymentRevision(taskCtx plugin.SubTaskContext) errors.Error {
 	for i, rs := range rolloutHistory.Items {
 		revision := rs.Annotations["deployment.kubernetes.io/revision"]
 		revisionNumber, _ := strconv.Atoi(revision)
+		cicdScopeId := didgen.NewDomainIdGenerator(&models.KubeDeployment{}).Generate(data.Options.ConnectionId, data.Options.DeploymentName)
+		fmt.Println("cicdScopeId: ", cicdScopeId)
 		msg := map[string]interface{}{
 			"id":                 rs.UID,
 			"deployment_name":    data.Options.DeploymentName,
 			"namespace":          rs.Namespace,
 			"revision_number":    revisionNumber,
 			"creation_timestamp": rs.CreationTimestamp,
+			"cicd_scope_id":      didgen.NewDomainIdGenerator(&models.KubeDeployment{}).Generate(data.Options.ConnectionId, data.Options.DeploymentName),
 		}
 		var result json.RawMessage
 		byteMsg, err := json.Marshal(msg)
