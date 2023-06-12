@@ -22,10 +22,12 @@
 @import '@blueprintjs/select/lib/css/blueprint-select.css';
 @import '@blueprintjs/popover2/lib/css/blueprint-popover2.css';
 @import '@blueprintjs/datetime/lib/css/blueprint-datetime.css';
+@import 'https://fonts.googleapis.com/css2?family=Raleway:wght@500&display=swap';
 
 body {
   color: #292b3f;
-  font-family: "Raleway";
+  font-family: 'Raleway';
+  font-weight: 500;
   /* font-family: -apple-system, "BlinkMacSystemFont", "Segoe UI", "Roboto", "Oxygen", "Ubuntu", "Cantarell", "Open Sans", "Helvetica Neue", "blueprint-icons-16", sans-serif; */
 }
 
