@@ -52,14 +52,15 @@ const Wrapper = styled.div<{ position: 'top' | 'bottom'; align: 'left' | 'right'
 `;
 
 interface Props {
+  style?: React.CSSProperties;
   position?: 'top' | 'bottom';
   align?: 'left' | 'right' | 'center';
   children: React.ReactNode;
 }
 
-export const Buttons = ({ position = 'top', align = 'left', children }: Props) => {
+export const Buttons = ({ style, position = 'top', align = 'left', children }: Props) => {
   return (
-    <Wrapper position={position} align={align}>
+    <Wrapper style={style} position={position} align={align}>
       {children}
     </Wrapper>
   );
