@@ -115,7 +115,7 @@ e2e-test:
 	set -e;\
 	go run ./test/init.go || exit $$?;\
 	exit_code=0;\
-	for m in $$(go list ./test/e2e/...); do \
+	for m in $$(go list ./test/e2e/... | grep -v manual/); do \
 		echo $$m; go test -p 1 -timeout 300s -v $$m || exit_code=$$?; \
 	done; \
 	exit $$exit_code

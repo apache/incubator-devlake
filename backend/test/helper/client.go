@@ -23,6 +23,11 @@ import (
 	"encoding/json"
 	goerror "errors"
 	"fmt"
+	"github.com/apache/incubator-devlake/core/dal"
+	dora "github.com/apache/incubator-devlake/plugins/dora/impl"
+	org "github.com/apache/incubator-devlake/plugins/org/impl"
+	refdiff "github.com/apache/incubator-devlake/plugins/refdiff/impl"
+	remotePlugin "github.com/apache/incubator-devlake/server/services/remote/plugin"
 	"io"
 	"math"
 	"net/http"
@@ -31,11 +36,6 @@ import (
 	"syscall"
 	"testing"
 	"time"
-
-	"github.com/apache/incubator-devlake/core/dal"
-	dora "github.com/apache/incubator-devlake/plugins/dora/impl"
-	org "github.com/apache/incubator-devlake/plugins/org/impl"
-	remotePlugin "github.com/apache/incubator-devlake/server/services/remote/plugin"
 
 	"github.com/apache/incubator-devlake/core/config"
 	corectx "github.com/apache/incubator-devlake/core/context"
@@ -264,7 +264,7 @@ func (d *DevlakeClient) initPlugins(cfg *LocalClientConfig) {
 	// default plugins
 	cfg.Plugins["org"] = org.Org{}
 	cfg.Plugins["dora"] = dora.Dora{}
-
+	cfg.Plugins["refdiff"] = refdiff.RefDiff{}
 	// register and init plugins
 	for name, p := range cfg.Plugins {
 		require.NoError(d.testCtx, plugin.RegisterPlugin(name, p))
@@ -373,7 +373,7 @@ func sendHttpRequest[Res any](t *testing.T, timeout time.Duration, debug debugIn
 				return false, errors.Convert(err)
 			}
 			response.Close = true
-			return false, errors.HttpStatus(response.StatusCode).New(fmt.Sprintf("unexpected http status code: %d", response.StatusCode))
+			return false, errors.HttpStatus(response.StatusCode).New(fmt.Sprintf("unexpected http status code calling [%s] %s: %d", httpMethod, endpoint, response.StatusCode))
 		}
 		b, _ = io.ReadAll(response.Body)
 		if err = json.Unmarshal(b, &result); err != nil {
