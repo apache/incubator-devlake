@@ -135,11 +135,11 @@ func (c *GenericScopeApiHelper[Conn, Scope, Tr]) DbHelper() ScopeDatabaseHelper[
 }
 
 func (c *GenericScopeApiHelper[Conn, Scope, Tr]) PutScopes(input *plugin.ApiResourceInput, scopes []*Scope) ([]*ScopeRes[Scope, Tr], errors.Error) {
-	params := c.extractFromReqParam(input)
-	if params.connectionId == 0 {
-		return nil, errors.BadInput.New("invalid connectionId")
+	params, err := c.extractFromReqParam(input, false)
+	if err != nil {
+		return nil, err
 	}
-	err := c.dbHelper.VerifyConnection(params.connectionId)
+	err = c.dbHelper.VerifyConnection(params.connectionId)
 	if err != nil {
 		return nil, errors.Default.Wrap(err, fmt.Sprintf("error verifying connection for connection ID %d", params.connectionId))
 	}
@@ -171,14 +171,11 @@ func (c *GenericScopeApiHelper[Conn, Scope, Tr]) PutScopes(input *plugin.ApiReso
 }
 
 func (c *GenericScopeApiHelper[Conn, Scope, Tr]) UpdateScope(input *plugin.ApiResourceInput) (*ScopeRes[Scope, Tr], errors.Error) {
-	params := c.extractFromReqParam(input)
-	if params.connectionId == 0 {
-		return nil, errors.BadInput.New("invalid connectionId")
+	params, err := c.extractFromReqParam(input, true)
+	if err != nil {
+		return nil, err
 	}
-	if len(params.scopeId) == 0 {
-		return nil, errors.BadInput.New("invalid scopeId")
-	}
-	err := c.dbHelper.VerifyConnection(params.connectionId)
+	err = c.dbHelper.VerifyConnection(params.connectionId)
 	if err != nil {
 		return nil, err
 	}
@@ -206,11 +203,11 @@ func (c *GenericScopeApiHelper[Conn, Scope, Tr]) UpdateScope(input *plugin.ApiRe
 }
 
 func (c *GenericScopeApiHelper[Conn, Scope, Tr]) GetScopes(input *plugin.ApiResourceInput) ([]*ScopeRes[Scope, Tr], errors.Error) {
-	params := c.extractFromGetReqParam(input)
-	if params.connectionId == 0 {
+	params, err := c.extractFromGetReqParam(input, false)
+	if err != nil {
 		return nil, errors.BadInput.New("invalid path params: \"connectionId\" not set")
 	}
-	err := c.dbHelper.VerifyConnection(params.connectionId)
+	err = c.dbHelper.VerifyConnection(params.connectionId)
 	if err != nil {
 		return nil, errors.Default.Wrap(err, fmt.Sprintf("error verifying connection for connection ID %d", params.connectionId))
 	}
@@ -253,14 +250,11 @@ func (c *GenericScopeApiHelper[Conn, Scope, Tr]) GetScopes(input *plugin.ApiReso
 }
 
 func (c *GenericScopeApiHelper[Conn, Scope, Tr]) GetScope(input *plugin.ApiResourceInput) (*ScopeRes[Scope, Tr], errors.Error) {
-	params := c.extractFromGetReqParam(input)
-	if params == nil || params.connectionId == 0 {
-		return nil, errors.BadInput.New("invalid path params: \"connectionId\" not set")
+	params, err := c.extractFromGetReqParam(input, true)
+	if err != nil {
+		return nil, err
 	}
-	if len(params.scopeId) == 0 || params.scopeId == "0" {
-		return nil, errors.BadInput.New("invalid path params: \"scopeId\" not set/invalid")
-	}
-	err := c.dbHelper.VerifyConnection(params.connectionId)
+	err = c.dbHelper.VerifyConnection(params.connectionId)
 	if err != nil {
 		return nil, errors.Default.Wrap(err, fmt.Sprintf("error verifying connection for connection ID %d", params.connectionId))
 	}
@@ -286,14 +280,11 @@ func (c *GenericScopeApiHelper[Conn, Scope, Tr]) GetScope(input *plugin.ApiResou
 }
 
 func (c *GenericScopeApiHelper[Conn, Scope, Tr]) DeleteScope(input *plugin.ApiResourceInput) errors.Error {
-	params := c.extractFromDeleteReqParam(input)
-	if params == nil || params.connectionId == 0 {
-		return errors.BadInput.New("invalid path params: \"connectionId\" not set")
+	params, err := c.extractFromDeleteReqParam(input)
+	if err != nil {
+		return err
 	}
-	if len(params.scopeId) == 0 || params.scopeId == "0" {
-		return errors.BadInput.New("invalid path params: \"scopeId\" not set/invalid")
-	}
-	err := c.dbHelper.VerifyConnection(params.connectionId)
+	err = c.dbHelper.VerifyConnection(params.connectionId)
 	if err != nil {
 		return errors.Default.Wrap(err, fmt.Sprintf("error verifying connection for connection ID %d", params.connectionId))
 	}
@@ -357,56 +348,70 @@ func (c *GenericScopeApiHelper[Conn, Scope, Tr]) mapByScopeId(scopes []*ScopeRes
 	return scopeMap
 }
 
-func (c *GenericScopeApiHelper[Conn, Scope, Tr]) extractFromReqParam(input *plugin.ApiResourceInput) *requestParams {
+func (c *GenericScopeApiHelper[Conn, Scope, Tr]) extractFromReqParam(input *plugin.ApiResourceInput, withScopeId bool) (*requestParams, errors.Error) {
 	connectionId, err := strconv.ParseUint(input.Params["connectionId"], 10, 64)
-	if err != nil || connectionId == 0 {
-		connectionId = 0
+	if err != nil {
+		return nil, errors.BadInput.Wrap(err, "Invalid \"connectionId\"")
 	}
-	scopeId := input.Params["scopeId"]
+	if connectionId == 0 {
+		return nil, errors.BadInput.New("\"connectionId\" cannot be 0")
+	}
+	var scopeId string
+	if withScopeId {
+		scopeId = input.Params["scopeId"]
+		// Path params that use `/*param` handlers instead of `/:param` start with a /, so remove it
+		if scopeId[0] == '/' {
+			scopeId = scopeId[1:]
+		}
+	}
 	pluginName := input.Params["plugin"]
 	return &requestParams{
 		connectionId: connectionId,
-		scopeId:      scopeId,
 		plugin:       pluginName,
-	}
+		scopeId:      scopeId,
+	}, nil
 }
 
-func (c *GenericScopeApiHelper[Conn, Scope, Tr]) extractFromDeleteReqParam(input *plugin.ApiResourceInput) *deleteRequestParams {
-	params := c.extractFromReqParam(input)
-	var err errors.Error
+func (c *GenericScopeApiHelper[Conn, Scope, Tr]) extractFromDeleteReqParam(input *plugin.ApiResourceInput) (*deleteRequestParams, errors.Error) {
+	params, err := c.extractFromReqParam(input, true)
+	if err != nil {
+		return nil, err
+	}
 	var deleteDataOnly bool
 	{
 		ddo, ok := input.Query["delete_data_only"]
 		if ok {
 			deleteDataOnly, err = errors.Convert01(strconv.ParseBool(ddo[0]))
-		}
-		if err != nil {
-			deleteDataOnly = false
+			if err != nil {
+				deleteDataOnly = false
+			}
 		}
 	}
 	return &deleteRequestParams{
 		requestParams:  *params,
 		deleteDataOnly: deleteDataOnly,
-	}
+	}, nil
 }
 
-func (c *GenericScopeApiHelper[Conn, Scope, Tr]) extractFromGetReqParam(input *plugin.ApiResourceInput) *getRequestParams {
-	params := c.extractFromReqParam(input)
-	var err errors.Error
+func (c *GenericScopeApiHelper[Conn, Scope, Tr]) extractFromGetReqParam(input *plugin.ApiResourceInput, withScopeId bool) (*getRequestParams, errors.Error) {
+	params, err := c.extractFromReqParam(input, withScopeId)
+	if err != nil {
+		return nil, err
+	}
 	var loadBlueprints bool
 	{
 		lbps, ok := input.Query["blueprints"]
 		if ok {
 			loadBlueprints, err = errors.Convert01(strconv.ParseBool(lbps[0]))
-		}
-		if err != nil {
-			loadBlueprints = false
+			if err != nil {
+				loadBlueprints = false
+			}
 		}
 	}
 	return &getRequestParams{
 		requestParams:  *params,
 		loadBlueprints: loadBlueprints,
-	}
+	}, nil
 }
 
 func setScopeFields(p interface{}, connectionId uint64, createdDate *time.Time, updatedDate *time.Time) {
