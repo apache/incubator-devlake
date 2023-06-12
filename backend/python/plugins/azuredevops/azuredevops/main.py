@@ -22,7 +22,7 @@ from azuredevops.streams.jobs import Jobs
 from azuredevops.streams.pull_request_commits import GitPullRequestCommits
 from azuredevops.streams.pull_requests import GitPullRequests
 
-from pydevlake import Plugin, RemoteScopeGroup, DomainType, ScopeConfigPair, TestConnectionResult
+from pydevlake import Plugin, RemoteScopeGroup, DomainType, TestConnectionResult
 from pydevlake.domain_layer.code import Repo
 from pydevlake.domain_layer.devops import CicdScope
 from pydevlake.pipeline_tasks import gitextractor, refdiff
@@ -124,14 +124,14 @@ class AzureDevOpsPlugin(Plugin):
         return TestConnectionResult.from_api_response(res, message)
 
     def extra_tasks(self, scope: GitRepository, scope_config: GitRepositoryConfig, connection: AzureDevOpsConnection):
-        if DomainType.CODE in scope_config.entity_types and not scope.is_external():
+        if DomainType.CODE in scope_config.domain_types and not scope.is_external():
             url = urlparse(scope.remote_url)
             url = url._replace(netloc=f'{url.username}:{connection.token.get_secret_value()}@{url.hostname}')
             yield gitextractor(url.geturl(), scope.domain_id(), connection.proxy)
 
-    def extra_stages(self, scope_config_pairs: list[ScopeConfigPair], _):
+    def extra_stages(self, scope_config_pairs: list[tuple[GitRepository, GitRepositoryConfig]], _):
         for scope, config in scope_config_pairs:
-            if DomainType.CODE in config.entity_types:
+            if DomainType.CODE in config.domain_types:
                 if not scope.is_external():
                     yield [refdiff(scope.id, config.refdiff)]
 

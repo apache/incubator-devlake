@@ -172,7 +172,6 @@ def assert_valid_remote_scopes(plugin: Plugin, connection: Connection, group_id:
 def assert_valid_pipeline_plan(plugin: Plugin, connection: Connection, tool_scope: ToolScope, scope_config: ScopeConfig) -> list[list[PipelineTask]]:
     plan = plugin.make_pipeline_plan(
         [(tool_scope, scope_config)],
-        [domain_type.value for domain_type in DomainType],
         connection
     )
     assert len(plan) > 0, 'Pipeline plan has no stage'
