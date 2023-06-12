@@ -93,7 +93,7 @@ func ConvertRepo(taskCtx plugin.SubTaskContext) errors.Error {
 				DomainEntity: domainlayer.DomainEntity{
 					Id: repoIdGen.Generate(data.Options.ConnectionId, repository.GithubId),
 				},
-				Name:        repository.Name,
+				Name:        repository.FullName,
 				Url:         repository.HTMLUrl,
 				Description: repository.Description,
 				ForkedFrom:  repository.ParentHTMLUrl,
@@ -105,7 +105,7 @@ func ConvertRepo(taskCtx plugin.SubTaskContext) errors.Error {
 				DomainEntity: domainlayer.DomainEntity{
 					Id: repoIdGen.Generate(data.Options.ConnectionId, repository.GithubId),
 				},
-				Name:        repository.Name,
+				Name:        repository.FullName,
 				Url:         fmt.Sprintf("%s/%s", repository.HTMLUrl, "issues"),
 				Description: repository.Description,
 				CreatedDate: repository.CreatedDate,
@@ -120,7 +120,7 @@ func ConvertRepo(taskCtx plugin.SubTaskContext) errors.Error {
 				DomainEntity: domainlayer.DomainEntity{
 					Id: repoIdGen.Generate(data.Options.ConnectionId, repository.GithubId),
 				},
-				Name:        repository.Name,
+				Name:        repository.FullName,
 				Url:         repository.HTMLUrl,
 				Description: repository.Description,
 				CreatedDate: repository.CreatedDate,
