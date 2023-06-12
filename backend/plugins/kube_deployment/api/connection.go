@@ -164,7 +164,11 @@ func PatchConnection(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput,
 	}
 
 	var credentials map[string]interface{}
-	json.Unmarshal([]byte(connection.Credentials), &credentials)
+	unmarshalErr := json.Unmarshal([]byte(connection.Credentials), &credentials)
+
+	if unmarshalErr != nil {
+		return nil, errors.BadInput.New("credentials is not a valid json")
+	}
 
 	returnObject := ReturnObject{
 		KubeConnection: *connection,
@@ -208,10 +212,14 @@ func ListConnections(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput,
 	returnObjects := make([]ReturnObject, len(connections))
 	for i, connection := range connections {
 		var credentials map[string]interface{}
-		json.Unmarshal([]byte(connection.Credentials), &credentials)
+		unmarshalErr := json.Unmarshal([]byte(connection.Credentials), &credentials)
 
+		if unmarshalErr != nil {
+			returnObjects[i].Credentials = map[string]interface{}{}
+		} else {
+			returnObjects[i].Credentials = credentials
+		}
 		returnObjects[i].KubeConnection = connection
-		returnObjects[i].Credentials = credentials
 	}
 
 	return &plugin.ApiResourceOutput{Body: returnObjects, Status: http.StatusOK}, nil
@@ -256,7 +264,10 @@ func GetNameSpaces(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, e
 	}
 
 	var credentials map[string]interface{}
-	json.Unmarshal([]byte(connection.Credentials), &credentials)
+	unmarshalErr := json.Unmarshal([]byte(connection.Credentials), &credentials)
+	if unmarshalErr != nil {
+		return nil, errors.BadInput.New("credentials is not a valid json")
+	}
 	KubeAPIClient := kubeDeploymentHelper.NewKubeApiClient(credentials)
 
 	// Get the list of namespaces

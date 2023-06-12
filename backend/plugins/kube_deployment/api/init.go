@@ -27,7 +27,8 @@ import (
 var vld *validator.Validate
 var connectionHelper *helper.ConnectionApiHelper
 var scopeHelper *helper.ScopeApiHelper[models.KubeConnection, models.KubeDeployment, models.KubeDeploymentRevisionTransformationRule]
-var trHelper *helper.TransformationRuleHelper[models.KubeDeploymentRevisionTransformationRule]
+
+// var trHelper *helper.TransformationRuleHelper[models.KubeDeploymentRevisionTransformationRule]
 var basicRes context.BasicRes
 
 func Init(br context.BasicRes) {
@@ -43,8 +44,8 @@ func Init(br context.BasicRes) {
 		vld,
 		connectionHelper,
 	)
-	trHelper = helper.NewTransformationRuleHelper[models.KubeDeploymentRevisionTransformationRule](
-		basicRes,
-		vld,
-	)
+	// trHelper = helper.NewTransformationRuleHelper[models.KubeDeploymentRevisionTransformationRule](
+	// 	basicRes,
+	// 	vld,
+	// )
 }

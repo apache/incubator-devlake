@@ -3,6 +3,7 @@ package helper
 import (
 	"context"
 	"encoding/json"
+	"errors"
 	"fmt"
 	"log"
 
@@ -29,7 +30,8 @@ func NewKubeApiClient(credentials map[string]interface{}) *KubeApiClient {
 	providerType, ok := credentials["providerType"].(string)
 
 	if providerType == "" || !ok {
-		// TODO: Throw error
+		err := errors.New("providerType is not defined")
+		panic(err)
 	}
 
 	var kubeApiClient *kubernetes.Clientset
