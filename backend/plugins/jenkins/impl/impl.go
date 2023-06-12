@@ -246,7 +246,7 @@ func EnrichOptions(taskCtx plugin.TaskContext,
 	err = api.GetJob(apiClient, op.JobPath, op.JobName, op.JobFullName, 100, func(job *models.Job, isPath bool) errors.Error {
 		log.Debug(fmt.Sprintf("Current job: %s", job.FullName))
 		op.JobPath = job.Path
-		jenkinsJob := job.ConvertApiScope().(models.JenkinsJob)
+		jenkinsJob := job.ConvertApiScope().(*models.JenkinsJob)
 
 		jenkinsJob.ConnectionId = op.ConnectionId
 		jenkinsJob.ScopeConfigId = op.ScopeConfigId

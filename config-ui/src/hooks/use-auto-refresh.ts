@@ -46,11 +46,18 @@ export const useAutoRefresh = <T>(
 
   useEffect(() => {
     timer.current = setInterval(() => {
+      setLoading(true);
       retryCount.current += 1;
-      request().then((data) => setData(data));
+      request()
+        .then((data) => {
+          setData(data);
+        })
+        .finally(() => {
+          setLoading(false);
+        });
     }, option?.interval ?? 5000);
     return () => clearInterval(timer.current);
-  }, [...deps]);
+  }, []);
 
   useEffect(() => {
     if (option?.cancel?.(data) || (option?.retryLimit && option?.retryLimit <= retryCount.current)) {

@@ -16,17 +16,19 @@
  *
  */
 
-import { useMemo } from 'react';
+import { useMemo, useState } from 'react';
 import { useHistory } from 'react-router-dom';
-import { Icon, Tag, ButtonGroup, Button, Intent, Colors, IconName } from '@blueprintjs/core';
+import { Icon, Tag, Button, Intent, Colors, IconName } from '@blueprintjs/core';
 
 import { DEVLAKE_ENDPOINT } from '@/config';
-import { Card } from '@/components';
+import { Card, Buttons } from '@/components';
 import { useAutoRefresh } from '@/hooks';
 
 import * as API from './api';
 
 export const OfflinePage = () => {
+  const [version, setVersion] = useState(1);
+
   const history = useHistory();
 
   const { loading, data } = useAutoRefresh<{ online: boolean }>(
@@ -38,7 +40,7 @@ export const OfflinePage = () => {
         return { online: false };
       }
     },
-    [],
+    [version],
     {
       cancel: (data) => {
         return data?.online ?? false;
@@ -74,14 +76,20 @@ export const OfflinePage = () => {
             Please wait for the&nbsp;
             <strong>Lake API</strong> to start before accessing the <strong>Configuration Interface</strong>.
           </p>
-          <ButtonGroup>
-            <Button loading={loading} icon="refresh" intent={Intent.PRIMARY} text="Refresh" />
-          </ButtonGroup>
+          <Buttons position="bottom" align="center">
+            <Button
+              loading={loading}
+              icon="refresh"
+              intent={Intent.PRIMARY}
+              text="Refresh"
+              onClick={() => setVersion((v) => v + 1)}
+            />
+          </Buttons>
         </>
       ) : (
         <>
           <p>Connectivity to the Lake API service was successful.</p>
-          <ButtonGroup>
+          <Buttons position="bottom" align="center">
             <Button intent={Intent.PRIMARY} text="Continue" onClick={handleContinue} />
             <Button
               icon="help"
@@ -94,7 +102,7 @@ export const OfflinePage = () => {
                 )
               }
             />
-          </ButtonGroup>
+          </Buttons>
         </>
       )}
     </Card>

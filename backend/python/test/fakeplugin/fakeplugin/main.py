@@ -20,7 +20,7 @@ import json
 
 from pydantic import SecretStr
 
-from pydevlake import Plugin, Connection, Stream, ToolModel, ToolScope, ScopeConfig, RemoteScopeGroup, DomainType, Field
+from pydevlake import Plugin, Connection, Stream, ToolModel, ToolScope, ScopeConfig, RemoteScopeGroup, DomainType, Field, TestConnectionResult
 from pydevlake.domain_layer.devops import CicdScope, CICDPipeline, CICDStatus, CICDResult, CICDType
 
 VALID_TOKEN = "this_is_a_valid_token"
@@ -147,7 +147,16 @@ class FakePlugin(Plugin):
 
     def test_connection(self, connection: FakeConnection):
         if connection.token.get_secret_value() != VALID_TOKEN:
-            raise Exception("Invalid token")
+            return TestConnectionResult(
+                success=False,
+                message="Invalid token",
+                status=401
+            )
+        return TestConnectionResult(
+            success=True,
+            message="Connection successful",
+            status=200
+        )
 
     @property
     def streams(self):
