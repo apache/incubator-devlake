@@ -34,7 +34,7 @@ export type PluginConfigType = {
     fields: any[];
   };
   dataScope: {
-    millerColumns: {
+    millerColumns?: {
       title: string;
       subTitle: string;
       firstColumnTitle?: string;
@@ -43,6 +43,7 @@ export type PluginConfigType = {
       title?: string;
       subTitle?: string;
     };
+    render?: (props: any) => React.ReactNode;
   };
   scopeConfig?: {
     entities: string[];

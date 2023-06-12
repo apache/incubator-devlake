@@ -16,7 +16,7 @@
  *
  */
 
-import React, { useMemo, useState } from 'react';
+import { useMemo, useState } from 'react';
 import { Button, Intent } from '@blueprintjs/core';
 
 import { Buttons } from '@/components';
@@ -37,7 +37,7 @@ interface Props {
   onSubmit: (origin: any) => void;
 }
 
-export const DataScopeSelectRemote = ({ plugin, connectionId, disabledScope, onSubmit, onCancel }: Props) => {
+export const DataScopeSelectRemote = ({ plugin, connectionId, disabledScope, onCancel, onSubmit }: Props) => {
   const [operating, setOperating] = useState(false);
   const [scope, setScope] = useState<any>([]);
 
@@ -81,29 +81,43 @@ export const DataScopeSelectRemote = ({ plugin, connectionId, disabledScope, onS
     }
   };
 
+  console.log(scope);
+
   return (
     <S.Wrapper>
-      <h3>{pluginConfig.dataScope.millerColumns.title}</h3>
-      <p>{pluginConfig.dataScope.millerColumns.subTitle}</p>
-      <DataScopeMillerColumns
-        title={pluginConfig.dataScope.millerColumns?.firstColumnTitle}
-        plugin={plugin}
-        connectionId={connectionId}
-        disabledItems={disabledItems}
-        selectedItems={selectedItems}
-        onChangeItems={setScope}
-      />
-      {pluginConfig.dataScope.search && (
+      {pluginConfig.dataScope.render ? (
+        pluginConfig.dataScope.render({
+          plugin,
+          connectionId,
+          disabledItems,
+          selectedItems,
+          onChangeItems: setScope,
+        })
+      ) : (
         <>
-          <h4>{pluginConfig.dataScope.search.title}</h4>
-          <p>{pluginConfig.dataScope.search.subTitle}</p>
-          <DataScopeSearch
+          <h4>{pluginConfig.dataScope.millerColumns?.title}</h4>
+          <p>{pluginConfig.dataScope.millerColumns?.subTitle}</p>
+          <DataScopeMillerColumns
+            title={pluginConfig.dataScope.millerColumns?.firstColumnTitle}
             plugin={plugin}
             connectionId={connectionId}
             disabledItems={disabledItems}
             selectedItems={selectedItems}
             onChangeItems={setScope}
           />
+          {pluginConfig.dataScope.search && (
+            <>
+              <h5 style={{ marginTop: 16 }}>{pluginConfig.dataScope.search.title}</h5>
+              <p>{pluginConfig.dataScope.search.subTitle}</p>
+              <DataScopeSearch
+                plugin={plugin}
+                connectionId={connectionId}
+                disabledItems={disabledItems}
+                selectedItems={selectedItems}
+                onChangeItems={setScope}
+              />
+            </>
+          )}
         </>
       )}
       <Buttons position="bottom" align="right">

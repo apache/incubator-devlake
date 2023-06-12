@@ -21,6 +21,7 @@ import { ExternalLink } from '@/components';
 import type { PluginConfigType } from '../../types';
 import { PluginType } from '../../types';
 
+import { DataScope } from './data-scope';
 import Icon from './assets/icon.svg';
 
 export const TAPDConfig: PluginConfigType = {
@@ -72,10 +73,7 @@ export const TAPDConfig: PluginConfigType = {
     ],
   },
   dataScope: {
-    millerColumns: {
-      title: 'Workspaces *',
-      subTitle: 'Type in the company ID to list all the workspaces you want to sync.',
-    },
+    render: ({ ...props }) => <DataScope {...props} />,
   },
   scopeConfig: {
     entities: ['TICKET', 'CROSS'],
