@@ -167,12 +167,12 @@ type repo struct {
 
 func (r repo) ConvertApiScope() plugin.ToolLayerScope {
 	githubRepository := &models.GithubRepo{
-		//ConnectionId: data.Options.ConnectionId,
 		GithubId:    r.ID,
-		Name:        r.Name,
+		Name:        r.FullName,
 		HTMLUrl:     r.HTMLURL,
 		Description: r.Description,
 		OwnerId:     r.Owner.ID,
+		CloneUrl:    r.CloneURL,
 		CreatedDate: r.CreatedAt,
 		UpdatedDate: r.UpdatedAt,
 	}
@@ -194,6 +194,9 @@ func (r repo) ConvertApiScope() plugin.ToolLayerScope {
 func RemoteScopes(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, errors.Error) {
 	return remoteHelper.GetScopesFromRemote(input,
 		func(basicRes context2.BasicRes, gid string, queryData *api.RemoteQueryData, connection models.GithubConnection) ([]org, errors.Error) {
+			if gid != "" {
+				return nil, nil
+			}
 			apiClient, err := api.NewApiClientFromConnection(context.TODO(), basicRes, &connection)
 			if err != nil {
 				return nil, errors.BadInput.Wrap(err, "failed to get create apiClient")
