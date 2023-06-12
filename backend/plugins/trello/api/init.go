@@ -40,6 +40,7 @@ func Init(br context.BasicRes) {
 	params := &api.ReflectionParameters{
 		ScopeIdFieldName:  "BoardId",
 		ScopeIdColumnName: "board_id",
+		RawScopeParamName: "BoardId",
 	}
 	scopeHelper = api.NewScopeHelper[models.TrelloConnection, models.TrelloBoard, models.TrelloScopeConfig](
 		basicRes,
