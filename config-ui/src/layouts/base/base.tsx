@@ -18,10 +18,11 @@
 
 import { useEffect, useState } from 'react';
 import { useLocation } from 'react-router-dom';
-import { Menu, MenuItem, Tag, Navbar, Intent, Alignment, Button } from '@blueprintjs/core';
+import { Menu, MenuItem, Tag, Navbar, Intent, Alignment } from '@blueprintjs/core';
 
 import { PageLoading, Logo, ExternalLink } from '@/components';
 import { useTips, useRefreshData } from '@/hooks';
+import { TipsContextProvider, ConnectionContextProvider } from '@/store';
 import { history } from '@/utils/history';
 
 import DashboardIcon from '@/images/icons/dashborad.svg';
@@ -45,6 +46,7 @@ export const BaseLayout = ({ children }: Props) => {
   const { ready, data } = useRefreshData<{ version: string }>(() => API.getVersion(), []);
 
   const [userInfo, setUserInfo] = useState<API.UserInfo | null>(null);
+
   useEffect(() => {
     API.getUserInfo().then(setUserInfo);
   }, []);
@@ -69,100 +71,104 @@ export const BaseLayout = ({ children }: Props) => {
   }
 
   return (
-    <S.Wrapper>
-      <S.Sider>
-        <Logo />
-        <Menu className="menu">
-          {menu.map((it) => {
-            const paths = [it.path, ...(it.children ?? []).map((cit) => cit.path)];
-            const active = !!paths.find((path) => pathname.includes(path));
-            return (
-              <MenuItem
-                key={it.key}
-                className="menu-item"
-                text={it.title}
-                icon={it.icon}
-                active={active}
-                onClick={() => handlePushPath(it)}
-              >
-                {it.children?.map((cit) => (
+    <TipsContextProvider>
+      <ConnectionContextProvider>
+        <S.Wrapper>
+          <S.Sider>
+            <Logo />
+            <Menu className="menu">
+              {menu.map((it) => {
+                const paths = [it.path, ...(it.children ?? []).map((cit) => cit.path)];
+                const active = !!paths.find((path) => pathname.includes(path));
+                return (
                   <MenuItem
-                    key={cit.key}
-                    className="sub-menu-item"
-                    text={
-                      <S.SiderMenuItem>
-                        <span>{cit.title}</span>
-                        {cit.isBeta && <Tag intent={Intent.WARNING}>beta</Tag>}
-                      </S.SiderMenuItem>
-                    }
-                    icon={cit.icon ?? <img src={cit.iconUrl} width={16} alt="" />}
-                    active={pathname.includes(cit.path)}
-                    disabled={cit.disabled}
-                    onClick={() => handlePushPath(cit)}
-                  />
-                ))}
-              </MenuItem>
-            );
-          })}
-        </Menu>
-        <div className="copyright">
-          <div>Apache 2.0 License</div>
-          <div className="version">{data.version}</div>
-        </div>
-      </S.Sider>
-      <S.Main>
-        <S.Header>
-          <Navbar.Group align={Alignment.RIGHT}>
-            <S.DashboardIcon>
-              <ExternalLink link={getGrafanaUrl()}>
-                <img src={DashboardIcon} alt="dashboards" />
-                <span>Dashboards</span>
-              </ExternalLink>
-            </S.DashboardIcon>
-            <Navbar.Divider />
-            <a href="https://devlake.apache.org/docs/Configuration/Tutorial" rel="noreferrer" target="_blank">
-              <img src={FileIcon} alt="documents" />
-              <span>Docs</span>
-            </a>
-            <Navbar.Divider />
-            <ExternalLink link="/api/swagger/index.html">
-              <img src={APIIcon} alt="api" />
-              <span>API</span>
-            </ExternalLink>
-            <Navbar.Divider />
-            <a
-              href="https://github.com/apache/incubator-devlake"
-              rel="noreferrer"
-              target="_blank"
-              className="navIconLink"
-            >
-              <img src={GitHubIcon} alt="github" />
-              <span>GitHub</span>
-            </a>
-            <Navbar.Divider />
-            <a
-              href="https://join.slack.com/t/devlake-io/shared_invite/zt-17b6vuvps-x98pqseoUagM7EAmKC82xQ"
-              rel="noreferrer"
-              target="_blank"
-            >
-              <img src={SlackIcon} alt="slack" />
-              <span>Slack</span>
-            </a>
-            {userInfo && userInfo.logoutURI && (
-              <>
+                    key={it.key}
+                    className="menu-item"
+                    text={it.title}
+                    icon={it.icon}
+                    active={active}
+                    onClick={() => handlePushPath(it)}
+                  >
+                    {it.children?.map((cit) => (
+                      <MenuItem
+                        key={cit.key}
+                        className="sub-menu-item"
+                        text={
+                          <S.SiderMenuItem>
+                            <span>{cit.title}</span>
+                            {cit.isBeta && <Tag intent={Intent.WARNING}>beta</Tag>}
+                          </S.SiderMenuItem>
+                        }
+                        icon={cit.icon ?? <img src={cit.iconUrl} width={16} alt="" />}
+                        active={pathname.includes(cit.path)}
+                        disabled={cit.disabled}
+                        onClick={() => handlePushPath(cit)}
+                      />
+                    ))}
+                  </MenuItem>
+                );
+              })}
+            </Menu>
+            <div className="copyright">
+              <div>Apache 2.0 License</div>
+              <div className="version">{data.version}</div>
+            </div>
+          </S.Sider>
+          <S.Main>
+            <S.Header>
+              <Navbar.Group align={Alignment.RIGHT}>
+                <S.DashboardIcon>
+                  <ExternalLink link={getGrafanaUrl()}>
+                    <img src={DashboardIcon} alt="dashboards" />
+                    <span>Dashboards</span>
+                  </ExternalLink>
+                </S.DashboardIcon>
                 <Navbar.Divider />
-                <span>{userInfo.email}</span>
+                <a href="https://devlake.apache.org/docs/Configuration/Tutorial" rel="noreferrer" target="_blank">
+                  <img src={FileIcon} alt="documents" />
+                  <span>Docs</span>
+                </a>
                 <Navbar.Divider />
-                <a href={userInfo.logoutURI}>Sign Out</a>
-              </>
-            )}
-          </Navbar.Group>
-        </S.Header>
-        <S.Inner>
-          <S.Content>{children}</S.Content>
-        </S.Inner>
-        {tips && <S.Tips>{tips}</S.Tips>}
-      </S.Main>
-    </S.Wrapper>
+                <ExternalLink link="/api/swagger/index.html">
+                  <img src={APIIcon} alt="api" />
+                  <span>API</span>
+                </ExternalLink>
+                <Navbar.Divider />
+                <a
+                  href="https://github.com/apache/incubator-devlake"
+                  rel="noreferrer"
+                  target="_blank"
+                  className="navIconLink"
+                >
+                  <img src={GitHubIcon} alt="github" />
+                  <span>GitHub</span>
+                </a>
+                <Navbar.Divider />
+                <a
+                  href="https://join.slack.com/t/devlake-io/shared_invite/zt-17b6vuvps-x98pqseoUagM7EAmKC82xQ"
+                  rel="noreferrer"
+                  target="_blank"
+                >
+                  <img src={SlackIcon} alt="slack" />
+                  <span>Slack</span>
+                </a>
+                {userInfo && userInfo.logoutURI && (
+                  <>
+                    <Navbar.Divider />
+                    <span>{userInfo.email}</span>
+                    <Navbar.Divider />
+                    <a href={userInfo.logoutURI}>Sign Out</a>
+                  </>
+                )}
+              </Navbar.Group>
+            </S.Header>
+            <S.Inner>
+              <S.Content>{children}</S.Content>
+            </S.Inner>
+            {tips && <S.Tips>{tips}</S.Tips>}
+          </S.Main>
+        </S.Wrapper>
+      </ConnectionContextProvider>
+    </TipsContextProvider>
   );
 };

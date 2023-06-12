@@ -89,7 +89,7 @@ export const getCronOptions = () => {
     )
     .concat([
       {
-        value: 'custom',
+        value: '',
         label: 'Custom',
         subLabel: '',
       },
