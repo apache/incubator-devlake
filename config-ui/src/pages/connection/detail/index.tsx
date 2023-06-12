@@ -78,8 +78,6 @@ const ConnectionDetail = ({ plugin, connectionId }: Props) => {
     setType(undefined);
   };
 
-  console.log(data);
-
   const handleShowTips = () => {
     setTips(
       <div>
