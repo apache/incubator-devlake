@@ -58,7 +58,7 @@ export const BlueprintConnectionDetailPage = () => {
 
     const scopeIds = blueprint.settings.connections
       .find((cs: any) => cs.plugin === plugin && cs.connectionId === +connectionId)
-      .scopes.map((sc: any) => +sc.id);
+      .scopes.map((sc: any) => sc.id);
 
     return {
       blueprint,
@@ -68,7 +68,7 @@ export const BlueprintConnectionDetailPage = () => {
         id: +connectionId,
         name: connection.name,
       },
-      scopes: scopes.filter((sc: any) => scopeIds.includes(sc[getPluginId(plugin)])),
+      scopes: scopes.filter((sc: any) => scopeIds.includes(`${sc[getPluginId(plugin)]}`)),
     };
   }, [version, pname, bid]);
 
