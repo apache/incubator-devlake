@@ -38,3 +38,20 @@ export const CrossDomain = styled.div`
     }
   }
 `;
+
+export const DialogBody = styled.div`
+  ul {
+    padding: 8px 16px;
+    background: #efefef;
+  }
+
+  .search {
+    display: flex;
+    align-items: center;
+
+    .bp4-input-group {
+      margin-right: 24px;
+      width: 360px;
+    }
+  }
+`;

@@ -29,3 +29,11 @@ export const getBoards = (prefix: string, params: GetBoardsParams) =>
 export const getIssueType = (prefix: string) => request(`${prefix}/api/2/issuetype`);
 
 export const getField = (prefix: string) => request(`${prefix}/api/2/field`);
+
+export const getApplicationTypes = (connectionId: ID, query: { key: string }) =>
+  request(`/plugins/jira/connections/${connectionId}/application-types`, {
+    data: query,
+  });
+
+export const getDevPanelCommits = (connectionId: ID, query: { key: string; applicationType: string }) =>
+  request(`/plugins/jira/connections/${connectionId}/dev-panel-commits`, { data: query });
