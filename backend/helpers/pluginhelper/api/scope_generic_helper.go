@@ -635,7 +635,11 @@ func (gs *GenericScopeApiHelper[Conn, Scope, Tr]) getAffectedTables(pluginName s
 		// collect tool tables
 		tablesInfo := pluginModel.GetTablesInfo()
 		for _, table := range tablesInfo {
-			tables = append(tables, table.TableName())
+			// we only care about tables with RawOrigin
+			ok = hasField(table, "RawDataParams")
+			if ok {
+				tables = append(tables, table.TableName())
+			}
 		}
 		// collect domain tables
 		for _, domainTable := range domaininfo.GetDomainTablesInfo() {
