@@ -166,7 +166,7 @@ func (p GithubGraphql) PrepareTaskData(taskCtx plugin.TaskContext, options map[s
             return nil, errors.Convert(err)
         }
         if pu.Scheme == "http" || pu.Scheme == "socks5" {
-            httpClient.Transport.(*http.Transport).Proxy = http.ProxyURL(pu)
+            httpClient.Transport.(*oauth2.Transport).Proxy = http.ProxyURL(pu)
         }
     }
 
