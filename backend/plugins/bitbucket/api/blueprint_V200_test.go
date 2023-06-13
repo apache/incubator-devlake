@@ -111,14 +111,14 @@ func TestMakeDataSourcePipelinePlanV200(t *testing.T) {
 		DomainEntity: domainlayer.DomainEntity{
 			Id: "bitbucket:BitbucketRepo:1:likyh/likyhphp",
 		},
-		Name: "test/testRepo",
+		Name: "likyh/likyhphp",
 	}
 
 	scopeTicket := &ticket.Board{
 		DomainEntity: domainlayer.DomainEntity{
 			Id: "bitbucket:BitbucketRepo:1:likyh/likyhphp",
 		},
-		Name:        "test/testRepo",
+		Name:        "likyh/likyhphp",
 		Description: "",
 		Url:         "",
 		CreatedDate: nil,
