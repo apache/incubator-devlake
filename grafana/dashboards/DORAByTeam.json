@@ -3,7 +3,10 @@
     "list": [
       {
         "builtIn": 1,
-        "datasource": "-- Grafana --",
+        "datasource": {
+          "type": "datasource",
+          "uid": "grafana"
+        },
         "enable": true,
         "hide": true,
         "iconColor": "rgba(0, 211, 255, 1)",
@@ -21,12 +24,15 @@
   "editable": true,
   "fiscalYearStartMonth": 0,
   "graphTooltip": 0,
-  "id": 44,
-  "iteration": 1683291538967,
+  "id": 8,
   "links": [],
   "liveNow": false,
   "panels": [
     {
+      "datasource": {
+        "type": "datasource",
+        "uid": "grafana"
+      },
       "gridPos": {
         "h": 6,
         "w": 24,
@@ -35,10 +41,24 @@
       },
       "id": 16,
       "options": {
-				"content": "- See [how to config](https://devlake.apache.org/docs/DORA) this dashboard\n- Data Sources Required: \n  - `Deployments` from Jenkins, GitLab CI, GitHub Action, webhook, etc. \n  - `Pull Requests` from GitHub PRs, GitLab MRs, BitBucket PRs, Azure DevOps PRs, etc.\n  - `Incidents` from Jira issues, GitHub issues, TAPD issues, PagerDuty Incidents, etc. \n- Transformation Required: Define `deployments` and `incidents` in [data transformations](https://devlake.apache.org/docs/Configuration/Tutorial#step-3---add-transformations-optional) while configuring the blueprint of a project.\n- You can validate/debug this dashboard with the [DORA validation dashboard](/grafana/d/KGkUnV-Vz/dora-dashboard-validation) \n- You also need to do [team configuration](https://devlake.apache.org/docs/Configuration/TeamConfiguration) to use this dashboard. \n \nHow does this work? \n- Gets the author of the specific commit and then navigates to the team the user belongs to. \n- Gets the team from the PR's author. \n- Gets the team from the commit author.",
+        "code": {
+          "language": "plaintext",
+          "showLineNumbers": false,
+          "showMiniMap": false
+        },
+        "content": "- See [how to config](https://devlake.apache.org/docs/DORA) this dashboard\n- Data Sources Required: \n  - `Deployments` from Jenkins, GitLab CI, GitHub Action, webhook, etc. \n  - `Pull Requests` from GitHub PRs, GitLab MRs, BitBucket PRs, Azure DevOps PRs, etc.\n  - `Incidents` from Jira issues, GitHub issues, TAPD issues, PagerDuty Incidents, etc. \n- Transformation Required: Define `deployments` and `incidents` in [data transformations](https://devlake.apache.org/docs/Configuration/Tutorial#step-3---add-transformations-optional) while configuring the blueprint of a project.\n- You can validate/debug this dashboard with the [DORA validation dashboard](/grafana/d/KGkUnV-Vz/dora-dashboard-validation) \n- You also need to do [team configuration](https://devlake.apache.org/docs/Configuration/TeamConfiguration) to use this dashboard. \n \nHow does this work? \n- Gets the author of the specific commit and then navigates to the team the user belongs to. \n- Gets the team from the PR's author. \n- Gets the team from the commit author.",
         "mode": "markdown"
       },
-      "pluginVersion": "8.4.7",
+      "pluginVersion": "9.5.1",
+      "targets": [
+        {
+          "datasource": {
+            "type": "datasource",
+            "uid": "grafana"
+          },
+          "refId": "A"
+        }
+      ],
       "title": "Dashboard Introduction",
       "type": "text"
     },
@@ -53,8 +73,11 @@
           },
           "custom": {
             "align": "auto",
-            "displayMode": "auto",
-            "filterable": false
+            "cellOptions": {
+              "type": "auto"
+            },
+            "filterable": false,
+            "inspect": false
           },
           "mappings": [],
           "noValue": "-",
@@ -76,8 +99,10 @@
             },
             "properties": [
               {
-                "id": "custom.displayMode",
-                "value": "color-text"
+                "id": "custom.cellOptions",
+                "value": {
+                  "type": "color-text"
+                }
               },
               {
                 "id": "color",
@@ -95,8 +120,10 @@
             },
             "properties": [
               {
-                "id": "custom.displayMode",
-                "value": "color-text"
+                "id": "custom.cellOptions",
+                "value": {
+                  "type": "color-text"
+                }
               },
               {
                 "id": "color",
@@ -114,8 +141,10 @@
             },
             "properties": [
               {
-                "id": "custom.displayMode",
-                "value": "color-text"
+                "id": "custom.cellOptions",
+                "value": {
+                  "type": "color-text"
+                }
               },
               {
                 "id": "color",
@@ -133,8 +162,10 @@
             },
             "properties": [
               {
-                "id": "custom.displayMode",
-                "value": "color-text"
+                "id": "custom.cellOptions",
+                "value": {
+                  "type": "color-text"
+                }
               },
               {
                 "id": "color",
@@ -151,11 +182,13 @@
         "h": 6,
         "w": 24,
         "x": 0,
-        "y": 2
+        "y": 6
       },
       "id": 8,
       "options": {
+        "cellHeight": "sm",
         "footer": {
+          "countRows": false,
           "fields": "",
           "reducer": [
             "sum"
@@ -165,10 +198,16 @@
         "showHeader": true,
         "sortBy": []
       },
-      "pluginVersion": "8.4.7",
+      "pluginVersion": "9.5.1",
       "targets": [
         {
-          "datasource": "mysql",
+          "datasource": {
+            "0": "m",
+            "1": "y",
+            "2": "s",
+            "3": "q",
+            "4": "l"
+          },
           "format": "table",
           "group": [],
           "metricColumn": "none",
@@ -202,7 +241,10 @@
       "type": "table"
     },
     {
-      "datasource": "mysql",
+      "datasource": {
+        "type": "mysql",
+        "uid": "P430005175C4C7810"
+      },
       "fieldConfig": {
         "defaults": {
           "color": {
@@ -247,7 +289,7 @@
         "h": 5,
         "w": 6,
         "x": 0,
-        "y": 8
+        "y": 12
       },
       "id": 11,
       "options": {
@@ -265,10 +307,14 @@
         "text": {},
         "textMode": "auto"
       },
-      "pluginVersion": "8.4.7",
+      "pluginVersion": "9.5.1",
       "targets": [
         {
-          "datasource": "mysql",
+          "datasource": {
+            "type": "mysql",
+            "uid": "P430005175C4C7810"
+          },
+          "editorMode": "code",
           "format": "table",
           "group": [],
           "metricColumn": "none",
@@ -286,6 +332,23 @@
               }
             ]
           ],
+          "sql": {
+            "columns": [
+              {
+                "parameters": [],
+                "type": "function"
+              }
+            ],
+            "groupBy": [
+              {
+                "property": {
+                  "type": "string"
+                },
+                "type": "groupBy"
+              }
+            ],
+            "limit": 50
+          },
           "table": "_devlake_tasks",
           "timeColumn": "created_at",
           "timeColumnType": "timestamp",
@@ -347,7 +410,7 @@
         "h": 5,
         "w": 6,
         "x": 6,
-        "y": 8
+        "y": 12
       },
       "id": 12,
       "options": {
@@ -365,10 +428,16 @@
         "text": {},
         "textMode": "auto"
       },
-      "pluginVersion": "8.4.7",
+      "pluginVersion": "9.5.1",
       "targets": [
         {
-          "datasource": "mysql",
+          "datasource": {
+            "0": "m",
+            "1": "y",
+            "2": "s",
+            "3": "q",
+            "4": "l"
+          },
           "format": "table",
           "group": [],
           "metricColumn": "none",
@@ -451,7 +520,7 @@
         "h": 5,
         "w": 6,
         "x": 12,
-        "y": 8
+        "y": 12
       },
       "id": 13,
       "options": {
@@ -469,10 +538,16 @@
         "text": {},
         "textMode": "auto"
       },
-      "pluginVersion": "8.4.7",
+      "pluginVersion": "9.5.1",
       "targets": [
         {
-          "datasource": "mysql",
+          "datasource": {
+            "0": "m",
+            "1": "y",
+            "2": "s",
+            "3": "q",
+            "4": "l"
+          },
           "format": "table",
           "group": [],
           "metricColumn": "none",
@@ -551,7 +626,7 @@
         "h": 5,
         "w": 6,
         "x": 18,
-        "y": 8
+        "y": 12
       },
       "id": 14,
       "options": {
@@ -569,10 +644,16 @@
         "text": {},
         "textMode": "auto"
       },
-      "pluginVersion": "8.4.7",
+      "pluginVersion": "9.5.1",
       "targets": [
         {
-          "datasource": "mysql",
+          "datasource": {
+            "0": "m",
+            "1": "y",
+            "2": "s",
+            "3": "q",
+            "4": "l"
+          },
           "format": "table",
           "group": [],
           "metricColumn": "none",
@@ -606,13 +687,18 @@
       "type": "stat"
     },
     {
-      "datasource": "mysql",
+      "datasource": {
+        "type": "mysql",
+        "uid": "P430005175C4C7810"
+      },
       "fieldConfig": {
         "defaults": {
           "color": {
             "mode": "palette-classic"
           },
           "custom": {
+            "axisCenteredZero": false,
+            "axisColorMode": "text",
             "axisLabel": "",
             "axisPlacement": "auto",
             "axisSoftMin": 0,
@@ -626,6 +712,9 @@
             "lineWidth": 1,
             "scaleDistribution": {
               "type": "linear"
+            },
+            "thresholdsStyle": {
+              "mode": "off"
             }
           },
           "mappings": [],
@@ -649,17 +738,19 @@
         "h": 8,
         "w": 12,
         "x": 0,
-        "y": 13
+        "y": 17
       },
       "id": 2,
       "options": {
         "barRadius": 0,
         "barWidth": 0.6,
+        "fullHighlight": false,
         "groupWidth": 0.7,
         "legend": {
           "calcs": [],
           "displayMode": "list",
-          "placement": "bottom"
+          "placement": "bottom",
+          "showLegend": true
         },
         "orientation": "auto",
         "showValue": "auto",
@@ -674,41 +765,43 @@
       },
       "targets": [
         {
-          "datasource": "mysql",
+          "datasource": {
+            "type": "mysql",
+            "uid": "P430005175C4C7810"
+          },
+          "editorMode": "code",
           "format": "table",
-          "group": [],
-          "metricColumn": "none",
-          "queryType": "randomWalk",
+          "hide": false,
           "rawQuery": true,
-          "rawSql": "-- Metric 1: Number of deployments per month\nwith _deployments as(\n-- When deploying multiple commits in one pipeline, GitLab and BitBucket may generate more than one deployment. However, DevLake consider these deployments as ONE production deployment and use the last one's finished_date as the finished date.\n\tSELECT \n\t\tdate_format(deployment_finished_date,'%y/%m') as month,\n\t\tcount(cicd_deployment_id) as deployment_count\n\tFROM (\n\t\tSELECT\n\t\t\tcdc.cicd_deployment_id,\n\t\t\tmax(cdc.finished_date) as deployment_finished_date\n\t\tFROM cicd_deployment_commits cdc\n\t\tJOIN commits c on cdc.commit_sha = c.sha\n\t    join user_accounts ua on c.author_id = ua.account_id\n        join users u on ua.user_id = u.id\n        join team_users tu on u.id = tu.user_id\n        join teams t on tu.team_id = t.id\n\t\tJOIN project_mapping pm on cdc.cicd_scope_id = pm.row_id\n\t\tWHERE\n\t\t\tt.name in ($team)\n\t\t\tand cdc.result = 'SUCCESS'\n\t\t\tand cdc.environment = 'PRODUCTION'\n\t\tGROUP BY 1\n\t\tHAVING $__timeFilter(max(cdc.finished_date))\n\t) _production_deployments\n\tGROUP BY 1\n),\n\n_calendar_months as(\n-- construct the calendar months of last 6 months\n\tSELECT date_format(CAST((SYSDATE()-INTERVAL (month_index) MONTH) AS date), '%y/%m') as month\n\tFROM ( SELECT 0 month_index\n\t\t\tUNION ALL SELECT   1  UNION ALL SELECT   2 UNION ALL SELECT   3\n\t\t\tUNION ALL SELECT   4  UNION ALL SELECT   5 UNION ALL SELECT   6\n\t\t\tUNION ALL SELECT   7  UNION ALL SELECT   8 UNION ALL SELECT   9\n\t\t\tUNION ALL SELECT   10 UNION ALL SELECT  11\n\t\t) month_index\n\tWHERE (SYSDATE()-INTERVAL (month_index) MONTH) > SYSDATE()-INTERVAL 6 MONTH\t\n)\n\nSELECT \n\tcm.month, \n\tcase when d.deployment_count is null then 0 else d.deployment_count end as deployment_count\nFROM \n\t_calendar_months cm\n\tleft join _deployments d on cm.month = d.month\nORDER BY 1",
+          "rawSql": "-- Metric 1: Number of deployments per month\nwith _deployments as(\n-- When deploying multiple commits in one pipeline, GitLab and BitBucket may generate more than one deployment. However, DevLake consider these deployments as ONE production deployment and use the last one's finished_date as the finished date.\n\tSELECT \n\t\tdate_format(deployment_finished_date,'%y/%m') as month,\n\t\tcount(cicd_deployment_id) as deployment_count\n\tFROM (\n\t\tSELECT\n\t\t\tcdc.cicd_deployment_id,\n\t\t\tmax(cdc.finished_date) as deployment_finished_date\n\t\tFROM cicd_deployment_commits cdc\n\t\tJOIN commits c on cdc.commit_sha = c.sha\n\t    join user_accounts ua on c.author_id = ua.account_id\n        join users u on ua.user_id = u.id\n        join team_users tu on u.id = tu.user_id\n        join teams t on tu.team_id = t.id\n\t\tJOIN project_mapping pm on cdc.cicd_scope_id = pm.row_id\n\t\tWHERE\n\t\t\tt.name in ($team)\n\t\t\tand cdc.result = 'SUCCESS'\n\t\t\tand cdc.environment = 'PRODUCTION'\n\t\tGROUP BY 1\n\t\tHAVING max(cdc.finished_date BETWEEN FROM_UNIXTIME(1670906384) AND FROM_UNIXTIME(1686631184))\n\t) _production_deployments\n\tGROUP BY 1\n)\n\nSELECT \n\tcm.month, \n\tcase when d.deployment_count is null then 0 else d.deployment_count end as deployment_count\nFROM \n\tcalendar_months cm\n\tleft join _deployments d on cm.month = d.month\nWHERE $__timeFilter(month_timestamp) ",
           "refId": "A",
-          "select": [
-            [
+          "sql": {
+            "columns": [
               {
-                "params": [
-                  "id"
-                ],
-                "type": "column"
+                "parameters": [],
+                "type": "function"
               }
-            ]
-          ],
-          "table": "_devlake_blueprints",
-          "timeColumn": "created_at",
-          "timeColumnType": "timestamp",
-          "where": [
-            {
-              "name": "$__timeFilter",
-              "params": [],
-              "type": "macro"
-            }
-          ]
+            ],
+            "groupBy": [
+              {
+                "property": {
+                  "type": "string"
+                },
+                "type": "groupBy"
+              }
+            ],
+            "limit": 50
+          }
         }
       ],
       "title": "Monthly deployments",
       "type": "barchart"
     },
     {
-      "datasource": "mysql",
+      "datasource": {
+        "type": "mysql",
+        "uid": "P430005175C4C7810"
+      },
       "description": "",
       "fieldConfig": {
         "defaults": {
@@ -716,6 +809,8 @@
             "mode": "palette-classic"
           },
           "custom": {
+            "axisCenteredZero": false,
+            "axisColorMode": "text",
             "axisLabel": "Hours",
             "axisPlacement": "auto",
             "axisSoftMin": 0,
@@ -729,6 +824,9 @@
             "lineWidth": 1,
             "scaleDistribution": {
               "type": "linear"
+            },
+            "thresholdsStyle": {
+              "mode": "off"
             }
           },
           "mappings": [],
@@ -748,17 +846,19 @@
         "h": 8,
         "w": 12,
         "x": 12,
-        "y": 13
+        "y": 17
       },
       "id": 6,
       "options": {
         "barRadius": 0,
         "barWidth": 0.7,
+        "fullHighlight": false,
         "groupWidth": 0.7,
         "legend": {
           "calcs": [],
           "displayMode": "list",
-          "placement": "bottom"
+          "placement": "bottom",
+          "showLegend": true
         },
         "orientation": "auto",
         "showValue": "auto",
@@ -774,41 +874,43 @@
       "pluginVersion": "8.0.6",
       "targets": [
         {
-          "datasource": "mysql",
+          "datasource": {
+            "type": "mysql",
+            "uid": "P430005175C4C7810"
+          },
+          "editorMode": "code",
           "format": "table",
-          "group": [],
           "hide": false,
-          "metricColumn": "none",
           "rawQuery": true,
-          "rawSql": "-- Metric 2: median change lead time per month\nwith _pr_stats as (\n-- get the cycle time of PRs deployed by the deployments finished each month\n\tSELECT\n\t\tdistinct pr.id,\n\t\tdate_format(cdc.finished_date,'%y/%m') as month,\n\t\tppm.pr_cycle_time\n\tFROM\n\t\tpull_requests pr\n\t\tjoin user_accounts ua on pr.author_id = ua.account_id\n    \tjoin users u on ua.user_id = u.id\n    \tjoin team_users tu on u.id = tu.user_id\n    \tjoin teams t on tu.team_id = t.id\n\t\tjoin project_pr_metrics ppm on ppm.id = pr.id\n\t\tjoin project_mapping pm on pr.base_repo_id = pm.row_id\n\t\tjoin cicd_deployment_commits cdc on ppm.deployment_commit_id = cdc.id\n\tWHERE\n\t\tt.name in ($team) \n\t\tand pr.merged_date is not null\n\t\tand ppm.pr_cycle_time is not null\n\t\tand $__timeFilter(cdc.finished_date)\n),\n\n_find_median_clt_each_month_ranks as(\n\tSELECT *, percent_rank() over(PARTITION BY month order by pr_cycle_time) as ranks\n\tFROM _pr_stats\n),\n\n_clt as(\n\tSELECT month, max(pr_cycle_time) as median_change_lead_time\n\tFROM _find_median_clt_each_month_ranks\n\tWHERE ranks <= 0.5\n\tgroup by month\n),\n\n_calendar_months as(\n-- to\tdeal with the month with no incidents\n\tSELECT date_format(CAST((SYSDATE()-INTERVAL (month_index) MONTH) AS date), '%y/%m') as month\n\tFROM ( SELECT 0 month_index\n\t\t\tUNION ALL SELECT   1  UNION ALL SELECT   2 UNION ALL SELECT   3\n\t\t\tUNION ALL SELECT   4  UNION ALL SELECT   5 UNION ALL SELECT   6\n\t\t\tUNION ALL SELECT   7  UNION ALL SELECT   8 UNION ALL SELECT   9\n\t\t\tUNION ALL SELECT   10 UNION ALL SELECT  11\n\t\t) month_index\n\tWHERE (SYSDATE()-INTERVAL (month_index) MONTH) > SYSDATE()-INTERVAL 6 MONTH\t\n)\n\nSELECT \n\tcm.month,\n\tcase \n\t\twhen _clt.median_change_lead_time is null then 0 \n\t\telse _clt.median_change_lead_time/60 end as median_change_lead_time_in_hour\nFROM \n\t_calendar_months cm\n\tleft join _clt on cm.month = _clt.month\nORDER BY 1",
+          "rawSql": "-- Metric 2: median change lead time per month\nwith _pr_stats as (\n-- get the cycle time of PRs deployed by the deployments finished each month\n\tSELECT\n\t\tdistinct pr.id,\n\t\tdate_format(cdc.finished_date,'%y/%m') as month,\n\t\tppm.pr_cycle_time\n\tFROM\n\t\tpull_requests pr\n\t\tjoin user_accounts ua on pr.author_id = ua.account_id\n    \tjoin users u on ua.user_id = u.id\n    \tjoin team_users tu on u.id = tu.user_id\n    \tjoin teams t on tu.team_id = t.id\n\t\tjoin project_pr_metrics ppm on ppm.id = pr.id\n\t\tjoin project_mapping pm on pr.base_repo_id = pm.row_id\n\t\tjoin cicd_deployment_commits cdc on ppm.deployment_commit_id = cdc.id\n\tWHERE\n\t\tt.name in ($team) \n\t\tand pr.merged_date is not null\n\t\tand ppm.pr_cycle_time is not null\n\t\tand cdc.finished_date BETWEEN FROM_UNIXTIME(1670906454) AND FROM_UNIXTIME(1686631254)\n),\n\n_find_median_clt_each_month_ranks as(\n\tSELECT *, percent_rank() over(PARTITION BY month order by pr_cycle_time) as ranks\n\tFROM _pr_stats\n),\n\n_clt as(\n\tSELECT month, max(pr_cycle_time) as median_change_lead_time\n\tFROM _find_median_clt_each_month_ranks\n\tWHERE ranks <= 0.5\n\tgroup by month\n)\n\nSELECT \n\tcm.month,\n\tcase \n\t\twhen _clt.median_change_lead_time is null then 0 \n\t\telse _clt.median_change_lead_time/60 end as median_change_lead_time_in_hour\nFROM \n\tcalendar_months cm\n\tleft join _clt on cm.month = _clt.month\nWHERE $__timeFilter(month_timestamp) ",
           "refId": "A",
-          "select": [
-            [
+          "sql": {
+            "columns": [
               {
-                "params": [
-                  "id"
-                ],
-                "type": "column"
+                "parameters": [],
+                "type": "function"
               }
-            ]
-          ],
-          "table": "ae_projects",
-          "timeColumn": "ae_create_time",
-          "timeColumnType": "timestamp",
-          "where": [
-            {
-              "name": "$__timeFilter",
-              "params": [],
-              "type": "macro"
-            }
-          ]
+            ],
+            "groupBy": [
+              {
+                "property": {
+                  "type": "string"
+                },
+                "type": "groupBy"
+              }
+            ],
+            "limit": 50
+          }
         }
       ],
       "title": "Median Lead Time for Changes",
       "type": "barchart"
     },
     {
-      "datasource": "mysql",
+      "datasource": {
+        "type": "mysql",
+        "uid": "P430005175C4C7810"
+      },
       "description": "",
       "fieldConfig": {
         "defaults": {
@@ -816,6 +918,8 @@
             "mode": "palette-classic"
           },
           "custom": {
+            "axisCenteredZero": false,
+            "axisColorMode": "text",
             "axisLabel": "Hours",
             "axisPlacement": "auto",
             "axisSoftMin": 0,
@@ -829,6 +933,9 @@
             "lineWidth": 1,
             "scaleDistribution": {
               "type": "linear"
+            },
+            "thresholdsStyle": {
+              "mode": "off"
             }
           },
           "mappings": [],
@@ -869,17 +976,19 @@
         "h": 8,
         "w": 12,
         "x": 0,
-        "y": 21
+        "y": 25
       },
       "id": 9,
       "options": {
         "barRadius": 0,
         "barWidth": 0.6,
+        "fullHighlight": false,
         "groupWidth": 0.7,
         "legend": {
           "calcs": [],
           "displayMode": "list",
-          "placement": "bottom"
+          "placement": "bottom",
+          "showLegend": true
         },
         "orientation": "auto",
         "showValue": "auto",
@@ -895,41 +1004,43 @@
       "pluginVersion": "8.0.6",
       "targets": [
         {
-          "datasource": "mysql",
+          "datasource": {
+            "type": "mysql",
+            "uid": "P430005175C4C7810"
+          },
+          "editorMode": "code",
           "format": "table",
-          "group": [],
           "hide": false,
-          "metricColumn": "none",
           "rawQuery": true,
-          "rawSql": "-- Metric 3: median time to restore service - MTTR\nwith _incidents as (\n-- get the number of incidents created each month\n\tSELECT\n\t  distinct i.id,\n\t\tdate_format(i.created_date,'%y/%m') as month,\n\t\tcast(lead_time_minutes as signed) as lead_time_minutes\n\tFROM\n\t\tissues i\n\t  join board_issues bi on i.id = bi.issue_id\n\t  join boards b on bi.board_id = b.id\n\t  join project_mapping pm on b.id = pm.row_id\n\t  join user_accounts ua on i.assignee_id = ua.account_id\n      join users u on ua.user_id = u.id\n      join team_users tu on u.id = tu.user_id\n      join teams t on tu.team_id = t.id\n\tWHERE\n\t  t.name in ($team)\n\t\tand i.type = 'INCIDENT'\n\t\tand i.lead_time_minutes is not null\n),\n\n_find_median_mttr_each_month_ranks as(\n\tSELECT *, percent_rank() over(PARTITION BY month order by lead_time_minutes) as ranks\n\tFROM _incidents\n),\n\n_mttr as(\n\tSELECT month, max(lead_time_minutes) as median_time_to_resolve\n\tFROM _find_median_mttr_each_month_ranks\n\tWHERE ranks <= 0.5\n\tGROUP BY month\n),\n\n_calendar_months as(\n-- deal with the month with no incidents\n\tSELECT date_format(CAST((SYSDATE()-INTERVAL (month_index) MONTH) AS date), '%y/%m') as month\n\tFROM ( SELECT 0 month_index\n\t\t\tUNION ALL SELECT   1  UNION ALL SELECT   2 UNION ALL SELECT   3\n\t\t\tUNION ALL SELECT   4  UNION ALL SELECT   5 UNION ALL SELECT   6\n\t\t\tUNION ALL SELECT   7  UNION ALL SELECT   8 UNION ALL SELECT   9\n\t\t\tUNION ALL SELECT   10 UNION ALL SELECT  11\n\t\t) month_index\n\tWHERE (SYSDATE()-INTERVAL (month_index) MONTH) > SYSDATE()-INTERVAL 6 MONTH\t\n)\n\nSELECT \n\tcm.month,\n\tcase \n\t\twhen m.median_time_to_resolve is null then 0 \n\t\telse m.median_time_to_resolve/60 end as median_time_to_resolve_in_hour\nFROM \n\t_calendar_months cm\n\tleft join _mttr m on cm.month = m.month\nORDER BY 1",
+          "rawSql": "-- Metric 3: median time to restore service - MTTR\nwith _incidents as (\n-- get the number of incidents created each month\n\tSELECT\n\t  distinct i.id,\n\t\tdate_format(i.created_date,'%y/%m') as month,\n\t\tcast(lead_time_minutes as signed) as lead_time_minutes\n\tFROM\n\t\tissues i\n\t  join board_issues bi on i.id = bi.issue_id\n\t  join boards b on bi.board_id = b.id\n\t  join project_mapping pm on b.id = pm.row_id\n\t  join user_accounts ua on i.assignee_id = ua.account_id\n      join users u on ua.user_id = u.id\n      join team_users tu on u.id = tu.user_id\n      join teams t on tu.team_id = t.id\n\tWHERE\n\t  t.name in ($team)\n\t\tand i.type = 'INCIDENT'\n\t\tand i.lead_time_minutes is not null\n),\n\n_find_median_mttr_each_month_ranks as(\n\tSELECT *, percent_rank() over(PARTITION BY month order by lead_time_minutes) as ranks\n\tFROM _incidents\n),\n\n_mttr as(\n\tSELECT month, max(lead_time_minutes) as median_time_to_resolve\n\tFROM _find_median_mttr_each_month_ranks\n\tWHERE ranks <= 0.5\n\tGROUP BY month\n)\n\nSELECT \n\tcm.month,\n\tcase \n\t\twhen m.median_time_to_resolve is null then 0 \n\t\telse m.median_time_to_resolve/60 end as median_time_to_resolve_in_hour\nFROM \n\tcalendar_months cm\n\tleft join _mttr m on cm.month = m.month\nWHERE $__timeFilter(month_timestamp) ",
           "refId": "A",
-          "select": [
-            [
+          "sql": {
+            "columns": [
               {
-                "params": [
-                  "id"
-                ],
-                "type": "column"
+                "parameters": [],
+                "type": "function"
               }
-            ]
-          ],
-          "table": "ae_projects",
-          "timeColumn": "ae_create_time",
-          "timeColumnType": "timestamp",
-          "where": [
-            {
-              "name": "$__timeFilter",
-              "params": [],
-              "type": "macro"
-            }
-          ]
+            ],
+            "groupBy": [
+              {
+                "property": {
+                  "type": "string"
+                },
+                "type": "groupBy"
+              }
+            ],
+            "limit": 50
+          }
         }
       ],
       "title": "Median Time to Restore Service",
       "type": "barchart"
     },
     {
-      "datasource": "mysql",
+      "datasource": {
+        "type": "mysql",
+        "uid": "P430005175C4C7810"
+      },
       "description": "",
       "fieldConfig": {
         "defaults": {
@@ -937,6 +1048,8 @@
             "mode": "palette-classic"
           },
           "custom": {
+            "axisCenteredZero": false,
+            "axisColorMode": "text",
             "axisLabel": "",
             "axisPlacement": "auto",
             "axisSoftMin": 0,
@@ -950,6 +1063,9 @@
             "lineWidth": 1,
             "scaleDistribution": {
               "type": "linear"
+            },
+            "thresholdsStyle": {
+              "mode": "off"
             }
           },
           "mappings": [],
@@ -988,17 +1104,19 @@
         "h": 8,
         "w": 12,
         "x": 12,
-        "y": 21
+        "y": 25
       },
       "id": 5,
       "options": {
         "barRadius": 0,
         "barWidth": 0.6,
+        "fullHighlight": false,
         "groupWidth": 0.7,
         "legend": {
           "calcs": [],
           "displayMode": "list",
-          "placement": "bottom"
+          "placement": "bottom",
+          "showLegend": true
         },
         "orientation": "auto",
         "showValue": "auto",
@@ -1014,34 +1132,33 @@
       "pluginVersion": "8.0.6",
       "targets": [
         {
-          "datasource": "mysql",
+          "datasource": {
+            "type": "mysql",
+            "uid": "P430005175C4C7810"
+          },
+          "editorMode": "code",
           "format": "table",
-          "group": [],
           "hide": false,
-          "metricColumn": "none",
           "rawQuery": true,
-          "rawSql": "-- Metric 4: change failure rate per month\nwith _deployments as (\n-- When deploying multiple commits in one pipeline, GitLab and BitBucket may generate more than one deployment. However, DevLake consider these deployments as ONE production deployment and use the last one's finished_date as the finished date.\n\tSELECT\n\t\tcdc.cicd_deployment_id as deployment_id,\n\t\tmax(cdc.finished_date) as deployment_finished_date\n\tFROM \n\t\tcicd_deployment_commits cdc\n\t\tJOIN commits c on cdc.commit_sha = c.sha\n\tjoin user_accounts ua on c.author_id = ua.account_id\n    join users u on ua.user_id = u.id\n    join team_users tu on u.id = tu.user_id\n    join teams t on tu.team_id = t.id\n\tJOIN project_mapping pm on cdc.cicd_scope_id = pm.row_id\n\tWHERE\n\t\tt.name in ($team)\n\t\tand cdc.result = 'SUCCESS'\n\t\tand cdc.environment = 'PRODUCTION'\n\tGROUP BY 1\n\tHAVING $__timeFilter(max(cdc.finished_date))\n),\n\n_failure_caused_by_deployments as (\n-- calculate the number of incidents caused by each deployment\n\tSELECT\n\t\td.deployment_id,\n\t\td.deployment_finished_date,\n\t\tcount(distinct case when i.type = 'INCIDENT' then d.deployment_id else null end) as has_incident\n\tFROM\n\t\t_deployments d\n\t\tleft join project_issue_metrics pim on d.deployment_id = pim.deployment_id\n\t\tleft join issues i on pim.id = i.id\n\tGROUP BY 1,2\n),\n\n_change_failure_rate_for_each_month as (\n\tSELECT \n\t\tdate_format(deployment_finished_date,'%y/%m') as month,\n\t\tcase \n\t\t\twhen count(deployment_id) is null then null\n\t\t\telse sum(has_incident)/count(deployment_id) end as change_failure_rate\n\tFROM\n\t\t_failure_caused_by_deployments\n\tGROUP BY 1\n),\n\n_calendar_months as(\n-- deal with the month with no incidents\n\tSELECT date_format(CAST((SYSDATE()-INTERVAL (month_index) MONTH) AS date), '%y/%m') as month\n\tFROM ( SELECT 0 month_index\n\t\t\tUNION ALL SELECT   1  UNION ALL SELECT   2 UNION ALL SELECT   3\n\t\t\tUNION ALL SELECT   4  UNION ALL SELECT   5 UNION ALL SELECT   6\n\t\t\tUNION ALL SELECT   7  UNION ALL SELECT   8 UNION ALL SELECT   9\n\t\t\tUNION ALL SELECT   10 UNION ALL SELECT  11\n\t\t) month_index\n\tWHERE (SYSDATE()-INTERVAL (month_index) MONTH) > SYSDATE()-INTERVAL 6 MONTH\t\n)\n\nSELECT \n\tcm.month,\n\tcfr.change_failure_rate\nFROM \n\t_calendar_months cm\n\tleft join _change_failure_rate_for_each_month cfr on cm.month = cfr.month\nGROUP BY 1,2\nORDER BY 1 ",
+          "rawSql": "-- Metric 4: change failure rate per month\nwith _deployments as (\n-- When deploying multiple commits in one pipeline, GitLab and BitBucket may generate more than one deployment. However, DevLake consider these deployments as ONE production deployment and use the last one's finished_date as the finished date.\n\tSELECT\n\t\tcdc.cicd_deployment_id as deployment_id,\n\t\tmax(cdc.finished_date) as deployment_finished_date\n\tFROM \n\t\tcicd_deployment_commits cdc\n\t\tJOIN commits c on cdc.commit_sha = c.sha\n\tjoin user_accounts ua on c.author_id = ua.account_id\n    join users u on ua.user_id = u.id\n    join team_users tu on u.id = tu.user_id\n    join teams t on tu.team_id = t.id\n\tJOIN project_mapping pm on cdc.cicd_scope_id = pm.row_id\n\tWHERE\n\t\tt.name in ($team)\n\t\tand cdc.result = 'SUCCESS'\n\t\tand cdc.environment = 'PRODUCTION'\n\tGROUP BY 1\n\tHAVING max(cdc.finished_date BETWEEN FROM_UNIXTIME(1670906564) AND FROM_UNIXTIME(1686631364))\n),\n\n_failure_caused_by_deployments as (\n-- calculate the number of incidents caused by each deployment\n\tSELECT\n\t\td.deployment_id,\n\t\td.deployment_finished_date,\n\t\tcount(distinct case when i.type = 'INCIDENT' then d.deployment_id else null end) as has_incident\n\tFROM\n\t\t_deployments d\n\t\tleft join project_issue_metrics pim on d.deployment_id = pim.deployment_id\n\t\tleft join issues i on pim.id = i.id\n\tGROUP BY 1,2\n),\n\n_change_failure_rate_for_each_month as (\n\tSELECT \n\t\tdate_format(deployment_finished_date,'%y/%m') as month,\n\t\tcase \n\t\t\twhen count(deployment_id) is null then null\n\t\t\telse sum(has_incident)/count(deployment_id) end as change_failure_rate\n\tFROM\n\t\t_failure_caused_by_deployments\n\tGROUP BY 1\n)\n\nSELECT \n\tcm.month,\n\tcfr.change_failure_rate\nFROM \n\tcalendar_months cm\n\tleft join _change_failure_rate_for_each_month cfr on cm.month = cfr.month\nWHERE $__timeFilter(month_timestamp) ",
           "refId": "A",
-          "select": [
-            [
+          "sql": {
+            "columns": [
               {
-                "params": [
-                  "id"
-                ],
-                "type": "column"
+                "parameters": [],
+                "type": "function"
               }
-            ]
-          ],
-          "table": "ae_projects",
-          "timeColumn": "ae_create_time",
-          "timeColumnType": "timestamp",
-          "where": [
-            {
-              "name": "$__timeFilter",
-              "params": [],
-              "type": "macro"
-            }
-          ]
+            ],
+            "groupBy": [
+              {
+                "property": {
+                  "type": "string"
+                },
+                "type": "groupBy"
+              }
+            ],
+            "limit": 50
+          }
         }
       ],
       "title": "Change Failure Rate",
@@ -1049,7 +1166,7 @@
     }
   ],
   "refresh": "",
-  "schemaVersion": 35,
+  "schemaVersion": 38,
   "style": "dark",
   "tags": [],
   "templating": {
@@ -1064,15 +1181,18 @@
             "Experience"
           ]
         },
-        "datasource": "mysql",
-        "definition": "select distinct name from teams",
+        "datasource": {
+          "type": "mysql",
+          "uid": "P430005175C4C7810"
+        },
+        "definition": "select distinct team from teams",
         "hide": 0,
-        "includeAll": true,
+        "includeAll": false,
         "label": "Team",
-        "multi": true,
+        "multi": false,
         "name": "team",
         "options": [],
-        "query": "select distinct name from teams",
+        "query": "select distinct team from teams",
         "refresh": 1,
         "regex": "",
         "skipUrlSync": false,
