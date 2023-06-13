@@ -243,6 +243,7 @@ export const Auth = ({ initialValues, values, errors, setValues, setErrors, setV
           <FormGroup style={{ marginTop: 8, marginBottom: 0 }} label={<S.Label>Client Secret</S.Label>}>
             <InputGroup
               placeholder="Your Client Secret"
+              type={'password'}
               value={(values.credentials as AzureAuth).clientSecret}
               onChange={(e) =>
                 setValuesDefault((prev) => ({
@@ -323,6 +324,7 @@ export const Auth = ({ initialValues, values, errors, setValues, setErrors, setV
           <FormGroup style={{ marginTop: 8, marginBottom: 0 }} label={<S.Label>Secret Access Key</S.Label>}>
             <InputGroup
               placeholder="Your Secret Access Key"
+              type={'password'}
               value={(values.credentials as AWSAuth).secretAccessKey}
               onChange={(e) =>
                 setValuesDefault((prev) => ({
