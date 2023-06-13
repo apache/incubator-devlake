@@ -86,7 +86,7 @@ func makeScopeV200(connectionId uint64, scopes []*plugin.BlueprintScopeV200) ([]
 		if utils.StringsContains(scopeConfig.Entities, plugin.DOMAIN_TYPE_CODE_REVIEW) ||
 			utils.StringsContains(scopeConfig.Entities, plugin.DOMAIN_TYPE_CODE) {
 			// if we don't need to collect gitex, we need to add repo to scopes here
-			scopeRepo := code.NewRepo(id, gitlabProject.Name)
+			scopeRepo := code.NewRepo(id, gitlabProject.PathWithNamespace)
 
 			if gitlabProject.ForkedFromProjectWebUrl != "" {
 				scopeRepo.ForkedFrom = gitlabProject.ForkedFromProjectWebUrl
@@ -96,15 +96,13 @@ func makeScopeV200(connectionId uint64, scopes []*plugin.BlueprintScopeV200) ([]
 
 		// add cicd_scope to scopes
 		if utils.StringsContains(scopeConfig.Entities, plugin.DOMAIN_TYPE_CICD) {
-			scopeCICD := devops.NewCicdScope(id, gitlabProject.Name)
-
+			scopeCICD := devops.NewCicdScope(id, gitlabProject.PathWithNamespace)
 			sc = append(sc, scopeCICD)
 		}
 
 		// add board to scopes
 		if utils.StringsContains(scopeConfig.Entities, plugin.DOMAIN_TYPE_TICKET) {
-			scopeTicket := ticket.NewBoard(id, gitlabProject.Name)
-
+			scopeTicket := ticket.NewBoard(id, gitlabProject.PathWithNamespace)
 			sc = append(sc, scopeTicket)
 		}
 	}
