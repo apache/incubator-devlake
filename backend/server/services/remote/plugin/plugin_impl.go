@@ -19,6 +19,7 @@ package plugin
 
 import (
 	"fmt"
+
 	"github.com/apache/incubator-devlake/core/dal"
 	"github.com/apache/incubator-devlake/core/errors"
 	coreModels "github.com/apache/incubator-devlake/core/models"
@@ -170,14 +171,16 @@ func (p *remotePluginImpl) getScopeAndConfig(db dal.Dal, connectionId uint64, sc
 	if err != nil {
 		return nil, nil, errors.BadInput.Wrap(err, "Invalid scope")
 	}
-	wrappedScopeConfig := p.scopeConfigTabler.New()
 	if scope.ScopeConfigId != 0 {
+		wrappedScopeConfig := p.scopeConfigTabler.New()
 		err = api.CallDB(db.First, wrappedScopeConfig, dal.From(p.scopeConfigTabler.TableName()), dal.Where("id = ?", scope.ScopeConfigId))
 		if err != nil {
 			return nil, nil, err
 		}
+		return wrappedScope.Unwrap(), wrappedScopeConfig.Unwrap(), nil
+	} else {
+		return wrappedScope.Unwrap(), nil, nil
 	}
-	return wrappedScope.Unwrap(), wrappedScopeConfig.Unwrap(), nil
 }
 
 func (p *remotePluginImpl) Description() string {

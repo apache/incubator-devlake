@@ -20,7 +20,7 @@ import pytest
 from sqlmodel import SQLModel, Session, Field, create_engine
 
 from pydevlake import Stream, Connection, Context, DomainType
-from pydevlake.model import ToolModel, DomainModel, ToolScope
+from pydevlake.model import ScopeConfig, ToolModel, DomainModel, ToolScope
 
 
 class DummyToolModel(ToolModel, table=True):
@@ -88,6 +88,7 @@ def ctx(connection, scope, engine):
         engine=engine,
         scope=scope,
         connection=connection,
+        scope_config=ScopeConfig(),
         options={}
     )
 
