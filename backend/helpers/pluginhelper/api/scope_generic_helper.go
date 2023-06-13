@@ -444,10 +444,11 @@ func (gs *GenericScopeApiHelper[Conn, Scope, Tr]) setScopeFields(p interface{}, 
 
 	// set raw params
 	rawParams := pValue.FieldByName("RawDataParams")
-	if rawParams.IsValid() {
-		scopeIdField := pValue.FieldByName(gs.reflectionParams.ScopeIdFieldName)
-		rawParams.Set(reflect.ValueOf(gs.getRawParams(connectionId, scopeIdField.Interface())))
+	if !rawParams.IsValid() {
+		panic("scope is missing the field \"RawDataParams\"")
 	}
+	scopeIdField := pValue.FieldByName(gs.reflectionParams.ScopeIdFieldName)
+	rawParams.Set(reflect.ValueOf(gs.getRawParams(connectionId, scopeIdField.Interface())))
 
 	// set CreatedDate
 	createdDateField := pValue.FieldByName("CreatedDate")

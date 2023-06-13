@@ -74,6 +74,7 @@ func (TestConnection) TableName() string {
 }
 
 func TestVerifyScope(t *testing.T) {
+	apiHelper := createMockScopeHelper[TestRepo]("GithubId")
 	testCases := []struct {
 		name    string
 		model   TestModel
@@ -106,7 +107,7 @@ func TestVerifyScope(t *testing.T) {
 	}
 
 	for _, tc := range testCases {
-		err := VerifyScope(&tc.model, validator.New())
+		err := apiHelper.verifyScope(&tc.model, validator.New())
 		if (err != nil) != tc.wantErr {
 			t.Errorf("unexpected error value - got: %v, want: %v", err, tc.wantErr)
 		}
@@ -137,7 +138,7 @@ func (TestScopeConfig) TableName() string {
 
 func TestSetScopeFields(t *testing.T) {
 	// create a struct
-	var p struct {
+	type P struct {
 		ConnectionId uint64 `json:"connectionId" mapstructure:"connectionId" gorm:"primaryKey"`
 		GitlabId     int    `json:"gitlabId" mapstructure:"gitlabId" gorm:"primaryKey"`
 
@@ -145,12 +146,14 @@ func TestSetScopeFields(t *testing.T) {
 		UpdatedDate      *time.Time `json:"updatedDate" mapstructure:"-"`
 		common.NoPKModel `json:"-" mapstructure:"-"`
 	}
+	p := P{}
+	apiHelper := createMockScopeHelper[P]("GitlabId")
 
 	// call setScopeFields to assign value
 	connectionId := uint64(123)
 	createdDate := time.Now()
 	updatedDate := &createdDate
-	setScopeFields(&p, connectionId, &createdDate, updatedDate)
+	apiHelper.setScopeFields(&p, connectionId, &createdDate, updatedDate)
 
 	// verify fields
 	if p.ConnectionId != connectionId {
@@ -167,7 +170,7 @@ func TestSetScopeFields(t *testing.T) {
 		t.Errorf("UpdatedDate not set correctly, expected: %v, got: %v", updatedDate, p.UpdatedDate)
 	}
 
-	setScopeFields(&p, connectionId, &createdDate, nil)
+	apiHelper.setScopeFields(&p, connectionId, &createdDate, nil)
 
 	// verify fields
 	if p.ConnectionId != connectionId {
@@ -182,13 +185,15 @@ func TestSetScopeFields(t *testing.T) {
 		t.Errorf("UpdatedDate not set correctly, expected: %v, got: %v", nil, p.UpdatedDate)
 	}
 
-	var p1 struct {
+	type P1 struct {
 		ConnectionId uint64 `json:"connectionId" mapstructure:"connectionId" gorm:"primaryKey"`
 		GitlabId     int    `json:"gitlabId" mapstructure:"gitlabId" gorm:"primaryKey"`
 
 		common.NoPKModel `json:"-" mapstructure:"-"`
 	}
-	setScopeFields(&p1, connectionId, &createdDate, &createdDate)
+	apiHelper2 := createMockScopeHelper[P1]("GitlabId")
+	p1 := P1{}
+	apiHelper2.setScopeFields(&p1, connectionId, &createdDate, &createdDate)
 
 }
 
@@ -240,28 +245,7 @@ func TestReturnPrimaryKeyValue(t *testing.T) {
 }
 
 func TestScopeApiHelper_Put(t *testing.T) {
-	mockDal := new(mockdal.Dal)
-	mockLogger := unithelper.DummyLogger()
-	mockRes := new(mockcontext.BasicRes)
-
-	mockRes.On("GetDal").Return(mockDal)
-	mockRes.On("GetConfig", mock.Anything).Return("")
-	mockRes.On("GetLogger").Return(mockLogger)
-
-	// we expect total 2 deletion calls after all code got carried out
-	mockDal.On("Delete", mock.Anything, mock.Anything).Return(nil).Twice()
-	mockDal.On("GetPrimaryKeyFields", mock.Anything).Return(
-		[]reflect.StructField{
-			{Name: "ID", Type: reflect.TypeOf("")},
-		},
-	)
-	mockDal.On("CreateOrUpdate", mock.Anything, mock.Anything).Return(nil)
-	mockDal.On("First", mock.Anything, mock.Anything).Return(nil)
-	mockDal.On("All", mock.Anything, mock.Anything).Return(nil)
-	mockDal.On("AllTables").Return(nil, nil)
-
-	connHelper := NewConnectionHelper(mockRes, nil)
-
+	apiHelper := createMockScopeHelper[TestRepo]("GithubId")
 	// create a mock input, scopes, and connection
 	input := &plugin.ApiResourceInput{Params: map[string]string{"connectionId": "123"}, Body: map[string]interface{}{
 		"data": []map[string]interface{}{
@@ -295,12 +279,40 @@ func TestScopeApiHelper_Put(t *testing.T) {
 				"updatedAt":     "string",
 				"updatedDate":   "string",
 			}}}}
-
-	params := &ReflectionParameters{}
-	dbHelper := NewScopeDatabaseHelperImpl[TestConnection, TestRepo, TestScopeConfig](mockRes, connHelper, params)
-	// create a mock ScopeApiHelper with a mock database connection
-	apiHelper := NewScopeHelper[TestConnection, TestRepo, TestScopeConfig](mockRes, nil, connHelper, dbHelper, params, nil)
 	// test a successful call to Put
 	_, err := apiHelper.Put(input)
 	assert.NoError(t, err)
+}
+
+func createMockScopeHelper[Repo any](scopeIdFieldName string) *ScopeApiHelper[TestConnection, Repo, TestScopeConfig] {
+	mockDal := new(mockdal.Dal)
+	mockLogger := unithelper.DummyLogger()
+	mockRes := new(mockcontext.BasicRes)
+
+	mockRes.On("GetDal").Return(mockDal)
+	mockRes.On("GetConfig", mock.Anything).Return("")
+	mockRes.On("GetLogger").Return(mockLogger)
+
+	// we expect total 2 deletion calls after all code got carried out
+	mockDal.On("Delete", mock.Anything, mock.Anything).Return(nil).Twice()
+	mockDal.On("GetPrimaryKeyFields", mock.Anything).Return(
+		[]reflect.StructField{
+			{Name: "ID", Type: reflect.TypeOf("")},
+		},
+	)
+	mockDal.On("CreateOrUpdate", mock.Anything, mock.Anything).Return(nil)
+	mockDal.On("First", mock.Anything, mock.Anything).Return(nil)
+	mockDal.On("All", mock.Anything, mock.Anything).Return(nil)
+	mockDal.On("AllTables").Return(nil, nil)
+
+	connHelper := NewConnectionHelper(mockRes, nil)
+
+	params := &ReflectionParameters{
+		ScopeIdFieldName:  scopeIdFieldName,
+		ScopeIdColumnName: "scope_id",
+		RawScopeParamName: "ScopeId",
+	}
+	dbHelper := NewScopeDatabaseHelperImpl[TestConnection, Repo, TestScopeConfig](mockRes, connHelper, params)
+	// create a mock ScopeApiHelper with a mock database connection
+	return NewScopeHelper[TestConnection, Repo, TestScopeConfig](mockRes, validator.New(), connHelper, dbHelper, params, nil)
 }
