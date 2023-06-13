@@ -172,7 +172,7 @@ func TestConnection(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, 
 			success = len(missingPubPerms) == 0
 			if !success {
 				messages = append(messages, fmt.Sprintf(
-					"%s is/are required to collect data from Public Repos",
+					"Please check the field(s) %s",
 					strings.Join(missingPubPerms, ", "),
 				))
 			}
@@ -180,8 +180,13 @@ func TestConnection(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, 
 			missingPriPerms := findMissingPerms(userPerms, privatePermissions)
 			warning = len(missingPriPerms) > 0
 			if warning {
+				msgFmt := "If you want to collect private repositories, please check the field(s) %s"
+				if success {
+					// @Startrekzky and @yumengwang03 firmly believe that this is critical for users to understand the message
+					msgFmt = "This token is able to collect public repositories. " + msgFmt
+				}
 				messages = append(messages, fmt.Sprintf(
-					"%s is/are required to collect data from Private Repos",
+					msgFmt,
 					strings.Join(missingPriPerms, ", "),
 				))
 			}
