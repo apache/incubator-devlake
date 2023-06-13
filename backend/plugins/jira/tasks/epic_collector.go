@@ -26,6 +26,7 @@ import (
 	"github.com/apache/incubator-devlake/core/errors"
 	"github.com/apache/incubator-devlake/core/plugin"
 	"github.com/apache/incubator-devlake/helpers/pluginhelper/api"
+	"github.com/apache/incubator-devlake/plugins/jira/models"
 
 	"encoding/json"
 	"io"
@@ -48,7 +49,11 @@ var CollectEpicsMeta = plugin.SubTaskMeta{
 func CollectEpics(taskCtx plugin.SubTaskContext) errors.Error {
 	db := taskCtx.GetDal()
 	data := taskCtx.GetData().(*JiraTaskData)
-	epicIterator, err := GetEpicKeysIterator(db, data, 100)
+	batchSize := 100
+	if data.JiraServerInfo.DeploymentType == models.DeploymentServer && len(data.JiraServerInfo.VersionNumbers) == 3 && data.JiraServerInfo.VersionNumbers[0] <= 8 {
+		batchSize = 1
+	}
+	epicIterator, err := GetEpicKeysIterator(db, data, batchSize)
 	if err != nil {
 		return err
 	}
@@ -96,6 +101,8 @@ func CollectEpics(taskCtx plugin.SubTaskContext) errors.Error {
 			}
 			return data.Issues, nil
 		},
+		// Jira Server returns 400 if the epic is not found
+		AfterResponse: ignoreHTTPStatus400,
 	})
 	if err != nil {
 		return err
