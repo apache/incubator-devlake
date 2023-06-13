@@ -1174,25 +1174,21 @@
       {
         "current": {
           "selected": true,
-          "text": [
-            "Experience"
-          ],
-          "value": [
-            "Experience"
-          ]
+          "text": "All",
+          "value": "$__all"
         },
         "datasource": {
           "type": "mysql",
           "uid": "P430005175C4C7810"
         },
-        "definition": "select distinct team from teams",
+        "definition": "select distinct name from teams",
         "hide": 0,
-        "includeAll": false,
+        "includeAll": true,
         "label": "Team",
         "multi": false,
         "name": "team",
         "options": [],
-        "query": "select distinct team from teams",
+        "query": "select distinct name from teams",
         "refresh": 1,
         "regex": "",
         "skipUrlSync": false,
@@ -1209,6 +1205,6 @@
   "timezone": "",
   "title": "DORA (by Team)",
   "uid": "66YkL8y4z",
-  "version": 14,
+  "version": 18,
   "weekStart": ""
 }
