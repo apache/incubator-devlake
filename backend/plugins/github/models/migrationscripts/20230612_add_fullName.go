@@ -18,29 +18,29 @@ limitations under the License.
 package migrationscripts
 
 import (
-	"github.com/apache/incubator-devlake/core/plugin"
+	"github.com/apache/incubator-devlake/core/context"
+	"github.com/apache/incubator-devlake/core/errors"
 )
 
-// All return all the migration scripts
-func All() []plugin.MigrationScript {
-	return []plugin.MigrationScript{
-		new(addInitTables),
-		new(addGithubRunsTable),
-		new(addGithubJobsTable),
-		new(addGithubPipelineTable),
-		new(deleteGithubPipelineTable),
-		new(addHeadRepoIdFieldInGithubPr),
-		new(addEnableGraphqlForConnection),
-		new(addTransformationRule20221124),
-		new(concatOwnerAndName),
-		new(addStdTypeToIssue221230),
-		new(addConnectionIdToTransformationRule),
-		new(addEnvToRunAndJob),
-		new(addGithubCommitAuthorInfo),
-		new(fixRunNameToText),
-		new(addGithubMultiAuth),
-		new(renameTr2ScopeConfig),
-		new(addGithubIssueAssignee),
-		new(addFullName),
-	}
+type githubRepo20230612 struct {
+	FullName string `gorm:"type:varchar(255)"`
+}
+
+func (githubRepo20230612) TableName() string {
+	return "_tool_github_repos"
+}
+
+type addFullName struct{}
+
+func (*addFullName) Up(res context.BasicRes) errors.Error {
+	db := res.GetDal()
+	return db.AutoMigrate(&githubRepo20230612{})
+}
+
+func (*addFullName) Version() uint64 {
+	return 20230612184110
+}
+
+func (*addFullName) Name() string {
+	return "add full_name to _tool_github_repos"
 }

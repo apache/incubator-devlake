@@ -168,7 +168,8 @@ type repo struct {
 func (r repo) ConvertApiScope() plugin.ToolLayerScope {
 	githubRepository := &models.GithubRepo{
 		GithubId:    r.ID,
-		Name:        r.FullName,
+		Name:        r.Name,
+		FullName:    r.FullName,
 		HTMLUrl:     r.HTMLURL,
 		Description: r.Description,
 		OwnerId:     r.Owner.ID,
@@ -214,22 +215,18 @@ func RemoteScopes(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, er
 			return resBody, err
 		},
 		func(basicRes context2.BasicRes, gid string, queryData *api.RemoteQueryData, connection models.GithubConnection) ([]repo, errors.Error) {
+			if gid == "" {
+				return nil, nil
+			}
 			apiClient, err := api.NewApiClientFromConnection(context.TODO(), basicRes, &connection)
 			if err != nil {
 				return nil, errors.BadInput.Wrap(err, "failed to get create apiClient")
 			}
 			query := initialQuery(queryData)
 			var res *http.Response
-			if gid == "" {
-				res, err = apiClient.Get("user/repos", query, nil)
-				if err != nil {
-					return nil, err
-				}
-			} else {
-				res, err = apiClient.Get(fmt.Sprintf("orgs/%s/repos", gid), query, nil)
-				if err != nil {
-					return nil, err
-				}
+			res, err = apiClient.Get(fmt.Sprintf("orgs/%s/repos", gid), query, nil)
+			if err != nil {
+				return nil, err
 			}
 			var resBody []repo
 			err = api.UnmarshalResponse(res, &resBody)
