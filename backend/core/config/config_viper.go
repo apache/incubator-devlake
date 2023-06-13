@@ -21,15 +21,9 @@ import (
 	"fmt"
 	"os"
 	"path/filepath"
-	"regexp"
-	"strings"
 
-	"github.com/apache/incubator-devlake/core/errors"
 	"github.com/sirupsen/logrus"
 
-	goerror "github.com/cockroachdb/errors"
-
-	"github.com/spf13/afero"
 	"github.com/spf13/viper"
 )
 
@@ -112,100 +106,6 @@ func setDefaultValue(v *viper.Viper) {
 	v.SetDefault("TAP_PROPERTIES_DIR", "resources/tap")
 	v.SetDefault("REMOTE_PLUGIN_DIR", "python/plugins")
 	v.SetDefault("SWAGGER_DOCS_DIR", "resources/swagger")
-}
-
-// replaceNewEnvItemInOldContent replace old config to new config in env file content
-func replaceNewEnvItemInOldContent(v *viper.Viper, envFileContent string) (string, errors.Error) {
-	// prepare reg exp
-	encodeEnvNameReg := regexp.MustCompile(`[^a-zA-Z0-9]`)
-	if encodeEnvNameReg == nil {
-		return ``, errors.Default.New("encodeEnvNameReg err")
-	}
-
-	for _, key := range v.AllKeys() {
-		envName := strings.ToUpper(key)
-		val := v.Get(envName)
-		encodeEnvName := encodeEnvNameReg.ReplaceAllStringFunc(envName, func(s string) string {
-			return fmt.Sprintf(`\%v`, s)
-		})
-		envItemReg, err := regexp.Compile(fmt.Sprintf(`(?im)^\s*%v\s*\=.*$`, encodeEnvName))
-		if err != nil {
-			return ``, errors.Default.Wrap(err, "regexp Compile failed")
-		}
-		envFileContent = envItemReg.ReplaceAllStringFunc(envFileContent, func(s string) string {
-			switch ret := val.(type) {
-			case string:
-				ret = strings.Replace(ret, `\`, `\\`, -1)
-				//ret = strings.Replace(ret, `=`, `\=`, -1)
-				//ret = strings.Replace(ret, `'`, `\'`, -1)
-				ret = strings.Replace(ret, `"`, `\"`, -1)
-				return fmt.Sprintf(`%v="%v"`, envName, ret)
-			default:
-				if val == nil {
-					return fmt.Sprintf(`%v=`, envName)
-				}
-				return fmt.Sprintf(`%v="%v"`, envName, ret)
-			}
-		})
-	}
-	return envFileContent, nil
-}
-
-// WriteConfig save viper to .env file
-func WriteConfig(v *viper.Viper) errors.Error {
-	envPath := getEnvPath()
-	fileName := getConfigName()
-
-	if envPath != "" {
-		fileName = envPath + string(os.PathSeparator) + fileName
-	}
-
-	return WriteConfigAs(v, fileName)
-}
-
-// WriteConfigAs save viper to custom filename
-func WriteConfigAs(v *viper.Viper, filename string) errors.Error {
-	aferoFile := afero.NewOsFs()
-	fmt.Println("Attempting to write configuration to .env file.")
-	var configType string
-
-	ext := filepath.Ext(filename)
-	if ext != "" {
-		configType = ext[1:]
-	}
-	if configType != "env" && configType != "dotenv" {
-		return errors.Convert(v.WriteConfigAs(filename))
-	}
-
-	// FIXME viper just have setter and have no getter so create new configPermissions and file
-	flags := os.O_CREATE | os.O_TRUNC | os.O_WRONLY
-	configPermissions := os.FileMode(0644)
-	file, err := afero.ReadFile(aferoFile, filename)
-	if err != nil && !goerror.Is(err, os.ErrNotExist) {
-		return errors.Convert(err)
-	}
-
-	envFileContent := string(file)
-	f, err := aferoFile.OpenFile(filename, flags, configPermissions)
-	if err != nil {
-		return errors.Convert(err)
-	}
-	defer f.Close()
-
-	for _, key := range v.AllKeys() {
-		envName := strings.ToUpper(key)
-		if !strings.Contains(envFileContent, envName) {
-			envFileContent = fmt.Sprintf("%s\n%s=", envFileContent, envName)
-		}
-	}
-	envFileContent, err = replaceNewEnvItemInOldContent(v, envFileContent)
-	if err != nil {
-		return errors.Convert(err)
-	}
-	if _, err := f.WriteString(envFileContent); err != nil {
-		return errors.Convert(err)
-	}
-	return errors.Convert(f.Sync())
 }
 
 func init() {
