@@ -22,13 +22,12 @@ import sys
 import fire
 
 import pydevlake.message as msg
-from pydevlake.api import APIException
 from pydevlake.subtasks import Subtask
 from pydevlake.logger import logger
 from pydevlake.ipc import PluginCommands
 from pydevlake.context import Context
-from pydevlake.stream import Stream, DomainType
-from pydevlake.model import ToolScope, DomainScope, Connection, ScopeConfig
+from pydevlake.stream import Stream
+from pydevlake.model import ToolScope, DomainScope, Connection, ScopeConfig, raw_data_params
 from pydevlake.migration import MIGRATION_SCRIPTS
 
 
@@ -117,6 +116,7 @@ class Plugin(ABC):
             remote_scopes = []
             for tool_scope in self.remote_scopes(connection, group_id):
                 tool_scope.connection_id = connection.id
+                tool_scope.raw_data_params = raw_data_params(connection.id, tool_scope.id)
                 remote_scopes.append(
                     msg.RemoteScope(
                         id=tool_scope.id,
@@ -139,10 +139,11 @@ class Plugin(ABC):
         for tool_scope, _ in scope_config_pairs:
             for scope in self.domain_scopes(tool_scope):
                 scope.id = tool_scope.domain_id()
+                scope.raw_data_params = raw_data_params(connection.id, scope.id)
                 domain_scopes.append(
                     msg.DynamicDomainScope(
                         type_name=type(scope).__name__,
-                        data=scope.json(exclude_unset=True)
+                        data=scope.json(exclude_unset=True, by_alias=True)
                     )
                 )
         return msg.PipelineData(

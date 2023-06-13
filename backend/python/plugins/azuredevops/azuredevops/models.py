@@ -39,7 +39,7 @@ class GitRepositoryConfig(ScopeConfig):
 
 class GitRepository(ToolScope, table=True):
     url: str
-    remote_url: str
+    remote_url: Optional[str]
     default_branch: Optional[str]
     project_id: str
     org_id: str

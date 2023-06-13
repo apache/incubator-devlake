@@ -45,7 +45,7 @@ class DynamicModelInfo(Message):
 
     @staticmethod
     def from_model(model_class):
-        schema = model_class.schema()
+        schema = model_class.schema(by_alias=True)
         if 'definitions' in schema:
             # Replace $ref with actual schema
             schema = jsonref.replace_refs(schema, proxies=False)
@@ -54,7 +54,8 @@ class DynamicModelInfo(Message):
         for prop in schema['properties'].values():
             if 'type' not in prop and 'enum' in prop:
                 prop['type'] = 'string'
-        return DynamicModelInfo(            json_schema=schema,
+        return DynamicModelInfo(
+            json_schema=schema,
             table_name=model_class.__tablename__
         )
 

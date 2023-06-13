@@ -377,7 +377,7 @@ from myplugin.api import MyAPI
 
     def collect(self, state, context) -> Iterable[Tuple[object, dict]]:
         api = MyAPI(context.connection.url)
-        for user in api.users().json():
+        for user in api.users().json:
             yield user, state
 
 ...
