@@ -41,7 +41,7 @@ func TestMakeScopeConfigs(t *testing.T) {
 				EpicKeyField:               "epic",
 				StoryPointField:            "story",
 				RemotelinkCommitShaPattern: "commit sha pattern",
-				RemotelinkRepoPattern:      []byte(`["abc","efg"]`),
+				RemotelinkRepoPattern:      []byte(`[{"pattern":"","regex":"abc"},{"pattern":"","regex":"efg"}]`),
 				TypeMappings:               []byte(`{"10040":{"standardType":"Incident","statusMappings":null}}`),
 			}},
 			&JiraScopeConfig{
@@ -49,7 +49,7 @@ func TestMakeScopeConfigs(t *testing.T) {
 				EpicKeyField:               "epic",
 				StoryPointField:            "story",
 				RemotelinkCommitShaPattern: "commit sha pattern",
-				RemotelinkRepoPattern:      []string{"abc", "efg"},
+				RemotelinkRepoPattern:      []CommitUrlPattern{{"", "abc"}, {"", "efg"}},
 				TypeMappings: map[string]TypeMapping{"10040": {
 					StandardType:   "Incident",
 					StatusMappings: nil,

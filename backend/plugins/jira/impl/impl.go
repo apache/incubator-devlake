@@ -311,6 +311,12 @@ func (p Jira) ApiResources() map[string]map[string]plugin.ApiResourceHandler {
 		"connections/:connectionId/dev-panel-commits": {
 			"GET": api.GetCommitsURLs,
 		},
+		"generate-regex": {
+			"POST": api.GenRegex,
+		},
+		"apply-regex": {
+			"POST": api.ApplyRegex,
+		},
 	}
 }
 
