@@ -305,7 +305,7 @@ func (gs *GenericScopeApiHelper[Conn, Scope, Tr]) DeleteScope(input *plugin.ApiR
 		}
 	}
 	// find all tables for this plugin
-	tables, err := getAffectedTables(params.plugin)
+	tables, err := gs.getAffectedTables(params.plugin)
 	if err != nil {
 		return errors.Default.Wrap(err, fmt.Sprintf("error getting database tables managed by plugin %s", params.plugin))
 	}
@@ -617,7 +617,7 @@ func createDeleteQuery(tableName string, scopeIdKey string, scopeId string) stri
 	return query
 }
 
-func getAffectedTables(pluginName string) ([]string, errors.Error) {
+func (gs *GenericScopeApiHelper[Conn, Scope, Tr]) getAffectedTables(pluginName string) ([]string, errors.Error) {
 	var tables []string
 	meta, err := plugin.GetPlugin(pluginName)
 	if err != nil {
@@ -652,5 +652,6 @@ func getAffectedTables(pluginName string) ([]string, errors.Error) {
 		// additional tables
 		tables = append(tables, models.CollectorLatestState{}.TableName())
 	}
+	gs.log.Debug("Discovered %d tables used by plugin \"%s\": %v", len(tables), pluginName, tables)
 	return tables, nil
 }

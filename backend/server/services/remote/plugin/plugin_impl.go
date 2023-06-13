@@ -19,8 +19,6 @@ package plugin
 
 import (
 	"fmt"
-	"strings"
-
 	"github.com/apache/incubator-devlake/core/dal"
 	"github.com/apache/incubator-devlake/core/errors"
 	coreModels "github.com/apache/incubator-devlake/core/models"
@@ -75,7 +73,7 @@ func newPlugin(info *models.PluginInfo, invoker bridge.Invoker) (*remotePluginIm
 		if err != nil {
 			return nil, errors.Default.Wrap(err, fmt.Sprintf("Couldn't load ToolModel type for plugin %s", info.Name))
 		}
-		toolModelTablers[i] = toolModelTabler
+		toolModelTablers[i] = toolModelTabler.New()
 	}
 	openApiSpec, err := doc.GenerateOpenApiSpec(info)
 	if err != nil {
@@ -121,8 +119,6 @@ func (p *remotePluginImpl) GetTablesInfo() []dal.Tabler {
 	tables := make([]dal.Tabler, 0)
 	for _, toolModelTabler := range p.toolModelTablers {
 		tables = append(tables, toolModelTabler)
-		rawTableName := strings.Replace(toolModelTabler.TableName(), "_tool_", "_raw_", 1)
-		tables = append(tables, coreModels.NewDynamicTabler(rawTableName, nil))
 	}
 	return tables
 }
