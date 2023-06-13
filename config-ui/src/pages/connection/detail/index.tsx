@@ -215,11 +215,19 @@ const ConnectionDetail = ({ plugin, connectionId }: Props) => {
               key: 'project',
               render: (blueprints) => (
                 <>
-                  {blueprints?.length
-                    ? blueprints?.map((bp: any) =>
-                        bp.projectName ? <Link to={`/projects/${bp.projectName}`}>{bp.projectName}</Link> : '-',
-                      )
-                    : '-'}
+                  {blueprints?.length ? (
+                    <ul>
+                      {blueprints.map((bp: any, i: number) =>
+                        bp.projectName ? (
+                          <li>
+                            <Link to={`/projects/${bp.projectName}`}>{bp.projectName}</Link>
+                          </li>
+                        ) : null,
+                      )}
+                    </ul>
+                  ) : (
+                    '-'
+                  )}
                 </>
               ),
             },
