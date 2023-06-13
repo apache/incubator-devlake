@@ -158,6 +158,13 @@ func (d *DevlakeClient) ListProjects() apiProject.PaginatedProjects {
 	}, http.MethodGet, fmt.Sprintf("%s/projects", d.Endpoint), nil, nil)
 }
 
+func (d *DevlakeClient) DeleteProject(projectName string) {
+	sendHttpRequest[any](d.testCtx, d.timeout, debugInfo{
+		print:      true,
+		inlineJson: false,
+	}, http.MethodDelete, fmt.Sprintf("%s/projects/%s", d.Endpoint, projectName), nil, nil)
+}
+
 func (d *DevlakeClient) CreateScopes(pluginName string, connectionId uint64, scopes ...any) any {
 	request := map[string]any{
 		"data": scopes,

@@ -99,10 +99,12 @@ func createScopeHelper(pa *pluginAPI) *api.GenericScopeApiHelper[remoteModel.Rem
 	}
 	return api.NewGenericScopeHelper[remoteModel.RemoteConnection, remoteModel.RemoteScope, remoteModel.RemoteScopeConfig](
 		basicRes,
-		nil,
+		vld,
 		connectionHelper,
 		NewScopeDatabaseHelperImpl(pa, basicRes, params),
 		params,
-		&api.ScopeHelperOptions{},
+		&api.ScopeHelperOptions{
+			IsRemote: true,
+		},
 	)
 }

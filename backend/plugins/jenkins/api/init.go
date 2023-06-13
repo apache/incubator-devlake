@@ -42,6 +42,7 @@ func Init(br context.BasicRes) {
 	params := &api.ReflectionParameters{
 		ScopeIdFieldName:  "FullName",
 		ScopeIdColumnName: "full_name",
+		RawScopeParamName: "FullName",
 	}
 	scopeHelper = api.NewScopeHelper[models.JenkinsConnection, models.JenkinsJob, models.JenkinsScopeConfig](
 		basicRes,

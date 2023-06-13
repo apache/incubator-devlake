@@ -24,6 +24,7 @@ import (
 	"github.com/apache/incubator-devlake/core/models/common"
 	"github.com/apache/incubator-devlake/core/plugin"
 	gitextractor "github.com/apache/incubator-devlake/plugins/gitextractor/impl"
+	pluginmodels "github.com/apache/incubator-devlake/plugins/pagerduty/models"
 	"github.com/apache/incubator-devlake/test/helper"
 	"github.com/stretchr/testify/require"
 	"testing"
@@ -130,6 +131,14 @@ func TestAzure(t *testing.T) {
 		// run the bp
 		pipeline := client.TriggerBlueprint(bp.ID)
 		require.Equal(t, models.TASK_COMPLETED, pipeline.Status)
+		createdScopesList := client.ListScopes(azurePlugin, connection.ID, true)
+		require.True(t, len(createdScopesList) > 0)
+		for _, scope := range createdScopesList {
+			scopeCast := helper.Cast[pluginmodels.Service](scope.Scope)
+			fmt.Printf("Deleting scope %s\n", scopeCast.Id)
+			client.DeleteScope(azurePlugin, connection.ID, scopeCast.Id, false)
+			fmt.Printf("Deleted scope %s\n", scopeCast.Id)
+		}
 	})
 	fmt.Println("========DONE=======")
 }

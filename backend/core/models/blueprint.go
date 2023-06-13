@@ -76,6 +76,9 @@ func (bps *BlueprintSettings) UpdateConnections(updater func(c *plugin.Blueprint
 		if err != nil {
 			return err
 		}
+		if conn.Scopes == nil {
+			conn.Scopes = []*plugin.BlueprintScopeV200{} //UI expects this to be []
+		}
 		conns[i] = conn
 	}
 	bps.Connections, err = errors.Convert01(json.Marshal(&conns))

@@ -175,13 +175,11 @@ func (p *remotePluginImpl) getScopeAndConfig(db dal.Dal, connectionId uint64, sc
 		return nil, nil, errors.BadInput.Wrap(err, "Invalid scope")
 	}
 	wrappedScopeConfig := p.scopeConfigTabler.New()
-	err = api.CallDB(db.First, wrappedScopeConfig, dal.From(p.scopeConfigTabler.TableName()), dal.Where("id = ?", scope.ScopeConfigId))
-	if err != nil {
-		return nil, nil, err
-	}
-
-	if err != nil {
-		return nil, nil, err
+	if scope.ScopeConfigId != 0 {
+		err = api.CallDB(db.First, wrappedScopeConfig, dal.From(p.scopeConfigTabler.TableName()), dal.Where("id = ?", scope.ScopeConfigId))
+		if err != nil {
+			return nil, nil, err
+		}
 	}
 	return wrappedScope.Unwrap(), wrappedScopeConfig.Unwrap(), nil
 }

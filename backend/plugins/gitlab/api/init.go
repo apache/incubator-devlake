@@ -41,6 +41,7 @@ func Init(br context.BasicRes) {
 	params := &api.ReflectionParameters{
 		ScopeIdFieldName:  "GitlabId",
 		ScopeIdColumnName: "gitlab_id",
+		RawScopeParamName: "ProjectId",
 	}
 	scopeHelper = api.NewScopeHelper[models.GitlabConnection, models.GitlabProject, models.GitlabScopeConfig](
 		basicRes,

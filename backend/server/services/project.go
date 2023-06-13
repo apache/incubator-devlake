@@ -269,23 +269,23 @@ func DeleteProject(name string) errors.Error {
 	}
 	err = tx.Delete(&models.Project{}, dal.Where("name = ?", name))
 	if err != nil {
-		return err
+		return errors.Default.Wrap(err, "error deleting project")
 	}
 	err = tx.Delete(&crossdomain.ProjectMapping{}, dal.Where("project_name = ?", name))
 	if err != nil {
-		return err
+		return errors.Default.Wrap(err, "error deleting project")
 	}
 	err = tx.Delete(&models.ProjectMetricSetting{}, dal.Where("project_name = ?", name))
 	if err != nil {
-		return err
+		return errors.Default.Wrap(err, "error deleting project metric setting")
 	}
 	err = tx.Delete(&crossdomain.ProjectPrMetric{}, dal.Where("project_name = ?", name))
 	if err != nil {
-		return err
+		return errors.Default.Wrap(err, "error deleting project PR metric")
 	}
 	err = tx.Delete(&crossdomain.ProjectIssueMetric{}, dal.Where("project_name = ?", name))
 	if err != nil {
-		return err
+		return errors.Default.Wrap(err, "error deleting project Issue metric")
 	}
 	err = tx.Commit()
 	if err != nil {
@@ -293,6 +293,9 @@ func DeleteProject(name string) errors.Error {
 	}
 	bp, err := bpManager.GetDbBlueprintByProjectName(name)
 	if err != nil {
+		if tx.IsErrorNotFound(err) {
+			return nil
+		}
 		return err
 	}
 	err = bpManager.DeleteBlueprint(bp.ID)
