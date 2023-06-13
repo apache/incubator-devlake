@@ -65,7 +65,7 @@ services:
       - mysql
 
   devlake:
-    image: mericodev/devlake:latest
+    image: glqaacrdnclcacntest.azurecr.io/devlake:latest
     build:
       context: backend
       args:
@@ -83,7 +83,7 @@ services:
       - mysql
 
   config-ui:
-    image: mericodev/devlake-config-ui:latest
+    image: glqaacrdnclcacntest.azurecr.io/devlake-frontend:latest
     build:
       context: "config-ui"
     ports:
