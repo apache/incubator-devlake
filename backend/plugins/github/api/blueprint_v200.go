@@ -109,7 +109,7 @@ func makeDataSourcePipelinePlanV200(
 		op := &tasks.GithubOptions{
 			ConnectionId: githubRepo.ConnectionId,
 			GithubId:     githubRepo.GithubId,
-			Name:         githubRepo.Name,
+			Name:         githubRepo.FullName,
 		}
 		if syncPolicy.TimeAfter != nil {
 			op.TimeAfter = syncPolicy.TimeAfter.Format(time.RFC3339)
@@ -135,7 +135,7 @@ func makeDataSourcePipelinePlanV200(
 				Plugin: "gitextractor",
 				Options: map[string]interface{}{
 					"url":    cloneUrl.String(),
-					"name":   githubRepo.Name,
+					"name":   githubRepo.FullName,
 					"repoId": didgen.NewDomainIdGenerator(&models.GithubRepo{}).Generate(connection.ID, githubRepo.GithubId),
 					"proxy":  connection.Proxy,
 				},
@@ -173,7 +173,7 @@ func makeScopesV200(bpScopes []*plugin.BlueprintScopeV200, connection *models.Gi
 				DomainEntity: domainlayer.DomainEntity{
 					Id: didgen.NewDomainIdGenerator(&models.GithubRepo{}).Generate(connection.ID, githubRepo.GithubId),
 				},
-				Name: githubRepo.Name,
+				Name: githubRepo.FullName,
 			}
 			if githubRepo.ParentHTMLUrl != "" {
 				scopeRepo.ForkedFrom = githubRepo.ParentHTMLUrl
@@ -186,7 +186,7 @@ func makeScopesV200(bpScopes []*plugin.BlueprintScopeV200, connection *models.Gi
 				DomainEntity: domainlayer.DomainEntity{
 					Id: didgen.NewDomainIdGenerator(&models.GithubRepo{}).Generate(connection.ID, githubRepo.GithubId),
 				},
-				Name: githubRepo.Name,
+				Name: githubRepo.FullName,
 			}
 			scopes = append(scopes, scopeCICD)
 		}
@@ -196,7 +196,7 @@ func makeScopesV200(bpScopes []*plugin.BlueprintScopeV200, connection *models.Gi
 				DomainEntity: domainlayer.DomainEntity{
 					Id: didgen.NewDomainIdGenerator(&models.GithubRepo{}).Generate(connection.ID, githubRepo.GithubId),
 				},
-				Name: githubRepo.Name,
+				Name: githubRepo.FullName,
 			}
 			scopes = append(scopes, scopeTicket)
 		}

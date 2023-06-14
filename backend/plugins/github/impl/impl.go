@@ -271,10 +271,10 @@ func EnrichOptions(taskCtx plugin.TaskContext,
 	logger := taskCtx.GetLogger()
 	// for advanced mode or others which we only have name, for bp v200, we have githubId
 	err = taskCtx.GetDal().First(&githubRepo, dal.Where(
-		"connection_id = ? AND( name = ? OR github_id = ?)",
+		"connection_id = ? AND( full_name = ? OR github_id = ?)",
 		op.ConnectionId, op.Name, op.GithubId))
 	if err == nil {
-		op.Name = githubRepo.Name
+		op.Name = githubRepo.FullName
 		op.GithubId = githubRepo.GithubId
 		if op.ScopeConfigId == 0 {
 			op.ScopeConfigId = githubRepo.ScopeConfigId
@@ -321,7 +321,8 @@ func convertApiRepoToScope(repo *tasks.GithubApiRepo, connectionId uint64) *mode
 	scope.Language = repo.Language
 	scope.Description = repo.Description
 	scope.HTMLUrl = repo.HTMLUrl
-	scope.Name = repo.FullName
+	scope.Name = repo.Name
+	scope.FullName = repo.FullName
 	scope.CloneUrl = repo.CloneUrl
 	return &scope
 }
