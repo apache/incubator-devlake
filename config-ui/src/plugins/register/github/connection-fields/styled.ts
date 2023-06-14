@@ -62,3 +62,11 @@ export const Input = styled.div`
     margin-top: 8px;
   }
 `;
+
+export const Alert = styled.div`
+  margin-top: 8px;
+  padding: 12px 20px;
+  background: #f9f9fa;
+  border: 1px solid #dbdcdf;
+  border-radius: 4px;
+`;
