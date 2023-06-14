@@ -38,6 +38,7 @@ export type PluginConfigType = {
       title: string;
       subTitle: string;
       firstColumnTitle?: string;
+      columnCount?: number;
     };
     search?: {
       title?: string;

@@ -58,6 +58,7 @@ export const JiraConfig: PluginConfigType = {
     millerColumns: {
       title: 'Boards *',
       subTitle: 'Select the boards you would like to sync.',
+      columnCount: 1,
     },
   },
   scopeConfig: {
