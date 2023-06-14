@@ -23,7 +23,7 @@ from typing import Tuple, Dict, Iterable, Generator
 import sqlalchemy.sql as sql
 from sqlmodel import Session, select
 
-from pydevlake.model import RawModel, ToolModel, DomainModel, SubtaskRun
+from pydevlake.model import RawModel, ToolModel, DomainModel, SubtaskRun, raw_data_params
 from pydevlake.context import Context
 from pydevlake.message import RemoteProgress
 from pydevlake import logger
@@ -127,10 +127,7 @@ class Subtask:
         return {}
 
     def _params(self, ctx: Context) -> str:
-        return json.dumps({
-            "connection_id": ctx.connection.id,
-            "scope_id": ctx.scope.id
-        }, separators=(',', ':'))
+        return raw_data_params(ctx.connection.id, ctx.scope.id)
 
     @abstractmethod
     def delete(self, session, ctx):

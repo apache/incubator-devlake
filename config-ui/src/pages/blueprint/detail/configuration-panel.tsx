@@ -106,6 +106,17 @@ export const ConfigurationPanel = ({ from, blueprint, onRefresh }: Props) => {
     }
   };
 
+  const handleRun = async () => {
+    const [success] = await operator(() => API.runBlueprint(blueprint.id, true), {
+      setOperating,
+      formatMessage: () => 'Trigger blueprint successful.',
+    });
+
+    if (success) {
+      onRefresh();
+    }
+  };
+
   return (
     <S.ConfigurationPanel>
       <div className="block">
@@ -210,6 +221,9 @@ export const ConfigurationPanel = ({ from, blueprint, onRefresh }: Props) => {
                   </S.ConnectionItem>
                 ))}
               </S.ConnectionList>
+              <Buttons position="bottom" align="center">
+                <Button intent={Intent.PRIMARY} text="Collect Data" onClick={handleRun} />
+              </Buttons>
             </>
           )}
         </div>

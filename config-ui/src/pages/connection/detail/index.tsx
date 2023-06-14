@@ -22,6 +22,7 @@ import { Button, Icon, Intent } from '@blueprintjs/core';
 
 import { PageHeader, Buttons, Dialog, IconButton, Table, Message } from '@/components';
 import { useTips, useConnections, useRefreshData } from '@/hooks';
+import ClearImg from '@/images/icons/clear.svg';
 import {
   ConnectionForm,
   ConnectionStatus,
@@ -215,11 +216,19 @@ const ConnectionDetail = ({ plugin, connectionId }: Props) => {
               key: 'project',
               render: (blueprints) => (
                 <>
-                  {blueprints?.length
-                    ? blueprints?.map((bp: any) =>
-                        bp.projectName ? <Link to={`/projects/${bp.projectName}`}>{bp.projectName}</Link> : '-',
-                      )
-                    : '-'}
+                  {blueprints?.length ? (
+                    <ul>
+                      {blueprints.map((bp: any, i: number) =>
+                        bp.projectName ? (
+                          <li>
+                            <Link to={`/projects/${bp.projectName}`}>{bp.projectName}</Link>
+                          </li>
+                        ) : null,
+                      )}
+                    </ul>
+                  ) : (
+                    '-'
+                  )}
                 </>
               ),
             },
@@ -252,7 +261,7 @@ const ConnectionDetail = ({ plugin, connectionId }: Props) => {
               render: (id) => (
                 <>
                   <IconButton
-                    icon="unarchive"
+                    image={<img src={ClearImg} alt="clear" />}
                     tooltip="Clear historical data"
                     onClick={() => handleShowClearDataScopeDialog(id)}
                   />

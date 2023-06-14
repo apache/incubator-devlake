@@ -154,7 +154,7 @@ func makeScopesV200(bpScopes []*plugin.BlueprintScopeV200, connection *models.Bi
 				DomainEntity: domainlayer.DomainEntity{
 					Id: didgen.NewDomainIdGenerator(&models.BitbucketRepo{}).Generate(connection.ID, repo.BitbucketId),
 				},
-				Name: repo.Name,
+				Name: repo.BitbucketId,
 			}
 			scopes = append(scopes, scopeRepo)
 		}
@@ -164,7 +164,7 @@ func makeScopesV200(bpScopes []*plugin.BlueprintScopeV200, connection *models.Bi
 				DomainEntity: domainlayer.DomainEntity{
 					Id: didgen.NewDomainIdGenerator(&models.BitbucketRepo{}).Generate(connection.ID, repo.BitbucketId),
 				},
-				Name: repo.Name,
+				Name: repo.BitbucketId,
 			}
 			scopes = append(scopes, scopeCICD)
 		}
@@ -174,7 +174,7 @@ func makeScopesV200(bpScopes []*plugin.BlueprintScopeV200, connection *models.Bi
 				DomainEntity: domainlayer.DomainEntity{
 					Id: didgen.NewDomainIdGenerator(&models.BitbucketRepo{}).Generate(connection.ID, repo.BitbucketId),
 				},
-				Name: repo.Name,
+				Name: repo.BitbucketId,
 			}
 			scopes = append(scopes, scopeTicket)
 		}
