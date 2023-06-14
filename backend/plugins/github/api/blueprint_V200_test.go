@@ -135,7 +135,8 @@ func mockBasicRes() {
 	testGithubRepo := &models.GithubRepo{
 		ConnectionId:  1,
 		GithubId:      12345,
-		Name:          "test/testRepo",
+		Name:          "testRepo",
+		FullName:      "test/testRepo",
 		CloneUrl:      "https://this_is_cloneUrl",
 		ScopeConfigId: 1,
 	}

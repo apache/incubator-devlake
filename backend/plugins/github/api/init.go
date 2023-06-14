@@ -18,6 +18,7 @@ limitations under the License.
 package api
 
 import (
+	"github.com/apache/incubator-devlake/core/plugin"
 	"strconv"
 
 	"github.com/apache/incubator-devlake/core/context"
@@ -33,7 +34,7 @@ var connectionHelper *api.ConnectionApiHelper
 var scopeHelper *api.ScopeApiHelper[models.GithubConnection, models.GithubRepo, models.GithubScopeConfig]
 var basicRes context.BasicRes
 var scHelper *api.ScopeConfigHelper[models.GithubScopeConfig]
-var remoteHelper *api.RemoteApiHelper[models.GithubConnection, models.GithubRepo, repo, org]
+var remoteHelper *api.RemoteApiHelper[models.GithubConnection, models.GithubRepo, repo, plugin.ApiGroup]
 
 func Init(br context.BasicRes) {
 	basicRes = br
@@ -67,7 +68,7 @@ func Init(br context.BasicRes) {
 				if err != nil {
 					return "", err
 				}
-				return repo.Name, nil
+				return repo.FullName, nil
 			},
 		},
 	)
@@ -75,7 +76,7 @@ func Init(br context.BasicRes) {
 		basicRes,
 		vld,
 	)
-	remoteHelper = api.NewRemoteHelper[models.GithubConnection, models.GithubRepo, repo, org](
+	remoteHelper = api.NewRemoteHelper[models.GithubConnection, models.GithubRepo, repo, plugin.ApiGroup](
 		basicRes,
 		vld,
 		connectionHelper,
