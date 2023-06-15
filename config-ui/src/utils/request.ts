@@ -21,7 +21,6 @@ import axios from 'axios';
 import { history } from '@/utils/history';
 
 import { DEVLAKE_ENDPOINT } from '@/config';
-import { toast } from '@/components/toast';
 
 const instance = axios.create({
   baseURL: DEVLAKE_ENDPOINT,
