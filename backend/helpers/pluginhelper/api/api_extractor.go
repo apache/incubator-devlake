@@ -64,7 +64,9 @@ func (extractor *ApiExtractor) Execute() errors.Error {
 	// load data from database
 	db := extractor.args.Ctx.GetDal()
 	logger := extractor.args.Ctx.GetLogger()
-
+	if !db.HasTable(extractor.table) {
+		return nil
+	}
 	clauses := []dal.Clause{
 		dal.From(extractor.table),
 		dal.Where("params = ?", extractor.params),
