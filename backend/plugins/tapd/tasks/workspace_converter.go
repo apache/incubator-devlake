@@ -42,6 +42,7 @@ func ConvertWorkspace(taskCtx plugin.SubTaskContext) errors.Error {
 			Id: getWorkspaceIdGen().Generate(workspace.ConnectionId, workspace.Id),
 		},
 		Name: workspace.Name,
+		Type: "scrum",
 		Url:  fmt.Sprintf("%s/%d", "https://tapd.cn", workspace.Id),
 	}
 

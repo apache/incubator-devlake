@@ -104,6 +104,7 @@ func makeScopesV200(bpScopes []*plugin.BlueprintScopeV200, connectionId uint64) 
 					Id: didgen.NewDomainIdGenerator(&models.TapdWorkspace{}).Generate(tapdWorkspace.ConnectionId, tapdWorkspace.Id),
 				},
 				Name: tapdWorkspace.Name,
+				Type: "scrum",
 			}
 			scopes = append(scopes, domainBoard)
 		}
