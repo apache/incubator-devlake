@@ -84,8 +84,8 @@ class DomainType(Enum):
 
 
 class ScopeConfig(ToolTable, Model):
-    name: str
-    domain_types: list[DomainType] = Field(default_factory=list, alias="entities")
+    name: str = Field(default="default")
+    domain_types: list[DomainType] = Field(default=list(DomainType), alias="entities")
 
 
 class RawModel(SQLModel):

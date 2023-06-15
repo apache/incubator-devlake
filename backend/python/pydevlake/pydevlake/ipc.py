@@ -93,7 +93,7 @@ class PluginCommands:
         scope_config_pairs = [
             (
                 self._plugin.tool_scope_type(**raw_scope),
-                self._plugin.scope_config_type(**raw_config)
+                self._plugin.scope_config_type(**raw_config or {})
             )
             for raw_scope, raw_config in scope_config_pairs
         ]
@@ -114,7 +114,7 @@ class PluginCommands:
         scope = self._plugin.tool_scope_type(**scope_dict)
         connection_dict = data['connection']
         connection = self._plugin.connection_type(**connection_dict)
-        scope_config_dict = data['scope_config']
+        scope_config_dict = data.get('scope_config') or {}
         scope_config = self._plugin.scope_config_type(**scope_config_dict)
         options = data.get('options', {})
         return Context(create_db_engine(db_url), connection, scope, scope_config, options)

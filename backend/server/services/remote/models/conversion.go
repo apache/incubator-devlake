@@ -48,7 +48,7 @@ func GenerateStructType(schema utils.JsonObject, baseType reflect.Type) (reflect
 	}
 	required, err := utils.GetProperty[[]string](schema, "required")
 	if err != nil {
-		return nil, err
+		required = []string{}
 	}
 	if baseType != nil {
 		anonymousField := reflect.StructField{
