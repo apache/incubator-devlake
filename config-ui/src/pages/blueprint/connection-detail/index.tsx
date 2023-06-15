@@ -192,7 +192,7 @@ export const BlueprintConnectionDetailPage = () => {
           position={Position.BOTTOM}
           content={
             <S.ActionDelete>
-              <div className="content">Are you sure you want to delete this connection?</div>
+              <div className="content">Are you sure you want to remove the connection from this project/blueprint?</div>
               <div className="btns" onClick={handleRemoveConnection}>
                 <Button intent={Intent.PRIMARY} text="Confirm" />
               </div>
