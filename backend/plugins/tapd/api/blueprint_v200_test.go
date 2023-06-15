@@ -70,6 +70,7 @@ func TestMakeDataSourcePipelinePlanV200(t *testing.T) {
 			Id: "tapd:TapdWorkspace:1:10",
 		},
 		Name: "a",
+		Type: "scrum",
 	}
 
 	expectScopes = append(expectScopes, tapdBoard)
