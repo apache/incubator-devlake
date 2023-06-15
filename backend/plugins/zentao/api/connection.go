@@ -19,8 +19,9 @@ package api
 
 import (
 	"context"
-	"github.com/apache/incubator-devlake/server/api/shared"
 	"net/http"
+
+	"github.com/apache/incubator-devlake/server/api/shared"
 
 	"github.com/apache/incubator-devlake/core/errors"
 	"github.com/apache/incubator-devlake/core/plugin"
@@ -46,7 +47,7 @@ func TestConnection(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, 
 	var connection models.ZentaoConn
 	err := helper.Decode(input.Body, &connection, vld)
 	if err != nil {
-		return nil, err
+		return nil, errors.BadInput.Wrap(err, "failed to decode input to be zentao connection")
 	}
 
 	// try to create apiClient
