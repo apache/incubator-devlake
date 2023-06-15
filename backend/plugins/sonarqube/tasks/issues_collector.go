@@ -119,7 +119,7 @@ func CollectIssues(taskCtx plugin.SubTaskContext) (err errors.Error) {
 				}
 
 				// can not split it any more
-				if createdBeforeUnix-createdAfterUnix < 1 {
+				if createdBeforeUnix-createdAfterUnix <= 10 {
 					return 100, nil
 				}
 

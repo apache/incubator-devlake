@@ -75,6 +75,20 @@ func ExtractIssues(taskCtx plugin.SubTaskContext) errors.Error {
 
 			results := make([]interface{}, 0)
 			results = append(results, sonarqubeIssue)
+
+			codeBlockInIssue := &models.SonarqubeIssueCodeBlock{
+				ConnectionId: data.Options.ConnectionId,
+				IssueKey:     sonarqubeIssue.IssueKey,
+				Component:    sonarqubeIssue.Component,
+				Msg:          sonarqubeIssue.Message,
+				StartLine:    sonarqubeIssue.StartLine,
+				EndLine:      sonarqubeIssue.EndLine,
+				StartOffset:  sonarqubeIssue.StartOffset,
+				EndOffset:    sonarqubeIssue.EndOffset,
+			}
+			generateId(hashCodeBlock, codeBlockInIssue)
+			results = append(results, codeBlockInIssue)
+
 			for _, v := range body.Flows {
 				for _, location := range v.Locations {
 					codeBlock := &models.SonarqubeIssueCodeBlock{
