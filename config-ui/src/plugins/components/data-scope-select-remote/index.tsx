@@ -81,8 +81,6 @@ export const DataScopeSelectRemote = ({ plugin, connectionId, disabledScope, onC
     }
   };
 
-  console.log(scope);
-
   return (
     <S.Wrapper>
       {pluginConfig.dataScope.render ? (
@@ -99,6 +97,7 @@ export const DataScopeSelectRemote = ({ plugin, connectionId, disabledScope, onC
           <p>{pluginConfig.dataScope.millerColumns?.subTitle}</p>
           <DataScopeMillerColumns
             title={pluginConfig.dataScope.millerColumns?.firstColumnTitle}
+            columnCount={pluginConfig.dataScope.millerColumns?.columnCount ?? 3}
             plugin={plugin}
             connectionId={connectionId}
             disabledItems={disabledItems}

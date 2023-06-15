@@ -101,6 +101,7 @@ export const GitHubConfig: PluginConfigType = {
       title: 'Select Repositories *',
       subTitle: 'You can either add repositories by searching or selecting from the following directory.',
       firstColumnTitle: 'Organizations/Owners',
+      columnCount: 2,
     },
     search: {
       title: 'Add Repositories by Searching',
