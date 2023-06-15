@@ -235,7 +235,7 @@ func (gs *GenericScopeApiHelper[Conn, Scope, Tr]) GetScopes(input *plugin.ApiRes
 		for id := range scopesById {
 			scopeIds = append(scopeIds, id)
 		}
-		blueprintMap, err := gs.bpManager.GetBlueprintsByScopes(params.connectionId, scopeIds...)
+		blueprintMap, err := gs.bpManager.GetBlueprintsByScopes(params.connectionId, params.plugin, scopeIds...)
 		if err != nil {
 			return nil, errors.Default.Wrap(err, fmt.Sprintf("error getting blueprints for scopes from connection %d", params.connectionId))
 		}
@@ -277,7 +277,7 @@ func (gs *GenericScopeApiHelper[Conn, Scope, Tr]) GetScope(input *plugin.ApiReso
 	}
 	scopeRes := apiScopes[0]
 	if params.loadBlueprints {
-		blueprintMap, err := gs.bpManager.GetBlueprintsByScopes(params.connectionId, params.scopeId)
+		blueprintMap, err := gs.bpManager.GetBlueprintsByScopes(params.connectionId, params.plugin, params.scopeId)
 		if err != nil {
 			return nil, errors.Default.Wrap(err, fmt.Sprintf("error getting blueprints for scope with scope ID %s", params.scopeId))
 		}
@@ -319,7 +319,7 @@ func (gs *GenericScopeApiHelper[Conn, Scope, Tr]) DeleteScope(input *plugin.ApiR
 		if err != nil {
 			return errors.Default.Wrap(err, fmt.Sprintf("error deleting scope %s", params.scopeId))
 		}
-		err = gs.updateBlueprints(params.connectionId, params.scopeId)
+		err = gs.updateBlueprints(params.connectionId, params.plugin, params.scopeId)
 		if err != nil {
 			return err
 		}
@@ -531,8 +531,8 @@ func (gs *GenericScopeApiHelper[Conn, Scope, Tr]) validatePrimaryKeys(scopes []*
 	return nil
 }
 
-func (gs *GenericScopeApiHelper[Conn, Scope, Tr]) updateBlueprints(connectionId uint64, scopeId string) errors.Error {
-	blueprintsMap, err := gs.bpManager.GetBlueprintsByScopes(connectionId, scopeId)
+func (gs *GenericScopeApiHelper[Conn, Scope, Tr]) updateBlueprints(connectionId uint64, pluginName string, scopeId string) errors.Error {
+	blueprintsMap, err := gs.bpManager.GetBlueprintsByScopes(connectionId, pluginName, scopeId)
 	if err != nil {
 		return errors.Default.Wrap(err, fmt.Sprintf("error retrieving scope with scope ID %s", scopeId))
 	}
