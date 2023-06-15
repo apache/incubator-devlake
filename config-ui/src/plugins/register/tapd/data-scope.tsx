@@ -20,16 +20,15 @@ import { useState } from 'react';
 
 import { DataScopeMillerColumns } from '@/plugins';
 
-import type { ScopeItemType } from './types';
 import * as API from '@/plugins/components/data-scope-miller-columns/api';
 import { Button, ControlGroup, InputGroup, Intent } from '@blueprintjs/core';
 import { ExternalLink } from '@/components';
 
 interface Props {
   connectionId: ID;
-  disabledItems?: ScopeItemType[];
-  selectedItems: ScopeItemType[];
-  onChangeItems: (selectedItems: ScopeItemType[]) => void;
+  disabledItems?: any[];
+  selectedItems: any[];
+  onChangeItems: (selectedItems: any[]) => void;
 }
 
 export const DataScope = ({ connectionId, disabledItems, selectedItems, onChangeItems }: Props) => {

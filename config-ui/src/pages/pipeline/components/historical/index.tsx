@@ -23,7 +23,7 @@ import { saveAs } from 'file-saver';
 
 import { DEVLAKE_ENDPOINT } from '@/config';
 import type { ColumnType } from '@/components';
-import { Card, Loading, Table, Inspector, Dialog, IconButton } from '@/components';
+import { Card, Table, Inspector, Dialog, IconButton } from '@/components';
 import { useAutoRefresh } from '@/hooks';
 import { formatTime } from '@/utils';
 
@@ -46,7 +46,7 @@ export const PipelineHistorical = ({ blueprintId }: Props) => {
 
   const { version } = usePipeline();
 
-  const { loading, data } = useAutoRefresh<PipelineType[]>(
+  const { data } = useAutoRefresh<PipelineType[]>(
     async () => {
       const res = await API.getPipelineHistorical(blueprintId);
       return res.pipelines;
@@ -126,14 +126,6 @@ export const PipelineHistorical = ({ blueprintId }: Props) => {
       ] as ColumnType<PipelineType>,
     [],
   );
-
-  if (loading) {
-    return (
-      <Card>
-        <Loading />
-      </Card>
-    );
-  }
 
   if (!data) {
     return <Card>There are no historical runs associated with this blueprint.</Card>;
