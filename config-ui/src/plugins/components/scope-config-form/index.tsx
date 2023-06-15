@@ -171,6 +171,8 @@ export const ScopeConfigForm = ({
       {step === 2 && (
         <>
           <Card>
+            <h1 style={{ marginBottom: 16 }}>Transformations</h1>
+
             {showWarning && (
               <>
                 <Message content="Please note: if you only edit the following Scope Configs without editing Data Entities in the previous step, you will only need to re-transform data on the Project page to see the Dashboard updated." />
