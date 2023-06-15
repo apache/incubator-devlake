@@ -42,7 +42,7 @@ export const PipelineTasks = ({ id, style }: Props) => {
 
   const { version } = usePipeline();
 
-  const { loading, data } = useAutoRefresh<TaskType[]>(
+  const { data } = useAutoRefresh<TaskType[]>(
     async () => {
       const taskRes = await API.getPipelineTasks(id);
       return taskRes.tasks;
@@ -57,10 +57,6 @@ export const PipelineTasks = ({ id, style }: Props) => {
       },
     },
   );
-
-  if (loading) {
-    return <Loading />;
-  }
 
   const stages = groupBy(sortBy(data, 'id'), 'pipelineRow');
 
