@@ -76,14 +76,15 @@ func init() {
 // DevlakeClient FIXME
 type (
 	DevlakeClient struct {
-		Endpoint        string
-		db              *gorm.DB
-		log             log.Logger
-		cfg             *viper.Viper
-		testCtx         *testing.T
-		basicRes        corectx.BasicRes
-		timeout         time.Duration
-		pipelineTimeout time.Duration
+		Endpoint           string
+		db                 *gorm.DB
+		log                log.Logger
+		cfg                *viper.Viper
+		testCtx            *testing.T
+		basicRes           corectx.BasicRes
+		timeout            time.Duration
+		pipelineTimeout    time.Duration
+		expectedStatusCode int
 	}
 	LocalClientConfig struct {
 		ServerPort      uint
@@ -172,6 +173,12 @@ func (d *DevlakeClient) SetTimeout(timeout time.Duration) {
 // SetTimeout override the timeout of pipeline run success expectation
 func (d *DevlakeClient) SetPipelineTimeout(timeout time.Duration) {
 	d.pipelineTimeout = timeout
+}
+
+// SetExpectedStatusCode override the expected status code of the next API call. If it's anything but this, the test will fail.
+func (d *DevlakeClient) SetExpectedStatusCode(code int) *DevlakeClient {
+	d.expectedStatusCode = code
+	return d
 }
 
 // GetDal get a reference to the dal.Dal used by the server
@@ -339,11 +346,14 @@ func runWithTimeout(timeout time.Duration, f func() (bool, errors.Error)) errors
 	}
 }
 
-func sendHttpRequest[Res any](t *testing.T, timeout time.Duration, debug debugInfo, httpMethod string, endpoint string, headers map[string]string, body any) Res {
+func sendHttpRequest[Res any](t *testing.T, timeout time.Duration, ctx testContext, httpMethod string, endpoint string, headers map[string]string, body any) Res {
 	t.Helper()
+	defer func() {
+		ctx.expectedStatus = 0
+	}()
 	b := ToJson(body)
-	if debug.print {
-		coloredPrintf("calling:\n\t%s %s\nwith:\n%s\n", httpMethod, endpoint, string(ToCleanJson(debug.inlineJson, body)))
+	if ctx.printPayload {
+		coloredPrintf("calling:\n\t%s %s\nwith:\n%s\n", httpMethod, endpoint, string(ToCleanJson(ctx.inlineJson, body)))
 	}
 	var result Res
 	err := runWithTimeout(timeout, func() (bool, errors.Error) {
@@ -360,19 +370,23 @@ func sendHttpRequest[Res any](t *testing.T, timeout time.Duration, debug debugIn
 		if err != nil {
 			return false, errors.Convert(err)
 		}
-		if response.StatusCode >= 300 {
-			if err = response.Body.Close(); err != nil {
-				return false, errors.Convert(err)
+		if ctx.expectedStatus > 0 || response.StatusCode >= 300 {
+			if ctx.expectedStatus == 0 || ctx.expectedStatus != response.StatusCode {
+				if response.StatusCode >= 300 {
+					if err = response.Body.Close(); err != nil {
+						return false, errors.Convert(err)
+					}
+					response.Close = true
+					return false, errors.HttpStatus(response.StatusCode).New(fmt.Sprintf("unexpected http status code calling [%s] %s: %d", httpMethod, endpoint, response.StatusCode))
+				}
 			}
-			response.Close = true
-			return false, errors.HttpStatus(response.StatusCode).New(fmt.Sprintf("unexpected http status code calling [%s] %s: %d", httpMethod, endpoint, response.StatusCode))
 		}
 		b, _ = io.ReadAll(response.Body)
 		if err = json.Unmarshal(b, &result); err != nil {
 			return false, errors.Convert(err)
 		}
-		if debug.print {
-			coloredPrintf("result: %s\n", ToCleanJson(debug.inlineJson, b))
+		if ctx.printPayload {
+			coloredPrintf("result: %s\n", ToCleanJson(ctx.inlineJson, b))
 		}
 		if err = response.Body.Close(); err != nil {
 			return false, errors.Convert(err)
@@ -390,7 +404,8 @@ func coloredPrintf(msg string, args ...any) {
 	fmt.Printf(colorifier, msg)
 }
 
-type debugInfo struct {
-	print      bool
-	inlineJson bool
+type testContext struct {
+	printPayload   bool
+	inlineJson     bool
+	expectedStatus int
 }

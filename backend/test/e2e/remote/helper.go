@@ -105,7 +105,11 @@ func CreateTestScope(client *helper.DevlakeClient, config *FakeScopeConfig, conn
 }
 
 func CreateTestScopeConfig(client *helper.DevlakeClient, connectionId uint64) *FakeScopeConfig {
-	config := helper.Cast[FakeScopeConfig](client.CreateScopeConfig(PLUGIN_NAME, connectionId, FakeScopeConfig{Name: "Scope config", Env: "test env", Entities: []string{"CICD"}}))
+	config := helper.Cast[FakeScopeConfig](client.CreateScopeConfig(PLUGIN_NAME, connectionId, FakeScopeConfig{
+		Name:     "Scope config",
+		Env:      "test env",
+		Entities: []string{plugin.DOMAIN_TYPE_CICD},
+	}))
 	return &config
 }
 
