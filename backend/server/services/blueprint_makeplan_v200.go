@@ -118,22 +118,23 @@ func genPlanJsonV200(
 			}
 		}
 
-		// remove gitextractor plugin
-		newSourcePlan := make([]plugin.PipelinePlan, 0)
-		for _, plan := range sourcePlans {
-			newPlan := make(plugin.PipelinePlan, 0, len(plan))
-			for _, stage := range plan {
+		// remove gitextractor plugin if it's not the only task
+		for i, plan := range sourcePlans {
+			for j, stage := range plan {
 				newStage := make(plugin.PipelineStage, 0, len(stage))
+				hasGitExtractor := false
 				for _, task := range stage {
 					if task.Plugin != "gitextractor" {
 						newStage = append(newStage, task)
+					} else {
+						hasGitExtractor = true
 					}
 				}
-				newPlan = append(newPlan, newStage)
+				if !hasGitExtractor || len(newStage) > 0 {
+					sourcePlans[i][j] = newStage
+				}
 			}
-			newSourcePlan = append(newSourcePlan, newPlan)
 		}
-		sourcePlans = newSourcePlan
 	}
 
 	// make plans for metric plugins
