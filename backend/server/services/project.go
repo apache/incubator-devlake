@@ -267,6 +267,10 @@ func DeleteProject(name string) errors.Error {
 	if err != nil {
 		return err
 	}
+	err = deleteProjectBlueprint(name)
+	if err != nil {
+		return err
+	}
 	err = tx.Delete(&models.Project{}, dal.Where("name = ?", name))
 	if err != nil {
 		return errors.Default.Wrap(err, "error deleting project")
@@ -301,6 +305,21 @@ func DeleteProject(name string) errors.Error {
 	err = bpManager.DeleteBlueprint(bp.ID)
 	if err != nil {
 		return err
+	}
+	return nil
+}
+
+func deleteProjectBlueprint(projectName string) errors.Error {
+	bp, err := bpManager.GetDbBlueprintByProjectName(projectName)
+	if err != nil {
+		if !db.IsErrorNotFound(err) {
+			return errors.Default.Wrap(err, fmt.Sprintf("error finding blueprint associated with project %s", projectName))
+		}
+	} else {
+		err = bpManager.DeleteBlueprint(bp.ID)
+		if err != nil {
+			return errors.Default.Wrap(err, fmt.Sprintf("error deleting blueprint associated with project %s", projectName))
+		}
 	}
 	return nil
 }
