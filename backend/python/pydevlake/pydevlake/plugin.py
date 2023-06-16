@@ -139,7 +139,7 @@ class Plugin(ABC):
         for tool_scope, _ in scope_config_pairs:
             for scope in self.domain_scopes(tool_scope):
                 scope.id = tool_scope.domain_id()
-                scope.raw_data_params = raw_data_params(connection.id, scope.id)
+                scope.raw_data_params = raw_data_params(connection.id, tool_scope.id)
                 domain_scopes.append(
                     msg.DynamicDomainScope(
                         type_name=type(scope).__name__,

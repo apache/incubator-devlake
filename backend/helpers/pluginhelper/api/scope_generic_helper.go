@@ -664,20 +664,18 @@ func (gs *GenericScopeApiHelper[Conn, Scope, Tr]) getAffectedTables(pluginName s
 			}
 		}
 		// collect tool tables
-		tablesInfo := pluginModel.GetTablesInfo()
-		for _, table := range tablesInfo {
-			// we only care about tables with RawOrigin
-			ok = hasField(table, "RawDataParams")
-			if ok {
-				tables = append(tables, table.TableName())
+		toolModels := pluginModel.GetTablesInfo()
+		for _, toolModel := range toolModels {
+			if !isScopeModel(toolModel) && hasField(toolModel, "RawDataParams") {
+				tables = append(tables, toolModel.TableName())
 			}
 		}
 		// collect domain tables
-		for _, domainTable := range domaininfo.GetDomainTablesInfo() {
+		for _, domainModel := range domaininfo.GetDomainTablesInfo() {
 			// we only care about tables with RawOrigin
-			ok = hasField(domainTable, "RawDataParams")
+			ok = hasField(domainModel, "RawDataParams")
 			if ok {
-				tables = append(tables, domainTable.TableName())
+				tables = append(tables, domainModel.TableName())
 			}
 		}
 		// additional tables
@@ -685,4 +683,11 @@ func (gs *GenericScopeApiHelper[Conn, Scope, Tr]) getAffectedTables(pluginName s
 	}
 	gs.log.Debug("Discovered %d tables used by plugin \"%s\": %v", len(tables), pluginName, tables)
 	return tables, nil
+}
+
+func isScopeModel(obj dal.Tabler) bool {
+	if _, ok := obj.(plugin.ToolLayerScope); ok {
+		return true
+	}
+	return reflectField(obj, "ScopeConfigId").IsValid()
 }

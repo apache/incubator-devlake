@@ -76,15 +76,16 @@ func init() {
 // DevlakeClient FIXME
 type (
 	DevlakeClient struct {
-		Endpoint           string
-		db                 *gorm.DB
-		log                log.Logger
-		cfg                *viper.Viper
-		testCtx            *testing.T
-		basicRes           corectx.BasicRes
-		timeout            time.Duration
-		pipelineTimeout    time.Duration
-		expectedStatusCode int
+		Endpoint               string
+		db                     *gorm.DB
+		log                    log.Logger
+		cfg                    *viper.Viper
+		testCtx                *testing.T
+		basicRes               corectx.BasicRes
+		timeout                time.Duration
+		pipelineTimeout        time.Duration
+		expectedStatusCode     int
+		lastReturnedStatusCode int
 	}
 	LocalClientConfig struct {
 		ServerPort      uint
@@ -179,6 +180,11 @@ func (d *DevlakeClient) SetPipelineTimeout(timeout time.Duration) {
 func (d *DevlakeClient) SetExpectedStatusCode(code int) *DevlakeClient {
 	d.expectedStatusCode = code
 	return d
+}
+
+// SetExpectedStatusCode return the last http status code
+func (d *DevlakeClient) LastReturnedStatusCode() int {
+	return d.lastReturnedStatusCode
 }
 
 // GetDal get a reference to the dal.Dal used by the server
@@ -346,10 +352,10 @@ func runWithTimeout(timeout time.Duration, f func() (bool, errors.Error)) errors
 	}
 }
 
-func sendHttpRequest[Res any](t *testing.T, timeout time.Duration, ctx testContext, httpMethod string, endpoint string, headers map[string]string, body any) Res {
+func sendHttpRequest[Res any](t *testing.T, timeout time.Duration, ctx *testContext, httpMethod string, endpoint string, headers map[string]string, body any) Res {
 	t.Helper()
 	defer func() {
-		ctx.expectedStatus = 0
+		ctx.client.expectedStatusCode = 0
 	}()
 	b := ToJson(body)
 	if ctx.printPayload {
@@ -370,8 +376,11 @@ func sendHttpRequest[Res any](t *testing.T, timeout time.Duration, ctx testConte
 		if err != nil {
 			return false, errors.Convert(err)
 		}
-		if ctx.expectedStatus > 0 || response.StatusCode >= 300 {
-			if ctx.expectedStatus == 0 || ctx.expectedStatus != response.StatusCode {
+		defer func() {
+			ctx.client.lastReturnedStatusCode = response.StatusCode
+		}()
+		if ctx.client.expectedStatusCode > 0 || response.StatusCode >= 300 {
+			if ctx.client.expectedStatusCode == 0 || ctx.client.expectedStatusCode != response.StatusCode {
 				if response.StatusCode >= 300 {
 					if err = response.Body.Close(); err != nil {
 						return false, errors.Convert(err)
@@ -405,7 +414,7 @@ func coloredPrintf(msg string, args ...any) {
 }
 
 type testContext struct {
-	printPayload   bool
-	inlineJson     bool
-	expectedStatus int
+	printPayload bool
+	inlineJson   bool
+	client       *DevlakeClient
 }
