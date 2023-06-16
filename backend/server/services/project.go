@@ -253,7 +253,15 @@ func DeleteProject(name string) errors.Error {
 	if name == "" {
 		return errors.BadInput.New("project name is missing")
 	}
-	var err errors.Error
+	// verify exists
+	_, err := getProjectByName(db, name)
+	if err != nil {
+		return err
+	}
+	err = deleteProjectBlueprint(name)
+	if err != nil {
+		return err
+	}
 	tx := db.Begin()
 	defer func() {
 		if r := recover(); r != nil || err != nil {
@@ -263,14 +271,6 @@ func DeleteProject(name string) errors.Error {
 			}
 		}
 	}()
-	_, err = getProjectByName(tx, name)
-	if err != nil {
-		return err
-	}
-	err = deleteProjectBlueprint(name)
-	if err != nil {
-		return err
-	}
 	err = tx.Delete(&models.Project{}, dal.Where("name = ?", name))
 	if err != nil {
 		return errors.Default.Wrap(err, "error deleting project")
@@ -291,22 +291,7 @@ func DeleteProject(name string) errors.Error {
 	if err != nil {
 		return errors.Default.Wrap(err, "error deleting project Issue metric")
 	}
-	err = tx.Commit()
-	if err != nil {
-		return err
-	}
-	bp, err := bpManager.GetDbBlueprintByProjectName(name)
-	if err != nil {
-		if tx.IsErrorNotFound(err) {
-			return nil
-		}
-		return err
-	}
-	err = bpManager.DeleteBlueprint(bp.ID)
-	if err != nil {
-		return err
-	}
-	return nil
+	return tx.Commit()
 }
 
 func deleteProjectBlueprint(projectName string) errors.Error {

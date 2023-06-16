@@ -41,17 +41,17 @@ const (
 )
 
 var (
-	pluginDataTables = []string{
+	PluginDataTables = []string{
 		"_raw_fake_fakepipelinestream",
 		"_tool_fakeplugin_fakepipelines",
 		"cicd_pipelines",
 	}
-	pluginConfigTables = []string{
+	PluginConfigTables = []string{
 		"_tool_fakeplugin_fakescopeconfigs",
 		"_tool_fakeplugin_fakeconnections",
 		"cicd_scopes",
 	}
-	pluginScopeTable = "_tool_fakeplugin_fakeprojects"
+	PluginScopeTable = "_tool_fakeplugin_fakeprojects"
 )
 
 type (
@@ -177,36 +177,36 @@ func CreateTestBlueprints(t *testing.T, client *helper.DevlakeClient, count int)
 	}
 }
 
-func deleteScopeWithDataIntegrityValidation(t *testing.T, client *helper.DevlakeClient, connectionId uint64, scopeId string, deleteDataOnly bool) services.BlueprintProjectPairs {
+func DeleteScopeWithDataIntegrityValidation(t *testing.T, client *helper.DevlakeClient, connectionId uint64, scopeId string, deleteDataOnly bool) services.BlueprintProjectPairs {
 	db := client.GetDal()
-	for _, table := range pluginDataTables {
+	for _, table := range PluginDataTables {
 		count, err := db.Count(dal.From(table))
 		require.NoError(t, err)
 		require.Greaterf(t, int(count), 0, fmt.Sprintf("no data was found in table: %s", table))
 	}
 	configData := map[string]int{}
-	for _, table := range pluginConfigTables {
+	for _, table := range PluginConfigTables {
 		count, err := db.Count(dal.From(table))
 		require.NoError(t, err)
 		require.Greaterf(t, int(count), 0, fmt.Sprintf("no data was found in table: %s", table))
 		configData[table] = int(count)
 	}
 	refs := client.DeleteScope(PLUGIN_NAME, connectionId, scopeId, deleteDataOnly)
-	for _, table := range pluginDataTables {
+	for _, table := range PluginDataTables {
 		count, err := db.Count(dal.From(table))
 		require.NoError(t, err)
 		require.Equalf(t, 0, int(count), fmt.Sprintf("data was found in table: %s", table))
 	}
 	if !deleteDataOnly && client.LastReturnedStatusCode() == http.StatusOK {
-		count, err := db.Count(dal.From(pluginScopeTable))
+		count, err := db.Count(dal.From(PluginScopeTable))
 		require.NoError(t, err)
-		require.Equalf(t, 0, int(count), fmt.Sprintf("data was found in table: %s", pluginScopeTable))
+		require.Equalf(t, 0, int(count), fmt.Sprintf("data was found in table: %s", PluginScopeTable))
 	} else {
-		count, err := db.Count(dal.From(pluginScopeTable))
+		count, err := db.Count(dal.From(PluginScopeTable))
 		require.NoError(t, err)
-		require.Greaterf(t, int(count), 0, fmt.Sprintf("no data was found in table: %s", pluginScopeTable))
+		require.Greaterf(t, int(count), 0, fmt.Sprintf("no data was found in table: %s", PluginScopeTable))
 	}
-	for _, table := range pluginConfigTables {
+	for _, table := range PluginConfigTables {
 		count, err := db.Count(dal.From(table))
 		require.NoError(t, err)
 		require.Equalf(t, configData[table], int(count), fmt.Sprintf("data was unexpectedly changed in table: %s", table))
