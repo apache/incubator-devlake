@@ -136,7 +136,7 @@ func (bp *Blueprint) UpdateSettings(settings *BlueprintSettings) errors.Error {
 }
 
 // GetScopes Gets all the scopes for a given connection for this blueprint. Returns an empty slice if none found.
-func (bp *Blueprint) GetScopes(connectionId uint64) ([]*plugin.BlueprintScopeV200, errors.Error) {
+func (bp *Blueprint) GetScopes(connectionId uint64, pluginName string) ([]*plugin.BlueprintScopeV200, errors.Error) {
 	conns, err := bp.GetConnections()
 	if err != nil {
 		return nil, err
@@ -144,7 +144,7 @@ func (bp *Blueprint) GetScopes(connectionId uint64) ([]*plugin.BlueprintScopeV20
 	visited := map[string]any{}
 	var result []*plugin.BlueprintScopeV200
 	for _, conn := range conns {
-		if conn.ConnectionId != connectionId {
+		if conn.ConnectionId != connectionId || conn.Plugin != pluginName {
 			continue
 		}
 		for _, scope := range conn.Scopes {
