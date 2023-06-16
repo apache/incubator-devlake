@@ -117,8 +117,10 @@ func genPlanJsonV200(
 				}
 			}
 		}
+
 		// remove gitextractor plugin
-		for i, plan := range sourcePlans {
+		newSourcePlan := make([]plugin.PipelinePlan, 0)
+		for _, plan := range sourcePlans {
 			newPlan := make(plugin.PipelinePlan, 0, len(plan))
 			for _, stage := range plan {
 				newStage := make(plugin.PipelineStage, 0, len(stage))
@@ -129,8 +131,9 @@ func genPlanJsonV200(
 				}
 				newPlan = append(newPlan, newStage)
 			}
-			sourcePlans[i] = newPlan
+			newSourcePlan = append(newSourcePlan, newPlan)
 		}
+		sourcePlans = newSourcePlan
 	}
 
 	// make plans for metric plugins
