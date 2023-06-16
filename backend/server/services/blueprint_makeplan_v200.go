@@ -65,7 +65,6 @@ func genPlanJsonV200(
 	if err != nil {
 		return nil, nil, err
 	}
-
 	// make plan for data-source plugins fist. generate plan for each
 	// connections, then merge them into one legitimate plan and collect the
 	// scopes produced by the data-source plugins
@@ -100,6 +99,7 @@ func genPlanJsonV200(
 			)
 		}
 	}
+
 	// skip collectors
 	if skipCollectors {
 		for i, plan := range sourcePlans {
@@ -114,6 +114,18 @@ func genPlanJsonV200(
 					task.Subtasks = newSubtasks
 					sourcePlans[i][j][k] = task
 				}
+			}
+		}
+		// remove gitextractor plugin
+		for i, plan := range sourcePlans {
+			for j, stage := range plan {
+				newStage := make(plugin.PipelineStage, 0, len(stage))
+				for _, task := range stage {
+					if task.Plugin != "gitextractor" {
+						newStage = append(newStage, task)
+					}
+				}
+				sourcePlans[i][j] = newStage
 			}
 		}
 	}
