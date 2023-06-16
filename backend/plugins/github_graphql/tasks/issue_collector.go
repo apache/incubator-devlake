@@ -61,7 +61,7 @@ type GraphqlQueryIssue struct {
 	AssigneeList struct {
 		// FIXME now domain layer just support one assignee
 		Assignees []GraphqlInlineAccountQuery `graphql:"nodes"`
-	} `graphql:"assignees(first: 1)"`
+	} `graphql:"assignees(first: 100)"`
 	Milestone *struct {
 		Number int
 	} `json:"milestone"`

@@ -65,7 +65,7 @@ class Plugin(ABC):
 
     @property
     def scope_config_type(self) -> Type[ScopeConfig]:
-        return None
+        return ScopeConfig
 
     @abstractmethod
     def test_connection(self, connection: Connection) -> msg.TestConnectionResult:

@@ -45,7 +45,7 @@ class MyPluginToolScope(dl.ToolScope):
 class MyPlugin(dl.Plugin):
     connection_type = MyPluginConnection
     tool_scope_type = MyPluginToolScope
-    scope_config_type =  MyPluginScopeConfig
+    scope_config_type = MyPluginScopeConfig
     streams = []
 
     def domain_scopes(self, tool_scope: MyScope) -> Iterable[dl.DomainScope]:
@@ -122,7 +122,7 @@ class MyPluginScopeConfig(ScopeConfig):
     issue_type_regex: str
 ```
 
-If your plugin does not require any such conversion parameter, leave this class empty.
+If your plugin does not require any such conversion parameter, you can omit this class and the `scope_config_type` plugin attribute.
 
 
 ### Tool scope type
