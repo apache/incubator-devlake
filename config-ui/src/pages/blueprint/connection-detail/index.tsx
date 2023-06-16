@@ -95,14 +95,8 @@ export const BlueprintConnectionDetailPage = () => {
   const handleShowTips = () => {
     setTips(
       <>
-        <Message content="The Scope Config and/or Data Scope in this project have been updated. Would you like to re-transform or recollect the data in this project?" />
+        <Message content="The change of Data Scope(s) will affect the metrics of this project. Would you like to recollect the data to get them updated?" />
         <Buttons style={{ marginLeft: 8, marginBottom: 0 }}>
-          <Button
-            loading={operating}
-            intent={Intent.PRIMARY}
-            text="Only Re-transform Data"
-            onClick={() => handleRunBP(true)}
-          />
           <Button
             loading={operating}
             intent={Intent.PRIMARY}

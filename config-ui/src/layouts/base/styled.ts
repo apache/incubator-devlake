@@ -127,10 +127,21 @@ export const Content = styled.div`
 export const Tips = styled.div`
   display: flex;
   align-items: center;
-  justify-content: center;
   padding: 14px 0;
   color: #fff;
   background-color: #3c5088;
+
+  .content {
+    flex: auto;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .bp4-popover2-target {
+    flex: 0 0 50px;
+    width: 50px;
+  }
 `;
 
 export const SiderMenuItem = styled.div`
