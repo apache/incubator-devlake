@@ -19,9 +19,6 @@ package models
 
 import (
 	"encoding/json"
-	"regexp"
-
-	"github.com/apache/incubator-devlake/core/errors"
 	"github.com/apache/incubator-devlake/core/models/common"
 )
 
@@ -39,26 +36,4 @@ type JiraScopeConfig struct {
 
 func (r JiraScopeConfig) TableName() string {
 	return "_tool_jira_scope_configs"
-}
-
-func (r JiraScopeConfig) VerifyRegexp() errors.Error {
-	var err error
-	if r.RemotelinkCommitShaPattern != "" {
-		_, err = regexp.Compile(r.RemotelinkCommitShaPattern)
-		if err != nil {
-			return errors.Convert(err)
-		}
-	}
-	var repoPatterns []string
-	err = json.Unmarshal(r.RemotelinkRepoPattern, &repoPatterns)
-	if err != nil {
-		return errors.Convert(err)
-	}
-	for _, pattern := range repoPatterns {
-		_, err = regexp.Compile(pattern)
-		if err != nil {
-			return errors.Convert(err)
-		}
-	}
-	return nil
 }

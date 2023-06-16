@@ -65,7 +65,6 @@ func genPlanJsonV200(
 	if err != nil {
 		return nil, nil, err
 	}
-
 	// make plan for data-source plugins fist. generate plan for each
 	// connections, then merge them into one legitimate plan and collect the
 	// scopes produced by the data-source plugins
@@ -77,6 +76,7 @@ func genPlanJsonV200(
 			// jenkins may upgrade from v100 and its' scope is empty
 			return nil, nil, errors.Default.New(fmt.Sprintf("connections[%d].scopes is empty", i))
 		}
+
 		p, err := plugin.GetPlugin(connection.Plugin)
 		if err != nil {
 			return nil, nil, err
@@ -100,6 +100,7 @@ func genPlanJsonV200(
 			)
 		}
 	}
+
 	// skip collectors
 	if skipCollectors {
 		for i, plan := range sourcePlans {
@@ -113,6 +114,24 @@ func genPlanJsonV200(
 					}
 					task.Subtasks = newSubtasks
 					sourcePlans[i][j][k] = task
+				}
+			}
+		}
+
+		// remove gitextractor plugin if it's not the only task
+		for i, plan := range sourcePlans {
+			for j, stage := range plan {
+				newStage := make(plugin.PipelineStage, 0, len(stage))
+				hasGitExtractor := false
+				for _, task := range stage {
+					if task.Plugin != "gitextractor" {
+						newStage = append(newStage, task)
+					} else {
+						hasGitExtractor = true
+					}
+				}
+				if !hasGitExtractor || len(newStage) > 0 {
+					sourcePlans[i][j] = newStage
 				}
 			}
 		}
