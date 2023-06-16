@@ -76,6 +76,7 @@ func genPlanJsonV200(
 			// jenkins may upgrade from v100 and its' scope is empty
 			return nil, nil, errors.Default.New(fmt.Sprintf("connections[%d].scopes is empty", i))
 		}
+
 		p, err := plugin.GetPlugin(connection.Plugin)
 		if err != nil {
 			return nil, nil, err
@@ -118,15 +119,17 @@ func genPlanJsonV200(
 		}
 		// remove gitextractor plugin
 		for i, plan := range sourcePlans {
-			for j, stage := range plan {
+			newPlan := make(plugin.PipelinePlan, 0, len(plan))
+			for _, stage := range plan {
 				newStage := make(plugin.PipelineStage, 0, len(stage))
 				for _, task := range stage {
 					if task.Plugin != "gitextractor" {
 						newStage = append(newStage, task)
 					}
 				}
-				sourcePlans[i][j] = newStage
+				newPlan = append(newPlan, newStage)
 			}
+			sourcePlans[i] = newPlan
 		}
 	}
 
