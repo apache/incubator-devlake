@@ -303,23 +303,13 @@ func (gs *GenericScopeApiHelper[Conn, Scope, Tr]) DeleteScope(input *plugin.ApiR
 		if err != nil {
 			return nil, err
 		}
+		if err = gs.deleteScopeData(params.plugin, params.scopeId); err != nil {
+			return nil, err
+		}
 		return refs, errors.Conflict.New("Found one or more references to this scope")
 	}
-	scopeParamValue := params.scopeId
-	if gs.opts.GetScopeParamValue != nil {
-		scopeParamValue, err = gs.opts.GetScopeParamValue(gs.db, params.scopeId)
-		if err != nil {
-			return nil, errors.Default.Wrap(err, fmt.Sprintf("error extracting scope parameter name for scope %s", params.scopeId))
-		}
-	}
-	// find all tables for this plugin
-	tables, err := gs.getAffectedTables(params.plugin)
-	if err != nil {
-		return nil, errors.Default.Wrap(err, fmt.Sprintf("error getting database tables managed by plugin %s", params.plugin))
-	}
-	err = gs.transactionalDelete(tables, scopeParamValue)
-	if err != nil {
-		return nil, errors.Default.Wrap(err, fmt.Sprintf("error deleting data bound to scope %s for plugin %s", params.scopeId, params.plugin))
+	if err = gs.deleteScopeData(params.plugin, params.scopeId); err != nil {
+		return nil, err
 	}
 	if !params.deleteDataOnly {
 		// Delete the scope itself
@@ -586,6 +576,27 @@ func (gs *GenericScopeApiHelper[Conn, Scope, Tr]) updateBlueprints(connectionId 
 				return errors.Default.Wrap(err, fmt.Sprintf("error saving the updated blueprint %s", blueprint.Name))
 			}
 		}
+	}
+	return nil
+}
+
+func (gs *GenericScopeApiHelper[Conn, Scope, Tr]) deleteScopeData(plugin string, scopeId string) errors.Error {
+	var err errors.Error
+	scopeParamValue := scopeId
+	if gs.opts.GetScopeParamValue != nil {
+		scopeParamValue, err = gs.opts.GetScopeParamValue(gs.db, scopeId)
+		if err != nil {
+			return errors.Default.Wrap(err, fmt.Sprintf("error extracting scope parameter name for scope %s", scopeId))
+		}
+	}
+	// find all tables for this plugin
+	tables, err := gs.getAffectedTables(plugin)
+	if err != nil {
+		return errors.Default.Wrap(err, fmt.Sprintf("error getting database tables managed by plugin %s", plugin))
+	}
+	err = gs.transactionalDelete(tables, scopeParamValue)
+	if err != nil {
+		return errors.Default.Wrap(err, fmt.Sprintf("error deleting data bound to scope %s for plugin %s", scopeId, plugin))
 	}
 	return nil
 }
