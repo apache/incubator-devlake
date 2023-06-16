@@ -110,15 +110,19 @@ e2e-plugins-test:
 	done; \
 	exit $$exit_code
 
-e2e-test:
+e2e-test-init:
 	export ENV_PATH=$(shell readlink -f .env);\
 	set -e;\
 	go run ./test/init.go || exit $$?;\
+
+e2e-test-run:
 	exit_code=0;\
-	for m in $$(go list ./test/e2e/... | grep -v manual/); do \
+	for m in $$(go list ./test/e2e/... | grep -v manual); do \
 		echo $$m; go test -p 1 -timeout 300s -v $$m || exit_code=$$?; \
 	done; \
 	exit $$exit_code
+
+e2e-test: e2e-test-init e2e-test-run
 
 integration-test:
 	export ENV_PATH=$(shell readlink -f .env);\

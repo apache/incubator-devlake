@@ -18,6 +18,7 @@ limitations under the License.
 package api
 
 import (
+	"github.com/apache/incubator-devlake/helpers/pluginhelper/services"
 	"strconv"
 
 	"github.com/apache/incubator-devlake/core/context"
@@ -35,6 +36,7 @@ type ConnectionApiHelper struct {
 	log              log.Logger
 	db               dal.Dal
 	validator        *validator.Validate
+	bpManager        *services.BlueprintManager
 }
 
 // NewConnectionHelper creates a ConnectionHelper for connection management
@@ -50,6 +52,7 @@ func NewConnectionHelper(
 		log:              basicRes.GetLogger(),
 		db:               basicRes.GetDal(),
 		validator:        vld,
+		bpManager:        services.NewBlueprintManager(basicRes.GetDal()),
 	}
 }
 
@@ -101,8 +104,16 @@ func (c *ConnectionApiHelper) List(connections interface{}) errors.Error {
 }
 
 // Delete connection
-func (c *ConnectionApiHelper) Delete(connection interface{}) errors.Error {
-	return CallDB(c.db.Delete, connection)
+func (c *ConnectionApiHelper) Delete(plugin string, connection interface{}) (*services.BlueprintProjectPairs, errors.Error) {
+	connectionId := reflectField(connection, "ID").Uint()
+	referencingBps, err := c.bpManager.GetBlueprintsByConnection(plugin, connectionId)
+	if err != nil {
+		return nil, err
+	}
+	if len(referencingBps) > 0 {
+		return services.NewBlueprintProjectPairs(referencingBps), errors.Conflict.New("Found one or more references to this connection")
+	}
+	return nil, CallDB(c.db.Delete, connection)
 }
 
 func (c *ConnectionApiHelper) merge(connection interface{}, body map[string]interface{}) errors.Error {

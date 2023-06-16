@@ -68,13 +68,17 @@ func newPlugin(info *models.PluginInfo, invoker bridge.Invoker) (*remotePluginIm
 	if err != nil {
 		return nil, errors.Default.Wrap(err, fmt.Sprintf("Couldn't load ScopeConfig type for plugin %s", info.Name))
 	}
-	toolModelTablers := make([]*coreModels.DynamicTabler, len(info.ToolModelInfos))
-	for i, toolModelInfo := range info.ToolModelInfos {
+	// put the scope and connection models in the tool list to be consistent with Go plugins
+	toolModelTablers := []*coreModels.DynamicTabler{
+		connectionTabler.New(),
+		scopeTabler.New(),
+	}
+	for _, toolModelInfo := range info.ToolModelInfos {
 		toolModelTabler, err := toolModelInfo.LoadDynamicTabler(common.NoPKModel{})
 		if err != nil {
 			return nil, errors.Default.Wrap(err, fmt.Sprintf("Couldn't load ToolModel type for plugin %s", info.Name))
 		}
-		toolModelTablers[i] = toolModelTabler.New()
+		toolModelTablers = append(toolModelTablers, toolModelTabler.New())
 	}
 	openApiSpec, err := doc.GenerateOpenApiSpec(info)
 	if err != nil {

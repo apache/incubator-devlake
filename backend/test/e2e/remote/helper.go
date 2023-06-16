@@ -19,6 +19,9 @@ package remote
 
 import (
 	"fmt"
+	"github.com/apache/incubator-devlake/core/dal"
+	"github.com/apache/incubator-devlake/helpers/pluginhelper/services"
+	"net/http"
 	"os"
 	"path/filepath"
 	"testing"
@@ -35,6 +38,20 @@ const (
 	PLUGIN_NAME     = "fake"
 	TOKEN           = "this_is_a_valid_token"
 	FAKE_PLUGIN_DIR = "python/test/fakeplugin"
+)
+
+var (
+	PluginDataTables = []string{
+		"_raw_fake_fakepipelinestream",
+		"_tool_fakeplugin_fakepipelines",
+		"cicd_pipelines",
+	}
+	PluginConfigTables = []string{
+		"_tool_fakeplugin_fakescopeconfigs",
+		"_tool_fakeplugin_fakeconnections",
+		"cicd_scopes",
+	}
+	PluginScopeTable = "_tool_fakeplugin_fakeprojects"
 )
 
 type (
@@ -68,7 +85,8 @@ type (
 func ConnectLocalServer(t *testing.T) *helper.DevlakeClient {
 	fmt.Println("Connect to server")
 	client := helper.StartDevLakeServer(t, nil)
-	client.SetTimeout(30 * time.Second)
+	client.SetTimeout(60 * time.Second)
+	client.SetPipelineTimeout(60 * time.Second)
 	return client
 }
 
@@ -105,7 +123,11 @@ func CreateTestScope(client *helper.DevlakeClient, config *FakeScopeConfig, conn
 }
 
 func CreateTestScopeConfig(client *helper.DevlakeClient, connectionId uint64) *FakeScopeConfig {
-	config := helper.Cast[FakeScopeConfig](client.CreateScopeConfig(PLUGIN_NAME, connectionId, FakeScopeConfig{Name: "Scope config", Env: "test env", Entities: []string{"CICD"}}))
+	config := helper.Cast[FakeScopeConfig](client.CreateScopeConfig(PLUGIN_NAME, connectionId, FakeScopeConfig{
+		Name:     "Scope config",
+		Env:      "test env",
+		Entities: []string{plugin.DOMAIN_TYPE_CICD},
+	}))
 	return &config
 }
 
@@ -153,4 +175,41 @@ func CreateTestBlueprints(t *testing.T, client *helper.DevlakeClient, count int)
 		config:     config,
 		scope:      scope,
 	}
+}
+
+func DeleteScopeWithDataIntegrityValidation(t *testing.T, client *helper.DevlakeClient, connectionId uint64, scopeId string, deleteDataOnly bool) services.BlueprintProjectPairs {
+	db := client.GetDal()
+	for _, table := range PluginDataTables {
+		count, err := db.Count(dal.From(table))
+		require.NoError(t, err)
+		require.Greaterf(t, int(count), 0, fmt.Sprintf("no data was found in table: %s", table))
+	}
+	configData := map[string]int{}
+	for _, table := range PluginConfigTables {
+		count, err := db.Count(dal.From(table))
+		require.NoError(t, err)
+		require.Greaterf(t, int(count), 0, fmt.Sprintf("no data was found in table: %s", table))
+		configData[table] = int(count)
+	}
+	refs := client.DeleteScope(PLUGIN_NAME, connectionId, scopeId, deleteDataOnly)
+	for _, table := range PluginDataTables {
+		count, err := db.Count(dal.From(table))
+		require.NoError(t, err)
+		require.Equalf(t, 0, int(count), fmt.Sprintf("data was found in table: %s", table))
+	}
+	if !deleteDataOnly && client.LastReturnedStatusCode() == http.StatusOK {
+		count, err := db.Count(dal.From(PluginScopeTable))
+		require.NoError(t, err)
+		require.Equalf(t, 0, int(count), fmt.Sprintf("data was found in table: %s", PluginScopeTable))
+	} else {
+		count, err := db.Count(dal.From(PluginScopeTable))
+		require.NoError(t, err)
+		require.Greaterf(t, int(count), 0, fmt.Sprintf("no data was found in table: %s", PluginScopeTable))
+	}
+	for _, table := range PluginConfigTables {
+		count, err := db.Count(dal.From(table))
+		require.NoError(t, err)
+		require.Equalf(t, configData[table], int(count), fmt.Sprintf("data was unexpectedly changed in table: %s", table))
+	}
+	return refs
 }

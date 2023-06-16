@@ -18,6 +18,7 @@ limitations under the License.
 package remote
 
 import (
+	"net/http"
 	"testing"
 
 	"github.com/apache/incubator-devlake/core/models"
@@ -34,6 +35,30 @@ func TestCreateConnection(t *testing.T) {
 	conns := client.ListConnections(PLUGIN_NAME)
 	require.Equal(t, 1, len(conns))
 	require.Equal(t, TOKEN, conns[0].Token)
+}
+
+func TestDeleteConnection(t *testing.T) {
+	client := CreateClient(t)
+
+	CreateTestConnection(client)
+
+	conns := client.ListConnections(PLUGIN_NAME)
+	require.Equal(t, 1, len(conns))
+	require.Equal(t, TOKEN, conns[0].Token)
+	refs := client.DeleteConnection(PLUGIN_NAME, conns[0].ID)
+	require.Equal(t, 0, len(refs.Projects))
+	require.Equal(t, 0, len(refs.Blueprints))
+}
+
+func TestDeleteConnection_Conflict(t *testing.T) {
+	client := CreateClient(t)
+	_ = CreateTestBlueprints(t, client, 1)
+	conns := client.ListConnections(PLUGIN_NAME)
+	require.Equal(t, 1, len(conns))
+	require.Equal(t, TOKEN, conns[0].Token)
+	refs := client.SetExpectedStatusCode(http.StatusConflict).DeleteConnection(PLUGIN_NAME, conns[0].ID)
+	require.Equal(t, 1, len(refs.Projects))
+	require.Equal(t, 1, len(refs.Blueprints))
 }
 
 func TestRemoteScopeGroups(t *testing.T) {
@@ -122,16 +147,18 @@ func TestRunPipeline(t *testing.T) {
 	require.Equal(t, "", pipeline.ErrorName)
 }
 
-func TestBlueprintV200_withScopeDeletion(t *testing.T) {
+func TestBlueprintV200_withScopeDeletion_Conflict(t *testing.T) {
 	client := CreateClient(t)
 	params := CreateTestBlueprints(t, client, 1)
 	client.TriggerBlueprint(params.blueprints[0].ID)
 	scopesResponse := client.ListScopes(PLUGIN_NAME, params.connection.ID, true)
 	require.Equal(t, 1, len(scopesResponse))
 	require.Equal(t, 1, len(scopesResponse[0].Blueprints))
-	client.DeleteScope(PLUGIN_NAME, params.connection.ID, params.scope.Id, false)
+	refs := DeleteScopeWithDataIntegrityValidation(t, client.SetExpectedStatusCode(http.StatusConflict), params.connection.ID, params.scope.Id, false)
+	require.Equal(t, 1, len(refs.Blueprints))
+	require.Equal(t, 1, len(refs.Projects))
 	scopesResponse = client.ListScopes(PLUGIN_NAME, params.connection.ID, true)
-	require.Equal(t, 0, len(scopesResponse))
+	require.Equal(t, 1, len(scopesResponse))
 	bpsResult := client.ListBlueprints()
 	require.Equal(t, 1, len(bpsResult.Blueprints))
 }
@@ -145,16 +172,60 @@ func TestBlueprintV200_withBlueprintDeletion(t *testing.T) {
 	require.Equal(t, 2, len(scopesResponse[0].Blueprints))
 	client.DeleteBlueprint(params.blueprints[0].ID)
 	scopesResponse = client.ListScopes(PLUGIN_NAME, params.connection.ID, true)
-	require.Equal(t, 1, len(scopesResponse)) //scopes are NOT cascade-deleted when bp is deleted
+	require.Equal(t, 1, len(scopesResponse))
 	bpsList := client.ListBlueprints()
 	require.Equal(t, 1, len(bpsList.Blueprints))
 	require.Equal(t, params.blueprints[1].ID, bpsList.Blueprints[0].ID)
+	projectsResponse := client.ListProjects()
+	require.Equal(t, 2, len(projectsResponse.Projects))
+}
+
+func TestBlueprintV200_withBlueprintDeletion_thenScopeDeletion(t *testing.T) {
+	client := CreateClient(t)
+	params := CreateTestBlueprints(t, client, 1)
+	client.TriggerBlueprint(params.blueprints[0].ID)
+	scopesResponse := client.ListScopes(PLUGIN_NAME, params.connection.ID, true)
+	require.Equal(t, 1, len(scopesResponse))
+	require.Equal(t, 1, len(scopesResponse[0].Blueprints))
+	client.DeleteBlueprint(params.blueprints[0].ID)
+	scopesResponse = client.ListScopes(PLUGIN_NAME, params.connection.ID, true)
+	require.Equal(t, 1, len(scopesResponse))
+	bpsList := client.ListBlueprints()
+	require.Equal(t, 0, len(bpsList.Blueprints))
+	refs := DeleteScopeWithDataIntegrityValidation(t, client, params.connection.ID, params.scope.Id, false)
+	require.Equal(t, 0, len(refs.Blueprints))
+	require.Equal(t, 0, len(refs.Projects))
+	scopesResponse = client.ListScopes(PLUGIN_NAME, params.connection.ID, true)
+	require.Equal(t, 0, len(scopesResponse))
+	projectsResponse := client.ListProjects()
+	require.Equal(t, 1, len(projectsResponse.Projects))
+}
+
+func TestBlueprintV200_withProjectDeletion_thenScopeDeletion(t *testing.T) {
+	client := CreateClient(t)
+	params := CreateTestBlueprints(t, client, 1)
+	client.TriggerBlueprint(params.blueprints[0].ID)
+	scopesResponse := client.ListScopes(PLUGIN_NAME, params.connection.ID, true)
+	require.Equal(t, 1, len(scopesResponse))
+	require.Equal(t, 1, len(scopesResponse[0].Blueprints))
+	client.DeleteProject(params.projects[0].Name)
+	scopesResponse = client.ListScopes(PLUGIN_NAME, params.connection.ID, true)
+	require.Equal(t, 1, len(scopesResponse))
+	bpsList := client.ListBlueprints()
+	require.Equal(t, 0, len(bpsList.Blueprints))
+	refs := DeleteScopeWithDataIntegrityValidation(t, client, params.connection.ID, params.scope.Id, false)
+	require.Equal(t, 0, len(refs.Blueprints))
+	require.Equal(t, 0, len(refs.Projects))
+	scopesResponse = client.ListScopes(PLUGIN_NAME, params.connection.ID, true)
+	require.Equal(t, 0, len(scopesResponse))
+	projectsResponse := client.ListProjects()
+	require.Equal(t, 0, len(projectsResponse.Projects))
 }
 
 func TestCreateScopeConfig(t *testing.T) {
 	client := CreateClient(t)
 	connection := CreateTestConnection(client)
-	scopeConfig := FakeScopeConfig{Name: "Scope config", Env: "test env", Entities: []string{"CICD"}}
+	scopeConfig := FakeScopeConfig{Name: "Scope config", Env: "test env", Entities: []string{plugin.DOMAIN_TYPE_CICD}}
 
 	res := client.CreateScopeConfig(PLUGIN_NAME, connection.ID, scopeConfig)
 	scopeConfig = helper.Cast[FakeScopeConfig](res)
@@ -163,18 +234,18 @@ func TestCreateScopeConfig(t *testing.T) {
 	scopeConfig = helper.Cast[FakeScopeConfig](res)
 	require.Equal(t, "Scope config", scopeConfig.Name)
 	require.Equal(t, "test env", scopeConfig.Env)
-	require.Equal(t, []string{"CICD"}, scopeConfig.Entities)
+	require.Equal(t, []string{plugin.DOMAIN_TYPE_CICD}, scopeConfig.Entities)
 }
 
 func TestUpdateScopeConfig(t *testing.T) {
 	client := CreateClient(t)
 	connection := CreateTestConnection(client)
 	res := client.CreateScopeConfig(PLUGIN_NAME, connection.ID, FakeScopeConfig{Name: "old name", Env: "old env", Entities: []string{}})
-	oldscopeConfig := helper.Cast[FakeScopeConfig](res)
+	oldScopeConfig := helper.Cast[FakeScopeConfig](res)
 
-	client.PatchScopeConfig(PLUGIN_NAME, connection.ID, oldscopeConfig.Id, FakeScopeConfig{Name: "new name", Env: "new env", Entities: []string{"CICD"}})
+	client.PatchScopeConfig(PLUGIN_NAME, connection.ID, oldScopeConfig.Id, FakeScopeConfig{Name: "new name", Env: "new env", Entities: []string{plugin.DOMAIN_TYPE_CICD}})
 
-	res = client.GetScopeConfig(PLUGIN_NAME, connection.ID, oldscopeConfig.Id)
+	res = client.GetScopeConfig(PLUGIN_NAME, connection.ID, oldScopeConfig.Id)
 	scopeConfig := helper.Cast[FakeScopeConfig](res)
 	require.Equal(t, "new name", scopeConfig.Name)
 	require.Equal(t, "new env", scopeConfig.Env)

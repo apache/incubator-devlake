@@ -19,6 +19,7 @@ package api
 
 import (
 	"context"
+	"github.com/apache/incubator-devlake/helpers/pluginhelper/services"
 	"net/http"
 
 	"github.com/apache/incubator-devlake/core/errors"
@@ -107,6 +108,7 @@ func PatchConnection(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput,
 // @Tags plugins/bamboo
 // @Success 200  {object} models.BambooConnection
 // @Failure 400  {string} errcode.Error "Bad Request"
+// @Failure 409  {object} services.BlueprintProjectPairs "References exist to this connection"
 // @Failure 500  {string} errcode.Error "Internel Error"
 // @Router /plugins/bamboo/connections/{connectionId} [DELETE]
 func DeleteConnection(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, errors.Error) {
@@ -115,7 +117,11 @@ func DeleteConnection(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput
 	if err != nil {
 		return nil, err
 	}
-	err = connectionHelper.Delete(connection)
+	var refs *services.BlueprintProjectPairs
+	refs, err = connectionHelper.Delete(input.GetPlugin(), connection)
+	if err != nil {
+		return &plugin.ApiResourceOutput{Body: refs, Status: err.GetType().GetHttpCode()}, err
+	}
 	return &plugin.ApiResourceOutput{Body: connection}, err
 }
 
