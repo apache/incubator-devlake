@@ -33,6 +33,10 @@ const RAW_BUG_TABLE = "zentao_api_bugs"
 var _ plugin.SubTaskEntryPoint = CollectBug
 
 func CollectBug(taskCtx plugin.SubTaskContext) errors.Error {
+	return RangeProductOneByOne(taskCtx, CollectBugForOneProduct)
+}
+
+func CollectBugForOneProduct(taskCtx plugin.SubTaskContext) errors.Error {
 	data := taskCtx.GetData().(*ZentaoTaskData)
 
 	// this collect only work for product

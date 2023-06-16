@@ -70,7 +70,7 @@ func ConvertProducts(taskCtx plugin.SubTaskContext) errors.Error {
 		Convert: func(inputRow interface{}) ([]interface{}, errors.Error) {
 			toolProduct := inputRow.(*models.ZentaoProduct)
 
-			data.ProductName = toolProduct.Name
+			data.ProductList[toolProduct.Id] = toolProduct.Name
 
 			domainBoard := &ticket.Board{
 				DomainEntity: domainlayer.DomainEntity{

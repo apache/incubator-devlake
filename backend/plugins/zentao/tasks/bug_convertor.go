@@ -42,6 +42,10 @@ var ConvertBugMeta = plugin.SubTaskMeta{
 }
 
 func ConvertBug(taskCtx plugin.SubTaskContext) errors.Error {
+	return RangeProductOneByOne(taskCtx, ConvertBugForOneProduct)
+}
+
+func ConvertBugForOneProduct(taskCtx plugin.SubTaskContext) errors.Error {
 	data := taskCtx.GetData().(*ZentaoTaskData)
 	db := taskCtx.GetDal()
 	bugIdGen := didgen.NewDomainIdGenerator(&models.ZentaoBug{})

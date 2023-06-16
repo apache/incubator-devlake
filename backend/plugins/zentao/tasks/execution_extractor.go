@@ -60,6 +60,12 @@ func ExtractExecutions(taskCtx plugin.SubTaskContext) errors.Error {
 			if err != nil {
 				return nil, errors.Default.WrapRaw(err)
 			}
+
+			// append product to taskdata
+			for _, product := range res.Products {
+				data.ProductList[product.ID] = product.Name
+			}
+
 			execution := &models.ZentaoExecution{
 				ConnectionId:   data.Options.ConnectionId,
 				Id:             res.ID,

@@ -47,6 +47,8 @@ func TestZentaoTaskDataFlow(t *testing.T) {
 				},
 			},
 		},
+		StoryList:   map[int64]int64{},
+		FromBugList: map[int]bool{},
 	}
 
 	// import raw data table

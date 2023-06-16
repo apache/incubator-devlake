@@ -37,7 +37,6 @@ func TestZentaoStoryDataFlow(t *testing.T) {
 		Options: &tasks.ZentaoOptions{
 			ConnectionId: 1,
 			ProjectId:    1,
-			ProductId:    3,
 			ScopeConfigs: &tasks.ZentaoScopeConfigs{
 				TypeMappings: map[string]string{
 					"story.feature": "REQUIRE",
@@ -46,6 +45,16 @@ func TestZentaoStoryDataFlow(t *testing.T) {
 					"active": ticket.DONE,
 				},
 			},
+		},
+		ProductList: map[int64]string{
+			3: "",
+		},
+		StoryList: map[int64]int64{
+			1: 1,
+			3: 3,
+			4: 4,
+			6: 6,
+			7: 7,
 		},
 	}
 

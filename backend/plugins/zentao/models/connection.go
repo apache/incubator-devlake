@@ -45,7 +45,7 @@ func (connection ZentaoConn) PrepareApiClient(apiClient apihelperabstract.ApiCli
 	tokenResBody := &ApiAccessTokenResponse{}
 	err = helper.UnmarshalResponse(tokenRes, tokenResBody)
 	if err != nil {
-		return err
+		return errors.HttpStatus(http.StatusBadRequest).Wrap(err, "failed UnmarshalResponse for tokenResBody")
 	}
 	if tokenResBody.Token == "" {
 		return errors.HttpStatus(http.StatusBadRequest).New("failed to request access token")
