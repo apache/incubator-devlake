@@ -86,6 +86,7 @@ type (
 		pipelineTimeout        time.Duration
 		expectedStatusCode     int
 		lastReturnedStatusCode int
+		isRemote               bool
 	}
 	LocalClientConfig struct {
 		ServerPort      uint
@@ -98,18 +99,37 @@ type (
 		PipelineTimeout time.Duration
 	}
 	RemoteClientConfig struct {
-		Endpoint string
+		Endpoint   string
+		DbURL      string
+		TruncateDb bool
 	}
 )
 
 // ConnectRemoteServer returns a client to an existing server based on the config
-func ConnectRemoteServer(t *testing.T, cfg *RemoteClientConfig) *DevlakeClient {
-	return &DevlakeClient{
-		Endpoint: cfg.Endpoint,
-		db:       nil,
-		log:      nil,
-		testCtx:  t,
+func ConnectRemoteServer(t *testing.T, clientConfig *RemoteClientConfig) *DevlakeClient {
+	var db *gorm.DB
+	var err errors.Error
+	logger := logruslog.Global.Nested("test")
+	cfg := config.GetConfig()
+	if clientConfig.DbURL != "" {
+		cfg.Set("DB_URL", clientConfig.DbURL)
+		db, err = runner.NewGormDb(cfg, logger)
+		require.NoError(t, err)
 	}
+	logger.Info("Connecting to remote server: %s", clientConfig.Endpoint)
+	client := &DevlakeClient{
+		isRemote: true,
+		Endpoint: clientConfig.Endpoint,
+		db:       db,
+		cfg:      cfg,
+		log:      logger,
+		testCtx:  t,
+		basicRes: contextimpl.NewDefaultBasicRes(cfg, logger, dalgorm.NewDalgorm(db)),
+	}
+	client.prepareDB(&LocalClientConfig{
+		TruncateDb: clientConfig.TruncateDb,
+	})
+	return client
 }
 
 // ConnectLocalServer spins up a local server from the config and returns a client connected to it
@@ -194,6 +214,9 @@ func (d *DevlakeClient) GetDal() dal.Dal {
 
 // AwaitPluginAvailability wait for this plugin to become available on the server given a timeout. Returns false if this condition does not get met.
 func (d *DevlakeClient) AwaitPluginAvailability(pluginName string, timeout time.Duration) {
+	if d.isRemote {
+		return
+	}
 	err := runWithTimeout(timeout, func() (bool, errors.Error) {
 		_, err := plugin.GetPlugin(pluginName)
 		return err == nil, nil

@@ -46,12 +46,12 @@ var (
 type NoScopeConfig struct{}
 
 type (
-	GenericScopeApiHelper[Conn any, Scope any, Tr any] struct {
+	GenericScopeApiHelper[Conn any, Scope any, ScopeConfig any] struct {
 		log              log.Logger
 		db               dal.Dal
 		validator        *validator.Validate
 		reflectionParams *ReflectionParameters
-		dbHelper         ScopeDatabaseHelper[Conn, Scope, Tr]
+		dbHelper         ScopeDatabaseHelper[Conn, Scope, ScopeConfig]
 		bpManager        *serviceHelper.BlueprintManager
 		connHelper       *ConnectionApiHelper
 		opts             *ScopeHelperOptions
@@ -101,14 +101,14 @@ type (
 	}
 )
 
-func NewGenericScopeHelper[Conn any, Scope any, Tr any](
+func NewGenericScopeHelper[Conn any, Scope any, ScopeConfig any](
 	basicRes context.BasicRes,
 	vld *validator.Validate,
 	connHelper *ConnectionApiHelper,
-	dbHelper ScopeDatabaseHelper[Conn, Scope, Tr],
+	dbHelper ScopeDatabaseHelper[Conn, Scope, ScopeConfig],
 	params *ReflectionParameters,
 	opts *ScopeHelperOptions,
-) *GenericScopeApiHelper[Conn, Scope, Tr] {
+) *GenericScopeApiHelper[Conn, Scope, ScopeConfig] {
 	if connHelper == nil {
 		panic("nil connHelper")
 	}
@@ -122,14 +122,7 @@ func NewGenericScopeHelper[Conn any, Scope any, Tr any](
 	if opts == nil {
 		opts = &ScopeHelperOptions{}
 	}
-	tablesCacheLoader.Do(func() {
-		var err errors.Error
-		tablesCache, err = basicRes.GetDal().AllTables()
-		if err != nil {
-			panic(err)
-		}
-	})
-	return &GenericScopeApiHelper[Conn, Scope, Tr]{
+	return &GenericScopeApiHelper[Conn, Scope, ScopeConfig]{
 		log:              basicRes.GetLogger(),
 		db:               basicRes.GetDal(),
 		validator:        vld,
@@ -141,11 +134,11 @@ func NewGenericScopeHelper[Conn any, Scope any, Tr any](
 	}
 }
 
-func (gs *GenericScopeApiHelper[Conn, Scope, Tr]) DbHelper() ScopeDatabaseHelper[Conn, Scope, Tr] {
+func (gs *GenericScopeApiHelper[Conn, Scope, ScopeConfig]) DbHelper() ScopeDatabaseHelper[Conn, Scope, ScopeConfig] {
 	return gs.dbHelper
 }
 
-func (gs *GenericScopeApiHelper[Conn, Scope, Tr]) PutScopes(input *plugin.ApiResourceInput, scopes []*Scope) ([]*ScopeRes[Scope, Tr], errors.Error) {
+func (gs *GenericScopeApiHelper[Conn, Scope, ScopeConfig]) PutScopes(input *plugin.ApiResourceInput, scopes []*Scope) ([]*ScopeRes[Scope, ScopeConfig], errors.Error) {
 	params, err := gs.extractFromReqParam(input, false)
 	if err != nil {
 		return nil, err
@@ -181,7 +174,7 @@ func (gs *GenericScopeApiHelper[Conn, Scope, Tr]) PutScopes(input *plugin.ApiRes
 	return apiScopes, nil
 }
 
-func (gs *GenericScopeApiHelper[Conn, Scope, Tr]) UpdateScope(input *plugin.ApiResourceInput) (*ScopeRes[Scope, Tr], errors.Error) {
+func (gs *GenericScopeApiHelper[Conn, Scope, ScopeConfig]) UpdateScope(input *plugin.ApiResourceInput) (*ScopeRes[Scope, ScopeConfig], errors.Error) {
 	params, err := gs.extractFromReqParam(input, true)
 	if err != nil {
 		return nil, err
@@ -213,7 +206,7 @@ func (gs *GenericScopeApiHelper[Conn, Scope, Tr]) UpdateScope(input *plugin.ApiR
 	return scopeRes[0], nil
 }
 
-func (gs *GenericScopeApiHelper[Conn, Scope, Tr]) GetScopes(input *plugin.ApiResourceInput) ([]*ScopeRes[Scope, Tr], errors.Error) {
+func (gs *GenericScopeApiHelper[Conn, Scope, ScopeConfig]) GetScopes(input *plugin.ApiResourceInput) ([]*ScopeRes[Scope, ScopeConfig], errors.Error) {
 	params, err := gs.extractFromGetReqParam(input, false)
 	if err != nil {
 		return nil, errors.BadInput.New("invalid path params: \"connectionId\" not set")
@@ -260,7 +253,7 @@ func (gs *GenericScopeApiHelper[Conn, Scope, Tr]) GetScopes(input *plugin.ApiRes
 	return apiScopes, nil
 }
 
-func (gs *GenericScopeApiHelper[Conn, Scope, Tr]) GetScope(input *plugin.ApiResourceInput) (*ScopeRes[Scope, Tr], errors.Error) {
+func (gs *GenericScopeApiHelper[Conn, Scope, ScopeConfig]) GetScope(input *plugin.ApiResourceInput) (*ScopeRes[Scope, ScopeConfig], errors.Error) {
 	params, err := gs.extractFromGetReqParam(input, true)
 	if err != nil {
 		return nil, err
@@ -290,7 +283,7 @@ func (gs *GenericScopeApiHelper[Conn, Scope, Tr]) GetScope(input *plugin.ApiReso
 	return scopeRes, nil
 }
 
-func (gs *GenericScopeApiHelper[Conn, Scope, Tr]) DeleteScope(input *plugin.ApiResourceInput) (*serviceHelper.BlueprintProjectPairs, errors.Error) {
+func (gs *GenericScopeApiHelper[Conn, Scope, ScopeConfig]) DeleteScope(input *plugin.ApiResourceInput) (*serviceHelper.BlueprintProjectPairs, errors.Error) {
 	params, err := gs.extractFromDeleteReqParam(input)
 	if err != nil {
 		return nil, err
@@ -325,10 +318,10 @@ func (gs *GenericScopeApiHelper[Conn, Scope, Tr]) DeleteScope(input *plugin.ApiR
 	return nil, nil
 }
 
-func (gs *GenericScopeApiHelper[Conn, Scope, Tr]) addScopeConfig(scopes ...*Scope) ([]*ScopeRes[Scope, Tr], errors.Error) {
-	apiScopes := make([]*ScopeRes[Scope, Tr], len(scopes))
+func (gs *GenericScopeApiHelper[Conn, Scope, ScopeConfig]) addScopeConfig(scopes ...*Scope) ([]*ScopeRes[Scope, ScopeConfig], errors.Error) {
+	apiScopes := make([]*ScopeRes[Scope, ScopeConfig], len(scopes))
 	for i, scope := range scopes {
-		apiScopes[i] = &ScopeRes[Scope, Tr]{
+		apiScopes[i] = &ScopeRes[Scope, ScopeConfig]{
 			Scope: scope,
 		}
 		scIdField := reflectField(scope, "ScopeConfigId")
@@ -343,7 +336,7 @@ func (gs *GenericScopeApiHelper[Conn, Scope, Tr]) addScopeConfig(scopes ...*Scop
 	return apiScopes, nil
 }
 
-func (gs *GenericScopeApiHelper[Conn, Scope, Tr]) getScopeReferences(pluginName string, connectionId uint64, scopeId string) (*serviceHelper.BlueprintProjectPairs, errors.Error) {
+func (gs *GenericScopeApiHelper[Conn, Scope, ScopeConfig]) getScopeReferences(pluginName string, connectionId uint64, scopeId string) (*serviceHelper.BlueprintProjectPairs, errors.Error) {
 	blueprintMap, err := gs.bpManager.GetBlueprintsByScopes(connectionId, pluginName, scopeId)
 	if err != nil {
 		return nil, err
@@ -355,8 +348,8 @@ func (gs *GenericScopeApiHelper[Conn, Scope, Tr]) getScopeReferences(pluginName 
 	return serviceHelper.NewBlueprintProjectPairs(blueprints), nil
 }
 
-func (gs *GenericScopeApiHelper[Conn, Scope, Tr]) mapByScopeId(scopes []*ScopeRes[Scope, Tr]) map[string]*ScopeRes[Scope, Tr] {
-	scopeMap := map[string]*ScopeRes[Scope, Tr]{}
+func (gs *GenericScopeApiHelper[Conn, Scope, ScopeConfig]) mapByScopeId(scopes []*ScopeRes[Scope, ScopeConfig]) map[string]*ScopeRes[Scope, ScopeConfig] {
+	scopeMap := map[string]*ScopeRes[Scope, ScopeConfig]{}
 	for _, scope := range scopes {
 		scopeId := fmt.Sprintf("%v", reflectField(scope.Scope, gs.reflectionParams.ScopeIdFieldName).Interface())
 		scopeMap[scopeId] = scope
@@ -364,7 +357,7 @@ func (gs *GenericScopeApiHelper[Conn, Scope, Tr]) mapByScopeId(scopes []*ScopeRe
 	return scopeMap
 }
 
-func (gs *GenericScopeApiHelper[Conn, Scope, Tr]) extractFromReqParam(input *plugin.ApiResourceInput, withScopeId bool) (*requestParams, errors.Error) {
+func (gs *GenericScopeApiHelper[Conn, Scope, ScopeConfig]) extractFromReqParam(input *plugin.ApiResourceInput, withScopeId bool) (*requestParams, errors.Error) {
 	connectionId, err := strconv.ParseUint(input.Params["connectionId"], 10, 64)
 	if err != nil {
 		return nil, errors.BadInput.Wrap(err, "Invalid \"connectionId\"")
@@ -388,7 +381,7 @@ func (gs *GenericScopeApiHelper[Conn, Scope, Tr]) extractFromReqParam(input *plu
 	}, nil
 }
 
-func (gs *GenericScopeApiHelper[Conn, Scope, Tr]) extractFromDeleteReqParam(input *plugin.ApiResourceInput) (*deleteRequestParams, errors.Error) {
+func (gs *GenericScopeApiHelper[Conn, Scope, ScopeConfig]) extractFromDeleteReqParam(input *plugin.ApiResourceInput) (*deleteRequestParams, errors.Error) {
 	params, err := gs.extractFromReqParam(input, true)
 	if err != nil {
 		return nil, err
@@ -409,7 +402,7 @@ func (gs *GenericScopeApiHelper[Conn, Scope, Tr]) extractFromDeleteReqParam(inpu
 	}, nil
 }
 
-func (gs *GenericScopeApiHelper[Conn, Scope, Tr]) extractFromGetReqParam(input *plugin.ApiResourceInput, withScopeId bool) (*getRequestParams, errors.Error) {
+func (gs *GenericScopeApiHelper[Conn, Scope, ScopeConfig]) extractFromGetReqParam(input *plugin.ApiResourceInput, withScopeId bool) (*getRequestParams, errors.Error) {
 	params, err := gs.extractFromReqParam(input, withScopeId)
 	if err != nil {
 		return nil, err
@@ -430,7 +423,7 @@ func (gs *GenericScopeApiHelper[Conn, Scope, Tr]) extractFromGetReqParam(input *
 	}, nil
 }
 
-func (gs *GenericScopeApiHelper[Conn, Scope, Tr]) getRawParams(connectionId uint64, scopeId any) string {
+func (gs *GenericScopeApiHelper[Conn, Scope, ScopeConfig]) getRawParams(connectionId uint64, scopeId any) string {
 	paramsMap := map[string]any{
 		"ConnectionId":                        connectionId,
 		gs.reflectionParams.RawScopeParamName: scopeId,
@@ -442,7 +435,7 @@ func (gs *GenericScopeApiHelper[Conn, Scope, Tr]) getRawParams(connectionId uint
 	return string(b)
 }
 
-func (gs *GenericScopeApiHelper[Conn, Scope, Tr]) setScopeFields(p interface{}, connectionId uint64, createdDate *time.Time, updatedDate *time.Time) {
+func (gs *GenericScopeApiHelper[Conn, Scope, ScopeConfig]) setScopeFields(p interface{}, connectionId uint64, createdDate *time.Time, updatedDate *time.Time) {
 	pType := reflect.TypeOf(p)
 	if pType.Kind() != reflect.Ptr {
 		panic("expected a pointer to a struct")
@@ -510,7 +503,7 @@ func returnPrimaryKeyValue(p interface{}) string {
 	return result
 }
 
-func (gs *GenericScopeApiHelper[Conn, Scope, Tr]) verifyScope(scope interface{}, vld *validator.Validate) errors.Error {
+func (gs *GenericScopeApiHelper[Conn, Scope, ScopeConfig]) verifyScope(scope interface{}, vld *validator.Validate) errors.Error {
 	if gs.opts.IsRemote {
 		return nil
 	}
@@ -524,7 +517,7 @@ func (gs *GenericScopeApiHelper[Conn, Scope, Tr]) verifyScope(scope interface{},
 	return nil
 }
 
-func (gs *GenericScopeApiHelper[Conn, Scope, Tr]) validatePrimaryKeys(scopes []*Scope) errors.Error {
+func (gs *GenericScopeApiHelper[Conn, Scope, ScopeConfig]) validatePrimaryKeys(scopes []*Scope) errors.Error {
 	if gs.opts.IsRemote {
 		return nil
 	}
@@ -541,7 +534,7 @@ func (gs *GenericScopeApiHelper[Conn, Scope, Tr]) validatePrimaryKeys(scopes []*
 	return nil
 }
 
-func (gs *GenericScopeApiHelper[Conn, Scope, Tr]) updateBlueprints(connectionId uint64, pluginName string, scopeId string) errors.Error {
+func (gs *GenericScopeApiHelper[Conn, Scope, ScopeConfig]) updateBlueprints(connectionId uint64, pluginName string, scopeId string) errors.Error {
 	blueprintsMap, err := gs.bpManager.GetBlueprintsByScopes(connectionId, pluginName, scopeId)
 	if err != nil {
 		return errors.Default.Wrap(err, fmt.Sprintf("error retrieving scope with scope ID %s", scopeId))
@@ -580,7 +573,7 @@ func (gs *GenericScopeApiHelper[Conn, Scope, Tr]) updateBlueprints(connectionId 
 	return nil
 }
 
-func (gs *GenericScopeApiHelper[Conn, Scope, Tr]) deleteScopeData(plugin string, scopeId string) errors.Error {
+func (gs *GenericScopeApiHelper[Conn, Scope, ScopeConfig]) deleteScopeData(plugin string, scopeId string) errors.Error {
 	var err errors.Error
 	scopeParamValue := scopeId
 	if gs.opts.GetScopeParamValue != nil {
@@ -601,7 +594,7 @@ func (gs *GenericScopeApiHelper[Conn, Scope, Tr]) deleteScopeData(plugin string,
 	return nil
 }
 
-func (gs *GenericScopeApiHelper[Conn, Scope, Tr]) transactionalDelete(tables []string, scopeId string) errors.Error {
+func (gs *GenericScopeApiHelper[Conn, Scope, ScopeConfig]) transactionalDelete(tables []string, scopeId string) errors.Error {
 	tx := gs.db.Begin()
 	for _, table := range tables {
 		query := createDeleteQuery(table, gs.reflectionParams.RawScopeParamName, scopeId)
@@ -648,7 +641,15 @@ func createDeleteQuery(tableName string, scopeIdKey string, scopeId string) stri
 	return query
 }
 
-func (gs *GenericScopeApiHelper[Conn, Scope, Tr]) getAffectedTables(pluginName string) ([]string, errors.Error) {
+func (gs *GenericScopeApiHelper[Conn, Scope, ScopeConfig]) lazyCacheTables() errors.Error {
+	var err errors.Error
+	tablesCacheLoader.Do(func() {
+		tablesCache, err = gs.db.AllTables()
+	})
+	return err
+}
+
+func (gs *GenericScopeApiHelper[Conn, Scope, ScopeConfig]) getAffectedTables(pluginName string) ([]string, errors.Error) {
 	var tables []string
 	meta, err := plugin.GetPlugin(pluginName)
 	if err != nil {
@@ -657,6 +658,9 @@ func (gs *GenericScopeApiHelper[Conn, Scope, Tr]) getAffectedTables(pluginName s
 	if pluginModel, ok := meta.(plugin.PluginModel); !ok {
 		return nil, errors.Default.New(fmt.Sprintf("plugin \"%s\" does not implement listing its tables", pluginName))
 	} else {
+		if err = gs.lazyCacheTables(); err != nil {
+			return nil, err
+		}
 		// collect raw tables
 		for _, table := range tablesCache {
 			if strings.HasPrefix(table, "_raw_"+pluginName) {
