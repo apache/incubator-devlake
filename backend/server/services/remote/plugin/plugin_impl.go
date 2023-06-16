@@ -45,6 +45,7 @@ type (
 		migrationScripts  []plugin.MigrationScript
 		resources         map[string]map[string]plugin.ApiResourceHandler
 		openApiSpec       string
+		connHelper        *api.ConnectionApiHelper
 	}
 	RemotePluginTaskData struct {
 		DbUrl       string                 `json:"db_url"`
@@ -89,6 +90,12 @@ func newPlugin(info *models.PluginInfo, invoker bridge.Invoker) (*remotePluginIm
 		script := script
 		scripts = append(scripts, &script)
 	}
+	connectionHelper := api.NewConnectionHelper(
+		basicRes,
+		vld,
+		info.Name,
+	)
+	apiResources := GetDefaultAPI(invoker, connectionTabler, scopeConfigTabler, scopeTabler, connectionHelper)
 	p := remotePluginImpl{
 		name:              info.Name,
 		invoker:           invoker,
@@ -99,8 +106,9 @@ func newPlugin(info *models.PluginInfo, invoker bridge.Invoker) (*remotePluginIm
 		scopeConfigTabler: scopeConfigTabler,
 		toolModelTablers:  toolModelTablers,
 		migrationScripts:  scripts,
-		resources:         GetDefaultAPI(invoker, connectionTabler, scopeConfigTabler, scopeTabler, connectionHelper),
+		resources:         apiResources,
 		openApiSpec:       *openApiSpec,
+		connHelper:        connectionHelper,
 	}
 	remoteBridge := bridge.NewBridge(invoker)
 	for _, subtask := range info.SubtaskMetas {
@@ -128,6 +136,18 @@ func (p *remotePluginImpl) GetTablesInfo() []dal.Tabler {
 	return tables
 }
 
+func (p *remotePluginImpl) Connection() dal.Tabler {
+	return p.connectionTabler.New()
+}
+
+func (p *remotePluginImpl) Scopes() []dal.Tabler {
+	return []dal.Tabler{p.scopeTabler.New()}
+}
+
+func (p *remotePluginImpl) ScopeConfig() dal.Tabler {
+	return p.scopeConfigTabler.New()
+}
+
 func (p *remotePluginImpl) PrepareTaskData(taskCtx plugin.TaskContext, options map[string]interface{}) (interface{}, errors.Error) {
 	dbUrl := taskCtx.GetConfig("db_url")
 	connectionId := uint64(options["connectionId"].(float64))
@@ -135,6 +155,7 @@ func (p *remotePluginImpl) PrepareTaskData(taskCtx plugin.TaskContext, options m
 	helper := api.NewConnectionHelper(
 		taskCtx,
 		nil,
+		p.Name(),
 	)
 
 	wrappedConnection := p.connectionTabler.New()
@@ -189,6 +210,10 @@ func (p *remotePluginImpl) getScopeAndConfig(db dal.Dal, connectionId uint64, sc
 
 func (p *remotePluginImpl) Description() string {
 	return p.description
+}
+
+func (p *remotePluginImpl) Name() string {
+	return p.name
 }
 
 func (p *remotePluginImpl) RootPkgPath() string {

@@ -19,6 +19,7 @@ package models
 
 import (
 	"github.com/apache/incubator-devlake/core/models/common"
+	"github.com/apache/incubator-devlake/core/plugin"
 )
 
 type Service struct {
@@ -29,6 +30,16 @@ type Service struct {
 	Name         string `json:"name" mapstructure:"name"`
 }
 
-func (Service) TableName() string {
+func (s *Service) ScopeId() string {
+	return s.Name
+}
+
+func (s *Service) ScopeName() string {
+	return s.Name
+}
+
+func (s *Service) TableName() string {
 	return "_tool_pagerduty_services"
 }
+
+var _ plugin.ToolLayerScope = (*Service)(nil)

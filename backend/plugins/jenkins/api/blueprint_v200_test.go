@@ -35,6 +35,7 @@ import (
 func TestMakeDataSourcePipelinePlanV200(t *testing.T) {
 	mockMeta := mockplugin.NewPluginMeta(t)
 	mockMeta.On("RootPkgPath").Return("github.com/apache/incubator-devlake/plugins/jenkins")
+	mockMeta.On("Name").Return("jenkins").Maybe()
 	err := plugin.RegisterPlugin("jenkins", mockMeta)
 	assert.Nil(t, err)
 	bs := &plugin.BlueprintScopeV200{
@@ -45,7 +46,8 @@ func TestMakeDataSourcePipelinePlanV200(t *testing.T) {
 	bpScopes := make([]*plugin.BlueprintScopeV200, 0)
 	bpScopes = append(bpScopes, bs)
 
-	mockBasicRes()
+	mockBasicRes(t)
+
 	plan := make(plugin.PipelinePlan, len(bpScopes))
 	plan, err = makeDataSourcePipelinePlanV200(nil, plan, bpScopes, 1, syncPolicy)
 	assert.Nil(t, err)
@@ -78,7 +80,7 @@ func TestMakeDataSourcePipelinePlanV200(t *testing.T) {
 	assert.Equal(t, expectScopes, scopes)
 }
 
-func mockBasicRes() {
+func mockBasicRes(t *testing.T) {
 	jenkinsJob := &models.JenkinsJob{
 		ConnectionId: 1,
 		FullName:     "a/b/ccc",
@@ -101,5 +103,7 @@ func mockBasicRes() {
 			*dst = *jenkinsJob
 		}).Return(nil)
 	})
-	Init(mockRes)
+	p := mockplugin.NewPluginMeta(t)
+	p.On("Name").Return("dummy").Maybe()
+	Init(mockRes, p)
 }

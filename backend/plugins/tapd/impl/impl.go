@@ -32,19 +32,35 @@ import (
 	"github.com/apache/incubator-devlake/plugins/tapd/tasks"
 )
 
-var _ plugin.PluginMeta = (*Tapd)(nil)
-var _ plugin.PluginInit = (*Tapd)(nil)
-var _ plugin.PluginTask = (*Tapd)(nil)
-var _ plugin.PluginApi = (*Tapd)(nil)
-var _ plugin.PluginModel = (*Tapd)(nil)
-var _ plugin.PluginMigration = (*Tapd)(nil)
-var _ plugin.CloseablePluginTask = (*Tapd)(nil)
+var _ interface {
+	plugin.PluginMeta
+	plugin.PluginInit
+	plugin.PluginTask
+	plugin.PluginApi
+	plugin.PluginModel
+	plugin.PluginMigration
+	plugin.CloseablePluginTask
+	plugin.PluginSource
+} = (*Tapd)(nil)
 
 type Tapd struct{}
 
 func (p Tapd) Init(basicRes context.BasicRes) errors.Error {
-	api.Init(basicRes)
+	api.Init(basicRes, p)
+
 	return nil
+}
+
+func (p Tapd) Connection() dal.Tabler {
+	return &models.TapdConnection{}
+}
+
+func (p Tapd) Scopes() []dal.Tabler {
+	return []dal.Tabler{&models.TapdWorkspace{}}
+}
+
+func (p Tapd) ScopeConfig() dal.Tabler {
+	return &models.TapdScopeConfig{}
 }
 
 func (p Tapd) GetTablesInfo() []dal.Tabler {
@@ -91,6 +107,10 @@ func (p Tapd) GetTablesInfo() []dal.Tabler {
 
 func (p Tapd) Description() string {
 	return "To collect and enrich data from Tapd"
+}
+
+func (p Tapd) Name() string {
+	return "tapd"
 }
 
 func (p Tapd) SubTaskMetas() []plugin.SubTaskMeta {
@@ -172,6 +192,7 @@ func (p Tapd) PrepareTaskData(taskCtx plugin.TaskContext, options map[string]int
 	connectionHelper := helper.NewConnectionHelper(
 		taskCtx,
 		nil,
+		p.Name(),
 	)
 	err = connectionHelper.FirstById(connection, op.ConnectionId)
 	if err != nil {

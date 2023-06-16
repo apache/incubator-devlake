@@ -35,33 +35,35 @@ import (
 	"github.com/apache/incubator-devlake/plugins/jenkins/tasks"
 )
 
-var _ plugin.PluginMeta = (*Jenkins)(nil)
-var _ plugin.PluginInit = (*Jenkins)(nil)
-var _ plugin.PluginTask = (*Jenkins)(nil)
-var _ plugin.PluginApi = (*Jenkins)(nil)
-var _ plugin.PluginModel = (*Jenkins)(nil)
-var _ plugin.PluginMigration = (*Jenkins)(nil)
-var _ plugin.CloseablePluginTask = (*Jenkins)(nil)
-
-// var _ plugin.PluginSource = (*Jenkins)(nil)
-var _ plugin.DataSourcePluginBlueprintV200 = (*Jenkins)(nil)
+var _ interface {
+	plugin.PluginMeta
+	plugin.PluginInit
+	plugin.PluginTask
+	plugin.PluginApi
+	plugin.PluginModel
+	plugin.PluginMigration
+	plugin.CloseablePluginTask
+	plugin.PluginSource
+	plugin.DataSourcePluginBlueprintV200
+} = (*Jenkins)(nil)
 
 type Jenkins struct{}
 
 func (p Jenkins) Init(basicRes context.BasicRes) errors.Error {
-	api.Init(basicRes)
+	api.Init(basicRes, p)
+
 	return nil
 }
 
-func (p Jenkins) Connection() interface{} {
+func (p Jenkins) Connection() dal.Tabler {
 	return &models.JenkinsConnection{}
 }
 
-func (p Jenkins) Scope() interface{} {
-	return &models.JenkinsJob{}
+func (p Jenkins) Scopes() []dal.Tabler {
+	return []dal.Tabler{&models.JenkinsJob{}}
 }
 
-func (p Jenkins) ScopeConfig() interface{} {
+func (p Jenkins) ScopeConfig() dal.Tabler {
 	return &models.JenkinsScopeConfig{}
 }
 
@@ -80,6 +82,10 @@ func (p Jenkins) GetTablesInfo() []dal.Tabler {
 
 func (p Jenkins) Description() string {
 	return "To collect and enrich data from Jenkins"
+}
+
+func (p Jenkins) Name() string {
+	return "jenkins"
 }
 
 func (p Jenkins) SubTaskMetas() []plugin.SubTaskMeta {
@@ -108,6 +114,7 @@ func (p Jenkins) PrepareTaskData(taskCtx plugin.TaskContext, options map[string]
 	connectionHelper := helper.NewConnectionHelper(
 		taskCtx,
 		nil,
+		p.Name(),
 	)
 	if err != nil {
 		return nil, err

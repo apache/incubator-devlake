@@ -23,7 +23,6 @@ import (
 	"reflect"
 	"strconv"
 	"strings"
-	"sync"
 	"time"
 
 	"github.com/apache/incubator-devlake/core/context"
@@ -36,11 +35,6 @@ import (
 	serviceHelper "github.com/apache/incubator-devlake/helpers/pluginhelper/services"
 	"github.com/go-playground/validator/v10"
 	"github.com/mitchellh/mapstructure"
-)
-
-var (
-	tablesCache       []string // these cached vars can probably be moved somewhere more centralized later
-	tablesCacheLoader = new(sync.Once)
 )
 
 type NoScopeConfig struct{}
@@ -641,14 +635,6 @@ func createDeleteQuery(tableName string, scopeIdKey string, scopeId string) stri
 	return query
 }
 
-func (gs *GenericScopeApiHelper[Conn, Scope, ScopeConfig]) lazyCacheTables() errors.Error {
-	var err errors.Error
-	tablesCacheLoader.Do(func() {
-		tablesCache, err = gs.db.AllTables()
-	})
-	return err
-}
-
 func (gs *GenericScopeApiHelper[Conn, Scope, ScopeConfig]) getAffectedTables(pluginName string) ([]string, errors.Error) {
 	var tables []string
 	meta, err := plugin.GetPlugin(pluginName)
@@ -658,11 +644,14 @@ func (gs *GenericScopeApiHelper[Conn, Scope, ScopeConfig]) getAffectedTables(plu
 	if pluginModel, ok := meta.(plugin.PluginModel); !ok {
 		return nil, errors.Default.New(fmt.Sprintf("plugin \"%s\" does not implement listing its tables", pluginName))
 	} else {
-		if err = gs.lazyCacheTables(); err != nil {
+		// Unfortunately, can't cache the tables because Python creates some tables on a per-demand basis, so such a cache would possibly get outdated.
+		// It's a rare scenario in practice, but might as well play it safe and sacrifice some performance here
+		var allTables []string
+		if allTables, err = gs.db.AllTables(); err != nil {
 			return nil, err
 		}
 		// collect raw tables
-		for _, table := range tablesCache {
+		for _, table := range allTables {
 			if strings.HasPrefix(table, "_raw_"+pluginName) {
 				tables = append(tables, table)
 			}

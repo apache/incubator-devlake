@@ -30,5 +30,6 @@ type RemotePlugin interface {
 	plugin.PluginOpenApiSpec
 	plugin.PluginModel
 	plugin.PluginMigration
+	plugin.PluginSource
 	RunAutoMigrations() errors.Error
 }

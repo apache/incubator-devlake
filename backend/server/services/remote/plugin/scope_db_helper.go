@@ -43,7 +43,7 @@ func NewScopeDatabaseHelperImpl(pa *pluginAPI, basicRes context.BasicRes, params
 		pa:         pa,
 		db:         basicRes.GetDal(),
 		params:     params,
-		connHelper: connectionHelper,
+		connHelper: pa.connhelper,
 	}
 }
 

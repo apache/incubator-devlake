@@ -40,9 +40,9 @@ var _ interface {
 	plugin.PluginTask
 	plugin.PluginModel
 	plugin.PluginMigration
+	plugin.PluginSource
 	plugin.DataSourcePluginBlueprintV200
 	plugin.CloseablePluginTask
-	// plugin.PluginSource
 } = (*Gitlab)(nil)
 
 type Gitlab string
@@ -55,19 +55,20 @@ func init() {
 }
 
 func (p Gitlab) Init(basicRes context.BasicRes) errors.Error {
-	api.Init(basicRes)
+	api.Init(basicRes, p)
+
 	return nil
 }
 
-func (p Gitlab) Connection() interface{} {
+func (p Gitlab) Connection() dal.Tabler {
 	return &models.GitlabConnection{}
 }
 
-func (p Gitlab) Scope() interface{} {
-	return &models.GitlabProject{}
+func (p Gitlab) Scopes() []dal.Tabler {
+	return []dal.Tabler{&models.GitlabProject{}}
 }
 
-func (p Gitlab) ScopeConfig() interface{} {
+func (p Gitlab) ScopeConfig() dal.Tabler {
 	return &models.GitlabScopeConfig{}
 }
 
@@ -101,6 +102,10 @@ func (p Gitlab) Description() string {
 	return "To collect and enrich data from Gitlab"
 }
 
+func (p Gitlab) Name() string {
+	return "gitlab"
+}
+
 func (p Gitlab) SubTaskMetas() []plugin.SubTaskMeta {
 	list, err := subtaskmeta_sorter.NewDependencySorter(tasks.SubTaskMetaList).Sort()
 	if err != nil {
@@ -123,6 +128,7 @@ func (p Gitlab) PrepareTaskData(taskCtx plugin.TaskContext, options map[string]i
 	connectionHelper := helper.NewConnectionHelper(
 		taskCtx,
 		nil,
+		p.Name(),
 	)
 	if err != nil {
 		return nil, err

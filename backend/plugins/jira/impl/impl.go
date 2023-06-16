@@ -42,26 +42,27 @@ var _ interface {
 	plugin.PluginMigration
 	plugin.DataSourcePluginBlueprintV200
 	plugin.CloseablePluginTask
-	// plugin.PluginSource
+	plugin.PluginSource
 } = (*Jira)(nil)
 
 type Jira struct {
 }
 
-func (p Jira) Connection() interface{} {
+func (p Jira) Connection() dal.Tabler {
 	return &models.JiraConnection{}
 }
 
-func (p Jira) Scope() interface{} {
-	return &models.JiraBoard{}
+func (p Jira) Scopes() []dal.Tabler {
+	return []dal.Tabler{&models.JiraBoard{}}
 }
 
-func (p Jira) ScopeConfig() interface{} {
+func (p Jira) ScopeConfig() dal.Tabler {
 	return &models.JiraScopeConfig{}
 }
 
 func (p *Jira) Init(basicRes context.BasicRes) errors.Error {
-	api.Init(basicRes)
+	api.Init(basicRes, p)
+
 	return nil
 }
 
@@ -91,6 +92,10 @@ func (p Jira) GetTablesInfo() []dal.Tabler {
 
 func (p Jira) Description() string {
 	return "To collect and enrich data from JIRA"
+}
+
+func (p Jira) Name() string {
+	return "jira"
 }
 
 func (p Jira) SubTaskMetas() []plugin.SubTaskMeta {
@@ -167,6 +172,7 @@ func (p Jira) PrepareTaskData(taskCtx plugin.TaskContext, options map[string]int
 	connectionHelper := helper.NewConnectionHelper(
 		taskCtx,
 		nil,
+		p.Name(),
 	)
 	err = connectionHelper.FirstById(connection, op.ConnectionId)
 	if err != nil {

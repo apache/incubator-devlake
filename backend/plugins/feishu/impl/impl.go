@@ -31,18 +31,22 @@ import (
 	"github.com/apache/incubator-devlake/plugins/feishu/tasks"
 )
 
-var _ plugin.PluginMeta = (*Feishu)(nil)
-var _ plugin.PluginInit = (*Feishu)(nil)
-var _ plugin.PluginTask = (*Feishu)(nil)
-var _ plugin.PluginApi = (*Feishu)(nil)
-var _ plugin.PluginModel = (*Feishu)(nil)
-var _ plugin.PluginMigration = (*Feishu)(nil)
-var _ plugin.CloseablePluginTask = (*Feishu)(nil)
+var _ interface {
+	plugin.PluginMeta
+	plugin.PluginInit
+	plugin.PluginTask
+	plugin.PluginApi
+	plugin.PluginModel
+	plugin.PluginSource
+	plugin.PluginMigration
+	plugin.CloseablePluginTask
+} = (*Feishu)(nil)
 
 type Feishu struct{}
 
 func (p Feishu) Init(basicRes context.BasicRes) errors.Error {
-	api.Init(basicRes)
+	api.Init(basicRes, p)
+
 	return nil
 }
 
@@ -55,6 +59,22 @@ func (p Feishu) GetTablesInfo() []dal.Tabler {
 
 func (p Feishu) Description() string {
 	return "To collect and enrich data from Feishu"
+}
+
+func (p Feishu) Name() string {
+	return "feishu"
+}
+
+func (p Feishu) Connection() dal.Tabler {
+	return &models.FeishuConnection{}
+}
+
+func (p Feishu) Scopes() []dal.Tabler {
+	return nil
+}
+
+func (p Feishu) ScopeConfig() dal.Tabler {
+	return nil
 }
 
 func (p Feishu) SubTaskMetas() []plugin.SubTaskMeta {
@@ -79,6 +99,7 @@ func (p Feishu) PrepareTaskData(taskCtx plugin.TaskContext, options map[string]i
 	connectionHelper := helper.NewConnectionHelper(
 		taskCtx,
 		nil,
+		p.Name(),
 	)
 	connection := &models.FeishuConnection{}
 	err := connectionHelper.FirstById(connection, op.ConnectionId)

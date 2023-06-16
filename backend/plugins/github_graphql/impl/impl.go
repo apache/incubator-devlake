@@ -41,30 +41,35 @@ import (
 )
 
 // make sure interface is implemented
-var _ plugin.PluginMeta = (*GithubGraphql)(nil)
-var _ plugin.PluginTask = (*GithubGraphql)(nil)
-var _ plugin.PluginApi = (*GithubGraphql)(nil)
-var _ plugin.PluginModel = (*GithubGraphql)(nil)
-var _ plugin.CloseablePluginTask = (*GithubGraphql)(nil)
-
-// var _ plugin.PluginSource = (*GithubGraphql)(nil)
+var _ interface {
+	plugin.PluginMeta
+	plugin.PluginTask
+	plugin.PluginApi
+	plugin.PluginModel
+	plugin.PluginSource
+	plugin.CloseablePluginTask
+} = (*GithubGraphql)(nil)
 
 type GithubGraphql struct{}
 
-func (p GithubGraphql) Connection() interface{} {
+func (p GithubGraphql) Connection() dal.Tabler {
 	return &models.GithubConnection{}
 }
 
-func (p GithubGraphql) Scope() interface{} {
-	return &models.GithubRepo{}
+func (p GithubGraphql) Scopes() []dal.Tabler {
+	return []dal.Tabler{&models.GithubRepo{}}
 }
 
-func (p GithubGraphql) ScopeConfig() interface{} {
+func (p GithubGraphql) ScopeConfig() dal.Tabler {
 	return &models.GithubScopeConfig{}
 }
 
 func (p GithubGraphql) Description() string {
 	return "collect some GithubGraphql data"
+}
+
+func (p GithubGraphql) Name() string {
+	return "github_graphql"
 }
 
 func (p GithubGraphql) GetTablesInfo() []dal.Tabler {
@@ -139,6 +144,7 @@ func (p GithubGraphql) PrepareTaskData(taskCtx plugin.TaskContext, options map[s
 	connectionHelper := helper.NewConnectionHelper(
 		taskCtx,
 		nil,
+		p.Name(),
 	)
 	connection := &models.GithubConnection{}
 	err = connectionHelper.FirstById(connection, op.ConnectionId)

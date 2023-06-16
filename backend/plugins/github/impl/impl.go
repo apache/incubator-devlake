@@ -34,32 +34,34 @@ import (
 	"github.com/apache/incubator-devlake/plugins/github/tasks"
 )
 
-var _ plugin.PluginMeta = (*Github)(nil)
-var _ plugin.PluginInit = (*Github)(nil)
-var _ plugin.PluginTask = (*Github)(nil)
-var _ plugin.PluginApi = (*Github)(nil)
-var _ plugin.PluginModel = (*Github)(nil)
-var _ plugin.DataSourcePluginBlueprintV200 = (*Github)(nil)
-var _ plugin.CloseablePluginTask = (*Github)(nil)
-
-// var _ plugin.PluginSource = (*Github)(nil)
+var _ interface {
+	plugin.PluginMeta
+	plugin.PluginInit
+	plugin.PluginTask
+	plugin.PluginApi
+	plugin.PluginModel
+	plugin.PluginSource
+	plugin.DataSourcePluginBlueprintV200
+	plugin.CloseablePluginTask
+} = (*Github)(nil)
 
 type Github struct{}
 
-func (p Github) Connection() interface{} {
+func (p Github) Connection() dal.Tabler {
 	return &models.GithubConnection{}
 }
 
-func (p Github) Scope() interface{} {
-	return &models.GithubRepo{}
+func (p Github) Scopes() []dal.Tabler {
+	return []dal.Tabler{&models.GithubRepo{}}
 }
 
-func (p Github) ScopeConfig() interface{} {
+func (p Github) ScopeConfig() dal.Tabler {
 	return &models.GithubScopeConfig{}
 }
 
 func (p Github) Init(basicRes context.BasicRes) errors.Error {
-	api.Init(basicRes)
+	api.Init(basicRes, p)
+
 	return nil
 }
 
@@ -92,6 +94,10 @@ func (p Github) GetTablesInfo() []dal.Tabler {
 
 func (p Github) Description() string {
 	return "To collect and enrich data from GitHub"
+}
+
+func (p Github) Name() string {
+	return "github"
 }
 
 func (p Github) SubTaskMetas() []plugin.SubTaskMeta {
@@ -154,6 +160,7 @@ func (p Github) PrepareTaskData(taskCtx plugin.TaskContext, options map[string]i
 	connectionHelper := helper.NewConnectionHelper(
 		taskCtx,
 		nil,
+		p.Name(),
 	)
 	connection := &models.GithubConnection{}
 	err = connectionHelper.FirstById(connection, op.ConnectionId)

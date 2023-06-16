@@ -30,11 +30,9 @@ import (
 	helper "github.com/apache/incubator-devlake/helpers/pluginhelper/api"
 	"github.com/apache/incubator-devlake/plugins/zentao/models"
 	"github.com/apache/incubator-devlake/plugins/zentao/tasks"
-	"github.com/go-playground/validator/v10"
 )
 
 func MakeDataSourcePipelinePlanV200(subtaskMetas []plugin.SubTaskMeta, connectionId uint64, bpScopes []*plugin.BlueprintScopeV200, syncPolicy *plugin.BlueprintSyncPolicy) (plugin.PipelinePlan, []plugin.Scope, errors.Error) {
-	connectionHelper := helper.NewConnectionHelper(basicRes, validator.New())
 	// get the connection info for url
 	connection := &models.ZentaoConnection{}
 	err := connectionHelper.FirstById(connection, connectionId)

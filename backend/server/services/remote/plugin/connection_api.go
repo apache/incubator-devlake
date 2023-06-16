@@ -53,7 +53,7 @@ func (pa *pluginAPI) TestConnection(input *plugin.ApiResourceInput) (*plugin.Api
 
 func (pa *pluginAPI) PostConnections(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, errors.Error) {
 	connection := pa.connType.New()
-	err := pa.helper.Create(connection, input)
+	err := pa.connhelper.Create(connection, input)
 	if err != nil {
 		return nil, err
 	}
@@ -63,7 +63,7 @@ func (pa *pluginAPI) PostConnections(input *plugin.ApiResourceInput) (*plugin.Ap
 
 func (pa *pluginAPI) ListConnections(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, errors.Error) {
 	connections := pa.connType.NewSlice()
-	err := pa.helper.List(connections)
+	err := pa.connhelper.List(connections)
 	if err != nil {
 		return nil, err
 	}
@@ -73,7 +73,7 @@ func (pa *pluginAPI) ListConnections(input *plugin.ApiResourceInput) (*plugin.Ap
 
 func (pa *pluginAPI) GetConnection(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, errors.Error) {
 	connection := pa.connType.New()
-	err := pa.helper.First(connection, input.Params)
+	err := pa.connhelper.First(connection, input.Params)
 	if err != nil {
 		return nil, err
 	}
@@ -83,7 +83,7 @@ func (pa *pluginAPI) GetConnection(input *plugin.ApiResourceInput) (*plugin.ApiR
 
 func (pa *pluginAPI) PatchConnection(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, errors.Error) {
 	connection := pa.connType.New()
-	err := pa.helper.Patch(connection, input)
+	err := pa.connhelper.Patch(connection, input)
 	if err != nil {
 		return nil, err
 	}
@@ -93,11 +93,11 @@ func (pa *pluginAPI) PatchConnection(input *plugin.ApiResourceInput) (*plugin.Ap
 
 func (pa *pluginAPI) DeleteConnection(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, errors.Error) {
 	connection := pa.connType.New()
-	err := pa.helper.First(connection, input.Params)
+	err := pa.connhelper.First(connection, input.Params)
 	if err != nil {
 		return nil, err
 	}
-	refs, err := pa.helper.Delete(input.GetPlugin(), connection)
+	refs, err := pa.connhelper.Delete(connection)
 	if err != nil {
 		return &plugin.ApiResourceOutput{Body: refs, Status: err.GetType().GetHttpCode()}, err
 	}

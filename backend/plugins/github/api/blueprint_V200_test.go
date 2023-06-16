@@ -57,10 +57,12 @@ func TestMakeDataSourcePipelinePlanV200(t *testing.T) {
 	}
 	mockMeta := mockplugin.NewPluginMeta(t)
 	mockMeta.On("RootPkgPath").Return("github.com/apache/incubator-devlake/plugins/github")
+	mockMeta.On("Name").Return("github").Maybe()
 	err := plugin.RegisterPlugin("github", mockMeta)
 	assert.Nil(t, err)
 	// Refresh Global Variables and set the sql mock
-	mockBasicRes()
+	mockBasicRes(t)
+
 	bs := &plugin.BlueprintScopeV200{
 		Id: "1",
 	}
@@ -131,7 +133,7 @@ func TestMakeDataSourcePipelinePlanV200(t *testing.T) {
 	assert.Equal(t, expectScopes, scopes)
 }
 
-func mockBasicRes() {
+func mockBasicRes(t *testing.T) {
 	testGithubRepo := &models.GithubRepo{
 		ConnectionId:  1,
 		GithubId:      12345,
@@ -168,5 +170,7 @@ func mockBasicRes() {
 			*dst = *testScopeConfig
 		}).Return(nil)
 	})
-	Init(mockRes)
+	p := mockplugin.NewPluginMeta(t)
+	p.On("Name").Return("dummy").Maybe()
+	Init(mockRes, p)
 }

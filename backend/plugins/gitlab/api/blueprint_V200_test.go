@@ -178,6 +178,7 @@ func TestMakeDataSourcePipelinePlanV200(t *testing.T) {
 	// register gitlab plugin for NewDomainIdGenerator
 	mockMeta := mockplugin.NewPluginMeta(t)
 	mockMeta.On("RootPkgPath").Return("github.com/apache/incubator-devlake/plugins/gitlab")
+	mockMeta.On("Name").Return("dummy").Maybe()
 	err = plugin.RegisterPlugin("gitlab", mockMeta)
 	assert.Equal(t, err, nil)
 
@@ -198,7 +199,7 @@ func TestMakeDataSourcePipelinePlanV200(t *testing.T) {
 			*dst = *testScopeConfig
 		}).Return(nil)
 	})
-	Init(mockRes)
+	Init(mockRes, mockMeta)
 
 	plans, scopes, err := MakePipelinePlanV200(testSubTaskMeta, testConnectionID, bpScopes, syncPolicy)
 	assert.Equal(t, err, nil)

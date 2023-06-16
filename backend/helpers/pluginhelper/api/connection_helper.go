@@ -18,6 +18,7 @@ limitations under the License.
 package api
 
 import (
+	"fmt"
 	"github.com/apache/incubator-devlake/helpers/pluginhelper/services"
 	"strconv"
 
@@ -37,12 +38,14 @@ type ConnectionApiHelper struct {
 	db               dal.Dal
 	validator        *validator.Validate
 	bpManager        *services.BlueprintManager
+	pluginName       string
 }
 
 // NewConnectionHelper creates a ConnectionHelper for connection management
 func NewConnectionHelper(
 	basicRes context.BasicRes,
 	vld *validator.Validate,
+	pluginName string,
 ) *ConnectionApiHelper {
 	if vld == nil {
 		vld = validator.New()
@@ -53,6 +56,7 @@ func NewConnectionHelper(
 		db:               basicRes.GetDal(),
 		validator:        vld,
 		bpManager:        services.NewBlueprintManager(basicRes.GetDal()),
+		pluginName:       pluginName,
 	}
 }
 
@@ -104,14 +108,25 @@ func (c *ConnectionApiHelper) List(connections interface{}) errors.Error {
 }
 
 // Delete connection
-func (c *ConnectionApiHelper) Delete(plugin string, connection interface{}) (*services.BlueprintProjectPairs, errors.Error) {
+func (c *ConnectionApiHelper) Delete(connection interface{}) (*services.BlueprintProjectPairs, errors.Error) {
 	connectionId := reflectField(connection, "ID").Uint()
-	referencingBps, err := c.bpManager.GetBlueprintsByConnection(plugin, connectionId)
+	referencingBps, err := c.bpManager.GetBlueprintsByConnection(c.pluginName, connectionId)
 	if err != nil {
 		return nil, err
 	}
 	if len(referencingBps) > 0 {
-		return services.NewBlueprintProjectPairs(referencingBps), errors.Conflict.New("Found one or more references to this connection")
+		return services.NewBlueprintProjectPairs(referencingBps), errors.Conflict.New("Found one or more blueprint/project references to this connection")
+	}
+	// delete the scopes using this connection
+	scopeModels := c.getScopeModels()
+	for _, scopeModel := range scopeModels {
+		count, err := c.db.Count(dal.From(scopeModel.TableName()), dal.Where("connection_id = ?", connectionId))
+		if err != nil {
+			return nil, errors.Default.Wrap(err, fmt.Sprintf("error deleting scopes for plugin %s using connection %d", c.pluginName, connectionId))
+		}
+		if count > 0 {
+			return nil, errors.Conflict.New("Found one or more scope references to this connection")
+		}
 	}
 	return nil, CallDB(c.db.Delete, connection)
 }
@@ -137,4 +152,13 @@ func (c *ConnectionApiHelper) save(connection interface{}, method func(entity in
 		return err
 	}
 	return nil
+}
+
+func (c *ConnectionApiHelper) getScopeModels() []dal.Tabler {
+	pluginMeta, _ := plugin.GetPlugin(c.pluginName)
+	pluginSrc, ok := pluginMeta.(plugin.PluginSource)
+	if !ok {
+		return nil
+	}
+	return pluginSrc.Scopes()
 }

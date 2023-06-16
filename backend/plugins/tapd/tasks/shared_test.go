@@ -240,6 +240,7 @@ func TestGenerateDomainAccountIdForUsers(t *testing.T) {
 	}
 	mockMeta := mockplugin.NewPluginMeta(t)
 	mockMeta.On("RootPkgPath").Return("github.com/apache/incubator-devlake/plugins/tapd")
+	mockMeta.On("Name").Return("tapd").Maybe()
 	err := plugin.RegisterPlugin("tapd", mockMeta)
 	assert.Nil(t, err)
 	for _, testCase := range testCases {

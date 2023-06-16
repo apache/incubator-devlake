@@ -41,7 +41,7 @@ var _ interface {
 	plugin.PluginMigration
 	plugin.DataSourcePluginBlueprintV200
 	plugin.CloseablePluginTask
-	// plugin.PluginSource
+	plugin.PluginSource
 } = (*Sonarqube)(nil)
 
 type Sonarqube struct{}
@@ -50,20 +50,25 @@ func (p Sonarqube) Description() string {
 	return "collect some Sonarqube data"
 }
 
+func (p Sonarqube) Name() string {
+	return "dbt"
+}
+
 func (p Sonarqube) Init(br context.BasicRes) errors.Error {
-	api.Init(br)
+	api.Init(br, p)
+
 	return nil
 }
 
-func (p Sonarqube) Connection() interface{} {
+func (p Sonarqube) Connection() dal.Tabler {
 	return &models.SonarqubeConnection{}
 }
 
-func (p Sonarqube) Scope() interface{} {
-	return &models.SonarqubeProject{}
+func (p Sonarqube) Scopes() []dal.Tabler {
+	return []dal.Tabler{&models.SonarqubeProject{}}
 }
 
-func (p Sonarqube) TransformationRule() interface{} {
+func (p Sonarqube) ScopeConfig() dal.Tabler {
 	return nil
 }
 
@@ -109,6 +114,7 @@ func (p Sonarqube) PrepareTaskData(taskCtx plugin.TaskContext, options map[strin
 	connectionHelper := helper.NewConnectionHelper(
 		taskCtx,
 		nil,
+		p.Name(),
 	)
 	connection := &models.SonarqubeConnection{}
 	err = connectionHelper.FirstById(connection, op.ConnectionId)

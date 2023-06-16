@@ -47,7 +47,7 @@ func (pa *pluginAPI) PutScope(input *plugin.ApiResourceInput) (*plugin.ApiResour
 		}
 		slice = append(slice, &obj)
 	}
-	apiScopes, err := scopeHelper.PutScopes(input, slice)
+	apiScopes, err := pa.scopeHelper.PutScopes(input, slice)
 	if err != nil {
 		return nil, err
 	}
@@ -59,7 +59,7 @@ func (pa *pluginAPI) PutScope(input *plugin.ApiResourceInput) (*plugin.ApiResour
 }
 
 func (pa *pluginAPI) UpdateScope(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, errors.Error) {
-	apiScopes, err := scopeHelper.UpdateScope(input)
+	apiScopes, err := pa.scopeHelper.UpdateScope(input)
 	if err != nil {
 		return nil, err
 	}
@@ -71,7 +71,7 @@ func (pa *pluginAPI) UpdateScope(input *plugin.ApiResourceInput) (*plugin.ApiRes
 }
 
 func (pa *pluginAPI) ListScopes(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, errors.Error) {
-	scopes, err := scopeHelper.GetScopes(input)
+	scopes, err := pa.scopeHelper.GetScopes(input)
 	if err != nil {
 		return nil, err
 	}
@@ -83,7 +83,7 @@ func (pa *pluginAPI) ListScopes(input *plugin.ApiResourceInput) (*plugin.ApiReso
 }
 
 func (pa *pluginAPI) GetScope(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, errors.Error) {
-	scope, err := scopeHelper.GetScope(input)
+	scope, err := pa.scopeHelper.GetScope(input)
 	if err != nil {
 		return nil, err
 	}
@@ -95,7 +95,7 @@ func (pa *pluginAPI) GetScope(input *plugin.ApiResourceInput) (*plugin.ApiResour
 }
 
 func (pa *pluginAPI) DeleteScope(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, errors.Error) {
-	refs, err := scopeHelper.DeleteScope(input)
+	refs, err := pa.scopeHelper.DeleteScope(input)
 	if err != nil {
 		return &plugin.ApiResourceOutput{Body: refs, Status: err.GetType().GetHttpCode()}, nil
 	}

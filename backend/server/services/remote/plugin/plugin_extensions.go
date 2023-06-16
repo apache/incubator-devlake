@@ -41,7 +41,7 @@ func (p remoteMetricPlugin) MakeMetricPluginPipelinePlanV200(projectName string,
 
 func (p remoteDatasourcePlugin) MakeDataSourcePipelinePlanV200(connectionId uint64, bpScopes []*plugin.BlueprintScopeV200, syncPolicy plugin.BlueprintSyncPolicy) (plugin.PipelinePlan, []plugin.Scope, errors.Error) {
 	connection := p.connectionTabler.New()
-	err := connectionHelper.FirstById(connection, connectionId)
+	err := p.connHelper.FirstById(connection, connectionId)
 	if err != nil {
 		return nil, nil, err
 	}
