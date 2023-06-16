@@ -63,6 +63,8 @@ type (
 		ScopeConfig *ScopeConfig        `mapstructure:"scopeConfig,omitempty" json:"scopeConfig"`
 		Blueprints  []*models.Blueprint `mapstructure:"blueprints,omitempty" json:"blueprints"`
 	}
+	// Alias, for swagger purposes
+	ScopeRefDoc                          = serviceHelper.BlueprintProjectPairs
 	ScopeRes[Scope any, ScopeConfig any] struct {
 		Scope                    *Scope                   `mapstructure:",squash"` // ideally we need this field to be embedded in the struct
 		ScopeResDoc[ScopeConfig] `mapstructure:",squash"` // however, only this type of embeding is supported as of golang 1.20
@@ -288,43 +290,49 @@ func (gs *GenericScopeApiHelper[Conn, Scope, Tr]) GetScope(input *plugin.ApiReso
 	return scopeRes, nil
 }
 
-func (gs *GenericScopeApiHelper[Conn, Scope, Tr]) DeleteScope(input *plugin.ApiResourceInput) errors.Error {
+func (gs *GenericScopeApiHelper[Conn, Scope, Tr]) DeleteScope(input *plugin.ApiResourceInput) (*serviceHelper.BlueprintProjectPairs, errors.Error) {
 	params, err := gs.extractFromDeleteReqParam(input)
 	if err != nil {
-		return err
+		return nil, err
 	}
 	err = gs.dbHelper.VerifyConnection(params.connectionId)
 	if err != nil {
-		return errors.Default.Wrap(err, fmt.Sprintf("error verifying connection for connection ID %d", params.connectionId))
+		return nil, errors.Default.Wrap(err, fmt.Sprintf("error verifying connection for connection ID %d", params.connectionId))
+	}
+	if refs, err := gs.getScopeReferences(input.GetPlugin(), params.connectionId, params.scopeId); err != nil || refs != nil {
+		if err != nil {
+			return nil, err
+		}
+		return refs, errors.Conflict.New("Found one or more references to this scope")
 	}
 	scopeParamValue := params.scopeId
 	if gs.opts.GetScopeParamValue != nil {
 		scopeParamValue, err = gs.opts.GetScopeParamValue(gs.db, params.scopeId)
 		if err != nil {
-			return errors.Default.Wrap(err, fmt.Sprintf("error extracting scope parameter name for scope %s", params.scopeId))
+			return nil, errors.Default.Wrap(err, fmt.Sprintf("error extracting scope parameter name for scope %s", params.scopeId))
 		}
 	}
 	// find all tables for this plugin
 	tables, err := gs.getAffectedTables(params.plugin)
 	if err != nil {
-		return errors.Default.Wrap(err, fmt.Sprintf("error getting database tables managed by plugin %s", params.plugin))
+		return nil, errors.Default.Wrap(err, fmt.Sprintf("error getting database tables managed by plugin %s", params.plugin))
 	}
 	err = gs.transactionalDelete(tables, scopeParamValue)
 	if err != nil {
-		return errors.Default.Wrap(err, fmt.Sprintf("error deleting data bound to scope %s for plugin %s", params.scopeId, params.plugin))
+		return nil, errors.Default.Wrap(err, fmt.Sprintf("error deleting data bound to scope %s for plugin %s", params.scopeId, params.plugin))
 	}
 	if !params.deleteDataOnly {
 		// Delete the scope itself
 		err = gs.dbHelper.DeleteScope(params.connectionId, params.scopeId)
 		if err != nil {
-			return errors.Default.Wrap(err, fmt.Sprintf("error deleting scope %s", params.scopeId))
+			return nil, errors.Default.Wrap(err, fmt.Sprintf("error deleting scope %s", params.scopeId))
 		}
 		err = gs.updateBlueprints(params.connectionId, params.plugin, params.scopeId)
 		if err != nil {
-			return err
+			return nil, err
 		}
 	}
-	return nil
+	return nil, nil
 }
 
 func (gs *GenericScopeApiHelper[Conn, Scope, Tr]) addScopeConfig(scopes ...*Scope) ([]*ScopeRes[Scope, Tr], errors.Error) {
@@ -343,6 +351,18 @@ func (gs *GenericScopeApiHelper[Conn, Scope, Tr]) addScopeConfig(scopes ...*Scop
 		}
 	}
 	return apiScopes, nil
+}
+
+func (gs *GenericScopeApiHelper[Conn, Scope, Tr]) getScopeReferences(pluginName string, connectionId uint64, scopeId string) (*serviceHelper.BlueprintProjectPairs, errors.Error) {
+	blueprintMap, err := gs.bpManager.GetBlueprintsByScopes(connectionId, pluginName, scopeId)
+	if err != nil {
+		return nil, err
+	}
+	blueprints := blueprintMap[scopeId]
+	if len(blueprints) == 0 {
+		return nil, nil
+	}
+	return serviceHelper.NewBlueprintProjectPairs(blueprints), nil
 }
 
 func (gs *GenericScopeApiHelper[Conn, Scope, Tr]) mapByScopeId(scopes []*ScopeRes[Scope, Tr]) map[string]*ScopeRes[Scope, Tr] {
@@ -370,7 +390,7 @@ func (gs *GenericScopeApiHelper[Conn, Scope, Tr]) extractFromReqParam(input *plu
 			scopeId = scopeId[1:]
 		}
 	}
-	pluginName := input.Params["plugin"]
+	pluginName := input.GetPlugin()
 	return &requestParams{
 		connectionId: connectionId,
 		plugin:       pluginName,

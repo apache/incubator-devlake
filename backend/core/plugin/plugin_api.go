@@ -31,6 +31,11 @@ type ApiResourceInput struct {
 	Request *http.Request
 }
 
+// GetPlugin get the plugin in context
+func (input *ApiResourceInput) GetPlugin() string {
+	return input.Params["plugin"]
+}
+
 // OutputFile is the file returned
 type OutputFile struct {
 	ContentType string

@@ -139,6 +139,7 @@ func GetProjectScope(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput,
 // @Param delete_data_only query bool false "Only delete the scope data, not the scope itself"
 // @Success 200
 // @Failure 400  {object} shared.ApiBody "Bad Request"
+// @Failure 409  {object} api.ScopeRefDoc "References exist to this scope"
 // @Failure 500  {object} shared.ApiBody "Internal Error"
 // @Router /plugins/zentao/connections/{connectionId}/scopes/product/{scopeId} [DELETE]
 func DeleteProductScope(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, errors.Error) {
@@ -154,6 +155,7 @@ func DeleteProductScope(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutp
 // @Param delete_data_only query bool false "Only delete the scope data, not the scope itself"
 // @Success 200
 // @Failure 400  {object} shared.ApiBody "Bad Request"
+// @Failure 409  {object} api.ScopeRefDoc "References exist to this scope"
 // @Failure 500  {object} shared.ApiBody "Internal Error"
 // @Router /plugins/zentao/connections/{connectionId}/scopes/project/{scopeId} [DELETE]
 func DeleteProjectScope(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, errors.Error) {

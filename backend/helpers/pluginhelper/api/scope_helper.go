@@ -95,9 +95,9 @@ func (c *ScopeApiHelper[Conn, Scope, Tr]) GetScope(input *plugin.ApiResourceInpu
 }
 
 func (c *ScopeApiHelper[Conn, Scope, Tr]) Delete(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, errors.Error) {
-	err := c.DeleteScope(input)
+	refs, err := c.DeleteScope(input)
 	if err != nil {
-		return nil, err
+		return &plugin.ApiResourceOutput{Body: refs, Status: err.GetType().GetHttpCode()}, nil
 	}
 	return &plugin.ApiResourceOutput{Body: nil, Status: http.StatusOK}, nil
 }

@@ -97,7 +97,10 @@ func (pa *pluginAPI) DeleteConnection(input *plugin.ApiResourceInput) (*plugin.A
 	if err != nil {
 		return nil, err
 	}
-	err = pa.helper.Delete(connection)
+	refs, err := pa.helper.Delete(input.GetPlugin(), connection)
+	if err != nil {
+		return &plugin.ApiResourceOutput{Body: refs, Status: err.GetType().GetHttpCode()}, err
+	}
 	conn := connection.Unwrap()
 	return &plugin.ApiResourceOutput{Body: conn}, err
 }
