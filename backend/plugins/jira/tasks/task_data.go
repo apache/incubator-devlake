@@ -20,6 +20,7 @@ package tasks
 import (
 	"encoding/json"
 	"fmt"
+	"regexp"
 	"time"
 
 	"github.com/apache/incubator-devlake/core/errors"
@@ -57,7 +58,30 @@ type JiraScopeConfig struct {
 	ApplicationType            string             `json:"applicationType"`
 }
 
+func (r *JiraScopeConfig) VerifyRegexp() errors.Error {
+	var err error
+	if r.RemotelinkCommitShaPattern != "" {
+		_, err = regexp.Compile(r.RemotelinkCommitShaPattern)
+		if err != nil {
+			return errors.Convert(err)
+		}
+	}
+	for _, pattern := range r.RemotelinkRepoPattern {
+		if pattern.Regex == "" {
+			return errors.BadInput.New("empty regex in remotelinkRepoPattern")
+		}
+		_, err = regexp.Compile(pattern.Regex)
+		if err != nil {
+			return errors.Convert(err)
+		}
+	}
+	return nil
+}
+
 func (r *JiraScopeConfig) ToDb() (*models.JiraScopeConfig, errors.Error) {
+	if err1 := r.VerifyRegexp(); err1 != nil {
+		return nil, err1
+	}
 	blob, err := json.Marshal(r.TypeMappings)
 	if err != nil {
 		return nil, errors.Default.Wrap(err, "error marshaling TypeMappings")
@@ -80,9 +104,6 @@ func (r *JiraScopeConfig) ToDb() (*models.JiraScopeConfig, errors.Error) {
 		ApplicationType:            r.ApplicationType,
 	}
 	scopeConfig.Entities = r.Entities
-	if err1 := scopeConfig.VerifyRegexp(); err1 != nil {
-		return nil, err1
-	}
 	return scopeConfig, nil
 }
 
