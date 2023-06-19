@@ -28,9 +28,11 @@ import (
 type StarRocks string
 
 // make sure interface is implemented
-var _ plugin.PluginMeta = (*StarRocks)(nil)
-var _ plugin.PluginTask = (*StarRocks)(nil)
-var _ plugin.PluginModel = (*StarRocks)(nil)
+var _ interface {
+	plugin.PluginMeta
+	plugin.PluginTask
+	plugin.PluginModel
+} = (*StarRocks)(nil)
 
 func (s StarRocks) SubTaskMetas() []plugin.SubTaskMeta {
 	return []plugin.SubTaskMeta{
@@ -56,6 +58,10 @@ func (s StarRocks) GetTablesInfo() []dal.Tabler {
 
 func (s StarRocks) Description() string {
 	return "Sync data from database to StarRocks"
+}
+
+func (s StarRocks) Name() string {
+	return "starrocks"
 }
 
 func (s StarRocks) RootPkgPath() string {

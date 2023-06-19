@@ -20,26 +20,19 @@ package plugin
 import (
 	"github.com/apache/incubator-devlake/core/context"
 	"github.com/apache/incubator-devlake/core/errors"
-	"github.com/apache/incubator-devlake/helpers/pluginhelper/api"
 	"github.com/apache/incubator-devlake/server/services/remote/bridge"
 	"github.com/apache/incubator-devlake/server/services/remote/models"
 	"github.com/go-playground/validator/v10"
 )
 
 var (
-	connectionHelper *api.ConnectionApiHelper
-	scopeHelper      *api.GenericScopeApiHelper[models.RemoteConnection, models.RemoteScope, models.RemoteScopeConfig]
-	basicRes         context.BasicRes
-	vld              *validator.Validate
+	basicRes context.BasicRes
+	vld      *validator.Validate
 )
 
 func Init(br context.BasicRes) {
 	vld = validator.New()
 	basicRes = br
-	connectionHelper = api.NewConnectionHelper(
-		br,
-		vld,
-	)
 }
 
 func NewRemotePlugin(info *models.PluginInfo) (models.RemotePlugin, errors.Error) {

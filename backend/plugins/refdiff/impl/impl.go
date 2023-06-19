@@ -26,16 +26,22 @@ import (
 )
 
 // make sure interface is implemented
-var _ plugin.PluginMeta = (*RefDiff)(nil)
-var _ plugin.PluginTask = (*RefDiff)(nil)
-var _ plugin.PluginApi = (*RefDiff)(nil)
-var _ plugin.PluginModel = (*RefDiff)(nil)
-var _ plugin.PluginMetric = (*RefDiff)(nil)
+var _ interface {
+	plugin.PluginMeta
+	plugin.PluginTask
+	plugin.PluginApi
+	plugin.PluginModel
+	plugin.PluginMetric
+} = (*RefDiff)(nil)
 
 type RefDiff struct{}
 
 func (p RefDiff) Description() string {
 	return "Calculate commits diff for specified ref pairs based on `commits` and `commit_parents` tables"
+}
+
+func (p RefDiff) Name() string {
+	return "refdiff"
 }
 
 func (p RefDiff) RequiredDataEntities() (data []map[string]interface{}, err errors.Error) {

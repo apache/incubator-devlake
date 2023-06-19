@@ -33,33 +33,35 @@ import (
 	"github.com/apache/incubator-devlake/plugins/bitbucket/tasks"
 )
 
-var _ plugin.PluginMeta = (*Bitbucket)(nil)
-var _ plugin.PluginInit = (*Bitbucket)(nil)
-var _ plugin.PluginTask = (*Bitbucket)(nil)
-var _ plugin.PluginApi = (*Bitbucket)(nil)
-var _ plugin.PluginModel = (*Bitbucket)(nil)
-var _ plugin.PluginMigration = (*Bitbucket)(nil)
-var _ plugin.CloseablePluginTask = (*Bitbucket)(nil)
-var _ plugin.DataSourcePluginBlueprintV200 = (*Bitbucket)(nil)
-
-// var _ plugin.PluginSource = (*Bitbucket)(nil)
+var _ interface {
+	plugin.PluginMeta
+	plugin.PluginInit
+	plugin.PluginTask
+	plugin.PluginApi
+	plugin.PluginModel
+	plugin.PluginMigration
+	plugin.CloseablePluginTask
+	plugin.DataSourcePluginBlueprintV200
+	plugin.PluginSource
+} = (*Bitbucket)(nil)
 
 type Bitbucket string
 
-func (p Bitbucket) Connection() interface{} {
+func (p Bitbucket) Connection() dal.Tabler {
 	return &models.BitbucketConnection{}
 }
 
-func (p Bitbucket) Scope() interface{} {
+func (p Bitbucket) Scope() plugin.ToolLayerScope {
 	return &models.BitbucketRepo{}
 }
 
-func (p Bitbucket) ScopeConfig() interface{} {
+func (p Bitbucket) ScopeConfig() dal.Tabler {
 	return &models.BitbucketScopeConfig{}
 }
 
 func (p Bitbucket) Init(basicRes context.BasicRes) errors.Error {
-	api.Init(basicRes)
+	api.Init(basicRes, p)
+
 	return nil
 }
 
@@ -80,6 +82,10 @@ func (p Bitbucket) GetTablesInfo() []dal.Tabler {
 
 func (p Bitbucket) Description() string {
 	return "To collect and enrich data from Bitbucket"
+}
+
+func (p Bitbucket) Name() string {
+	return "bitbucket"
 }
 
 func (p Bitbucket) SubTaskMetas() []plugin.SubTaskMeta {
@@ -136,6 +142,7 @@ func (p Bitbucket) PrepareTaskData(taskCtx plugin.TaskContext, options map[strin
 	connectionHelper := helper.NewConnectionHelper(
 		taskCtx,
 		nil,
+		p.Name(),
 	)
 	connection := &models.BitbucketConnection{}
 	err = connectionHelper.FirstById(connection, op.ConnectionId)

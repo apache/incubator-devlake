@@ -33,33 +33,35 @@ import (
 )
 
 // make sure interface is implemented
-var _ plugin.PluginMeta = (*Bamboo)(nil)
-var _ plugin.PluginInit = (*Bamboo)(nil)
-var _ plugin.PluginTask = (*Bamboo)(nil)
-var _ plugin.PluginModel = (*Bamboo)(nil)
-var _ plugin.PluginMigration = (*Bamboo)(nil)
-var _ plugin.DataSourcePluginBlueprintV200 = (*Bamboo)(nil)
-var _ plugin.CloseablePluginTask = (*Bamboo)(nil)
-
-// var _ plugin.PluginSource = (*Bamboo)(nil)
+var _ interface {
+	plugin.PluginMeta
+	plugin.PluginInit
+	plugin.PluginTask
+	plugin.PluginModel
+	plugin.PluginMigration
+	plugin.DataSourcePluginBlueprintV200
+	plugin.CloseablePluginTask
+	plugin.PluginSource
+} = (*Bamboo)(nil)
 
 type Bamboo struct{}
 
 func (p Bamboo) Init(br context.BasicRes) errors.Error {
-	api.Init(br)
+	api.Init(br, p)
+
 	return nil
 }
 
-func (p Bamboo) Connection() interface{} {
+func (p Bamboo) Connection() dal.Tabler {
 	return &models.BambooConnection{}
 }
 
-func (p Bamboo) Scope() interface{} {
-	return nil
+func (p Bamboo) Scope() plugin.ToolLayerScope {
+	return &models.BambooProject{}
 }
 
-func (p Bamboo) ScopeConfig() interface{} {
-	return nil
+func (p Bamboo) ScopeConfig() dal.Tabler {
+	return &models.BambooScopeConfig{}
 }
 
 func (p Bamboo) MakeDataSourcePipelinePlanV200(connectionId uint64, scopes []*plugin.BlueprintScopeV200, syncPolicy plugin.BlueprintSyncPolicy) (plugin.PipelinePlan, []plugin.Scope, errors.Error) {
@@ -80,6 +82,10 @@ func (p Bamboo) GetTablesInfo() []dal.Tabler {
 
 func (p Bamboo) Description() string {
 	return "collect some Bamboo data"
+}
+
+func (p Bamboo) Name() string {
+	return "bamboo"
 }
 
 func (p Bamboo) SubTaskMetas() []plugin.SubTaskMeta {
@@ -117,6 +123,7 @@ func (p Bamboo) PrepareTaskData(taskCtx plugin.TaskContext, options map[string]i
 	connectionHelper := helper.NewConnectionHelper(
 		taskCtx,
 		nil,
+		p.Name(),
 	)
 	connection := &models.BambooConnection{}
 	err = connectionHelper.FirstById(connection, op.ConnectionId)

@@ -30,13 +30,16 @@ import (
 )
 
 // make sure interface is implemented
-var _ plugin.PluginMeta = (*Icla)(nil)
-var _ plugin.PluginInit = (*Icla)(nil)
-var _ plugin.PluginTask = (*Icla)(nil)
-var _ plugin.PluginApi = (*Icla)(nil)
-var _ plugin.PluginModel = (*Icla)(nil)
-var _ plugin.PluginMigration = (*Icla)(nil)
-var _ plugin.CloseablePluginTask = (*Icla)(nil)
+
+var _ interface {
+	plugin.PluginMeta
+	plugin.PluginInit
+	plugin.PluginTask
+	plugin.PluginApi
+	plugin.PluginModel
+	plugin.PluginMigration
+	plugin.CloseablePluginTask
+} = (*Icla)(nil)
 
 type Icla struct{}
 
@@ -82,6 +85,10 @@ func (p Icla) PrepareTaskData(taskCtx plugin.TaskContext, options map[string]int
 // PkgPath information lost when compiled as plugin(.so)
 func (p Icla) RootPkgPath() string {
 	return "github.com/apache/incubator-devlake/plugins/icla"
+}
+
+func (p Icla) Name() string {
+	return "icla"
 }
 
 func (p Icla) MigrationScripts() []plugin.MigrationScript {

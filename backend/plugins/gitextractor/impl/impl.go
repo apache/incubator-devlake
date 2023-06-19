@@ -31,9 +31,11 @@ import (
 	"strings"
 )
 
-var _ plugin.PluginMeta = (*GitExtractor)(nil)
-var _ plugin.PluginTask = (*GitExtractor)(nil)
-var _ plugin.PluginModel = (*GitExtractor)(nil)
+var _ interface {
+	plugin.PluginMeta
+	plugin.PluginTask
+	plugin.PluginModel
+} = (*GitExtractor)(nil)
 
 type GitExtractor struct{}
 
@@ -43,6 +45,10 @@ func (p GitExtractor) GetTablesInfo() []dal.Tabler {
 
 func (p GitExtractor) Description() string {
 	return "extract infos from git repository"
+}
+
+func (p GitExtractor) Name() string {
+	return "gitextractor"
 }
 
 // return all available subtasks, framework will run them for you in order

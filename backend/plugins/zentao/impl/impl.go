@@ -35,13 +35,17 @@ import (
 )
 
 // make sure interface is implemented
-var _ plugin.PluginMeta = (*Zentao)(nil)
-var _ plugin.PluginInit = (*Zentao)(nil)
-var _ plugin.PluginTask = (*Zentao)(nil)
-var _ plugin.PluginApi = (*Zentao)(nil)
 
-// var _ plugin.CompositePluginBlueprintV200 = (*Zentao)(nil)
-var _ plugin.CloseablePluginTask = (*Zentao)(nil)
+var _ interface {
+	plugin.PluginMeta
+	plugin.PluginInit
+	plugin.PluginTask
+	plugin.PluginApi
+	//plugin.CompositePluginBlueprintV200
+	plugin.PluginModel
+	plugin.PluginSource
+	plugin.CloseablePluginTask
+} = (*Zentao)(nil)
 
 type Zentao struct{}
 
@@ -49,9 +53,49 @@ func (p Zentao) Description() string {
 	return "collect some Zentao data"
 }
 
+func (p Zentao) Name() string {
+	return "zentao"
+}
+
 func (p Zentao) Init(basicRes context.BasicRes) errors.Error {
-	api.Init(basicRes)
+	api.Init(basicRes, p)
+
 	return nil
+}
+
+func (p Zentao) GetTablesInfo() []dal.Tabler {
+	return []dal.Tabler{
+		&models.ZentaoAccount{},
+		&models.ZentaoBug{},
+		&models.ZentaoBugCommit{},
+		&models.ZentaoChangelog{},
+		&models.ZentaoChangelogDetail{},
+		&models.ZentaoDepartment{},
+		&models.ZentaoExecution{},
+		&models.ZentaoProduct{},
+		&models.ZentaoProject{},
+		&models.ZentaoRemoteDbAction{},
+		&models.ZentaoRemoteDbActionHistory{},
+		&models.ZentaoRemoteDbHistory{},
+		&models.ZentaoStory{},
+		&models.ZentaoStoryCommit{},
+		&models.ZentaoStoryRepoCommit{},
+		&models.ZentaoTask{},
+		&models.ZentaoTaskCommit{},
+		&models.ZentaoTaskRepoCommit{},
+	}
+}
+
+func (p Zentao) Connection() dal.Tabler {
+	return &models.ZentaoConnection{}
+}
+
+func (p Zentao) Scope() plugin.ToolLayerScope {
+	return &models.ZentaoProject{}
+}
+
+func (p Zentao) ScopeConfig() dal.Tabler {
+	return &models.ZentaoScopeConfig{}
 }
 
 func (p Zentao) SubTaskMetas() []plugin.SubTaskMeta {
@@ -114,6 +158,7 @@ func (p Zentao) PrepareTaskData(taskCtx plugin.TaskContext, options map[string]i
 	connectionHelper := helper.NewConnectionHelper(
 		taskCtx,
 		nil,
+		p.Name(),
 	)
 	connection := &models.ZentaoConnection{}
 	err = connectionHelper.FirstById(connection, op.ConnectionId)

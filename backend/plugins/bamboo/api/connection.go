@@ -118,7 +118,7 @@ func DeleteConnection(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput
 		return nil, err
 	}
 	var refs *services.BlueprintProjectPairs
-	refs, err = connectionHelper.Delete(input.GetPlugin(), connection)
+	refs, err = connectionHelper.Delete(connection)
 	if err != nil {
 		return &plugin.ApiResourceOutput{Body: refs, Status: err.GetType().GetHttpCode()}, err
 	}

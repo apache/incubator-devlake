@@ -31,23 +31,42 @@ import (
 	"github.com/apache/incubator-devlake/plugins/gitee/tasks"
 )
 
-var _ plugin.PluginMeta = (*Gitee)(nil)
-var _ plugin.PluginInit = (*Gitee)(nil)
-var _ plugin.PluginTask = (*Gitee)(nil)
-var _ plugin.PluginApi = (*Gitee)(nil)
-var _ plugin.PluginModel = (*Gitee)(nil)
-var _ plugin.PluginMigration = (*Gitee)(nil)
-var _ plugin.CloseablePluginTask = (*Gitee)(nil)
+var _ interface {
+	plugin.PluginMeta
+	plugin.PluginInit
+	plugin.PluginTask
+	plugin.PluginApi
+	plugin.PluginModel
+	plugin.PluginSource
+	plugin.PluginMigration
+	plugin.CloseablePluginTask
+} = (*Gitee)(nil)
+
+var _ plugin.PluginSource = (*Gitee)(nil)
 
 type Gitee string
 
+func (p Gitee) Connection() dal.Tabler {
+	return &models.GiteeConnection{}
+}
+
+func (p Gitee) Scope() plugin.ToolLayerScope {
+	return &models.GiteeRepo{}
+}
+
+func (p Gitee) ScopeConfig() dal.Tabler {
+	return nil
+}
+
 func (p Gitee) Init(basicRes context.BasicRes) errors.Error {
-	api.Init(basicRes)
+	api.Init(basicRes, p)
+
 	return nil
 }
 
 func (p Gitee) GetTablesInfo() []dal.Tabler {
-	return []dal.Tabler{&models.GiteeConnection{},
+	return []dal.Tabler{
+		&models.GiteeConnection{},
 		&models.GiteeAccount{},
 		&models.GiteeCommit{},
 		&models.GiteeCommitStat{},
@@ -67,6 +86,10 @@ func (p Gitee) GetTablesInfo() []dal.Tabler {
 
 func (p Gitee) Description() string {
 	return "To collect and enrich data from Gitee"
+}
+
+func (p Gitee) Name() string {
+	return "gitee"
 }
 
 func (p Gitee) SubTaskMetas() []plugin.SubTaskMeta {
@@ -127,6 +150,7 @@ func (p Gitee) PrepareTaskData(taskCtx plugin.TaskContext, options map[string]in
 	connectionHelper := helper.NewConnectionHelper(
 		taskCtx,
 		nil,
+		p.Name(),
 	)
 
 	if err != nil {

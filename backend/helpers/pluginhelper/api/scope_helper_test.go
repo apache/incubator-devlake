@@ -305,7 +305,7 @@ func createMockScopeHelper[Repo any](scopeIdFieldName string) *ScopeApiHelper[Te
 	mockDal.On("All", mock.Anything, mock.Anything).Return(nil)
 	mockDal.On("AllTables").Return(nil, nil)
 
-	connHelper := NewConnectionHelper(mockRes, nil)
+	connHelper := NewConnectionHelper(mockRes, nil, "dummy_plugin")
 
 	params := &ReflectionParameters{
 		ScopeIdFieldName:  scopeIdFieldName,

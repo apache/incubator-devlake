@@ -33,24 +33,19 @@ import (
 func TestIncidentDataFlow(t *testing.T) {
 	var plugin impl.PagerDuty
 	dataflowTester := e2ehelper.NewDataFlowTester(t, "pagerduty", plugin)
-	scopeConfig := models.PagerdutyScopeConfig{
-		Name: "rule1",
-	}
 	options := tasks.PagerDutyOptions{
 		ConnectionId:         1,
 		ServiceId:            "PIKL83L",
 		ServiceName:          "DevService",
 		Tasks:                nil,
-		PagerdutyScopeConfig: &scopeConfig,
+		PagerdutyScopeConfig: nil,
 	}
 	taskData := &tasks.PagerDutyTaskData{
 		Options: &options,
 	}
 
-	dataflowTester.FlushTabler(&models.PagerdutyScopeConfig{})
 	dataflowTester.FlushTabler(&models.Service{})
 	// tx-rule
-	require.NoError(t, dataflowTester.Dal.CreateOrUpdate(&scopeConfig))
 	service := models.Service{
 		ConnectionId: options.ConnectionId,
 		Url:          fmt.Sprintf("https://keon-test.pagerduty.com/service-directory/%s", options.ServiceId),

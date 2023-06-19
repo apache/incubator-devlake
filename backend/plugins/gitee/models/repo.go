@@ -19,6 +19,8 @@ package models
 
 import (
 	"github.com/apache/incubator-devlake/core/models/common"
+	"github.com/apache/incubator-devlake/core/plugin"
+	"strconv"
 	"time"
 )
 
@@ -38,6 +40,16 @@ type GiteeRepo struct {
 	common.NoPKModel
 }
 
+func (r GiteeRepo) ScopeId() string {
+	return strconv.Itoa(r.GiteeId)
+}
+
+func (r GiteeRepo) ScopeName() string {
+	return r.Name
+}
+
 func (GiteeRepo) TableName() string {
 	return "_tool_gitee_repos"
 }
+
+var _ plugin.ToolLayerScope = (*GiteeRepo)(nil)

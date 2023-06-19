@@ -28,11 +28,13 @@ import (
 	"github.com/mitchellh/mapstructure"
 )
 
-var _ plugin.PluginMeta = (*Customize)(nil)
-var _ plugin.PluginInit = (*Customize)(nil)
-var _ plugin.PluginApi = (*Customize)(nil)
-var _ plugin.PluginModel = (*Customize)(nil)
-var _ plugin.PluginMigration = (*Customize)(nil)
+var _ interface {
+	plugin.PluginMeta
+	plugin.PluginInit
+	plugin.PluginApi
+	plugin.PluginModel
+	plugin.PluginMigration
+} = (*Customize)(nil)
 
 type Customize struct {
 	handlers *api.Handlers
@@ -70,6 +72,10 @@ func (p Customize) PrepareTaskData(taskCtx plugin.TaskContext, options map[strin
 
 func (p Customize) Description() string {
 	return "To customize table fields"
+}
+
+func (p Customize) Name() string {
+	return "customize"
 }
 
 func (p Customize) MigrationScripts() []plugin.MigrationScript {

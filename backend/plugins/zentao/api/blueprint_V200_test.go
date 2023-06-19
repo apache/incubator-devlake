@@ -55,10 +55,12 @@ func TestMakeDataSourcePipelinePlanV200(t *testing.T) {
 	}
 	mockMeta := mockplugin.NewPluginMeta(t)
 	mockMeta.On("RootPkgPath").Return("github.com/apache/incubator-devlake/plugins/zentao")
+	mockMeta.On("Name").Return("zentao").Maybe()
 	err := plugin.RegisterPlugin("zentao", mockMeta)
 	assert.Nil(t, err)
 	// Refresh Global Variables and set the sql mock
-	mockBasicRes()
+	mockBasicRes(t)
+
 	bs := &plugin.BlueprintScopeV200{
 		Id: "project/1",
 	}
@@ -125,7 +127,7 @@ func TestMakeDataSourcePipelinePlanV200(t *testing.T) {
 }
 
 // mockBasicRes FIXME ...
-func mockBasicRes() {
+func mockBasicRes(t *testing.T) {
 	testZentaoProduct := &models.ZentaoProduct{
 		ConnectionId:  1,
 		Id:            1,
@@ -155,5 +157,7 @@ func mockBasicRes() {
 			panic("The empty scope should not call First() for ZentaoScopeConfig")
 		}).Return(nil)
 	})
-	Init(mockRes)
+	p := mockplugin.NewPluginMeta(t)
+	p.On("Name").Return("dummy").Maybe()
+	Init(mockRes, p)
 }

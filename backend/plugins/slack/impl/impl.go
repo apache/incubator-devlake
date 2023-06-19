@@ -31,18 +31,22 @@ import (
 	"github.com/apache/incubator-devlake/plugins/slack/tasks"
 )
 
-var _ plugin.PluginMeta = (*Slack)(nil)
-var _ plugin.PluginInit = (*Slack)(nil)
-var _ plugin.PluginTask = (*Slack)(nil)
-var _ plugin.PluginApi = (*Slack)(nil)
-var _ plugin.PluginModel = (*Slack)(nil)
-var _ plugin.PluginMigration = (*Slack)(nil)
-var _ plugin.CloseablePluginTask = (*Slack)(nil)
+var _ interface {
+	plugin.PluginMeta
+	plugin.PluginInit
+	plugin.PluginTask
+	plugin.PluginApi
+	plugin.PluginModel
+	plugin.PluginMigration
+	plugin.CloseablePluginTask
+	plugin.PluginSource
+} = (*Slack)(nil)
 
 type Slack struct{}
 
 func (p Slack) Init(basicRes context.BasicRes) errors.Error {
-	api.Init(basicRes)
+	api.Init(basicRes, p)
+
 	return nil
 }
 
@@ -54,6 +58,22 @@ func (p Slack) GetTablesInfo() []dal.Tabler {
 
 func (p Slack) Description() string {
 	return "To collect and enrich data from Slack"
+}
+
+func (p Slack) Name() string {
+	return "slack"
+}
+
+func (p Slack) Connection() dal.Tabler {
+	return &models.SlackConnection{}
+}
+
+func (p Slack) Scope() plugin.ToolLayerScope {
+	return nil
+}
+
+func (p Slack) ScopeConfig() dal.Tabler {
+	return nil
 }
 
 func (p Slack) SubTaskMetas() []plugin.SubTaskMeta {
@@ -78,6 +98,7 @@ func (p Slack) PrepareTaskData(taskCtx plugin.TaskContext, options map[string]in
 	connectionHelper := helper.NewConnectionHelper(
 		taskCtx,
 		nil,
+		p.Name(),
 	)
 	connection := &models.SlackConnection{}
 	err := connectionHelper.FirstById(connection, op.ConnectionId)

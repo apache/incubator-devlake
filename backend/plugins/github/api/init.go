@@ -36,12 +36,14 @@ var basicRes context.BasicRes
 var scHelper *api.ScopeConfigHelper[models.GithubScopeConfig]
 var remoteHelper *api.RemoteApiHelper[models.GithubConnection, models.GithubRepo, repo, plugin.ApiGroup]
 
-func Init(br context.BasicRes) {
+func Init(br context.BasicRes, p plugin.PluginMeta) {
+
 	basicRes = br
 	vld = validator.New()
 	connectionHelper = api.NewConnectionHelper(
 		basicRes,
 		vld,
+		p.Name(),
 	)
 	params := &api.ReflectionParameters{
 		ScopeIdFieldName:  "GithubId",
