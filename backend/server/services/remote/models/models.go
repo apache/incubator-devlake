@@ -76,16 +76,16 @@ type DynamicScopeModel struct {
 
 func NewDynamicScopeModel(model models.DynamicTabler) *DynamicScopeModel {
 	return &DynamicScopeModel{
-		DynamicTabler: model,
+		DynamicTabler: model.New(),
 	}
 }
 
 func (d *DynamicScopeModel) ScopeId() string {
-	return reflect.ValueOf(d.DynamicTabler).Elem().FieldByName("Id").String()
+	return reflect.ValueOf(d.DynamicTabler.Unwrap()).Elem().FieldByName("Id").String()
 }
 
 func (d *DynamicScopeModel) ScopeName() string {
-	return reflect.ValueOf(d.DynamicTabler).Elem().FieldByName("Name").String()
+	return reflect.ValueOf(d.DynamicTabler.Unwrap()).Elem().FieldByName("Name").String()
 }
 
 type ScopeConfigModel struct {

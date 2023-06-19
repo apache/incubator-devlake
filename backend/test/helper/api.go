@@ -27,7 +27,6 @@ import (
 	"github.com/apache/incubator-devlake/core/errors"
 	"github.com/apache/incubator-devlake/core/models"
 	"github.com/apache/incubator-devlake/core/plugin"
-	"github.com/apache/incubator-devlake/helpers/pluginhelper/api"
 	"github.com/apache/incubator-devlake/server/api/blueprints"
 	apiProject "github.com/apache/incubator-devlake/server/api/project"
 	"github.com/stretchr/testify/require"
@@ -220,12 +219,13 @@ func (d *DevlakeClient) ListScopes(pluginName string, connectionId uint64, listB
 	return responses
 }
 
-func (d *DevlakeClient) GetScope(pluginName string, connectionId uint64, scopeId string, listBlueprints bool) any {
-	return sendHttpRequest[api.ScopeRes[any, any]](d.testCtx, d.timeout, &testContext{
+func (d *DevlakeClient) GetScope(pluginName string, connectionId uint64, scopeId string, listBlueprints bool) ScopeResponse {
+	scopeRaw := sendHttpRequest[map[string]any](d.testCtx, d.timeout, &testContext{
 		client:       d,
 		printPayload: true,
 		inlineJson:   false,
 	}, http.MethodGet, fmt.Sprintf("%s/plugins/%s/connections/%d/scopes/%s?blueprints=%v", d.Endpoint, pluginName, connectionId, scopeId, listBlueprints), nil, nil)
+	return getScopeResponse(scopeRaw)
 }
 
 func (d *DevlakeClient) DeleteScope(pluginName string, connectionId uint64, scopeId string, deleteDataOnly bool) services.BlueprintProjectPairs {

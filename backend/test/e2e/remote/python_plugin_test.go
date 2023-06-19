@@ -118,18 +118,20 @@ func TestCreateScope(t *testing.T) {
 	conn := CreateTestConnection(client)
 	scopeConfig := CreateTestScopeConfig(client, conn.ID)
 	scope := CreateTestScope(client, scopeConfig, conn.ID)
-
 	scopes := client.ListScopes(PLUGIN_NAME, conn.ID, false)
 	require.Equal(t, 1, len(scopes))
-
-	cicdScope := helper.Cast[FakeProject](scopes[0].Scope)
+	cicdScope := helper.Cast[FakeProject](client.GetScope(PLUGIN_NAME, conn.ID, scope.Id, false).Scope)
+	require.Equal(t, scope.Id, cicdScope.Id)
+	cicdScope0 := helper.Cast[FakeProject](scopes[0].Scope)
+	require.Equal(t, scope.Id, cicdScope0.Id)
 	require.Equal(t, conn.ID, cicdScope.ConnectionId)
 	require.Equal(t, "p1", cicdScope.Id)
 	require.Equal(t, "Project 1", cicdScope.Name)
 	require.Equal(t, "http://fake.org/api/project/p1", cicdScope.Url)
-
 	cicdScope.Name = "scope-name-2"
-	client.UpdateScope(PLUGIN_NAME, conn.ID, cicdScope.Id, scope)
+	client.UpdateScope(PLUGIN_NAME, conn.ID, cicdScope.Id, cicdScope)
+	cicdScope = helper.Cast[FakeProject](client.GetScope(PLUGIN_NAME, conn.ID, scope.Id, false).Scope)
+	require.Equal(t, "scope-name-2", cicdScope.Name)
 }
 
 func TestRunPipeline(t *testing.T) {
