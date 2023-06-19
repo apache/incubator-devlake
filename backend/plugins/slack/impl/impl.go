@@ -68,7 +68,7 @@ func (p Slack) Connection() dal.Tabler {
 	return &models.SlackConnection{}
 }
 
-func (p Slack) Scopes() []dal.Tabler {
+func (p Slack) Scopes() []plugin.ToolLayerScope {
 	return nil
 }
 

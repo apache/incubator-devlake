@@ -65,8 +65,8 @@ func (p PagerDuty) Connection() dal.Tabler {
 	return &models.PagerDutyConnection{}
 }
 
-func (p PagerDuty) Scopes() []dal.Tabler {
-	return []dal.Tabler{&models.Service{}}
+func (p PagerDuty) Scopes() []plugin.ToolLayerScope {
+	return []plugin.ToolLayerScope{&models.Service{}}
 }
 
 func (p PagerDuty) ScopeConfig() dal.Tabler {
@@ -84,10 +84,10 @@ func (p PagerDuty) SubTaskMetas() []plugin.SubTaskMeta {
 
 func (p PagerDuty) GetTablesInfo() []dal.Tabler {
 	return []dal.Tabler{
-		models.Service{},
-		models.Incident{},
-		models.User{},
-		models.Assignment{},
+		&models.Service{},
+		&models.Incident{},
+		&models.User{},
+		&models.Assignment{},
 	}
 }
 

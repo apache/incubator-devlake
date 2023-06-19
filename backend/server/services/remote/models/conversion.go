@@ -32,7 +32,7 @@ import (
 	"gorm.io/datatypes"
 )
 
-func LoadTableModel(tableName string, schema utils.JsonObject, parentModel any) (*models.DynamicTabler, errors.Error) {
+func LoadTableModel(tableName string, schema utils.JsonObject, parentModel any) (models.DynamicTabler, errors.Error) {
 	structType, err := GenerateStructType(schema, reflect.TypeOf(parentModel))
 	if err != nil {
 		return nil, err

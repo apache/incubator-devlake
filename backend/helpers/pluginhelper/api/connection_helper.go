@@ -154,7 +154,7 @@ func (c *ConnectionApiHelper) save(connection interface{}, method func(entity in
 	return nil
 }
 
-func (c *ConnectionApiHelper) getScopeModels() []dal.Tabler {
+func (c *ConnectionApiHelper) getScopeModels() []plugin.ToolLayerScope {
 	pluginMeta, _ := plugin.GetPlugin(c.pluginName)
 	pluginSrc, ok := pluginMeta.(plugin.PluginSource)
 	if !ok {

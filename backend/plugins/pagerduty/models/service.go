@@ -30,15 +30,15 @@ type Service struct {
 	Name         string `json:"name" mapstructure:"name"`
 }
 
-func (s *Service) ScopeId() string {
+func (s Service) ScopeId() string {
 	return s.Name
 }
 
-func (s *Service) ScopeName() string {
+func (s Service) ScopeName() string {
 	return s.Name
 }
 
-func (s *Service) TableName() string {
+func (s Service) TableName() string {
 	return "_tool_pagerduty_services"
 }
 

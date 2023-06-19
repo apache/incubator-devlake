@@ -38,10 +38,10 @@ type (
 		pluginPath        string
 		description       string
 		invoker           bridge.Invoker
-		connectionTabler  *coreModels.DynamicTabler
-		scopeTabler       *coreModels.DynamicTabler
-		scopeConfigTabler *coreModels.DynamicTabler
-		toolModelTablers  []*coreModels.DynamicTabler
+		connectionTabler  coreModels.DynamicTabler
+		scopeTabler       coreModels.DynamicTabler
+		scopeConfigTabler coreModels.DynamicTabler
+		toolModelTablers  []coreModels.DynamicTabler
 		migrationScripts  []plugin.MigrationScript
 		resources         map[string]map[string]plugin.ApiResourceHandler
 		openApiSpec       string
@@ -70,9 +70,9 @@ func newPlugin(info *models.PluginInfo, invoker bridge.Invoker) (*remotePluginIm
 		return nil, errors.Default.Wrap(err, fmt.Sprintf("Couldn't load ScopeConfig type for plugin %s", info.Name))
 	}
 	// put the scope and connection models in the tool list to be consistent with Go plugins
-	toolModelTablers := []*coreModels.DynamicTabler{
+	toolModelTablers := []coreModels.DynamicTabler{
 		connectionTabler.New(),
-		scopeTabler.New(),
+		models.NewDynamicScopeModel(scopeTabler),
 	}
 	for _, toolModelInfo := range info.ToolModelInfos {
 		toolModelTabler, err := toolModelInfo.LoadDynamicTabler(common.NoPKModel{})
@@ -140,8 +140,8 @@ func (p *remotePluginImpl) Connection() dal.Tabler {
 	return p.connectionTabler.New()
 }
 
-func (p *remotePluginImpl) Scopes() []dal.Tabler {
-	return []dal.Tabler{p.scopeTabler.New()}
+func (p *remotePluginImpl) Scopes() []plugin.ToolLayerScope {
+	return []plugin.ToolLayerScope{models.NewDynamicScopeModel(p.scopeTabler)}
 }
 
 func (p *remotePluginImpl) ScopeConfig() dal.Tabler {

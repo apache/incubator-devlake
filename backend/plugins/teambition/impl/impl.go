@@ -77,7 +77,7 @@ func (p Teambition) Connection() dal.Tabler {
 	return &models.TeambitionConnection{}
 }
 
-func (p Teambition) Scopes() []dal.Tabler {
+func (p Teambition) Scopes() []plugin.ToolLayerScope {
 	return nil
 }
 

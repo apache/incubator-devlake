@@ -679,8 +679,6 @@ func (gs *GenericScopeApiHelper[Conn, Scope, ScopeConfig]) getAffectedTables(plu
 }
 
 func isScopeModel(obj dal.Tabler) bool {
-	if _, ok := obj.(plugin.ToolLayerScope); ok {
-		return true
-	}
-	return reflectField(obj, "ScopeConfigId").IsValid()
+	_, ok := obj.(plugin.ToolLayerScope)
+	return ok
 }

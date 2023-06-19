@@ -27,18 +27,18 @@ import (
 
 type pluginAPI struct {
 	invoker         bridge.Invoker
-	connType        *models.DynamicTabler
-	scopeType       *models.DynamicTabler
-	scopeConfigType *models.DynamicTabler
+	connType        models.DynamicTabler
+	scopeType       models.DynamicTabler
+	scopeConfigType models.DynamicTabler
 	connhelper      *api.ConnectionApiHelper
 	scopeHelper     *api.GenericScopeApiHelper[remoteModel.RemoteConnection, remoteModel.RemoteScope, remoteModel.RemoteScopeConfig]
 }
 
 func GetDefaultAPI(
 	invoker bridge.Invoker,
-	connType *models.DynamicTabler,
-	scopeConfigType *models.DynamicTabler,
-	scopeType *models.DynamicTabler,
+	connType models.DynamicTabler,
+	scopeConfigType models.DynamicTabler,
+	scopeType models.DynamicTabler,
 	connHelper *api.ConnectionApiHelper,
 ) map[string]map[string]plugin.ApiResourceHandler {
 	papi := &pluginAPI{

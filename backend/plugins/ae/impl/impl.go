@@ -54,7 +54,7 @@ func (p AE) Connection() dal.Tabler {
 	return &models.AeConnection{}
 }
 
-func (p AE) Scopes() []dal.Tabler {
+func (p AE) Scopes() []plugin.ToolLayerScope {
 	return nil
 }
 
