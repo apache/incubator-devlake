@@ -65,6 +65,7 @@ func CollectApiMergeRequestDetails(taskCtx plugin.SubTaskContext) errors.Error {
 			return query, nil
 		},
 		ResponseParser: GetOneRawMessageFromResponse,
+		AfterResponse:  ignoreHTTPStatus404,
 	})
 	if err != nil {
 		return err
