@@ -52,7 +52,7 @@ type MergeRequestRes struct {
 	ClosedAt        *api.Iso8601Time `json:"closed_at"`
 	MergeCommitSha  string           `json:"merge_commit_sha"`
 	SquashCommitSha string           `json:"squash_commit_sha"`
-	DiffHeadSha     string           `json:"diff_head_sha"`
+	Sha             string           `json:"sha"`
 	MergedBy        struct {
 		Username string `json:"username"`
 	} `json:"merged_by"`
@@ -198,7 +198,7 @@ func convertMergeRequest(mr *MergeRequestRes) (*models.GitlabMergeRequest, error
 		IsDetailRequired: false,
 		SourceBranch:     mr.SourceBranch,
 		TargetBranch:     mr.TargetBranch,
-		MergeCommitSha:   retrieveMrSha(mr.MergeCommitSha, mr.SquashCommitSha, mr.DiffHeadSha),
+		MergeCommitSha:   retrieveMrSha(mr.MergeCommitSha, mr.SquashCommitSha, mr.Sha),
 		MergedAt:         api.Iso8601TimeToTime(mr.MergedAt),
 		GitlabCreatedAt:  mr.GitlabCreatedAt.ToTime(),
 		GitlabUpdatedAt:  api.Iso8601TimeToTime(mr.GitlabUpdatedAt),
@@ -210,12 +210,12 @@ func convertMergeRequest(mr *MergeRequestRes) (*models.GitlabMergeRequest, error
 	return gitlabMergeRequest, nil
 }
 
-func retrieveMrSha(mergeCommitSha string, squashCommitSha string, diffHeadSha string) string {
+func retrieveMrSha(mergeCommitSha string, squashCommitSha string, sha string) string {
 	if mergeCommitSha != "" {
 		return mergeCommitSha
 	}
 	if squashCommitSha != "" {
 		return squashCommitSha
 	}
-	return diffHeadSha
+	return sha
 }
