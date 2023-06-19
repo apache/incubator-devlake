@@ -55,9 +55,12 @@ type BlueprintSettings struct {
 	AfterPlan   json.RawMessage `json:"after_plan"`
 }
 
-// UpdateConnections unmarshals the connections on this BlueprintSettings
+// UnmarshalConnections unmarshals the connections on this BlueprintSettings reference
 func (bps *BlueprintSettings) UnmarshalConnections() ([]*plugin.BlueprintConnectionV200, errors.Error) {
 	var connections []*plugin.BlueprintConnectionV200
+	if bps.Connections == nil {
+		return nil, nil
+	}
 	err := json.Unmarshal(bps.Connections, &connections)
 	if err != nil {
 		return nil, errors.Default.Wrap(err, `unmarshal connections fail`)
