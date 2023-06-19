@@ -55,8 +55,8 @@ func (p Tapd) Connection() dal.Tabler {
 	return &models.TapdConnection{}
 }
 
-func (p Tapd) Scopes() []plugin.ToolLayerScope {
-	return []plugin.ToolLayerScope{&models.TapdWorkspace{}}
+func (p Tapd) Scope() plugin.ToolLayerScope {
+	return &models.TapdWorkspace{}
 }
 
 func (p Tapd) ScopeConfig() dal.Tabler {

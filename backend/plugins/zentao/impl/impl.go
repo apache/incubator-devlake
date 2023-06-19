@@ -90,11 +90,8 @@ func (p Zentao) Connection() dal.Tabler {
 	return &models.ZentaoConnection{}
 }
 
-func (p Zentao) Scopes() []plugin.ToolLayerScope {
-	return []plugin.ToolLayerScope{
-		&models.ZentaoProduct{},
-		&models.ZentaoProject{},
-	}
+func (p Zentao) Scope() plugin.ToolLayerScope {
+	return &models.ZentaoProject{}
 }
 
 func (p Zentao) ScopeConfig() dal.Tabler {

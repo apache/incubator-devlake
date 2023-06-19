@@ -56,8 +56,8 @@ func (p Bamboo) Connection() dal.Tabler {
 	return &models.BambooConnection{}
 }
 
-func (p Bamboo) Scopes() []plugin.ToolLayerScope {
-	return []plugin.ToolLayerScope{&models.BambooProject{}}
+func (p Bamboo) Scope() plugin.ToolLayerScope {
+	return &models.BambooProject{}
 }
 
 func (p Bamboo) ScopeConfig() dal.Tabler {

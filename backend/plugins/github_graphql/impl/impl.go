@@ -56,8 +56,8 @@ func (p GithubGraphql) Connection() dal.Tabler {
 	return &models.GithubConnection{}
 }
 
-func (p GithubGraphql) Scopes() []plugin.ToolLayerScope {
-	return []plugin.ToolLayerScope{&models.GithubRepo{}}
+func (p GithubGraphql) Scope() plugin.ToolLayerScope {
+	return &models.GithubRepo{}
 }
 
 func (p GithubGraphql) ScopeConfig() dal.Tabler {

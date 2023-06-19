@@ -50,8 +50,8 @@ func (p Gitee) Connection() dal.Tabler {
 	return &models.GiteeConnection{}
 }
 
-func (p Gitee) Scopes() []plugin.ToolLayerScope {
-	return []plugin.ToolLayerScope{&models.GiteeRepo{}}
+func (p Gitee) Scope() plugin.ToolLayerScope {
+	return &models.GiteeRepo{}
 }
 
 func (p Gitee) ScopeConfig() dal.Tabler {

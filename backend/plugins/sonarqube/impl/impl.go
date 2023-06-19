@@ -64,8 +64,8 @@ func (p Sonarqube) Connection() dal.Tabler {
 	return &models.SonarqubeConnection{}
 }
 
-func (p Sonarqube) Scopes() []plugin.ToolLayerScope {
-	return []plugin.ToolLayerScope{&models.SonarqubeProject{}}
+func (p Sonarqube) Scope() plugin.ToolLayerScope {
+	return &models.SonarqubeProject{}
 }
 
 func (p Sonarqube) ScopeConfig() dal.Tabler {

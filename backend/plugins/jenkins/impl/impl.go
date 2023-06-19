@@ -59,8 +59,8 @@ func (p Jenkins) Connection() dal.Tabler {
 	return &models.JenkinsConnection{}
 }
 
-func (p Jenkins) Scopes() []plugin.ToolLayerScope {
-	return []plugin.ToolLayerScope{&models.JenkinsJob{}}
+func (p Jenkins) Scope() plugin.ToolLayerScope {
+	return &models.JenkinsJob{}
 }
 
 func (p Jenkins) ScopeConfig() dal.Tabler {

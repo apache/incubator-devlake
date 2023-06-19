@@ -47,6 +47,6 @@ type PluginIcon interface {
 // PluginSource abstracts data sources
 type PluginSource interface {
 	Connection() dal.Tabler
-	Scopes() []ToolLayerScope
+	Scope() ToolLayerScope
 	ScopeConfig() dal.Tabler
 }

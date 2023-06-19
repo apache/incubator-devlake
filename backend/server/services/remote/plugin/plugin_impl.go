@@ -140,8 +140,8 @@ func (p *remotePluginImpl) Connection() dal.Tabler {
 	return p.connectionTabler.New()
 }
 
-func (p *remotePluginImpl) Scopes() []plugin.ToolLayerScope {
-	return []plugin.ToolLayerScope{models.NewDynamicScopeModel(p.scopeTabler)}
+func (p *remotePluginImpl) Scope() plugin.ToolLayerScope {
+	return models.NewDynamicScopeModel(p.scopeTabler)
 }
 
 func (p *remotePluginImpl) ScopeConfig() dal.Tabler {

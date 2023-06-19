@@ -139,8 +139,8 @@ func (p Trello) Connection() dal.Tabler {
 	return &models.TrelloConnection{}
 }
 
-func (p Trello) Scopes() []plugin.ToolLayerScope {
-	return []plugin.ToolLayerScope{&models.TrelloBoard{}}
+func (p Trello) Scope() plugin.ToolLayerScope {
+	return &models.TrelloBoard{}
 }
 
 func (p Trello) ScopeConfig() dal.Tabler {

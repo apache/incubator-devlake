@@ -65,8 +65,8 @@ func (p PagerDuty) Connection() dal.Tabler {
 	return &models.PagerDutyConnection{}
 }
 
-func (p PagerDuty) Scopes() []plugin.ToolLayerScope {
-	return []plugin.ToolLayerScope{&models.Service{}}
+func (p PagerDuty) Scope() plugin.ToolLayerScope {
+	return &models.Service{}
 }
 
 func (p PagerDuty) ScopeConfig() dal.Tabler {

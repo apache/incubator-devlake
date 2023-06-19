@@ -69,7 +69,7 @@ func (p Feishu) Connection() dal.Tabler {
 	return &models.FeishuConnection{}
 }
 
-func (p Feishu) Scopes() []plugin.ToolLayerScope {
+func (p Feishu) Scope() plugin.ToolLayerScope {
 	return nil
 }
 

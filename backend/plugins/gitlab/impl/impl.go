@@ -64,8 +64,8 @@ func (p Gitlab) Connection() dal.Tabler {
 	return &models.GitlabConnection{}
 }
 
-func (p Gitlab) Scopes() []plugin.ToolLayerScope {
-	return []plugin.ToolLayerScope{&models.GitlabProject{}}
+func (p Gitlab) Scope() plugin.ToolLayerScope {
+	return &models.GitlabProject{}
 }
 
 func (p Gitlab) ScopeConfig() dal.Tabler {

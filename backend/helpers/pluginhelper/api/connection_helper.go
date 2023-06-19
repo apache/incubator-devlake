@@ -117,16 +117,13 @@ func (c *ConnectionApiHelper) Delete(connection interface{}) (*services.Blueprin
 	if len(referencingBps) > 0 {
 		return services.NewBlueprintProjectPairs(referencingBps), errors.Conflict.New("Found one or more blueprint/project references to this connection")
 	}
-	// delete the scopes using this connection
-	scopeModels := c.getScopeModels()
-	for _, scopeModel := range scopeModels {
-		count, err := c.db.Count(dal.From(scopeModel.TableName()), dal.Where("connection_id = ?", connectionId))
-		if err != nil {
-			return nil, errors.Default.Wrap(err, fmt.Sprintf("error deleting scopes for plugin %s using connection %d", c.pluginName, connectionId))
-		}
-		if count > 0 {
-			return nil, errors.Conflict.New("Found one or more scope references to this connection")
-		}
+	scopeModel := c.getScopeModel()
+	count, err := c.db.Count(dal.From(scopeModel.TableName()), dal.Where("connection_id = ?", connectionId))
+	if err != nil {
+		return nil, errors.Default.Wrap(err, fmt.Sprintf("error deleting scopes for plugin %s using connection %d", c.pluginName, connectionId))
+	}
+	if count > 0 {
+		return nil, errors.Conflict.New("Found one or more scope references to this connection")
 	}
 	return nil, CallDB(c.db.Delete, connection)
 }
@@ -154,11 +151,11 @@ func (c *ConnectionApiHelper) save(connection interface{}, method func(entity in
 	return nil
 }
 
-func (c *ConnectionApiHelper) getScopeModels() []plugin.ToolLayerScope {
+func (c *ConnectionApiHelper) getScopeModel() plugin.ToolLayerScope {
 	pluginMeta, _ := plugin.GetPlugin(c.pluginName)
 	pluginSrc, ok := pluginMeta.(plugin.PluginSource)
 	if !ok {
 		return nil
 	}
-	return pluginSrc.Scopes()
+	return pluginSrc.Scope()
 }

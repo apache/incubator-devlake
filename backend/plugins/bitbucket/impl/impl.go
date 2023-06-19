@@ -51,8 +51,8 @@ func (p Bitbucket) Connection() dal.Tabler {
 	return &models.BitbucketConnection{}
 }
 
-func (p Bitbucket) Scopes() []plugin.ToolLayerScope {
-	return []plugin.ToolLayerScope{&models.BitbucketRepo{}}
+func (p Bitbucket) Scope() plugin.ToolLayerScope {
+	return &models.BitbucketRepo{}
 }
 
 func (p Bitbucket) ScopeConfig() dal.Tabler {

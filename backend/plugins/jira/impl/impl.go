@@ -52,8 +52,8 @@ func (p Jira) Connection() dal.Tabler {
 	return &models.JiraConnection{}
 }
 
-func (p Jira) Scopes() []plugin.ToolLayerScope {
-	return []plugin.ToolLayerScope{&models.JiraBoard{}}
+func (p Jira) Scope() plugin.ToolLayerScope {
+	return &models.JiraBoard{}
 }
 
 func (p Jira) ScopeConfig() dal.Tabler {
