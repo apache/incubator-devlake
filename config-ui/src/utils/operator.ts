@@ -34,7 +34,7 @@ export type OperateConfig = {
  * @param config.formatReason -> Show the reason for the failure
  * @returns
  */
-export const operator = async <T>(request: () => Promise<T>, config?: OperateConfig) => {
+export const operator = async <T>(request: () => Promise<T>, config?: OperateConfig): Promise<[boolean, any?]> => {
   const { setOperating, formatMessage, formatReason } = config || {};
 
   try {
