@@ -29,7 +29,7 @@ interface Props {
 }
 
 export const AdditionalSettings = ({ transformation, setTransformation }: Props) => {
-  const [enable, setEnable] = useState(true);
+  const [enable, setEnable] = useState(false);
 
   const handleChange = (e: React.FormEvent<HTMLInputElement>) => {
     const checked = (e.target as HTMLInputElement).checked;
