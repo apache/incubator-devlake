@@ -18,9 +18,9 @@
 
 import { useState, useEffect, useMemo } from 'react';
 import { useParams, useHistory, Link } from 'react-router-dom';
-import { Button, Icon, Intent } from '@blueprintjs/core';
+import { Button, Intent } from '@blueprintjs/core';
 
-import { PageHeader, Buttons, Dialog, IconButton, Table, Message } from '@/components';
+import { PageHeader, Buttons, Dialog, IconButton, Table, Message, toast } from '@/components';
 import { useTips, useConnections, useRefreshData } from '@/hooks';
 import ClearImg from '@/images/icons/clear.svg';
 import {
@@ -55,12 +55,15 @@ const ConnectionDetail = ({ plugin, connectionId }: Props) => {
     | 'clearDataScope'
     | 'deleteDataScope'
     | 'associateScopeConfig'
+    | 'deleteConnectionFailed'
+    | 'deleteDataScopeFailed'
   >();
   const [operating, setOperating] = useState(false);
   const [version, setVersion] = useState(1);
   const [scopeId, setScopeId] = useState<ID>();
   const [scopeIds, setScopeIds] = useState<ID[]>([]);
   const [scopeConfigId, setScopeConfigId] = useState<ID>();
+  const [conflict, setConflict] = useState<string[]>([]);
 
   const history = useHistory();
   const { onGet, onTest, onRefresh } = useConnections();
@@ -85,14 +88,32 @@ const ConnectionDetail = ({ plugin, connectionId }: Props) => {
   };
 
   const handleDelete = async () => {
-    const [success] = await operator(() => API.deleteConnection(plugin, connectionId), {
-      setOperating,
-      formatMessage: () => 'Delete Connection Successful.',
-    });
+    const [, res] = await operator(
+      async () => {
+        try {
+          await API.deleteConnection(plugin, connectionId);
+          return { status: 'success' };
+        } catch (err: any) {
+          const { status, data } = err.response;
+          return { status: status === 409 ? 'conflict' : 'error', conflict: [...data.projects, ...data.blueprints] };
+        }
+      },
+      {
+        setOperating,
+        hideToast: true,
+      },
+    );
 
-    if (success) {
+    if (res.status === 'success') {
+      toast.success('Delete Connection Successful.');
       onRefresh(plugin);
       history.push('/connections');
+    } else if (res.status === 'conflict') {
+      setType('deleteConnectionFailed');
+      setConflict(res.conflict);
+    } else {
+      toast.error('Operation failed.');
+      handleHideDialog();
     }
   };
 
@@ -127,13 +148,31 @@ const ConnectionDetail = ({ plugin, connectionId }: Props) => {
   const handleDeleteDataScope = async (onlyData: boolean) => {
     if (!scopeId) return;
 
-    const [success] = await operator(() => API.deleteDataScope(plugin, connectionId, scopeId, onlyData), {
-      setOperating,
-      formatMessage: () => (onlyData ? 'Clear historical data successful.' : 'Delete Data Scope successful.'),
-    });
+    const [, res] = await operator(
+      async () => {
+        try {
+          await API.deleteDataScope(plugin, connectionId, scopeId, onlyData);
+          return { status: 'success' };
+        } catch (err: any) {
+          const { status, data } = err.response;
+          return { status: status === 409 ? 'conflict' : 'error', conflict: [...data.projects, ...data.blueprints] };
+        }
+      },
+      {
+        setOperating,
+        hideToast: true,
+      },
+    );
 
-    if (success) {
+    if (res.status === 'success') {
       setVersion((v) => v + 1);
+      toast.success(onlyData ? 'Clear historical data successful.' : 'Delete Data Scope successful.');
+      handleHideDialog();
+    } else if (res.status === 'conflict') {
+      setType('deleteDataScopeFailed');
+      setConflict(res.conflict);
+    } else {
+      toast.error('Operation failed.');
       handleHideDialog();
     }
   };
@@ -220,7 +259,7 @@ const ConnectionDetail = ({ plugin, connectionId }: Props) => {
                     <ul>
                       {blueprints.map((bp: any, i: number) =>
                         bp.projectName ? (
-                          <li>
+                          <li key={bp.projectName}>
                             <Link to={`/projects/${bp.projectName}`}>{bp.projectName}</Link>
                           </li>
                         ) : null,
@@ -297,13 +336,10 @@ const ConnectionDetail = ({ plugin, connectionId }: Props) => {
           onCancel={handleHideDialog}
           onOk={handleDelete}
         >
-          <S.DialogBody>
-            <Icon icon="warning-sign" />
-            <span>
-              This operation cannot be undone. Deleting a Data Connection will delete all data that have been collected
-              in this Connection.
-            </span>
-          </S.DialogBody>
+          <Message
+            content=" This operation cannot be undone. Deleting a Data Connection will delete all data that have been collected
+              in this Connection."
+          />
         </Dialog>
       )}
       {type === 'updateConnection' && (
@@ -354,10 +390,7 @@ const ConnectionDetail = ({ plugin, connectionId }: Props) => {
           onCancel={handleHideDialog}
           onOk={() => handleDeleteDataScope(true)}
         >
-          <S.DialogBody>
-            <Icon icon="warning-sign" />
-            <span>This operation cannot be undone.</span>
-          </S.DialogBody>
+          <Message content="This operation cannot be undone." />
         </Dialog>
       )}
       {type === 'deleteDataScope' && (
@@ -370,13 +403,10 @@ const ConnectionDetail = ({ plugin, connectionId }: Props) => {
           onCancel={handleHideDialog}
           onOk={() => handleDeleteDataScope(false)}
         >
-          <S.DialogBody>
-            <Icon icon="warning-sign" />
-            <span>
-              This operation cannot be undone. Deleting Data Scope will delete all data that have been collected in the
-              past.
-            </span>
-          </S.DialogBody>
+          <Message
+            content="This operation cannot be undone. Deleting Data Scope will delete all data that have been collected in the
+              past."
+          />
         </Dialog>
       )}
       {type === 'associateScopeConfig' && (
@@ -399,6 +429,31 @@ const ConnectionDetail = ({ plugin, connectionId }: Props) => {
               onSubmit={handleAssociateScopeConfig}
             />
           )}
+        </Dialog>
+      )}
+      {(type === 'deleteConnectionFailed' || type === 'deleteDataScopeFailed') && (
+        <Dialog
+          isOpen
+          style={{ width: 820 }}
+          footer={null}
+          title={`This Data ${type === 'deleteConnectionFailed' ? 'Connection' : 'Scope'} can not be deleted.`}
+          onCancel={handleHideDialog}
+        >
+          <S.DialogBody>
+            <Message
+              content={`This Data ${
+                type === 'deleteConnectionFailed' ? 'Connection' : 'Scope'
+              } can not be deleted because it has been used in the following projects/blueprints:`}
+            />
+            <ul>
+              {conflict.map((it) => (
+                <li>{it}</li>
+              ))}
+            </ul>
+            <Buttons position="bottom" align="right">
+              <Button intent={Intent.PRIMARY} text="OK" onClick={handleHideDialog} />
+            </Buttons>
+          </S.DialogBody>
         </Dialog>
       )}
     </PageHeader>

@@ -44,11 +44,13 @@ export const DialogTitle = styled.div`
 `;
 
 export const DialogBody = styled.div`
-  display: flex;
-  align-items: center;
+  ul {
+    margin-top: 16px;
+    padding-left: 36px;
 
-  .bp4-icon {
-    margin-right: 8px;
-    color: #f4be55;
+    li {
+      margin-bottom: 4px;
+      color: #7497f7;
+    }
   }
 `;
