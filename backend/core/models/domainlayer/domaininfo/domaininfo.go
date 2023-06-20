@@ -74,5 +74,6 @@ func GetDomainTablesInfo() []Tabler {
 		&ticket.IssueWorklog{},
 		&ticket.Sprint{},
 		&ticket.SprintIssue{},
+		&ticket.IssueAssignee{},
 	}
 }
