@@ -21,7 +21,10 @@ import (
 	"context"
 	"database/sql"
 	"fmt"
+	"github.com/spf13/cast"
+	"io/fs"
 	"os"
+	"path/filepath"
 	"strconv"
 	"strings"
 	"sync"
@@ -111,7 +114,7 @@ func NewDataFlowTester(t *testing.T, pluginName string, pluginMeta plugin.Plugin
 		// grant all on lake_test.* to 'merico'@'%';
 		panic(err)
 	}
-	return &DataFlowTester{
+	df := &DataFlowTester{
 		Cfg:    cfg,
 		Db:     db,
 		Dal:    dalgorm.NewDalgorm(db),
@@ -120,6 +123,7 @@ func NewDataFlowTester(t *testing.T, pluginName string, pluginMeta plugin.Plugin
 		Plugin: pluginMeta,
 		Log:    logruslog.Global,
 	}
+	return df
 }
 
 // ImportCsvIntoRawTable imports records from specified csv file into target raw table, note that existing data would be deleted first.
@@ -238,6 +242,56 @@ func filterColumn(column dal.ColumnMeta, opts TableOptions) bool {
 		}
 	}
 	return targetFound
+}
+
+// UpdateCSVs scans the supplied directory for .csv files and applies the `updater` function to each. It saves back the result.
+// This is useful when you need to bulk-change a lot of entries across many CSV files in a systematic way.
+func (t *DataFlowTester) UpdateCSVs(csvDir string, updater func(fileName string, record *pluginhelper.CsvRecord)) errors.Error {
+	var csvFiles []string
+	err := filepath.WalkDir(csvDir, func(file string, dir fs.DirEntry, e error) error {
+		if e != nil {
+			return e
+		}
+		if filepath.Ext(file) == ".csv" {
+			csvFiles = append(csvFiles, file)
+		}
+		return nil
+	})
+	if err != nil {
+		return errors.Convert(err)
+	}
+	for _, csvFile := range csvFiles {
+		csvIter, err := pluginhelper.NewCsvFileIterator(csvFile)
+		if err != nil {
+			return errors.Convert(err)
+		}
+		columns := csvIter.GetColumns()
+		var entries [][]string
+		func() {
+			defer csvIter.Close()
+			for csvIter.HasNext() {
+				records := csvIter.FetchRecords()
+				var csvEntry []string
+				for _, record := range records {
+					updater(filepath.Base(csvFile), record)
+					csvEntry = append(csvEntry, cast.ToString(record.Value))
+				}
+				entries = append(entries, csvEntry)
+			}
+		}()
+		if len(entries) == 0 {
+			continue
+		}
+		func() {
+			csvWriter, _ := pluginhelper.NewCsvFileWriter(csvFile, columns)
+			defer csvWriter.Close()
+			for _, entry := range entries {
+				csvWriter.Write(entry)
+			}
+			csvWriter.Flush()
+		}()
+	}
+	return nil
 }
 
 // CreateSnapshot reads rows from database and write them into .csv file.
@@ -511,7 +565,11 @@ func (t *DataFlowTester) VerifyTableWithOptions(dst schema.Tabler, opts TableOpt
 			continue
 		}
 		for _, field := range targetFields {
-			assert.Equal(t.T, expected[field], formatDbValue(actual[field], opts.Nullable), fmt.Sprintf(`%s.%s not match (with params from csv %s)`, dst.TableName(), field, pkValues))
+			expectation := expected[field]
+			reality := formatDbValue(actual[field], opts.Nullable)
+			if !assert.Equal(t.T, expectation, reality, fmt.Sprintf(`%s.%s not match (with params from csv %s)`, dst.TableName(), field, pkValues)) {
+				_ = t.T // useful for debugging
+			}
 		}
 	}
 
