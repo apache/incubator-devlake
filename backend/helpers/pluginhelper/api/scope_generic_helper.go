@@ -290,9 +290,6 @@ func (gs *GenericScopeApiHelper[Conn, Scope, ScopeConfig]) DeleteScope(input *pl
 		if err != nil {
 			return nil, err
 		}
-		if err = gs.deleteScopeData(params.plugin, params.scopeId); err != nil {
-			return nil, err
-		}
 		return refs, errors.Conflict.New("Found one or more references to this scope")
 	}
 	if err = gs.deleteScopeData(params.plugin, params.scopeId); err != nil {
