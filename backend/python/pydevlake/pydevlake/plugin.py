@@ -116,7 +116,7 @@ class Plugin(ABC):
             remote_scopes = []
             for tool_scope in self.remote_scopes(connection, group_id):
                 tool_scope.connection_id = connection.id
-                tool_scope.raw_data_params = raw_data_params(connection.id, tool_scope.id)
+                tool_scope.raw_data_params = raw_data_params(self.name, connection.id, tool_scope.id)
                 remote_scopes.append(
                     msg.RemoteScope(
                         id=tool_scope.id,
@@ -139,7 +139,7 @@ class Plugin(ABC):
         for tool_scope, _ in scope_config_pairs:
             for scope in self.domain_scopes(tool_scope):
                 scope.id = tool_scope.domain_id()
-                scope.raw_data_params = raw_data_params(connection.id, tool_scope.id)
+                scope.raw_data_params = raw_data_params(self.name, connection.id, tool_scope.id)
                 domain_scopes.append(
                     msg.DynamicDomainScope(
                         type_name=type(scope).__name__,

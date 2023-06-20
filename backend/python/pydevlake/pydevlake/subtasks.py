@@ -127,7 +127,7 @@ class Subtask:
         return {}
 
     def _params(self, ctx: Context) -> str:
-        return raw_data_params(ctx.connection.id, ctx.scope.id)
+        return raw_data_params(self.stream.plugin_name, ctx.connection.id, ctx.scope.id)
 
     @abstractmethod
     def delete(self, session, ctx):

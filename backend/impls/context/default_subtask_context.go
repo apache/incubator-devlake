@@ -58,8 +58,7 @@ func (c *DefaultSubTaskContext) TaskContext() plugin.TaskContext {
 	return c.taskCtx
 }
 
-// NewStandaloneSubTaskContext returns a stand-alone plugin.SubTaskContext,
-// not attached to any plugin.TaskContext.
+// NewStandaloneSubTaskContext returns a stand-alone plugin.SubTaskContext with a default, minimal plugin.TaskContext.
 // Use this if you need to run/debug a subtask without
 // going through the usual workflow.
 func NewStandaloneSubTaskContext(
@@ -68,9 +67,11 @@ func NewStandaloneSubTaskContext(
 	name string,
 	data interface{},
 ) plugin.SubTaskContext {
+	taskCtx := NewDefaultTaskContext(ctx, basicRes, name, nil, nil)
+	execCtx := newDefaultExecContext(ctx, basicRes, name, data, nil)
 	return &DefaultSubTaskContext{
-		newDefaultExecContext(ctx, basicRes, name, data, nil),
-		nil,
+		execCtx,
+		taskCtx.(*DefaultTaskContext),
 		time.Time{},
 	}
 }

@@ -31,5 +31,8 @@ func DummySubTaskContext(db dal.Dal) *mockplugin.SubTaskContext {
 	mockCtx.On("SetProgress", mock.Anything, mock.Anything)
 	mockCtx.On("IncProgress", mock.Anything, mock.Anything)
 	mockCtx.On("GetName").Return("test")
+	mockTaskCtx := new(mockplugin.TaskContext)
+	mockTaskCtx.On("GetName").Return("dummy")
+	mockCtx.On("TaskContext").Return(mockTaskCtx)
 	return mockCtx
 }

@@ -18,6 +18,9 @@ limitations under the License.
 package common
 
 import (
+	"encoding/json"
+	"github.com/apache/incubator-devlake/core/errors"
+	"github.com/spf13/cast"
 	"regexp"
 	"time"
 )
@@ -72,4 +75,31 @@ var (
 
 func IsDuplicateError(err error) bool {
 	return err != nil && DUPLICATE_REGEX.MatchString(err.Error())
+}
+
+// CreateRawDataParams TODO in the future use explicit fields instead of a generic params struct, and return a JSON string
+// with standardized keys
+func CreateRawDataParams(pluginName string, params any) (string, errors.Error) {
+	// Append the plugin name to the params struct and serialize to string
+	paramsMap := map[string]any{
+		"Plugin": pluginName,
+	}
+	// TODO: maybe sort it to make it consistent
+	paramsBytes, err := json.Marshal(params)
+	if err != nil {
+		return "", errors.Convert(err)
+	}
+	err = json.Unmarshal(paramsBytes, &paramsMap)
+	if err != nil {
+		return "", errors.Convert(err)
+	}
+	// compare all values to strings
+	for k, v := range paramsMap {
+		paramsMap[k] = cast.ToString(v)
+	}
+	paramsBytes, err = json.Marshal(paramsMap)
+	if err != nil {
+		return "", errors.Convert(err)
+	}
+	return string(paramsBytes), nil
 }

@@ -136,7 +136,8 @@ var _ dal.Dal = (*Dalgorm)(nil)
 
 // Exec executes raw sql query
 func (d *Dalgorm) Exec(query string, params ...interface{}) errors.Error {
-	return d.convertGormError(d.db.Exec(query, transformParams(params)...).Error)
+	result := d.db.Exec(query, transformParams(params)...)
+	return d.convertGormError(result.Error)
 }
 
 // AutoMigrate runs auto migration for given models

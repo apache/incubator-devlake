@@ -151,9 +151,13 @@ func TestSetScopeFields(t *testing.T) {
 
 	// call setScopeFields to assign value
 	connectionId := uint64(123)
+	params := &requestParams{
+		connectionId: connectionId,
+		plugin:       "dummy_plugin",
+	}
 	createdDate := time.Now()
 	updatedDate := &createdDate
-	apiHelper.setScopeFields(&p, connectionId, &createdDate, updatedDate)
+	apiHelper.setScopeFields(&p, params, &createdDate, updatedDate)
 
 	// verify fields
 	if p.ConnectionId != connectionId {
@@ -170,7 +174,7 @@ func TestSetScopeFields(t *testing.T) {
 		t.Errorf("UpdatedDate not set correctly, expected: %v, got: %v", updatedDate, p.UpdatedDate)
 	}
 
-	apiHelper.setScopeFields(&p, connectionId, &createdDate, nil)
+	apiHelper.setScopeFields(&p, params, &createdDate, nil)
 
 	// verify fields
 	if p.ConnectionId != connectionId {
@@ -193,7 +197,7 @@ func TestSetScopeFields(t *testing.T) {
 	}
 	apiHelper2 := createMockScopeHelper[P1]("GitlabId")
 	p1 := P1{}
-	apiHelper2.setScopeFields(&p1, connectionId, &createdDate, &createdDate)
+	apiHelper2.setScopeFields(&p1, params, &createdDate, &createdDate)
 
 }
 

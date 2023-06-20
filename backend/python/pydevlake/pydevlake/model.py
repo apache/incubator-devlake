@@ -168,10 +168,13 @@ def domain_id(model_type, connection_id, *args):
     return ':'.join(segments)
 
 
-def raw_data_params(connection_id: int, scope_id: str) -> str:
+def raw_data_params(plugin: str, connection_id: int, scope_id: str) -> str:
+    # JSON key names MUST be consistent with Go conventions (CamelCase), JSON keys MUST be sorted,
+    # and all JSON values must be strings
     return json.dumps({
-        "connection_id": connection_id,
-        "scope_id": scope_id
+        "ConnectionId": str(connection_id),
+        "Plugin": plugin,
+        "ScopeId": scope_id
     }, separators=(',', ':'))
 
 

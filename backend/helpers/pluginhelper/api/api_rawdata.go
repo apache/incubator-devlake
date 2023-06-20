@@ -18,9 +18,9 @@ limitations under the License.
 package api
 
 import (
-	"encoding/json"
 	"fmt"
 	"github.com/apache/incubator-devlake/core/errors"
+	"github.com/apache/incubator-devlake/core/models/common"
 	plugin "github.com/apache/incubator-devlake/core/plugin"
 	"reflect"
 	"time"
@@ -79,15 +79,14 @@ func NewRawDataSubTask(args RawDataSubTaskArgs) (*RawDataSubTask, errors.Error) 
 		params = args.Params
 	}
 	paramsString := ""
+	var err errors.Error
 	if params == nil || reflect.ValueOf(params).IsZero() {
 		args.Ctx.GetLogger().Warn(nil, fmt.Sprintf("Missing `Params` for raw data subtask %s", args.Ctx.GetName()))
 	} else {
-		// TODO: maybe sort it to make it consistent
-		paramsBytes, err := json.Marshal(params)
+		paramsString, err = common.CreateRawDataParams(args.Ctx.TaskContext().GetName(), params)
 		if err != nil {
 			return nil, errors.Default.Wrap(err, "unable to serialize subtask parameters")
 		}
-		paramsString = string(paramsBytes)
 	}
 	return &RawDataSubTask{
 		args:   &args,

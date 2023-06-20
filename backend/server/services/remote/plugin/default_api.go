@@ -94,7 +94,7 @@ func (pa *pluginAPI) createScopeHelper() {
 	params := &api.ReflectionParameters{
 		ScopeIdFieldName:  "Id",
 		ScopeIdColumnName: "id",
-		RawScopeParamName: "scope_id",
+		RawScopeParamName: "ScopeId",
 	}
 	pa.scopeHelper = api.NewGenericScopeHelper[remoteModel.RemoteConnection, remoteModel.RemoteScope, remoteModel.RemoteScopeConfig](
 		basicRes,

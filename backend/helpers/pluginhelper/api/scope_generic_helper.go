@@ -20,6 +20,7 @@ package api
 import (
 	"encoding/json"
 	"fmt"
+	"github.com/apache/incubator-devlake/core/models/common"
 	"reflect"
 	"strconv"
 	"strings"
@@ -148,7 +149,7 @@ func (gs *GenericScopeApiHelper[Conn, Scope, ScopeConfig]) PutScopes(input *plug
 	now := time.Now()
 	for _, scope := range scopes {
 		// Set the connection ID, CreatedDate, and UpdatedDate fields
-		gs.setScopeFields(scope, params.connectionId, &now, &now)
+		gs.setScopeFields(scope, params, &now, &now)
 		err = gs.verifyScope(scope, gs.validator)
 		if err != nil {
 			return nil, errors.Default.Wrap(err, "error verifying scope")
@@ -292,7 +293,7 @@ func (gs *GenericScopeApiHelper[Conn, Scope, ScopeConfig]) DeleteScope(input *pl
 		}
 		return refs, errors.Conflict.New("Found one or more references to this scope")
 	}
-	if err = gs.deleteScopeData(params.plugin, params.scopeId); err != nil {
+	if err = gs.deleteScopeData(params.plugin, params.connectionId, params.scopeId); err != nil {
 		return nil, err
 	}
 	if !params.deleteDataOnly {
@@ -414,19 +415,18 @@ func (gs *GenericScopeApiHelper[Conn, Scope, ScopeConfig]) extractFromGetReqPara
 	}, nil
 }
 
-func (gs *GenericScopeApiHelper[Conn, Scope, ScopeConfig]) getRawParams(connectionId uint64, scopeId any) string {
-	paramsMap := map[string]any{
+func (gs *GenericScopeApiHelper[Conn, Scope, ScopeConfig]) getRawParams(pluginName string, connectionId uint64, scopeId any) string {
+	str, err := common.CreateRawDataParams(pluginName, map[string]any{
 		"ConnectionId":                        connectionId,
 		gs.reflectionParams.RawScopeParamName: scopeId,
-	}
-	b, err := json.Marshal(paramsMap)
+	})
 	if err != nil {
 		panic(err)
 	}
-	return string(b)
+	return str
 }
 
-func (gs *GenericScopeApiHelper[Conn, Scope, ScopeConfig]) setScopeFields(p interface{}, connectionId uint64, createdDate *time.Time, updatedDate *time.Time) {
+func (gs *GenericScopeApiHelper[Conn, Scope, ScopeConfig]) setScopeFields(p interface{}, params *requestParams, createdDate *time.Time, updatedDate *time.Time) {
 	pType := reflect.TypeOf(p)
 	if pType.Kind() != reflect.Ptr {
 		panic("expected a pointer to a struct")
@@ -434,7 +434,7 @@ func (gs *GenericScopeApiHelper[Conn, Scope, ScopeConfig]) setScopeFields(p inte
 	pValue := reflectValue(p)
 	// set connectionId
 	connIdField := pValue.FieldByName("ConnectionId")
-	connIdField.SetUint(connectionId)
+	connIdField.SetUint(params.connectionId)
 
 	// set raw params
 	rawParams := pValue.FieldByName("RawDataParams")
@@ -442,7 +442,7 @@ func (gs *GenericScopeApiHelper[Conn, Scope, ScopeConfig]) setScopeFields(p inte
 		panic("scope is missing the field \"RawDataParams\"")
 	}
 	scopeIdField := pValue.FieldByName(gs.reflectionParams.ScopeIdFieldName)
-	rawParams.Set(reflect.ValueOf(gs.getRawParams(connectionId, scopeIdField.Interface())))
+	rawParams.Set(reflect.ValueOf(gs.getRawParams(params.plugin, params.connectionId, scopeIdField.Interface())))
 
 	// set CreatedDate
 	createdDateField := pValue.FieldByName("CreatedDate")
@@ -564,7 +564,7 @@ func (gs *GenericScopeApiHelper[Conn, Scope, ScopeConfig]) updateBlueprints(conn
 	return nil
 }
 
-func (gs *GenericScopeApiHelper[Conn, Scope, ScopeConfig]) deleteScopeData(plugin string, scopeId string) errors.Error {
+func (gs *GenericScopeApiHelper[Conn, Scope, ScopeConfig]) deleteScopeData(plugin string, connectionId uint64, scopeId string) errors.Error {
 	var err errors.Error
 	scopeParamValue := scopeId
 	if gs.opts.GetScopeParamValue != nil {
@@ -578,17 +578,19 @@ func (gs *GenericScopeApiHelper[Conn, Scope, ScopeConfig]) deleteScopeData(plugi
 	if err != nil {
 		return errors.Default.Wrap(err, fmt.Sprintf("error getting database tables managed by plugin %s", plugin))
 	}
-	err = gs.transactionalDelete(tables, scopeParamValue)
+	rawParamsDataJSON := gs.getRawParams(plugin, connectionId, scopeParamValue)
+	err = gs.transactionalDelete(tables, rawParamsDataJSON)
 	if err != nil {
 		return errors.Default.Wrap(err, fmt.Sprintf("error deleting data bound to scope %s for plugin %s", scopeId, plugin))
 	}
 	return nil
 }
 
-func (gs *GenericScopeApiHelper[Conn, Scope, ScopeConfig]) transactionalDelete(tables []string, scopeId string) errors.Error {
+func (gs *GenericScopeApiHelper[Conn, Scope, ScopeConfig]) transactionalDelete(tables []string, rawParamsDataJSON string) errors.Error {
 	tx := gs.db.Begin()
 	for _, table := range tables {
-		query := createDeleteQuery(table, gs.reflectionParams.RawScopeParamName, scopeId)
+		query := createDeleteQuery(table, rawParamsDataJSON)
+		gs.log.Debug("Executing deletion statement: %s", query)
 		err := tx.Exec(query)
 		if err != nil {
 			err2 := tx.Rollback()
@@ -621,14 +623,14 @@ func (sr *ScopeRes[T, Y]) MarshalJSON() ([]byte, error) {
 	return result, nil
 }
 
-func createDeleteQuery(tableName string, scopeIdKey string, scopeId string) string {
+func createDeleteQuery(tableName string, rawParamsDataJSON string) string {
 	column := "_raw_data_params"
 	if tableName == (models.CollectorLatestState{}.TableName()) {
 		column = "raw_data_params"
 	} else if strings.HasPrefix(tableName, "_raw_") {
 		column = "params"
 	}
-	query := `DELETE FROM ` + tableName + ` WHERE ` + column + ` LIKE '%"` + scopeIdKey + `":%` + scopeId + `%'`
+	query := fmt.Sprintf(`DELETE FROM %s WHERE %s = '%s'`, tableName, column, rawParamsDataJSON)
 	return query
 }
 
