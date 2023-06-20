@@ -78,6 +78,7 @@ class AzureDevOpsPlugin(Plugin):
         org, proj = group_id.split('/')
         api = AzureDevOpsAPI(connection)
         for raw_repo in api.git_repos(org, proj):
+            raw_repo['name'] = f'{proj}/{raw_repo["name"]}'
             raw_repo['project_id'] = proj
             raw_repo['org_id'] = org
             # remove username from url
@@ -98,7 +99,7 @@ class AzureDevOpsPlugin(Plugin):
                 props = repo['properties']
                 yield GitRepository(
                     id=repo['id'],
-                    name=repo['name'],
+                    name=f'{provider}/{proj}/{repo["name"]}',
                     project_id=proj,
                     org_id=org,
                     provider=provider,
