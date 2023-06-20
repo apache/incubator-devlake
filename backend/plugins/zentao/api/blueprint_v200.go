@@ -18,7 +18,6 @@ limitations under the License.
 package api
 
 import (
-	"strings"
 	"time"
 
 	"github.com/apache/incubator-devlake/core/errors"
@@ -67,30 +66,31 @@ func makePipelinePlanV200(
 			ConnectionId: connection.ID,
 		}
 
-		scopeType := strings.Split(bpScope.Id, `/`)[0]
-		scopeId := strings.Split(bpScope.Id, `/`)[1]
+		//scopeType := strings.Split(bpScope.Id, `/`)[0]
+		//scopeId := strings.Split(bpScope.Id, `/`)[1]
+		scopeId := bpScope.Id
 
 		var entities []string
 
-		if scopeType == `project` {
-			project, scopeConfig, err := projectScopeHelper.DbHelper().GetScopeAndConfig(connection.ID, scopeId)
-			if err != nil {
-				return nil, nil, err
-			}
-			op.ProjectId = project.Id
-			entities = scopeConfig.Entities
+		//if scopeType == `project` {
+		project, scopeConfig, err := projectScopeHelper.DbHelper().GetScopeAndConfig(connection.ID, scopeId)
+		if err != nil {
+			return nil, nil, err
+		}
+		op.ProjectId = project.Id
+		entities = scopeConfig.Entities
 
-			if utils.StringsContains(entities, plugin.DOMAIN_TYPE_TICKET) {
-				scopeTicket := &ticket.Board{
-					DomainEntity: domainlayer.DomainEntity{
-						Id: didgen.NewDomainIdGenerator(&models.ZentaoProject{}).Generate(connection.ID, project.Id),
-					},
-					Name: project.Name,
-					Type: project.Type,
-				}
-				domainScopes = append(domainScopes, scopeTicket)
+		if utils.StringsContains(entities, plugin.DOMAIN_TYPE_TICKET) {
+			scopeTicket := &ticket.Board{
+				DomainEntity: domainlayer.DomainEntity{
+					Id: didgen.NewDomainIdGenerator(&models.ZentaoProject{}).Generate(connection.ID, project.Id),
+				},
+				Name: project.Name,
+				Type: project.Type,
 			}
-		} else {
+			domainScopes = append(domainScopes, scopeTicket)
+		}
+		/*} else {
 			product, scopeConfig, err := productScopeHelper.DbHelper().GetScopeAndConfig(connection.ID, scopeId)
 			if err != nil {
 				return nil, nil, err
@@ -108,7 +108,7 @@ func makePipelinePlanV200(
 				}
 				domainScopes = append(domainScopes, scopeTicket)
 			}
-		}
+		}*/
 
 		if syncPolicy.TimeAfter != nil {
 			op.TimeAfter = syncPolicy.TimeAfter.Format(time.RFC3339)

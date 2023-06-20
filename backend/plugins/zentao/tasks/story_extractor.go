@@ -38,6 +38,10 @@ var ExtractStoryMeta = plugin.SubTaskMeta{
 }
 
 func ExtractStory(taskCtx plugin.SubTaskContext) errors.Error {
+	return RangeProductOneByOne(taskCtx, ExtractStoryForOneProduct)
+}
+
+func ExtractStoryForOneProduct(taskCtx plugin.SubTaskContext) errors.Error {
 	data := taskCtx.GetData().(*ZentaoTaskData)
 
 	// this collect only work for product
@@ -64,6 +68,14 @@ func ExtractStory(taskCtx plugin.SubTaskContext) errors.Error {
 			if err != nil {
 				return nil, errors.Default.WrapRaw(err)
 			}
+
+			// project scope need filter
+			if data.Options.ProjectId != 0 {
+				if _, ok := data.StoryList[res.ID]; !ok {
+					return nil, nil
+				}
+			}
+
 			story := &models.ZentaoStory{
 				ConnectionId:     data.Options.ConnectionId,
 				ID:               res.ID,

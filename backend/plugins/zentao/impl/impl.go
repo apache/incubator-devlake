@@ -100,28 +100,13 @@ func (p Zentao) ScopeConfig() dal.Tabler {
 
 func (p Zentao) SubTaskMetas() []plugin.SubTaskMeta {
 	return []plugin.SubTaskMeta{
-		tasks.ConvertProductMeta,
+		//tasks.ConvertProductMeta,
 		tasks.ConvertProjectMeta,
 
 		tasks.DBGetChangelogMeta,
 		tasks.ConvertChangelogMeta,
 
-		tasks.CollectExecutionMeta,
-		tasks.ExtractExecutionMeta,
-		tasks.ConvertExecutionMeta,
-
-		tasks.CollectStoryMeta,
-		tasks.ExtractStoryMeta,
-		tasks.ConvertStoryMeta,
-
-		tasks.CollectBugMeta,
-		tasks.ExtractBugMeta,
-		tasks.ConvertBugMeta,
-
-		tasks.CollectTaskMeta,
-		tasks.ExtractTaskMeta,
-		tasks.ConvertTaskMeta,
-
+		// both
 		tasks.CollectAccountMeta,
 		tasks.ExtractAccountMeta,
 		tasks.ConvertAccountMeta,
@@ -130,11 +115,29 @@ func (p Zentao) SubTaskMetas() []plugin.SubTaskMeta {
 		tasks.ExtractDepartmentMeta,
 		tasks.ConvertDepartmentMeta,
 
-		tasks.CollectBugCommitsMeta,
-		tasks.ExtractBugCommitsMeta,
-		tasks.CollectBugRepoCommitsMeta,
-		tasks.ExtractBugRepoCommitsMeta,
-		tasks.ConvertBugRepoCommitsMeta,
+		// project
+		tasks.CollectExecutionMeta,
+		tasks.ExtractExecutionMeta,
+		tasks.ConvertExecutionMeta,
+
+		tasks.CollectTaskMeta,
+		tasks.ExtractTaskMeta,
+		tasks.ConvertTaskMeta,
+
+		tasks.CollectTaskCommitsMeta,
+		tasks.ExtractTaskCommitsMeta,
+		tasks.CollectTaskRepoCommitsMeta,
+		tasks.ExtractTaskRepoCommitsMeta,
+		tasks.ConvertTaskRepoCommitsMeta,
+
+		// product
+		tasks.CollectStoryMeta,
+		tasks.ExtractStoryMeta,
+		tasks.ConvertStoryMeta,
+
+		tasks.CollectBugMeta,
+		tasks.ExtractBugMeta,
+		tasks.ConvertBugMeta,
 
 		tasks.CollectStoryCommitsMeta,
 		tasks.ExtractStoryCommitsMeta,
@@ -142,11 +145,11 @@ func (p Zentao) SubTaskMetas() []plugin.SubTaskMeta {
 		tasks.ExtractStoryRepoCommitsMeta,
 		tasks.ConvertStoryRepoCommitsMeta,
 
-		tasks.CollectTaskCommitsMeta,
-		tasks.ExtractTaskCommitsMeta,
-		tasks.CollectTaskRepoCommitsMeta,
-		tasks.ExtractTaskRepoCommitsMeta,
-		tasks.ConvertTaskRepoCommitsMeta,
+		tasks.CollectBugCommitsMeta,
+		tasks.ExtractBugCommitsMeta,
+		tasks.CollectBugRepoCommitsMeta,
+		tasks.ExtractBugRepoCommitsMeta,
+		tasks.ConvertBugRepoCommitsMeta,
 	}
 }
 
@@ -184,8 +187,11 @@ func (p Zentao) PrepareTaskData(taskCtx plugin.TaskContext, options map[string]i
 	}
 
 	data := &tasks.ZentaoTaskData{
-		Options:   op,
-		ApiClient: apiClient,
+		Options:     op,
+		ApiClient:   apiClient,
+		ProductList: map[int64]string{},
+		StoryList:   map[int64]int64{},
+		FromBugList: map[int]bool{},
 	}
 
 	if connection.DbUrl != "" {
@@ -241,21 +247,32 @@ func (p Zentao) ApiResources() map[string]map[string]plugin.ApiResourceHandler {
 			"PATCH":  api.PatchConnection,
 			"DELETE": api.DeleteConnection,
 		},
-		"connections/:connectionId/product/scopes": {
-			"PUT": api.PutProductScope,
+		/*
+			"connections/:connectionId/product/scopes": {
+				"PUT": api.PutProductScope,
+			},
+			"connections/:connectionId/project/scopes": {
+				"PUT": api.PutProjectScope,
+			},
+			"connections/:connectionId/scopes/product/:scopeId": {
+				"GET":    api.GetProductScope,
+				"PATCH":  api.UpdateProductScope,
+				"DELETE": api.DeleteProductScope,
+			},
+			"connections/:connectionId/scopes/project/:scopeId": {
+				"GET":    api.GetProjectScope,
+				"PATCH":  api.UpdateProjectScope,
+				"DELETE": api.DeleteProjectScope,
+			},
+		*/
+		"connections/:connectionId/scopes": {
+			"PUT": api.PutScope,
+			"GET": api.GetScopeList,
 		},
-		"connections/:connectionId/project/scopes": {
-			"PUT": api.PutProjectScope,
-		},
-		"connections/:connectionId/scopes/product/:scopeId": {
-			"GET":    api.GetProductScope,
-			"PATCH":  api.UpdateProductScope,
-			"DELETE": api.DeleteProductScope,
-		},
-		"connections/:connectionId/scopes/project/:scopeId": {
-			"GET":    api.GetProjectScope,
-			"PATCH":  api.UpdateProjectScope,
-			"DELETE": api.DeleteProjectScope,
+		"connections/:connectionId/scopes/:scopeId": {
+			"GET":    api.GetScope,
+			"PATCH":  api.UpdateScope,
+			"DELETE": api.DeleteScope,
 		},
 		"connections/:connectionId/scope-configs": {
 			"POST": api.CreateScopeConfig,

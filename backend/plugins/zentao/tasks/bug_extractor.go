@@ -38,6 +38,10 @@ var ExtractBugMeta = plugin.SubTaskMeta{
 }
 
 func ExtractBug(taskCtx plugin.SubTaskContext) errors.Error {
+	return RangeProductOneByOne(taskCtx, ExtractBugForOneProduct)
+}
+
+func ExtractBugForOneProduct(taskCtx plugin.SubTaskContext) errors.Error {
 	data := taskCtx.GetData().(*ZentaoTaskData)
 
 	// this Extract only work for product
@@ -64,6 +68,14 @@ func ExtractBug(taskCtx plugin.SubTaskContext) errors.Error {
 			if err != nil {
 				return nil, errors.Default.WrapRaw(err)
 			}
+
+			// project scope need filter
+			if data.Options.ProjectId != 0 {
+				if init, ok := data.FromBugList[int(res.ID)]; !ok || !init {
+					return nil, nil
+				}
+			}
+
 			bug := &models.ZentaoBug{
 				ConnectionId:   data.Options.ConnectionId,
 				ID:             res.ID,

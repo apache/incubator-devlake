@@ -105,6 +105,9 @@ type ZentaoTaskData struct {
 	TimeAfter   *time.Time
 	ProjectName string
 	ProductName string
+	ProductList map[int64]string // set if it is setting project id, it is map[id]name
+	StoryList   map[int64]int64  // set if it is run the task_extractor
+	FromBugList map[int]bool     // set if it is run the task_extracor
 	ApiClient   *helper.ApiAsyncClient
 }
 

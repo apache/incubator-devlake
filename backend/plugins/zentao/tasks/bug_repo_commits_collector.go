@@ -42,6 +42,10 @@ var CollectBugRepoCommitsMeta = plugin.SubTaskMeta{
 }
 
 func CollectBugRepoCommits(taskCtx plugin.SubTaskContext) errors.Error {
+	return RangeProductOneByOne(taskCtx, CollectBugRepoCommitsForOneProduct)
+}
+
+func CollectBugRepoCommitsForOneProduct(taskCtx plugin.SubTaskContext) errors.Error {
 	db := taskCtx.GetDal()
 	data := taskCtx.GetData().(*ZentaoTaskData)
 

@@ -33,6 +33,10 @@ const RAW_STORY_TABLE = "zentao_api_stories"
 var _ plugin.SubTaskEntryPoint = CollectStory
 
 func CollectStory(taskCtx plugin.SubTaskContext) errors.Error {
+	return RangeProductOneByOne(taskCtx, CollectStoryForOneProduct)
+}
+
+func CollectStoryForOneProduct(taskCtx plugin.SubTaskContext) errors.Error {
 	data := taskCtx.GetData().(*ZentaoTaskData)
 
 	// this collect only work for product

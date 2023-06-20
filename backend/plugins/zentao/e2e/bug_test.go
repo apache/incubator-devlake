@@ -37,7 +37,6 @@ func TestZentaoBugDataFlow(t *testing.T) {
 		Options: &tasks.ZentaoOptions{
 			ConnectionId: 1,
 			ProjectId:    1,
-			ProductId:    3,
 			ScopeConfigs: &tasks.ZentaoScopeConfigs{
 				TypeMappings: map[string]string{
 					"codeerror": "CODE_ERROR",
@@ -46,6 +45,14 @@ func TestZentaoBugDataFlow(t *testing.T) {
 					"active": ticket.DONE,
 				},
 			},
+		},
+		ProductList: map[int64]string{
+			3: "",
+		},
+		FromBugList: map[int]bool{
+			1: true,
+			2: true,
+			4: true,
 		},
 	}
 
