@@ -73,7 +73,6 @@ const ConnectionDetail = ({ plugin, connectionId }: Props) => {
 
   useEffect(() => {
     onTest(`${plugin}-${connectionId}`);
-    return () => setTips('');
   }, [plugin, connectionId]);
 
   const handleHideDialog = () => {
