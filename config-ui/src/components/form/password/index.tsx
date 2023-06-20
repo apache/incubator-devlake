@@ -16,21 +16,27 @@
  *
  */
 
-export * from './action';
-export * from './alert';
-export * from './buttons';
-export * from './card';
-export * from './dialog';
-export * from './divider';
-export { default as ErrorBoundary } from './error-boundary';
-export * from './form';
-export * from './inspector';
-export * from './loading';
-export * from './logo';
-export * from './message';
-export * from './no-data';
-export * from './page-header';
-export * from './selector';
-export * from './table';
-export * from './toast';
-export * from './tooltip';
+import { useState } from 'react';
+import { InputGroup, InputGroupProps2 } from '@blueprintjs/core';
+
+import { IconButton } from '@/components';
+
+interface Props extends InputGroupProps2 {}
+
+export const FormPassword = ({ ...props }: Props) => {
+  const [showPass, setShowPass] = useState(false);
+
+  return (
+    <InputGroup
+      {...props}
+      type={showPass ? 'text' : 'password'}
+      rightElement={
+        <IconButton
+          icon={showPass ? 'unlock' : 'lock'}
+          tooltip={showPass ? 'Hide' : 'Show'}
+          onClick={() => setShowPass(!showPass)}
+        />
+      }
+    />
+  );
+};

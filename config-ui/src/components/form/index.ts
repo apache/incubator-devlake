@@ -16,21 +16,5 @@
  *
  */
 
-export * from './action';
-export * from './alert';
-export * from './buttons';
-export * from './card';
-export * from './dialog';
-export * from './divider';
-export { default as ErrorBoundary } from './error-boundary';
-export * from './form';
-export * from './inspector';
-export * from './loading';
-export * from './logo';
-export * from './message';
-export * from './no-data';
-export * from './page-header';
-export * from './selector';
-export * from './table';
-export * from './toast';
-export * from './tooltip';
+export * from './item';
+export * from './password';

@@ -17,9 +17,9 @@
  */
 
 import { useEffect, useState } from 'react';
-import { FormGroup, InputGroup, Button, Icon, Intent } from '@blueprintjs/core';
+import { FormGroup, Button, Icon, Intent } from '@blueprintjs/core';
 
-import { ExternalLink } from '@/components';
+import { ExternalLink, FormPassword } from '@/components';
 
 import * as API from '../api';
 
@@ -126,10 +126,8 @@ export const Token = ({ endpoint, proxy, initialValue, value, error, setValue, s
       {tokens.map(({ value, isValid, status, from }, i) => (
         <S.Input key={i}>
           <div className="input">
-            <InputGroup
+            <FormPassword
               placeholder="Token"
-              type="password"
-              value={value ?? ''}
               onChange={(e) => handleChangeToken(i, e.target.value)}
               onBlur={() => handleTestToken(i)}
             />
