@@ -22,7 +22,6 @@ import styled from 'styled-components';
 const Wrapper = styled.div`
   display: flex;
   align-items: center;
-  font-size: 12px;
 
   & > .bp4-icon {
     margin-right: 8px;
