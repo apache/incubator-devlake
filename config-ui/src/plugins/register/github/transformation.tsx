@@ -36,7 +36,7 @@ export const GitHubTransformation = ({ entities, transformation, setTransformati
     if (!transformation.deploymentPattern) {
       setEnableCICD(false);
     }
-  }, [transformation]);
+  }, []);
 
   const handleChangeEnableCICD = (e: React.FormEvent<HTMLInputElement>) => {
     const checked = (e.target as HTMLInputElement).checked;
