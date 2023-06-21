@@ -48,6 +48,7 @@ func ConvertTask(taskCtx plugin.SubTaskContext) errors.Error {
 	}
 	defer cursor.Close()
 	taskIdGen := didgen.NewDomainIdGenerator(&models.TapdTask{})
+	storyIdGen := didgen.NewDomainIdGenerator(&models.TapdStory{})
 	converter, err := helper.NewDataConverter(helper.DataConverterArgs{
 		RawDataSubTaskArgs: *rawDataSubTaskArgs,
 		InputRowType:       reflect.TypeOf(models.TapdTask{}),
@@ -69,7 +70,7 @@ func ConvertTask(taskCtx plugin.SubTaskContext) errors.Error {
 				ResolutionDate: (*time.Time)(toolL.Completed),
 				CreatedDate:    (*time.Time)(toolL.Created),
 				UpdatedDate:    (*time.Time)(toolL.Modified),
-				ParentIssueId:  taskIdGen.Generate(toolL.ConnectionId, toolL.StoryId),
+				ParentIssueId:  storyIdGen.Generate(toolL.ConnectionId, toolL.StoryId),
 				Priority:       toolL.Priority,
 				CreatorId:      getAccountIdGen().Generate(data.Options.ConnectionId, toolL.Creator),
 				CreatorName:    toolL.Creator,
