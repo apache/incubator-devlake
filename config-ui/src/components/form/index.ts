@@ -16,28 +16,5 @@
  *
  */
 
-import { Icon } from '@blueprintjs/core';
-import styled from 'styled-components';
-
-const Wrapper = styled.div`
-  display: flex;
-  align-items: center;
-
-  & > .bp4-icon {
-    margin-right: 8px;
-  }
-`;
-
-interface Props {
-  style?: React.CSSProperties;
-  content: React.ReactNode;
-}
-
-export const Message = ({ style, content }: Props) => {
-  return (
-    <Wrapper style={style}>
-      <Icon icon="warning-sign" size={24} color="#f4be55" />
-      <span>{content}</span>
-    </Wrapper>
-  );
-};
+export * from './item';
+export * from './password';

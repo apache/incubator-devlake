@@ -67,6 +67,7 @@ export const ScopeConfigForm = ({
 
   useEffect(() => {
     setHasRefDiff(!!config.scopeConfig?.transformation.refdiff);
+    setTransformation(config.scopeConfig?.transformation ?? {});
   }, [config.scopeConfig?.transformation]);
 
   useEffect(() => {

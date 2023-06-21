@@ -42,6 +42,10 @@ var ConvertStoryMeta = plugin.SubTaskMeta{
 }
 
 func ConvertStory(taskCtx plugin.SubTaskContext) errors.Error {
+	return RangeProductOneByOne(taskCtx, ConvertStoryForOneProduct)
+}
+
+func ConvertStoryForOneProduct(taskCtx plugin.SubTaskContext) errors.Error {
 	data := taskCtx.GetData().(*ZentaoTaskData)
 	db := taskCtx.GetDal()
 	storyIdGen := didgen.NewDomainIdGenerator(&models.ZentaoStory{})

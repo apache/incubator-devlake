@@ -16,11 +16,12 @@
  *
  */
 
-import { useEffect, useState } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { useLocation } from 'react-router-dom';
+import { CSSTransition } from 'react-transition-group';
 import { Menu, MenuItem, Tag, Navbar, Intent, Alignment } from '@blueprintjs/core';
 
-import { PageLoading, Logo, ExternalLink } from '@/components';
+import { PageLoading, Logo, ExternalLink, IconButton } from '@/components';
 import { useTips, useRefreshData } from '@/hooks';
 import { TipsContextProvider, ConnectionContextProvider } from '@/store';
 import { history } from '@/utils/history';
@@ -34,6 +35,7 @@ import SlackIcon from '@/images/icons/slack.svg';
 import { useMenu, MenuItemType } from './use-menu';
 import * as API from './api';
 import * as S from './styled';
+import './tips-transition.css';
 
 interface Props {
   children: React.ReactNode;
@@ -52,10 +54,12 @@ export const BaseLayout = ({ children }: Props) => {
 export const Layout = ({ children }: Props) => {
   const menu = useMenu();
   const { pathname } = useLocation();
-  const { tips } = useTips();
+  const { tips, setTips } = useTips();
   const { ready, data } = useRefreshData<{ version: string }>(() => API.getVersion(), []);
 
   const [userInfo, setUserInfo] = useState<API.UserInfo | null>(null);
+
+  const tipsRef = useRef(null);
 
   useEffect(() => {
     API.getUserInfo().then(setUserInfo);
@@ -173,7 +177,12 @@ export const Layout = ({ children }: Props) => {
         <S.Inner>
           <S.Content>{children}</S.Content>
         </S.Inner>
-        {tips && <S.Tips>{tips}</S.Tips>}
+        <CSSTransition in={!!tips} unmountOnExit timeout={300} nodeRef={tipsRef} classNames="tips">
+          <S.Tips ref={tipsRef}>
+            <div className="content">{tips}</div>
+            <IconButton style={{ color: '#fff' }} icon="cross" tooltip="Close" onClick={() => setTips('')} />
+          </S.Tips>
+        </CSSTransition>
       </S.Main>
     </S.Wrapper>
   );

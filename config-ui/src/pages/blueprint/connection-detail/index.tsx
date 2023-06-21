@@ -23,7 +23,7 @@ import { Popover2 } from '@blueprintjs/popover2';
 
 import { PageLoading, PageHeader, ExternalLink, Buttons, Table, Dialog, Message } from '@/components';
 import { useRefreshData, useTips } from '@/hooks';
-import { DataScopeSelect, getPluginId } from '@/plugins';
+import { DataScopeSelect, getPluginScopeId } from '@/plugins';
 import { operator } from '@/utils';
 
 import * as API from './api';
@@ -68,7 +68,7 @@ export const BlueprintConnectionDetailPage = () => {
         id: +connectionId,
         name: connection.name,
       },
-      scopes: scopes.filter((sc: any) => scopeIds.includes(`${sc[getPluginId(plugin)]}`)),
+      scopes: scopes.filter((sc: any) => scopeIds.includes(getPluginScopeId(plugin, sc))),
     };
   }, [version, pname, bid]);
 
@@ -95,14 +95,8 @@ export const BlueprintConnectionDetailPage = () => {
   const handleShowTips = () => {
     setTips(
       <>
-        <Message content="The Scope Config and/or Data Scope in this project have been updated. Would you like to re-transform or recollect the data in this project?" />
+        <Message content="The change of Data Scope(s) will affect the metrics of this project. Would you like to recollect the data to get them updated?" />
         <Buttons style={{ marginLeft: 8, marginBottom: 0 }}>
-          <Button
-            loading={operating}
-            intent={Intent.PRIMARY}
-            text="Only Re-transform Data"
-            onClick={() => handleRunBP(true)}
-          />
           <Button
             loading={operating}
             intent={Intent.PRIMARY}
@@ -144,7 +138,7 @@ export const BlueprintConnectionDetailPage = () => {
               if (cs.plugin === connection.plugin && cs.connectionId === connection.id) {
                 return {
                   ...cs,
-                  scopes: scope.map((sc: any) => ({ id: `${sc[getPluginId(connection.plugin)]}` })),
+                  scopes: scope.map((sc: any) => ({ id: getPluginScopeId(connection.plugin, sc) })),
                 };
               }
               return cs;

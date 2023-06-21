@@ -40,6 +40,10 @@ var ConvertBugRepoCommitsMeta = plugin.SubTaskMeta{
 }
 
 func ConvertBugRepoCommits(taskCtx plugin.SubTaskContext) errors.Error {
+	return RangeProductOneByOne(taskCtx, ConvertBugRepoCommitsForOneProduct)
+}
+
+func ConvertBugRepoCommitsForOneProduct(taskCtx plugin.SubTaskContext) errors.Error {
 	data := taskCtx.GetData().(*ZentaoTaskData)
 	db := taskCtx.GetDal()
 

@@ -40,6 +40,27 @@ export const getPluginId = (plugin: string) => {
   }
 };
 
+export const getPluginScopeId = (plugin: string, scope: any) => {
+  switch (plugin) {
+    case 'github':
+      return `${scope.githubId}`;
+    case 'jira':
+      return `${scope.boardId}`;
+    case 'gitlab':
+      return `${scope.gitlabId}`;
+    case 'jenkins':
+      return `${scope.jobFullName}`;
+    case 'bitbucket':
+      return `${scope.bitbucketId}`;
+    case 'sonarqube':
+      return `${scope.projectKey}`;
+    case 'zentao':
+      return scope.type === 'project' ? `project/${scope.id}` : `product/${scope.id}`;
+    default:
+      return `${scope.id}`;
+  }
+};
+
 export const getPluginConfig = (name: string): PluginConfigType => {
   let pluginConfig = PluginConfig.find((plugin) => plugin.plugin === name) as PluginConfigType;
   if (!pluginConfig) {

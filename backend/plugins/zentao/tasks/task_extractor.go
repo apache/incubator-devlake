@@ -64,6 +64,11 @@ func ExtractTask(taskCtx plugin.SubTaskContext) errors.Error {
 			if err != nil {
 				return nil, errors.Default.WrapRaw(err)
 			}
+
+			// set storyList and FromBugList
+			data.StoryList[res.StoryID] = res.Story
+			data.FromBugList[res.FromBug] = true
+
 			task := &models.ZentaoTask{
 				ConnectionId:       data.Options.ConnectionId,
 				ID:                 res.Id,

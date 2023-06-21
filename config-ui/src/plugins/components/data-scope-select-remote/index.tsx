@@ -20,7 +20,7 @@ import { useMemo, useState } from 'react';
 import { Button, Intent } from '@blueprintjs/core';
 
 import { Buttons } from '@/components';
-import { getPluginId, getPluginConfig } from '@/plugins';
+import { getPluginConfig, getPluginScopeId } from '@/plugins';
 import { operator } from '@/utils';
 
 import { DataScopeMillerColumns } from '../data-scope-miller-columns';
@@ -46,35 +46,20 @@ export const DataScopeSelectRemote = ({ plugin, connectionId, disabledScope, onC
   const error = useMemo(() => (!scope.length ? 'No Data Scope is Selected' : ''), [scope]);
 
   const selectedItems = useMemo(
-    () => scope.map((it: any) => ({ id: `${it[getPluginId(plugin)]}`, name: it.name, data: it })),
+    () => scope.map((it: any) => ({ id: getPluginScopeId(plugin, it), name: it.name, data: it })),
     [scope],
   );
 
   const disabledItems = useMemo(
-    () => (disabledScope ?? []).map((it) => ({ id: `${it[getPluginId(plugin)]}`, name: it.name, data: it })),
+    () => (disabledScope ?? []).map((it) => ({ id: getPluginScopeId(plugin, it), name: it.name, data: it })),
     [disabledScope],
   );
 
   const handleSubmit = async () => {
-    const [success, res] = await operator(
-      async () =>
-        plugin === 'zentao'
-          ? [
-              ...(await API.updateDataScopeWithType(plugin, connectionId, 'product', {
-                data: scope.filter((s: any) => s.type !== 'project'),
-              })),
-              ...(await API.updateDataScopeWithType(plugin, connectionId, 'project', {
-                data: scope.filter((s: any) => s.type === 'project'),
-              })),
-            ]
-          : API.updateDataScope(plugin, connectionId, {
-              data: scope,
-            }),
-      {
-        setOperating,
-        formatMessage: () => 'Add data scope successful.',
-      },
-    );
+    const [success, res] = await operator(() => API.updateDataScope(plugin, connectionId, { data: scope }), {
+      setOperating,
+      formatMessage: () => 'Add data scope successful.',
+    });
 
     if (success) {
       onSubmit(res);

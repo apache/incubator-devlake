@@ -16,28 +16,27 @@
  *
  */
 
-import { Icon } from '@blueprintjs/core';
-import styled from 'styled-components';
+import { useState } from 'react';
+import { InputGroup, InputGroupProps2 } from '@blueprintjs/core';
 
-const Wrapper = styled.div`
-  display: flex;
-  align-items: center;
+import { IconButton } from '@/components';
 
-  & > .bp4-icon {
-    margin-right: 8px;
-  }
-`;
+interface Props extends InputGroupProps2 {}
 
-interface Props {
-  style?: React.CSSProperties;
-  content: React.ReactNode;
-}
+export const FormPassword = ({ ...props }: Props) => {
+  const [showPass, setShowPass] = useState(false);
 
-export const Message = ({ style, content }: Props) => {
   return (
-    <Wrapper style={style}>
-      <Icon icon="warning-sign" size={24} color="#f4be55" />
-      <span>{content}</span>
-    </Wrapper>
+    <InputGroup
+      {...props}
+      type={showPass ? 'text' : 'password'}
+      rightElement={
+        <IconButton
+          icon={showPass ? 'unlock' : 'lock'}
+          tooltip={showPass ? 'Hide' : 'Show'}
+          onClick={() => setShowPass(!showPass)}
+        />
+      }
+    />
   );
 };

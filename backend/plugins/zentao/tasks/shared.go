@@ -24,6 +24,7 @@ import (
 	"strings"
 
 	"github.com/apache/incubator-devlake/core/errors"
+	"github.com/apache/incubator-devlake/core/plugin"
 	"github.com/apache/incubator-devlake/helpers/pluginhelper/api"
 	"github.com/apache/incubator-devlake/plugins/zentao/models"
 )
@@ -175,5 +176,21 @@ func ignoreHTTPStatus404(res *http.Response) errors.Error {
 	if res.StatusCode == http.StatusNotFound {
 		return api.ErrIgnoreAndContinue
 	}
+	return nil
+}
+
+func RangeProductOneByOne(taskCtx plugin.SubTaskContext, callback func(taskCtx plugin.SubTaskContext) errors.Error) errors.Error {
+	data := taskCtx.GetData().(*ZentaoTaskData)
+
+	for id, name := range data.ProductList {
+		data.Options.ProductId = id
+		data.ProductName = name
+
+		err := callback(taskCtx)
+		if err != nil {
+			return err
+		}
+	}
+
 	return nil
 }

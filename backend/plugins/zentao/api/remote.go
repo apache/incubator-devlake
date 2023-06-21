@@ -83,30 +83,32 @@ func RemoteScopes(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, er
 	if gid == "" {
 		return productRemoteHelper.GetScopesFromRemote(input, getGroup, nil)
 	} else if gid == `products` {
-		return productRemoteHelper.GetScopesFromRemote(input,
-			nil,
-			func(basicRes context2.BasicRes, gid string, queryData *api.RemoteQueryData, connection models.ZentaoConnection) ([]models.ZentaoProductRes, errors.Error) {
-				query := initialQuery(queryData)
-				// create api client
-				apiClient, err := api.NewApiClientFromConnection(context.TODO(), basicRes, &connection)
-				if err != nil {
-					return nil, err
-				}
+		/*
+			return productRemoteHelper.GetScopesFromRemote(input,
+				nil,
+				func(basicRes context2.BasicRes, gid string, queryData *api.RemoteQueryData, connection models.ZentaoConnection) ([]models.ZentaoProductRes, errors.Error) {
+					query := initialQuery(queryData)
+					// create api client
+					apiClient, err := api.NewApiClientFromConnection(context.TODO(), basicRes, &connection)
+					if err != nil {
+						return nil, err
+					}
 
-				query.Set("sort", "name")
-				// list projects part
-				res, err := apiClient.Get("/products", query, nil)
-				if err != nil {
-					return nil, err
-				}
+					query.Set("sort", "name")
+					// list projects part
+					res, err := apiClient.Get("/products", query, nil)
+					if err != nil {
+						return nil, err
+					}
 
-				resBody := &ProductResponse{}
-				err = api.UnmarshalResponse(res, resBody)
-				if err != nil {
-					return nil, err
-				}
-				return resBody.Values, nil
-			})
+					resBody := &ProductResponse{}
+					err = api.UnmarshalResponse(res, resBody)
+					if err != nil {
+						return nil, err
+					}
+					return resBody.Values, nil
+				})
+		*/
 	} else if gid == `projects` {
 		return projectRemoteHelper.GetScopesFromRemote(input,
 			nil,

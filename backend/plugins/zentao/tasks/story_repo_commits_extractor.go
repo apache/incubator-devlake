@@ -38,6 +38,10 @@ var ExtractStoryRepoCommitsMeta = plugin.SubTaskMeta{
 }
 
 func ExtractStoryRepoCommits(taskCtx plugin.SubTaskContext) errors.Error {
+	return RangeProductOneByOne(taskCtx, ExtractStoryRepoCommitsForOneProduct)
+}
+
+func ExtractStoryRepoCommitsForOneProduct(taskCtx plugin.SubTaskContext) errors.Error {
 	data := taskCtx.GetData().(*ZentaoTaskData)
 
 	// this Extract only work for product

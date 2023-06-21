@@ -36,7 +36,7 @@ export const GitLabTransformation = ({ entities, transformation, setTransformati
     if (!transformation.deploymentPattern) {
       setEnableCICD(false);
     }
-  }, [transformation]);
+  }, []);
 
   const handleChangeCICDEnable = (e: React.FormEvent<HTMLInputElement>) => {
     const checked = (e.target as HTMLInputElement).checked;
@@ -78,7 +78,7 @@ export const GitLabTransformation = ({ entities, transformation, setTransformati
               <div style={{ marginTop: 16 }}>Convert a GitLab Pipeline as a DevLake Deployment when: </div>
               <div className="text">
                 <span>
-                  The name of the <strong>GitLab pipeline</strong> or <strong>one of its jobs</strong> matches
+                  Its branch/tag name or <strong>one of its jobs</strong> matches
                 </span>
                 <InputGroup
                   style={{ width: 200, margin: '0 8px' }}

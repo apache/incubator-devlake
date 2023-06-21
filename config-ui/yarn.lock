@@ -2128,6 +2128,15 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@types/react-transition-group@npm:^4.4.6":
+  version: 4.4.6
+  resolution: "@types/react-transition-group@npm:4.4.6"
+  dependencies:
+    "@types/react": "*"
+  checksum: 0872143821d7ee20a1d81e965f8b1e837837f11cd2206973f1f98655751992d9390304d58bac192c9cd923eca95bff107d8c9e3364a180240d5c2a6fd70fd7c3
+  languageName: node
+  linkType: hard
+
 "@types/react@npm:*, @types/react@npm:^18.0.24":
   version: 18.0.28
   resolution: "@types/react@npm:18.0.28"
@@ -2973,6 +2982,7 @@ __metadata:
     "@types/react-copy-to-clipboard": ^5.0.4
     "@types/react-dom": ^18.0.10
     "@types/react-router-dom": ^5.3.3
+    "@types/react-transition-group": ^4.4.6
     "@types/styled-components": ^5.1.26
     "@vitejs/plugin-react": ^3.1.0
     axios: ^0.21.4
@@ -2995,6 +3005,7 @@ __metadata:
     react-dom: 17.0.2
     react-is: ^18.2.0
     react-router-dom: ^5.3.0
+    react-transition-group: ^4.4.5
     styled-components: ^5.3.6
     typescript: ^4.9.4
     vite: ^4.1.4

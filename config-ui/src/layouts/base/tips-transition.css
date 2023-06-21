@@ -16,28 +16,23 @@
  *
  */
 
-import { Icon } from '@blueprintjs/core';
-import styled from 'styled-components';
-
-const Wrapper = styled.div`
-  display: flex;
-  align-items: center;
-
-  & > .bp4-icon {
-    margin-right: 8px;
-  }
-`;
-
-interface Props {
-  style?: React.CSSProperties;
-  content: React.ReactNode;
+.tips-enter {
+  opacity: 0;
+  transform: scale(0.8);
 }
 
-export const Message = ({ style, content }: Props) => {
-  return (
-    <Wrapper style={style}>
-      <Icon icon="warning-sign" size={24} color="#f4be55" />
-      <span>{content}</span>
-    </Wrapper>
-  );
-};
+.tips-enter-active {
+  opacity: 1;
+  transform: translateX(0);
+  transition: opacity 300ms, transform 300ms;
+}
+
+.tips-exit {
+  opacity: 1;
+}
+
+.tips-exit-active {
+  opacity: 0;
+  transform: scale(0.8);
+  transition: opacity 300ms, transform 300ms;
+}
