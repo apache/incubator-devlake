@@ -19,7 +19,7 @@
 import { useState, useEffect, useRef } from 'react';
 import { useLocation } from 'react-router-dom';
 import { CSSTransition } from 'react-transition-group';
-import { Menu, MenuItem, Tag, Navbar, Intent, Alignment } from '@blueprintjs/core';
+import { Menu, MenuItem, Navbar, Alignment } from '@blueprintjs/core';
 
 import { PageLoading, Logo, ExternalLink, IconButton } from '@/components';
 import { useTips, useRefreshData } from '@/hooks';
@@ -108,10 +108,9 @@ export const Layout = ({ children }: Props) => {
                     text={
                       <S.SiderMenuItem>
                         <span>{cit.title}</span>
-                        {cit.isBeta && <Tag intent={Intent.WARNING}>beta</Tag>}
                       </S.SiderMenuItem>
                     }
-                    icon={cit.icon ?? <img src={cit.iconUrl} width={16} alt="" />}
+                    icon={cit.icon}
                     active={pathname.includes(cit.path)}
                     disabled={cit.disabled}
                     onClick={() => handlePushPath(cit)}
