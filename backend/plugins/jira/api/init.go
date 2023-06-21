@@ -18,12 +18,16 @@ limitations under the License.
 package api
 
 import (
+	"encoding/json"
 	"github.com/apache/incubator-devlake/core/context"
+	"github.com/apache/incubator-devlake/core/errors"
 	"github.com/apache/incubator-devlake/core/plugin"
 	"github.com/apache/incubator-devlake/helpers/pluginhelper/api"
 	"github.com/apache/incubator-devlake/plugins/jira/models"
+	"github.com/apache/incubator-devlake/plugins/jira/tasks"
 	"github.com/apache/incubator-devlake/plugins/jira/tasks/apiv2models"
 	"github.com/go-playground/validator/v10"
+	"reflect"
 )
 
 var vld *validator.Validate
@@ -46,6 +50,7 @@ func Init(br context.BasicRes, p plugin.PluginMeta) {
 		ScopeIdFieldName:  "BoardId",
 		ScopeIdColumnName: "board_id",
 		RawScopeParamName: "BoardId",
+		RawParamEncoder:   rawParamsEncoder,
 	}
 	scopeHelper = api.NewScopeHelper[models.JiraConnection, models.JiraBoard, models.JiraScopeConfig](
 		basicRes,
@@ -66,4 +71,23 @@ func Init(br context.BasicRes, p plugin.PluginMeta) {
 		basicRes,
 		vld,
 	)
+}
+
+func rawParamsEncoder(connectionId uint64, scopeId any) (string, errors.Error) {
+	var id uint64
+	switch t := scopeId.(type) {
+	case int, int8, int16, int32, int64:
+		id = uint64(reflect.ValueOf(t).Int()) // a has type int64
+	case uint, uint8, uint16, uint32, uint64:
+		id = reflect.ValueOf(t).Uint() // a has type uint64
+	}
+	params := tasks.JiraApiParams{
+		ConnectionId: connectionId,
+		BoardId:      id,
+	}
+	b, err := json.Marshal(params)
+	if err != nil {
+		return "", errors.Convert(err)
+	}
+	return string(b), nil
 }

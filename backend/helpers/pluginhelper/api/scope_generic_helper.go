@@ -70,6 +70,8 @@ type (
 		ScopeIdColumnName string `validate:"required"`
 		// This corresponds to the scope field on the ApiParams struct of a plugin.
 		RawScopeParamName string `validate:"required"`
+		// This function customizes how the RawDataParams are serialized
+		RawParamEncoder func(connectionId uint64, scopeId any) (string, errors.Error)
 	}
 	ScopeHelperOptions struct {
 		// Define this if the raw params doesn't store the ScopeId but a different attribute of the Scope (e.g. Name)
@@ -148,7 +150,10 @@ func (gs *GenericScopeApiHelper[Conn, Scope, ScopeConfig]) PutScopes(input *plug
 	now := time.Now()
 	for _, scope := range scopes {
 		// Set the connection ID, CreatedDate, and UpdatedDate fields
-		gs.setScopeFields(scope, params.connectionId, &now, &now)
+		err = gs.setScopeFields(scope, params.connectionId, &now, &now)
+		if err != nil {
+			return nil, errors.Default.Wrap(err, "error set scope fields")
+		}
 		err = gs.verifyScope(scope, gs.validator)
 		if err != nil {
 			return nil, errors.Default.Wrap(err, "error verifying scope")
@@ -414,19 +419,22 @@ func (gs *GenericScopeApiHelper[Conn, Scope, ScopeConfig]) extractFromGetReqPara
 	}, nil
 }
 
-func (gs *GenericScopeApiHelper[Conn, Scope, ScopeConfig]) getRawParams(connectionId uint64, scopeId any) string {
+func (gs *GenericScopeApiHelper[Conn, Scope, ScopeConfig]) getRawParams(connectionId uint64, scopeId any) (string, errors.Error) {
+	if gs.reflectionParams != nil && gs.reflectionParams.RawParamEncoder != nil {
+		return gs.reflectionParams.RawParamEncoder(connectionId, scopeId)
+	}
 	paramsMap := map[string]any{
 		"ConnectionId":                        connectionId,
 		gs.reflectionParams.RawScopeParamName: scopeId,
 	}
 	b, err := json.Marshal(paramsMap)
 	if err != nil {
-		panic(err)
+		return "", errors.Convert(err)
 	}
-	return string(b)
+	return string(b), nil
 }
 
-func (gs *GenericScopeApiHelper[Conn, Scope, ScopeConfig]) setScopeFields(p interface{}, connectionId uint64, createdDate *time.Time, updatedDate *time.Time) {
+func (gs *GenericScopeApiHelper[Conn, Scope, ScopeConfig]) setScopeFields(p interface{}, connectionId uint64, createdDate *time.Time, updatedDate *time.Time) errors.Error {
 	pType := reflect.TypeOf(p)
 	if pType.Kind() != reflect.Ptr {
 		panic("expected a pointer to a struct")
@@ -442,7 +450,11 @@ func (gs *GenericScopeApiHelper[Conn, Scope, ScopeConfig]) setScopeFields(p inte
 		panic("scope is missing the field \"RawDataParams\"")
 	}
 	scopeIdField := pValue.FieldByName(gs.reflectionParams.ScopeIdFieldName)
-	rawParams.Set(reflect.ValueOf(gs.getRawParams(connectionId, scopeIdField.Interface())))
+	rpValue, err := gs.getRawParams(connectionId, scopeIdField.Interface())
+	if err != nil {
+		return err
+	}
+	rawParams.Set(reflect.ValueOf(rpValue))
 
 	// set CreatedDate
 	createdDateField := pValue.FieldByName("CreatedDate")
@@ -453,7 +465,7 @@ func (gs *GenericScopeApiHelper[Conn, Scope, ScopeConfig]) setScopeFields(p inte
 	// set UpdatedDate
 	updatedDateField := pValue.FieldByName("UpdatedDate")
 	if !updatedDateField.IsValid() || (updatedDate != nil && !updatedDateField.Type().AssignableTo(reflect.TypeOf(updatedDate))) {
-		return
+		return nil
 	}
 	if updatedDate == nil {
 		// if updatedDate is nil, set UpdatedDate to be nil
@@ -463,6 +475,7 @@ func (gs *GenericScopeApiHelper[Conn, Scope, ScopeConfig]) setScopeFields(p inte
 		updatedDateFieldValue := reflect.ValueOf(updatedDate)
 		updatedDateField.Set(updatedDateFieldValue)
 	}
+	return nil
 }
 
 // returnPrimaryKeyValue returns a string containing the primary key value(s) of a struct, concatenated with "-" between them.
