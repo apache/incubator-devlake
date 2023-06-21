@@ -149,10 +149,7 @@ func GetRawMessageArrayFromResponse(res *http.Response) ([]json.RawMessage, erro
 	return data.Data, err
 }
 
-type TapdApiParams struct {
-	ConnectionId uint64
-	WorkspaceId  uint64
-}
+type TapdApiParams models.TapdApiParams
 
 // CreateRawDataSubTaskArgs creates a new instance of api.RawDataSubTaskArgs based on the provided
 // task context, raw table name, and a flag to determine if the company ID should be used.

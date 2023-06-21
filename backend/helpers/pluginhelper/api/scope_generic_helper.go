@@ -30,6 +30,7 @@ import (
 	"github.com/apache/incubator-devlake/core/errors"
 	"github.com/apache/incubator-devlake/core/log"
 	"github.com/apache/incubator-devlake/core/models"
+	"github.com/apache/incubator-devlake/core/models/common"
 	"github.com/apache/incubator-devlake/core/models/domainlayer/domaininfo"
 	"github.com/apache/incubator-devlake/core/plugin"
 	serviceHelper "github.com/apache/incubator-devlake/helpers/pluginhelper/services"
@@ -49,6 +50,7 @@ type (
 		bpManager        *serviceHelper.BlueprintManager
 		connHelper       *ConnectionApiHelper
 		opts             *ScopeHelperOptions
+		plugin           string
 	}
 	// as of golang v1.20, embedding generic fields is not supported
 	// let's divide the struct into two parts for swagger doc to work
@@ -125,11 +127,26 @@ func NewGenericScopeHelper[Conn any, Scope any, ScopeConfig any](
 		bpManager:        serviceHelper.NewBlueprintManager(basicRes.GetDal()),
 		connHelper:       connHelper,
 		opts:             opts,
+		plugin:           connHelper.pluginName,
 	}
 }
 
 func (gs *GenericScopeApiHelper[Conn, Scope, ScopeConfig]) DbHelper() ScopeDatabaseHelper[Conn, Scope, ScopeConfig] {
 	return gs.dbHelper
+}
+
+// hacky, temporary solution
+func (gs *GenericScopeApiHelper[Conn, Scope, ScopeConfig]) syncRawDataOrigin(scopes ...*Scope) {
+	for _, scope := range scopes {
+		toolScope, ok := interface{}(scope).(plugin.ToolLayerScope)
+		if !ok {
+			panic(fmt.Errorf("%v does not implement the plugin.ToolLayerScope interface", scope))
+		}
+		setRawDataOrigin(toolScope, common.RawDataOrigin{
+			RawDataTable:  fmt.Sprintf("_raw_%s_scopes", gs.plugin),
+			RawDataParams: plugin.MarshalScopeParams(toolScope.ScopeParams()),
+		})
+	}
 }
 
 func (gs *GenericScopeApiHelper[Conn, Scope, ScopeConfig]) PutScopes(input *plugin.ApiResourceInput, scopes []*Scope) ([]*ScopeRes[Scope, ScopeConfig], errors.Error) {
@@ -156,6 +173,10 @@ func (gs *GenericScopeApiHelper[Conn, Scope, ScopeConfig]) PutScopes(input *plug
 	}
 	// Save the scopes to the database
 	if len(scopes) > 0 {
+		gs.syncRawDataOrigin(scopes...)
+		if err != nil {
+			return nil, errors.Default.Wrap(err, "error saving scope")
+		}
 		err = gs.dbHelper.SaveScope(scopes)
 		if err != nil {
 			return nil, errors.Default.Wrap(err, "error saving scope")
@@ -189,6 +210,7 @@ func (gs *GenericScopeApiHelper[Conn, Scope, ScopeConfig]) UpdateScope(input *pl
 	if err != nil {
 		return nil, errors.Default.Wrap(err, "Invalid scope")
 	}
+	gs.syncRawDataOrigin(scope)
 	err = gs.dbHelper.UpdateScope(params.connectionId, params.scopeId, scope)
 	if err != nil {
 		return nil, errors.Default.Wrap(err, "error on saving Scope")
@@ -286,18 +308,29 @@ func (gs *GenericScopeApiHelper[Conn, Scope, ScopeConfig]) DeleteScope(input *pl
 	if err != nil {
 		return nil, errors.Default.Wrap(err, fmt.Sprintf("error verifying connection for connection ID %d", params.connectionId))
 	}
+	// TODO: the Scope type in this helper must implement the ToolLayerScope interface and we should enforce that.
+	scope, err := gs.dbHelper.GetScope(params.connectionId, params.scopeId)
+	if err != nil {
+		return nil, err
+	}
+	toolScope, ok := interface{}(scope).(plugin.ToolLayerScope)
+	if !ok {
+		panic(fmt.Errorf("%v does not implement the plugin.ToolLayerScope interface", scope))
+	}
+	// now we can as scope to state its `Params` for data bloodline identificaltion
 	if refs, err := gs.getScopeReferences(input.GetPlugin(), params.connectionId, params.scopeId); err != nil || refs != nil {
 		if err != nil {
 			return nil, err
 		}
 		return refs, errors.Conflict.New("Found one or more references to this scope")
 	}
-	if err = gs.deleteScopeData(params.plugin, params.scopeId); err != nil {
+	if err = gs.deleteScopeData(toolScope); err != nil {
 		return nil, err
 	}
 	if !params.deleteDataOnly {
 		// Delete the scope itself
-		err = gs.dbHelper.DeleteScope(params.connectionId, params.scopeId)
+		// err = gs.dbHelper.DeleteScope(params.connectionId, params.scopeId)
+		err = gs.db.Delete(scope)
 		if err != nil {
 			return nil, errors.Default.Wrap(err, fmt.Sprintf("error deleting scope %s", params.scopeId))
 		}
@@ -564,36 +597,51 @@ func (gs *GenericScopeApiHelper[Conn, Scope, ScopeConfig]) updateBlueprints(conn
 	return nil
 }
 
-func (gs *GenericScopeApiHelper[Conn, Scope, ScopeConfig]) deleteScopeData(plugin string, scopeId string) errors.Error {
-	var err errors.Error
-	scopeParamValue := scopeId
-	if gs.opts.GetScopeParamValue != nil {
-		scopeParamValue, err = gs.opts.GetScopeParamValue(gs.db, scopeId)
-		if err != nil {
-			return errors.Default.Wrap(err, fmt.Sprintf("error extracting scope parameter name for scope %s", scopeId))
-		}
-	}
+func (gs *GenericScopeApiHelper[Conn, Scope, ScopeConfig]) deleteScopeData(scope plugin.ToolLayerScope) errors.Error {
 	// find all tables for this plugin
-	tables, err := gs.getAffectedTables(plugin)
+	tables, err := gs.getAffectedTables(gs.plugin)
 	if err != nil {
-		return errors.Default.Wrap(err, fmt.Sprintf("error getting database tables managed by plugin %s", plugin))
+		return errors.Default.Wrap(err, fmt.Sprintf("error getting database tables managed by plugin %s", gs.plugin))
 	}
-	err = gs.transactionalDelete(tables, scopeParamValue)
+	scopeParams := plugin.MarshalScopeParams(scope.ScopeParams())
+	err = gs.transactionalDelete(tables, scopeParams)
 	if err != nil {
-		return errors.Default.Wrap(err, fmt.Sprintf("error deleting data bound to scope %s for plugin %s", scopeId, plugin))
+		return errors.Default.Wrap(err, fmt.Sprintf("error deleting data bound to scope %s for plugin %s", scopeParams, gs.plugin))
 	}
 	return nil
 }
 
-func (gs *GenericScopeApiHelper[Conn, Scope, ScopeConfig]) transactionalDelete(tables []string, scopeId string) errors.Error {
+func (gs *GenericScopeApiHelper[Conn, Scope, ScopeConfig]) transactionalDelete(tables []string, rawDataParams string) errors.Error {
 	tx := gs.db.Begin()
 	for _, table := range tables {
-		query := createDeleteQuery(table, gs.reflectionParams.RawScopeParamName, scopeId)
-		err := tx.Exec(query)
+		var where string
+		var params []interface{}
+		if strings.HasPrefix(table, "_raw_") {
+			// raw table: shhould check connection and scope
+			where = "params = ?"
+			params = []interface{}{rawDataParams}
+		} else if strings.HasPrefix(table, "_tool_") {
+			// tool layer table: should check connection and scope
+			where = "_raw_data_params = ?"
+			params = []interface{}{rawDataParams}
+		} else {
+			// framework tables: should check plugin, connection and scope
+			if table == (models.CollectorLatestState{}.TableName()) {
+				// diff sync state
+				where = "raw_data_table LIKE ? AND raw_data_params = ?"
+			} else {
+				// domain layer table
+				where = "_raw_data_table LIKE ? AND _raw_data_params = ?"
+			}
+			rawDataTablePrefix := fmt.Sprintf("_raw_%s%%", gs.plugin)
+			params = []interface{}{rawDataTablePrefix, rawDataParams}
+		}
+		sql := fmt.Sprintf("DELETE FROM %s WHERE %s", table, where)
+		err := tx.Exec(sql, params...)
 		if err != nil {
 			err2 := tx.Rollback()
 			if err2 != nil {
-				gs.log.Warn(err2, fmt.Sprintf("error rolling back table data deletion transaction. query was %s", query))
+				gs.log.Warn(err2, fmt.Sprintf("error rolling back table data deletion transaction. sql: %s params: %v", sql, params))
 			}
 			return err
 		}
@@ -619,17 +667,6 @@ func (sr *ScopeRes[T, Y]) MarshalJSON() ([]byte, error) {
 	}
 
 	return result, nil
-}
-
-func createDeleteQuery(tableName string, scopeIdKey string, scopeId string) string {
-	column := "_raw_data_params"
-	if tableName == (models.CollectorLatestState{}.TableName()) {
-		column = "raw_data_params"
-	} else if strings.HasPrefix(tableName, "_raw_") {
-		column = "params"
-	}
-	query := `DELETE FROM ` + tableName + ` WHERE ` + column + ` LIKE '%"` + scopeIdKey + `":%` + scopeId + `%'`
-	return query
 }
 
 func (gs *GenericScopeApiHelper[Conn, Scope, ScopeConfig]) getAffectedTables(pluginName string) ([]string, errors.Error) {

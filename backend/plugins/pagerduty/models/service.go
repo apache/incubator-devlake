@@ -38,6 +38,11 @@ func (s Service) ScopeName() string {
 	return s.Name
 }
 
+func (s Service) ScopeParams() interface{} {
+	// @keon please take a look at this
+	return nil
+}
+
 func (s Service) TableName() string {
 	return "_tool_pagerduty_services"
 }

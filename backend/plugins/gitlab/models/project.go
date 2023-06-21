@@ -63,6 +63,13 @@ func (p GitlabProject) ScopeName() string {
 	return p.Name
 }
 
+func (p GitlabProject) ScopeParams() interface{} {
+	return &GitlabApiParams{
+		ConnectionId: p.ConnectionId,
+		ProjectId:    p.GitlabId,
+	}
+}
+
 // Convert the API response to our DB model instance
 func (gitlabApiProject GitlabApiProject) ConvertApiScope() plugin.ToolLayerScope {
 	p := &GitlabProject{}
@@ -124,4 +131,9 @@ func (p GroupResponse) GroupId() string {
 
 func (p GroupResponse) GroupName() string {
 	return p.Name
+}
+
+type GitlabApiParams struct {
+	ConnectionId uint64
+	ProjectId    int
 }

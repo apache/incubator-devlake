@@ -154,10 +154,7 @@ type JiraTaskData struct {
 	JiraServerInfo models.JiraServerInfo
 }
 
-type JiraApiParams struct {
-	ConnectionId uint64
-	BoardId      uint64
-}
+type JiraApiParams models.JiraApiParams
 
 func DecodeAndValidateTaskOptions(options map[string]interface{}) (*JiraOptions, errors.Error) {
 	var op JiraOptions

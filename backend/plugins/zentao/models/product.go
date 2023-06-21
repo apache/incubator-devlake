@@ -157,6 +157,13 @@ func (p ZentaoProduct) ScopeId() string {
 	return fmt.Sprintf(`product/%d`, p.Id)
 }
 
+func (p ZentaoProduct) ScopeParams() interface{} {
+	return &ZentaoApiParams{
+		ConnectionId: p.ConnectionId,
+		ProductId:    p.Id,
+	}
+}
+
 func (p ZentaoProduct) ScopeName() string {
 	return p.Name
 }

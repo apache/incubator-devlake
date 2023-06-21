@@ -18,11 +18,12 @@ limitations under the License.
 package models
 
 import (
+	"reflect"
+
 	"github.com/apache/incubator-devlake/core/errors"
 	"github.com/apache/incubator-devlake/core/models"
 	"github.com/apache/incubator-devlake/core/models/common"
 	"github.com/apache/incubator-devlake/core/plugin"
-	"reflect"
 )
 
 type PluginExtension string
@@ -86,6 +87,11 @@ func (d *DynamicScopeModel) ScopeId() string {
 
 func (d *DynamicScopeModel) ScopeName() string {
 	return reflect.ValueOf(d.DynamicTabler.Unwrap()).Elem().FieldByName("Name").String()
+}
+
+func (d *DynamicScopeModel) ScopeParams() interface{} {
+	// @keon need your help to implement this
+	return nil
 }
 
 type ScopeConfigModel struct {
