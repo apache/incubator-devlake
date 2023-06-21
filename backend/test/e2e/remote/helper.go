@@ -192,16 +192,21 @@ func DeleteScopeWithDataIntegrityValidation(t *testing.T, client *helper.Devlake
 		configData[table] = int(count)
 	}
 	refs := client.DeleteScope(PLUGIN_NAME, connectionId, scopeId, deleteDataOnly)
-	for _, table := range PluginDataTables {
-		count, err := db.Count(dal.From(table))
-		require.NoError(t, err)
-		require.Equalf(t, 0, int(count), fmt.Sprintf("data was found in table: %s", table))
-	}
-	if !deleteDataOnly && client.LastReturnedStatusCode() == http.StatusOK {
+	if client.LastReturnedStatusCode() == http.StatusOK {
+		for _, table := range PluginDataTables {
+			count, err := db.Count(dal.From(table))
+			require.NoError(t, err)
+			require.Equalf(t, 0, int(count), fmt.Sprintf("data was found in table: %s", table))
+		}
 		count, err := db.Count(dal.From(PluginScopeTable))
 		require.NoError(t, err)
 		require.Equalf(t, 0, int(count), fmt.Sprintf("data was found in table: %s", PluginScopeTable))
 	} else {
+		for _, table := range PluginDataTables {
+			count, err := db.Count(dal.From(table))
+			require.NoError(t, err)
+			require.Greaterf(t, int(count), 0, fmt.Sprintf("no data was found in table: %s", table))
+		}
 		count, err := db.Count(dal.From(PluginScopeTable))
 		require.NoError(t, err)
 		require.Greaterf(t, int(count), 0, fmt.Sprintf("no data was found in table: %s", PluginScopeTable))
