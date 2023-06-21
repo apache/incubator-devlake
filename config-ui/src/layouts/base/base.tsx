@@ -19,7 +19,7 @@
 import { useState, useEffect, useRef } from 'react';
 import { useLocation } from 'react-router-dom';
 import { CSSTransition } from 'react-transition-group';
-import { Menu, MenuItem, Tag, Navbar, Intent, Alignment } from '@blueprintjs/core';
+import { Menu, MenuItem, Navbar, Alignment } from '@blueprintjs/core';
 
 import { PageLoading, Logo, ExternalLink, IconButton } from '@/components';
 import { useTips, useRefreshData } from '@/hooks';
