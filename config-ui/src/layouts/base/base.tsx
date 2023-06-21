@@ -17,14 +17,13 @@
  */
 
 import { useState, useEffect, useRef } from 'react';
-import { useLocation } from 'react-router-dom';
+import { useHistory, useLocation } from 'react-router-dom';
 import { CSSTransition } from 'react-transition-group';
 import { Menu, MenuItem, Navbar, Alignment } from '@blueprintjs/core';
 
 import { PageLoading, Logo, ExternalLink, IconButton } from '@/components';
 import { useTips, useRefreshData } from '@/hooks';
 import { TipsContextProvider, ConnectionContextProvider } from '@/store';
-import { history } from '@/utils/history';
 
 import DashboardIcon from '@/images/icons/dashborad.svg';
 import FileIcon from '@/images/icons/file.svg';
@@ -42,20 +41,32 @@ interface Props {
 }
 
 export const BaseLayout = ({ children }: Props) => {
+  const history = useHistory();
+  const { ready, data, error } = useRefreshData<{ version: string }>(() => API.getVersion(), []);
+
+  if (error) {
+    history.push('/offline');
+  }
+
+  if (!ready || !data) {
+    return <PageLoading />;
+  }
+
   return (
     <TipsContextProvider>
       <ConnectionContextProvider>
-        <Layout>{children}</Layout>
+        <Layout version={data.version}>{children}</Layout>
       </ConnectionContextProvider>
     </TipsContextProvider>
   );
 };
 
-export const Layout = ({ children }: Props) => {
-  const menu = useMenu();
+const Layout = ({ version, children }: Props & { version: string }) => {
+  const history = useHistory();
   const { pathname } = useLocation();
+
+  const menu = useMenu();
   const { tips, setTips } = useTips();
-  const { ready, data } = useRefreshData<{ version: string }>(() => API.getVersion(), []);
 
   const [userInfo, setUserInfo] = useState<API.UserInfo | null>(null);
 
@@ -79,10 +90,6 @@ export const Layout = ({ children }: Props) => {
 
     return import.meta.env.DEV ? `${protocol}//${hostname}:3002${suffix}` : `/grafana${suffix}`;
   };
-
-  if (!ready || !data) {
-    return <PageLoading />;
-  }
 
   return (
     <S.Wrapper>
@@ -122,7 +129,7 @@ export const Layout = ({ children }: Props) => {
         </Menu>
         <div className="copyright">
           <div>Apache 2.0 License</div>
-          <div className="version">{data.version}</div>
+          <div className="version">{version}</div>
         </div>
       </S.Sider>
       <S.Main>
