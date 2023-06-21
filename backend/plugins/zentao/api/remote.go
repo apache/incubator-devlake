@@ -51,10 +51,10 @@ func (pr *ProjectResponse) ConvertFix() {
 
 func getGroup(basicRes context2.BasicRes, gid string, queryData *api.RemoteQueryData, connection models.ZentaoConnection) ([]api.BaseRemoteGroupResponse, errors.Error) {
 	return []api.BaseRemoteGroupResponse{
-		{
+		/*{
 			Id:   `products`,
 			Name: `Products`,
-		},
+		},*/
 		{
 			Id:   `projects`,
 			Name: `Projects`,
