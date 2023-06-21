@@ -21,7 +21,7 @@ import { Button, Intent } from '@blueprintjs/core';
 
 import { Dialog, FormItem, Selector, Buttons } from '@/components';
 import { useConnections } from '@/hooks';
-import { DataScopeSelect, getPluginId } from '@/plugins';
+import { DataScopeSelect, getPluginScopeId } from '@/plugins';
 import type { ConnectionItemType } from '@/store';
 
 interface Props {
@@ -46,7 +46,7 @@ export const AddConnectionDialog = ({ disabled = [], onCancel, onSubmit }: Props
     onSubmit({
       plugin: selectedConnection.plugin,
       connectionId: selectedConnection.id,
-      scopes: scope.map((sc: any) => ({ id: `${sc[getPluginId(selectedConnection.plugin)]}` })),
+      scopes: scope.map((sc: any) => ({ id: getPluginScopeId(selectedConnection.plugin, sc) })),
     });
   };
 

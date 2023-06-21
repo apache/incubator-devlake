@@ -29,6 +29,7 @@ import {
   DataScopeSelectRemote,
   getPluginConfig,
   getPluginId,
+  getPluginScopeId,
   ScopeConfigForm,
   ScopeConfigSelect,
 } from '@/plugins';
@@ -283,7 +284,7 @@ const ConnectionDetail = ({ plugin, connectionId }: Props) => {
                       icon="link"
                       tooltip="Associate Scope Config"
                       onClick={() => {
-                        handleShowScopeConfigSelectDialog([row[getPluginId(plugin)]]);
+                        handleShowScopeConfigSelectDialog([getPluginScopeId(plugin, row)]);
                         setScopeConfigId(row.scopeConfigId);
                       }}
                     />

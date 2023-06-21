@@ -23,7 +23,7 @@ import { Popover2 } from '@blueprintjs/popover2';
 
 import { PageLoading, PageHeader, ExternalLink, Buttons, Table, Dialog, Message } from '@/components';
 import { useRefreshData, useTips } from '@/hooks';
-import { DataScopeSelect, getPluginId } from '@/plugins';
+import { DataScopeSelect, getPluginScopeId } from '@/plugins';
 import { operator } from '@/utils';
 
 import * as API from './api';
@@ -68,7 +68,7 @@ export const BlueprintConnectionDetailPage = () => {
         id: +connectionId,
         name: connection.name,
       },
-      scopes: scopes.filter((sc: any) => scopeIds.includes(`${sc[getPluginId(plugin)]}`)),
+      scopes: scopes.filter((sc: any) => scopeIds.includes(getPluginScopeId(plugin, sc))),
     };
   }, [version, pname, bid]);
 
@@ -138,7 +138,7 @@ export const BlueprintConnectionDetailPage = () => {
               if (cs.plugin === connection.plugin && cs.connectionId === connection.id) {
                 return {
                   ...cs,
-                  scopes: scope.map((sc: any) => ({ id: `${sc[getPluginId(connection.plugin)]}` })),
+                  scopes: scope.map((sc: any) => ({ id: getPluginScopeId(connection.plugin, sc) })),
                 };
               }
               return cs;
