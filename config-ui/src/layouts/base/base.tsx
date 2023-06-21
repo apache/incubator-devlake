@@ -17,12 +17,11 @@
  */
 
 import React from 'react';
-import { useLocation } from 'react-router-dom';
+import { useHistory, useLocation } from 'react-router-dom';
 import { Menu, MenuItem, Tag, Navbar, Intent, Alignment, Button } from '@blueprintjs/core';
 
 import { PageLoading, Logo, ExternalLink } from '@/components';
 import { useRefreshData } from '@/hooks';
-import { history } from '@/utils/history';
 
 import DashboardIcon from '@/images/icons/dashborad.svg';
 import FileIcon from '@/images/icons/file.svg';
@@ -39,10 +38,11 @@ interface Props {
 }
 
 export const BaseLayout = ({ children }: Props) => {
-  const menu = useMenu();
+  const history = useHistory();
   const { pathname } = useLocation();
 
-  const { ready, data } = useRefreshData<{ version: string }>(() => API.getVersion(), []);
+  const menu = useMenu();
+  const { ready, data, error } = useRefreshData<{ version: string }>(() => API.getVersion(), []);
 
   const token = window.localStorage.getItem('accessToken');
 
@@ -65,6 +65,10 @@ export const BaseLayout = ({ children }: Props) => {
 
     return import.meta.env.DEV ? `${protocol}//${hostname}:3002${suffix}` : `/grafana${suffix}`;
   };
+
+  if (error) {
+    history.push('/offline');
+  }
 
   if (!ready || !data) {
     return <PageLoading />;

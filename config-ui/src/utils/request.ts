@@ -43,10 +43,6 @@ instance.interceptors.response.use(
       history.push('/db-migrate');
     }
 
-    if (status === 500) {
-      history.push('/offline');
-    }
-
     return Promise.reject(error);
   },
 );
