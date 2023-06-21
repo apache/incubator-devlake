@@ -189,7 +189,6 @@ func (p GithubGraphql) PrepareTaskData(taskCtx plugin.TaskContext, options map[s
 		}
 	}
 
-
 	httpClient := oauth2.NewClient(oauthContext, src)
 	endpoint, err := errors.Convert01(url.JoinPath(connection.Endpoint, `graphql`))
 	if err != nil {
