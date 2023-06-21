@@ -108,10 +108,9 @@ export const Layout = ({ children }: Props) => {
                     text={
                       <S.SiderMenuItem>
                         <span>{cit.title}</span>
-                        {cit.isBeta && <Tag intent={Intent.WARNING}>beta</Tag>}
                       </S.SiderMenuItem>
                     }
-                    icon={cit.icon ?? <img src={cit.iconUrl} width={16} alt="" />}
+                    icon={cit.icon}
                     active={pathname.includes(cit.path)}
                     disabled={cit.disabled}
                     onClick={() => handlePushPath(cit)}

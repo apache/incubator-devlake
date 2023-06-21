@@ -23,12 +23,10 @@ export type MenuItemType = {
   key: string;
   title: string;
   icon?: IconName;
-  iconUrl?: string;
   path: string;
   children?: MenuItemType[];
   target?: boolean;
-  isBeta?: boolean;
-  disabled?: boolean;
+  disabled: boolean;
 };
 
 export const useMenu = () => {
