@@ -49,7 +49,6 @@ type PluginInfo struct {
 
 // Type aliases used by the API helper for better readability
 type (
-	RemoteScope       any
 	RemoteScopeConfig any
 	RemoteConnection  any
 )
@@ -71,6 +70,11 @@ type ScopeModel struct {
 	ScopeConfigId    uint64 `json:"scopeConfigId"`
 }
 
+type ApiParams struct {
+	ConnectionId uint64
+	ScopeId      string
+}
+
 type DynamicScopeModel struct {
 	models.DynamicTabler
 }
@@ -81,17 +85,31 @@ func NewDynamicScopeModel(model models.DynamicTabler) *DynamicScopeModel {
 	}
 }
 
-func (d *DynamicScopeModel) ScopeId() string {
+func (d DynamicScopeModel) ConnectionId() uint64 {
+	return reflect.ValueOf(d.DynamicTabler.Unwrap()).Elem().FieldByName("ConnectionId").Uint()
+}
+
+func (d DynamicScopeModel) ScopeId() string {
 	return reflect.ValueOf(d.DynamicTabler.Unwrap()).Elem().FieldByName("Id").String()
 }
 
-func (d *DynamicScopeModel) ScopeName() string {
+func (d DynamicScopeModel) ScopeName() string {
 	return reflect.ValueOf(d.DynamicTabler.Unwrap()).Elem().FieldByName("Name").String()
 }
 
-func (d *DynamicScopeModel) ScopeParams() interface{} {
-	// @keon need your help to implement this
-	return nil
+func (d DynamicScopeModel) ScopeParams() interface{} {
+	return &ApiParams{
+		ConnectionId: d.ConnectionId(),
+		ScopeId:      d.ScopeId(),
+	}
+}
+
+func (d *DynamicScopeModel) MarshalJSON() ([]byte, error) {
+	return d.DynamicTabler.MarshalJSON()
+}
+
+func (d *DynamicScopeModel) UnmarshalJSON(b []byte) error {
+	return d.DynamicTabler.UnmarshalJSON(b)
 }
 
 type ScopeConfigModel struct {

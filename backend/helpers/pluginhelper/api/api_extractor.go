@@ -60,11 +60,13 @@ func NewApiExtractor(args ApiExtractorArgs) (*ApiExtractor, errors.Error) {
 	}, nil
 }
 
-func setRawDataOrigin(result interface{}, originValue common.RawDataOrigin) {
-	originField := reflect.ValueOf(result).Elem().FieldByName("RawDataOrigin")
+func setRawDataOrigin(result interface{}, originValue common.RawDataOrigin) bool {
+	originField := reflectField(result, "RawDataOrigin")
 	if originField.IsValid() {
 		originField.Set(reflect.ValueOf(originValue))
+		return true
 	}
+	return false
 }
 
 // Execute sub-task

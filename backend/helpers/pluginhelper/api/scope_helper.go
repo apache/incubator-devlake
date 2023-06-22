@@ -28,7 +28,7 @@ import (
 
 type (
 	// ScopeApiHelper is used to write the CURD of scopes
-	ScopeApiHelper[Conn any, Scope any, Tr any] struct {
+	ScopeApiHelper[Conn any, Scope plugin.ToolLayerScope, Tr any] struct {
 		*GenericScopeApiHelper[Conn, Scope, Tr]
 	}
 	ScopeReq[T any] struct {
@@ -37,7 +37,7 @@ type (
 )
 
 // NewScopeHelper creates a ScopeHelper for scopes management
-func NewScopeHelper[Conn any, Scope any, Tr any](
+func NewScopeHelper[Conn any, Scope plugin.ToolLayerScope, Tr any](
 	basicRes context.BasicRes,
 	vld *validator.Validate,
 	connHelper *ConnectionApiHelper,

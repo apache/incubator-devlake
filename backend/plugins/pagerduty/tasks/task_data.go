@@ -40,13 +40,8 @@ type PagerDutyTaskData struct {
 	Client    api.RateLimitedApiClient
 }
 
-type PagerDutyParams struct {
-	ConnectionId uint64
-	ScopeId      string
-}
-
 func (p *PagerDutyOptions) GetParams() any {
-	return PagerDutyParams{
+	return models.PagerDutyParams{
 		ConnectionId: p.ConnectionId,
 		ScopeId:      p.ServiceId,
 	}

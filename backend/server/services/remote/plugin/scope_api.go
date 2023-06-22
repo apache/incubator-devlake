@@ -18,6 +18,7 @@ limitations under the License.
 package plugin
 
 import (
+	"encoding/json"
 	"net/http"
 
 	"github.com/apache/incubator-devlake/server/services/remote/models"
@@ -38,14 +39,18 @@ func (pa *pluginAPI) PutScope(input *plugin.ApiResourceInput) (*plugin.ApiResour
 	if err != nil {
 		return nil, errors.BadInput.Wrap(err, "decoding scope error")
 	}
-	var slice []*models.RemoteScope
+	var slice []*models.DynamicScopeModel
 	for _, scope := range scopes.Data {
-		obj := pa.scopeType.NewValue().(models.RemoteScope)
+		obj := models.NewDynamicScopeModel(pa.scopeType)
 		err = models.MapTo(scope, obj)
 		if err != nil {
 			return nil, err
 		}
-		slice = append(slice, &obj)
+		b1, _ := json.Marshal(scope)
+		_ = b1
+		b2, _ := json.Marshal(obj)
+		_ = b2
+		slice = append(slice, obj)
 	}
 	apiScopes, err := pa.scopeHelper.PutScopes(input, slice)
 	if err != nil {
@@ -104,7 +109,7 @@ func (pa *pluginAPI) DeleteScope(input *plugin.ApiResourceInput) (*plugin.ApiRes
 
 // convertScopeResponse adapt the "remote" scopes to a serializable api.ScopeRes. This code is needed because squashed mapstructure don't work
 // with dynamic/runtime structs used by remote plugins
-func convertScopeResponse(scopes ...*api.ScopeRes[models.RemoteScope, models.RemoteScopeConfig]) ([]map[string]any, errors.Error) {
+func convertScopeResponse(scopes ...*api.ScopeRes[models.DynamicScopeModel, models.RemoteScopeConfig]) ([]map[string]any, errors.Error) {
 	responses := make([]map[string]any, len(scopes))
 	for i, scope := range scopes {
 		resMap := map[string]any{}
