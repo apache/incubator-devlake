@@ -71,13 +71,13 @@ func (checker *TableInfoChecker) Verify() errors.Error {
 	}
 	tableNames := make([]string, 0, len(checker.tables))
 	sb := strings.Builder{}
-	sb.WriteString("The following tables are not returned by the GetTablesInfo\n")
+	_, _ = sb.WriteString("The following tables are not returned by the GetTablesInfo\n")
 	for t := range checker.tables {
 		tableNames = append(tableNames, t)
 	}
 	// sort the table names so that the tables of the same plugin are together
 	sort.Strings(tableNames)
-	sb.WriteString(strings.Join(tableNames, "\n"))
+	_, _ = sb.WriteString(strings.Join(tableNames, "\n"))
 	return errors.Default.New(sb.String())
 }
 
