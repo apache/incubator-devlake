@@ -117,13 +117,23 @@ func (c *ConnectionApiHelper) Delete(connection interface{}) (*services.Blueprin
 	if len(referencingBps) > 0 {
 		return services.NewBlueprintProjectPairs(referencingBps), errors.Conflict.New("Found one or more blueprint/project references to this connection")
 	}
-	scopeModel := c.getScopeModel()
-	count, err := c.db.Count(dal.From(scopeModel.TableName()), dal.Where("connection_id = ?", connectionId))
+	src, err := c.getPluginSource()
 	if err != nil {
-		return nil, errors.Default.Wrap(err, fmt.Sprintf("error deleting scopes for plugin %s using connection %d", c.pluginName, connectionId))
+		return nil, err
 	}
-	if count > 0 {
-		return nil, errors.Conflict.New("Found one or more scope references to this connection")
+	if scopeModel := src.Scope(); scopeModel != nil {
+		// remove scopes that use this connection
+		err = CallDB(c.db.Delete, scopeModel, dal.Where("connection_id = ?", connectionId))
+		if err != nil {
+			return nil, errors.Default.Wrap(err, fmt.Sprintf("error deleting scopes for plugin %s using connection %d", c.pluginName, connectionId))
+		}
+	}
+	if scopeConfigModel := src.ScopeConfig(); scopeConfigModel != nil {
+		// remove scope-configs that use this connection
+		err = CallDB(c.db.Delete, scopeConfigModel, dal.Where("connection_id = ?", connectionId))
+		if err != nil {
+			return nil, errors.Default.Wrap(err, fmt.Sprintf("error deleting scope-configs for plugin %s using connection %d", c.pluginName, connectionId))
+		}
 	}
 	return nil, CallDB(c.db.Delete, connection)
 }
@@ -151,11 +161,11 @@ func (c *ConnectionApiHelper) save(connection interface{}, method func(entity in
 	return nil
 }
 
-func (c *ConnectionApiHelper) getScopeModel() plugin.ToolLayerScope {
+func (c *ConnectionApiHelper) getPluginSource() (plugin.PluginSource, errors.Error) {
 	pluginMeta, _ := plugin.GetPlugin(c.pluginName)
 	pluginSrc, ok := pluginMeta.(plugin.PluginSource)
 	if !ok {
-		return nil
+		return nil, errors.Default.New("plugin doesn't implement PluginSource")
 	}
-	return pluginSrc.Scope()
+	return pluginSrc, nil
 }

@@ -60,15 +60,21 @@ func TestDeleteConnection_Conflict(t *testing.T) {
 	require.Equal(t, 1, len(refs.Projects))
 	require.Equal(t, 1, len(refs.Blueprints))
 	client.DeleteBlueprint(params.blueprints[0].ID)
-	refs = client.SetExpectedStatusCode(http.StatusConflict).DeleteConnection(PLUGIN_NAME, conns[0].ID)
-	// should still conflict because we have scopes tied to this connection
-	require.Equal(t, 0, len(refs.Projects))
-	require.Equal(t, 0, len(refs.Blueprints))
-	client.DeleteScope(PLUGIN_NAME, params.connection.ID, params.scope.Id, false)
-	refs = client.DeleteConnection(PLUGIN_NAME, conns[0].ID)
-	require.Equal(t, 0, len(refs.Projects))
-	require.Equal(t, 0, len(refs.Blueprints))
+	client.DeleteConnection(PLUGIN_NAME, conns[0].ID)
+}
 
+func TestDeleteConnection_WithDependentScopesAndConfig(t *testing.T) {
+	client := CreateClient(t)
+	connection := CreateTestConnection(client)
+	config := CreateTestScopeConfig(client, connection.ID)
+	_ = CreateTestScope(client, config, connection.ID)
+	refs := client.DeleteConnection(PLUGIN_NAME, connection.ID)
+	require.Equal(t, 0, len(refs.Projects))
+	require.Equal(t, 0, len(refs.Blueprints))
+	scopeRes := client.SetExpectedStatusCode(http.StatusBadRequest).ListScopes(PLUGIN_NAME, connection.ID, false)
+	require.Equal(t, 0, len(scopeRes))
+	configs := client.ListScopeConfigs(PLUGIN_NAME, connection.ID)
+	require.Equal(t, 0, len(configs))
 }
 
 func TestRemoteScopeGroups(t *testing.T) {

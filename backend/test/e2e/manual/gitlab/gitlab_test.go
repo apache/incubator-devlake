@@ -29,6 +29,7 @@ import (
 	pluginmodels "github.com/apache/incubator-devlake/plugins/gitlab/models"
 	"github.com/apache/incubator-devlake/test/helper"
 	"github.com/stretchr/testify/require"
+	"net/http"
 	"testing"
 )
 
@@ -66,7 +67,7 @@ func TestGitlabPlugin(t *testing.T) {
 	cfg := helper.GetTestConfig[TestConfig]()
 	connection := createConnection(cfg, client)
 	t.Run("blueprint v200", func(t *testing.T) {
-		rule := helper.Cast[pluginmodels.GitlabScopeConfig](client.CreateScopeConfig("gitlab", connection.ID,
+		scopeConfig := helper.Cast[pluginmodels.GitlabScopeConfig](client.CreateScopeConfig("gitlab", connection.ID,
 			pluginmodels.GitlabScopeConfig{
 				ScopeConfig: common.ScopeConfig{
 					Entities: []string{
@@ -75,7 +76,7 @@ func TestGitlabPlugin(t *testing.T) {
 						plugin.DOMAIN_TYPE_CODE_REVIEW,
 					},
 				},
-				Name:                 "rule-1",
+				Name:                 "config-1",
 				PrType:               "",
 				PrComponent:          "",
 				PrBodyClosePattern:   "",
@@ -89,7 +90,7 @@ func TestGitlabPlugin(t *testing.T) {
 				ProductionPattern:    ".*",             // this triggers dora
 				Refdiff:              map[string]any{}, // this is technically a true/false (nil or not)
 			}))
-		_ = rule
+		_ = scopeConfig
 		remoteScopes := client.RemoteScopes(helper.RemoteScopesQuery{
 			PluginName:   pluginName,
 			ConnectionId: connection.ID,
@@ -113,7 +114,7 @@ func TestGitlabPlugin(t *testing.T) {
 			if remoteScope.Type == "scope" {
 				data := helper.Cast[pluginmodels.GitlabProject](remoteScope.Data)
 				if len(cfg.Projects) == 0 || helper.Contains(cfg.Projects, data.Name) {
-					data.ScopeConfigId = rule.ID
+					data.ScopeConfigId = scopeConfig.ID
 					scopeData = append(scopeData, data)
 				}
 			}
@@ -150,6 +151,10 @@ func TestGitlabPlugin(t *testing.T) {
 		fmt.Printf("=========================Triggering blueprint for project %s =========================\n", outputProject.Name)
 		pipeline := client.TriggerBlueprint(bp.ID)
 		require.Equal(t, models.TASK_COMPLETED, pipeline.Status)
+		client.SetExpectedStatusCode(http.StatusConflict).DeleteConnection(pluginName, connection.ID)
+		client.DeleteScopeConfig(pluginName, connection.ID, scopeConfig.ID)
+		client.DeleteBlueprint(bp.ID)
+		client.DeleteConnection(pluginName, connection.ID)
 	})
 	fmt.Println("======DONE======")
 }

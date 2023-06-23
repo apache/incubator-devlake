@@ -27,6 +27,7 @@ import (
 	pluginmodels "github.com/apache/incubator-devlake/plugins/pagerduty/models"
 	"github.com/apache/incubator-devlake/test/helper"
 	"github.com/stretchr/testify/require"
+	"net/http"
 	"testing"
 	"time"
 )
@@ -101,12 +102,15 @@ func TestPagerDutyPlugin(t *testing.T) {
 		require.Equal(t, models.TASK_COMPLETED, pipeline.Status)
 		createdScopesList := client.ListScopes(pluginName, connection.ID, true)
 		require.True(t, len(createdScopesList) > 0)
+		client.SetExpectedStatusCode(http.StatusConflict).DeleteConnection(pluginName, connection.ID)
+		client.DeleteBlueprint(bp.ID)
 		for _, scope := range createdScopesList {
 			scopeCast := helper.Cast[pluginmodels.Service](scope.Scope)
 			fmt.Printf("Deleting scope %s\n", scopeCast.Id)
 			client.DeleteScope(pluginName, connection.ID, scopeCast.Id, false)
 			fmt.Printf("Deleted scope %s\n", scopeCast.Id)
 		}
+		client.DeleteConnection(pluginName, connection.ID)
 	})
 	fmt.Println("======DONE======")
 }

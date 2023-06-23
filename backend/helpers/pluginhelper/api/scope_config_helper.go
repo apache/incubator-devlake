@@ -49,9 +49,10 @@ func NewScopeConfigHelper[Tr dal.Tabler](
 		vld = validator.New()
 	}
 	return &ScopeConfigHelper[Tr]{
-		log:       basicRes.GetLogger(),
-		db:        basicRes.GetDal(),
-		validator: vld,
+		log:        basicRes.GetLogger(),
+		db:         basicRes.GetDal(),
+		validator:  vld,
+		pluginName: pluginName,
 	}
 }
 
@@ -153,7 +154,6 @@ func (t ScopeConfigHelper[ScopeConfig]) Delete(input *plugin.ApiResourceInput) (
 		return nil, err
 	}
 	return &plugin.ApiResourceOutput{Body: config, Status: http.StatusOK}, nil
-
 }
 func (t ScopeConfigHelper[ScopeConfig]) nullOutScopeReferences(scopeConfigId uint64) errors.Error {
 	p, _ := plugin.GetPlugin(t.pluginName)
@@ -162,5 +162,8 @@ func (t ScopeConfigHelper[ScopeConfig]) nullOutScopeReferences(scopeConfigId uin
 		return errors.Default.New("plugin doesn't implement PluginSource")
 	}
 	scopeModel := pluginSrc.Scope()
+	if scopeModel == nil {
+		return nil
+	}
 	return t.db.Exec(fmt.Sprintf("UPDATE %s SET scope_config_id = NULL WHERE scope_config_id = %d", scopeModel.TableName(), scopeConfigId))
 }

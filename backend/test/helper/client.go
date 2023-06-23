@@ -404,18 +404,19 @@ func sendHttpRequest[Res any](t *testing.T, timeout time.Duration, ctx *testCont
 		}()
 		if ctx.client.expectedStatusCode > 0 || response.StatusCode >= 300 {
 			if ctx.client.expectedStatusCode == 0 || ctx.client.expectedStatusCode != response.StatusCode {
-				if response.StatusCode >= 300 {
-					if err = response.Body.Close(); err != nil {
-						return false, errors.Convert(err)
-					}
-					response.Close = true
-					return false, errors.HttpStatus(response.StatusCode).New(fmt.Sprintf("unexpected http status code calling [%s] %s: %d", httpMethod, endpoint, response.StatusCode))
+				if err = response.Body.Close(); err != nil {
+					return false, errors.Convert(err)
 				}
+				response.Close = true
+				return false, errors.HttpStatus(response.StatusCode).New(fmt.Sprintf("unexpected http status code calling [%s] %s: %d", httpMethod, endpoint, response.StatusCode))
 			}
 		}
 		b, _ = io.ReadAll(response.Body)
 		if err = json.Unmarshal(b, &result); err != nil {
-			return false, errors.Convert(err)
+			if response.StatusCode < 300 {
+				return false, errors.Convert(err)
+			}
+			// it's probably ok since the request failed anyway
 		}
 		if ctx.printPayload {
 			coloredPrintf("result: %s\n", ToCleanJson(ctx.inlineJson, b))
