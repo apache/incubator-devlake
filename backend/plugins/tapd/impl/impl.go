@@ -102,6 +102,8 @@ func (p Tapd) GetTablesInfo() []dal.Tabler {
 		&models.TapdStoryCustomFieldValue{},
 		&models.TapdTaskCustomFieldValue{},
 		&models.TapdBugCustomFieldValue{},
+		&models.TapdScopeConfig{},
+		&models.TapdWorkitemType{},
 	}
 }
 

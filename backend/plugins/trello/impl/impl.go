@@ -60,6 +60,7 @@ func (p Trello) GetTablesInfo() []dal.Tabler {
 		&models.TrelloLabel{},
 		&models.TrelloMember{},
 		&models.TrelloCheckItem{},
+		&models.TrelloScopeConfig{},
 	}
 }
 

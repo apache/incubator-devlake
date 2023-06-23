@@ -75,6 +75,7 @@ func (p Jenkins) GetTablesInfo() []dal.Tabler {
 		&models.JenkinsJob{},
 		&models.JenkinsJobDag{},
 		&models.JenkinsStage{},
+		&models.JenkinsScopeConfig{},
 	}
 }
 

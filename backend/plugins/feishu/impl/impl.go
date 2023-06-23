@@ -54,6 +54,8 @@ func (p Feishu) GetTablesInfo() []dal.Tabler {
 	return []dal.Tabler{
 		&models.FeishuConnection{},
 		&models.FeishuMeetingTopUserItem{},
+		&models.FeishuChatItem{},
+		&models.FeishuMessage{},
 	}
 }
 
