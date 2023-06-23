@@ -15,33 +15,19 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-package codequality
+package core
 
 import (
-	"github.com/apache/incubator-devlake/core/models/domainlayer"
-	"github.com/apache/incubator-devlake/core/plugin"
-	"github.com/apache/incubator-devlake/helpers/utils"
+	"github.com/apache/incubator-devlake/core/models/domainlayer/domaininfo"
+	"github.com/apache/incubator-devlake/core/utils"
+	"testing"
 )
 
-var _ plugin.Scope = (*CqProject)(nil)
-
-type CqProject struct {
-	domainlayer.DomainEntity
-	Name             string `gorm:"type:varchar(255)"`
-	Qualifier        string `gorm:"type:varchar(255)"`
-	Visibility       string `gorm:"type:varchar(64)"`
-	LastAnalysisDate *utils.Iso8601Time
-	CommitSha        string `gorm:"type:varchar(128)"`
-}
-
-func (CqProject) TableName() string {
-	return "cq_projects"
-}
-
-func (s *CqProject) ScopeId() string {
-	return s.Id
-}
-
-func (s *CqProject) ScopeName() string {
-	return s.Name
+func Test_GetDomainTablesInfo(t *testing.T) {
+	checker := utils.NewTableInfoChecker(utils.TableInfoCheckerConfig{})
+	checker.FeedIn("models/domainlayer", domaininfo.GetDomainTablesInfo)
+	err := checker.Verify()
+	if err != nil {
+		t.Error(err)
+	}
 }

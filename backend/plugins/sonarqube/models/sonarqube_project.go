@@ -20,7 +20,7 @@ package models
 import (
 	"github.com/apache/incubator-devlake/core/models/common"
 	"github.com/apache/incubator-devlake/core/plugin"
-	"github.com/apache/incubator-devlake/helpers/pluginhelper/api"
+	"github.com/apache/incubator-devlake/helpers/utils"
 )
 
 var _ plugin.ToolLayerScope = (*SonarqubeProject)(nil)
@@ -28,13 +28,13 @@ var _ plugin.ApiScope = (*SonarqubeApiProject)(nil)
 
 type SonarqubeProject struct {
 	common.NoPKModel `json:"-" mapstructure:"-"`
-	ConnectionId     uint64           `json:"connectionId" validate:"required" gorm:"primaryKey" mapstructure:"connectionId"`
-	ProjectKey       string           `json:"projectKey" validate:"required" gorm:"type:varchar(255);primaryKey" mapstructure:"projectKey"`
-	Name             string           `json:"name" gorm:"type:varchar(255)" mapstructure:"name"`
-	Qualifier        string           `json:"qualifier" gorm:"type:varchar(255)" mapstructure:"qualifier"`
-	Visibility       string           `json:"visibility" gorm:"type:varchar(64)" mapstructure:"visibility"`
-	LastAnalysisDate *api.Iso8601Time `json:"lastAnalysisDate" mapstructure:"lastAnalysisDate"`
-	Revision         string           `json:"revision" gorm:"type:varchar(128)" mapstructure:"revision"`
+	ConnectionId     uint64             `json:"connectionId" validate:"required" gorm:"primaryKey" mapstructure:"connectionId"`
+	ProjectKey       string             `json:"projectKey" validate:"required" gorm:"type:varchar(255);primaryKey" mapstructure:"projectKey"`
+	Name             string             `json:"name" gorm:"type:varchar(255)" mapstructure:"name"`
+	Qualifier        string             `json:"qualifier" gorm:"type:varchar(255)" mapstructure:"qualifier"`
+	Visibility       string             `json:"visibility" gorm:"type:varchar(64)" mapstructure:"visibility"`
+	LastAnalysisDate *utils.Iso8601Time `json:"lastAnalysisDate" mapstructure:"lastAnalysisDate"`
+	Revision         string             `json:"revision" gorm:"type:varchar(128)" mapstructure:"revision"`
 }
 
 func (SonarqubeProject) TableName() string {
@@ -57,12 +57,12 @@ func (p SonarqubeProject) ScopeParams() interface{} {
 }
 
 type SonarqubeApiProject struct {
-	ProjectKey       string           `json:"key"`
-	Name             string           `json:"name"`
-	Qualifier        string           `json:"qualifier"`
-	Visibility       string           `json:"visibility"`
-	LastAnalysisDate *api.Iso8601Time `json:"lastAnalysisDate"`
-	Revision         string           `json:"revision"`
+	ProjectKey       string             `json:"key"`
+	Name             string             `json:"name"`
+	Qualifier        string             `json:"qualifier"`
+	Visibility       string             `json:"visibility"`
+	LastAnalysisDate *utils.Iso8601Time `json:"lastAnalysisDate"`
+	Revision         string             `json:"revision"`
 }
 
 // Convert the API response to our DB model instance

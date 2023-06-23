@@ -18,9 +18,14 @@ limitations under the License.
 package utils
 
 import (
+	"fmt"
 	"go/ast"
 	"go/parser"
 	"go/token"
+	"golang.org/x/exp/slices"
+	fs2 "io/fs"
+	"os"
+	"path/filepath"
 	"sort"
 	"strings"
 
@@ -29,32 +34,51 @@ import (
 )
 
 type TableInfoChecker struct {
-	tables  map[string]struct{}
-	prefix  string
-	ignores []string
+	tables               map[string]struct{}
+	tablePrefix          string
+	ignoredTables        []string
+	count                int
+	validatePluginsCount bool
+	ignoredPackages      []string
 }
 
-func NewTableInfoChecker(prefix string, ignores []string) *TableInfoChecker {
-	return &TableInfoChecker{tables: make(map[string]struct{}), prefix: prefix, ignores: ignores}
+type TableInfoCheckerConfig struct {
+	TablePrefix         string
+	ValidatePluginCount bool
+	IgnoreTables        []string
+}
+
+func NewTableInfoChecker(cfg TableInfoCheckerConfig) *TableInfoChecker {
+	return &TableInfoChecker{
+		tables:               make(map[string]struct{}),
+		tablePrefix:          cfg.TablePrefix,
+		validatePluginsCount: cfg.ValidatePluginCount,
+		ignoredTables:        cfg.IgnoreTables,
+		ignoredPackages:      []string{"migrationscripts"},
+	}
 }
 
 // The FeedIn function iterates through the model definitions,
 // identifies all the tables by parsing the source files,
 // and then compares them with the output obtained from the GetTablesInfo function.
-func (checker *TableInfoChecker) FeedIn(modelsDir string, f func() []dal.Tabler) {
-	set := token.NewFileSet()
-	packs, err := parser.ParseDir(set, modelsDir, nil, 0)
+// If the plugin has no models directory, pass in the root directory of the plugin
+func (checker *TableInfoChecker) FeedIn(modelsDir string, f func() []dal.Tabler, additionalIgnorablePackages ...string) {
+	checker.count++
+	packs, err := checker.parseDirRecursively(modelsDir, additionalIgnorablePackages...)
 	if err != nil {
 		panic(err)
 	}
 	funcs := checker.getTableNameFuncs(packs)
 	for _, fun := range funcs {
 		s := checker.getTableName(fun)
-		if strings.HasPrefix(s, checker.prefix) {
+		if s == "" {
+			continue //exclude models whose tables are not declared as constants
+		}
+		if strings.HasPrefix(s, checker.tablePrefix) {
 			checker.tables[s] = struct{}{}
 		}
 	}
-	for _, tb := range checker.ignores {
+	for _, tb := range checker.ignoredTables {
 		delete(checker.tables, tb)
 	}
 	for _, tabler := range f() {
@@ -63,7 +87,13 @@ func (checker *TableInfoChecker) FeedIn(modelsDir string, f func() []dal.Tabler)
 }
 
 func (checker *TableInfoChecker) Verify() errors.Error {
-	for _, tb := range checker.ignores {
+	if checker.validatePluginsCount {
+		err := checker.ensureCoverage()
+		if err != nil {
+			return err
+		}
+	}
+	for _, tb := range checker.ignoredTables {
 		delete(checker.tables, tb)
 	}
 	if len(checker.tables) == 0 {
@@ -71,7 +101,7 @@ func (checker *TableInfoChecker) Verify() errors.Error {
 	}
 	tableNames := make([]string, 0, len(checker.tables))
 	sb := strings.Builder{}
-	_, _ = sb.WriteString("The following tables are not returned by the GetTablesInfo\n")
+	_, _ = sb.WriteString("The following tables are not returned by the TablesInfo method\n")
 	for t := range checker.tables {
 		tableNames = append(tableNames, t)
 	}
@@ -79,6 +109,28 @@ func (checker *TableInfoChecker) Verify() errors.Error {
 	sort.Strings(tableNames)
 	_, _ = sb.WriteString(strings.Join(tableNames, "\n"))
 	return errors.Default.New(sb.String())
+}
+
+func (checker *TableInfoChecker) parseDirRecursively(modelsDir string, additionalIgnorablePackages ...string) (map[string]*ast.Package, error) {
+	packagesMap := make(map[string]*ast.Package)
+	ignorablePackages := append(checker.ignoredPackages, additionalIgnorablePackages...)
+	err := filepath.WalkDir(modelsDir, func(path string, d fs2.DirEntry, err error) error {
+		packs, err := parser.ParseDir(token.NewFileSet(), path, nil, 0)
+		for packageName, packageObj := range packs {
+			if slices.Contains(ignorablePackages, packageName) {
+				return fs2.SkipDir
+			}
+			if _, ok := packagesMap[packageName]; ok {
+				return fmt.Errorf("package %s is duplicated across directories", packageName)
+			}
+			packagesMap[packageName] = packageObj
+		}
+		return nil
+	})
+	if err != nil {
+		return nil, err
+	}
+	return packagesMap, nil
 }
 
 func (checker *TableInfoChecker) getTableNameFuncs(pks map[string]*ast.Package) []*ast.FuncDecl {
@@ -104,4 +156,34 @@ func (checker *TableInfoChecker) getTableName(fn *ast.FuncDecl) string {
 		}
 	}
 	return ""
+}
+
+func (checker *TableInfoChecker) ensureCoverage() errors.Error {
+	packagesFound := 0
+	err := filepath.WalkDir(".", func(path string, d fs2.DirEntry, err error) error {
+		if err != nil {
+			return err
+		}
+		if path == "." || !d.IsDir() {
+			return nil
+		}
+		if strings.Count(path, string(os.PathSeparator)) != 0 {
+			return fs2.SkipDir
+		}
+		packs, err := parser.ParseDir(token.NewFileSet(), path, nil, parser.PackageClauseOnly)
+		for _, pk := range packs {
+			if pk.Name == "main" {
+				packagesFound++
+				return fs2.SkipDir
+			}
+		}
+		return nil
+	})
+	if err != nil {
+		return errors.Default.WrapRaw(err)
+	}
+	if checker.count != packagesFound {
+		return errors.Default.New(fmt.Sprintf("Number of actual plugins (%d) and tested plugins (%d) don't match", packagesFound, checker.count))
+	}
+	return nil
 }

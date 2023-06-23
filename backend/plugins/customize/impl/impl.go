@@ -23,6 +23,7 @@ import (
 	"github.com/apache/incubator-devlake/core/errors"
 	"github.com/apache/incubator-devlake/core/plugin"
 	"github.com/apache/incubator-devlake/plugins/customize/api"
+	"github.com/apache/incubator-devlake/plugins/customize/models"
 	"github.com/apache/incubator-devlake/plugins/customize/models/migrationscripts"
 	"github.com/apache/incubator-devlake/plugins/customize/tasks"
 	"github.com/mitchellh/mapstructure"
@@ -46,7 +47,9 @@ func (p *Customize) Init(basicRes context.BasicRes) errors.Error {
 }
 
 func (p Customize) GetTablesInfo() []dal.Tabler {
-	return []dal.Tabler{}
+	return []dal.Tabler{
+		&models.CustomizedField{},
+	}
 }
 
 func (p Customize) SubTaskMetas() []plugin.SubTaskMeta {
