@@ -47,7 +47,7 @@ func (pa *pluginAPI) PostScopeConfigs(input *plugin.ApiResourceInput) (*plugin.A
 }
 
 func (pa *pluginAPI) PatchScopeConfig(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, errors.Error) {
-	connectionId, trId, err := extractTrParam(input.Params)
+	connectionId, trId, err := extractConfigParam(input.Params)
 	if err != nil {
 		return nil, err
 	}
@@ -76,11 +76,11 @@ func (pa *pluginAPI) PatchScopeConfig(input *plugin.ApiResourceInput) (*plugin.A
 func (pa *pluginAPI) GetScopeConfig(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, errors.Error) {
 	scopeConfig := pa.scopeConfigType.New()
 	db := basicRes.GetDal()
-	connectionId, trId, err := extractTrParam(input.Params)
+	connectionId, configId, err := extractConfigParam(input.Params)
 	if err != nil {
 		return nil, err
 	}
-	err = api.CallDB(db.First, scopeConfig, dal.Where("connection_id = ? AND id = ?", connectionId, trId))
+	err = api.CallDB(db.First, scopeConfig, dal.Where("connection_id = ? AND id = ?", connectionId, configId))
 	if err != nil {
 		return nil, errors.Default.Wrap(err, "no scope config with given id")
 	}
@@ -103,15 +103,30 @@ func (pa *pluginAPI) ListScopeConfigs(input *plugin.ApiResourceInput) (*plugin.A
 	return &plugin.ApiResourceOutput{Body: scopeConfigs.Unwrap()}, nil
 }
 
-func extractTrParam(params map[string]string) (connectionId uint64, transformationId uint64, err errors.Error) {
+func (pa *pluginAPI) DeleteScopeConfig(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, errors.Error) {
+	scopeConfig := pa.scopeConfigType.New()
+	db := basicRes.GetDal()
+	connectionId, configId, err := extractConfigParam(input.Params)
+	if err != nil {
+		return nil, err
+	}
+	err = api.CallDB(db.Delete, scopeConfig, dal.Where("connection_id = ? AND id = ?", connectionId, configId))
+	if err != nil {
+		return nil, errors.Default.Wrap(err, "no scope config with given id")
+	}
+
+	return &plugin.ApiResourceOutput{Body: scopeConfig.Unwrap()}, nil
+}
+
+func extractConfigParam(params map[string]string) (connectionId uint64, configId uint64, err errors.Error) {
 	connectionId, _ = strconv.ParseUint(params["connectionId"], 10, 64)
-	transformationId, _ = strconv.ParseUint(params["id"], 10, 64)
+	configId, _ = strconv.ParseUint(params["id"], 10, 64)
 	if connectionId == 0 {
 		return 0, 0, errors.BadInput.New("invalid connectionId")
 	}
-	if transformationId == 0 {
-		return 0, 0, errors.BadInput.New("invalid transformationId")
+	if configId == 0 {
+		return 0, 0, errors.BadInput.New("invalid configId")
 	}
 
-	return connectionId, transformationId, nil
+	return connectionId, configId, nil
 }

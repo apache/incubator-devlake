@@ -262,3 +262,20 @@ func TestUpdateScopeConfig(t *testing.T) {
 	require.Equal(t, "new name", scopeConfig.Name)
 	require.Equal(t, "new env", scopeConfig.Env)
 }
+
+func TestDeleteScopeConfig(t *testing.T) {
+	client := CreateClient(t)
+	connection := CreateTestConnection(client)
+	scopeConfig := FakeScopeConfig{Name: "Scope config", Env: "test env", Entities: []string{plugin.DOMAIN_TYPE_CICD}}
+
+	res := client.CreateScopeConfig(PLUGIN_NAME, connection.ID, scopeConfig)
+	scopeConfig = helper.Cast[FakeScopeConfig](res)
+
+	configs := helper.Cast[[]FakeScopeConfig](client.ListScopeConfigs(PLUGIN_NAME, connection.ID))
+	require.Equal(t, 1, len(configs))
+
+	client.DeleteScopeConfig(PLUGIN_NAME, connection.ID, scopeConfig.Id)
+	configs = helper.Cast[[]FakeScopeConfig](client.ListScopeConfigs(PLUGIN_NAME, connection.ID))
+	require.Equal(t, 0, len(configs))
+
+}

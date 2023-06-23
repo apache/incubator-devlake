@@ -272,6 +272,15 @@ func (d *DevlakeClient) GetScopeConfig(pluginName string, connectionId uint64, s
 		d.Endpoint, pluginName, connectionId, scopeConfigId), nil, nil)
 }
 
+func (d *DevlakeClient) DeleteScopeConfig(pluginName string, connectionId uint64, scopeConfigId uint64) {
+	sendHttpRequest[any](d.testCtx, d.timeout, &testContext{
+		client:       d,
+		printPayload: true,
+		inlineJson:   false,
+	}, http.MethodDelete, fmt.Sprintf("%s/plugins/%s/connections/%d/scope-configs/%d",
+		d.Endpoint, pluginName, connectionId, scopeConfigId), nil, nil)
+}
+
 func (d *DevlakeClient) RemoteScopes(query RemoteScopesQuery) RemoteScopesOutput {
 	url := fmt.Sprintf("%s/plugins/%s/connections/%d/remote-scopes",
 		d.Endpoint,
