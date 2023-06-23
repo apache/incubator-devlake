@@ -18,6 +18,8 @@ limitations under the License.
 package plugin
 
 import (
+	"fmt"
+	"github.com/apache/incubator-devlake/server/services/remote/models"
 	"net/http"
 	"strconv"
 
@@ -104,18 +106,26 @@ func (pa *pluginAPI) ListScopeConfigs(input *plugin.ApiResourceInput) (*plugin.A
 }
 
 func (pa *pluginAPI) DeleteScopeConfig(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, errors.Error) {
-	scopeConfig := pa.scopeConfigType.New()
-	db := basicRes.GetDal()
 	connectionId, configId, err := extractConfigParam(input.Params)
 	if err != nil {
 		return nil, err
 	}
+	scopeConfig := pa.scopeConfigType.New()
+	db := basicRes.GetDal()
 	err = api.CallDB(db.Delete, scopeConfig, dal.Where("connection_id = ? AND id = ?", connectionId, configId))
 	if err != nil {
 		return nil, errors.Default.Wrap(err, "no scope config with given id")
 	}
-
+	err = pa.nullOutScopeReferences(configId)
+	if err != nil {
+		return nil, err
+	}
 	return &plugin.ApiResourceOutput{Body: scopeConfig.Unwrap()}, nil
+}
+
+func (pa *pluginAPI) nullOutScopeReferences(scopeConfigId uint64) errors.Error {
+	scopeModel := models.NewDynamicScopeModel(pa.scopeType)
+	return basicRes.GetDal().Exec(fmt.Sprintf("UPDATE %s SET scope_config_id = NULL WHERE scope_config_id = %d", scopeModel.TableName(), scopeConfigId))
 }
 
 func extractConfigParam(params map[string]string) (connectionId uint64, configId uint64, err errors.Error) {

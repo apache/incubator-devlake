@@ -267,9 +267,7 @@ func TestDeleteScopeConfig(t *testing.T) {
 	client := CreateClient(t)
 	connection := CreateTestConnection(client)
 	scopeConfig := FakeScopeConfig{Name: "Scope config", Env: "test env", Entities: []string{plugin.DOMAIN_TYPE_CICD}}
-
-	res := client.CreateScopeConfig(PLUGIN_NAME, connection.ID, scopeConfig)
-	scopeConfig = helper.Cast[FakeScopeConfig](res)
+	scopeConfig = helper.Cast[FakeScopeConfig](client.CreateScopeConfig(PLUGIN_NAME, connection.ID, scopeConfig))
 
 	configs := helper.Cast[[]FakeScopeConfig](client.ListScopeConfigs(PLUGIN_NAME, connection.ID))
 	require.Equal(t, 1, len(configs))
@@ -277,5 +275,19 @@ func TestDeleteScopeConfig(t *testing.T) {
 	client.DeleteScopeConfig(PLUGIN_NAME, connection.ID, scopeConfig.Id)
 	configs = helper.Cast[[]FakeScopeConfig](client.ListScopeConfigs(PLUGIN_NAME, connection.ID))
 	require.Equal(t, 0, len(configs))
+}
+
+func TestDeleteScopeConfig_WithReferencingScope(t *testing.T) {
+	client := CreateClient(t)
+	connection := CreateTestConnection(client)
+	scopeConfig := FakeScopeConfig{Name: "Scope config", Env: "test env", Entities: []string{plugin.DOMAIN_TYPE_CICD}}
+	scopeConfig = helper.Cast[FakeScopeConfig](client.CreateScopeConfig(PLUGIN_NAME, connection.ID, scopeConfig))
+
+	scope := CreateTestScope(client, &scopeConfig, connection.ID)
+	require.Equal(t, scopeConfig.Id, scope.ScopeConfigId)
+
+	client.DeleteScopeConfig(PLUGIN_NAME, connection.ID, scopeConfig.Id)
+	scope = helper.Cast[*FakeProject](client.GetScope(PLUGIN_NAME, connection.ID, scope.Id, false))
+	require.Equal(t, uint64(0), scope.ScopeConfigId)
 
 }

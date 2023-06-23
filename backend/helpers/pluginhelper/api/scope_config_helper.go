@@ -18,6 +18,7 @@ limitations under the License.
 package api
 
 import (
+	"fmt"
 	"net/http"
 	"reflect"
 	"strconv"
@@ -32,15 +33,17 @@ import (
 
 // ScopeConfigHelper is used to write the CURD of scope config
 type ScopeConfigHelper[ScopeConfig dal.Tabler] struct {
-	log       log.Logger
-	db        dal.Dal
-	validator *validator.Validate
+	log        log.Logger
+	db         dal.Dal
+	validator  *validator.Validate
+	pluginName string
 }
 
 // NewScopeConfigHelper creates a ScopeConfigHelper for scope config management
 func NewScopeConfigHelper[Tr dal.Tabler](
 	basicRes context.BasicRes,
 	vld *validator.Validate,
+	pluginName string,
 ) *ScopeConfigHelper[Tr] {
 	if vld == nil {
 		vld = validator.New()
@@ -132,11 +135,11 @@ func (t ScopeConfigHelper[ScopeConfig]) List(input *plugin.ApiResourceInput) (*p
 }
 
 func (t ScopeConfigHelper[ScopeConfig]) Delete(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, errors.Error) {
-	scopeConfigId, err := strconv.ParseUint(input.Params["id"], 10, 64)
+	scopeConfigId, err := errors.Convert01(strconv.ParseUint(input.Params["id"], 10, 64))
 	if err != nil {
 		return nil, errors.Default.Wrap(err, "the scope config ID should be an integer")
 	}
-	connectionId, err := strconv.ParseUint(input.Params["connectionId"], 10, 64)
+	connectionId, err := errors.Convert01(strconv.ParseUint(input.Params["connectionId"], 10, 64))
 	if err != nil {
 		return nil, errors.Default.Wrap(err, "the scope connection ID should be an integer")
 	}
@@ -145,5 +148,19 @@ func (t ScopeConfigHelper[ScopeConfig]) Delete(input *plugin.ApiResourceInput) (
 	if err != nil {
 		return nil, errors.Default.Wrap(err, "error deleting ScopeConfig")
 	}
+	err = t.nullOutScopeReferences(scopeConfigId)
+	if err != nil {
+		return nil, err
+	}
 	return &plugin.ApiResourceOutput{Body: config, Status: http.StatusOK}, nil
+
+}
+func (t ScopeConfigHelper[ScopeConfig]) nullOutScopeReferences(scopeConfigId uint64) errors.Error {
+	p, _ := plugin.GetPlugin(t.pluginName)
+	pluginSrc, ok := p.(plugin.PluginSource)
+	if !ok {
+		return errors.Default.New("plugin doesn't implement PluginSource")
+	}
+	scopeModel := pluginSrc.Scope()
+	return t.db.Exec(fmt.Sprintf("UPDATE %s SET scope_config_id = NULL WHERE scope_config_id = %d", scopeModel.TableName(), scopeConfigId))
 }

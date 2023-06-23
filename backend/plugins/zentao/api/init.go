@@ -90,5 +90,6 @@ func Init(br context.BasicRes, p plugin.PluginMeta) {
 	scHelper = api.NewScopeConfigHelper[models.ZentaoScopeConfig](
 		basicRes,
 		vld,
+		p.Name(),
 	)
 }

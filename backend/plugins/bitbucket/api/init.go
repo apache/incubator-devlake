@@ -63,5 +63,6 @@ func Init(br context.BasicRes, p plugin.PluginMeta) {
 	scHelper = api.NewScopeConfigHelper[models.BitbucketScopeConfig](
 		basicRes,
 		vld,
+		p.Name(),
 	)
 }
