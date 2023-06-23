@@ -138,8 +138,6 @@ func (gs *GenericScopeApiHelper[Conn, Scope, ScopeConfig]) DbHelper() ScopeDatab
 // hacky, temporary solution
 func (gs *GenericScopeApiHelper[Conn, Scope, ScopeConfig]) setRawDataOrigin(scopes ...*Scope) {
 	for _, scope := range scopes {
-		b, _ := json.Marshal(scopes)
-		_ = b
 		if !setRawDataOrigin(scope, common.RawDataOrigin{
 			RawDataTable:  fmt.Sprintf("_raw_%s_scopes", gs.plugin),
 			RawDataParams: plugin.MarshalScopeParams((*scope).ScopeParams()),

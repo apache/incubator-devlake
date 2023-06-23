@@ -18,7 +18,6 @@ limitations under the License.
 package plugin
 
 import (
-	"encoding/json"
 	"fmt"
 	"time"
 
@@ -92,15 +91,12 @@ func (s *ScopeDatabaseHelperImpl) ListScopes(input *plugin.ApiResourceInput, con
 	if err != nil {
 		return nil, err
 	}
-	b, _ := json.Marshal(scopes)
-	_ = b
 	var result []*models.DynamicScopeModel
 	for _, scopeRaw := range scopes.UnwrapSlice() {
 		scope := models.NewDynamicScopeModel(s.pa.scopeType)
 		_ = scope.From(scopeRaw)
 		result = append(result, scope)
 	}
-	b, _ = json.Marshal(result)
 	return result, nil
 }
 
@@ -135,8 +131,6 @@ func (s *ScopeDatabaseHelperImpl) ListScopeConfigs(configIds []uint64) ([]*model
 func (s *ScopeDatabaseHelperImpl) save(scopes []*models.DynamicScopeModel, createdAt *time.Time, updatedAt *time.Time) errors.Error {
 	var targets []map[string]any
 	for _, scope := range scopes {
-		b, _ := json.Marshal(scope)
-		_ = b
 		ifc := scope.UnwrapPtr()
 		m, err := models.ToDatabaseMap(s.pa.scopeType.TableName(), ifc, createdAt, updatedAt)
 		if err != nil {

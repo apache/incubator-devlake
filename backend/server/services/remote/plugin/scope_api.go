@@ -18,7 +18,6 @@ limitations under the License.
 package plugin
 
 import (
-	"encoding/json"
 	"net/http"
 
 	"github.com/apache/incubator-devlake/server/services/remote/models"
@@ -46,10 +45,6 @@ func (pa *pluginAPI) PutScope(input *plugin.ApiResourceInput) (*plugin.ApiResour
 		if err != nil {
 			return nil, err
 		}
-		b1, _ := json.Marshal(scope)
-		_ = b1
-		b2, _ := json.Marshal(obj)
-		_ = b2
 		slice = append(slice, obj)
 	}
 	apiScopes, err := pa.scopeHelper.PutScopes(input, slice)
