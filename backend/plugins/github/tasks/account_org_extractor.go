@@ -19,11 +19,16 @@ package tasks
 
 import (
 	"encoding/json"
+
 	"github.com/apache/incubator-devlake/core/errors"
 	"github.com/apache/incubator-devlake/core/plugin"
 	"github.com/apache/incubator-devlake/helpers/pluginhelper/api"
 	"github.com/apache/incubator-devlake/plugins/github/models"
 )
+
+func init() {
+	RegisterSubtaskMeta(&ExtractAccountOrgMeta)
+}
 
 var ExtractAccountOrgMeta = plugin.SubTaskMeta{
 	Name:             "ExtractAccountOrg",
@@ -31,6 +36,7 @@ var ExtractAccountOrgMeta = plugin.SubTaskMeta{
 	EnabledByDefault: true,
 	Description:      "Extract raw account org data into tool layer table github_account_orgs",
 	DomainTypes:      []string{plugin.DOMAIN_TYPE_CROSS},
+	DependencyTables: []string{RAW_ACCOUNT_ORG_TABLE},
 }
 
 type GithubAccountOrgsResponse struct {

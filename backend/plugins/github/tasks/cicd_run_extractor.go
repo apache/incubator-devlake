@@ -27,12 +27,17 @@ import (
 	"github.com/apache/incubator-devlake/plugins/github/models"
 )
 
+func init() {
+	RegisterSubtaskMeta(&ExtractRunsMeta)
+}
+
 var ExtractRunsMeta = plugin.SubTaskMeta{
 	Name:             "extractRuns",
 	EntryPoint:       ExtractRuns,
 	EnabledByDefault: true,
 	Description:      "Extract raw run data into tool layer table github_runs",
 	DomainTypes:      []string{plugin.DOMAIN_TYPE_CICD},
+	DependencyTables: []string{RAW_RUN_TABLE},
 }
 
 func ExtractRuns(taskCtx plugin.SubTaskContext) errors.Error {

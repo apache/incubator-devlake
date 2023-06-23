@@ -27,12 +27,17 @@ import (
 	"github.com/apache/incubator-devlake/plugins/github/models"
 )
 
+func init() {
+	RegisterSubtaskMeta(&ExtractApiPullRequestsMeta)
+}
+
 var ExtractApiPullRequestsMeta = plugin.SubTaskMeta{
 	Name:             "extractApiPullRequests",
 	EntryPoint:       ExtractApiPullRequests,
 	EnabledByDefault: true,
 	Description:      "Extract raw PullRequests data into tool layer table github_pull_requests",
 	DomainTypes:      []string{plugin.DOMAIN_TYPE_CROSS, plugin.DOMAIN_TYPE_CODE_REVIEW},
+	DependencyTables: []string{RAW_PULL_REQUEST_TABLE},
 }
 
 type GithubApiPullRequest struct {

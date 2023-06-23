@@ -30,12 +30,17 @@ import (
 	"github.com/apache/incubator-devlake/plugins/github/models"
 )
 
+func init() {
+	RegisterSubtaskMeta(&EnrichPullRequestIssuesMeta)
+}
+
 var EnrichPullRequestIssuesMeta = plugin.SubTaskMeta{
 	Name:             "enrichPullRequestIssues",
 	EntryPoint:       EnrichPullRequestIssues,
 	EnabledByDefault: true,
 	Description:      "Create tool layer table github_pull_request_issues from github_pull_reqeusts",
 	DomainTypes:      []string{plugin.DOMAIN_TYPE_CROSS},
+	DependencyTables: []string{RAW_PULL_REQUEST_TABLE},
 }
 
 func EnrichPullRequestIssues(taskCtx plugin.SubTaskContext) (err errors.Error) {

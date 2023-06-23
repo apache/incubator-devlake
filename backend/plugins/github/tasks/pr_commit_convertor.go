@@ -29,6 +29,10 @@ import (
 	"github.com/apache/incubator-devlake/plugins/github/models"
 )
 
+func init() {
+	RegisterSubtaskMeta(&ConvertPullRequestCommentsMeta)
+}
+
 var ConvertPullRequestCommitsMeta = plugin.SubTaskMeta{
 	Name:             "convertPullRequestCommits",
 	EntryPoint:       ConvertPullRequestCommits,

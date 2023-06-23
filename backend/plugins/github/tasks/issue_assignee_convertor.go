@@ -29,12 +29,17 @@ import (
 	"github.com/apache/incubator-devlake/plugins/github/models"
 )
 
+func init() {
+	RegisterSubtaskMeta(&ConvertIssueAssigneeMeta)
+}
+
 var ConvertIssueAssigneeMeta = plugin.SubTaskMeta{
 	Name:             "convertIssueAssignee",
 	EntryPoint:       ConvertIssueAssignee,
 	EnabledByDefault: true,
 	Description:      "Convert tool layer table _tool_github_issue_assignees into  domain layer table issue_assignees",
 	DomainTypes:      []string{plugin.DOMAIN_TYPE_TICKET},
+	DependencyTables: []string{RAW_ISSUE_TABLE},
 }
 
 func ConvertIssueAssignee(taskCtx plugin.SubTaskContext) errors.Error {

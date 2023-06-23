@@ -30,6 +30,10 @@ import (
 
 const RAW_PR_REVIEW_COMMENTS_TABLE = "github_api_pull_request_review_comments"
 
+func init() {
+	RegisterSubtaskMeta(&CollectApiPrReviewCommentsMeta)
+}
+
 // this struct should be moved to `github_api_common.go`
 
 func CollectPrReviewComments(taskCtx plugin.SubTaskContext) errors.Error {
@@ -95,4 +99,5 @@ var CollectApiPrReviewCommentsMeta = plugin.SubTaskMeta{
 	EnabledByDefault: true,
 	Description:      "Collect pr review comments data from Github api, supports both timeFilter and diffSync.",
 	DomainTypes:      []string{plugin.DOMAIN_TYPE_CROSS, plugin.DOMAIN_TYPE_CODE_REVIEW},
+	DependencyTables: []string{RAW_PR_REVIEW_COMMENTS_TABLE},
 }

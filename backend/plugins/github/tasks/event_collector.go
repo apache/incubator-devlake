@@ -35,6 +35,10 @@ import (
 
 const RAW_EVENTS_TABLE = "github_api_events"
 
+func init() {
+	RegisterSubtaskMeta(&CollectApiEventsMeta)
+}
+
 type SimpleGithubApiEvents struct {
 	GithubId  int64
 	CreatedAt helper.Iso8601Time `json:"created_at"`
@@ -46,6 +50,7 @@ var CollectApiEventsMeta = plugin.SubTaskMeta{
 	EnabledByDefault: true,
 	Description:      "Collect Events data from Github api, supports both timeFilter and diffSync.",
 	DomainTypes:      []string{plugin.DOMAIN_TYPE_TICKET},
+	DependencyTables: []string{RAW_EVENTS_TABLE},
 }
 
 func CollectApiEvents(taskCtx plugin.SubTaskContext) errors.Error {

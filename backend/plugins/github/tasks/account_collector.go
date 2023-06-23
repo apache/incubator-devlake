@@ -30,6 +30,10 @@ import (
 	"github.com/apache/incubator-devlake/plugins/github/models"
 )
 
+func init() {
+	RegisterSubtaskMeta(&CollectAccountsMeta)
+}
+
 const RAW_ACCOUNT_TABLE = "github_api_accounts"
 
 type SimpleAccount struct {
@@ -92,4 +96,5 @@ var CollectAccountsMeta = plugin.SubTaskMeta{
 	EnabledByDefault: true,
 	Description:      "Collect accounts data from Github api, does not support either timeFilter or diffSync.",
 	DomainTypes:      []string{plugin.DOMAIN_TYPE_CROSS},
+	DependencyTables: []string{RAW_ACCOUNT_TABLE},
 }

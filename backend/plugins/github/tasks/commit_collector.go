@@ -30,12 +30,17 @@ import (
 
 const RAW_COMMIT_TABLE = "github_api_commits"
 
+func init() {
+	RegisterSubtaskMeta(&CollectApiCommitsMeta)
+}
+
 var CollectApiCommitsMeta = plugin.SubTaskMeta{
 	Name:             "collectApiCommits",
 	EntryPoint:       CollectApiCommits,
 	EnabledByDefault: false,
 	Description:      "Collect commits data from Github api, supports both timeFilter and diffSync.",
 	DomainTypes:      []string{plugin.DOMAIN_TYPE_CODE},
+	DependencyTables: []string{RAW_COMMIT_TABLE},
 }
 
 func CollectApiCommits(taskCtx plugin.SubTaskContext) errors.Error {

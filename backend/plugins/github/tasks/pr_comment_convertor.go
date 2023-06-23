@@ -18,6 +18,8 @@ limitations under the License.
 package tasks
 
 import (
+	"reflect"
+
 	"github.com/apache/incubator-devlake/core/dal"
 	"github.com/apache/incubator-devlake/core/errors"
 	"github.com/apache/incubator-devlake/core/models/domainlayer"
@@ -26,8 +28,11 @@ import (
 	"github.com/apache/incubator-devlake/core/plugin"
 	"github.com/apache/incubator-devlake/helpers/pluginhelper/api"
 	"github.com/apache/incubator-devlake/plugins/github/models"
-	"reflect"
 )
+
+func init() {
+	RegisterSubtaskMeta(&ConvertPullRequestCommentsMeta)
+}
 
 var ConvertPullRequestCommentsMeta = plugin.SubTaskMeta{
 	Name:             "convertPullRequestComments",
@@ -35,6 +40,7 @@ var ConvertPullRequestCommentsMeta = plugin.SubTaskMeta{
 	EnabledByDefault: true,
 	Description:      "ConvertPullRequestComments data from Github api",
 	DomainTypes:      []string{plugin.DOMAIN_TYPE_CODE_REVIEW},
+	DependencyTables: []string{RAW_COMMENTS_TABLE},
 }
 
 func ConvertPullRequestComments(taskCtx plugin.SubTaskContext) errors.Error {

@@ -18,6 +18,9 @@ limitations under the License.
 package tasks
 
 import (
+	"reflect"
+	"strings"
+
 	"github.com/apache/incubator-devlake/core/dal"
 	"github.com/apache/incubator-devlake/core/errors"
 	"github.com/apache/incubator-devlake/core/models/common"
@@ -27,9 +30,11 @@ import (
 	"github.com/apache/incubator-devlake/core/plugin"
 	"github.com/apache/incubator-devlake/helpers/pluginhelper/api"
 	"github.com/apache/incubator-devlake/plugins/github/models"
-	"reflect"
-	"strings"
 )
+
+func init() {
+	RegisterSubtaskMeta(&ConvertAccountsMeta)
+}
 
 var ConvertAccountsMeta = plugin.SubTaskMeta{
 	Name:             "convertAccounts",
@@ -37,6 +42,7 @@ var ConvertAccountsMeta = plugin.SubTaskMeta{
 	EnabledByDefault: true,
 	Description:      "Convert tool layer table github_accounts into  domain layer table accounts",
 	DomainTypes:      []string{plugin.DOMAIN_TYPE_CROSS},
+	DependencyTables: []string{RAW_ACCOUNT_TABLE},
 }
 
 type GithubAccountWithOrg struct {

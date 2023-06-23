@@ -35,12 +35,17 @@ import (
 
 const RAW_PULL_REQUEST_TABLE = "github_api_pull_requests"
 
+func init() {
+	RegisterSubtaskMeta(&CollectApiPullRequestsMeta)
+}
+
 var CollectApiPullRequestsMeta = plugin.SubTaskMeta{
 	Name:             "collectApiPullRequests",
 	EntryPoint:       CollectApiPullRequests,
 	EnabledByDefault: true,
 	Description:      "Collect PullRequests data from Github api, supports both timeFilter and diffSync.",
 	DomainTypes:      []string{plugin.DOMAIN_TYPE_CROSS, plugin.DOMAIN_TYPE_CODE_REVIEW},
+	DependencyTables: []string{RAW_PULL_REQUEST_TABLE},
 }
 
 type SimpleGithubPr struct {
