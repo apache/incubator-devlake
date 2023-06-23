@@ -115,7 +115,16 @@ func (checker *TableInfoChecker) parseDirRecursively(modelsDir string, additiona
 	packagesMap := make(map[string]*ast.Package)
 	ignorablePackages := append(checker.ignoredPackages, additionalIgnorablePackages...)
 	err := filepath.WalkDir(modelsDir, func(path string, d fs2.DirEntry, err error) error {
+		if err != nil {
+			return err
+		}
+		if !d.IsDir() {
+			return nil
+		}
 		packs, err := parser.ParseDir(token.NewFileSet(), path, nil, 0)
+		if err != nil {
+			return err
+		}
 		for packageName, packageObj := range packs {
 			if slices.Contains(ignorablePackages, packageName) {
 				return fs2.SkipDir
@@ -171,6 +180,9 @@ func (checker *TableInfoChecker) ensureCoverage() errors.Error {
 			return fs2.SkipDir
 		}
 		packs, err := parser.ParseDir(token.NewFileSet(), path, nil, parser.PackageClauseOnly)
+		if err != nil {
+			return err
+		}
 		for _, pk := range packs {
 			if pk.Name == "main" {
 				packagesFound++
