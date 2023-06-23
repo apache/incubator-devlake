@@ -106,9 +106,11 @@ e2e-plugins-test:
 	export ENV_PATH=$(shell readlink -f .env);\
 	set -e;\
 	for m in $$(go list ./plugins/... | egrep 'e2e'); do \
-		echo $$m; go test -timeout 300s -gcflags=all=-l -v $$m || exit_code=$$?; \
+		echo $$m; \
+		if !  go test -timeout 300s -gcflags=all=-l -v $$m; then \
+		  exit $$?; \
+		fi \
 	done; \
-	exit $$exit_code
 
 e2e-test-init:
 	export ENV_PATH=$(shell readlink -f .env);\

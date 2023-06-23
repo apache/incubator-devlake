@@ -153,10 +153,23 @@ func (p ZentaoProject) ScopeName() string {
 	return p.Name
 }
 
+func (p ZentaoProject) ScopeParams() interface{} {
+	return &ZentaoApiParams{
+		ConnectionId: p.ConnectionId,
+		ProjectId:    p.Id,
+	}
+}
+
 func (p ZentaoProject) ConvertApiScope() plugin.ToolLayerScope {
 	if p.ProjectType == "" {
 		p.ProjectType = p.Type
 		p.Type = "project"
 	}
 	return p
+}
+
+type ZentaoApiParams struct {
+	ConnectionId uint64
+	ProductId    int64
+	ProjectId    int64
 }

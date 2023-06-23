@@ -29,11 +29,7 @@ import (
 	"github.com/mitchellh/mapstructure"
 )
 
-type ZentaoApiParams struct {
-	ConnectionId uint64
-	ProductId    int64
-	ProjectId    int64
-}
+type ZentaoApiParams models.ZentaoApiParams
 
 type ZentaoOptions struct {
 	// options means some custom params required by plugin running.

@@ -51,7 +51,7 @@ func (p Sonarqube) Description() string {
 }
 
 func (p Sonarqube) Name() string {
-	return "dbt"
+	return "sonarqube"
 }
 
 func (p Sonarqube) Init(br context.BasicRes) errors.Error {

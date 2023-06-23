@@ -31,7 +31,7 @@ type pluginAPI struct {
 	scopeType       models.DynamicTabler
 	scopeConfigType models.DynamicTabler
 	connhelper      *api.ConnectionApiHelper
-	scopeHelper     *api.GenericScopeApiHelper[remoteModel.RemoteConnection, remoteModel.RemoteScope, remoteModel.RemoteScopeConfig]
+	scopeHelper     *api.GenericScopeApiHelper[remoteModel.RemoteConnection, remoteModel.DynamicScopeModel, remoteModel.RemoteScopeConfig]
 }
 
 func GetDefaultAPI(
@@ -94,9 +94,9 @@ func (pa *pluginAPI) createScopeHelper() {
 	params := &api.ReflectionParameters{
 		ScopeIdFieldName:  "Id",
 		ScopeIdColumnName: "id",
-		RawScopeParamName: "scope_id",
+		RawScopeParamName: "ScopeId",
 	}
-	pa.scopeHelper = api.NewGenericScopeHelper[remoteModel.RemoteConnection, remoteModel.RemoteScope, remoteModel.RemoteScopeConfig](
+	pa.scopeHelper = api.NewGenericScopeHelper[remoteModel.RemoteConnection, remoteModel.DynamicScopeModel, remoteModel.RemoteScopeConfig](
 		basicRes,
 		vld,
 		pa.connhelper,

@@ -18,11 +18,14 @@ limitations under the License.
 package models
 
 import (
-	"github.com/apache/incubator-devlake/core/models/common"
-	"github.com/apache/incubator-devlake/core/plugin"
 	"strconv"
 	"time"
+
+	"github.com/apache/incubator-devlake/core/models/common"
+	"github.com/apache/incubator-devlake/core/plugin"
 )
+
+var _ plugin.ToolLayerScope = (*GiteeRepo)(nil)
 
 type GiteeRepo struct {
 	ConnectionId  uint64 `gorm:"primaryKey"`
@@ -48,8 +51,20 @@ func (r GiteeRepo) ScopeName() string {
 	return r.Name
 }
 
+func (r GiteeRepo) ScopeParams() interface{} {
+	return &GiteeApiParams{
+		ConnectionId: r.ConnectionId,
+		Repo:         r.Name,
+		Owner:        r.OwnerLogin,
+	}
+}
+
 func (GiteeRepo) TableName() string {
 	return "_tool_gitee_repos"
 }
 
-var _ plugin.ToolLayerScope = (*GiteeRepo)(nil)
+type GiteeApiParams struct {
+	ConnectionId uint64
+	Repo         string
+	Owner        string
+}

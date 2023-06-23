@@ -22,6 +22,11 @@ import (
 	"github.com/apache/incubator-devlake/core/plugin"
 )
 
+type PagerDutyParams struct {
+	ConnectionId uint64
+	ScopeId      string
+}
+
 type Service struct {
 	common.NoPKModel
 	ConnectionId uint64 `json:"connection_id" mapstructure:"connectionId,omitempty" gorm:"primaryKey" `
@@ -36,6 +41,13 @@ func (s Service) ScopeId() string {
 
 func (s Service) ScopeName() string {
 	return s.Name
+}
+
+func (s Service) ScopeParams() interface{} {
+	return &PagerDutyParams{
+		ConnectionId: s.ConnectionId,
+		ScopeId:      s.Id,
+	}
 }
 
 func (s Service) TableName() string {

@@ -169,9 +169,10 @@ def domain_id(model_type, connection_id, *args):
 
 
 def raw_data_params(connection_id: int, scope_id: str) -> str:
+    # JSON keys MUST follow the Go conventions (CamelCase) and be sorted
     return json.dumps({
-        "connection_id": connection_id,
-        "scope_id": scope_id
+        "ConnectionId": connection_id,
+        "ScopeId": scope_id
     }, separators=(',', ':'))
 
 

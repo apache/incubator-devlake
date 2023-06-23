@@ -31,6 +31,8 @@ import (
 // via Unwrap() and TableName()
 type DynamicTabler interface {
 	dal.Tabler
+	json.Marshaler
+	json.Unmarshaler
 	NewValue() any
 	New() DynamicTabler
 	NewSlice() DynamicTabler
@@ -111,6 +113,15 @@ func (d *DynamicTablerImpl) UnwrapSlice() []any {
 
 func (d *DynamicTablerImpl) TableName() string {
 	return d.table
+}
+
+func (d *DynamicTablerImpl) MarshalJSON() ([]byte, error) {
+	return json.Marshal(d.wrapped)
+}
+
+func (d *DynamicTablerImpl) UnmarshalJSON(b []byte) error {
+	// Insert the string directly into the Data member
+	return json.Unmarshal(b, &d.wrapped)
 }
 
 var _ DynamicTabler = (*DynamicTablerImpl)(nil)

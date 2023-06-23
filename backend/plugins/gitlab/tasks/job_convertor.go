@@ -63,7 +63,7 @@ func ConvertJobs(taskCtx plugin.SubTaskContext) (err errors.Error) {
 		Input:        cursor,
 		RawDataSubTaskArgs: api.RawDataSubTaskArgs{
 			Ctx: taskCtx,
-			Params: GitlabApiParams{
+			Params: gitlabModels.GitlabApiParams{
 				ConnectionId: data.Options.ConnectionId,
 				ProjectId:    data.Options.ProjectId,
 			},

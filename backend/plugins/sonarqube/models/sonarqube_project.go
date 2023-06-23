@@ -49,6 +49,13 @@ func (p SonarqubeProject) ScopeName() string {
 	return p.Name
 }
 
+func (p SonarqubeProject) ScopeParams() interface{} {
+	return SonarqubeApiParams{
+		ConnectionId: p.ConnectionId,
+		ProjectKey:   p.ProjectKey,
+	}
+}
+
 type SonarqubeApiProject struct {
 	ProjectKey       string           `json:"key"`
 	Name             string           `json:"name"`
@@ -69,4 +76,9 @@ func (sonarqubeApiProject SonarqubeApiProject) ConvertApiScope() plugin.ToolLaye
 		Revision:         sonarqubeApiProject.Revision,
 	}
 	return sonarqubeProject
+}
+
+type SonarqubeApiParams struct {
+	ConnectionId uint64 `json:"connectionId"`
+	ProjectKey   string
 }
