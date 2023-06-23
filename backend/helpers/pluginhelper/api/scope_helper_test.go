@@ -18,6 +18,7 @@ limitations under the License.
 package api
 
 import (
+	"fmt"
 	"reflect"
 	"testing"
 	"time"
@@ -39,7 +40,31 @@ type TestModel struct {
 	Name string `gorm:"primaryKey;type:BIGINT  NOT NULL"`
 }
 
-type TestRepo struct {
+type TestFakeGitlabRepo struct {
+	ConnectionId     uint64     `json:"connectionId" mapstructure:"connectionId" gorm:"primaryKey"`
+	GitlabId         int        `json:"gitlabId" mapstructure:"gitlabId" gorm:"primaryKey"`
+	CreatedDate      *time.Time `json:"createdDate" mapstructure:"-"`
+	UpdatedDate      *time.Time `json:"updatedDate" mapstructure:"-"`
+	common.NoPKModel `json:"-" mapstructure:"-"`
+}
+
+func (t TestFakeGitlabRepo) ScopeId() string {
+	return fmt.Sprintf("%d", t.GitlabId)
+}
+
+func (t TestFakeGitlabRepo) ScopeName() string {
+	return ""
+}
+
+func (t TestFakeGitlabRepo) TableName() string {
+	return ""
+}
+
+func (t TestFakeGitlabRepo) ScopeParams() interface{} {
+	return nil
+}
+
+type TestFakeGithubRepo struct {
 	ConnectionId     uint64     `json:"connectionId" gorm:"primaryKey" mapstructure:"connectionId,omitempty"`
 	GithubId         int        `json:"githubId" gorm:"primaryKey" mapstructure:"githubId"`
 	Name             string     `json:"name" gorm:"type:varchar(255)" mapstructure:"name,omitempty"`
@@ -56,7 +81,19 @@ type TestRepo struct {
 	common.NoPKModel `json:"-" mapstructure:"-"`
 }
 
-func (TestRepo) TableName() string {
+func (r TestFakeGithubRepo) ScopeId() string {
+	return fmt.Sprintf("%d", r.GithubId)
+}
+
+func (r TestFakeGithubRepo) ScopeName() string {
+	return r.Name
+}
+
+func (r TestFakeGithubRepo) ScopeParams() interface{} {
+	return nil
+}
+
+func (TestFakeGithubRepo) TableName() string {
 	return "_tool_github_repos"
 }
 
@@ -74,7 +111,7 @@ func (TestConnection) TableName() string {
 }
 
 func TestVerifyScope(t *testing.T) {
-	apiHelper := createMockScopeHelper[TestRepo]("GithubId")
+	apiHelper := createMockScopeHelper[TestFakeGithubRepo]("GithubId")
 	testCases := []struct {
 		name    string
 		model   TestModel
@@ -147,7 +184,7 @@ func TestSetScopeFields(t *testing.T) {
 		common.NoPKModel `json:"-" mapstructure:"-"`
 	}
 	p := P{}
-	apiHelper := createMockScopeHelper[P]("GitlabId")
+	apiHelper := createMockScopeHelper[TestFakeGitlabRepo]("GitlabId")
 
 	// call setScopeFields to assign value
 	connectionId := uint64(123)
@@ -184,17 +221,6 @@ func TestSetScopeFields(t *testing.T) {
 	if p.UpdatedDate != nil {
 		t.Errorf("UpdatedDate not set correctly, expected: %v, got: %v", nil, p.UpdatedDate)
 	}
-
-	type P1 struct {
-		ConnectionId uint64 `json:"connectionId" mapstructure:"connectionId" gorm:"primaryKey"`
-		GitlabId     int    `json:"gitlabId" mapstructure:"gitlabId" gorm:"primaryKey"`
-
-		common.NoPKModel `json:"-" mapstructure:"-"`
-	}
-	apiHelper2 := createMockScopeHelper[P1]("GitlabId")
-	p1 := P1{}
-	apiHelper2.setScopeFields(&p1, connectionId, &createdDate, &createdDate)
-
 }
 
 func TestReturnPrimaryKeyValue(t *testing.T) {
@@ -245,7 +271,7 @@ func TestReturnPrimaryKeyValue(t *testing.T) {
 }
 
 func TestScopeApiHelper_Put(t *testing.T) {
-	apiHelper := createMockScopeHelper[TestRepo]("GithubId")
+	apiHelper := createMockScopeHelper[TestFakeGithubRepo]("GithubId")
 	// create a mock input, scopes, and connection
 	input := &plugin.ApiResourceInput{Params: map[string]string{"connectionId": "123"}, Body: map[string]interface{}{
 		"data": []map[string]interface{}{
@@ -284,7 +310,7 @@ func TestScopeApiHelper_Put(t *testing.T) {
 	assert.NoError(t, err)
 }
 
-func createMockScopeHelper[Repo any](scopeIdFieldName string) *ScopeApiHelper[TestConnection, Repo, TestScopeConfig] {
+func createMockScopeHelper[Repo plugin.ToolLayerScope](scopeIdFieldName string) *ScopeApiHelper[TestConnection, Repo, TestScopeConfig] {
 	mockDal := new(mockdal.Dal)
 	mockLogger := unithelper.DummyLogger()
 	mockRes := new(mockcontext.BasicRes)
