@@ -15,26 +15,19 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-package code
+package core
 
-type CommitsDiff struct {
-	NewCommitSha string `gorm:"primaryKey;type:varchar(40)"`
-	OldCommitSha string `gorm:"primaryKey;type:varchar(40)"`
-	CommitSha    string `gorm:"primaryKey;type:varchar(40)"`
-	SortingIndex int
-}
+import (
+	"github.com/apache/incubator-devlake/core/models/domainlayer/domaininfo"
+	"github.com/apache/incubator-devlake/core/utils"
+	"testing"
+)
 
-func (CommitsDiff) TableName() string {
-	return "commits_diffs"
-}
-
-type RefCommit struct {
-	NewRefId     string `gorm:"primaryKey;type:varchar(255)"`
-	OldRefId     string `gorm:"primaryKey;type:varchar(255)"`
-	NewCommitSha string `gorm:"type:varchar(40)"`
-	OldCommitSha string `gorm:"type:varchar(40)"`
-}
-
-func (RefCommit) TableName() string {
-	return "ref_commits"
+func Test_GetDomainTablesInfo(t *testing.T) {
+	checker := utils.NewTableInfoChecker(utils.TableInfoCheckerConfig{})
+	checker.FeedIn("models/domainlayer", domaininfo.GetDomainTablesInfo)
+	err := checker.Verify()
+	if err != nil {
+		t.Error(err)
+	}
 }

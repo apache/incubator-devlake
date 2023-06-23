@@ -77,6 +77,9 @@ func (p Bamboo) GetTablesInfo() []dal.Tabler {
 		&models.BambooPlanBuild{},
 		&models.BambooPlanBuildVcsRevision{},
 		&models.BambooJobBuild{},
+		&models.BambooDeployBuild{},
+		&models.BambooDeployEnvironment{},
+		&models.BambooScopeConfig{},
 	}
 }
 

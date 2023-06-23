@@ -87,6 +87,8 @@ func (p Jira) GetTablesInfo() []dal.Tabler {
 		&models.JiraSprintIssue{},
 		&models.JiraStatus{},
 		&models.JiraWorklog{},
+		&models.JiraIssueComment{},
+		&models.JiraScopeConfig{},
 	}
 }
 

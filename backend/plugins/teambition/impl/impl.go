@@ -70,6 +70,8 @@ func (p Teambition) GetTablesInfo() []dal.Tabler {
 		&models.TeambitionTaskActivity{},
 		&models.TeambitionTaskWorktime{},
 		&models.TeambitionProject{},
+		&models.TeambitionTaskFlowStatus{},
+		&models.TeambitionTaskScenario{},
 	}
 }
 

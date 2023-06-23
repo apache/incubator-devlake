@@ -77,6 +77,10 @@ func (p Bitbucket) GetTablesInfo() []dal.Tabler {
 		&models.BitbucketPipeline{},
 		&models.BitbucketRepo{},
 		&models.BitbucketRepoCommit{},
+		&models.BitbucketDeployment{},
+		&models.BitbucketPipelineStep{},
+		&models.BitbucketPrCommit{},
+		&models.BitbucketScopeConfig{},
 	}
 }
 

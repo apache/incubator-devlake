@@ -15,26 +15,13 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-package code
+package models
 
-type CommitsDiff struct {
+type FinishedCommitsDiff struct {
 	NewCommitSha string `gorm:"primaryKey;type:varchar(40)"`
 	OldCommitSha string `gorm:"primaryKey;type:varchar(40)"`
-	CommitSha    string `gorm:"primaryKey;type:varchar(40)"`
-	SortingIndex int
 }
 
-func (CommitsDiff) TableName() string {
-	return "commits_diffs"
-}
-
-type RefCommit struct {
-	NewRefId     string `gorm:"primaryKey;type:varchar(255)"`
-	OldRefId     string `gorm:"primaryKey;type:varchar(255)"`
-	NewCommitSha string `gorm:"type:varchar(40)"`
-	OldCommitSha string `gorm:"type:varchar(40)"`
-}
-
-func (RefCommit) TableName() string {
-	return "ref_commits"
+func (FinishedCommitsDiff) TableName() string {
+	return "_tool_refdiff_finished_commits_diffs"
 }

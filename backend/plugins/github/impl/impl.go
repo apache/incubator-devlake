@@ -89,6 +89,8 @@ func (p Github) GetTablesInfo() []dal.Tabler {
 		&models.GithubRepoCommit{},
 		&models.GithubReviewer{},
 		&models.GithubRun{},
+		&models.GithubIssueAssignee{},
+		&models.GithubScopeConfig{},
 	}
 }
 

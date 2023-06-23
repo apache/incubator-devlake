@@ -53,6 +53,8 @@ func (p Slack) Init(basicRes context.BasicRes) errors.Error {
 func (p Slack) GetTablesInfo() []dal.Tabler {
 	return []dal.Tabler{
 		&models.SlackConnection{},
+		&models.SlackChannelMessage{},
+		&models.SlackChannel{},
 	}
 }
 

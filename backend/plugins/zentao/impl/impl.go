@@ -83,6 +83,9 @@ func (p Zentao) GetTablesInfo() []dal.Tabler {
 		&models.ZentaoTask{},
 		&models.ZentaoTaskCommit{},
 		&models.ZentaoTaskRepoCommit{},
+		&models.ZentaoBugRepoCommit{},
+		&models.ZentaoConnection{},
+		&models.ZentaoScopeConfig{},
 	}
 }
 

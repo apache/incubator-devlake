@@ -22,6 +22,7 @@ import (
 	"github.com/apache/incubator-devlake/core/errors"
 	"github.com/apache/incubator-devlake/core/plugin"
 	helper "github.com/apache/incubator-devlake/helpers/pluginhelper/api"
+	"github.com/apache/incubator-devlake/plugins/refdiff/models"
 	"github.com/apache/incubator-devlake/plugins/refdiff/tasks"
 )
 
@@ -49,7 +50,9 @@ func (p RefDiff) RequiredDataEntities() (data []map[string]interface{}, err erro
 }
 
 func (p RefDiff) GetTablesInfo() []dal.Tabler {
-	return []dal.Tabler{}
+	return []dal.Tabler{
+		&models.FinishedCommitsDiff{},
+	}
 }
 
 func (p RefDiff) IsProjectMetric() bool {
