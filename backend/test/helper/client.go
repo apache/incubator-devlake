@@ -94,7 +94,7 @@ type (
 		CreateServer    bool
 		DropDb          bool
 		TruncateDb      bool
-		Plugins         map[string]plugin.PluginMeta
+		Plugins         []plugin.PluginMeta
 		Timeout         time.Duration
 		PipelineTimeout time.Duration
 	}
@@ -286,16 +286,15 @@ func (d *DevlakeClient) forceSendHttpRequest(retries uint, req *http.Request, on
 
 func (d *DevlakeClient) initPlugins(cfg *LocalClientConfig) {
 	d.testCtx.Helper()
-	if cfg.Plugins == nil {
-		cfg.Plugins = map[string]plugin.PluginMeta{}
-	}
 	// default plugins
-	cfg.Plugins["org"] = org.Org{}
-	cfg.Plugins["dora"] = dora.Dora{}
-	cfg.Plugins["refdiff"] = refdiff.RefDiff{}
+	cfg.Plugins = append(cfg.Plugins, []plugin.PluginMeta{
+		org.Org{},
+		dora.Dora{},
+		refdiff.RefDiff{},
+	}...)
 	// register and init plugins
-	for name, p := range cfg.Plugins {
-		require.NoError(d.testCtx, plugin.RegisterPlugin(name, p))
+	for _, p := range cfg.Plugins {
+		require.NoError(d.testCtx, plugin.RegisterPlugin(p.Name(), p))
 	}
 	for _, p := range plugin.AllPlugins() {
 		if pi, ok := p.(plugin.PluginInit); ok {

@@ -45,8 +45,8 @@ func TestAzure(t *testing.T) {
 		CreateServer: true,
 		DropDb:       false,
 		TruncateDb:   true,
-		Plugins: map[string]plugin.PluginMeta{
-			"gitextractor": gitextractor.GitExtractor{},
+		Plugins: []plugin.PluginMeta{
+			gitextractor.GitExtractor{},
 		},
 	})
 	client.SetTimeout(60 * time.Second)

@@ -59,9 +59,9 @@ func TestGitlabPlugin(t *testing.T) {
 		CreateServer: true,
 		DropDb:       false,
 		TruncateDb:   true,
-		Plugins: map[string]plugin.PluginMeta{
-			"gitlab":       gitlab.Gitlab(""),
-			"gitextractor": gitextractor.GitExtractor{},
+		Plugins: []plugin.PluginMeta{
+			gitlab.Gitlab(""),
+			gitextractor.GitExtractor{},
 		},
 	})
 	cfg := helper.GetTestConfig[TestConfig]()

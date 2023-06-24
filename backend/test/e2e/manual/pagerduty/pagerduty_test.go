@@ -42,8 +42,8 @@ func TestPagerDutyPlugin(t *testing.T) {
 		CreateServer: true,
 		DropDb:       false,
 		TruncateDb:   true,
-		Plugins: map[string]plugin.PluginMeta{
-			pluginName: &impl.PagerDuty{},
+		Plugins: []plugin.PluginMeta{
+			&impl.PagerDuty{},
 		},
 	})
 	client.SetTimeout(0)
