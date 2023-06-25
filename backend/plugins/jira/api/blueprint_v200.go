@@ -99,6 +99,8 @@ func makeScopesV200(bpScopes []*plugin.BlueprintScopeV200, connectionId uint64) 
 					Id: didgen.NewDomainIdGenerator(&models.JiraBoard{}).Generate(jiraBoard.ConnectionId, jiraBoard.BoardId),
 				},
 				Name: jiraBoard.Name,
+				Type: jiraBoard.Type,
+				Url:  jiraBoard.Self,
 			}
 			scopes = append(scopes, domainBoard)
 		}
