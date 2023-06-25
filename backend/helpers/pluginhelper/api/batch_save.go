@@ -21,6 +21,7 @@ import (
 	"fmt"
 	"reflect"
 	"strings"
+	"sync"
 
 	"github.com/apache/incubator-devlake/core/context"
 	"github.com/apache/incubator-devlake/core/dal"
@@ -42,6 +43,7 @@ type BatchSave struct {
 	valueIndex map[string]int
 	primaryKey []reflect.StructField
 	tableName  string
+	mutex      sync.Mutex
 }
 
 // NewBatchSave creates a new BatchSave instance
@@ -86,7 +88,8 @@ func (c *BatchSave) Add(slot interface{}) errors.Error {
 	stripZeroByte(slot)
 	// deduplication
 	key := getKeyValue(slot, c.primaryKey)
-
+	c.mutex.Lock()
+	defer c.mutex.Unlock()
 	if key != "" {
 		if index, ok := c.valueIndex[key]; !ok {
 			c.valueIndex[key] = c.current
@@ -108,6 +111,8 @@ func (c *BatchSave) Add(slot interface{}) errors.Error {
 
 // Flush save cached records into database
 func (c *BatchSave) Flush() errors.Error {
+	c.mutex.Lock()
+	defer c.mutex.Unlock()
 	if c.current == 0 {
 		return nil
 	}
