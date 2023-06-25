@@ -41,7 +41,6 @@ type SonarqubeIssueTimeIteratorNode struct {
 func CollectIssues(taskCtx plugin.SubTaskContext) (err errors.Error) {
 	logger := taskCtx.GetLogger()
 	logger.Info("collect issues")
-
 	iterator := helper.NewQueueIterator()
 	iterator.Push(
 		&SonarqubeIssueTimeIteratorNode{
@@ -166,7 +165,7 @@ func CollectIssues(taskCtx plugin.SubTaskContext) (err errors.Error) {
 				if err != nil {
 					return nil, err
 				}
-				if issue.UpdateDate.ToTime().After(*data.LastAnalysisDate) {
+				if issue.UpdateDate.ToTime().After(*data.TaskStartTime) {
 					return nil, errors.Default.New(fmt.Sprintf(`Your data is affected by the latest analysis\n
 						Please recollect this project: %s`, data.Options.ProjectKey))
 				}
