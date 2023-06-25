@@ -26,7 +26,6 @@ import (
 	"github.com/apache/incubator-devlake/core/models/domainlayer/didgen"
 	"github.com/apache/incubator-devlake/core/plugin"
 	helper "github.com/apache/incubator-devlake/helpers/pluginhelper/api"
-	"github.com/apache/incubator-devlake/plugins/gitlab/models"
 	gitlabModels "github.com/apache/incubator-devlake/plugins/gitlab/models"
 )
 
@@ -67,7 +66,7 @@ func ConvertPipelineCommits(taskCtx plugin.SubTaskContext) errors.Error {
 		Input:        cursor,
 		RawDataSubTaskArgs: helper.RawDataSubTaskArgs{
 			Ctx: taskCtx,
-			Params: models.GitlabApiParams{
+			Params: gitlabModels.GitlabApiParams{
 				ConnectionId: data.Options.ConnectionId,
 				ProjectId:    data.Options.ProjectId,
 			},
