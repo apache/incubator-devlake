@@ -153,19 +153,21 @@ func CollectIssues(taskCtx plugin.SubTaskContext) (err errors.Error) {
 			var resData struct {
 				Data []json.RawMessage `json:"issues"`
 			}
-			var issue struct {
-				UpdateDate *helper.Iso8601Time `json:"updateDate"`
-			}
 			err = helper.UnmarshalResponse(res, &resData)
 			if err != nil {
 				return nil, err
+			}
+
+			// check if sonar report updated during collecting
+			var issue struct {
+				UpdateDate *helper.Iso8601Time `json:"updateDate"`
 			}
 			for _, v := range resData.Data {
 				err = errors.Convert(json.Unmarshal(v, &issue))
 				if err != nil {
 					return nil, err
 				}
-				if issue.UpdateDate.ToTime().After(*data.TaskStartTime) {
+				if issue.UpdateDate.ToTime().After(data.TaskStartTime) {
 					return nil, errors.Default.New(fmt.Sprintf(`Your data is affected by the latest analysis\n
 						Please recollect this project: %s`, data.Options.ProjectKey))
 				}

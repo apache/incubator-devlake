@@ -37,7 +37,7 @@ type SonarqubeTaskData struct {
 	Options          *SonarqubeOptions
 	ApiClient        *api.ApiAsyncClient
 	LastAnalysisDate *time.Time
-	TaskStartTime    *time.Time
+	TaskStartTime    time.Time
 }
 
 func DecodeAndValidateTaskOptions(options map[string]interface{}) (*SonarqubeOptions, errors.Error) {
