@@ -76,7 +76,7 @@ func ConvertProjects(taskCtx plugin.SubTaskContext) errors.Error {
 				Name:        toolProject.Name,
 				Description: toolProject.Description,
 				CreatedDate: toolProject.OpenedDate.ToNullableTime(),
-				Type:        toolProject.Type + "/" + toolProject.ProjectType,
+				Type:        "scrum",
 			}
 			results := make([]interface{}, 0)
 			results = append(results, domainBoard)
