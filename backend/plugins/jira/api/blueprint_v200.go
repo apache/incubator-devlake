@@ -103,6 +103,8 @@ func makeScopesV200(
 					Id: didgen.NewDomainIdGenerator(&models.JiraBoard{}).Generate(jiraBoard.ConnectionId, jiraBoard.BoardId),
 				},
 				Name: jiraBoard.Name,
+				Url:  jiraBoard.Self,
+				Type: jiraBoard.Type,
 			}
 			scopes = append(scopes, domainBoard)
 		}

@@ -79,7 +79,7 @@ func ConvertProjects(taskCtx plugin.SubTaskContext) errors.Error {
 				Name:        toolProject.Name,
 				Description: toolProject.Description,
 				CreatedDate: toolProject.OpenedDate.ToNullableTime(),
-				Type:        toolProject.Type + "/" + toolProject.ProjectType,
+				Type:        "scrum",
 				Url:         fmt.Sprintf("/project-index-%d.html", data.Options.ProjectId),
 			}
 			results := make([]interface{}, 0)
