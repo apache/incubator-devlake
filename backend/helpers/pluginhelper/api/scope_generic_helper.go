@@ -306,14 +306,9 @@ func (gs *GenericScopeApiHelper[Conn, Scope, ScopeConfig]) DeleteScope(input *pl
 	if err != nil {
 		return nil, errors.Default.Wrap(err, fmt.Sprintf("error verifying connection for connection ID %d", params.connectionId))
 	}
-	// TODO: the Scope type in this helper must implement the ToolLayerScope interface and we should enforce that.
 	scope, err := gs.dbHelper.GetScope(params.connectionId, params.scopeId)
 	if err != nil {
 		return nil, err
-	}
-	toolScope, ok := interface{}(scope).(plugin.ToolLayerScope)
-	if !ok {
-		panic(fmt.Errorf("%v does not implement the plugin.ToolLayerScope interface", scope))
 	}
 	// now we can as scope to state its `Params` for data bloodline identification
 	if refs, err := gs.getScopeReferences(params.connectionId, params.scopeId); err != nil || refs != nil {
@@ -322,7 +317,7 @@ func (gs *GenericScopeApiHelper[Conn, Scope, ScopeConfig]) DeleteScope(input *pl
 		}
 		return refs, errors.Conflict.New("Found one or more references to this scope")
 	}
-	if err = gs.deleteScopeData(toolScope); err != nil {
+	if err = gs.deleteScopeData(*scope); err != nil {
 		return nil, err
 	}
 	if !params.deleteDataOnly {

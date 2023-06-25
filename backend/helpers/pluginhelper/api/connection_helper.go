@@ -122,10 +122,13 @@ func (c *ConnectionApiHelper) Delete(connection interface{}) (*services.Blueprin
 		return nil, err
 	}
 	if scopeModel := src.Scope(); scopeModel != nil {
-		// remove scopes that use this connection
-		err = CallDB(c.db.Delete, scopeModel, dal.Where("connection_id = ?", connectionId))
+		// ensure the connection has no scopes using it
+		count, err := c.db.Count(dal.From(scopeModel.TableName()), dal.Where("connection_id = ?", connectionId))
 		if err != nil {
-			return nil, errors.Default.Wrap(err, fmt.Sprintf("error deleting scopes for plugin %s using connection %d", c.pluginName, connectionId))
+			return nil, errors.Default.Wrap(err, fmt.Sprintf("error counting scopes for plugin %s using connection %d", c.pluginName, connectionId))
+		}
+		if count > 0 {
+			return nil, errors.Conflict.New(fmt.Sprintf("Found %d scopes using connection %d", count, connectionId))
 		}
 	}
 	if scopeConfigModel := src.ScopeConfig(); scopeConfigModel != nil {

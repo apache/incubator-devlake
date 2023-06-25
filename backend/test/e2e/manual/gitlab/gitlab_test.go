@@ -154,6 +154,10 @@ func TestGitlabPlugin(t *testing.T) {
 		client.SetExpectedStatusCode(http.StatusConflict).DeleteConnection(pluginName, connection.ID)
 		client.DeleteScopeConfig(pluginName, connection.ID, scopeConfig.ID)
 		client.DeleteBlueprint(bp.ID)
+		for _, scope := range listedScopes {
+			project := helper.Cast[pluginmodels.GitlabProject](scope.Scope)
+			client.DeleteScope(pluginName, connection.ID, project.ScopeId(), false)
+		}
 		client.DeleteConnection(pluginName, connection.ID)
 	})
 	fmt.Println("======DONE======")
