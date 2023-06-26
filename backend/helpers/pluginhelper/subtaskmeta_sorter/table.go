@@ -51,16 +51,19 @@ func genClassNameByMetaName(rawName string) (string, error) {
 	return "", fmt.Errorf("got illeagal raw name = %s", rawName)
 }
 
-// stable topological sort
+/*
+To use this sorter, developers need to ensure the following prerequisites
+ 1. The collect, extract, convert suffix names of the same task need to be the same,
+    such as collectAccounts, extractAccounts, convertAccounts,
+    otherwise the sorting algorithm cannot effectively match different tasks.
+ 2. For the same task, developers need to ensure that the execution order is collect, extract, convert,
+    otherwise the order cannot be correctly sorted
+ 3. Different tasks have no order requirements for operations on the same table,
+    which is most important, because the sorting algorithm will only sort tasks
+    that depend on the same table according to the subtask name
+*/
 func dependencyTableTopologicalSort(metas []*plugin.SubTaskMeta) ([]plugin.SubTaskMeta, error) {
-	// TODO 1. can i use reflect to realize collect, extractor, converter ?
-	// first process same class data
-	// suppose different class has no dependency relation
-	// construct class name list and table list meta
-	// sort different metas
-	// add list by convert and
-
-	// 1. construct data to sort
+	// 1. construct data
 	classNameToSubtaskListMap := make(map[string][]*plugin.SubTaskMeta) // use subtask class name to get meta list
 	classNameToTableListMap := make(map[string][]string)                // use class name get meta name list
 	subtaskNameToDataMap := make(map[string]*plugin.SubTaskMeta)        // use name to get meta
@@ -100,7 +103,7 @@ func dependencyTableTopologicalSort(metas []*plugin.SubTaskMeta) ([]plugin.SubTa
 		return nil, err
 	}
 
-	// 3. gen subtaskmeta list by sorted data and return
+	// 3. gen subtask meta list by sorted data
 	sortedSubtaskMetaList := make([]plugin.SubTaskMeta, 0)
 	for _, nameItem := range sortedNameList {
 		value, ok := classNameToSubtaskListMap[nameItem]
@@ -129,14 +132,4 @@ func dependencyTableTopologicalSort(metas []*plugin.SubTaskMeta) ([]plugin.SubTa
 		sortedSubtaskMetaList = append(sortedSubtaskMetaList, tmpList...)
 	}
 	return sortedSubtaskMetaList, nil
-}
-
-// TODO get subtask class list, different class can task concurrency
-func GetSortedClassName() []string {
-	return nil
-}
-
-// TODO get subtask list by class name, this subtask list should run sequentially
-func GetSubtaskMetasByClassName(className string) []*plugin.SubTaskMeta {
-	return nil
 }
