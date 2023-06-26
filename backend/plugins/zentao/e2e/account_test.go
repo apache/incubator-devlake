@@ -36,10 +36,10 @@ func TestZentaoAccountDataFlow(t *testing.T) {
 	taskData := &tasks.ZentaoTaskData{
 		Options: &tasks.ZentaoOptions{
 			ConnectionId: 1,
-			ProjectId:    1,
+			ProjectId:    3,
 		},
 		ProductList: map[int64]string{
-			3: "",
+			1: "",
 		},
 	}
 

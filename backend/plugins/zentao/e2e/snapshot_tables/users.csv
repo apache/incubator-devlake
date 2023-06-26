@@ -1,1 +1,13 @@
 id,email,full_name,user_name,avatar_url,organization,created_date,status
+zentao:ZentaoAccount:1:1,,devlake,devlake,,zentao:ZentaoDepartment:1:0,,0
+zentao:ZentaoAccount:1:10,,测试经理,testManager,,zentao:ZentaoDepartment:1:1,,0
+zentao:ZentaoAccount:1:11,,产品经理,productManager,,zentao:ZentaoDepartment:1:5,,0
+zentao:ZentaoAccount:1:12,,devlake,devlake,,zentao:ZentaoDepartment:1:0,,0
+zentao:ZentaoAccount:1:2,,产品经理,productManager,,zentao:ZentaoDepartment:1:5,,0
+zentao:ZentaoAccount:1:3,,项目经理,projectManager,,zentao:ZentaoDepartment:1:6,,0
+zentao:ZentaoAccount:1:4,,开发甲,dev1,,zentao:ZentaoDepartment:1:2,,0
+zentao:ZentaoAccount:1:5,,开发乙,dev2,,zentao:ZentaoDepartment:1:2,,0
+zentao:ZentaoAccount:1:6,,开发丙,dev3,,zentao:ZentaoDepartment:1:2,,0
+zentao:ZentaoAccount:1:7,,测试甲,tester1,,zentao:ZentaoDepartment:1:3,,0
+zentao:ZentaoAccount:1:8,,测试乙,tester2,,zentao:ZentaoDepartment:1:3,,0
+zentao:ZentaoAccount:1:9,,测试丙,tester3,,zentao:ZentaoDepartment:1:3,,0

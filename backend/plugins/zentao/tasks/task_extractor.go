@@ -51,11 +51,11 @@ func ExtractTask(taskCtx plugin.SubTaskContext) errors.Error {
 	extractor, err := api.NewApiExtractor(api.ApiExtractorArgs{
 		RawDataSubTaskArgs: api.RawDataSubTaskArgs{
 			Ctx: taskCtx,
-			Params: ZentaoApiParams{
-				ConnectionId: data.Options.ConnectionId,
-				ProductId:    data.Options.ProductId,
-				ProjectId:    data.Options.ProjectId,
-			},
+			Params: ScopeParams(
+				data.Options.ConnectionId,
+				data.Options.ProjectId,
+				data.Options.ProductId,
+			),
 			Table: RAW_TASK_TABLE,
 		},
 		Extract: func(row *api.RawData) ([]interface{}, errors.Error) {
@@ -89,6 +89,7 @@ func ExtractTask(taskCtx plugin.SubTaskContext) errors.Error {
 				Pri:                res.Pri,
 				Estimate:           res.Estimate,
 				Consumed:           res.Consumed,
+				Left:               res.Left,
 				Deadline:           res.Deadline,
 				Status:             res.Status,
 				SubStatus:          res.SubStatus,
@@ -140,7 +141,7 @@ func ExtractTask(taskCtx plugin.SubTaskContext) errors.Error {
 				Url:      row.Url,
 			}
 
-			task.StdType = stdTypeMappings[task.Type+"."+task.Mode]
+			task.StdType = stdTypeMappings[task.Type]
 			if task.StdType == "" {
 				task.StdType = ticket.TASK
 			}

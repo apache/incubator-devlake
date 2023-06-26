@@ -40,7 +40,7 @@ func TestZentaoTaskDataFlow(t *testing.T) {
 			ProductId:    3,
 			ScopeConfigs: &tasks.ZentaoScopeConfigs{
 				TypeMappings: map[string]string{
-					"devel.": "TASK_DEV",
+					"devel": "TASK_DEV",
 				},
 				TaskStatusMappings: map[string]string{
 					"wait": ticket.IN_PROGRESS,

@@ -18,7 +18,6 @@ connection_id,gitlab_id,iid,project_id,source_project_id,target_project_id,state
 1,111383524,17,12345678,0,12345678,closed,The package name changed -> https://hub.getdbt.com/dbt-labs/dbt_utils/latest/,https://gitlab.com/gitlab-data/snowflake_spend/-/merge_requests/17,1,0,0,swiffer-master-patch-77533,master,,,598ce24f1174d80556dd4432bfdcdce1dc649336,,2021-08-07T06:50:25.458+00:00,2021-08-07T06:51:14.916+00:00,2021-08-07T06:51:14.933+00:00,,,,swiffer,156402,,,0
 1,114994501,18,12345678,29298577,12345678,opened,Add support for Snowpipe usage monitoring,https://gitlab.com/gitlab-data/snowflake_spend/-/merge_requests/18,0,0,0,master,master,,,8a8587ff3685544e4c1e9f96f9092f026ddefb01,,2021-09-01T21:15:30.334+00:00,2022-06-30T21:41:49.705+00:00,,,,Add models and docs for Snowflake pipes (Snowpipe) usage monitoring based on the views in Snowflake Usage schema,gary-beautypie,9635687,,,0
 1,135775405,19,12345678,32935405,12345678,opened,Updates for dbt 1.0,https://gitlab.com/gitlab-data/snowflake_spend/-/merge_requests/19,1,0,0,updates_for_dbt_1.0,master,,,88cf634905f23a1142b45f433989cbc0610465dd,,2022-01-18T19:59:30.723+00:00,2022-02-10T14:13:47.663+00:00,,,,"This MR sets up the repo for dbt 1.0
-
 A few configs were renamed.
 
 Could a new release be made for dbt 1.0?",johnj4,10663622,,,0

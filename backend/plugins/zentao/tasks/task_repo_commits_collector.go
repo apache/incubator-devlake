@@ -69,11 +69,11 @@ func CollectTaskRepoCommits(taskCtx plugin.SubTaskContext) errors.Error {
 	collector, err := api.NewApiCollector(api.ApiCollectorArgs{
 		RawDataSubTaskArgs: api.RawDataSubTaskArgs{
 			Ctx: taskCtx,
-			Params: ZentaoApiParams{
-				ConnectionId: data.Options.ConnectionId,
-				ProductId:    data.Options.ProductId,
-				ProjectId:    data.Options.ProjectId,
-			},
+			Params: ScopeParams(
+				data.Options.ConnectionId,
+				data.Options.ProjectId,
+				data.Options.ProductId,
+			),
 			Table: RAW_TASK_REPO_COMMITS_TABLE,
 		},
 		ApiClient:   data.ApiClient,

@@ -154,13 +154,13 @@ func (ZentaoProduct) TableName() string {
 }
 
 func (p ZentaoProduct) ScopeId() string {
-	return fmt.Sprintf(`product/%d`, p.Id)
+	return fmt.Sprintf(`products/%d`, p.Id)
 }
 
 func (p ZentaoProduct) ScopeParams() interface{} {
 	return &ZentaoApiParams{
 		ConnectionId: p.ConnectionId,
-		ProductId:    p.Id,
+		ZentaoId:     fmt.Sprintf("products/%d", p.Id),
 	}
 }
 

@@ -58,11 +58,11 @@ func ConvertExecutions(taskCtx plugin.SubTaskContext) errors.Error {
 		Input:        cursor,
 		RawDataSubTaskArgs: api.RawDataSubTaskArgs{
 			Ctx: taskCtx,
-			Params: ZentaoApiParams{
-				ConnectionId: data.Options.ConnectionId,
-				ProductId:    data.Options.ProductId,
-				ProjectId:    data.Options.ProjectId,
-			},
+			Params: ScopeParams(
+				data.Options.ConnectionId,
+				data.Options.ProjectId,
+				data.Options.ProductId,
+			),
 			Table: RAW_EXECUTION_TABLE,
 		},
 		Convert: func(inputRow interface{}) ([]interface{}, errors.Error) {
@@ -94,7 +94,7 @@ func ConvertExecutions(taskCtx plugin.SubTaskContext) errors.Error {
 				OriginalBoardID: projectIdGen.Generate(toolExecution.ConnectionId, data.Options.ProjectId),
 			}
 			boardSprint := &ticket.BoardSprint{
-				BoardId:  projectIdGen.Generate(toolExecution.ConnectionId, toolExecution.Id),
+				BoardId:  sprint.OriginalBoardID,
 				SprintId: sprint.Id,
 			}
 			results := make([]interface{}, 0)

@@ -54,11 +54,11 @@ func ExtractBugCommitsForOneProduct(taskCtx plugin.SubTaskContext) errors.Error 
 	extractor, err := api.NewApiExtractor(api.ApiExtractorArgs{
 		RawDataSubTaskArgs: api.RawDataSubTaskArgs{
 			Ctx: taskCtx,
-			Params: ZentaoApiParams{
-				ConnectionId: data.Options.ConnectionId,
-				ProductId:    data.Options.ProductId,
-				ProjectId:    data.Options.ProjectId,
-			},
+			Params: ScopeParams(
+				data.Options.ConnectionId,
+				data.Options.ProjectId,
+				data.Options.ProductId,
+			),
 			Table: RAW_BUG_COMMITS_TABLE,
 		},
 		Extract: func(row *api.RawData) ([]interface{}, errors.Error) {
