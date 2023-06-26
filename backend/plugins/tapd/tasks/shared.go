@@ -336,3 +336,25 @@ func generateDomainAccountIdForUsers(param string, connectionId uint64) string {
 	}
 	return strings.Join(res, ",")
 }
+
+// extractStatus extracts the status from the given blob and returns a map of status names to status values.
+func extractStatus(blob []byte) (map[string]string, errors.Error) {
+	var statusRes struct {
+		Data interface{} `json:"data"`
+	}
+	err := errors.Convert(json.Unmarshal(blob, &statusRes))
+	if err != nil {
+		return nil, err
+	}
+	data, ok := statusRes.Data.(map[string]interface{})
+	if !ok {
+		return nil, nil
+	}
+	results := make(map[string]string)
+	for k, v := range data {
+		if value, ok := v.(string); ok {
+			results[k] = value
+		}
+	}
+	return results, nil
+}
