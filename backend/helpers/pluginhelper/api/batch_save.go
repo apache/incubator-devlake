@@ -100,19 +100,23 @@ func (c *BatchSave) Add(slot interface{}) errors.Error {
 	}
 	c.slots.Index(c.current).Set(reflect.ValueOf(slot))
 	c.current++
-	// flush out into database if max outed
+	// flush out into database if maxed out
 	if c.current == c.size {
-		return c.Flush()
+		return c.flushWithoutLocking()
 	} else if c.current%100 == 0 {
 		c.log.Debug("batch save current: %d", c.current)
 	}
 	return nil
 }
 
-// Flush save cached records into database
+// Flush save cached records into database, even if cache is not maxed out
 func (c *BatchSave) Flush() errors.Error {
 	c.mutex.Lock()
 	defer c.mutex.Unlock()
+	return c.flushWithoutLocking()
+}
+
+func (c *BatchSave) flushWithoutLocking() errors.Error {
 	if c.current == 0 {
 		return nil
 	}
@@ -130,10 +134,12 @@ func (c *BatchSave) Flush() errors.Error {
 	return nil
 }
 
-// Close would flash the cache and release resources
+// Close would flush the cache and release resources
 func (c *BatchSave) Close() errors.Error {
+	c.mutex.Lock()
+	defer c.mutex.Unlock()
 	if c.current > 0 {
-		return c.Flush()
+		return c.flushWithoutLocking()
 	}
 	return nil
 }
