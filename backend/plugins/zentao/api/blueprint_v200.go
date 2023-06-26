@@ -18,6 +18,7 @@ limitations under the License.
 package api
 
 import (
+	"strings"
 	"time"
 
 	"github.com/apache/incubator-devlake/core/errors"
@@ -67,8 +68,7 @@ func makePipelinePlanV200(
 		}
 
 		//scopeType := strings.Split(bpScope.Id, `/`)[0]
-		//scopeId := strings.Split(bpScope.Id, `/`)[1]
-		scopeId := bpScope.Id
+		scopeId := strings.Split(bpScope.Id, `/`)[1]
 
 		var entities []string
 
