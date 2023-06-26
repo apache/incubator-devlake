@@ -30,7 +30,7 @@ import (
 )
 
 func init() {
-	RegisterSubtaskMeta(&ConvertPullRequestCommentsMeta)
+	RegisterSubtaskMeta(&ConvertPullRequestCommitsMeta)
 }
 
 var ConvertPullRequestCommitsMeta = plugin.SubTaskMeta{
