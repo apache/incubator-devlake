@@ -33,11 +33,11 @@ import (
 	"github.com/apache/incubator-devlake/plugins/github/models"
 )
 
-const RAW_EVENTS_TABLE = "github_api_events"
-
 func init() {
 	RegisterSubtaskMeta(&CollectApiEventsMeta)
 }
+
+const RAW_EVENTS_TABLE = "github_api_events"
 
 type SimpleGithubApiEvents struct {
 	GithubId  int64

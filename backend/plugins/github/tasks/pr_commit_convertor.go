@@ -39,6 +39,7 @@ var ConvertPullRequestCommitsMeta = plugin.SubTaskMeta{
 	EnabledByDefault: true,
 	Description:      "Convert tool layer table github_pull_request_commits into  domain layer table pull_request_commits",
 	DomainTypes:      []string{plugin.DOMAIN_TYPE_CROSS, plugin.DOMAIN_TYPE_CODE_REVIEW},
+	DependencyTables: []string{RAW_PR_COMMIT_TABLE},
 }
 
 func ConvertPullRequestCommits(taskCtx plugin.SubTaskContext) (err errors.Error) {

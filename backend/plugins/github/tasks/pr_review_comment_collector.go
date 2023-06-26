@@ -28,11 +28,11 @@ import (
 	helper "github.com/apache/incubator-devlake/helpers/pluginhelper/api"
 )
 
-const RAW_PR_REVIEW_COMMENTS_TABLE = "github_api_pull_request_review_comments"
-
 func init() {
 	RegisterSubtaskMeta(&CollectApiPrReviewCommentsMeta)
 }
+
+const RAW_PR_REVIEW_COMMENTS_TABLE = "github_api_pull_request_review_comments"
 
 // this struct should be moved to `github_api_common.go`
 

@@ -33,11 +33,11 @@ import (
 	"github.com/apache/incubator-devlake/plugins/github/models"
 )
 
-const RAW_PULL_REQUEST_TABLE = "github_api_pull_requests"
-
 func init() {
 	RegisterSubtaskMeta(&CollectApiPullRequestsMeta)
 }
+
+const RAW_PULL_REQUEST_TABLE = "github_api_pull_requests"
 
 var CollectApiPullRequestsMeta = plugin.SubTaskMeta{
 	Name:             "collectApiPullRequests",

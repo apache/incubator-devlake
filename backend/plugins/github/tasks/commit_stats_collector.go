@@ -32,11 +32,11 @@ import (
 	"github.com/apache/incubator-devlake/plugins/github/models"
 )
 
-const RAW_COMMIT_STATS_TABLE = "github_api_commit_stats"
-
 func init() {
 	RegisterSubtaskMeta(&CollectApiCommitStatsMeta)
 }
+
+const RAW_COMMIT_STATS_TABLE = "github_api_commit_stats"
 
 var CollectApiCommitStatsMeta = plugin.SubTaskMeta{
 	Name:             "collectApiCommitStats",

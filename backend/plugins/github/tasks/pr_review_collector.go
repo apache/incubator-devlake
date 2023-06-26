@@ -31,11 +31,11 @@ import (
 	"github.com/apache/incubator-devlake/plugins/github/models"
 )
 
-const RAW_PR_REVIEW_TABLE = "github_api_pull_request_reviews"
-
 func init() {
 	RegisterSubtaskMeta(&CollectApiPullRequestReviewsMeta)
 }
+
+const RAW_PR_REVIEW_TABLE = "github_api_pull_request_reviews"
 
 // this struct should be moved to `gitub_api_common.go`
 

@@ -34,6 +34,10 @@ import (
 	"github.com/apache/incubator-devlake/plugins/github/models"
 )
 
+func init() {
+	RegisterSubtaskMeta(&ConvertRepoMeta)
+}
+
 const RAW_REPOSITORIES_TABLE = "github_api_repositories"
 
 type ApiRepoResponse GithubApiRepo
@@ -58,6 +62,7 @@ var ConvertRepoMeta = plugin.SubTaskMeta{
 	EnabledByDefault: true,
 	Description:      "Convert tool layer table github_repos into  domain layer table repos and boards",
 	DomainTypes:      []string{plugin.DOMAIN_TYPE_CODE, plugin.DOMAIN_TYPE_TICKET, plugin.DOMAIN_TYPE_CICD, plugin.DOMAIN_TYPE_CODE_REVIEW, plugin.DOMAIN_TYPE_CROSS},
+	DependencyTables: []string{RAW_REPOSITORIES_TABLE},
 }
 
 func ConvertRepo(taskCtx plugin.SubTaskContext) errors.Error {

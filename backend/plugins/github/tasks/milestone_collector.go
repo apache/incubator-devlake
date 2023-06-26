@@ -28,11 +28,11 @@ import (
 	"github.com/apache/incubator-devlake/helpers/pluginhelper/api"
 )
 
-const RAW_MILESTONE_TABLE = "github_milestones"
-
 func init() {
 	RegisterSubtaskMeta(&CollectMilestonesMeta)
 }
+
+const RAW_MILESTONE_TABLE = "github_milestones"
 
 var CollectMilestonesMeta = plugin.SubTaskMeta{
 	Name:             "collectApiMilestones",

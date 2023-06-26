@@ -28,11 +28,11 @@ import (
 	helper "github.com/apache/incubator-devlake/helpers/pluginhelper/api"
 )
 
-const RAW_COMMIT_TABLE = "github_api_commits"
-
 func init() {
 	RegisterSubtaskMeta(&CollectApiCommitsMeta)
 }
+
+const RAW_COMMIT_TABLE = "github_api_commits"
 
 var CollectApiCommitsMeta = plugin.SubTaskMeta{
 	Name:             "collectApiCommits",
