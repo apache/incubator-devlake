@@ -19,6 +19,7 @@ package impl
 
 import (
 	"fmt"
+	"time"
 
 	"github.com/apache/incubator-devlake/core/dal"
 
@@ -121,8 +122,9 @@ func (p Sonarqube) PrepareTaskData(taskCtx plugin.TaskContext, options map[strin
 		return nil, errors.Default.Wrap(err, "unable to get Sonarqube API client instance")
 	}
 	taskData := &tasks.SonarqubeTaskData{
-		Options:   op,
-		ApiClient: apiClient,
+		Options:       op,
+		ApiClient:     apiClient,
+		TaskStartTime: time.Now(),
 	}
 	// even we have project in _tool_sonaqube_projects, we still need to collect project to update LastAnalysisDate
 	var scope models.SonarqubeProject
