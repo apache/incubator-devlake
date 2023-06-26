@@ -27,6 +27,8 @@ import (
 	pluginmodels "github.com/apache/incubator-devlake/plugins/pagerduty/models"
 	"github.com/apache/incubator-devlake/test/helper"
 	"github.com/stretchr/testify/require"
+	"net/http"
+	"strings"
 	"testing"
 	"time"
 )
@@ -43,8 +45,8 @@ func TestAzure(t *testing.T) {
 		CreateServer: true,
 		DropDb:       false,
 		TruncateDb:   true,
-		Plugins: map[string]plugin.PluginMeta{
-			"gitextractor": gitextractor.GitExtractor{},
+		Plugins: []plugin.PluginMeta{
+			gitextractor.GitExtractor{},
 		},
 	})
 	client.SetTimeout(60 * time.Second)
@@ -133,12 +135,16 @@ func TestAzure(t *testing.T) {
 		require.Equal(t, models.TASK_COMPLETED, pipeline.Status)
 		createdScopesList := client.ListScopes(azurePlugin, connection.ID, true)
 		require.True(t, len(createdScopesList) > 0)
+		client.SetExpectedStatusCode(http.StatusConflict).DeleteConnection(azurePlugin, connection.ID)
+		client.DeleteScopeConfig(azurePlugin, connection.ID, repoConfig.ID)
+		client.DeleteBlueprint(bp.ID)
 		for _, scope := range createdScopesList {
 			scopeCast := helper.Cast[pluginmodels.Service](scope.Scope)
 			fmt.Printf("Deleting scope %s\n", scopeCast.Id)
 			client.DeleteScope(azurePlugin, connection.ID, scopeCast.Id, false)
 			fmt.Printf("Deleted scope %s\n", scopeCast.Id)
 		}
+		client.DeleteConnection(azurePlugin, connection.ID)
 	})
 	fmt.Println("========DONE=======")
 }
@@ -147,8 +153,14 @@ func remoteScopesToScopes(remoteScopes helper.RemoteScopesOutput, filters []stri
 	var a []any
 	for _, c := range remoteScopes.Children {
 		repo := helper.Cast[AzureGitRepo](c.Data)
-		if len(filters) == 0 || helper.Contains(filters, repo.Name) {
+		if len(filters) == 0 {
 			a = append(a, repo)
+		} else {
+			for _, f := range filters {
+				if len(filters) == 0 || strings.Contains(repo.Name, f) {
+					a = append(a, repo)
+				}
+			}
 		}
 	}
 	return a

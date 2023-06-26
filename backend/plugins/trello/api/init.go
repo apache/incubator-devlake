@@ -56,5 +56,6 @@ func Init(br context.BasicRes, p plugin.PluginMeta) {
 	scHelper = api.NewScopeConfigHelper[models.TrelloScopeConfig](
 		basicRes,
 		vld,
+		p.Name(),
 	)
 }

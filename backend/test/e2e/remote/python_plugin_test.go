@@ -56,19 +56,31 @@ func TestDeleteConnection_Conflict(t *testing.T) {
 	conns := client.ListConnections(PLUGIN_NAME)
 	require.Equal(t, 1, len(conns))
 	require.Equal(t, TOKEN, conns[0].Token)
-	refs := client.SetExpectedStatusCode(http.StatusConflict).DeleteConnection(PLUGIN_NAME, conns[0].ID)
+	refs := client.SetExpectedStatusCode(http.StatusConflict).DeleteConnection(PLUGIN_NAME, params.connection.ID)
 	require.Equal(t, 1, len(refs.Projects))
 	require.Equal(t, 1, len(refs.Blueprints))
 	client.DeleteBlueprint(params.blueprints[0].ID)
-	refs = client.SetExpectedStatusCode(http.StatusConflict).DeleteConnection(PLUGIN_NAME, conns[0].ID)
-	// should still conflict because we have scopes tied to this connection
-	require.Equal(t, 0, len(refs.Projects))
-	require.Equal(t, 0, len(refs.Blueprints))
+	client.SetExpectedStatusCode(http.StatusConflict).DeleteConnection(PLUGIN_NAME, params.connection.ID)
 	client.DeleteScope(PLUGIN_NAME, params.connection.ID, params.scope.Id, false)
-	refs = client.DeleteConnection(PLUGIN_NAME, conns[0].ID)
+	client.DeleteConnection(PLUGIN_NAME, conns[0].ID)
+}
+
+func TestDeleteConnection_WithDependentScopesAndConfig(t *testing.T) {
+	client := CreateClient(t)
+	connection := CreateTestConnection(client)
+	config := CreateTestScopeConfig(client, connection.ID)
+	scope := CreateTestScope(client, config, connection.ID)
+	refs := client.SetExpectedStatusCode(http.StatusConflict).DeleteConnection(PLUGIN_NAME, connection.ID)
 	require.Equal(t, 0, len(refs.Projects))
 	require.Equal(t, 0, len(refs.Blueprints))
-
+	client.DeleteScope(PLUGIN_NAME, connection.ID, scope.Id, false)
+	refs = client.DeleteConnection(PLUGIN_NAME, connection.ID)
+	require.Equal(t, 0, len(refs.Projects))
+	require.Equal(t, 0, len(refs.Blueprints))
+	scopeRes := client.SetExpectedStatusCode(http.StatusBadRequest).ListScopes(PLUGIN_NAME, connection.ID, false)
+	require.Equal(t, 0, len(scopeRes))
+	configs := client.ListScopeConfigs(PLUGIN_NAME, connection.ID)
+	require.Equal(t, 0, len(configs))
 }
 
 func TestRemoteScopeGroups(t *testing.T) {
@@ -261,4 +273,33 @@ func TestUpdateScopeConfig(t *testing.T) {
 	scopeConfig := helper.Cast[FakeScopeConfig](res)
 	require.Equal(t, "new name", scopeConfig.Name)
 	require.Equal(t, "new env", scopeConfig.Env)
+}
+
+func TestDeleteScopeConfig(t *testing.T) {
+	client := CreateClient(t)
+	connection := CreateTestConnection(client)
+	scopeConfig := FakeScopeConfig{Name: "Scope config", Env: "test env", Entities: []string{plugin.DOMAIN_TYPE_CICD}}
+	scopeConfig = helper.Cast[FakeScopeConfig](client.CreateScopeConfig(PLUGIN_NAME, connection.ID, scopeConfig))
+
+	configs := helper.Cast[[]FakeScopeConfig](client.ListScopeConfigs(PLUGIN_NAME, connection.ID))
+	require.Equal(t, 1, len(configs))
+
+	client.DeleteScopeConfig(PLUGIN_NAME, connection.ID, scopeConfig.Id)
+	configs = helper.Cast[[]FakeScopeConfig](client.ListScopeConfigs(PLUGIN_NAME, connection.ID))
+	require.Equal(t, 0, len(configs))
+}
+
+func TestDeleteScopeConfig_WithReferencingScope(t *testing.T) {
+	client := CreateClient(t)
+	connection := CreateTestConnection(client)
+	scopeConfig := FakeScopeConfig{Name: "Scope config", Env: "test env", Entities: []string{plugin.DOMAIN_TYPE_CICD}}
+	scopeConfig = helper.Cast[FakeScopeConfig](client.CreateScopeConfig(PLUGIN_NAME, connection.ID, scopeConfig))
+
+	scope := CreateTestScope(client, &scopeConfig, connection.ID)
+	require.Equal(t, scopeConfig.Id, scope.ScopeConfigId)
+
+	client.DeleteScopeConfig(PLUGIN_NAME, connection.ID, scopeConfig.Id)
+	scope = helper.Cast[*FakeProject](client.GetScope(PLUGIN_NAME, connection.ID, scope.Id, false))
+	require.Equal(t, uint64(0), scope.ScopeConfigId)
+
 }

@@ -94,7 +94,7 @@ type (
 		CreateServer    bool
 		DropDb          bool
 		TruncateDb      bool
-		Plugins         map[string]plugin.PluginMeta
+		Plugins         []plugin.PluginMeta
 		Timeout         time.Duration
 		PipelineTimeout time.Duration
 	}
@@ -286,16 +286,15 @@ func (d *DevlakeClient) forceSendHttpRequest(retries uint, req *http.Request, on
 
 func (d *DevlakeClient) initPlugins(cfg *LocalClientConfig) {
 	d.testCtx.Helper()
-	if cfg.Plugins == nil {
-		cfg.Plugins = map[string]plugin.PluginMeta{}
-	}
 	// default plugins
-	cfg.Plugins["org"] = org.Org{}
-	cfg.Plugins["dora"] = dora.Dora{}
-	cfg.Plugins["refdiff"] = refdiff.RefDiff{}
+	cfg.Plugins = append(cfg.Plugins, []plugin.PluginMeta{
+		org.Org{},
+		dora.Dora{},
+		refdiff.RefDiff{},
+	}...)
 	// register and init plugins
-	for name, p := range cfg.Plugins {
-		require.NoError(d.testCtx, plugin.RegisterPlugin(name, p))
+	for _, p := range cfg.Plugins {
+		require.NoError(d.testCtx, plugin.RegisterPlugin(p.Name(), p))
 	}
 	for _, p := range plugin.AllPlugins() {
 		if pi, ok := p.(plugin.PluginInit); ok {
@@ -404,18 +403,19 @@ func sendHttpRequest[Res any](t *testing.T, timeout time.Duration, ctx *testCont
 		}()
 		if ctx.client.expectedStatusCode > 0 || response.StatusCode >= 300 {
 			if ctx.client.expectedStatusCode == 0 || ctx.client.expectedStatusCode != response.StatusCode {
-				if response.StatusCode >= 300 {
-					if err = response.Body.Close(); err != nil {
-						return false, errors.Convert(err)
-					}
-					response.Close = true
-					return false, errors.HttpStatus(response.StatusCode).New(fmt.Sprintf("unexpected http status code calling [%s] %s: %d", httpMethod, endpoint, response.StatusCode))
+				if err = response.Body.Close(); err != nil {
+					return false, errors.Convert(err)
 				}
+				response.Close = true
+				return false, errors.HttpStatus(response.StatusCode).New(fmt.Sprintf("unexpected http status code calling [%s] %s: %d", httpMethod, endpoint, response.StatusCode))
 			}
 		}
 		b, _ = io.ReadAll(response.Body)
 		if err = json.Unmarshal(b, &result); err != nil {
-			return false, errors.Convert(err)
+			if response.StatusCode < 300 {
+				return false, errors.Convert(err)
+			}
+			// it's probably ok since the request failed anyway
 		}
 		if ctx.printPayload {
 			coloredPrintf("result: %s\n", ToCleanJson(ctx.inlineJson, b))

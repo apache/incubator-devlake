@@ -77,6 +77,7 @@ func Init(br context.BasicRes, p plugin.PluginMeta) {
 	scHelper = api.NewScopeConfigHelper[models.GithubScopeConfig](
 		basicRes,
 		vld,
+		p.Name(),
 	)
 	remoteHelper = api.NewRemoteHelper[models.GithubConnection, models.GithubRepo, repo, plugin.ApiGroup](
 		basicRes,

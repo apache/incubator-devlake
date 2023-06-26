@@ -24,7 +24,7 @@ import (
 )
 
 // Creates a new in-memory DevLake server with default settings and returns a client to it
-func StartDevLakeServer(t *testing.T, loadedGoPlugins map[string]plugin.PluginMeta) *DevlakeClient {
+func StartDevLakeServer(t *testing.T, loadedGoPlugins []plugin.PluginMeta) *DevlakeClient {
 	client := ConnectLocalServer(t, &LocalClientConfig{
 		ServerPort:   8089,
 		DbURL:        config.GetConfig().GetString("E2E_DB_URL"),

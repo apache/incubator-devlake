@@ -76,8 +76,9 @@ func GetDefaultAPI(
 			"GET":  papi.ListScopeConfigs,
 		},
 		"connections/:connectionId/scope-configs/:id": {
-			"GET":   papi.GetScopeConfig,
-			"PATCH": papi.PatchScopeConfig,
+			"GET":    papi.GetScopeConfig,
+			"PATCH":  papi.PatchScopeConfig,
+			"DELETE": papi.DeleteScopeConfig,
 		},
 		"connections/:connectionId/remote-scopes": {
 			"GET": papi.GetRemoteScopes,

@@ -64,5 +64,6 @@ func Init(br context.BasicRes, p plugin.PluginMeta) {
 	scopeConfigHelper = api.NewScopeConfigHelper[models.BambooScopeConfig](
 		basicRes,
 		vld,
+		p.Name(),
 	)
 }

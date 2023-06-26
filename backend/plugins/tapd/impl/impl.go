@@ -320,8 +320,9 @@ func (p Tapd) ApiResources() map[string]map[string]plugin.ApiResourceHandler {
 			"GET":  api.GetScopeConfigList,
 		},
 		"connections/:connectionId/scope-configs/:id": {
-			"PATCH": api.UpdateScopeConfig,
-			"GET":   api.GetScopeConfig,
+			"PATCH":  api.UpdateScopeConfig,
+			"GET":    api.GetScopeConfig,
+			"DELETE": api.DeleteScopeConfig,
 		},
 	}
 }

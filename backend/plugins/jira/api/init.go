@@ -65,5 +65,6 @@ func Init(br context.BasicRes, p plugin.PluginMeta) {
 	scHelper = api.NewScopeConfigHelper[models.JiraScopeConfig](
 		basicRes,
 		vld,
+		p.Name(),
 	)
 }
