@@ -31,7 +31,7 @@ func init() {
 }
 
 var ExtractAccountOrgMeta = plugin.SubTaskMeta{
-	Name:             "ExtractAccountOrg",
+	Name:             "extractAccountOrg",
 	EntryPoint:       ExtractAccountOrg,
 	EnabledByDefault: true,
 	Description:      "Extract raw account org data into tool layer table github_account_orgs",

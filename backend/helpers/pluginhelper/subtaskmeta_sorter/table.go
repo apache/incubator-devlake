@@ -20,6 +20,7 @@ package subtaskmeta_sorter
 import (
 	"fmt"
 	"sort"
+	"strings"
 
 	"github.com/apache/incubator-devlake/core/plugin"
 )
@@ -42,9 +43,13 @@ const (
 	prefixCollect SubtaskPrefix = "collect"
 	prefixExtract SubtaskPrefix = "extract"
 	prefixConvert SubtaskPrefix = "convert"
+	prefixEnrich  SubtaskPrefix = "enrich"
 )
 
 func genClassNameByMetaName(rawName string) (string, error) {
+	if strings.HasPrefix(rawName, string(prefixEnrich)) {
+		return string(prefixEnrich), nil
+	}
 	if len(rawName) > 7 {
 		return rawName[7:], nil
 	}
@@ -53,14 +58,15 @@ func genClassNameByMetaName(rawName string) (string, error) {
 
 /*
 To use this sorter, developers need to ensure the following prerequisites
- 1. The collect, extract, convert suffix names of the same task need to be the same,
+ 1. The collect, extract, enrich, convert suffix names of the same task need to be the same,
     such as collectAccounts, extractAccounts, convertAccounts,
     otherwise the sorting algorithm cannot effectively match different tasks.
- 2. For the same task, developers need to ensure that the execution order is collect, extract, convert,
+ 2. For the same task, developers need to ensure that the execution order is collect, extract, enrich, convert,
     otherwise the order cannot be correctly sorted
  3. Different tasks have no order requirements for operations on the same table,
     which is most important, because the sorting algorithm will only sort tasks
     that depend on the same table according to the subtask name
+ 4. All subtaskmeta names start with lowercase
 */
 func dependencyTableTopologicalSort(metas []*plugin.SubTaskMeta) ([]plugin.SubTaskMeta, error) {
 	// 1. construct data
@@ -119,10 +125,19 @@ func dependencyTableTopologicalSort(metas []*plugin.SubTaskMeta) ([]plugin.SubTa
 				case prefixExtract:
 					tmpList[1] = *subtaskItem
 				case prefixConvert:
-					if len(value) == 3 {
+					if len(value) == 2 {
+						// enrich with convert
+						tmpList[1] = *subtaskItem
+					} else if len(value) == 3 {
 						tmpList[2] = *subtaskItem
 					} else {
-						return nil, fmt.Errorf("got wrong length of list with extrac subtask")
+						return nil, fmt.Errorf("got wrong length of list with extract subtask")
+					}
+				case prefixEnrich:
+					if len(value) == 2 {
+						tmpList[0] = *subtaskItem
+					} else {
+						return nil, fmt.Errorf("got wrong length of list with extract subtask")
 					}
 				default:
 					return nil, fmt.Errorf("got wrong length of subtask %v", subtaskItem)

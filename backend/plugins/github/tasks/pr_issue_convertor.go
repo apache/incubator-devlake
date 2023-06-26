@@ -37,7 +37,7 @@ var ConvertPullRequestIssuesMeta = plugin.SubTaskMeta{
 	Name:             "convertPullRequestIssues",
 	EntryPoint:       ConvertPullRequestIssues,
 	EnabledByDefault: true,
-	Description:      "Convert tool layer table github_pull_request_issues into  domain layer table pull_request_issues",
+	Description:      "Convert tool layer table github_pull_request_issues into domain layer table pull_request_issues",
 	DomainTypes:      []string{plugin.DOMAIN_TYPE_CROSS},
 	DependencyTables: []string{RAW_PULL_REQUEST_TABLE},
 }
