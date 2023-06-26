@@ -122,7 +122,7 @@ export const DataScopeSelect = ({
             ]}
             dataSource={data}
             rowSelection={{
-              rowKey: getPluginId(plugin),
+              getRowKey: (data) => getPluginScopeId(plugin, data),
               type: 'checkbox',
               selectedRowKeys: scopeIds as string[],
               onChange: (selectedRowKeys) => setScopeIds(selectedRowKeys),

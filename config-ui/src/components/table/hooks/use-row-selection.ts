@@ -21,7 +21,8 @@ import { useState, useEffect, useMemo } from 'react';
 export interface UseRowSelectionProps<T> {
   dataSource: T[];
   rowSelection?: {
-    rowKey: ID;
+    rowKey?: ID;
+    getRowKey?: (data: T) => ID;
     type?: 'checkbox' | 'radio';
     selectedRowKeys?: ID[];
     onChange?: (selectedRowKeys: ID[]) => void;
@@ -33,6 +34,7 @@ export const useRowSelection = <T>({ dataSource, rowSelection }: UseRowSelection
 
   const {
     rowKey = 'key',
+    getRowKey = (data: T) => (data as any)[rowKey],
     type = 'checkbox',
     selectedRowKeys,
     onChange,
@@ -47,7 +49,7 @@ export const useRowSelection = <T>({ dataSource, rowSelection }: UseRowSelection
   }, [selectedRowKeys]);
 
   const handleChecked = (data: T) => {
-    const key = (data as any)[rowKey];
+    const key = getRowKey(data);
     let result: ID[] = selectedKeys;
 
     switch (true) {
@@ -69,7 +71,7 @@ export const useRowSelection = <T>({ dataSource, rowSelection }: UseRowSelection
     let result: string[] = [];
 
     if (selectedKeys.length !== dataSource.length) {
-      result = dataSource.map((data: any) => data[rowKey]);
+      result = dataSource.map(getRowKey);
     }
 
     onChange ? onChange(result) : setSelectedKeys(result);
@@ -82,7 +84,7 @@ export const useRowSelection = <T>({ dataSource, rowSelection }: UseRowSelection
       getCheckedAll: () => dataSource.length === selectedKeys.length,
       onCheckedAll: handleCheckedAll,
       getChecked: (data: T) => {
-        return selectedKeys.includes((data as any)[rowKey]);
+        return selectedKeys.includes(getRowKey(data));
       },
       onChecked: handleChecked,
     }),
