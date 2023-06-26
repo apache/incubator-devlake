@@ -18,7 +18,6 @@ limitations under the License.
 package api
 
 import (
-	"fmt"
 	"net/http"
 	"reflect"
 	"strconv"
@@ -153,7 +152,7 @@ func (t ScopeConfigHelper[ScopeConfig]) Delete(input *plugin.ApiResourceInput) (
 	if err != nil {
 		return nil, err
 	}
-	return &plugin.ApiResourceOutput{Body: config, Status: http.StatusOK}, nil
+	return &plugin.ApiResourceOutput{Body: nil, Status: http.StatusOK}, nil
 }
 func (t ScopeConfigHelper[ScopeConfig]) nullOutScopeReferences(scopeConfigId uint64) errors.Error {
 	p, _ := plugin.GetPlugin(t.pluginName)
@@ -165,5 +164,5 @@ func (t ScopeConfigHelper[ScopeConfig]) nullOutScopeReferences(scopeConfigId uin
 	if scopeModel == nil {
 		return nil
 	}
-	return t.db.Exec(fmt.Sprintf("UPDATE %s SET scope_config_id = NULL WHERE scope_config_id = %d", scopeModel.TableName(), scopeConfigId))
+	return t.db.UpdateColumn(scopeModel.TableName(), "scope_config_id", nil, dal.Where("scope_config_id = ?", scopeConfigId))
 }

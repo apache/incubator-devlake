@@ -18,7 +18,6 @@ limitations under the License.
 package plugin
 
 import (
-	"fmt"
 	"github.com/apache/incubator-devlake/server/services/remote/models"
 	"net/http"
 	"strconv"
@@ -125,7 +124,8 @@ func (pa *pluginAPI) DeleteScopeConfig(input *plugin.ApiResourceInput) (*plugin.
 
 func (pa *pluginAPI) nullOutScopeReferences(scopeConfigId uint64) errors.Error {
 	scopeModel := models.NewDynamicScopeModel(pa.scopeType)
-	return basicRes.GetDal().Exec(fmt.Sprintf("UPDATE %s SET scope_config_id = NULL WHERE scope_config_id = %d", scopeModel.TableName(), scopeConfigId))
+	db := basicRes.GetDal()
+	return db.UpdateColumn(scopeModel.TableName(), "scope_config_id", nil, dal.Where("scope_config_id = ?", scopeConfigId))
 }
 
 func extractConfigParam(params map[string]string) (connectionId uint64, configId uint64, err errors.Error) {
