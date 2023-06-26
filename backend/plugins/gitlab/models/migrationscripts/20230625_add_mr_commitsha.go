@@ -18,25 +18,38 @@ limitations under the License.
 package migrationscripts
 
 import (
-	"github.com/apache/incubator-devlake/core/plugin"
+	"github.com/apache/incubator-devlake/core/context"
+	"github.com/apache/incubator-devlake/core/errors"
+	"github.com/apache/incubator-devlake/helpers/migrationhelper"
 )
 
-// All return all the migration scripts
-func All() []plugin.MigrationScript {
-	return []plugin.MigrationScript{
-		new(addInitTables),
-		new(addGitlabCI),
-		new(addPipelineID),
-		new(addPipelineProjects),
-		new(fixDurationToFloat8),
-		new(addTransformationRule20221125),
-		new(addStdTypeToIssue221230),
-		new(addIsDetailRequired20230210),
-		new(addConnectionIdToTransformationRule),
-		new(addGitlabCommitAuthorInfo),
-		new(addTypeEnvToPipeline),
-		new(renameTr2ScopeConfig),
-		new(addGitlabIssueAssignee),
-		new(addMrCommitSha),
+type addMrCommitSha struct{}
+
+type GitlabMergeRequest20230625 struct {
+	MergeCommitSha  string `gorm:"type:varchar(255)"`
+	SquashCommitSha string `gorm:"type:varchar(255)"`
+}
+
+func (GitlabMergeRequest20230625) TableName() string {
+	return "_tool_gitlab_merge_requests"
+}
+
+func (*addMrCommitSha) Up(baseRes context.BasicRes) errors.Error {
+	err := migrationhelper.AutoMigrateTables(
+		baseRes,
+		&GitlabMergeRequest20230625{},
+	)
+	if err != nil {
+		return err
 	}
+
+	return nil
+}
+
+func (*addMrCommitSha) Version() uint64 {
+	return 20230625110339
+}
+
+func (*addMrCommitSha) Name() string {
+	return "add _tool_gitlab_issue_assignees table"
 }
