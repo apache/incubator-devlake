@@ -57,6 +57,22 @@ func CollectHotspots(taskCtx plugin.SubTaskContext) errors.Error {
 				Data []json.RawMessage `json:"hotspots"`
 			}
 			err := helper.UnmarshalResponse(res, &resData)
+
+			// check if sonar report updated during collecting
+			var issue struct {
+				UpdateDate *helper.Iso8601Time `json:"updateDate"`
+			}
+			for _, v := range resData.Data {
+				err = errors.Convert(json.Unmarshal(v, &issue))
+				if err != nil {
+					return nil, err
+				}
+				if issue.UpdateDate.ToTime().After(data.TaskStartTime) {
+					return nil, errors.Default.New(fmt.Sprintf(`Your data is affected by the latest analysis\n
+						Please recollect this project: %s`, data.Options.ProjectKey))
+				}
+			}
+
 			return resData.Data, err
 		},
 	})

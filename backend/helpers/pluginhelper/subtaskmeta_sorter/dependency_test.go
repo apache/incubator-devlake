@@ -66,15 +66,15 @@ func Test_topologicalSort(t *testing.T) {
 		{
 			name: "cycle error",
 			args: args{[]*plugin.SubTaskMeta{
-				&plugin.SubTaskMeta{
+				{
 					Name: "D",
-					Dependencies: []*plugin.SubTaskMeta{&plugin.SubTaskMeta{
+					Dependencies: []*plugin.SubTaskMeta{{
 						Name: "E",
 					}},
 				},
-				&plugin.SubTaskMeta{
+				{
 					Name: "E",
-					Dependencies: []*plugin.SubTaskMeta{&plugin.SubTaskMeta{
+					Dependencies: []*plugin.SubTaskMeta{{
 						Name: "D",
 					}},
 				},

@@ -17,6 +17,7 @@ package e2e
 
 import (
 	"testing"
+	"time"
 
 	"github.com/apache/incubator-devlake/core/models/common"
 	"github.com/apache/incubator-devlake/core/models/domainlayer/codequality"
@@ -41,6 +42,7 @@ func TestSonarqubeIssueDataFlow(t *testing.T) {
 			ConnectionId: 1,
 			ProjectKey:   "f5a50c63-2e8f-4107-9014-853f6f467757",
 		},
+		TaskStartTime: time.Now(),
 	}
 	// Interfered data
 	taskData2 := &tasks.SonarqubeTaskData{
@@ -48,6 +50,7 @@ func TestSonarqubeIssueDataFlow(t *testing.T) {
 			ConnectionId: 2,
 			ProjectKey:   "testWarrenEtcd",
 		},
+		TaskStartTime: time.Now(),
 	}
 
 	// verify extraction
