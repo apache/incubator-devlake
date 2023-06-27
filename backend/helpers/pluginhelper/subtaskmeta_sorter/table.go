@@ -118,7 +118,10 @@ func dependencyTableTopologicalSort(metas []*plugin.SubTaskMeta) ([]plugin.SubTa
 		}
 		tmpList := make([]plugin.SubTaskMeta, len(value))
 		for _, subtaskItem := range value {
-			if len(value) >= 1 && len(subtaskItem.Name) > 7 {
+			if len(value) <= 1 {
+				return nil, fmt.Errorf("wrong length of subtask list %v", value)
+			}
+			if len(value) > 1 && len(subtaskItem.Name) > 7 {
 				switch SubtaskPrefix(subtaskItem.Name[:7]) {
 				case prefixCollect:
 					tmpList[0] = *subtaskItem
