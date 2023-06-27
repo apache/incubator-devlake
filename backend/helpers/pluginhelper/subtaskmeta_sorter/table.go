@@ -56,6 +56,19 @@ func genClassNameByMetaName(rawName string) (string, error) {
 	return "", fmt.Errorf("got illeagal raw name = %s", rawName)
 }
 
+func getSubtaskType(raw string) SubtaskPrefix {
+	if strings.HasPrefix(raw, string(prefixEnrich)) {
+		return prefixEnrich
+	}
+	if len(raw) > 7 &&
+		(raw[:7] == string(prefixCollect) ||
+			raw[:7] == string(prefixExtract) ||
+			raw[:7] == string(prefixConvert)) {
+		return SubtaskPrefix(raw[:7])
+	}
+	return ""
+}
+
 /*
 To use this sorter, developers need to ensure the following prerequisites
  1. The collect, extract, enrich, convert suffix names of the same task need to be the same,
@@ -120,52 +133,4 @@ func dependencyTableTopologicalSort(metas []*plugin.SubTaskMeta) ([]plugin.SubTa
 		sortedSubtaskMetaList = append(sortedSubtaskMetaList, convertSubtaskMetaPointToStruct(value)...)
 	}
 	return sortedSubtaskMetaList, nil
-}
-
-func convertSubtaskMetaPointToStruct(rawList []*plugin.SubTaskMeta) []plugin.SubTaskMeta {
-	list := make([]plugin.SubTaskMeta, len(rawList))
-	for index, value := range rawList {
-		list[index] = *value
-	}
-	return list
-}
-
-type SubtaskMetaList []*plugin.SubTaskMeta
-
-func (s SubtaskMetaList) Len() int {
-	return len(SubtaskMetaList{})
-}
-
-func (s SubtaskMetaList) Less(i, j int) bool {
-	// correct order is collect, extract, enrich, convert
-	prefixNameI, err := genClassNameByMetaName(s[i].Name)
-	if err != nil {
-		return false
-	}
-
-	prefixNameJ, err := genClassNameByMetaName(s[j].Name)
-	if err != nil {
-		return false
-	}
-
-	switch SubtaskPrefix(prefixNameI) {
-	case prefixCollect:
-		return true
-	case prefixExtract:
-		if prefixNameJ == string(prefixCollect) {
-			return true
-		}
-	case prefixEnrich:
-		if prefixNameJ == string(prefixCollect) || prefixNameJ == string(prefixExtract) {
-			return true
-		}
-	case prefixConvert:
-		return false
-	}
-
-	return false
-}
-
-func (s SubtaskMetaList) Swap(i, j int) {
-	s[i], s[j] = s[j], s[i]
 }

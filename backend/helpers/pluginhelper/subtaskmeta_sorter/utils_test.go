@@ -108,3 +108,7 @@ func Test_topologicalSortDifferentElements(t *testing.T) {
 		})
 	}
 }
+
+func Test_SortSubtaskList(t *testing.T) {
+
+}
