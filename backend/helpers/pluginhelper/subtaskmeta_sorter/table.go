@@ -116,38 +116,56 @@ func dependencyTableTopologicalSort(metas []*plugin.SubTaskMeta) ([]plugin.SubTa
 		if !ok {
 			return nil, fmt.Errorf("failed get subtask list by class name = %s", nameItem)
 		}
-		tmpList := make([]plugin.SubTaskMeta, len(value))
-		for _, subtaskItem := range value {
-			if len(value) <= 1 {
-				return nil, fmt.Errorf("wrong length of subtask list %v", value)
-			}
-			if len(value) > 1 && len(subtaskItem.Name) > 7 {
-				switch SubtaskPrefix(subtaskItem.Name[:7]) {
-				case prefixCollect:
-					tmpList[0] = *subtaskItem
-				case prefixExtract:
-					tmpList[1] = *subtaskItem
-				case prefixConvert:
-					if len(value) == 2 {
-						// enrich with convert
-						tmpList[1] = *subtaskItem
-					} else if len(value) == 3 {
-						tmpList[2] = *subtaskItem
-					} else {
-						return nil, fmt.Errorf("got wrong length of list with extract subtask")
-					}
-				case prefixEnrich:
-					if len(value) == 2 {
-						tmpList[0] = *subtaskItem
-					} else {
-						return nil, fmt.Errorf("got wrong length of list with extract subtask")
-					}
-				default:
-					return nil, fmt.Errorf("got wrong length of subtask %v", subtaskItem)
-				}
-			}
-		}
-		sortedSubtaskMetaList = append(sortedSubtaskMetaList, tmpList...)
+		sort.Sort(SubtaskMetaList(value))
+		sortedSubtaskMetaList = append(sortedSubtaskMetaList, convertSubtaskMetaPointToStruct(value)...)
 	}
 	return sortedSubtaskMetaList, nil
+}
+
+func convertSubtaskMetaPointToStruct(rawList []*plugin.SubTaskMeta) []plugin.SubTaskMeta {
+	list := make([]plugin.SubTaskMeta, len(rawList))
+	for index, value := range rawList {
+		list[index] = *value
+	}
+	return list
+}
+
+type SubtaskMetaList []*plugin.SubTaskMeta
+
+func (s SubtaskMetaList) Len() int {
+	return len(SubtaskMetaList{})
+}
+
+func (s SubtaskMetaList) Less(i, j int) bool {
+	// correct order is collect, extract, enrich, convert
+	prefixNameI, err := genClassNameByMetaName(s[i].Name)
+	if err != nil {
+		return false
+	}
+
+	prefixNameJ, err := genClassNameByMetaName(s[j].Name)
+	if err != nil {
+		return false
+	}
+
+	switch SubtaskPrefix(prefixNameI) {
+	case prefixCollect:
+		return true
+	case prefixExtract:
+		if prefixNameJ == string(prefixCollect) {
+			return true
+		}
+	case prefixEnrich:
+		if prefixNameJ == string(prefixCollect) || prefixNameJ == string(prefixExtract) {
+			return true
+		}
+	case prefixConvert:
+		return false
+	}
+
+	return false
+}
+
+func (s SubtaskMetaList) Swap(i, j int) {
+	s[i], s[j] = s[j], s[i]
 }
