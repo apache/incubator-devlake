@@ -131,7 +131,7 @@ RUN apt-get update && \
 
 EXPOSE 8080
 
-RUN useradd -ms /bin/bash devlake
+RUN useradd -ms /bin/bash devlake -u 1010
 USER devlake
 ENV PYTHONUNBUFFERED=1
 
