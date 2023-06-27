@@ -83,7 +83,6 @@ func TestMakePlanV200(t *testing.T) {
 	expectedPlan = append(expectedPlan, orgPlan...)
 	expectedPlan = append(expectedPlan, githubOutputPlan...)
 	expectedPlan = append(expectedPlan, doraOutputPlan...)
-	expectedScopes := append(make([]plugin.Scope, 0), githubOutputScopes...)
 
 	// plugin registration
 	plugin.RegisterPlugin(githubName, github)
@@ -102,9 +101,8 @@ func TestMakePlanV200(t *testing.T) {
 		doraName: nil,
 	}
 
-	plan, scopes, err := genPlanJsonV200(projectName, syncPolicy, sources, metrics, false)
+	plan, err := GeneratePlanJsonV200(projectName, syncPolicy, sources, metrics, false)
 	assert.Nil(t, err)
 
 	assert.Equal(t, expectedPlan, plan)
-	assert.Equal(t, expectedScopes, scopes)
 }
