@@ -45,11 +45,11 @@ var (
 		"_raw_fake_fakepipelinestream",
 		"_tool_fakeplugin_fakepipelines",
 		"cicd_pipelines",
+		"cicd_scopes",
 	}
 	PluginConfigTables = []string{
 		"_tool_fakeplugin_fakescopeconfigs",
 		"_tool_fakeplugin_fakeconnections",
-		"cicd_scopes",
 	}
 	PluginScopeTable = "_tool_fakeplugin_fakeprojects"
 )
