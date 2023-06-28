@@ -117,6 +117,7 @@ class Plugin(ABC):
             for tool_scope in self.remote_scopes(connection, group_id):
                 tool_scope.connection_id = connection.id
                 tool_scope.raw_data_params = raw_data_params(connection.id, tool_scope.id)
+                tool_scope.raw_data_table = self._raw_scope_table_name()
                 remote_scopes.append(
                     msg.RemoteScope(
                         id=tool_scope.id,
@@ -140,6 +141,7 @@ class Plugin(ABC):
             for scope in self.domain_scopes(tool_scope):
                 scope.id = tool_scope.domain_id()
                 scope.raw_data_params = raw_data_params(connection.id, tool_scope.id)
+                scope.raw_data_table = self._raw_scope_table_name()
                 domain_scopes.append(
                     msg.DynamicDomainScope(
                         type_name=type(scope).__name__,
@@ -161,6 +163,9 @@ class Plugin(ABC):
             *(self.make_pipeline_stage(scope, config, connection) for scope, config in scope_config_pairs),
             *self.extra_stages(scope_config_pairs, connection)
         ]
+
+    def _raw_scope_table_name(self) -> str:
+        return f"_raw_{self.name}_scopes"
 
     def extra_stages(self, scope_config_pairs: list[ScopeConfigPair],
                      connection: Connection) -> list[list[msg.PipelineTask]]:
