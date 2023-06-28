@@ -41,6 +41,7 @@ type ZentaoTaskRes struct {
 	Pri            int                 `json:"pri"`
 	Estimate       float64             `json:"estimate"`
 	Consumed       float64             `json:"consumed"`
+	Left           float64             `json:"left"`
 	Deadline       string              `json:"deadline"`
 	Status         string              `json:"status"`
 	SubStatus      string              `json:"subStatus"`
@@ -112,6 +113,7 @@ type ZentaoTask struct {
 	Pri           int     `json:"pri"`
 	Estimate      float64 `json:"estimate"`
 	Consumed      float64 `json:"consumed"`
+	Left          float64 `json:"left" gorm:"column:db_left"`
 	Deadline      string  `json:"deadline"`
 	Status        string  `json:"status"`
 	SubStatus     string  `json:"subStatus"`

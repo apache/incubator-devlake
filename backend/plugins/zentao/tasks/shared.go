@@ -58,22 +58,25 @@ func getAccountName(account *models.ZentaoAccount) string {
 
 // get the Priority string for zentao
 func getPriority(pri int) string {
-	switch pri {
-	case 2:
-		return "High"
-	case 3:
-		return "Middle"
-	case 4:
-		return "Low"
-	default:
-		if pri <= 1 {
-			return "VeryHigh"
+	return fmt.Sprintf("%d", pri)
+	/*
+		switch pri {
+		case 2:
+			return "High"
+		case 3:
+			return "Middle"
+		case 4:
+			return "Low"
+		default:
+			if pri <= 1 {
+				return "VeryHigh"
+			}
+			if pri >= 5 {
+				return "VeryLow"
+			}
 		}
-		if pri >= 5 {
-			return "VeryLow"
-		}
-	}
-	return "Error"
+		return "Error"
+	*/
 }
 
 func getOriginalProject(data *ZentaoTaskData) string {
@@ -193,4 +196,17 @@ func RangeProductOneByOne(taskCtx plugin.SubTaskContext, callback func(taskCtx p
 	}
 
 	return nil
+}
+
+func ScopeParams(cid uint64, projectId int64, productId int64) ZentaoApiParams {
+	param := ZentaoApiParams{
+		ConnectionId: cid,
+	}
+	if projectId != 0 {
+		param.ZentaoId = fmt.Sprintf("projects/%d", projectId)
+	} else {
+		param.ZentaoId = fmt.Sprintf("products/%d", productId)
+	}
+
+	return param
 }

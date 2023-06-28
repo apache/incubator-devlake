@@ -49,7 +49,13 @@ func ConvertBugForOneProduct(taskCtx plugin.SubTaskContext) errors.Error {
 	data := taskCtx.GetData().(*ZentaoTaskData)
 	db := taskCtx.GetDal()
 	bugIdGen := didgen.NewDomainIdGenerator(&models.ZentaoBug{})
+	accountIdGen := didgen.NewDomainIdGenerator(&models.ZentaoAccount{})
+
 	boardIdGen := didgen.NewDomainIdGenerator(&models.ZentaoProduct{})
+	if data.Options.ProjectId != 0 {
+		boardIdGen = didgen.NewDomainIdGenerator(&models.ZentaoProject{})
+	}
+
 	storyIdGen := didgen.NewDomainIdGenerator(&models.ZentaoStory{})
 	cursor, err := db.Cursor(
 		dal.From(&models.ZentaoBug{}),
@@ -65,11 +71,11 @@ func ConvertBugForOneProduct(taskCtx plugin.SubTaskContext) errors.Error {
 		Input:        cursor,
 		RawDataSubTaskArgs: api.RawDataSubTaskArgs{
 			Ctx: taskCtx,
-			Params: ZentaoApiParams{
-				ConnectionId: data.Options.ConnectionId,
-				ProductId:    data.Options.ProductId,
-				ProjectId:    data.Options.ProjectId,
-			},
+			Params: ScopeParams(
+				data.Options.ConnectionId,
+				data.Options.ProjectId,
+				data.Options.ProductId,
+			),
 			Table: RAW_BUG_TABLE,
 		},
 		Convert: func(inputRow interface{}) ([]interface{}, errors.Error) {
@@ -88,9 +94,9 @@ func ConvertBugForOneProduct(taskCtx plugin.SubTaskContext) errors.Error {
 				UpdatedDate:     toolEntity.LastEditedDate.ToNullableTime(),
 				ParentIssueId:   storyIdGen.Generate(data.Options.ConnectionId, toolEntity.Story),
 				Priority:        getPriority(toolEntity.Pri),
-				CreatorId:       strconv.FormatInt(toolEntity.OpenedById, 10),
+				CreatorId:       accountIdGen.Generate(toolEntity.ConnectionId, toolEntity.OpenedById),
 				CreatorName:     toolEntity.OpenedByName,
-				AssigneeId:      strconv.FormatInt(toolEntity.AssignedToId, 10),
+				AssigneeId:      accountIdGen.Generate(toolEntity.ConnectionId, toolEntity.AssignedToId),
 				AssigneeName:    toolEntity.AssignedToName,
 				Severity:        string(rune(toolEntity.Severity)),
 				Url:             toolEntity.Url,
@@ -110,8 +116,14 @@ func ConvertBugForOneProduct(taskCtx plugin.SubTaskContext) errors.Error {
 				}
 				results = append(results, issueAssignee)
 			}
+
+			boardId := boardIdGen.Generate(data.Options.ConnectionId, data.Options.ProductId)
+			if data.Options.ProjectId != 0 {
+				boardId = boardIdGen.Generate(data.Options.ConnectionId, data.Options.ProjectId)
+			}
+
 			domainBoardIssue := &ticket.BoardIssue{
-				BoardId: boardIdGen.Generate(data.Options.ConnectionId, data.Options.ProductId),
+				BoardId: boardId,
 				IssueId: domainEntity.Id,
 			}
 			results = append(results, domainEntity, domainBoardIssue)

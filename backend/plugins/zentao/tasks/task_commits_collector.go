@@ -53,11 +53,11 @@ func CollectTaskCommits(taskCtx plugin.SubTaskContext) errors.Error {
 	// state manager
 	collectorWithState, err := api.NewStatefulApiCollector(api.RawDataSubTaskArgs{
 		Ctx: taskCtx,
-		Params: ZentaoApiParams{
-			ConnectionId: data.Options.ConnectionId,
-			ProductId:    data.Options.ProductId,
-			ProjectId:    data.Options.ProjectId,
-		},
+		Params: ScopeParams(
+			data.Options.ConnectionId,
+			data.Options.ProjectId,
+			data.Options.ProductId,
+		),
 		Table: RAW_TASK_COMMITS_TABLE,
 	}, data.TimeAfter)
 	if err != nil {
@@ -95,11 +95,11 @@ func CollectTaskCommits(taskCtx plugin.SubTaskContext) errors.Error {
 	err = collectorWithState.InitCollector(api.ApiCollectorArgs{
 		RawDataSubTaskArgs: api.RawDataSubTaskArgs{
 			Ctx: taskCtx,
-			Params: ZentaoApiParams{
-				ConnectionId: data.Options.ConnectionId,
-				ProductId:    data.Options.ProductId,
-				ProjectId:    data.Options.ProjectId,
-			},
+			Params: ScopeParams(
+				data.Options.ConnectionId,
+				data.Options.ProjectId,
+				data.Options.ProductId,
+			),
 			Table: RAW_TASK_COMMITS_TABLE,
 		},
 		ApiClient:   data.ApiClient,

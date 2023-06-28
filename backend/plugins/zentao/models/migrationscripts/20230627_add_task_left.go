@@ -18,16 +18,32 @@ limitations under the License.
 package migrationscripts
 
 import (
-	"github.com/apache/incubator-devlake/core/plugin"
+	"github.com/apache/incubator-devlake/core/context"
+	"github.com/apache/incubator-devlake/core/errors"
+	"github.com/apache/incubator-devlake/helpers/migrationhelper"
 )
 
-// All return all the migration scripts
-func All() []plugin.MigrationScript {
-	return []plugin.MigrationScript{
-		new(addInitTables),
-		new(addScopeConfigTables),
-		new(addIssueRepoCommitsTables),
-		new(addInitChangelogTables),
-		new(addTaskLeft),
-	}
+type addTaskLeft struct{}
+
+type ZentaoTask20230627 struct {
+	Left float64 `json:"left" gorm:"column:db_left"`
+}
+
+func (ZentaoTask20230627) TableName() string {
+	return "_tool_zentao_tasks"
+}
+
+func (*addTaskLeft) Up(basicRes context.BasicRes) errors.Error {
+	return migrationhelper.AutoMigrateTables(
+		basicRes,
+		&ZentaoTask20230627{},
+	)
+}
+
+func (*addTaskLeft) Version() uint64 {
+	return 20230627000001
+}
+
+func (*addTaskLeft) Name() string {
+	return "zentao init changelog schemas"
 }
