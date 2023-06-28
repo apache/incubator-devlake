@@ -42,6 +42,7 @@ var ConvertJobsMeta = plugin.SubTaskMeta{
 	Description:      "Convert tool layer table github_jobs into  domain layer table cicd_tasks",
 	DomainTypes:      []string{plugin.DOMAIN_TYPE_CICD},
 	DependencyTables: []string{RAW_JOB_TABLE},
+	ProductTables:    []string{devops.CICDTask{}.TableName()},
 }
 
 type SimpleBranch struct {

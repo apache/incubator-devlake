@@ -41,6 +41,16 @@ type SimpleAccountWithId struct {
 	AccountId int
 }
 
+var CollectAccountOrgMeta = plugin.SubTaskMeta{
+	Name:             "collectAccountOrg",
+	EntryPoint:       CollectAccountOrg,
+	EnabledByDefault: true,
+	Description:      "Collect accounts org data from Github api, does not support either timeFilter or diffSync.",
+	DomainTypes:      []string{plugin.DOMAIN_TYPE_CROSS},
+	DependencyTables: []string{models.GithubRepoAccount{}.TableName()},
+	ProductTables:    []string{RAW_ACCOUNT_ORG_TABLE},
+}
+
 func CollectAccountOrg(taskCtx plugin.SubTaskContext) errors.Error {
 	db := taskCtx.GetDal()
 	data := taskCtx.GetData().(*GithubTaskData)
@@ -89,13 +99,4 @@ func CollectAccountOrg(taskCtx plugin.SubTaskContext) errors.Error {
 		return err
 	}
 	return collector.Execute()
-}
-
-var CollectAccountOrgMeta = plugin.SubTaskMeta{
-	Name:             "collectAccountOrg",
-	EntryPoint:       CollectAccountOrg,
-	EnabledByDefault: true,
-	Description:      "Collect accounts org data from Github api, does not support either timeFilter or diffSync.",
-	DomainTypes:      []string{plugin.DOMAIN_TYPE_CROSS},
-	DependencyTables: []string{RAW_ACCOUNT_ORG_TABLE},
 }

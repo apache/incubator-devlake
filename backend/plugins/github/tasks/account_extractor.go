@@ -38,6 +38,7 @@ var ExtractAccountsMeta = plugin.SubTaskMeta{
 	Description:      "Extract raw account data  into tool layer table github_accounts",
 	DomainTypes:      []string{plugin.DOMAIN_TYPE_CROSS},
 	DependencyTables: []string{RAW_ACCOUNT_TABLE},
+	ProductTables:    []string{models.GithubAccount{}.TableName()},
 }
 
 type DetailGithubAccountResponse struct {

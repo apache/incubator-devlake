@@ -37,6 +37,8 @@ var ExtractApiCommitsMeta = plugin.SubTaskMeta{
 	Description:      "Extract raw commit data into tool layer table github_commits",
 	DomainTypes:      []string{plugin.DOMAIN_TYPE_CODE},
 	DependencyTables: []string{RAW_COMMIT_TABLE},
+	ProductTables: []string{models.GithubCommit{}.TableName(),
+		models.GithubRepoCommit{}.TableName()},
 }
 
 type CommitsResponse struct {

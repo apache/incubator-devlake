@@ -39,6 +39,7 @@ var ExtractJobsMeta = plugin.SubTaskMeta{
 	Description:      "Extract raw run data into tool layer table github_jobs",
 	DomainTypes:      []string{plugin.DOMAIN_TYPE_CICD},
 	DependencyTables: []string{RAW_JOB_TABLE},
+	ProductTables:    []string{models.GithubJob{}.TableName()},
 }
 
 func ExtractJobs(taskCtx plugin.SubTaskContext) errors.Error {

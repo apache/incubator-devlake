@@ -39,7 +39,11 @@ var ConvertCommitsMeta = plugin.SubTaskMeta{
 	EnabledByDefault: false,
 	Description:      "Convert tool layer table github_commits into  domain layer table commits",
 	DomainTypes:      []string{plugin.DOMAIN_TYPE_CODE},
-	DependencyTables: []string{RAW_COMMENTS_TABLE},
+	DependencyTables: []string{models.GithubCommit{}.TableName(),
+		"gc",
+		RAW_COMMENTS_TABLE},
+	ProductTables: []string{code.Commit{}.TableName(),
+		code.RepoCommit{}.TableName()},
 }
 
 func ConvertCommits(taskCtx plugin.SubTaskContext) errors.Error {

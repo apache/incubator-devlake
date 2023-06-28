@@ -100,6 +100,7 @@ type SubTaskMeta struct {
 	DomainTypes      []string
 	Dependencies     []*SubTaskMeta
 	DependencyTables []string
+	ProductTables    []string
 }
 
 // PluginTask Implement this interface to let framework run tasks for you

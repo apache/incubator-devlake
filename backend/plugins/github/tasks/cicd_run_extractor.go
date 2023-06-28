@@ -38,6 +38,7 @@ var ExtractRunsMeta = plugin.SubTaskMeta{
 	Description:      "Extract raw run data into tool layer table github_runs",
 	DomainTypes:      []string{plugin.DOMAIN_TYPE_CICD},
 	DependencyTables: []string{RAW_RUN_TABLE},
+	ProductTables:    []string{models.GithubRun{}.TableName()},
 }
 
 func ExtractRuns(taskCtx plugin.SubTaskContext) errors.Error {

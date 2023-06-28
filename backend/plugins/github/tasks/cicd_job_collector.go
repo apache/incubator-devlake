@@ -43,7 +43,8 @@ var CollectJobsMeta = plugin.SubTaskMeta{
 	EnabledByDefault: true,
 	Description:      "Collect Jobs data from Github action api, supports both timeFilter and diffSync.",
 	DomainTypes:      []string{plugin.DOMAIN_TYPE_CICD},
-	DependencyTables: []string{RAW_JOB_TABLE},
+	DependencyTables: []string{models.GithubRun{}.TableName()},
+	ProductTables:    []string{RAW_JOB_TABLE},
 }
 
 func CollectJobs(taskCtx plugin.SubTaskContext) errors.Error {

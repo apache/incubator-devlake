@@ -44,7 +44,10 @@ var CollectApiCommitStatsMeta = plugin.SubTaskMeta{
 	EnabledByDefault: false,
 	Description:      "Collect commitStats data from Github api, does not support either timeFilter or diffSync.",
 	DomainTypes:      []string{plugin.DOMAIN_TYPE_CODE},
-	DependencyTables: []string{RAW_COMMIT_STATS_TABLE},
+	DependencyTables: []string{models.GithubCommitStat{}.TableName(),
+		models.GithubRepoCommit{}.TableName(),
+		models.GithubCommit{}.TableName()},
+	ProductTables: []string{RAW_COMMIT_STATS_TABLE},
 }
 
 func CollectApiCommitStats(taskCtx plugin.SubTaskContext) errors.Error {
