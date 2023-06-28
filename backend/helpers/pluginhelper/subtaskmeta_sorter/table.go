@@ -19,6 +19,7 @@ package subtaskmeta_sorter
 
 import (
 	"fmt"
+	"github.com/apache/incubator-devlake/core/errors"
 	"sort"
 	"strings"
 
@@ -33,7 +34,7 @@ func NewTableSorter(metas []*plugin.SubTaskMeta) SubTaskMetaSorter {
 	return &TableSorter{metas: metas}
 }
 
-func (d *TableSorter) Sort() ([]plugin.SubTaskMeta, error) {
+func (d *TableSorter) Sort() ([]plugin.SubTaskMeta, errors.Error) {
 	return dependencyTableTopologicalSort(d.metas)
 }
 
@@ -81,7 +82,7 @@ To use this sorter, developers need to ensure the following prerequisites
     that depend on the same table according to the subtask name
  4. All subtaskmeta names start with lowercase
 */
-func dependencyTableTopologicalSort(metas []*plugin.SubTaskMeta) ([]plugin.SubTaskMeta, error) {
+func dependencyTableTopologicalSort(metas []*plugin.SubTaskMeta) ([]plugin.SubTaskMeta, errors.Error) {
 	// 1. construct data
 	classNameToSubtaskListMap := make(map[string][]*plugin.SubTaskMeta) // use subtask class name to get meta list
 	classNameToTableListMap := make(map[string][]string)                // use class name get meta name list
@@ -90,7 +91,7 @@ func dependencyTableTopologicalSort(metas []*plugin.SubTaskMeta) ([]plugin.SubTa
 	for _, metaItem := range metas {
 		taskClassName, err := genClassNameByMetaName(metaItem.Name)
 		if err != nil {
-			return nil, err
+			return nil, errors.Default.WrapRaw(err)
 		}
 		if value, ok := classNameToSubtaskListMap[taskClassName]; ok {
 			classNameToSubtaskListMap[taskClassName] = append(value, metaItem)
@@ -100,14 +101,14 @@ func dependencyTableTopologicalSort(metas []*plugin.SubTaskMeta) ([]plugin.SubTa
 		if value, ok := classNameToTableListMap[taskClassName]; ok {
 			// check if subtask in one class has different tables define
 			if len(value) != len(metaItem.DependencyTables) {
-				return nil, fmt.Errorf("got different table list in class %s", taskClassName)
+				return nil, errors.Default.WrapRaw(fmt.Errorf("got different table list in class %s", taskClassName))
 			}
 			// check list item in value and metaItem.DependencyTables, make sure it's equal
 			sort.Strings(value)
 			sort.Strings(metaItem.DependencyTables)
 			for index, valueItem := range value {
 				if valueItem != metaItem.DependencyTables[index] {
-					return nil, fmt.Errorf("got different table list in class %s", taskClassName)
+					return nil, errors.Default.WrapRaw(fmt.Errorf("got different table list in class %s", taskClassName))
 				}
 			}
 		} else {
@@ -119,7 +120,7 @@ func dependencyTableTopologicalSort(metas []*plugin.SubTaskMeta) ([]plugin.SubTa
 	// 2. sort
 	sortedNameList, err := topologicalSortDifferentElements(classNameToTableListMap)
 	if err != nil {
-		return nil, err
+		return nil, errors.Default.WrapRaw(err)
 	}
 
 	// 3. gen subtask meta list by sorted data
@@ -127,7 +128,7 @@ func dependencyTableTopologicalSort(metas []*plugin.SubTaskMeta) ([]plugin.SubTa
 	for _, nameItem := range sortedNameList {
 		value, ok := classNameToSubtaskListMap[nameItem]
 		if !ok {
-			return nil, fmt.Errorf("failed get subtask list by class name = %s", nameItem)
+			return nil, errors.Default.WrapRaw(fmt.Errorf("failed get subtask list by class name = %s", nameItem))
 		}
 		sort.Sort(SubtaskMetaList(value))
 		sortedSubtaskMetaList = append(sortedSubtaskMetaList, convertSubtaskMetaPointToStruct(value)...)

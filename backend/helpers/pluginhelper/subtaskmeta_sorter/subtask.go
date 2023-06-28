@@ -19,6 +19,7 @@ package subtaskmeta_sorter
 
 import (
 	"fmt"
+	"github.com/apache/incubator-devlake/core/errors"
 
 	"github.com/apache/incubator-devlake/core/plugin"
 )
@@ -31,12 +32,12 @@ func NewDependencySorter(metas []*plugin.SubTaskMeta) SubTaskMetaSorter {
 	return &DependencySorter{metas: metas}
 }
 
-func (d *DependencySorter) Sort() ([]plugin.SubTaskMeta, error) {
+func (d *DependencySorter) Sort() ([]plugin.SubTaskMeta, errors.Error) {
 	return dependenciesTopologicalSort(d.metas)
 }
 
 // stable topological sort
-func dependenciesTopologicalSort(metas []*plugin.SubTaskMeta) ([]plugin.SubTaskMeta, error) {
+func dependenciesTopologicalSort(metas []*plugin.SubTaskMeta) ([]plugin.SubTaskMeta, errors.Error) {
 	// which state will make a cycle
 	dependenciesMap := make(map[string][]string)
 	nameMetaMap := make(map[string]*plugin.SubTaskMeta)
@@ -56,14 +57,14 @@ func dependenciesTopologicalSort(metas []*plugin.SubTaskMeta) ([]plugin.SubTaskM
 				dependenciesMap[item.Name] = make([]string, 0)
 			}
 		} else {
-			return nil, fmt.Errorf("duplicate subtaskmetas detected in list: %s", item.Name)
+			return nil, errors.Default.WrapRaw(fmt.Errorf("duplicate subtaskmetas detected in list: %s", item.Name))
 		}
 	}
 
 	// sort
 	orderStrList, err := topologicalSortSameElements(dependenciesMap)
 	if err != nil {
-		return nil, err
+		return nil, errors.Default.WrapRaw(err)
 	}
 
 	// gen list by sorted name list and return
@@ -71,7 +72,7 @@ func dependenciesTopologicalSort(metas []*plugin.SubTaskMeta) ([]plugin.SubTaskM
 	for _, item := range orderStrList {
 		value, ok := nameMetaMap[item]
 		if !ok {
-			return nil, fmt.Errorf("illeagal subtaskmeta detected %s", item)
+			return nil, errors.Default.WrapRaw(fmt.Errorf("illeagal subtaskmeta detected %s", item))
 		}
 		orderedSubtaskList = append(orderedSubtaskList, *value)
 	}

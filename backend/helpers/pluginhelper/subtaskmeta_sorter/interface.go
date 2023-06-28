@@ -17,8 +17,11 @@ limitations under the License.
 
 package subtaskmeta_sorter
 
-import "github.com/apache/incubator-devlake/core/plugin"
+import (
+	"github.com/apache/incubator-devlake/core/errors"
+	"github.com/apache/incubator-devlake/core/plugin"
+)
 
 type SubTaskMetaSorter interface {
-	Sort() ([]plugin.SubTaskMeta, error)
+	Sort() ([]plugin.SubTaskMeta, errors.Error)
 }
