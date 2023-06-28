@@ -26,7 +26,7 @@ import (
 type addMrCommitSha struct{}
 
 type GitlabMergeRequest20230625 struct {
-	MergeCommitSha  string `gorm:"type:varchar(255)"`
+	DiffHeadSha     string `gorm:"type:varchar(255)"`
 	SquashCommitSha string `gorm:"type:varchar(255)"`
 }
 
@@ -51,5 +51,5 @@ func (*addMrCommitSha) Version() uint64 {
 }
 
 func (*addMrCommitSha) Name() string {
-	return "add _tool_gitlab_issue_assignees table"
+	return "add squash and diff sha columns"
 }
