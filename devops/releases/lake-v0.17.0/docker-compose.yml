@@ -54,7 +54,7 @@ services:
       - 8080:8080
     restart: always
     volumes:
-      - ./.env:/app/.env
+      - ./.env:/app/.env:z
       - ./logs:/app/logs
     environment:
       LOGGING_DIR: /app/logs
