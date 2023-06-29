@@ -18,7 +18,7 @@
 
 export type ColumnType<T> = Array<{
   title: string;
-  dataIndex: string | string[];
+  dataIndex?: string | string[];
   key: string;
   width?: number;
   align?: 'left' | 'center' | 'right';

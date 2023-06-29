@@ -28,7 +28,6 @@ import {
   ConnectionStatus,
   DataScopeSelectRemote,
   getPluginConfig,
-  getPluginId,
   getPluginScopeId,
   ScopeConfigForm,
   ScopeConfigSelect,
@@ -294,20 +293,19 @@ const ConnectionDetail = ({ plugin, connectionId }: Props) => {
             },
             {
               title: '',
-              dataIndex: getPluginId(plugin),
               key: 'id',
               width: 100,
-              render: (id) => (
+              render: (_, row) => (
                 <>
                   <IconButton
                     image={<img src={ClearImg} alt="clear" />}
                     tooltip="Clear historical data"
-                    onClick={() => handleShowClearDataScopeDialog(id)}
+                    onClick={() => handleShowClearDataScopeDialog(getPluginScopeId(plugin, row))}
                   />
                   <IconButton
                     icon="trash"
                     tooltip="Delete Data Scope"
-                    onClick={() => handleShowDeleteDataScopeDialog(id)}
+                    onClick={() => handleShowDeleteDataScopeDialog(getPluginScopeId(plugin, row))}
                   />
                 </>
               ),
@@ -320,7 +318,7 @@ const ConnectionDetail = ({ plugin, connectionId }: Props) => {
             onCreate: handleShowCreateDataScopeDialog,
           }}
           rowSelection={{
-            rowKey: getPluginId(plugin),
+            getRowKey: (row) => getPluginScopeId(plugin, row),
             selectedRowKeys: scopeIds,
             onChange: (selectedRowKeys) => setScopeIds(selectedRowKeys),
           }}
