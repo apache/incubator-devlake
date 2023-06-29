@@ -21,7 +21,7 @@ import { Button, Intent } from '@blueprintjs/core';
 
 import { PageLoading, FormItem, ExternalLink, Message, Buttons, Table } from '@/components';
 import { useRefreshData } from '@/hooks';
-import { getPluginId, getPluginScopeId } from '@/plugins';
+import { getPluginScopeId } from '@/plugins';
 
 import * as API from './api';
 import * as S from './styled';

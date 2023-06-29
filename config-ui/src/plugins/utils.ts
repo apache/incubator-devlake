@@ -21,25 +21,6 @@ import PluginIcon from '@/images/plugin-icon.svg';
 import { PluginConfig } from './config';
 import { PluginConfigType, PluginType } from './types';
 
-export const getPluginId = (plugin: string) => {
-  switch (plugin) {
-    case 'github':
-      return 'githubId';
-    case 'jira':
-      return 'boardId';
-    case 'gitlab':
-      return 'gitlabId';
-    case 'jenkins':
-      return 'jobFullName';
-    case 'bitbucket':
-      return 'bitbucketId';
-    case 'sonarqube':
-      return 'projectKey';
-    default:
-      return 'id';
-  }
-};
-
 export const getPluginScopeId = (plugin: string, scope: any) => {
   switch (plugin) {
     case 'github':

@@ -80,6 +80,10 @@ func ConvertBugForOneProduct(taskCtx plugin.SubTaskContext) errors.Error {
 		},
 		Convert: func(inputRow interface{}) ([]interface{}, errors.Error) {
 			toolEntity := inputRow.(*models.ZentaoBug)
+			parentIssueId := ""
+			if toolEntity.Story != 0 {
+				parentIssueId = storyIdGen.Generate(data.Options.ConnectionId, toolEntity.Story)
+			}
 			domainEntity := &ticket.Issue{
 				DomainEntity: domainlayer.DomainEntity{
 					Id: bugIdGen.Generate(toolEntity.ConnectionId, toolEntity.ID),
@@ -92,7 +96,7 @@ func ConvertBugForOneProduct(taskCtx plugin.SubTaskContext) errors.Error {
 				ResolutionDate:  toolEntity.ClosedDate.ToNullableTime(),
 				CreatedDate:     toolEntity.OpenedDate.ToNullableTime(),
 				UpdatedDate:     toolEntity.LastEditedDate.ToNullableTime(),
-				ParentIssueId:   storyIdGen.Generate(data.Options.ConnectionId, toolEntity.Story),
+				ParentIssueId:   parentIssueId,
 				Priority:        getPriority(toolEntity.Pri),
 				CreatorId:       accountIdGen.Generate(toolEntity.ConnectionId, toolEntity.OpenedById),
 				CreatorName:     toolEntity.OpenedByName,

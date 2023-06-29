@@ -33,13 +33,13 @@ export const useRowSelection = <T>({ dataSource, rowSelection }: UseRowSelection
   const [selectedKeys, setSelectedKeys] = useState<ID[]>([]);
 
   const {
-    rowKey = 'key',
+    rowKey = 'id',
     getRowKey = (data: T) => (data as any)[rowKey],
     type = 'checkbox',
     selectedRowKeys,
     onChange,
   } = {
-    rowKey: 'key',
+    rowKey: 'id',
     type: 'checkbox',
     ...rowSelection,
   };
