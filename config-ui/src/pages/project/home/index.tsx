@@ -111,7 +111,7 @@ export const ProjectHomePage = () => {
             dataIndex: 'name',
             key: 'name',
             render: (name: string) => (
-              <Link to={`/projects/${encodeName(name)}`} style={{ color: '#292b3f' }}>
+              <Link to={`/projects/${encodeName(name)}?tab=configuration`} style={{ color: '#292b3f' }}>
                 {name}
               </Link>
             ),
@@ -123,7 +123,11 @@ export const ProjectHomePage = () => {
             width: 100,
             align: 'center',
             render: (name: any) => (
-              <IconButton icon="cog" tooltip="Detail" onClick={() => history.push(`/projects/${encodeName(name)}`)} />
+              <IconButton
+                icon="cog"
+                tooltip="Detail"
+                onClick={() => history.push(`/projects/${encodeName(name)}?tab=configuration`)}
+              />
             ),
           },
         ]}
