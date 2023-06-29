@@ -88,7 +88,6 @@ export const ScopeConfigSelect = ({ plugin, connectionId, scopeConfigId, onCance
         ]}
         dataSource={dataSource}
         rowSelection={{
-          rowKey: 'id',
           type: 'radio',
           selectedRowKeys: trId ? [trId] : [],
           onChange: (selectedRowKeys) => setTrId(selectedRowKeys[0]),
