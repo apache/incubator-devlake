@@ -182,7 +182,7 @@ export const DevPanel = ({ connectionId, transformation, setTransformation, isOp
                 <>
                   <p style={{ display: 'flex', alignItems: 'center' }} onClick={() => setShowTip(!showTip)}>
                     Input pattern(s) to match and parse commits and repo identifiers from above commit URLs. See
-                    examples <Icon icon={showTip ? 'chevron-down' : 'chevron-up'} style={{ cursor: 'pointer' }} />
+                    examples <Icon icon={showTip ? 'chevron-up' : 'chevron-down'} style={{ cursor: 'pointer' }} />
                   </p>
                   <Collapse isOpen={showTip}>
                     <img src={JiraIssueTipsImg} width="100%" alt="" />

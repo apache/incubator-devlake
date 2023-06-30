@@ -21,6 +21,7 @@ import styled from 'styled-components';
 export const Wrapper = styled.div`
   h5 {
     margin-top: 12px;
+    font-weight: 400;
   }
 
   .block + .block {
