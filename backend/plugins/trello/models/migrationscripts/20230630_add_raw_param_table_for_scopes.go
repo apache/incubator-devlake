@@ -18,17 +18,26 @@ limitations under the License.
 package migrationscripts
 
 import (
+	"github.com/apache/incubator-devlake/core/context"
+	"github.com/apache/incubator-devlake/core/dal"
+	"github.com/apache/incubator-devlake/core/errors"
 	"github.com/apache/incubator-devlake/core/plugin"
+	"github.com/apache/incubator-devlake/plugins/trello/models/migrationscripts/archived"
 )
 
-// All return all the migration scripts
-func All() []plugin.MigrationScript {
-	return []plugin.MigrationScript{
-		new(addInitTables),
-		new(addScopeConfigTables),
-		new(addIssueRepoCommitsTables),
-		new(addInitChangelogTables),
-		new(addTaskLeft),
-		new(addRawParamTableForScope),
-	}
+var _ plugin.MigrationScript = (*addRawParamTableForScope)(nil)
+
+type addRawParamTableForScope struct{}
+
+func (script *addRawParamTableForScope) Up(basicRes context.BasicRes) errors.Error {
+	return basicRes.GetDal().UpdateColumn(archived.TrelloBoard{}.TableName(), "_raw_data_table", "_raw_trello_scopes",
+		dal.Where("1=1"))
+}
+
+func (*addRawParamTableForScope) Version() uint64 {
+	return 20230630000001
+}
+
+func (script *addRawParamTableForScope) Name() string {
+	return "populated _raw_data_table column for trello boards"
 }

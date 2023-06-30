@@ -18,45 +18,26 @@ limitations under the License.
 package migrationscripts
 
 import (
-	"fmt"
 	"github.com/apache/incubator-devlake/core/context"
 	"github.com/apache/incubator-devlake/core/dal"
 	"github.com/apache/incubator-devlake/core/errors"
 	"github.com/apache/incubator-devlake/core/plugin"
+	"github.com/apache/incubator-devlake/plugins/zentao/models"
 )
 
-var _ plugin.MigrationScript = (*addRawParamTableForScopes)(nil)
+var _ plugin.MigrationScript = (*addRawParamTableForScope)(nil)
 
-type addRawParamTableForScopes struct {
-	p plugin.PluginMeta
+type addRawParamTableForScope struct{}
+
+func (script *addRawParamTableForScope) Up(basicRes context.BasicRes) errors.Error {
+	return basicRes.GetDal().UpdateColumn(models.ZentaoProject{}.TableName(), "_raw_data_table", "_raw_zentao_scopes",
+		dal.Where("1=1"))
 }
 
-func newAddRawParamTableForScopes(p plugin.PluginMeta) plugin.MigrationScript {
-	if src, ok := p.(plugin.PluginSource); ok {
-		if scope := src.Scope(); scope != nil {
-			return &addRawParamTableForScopes{
-				p: p,
-			}
-		}
-	}
-	return nil
-}
-
-func (script *addRawParamTableForScopes) Up(basicRes context.BasicRes) errors.Error {
-	scope := script.p.(plugin.PluginSource).Scope()
-	err := basicRes.GetDal().UpdateColumn(scope.TableName(), "_raw_data_table", fmt.Sprintf("_raw_%s_scopes", script.p.Name()),
-		dal.Where("1=1"),
-	)
-	if err != nil {
-		return err
-	}
-	return nil
-}
-
-func (*addRawParamTableForScopes) Version() uint64 {
+func (*addRawParamTableForScope) Version() uint64 {
 	return 20230630000001
 }
 
-func (script *addRawParamTableForScopes) Name() string {
-	return fmt.Sprintf("populated _raw_data_table column of plugin %s", script.p.Name())
+func (script *addRawParamTableForScope) Name() string {
+	return "populated _raw_data_table column for zentao projects"
 }

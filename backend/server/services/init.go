@@ -27,7 +27,6 @@ import (
 	"github.com/apache/incubator-devlake/core/log"
 	"github.com/apache/incubator-devlake/core/models/migrationscripts"
 	"github.com/apache/incubator-devlake/core/plugin"
-	commonPluginMigrations "github.com/apache/incubator-devlake/core/plugin/migrationscripts"
 	"github.com/apache/incubator-devlake/core/runner"
 	"github.com/apache/incubator-devlake/helpers/pluginhelper/services"
 	"github.com/go-playground/validator/v10"
@@ -96,7 +95,6 @@ func Init() {
 		if migratable, ok := pluginInst.(plugin.PluginMigration); ok {
 			migrator.Register(migratable.MigrationScripts(), pluginInst.Name())
 		}
-		migrator.Register(commonPluginMigrations.All(pluginInst), pluginInst.Name())
 	}
 
 	// check if there are pending migration
