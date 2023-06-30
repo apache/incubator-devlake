@@ -177,7 +177,7 @@ func ConnectLocalServer(t *testing.T, clientConfig *LocalClientConfig) *DevlakeC
 		}()
 		req, err2 := http.NewRequest(http.MethodGet, fmt.Sprintf("%s/proceed-db-migration", addr), nil)
 		require.NoError(t, err2)
-		d.forceSendHttpRequest(20, req, func(err errors.Error) bool {
+		d.forceSendHttpRequest(100, req, func(err errors.Error) bool {
 			e := err.Unwrap()
 			return goerror.Is(e, syscall.ECONNREFUSED)
 		})
