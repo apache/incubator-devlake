@@ -22,6 +22,7 @@
     ]
   },
   "dependencies": {
+    "@ahooksjs/use-url-state": "^3.5.1",
     "@blueprintjs/core": "^4.13.0",
     "@blueprintjs/datetime2": "^0.9.6",
     "@blueprintjs/popover2": "^1.10.2",
