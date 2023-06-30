@@ -55,7 +55,7 @@ COPY --from=builder /tmp/deps/include/ /usr/include/
 ENV PKG_CONFIG_PATH=/usr/lib/x86_64-linux-gnu/pkgconfig
 
 # Install Golang
-RUN curl -L https://git.io/vQhTU | bash -s -- --version 1.19.7
+RUN curl -L https://git.io/vQhTU | bash -s -- --version 1.20.4
 RUN mv /root/go /go &&\
     mv /root/.go /usr/local/go &&\
     ln -sf /usr/local/go/bin/* /usr/bin
