@@ -18,7 +18,7 @@ FROM --platform=linux/amd64 debian:bullseye as debian-amd64
 RUN apt-get -y update && apt -y upgrade &&\
     apt-get install -y libssh2-1-dev libssl-dev zlib1g-dev
 
-FROM golang:1.19.7-bullseye as builder
+FROM golang:1.20-bullseye as builder
 
 # Base dependencies
 RUN apt-get -y update && apt -y upgrade &&\

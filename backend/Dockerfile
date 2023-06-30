@@ -31,7 +31,7 @@ FROM --platform=linux/arm64 debian:bullseye as debian-arm64
 RUN apt-get update
 RUN apt-get install -y libssh2-1-dev libssl-dev zlib1g-dev
 
-FROM --platform=$BUILDPLATFORM golang:1.19-bullseye as builder
+FROM --platform=$BUILDPLATFORM golang:1.20-bullseye as builder
 
 # docker build --build-arg GOPROXY=https://goproxy.io,direct -t mericodev/lake .
 ARG GOPROXY=
