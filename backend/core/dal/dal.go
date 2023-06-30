@@ -187,6 +187,10 @@ type Transaction interface {
 	Dal
 	Rollback() errors.Error
 	Commit() errors.Error
+	// table: exclusive
+	LockTables(tables map[string]bool) errors.Error
+	UnlockTables() errors.Error
+	// End(err *errors.Error)
 }
 
 type Rows interface {

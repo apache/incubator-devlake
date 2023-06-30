@@ -33,6 +33,7 @@ import (
 	"github.com/apache/incubator-devlake/core/models/common"
 	"github.com/apache/incubator-devlake/core/models/domainlayer/domaininfo"
 	"github.com/apache/incubator-devlake/core/plugin"
+	"github.com/apache/incubator-devlake/helpers/dbhelper"
 	serviceHelper "github.com/apache/incubator-devlake/helpers/pluginhelper/services"
 	"github.com/go-playground/validator/v10"
 	"github.com/mitchellh/mapstructure"
@@ -42,6 +43,7 @@ type NoScopeConfig struct{}
 
 type (
 	GenericScopeApiHelper[Conn any, Scope plugin.ToolLayerScope, ScopeConfig any] struct {
+		basicRes         context.BasicRes
 		log              log.Logger
 		db               dal.Dal
 		validator        *validator.Validate
@@ -119,6 +121,7 @@ func NewGenericScopeHelper[Conn any, Scope plugin.ToolLayerScope, ScopeConfig an
 		opts = &ScopeHelperOptions{}
 	}
 	return &GenericScopeApiHelper[Conn, Scope, ScopeConfig]{
+		basicRes:         basicRes,
 		log:              basicRes.GetLogger(),
 		db:               basicRes.GetDal(),
 		validator:        vld,
@@ -297,7 +300,24 @@ func (gs *GenericScopeApiHelper[Conn, Scope, ScopeConfig]) GetScope(input *plugi
 	return scopeRes, nil
 }
 
-func (gs *GenericScopeApiHelper[Conn, Scope, ScopeConfig]) DeleteScope(input *plugin.ApiResourceInput) (*serviceHelper.BlueprintProjectPairs, errors.Error) {
+func (gs *GenericScopeApiHelper[Conn, Scope, ScopeConfig]) DeleteScope(input *plugin.ApiResourceInput) (refs *serviceHelper.BlueprintProjectPairs, err errors.Error) {
+	txHelper := dbhelper.NewTxHelper(gs.basicRes, &err)
+	defer txHelper.End()
+	tx := txHelper.Begin()
+	err = txHelper.LockTablesTimeout(2*time.Second, map[string]bool{"_devlake_pipelines": false})
+	if err != nil {
+		err = errors.BadInput.Wrap(err, "failed to lock pipeline table, is there any running pipeline or deletion?")
+		return
+	}
+	count := errors.Must1(tx.Count(
+		dal.From("_devlake_pipelines"),
+		dal.Where("status = ?", models.TASK_RUNNING),
+	))
+	if count > 0 {
+		err = errors.BadInput.New("Forbid deleting data while there are pipelines running")
+		return
+	}
+	// time.Sleep(1 * time.Minute) # uncomment this line if you were to verify pipelines get blocked while deleting data
 	params, err := gs.extractFromDeleteReqParam(input)
 	if err != nil {
 		return nil, err
