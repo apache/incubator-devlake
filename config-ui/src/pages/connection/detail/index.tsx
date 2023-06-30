@@ -95,7 +95,10 @@ const ConnectionDetail = ({ plugin, connectionId }: Props) => {
           return { status: 'success' };
         } catch (err: any) {
           const { status, data } = err.response;
-          return { status: status === 409 ? 'conflict' : 'error', conflict: [...data.projects, ...data.blueprints] };
+          return {
+            status: status === 409 ? 'conflict' : 'error',
+            conflict: data ? [...data.projects, ...data.blueprints] : [],
+          };
         }
       },
       {
@@ -431,19 +434,46 @@ const ConnectionDetail = ({ plugin, connectionId }: Props) => {
           )}
         </Dialog>
       )}
-      {(type === 'deleteConnectionFailed' || type === 'deleteDataScopeFailed') && (
+      {type === 'deleteConnectionFailed' && (
         <Dialog
           isOpen
           style={{ width: 820 }}
           footer={null}
-          title={`This Data ${type === 'deleteConnectionFailed' ? 'Connection' : 'Scope'} can not be deleted.`}
+          title={`This Data Connection can not be deleted.`}
+          onCancel={handleHideDialog}
+        >
+          <S.DialogBody>
+            {!conflict.length ? (
+              <Message content="Please delete all data scope(s) before you delete this Data Connection." />
+            ) : (
+              <>
+                <Message
+                  content={`This Data Connection can not be deleted because it has been used in the following projects/blueprints:`}
+                />
+                <ul>
+                  {conflict.map((it) => (
+                    <li>{it}</li>
+                  ))}
+                </ul>
+              </>
+            )}
+            <Buttons position="bottom" align="right">
+              <Button intent={Intent.PRIMARY} text="OK" onClick={handleHideDialog} />
+            </Buttons>
+          </S.DialogBody>
+        </Dialog>
+      )}
+      {type === 'deleteDataScopeFailed' && (
+        <Dialog
+          isOpen
+          style={{ width: 820 }}
+          footer={null}
+          title={`This Data Scope can not be deleted.`}
           onCancel={handleHideDialog}
         >
           <S.DialogBody>
             <Message
-              content={`This Data ${
-                type === 'deleteConnectionFailed' ? 'Connection' : 'Scope'
-              } can not be deleted because it has been used in the following projects/blueprints:`}
+              content={`This Data Scope can not be deleted because it has been used in the following projects/blueprints:`}
             />
             <ul>
               {conflict.map((it) => (
