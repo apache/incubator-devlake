@@ -71,7 +71,7 @@ export const CrossDomain = ({ connectionId, transformation, setTransformation }:
             <h5>Connect Jira issues and commits via Jira issues’ remote links that match the following pattern</h5>
             <p style={{ display: 'flex', alignItems: 'center' }} onClick={() => setShowTip(!showTip)}>
               Input pattern(s) to match and parse commits and repo identifiers from issue remote links. See examples{' '}
-              <Icon icon={showTip ? 'chevron-down' : 'chevron-up'} style={{ cursor: 'pointer' }} />
+              <Icon icon={showTip ? 'chevron-up' : 'chevron-down'} style={{ cursor: 'pointer' }} />
             </p>
             <Collapse isOpen={showTip}>
               <img src={JiraIssueTipsImg} width="100%" alt="" />
