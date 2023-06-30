@@ -150,4 +150,4 @@ def rename_tx_rule_table_to_scope_config(b: MigrationScriptBuilder):
 
 @migration(20230630000001, name="populated _raw_data_table column for azuredevops git repos")
 def add_raw_data_params_table_to_scope(b: MigrationScriptBuilder):
-    b.execute(f'UPDATE {GitRepository.__tablename__} SET _raw_data_table = "_raw_azuredevops_scopes" WHERE 1=1')
+    b.execute(f'''UPDATE {GitRepository.__tablename__} SET _raw_data_table = '_raw_azuredevops_scopes' WHERE 1=1''')
