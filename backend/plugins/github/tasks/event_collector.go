@@ -50,7 +50,8 @@ var CollectApiEventsMeta = plugin.SubTaskMeta{
 	EnabledByDefault: true,
 	Description:      "Collect Events data from Github api, supports both timeFilter and diffSync.",
 	DomainTypes:      []string{plugin.DOMAIN_TYPE_TICKET},
-	DependencyTables: []string{RAW_EVENTS_TABLE},
+	DependencyTables: []string{models.GithubIssueEvent{}.TableName()},
+	ProductTables:    []string{RAW_EVENTS_TABLE},
 }
 
 func CollectApiEvents(taskCtx plugin.SubTaskContext) errors.Error {

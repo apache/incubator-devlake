@@ -42,6 +42,8 @@ var ExtractApiPrReviewCommentsMeta = plugin.SubTaskMeta{
 		"and github_issue_comments",
 	DomainTypes:      []string{plugin.DOMAIN_TYPE_CROSS, plugin.DOMAIN_TYPE_CODE_REVIEW},
 	DependencyTables: []string{RAW_PR_REVIEW_COMMENTS_TABLE},
+	ProductTables: []string{models.GithubRepoAccount{}.TableName(),
+		models.GithubPrCommit{}.TableName()},
 }
 
 func ExtractApiPrReviewComments(taskCtx plugin.SubTaskContext) errors.Error {

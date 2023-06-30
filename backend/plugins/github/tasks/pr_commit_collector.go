@@ -48,7 +48,8 @@ var CollectApiPullRequestCommitsMeta = plugin.SubTaskMeta{
 	EnabledByDefault: true,
 	Description:      "Collect PullRequestCommits data from Github api, supports both timeFilter and diffSync.",
 	DomainTypes:      []string{plugin.DOMAIN_TYPE_CROSS, plugin.DOMAIN_TYPE_CODE_REVIEW},
-	DependencyTables: []string{RAW_PR_COMMIT_TABLE},
+	DependencyTables: []string{models.GithubPullRequest{}.TableName()},
+	ProductTables:    []string{RAW_PR_COMMIT_TABLE},
 }
 
 type SimplePr struct {

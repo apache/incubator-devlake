@@ -37,6 +37,7 @@ var ExtractMilestonesMeta = plugin.SubTaskMeta{
 	Description:      "Extract raw milestone data into tool layer table github_milestones",
 	DomainTypes:      []string{plugin.DOMAIN_TYPE_TICKET},
 	DependencyTables: []string{RAW_MILESTONE_TABLE},
+	ProductTables:    []string{models.GithubMilestone{}.TableName()},
 }
 
 type MilestonesResponse struct {

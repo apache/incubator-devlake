@@ -45,7 +45,8 @@ var CollectApiPullRequestReviewsMeta = plugin.SubTaskMeta{
 	EnabledByDefault: true,
 	Description:      "Collect PullRequestReviews data from Github api, supports both timeFilter and diffSync.",
 	DomainTypes:      []string{plugin.DOMAIN_TYPE_CROSS, plugin.DOMAIN_TYPE_CODE_REVIEW},
-	DependencyTables: []string{RAW_PR_REVIEW_TABLE},
+	DependencyTables: []string{models.GithubPullRequest{}.TableName()},
+	ProductTables:    []string{RAW_PR_REVIEW_TABLE},
 }
 
 func CollectApiPullRequestReviews(taskCtx plugin.SubTaskContext) errors.Error {

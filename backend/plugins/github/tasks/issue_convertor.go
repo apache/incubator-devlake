@@ -42,7 +42,9 @@ var ConvertIssuesMeta = plugin.SubTaskMeta{
 	EnabledByDefault: true,
 	Description:      "Convert tool layer table github_issues into  domain layer table issues",
 	DomainTypes:      []string{plugin.DOMAIN_TYPE_TICKET},
-	DependencyTables: []string{RAW_ISSUE_TABLE},
+	DependencyTables: []string{models.GithubIssue{}.TableName(), RAW_ISSUE_TABLE},
+	ProductTables: []string{ticket.Issue{}.TableName(),
+		ticket.BoardIssue{}.TableName()},
 }
 
 func ConvertIssues(taskCtx plugin.SubTaskContext) errors.Error {

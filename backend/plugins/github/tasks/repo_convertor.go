@@ -62,7 +62,11 @@ var ConvertRepoMeta = plugin.SubTaskMeta{
 	EnabledByDefault: true,
 	Description:      "Convert tool layer table github_repos into  domain layer table repos and boards",
 	DomainTypes:      []string{plugin.DOMAIN_TYPE_CODE, plugin.DOMAIN_TYPE_TICKET, plugin.DOMAIN_TYPE_CICD, plugin.DOMAIN_TYPE_CODE_REVIEW, plugin.DOMAIN_TYPE_CROSS},
-	DependencyTables: []string{RAW_REPOSITORIES_TABLE},
+	DependencyTables: []string{models.GithubRepo{}.TableName(), RAW_REPOSITORIES_TABLE},
+	ProductTables: []string{code.Repo{}.TableName(),
+		ticket.Board{}.TableName(),
+		crossdomain.BoardRepo{}.TableName(),
+		devops.CicdScope{}.TableName()},
 }
 
 func ConvertRepo(taskCtx plugin.SubTaskContext) errors.Error {

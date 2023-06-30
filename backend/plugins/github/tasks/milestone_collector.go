@@ -40,7 +40,8 @@ var CollectMilestonesMeta = plugin.SubTaskMeta{
 	EnabledByDefault: true,
 	Description:      "Collect milestone data from Github api, does not support either timeFilter or diffSync.",
 	DomainTypes:      []string{plugin.DOMAIN_TYPE_TICKET},
-	DependencyTables: []string{RAW_MILESTONE_TABLE},
+	DependencyTables: []string{},
+	ProductTables:    []string{RAW_MILESTONE_TABLE},
 }
 
 func CollectApiMilestones(taskCtx plugin.SubTaskContext) errors.Error {
