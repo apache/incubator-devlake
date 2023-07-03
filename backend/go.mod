@@ -22,7 +22,7 @@ require (
 	github.com/manifoldco/promptui v0.9.0
 	github.com/merico-dev/graphql v0.0.0-20221027131946-77460a1fd4cd
 	github.com/mitchellh/hashstructure v1.1.0
-	github.com/mitchellh/mapstructure v1.4.1
+	github.com/mitchellh/mapstructure v1.5.0
 	github.com/panjf2000/ants/v2 v2.4.6
 	github.com/robfig/cron/v3 v3.0.0
 	github.com/sirupsen/logrus v1.8.1
