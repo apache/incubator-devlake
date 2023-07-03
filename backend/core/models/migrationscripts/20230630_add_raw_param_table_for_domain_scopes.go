@@ -20,10 +20,10 @@ package migrationscripts
 import (
 	"fmt"
 	"github.com/apache/incubator-devlake/core/context"
+	"github.com/apache/incubator-devlake/core/dal"
 	"github.com/apache/incubator-devlake/core/errors"
-	"github.com/apache/incubator-devlake/core/models/domainlayer/domaininfo"
+	"github.com/apache/incubator-devlake/core/models/migrationscripts/archived"
 	"github.com/apache/incubator-devlake/core/plugin"
-	"reflect"
 	"strings"
 )
 
@@ -31,7 +31,10 @@ var _ plugin.MigrationScript = (*addRawParamsTableForDomainScopes)(nil)
 
 type addRawParamsTableForDomainScopes struct{}
 
-type reflectedSlice any
+type baseModel struct {
+	Id           string `gorm:"column:id;type:varchar(255)"`
+	RawDataTable string `gorm:"column:_raw_data_table;type:varchar(255)"`
+}
 
 func (script *addRawParamsTableForDomainScopes) Up(basicRes context.BasicRes) errors.Error {
 	db := basicRes.GetDal().Begin()
@@ -43,36 +46,16 @@ func (script *addRawParamsTableForDomainScopes) Up(basicRes context.BasicRes) er
 			}
 		}
 	}()
-	for _, domainModel := range domaininfo.GetDomainTablesInfo() {
-		if scopeModel, ok := domainModel.(plugin.Scope); ok {
-			scopes := toSlice(scopeModel)
-			err := db.All(scopes)
-			if err != nil {
-				return err
-			}
-			sliceSize, err := forEach(scopes, func(scope plugin.Scope) errors.Error {
-				reflectedScope := reflect.ValueOf(scope).Elem()
-				domainId := reflectedScope.FieldByName("Id").String()
-				derivedPlugin := strings.Split(domainId, ":")[0]
-				if _, err = plugin.GetPlugin(derivedPlugin); err != nil {
-					return errors.Default.New(fmt.Sprintf("could not infer the plugin in context from the domainId: %s in table: %s",
-						derivedPlugin, scope.TableName()))
-				}
-				reflectedScope.FieldByName("RawDataTable").SetString(fmt.Sprintf("_raw_%s_scopes", derivedPlugin))
-				return nil
-			})
-			if err != nil {
-				return err
-			}
-			if sliceSize > 0 {
-				err = db.Update(scopes)
-				if err != nil {
-					return err
-				}
-			}
-		}
+	err := script.updateDomainScopeTables(db,
+		&archived.Repo{},
+		&archived.Board{},
+		&archived.CicdScope{},
+		&archived.CqProject{},
+	)
+	if err != nil {
+		return err
 	}
-	err := db.Commit()
+	err = db.Commit()
 	return err
 }
 
@@ -84,19 +67,29 @@ func (*addRawParamsTableForDomainScopes) Name() string {
 	return "populated _raw_data_table column for domain scopes"
 }
 
-func toSlice(model any) reflectedSlice {
-	ifc := reflect.New(reflect.SliceOf(reflect.TypeOf(model))).Interface()
-	return ifc
-}
-
-func forEach[T any](r reflectedSlice, f func(x T) errors.Error) (int, errors.Error) {
-	slice := reflect.ValueOf(r).Elem()
-	count := slice.Len()
-	for i := 0; i < count; i++ {
-		err := f(slice.Index(i).Interface().(T))
-		if err != nil {
-			return count, err
+func (script *addRawParamsTableForDomainScopes) updateDomainScopeTables(db dal.Dal, models ...dal.Tabler) errors.Error {
+	for _, model := range models {
+		if err := script.updateDomainScopeTable(db, model.TableName()); err != nil {
+			return err
 		}
 	}
-	return count, nil
+	return nil
+}
+
+func (script *addRawParamsTableForDomainScopes) updateDomainScopeTable(db dal.Dal, tableName string) errors.Error {
+	var scopes []*baseModel
+	err := db.All(&scopes, dal.From(tableName))
+	if err != nil || len(scopes) == 0 {
+		return err
+	}
+	for _, scope := range scopes {
+		derivedPlugin := strings.Split(scope.Id, ":")[0]
+		if _, err = plugin.GetPlugin(derivedPlugin); err != nil {
+			return errors.Default.New(fmt.Sprintf("could not infer the plugin in context from the domainId: %s in table: %s",
+				derivedPlugin, tableName))
+		}
+		scope.RawDataTable = fmt.Sprintf("_raw_%s_scopes", derivedPlugin)
+	}
+	err = db.Update(&scopes, dal.From(tableName))
+	return err
 }
