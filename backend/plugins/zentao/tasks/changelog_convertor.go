@@ -20,6 +20,7 @@ package tasks
 import (
 	"fmt"
 	"reflect"
+	"strconv"
 
 	"github.com/apache/incubator-devlake/core/dal"
 	"github.com/apache/incubator-devlake/core/errors"
@@ -67,6 +68,9 @@ func ConvertChangelog(taskCtx plugin.SubTaskContext) errors.Error {
 	data := taskCtx.GetData().(*ZentaoTaskData)
 	db := taskCtx.GetDal()
 	changelogIdGen := didgen.NewDomainIdGenerator(&models.ZentaoChangelogDetail{})
+	accountIdGen := didgen.NewDomainIdGenerator(&models.ZentaoAccount{})
+	executionIdGen := didgen.NewDomainIdGenerator(&models.ZentaoExecution{})
+	cache := newAccountCache(db, data.Options.ConnectionId)
 	cn := models.ZentaoChangelog{}.TableName()
 	cdn := models.ZentaoChangelogDetail{}.TableName()
 	an := models.ZentaoAccount{}.TableName()
@@ -116,6 +120,38 @@ func ConvertChangelog(taskCtx plugin.SubTaskContext) errors.Error {
 				ToValue:           cl.New,
 				CreatedDate:       cl.Date,
 			}
+			if domainCl.FieldName == "assignedTo" {
+				domainCl.FieldName = "assignee"
+				if cl.Old != "" {
+					if id := cache.getAccountID(cl.Old); id != 0 {
+						domainCl.OriginalFromValue = accountIdGen.Generate(data.Options.ConnectionId, id)
+						domainCl.FromValue = accountIdGen.Generate(data.Options.ConnectionId, id)
+					}
+				}
+				if cl.New != "" {
+					if id := cache.getAccountID(cl.New); id != 0 {
+						domainCl.OriginalToValue = accountIdGen.Generate(data.Options.ConnectionId, id)
+						domainCl.ToValue = accountIdGen.Generate(data.Options.ConnectionId, id)
+					}
+				}
+			}
+			if domainCl.FieldName == "execution" {
+				domainCl.FieldName = "Sprint"
+				if cl.Old != "" {
+					oldValue, _ := strconv.ParseInt(cl.Old, 10, 64)
+					if oldValue != 0 {
+						domainCl.OriginalFromValue = executionIdGen.Generate(data.Options.ConnectionId, oldValue)
+						domainCl.FromValue = executionIdGen.Generate(data.Options.ConnectionId, oldValue)
+					}
+				}
+				if cl.New != "" {
+					newValue, _ := strconv.ParseInt(cl.New, 10, 64)
+					if newValue != 0 {
+						domainCl.OriginalToValue = executionIdGen.Generate(data.Options.ConnectionId, newValue)
+						domainCl.ToValue = executionIdGen.Generate(data.Options.ConnectionId, newValue)
+					}
+				}
+			}
 
 			return []interface{}{
 				domainCl,
@@ -128,4 +164,31 @@ func ConvertChangelog(taskCtx plugin.SubTaskContext) errors.Error {
 	}
 
 	return convertor.Execute()
+}
+
+// accountCache is a cache for account id
+type accountCache struct {
+	accounts     map[string]int64
+	db           dal.Dal
+	connectionId uint64
+}
+
+func newAccountCache(db dal.Dal, connectionId uint64) *accountCache {
+	return &accountCache{db: db, connectionId: connectionId, accounts: make(map[string]int64)}
+}
+
+func (a *accountCache) getAccountID(account string) int64 {
+	if id, ok := a.accounts[account]; ok {
+		return id
+	}
+	var zentaoAccount models.ZentaoAccount
+	err := a.db.First(
+		&zentaoAccount,
+		dal.Where("connection_id = ? AND account = ?", a.connectionId, account),
+	)
+	if err != nil {
+		return 0
+	}
+	a.accounts[account] = zentaoAccount.ID
+	return zentaoAccount.ID
 }
