@@ -50,7 +50,7 @@ var CollectApiEventsMeta = plugin.SubTaskMeta{
 	EnabledByDefault: true,
 	Description:      "Collect Events data from Github api, supports both timeFilter and diffSync.",
 	DomainTypes:      []string{plugin.DOMAIN_TYPE_TICKET},
-	DependencyTables: []string{models.GithubIssueEvent{}.TableName()},
+	DependencyTables: []string{},
 	ProductTables:    []string{RAW_EVENTS_TABLE},
 }
 

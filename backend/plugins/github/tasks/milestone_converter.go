@@ -41,8 +41,12 @@ var ConvertMilestonesMeta = plugin.SubTaskMeta{
 	EnabledByDefault: true,
 	Description:      "Convert tool layer table github_milestones into  domain layer table milestones",
 	DomainTypes:      []string{plugin.DOMAIN_TYPE_TICKET},
-	DependencyTables: []string{"gi", RAW_MILESTONE_TABLE},
-	ProductTables: []string{ticket.Sprint{}.TableName(),
+	DependencyTables: []string{
+		models.GithubIssue{}.TableName(),
+		models.GithubMilestone{}.TableName(),
+		RAW_MILESTONE_TABLE},
+	ProductTables: []string{
+		ticket.Sprint{}.TableName(),
 		ticket.BoardSprint{}.TableName(),
 		ticket.SprintIssue{}.TableName()},
 }

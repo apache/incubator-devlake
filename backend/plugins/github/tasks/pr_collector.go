@@ -45,7 +45,7 @@ var CollectApiPullRequestsMeta = plugin.SubTaskMeta{
 	EnabledByDefault: true,
 	Description:      "Collect PullRequests data from Github api, supports both timeFilter and diffSync.",
 	DomainTypes:      []string{plugin.DOMAIN_TYPE_CROSS, plugin.DOMAIN_TYPE_CODE_REVIEW},
-	DependencyTables: []string{models.GithubPullRequest{}.TableName()},
+	DependencyTables: []string{},
 	ProductTables:    []string{RAW_PULL_REQUEST_TABLE},
 }
 

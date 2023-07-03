@@ -40,7 +40,7 @@ var ConvertCommitsMeta = plugin.SubTaskMeta{
 	Description:      "Convert tool layer table github_commits into  domain layer table commits",
 	DomainTypes:      []string{plugin.DOMAIN_TYPE_CODE},
 	DependencyTables: []string{models.GithubCommit{}.TableName(),
-		"gc",
+		models.GithubCommit{}.TableName(),
 		RAW_COMMENTS_TABLE},
 	ProductTables: []string{code.Commit{}.TableName(),
 		code.RepoCommit{}.TableName()},

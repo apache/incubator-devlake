@@ -60,7 +60,7 @@ var CollectRunsMeta = plugin.SubTaskMeta{
 	EnabledByDefault: true,
 	Description:      "Collect Runs data from Github action api, supports both timeFilter and diffSync.",
 	DomainTypes:      []string{plugin.DOMAIN_TYPE_CICD},
-	DependencyTables: []string{models.GithubRun{}.TableName()},
+	DependencyTables: []string{},
 	ProductTables:    []string{RAW_RUN_TABLE},
 }
 

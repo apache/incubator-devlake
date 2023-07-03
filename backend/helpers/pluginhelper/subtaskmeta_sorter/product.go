@@ -42,10 +42,27 @@ func dependencyAndProductTableTopologicalSort(metas []*plugin.SubTaskMeta) ([]pl
 	nameDependencyMap := make(map[string][]string)
 	nameProductMap := make(map[string][]string)
 
+	productList := make([]string, 0)
 	for _, item := range metas {
 		subtaskNameMetaMap[item.Name] = item
 		nameDependencyMap[item.Name] = item.DependencyTables
+
+		// check if subtask product same tables, which may cause cyclic error
+		for _, productItem := range item.ProductTables {
+			if contains(productList, productItem) {
+				return nil, errors.Default.WrapRaw(fmt.Errorf("duplicate product detected %s", productItem))
+			}
+		}
 		nameProductMap[item.Name] = item.ProductTables
+	}
+
+	// check if meta dependent tables which not produced by plugin,
+	for _, item := range metas {
+		for _, depItem := range item.DependencyTables {
+			if contains(productList, depItem) {
+				return nil, errors.Default.WrapRaw(fmt.Errorf("non product dep found %s", depItem))
+			}
+		}
 	}
 
 	// 2. topological sort
@@ -66,7 +83,8 @@ func dependencyAndProductTableTopologicalSort(metas []*plugin.SubTaskMeta) ([]pl
 		}
 		if len(removableDependencyList) == 0 {
 			return nil, errors.Default.WrapRaw(fmt.Errorf("cyclic dependency detected, "+
-				"list[%s] dependencyMap[%s]", sortedNameList, nameDependencyMap))
+				"orderddList[%s] \n dependencyMap[%s] \n productMap[%s] \n",
+				sortedNameList, nameDependencyMap, nameProductMap))
 		}
 
 		for key, value := range nameDependencyMap {
