@@ -55,6 +55,14 @@ for PLUG in $PLUGINS; do
     echo "Building plugin $NAME to bin/plugins/$NAME/$NAME.so"
     go build -buildmode=plugin "$@" -o $PLUGIN_OUTPUT_DIR/$NAME/$NAME.so $PLUG/*.go &
     PIDS="$PIDS $!"
+    # avoid too many processes causing signal killed
+    COUNT=$(echo "$PIDS" | wc -w)
+    if [ "$COUNT" -ge "$(nproc)" ]; then
+        for PID in $PIDS; do
+            wait $PID
+        done
+        PIDS=""
+    fi
 done
 
 for PID in $PIDS; do
