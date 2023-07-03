@@ -330,12 +330,14 @@ func (gs *GenericScopeApiHelper[Conn, Scope, ScopeConfig]) DeleteScope(input *pl
 	if err != nil {
 		return nil, err
 	}
-	// now we can as scope to state its `Params` for data bloodline identification
-	if refs, err := gs.getScopeReferences(params.connectionId, params.scopeId); err != nil || refs != nil {
-		if err != nil {
-			return nil, err
+
+	if !params.deleteDataOnly {
+		if refs, err := gs.getScopeReferences(params.connectionId, params.scopeId); err != nil || refs != nil {
+			if err != nil {
+				return nil, err
+			}
+			return refs, errors.Conflict.New("Found one or more references to this scope")
 		}
-		return refs, errors.Conflict.New("Found one or more references to this scope")
 	}
 	if err = gs.deleteScopeData(*scope); err != nil {
 		return nil, err
