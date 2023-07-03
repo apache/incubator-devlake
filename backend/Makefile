@@ -102,7 +102,6 @@ python-unit-test: build-pydevlake
 	sh ./python/run_tests.sh
 
 e2e-plugins-test:
-	exit_code=0;\
 	export ENV_PATH=$(shell readlink -f .env);\
 	set -e;\
 	for m in $$(go list ./plugins/... | egrep 'e2e'); do \
@@ -118,11 +117,12 @@ e2e-test-init:
 	go run ./test/init.go || exit $$?;\
 
 e2e-test-run:
-	exit_code=0;\
 	for m in $$(go list ./test/e2e/... | grep -v manual); do \
-		echo $$m; go test -p 1 -timeout 300s -v $$m || exit_code=$$?; \
+		echo $$m; \
+		if ! go test -p 1 -timeout 300s -v $$m ; then \
+		  exit $$?; \
+		fi; \
 	done; \
-	exit $$exit_code
 
 e2e-test: e2e-test-init e2e-test-run
 

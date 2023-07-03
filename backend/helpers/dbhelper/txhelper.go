@@ -83,7 +83,6 @@ func (l *TxHelper[E]) End() {
 		// l.basicRes.GetLogger().Error(fmt.Errorf(msg), "TxHelper")
 		_ = l.tx.UnlockTables()
 		_ = l.tx.Rollback()
-	} else {
 	}
 	l.tx = nil
 }
