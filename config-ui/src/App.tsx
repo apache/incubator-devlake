@@ -16,7 +16,7 @@
  *
  */
 
-import { Switch, Route, Redirect, Router } from 'react-router-dom';
+import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import { ErrorLayout, BaseLayout } from '@/layouts';
 import {
   OfflinePage,
@@ -29,52 +29,29 @@ import {
   BlueprintDetailPage,
   BlueprintConnectionDetailPage,
 } from '@/pages';
-import { history } from '@/utils';
 
 function App() {
   return (
-    <Router history={history}>
-      <Switch>
-        <Route
-          exact
-          path="/offline"
-          component={() => (
-            <ErrorLayout>
-              <OfflinePage />
-            </ErrorLayout>
-          )}
-        />
+    <BrowserRouter>
+      <Routes>
+        <Route element={<ErrorLayout />}>
+          <Route path="offline" element={<OfflinePage />} />
+          <Route path="db-migrate" element={<DBMigratePage />} />
+        </Route>
 
-        <Route
-          exact
-          path="/db-migrate"
-          component={() => (
-            <ErrorLayout>
-              <DBMigratePage />
-            </ErrorLayout>
-          )}
-        />
-
-        <Route
-          path="/"
-          component={() => (
-            <BaseLayout>
-              <Switch>
-                <Route exact path="/" component={() => <Redirect to="/connections" />} />
-                <Route exact path="/connections" component={() => <ConnectionHomePage />} />
-                <Route exact path="/connections/:plugin/:id" component={() => <ConnectionDetailPage />} />
-                <Route exact path="/projects" component={() => <ProjectHomePage />} />
-                <Route exact path="/projects/:pname" component={() => <ProjectDetailPage />} />
-                <Route exact path="/projects/:pname/:unique" component={() => <BlueprintConnectionDetailPage />} />
-                <Route exact path="/blueprints" component={() => <BlueprintHomePage />} />
-                <Route exact path="/blueprints/:id" component={() => <BlueprintDetailPage />} />
-                <Route exact path="/blueprints/:bid/:unique" component={() => <BlueprintConnectionDetailPage />} />
-              </Switch>
-            </BaseLayout>
-          )}
-        />
-      </Switch>
-    </Router>
+        <Route path="/" element={<BaseLayout />}>
+          <Route index element={<Navigate to="connections" />} />
+          <Route path="connections" element={<ConnectionHomePage />} />
+          <Route path="connections/:plugin/:id" element={<ConnectionDetailPage />} />
+          <Route path="projects" element={<ProjectHomePage />} />
+          <Route path="projects/:pname" element={<ProjectDetailPage />} />
+          <Route path="projects/:pname/:unique" element={<BlueprintConnectionDetailPage />} />
+          <Route path="blueprints" element={<BlueprintHomePage />} />
+          <Route path="blueprints/:id" element={<BlueprintDetailPage />} />
+          <Route path="blueprints/:bid/:unique" element={<BlueprintConnectionDetailPage />} />
+        </Route>
+      </Routes>
+    </BrowserRouter>
   );
 }
 

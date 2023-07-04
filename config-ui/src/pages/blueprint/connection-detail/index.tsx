@@ -17,7 +17,7 @@
  */
 
 import { useState } from 'react';
-import { useHistory, useParams } from 'react-router-dom';
+import { useNavigate, useParams } from 'react-router-dom';
 import { Button, Intent, Position } from '@blueprintjs/core';
 import { Popover2 } from '@blueprintjs/popover2';
 
@@ -34,8 +34,8 @@ export const BlueprintConnectionDetailPage = () => {
   const [isOpen, setIsOpen] = useState(false);
   const [operating, setOperating] = useState(false);
 
-  const { pname, bid, unique } = useParams<{ pname?: string; bid?: string; unique: string }>();
-  const history = useHistory();
+  const { pname, bid, unique } = useParams() as { pname?: string; bid?: string; unique: string };
+  const navigate = useNavigate();
 
   const { setTips } = useTips();
 
@@ -88,7 +88,7 @@ export const BlueprintConnectionDetailPage = () => {
     });
 
     if (success) {
-      history.push(pname ? `/projects/${pname}` : `/blueprints/${blueprint.id}`);
+      navigate(pname ? `/projects/${pname}` : `/blueprints/${blueprint.id}`);
     }
   };
 
@@ -123,7 +123,7 @@ export const BlueprintConnectionDetailPage = () => {
 
     if (success) {
       handleShowTips();
-      history.push(pname ? `/projects/${pname}` : `/blueprints/${blueprint.id}`);
+      navigate(pname ? `/projects/${pname}` : `/blueprints/${blueprint.id}`);
     }
   };
 

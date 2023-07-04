@@ -17,7 +17,7 @@
  */
 
 import { useState, useMemo } from 'react';
-import { useHistory } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import { Button, Switch, Icon, Intent, Position } from '@blueprintjs/core';
 import { Tooltip2 } from '@blueprintjs/popover2';
 
@@ -42,7 +42,7 @@ export const StatusPanel = ({ from, blueprint, pipelineId, onRefresh }: Props) =
   const [isOpen, setIsOpen] = useState(false);
   const [operating, setOperating] = useState(false);
 
-  const history = useHistory();
+  const navigate = useNavigate();
 
   const cron = useMemo(() => getCron(blueprint.isManual, blueprint.cronConfig), [blueprint]);
 
@@ -90,7 +90,7 @@ export const StatusPanel = ({ from, blueprint, pipelineId, onRefresh }: Props) =
     });
 
     if (success) {
-      history.push('/blueprints');
+      navigate('/blueprints');
     }
   };
 

@@ -17,7 +17,7 @@
  */
 
 import { useState, useEffect, useRef } from 'react';
-import { useHistory, useLocation } from 'react-router-dom';
+import { Outlet, useNavigate, useLocation } from 'react-router-dom';
 import { CSSTransition } from 'react-transition-group';
 import { Menu, MenuItem, Navbar, Alignment } from '@blueprintjs/core';
 
@@ -36,16 +36,12 @@ import * as API from './api';
 import * as S from './styled';
 import './tips-transition.css';
 
-interface Props {
-  children: React.ReactNode;
-}
-
-export const BaseLayout = ({ children }: Props) => {
-  const history = useHistory();
+export const BaseLayout = () => {
+  const navigate = useNavigate();
   const { ready, data, error } = useRefreshData<{ version: string }>(() => API.getVersion(), []);
 
   if (error) {
-    history.push('/offline');
+    navigate('/offline');
   }
 
   if (!ready || !data) {
@@ -55,14 +51,16 @@ export const BaseLayout = ({ children }: Props) => {
   return (
     <TipsContextProvider>
       <ConnectionContextProvider>
-        <Layout version={data.version}>{children}</Layout>
+        <Layout version={data.version}>
+          <Outlet />
+        </Layout>
       </ConnectionContextProvider>
     </TipsContextProvider>
   );
 };
 
-const Layout = ({ version, children }: Props & { version: string }) => {
-  const history = useHistory();
+const Layout = ({ version, children }: { children: React.ReactNode; version: string }) => {
+  const navigate = useNavigate();
   const { pathname } = useLocation();
 
   const menu = useMenu();
@@ -78,7 +76,7 @@ const Layout = ({ version, children }: Props & { version: string }) => {
 
   const handlePushPath = (it: MenuItemType) => {
     if (!it.target) {
-      history.push(it.path);
+      navigate(it.path);
     } else {
       window.open(it.path, '_blank');
     }
