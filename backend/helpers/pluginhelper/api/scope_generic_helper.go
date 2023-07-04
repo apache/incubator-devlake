@@ -623,8 +623,7 @@ func (gs *GenericScopeApiHelper[Conn, Scope, ScopeConfig]) deleteScopeData(scope
 }
 
 func (gs *GenericScopeApiHelper[Conn, Scope, ScopeConfig]) transactionalDelete(tables []string, rawDataParams string) errors.Error {
-	tx := gs.db.Begin()
-	for _, table := range tables {
+	generateWhereClause := func(table string) (string, []any) {
 		var where string
 		var params []interface{}
 		if strings.HasPrefix(table, "_raw_") {
@@ -647,6 +646,12 @@ func (gs *GenericScopeApiHelper[Conn, Scope, ScopeConfig]) transactionalDelete(t
 			rawDataTablePrefix := fmt.Sprintf("_raw_%s%%", gs.plugin)
 			params = []interface{}{rawDataTablePrefix, rawDataParams}
 		}
+		return where, params
+	}
+	tx := gs.db.Begin()
+	for _, table := range tables {
+		where, params := generateWhereClause(table)
+		gs.log.Info("deleting data from table %s with WHERE \"%s\" and params: \"%v\"", table, where, params)
 		sql := fmt.Sprintf("DELETE FROM %s WHERE %s", table, where)
 		err := tx.Exec(sql, params...)
 		if err != nil {
@@ -660,6 +665,21 @@ func (gs *GenericScopeApiHelper[Conn, Scope, ScopeConfig]) transactionalDelete(t
 	err := tx.Commit()
 	if err != nil {
 		return errors.Default.Wrap(err, "error committing delete transaction for plugin tables")
+	}
+	// validate everything was deleted
+	var failedTables []string
+	for _, table := range tables {
+		where, params := generateWhereClause(table)
+		count, err := gs.db.Count(dal.From(table), dal.Where(where, params...))
+		if err != nil {
+			return err
+		}
+		if count > 0 {
+			failedTables = append(failedTables, table)
+		}
+	}
+	if len(failedTables) > 0 {
+		return errors.Default.New(fmt.Sprintf("Failed to delete all expected rows from the following table(s): %v", failedTables))
 	}
 	return nil
 }
