@@ -51,6 +51,7 @@ class ErrorBoundary extends React.Component<Props, State> {
       hasError: false,
       error: undefined,
     });
+    window.location.replace('/');
   };
 
   render() {
