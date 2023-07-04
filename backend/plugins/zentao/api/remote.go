@@ -29,13 +29,6 @@ import (
 	"github.com/apache/incubator-devlake/plugins/zentao/models"
 )
 
-type ProductResponse struct {
-	Limit  int                       `json:"limit"`
-	Page   int                       `json:"page"`
-	Total  int                       `json:"total"`
-	Values []models.ZentaoProductRes `json:"products"`
-}
-
 type ProjectResponse struct {
 	Limit  int                    `json:"limit"`
 	Page   int                    `json:"page"`
@@ -109,6 +102,7 @@ func RemoteScopes(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, er
 					return resBody.Values, nil
 				})
 		*/
+		return nil, errors.BadInput.New("products are currently unsupported")
 	} else if gid == `projects` {
 		return projectRemoteHelper.GetScopesFromRemote(input,
 			nil,

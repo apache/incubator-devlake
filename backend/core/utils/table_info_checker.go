@@ -54,7 +54,7 @@ func NewTableInfoChecker(cfg TableInfoCheckerConfig) *TableInfoChecker {
 		tablePrefix:          cfg.TablePrefix,
 		validatePluginsCount: cfg.ValidatePluginCount,
 		ignoredTables:        cfg.IgnoreTables,
-		ignoredPackages:      []string{"migrationscripts"},
+		ignoredPackages:      []string{"migrationscripts", "archived"},
 	}
 }
 

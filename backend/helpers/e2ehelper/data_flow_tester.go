@@ -529,10 +529,10 @@ func (t *DataFlowTester) VerifyTableWithOptions(dst schema.Tabler, opts TableOpt
 	csvIter, _ := pluginhelper.NewCsvFileIterator(opts.CSVRelPath)
 	defer csvIter.Close()
 
-	var expectedTotal int64
+	var expectedRowTotal int64
 	csvMap := map[string]map[string]interface{}{}
 	for csvIter.HasNext() {
-		expectedTotal++
+		expectedRowTotal++
 		expected := csvIter.Fetch()
 		pkValues := make([]string, 0, len(pkColumns))
 		for _, pkc := range pkColumns {
@@ -547,25 +547,26 @@ func (t *DataFlowTester) VerifyTableWithOptions(dst schema.Tabler, opts TableOpt
 		csvMap[pkValueStr] = expected
 	}
 
-	var actualTotal int64
+	var actualRowTotal int64
 	dbRows := &[]map[string]interface{}{}
 	err = t.Db.Table(dst.TableName()).Find(dbRows).Error
 	if err != nil {
 		panic(err)
 	}
 	for _, actual := range *dbRows {
-		actualTotal++
+		actualRowTotal++
 		pkValues := make([]string, 0, len(pkColumns))
 		for _, pkc := range pkColumns {
 			pkValues = append(pkValues, formatDbValue(actual[pkc.Name()], opts.Nullable))
 		}
-		expected, ok := csvMap[strings.Join(pkValues, `-`)]
-		assert.True(t.T, ok, fmt.Sprintf(`%s not found (with params from csv %s)`, dst.TableName(), pkValues))
+		pk := strings.Join(pkValues, `-`)
+		expected, ok := csvMap[pk]
+		assert.True(t.T, ok, fmt.Sprintf(`record in table %s not found (with params from csv %s)`, dst.TableName(), pk))
 		if !ok {
 			continue
 		}
 		for _, field := range targetFields {
-			expectation := expected[field]
+			expectation := formatDbValue(expected[field], opts.Nullable)
 			reality := formatDbValue(actual[field], opts.Nullable)
 			if !assert.Equal(t.T, expectation, reality, fmt.Sprintf(`%s.%s not match (with params from csv %s)`, dst.TableName(), field, pkValues)) {
 				_ = t.T // useful for debugging
@@ -573,5 +574,5 @@ func (t *DataFlowTester) VerifyTableWithOptions(dst schema.Tabler, opts TableOpt
 		}
 	}
 
-	assert.Equal(t.T, expectedTotal, actualTotal, fmt.Sprintf(`%s count not match count,[expected:%d][actual:%d]`, dst.TableName(), expectedTotal, actualTotal))
+	assert.Equal(t.T, expectedRowTotal, actualRowTotal, fmt.Sprintf(`records in %s count not match expectation count,[expected(CSV):%d][actual(DB):%d]`, dst.TableName(), expectedRowTotal, actualRowTotal))
 }

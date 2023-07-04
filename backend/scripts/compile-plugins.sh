@@ -57,7 +57,13 @@ for PLUG in $PLUGINS; do
     PIDS="$PIDS $!"
     # avoid too many processes causing signal killed
     COUNT=$(echo "$PIDS" | wc -w)
-    if [ "$COUNT" -ge "$(nproc)" ]; then
+    THREADS=1
+    if [ "$(uname)" == "Darwin" ]; then
+        THREADS=$(sysctl -n hw.physicalcpu)
+    elif [ "$(expr substr $(uname -s) 1 5)" == "Linux" ]; then
+        THREADS=$(nproc)
+    fi
+    if [ "$COUNT" -ge "$THREADS" ]; then
         for PID in $PIDS; do
             wait $PID
         done
