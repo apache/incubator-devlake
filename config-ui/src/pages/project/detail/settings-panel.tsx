@@ -17,7 +17,7 @@
  */
 
 import { useEffect, useState } from 'react';
-import { useHistory } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import { InputGroup, Checkbox, Button, Icon, Intent } from '@blueprintjs/core';
 
 import { Card, FormItem, Buttons, toast, Dialog } from '@/components';
@@ -39,7 +39,7 @@ export const SettingsPanel = ({ project }: Props) => {
   const [operating, setOperating] = useState(false);
   const [isOpen, setIsOpen] = useState(false);
 
-  const history = useHistory();
+  const navigate = useNavigate();
 
   useEffect(() => {
     const doraMetrics = project.metrics.find((ms: any) => ms.pluginName === 'dora');
@@ -73,7 +73,7 @@ export const SettingsPanel = ({ project }: Props) => {
     );
 
     if (success) {
-      history.push(`/projects/${name}`);
+      navigate(`/projects/${name}`);
     }
   };
 
@@ -92,7 +92,7 @@ export const SettingsPanel = ({ project }: Props) => {
     });
 
     if (success) {
-      history.push(`/projects`);
+      navigate(`/projects`);
     }
   };
 

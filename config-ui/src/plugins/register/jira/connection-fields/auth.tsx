@@ -23,6 +23,8 @@ import { ExternalLink, FormPassword } from '@/components';
 
 import * as S from './styled';
 
+const JIRA_CLOUD_REGEX = /^https:\/\/\w+.atlassian.net\/rest\/$/;
+
 type Method = 'BasicAuth' | 'AccessToken';
 
 interface Props {
@@ -33,8 +35,14 @@ interface Props {
   setErrors: (value: any) => void;
 }
 
-export const Auth = ({ initialValues, values, errors, setValues, setErrors }: Props) => {
+export const Auth = ({ initialValues, values, setValues, setErrors }: Props) => {
   const [version, setVersion] = useState('cloud');
+
+  useEffect(() => {
+    if (initialValues.endpoint && !JIRA_CLOUD_REGEX.test(initialValues.endpoint)) {
+      setVersion('server');
+    }
+  }, [initialValues.endpoint]);
 
   useEffect(() => {
     setValues({

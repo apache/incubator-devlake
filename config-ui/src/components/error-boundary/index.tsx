@@ -17,8 +17,6 @@
  */
 
 import React from 'react';
-import type { RouteComponentProps } from 'react-router';
-import { withRouter } from 'react-router-dom';
 import { Icon, ButtonGroup, Button, Intent, Colors } from '@blueprintjs/core';
 
 import { Logo } from '../logo';
@@ -26,7 +24,7 @@ import { Card } from '../card';
 
 import * as S from './styled';
 
-type Props = RouteComponentProps & {
+type Props = {
   children: React.ReactNode;
 };
 
@@ -53,11 +51,11 @@ class ErrorBoundary extends React.Component<Props, State> {
       hasError: false,
       error: undefined,
     });
+    window.location.replace('/');
   };
 
   render() {
     const { hasError, error } = this.state;
-    const { history } = this.props;
 
     if (!hasError) {
       return this.props.children;
@@ -78,7 +76,7 @@ class ErrorBoundary extends React.Component<Props, State> {
               members for solutions to common issues.
             </p>
             <ButtonGroup>
-              <Button text="Continue" intent={Intent.PRIMARY} onClick={() => history.push('/')} />
+              <Button text="Continue" intent={Intent.PRIMARY} onClick={this.handleResetError} />
               <Button
                 text="Visit GitHub"
                 onClick={() =>
@@ -93,4 +91,4 @@ class ErrorBoundary extends React.Component<Props, State> {
   }
 }
 
-export default withRouter(ErrorBoundary);
+export default ErrorBoundary;

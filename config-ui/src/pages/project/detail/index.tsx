@@ -17,7 +17,7 @@
  */
 
 import { useState, useEffect } from 'react';
-import { useParams, useLocation, useHistory } from 'react-router-dom';
+import { useParams, useLocation, useNavigate } from 'react-router-dom';
 import { Tabs, Tab } from '@blueprintjs/core';
 
 import { PageHeader, PageLoading } from '@/components';
@@ -33,9 +33,9 @@ export const ProjectDetailPage = () => {
   const [tabId, setTabId] = useState('blueprint');
   const [version, setVersion] = useState(1);
 
-  const { pname } = useParams<{ pname: string }>();
+  const { pname } = useParams() as { pname: string };
   const { search } = useLocation();
-  const history = useHistory();
+  const navigate = useNavigate();
 
   const query = new URLSearchParams(search);
   const urlTabId = query.get('tabId');
@@ -49,7 +49,7 @@ export const ProjectDetailPage = () => {
   const handleChangeTabId = (tabId: string) => {
     query.delete('tabId');
     query.append('tabId', tabId);
-    history.push({ search: query.toString() });
+    navigate({ search: query.toString() });
   };
 
   const handleRefresh = () => {

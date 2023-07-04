@@ -17,7 +17,6 @@
  */
 
 import ReactDOM from 'react-dom';
-import { BrowserRouter } from 'react-router-dom';
 
 import { ErrorBoundary } from '@/components';
 
@@ -26,10 +25,8 @@ import App from './App';
 import './index.css';
 
 ReactDOM.render(
-  <BrowserRouter>
-    <ErrorBoundary>
-      <App />
-    </ErrorBoundary>
-  </BrowserRouter>,
+  <ErrorBoundary>
+    <App />
+  </ErrorBoundary>,
   document.getElementById('root'),
 );

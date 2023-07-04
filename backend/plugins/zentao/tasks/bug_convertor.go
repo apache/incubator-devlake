@@ -80,10 +80,6 @@ func ConvertBugForOneProduct(taskCtx plugin.SubTaskContext) errors.Error {
 		},
 		Convert: func(inputRow interface{}) ([]interface{}, errors.Error) {
 			toolEntity := inputRow.(*models.ZentaoBug)
-			parentIssueId := ""
-			if toolEntity.Story != 0 {
-				parentIssueId = storyIdGen.Generate(data.Options.ConnectionId, toolEntity.Story)
-			}
 			domainEntity := &ticket.Issue{
 				DomainEntity: domainlayer.DomainEntity{
 					Id: bugIdGen.Generate(toolEntity.ConnectionId, toolEntity.ID),
@@ -96,18 +92,23 @@ func ConvertBugForOneProduct(taskCtx plugin.SubTaskContext) errors.Error {
 				ResolutionDate:  toolEntity.ClosedDate.ToNullableTime(),
 				CreatedDate:     toolEntity.OpenedDate.ToNullableTime(),
 				UpdatedDate:     toolEntity.LastEditedDate.ToNullableTime(),
-				ParentIssueId:   parentIssueId,
 				Priority:        getPriority(toolEntity.Pri),
-				CreatorId:       accountIdGen.Generate(toolEntity.ConnectionId, toolEntity.OpenedById),
 				CreatorName:     toolEntity.OpenedByName,
-				AssigneeId:      accountIdGen.Generate(toolEntity.ConnectionId, toolEntity.AssignedToId),
 				AssigneeName:    toolEntity.AssignedToName,
 				Severity:        string(rune(toolEntity.Severity)),
 				Url:             toolEntity.Url,
 				OriginalProject: getOriginalProject(data),
 				Status:          toolEntity.StdStatus,
 			}
-
+			if toolEntity.Story != 0 {
+				domainEntity.ParentIssueId = storyIdGen.Generate(data.Options.ConnectionId, toolEntity.Story)
+			}
+			if toolEntity.OpenedById != 0 {
+				domainEntity.CreatorId = accountIdGen.Generate(data.Options.ConnectionId, toolEntity.OpenedById)
+			}
+			if toolEntity.AssignedToId != 0 {
+				domainEntity.AssigneeId = accountIdGen.Generate(data.Options.ConnectionId, toolEntity.AssignedToId)
+			}
 			if toolEntity.ClosedDate != nil {
 				domainEntity.LeadTimeMinutes = int64(toolEntity.ClosedDate.ToNullableTime().Sub(toolEntity.OpenedDate.ToTime()).Minutes())
 			}

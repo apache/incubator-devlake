@@ -18,7 +18,6 @@
 
 import type { AxiosRequestConfig } from 'axios';
 import axios from 'axios';
-import { history } from '@/utils/history';
 
 import { DEVLAKE_ENDPOINT } from '@/config';
 
@@ -32,7 +31,7 @@ instance.interceptors.response.use(
     const status = error.response?.status;
 
     if (status === 428) {
-      history.push('/db-migrate');
+      window.location.replace('/db-migrate');
     }
 
     return Promise.reject(error);

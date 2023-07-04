@@ -18,7 +18,7 @@
 
 import { useState } from 'react';
 import { Icon, ButtonGroup, Button, Colors, Intent } from '@blueprintjs/core';
-import { useHistory } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 
 import { Card } from '@/components';
 import { operator } from '@/utils';
@@ -28,7 +28,7 @@ import * as API from './api';
 export const DBMigratePage = () => {
   const [operating, setOperating] = useState(false);
 
-  const history = useHistory();
+  const navigate = useNavigate();
 
   const handleSubmit = async () => {
     const [success] = await operator(() => API.migrate(), {
@@ -36,7 +36,7 @@ export const DBMigratePage = () => {
     });
 
     if (success) {
-      history.push('/');
+      navigate('/');
     }
   };
 
