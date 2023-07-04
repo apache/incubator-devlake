@@ -41,7 +41,7 @@ type ApiCollectorStateManager struct {
 	ExecuteStart time.Time
 }
 
-// NewApiCollectorWithState create a new ApiCollectorStateManager
+// NewStatefulApiCollector create a new ApiCollectorStateManager
 func NewStatefulApiCollector(args RawDataSubTaskArgs, timeAfter *time.Time) (*ApiCollectorStateManager, errors.Error) {
 	db := args.Ctx.GetDal()
 
@@ -136,9 +136,9 @@ func (m *ApiCollectorStateManager) Execute() errors.Error {
 //     or `GetNextPageCustomData` instead of `GetTotalPages` for Undetermined Strategy since we have
 //     to stop the process in the middle.
 //
-// Assuming the API fits the bill, the strategies can be categoried into:
+// Assuming the API fits the bill, the strategies can be categories into:
 //   - Determined Strategy: if the API supports filtering by the Created Date, use the `GetTotalPages` hook
-//   - Undetermind Strategy: if the API supports sorting by the Created Date in Descending order and
+//   - Undetermined Strategy: if the API supports sorting by the Created Date in Descending order and
 //     fetching by Page Number, use the `Concurrent` hook
 //   - Sequential Strategy: if the API supports sorting by the Created Date in Descending order but
 //     the next page can only be fetched by the Cursor/Token from the previous page, use the `GetNextPageCustomData` hook

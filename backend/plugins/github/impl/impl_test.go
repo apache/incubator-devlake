@@ -18,14 +18,13 @@ limitations under the License.
 package impl
 
 import (
-	"github.com/apache/incubator-devlake/helpers/pluginhelper/subtaskmeta_sorter"
+	"github.com/apache/incubator-devlake/helpers/pluginhelper/subtaskmeta/sorter"
 	"github.com/apache/incubator-devlake/plugins/github/tasks"
 	"testing"
 )
 
 func Test_genSubtaskList(t *testing.T) {
-	testSortedSubtaskList, err := subtaskmeta_sorter.
-		NewDependencyAndProductSorter(tasks.SubTaskMetaList).Sort()
+	testSortedSubtaskList, err := sorter.NewDependencyAndProductSorter(tasks.SubTaskMetaList).Sort()
 	if err != nil {
 		t.Error(err)
 		return

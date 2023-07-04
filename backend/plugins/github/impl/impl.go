@@ -19,6 +19,7 @@ package impl
 
 import (
 	"fmt"
+	"github.com/apache/incubator-devlake/helpers/pluginhelper/subtaskmeta/sorter"
 	"time"
 
 	"github.com/apache/incubator-devlake/core/context"
@@ -27,7 +28,6 @@ import (
 	"github.com/apache/incubator-devlake/core/models/domainlayer/devops"
 	"github.com/apache/incubator-devlake/core/plugin"
 	helper "github.com/apache/incubator-devlake/helpers/pluginhelper/api"
-	"github.com/apache/incubator-devlake/helpers/pluginhelper/subtaskmeta_sorter"
 	"github.com/apache/incubator-devlake/plugins/github/api"
 	"github.com/apache/incubator-devlake/plugins/github/models"
 	"github.com/apache/incubator-devlake/plugins/github/models/migrationscripts"
@@ -52,8 +52,7 @@ type Github struct{}
 func init() {
 	var err error
 	// check subtask meta loop and gen subtask list when init subtask meta
-	sortedSubtaskList, err = subtaskmeta_sorter.
-		NewDependencyAndProductSorter(tasks.SubTaskMetaList).Sort()
+	sortedSubtaskList, err = sorter.NewDependencyAndProductSorter(tasks.SubTaskMetaList).Sort()
 	if err != nil {
 		panic(err)
 	}
