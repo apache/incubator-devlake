@@ -31,7 +31,6 @@ func As(err error, target any) bool {
 
 func Must(err error) {
 	if err != nil {
-		print("napiaskj")
 		panic(err)
 	}
 }
