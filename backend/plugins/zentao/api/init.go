@@ -32,7 +32,6 @@ type MixScopes struct {
 
 var vld *validator.Validate
 var connectionHelper *api.ConnectionApiHelper
-var productScopeHelper *api.ScopeApiHelper[models.ZentaoConnection, models.ZentaoProduct, models.ZentaoScopeConfig]
 var projectScopeHelper *api.ScopeApiHelper[models.ZentaoConnection, models.ZentaoProject, models.ZentaoScopeConfig]
 
 var productRemoteHelper *api.RemoteApiHelper[models.ZentaoConnection, models.ZentaoProduct, models.ZentaoProductRes, api.BaseRemoteGroupResponse]
@@ -49,20 +48,7 @@ func Init(br context.BasicRes, p plugin.PluginMeta) {
 		vld,
 		p.Name(),
 	)
-	productParams := &api.ReflectionParameters{
-		ScopeIdFieldName:  "Id",
-		ScopeIdColumnName: "id",
-		RawScopeParamName: "ProductId",
-	}
-	productScopeHelper = api.NewScopeHelper[models.ZentaoConnection, models.ZentaoProduct, models.ZentaoScopeConfig](
-		basicRes,
-		vld,
-		connectionHelper,
-		api.NewScopeDatabaseHelperImpl[models.ZentaoConnection, models.ZentaoProduct, models.ZentaoScopeConfig](
-			basicRes, connectionHelper, productParams),
-		productParams,
-		nil,
-	)
+
 	projectParams := &api.ReflectionParameters{
 		ScopeIdFieldName:  "Id",
 		ScopeIdColumnName: "id",
