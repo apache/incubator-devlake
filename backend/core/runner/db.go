@@ -72,7 +72,7 @@ func NewGormDbEx(configReader config.ConfigReader, logger log.Logger, sessionCon
 				Colorful:                  true,           // Disable color
 			},
 		),
-		PrepareStmt:            sessionConfig.PrepareStmt,
+		// PrepareStmt:            sessionConfig.PrepareStmt,
 		SkipDefaultTransaction: sessionConfig.SkipDefaultTransaction,
 	}
 	dbUrl := configReader.GetString("DB_URL")

@@ -18,7 +18,6 @@ limitations under the License.
 package services
 
 import (
-	"sync"
 	"time"
 
 	"github.com/apache/incubator-devlake/core/config"
@@ -30,8 +29,6 @@ import (
 	"github.com/apache/incubator-devlake/core/plugin"
 	"github.com/apache/incubator-devlake/core/runner"
 	"github.com/apache/incubator-devlake/helpers/pluginhelper/services"
-	"github.com/apache/incubator-devlake/impls/dalgorm"
-	"github.com/apache/incubator-devlake/impls/logruslog"
 	"github.com/go-playground/validator/v10"
 	"github.com/robfig/cron/v3"
 )
@@ -44,7 +41,6 @@ var bpManager *services.BlueprintManager
 var basicRes context.BasicRes
 var migrator plugin.Migrator
 var cronManager *cron.Cron
-var cronLocker sync.Mutex
 var vld *validator.Validate
 
 const failToCreateCronJob = "created cron job failed"
@@ -84,7 +80,7 @@ func Init() {
 	InitResources()
 
 	// lock the database to avoid multiple devlake instances from sharing the same one
-	lockDb()
+	lockDatabase()
 
 	var err error
 	// now, load the plugins
@@ -135,20 +131,4 @@ func ExecuteMigration() errors.Error {
 // MigrationRequireConfirmation returns if there were migration scripts waiting to be executed
 func MigrationRequireConfirmation() bool {
 	return migrator.HasPendingScripts()
-}
-
-func lockDb() {
-	// gorm doesn't support creating a PrepareStmt=false session from a PrepareStmt=true
-	// but the lockDatabase needs PrepareStmt=false for table locking, we have to deal with it here
-	lockingDb, err := runner.NewGormDbEx(cfg, logruslog.Global.Nested("migrator db"), &dal.SessionConfig{
-		PrepareStmt:            false,
-		SkipDefaultTransaction: true,
-	})
-	if err != nil {
-		panic(err)
-	}
-	err = lockDatabase(dalgorm.NewDalgorm(lockingDb))
-	if err != nil {
-		panic(err)
-	}
 }

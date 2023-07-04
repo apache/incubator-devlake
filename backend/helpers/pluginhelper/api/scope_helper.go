@@ -23,6 +23,7 @@ import (
 	"github.com/apache/incubator-devlake/core/context"
 	"github.com/apache/incubator-devlake/core/errors"
 	"github.com/apache/incubator-devlake/core/plugin"
+	"github.com/apache/incubator-devlake/server/api/shared"
 	"github.com/go-playground/validator/v10"
 )
 
@@ -97,7 +98,11 @@ func (c *ScopeApiHelper[Conn, Scope, Tr]) GetScope(input *plugin.ApiResourceInpu
 func (c *ScopeApiHelper[Conn, Scope, Tr]) Delete(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, errors.Error) {
 	refs, err := c.DeleteScope(input)
 	if err != nil {
-		return &plugin.ApiResourceOutput{Body: refs, Status: err.GetType().GetHttpCode()}, nil
+		return &plugin.ApiResourceOutput{Body: &shared.ApiBody{
+			Success: false,
+			Message: err.Error(),
+			Data:    refs,
+		}, Status: err.GetType().GetHttpCode()}, nil
 	}
 	return &plugin.ApiResourceOutput{Body: nil, Status: http.StatusOK}, nil
 }

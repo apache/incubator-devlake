@@ -436,5 +436,5 @@ func (d *Dalgorm) convertGormError(err error) errors.Error {
 	if d.IsDuplicationError(err) {
 		return errors.BadInput.WrapRaw(err)
 	}
-	return errors.Default.WrapRaw(err)
+	panic(err)
 }

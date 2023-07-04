@@ -18,6 +18,8 @@ limitations under the License.
 package dalgorm
 
 import (
+	"fmt"
+
 	"github.com/apache/incubator-devlake/core/dal"
 	"github.com/apache/incubator-devlake/core/errors"
 )
@@ -46,6 +48,56 @@ func (t *DalgormTransaction) Commit() errors.Error {
 		return errors.Default.Wrap(r.Error, "failed to commit transaction")
 	}
 	return nil
+}
+
+func (t *DalgormTransaction) LockTables(tables map[string]bool) errors.Error {
+	switch t.Dialect() {
+	case "mysql":
+		// mysql lock all tables at once, each lock would release all previous locks
+		clause := ""
+		for table, exclusive := range tables {
+			if clause != "" {
+				clause += ", "
+			}
+			clause += table
+			if exclusive {
+				clause += " WRITE"
+			} else {
+				clause += " READ"
+			}
+		}
+		return t.Exec(fmt.Sprintf("LOCK TABLES %s", clause))
+	case "postgres":
+		clause := ""
+		for table, exclusive := range tables {
+			if clause != "" {
+				clause += ", "
+			}
+			clause += table
+			if exclusive {
+				clause += "  IN EXCLUSIVE MODE"
+			} else {
+				clause += "  IN SHARE MODE"
+			}
+		}
+		return t.Exec(fmt.Sprintf("LOCK TABLE %s", clause))
+	default:
+		panic(fmt.Errorf("unknown dialect %s", t.Dialect()))
+	}
+}
+
+func (t *DalgormTransaction) UnlockTables() errors.Error {
+	switch t.Dialect() {
+	case "mysql":
+		// mysql would not release lock automatically on Rollback
+		// according to https://dev.mysql.com/doc/refman/8.0/en/lock-tables.html
+		return t.Exec("UNLOCK TABLES")
+	case "postgres":
+		// pg has no unlock tables
+		return nil
+	default:
+		panic(fmt.Errorf("unknown dialect %s", t.Dialect()))
+	}
 }
 
 func newTransaction(dalgorm *Dalgorm) *DalgormTransaction {

@@ -159,3 +159,4 @@ backend/server/api/docs/docs.go
 # python
 *.pyc
 __pycache__
+venv
