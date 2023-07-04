@@ -17,7 +17,7 @@
  */
 
 import { useState, useEffect, useMemo } from 'react';
-import { useParams, useHistory, Link } from 'react-router-dom';
+import { useParams, useNavigate, Link } from 'react-router-dom';
 import { Button, Intent } from '@blueprintjs/core';
 
 import { PageHeader, Buttons, Dialog, IconButton, Table, Message, toast } from '@/components';
@@ -38,7 +38,7 @@ import * as API from './api';
 import * as S from './styled';
 
 export const ConnectionDetailPage = () => {
-  const { plugin, id } = useParams<{ plugin: string; id: string }>();
+  const { plugin, id } = useParams() as { plugin: string; id: string };
   return <ConnectionDetail plugin={plugin} connectionId={+id} />;
 };
 
@@ -65,7 +65,7 @@ const ConnectionDetail = ({ plugin, connectionId }: Props) => {
   const [scopeConfigId, setScopeConfigId] = useState<ID>();
   const [conflict, setConflict] = useState<string[]>([]);
 
-  const history = useHistory();
+  const navigate = useNavigate();
   const { onGet, onTest, onRefresh } = useConnections();
   const { setTips } = useTips();
   const { ready, data } = useRefreshData(() => API.getDataScopes(plugin, connectionId), [version]);
@@ -109,7 +109,7 @@ const ConnectionDetail = ({ plugin, connectionId }: Props) => {
     if (res.status === 'success') {
       toast.success('Delete Connection Successful.');
       onRefresh(plugin);
-      history.push('/connections');
+      navigate('/connections');
     } else if (res.status === 'conflict') {
       setType('deleteConnectionFailed');
       setConflict(res.conflict);

@@ -17,7 +17,7 @@
  */
 
 import { useMemo, useState } from 'react';
-import { useHistory } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import { Icon, Tag, Button, Intent, Colors, IconName } from '@blueprintjs/core';
 
 import { DEVLAKE_ENDPOINT } from '@/config';
@@ -29,7 +29,7 @@ import * as API from './api';
 export const OfflinePage = () => {
   const [version, setVersion] = useState(1);
 
-  const history = useHistory();
+  const navigate = useNavigate();
 
   const { loading, data } = useAutoRefresh<{ online: boolean }>(
     async () => {
@@ -57,7 +57,7 @@ export const OfflinePage = () => {
   );
 
   const handleContinue = () => {
-    history.push('/');
+    navigate('/');
   };
 
   return (

@@ -16,19 +16,19 @@
  *
  */
 
+import { Outlet } from 'react-router-dom';
+
 import { Logo } from '@/components';
 
 import * as S from './styled';
 
-interface Props {
-  children: React.ReactNode;
-}
-
-export const ErrorLayout = ({ children }: Props) => {
+export const ErrorLayout = () => {
   return (
     <S.Wrapper>
       <Logo />
-      <S.Inner>{children}</S.Inner>
+      <S.Inner>
+        <Outlet />
+      </S.Inner>
     </S.Wrapper>
   );
 };
