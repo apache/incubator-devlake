@@ -19,6 +19,7 @@
 import type { PluginConfigType } from '../../types';
 import { PluginType } from '../../types';
 
+import { DBUrl } from './connection-fields';
 import Icon from './assets/icon.svg';
 
 export const ZenTaoConfig: PluginConfigType = {
@@ -38,6 +39,13 @@ export const ZenTaoConfig: PluginConfigType = {
       },
       'username',
       'password',
+      ({ initialValues, values, setValues }: any) => (
+        <DBUrl
+          initialValue={initialValues.dbUrl}
+          value={values.dbUrl}
+          setValue={(value) => setValues({ dbUrl: value })}
+        />
+      ),
       'proxy',
       {
         key: 'rateLimitPerHour',
