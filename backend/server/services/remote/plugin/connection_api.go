@@ -92,15 +92,5 @@ func (pa *pluginAPI) PatchConnection(input *plugin.ApiResourceInput) (*plugin.Ap
 }
 
 func (pa *pluginAPI) DeleteConnection(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, errors.Error) {
-	connection := pa.connType.New()
-	err := pa.connhelper.First(connection, input.Params)
-	if err != nil {
-		return nil, err
-	}
-	refs, err := pa.connhelper.Delete(connection)
-	if err != nil {
-		return &plugin.ApiResourceOutput{Body: refs, Status: err.GetType().GetHttpCode()}, err
-	}
-	conn := connection.Unwrap()
-	return &plugin.ApiResourceOutput{Body: conn}, err
+	return pa.connhelper.Delete(pa.connType.New(), input)
 }

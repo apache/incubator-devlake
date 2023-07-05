@@ -306,7 +306,7 @@ func (gs *GenericScopeApiHelper[Conn, Scope, ScopeConfig]) DeleteScope(input *pl
 	tx := txHelper.Begin()
 	err = txHelper.LockTablesTimeout(2*time.Second, map[string]bool{"_devlake_pipelines": false})
 	if err != nil {
-		err = errors.BadInput.Wrap(err, "failed to lock pipeline table, is there any running pipeline or deletion?")
+		err = errors.BadInput.Wrap(err, "This data scope cannot be deleted due to a table lock error. There might be running pipeline(s) or other deletion operations in progress.")
 		return
 	}
 	count := errors.Must1(tx.Count(
@@ -314,7 +314,7 @@ func (gs *GenericScopeApiHelper[Conn, Scope, ScopeConfig]) DeleteScope(input *pl
 		dal.Where("status = ?", models.TASK_RUNNING),
 	))
 	if count > 0 {
-		err = errors.BadInput.New("Forbid deleting data while there are pipelines running")
+		err = errors.BadInput.New("This data scope cannot be deleted because a pipeline is running. Please try again after you cancel the pipeline or wait for it to finish.")
 		return
 	}
 	// time.Sleep(1 * time.Minute) # uncomment this line if you were to verify pipelines get blocked while deleting data

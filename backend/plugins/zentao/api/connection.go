@@ -19,7 +19,6 @@ package api
 
 import (
 	"context"
-	"github.com/apache/incubator-devlake/helpers/pluginhelper/services"
 	"net/http"
 
 	"github.com/apache/incubator-devlake/server/api/shared"
@@ -108,17 +107,7 @@ func PatchConnection(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput,
 // @Failure 500  {string} errcode.Error "Internal Error"
 // @Router /plugins/zentao/connections/{connectionId} [DELETE]
 func DeleteConnection(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, errors.Error) {
-	connection := &models.ZentaoConnection{}
-	err := connectionHelper.First(connection, input.Params)
-	if err != nil {
-		return nil, err
-	}
-	var refs *services.BlueprintProjectPairs
-	refs, err = connectionHelper.Delete(connection)
-	if err != nil {
-		return &plugin.ApiResourceOutput{Body: refs, Status: err.GetType().GetHttpCode()}, err
-	}
-	return &plugin.ApiResourceOutput{Body: connection}, err
+	return connectionHelper.Delete(&models.ZentaoConnection{}, input)
 }
 
 // @Summary get all zentao connections

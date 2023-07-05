@@ -20,7 +20,6 @@ package api
 import (
 	"context"
 	"fmt"
-	"github.com/apache/incubator-devlake/helpers/pluginhelper/services"
 	"net/http"
 	"net/url"
 
@@ -126,17 +125,7 @@ func PatchConnection(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput,
 // @Failure 500  {string} errcode.Error "Internal Error"
 // @Router /plugins/gitlab/connections/{connectionId} [DELETE]
 func DeleteConnection(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, errors.Error) {
-	connection := &models.GitlabConnection{}
-	err := connectionHelper.First(connection, input.Params)
-	if err != nil {
-		return nil, err
-	}
-	var refs *services.BlueprintProjectPairs
-	refs, err = connectionHelper.Delete(connection)
-	if err != nil {
-		return &plugin.ApiResourceOutput{Body: refs, Status: err.GetType().GetHttpCode()}, err
-	}
-	return &plugin.ApiResourceOutput{Body: connection}, err
+	return connectionHelper.Delete(&models.GitlabConnection{}, input)
 }
 
 // @Summary get all gitlab connections

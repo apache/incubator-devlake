@@ -20,7 +20,6 @@ package api
 import (
 	"context"
 	"fmt"
-	"github.com/apache/incubator-devlake/helpers/pluginhelper/services"
 	"net/http"
 	"strings"
 
@@ -247,17 +246,7 @@ func PatchConnection(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput,
 // @Failure 500  {string} errcode.Error "Internal Error"
 // @Router /plugins/github/connections/{connectionId} [DELETE]
 func DeleteConnection(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, errors.Error) {
-	connection := &models.GithubConnection{}
-	err := connectionHelper.First(connection, input.Params)
-	if err != nil {
-		return nil, err
-	}
-	var refs *services.BlueprintProjectPairs
-	refs, err = connectionHelper.Delete(connection)
-	if err != nil {
-		return &plugin.ApiResourceOutput{Body: refs, Status: err.GetType().GetHttpCode()}, err
-	}
-	return &plugin.ApiResourceOutput{Body: connection}, err
+	return connectionHelper.Delete(&models.GithubConnection{}, input)
 }
 
 // @Summary get all github connections
