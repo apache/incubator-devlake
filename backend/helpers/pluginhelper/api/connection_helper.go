@@ -19,8 +19,10 @@ package api
 
 import (
 	"fmt"
-	"github.com/apache/incubator-devlake/helpers/pluginhelper/services"
 	"strconv"
+
+	"github.com/apache/incubator-devlake/helpers/pluginhelper/services"
+	"github.com/apache/incubator-devlake/server/api/shared"
 
 	"github.com/apache/incubator-devlake/core/context"
 	"github.com/apache/incubator-devlake/core/dal"
@@ -107,8 +109,8 @@ func (c *ConnectionApiHelper) List(connections interface{}) errors.Error {
 	return CallDB(c.db.All, connections)
 }
 
-// Delete connection
-func (c *ConnectionApiHelper) Delete(connection interface{}) (*services.BlueprintProjectPairs, errors.Error) {
+// Delete connection.
+func (c *ConnectionApiHelper) deleteConnection(connection interface{}) (*services.BlueprintProjectPairs, errors.Error) {
 	connectionId := reflectField(connection, "ID").Uint()
 	referencingBps, err := c.bpManager.GetBlueprintsByConnection(c.pluginName, connectionId)
 	if err != nil {
@@ -123,12 +125,9 @@ func (c *ConnectionApiHelper) Delete(connection interface{}) (*services.Blueprin
 	}
 	if scopeModel := src.Scope(); scopeModel != nil {
 		// ensure the connection has no scopes using it
-		count, err := c.db.Count(dal.From(scopeModel.TableName()), dal.Where("connection_id = ?", connectionId))
-		if err != nil {
-			return nil, errors.Default.Wrap(err, fmt.Sprintf("error counting scopes for plugin %s using connection %d", c.pluginName, connectionId))
-		}
+		count := errors.Must1(c.db.Count(dal.From(scopeModel.TableName()), dal.Where("connection_id = ?", connectionId)))
 		if count > 0 {
-			return nil, errors.Conflict.New(fmt.Sprintf("Found %d scopes using connection %d", count, connectionId))
+			return nil, errors.Conflict.New("Please delete all data scope(s) before you delete this Data Connection.")
 		}
 	}
 	if scopeConfigModel := src.ScopeConfig(); scopeConfigModel != nil {
@@ -139,6 +138,24 @@ func (c *ConnectionApiHelper) Delete(connection interface{}) (*services.Blueprin
 		}
 	}
 	return nil, CallDB(c.db.Delete, connection)
+}
+
+// TODO: combine connection/scope/scopeConfig helper
+func (c *ConnectionApiHelper) Delete(connection interface{}, input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, errors.Error) {
+	err := c.First(connection, input.Params)
+	if err != nil {
+		return nil, err
+	}
+	var refs *services.BlueprintProjectPairs
+	refs, err = c.deleteConnection(connection)
+	if err != nil {
+		return &plugin.ApiResourceOutput{Body: &shared.ApiBody{
+			Success: false,
+			Message: err.Error(),
+			Data:    refs,
+		}, Status: err.GetType().GetHttpCode()}, nil
+	}
+	return &plugin.ApiResourceOutput{Body: connection}, err
 }
 
 func (c *ConnectionApiHelper) merge(connection interface{}, body map[string]interface{}) errors.Error {
