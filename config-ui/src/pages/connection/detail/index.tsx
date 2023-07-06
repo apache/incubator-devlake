@@ -64,6 +64,7 @@ const ConnectionDetail = ({ plugin, connectionId }: Props) => {
   const [scopeIds, setScopeIds] = useState<ID[]>([]);
   const [scopeConfigId, setScopeConfigId] = useState<ID>();
   const [conflict, setConflict] = useState<string[]>([]);
+  const [errorMsg, setErrorMsg] = useState('');
 
   const navigate = useNavigate();
   const { onGet, onTest, onRefresh } = useConnections();
@@ -96,7 +97,8 @@ const ConnectionDetail = ({ plugin, connectionId }: Props) => {
           const { status, data } = err.response;
           return {
             status: status === 409 ? 'conflict' : 'error',
-            conflict: data ? [...data.projects, ...data.blueprints] : [],
+            conflict: data.data ? [...data.data.projects, ...data.data.blueprints] : [],
+            message: data.message,
           };
         }
       },
@@ -113,6 +115,7 @@ const ConnectionDetail = ({ plugin, connectionId }: Props) => {
     } else if (res.status === 'conflict') {
       setType('deleteConnectionFailed');
       setConflict(res.conflict);
+      setErrorMsg(res.message);
     } else {
       toast.error('Operation failed.');
       handleHideDialog();
@@ -157,7 +160,11 @@ const ConnectionDetail = ({ plugin, connectionId }: Props) => {
           return { status: 'success' };
         } catch (err: any) {
           const { status, data } = err.response;
-          return { status: status === 409 ? 'conflict' : 'error', conflict: [...data.projects, ...data.blueprints] };
+          return {
+            status: status === 409 ? 'conflict' : 'error',
+            conflict: data.data ? [...data.data.projects, ...data.data.blueprints] : [],
+            message: data.message,
+          };
         }
       },
       {
@@ -173,6 +180,7 @@ const ConnectionDetail = ({ plugin, connectionId }: Props) => {
     } else if (res.status === 'conflict') {
       setType('deleteDataScopeFailed');
       setConflict(res.conflict);
+      setErrorMsg(res.message);
     } else {
       toast.error('Operation failed.');
       handleHideDialog();
@@ -442,7 +450,7 @@ const ConnectionDetail = ({ plugin, connectionId }: Props) => {
         >
           <S.DialogBody>
             {!conflict.length ? (
-              <Message content="Please delete all data scope(s) before you delete this Data Connection." />
+              <Message content={errorMsg} />
             ) : (
               <>
                 <Message
@@ -450,7 +458,7 @@ const ConnectionDetail = ({ plugin, connectionId }: Props) => {
                 />
                 <ul>
                   {conflict.map((it) => (
-                    <li>{it}</li>
+                    <li key={it}>{it}</li>
                   ))}
                 </ul>
               </>
@@ -470,14 +478,18 @@ const ConnectionDetail = ({ plugin, connectionId }: Props) => {
           onCancel={handleHideDialog}
         >
           <S.DialogBody>
-            <Message
-              content={`This Data Scope can not be deleted because it has been used in the following projects/blueprints:`}
-            />
-            <ul>
-              {conflict.map((it) => (
-                <li>{it}</li>
-              ))}
-            </ul>
+            {!conflict.length ? (
+              <Message content={errorMsg} />
+            ) : (
+              <>
+                <Message content="This Data Scope can not be deleted because it has been used in the following projects/blueprints:" />
+                <ul>
+                  {conflict.map((it) => (
+                    <li key={it}>{it}</li>
+                  ))}
+                </ul>
+              </>
+            )}
             <Buttons position="bottom" align="right">
               <Button intent={Intent.PRIMARY} text="OK" onClick={handleHideDialog} />
             </Buttons>
