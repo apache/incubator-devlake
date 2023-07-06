@@ -19,6 +19,7 @@ package models
 
 import (
 	"fmt"
+	"strconv"
 
 	"github.com/apache/incubator-devlake/core/models/common"
 	"github.com/apache/incubator-devlake/core/plugin"
@@ -146,7 +147,7 @@ func (ZentaoProject) TableName() string {
 }
 
 func (p ZentaoProject) ScopeId() string {
-	return fmt.Sprintf(`projects/%d`, p.Id)
+	return strconv.FormatInt(p.Id, 10)
 }
 
 func (p ZentaoProject) ScopeName() string {
