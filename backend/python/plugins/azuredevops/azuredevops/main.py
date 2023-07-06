@@ -128,7 +128,7 @@ class AzureDevOpsPlugin(Plugin):
         if DomainType.CODE in scope_config.domain_types and not scope.is_external():
             url = urlparse(scope.remote_url)
             url = url._replace(netloc=f'{url.username}:{connection.token.get_secret_value()}@{url.hostname}')
-            yield gitextractor(url.geturl(), scope.domain_id(), connection.proxy)
+            yield gitextractor(url.geturl(), scope.name, scope.domain_id(), connection.proxy)
 
     def extra_stages(self, scope_config_pairs: list[tuple[GitRepository, GitRepositoryConfig]], _):
         for scope, config in scope_config_pairs:
