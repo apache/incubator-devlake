@@ -35,20 +35,41 @@ python-dep:
 dep: go-dep python-dep
 
 swag:
-	swag init --parseDependency --parseInternal -o ./server/api/docs -g ./server/api/api.go -g ./plugins/*/api/*.go
-	@echo "visit the swagger document on http://localhost:8080/swagger/index.html"
+	if [ -z $(PLUGIN) ]; then \
+		swag init --parseDependency --parseInternal -o ./server/api/docs -g ./server/api/api.go -g ./plugins/*/api/*.go; \
+	elif [ $(PLUGIN) = "none" ]; then \
+		swag init --parseDependency --parseInternal -o ./server/api/docs -g ./server/api/api.go;\
+	else \
+	  	plugins="";\
+		for p in $$(echo $(PLUGIN) | tr "," "\n"); do \
+			plugins="$$plugins -g ./plugins/$$p/api/*.go"; \
+		done;\
+		swag init --parseDependency --parseInternal -o ./server/api/docs -g ./server/api/api.go "$$plugins"; \
+	fi;\
+	echo "visit the swagger document on http://localhost:8080/swagger/index.html";
 
 build-plugin:
-	@sh scripts/compile-plugins.sh
-
-build-plugin-debug:
-	@sh scripts/compile-plugins.sh -gcflags='all=-N -l'
+	if [ "$(PLUGIN)" = "none" ]; then \
+  		echo "Building plugins will be skipped"; \
+	elif [ "$(DEBUG)" = "true" ]; then \
+  		PLUGIN=$(PLUGIN) sh scripts/compile-plugins.sh -gcflags='all=-N -l'; \
+  	else \
+		PLUGIN=$(PLUGIN) sh scripts/compile-plugins.sh; \
+	fi
 
 build-worker:
-	go build -ldflags "-X 'github.com/apache/incubator-devlake/core/version.Version=$(VERSION)'" -o bin/lake-worker ./worker/
+	if [ "$(DEBUG)" = "true" ]; then \
+  		go build -gcflags='all=-N -l' -ldflags "-X 'github.com/apache/incubator-devlake/core/version.Version=$(VERSION)'" -o bin/lake-worker ./worker/; \
+  	else \
+		go build -ldflags "-X 'github.com/apache/incubator-devlake/core/version.Version=$(VERSION)'" -o bin/lake-worker ./worker/; \
+	fi
 
 build-server: swag
-	go build -ldflags "-X 'github.com/apache/incubator-devlake/core/version.Version=$(VERSION)'" -o bin/lake ./server/
+	if [ "$(DEBUG)" = "true" ]; then \
+  		go build -gcflags='all=-N -l' -ldflags "-X 'github.com/apache/incubator-devlake/core/version.Version=$(VERSION)'" -o bin/lake ./server/; \
+  	else \
+		go build -ldflags "-X 'github.com/apache/incubator-devlake/core/version.Version=$(VERSION)'" -o bin/lake ./server/; \
+	fi
 
 build-python: #don't mix this with the other build commands
 	find ./python/ -name "*.sh" | xargs chmod +x &&\

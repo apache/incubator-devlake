@@ -71,9 +71,6 @@ swag:
 build-plugin:
 	make build-plugin -C backend
 
-build-plugin-debug:
-	make build-plugin-debug -C backend
-
 build-worker:
 	make build-worker -C backend
 
