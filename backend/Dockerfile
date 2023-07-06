@@ -88,6 +88,8 @@ ENV GOBIN=/app/bin
 ARG TARGETPLATFORM
 ARG TAG=
 ARG SHA=
+ARG GO_PLUGINS=
+ARG DEBUG=
 
 RUN --mount=type=cache,target=/root/.cache/go-build \
     if [ "$TARGETPLATFORM" = "linux/arm64" ] ; then \
@@ -101,7 +103,11 @@ RUN --mount=type=cache,target=/root/.cache/go-build \
     fi && \
     export PKG_CONFIG_PATH=/usr/local/deps/target/lib/pkgconfig && \
     export CGO_ENABLED=1 &&\
-    make all
+    PLUGIN="$GO_PLUGINS" make all
+
+RUN if [ "$DEBUG" = "true" ]; then \
+      go install github.com/go-delve/delve/cmd/dlv@latest; \
+    fi;
 
 # remove symlink in lib, we will recreate in final image
 RUN cd /usr/local/deps/target/lib && \
@@ -154,11 +160,13 @@ ENV PATH="$PATH:/app/.local/bin"
 RUN /app/python/build.sh
 
 FROM base as devlake-base
+ARG DEBUG=
 
 # libraries
 ENV LD_LIBRARY_PATH=/app/libs
 RUN mkdir -p /app/libs
 COPY --from=build /usr/local/deps/target/lib/*.so* /app/libs
+COPY --from=build /go/bin /usr/bin
 RUN ldconfig -vn /app/libs
 
 # apps
@@ -166,9 +174,9 @@ COPY --from=build /app/bin /app/bin
 COPY --from=build /app/resources /app/resources
 
 ENV PATH="/app/bin:${PATH}"
+ENV DEBUG="$DEBUG"
 
 #add tini, prevent zombie process
-
 ENTRYPOINT ["/usr/bin/tini", "--"]
 
 CMD ["lake"]
