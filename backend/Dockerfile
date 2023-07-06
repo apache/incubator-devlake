@@ -147,7 +147,7 @@ RUN python3 -m pip install --no-cache --upgrade pip setuptools && \
 
 # Setup Python Poetry package manager
 RUN curl -sSL https://install.python-poetry.org | python3 -
-ENV PATH="$PATH:/home/devlake/.local/bin"
+ENV PATH="$PATH:/app/.local/bin"
 
 # Build Python plugins, make sure the scripts has execute permission
 # RUN find /app/python/ -name "*.sh" | xargs -I{} chmod +x {}
