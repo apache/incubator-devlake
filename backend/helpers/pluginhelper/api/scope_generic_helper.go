@@ -62,9 +62,9 @@ type (
 		Blueprints  []*models.Blueprint `mapstructure:"blueprints,omitempty" json:"blueprints"`
 	}
 	// Alias, for swagger purposes
-	ScopeRefDoc                          = serviceHelper.BlueprintProjectPairs
-	ScopeRes[Scope any, ScopeConfig any] struct {
-		Scope                    *Scope                   `mapstructure:",squash"` // ideally we need this field to be embedded in the struct
+	ScopeRefDoc                                            = serviceHelper.BlueprintProjectPairs
+	ScopeRes[Scope plugin.ToolLayerScope, ScopeConfig any] struct {
+		Scope                    Scope                    `mapstructure:",squash"` // ideally we need this field to be embedded in the struct
 		ScopeResDoc[ScopeConfig] `mapstructure:",squash"` // however, only this type of embeding is supported as of golang 1.20
 	}
 	ReflectionParameters struct {
@@ -242,22 +242,19 @@ func (gs *GenericScopeApiHelper[Conn, Scope, ScopeConfig]) GetScopes(input *plug
 	}
 	// return empty array rather than nil in case of no scopes
 	if len(apiScopes) > 0 && params.loadBlueprints {
-		scopesById := gs.mapByScopeId(apiScopes)
+		// fetch blueprints for all scopes in one call since all bps must be loaded to determine which ones are associated with the scopes
+		// TODO: split bp.settings into separate tables and load only the ones needed
 		var scopeIds []string
-		for id := range scopesById {
-			scopeIds = append(scopeIds, id)
+		for _, apiScope := range apiScopes {
+			// scopeId := fmt.Sprintf("%v", reflectField(apiScope.Scope, gs.reflectionParams.ScopeIdFieldName).Interface())
+			scopeIds = append(scopeIds, apiScope.Scope.ScopeId())
 		}
-		blueprintMap, err := gs.bpManager.GetBlueprintsByScopes(params.connectionId, params.plugin, scopeIds...)
-		if err != nil {
-			return nil, errors.Default.Wrap(err, fmt.Sprintf("error getting blueprints for scopes from connection %d", params.connectionId))
-		}
-		apiScopes = nil
-		for scopeId, scope := range scopesById {
-			if bps, ok := blueprintMap[scopeId]; ok {
-				scope.Blueprints = bps
-				delete(blueprintMap, scopeId)
+		blueprintMap := errors.Must1(gs.bpManager.GetBlueprintsByScopes(params.connectionId, params.plugin, scopeIds...))
+		for _, apiScope := range apiScopes {
+			if bps, ok := blueprintMap[apiScope.Scope.ScopeId()]; ok {
+				apiScope.Blueprints = bps
+				delete(blueprintMap, apiScope.Scope.ScopeId())
 			}
-			apiScopes = append(apiScopes, scope)
 		}
 		if len(blueprintMap) > 0 {
 			var danglingIds []string
@@ -361,7 +358,7 @@ func (gs *GenericScopeApiHelper[Conn, Scope, ScopeConfig]) addScopeConfig(scopes
 	apiScopes := make([]*ScopeRes[Scope, ScopeConfig], len(scopes))
 	for i, scope := range scopes {
 		apiScopes[i] = &ScopeRes[Scope, ScopeConfig]{
-			Scope: scope,
+			Scope: *scope,
 		}
 		scIdField := reflectField(scope, "ScopeConfigId")
 		if scIdField.IsValid() && scIdField.Uint() > 0 {
@@ -385,15 +382,6 @@ func (gs *GenericScopeApiHelper[Conn, Scope, ScopeConfig]) getScopeReferences(co
 		return nil, nil
 	}
 	return serviceHelper.NewBlueprintProjectPairs(blueprints), nil
-}
-
-func (gs *GenericScopeApiHelper[Conn, Scope, ScopeConfig]) mapByScopeId(scopes []*ScopeRes[Scope, ScopeConfig]) map[string]*ScopeRes[Scope, ScopeConfig] {
-	scopeMap := map[string]*ScopeRes[Scope, ScopeConfig]{}
-	for _, scope := range scopes {
-		scopeId := fmt.Sprintf("%v", reflectField(scope.Scope, gs.reflectionParams.ScopeIdFieldName).Interface())
-		scopeMap[scopeId] = scope
-	}
-	return scopeMap
 }
 
 func (gs *GenericScopeApiHelper[Conn, Scope, ScopeConfig]) extractFromReqParam(input *plugin.ApiResourceInput, withScopeId bool) (*requestParams, errors.Error) {
