@@ -18,20 +18,42 @@ limitations under the License.
 package migrationscripts
 
 import (
+	"encoding/json"
 	"github.com/apache/incubator-devlake/core/context"
-	"github.com/apache/incubator-devlake/core/dal"
 	"github.com/apache/incubator-devlake/core/errors"
 	"github.com/apache/incubator-devlake/core/plugin"
+	"github.com/apache/incubator-devlake/helpers/migrationhelper"
 	"github.com/apache/incubator-devlake/plugins/pagerduty/models/migrationscripts/archived"
 )
 
 var _ plugin.MigrationScript = (*addRawParamTableForScope)(nil)
 
+type scope20230630 struct {
+	ConnectionId  uint64
+	Id            string
+	RawDataTable  string `gorm:"column:_raw_data_table"`
+	RawDataParams string `gorm:"column:_raw_data_params"`
+}
+
+type params20230630 struct {
+	ConnectionId uint64
+	ScopeId      string
+}
+
 type addRawParamTableForScope struct{}
 
 func (script *addRawParamTableForScope) Up(basicRes context.BasicRes) errors.Error {
-	return basicRes.GetDal().UpdateColumn(archived.Service{}.TableName(), "_raw_data_table", "_raw_pagerduty_scopes",
-		dal.Where("1=1"))
+	return migrationhelper.CopyTableColumns(basicRes,
+		archived.Service{}.TableName(),
+		archived.Service{}.TableName(),
+		func(src *scope20230630) (*scope20230630, errors.Error) {
+			src.RawDataTable = "_raw_pagerduty_scopes"
+			src.RawDataParams = string(errors.Must1(json.Marshal(&params20230630{
+				ConnectionId: src.ConnectionId,
+				ScopeId:      src.Id,
+			})))
+			return src, nil
+		})
 }
 
 func (*addRawParamTableForScope) Version() uint64 {
@@ -39,5 +61,5 @@ func (*addRawParamTableForScope) Version() uint64 {
 }
 
 func (script *addRawParamTableForScope) Name() string {
-	return "populated _raw_data_table column for pagerduty services"
+	return "populated _raw_data columns for pagerduty services"
 }
