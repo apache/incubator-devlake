@@ -3,7 +3,10 @@
     "list": [
       {
         "builtIn": 1,
-        "datasource": "-- Grafana --",
+        "datasource": {
+          "type": "datasource",
+          "uid": "grafana"
+        },
         "enable": true,
         "hide": true,
         "iconColor": "rgba(0, 211, 255, 1)",
@@ -13,14 +16,17 @@
     ]
   },
   "editable": true,
-  "gnetId": null,
+  "fiscalYearStartMonth": 0,
   "graphTooltip": 0,
-  "id": 13,
-  "iteration": 1681785827220,
+  "id": 3,
   "links": [],
+  "liveNow": false,
   "panels": [
     {
-      "datasource": null,
+      "datasource": {
+        "type": "datasource",
+        "uid": "grafana"
+      },
       "gridPos": {
         "h": 3,
         "w": 24,
@@ -29,12 +35,21 @@
       },
       "id": 28,
       "options": {
+        "code": {
+          "language": "plaintext",
+          "showLineNumbers": false,
+          "showMiniMap": false
+        },
         "content": "- Use Cases: This dashboard can be used to track bugs with metrics such as [Bug Age](https://devlake.apache.org/docs/Metrics/BugAge).\n- Data Source Required: GitHub ([transformation](https://devlake.apache.org/docs/UserManuals/ConfigUI/GitHub#step-3---adding-transformation-rules-optional) required) or Jira ([transformation](https://devlake.apache.org/docs/UserManuals/ConfigUI/Jira#step-3---adding-transformation-rules-optional) required). Transformation is the configuration for you to tell DevLake what is a bug.",
         "mode": "markdown"
       },
-      "pluginVersion": "8.0.6",
+      "pluginVersion": "9.5.1",
       "targets": [
         {
+          "datasource": {
+            "type": "datasource",
+            "uid": "grafana"
+          },
           "queryType": "randomWalk",
           "refId": "A"
         }
@@ -43,7 +58,10 @@
       "type": "text"
     },
     {
-      "datasource": "mysql",
+      "datasource": {
+        "type": "mysql",
+        "uid": "P430005175C4C7810"
+      },
       "fieldConfig": {
         "defaults": {
           "color": {
@@ -88,9 +106,13 @@
         "text": {},
         "textMode": "auto"
       },
-      "pluginVersion": "8.0.6",
+      "pluginVersion": "9.5.1",
       "targets": [
         {
+          "datasource": {
+            "type": "mysql",
+            "uid": "P430005175C4C7810"
+          },
           "format": "table",
           "group": [],
           "metricColumn": "none",
@@ -124,7 +146,10 @@
       "type": "stat"
     },
     {
-      "datasource": "mysql",
+      "datasource": {
+        "type": "mysql",
+        "uid": "P430005175C4C7810"
+      },
       "fieldConfig": {
         "defaults": {
           "color": {
@@ -156,6 +181,7 @@
         "legend": {
           "displayMode": "list",
           "placement": "bottom",
+          "showLegend": true,
           "values": [
             "percent",
             "value"
@@ -168,12 +194,17 @@
           "values": true
         },
         "tooltip": {
-          "mode": "multi"
+          "mode": "multi",
+          "sort": "none"
         }
       },
       "pluginVersion": "8.0.6",
       "targets": [
         {
+          "datasource": {
+            "type": "mysql",
+            "uid": "P430005175C4C7810"
+          },
           "format": "table",
           "group": [],
           "metricColumn": "none",
@@ -207,7 +238,10 @@
       "type": "piechart"
     },
     {
-      "datasource": "mysql",
+      "datasource": {
+        "type": "mysql",
+        "uid": "P430005175C4C7810"
+      },
       "fieldConfig": {
         "defaults": {
           "color": {
@@ -215,7 +249,10 @@
           },
           "custom": {
             "align": "auto",
-            "displayMode": "auto"
+            "cellOptions": {
+              "type": "auto"
+            },
+            "inspect": false
           },
           "mappings": [],
           "thresholds": {
@@ -320,12 +357,25 @@
       },
       "id": 4,
       "options": {
+        "cellHeight": "sm",
+        "footer": {
+          "countRows": false,
+          "fields": "",
+          "reducer": [
+            "sum"
+          ],
+          "show": false
+        },
         "showHeader": true,
         "sortBy": []
       },
-      "pluginVersion": "8.0.6",
+      "pluginVersion": "9.5.1",
       "targets": [
         {
+          "datasource": {
+            "type": "mysql",
+            "uid": "P430005175C4C7810"
+          },
           "format": "table",
           "group": [],
           "metricColumn": "none",
@@ -359,7 +409,10 @@
       "type": "table"
     },
     {
-      "datasource": "mysql",
+      "datasource": {
+        "type": "mysql",
+        "uid": "P430005175C4C7810"
+      },
       "fieldConfig": {
         "defaults": {
           "color": {
@@ -404,9 +457,13 @@
         "text": {},
         "textMode": "auto"
       },
-      "pluginVersion": "8.0.6",
+      "pluginVersion": "9.5.1",
       "targets": [
         {
+          "datasource": {
+            "type": "mysql",
+            "uid": "P430005175C4C7810"
+          },
           "format": "table",
           "group": [],
           "metricColumn": "none",
@@ -440,7 +497,10 @@
       "type": "stat"
     },
     {
-      "datasource": "mysql",
+      "datasource": {
+        "type": "mysql",
+        "uid": "P430005175C4C7810"
+      },
       "fieldConfig": {
         "defaults": {
           "color": {
@@ -490,9 +550,13 @@
         "text": {},
         "textMode": "auto"
       },
-      "pluginVersion": "8.0.6",
+      "pluginVersion": "9.5.1",
       "targets": [
         {
+          "datasource": {
+            "type": "mysql",
+            "uid": "P430005175C4C7810"
+          },
           "format": "table",
           "group": [],
           "metricColumn": "none",
@@ -526,7 +590,10 @@
       "type": "stat"
     },
     {
-      "datasource": "mysql",
+      "datasource": {
+        "type": "mysql",
+        "uid": "P430005175C4C7810"
+      },
       "fieldConfig": {
         "defaults": {
           "color": {
@@ -534,7 +601,10 @@
           },
           "custom": {
             "align": "auto",
-            "displayMode": "auto"
+            "cellOptions": {
+              "type": "auto"
+            },
+            "inspect": false
           },
           "mappings": [],
           "thresholds": {
@@ -595,8 +665,10 @@
             },
             "properties": [
               {
-                "id": "custom.displayMode",
-                "value": "color-text"
+                "id": "custom.cellOptions",
+                "value": {
+                  "type": "color-text"
+                }
               }
             ]
           }
@@ -610,12 +682,25 @@
       },
       "id": 10,
       "options": {
+        "cellHeight": "sm",
+        "footer": {
+          "countRows": false,
+          "fields": "",
+          "reducer": [
+            "sum"
+          ],
+          "show": false
+        },
         "showHeader": true,
         "sortBy": []
       },
-      "pluginVersion": "8.0.6",
+      "pluginVersion": "9.5.1",
       "targets": [
         {
+          "datasource": {
+            "type": "mysql",
+            "uid": "P430005175C4C7810"
+          },
           "format": "table",
           "group": [],
           "metricColumn": "none",
@@ -649,13 +734,18 @@
       "type": "table"
     },
     {
-      "datasource": "mysql",
+      "datasource": {
+        "type": "mysql",
+        "uid": "P430005175C4C7810"
+      },
       "fieldConfig": {
         "defaults": {
           "color": {
             "mode": "palette-classic"
           },
           "custom": {
+            "axisCenteredZero": false,
+            "axisColorMode": "text",
             "axisLabel": "",
             "axisPlacement": "auto",
             "axisSoftMin": 0,
@@ -666,7 +756,13 @@
               "tooltip": false,
               "viz": false
             },
-            "lineWidth": 1
+            "lineWidth": 1,
+            "scaleDistribution": {
+              "type": "linear"
+            },
+            "thresholdsStyle": {
+              "mode": "off"
+            }
           },
           "decimals": 1,
           "mappings": [],
@@ -694,25 +790,36 @@
       },
       "id": 23,
       "options": {
+        "barRadius": 0,
         "barWidth": 0.3,
+        "fullHighlight": false,
         "groupWidth": 0.7,
         "legend": {
           "calcs": [
             "mean"
           ],
           "displayMode": "list",
-          "placement": "bottom"
+          "placement": "bottom",
+          "showLegend": true
         },
         "orientation": "horizontal",
         "showValue": "auto",
+        "stacking": "none",
         "text": {},
         "tooltip": {
-          "mode": "single"
-        }
+          "mode": "single",
+          "sort": "none"
+        },
+        "xTickLabelRotation": 0,
+        "xTickLabelSpacing": 0
       },
       "pluginVersion": "8.0.6",
       "targets": [
         {
+          "datasource": {
+            "type": "mysql",
+            "uid": "P430005175C4C7810"
+          },
           "format": "table",
           "group": [],
           "metricColumn": "none",
@@ -746,7 +853,10 @@
       "type": "barchart"
     },
     {
-      "datasource": "mysql",
+      "datasource": {
+        "type": "mysql",
+        "uid": "P430005175C4C7810"
+      },
       "fieldConfig": {
         "defaults": {
           "color": {
@@ -791,9 +901,13 @@
         "text": {},
         "textMode": "auto"
       },
-      "pluginVersion": "8.0.6",
+      "pluginVersion": "9.5.1",
       "targets": [
         {
+          "datasource": {
+            "type": "mysql",
+            "uid": "P430005175C4C7810"
+          },
           "format": "table",
           "group": [],
           "metricColumn": "none",
@@ -827,7 +941,10 @@
       "type": "stat"
     },
     {
-      "datasource": "mysql",
+      "datasource": {
+        "type": "mysql",
+        "uid": "P430005175C4C7810"
+      },
       "fieldConfig": {
         "defaults": {
           "color": {
@@ -872,9 +989,13 @@
         "text": {},
         "textMode": "auto"
       },
-      "pluginVersion": "8.0.6",
+      "pluginVersion": "9.5.1",
       "targets": [
         {
+          "datasource": {
+            "type": "mysql",
+            "uid": "P430005175C4C7810"
+          },
           "format": "table",
           "group": [],
           "metricColumn": "none",
@@ -908,7 +1029,10 @@
       "type": "stat"
     },
     {
-      "datasource": "mysql",
+      "datasource": {
+        "type": "mysql",
+        "uid": "P430005175C4C7810"
+      },
       "fieldConfig": {
         "defaults": {
           "color": {
@@ -916,7 +1040,10 @@
           },
           "custom": {
             "align": "auto",
-            "displayMode": "auto"
+            "cellOptions": {
+              "type": "auto"
+            },
+            "inspect": false
           },
           "mappings": [],
           "thresholds": {
@@ -989,8 +1116,10 @@
             },
             "properties": [
               {
-                "id": "custom.displayMode",
-                "value": "color-text"
+                "id": "custom.cellOptions",
+                "value": {
+                  "type": "color-text"
+                }
               }
             ]
           },
@@ -1001,8 +1130,7 @@
             },
             "properties": [
               {
-                "id": "custom.width",
-                "value": null
+                "id": "custom.width"
               }
             ]
           }
@@ -1016,12 +1144,25 @@
       },
       "id": 14,
       "options": {
+        "cellHeight": "sm",
+        "footer": {
+          "countRows": false,
+          "fields": "",
+          "reducer": [
+            "sum"
+          ],
+          "show": false
+        },
         "showHeader": true,
         "sortBy": []
       },
-      "pluginVersion": "8.0.6",
+      "pluginVersion": "9.5.1",
       "targets": [
         {
+          "datasource": {
+            "type": "mysql",
+            "uid": "P430005175C4C7810"
+          },
           "format": "table",
           "group": [],
           "metricColumn": "none",
@@ -1055,13 +1196,18 @@
       "type": "table"
     },
     {
-      "datasource": "mysql",
+      "datasource": {
+        "type": "mysql",
+        "uid": "P430005175C4C7810"
+      },
       "fieldConfig": {
         "defaults": {
           "color": {
             "mode": "palette-classic"
           },
           "custom": {
+            "axisCenteredZero": false,
+            "axisColorMode": "text",
             "axisLabel": "Queue Time in Days",
             "axisPlacement": "auto",
             "axisSoftMin": 0,
@@ -1072,7 +1218,13 @@
               "tooltip": false,
               "viz": false
             },
-            "lineWidth": 1
+            "lineWidth": 1,
+            "scaleDistribution": {
+              "type": "linear"
+            },
+            "thresholdsStyle": {
+              "mode": "off"
+            }
           },
           "mappings": [],
           "thresholds": {
@@ -1099,7 +1251,9 @@
       },
       "id": 18,
       "options": {
+        "barRadius": 0,
         "barWidth": 0.3,
+        "fullHighlight": false,
         "groupWidth": 0.7,
         "legend": {
           "calcs": [
@@ -1107,20 +1261,29 @@
             "max"
           ],
           "displayMode": "list",
-          "placement": "bottom"
+          "placement": "bottom",
+          "showLegend": true
         },
         "orientation": "auto",
         "showValue": "always",
+        "stacking": "none",
         "text": {
           "valueSize": 12
         },
         "tooltip": {
-          "mode": "single"
-        }
+          "mode": "single",
+          "sort": "none"
+        },
+        "xTickLabelRotation": 45,
+        "xTickLabelSpacing": 0
       },
       "pluginVersion": "8.0.6",
       "targets": [
         {
+          "datasource": {
+            "type": "mysql",
+            "uid": "P430005175C4C7810"
+          },
           "format": "table",
           "group": [],
           "metricColumn": "none",
@@ -1154,7 +1317,10 @@
       "type": "barchart"
     },
     {
-      "datasource": "mysql",
+      "datasource": {
+        "type": "mysql",
+        "uid": "P430005175C4C7810"
+      },
       "fieldConfig": {
         "defaults": {
           "color": {
@@ -1162,7 +1328,10 @@
           },
           "custom": {
             "align": "auto",
-            "displayMode": "auto"
+            "cellOptions": {
+              "type": "auto"
+            },
+            "inspect": false
           },
           "mappings": [],
           "thresholds": {
@@ -1223,8 +1392,10 @@
             },
             "properties": [
               {
-                "id": "custom.displayMode",
-                "value": "color-text"
+                "id": "custom.cellOptions",
+                "value": {
+                  "type": "color-text"
+                }
               }
             ]
           }
@@ -1238,12 +1409,25 @@
       },
       "id": 31,
       "options": {
+        "cellHeight": "sm",
+        "footer": {
+          "countRows": false,
+          "fields": "",
+          "reducer": [
+            "sum"
+          ],
+          "show": false
+        },
         "showHeader": true,
         "sortBy": []
       },
-      "pluginVersion": "8.0.6",
+      "pluginVersion": "9.5.1",
       "targets": [
         {
+          "datasource": {
+            "type": "mysql",
+            "uid": "P430005175C4C7810"
+          },
           "format": "table",
           "group": [],
           "metricColumn": "none",
@@ -1277,13 +1461,18 @@
       "type": "table"
     },
     {
-      "datasource": "mysql",
+      "datasource": {
+        "type": "mysql",
+        "uid": "P430005175C4C7810"
+      },
       "fieldConfig": {
         "defaults": {
           "color": {
             "mode": "palette-classic"
           },
           "custom": {
+            "axisCenteredZero": false,
+            "axisColorMode": "text",
             "axisLabel": "",
             "axisPlacement": "auto",
             "axisSoftMin": 0,
@@ -1294,7 +1483,13 @@
               "tooltip": false,
               "viz": false
             },
-            "lineWidth": 1
+            "lineWidth": 1,
+            "scaleDistribution": {
+              "type": "linear"
+            },
+            "thresholdsStyle": {
+              "mode": "off"
+            }
           },
           "mappings": [],
           "thresholds": {
@@ -1321,24 +1516,35 @@
       },
       "id": 2,
       "options": {
+        "barRadius": 0,
         "barWidth": 0.71,
+        "fullHighlight": false,
         "groupWidth": 0.7,
         "legend": {
           "calcs": [],
           "displayMode": "list",
-          "placement": "bottom"
+          "placement": "bottom",
+          "showLegend": true
         },
         "orientation": "auto",
         "showValue": "auto",
+        "stacking": "none",
         "text": {
           "valueSize": 12
         },
         "tooltip": {
-          "mode": "single"
-        }
+          "mode": "single",
+          "sort": "none"
+        },
+        "xTickLabelRotation": 45,
+        "xTickLabelSpacing": 0
       },
       "targets": [
         {
+          "datasource": {
+            "type": "mysql",
+            "uid": "P430005175C4C7810"
+          },
           "format": "table",
           "group": [],
           "metricColumn": "none",
@@ -1372,13 +1578,18 @@
       "type": "barchart"
     },
     {
-      "datasource": "mysql",
+      "datasource": {
+        "type": "mysql",
+        "uid": "P430005175C4C7810"
+      },
       "fieldConfig": {
         "defaults": {
           "color": {
             "mode": "palette-classic"
           },
           "custom": {
+            "axisCenteredZero": false,
+            "axisColorMode": "text",
             "axisLabel": "",
             "axisPlacement": "auto",
             "axisSoftMin": 0,
@@ -1389,7 +1600,13 @@
               "tooltip": false,
               "viz": false
             },
-            "lineWidth": 1
+            "lineWidth": 1,
+            "scaleDistribution": {
+              "type": "linear"
+            },
+            "thresholdsStyle": {
+              "mode": "off"
+            }
           },
           "mappings": [],
           "thresholds": {
@@ -1416,24 +1633,35 @@
       },
       "id": 20,
       "options": {
+        "barRadius": 0,
         "barWidth": 0.71,
+        "fullHighlight": false,
         "groupWidth": 0.7,
         "legend": {
           "calcs": [],
           "displayMode": "list",
-          "placement": "bottom"
+          "placement": "bottom",
+          "showLegend": true
         },
         "orientation": "auto",
         "showValue": "auto",
+        "stacking": "none",
         "text": {
           "valueSize": 12
         },
         "tooltip": {
-          "mode": "single"
-        }
+          "mode": "single",
+          "sort": "none"
+        },
+        "xTickLabelRotation": 45,
+        "xTickLabelSpacing": 0
       },
       "targets": [
         {
+          "datasource": {
+            "type": "mysql",
+            "uid": "P430005175C4C7810"
+          },
           "format": "table",
           "group": [],
           "metricColumn": "none",
@@ -1467,13 +1695,18 @@
       "type": "barchart"
     },
     {
-      "datasource": "mysql",
+      "datasource": {
+        "type": "mysql",
+        "uid": "P430005175C4C7810"
+      },
       "fieldConfig": {
         "defaults": {
           "color": {
             "mode": "palette-classic"
           },
           "custom": {
+            "axisCenteredZero": false,
+            "axisColorMode": "text",
             "axisLabel": "",
             "axisPlacement": "auto",
             "axisSoftMin": 0,
@@ -1484,7 +1717,13 @@
               "tooltip": false,
               "viz": false
             },
-            "lineWidth": 1
+            "lineWidth": 1,
+            "scaleDistribution": {
+              "type": "linear"
+            },
+            "thresholdsStyle": {
+              "mode": "off"
+            }
           },
           "mappings": [],
           "thresholds": {
@@ -1511,26 +1750,37 @@
       },
       "id": 21,
       "options": {
+        "barRadius": 0,
         "barWidth": 0.71,
+        "fullHighlight": false,
         "groupWidth": 0.7,
         "legend": {
           "calcs": [
             "mean"
           ],
           "displayMode": "list",
-          "placement": "bottom"
+          "placement": "bottom",
+          "showLegend": true
         },
         "orientation": "auto",
         "showValue": "auto",
+        "stacking": "none",
         "text": {
           "valueSize": 12
         },
         "tooltip": {
-          "mode": "single"
-        }
+          "mode": "single",
+          "sort": "none"
+        },
+        "xTickLabelRotation": 45,
+        "xTickLabelSpacing": 0
       },
       "targets": [
         {
+          "datasource": {
+            "type": "mysql",
+            "uid": "P430005175C4C7810"
+          },
           "format": "table",
           "group": [],
           "metricColumn": "none",
@@ -1564,7 +1814,10 @@
       "type": "barchart"
     },
     {
-      "datasource": null,
+      "datasource": {
+        "type": "datasource",
+        "uid": "grafana"
+      },
       "gridPos": {
         "h": 2,
         "w": 24,
@@ -1573,12 +1826,21 @@
       },
       "id": 30,
       "options": {
+        "code": {
+          "language": "plaintext",
+          "showLineNumbers": false,
+          "showMiniMap": false
+        },
         "content": "<br/>\n\nThis dashboard is created based on this [data schema](https://devlake.apache.org/docs/DataModels/DevLakeDomainLayerSchema). Want to add more metrics? Please follow the [guide](https://devlake.apache.org/docs/UserManuals/Dashboards/GrafanaUserGuide).",
         "mode": "markdown"
       },
-      "pluginVersion": "8.0.6",
+      "pluginVersion": "9.5.1",
       "targets": [
         {
+          "datasource": {
+            "type": "datasource",
+            "uid": "grafana"
+          },
           "queryType": "randomWalk",
           "refId": "A"
         }
@@ -1586,22 +1848,23 @@
       "type": "text"
     }
   ],
-  "schemaVersion": 30,
+  "refresh": "",
+  "schemaVersion": 38,
   "style": "dark",
   "tags": [],
   "templating": {
     "list": [
       {
-        "allValue": null,
         "current": {
           "selected": false,
           "text": "All",
           "value": "$__all"
         },
-        "datasource": "mysql",
+        "datasource": {
+          "type": "mysql",
+          "uid": "P430005175C4C7810"
+        },
         "definition": "select concat(name, '-', id) as text from boards",
-        "description": null,
-        "error": null,
         "hide": 0,
         "includeAll": true,
         "label": "Board",
@@ -1616,16 +1879,16 @@
         "type": "query"
       },
       {
-        "allValue": null,
         "current": {
           "selected": false,
           "text": "BUG",
           "value": "BUG"
         },
-        "datasource": "mysql",
+        "datasource": {
+          "type": "mysql",
+          "uid": "P430005175C4C7810"
+        },
         "definition": "select distinct type from issues",
-        "description": null,
-        "error": null,
         "hide": 0,
         "includeAll": true,
         "label": "Issue Type",
@@ -1640,7 +1903,6 @@
         "type": "query"
       },
       {
-        "allValue": null,
         "current": {
           "selected": true,
           "text": [
@@ -1650,10 +1912,11 @@
             "$__all"
           ]
         },
-        "datasource": "mysql",
+        "datasource": {
+          "type": "mysql",
+          "uid": "P430005175C4C7810"
+        },
         "definition": "select distinct priority from issues",
-        "description": null,
-        "error": null,
         "hide": 0,
         "includeAll": true,
         "label": "Priority",
@@ -1677,5 +1940,6 @@
   "timezone": "",
   "title": "Weekly Bug Retro",
   "uid": "-5EKA5w7k",
-  "version": 23
+  "version": 2,
+  "weekStart": ""
 }

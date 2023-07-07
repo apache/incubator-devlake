@@ -3,7 +3,10 @@
     "list": [
       {
         "builtIn": 1,
-        "datasource": "-- Grafana --",
+        "datasource": {
+          "type": "datasource",
+          "uid": "grafana"
+        },
         "enable": true,
         "hide": true,
         "iconColor": "rgba(0, 211, 255, 1)",
@@ -13,28 +16,40 @@
     ]
   },
   "editable": true,
-  "gnetId": null,
+  "fiscalYearStartMonth": 0,
   "graphTooltip": 0,
-  "id": 27,
-  "iteration": 1682063086384,
+  "id": 28,
   "links": [],
+  "liveNow": false,
   "panels": [
     {
-      "datasource": null,
+      "datasource": {
+        "type": "datasource",
+        "uid": "grafana"
+      },
       "gridPos": {
-        "h": 3,
-        "w": 23,
+        "h": 4,
+        "w": 24,
         "x": 0,
         "y": 0
       },
       "id": 48,
       "options": {
-        "content": "- Use Cases: This dashboard can be used to track community growth by OSS maintainers.\n- Data Source Required: GitHub users' organizations are used to filter issues/PRs created by certain users. [Publicize users' org](https://docs.github.com/en/account-and-profile/setting-up-and-managing-your-personal-account-on-github/managing-your-membership-in-organizations/publicizing-or-hiding-organization-membership) so that Apache DevLake can collect users' org.",
+        "code": {
+          "language": "plaintext",
+          "showLineNumbers": false,
+          "showMiniMap": false
+        },
+        "content": "- Use Cases: This dashboard can be used to track community growth by OSS maintainers.\n- Data Source Required: GitHub users' organizations are used to filter issues/PRs created by certain users. [Publicize users' org](https://docs.github.com/en/account-and-profile/setting-up-and-managing-your-personal-account-on-github/managing-your-membership-in-organizations/publicizing-or-hiding-organization-membership) so that Apache DevLake can collect users' org.\n- This dashboard **DOES NOT** honor the time filter on the top-right corner.",
         "mode": "markdown"
       },
-      "pluginVersion": "8.0.6",
+      "pluginVersion": "9.5.1",
       "targets": [
         {
+          "datasource": {
+            "type": "datasource",
+            "uid": "grafana"
+          },
           "queryType": "randomWalk",
           "refId": "A"
         }
@@ -44,20 +59,35 @@
     },
     {
       "collapsed": false,
-      "datasource": null,
+      "datasource": {
+        "type": "datasource",
+        "uid": "grafana"
+      },
       "gridPos": {
         "h": 1,
         "w": 24,
         "x": 0,
-        "y": 3
+        "y": 4
       },
       "id": 42,
       "panels": [],
+      "targets": [
+        {
+          "datasource": {
+            "type": "datasource",
+            "uid": "grafana"
+          },
+          "refId": "A"
+        }
+      ],
       "title": "Community Issues",
       "type": "row"
     },
     {
-      "datasource": "mysql",
+      "datasource": {
+        "type": "mysql",
+        "uid": "P430005175C4C7810"
+      },
       "fieldConfig": {
         "defaults": {
           "color": {
@@ -84,7 +114,7 @@
         "h": 8,
         "w": 8,
         "x": 0,
-        "y": 4
+        "y": 5
       },
       "id": 6,
       "options": {
@@ -102,9 +132,13 @@
         "text": {},
         "textMode": "auto"
       },
-      "pluginVersion": "8.0.6",
+      "pluginVersion": "9.5.1",
       "targets": [
         {
+          "datasource": {
+            "type": "mysql",
+            "uid": "P430005175C4C7810"
+          },
           "format": "table",
           "group": [],
           "metricColumn": "none",
@@ -138,7 +172,10 @@
       "type": "stat"
     },
     {
-      "datasource": "mysql",
+      "datasource": {
+        "type": "mysql",
+        "uid": "P430005175C4C7810"
+      },
       "fieldConfig": {
         "defaults": {
           "color": {
@@ -165,7 +202,7 @@
         "h": 8,
         "w": 6,
         "x": 8,
-        "y": 4
+        "y": 5
       },
       "id": 22,
       "options": {
@@ -183,9 +220,13 @@
         "text": {},
         "textMode": "auto"
       },
-      "pluginVersion": "8.0.6",
+      "pluginVersion": "9.5.1",
       "targets": [
         {
+          "datasource": {
+            "type": "mysql",
+            "uid": "P430005175C4C7810"
+          },
           "format": "table",
           "group": [],
           "metricColumn": "none",
@@ -219,7 +260,10 @@
       "type": "stat"
     },
     {
-      "datasource": "mysql",
+      "datasource": {
+        "type": "mysql",
+        "uid": "P430005175C4C7810"
+      },
       "fieldConfig": {
         "defaults": {
           "color": {
@@ -247,7 +291,7 @@
         "h": 8,
         "w": 6,
         "x": 14,
-        "y": 4
+        "y": 5
       },
       "id": 23,
       "options": {
@@ -265,9 +309,13 @@
         "text": {},
         "textMode": "auto"
       },
-      "pluginVersion": "8.0.6",
+      "pluginVersion": "9.5.1",
       "targets": [
         {
+          "datasource": {
+            "type": "mysql",
+            "uid": "P430005175C4C7810"
+          },
           "format": "table",
           "group": [],
           "metricColumn": "none",
@@ -301,7 +349,10 @@
       "type": "stat"
     },
     {
-      "datasource": "mysql",
+      "datasource": {
+        "type": "mysql",
+        "uid": "P430005175C4C7810"
+      },
       "fieldConfig": {
         "defaults": {
           "color": {
@@ -309,7 +360,10 @@
           },
           "custom": {
             "align": "auto",
-            "displayMode": "auto"
+            "cellOptions": {
+              "type": "auto"
+            },
+            "inspect": false
           },
           "mappings": [],
           "thresholds": {
@@ -332,15 +386,28 @@
         "h": 8,
         "w": 4,
         "x": 20,
-        "y": 4
+        "y": 5
       },
       "id": 45,
       "options": {
+        "cellHeight": "sm",
+        "footer": {
+          "countRows": false,
+          "fields": "",
+          "reducer": [
+            "sum"
+          ],
+          "show": false
+        },
         "showHeader": true
       },
-      "pluginVersion": "8.0.6",
+      "pluginVersion": "9.5.1",
       "targets": [
         {
+          "datasource": {
+            "type": "mysql",
+            "uid": "P430005175C4C7810"
+          },
           "format": "table",
           "group": [],
           "metricColumn": "none",
@@ -374,7 +441,10 @@
       "type": "table"
     },
     {
-      "datasource": "mysql",
+      "datasource": {
+        "type": "mysql",
+        "uid": "P430005175C4C7810"
+      },
       "fieldConfig": {
         "defaults": {
           "color": {
@@ -406,7 +476,7 @@
         "h": 8,
         "w": 8,
         "x": 0,
-        "y": 12
+        "y": 13
       },
       "id": 24,
       "options": {
@@ -424,9 +494,13 @@
         "text": {},
         "textMode": "auto"
       },
-      "pluginVersion": "8.0.6",
+      "pluginVersion": "9.5.1",
       "targets": [
         {
+          "datasource": {
+            "type": "mysql",
+            "uid": "P430005175C4C7810"
+          },
           "format": "table",
           "group": [],
           "metricColumn": "none",
@@ -460,7 +534,10 @@
       "type": "stat"
     },
     {
-      "datasource": "mysql",
+      "datasource": {
+        "type": "mysql",
+        "uid": "P430005175C4C7810"
+      },
       "fieldConfig": {
         "defaults": {
           "color": {
@@ -468,7 +545,10 @@
           },
           "custom": {
             "align": "auto",
-            "displayMode": "auto"
+            "cellOptions": {
+              "type": "auto"
+            },
+            "inspect": false
           },
           "mappings": [],
           "thresholds": {
@@ -480,7 +560,7 @@
               },
               {
                 "color": "red",
-                "value": 80
+                "value": 3
               }
             ]
           }
@@ -537,12 +617,26 @@
           {
             "matcher": {
               "id": "byName",
-              "options": "issue_number"
+              "options": "queue_time_in_days"
+            },
+            "properties": [
+              {
+                "id": "custom.cellOptions",
+                "value": {
+                  "type": "color-text"
+                }
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "issue_key"
             },
             "properties": [
               {
                 "id": "custom.width",
-                "value": 125
+                "value": 95
               }
             ]
           }
@@ -552,22 +646,36 @@
         "h": 8,
         "w": 16,
         "x": 8,
-        "y": 12
+        "y": 13
       },
       "id": 25,
       "options": {
+        "cellHeight": "sm",
+        "footer": {
+          "countRows": false,
+          "fields": "",
+          "reducer": [
+            "sum"
+          ],
+          "show": false
+        },
         "showHeader": true,
         "sortBy": []
       },
-      "pluginVersion": "8.0.6",
+      "pluginVersion": "9.5.1",
       "targets": [
         {
+          "datasource": {
+            "type": "mysql",
+            "uid": "P430005175C4C7810"
+          },
+          "editorMode": "code",
           "format": "table",
           "group": [],
           "metricColumn": "none",
           "queryType": "randomWalk",
           "rawQuery": true,
-          "rawSql": "with issue_comment_list as(\n  select\n    i.id as issue_id,\n    i.url,\n    i.title,\n    i.creator_name,\n    i.created_date as issue_created_date,\n    i.status,\n    ic.id as comment_id,\n    ic.created_date as comment_date,\n    ic.body,\n    case when ic.id is not null then rank() over (partition by i.id order by ic.created_date asc) else null end as comment_rank\n  from\n    issues i\n    join board_issues bi on i.id = bi.issue_id\n    join boards b on bi.board_id = b.id\n    left join issue_comments ic on i.id = ic.issue_id\n  where\n    i.type in ($issue_type)\n    and date(i.created_date) BETWEEN curdate() - INTERVAL WEEKDAY(curdate())+7 DAY AND curdate() - INTERVAL WEEKDAY(curdate())+1 DAY\n    and b.id in ($repo_id)\n    and i.creator_id not in (select distinct id from accounts where organization in ($org))\n)\n\nselect \n  SUBSTRING_INDEX(url, '/', -1) as issue_number,\n  title,\n  creator_name,\n  issue_created_date,\n  status,\n  (TIMESTAMPDIFF(MINUTE,issue_created_date,NOW()))/1440 as 'queue_time_in_days',\n  url\nfrom issue_comment_list\nwhere comment_id is null",
+          "rawSql": "with issue_comment_list as(\n  select\n    i.id as issue_id,\n    i.url,\n    i.issue_key,\n    i.title,\n    i.creator_name,\n    i.created_date as issue_created_date,\n    i.status,\n    ic.id as comment_id,\n    ic.created_date as comment_date,\n    ic.body,\n    case when ic.id is not null then rank() over (partition by i.id order by ic.created_date asc) else null end as comment_rank\n  from\n    issues i\n    join board_issues bi on i.id = bi.issue_id\n    join boards b on bi.board_id = b.id\n    left join issue_comments ic on i.id = ic.issue_id\n  where\n    i.type in ($issue_type)\n    and date(i.created_date) BETWEEN curdate() - INTERVAL WEEKDAY(curdate())+7 DAY AND curdate() - INTERVAL WEEKDAY(curdate())+1 DAY\n    and b.id in ($repo_id)\n    and i.creator_id not in (select distinct id from accounts where organization in ($org))\n)\n\nselect \n  issue_key,\n  title,\n  creator_name,\n  issue_created_date,\n  status,\n  (TIMESTAMPDIFF(MINUTE,issue_created_date,NOW()))/1440 as 'queue_time_in_days',\n  url\nfrom issue_comment_list\nwhere comment_id is null",
           "refId": "A",
           "select": [
             [
@@ -579,6 +687,23 @@
               }
             ]
           ],
+          "sql": {
+            "columns": [
+              {
+                "parameters": [],
+                "type": "function"
+              }
+            ],
+            "groupBy": [
+              {
+                "property": {
+                  "type": "string"
+                },
+                "type": "groupBy"
+              }
+            ],
+            "limit": 50
+          },
           "table": "_devlake_migration_history",
           "timeColumn": "created_at",
           "timeColumnType": "timestamp",
@@ -595,7 +720,10 @@
       "type": "table"
     },
     {
-      "datasource": "mysql",
+      "datasource": {
+        "type": "mysql",
+        "uid": "P430005175C4C7810"
+      },
       "fieldConfig": {
         "defaults": {
           "color": {
@@ -627,7 +755,7 @@
         "h": 8,
         "w": 8,
         "x": 0,
-        "y": 20
+        "y": 21
       },
       "id": 26,
       "options": {
@@ -645,9 +773,13 @@
         "text": {},
         "textMode": "auto"
       },
-      "pluginVersion": "8.0.6",
+      "pluginVersion": "9.5.1",
       "targets": [
         {
+          "datasource": {
+            "type": "mysql",
+            "uid": "P430005175C4C7810"
+          },
           "format": "table",
           "group": [],
           "metricColumn": "none",
@@ -681,7 +813,10 @@
       "type": "stat"
     },
     {
-      "datasource": "mysql",
+      "datasource": {
+        "type": "mysql",
+        "uid": "P430005175C4C7810"
+      },
       "fieldConfig": {
         "defaults": {
           "color": {
@@ -689,7 +824,10 @@
           },
           "custom": {
             "align": "auto",
-            "displayMode": "auto"
+            "cellOptions": {
+              "type": "auto"
+            },
+            "inspect": false
           },
           "mappings": [],
           "thresholds": {
@@ -700,114 +838,14 @@
                 "value": null
               },
               {
-                "color": "#EAB839",
-                "value": 0.2
-              },
-              {
                 "color": "red",
-                "value": 0.5
+                "value": 3
               }
             ]
           },
           "unit": "none"
         },
         "overrides": [
-          {
-            "matcher": {
-              "id": "byName",
-              "options": "body"
-            },
-            "properties": [
-              {
-                "id": "custom.width",
-                "value": 364
-              }
-            ]
-          },
-          {
-            "matcher": {
-              "id": "byName",
-              "options": "url"
-            },
-            "properties": [
-              {
-                "id": "custom.width",
-                "value": null
-              }
-            ]
-          },
-          {
-            "matcher": {
-              "id": "byName",
-              "options": "issue_id"
-            },
-            "properties": [
-              {
-                "id": "custom.width",
-                "value": 73
-              }
-            ]
-          },
-          {
-            "matcher": {
-              "id": "byName",
-              "options": "comment_id"
-            },
-            "properties": [
-              {
-                "id": "custom.width",
-                "value": 106
-              }
-            ]
-          },
-          {
-            "matcher": {
-              "id": "byName",
-              "options": "comment_rank"
-            },
-            "properties": [
-              {
-                "id": "custom.width",
-                "value": 28
-              }
-            ]
-          },
-          {
-            "matcher": {
-              "id": "byName",
-              "options": "response_time_in_days"
-            },
-            "properties": [
-              {
-                "id": "custom.width",
-                "value": 184
-              }
-            ]
-          },
-          {
-            "matcher": {
-              "id": "byName",
-              "options": "issue_nunber"
-            },
-            "properties": [
-              {
-                "id": "custom.width",
-                "value": 127
-              }
-            ]
-          },
-          {
-            "matcher": {
-              "id": "byName",
-              "options": "issue_number"
-            },
-            "properties": [
-              {
-                "id": "custom.width",
-                "value": 122
-              }
-            ]
-          },
           {
             "matcher": {
               "id": "byName",
@@ -855,6 +893,36 @@
                 "value": 160
               }
             ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "issue_key"
+            },
+            "properties": [
+              {
+                "id": "custom.width",
+                "value": 96
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "response_time_in_days"
+            },
+            "properties": [
+              {
+                "id": "custom.width",
+                "value": 211
+              },
+              {
+                "id": "custom.cellOptions",
+                "value": {
+                  "type": "color-text"
+                }
+              }
+            ]
           }
         ]
       },
@@ -862,22 +930,36 @@
         "h": 8,
         "w": 16,
         "x": 8,
-        "y": 20
+        "y": 21
       },
       "id": 28,
       "options": {
+        "cellHeight": "sm",
+        "footer": {
+          "countRows": false,
+          "fields": "",
+          "reducer": [
+            "sum"
+          ],
+          "show": false
+        },
         "showHeader": true,
         "sortBy": []
       },
-      "pluginVersion": "8.0.6",
+      "pluginVersion": "9.5.1",
       "targets": [
         {
+          "datasource": {
+            "type": "mysql",
+            "uid": "P430005175C4C7810"
+          },
+          "editorMode": "code",
           "format": "table",
           "group": [],
           "metricColumn": "none",
           "queryType": "randomWalk",
           "rawQuery": true,
-          "rawSql": "with issue_comment_list as(\n  select\n    SUBSTRING_INDEX(i.url, '/', -1) as issue_number,\n    i.url,\n    i.title,\n    i.creator_name,\n    i.created_date as issue_created_date,\n    ic.id as comment_id,\n    ic.created_date as comment_date,\n    ic.body,\n    case when ic.id is not null then rank() over (partition by i.id order by ic.created_date asc) else null end as comment_rank\n  from\n    issues i\n    join board_issues bi on i.id = bi.issue_id\n    join boards b on bi.board_id = b.id\n    left join issue_comments ic on i.id = ic.issue_id\n  where\n    i.type in ($issue_type)\n    and date(i.created_date) BETWEEN curdate() - INTERVAL WEEKDAY(curdate())+7 DAY AND curdate() - INTERVAL WEEKDAY(curdate())+1 DAY\n    and b.id in ($repo_id)\n    and i.creator_id not in (select distinct id from accounts where organization in ($org))\n)\n\nselect\n  issue_number,\n  title,\n  -- body,\n  creator_name,\n  issue_created_date,\n  comment_date,\n  (TIMESTAMPDIFF(MINUTE, issue_created_date,comment_date))/60 as response_time_in_hours,\n  url\nfrom issue_comment_list\nwhere comment_rank = 1",
+          "rawSql": "with issue_comment_list as(\n  select\n    SUBSTRING_INDEX(i.url, '/', -1) as issue_number,\n    i.url,\n    i.issue_key,\n    i.title,\n    i.creator_name,\n    i.created_date as issue_created_date,\n    ic.id as comment_id,\n    ic.created_date as comment_date,\n    ic.body,\n    case when ic.id is not null then rank() over (partition by i.id order by ic.created_date asc) else null end as comment_rank\n  from\n    issues i\n    join board_issues bi on i.id = bi.issue_id\n    join boards b on bi.board_id = b.id\n    left join issue_comments ic on i.id = ic.issue_id\n  where\n    i.type in ($issue_type)\n    and date(i.created_date) BETWEEN curdate() - INTERVAL WEEKDAY(curdate())+7 DAY AND curdate() - INTERVAL WEEKDAY(curdate())+1 DAY\n    and b.id in ($repo_id)\n    and i.creator_id not in (select distinct id from accounts where organization in ($org))\n)\n\nselect\n  issue_key,\n  title,\n  -- body,\n  creator_name,\n  issue_created_date,\n  comment_date,\n  (TIMESTAMPDIFF(MINUTE, issue_created_date,comment_date))/1440 as response_time_in_days,\n  url\nfrom issue_comment_list\nwhere comment_rank = 1",
           "refId": "A",
           "select": [
             [
@@ -889,6 +971,23 @@
               }
             ]
           ],
+          "sql": {
+            "columns": [
+              {
+                "parameters": [],
+                "type": "function"
+              }
+            ],
+            "groupBy": [
+              {
+                "property": {
+                  "type": "string"
+                },
+                "type": "groupBy"
+              }
+            ],
+            "limit": 50
+          },
           "table": "_devlake_migration_history",
           "timeColumn": "created_at",
           "timeColumnType": "timestamp",
@@ -906,20 +1005,35 @@
     },
     {
       "collapsed": false,
-      "datasource": null,
+      "datasource": {
+        "type": "datasource",
+        "uid": "grafana"
+      },
       "gridPos": {
         "h": 1,
         "w": 24,
         "x": 0,
-        "y": 28
+        "y": 29
       },
       "id": 44,
       "panels": [],
+      "targets": [
+        {
+          "datasource": {
+            "type": "datasource",
+            "uid": "grafana"
+          },
+          "refId": "A"
+        }
+      ],
       "title": "Community PRs",
       "type": "row"
     },
     {
-      "datasource": "mysql",
+      "datasource": {
+        "type": "mysql",
+        "uid": "P430005175C4C7810"
+      },
       "description": "",
       "fieldConfig": {
         "defaults": {
@@ -947,7 +1061,7 @@
         "h": 8,
         "w": 8,
         "x": 0,
-        "y": 29
+        "y": 30
       },
       "id": 31,
       "options": {
@@ -965,9 +1079,13 @@
         "text": {},
         "textMode": "auto"
       },
-      "pluginVersion": "8.0.6",
+      "pluginVersion": "9.5.1",
       "targets": [
         {
+          "datasource": {
+            "type": "mysql",
+            "uid": "P430005175C4C7810"
+          },
           "format": "table",
           "group": [],
           "hide": false,
@@ -1001,7 +1119,10 @@
       "type": "stat"
     },
     {
-      "datasource": "mysql",
+      "datasource": {
+        "type": "mysql",
+        "uid": "P430005175C4C7810"
+      },
       "description": "",
       "fieldConfig": {
         "defaults": {
@@ -1027,9 +1148,9 @@
       },
       "gridPos": {
         "h": 8,
-        "w": 6,
+        "w": 8,
         "x": 8,
-        "y": 29
+        "y": 30
       },
       "id": 34,
       "options": {
@@ -1047,9 +1168,13 @@
         "text": {},
         "textMode": "auto"
       },
-      "pluginVersion": "8.0.6",
+      "pluginVersion": "9.5.1",
       "targets": [
         {
+          "datasource": {
+            "type": "mysql",
+            "uid": "P430005175C4C7810"
+          },
           "format": "table",
           "group": [],
           "hide": false,
@@ -1083,7 +1208,10 @@
       "type": "stat"
     },
     {
-      "datasource": "mysql",
+      "datasource": {
+        "type": "mysql",
+        "uid": "P430005175C4C7810"
+      },
       "fieldConfig": {
         "defaults": {
           "color": {
@@ -1109,9 +1237,9 @@
       },
       "gridPos": {
         "h": 8,
-        "w": 6,
-        "x": 14,
-        "y": 29
+        "w": 8,
+        "x": 16,
+        "y": 30
       },
       "id": 35,
       "options": {
@@ -1129,9 +1257,13 @@
         "text": {},
         "textMode": "auto"
       },
-      "pluginVersion": "8.0.6",
+      "pluginVersion": "9.5.1",
       "targets": [
         {
+          "datasource": {
+            "type": "mysql",
+            "uid": "P430005175C4C7810"
+          },
           "format": "table",
           "group": [],
           "metricColumn": "none",
@@ -1165,81 +1297,10 @@
       "type": "stat"
     },
     {
-      "datasource": "mysql",
-      "description": "",
-      "fieldConfig": {
-        "defaults": {
-          "color": {
-            "mode": "thresholds"
-          },
-          "custom": {
-            "align": "auto",
-            "displayMode": "auto"
-          },
-          "mappings": [],
-          "thresholds": {
-            "mode": "absolute",
-            "steps": [
-              {
-                "color": "green",
-                "value": null
-              },
-              {
-                "color": "red",
-                "value": 80
-              }
-            ]
-          }
-        },
-        "overrides": []
+      "datasource": {
+        "type": "mysql",
+        "uid": "P430005175C4C7810"
       },
-      "gridPos": {
-        "h": 8,
-        "w": 4,
-        "x": 20,
-        "y": 29
-      },
-      "id": 46,
-      "options": {
-        "showHeader": true
-      },
-      "pluginVersion": "8.0.6",
-      "targets": [
-        {
-          "format": "table",
-          "group": [],
-          "hide": false,
-          "metricColumn": "none",
-          "rawQuery": true,
-          "rawSql": "select\n  distinct author_name\nfrom \n\tpull_requests pr\nwhere\n  date(created_date) BETWEEN curdate() - INTERVAL WEEKDAY(curdate())+7 DAY AND curdate() - INTERVAL WEEKDAY(curdate())+1 DAY\n\tand base_repo_id in ($repo_id)\n\tand author_name not in (select distinct author_name from pull_requests where created_date < curdate() - INTERVAL WEEKDAY(curdate())+7 DAY and author_name is not null)",
-          "refId": "A",
-          "select": [
-            [
-              {
-                "params": [
-                  "id"
-                ],
-                "type": "column"
-              }
-            ]
-          ],
-          "table": "ae_projects",
-          "timeColumn": "ae_create_time",
-          "timeColumnType": "timestamp",
-          "where": [
-            {
-              "name": "$__timeFilter",
-              "params": [],
-              "type": "macro"
-            }
-          ]
-        }
-      ],
-      "title": "First time Contributor [Previous Week]",
-      "type": "table"
-    },
-    {
-      "datasource": "mysql",
       "description": "",
       "fieldConfig": {
         "defaults": {
@@ -1267,7 +1328,7 @@
         "h": 8,
         "w": 8,
         "x": 0,
-        "y": 37
+        "y": 38
       },
       "id": 36,
       "options": {
@@ -1285,9 +1346,13 @@
         "text": {},
         "textMode": "auto"
       },
-      "pluginVersion": "8.0.6",
+      "pluginVersion": "9.5.1",
       "targets": [
         {
+          "datasource": {
+            "type": "mysql",
+            "uid": "P430005175C4C7810"
+          },
           "format": "table",
           "group": [],
           "hide": false,
@@ -1321,94 +1386,10 @@
       "type": "stat"
     },
     {
-      "datasource": "mysql",
-      "description": "",
-      "fieldConfig": {
-        "defaults": {
-          "color": {
-            "mode": "thresholds"
-          },
-          "mappings": [],
-          "thresholds": {
-            "mode": "absolute",
-            "steps": [
-              {
-                "color": "red",
-                "value": null
-              },
-              {
-                "color": "#EAB839",
-                "value": 0.5
-              },
-              {
-                "color": "green",
-                "value": 0.8
-              }
-            ]
-          },
-          "unit": "percentunit"
-        },
-        "overrides": []
+      "datasource": {
+        "type": "mysql",
+        "uid": "P430005175C4C7810"
       },
-      "gridPos": {
-        "h": 8,
-        "w": 8,
-        "x": 8,
-        "y": 37
-      },
-      "id": 37,
-      "options": {
-        "colorMode": "value",
-        "graphMode": "area",
-        "justifyMode": "auto",
-        "orientation": "auto",
-        "reduceOptions": {
-          "calcs": [
-            "lastNotNull"
-          ],
-          "fields": "",
-          "values": false
-        },
-        "text": {},
-        "textMode": "auto"
-      },
-      "pluginVersion": "8.0.6",
-      "targets": [
-        {
-          "format": "table",
-          "group": [],
-          "hide": false,
-          "metricColumn": "none",
-          "rawQuery": true,
-          "rawSql": "select\n\tsum(case when merged_date is not null then 1 else 0 end)/ count(*) as merged_pull_request_ratio\nfrom \n\tpull_requests pr\nwhere\n  date(created_date) BETWEEN curdate() - INTERVAL WEEKDAY(curdate())+7 DAY AND curdate() - INTERVAL WEEKDAY(curdate())+1 DAY\n\tand base_repo_id in ($repo_id)\n\tand author_id not in (select distinct id from accounts where organization in ($org))",
-          "refId": "A",
-          "select": [
-            [
-              {
-                "params": [
-                  "id"
-                ],
-                "type": "column"
-              }
-            ]
-          ],
-          "table": "ae_projects",
-          "timeColumn": "ae_create_time",
-          "timeColumnType": "timestamp",
-          "where": [
-            {
-              "name": "$__timeFilter",
-              "params": [],
-              "type": "macro"
-            }
-          ]
-        }
-      ],
-      "title": "Ratio of Merged Pull Requests Created by the Community [Previous Week]",
-      "type": "stat"
-    },
-    {
-      "datasource": "mysql",
       "description": "",
       "fieldConfig": {
         "defaults": {
@@ -1425,7 +1406,7 @@
               },
               {
                 "color": "red",
-                "value": 3
+                "value": 7
               }
             ]
           },
@@ -1436,8 +1417,8 @@
       "gridPos": {
         "h": 8,
         "w": 8,
-        "x": 16,
-        "y": 37
+        "x": 8,
+        "y": 38
       },
       "id": 39,
       "options": {
@@ -1455,9 +1436,13 @@
         "text": {},
         "textMode": "auto"
       },
-      "pluginVersion": "8.0.6",
+      "pluginVersion": "9.5.1",
       "targets": [
         {
+          "datasource": {
+            "type": "mysql",
+            "uid": "P430005175C4C7810"
+          },
           "format": "table",
           "group": [],
           "hide": false,
@@ -1491,7 +1476,354 @@
       "type": "stat"
     },
     {
-      "datasource": "mysql",
+      "datasource": {
+        "type": "mysql",
+        "uid": "P430005175C4C7810"
+      },
+      "description": "Contributors: the PR authors who have merged PR(s)",
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "thresholds"
+          },
+          "custom": {
+            "align": "auto",
+            "cellOptions": {
+              "type": "auto"
+            },
+            "inspect": false
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              },
+              {
+                "color": "red",
+                "value": 80
+              }
+            ]
+          }
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 8,
+        "x": 16,
+        "y": 38
+      },
+      "id": 46,
+      "options": {
+        "cellHeight": "sm",
+        "footer": {
+          "countRows": false,
+          "fields": "",
+          "reducer": [
+            "sum"
+          ],
+          "show": false
+        },
+        "showHeader": true
+      },
+      "pluginVersion": "9.5.1",
+      "targets": [
+        {
+          "datasource": {
+            "type": "mysql",
+            "uid": "P430005175C4C7810"
+          },
+          "editorMode": "code",
+          "format": "table",
+          "group": [],
+          "hide": false,
+          "metricColumn": "none",
+          "rawQuery": true,
+          "rawSql": "select\n  distinct author_name\nfrom \n\tpull_requests pr\nwhere\n  date(created_date) BETWEEN curdate() - INTERVAL WEEKDAY(curdate())+7 DAY AND curdate() - INTERVAL WEEKDAY(curdate())+1 DAY\n\tand merged_date is not null\n\tand base_repo_id in ($repo_id)\n\tand author_name not in (select distinct author_name from pull_requests where created_date < curdate() - INTERVAL WEEKDAY(curdate())+7 DAY and author_name is not null)",
+          "refId": "A",
+          "select": [
+            [
+              {
+                "params": [
+                  "id"
+                ],
+                "type": "column"
+              }
+            ]
+          ],
+          "sql": {
+            "columns": [
+              {
+                "parameters": [],
+                "type": "function"
+              }
+            ],
+            "groupBy": [
+              {
+                "property": {
+                  "type": "string"
+                },
+                "type": "groupBy"
+              }
+            ],
+            "limit": 50
+          },
+          "table": "ae_projects",
+          "timeColumn": "ae_create_time",
+          "timeColumnType": "timestamp",
+          "where": [
+            {
+              "name": "$__timeFilter",
+              "params": [],
+              "type": "macro"
+            }
+          ]
+        }
+      ],
+      "title": "First time Contributor [Previous Week]",
+      "type": "table"
+    },
+    {
+      "datasource": {
+        "type": "mysql",
+        "uid": "P430005175C4C7810"
+      },
+      "description": "",
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "thresholds"
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "red",
+                "value": null
+              },
+              {
+                "color": "#EAB839",
+                "value": 0.5
+              },
+              {
+                "color": "green",
+                "value": 0.8
+              }
+            ]
+          },
+          "unit": "percentunit"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 8,
+        "x": 0,
+        "y": 46
+      },
+      "id": 37,
+      "options": {
+        "colorMode": "value",
+        "graphMode": "area",
+        "justifyMode": "auto",
+        "orientation": "auto",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "text": {},
+        "textMode": "auto"
+      },
+      "pluginVersion": "9.5.1",
+      "targets": [
+        {
+          "datasource": {
+            "type": "mysql",
+            "uid": "P430005175C4C7810"
+          },
+          "format": "table",
+          "group": [],
+          "hide": false,
+          "metricColumn": "none",
+          "rawQuery": true,
+          "rawSql": "select\n\tsum(case when merged_date is not null then 1 else 0 end)/ count(*) as merged_pull_request_ratio\nfrom \n\tpull_requests pr\nwhere\n  date(created_date) BETWEEN curdate() - INTERVAL WEEKDAY(curdate())+7 DAY AND curdate() - INTERVAL WEEKDAY(curdate())+1 DAY\n\tand base_repo_id in ($repo_id)\n\tand author_id not in (select distinct id from accounts where organization in ($org))",
+          "refId": "A",
+          "select": [
+            [
+              {
+                "params": [
+                  "id"
+                ],
+                "type": "column"
+              }
+            ]
+          ],
+          "table": "ae_projects",
+          "timeColumn": "ae_create_time",
+          "timeColumnType": "timestamp",
+          "where": [
+            {
+              "name": "$__timeFilter",
+              "params": [],
+              "type": "macro"
+            }
+          ]
+        }
+      ],
+      "title": "Ratio of Merged Pull Requests Created by the Community [Previous Week]",
+      "type": "stat"
+    },
+    {
+      "datasource": {
+        "type": "mysql",
+        "uid": "P430005175C4C7810"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "thresholds"
+          },
+          "custom": {
+            "align": "auto",
+            "cellOptions": {
+              "type": "auto"
+            },
+            "inspect": false
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              },
+              {
+                "color": "red",
+                "value": 7
+              }
+            ]
+          },
+          "unit": "none"
+        },
+        "overrides": [
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "title"
+            },
+            "properties": [
+              {
+                "id": "custom.width",
+                "value": 451
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "queue_time_in_days"
+            },
+            "properties": [
+              {
+                "id": "custom.cellOptions",
+                "value": {
+                  "type": "color-text"
+                }
+              }
+            ]
+          }
+        ]
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 16,
+        "x": 8,
+        "y": 46
+      },
+      "id": 51,
+      "options": {
+        "cellHeight": "sm",
+        "footer": {
+          "countRows": false,
+          "fields": "",
+          "reducer": [
+            "sum"
+          ],
+          "show": false
+        },
+        "showHeader": true,
+        "sortBy": []
+      },
+      "pluginVersion": "9.5.1",
+      "targets": [
+        {
+          "datasource": {
+            "type": "mysql",
+            "uid": "P430005175C4C7810"
+          },
+          "editorMode": "code",
+          "format": "table",
+          "group": [],
+          "metricColumn": "none",
+          "queryType": "randomWalk",
+          "rawQuery": true,
+          "rawSql": "select\n  pull_request_key,\n  title,\n  status,\n  author_name,\n  created_date,\n  (TIMESTAMPDIFF(MINUTE, created_date,curdate()))/1440 as queue_time_in_days,\n  url\nfrom \n\tpull_requests pr\nwhere\n  date(created_date) BETWEEN curdate() - INTERVAL WEEKDAY(curdate())+7 DAY AND curdate() - INTERVAL WEEKDAY(curdate())+1 DAY\n\tand base_repo_id in ($repo_id)\n\tand merged_date is null\n  and author_id not in (select distinct id from accounts where organization in ($org))",
+          "refId": "A",
+          "select": [
+            [
+              {
+                "params": [
+                  "script_version"
+                ],
+                "type": "column"
+              }
+            ]
+          ],
+          "sql": {
+            "columns": [
+              {
+                "parameters": [],
+                "type": "function"
+              }
+            ],
+            "groupBy": [
+              {
+                "property": {
+                  "type": "string"
+                },
+                "type": "groupBy"
+              }
+            ],
+            "limit": 50
+          },
+          "table": "_devlake_migration_history",
+          "timeColumn": "created_at",
+          "timeColumnType": "timestamp",
+          "where": [
+            {
+              "name": "$__timeFilter",
+              "params": [],
+              "type": "macro"
+            }
+          ]
+        }
+      ],
+      "title": "List of New Community Issues' 1st Comment [Previous Week]",
+      "type": "table"
+    },
+    {
+      "datasource": {
+        "type": "mysql",
+        "uid": "P430005175C4C7810"
+      },
       "description": "",
       "fieldConfig": {
         "defaults": {
@@ -1499,6 +1831,8 @@
             "mode": "palette-classic"
           },
           "custom": {
+            "axisCenteredZero": false,
+            "axisColorMode": "text",
             "axisLabel": "Merged PR Count",
             "axisPlacement": "auto",
             "axisSoftMin": 0,
@@ -1509,7 +1843,13 @@
               "tooltip": false,
               "viz": false
             },
-            "lineWidth": 1
+            "lineWidth": 1,
+            "scaleDistribution": {
+              "type": "linear"
+            },
+            "thresholdsStyle": {
+              "mode": "off"
+            }
           },
           "mappings": [],
           "thresholds": {
@@ -1531,37 +1871,49 @@
       },
       "gridPos": {
         "h": 9,
-        "w": 12,
+        "w": 10,
         "x": 0,
-        "y": 45
+        "y": 54
       },
       "id": 33,
       "options": {
+        "barRadius": 0,
         "barWidth": 0.5,
+        "fullHighlight": false,
         "groupWidth": 0.7,
         "legend": {
           "calcs": [],
           "displayMode": "list",
-          "placement": "bottom"
+          "placement": "bottom",
+          "showLegend": true
         },
         "orientation": "auto",
         "showValue": "auto",
+        "stacking": "none",
         "text": {
           "valueSize": 12
         },
         "tooltip": {
-          "mode": "multi"
-        }
+          "mode": "multi",
+          "sort": "none"
+        },
+        "xTickLabelRotation": 45,
+        "xTickLabelSpacing": 0
       },
       "pluginVersion": "8.0.6",
       "targets": [
         {
+          "datasource": {
+            "type": "mysql",
+            "uid": "P430005175C4C7810"
+          },
+          "editorMode": "code",
           "format": "table",
           "group": [],
           "hide": false,
           "metricColumn": "none",
           "rawQuery": true,
-          "rawSql": "select\n  author_name,\n\tcount(*) as pull_request_count\nfrom \n\tpull_requests pr\nwhere\n  date(created_date) BETWEEN curdate() - INTERVAL WEEKDAY(curdate())+7 DAY AND curdate() - INTERVAL WEEKDAY(curdate())+1 DAY\n\tand base_repo_id in ($repo_id)\n\tand author_id not in (select distinct id from accounts where organization in ($org))\ngroup by 1\norder by 2 desc\nlimit 20\n",
+          "rawSql": "select\n  author_name,\n\tcount(*) as pull_request_count\nfrom \n\tpull_requests pr\nwhere\n  date(created_date) BETWEEN curdate() - INTERVAL WEEKDAY(curdate())+7 DAY AND curdate() - INTERVAL WEEKDAY(curdate())+1 DAY\n\tand base_repo_id in ($repo_id)\n\tand merged_date is not NULL\n\tand author_id not in (select distinct id from accounts where organization in ($org))\ngroup by 1\norder by 2 desc\nlimit 20\n",
           "refId": "A",
           "select": [
             [
@@ -1573,6 +1925,23 @@
               }
             ]
           ],
+          "sql": {
+            "columns": [
+              {
+                "parameters": [],
+                "type": "function"
+              }
+            ],
+            "groupBy": [
+              {
+                "property": {
+                  "type": "string"
+                },
+                "type": "groupBy"
+              }
+            ],
+            "limit": 50
+          },
           "table": "ae_projects",
           "timeColumn": "ae_create_time",
           "timeColumnType": "timestamp",
@@ -1585,11 +1954,14 @@
           ]
         }
       ],
-      "title": "Top Community Contributors By Number of PRs Created [Previous Week]",
+      "title": "Top 20 Community Contributors By Number of PRs Merged [Previous Week]",
       "type": "barchart"
     },
     {
-      "datasource": "mysql",
+      "datasource": {
+        "type": "mysql",
+        "uid": "P430005175C4C7810"
+      },
       "description": "",
       "fieldConfig": {
         "defaults": {
@@ -1598,53 +1970,52 @@
           },
           "mappings": [],
           "thresholds": {
-            "mode": "percentage",
+            "mode": "absolute",
             "steps": [
               {
                 "color": "green",
                 "value": null
-              },
-              {
-                "color": "red",
-                "value": 80
               }
             ]
-          },
-          "unit": "none"
+          }
         },
         "overrides": []
       },
       "gridPos": {
         "h": 9,
-        "w": 12,
-        "x": 12,
-        "y": 45
+        "w": 6,
+        "x": 10,
+        "y": 54
       },
-      "id": 40,
+      "id": 52,
       "options": {
-        "displayMode": "gradient",
-        "orientation": "horizontal",
+        "colorMode": "value",
+        "graphMode": "area",
+        "justifyMode": "auto",
+        "orientation": "auto",
         "reduceOptions": {
           "calcs": [
-            "first"
+            "lastNotNull"
           ],
           "fields": "",
-          "values": true
+          "values": false
         },
-        "showUnfilled": true,
-        "text": {
-          "valueSize": 1
-        }
+        "textMode": "auto"
       },
-      "pluginVersion": "8.0.6",
+      "pluginVersion": "9.5.1",
       "targets": [
         {
+          "datasource": {
+            "type": "mysql",
+            "uid": "P430005175C4C7810"
+          },
+          "editorMode": "code",
           "format": "table",
           "group": [],
           "hide": false,
           "metricColumn": "none",
           "rawQuery": true,
-          "rawSql": "select\n  author_name,\n\tcount(*) as merged_pull_request_count\nfrom \n\tpull_requests pr\nwhere\n  $__timeFilter(created_date)\n\tand base_repo_id in ($repo_id)\n\tand author_id not in (select distinct id from accounts where organization in ($org))\ngroup by 1\norder by 2 desc\nlimit 20\n",
+          "rawSql": "select\n\tcount(distinct author_id) as all_contributor_count\nfrom \n\tpull_requests pr\nwhere\n\tbase_repo_id in ($repo_id)\n\tand merged_date is not null\n\t-- and author_id not in (select distinct id from accounts where organization in ($org))\n",
           "refId": "A",
           "select": [
             [
@@ -1656,6 +2027,23 @@
               }
             ]
           ],
+          "sql": {
+            "columns": [
+              {
+                "parameters": [],
+                "type": "function"
+              }
+            ],
+            "groupBy": [
+              {
+                "property": {
+                  "type": "string"
+                },
+                "type": "groupBy"
+              }
+            ],
+            "limit": 50
+          },
           "table": "ae_projects",
           "timeColumn": "ae_create_time",
           "timeColumnType": "timestamp",
@@ -1669,24 +2057,143 @@
         }
       ],
       "title": "Top Community Contributors By PRs Created [All History]",
+      "type": "stat"
+    },
+    {
+      "datasource": {
+        "type": "mysql",
+        "uid": "P430005175C4C7810"
+      },
+      "description": "",
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "thresholds"
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              }
+            ]
+          },
+          "unit": "none"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 9,
+        "w": 8,
+        "x": 16,
+        "y": 54
+      },
+      "id": 40,
+      "options": {
+        "displayMode": "gradient",
+        "minVizHeight": 10,
+        "minVizWidth": 0,
+        "orientation": "horizontal",
+        "reduceOptions": {
+          "calcs": [
+            "first"
+          ],
+          "fields": "",
+          "values": true
+        },
+        "showUnfilled": true,
+        "text": {
+          "valueSize": 1
+        },
+        "valueMode": "color"
+      },
+      "pluginVersion": "9.5.1",
+      "targets": [
+        {
+          "datasource": {
+            "type": "mysql",
+            "uid": "P430005175C4C7810"
+          },
+          "editorMode": "code",
+          "format": "table",
+          "group": [],
+          "hide": false,
+          "metricColumn": "none",
+          "rawQuery": true,
+          "rawSql": "select\n  author_name,\n\tcount(*) as merged_pull_request_count\nfrom \n\tpull_requests pr\nwhere\n\tbase_repo_id in ($repo_id)\n\tand merged_date is not NULL\n\t-- and author_id not in (select distinct id from accounts where organization in ($org))\ngroup by 1\norder by 2 desc\nlimit 20\n",
+          "refId": "A",
+          "select": [
+            [
+              {
+                "params": [
+                  "id"
+                ],
+                "type": "column"
+              }
+            ]
+          ],
+          "sql": {
+            "columns": [
+              {
+                "parameters": [],
+                "type": "function"
+              }
+            ],
+            "groupBy": [
+              {
+                "property": {
+                  "type": "string"
+                },
+                "type": "groupBy"
+              }
+            ],
+            "limit": 50
+          },
+          "table": "ae_projects",
+          "timeColumn": "ae_create_time",
+          "timeColumnType": "timestamp",
+          "where": [
+            {
+              "name": "$__timeFilter",
+              "params": [],
+              "type": "macro"
+            }
+          ]
+        }
+      ],
+      "title": "Top 20 Community Contributors By Merged PR Numbers [All History]",
       "type": "bargauge"
     },
     {
-      "datasource": null,
+      "datasource": {
+        "type": "datasource",
+        "uid": "grafana"
+      },
       "gridPos": {
         "h": 2,
         "w": 24,
         "x": 0,
-        "y": 54
+        "y": 63
       },
       "id": 50,
       "options": {
+        "code": {
+          "language": "plaintext",
+          "showLineNumbers": false,
+          "showMiniMap": false
+        },
         "content": "<br/>\n\nThis dashboard is created based on this [data schema](https://devlake.apache.org/docs/DataModels/DevLakeDomainLayerSchema). Want to add more metrics? Please follow the [guide](https://devlake.apache.org/docs/Configuration/Dashboards/GrafanaUserGuide).",
         "mode": "markdown"
       },
-      "pluginVersion": "8.0.6",
+      "pluginVersion": "9.5.1",
       "targets": [
         {
+          "datasource": {
+            "type": "datasource",
+            "uid": "grafana"
+          },
           "queryType": "randomWalk",
           "refId": "A"
         }
@@ -1695,13 +2202,12 @@
     }
   ],
   "refresh": "",
-  "schemaVersion": 30,
+  "schemaVersion": 38,
   "style": "dark",
   "tags": [],
   "templating": {
     "list": [
       {
-        "allValue": null,
         "current": {
           "selected": true,
           "text": [
@@ -1711,10 +2217,11 @@
             "$__all"
           ]
         },
-        "datasource": "mysql",
+        "datasource": {
+          "type": "mysql",
+          "uid": "P430005175C4C7810"
+        },
         "definition": "select concat(name, '-', id) as text from repos",
-        "description": null,
-        "error": null,
         "hide": 0,
         "includeAll": true,
         "label": "Repo",
@@ -1729,16 +2236,16 @@
         "type": "query"
       },
       {
-        "allValue": null,
         "current": {
           "selected": false,
           "text": "All",
           "value": "$__all"
         },
-        "datasource": "mysql",
+        "datasource": {
+          "type": "mysql",
+          "uid": "P430005175C4C7810"
+        },
         "definition": "select distinct type from issues",
-        "description": null,
-        "error": null,
         "hide": 0,
         "includeAll": true,
         "label": "Issue Type",
@@ -1753,7 +2260,6 @@
         "type": "query"
       },
       {
-        "allValue": null,
         "current": {
           "selected": true,
           "text": [
@@ -1763,10 +2269,12 @@
             "$__all"
           ]
         },
-        "datasource": "mysql",
+        "datasource": {
+          "type": "mysql",
+          "uid": "P430005175C4C7810"
+        },
         "definition": "select distinct organization from accounts where organization != ''",
         "description": "",
-        "error": null,
         "hide": 0,
         "includeAll": true,
         "label": "Community Definition - Issues and PRs NOT from Organization(s)",
@@ -1790,5 +2298,6 @@
   "timezone": "",
   "title": "Weekly Community Retro",
   "uid": "VTr6Y_q7z",
-  "version": 3
+  "version": 9,
+  "weekStart": ""
 }
