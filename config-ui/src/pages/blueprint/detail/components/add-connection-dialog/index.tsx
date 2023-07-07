@@ -34,7 +34,7 @@ export const AddConnectionDialog = ({ disabled = [], onCancel, onSubmit }: Props
   const [step, setStep] = useState(1);
   const [selectedConnection, setSelectedConnection] = useState<ConnectionItemType>();
 
-  const { connections } = useConnections();
+  const { connections } = useConnections({ filterPlugin: ['webhook'] });
 
   const disabledItems = useMemo(
     () => connections.filter((cs) => (disabled.length ? disabled.includes(cs.unique) : false)),
@@ -63,6 +63,7 @@ export const AddConnectionDialog = ({ disabled = [], onCancel, onSubmit }: Props
             disabledItems={disabledItems}
             getKey={(it) => it.unique}
             getName={(it) => it.name}
+            getIcon={(it) => it.icon}
             selectedItem={selectedConnection}
             onChangeItem={(selectedItem) => setSelectedConnection(selectedItem)}
           />
