@@ -18,9 +18,10 @@ limitations under the License.
 package impl
 
 import (
+	"testing"
+
 	"github.com/apache/incubator-devlake/helpers/pluginhelper/subtaskmeta/sorter"
 	"github.com/apache/incubator-devlake/plugins/github/tasks"
-	"testing"
 )
 
 func Test_genSubtaskList(t *testing.T) {
