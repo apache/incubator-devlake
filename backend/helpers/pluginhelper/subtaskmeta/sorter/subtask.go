@@ -65,7 +65,7 @@ func dependenciesTopologicalSort(metas []*plugin.SubTaskMeta) ([]plugin.SubTaskM
 	// sort
 	orderStrList, err := topologicalSortSameElements(dependenciesMap)
 	if err != nil {
-		return nil, errors.Default.WrapRaw(err)
+		return nil, errors.Convert(err)
 	}
 
 	// gen list by sorted name list and return
