@@ -19,9 +19,10 @@ package sorter
 
 import (
 	"fmt"
-	"github.com/apache/incubator-devlake/core/errors"
 	"sort"
 	"strings"
+
+	"github.com/apache/incubator-devlake/core/errors"
 
 	"github.com/apache/incubator-devlake/core/plugin"
 )
@@ -101,14 +102,14 @@ func dependencyTableTopologicalSort(metas []*plugin.SubTaskMeta) ([]plugin.SubTa
 		if value, ok := classNameToTableListMap[taskClassName]; ok {
 			// check if subtask in one class has different tables define
 			if len(value) != len(metaItem.DependencyTables) {
-				return nil, errors.Default.WrapRaw(fmt.Errorf("got different table list in class %s", taskClassName))
+				return nil, errors.Convert(fmt.Errorf("got different table list in class %s", taskClassName))
 			}
 			// check list item in value and metaItem.DependencyTables, make sure it's equal
 			sort.Strings(value)
 			sort.Strings(metaItem.DependencyTables)
 			for index, valueItem := range value {
 				if valueItem != metaItem.DependencyTables[index] {
-					return nil, errors.Default.WrapRaw(fmt.Errorf("got different table list in class %s", taskClassName))
+					return nil, errors.Convert(fmt.Errorf("got different table list in class %s", taskClassName))
 				}
 			}
 		} else {
@@ -128,7 +129,7 @@ func dependencyTableTopologicalSort(metas []*plugin.SubTaskMeta) ([]plugin.SubTa
 	for _, nameItem := range sortedNameList {
 		value, ok := classNameToSubtaskListMap[nameItem]
 		if !ok {
-			return nil, errors.Default.WrapRaw(fmt.Errorf("failed get subtask list by class name = %s", nameItem))
+			return nil, errors.Convert(fmt.Errorf("failed get subtask list by class name = %s", nameItem))
 		}
 		sort.Sort(SubtaskMetaList(value))
 		sortedSubtaskMetaList = append(sortedSubtaskMetaList, convertSubtaskMetaPointToStruct(value)...)

@@ -19,6 +19,7 @@ package sorter
 
 import (
 	"fmt"
+
 	"github.com/apache/incubator-devlake/core/errors"
 
 	"github.com/apache/incubator-devlake/core/plugin"
@@ -57,7 +58,7 @@ func dependenciesTopologicalSort(metas []*plugin.SubTaskMeta) ([]plugin.SubTaskM
 				dependenciesMap[item.Name] = make([]string, 0)
 			}
 		} else {
-			return nil, errors.Default.WrapRaw(fmt.Errorf("duplicate subtaskmetas detected in list: %s", item.Name))
+			return nil, errors.Convert(fmt.Errorf("duplicate subtaskmetas detected in list: %s", item.Name))
 		}
 	}
 
@@ -72,7 +73,7 @@ func dependenciesTopologicalSort(metas []*plugin.SubTaskMeta) ([]plugin.SubTaskM
 	for _, item := range orderStrList {
 		value, ok := nameMetaMap[item]
 		if !ok {
-			return nil, errors.Default.WrapRaw(fmt.Errorf("illeagal subtaskmeta detected %s", item))
+			return nil, errors.Convert(fmt.Errorf("illeagal subtaskmeta detected %s", item))
 		}
 		orderedSubtaskList = append(orderedSubtaskList, *value)
 	}

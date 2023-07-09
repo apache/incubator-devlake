@@ -19,9 +19,10 @@ package sorter
 
 import (
 	"fmt"
+	"sort"
+
 	"github.com/apache/incubator-devlake/core/errors"
 	"github.com/apache/incubator-devlake/core/plugin"
-	"sort"
 )
 
 type DependencyAndProductSorter struct {
@@ -50,7 +51,7 @@ func dependencyAndProductTableTopologicalSort(metas []*plugin.SubTaskMeta) ([]pl
 		// check if subtask product same tables, which may cause cyclic error
 		for _, productItem := range item.ProductTables {
 			if contains(productList, productItem) {
-				return nil, errors.Default.WrapRaw(fmt.Errorf("duplicate product detected %s", productItem))
+				return nil, errors.Convert(fmt.Errorf("duplicate product detected %s", productItem))
 			}
 		}
 		nameProductMap[item.Name] = item.ProductTables
@@ -60,7 +61,7 @@ func dependencyAndProductTableTopologicalSort(metas []*plugin.SubTaskMeta) ([]pl
 	for _, item := range metas {
 		for _, depItem := range item.DependencyTables {
 			if contains(productList, depItem) {
-				return nil, errors.Default.WrapRaw(fmt.Errorf("non product dep found %s", depItem))
+				return nil, errors.Convert(fmt.Errorf("non product dep found %s", depItem))
 			}
 		}
 	}
@@ -82,8 +83,7 @@ func dependencyAndProductTableTopologicalSort(metas []*plugin.SubTaskMeta) ([]pl
 			}
 		}
 		if len(removableDependencyList) == 0 {
-			return nil, errors.Default.WrapRaw(fmt.Errorf("cyclic dependency detected, "+
-				"orderddList[%s] \n dependencyMap[%s] \n productMap[%s] \n",
+			return nil, errors.Convert(fmt.Errorf("cyclic dependency detected, orderddList[%s] \n dependencyMap[%s] \n productMap[%s]",
 				sortedNameList, nameDependencyMap, nameProductMap))
 		}
 
