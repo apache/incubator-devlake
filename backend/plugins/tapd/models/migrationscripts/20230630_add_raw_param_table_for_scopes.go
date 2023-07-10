@@ -64,10 +64,10 @@ func (script *addRawParamTableForScope) Up(basicRes context.BasicRes) errors.Err
 				{ColumnName: "_raw_data_params", Value: src.RawDataParams},
 			}
 			where := dal.Where("id = ?", fmt.Sprintf("tapd:TapdWorkspace:%v:%v", src.ConnectionId, src.Id))
-			db.UpdateColumns("repos", updateSet, where)
-			db.UpdateColumns("boards", updateSet, where)
-			db.UpdateColumns("cicd_scopes", updateSet, where)
-			db.UpdateColumns("cq_projects", updateSet, where)
+			errors.Must(db.UpdateColumns("repos", updateSet, where))
+			errors.Must(db.UpdateColumns("boards", updateSet, where))
+			errors.Must(db.UpdateColumns("cicd_scopes", updateSet, where))
+			errors.Must(db.UpdateColumns("cq_projects", updateSet, where))
 			return src, nil
 		})
 }
