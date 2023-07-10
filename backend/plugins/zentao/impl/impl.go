@@ -87,6 +87,9 @@ func (p Zentao) GetTablesInfo() []dal.Tabler {
 		&models.ZentaoConnection{},
 		&models.ZentaoScopeConfig{},
 		&models.ZentaoExecutionStory{},
+		&models.ZentaoExecutionSummary{},
+		&models.ZentaoProductSummary{},
+		&models.ZentaoProjectStory{},
 	}
 }
 
