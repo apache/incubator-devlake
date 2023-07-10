@@ -72,7 +72,7 @@ func ConvertTaskCommit(taskCtx plugin.SubTaskContext) errors.Error {
 					RepoUrl:   repoUrl,
 					CommitSha: toolL.CommitId,
 					Host:      u.Host,
-					Namespace: strings.Split(u.Path, `/`)[1],
+					Namespace: getRepoNamespaceFromUrlPath(u.Path),
 					RepoName:  toolL.HookProjectName,
 				}
 				results = append(results, issueRepoCommit)

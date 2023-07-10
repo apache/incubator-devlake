@@ -356,3 +356,14 @@ func extractStatus(blob []byte) (map[string]string, errors.Error) {
 	}
 	return results, nil
 }
+
+// getRepoNamespaceFromUrlPath
+// returns the namespace of a repository from the given URL path,
+// which is the url path without the last segment, and without leading and trailing slashes.
+func getRepoNamespaceFromUrlPath(path string) string {
+	// Remove leading and trailing slashes
+	path = strings.Trim(path, "/")
+	// Remove last segment
+	path = path[:strings.LastIndex(path, "/")]
+	return path
+}
