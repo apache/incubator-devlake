@@ -86,6 +86,5 @@ func All() []plugin.MigrationScript {
 		new(modifyPrLabelsAndComments),
 		new(renameFinishedCommitsDiffs),
 		new(addUpdatedDateToIssueComments),
-		new(addRawParamsTableForDomainScopes),
 	}
 }

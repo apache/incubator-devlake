@@ -19,20 +19,26 @@ package migrationscripts
 
 import (
 	"encoding/json"
+	"fmt"
+
 	"github.com/apache/incubator-devlake/core/context"
+	"github.com/apache/incubator-devlake/core/dal"
 	"github.com/apache/incubator-devlake/core/errors"
 	"github.com/apache/incubator-devlake/core/plugin"
 	"github.com/apache/incubator-devlake/helpers/migrationhelper"
-	"github.com/apache/incubator-devlake/plugins/bamboo/models/migrationscripts/archived"
 )
 
 var _ plugin.MigrationScript = (*addRawParamTableForScope)(nil)
 
 type scope20230630 struct {
-	ConnectionId  uint64
-	ProjectKey    string
+	ConnectionId  uint64 `gorm:"primaryKey"`
+	ProjectKey    string `gorm:"primaryKey"`
 	RawDataTable  string `gorm:"column:_raw_data_table"`
 	RawDataParams string `gorm:"column:_raw_data_params"`
+}
+
+func (scope20230630) TableName() string {
+	return "_tool_bamboo_projects"
 }
 
 type params20230630 struct {
@@ -43,15 +49,25 @@ type params20230630 struct {
 type addRawParamTableForScope struct{}
 
 func (script *addRawParamTableForScope) Up(basicRes context.BasicRes) errors.Error {
+	db := basicRes.GetDal()
 	return migrationhelper.CopyTableColumns(basicRes,
-		archived.BambooProject{}.TableName(),
-		archived.BambooProject{}.TableName(),
+		scope20230630{}.TableName(),
+		scope20230630{}.TableName(),
 		func(src *scope20230630) (*scope20230630, errors.Error) {
 			src.RawDataTable = "_raw_bamboo_scopes"
 			src.RawDataParams = string(errors.Must1(json.Marshal(&params20230630{
 				ConnectionId: src.ConnectionId,
 				ProjectKey:   src.ProjectKey,
 			})))
+			updateSet := []dal.DalSet{
+				{ColumnName: "_raw_data_table", Value: src.RawDataTable},
+				{ColumnName: "_raw_data_params", Value: src.RawDataParams},
+			}
+			where := dal.Where("id = ?", fmt.Sprintf("bamboo:BambooProject:%v:%v", src.ConnectionId, src.ProjectKey))
+			db.UpdateColumns("repos", updateSet, where)
+			db.UpdateColumns("boards", updateSet, where)
+			db.UpdateColumns("cicd_scopes", updateSet, where)
+			db.UpdateColumns("cq_projects", updateSet, where)
 			return src, nil
 		})
 }
