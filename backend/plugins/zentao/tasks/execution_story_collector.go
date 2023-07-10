@@ -20,77 +20,54 @@ package tasks
 import (
 	"encoding/json"
 	"fmt"
-	"net/http"
-	"net/url"
-	"reflect"
-
-	"github.com/apache/incubator-devlake/core/dal"
 	"github.com/apache/incubator-devlake/core/errors"
 	"github.com/apache/incubator-devlake/core/plugin"
 	"github.com/apache/incubator-devlake/helpers/pluginhelper/api"
-	"github.com/apache/incubator-devlake/plugins/zentao/models"
+	"net/http"
+	"net/url"
 )
 
-const RAW_TASK_TABLE = "zentao_api_tasks"
+var _ plugin.SubTaskEntryPoint = CollectExecutionStory
 
-var _ plugin.SubTaskEntryPoint = CollectTask
-
-func CollectTask(taskCtx plugin.SubTaskContext) errors.Error {
+func CollectExecutionStory(taskCtx plugin.SubTaskContext) errors.Error {
 	data := taskCtx.GetData().(*ZentaoTaskData)
-
-	cursor, err := taskCtx.GetDal().Cursor(
-		dal.Select(`id`),
-		dal.From(&models.ZentaoExecution{}),
-		dal.Where(`project_id = ? and connection_id = ?`, data.Options.ProjectId, data.Options.ConnectionId),
-	)
+	cursor, iterator, err := getExecutionIterator(taskCtx)
 	if err != nil {
 		return err
 	}
 	defer cursor.Close()
-
-	iterator, err := api.NewDalCursorIterator(taskCtx.GetDal(), cursor, reflect.TypeOf(input{}))
-	if err != nil {
-		return err
-	}
-
 	collector, err := api.NewApiCollector(api.ApiCollectorArgs{
 		RawDataSubTaskArgs: api.RawDataSubTaskArgs{
 			Ctx:     taskCtx,
 			Options: data.Options,
-			Table:   RAW_TASK_TABLE,
+			Table:   RAW_STORY_TABLE,
 		},
-		Input:       iterator,
 		ApiClient:   data.ApiClient,
+		Input:       iterator,
 		PageSize:    100,
-		UrlTemplate: "/executions/{{ .Input.Id }}/tasks",
+		UrlTemplate: "/executions/{{ .Input.Id }}/stories",
 		Query: func(reqData *api.RequestData) (url.Values, errors.Error) {
 			query := url.Values{}
 			query.Set("page", fmt.Sprintf("%v", reqData.Pager.Page))
 			query.Set("limit", fmt.Sprintf("%v", reqData.Pager.Size))
+			query.Set("status", "allstory")
 			return query, nil
 		},
 		GetTotalPages: GetTotalPagesFromResponse,
 		ResponseParser: func(res *http.Response) ([]json.RawMessage, errors.Error) {
 			var data struct {
-				Task []json.RawMessage `json:"tasks"`
+				Story []json.RawMessage `json:"stories"`
 			}
 			err := api.UnmarshalResponse(res, &data)
 			if err != nil {
-				return nil, errors.Default.Wrap(err, "error reading endpoint response by Zentao bug collector")
+				return nil, err
 			}
-			return data.Task, nil
+			return data.Story, nil
 		},
 	})
 	if err != nil {
 		return err
 	}
-	return collector.Execute()
-}
 
-var CollectTaskMeta = plugin.SubTaskMeta{
-	Name:             "collectTask",
-	EntryPoint:       CollectTask,
-	EnabledByDefault: true,
-	Description:      "Collect Task data from Zentao api",
-	DomainTypes:      []string{plugin.DOMAIN_TYPE_TICKET},
+	return collector.Execute()
 }

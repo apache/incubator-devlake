@@ -42,15 +42,11 @@ var ConvertBugMeta = plugin.SubTaskMeta{
 }
 
 func ConvertBug(taskCtx plugin.SubTaskContext) errors.Error {
-	return RangeProductOneByOne(taskCtx, ConvertBugForOneProduct)
-}
-
-func ConvertBugForOneProduct(taskCtx plugin.SubTaskContext) errors.Error {
 	data := taskCtx.GetData().(*ZentaoTaskData)
 	db := taskCtx.GetDal()
 	bugIdGen := didgen.NewDomainIdGenerator(&models.ZentaoBug{})
 	accountIdGen := didgen.NewDomainIdGenerator(&models.ZentaoAccount{})
-
+	executionIdGen := didgen.NewDomainIdGenerator(&models.ZentaoExecution{})
 	boardIdGen := didgen.NewDomainIdGenerator(&models.ZentaoProduct{})
 	if data.Options.ProjectId != 0 {
 		boardIdGen = didgen.NewDomainIdGenerator(&models.ZentaoProject{})
@@ -59,8 +55,8 @@ func ConvertBugForOneProduct(taskCtx plugin.SubTaskContext) errors.Error {
 	storyIdGen := didgen.NewDomainIdGenerator(&models.ZentaoStory{})
 	cursor, err := db.Cursor(
 		dal.From(&models.ZentaoBug{}),
-		dal.Where(`_tool_zentao_bugs.product = ? and
-			_tool_zentao_bugs.connection_id = ?`, data.Options.ProductId, data.Options.ConnectionId),
+		dal.Where(`project = ? and
+			connection_id = ?`, data.Options.ProjectId, data.Options.ConnectionId),
 	)
 	if err != nil {
 		return err
@@ -70,13 +66,9 @@ func ConvertBugForOneProduct(taskCtx plugin.SubTaskContext) errors.Error {
 		InputRowType: reflect.TypeOf(models.ZentaoBug{}),
 		Input:        cursor,
 		RawDataSubTaskArgs: api.RawDataSubTaskArgs{
-			Ctx: taskCtx,
-			Params: ScopeParams(
-				data.Options.ConnectionId,
-				data.Options.ProjectId,
-				data.Options.ProductId,
-			),
-			Table: RAW_BUG_TABLE,
+			Ctx:     taskCtx,
+			Options: data.Options,
+			Table:   RAW_BUG_TABLE,
 		},
 		Convert: func(inputRow interface{}) ([]interface{}, errors.Error) {
 			toolEntity := inputRow.(*models.ZentaoBug)
@@ -122,14 +114,16 @@ func ConvertBugForOneProduct(taskCtx plugin.SubTaskContext) errors.Error {
 				results = append(results, issueAssignee)
 			}
 
-			boardId := boardIdGen.Generate(data.Options.ConnectionId, data.Options.ProductId)
-			if data.Options.ProjectId != 0 {
-				boardId = boardIdGen.Generate(data.Options.ConnectionId, data.Options.ProjectId)
-			}
-
 			domainBoardIssue := &ticket.BoardIssue{
-				BoardId: boardId,
+				BoardId: boardIdGen.Generate(data.Options.ConnectionId, data.Options.ProjectId),
 				IssueId: domainEntity.Id,
+			}
+			if toolEntity.Execution != 0 {
+				sprintIssue := &ticket.SprintIssue{
+					SprintId: executionIdGen.Generate(data.Options.ConnectionId, toolEntity.Execution),
+					IssueId:  domainEntity.Id,
+				}
+				results = append(results, sprintIssue)
 			}
 			results = append(results, domainEntity, domainBoardIssue)
 			return results, nil

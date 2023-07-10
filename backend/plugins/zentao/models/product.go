@@ -18,10 +18,7 @@ limitations under the License.
 package models
 
 import (
-	"fmt"
-
 	"github.com/apache/incubator-devlake/core/models/common"
-	"github.com/apache/incubator-devlake/core/plugin"
 	helper "github.com/apache/incubator-devlake/helpers/pluginhelper/api"
 )
 
@@ -76,42 +73,6 @@ func getAccountId(account *ZentaoAccount) int64 {
 	return 0
 }
 
-func (res ZentaoProductRes) ConvertApiScope() plugin.ToolLayerScope {
-	return &ZentaoProduct{
-		Id:             res.ID,
-		Program:        res.Program,
-		Name:           res.Name,
-		Code:           res.Code,
-		Bind:           res.Bind,
-		Line:           res.Line,
-		Type:           `product`,
-		ProductType:    res.Type,
-		Status:         res.Status,
-		SubStatus:      res.SubStatus,
-		Description:    res.Description,
-		POId:           getAccountId(res.PO),
-		QDId:           getAccountId(res.QD),
-		RDId:           getAccountId(res.RD),
-		Acl:            res.Acl,
-		Reviewer:       res.Reviewer,
-		CreatedById:    getAccountId(res.CreatedBy),
-		CreatedDate:    res.CreatedDate,
-		CreatedVersion: res.CreatedVersion,
-		OrderIn:        res.OrderIn,
-		Deleted:        res.Deleted,
-		Plans:          res.Plans,
-		Releases:       res.Releases,
-		Builds:         res.Builds,
-		Cases:          res.Cases,
-		Projects:       res.Projects,
-		Executions:     res.Executions,
-		Bugs:           res.Bugs,
-		Docs:           res.Docs,
-		Progress:       res.Progress,
-		CaseReview:     res.CaseReview,
-	}
-}
-
 type ZentaoProduct struct {
 	common.NoPKModel `json:"-"`
 	ConnectionId     uint64 `json:"connectionId" mapstructure:"connectionId" gorm:"primaryKey;type:BIGINT  NOT NULL"`
@@ -151,19 +112,4 @@ type ZentaoProduct struct {
 
 func (ZentaoProduct) TableName() string {
 	return "_tool_zentao_products"
-}
-
-func (p ZentaoProduct) ScopeId() string {
-	return fmt.Sprintf(`products/%d`, p.Id)
-}
-
-func (p ZentaoProduct) ScopeParams() interface{} {
-	return &ZentaoApiParams{
-		ConnectionId: p.ConnectionId,
-		ZentaoId:     fmt.Sprintf("products/%d", p.Id),
-	}
-}
-
-func (p ZentaoProduct) ScopeName() string {
-	return p.Name
 }

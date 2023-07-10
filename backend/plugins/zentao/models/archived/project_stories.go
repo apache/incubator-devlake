@@ -15,21 +15,19 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-package migrationscripts
+package archived
 
 import (
-	"github.com/apache/incubator-devlake/core/plugin"
+	"github.com/apache/incubator-devlake/core/models/migrationscripts/archived"
 )
 
-// All return all the migration scripts
-func All() []plugin.MigrationScript {
-	return []plugin.MigrationScript{
-		new(addInitTables),
-		new(addScopeConfigTables),
-		new(addIssueRepoCommitsTables),
-		new(addInitChangelogTables),
-		new(addTaskLeft),
-		new(addExecutionStoryAndExecutionSummary),
-		new(addRawParamTableForScope),
-	}
+type ZentaoProjectStory struct {
+	archived.NoPKModel
+	ConnectionId uint64 `gorm:"primaryKey;type:BIGINT  NOT NULL"`
+	ProjectId    int64  `gorm:"primaryKey"`
+	StoryId      int64  `gorm:"primaryKey"`
+}
+
+func (ZentaoProjectStory) TableName() string {
+	return "_tool_zentao_project_stories"
 }

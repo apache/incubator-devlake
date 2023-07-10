@@ -40,23 +40,14 @@ var ExtractTaskMeta = plugin.SubTaskMeta{
 func ExtractTask(taskCtx plugin.SubTaskContext) errors.Error {
 	data := taskCtx.GetData().(*ZentaoTaskData)
 
-	// this collect only work for project
-	if data.Options.ProjectId == 0 {
-		return nil
-	}
-
 	statusMappings := getTaskStatusMapping(data)
 	stdTypeMappings := getStdTypeMappings(data)
 
 	extractor, err := api.NewApiExtractor(api.ApiExtractorArgs{
 		RawDataSubTaskArgs: api.RawDataSubTaskArgs{
-			Ctx: taskCtx,
-			Params: ScopeParams(
-				data.Options.ConnectionId,
-				data.Options.ProjectId,
-				data.Options.ProductId,
-			),
-			Table: RAW_TASK_TABLE,
+			Ctx:     taskCtx,
+			Options: data.Options,
+			Table:   RAW_TASK_TABLE,
 		},
 		Extract: func(row *api.RawData) ([]interface{}, errors.Error) {
 			res := &models.ZentaoTaskRes{}
@@ -65,10 +56,7 @@ func ExtractTask(taskCtx plugin.SubTaskContext) errors.Error {
 				return nil, errors.Default.WrapRaw(err)
 			}
 
-			// set storyList and FromBugList
-			data.StoryList[res.StoryID] = res.Story
-			data.FromBugList[res.FromBug] = true
-
+			data.Tasks[res.Id] = struct{}{}
 			task := &models.ZentaoTask{
 				ConnectionId:       data.Options.ConnectionId,
 				ID:                 res.Id,

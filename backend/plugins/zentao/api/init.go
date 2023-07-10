@@ -34,8 +34,7 @@ var vld *validator.Validate
 var connectionHelper *api.ConnectionApiHelper
 var projectScopeHelper *api.ScopeApiHelper[models.ZentaoConnection, models.ZentaoProject, models.ZentaoScopeConfig]
 
-var productRemoteHelper *api.RemoteApiHelper[models.ZentaoConnection, models.ZentaoProduct, models.ZentaoProductRes, api.BaseRemoteGroupResponse]
-var projectRemoteHelper *api.RemoteApiHelper[models.ZentaoConnection, models.ZentaoProject, models.ZentaoProject, api.NoRemoteGroupResponse]
+var projectRemoteHelper *api.RemoteApiHelper[models.ZentaoConnection, models.ZentaoProject, models.ZentaoProject, api.BaseRemoteGroupResponse]
 var basicRes context.BasicRes
 var scHelper *api.ScopeConfigHelper[models.ZentaoScopeConfig]
 
@@ -63,12 +62,8 @@ func Init(br context.BasicRes, p plugin.PluginMeta) {
 		projectParams,
 		nil,
 	)
-	productRemoteHelper = api.NewRemoteHelper[models.ZentaoConnection, models.ZentaoProduct, models.ZentaoProductRes, api.BaseRemoteGroupResponse](
-		basicRes,
-		vld,
-		connectionHelper,
-	)
-	projectRemoteHelper = api.NewRemoteHelper[models.ZentaoConnection, models.ZentaoProject, models.ZentaoProject, api.NoRemoteGroupResponse](
+
+	projectRemoteHelper = api.NewRemoteHelper[models.ZentaoConnection, models.ZentaoProject, models.ZentaoProject, api.BaseRemoteGroupResponse](
 		basicRes,
 		vld,
 		connectionHelper,

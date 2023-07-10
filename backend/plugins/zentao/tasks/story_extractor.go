@@ -38,44 +38,37 @@ var ExtractStoryMeta = plugin.SubTaskMeta{
 }
 
 func ExtractStory(taskCtx plugin.SubTaskContext) errors.Error {
-	return RangeProductOneByOne(taskCtx, ExtractStoryForOneProduct)
-}
-
-func ExtractStoryForOneProduct(taskCtx plugin.SubTaskContext) errors.Error {
 	data := taskCtx.GetData().(*ZentaoTaskData)
-
-	// this collect only work for product
-	if data.Options.ProductId == 0 {
-		return nil
-	}
 
 	statusMappings := getStoryStatusMapping(data)
 	stdTypeMappings := getStdTypeMappings(data)
 
 	extractor, err := api.NewApiExtractor(api.ApiExtractorArgs{
 		RawDataSubTaskArgs: api.RawDataSubTaskArgs{
-			Ctx: taskCtx,
-			Params: ScopeParams(
-				data.Options.ConnectionId,
-				data.Options.ProjectId,
-				data.Options.ProductId,
-			),
-			Table: RAW_STORY_TABLE,
+			Ctx:     taskCtx,
+			Options: data.Options,
+			Table:   RAW_STORY_TABLE,
 		},
 		Extract: func(row *api.RawData) ([]interface{}, errors.Error) {
+			var inputParams storyInput
+			err := json.Unmarshal(row.Input, &inputParams)
+			if err != nil {
+				return nil, errors.Default.WrapRaw(err)
+			}
 			res := &models.ZentaoStoryRes{}
-			err := json.Unmarshal(row.Data, res)
+			err = json.Unmarshal(row.Data, res)
 			if err != nil {
 				return nil, errors.Default.WrapRaw(err)
 			}
 
-			// project scope need filter
-			if data.Options.ProjectId != 0 {
-				if _, ok := data.StoryList[res.ID]; !ok {
-					return nil, nil
-				}
+			data.Stories[res.ID] = struct{}{}
+			var results []interface{}
+			projectStory := &models.ZentaoProjectStory{
+				ConnectionId: data.Options.ConnectionId,
+				ProjectId:    data.Options.ProjectId,
+				StoryId:      res.ID,
 			}
-
+			results = append(results, projectStory)
 			story := &models.ZentaoStory{
 				ConnectionId:     data.Options.ConnectionId,
 				ID:               res.ID,
@@ -150,8 +143,16 @@ func ExtractStoryForOneProduct(taskCtx plugin.SubTaskContext) errors.Error {
 				}, story.Stage)
 			}
 
-			results := make([]interface{}, 0)
 			results = append(results, story)
+			if inputParams.ExecutionId != 0 {
+				executionStory := &models.ZentaoExecutionStory{
+					ConnectionId: data.Options.ConnectionId,
+					ProjectId:    data.Options.ProjectId,
+					ExecutionId:  inputParams.ExecutionId,
+					StoryId:      story.ID,
+				}
+				results = append(results, executionStory)
+			}
 			return results, nil
 		},
 	})

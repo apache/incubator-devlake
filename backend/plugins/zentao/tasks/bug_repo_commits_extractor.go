@@ -38,27 +38,15 @@ var ExtractBugRepoCommitsMeta = plugin.SubTaskMeta{
 }
 
 func ExtractBugRepoCommits(taskCtx plugin.SubTaskContext) errors.Error {
-	return RangeProductOneByOne(taskCtx, ExtractBugRepoCommitsForOneProduct)
-}
-
-func ExtractBugRepoCommitsForOneProduct(taskCtx plugin.SubTaskContext) errors.Error {
 	data := taskCtx.GetData().(*ZentaoTaskData)
 
-	// this Extract only work for product
-	if data.Options.ProductId == 0 {
-		return nil
-	}
 	re := regexp.MustCompile(`(\d+)(?:,\s*(\d+))*`)
 
 	extractor, err := api.NewApiExtractor(api.ApiExtractorArgs{
 		RawDataSubTaskArgs: api.RawDataSubTaskArgs{
-			Ctx: taskCtx,
-			Params: ScopeParams(
-				data.Options.ConnectionId,
-				data.Options.ProjectId,
-				data.Options.ProductId,
-			),
-			Table: RAW_BUG_REPO_COMMITS_TABLE,
+			Ctx:     taskCtx,
+			Options: data.Options,
+			Table:   RAW_BUG_REPO_COMMITS_TABLE,
 		},
 		Extract: func(row *api.RawData) ([]interface{}, errors.Error) {
 			res := &models.ZentaoBugRepoCommitsRes{}
@@ -66,14 +54,18 @@ func ExtractBugRepoCommitsForOneProduct(taskCtx plugin.SubTaskContext) errors.Er
 			if err != nil {
 				return nil, errors.Default.WrapRaw(err)
 			}
-
+			var input bugCommitInput
+			err = json.Unmarshal(row.Input, &input)
+			if err != nil {
+				return nil, errors.Default.WrapRaw(err)
+			}
 			results := make([]interface{}, 0)
 			match := re.FindStringSubmatch(res.Log.Comment)
 			for i := 1; i < len(match); i++ {
 				if match[i] != "" {
 					bugRepoCommits := &models.ZentaoBugRepoCommit{
 						ConnectionId: data.Options.ConnectionId,
-						Product:      data.Options.ProductId,
+						Product:      input.Product,
 						Project:      data.Options.ProjectId,
 						RepoUrl:      res.Repo.CodePath,
 						CommitSha:    res.Revision,

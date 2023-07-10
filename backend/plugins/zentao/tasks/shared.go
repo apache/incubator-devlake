@@ -19,15 +19,25 @@ package tasks
 
 import (
 	"fmt"
+	"github.com/apache/incubator-devlake/core/dal"
+	"github.com/apache/incubator-devlake/core/plugin"
 	"net/http"
 	"net/url"
+	"reflect"
 	"strings"
 
 	"github.com/apache/incubator-devlake/core/errors"
-	"github.com/apache/incubator-devlake/core/plugin"
 	"github.com/apache/incubator-devlake/helpers/pluginhelper/api"
 	"github.com/apache/incubator-devlake/plugins/zentao/models"
 )
+
+type productInput struct {
+	ProductId int64
+}
+
+type input struct {
+	Id int64
+}
 
 func GetTotalPagesFromResponse(res *http.Response, args *api.ApiCollectorArgs) (int, errors.Error) {
 	body := &ZentaoPagination{}
@@ -82,9 +92,6 @@ func getPriority(pri int) string {
 func getOriginalProject(data *ZentaoTaskData) string {
 	if data.Options.ProjectId != 0 {
 		return data.ProjectName
-	}
-	if data.Options.ProductId != 0 {
-		return data.ProductName
 	}
 	return ""
 }
@@ -182,30 +189,49 @@ func ignoreHTTPStatus404(res *http.Response) errors.Error {
 	return nil
 }
 
-func RangeProductOneByOne(taskCtx plugin.SubTaskContext, callback func(taskCtx plugin.SubTaskContext) errors.Error) errors.Error {
+func getProductIterator(taskCtx plugin.SubTaskContext) (dal.Rows, *api.DalCursorIterator, errors.Error) {
 	data := taskCtx.GetData().(*ZentaoTaskData)
-	for id, name := range data.ProductList {
-		data.Options.ProductId = id
-		data.ProductName = name
-
-		err := callback(taskCtx)
-		if err != nil {
-			return err
-		}
+	db := taskCtx.GetDal()
+	clauses := []dal.Clause{
+		dal.Select("id"),
+		dal.From(&models.ZentaoProductSummary{}),
+		dal.Where(
+			"project_id = ? AND connection_id = ?",
+			data.Options.ProjectId, data.Options.ConnectionId,
+		),
 	}
 
-	return nil
+	cursor, err := db.Cursor(clauses...)
+	if err != nil {
+		return nil, nil, err
+	}
+	iterator, err := api.NewDalCursorIterator(db, cursor, reflect.TypeOf(input{}))
+	if err != nil {
+		cursor.Close()
+		return nil, nil, err
+	}
+	return cursor, iterator, nil
 }
 
-func ScopeParams(cid uint64, projectId int64, productId int64) ZentaoApiParams {
-	param := ZentaoApiParams{
-		ConnectionId: cid,
+func getExecutionIterator(taskCtx plugin.SubTaskContext) (dal.Rows, *api.DalCursorIterator, errors.Error) {
+	data := taskCtx.GetData().(*ZentaoTaskData)
+	db := taskCtx.GetDal()
+	clauses := []dal.Clause{
+		dal.Select("id"),
+		dal.From(&models.ZentaoExecutionSummary{}),
+		dal.Where(
+			"project = ? AND connection_id = ?",
+			data.Options.ProjectId, data.Options.ConnectionId,
+		),
 	}
-	if projectId != 0 {
-		param.ZentaoId = fmt.Sprintf("projects/%d", projectId)
-	} else {
-		param.ZentaoId = fmt.Sprintf("products/%d", productId)
+	cursor, err := db.Cursor(clauses...)
+	if err != nil {
+		return nil, nil, err
 	}
-
-	return param
+	iterator, err := api.NewDalCursorIterator(db, cursor, reflect.TypeOf(input{}))
+	if err != nil {
+		cursor.Close()
+		return nil, nil, err
+	}
+	return cursor, iterator, nil
 }

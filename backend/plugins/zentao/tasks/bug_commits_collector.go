@@ -41,23 +41,20 @@ var CollectBugCommitsMeta = plugin.SubTaskMeta{
 	DomainTypes:      []string{plugin.DOMAIN_TYPE_TICKET},
 }
 
-func CollectBugCommits(taskCtx plugin.SubTaskContext) errors.Error {
-	return RangeProductOneByOne(taskCtx, CollectBugCommitsForOneProduct)
+type bugInput struct {
+	BugId     int64
+	ProductId int64
 }
 
-func CollectBugCommitsForOneProduct(taskCtx plugin.SubTaskContext) errors.Error {
+func CollectBugCommits(taskCtx plugin.SubTaskContext) errors.Error {
 	db := taskCtx.GetDal()
 	data := taskCtx.GetData().(*ZentaoTaskData)
 
 	// state manager
 	collectorWithState, err := api.NewStatefulApiCollector(api.RawDataSubTaskArgs{
-		Ctx: taskCtx,
-		Params: ScopeParams(
-			data.Options.ConnectionId,
-			data.Options.ProjectId,
-			data.Options.ProductId,
-		),
-		Table: RAW_BUG_COMMITS_TABLE,
+		Ctx:     taskCtx,
+		Options: data.Options,
+		Table:   RAW_BUG_COMMITS_TABLE,
 	}, data.TimeAfter)
 	if err != nil {
 		return err
@@ -65,11 +62,11 @@ func CollectBugCommitsForOneProduct(taskCtx plugin.SubTaskContext) errors.Error 
 
 	// load bugs id from db
 	clauses := []dal.Clause{
-		dal.Select("id, last_edited_date"),
+		dal.Select("id As bug_id, product As product_id"),
 		dal.From(&models.ZentaoBug{}),
 		dal.Where(
-			"product = ? AND connection_id = ?",
-			data.Options.ProductId, data.Options.ConnectionId,
+			"project = ? AND connection_id = ?",
+			data.Options.ProjectId, data.Options.ConnectionId,
 		),
 	}
 	// incremental collection
@@ -84,25 +81,21 @@ func CollectBugCommitsForOneProduct(taskCtx plugin.SubTaskContext) errors.Error 
 	if err != nil {
 		return err
 	}
-	iterator, err := api.NewDalCursorIterator(db, cursor, reflect.TypeOf(SimpleZentaoBug{}))
+	iterator, err := api.NewDalCursorIterator(db, cursor, reflect.TypeOf(bugInput{}))
 	if err != nil {
 		return err
 	}
 	// collect bug commits
 	err = collectorWithState.InitCollector(api.ApiCollectorArgs{
 		RawDataSubTaskArgs: api.RawDataSubTaskArgs{
-			Ctx: taskCtx,
-			Params: ScopeParams(
-				data.Options.ConnectionId,
-				data.Options.ProjectId,
-				data.Options.ProductId,
-			),
-			Table: RAW_BUG_COMMITS_TABLE,
+			Ctx:     taskCtx,
+			Options: data.Options,
+			Table:   RAW_BUG_COMMITS_TABLE,
 		},
 		ApiClient:   data.ApiClient,
 		Input:       iterator,
 		Incremental: incremental,
-		UrlTemplate: "bugs/{{ .Input.ID }}",
+		UrlTemplate: "bugs/{{ .Input.BugId }}",
 		ResponseParser: func(res *http.Response) ([]json.RawMessage, errors.Error) {
 			var data struct {
 				Actions []json.RawMessage `json:"actions"`

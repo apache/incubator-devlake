@@ -157,7 +157,7 @@ func (p ZentaoProject) ScopeName() string {
 func (p ZentaoProject) ScopeParams() interface{} {
 	return &ZentaoApiParams{
 		ConnectionId: p.ConnectionId,
-		ZentaoId:     fmt.Sprintf("projects/%d", p.Id),
+		ProjectId:    p.Id,
 	}
 }
 
@@ -171,5 +171,5 @@ func (p ZentaoProject) ConvertApiScope() plugin.ToolLayerScope {
 
 type ZentaoApiParams struct {
 	ConnectionId uint64
-	ZentaoId     string
+	ProjectId    int64
 }
