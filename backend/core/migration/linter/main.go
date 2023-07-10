@@ -166,6 +166,9 @@ func main() {
 			panic(err)
 		}
 		localTpl, err := template.New("local").Parse("{{ .Level }}: {{ .Msg }}\n\t{{ .File }}:{{ .Line }}:{{ .Col }}")
+		if err != nil {
+			panic(err)
+		}
 		exitCode := 0
 		for _, file := range args {
 			msgs := lintMigrationScript(file, allowedPkgs)
