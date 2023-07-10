@@ -137,7 +137,7 @@ export const ConfigurationPanel = ({ from, blueprint, onRefresh }: Props) => {
               title: 'Data Time Range',
               dataIndex: 'timeRange',
               key: 'timeRange',
-              render: (val) => `${formatTime(val)} to Now`,
+              render: (val) => (blueprint.mode === ModeEnum.normal ? `${formatTime(val)} to Now` : 'N/A'),
             },
             {
               title: 'Sync Frequency',
@@ -159,7 +159,7 @@ export const ConfigurationPanel = ({ from, blueprint, onRefresh }: Props) => {
           ]}
           dataSource={[
             {
-              timeRange: blueprint.settings.timeAfter,
+              timeRange: blueprint?.settings?.timeAfter,
               frequency: blueprint.cronConfig,
               isManual: blueprint.isManual,
               skipFailed: blueprint.skipOnFail,
