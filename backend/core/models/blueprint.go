@@ -31,65 +31,46 @@ const (
 	BLUEPRINT_MODE_ADVANCED = "ADVANCED"
 )
 
-// @Description CronConfig
-type Blueprint struct {
-	Name        string          `json:"name" validate:"required"`
-	ProjectName string          `json:"projectName" gorm:"type:varchar(255)"`
-	Mode        string          `json:"mode" gorm:"varchar(20)" validate:"required,oneof=NORMAL ADVANCED"`
-	Plan        json.RawMessage `json:"plan" gorm:"serializer:encdec"`
-	Enable      bool            `json:"enable"`
-	//please check this https://crontab.guru/ for detail
-	CronConfig   string          `json:"cronConfig" format:"* * * * *" example:"0 0 * * 1"`
-	IsManual     bool            `json:"isManual"`
-	SkipOnFail   bool            `json:"skipOnFail"`
-	Labels       []string        `json:"labels" gorm:"-"`
-	Settings     json.RawMessage `json:"settings" swaggertype:"array,string" example:"please check api: /blueprints/<PLUGIN_NAME>/blueprint-setting" gorm:"serializer:encdec"`
-	common.Model `swaggerignore:"true"`
-}
-
-type BlueprintSettings struct {
-	Version     string          `json:"version" validate:"required,semver,oneof=1.0.0"`
-	TimeAfter   *time.Time      `json:"timeAfter"`
-	Connections json.RawMessage `json:"connections" validate:"required"`
-	BeforePlan  json.RawMessage `json:"before_plan"`
-	AfterPlan   json.RawMessage `json:"after_plan"`
-}
-
-// UnmarshalConnections unmarshals the connections on this BlueprintSettings reference
-func (bps *BlueprintSettings) UnmarshalConnections() ([]*plugin.BlueprintConnectionV200, errors.Error) {
-	var connections []*plugin.BlueprintConnectionV200
-	if bps.Connections == nil {
-		return nil, nil
+type (
+	Blueprint struct {
+		Name        string          `json:"name" validate:"required"`
+		ProjectName string          `json:"projectName" gorm:"type:varchar(255)"`
+		Mode        string          `json:"mode" gorm:"varchar(20)" validate:"required,oneof=NORMAL ADVANCED"`
+		Plan        json.RawMessage `json:"plan" gorm:"serializer:encdec"`
+		Enable      bool            `json:"enable"`
+		//please check this https://crontab.guru/ for detail
+		CronConfig   string             `json:"cronConfig" format:"* * * * *" example:"0 0 * * 1"`
+		IsManual     bool               `json:"isManual"`
+		SkipOnFail   bool               `json:"skipOnFail"`
+		Labels       []string           `json:"labels" gorm:"-"`
+		Settings     *BlueprintSettings `json:"settings" gorm:"-"`
+		common.Model `swaggerignore:"true"`
 	}
-	err := json.Unmarshal(bps.Connections, &connections)
-	if err != nil {
-		return nil, errors.Default.Wrap(err, `unmarshal connections fail`)
+	BlueprintSettings struct {
+		common.Model `swaggerignore:"true"`
+		Version      string
+		BlueprintId  uint64
+		TimeAfter    *time.Time             `json:"timeAfter"`
+		Connections  []*BlueprintConnection `json:"connections" gorm:"-" validate:"required"`
+		BeforePlan   json.RawMessage        `json:"before_plan"`
+		AfterPlan    json.RawMessage        `json:"after_plan"`
 	}
-	return connections, nil
-}
-
-// UpdateConnections updates the connections on this BlueprintSettings reference according to the updater function
-func (bps *BlueprintSettings) UpdateConnections(updater func(c *plugin.BlueprintConnectionV200) errors.Error) errors.Error {
-	conns, err := bps.UnmarshalConnections()
-	if err != nil {
-		return err
+	BlueprintConnection struct {
+		common.Model `swaggerignore:"true"`
+		BlueprintId  uint64
+		ConnectionId uint64
+		SettingsId   uint64
+		Plugin       string
+		Scopes       []*BlueprintScope `json:"scopes" gorm:"-" validate:"required"`
 	}
-	for i, conn := range conns {
-		err = updater(conn)
-		if err != nil {
-			return err
-		}
-		if conn.Scopes == nil {
-			conn.Scopes = []*plugin.BlueprintScopeV200{} //UI expects this to be []
-		}
-		conns[i] = conn
+	BlueprintScope struct {
+		common.Model `swaggerignore:"true"`
+		Name         string
+		ScopeId      string
+		ConnectionId uint64
+		BlueprintId  uint64
 	}
-	bps.Connections, err = errors.Convert01(json.Marshal(&conns))
-	if err != nil {
-		return err
-	}
-	return nil
-}
+)
 
 // UnmarshalPlan unmarshals Plan in JSON to strong-typed plugin.PipelinePlan
 func (bp *Blueprint) UnmarshalPlan() (plugin.PipelinePlan, errors.Error) {
@@ -101,67 +82,39 @@ func (bp *Blueprint) UnmarshalPlan() (plugin.PipelinePlan, errors.Error) {
 	return plan, nil
 }
 
-// UnmarshalSettings unmarshals the BlueprintSettings on the Blueprint
-func (bp *Blueprint) UnmarshalSettings() (BlueprintSettings, errors.Error) {
-	var settings BlueprintSettings
-	err := errors.Convert(json.Unmarshal(bp.Settings, &settings))
-	if err != nil {
-		return settings, errors.Default.Wrap(err, `unmarshal settings fail`)
-	}
-	return settings, nil
-}
-
-// GetConnections Gets all the blueprint connections for this blueprint
-func (bp *Blueprint) GetConnections() ([]*plugin.BlueprintConnectionV200, errors.Error) {
-	settings, err := bp.UnmarshalSettings()
-	if err != nil {
-		return nil, err
-	}
-	conns, err := settings.UnmarshalConnections()
-	if err != nil {
-		return nil, err
-	}
-	return conns, nil
-}
-
-// UpdateSettings updates the blueprint instance with this settings reference
-func (bp *Blueprint) UpdateSettings(settings *BlueprintSettings) errors.Error {
-	if settings.Connections == nil {
-		bp.Settings = nil
-	} else {
-		settingsRaw, err := errors.Convert01(json.Marshal(settings))
-		if err != nil {
-			return err
-		}
-		bp.Settings = settingsRaw
-	}
-	return nil
-}
-
 // GetScopes Gets all the scopes for a given connection for this blueprint. Returns an empty slice if none found.
-func (bp *Blueprint) GetScopes(connectionId uint64, pluginName string) ([]*plugin.BlueprintScopeV200, errors.Error) {
-	conns, err := bp.GetConnections()
-	if err != nil {
-		return nil, err
-	}
+func (bp *Blueprint) GetScopes(connectionId uint64, pluginName string) ([]*BlueprintScope, errors.Error) {
+	conns := bp.Settings.Connections
 	visited := map[string]any{}
-	var result []*plugin.BlueprintScopeV200
+	var result []*BlueprintScope
 	for _, conn := range conns {
 		if conn.ConnectionId != connectionId || conn.Plugin != pluginName {
 			continue
 		}
 		for _, scope := range conn.Scopes {
-			if _, ok := visited[scope.Id]; !ok {
+			if _, ok := visited[scope.ScopeId]; !ok {
 				result = append(result, scope)
-				visited[scope.Id] = true
+				visited[scope.ScopeId] = true
 			}
 		}
 	}
 	return result, nil
 }
 
-func (Blueprint) TableName() string {
+func (*Blueprint) TableName() string {
 	return "_devlake_blueprints"
+}
+
+func (*BlueprintSettings) TableName() string {
+	return "_devlake_blueprint_settings"
+}
+
+func (*BlueprintConnection) TableName() string {
+	return "_devlake_blueprint_connections"
+}
+
+func (*BlueprintScope) TableName() string {
+	return "_devlake_blueprint_scopes"
 }
 
 type DbBlueprintLabel struct {
@@ -171,6 +124,6 @@ type DbBlueprintLabel struct {
 	Name        string    `json:"name" gorm:"primaryKey;index"`
 }
 
-func (DbBlueprintLabel) TableName() string {
+func (*DbBlueprintLabel) TableName() string {
 	return "_devlake_blueprint_labels"
 }

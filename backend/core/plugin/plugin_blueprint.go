@@ -77,6 +77,7 @@ type DataSourcePluginBlueprintV200 interface {
 }
 
 // BlueprintConnectionV200 contains the pluginName/connectionId  and related Scopes,
+// Deprecated Use models.BlueprintConnection
 type BlueprintConnectionV200 struct {
 	Plugin       string                `json:"plugin" validate:"required"`
 	ConnectionId uint64                `json:"connectionId" validate:"required"`
@@ -84,6 +85,7 @@ type BlueprintConnectionV200 struct {
 }
 
 // BlueprintScopeV200 contains the `id` and `name` for a specific scope
+// Deprecated Use models.BlueprintScope
 type BlueprintScopeV200 struct {
 	Id   string `json:"id"`
 	Name string `json:"name"`

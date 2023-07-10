@@ -27,7 +27,6 @@ import (
 
 	"github.com/apache/incubator-devlake/core/errors"
 	"github.com/apache/incubator-devlake/core/models"
-	"github.com/apache/incubator-devlake/core/plugin"
 	"github.com/apache/incubator-devlake/server/api/blueprints"
 	apiProject "github.com/apache/incubator-devlake/server/api/project"
 	"github.com/apache/incubator-devlake/server/api/shared"
@@ -82,9 +81,12 @@ func (d *DevlakeClient) CreateBasicBlueprintV2(name string, config *BlueprintV2C
 	settings := &models.BlueprintSettings{
 		Version:   "2.0.0",
 		TimeAfter: config.TimeAfter,
-		Connections: ToJson([]*plugin.BlueprintConnectionV200{
-			config.Connection,
-		}),
+		Connections: []*models.BlueprintConnection{
+			{
+				ConnectionId: config.Connection.ConnectionId,
+				Plugin:       config.Connection.Plugin,
+			},
+		},
 	}
 	blueprint := models.Blueprint{
 		Name:        name,
@@ -96,7 +98,7 @@ func (d *DevlakeClient) CreateBasicBlueprintV2(name string, config *BlueprintV2C
 		IsManual:    true,
 		SkipOnFail:  config.SkipOnFail,
 		Labels:      []string{"test-label"},
-		Settings:    ToJson(settings),
+		Settings:    settings,
 	}
 	d.testCtx.Helper()
 	blueprint = sendHttpRequest[models.Blueprint](d.testCtx, d.timeout, &testContext{

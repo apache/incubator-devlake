@@ -24,7 +24,6 @@ import (
 	"github.com/apache/incubator-devlake/core/errors"
 	"github.com/apache/incubator-devlake/core/models"
 	"github.com/apache/incubator-devlake/core/models/common"
-	"github.com/apache/incubator-devlake/impls/logruslog"
 )
 
 type BlueprintManager struct {
@@ -62,14 +61,22 @@ func NewBlueprintProjectPairs(bps []*models.Blueprint) *BlueprintProjectPairs {
 
 // SaveDbBlueprint accepts a Blueprint instance and upsert it to database
 func (b *BlueprintManager) SaveDbBlueprint(blueprint *models.Blueprint) errors.Error {
-	var err error
-	if blueprint.ID != 0 {
-		err = b.db.Update(&blueprint)
-	} else {
-		err = b.db.Create(&blueprint)
-	}
-	if err != nil {
-		return errors.Default.Wrap(err, "error creating DB blueprint")
+	var err errors.Error
+	if err = b.transact(func(tx dal.Transaction) errors.Error {
+		if blueprint.ID != 0 {
+			err = b.db.Update(&blueprint)
+		} else {
+			err = b.db.Create(&blueprint)
+		}
+		if err != nil {
+			return err
+		}
+		if err = saveDbBlueprintSettings(tx, blueprint); err != nil {
+			return err
+		}
+		return err
+	}); err != nil {
+		return err
 	}
 	err = b.db.Delete(&models.DbBlueprintLabel{}, dal.Where(`blueprint_id = ?`, blueprint.ID))
 	if err != nil {
@@ -158,6 +165,47 @@ func (b *BlueprintManager) GetDbBlueprint(blueprintId uint64) (*models.Blueprint
 	return blueprint, nil
 }
 
+// GetBlueprintSettings perhaps optimize this to support grabbing settings for multiple IDs without needing for-loops?
+func (b *BlueprintManager) GetBlueprintSettings(blueprintId uint64) (*models.BlueprintSettings, errors.Error) {
+	settings := models.BlueprintSettings{
+		BlueprintId: blueprintId,
+	}
+	err := b.db.First(&settings)
+	if err != nil {
+		return nil, err
+	}
+	var connections []*models.BlueprintConnection
+	err = b.db.All(&connections, dal.Where("blueprint_id", blueprintId))
+	if err != nil {
+		return nil, err
+	}
+	settings.Connections = connections
+	var scopes []*models.BlueprintScope
+	err = b.db.All(&scopes, dal.Where("blueprint_id", blueprintId))
+	if err != nil {
+		return nil, err
+	}
+	mappedScopes := mapScopesByBpConnectionId(scopes)
+	for _, connection := range settings.Connections {
+		if connectionScopes, ok := mappedScopes[connection.ID]; ok {
+			connection.Scopes = connectionScopes
+		}
+	}
+	return &settings, nil
+}
+
+func mapScopesByBpConnectionId(scopes []*models.BlueprintScope) map[uint64][]*models.BlueprintScope {
+	mapped := map[uint64][]*models.BlueprintScope{}
+	for _, scope := range scopes {
+		if list, ok := mapped[scope.ConnectionId]; !ok {
+			mapped[scope.ConnectionId] = []*models.BlueprintScope{scope}
+		} else {
+			mapped[scope.ConnectionId] = append(list, scope)
+		}
+	}
+	return mapped
+}
+
 // GetBlueprintsByScopes returns all blueprints that have these scopeIds and this connection Id
 func (b *BlueprintManager) GetBlueprintsByScopes(connectionId uint64, pluginName string, scopeIds ...string) (map[string][]*models.Blueprint, errors.Error) {
 	bps, _, err := b.GetDbBlueprints(&GetBlueprintQuery{Mode: "NORMAL"})
@@ -171,8 +219,8 @@ func (b *BlueprintManager) GetBlueprintsByScopes(connectionId uint64, pluginName
 			return nil, err
 		}
 		for _, scope := range scopes {
-			if contains(scopeIds, scope.Id) {
-				scopeMap[scope.Id] = append(scopeMap[scope.Id], bp)
+			if contains(scopeIds, scope.ScopeId) {
+				scopeMap[scope.ScopeId] = append(scopeMap[scope.ScopeId], bp)
 			}
 		}
 	}
@@ -187,10 +235,7 @@ func (b *BlueprintManager) GetBlueprintsByConnection(plugin string, connectionId
 	}
 	var filteredBps []*models.Blueprint
 	for _, bp := range bps {
-		connections, err := bp.GetConnections()
-		if err != nil {
-			return nil, err
-		}
+		connections := bp.Settings.Connections
 		for _, connection := range connections {
 			if connection.ConnectionId == connectionId && connection.Plugin == plugin {
 				filteredBps = append(filteredBps, bp)
@@ -220,37 +265,108 @@ func (b *BlueprintManager) GetDbBlueprintByProjectName(projectName string) (*mod
 
 // DeleteBlueprint deletes a blueprint by its id
 func (b *BlueprintManager) DeleteBlueprint(id uint64) errors.Error {
-	var err errors.Error
-	tx := b.db.Begin()
-	defer func() {
-		if r := recover(); r != nil || err != nil {
-			err = tx.Rollback()
-			if err != nil {
-				logruslog.Global.Error(err, "DeleteBlueprint: failed to rollback")
-			}
+	return b.transact(func(tx dal.Transaction) errors.Error {
+		err := tx.Delete(&models.DbBlueprintLabel{}, dal.Where("blueprint_id = ?", id))
+		if err != nil {
+			return err
 		}
-	}()
-	err = tx.Delete(&models.DbBlueprintLabel{}, dal.Where("blueprint_id = ?", id))
-	if err != nil {
+		err = tx.Delete(&models.Blueprint{
+			Model: common.Model{
+				ID: id,
+			},
+		})
+		if err != nil {
+			return err
+		}
+		err = tx.Delete(&models.BlueprintSettings{
+			BlueprintId: id,
+		})
+		if err != nil {
+			return err
+		}
+		err = tx.Delete(&models.BlueprintConnection{
+			BlueprintId: id,
+		})
+		if err != nil {
+			return err
+		}
+		err = tx.Delete(&models.BlueprintScope{
+			BlueprintId: id,
+		})
+		if err != nil {
+			return err
+		}
 		return err
-	}
-	err = tx.Delete(&models.Blueprint{
-		Model: common.Model{
-			ID: id,
-		},
 	})
-	if err != nil {
-		return err
-	}
-	return tx.Commit()
 }
 
 func (b *BlueprintManager) fillBlueprintDetail(blueprint *models.Blueprint) errors.Error {
 	err := b.db.Pluck("name", &blueprint.Labels, dal.From(&models.DbBlueprintLabel{}), dal.Where("blueprint_id = ?", blueprint.ID))
 	if err != nil {
-		return errors.Internal.Wrap(err, "error getting the blueprint labels from database")
+		return errors.Default.Wrap(err, "error getting the blueprint labels from database")
+	}
+	settings, err := b.GetBlueprintSettings(blueprint.ID)
+	if err != nil {
+		return err
+	}
+	blueprint.Settings = settings
+	return nil
+}
+
+func saveDbBlueprintSettings(t dal.Transaction, bp *models.Blueprint) errors.Error {
+	bp.Settings.BlueprintId = bp.ID
+	err := t.CreateOrUpdate(bp.Settings)
+	if err != nil {
+		return err
+	}
+	return saveDbBlueprintConnections(t, bp.Settings)
+}
+
+func saveDbBlueprintConnections(t dal.Transaction, settings *models.BlueprintSettings) errors.Error {
+	for _, connection := range settings.Connections {
+		connection.BlueprintId = settings.BlueprintId
+		connection.SettingsId = settings.ID
+	}
+	err := t.CreateOrUpdate(&settings.Connections)
+	if err != nil {
+		return err
+	}
+	for _, connection := range settings.Connections {
+		err = saveDbBlueprintScopes(t, connection)
+		if err != nil {
+			return err
+		}
 	}
 	return nil
+}
+
+func saveDbBlueprintScopes(t dal.Transaction, connection *models.BlueprintConnection) errors.Error {
+	for _, scope := range connection.Scopes {
+		scope.BlueprintId = connection.BlueprintId
+		scope.ConnectionId = connection.ID
+	}
+	err := t.CreateOrUpdate(&connection.Scopes)
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
+func (b *BlueprintManager) transact(f func(tx dal.Transaction) errors.Error) errors.Error {
+	tx := b.db.Begin()
+	defer func() {
+		if r := recover(); r != nil {
+			err := tx.Rollback()
+			if err != nil {
+				panic(fmt.Errorf("rollback failure: %v\noriginal error: %v", err, r.(error).Error()))
+			}
+		}
+	}()
+	err := f(tx)
+	if err != nil {
+		return err
+	}
+	return tx.Commit()
 }
 
 func contains(list []string, target string) bool {

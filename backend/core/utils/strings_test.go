@@ -58,7 +58,14 @@ func TestRandLetterBytes(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			got, got1 := RandLetterBytes(tt.args.n)
 			t.Log(got)
-			assert.Equalf(t, tt.want1, got1, "RandLetterBytes(%v)", tt.args.n)
+			assert.Equalf(t, unwrap(tt.want1), unwrap(got1), "RandLetterBytes(%v)", tt.args.n)
 		})
 	}
+}
+
+func unwrap(err errors.Error) error {
+	if err == nil {
+		return nil
+	}
+	return err.Unwrap()
 }
