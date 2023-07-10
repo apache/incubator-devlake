@@ -66,13 +66,6 @@ type ZentaoProductRes struct {
 	CaseReview bool    `json:"caseReview" mapstructure:"caseReview"`
 }
 
-func getAccountId(account *ZentaoAccount) int64 {
-	if account != nil {
-		return account.ID
-	}
-	return 0
-}
-
 type ZentaoProduct struct {
 	common.NoPKModel `json:"-"`
 	ConnectionId     uint64 `json:"connectionId" mapstructure:"connectionId" gorm:"primaryKey;type:BIGINT  NOT NULL"`

@@ -31,10 +31,6 @@ const RAW_EXECUTION_TABLE = "zentao_api_executions"
 
 var _ plugin.SubTaskEntryPoint = CollectExecutions
 
-type executionInput struct {
-	Path string
-}
-
 func CollectExecutions(taskCtx plugin.SubTaskContext) errors.Error {
 	data := taskCtx.GetData().(*ZentaoTaskData)
 	cursor, iterator, err := getExecutionIterator(taskCtx)

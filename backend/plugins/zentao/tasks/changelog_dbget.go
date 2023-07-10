@@ -99,6 +99,9 @@ func (h actionHistoryHandler) collectActionHistory(rdb dal.Dal, connectionId uin
 		}
 		if zcc.ChangelogDetail.Id != 0 {
 			err = h.changelogDetailBachSave.Add(zcc.ChangelogDetail)
+			if err != nil {
+				return err
+			}
 		}
 	}
 	err = h.changelogBachSave.Flush()

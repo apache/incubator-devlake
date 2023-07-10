@@ -31,17 +31,6 @@ type ApiAccount struct {
 	Realname string `json:"realname"`
 }
 
-func (a ApiAccount) getId() int64 {
-	return 0
-}
-
-func (a ApiAccount) getName() string {
-	return ""
-}
-func (a ApiAccount) getAccount() string {
-	return ""
-}
-
 func (a *ApiAccount) UnmarshalJSON(data []byte) error {
 	var dst struct {
 		ID       int64  `json:"id"`

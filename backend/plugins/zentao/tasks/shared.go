@@ -31,10 +31,6 @@ import (
 	"github.com/apache/incubator-devlake/plugins/zentao/models"
 )
 
-type productInput struct {
-	ProductId int64
-}
-
 type input struct {
 	Id int64
 }
