@@ -91,9 +91,9 @@ func Init() {
 	}
 
 	// pull migration scripts from plugins to migrator
-	for pluginName, pluginInst := range plugin.AllPlugins() {
+	for _, pluginInst := range plugin.AllPlugins() {
 		if migratable, ok := pluginInst.(plugin.PluginMigration); ok {
-			migrator.Register(migratable.MigrationScripts(), pluginName)
+			migrator.Register(migratable.MigrationScripts(), pluginInst.Name())
 		}
 	}
 

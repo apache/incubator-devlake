@@ -20,8 +20,10 @@ import json
 
 from pydantic import SecretStr
 
-from pydevlake import Plugin, Connection, Stream, ToolModel, ToolScope, ScopeConfig, RemoteScopeGroup, DomainType, Field, TestConnectionResult
+from pydevlake import Plugin, Connection, Stream, ToolModel, ToolScope, ScopeConfig, RemoteScopeGroup, DomainType, \
+    Field, TestConnectionResult
 from pydevlake.domain_layer.devops import CicdScope, CICDPipeline, CICDStatus, CICDResult, CICDType
+from pydevlake.migration import migration, MigrationScriptBuilder, Dialect
 
 VALID_TOKEN = "this_is_a_valid_token"
 
@@ -163,6 +165,13 @@ class FakePlugin(Plugin):
         return [
             FakePipelineStream
         ]
+
+
+# test migration
+@migration(20230630000001, name="populated _raw_data_table column for fakeproject")
+def add_raw_data_params_table_to_scope(b: MigrationScriptBuilder):
+    b.execute(f'UPDATE {FakeProject.__tablename__} SET _raw_data_table = "_raw_fakeproject_scopes" WHERE 1=1', Dialect.MYSQL) #mysql only
+    b.execute(f'''UPDATE {FakeProject.__tablename__} SET _raw_data_table = '_raw_fakeproject_scopes' WHERE 1=1''', Dialect.POSTGRESQL) #mysql and postgres
 
 
 if __name__ == '__main__':

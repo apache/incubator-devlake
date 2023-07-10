@@ -29,5 +29,6 @@ func All() []plugin.MigrationScript {
 		new(addIssueRepoCommitsTables),
 		new(addInitChangelogTables),
 		new(addTaskLeft),
+		new(addRawParamTableForScope),
 	}
 }
