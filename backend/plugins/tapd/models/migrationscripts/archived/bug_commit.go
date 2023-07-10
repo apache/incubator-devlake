@@ -18,9 +18,10 @@ limitations under the License.
 package archived
 
 import (
+	"time"
+
 	"github.com/apache/incubator-devlake/core/models/migrationscripts/archived"
 	helper "github.com/apache/incubator-devlake/helpers/pluginhelper/api"
-	"time"
 )
 
 type TapdBugCommit struct {
