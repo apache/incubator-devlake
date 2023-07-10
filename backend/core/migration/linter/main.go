@@ -185,7 +185,7 @@ func main() {
 						tpl = warningTpl
 					}
 				} else {
-					// we are running locally in `backend` folder, use another format for easiler fixing
+					// we are running locally in the `backend` folder, use another format to make fixing easier
 					tpl = localTpl
 				}
 				err = tpl.Execute(os.Stderr, msg)
