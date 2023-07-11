@@ -46,7 +46,7 @@ func getGroup(basicRes context2.BasicRes, gid string, queryData *api.RemoteQuery
 	return []api.BaseRemoteGroupResponse{
 		/*{
 			Id:   `products`,
-			Name: `ProductTables`,
+			Name: `Products`,
 		},*/
 		{
 			Id:   `projects`,
