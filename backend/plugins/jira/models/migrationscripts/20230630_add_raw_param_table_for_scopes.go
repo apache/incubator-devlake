@@ -20,6 +20,7 @@ package migrationscripts
 import (
 	"encoding/json"
 	"fmt"
+	"strconv"
 
 	"github.com/apache/incubator-devlake/core/context"
 	"github.com/apache/incubator-devlake/core/dal"
@@ -43,7 +44,7 @@ func (scope20230630) TableName() string {
 
 type params20230630 struct {
 	ConnectionId uint64
-	BoardId      string
+	BoardId      uint64
 }
 
 type addRawParamTableForScope struct{}
@@ -57,7 +58,7 @@ func (script *addRawParamTableForScope) Up(basicRes context.BasicRes) errors.Err
 			src.RawDataTable = "_raw_jira_scopes"
 			src.RawDataParams = string(errors.Must1(json.Marshal(&params20230630{
 				ConnectionId: src.ConnectionId,
-				BoardId:      src.BoardId,
+				BoardId:      errors.Must1(strconv.ParseUint(src.BoardId, 10, 64)),
 			})))
 			updateSet := []dal.DalSet{
 				{ColumnName: "_raw_data_table", Value: src.RawDataTable},
