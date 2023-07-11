@@ -17,20 +17,16 @@ limitations under the License.
 
 package archived
 
-import (
-	"time"
-
-	"github.com/apache/incubator-devlake/core/models/migrationscripts/archived"
-)
-
-type Assignment struct {
-	archived.NoPKModel
-	ConnectionId   uint64
-	IncidentNumber int    `gorm:"primaryKey"`
-	UserId         string `gorm:"primaryKey"`
-	AssignedAt     time.Time
+type TeambitionConnection struct {
+	Endpoint         string
+	Proxy            string
+	RateLimitPerHour int
+	AppId            string
+	SecretKey        string `gorm:"serializer:encdec"`
+	TenantId         string
+	TenantType       string
 }
 
-func (Assignment) TableName() string {
-	return "_tool_pagerduty_assignments"
+func (TeambitionConnection) TableName() string {
+	return "_tool_teambition_connections"
 }

@@ -15,39 +15,32 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-package migrationscripts
+package archived
 
 import (
-	"github.com/apache/incubator-devlake/core/context"
-	"github.com/apache/incubator-devlake/core/errors"
 	"github.com/apache/incubator-devlake/core/models/migrationscripts/archived"
-	"github.com/apache/incubator-devlake/core/plugin"
+	"github.com/apache/incubator-devlake/helpers/pluginhelper/api"
 )
 
-var _ plugin.MigrationScript = (*addRepoSnapshot)(nil)
+type TeambitionTaskWorktime struct {
+	ConnectionId uint64 `gorm:"primaryKey;type:BIGINT"`
+	ProjectId    string `gorm:"primaryKey;type:varchar(100)"`
+	TaskId       string `gorm:"primaryKey;type:varchar(100)"`
+	WorktimeId   string `gorm:"primaryKey;type:varchar(100)"`
+	ObjectType   string `gorm:"type:varchar(100)"`
+	ObjectId     string `gorm:"type:varchar(100)"`
+	Worktime     uint64
+	UserId       string `gorm:"type:varchar(100)"`
+	Date         *api.Iso8601Time
+	Description  string `gorm:"type:text"`
+	OrgId        string `gorm:"type:varchar(100)"`
+	SubmitterId  string `gorm:"type:varchar(100)"`
+	CreatedAt    *api.Iso8601Time
+	UpdatedAt    *api.Iso8601Time
 
-type repoSnapshot20220918 struct {
 	archived.NoPKModel
-	RepoId    string `gorm:"primaryKey;type:varchar(255)"`
-	CommitSha string `gorm:"primaryKey;type:varchar(40);"`
-	FilePath  string `gorm:"primaryKey;type:varchar(255);"`
-	LineNo    int    `gorm:"primaryKey;type:int;"`
 }
 
-func (repoSnapshot20220918) TableName() string {
-	return "repo_snapshot"
-}
-
-type addRepoSnapshot struct{}
-
-func (*addRepoSnapshot) Up(basicRes context.BasicRes) errors.Error {
-	return basicRes.GetDal().AutoMigrate(repoSnapshot20220918{})
-}
-
-func (*addRepoSnapshot) Version() uint64 {
-	return 20221009111241
-}
-
-func (*addRepoSnapshot) Name() string {
-	return "add snapshot table"
+func (TeambitionTaskWorktime) TableName() string {
+	return "_tool_teambition_task_worktime"
 }

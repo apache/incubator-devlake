@@ -17,20 +17,11 @@ limitations under the License.
 
 package archived
 
-import (
-	"time"
-
-	"github.com/apache/incubator-devlake/core/models/migrationscripts/archived"
-)
-
-type Assignment struct {
-	archived.NoPKModel
-	ConnectionId   uint64
-	IncidentNumber int    `gorm:"primaryKey"`
-	UserId         string `gorm:"primaryKey"`
-	AssignedAt     time.Time
-}
-
-func (Assignment) TableName() string {
-	return "_tool_pagerduty_assignments"
+type TeambitionTaskComment struct {
+	Comment              string
+	IsOnlyNotifyMentions bool
+	IsDingtalkPM         bool
+	RenderMode           string
+	Attachments          []string
+	DingFiles            []string
 }
