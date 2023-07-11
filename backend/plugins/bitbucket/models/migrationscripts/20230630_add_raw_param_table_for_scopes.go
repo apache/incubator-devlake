@@ -73,7 +73,7 @@ func (script *addRawParamTableForScope) Up(basicRes context.BasicRes) errors.Err
 }
 
 func (*addRawParamTableForScope) Version() uint64 {
-	return 20230630000001
+	return 20230630000002
 }
 
 func (script *addRawParamTableForScope) Name() string {
