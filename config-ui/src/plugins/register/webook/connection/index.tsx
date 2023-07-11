@@ -39,18 +39,18 @@ interface Props {
 
 export const WebHookConnection = ({ filterIds, onCreateAfter, onDeleteAfter }: Props) => {
   const [type, setType] = useState<Type>();
-  const [record, setRecord] = useState<WebhookItemType>();
+  const [currentID, setCurrentID] = useState<ID>();
 
   const { connections, onRefresh } = useConnections({ plugin: 'webhook' });
 
   const handleHideDialog = () => {
     setType(undefined);
-    setRecord(undefined);
+    setCurrentID(undefined);
   };
 
   const handleShowDialog = (t: Type, r?: WebhookItemType) => {
     setType(t);
-    setRecord(r);
+    setCurrentID(r?.id);
   };
 
   const columns: ColumnType<WebhookItemType> = [
@@ -108,10 +108,10 @@ export const WebHookConnection = ({ filterIds, onCreateAfter, onDeleteAfter }: P
           }}
         />
       )}
-      {type === 'delete' && (
+      {type === 'delete' && currentID && (
         <WebhookDeleteDialog
           isOpen
-          initialValues={record}
+          initialID={currentID}
           onCancel={handleHideDialog}
           onSubmitAfter={(id) => {
             onRefresh();
@@ -119,11 +119,11 @@ export const WebHookConnection = ({ filterIds, onCreateAfter, onDeleteAfter }: P
           }}
         />
       )}
-      {(type === 'edit' || type === 'show') && (
+      {(type === 'edit' || type === 'show') && currentID && (
         <WebhookViewOrEditDialog
           type={type}
           isOpen
-          initialValues={record}
+          initialID={currentID}
           onCancel={handleHideDialog}
           onSubmitAfter={() => onRefresh()}
         />

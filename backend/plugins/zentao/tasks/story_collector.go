@@ -32,31 +32,48 @@ const RAW_STORY_TABLE = "zentao_api_stories"
 
 var _ plugin.SubTaskEntryPoint = CollectStory
 
-func CollectStory(taskCtx plugin.SubTaskContext) errors.Error {
-	return RangeProductOneByOne(taskCtx, CollectStoryForOneProduct)
+type storyInput struct {
+	Path        string
+	ProjectId   int64
+	ProductId   int64
+	ExecutionId int64
 }
 
-func CollectStoryForOneProduct(taskCtx plugin.SubTaskContext) errors.Error {
+func CollectStory(taskCtx plugin.SubTaskContext) errors.Error {
 	data := taskCtx.GetData().(*ZentaoTaskData)
+	// project iterator
+	iter0 := newIteratorFromSlice([]interface{}{&storyInput{ProjectId: data.Options.ProjectId, Path: fmt.Sprintf("/projects/%d", data.Options.ProjectId)}})
 
-	// this collect only work for product
-	if data.Options.ProductId == 0 {
-		return nil
+	// product iterator
+	productCursor, productIterator, err := getProductIterator(taskCtx)
+	if err != nil {
+		return err
 	}
+	defer productCursor.Close()
+	iter1 := newIteratorWrapper(productIterator, func(arg interface{}) interface{} {
+		return &storyInput{ProductId: arg.(*input).Id, Path: fmt.Sprintf("/products/%d", arg.(*input).Id)}
+	})
+
+	// execution iterator
+	executionCursor, executionIterator, err := getExecutionIterator(taskCtx)
+	if err != nil {
+		return err
+	}
+	defer executionCursor.Close()
+	iter2 := newIteratorWrapper(executionIterator, func(arg interface{}) interface{} {
+		return &storyInput{ExecutionId: arg.(*input).Id, Path: fmt.Sprintf("/executions/%d", arg.(*input).Id)}
+	})
 
 	collector, err := api.NewApiCollector(api.ApiCollectorArgs{
 		RawDataSubTaskArgs: api.RawDataSubTaskArgs{
-			Ctx: taskCtx,
-			Params: ScopeParams(
-				data.Options.ConnectionId,
-				data.Options.ProjectId,
-				data.Options.ProductId,
-			),
-			Table: RAW_STORY_TABLE,
+			Ctx:     taskCtx,
+			Options: data.Options,
+			Table:   RAW_STORY_TABLE,
 		},
+		Input:       newIteratorConcator(iter0, iter1, iter2),
 		ApiClient:   data.ApiClient,
 		PageSize:    100,
-		UrlTemplate: "/{{ .Params.ZentaoId }}/stories",
+		UrlTemplate: "{{ .Input.Path }}/stories",
 		Query: func(reqData *api.RequestData) (url.Values, errors.Error) {
 			query := url.Values{}
 			query.Set("page", fmt.Sprintf("%v", reqData.Pager.Page))

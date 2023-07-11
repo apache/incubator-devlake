@@ -42,5 +42,6 @@ func All() []plugin.MigrationScript {
 		new(renameTr2ScopeConfig),
 		new(addGithubIssueAssignee),
 		new(addFullName),
+		new(addRawParamTableForScope),
 	}
 }

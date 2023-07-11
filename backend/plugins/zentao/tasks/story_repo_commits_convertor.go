@@ -40,16 +40,12 @@ var ConvertStoryRepoCommitsMeta = plugin.SubTaskMeta{
 }
 
 func ConvertStoryRepoCommits(taskCtx plugin.SubTaskContext) errors.Error {
-	return RangeProductOneByOne(taskCtx, ConvertStoryRepoCommitsForOneProduct)
-}
-
-func ConvertStoryRepoCommitsForOneProduct(taskCtx plugin.SubTaskContext) errors.Error {
 	data := taskCtx.GetData().(*ZentaoTaskData)
 	db := taskCtx.GetDal()
 
 	cursor, err := db.Cursor(
 		dal.From(&models.ZentaoStoryRepoCommit{}),
-		dal.Where(`product = ? and connection_id = ?`, data.Options.ProductId, data.Options.ConnectionId),
+		dal.Where(`project = ? and connection_id = ?`, data.Options.ProjectId, data.Options.ConnectionId),
 	)
 	if err != nil {
 		return err
@@ -61,13 +57,9 @@ func ConvertStoryRepoCommitsForOneProduct(taskCtx plugin.SubTaskContext) errors.
 		InputRowType: reflect.TypeOf(models.ZentaoStoryRepoCommit{}),
 		Input:        cursor,
 		RawDataSubTaskArgs: api.RawDataSubTaskArgs{
-			Ctx: taskCtx,
-			Params: ScopeParams(
-				data.Options.ConnectionId,
-				data.Options.ProjectId,
-				data.Options.ProductId,
-			),
-			Table: RAW_STORY_REPO_COMMITS_TABLE,
+			Ctx:     taskCtx,
+			Options: data.Options,
+			Table:   RAW_STORY_REPO_COMMITS_TABLE,
 		},
 		Convert: func(inputRow interface{}) ([]interface{}, errors.Error) {
 			toolEntity := inputRow.(*models.ZentaoStoryRepoCommit)

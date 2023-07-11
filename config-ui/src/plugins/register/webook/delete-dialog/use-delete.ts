@@ -23,24 +23,20 @@ import { operator } from '@/utils';
 import * as API from '../api';
 
 export interface UseDeleteProps {
-  initialValues?: {
-    id: ID;
-  };
+  initialID: ID;
   onSubmitAfter?: (id: ID) => void;
 }
 
-export const useDelete = ({ initialValues, onSubmitAfter }: UseDeleteProps) => {
+export const useDelete = ({ initialID, onSubmitAfter }: UseDeleteProps) => {
   const [saving, setSaving] = useState(false);
 
   const handleDelete = async () => {
-    if (!initialValues) return;
-
-    const [success] = await operator(() => API.deleteConnection(initialValues.id), {
+    const [success] = await operator(() => API.deleteConnection(initialID), {
       setOperating: setSaving,
     });
 
     if (success) {
-      onSubmitAfter?.(initialValues.id);
+      onSubmitAfter?.(initialID);
     }
   };
 

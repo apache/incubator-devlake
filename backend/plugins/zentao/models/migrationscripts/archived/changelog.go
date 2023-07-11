@@ -27,14 +27,14 @@ type ZentaoChangelog struct {
 	archived.NoPKModel `json:"-"`
 	ConnectionId       uint64    `json:"connectionId" mapstructure:"connectionId" gorm:"primaryKey;type:BIGINT  NOT NULL"`
 	Id                 int64     `json:"id" mapstructure:"id" gorm:"primaryKey;type:BIGINT  NOT NULL;autoIncrement:false"`
-	ObjectId           int       `json:"objectId" mapstructure:"objectId" gorm:"index; NOT NULL"`
-	Execution          int       `json:"execution" mapstructure:"execution" `
+	ObjectId           int64     `json:"objectId" mapstructure:"objectId" gorm:"index; NOT NULL"`
+	Execution          int64     `json:"execution" mapstructure:"execution" `
 	Actor              string    `json:"actor" mapstructure:"actor" `
 	Action             string    `json:"action" mapstructure:"action"`
 	Extra              string    `json:"extra" mapstructure:"extra"`
 	ObjectType         string    `json:"objectType" mapstructure:"objectType"`
-	Project            int       `json:"project" mapstructure:"project"`
-	Product            int       `json:"product" mapstructure:"product"`
+	Project            int64     `json:"project" mapstructure:"project"`
+	Product            int64     `json:"product" mapstructure:"product"`
 	Vision             string    `json:"vision" mapstructure:"vision"`
 	Comment            string    `json:"comment" mapstructure:"comment"`
 	Efforted           string    `json:"efforted" mapstructure:"efforted"`

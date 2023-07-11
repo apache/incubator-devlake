@@ -18,12 +18,10 @@ limitations under the License.
 package tasks
 
 import (
-	"fmt"
 	"reflect"
 
 	"github.com/apache/incubator-devlake/core/dal"
 	"github.com/apache/incubator-devlake/core/errors"
-	"github.com/apache/incubator-devlake/core/models/domainlayer"
 	"github.com/apache/incubator-devlake/core/models/domainlayer/didgen"
 	"github.com/apache/incubator-devlake/core/models/domainlayer/ticket"
 	"github.com/apache/incubator-devlake/core/plugin"
@@ -31,60 +29,44 @@ import (
 	"github.com/apache/incubator-devlake/plugins/zentao/models"
 )
 
-const RAW_PRODUCT_TABLE = "zentao_api_products"
+var _ plugin.SubTaskEntryPoint = ConvertExecutionStory
 
-var _ plugin.SubTaskEntryPoint = ConvertProducts
-
-var ConvertProductMeta = plugin.SubTaskMeta{
-	Name:             "convertProducts",
-	EntryPoint:       ConvertProducts,
+var ConvertExecutionStoryMeta = plugin.SubTaskMeta{
+	Name:             "convertExecutionStory",
+	EntryPoint:       ConvertExecutionStory,
 	EnabledByDefault: true,
-	Description:      "convert Zentao products",
+	Description:      "convert Zentao execution_stories",
 	DomainTypes:      []string{plugin.DOMAIN_TYPE_TICKET},
 }
 
-func ConvertProducts(taskCtx plugin.SubTaskContext) errors.Error {
+func ConvertExecutionStory(taskCtx plugin.SubTaskContext) errors.Error {
 	data := taskCtx.GetData().(*ZentaoTaskData)
 	db := taskCtx.GetDal()
-	boardIdGen := didgen.NewDomainIdGenerator(&models.ZentaoProduct{})
+	executionIdGen := didgen.NewDomainIdGenerator(&models.ZentaoExecution{})
+	storyIdGen := didgen.NewDomainIdGenerator(&models.ZentaoStory{})
 	cursor, err := db.Cursor(
-		dal.From(&models.ZentaoProduct{}),
-		dal.Where(`id = ? and connection_id = ?`, data.Options.ProductId, data.Options.ConnectionId),
+		dal.From(&models.ZentaoExecutionStory{}),
+		dal.Where(`project_id = ? and connection_id = ?`, data.Options.ProjectId, data.Options.ConnectionId),
 	)
 	if err != nil {
 		return err
 	}
 	defer cursor.Close()
 	convertor, err := api.NewDataConverter(api.DataConverterArgs{
-		InputRowType: reflect.TypeOf(models.ZentaoProduct{}),
+		InputRowType: reflect.TypeOf(models.ZentaoExecutionStory{}),
 		Input:        cursor,
 		RawDataSubTaskArgs: api.RawDataSubTaskArgs{
-			Ctx: taskCtx,
-			Params: ScopeParams(
-				data.Options.ConnectionId,
-				data.Options.ProjectId,
-				data.Options.ProductId,
-			),
-			Table: RAW_PRODUCT_TABLE,
+			Ctx:     taskCtx,
+			Options: data.Options,
+			Table:   RAW_EXECUTION_TABLE,
 		},
 		Convert: func(inputRow interface{}) ([]interface{}, errors.Error) {
-			toolProduct := inputRow.(*models.ZentaoProduct)
-
-			data.ProductList[toolProduct.Id] = toolProduct.Name
-
-			domainBoard := &ticket.Board{
-				DomainEntity: domainlayer.DomainEntity{
-					Id: boardIdGen.Generate(toolProduct.ConnectionId, toolProduct.Id),
-				},
-				Name:        toolProduct.Name,
-				Description: toolProduct.Description,
-				CreatedDate: toolProduct.CreatedDate.ToNullableTime(),
-				Type:        toolProduct.Type + "/" + toolProduct.ProductType,
-				Url:         fmt.Sprintf("/product-index-%d.html", data.Options.ProductId),
+			executionStory := inputRow.(*models.ZentaoExecutionStory)
+			sprintIssue := &ticket.SprintIssue{
+				SprintId: executionIdGen.Generate(data.Options.ConnectionId, executionStory.ExecutionId),
+				IssueId:  storyIdGen.Generate(data.Options.ConnectionId, executionStory.StoryId),
 			}
-			results := make([]interface{}, 0)
-			results = append(results, domainBoard)
-			return results, nil
+			return []interface{}{sprintIssue}, nil
 		},
 	})
 

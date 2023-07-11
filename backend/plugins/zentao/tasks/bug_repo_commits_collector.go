@@ -42,20 +42,16 @@ var CollectBugRepoCommitsMeta = plugin.SubTaskMeta{
 }
 
 func CollectBugRepoCommits(taskCtx plugin.SubTaskContext) errors.Error {
-	return RangeProductOneByOne(taskCtx, CollectBugRepoCommitsForOneProduct)
-}
-
-func CollectBugRepoCommitsForOneProduct(taskCtx plugin.SubTaskContext) errors.Error {
 	db := taskCtx.GetDal()
 	data := taskCtx.GetData().(*ZentaoTaskData)
 
 	// load bugs id from db
 	clauses := []dal.Clause{
-		dal.Select("object_id, repo_revision"),
+		dal.Select("product, repo_revision"),
 		dal.From(&models.ZentaoBugCommit{}),
 		dal.Where(
-			"product = ? AND connection_id = ?",
-			data.Options.ProductId, data.Options.ConnectionId,
+			"project = ? AND connection_id = ?",
+			data.Options.ProjectId, data.Options.ConnectionId,
 		),
 	}
 
@@ -64,7 +60,7 @@ func CollectBugRepoCommitsForOneProduct(taskCtx plugin.SubTaskContext) errors.Er
 		return err
 	}
 
-	iterator, err := api.NewDalCursorIterator(db, cursor, reflect.TypeOf(SimpleZentaoBugCommit{}))
+	iterator, err := api.NewDalCursorIterator(db, cursor, reflect.TypeOf(bugCommitInput{}))
 	if err != nil {
 		return err
 	}
@@ -72,13 +68,9 @@ func CollectBugRepoCommitsForOneProduct(taskCtx plugin.SubTaskContext) errors.Er
 	// collect bug repo commits
 	collector, err := api.NewApiCollector(api.ApiCollectorArgs{
 		RawDataSubTaskArgs: api.RawDataSubTaskArgs{
-			Ctx: taskCtx,
-			Params: ScopeParams(
-				data.Options.ConnectionId,
-				data.Options.ProjectId,
-				data.Options.ProductId,
-			),
-			Table: RAW_BUG_REPO_COMMITS_TABLE,
+			Ctx:     taskCtx,
+			Options: data.Options,
+			Table:   RAW_BUG_REPO_COMMITS_TABLE,
 		},
 		ApiClient:   data.ApiClient,
 		Input:       iterator,
@@ -102,11 +94,9 @@ func CollectBugRepoCommitsForOneProduct(taskCtx plugin.SubTaskContext) errors.Er
 	return collector.Execute()
 }
 
-type SimpleZentaoBugCommit struct {
-	ObjectID     int    `json:"objectID"`
-	Host         string `json:"host"`         //the host part of extra
+type bugCommitInput struct {
+	Product      int64
 	RepoRevision string `json:"repoRevision"` // the repoRevisionJson part of extra
-
 }
 
 type RepoRevisionResponse struct {

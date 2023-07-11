@@ -38,29 +38,16 @@ var ExtractBugMeta = plugin.SubTaskMeta{
 }
 
 func ExtractBug(taskCtx plugin.SubTaskContext) errors.Error {
-	return RangeProductOneByOne(taskCtx, ExtractBugForOneProduct)
-}
-
-func ExtractBugForOneProduct(taskCtx plugin.SubTaskContext) errors.Error {
 	data := taskCtx.GetData().(*ZentaoTaskData)
-
-	// this Extract only work for product
-	if data.Options.ProductId == 0 {
-		return nil
-	}
 
 	statusMappings := getBugStatusMapping(data)
 	stdTypeMappings := getStdTypeMappings(data)
-
+	cache := newAccountCache(taskCtx.GetDal(), data.Options.ConnectionId)
 	extractor, err := api.NewApiExtractor(api.ApiExtractorArgs{
 		RawDataSubTaskArgs: api.RawDataSubTaskArgs{
-			Ctx: taskCtx,
-			Params: ScopeParams(
-				data.Options.ConnectionId,
-				data.Options.ProjectId,
-				data.Options.ProductId,
-			),
-			Table: RAW_BUG_TABLE,
+			Ctx:     taskCtx,
+			Options: data.Options,
+			Table:   RAW_BUG_TABLE,
 		},
 		Extract: func(row *api.RawData) ([]interface{}, errors.Error) {
 			res := &models.ZentaoBugRes{}
@@ -68,18 +55,11 @@ func ExtractBugForOneProduct(taskCtx plugin.SubTaskContext) errors.Error {
 			if err != nil {
 				return nil, errors.Default.WrapRaw(err)
 			}
-
-			// project scope need filter
-			if data.Options.ProjectId != 0 {
-				if init, ok := data.FromBugList[int(res.ID)]; !ok || !init {
-					return nil, nil
-				}
-			}
-
+			data.Bugs[res.ID] = struct{}{}
 			bug := &models.ZentaoBug{
 				ConnectionId:   data.Options.ConnectionId,
 				ID:             res.ID,
-				Project:        res.Project,
+				Project:        data.Options.ProjectId,
 				Product:        res.Product,
 				Injection:      res.Injection,
 				Identify:       res.Identify,
@@ -110,19 +90,19 @@ func ExtractBugForOneProduct(taskCtx plugin.SubTaskContext) errors.Error {
 				ActivatedDate:  res.ActivatedDate,
 				FeedbackBy:     res.FeedbackBy,
 				NotifyEmail:    res.NotifyEmail,
-				OpenedById:     getAccountId(res.OpenedBy),
-				OpenedByName:   getAccountName(res.OpenedBy),
+				OpenedById:     cache.getAccountIDFromApiAccount(res.OpenedBy),
+				OpenedByName:   cache.getAccountNameFromApiAccount(res.OpenedBy),
 				OpenedDate:     res.OpenedDate,
 				OpenedBuild:    res.OpenedBuild,
-				AssignedToId:   getAccountId(res.AssignedTo),
-				AssignedToName: getAccountName(res.AssignedTo),
+				AssignedToId:   cache.getAccountIDFromApiAccount(res.AssignedTo),
+				AssignedToName: cache.getAccountNameFromApiAccount(res.AssignedTo),
 				AssignedDate:   res.AssignedDate,
 				Deadline:       res.Deadline,
-				ResolvedById:   getAccountId(res.ResolvedBy),
+				ResolvedById:   cache.getAccountIDFromApiAccount(res.ResolvedBy),
 				Resolution:     res.Resolution,
 				ResolvedBuild:  res.ResolvedBuild,
 				ResolvedDate:   res.ResolvedDate,
-				ClosedById:     getAccountId(res.ClosedBy),
+				ClosedById:     cache.getAccountIDFromApiAccount(res.ClosedBy),
 				ClosedDate:     res.ClosedDate,
 				DuplicateBug:   res.DuplicateBug,
 				LinkBug:        res.LinkBug,
@@ -137,7 +117,7 @@ func ExtractBugForOneProduct(taskCtx plugin.SubTaskContext) errors.Error {
 				RepoType:       res.RepoType,
 				IssueKey:       res.IssueKey,
 				Testtask:       res.Testtask,
-				LastEditedById: getAccountId(res.LastEditedBy),
+				LastEditedById: cache.getAccountIDFromApiAccount(res.LastEditedBy),
 				LastEditedDate: res.LastEditedDate,
 				Deleted:        res.Deleted,
 				PriOrder:       res.PriOrder,
