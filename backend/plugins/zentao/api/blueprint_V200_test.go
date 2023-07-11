@@ -62,7 +62,7 @@ func TestMakeDataSourcePipelinePlanV200(t *testing.T) {
 	mockBasicRes(t)
 
 	bs := &plugin.BlueprintScopeV200{
-		Id: "project/1",
+		Id: "1",
 	}
 	/*bs2 := &plugin.BlueprintScopeV200{
 		Id: "product/1",
