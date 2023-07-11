@@ -42,23 +42,19 @@ var ConvertStoryMeta = plugin.SubTaskMeta{
 }
 
 func ConvertStory(taskCtx plugin.SubTaskContext) errors.Error {
-	return RangeProductOneByOne(taskCtx, ConvertStoryForOneProduct)
-}
-
-func ConvertStoryForOneProduct(taskCtx plugin.SubTaskContext) errors.Error {
 	data := taskCtx.GetData().(*ZentaoTaskData)
 	db := taskCtx.GetDal()
 	storyIdGen := didgen.NewDomainIdGenerator(&models.ZentaoStory{})
-	boardIdGen := didgen.NewDomainIdGenerator(&models.ZentaoProduct{})
+	boardIdGen := didgen.NewDomainIdGenerator(&models.ZentaoProject{})
 	accountIdGen := didgen.NewDomainIdGenerator(&models.ZentaoAccount{})
-	if data.Options.ProjectId != 0 {
-		boardIdGen = didgen.NewDomainIdGenerator(&models.ZentaoProject{})
-	}
 
 	cursor, err := db.Cursor(
 		dal.From(&models.ZentaoStory{}),
-		dal.Where(`_tool_zentao_stories.product = ? and
-			_tool_zentao_stories.connection_id = ?`, data.Options.ProductId, data.Options.ConnectionId),
+		dal.Join(`LEFT JOIN _tool_zentao_project_stories ON
+						_tool_zentao_project_stories.story_id = _tool_zentao_stories.id
+							AND _tool_zentao_project_stories.connection_id = _tool_zentao_stories.connection_id`),
+		dal.Where(`_tool_zentao_project_stories.project_id = ? and
+			_tool_zentao_project_stories.connection_id = ?`, data.Options.ProjectId, data.Options.ConnectionId),
 	)
 	if err != nil {
 		return err
@@ -68,13 +64,9 @@ func ConvertStoryForOneProduct(taskCtx plugin.SubTaskContext) errors.Error {
 		InputRowType: reflect.TypeOf(models.ZentaoStory{}),
 		Input:        cursor,
 		RawDataSubTaskArgs: api.RawDataSubTaskArgs{
-			Ctx: taskCtx,
-			Params: ScopeParams(
-				data.Options.ConnectionId,
-				data.Options.ProjectId,
-				data.Options.ProductId,
-			),
-			Table: RAW_STORY_TABLE,
+			Ctx:     taskCtx,
+			Options: data.Options,
+			Table:   RAW_STORY_TABLE,
 		},
 		Convert: func(inputRow interface{}) ([]interface{}, errors.Error) {
 			toolEntity := inputRow.(*models.ZentaoStory)
@@ -124,13 +116,8 @@ func ConvertStoryForOneProduct(taskCtx plugin.SubTaskContext) errors.Error {
 				domainEntity.LeadTimeMinutes = int64(toolEntity.ClosedDate.ToNullableTime().Sub(toolEntity.OpenedDate.ToTime()).Minutes())
 			}
 
-			boardId := boardIdGen.Generate(data.Options.ConnectionId, data.Options.ProductId)
-			if data.Options.ProjectId != 0 {
-				boardId = boardIdGen.Generate(data.Options.ConnectionId, data.Options.ProjectId)
-			}
-
 			domainBoardIssue := &ticket.BoardIssue{
-				BoardId: boardId,
+				BoardId: boardIdGen.Generate(data.Options.ConnectionId, data.Options.ProjectId),
 				IssueId: domainEntity.Id,
 			}
 			results = append(results, domainEntity, domainBoardIssue)

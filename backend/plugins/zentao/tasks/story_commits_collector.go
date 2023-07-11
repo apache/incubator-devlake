@@ -42,22 +42,14 @@ var CollectStoryCommitsMeta = plugin.SubTaskMeta{
 }
 
 func CollectStoryCommits(taskCtx plugin.SubTaskContext) errors.Error {
-	return RangeProductOneByOne(taskCtx, CollectStoryCommitsForOneProduct)
-}
-
-func CollectStoryCommitsForOneProduct(taskCtx plugin.SubTaskContext) errors.Error {
 	db := taskCtx.GetDal()
 	data := taskCtx.GetData().(*ZentaoTaskData)
 
 	// state manager
 	collectorWithState, err := api.NewStatefulApiCollector(api.RawDataSubTaskArgs{
-		Ctx: taskCtx,
-		Params: ScopeParams(
-			data.Options.ConnectionId,
-			data.Options.ProjectId,
-			data.Options.ProductId,
-		),
-		Table: RAW_STORY_COMMITS_TABLE,
+		Ctx:     taskCtx,
+		Options: data.Options,
+		Table:   RAW_STORY_COMMITS_TABLE,
 	}, data.TimeAfter)
 	if err != nil {
 		return err
@@ -65,12 +57,13 @@ func CollectStoryCommitsForOneProduct(taskCtx plugin.SubTaskContext) errors.Erro
 
 	// load stories id from db
 	clauses := []dal.Clause{
-		dal.Select("id, last_edited_date"),
-		dal.From(&models.ZentaoStory{}),
-		dal.Where(
-			"product = ? AND connection_id = ?",
-			data.Options.ProductId, data.Options.ConnectionId,
-		),
+		dal.Select("_tool_zentao_project_stories.story_id AS id, last_edited_date"),
+		dal.From(&models.ZentaoProjectStory{}),
+		dal.Join(`LEFT JOIN _tool_zentao_stories ON
+						_tool_zentao_project_stories.story_id = _tool_zentao_stories.id
+							AND _tool_zentao_project_stories.connection_id = _tool_zentao_stories.connection_id`),
+		dal.Where(`_tool_zentao_project_stories.project_id = ? and
+			_tool_zentao_project_stories.connection_id = ?`, data.Options.ProjectId, data.Options.ConnectionId),
 	}
 	// incremental collection
 	incremental := collectorWithState.IsIncremental()
@@ -85,7 +78,7 @@ func CollectStoryCommitsForOneProduct(taskCtx plugin.SubTaskContext) errors.Erro
 		return err
 	}
 
-	iterator, err := api.NewDalCursorIterator(db, cursor, reflect.TypeOf(SimpleZentaoStory{}))
+	iterator, err := api.NewDalCursorIterator(db, cursor, reflect.TypeOf(inputWithLastEditedDate{}))
 	if err != nil {
 		return err
 	}
@@ -93,13 +86,9 @@ func CollectStoryCommitsForOneProduct(taskCtx plugin.SubTaskContext) errors.Erro
 	// collect story commits
 	err = collectorWithState.InitCollector(api.ApiCollectorArgs{
 		RawDataSubTaskArgs: api.RawDataSubTaskArgs{
-			Ctx: taskCtx,
-			Params: ScopeParams(
-				data.Options.ConnectionId,
-				data.Options.ProjectId,
-				data.Options.ProductId,
-			),
-			Table: RAW_STORY_COMMITS_TABLE,
+			Ctx:     taskCtx,
+			Options: data.Options,
+			Table:   RAW_STORY_COMMITS_TABLE,
 		},
 		ApiClient:   data.ApiClient,
 		Input:       iterator,
@@ -125,7 +114,7 @@ func CollectStoryCommitsForOneProduct(taskCtx plugin.SubTaskContext) errors.Erro
 	return collectorWithState.Execute()
 }
 
-type SimpleZentaoStory struct {
+type inputWithLastEditedDate struct {
 	ID             int64            `json:"id"`
 	LastEditedDate *api.Iso8601Time `json:"lastEditedDate"`
 }

@@ -36,17 +36,13 @@ func CollectDepartment(taskCtx plugin.SubTaskContext) errors.Error {
 	data := taskCtx.GetData().(*ZentaoTaskData)
 	collector, err := api.NewApiCollector(api.ApiCollectorArgs{
 		RawDataSubTaskArgs: api.RawDataSubTaskArgs{
-			Ctx: taskCtx,
-			Params: ScopeParams(
-				data.Options.ConnectionId,
-				data.Options.ProjectId,
-				data.Options.ProductId,
-			),
-			Table: RAW_DEPARTMENT_TABLE,
+			Ctx:     taskCtx,
+			Options: data.Options,
+			Table:   RAW_DEPARTMENT_TABLE,
 		},
 		ApiClient:   data.ApiClient,
 		PageSize:    100,
-		UrlTemplate: "/users",
+		UrlTemplate: "/departments",
 		Query: func(reqData *api.RequestData) (url.Values, errors.Error) {
 			query := url.Values{}
 			query.Set("page", fmt.Sprintf("%v", reqData.Pager.Page))
@@ -55,14 +51,12 @@ func CollectDepartment(taskCtx plugin.SubTaskContext) errors.Error {
 		},
 		GetTotalPages: GetTotalPagesFromResponse,
 		ResponseParser: func(res *http.Response) ([]json.RawMessage, errors.Error) {
-			var data struct {
-				Users []json.RawMessage `json:"users"`
-			}
+			var data []json.RawMessage
 			err := api.UnmarshalResponse(res, &data)
 			if err != nil {
-				return nil, errors.Default.Wrap(err, "error reading endpoint response by Zentao bug collector")
+				return nil, errors.Default.Wrap(err, "error reading endpoint response by Zentao departments collector")
 			}
-			return data.Users, nil
+			return data, nil
 		},
 	})
 	if err != nil {

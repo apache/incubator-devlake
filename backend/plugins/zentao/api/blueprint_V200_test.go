@@ -82,7 +82,6 @@ func TestMakeDataSourcePipelinePlanV200(t *testing.T) {
 				Subtasks: []string{},
 				Options: map[string]interface{}{
 					"ConnectionId": uint64(1),
-					"productId":    int64(0),
 					"projectId":    int64(1),
 				},
 			},

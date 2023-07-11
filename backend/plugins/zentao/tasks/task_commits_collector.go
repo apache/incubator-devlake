@@ -45,20 +45,11 @@ func CollectTaskCommits(taskCtx plugin.SubTaskContext) errors.Error {
 	db := taskCtx.GetDal()
 	data := taskCtx.GetData().(*ZentaoTaskData)
 
-	// this collect only work for project
-	if data.Options.ProjectId == 0 {
-		return nil
-	}
-
 	// state manager
 	collectorWithState, err := api.NewStatefulApiCollector(api.RawDataSubTaskArgs{
-		Ctx: taskCtx,
-		Params: ScopeParams(
-			data.Options.ConnectionId,
-			data.Options.ProjectId,
-			data.Options.ProductId,
-		),
-		Table: RAW_TASK_COMMITS_TABLE,
+		Ctx:     taskCtx,
+		Options: data.Options,
+		Table:   RAW_TASK_COMMITS_TABLE,
 	}, data.TimeAfter)
 	if err != nil {
 		return err
@@ -86,7 +77,7 @@ func CollectTaskCommits(taskCtx plugin.SubTaskContext) errors.Error {
 		return err
 	}
 
-	iterator, err := api.NewDalCursorIterator(db, cursor, reflect.TypeOf(SimpleZentaoTask{}))
+	iterator, err := api.NewDalCursorIterator(db, cursor, reflect.TypeOf(inputWithLastEditedDate{}))
 	if err != nil {
 		return err
 	}
@@ -94,13 +85,9 @@ func CollectTaskCommits(taskCtx plugin.SubTaskContext) errors.Error {
 	// collect task commits
 	err = collectorWithState.InitCollector(api.ApiCollectorArgs{
 		RawDataSubTaskArgs: api.RawDataSubTaskArgs{
-			Ctx: taskCtx,
-			Params: ScopeParams(
-				data.Options.ConnectionId,
-				data.Options.ProjectId,
-				data.Options.ProductId,
-			),
-			Table: RAW_TASK_COMMITS_TABLE,
+			Ctx:     taskCtx,
+			Options: data.Options,
+			Table:   RAW_TASK_COMMITS_TABLE,
 		},
 		ApiClient:   data.ApiClient,
 		Input:       iterator,
@@ -124,9 +111,4 @@ func CollectTaskCommits(taskCtx plugin.SubTaskContext) errors.Error {
 	}
 
 	return collectorWithState.Execute()
-}
-
-type SimpleZentaoTask struct {
-	ID             int64            `json:"id"`
-	LastEditedDate *api.Iso8601Time `json:"lastEditedDate"`
 }

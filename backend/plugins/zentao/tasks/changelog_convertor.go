@@ -79,9 +79,8 @@ func ConvertChangelog(taskCtx plugin.SubTaskContext) errors.Error {
 		dal.From(&models.ZentaoChangelog{}),
 		dal.Join(fmt.Sprintf("LEFT JOIN %s on %s.changelog_id = %s.id", cdn, cdn, cn)),
 		dal.Join(fmt.Sprintf("LEFT JOIN %s on %s.realname = %s.actor", an, an, cn)),
-		dal.Where(fmt.Sprintf(`%s.product = ? and %s.project = ? and %s.connection_id = ?`,
-			cn, cn, cn),
-			data.Options.ProductId,
+		dal.Where(fmt.Sprintf(`%s.project = ? and %s.connection_id = ?`,
+			cn, cn),
 			data.Options.ProjectId,
 			data.Options.ConnectionId),
 	)
@@ -94,13 +93,9 @@ func ConvertChangelog(taskCtx plugin.SubTaskContext) errors.Error {
 		InputRowType: reflect.TypeOf(ZentaoChangelogSelect{}),
 		Input:        cursor,
 		RawDataSubTaskArgs: api.RawDataSubTaskArgs{
-			Ctx: taskCtx,
-			Params: ScopeParams(
-				data.Options.ConnectionId,
-				data.Options.ProjectId,
-				data.Options.ProductId,
-			),
-			Table: RAW_ACCOUNT_TABLE,
+			Ctx:     taskCtx,
+			Options: data.Options,
+			Table:   RAW_ACCOUNT_TABLE,
 		},
 		Convert: func(inputRow interface{}) ([]interface{}, errors.Error) {
 			cl := inputRow.(*ZentaoChangelogSelect)
@@ -168,18 +163,18 @@ func ConvertChangelog(taskCtx plugin.SubTaskContext) errors.Error {
 
 // accountCache is a cache for account id
 type accountCache struct {
-	accounts     map[string]int64
+	accounts     map[string]models.ZentaoAccount
 	db           dal.Dal
 	connectionId uint64
 }
 
 func newAccountCache(db dal.Dal, connectionId uint64) *accountCache {
-	return &accountCache{db: db, connectionId: connectionId, accounts: make(map[string]int64)}
+	return &accountCache{db: db, connectionId: connectionId, accounts: make(map[string]models.ZentaoAccount)}
 }
 
 func (a *accountCache) getAccountID(account string) int64 {
-	if id, ok := a.accounts[account]; ok {
-		return id
+	if data, ok := a.accounts[account]; ok {
+		return data.ID
 	}
 	var zentaoAccount models.ZentaoAccount
 	err := a.db.First(
@@ -189,6 +184,42 @@ func (a *accountCache) getAccountID(account string) int64 {
 	if err != nil {
 		return 0
 	}
-	a.accounts[account] = zentaoAccount.ID
+	a.accounts[account] = zentaoAccount
 	return zentaoAccount.ID
+}
+
+func (a *accountCache) getAccountIDFromApiAccount(account *models.ApiAccount) int64 {
+	if account == nil {
+		return 0
+	}
+	if account.ID != 0 {
+		return account.ID
+	}
+	return a.getAccountID(account.Account)
+}
+
+func (a *accountCache) getAccountName(account string) string {
+	if data, ok := a.accounts[account]; ok {
+		return data.Realname
+	}
+	var zentaoAccount models.ZentaoAccount
+	err := a.db.First(
+		&zentaoAccount,
+		dal.Where("connection_id = ? AND account = ?", a.connectionId, account),
+	)
+	if err != nil {
+		return ""
+	}
+	a.accounts[account] = zentaoAccount
+	return zentaoAccount.Realname
+}
+
+func (a *accountCache) getAccountNameFromApiAccount(account *models.ApiAccount) string {
+	if account == nil {
+		return ""
+	}
+	if account.Realname != "" {
+		return account.Realname
+	}
+	return a.getAccountName(account.Account)
 }

@@ -20,12 +20,11 @@ package tasks
 import (
 	"encoding/json"
 	"fmt"
-	"net/http"
-	"net/url"
-
 	"github.com/apache/incubator-devlake/core/errors"
 	"github.com/apache/incubator-devlake/core/plugin"
 	"github.com/apache/incubator-devlake/helpers/pluginhelper/api"
+	"net/http"
+	"net/url"
 )
 
 const RAW_EXECUTION_TABLE = "zentao_api_executions"
@@ -34,24 +33,20 @@ var _ plugin.SubTaskEntryPoint = CollectExecutions
 
 func CollectExecutions(taskCtx plugin.SubTaskContext) errors.Error {
 	data := taskCtx.GetData().(*ZentaoTaskData)
-
-	// this collect only work for project
-	if data.Options.ProjectId == 0 {
-		return nil
+	cursor, iterator, err := getExecutionIterator(taskCtx)
+	if err != nil {
+		return err
 	}
-
+	defer cursor.Close()
 	collector, err := api.NewApiCollector(api.ApiCollectorArgs{
 		RawDataSubTaskArgs: api.RawDataSubTaskArgs{
-			Ctx: taskCtx,
-			Params: ScopeParams(
-				data.Options.ConnectionId,
-				data.Options.ProjectId,
-				data.Options.ProductId,
-			),
-			Table: RAW_EXECUTION_TABLE,
+			Ctx:     taskCtx,
+			Options: data.Options,
+			Table:   RAW_EXECUTION_TABLE,
 		},
+		Input:       iterator,
 		ApiClient:   data.ApiClient,
-		UrlTemplate: "/{{ .Params.ZentaoId }}/executions",
+		UrlTemplate: "/executions/{{ .Input.Id }}",
 		Query: func(reqData *api.RequestData) (url.Values, errors.Error) {
 			query := url.Values{}
 			query.Set("page", fmt.Sprintf("%v", reqData.Pager.Page))
@@ -59,14 +54,12 @@ func CollectExecutions(taskCtx plugin.SubTaskContext) errors.Error {
 			return query, nil
 		},
 		ResponseParser: func(res *http.Response) ([]json.RawMessage, errors.Error) {
-			var data struct {
-				Executions []json.RawMessage `json:"executions"`
-			}
+			var data json.RawMessage
 			err := api.UnmarshalResponse(res, &data)
 			if err != nil {
-				return nil, errors.Default.Wrap(err, "error reading endpoint response by Zentao bug collector")
+				return nil, err
 			}
-			return data.Executions, nil
+			return []json.RawMessage{data}, nil
 		},
 	})
 	if err != nil {

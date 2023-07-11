@@ -36,12 +36,18 @@ type ZentaoOptions struct {
 	// Such As How many rows do your want
 	// You can use it in subtasks, and you need to pass it to main.go and pipelines.
 	ConnectionId uint64 `json:"connectionId"`
-	ProductId    int64  `json:"productId" mapstructure:"productId"`
 	ProjectId    int64  `json:"projectId" mapstructure:"projectId"`
 	// TODO not support now
 	TimeAfter     string              `json:"timeAfter" mapstructure:"timeAfter,omitempty"`
 	ScopeConfigId uint64              `json:"scopeConfigId" mapstructure:"scopeConfigId,omitempty"`
 	ScopeConfigs  *ZentaoScopeConfigs `json:"scopeConfigs" mapstructure:"scopeConfigs,omitempty"`
+}
+
+func (o *ZentaoOptions) GetParams() any {
+	return models.ZentaoApiParams{
+		ConnectionId: o.ConnectionId,
+		ProjectId:    o.ProjectId,
+	}
 }
 
 type TypeMappings map[string]string
@@ -104,6 +110,9 @@ type ZentaoTaskData struct {
 	ProductList map[int64]string // set if it is setting project id, it is map[id]name
 	StoryList   map[int64]int64  // set if it is run the task_extractor
 	FromBugList map[int]bool     // set if it is run the task_extracor
+	Stories     map[int64]struct{}
+	Tasks       map[int64]struct{}
+	Bugs        map[int64]struct{}
 	ApiClient   *helper.ApiAsyncClient
 }
 
@@ -117,8 +126,8 @@ func DecodeAndValidateTaskOptions(options map[string]interface{}) (*ZentaoOption
 	if op.ConnectionId == 0 {
 		return nil, fmt.Errorf("connectionId is invalid")
 	}
-	if op.ProductId == 0 && op.ProjectId == 0 {
-		return nil, fmt.Errorf("please set productId")
+	if op.ProjectId == 0 {
+		return nil, fmt.Errorf("please set projectId")
 	}
 	return &op, nil
 }

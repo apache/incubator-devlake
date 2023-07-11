@@ -45,7 +45,7 @@ func ConvertTask(taskCtx plugin.SubTaskContext) errors.Error {
 	data := taskCtx.GetData().(*ZentaoTaskData)
 	db := taskCtx.GetDal()
 	storyIdGen := didgen.NewDomainIdGenerator(&models.ZentaoStory{})
-	bugIdGen := didgen.NewDomainIdGenerator(&models.ZentaoBug{})
+	//bugIdGen := didgen.NewDomainIdGenerator(&models.ZentaoBug{})
 	boardIdGen := didgen.NewDomainIdGenerator(&models.ZentaoProject{})
 	executionIdGen := didgen.NewDomainIdGenerator(&models.ZentaoExecution{})
 	taskIdGen := didgen.NewDomainIdGenerator(&models.ZentaoTask{})
@@ -62,13 +62,9 @@ func ConvertTask(taskCtx plugin.SubTaskContext) errors.Error {
 		InputRowType: reflect.TypeOf(models.ZentaoTask{}),
 		Input:        cursor,
 		RawDataSubTaskArgs: api.RawDataSubTaskArgs{
-			Ctx: taskCtx,
-			Params: ScopeParams(
-				data.Options.ConnectionId,
-				data.Options.ProjectId,
-				data.Options.ProductId,
-			),
-			Table: RAW_TASK_TABLE,
+			Ctx:     taskCtx,
+			Options: data.Options,
+			Table:   RAW_TASK_TABLE,
 		},
 		Convert: func(inputRow interface{}) ([]interface{}, errors.Error) {
 			toolEntity := inputRow.(*models.ZentaoTask)
@@ -126,22 +122,6 @@ func ConvertTask(taskCtx plugin.SubTaskContext) errors.Error {
 			}
 
 			results = append(results, domainEntity, domainBoardIssue, sprintIssueTask)
-
-			if toolEntity.StoryID != 0 {
-				sprintIssueStory := &ticket.SprintIssue{
-					SprintId: sprintId,
-					IssueId:  storyIdGen.Generate(data.Options.ConnectionId, toolEntity.StoryID),
-				}
-				results = append(results, sprintIssueStory)
-			}
-
-			if toolEntity.FromBug != 0 {
-				sprintIssueBug := &ticket.SprintIssue{
-					SprintId: sprintId,
-					IssueId:  bugIdGen.Generate(data.Options.ConnectionId, int64(toolEntity.FromBug)),
-				}
-				results = append(results, sprintIssueBug)
-			}
 
 			return results, nil
 		},

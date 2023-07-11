@@ -86,6 +86,10 @@ func (p Zentao) GetTablesInfo() []dal.Tabler {
 		&models.ZentaoBugRepoCommit{},
 		&models.ZentaoConnection{},
 		&models.ZentaoScopeConfig{},
+		&models.ZentaoExecutionStory{},
+		&models.ZentaoExecutionSummary{},
+		&models.ZentaoProductSummary{},
+		&models.ZentaoProjectStory{},
 	}
 }
 
@@ -103,22 +107,20 @@ func (p Zentao) ScopeConfig() dal.Tabler {
 
 func (p Zentao) SubTaskMetas() []plugin.SubTaskMeta {
 	return []plugin.SubTaskMeta{
-		//tasks.ConvertProductMeta,
 		tasks.ConvertProjectMeta,
-
-		tasks.DBGetChangelogMeta,
-		tasks.ConvertChangelogMeta,
 
 		// both
 		tasks.CollectAccountMeta,
 		tasks.ExtractAccountMeta,
 		tasks.ConvertAccountMeta,
 
-		tasks.CollectDepartmentMeta,
-		tasks.ExtractDepartmentMeta,
-		tasks.ConvertDepartmentMeta,
+		//tasks.CollectDepartmentMeta,
+		//tasks.ExtractDepartmentMeta,
+		//tasks.ConvertDepartmentMeta,
 
 		// project
+		tasks.CollectExecutionSummaryMeta,
+		tasks.ExtractExecutionSummaryMeta,
 		tasks.CollectExecutionMeta,
 		tasks.ExtractExecutionMeta,
 		tasks.ConvertExecutionMeta,
@@ -137,6 +139,7 @@ func (p Zentao) SubTaskMetas() []plugin.SubTaskMeta {
 		tasks.CollectStoryMeta,
 		tasks.ExtractStoryMeta,
 		tasks.ConvertStoryMeta,
+		tasks.ConvertExecutionStoryMeta,
 
 		tasks.CollectBugMeta,
 		tasks.ExtractBugMeta,
@@ -153,6 +156,9 @@ func (p Zentao) SubTaskMetas() []plugin.SubTaskMeta {
 		tasks.CollectBugRepoCommitsMeta,
 		tasks.ExtractBugRepoCommitsMeta,
 		tasks.ConvertBugRepoCommitsMeta,
+
+		tasks.DBGetChangelogMeta,
+		tasks.ConvertChangelogMeta,
 	}
 }
 
@@ -195,6 +201,9 @@ func (p Zentao) PrepareTaskData(taskCtx plugin.TaskContext, options map[string]i
 		ProductList: map[int64]string{},
 		StoryList:   map[int64]int64{},
 		FromBugList: map[int]bool{},
+		Stories:     map[int64]struct{}{},
+		Tasks:       map[int64]struct{}{},
+		Bugs:        map[int64]struct{}{},
 	}
 
 	if connection.DbUrl != "" {

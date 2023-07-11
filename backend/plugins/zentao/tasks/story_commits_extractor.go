@@ -39,27 +39,14 @@ var ExtractStoryCommitsMeta = plugin.SubTaskMeta{
 }
 
 func ExtractStoryCommits(taskCtx plugin.SubTaskContext) errors.Error {
-	return RangeProductOneByOne(taskCtx, ExtractStoryCommitsForOneProduct)
-}
-
-func ExtractStoryCommitsForOneProduct(taskCtx plugin.SubTaskContext) errors.Error {
 	data := taskCtx.GetData().(*ZentaoTaskData)
-
-	// this Extract only work for product
-	if data.Options.ProductId == 0 {
-		return nil
-	}
 
 	re := regexp.MustCompile(`href='(.*?)'`)
 	extractor, err := api.NewApiExtractor(api.ApiExtractorArgs{
 		RawDataSubTaskArgs: api.RawDataSubTaskArgs{
-			Ctx: taskCtx,
-			Params: ScopeParams(
-				data.Options.ConnectionId,
-				data.Options.ProjectId,
-				data.Options.ProductId,
-			),
-			Table: RAW_STORY_COMMITS_TABLE,
+			Ctx:     taskCtx,
+			Options: data.Options,
+			Table:   RAW_STORY_COMMITS_TABLE,
 		},
 		Extract: func(row *api.RawData) ([]interface{}, errors.Error) {
 			res := &models.ZentaoStoryCommitsRes{}
@@ -78,7 +65,6 @@ func ExtractStoryCommitsForOneProduct(taskCtx plugin.SubTaskContext) errors.Erro
 				ID:           res.ID,
 				ObjectType:   res.ObjectType,
 				ObjectID:     res.ObjectID,
-				Product:      data.Options.ProductId,
 				Project:      data.Options.ProjectId,
 				Execution:    res.Execution,
 				Actor:        res.Actor,
