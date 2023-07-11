@@ -19,18 +19,9 @@ package archived
 
 import (
 	"time"
-
-	"github.com/apache/incubator-devlake/core/models/migrationscripts/archived"
 )
 
-type Assignment struct {
-	archived.NoPKModel
-	ConnectionId   uint64
-	IncidentNumber int    `gorm:"primaryKey"`
-	UserId         string `gorm:"primaryKey"`
-	AssignedAt     time.Time
-}
-
-func (Assignment) TableName() string {
-	return "_tool_pagerduty_assignments"
+type Input struct {
+	TaskId  string
+	Updated *time.Time
 }
