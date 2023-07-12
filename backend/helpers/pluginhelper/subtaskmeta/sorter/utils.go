@@ -19,7 +19,6 @@ package sorter
 
 import (
 	"fmt"
-	"github.com/apache/incubator-devlake/core/plugin"
 	"sort"
 )
 
@@ -53,36 +52,6 @@ func topologicalSortSameElements(sameElementsDependencyMap map[string][]string) 
 	return sortedKeyList, nil
 }
 
-// topologicalSortDifferentElements
-func topologicalSortDifferentElements(differentElementsDependenciesMap map[string][]string) ([]string, error) {
-	sortedKeyList := make([]string, 0)
-	for {
-		if len(differentElementsDependenciesMap) == 0 {
-			break
-		}
-		tmpKeyList := make([]string, 0)
-		tmpValueItemList := make([]string, 0)
-		for key, item := range differentElementsDependenciesMap {
-			if len(item) == 0 || len(item) == 1 {
-				tmpKeyList = append(tmpKeyList, key)
-				if len(item) == 1 {
-					tmpValueItemList = append(tmpValueItemList, item[0])
-				}
-				delete(differentElementsDependenciesMap, key)
-			}
-		}
-		if len(tmpKeyList) == 0 {
-			return nil, fmt.Errorf("cyclic dependency detected: %v", differentElementsDependenciesMap)
-		}
-		for key, item := range differentElementsDependenciesMap {
-			differentElementsDependenciesMap[key] = removeElements(item, tmpValueItemList)
-		}
-		sort.Strings(tmpKeyList)
-		sortedKeyList = append(sortedKeyList, tmpKeyList...)
-	}
-	return sortedKeyList, nil
-}
-
 func contains[T comparable](itemList []T, item T) bool {
 	for _, newItem := range itemList {
 		if item == newItem {
@@ -100,12 +69,4 @@ func removeElements[T comparable](raw, toRemove []T) []T {
 		}
 	}
 	return newList
-}
-
-func convertSubtaskMetaPointToStruct(rawList []*plugin.SubTaskMeta) []plugin.SubTaskMeta {
-	list := make([]plugin.SubTaskMeta, len(rawList))
-	for index, value := range rawList {
-		list[index] = *value
-	}
-	return list
 }
