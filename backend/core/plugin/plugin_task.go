@@ -101,8 +101,6 @@ type SubTaskMeta struct {
 	Dependencies     []*SubTaskMeta
 	DependencyTables []string
 	ProductTables    []string
-	// ExtraDependencyOptions support before given subtask or after given subtask
-	ExtraDependencyOptions []interface{}
 }
 
 // PluginTask Implement this interface to let framework run tasks for you
