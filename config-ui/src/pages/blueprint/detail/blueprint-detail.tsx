@@ -45,6 +45,14 @@ export const BlueprintDetail = ({ id, from }: Props) => {
     return [bpRes, pipelineRes.pipelines[0]];
   }, [version]);
 
+  const handlRefresh = () => {
+    setVersion((v) => v + 1);
+  };
+
+  const handleChangeTab = (tab: string) => {
+    setQuery({ tab });
+  };
+
   if (!ready || !data) {
     return <PageLoading />;
   }
@@ -58,15 +66,7 @@ export const BlueprintDetail = ({ id, from }: Props) => {
           id="status"
           title="Status"
           panel={
-            <StatusPanel
-              from={from}
-              blueprint={blueprint}
-              pipelineId={lastPipeline?.id}
-              onRefresh={() => {
-                setVersion((v) => v + 1);
-                setQuery({ tab: 'status' });
-              }}
-            />
+            <StatusPanel from={from} blueprint={blueprint} pipelineId={lastPipeline?.id} onRefresh={handlRefresh} />
           }
         />
         <Tab
@@ -76,10 +76,8 @@ export const BlueprintDetail = ({ id, from }: Props) => {
             <ConfigurationPanel
               from={from}
               blueprint={blueprint}
-              onRefresh={() => {
-                setVersion((v) => v + 1);
-                setQuery({ tab: 'configuration' });
-              }}
+              onRefresh={handlRefresh}
+              onChangeTab={handleChangeTab}
             />
           }
         />

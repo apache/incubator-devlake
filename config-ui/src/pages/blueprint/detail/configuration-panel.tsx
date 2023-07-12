@@ -38,9 +38,10 @@ interface Props {
   from: FromEnum;
   blueprint: BlueprintType;
   onRefresh: () => void;
+  onChangeTab: (tab: string) => void;
 }
 
-export const ConfigurationPanel = ({ from, blueprint, onRefresh }: Props) => {
+export const ConfigurationPanel = ({ from, blueprint, onRefresh, onChangeTab }: Props) => {
   const [type, setType] = useState<'name' | 'policy' | 'add-connection'>();
   const [rawPlan, setRawPlan] = useState('');
   const [operating, setOperating] = useState(false);
@@ -114,6 +115,7 @@ export const ConfigurationPanel = ({ from, blueprint, onRefresh }: Props) => {
 
     if (success) {
       onRefresh();
+      onChangeTab('status');
     }
   };
 
