@@ -270,8 +270,8 @@ func CopyTableColumns[S any, D any](
 	}
 	defer batch.Close()
 
-	srcTable := new(S)
 	for cursor.Next() {
+		srcTable := new(S)
 		err1 := db.Fetch(cursor, srcTable)
 		if err1 != nil {
 			return errors.Default.Wrap(err1, fmt.Sprintf("fail to load record from table [%s]", srcTableName))
