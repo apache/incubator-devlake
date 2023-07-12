@@ -183,12 +183,30 @@ type Dal interface {
 	RawCursor(query string, params ...interface{}) (*sql.Rows, errors.Error)
 }
 
+type LockTable struct {
+	Table     string
+	Tabler    Tabler
+	Exclusive bool
+}
+
+func (l *LockTable) TableName() string {
+	if l.Table != "" {
+		return l.Table
+	}
+	if l.Tabler != nil {
+		return l.Tabler.TableName()
+	}
+	panic("either Table or Tabler must be specified")
+}
+
+type LockTables []*LockTable
+
 type Transaction interface {
 	Dal
 	Rollback() errors.Error
 	Commit() errors.Error
 	// table: exclusive
-	LockTables(tables map[string]bool) errors.Error
+	LockTables(lockTables LockTables) errors.Error
 	UnlockTables() errors.Error
 	// End(err *errors.Error)
 }

@@ -50,7 +50,7 @@ func lockDatabase() {
 	c := make(chan bool, 1)
 	go func() {
 		errors.Must(lockingTx.AutoMigrate(&models.LockingStub{}))
-		errors.Must(lockingTx.LockTables(map[string]bool{"_devlake_locking_stub": true}))
+		errors.Must(lockingTx.LockTables(dal.LockTables{{Table: "_devlake_locking_stub", Exclusive: true}}))
 		lockingHistory.Succeeded = true
 		errors.Must(db.Update(lockingHistory))
 		c <- true
