@@ -58,7 +58,7 @@ func (script *addRawParamTableForScope) Up(basicRes context.BasicRes) errors.Err
 			src.RawDataTable = "_raw_gitlab_scopes"
 			src.RawDataParams = string(errors.Must1(json.Marshal(&params20230630{
 				ConnectionId: src.ConnectionId,
-				ProjectId:    int(errors.Must1(strconv.ParseInt(src.GitlabId, 10, 64))),
+				ProjectId:    errors.Must1(strconv.Atoi(src.GitlabId)),
 			})))
 			updateSet := []dal.DalSet{
 				{ColumnName: "_raw_data_table", Value: src.RawDataTable},
