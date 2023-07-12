@@ -34,10 +34,12 @@ func CreateDbPipeline(newPipeline *models.NewPipeline) (pipeline *models.Pipelin
 	txHelper := dbhelper.NewTxHelper(basicRes, &err)
 	defer txHelper.End()
 	tx := txHelper.Begin()
-	errors.Must(txHelper.LockTablesTimeout(2*time.Second, map[string]bool{
-		"_devlake_pipelines":       true,
-		"_devlake_pipeline_labels": true,
-	}))
+	errors.Must(txHelper.LockTablesTimeout(2*time.Second,
+		dal.LockTables{
+			{Table: "_devlake_pipelines", Exclusive: true},
+			{Table: "_devlake_pipeline_labels", Exclusive: true},
+		},
+	))
 	if err != nil {
 		err = errors.BadInput.Wrap(err, "failed to lock pipeline table, is there any pending pipeline or deletion?")
 		return

@@ -50,17 +50,17 @@ func (t *DalgormTransaction) Commit() errors.Error {
 	return nil
 }
 
-func (t *DalgormTransaction) LockTables(tables map[string]bool) errors.Error {
+func (t *DalgormTransaction) LockTables(lockTables dal.LockTables) errors.Error {
 	switch t.Dialect() {
 	case "mysql":
 		// mysql lock all tables at once, each lock would release all previous locks
 		clause := ""
-		for table, exclusive := range tables {
+		for _, lockTable := range lockTables {
 			if clause != "" {
 				clause += ", "
 			}
-			clause += table
-			if exclusive {
+			clause += lockTable.TableName()
+			if lockTable.Exclusive {
 				clause += " WRITE"
 			} else {
 				clause += " READ"
@@ -69,12 +69,12 @@ func (t *DalgormTransaction) LockTables(tables map[string]bool) errors.Error {
 		return t.Exec(fmt.Sprintf("LOCK TABLES %s", clause))
 	case "postgres":
 		clause := ""
-		for table, exclusive := range tables {
+		for _, lockTable := range lockTables {
 			if clause != "" {
 				clause += ", "
 			}
-			clause += table
-			if exclusive {
+			clause += lockTable.TableName()
+			if lockTable.Exclusive {
 				clause += "  IN EXCLUSIVE MODE"
 			} else {
 				clause += "  IN SHARE MODE"

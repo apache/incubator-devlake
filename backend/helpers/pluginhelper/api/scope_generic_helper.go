@@ -301,7 +301,7 @@ func (gs *GenericScopeApiHelper[Conn, Scope, ScopeConfig]) DeleteScope(input *pl
 	txHelper := dbhelper.NewTxHelper(gs.basicRes, &err)
 	defer txHelper.End()
 	tx := txHelper.Begin()
-	err = txHelper.LockTablesTimeout(2*time.Second, map[string]bool{"_devlake_pipelines": false})
+	err = txHelper.LockTablesTimeout(2*time.Second, dal.LockTables{{Table: "_devlake_pipelines"}})
 	if err != nil {
 		err = errors.Conflict.Wrap(err, "This data scope cannot be deleted due to a table lock error. There might be running pipeline(s) or other deletion operations in progress.")
 		return

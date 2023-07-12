@@ -173,9 +173,9 @@ func dequeuePipeline(runningParallelLabels []string) (pipeline *models.Pipeline,
 	defer txHelper.End()
 	tx := txHelper.Begin()
 	// mysql read lock, not sure if it works for postgresql
-	errors.Must(tx.LockTables(map[string]bool{
-		"_devlake_pipelines":       false,
-		"_devlake_pipeline_labels": false,
+	errors.Must(tx.LockTables(dal.LockTables{
+		{Table: "_devlake_pipelines", Exclusive: false},
+		{Table: "_devlake_pipeline_labels", Exclusive: false},
 	}))
 	// prepare query to find an appropriate pipeline to execute
 	err = tx.First(pipeline,
@@ -195,9 +195,7 @@ func dequeuePipeline(runningParallelLabels []string) (pipeline *models.Pipeline,
 	)
 	if err == nil {
 		// mark the pipeline running, now we want a write lock
-		errors.Must(tx.LockTables(map[string]bool{
-			"_devlake_pipelines": true,
-		}))
+		errors.Must(tx.LockTables(dal.LockTables{{Table: "_devlake_pipelines", Exclusive: true}}))
 		err = tx.UpdateColumns(&models.Pipeline{}, []dal.DalSet{
 			{ColumnName: "status", Value: models.TASK_RUNNING},
 			{ColumnName: "message", Value: ""},
@@ -451,7 +449,7 @@ func RerunPipeline(pipelineId uint64, task *models.Task) (tasks []*models.Task, 
 	txHelper := dbhelper.NewTxHelper(basicRes, &err)
 	tx := txHelper.Begin()
 	defer txHelper.End()
-	err = txHelper.LockTablesTimeout(2*time.Second, map[string]bool{"_devlake_pipelines": true})
+	err = txHelper.LockTablesTimeout(2*time.Second, dal.LockTables{{Table: "_devlake_pipelines", Exclusive: true}})
 	if err != nil {
 		err = errors.BadInput.Wrap(err, "failed to lock pipeline table, is there any pending pipeline or deletion?")
 		return
