@@ -23,36 +23,6 @@ import (
 	"sort"
 )
 
-type SubtaskMetaList []*plugin.SubTaskMeta
-
-func (s SubtaskMetaList) Len() int {
-	return len(SubtaskMetaList{})
-}
-
-func (s SubtaskMetaList) Less(i, j int) bool {
-	// correct order is collect, extract, enrich, convert
-	switch getSubtaskType(s[i].Name) {
-	case prefixCollect:
-		return true
-	case prefixExtract:
-		if getSubtaskType(s[j].Name) == prefixCollect {
-			return true
-		}
-	case prefixEnrich:
-		typeJ := getSubtaskType(s[j].Name)
-		if typeJ == prefixCollect || typeJ == prefixExtract {
-			return true
-		}
-	case prefixConvert:
-		return false
-	}
-	return false
-}
-
-func (s SubtaskMetaList) Swap(i, j int) {
-	s[i], s[j] = s[j], s[i]
-}
-
 // topologicalSortSameElements
 func topologicalSortSameElements(sameElementsDependencyMap map[string][]string) ([]string, error) {
 	sortedKeyList := make([]string, 0)
