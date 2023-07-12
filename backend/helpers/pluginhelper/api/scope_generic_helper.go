@@ -303,7 +303,7 @@ func (gs *GenericScopeApiHelper[Conn, Scope, ScopeConfig]) DeleteScope(input *pl
 	tx := txHelper.Begin()
 	err = txHelper.LockTablesTimeout(2*time.Second, map[string]bool{"_devlake_pipelines": false})
 	if err != nil {
-		err = errors.BadInput.Wrap(err, "This data scope cannot be deleted due to a table lock error. There might be running pipeline(s) or other deletion operations in progress.")
+		err = errors.Conflict.Wrap(err, "This data scope cannot be deleted due to a table lock error. There might be running pipeline(s) or other deletion operations in progress.")
 		return
 	}
 	count := errors.Must1(tx.Count(
@@ -311,7 +311,7 @@ func (gs *GenericScopeApiHelper[Conn, Scope, ScopeConfig]) DeleteScope(input *pl
 		dal.Where("status = ?", models.TASK_RUNNING),
 	))
 	if count > 0 {
-		err = errors.BadInput.New("This data scope cannot be deleted because a pipeline is running. Please try again after you cancel the pipeline or wait for it to finish.")
+		err = errors.Conflict.New("This data scope cannot be deleted because a pipeline is running. Please try again after you cancel the pipeline or wait for it to finish.")
 		return
 	}
 	// time.Sleep(1 * time.Minute) # uncomment this line if you were to verify pipelines get blocked while deleting data
@@ -321,7 +321,7 @@ func (gs *GenericScopeApiHelper[Conn, Scope, ScopeConfig]) DeleteScope(input *pl
 	}
 	err = gs.dbHelper.VerifyConnection(params.connectionId)
 	if err != nil {
-		return nil, errors.Default.Wrap(err, fmt.Sprintf("error verifying connection for connection ID %d", params.connectionId))
+		return nil, errors.BadInput.Wrap(err, fmt.Sprintf("error verifying connection for connection ID %d", params.connectionId))
 	}
 	scope, err := gs.dbHelper.GetScope(params.connectionId, params.scopeId)
 	if err != nil {
@@ -341,15 +341,7 @@ func (gs *GenericScopeApiHelper[Conn, Scope, ScopeConfig]) DeleteScope(input *pl
 	}
 	if !params.deleteDataOnly {
 		// Delete the scope itself
-		err = gs.dbHelper.DeleteScope(scope)
-		//err = gs.db.Delete(scope)
-		if err != nil {
-			return nil, errors.Default.Wrap(err, fmt.Sprintf("error deleting scope %s", params.scopeId))
-		}
-		err = gs.updateBlueprints(params.connectionId, params.plugin, params.scopeId)
-		if err != nil {
-			return nil, err
-		}
+		errors.Must(gs.dbHelper.DeleteScope(scope))
 	}
 	return nil, nil
 }
@@ -552,45 +544,6 @@ func (gs *GenericScopeApiHelper[Conn, Scope, ScopeConfig]) validatePrimaryKeys(s
 			return errors.BadInput.New("duplicate scope was requested")
 		} else {
 			keeper[primaryValueStr] = struct{}{}
-		}
-	}
-	return nil
-}
-
-func (gs *GenericScopeApiHelper[Conn, Scope, ScopeConfig]) updateBlueprints(connectionId uint64, pluginName string, scopeId string) errors.Error {
-	blueprintsMap, err := gs.bpManager.GetBlueprintsByScopes(connectionId, pluginName, scopeId)
-	if err != nil {
-		return errors.Default.Wrap(err, fmt.Sprintf("error retrieving scope with scope ID %s", scopeId))
-	}
-	blueprints := blueprintsMap[scopeId]
-	// update the blueprints (remove scope reference from them)
-	for _, blueprint := range blueprints {
-		settings, _ := blueprint.UnmarshalSettings()
-		var changed bool
-		err = settings.UpdateConnections(func(c *plugin.BlueprintConnectionV200) errors.Error {
-			var retainedScopes []*plugin.BlueprintScopeV200
-			for _, bpScope := range c.Scopes {
-				if bpScope.Id == scopeId { // we'll be removing this one
-					changed = true
-				} else {
-					retainedScopes = append(retainedScopes, bpScope)
-				}
-			}
-			c.Scopes = retainedScopes
-			return nil
-		})
-		if err != nil {
-			return errors.Default.Wrap(err, fmt.Sprintf("error removing scope %s from blueprint %d", scopeId, blueprint.ID))
-		}
-		if changed {
-			err = blueprint.UpdateSettings(&settings)
-			if err != nil {
-				return errors.Default.Wrap(err, fmt.Sprintf("error writing new settings into blueprint %s", blueprint.Name))
-			}
-			err = gs.bpManager.SaveDbBlueprint(blueprint)
-			if err != nil {
-				return errors.Default.Wrap(err, fmt.Sprintf("error saving the updated blueprint %s", blueprint.Name))
-			}
 		}
 	}
 	return nil
