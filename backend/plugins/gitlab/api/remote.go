@@ -104,7 +104,7 @@ func RemoteScopes(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, er
 				if err != nil {
 					return nil, err
 				}
-				// Filter out projects where the user only has Guest permission
+
 				filteredProjects := make([]models.GitlabApiProject, 0)
 				for _, project := range resBody {
 					membersURL := fmt.Sprintf("/projects/%d/members/%d", project.GitlabId, apiClient.GetData("UserId"))
@@ -118,7 +118,7 @@ func RemoteScopes(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, er
 						return nil, err
 					}
 					// Filter out projects where the user only has Guest permission and archived projects
-					if member.AccessLevel != 10 && project.Archived == false {
+					if member.AccessLevel != 10 && !project.Archived {
 						filteredProjects = append(filteredProjects, project)
 					}
 				}
