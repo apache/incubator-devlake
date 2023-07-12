@@ -15,13 +15,11 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-package migrationscripts
+package azuredevops
 
 import (
 	"encoding/json"
 	"fmt"
-	"strconv"
-
 	"github.com/apache/incubator-devlake/core/context"
 	"github.com/apache/incubator-devlake/core/dal"
 	"github.com/apache/incubator-devlake/core/errors"
@@ -29,42 +27,42 @@ import (
 	"github.com/apache/incubator-devlake/helpers/migrationhelper"
 )
 
-var _ plugin.MigrationScript = (*addRawParamTableForScope)(nil)
+var _ plugin.MigrationScript = (*AddRawDataForScope)(nil)
 
-type scope20230630 struct {
+type azureDevopsGitRepositories20230714 struct {
 	ConnectionId  uint64 `gorm:"primaryKey"`
-	BoardId       string `gorm:"primaryKey"`
+	Id            string `gorm:"primaryKey"`
 	RawDataTable  string `gorm:"column:_raw_data_table"`
 	RawDataParams string `gorm:"column:_raw_data_params"`
 }
 
-func (scope20230630) TableName() string {
-	return "_tool_jira_boards"
+func (azureDevopsGitRepositories20230714) TableName() string {
+	return "_tool_azuredevops_gitrepositories"
 }
 
-type params20230630 struct {
+type rawDataParams20230714 struct {
 	ConnectionId uint64
-	BoardId      uint64
+	ScopeId      string
 }
 
-type addRawParamTableForScope struct{}
+type AddRawDataForScope struct{}
 
-func (script *addRawParamTableForScope) Up(basicRes context.BasicRes) errors.Error {
+func (script *AddRawDataForScope) Up(basicRes context.BasicRes) errors.Error {
 	db := basicRes.GetDal()
 	return migrationhelper.CopyTableColumns(basicRes,
-		scope20230630{}.TableName(),
-		scope20230630{}.TableName(),
-		func(src *scope20230630) (*scope20230630, errors.Error) {
-			src.RawDataTable = "_raw_jira_scopes"
-			src.RawDataParams = string(errors.Must1(json.Marshal(&params20230630{
+		azureDevopsGitRepositories20230714{}.TableName(),
+		azureDevopsGitRepositories20230714{}.TableName(),
+		func(src *azureDevopsGitRepositories20230714) (*azureDevopsGitRepositories20230714, errors.Error) {
+			src.RawDataTable = "_raw_azuredevops_scopes"
+			src.RawDataParams = string(errors.Must1(json.Marshal(&rawDataParams20230714{
 				ConnectionId: src.ConnectionId,
-				BoardId:      errors.Must1(strconv.ParseUint(src.BoardId, 10, 64)),
+				ScopeId:      src.Id,
 			})))
 			updateSet := []dal.DalSet{
 				{ColumnName: "_raw_data_table", Value: src.RawDataTable},
 				{ColumnName: "_raw_data_params", Value: src.RawDataParams},
 			}
-			where := dal.Where("id = ?", fmt.Sprintf("jira:JiraBoard:%v:%v", src.ConnectionId, src.BoardId))
+			where := dal.Where("id = ?", fmt.Sprintf("azuredevops:GitRepository:%v:%v", src.ConnectionId, src.Id))
 			errors.Must(db.UpdateColumns("repos", updateSet, where))
 			errors.Must(db.UpdateColumns("boards", updateSet, where))
 			errors.Must(db.UpdateColumns("cicd_scopes", updateSet, where))
@@ -73,10 +71,10 @@ func (script *addRawParamTableForScope) Up(basicRes context.BasicRes) errors.Err
 		})
 }
 
-func (*addRawParamTableForScope) Version() uint64 {
-	return 20230630000002
+func (*AddRawDataForScope) Version() uint64 {
+	return 20230714000001
 }
 
-func (script *addRawParamTableForScope) Name() string {
-	return "populated _raw_data columns for jira boards"
+func (script *AddRawDataForScope) Name() string {
+	return "populated _raw_data columns for azuredevops"
 }

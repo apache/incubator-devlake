@@ -28,6 +28,7 @@ import (
 	"github.com/apache/incubator-devlake/helpers/pluginhelper/api"
 	"github.com/apache/incubator-devlake/server/services/remote/bridge"
 	"github.com/apache/incubator-devlake/server/services/remote/models"
+	"github.com/apache/incubator-devlake/server/services/remote/models/migrationscripts"
 	"github.com/apache/incubator-devlake/server/services/remote/plugin/doc"
 )
 
@@ -257,7 +258,7 @@ func (p *remotePluginImpl) OpenApiSpec() string {
 }
 
 func (p *remotePluginImpl) MigrationScripts() []plugin.MigrationScript {
-	return p.migrationScripts
+	return append(p.migrationScripts, migrationscripts.All(p.name)...)
 }
 
 var _ models.RemotePlugin = (*remotePluginImpl)(nil)

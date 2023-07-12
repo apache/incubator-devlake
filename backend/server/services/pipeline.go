@@ -173,7 +173,6 @@ func dequeuePipeline(runningParallelLabels []string) (pipeline *models.Pipeline,
 	defer txHelper.End()
 	tx := txHelper.Begin()
 	// mysql read lock, not sure if it works for postgresql
-	globalPipelineLog.Debug("acquire lock")
 	errors.Must(tx.LockTables(map[string]bool{
 		"_devlake_pipelines":       false,
 		"_devlake_pipeline_labels": false,

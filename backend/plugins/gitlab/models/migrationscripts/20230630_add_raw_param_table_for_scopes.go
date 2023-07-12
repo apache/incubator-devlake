@@ -20,6 +20,7 @@ package migrationscripts
 import (
 	"encoding/json"
 	"fmt"
+	"strconv"
 
 	"github.com/apache/incubator-devlake/core/context"
 	"github.com/apache/incubator-devlake/core/dal"
@@ -43,7 +44,7 @@ func (scope20230630) TableName() string {
 
 type params20230630 struct {
 	ConnectionId uint64
-	ProjectId    string
+	ProjectId    int
 }
 
 type addRawParamTableForScope struct{}
@@ -57,7 +58,7 @@ func (script *addRawParamTableForScope) Up(basicRes context.BasicRes) errors.Err
 			src.RawDataTable = "_raw_gitlab_scopes"
 			src.RawDataParams = string(errors.Must1(json.Marshal(&params20230630{
 				ConnectionId: src.ConnectionId,
-				ProjectId:    src.GitlabId,
+				ProjectId:    errors.Must1(strconv.Atoi(src.GitlabId)),
 			})))
 			updateSet := []dal.DalSet{
 				{ColumnName: "_raw_data_table", Value: src.RawDataTable},
@@ -73,7 +74,7 @@ func (script *addRawParamTableForScope) Up(basicRes context.BasicRes) errors.Err
 }
 
 func (*addRawParamTableForScope) Version() uint64 {
-	return 20230630000001
+	return 20230630000002
 }
 
 func (script *addRawParamTableForScope) Name() string {
