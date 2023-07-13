@@ -31,9 +31,10 @@ import * as S from './styled';
 
 interface Props {
   project: ProjectType;
+  onRefresh: () => void;
 }
 
-export const SettingsPanel = ({ project }: Props) => {
+export const SettingsPanel = ({ project, onRefresh }: Props) => {
   const [name, setName] = useState('');
   const [enableDora, setEnableDora] = useState(false);
   const [operating, setOperating] = useState(false);
@@ -73,7 +74,8 @@ export const SettingsPanel = ({ project }: Props) => {
     );
 
     if (success) {
-      navigate(`/projects/${name}`);
+      onRefresh();
+      navigate(`/projects/${name}?tabId=settings`);
     }
   };
 
