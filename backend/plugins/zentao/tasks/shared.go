@@ -231,3 +231,72 @@ func getExecutionIterator(taskCtx plugin.SubTaskContext) (dal.Rows, *api.DalCurs
 	}
 	return cursor, iterator, nil
 }
+
+// AccountCache is a cache for account information.
+type AccountCache struct {
+	accounts     map[string]models.ZentaoAccount
+	db           dal.Dal
+	connectionId uint64
+}
+
+func NewAccountCache(db dal.Dal, connectionId uint64) *AccountCache {
+	return &AccountCache{db: db, connectionId: connectionId, accounts: make(map[string]models.ZentaoAccount)}
+}
+
+func (a *AccountCache) put(account models.ZentaoAccount) {
+	if account.Account != "" {
+		a.accounts[account.Account] = account
+	}
+}
+
+func (a *AccountCache) getAccountID(account string) int64 {
+	if data, ok := a.accounts[account]; ok {
+		return data.ID
+	}
+	var zentaoAccount models.ZentaoAccount
+	err := a.db.First(
+		&zentaoAccount,
+		dal.Where("connection_id = ? AND account = ?", a.connectionId, account),
+	)
+	if err != nil {
+		return 0
+	}
+	a.accounts[account] = zentaoAccount
+	return zentaoAccount.ID
+}
+
+func (a *AccountCache) getAccountIDFromApiAccount(account *models.ApiAccount) int64 {
+	if account == nil {
+		return 0
+	}
+	if account.ID != 0 {
+		return account.ID
+	}
+	return a.getAccountID(account.Account)
+}
+
+func (a *AccountCache) getAccountName(account string) string {
+	if data, ok := a.accounts[account]; ok {
+		return data.Realname
+	}
+	var zentaoAccount models.ZentaoAccount
+	err := a.db.First(
+		&zentaoAccount,
+		dal.Where("connection_id = ? AND account = ?", a.connectionId, account),
+	)
+	if err != nil {
+		return ""
+	}
+	a.accounts[account] = zentaoAccount
+	return zentaoAccount.Realname
+}
+
+func (a *AccountCache) getAccountNameFromApiAccount(account *models.ApiAccount) string {
+	if account == nil {
+		return ""
+	}
+	if account.Realname != "" {
+		return account.Realname
+	}
+	return a.getAccountName(account.Account)
+}

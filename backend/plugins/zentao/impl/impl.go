@@ -196,14 +196,12 @@ func (p Zentao) PrepareTaskData(taskCtx plugin.TaskContext, options map[string]i
 	}
 
 	data := &tasks.ZentaoTaskData{
-		Options:     op,
-		ApiClient:   apiClient,
-		ProductList: map[int64]string{},
-		StoryList:   map[int64]int64{},
-		FromBugList: map[int]bool{},
-		Stories:     map[int64]struct{}{},
-		Tasks:       map[int64]struct{}{},
-		Bugs:        map[int64]struct{}{},
+		Options:      op,
+		ApiClient:    apiClient,
+		Stories:      map[int64]struct{}{},
+		Tasks:        map[int64]struct{}{},
+		Bugs:         map[int64]struct{}{},
+		AccountCache: tasks.NewAccountCache(taskCtx.GetDal(), op.ConnectionId),
 	}
 
 	if connection.DbUrl != "" {

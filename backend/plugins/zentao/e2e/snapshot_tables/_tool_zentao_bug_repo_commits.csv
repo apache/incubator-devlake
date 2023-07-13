@@ -1,2 +1,2 @@
 connection_id,issue_id,repo_url,commit_sha,product,project
-1,6094,http://devlake.gitlab.com/root/zentao-test,9ed3c33883a203e0cc90c44be40d105b23d98156,22,0
+1,6094,http://devlake.gitlab.com/root/zentao-test,9ed3c33883a203e0cc90c44be40d105b23d98156,0,22

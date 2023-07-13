@@ -40,11 +40,6 @@ var ExtractTaskRepoCommitsMeta = plugin.SubTaskMeta{
 func ExtractTaskRepoCommits(taskCtx plugin.SubTaskContext) errors.Error {
 	data := taskCtx.GetData().(*ZentaoTaskData)
 
-	// this Extract only work for project
-	if data.Options.ProjectId == 0 {
-		return nil
-	}
-
 	re := regexp.MustCompile(`(\d+)(?:,\s*(\d+))*`)
 	extractor, err := api.NewApiExtractor(api.ApiExtractorArgs{
 		RawDataSubTaskArgs: api.RawDataSubTaskArgs{

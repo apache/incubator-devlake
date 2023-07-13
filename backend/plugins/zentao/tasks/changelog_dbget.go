@@ -18,6 +18,7 @@ limitations under the License.
 package tasks
 
 import (
+	"encoding/json"
 	"reflect"
 
 	"github.com/apache/incubator-devlake/core/dal"
@@ -30,6 +31,7 @@ import (
 var _ plugin.SubTaskEntryPoint = DBGetActionHistory
 
 type actionHistoryHandler struct {
+	rawDataParams           string
 	changelogBachSave       *api.BatchSave
 	changelogDetailBachSave *api.BatchSave
 	stories                 map[int64]struct{}
@@ -47,7 +49,19 @@ func newActionHistoryHandler(taskCtx plugin.SubTaskContext, divider *api.BatchSa
 	if err != nil {
 		return nil, err
 	}
+	blob, _ := json.Marshal(data.Options.GetParams())
+	rawDataParams := string(blob)
+	db := taskCtx.GetDal()
+	err = db.Delete(&models.ZentaoChangelog{}, dal.Where("_raw_data_params = ?", rawDataParams))
+	if err != nil {
+		return nil, err
+	}
+	err = db.Delete(&models.ZentaoChangelogDetail{}, dal.Where("_raw_data_params = ?", rawDataParams))
+	if err != nil {
+		return nil, err
+	}
 	return &actionHistoryHandler{
+		rawDataParams:           rawDataParams,
 		changelogBachSave:       changelogBachSave,
 		changelogDetailBachSave: changelogDetailBachSave,
 		stories:                 data.Stories,
@@ -93,6 +107,10 @@ func (h actionHistoryHandler) collectActionHistory(rdb dal.Dal, connectionId uin
 		}
 
 		zcc := ah.Convert(connectionId)
+		zcc.Changelog.NoPKModel.RawDataParams = h.rawDataParams
+		zcc.ChangelogDetail.NoPKModel.RawDataParams = h.rawDataParams
+		zcc.Changelog.NoPKModel.RawDataTable = "zt_action"
+		zcc.ChangelogDetail.NoPKModel.RawDataTable = "zt_history"
 		err = h.changelogBachSave.Add(zcc.Changelog)
 		if err != nil {
 			return err
@@ -134,7 +152,7 @@ func DBGetActionHistory(taskCtx plugin.SubTaskContext) errors.Error {
 }
 
 var DBGetChangelogMeta = plugin.SubTaskMeta{
-	Name:             "DBGetChangelog",
+	Name:             "collectChangelog",
 	EntryPoint:       DBGetActionHistory,
 	EnabledByDefault: true,
 	Description:      "get action and history data to be changelog from Zentao databases",

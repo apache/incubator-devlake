@@ -37,9 +37,7 @@ func TestZentaoExecutionDataFlow(t *testing.T) {
 		Options: &tasks.ZentaoOptions{
 			ConnectionId: 1,
 			ProjectId:    1,
-			ProductId:    3,
 		},
-		ProductList: map[int64]string{},
 	}
 
 	// import raw data table
@@ -48,6 +46,7 @@ func TestZentaoExecutionDataFlow(t *testing.T) {
 
 	// verify extraction
 	dataflowTester.FlushTabler(&models.ZentaoExecution{})
+	dataflowTester.FlushTabler(&models.ZentaoProductSummary{})
 	dataflowTester.Subtask(tasks.ExtractExecutionMeta, taskData)
 	dataflowTester.VerifyTableWithOptions(&models.ZentaoExecution{}, e2ehelper.TableOptions{
 		CSVRelPath:  "./snapshot_tables/_tool_zentao_executions.csv",
