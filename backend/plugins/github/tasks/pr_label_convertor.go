@@ -39,8 +39,11 @@ var ConvertPullRequestLabelsMeta = plugin.SubTaskMeta{
 	EnabledByDefault: true,
 	Description:      "Convert tool layer table github_pull_request_labels into  domain layer table pull_request_labels",
 	DomainTypes:      []string{plugin.DOMAIN_TYPE_CODE_REVIEW},
-	DependencyTables: []string{models.GithubPrLabel{}.TableName(), RAW_PULL_REQUEST_TABLE},
-	ProductTables:    []string{code.PullRequestLabel{}.TableName()},
+	DependencyTables: []string{
+		models.GithubPrLabel{}.TableName(),     // cursor
+		models.GithubPullRequest{}.TableName(), // cursor and id generator
+		RAW_PULL_REQUEST_TABLE},
+	ProductTables: []string{code.PullRequestLabel{}.TableName()},
 }
 
 func ConvertPullRequestLabels(taskCtx plugin.SubTaskContext) errors.Error {

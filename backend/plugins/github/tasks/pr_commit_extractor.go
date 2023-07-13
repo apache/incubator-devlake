@@ -39,7 +39,8 @@ var ExtractApiPullRequestCommitsMeta = plugin.SubTaskMeta{
 	Description:      "Extract raw PullRequestCommits data into tool layer table github_commits",
 	DomainTypes:      []string{plugin.DOMAIN_TYPE_CROSS, plugin.DOMAIN_TYPE_CODE_REVIEW},
 	DependencyTables: []string{RAW_PR_COMMIT_TABLE},
-	ProductTables: []string{models.GithubRepoCommit{}.TableName(),
+	ProductTables: []string{
+		models.GithubRepoCommit{}.TableName(),
 		models.GithubCommit{}.TableName(),
 		models.GithubPrCommit{}.TableName()},
 }

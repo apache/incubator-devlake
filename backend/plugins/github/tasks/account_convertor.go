@@ -42,8 +42,11 @@ var ConvertAccountsMeta = plugin.SubTaskMeta{
 	EnabledByDefault: true,
 	Description:      "Convert tool layer table github_accounts into  domain layer table accounts",
 	DomainTypes:      []string{plugin.DOMAIN_TYPE_CROSS},
-	DependencyTables: []string{models.GithubAccount{}.TableName(), models.GithubAccountOrg{}.TableName()},
-	ProductTables:    []string{crossdomain.Account{}.TableName()},
+	DependencyTables: []string{
+		models.GithubAccount{}.TableName(),     // cursor
+		models.GithubRepoAccount{}.TableName(), // cursor
+		models.GithubAccountOrg{}.TableName()}, // account id gen
+	ProductTables: []string{crossdomain.Account{}.TableName()},
 }
 
 type GithubAccountWithOrg struct {

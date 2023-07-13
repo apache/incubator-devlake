@@ -38,7 +38,8 @@ var ExtractApiPullRequestsMeta = plugin.SubTaskMeta{
 	Description:      "Extract raw PullRequests data into tool layer table github_pull_requests",
 	DomainTypes:      []string{plugin.DOMAIN_TYPE_CROSS, plugin.DOMAIN_TYPE_CODE_REVIEW},
 	DependencyTables: []string{RAW_PULL_REQUEST_TABLE},
-	ProductTables: []string{models.GithubRepoAccount{}.TableName(),
+	ProductTables: []string{
+		models.GithubRepoAccount{}.TableName(),
 		models.GithubPrLabel{}.TableName(),
 		models.GithubPullRequest{}.TableName()},
 }

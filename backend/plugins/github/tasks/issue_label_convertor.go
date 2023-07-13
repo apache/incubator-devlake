@@ -39,8 +39,11 @@ var ConvertIssueLabelsMeta = plugin.SubTaskMeta{
 	EnabledByDefault: true,
 	Description:      "Convert tool layer table github_issue_labels into  domain layer table issue_labels",
 	DomainTypes:      []string{plugin.DOMAIN_TYPE_TICKET},
-	DependencyTables: []string{models.GithubIssueLabel{}.TableName()},
-	ProductTables:    []string{RAW_ISSUE_TABLE, ticket.IssueLabel{}.TableName()},
+	DependencyTables: []string{
+		models.GithubIssueLabel{}.TableName(), // cursor
+		models.GithubIssue{}.TableName(),      // cursor
+		RAW_ISSUE_TABLE},
+	ProductTables: []string{ticket.IssueLabel{}.TableName()},
 }
 
 func ConvertIssueLabels(taskCtx plugin.SubTaskContext) errors.Error {

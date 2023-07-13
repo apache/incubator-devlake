@@ -45,14 +45,14 @@ var _ interface {
 	plugin.CloseablePluginTask
 } = (*Github)(nil)
 
-var sortedSubtaskList []plugin.SubTaskMeta
+var sortedSubtaskMetas []plugin.SubTaskMeta
 
 type Github struct{}
 
 func init() {
 	var err error
-	// check subtask meta loop and gen subtask list when init subtask meta
-	sortedSubtaskList, err = sorter.NewTableSorter(tasks.SubTaskMetaList).Sort()
+	// check subtask meta loop and gen subtask list when plugin init
+	sortedSubtaskMetas, err = sorter.NewTableSorter(tasks.SubTaskMetaList).Sort()
 	if err != nil {
 		panic(err)
 	}
@@ -114,7 +114,7 @@ func (p Github) Name() string {
 }
 
 func (p Github) SubTaskMetas() []plugin.SubTaskMeta {
-	return sortedSubtaskList
+	return sortedSubtaskMetas
 }
 
 func (p Github) PrepareTaskData(taskCtx plugin.TaskContext, options map[string]interface{}) (interface{}, errors.Error) {

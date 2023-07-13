@@ -65,8 +65,13 @@ func Test_tableTopologicalSort(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			got, got1 := tableTopologicalSort(tt.args.metas)
-			if !reflect.DeepEqual(got, tt.want) {
+			if len(got) != len(tt.want) {
 				t.Errorf("tableTopologicalSort() got = %v, want %v", got, tt.want)
+			}
+			for index, item := range got {
+				if item.Name != tt.want[index].Name {
+					t.Errorf("tableTopologicalSort() got = %v, want %v, not equal with index = %d", got, tt.want, index)
+				}
 			}
 			if !reflect.DeepEqual(got1, tt.want1) {
 				t.Errorf("tableTopologicalSort() got1 = %v, want %v", got1, tt.want1)

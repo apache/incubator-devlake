@@ -37,9 +37,7 @@ var ExtractApiCommitStatsMeta = plugin.SubTaskMeta{
 	EnabledByDefault: false,
 	Description:      "Extract raw commit stats data into tool layer table github_commit_stats",
 	DomainTypes:      []string{plugin.DOMAIN_TYPE_CODE},
-	DependencyTables: []string{
-		RAW_COMMIT_STATS_TABLE,
-		models.GithubCommit{}.TableName()},
+	DependencyTables: []string{RAW_COMMIT_STATS_TABLE},
 	ProductTables: []string{
 		models.GithubCommit{}.TableName(),
 		models.GithubCommitStat{}.TableName()},

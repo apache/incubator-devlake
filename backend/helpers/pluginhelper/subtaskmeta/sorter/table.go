@@ -18,9 +18,6 @@ limitations under the License.
 package sorter
 
 import (
-	"fmt"
-	"sort"
-
 	"github.com/apache/incubator-devlake/core/errors"
 	"github.com/apache/incubator-devlake/core/plugin"
 )
@@ -38,67 +35,40 @@ func (d *TableSorter) Sort() ([]plugin.SubTaskMeta, errors.Error) {
 }
 
 func tableTopologicalSort(metas []*plugin.SubTaskMeta) ([]plugin.SubTaskMeta, errors.Error) {
-	// 1. construct tmp data struct
-	subtaskNameMetaMap := make(map[string]*plugin.SubTaskMeta)
-	nameDependencyMap := make(map[string][]string)
-	nameProductMap := make(map[string][]string)
+	constructedMetas := constructDependenciesByTable(metas)
+	return dependenciesTopologicalSort(constructedMetas)
+}
 
-	productList := make([]string, 0)
+func constructDependenciesByTable(metas []*plugin.SubTaskMeta) []*plugin.SubTaskMeta {
+	// construct map by metas and their produced tables, the key is table, and value is metas
+	tableMetasMap := make(map[string][]*plugin.SubTaskMeta)
 	for _, item := range metas {
-		subtaskNameMetaMap[item.Name] = item
-		nameDependencyMap[item.Name] = item.DependencyTables
-
-		// check if subtask product same tables, which may cause cyclic error
-		for _, productItem := range item.ProductTables {
-			if contains(productList, productItem) {
-				return nil, errors.Convert(fmt.Errorf("duplicate product detected %s", productItem))
-			}
-		}
-		nameProductMap[item.Name] = item.ProductTables
-	}
-
-	// check if meta dependent tables which not produced by plugin,
-	for _, item := range metas {
-		for _, depItem := range item.DependencyTables {
-			if contains(productList, depItem) {
-				return nil, errors.Convert(fmt.Errorf("non product dep found %s", depItem))
+		for _, tableItem := range item.ProductTables {
+			if value, ok := tableMetasMap[tableItem]; ok {
+				tableMetasMap[tableItem] = append(value, item)
+			} else {
+				tableMetasMap[tableItem] = []*plugin.SubTaskMeta{item}
 			}
 		}
 	}
-
-	// 2. topological sort
-	sortedNameList := make([]string, 0)
-	for {
-		if len(sortedNameList) == len(metas) {
-			break
+	// construct meta dependencies by meta.TableDependencies
+	for _, metaItem := range metas {
+		for _, tableItem := range metaItem.DependencyTables {
+			metaItem.Dependencies = appendWithNoDuplicate(metaItem.Dependencies,
+				tableMetasMap[tableItem])
 		}
-
-		tmpList := make([]string, 0)
-		removableDependencyList := make([]string, 0)
-		for key, value := range nameDependencyMap {
-			if len(value) == 0 {
-				tmpList = append(tmpList, key)
-				removableDependencyList = append(removableDependencyList, nameProductMap[key]...)
-				delete(nameDependencyMap, key)
-			}
-		}
-		if len(removableDependencyList) == 0 {
-			return nil, errors.Convert(fmt.Errorf("cyclic dependency detected, orderddList[%s] \n dependencyMap[%s] \n productMap[%s]",
-				sortedNameList, nameDependencyMap, nameProductMap))
-		}
-
-		for key, value := range nameDependencyMap {
-			nameDependencyMap[key] = removeElements(value, removableDependencyList)
-		}
-
-		sort.Strings(tmpList)
-		sortedNameList = append(sortedNameList, tmpList...)
 	}
+	return metas
+}
 
-	// 3. gen subtask meta list by sorted data
-	sortedSubtaskMetaList := make([]plugin.SubTaskMeta, 0)
-	for _, nameItem := range sortedNameList {
-		sortedSubtaskMetaList = append(sortedSubtaskMetaList, *subtaskNameMetaMap[nameItem])
+func appendWithNoDuplicate[T comparable](raw []T, extraList []T) []T {
+	noDupMap := make(map[T]string)
+	for _, item := range append(raw, extraList...) {
+		noDupMap[item] = ""
 	}
-	return sortedSubtaskMetaList, nil
+	result := make([]T, 0)
+	for key, _ := range noDupMap {
+		result = append(result, key)
+	}
+	return result
 }

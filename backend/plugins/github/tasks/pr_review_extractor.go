@@ -38,7 +38,8 @@ var ExtractApiPullRequestReviewsMeta = plugin.SubTaskMeta{
 	Description:      "Extract raw PullRequestReviewers data into tool layer table github_reviewers",
 	DomainTypes:      []string{plugin.DOMAIN_TYPE_CROSS, plugin.DOMAIN_TYPE_CODE_REVIEW},
 	DependencyTables: []string{RAW_PR_REVIEW_TABLE},
-	ProductTables: []string{models.GithubRepoAccount{}.TableName(),
+	ProductTables: []string{
+		models.GithubRepoAccount{}.TableName(),
 		models.GithubReviewer{}.TableName(),
 		models.GithubPrReview{}.TableName()},
 }

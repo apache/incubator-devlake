@@ -40,7 +40,8 @@ var EnrichPullRequestIssuesMeta = plugin.SubTaskMeta{
 	EnabledByDefault: true,
 	Description:      "Create tool layer table github_pull_request_issues from github_pull_requests",
 	DomainTypes:      []string{plugin.DOMAIN_TYPE_CROSS},
-	DependencyTables: []string{models.GithubPullRequest{}.TableName(),
+	DependencyTables: []string{
+		models.GithubPullRequest{}.TableName(), // cursor
 		RAW_PULL_REQUEST_TABLE},
 	ProductTables: []string{models.GithubPrIssue{}.TableName()},
 }

@@ -40,8 +40,12 @@ var ConvertIssueCommentsMeta = plugin.SubTaskMeta{
 	EnabledByDefault: true,
 	Description:      "ConvertIssueComments data from Github api",
 	DomainTypes:      []string{plugin.DOMAIN_TYPE_TICKET},
-	DependencyTables: []string{models.GithubIssueComment{}.TableName(), RAW_COMMENTS_TABLE},
-	ProductTables:    []string{ticket.IssueComment{}.TableName()},
+	DependencyTables: []string{
+		models.GithubIssueComment{}.TableName(), // cursor
+		models.GithubIssue{}.TableName(),        // cursor and id generator
+		models.GithubAccount{}.TableName(),      // id generator
+		RAW_COMMENTS_TABLE},
+	ProductTables: []string{ticket.IssueComment{}.TableName()},
 }
 
 func ConvertIssueComments(taskCtx plugin.SubTaskContext) errors.Error {

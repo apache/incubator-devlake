@@ -46,8 +46,10 @@ var CollectAccountsMeta = plugin.SubTaskMeta{
 	EnabledByDefault: true,
 	Description:      "Collect accounts data from Github api, does not support either timeFilter or diffSync.",
 	DomainTypes:      []string{plugin.DOMAIN_TYPE_CROSS},
-	DependencyTables: []string{models.GithubRepoAccount{}.TableName()},
-	ProductTables:    []string{RAW_ACCOUNT_TABLE},
+	DependencyTables: []string{
+		//models.GithubRepoAccount{}.TableName() // cursor, config will not regard as dependency
+	},
+	ProductTables: []string{RAW_ACCOUNT_TABLE},
 }
 
 func CollectAccounts(taskCtx plugin.SubTaskContext) errors.Error {

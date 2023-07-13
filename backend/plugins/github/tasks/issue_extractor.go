@@ -40,7 +40,8 @@ var ExtractApiIssuesMeta = plugin.SubTaskMeta{
 	Description:      "Extract raw Issues data into tool layer table github_issues",
 	DomainTypes:      []string{plugin.DOMAIN_TYPE_TICKET},
 	DependencyTables: []string{RAW_ISSUE_TABLE},
-	ProductTables: []string{models.GithubIssue{}.TableName(),
+	ProductTables: []string{
+		models.GithubIssue{}.TableName(),
 		models.GithubIssueLabel{}.TableName(),
 		models.GithubRepoAccount{}.TableName(),
 		models.GithubIssueAssignee{}.TableName()},

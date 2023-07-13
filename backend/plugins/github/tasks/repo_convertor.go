@@ -38,10 +38,6 @@ func init() {
 	RegisterSubtaskMeta(&ConvertRepoMeta)
 }
 
-const RAW_REPOSITORIES_TABLE = "github_api_repositories"
-
-type ApiRepoResponse GithubApiRepo
-
 type GithubApiRepo struct {
 	Name        string `json:"name"`
 	FullName    string `json:"full_name"`
@@ -60,13 +56,19 @@ var ConvertRepoMeta = plugin.SubTaskMeta{
 	Name:             "convertRepo",
 	EntryPoint:       ConvertRepo,
 	EnabledByDefault: true,
-	Description:      "Convert tool layer table github_repos into  domain layer table repos and boards",
-	DomainTypes:      []string{plugin.DOMAIN_TYPE_CODE, plugin.DOMAIN_TYPE_TICKET, plugin.DOMAIN_TYPE_CICD, plugin.DOMAIN_TYPE_CODE_REVIEW, plugin.DOMAIN_TYPE_CROSS},
+	Description:      "Convert tool layer table github_repos into domain layer table repos and boards",
+	DomainTypes: []string{
+		plugin.DOMAIN_TYPE_CODE,
+		plugin.DOMAIN_TYPE_TICKET,
+		plugin.DOMAIN_TYPE_CICD,
+		plugin.DOMAIN_TYPE_CODE_REVIEW,
+		plugin.DOMAIN_TYPE_CROSS},
 	DependencyTables: []string{
-		//models.GithubRepo{}.TableName(),
+		//models.GithubRepo{}.TableName(), // config will not regard as dependency
 		//RAW_REPOSITORIES_TABLE,
 	},
-	ProductTables: []string{code.Repo{}.TableName(),
+	ProductTables: []string{
+		code.Repo{}.TableName(),
 		ticket.Board{}.TableName(),
 		crossdomain.BoardRepo{}.TableName(),
 		devops.CicdScope{}.TableName()},
@@ -97,7 +99,7 @@ func ConvertRepo(taskCtx plugin.SubTaskContext) errors.Error {
 				ConnectionId: data.Options.ConnectionId,
 				Name:         data.Options.Name,
 			},
-			Table: RAW_REPOSITORIES_TABLE,
+			Table: models.GithubRepo{}.TableName(),
 		},
 		Convert: func(inputRow interface{}) ([]interface{}, errors.Error) {
 			repository := inputRow.(*models.GithubRepo)

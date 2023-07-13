@@ -45,9 +45,9 @@ var CollectApiCommitStatsMeta = plugin.SubTaskMeta{
 	Description:      "Collect commitStats data from Github api, does not support either timeFilter or diffSync.",
 	DomainTypes:      []string{plugin.DOMAIN_TYPE_CODE},
 	DependencyTables: []string{
-		//models.GithubCommitStat{}.TableName(),
-		models.GithubRepoCommit{}.TableName(),
-		models.GithubCommit{}.TableName()},
+		//models.GithubRepoCommit{}.TableName(), // cursor, config will not regard as dependency
+		//models.GithubCommit{}.TableName()}, // cursor
+	},
 	ProductTables: []string{RAW_COMMIT_STATS_TABLE},
 }
 

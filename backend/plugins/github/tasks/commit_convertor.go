@@ -39,10 +39,13 @@ var ConvertCommitsMeta = plugin.SubTaskMeta{
 	EnabledByDefault: false,
 	Description:      "Convert tool layer table github_commits into  domain layer table commits",
 	DomainTypes:      []string{plugin.DOMAIN_TYPE_CODE},
-	DependencyTables: []string{models.GithubCommit{}.TableName(),
-		models.GithubCommit{}.TableName(),
-		RAW_COMMENTS_TABLE},
-	ProductTables: []string{code.Commit{}.TableName(),
+	DependencyTables: []string{
+		models.GithubCommit{}.TableName(),     // cursor
+		models.GithubRepoCommit{}.TableName(), // cursor
+		//models.GithubRepo{}.TableName(),       // id generator, but config not regard as dependency
+		RAW_COMMIT_TABLE},
+	ProductTables: []string{
+		code.Commit{}.TableName(),
 		code.RepoCommit{}.TableName()},
 }
 
@@ -74,7 +77,7 @@ func ConvertCommits(taskCtx plugin.SubTaskContext) errors.Error {
 				ConnectionId: data.Options.ConnectionId,
 				Name:         data.Options.Name,
 			},
-			Table: RAW_COMMENTS_TABLE,
+			Table: RAW_COMMIT_TABLE,
 		},
 		InputRowType: reflect.TypeOf(models.GithubCommit{}),
 		Input:        cursor,

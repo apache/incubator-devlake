@@ -42,7 +42,7 @@ var ConvertRunsMeta = plugin.SubTaskMeta{
 	Description:      "Convert tool layer table github_runs into  domain layer table cicd_pipeline",
 	DomainTypes:      []string{plugin.DOMAIN_TYPE_CICD},
 	DependencyTables: []string{
-		//models.GithubRepo{}.TableName(),
+		//models.GithubRepo{}.TableName(), // config will not regard as dependency
 		models.GithubRun{}.TableName(),
 		RAW_RUN_TABLE,
 	},

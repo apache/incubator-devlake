@@ -40,8 +40,13 @@ var ConvertPullRequestCommentsMeta = plugin.SubTaskMeta{
 	EnabledByDefault: true,
 	Description:      "ConvertPullRequestComments data from Github api",
 	DomainTypes:      []string{plugin.DOMAIN_TYPE_CODE_REVIEW},
-	DependencyTables: []string{models.GithubPrComment{}.TableName(), RAW_COMMENTS_TABLE},
-	ProductTables:    []string{code.PullRequestComment{}.TableName()},
+	DependencyTables: []string{
+		models.GithubPrComment{}.TableName(),   // cursor
+		models.GithubPullRequest{}.TableName(), // cursor
+		models.GithubAccount{}.TableName(),     // id generator
+		models.GithubPrReview{}.TableName(),    // id generator
+		RAW_COMMENTS_TABLE},
+	ProductTables: []string{code.PullRequestComment{}.TableName()},
 }
 
 func ConvertPullRequestComments(taskCtx plugin.SubTaskContext) errors.Error {
