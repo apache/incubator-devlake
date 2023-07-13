@@ -19,11 +19,12 @@ package logruslog
 
 import (
 	"fmt"
+	"regexp"
+	"strings"
+
 	"github.com/apache/incubator-devlake/core/errors"
 	"github.com/apache/incubator-devlake/core/log"
 	"github.com/sirupsen/logrus"
-	"regexp"
-	"strings"
 )
 
 var alreadyInBracketsRegex = regexp.MustCompile(`\[.*?]+`)
@@ -112,6 +113,7 @@ func (l *DefaultLogger) getLogger(prefix string) (log.Logger, errors.Error) {
 	newLogrus.SetLevel(l.log.Level)
 	newLogrus.SetFormatter(l.log.Formatter)
 	newLogrus.SetOutput(l.log.Out)
+	newLogrus.SetReportCaller(true)
 	newLogger := &DefaultLogger{
 		log: newLogrus,
 		config: &log.LoggerConfig{
