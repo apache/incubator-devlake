@@ -25,7 +25,7 @@ import (
 )
 
 func Test_genSubtaskList(t *testing.T) {
-	testSortedSubtaskList, err := sorter.NewDependencyAndProductSorter(tasks.SubTaskMetaList).Sort()
+	testSortedSubtaskList, err := sorter.NewTableSorter(tasks.SubTaskMetaList).Sort()
 	if err != nil {
 		t.Error(err)
 		return

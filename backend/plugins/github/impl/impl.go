@@ -52,7 +52,7 @@ type Github struct{}
 func init() {
 	var err error
 	// check subtask meta loop and gen subtask list when init subtask meta
-	sortedSubtaskList, err = sorter.NewDependencyAndProductSorter(tasks.SubTaskMetaList).Sort()
+	sortedSubtaskList, err = sorter.NewTableSorter(tasks.SubTaskMetaList).Sort()
 	if err != nil {
 		panic(err)
 	}

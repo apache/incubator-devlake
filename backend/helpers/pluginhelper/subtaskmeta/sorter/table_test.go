@@ -24,7 +24,7 @@ import (
 	"testing"
 )
 
-func Test_dependencyAndProductTableTopologicalSort(t *testing.T) {
+func Test_tableTopologicalSort(t *testing.T) {
 	pluginA := plugin.SubTaskMeta{
 		Name:             "A",
 		DependencyTables: []string{},
@@ -64,12 +64,12 @@ func Test_dependencyAndProductTableTopologicalSort(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			got, got1 := dependencyAndProductTableTopologicalSort(tt.args.metas)
+			got, got1 := tableTopologicalSort(tt.args.metas)
 			if !reflect.DeepEqual(got, tt.want) {
-				t.Errorf("dependencyAndProductTableTopologicalSort() got = %v, want %v", got, tt.want)
+				t.Errorf("tableTopologicalSort() got = %v, want %v", got, tt.want)
 			}
 			if !reflect.DeepEqual(got1, tt.want1) {
-				t.Errorf("dependencyAndProductTableTopologicalSort() got1 = %v, want %v", got1, tt.want1)
+				t.Errorf("tableTopologicalSort() got1 = %v, want %v", got1, tt.want1)
 			}
 		})
 	}

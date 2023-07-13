@@ -25,19 +25,19 @@ import (
 	"github.com/apache/incubator-devlake/core/plugin"
 )
 
-type DependencyAndProductSorter struct {
+type TableSorter struct {
 	metas []*plugin.SubTaskMeta
 }
 
-func NewDependencyAndProductSorter(metas []*plugin.SubTaskMeta) SubTaskMetaSorter {
-	return &DependencyAndProductSorter{metas: metas}
+func NewTableSorter(metas []*plugin.SubTaskMeta) SubTaskMetaSorter {
+	return &TableSorter{metas: metas}
 }
 
-func (d *DependencyAndProductSorter) Sort() ([]plugin.SubTaskMeta, errors.Error) {
-	return dependencyAndProductTableTopologicalSort(d.metas)
+func (d *TableSorter) Sort() ([]plugin.SubTaskMeta, errors.Error) {
+	return tableTopologicalSort(d.metas)
 }
 
-func dependencyAndProductTableTopologicalSort(metas []*plugin.SubTaskMeta) ([]plugin.SubTaskMeta, errors.Error) {
+func tableTopologicalSort(metas []*plugin.SubTaskMeta) ([]plugin.SubTaskMeta, errors.Error) {
 	// 1. construct tmp data struct
 	subtaskNameMetaMap := make(map[string]*plugin.SubTaskMeta)
 	nameDependencyMap := make(map[string][]string)
