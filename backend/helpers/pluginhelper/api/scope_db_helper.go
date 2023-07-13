@@ -116,7 +116,8 @@ func (s *ScopeDatabaseHelperImpl[Conn, Scope, Tr]) ListScopes(input *plugin.ApiR
 	searchTerm := input.Query.Get("searchTerm")
 	query := dal.Where("connection_id = ?", connectionId)
 	if searchTerm != "" {
-		query = dal.Where(fmt.Sprintf("connection_id = ? AND ? LIKE %s", s.params.RawScopeParamName), connectionId, searchTerm)
+		query = dal.Where(fmt.Sprintf("connection_id = ? AND %s LIKE ?", s.params.RawScopeParamName), connectionId, "%"+searchTerm+"%")
+
 	}
 	limit, offset := GetLimitOffset(input.Query, "pageSize", "page")
 	var scopes []*Scope
