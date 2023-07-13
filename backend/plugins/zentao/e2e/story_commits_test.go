@@ -36,10 +36,7 @@ func TestZentaoStoryCommitsDataFlow(t *testing.T) {
 	taskData := &tasks.ZentaoTaskData{
 		Options: &tasks.ZentaoOptions{
 			ConnectionId: 1,
-			ProjectId:    0,
-		},
-		ProductList: map[int64]string{
-			31: "",
+			ProjectId:    1,
 		},
 	}
 

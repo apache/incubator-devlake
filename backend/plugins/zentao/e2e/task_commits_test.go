@@ -37,7 +37,6 @@ func TestZentaoTaskCommitsDataFlow(t *testing.T) {
 		Options: &tasks.ZentaoOptions{
 			ConnectionId: 1,
 			ProjectId:    48,
-			ProductId:    0,
 		},
 	}
 

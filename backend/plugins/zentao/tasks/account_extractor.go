@@ -45,13 +45,14 @@ func ExtractAccount(taskCtx plugin.SubTaskContext) errors.Error {
 			Table:   RAW_ACCOUNT_TABLE,
 		},
 		Extract: func(row *api.RawData) ([]interface{}, errors.Error) {
-			account := &models.ZentaoAccount{}
-			err := json.Unmarshal(row.Data, account)
+			var account models.ZentaoAccount
+			err := json.Unmarshal(row.Data, &account)
 			if err != nil {
 				return nil, errors.Default.WrapRaw(err)
 			}
 			account.ConnectionId = data.Options.ConnectionId
-			return []interface{}{account}, nil
+			data.AccountCache.put(account)
+			return []interface{}{&account}, nil
 		},
 	})
 
