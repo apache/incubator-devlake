@@ -123,7 +123,7 @@ export const BlueprintConnectionDetailPage = () => {
 
     if (success) {
       handleShowTips();
-      navigate(pname ? `/projects/${pname}` : `/blueprints/${blueprint.id}`);
+      navigate(pname ? `/projects/${pname}?tab=configuration` : `/blueprints/${blueprint.id}?tab=configuration`);
     }
   };
 

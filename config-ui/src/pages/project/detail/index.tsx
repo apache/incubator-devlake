@@ -16,9 +16,10 @@
  *
  */
 
-import { useState, useEffect } from 'react';
-import { useParams, useLocation, useNavigate } from 'react-router-dom';
+import { useState } from 'react';
+import { useParams } from 'react-router-dom';
 import { Tabs, Tab } from '@blueprintjs/core';
+import useUrlState from '@ahooksjs/use-url-state';
 
 import { PageHeader, PageLoading } from '@/components';
 import { useRefreshData } from '@/hooks';
@@ -30,26 +31,15 @@ import * as API from './api';
 import * as S from './styled';
 
 export const ProjectDetailPage = () => {
-  const [tabId, setTabId] = useState('blueprint');
   const [version, setVersion] = useState(1);
 
   const { pname } = useParams() as { pname: string };
-  const { search } = useLocation();
-  const navigate = useNavigate();
+  const [query, setQuery] = useUrlState({ tabId: 'blueprint' });
 
-  const query = new URLSearchParams(search);
-  const urlTabId = query.get('tabId');
-
-  useEffect(() => {
-    setTabId(urlTabId ?? 'blueprint');
-  }, [urlTabId]);
-
-  const { ready, data } = useRefreshData(() => Promise.all([API.getProject(pname)]), [version]);
+  const { ready, data } = useRefreshData(() => Promise.all([API.getProject(pname)]), [pname, version]);
 
   const handleChangeTabId = (tabId: string) => {
-    query.delete('tabId');
-    query.append('tabId', tabId);
-    navigate({ search: query.toString() });
+    setQuery({ tabId });
   };
 
   const handleRefresh = () => {
@@ -70,7 +60,7 @@ export const ProjectDetailPage = () => {
       ]}
     >
       <S.Wrapper>
-        <Tabs selectedTabId={tabId} onChange={handleChangeTabId}>
+        <Tabs selectedTabId={query.tabId} onChange={handleChangeTabId}>
           <Tab
             id="blueprint"
             title="Blueprint"
@@ -81,7 +71,7 @@ export const ProjectDetailPage = () => {
             title="Incoming Webhooks"
             panel={<WebhooksPanel project={project} onRefresh={handleRefresh} />}
           />
-          <Tab id="settings" title="Settings" panel={<SettingsPanel project={project} />} />
+          <Tab id="settings" title="Settings" panel={<SettingsPanel project={project} onRefresh={handleRefresh} />} />
         </Tabs>
       </S.Wrapper>
     </PageHeader>
