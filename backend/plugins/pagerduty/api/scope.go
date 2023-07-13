@@ -67,6 +67,7 @@ func UpdateScope(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, err
 // @Description get PagerDuty repos
 // @Tags plugins/pagerduty
 // @Param connectionId path int true "connection ID"
+// @Param searchTerm query string false "search term for scope name"
 // @Param pageSize query int false "page size, default 50"
 // @Param page query int false "page size, default 1"
 // @Param blueprints query bool false "also return blueprints using these scopes as part of the payload"

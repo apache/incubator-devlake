@@ -45,6 +45,7 @@ type ScopeReq api.ScopeReq[models.JiraBoard]
 // @Tags plugins/jira
 // @Accept application/json
 // @Param connectionId path int false "connection ID"
+// @Param searchTerm query string false "search term for scope name"
 // @Param scope body ScopeReq true "json"
 // @Success 200  {object} []models.JiraBoard
 // @Failure 400  {object} shared.ApiBody "Bad Request"
