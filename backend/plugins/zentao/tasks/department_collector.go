@@ -19,9 +19,7 @@ package tasks
 
 import (
 	"encoding/json"
-	"fmt"
 	"net/http"
-	"net/url"
 
 	"github.com/apache/incubator-devlake/core/errors"
 	"github.com/apache/incubator-devlake/core/plugin"
@@ -43,13 +41,6 @@ func CollectDepartment(taskCtx plugin.SubTaskContext) errors.Error {
 		ApiClient:   data.ApiClient,
 		PageSize:    100,
 		UrlTemplate: "/departments",
-		Query: func(reqData *api.RequestData) (url.Values, errors.Error) {
-			query := url.Values{}
-			query.Set("page", fmt.Sprintf("%v", reqData.Pager.Page))
-			query.Set("limit", fmt.Sprintf("%v", reqData.Pager.Size))
-			return query, nil
-		},
-		GetTotalPages: GetTotalPagesFromResponse,
 		ResponseParser: func(res *http.Response) ([]json.RawMessage, errors.Error) {
 			var data []json.RawMessage
 			err := api.UnmarshalResponse(res, &data)

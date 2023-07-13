@@ -55,13 +55,6 @@ func getAccountId(account *models.ZentaoAccount) int64 {
 	return 0
 }
 
-func getAccountName(account *models.ZentaoAccount) string {
-	if account != nil {
-		return account.Realname
-	}
-	return ""
-}
-
 // get the Priority string for zentao
 func getPriority(pri int) string {
 	return fmt.Sprintf("%d", pri)
