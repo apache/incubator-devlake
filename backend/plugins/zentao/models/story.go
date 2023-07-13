@@ -48,18 +48,18 @@ type ZentaoStoryRes struct {
 	Lib              int                 `json:"lib"`
 	FromStory        int64               `json:"fromStory"`
 	FromVersion      int                 `json:"fromVersion"`
-	OpenedBy         *ZentaoAccount      `json:"openedBy"`
+	OpenedBy         *ApiAccount         `json:"openedBy"`
 	OpenedDate       *helper.Iso8601Time `json:"openedDate"`
-	AssignedTo       *ZentaoAccount      `json:"assignedTo"`
+	AssignedTo       *ApiAccount         `json:"assignedTo"`
 	AssignedDate     *helper.Iso8601Time `json:"assignedDate"`
 	ApprovedDate     *helper.Iso8601Time `json:"approvedDate"`
-	LastEditedBy     *ZentaoAccount      `json:"lastEditedBy"`
+	LastEditedBy     *ApiAccount         `json:"lastEditedBy"`
 	LastEditedDate   *helper.Iso8601Time `json:"lastEditedDate"`
 	ChangedBy        string              `json:"changedBy"`
 	ChangedDate      *helper.Iso8601Time `json:"changedDate"`
-	ReviewedBy       *ZentaoAccount      `json:"reviewedBy"`
+	ReviewedBy       *ApiAccount         `json:"reviewedBy"`
 	ReviewedDate     *helper.Iso8601Time `json:"reviewedDate"`
-	ClosedBy         *ZentaoAccount      `json:"closedBy"`
+	ClosedBy         *ApiAccount         `json:"closedBy"`
 	ClosedDate       *helper.Iso8601Time `json:"closedDate"`
 	ClosedReason     string              `json:"closedReason"`
 	ActivatedDate    *helper.Iso8601Time `json:"activatedDate"`

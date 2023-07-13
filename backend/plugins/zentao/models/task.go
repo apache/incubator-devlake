@@ -46,26 +46,25 @@ type ZentaoTaskRes struct {
 	Status         string              `json:"status"`
 	SubStatus      string              `json:"subStatus"`
 	Color          string              `json:"color"`
-	Mailto         []*ZentaoAccount    `json:"mailto"`
 	Description    string              `json:"desc"`
 	Version        int                 `json:"version"`
-	OpenedBy       *ZentaoAccount      `json:"openedBy"`
+	OpenedBy       *ApiAccount         `json:"openedBy"`
 	OpenedDate     *helper.Iso8601Time `json:"openedDate"`
-	AssignedTo     *ZentaoAccount      `json:"assignedTo"`
+	AssignedTo     *ApiAccount         `json:"assignedTo"`
 	AssignedDate   *helper.Iso8601Time `json:"assignedDate"`
 	EstStarted     string              `json:"estStarted"`
 	RealStarted    *helper.Iso8601Time `json:"realStarted"`
-	FinishedBy     *ZentaoAccount      `json:"finishedBy"`
+	FinishedBy     *ApiAccount         `json:"finishedBy"`
 	FinishedDate   *helper.Iso8601Time `json:"finishedDate"`
 	FinishedList   string              `json:"finishedList"`
-	CanceledBy     *ZentaoAccount      `json:"canceledBy"`
+	CanceledBy     *ApiAccount         `json:"canceledBy"`
 	CanceledDate   *helper.Iso8601Time `json:"canceledDate"`
-	ClosedBy       *ZentaoAccount      `json:"closedBy"`
+	ClosedBy       *ApiAccount         `json:"closedBy"`
 	ClosedDate     *helper.Iso8601Time `json:"closedDate"`
 	PlanDuration   int                 `json:"planDuration"`
 	RealDuration   int                 `json:"realDuration"`
 	ClosedReason   string              `json:"closedReason"`
-	LastEditedBy   *ZentaoAccount      `json:"lastEditedBy"`
+	LastEditedBy   *ApiAccount         `json:"lastEditedBy"`
 	LastEditedDate *helper.Iso8601Time `json:"lastEditedDate"`
 	ActivatedDate  *helper.Iso8601Time `json:"activatedDate"`
 	OrderIn        int                 `json:"order"`
@@ -75,7 +74,6 @@ type ZentaoTaskRes struct {
 	NumOfLine      string              `json:"lines"`
 	V1             string              `json:"v1"`
 	V2             string              `json:"v2"`
-	Deleted        bool                `json:"deleted"`
 	Vision         string              `json:"vision"`
 	StoryID        int64               `json:"storyID"`
 	StoryTitle     string              `json:"storyTitle"`
@@ -85,42 +83,42 @@ type ZentaoTaskRes struct {
 	} `json:"latestStoryVersion"`
 	StoryStatus interface {
 	} `json:"storyStatus"`
-	AssignedToRealName string  `json:"assignedToRealName"`
-	PriOrder           string  `json:"priOrder"`
-	Delay              int     `json:"delay"`
-	NeedConfirm        bool    `json:"needConfirm"`
-	Progress           float64 `json:"progress"`
+	AssignedToRealName string           `json:"assignedToRealName"`
+	PriOrder           string           `json:"priOrder"`
+	Children           []*ZentaoTaskRes `json:"children"`
+	Delay              int              `json:"delay"`
+	NeedConfirm        bool             `json:"needConfirm"`
+	Progress           float64          `json:"progress"`
 }
 
 type ZentaoTask struct {
 	common.NoPKModel
-	ConnectionId  uint64  `gorm:"primaryKey;type:BIGINT  NOT NULL"`
-	ID            int64   `json:"id" gorm:"primaryKey;type:BIGINT  NOT NULL;autoIncrement:false"`
-	Project       int64   `json:"project"`
-	Parent        int64   `json:"parent"`
-	Execution     int64   `json:"execution"`
-	Module        int     `json:"module"`
-	Design        int     `json:"design"`
-	Story         int64   `json:"story"`
-	StoryVersion  int     `json:"storyVersion"`
-	DesignVersion int     `json:"designVersion"`
-	FromBug       int     `json:"fromBug"`
-	Feedback      int     `json:"feedback"`
-	FromIssue     int     `json:"fromIssue"`
-	Name          string  `json:"name"`
-	Type          string  `json:"type"`
-	Mode          string  `json:"mode"`
-	Pri           int     `json:"pri"`
-	Estimate      float64 `json:"estimate"`
-	Consumed      float64 `json:"consumed"`
-	Left          float64 `json:"left" gorm:"column:db_left"`
-	Deadline      string  `json:"deadline"`
-	Status        string  `json:"status"`
-	SubStatus     string  `json:"subStatus"`
-	Color         string  `json:"color"`
-	//Mailto        interface{} `json:"mailto"`
-	Description        string `json:"desc"`
-	Version            int    `json:"version"`
+	ConnectionId       uint64  `gorm:"primaryKey;type:BIGINT  NOT NULL"`
+	ID                 int64   `json:"id" gorm:"primaryKey;type:BIGINT  NOT NULL;autoIncrement:false"`
+	Project            int64   `json:"project"`
+	Parent             int64   `json:"parent"`
+	Execution          int64   `json:"execution"`
+	Module             int     `json:"module"`
+	Design             int     `json:"design"`
+	Story              int64   `json:"story"`
+	StoryVersion       int     `json:"storyVersion"`
+	DesignVersion      int     `json:"designVersion"`
+	FromBug            int     `json:"fromBug"`
+	Feedback           int     `json:"feedback"`
+	FromIssue          int     `json:"fromIssue"`
+	Name               string  `json:"name"`
+	Type               string  `json:"type"`
+	Mode               string  `json:"mode"`
+	Pri                int     `json:"pri"`
+	Estimate           float64 `json:"estimate"`
+	Consumed           float64 `json:"consumed"`
+	Left               float64 `json:"left" gorm:"column:db_left"`
+	Deadline           string  `json:"deadline"`
+	Status             string  `json:"status"`
+	SubStatus          string  `json:"subStatus"`
+	Color              string  `json:"color"`
+	Description        string  `json:"desc"`
+	Version            int     `json:"version"`
 	OpenedById         int64
 	OpenedByName       string
 	OpenedDate         *helper.Iso8601Time `json:"openedDate"`

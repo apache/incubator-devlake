@@ -115,13 +115,16 @@ func ConvertTask(taskCtx plugin.SubTaskContext) errors.Error {
 				IssueId: domainEntity.Id,
 			}
 
-			sprintId := executionIdGen.Generate(toolEntity.ConnectionId, toolEntity.Execution)
-			sprintIssueTask := &ticket.SprintIssue{
-				SprintId: sprintId,
-				IssueId:  domainEntity.Id,
+			// Parent < 0 means that this is a parent task, not a subtask, so we don't need to create a sprint issue
+			if toolEntity.Execution > 0 && toolEntity.Parent >= 0 {
+				sprintIssueTask := &ticket.SprintIssue{
+					SprintId: executionIdGen.Generate(toolEntity.ConnectionId, toolEntity.Execution),
+					IssueId:  domainEntity.Id,
+				}
+				results = append(results, sprintIssueTask)
 			}
 
-			results = append(results, domainEntity, domainBoardIssue, sprintIssueTask)
+			results = append(results, domainEntity, domainBoardIssue)
 
 			return results, nil
 		},

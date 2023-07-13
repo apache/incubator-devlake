@@ -46,16 +46,8 @@ func TestZentaoStoryDataFlow(t *testing.T) {
 				},
 			},
 		},
-		ProductList: map[int64]string{
-			3: "",
-		},
-		StoryList: map[int64]int64{
-			1: 1,
-			3: 3,
-			4: 4,
-			6: 6,
-			7: 7,
-		},
+		Stories:      map[int64]struct{}{},
+		AccountCache: tasks.NewAccountCache(dataflowTester.Dal, 1),
 	}
 
 	// import raw data table
@@ -64,6 +56,7 @@ func TestZentaoStoryDataFlow(t *testing.T) {
 
 	// verify extraction
 	dataflowTester.FlushTabler(&models.ZentaoStory{})
+	dataflowTester.FlushTabler(&models.ZentaoProjectStory{})
 	dataflowTester.Subtask(tasks.ExtractStoryMeta, taskData)
 	dataflowTester.VerifyTableWithOptions(&models.ZentaoStory{}, e2ehelper.TableOptions{
 		CSVRelPath:  "./snapshot_tables/_tool_zentao_stories.csv",
