@@ -25,7 +25,7 @@ import { PageLoading, Logo, ExternalLink, IconButton } from '@/components';
 import { useTips, useRefreshData } from '@/hooks';
 import { TipsContextProvider, ConnectionContextProvider } from '@/store';
 
-import DashboardIcon from '@/images/icons/dashborad.svg';
+import DashboardIcon from '@/images/icons/dashboard.svg';
 import FileIcon from '@/images/icons/file.svg';
 import APIIcon from '@/images/icons/api.svg';
 import GitHubIcon from '@/images/icons/github.svg';
