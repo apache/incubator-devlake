@@ -23,7 +23,7 @@ import { Menu, MenuItem, Tag, Navbar, Intent, Alignment, Button } from '@bluepri
 import { PageLoading, Logo, ExternalLink } from '@/components';
 import { useRefreshData } from '@/hooks';
 
-import DashboardIcon from '@/images/icons/dashborad.svg';
+import DashboardIcon from '@/images/icons/dashboard.svg';
 import FileIcon from '@/images/icons/file.svg';
 import APIIcon from '@/images/icons/api.svg';
 import GitHubIcon from '@/images/icons/github.svg';
