@@ -19,6 +19,7 @@ package dalgorm
 
 import (
 	"fmt"
+	"strings"
 
 	"github.com/apache/incubator-devlake/core/dal"
 	"github.com/apache/incubator-devlake/core/errors"
@@ -68,23 +69,32 @@ func (t *DalgormTransaction) LockTables(lockTables dal.LockTables) errors.Error 
 		}
 		return t.Exec(fmt.Sprintf("LOCK TABLES %s", clause))
 	case "postgres":
-		for _, lockTable := range lockTables {
-			var clause string
-			if lockTable.Exclusive {
-				clause = "EXCLUSIVE"
-			} else {
-				clause = "SHARE"
-			}
-			stmt := fmt.Sprintf("LOCK TABLE %s IN %s MODE;", lockTable.TableName(), clause)
-			err := t.Exec(stmt)
-			if err != nil {
-				return err
+		var tables []string
+		var lockMode = "SHARE"
+		for _, t := range lockTables {
+			tables = append(tables, t.TableName())
+			if t.Exclusive {
+				lockMode = "EXCLUSIVE"
+				break
 			}
 		}
+		stmt := fmt.Sprintf("LOCK TABLE %s IN %s MODE", strings.Join(tables, ","), lockMode)
+		err := t.Exec(stmt)
+		if err != nil {
+			return err
+		}
 		return nil
+
 	default:
 		panic(fmt.Errorf("unknown dialect %s", t.Dialect()))
 	}
+}
+
+func getLockMode(exclusive bool) string {
+	if exclusive {
+		return "EXCLUSIVE"
+	}
+	return "SHARE"
 }
 
 func (t *DalgormTransaction) UnlockTables() errors.Error {
