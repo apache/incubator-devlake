@@ -19,7 +19,7 @@ package models
 
 import (
 	"github.com/apache/incubator-devlake/core/models/common"
-	"github.com/apache/incubator-devlake/helpers/pluginhelper/api"
+	"github.com/apache/incubator-devlake/helpers/utils"
 )
 
 type SonarqubeIssue struct {
@@ -43,8 +43,8 @@ type SonarqubeIssue struct {
 	EndLine      int
 	StartOffset  int
 	EndOffset    int
-	CreationDate *api.Iso8601Time
-	UpdateDate   *api.Iso8601Time
+	CreationDate *utils.Iso8601Time
+	UpdateDate   *utils.Iso8601Time
 	common.NoPKModel
 }
 

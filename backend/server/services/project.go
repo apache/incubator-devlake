@@ -253,7 +253,15 @@ func DeleteProject(name string) errors.Error {
 	if name == "" {
 		return errors.BadInput.New("project name is missing")
 	}
-	var err errors.Error
+	// verify exists
+	_, err := getProjectByName(db, name)
+	if err != nil {
+		return err
+	}
+	err = deleteProjectBlueprint(name)
+	if err != nil {
+		return err
+	}
 	tx := db.Begin()
 	defer func() {
 		if r := recover(); r != nil || err != nil {
@@ -263,41 +271,40 @@ func DeleteProject(name string) errors.Error {
 			}
 		}
 	}()
-	_, err = getProjectByName(tx, name)
-	if err != nil {
-		return err
-	}
 	err = tx.Delete(&models.Project{}, dal.Where("name = ?", name))
 	if err != nil {
-		return err
+		return errors.Default.Wrap(err, "error deleting project")
 	}
 	err = tx.Delete(&crossdomain.ProjectMapping{}, dal.Where("project_name = ?", name))
 	if err != nil {
-		return err
+		return errors.Default.Wrap(err, "error deleting project")
 	}
 	err = tx.Delete(&models.ProjectMetricSetting{}, dal.Where("project_name = ?", name))
 	if err != nil {
-		return err
+		return errors.Default.Wrap(err, "error deleting project metric setting")
 	}
 	err = tx.Delete(&crossdomain.ProjectPrMetric{}, dal.Where("project_name = ?", name))
 	if err != nil {
-		return err
+		return errors.Default.Wrap(err, "error deleting project PR metric")
 	}
 	err = tx.Delete(&crossdomain.ProjectIssueMetric{}, dal.Where("project_name = ?", name))
 	if err != nil {
-		return err
+		return errors.Default.Wrap(err, "error deleting project Issue metric")
 	}
-	err = tx.Commit()
+	return tx.Commit()
+}
+
+func deleteProjectBlueprint(projectName string) errors.Error {
+	bp, err := bpManager.GetDbBlueprintByProjectName(projectName)
 	if err != nil {
-		return err
-	}
-	bp, err := bpManager.GetDbBlueprintByProjectName(name)
-	if err != nil {
-		return err
-	}
-	err = bpManager.DeleteBlueprint(bp.ID)
-	if err != nil {
-		return err
+		if !db.IsErrorNotFound(err) {
+			return errors.Default.Wrap(err, fmt.Sprintf("error finding blueprint associated with project %s", projectName))
+		}
+	} else {
+		err = bpManager.DeleteBlueprint(bp.ID)
+		if err != nil {
+			return errors.Default.Wrap(err, fmt.Sprintf("error deleting blueprint associated with project %s", projectName))
+		}
 	}
 	return nil
 }

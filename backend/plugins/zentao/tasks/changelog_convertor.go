@@ -20,6 +20,7 @@ package tasks
 import (
 	"fmt"
 	"reflect"
+	"strconv"
 
 	"github.com/apache/incubator-devlake/core/dal"
 	"github.com/apache/incubator-devlake/core/errors"
@@ -33,6 +34,8 @@ import (
 )
 
 var _ plugin.SubTaskEntryPoint = ConvertChangelog
+
+const RAW_CHANGELOG_TABLE = "zt_history"
 
 var ConvertChangelogMeta = plugin.SubTaskMeta{
 	Name:             "ConvertChangelog",
@@ -67,6 +70,11 @@ func ConvertChangelog(taskCtx plugin.SubTaskContext) errors.Error {
 	data := taskCtx.GetData().(*ZentaoTaskData)
 	db := taskCtx.GetDal()
 	changelogIdGen := didgen.NewDomainIdGenerator(&models.ZentaoChangelogDetail{})
+	accountIdGen := didgen.NewDomainIdGenerator(&models.ZentaoAccount{})
+	executionIdGen := didgen.NewDomainIdGenerator(&models.ZentaoExecution{})
+	storyIdGen := didgen.NewDomainIdGenerator(&models.ZentaoStory{})
+	taskIdGen := didgen.NewDomainIdGenerator(&models.ZentaoTask{})
+	bugIdGen := didgen.NewDomainIdGenerator(&models.ZentaoBug{})
 	cn := models.ZentaoChangelog{}.TableName()
 	cdn := models.ZentaoChangelogDetail{}.TableName()
 	an := models.ZentaoAccount{}.TableName()
@@ -75,9 +83,8 @@ func ConvertChangelog(taskCtx plugin.SubTaskContext) errors.Error {
 		dal.From(&models.ZentaoChangelog{}),
 		dal.Join(fmt.Sprintf("LEFT JOIN %s on %s.changelog_id = %s.id", cdn, cdn, cn)),
 		dal.Join(fmt.Sprintf("LEFT JOIN %s on %s.realname = %s.actor", an, an, cn)),
-		dal.Where(fmt.Sprintf(`%s.product = ? and %s.project = ? and %s.connection_id = ?`,
-			cn, cn, cn),
-			data.Options.ProductId,
+		dal.Where(fmt.Sprintf(`%s.project = ? and %s.connection_id = ?`,
+			cn, cn),
 			data.Options.ProjectId,
 			data.Options.ConnectionId),
 	)
@@ -90,23 +97,29 @@ func ConvertChangelog(taskCtx plugin.SubTaskContext) errors.Error {
 		InputRowType: reflect.TypeOf(ZentaoChangelogSelect{}),
 		Input:        cursor,
 		RawDataSubTaskArgs: api.RawDataSubTaskArgs{
-			Ctx: taskCtx,
-			Params: ZentaoApiParams{
-				ConnectionId: data.Options.ConnectionId,
-				ProductId:    data.Options.ProductId,
-				ProjectId:    data.Options.ProjectId,
-			},
-			Table: RAW_ACCOUNT_TABLE,
+			Ctx:     taskCtx,
+			Options: data.Options,
+			Table:   RAW_CHANGELOG_TABLE,
 		},
 		Convert: func(inputRow interface{}) ([]interface{}, errors.Error) {
 			cl := inputRow.(*ZentaoChangelogSelect)
-
+			if cl.CDID == 0 {
+				return nil, nil
+			}
+			var issueId string
+			switch cl.ObjectType {
+			case "story":
+				issueId = storyIdGen.Generate(data.Options.ConnectionId, cl.ObjectId)
+			case "task":
+				issueId = taskIdGen.Generate(data.Options.ConnectionId, cl.ObjectId)
+			case "bug":
+				issueId = bugIdGen.Generate(data.Options.ConnectionId, cl.ObjectId)
+			}
 			domainCl := &ticket.IssueChangelogs{
 				DomainEntity: domainlayer.DomainEntity{
 					Id: changelogIdGen.Generate(data.Options.ConnectionId, cl.CID, cl.CDID),
 				},
-				IssueId:           fmt.Sprintf("%d", cl.ObjectId),
-				AuthorId:          fmt.Sprintf("%d", cl.AID),
+				IssueId:           issueId,
 				AuthorName:        cl.Actor,
 				FieldId:           cl.Field,
 				FieldName:         cl.Field,
@@ -115,6 +128,41 @@ func ConvertChangelog(taskCtx plugin.SubTaskContext) errors.Error {
 				FromValue:         cl.Old,
 				ToValue:           cl.New,
 				CreatedDate:       cl.Date,
+			}
+			if cl.AID != 0 {
+				domainCl.AuthorId = accountIdGen.Generate(data.Options.ConnectionId, cl.AID)
+			}
+			if domainCl.FieldName == "assignedTo" {
+				domainCl.FieldName = "assignee"
+				if cl.Old != "" {
+					if id := data.AccountCache.getAccountID(cl.Old); id != 0 {
+						domainCl.OriginalFromValue = accountIdGen.Generate(data.Options.ConnectionId, id)
+						domainCl.FromValue = accountIdGen.Generate(data.Options.ConnectionId, id)
+					}
+				}
+				if cl.New != "" {
+					if id := data.AccountCache.getAccountID(cl.New); id != 0 {
+						domainCl.OriginalToValue = accountIdGen.Generate(data.Options.ConnectionId, id)
+						domainCl.ToValue = accountIdGen.Generate(data.Options.ConnectionId, id)
+					}
+				}
+			}
+			if domainCl.FieldName == "execution" {
+				domainCl.FieldName = "Sprint"
+				if cl.Old != "" {
+					oldValue, _ := strconv.ParseInt(cl.Old, 10, 64)
+					if oldValue != 0 {
+						domainCl.OriginalFromValue = executionIdGen.Generate(data.Options.ConnectionId, oldValue)
+						domainCl.FromValue = executionIdGen.Generate(data.Options.ConnectionId, oldValue)
+					}
+				}
+				if cl.New != "" {
+					newValue, _ := strconv.ParseInt(cl.New, 10, 64)
+					if newValue != 0 {
+						domainCl.OriginalToValue = executionIdGen.Generate(data.Options.ConnectionId, newValue)
+						domainCl.ToValue = executionIdGen.Generate(data.Options.ConnectionId, newValue)
+					}
+				}
 			}
 
 			return []interface{}{

@@ -58,12 +58,19 @@ func RemoteScopes(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, er
 			}
 
 			resBody := struct {
-				Values []apiv2models.Board `json:"values"`
+				MaxResults int                 `json:"maxResults"`
+				StartAt    int                 `json:"startAt"`
+				Values     []apiv2models.Board `json:"values"`
 			}{}
 
 			err = api.UnmarshalResponse(res, &resBody)
 			if err != nil {
 				return nil, err
+			}
+
+			if (queryData.PerPage != resBody.MaxResults) ||
+				(((queryData.Page - 1) * queryData.PerPage) != resBody.StartAt) {
+				analyzingQuery(resBody.MaxResults, resBody.StartAt, queryData)
 			}
 
 			return resBody.Values, err
@@ -75,4 +82,11 @@ func initialQuery(queryData *api.RemoteQueryData) url.Values {
 	query.Set("maxResults", fmt.Sprintf("%v", queryData.PerPage))
 	query.Set("startAt", fmt.Sprintf("%v", (queryData.Page-1)*queryData.PerPage))
 	return query
+}
+
+func analyzingQuery(maxResults int, startAt int, queryData *api.RemoteQueryData) {
+	if maxResults != 0 {
+		queryData.PerPage = maxResults
+		queryData.Page = startAt/maxResults + 1
+	}
 }

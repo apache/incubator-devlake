@@ -23,6 +23,10 @@ import (
 	helper "github.com/apache/incubator-devlake/helpers/pluginhelper/api"
 )
 
+func init() {
+	RegisterSubtaskMeta(&CollectApiMrCommitsMeta)
+}
+
 const RAW_MERGE_REQUEST_COMMITS_TABLE = "gitlab_api_merge_request_commits"
 
 var CollectApiMrCommitsMeta = plugin.SubTaskMeta{
@@ -31,6 +35,7 @@ var CollectApiMrCommitsMeta = plugin.SubTaskMeta{
 	EnabledByDefault: true,
 	Description:      "Collect merge requests commits data from gitlab api, supports timeFilter but not diffSync.",
 	DomainTypes:      []string{plugin.DOMAIN_TYPE_CODE_REVIEW},
+	Dependencies:     []*plugin.SubTaskMeta{&ExtractApiMrNotesMeta},
 }
 
 func CollectApiMergeRequestsCommits(taskCtx plugin.SubTaskContext) errors.Error {
@@ -40,7 +45,8 @@ func CollectApiMergeRequestsCommits(taskCtx plugin.SubTaskContext) errors.Error 
 		return err
 	}
 
-	iterator, err := GetMergeRequestsIterator(taskCtx, collectorWithState)
+	// Due to the inability of incremental updates to handle force push on commits, we are temporarily abandoning incremental updates and passing nil to process the full data.
+	iterator, err := GetMergeRequestsIterator(taskCtx, nil)
 	if err != nil {
 		return err
 	}
@@ -54,6 +60,7 @@ func CollectApiMergeRequestsCommits(taskCtx plugin.SubTaskContext) errors.Error 
 		Query:          GetQuery,
 		GetTotalPages:  GetTotalPagesFromResponse,
 		ResponseParser: GetRawMessageFromResponse,
+		AfterResponse:  ignoreHTTPStatus404,
 	})
 	if err != nil {
 		return err

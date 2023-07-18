@@ -26,8 +26,12 @@ import (
 	"github.com/apache/incubator-devlake/core/models/domainlayer/didgen"
 	"github.com/apache/incubator-devlake/core/plugin"
 	helper "github.com/apache/incubator-devlake/helpers/pluginhelper/api"
-	gitlabModels "github.com/apache/incubator-devlake/plugins/gitlab/models"
+	"github.com/apache/incubator-devlake/plugins/gitlab/models"
 )
+
+func init() {
+	RegisterSubtaskMeta(&ConvertPipelineCommitMeta)
+}
 
 var ConvertPipelineCommitMeta = plugin.SubTaskMeta{
 	Name:             "convertPipelineCommits",
@@ -35,46 +39,47 @@ var ConvertPipelineCommitMeta = plugin.SubTaskMeta{
 	EnabledByDefault: true,
 	Description:      "Convert tool layer table gitlab_pipeline_project into domain layer table pipeline",
 	DomainTypes:      []string{plugin.DOMAIN_TYPE_CICD},
+	Dependencies:     []*plugin.SubTaskMeta{&ConvertPipelineMeta},
 }
 
 func ConvertPipelineCommits(taskCtx plugin.SubTaskContext) errors.Error {
 	db := taskCtx.GetDal()
 	data := taskCtx.GetData().(*GitlabTaskData)
 
-	repo := &gitlabModels.GitlabProject{}
+	repo := &models.GitlabProject{}
 	err := db.First(repo, dal.Where("gitlab_id = ? and connection_id = ?", data.Options.ProjectId, data.Options.ConnectionId))
 	if err != nil {
 		return err
 	}
 
-	cursor, err := db.Cursor(dal.From(gitlabModels.GitlabPipelineProject{}),
+	cursor, err := db.Cursor(dal.From(models.GitlabPipelineProject{}),
 		dal.Where("project_id = ? and connection_id = ?", data.Options.ProjectId, data.Options.ConnectionId))
 	if err != nil {
 		return err
 	}
 	defer cursor.Close()
 
-	pipelineIdGen := didgen.NewDomainIdGenerator(&gitlabModels.GitlabPipeline{})
+	pipelineIdGen := didgen.NewDomainIdGenerator(&models.GitlabPipeline{})
 
 	converter, err := helper.NewDataConverter(helper.DataConverterArgs{
-		InputRowType: reflect.TypeOf(gitlabModels.GitlabPipelineProject{}),
+		InputRowType: reflect.TypeOf(models.GitlabPipelineProject{}),
 		Input:        cursor,
 		RawDataSubTaskArgs: helper.RawDataSubTaskArgs{
 			Ctx: taskCtx,
-			Params: GitlabApiParams{
+			Params: models.GitlabApiParams{
 				ConnectionId: data.Options.ConnectionId,
 				ProjectId:    data.Options.ProjectId,
 			},
 			Table: RAW_PIPELINE_TABLE,
 		},
 		Convert: func(inputRow interface{}) ([]interface{}, errors.Error) {
-			gitlabPipelineCommit := inputRow.(*gitlabModels.GitlabPipelineProject)
+			gitlabPipelineCommit := inputRow.(*models.GitlabPipelineProject)
 
 			domainPipelineCommit := &devops.CiCDPipelineCommit{
 				PipelineId: pipelineIdGen.Generate(data.Options.ConnectionId, gitlabPipelineCommit.PipelineId),
 				CommitSha:  gitlabPipelineCommit.Sha,
 				Branch:     gitlabPipelineCommit.Ref,
-				RepoId: didgen.NewDomainIdGenerator(&gitlabModels.GitlabProject{}).
+				RepoId: didgen.NewDomainIdGenerator(&models.GitlabProject{}).
 					Generate(gitlabPipelineCommit.ConnectionId, gitlabPipelineCommit.ProjectId),
 				RepoUrl: repo.WebUrl,
 			}

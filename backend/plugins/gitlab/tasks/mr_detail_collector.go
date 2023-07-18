@@ -27,6 +27,10 @@ import (
 	helper "github.com/apache/incubator-devlake/helpers/pluginhelper/api"
 )
 
+func init() {
+	RegisterSubtaskMeta(&CollectApiMergeRequestDetailsMeta)
+}
+
 const RAW_MERGE_REQUEST_DETAIL_TABLE = "gitlab_api_merge_request_details"
 
 var CollectApiMergeRequestDetailsMeta = plugin.SubTaskMeta{
@@ -35,6 +39,7 @@ var CollectApiMergeRequestDetailsMeta = plugin.SubTaskMeta{
 	EnabledByDefault: true,
 	Description:      "Collect merge request Details data from gitlab api, supports timeFilter but not diffSync.",
 	DomainTypes:      []string{plugin.DOMAIN_TYPE_CODE_REVIEW},
+	Dependencies:     []*plugin.SubTaskMeta{&ExtractApiMergeRequestsMeta},
 }
 
 func CollectApiMergeRequestDetails(taskCtx plugin.SubTaskContext) errors.Error {
@@ -60,6 +65,7 @@ func CollectApiMergeRequestDetails(taskCtx plugin.SubTaskContext) errors.Error {
 			return query, nil
 		},
 		ResponseParser: GetOneRawMessageFromResponse,
+		AfterResponse:  ignoreHTTPStatus404,
 	})
 	if err != nil {
 		return err

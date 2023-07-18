@@ -27,6 +27,21 @@ export const CrossDomain = styled.div`
     margin-top: 24px;
   }
 
+  .application {
+    margin-bottom: 8px;
+
+    span {
+      padding: 4px 8px;
+      background-color: #efefef;
+    }
+
+    span + span {
+      margin-left: 8px;
+    }
+  }
+`;
+
+export const RemoteLinkWrapper = styled.div`
   .input {
     display: flex;
     align-items: center;
@@ -35,6 +50,26 @@ export const CrossDomain = styled.div`
     .bp4-input-group {
       margin-right: 8px;
       width: 680px;
+    }
+  }
+`;
+
+export const DialogBody = styled.div`
+  ul,
+  pre {
+    padding: 8px 16px;
+    max-height: 240px;
+    overflow-y: auto;
+    background: #efefef;
+  }
+
+  .search {
+    display: flex;
+    align-items: center;
+
+    .bp4-input-group {
+      margin-right: 24px;
+      width: 360px;
     }
   }
 `;

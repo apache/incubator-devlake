@@ -98,13 +98,15 @@ export const GitHubConfig: PluginConfigType = {
   },
   dataScope: {
     millerColumns: {
-      title: 'Repositories *',
-      subTitle: 'Select the repositories you would like to sync.',
+      title: 'Select Repositories *',
+      subTitle: 'You can either add repositories by searching or selecting from the following directory.',
       firstColumnTitle: 'Organizations/Owners',
+      columnCount: 2,
     },
     search: {
-      title: 'Add repositories outside of your organizations',
-      subTitle: 'Search for repositories and add to them',
+      title: 'Add Repositories by Searching',
+      subTitle:
+        'If you would like to add repositories outside of your organizations, you can add them through this method.',
     },
   },
   scopeConfig: {

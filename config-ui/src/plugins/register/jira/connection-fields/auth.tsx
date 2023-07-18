@@ -19,9 +19,11 @@
 import { useState, useEffect } from 'react';
 import { FormGroup, RadioGroup, Radio, InputGroup } from '@blueprintjs/core';
 
-import { ExternalLink } from '@/components';
+import { ExternalLink, FormPassword } from '@/components';
 
 import * as S from './styled';
+
+const JIRA_CLOUD_REGEX = /^https:\/\/\w+.atlassian.net\/rest\/$/;
 
 type Method = 'BasicAuth' | 'AccessToken';
 
@@ -33,8 +35,14 @@ interface Props {
   setErrors: (value: any) => void;
 }
 
-export const Auth = ({ initialValues, values, errors, setValues, setErrors }: Props) => {
+export const Auth = ({ initialValues, values, setValues, setErrors }: Props) => {
   const [version, setVersion] = useState('cloud');
+
+  useEffect(() => {
+    if (initialValues.endpoint && !JIRA_CLOUD_REGEX.test(initialValues.endpoint)) {
+      setVersion('server');
+    }
+  }, [initialValues.endpoint]);
 
   useEffect(() => {
     setValues({
@@ -152,12 +160,7 @@ export const Auth = ({ initialValues, values, errors, setValues, setErrors }: Pr
               </S.LabelDescription>
             }
           >
-            <InputGroup
-              type="password"
-              placeholder="Your PAT"
-              value={values.password}
-              onChange={handleChangePassword}
-            />
+            <FormPassword placeholder="Your PAT" value={values.password} onChange={handleChangePassword} />
           </FormGroup>
         </>
       )}
@@ -176,12 +179,7 @@ export const Auth = ({ initialValues, values, errors, setValues, setErrors }: Pr
                 <InputGroup placeholder="Your Username" value={values.username} onChange={handleChangeUsername} />
               </FormGroup>
               <FormGroup label={<S.Label>Password</S.Label>} labelInfo={<S.LabelInfo>*</S.LabelInfo>}>
-                <InputGroup
-                  type="password"
-                  placeholder="Your Password"
-                  value={values.password}
-                  onChange={handleChangePassword}
-                />
+                <FormPassword placeholder="Your Password" value={values.password} onChange={handleChangePassword} />
               </FormGroup>
             </>
           )}
@@ -197,7 +195,7 @@ export const Auth = ({ initialValues, values, errors, setValues, setErrors }: Pr
                 </S.LabelDescription>
               }
             >
-              <InputGroup type="password" placeholder="Your PAT" value={values.token} onChange={handleChangeToken} />
+              <FormPassword placeholder="Your PAT" value={values.token} onChange={handleChangeToken} />
             </FormGroup>
           )}
         </>

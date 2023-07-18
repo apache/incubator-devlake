@@ -67,6 +67,13 @@ func CreateApiService() {
 	// For both protected and unprotected routes
 	router.GET("/ping", ping.Get)
 	router.GET("/version", version.Get)
+	router.GET("/userinfo", func(ctx *gin.Context) {
+		shared.ApiOutputSuccess(ctx, gin.H{
+			"user":      ctx.Request.Header.Get("X-Forwarded-User"),
+			"email":     ctx.Request.Header.Get("X-Forwarded-Email"),
+			"logoutURI": config.GetConfig().GetString("LOGOUT_URI"),
+		}, http.StatusOK)
+	})
 
 	// Endpoint to proceed database migration
 	router.GET("/proceed-db-migration", func(ctx *gin.Context) {

@@ -21,22 +21,22 @@ import PluginIcon from '@/images/plugin-icon.svg';
 import { PluginConfig } from './config';
 import { PluginConfigType, PluginType } from './types';
 
-export const getPluginId = (plugin: string) => {
+export const getPluginScopeId = (plugin: string, scope: any) => {
   switch (plugin) {
     case 'github':
-      return 'githubId';
+      return `${scope.githubId}`;
     case 'jira':
-      return 'boardId';
+      return `${scope.boardId}`;
     case 'gitlab':
-      return 'gitlabId';
+      return `${scope.gitlabId}`;
     case 'jenkins':
-      return 'jobFullName';
+      return `${scope.jobFullName}`;
     case 'bitbucket':
-      return 'bitbucketId';
+      return `${scope.bitbucketId}`;
     case 'sonarqube':
-      return 'projectKey';
+      return `${scope.projectKey}`;
     default:
-      return 'id';
+      return `${scope.id}`;
   }
 };
 

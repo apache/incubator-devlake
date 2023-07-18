@@ -18,6 +18,7 @@ limitations under the License.
 package services
 
 import (
+	"fmt"
 	"os"
 	"time"
 
@@ -32,52 +33,33 @@ var lockingTx dal.Transaction
 
 // lockDatabase prevents multiple devlake instances from sharing the same lockDatabase
 // check the models.LockingHistory for the detail
-func lockDatabase(db dal.Dal) errors.Error {
+func lockDatabase() {
+	db := basicRes.GetDal()
 	// first, register the instance
-	err := db.AutoMigrate(&models.LockingHistory{})
-	if err != nil {
-		return err
-	}
-	hostName, e := os.Hostname()
-	if e != nil {
-		return errors.Convert(e)
-	}
+	errors.Must(db.AutoMigrate(&models.LockingHistory{}))
+	hostName := errors.Must1(os.Hostname())
 	lockingHistory := &models.LockingHistory{
 		HostName: hostName,
 		Version:  version.Version,
 	}
-	err = db.Create(lockingHistory)
-	if err != nil {
-		return err
-	}
-	// 2. obtain the lock
-	err = db.AutoMigrate(&models.LockingStub{})
-	if err != nil {
-		return err
-	}
-	lockingTx = db.Begin()
-	c := make(chan error, 1)
-
+	errors.Must(db.Create(lockingHistory))
+	// 2. obtain the lock: using a never released transaction
 	// This prevent multiple devlake instances from sharing the same database by locking the migration history table
 	// However, it would not work if any older devlake instances were already using the database.
+	lockingTx = db.Begin()
+	c := make(chan bool, 1)
 	go func() {
-		switch db.Dialect() {
-		case "mysql":
-			c <- lockingTx.Exec("LOCK TABLE _devlake_locking_stub WRITE")
-		case "postgres":
-			c <- lockingTx.Exec("LOCK TABLE _devlake_locking_stub IN EXCLUSIVE MODE")
-		}
+		errors.Must(lockingTx.AutoMigrate(&models.LockingStub{}))
+		errors.Must(lockingTx.LockTables(dal.LockTables{{Table: "_devlake_locking_stub", Exclusive: true}}))
+		lockingHistory.Succeeded = true
+		errors.Must(db.Update(lockingHistory))
+		c <- true
 	}()
 
-	select {
-	case err := <-c:
-		if err != nil {
-			return errors.Convert(err)
-		}
-	case <-time.After(2 * time.Second):
-		return errors.Default.New("locking _devlake_locking_stub timeout, the database might be locked by another devlake instance")
-	}
 	// 3. update the record
-	lockingHistory.Succeeded = true
-	return db.Update(lockingHistory)
+	select {
+	case <-c:
+	case <-time.After(3 * time.Second):
+		panic(fmt.Errorf("locking _devlake_locking_stub timeout, the database might be locked by another devlake instance"))
+	}
 }

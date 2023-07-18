@@ -33,6 +33,10 @@ import (
 	"github.com/apache/incubator-devlake/plugins/gitlab/models"
 )
 
+func init() {
+	RegisterSubtaskMeta(&ConvertProjectMeta)
+}
+
 const RAW_PROJECT_TABLE = "gitlab_api_project"
 
 type GitlabApiProject struct {
@@ -58,6 +62,7 @@ var ConvertProjectMeta = plugin.SubTaskMeta{
 	EnabledByDefault: true,
 	Description:      "Add domain layer Repo according to GitlabProject",
 	DomainTypes:      []string{plugin.DOMAIN_TYPE_CODE, plugin.DOMAIN_TYPE_TICKET},
+	Dependencies:     []*plugin.SubTaskMeta{&ConvertAccountsMeta},
 }
 
 func ConvertApiProjects(taskCtx plugin.SubTaskContext) errors.Error {

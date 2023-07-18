@@ -19,6 +19,7 @@ package api
 
 import (
 	"github.com/apache/incubator-devlake/core/context"
+	"github.com/apache/incubator-devlake/core/plugin"
 	"github.com/apache/incubator-devlake/helpers/pluginhelper/api"
 	"github.com/apache/incubator-devlake/plugins/gitlab/models"
 	"github.com/go-playground/validator/v10"
@@ -31,16 +32,19 @@ var remoteHelper *api.RemoteApiHelper[models.GitlabConnection, models.GitlabProj
 var basicRes context.BasicRes
 var scHelper *api.ScopeConfigHelper[models.GitlabScopeConfig]
 
-func Init(br context.BasicRes) {
+func Init(br context.BasicRes, p plugin.PluginMeta) {
+
 	basicRes = br
 	vld = validator.New()
 	connectionHelper = api.NewConnectionHelper(
 		basicRes,
 		vld,
+		p.Name(),
 	)
 	params := &api.ReflectionParameters{
 		ScopeIdFieldName:  "GitlabId",
 		ScopeIdColumnName: "gitlab_id",
+		RawScopeParamName: "ProjectId",
 	}
 	scopeHelper = api.NewScopeHelper[models.GitlabConnection, models.GitlabProject, models.GitlabScopeConfig](
 		basicRes,
@@ -59,5 +63,6 @@ func Init(br context.BasicRes) {
 	scHelper = api.NewScopeConfigHelper[models.GitlabScopeConfig](
 		basicRes,
 		vld,
+		p.Name(),
 	)
 }

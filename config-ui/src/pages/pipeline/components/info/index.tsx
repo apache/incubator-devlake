@@ -42,7 +42,7 @@ interface Props {
 export const PipelineInfo = ({ id, style }: Props) => {
   const { version } = usePipeline();
 
-  const { loading, data } = useAutoRefresh<PipelineType>(() => API.getPipeline(id), [version], {
+  const { data } = useAutoRefresh<PipelineType>(() => API.getPipeline(id), [version], {
     cancel: (data) => {
       return !!(
         data &&
@@ -51,7 +51,7 @@ export const PipelineInfo = ({ id, style }: Props) => {
     },
   });
 
-  if (loading || !data) {
+  if (!data) {
     return <Loading />;
   }
 

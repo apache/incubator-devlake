@@ -47,6 +47,7 @@ func TestMakeDataSourcePipelinePlanV200(t *testing.T) {
 	const testHttpUrlToRepo string = "https://this_is_cloneUrl"
 	const testToken string = "nddtf"
 	const testName string = "gitlab-test"
+	const pathWithNamespace string = "nddtf/gitlab-test"
 	const testScopeConfigName string = "gitlab scope config"
 	const testProxy string = ""
 
@@ -59,13 +60,13 @@ func TestMakeDataSourcePipelinePlanV200(t *testing.T) {
 	}
 
 	var testGitlabProject = &models.GitlabProject{
-		ConnectionId: testConnectionID,
-		GitlabId:     testID,
-		Name:         testName,
-
-		ScopeConfigId: testScopeConfigId,
-		CreatedDate:   &time.Time{},
-		HttpUrlToRepo: testHttpUrlToRepo,
+		ConnectionId:      testConnectionID,
+		GitlabId:          testID,
+		Name:              testName,
+		PathWithNamespace: pathWithNamespace,
+		ScopeConfigId:     testScopeConfigId,
+		CreatedDate:       &time.Time{},
+		HttpUrlToRepo:     testHttpUrlToRepo,
 	}
 
 	var testScopeConfig = &models.GitlabScopeConfig{
@@ -160,14 +161,14 @@ func TestMakeDataSourcePipelinePlanV200(t *testing.T) {
 		},
 	}
 
-	expectRepo := code.NewRepo(expectRepoId, testName)
+	expectRepo := code.NewRepo(expectRepoId, pathWithNamespace)
 	expectRepo.ForkedFrom = testGitlabProject.ForkedFromProjectWebUrl
 
-	expectCicdScope := devops.NewCicdScope(expectRepoId, testName)
+	expectCicdScope := devops.NewCicdScope(expectRepoId, pathWithNamespace)
 	expectCicdScope.Description = ""
 	expectCicdScope.Url = ""
 
-	expectBoard := ticket.NewBoard(expectRepoId, testName)
+	expectBoard := ticket.NewBoard(expectRepoId, pathWithNamespace)
 	expectBoard.Description = ""
 	expectBoard.Url = ""
 	expectBoard.Type = ""
@@ -177,6 +178,7 @@ func TestMakeDataSourcePipelinePlanV200(t *testing.T) {
 	// register gitlab plugin for NewDomainIdGenerator
 	mockMeta := mockplugin.NewPluginMeta(t)
 	mockMeta.On("RootPkgPath").Return("github.com/apache/incubator-devlake/plugins/gitlab")
+	mockMeta.On("Name").Return("dummy").Maybe()
 	err = plugin.RegisterPlugin("gitlab", mockMeta)
 	assert.Equal(t, err, nil)
 
@@ -197,7 +199,7 @@ func TestMakeDataSourcePipelinePlanV200(t *testing.T) {
 			*dst = *testScopeConfig
 		}).Return(nil)
 	})
-	Init(mockRes)
+	Init(mockRes, mockMeta)
 
 	plans, scopes, err := MakePipelinePlanV200(testSubTaskMeta, testConnectionID, bpScopes, syncPolicy)
 	assert.Equal(t, err, nil)

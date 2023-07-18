@@ -16,25 +16,21 @@
  *
  */
 
+import React from 'react';
 import ReactDOM from 'react-dom';
-import { BrowserRouter } from 'react-router-dom';
+import { RouterProvider } from 'react-router-dom';
 
 import { ErrorBoundary } from '@/components';
-import { ConnectionContextProvider, TipsContextProvider } from '@/store';
 
-import App from './App';
+import { router } from './router';
 
 import './index.css';
 
 ReactDOM.render(
-  <BrowserRouter>
+  <React.StrictMode>
     <ErrorBoundary>
-      <ConnectionContextProvider>
-        <TipsContextProvider>
-          <App />
-        </TipsContextProvider>
-      </ConnectionContextProvider>
+      <RouterProvider router={router} />
     </ErrorBoundary>
-  </BrowserRouter>,
+  </React.StrictMode>,
   document.getElementById('root'),
 );

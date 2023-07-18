@@ -17,13 +17,13 @@
  */
 
 import { useState } from 'react';
-import { useHistory, useParams } from 'react-router-dom';
+import { useNavigate, useParams } from 'react-router-dom';
 import { Button, Intent, Position } from '@blueprintjs/core';
 import { Popover2 } from '@blueprintjs/popover2';
 
-import { PageLoading, PageHeader, ExternalLink, Buttons, Table, Dialog } from '@/components';
-import { useRefreshData } from '@/hooks';
-import { DataScopeSelect, getPluginId } from '@/plugins';
+import { PageLoading, PageHeader, ExternalLink, Buttons, Table, Dialog, Message } from '@/components';
+import { useRefreshData, useTips } from '@/hooks';
+import { DataScopeSelect, getPluginScopeId } from '@/plugins';
 import { operator } from '@/utils';
 
 import * as API from './api';
@@ -32,9 +32,12 @@ import * as S from './styled';
 export const BlueprintConnectionDetailPage = () => {
   const [version, setVersion] = useState(1);
   const [isOpen, setIsOpen] = useState(false);
+  const [operating, setOperating] = useState(false);
 
-  const { pname, bid, unique } = useParams<{ pname?: string; bid?: string; unique: string }>();
-  const history = useHistory();
+  const { pname, bid, unique } = useParams() as { pname?: string; bid?: string; unique: string };
+  const navigate = useNavigate();
+
+  const { setTips } = useTips();
 
   const getBlueprint = async (pname?: string, bid?: string) => {
     if (pname) {
@@ -55,7 +58,7 @@ export const BlueprintConnectionDetailPage = () => {
 
     const scopeIds = blueprint.settings.connections
       .find((cs: any) => cs.plugin === plugin && cs.connectionId === +connectionId)
-      .scopes.map((sc: any) => +sc.id);
+      .scopes.map((sc: any) => sc.id);
 
     return {
       blueprint,
@@ -65,7 +68,7 @@ export const BlueprintConnectionDetailPage = () => {
         id: +connectionId,
         name: connection.name,
       },
-      scopes: scopes.filter((sc: any) => scopeIds.includes(sc[getPluginId(plugin)])),
+      scopes: scopes.filter((sc: any) => scopeIds.includes(getPluginScopeId(plugin, sc))),
     };
   }, [version, pname, bid]);
 
@@ -77,6 +80,33 @@ export const BlueprintConnectionDetailPage = () => {
 
   const handleShowDataScope = () => setIsOpen(true);
   const handleHideDataScope = () => setIsOpen(false);
+
+  const handleRunBP = async (skipCollectors: boolean) => {
+    const [success] = await operator(() => API.runBlueprint(blueprint.id, skipCollectors), {
+      setOperating,
+      formatMessage: () => 'Trigger blueprint successful.',
+    });
+
+    if (success) {
+      navigate(pname ? `/projects/${pname}` : `/blueprints/${blueprint.id}`);
+    }
+  };
+
+  const handleShowTips = () => {
+    setTips(
+      <>
+        <Message content="The change of Data Scope(s) will affect the metrics of this project. Would you like to recollect the data to get them updated?" />
+        <Buttons style={{ marginLeft: 8, marginBottom: 0 }}>
+          <Button
+            loading={operating}
+            intent={Intent.PRIMARY}
+            text="Recollect All Data"
+            onClick={() => handleRunBP(false)}
+          />
+        </Buttons>
+      </>,
+    );
+  };
 
   const handleRemoveConnection = async () => {
     const [success] = await operator(() =>
@@ -92,7 +122,8 @@ export const BlueprintConnectionDetailPage = () => {
     );
 
     if (success) {
-      history.push(pname ? `/projects/${pname}` : `/blueprints/${blueprint.id}`);
+      handleShowTips();
+      navigate(pname ? `/projects/${pname}?tab=configuration` : `/blueprints/${blueprint.id}?tab=configuration`);
     }
   };
 
@@ -107,7 +138,7 @@ export const BlueprintConnectionDetailPage = () => {
               if (cs.plugin === connection.plugin && cs.connectionId === connection.id) {
                 return {
                   ...cs,
-                  scopes: scope.map((sc: any) => ({ id: `${sc[getPluginId(connection.plugin)]}` })),
+                  scopes: scope.map((sc: any) => ({ id: getPluginScopeId(connection.plugin, sc) })),
                 };
               }
               return cs;
@@ -120,6 +151,7 @@ export const BlueprintConnectionDetailPage = () => {
     );
 
     if (success) {
+      handleShowTips();
       handleHideDataScope();
       setVersion((v) => v + 1);
     }
@@ -154,7 +186,7 @@ export const BlueprintConnectionDetailPage = () => {
           position={Position.BOTTOM}
           content={
             <S.ActionDelete>
-              <div className="content">Are you sure you want to delete this connection?</div>
+              <div className="content">Are you sure you want to remove the connection from this project/blueprint?</div>
               <div className="btns" onClick={handleRemoveConnection}>
                 <Button intent={Intent.PRIMARY} text="Confirm" />
               </div>

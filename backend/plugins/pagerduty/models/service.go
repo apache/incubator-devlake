@@ -19,7 +19,13 @@ package models
 
 import (
 	"github.com/apache/incubator-devlake/core/models/common"
+	"github.com/apache/incubator-devlake/core/plugin"
 )
+
+type PagerDutyParams struct {
+	ConnectionId uint64
+	ScopeId      string
+}
 
 type Service struct {
 	common.NoPKModel
@@ -29,6 +35,23 @@ type Service struct {
 	Name         string `json:"name" mapstructure:"name"`
 }
 
-func (Service) TableName() string {
+func (s Service) ScopeId() string {
+	return s.Name
+}
+
+func (s Service) ScopeName() string {
+	return s.Name
+}
+
+func (s Service) ScopeParams() interface{} {
+	return &PagerDutyParams{
+		ConnectionId: s.ConnectionId,
+		ScopeId:      s.Id,
+	}
+}
+
+func (s Service) TableName() string {
 	return "_tool_pagerduty_services"
 }
+
+var _ plugin.ToolLayerScope = (*Service)(nil)

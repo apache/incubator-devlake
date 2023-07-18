@@ -39,7 +39,7 @@ class GitRepositoryConfig(ScopeConfig):
 
 class GitRepository(ToolScope, table=True):
     url: str
-    remote_url: str
+    remote_url: Optional[str]
     default_branch: Optional[str]
     project_id: str
     org_id: str
@@ -67,7 +67,7 @@ class GitPullRequest(ToolModel, table=True):
     target_commit_sha: str = Field(source='/lastMergeTargetCommit/commitId')
     merge_commit_sha: Optional[str] = Field(source='/lastMergeCommit/commitId')
     url: Optional[str]
-    type: Optional[str] = Field(source='/labels/0/name') # TODO: Add regex to scope config
+    type: Optional[str] = Field(source='/labels/0/name')  # TODO: Add regex to scope config
     title: Optional[str]
     target_ref_name: Optional[str]
     source_ref_name: Optional[str]
@@ -146,3 +146,8 @@ def add_build_id_as_job_primary_key(b: MigrationScriptBuilder):
 def rename_tx_rule_table_to_scope_config(b: MigrationScriptBuilder):
     b.rename_table('_tool_azuredevops_azuredevopstransformationrules', GitRepositoryConfig.__tablename__)
     b.add_column(GitRepositoryConfig.__tablename__, 'entities', 'json')
+
+
+@migration(20230630000001, name="populated _raw_data_table column for azuredevops git repos")
+def add_raw_data_params_table_to_scope(b: MigrationScriptBuilder):
+    b.execute(f'''UPDATE {GitRepository.__tablename__} SET _raw_data_table = '_raw_azuredevops_scopes' WHERE 1=1''')

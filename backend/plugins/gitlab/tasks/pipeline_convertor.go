@@ -29,8 +29,12 @@ import (
 	"github.com/apache/incubator-devlake/core/models/domainlayer/didgen"
 	"github.com/apache/incubator-devlake/core/plugin"
 	helper "github.com/apache/incubator-devlake/helpers/pluginhelper/api"
-	gitlabModels "github.com/apache/incubator-devlake/plugins/gitlab/models"
+	"github.com/apache/incubator-devlake/plugins/gitlab/models"
 )
+
+func init() {
+	RegisterSubtaskMeta(&ConvertPipelineMeta)
+}
 
 var ConvertPipelineMeta = plugin.SubTaskMeta{
 	Name:             "convertPipelines",
@@ -38,35 +42,36 @@ var ConvertPipelineMeta = plugin.SubTaskMeta{
 	EnabledByDefault: true,
 	Description:      "Convert tool layer table gitlab_pipeline into domain layer table pipeline",
 	DomainTypes:      []string{plugin.DOMAIN_TYPE_CICD},
+	Dependencies:     []*plugin.SubTaskMeta{&ConvertCommitsMeta},
 }
 
 func ConvertPipelines(taskCtx plugin.SubTaskContext) errors.Error {
 	db := taskCtx.GetDal()
 	data := taskCtx.GetData().(*GitlabTaskData)
 
-	cursor, err := db.Cursor(dal.From(gitlabModels.GitlabPipeline{}),
+	cursor, err := db.Cursor(dal.From(models.GitlabPipeline{}),
 		dal.Where("project_id = ? and connection_id = ?", data.Options.ProjectId, data.Options.ConnectionId))
 	if err != nil {
 		return err
 	}
 	defer cursor.Close()
 
-	pipelineIdGen := didgen.NewDomainIdGenerator(&gitlabModels.GitlabPipeline{})
-	projectIdGen := didgen.NewDomainIdGenerator(&gitlabModels.GitlabProject{})
+	pipelineIdGen := didgen.NewDomainIdGenerator(&models.GitlabPipeline{})
+	projectIdGen := didgen.NewDomainIdGenerator(&models.GitlabProject{})
 
 	converter, err := helper.NewDataConverter(helper.DataConverterArgs{
-		InputRowType: reflect.TypeOf(gitlabModels.GitlabPipeline{}),
+		InputRowType: reflect.TypeOf(models.GitlabPipeline{}),
 		Input:        cursor,
 		RawDataSubTaskArgs: helper.RawDataSubTaskArgs{
 			Ctx: taskCtx,
-			Params: GitlabApiParams{
+			Params: models.GitlabApiParams{
 				ConnectionId: data.Options.ConnectionId,
 				ProjectId:    data.Options.ProjectId,
 			},
 			Table: RAW_PIPELINE_TABLE,
 		},
 		Convert: func(inputRow interface{}) ([]interface{}, errors.Error) {
-			gitlabPipeline := inputRow.(*gitlabModels.GitlabPipeline)
+			gitlabPipeline := inputRow.(*models.GitlabPipeline)
 
 			createdAt := time.Now()
 			if gitlabPipeline.GitlabCreatedAt != nil {

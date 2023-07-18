@@ -18,6 +18,7 @@ limitations under the License.
 package plugin
 
 import (
+	"fmt"
 	"net/http"
 
 	"github.com/apache/incubator-devlake/core/errors"
@@ -26,23 +27,33 @@ import (
 	"github.com/apache/incubator-devlake/server/services/remote/bridge"
 )
 
+type TestConnectionResult struct {
+	Success bool   `json:"success"`
+	Message string `json:"message"`
+	Status  int    `json:"status"`
+}
+
 func (pa *pluginAPI) TestConnection(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, errors.Error) {
-	err := pa.invoker.Call("test-connection", bridge.DefaultContext, input.Body).Err
+	var result TestConnectionResult
+	err := pa.invoker.Call("test-connection", bridge.DefaultContext, input.Body).Get(&result)
 	if err != nil {
 		body := shared.ApiBody{
 			Success: false,
-			Message: err.Error(),
+			Message: fmt.Sprintf("Error while testing connection: %s", err.Error()),
 		}
-		return &plugin.ApiResourceOutput{Body: body, Status: 400}, nil
+		return &plugin.ApiResourceOutput{Body: body, Status: 500}, nil
 	} else {
-		body := shared.ApiBody{Success: true}
-		return &plugin.ApiResourceOutput{Body: body, Status: 200}, nil
+		body := shared.ApiBody{
+			Success: result.Success,
+			Message: result.Message,
+		}
+		return &plugin.ApiResourceOutput{Body: body, Status: result.Status}, nil
 	}
 }
 
 func (pa *pluginAPI) PostConnections(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, errors.Error) {
 	connection := pa.connType.New()
-	err := pa.helper.Create(connection, input)
+	err := pa.connhelper.Create(connection, input)
 	if err != nil {
 		return nil, err
 	}
@@ -52,7 +63,7 @@ func (pa *pluginAPI) PostConnections(input *plugin.ApiResourceInput) (*plugin.Ap
 
 func (pa *pluginAPI) ListConnections(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, errors.Error) {
 	connections := pa.connType.NewSlice()
-	err := pa.helper.List(connections)
+	err := pa.connhelper.List(connections)
 	if err != nil {
 		return nil, err
 	}
@@ -62,7 +73,7 @@ func (pa *pluginAPI) ListConnections(input *plugin.ApiResourceInput) (*plugin.Ap
 
 func (pa *pluginAPI) GetConnection(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, errors.Error) {
 	connection := pa.connType.New()
-	err := pa.helper.First(connection, input.Params)
+	err := pa.connhelper.First(connection, input.Params)
 	if err != nil {
 		return nil, err
 	}
@@ -72,7 +83,7 @@ func (pa *pluginAPI) GetConnection(input *plugin.ApiResourceInput) (*plugin.ApiR
 
 func (pa *pluginAPI) PatchConnection(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, errors.Error) {
 	connection := pa.connType.New()
-	err := pa.helper.Patch(connection, input)
+	err := pa.connhelper.Patch(connection, input)
 	if err != nil {
 		return nil, err
 	}
@@ -81,12 +92,5 @@ func (pa *pluginAPI) PatchConnection(input *plugin.ApiResourceInput) (*plugin.Ap
 }
 
 func (pa *pluginAPI) DeleteConnection(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, errors.Error) {
-	connection := pa.connType.New()
-	err := pa.helper.First(connection, input.Params)
-	if err != nil {
-		return nil, err
-	}
-	err = pa.helper.Delete(connection)
-	conn := connection.Unwrap()
-	return &plugin.ApiResourceOutput{Body: conn}, err
+	return pa.connhelper.Delete(pa.connType.New(), input)
 }

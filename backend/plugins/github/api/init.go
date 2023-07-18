@@ -18,6 +18,7 @@ limitations under the License.
 package api
 
 import (
+	"github.com/apache/incubator-devlake/core/plugin"
 	"strconv"
 
 	"github.com/apache/incubator-devlake/core/context"
@@ -33,14 +34,16 @@ var connectionHelper *api.ConnectionApiHelper
 var scopeHelper *api.ScopeApiHelper[models.GithubConnection, models.GithubRepo, models.GithubScopeConfig]
 var basicRes context.BasicRes
 var scHelper *api.ScopeConfigHelper[models.GithubScopeConfig]
-var remoteHelper *api.RemoteApiHelper[models.GithubConnection, models.GithubRepo, repo, org]
+var remoteHelper *api.RemoteApiHelper[models.GithubConnection, models.GithubRepo, repo, plugin.ApiGroup]
 
-func Init(br context.BasicRes) {
+func Init(br context.BasicRes, p plugin.PluginMeta) {
+
 	basicRes = br
 	vld = validator.New()
 	connectionHelper = api.NewConnectionHelper(
 		basicRes,
 		vld,
+		p.Name(),
 	)
 	params := &api.ReflectionParameters{
 		ScopeIdFieldName:  "GithubId",
@@ -67,15 +70,16 @@ func Init(br context.BasicRes) {
 				if err != nil {
 					return "", err
 				}
-				return repo.Name, nil
+				return repo.FullName, nil
 			},
 		},
 	)
 	scHelper = api.NewScopeConfigHelper[models.GithubScopeConfig](
 		basicRes,
 		vld,
+		p.Name(),
 	)
-	remoteHelper = api.NewRemoteHelper[models.GithubConnection, models.GithubRepo, repo, org](
+	remoteHelper = api.NewRemoteHelper[models.GithubConnection, models.GithubRepo, repo, plugin.ApiGroup](
 		basicRes,
 		vld,
 		connectionHelper,

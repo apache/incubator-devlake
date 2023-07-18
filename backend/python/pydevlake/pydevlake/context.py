@@ -24,7 +24,7 @@ class Context:
                  engine: Engine,
                  connection: Connection,
                  scope: ToolScope,
-                 scope_config: ScopeConfig = None,
+                 scope_config: ScopeConfig,
                  options: dict = None):
         self.engine = engine
         self.connection = connection

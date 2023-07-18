@@ -38,10 +38,24 @@ type GetBlueprintQuery struct {
 	PageSize    int
 }
 
+type BlueprintProjectPairs struct {
+	Projects   []string `json:"projects"`
+	Blueprints []string `json:"blueprints"`
+}
+
 func NewBlueprintManager(db dal.Dal) *BlueprintManager {
 	return &BlueprintManager{
 		db: db,
 	}
+}
+
+func NewBlueprintProjectPairs(bps []*models.Blueprint) *BlueprintProjectPairs {
+	pairs := &BlueprintProjectPairs{}
+	for _, bp := range bps {
+		pairs.Blueprints = append(pairs.Blueprints, bp.Name)
+		pairs.Projects = append(pairs.Projects, bp.ProjectName)
+	}
+	return pairs
 }
 
 // SaveDbBlueprint accepts a Blueprint instance and upsert it to database
@@ -140,30 +154,46 @@ func (b *BlueprintManager) GetDbBlueprint(blueprintId uint64) (*models.Blueprint
 }
 
 // GetBlueprintsByScopes returns all blueprints that have these scopeIds and this connection Id
-func (b *BlueprintManager) GetBlueprintsByScopes(connectionId uint64, scopeIds ...string) (map[string][]*models.Blueprint, errors.Error) {
+func (b *BlueprintManager) GetBlueprintsByScopes(connectionId uint64, pluginName string, scopeIds ...string) (map[string][]*models.Blueprint, errors.Error) {
 	bps, _, err := b.GetDbBlueprints(&GetBlueprintQuery{})
 	if err != nil {
 		return nil, err
 	}
 	scopeMap := map[string][]*models.Blueprint{}
 	for _, bp := range bps {
-		scopes, err := bp.GetScopes(connectionId)
+		scopes, err := bp.GetScopes(connectionId, pluginName)
 		if err != nil {
 			return nil, err
 		}
 		for _, scope := range scopes {
 			if contains(scopeIds, scope.Id) {
-				if inserted, ok := scopeMap[scope.Id]; !ok {
-					scopeMap[scope.Id] = []*models.Blueprint{bp}
-				} else {
-					inserted = append(inserted, bp)
-					scopeMap[scope.Id] = inserted
-				}
-				break
+				scopeMap[scope.Id] = append(scopeMap[scope.Id], bp)
 			}
 		}
 	}
 	return scopeMap, nil
+}
+
+// GetBlueprintsByScopes returns all blueprints that have these scopeIds and this connection Id
+func (b *BlueprintManager) GetBlueprintsByConnection(plugin string, connectionId uint64) ([]*models.Blueprint, errors.Error) {
+	bps, _, err := b.GetDbBlueprints(&GetBlueprintQuery{})
+	if err != nil {
+		return nil, err
+	}
+	var filteredBps []*models.Blueprint
+	for _, bp := range bps {
+		connections, err := bp.GetConnections()
+		if err != nil {
+			return nil, err
+		}
+		for _, connection := range connections {
+			if connection.ConnectionId == connectionId && connection.Plugin == plugin {
+				filteredBps = append(filteredBps, bp)
+				break
+			}
+		}
+	}
+	return filteredBps, nil
 }
 
 // GetDbBlueprintByProjectName returns the detail of a given projectName

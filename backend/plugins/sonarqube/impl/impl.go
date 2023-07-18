@@ -19,6 +19,7 @@ package impl
 
 import (
 	"fmt"
+	"time"
 
 	"github.com/apache/incubator-devlake/core/dal"
 
@@ -41,7 +42,7 @@ var _ interface {
 	plugin.PluginMigration
 	plugin.DataSourcePluginBlueprintV200
 	plugin.CloseablePluginTask
-	// plugin.PluginSource
+	plugin.PluginSource
 } = (*Sonarqube)(nil)
 
 type Sonarqube struct{}
@@ -50,20 +51,25 @@ func (p Sonarqube) Description() string {
 	return "collect some Sonarqube data"
 }
 
+func (p Sonarqube) Name() string {
+	return "sonarqube"
+}
+
 func (p Sonarqube) Init(br context.BasicRes) errors.Error {
-	api.Init(br)
+	api.Init(br, p)
+
 	return nil
 }
 
-func (p Sonarqube) Connection() interface{} {
+func (p Sonarqube) Connection() dal.Tabler {
 	return &models.SonarqubeConnection{}
 }
 
-func (p Sonarqube) Scope() interface{} {
+func (p Sonarqube) Scope() plugin.ToolLayerScope {
 	return &models.SonarqubeProject{}
 }
 
-func (p Sonarqube) TransformationRule() interface{} {
+func (p Sonarqube) ScopeConfig() dal.Tabler {
 	return nil
 }
 
@@ -109,6 +115,7 @@ func (p Sonarqube) PrepareTaskData(taskCtx plugin.TaskContext, options map[strin
 	connectionHelper := helper.NewConnectionHelper(
 		taskCtx,
 		nil,
+		p.Name(),
 	)
 	connection := &models.SonarqubeConnection{}
 	err = connectionHelper.FirstById(connection, op.ConnectionId)
@@ -121,8 +128,9 @@ func (p Sonarqube) PrepareTaskData(taskCtx plugin.TaskContext, options map[strin
 		return nil, errors.Default.Wrap(err, "unable to get Sonarqube API client instance")
 	}
 	taskData := &tasks.SonarqubeTaskData{
-		Options:   op,
-		ApiClient: apiClient,
+		Options:       op,
+		ApiClient:     apiClient,
+		TaskStartTime: time.Now(),
 	}
 	// even we have project in _tool_sonaqube_projects, we still need to collect project to update LastAnalysisDate
 	var scope models.SonarqubeProject

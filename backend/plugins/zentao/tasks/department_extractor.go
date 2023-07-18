@@ -19,6 +19,7 @@ package tasks
 
 import (
 	"encoding/json"
+
 	"github.com/apache/incubator-devlake/core/errors"
 	"github.com/apache/incubator-devlake/core/plugin"
 	"github.com/apache/incubator-devlake/helpers/pluginhelper/api"
@@ -39,13 +40,9 @@ func ExtractDepartment(taskCtx plugin.SubTaskContext) errors.Error {
 	data := taskCtx.GetData().(*ZentaoTaskData)
 	extractor, err := api.NewApiExtractor(api.ApiExtractorArgs{
 		RawDataSubTaskArgs: api.RawDataSubTaskArgs{
-			Ctx: taskCtx,
-			Params: ZentaoApiParams{
-				ConnectionId: data.Options.ConnectionId,
-				ProductId:    data.Options.ProductId,
-				ProjectId:    data.Options.ProjectId,
-			},
-			Table: RAW_DEPARTMENT_TABLE,
+			Ctx:     taskCtx,
+			Options: data.Options,
+			Table:   RAW_DEPARTMENT_TABLE,
 		},
 		Extract: func(row *api.RawData) ([]interface{}, errors.Error) {
 			department := &models.ZentaoDepartment{}
@@ -54,9 +51,7 @@ func ExtractDepartment(taskCtx plugin.SubTaskContext) errors.Error {
 				return nil, errors.Default.WrapRaw(err)
 			}
 			department.ConnectionId = data.Options.ConnectionId
-			results := make([]interface{}, 0)
-			results = append(results, department)
-			return results, nil
+			return []interface{}{department}, nil
 		},
 	})
 

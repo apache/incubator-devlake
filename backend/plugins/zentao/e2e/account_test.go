@@ -18,13 +18,14 @@ limitations under the License.
 package e2e
 
 import (
+	"testing"
+
 	"github.com/apache/incubator-devlake/core/models/common"
 	"github.com/apache/incubator-devlake/core/models/domainlayer/crossdomain"
 	"github.com/apache/incubator-devlake/helpers/e2ehelper"
 	"github.com/apache/incubator-devlake/plugins/zentao/impl"
 	"github.com/apache/incubator-devlake/plugins/zentao/models"
 	"github.com/apache/incubator-devlake/plugins/zentao/tasks"
-	"testing"
 )
 
 func TestZentaoAccountDataFlow(t *testing.T) {
@@ -35,9 +36,9 @@ func TestZentaoAccountDataFlow(t *testing.T) {
 	taskData := &tasks.ZentaoTaskData{
 		Options: &tasks.ZentaoOptions{
 			ConnectionId: 1,
-			ProjectId:    1,
-			ProductId:    3,
+			ProjectId:    3,
 		},
+		AccountCache: tasks.NewAccountCache(dataflowTester.Dal, 1),
 	}
 
 	// import raw data table

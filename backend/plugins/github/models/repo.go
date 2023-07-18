@@ -31,6 +31,7 @@ type GithubRepo struct {
 	ConnectionId     uint64     `json:"connectionId" gorm:"primaryKey" validate:"required" mapstructure:"connectionId,omitempty"`
 	GithubId         int        `json:"githubId" gorm:"primaryKey" validate:"required" mapstructure:"githubId"`
 	Name             string     `json:"name" gorm:"type:varchar(255)" mapstructure:"name,omitempty"`
+	FullName         string     `json:"fullName" gorm:"type:varchar(255)" mapstructure:"fullName,omitempty"`
 	HTMLUrl          string     `json:"HTMLUrl" gorm:"type:varchar(255)" mapstructure:"HTMLUrl,omitempty"`
 	Description      string     `json:"description" mapstructure:"description,omitempty"`
 	ScopeConfigId    uint64     `json:"scopeConfigId,omitempty" mapstructure:"scopeConfigId,omitempty"`
@@ -52,6 +53,18 @@ func (r GithubRepo) ScopeName() string {
 	return r.Name
 }
 
+func (r GithubRepo) ScopeParams() interface{} {
+	return &GithubApiParams{
+		ConnectionId: r.ConnectionId,
+		Name:         r.FullName,
+	}
+}
+
 func (GithubRepo) TableName() string {
 	return "_tool_github_repos"
+}
+
+type GithubApiParams struct {
+	ConnectionId uint64
+	Name         string
 }

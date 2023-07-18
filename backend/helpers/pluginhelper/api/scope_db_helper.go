@@ -27,26 +27,27 @@ import (
 	"github.com/apache/incubator-devlake/core/plugin"
 )
 
-type ScopeDatabaseHelper[Conn any, Scope any, Tr any] interface {
+type ScopeDatabaseHelper[Conn any, Scope plugin.ToolLayerScope, Tr any] interface {
 	VerifyConnection(connectionId uint64) errors.Error
 	SaveScope(scopes []*Scope) errors.Error
-	UpdateScope(connectionId uint64, scopeId string, scope *Scope) errors.Error
+	UpdateScope(scope *Scope) errors.Error
 	GetScope(connectionId uint64, scopeId string) (*Scope, errors.Error)
 	ListScopes(input *plugin.ApiResourceInput, connectionId uint64) ([]*Scope, errors.Error)
-	DeleteScope(connectionId uint64, scopeId string) errors.Error
+
+	DeleteScope(scope *Scope) errors.Error
 	GetScopeConfig(ruleId uint64) (*Tr, errors.Error)
 	ListScopeConfigs(ruleIds []uint64) ([]*Tr, errors.Error)
 	GetScopeAndConfig(connectionId uint64, scopeId string) (*Scope, *Tr, errors.Error)
 }
 
-type ScopeDatabaseHelperImpl[Conn any, Scope any, Tr any] struct {
+type ScopeDatabaseHelperImpl[Conn any, Scope plugin.ToolLayerScope, Tr any] struct {
 	ScopeDatabaseHelper[Conn, Scope, Tr]
 	db         dal.Dal
 	connHelper *ConnectionApiHelper
 	params     *ReflectionParameters
 }
 
-func NewScopeDatabaseHelperImpl[Conn any, Scope any, Tr any](
+func NewScopeDatabaseHelperImpl[Conn any, Scope plugin.ToolLayerScope, Tr any](
 	basicRes context.BasicRes, connHelper *ConnectionApiHelper, params *ReflectionParameters) *ScopeDatabaseHelperImpl[Conn, Scope, Tr] {
 	return &ScopeDatabaseHelperImpl[Conn, Scope, Tr]{
 		db:         basicRes.GetDal(),
@@ -78,7 +79,7 @@ func (s *ScopeDatabaseHelperImpl[Conn, Scope, Tr]) SaveScope(scopes []*Scope) er
 	return nil
 }
 
-func (s *ScopeDatabaseHelperImpl[Conn, Scope, Tr]) UpdateScope(connectionId uint64, scopeId string, scope *Scope) errors.Error {
+func (s *ScopeDatabaseHelperImpl[Conn, Scope, Tr]) UpdateScope(scope *Scope) errors.Error {
 	return s.db.Update(&scope)
 }
 
@@ -112,16 +113,20 @@ func (s *ScopeDatabaseHelperImpl[Conn, Scope, Tr]) GetScopeAndConfig(connectionI
 }
 
 func (s *ScopeDatabaseHelperImpl[Conn, Scope, Tr]) ListScopes(input *plugin.ApiResourceInput, connectionId uint64) ([]*Scope, errors.Error) {
+	searchTerm := input.Query.Get("searchTerm")
+	query := dal.Where("connection_id = ?", connectionId)
+	if searchTerm != "" {
+		query = dal.Where(fmt.Sprintf("connection_id = ? AND %s LIKE ?", s.params.RawScopeParamName), connectionId, "%"+searchTerm+"%")
+
+	}
 	limit, offset := GetLimitOffset(input.Query, "pageSize", "page")
 	var scopes []*Scope
-	err := s.db.All(&scopes, dal.Where("connection_id = ?", connectionId), dal.Limit(limit), dal.Offset(offset))
+	err := s.db.All(&scopes, query, dal.Limit(limit), dal.Offset(offset))
 	return scopes, err
 }
 
-func (s *ScopeDatabaseHelperImpl[Conn, Scope, Tr]) DeleteScope(connectionId uint64, scopeId string) errors.Error {
-	scope := new(Scope)
-	err := s.db.Delete(&scope, dal.Where(fmt.Sprintf("connection_id = ? AND %s = ?", s.params.ScopeIdColumnName),
-		connectionId, scopeId))
+func (s *ScopeDatabaseHelperImpl[Conn, Scope, Tr]) DeleteScope(scope *Scope) errors.Error {
+	err := s.db.Delete(&scope)
 	return err
 }
 
@@ -137,4 +142,4 @@ func (s *ScopeDatabaseHelperImpl[Conn, Scope, Tr]) ListScopeConfigs(ruleIds []ui
 	return rules, err
 }
 
-var _ ScopeDatabaseHelper[any, any, any] = &ScopeDatabaseHelperImpl[any, any, any]{}
+var _ ScopeDatabaseHelper[any, plugin.ToolLayerScope, any] = &ScopeDatabaseHelperImpl[any, plugin.ToolLayerScope, any]{}

@@ -72,12 +72,12 @@ func NewGormDbEx(configReader config.ConfigReader, logger log.Logger, sessionCon
 				Colorful:                  true,           // Disable color
 			},
 		),
-		PrepareStmt:            sessionConfig.PrepareStmt,
+		// PrepareStmt:            sessionConfig.PrepareStmt,
 		SkipDefaultTransaction: sessionConfig.SkipDefaultTransaction,
 	}
 	dbUrl := configReader.GetString("DB_URL")
 	if dbUrl == "" {
-		return nil, errors.BadInput.New("DB_URL is required")
+		return nil, errors.BadInput.New("DB_URL is required, please set it in environment variable or .env file")
 	}
 	u, err := url.Parse(dbUrl)
 	if err != nil {

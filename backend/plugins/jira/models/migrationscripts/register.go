@@ -40,5 +40,7 @@ func All() []plugin.MigrationScript {
 		new(renameTr2ScopeConfig),
 		new(addRepoUrl),
 		new(addApplicationType),
+		new(clearRepoPattern),
+		new(addRawParamTableForScope),
 	}
 }

@@ -21,7 +21,7 @@ import { Button, Intent } from '@blueprintjs/core';
 
 import { PageLoading, FormItem, ExternalLink, Message, Buttons, Table } from '@/components';
 import { useRefreshData } from '@/hooks';
-import { getPluginId } from '@/plugins';
+import { getPluginScopeId } from '@/plugins';
 
 import * as API from './api';
 import * as S from './styled';
@@ -49,13 +49,13 @@ export const DataScopeSelect = ({
   const { ready, data } = useRefreshData(() => API.getDataScope(plugin, connectionId), [version]);
 
   useEffect(() => {
-    setScopeIds((initialScope ?? data ?? []).map((sc: any) => sc[getPluginId(plugin)]) ?? []);
+    setScopeIds((initialScope ?? data ?? []).map((sc: any) => getPluginScopeId(plugin, sc)) ?? []);
   }, [data]);
 
   const handleRefresh = () => setVersion((v) => v + 1);
 
   const handleSubmit = () => {
-    const scope = data.filter((it: any) => scopeIds.includes(it[getPluginId(plugin)]));
+    const scope = data.filter((it: any) => scopeIds.includes(getPluginScopeId(plugin, it)));
     onSubmit?.(scope);
   };
 
@@ -122,7 +122,7 @@ export const DataScopeSelect = ({
             ]}
             dataSource={data}
             rowSelection={{
-              rowKey: getPluginId(plugin),
+              getRowKey: (data) => getPluginScopeId(plugin, data),
               type: 'checkbox',
               selectedRowKeys: scopeIds as string[],
               onChange: (selectedRowKeys) => setScopeIds(selectedRowKeys),

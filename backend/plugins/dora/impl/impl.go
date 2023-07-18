@@ -28,12 +28,14 @@ import (
 )
 
 // make sure interface is implemented
-var _ plugin.PluginMeta = (*Dora)(nil)
-var _ plugin.PluginTask = (*Dora)(nil)
-var _ plugin.PluginModel = (*Dora)(nil)
-var _ plugin.PluginMetric = (*Dora)(nil)
-var _ plugin.PluginMigration = (*Dora)(nil)
-var _ plugin.MetricPluginBlueprintV200 = (*Dora)(nil)
+var _ interface {
+	plugin.PluginMeta
+	plugin.PluginTask
+	plugin.PluginModel
+	plugin.PluginMetric
+	plugin.PluginMigration
+	plugin.MetricPluginBlueprintV200
+} = (*Dora)(nil)
 
 type Dora struct{}
 
@@ -66,6 +68,10 @@ func (p Dora) RequiredDataEntities() (data []map[string]interface{}, err errors.
 
 func (p Dora) GetTablesInfo() []dal.Tabler {
 	return []dal.Tabler{}
+}
+
+func (p Dora) Name() string {
+	return "dora"
 }
 
 func (p Dora) IsProjectMetric() bool {

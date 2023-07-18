@@ -18,11 +18,14 @@
 
 import { useMemo } from 'react';
 import dayjs from 'dayjs';
-import { Checkbox, FormGroup, InputGroup, Radio, RadioGroup } from '@blueprintjs/core';
+import { Tag, Checkbox, FormGroup, InputGroup, Radio, RadioGroup } from '@blueprintjs/core';
+import { TimePrecision } from '@blueprintjs/datetime';
+import { DateInput2 } from '@blueprintjs/datetime2';
 
+import { FormItem, ExternalLink } from '@/components';
 import { getCron, getCronOptions } from '@/config';
+import { formatTime } from '@/utils';
 
-import StartFromSelector from './start-from-selector';
 import * as S from './styled';
 
 interface Props {
@@ -48,16 +51,29 @@ export const SyncPolicy = ({
   onChangeSkipOnFail,
   onChangeTimeAfter,
 }: Props) => {
-  const [mintue, hour, day, month, week] = useMemo(() => cronConfig.split(' '), [cronConfig]);
+  const [timezone, quickTimeOpts, cronOpts] = useMemo(() => {
+    const timezone = dayjs().format('ZZ').replace('00', '');
+    const quickTimeOpts = [
+      { label: 'Last 6 months', date: dayjs().subtract(6, 'month').toDate() },
+      { label: 'Last 90 days', date: dayjs().subtract(90, 'day').toDate() },
+      { label: 'Last 30 days', date: dayjs().subtract(30, 'day').toDate() },
+      { label: 'Last Year', date: dayjs().subtract(1, 'year').toDate() },
+    ];
+
+    const cronOpts = getCronOptions();
+
+    return [timezone, quickTimeOpts, cronOpts];
+  }, []);
+
   const cron = useMemo(() => getCron(isManual, cronConfig), [isManual, cronConfig]);
 
-  const options = useMemo(() => getCronOptions(), []);
+  const [mintue, hour, day, month, week] = useMemo(() => cronConfig.split(' '), [cronConfig]);
 
   const handleChangeFrequency = (e: React.FormEvent<HTMLInputElement>) => {
     const value = (e.target as HTMLInputElement).value;
     if (value === 'manual') {
       onChangeIsManual(true);
-    } else if (value === 'custom') {
+    } else if (!value) {
       onChangeIsManual(false);
       onChangeCronConfig('* * * * *');
     } else {
@@ -68,25 +84,55 @@ export const SyncPolicy = ({
 
   return (
     <S.Wrapper>
+      <div className="timezone">
+        Your local time zone is <strong>UTC {timezone}</strong>. All time listed below is shown in your local time.
+      </div>
       {showTimeFilter && (
-        <div className="block">
-          <h3>Time Filter *</h3>
-          <p>Select the data range you wish to collect. This filter applies to all data sources except SonarQube.</p>
-          <StartFromSelector value={timeAfter} onChange={onChangeTimeAfter} />
-        </div>
+        <FormItem
+          label="Time Range"
+          subLabel="Select the time range for the data you wish to collect. DevLake will collect the last six months of data by default."
+        >
+          <div className="quick-selection">
+            {quickTimeOpts.map((opt, i) => (
+              <Tag
+                key={i}
+                style={{ marginRight: 5, cursor: 'pointer' }}
+                minimal={formatTime(opt.date) !== formatTime(timeAfter)}
+                intent="primary"
+                onClick={() => onChangeTimeAfter(dayjs(opt.date).utc().format('YYYY-MM-DD[T]HH:mm:ssZ'))}
+              >
+                {opt.label}
+              </Tag>
+            ))}
+          </div>
+
+          <div className="time-selection">
+            <DateInput2
+              timePrecision={TimePrecision.MINUTE}
+              showTimezoneSelect={false}
+              formatDate={formatTime}
+              parseDate={(str: string) => new Date(str)}
+              placeholder="Select start from"
+              popoverProps={{ placement: 'bottom' }}
+              value={timeAfter}
+              onChange={(date) => onChangeTimeAfter(date ? dayjs(date).utc().format('YYYY-MM-DD[T]HH:mm:ssZ') : null)}
+            />
+            <strong>to Now</strong>
+          </div>
+        </FormItem>
       )}
-      <div className="block" style={{ display: 'flex' }}>
-        <div className="left" style={{ flex: '0 0 400px', marginRight: 100 }}>
-          <h3>Frequency</h3>
-          <p>
-            Blueprints will run on creation and recurringly based on the schedule. The time shown is your LOCAL time.
-          </p>
+      <div className="cron">
+        <FormItem
+          style={{ flex: '0 0 400px', marginRight: 50 }}
+          label="Sync Frequency"
+          subLabel="Blueprints will run on creation and recurringly based on the schedule."
+        >
           <RadioGroup selectedValue={cron.value} onChange={handleChangeFrequency}>
-            {options.map(({ value, label, subLabel }) => (
+            {cronOpts.map(({ value, label, subLabel }) => (
               <Radio key={value} label={`${label} ${subLabel}`} value={value} />
             ))}
           </RadioGroup>
-          {cron.value === 'custom' && (
+          {!cron.value && (
             <>
               <S.Input>
                 <FormGroup label="Minute">
@@ -123,26 +169,37 @@ export const SyncPolicy = ({
               {!cron.nextTime && <S.Error>Invalid Cron code, please enter again.</S.Error>}
             </>
           )}
-        </div>
-        <div className="right">
-          <h3>Next Run Time:</h3>
-          <h4>{cron.nextTime ? dayjs(cron.nextTime).format('YYYY-MM-DD HH:mm A') : 'N/A'}</h4>
-        </div>
+          <ExternalLink style={{ display: 'block', marginTop: 16 }} link="https://crontab.cronhub.io/">
+            Learn about how to use cron code
+          </ExternalLink>
+        </FormItem>
+        <FormItem label="Next Three Runs:">
+          {cron.nextTimes.length ? (
+            <ul>
+              {cron.nextTimes.map((it, i) => (
+                <li key={i}>
+                  {dayjs(it).format('YYYY-MM-DD HH:mm A')}({dayjs(it).fromNow()})
+                </li>
+              ))}
+            </ul>
+          ) : (
+            'N/A'
+          )}
+        </FormItem>
       </div>
-      <div className="block">
-        <h3>Running Policy</h3>
+      <FormItem label="Running Policy">
         <Checkbox
-          label="Skip failed tasks (Recommended when collecting large volume of data, eg. 10+ GitHub repos/Jira boards)"
+          label="Skip failed tasks (Recommended when collecting a large volume of data, eg. 10+ GitHub repos, Jira boards, etc.)"
           checked={skipOnFail}
           onChange={(e) => onChangeSkipOnFail((e.target as HTMLInputElement).checked)}
         />
-        <p>
-          A task is a unit of a pipeline. A pipeline is an execution of a blueprint. By default, when a task is failed,
-          the whole pipeline will fail and all the data that has been collected will be discarded. By skipping failed
-          tasks, the pipeline will continue to run, and the data collected by other tasks will not be affected. After
-          the pipeline is finished, you can rerun these failed tasks.
+        <p style={{ paddingLeft: 28 }}>
+          A task is a unit of a pipeline, an execution of a blueprint. By default, when a task is failed, the whole
+          pipeline will fail and all the data that has been collected will be discarded. By skipping failed tasks, the
+          pipeline will continue to run, and the data collected by successful tasks will not be affected. After the
+          pipeline is finished, you can rerun these failed tasks.
         </p>
-      </div>
+      </FormItem>
     </S.Wrapper>
   );
 };

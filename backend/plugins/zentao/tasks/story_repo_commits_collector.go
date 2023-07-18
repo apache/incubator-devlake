@@ -50,8 +50,8 @@ func CollectStoryRepoCommits(taskCtx plugin.SubTaskContext) errors.Error {
 		dal.Select("object_id, repo_revision"),
 		dal.From(&models.ZentaoStoryCommit{}),
 		dal.Where(
-			"product = ? AND connection_id = ?",
-			data.Options.ProductId, data.Options.ConnectionId,
+			"project = ? AND connection_id = ?",
+			data.Options.ProjectId, data.Options.ConnectionId,
 		),
 	}
 
@@ -68,13 +68,9 @@ func CollectStoryRepoCommits(taskCtx plugin.SubTaskContext) errors.Error {
 	// collect story repo commits
 	collector, err := api.NewApiCollector(api.ApiCollectorArgs{
 		RawDataSubTaskArgs: api.RawDataSubTaskArgs{
-			Ctx: taskCtx,
-			Params: ZentaoApiParams{
-				ConnectionId: data.Options.ConnectionId,
-				ProductId:    data.Options.ProductId,
-				ProjectId:    data.Options.ProjectId,
-			},
-			Table: RAW_STORY_REPO_COMMITS_TABLE,
+			Ctx:     taskCtx,
+			Options: data.Options,
+			Table:   RAW_STORY_REPO_COMMITS_TABLE,
 		},
 		ApiClient:   data.ApiClient,
 		Input:       iterator,

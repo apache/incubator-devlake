@@ -38,9 +38,6 @@ export const updateDataScope = (plugin: string, id: ID, scopeId: ID, payload: an
   });
 
 export const deleteDataScope = (plugin: string, id: ID, scopeId: ID, onlyData: boolean) =>
-  request(`/plugins/${plugin}/connections/${id}/scopes/${scopeId}`, {
+  request(`/plugins/${plugin}/connections/${id}/scopes/${scopeId}?delete_data_only=${onlyData}`, {
     method: 'delete',
-    data: {
-      delete_data_only: onlyData,
-    },
   });

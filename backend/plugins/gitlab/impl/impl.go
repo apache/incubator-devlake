@@ -19,6 +19,7 @@ package impl
 
 import (
 	"fmt"
+	"github.com/apache/incubator-devlake/helpers/pluginhelper/subtaskmeta_sorter"
 	"time"
 
 	"github.com/apache/incubator-devlake/core/context"
@@ -39,27 +40,35 @@ var _ interface {
 	plugin.PluginTask
 	plugin.PluginModel
 	plugin.PluginMigration
+	plugin.PluginSource
 	plugin.DataSourcePluginBlueprintV200
 	plugin.CloseablePluginTask
-	// plugin.PluginSource
 } = (*Gitlab)(nil)
 
 type Gitlab string
 
+func init() {
+	// check subtask meta loop when init subtask meta
+	if _, err := subtaskmeta_sorter.NewDependencySorter(tasks.SubTaskMetaList).Sort(); err != nil {
+		panic(err)
+	}
+}
+
 func (p Gitlab) Init(basicRes context.BasicRes) errors.Error {
-	api.Init(basicRes)
+	api.Init(basicRes, p)
+
 	return nil
 }
 
-func (p Gitlab) Connection() interface{} {
+func (p Gitlab) Connection() dal.Tabler {
 	return &models.GitlabConnection{}
 }
 
-func (p Gitlab) Scope() interface{} {
+func (p Gitlab) Scope() plugin.ToolLayerScope {
 	return &models.GitlabProject{}
 }
 
-func (p Gitlab) ScopeConfig() interface{} {
+func (p Gitlab) ScopeConfig() dal.Tabler {
 	return &models.GitlabScopeConfig{}
 }
 
@@ -86,6 +95,8 @@ func (p Gitlab) GetTablesInfo() []dal.Tabler {
 		&models.GitlabProjectCommit{},
 		&models.GitlabReviewer{},
 		&models.GitlabTag{},
+		&models.GitlabIssueAssignee{},
+		&models.GitlabScopeConfig{},
 	}
 }
 
@@ -93,46 +104,16 @@ func (p Gitlab) Description() string {
 	return "To collect and enrich data from Gitlab"
 }
 
+func (p Gitlab) Name() string {
+	return "gitlab"
+}
+
 func (p Gitlab) SubTaskMetas() []plugin.SubTaskMeta {
-	return []plugin.SubTaskMeta{
-		tasks.CollectApiIssuesMeta,
-		tasks.ExtractApiIssuesMeta,
-		tasks.CollectApiMergeRequestsMeta,
-		tasks.ExtractApiMergeRequestsMeta,
-		tasks.CollectApiMergeRequestDetailsMeta,
-		tasks.CollectApiMergeRequestDetailsMeta,
-		tasks.CollectApiMrNotesMeta,
-		tasks.ExtractApiMrNotesMeta,
-		tasks.CollectApiMrCommitsMeta,
-		tasks.ExtractApiMrCommitsMeta,
-		tasks.CollectApiPipelinesMeta,
-		tasks.ExtractApiPipelinesMeta,
-		tasks.CollectApiPipelineDetailsMeta,
-		tasks.ExtractApiPipelineDetailsMeta,
-		tasks.CollectApiJobsMeta,
-		tasks.ExtractApiJobsMeta,
-		tasks.EnrichMergeRequestsMeta,
-		tasks.CollectAccountsMeta,
-		tasks.ExtractAccountsMeta,
-		tasks.ConvertAccountsMeta,
-		tasks.ConvertProjectMeta,
-		tasks.ConvertApiMergeRequestsMeta,
-		tasks.ConvertMrCommentMeta,
-		tasks.ConvertApiMrCommitsMeta,
-		tasks.ConvertIssuesMeta,
-		tasks.ConvertIssueAssigneeMeta,
-		tasks.ConvertIssueLabelsMeta,
-		tasks.ConvertMrLabelsMeta,
-		tasks.ConvertCommitsMeta,
-		tasks.ConvertPipelineMeta,
-		tasks.ConvertPipelineCommitMeta,
-		tasks.ConvertJobMeta,
-		tasks.CollectApiCommitsMeta,
-		tasks.ExtractApiCommitsMeta,
-		tasks.ExtractApiMergeRequestDetailsMeta,
-		tasks.CollectTagMeta,
-		tasks.ExtractTagMeta,
+	list, err := subtaskmeta_sorter.NewDependencySorter(tasks.SubTaskMetaList).Sort()
+	if err != nil {
+		panic(err)
 	}
+	return list
 }
 
 func (p Gitlab) PrepareTaskData(taskCtx plugin.TaskContext, options map[string]interface{}) (interface{}, errors.Error) {
@@ -149,6 +130,7 @@ func (p Gitlab) PrepareTaskData(taskCtx plugin.TaskContext, options map[string]i
 	connectionHelper := helper.NewConnectionHelper(
 		taskCtx,
 		nil,
+		p.Name(),
 	)
 	if err != nil {
 		return nil, err
@@ -273,8 +255,9 @@ func (p Gitlab) ApiResources() map[string]map[string]plugin.ApiResourceHandler {
 			"GET":  api.GetScopeConfigList,
 		},
 		"connections/:connectionId/scope-configs/:id": {
-			"PATCH": api.UpdateScopeConfig,
-			"GET":   api.GetScopeConfig,
+			"PATCH":  api.UpdateScopeConfig,
+			"GET":    api.GetScopeConfig,
+			"DELETE": api.DeleteScopeConfig,
 		},
 		"connections/:connectionId/proxy/rest/*path": {
 			"GET": api.Proxy,

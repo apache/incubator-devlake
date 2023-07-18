@@ -46,7 +46,8 @@ var _ interface {
 type Trello struct{}
 
 func (p Trello) Init(basicRes context.BasicRes) errors.Error {
-	api.Init(basicRes)
+	api.Init(basicRes, p)
+
 	return nil
 }
 
@@ -59,11 +60,16 @@ func (p Trello) GetTablesInfo() []dal.Tabler {
 		&models.TrelloLabel{},
 		&models.TrelloMember{},
 		&models.TrelloCheckItem{},
+		&models.TrelloScopeConfig{},
 	}
 }
 
 func (p Trello) Description() string {
 	return "To collect and enrich data from Trello"
+}
+
+func (p Trello) Name() string {
+	return "trello"
 }
 
 func (p Trello) SubTaskMetas() []plugin.SubTaskMeta {
@@ -105,6 +111,7 @@ func (p Trello) PrepareTaskData(taskCtx plugin.TaskContext, options map[string]i
 	connectionHelper := helper.NewConnectionHelper(
 		taskCtx,
 		nil,
+		p.Name(),
 	)
 	err = connectionHelper.FirstById(connection, op.ConnectionId)
 
@@ -129,12 +136,16 @@ func (p Trello) MigrationScripts() []plugin.MigrationScript {
 	return migrationscripts.All()
 }
 
-func (p Trello) Connection() interface{} {
+func (p Trello) Connection() dal.Tabler {
 	return &models.TrelloConnection{}
 }
 
-func (p Trello) Scope() interface{} {
+func (p Trello) Scope() plugin.ToolLayerScope {
 	return &models.TrelloBoard{}
+}
+
+func (p Trello) ScopeConfig() dal.Tabler {
+	return &models.TrelloScopeConfig{}
 }
 
 func (p Trello) ApiResources() map[string]map[string]plugin.ApiResourceHandler {
@@ -164,8 +175,9 @@ func (p Trello) ApiResources() map[string]map[string]plugin.ApiResourceHandler {
 			"GET":  api.GetScopeConfigList,
 		},
 		"connections/:connectionId/scope-configs/:id": {
-			"PATCH": api.UpdateScopeConfig,
-			"GET":   api.GetScopeConfig,
+			"PATCH":  api.UpdateScopeConfig,
+			"GET":    api.GetScopeConfig,
+			"DELETE": api.DeleteScopeConfig,
 		},
 		"connections/:connectionId/scopes/:boardId": {
 			"GET":    api.GetScope,

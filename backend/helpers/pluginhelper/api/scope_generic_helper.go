@@ -23,7 +23,6 @@ import (
 	"reflect"
 	"strconv"
 	"strings"
-	"sync"
 	"time"
 
 	"github.com/apache/incubator-devlake/core/context"
@@ -31,30 +30,29 @@ import (
 	"github.com/apache/incubator-devlake/core/errors"
 	"github.com/apache/incubator-devlake/core/log"
 	"github.com/apache/incubator-devlake/core/models"
+	"github.com/apache/incubator-devlake/core/models/common"
 	"github.com/apache/incubator-devlake/core/models/domainlayer/domaininfo"
 	"github.com/apache/incubator-devlake/core/plugin"
+	"github.com/apache/incubator-devlake/helpers/dbhelper"
 	serviceHelper "github.com/apache/incubator-devlake/helpers/pluginhelper/services"
 	"github.com/go-playground/validator/v10"
 	"github.com/mitchellh/mapstructure"
 )
 
-var (
-	tablesCache       []string // these cached vars can probably be moved somewhere more centralized later
-	tablesCacheLoader = new(sync.Once)
-)
-
 type NoScopeConfig struct{}
 
 type (
-	GenericScopeApiHelper[Conn any, Scope any, Tr any] struct {
+	GenericScopeApiHelper[Conn any, Scope plugin.ToolLayerScope, ScopeConfig any] struct {
+		basicRes         context.BasicRes
 		log              log.Logger
 		db               dal.Dal
 		validator        *validator.Validate
 		reflectionParams *ReflectionParameters
-		dbHelper         ScopeDatabaseHelper[Conn, Scope, Tr]
+		dbHelper         ScopeDatabaseHelper[Conn, Scope, ScopeConfig]
 		bpManager        *serviceHelper.BlueprintManager
 		connHelper       *ConnectionApiHelper
 		opts             *ScopeHelperOptions
+		plugin           string
 	}
 	// as of golang v1.20, embedding generic fields is not supported
 	// let's divide the struct into two parts for swagger doc to work
@@ -63,17 +61,24 @@ type (
 		ScopeConfig *ScopeConfig        `mapstructure:"scopeConfig,omitempty" json:"scopeConfig"`
 		Blueprints  []*models.Blueprint `mapstructure:"blueprints,omitempty" json:"blueprints"`
 	}
-	ScopeRes[Scope any, ScopeConfig any] struct {
-		Scope                    *Scope                   `mapstructure:",squash"` // ideally we need this field to be embedded in the struct
+	// Alias, for swagger purposes
+	ScopeRefDoc                                            = serviceHelper.BlueprintProjectPairs
+	ScopeRes[Scope plugin.ToolLayerScope, ScopeConfig any] struct {
+		Scope                    Scope                    `mapstructure:",squash"` // ideally we need this field to be embedded in the struct
 		ScopeResDoc[ScopeConfig] `mapstructure:",squash"` // however, only this type of embeding is supported as of golang 1.20
 	}
 	ReflectionParameters struct {
-		ScopeIdFieldName  string
-		ScopeIdColumnName string
-		RawScopeParamName string
+		// This corresponds to the struct field of the scope struct's ID field
+		ScopeIdFieldName string `validate:"required"`
+		// This corresponds to the database column name of the scope struct's ID (typically primary key) field
+		ScopeIdColumnName string `validate:"required"`
+		// This corresponds to the scope field on the ApiParams struct of a plugin.
+		RawScopeParamName string `validate:"required"`
 	}
 	ScopeHelperOptions struct {
+		// Define this if the raw params doesn't store the ScopeId but a different attribute of the Scope (e.g. Name)
 		GetScopeParamValue func(db dal.Dal, scopeId string) (string, errors.Error)
+		IsRemote           bool
 	}
 )
 
@@ -94,31 +99,29 @@ type (
 	}
 )
 
-func NewGenericScopeHelper[Conn any, Scope any, Tr any](
+func NewGenericScopeHelper[Conn any, Scope plugin.ToolLayerScope, ScopeConfig any](
 	basicRes context.BasicRes,
 	vld *validator.Validate,
 	connHelper *ConnectionApiHelper,
-	dbHelper ScopeDatabaseHelper[Conn, Scope, Tr],
+	dbHelper ScopeDatabaseHelper[Conn, Scope, ScopeConfig],
 	params *ReflectionParameters,
 	opts *ScopeHelperOptions,
-) *GenericScopeApiHelper[Conn, Scope, Tr] {
+) *GenericScopeApiHelper[Conn, Scope, ScopeConfig] {
 	if connHelper == nil {
 		panic("nil connHelper")
 	}
 	if params == nil {
 		panic("reflection params not provided")
 	}
+	err := vld.Struct(params)
+	if err != nil {
+		panic(err)
+	}
 	if opts == nil {
 		opts = &ScopeHelperOptions{}
 	}
-	tablesCacheLoader.Do(func() {
-		var err errors.Error
-		tablesCache, err = basicRes.GetDal().AllTables()
-		if err != nil {
-			panic(err)
-		}
-	})
-	return &GenericScopeApiHelper[Conn, Scope, Tr]{
+	return &GenericScopeApiHelper[Conn, Scope, ScopeConfig]{
+		basicRes:         basicRes,
 		log:              basicRes.GetLogger(),
 		db:               basicRes.GetDal(),
 		validator:        vld,
@@ -127,62 +130,76 @@ func NewGenericScopeHelper[Conn any, Scope any, Tr any](
 		bpManager:        serviceHelper.NewBlueprintManager(basicRes.GetDal()),
 		connHelper:       connHelper,
 		opts:             opts,
+		plugin:           connHelper.pluginName,
 	}
 }
 
-func (c *GenericScopeApiHelper[Conn, Scope, Tr]) DbHelper() ScopeDatabaseHelper[Conn, Scope, Tr] {
-	return c.dbHelper
+func (gs *GenericScopeApiHelper[Conn, Scope, ScopeConfig]) DbHelper() ScopeDatabaseHelper[Conn, Scope, ScopeConfig] {
+	return gs.dbHelper
 }
 
-func (c *GenericScopeApiHelper[Conn, Scope, Tr]) PutScopes(input *plugin.ApiResourceInput, scopes []*Scope) ([]*ScopeRes[Scope, Tr], errors.Error) {
-	params := c.extractFromReqParam(input)
-	if params.connectionId == 0 {
-		return nil, errors.BadInput.New("invalid connectionId")
+// hacky, temporary solution
+func (gs *GenericScopeApiHelper[Conn, Scope, ScopeConfig]) setRawDataOrigin(scopes ...*Scope) {
+	for _, scope := range scopes {
+		if !setRawDataOrigin(scope, common.RawDataOrigin{
+			RawDataTable:  fmt.Sprintf("_raw_%s_scopes", gs.plugin),
+			RawDataParams: plugin.MarshalScopeParams((*scope).ScopeParams()),
+		}) {
+			panic("RawDataOrigin could not be set")
+		}
 	}
-	err := c.dbHelper.VerifyConnection(params.connectionId)
+}
+
+func (gs *GenericScopeApiHelper[Conn, Scope, ScopeConfig]) PutScopes(input *plugin.ApiResourceInput, scopes []*Scope) ([]*ScopeRes[Scope, ScopeConfig], errors.Error) {
+	params, err := gs.extractFromReqParam(input, false)
+	if err != nil {
+		return nil, err
+	}
+	err = gs.dbHelper.VerifyConnection(params.connectionId)
 	if err != nil {
 		return nil, errors.Default.Wrap(err, fmt.Sprintf("error verifying connection for connection ID %d", params.connectionId))
 	}
-	err = c.validatePrimaryKeys(scopes)
+	if len(scopes) == 0 {
+		return nil, nil
+	}
+	err = gs.validatePrimaryKeys(scopes)
 	if err != nil {
 		return nil, err
 	}
 	now := time.Now()
 	for _, scope := range scopes {
 		// Set the connection ID, CreatedDate, and UpdatedDate fields
-		setScopeFields(scope, params.connectionId, &now, &now)
-		err = VerifyScope(scope, c.validator)
+		gs.setScopeFields(scope, params.connectionId, &now, &now)
+		err = gs.verifyScope(scope, gs.validator)
 		if err != nil {
 			return nil, errors.Default.Wrap(err, "error verifying scope")
 		}
 	}
-	// Save the scopes to the database
-	if len(scopes) > 0 {
-		err = c.dbHelper.SaveScope(scopes)
-		if err != nil {
-			return nil, errors.Default.Wrap(err, "error saving scope")
-		}
+	gs.setRawDataOrigin(scopes...)
+	if err != nil {
+		return nil, errors.Default.Wrap(err, "error saving scope")
 	}
-	apiScopes, err := c.addScopeConfig(scopes...)
+	err = gs.dbHelper.SaveScope(scopes)
+	if err != nil {
+		return nil, errors.Default.Wrap(err, "error saving scope")
+	}
+	apiScopes, err := gs.addScopeConfig(scopes...)
 	if err != nil {
 		return nil, errors.Default.Wrap(err, "error associating scope config to scope")
 	}
 	return apiScopes, nil
 }
 
-func (c *GenericScopeApiHelper[Conn, Scope, Tr]) UpdateScope(input *plugin.ApiResourceInput) (*ScopeRes[Scope, Tr], errors.Error) {
-	params := c.extractFromReqParam(input)
-	if params.connectionId == 0 {
-		return nil, errors.BadInput.New("invalid connectionId")
-	}
-	if len(params.scopeId) == 0 {
-		return nil, errors.BadInput.New("invalid scopeId")
-	}
-	err := c.dbHelper.VerifyConnection(params.connectionId)
+func (gs *GenericScopeApiHelper[Conn, Scope, ScopeConfig]) UpdateScope(input *plugin.ApiResourceInput) (*ScopeRes[Scope, ScopeConfig], errors.Error) {
+	params, err := gs.extractFromReqParam(input, true)
 	if err != nil {
 		return nil, err
 	}
-	scope, err := c.dbHelper.GetScope(params.connectionId, params.scopeId)
+	err = gs.dbHelper.VerifyConnection(params.connectionId)
+	if err != nil {
+		return nil, err
+	}
+	scope, err := gs.dbHelper.GetScope(params.connectionId, params.scopeId)
 	if err != nil {
 		return nil, err
 	}
@@ -190,90 +207,86 @@ func (c *GenericScopeApiHelper[Conn, Scope, Tr]) UpdateScope(input *plugin.ApiRe
 	if err != nil {
 		return nil, errors.Default.Wrap(err, "patch scope error")
 	}
-	err = VerifyScope(scope, c.validator)
+	err = gs.verifyScope(scope, gs.validator)
 	if err != nil {
 		return nil, errors.Default.Wrap(err, "Invalid scope")
 	}
-	err = c.dbHelper.UpdateScope(params.connectionId, params.scopeId, scope)
+	gs.setRawDataOrigin(scope)
+	err = gs.dbHelper.UpdateScope(scope)
 	if err != nil {
 		return nil, errors.Default.Wrap(err, "error on saving Scope")
 	}
-	scopeRes, err := c.addScopeConfig(scope)
+	scopeRes, err := gs.addScopeConfig(scope)
 	if err != nil {
 		return nil, err
 	}
 	return scopeRes[0], nil
 }
 
-func (c *GenericScopeApiHelper[Conn, Scope, Tr]) GetScopes(input *plugin.ApiResourceInput) ([]*ScopeRes[Scope, Tr], errors.Error) {
-	params := c.extractFromGetReqParam(input)
-	if params.connectionId == 0 {
+func (gs *GenericScopeApiHelper[Conn, Scope, ScopeConfig]) GetScopes(input *plugin.ApiResourceInput) ([]*ScopeRes[Scope, ScopeConfig], errors.Error) {
+	params, err := gs.extractFromGetReqParam(input, false)
+	if err != nil {
 		return nil, errors.BadInput.New("invalid path params: \"connectionId\" not set")
 	}
-	err := c.dbHelper.VerifyConnection(params.connectionId)
+	err = gs.dbHelper.VerifyConnection(params.connectionId)
 	if err != nil {
 		return nil, errors.Default.Wrap(err, fmt.Sprintf("error verifying connection for connection ID %d", params.connectionId))
 	}
-	scopes, err := c.dbHelper.ListScopes(input, params.connectionId)
+	scopes, err := gs.dbHelper.ListScopes(input, params.connectionId)
 	if err != nil {
 		return nil, errors.Default.Wrap(err, fmt.Sprintf("error verifying connection for connection ID %d", params.connectionId))
 	}
-	apiScopes, err := c.addScopeConfig(scopes...)
+	apiScopes, err := gs.addScopeConfig(scopes...)
 	if err != nil {
 		return nil, errors.Default.Wrap(err, "error associating scope configs with scopes")
 	}
-	if params.loadBlueprints {
-		scopesById := c.mapByScopeId(apiScopes)
+	// return empty array rather than nil in case of no scopes
+	if len(apiScopes) > 0 && params.loadBlueprints {
+		// fetch blueprints for all scopes in one call since all bps must be loaded to determine which ones are associated with the scopes
+		// TODO: split bp.settings into separate tables and load only the ones needed
 		var scopeIds []string
-		for id := range scopesById {
-			scopeIds = append(scopeIds, id)
+		for _, apiScope := range apiScopes {
+			// scopeId := fmt.Sprintf("%v", reflectField(apiScope.Scope, gs.reflectionParams.ScopeIdFieldName).Interface())
+			scopeIds = append(scopeIds, apiScope.Scope.ScopeId())
 		}
-		blueprintMap, err := c.bpManager.GetBlueprintsByScopes(params.connectionId, scopeIds...)
-		if err != nil {
-			return nil, errors.Default.Wrap(err, fmt.Sprintf("error getting blueprints for scopes from connection %d", params.connectionId))
-		}
-		apiScopes = nil
-		for scopeId, scope := range scopesById {
-			if bps, ok := blueprintMap[scopeId]; ok {
-				scope.Blueprints = bps
-				delete(blueprintMap, scopeId)
+		blueprintMap := errors.Must1(gs.bpManager.GetBlueprintsByScopes(params.connectionId, params.plugin, scopeIds...))
+		for _, apiScope := range apiScopes {
+			if bps, ok := blueprintMap[apiScope.Scope.ScopeId()]; ok {
+				apiScope.Blueprints = bps
+				delete(blueprintMap, apiScope.Scope.ScopeId())
 			}
-			apiScopes = append(apiScopes, scope)
 		}
 		if len(blueprintMap) > 0 {
 			var danglingIds []string
 			for bpId := range blueprintMap {
 				danglingIds = append(danglingIds, bpId)
 			}
-			c.log.Warn(nil, "The following dangling scopes were found: %v", danglingIds)
+			gs.log.Warn(nil, "The following dangling scopes were found: %v", danglingIds)
 		}
 	}
 	return apiScopes, nil
 }
 
-func (c *GenericScopeApiHelper[Conn, Scope, Tr]) GetScope(input *plugin.ApiResourceInput) (*ScopeRes[Scope, Tr], errors.Error) {
-	params := c.extractFromGetReqParam(input)
-	if params == nil || params.connectionId == 0 {
-		return nil, errors.BadInput.New("invalid path params: \"connectionId\" not set")
+func (gs *GenericScopeApiHelper[Conn, Scope, ScopeConfig]) GetScope(input *plugin.ApiResourceInput) (*ScopeRes[Scope, ScopeConfig], errors.Error) {
+	params, err := gs.extractFromGetReqParam(input, true)
+	if err != nil {
+		return nil, err
 	}
-	if len(params.scopeId) == 0 || params.scopeId == "0" {
-		return nil, errors.BadInput.New("invalid path params: \"scopeId\" not set/invalid")
-	}
-	err := c.dbHelper.VerifyConnection(params.connectionId)
+	err = gs.dbHelper.VerifyConnection(params.connectionId)
 	if err != nil {
 		return nil, errors.Default.Wrap(err, fmt.Sprintf("error verifying connection for connection ID %d", params.connectionId))
 	}
-	scope, err := c.dbHelper.GetScope(params.connectionId, params.scopeId)
+	scope, err := gs.dbHelper.GetScope(params.connectionId, params.scopeId)
 	if err != nil {
 		return nil, errors.Default.Wrap(err, fmt.Sprintf("error retrieving scope with scope ID %s", params.scopeId))
 	}
-	apiScopes, err := c.addScopeConfig(scope)
+	apiScopes, err := gs.addScopeConfig(scope)
 	if err != nil {
 		return nil, errors.Default.Wrap(err, fmt.Sprintf("error associating scope config with scope %s", params.scopeId))
 	}
 	scopeRes := apiScopes[0]
 	if params.loadBlueprints {
-		blueprintMap, err := c.bpManager.GetBlueprintsByScopes(params.connectionId, params.scopeId)
+		blueprintMap, err := gs.bpManager.GetBlueprintsByScopes(params.connectionId, params.plugin, params.scopeId)
 		if err != nil {
 			return nil, errors.Default.Wrap(err, fmt.Sprintf("error getting blueprints for scope with scope ID %s", params.scopeId))
 		}
@@ -284,60 +297,64 @@ func (c *GenericScopeApiHelper[Conn, Scope, Tr]) GetScope(input *plugin.ApiResou
 	return scopeRes, nil
 }
 
-func (c *GenericScopeApiHelper[Conn, Scope, Tr]) DeleteScope(input *plugin.ApiResourceInput) errors.Error {
-	params := c.extractFromDeleteReqParam(input)
-	if params == nil || params.connectionId == 0 {
-		return errors.BadInput.New("invalid path params: \"connectionId\" not set")
-	}
-	if len(params.scopeId) == 0 || params.scopeId == "0" {
-		return errors.BadInput.New("invalid path params: \"scopeId\" not set/invalid")
-	}
-	err := c.dbHelper.VerifyConnection(params.connectionId)
+func (gs *GenericScopeApiHelper[Conn, Scope, ScopeConfig]) DeleteScope(input *plugin.ApiResourceInput) (refs *serviceHelper.BlueprintProjectPairs, err errors.Error) {
+	txHelper := dbhelper.NewTxHelper(gs.basicRes, &err)
+	defer txHelper.End()
+	tx := txHelper.Begin()
+	err = txHelper.LockTablesTimeout(2*time.Second, dal.LockTables{{Table: "_devlake_pipelines"}})
 	if err != nil {
-		return errors.Default.Wrap(err, fmt.Sprintf("error verifying connection for connection ID %d", params.connectionId))
+		err = errors.Conflict.Wrap(err, "This data scope cannot be deleted due to a table lock error. There might be running pipeline(s) or other deletion operations in progress.")
+		return
 	}
-	// delete all the plugin records referencing this scope
-	if c.reflectionParams.RawScopeParamName != "" {
-		scopeParamValue := params.scopeId
-		if c.opts.GetScopeParamValue != nil {
-			scopeParamValue, err = c.opts.GetScopeParamValue(c.db, params.scopeId)
+	count := errors.Must1(tx.Count(
+		dal.From("_devlake_pipelines"),
+		dal.Where("status = ?", models.TASK_RUNNING),
+	))
+	if count > 0 {
+		err = errors.Conflict.New("This data scope cannot be deleted because a pipeline is running. Please try again after you cancel the pipeline or wait for it to finish.")
+		return
+	}
+	// time.Sleep(1 * time.Minute) # uncomment this line if you were to verify pipelines get blocked while deleting data
+	params, err := gs.extractFromDeleteReqParam(input)
+	if err != nil {
+		return nil, err
+	}
+	err = gs.dbHelper.VerifyConnection(params.connectionId)
+	if err != nil {
+		return nil, errors.BadInput.Wrap(err, fmt.Sprintf("error verifying connection for connection ID %d", params.connectionId))
+	}
+	scope, err := gs.dbHelper.GetScope(params.connectionId, params.scopeId)
+	if err != nil {
+		return nil, err
+	}
+
+	if !params.deleteDataOnly {
+		if refs, err := gs.getScopeReferences(params.connectionId, params.scopeId); err != nil || refs != nil {
 			if err != nil {
-				return errors.Default.Wrap(err, fmt.Sprintf("error extracting scope parameter name for scope %s", params.scopeId))
+				return nil, err
 			}
+			return refs, errors.Conflict.New("Found one or more references to this scope")
 		}
-		// find all tables for this plugin
-		tables, err := getAffectedTables(params.plugin)
-		if err != nil {
-			return errors.Default.Wrap(err, fmt.Sprintf("error getting database tables managed by plugin %s", params.plugin))
-		}
-		err = c.transactionalDelete(tables, scopeParamValue)
-		if err != nil {
-			return errors.Default.Wrap(err, fmt.Sprintf("error deleting data bound to scope %s for plugin %s", params.scopeId, params.plugin))
-		}
+	}
+	if err = gs.deleteScopeData(*scope); err != nil {
+		return nil, err
 	}
 	if !params.deleteDataOnly {
 		// Delete the scope itself
-		err = c.dbHelper.DeleteScope(params.connectionId, params.scopeId)
-		if err != nil {
-			return errors.Default.Wrap(err, fmt.Sprintf("error deleting scope %s", params.scopeId))
-		}
-		err = c.updateBlueprints(params.connectionId, params.scopeId)
-		if err != nil {
-			return err
-		}
+		errors.Must(gs.dbHelper.DeleteScope(scope))
 	}
-	return nil
+	return nil, nil
 }
 
-func (c *GenericScopeApiHelper[Conn, Scope, Tr]) addScopeConfig(scopes ...*Scope) ([]*ScopeRes[Scope, Tr], errors.Error) {
-	apiScopes := make([]*ScopeRes[Scope, Tr], len(scopes))
+func (gs *GenericScopeApiHelper[Conn, Scope, ScopeConfig]) addScopeConfig(scopes ...*Scope) ([]*ScopeRes[Scope, ScopeConfig], errors.Error) {
+	apiScopes := make([]*ScopeRes[Scope, ScopeConfig], len(scopes))
 	for i, scope := range scopes {
-		apiScopes[i] = &ScopeRes[Scope, Tr]{
-			Scope: scope,
+		apiScopes[i] = &ScopeRes[Scope, ScopeConfig]{
+			Scope: *scope,
 		}
 		scIdField := reflectField(scope, "ScopeConfigId")
 		if scIdField.IsValid() && scIdField.Uint() > 0 {
-			scopeConfig, err := c.dbHelper.GetScopeConfig(scIdField.Uint())
+			scopeConfig, err := gs.dbHelper.GetScopeConfig(scIdField.Uint())
 			if err != nil {
 				return nil, err
 			}
@@ -347,68 +364,93 @@ func (c *GenericScopeApiHelper[Conn, Scope, Tr]) addScopeConfig(scopes ...*Scope
 	return apiScopes, nil
 }
 
-func (c *GenericScopeApiHelper[Conn, Scope, Tr]) mapByScopeId(scopes []*ScopeRes[Scope, Tr]) map[string]*ScopeRes[Scope, Tr] {
-	scopeMap := map[string]*ScopeRes[Scope, Tr]{}
-	for _, scope := range scopes {
-		scopeId := fmt.Sprintf("%v", reflectField(scope.Scope, c.reflectionParams.ScopeIdFieldName).Interface())
-		scopeMap[scopeId] = scope
+func (gs *GenericScopeApiHelper[Conn, Scope, ScopeConfig]) getScopeReferences(connectionId uint64, scopeId string) (*serviceHelper.BlueprintProjectPairs, errors.Error) {
+	blueprintMap, err := gs.bpManager.GetBlueprintsByScopes(connectionId, gs.plugin, scopeId)
+	if err != nil {
+		return nil, err
 	}
-	return scopeMap
+	blueprints := blueprintMap[scopeId]
+	if len(blueprints) == 0 {
+		return nil, nil
+	}
+	return serviceHelper.NewBlueprintProjectPairs(blueprints), nil
 }
 
-func (c *GenericScopeApiHelper[Conn, Scope, Tr]) extractFromReqParam(input *plugin.ApiResourceInput) *requestParams {
+func (gs *GenericScopeApiHelper[Conn, Scope, ScopeConfig]) extractFromReqParam(input *plugin.ApiResourceInput, withScopeId bool) (*requestParams, errors.Error) {
 	connectionId, err := strconv.ParseUint(input.Params["connectionId"], 10, 64)
-	if err != nil || connectionId == 0 {
-		connectionId = 0
+	if err != nil {
+		return nil, errors.BadInput.Wrap(err, "Invalid \"connectionId\"")
 	}
-	scopeId := input.Params["scopeId"]
-	pluginName := input.Params["plugin"]
+	if connectionId == 0 {
+		return nil, errors.BadInput.New("\"connectionId\" cannot be 0")
+	}
+	var scopeId string
+	if withScopeId {
+		scopeId = input.Params["scopeId"]
+		// Path params that use `/*param` handlers instead of `/:param` start with a /, so remove it
+		if scopeId[0] == '/' {
+			scopeId = scopeId[1:]
+		}
+	}
 	return &requestParams{
 		connectionId: connectionId,
+		plugin:       gs.plugin,
 		scopeId:      scopeId,
-		plugin:       pluginName,
-	}
+	}, nil
 }
 
-func (c *GenericScopeApiHelper[Conn, Scope, Tr]) extractFromDeleteReqParam(input *plugin.ApiResourceInput) *deleteRequestParams {
-	params := c.extractFromReqParam(input)
-	var err errors.Error
+func (gs *GenericScopeApiHelper[Conn, Scope, ScopeConfig]) extractFromDeleteReqParam(input *plugin.ApiResourceInput) (*deleteRequestParams, errors.Error) {
+	params, err := gs.extractFromReqParam(input, true)
+	if err != nil {
+		return nil, err
+	}
 	var deleteDataOnly bool
 	{
 		ddo, ok := input.Query["delete_data_only"]
 		if ok {
 			deleteDataOnly, err = errors.Convert01(strconv.ParseBool(ddo[0]))
-		}
-		if err != nil {
-			deleteDataOnly = false
+			if err != nil {
+				deleteDataOnly = false
+			}
 		}
 	}
 	return &deleteRequestParams{
 		requestParams:  *params,
 		deleteDataOnly: deleteDataOnly,
-	}
+	}, nil
 }
 
-func (c *GenericScopeApiHelper[Conn, Scope, Tr]) extractFromGetReqParam(input *plugin.ApiResourceInput) *getRequestParams {
-	params := c.extractFromReqParam(input)
-	var err errors.Error
+func (gs *GenericScopeApiHelper[Conn, Scope, ScopeConfig]) extractFromGetReqParam(input *plugin.ApiResourceInput, withScopeId bool) (*getRequestParams, errors.Error) {
+	params, err := gs.extractFromReqParam(input, withScopeId)
+	if err != nil {
+		return nil, err
+	}
 	var loadBlueprints bool
 	{
 		lbps, ok := input.Query["blueprints"]
 		if ok {
 			loadBlueprints, err = errors.Convert01(strconv.ParseBool(lbps[0]))
-		}
-		if err != nil {
-			loadBlueprints = false
+			if err != nil {
+				loadBlueprints = false
+			}
 		}
 	}
 	return &getRequestParams{
 		requestParams:  *params,
 		loadBlueprints: loadBlueprints,
-	}
+	}, nil
 }
 
-func setScopeFields(p interface{}, connectionId uint64, createdDate *time.Time, updatedDate *time.Time) {
+func (gs *GenericScopeApiHelper[Conn, Scope, ScopeConfig]) createRawParams(connectionId uint64, scopeId any) string {
+	// TODO for future: have ScopeParams expose a constructor so we pass the variables to that instead of this hack
+	paramsMap := map[string]any{
+		"ConnectionId":                        connectionId,
+		gs.reflectionParams.RawScopeParamName: scopeId,
+	}
+	return plugin.MarshalScopeParams(paramsMap)
+}
+
+func (gs *GenericScopeApiHelper[Conn, Scope, ScopeConfig]) setScopeFields(p interface{}, connectionId uint64, createdDate *time.Time, updatedDate *time.Time) {
 	pType := reflect.TypeOf(p)
 	if pType.Kind() != reflect.Ptr {
 		panic("expected a pointer to a struct")
@@ -417,6 +459,14 @@ func setScopeFields(p interface{}, connectionId uint64, createdDate *time.Time, 
 	// set connectionId
 	connIdField := pValue.FieldByName("ConnectionId")
 	connIdField.SetUint(connectionId)
+
+	// set raw params
+	rawParams := pValue.FieldByName("RawDataParams")
+	if !rawParams.IsValid() {
+		panic("scope is missing the field \"RawDataParams\"")
+	}
+	scopeIdField := pValue.FieldByName(gs.reflectionParams.ScopeIdFieldName)
+	rawParams.Set(reflect.ValueOf(gs.createRawParams(connectionId, scopeIdField.Interface())))
 
 	// set CreatedDate
 	createdDateField := pValue.FieldByName("CreatedDate")
@@ -468,21 +518,22 @@ func returnPrimaryKeyValue(p interface{}) string {
 	return result
 }
 
-func VerifyScope(scope interface{}, vld *validator.Validate) errors.Error {
-	if vld != nil {
-		pType := reflect.TypeOf(scope)
-		if pType.Kind() != reflect.Ptr {
-			panic("expected a pointer to a struct")
-		}
-		if err := vld.Struct(scope); err != nil {
-			return errors.Default.Wrap(err, "error validating target")
-		}
+func (gs *GenericScopeApiHelper[Conn, Scope, ScopeConfig]) verifyScope(scope interface{}, vld *validator.Validate) errors.Error {
+	if gs.opts.IsRemote {
+		return nil
+	}
+	pType := reflect.TypeOf(scope)
+	if pType.Kind() != reflect.Ptr {
+		panic("expected a pointer to a struct")
+	}
+	if err := vld.Struct(scope); err != nil {
+		return errors.Default.Wrap(err, "error validating target")
 	}
 	return nil
 }
 
-func (c *GenericScopeApiHelper[Conn, Scope, Tr]) validatePrimaryKeys(scopes []*Scope) errors.Error {
-	if c.validator == nil {
+func (gs *GenericScopeApiHelper[Conn, Scope, ScopeConfig]) validatePrimaryKeys(scopes []*Scope) errors.Error {
+	if gs.opts.IsRemote {
 		return nil
 	}
 	keeper := make(map[string]struct{})
@@ -498,54 +549,56 @@ func (c *GenericScopeApiHelper[Conn, Scope, Tr]) validatePrimaryKeys(scopes []*S
 	return nil
 }
 
-func (c *GenericScopeApiHelper[Conn, Scope, Tr]) updateBlueprints(connectionId uint64, scopeId string) errors.Error {
-	blueprintsMap, err := c.bpManager.GetBlueprintsByScopes(connectionId, scopeId)
+func (gs *GenericScopeApiHelper[Conn, Scope, ScopeConfig]) deleteScopeData(scope plugin.ToolLayerScope) errors.Error {
+	// find all tables for this plugin
+	tables, err := gs.getAffectedTables(gs.plugin)
 	if err != nil {
-		return errors.Default.Wrap(err, fmt.Sprintf("error retrieving scope with scope ID %s", scopeId))
+		return errors.Default.Wrap(err, fmt.Sprintf("error getting database tables managed by plugin %s", gs.plugin))
 	}
-	blueprints := blueprintsMap[scopeId]
-	// update the blueprints (remove scope reference from them)
-	for _, blueprint := range blueprints {
-		settings, _ := blueprint.UnmarshalSettings()
-		var changed bool
-		err = settings.UpdateConnections(func(c *plugin.BlueprintConnectionV200) errors.Error {
-			var retainedScopes []*plugin.BlueprintScopeV200
-			for _, bpScope := range c.Scopes {
-				if bpScope.Id == scopeId { // we'll be removing this one
-					changed = true
-				} else {
-					retainedScopes = append(retainedScopes, bpScope)
-				}
-			}
-			c.Scopes = retainedScopes
-			return nil
-		})
-		if err != nil {
-			return errors.Default.Wrap(err, fmt.Sprintf("error removing scope %s from blueprint %d", scopeId, blueprint.ID))
-		}
-		if changed {
-			err = blueprint.UpdateSettings(&settings)
-			if err != nil {
-				return errors.Default.Wrap(err, fmt.Sprintf("error writing new settings into blueprint %s", blueprint.Name))
-			}
-			err = c.bpManager.SaveDbBlueprint(blueprint)
-			if err != nil {
-				return errors.Default.Wrap(err, fmt.Sprintf("error saving the updated blueprint %s", blueprint.Name))
-			}
-		}
+	scopeParams := plugin.MarshalScopeParams(scope.ScopeParams())
+	err = gs.transactionalDelete(tables, scopeParams)
+	if err != nil {
+		return errors.Default.Wrap(err, fmt.Sprintf("error deleting data bound to scope %s for plugin %s", scopeParams, gs.plugin))
 	}
 	return nil
 }
 
-func (c *GenericScopeApiHelper[Conn, Scope, Tr]) transactionalDelete(tables []string, scopeId string) errors.Error {
-	tx := c.db.Begin()
+func (gs *GenericScopeApiHelper[Conn, Scope, ScopeConfig]) transactionalDelete(tables []string, rawDataParams string) errors.Error {
+	generateWhereClause := func(table string) (string, []any) {
+		var where string
+		var params []interface{}
+		if strings.HasPrefix(table, "_raw_") {
+			// raw table: should check connection and scope
+			where = "params = ?"
+			params = []interface{}{rawDataParams}
+		} else if strings.HasPrefix(table, "_tool_") {
+			// tool layer table: should check connection and scope
+			where = "_raw_data_params = ?"
+			params = []interface{}{rawDataParams}
+		} else {
+			// framework tables: should check plugin, connection and scope
+			if table == (models.CollectorLatestState{}.TableName()) {
+				// diff sync state
+				where = "raw_data_table LIKE ? AND raw_data_params = ?"
+			} else {
+				// domain layer table
+				where = "_raw_data_table LIKE ? AND _raw_data_params = ?"
+			}
+			rawDataTablePrefix := fmt.Sprintf("_raw_%s%%", gs.plugin)
+			params = []interface{}{rawDataTablePrefix, rawDataParams}
+		}
+		return where, params
+	}
+	tx := gs.db.Begin()
 	for _, table := range tables {
-		query := createDeleteQuery(table, c.reflectionParams.RawScopeParamName, scopeId)
-		err := tx.Exec(query)
+		where, params := generateWhereClause(table)
+		gs.log.Info("deleting data from table %s with WHERE \"%s\" and params: \"%v\"", table, where, params)
+		sql := fmt.Sprintf("DELETE FROM %s WHERE %s", table, where)
+		err := tx.Exec(sql, params...)
 		if err != nil {
 			err2 := tx.Rollback()
 			if err2 != nil {
-				c.log.Warn(err2, fmt.Sprintf("error rolling back table data deletion transaction. query was %s", query))
+				gs.log.Warn(err2, fmt.Sprintf("error rolling back table data deletion transaction. sql: %s params: %v", sql, params))
 			}
 			return err
 		}
@@ -553,6 +606,21 @@ func (c *GenericScopeApiHelper[Conn, Scope, Tr]) transactionalDelete(tables []st
 	err := tx.Commit()
 	if err != nil {
 		return errors.Default.Wrap(err, "error committing delete transaction for plugin tables")
+	}
+	// validate everything was deleted
+	var failedTables []string
+	for _, table := range tables {
+		where, params := generateWhereClause(table)
+		count, err := gs.db.Count(dal.From(table), dal.Where(where, params...))
+		if err != nil {
+			return err
+		}
+		if count > 0 {
+			failedTables = append(failedTables, table)
+		}
+	}
+	if len(failedTables) > 0 {
+		return errors.Default.New(fmt.Sprintf("Failed to delete all expected rows from the following table(s): %v", failedTables))
 	}
 	return nil
 }
@@ -573,18 +641,7 @@ func (sr *ScopeRes[T, Y]) MarshalJSON() ([]byte, error) {
 	return result, nil
 }
 
-func createDeleteQuery(tableName string, scopeIdKey string, scopeId string) string {
-	column := "_raw_data_params"
-	if tableName == (models.CollectorLatestState{}.TableName()) {
-		column = "raw_data_params"
-	} else if strings.HasPrefix(tableName, "_raw_") {
-		column = "params"
-	}
-	query := `DELETE FROM ` + tableName + ` WHERE ` + column + ` LIKE '%"` + scopeIdKey + `":"` + scopeId + `"%'`
-	return query
-}
-
-func getAffectedTables(pluginName string) ([]string, errors.Error) {
+func (gs *GenericScopeApiHelper[Conn, Scope, ScopeConfig]) getAffectedTables(pluginName string) ([]string, errors.Error) {
 	var tables []string
 	meta, err := plugin.GetPlugin(pluginName)
 	if err != nil {
@@ -593,31 +650,41 @@ func getAffectedTables(pluginName string) ([]string, errors.Error) {
 	if pluginModel, ok := meta.(plugin.PluginModel); !ok {
 		return nil, errors.Default.New(fmt.Sprintf("plugin \"%s\" does not implement listing its tables", pluginName))
 	} else {
+		// Unfortunately, can't cache the tables because Python creates some tables on a per-demand basis, so such a cache would possibly get outdated.
+		// It's a rare scenario in practice, but might as well play it safe and sacrifice some performance here
+		var allTables []string
+		if allTables, err = gs.db.AllTables(); err != nil {
+			return nil, err
+		}
 		// collect raw tables
-		for _, table := range tablesCache {
+		for _, table := range allTables {
 			if strings.HasPrefix(table, "_raw_"+pluginName) {
 				tables = append(tables, table)
 			}
 		}
 		// collect tool tables
-		tablesInfo := pluginModel.GetTablesInfo()
-		for _, table := range tablesInfo {
-			// we only care about tables with RawOrigin
-			ok = hasField(table, "RawDataParams")
-			if ok {
-				tables = append(tables, table.TableName())
+		toolModels := pluginModel.GetTablesInfo()
+		for _, toolModel := range toolModels {
+			if !isScopeModel(toolModel) && hasField(toolModel, "RawDataParams") {
+				tables = append(tables, toolModel.TableName())
 			}
 		}
 		// collect domain tables
-		for _, domainTable := range domaininfo.GetDomainTablesInfo() {
+		for _, domainModel := range domaininfo.GetDomainTablesInfo() {
 			// we only care about tables with RawOrigin
-			ok = hasField(domainTable, "RawDataParams")
+			ok = hasField(domainModel, "RawDataParams")
 			if ok {
-				tables = append(tables, domainTable.TableName())
+				tables = append(tables, domainModel.TableName())
 			}
 		}
 		// additional tables
 		tables = append(tables, models.CollectorLatestState{}.TableName())
 	}
+	gs.log.Debug("Discovered %d tables used by plugin \"%s\": %v", len(tables), pluginName, tables)
 	return tables, nil
+}
+
+func isScopeModel(obj dal.Tabler) bool {
+	_, ok := obj.(plugin.ToolLayerScope)
+	return ok
 }

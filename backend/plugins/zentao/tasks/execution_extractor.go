@@ -19,7 +19,6 @@ package tasks
 
 import (
 	"encoding/json"
-
 	"github.com/apache/incubator-devlake/core/errors"
 	"github.com/apache/incubator-devlake/core/plugin"
 	"github.com/apache/incubator-devlake/helpers/pluginhelper/api"
@@ -39,20 +38,11 @@ var ExtractExecutionMeta = plugin.SubTaskMeta{
 func ExtractExecutions(taskCtx plugin.SubTaskContext) errors.Error {
 	data := taskCtx.GetData().(*ZentaoTaskData)
 
-	// this Extract only work for project
-	if data.Options.ProjectId == 0 {
-		return nil
-	}
-
 	extractor, err := api.NewApiExtractor(api.ApiExtractorArgs{
 		RawDataSubTaskArgs: api.RawDataSubTaskArgs{
-			Ctx: taskCtx,
-			Params: ZentaoApiParams{
-				ConnectionId: data.Options.ConnectionId,
-				ProductId:    data.Options.ProductId,
-				ProjectId:    data.Options.ProjectId,
-			},
-			Table: RAW_EXECUTION_TABLE,
+			Ctx:     taskCtx,
+			Options: data.Options,
+			Table:   RAW_EXECUTION_TABLE,
 		},
 		Extract: func(row *api.RawData) ([]interface{}, errors.Error) {
 			res := &models.ZentaoExecutionRes{}
@@ -60,6 +50,17 @@ func ExtractExecutions(taskCtx plugin.SubTaskContext) errors.Error {
 			if err != nil {
 				return nil, errors.Default.WrapRaw(err)
 			}
+			var results []interface{}
+			for _, product := range res.Products {
+				p := &models.ZentaoProductSummary{
+					ConnectionId: data.Options.ConnectionId,
+					ProjectId:    data.Options.ProjectId,
+					Id:           product.ID,
+					Name:         product.Name,
+				}
+				results = append(results, p)
+			}
+
 			execution := &models.ZentaoExecution{
 				ConnectionId:   data.Options.ConnectionId,
 				Id:             res.ID,
@@ -120,7 +121,6 @@ func ExtractExecutions(taskCtx plugin.SubTaskContext) errors.Error {
 				Progress:       res.Progress,
 				CaseReview:     res.CaseReview,
 			}
-			results := make([]interface{}, 0)
 			results = append(results, execution)
 			return results, nil
 		},

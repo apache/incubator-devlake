@@ -39,12 +39,12 @@ func TestMakeMetricPluginPipelinePlanV200(t *testing.T) {
 	doraOutputPlan := plugin.PipelinePlan{
 		plugin.PipelineStage{
 			{
-				Plugin:   "dora",
+				Plugin: "dora",
 				Subtasks: []string{
 					"generateDeploymentCommits",
 					"enrichPrevSuccessDeploymentCommits",
 				},
-				Options:  map[string]interface{}{"projectName": projectName},
+				Options: map[string]interface{}{"projectName": projectName},
 			},
 		},
 		plugin.PipelineStage{
@@ -56,7 +56,7 @@ func TestMakeMetricPluginPipelinePlanV200(t *testing.T) {
 		},
 		plugin.PipelineStage{
 			{
-				Plugin:  "dora",
+				Plugin: "dora",
 				Subtasks: []string{
 					"calculateChangeLeadTime",
 					"ConnectIncidentToDeployment",

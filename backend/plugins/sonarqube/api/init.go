@@ -19,6 +19,7 @@ package api
 
 import (
 	"github.com/apache/incubator-devlake/core/context"
+	"github.com/apache/incubator-devlake/core/plugin"
 	"github.com/apache/incubator-devlake/helpers/pluginhelper/api"
 	"github.com/apache/incubator-devlake/plugins/sonarqube/models"
 	"github.com/go-playground/validator/v10"
@@ -30,16 +31,19 @@ var scopeHelper *api.ScopeApiHelper[models.SonarqubeConnection, models.Sonarqube
 var remoteHelper *api.RemoteApiHelper[models.SonarqubeConnection, models.SonarqubeProject, models.SonarqubeApiProject, api.NoRemoteGroupResponse]
 var basicRes context.BasicRes
 
-func Init(br context.BasicRes) {
+func Init(br context.BasicRes, p plugin.PluginMeta) {
+
 	basicRes = br
 	vld = validator.New()
 	connectionHelper = api.NewConnectionHelper(
 		basicRes,
 		vld,
+		p.Name(),
 	)
 	params := &api.ReflectionParameters{
 		ScopeIdFieldName:  "ProjectKey",
 		ScopeIdColumnName: "project_key",
+		RawScopeParamName: "ProjectKey",
 	}
 	scopeHelper = api.NewScopeHelper[models.SonarqubeConnection, models.SonarqubeProject, any](
 		basicRes,

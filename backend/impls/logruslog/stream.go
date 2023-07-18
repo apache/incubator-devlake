@@ -28,7 +28,7 @@ func GetFileStream(path string) (io.Writer, errors.Error) {
 	if path == "" {
 		return os.Stdout, nil
 	}
-	err := os.MkdirAll(filepath.Dir(path), os.ModePerm)
+	err := os.MkdirAll(filepath.Dir(path), 0777)
 	if err != nil {
 		return nil, errors.Convert(err)
 	}

@@ -17,8 +17,8 @@
  */
 
 import { useState } from 'react';
-import type { TabId } from '@blueprintjs/core';
 import { Tabs, Tab } from '@blueprintjs/core';
+import useUrlState from '@ahooksjs/use-url-state';
 
 import { PageLoading } from '@/components';
 import { useRefreshData } from '@/hooks';
@@ -36,36 +36,50 @@ interface Props {
 }
 
 export const BlueprintDetail = ({ id, from }: Props) => {
-  const [activeTab, setActiveTab] = useState<TabId>(from === FromEnum.project ? 'configuration' : 'status');
   const [version, setVersion] = useState(1);
 
-  const { ready, data } = useRefreshData(
-    async () => Promise.all([API.getBlueprint(id), API.getBlueprintPipelines(id)]),
-    [version],
-  );
+  const [query, setQuery] = useUrlState({ tab: 'status' });
 
-  const handleRefresh = () => setVersion((v) => v + 1);
+  const { ready, data } = useRefreshData(async () => {
+    const [bpRes, pipelineRes] = await Promise.all([API.getBlueprint(id), API.getBlueprintPipelines(id)]);
+    return [bpRes, pipelineRes.pipelines[0]];
+  }, [version]);
+
+  const handlRefresh = () => {
+    setVersion((v) => v + 1);
+  };
+
+  const handleChangeTab = (tab: string) => {
+    setQuery({ tab });
+  };
 
   if (!ready || !data) {
     return <PageLoading />;
   }
 
-  const [blueprint, pipelines] = data;
+  const [blueprint, lastPipeline] = data;
 
   return (
     <S.Wrapper>
-      <Tabs selectedTabId={activeTab} onChange={(at) => setActiveTab(at)}>
+      <Tabs selectedTabId={query.tab} onChange={(tab) => setQuery({ tab })}>
         <Tab
           id="status"
           title="Status"
           panel={
-            <StatusPanel from={from} blueprint={blueprint} pipelineId={pipelines?.[0]?.id} onRefresh={handleRefresh} />
+            <StatusPanel from={from} blueprint={blueprint} pipelineId={lastPipeline?.id} onRefresh={handlRefresh} />
           }
         />
         <Tab
           id="configuration"
           title="Configuration"
-          panel={<ConfigurationPanel from={from} blueprint={blueprint} onRefresh={handleRefresh} />}
+          panel={
+            <ConfigurationPanel
+              from={from}
+              blueprint={blueprint}
+              onRefresh={handlRefresh}
+              onChangeTab={handleChangeTab}
+            />
+          }
         />
       </Tabs>
     </S.Wrapper>

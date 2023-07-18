@@ -19,6 +19,8 @@ package api
 
 import (
 	"fmt"
+	"github.com/apache/incubator-devlake/core/errors"
+	"github.com/apache/incubator-devlake/impls/logruslog"
 	"net/http"
 	"strings"
 
@@ -96,7 +98,7 @@ func registerPluginEndpoints(r *gin.Engine, pluginName string, apiResources map[
 
 func handlePluginCall(pluginName string, handler plugin.ApiResourceHandler) func(c *gin.Context) {
 	return func(c *gin.Context) {
-		var err error
+		var err errors.Error
 		input := &plugin.ApiResourceInput{}
 		input.Params = make(map[string]string)
 		if len(c.Params) > 0 {
@@ -110,16 +112,21 @@ func handlePluginCall(pluginName string, handler plugin.ApiResourceHandler) func
 			if strings.HasPrefix(c.Request.Header.Get("Content-Type"), "multipart/form-data;") {
 				input.Request = c.Request
 			} else {
-				err = c.ShouldBindJSON(&input.Body)
-				if err != nil && err.Error() != "EOF" {
-					shared.ApiOutputError(c, err)
+				err2 := c.ShouldBindJSON(&input.Body)
+				if err2 != nil && err2.Error() != "EOF" {
+					shared.ApiOutputError(c, err2)
 					return
 				}
 			}
 		}
 		output, err := handler(input)
 		if err != nil {
-			shared.ApiOutputError(c, err)
+			if output != nil && output.Body != nil {
+				logruslog.Global.Error(err, "")
+				shared.ApiOutputSuccess(c, output.Body, err.GetType().GetHttpCode())
+			} else {
+				shared.ApiOutputError(c, err)
+			}
 		} else if output != nil {
 			status := output.Status
 			if status < http.StatusContinue {

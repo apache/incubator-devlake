@@ -17,7 +17,7 @@
  */
 
 import { useState, useMemo } from 'react';
-import { useHistory } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import { Tag, Intent } from '@blueprintjs/core';
 
 import { Dialog } from '@/components';
@@ -32,7 +32,7 @@ export const ConnectionHomePage = () => {
   const [pluginConfig, setPluginConfig] = useState<PluginConfigType>();
 
   const { connections, onRefresh } = useConnections();
-  const history = useHistory();
+  const navigate = useNavigate();
 
   const [plugins, webhook] = useMemo(
     () => [
@@ -64,7 +64,7 @@ export const ConnectionHomePage = () => {
 
   const handleCreateSuccess = async (plugin: string, id: ID) => {
     onRefresh(plugin);
-    history.push(`/connections/${plugin}/${id}`);
+    navigate(`/connections/${plugin}/${id}`);
   };
 
   return (

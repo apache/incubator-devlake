@@ -19,6 +19,7 @@ package api
 
 import (
 	"github.com/apache/incubator-devlake/core/context"
+	"github.com/apache/incubator-devlake/core/plugin"
 	"github.com/apache/incubator-devlake/helpers/pluginhelper/api"
 	"github.com/apache/incubator-devlake/plugins/trello/models"
 	"github.com/go-playground/validator/v10"
@@ -30,16 +31,18 @@ var scopeHelper *api.ScopeApiHelper[models.TrelloConnection, models.TrelloBoard,
 var basicRes context.BasicRes
 var scHelper *api.ScopeConfigHelper[models.TrelloScopeConfig]
 
-func Init(br context.BasicRes) {
+func Init(br context.BasicRes, p plugin.PluginMeta) {
 	basicRes = br
 	vld = validator.New()
 	connectionHelper = api.NewConnectionHelper(
 		basicRes,
 		vld,
+		p.Name(),
 	)
 	params := &api.ReflectionParameters{
 		ScopeIdFieldName:  "BoardId",
 		ScopeIdColumnName: "board_id",
+		RawScopeParamName: "BoardId",
 	}
 	scopeHelper = api.NewScopeHelper[models.TrelloConnection, models.TrelloBoard, models.TrelloScopeConfig](
 		basicRes,
@@ -53,5 +56,6 @@ func Init(br context.BasicRes) {
 	scHelper = api.NewScopeConfigHelper[models.TrelloScopeConfig](
 		basicRes,
 		vld,
+		p.Name(),
 	)
 }

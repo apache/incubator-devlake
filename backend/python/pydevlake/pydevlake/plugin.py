@@ -26,8 +26,8 @@ from pydevlake.subtasks import Subtask
 from pydevlake.logger import logger
 from pydevlake.ipc import PluginCommands
 from pydevlake.context import Context
-from pydevlake.stream import Stream, DomainType
-from pydevlake.model import ToolScope, DomainScope, Connection, ScopeConfig
+from pydevlake.stream import Stream
+from pydevlake.model import ToolScope, DomainScope, Connection, ScopeConfig, raw_data_params
 from pydevlake.migration import MIGRATION_SCRIPTS
 
 
@@ -65,10 +65,10 @@ class Plugin(ABC):
 
     @property
     def scope_config_type(self) -> Type[ScopeConfig]:
-        return None
+        return ScopeConfig
 
     @abstractmethod
-    def test_connection(self, connection: Connection):
+    def test_connection(self, connection: Connection) -> msg.TestConnectionResult:
         """
         Test if the the connection with the datasource can be established with the given connection.
         Must raise an exception if the connection can't be established.
@@ -116,6 +116,8 @@ class Plugin(ABC):
             remote_scopes = []
             for tool_scope in self.remote_scopes(connection, group_id):
                 tool_scope.connection_id = connection.id
+                tool_scope.raw_data_params = raw_data_params(connection.id, tool_scope.id)
+                tool_scope.raw_data_table = self._raw_scope_table_name()
                 remote_scopes.append(
                     msg.RemoteScope(
                         id=tool_scope.id,
@@ -133,16 +135,17 @@ class Plugin(ABC):
         """
         Make a simple pipeline using the scopes declared by the plugin.
         """
-        entity_types = entity_types or list(DomainType)
         plan = self.make_pipeline_plan(scope_config_pairs, connection)
         domain_scopes = []
         for tool_scope, _ in scope_config_pairs:
             for scope in self.domain_scopes(tool_scope):
                 scope.id = tool_scope.domain_id()
+                scope.raw_data_params = raw_data_params(connection.id, tool_scope.id)
+                scope.raw_data_table = self._raw_scope_table_name()
                 domain_scopes.append(
                     msg.DynamicDomainScope(
                         type_name=type(scope).__name__,
-                        data=scope.json(exclude_unset=True)
+                        data=scope.json(exclude_unset=True, by_alias=True)
                     )
                 )
         return msg.PipelineData(
@@ -160,6 +163,9 @@ class Plugin(ABC):
             *(self.make_pipeline_stage(scope, config, connection) for scope, config in scope_config_pairs),
             *self.extra_stages(scope_config_pairs, connection)
         ]
+
+    def _raw_scope_table_name(self) -> str:
+        return f"_raw_{self.name}_scopes"
 
     def extra_stages(self, scope_config_pairs: list[ScopeConfigPair],
                      connection: Connection) -> list[list[msg.PipelineTask]]:

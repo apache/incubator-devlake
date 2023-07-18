@@ -26,11 +26,7 @@ import (
 	"github.com/apache/incubator-devlake/plugins/jenkins/models"
 )
 
-type JenkinsApiParams struct {
-	ConnectionId uint64
-	FullName     string
-}
-
+type JenkinsApiParams models.JenkinsApiParams
 type JenkinsOptions struct {
 	ConnectionId  uint64 `json:"connectionId"`
 	ScopeId       string

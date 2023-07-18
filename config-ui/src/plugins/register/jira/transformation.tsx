@@ -245,7 +245,11 @@ export const JiraTransformation = ({ entities, connectionId, transformation, set
         </div>
       )}
       {entities.includes('CROSS') && (
-        <CrossDomain transformation={transformation} setTransformation={setTransformation} />
+        <CrossDomain
+          connectionId={connectionId}
+          transformation={transformation}
+          setTransformation={setTransformation}
+        />
       )}
     </S.TransformationWrapper>
   );

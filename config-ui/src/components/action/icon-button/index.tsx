@@ -21,14 +21,15 @@ import { Tooltip2 } from '@blueprintjs/popover2';
 
 interface Props {
   style?: React.CSSProperties;
-  icon: IconName;
+  icon?: IconName;
+  image?: JSX.Element;
   tooltip: string;
   loading?: boolean;
   disabled?: boolean;
   onClick?: () => void;
 }
 
-export const IconButton = ({ style, icon, tooltip, loading, disabled, onClick }: Props) => {
+export const IconButton = ({ style, icon, image, tooltip, loading, disabled, onClick }: Props) => {
   return (
     <Tooltip2 intent={Intent.PRIMARY} position={Position.TOP} content={tooltip}>
       <Button
@@ -37,7 +38,7 @@ export const IconButton = ({ style, icon, tooltip, loading, disabled, onClick }:
         disabled={disabled}
         minimal
         intent={Intent.PRIMARY}
-        icon={icon}
+        icon={icon ?? image}
         onClick={onClick}
       />
     </Tooltip2>

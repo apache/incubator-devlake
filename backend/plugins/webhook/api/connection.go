@@ -19,7 +19,9 @@ package api
 
 import (
 	"fmt"
+	"github.com/apache/incubator-devlake/core/dal"
 	"net/http"
+	"strconv"
 
 	"github.com/apache/incubator-devlake/core/errors"
 	"github.com/apache/incubator-devlake/core/plugin"
@@ -69,16 +71,19 @@ func PatchConnection(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput,
 // @Tags plugins/webhook
 // @Success 200  {object} models.WebhookConnection
 // @Failure 400  {string} errcode.Error "Bad Request"
+// @Failure 409  {object} services.BlueprintProjectPairs "References exist to this connection"
 // @Failure 500  {string} errcode.Error "Internal Error"
 // @Router /plugins/webhook/connections/{connectionId} [DELETE]
 func DeleteConnection(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, errors.Error) {
-	connection := &models.WebhookConnection{}
-	err := connectionHelper.First(connection, input.Params)
+	connectionId, e := strconv.ParseInt(input.Params["connectionId"], 10, 64)
+	if e != nil {
+		return nil, errors.BadInput.WrapRaw(e)
+	}
+	err := basicRes.GetDal().Delete(&models.WebhookConnection{}, dal.Where("id = ?", connectionId))
 	if err != nil {
 		return nil, err
 	}
-	err = connectionHelper.Delete(connection)
-	return &plugin.ApiResourceOutput{Body: connection}, err
+	return &plugin.ApiResourceOutput{Status: http.StatusOK}, nil
 }
 
 type WebhookConnectionResponse struct {

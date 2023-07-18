@@ -21,7 +21,10 @@ import (
 	"context"
 	"database/sql"
 	"fmt"
+	"github.com/spf13/cast"
+	"io/fs"
 	"os"
+	"path/filepath"
 	"strconv"
 	"strings"
 	"sync"
@@ -101,7 +104,7 @@ func NewDataFlowTester(t *testing.T, pluginName string, pluginMeta plugin.Plugin
 	cfg := config.GetConfig()
 	e2eDbUrl := cfg.GetString(`E2E_DB_URL`)
 	if e2eDbUrl == `` {
-		panic(errors.Default.New(`e2e can only run with E2E_DB_URL, please set it in .env`))
+		panic(errors.Default.New(`e2e can only run with E2E_DB_URL, please set it in environment variable or .env file`))
 	}
 	cfg.Set(`DB_URL`, cfg.GetString(`E2E_DB_URL`))
 	db, err := runner.NewGormDb(cfg, logruslog.Global)
@@ -111,7 +114,7 @@ func NewDataFlowTester(t *testing.T, pluginName string, pluginMeta plugin.Plugin
 		// grant all on lake_test.* to 'merico'@'%';
 		panic(err)
 	}
-	return &DataFlowTester{
+	df := &DataFlowTester{
 		Cfg:    cfg,
 		Db:     db,
 		Dal:    dalgorm.NewDalgorm(db),
@@ -120,6 +123,7 @@ func NewDataFlowTester(t *testing.T, pluginName string, pluginMeta plugin.Plugin
 		Plugin: pluginMeta,
 		Log:    logruslog.Global,
 	}
+	return df
 }
 
 // ImportCsvIntoRawTable imports records from specified csv file into target raw table, note that existing data would be deleted first.
@@ -238,6 +242,56 @@ func filterColumn(column dal.ColumnMeta, opts TableOptions) bool {
 		}
 	}
 	return targetFound
+}
+
+// UpdateCSVs scans the supplied directory for .csv files and applies the `updater` function to each. It saves back the result.
+// This is useful when you need to bulk-change a lot of entries across many CSV files in a systematic way.
+func (t *DataFlowTester) UpdateCSVs(csvDir string, updater func(fileName string, record *pluginhelper.CsvRecord)) errors.Error {
+	var csvFiles []string
+	err := filepath.WalkDir(csvDir, func(file string, dir fs.DirEntry, e error) error {
+		if e != nil {
+			return e
+		}
+		if filepath.Ext(file) == ".csv" {
+			csvFiles = append(csvFiles, file)
+		}
+		return nil
+	})
+	if err != nil {
+		return errors.Convert(err)
+	}
+	for _, csvFile := range csvFiles {
+		csvIter, err := pluginhelper.NewCsvFileIterator(csvFile)
+		if err != nil {
+			return errors.Convert(err)
+		}
+		columns := csvIter.GetColumns()
+		var entries [][]string
+		func() {
+			defer csvIter.Close()
+			for csvIter.HasNext() {
+				records := csvIter.FetchRecords()
+				var csvEntry []string
+				for _, record := range records {
+					updater(filepath.Base(csvFile), record)
+					csvEntry = append(csvEntry, cast.ToString(record.Value))
+				}
+				entries = append(entries, csvEntry)
+			}
+		}()
+		if len(entries) == 0 {
+			continue
+		}
+		func() {
+			csvWriter, _ := pluginhelper.NewCsvFileWriter(csvFile, columns)
+			defer csvWriter.Close()
+			for _, entry := range entries {
+				csvWriter.Write(entry)
+			}
+			csvWriter.Flush()
+		}()
+	}
+	return nil
 }
 
 // CreateSnapshot reads rows from database and write them into .csv file.
@@ -475,10 +529,10 @@ func (t *DataFlowTester) VerifyTableWithOptions(dst schema.Tabler, opts TableOpt
 	csvIter, _ := pluginhelper.NewCsvFileIterator(opts.CSVRelPath)
 	defer csvIter.Close()
 
-	var expectedTotal int64
+	var expectedRowTotal int64
 	csvMap := map[string]map[string]interface{}{}
 	for csvIter.HasNext() {
-		expectedTotal++
+		expectedRowTotal++
 		expected := csvIter.Fetch()
 		pkValues := make([]string, 0, len(pkColumns))
 		for _, pkc := range pkColumns {
@@ -493,27 +547,32 @@ func (t *DataFlowTester) VerifyTableWithOptions(dst schema.Tabler, opts TableOpt
 		csvMap[pkValueStr] = expected
 	}
 
-	var actualTotal int64
+	var actualRowTotal int64
 	dbRows := &[]map[string]interface{}{}
 	err = t.Db.Table(dst.TableName()).Find(dbRows).Error
 	if err != nil {
 		panic(err)
 	}
 	for _, actual := range *dbRows {
-		actualTotal++
+		actualRowTotal++
 		pkValues := make([]string, 0, len(pkColumns))
 		for _, pkc := range pkColumns {
 			pkValues = append(pkValues, formatDbValue(actual[pkc.Name()], opts.Nullable))
 		}
-		expected, ok := csvMap[strings.Join(pkValues, `-`)]
-		assert.True(t.T, ok, fmt.Sprintf(`%s not found (with params from csv %s)`, dst.TableName(), pkValues))
+		pk := strings.Join(pkValues, `-`)
+		expected, ok := csvMap[pk]
+		assert.True(t.T, ok, fmt.Sprintf(`record in table %s not found (with params from csv %s)`, dst.TableName(), pk))
 		if !ok {
 			continue
 		}
 		for _, field := range targetFields {
-			assert.Equal(t.T, expected[field], formatDbValue(actual[field], opts.Nullable), fmt.Sprintf(`%s.%s not match (with params from csv %s)`, dst.TableName(), field, pkValues))
+			expectation := formatDbValue(expected[field], opts.Nullable)
+			reality := formatDbValue(actual[field], opts.Nullable)
+			if !assert.Equal(t.T, expectation, reality, fmt.Sprintf(`%s.%s not match (with params from csv %s)`, dst.TableName(), field, pkValues)) {
+				_ = t.T // useful for debugging
+			}
 		}
 	}
 
-	assert.Equal(t.T, expectedTotal, actualTotal, fmt.Sprintf(`%s count not match count,[expected:%d][actual:%d]`, dst.TableName(), expectedTotal, actualTotal))
+	assert.Equal(t.T, expectedRowTotal, actualRowTotal, fmt.Sprintf(`records in %s count not match expectation count,[expected(CSV):%d][actual(DB):%d]`, dst.TableName(), expectedRowTotal, actualRowTotal))
 }

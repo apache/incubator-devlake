@@ -19,7 +19,7 @@ package codequality
 
 import (
 	"github.com/apache/incubator-devlake/core/models/domainlayer"
-	"github.com/apache/incubator-devlake/helpers/pluginhelper/api"
+	"github.com/apache/incubator-devlake/helpers/utils"
 )
 
 type CqIssue struct {
@@ -45,8 +45,8 @@ type CqIssue struct {
 	EndOffset                int    `json:"endOffset"`
 	VulnerabilityProbability string `gorm:"type:varchar(100)"`
 	SecurityCategory         string `gorm:"type:varchar(100)"`
-	CreatedDate              *api.Iso8601Time
-	UpdatedDate              *api.Iso8601Time
+	CreatedDate              *utils.Iso8601Time
+	UpdatedDate              *utils.Iso8601Time
 }
 
 func (CqIssue) TableName() string {

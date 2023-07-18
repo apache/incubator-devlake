@@ -18,6 +18,8 @@ limitations under the License.
 package tasks
 
 import (
+	"reflect"
+
 	"github.com/apache/incubator-devlake/core/dal"
 	"github.com/apache/incubator-devlake/core/errors"
 	"github.com/apache/incubator-devlake/core/models/domainlayer"
@@ -26,8 +28,11 @@ import (
 	"github.com/apache/incubator-devlake/core/plugin"
 	"github.com/apache/incubator-devlake/helpers/pluginhelper/api"
 	gitlabModels "github.com/apache/incubator-devlake/plugins/gitlab/models"
-	"reflect"
 )
+
+func init() {
+	RegisterSubtaskMeta(&ConvertAccountsMeta)
+}
 
 var ConvertAccountsMeta = plugin.SubTaskMeta{
 	Name:             "convertAccounts",
@@ -35,6 +40,7 @@ var ConvertAccountsMeta = plugin.SubTaskMeta{
 	EnabledByDefault: true,
 	Description:      "Convert tool layer table gitlab_users into  domain layer table accounts",
 	DomainTypes:      []string{plugin.DOMAIN_TYPE_CROSS},
+	Dependencies:     []*plugin.SubTaskMeta{&ExtractAccountsMeta},
 }
 
 func ConvertAccounts(taskCtx plugin.SubTaskContext) errors.Error {
@@ -53,7 +59,7 @@ func ConvertAccounts(taskCtx plugin.SubTaskContext) errors.Error {
 		Input:        cursor,
 		RawDataSubTaskArgs: api.RawDataSubTaskArgs{
 			Ctx: taskCtx,
-			Params: GitlabApiParams{
+			Params: gitlabModels.GitlabApiParams{
 				ConnectionId: data.Options.ConnectionId,
 				ProjectId:    data.Options.ProjectId,
 			},

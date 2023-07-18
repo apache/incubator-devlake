@@ -47,10 +47,8 @@ type GithubTaskData struct {
 	RegexEnricher *helper.RegexEnricher
 }
 
-type GithubApiParams struct {
-	ConnectionId uint64
-	Name         string
-}
+// TODO: avoid touching too many files, should be removed in the future
+type GithubApiParams models.GithubApiParams
 
 func DecodeAndValidateTaskOptions(options map[string]interface{}) (*GithubOptions, errors.Error) {
 	op, err := DecodeTaskOptions(options)

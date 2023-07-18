@@ -34,6 +34,7 @@ import (
 func TestMakeDataSourcePipelinePlanV200(t *testing.T) {
 	mockMeta := mockplugin.NewPluginMeta(t)
 	mockMeta.On("RootPkgPath").Return("github.com/apache/incubator-devlake/plugins/sonarqube")
+	mockMeta.On("Name").Return("sonarqube").Maybe()
 	err := plugin.RegisterPlugin("sonarqube", mockMeta)
 	assert.Nil(t, err)
 	bs := &plugin.BlueprintScopeV200{
@@ -46,6 +47,7 @@ func TestMakeDataSourcePipelinePlanV200(t *testing.T) {
 	plan, err = makeDataSourcePipelinePlanV200(nil, plan, bpScopes, uint64(1), syncPolicy)
 	assert.Nil(t, err)
 	basicRes = NewMockBasicRes()
+
 	scopes, err := makeScopesV200(bpScopes, uint64(1))
 	assert.Nil(t, err)
 

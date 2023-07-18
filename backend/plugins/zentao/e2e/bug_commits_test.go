@@ -36,8 +36,7 @@ func TestZentaoBugCommitsDataFlow(t *testing.T) {
 	taskData := &tasks.ZentaoTaskData{
 		Options: &tasks.ZentaoOptions{
 			ConnectionId: 1,
-			ProjectId:    0,
-			ProductId:    22,
+			ProjectId:    22,
 		},
 	}
 

@@ -22,7 +22,7 @@ from azuredevops.streams.jobs import Jobs
 from azuredevops.streams.pull_request_commits import GitPullRequestCommits
 from azuredevops.streams.pull_requests import GitPullRequests
 
-from pydevlake import Plugin, RemoteScopeGroup, DomainType, ScopeConfigPair
+from pydevlake import Plugin, RemoteScopeGroup, DomainType, TestConnectionResult
 from pydevlake.domain_layer.code import Repo
 from pydevlake.domain_layer.devops import CicdScope
 from pydevlake.pipeline_tasks import gitextractor, refdiff
@@ -78,6 +78,7 @@ class AzureDevOpsPlugin(Plugin):
         org, proj = group_id.split('/')
         api = AzureDevOpsAPI(connection)
         for raw_repo in api.git_repos(org, proj):
+            raw_repo['name'] = f'{proj}/{raw_repo["name"]}'
             raw_repo['project_id'] = proj
             raw_repo['org_id'] = org
             # remove username from url
@@ -98,7 +99,7 @@ class AzureDevOpsPlugin(Plugin):
                 props = repo['properties']
                 yield GitRepository(
                     id=repo['id'],
-                    name=repo['name'],
+                    name=f'{provider}/{proj}/{repo["name"]}',
                     project_id=proj,
                     org_id=org,
                     provider=provider,
@@ -106,32 +107,34 @@ class AzureDevOpsPlugin(Plugin):
                     defaultBranch=props.get('defaultBranch', 'main')
                 )
 
-    def test_connection(self, connection: AzureDevOpsConnection):
+    def test_connection(self, connection: AzureDevOpsConnection) -> TestConnectionResult:
         api = AzureDevOpsAPI(connection)
-        if connection.organization is None:
-            try:
-                api.my_profile()
-            except APIException as e:
-                if e.response.status == 401:
-                    raise Exception(f"Invalid token {e}. You may need to set organization name in connection or edit your token to set organization to 'All accessible organizations'")
-                raise
-        else:
-            try:
-                api.projects(connection.organization)
-            except APIException as e:
-                raise Exception(f"Invalid token: {e}")
+        message = None
+        hint = None
+        try:
+            if connection.organization is None:
+                hint = "You may need to edit your token to set organization to 'All accessible organizations"
+                res = api.my_profile()
+            else:
+                hint = "Organization name may be incorrect or your token may not have access to the organization."
+                res = api.projects(connection.organization)
+        except APIException as e:
+            res = e.response
+            if res.status == 401:
+                message = f"Invalid token. {hint}"
+        return TestConnectionResult.from_api_response(res, message)
 
     def extra_tasks(self, scope: GitRepository, scope_config: GitRepositoryConfig, connection: AzureDevOpsConnection):
-        if DomainType.CODE in scope_config.entity_types and not scope.is_external():
+        if DomainType.CODE in scope_config.domain_types and not scope.is_external():
             url = urlparse(scope.remote_url)
             url = url._replace(netloc=f'{url.username}:{connection.token.get_secret_value()}@{url.hostname}')
-            yield gitextractor(url.geturl(), scope.domain_id(), connection.proxy)
+            yield gitextractor(url.geturl(), scope.name, scope.domain_id(), connection.proxy)
 
-    def extra_stages(self, scope_config_pairs: list[ScopeConfigPair], _):
-        if DomainType.CODE in config.entity_types:
-            for scope, config in scope_config_pairs:
-                if not scope.is_external():
-                    yield [refdiff(scope.id, config.refdiff)]
+    def extra_stages(self, scope_config_pairs: list[tuple[GitRepository, GitRepositoryConfig]], _):
+        for scope, config in scope_config_pairs:
+            if DomainType.CODE in config.domain_types and not scope.is_external():
+                yield [refdiff(scope.id, config.refdiff)]
+
 
     @property
     def streams(self):

@@ -17,6 +17,7 @@ import pytest
 
 from typing import Union, Type, Iterable, Generator, Optional
 
+from pydantic import ValidationError
 from sqlmodel import create_engine
 
 from pydevlake.context import Context
@@ -114,6 +115,10 @@ def assert_valid_tool_scope_type(plugin: Plugin):
 def assert_valid_scope_config_type(plugin: Plugin):
     scope_config_type = plugin.scope_config_type
     assert issubclass(scope_config_type, ScopeConfig), 'scope_config_type must be a subclass of ScopeConfig'
+    try:
+        scope_config_type()
+    except ValidationError as e:
+        pytest.fail(f'scope_config_type must not have required fields: {e}')
 
 
 def assert_valid_streams(plugin: Plugin):
@@ -172,7 +177,6 @@ def assert_valid_remote_scopes(plugin: Plugin, connection: Connection, group_id:
 def assert_valid_pipeline_plan(plugin: Plugin, connection: Connection, tool_scope: ToolScope, scope_config: ScopeConfig) -> list[list[PipelineTask]]:
     plan = plugin.make_pipeline_plan(
         [(tool_scope, scope_config)],
-        [domain_type.value for domain_type in DomainType],
         connection
     )
     assert len(plan) > 0, 'Pipeline plan has no stage'
@@ -190,12 +194,13 @@ def assert_valid_plugin(plugin: Plugin):
     assert_valid_streams(plugin)
 
 
-def assert_plugin_run(plugin: Plugin, connection: Connection, scope_config: ScopeConfig):
+def assert_plugin_run(plugin: Plugin, connection: Connection, scope_config: Optional[ScopeConfig] = None):
     assert_valid_plugin(plugin)
     assert_valid_connection(plugin, connection)
     groups = assert_valid_remote_scope_groups(plugin, connection)
     scope = assert_valid_remote_scopes(plugin, connection, groups[0].id)[0]
     assert_valid_domain_scopes(plugin, scope)
+    scope_config = scope_config or plugin.scope_config_type()
     assert_valid_pipeline_plan(plugin, connection, scope, scope_config)
     for stream in plugin.streams:
         if isinstance(stream, type):

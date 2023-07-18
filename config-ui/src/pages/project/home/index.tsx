@@ -17,7 +17,7 @@
  */
 
 import { useState, useMemo } from 'react';
-import { Link, useHistory } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { Button, InputGroup, Checkbox, Intent, FormGroup } from '@blueprintjs/core';
 import dayjs from 'dayjs';
 
@@ -41,7 +41,7 @@ export const ProjectHomePage = () => {
 
   const { ready, data } = useRefreshData(() => API.getProjects({ page: 1, pageSize: 200 }), [version]);
 
-  const history = useHistory();
+  const navigate = useNavigate();
 
   const dataSource = useMemo(() => data?.projects ?? [], [data]);
   const presets = useMemo(() => cronPresets.map((preset) => preset.config), []);
@@ -111,7 +111,7 @@ export const ProjectHomePage = () => {
             dataIndex: 'name',
             key: 'name',
             render: (name: string) => (
-              <Link to={`/projects/${encodeName(name)}`} style={{ color: '#292b3f' }}>
+              <Link to={`/projects/${encodeName(name)}?tab=configuration`} style={{ color: '#292b3f' }}>
                 {name}
               </Link>
             ),
@@ -123,7 +123,11 @@ export const ProjectHomePage = () => {
             width: 100,
             align: 'center',
             render: (name: any) => (
-              <IconButton icon="cog" tooltip="Detail" onClick={() => history.push(`/projects/${encodeName(name)}`)} />
+              <IconButton
+                icon="cog"
+                tooltip="Detail"
+                onClick={() => navigate(`/projects/${encodeName(name)}?tab=configuration`)}
+              />
             ),
           },
         ]}

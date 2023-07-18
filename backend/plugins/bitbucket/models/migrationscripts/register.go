@@ -37,5 +37,6 @@ func All() []plugin.MigrationScript {
 		new(addRepoIdToPr),
 		new(addBitbucketCommitAuthorInfo),
 		new(renameTr2ScopeConfig),
+		new(addRawParamTableForScope),
 	}
 }

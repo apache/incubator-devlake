@@ -19,6 +19,7 @@ package api
 
 import (
 	"github.com/apache/incubator-devlake/core/context"
+	"github.com/apache/incubator-devlake/core/plugin"
 	"github.com/apache/incubator-devlake/helpers/pluginhelper/api"
 	"github.com/apache/incubator-devlake/plugins/tapd/models"
 	"github.com/go-playground/validator/v10"
@@ -31,16 +32,19 @@ var scopeHelper *api.ScopeApiHelper[models.TapdConnection, models.TapdWorkspace,
 var remoteHelper *api.RemoteApiHelper[models.TapdConnection, models.TapdWorkspace, models.TapdWorkspace, api.BaseRemoteGroupResponse]
 var scHelper *api.ScopeConfigHelper[models.TapdScopeConfig]
 
-func Init(br context.BasicRes) {
+func Init(br context.BasicRes, p plugin.PluginMeta) {
+
 	basicRes = br
 	vld = validator.New()
 	connectionHelper = api.NewConnectionHelper(
 		basicRes,
 		vld,
+		p.Name(),
 	)
 	params := &api.ReflectionParameters{
 		ScopeIdFieldName:  "Id",
 		ScopeIdColumnName: "id",
+		RawScopeParamName: "WorkSpaceId",
 	}
 	scopeHelper = api.NewScopeHelper[models.TapdConnection, models.TapdWorkspace, models.TapdScopeConfig](
 		basicRes,
@@ -59,5 +63,6 @@ func Init(br context.BasicRes) {
 	scHelper = api.NewScopeConfigHelper[models.TapdScopeConfig](
 		basicRes,
 		vld,
+		p.Name(),
 	)
 }

@@ -33,18 +33,8 @@ import (
 )
 
 type org struct {
-	Login            string `json:"login"`
-	ID               int    `json:"id"`
-	NodeID           string `json:"node_id"`
-	URL              string `json:"url"`
-	ReposURL         string `json:"repos_url"`
-	EventsURL        string `json:"events_url"`
-	HooksURL         string `json:"hooks_url"`
-	IssuesURL        string `json:"issues_url"`
-	MembersURL       string `json:"members_url"`
-	PublicMembersURL string `json:"public_members_url"`
-	AvatarURL        string `json:"avatar_url"`
-	Description      string `json:"description"`
+	Login string `json:"login"`
+	ID    int    `json:"id"`
 }
 
 func (o org) GroupId() string {
@@ -52,6 +42,19 @@ func (o org) GroupId() string {
 }
 
 func (o org) GroupName() string {
+	return o.Login
+}
+
+type owner struct {
+	Login string `json:"login"`
+	ID    int    `json:"id"`
+}
+
+func (o owner) GroupId() string {
+	return o.Login
+}
+
+func (o owner) GroupName() string {
 	return o.Login
 }
 
@@ -167,12 +170,13 @@ type repo struct {
 
 func (r repo) ConvertApiScope() plugin.ToolLayerScope {
 	githubRepository := &models.GithubRepo{
-		//ConnectionId: data.Options.ConnectionId,
 		GithubId:    r.ID,
 		Name:        r.Name,
+		FullName:    r.FullName,
 		HTMLUrl:     r.HTMLURL,
 		Description: r.Description,
 		OwnerId:     r.Owner.ID,
+		CloneUrl:    r.CloneURL,
 		CreatedDate: r.CreatedAt,
 		UpdatedDate: r.UpdatedAt,
 	}
@@ -193,7 +197,10 @@ func (r repo) ConvertApiScope() plugin.ToolLayerScope {
 // @Router /plugins/github/connections/{connectionId}/remote-scopes [GET]
 func RemoteScopes(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, errors.Error) {
 	return remoteHelper.GetScopesFromRemote(input,
-		func(basicRes context2.BasicRes, gid string, queryData *api.RemoteQueryData, connection models.GithubConnection) ([]org, errors.Error) {
+		func(basicRes context2.BasicRes, gid string, queryData *api.RemoteQueryData, connection models.GithubConnection) ([]plugin.ApiGroup, errors.Error) {
+			if gid != "" {
+				return nil, nil
+			}
 			apiClient, err := api.NewApiClientFromConnection(context.TODO(), basicRes, &connection)
 			if err != nil {
 				return nil, errors.BadInput.Wrap(err, "failed to get create apiClient")
@@ -208,22 +215,39 @@ func RemoteScopes(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, er
 			if err != nil {
 				return nil, err
 			}
-			return resBody, err
+			res, err = apiClient.Get("user", nil, nil)
+			if err != nil {
+				return nil, err
+			}
+			var o owner
+			err = api.UnmarshalResponse(res, &o)
+			if err != nil {
+				return nil, err
+			}
+			result := make([]plugin.ApiGroup, 0, len(resBody)+1)
+			for _, v := range resBody {
+				result = append(result, v)
+			}
+			result = append(result, o)
+			return result, err
 		},
 		func(basicRes context2.BasicRes, gid string, queryData *api.RemoteQueryData, connection models.GithubConnection) ([]repo, errors.Error) {
+			if gid == "" {
+				return nil, nil
+			}
 			apiClient, err := api.NewApiClientFromConnection(context.TODO(), basicRes, &connection)
 			if err != nil {
 				return nil, errors.BadInput.Wrap(err, "failed to get create apiClient")
 			}
 			query := initialQuery(queryData)
 			var res *http.Response
-			if gid == "" {
-				res, err = apiClient.Get("user/repos", query, nil)
-				if err != nil {
-					return nil, err
-				}
-			} else {
-				res, err = apiClient.Get(fmt.Sprintf("orgs/%s/repos", gid), query, nil)
+			res, err = apiClient.Get(fmt.Sprintf("orgs/%s/repos", gid), query, nil)
+			if err != nil {
+				return nil, err
+			}
+			// if not found, try to get user repos
+			if res.StatusCode == http.StatusNotFound {
+				res, err = apiClient.Get(fmt.Sprintf("users/%s/repos", gid), query, nil)
 				if err != nil {
 					return nil, err
 				}

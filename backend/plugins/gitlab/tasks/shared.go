@@ -29,15 +29,11 @@ import (
 
 	"github.com/apache/incubator-devlake/core/dal"
 	"github.com/apache/incubator-devlake/core/errors"
+	"github.com/apache/incubator-devlake/plugins/gitlab/models"
 
 	"github.com/apache/incubator-devlake/core/plugin"
 	helper "github.com/apache/incubator-devlake/helpers/pluginhelper/api"
 )
-
-type GitlabApiParams struct {
-	ConnectionId uint64
-	ProjectId    int
-}
 
 type GitlabInput struct {
 	GitlabId int
@@ -141,7 +137,7 @@ func CreateRawDataSubTaskArgs(taskCtx plugin.SubTaskContext, Table string) (*hel
 	data := taskCtx.GetData().(*GitlabTaskData)
 	RawDataSubTaskArgs := &helper.RawDataSubTaskArgs{
 		Ctx: taskCtx,
-		Params: GitlabApiParams{
+		Params: models.GitlabApiParams{
 			ProjectId:    data.Options.ProjectId,
 			ConnectionId: data.Options.ConnectionId,
 		},
@@ -161,8 +157,10 @@ func GetMergeRequestsIterator(taskCtx plugin.SubTaskContext, collectorWithState 
 			data.Options.ProjectId, data.Options.ConnectionId,
 		),
 	}
-	if collectorWithState.LatestState.LatestSuccessStart != nil {
-		clauses = append(clauses, dal.Where("gitlab_updated_at > ?", *collectorWithState.LatestState.LatestSuccessStart))
+	if collectorWithState != nil {
+		if collectorWithState.LatestState.LatestSuccessStart != nil {
+			clauses = append(clauses, dal.Where("gitlab_updated_at > ?", *collectorWithState.LatestState.LatestSuccessStart))
+		}
 	}
 	// construct the input iterator
 	cursor, err := db.Cursor(clauses...)

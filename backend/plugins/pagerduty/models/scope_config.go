@@ -26,7 +26,3 @@ type PagerdutyScopeConfig struct {
 	Name               string `mapstructure:"name" json:"name" gorm:"type:varchar(255);index:idx_name_github,unique" validate:"required"`
 	ConnectionId       uint64
 }
-
-func (PagerdutyScopeConfig) TableName() string {
-	return "_tool_pagerduty_scope_configs"
-}

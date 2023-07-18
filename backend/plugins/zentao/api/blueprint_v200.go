@@ -18,7 +18,6 @@ limitations under the License.
 package api
 
 import (
-	"strings"
 	"time"
 
 	"github.com/apache/incubator-devlake/core/errors"
@@ -30,11 +29,9 @@ import (
 	helper "github.com/apache/incubator-devlake/helpers/pluginhelper/api"
 	"github.com/apache/incubator-devlake/plugins/zentao/models"
 	"github.com/apache/incubator-devlake/plugins/zentao/tasks"
-	"github.com/go-playground/validator/v10"
 )
 
 func MakeDataSourcePipelinePlanV200(subtaskMetas []plugin.SubTaskMeta, connectionId uint64, bpScopes []*plugin.BlueprintScopeV200, syncPolicy *plugin.BlueprintSyncPolicy) (plugin.PipelinePlan, []plugin.Scope, errors.Error) {
-	connectionHelper := helper.NewConnectionHelper(basicRes, validator.New())
 	// get the connection info for url
 	connection := &models.ZentaoConnection{}
 	err := connectionHelper.FirstById(connection, connectionId)
@@ -69,30 +66,26 @@ func makePipelinePlanV200(
 			ConnectionId: connection.ID,
 		}
 
-		scopeType := strings.Split(bpScope.Id, `/`)[0]
-		scopeId := strings.Split(bpScope.Id, `/`)[1]
-
 		var entities []string
 
-		if scopeType == `project` {
-			project, scopeConfig, err := projectScopeHelper.DbHelper().GetScopeAndConfig(connection.ID, scopeId)
-			if err != nil {
-				return nil, nil, err
-			}
-			op.ProjectId = project.Id
-			entities = scopeConfig.Entities
+		project, scopeConfig, err := projectScopeHelper.DbHelper().GetScopeAndConfig(connection.ID, bpScope.Id)
+		if err != nil {
+			return nil, nil, err
+		}
+		op.ProjectId = project.Id
+		entities = scopeConfig.Entities
 
-			if utils.StringsContains(entities, plugin.DOMAIN_TYPE_TICKET) {
-				scopeTicket := &ticket.Board{
-					DomainEntity: domainlayer.DomainEntity{
-						Id: didgen.NewDomainIdGenerator(&models.ZentaoProject{}).Generate(connection.ID, project.Id),
-					},
-					Name: project.Name,
-					Type: project.Type,
-				}
-				domainScopes = append(domainScopes, scopeTicket)
+		if utils.StringsContains(entities, plugin.DOMAIN_TYPE_TICKET) {
+			scopeTicket := &ticket.Board{
+				DomainEntity: domainlayer.DomainEntity{
+					Id: didgen.NewDomainIdGenerator(&models.ZentaoProject{}).Generate(connection.ID, project.Id),
+				},
+				Name: project.Name,
+				Type: project.Type,
 			}
-		} else {
+			domainScopes = append(domainScopes, scopeTicket)
+		}
+		/*} else {
 			product, scopeConfig, err := productScopeHelper.DbHelper().GetScopeAndConfig(connection.ID, scopeId)
 			if err != nil {
 				return nil, nil, err
@@ -110,7 +103,7 @@ func makePipelinePlanV200(
 				}
 				domainScopes = append(domainScopes, scopeTicket)
 			}
-		}
+		}*/
 
 		if syncPolicy.TimeAfter != nil {
 			op.TimeAfter = syncPolicy.TimeAfter.Format(time.RFC3339)

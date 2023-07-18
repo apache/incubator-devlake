@@ -19,14 +19,21 @@ package tasks
 
 import (
 	"fmt"
+	"github.com/apache/incubator-devlake/core/dal"
+	"github.com/apache/incubator-devlake/core/plugin"
 	"net/http"
 	"net/url"
+	"reflect"
 	"strings"
 
 	"github.com/apache/incubator-devlake/core/errors"
 	"github.com/apache/incubator-devlake/helpers/pluginhelper/api"
 	"github.com/apache/incubator-devlake/plugins/zentao/models"
 )
+
+type input struct {
+	Id int64
+}
 
 func GetTotalPagesFromResponse(res *http.Response, args *api.ApiCollectorArgs) (int, errors.Error) {
 	body := &ZentaoPagination{}
@@ -48,39 +55,32 @@ func getAccountId(account *models.ZentaoAccount) int64 {
 	return 0
 }
 
-func getAccountName(account *models.ZentaoAccount) string {
-	if account != nil {
-		return account.Realname
-	}
-	return ""
-}
-
 // get the Priority string for zentao
 func getPriority(pri int) string {
-	switch pri {
-	case 2:
-		return "High"
-	case 3:
-		return "Middle"
-	case 4:
-		return "Low"
-	default:
-		if pri <= 1 {
-			return "VeryHigh"
+	return fmt.Sprintf("%d", pri)
+	/*
+		switch pri {
+		case 2:
+			return "High"
+		case 3:
+			return "Middle"
+		case 4:
+			return "Low"
+		default:
+			if pri <= 1 {
+				return "VeryHigh"
+			}
+			if pri >= 5 {
+				return "VeryLow"
+			}
 		}
-		if pri >= 5 {
-			return "VeryLow"
-		}
-	}
-	return "Error"
+		return "Error"
+	*/
 }
 
 func getOriginalProject(data *ZentaoTaskData) string {
 	if data.Options.ProjectId != 0 {
 		return data.ProjectName
-	}
-	if data.Options.ProductId != 0 {
-		return data.ProductName
 	}
 	return ""
 }
@@ -176,4 +176,120 @@ func ignoreHTTPStatus404(res *http.Response) errors.Error {
 		return api.ErrIgnoreAndContinue
 	}
 	return nil
+}
+
+func getProductIterator(taskCtx plugin.SubTaskContext) (dal.Rows, *api.DalCursorIterator, errors.Error) {
+	data := taskCtx.GetData().(*ZentaoTaskData)
+	db := taskCtx.GetDal()
+	clauses := []dal.Clause{
+		dal.Select("id"),
+		dal.From(&models.ZentaoProductSummary{}),
+		dal.Where(
+			"project_id = ? AND connection_id = ?",
+			data.Options.ProjectId, data.Options.ConnectionId,
+		),
+	}
+
+	cursor, err := db.Cursor(clauses...)
+	if err != nil {
+		return nil, nil, err
+	}
+	iterator, err := api.NewDalCursorIterator(db, cursor, reflect.TypeOf(input{}))
+	if err != nil {
+		cursor.Close()
+		return nil, nil, err
+	}
+	return cursor, iterator, nil
+}
+
+func getExecutionIterator(taskCtx plugin.SubTaskContext) (dal.Rows, *api.DalCursorIterator, errors.Error) {
+	data := taskCtx.GetData().(*ZentaoTaskData)
+	db := taskCtx.GetDal()
+	clauses := []dal.Clause{
+		dal.Select("id"),
+		dal.From(&models.ZentaoExecutionSummary{}),
+		dal.Where(
+			"project = ? AND connection_id = ?",
+			data.Options.ProjectId, data.Options.ConnectionId,
+		),
+	}
+	cursor, err := db.Cursor(clauses...)
+	if err != nil {
+		return nil, nil, err
+	}
+	iterator, err := api.NewDalCursorIterator(db, cursor, reflect.TypeOf(input{}))
+	if err != nil {
+		cursor.Close()
+		return nil, nil, err
+	}
+	return cursor, iterator, nil
+}
+
+// AccountCache is a cache for account information.
+type AccountCache struct {
+	accounts     map[string]models.ZentaoAccount
+	db           dal.Dal
+	connectionId uint64
+}
+
+func NewAccountCache(db dal.Dal, connectionId uint64) *AccountCache {
+	return &AccountCache{db: db, connectionId: connectionId, accounts: make(map[string]models.ZentaoAccount)}
+}
+
+func (a *AccountCache) put(account models.ZentaoAccount) {
+	if account.Account != "" {
+		a.accounts[account.Account] = account
+	}
+}
+
+func (a *AccountCache) getAccountID(account string) int64 {
+	if data, ok := a.accounts[account]; ok {
+		return data.ID
+	}
+	var zentaoAccount models.ZentaoAccount
+	err := a.db.First(
+		&zentaoAccount,
+		dal.Where("connection_id = ? AND account = ?", a.connectionId, account),
+	)
+	if err != nil {
+		return 0
+	}
+	a.accounts[account] = zentaoAccount
+	return zentaoAccount.ID
+}
+
+func (a *AccountCache) getAccountIDFromApiAccount(account *models.ApiAccount) int64 {
+	if account == nil {
+		return 0
+	}
+	if account.ID != 0 {
+		return account.ID
+	}
+	return a.getAccountID(account.Account)
+}
+
+func (a *AccountCache) getAccountName(account string) string {
+	if data, ok := a.accounts[account]; ok {
+		return data.Realname
+	}
+	var zentaoAccount models.ZentaoAccount
+	err := a.db.First(
+		&zentaoAccount,
+		dal.Where("connection_id = ? AND account = ?", a.connectionId, account),
+	)
+	if err != nil {
+		return ""
+	}
+	a.accounts[account] = zentaoAccount
+	return zentaoAccount.Realname
+}
+
+func (a *AccountCache) getAccountNameFromApiAccount(account *models.ApiAccount) string {
+	if account == nil {
+		return ""
+	}
+	if account.Realname != "" {
+		return account.Realname
+	}
+	return a.getAccountName(account.Account)
 }

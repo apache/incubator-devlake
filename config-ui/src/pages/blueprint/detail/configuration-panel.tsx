@@ -38,9 +38,10 @@ interface Props {
   from: FromEnum;
   blueprint: BlueprintType;
   onRefresh: () => void;
+  onChangeTab: (tab: string) => void;
 }
 
-export const ConfigurationPanel = ({ from, blueprint, onRefresh }: Props) => {
+export const ConfigurationPanel = ({ from, blueprint, onRefresh, onChangeTab }: Props) => {
   const [type, setType] = useState<'name' | 'policy' | 'add-connection'>();
   const [rawPlan, setRawPlan] = useState('');
   const [operating, setOperating] = useState(false);
@@ -106,6 +107,18 @@ export const ConfigurationPanel = ({ from, blueprint, onRefresh }: Props) => {
     }
   };
 
+  const handleRun = async () => {
+    const [success] = await operator(() => API.runBlueprint(blueprint.id, false), {
+      setOperating,
+      formatMessage: () => 'Trigger blueprint successful.',
+    });
+
+    if (success) {
+      onRefresh();
+      onChangeTab('status');
+    }
+  };
+
   return (
     <S.ConfigurationPanel>
       <div className="block">
@@ -126,7 +139,7 @@ export const ConfigurationPanel = ({ from, blueprint, onRefresh }: Props) => {
               title: 'Data Time Range',
               dataIndex: 'timeRange',
               key: 'timeRange',
-              render: (val) => `${formatTime(val)} to Now`,
+              render: (val) => (blueprint.mode === ModeEnum.normal ? `${formatTime(val)} to Now` : 'N/A'),
             },
             {
               title: 'Sync Frequency',
@@ -148,7 +161,7 @@ export const ConfigurationPanel = ({ from, blueprint, onRefresh }: Props) => {
           ]}
           dataSource={[
             {
-              timeRange: blueprint.settings.timeAfter,
+              timeRange: blueprint?.settings?.timeAfter,
               frequency: blueprint.cronConfig,
               isManual: blueprint.isManual,
               skipFailed: blueprint.skipOnFail,
@@ -210,6 +223,9 @@ export const ConfigurationPanel = ({ from, blueprint, onRefresh }: Props) => {
                   </S.ConnectionItem>
                 ))}
               </S.ConnectionList>
+              <Buttons position="bottom" align="center">
+                <Button intent={Intent.PRIMARY} text="Collect Data" onClick={handleRun} />
+              </Buttons>
             </>
           )}
         </div>

@@ -21,6 +21,7 @@ import jsonref
 
 from pydevlake.model import ToolScope
 from pydevlake.migration import MigrationScript
+from pydevlake.api import Response
 
 
 class Message(BaseModel):
@@ -44,7 +45,7 @@ class DynamicModelInfo(Message):
 
     @staticmethod
     def from_model(model_class):
-        schema = model_class.schema()
+        schema = model_class.schema(by_alias=True)
         if 'definitions' in schema:
             # Replace $ref with actual schema
             schema = jsonref.replace_refs(schema, proxies=False)
@@ -53,7 +54,8 @@ class DynamicModelInfo(Message):
         for prop in schema['properties'].values():
             if 'type' not in prop and 'enum' in prop:
                 prop['type'] = 'string'
-        return DynamicModelInfo(            json_schema=schema,
+        return DynamicModelInfo(
+            json_schema=schema,
             table_name=model_class.__tablename__
         )
 
@@ -111,3 +113,20 @@ class RemoteScope(RemoteScopeTreeNode):
 
 class RemoteScopes(Message):
     __root__: list[RemoteScopeTreeNode]
+
+
+class TestConnectionResult(Message):
+    success: bool
+    message: str
+    status: int
+
+    @staticmethod
+    def from_api_response(response: Response, message: str = None):
+        success = response.status == 200
+        if not message:
+            message = "Connection successful" if success else "Connection failed"
+        return TestConnectionResult(
+            success=success,
+            message=message,
+            status=response.status
+        )

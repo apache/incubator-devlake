@@ -55,9 +55,12 @@ type BlueprintSettings struct {
 	AfterPlan   json.RawMessage `json:"after_plan"`
 }
 
-// UpdateConnections unmarshals the connections on this BlueprintSettings
+// UnmarshalConnections unmarshals the connections on this BlueprintSettings reference
 func (bps *BlueprintSettings) UnmarshalConnections() ([]*plugin.BlueprintConnectionV200, errors.Error) {
 	var connections []*plugin.BlueprintConnectionV200
+	if bps.Connections == nil {
+		return nil, nil
+	}
 	err := json.Unmarshal(bps.Connections, &connections)
 	if err != nil {
 		return nil, errors.Default.Wrap(err, `unmarshal connections fail`)
@@ -75,6 +78,9 @@ func (bps *BlueprintSettings) UpdateConnections(updater func(c *plugin.Blueprint
 		err = updater(conn)
 		if err != nil {
 			return err
+		}
+		if conn.Scopes == nil {
+			conn.Scopes = []*plugin.BlueprintScopeV200{} //UI expects this to be []
 		}
 		conns[i] = conn
 	}
@@ -133,7 +139,7 @@ func (bp *Blueprint) UpdateSettings(settings *BlueprintSettings) errors.Error {
 }
 
 // GetScopes Gets all the scopes for a given connection for this blueprint. Returns an empty slice if none found.
-func (bp *Blueprint) GetScopes(connectionId uint64) ([]*plugin.BlueprintScopeV200, errors.Error) {
+func (bp *Blueprint) GetScopes(connectionId uint64, pluginName string) ([]*plugin.BlueprintScopeV200, errors.Error) {
 	conns, err := bp.GetConnections()
 	if err != nil {
 		return nil, err
@@ -141,7 +147,7 @@ func (bp *Blueprint) GetScopes(connectionId uint64) ([]*plugin.BlueprintScopeV20
 	visited := map[string]any{}
 	var result []*plugin.BlueprintScopeV200
 	for _, conn := range conns {
-		if conn.ConnectionId != connectionId {
+		if conn.ConnectionId != connectionId || conn.Plugin != pluginName {
 			continue
 		}
 		for _, scope := range conn.Scopes {

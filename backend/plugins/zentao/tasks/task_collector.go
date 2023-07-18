@@ -33,19 +33,10 @@ import (
 
 const RAW_TASK_TABLE = "zentao_api_tasks"
 
-type ExecuteInput struct {
-	Id int64
-}
-
 var _ plugin.SubTaskEntryPoint = CollectTask
 
 func CollectTask(taskCtx plugin.SubTaskContext) errors.Error {
 	data := taskCtx.GetData().(*ZentaoTaskData)
-
-	// this collect only work for project
-	if data.Options.ProjectId == 0 {
-		return nil
-	}
 
 	cursor, err := taskCtx.GetDal().Cursor(
 		dal.Select(`id`),
@@ -57,20 +48,16 @@ func CollectTask(taskCtx plugin.SubTaskContext) errors.Error {
 	}
 	defer cursor.Close()
 
-	iterator, err := api.NewDalCursorIterator(taskCtx.GetDal(), cursor, reflect.TypeOf(ExecuteInput{}))
+	iterator, err := api.NewDalCursorIterator(taskCtx.GetDal(), cursor, reflect.TypeOf(input{}))
 	if err != nil {
 		return err
 	}
 
 	collector, err := api.NewApiCollector(api.ApiCollectorArgs{
 		RawDataSubTaskArgs: api.RawDataSubTaskArgs{
-			Ctx: taskCtx,
-			Params: ZentaoApiParams{
-				ConnectionId: data.Options.ConnectionId,
-				ProductId:    data.Options.ProductId,
-				ProjectId:    data.Options.ProjectId,
-			},
-			Table: RAW_TASK_TABLE,
+			Ctx:     taskCtx,
+			Options: data.Options,
+			Table:   RAW_TASK_TABLE,
 		},
 		Input:       iterator,
 		ApiClient:   data.ApiClient,

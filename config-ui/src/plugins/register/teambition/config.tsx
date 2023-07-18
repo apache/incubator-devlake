@@ -23,7 +23,7 @@ import Icon from './assets/icon.svg';
 import { ConnectionTenantId, ConnectionTenantType } from './connection-fields';
 
 export const TeambitionConfig: PluginConfigType = {
-  type: PluginType.Connection,
+  type: PluginType.Pipeline,
   plugin: 'teambition',
   name: 'Teambition',
   isBeta: true,

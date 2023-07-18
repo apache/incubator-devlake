@@ -56,7 +56,7 @@ func ConvertIssueRepoCommits(taskCtx plugin.SubTaskContext) errors.Error {
 	var commitRepoUrlRegexps []*regexp.Regexp
 	if sc := data.Options.ScopeConfig; sc != nil {
 		for _, s := range sc.RemotelinkRepoPattern {
-			pattern, e := regexp.Compile(s)
+			pattern, e := regexp.Compile(s.Regex)
 			if e != nil {
 				return errors.Convert(e)
 			}

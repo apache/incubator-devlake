@@ -40,21 +40,12 @@ var ExtractTaskRepoCommitsMeta = plugin.SubTaskMeta{
 func ExtractTaskRepoCommits(taskCtx plugin.SubTaskContext) errors.Error {
 	data := taskCtx.GetData().(*ZentaoTaskData)
 
-	// this Extract only work for project
-	if data.Options.ProjectId == 0 {
-		return nil
-	}
-
 	re := regexp.MustCompile(`(\d+)(?:,\s*(\d+))*`)
 	extractor, err := api.NewApiExtractor(api.ApiExtractorArgs{
 		RawDataSubTaskArgs: api.RawDataSubTaskArgs{
-			Ctx: taskCtx,
-			Params: ZentaoApiParams{
-				ConnectionId: data.Options.ConnectionId,
-				ProductId:    data.Options.ProductId,
-				ProjectId:    data.Options.ProjectId,
-			},
-			Table: RAW_TASK_REPO_COMMITS_TABLE,
+			Ctx:     taskCtx,
+			Options: data.Options,
+			Table:   RAW_TASK_REPO_COMMITS_TABLE,
 		},
 		Extract: func(row *api.RawData) ([]interface{}, errors.Error) {
 			res := &models.ZentaoTaskRepoCommitsRes{}
@@ -69,7 +60,6 @@ func ExtractTaskRepoCommits(taskCtx plugin.SubTaskContext) errors.Error {
 				if match[i] != "" {
 					taskRepoCommits := &models.ZentaoTaskRepoCommit{
 						ConnectionId: data.Options.ConnectionId,
-						Product:      data.Options.ProductId,
 						Project:      data.Options.ProjectId,
 						RepoUrl:      res.Repo.CodePath,
 						CommitSha:    res.Revision,

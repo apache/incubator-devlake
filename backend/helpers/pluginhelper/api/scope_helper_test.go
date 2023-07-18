@@ -18,6 +18,7 @@ limitations under the License.
 package api
 
 import (
+	"fmt"
 	"reflect"
 	"testing"
 	"time"
@@ -39,7 +40,31 @@ type TestModel struct {
 	Name string `gorm:"primaryKey;type:BIGINT  NOT NULL"`
 }
 
-type TestRepo struct {
+type TestFakeGitlabRepo struct {
+	ConnectionId     uint64     `json:"connectionId" mapstructure:"connectionId" gorm:"primaryKey"`
+	GitlabId         int        `json:"gitlabId" mapstructure:"gitlabId" gorm:"primaryKey"`
+	CreatedDate      *time.Time `json:"createdDate" mapstructure:"-"`
+	UpdatedDate      *time.Time `json:"updatedDate" mapstructure:"-"`
+	common.NoPKModel `json:"-" mapstructure:"-"`
+}
+
+func (t TestFakeGitlabRepo) ScopeId() string {
+	return fmt.Sprintf("%d", t.GitlabId)
+}
+
+func (t TestFakeGitlabRepo) ScopeName() string {
+	return ""
+}
+
+func (t TestFakeGitlabRepo) TableName() string {
+	return ""
+}
+
+func (t TestFakeGitlabRepo) ScopeParams() interface{} {
+	return nil
+}
+
+type TestFakeGithubRepo struct {
 	ConnectionId     uint64     `json:"connectionId" gorm:"primaryKey" mapstructure:"connectionId,omitempty"`
 	GithubId         int        `json:"githubId" gorm:"primaryKey" mapstructure:"githubId"`
 	Name             string     `json:"name" gorm:"type:varchar(255)" mapstructure:"name,omitempty"`
@@ -56,7 +81,19 @@ type TestRepo struct {
 	common.NoPKModel `json:"-" mapstructure:"-"`
 }
 
-func (TestRepo) TableName() string {
+func (r TestFakeGithubRepo) ScopeId() string {
+	return fmt.Sprintf("%d", r.GithubId)
+}
+
+func (r TestFakeGithubRepo) ScopeName() string {
+	return r.Name
+}
+
+func (r TestFakeGithubRepo) ScopeParams() interface{} {
+	return nil
+}
+
+func (TestFakeGithubRepo) TableName() string {
 	return "_tool_github_repos"
 }
 
@@ -74,6 +111,7 @@ func (TestConnection) TableName() string {
 }
 
 func TestVerifyScope(t *testing.T) {
+	apiHelper := createMockScopeHelper[TestFakeGithubRepo]("GithubId")
 	testCases := []struct {
 		name    string
 		model   TestModel
@@ -106,7 +144,7 @@ func TestVerifyScope(t *testing.T) {
 	}
 
 	for _, tc := range testCases {
-		err := VerifyScope(&tc.model, validator.New())
+		err := apiHelper.verifyScope(&tc.model, validator.New())
 		if (err != nil) != tc.wantErr {
 			t.Errorf("unexpected error value - got: %v, want: %v", err, tc.wantErr)
 		}
@@ -137,7 +175,7 @@ func (TestScopeConfig) TableName() string {
 
 func TestSetScopeFields(t *testing.T) {
 	// create a struct
-	var p struct {
+	type P struct {
 		ConnectionId uint64 `json:"connectionId" mapstructure:"connectionId" gorm:"primaryKey"`
 		GitlabId     int    `json:"gitlabId" mapstructure:"gitlabId" gorm:"primaryKey"`
 
@@ -145,12 +183,14 @@ func TestSetScopeFields(t *testing.T) {
 		UpdatedDate      *time.Time `json:"updatedDate" mapstructure:"-"`
 		common.NoPKModel `json:"-" mapstructure:"-"`
 	}
+	p := P{}
+	apiHelper := createMockScopeHelper[TestFakeGitlabRepo]("GitlabId")
 
 	// call setScopeFields to assign value
 	connectionId := uint64(123)
 	createdDate := time.Now()
 	updatedDate := &createdDate
-	setScopeFields(&p, connectionId, &createdDate, updatedDate)
+	apiHelper.setScopeFields(&p, connectionId, &createdDate, updatedDate)
 
 	// verify fields
 	if p.ConnectionId != connectionId {
@@ -167,7 +207,7 @@ func TestSetScopeFields(t *testing.T) {
 		t.Errorf("UpdatedDate not set correctly, expected: %v, got: %v", updatedDate, p.UpdatedDate)
 	}
 
-	setScopeFields(&p, connectionId, &createdDate, nil)
+	apiHelper.setScopeFields(&p, connectionId, &createdDate, nil)
 
 	// verify fields
 	if p.ConnectionId != connectionId {
@@ -181,15 +221,6 @@ func TestSetScopeFields(t *testing.T) {
 	if p.UpdatedDate != nil {
 		t.Errorf("UpdatedDate not set correctly, expected: %v, got: %v", nil, p.UpdatedDate)
 	}
-
-	var p1 struct {
-		ConnectionId uint64 `json:"connectionId" mapstructure:"connectionId" gorm:"primaryKey"`
-		GitlabId     int    `json:"gitlabId" mapstructure:"gitlabId" gorm:"primaryKey"`
-
-		common.NoPKModel `json:"-" mapstructure:"-"`
-	}
-	setScopeFields(&p1, connectionId, &createdDate, &createdDate)
-
 }
 
 func TestReturnPrimaryKeyValue(t *testing.T) {
@@ -240,28 +271,7 @@ func TestReturnPrimaryKeyValue(t *testing.T) {
 }
 
 func TestScopeApiHelper_Put(t *testing.T) {
-	mockDal := new(mockdal.Dal)
-	mockLogger := unithelper.DummyLogger()
-	mockRes := new(mockcontext.BasicRes)
-
-	mockRes.On("GetDal").Return(mockDal)
-	mockRes.On("GetConfig", mock.Anything).Return("")
-	mockRes.On("GetLogger").Return(mockLogger)
-
-	// we expect total 2 deletion calls after all code got carried out
-	mockDal.On("Delete", mock.Anything, mock.Anything).Return(nil).Twice()
-	mockDal.On("GetPrimaryKeyFields", mock.Anything).Return(
-		[]reflect.StructField{
-			{Name: "ID", Type: reflect.TypeOf("")},
-		},
-	)
-	mockDal.On("CreateOrUpdate", mock.Anything, mock.Anything).Return(nil)
-	mockDal.On("First", mock.Anything, mock.Anything).Return(nil)
-	mockDal.On("All", mock.Anything, mock.Anything).Return(nil)
-	mockDal.On("AllTables").Return(nil, nil)
-
-	connHelper := NewConnectionHelper(mockRes, nil)
-
+	apiHelper := createMockScopeHelper[TestFakeGithubRepo]("GithubId")
 	// create a mock input, scopes, and connection
 	input := &plugin.ApiResourceInput{Params: map[string]string{"connectionId": "123"}, Body: map[string]interface{}{
 		"data": []map[string]interface{}{
@@ -295,12 +305,40 @@ func TestScopeApiHelper_Put(t *testing.T) {
 				"updatedAt":     "string",
 				"updatedDate":   "string",
 			}}}}
-
-	params := &ReflectionParameters{}
-	dbHelper := NewScopeDatabaseHelperImpl[TestConnection, TestRepo, TestScopeConfig](mockRes, connHelper, params)
-	// create a mock ScopeApiHelper with a mock database connection
-	apiHelper := NewScopeHelper[TestConnection, TestRepo, TestScopeConfig](mockRes, nil, connHelper, dbHelper, params, nil)
 	// test a successful call to Put
 	_, err := apiHelper.Put(input)
 	assert.NoError(t, err)
+}
+
+func createMockScopeHelper[Repo plugin.ToolLayerScope](scopeIdFieldName string) *ScopeApiHelper[TestConnection, Repo, TestScopeConfig] {
+	mockDal := new(mockdal.Dal)
+	mockLogger := unithelper.DummyLogger()
+	mockRes := new(mockcontext.BasicRes)
+
+	mockRes.On("GetDal").Return(mockDal)
+	mockRes.On("GetConfig", mock.Anything).Return("")
+	mockRes.On("GetLogger").Return(mockLogger)
+
+	// we expect total 2 deletion calls after all code got carried out
+	mockDal.On("Delete", mock.Anything, mock.Anything).Return(nil).Twice()
+	mockDal.On("GetPrimaryKeyFields", mock.Anything).Return(
+		[]reflect.StructField{
+			{Name: "ID", Type: reflect.TypeOf("")},
+		},
+	)
+	mockDal.On("CreateOrUpdate", mock.Anything, mock.Anything).Return(nil)
+	mockDal.On("First", mock.Anything, mock.Anything).Return(nil)
+	mockDal.On("All", mock.Anything, mock.Anything).Return(nil)
+	mockDal.On("AllTables").Return(nil, nil)
+
+	connHelper := NewConnectionHelper(mockRes, nil, "dummy_plugin")
+
+	params := &ReflectionParameters{
+		ScopeIdFieldName:  scopeIdFieldName,
+		ScopeIdColumnName: "scope_id",
+		RawScopeParamName: "ScopeId",
+	}
+	dbHelper := NewScopeDatabaseHelperImpl[TestConnection, Repo, TestScopeConfig](mockRes, connHelper, params)
+	// create a mock ScopeApiHelper with a mock database connection
+	return NewScopeHelper[TestConnection, Repo, TestScopeConfig](mockRes, validator.New(), connHelper, dbHelper, params, nil)
 }

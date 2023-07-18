@@ -23,15 +23,18 @@ import (
 	"github.com/apache/incubator-devlake/core/errors"
 	"github.com/apache/incubator-devlake/core/plugin"
 	"github.com/apache/incubator-devlake/plugins/webhook/api"
+	"github.com/apache/incubator-devlake/plugins/webhook/models"
 	"github.com/apache/incubator-devlake/plugins/webhook/models/migrationscripts"
 )
 
 // make sure interface is implemented
-var _ plugin.PluginMeta = (*Webhook)(nil)
-var _ plugin.PluginInit = (*Webhook)(nil)
-var _ plugin.PluginApi = (*Webhook)(nil)
-var _ plugin.PluginModel = (*Webhook)(nil)
-var _ plugin.PluginMigration = (*Webhook)(nil)
+var _ interface {
+	plugin.PluginMeta
+	plugin.PluginInit
+	plugin.PluginApi
+	plugin.PluginModel
+	plugin.PluginMigration
+} = (*Webhook)(nil)
 
 type Webhook struct{}
 
@@ -39,13 +42,20 @@ func (p Webhook) Description() string {
 	return "collect some Webhook data"
 }
 
+func (p Webhook) Name() string {
+	return "webhook"
+}
+
 func (p Webhook) Init(basicRes context.BasicRes) errors.Error {
-	api.Init(basicRes)
+	api.Init(basicRes, p)
+
 	return nil
 }
 
 func (p Webhook) GetTablesInfo() []dal.Tabler {
-	return []dal.Tabler{}
+	return []dal.Tabler{
+		&models.WebhookConnection{},
+	}
 }
 
 func (p Webhook) MakeDataSourcePipelinePlanV200(connectionId uint64, _ []*plugin.BlueprintScopeV200, _ plugin.BlueprintSyncPolicy) (pp plugin.PipelinePlan, sc []plugin.Scope, err errors.Error) {

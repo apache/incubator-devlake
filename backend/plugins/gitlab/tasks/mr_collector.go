@@ -28,12 +28,17 @@ import (
 
 const RAW_MERGE_REQUEST_TABLE = "gitlab_api_merge_requests"
 
+func init() {
+	RegisterSubtaskMeta(&CollectApiMergeRequestsMeta)
+}
+
 var CollectApiMergeRequestsMeta = plugin.SubTaskMeta{
 	Name:             "collectApiMergeRequests",
 	EntryPoint:       CollectApiMergeRequests,
 	EnabledByDefault: true,
 	Description:      "Collect merge requests data from gitlab api, supports both timeFilter and diffSync.",
 	DomainTypes:      []string{plugin.DOMAIN_TYPE_CODE_REVIEW},
+	Dependencies:     []*plugin.SubTaskMeta{&ExtractApiIssuesMeta},
 }
 
 func CollectApiMergeRequests(taskCtx plugin.SubTaskContext) errors.Error {

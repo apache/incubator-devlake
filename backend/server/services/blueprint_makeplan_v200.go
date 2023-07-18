@@ -35,51 +35,26 @@ func GeneratePlanJsonV200(
 	metrics map[string]json.RawMessage,
 	skipCollectors bool,
 ) (plugin.PipelinePlan, errors.Error) {
-	// generate plan and collect scopes
-	plan, scopes, err := genPlanJsonV200(projectName, syncPolicy, sources, metrics, skipCollectors)
-	if err != nil {
-		return nil, err
-	}
-	// save scopes to database
-	if len(scopes) > 0 {
-		for _, scope := range scopes {
-			err = db.CreateOrUpdate(scope)
-			if err != nil {
-				scopeInfo := fmt.Sprintf("[Id:%s][Name:%s][TableName:%s]", scope.ScopeId(), scope.ScopeName(), scope.TableName())
-				return nil, errors.Default.Wrap(err, fmt.Sprintf("failed to create scopes:[%s]", scopeInfo))
-			}
-		}
-	}
-	return plan, err
-}
-
-func genPlanJsonV200(
-	projectName string,
-	syncPolicy plugin.BlueprintSyncPolicy,
-	sources *models.BlueprintSettings,
-	metrics map[string]json.RawMessage,
-	skipCollectors bool,
-) (plugin.PipelinePlan, []plugin.Scope, errors.Error) {
 	connections := make([]*plugin.BlueprintConnectionV200, 0)
 	err := errors.Convert(json.Unmarshal(sources.Connections, &connections))
 	if err != nil {
-		return nil, nil, err
+		return nil, err
 	}
-
 	// make plan for data-source plugins fist. generate plan for each
-	// connections, then merge them into one legitimate plan and collect the
+	// connection, then merge them into one legitimate plan and collect the
 	// scopes produced by the data-source plugins
 	sourcePlans := make([]plugin.PipelinePlan, len(connections))
 	scopes := make([]plugin.Scope, 0, len(connections))
 	for i, connection := range connections {
 		if len(connection.Scopes) == 0 && connection.Plugin != `webhook` && connection.Plugin != `jenkins` {
 			// webhook needn't scopes
-			// jenkins may upgrade from v100 and its' scope is empty
-			return nil, nil, errors.Default.New(fmt.Sprintf("connections[%d].scopes is empty", i))
+			// jenkins may upgrade from v100 and its scope is empty
+			return nil, errors.Default.New(fmt.Sprintf("connections[%d].scopes is empty", i))
 		}
+
 		p, err := plugin.GetPlugin(connection.Plugin)
 		if err != nil {
-			return nil, nil, err
+			return nil, err
 		}
 		if pluginBp, ok := p.(plugin.DataSourcePluginBlueprintV200); ok {
 			var pluginScopes []plugin.Scope
@@ -89,17 +64,18 @@ func genPlanJsonV200(
 				syncPolicy,
 			)
 			if err != nil {
-				return nil, nil, err
+				return nil, err
 			}
 			// collect scopes for the project. a github repository may produce
 			// 2 scopes, 1 repo and 1 board
 			scopes = append(scopes, pluginScopes...)
 		} else {
-			return nil, nil, errors.Default.New(
+			return nil, errors.Default.New(
 				fmt.Sprintf("plugin %s does not support DataSourcePluginBlueprintV200", connection.Plugin),
 			)
 		}
 	}
+
 	// skip collectors
 	if skipCollectors {
 		for i, plan := range sourcePlans {
@@ -116,6 +92,24 @@ func genPlanJsonV200(
 				}
 			}
 		}
+
+		// remove gitextractor plugin if it's not the only task
+		for i, plan := range sourcePlans {
+			for j, stage := range plan {
+				newStage := make(plugin.PipelineStage, 0, len(stage))
+				hasGitExtractor := false
+				for _, task := range stage {
+					if task.Plugin != "gitextractor" {
+						newStage = append(newStage, task)
+					} else {
+						hasGitExtractor = true
+					}
+				}
+				if !hasGitExtractor || len(newStage) > 0 {
+					sourcePlans[i][j] = newStage
+				}
+			}
+		}
 	}
 
 	// make plans for metric plugins
@@ -124,7 +118,7 @@ func genPlanJsonV200(
 	for metricPluginName, metricPluginOptJson := range metrics {
 		p, err := plugin.GetPlugin(metricPluginName)
 		if err != nil {
-			return nil, nil, err
+			return nil, err
 		}
 		if pluginBp, ok := p.(plugin.MetricPluginBlueprintV200); ok {
 			// If we enable one metric plugin, even if it has nil option, we still process it
@@ -133,11 +127,11 @@ func genPlanJsonV200(
 			}
 			metricPlans[i], err = pluginBp.MakeMetricPluginPipelinePlanV200(projectName, metricPluginOptJson)
 			if err != nil {
-				return nil, nil, err
+				return nil, err
 			}
-			i += 1
+			i++
 		} else {
-			return nil, nil, errors.Default.New(
+			return nil, errors.Default.New(
 				fmt.Sprintf("plugin %s does not support MetricPluginBlueprintV200", metricPluginName),
 			)
 		}
@@ -146,12 +140,12 @@ func genPlanJsonV200(
 	if projectName != "" {
 		p, err := plugin.GetPlugin("org")
 		if err != nil {
-			return nil, nil, err
+			return nil, err
 		}
 		if pluginBp, ok := p.(plugin.ProjectMapper); ok {
 			planForProjectMapping, err = pluginBp.MapProject(projectName, scopes)
 			if err != nil {
-				return nil, nil, err
+				return nil, err
 			}
 		}
 	}
@@ -160,5 +154,5 @@ func genPlanJsonV200(
 		ParallelizePipelinePlans(sourcePlans...),
 		ParallelizePipelinePlans(metricPlans...),
 	)
-	return plan, scopes, err
+	return plan, err
 }

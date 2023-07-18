@@ -23,6 +23,10 @@ import (
 	helper "github.com/apache/incubator-devlake/helpers/pluginhelper/api"
 )
 
+func init() {
+	RegisterSubtaskMeta(&CollectApiMrNotesMeta)
+}
+
 const RAW_MERGE_REQUEST_NOTES_TABLE = "gitlab_api_merge_request_notes"
 
 var CollectApiMrNotesMeta = plugin.SubTaskMeta{
@@ -31,6 +35,7 @@ var CollectApiMrNotesMeta = plugin.SubTaskMeta{
 	EnabledByDefault: true,
 	Description:      "Collect merge requests notes data from gitlab api, supports timeFilter but not diffSync.",
 	DomainTypes:      []string{plugin.DOMAIN_TYPE_CODE_REVIEW},
+	Dependencies:     []*plugin.SubTaskMeta{&CollectApiMergeRequestDetailsMeta},
 }
 
 func CollectApiMergeRequestsNotes(taskCtx plugin.SubTaskContext) errors.Error {
@@ -46,15 +51,18 @@ func CollectApiMergeRequestsNotes(taskCtx plugin.SubTaskContext) errors.Error {
 	}
 	defer iterator.Close()
 
+	incremental := collectorWithState.IsIncremental()
+
 	err = collectorWithState.InitCollector(helper.ApiCollectorArgs{
 		ApiClient:      data.ApiClient,
 		PageSize:       100,
-		Incremental:    false,
+		Incremental:    incremental,
 		Input:          iterator,
 		UrlTemplate:    "projects/{{ .Params.ProjectId }}/merge_requests/{{ .Input.Iid }}/notes?system=false",
 		Query:          GetQuery,
 		GetTotalPages:  GetTotalPagesFromResponse,
 		ResponseParser: GetRawMessageFromResponse,
+		AfterResponse:  ignoreHTTPStatus404,
 	})
 	if err != nil {
 		return err

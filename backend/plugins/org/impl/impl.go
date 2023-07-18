@@ -27,11 +27,13 @@ import (
 	"github.com/apache/incubator-devlake/plugins/org/tasks"
 )
 
-var _ plugin.PluginMeta = (*Org)(nil)
-var _ plugin.PluginInit = (*Org)(nil)
-var _ plugin.PluginTask = (*Org)(nil)
-var _ plugin.PluginModel = (*Org)(nil)
-var _ plugin.ProjectMapper = (*Org)(nil)
+var _ interface {
+	plugin.PluginMeta
+	plugin.PluginInit
+	plugin.PluginTask
+	plugin.PluginModel
+	plugin.ProjectMapper
+} = (*Org)(nil)
 
 type Org struct {
 	handlers *api.Handlers
@@ -48,6 +50,10 @@ func (p Org) GetTablesInfo() []dal.Tabler {
 
 func (p Org) Description() string {
 	return "collect data related to team and organization"
+}
+
+func (p Org) Name() string {
+	return "org"
 }
 
 func (p Org) SubTaskMetas() []plugin.SubTaskMeta {

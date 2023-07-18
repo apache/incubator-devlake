@@ -34,32 +34,34 @@ import (
 	"github.com/apache/incubator-devlake/plugins/github/tasks"
 )
 
-var _ plugin.PluginMeta = (*Github)(nil)
-var _ plugin.PluginInit = (*Github)(nil)
-var _ plugin.PluginTask = (*Github)(nil)
-var _ plugin.PluginApi = (*Github)(nil)
-var _ plugin.PluginModel = (*Github)(nil)
-var _ plugin.DataSourcePluginBlueprintV200 = (*Github)(nil)
-var _ plugin.CloseablePluginTask = (*Github)(nil)
-
-// var _ plugin.PluginSource = (*Github)(nil)
+var _ interface {
+	plugin.PluginMeta
+	plugin.PluginInit
+	plugin.PluginTask
+	plugin.PluginApi
+	plugin.PluginModel
+	plugin.PluginSource
+	plugin.DataSourcePluginBlueprintV200
+	plugin.CloseablePluginTask
+} = (*Github)(nil)
 
 type Github struct{}
 
-func (p Github) Connection() interface{} {
+func (p Github) Connection() dal.Tabler {
 	return &models.GithubConnection{}
 }
 
-func (p Github) Scope() interface{} {
+func (p Github) Scope() plugin.ToolLayerScope {
 	return &models.GithubRepo{}
 }
 
-func (p Github) ScopeConfig() interface{} {
+func (p Github) ScopeConfig() dal.Tabler {
 	return &models.GithubScopeConfig{}
 }
 
 func (p Github) Init(basicRes context.BasicRes) errors.Error {
-	api.Init(basicRes)
+	api.Init(basicRes, p)
+
 	return nil
 }
 
@@ -87,11 +89,17 @@ func (p Github) GetTablesInfo() []dal.Tabler {
 		&models.GithubRepoCommit{},
 		&models.GithubReviewer{},
 		&models.GithubRun{},
+		&models.GithubIssueAssignee{},
+		&models.GithubScopeConfig{},
 	}
 }
 
 func (p Github) Description() string {
 	return "To collect and enrich data from GitHub"
+}
+
+func (p Github) Name() string {
+	return "github"
 }
 
 func (p Github) SubTaskMetas() []plugin.SubTaskMeta {
@@ -154,6 +162,7 @@ func (p Github) PrepareTaskData(taskCtx plugin.TaskContext, options map[string]i
 	connectionHelper := helper.NewConnectionHelper(
 		taskCtx,
 		nil,
+		p.Name(),
 	)
 	connection := &models.GithubConnection{}
 	err = connectionHelper.FirstById(connection, op.ConnectionId)
@@ -231,8 +240,9 @@ func (p Github) ApiResources() map[string]map[string]plugin.ApiResourceHandler {
 			"GET":  api.GetScopeConfigList,
 		},
 		"connections/:connectionId/scope-configs/:id": {
-			"PATCH": api.UpdateScopeConfig,
-			"GET":   api.GetScopeConfig,
+			"PATCH":  api.UpdateScopeConfig,
+			"GET":    api.GetScopeConfig,
+			"DELETE": api.DeleteScopeConfig,
 		},
 		"connections/:connectionId/remote-scopes": {
 			"GET": api.RemoteScopes,
@@ -271,10 +281,10 @@ func EnrichOptions(taskCtx plugin.TaskContext,
 	logger := taskCtx.GetLogger()
 	// for advanced mode or others which we only have name, for bp v200, we have githubId
 	err = taskCtx.GetDal().First(&githubRepo, dal.Where(
-		"connection_id = ? AND( name = ? OR github_id = ?)",
+		"connection_id = ? AND( full_name = ? OR github_id = ?)",
 		op.ConnectionId, op.Name, op.GithubId))
 	if err == nil {
-		op.Name = githubRepo.Name
+		op.Name = githubRepo.FullName
 		op.GithubId = githubRepo.GithubId
 		if op.ScopeConfigId == 0 {
 			op.ScopeConfigId = githubRepo.ScopeConfigId
@@ -321,7 +331,8 @@ func convertApiRepoToScope(repo *tasks.GithubApiRepo, connectionId uint64) *mode
 	scope.Language = repo.Language
 	scope.Description = repo.Description
 	scope.HTMLUrl = repo.HTMLUrl
-	scope.Name = repo.FullName
+	scope.Name = repo.Name
+	scope.FullName = repo.FullName
 	scope.CloneUrl = repo.CloneUrl
 	return &scope
 }

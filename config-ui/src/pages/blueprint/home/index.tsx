@@ -139,9 +139,13 @@ export const BlueprintHomePage = () => {
           columns={[
             {
               title: 'Blueprint Name',
-              dataIndex: 'name',
+              dataIndex: ['id', 'name'],
               key: 'name',
-              ellipsis: true,
+              render: ({ id, name }) => (
+                <Link to={`/blueprints/${id}?tab=configuration`} style={{ color: '#292b3f' }}>
+                  <TextTooltip content={name}>{name}</TextTooltip>
+                </Link>
+              ),
             },
             {
               title: 'Data Connections',
@@ -188,7 +192,7 @@ export const BlueprintHomePage = () => {
                     <TextTooltip content={val}>{val}</TextTooltip>
                   </Link>
                 ) : (
-                  val
+                  'N/A'
                 ),
             },
             {
@@ -210,7 +214,7 @@ export const BlueprintHomePage = () => {
               width: 100,
               align: 'center',
               render: (val) => (
-                <Link to={`/blueprints/${val}`}>
+                <Link to={`/blueprints/${val}?tab=configuration`}>
                   <IconButton icon="cog" tooltip="Detail" />
                 </Link>
               ),

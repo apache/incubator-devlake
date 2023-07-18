@@ -23,13 +23,11 @@ import { operator } from '@/utils';
 import * as API from '../api';
 
 export interface UseViewOrEditProps {
-  initialValues?: {
-    id: ID;
-  } & any;
+  initialID: ID;
   onSubmitAfter?: (id: ID) => void;
 }
 
-export const useViewOrEdit = ({ initialValues, onSubmitAfter }: UseViewOrEditProps) => {
+export const useViewOrEdit = ({ initialID, onSubmitAfter }: UseViewOrEditProps) => {
   const [saving, setSaving] = useState(false);
   const [name, setName] = useState('');
   const [record, setRecord] = useState({
@@ -41,27 +39,28 @@ export const useViewOrEdit = ({ initialValues, onSubmitAfter }: UseViewOrEditPro
   const prefix = useMemo(() => `${window.location.origin}/api`, []);
 
   useEffect(() => {
-    setName(initialValues.name);
-    setRecord({
-      postIssuesEndpoint: `${prefix}${initialValues.postIssuesEndpoint}`,
-      closeIssuesEndpoint: `${prefix}${initialValues.closeIssuesEndpoint}`,
-      postDeploymentsCurl: `curl ${prefix}${initialValues.postPipelineDeployTaskEndpoint} -X 'POST' -d "{
-\\"commit_sha\\":\\"the sha of deployment commit\\",
-\\"repo_url\\":\\"the repo URL of the deployment commit\\",
-\\"start_time\\":\\"Optional, eg. 2020-01-01T12:00:00+00:00\\"
-}"`,
-    });
-  }, [initialValues]);
+    (async () => {
+      const res = await API.getConnection(initialID);
+      setName(res.name);
+      setRecord({
+        postIssuesEndpoint: `${prefix}${res.postIssuesEndpoint}`,
+        closeIssuesEndpoint: `${prefix}${res.closeIssuesEndpoint}`,
+        postDeploymentsCurl: `curl ${prefix}${res.postPipelineDeployTaskEndpoint} -X 'POST' -d "{
+      \\"commit_sha\\":\\"the sha of deployment commit\\",
+      \\"repo_url\\":\\"the repo URL of the deployment commit\\",
+      \\"start_time\\":\\"Optional, eg. 2020-01-01T12:00:00+00:00\\"
+      }"`,
+      });
+    })();
+  }, [initialID]);
 
   const handleUpdate = async () => {
-    if (!initialValues) return;
-
-    const [success] = await operator(() => API.updateConnection(initialValues.id, { name }), {
+    const [success] = await operator(() => API.updateConnection(initialID, { name }), {
       setOperating: setSaving,
     });
 
     if (success) {
-      onSubmitAfter?.(initialValues.id);
+      onSubmitAfter?.(initialID);
     }
   };
 

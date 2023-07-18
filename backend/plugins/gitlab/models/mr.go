@@ -39,6 +39,8 @@ type GitlabMergeRequest struct {
 	SourceBranch     string `gorm:"type:varchar(255)"`
 	TargetBranch     string `gorm:"type:varchar(255)"`
 	MergeCommitSha   string `gorm:"type:varchar(255)"`
+	SquashCommitSha  string `gorm:"type:varchar(255)"`
+	DiffHeadSha      string `gorm:"type:varchar(255)"`
 	MergedAt         *time.Time
 	GitlabCreatedAt  time.Time
 	GitlabUpdatedAt  *time.Time

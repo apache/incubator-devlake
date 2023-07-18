@@ -31,7 +31,7 @@ FROM --platform=linux/arm64 debian:bullseye as debian-arm64
 RUN apt-get update
 RUN apt-get install -y libssh2-1-dev libssl-dev zlib1g-dev
 
-FROM --platform=$BUILDPLATFORM golang:1.19-bullseye as builder
+FROM --platform=$BUILDPLATFORM golang:1.20.4-bullseye as builder
 
 # docker build --build-arg GOPROXY=https://goproxy.io,direct -t mericodev/lake .
 ARG GOPROXY=
@@ -60,6 +60,7 @@ COPY --from=debian-arm64 /usr/include /rootfs-arm64/usr/include
 COPY --from=debian-arm64 /usr/lib/aarch64-linux-gnu /rootfs-arm64/usr/lib/aarch64-linux-gnu
 COPY --from=debian-arm64 /lib/aarch64-linux-gnu /rootfs-arm64/lib/aarch64-linux-gnu
 
+
 RUN for arch in aarch64 x86_64 ; do \
         mkdir -p /tmp/build/${arch} && cd /tmp/build/${arch} && \
         wget https://github.com/libgit2/libgit2/archive/refs/tags/v1.3.2.tar.gz -O - | tar -xz && \
@@ -87,6 +88,8 @@ ENV GOBIN=/app/bin
 ARG TARGETPLATFORM
 ARG TAG=
 ARG SHA=
+ARG GO_PLUGINS=
+ARG DEBUG=
 
 RUN --mount=type=cache,target=/root/.cache/go-build \
     if [ "$TARGETPLATFORM" = "linux/arm64" ] ; then \
@@ -100,7 +103,11 @@ RUN --mount=type=cache,target=/root/.cache/go-build \
     fi && \
     export PKG_CONFIG_PATH=/usr/local/deps/target/lib/pkgconfig && \
     export CGO_ENABLED=1 &&\
-    make all
+    PLUGIN="$GO_PLUGINS" make all
+
+RUN if [ "$DEBUG" = "true" ]; then \
+      go install github.com/go-delve/delve/cmd/dlv@latest; \
+    fi;
 
 # remove symlink in lib, we will recreate in final image
 RUN cd /usr/local/deps/target/lib && \
@@ -111,12 +118,10 @@ RUN cd /usr/local/deps/target/lib && \
     done
 
 
-FROM python:3.9.9-slim-bullseye as base
-
-ENV PYTHONUNBUFFERED=1
+FROM python:3.9-slim-bullseye as base
 
 RUN apt-get update && \
-    apt-get install -y python3-dev python3-pip tar curl libssh2-1 zlib1g libffi-dev default-libmysqlclient-dev libpq-dev && \
+    apt-get install -y python3-dev python3-pip tar curl libssh2-1 zlib1g libffi-dev default-libmysqlclient-dev libpq-dev tini && \
     apt-get clean && \
     rm -fr /usr/share/doc/* \
            /usr/share/info/* \
@@ -132,26 +137,36 @@ RUN apt-get update && \
 
 EXPOSE 8080
 
+RUN useradd -ms /bin/bash -d /app devlake -u 1010
+USER devlake
+ENV PYTHONUNBUFFERED=1
+
 WORKDIR /app
+
+RUN mkdir logs
+VOLUME /app/logs
+
 # Setup Python
 COPY python/ /app/python/
 RUN python3 -m pip install --no-cache --upgrade pip setuptools && \
-    python3 -m pip install --no-cache -r python/requirements.txt && \
-    rm -fr /usr/share/python-wheels/*
+    python3 -m pip install --no-cache -r python/requirements.txt
+
 # Setup Python Poetry package manager
 RUN curl -sSL https://install.python-poetry.org | python3 -
-RUN ln -sf /root/.local/bin/poetry /usr/local/bin
-# Build Python plugins
-RUN find /app/python/ -name "*.sh" | xargs -I{} chmod +x {}
+ENV PATH="$PATH:/app/.local/bin"
+
+# Build Python plugins, make sure the scripts has execute permission
+# RUN find /app/python/ -name "*.sh" | xargs -I{} chmod +x {}
 RUN /app/python/build.sh
 
-
 FROM base as devlake-base
+ARG DEBUG=
 
 # libraries
 ENV LD_LIBRARY_PATH=/app/libs
 RUN mkdir -p /app/libs
 COPY --from=build /usr/local/deps/target/lib/*.so* /app/libs
+COPY --from=build /go/bin /usr/bin
 RUN ldconfig -vn /app/libs
 
 # apps
@@ -159,11 +174,9 @@ COPY --from=build /app/bin /app/bin
 COPY --from=build /app/resources /app/resources
 
 ENV PATH="/app/bin:${PATH}"
+ENV DEBUG="$DEBUG"
 
 #add tini, prevent zombie process
-RUN apt-get update && \
-    apt-get install -y tini
-
 ENTRYPOINT ["/usr/bin/tini", "--"]
 
 CMD ["lake"]

@@ -41,7 +41,7 @@ func (p remoteMetricPlugin) MakeMetricPluginPipelinePlanV200(projectName string,
 
 func (p remoteDatasourcePlugin) MakeDataSourcePipelinePlanV200(connectionId uint64, bpScopes []*plugin.BlueprintScopeV200, syncPolicy plugin.BlueprintSyncPolicy) (plugin.PipelinePlan, []plugin.Scope, errors.Error) {
 	connection := p.connectionTabler.New()
-	err := connectionHelper.FirstById(connection, connectionId)
+	err := p.connHelper.FirstById(connection, connectionId)
 	if err != nil {
 		return nil, nil, err
 	}
@@ -56,22 +56,35 @@ func (p remoteDatasourcePlugin) MakeDataSourcePipelinePlanV200(connectionId uint
 		toolScopeConfigPairs[i] = []interface{}{toolScope, scopeConfig}
 	}
 
-	plan_data := models.PipelineData{}
-	err = p.invoker.Call("make-pipeline", bridge.DefaultContext, toolScopeConfigPairs, connection.Unwrap()).Get(&plan_data)
+	planData := models.PipelineData{}
+	err = p.invoker.Call("make-pipeline", bridge.DefaultContext, toolScopeConfigPairs, connection.Unwrap()).Get(&planData)
 	if err != nil {
 		return nil, nil, err
 	}
-
-	var scopes = make([]plugin.Scope, len(plan_data.Scopes))
-	for i, dynamicScope := range plan_data.Scopes {
-		scope, err := dynamicScope.Load()
+	scopes, err := toDomainScopes(planData.Scopes)
+	if err != nil {
+		return nil, nil, err
+	}
+	// store these domain scopes in the DB (remote plugins will not explicitly do this via standalone extractor/convertor pairs)
+	for _, scope := range scopes {
+		err = db.CreateOrUpdate(scope)
 		if err != nil {
 			return nil, nil, err
 		}
-		scopes[i] = scope
 	}
+	return planData.Plan, scopes, nil
+}
 
-	return plan_data.Plan, scopes, nil
+func toDomainScopes(dynamicScopes []models.DynamicDomainScope) ([]plugin.Scope, errors.Error) {
+	var scopes []plugin.Scope
+	for _, dynamicScope := range dynamicScopes {
+		scope, err := dynamicScope.Load()
+		if err != nil {
+			return nil, err
+		}
+		scopes = append(scopes, scope)
+	}
+	return scopes, nil
 }
 
 var _ models.RemotePlugin = (*remoteMetricPlugin)(nil)

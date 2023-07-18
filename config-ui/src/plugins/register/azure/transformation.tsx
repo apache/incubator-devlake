@@ -36,7 +36,7 @@ export const AzureTransformation = ({ entities, transformation, setTransformatio
     if (!transformation.deploymentPattern) {
       setEnableCICD(false);
     }
-  }, [transformation]);
+  }, []);
 
   const handleChangeCICDEnable = (e: React.FormEvent<HTMLInputElement>) => {
     const checked = (e.target as HTMLInputElement).checked;

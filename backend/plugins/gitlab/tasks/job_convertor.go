@@ -30,12 +30,17 @@ import (
 	gitlabModels "github.com/apache/incubator-devlake/plugins/gitlab/models"
 )
 
+func init() {
+	RegisterSubtaskMeta(&ConvertJobMeta)
+}
+
 var ConvertJobMeta = plugin.SubTaskMeta{
 	Name:             "convertJobs",
 	EntryPoint:       ConvertJobs,
 	EnabledByDefault: true,
 	Description:      "Convert tool layer table gitlab_job into domain layer table job",
 	DomainTypes:      []string{plugin.DOMAIN_TYPE_CICD},
+	Dependencies:     []*plugin.SubTaskMeta{&ConvertPipelineCommitMeta},
 }
 
 func ConvertJobs(taskCtx plugin.SubTaskContext) (err errors.Error) {
@@ -58,7 +63,7 @@ func ConvertJobs(taskCtx plugin.SubTaskContext) (err errors.Error) {
 		Input:        cursor,
 		RawDataSubTaskArgs: api.RawDataSubTaskArgs{
 			Ctx: taskCtx,
-			Params: GitlabApiParams{
+			Params: gitlabModels.GitlabApiParams{
 				ConnectionId: data.Options.ConnectionId,
 				ProjectId:    data.Options.ProjectId,
 			},

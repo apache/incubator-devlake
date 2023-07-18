@@ -37,8 +37,17 @@ func TestZentaoBugDataFlow(t *testing.T) {
 		Options: &tasks.ZentaoOptions{
 			ConnectionId: 1,
 			ProjectId:    1,
-			ProductId:    3,
+			ScopeConfigs: &tasks.ZentaoScopeConfigs{
+				TypeMappings: map[string]string{
+					"codeerror": "CODE_ERROR",
+				},
+				BugStatusMappings: map[string]string{
+					"active": ticket.DONE,
+				},
+			},
 		},
+		Bugs:         map[int64]struct{}{},
+		AccountCache: tasks.NewAccountCache(dataflowTester.Dal, 1),
 	}
 
 	// import raw data table

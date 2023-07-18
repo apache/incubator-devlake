@@ -16,14 +16,16 @@
  *
  */
 
-import { useLocation } from 'react-router-dom';
-import { Menu, MenuItem, Tag, Navbar, Intent, Alignment, Button } from '@blueprintjs/core';
+import { useState, useEffect, useRef } from 'react';
+import { Outlet, useNavigate, useLocation } from 'react-router-dom';
+import { CSSTransition } from 'react-transition-group';
+import { Menu, MenuItem, Navbar, Alignment } from '@blueprintjs/core';
 
-import { PageLoading, Logo, ExternalLink } from '@/components';
+import { PageLoading, Logo, ExternalLink, IconButton } from '@/components';
 import { useTips, useRefreshData } from '@/hooks';
-import { history } from '@/utils/history';
+import { TipsContextProvider, ConnectionContextProvider } from '@/store';
 
-import DashboardIcon from '@/images/icons/dashborad.svg';
+import DashboardIcon from '@/images/icons/dashboard.svg';
 import FileIcon from '@/images/icons/file.svg';
 import APIIcon from '@/images/icons/api.svg';
 import GitHubIcon from '@/images/icons/github.svg';
@@ -32,30 +34,52 @@ import SlackIcon from '@/images/icons/slack.svg';
 import { useMenu, MenuItemType } from './use-menu';
 import * as API from './api';
 import * as S from './styled';
+import './tips-transition.css';
 
-interface Props {
-  children: React.ReactNode;
-}
+export const BaseLayout = () => {
+  const navigate = useNavigate();
+  const { ready, data, error } = useRefreshData<{ version: string }>(() => API.getVersion(), []);
 
-export const BaseLayout = ({ children }: Props) => {
-  const menu = useMenu();
+  if (error) {
+    navigate('/offline');
+  }
+
+  if (!ready || !data) {
+    return <PageLoading />;
+  }
+
+  return (
+    <TipsContextProvider>
+      <ConnectionContextProvider>
+        <Layout version={data.version}>
+          <Outlet />
+        </Layout>
+      </ConnectionContextProvider>
+    </TipsContextProvider>
+  );
+};
+
+const Layout = ({ version, children }: { children: React.ReactNode; version: string }) => {
+  const navigate = useNavigate();
   const { pathname } = useLocation();
-  const { tips } = useTips();
-  const { ready, data } = useRefreshData<{ version: string }>(() => API.getVersion(), []);
 
-  const token = window.localStorage.getItem('accessToken');
+  const menu = useMenu();
+  const { tips, setTips } = useTips();
+
+  const [userInfo, setUserInfo] = useState<API.UserInfo | null>(null);
+
+  const tipsRef = useRef(null);
+
+  useEffect(() => {
+    API.getUserInfo().then(setUserInfo);
+  }, []);
 
   const handlePushPath = (it: MenuItemType) => {
     if (!it.target) {
-      history.push(it.path);
+      navigate(it.path);
     } else {
       window.open(it.path, '_blank');
     }
-  };
-
-  const handleSignOut = () => {
-    localStorage.removeItem(`accessToken`);
-    history.push('/login');
   };
 
   const getGrafanaUrl = () => {
@@ -64,10 +88,6 @@ export const BaseLayout = ({ children }: Props) => {
 
     return import.meta.env.DEV ? `${protocol}//${hostname}:3002${suffix}` : `/grafana${suffix}`;
   };
-
-  if (!ready || !data) {
-    return <PageLoading />;
-  }
 
   return (
     <S.Wrapper>
@@ -93,10 +113,9 @@ export const BaseLayout = ({ children }: Props) => {
                     text={
                       <S.SiderMenuItem>
                         <span>{cit.title}</span>
-                        {cit.isBeta && <Tag intent={Intent.WARNING}>beta</Tag>}
                       </S.SiderMenuItem>
                     }
-                    icon={cit.icon ?? <img src={cit.iconUrl} width={16} alt="" />}
+                    icon={cit.icon}
                     active={pathname.includes(cit.path)}
                     disabled={cit.disabled}
                     onClick={() => handlePushPath(cit)}
@@ -108,7 +127,7 @@ export const BaseLayout = ({ children }: Props) => {
         </Menu>
         <div className="copyright">
           <div>Apache 2.0 License</div>
-          <div className="version">{data.version}</div>
+          <div className="version">{version}</div>
         </div>
       </S.Sider>
       <S.Main>
@@ -149,12 +168,12 @@ export const BaseLayout = ({ children }: Props) => {
               <img src={SlackIcon} alt="slack" />
               <span>Slack</span>
             </a>
-            {token && (
+            {userInfo && userInfo.logoutURI && (
               <>
                 <Navbar.Divider />
-                <Button small intent={Intent.NONE} onClick={handleSignOut}>
-                  Sign Out
-                </Button>
+                <span>{userInfo.email}</span>
+                <Navbar.Divider />
+                <a href={userInfo.logoutURI}>Sign Out</a>
               </>
             )}
           </Navbar.Group>
@@ -162,7 +181,12 @@ export const BaseLayout = ({ children }: Props) => {
         <S.Inner>
           <S.Content>{children}</S.Content>
         </S.Inner>
-        {tips && <S.Tips>{tips}</S.Tips>}
+        <CSSTransition in={!!tips} unmountOnExit timeout={300} nodeRef={tipsRef} classNames="tips">
+          <S.Tips ref={tipsRef}>
+            <div className="content">{tips}</div>
+            <IconButton style={{ color: '#fff' }} icon="cross" tooltip="Close" onClick={() => setTips('')} />
+          </S.Tips>
+        </CSSTransition>
       </S.Main>
     </S.Wrapper>
   );

@@ -30,12 +30,17 @@ import (
 	"github.com/apache/incubator-devlake/plugins/gitlab/models"
 )
 
+func init() {
+	RegisterSubtaskMeta(&ConvertApiMergeRequestsMeta)
+}
+
 var ConvertApiMergeRequestsMeta = plugin.SubTaskMeta{
 	Name:             "convertApiMergeRequests",
 	EntryPoint:       ConvertApiMergeRequests,
 	EnabledByDefault: true,
 	Description:      "Add domain layer PullRequest according to GitlabMergeRequest",
 	DomainTypes:      []string{plugin.DOMAIN_TYPE_CODE_REVIEW},
+	Dependencies:     []*plugin.SubTaskMeta{&ConvertProjectMeta},
 }
 
 func ConvertApiMergeRequests(taskCtx plugin.SubTaskContext) errors.Error {
@@ -81,7 +86,7 @@ func ConvertApiMergeRequests(taskCtx plugin.SubTaskContext) errors.Error {
 				CreatedDate:    gitlabMr.GitlabCreatedAt,
 				MergedDate:     gitlabMr.MergedAt,
 				ClosedDate:     gitlabMr.ClosedAt,
-				MergeCommitSha: gitlabMr.MergeCommitSha,
+				MergeCommitSha: retrieveMrSha(gitlabMr.MergeCommitSha, gitlabMr.SquashCommitSha, gitlabMr.DiffHeadSha),
 				HeadRef:        gitlabMr.SourceBranch,
 				BaseRef:        gitlabMr.TargetBranch,
 				Component:      gitlabMr.Component,
@@ -107,4 +112,14 @@ func ConvertApiMergeRequests(taskCtx plugin.SubTaskContext) errors.Error {
 	}
 
 	return converter.Execute()
+}
+
+func retrieveMrSha(mergeCommitSha string, squashCommitSha string, sha string) string {
+	if mergeCommitSha != "" {
+		return mergeCommitSha
+	}
+	if squashCommitSha != "" {
+		return squashCommitSha
+	}
+	return sha
 }

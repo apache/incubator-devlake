@@ -42,26 +42,27 @@ var _ interface {
 	plugin.PluginMigration
 	plugin.DataSourcePluginBlueprintV200
 	plugin.CloseablePluginTask
-	// plugin.PluginSource
+	plugin.PluginSource
 } = (*Jira)(nil)
 
 type Jira struct {
 }
 
-func (p Jira) Connection() interface{} {
+func (p Jira) Connection() dal.Tabler {
 	return &models.JiraConnection{}
 }
 
-func (p Jira) Scope() interface{} {
+func (p Jira) Scope() plugin.ToolLayerScope {
 	return &models.JiraBoard{}
 }
 
-func (p Jira) ScopeConfig() interface{} {
+func (p Jira) ScopeConfig() dal.Tabler {
 	return &models.JiraScopeConfig{}
 }
 
 func (p *Jira) Init(basicRes context.BasicRes) errors.Error {
-	api.Init(basicRes)
+	api.Init(basicRes, p)
+
 	return nil
 }
 
@@ -86,11 +87,17 @@ func (p Jira) GetTablesInfo() []dal.Tabler {
 		&models.JiraSprintIssue{},
 		&models.JiraStatus{},
 		&models.JiraWorklog{},
+		&models.JiraIssueComment{},
+		&models.JiraScopeConfig{},
 	}
 }
 
 func (p Jira) Description() string {
 	return "To collect and enrich data from JIRA"
+}
+
+func (p Jira) Name() string {
+	return "jira"
 }
 
 func (p Jira) SubTaskMetas() []plugin.SubTaskMeta {
@@ -167,6 +174,7 @@ func (p Jira) PrepareTaskData(taskCtx plugin.TaskContext, options map[string]int
 	connectionHelper := helper.NewConnectionHelper(
 		taskCtx,
 		nil,
+		p.Name(),
 	)
 	err = connectionHelper.FirstById(connection, op.ConnectionId)
 	if err != nil {
@@ -302,14 +310,21 @@ func (p Jira) ApiResources() map[string]map[string]plugin.ApiResourceHandler {
 			"GET":  api.GetScopeConfigList,
 		},
 		"connections/:connectionId/scope-configs/:id": {
-			"PATCH": api.UpdateScopeConfig,
-			"GET":   api.GetScopeConfig,
+			"PATCH":  api.UpdateScopeConfig,
+			"GET":    api.GetScopeConfig,
+			"DELETE": api.DeleteScopeConfig,
 		},
 		"connections/:connectionId/application-types": {
 			"GET": api.GetApplicationTypes,
 		},
 		"connections/:connectionId/dev-panel-commits": {
 			"GET": api.GetCommitsURLs,
+		},
+		"generate-regex": {
+			"POST": api.GenRegex,
+		},
+		"apply-regex": {
+			"POST": api.ApplyRegex,
 		},
 	}
 }

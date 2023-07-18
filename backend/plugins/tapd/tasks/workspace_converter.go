@@ -19,6 +19,7 @@ package tasks
 
 import (
 	"fmt"
+
 	"github.com/apache/incubator-devlake/core/dal"
 	"github.com/apache/incubator-devlake/core/errors"
 	"github.com/apache/incubator-devlake/core/models/domainlayer"
@@ -42,8 +43,10 @@ func ConvertWorkspace(taskCtx plugin.SubTaskContext) errors.Error {
 			Id: getWorkspaceIdGen().Generate(workspace.ConnectionId, workspace.Id),
 		},
 		Name: workspace.Name,
+		Type: "scrum",
 		Url:  fmt.Sprintf("%s/%d", "https://tapd.cn", workspace.Id),
 	}
+	board.RawDataOrigin = workspace.RawDataOrigin
 
 	return db.CreateOrUpdate(board)
 }

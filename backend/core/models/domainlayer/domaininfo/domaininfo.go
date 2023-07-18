@@ -18,24 +18,23 @@ limitations under the License.
 package domaininfo
 
 import (
+	"github.com/apache/incubator-devlake/core/dal"
 	"github.com/apache/incubator-devlake/core/models/domainlayer/code"
+	"github.com/apache/incubator-devlake/core/models/domainlayer/codequality"
 	"github.com/apache/incubator-devlake/core/models/domainlayer/crossdomain"
 	"github.com/apache/incubator-devlake/core/models/domainlayer/devops"
 	"github.com/apache/incubator-devlake/core/models/domainlayer/ticket"
 )
 
-type Tabler interface {
-	TableName() string
-}
-
-func GetDomainTablesInfo() []Tabler {
-	return []Tabler{
+func GetDomainTablesInfo() []dal.Tabler {
+	return []dal.Tabler{
 		// code
 		&code.Commit{},
 		&code.CommitFile{},
 		&code.CommitFileComponent{},
 		&code.CommitParent{},
 		&code.Component{},
+		&code.CommitLineChange{},
 		&code.PullRequest{},
 		&code.PullRequestComment{},
 		&code.PullRequestCommit{},
@@ -47,12 +46,20 @@ func GetDomainTablesInfo() []Tabler {
 		&code.Repo{},
 		&code.RepoCommit{},
 		&code.RepoLanguage{},
+		&code.RepoSnapshot{},
+		// codequality
+		&codequality.CqFileMetrics{},
+		&codequality.CqIssueCodeBlock{},
+		&codequality.CqIssue{},
+		&codequality.CqProject{},
 		// crossdomain
 		&crossdomain.Account{},
 		&crossdomain.BoardRepo{},
 		&crossdomain.IssueCommit{},
 		&crossdomain.IssueRepoCommit{},
 		&crossdomain.ProjectMapping{},
+		&crossdomain.ProjectIssueMetric{},
+		&crossdomain.ProjectPrMetric{},
 		&crossdomain.PullRequestIssue{},
 		&crossdomain.RefsIssuesDiffs{},
 		&crossdomain.Team{},
@@ -62,6 +69,9 @@ func GetDomainTablesInfo() []Tabler {
 		// devops
 		&devops.CICDPipeline{},
 		&devops.CICDTask{},
+		&devops.CicdDeploymentCommit{},
+		&devops.CiCDPipelineCommit{},
+		&devops.CicdScope{},
 		// didgen no table
 		// ticket
 		&ticket.Board{},
@@ -74,5 +84,6 @@ func GetDomainTablesInfo() []Tabler {
 		&ticket.IssueWorklog{},
 		&ticket.Sprint{},
 		&ticket.SprintIssue{},
+		&ticket.IssueAssignee{},
 	}
 }

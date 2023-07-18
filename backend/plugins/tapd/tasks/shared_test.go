@@ -240,6 +240,7 @@ func TestGenerateDomainAccountIdForUsers(t *testing.T) {
 	}
 	mockMeta := mockplugin.NewPluginMeta(t)
 	mockMeta.On("RootPkgPath").Return("github.com/apache/incubator-devlake/plugins/tapd")
+	mockMeta.On("Name").Return("tapd").Maybe()
 	err := plugin.RegisterPlugin("tapd", mockMeta)
 	assert.Nil(t, err)
 	for _, testCase := range testCases {
@@ -247,5 +248,49 @@ func TestGenerateDomainAccountIdForUsers(t *testing.T) {
 		if result != testCase.expected {
 			t.Errorf("generateDomainAccountIdForUsers(%s, %d) = %s; expected %s", testCase.param, connectionId, result, testCase.expected)
 		}
+	}
+}
+
+func Test_extractStatus(t *testing.T) {
+	type args struct {
+		blob []byte
+	}
+	tests := []struct {
+		name  string
+		args  args
+		want  map[string]string
+		want1 errors.Error
+	}{
+		{
+			"non-empty array",
+			args{
+				blob: []byte(`{"data":[{"id":1,"name":"已完成","is_last_step":true},{"id":2,"name":"进行中"}],"status":1,"message":"success"}`),
+			},
+			nil,
+			nil,
+		},
+		{
+			"empty array",
+			args{
+				blob: []byte(`{"status":1,"data":[],"info":"success"}`),
+			},
+			nil,
+			nil,
+		},
+		{
+			"object",
+			args{
+				blob: []byte(`{"status":1,"data":{"new":"新建","in_progress":"开发处理"},"info":"success"}`),
+			},
+			map[string]string{"new": "新建", "in_progress": "开发处理"},
+			nil,
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			got, got1 := extractStatus(tt.args.blob)
+			assert.Equalf(t, tt.want, got, "extractStatus(%v)", tt.args.blob)
+			assert.Equalf(t, tt.want1, got1, "extractStatus(%v)", tt.args.blob)
+		})
 	}
 }

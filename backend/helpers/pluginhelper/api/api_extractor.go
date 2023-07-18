@@ -18,11 +18,12 @@ limitations under the License.
 package api
 
 import (
+	"reflect"
+
 	"github.com/apache/incubator-devlake/core/dal"
 	"github.com/apache/incubator-devlake/core/errors"
 	"github.com/apache/incubator-devlake/core/models/common"
 	plugin "github.com/apache/incubator-devlake/core/plugin"
-	"reflect"
 )
 
 // ApiExtractorArgs FIXME ...
@@ -59,12 +60,23 @@ func NewApiExtractor(args ApiExtractorArgs) (*ApiExtractor, errors.Error) {
 	}, nil
 }
 
+func setRawDataOrigin(result interface{}, originValue common.RawDataOrigin) bool {
+	originField := reflectField(result, "RawDataOrigin")
+	if originField.IsValid() {
+		originField.Set(reflect.ValueOf(originValue))
+		return true
+	}
+	return false
+}
+
 // Execute sub-task
 func (extractor *ApiExtractor) Execute() errors.Error {
 	// load data from database
 	db := extractor.args.Ctx.GetDal()
 	logger := extractor.args.Ctx.GetLogger()
-
+	if !db.HasTable(extractor.table) {
+		return nil
+	}
 	clauses := []dal.Clause{
 		dal.From(extractor.table),
 		dal.Where("params = ?", extractor.params),
@@ -84,7 +96,6 @@ func (extractor *ApiExtractor) Execute() errors.Error {
 	row := &RawData{}
 
 	// batch save divider
-	RAW_DATA_ORIGIN := "RawDataOrigin"
 	divider := NewBatchSaveDivider(extractor.args.Ctx, extractor.args.BatchSize, extractor.table, extractor.params)
 
 	// prgress
@@ -113,14 +124,11 @@ func (extractor *ApiExtractor) Execute() errors.Error {
 				return errors.Default.Wrap(err, "error getting batch from result")
 			}
 			// set raw data origin field
-			origin := reflect.ValueOf(result).Elem().FieldByName(RAW_DATA_ORIGIN)
-			if origin.IsValid() && origin.IsZero() {
-				origin.Set(reflect.ValueOf(common.RawDataOrigin{
-					RawDataTable:  extractor.table,
-					RawDataId:     row.ID,
-					RawDataParams: row.Params,
-				}))
-			}
+			setRawDataOrigin(result, common.RawDataOrigin{
+				RawDataTable:  extractor.table,
+				RawDataId:     row.ID,
+				RawDataParams: row.Params,
+			})
 			// records get saved into db when slots were max outed
 			err = batch.Add(result)
 			if err != nil {

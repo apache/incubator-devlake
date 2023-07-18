@@ -27,27 +27,27 @@ import (
 
 type pluginAPI struct {
 	invoker         bridge.Invoker
-	connType        *models.DynamicTabler
-	scopeType       *models.DynamicTabler
-	scopeConfigType *models.DynamicTabler
-	helper          *api.ConnectionApiHelper
+	connType        models.DynamicTabler
+	scopeType       models.DynamicTabler
+	scopeConfigType models.DynamicTabler
+	connhelper      *api.ConnectionApiHelper
+	scopeHelper     *api.GenericScopeApiHelper[remoteModel.RemoteConnection, remoteModel.DynamicScopeModel, remoteModel.RemoteScopeConfig]
 }
 
 func GetDefaultAPI(
 	invoker bridge.Invoker,
-	connType *models.DynamicTabler,
-	scopeConfigType *models.DynamicTabler,
-	scopeType *models.DynamicTabler,
-	helper *api.ConnectionApiHelper,
+	connType models.DynamicTabler,
+	scopeConfigType models.DynamicTabler,
+	scopeType models.DynamicTabler,
+	connHelper *api.ConnectionApiHelper,
 ) map[string]map[string]plugin.ApiResourceHandler {
 	papi := &pluginAPI{
 		invoker:         invoker,
 		connType:        connType,
 		scopeConfigType: scopeConfigType,
 		scopeType:       scopeType,
-		helper:          helper,
+		connhelper:      connHelper,
 	}
-
 	resources := map[string]map[string]plugin.ApiResourceHandler{
 		"test": {
 			"POST": papi.TestConnection,
@@ -65,7 +65,8 @@ func GetDefaultAPI(
 			"PUT": papi.PutScope,
 			"GET": papi.ListScopes,
 		},
-		"connections/:connectionId/scopes/:scopeId": {
+		// Use `*` to match scopeId with `/` in it
+		"connections/:connectionId/scopes/*scopeId": {
 			"GET":    papi.GetScope,
 			"PATCH":  papi.UpdateScope,
 			"DELETE": papi.DeleteScope,
@@ -75,8 +76,9 @@ func GetDefaultAPI(
 			"GET":  papi.ListScopeConfigs,
 		},
 		"connections/:connectionId/scope-configs/:id": {
-			"GET":   papi.GetScopeConfig,
-			"PATCH": papi.PatchScopeConfig,
+			"GET":    papi.GetScopeConfig,
+			"PATCH":  papi.PatchScopeConfig,
+			"DELETE": papi.DeleteScopeConfig,
 		},
 		"connections/:connectionId/remote-scopes": {
 			"GET": papi.GetRemoteScopes,
@@ -85,23 +87,24 @@ func GetDefaultAPI(
 			"GET": papi.SearchRemoteScopes,
 		},
 	}
-
-	scopeHelper = createScopeHelper(papi)
+	papi.createScopeHelper()
 	return resources
 }
 
-func createScopeHelper(pa *pluginAPI) *api.GenericScopeApiHelper[remoteModel.RemoteConnection, remoteModel.RemoteScope, remoteModel.RemoteScopeConfig] {
+func (pa *pluginAPI) createScopeHelper() {
 	params := &api.ReflectionParameters{
 		ScopeIdFieldName:  "Id",
 		ScopeIdColumnName: "id",
-		RawScopeParamName: "scope_id",
+		RawScopeParamName: "ScopeId",
 	}
-	return api.NewGenericScopeHelper[remoteModel.RemoteConnection, remoteModel.RemoteScope, remoteModel.RemoteScopeConfig](
+	pa.scopeHelper = api.NewGenericScopeHelper[remoteModel.RemoteConnection, remoteModel.DynamicScopeModel, remoteModel.RemoteScopeConfig](
 		basicRes,
-		nil,
-		connectionHelper,
+		vld,
+		pa.connhelper,
 		NewScopeDatabaseHelperImpl(pa, basicRes, params),
 		params,
-		&api.ScopeHelperOptions{},
+		&api.ScopeHelperOptions{
+			IsRemote: true,
+		},
 	)
 }

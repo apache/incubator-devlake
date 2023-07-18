@@ -28,12 +28,17 @@ import (
 	"github.com/apache/incubator-devlake/plugins/gitlab/models"
 )
 
+func init() {
+	RegisterSubtaskMeta(&ExtractApiIssuesMeta)
+}
+
 var ExtractApiIssuesMeta = plugin.SubTaskMeta{
 	Name:             "extractApiIssues",
 	EntryPoint:       ExtractApiIssues,
 	EnabledByDefault: true,
 	Description:      "Extract raw Issues data into tool layer table gitlab_issues",
 	DomainTypes:      []string{plugin.DOMAIN_TYPE_TICKET},
+	Dependencies:     []*plugin.SubTaskMeta{&CollectApiIssuesMeta},
 }
 
 type IssuesResponse struct {

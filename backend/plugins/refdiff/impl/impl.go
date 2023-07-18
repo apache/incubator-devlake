@@ -22,15 +22,18 @@ import (
 	"github.com/apache/incubator-devlake/core/errors"
 	"github.com/apache/incubator-devlake/core/plugin"
 	helper "github.com/apache/incubator-devlake/helpers/pluginhelper/api"
+	"github.com/apache/incubator-devlake/plugins/refdiff/models"
 	"github.com/apache/incubator-devlake/plugins/refdiff/tasks"
 )
 
 // make sure interface is implemented
-var _ plugin.PluginMeta = (*RefDiff)(nil)
-var _ plugin.PluginTask = (*RefDiff)(nil)
-var _ plugin.PluginApi = (*RefDiff)(nil)
-var _ plugin.PluginModel = (*RefDiff)(nil)
-var _ plugin.PluginMetric = (*RefDiff)(nil)
+var _ interface {
+	plugin.PluginMeta
+	plugin.PluginTask
+	plugin.PluginApi
+	plugin.PluginModel
+	plugin.PluginMetric
+} = (*RefDiff)(nil)
 
 type RefDiff struct{}
 
@@ -38,12 +41,18 @@ func (p RefDiff) Description() string {
 	return "Calculate commits diff for specified ref pairs based on `commits` and `commit_parents` tables"
 }
 
+func (p RefDiff) Name() string {
+	return "refdiff"
+}
+
 func (p RefDiff) RequiredDataEntities() (data []map[string]interface{}, err errors.Error) {
 	return []map[string]interface{}{}, nil
 }
 
 func (p RefDiff) GetTablesInfo() []dal.Tabler {
-	return []dal.Tabler{}
+	return []dal.Tabler{
+		&models.FinishedCommitsDiff{},
+	}
 }
 
 func (p RefDiff) IsProjectMetric() bool {

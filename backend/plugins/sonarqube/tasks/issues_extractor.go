@@ -23,6 +23,7 @@ import (
 	"github.com/apache/incubator-devlake/core/errors"
 	"github.com/apache/incubator-devlake/core/plugin"
 	helper "github.com/apache/incubator-devlake/helpers/pluginhelper/api"
+	"github.com/apache/incubator-devlake/helpers/utils"
 	"github.com/apache/incubator-devlake/plugins/sonarqube/models"
 	"strings"
 )
@@ -75,6 +76,20 @@ func ExtractIssues(taskCtx plugin.SubTaskContext) errors.Error {
 
 			results := make([]interface{}, 0)
 			results = append(results, sonarqubeIssue)
+
+			codeBlockInIssue := &models.SonarqubeIssueCodeBlock{
+				ConnectionId: data.Options.ConnectionId,
+				IssueKey:     sonarqubeIssue.IssueKey,
+				Component:    sonarqubeIssue.Component,
+				Msg:          sonarqubeIssue.Message,
+				StartLine:    sonarqubeIssue.StartLine,
+				EndLine:      sonarqubeIssue.EndLine,
+				StartOffset:  sonarqubeIssue.StartOffset,
+				EndOffset:    sonarqubeIssue.EndOffset,
+			}
+			generateId(hashCodeBlock, codeBlockInIssue)
+			results = append(results, codeBlockInIssue)
+
 			for _, v := range body.Flows {
 				for _, location := range v.Locations {
 					codeBlock := &models.SonarqubeIssueCodeBlock{
@@ -123,18 +138,18 @@ type IssuesResponse struct {
 		StartOffset int `json:"startOffset"`
 		EndOffset   int `json:"endOffset"`
 	} `json:"textRange"`
-	Flows             []flow              `json:"flows"`
-	Status            string              `json:"status"`
-	Message           string              `json:"message"`
-	Effort            string              `json:"effort"`
-	Debt              string              `json:"debt"`
-	Author            string              `json:"author"`
-	Tags              []string            `json:"tags"`
-	CreationDate      *helper.Iso8601Time `json:"creationDate"`
-	UpdateDate        *helper.Iso8601Time `json:"updateDate"`
-	Type              string              `json:"type"`
-	Scope             string              `json:"scope"`
-	QuickFixAvailable bool                `json:"quickFixAvailable"`
+	Flows             []flow             `json:"flows"`
+	Status            string             `json:"status"`
+	Message           string             `json:"message"`
+	Effort            string             `json:"effort"`
+	Debt              string             `json:"debt"`
+	Author            string             `json:"author"`
+	Tags              []string           `json:"tags"`
+	CreationDate      *utils.Iso8601Time `json:"creationDate"`
+	UpdateDate        *utils.Iso8601Time `json:"updateDate"`
+	Type              string             `json:"type"`
+	Scope             string             `json:"scope"`
+	QuickFixAvailable bool               `json:"quickFixAvailable"`
 }
 
 type flow struct {

@@ -37,8 +37,17 @@ func TestZentaoTaskDataFlow(t *testing.T) {
 		Options: &tasks.ZentaoOptions{
 			ConnectionId: 1,
 			ProjectId:    1,
-			ProductId:    3,
+			ScopeConfigs: &tasks.ZentaoScopeConfigs{
+				TypeMappings: map[string]string{
+					"devel": "TASK_DEV",
+				},
+				TaskStatusMappings: map[string]string{
+					"wait": ticket.IN_PROGRESS,
+				},
+			},
 		},
+		Tasks:        map[int64]struct{}{},
+		AccountCache: tasks.NewAccountCache(dataflowTester.Dal, 1),
 	}
 
 	// import raw data table

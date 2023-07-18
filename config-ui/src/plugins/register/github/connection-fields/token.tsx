@@ -17,9 +17,9 @@
  */
 
 import { useEffect, useState } from 'react';
-import { FormGroup, InputGroup, Button, Icon, Intent } from '@blueprintjs/core';
+import { FormGroup, Button, Icon, Intent } from '@blueprintjs/core';
 
-import { ExternalLink } from '@/components';
+import { ExternalLink, FormPassword } from '@/components';
 
 import * as API from '../api';
 
@@ -27,9 +27,9 @@ import * as S from './styled';
 
 type TokenItem = {
   value: string;
-  status: 'idle' | 'valid' | 'invalid';
+  isValid?: boolean;
   from?: string;
-  message?: string;
+  status?: 'success' | 'warning' | 'error';
 };
 
 interface Props {
@@ -43,13 +43,12 @@ interface Props {
 }
 
 export const Token = ({ endpoint, proxy, initialValue, value, error, setValue, setError }: Props) => {
-  const [tokens, setTokens] = useState<TokenItem[]>([{ value: '', status: 'idle', message: '' }]);
+  const [tokens, setTokens] = useState<TokenItem[]>([{ value: '' }]);
 
   const testToken = async (token: string): Promise<TokenItem> => {
     if (!endpoint || !token) {
       return {
         value: token,
-        status: 'idle',
       };
     }
 
@@ -62,14 +61,14 @@ export const Token = ({ endpoint, proxy, initialValue, value, error, setValue, s
       });
       return {
         value: token,
-        status: 'valid',
+        isValid: true,
         from: res.login,
-        message: res.message,
+        status: !res.success ? 'error' : res.warning ? 'warning' : 'success',
       };
     } catch {
       return {
         value: token,
-        status: 'invalid',
+        isValid: false,
       };
     }
   };
@@ -95,16 +94,16 @@ export const Token = ({ endpoint, proxy, initialValue, value, error, setValue, s
     setValue(tokens.map((it) => it.value).join(','));
   }, [tokens]);
 
-  const handleCreateToken = () => setTokens([...tokens, { value: '', status: 'idle' }]);
+  const handleCreateToken = () => setTokens([...tokens, { value: '' }]);
 
   const handleRemoveToken = (key: number) => setTokens(tokens.filter((_, i) => (i === key ? false : true)));
 
   const handleChangeToken = (key: number, value: string) =>
-    setTokens(tokens.map((it, i) => (i === key ? { value, status: 'idle' } : it)));
+    setTokens(tokens.map((it, i) => (i === key ? { value } : it)));
 
   const handleTestToken = async (key: number) => {
     const token = tokens.find((_, i) => i === key) as TokenItem;
-    if (token.status === 'idle' && token.value) {
+    if (token.isValid === undefined && token.value) {
       const res = await testToken(token.value);
       setTokens((tokens) => tokens.map((it, i) => (i === key ? res : it)));
     }
@@ -124,27 +123,42 @@ export const Token = ({ endpoint, proxy, initialValue, value, error, setValue, s
         </S.LabelDescription>
       }
     >
-      {tokens.map(({ value, status, from, message }, i) => (
+      {tokens.map(({ value, isValid, status, from }, i) => (
         <S.Input key={i}>
           <div className="input">
-            <InputGroup
+            <FormPassword
               placeholder="Token"
-              type="password"
-              value={value ?? ''}
               onChange={(e) => handleChangeToken(i, e.target.value)}
               onBlur={() => handleTestToken(i)}
             />
             <Button minimal icon="cross" onClick={() => handleRemoveToken(i)} />
             <div className="info">
-              {status === 'invalid' && <span className="error">Invalid</span>}
-              {status === 'valid' && <span className="success">Valid From: {from}</span>}
+              {isValid === false && <span className="error">Invalid</span>}
+              {isValid === true && <span className="success">Valid From: {from}</span>}
             </div>
           </div>
-          {message && (
-            <div className="warning">
-              <Icon icon="warning-sign" color="#F4BE55" style={{ marginRight: 4 }} />
-              {message}
-            </div>
+          {status && (
+            <S.Alert>
+              <h4>
+                {status === 'success' && <Icon icon="tick-circle" color="#4DB764" />}
+                {status === 'warning' && <Icon icon="warning-sign" color="#F4BE55" />}
+                {status === 'error' && <Icon icon="cross-circle" color="#E34040" />}
+                <span style={{ marginLeft: 8 }}>Token Permissions</span>
+              </h4>
+              {status === 'success' && <p>All required fields are checked.</p>}
+              {status === 'warning' && (
+                <p>
+                  This token is able to collect public repositories. If you want to collect private repositories, please
+                  check the field `repo`.
+                </p>
+              )}
+              {status === 'error' && (
+                <>
+                  <p>Please check the field(s) `repo:status`, `repo_deployment`, `read:user`, `read:org`.</p>
+                  <p>If you want to collect private repositories, please check the field `repo`.</p>
+                </>
+              )}
+            </S.Alert>
           )}
         </S.Input>
       ))}

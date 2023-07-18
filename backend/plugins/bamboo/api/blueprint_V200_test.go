@@ -124,6 +124,7 @@ func TestMakeDataSourcePipelinePlanV200(t *testing.T) {
 
 	// register bamboo plugin for NewDomainIdGenerator
 	mockMeta := mockplugin.NewPluginMeta(t)
+	mockMeta.On("Name").Return("bamboo").Maybe()
 	mockMeta.On("RootPkgPath").Return("github.com/apache/incubator-devlake/plugins/bamboo")
 	err = plugin.RegisterPlugin("bamboo", mockMeta)
 	assert.Equal(t, err, nil)
@@ -145,7 +146,7 @@ func TestMakeDataSourcePipelinePlanV200(t *testing.T) {
 			*dst = *testScopeConfig
 		}).Return(nil)
 	})
-	Init(basicRes)
+	Init(basicRes, mockMeta)
 
 	plans, scopes, err := MakePipelinePlanV200(testSubTaskMeta, testConnectionID, bpScopes, syncPolicy)
 	assert.Equal(t, err, nil)

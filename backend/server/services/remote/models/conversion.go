@@ -32,7 +32,7 @@ import (
 	"gorm.io/datatypes"
 )
 
-func LoadTableModel(tableName string, schema utils.JsonObject, parentModel any) (*models.DynamicTabler, errors.Error) {
+func LoadTableModel(tableName string, schema utils.JsonObject, parentModel any) (models.DynamicTabler, errors.Error) {
 	structType, err := GenerateStructType(schema, reflect.TypeOf(parentModel))
 	if err != nil {
 		return nil, err
@@ -48,7 +48,7 @@ func GenerateStructType(schema utils.JsonObject, baseType reflect.Type) (reflect
 	}
 	required, err := utils.GetProperty[[]string](schema, "required")
 	if err != nil {
-		return nil, err
+		required = []string{}
 	}
 	if baseType != nil {
 		anonymousField := reflect.StructField{

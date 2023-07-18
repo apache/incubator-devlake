@@ -22,8 +22,10 @@ import (
 	"fmt"
 	"net/http"
 	"net/url"
+	"regexp"
 	"sort"
 	"strconv"
+	"strings"
 
 	"github.com/apache/incubator-devlake/core/dal"
 	"github.com/apache/incubator-devlake/core/errors"
@@ -33,6 +35,25 @@ import (
 	"github.com/apache/incubator-devlake/plugins/jira/tasks"
 	"github.com/mitchellh/mapstructure"
 )
+
+type genRegexReq struct {
+	Pattern string `json:"pattern"`
+}
+
+type genRegexResp struct {
+	Regex string `json:"regex"`
+}
+
+type applyRegexReq struct {
+	Regex string   `json:"regex"`
+	Urls  []string `json:"urls"`
+}
+
+type repo struct {
+	Namespace string `json:"namespace"`
+	RepoName  string `json:"repo_name"`
+	CommitSha string `json:"commit_sha"`
+}
 
 // CreateScopeConfig create scope config for Jira
 // @Summary create scope config for Jira
@@ -154,6 +175,20 @@ func GetScopeConfig(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, 
 // @Router /plugins/jira/connections/{connectionId}/scope-configs [GET]
 func GetScopeConfigList(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, errors.Error) {
 	return scHelper.List(input)
+}
+
+// DeleteScopeConfig delete a scope config
+// @Summary delete a scope config
+// @Description delete a scope config
+// @Tags plugins/jira
+// @Param id path int true "id"
+// @Param connectionId path int true "connectionId"
+// @Success 200
+// @Failure 400  {object} shared.ApiBody "Bad Request"
+// @Failure 500  {object} shared.ApiBody "Internal Error"
+// @Router /plugins/jira/connections/{connectionId}/scope-configs/{id} [DELETE]
+func DeleteScopeConfig(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, errors.Error) {
+	return scHelper.Delete(input)
 }
 
 // GetApplicationTypes return issue application types
@@ -312,4 +347,113 @@ func GetCommitsURLs(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, 
 		commitURLs = append(commitURLs, cmt.URL)
 	}
 	return &plugin.ApiResourceOutput{Body: commitURLs, Status: http.StatusOK}, nil
+}
+
+// GenRegex generate regex from url
+// @Summary generate regex from url
+// @Description generate regex from url
+// @Tags plugins/jira
+// @Param generate-regex body genRegexReq true "generate regex"
+// @Success 200  {object} genRegexResp
+// @Failure 400  {object} shared.ApiBody "Bad Request"
+// @Failure 500  {object} shared.ApiBody "Internal Error"
+// @Router /plugins/jira/generate-regex [POST]
+func GenRegex(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, errors.Error) {
+	var req genRegexReq
+	err := api.Decode(input.Body, &req, nil)
+	if err != nil {
+		return nil, err
+	}
+	err = checkInput(req.Pattern)
+	if err != nil {
+		return nil, err
+	}
+	reg := genRegex(req.Pattern)
+	_, e := regexp.Compile(reg)
+	if e != nil {
+		return nil, errors.BadInput.Wrap(e, "invalid url")
+	}
+
+	return &plugin.ApiResourceOutput{Body: genRegexResp{Regex: reg}, Status: http.StatusOK}, nil
+}
+
+func checkInput(input string) errors.Error {
+	input = strings.TrimSpace(input)
+	if input == "" {
+		return errors.BadInput.New("empty input")
+	}
+	if !strings.Contains(input, "{namespace}") {
+		return errors.BadInput.New("missing {namespace}")
+	}
+	if !strings.Contains(input, "{repo_name}") {
+		return errors.BadInput.New("missing {repo_name}")
+	}
+	if !strings.Contains(input, "{commit_sha}") {
+		return errors.BadInput.New("missing {commit_sha}")
+	}
+	return nil
+}
+
+func genRegex(s string) string {
+	s = strings.TrimSpace(s)
+	s = strings.Replace(s, "{namespace}", `(?P<namespace>\S+)`, -1)
+	s = strings.Replace(s, "{repo_name}", `(?P<repo_name>\S+)`, -1)
+	s = strings.Replace(s, "{commit_sha}", `(?P<commit_sha>\w{40})`, -1)
+	return s
+}
+
+// ApplyRegex return parsed commits URLs
+// @Summary return parsed commits URLs
+// @Description return parsed commits URLs
+// @Tags plugins/jira
+// @Param apply-regex body applyRegexReq true "apply regex"
+// @Success 200  {object} []string
+// @Failure 400  {object} shared.ApiBody "Bad Request"
+// @Failure 500  {object} shared.ApiBody "Internal Error"
+// @Router /plugins/jira/apply-regex [POST]
+func ApplyRegex(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, errors.Error) {
+	var req applyRegexReq
+	err := api.Decode(input.Body, &req, nil)
+	if err != nil {
+		return nil, err
+	}
+	var repos []*repo
+	for _, u := range req.Urls {
+		r, e1 := applyRegex(req.Regex, u)
+		if e1 != nil {
+			return nil, err
+		}
+		repos = append(repos, r)
+	}
+	return &plugin.ApiResourceOutput{Body: repos, Status: http.StatusOK}, nil
+}
+
+func applyRegex(regexStr, commitUrl string) (*repo, errors.Error) {
+	pattern, e := regexp.Compile(regexStr)
+	if e != nil {
+		return nil, errors.BadInput.Wrap(e, "invalid regex")
+	}
+	if !pattern.MatchString(commitUrl) {
+		return nil, errors.BadInput.New("invalid url")
+	}
+	group := pattern.FindStringSubmatch(commitUrl)
+	if len(group) != 4 {
+		return nil, errors.BadInput.New("invalid group count")
+	}
+	r := new(repo)
+	for i, name := range pattern.SubexpNames() {
+		if i != 0 && name != "" {
+			switch name {
+			case "namespace":
+				r.Namespace = group[i]
+			case "repo_name":
+				r.RepoName = group[i]
+			case "commit_sha":
+				r.CommitSha = group[i]
+			default:
+				return nil, errors.BadInput.New("invalid group name")
+			}
+		}
+	}
+	return r, nil
 }

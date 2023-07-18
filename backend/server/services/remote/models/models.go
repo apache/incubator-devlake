@@ -18,6 +18,8 @@ limitations under the License.
 package models
 
 import (
+	"reflect"
+
 	"github.com/apache/incubator-devlake/core/errors"
 	"github.com/apache/incubator-devlake/core/models"
 	"github.com/apache/incubator-devlake/core/models/common"
@@ -47,7 +49,6 @@ type PluginInfo struct {
 
 // Type aliases used by the API helper for better readability
 type (
-	RemoteScope       any
 	RemoteScopeConfig any
 	RemoteConnection  any
 )
@@ -57,7 +58,7 @@ type DynamicModelInfo struct {
 	TableName  string         `json:"table_name" validate:"required"`
 }
 
-func (d DynamicModelInfo) LoadDynamicTabler(parentModel any) (*models.DynamicTabler, errors.Error) {
+func (d DynamicModelInfo) LoadDynamicTabler(parentModel any) (models.DynamicTabler, errors.Error) {
 	return LoadTableModel(d.TableName, d.JsonSchema, parentModel)
 }
 
@@ -67,6 +68,48 @@ type ScopeModel struct {
 	ConnectionId     uint64 `gorm:"primaryKey" json:"connectionId"`
 	Name             string `json:"name" validate:"required"`
 	ScopeConfigId    uint64 `json:"scopeConfigId"`
+}
+
+type ApiParams struct {
+	ConnectionId uint64
+	ScopeId      string
+}
+
+type DynamicScopeModel struct {
+	models.DynamicTabler
+}
+
+func NewDynamicScopeModel(model models.DynamicTabler) *DynamicScopeModel {
+	return &DynamicScopeModel{
+		DynamicTabler: model.New(),
+	}
+}
+
+func (d DynamicScopeModel) ConnectionId() uint64 {
+	return reflect.ValueOf(d.DynamicTabler.Unwrap()).Elem().FieldByName("ConnectionId").Uint()
+}
+
+func (d DynamicScopeModel) ScopeId() string {
+	return reflect.ValueOf(d.DynamicTabler.Unwrap()).Elem().FieldByName("Id").String()
+}
+
+func (d DynamicScopeModel) ScopeName() string {
+	return reflect.ValueOf(d.DynamicTabler.Unwrap()).Elem().FieldByName("Name").String()
+}
+
+func (d DynamicScopeModel) ScopeParams() interface{} {
+	return &ApiParams{
+		ConnectionId: d.ConnectionId(),
+		ScopeId:      d.ScopeId(),
+	}
+}
+
+func (d *DynamicScopeModel) MarshalJSON() ([]byte, error) {
+	return d.DynamicTabler.MarshalJSON()
+}
+
+func (d *DynamicScopeModel) UnmarshalJSON(b []byte) error {
+	return d.DynamicTabler.UnmarshalJSON(b)
 }
 
 type ScopeConfigModel struct {
@@ -94,3 +137,5 @@ type PipelineData struct {
 	Plan   plugin.PipelinePlan  `json:"plan"`
 	Scopes []DynamicDomainScope `json:"scopes"`
 }
+
+var _ plugin.ToolLayerScope = (*DynamicScopeModel)(nil)

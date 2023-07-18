@@ -16,11 +16,11 @@
  *
  */
 
-import React, { useMemo, useState } from 'react';
+import { useMemo, useState } from 'react';
 import { Button, Intent } from '@blueprintjs/core';
 
 import { Buttons } from '@/components';
-import { getPluginId, getPluginConfig } from '@/plugins';
+import { getPluginConfig, getPluginScopeId } from '@/plugins';
 import { operator } from '@/utils';
 
 import { DataScopeMillerColumns } from '../data-scope-miller-columns';
@@ -37,7 +37,7 @@ interface Props {
   onSubmit: (origin: any) => void;
 }
 
-export const DataScopeSelectRemote = ({ plugin, connectionId, disabledScope, onSubmit, onCancel }: Props) => {
+export const DataScopeSelectRemote = ({ plugin, connectionId, disabledScope, onCancel, onSubmit }: Props) => {
   const [operating, setOperating] = useState(false);
   const [scope, setScope] = useState<any>([]);
 
@@ -46,35 +46,20 @@ export const DataScopeSelectRemote = ({ plugin, connectionId, disabledScope, onS
   const error = useMemo(() => (!scope.length ? 'No Data Scope is Selected' : ''), [scope]);
 
   const selectedItems = useMemo(
-    () => scope.map((it: any) => ({ id: `${it[getPluginId(plugin)]}`, name: it.name, data: it })),
+    () => scope.map((it: any) => ({ id: getPluginScopeId(plugin, it), name: it.name, data: it })),
     [scope],
   );
 
   const disabledItems = useMemo(
-    () => (disabledScope ?? []).map((it) => ({ id: `${it[getPluginId(plugin)]}`, name: it.name, data: it })),
+    () => (disabledScope ?? []).map((it) => ({ id: getPluginScopeId(plugin, it), name: it.name, data: it })),
     [disabledScope],
   );
 
   const handleSubmit = async () => {
-    const [success, res] = await operator(
-      async () =>
-        plugin === 'zentao'
-          ? [
-              ...(await API.updateDataScopeWithType(plugin, connectionId, 'product', {
-                data: scope.filter((s: any) => s.type !== 'project'),
-              })),
-              ...(await API.updateDataScopeWithType(plugin, connectionId, 'project', {
-                data: scope.filter((s: any) => s.type === 'project'),
-              })),
-            ]
-          : API.updateDataScope(plugin, connectionId, {
-              data: scope,
-            }),
-      {
-        setOperating,
-        formatMessage: () => 'Add data scope successful.',
-      },
-    );
+    const [success, res] = await operator(() => API.updateDataScope(plugin, connectionId, { data: scope }), {
+      setOperating,
+      formatMessage: () => 'Add data scope successful.',
+    });
 
     if (success) {
       onSubmit(res);
@@ -83,27 +68,40 @@ export const DataScopeSelectRemote = ({ plugin, connectionId, disabledScope, onS
 
   return (
     <S.Wrapper>
-      <h3>{pluginConfig.dataScope.millerColumns.title}</h3>
-      <p>{pluginConfig.dataScope.millerColumns.subTitle}</p>
-      <DataScopeMillerColumns
-        title={pluginConfig.dataScope.millerColumns?.firstColumnTitle}
-        plugin={plugin}
-        connectionId={connectionId}
-        disabledItems={disabledItems}
-        selectedItems={selectedItems}
-        onChangeItems={setScope}
-      />
-      {pluginConfig.dataScope.search && (
+      {pluginConfig.dataScope.render ? (
+        pluginConfig.dataScope.render({
+          plugin,
+          connectionId,
+          disabledItems,
+          selectedItems,
+          onChangeItems: setScope,
+        })
+      ) : (
         <>
-          <h4>{pluginConfig.dataScope.search.title}</h4>
-          <p>{pluginConfig.dataScope.search.subTitle}</p>
-          <DataScopeSearch
+          <h4>{pluginConfig.dataScope.millerColumns?.title}</h4>
+          <p>{pluginConfig.dataScope.millerColumns?.subTitle}</p>
+          <DataScopeMillerColumns
+            title={pluginConfig.dataScope.millerColumns?.firstColumnTitle}
+            columnCount={pluginConfig.dataScope.millerColumns?.columnCount ?? 3}
             plugin={plugin}
             connectionId={connectionId}
             disabledItems={disabledItems}
             selectedItems={selectedItems}
             onChangeItems={setScope}
           />
+          {pluginConfig.dataScope.search && (
+            <>
+              <h5 style={{ marginTop: 16 }}>{pluginConfig.dataScope.search.title}</h5>
+              <p>{pluginConfig.dataScope.search.subTitle}</p>
+              <DataScopeSearch
+                plugin={plugin}
+                connectionId={connectionId}
+                disabledItems={disabledItems}
+                selectedItems={selectedItems}
+                onChangeItems={setScope}
+              />
+            </>
+          )}
         </>
       )}
       <Buttons position="bottom" align="right">

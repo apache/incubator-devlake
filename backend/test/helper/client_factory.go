@@ -24,7 +24,7 @@ import (
 )
 
 // Creates a new in-memory DevLake server with default settings and returns a client to it
-func StartDevLakeServer(t *testing.T, loadedGoPlugins map[string]plugin.PluginMeta) *DevlakeClient {
+func StartDevLakeServer(t *testing.T, loadedGoPlugins []plugin.PluginMeta) *DevlakeClient {
 	client := ConnectLocalServer(t, &LocalClientConfig{
 		ServerPort:   8089,
 		DbURL:        config.GetConfig().GetString("E2E_DB_URL"),
@@ -32,6 +32,16 @@ func StartDevLakeServer(t *testing.T, loadedGoPlugins map[string]plugin.PluginMe
 		DropDb:       false,
 		TruncateDb:   true,
 		Plugins:      loadedGoPlugins,
+	})
+	return client
+}
+
+// Connect to an existing DevLake server with default config. Tables are truncated. Useful for troubleshooting outside the IDE.
+func ConnectDevLakeServer(t *testing.T) *DevlakeClient {
+	client := ConnectRemoteServer(t, &RemoteClientConfig{
+		Endpoint:   "http://localhost:8089",
+		DbURL:      config.GetConfig().GetString("E2E_DB_URL"),
+		TruncateDb: true,
 	})
 	return client
 }

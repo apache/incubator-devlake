@@ -19,6 +19,7 @@ package models
 
 import (
 	"fmt"
+	"strconv"
 
 	"github.com/apache/incubator-devlake/core/models/common"
 	"github.com/apache/incubator-devlake/core/plugin"
@@ -146,11 +147,18 @@ func (ZentaoProject) TableName() string {
 }
 
 func (p ZentaoProject) ScopeId() string {
-	return fmt.Sprintf(`project/%d`, p.Id)
+	return strconv.FormatInt(p.Id, 10)
 }
 
 func (p ZentaoProject) ScopeName() string {
 	return p.Name
+}
+
+func (p ZentaoProject) ScopeParams() interface{} {
+	return &ZentaoApiParams{
+		ConnectionId: p.ConnectionId,
+		ProjectId:    p.Id,
+	}
 }
 
 func (p ZentaoProject) ConvertApiScope() plugin.ToolLayerScope {
@@ -159,4 +167,9 @@ func (p ZentaoProject) ConvertApiScope() plugin.ToolLayerScope {
 		p.Type = "project"
 	}
 	return p
+}
+
+type ZentaoApiParams struct {
+	ConnectionId uint64
+	ProjectId    int64
 }

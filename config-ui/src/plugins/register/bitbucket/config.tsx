@@ -62,6 +62,7 @@ export const BitBucketConfig: PluginConfigType = {
     millerColumns: {
       title: 'Repositories *',
       subTitle: 'Select the repositories you would like to sync.',
+      columnCount: 2,
     },
   },
   scopeConfig: {

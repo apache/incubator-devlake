@@ -18,6 +18,7 @@ limitations under the License.
 package helper
 
 import (
+	"github.com/apache/incubator-devlake/core/config"
 	"github.com/apache/incubator-devlake/core/models"
 	"time"
 
@@ -90,4 +91,13 @@ type SearchRemoteScopesQuery struct {
 	Page         int
 	PageSize     int
 	Params       map[string]string
+}
+
+func SetTestConfig[T any](t T) {
+	config.GetConfig().Set("TEST_CONFIG", t)
+}
+
+func GetTestConfig[T any]() T {
+	raw := config.GetConfig().Get("TEST_CONFIG")
+	return raw.(T)
 }

@@ -18,12 +18,12 @@ limitations under the License.
 package api
 
 import (
-	"encoding/json"
 	"fmt"
-	"github.com/apache/incubator-devlake/core/errors"
-	plugin "github.com/apache/incubator-devlake/core/plugin"
 	"reflect"
 	"time"
+
+	"github.com/apache/incubator-devlake/core/errors"
+	plugin "github.com/apache/incubator-devlake/core/plugin"
 
 	"gorm.io/datatypes"
 )
@@ -82,12 +82,7 @@ func NewRawDataSubTask(args RawDataSubTaskArgs) (*RawDataSubTask, errors.Error) 
 	if params == nil || reflect.ValueOf(params).IsZero() {
 		args.Ctx.GetLogger().Warn(nil, fmt.Sprintf("Missing `Params` for raw data subtask %s", args.Ctx.GetName()))
 	} else {
-		// TODO: maybe sort it to make it consistent
-		paramsBytes, err := json.Marshal(params)
-		if err != nil {
-			return nil, errors.Default.Wrap(err, "unable to serialize subtask parameters")
-		}
-		paramsString = string(paramsBytes)
+		paramsString = plugin.MarshalScopeParams(params)
 	}
 	return &RawDataSubTask{
 		args:   &args,

@@ -35,6 +35,7 @@ import (
 func TestMakeDataSourcePipelinePlanV200(t *testing.T) {
 	mockMeta := mockplugin.NewPluginMeta(t)
 	mockMeta.On("RootPkgPath").Return("github.com/apache/incubator-devlake/plugins/tapd")
+	mockMeta.On("Name").Return("dummy").Maybe()
 	err := plugin.RegisterPlugin("tapd", mockMeta)
 	assert.Nil(t, err)
 	bs := &plugin.BlueprintScopeV200{
@@ -44,7 +45,8 @@ func TestMakeDataSourcePipelinePlanV200(t *testing.T) {
 	bpScopes := make([]*plugin.BlueprintScopeV200, 0)
 	bpScopes = append(bpScopes, bs)
 	plan := make(plugin.PipelinePlan, len(bpScopes))
-	mockBasicRes()
+	mockBasicRes(t)
+
 	plan, err = makeDataSourcePipelinePlanV200(nil, plan, bpScopes, uint64(1), syncPolicy)
 	assert.Nil(t, err)
 	scopes, err := makeScopesV200(bpScopes, uint64(1))
@@ -70,13 +72,14 @@ func TestMakeDataSourcePipelinePlanV200(t *testing.T) {
 			Id: "tapd:TapdWorkspace:1:10",
 		},
 		Name: "a",
+		Type: "scrum",
 	}
 
 	expectScopes = append(expectScopes, tapdBoard)
 	assert.Equal(t, expectScopes, scopes)
 }
 
-func mockBasicRes() {
+func mockBasicRes(t *testing.T) {
 	tapdWorkspace := &models.TapdWorkspace{
 		ConnectionId: 1,
 		Id:           10,
@@ -98,5 +101,7 @@ func mockBasicRes() {
 			*dst = *tapdWorkspace
 		}).Return(nil)
 	})
-	Init(mockRes)
+	p := mockplugin.NewPluginMeta(t)
+	p.On("Name").Return("dummy").Maybe()
+	Init(mockRes, p)
 }

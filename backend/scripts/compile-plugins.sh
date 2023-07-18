@@ -38,9 +38,12 @@ SCRIPT_DIR="$( cd "$( dirname "$0" )" && pwd )"
 PLUGIN_SRC_DIR=$SCRIPT_DIR/../plugins
 PLUGIN_OUTPUT_DIR=$SCRIPT_DIR/../bin/plugins
 
+
 if [ -z "$PLUGIN" ]; then
-    PLUGINS=$(find $PLUGIN_SRC_DIR/* -maxdepth 0 -type d -not -name core -not -name helper -not -empty)
+    echo "Building all plugins"
+    PLUGINS=$(find $PLUGIN_SRC_DIR/* -maxdepth 0 -type d -not -name core -not -name helper -not -name logs -not -empty)
 else
+    echo "Building the following plugins: $PLUGIN"
     PLUGINS=
     for p in $(echo "$PLUGIN" | tr "," "\n"); do
         PLUGINS="$PLUGINS $PLUGIN_SRC_DIR/$p"
@@ -52,9 +55,23 @@ rm -rf $PLUGIN_OUTPUT_DIR/*
 PIDS=""
 for PLUG in $PLUGINS; do
     NAME=$(basename $PLUG)
-    echo "Building plugin $NAME to bin/plugins/$NAME/$NAME.so"
+    echo "Building plugin $NAME to bin/plugins/$NAME/$NAME.so with args: $*"
     go build -buildmode=plugin "$@" -o $PLUGIN_OUTPUT_DIR/$NAME/$NAME.so $PLUG/*.go &
     PIDS="$PIDS $!"
+    # avoid too many processes causing signal killed
+    COUNT=$(echo "$PIDS" | wc -w)
+    PARALLELISM=4
+    if command -v nproc >/dev/null 2>&1; then
+        PARALLELISM=$(nproc)
+    elif command -v sysctl >/dev/null 2>&1; then
+        PARALLELISM=$(sysctl -n hw.ncpu)
+    fi
+    if [ "$COUNT" -ge "$PARALLELISM" ]; then
+        for PID in $PIDS; do
+            wait $PID
+        done
+        PIDS=""
+    fi
 done
 
 for PID in $PIDS; do

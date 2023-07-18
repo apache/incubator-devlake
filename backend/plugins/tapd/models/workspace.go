@@ -89,6 +89,18 @@ func (w TapdWorkspace) ScopeName() string {
 	return w.Name
 }
 
+func (w TapdWorkspace) ScopeParams() interface{} {
+	return &TapdApiParams{
+		ConnectionId: w.ConnectionId,
+		WorkspaceId:  w.Id,
+	}
+}
+
 func (w TapdWorkspace) ConvertApiScope() plugin.ToolLayerScope {
 	return w
+}
+
+type TapdApiParams struct {
+	ConnectionId uint64
+	WorkspaceId  uint64
 }

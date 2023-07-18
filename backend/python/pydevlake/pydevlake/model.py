@@ -15,6 +15,7 @@
 
 
 import os
+import json
 from typing import Iterable, Optional
 from inspect import getmodule
 from datetime import datetime
@@ -39,6 +40,7 @@ class Model(SQLModel):
     updated_at: Optional[datetime] = Field(
         sa_column=Column(DateTime(), default=datetime.utcnow, onupdate=datetime.utcnow)
     )
+
 
 class ToolTable(SQLModel):
     @declared_attr
@@ -71,6 +73,7 @@ class Connection(ToolTable, Model):
             return None
         return proxy
 
+
 class DomainType(Enum):
     CODE = "CODE"
     TICKET = "TICKET"
@@ -81,8 +84,8 @@ class DomainType(Enum):
 
 
 class ScopeConfig(ToolTable, Model):
-    name: str
-    domain_types: list[DomainType] = Field(default_factory=list, alias="entities")
+    name: str = Field(default="default")
+    domain_types: list[DomainType] = Field(default=list(DomainType), alias="entities")
 
 
 class RawModel(SQLModel):
@@ -97,10 +100,10 @@ class RawModel(SQLModel):
 class RawDataOrigin(SQLModel):
     # SQLModel doesn't like attributes starting with _
     # so we change the names of the columns.
-    raw_data_params: Optional[str] = Field(sa_column_kwargs={'name':'_raw_data_params'})
-    raw_data_table: Optional[str] = Field(sa_column_kwargs={'name':'_raw_data_table'})
-    raw_data_id: Optional[str] = Field(sa_column_kwargs={'name':'_raw_data_id'})
-    raw_data_remark: Optional[str] = Field(sa_column_kwargs={'name':'_raw_data_remark'})
+    raw_data_params: Optional[str] = Field(sa_column_kwargs={'name': '_raw_data_params'}, alias='_raw_data_params')
+    raw_data_table: Optional[str] = Field(sa_column_kwargs={'name': '_raw_data_table'}, alias='_raw_data_table')
+    raw_data_id: Optional[str] = Field(sa_column_kwargs={'name': '_raw_data_id'}, alias='_raw_data_id')
+    raw_data_remark: Optional[str] = Field(sa_column_kwargs={'name': '_raw_data_remark'}, alias='_raw_data_remark')
 
     def set_raw_origin(self, raw: RawModel):
         self.raw_data_id = raw.id
@@ -165,6 +168,14 @@ def domain_id(model_type, connection_id, *args):
     return ':'.join(segments)
 
 
+def raw_data_params(connection_id: int, scope_id: str) -> str:
+    # JSON keys MUST follow the Go conventions (CamelCase) and be sorted
+    return json.dumps({
+        "ConnectionId": connection_id,
+        "ScopeId": scope_id
+    }, separators=(',', ':'))
+
+
 def _get_plugin_name(cls):
     """
     Get the plugin name from a class by looking into
@@ -188,4 +199,4 @@ class SubtaskRun(SQLModel, table=True):
     connection_id: int
     started: datetime
     completed: Optional[datetime]
-    state: str = Field(sa_column=Column(Text)) # JSON encoded dict of atomic values
+    state: str = Field(sa_column=Column(Text))  # JSON encoded dict of atomic values

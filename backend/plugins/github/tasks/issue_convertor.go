@@ -80,9 +80,7 @@ func ConvertIssues(taskCtx plugin.SubTaskContext) errors.Error {
 				Type:            issue.StdType,
 				OriginalType:    issue.Type,
 				OriginalStatus:  issue.State,
-				AssigneeId:      accountIdGen.Generate(data.Options.ConnectionId, issue.AssigneeId),
 				AssigneeName:    issue.AssigneeName,
-				CreatorId:       accountIdGen.Generate(data.Options.ConnectionId, issue.AuthorId),
 				CreatorName:     issue.AuthorName,
 				LeadTimeMinutes: int64(issue.LeadTimeMinutes),
 				Url:             issue.Url,
@@ -91,6 +89,12 @@ func ConvertIssues(taskCtx plugin.SubTaskContext) errors.Error {
 				ResolutionDate:  issue.ClosedAt,
 				Severity:        issue.Severity,
 				Component:       issue.Component,
+			}
+			if issue.AssigneeId != 0 {
+				domainIssue.AssigneeId = accountIdGen.Generate(data.Options.ConnectionId, issue.AssigneeId)
+			}
+			if issue.AuthorId != 0 {
+				domainIssue.CreatorId = accountIdGen.Generate(data.Options.ConnectionId, issue.AuthorId)
 			}
 			if strings.ToUpper(issue.State) == "CLOSED" {
 				domainIssue.Status = ticket.DONE

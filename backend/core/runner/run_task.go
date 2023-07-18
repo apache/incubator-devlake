@@ -20,6 +20,8 @@ package runner
 import (
 	gocontext "context"
 	"fmt"
+	"time"
+
 	"github.com/apache/incubator-devlake/core/context"
 	"github.com/apache/incubator-devlake/core/dal"
 	"github.com/apache/incubator-devlake/core/errors"
@@ -30,7 +32,6 @@ import (
 	"github.com/apache/incubator-devlake/helpers/pluginhelper/api"
 	contextimpl "github.com/apache/incubator-devlake/impls/context"
 	"github.com/apache/incubator-devlake/impls/logruslog"
-	"time"
 )
 
 // RunTask FIXME ...
@@ -113,8 +114,8 @@ func RunTask(
 		if dbe != nil {
 			logger.Error(dbe, "update pipeline state failed")
 		}
-		// not return err if the `SkipOnFail` is true
-		if dbPipeline.SkipOnFail {
+		// not return err if the `SkipOnFail` is true and the error is not canceled
+		if dbPipeline.SkipOnFail && !errors.Is(err, gocontext.Canceled) {
 			err = nil
 		}
 	}()

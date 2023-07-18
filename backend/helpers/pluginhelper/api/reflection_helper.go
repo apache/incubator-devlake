@@ -17,18 +17,24 @@ limitations under the License.
 
 package api
 
-import "reflect"
+import (
+	"github.com/apache/incubator-devlake/core/models"
+	"reflect"
+)
 
 func reflectField(obj any, fieldName string) reflect.Value {
+	obj = models.UnwrapObject(obj)
 	return reflectValue(obj).FieldByName(fieldName)
 }
 
 func hasField(obj any, fieldName string) bool {
+	obj = models.UnwrapObject(obj)
 	_, ok := reflectType(obj).FieldByName(fieldName)
 	return ok
 }
 
 func reflectValue(obj any) reflect.Value {
+	obj = models.UnwrapObject(obj)
 	val := reflect.ValueOf(obj)
 	kind := val.Kind()
 	for kind == reflect.Ptr || kind == reflect.Interface {
@@ -39,6 +45,7 @@ func reflectValue(obj any) reflect.Value {
 }
 
 func reflectType(obj any) reflect.Type {
+	obj = models.UnwrapObject(obj)
 	typ := reflect.TypeOf(obj)
 	kind := typ.Kind()
 	for kind == reflect.Ptr {

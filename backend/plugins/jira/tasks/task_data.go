@@ -20,6 +20,7 @@ package tasks
 import (
 	"encoding/json"
 	"fmt"
+	"regexp"
 	"time"
 
 	"github.com/apache/incubator-devlake/core/errors"
@@ -38,21 +39,49 @@ type TypeMapping struct {
 	StatusMappings StatusMappings `json:"statusMappings"`
 }
 
+type CommitUrlPattern struct {
+	Pattern string `json:"pattern"`
+	Regex   string `json:"regex"`
+}
+
 type TypeMappings map[string]TypeMapping
 
 type JiraScopeConfig struct {
-	Entities                   []string     `json:"entities"`
-	ConnectionId               uint64       `mapstructure:"connectionId" json:"connectionId"`
-	Name                       string       `gorm:"type:varchar(255)" validate:"required"`
-	EpicKeyField               string       `json:"epicKeyField"`
-	StoryPointField            string       `json:"storyPointField"`
-	RemotelinkCommitShaPattern string       `json:"remotelinkCommitShaPattern"`
-	RemotelinkRepoPattern      []string     `json:"remotelinkRepoPattern"`
-	TypeMappings               TypeMappings `json:"typeMappings"`
-	ApplicationType            string       `json:"applicationType"`
+	Entities                   []string           `json:"entities"`
+	ConnectionId               uint64             `mapstructure:"connectionId" json:"connectionId"`
+	Name                       string             `gorm:"type:varchar(255)" validate:"required"`
+	EpicKeyField               string             `json:"epicKeyField"`
+	StoryPointField            string             `json:"storyPointField"`
+	RemotelinkCommitShaPattern string             `json:"remotelinkCommitShaPattern"`
+	RemotelinkRepoPattern      []CommitUrlPattern `json:"remotelinkRepoPattern"`
+	TypeMappings               TypeMappings       `json:"typeMappings"`
+	ApplicationType            string             `json:"applicationType"`
+}
+
+func (r *JiraScopeConfig) VerifyRegexp() errors.Error {
+	var err error
+	if r.RemotelinkCommitShaPattern != "" {
+		_, err = regexp.Compile(r.RemotelinkCommitShaPattern)
+		if err != nil {
+			return errors.Convert(err)
+		}
+	}
+	for _, pattern := range r.RemotelinkRepoPattern {
+		if pattern.Regex == "" {
+			return errors.BadInput.New("empty regex in remotelinkRepoPattern")
+		}
+		_, err = regexp.Compile(pattern.Regex)
+		if err != nil {
+			return errors.Convert(err)
+		}
+	}
+	return nil
 }
 
 func (r *JiraScopeConfig) ToDb() (*models.JiraScopeConfig, errors.Error) {
+	if err1 := r.VerifyRegexp(); err1 != nil {
+		return nil, err1
+	}
 	blob, err := json.Marshal(r.TypeMappings)
 	if err != nil {
 		return nil, errors.Default.Wrap(err, "error marshaling TypeMappings")
@@ -75,9 +104,6 @@ func (r *JiraScopeConfig) ToDb() (*models.JiraScopeConfig, errors.Error) {
 		ApplicationType:            r.ApplicationType,
 	}
 	scopeConfig.Entities = r.Entities
-	if err1 := scopeConfig.VerifyRegexp(); err1 != nil {
-		return nil, err1
-	}
 	return scopeConfig, nil
 }
 
@@ -90,7 +116,7 @@ func MakeScopeConfig(rule models.JiraScopeConfig) (*JiraScopeConfig, errors.Erro
 			return nil, errors.Default.Wrap(err, "unable to unmarshal the typeMapping")
 		}
 	}
-	var remotelinkRepoPattern []string
+	var remotelinkRepoPattern []CommitUrlPattern
 	if len(rule.RemotelinkRepoPattern) > 0 {
 		err = json.Unmarshal(rule.RemotelinkRepoPattern, &remotelinkRepoPattern)
 		if err != nil {
@@ -128,10 +154,7 @@ type JiraTaskData struct {
 	JiraServerInfo models.JiraServerInfo
 }
 
-type JiraApiParams struct {
-	ConnectionId uint64
-	BoardId      uint64
-}
+type JiraApiParams models.JiraApiParams
 
 func DecodeAndValidateTaskOptions(options map[string]interface{}) (*JiraOptions, errors.Error) {
 	var op JiraOptions

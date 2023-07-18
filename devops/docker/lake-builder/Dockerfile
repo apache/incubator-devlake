@@ -18,7 +18,7 @@ FROM --platform=linux/amd64 debian:bullseye as debian-amd64
 RUN apt-get -y update && apt -y upgrade &&\
     apt-get install -y libssh2-1-dev libssl-dev zlib1g-dev
 
-FROM golang:1.19.7-bullseye as builder
+FROM golang:1.20.4-bullseye as builder
 
 # Base dependencies
 RUN apt-get -y update && apt -y upgrade &&\
@@ -41,7 +41,7 @@ RUN \
     cp *libgit2* /tmp/deps/ &&\
     cp -r ../include /tmp/deps/include
 
-FROM python:3.9.9-slim-bullseye
+FROM python:3.9-slim-bullseye
 
 RUN apt -y update && apt -y upgrade && apt -y install tzdata make tar curl gcc g++ pkg-config git \
     libssh2-1 zlib1g libffi-dev  \
@@ -55,15 +55,15 @@ COPY --from=builder /tmp/deps/include/ /usr/include/
 ENV PKG_CONFIG_PATH=/usr/lib/x86_64-linux-gnu/pkgconfig
 
 # Install Golang
-RUN curl -L https://git.io/vQhTU | bash -s -- --version 1.19.7
+RUN curl -L https://git.io/vQhTU | bash -s -- --version 1.20.4
 RUN mv /root/go /go &&\
     mv /root/.go /usr/local/go &&\
     ln -sf /usr/local/go/bin/* /usr/bin
 
 # Install Golang Tools
 RUN export GOPATH=/go &&  \
-    go install github.com/vektra/mockery/v2@v2.14.0 &&  \
-    go install github.com/swaggo/swag/cmd/swag@v1.8.4
+    go install github.com/vektra/mockery/v2@v2.20.0 &&  \
+    go install github.com/swaggo/swag/cmd/swag@v1.8.12
 
 # Golang Env
 ENV GOPATH=/go

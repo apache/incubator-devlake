@@ -56,10 +56,12 @@ func TestMakeDataSourcePipelinePlanV200(t *testing.T) {
 	}
 	mockMeta := mockplugin.NewPluginMeta(t)
 	mockMeta.On("RootPkgPath").Return("github.com/apache/incubator-devlake/plugins/bitbucket")
+	mockMeta.On("Name").Return("bitbucket").Maybe()
 	err := plugin.RegisterPlugin("bitbucket", mockMeta)
 	assert.Nil(t, err)
 	// Refresh Global Variables and set the sql mock
-	mockBasicRes()
+	mockBasicRes(t)
+
 	bs := &plugin.BlueprintScopeV200{
 		Id: "1",
 	}
@@ -111,14 +113,14 @@ func TestMakeDataSourcePipelinePlanV200(t *testing.T) {
 		DomainEntity: domainlayer.DomainEntity{
 			Id: "bitbucket:BitbucketRepo:1:likyh/likyhphp",
 		},
-		Name: "test/testRepo",
+		Name: "likyh/likyhphp",
 	}
 
 	scopeTicket := &ticket.Board{
 		DomainEntity: domainlayer.DomainEntity{
 			Id: "bitbucket:BitbucketRepo:1:likyh/likyhphp",
 		},
-		Name:        "test/testRepo",
+		Name:        "likyh/likyhphp",
 		Description: "",
 		Url:         "",
 		CreatedDate: nil,
@@ -129,7 +131,7 @@ func TestMakeDataSourcePipelinePlanV200(t *testing.T) {
 	assert.Equal(t, expectScopes, scopes)
 }
 
-func mockBasicRes() {
+func mockBasicRes(t *testing.T) {
 	testBitbucketRepo := &models.BitbucketRepo{
 		ConnectionId:  1,
 		BitbucketId:   "likyh/likyhphp",
@@ -165,5 +167,7 @@ func mockBasicRes() {
 			*dst = *testScopeConfig
 		}).Return(nil)
 	})
-	Init(mockRes)
+	p := mockplugin.NewPluginMeta(t)
+	p.On("Name").Return("dummy").Maybe()
+	Init(mockRes, p)
 }

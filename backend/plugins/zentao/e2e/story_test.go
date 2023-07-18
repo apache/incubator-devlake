@@ -37,8 +37,17 @@ func TestZentaoStoryDataFlow(t *testing.T) {
 		Options: &tasks.ZentaoOptions{
 			ConnectionId: 1,
 			ProjectId:    1,
-			ProductId:    3,
+			ScopeConfigs: &tasks.ZentaoScopeConfigs{
+				TypeMappings: map[string]string{
+					"story.feature": "REQUIRE",
+				},
+				StoryStatusMappings: map[string]string{
+					"active": ticket.DONE,
+				},
+			},
 		},
+		Stories:      map[int64]struct{}{},
+		AccountCache: tasks.NewAccountCache(dataflowTester.Dal, 1),
 	}
 
 	// import raw data table
@@ -47,6 +56,7 @@ func TestZentaoStoryDataFlow(t *testing.T) {
 
 	// verify extraction
 	dataflowTester.FlushTabler(&models.ZentaoStory{})
+	dataflowTester.FlushTabler(&models.ZentaoProjectStory{})
 	dataflowTester.Subtask(tasks.ExtractStoryMeta, taskData)
 	dataflowTester.VerifyTableWithOptions(&models.ZentaoStory{}, e2ehelper.TableOptions{
 		CSVRelPath:  "./snapshot_tables/_tool_zentao_stories.csv",

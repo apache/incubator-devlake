@@ -19,10 +19,11 @@ package shared
 
 import (
 	"fmt"
+	"net/http"
+
 	"github.com/apache/incubator-devlake/core/errors"
 	"github.com/apache/incubator-devlake/core/models"
 	"github.com/apache/incubator-devlake/impls/logruslog"
-	"net/http"
 
 	"github.com/gin-gonic/gin"
 )
@@ -30,9 +31,10 @@ import (
 const BadRequestBody = "bad request body format"
 
 type ApiBody struct {
-	Success bool     `json:"success"`
-	Message string   `json:"message"`
-	Causes  []string `json:"causes"`
+	Success bool        `json:"success"`
+	Message string      `json:"message"`
+	Causes  []string    `json:"causes"`
+	Data    interface{} `json:"data"`
 }
 
 type ResponsePipelines struct {
