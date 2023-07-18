@@ -32,7 +32,7 @@ services:
       --skip-log-bin
 
   grafana:
-    image: apache/devlake-dashboard:v0.17.0
+    image: devlake.docker.scarf.sh/apache/devlake-dashboard:v0.17.0
     ports:
       - 3002:3000
     volumes:
@@ -49,7 +49,7 @@ services:
       - mysql
 
   devlake:
-    image: apache/devlake:v0.17.0
+    image: devlake.docker.scarf.sh/apache/devlake:v0.17.0
     ports:
       - 8080:8080
     restart: always
@@ -62,7 +62,7 @@ services:
       - mysql
 
   config-ui:
-    image: apache/devlake-config-ui:v0.17.0
+    image: devlake.docker.scarf.sh/apache/devlake-config-ui:v0.17.0
     ports:
       - 4000:4000
     env_file:
