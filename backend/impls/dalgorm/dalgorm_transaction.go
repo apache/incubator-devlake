@@ -68,19 +68,20 @@ func (t *DalgormTransaction) LockTables(lockTables dal.LockTables) errors.Error 
 		}
 		return t.Exec(fmt.Sprintf("LOCK TABLES %s", clause))
 	case "postgres":
-		clause := ""
 		for _, lockTable := range lockTables {
-			if clause != "" {
-				clause += ", "
-			}
-			clause += lockTable.TableName()
+			var clause string
 			if lockTable.Exclusive {
-				clause += "  IN EXCLUSIVE MODE"
+				clause = "EXCLUSIVE"
 			} else {
-				clause += "  IN SHARE MODE"
+				clause = "SHARE"
+			}
+			stmt := fmt.Sprintf("LOCK TABLE %s IN %s MODE;", lockTable.TableName(), clause)
+			err := t.Exec(stmt)
+			if err != nil {
+				return err
 			}
 		}
-		return t.Exec(fmt.Sprintf("LOCK TABLE %s", clause))
+		return nil
 	default:
 		panic(fmt.Errorf("unknown dialect %s", t.Dialect()))
 	}
