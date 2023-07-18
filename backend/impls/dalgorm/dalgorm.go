@@ -415,6 +415,18 @@ func (d *Dalgorm) IsDuplicationError(err error) bool {
 	return strings.Contains(strings.ToLower(err.Error()), "duplicate")
 }
 
+// IsCachedPlanError checks if the error is related to postgres cached query plan
+// This error occurs occasionally in Postgres when reusing a cached query
+// plan. It can be safely ignored since it does not actually affect results.
+func (d *Dalgorm) IsCachedPlanError(err error) bool {
+	return strings.Contains(strings.ToLower(err.Error()), "cached plan must not change result type")
+}
+
+// IsJsonOrderError checks if the error is related to postgres json ordering
+func (d *Dalgorm) IsJsonOrderError(err error) bool {
+	return strings.Contains(err.Error(), "identify an ordering operator for type json")
+}
+
 // RawCursor (Deprecated) executes raw sql query and returns a database cursor
 func (d *Dalgorm) RawCursor(query string, params ...interface{}) (*sql.Rows, errors.Error) {
 	rows, err := d.db.Raw(query, params...).Rows()
@@ -436,5 +448,12 @@ func (d *Dalgorm) convertGormError(err error) errors.Error {
 	if d.IsDuplicationError(err) {
 		return errors.BadInput.WrapRaw(err)
 	}
+	if d.IsJsonOrderError(err) {
+		return errors.BadInput.WrapRaw(err)
+	}
+	if d.IsCachedPlanError(err) {
+		return nil
+	}
+
 	panic(err)
 }
