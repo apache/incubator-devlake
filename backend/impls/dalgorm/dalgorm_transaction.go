@@ -87,13 +87,6 @@ func (t *DalgormTransaction) LockTables(lockTables dal.LockTables) errors.Error 
 	}
 }
 
-func getLockMode(exclusive bool) string {
-	if exclusive {
-		return "EXCLUSIVE"
-	}
-	return "SHARE"
-}
-
 func (t *DalgormTransaction) UnlockTables() errors.Error {
 	switch t.Dialect() {
 	case "mysql":
