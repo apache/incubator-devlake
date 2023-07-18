@@ -19,7 +19,9 @@ package api
 
 import (
 	"fmt"
+	"github.com/apache/incubator-devlake/core/dal"
 	"net/http"
+	"strconv"
 
 	"github.com/apache/incubator-devlake/core/errors"
 	"github.com/apache/incubator-devlake/core/plugin"
@@ -73,7 +75,15 @@ func PatchConnection(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput,
 // @Failure 500  {string} errcode.Error "Internal Error"
 // @Router /plugins/webhook/connections/{connectionId} [DELETE]
 func DeleteConnection(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, errors.Error) {
-	return connectionHelper.Delete(&models.WebhookConnection{}, input)
+	connectionId, e := strconv.ParseInt(input.Params["connectionId"], 10, 64)
+	if e != nil {
+		return nil, errors.BadInput.WrapRaw(e)
+	}
+	err := basicRes.GetDal().Delete(&models.WebhookConnection{}, dal.Where("id = ?", connectionId))
+	if err != nil {
+		return nil, err
+	}
+	return &plugin.ApiResourceOutput{Status: http.StatusOK}, nil
 }
 
 type WebhookConnectionResponse struct {
