@@ -16,8 +16,9 @@
  *
  */
 
-import { createBrowserRouter, Navigate } from 'react-router-dom';
+import { createBrowserRouter, Navigate, RouterProvider } from 'react-router-dom';
 
+import { PageLoading } from '@/components';
 import { ErrorLayout, BaseLayout } from '@/layouts';
 import {
   OfflinePage,
@@ -30,11 +31,13 @@ import {
   BlueprintDetailPage,
   BlueprintConnectionDetailPage,
 } from '@/pages';
+import { Error } from '@/routes/error';
 
-export const router = createBrowserRouter([
+const router = createBrowserRouter([
   {
     path: '',
     element: <ErrorLayout />,
+    errorElement: <Error />,
     children: [
       {
         path: 'offline',
@@ -49,6 +52,7 @@ export const router = createBrowserRouter([
   {
     path: '/',
     element: <BaseLayout />,
+    errorElement: <Error />,
     children: [
       {
         index: true,
@@ -89,3 +93,5 @@ export const router = createBrowserRouter([
     ],
   },
 ]);
+
+export const App = () => <RouterProvider router={router} fallbackElement={<PageLoading />} />;

@@ -31,7 +31,7 @@ export const Wrapper = styled.div`
 
 export const Inner = styled.div`
   margin: 32px auto 0;
-  width: 640px;
+  width: 820px;
 
   h2 {
     display: flex;
