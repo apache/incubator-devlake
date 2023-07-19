@@ -73,7 +73,7 @@ func constructDependenciesByTable(metas []*plugin.SubTaskMeta) []*plugin.SubTask
 
 func keys[T comparable](raw map[T]any) []T {
 	list := make([]T, 0)
-	for key, _ := range raw {
+	for key := range raw {
 		list = append(list, key)
 	}
 	return list
