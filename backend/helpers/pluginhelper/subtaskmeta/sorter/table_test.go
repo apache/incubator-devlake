@@ -28,12 +28,12 @@ func Test_tableTopologicalSort(t *testing.T) {
 	pluginA := plugin.SubTaskMeta{
 		Name:             "A",
 		DependencyTables: []string{},
-		ProductTables:    []string{"_TOOL_TEST_TABLE"},
+		ProductTables:    []string{"_TOOL_TEST_TABLE", "_TOOL_TEST_TABLE2"},
 	}
 	pluginB := plugin.SubTaskMeta{
 		Name:             "B",
 		DependencyTables: []string{"_TOOL_TEST_TABLE"},
-		ProductTables:    []string{"_TOOL_TEST_TABLE2"},
+		ProductTables:    []string{"_TOOL_TEST_TABLE2", "_TOOL_TEST_TABLE3"},
 	}
 	pluginC := plugin.SubTaskMeta{
 		Name:             "C",
@@ -42,7 +42,7 @@ func Test_tableTopologicalSort(t *testing.T) {
 	}
 	pluginD := plugin.SubTaskMeta{
 		Name:             "D",
-		DependencyTables: []string{"_TOOL_TEST_TABLE3"},
+		DependencyTables: []string{"_TOOL_TEST_TABLE2", "_TOOL_TEST_TABLE3"},
 		ProductTables:    []string{"_TOOL_TEST_TABLE4"},
 	}
 

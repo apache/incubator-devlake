@@ -52,23 +52,29 @@ func constructDependenciesByTable(metas []*plugin.SubTaskMeta) []*plugin.SubTask
 		}
 	}
 	// construct meta dependencies by meta.TableDependencies
+	// use noDupMap to deduplicate dependencies of meta
+	noDupMap := make(map[*plugin.SubTaskMeta]map[*plugin.SubTaskMeta]any)
 	for _, metaItem := range metas {
-		for _, tableItem := range metaItem.DependencyTables {
-			metaItem.Dependencies = appendWithNoDuplicate(metaItem.Dependencies,
-				tableMetasMap[tableItem])
+		// convert dependency tables to dependency metas
+		dependenciesMap, ok := noDupMap[metaItem]
+		if !ok {
+			noDupMap[metaItem] = make(map[*plugin.SubTaskMeta]any)
+			dependenciesMap = noDupMap[metaItem]
 		}
+		for _, tableItem := range metaItem.DependencyTables {
+			for _, item := range tableMetasMap[tableItem] {
+				dependenciesMap[item] = ""
+			}
+		}
+		metaItem.Dependencies = keys(dependenciesMap)
 	}
 	return metas
 }
 
-func appendWithNoDuplicate[T comparable](raw []T, extraList []T) []T {
-	noDupMap := make(map[T]string)
-	for _, item := range append(raw, extraList...) {
-		noDupMap[item] = ""
+func keys[T comparable](raw map[T]any) []T {
+	list := make([]T, 0)
+	for key, _ := range raw {
+		list = append(list, key)
 	}
-	result := make([]T, 0)
-	for key := range noDupMap {
-		result = append(result, key)
-	}
-	return result
+	return list
 }
