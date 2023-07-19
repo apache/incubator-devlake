@@ -76,7 +76,7 @@ func newPlugin(info *models.PluginInfo, invoker bridge.Invoker) (*remotePluginIm
 		models.NewDynamicScopeModel(scopeTabler),
 	}
 	for _, toolModelInfo := range info.ToolModelInfos {
-		toolModelTabler, err := toolModelInfo.LoadDynamicTabler(common.NoPKModel{})
+		toolModelTabler, err := toolModelInfo.LoadDynamicTabler(models.ToolModel{})
 		if err != nil {
 			return nil, errors.Default.Wrap(err, fmt.Sprintf("Couldn't load ToolModel type for plugin %s", info.Name))
 		}
