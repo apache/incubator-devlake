@@ -36,10 +36,10 @@ func Test_topologicalSortSameElements(t *testing.T) {
 			name: "correct stable sort",
 			args: args{
 				map[string][]string{
-					"Aa": []string{"B", "C"},
-					"Ac": []string{"B", "C"},
-					"B":  []string{"C"},
-					"C":  []string{},
+					"Aa": {"B", "C"},
+					"Ac": {"B", "C"},
+					"B":  {"C"},
+					"C":  {},
 				},
 			},
 			want:    []string{"C", "B", "Aa", "Ac"},
@@ -49,9 +49,9 @@ func Test_topologicalSortSameElements(t *testing.T) {
 			name: "cyclic error",
 			args: args{
 				map[string][]string{
-					"A": []string{"B", "C"},
-					"B": []string{"C"},
-					"C": []string{"A"},
+					"A": {"B", "C"},
+					"B": {"C"},
+					"C": {"A"},
 				},
 			},
 			want:    nil,

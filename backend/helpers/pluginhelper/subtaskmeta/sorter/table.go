@@ -67,7 +67,7 @@ func appendWithNoDuplicate[T comparable](raw []T, extraList []T) []T {
 		noDupMap[item] = ""
 	}
 	result := make([]T, 0)
-	for key, _ := range noDupMap {
+	for key := range noDupMap {
 		result = append(result, key)
 	}
 	return result
