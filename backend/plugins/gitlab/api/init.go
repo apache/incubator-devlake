@@ -44,7 +44,7 @@ func Init(br context.BasicRes, p plugin.PluginMeta) {
 	params := &api.ReflectionParameters{
 		ScopeIdFieldName:  "GitlabId",
 		ScopeIdColumnName: "gitlab_id",
-		RawScopeParamName: "ProjectId",
+		RawScopeParamName: "name",
 	}
 	scopeHelper = api.NewScopeHelper[models.GitlabConnection, models.GitlabProject, models.GitlabScopeConfig](
 		basicRes,
