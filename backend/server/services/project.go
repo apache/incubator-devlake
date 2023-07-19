@@ -379,6 +379,10 @@ func makeProjectOutput(baseProject *models.BaseProject, withLatestPipeLine bool)
 		} else {
 			pipelines, pipelinesCount, err := GetPipelines(&PipelineQuery{
 				BlueprintId: projectOutput.Blueprint.ID,
+				Pagination: Pagination{
+					PageSize: 1,
+					Page:     1,
+				},
 			})
 			if err != nil {
 				logger.Error(err, "GetPipelines, blueprint id: %d", projectOutput.Blueprint.ID)
