@@ -19,12 +19,17 @@ package tasks
 
 import (
 	"encoding/json"
+	"strings"
+
 	"github.com/apache/incubator-devlake/core/errors"
 	"github.com/apache/incubator-devlake/core/plugin"
 	"github.com/apache/incubator-devlake/helpers/pluginhelper/api"
 	"github.com/apache/incubator-devlake/plugins/github/models"
-	"strings"
 )
+
+func init() {
+	RegisterSubtaskMeta(&ExtractApiPullRequestReviewsMeta)
+}
 
 var ExtractApiPullRequestReviewsMeta = plugin.SubTaskMeta{
 	Name:             "extractApiPullRequestReviews",
@@ -32,6 +37,11 @@ var ExtractApiPullRequestReviewsMeta = plugin.SubTaskMeta{
 	EnabledByDefault: true,
 	Description:      "Extract raw PullRequestReviewers data into tool layer table github_reviewers",
 	DomainTypes:      []string{plugin.DOMAIN_TYPE_CROSS, plugin.DOMAIN_TYPE_CODE_REVIEW},
+	DependencyTables: []string{RAW_PR_REVIEW_TABLE},
+	ProductTables: []string{
+		models.GithubRepoAccount{}.TableName(),
+		models.GithubReviewer{}.TableName(),
+		models.GithubPrReview{}.TableName()},
 }
 
 type PullRequestReview struct {

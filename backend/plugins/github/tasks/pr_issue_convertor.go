@@ -18,6 +18,8 @@ limitations under the License.
 package tasks
 
 import (
+	"reflect"
+
 	"github.com/apache/incubator-devlake/core/dal"
 	"github.com/apache/incubator-devlake/core/errors"
 	"github.com/apache/incubator-devlake/core/models/domainlayer/crossdomain"
@@ -25,15 +27,23 @@ import (
 	"github.com/apache/incubator-devlake/core/plugin"
 	"github.com/apache/incubator-devlake/helpers/pluginhelper/api"
 	"github.com/apache/incubator-devlake/plugins/github/models"
-	"reflect"
 )
+
+func init() {
+	RegisterSubtaskMeta(&ConvertPullRequestIssuesMeta)
+}
 
 var ConvertPullRequestIssuesMeta = plugin.SubTaskMeta{
 	Name:             "convertPullRequestIssues",
 	EntryPoint:       ConvertPullRequestIssues,
 	EnabledByDefault: true,
-	Description:      "Convert tool layer table github_pull_request_issues into  domain layer table pull_request_issues",
+	Description:      "Convert tool layer table github_pull_request_issues into domain layer table pull_request_issues",
 	DomainTypes:      []string{plugin.DOMAIN_TYPE_CROSS},
+	DependencyTables: []string{
+		models.GithubPrIssue{}.TableName(),     // cursor and id generator
+		models.GithubPullRequest{}.TableName(), // cursor and id generator
+		RAW_PULL_REQUEST_TABLE},
+	ProductTables: []string{crossdomain.PullRequestIssue{}.TableName()},
 }
 
 func ConvertPullRequestIssues(taskCtx plugin.SubTaskContext) errors.Error {

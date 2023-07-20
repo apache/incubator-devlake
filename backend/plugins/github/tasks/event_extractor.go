@@ -19,11 +19,16 @@ package tasks
 
 import (
 	"encoding/json"
+
 	"github.com/apache/incubator-devlake/core/errors"
 	"github.com/apache/incubator-devlake/core/plugin"
 	"github.com/apache/incubator-devlake/helpers/pluginhelper/api"
 	"github.com/apache/incubator-devlake/plugins/github/models"
 )
+
+func init() {
+	RegisterSubtaskMeta(&ExtractApiEventsMeta)
+}
 
 var ExtractApiEventsMeta = plugin.SubTaskMeta{
 	Name:             "extractApiEvents",
@@ -31,6 +36,8 @@ var ExtractApiEventsMeta = plugin.SubTaskMeta{
 	EnabledByDefault: true,
 	Description:      "Extract raw Events data into tool layer table github_issue_events",
 	DomainTypes:      []string{plugin.DOMAIN_TYPE_TICKET},
+	DependencyTables: []string{RAW_EVENTS_TABLE},
+	ProductTables:    []string{models.GithubIssueEvent{}.TableName()},
 }
 
 type IssueEvent struct {

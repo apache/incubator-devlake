@@ -28,12 +28,21 @@ import (
 	"github.com/apache/incubator-devlake/plugins/github/models"
 )
 
+func init() {
+	RegisterSubtaskMeta(&ExtractApiPullRequestCommitsMeta)
+}
+
 var ExtractApiPullRequestCommitsMeta = plugin.SubTaskMeta{
 	Name:             "extractApiPullRequestCommits",
 	EntryPoint:       ExtractApiPullRequestCommits,
 	EnabledByDefault: true,
 	Description:      "Extract raw PullRequestCommits data into tool layer table github_commits",
 	DomainTypes:      []string{plugin.DOMAIN_TYPE_CROSS, plugin.DOMAIN_TYPE_CODE_REVIEW},
+	DependencyTables: []string{RAW_PR_COMMIT_TABLE},
+	ProductTables: []string{
+		models.GithubRepoCommit{}.TableName(),
+		models.GithubCommit{}.TableName(),
+		models.GithubPrCommit{}.TableName()},
 }
 
 type PrCommitsResponse struct {

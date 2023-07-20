@@ -15,10 +15,12 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-package subtaskmeta_sorter
+package tasks
 
 import "github.com/apache/incubator-devlake/core/plugin"
 
-type SubTaskMetaSorter interface {
-	Sort() ([]plugin.SubTaskMeta, error)
+var SubTaskMetaList []*plugin.SubTaskMeta
+
+func RegisterSubtaskMeta(meta *plugin.SubTaskMeta) {
+	SubTaskMetaList = append(SubTaskMetaList, meta)
 }

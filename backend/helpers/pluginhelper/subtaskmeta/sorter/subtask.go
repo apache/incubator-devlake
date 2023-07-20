@@ -15,12 +15,14 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-package subtaskmeta_sorter
+package sorter
 
 import (
 	"fmt"
+
+	"github.com/apache/incubator-devlake/core/errors"
+
 	"github.com/apache/incubator-devlake/core/plugin"
-	"sort"
 )
 
 type DependencySorter struct {
@@ -31,12 +33,12 @@ func NewDependencySorter(metas []*plugin.SubTaskMeta) SubTaskMetaSorter {
 	return &DependencySorter{metas: metas}
 }
 
-func (d *DependencySorter) Sort() ([]plugin.SubTaskMeta, error) {
-	return topologicalSort(d.metas)
+func (d *DependencySorter) Sort() ([]plugin.SubTaskMeta, errors.Error) {
+	return dependenciesTopologicalSort(d.metas)
 }
 
 // stable topological sort
-func topologicalSort(metas []*plugin.SubTaskMeta) ([]plugin.SubTaskMeta, error) {
+func dependenciesTopologicalSort(metas []*plugin.SubTaskMeta) ([]plugin.SubTaskMeta, errors.Error) {
 	// which state will make a cycle
 	dependenciesMap := make(map[string][]string)
 	nameMetaMap := make(map[string]*plugin.SubTaskMeta)
@@ -56,63 +58,25 @@ func topologicalSort(metas []*plugin.SubTaskMeta) ([]plugin.SubTaskMeta, error) 
 				dependenciesMap[item.Name] = make([]string, 0)
 			}
 		} else {
-			return nil, fmt.Errorf("duplicate subtaskmetas detected in list: %s", item.Name)
+			return nil, errors.Convert(fmt.Errorf("duplicate subtaskmetas detected in list: %s", item.Name))
 		}
 	}
 
+	// sort
+	orderStrList, err := topologicalSortSameElements(dependenciesMap)
+	if err != nil {
+		return nil, errors.Convert(err)
+	}
+
+	// gen list by sorted name list and return
 	orderedSubtaskList := make([]plugin.SubTaskMeta, 0)
-	for {
-		if len(dependenciesMap) == 0 {
-			break
+	for _, item := range orderStrList {
+		value, ok := nameMetaMap[item]
+		if !ok {
+			return nil, errors.Convert(fmt.Errorf("illeagal subtaskmeta detected %s", item))
 		}
-
-		tmpList := make([]string, 0)
-		for key, item := range dependenciesMap {
-			if len(item) == 0 {
-				tmpList = append(tmpList, key)
-			}
-		}
-		if len(tmpList) == 0 {
-			return nil, fmt.Errorf("cyclic dependency detected: %v", dependenciesMap)
-		}
-
-		// remove item in dependencies map
-		for key, value := range dependenciesMap {
-			if contains(tmpList, key) {
-				delete(dependenciesMap, key)
-			} else {
-				dependenciesMap[key] = removeElements(value, tmpList)
-			}
-		}
-
-		sort.Strings(tmpList)
-		// convert item to subtaskmeta by name, and append to orderedSubtaskList
-		for _, item := range tmpList {
-			value, ok := nameMetaMap[item]
-			if !ok {
-				return nil, fmt.Errorf("illeagal subtaskmeta detected %s", item)
-			}
-			orderedSubtaskList = append(orderedSubtaskList, *value)
-		}
+		orderedSubtaskList = append(orderedSubtaskList, *value)
 	}
+
 	return orderedSubtaskList, nil
-}
-
-func contains[T comparable](itemList []T, item T) bool {
-	for _, newItem := range itemList {
-		if item == newItem {
-			return true
-		}
-	}
-	return false
-}
-
-func removeElements[T comparable](raw, toRemove []T) []T {
-	newList := make([]T, 0)
-	for _, item := range raw {
-		if !contains(toRemove, item) {
-			newList = append(newList, item)
-		}
-	}
-	return newList
 }

@@ -18,6 +18,8 @@ limitations under the License.
 package tasks
 
 import (
+	"reflect"
+
 	"github.com/apache/incubator-devlake/core/dal"
 	"github.com/apache/incubator-devlake/core/errors"
 	"github.com/apache/incubator-devlake/core/models/common"
@@ -27,8 +29,11 @@ import (
 	"github.com/apache/incubator-devlake/core/plugin"
 	"github.com/apache/incubator-devlake/helpers/pluginhelper/api"
 	"github.com/apache/incubator-devlake/plugins/github/models"
-	"reflect"
 )
+
+func init() {
+	RegisterSubtaskMeta(&ConvertMilestonesMeta)
+}
 
 var ConvertMilestonesMeta = plugin.SubTaskMeta{
 	Name:             "convertMilestones",
@@ -36,6 +41,15 @@ var ConvertMilestonesMeta = plugin.SubTaskMeta{
 	EnabledByDefault: true,
 	Description:      "Convert tool layer table github_milestones into  domain layer table milestones",
 	DomainTypes:      []string{plugin.DOMAIN_TYPE_TICKET},
+	DependencyTables: []string{
+		models.GithubIssue{}.TableName(),     // cursor
+		models.GithubMilestone{}.TableName(), // cursor
+		//models.GithubRepo{}.TableName(),      // id generator, but config not regard as dependency
+		RAW_MILESTONE_TABLE},
+	ProductTables: []string{
+		ticket.Sprint{}.TableName(),
+		ticket.BoardSprint{}.TableName(),
+		ticket.SprintIssue{}.TableName()},
 }
 
 type MilestoneConverterModel struct {
