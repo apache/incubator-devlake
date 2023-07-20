@@ -16,21 +16,9 @@
  *
  */
 
-import React from 'react';
 import ReactDOM from 'react-dom';
-import { RouterProvider } from 'react-router-dom';
 
-import { ErrorBoundary } from '@/components';
-
-import { router } from './router';
-
+import { App } from './App';
 import './index.css';
 
-ReactDOM.render(
-  <React.StrictMode>
-    <ErrorBoundary>
-      <RouterProvider router={router} />
-    </ErrorBoundary>
-  </React.StrictMode>,
-  document.getElementById('root'),
-);
+ReactDOM.render(<App />, document.getElementById('root'));
