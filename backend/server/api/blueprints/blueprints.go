@@ -181,9 +181,12 @@ func Trigger(c *gin.Context) {
 		return
 	}
 
-	var body struct {
+	var body = struct {
 		SkipCollectors bool `json:"skipCollectors"`
+	}{
+		SkipCollectors: false,
 	}
+
 	err = c.ShouldBindJSON(&body)
 	if err != nil {
 		shared.ApiOutputError(c, errors.BadInput.Wrap(err, "error binding request body"))
