@@ -16,7 +16,7 @@
  *
  */
 
-export * from './blueprint';
-export * from './connection';
-export * from './pipeline';
-export * from './project';
+export enum ErrorEnum {
+  API_OFFLINE = 'API_OFFLINE',
+  NEEDS_DB_MIRGATE = 'NEEDS_DB_MIRGATE',
+}

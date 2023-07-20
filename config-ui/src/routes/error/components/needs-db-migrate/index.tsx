@@ -25,7 +25,7 @@ import { operator } from '@/utils';
 
 import * as API from './api';
 
-export const DBMigratePage = () => {
+export const NeedsDBMigrate = () => {
   const [operating, setOperating] = useState(false);
 
   const navigate = useNavigate();

@@ -17,13 +17,15 @@
  */
 
 import { useState, useEffect, useRef } from 'react';
-import { Outlet, useNavigate, useLocation } from 'react-router-dom';
+import { useLoaderData, Outlet, useNavigate, useLocation, json } from 'react-router-dom';
 import { CSSTransition } from 'react-transition-group';
 import { Menu, MenuItem, Navbar, Alignment } from '@blueprintjs/core';
+import { AxiosError } from 'axios';
 
-import { PageLoading, Logo, ExternalLink, IconButton } from '@/components';
-import { useTips, useRefreshData } from '@/hooks';
+import { Logo, ExternalLink, IconButton } from '@/components';
+import { useTips } from '@/hooks';
 import { TipsContextProvider, ConnectionContextProvider } from '@/store';
+import { ErrorEnum } from '@/routes/error';
 
 import DashboardIcon from '@/images/icons/dashboard.svg';
 import FileIcon from '@/images/icons/file.svg';
@@ -36,22 +38,27 @@ import * as API from './api';
 import * as S from './styled';
 import './tips-transition.css';
 
+export const loader = async ({ request }: { request: Request }) => {
+  try {
+    return await API.getVersion(request.signal);
+  } catch (err) {
+    const status = (err as AxiosError).response?.status;
+
+    if (status === 428) {
+      throw json({ error: ErrorEnum.NEEDS_DB_MIRGATE }, { status: 428 });
+    }
+
+    throw json({ error: ErrorEnum.API_OFFLINE }, { status: 503 });
+  }
+};
+
 export const BaseLayout = () => {
-  const navigate = useNavigate();
-  const { ready, data, error } = useRefreshData<{ version: string }>(() => API.getVersion(), []);
-
-  if (error) {
-    navigate('/offline');
-  }
-
-  if (!ready || !data) {
-    return <PageLoading />;
-  }
+  const { version } = useLoaderData() as Awaited<ReturnType<typeof loader>>;
 
   return (
     <TipsContextProvider>
       <ConnectionContextProvider>
-        <Layout version={data.version}>
+        <Layout version={version}>
           <Outlet />
         </Layout>
       </ConnectionContextProvider>

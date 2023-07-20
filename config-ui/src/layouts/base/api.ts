@@ -24,5 +24,5 @@ export type UserInfo = {
   logoutURI: string;
 };
 
-export const getVersion = () => request('/version');
+export const getVersion = (signal?: AbortSignal): Promise<{ version: string }> => request('/version', { signal });
 export const getUserInfo = (): Promise<UserInfo> => request('/userinfo');
