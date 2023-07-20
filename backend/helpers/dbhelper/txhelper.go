@@ -19,7 +19,6 @@ package dbhelper
 
 import (
 	"fmt"
-	"reflect"
 	"time"
 
 	"github.com/apache/incubator-devlake/core/context"
@@ -70,17 +69,19 @@ func (l *TxHelper[E]) End() {
 	}
 	var msg string
 	err := *l.perr
-	if !reflect.ValueOf(err).IsValid() {
+	if interface{}(err) == nil {
+		msg = ""
 		r := recover()
-		msg = fmt.Sprintf("%v", r)
+		if r != nil {
+			msg = fmt.Sprintf("%v", r)
+		}
 	} else {
 		msg = err.Error()
 	}
+
 	if msg == "" {
 		errors.Must(l.tx.Commit())
-	}
-	if msg != "" {
-		// l.basicRes.GetLogger().Error(fmt.Errorf(msg), "TxHelper")
+	} else {
 		_ = l.tx.UnlockTables()
 		_ = l.tx.Rollback()
 	}
