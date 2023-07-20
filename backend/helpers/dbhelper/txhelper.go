@@ -81,8 +81,7 @@ func (l *TxHelper[E]) End() {
 
 	if msg == "" {
 		errors.Must(l.tx.Commit())
-	}
-	if msg != "" {
+	} else {
 		_ = l.tx.UnlockTables()
 		_ = l.tx.Rollback()
 	}
