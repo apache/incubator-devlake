@@ -112,12 +112,12 @@ func convertScopeResponse(scopes ...*api.ScopeRes[models.DynamicScopeModel, mode
 		if err != nil {
 			return nil, err
 		}
-		scopeMap := map[string]any{}
+		scopeMap := map[string]map[string]any{}
 		err = models.MapTo(scope.Scope, &scopeMap)
 		if err != nil {
 			return nil, err
 		}
-		for k, v := range scopeMap {
+		for k, v := range scopeMap["DynamicTabler"] {
 			resMap[k] = v
 		}
 		responses[i] = resMap
