@@ -62,7 +62,8 @@ type ApiInputProject struct {
 }
 
 type ApiOutputProject struct {
-	BaseProject `mapstructure:",squash"`
-	Metrics     *[]BaseMetric `json:"metrics" mapstructure:"metrics"`
-	Blueprint   *Blueprint    `json:"blueprint" mapstructure:"blueprint"`
+	BaseProject    `mapstructure:",squash"`
+	Metrics        *[]BaseMetric `json:"metrics" mapstructure:"metrics"`
+	Blueprint      *Blueprint    `json:"blueprint" mapstructure:"blueprint"`
+	LatestPipeLine *Pipeline     `json:"latest_pipeline,omitempty" mapstructure:"latest_pipeline"`
 }
