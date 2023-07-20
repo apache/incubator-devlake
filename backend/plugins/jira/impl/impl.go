@@ -27,6 +27,7 @@ import (
 	"github.com/apache/incubator-devlake/core/errors"
 	"github.com/apache/incubator-devlake/core/plugin"
 	helper "github.com/apache/incubator-devlake/helpers/pluginhelper/api"
+	"github.com/apache/incubator-devlake/helpers/pluginhelper/subtaskmeta/sorter"
 	"github.com/apache/incubator-devlake/plugins/jira/api"
 	"github.com/apache/incubator-devlake/plugins/jira/models"
 	"github.com/apache/incubator-devlake/plugins/jira/models/migrationscripts"
@@ -46,6 +47,17 @@ var _ interface {
 } = (*Jira)(nil)
 
 type Jira struct {
+}
+
+var sortedSubtaskMetas []plugin.SubTaskMeta
+
+func init() {
+	var err error
+	// check subtask meta loop and gen subtask list when plugin init
+	sortedSubtaskMetas, err = sorter.NewTableSorter(tasks.SubTaskMetaList).Sort()
+	if err != nil {
+		panic(err)
+	}
 }
 
 func (p Jira) Connection() dal.Tabler {
@@ -102,61 +114,7 @@ func (p Jira) Name() string {
 }
 
 func (p Jira) SubTaskMetas() []plugin.SubTaskMeta {
-	return []plugin.SubTaskMeta{
-		tasks.CollectStatusMeta,
-		tasks.ExtractStatusMeta,
-
-		tasks.CollectProjectsMeta,
-		tasks.ExtractProjectsMeta,
-
-		tasks.CollectIssueTypesMeta,
-		tasks.ExtractIssueTypesMeta,
-
-		tasks.CollectIssuesMeta,
-		tasks.ExtractIssuesMeta,
-
-		tasks.ConvertIssueLabelsMeta,
-
-		tasks.CollectIssueCommentsMeta,
-		tasks.ExtractIssueCommentsMeta,
-
-		tasks.CollectIssueChangelogsMeta,
-		tasks.ExtractIssueChangelogsMeta,
-
-		tasks.CollectAccountsMeta,
-
-		tasks.CollectWorklogsMeta,
-		tasks.ExtractWorklogsMeta,
-
-		tasks.CollectRemotelinksMeta,
-		tasks.ExtractRemotelinksMeta,
-
-		tasks.CollectSprintsMeta,
-		tasks.ExtractSprintsMeta,
-
-		tasks.ConvertBoardMeta,
-
-		tasks.ConvertIssuesMeta,
-		tasks.ConvertIssueCommentsMeta,
-		tasks.ConvertWorklogsMeta,
-		tasks.ConvertIssueChangelogsMeta,
-		tasks.ConvertIssueRelationshipsMeta,
-
-		tasks.ConvertSprintsMeta,
-		tasks.ConvertSprintIssuesMeta,
-
-		tasks.CollectDevelopmentPanelMeta,
-		tasks.ExtractDevelopmentPanelMeta,
-
-		tasks.ConvertIssueCommitsMeta,
-		tasks.ConvertIssueRepoCommitsMeta,
-
-		tasks.ExtractAccountsMeta,
-		tasks.ConvertAccountsMeta,
-
-		tasks.CollectEpicsMeta,
-		tasks.ExtractEpicsMeta,
-	}
+	return sortedSubtaskMetas
 }
 
 func (p Jira) PrepareTaskData(taskCtx plugin.TaskContext, options map[string]interface{}) (interface{}, errors.Error) {

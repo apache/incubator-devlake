@@ -26,8 +26,13 @@ import (
 	"github.com/apache/incubator-devlake/core/errors"
 	"github.com/apache/incubator-devlake/core/plugin"
 	"github.com/apache/incubator-devlake/helpers/pluginhelper/api"
+	"github.com/apache/incubator-devlake/plugins/jira/models"
 	"github.com/apache/incubator-devlake/plugins/jira/tasks/apiv2models"
 )
+
+func init() {
+	RegisterSubtaskMeta(&CollectRemotelinksMeta)
+}
 
 const RAW_REMOTELINK_TABLE = "jira_api_remotelinks"
 
@@ -39,6 +44,10 @@ var CollectRemotelinksMeta = plugin.SubTaskMeta{
 	EnabledByDefault: true,
 	Description:      "collect Jira remote links, supports both timeFilter and diffSync.",
 	DomainTypes:      []string{plugin.DOMAIN_TYPE_TICKET},
+	DependencyTables: []string{
+		models.JiraBoardIssue{}.TableName(), // cursor
+		models.JiraIssue{}.TableName()},     // cursor
+	ProductTables: []string{RAW_REMOTELINK_TABLE},
 }
 
 func CollectRemotelinks(taskCtx plugin.SubTaskContext) errors.Error {

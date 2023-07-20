@@ -19,11 +19,17 @@ package tasks
 
 import (
 	"encoding/json"
+
 	"github.com/apache/incubator-devlake/core/errors"
 	"github.com/apache/incubator-devlake/core/plugin"
 	"github.com/apache/incubator-devlake/helpers/pluginhelper/api"
+	"github.com/apache/incubator-devlake/plugins/jira/models"
 	"github.com/apache/incubator-devlake/plugins/jira/tasks/apiv2models"
 )
+
+func init() {
+	RegisterSubtaskMeta(&ExtractAccountsMeta)
+}
 
 var _ plugin.SubTaskEntryPoint = ExtractAccounts
 
@@ -33,6 +39,8 @@ var ExtractAccountsMeta = plugin.SubTaskMeta{
 	EnabledByDefault: true,
 	Description:      "extract Jira users",
 	DomainTypes:      []string{plugin.DOMAIN_TYPE_CROSS},
+	DependencyTables: []string{RAW_USERS_TABLE},
+	ProductTables:    []string{models.JiraAccount{}.TableName()},
 }
 
 func ExtractAccounts(taskCtx plugin.SubTaskContext) errors.Error {

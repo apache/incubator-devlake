@@ -20,17 +20,22 @@ package tasks
 import (
 	"encoding/json"
 	"fmt"
-	"github.com/apache/incubator-devlake/core/dal"
-	"github.com/apache/incubator-devlake/plugins/jira/models"
 	"io"
 	"net/http"
 	"net/url"
 	"time"
 
+	"github.com/apache/incubator-devlake/core/dal"
+	"github.com/apache/incubator-devlake/plugins/jira/models"
+
 	"github.com/apache/incubator-devlake/core/errors"
 	"github.com/apache/incubator-devlake/core/plugin"
 	"github.com/apache/incubator-devlake/helpers/pluginhelper/api"
 )
+
+func init() {
+	RegisterSubtaskMeta(&CollectIssuesMeta)
+}
 
 const RAW_ISSUE_TABLE = "jira_api_issues"
 
@@ -42,6 +47,8 @@ var CollectIssuesMeta = plugin.SubTaskMeta{
 	EnabledByDefault: true,
 	Description:      "collect Jira issues, supports both timeFilter and diffSync.",
 	DomainTypes:      []string{plugin.DOMAIN_TYPE_TICKET, plugin.DOMAIN_TYPE_CROSS},
+	DependencyTables: []string{},
+	ProductTables:    []string{RAW_ISSUE_TABLE},
 }
 
 func CollectIssues(taskCtx plugin.SubTaskContext) errors.Error {

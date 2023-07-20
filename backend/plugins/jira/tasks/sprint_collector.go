@@ -28,6 +28,10 @@ import (
 	"github.com/apache/incubator-devlake/helpers/pluginhelper/api"
 )
 
+func init() {
+	RegisterSubtaskMeta(&CollectSprintsMeta)
+}
+
 const RAW_SPRINT_TABLE = "jira_api_sprints"
 
 var _ plugin.SubTaskEntryPoint = CollectSprints
@@ -38,6 +42,8 @@ var CollectSprintsMeta = plugin.SubTaskMeta{
 	EnabledByDefault: true,
 	Description:      "collect Jira sprints, does not support either timeFilter or diffSync.",
 	DomainTypes:      []string{plugin.DOMAIN_TYPE_TICKET},
+	DependencyTables: []string{},
+	ProductTables:    []string{RAW_SPRINT_TABLE},
 }
 
 func CollectSprints(taskCtx plugin.SubTaskContext) errors.Error {

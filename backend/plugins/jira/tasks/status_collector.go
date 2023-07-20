@@ -26,6 +26,10 @@ import (
 	"github.com/apache/incubator-devlake/helpers/pluginhelper/api"
 )
 
+func init() {
+	RegisterSubtaskMeta(&CollectStatusMeta)
+}
+
 const RAW_STATUS_TABLE = "jira_api_status"
 
 var CollectStatusMeta = plugin.SubTaskMeta{
@@ -34,6 +38,8 @@ var CollectStatusMeta = plugin.SubTaskMeta{
 	EnabledByDefault: true,
 	Description:      "collect Jira status, does not support either timeFilter or diffSync.",
 	DomainTypes:      []string{plugin.DOMAIN_TYPE_TICKET},
+	DependencyTables: []string{},
+	ProductTables:    []string{RAW_STATUS_TABLE},
 }
 
 func CollectStatus(taskCtx plugin.SubTaskContext) errors.Error {

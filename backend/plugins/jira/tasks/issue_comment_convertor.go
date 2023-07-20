@@ -30,12 +30,23 @@ import (
 	"github.com/apache/incubator-devlake/plugins/jira/models"
 )
 
+func init() {
+	RegisterSubtaskMeta(&ConvertIssueCommentsMeta)
+}
+
 var ConvertIssueCommentsMeta = plugin.SubTaskMeta{
 	Name:             "ConvertIssueComments",
 	EntryPoint:       ConvertIssueComments,
 	EnabledByDefault: false,
 	Description:      "convert Jira issue comments",
 	DomainTypes:      []string{plugin.DOMAIN_TYPE_CROSS},
+	DependencyTables: []string{
+		models.JiraIssueComment{}.TableName(), // cursor
+		models.JiraBoardIssue{}.TableName(),   // cursor
+		models.JiraIssue{}.TableName(),        // id generator
+		models.JiraAccount{}.TableName(),      // id generator
+		RAW_ISSUE_COMMENT_TABLE},
+	ProductTables: []string{ticket.IssueComment{}.TableName()},
 }
 
 func ConvertIssueComments(taskCtx plugin.SubTaskContext) errors.Error {

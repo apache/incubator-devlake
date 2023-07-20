@@ -30,12 +30,22 @@ import (
 	"github.com/apache/incubator-devlake/plugins/jira/models"
 )
 
+func init() {
+	RegisterSubtaskMeta(&ConvertIssueRepoCommitsMeta)
+}
+
 var ConvertIssueRepoCommitsMeta = plugin.SubTaskMeta{
 	Name:             "convertIssueRepoCommits",
 	EntryPoint:       ConvertIssueRepoCommits,
 	EnabledByDefault: true,
 	Description:      "convert Jira issue repo commits",
 	DomainTypes:      []string{plugin.DOMAIN_TYPE_CROSS},
+	DependencyTables: []string{
+		models.JiraIssueCommit{}.TableName(), // cursor
+		models.JiraBoardIssue{}.TableName(),  // cursor
+		models.JiraIssue{}.TableName(),       // id generator
+		RAW_ISSUE_TABLE},
+	ProductTables: []string{crossdomain.IssueRepoCommit{}.TableName()},
 }
 
 // ConvertIssueRepoCommits is to extract issue_repo_commits from jira_issue_commits, nothing difference with

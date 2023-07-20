@@ -26,8 +26,13 @@ import (
 	"github.com/apache/incubator-devlake/core/errors"
 	"github.com/apache/incubator-devlake/core/plugin"
 	"github.com/apache/incubator-devlake/helpers/pluginhelper/api"
+	"github.com/apache/incubator-devlake/plugins/jira/models"
 	"github.com/apache/incubator-devlake/plugins/jira/tasks/apiv2models"
 )
+
+func init() {
+	RegisterSubtaskMeta(&CollectWorklogsMeta)
+}
 
 const RAW_WORKLOGS_TABLE = "jira_api_worklogs"
 
@@ -37,6 +42,12 @@ var CollectWorklogsMeta = plugin.SubTaskMeta{
 	EnabledByDefault: true,
 	Description:      "collect Jira work logs, supports both timeFilter and diffSync.",
 	DomainTypes:      []string{plugin.DOMAIN_TYPE_TICKET},
+	DependencyTables: []string{
+		models.JiraBoardIssue{}.TableName(), // cursor
+		models.JiraIssue{}.TableName(),      // cursor
+		// models.JiraWorklog{}.TableName()},   // cursor, latest record cursor not regard as dependency
+	},
+	ProductTables: []string{RAW_WORKLOGS_TABLE},
 }
 
 func CollectWorklogs(taskCtx plugin.SubTaskContext) errors.Error {

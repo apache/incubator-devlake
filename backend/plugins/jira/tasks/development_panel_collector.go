@@ -25,12 +25,18 @@ import (
 	"net/url"
 	"reflect"
 
+	"github.com/apache/incubator-devlake/plugins/jira/models"
+
 	"github.com/apache/incubator-devlake/core/dal"
 	"github.com/apache/incubator-devlake/core/errors"
 	"github.com/apache/incubator-devlake/core/plugin"
 	"github.com/apache/incubator-devlake/helpers/pluginhelper/api"
 	"github.com/apache/incubator-devlake/plugins/jira/tasks/apiv2models"
 )
+
+func init() {
+	RegisterSubtaskMeta(&CollectDevelopmentPanelMeta)
+}
 
 const RAW_DEVELOPMENT_PANEL = "jira_api_development_panels"
 
@@ -42,6 +48,10 @@ var CollectDevelopmentPanelMeta = plugin.SubTaskMeta{
 	EnabledByDefault: true,
 	Description:      "collect Jira development panel",
 	DomainTypes:      []string{plugin.DOMAIN_TYPE_TICKET, plugin.DOMAIN_TYPE_CROSS},
+	DependencyTables: []string{
+		models.JiraBoardIssue{}.TableName(), // cursor
+		models.JiraIssue{}.TableName()},     // cursor
+	ProductTables: []string{RAW_DEVELOPMENT_PANEL},
 }
 
 func CollectDevelopmentPanel(taskCtx plugin.SubTaskContext) errors.Error {

@@ -18,6 +18,8 @@ limitations under the License.
 package tasks
 
 import (
+	"reflect"
+
 	"github.com/apache/incubator-devlake/core/dal"
 	"github.com/apache/incubator-devlake/core/errors"
 	"github.com/apache/incubator-devlake/core/models/domainlayer"
@@ -26,8 +28,11 @@ import (
 	"github.com/apache/incubator-devlake/core/plugin"
 	"github.com/apache/incubator-devlake/helpers/pluginhelper/api"
 	"github.com/apache/incubator-devlake/plugins/jira/models"
-	"reflect"
 )
+
+func init() {
+	RegisterSubtaskMeta(&ConvertWorklogsMeta)
+}
 
 var ConvertWorklogsMeta = plugin.SubTaskMeta{
 	Name:             "convertWorklogs",
@@ -35,6 +40,13 @@ var ConvertWorklogsMeta = plugin.SubTaskMeta{
 	EnabledByDefault: true,
 	Description:      "convert Jira work logs",
 	DomainTypes:      []string{plugin.DOMAIN_TYPE_TICKET},
+	DependencyTables: []string{
+		models.JiraWorklog{}.TableName(),    // cursor
+		models.JiraBoardIssue{}.TableName(), // cursor
+		models.JiraAccount{}.TableName(),    // id generator
+		models.JiraIssue{}.TableName(),      // id generator
+		RAW_WORKLOGS_TABLE},
+	ProductTables: []string{ticket.IssueWorklog{}.TableName()},
 }
 
 func ConvertWorklogs(taskCtx plugin.SubTaskContext) errors.Error {

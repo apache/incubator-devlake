@@ -19,11 +19,17 @@ package tasks
 
 import (
 	"encoding/json"
+
 	"github.com/apache/incubator-devlake/core/errors"
 	"github.com/apache/incubator-devlake/core/plugin"
 	"github.com/apache/incubator-devlake/helpers/pluginhelper/api"
+	jiraModels "github.com/apache/incubator-devlake/plugins/jira/models"
 	"github.com/apache/incubator-devlake/plugins/jira/tasks/apiv2models"
 )
+
+func init() {
+	RegisterSubtaskMeta(&ExtractWorklogsMeta)
+}
 
 var _ plugin.SubTaskEntryPoint = ExtractWorklogs
 
@@ -33,6 +39,8 @@ var ExtractWorklogsMeta = plugin.SubTaskMeta{
 	EnabledByDefault: true,
 	Description:      "extract Jira work logs",
 	DomainTypes:      []string{plugin.DOMAIN_TYPE_TICKET},
+	DependencyTables: []string{RAW_WORKLOGS_TABLE},
+	ProductTables:    []string{jiraModels.JiraWorklog{}.TableName()},
 }
 
 func ExtractWorklogs(taskCtx plugin.SubTaskContext) errors.Error {

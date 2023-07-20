@@ -19,12 +19,17 @@ package tasks
 
 import (
 	"encoding/json"
+
 	"github.com/apache/incubator-devlake/core/errors"
 	"github.com/apache/incubator-devlake/core/plugin"
 	"github.com/apache/incubator-devlake/helpers/pluginhelper/api"
 	"github.com/apache/incubator-devlake/plugins/jira/models"
 	"github.com/apache/incubator-devlake/plugins/jira/tasks/apiv2models"
 )
+
+func init() {
+	RegisterSubtaskMeta(&ExtractIssueChangelogsMeta)
+}
 
 var _ plugin.SubTaskEntryPoint = ExtractIssueChangelogs
 
@@ -34,6 +39,10 @@ var ExtractIssueChangelogsMeta = plugin.SubTaskMeta{
 	EnabledByDefault: true,
 	Description:      "extract Jira Issue change logs",
 	DomainTypes:      []string{plugin.DOMAIN_TYPE_TICKET, plugin.DOMAIN_TYPE_CROSS},
+	DependencyTables: []string{RAW_CHANGELOG_TABLE},
+	ProductTables: []string{
+		models.JiraAccount{}.TableName(),
+		models.JiraIssueChangelogItems{}.TableName()},
 }
 
 func ExtractIssueChangelogs(taskCtx plugin.SubTaskContext) errors.Error {

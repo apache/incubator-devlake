@@ -19,6 +19,7 @@ package tasks
 
 import (
 	"encoding/json"
+
 	"github.com/apache/incubator-devlake/core/errors"
 	"github.com/apache/incubator-devlake/core/plugin"
 	"github.com/apache/incubator-devlake/helpers/pluginhelper/api"
@@ -26,12 +27,18 @@ import (
 	"github.com/apache/incubator-devlake/plugins/jira/tasks/apiv2models"
 )
 
+func init() {
+	RegisterSubtaskMeta(&ExtractStatusMeta)
+}
+
 var ExtractStatusMeta = plugin.SubTaskMeta{
 	Name:             "extractStatus",
 	EntryPoint:       ExtractStatus,
 	EnabledByDefault: true,
 	Description:      "extract Jira status",
 	DomainTypes:      []string{plugin.DOMAIN_TYPE_TICKET},
+	DependencyTables: []string{RAW_STATUS_TABLE},
+	ProductTables:    []string{models.JiraStatus{}.TableName()},
 }
 
 func ExtractStatus(taskCtx plugin.SubTaskContext) errors.Error {
