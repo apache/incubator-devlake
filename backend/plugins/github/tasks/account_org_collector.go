@@ -19,21 +19,39 @@ package tasks
 
 import (
 	"encoding/json"
+	"io"
+	"net/http"
+	"reflect"
+
 	"github.com/apache/incubator-devlake/core/dal"
 	"github.com/apache/incubator-devlake/core/errors"
 	"github.com/apache/incubator-devlake/core/plugin"
 	"github.com/apache/incubator-devlake/helpers/pluginhelper/api"
 	"github.com/apache/incubator-devlake/plugins/github/models"
-	"io"
-	"net/http"
-	"reflect"
 )
+
+func init() {
+	RegisterSubtaskMeta(&CollectAccountOrgMeta)
+}
 
 const RAW_ACCOUNT_ORG_TABLE = "github_api_account_orgs"
 
 type SimpleAccountWithId struct {
 	Login     string
 	AccountId int
+}
+
+var CollectAccountOrgMeta = plugin.SubTaskMeta{
+	Name:             "collectAccountOrg",
+	EntryPoint:       CollectAccountOrg,
+	EnabledByDefault: true,
+	Description:      "Collect accounts org data from Github api, does not support either timeFilter or diffSync.",
+	DomainTypes:      []string{plugin.DOMAIN_TYPE_CROSS},
+	DependencyTables: []string{
+		models.GithubRepoAccount{}.TableName(), // cursor
+		models.GithubAccount{}.TableName(),     // cursor
+	},
+	ProductTables: []string{RAW_ACCOUNT_ORG_TABLE},
 }
 
 func CollectAccountOrg(taskCtx plugin.SubTaskContext) errors.Error {
@@ -84,12 +102,4 @@ func CollectAccountOrg(taskCtx plugin.SubTaskContext) errors.Error {
 		return err
 	}
 	return collector.Execute()
-}
-
-var CollectAccountOrgMeta = plugin.SubTaskMeta{
-	Name:             "collectAccountOrg",
-	EntryPoint:       CollectAccountOrg,
-	EnabledByDefault: true,
-	Description:      "Collect accounts org data from Github api, does not support either timeFilter or diffSync.",
-	DomainTypes:      []string{plugin.DOMAIN_TYPE_CROSS},
 }

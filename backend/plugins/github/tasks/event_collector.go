@@ -33,6 +33,10 @@ import (
 	"github.com/apache/incubator-devlake/plugins/github/models"
 )
 
+func init() {
+	RegisterSubtaskMeta(&CollectApiEventsMeta)
+}
+
 const RAW_EVENTS_TABLE = "github_api_events"
 
 type SimpleGithubApiEvents struct {
@@ -46,6 +50,8 @@ var CollectApiEventsMeta = plugin.SubTaskMeta{
 	EnabledByDefault: true,
 	Description:      "Collect Events data from Github api, supports both timeFilter and diffSync.",
 	DomainTypes:      []string{plugin.DOMAIN_TYPE_TICKET},
+	DependencyTables: []string{},
+	ProductTables:    []string{RAW_EVENTS_TABLE},
 }
 
 func CollectApiEvents(taskCtx plugin.SubTaskContext) errors.Error {

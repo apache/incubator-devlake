@@ -28,9 +28,23 @@ import (
 	helper "github.com/apache/incubator-devlake/helpers/pluginhelper/api"
 )
 
+func init() {
+	RegisterSubtaskMeta(&CollectApiPrReviewCommentsMeta)
+}
+
 const RAW_PR_REVIEW_COMMENTS_TABLE = "github_api_pull_request_review_comments"
 
 // this struct should be moved to `github_api_common.go`
+
+var CollectApiPrReviewCommentsMeta = plugin.SubTaskMeta{
+	Name:             "collectApiPrReviewCommentsMeta",
+	EntryPoint:       CollectPrReviewComments,
+	EnabledByDefault: true,
+	Description:      "Collect pr review comments data from Github api, supports both timeFilter and diffSync.",
+	DomainTypes:      []string{plugin.DOMAIN_TYPE_CROSS, plugin.DOMAIN_TYPE_CODE_REVIEW},
+	DependencyTables: []string{},
+	ProductTables:    []string{RAW_PR_REVIEW_COMMENTS_TABLE},
+}
 
 func CollectPrReviewComments(taskCtx plugin.SubTaskContext) errors.Error {
 	data := taskCtx.GetData().(*GithubTaskData)
@@ -87,12 +101,4 @@ func CollectPrReviewComments(taskCtx plugin.SubTaskContext) errors.Error {
 	}
 
 	return collectorWithState.Execute()
-}
-
-var CollectApiPrReviewCommentsMeta = plugin.SubTaskMeta{
-	Name:             "collectApiPrReviewCommentsMeta",
-	EntryPoint:       CollectPrReviewComments,
-	EnabledByDefault: true,
-	Description:      "Collect pr review comments data from Github api, supports both timeFilter and diffSync.",
-	DomainTypes:      []string{plugin.DOMAIN_TYPE_CROSS, plugin.DOMAIN_TYPE_CODE_REVIEW},
 }

@@ -30,13 +30,21 @@ import (
 	"github.com/apache/incubator-devlake/plugins/github/models"
 )
 
+func init() {
+	RegisterSubtaskMeta(&ExtractApiPrReviewCommentsMeta)
+}
+
 var ExtractApiPrReviewCommentsMeta = plugin.SubTaskMeta{
 	Name:             "extractApiPrReviewComments",
 	EntryPoint:       ExtractApiPrReviewComments,
 	EnabledByDefault: true,
 	Description: "Extract raw comment data  into tool layer table github_pull_request_comments" +
 		"and github_issue_comments",
-	DomainTypes: []string{plugin.DOMAIN_TYPE_CROSS, plugin.DOMAIN_TYPE_CODE_REVIEW},
+	DomainTypes:      []string{plugin.DOMAIN_TYPE_CROSS, plugin.DOMAIN_TYPE_CODE_REVIEW},
+	DependencyTables: []string{RAW_PR_REVIEW_COMMENTS_TABLE},
+	ProductTables: []string{
+		models.GithubRepoAccount{}.TableName(),
+		models.GithubPrCommit{}.TableName()},
 }
 
 func ExtractApiPrReviewComments(taskCtx plugin.SubTaskContext) errors.Error {

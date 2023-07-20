@@ -31,6 +31,10 @@ import (
 	"github.com/apache/incubator-devlake/plugins/github/models"
 )
 
+func init() {
+	RegisterSubtaskMeta(&CollectApiPullRequestReviewsMeta)
+}
+
 const RAW_PR_REVIEW_TABLE = "github_api_pull_request_reviews"
 
 // this struct should be moved to `gitub_api_common.go`
@@ -41,6 +45,8 @@ var CollectApiPullRequestReviewsMeta = plugin.SubTaskMeta{
 	EnabledByDefault: true,
 	Description:      "Collect PullRequestReviews data from Github api, supports both timeFilter and diffSync.",
 	DomainTypes:      []string{plugin.DOMAIN_TYPE_CROSS, plugin.DOMAIN_TYPE_CODE_REVIEW},
+	DependencyTables: []string{models.GithubPullRequest{}.TableName()},
+	ProductTables:    []string{RAW_PR_REVIEW_TABLE},
 }
 
 func CollectApiPullRequestReviews(taskCtx plugin.SubTaskContext) errors.Error {

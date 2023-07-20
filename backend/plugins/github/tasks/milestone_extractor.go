@@ -19,11 +19,16 @@ package tasks
 
 import (
 	"encoding/json"
+
 	"github.com/apache/incubator-devlake/core/errors"
 	"github.com/apache/incubator-devlake/core/plugin"
 	"github.com/apache/incubator-devlake/helpers/pluginhelper/api"
 	"github.com/apache/incubator-devlake/plugins/github/models"
 )
+
+func init() {
+	RegisterSubtaskMeta(&ExtractMilestonesMeta)
+}
 
 var ExtractMilestonesMeta = plugin.SubTaskMeta{
 	Name:             "extractMilestones",
@@ -31,6 +36,8 @@ var ExtractMilestonesMeta = plugin.SubTaskMeta{
 	EnabledByDefault: true,
 	Description:      "Extract raw milestone data into tool layer table github_milestones",
 	DomainTypes:      []string{plugin.DOMAIN_TYPE_TICKET},
+	DependencyTables: []string{RAW_MILESTONE_TABLE},
+	ProductTables:    []string{models.GithubMilestone{}.TableName()},
 }
 
 type MilestonesResponse struct {
