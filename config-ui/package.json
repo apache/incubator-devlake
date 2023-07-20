@@ -27,6 +27,7 @@
     "@blueprintjs/datetime2": "^0.9.6",
     "@blueprintjs/popover2": "^1.10.2",
     "@blueprintjs/select": "^4.8.12",
+    "ahooks": "^3.7.8",
     "axios": "^0.21.4",
     "classnames": "^2.3.2",
     "cron-parser": "^4.3.0",
