@@ -206,10 +206,13 @@ func dequeuePipeline(runningParallelLabels []string) (pipeline *models.Pipeline,
 		}
 		return
 	}
-	if !tx.IsErrorNotFound(err) {
+	if tx.IsErrorNotFound(err) {
+		err = nil
+	} else {
 		// log unexpected err
 		globalPipelineLog.Error(err, "dequeue failed")
 	}
+
 	return
 }
 
