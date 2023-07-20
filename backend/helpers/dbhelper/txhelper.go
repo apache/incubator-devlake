@@ -24,7 +24,6 @@ import (
 	"github.com/apache/incubator-devlake/core/context"
 	"github.com/apache/incubator-devlake/core/dal"
 	"github.com/apache/incubator-devlake/core/errors"
-	"gorm.io/gorm"
 )
 
 // TxHelper is a helper for transaction management
@@ -68,14 +67,26 @@ func (l *TxHelper[E]) End() {
 	if l.tx == nil {
 		panic("Begin was never called")
 	}
-
-	err := l.perr
-	if err != nil || errors.Is(*err, gorm.ErrRecordNotFound) {
-		errors.Must(l.tx.Commit())
+	var msg string
+	err := *l.perr
+	if interface{}(err) == nil {
+		msg = ""
+		r := recover()
+		if r != nil {
+			msg = fmt.Sprintf("%v", r)
+		}
 	} else {
+		msg = err.Error()
+	}
+
+	if msg == "" {
+		errors.Must(l.tx.Commit())
+	}
+	if msg != "" {
 		_ = l.tx.UnlockTables()
 		_ = l.tx.Rollback()
 	}
+	l.tx = nil
 }
 
 // NewTxHelper creates a new TxHelper, the errorPointer is used to detect if any error was set
