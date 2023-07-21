@@ -40,6 +40,10 @@ func (b TrelloBoard) ScopeName() string {
 	return b.Name
 }
 
+func (b TrelloBoard) ScopeFullName() string {
+	return b.Name
+}
+
 func (b TrelloBoard) ScopeParams() interface{} {
 	return &TrelloApiParams{
 		ConnectionId: b.ConnectionId,

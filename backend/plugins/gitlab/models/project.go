@@ -63,6 +63,10 @@ func (p GitlabProject) ScopeName() string {
 	return p.Name
 }
 
+func (p GitlabProject) ScopeFullName() string {
+	return p.PathWithNamespace
+}
+
 func (p GitlabProject) ScopeParams() interface{} {
 	return &GitlabApiParams{
 		ConnectionId: p.ConnectionId,
