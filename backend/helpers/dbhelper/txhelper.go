@@ -80,6 +80,7 @@ func (l *TxHelper[E]) End() {
 	}
 
 	if msg == "" {
+		_ = l.tx.UnlockTables()
 		errors.Must(l.tx.Commit())
 	} else {
 		_ = l.tx.UnlockTables()
