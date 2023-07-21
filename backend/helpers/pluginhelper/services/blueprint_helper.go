@@ -19,6 +19,7 @@ package services
 
 import (
 	"fmt"
+
 	"github.com/apache/incubator-devlake/core/dal"
 	"github.com/apache/incubator-devlake/core/errors"
 	"github.com/apache/incubator-devlake/core/models"
@@ -161,6 +162,9 @@ func (b *BlueprintManager) GetBlueprintsByScopes(connectionId uint64, pluginName
 	}
 	scopeMap := map[string][]*models.Blueprint{}
 	for _, bp := range bps {
+		if bp.Mode == models.BLUEPRINT_MODE_ADVANCED {
+			continue
+		}
 		scopes, err := bp.GetScopes(connectionId, pluginName)
 		if err != nil {
 			return nil, err
