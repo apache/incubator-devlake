@@ -460,7 +460,7 @@ func (d *Dalgorm) convertGormError(err error) errors.Error {
 		return nil
 	}
 	if d.IsTableExist(err) {
-		return errors.NotFound.WrapRaw(err)
+		return errors.BadInput.WrapRaw(err)
 	}
 
 	panic(err)
