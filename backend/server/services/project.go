@@ -52,22 +52,22 @@ func GetProjects(query *ProjectQuery) ([]*models.ApiOutputProject, int64, errors
 		dal.Offset(query.GetSkip()),
 		dal.Limit(query.GetPageSize()),
 	)
-	projects := make([]*models.ApiOutputProject, count)
+	projects := make([]*models.Project, count)
 	err = db.All(&projects, clauses...)
-	logger.Info("project[0]: %+v", projects[0])
 	if err != nil {
 		return nil, 0, errors.Default.Wrap(err, "error finding DB project")
 	}
-	for idx, project := range projects {
-		apiOutputProjects, err := makeProjectOutput(&project.Project, true)
+	var apiOutProjects []*models.ApiOutputProject
+	for _, project := range projects {
+		apiOutputProject, err := makeProjectOutput(project, true)
 		if err != nil {
 			logger.Error(err, "makeProjectOutput, name: %s", project.Name)
 			return nil, 0, errors.Default.Wrap(err, "error making project output")
 		}
-		projects[idx] = apiOutputProjects
+		apiOutProjects = append(apiOutProjects, apiOutputProject)
 	}
 
-	return projects, count, nil
+	return apiOutProjects, count, nil
 }
 
 // CreateProject accepts a project instance and insert it to database
