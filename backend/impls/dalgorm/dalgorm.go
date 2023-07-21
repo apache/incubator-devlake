@@ -427,6 +427,11 @@ func (d *Dalgorm) IsJsonOrderError(err error) bool {
 	return strings.Contains(err.Error(), "identify an ordering operator for type json")
 }
 
+// IsTableExist checks if table exists
+func (d *Dalgorm) IsTableExist(err error) bool {
+	return strings.Contains(err.Error(), "Unknown table")
+}
+
 // RawCursor (Deprecated) executes raw sql query and returns a database cursor
 func (d *Dalgorm) RawCursor(query string, params ...interface{}) (*sql.Rows, errors.Error) {
 	rows, err := d.db.Raw(query, params...).Rows()
@@ -453,6 +458,9 @@ func (d *Dalgorm) convertGormError(err error) errors.Error {
 	}
 	if d.IsCachedPlanError(err) {
 		return nil
+	}
+	if d.IsTableExist(err) {
+		return errors.BadInput.WrapRaw(err)
 	}
 
 	panic(err)
