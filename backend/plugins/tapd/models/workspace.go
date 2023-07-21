@@ -89,6 +89,10 @@ func (w TapdWorkspace) ScopeName() string {
 	return w.Name
 }
 
+func (w TapdWorkspace) ScopeFullName() string {
+	return w.Name
+}
+
 func (w TapdWorkspace) ScopeParams() interface{} {
 	return &TapdApiParams{
 		ConnectionId: w.ConnectionId,
