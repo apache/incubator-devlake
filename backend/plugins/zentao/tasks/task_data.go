@@ -40,7 +40,7 @@ type ZentaoOptions struct {
 	// TODO not support now
 	TimeAfter     string              `json:"timeAfter" mapstructure:"timeAfter,omitempty"`
 	ScopeConfigId uint64              `json:"scopeConfigId" mapstructure:"scopeConfigId,omitempty"`
-	ScopeConfigs  *ZentaoScopeConfigs `json:"scopeConfigs" mapstructure:"scopeConfigs,omitempty"`
+	ScopeConfigs  *ZentaoScopeConfigs `json:"scopeConfig" mapstructure:"scopeConfig,omitempty"`
 }
 
 func (o *ZentaoOptions) GetParams() any {
