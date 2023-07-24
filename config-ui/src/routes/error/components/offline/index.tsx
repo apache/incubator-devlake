@@ -26,7 +26,7 @@ import { useAutoRefresh } from '@/hooks';
 
 import * as API from './api';
 
-export const OfflinePage = () => {
+export const Offline = () => {
   const [version, setVersion] = useState(1);
 
   const navigate = useNavigate();

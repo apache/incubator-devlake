@@ -19,10 +19,8 @@
 import { createBrowserRouter, Navigate, RouterProvider } from 'react-router-dom';
 
 import { PageLoading } from '@/components';
-import { ErrorLayout, BaseLayout } from '@/layouts';
+import { loader as baseLayoutLoader, BaseLayout } from '@/layouts/base';
 import {
-  OfflinePage,
-  DBMigratePage,
   ConnectionHomePage,
   ConnectionDetailPage,
   ProjectHomePage,
@@ -35,23 +33,9 @@ import { Error } from '@/routes/error';
 
 const router = createBrowserRouter([
   {
-    path: '',
-    element: <ErrorLayout />,
-    errorElement: <Error />,
-    children: [
-      {
-        path: 'offline',
-        element: <OfflinePage />,
-      },
-      {
-        path: 'db-migrate',
-        element: <DBMigratePage />,
-      },
-    ],
-  },
-  {
     path: '/',
     element: <BaseLayout />,
+    loader: baseLayoutLoader,
     errorElement: <Error />,
     children: [
       {

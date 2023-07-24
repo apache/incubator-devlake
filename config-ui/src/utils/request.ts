@@ -25,19 +25,6 @@ const instance = axios.create({
   baseURL: DEVLAKE_ENDPOINT,
 });
 
-instance.interceptors.response.use(
-  (response) => response,
-  (error) => {
-    const status = error.response?.status;
-
-    if (status === 428) {
-      window.location.replace('/db-migrate');
-    }
-
-    return Promise.reject(error);
-  },
-);
-
 export type RequestConfig = {
   baseURL?: string;
   method?: AxiosRequestConfig['method'];

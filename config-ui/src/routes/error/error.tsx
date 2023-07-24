@@ -16,18 +16,24 @@
  *
  */
 
-import { Outlet } from 'react-router-dom';
+import { useRouteError, isRouteErrorResponse } from 'react-router-dom';
 
 import { Logo } from '@/components';
 
+import { ErrorEnum } from './types';
+import { Offline, NeedsDBMigrate, Exception } from './components';
 import * as S from './styled';
 
-export const ErrorLayout = () => {
+export const Error = () => {
+  const error = useRouteError() as Error;
+
   return (
     <S.Wrapper>
       <Logo />
       <S.Inner>
-        <Outlet />
+        {isRouteErrorResponse(error) && error.data.error === ErrorEnum.API_OFFLINE && <Offline />}
+        {isRouteErrorResponse(error) && error.data.error === ErrorEnum.NEEDS_DB_MIRGATE && <NeedsDBMigrate />}
+        {!isRouteErrorResponse(error) && <Exception error={error} />}
       </S.Inner>
     </S.Wrapper>
   );
