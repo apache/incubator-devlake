@@ -145,6 +145,10 @@ def add_build_id_as_job_primary_key(b: MigrationScriptBuilder):
 @migration(20230606165630)
 def rename_tx_rule_table_to_scope_config(b: MigrationScriptBuilder):
     b.rename_table('_tool_azuredevops_azuredevopstransformationrules', GitRepositoryConfig.__tablename__)
+
+
+@migration(20230607165630, name="add entities column to gitrepositoryconfig table")
+def add_entities_column_to_scope_config(b: MigrationScriptBuilder):
     b.add_column(GitRepositoryConfig.__tablename__, 'entities', 'json')
 
 
