@@ -100,8 +100,8 @@ func CreateProject(projectInput *models.ApiInputProject) (*models.ApiOutputProje
 		return nil, errors.Default.Wrap(err, "error creating DB project")
 	}
 
-	// check if need flush the Metrics
-	if projectInput.Metrics != nil {
+	// check if we need flush the Metrics
+	if len(projectInput.Metrics) > 0 {
 		err = refreshProjectMetrics(tx, projectInput)
 		if err != nil {
 			return nil, err
@@ -234,7 +234,7 @@ func PatchProject(name string, body map[string]interface{}) (*models.ApiOutputPr
 	}
 
 	// refresh project metrics if needed
-	if projectInput.Metrics != nil {
+	if len(projectInput.Metrics) > 0 {
 		err = refreshProjectMetrics(tx, projectInput)
 		if err != nil {
 			return nil, err
@@ -337,11 +337,11 @@ func refreshProjectMetrics(tx dal.Transaction, projectInput *models.ApiInputProj
 		return err
 	}
 
-	for _, baseMetric := range *projectInput.Metrics {
+	for _, baseMetric := range projectInput.Metrics {
 		err = tx.Create(&models.ProjectMetricSetting{
 			BaseProjectMetricSetting: models.BaseProjectMetricSetting{
 				ProjectName: projectInput.Name,
-				BaseMetric:  baseMetric,
+				BaseMetric:  *baseMetric,
 			},
 		})
 		if err != nil {
@@ -362,11 +362,12 @@ func makeProjectOutput(project *models.Project, withLastPipeline bool) (*models.
 	}
 	// convert metric to api output
 	if len(projectMetrics) > 0 {
-		baseMetric := make([]models.BaseMetric, len(projectMetrics))
+		baseMetrics := make([]*models.BaseMetric, len(projectMetrics))
 		for i, projectMetric := range projectMetrics {
-			baseMetric[i] = projectMetric.BaseMetric
+			baseMetric := projectMetric.BaseMetric
+			baseMetrics[i] = &baseMetric
 		}
-		projectOutput.Metrics = &baseMetric
+		projectOutput.Metrics = baseMetrics
 	}
 
 	// load blueprint
