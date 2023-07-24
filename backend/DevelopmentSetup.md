@@ -27,43 +27,6 @@ They are **all** hooked into DevLake at runtime and are communicated with using 
 A plugin mainly consists of a collection of subtasks that can be executed by the DevLake framework. For data source plugins, a subtask may be collecting a single entity from the data source (e.g., issues from Jira).
 Besides the subtasks, there are hooks that a plugin can implement to customize its initialization, migration, and more. See [here](#Plugin-package-and-code-structure) for details.
 
-The diagram below shows the control flow of executing a plugin:
-
-```mermaid
-flowchart TD;
-    subgraph S4[Step4 sub-task extractor running process];
-    direction LR;
-    D4[DevLake];
-    D4 -- "Step4.1 create a new\n ApiExtractor\n and execute it" --> E["ExtractXXXMeta.\nEntryPoint"];
-    E <-- "Step4.2 read from\n raw table" --> E2["RawDataSubTaskArgs\n.Table"];
-    E -- "Step4.3 call with RawData" --> ApiExtractor.Extract;
-    ApiExtractor.Extract -- "decode and return gorm models" --> E
-    end
-    subgraph S3[Step3 sub-task collector running process]
-    direction LR
-    D3[DevLake]
-    D3 -- "Step3.1 create a new\n ApiCollector\n and execute it" --> C["CollectXXXMeta.\nEntryPoint"];
-    C <-- "Step3.2 create\n raw table" --> C2["RawDataSubTaskArgs\n.RAW_BBB_TABLE"];
-    C <-- "Step3.3 build query\n before sending requests" --> ApiCollectorArgs.\nQuery/UrlTemplate;
-    C <-. "Step3.4 send requests by ApiClient \n and return HTTP response" .-> A1["HTTP APIs"];
-    C <-- "Step3.5 call and \nreturn decoded data \nfrom HTTP response" --> ResponseParser;
-    end
-    subgraph S2[Step2 DevLake register custom plugin]
-    direction LR
-    D2[DevLake]
-    D2 <-- "Step2.1 function \`Init\` \nneed to do init jobs" --> plugin.Init;
-    D2 <-- "Step2.2 (Optional) call \nand return migration scripts" --> plugin.MigrationScripts;
-    D2 <-- "Step2.3 (Optional) call \nand return taskCtx" --> plugin.PrepareTaskData;
-    D2 <-- "Step2.4 call and \nreturn subTasks for execting" --> plugin.SubTaskContext;
-    end
-    subgraph S1[Step1 Run DevLake]
-    direction LR
-    main -- "Transfer of control \nby \`runner.DirectRun\`" --> D1[DevLake];
-    end
-    S1-->S2-->S3-->S4
-```
-This diagram will make more sense as we dive into the details below.
-
 ## Overview of developing a plugin in Go
 
 In this section, we will walk you through one of our existing Go plugins with the goal that by the end you will have
