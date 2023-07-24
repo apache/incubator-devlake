@@ -18,6 +18,9 @@
 
 import { request } from '@/utils';
 
+import type { BlueprintType } from '@/pages/blueprint';
+import type { PipelineType } from '@/pages/pipeline';
+
 type GetProjectsParams = {
   page: number;
   pageSize: number;
@@ -26,6 +29,9 @@ type GetProjectsParams = {
 type GetProjectsResponse = {
   projects: Array<{
     name: string;
+    createdAt: string;
+    blueprint: BlueprintType;
+    lastPipeline: PipelineType;
   }>;
   counts: number;
 };

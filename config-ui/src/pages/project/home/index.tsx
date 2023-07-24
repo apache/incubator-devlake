@@ -22,12 +22,13 @@ import { Button, InputGroup, Checkbox, Intent, FormGroup } from '@blueprintjs/co
 import dayjs from 'dayjs';
 
 import { PageHeader, Table, Dialog, IconButton, toast } from '@/components';
-import { cronPresets } from '@/config';
-import { useRefreshData } from '@/hooks';
+import { getCron, cronPresets } from '@/config';
+import { useConnections, useRefreshData } from '@/hooks';
 import { formatTime, operator } from '@/utils';
+import { PipelineStatus } from '@/pages/pipeline';
 
 import { validName, encodeName } from '../utils';
-import { ModeEnum } from '../../blueprint';
+import { BlueprintType, ModeEnum } from '../../blueprint';
 
 import * as API from './api';
 import * as S from './styled';
@@ -40,11 +41,26 @@ export const ProjectHomePage = () => {
   const [saving, setSaving] = useState(false);
 
   const { ready, data } = useRefreshData(() => API.getProjects({ page: 1, pageSize: 200 }), [version]);
+  const { onGet } = useConnections();
 
   const navigate = useNavigate();
 
-  const dataSource = useMemo(() => data?.projects ?? [], [data]);
   const presets = useMemo(() => cronPresets.map((preset) => preset.config), []);
+  const dataSource = useMemo(
+    () =>
+      (data?.projects ?? []).map((it) => {
+        return {
+          name: it.name,
+          connections: it.blueprint.settings.connections,
+          isManual: it.blueprint.isManual,
+          cronConfig: it.blueprint.cronConfig,
+          createdAt: it.createdAt,
+          lastRunCompletedAt: it.lastPipeline?.finishedAt,
+          lastRunStatus: it.lastPipeline?.status,
+        };
+      }),
+    [data],
+  );
 
   const handleShowDialog = () => setIsOpen(true);
   const handleHideDialog = () => {
@@ -115,6 +131,47 @@ export const ProjectHomePage = () => {
                 {name}
               </Link>
             ),
+          },
+          {
+            title: 'Data Connections',
+            dataIndex: 'connections',
+            key: 'connections',
+            render: (val: BlueprintType['settings']['connections']) =>
+              !val.length
+                ? 'N/A'
+                : val
+                    .map((it) => {
+                      const cs = onGet(`${it.plugin}-${it.connectionId}`);
+                      return cs.name;
+                    })
+                    .join(', '),
+          },
+          {
+            title: 'Sync Frequency',
+            dataIndex: ['isManual', 'cronConfig'],
+            key: 'frequency',
+            render: ({ isManual, cronConfig }) => {
+              const cron = getCron(isManual, cronConfig);
+              return cron.label;
+            },
+          },
+          {
+            title: 'Created at',
+            dataIndex: 'createdAt',
+            key: 'createdAt',
+            render: (val) => formatTime(val),
+          },
+          {
+            title: 'Last Run Completed at',
+            dataIndex: 'lastRunCompletedAt',
+            key: 'lastRunCompletedAt',
+            render: (val) => (val ? formatTime(val) : '-'),
+          },
+          {
+            title: 'Last Run Status',
+            dataIndex: 'lastRunStatus',
+            key: 'lastRunStatus',
+            render: (val) => (val ? <PipelineStatus status={val} /> : '-'),
           },
           {
             title: '',
