@@ -52,21 +52,22 @@ func GetProjects(query *ProjectQuery) ([]*models.ApiOutputProject, int64, errors
 		dal.Offset(query.GetSkip()),
 		dal.Limit(query.GetPageSize()),
 	)
-	projects := make([]*models.ApiOutputProject, count)
+	projects := make([]*models.Project, count)
 	err = db.All(&projects, clauses...)
 	if err != nil {
 		return nil, 0, errors.Default.Wrap(err, "error finding DB project")
 	}
-	for idx, project := range projects {
-		apiOutputProjects, err := makeProjectOutput(&project.BaseProject, true)
+	var apiOutProjects []*models.ApiOutputProject
+	for _, project := range projects {
+		apiOutputProject, err := makeProjectOutput(project, true)
 		if err != nil {
 			logger.Error(err, "makeProjectOutput, name: %s", project.Name)
 			return nil, 0, errors.Default.Wrap(err, "error making project output")
 		}
-		projects[idx] = apiOutputProjects
+		apiOutProjects = append(apiOutProjects, apiOutputProject)
 	}
 
-	return projects, count, nil
+	return apiOutProjects, count, nil
 }
 
 // CreateProject accepts a project instance and insert it to database
@@ -113,7 +114,7 @@ func CreateProject(projectInput *models.ApiInputProject) (*models.ApiOutputProje
 		return nil, err
 	}
 
-	return makeProjectOutput(&projectInput.BaseProject, false)
+	return makeProjectOutput(project, false)
 }
 
 // GetProject returns a Project
@@ -128,7 +129,7 @@ func GetProject(name string) (*models.ApiOutputProject, errors.Error) {
 		return nil, err
 	}
 	// convert to api output
-	return makeProjectOutput(&project.BaseProject, false)
+	return makeProjectOutput(project, false)
 }
 
 // PatchProject FIXME ...
@@ -253,7 +254,7 @@ func PatchProject(name string, body map[string]interface{}) (*models.ApiOutputPr
 	}
 
 	// all good, render output
-	return makeProjectOutput(&projectInput.BaseProject, false)
+	return makeProjectOutput(project, false)
 }
 
 // DeleteProject FIXME ...
@@ -350,9 +351,9 @@ func refreshProjectMetrics(tx dal.Transaction, projectInput *models.ApiInputProj
 	return nil
 }
 
-func makeProjectOutput(baseProject *models.BaseProject, withLatestPipeLine bool) (*models.ApiOutputProject, errors.Error) {
+func makeProjectOutput(project *models.Project, withLastPipeline bool) (*models.ApiOutputProject, errors.Error) {
 	projectOutput := &models.ApiOutputProject{}
-	projectOutput.BaseProject = *baseProject
+	projectOutput.Project = *project
 	// load project metrics
 	projectMetrics := make([]models.ProjectMetricSetting, 0)
 	err := db.All(&projectMetrics, dal.Where("project_name = ?", projectOutput.Name))
@@ -373,7 +374,7 @@ func makeProjectOutput(baseProject *models.BaseProject, withLatestPipeLine bool)
 	if err != nil {
 		return nil, errors.Default.Wrap(err, "Error to get blueprint by project")
 	}
-	if withLatestPipeLine {
+	if withLastPipeline {
 		if projectOutput.Blueprint == nil {
 			logger.Warn(fmt.Errorf("Blueprint is nil"), "want to get latest pipeline, but blueprint is nil")
 		} else {
@@ -389,7 +390,7 @@ func makeProjectOutput(baseProject *models.BaseProject, withLatestPipeLine bool)
 				return nil, errors.Default.Wrap(err, "Error to get pipeline by blueprint id")
 			}
 			if pipelinesCount > 0 {
-				projectOutput.LatestPipeLine = pipelines[0]
+				projectOutput.LastPipeline = pipelines[0]
 			}
 		}
 	}
