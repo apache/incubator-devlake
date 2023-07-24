@@ -100,7 +100,7 @@ func CreateProject(projectInput *models.ApiInputProject) (*models.ApiOutputProje
 		return nil, errors.Default.Wrap(err, "error creating DB project")
 	}
 
-	// check if wee need flush the Metrics
+	// check if we need flush the Metrics
 	if len(projectInput.Metrics) > 0 {
 		err = refreshProjectMetrics(tx, projectInput)
 		if err != nil {
