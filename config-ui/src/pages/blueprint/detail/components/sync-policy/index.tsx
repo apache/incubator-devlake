@@ -123,7 +123,7 @@ export const SyncPolicy = ({
       )}
       <div className="cron">
         <FormItem
-          style={{ flex: '0 0 400px', marginRight: 50 }}
+          style={{ flex: '0 0 450px', marginRight: 20 }}
           label="Sync Frequency"
           subLabel="Blueprints will run on creation and recurringly based on the schedule."
         >
@@ -169,9 +169,10 @@ export const SyncPolicy = ({
               {!cron.nextTime && <S.Error>Invalid Cron code, please enter again.</S.Error>}
             </>
           )}
-          <ExternalLink style={{ display: 'block', marginTop: 16 }} link="https://crontab.cronhub.io/">
-            Learn about how to use cron code
-          </ExternalLink>
+          <div style={{ marginTop: 16 }}>
+            <ExternalLink link="https://crontab.cronhub.io/">Learn how to use cron code</ExternalLink> or{' '}
+            <ExternalLink link="https://cron-ai.vercel.app/">auto-convert English to cron code</ExternalLink>
+          </div>
         </FormItem>
         <FormItem label="Next Three Runs:">
           {cron.nextTimes.length ? (
