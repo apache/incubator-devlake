@@ -1,6 +1,6 @@
 # Pydevlake
 
-Pydevlake is a framework for writing plugins plugins for [DevLake](https://devlake.apache.org/). The framework source code
+Pydevlake is a framework for writing plugins for [DevLake](https://devlake.apache.org/) in Python. The framework source code
 can be found in [here](./pydevlake).
 
 
