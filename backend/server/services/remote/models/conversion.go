@@ -33,7 +33,11 @@ import (
 )
 
 func LoadTableModel(tableName string, schema utils.JsonObject, parentModel any) (models.DynamicTabler, errors.Error) {
-	structType, err := GenerateStructType(schema, reflect.TypeOf(parentModel))
+	var baseType reflect.Type = nil
+	if parentModel != nil {
+		baseType = reflect.TypeOf(parentModel)
+	}
+	structType, err := GenerateStructType(schema, baseType)
 	if err != nil {
 		return nil, err
 	}
@@ -60,7 +64,7 @@ func GenerateStructType(schema utils.JsonObject, baseType reflect.Type) (reflect
 		structFields = append(structFields, anonymousField)
 	}
 	for k, v := range props {
-		if isBaseTypeField(k, baseType) {
+		if baseType != nil && isBaseTypeField(k, baseType) {
 			continue
 		}
 		spec := v.(utils.JsonObject)

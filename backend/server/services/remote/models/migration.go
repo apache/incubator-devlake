@@ -19,11 +19,13 @@ package models
 
 import (
 	"encoding/json"
-
+	"fmt"
 	"github.com/apache/incubator-devlake/core/context"
 	"github.com/apache/incubator-devlake/core/dal"
 	"github.com/apache/incubator-devlake/core/errors"
+	"github.com/apache/incubator-devlake/core/models/common"
 	"github.com/apache/incubator-devlake/core/plugin"
+	"github.com/apache/incubator-devlake/helpers/pluginhelper/api"
 )
 
 type Operation interface {
@@ -56,10 +58,7 @@ type AddColumnOperation struct {
 
 func (o AddColumnOperation) Execute(dal dal.Dal) errors.Error {
 	if dal.HasColumn(o.Table, o.Column) {
-		err := dal.DropColumns(o.Table, o.Column)
-		if err != nil {
-			return err
-		}
+		return nil
 	}
 	return dal.AddColumn(o.Table, o.Column, o.ColumnType)
 }
@@ -101,13 +100,26 @@ func (o RenameTableOperation) Execute(dal dal.Dal) errors.Error {
 	if !dal.HasTable(o.OldName) {
 		return nil
 	}
-	if dal.HasTable(o.NewName) {
-		err := dal.DropTables(o.NewName)
-		if err != nil {
-			return err
-		}
-	}
 	return dal.RenameTable(o.OldName, o.NewName)
+}
+
+type CreateTableOperation struct {
+	ModelInfo *DynamicModelInfo `json:"model_info"`
+}
+
+func (o CreateTableOperation) Execute(dal dal.Dal) errors.Error {
+	if dal.HasTable(o.ModelInfo.TableName) {
+		return errors.Default.New(fmt.Sprintf("table %s already exists.", o.ModelInfo.TableName))
+	}
+	model, err := o.ModelInfo.LoadDynamicTabler(common.NoPKModel{})
+	if err != nil {
+		return err
+	}
+	err = api.CallDB(dal.AutoMigrate, model.New())
+	if err != nil {
+		return err
+	}
+	return nil
 }
 
 var _ Operation = (*RenameTableOperation)(nil)
@@ -135,7 +147,7 @@ func (s *RemoteMigrationScript) UnmarshalJSON(data []byte) error {
 	s.operations = make([]Operation, len(rawScript.Operations))
 	for i, operationRaw := range rawScript.Operations {
 		operationMap := make(map[string]interface{})
-		err := json.Unmarshal(operationRaw, &operationMap)
+		err = json.Unmarshal(operationRaw, &operationMap)
 		if err != nil {
 			return err
 		}
@@ -152,6 +164,8 @@ func (s *RemoteMigrationScript) UnmarshalJSON(data []byte) error {
 			operation = &DropTableOperation{}
 		case "rename_table":
 			operation = &RenameTableOperation{}
+		case "create_table":
+			operation = &CreateTableOperation{}
 		default:
 			return errors.BadInput.New("unsupported operation type")
 		}

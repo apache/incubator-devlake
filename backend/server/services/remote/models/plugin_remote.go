@@ -18,7 +18,6 @@ limitations under the License.
 package models
 
 import (
-	"github.com/apache/incubator-devlake/core/errors"
 	"github.com/apache/incubator-devlake/core/plugin"
 )
 
@@ -31,5 +30,4 @@ type RemotePlugin interface {
 	plugin.PluginModel
 	plugin.PluginMigration
 	plugin.PluginSource
-	RunAutoMigrations() errors.Error
 }

@@ -26,7 +26,8 @@ from pydantic import AnyUrl, SecretStr, validator
 from sqlalchemy import Column, DateTime, Text
 from sqlalchemy.orm import declared_attr
 from sqlalchemy.inspection import inspect
-from sqlmodel import SQLModel, Field
+from sqlmodel import SQLModel
+from pydevlake import Field
 
 
 inflect_engine = inflect.engine()
