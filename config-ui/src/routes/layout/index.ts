@@ -16,13 +16,5 @@
  *
  */
 
-import { request } from '@/utils';
-
-export type UserInfo = {
-  user: string;
-  email: string;
-  logoutURI: string;
-};
-
-export const getVersion = (signal?: AbortSignal): Promise<{ version: string }> => request('/version', { signal });
-export const getUserInfo = (): Promise<UserInfo> => request('/userinfo');
+export * from './loader';
+export * from './layout';

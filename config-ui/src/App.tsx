@@ -19,7 +19,6 @@
 import { createBrowserRouter, Navigate, RouterProvider } from 'react-router-dom';
 
 import { PageLoading } from '@/components';
-import { loader as baseLayoutLoader, BaseLayout } from '@/layouts/base';
 import {
   ConnectionHomePage,
   ConnectionDetailPage,
@@ -29,13 +28,14 @@ import {
   BlueprintDetailPage,
   BlueprintConnectionDetailPage,
 } from '@/pages';
+import { Layout, loader as layoutLoader } from '@/routes/layout';
 import { Error } from '@/routes/error';
 
 const router = createBrowserRouter([
   {
     path: '/',
-    element: <BaseLayout />,
-    loader: baseLayoutLoader,
+    element: <Layout />,
+    loader: layoutLoader,
     errorElement: <Error />,
     children: [
       {
