@@ -24,6 +24,7 @@ import (
 	"io"
 	"net/http"
 	"net/url"
+	"sync"
 	"text/template"
 	"time"
 
@@ -136,6 +137,8 @@ func NewApiCollector(args ApiCollectorArgs) (*ApiCollector, errors.Error) {
 	return apiCollector, nil
 }
 
+var rawTableAutoMigrateLock sync.Mutex
+
 // Execute will start collection
 func (collector *ApiCollector) Execute() errors.Error {
 	logger := collector.args.Ctx.GetLogger()
@@ -143,7 +146,9 @@ func (collector *ApiCollector) Execute() errors.Error {
 
 	// make sure table is created
 	db := collector.args.Ctx.GetDal()
+	rawTableAutoMigrateLock.Lock()
 	err := db.AutoMigrate(&RawData{}, dal.From(collector.table))
+	rawTableAutoMigrateLock.Unlock()
 	if err != nil {
 		return errors.Default.Wrap(err, "error auto-migrating collector")
 	}
