@@ -139,6 +139,13 @@ func NewApiCollector(args ApiCollectorArgs) (*ApiCollector, errors.Error) {
 
 var rawTableAutoMigrateLock sync.Mutex
 
+func (collector *ApiCollector) ensureRawTable(table string) errors.Error {
+	db := collector.args.Ctx.GetDal()
+	rawTableAutoMigrateLock.Lock()
+	defer rawTableAutoMigrateLock.Unlock()
+	return db.AutoMigrate(&RawData{}, dal.From(collector.table))
+}
+
 // Execute will start collection
 func (collector *ApiCollector) Execute() errors.Error {
 	logger := collector.args.Ctx.GetLogger()
@@ -146,9 +153,7 @@ func (collector *ApiCollector) Execute() errors.Error {
 
 	// make sure table is created
 	db := collector.args.Ctx.GetDal()
-	rawTableAutoMigrateLock.Lock()
-	err := db.AutoMigrate(&RawData{}, dal.From(collector.table))
-	rawTableAutoMigrateLock.Unlock()
+	err := collector.ensureRawTable(collector.table)
 	if err != nil {
 		return errors.Default.Wrap(err, "error auto-migrating collector")
 	}
