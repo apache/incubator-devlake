@@ -35,6 +35,7 @@ type RemoteScopesChild struct {
 	ParentId *string     `json:"parentId"`
 	Id       string      `json:"id"`
 	Name     string      `json:"name"`
+	FullName string      `json:"fullName"`
 	Data     interface{} `json:"data"`
 }
 
@@ -211,10 +212,11 @@ func (r *RemoteApiHelper[Conn, Scope, ApiScope, Group]) GetScopesFromRemote(inpu
 		for _, project := range resBody {
 			scope := project.ConvertApiScope()
 			child := RemoteScopesChild{
-				Type: TypeProject,
-				Id:   scope.ScopeId(),
-				Name: scope.ScopeName(),
-				Data: &scope,
+				Type:     TypeProject,
+				Id:       scope.ScopeId(),
+				Name:     scope.ScopeName(),
+				FullName: scope.ScopeFullName(),
+				Data:     &scope,
 			}
 			child.ParentId = &gid
 			if *child.ParentId == "" {
@@ -307,6 +309,7 @@ func (r *RemoteApiHelper[Conn, Scope, ApiScope, Group]) SearchRemoteScopes(input
 			Id:       scope.ScopeId(),
 			ParentId: nil,
 			Name:     scope.ScopeName(),
+			FullName: scope.ScopeFullName(),
 			Data:     scope,
 		}
 

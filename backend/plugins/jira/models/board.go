@@ -45,6 +45,10 @@ func (b JiraBoard) ScopeName() string {
 	return b.Name
 }
 
+func (b JiraBoard) ScopeFullName() string {
+	return b.Name
+}
+
 func (b JiraBoard) ScopeParams() interface{} {
 	return &JiraApiParams{
 		ConnectionId: b.ConnectionId,

@@ -36,6 +36,7 @@ type Scope interface {
 
 type ToolLayerScope interface {
 	Scope
+	ScopeFullName() string
 	ScopeParams() interface{}
 }
 

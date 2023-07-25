@@ -48,6 +48,10 @@ func (p BambooProject) ScopeName() string {
 	return p.Name
 }
 
+func (p BambooProject) ScopeFullName() string {
+	return p.Name
+}
+
 func (p BambooProject) ScopeParams() interface{} {
 	return &BambooApiParams{
 		ConnectionId: p.ConnectionId,

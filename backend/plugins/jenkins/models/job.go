@@ -51,6 +51,9 @@ func (j JenkinsJob) ScopeId() string {
 func (j JenkinsJob) ScopeName() string {
 	return j.Name
 }
+func (j JenkinsJob) ScopeFullName() string {
+	return j.FullName
+}
 
 func (j JenkinsJob) ScopeParams() interface{} {
 	return &JenkinsApiParams{
