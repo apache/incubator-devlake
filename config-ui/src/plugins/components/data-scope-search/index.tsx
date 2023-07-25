@@ -59,7 +59,7 @@ export const DataScopeSearch = ({ plugin, connectionId, disabledItems, selectedI
 
   const getKey = (it: ItemType) => it.id;
 
-  const getName = (it: ItemType) => it.name;
+  const getName = (it: ItemType) => it.fullName;
 
   const handleChangeItems = (selectedItems: ItemType[]) => onChangeItems?.(selectedItems.map((it) => it.data));
 
