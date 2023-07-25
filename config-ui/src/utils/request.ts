@@ -34,6 +34,19 @@ export type RequestConfig = {
   headers?: Record<string, string>;
 };
 
+instance.interceptors.response.use(
+  (response) => response,
+  (error) => {
+    const status = error.response?.status;
+
+    if (status === 428) {
+      window.location.replace('/db-migrate');
+    }
+
+    return Promise.reject(error);
+  },
+);
+
 export const request = (path: string, config?: RequestConfig) => {
   const { method = 'get', data, timeout, headers, signal } = config || {};
 

@@ -16,4 +16,30 @@
  *
  */
 
-export * from './base';
+import { AxiosError } from 'axios';
+import { json } from 'react-router-dom';
+
+import { ErrorEnum } from '@/routes/error';
+
+import * as API from './api';
+
+type Props = {
+  request: Request;
+};
+
+export const loader = async ({ request }: Props) => {
+  try {
+    const version = await API.getVersion(request.signal);
+    const userInfo = await API.getUserInfo(request.signal);
+    return {
+      version: version.version,
+      userInfo,
+    };
+  } catch (err) {
+    const status = (err as AxiosError).response?.status;
+    if (status === 428) {
+      throw json({ error: ErrorEnum.NEEDS_DB_MIRGATE }, { status: 428 });
+    }
+    throw json({ error: ErrorEnum.API_OFFLINE }, { status: 503 });
+  }
+};

@@ -40,3 +40,5 @@ export const TipsContextProvider = ({ children }: { children: React.ReactNode })
     </TipsContext.Provider>
   );
 };
+
+export const TipsContextConsumer = TipsContext.Consumer;

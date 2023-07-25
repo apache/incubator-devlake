@@ -16,4 +16,18 @@
  *
  */
 
-export * from './base';
+import { request } from '@/utils';
+
+type VersionType = {
+  version: string;
+};
+
+export const getVersion = (signal?: AbortSignal): Promise<VersionType> => request('/version', { signal });
+
+type UserInfoType = {
+  user: string;
+  email: string;
+  logoutURI: string;
+};
+
+export const getUserInfo = (signal?: AbortSignal): Promise<UserInfoType> => request('/userinfo', { signal });
