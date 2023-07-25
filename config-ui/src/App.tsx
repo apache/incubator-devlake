@@ -16,7 +16,7 @@
  *
  */
 
-import { createBrowserRouter, Navigate, RouterProvider } from 'react-router-dom';
+import { createBrowserRouter, Navigate, RouterProvider, json } from 'react-router-dom';
 
 import { PageLoading } from '@/components';
 import {
@@ -29,9 +29,17 @@ import {
   BlueprintConnectionDetailPage,
 } from '@/pages';
 import { Layout, loader as layoutLoader } from '@/routes/layout';
-import { Error } from '@/routes/error';
+import { Error, ErrorEnum } from '@/routes/error';
 
 const router = createBrowserRouter([
+  {
+    path: 'db-migrate',
+    element: <></>,
+    loader: () => {
+      throw json({ error: ErrorEnum.NEEDS_DB_MIRGATE }, { status: 428 });
+    },
+    errorElement: <Error />,
+  },
   {
     path: '/',
     element: <Layout />,
