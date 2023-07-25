@@ -18,27 +18,28 @@ limitations under the License.
 package migrationscripts
 
 import (
-	"github.com/apache/incubator-devlake/core/plugin"
+	"github.com/apache/incubator-devlake/core/context"
+	"github.com/apache/incubator-devlake/core/errors"
 )
 
-// All return all the migration scripts
-func All() []plugin.MigrationScript {
-	return []plugin.MigrationScript{
-		new(addInitTables),
-		new(addGitlabCI),
-		new(addPipelineID),
-		new(addPipelineProjects),
-		new(fixDurationToFloat8),
-		new(addTransformationRule20221125),
-		new(addStdTypeToIssue221230),
-		new(addIsDetailRequired20230210),
-		new(addConnectionIdToTransformationRule),
-		new(addGitlabCommitAuthorInfo),
-		new(addTypeEnvToPipeline),
-		new(renameTr2ScopeConfig),
-		new(addGitlabIssueAssignee),
-		new(addMrCommitSha),
-		new(addRawParamTableForScope),
-		new(addProjectArchived),
-	}
+type gitlabProject20230711 struct {
+	Archived bool `json:"archived"`
+}
+
+func (gitlabProject20230711) TableName() string {
+	return "_tool_gitlab_projects"
+}
+
+type addProjectArchived struct{}
+
+func (script *addProjectArchived) Up(basicRes context.BasicRes) errors.Error {
+	return basicRes.GetDal().AutoMigrate(&gitlabProject20230711{})
+}
+
+func (*addProjectArchived) Version() uint64 {
+	return 20230712095900
+}
+
+func (*addProjectArchived) Name() string {
+	return "add archived to _tool_gitlab_projects"
 }

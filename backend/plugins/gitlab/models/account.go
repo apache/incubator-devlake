@@ -38,3 +38,26 @@ type GitlabAccount struct {
 func (GitlabAccount) TableName() string {
 	return "_tool_gitlab_accounts"
 }
+
+type GitlabUser struct {
+	ID        int    `json:"id"`
+	Username  string `json:"username"`
+	Name      string `json:"name"`
+	State     string `json:"state"`
+	AvatarURL string `json:"avatar_url"`
+	WebURL    string `json:"web_url"`
+}
+
+type GitlabMember struct {
+	AccessLevel     int        `json:"access_level"`
+	CreatedAt       string     `json:"created_at"`
+	CreatedBy       GitlabUser `json:"created_by"`
+	ExpiresAt       string     `json:"expires_at"`
+	ID              int        `json:"id"`
+	Username        string     `json:"username"`
+	Name            string     `json:"name"`
+	State           string     `json:"state"`
+	AvatarURL       string     `json:"avatar_url"`
+	WebURL          string     `json:"web_url"`
+	MembershipState string     `json:"membership_state"`
+}
