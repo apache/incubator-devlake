@@ -49,6 +49,10 @@ func (p SonarqubeProject) ScopeName() string {
 	return p.Name
 }
 
+func (p SonarqubeProject) ScopeFullName() string {
+	return p.Name
+}
+
 func (p SonarqubeProject) ScopeParams() interface{} {
 	return SonarqubeApiParams{
 		ConnectionId: p.ConnectionId,

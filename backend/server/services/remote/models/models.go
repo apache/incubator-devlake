@@ -97,6 +97,10 @@ func (d DynamicScopeModel) ScopeName() string {
 	return reflect.ValueOf(d.DynamicTabler.Unwrap()).Elem().FieldByName("Name").String()
 }
 
+func (d DynamicScopeModel) ScopeFullName() string {
+	return d.ScopeName()
+}
+
 func (d DynamicScopeModel) ScopeParams() interface{} {
 	return &ApiParams{
 		ConnectionId: d.ConnectionId(),

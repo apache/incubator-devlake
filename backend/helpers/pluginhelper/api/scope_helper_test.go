@@ -56,6 +56,10 @@ func (t TestFakeGitlabRepo) ScopeName() string {
 	return ""
 }
 
+func (t TestFakeGitlabRepo) ScopeFullName() string {
+	return ""
+}
+
 func (t TestFakeGitlabRepo) TableName() string {
 	return ""
 }
@@ -86,6 +90,10 @@ func (r TestFakeGithubRepo) ScopeId() string {
 }
 
 func (r TestFakeGithubRepo) ScopeName() string {
+	return r.Name
+}
+
+func (r TestFakeGithubRepo) ScopeFullName() string {
 	return r.Name
 }
 

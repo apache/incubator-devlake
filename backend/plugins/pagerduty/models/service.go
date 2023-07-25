@@ -43,6 +43,10 @@ func (s Service) ScopeName() string {
 	return s.Name
 }
 
+func (s Service) ScopeFullName() string {
+	return s.Name
+}
+
 func (s Service) ScopeParams() interface{} {
 	return &PagerDutyParams{
 		ConnectionId: s.ConnectionId,
