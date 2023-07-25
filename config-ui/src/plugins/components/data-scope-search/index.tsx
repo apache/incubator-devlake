@@ -16,9 +16,11 @@
  *
  */
 
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
+import { useDebounce } from 'ahooks';
 
 import { MultiSelector } from '@/components';
+import { useRefreshData } from '@/hooks';
 
 import type { ItemType } from './types';
 import * as API from './api';
@@ -32,29 +34,17 @@ interface Props {
 }
 
 export const DataScopeSearch = ({ plugin, connectionId, disabledItems, selectedItems, onChangeItems }: Props) => {
-  const [loading, setLoading] = useState(false);
-  const [items, setItems] = useState<ItemType[]>([]);
-  const [search, setSearch] = useState('');
+  const [query, setQuery] = useState('');
 
-  useEffect(() => {
-    if (!search) return;
-    setItems([]);
-    setLoading(true);
+  const search = useDebounce(query, { wait: 500 });
 
-    const timer = setTimeout(async () => {
-      try {
-        const res = await API.searchScope(plugin, connectionId, {
-          search,
-          page: 1,
-          pageSize: 50,
-        });
-        setItems(res.children ?? []);
-      } finally {
-        setLoading(false);
-      }
-    }, 1000);
-
-    return () => clearTimeout(timer);
+  const { ready, data } = useRefreshData<{ children: ItemType[] }>(async () => {
+    if (!search) return [];
+    return API.searchScope(plugin, connectionId, {
+      search,
+      page: 1,
+      pageSize: 50,
+    });
   }, [search]);
 
   const getKey = (it: ItemType) => it.id;
@@ -66,15 +56,15 @@ export const DataScopeSearch = ({ plugin, connectionId, disabledItems, selectedI
   return (
     <MultiSelector
       placeholder="Search Repositories..."
-      items={items}
+      items={data?.children ?? []}
       getKey={getKey}
       getName={getName}
       disabledItems={disabledItems}
       selectedItems={selectedItems}
       onChangeItems={handleChangeItems}
-      loading={loading}
+      loading={!ready}
       noResult="No Repositories Available."
-      onQueryChange={(s) => setSearch(s)}
+      onQueryChange={(query) => setQuery(query)}
     />
   );
 };

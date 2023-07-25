@@ -46,14 +46,14 @@ export const DataScopeSelect = ({
 }: Props) => {
   const [version, setVersion] = useState(1);
   const [scopeIds, setScopeIds] = useState<ID[]>([]);
-  const [search, setSearch] = useState('');
+  const [query, setQuery] = useState('');
 
-  const searchTerm = useDebounce(search, { wait: 500 });
+  const search = useDebounce(query, { wait: 500 });
 
   const { ready, data } = useRefreshData(() => API.getDataScope(plugin, connectionId), [version]);
   const { ready: searchReady, data: searchItems } = useRefreshData<[{ name: string }]>(
-    () => API.getDataScope(plugin, connectionId, { searchTerm }),
-    [searchTerm],
+    () => API.getDataScope(plugin, connectionId, { searchTerm: search }),
+    [search],
   );
 
   const handleRefresh = () => setVersion((v) => v + 1);
@@ -115,7 +115,7 @@ export const DataScopeSelect = ({
               getName={(it: any) => it.name}
               getKey={(it) => getPluginScopeId(plugin, it)}
               noResult="No Data Scopes Available."
-              onQueryChange={(query) => setSearch(query)}
+              onQueryChange={(query) => setQuery(query)}
               selectedItems={data.filter((it: any) => scopeIds.includes(getPluginScopeId(plugin, it))) ?? []}
               onChangeItems={(items) => setScopeIds(items.map((it: any) => getPluginScopeId(plugin, it)))}
             />
