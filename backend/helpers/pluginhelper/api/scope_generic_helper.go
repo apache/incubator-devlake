@@ -73,7 +73,7 @@ type (
 		// This corresponds to the database column name of the scope struct's ID (typically primary key) field
 		ScopeIdColumnName string `validate:"required"`
 		// This corresponds to the scope field on the ApiParams struct of a plugin.
-		RawScopeParamName    string `validate:"required"`
+		RawScopeParamName string `validate:"required"`
 		// This corresponds to the scope field for allowing data scope search.
 		SearchScopeParamName string
 	}
