@@ -74,6 +74,7 @@ type (
 		ScopeIdColumnName string `validate:"required"`
 		// This corresponds to the scope field on the ApiParams struct of a plugin.
 		RawScopeParamName    string `validate:"required"`
+		// This corresponds to the scope field for allowing data scope search.
 		SearchScopeParamName string
 	}
 	ScopeHelperOptions struct {
