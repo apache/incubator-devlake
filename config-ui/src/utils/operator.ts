@@ -52,7 +52,7 @@ export const operator = async <T>(request: () => Promise<T>, config?: OperateCon
       toast.error(reason);
     }
 
-    return [false];
+    return [false, err];
   } finally {
     setOperating?.(false);
   }
