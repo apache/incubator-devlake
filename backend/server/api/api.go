@@ -94,6 +94,9 @@ func CreateApiService() {
 		shared.ApiOutputSuccess(ctx, nil, http.StatusOK)
 	})
 
+	// Api keys
+	router.Use(Authentication(router))
+
 	// Restrict access if database migration is required
 	router.Use(func(ctx *gin.Context) {
 		if !services.MigrationRequireConfirmation() {

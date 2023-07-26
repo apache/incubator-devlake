@@ -50,15 +50,20 @@ func GenerateApiKey(ctx context.Context) (string, string, errors.Error) {
 	if randomLetterErr != nil {
 		return "", "", errors.Default.Wrap(randomLetterErr, "random letters")
 	}
+	hashedApiKey, err := GenerateApiKeyWithToken(ctx, randomApiKey)
+	return randomApiKey, hashedApiKey, err
+}
+
+func GenerateApiKeyWithToken(ctx context.Context, token string) (string, errors.Error) {
 	encodeKeyEnv, exist := GetEncodeKeyEnv(ctx)
 	if !exist {
 		err := errors.Default.New("encode key env doesn't exist")
-		return "", "", err
+		return "", err
 	}
 	h := hmac.New(sha256.New, []byte(encodeKeyEnv))
-	if _, err := h.Write([]byte(randomApiKey)); err != nil {
-		return "", "", errors.Default.Wrap(err, "hmac write api key")
+	if _, err := h.Write([]byte(token)); err != nil {
+		return "", errors.Default.Wrap(err, "hmac write api key")
 	}
 	hashedApiKey := fmt.Sprintf("%x", h.Sum(nil))
-	return randomApiKey, hashedApiKey, nil
+	return hashedApiKey, nil
 }

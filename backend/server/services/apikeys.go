@@ -212,6 +212,6 @@ func CreateApiKey(apiKeyInput *models.ApiInputApiKey) (*models.ApiOutputApiKey, 
 	apiOutputApiKey := &models.ApiOutputApiKey{
 		ApiKey: *apiKey,
 	}
-	apiKey.ApiKey = randomApiKey
+	apiOutputApiKey.ApiKey.ApiKey = randomApiKey
 	return apiOutputApiKey, nil
 }
