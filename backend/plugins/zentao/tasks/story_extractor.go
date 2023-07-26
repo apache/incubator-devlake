@@ -128,13 +128,17 @@ func ExtractStory(taskCtx plugin.SubTaskContext) errors.Error {
 				Url:              row.Url,
 			}
 
-			story.StdType = stdTypeMappings[story.Type+"."+story.Category]
+			story.StdType = stdTypeMappings[story.Type]
 			if story.StdType == "" {
 				story.StdType = ticket.REQUIREMENT
 			}
-
+			switch story.Status {
+			case "active", "closed", "draft", "changing", "reviewing":
+			default:
+				story.Status = "active"
+			}
 			if len(statusMappings) != 0 {
-				story.StdStatus = statusMappings[story.Status+"-"+story.Stage]
+				story.StdStatus = statusMappings[story.Status]
 			} else {
 				story.StdStatus = ticket.GetStatus(&ticket.StatusRule{
 					Done:    []string{"closed"},
