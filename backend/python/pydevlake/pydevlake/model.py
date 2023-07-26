@@ -87,6 +87,7 @@ class DomainType(Enum):
 class ScopeConfig(ToolTable, Model):
     name: str = Field(default="default")
     domain_types: list[DomainType] = Field(default=list(DomainType), alias="entities")
+    connection_id: Optional[int]
 
 
 class RawModel(SQLModel):
@@ -153,6 +154,7 @@ class DomainModel(NoPKModel):
 class ToolScope(ToolModel):
     id: str = Field(primary_key=True)
     name: str
+    scope_config_id: Optional[int]
 
 
 class DomainScope(DomainModel):

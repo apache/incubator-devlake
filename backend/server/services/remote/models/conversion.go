@@ -140,6 +140,7 @@ var (
 	stringType  = reflect.TypeOf("")
 	timeType    = reflect.TypeOf(time.Time{})
 	jsonMapType = reflect.TypeOf(datatypes.JSONMap{})
+	jsonType    = reflect.TypeOf(datatypes.JSON{})
 )
 
 func generateStructField(name string, schema utils.JsonObject, required bool) (*reflect.StructField, errors.Error) {
@@ -160,11 +161,11 @@ func generateStructField(name string, schema utils.JsonObject, required bool) (*
 }
 
 func getGoType(schema utils.JsonObject, required bool) (reflect.Type, errors.Error) {
-	jsonType, ok := schema["type"].(string)
+	rawType, ok := schema["type"].(string)
 	if !ok {
 		return nil, errors.BadInput.New("\"type\" property must be a string")
 	}
-	switch jsonType {
+	switch rawType {
 	//TODO: support more types
 	case "integer":
 		return int64Type, nil
@@ -183,10 +184,12 @@ func getGoType(schema utils.JsonObject, required bool) (reflect.Type, errors.Err
 		} else {
 			return stringType, nil
 		}
+	case "array":
+		return jsonType, nil
 	case "object":
 		return jsonMapType, nil
 	default:
-		return nil, errors.BadInput.New(fmt.Sprintf("Unsupported type %s", jsonType))
+		return nil, errors.BadInput.New(fmt.Sprintf("Unsupported type %s", rawType))
 	}
 }
 
