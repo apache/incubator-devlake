@@ -18,33 +18,11 @@ from typing import List, Literal, Optional, Union, Annotated
 from enum import Enum
 from datetime import datetime
 
-import jsonref
 from pydantic import BaseModel, Field
 
+from pydevlake.model_info import DynamicModelInfo
+
 MIGRATION_SCRIPTS = []
-
-# TODO refactor this
-class DynamicModelInfo(BaseModel):
-    class Config:
-        allow_population_by_field_name = True
-    json_schema: dict
-    table_name: str
-
-    @staticmethod
-    def from_model(model_class):
-        schema = model_class.schema(by_alias=True)
-        if 'definitions' in schema:
-            # Replace $ref with actual schema
-            schema = jsonref.replace_refs(schema, proxies=False)
-            del schema['definitions']
-        # Pydantic forgets to put type in enums
-        for prop in schema['properties'].values():
-            if 'type' not in prop and 'enum' in prop:
-                prop['type'] = 'string'
-        return DynamicModelInfo(
-            json_schema=schema,
-            table_name=model_class.__tablename__
-        )
 
 
 class Dialect(Enum):
