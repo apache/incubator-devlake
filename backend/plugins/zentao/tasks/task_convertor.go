@@ -77,7 +77,7 @@ func ConvertTask(taskCtx plugin.SubTaskContext) errors.Error {
 				Title:                   toolEntity.Name,
 				Description:             toolEntity.Description,
 				Type:                    ticket.TASK,
-				OriginalType:            toolEntity.Type,
+				OriginalType:            "task",
 				OriginalStatus:          toolEntity.Status,
 				ResolutionDate:          toolEntity.ClosedDate.ToNullableTime(),
 				CreatedDate:             toolEntity.OpenedDate.ToNullableTime(),
