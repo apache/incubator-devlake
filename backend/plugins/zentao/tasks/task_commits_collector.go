@@ -98,6 +98,9 @@ func CollectTaskCommits(taskCtx plugin.SubTaskContext) errors.Error {
 				Actions []json.RawMessage `json:"actions"`
 			}
 			err := api.UnmarshalResponse(res, &data)
+			if errors.Is(err, api.ErrEmptyResponse) {
+				return nil, nil
+			}
 			if err != nil {
 				return nil, err
 			}

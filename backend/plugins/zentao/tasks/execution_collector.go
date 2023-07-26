@@ -56,6 +56,9 @@ func CollectExecutions(taskCtx plugin.SubTaskContext) errors.Error {
 		ResponseParser: func(res *http.Response) ([]json.RawMessage, errors.Error) {
 			var data json.RawMessage
 			err := api.UnmarshalResponse(res, &data)
+			if errors.Is(err, api.ErrEmptyResponse) {
+				return nil, nil
+			}
 			if err != nil {
 				return nil, err
 			}

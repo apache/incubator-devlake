@@ -87,6 +87,9 @@ func CollectStory(taskCtx plugin.SubTaskContext) errors.Error {
 				Story []json.RawMessage `json:"stories"`
 			}
 			err := api.UnmarshalResponse(res, &data)
+			if errors.Is(err, api.ErrEmptyResponse) {
+				return nil, nil
+			}
 			if err != nil {
 				return nil, errors.Default.Wrap(err, "error reading endpoint response by Zentao bug collector")
 			}
