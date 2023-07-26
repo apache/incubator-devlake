@@ -227,7 +227,7 @@ func (p Jira) PrepareTaskData(taskCtx plugin.TaskContext, options map[string]int
 		if err != nil && db.IsErrorNotFound(err) {
 			return nil, errors.BadInput.Wrap(err, "fail to get scopeConfig")
 		}
-		op.ScopeConfig, err = tasks.MakeScopeConfig(scopeConfig)
+		op.ScopeConfig = &scopeConfig
 		if err != nil {
 			return nil, errors.BadInput.Wrap(err, "fail to make scopeConfig")
 		}

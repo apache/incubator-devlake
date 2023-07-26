@@ -44,7 +44,7 @@ var ExtractIssuesMeta = plugin.SubTaskMeta{
 type typeMappings struct {
 	typeIdMappings         map[string]string
 	stdTypeMappings        map[string]string
-	standardStatusMappings map[string]StatusMappings
+	standardStatusMappings map[string]models.StatusMappings
 }
 
 func ExtractIssues(taskCtx plugin.SubTaskContext) errors.Error {
@@ -195,7 +195,7 @@ func getTypeMappings(data *JiraTaskData, db dal.Dal) (*typeMappings, errors.Erro
 		typeIdMapping[issueType.Id] = issueType.Name
 	}
 	stdTypeMappings := make(map[string]string)
-	standardStatusMappings := make(map[string]StatusMappings)
+	standardStatusMappings := make(map[string]models.StatusMappings)
 	if data.Options.ScopeConfig != nil {
 		for userType, stdType := range data.Options.ScopeConfig.TypeMappings {
 			stdTypeMappings[userType] = strings.ToUpper(stdType.StandardType)

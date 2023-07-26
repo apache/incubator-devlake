@@ -24,16 +24,12 @@ import (
 	"net/url"
 	"regexp"
 	"sort"
-	"strconv"
 	"strings"
 
-	"github.com/apache/incubator-devlake/core/dal"
 	"github.com/apache/incubator-devlake/core/errors"
 	"github.com/apache/incubator-devlake/core/plugin"
 	"github.com/apache/incubator-devlake/helpers/pluginhelper/api"
 	"github.com/apache/incubator-devlake/plugins/jira/models"
-	"github.com/apache/incubator-devlake/plugins/jira/tasks"
-	"github.com/mitchellh/mapstructure"
 )
 
 type genRegexReq struct {
@@ -67,16 +63,6 @@ type repo struct {
 // @Failure 500  {object} shared.ApiBody "Internal Error"
 // @Router /plugins/jira/connections/{connectionId}/scope-configs [POST]
 func CreateScopeConfig(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, errors.Error) {
-	rule, err := makeDbScopeConfigFromInput(input)
-	if err != nil {
-		return nil, errors.BadInput.Wrap(err, "error in makeJiraScopeConfig")
-	}
-	newRule := map[string]interface{}{}
-	err = errors.Convert(mapstructure.Decode(rule, &newRule))
-	if err != nil {
-		return nil, errors.BadInput.Wrap(err, "error in makeJiraScopeConfig")
-	}
-	input.Body = newRule
 	return scHelper.Create(input)
 }
 
@@ -93,59 +79,7 @@ func CreateScopeConfig(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutpu
 // @Failure 500  {object} shared.ApiBody "Internal Error"
 // @Router /plugins/jira/connections/{connectionId}/scope-configs/{id} [PATCH]
 func UpdateScopeConfig(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, errors.Error) {
-	connectionId, e := strconv.ParseUint(input.Params["connectionId"], 10, 64)
-	if e != nil || connectionId == 0 {
-		return nil, errors.Default.Wrap(e, "the connection ID should be an non-zero integer")
-	}
-	scopeConfigId, e := strconv.ParseUint(input.Params["id"], 10, 64)
-	if e != nil {
-		return nil, errors.Default.Wrap(e, "the scope config ID should be an integer")
-	}
-	var req tasks.JiraScopeConfig
-	err := api.Decode(input.Body, &req, vld)
-	if err != nil {
-		return nil, err
-	}
-	var oldDB models.JiraScopeConfig
-	err = basicRes.GetDal().First(&oldDB, dal.Where("id = ?", scopeConfigId))
-	if err != nil {
-		return nil, errors.Default.Wrap(err, "error on getting ScopeConfig")
-	}
-	oldTr, err := tasks.MakeScopeConfig(oldDB)
-	if err != nil {
-		return nil, err
-	}
-	err = api.DecodeMapStruct(input.Body, oldTr, true)
-	if err != nil {
-		return nil, err
-	}
-
-	newDB, err := oldTr.ToDb()
-	if err != nil {
-		return nil, err
-	}
-	newDB.ID = scopeConfigId
-	newDB.ConnectionId = connectionId
-	newDB.CreatedAt = oldDB.CreatedAt
-	err = basicRes.GetDal().Update(newDB)
-	if err != nil {
-		return nil, err
-	}
-	return &plugin.ApiResourceOutput{Body: newDB, Status: http.StatusOK}, err
-}
-
-func makeDbScopeConfigFromInput(input *plugin.ApiResourceInput) (*models.JiraScopeConfig, errors.Error) {
-	connectionId, e := strconv.ParseUint(input.Params["connectionId"], 10, 64)
-	if e != nil || connectionId == 0 {
-		return nil, errors.Default.Wrap(e, "the connection ID should be an non-zero integer")
-	}
-	var req tasks.JiraScopeConfig
-	err := api.Decode(input.Body, &req, vld)
-	if err != nil {
-		return nil, err
-	}
-	req.ConnectionId = connectionId
-	return req.ToDb()
+	return scHelper.Update(input)
 }
 
 // GetScopeConfig return one scope config
