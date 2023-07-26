@@ -359,3 +359,23 @@ func Lock(write bool, nowait bool) Clause {
 func Expr(expr string, params ...interface{}) DalClause {
 	return DalClause{Expr: expr, Params: params}
 }
+
+const JSONQueryClause string = "Json Query"
+
+// JSONQueryEqual is from https://gorm.io/docs/data_types.html
+func JSONQueryEqual(field string, key string, value interface{}) Clause {
+	return Clause{
+		Type: JSONQueryClause,
+		Data: JSONQueryEqualData{
+			Field: field,
+			Key:   key,
+			Value: value,
+		},
+	}
+}
+
+type JSONQueryEqualData struct {
+	Field string
+	Key   string
+	Value interface{}
+}

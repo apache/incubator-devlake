@@ -28,6 +28,16 @@ type Model struct {
 	UpdatedAt time.Time `json:"updatedAt"`
 }
 
+type Creator struct {
+	Creator      string `json:"creator"`
+	CreatorEmail string `json:"creatorEmail"`
+}
+
+type Updater struct {
+	Updater      string `json:"updater"`
+	UpdaterEmail string `json:"updater_email"`
+}
+
 type ScopeConfig struct {
 	Model
 	Entities []string `gorm:"type:json;serializer:json" json:"entities" mapstructure:"entities"`

@@ -20,6 +20,7 @@ package dalgorm
 import (
 	"database/sql"
 	"fmt"
+	"gorm.io/datatypes"
 	"reflect"
 	"strings"
 
@@ -127,7 +128,11 @@ func buildTx(tx *gorm.DB, clauses []dal.Clause) *gorm.DB {
 			}
 
 			tx = tx.Clauses(locking)
+		case dal.JSONQueryClause:
+			params := d.(dal.JSONQueryEqualData)
+			tx = tx.Where(datatypes.JSONQuery(params.Field).Equals(params.Value, params.Key))
 		}
+
 	}
 	return tx
 }

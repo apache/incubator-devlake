@@ -21,6 +21,7 @@ import (
 	"fmt"
 	"github.com/apache/incubator-devlake/core/errors"
 	"github.com/apache/incubator-devlake/impls/logruslog"
+	"github.com/apache/incubator-devlake/server/api/apikeys"
 	"net/http"
 	"strings"
 
@@ -72,6 +73,12 @@ func RegisterRouter(r *gin.Engine) {
 	r.DELETE("/projects/*projectName", project.DeleteProject)
 	r.POST("/projects", project.PostProject)
 	r.GET("/projects", project.GetProjects)
+
+	// api keys api
+	r.GET("/api-keys", apikeys.GetApiKeys)
+	r.POST("/api-keys", apikeys.PostApiKey)
+	r.PUT("/api-keys/:apiKeyId/", apikeys.PutApiKey)
+	r.DELETE("/api-keys/:apiKeyId", apikeys.DeleteApiKey)
 
 	// mount all api resources for all plugins
 	resources, err := services.GetPluginsApiResources()

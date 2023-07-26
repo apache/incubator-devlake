@@ -61,3 +61,13 @@ type RawDataOrigin struct {
 	// we can store record index into this field, which is helpful for debugging
 	RawDataRemark string `gorm:"column:_raw_data_remark" json:"_raw_data_remark"`
 }
+
+type Creator struct {
+	Creator      string `json:"creator" gorm:"type:varchar(255);column:creator"`
+	CreatorEmail string `json:"creatorEmail" gorm:"type:varchar(255);column:creator_email"`
+}
+
+type Updater struct {
+	Updater      string `json:"updater" gorm:"type:varchar(255);column:updater"`
+	UpdaterEmail string `json:"updater_email" gorm:"type:varchar(255);column:updater_email"`
+}

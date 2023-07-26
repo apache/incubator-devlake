@@ -18,18 +18,27 @@ limitations under the License.
 package models
 
 import (
-	helper "github.com/apache/incubator-devlake/helpers/pluginhelper/api"
+	"gorm.io/datatypes"
+	"time"
 )
 
-type ApiOutputWebhookConnection struct {
-	WebhookConnection `mapstructure:",squash"`
-	ApiKey            *ApiKey `json:"apiKey,omitempty"`
+// ApiKey is the basic of api key management.
+type ApiKey struct {
+	ID           uint64         `gorm:"primaryKey" json:"id"`
+	CreatedAt    time.Time      `json:"createdAt"`
+	UpdatedAt    time.Time      `json:"updatedAt"`
+	Creator      string         `json:"creator"`
+	CreatorEmail string         `json:"creatorEmail"`
+	Updater      string         `json:"updater"`
+	UpdaterEmail string         `json:"updater_email"`
+	Name         string         `json:"name"`
+	ApiKey       string         `json:"apiKey"`
+	ExpiredAt    time.Time      `json:"expiredAt"`
+	AllowedPath  string         `json:"allowedPath"`
+	Type         string         `json:"type"`
+	Extra        datatypes.JSON `json:"extra"`
 }
 
-type WebhookConnection struct {
-	helper.BaseConnection `mapstructure:",squash"`
-}
-
-func (WebhookConnection) TableName() string {
-	return "_tool_webhook_connections"
+func (ApiKey) TableName() string {
+	return "_devlake_api_keys"
 }
