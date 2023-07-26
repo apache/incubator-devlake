@@ -66,13 +66,14 @@ func PostConnections(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput,
 		return nil, errors.Default.Wrap(err, "marshal webhook api key extra")
 	}
 
+	user, email, _ := GetUserInfo(input.Request)
 	apiKeyRecord := &models.ApiKey{
 		CreatedAt:    time.Now(),
 		UpdatedAt:    time.Now(),
-		Creator:      "", // fixme
-		CreatorEmail: "", // fixme
-		Updater:      "", // fixme
-		UpdaterEmail: "", // fixme
+		Creator:      user,
+		CreatorEmail: email,
+		Updater:      user,
+		UpdaterEmail: email,
 		Name:         fmt.Sprintf("webhook-%d", connection.ID),
 		ApiKey:       hashedApiKey,
 		ExpiredAt:    nil,

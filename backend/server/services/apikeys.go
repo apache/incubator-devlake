@@ -19,8 +19,6 @@ package services
 
 import (
 	"context"
-	"crypto/hmac"
-	"crypto/sha256"
 	"encoding/json"
 	"fmt"
 	"github.com/apache/incubator-devlake/core/dal"
@@ -28,6 +26,7 @@ import (
 	"github.com/apache/incubator-devlake/core/models"
 	"github.com/apache/incubator-devlake/core/models/common"
 	"github.com/apache/incubator-devlake/core/utils"
+	"github.com/gin-gonic/gin"
 	"time"
 )
 
@@ -79,7 +78,7 @@ func getApiKeyById(tx dal.Dal, id uint64, additionalClauses ...dal.Clause) (*mod
 	return apiKey, nil
 }
 
-func DeleteApiKey(id uint64) errors.Error {
+func DeleteApiKey(c *gin.Context, id uint64) errors.Error {
 	// verify input
 	if id == 0 {
 		return errors.BadInput.New("api key's id is missing")
@@ -98,7 +97,7 @@ func DeleteApiKey(id uint64) errors.Error {
 	return nil
 }
 
-func PutApiKey(id uint64) (*models.ApiOutputApiKey, errors.Error) {
+func PutApiKey(c *gin.Context, id uint64) (*models.ApiOutputApiKey, errors.Error) {
 	// verify input
 	if id == 0 {
 		return nil, errors.BadInput.New("api key's id is missing")
@@ -116,9 +115,10 @@ func PutApiKey(id uint64) (*models.ApiOutputApiKey, errors.Error) {
 	}
 	apiKey.ApiKey = hashApiKey
 	apiKey.UpdatedAt = time.Now()
+	user, email, _ := GetUserInfo(c)
 	apiKey.Updater = common.Updater{
-		Updater:      "",
-		UpdaterEmail: "",
+		Updater:      user,
+		UpdaterEmail: email,
 	}
 	if err = db.Update(apiKey); err != nil {
 		logger.Error(err, "delete api key, id: %d", id)
@@ -131,8 +131,7 @@ func PutApiKey(id uint64) (*models.ApiOutputApiKey, errors.Error) {
 }
 
 // CreateApiKey accepts an api key instance and insert it to database
-func CreateApiKey(apiKeyInput *models.ApiInputApiKey) (*models.ApiOutputApiKey, errors.Error) {
-	logger.Info("api key: %+v", apiKeyInput)
+func CreateApiKey(c *gin.Context, apiKeyInput *models.ApiInputApiKey) (*models.ApiOutputApiKey, errors.Error) {
 
 	// verify input
 	if err := VerifyStruct(apiKeyInput); err != nil {
@@ -140,24 +139,11 @@ func CreateApiKey(apiKeyInput *models.ApiInputApiKey) (*models.ApiOutputApiKey, 
 		return nil, err
 	}
 
-	apiKeyLen := 128 // notice
-	randomApiKey, randomLetterErr := utils.RandLetterBytes(apiKeyLen)
-	if randomLetterErr != nil {
-		logger.Error(randomLetterErr, "RandLetterBytes with length: %d", apiKeyLen)
-		return nil, errors.Default.Wrap(randomLetterErr, "random letters")
+	randomApiKey, hashedApiKey, generateApiKeyErr := utils.GenerateApiKey(c)
+	if generateApiKeyErr != nil {
+		logger.Error(generateApiKeyErr, "GenerateApiKey")
+		return nil, errors.Default.Wrap(generateApiKeyErr, "random letters")
 	}
-	encodeKeyEnv, exist := utils.GetEncodeKeyEnv(context.Background())
-	if !exist {
-		err := errors.Default.New("encode key env doesn't exist")
-		logger.Warn(err, "GetEncodeKeyEnv error")
-		return nil, err
-	}
-	h := hmac.New(sha256.New, []byte(encodeKeyEnv))
-	if _, err := h.Write([]byte(randomApiKey)); err != nil {
-		logger.Error(err, "hmac write %s", randomApiKey)
-		return nil, errors.Default.Wrap(err, "hmac write api key")
-	}
-	hashedApiKey := fmt.Sprintf("%x", h.Sum(nil))
 
 	// create transaction to update multiple tables
 	var err errors.Error
@@ -177,18 +163,19 @@ func CreateApiKey(apiKeyInput *models.ApiInputApiKey) (*models.ApiOutputApiKey, 
 		return nil, errors.Default.Wrap(err, "json marshal")
 	}
 	// create project first
+	user, email, _ := GetUserInfo(c)
 	apiKey := &models.ApiKey{
 		Model: common.Model{
 			CreatedAt: time.Now(),
 			UpdatedAt: time.Now(),
 		},
 		Creator: common.Creator{
-			Creator:      "", // fixme
-			CreatorEmail: "", // fixme
+			Creator:      user,
+			CreatorEmail: email,
 		},
 		Updater: common.Updater{
-			Updater:      "", // fixme
-			UpdaterEmail: "", // fixme
+			Updater:      user,
+			UpdaterEmail: email,
 		},
 		Name:        apiKeyInput.Name,
 		ApiKey:      hashedApiKey,

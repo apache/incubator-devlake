@@ -75,7 +75,7 @@ func DeleteApiKey(c *gin.Context) {
 		shared.ApiOutputError(c, errors.BadInput.Wrap(err, "bad apiKeyId format supplied"))
 		return
 	}
-	err = services.DeleteApiKey(id)
+	err = services.DeleteApiKey(c, id)
 	if err != nil {
 		shared.ApiOutputError(c, errors.Default.Wrap(err, "error deleting api key"))
 		return
@@ -98,7 +98,7 @@ func PutApiKey(c *gin.Context) {
 		shared.ApiOutputError(c, errors.BadInput.Wrap(err, "bad apiKeyId format supplied"))
 		return
 	}
-	apiOutputApiKey, err := services.PutApiKey(id)
+	apiOutputApiKey, err := services.PutApiKey(c, id)
 	if err != nil {
 		shared.ApiOutputError(c, errors.Default.Wrap(err, "error regenerate api key"))
 		return
@@ -123,7 +123,7 @@ func PostApiKey(c *gin.Context) {
 		return
 	}
 
-	apiKeyOutput, err := services.CreateApiKey(apiKeyInput)
+	apiKeyOutput, err := services.CreateApiKey(c, apiKeyInput)
 	if err != nil {
 		shared.ApiOutputError(c, errors.Default.Wrap(err, "error creating api key"))
 		return
