@@ -105,7 +105,7 @@ func Authentication(router *gin.Engine) gin.HandlerFunc {
 		}
 		//logruslog.Global.Info("api key record: %+v", apiKey)
 
-		if apiKey.ExpiredAt.Sub(time.Now()) < 0 {
+		if apiKey.ExpiredAt != nil && apiKey.ExpiredAt.Sub(time.Now()) < 0 {
 			c.Abort()
 			c.JSON(http.StatusForbidden, &ApiBody{
 				Success: false,

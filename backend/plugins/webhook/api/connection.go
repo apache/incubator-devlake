@@ -75,7 +75,7 @@ func PostConnections(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput,
 		UpdaterEmail: "", // fixme
 		Name:         fmt.Sprintf("webhook-%d", connection.ID),
 		ApiKey:       hashedApiKey,
-		ExpiredAt:    time.Now(),
+		ExpiredAt:    nil,
 		AllowedPath:  fmt.Sprintf("/plugins/webhook/%d/.*", connection.ID),
 		Type:         "plugin:webhook",
 		Extra:        extra,

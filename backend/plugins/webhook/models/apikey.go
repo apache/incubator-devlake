@@ -33,7 +33,7 @@ type ApiKey struct {
 	UpdaterEmail string         `json:"updater_email"`
 	Name         string         `json:"name"`
 	ApiKey       string         `json:"apiKey"`
-	ExpiredAt    time.Time      `json:"expiredAt"`
+	ExpiredAt    *time.Time     `json:"expiredAt"`
 	AllowedPath  string         `json:"allowedPath"`
 	Type         string         `json:"type"`
 	Extra        datatypes.JSON `json:"extra"`
