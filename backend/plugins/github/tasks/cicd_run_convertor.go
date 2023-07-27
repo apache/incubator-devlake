@@ -31,12 +31,25 @@ import (
 	"github.com/apache/incubator-devlake/plugins/github/models"
 )
 
+func init() {
+	RegisterSubtaskMeta(&ConvertRunsMeta)
+}
+
 var ConvertRunsMeta = plugin.SubTaskMeta{
 	Name:             "convertRuns",
 	EntryPoint:       ConvertRuns,
 	EnabledByDefault: true,
 	Description:      "Convert tool layer table github_runs into  domain layer table cicd_pipeline",
 	DomainTypes:      []string{plugin.DOMAIN_TYPE_CICD},
+	DependencyTables: []string{
+		//models.GithubRepo{}.TableName(), // config will not regard as dependency
+		models.GithubRun{}.TableName(),
+		RAW_RUN_TABLE,
+	},
+	ProductTables: []string{
+		devops.CICDPipeline{}.TableName(),
+		devops.CiCDPipelineCommit{}.TableName(),
+	},
 }
 
 func ConvertRuns(taskCtx plugin.SubTaskContext) errors.Error {

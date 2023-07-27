@@ -55,6 +55,10 @@ func (p BitbucketRepo) ScopeName() string {
 	return p.Name
 }
 
+func (p BitbucketRepo) ScopeFullName() string {
+	return p.BitbucketId
+}
+
 func (p BitbucketRepo) ScopeParams() interface{} {
 	return &BitbucketApiParams{
 		ConnectionId: p.ConnectionId,

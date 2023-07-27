@@ -30,10 +30,26 @@ import (
 	"github.com/apache/incubator-devlake/plugins/github/models"
 )
 
+func init() {
+	RegisterSubtaskMeta(&CollectAccountsMeta)
+}
+
 const RAW_ACCOUNT_TABLE = "github_api_accounts"
 
 type SimpleAccount struct {
 	Login string
+}
+
+var CollectAccountsMeta = plugin.SubTaskMeta{
+	Name:             "collectAccounts",
+	EntryPoint:       CollectAccounts,
+	EnabledByDefault: true,
+	Description:      "Collect accounts data from Github api, does not support either timeFilter or diffSync.",
+	DomainTypes:      []string{plugin.DOMAIN_TYPE_CROSS},
+	DependencyTables: []string{
+		//models.GithubRepoAccount{}.TableName() // cursor, config will not regard as dependency
+	},
+	ProductTables: []string{RAW_ACCOUNT_TABLE},
 }
 
 func CollectAccounts(taskCtx plugin.SubTaskContext) errors.Error {
@@ -84,12 +100,4 @@ func CollectAccounts(taskCtx plugin.SubTaskContext) errors.Error {
 		return err
 	}
 	return collector.Execute()
-}
-
-var CollectAccountsMeta = plugin.SubTaskMeta{
-	Name:             "collectAccounts",
-	EntryPoint:       CollectAccounts,
-	EnabledByDefault: true,
-	Description:      "Collect accounts data from Github api, does not support either timeFilter or diffSync.",
-	DomainTypes:      []string{plugin.DOMAIN_TYPE_CROSS},
 }

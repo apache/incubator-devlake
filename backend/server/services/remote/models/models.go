@@ -97,6 +97,10 @@ func (d DynamicScopeModel) ScopeName() string {
 	return reflect.ValueOf(d.DynamicTabler.Unwrap()).Elem().FieldByName("Name").String()
 }
 
+func (d DynamicScopeModel) ScopeFullName() string {
+	return d.ScopeName()
+}
+
 func (d DynamicScopeModel) ScopeParams() interface{} {
 	return &ApiParams{
 		ConnectionId: d.ConnectionId(),
@@ -136,6 +140,11 @@ type DynamicDomainScope struct {
 type PipelineData struct {
 	Plan   plugin.PipelinePlan  `json:"plan"`
 	Scopes []DynamicDomainScope `json:"scopes"`
+}
+
+type ToolModel struct {
+	common.NoPKModel
+	ConnectionId uint64 `json:"connectionId" gorm:"column:connection_id;not null"`
 }
 
 var _ plugin.ToolLayerScope = (*DynamicScopeModel)(nil)

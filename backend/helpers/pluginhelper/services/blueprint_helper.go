@@ -19,6 +19,7 @@ package services
 
 import (
 	"fmt"
+
 	"github.com/apache/incubator-devlake/core/dal"
 	"github.com/apache/incubator-devlake/core/errors"
 	"github.com/apache/incubator-devlake/core/models"
@@ -36,6 +37,7 @@ type GetBlueprintQuery struct {
 	Label       string
 	SkipRecords int
 	PageSize    int
+	Mode        string
 }
 
 type BlueprintProjectPairs struct {
@@ -105,6 +107,9 @@ func (b *BlueprintManager) GetDbBlueprints(query *GetBlueprintQuery) ([]*models.
 			dal.Where("bl.name = ?", query.Label),
 		)
 	}
+	if query.Mode != "" {
+		clauses = append(clauses, dal.Where("mode = ?", query.Mode))
+	}
 
 	// count total records
 	count, err := b.db.Count(clauses...)
@@ -155,7 +160,7 @@ func (b *BlueprintManager) GetDbBlueprint(blueprintId uint64) (*models.Blueprint
 
 // GetBlueprintsByScopes returns all blueprints that have these scopeIds and this connection Id
 func (b *BlueprintManager) GetBlueprintsByScopes(connectionId uint64, pluginName string, scopeIds ...string) (map[string][]*models.Blueprint, errors.Error) {
-	bps, _, err := b.GetDbBlueprints(&GetBlueprintQuery{})
+	bps, _, err := b.GetDbBlueprints(&GetBlueprintQuery{Mode: "NORMAL"})
 	if err != nil {
 		return nil, err
 	}

@@ -19,6 +19,7 @@ package plugin
 
 import (
 	"context"
+
 	corecontext "github.com/apache/incubator-devlake/core/context"
 	"github.com/apache/incubator-devlake/core/errors"
 )
@@ -98,6 +99,8 @@ type SubTaskMeta struct {
 	Description      string
 	DomainTypes      []string
 	Dependencies     []*SubTaskMeta
+	DependencyTables []string
+	ProductTables    []string
 }
 
 // PluginTask Implement this interface to let framework run tasks for you

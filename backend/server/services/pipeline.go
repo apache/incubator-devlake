@@ -168,7 +168,6 @@ func GetPipelineLogsArchivePath(pipeline *models.Pipeline) (string, errors.Error
 }
 
 func dequeuePipeline(runningParallelLabels []string) (pipeline *models.Pipeline, err errors.Error) {
-	pipeline = &models.Pipeline{}
 	txHelper := dbhelper.NewTxHelper(basicRes, &err)
 	defer txHelper.End()
 	tx := txHelper.Begin()
@@ -178,6 +177,7 @@ func dequeuePipeline(runningParallelLabels []string) (pipeline *models.Pipeline,
 		{Table: "_devlake_pipeline_labels", Exclusive: false},
 	}))
 	// prepare query to find an appropriate pipeline to execute
+	pipeline = &models.Pipeline{}
 	err = tx.First(pipeline,
 		dal.Where("status IN ?", []string{models.TASK_CREATED, models.TASK_RERUN}),
 		dal.Join(
@@ -206,10 +206,14 @@ func dequeuePipeline(runningParallelLabels []string) (pipeline *models.Pipeline,
 		}
 		return
 	}
-	if !tx.IsErrorNotFound(err) {
+	if tx.IsErrorNotFound(err) {
+		pipeline = nil
+		err = nil
+	} else {
 		// log unexpected err
 		globalPipelineLog.Error(err, "dequeue failed")
 	}
+
 	return
 }
 
@@ -227,7 +231,7 @@ func RunPipelineInQueue(pipelineMaxParallel int64) {
 		var dbPipeline *models.Pipeline
 		for {
 			dbPipeline, err = dequeuePipeline(runningParallelLabels)
-			if err == nil {
+			if err == nil && dbPipeline != nil {
 				break
 			}
 			time.Sleep(time.Second)

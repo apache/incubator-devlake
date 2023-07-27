@@ -19,5 +19,6 @@
 export type ItemType = {
   id: ID;
   name: string;
+  fullName: string;
   data: any;
 };

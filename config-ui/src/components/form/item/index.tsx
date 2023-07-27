@@ -21,15 +21,17 @@ import { FormGroup } from '@blueprintjs/core';
 import * as S from './styled';
 
 interface Props {
+  style?: React.CSSProperties;
   label?: React.ReactNode;
   subLabel?: React.ReactNode;
   required?: boolean;
   children: React.ReactNode;
 }
 
-export const FormItem = ({ label, subLabel, required, children }: Props) => {
+export const FormItem = ({ style, label, subLabel, required, children }: Props) => {
   return (
     <FormGroup
+      style={style}
       label={<S.Label>{label}</S.Label>}
       subLabel={<S.subLabel>{subLabel}</S.subLabel>}
       labelInfo={required ? <S.LabelInfo>*</S.LabelInfo> : null}

@@ -16,9 +16,10 @@
  *
  */
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { MenuItem, Checkbox, Intent } from '@blueprintjs/core';
 import { MultiSelect2 } from '@blueprintjs/select';
+import { useDebounce } from 'ahooks';
 
 interface Props<T> {
   placeholder?: string;
@@ -43,11 +44,22 @@ export const MultiSelector = <T,>({
   getName = (it) => it as string,
   getIcon,
   onChangeItems,
-  noResult,
+  noResult = 'No results found.',
   onQueryChange,
   ...props
 }: Props<T>) => {
   const [selectedItems, setSelectedItems] = useState<T[]>([]);
+  const [query, setQuery] = useState('');
+  const search = useDebounce(query, { wait: 500 });
+
+  const filteredItems = useMemo(
+    () =>
+      items.filter((it) => {
+        const name = getName(it);
+        return name.toLocaleLowerCase().includes(search.toLocaleLowerCase());
+      }),
+    [items, search],
+  );
 
   useEffect(() => {
     setSelectedItems(props.selectedItems ?? []);
@@ -97,12 +109,19 @@ export const MultiSelector = <T,>({
     }
   };
 
+  const handleQueryChange = (query: string) => {
+    if (onQueryChange) {
+      onQueryChange(query);
+    } else {
+      setQuery(query);
+    }
+  };
+
   return (
     <MultiSelect2
       fill
-      resetOnSelect
       placeholder={placeholder ?? 'Select...'}
-      items={items}
+      items={filteredItems}
       // https://github.com/palantir/blueprint/issues/3596
       // set activeItem to null will fixed the scrollBar to top when the selectedItems changed
       activeItem={null}
@@ -117,7 +136,7 @@ export const MultiSelector = <T,>({
       }}
       onItemSelect={handleItemSelect}
       onRemove={handleItemRemove}
-      onQueryChange={onQueryChange}
+      onQueryChange={handleQueryChange}
       noResults={<MenuItem disabled={true} text={loading ? 'Fetching...' : noResult} />}
     />
   );

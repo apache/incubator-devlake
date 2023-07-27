@@ -121,7 +121,7 @@ func handlePluginCall(pluginName string, handler plugin.ApiResourceHandler) func
 			} else {
 				err2 := c.ShouldBindJSON(&input.Body)
 				if err2 != nil && err2.Error() != "EOF" {
-					shared.ApiOutputError(c, err)
+					shared.ApiOutputError(c, err2)
 					return
 				}
 			}

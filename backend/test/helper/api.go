@@ -130,20 +130,20 @@ func (d *DevlakeClient) DeleteBlueprint(blueprintId uint64) {
 }
 
 func (d *DevlakeClient) CreateProject(project *ProjectConfig) models.ApiOutputProject {
-	var metrics []models.BaseMetric
+	var metrics []*models.BaseMetric
 	doraSeen := false
 	for _, p := range project.MetricPlugins {
 		if p.Name == "dora" {
 			doraSeen = true
 		}
-		metrics = append(metrics, models.BaseMetric{
+		metrics = append(metrics, &models.BaseMetric{
 			PluginName:   p.Name,
 			PluginOption: string(ToJson(p.Options)),
 			Enable:       true,
 		})
 	}
 	if project.EnableDora && !doraSeen {
-		metrics = append(metrics, models.BaseMetric{
+		metrics = append(metrics, &models.BaseMetric{
 			PluginName:   "dora",
 			PluginOption: string(ToJson(nil)),
 			Enable:       true,
@@ -159,7 +159,7 @@ func (d *DevlakeClient) CreateProject(project *ProjectConfig) models.ApiOutputPr
 			Description: project.ProjectDescription,
 		},
 		Enable:  Val(true),
-		Metrics: &metrics,
+		Metrics: metrics,
 	})
 }
 

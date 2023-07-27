@@ -18,7 +18,5 @@
 
 export * from './blueprint';
 export * from './connection';
-export * from './db-migrate';
-export * from './offline';
 export * from './pipeline';
 export * from './project';

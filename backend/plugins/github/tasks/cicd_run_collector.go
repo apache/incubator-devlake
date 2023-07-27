@@ -33,6 +33,10 @@ import (
 	"github.com/apache/incubator-devlake/plugins/github/models"
 )
 
+func init() {
+	RegisterSubtaskMeta(&CollectRunsMeta)
+}
+
 const RAW_RUN_TABLE = "github_api_runs"
 
 // Although the API accepts a maximum of 100 entries per page, sometimes
@@ -56,6 +60,8 @@ var CollectRunsMeta = plugin.SubTaskMeta{
 	EnabledByDefault: true,
 	Description:      "Collect Runs data from Github action api, supports both timeFilter and diffSync.",
 	DomainTypes:      []string{plugin.DOMAIN_TYPE_CICD},
+	DependencyTables: []string{},
+	ProductTables:    []string{RAW_RUN_TABLE},
 }
 
 func CollectRuns(taskCtx plugin.SubTaskContext) errors.Error {

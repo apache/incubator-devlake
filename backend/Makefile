@@ -109,11 +109,12 @@ unit-test: mock unit-test-only python-unit-test
 
 unit-test-only:
 	set -e;\
-	exit_code=0;\
 	for m in $$(go list ./... | egrep -v 'test|models|e2e'); do \
-  		echo $$m; go test -timeout 60s -v $$m || exit_code=$$?; \
+  		echo $$m; \
+			if ! go test -timeout 60s -v $$m; then \
+				exit $$?; \
+			fi \
 	done; \
-	exit $$exit_code
 
 build-pydevlake:
 	poetry install -C python/pydevlake

@@ -43,14 +43,22 @@ export const CrossDomain = styled.div`
 
 export const RemoteLinkWrapper = styled.div`
   .input {
+    margin-bottom: 8px;
+  }
+
+  .inner {
     display: flex;
     align-items: center;
-    margin-bottom: 8px;
 
     .bp4-input-group {
       margin-right: 8px;
       width: 680px;
     }
+  }
+
+  .error {
+    margin-top: 2px;
+    color: #cd4246;
   }
 `;
 

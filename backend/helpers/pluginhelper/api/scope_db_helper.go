@@ -113,9 +113,18 @@ func (s *ScopeDatabaseHelperImpl[Conn, Scope, Tr]) GetScopeAndConfig(connectionI
 }
 
 func (s *ScopeDatabaseHelperImpl[Conn, Scope, Tr]) ListScopes(input *plugin.ApiResourceInput, connectionId uint64) ([]*Scope, errors.Error) {
+	searchTerm := input.Query.Get("searchTerm")
+	query := dal.Where("connection_id = ?", connectionId)
+	if searchTerm != "" {
+		if s.params.SearchScopeParamName != "" {
+			query = dal.Where(fmt.Sprintf("connection_id = ? AND %s LIKE ?", s.params.SearchScopeParamName), connectionId, "%"+searchTerm+"%")
+		} else {
+			query = dal.Where(fmt.Sprintf("connection_id = ? AND %s LIKE ?", s.params.RawScopeParamName), connectionId, "%"+searchTerm+"%")
+		}
+	}
 	limit, offset := GetLimitOffset(input.Query, "pageSize", "page")
 	var scopes []*Scope
-	err := s.db.All(&scopes, dal.Where("connection_id = ?", connectionId), dal.Limit(limit), dal.Offset(offset))
+	err := s.db.All(&scopes, query, dal.Limit(limit), dal.Offset(offset))
 	return scopes, err
 }
 

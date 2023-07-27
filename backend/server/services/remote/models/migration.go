@@ -56,7 +56,10 @@ type AddColumnOperation struct {
 
 func (o AddColumnOperation) Execute(dal dal.Dal) errors.Error {
 	if dal.HasColumn(o.Table, o.Column) {
-		return dal.DropColumns(o.Table, o.Column)
+		err := dal.DropColumns(o.Table, o.Column)
+		if err != nil {
+			return err
+		}
 	}
 	return dal.AddColumn(o.Table, o.Column, o.ColumnType)
 }
@@ -162,9 +165,9 @@ func (s *RemoteMigrationScript) UnmarshalJSON(data []byte) error {
 }
 
 func (s *RemoteMigrationScript) Up(basicRes context.BasicRes) errors.Error {
-	dal := basicRes.GetDal()
+	db := basicRes.GetDal()
 	for _, operation := range s.operations {
-		err := operation.Execute(dal)
+		err := operation.Execute(db)
 		if err != nil {
 			return err
 		}

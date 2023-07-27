@@ -38,9 +38,7 @@ func TestZentaoAccountDataFlow(t *testing.T) {
 			ConnectionId: 1,
 			ProjectId:    3,
 		},
-		ProductList: map[int64]string{
-			1: "",
-		},
+		AccountCache: tasks.NewAccountCache(dataflowTester.Dal, 1),
 	}
 
 	// import raw data table

@@ -154,6 +154,10 @@ func (p ZentaoProject) ScopeName() string {
 	return p.Name
 }
 
+func (p ZentaoProject) ScopeFullName() string {
+	return p.Name
+}
+
 func (p ZentaoProject) ScopeParams() interface{} {
 	return &ZentaoApiParams{
 		ConnectionId: p.ConnectionId,

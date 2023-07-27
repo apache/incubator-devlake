@@ -161,6 +161,7 @@ func DeleteConnection(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput
 		return nil, err
 	}
 	tx.Commit()
+  
 	return &plugin.ApiResourceOutput{Status: http.StatusOK}, nil
 }
 
