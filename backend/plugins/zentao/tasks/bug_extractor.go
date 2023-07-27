@@ -126,7 +126,11 @@ func ExtractBug(taskCtx plugin.SubTaskContext) errors.Error {
 				ProductStatus:  res.ProductStatus,
 				Url:            row.Url,
 			}
-
+			switch bug.Status {
+			case "active", "closed", "resolved":
+			default:
+				bug.Status = "active"
+			}
 			bug.StdType = stdTypeMappings[bug.Type]
 			if bug.StdType == "" {
 				bug.StdType = ticket.BUG
