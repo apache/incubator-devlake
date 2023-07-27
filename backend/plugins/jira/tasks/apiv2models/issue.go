@@ -97,7 +97,7 @@ type Issue struct {
 		Timeestimate                  interface{}        `json:"timeestimate"`
 		Aggregatetimeoriginalestimate interface{}        `json:"aggregatetimeoriginalestimate"`
 		Versions                      []interface{}      `json:"versions"`
-		Issuelinks                    []interface{}      `json:"issuelinks"`
+		Issuelinks                    []IssueLink        `json:"issuelinks"`
 		Assignee                      *Account           `json:"assignee"`
 		Updated                       helper.Iso8601Time `json:"updated"`
 		Status                        struct {
@@ -158,6 +158,60 @@ type Issue struct {
 		Total      int         `json:"total"`
 		Histories  []Changelog `json:"histories"`
 	} `json:"changelog"`
+}
+
+type IssueLinkType struct {
+	ID      uint64 `json:"id,string"`
+	Name    string `json:"name"`
+	Inward  string `json:"inward"`
+	Outward string `json:"outward"`
+	Self    string `json:"self"`
+}
+
+type InOutwardIssue struct {
+	ID     uint64 `json:"id,string"`
+	Key    string `json:"key"`
+	Self   string `json:"self"`
+	Fields struct {
+		Summary string `json:"summary"`
+		Status  struct {
+			Self           string `json:"self"`
+			Description    string `json:"description"`
+			IconURL        string `json:"iconUrl"`
+			Name           string `json:"name"`
+			ID             uint64 `json:"id,string"`
+			StatusCategory struct {
+				Self      string `json:"self"`
+				ID        int    `json:"id"`
+				Key       string `json:"key"`
+				ColorName string `json:"colorName"`
+				Name      string `json:"name"`
+			} `json:"statusCategory"`
+		} `json:"status"`
+		Priority struct {
+			Self    string `json:"self"`
+			IconURL string `json:"iconUrl"`
+			Name    string `json:"name"`
+			ID      uint64 `json:"id,string"`
+		} `json:"priority"`
+		Issuetype struct {
+			Self        string `json:"self"`
+			ID          uint64 `json:"id,string"`
+			Description string `json:"description"`
+			IconURL     string `json:"iconUrl"`
+			Name        string `json:"name"`
+			Subtask     bool   `json:"subtask"`
+			AvatarID    int    `json:"avatarId"`
+		} `json:"issuetype"`
+	} `json:"fields"`
+}
+
+type IssueLink struct {
+	ID           uint64         `json:"id,string"`
+	Self         string         `json:"self"`
+	Type         IssueLinkType  `json:"type"`
+	InwardIssue  InOutwardIssue `json:"inwardIssue"`
+	OutwardIssue InOutwardIssue `json:"outwardIssue"`
 }
 
 func (i Issue) toToolLayer(connectionId uint64) *models.JiraIssue {
