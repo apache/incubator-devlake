@@ -46,12 +46,19 @@ export const DataScopeSelectRemote = ({ plugin, connectionId, disabledScope, onC
   const error = useMemo(() => (!scope.length ? 'No Data Scope is Selected' : ''), [scope]);
 
   const selectedItems = useMemo(
-    () => scope.map((it: any) => ({ id: getPluginScopeId(plugin, it), name: it.name, data: it })),
+    () =>
+      scope.map((it: any) => ({ id: getPluginScopeId(plugin, it), name: it.name, fullName: it.fullName, data: it })),
     [scope],
   );
 
   const disabledItems = useMemo(
-    () => (disabledScope ?? []).map((it) => ({ id: getPluginScopeId(plugin, it), name: it.name, data: it })),
+    () =>
+      (disabledScope ?? []).map((it) => ({
+        id: getPluginScopeId(plugin, it),
+        name: it.name,
+        fullName: it.fullName,
+        data: it,
+      })),
     [disabledScope],
   );
 
