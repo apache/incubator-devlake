@@ -53,6 +53,9 @@ func CollectExecutionSummary(taskCtx plugin.SubTaskContext) errors.Error {
 				Executions []json.RawMessage `json:"executions"`
 			}
 			err := api.UnmarshalResponse(res, &data)
+			if errors.Is(err, api.ErrEmptyResponse) {
+				return nil, nil
+			}
 			if err != nil {
 				return nil, errors.Default.Wrap(err, "error reading endpoint response by Zentao bug collector")
 			}
