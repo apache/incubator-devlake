@@ -21,9 +21,11 @@ import (
 	"context"
 	"crypto/hmac"
 	"crypto/sha256"
+	"encoding/base64"
 	"fmt"
 	"github.com/apache/incubator-devlake/core/config"
 	"github.com/apache/incubator-devlake/core/errors"
+	"net/http"
 	"os"
 	"strings"
 )
@@ -66,4 +68,41 @@ func GenerateApiKeyWithToken(ctx context.Context, token string) (string, errors.
 	}
 	hashedApiKey := fmt.Sprintf("%x", h.Sum(nil))
 	return hashedApiKey, nil
+}
+
+func GetUserInfo(req *http.Request) (string, string, error) {
+	if req == nil {
+		return "", "", errors.Default.New("request is nil")
+	}
+	user := req.Header.Get("X-Forwarded-User")
+	email := req.Header.Get("X-Forwarded-Email")
+	if user == "" {
+		// fetch with basic auth header
+		user, err := GetBasicAuthUserInfo(req)
+		return user, "", err
+	}
+	return user, email, nil
+}
+
+func GetBasicAuthUserInfo(req *http.Request) (string, error) {
+	if req == nil {
+		return "", errors.Default.New("request is nil")
+	}
+	authHeader := req.Header.Get("Authorization")
+	if authHeader == "" {
+		return "", errors.Default.New("Authorization is empty")
+	}
+	basicAuth := strings.TrimPrefix(authHeader, "Basic ")
+	if basicAuth == authHeader || basicAuth == "" {
+		return "", errors.Default.New("invalid basic auth")
+	}
+	userInfoData, err := base64.StdEncoding.DecodeString(basicAuth)
+	if err != nil {
+		return "", errors.Default.Wrap(err, "base64 decode")
+	}
+	userInfo := strings.Split(string(userInfoData), ":")
+	if len(userInfo) != 2 {
+		return "", errors.Default.New("invalid user info data")
+	}
+	return userInfo[0], nil
 }

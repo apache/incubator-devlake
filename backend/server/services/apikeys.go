@@ -115,7 +115,7 @@ func PutApiKey(c *gin.Context, id uint64) (*models.ApiOutputApiKey, errors.Error
 	}
 	apiKey.ApiKey = hashApiKey
 	apiKey.UpdatedAt = time.Now()
-	user, email, _ := GetUserInfo(c)
+	user, email, _ := utils.GetUserInfo(c.Request)
 	apiKey.Updater = common.Updater{
 		Updater:      user,
 		UpdaterEmail: email,
@@ -163,7 +163,7 @@ func CreateApiKey(c *gin.Context, apiKeyInput *models.ApiInputApiKey) (*models.A
 		return nil, errors.Default.Wrap(err, "json marshal")
 	}
 	// create project first
-	user, email, _ := GetUserInfo(c)
+	user, email, _ := utils.GetUserInfo(c.Request)
 	apiKey := &models.ApiKey{
 		Model: common.Model{
 			CreatedAt: time.Now(),

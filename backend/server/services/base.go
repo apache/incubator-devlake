@@ -19,7 +19,6 @@ package services
 
 import (
 	"github.com/apache/incubator-devlake/core/errors"
-	"github.com/gin-gonic/gin"
 )
 
 // Pagination holds the paginate information
@@ -61,16 +60,4 @@ func VerifyStruct(v interface{}) errors.Error {
 		return errors.BadInput.Wrap(err, "data verification failed")
 	}
 	return nil
-}
-
-func GetUserInfo(c *gin.Context) (string, string, error) {
-	if c == nil {
-		return "", "", nil
-	}
-	user := c.Request.Header.Get("X-Forwarded-User")
-	email := c.Request.Header.Get("X-Forwarded-Email")
-	if user == "" {
-		// fetch with basic auth header
-	}
-	return user, email, nil
 }

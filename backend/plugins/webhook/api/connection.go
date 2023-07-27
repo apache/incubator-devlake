@@ -66,7 +66,7 @@ func PostConnections(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput,
 		return nil, errors.Default.Wrap(err, "marshal webhook api key extra")
 	}
 
-	user, email, _ := GetUserInfo(input.Request)
+	user, email, _ := utils.GetUserInfo(input.Request)
 	apiKeyRecord := &models.ApiKey{
 		CreatedAt:    time.Now(),
 		UpdatedAt:    time.Now(),

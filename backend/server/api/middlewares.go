@@ -42,7 +42,6 @@ func Authentication(router *gin.Engine) gin.HandlerFunc {
 	}
 	return func(c *gin.Context) {
 		path := c.Request.URL.Path
-		//logruslog.Global.Info("path: %s", path)
 		if strings.HasPrefix(path, "/api") {
 			path = strings.TrimPrefix(path, "/api")
 		}
@@ -83,7 +82,6 @@ func Authentication(router *gin.Engine) gin.HandlerFunc {
 			})
 			return
 		}
-		//logruslog.Global.Info("api key: %s, hashed: %s", apiKeyStr, hashedApiKey)
 
 		var apiKey models.ApiKey
 		err = db.First(&apiKey, dal.Where("api_key = ?", hashedApiKey))
@@ -103,7 +101,6 @@ func Authentication(router *gin.Engine) gin.HandlerFunc {
 			}
 			return
 		}
-		//logruslog.Global.Info("api key record: %+v", apiKey)
 
 		if apiKey.ExpiredAt != nil && apiKey.ExpiredAt.Sub(time.Now()) < 0 {
 			c.Abort()
