@@ -40,7 +40,7 @@ func TestMakeDataSourcePipelinePlanV200(t *testing.T) {
 	const testScopeConfigId uint64 = 2
 	const testKey string = "TEST"
 	const testBambooEndPoint string = "http://mail.nddtf.com:8085/rest/api/latest/"
-	const testLink string = "http://mail.nddtf.com:8085/rest/api/latest/project/TEST"
+	const testLink string = "http://mail.nddtf.com:8085/rest/api/latest/plan/TEST"
 	const testUser string = "username"
 	const testPass string = "password"
 	const testName string = "bamboo-test"
@@ -55,9 +55,9 @@ func TestMakeDataSourcePipelinePlanV200(t *testing.T) {
 		},
 	}
 
-	var testBambooProject = &models.BambooProject{
+	var testBambooPlan = &models.BambooPlan{
 		ConnectionId: testConnectionID,
-		ProjectKey:   testKey,
+		PlanKey:      testKey,
 		Name:         testName,
 		Href:         testLink,
 
@@ -94,10 +94,10 @@ func TestMakeDataSourcePipelinePlanV200(t *testing.T) {
 		},
 	}
 
-	var expectRepoId = "bamboo:BambooProject:1:TEST"
+	var expectRepoId = "bamboo:BambooPlan:1:TEST"
 
 	var testSubTaskMeta = []plugin.SubTaskMeta{
-		tasks.ConvertProjectsMeta,
+		tasks.ConvertPlansMeta,
 	}
 
 	var expectPlans = plugin.PipelinePlan{
@@ -105,11 +105,11 @@ func TestMakeDataSourcePipelinePlanV200(t *testing.T) {
 			{
 				Plugin: "bamboo",
 				Subtasks: []string{
-					tasks.ConvertProjectsMeta.Name,
+					tasks.ConvertPlansMeta.Name,
 				},
 				Options: map[string]interface{}{
 					"connectionId":  uint64(1),
-					"projectKey":    testKey,
+					"planKey":       testKey,
 					"scopeConfigId": testScopeConfigId,
 				},
 			},
@@ -136,9 +136,9 @@ func TestMakeDataSourcePipelinePlanV200(t *testing.T) {
 			*dst = *testBambooConnection
 		}).Return(nil)
 
-		mockDal.On("First", mock.AnythingOfType("*models.BambooProject"), mock.Anything).Run(func(args mock.Arguments) {
-			dst := args.Get(0).(*models.BambooProject)
-			*dst = *testBambooProject
+		mockDal.On("First", mock.AnythingOfType("*models.BambooPlan"), mock.Anything).Run(func(args mock.Arguments) {
+			dst := args.Get(0).(*models.BambooPlan)
+			*dst = *testBambooPlan
 		}).Return(nil)
 
 		mockDal.On("First", mock.AnythingOfType("*models.BambooScopeConfig"), mock.Anything).Run(func(args mock.Arguments) {

@@ -31,8 +31,8 @@ func TestBambooDeployDataFlow(t *testing.T) {
 	dataflowTester := e2ehelper.NewDataFlowTester(t, "bamboo", bamboo)
 	taskData := &tasks.BambooTaskData{
 		Options: &models.BambooOptions{
-			ConnectionId:      3,
-			ProjectKey:        "TEST1",
+			ConnectionId:      1,
+			PlanKey:           "TEST1",
 			BambooScopeConfig: new(models.BambooScopeConfig),
 		},
 	}
@@ -40,7 +40,7 @@ func TestBambooDeployDataFlow(t *testing.T) {
 	// import raw data table
 	dataflowTester.ImportCsvIntoRawTable("./raw_tables/_raw_bamboo_api_deploy.csv", "_raw_bamboo_api_deploy")
 	// it need import plan data
-	dataflowTester.ImportCsvIntoTabler("./raw_tables/_tool_bamboo_plans_for_deploy.csv", models.BambooPlan{})
+	//dataflowTester.ImportCsvIntoTabler("./raw_tables/_tool_bamboo_plans_for_deploy.csv", models.BambooPlan{})
 
 	// verify extraction
 	dataflowTester.FlushTabler(&models.BambooDeployEnvironment{})

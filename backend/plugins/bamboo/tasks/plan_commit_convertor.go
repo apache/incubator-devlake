@@ -50,7 +50,7 @@ func ConvertPlanVcs(taskCtx plugin.SubTaskContext) errors.Error {
 	cursor, err := db.Cursor(
 		dal.From(&models.BambooPlanBuildVcsRevision{}),
 		dal.Join(`left join _tool_bamboo_plan_builds on _tool_bamboo_plan_builds.plan_build_key = _tool_bamboo_plan_build_commits.plan_build_key`),
-		dal.Where("_tool_bamboo_plan_build_commits.connection_id = ? and _tool_bamboo_plan_builds.project_key = ?", data.Options.ConnectionId, data.Options.ProjectKey))
+		dal.Where("_tool_bamboo_plan_build_commits.connection_id = ? and _tool_bamboo_plan_builds.plan_key = ?", data.Options.ConnectionId, data.Options.PlanKey))
 	if err != nil {
 		return err
 	}

@@ -19,7 +19,11 @@ package models
 
 import (
 	"github.com/apache/incubator-devlake/core/models/common"
+	"github.com/apache/incubator-devlake/core/plugin"
 )
+
+var _ plugin.ToolLayerScope = (*BambooPlan)(nil)
+var _ plugin.ApiScope = (*ApiBambooPlan)(nil)
 
 type BambooPlan struct {
 	ConnectionId              uint64  `gorm:"primaryKey"`
@@ -40,50 +44,84 @@ type BambooPlan struct {
 	IsActive                  bool    `json:"isActive"`
 	IsBuilding                bool    `json:"isBuilding"`
 	AverageBuildTimeInSeconds float64 `json:"averageBuildTimeInSeconds"`
+	ScopeConfigId             uint64  `json:"scopeConfigId"`
 	common.NoPKModel
 }
 
-func (apiRes *ApiBambooPlan) Convert() *BambooPlan {
-	return &BambooPlan{
-		PlanKey:                   apiRes.Key,
-		Name:                      apiRes.Name,
-		Expand:                    apiRes.Expand,
-		ProjectKey:                apiRes.ProjectKey,
-		ProjectName:               apiRes.ProjectName,
-		Description:               apiRes.Description,
-		ShortName:                 apiRes.ShortName,
-		BuildName:                 apiRes.BuildName,
-		ShortKey:                  apiRes.ShortKey,
-		Type:                      apiRes.Type,
-		Enabled:                   apiRes.Enabled,
-		Href:                      apiRes.Href,
-		Rel:                       apiRes.Rel,
-		IsFavourite:               apiRes.IsFavourite,
-		IsActive:                  apiRes.IsActive,
-		IsBuilding:                apiRes.IsBuilding,
-		AverageBuildTimeInSeconds: apiRes.AverageBuildTimeInSeconds,
+func (p BambooPlan) ScopeId() string {
+	return p.PlanKey
+}
+
+func (p BambooPlan) ScopeName() string {
+	return p.Name
+}
+
+func (p BambooPlan) ScopeParams() interface{} {
+	return &BambooApiParams{
+		ConnectionId: p.ConnectionId,
+		PlanKey:      p.PlanKey,
 	}
 }
 
-func (BambooPlan) TableName() string {
+func (p BambooPlan) TableName() string {
 	return "_tool_bamboo_plans"
 }
 
 type ApiBambooPlan struct {
-	Expand                    string `json:"expand"`
-	Description               string `json:"description"`
-	ShortName                 string `json:"shortName"`
-	BuildName                 string `json:"buildName"`
-	ShortKey                  string `json:"shortKey"`
-	Type                      string `json:"type"`
-	Enabled                   bool   `json:"enabled"`
-	ProjectKey                string `json:"projectKey"`
-	ProjectName               string `json:"projectName"`
-	ApiBambooLink             `json:"link"`
-	IsFavourite               bool    `json:"isFavourite"`
-	IsActive                  bool    `json:"isActive"`
-	IsBuilding                bool    `json:"isBuilding"`
-	AverageBuildTimeInSeconds float64 `json:"averageBuildTimeInSeconds"`
-	Key                       string  `json:"key"`
-	Name                      string  `json:"name"`
+	ShortName string `json:"shortName"`
+	ShortKey  string `json:"shortKey"`
+	Type      string `json:"type"`
+	Enabled   bool   `json:"enabled"`
+	Link      struct {
+		Href string `json:"href"`
+		Rel  string `json:"rel"`
+	} `json:"link"`
+	Key     string `json:"key"`
+	Name    string `json:"name"`
+	PlanKey struct {
+		Key string `json:"key"`
+	} `json:"planKey"`
+}
+
+//type ApiBambooPlan struct {
+//	Expand                    string `json:"expand"`
+//	Description               string `json:"description"`
+//	ShortName                 string `json:"shortName"`
+//	BuildName                 string `json:"buildName"`
+//	ShortKey                  string `json:"shortKey"`
+//	Type                      string `json:"type"`
+//	Enabled                   bool   `json:"enabled"`
+//	ProjectKey                string `json:"projectKey"`
+//	ProjectName               string `json:"projectName"`
+//	ApiBambooLink             `json:"link"`
+//	IsFavourite               bool    `json:"isFavourite"`
+//	IsActive                  bool    `json:"isActive"`
+//	IsBuilding                bool    `json:"isBuilding"`
+//	AverageBuildTimeInSeconds float64 `json:"averageBuildTimeInSeconds"`
+//	Key                       string  `json:"key"`
+//	Name                      string  `json:"name"`
+//}
+
+func (p ApiBambooPlan) ConvertApiScope() plugin.ToolLayerScope {
+	return &BambooPlan{
+		PlanKey:   p.Key,
+		Name:      p.Name,
+		ShortName: p.ShortName,
+		ShortKey:  p.ShortKey,
+		Type:      p.Type,
+		Enabled:   p.Enabled,
+		Href:      p.Link.Href,
+		Rel:       p.Link.Rel,
+	}
+}
+
+type ApiSearchResult struct {
+	Id         string        `json:"id"`
+	EntityType string        `json:"entityType"`
+	Entity     ApiBambooPlan `json:"entity"`
+}
+
+type ApiBambooSearchPlanResponse struct {
+	ApiBambooSizeData `json:"squash"`
+	SearchResults     []ApiSearchResult `json:"searchResults"`
 }

@@ -20,25 +20,21 @@ package api
 import (
 	"github.com/apache/incubator-devlake/core/errors"
 	"github.com/apache/incubator-devlake/core/plugin"
-	"github.com/apache/incubator-devlake/helpers/pluginhelper/api"
 	"github.com/apache/incubator-devlake/plugins/bamboo/models"
 )
 
-type ScopeRes struct {
-	models.BambooProject
-	api.ScopeResDoc[models.BambooScopeConfig]
+type scopeReq struct {
+	Data []models.BambooPlan `json:"data"`
 }
 
-type ScopeReq api.ScopeReq[models.BambooProject]
-
-// PutScope create or update bamboo project
-// @Summary create or update bamboo project
-// @Description Create or update bamboo project
+// PutScope create or update bamboo plan
+// @Summary create or update bamboo plan
+// @Description Create or update bamboo plan
 // @Tags plugins/bamboo
 // @Accept application/json
-// @Param connectionId path int false "connection ID"
-// @Param scope body ScopeReq true "json"
-// @Success 200  {object} []models.BambooProject
+// @Param connectionId path int true "connection ID"
+// @Param scope body scopeReq true "json"
+// @Success 200  {object} models.BambooPlan
 // @Failure 400  {object} shared.ApiBody "Bad Request"
 // @Failure 500  {object} shared.ApiBody "Internal Error"
 // @Router /plugins/bamboo/connections/{connectionId}/scopes [PUT]
@@ -46,15 +42,15 @@ func PutScope(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, errors
 	return scopeHelper.Put(input)
 }
 
-// UpdateScope patch to bamboo project
-// @Summary patch to bamboo project
-// @Description patch to bamboo project
+// UpdateScope patch to bamboo plan
+// @Summary patch to bamboo plan
+// @Description patch to bamboo plan
 // @Tags plugins/bamboo
 // @Accept application/json
-// @Param connectionId path int false "connection ID"
-// @Param scopeId path int false "project ID"
-// @Param scope body models.BambooProject true "json"
-// @Success 200  {object} models.BambooProject
+// @Param connectionId path int true "connection ID"
+// @Param scopeId path int true "plan key"
+// @Param scope body models.BambooPlan true "json"
+// @Success 200  {object} models.BambooPlan
 // @Failure 400  {object} shared.ApiBody "Bad Request"
 // @Failure 500  {object} shared.ApiBody "Internal Error"
 // @Router /plugins/bamboo/connections/{connectionId}/scopes/{scopeId} [PATCH]
@@ -62,14 +58,14 @@ func UpdateScope(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, err
 	return scopeHelper.Update(input)
 }
 
-// GetScopeList get Bamboo projects
-// @Summary get Bamboo projects
-// @Description get Bamboo projects
+// GetScopeList get Bamboo plans
+// @Summary get Bamboo plans
+// @Description get Bamboo plans
 // @Tags plugins/bamboo
-// @Param connectionId path int false "connection ID"
+// @Param connectionId path int true "connection ID"
 // @Param searchTerm query string false "search term for scope name"
 // @Param blueprints query bool false "also return blueprints using these scopes as part of the payload"
-// @Success 200  {object} []ScopeRes
+// @Success 200  {object} []models.BambooPlan
 // @Failure 400  {object} shared.ApiBody "Bad Request"
 // @Failure 500  {object} shared.ApiBody "Internal Error"
 // @Router /plugins/bamboo/connections/{connectionId}/scopes/ [GET]
@@ -77,15 +73,15 @@ func GetScopeList(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, er
 	return scopeHelper.GetScopeList(input)
 }
 
-// GetScope get one Bamboo project
-// @Summary get one Bamboo project
-// @Description get one Bamboo project
+// GetScope get one Bamboo plan
+// @Summary get one Bamboo plan
+// @Description get one Bamboo plan
 // @Tags plugins/bamboo
-// @Param connectionId path int false "connection ID"
-// @Param scopeId path int false "project ID"
+// @Param connectionId path int true "connection ID"
+// @Param scopeId path int true "plan key"
 // @Param pageSize query int false "page size, default 50"
 // @Param page query int false "page size, default 1"
-// @Success 200  {object} ScopeRes
+// @Success 200  {object} models.BambooPlan
 // @Failure 400  {object} shared.ApiBody "Bad Request"
 // @Failure 500  {object} shared.ApiBody "Internal Error"
 // @Router /plugins/bamboo/connections/{connectionId}/scopes/{scopeId} [GET]
