@@ -36,7 +36,7 @@ func TestEpicDataflow(t *testing.T) {
 		Options: &tasks.JiraOptions{
 			ConnectionId: 1,
 			BoardId:      93,
-			ScopeConfig:  &tasks.JiraScopeConfig{StoryPointField: "customfield_10024"},
+			ScopeConfig:  &models.JiraScopeConfig{StoryPointField: "customfield_10024"},
 		},
 	}
 
