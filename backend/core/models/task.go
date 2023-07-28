@@ -18,12 +18,10 @@ limitations under the License.
 package models
 
 import (
-	"encoding/json"
-	"github.com/apache/incubator-devlake/core/errors"
+	"time"
+
 	"github.com/apache/incubator-devlake/core/models/common"
 	plugin "github.com/apache/incubator-devlake/core/plugin"
-	"gorm.io/datatypes"
-	"time"
 )
 
 const (
@@ -49,14 +47,14 @@ type TaskProgressDetail struct {
 
 type Task struct {
 	common.Model
-	Plugin         string              `json:"plugin" gorm:"index"`
-	Subtasks       datatypes.JSON      `json:"subtasks"`
-	Options        string              `json:"options" gorm:"serializer:encdec"`
-	Status         string              `json:"status"`
-	Message        string              `json:"message"`
-	ErrorName      string              `json:"errorName"`
-	Progress       float32             `json:"progress"`
-	ProgressDetail *TaskProgressDetail `json:"progressDetail" gorm:"-"`
+	Plugin         string                 `json:"plugin" gorm:"index"`
+	Subtasks       []string               `json:"subtasks" gorm:"type:json;serializer:json"`
+	Options        map[string]interface{} `json:"options" gorm:"type:json;serializer:encdec"`
+	Status         string                 `json:"status"`
+	Message        string                 `json:"message"`
+	ErrorName      string                 `json:"errorName"`
+	Progress       float32                `json:"progress"`
+	ProgressDetail *TaskProgressDetail    `json:"progressDetail" gorm:"-"`
 
 	FailedSubTask string     `json:"failedSubTask"`
 	PipelineId    uint64     `json:"pipelineId" gorm:"index"`
@@ -92,16 +90,4 @@ func (Task) TableName() string {
 
 func (Subtask) TableName() string {
 	return "_devlake_subtasks"
-}
-
-func (task *Task) GetSubTasks() ([]string, errors.Error) {
-	var subtasks []string
-	err := errors.Convert(json.Unmarshal(task.Subtasks, &subtasks))
-	return subtasks, err
-}
-
-func (task *Task) GetOptions() (map[string]interface{}, errors.Error) {
-	var options map[string]interface{}
-	err := errors.Convert(json.Unmarshal([]byte(task.Options), &options))
-	return options, err
 }
