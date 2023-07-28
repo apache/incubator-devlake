@@ -110,10 +110,7 @@ unit-test: mock unit-test-only python-unit-test
 unit-test-only:
 	set -e;\
 	for m in $$(go list ./... | egrep -v 'test|models|e2e'); do \
-  		echo $$m; \
-			if ! go test -timeout 60s -v $$m; then \
-				exit $$?; \
-			fi \
+		echo $$m; go test -timeout 60s -v $$m || exit $$?; \
 	done; \
 
 build-pydevlake:
@@ -127,10 +124,7 @@ e2e-plugins-test:
 	export ENV_PATH=$(shell readlink -f .env);\
 	set -e;\
 	for m in $$(go list ./plugins/... | egrep 'e2e'); do \
-		echo $$m; \
-		if !  go test -timeout 300s -gcflags=all=-l -v $$m; then \
-		  exit $$?; \
-		fi \
+		echo $$m; go test -timeout 300s -gcflags=all=-l -v $$m || exit $$?; \
 	done; \
 
 e2e-test-init:
@@ -139,11 +133,10 @@ e2e-test-init:
 	go run ./test/init.go || exit $$?;\
 
 e2e-test-run:
+	export ENV_PATH=$(shell readlink -f .env);\
+	set -e;\
 	for m in $$(go list ./test/e2e/... | grep -v manual); do \
-		echo $$m; \
-		if ! go test -p 1 -timeout 300s -v $$m ; then \
-		  exit $$?; \
-		fi; \
+		echo $$m; go test -timeout 120s -v $$m || exit $$?; \
 	done; \
 
 e2e-test: e2e-test-init e2e-test-run
@@ -152,11 +145,9 @@ integration-test:
 	export ENV_PATH=$(shell readlink -f .env);\
 	set -e;\
 	go run ./test/init.go || exit $$?;\
-	exit_code=0;\
 	for m in $$(go list ./test/integration/...); do \
-		echo $$m; go test -p 1 -timeout 300s -v $$m || exit_code=$$?; \
+		echo $$m; go test -timeout 300s -v $$m || exit $$?; \
     done; \
-	exit $$exit_code
 
 lint:
 	golangci-lint run
