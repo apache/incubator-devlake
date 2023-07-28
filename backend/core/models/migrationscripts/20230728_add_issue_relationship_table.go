@@ -20,23 +20,24 @@ package migrationscripts
 import (
 	"github.com/apache/incubator-devlake/core/context"
 	"github.com/apache/incubator-devlake/core/errors"
+	"github.com/apache/incubator-devlake/core/models/migrationscripts/archived"
 	"github.com/apache/incubator-devlake/helpers/migrationhelper"
-	"github.com/apache/incubator-devlake/plugins/jira/models/migrationscripts/archived"
 )
 
 type addIssueRelationship struct{}
 
-func (script *addIssueRelationship) Up(basicRes context.BasicRes) errors.Error {
+func (u *addIssueRelationship) Up(basicRes context.BasicRes) errors.Error {
 	return migrationhelper.AutoMigrateTables(
 		basicRes,
-		&archived.JiraIssueRelationship{},
+		&archived.IssueRelationship{},
 	)
+
 }
 
 func (*addIssueRelationship) Version() uint64 {
-	return 20230727122534
+	return 20230728000001
 }
 
 func (*addIssueRelationship) Name() string {
-	return "add table _tool_jira_issue_relationships table"
+	return "add issue_relationships table"
 }

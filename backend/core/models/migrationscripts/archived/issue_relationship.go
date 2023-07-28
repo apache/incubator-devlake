@@ -15,28 +15,16 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-package migrationscripts
+package archived
 
-import (
-	"github.com/apache/incubator-devlake/core/context"
-	"github.com/apache/incubator-devlake/core/errors"
-	"github.com/apache/incubator-devlake/helpers/migrationhelper"
-	"github.com/apache/incubator-devlake/plugins/jira/models/migrationscripts/archived"
-)
+type IssueRelationship struct {
+	DomainEntity
 
-type addIssueRelationship struct{}
-
-func (script *addIssueRelationship) Up(basicRes context.BasicRes) errors.Error {
-	return migrationhelper.AutoMigrateTables(
-		basicRes,
-		&archived.JiraIssueRelationship{},
-	)
+	SourceIssueId uint64 `gorm:"index"`
+	TargetIssueId uint64
+	OriginalType  string `gorm:"type:varchar(255)"`
 }
 
-func (*addIssueRelationship) Version() uint64 {
-	return 20230727122534
-}
-
-func (*addIssueRelationship) Name() string {
-	return "add table _tool_jira_issue_relationships table"
+func (IssueRelationship) TableName() string {
+	return "issue_relationships"
 }

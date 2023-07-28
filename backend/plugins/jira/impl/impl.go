@@ -88,6 +88,7 @@ func (p Jira) GetTablesInfo() []dal.Tabler {
 		&models.JiraStatus{},
 		&models.JiraWorklog{},
 		&models.JiraIssueComment{},
+		&models.JiraIssueRelationship{},
 		&models.JiraScopeConfig{},
 	}
 }
@@ -139,6 +140,7 @@ func (p Jira) SubTaskMetas() []plugin.SubTaskMeta {
 		tasks.ConvertIssueCommentsMeta,
 		tasks.ConvertWorklogsMeta,
 		tasks.ConvertIssueChangelogsMeta,
+		tasks.ConvertIssueRelationshipsMeta,
 
 		tasks.ConvertSprintsMeta,
 		tasks.ConvertSprintIssuesMeta,

@@ -21,6 +21,7 @@ import (
 	"testing"
 
 	"github.com/apache/incubator-devlake/core/models/common"
+	"github.com/apache/incubator-devlake/core/models/domainlayer/ticket"
 	"github.com/apache/incubator-devlake/helpers/e2ehelper"
 	"github.com/apache/incubator-devlake/plugins/jira/impl"
 	"github.com/apache/incubator-devlake/plugins/jira/models"
@@ -33,8 +34,8 @@ func TestIssueRelationshipDataFlow(t *testing.T) {
 
 	taskData := &tasks.JiraTaskData{
 		Options: &tasks.JiraOptions{
-			ConnectionId: 1,
-			BoardId:      3,
+			ConnectionId: 2,
+			BoardId:      8,
 		},
 	}
 
@@ -47,6 +48,16 @@ func TestIssueRelationshipDataFlow(t *testing.T) {
 
 	dataflowTester.VerifyTableWithOptions(&models.JiraIssueRelationship{}, e2ehelper.TableOptions{
 		CSVRelPath:  "./snapshot_tables/_tool_jira_issue_relationships.csv",
+		IgnoreTypes: []interface{}{common.NoPKModel{}},
+	})
+
+	dataflowTester.ImportCsvIntoTabler("./snapshot_tables/_tool_jira_board_issues.csv", &models.JiraBoardIssue{})
+
+	// verify issue conversion
+	dataflowTester.FlushTabler(&ticket.IssueRelationship{})
+	dataflowTester.Subtask(tasks.ConvertIssueRelationshipsMeta, taskData)
+	dataflowTester.VerifyTableWithOptions(&ticket.IssueRelationship{}, e2ehelper.TableOptions{
+		CSVRelPath:  "./snapshot_tables/issue_relationships.csv",
 		IgnoreTypes: []interface{}{common.NoPKModel{}},
 	})
 }
