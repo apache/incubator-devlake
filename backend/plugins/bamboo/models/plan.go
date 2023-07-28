@@ -26,26 +26,26 @@ var _ plugin.ToolLayerScope = (*BambooPlan)(nil)
 var _ plugin.ApiScope = (*ApiBambooPlan)(nil)
 
 type BambooPlan struct {
-	ConnectionId              uint64  `gorm:"primaryKey"`
-	PlanKey                   string  `json:"planKey" gorm:"primaryKey"`
-	Name                      string  `json:"name"`
-	Expand                    string  `json:"expand"`
-	ProjectKey                string  `json:"projectKey" gorm:"index"`
-	ProjectName               string  `json:"projectName"`
-	Description               string  `json:"description"`
-	ShortName                 string  `json:"shortName"`
-	BuildName                 string  `json:"buildName"`
-	ShortKey                  string  `json:"shortKey"`
-	Type                      string  `json:"type"`
-	Enabled                   bool    `json:"enabled"`
-	Href                      string  `json:"href"`
-	Rel                       string  `json:"rel"`
-	IsFavourite               bool    `json:"isFavourite"`
-	IsActive                  bool    `json:"isActive"`
-	IsBuilding                bool    `json:"isBuilding"`
-	AverageBuildTimeInSeconds float64 `json:"averageBuildTimeInSeconds"`
-	ScopeConfigId             uint64  `json:"scopeConfigId"`
-	common.NoPKModel
+	ConnectionId              uint64  `json:"connectionId" mapstructure:"connectionId" gorm:"primaryKey"`
+	PlanKey                   string  `json:"planKey" mapstructure:"planKey" gorm:"primaryKey"`
+	Name                      string  `json:"name" mapstructure:"name"`
+	Expand                    string  `json:"expand" mapstructure:"expand"`
+	ProjectKey                string  `json:"projectKey" mapstructure:"projectKey" gorm:"index"`
+	ProjectName               string  `json:"projectName" mapstructure:"projectName"`
+	Description               string  `json:"description" mapstructure:"description"`
+	ShortName                 string  `json:"shortName" mapstructure:"shortName"`
+	BuildName                 string  `json:"buildName" mapstructure:"buildName"`
+	ShortKey                  string  `json:"shortKey" mapstructure:"shortKey"`
+	Type                      string  `json:"type" mapstructure:"type"`
+	Enabled                   bool    `json:"enabled" mapstructure:"enabled"`
+	Href                      string  `json:"href" mapstructure:"href"`
+	Rel                       string  `json:"rel" mapstructure:"rel"`
+	IsFavourite               bool    `json:"isFavourite" mapstructure:"isFavourite""`
+	IsActive                  bool    `json:"isActive" mapstructure:"isActive"`
+	IsBuilding                bool    `json:"isBuilding" mapstructure:"isBuilding"`
+	AverageBuildTimeInSeconds float64 `json:"averageBuildTimeInSeconds" mapstructure:"averageBuildTimeInSeconds"`
+	ScopeConfigId             uint64  `json:"scopeConfigId" mapstructure:"scopeConfigId"`
+	common.NoPKModel          `json:"-" mapstructure:"-"`
 }
 
 func (p BambooPlan) ScopeId() string {
