@@ -23,6 +23,7 @@ import (
 	"github.com/apache/incubator-devlake/plugins/bamboo/models"
 )
 
+// nolint
 type scopeReq struct {
 	Data []models.BambooPlan `json:"data"`
 }
