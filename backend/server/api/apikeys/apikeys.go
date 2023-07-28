@@ -20,6 +20,8 @@ package apikeys
 import (
 	"github.com/apache/incubator-devlake/core/errors"
 	"github.com/apache/incubator-devlake/core/models"
+	"github.com/apache/incubator-devlake/core/models/common"
+	"github.com/apache/incubator-devlake/core/utils"
 	"github.com/apache/incubator-devlake/server/api/shared"
 	"github.com/apache/incubator-devlake/server/services"
 	"github.com/gin-gonic/gin"
@@ -75,7 +77,7 @@ func DeleteApiKey(c *gin.Context) {
 		shared.ApiOutputError(c, errors.BadInput.Wrap(err, "bad apiKeyId format supplied"))
 		return
 	}
-	err = services.DeleteApiKey(c, id)
+	err = services.DeleteApiKey(id)
 	if err != nil {
 		shared.ApiOutputError(c, errors.Default.Wrap(err, "error deleting api key"))
 		return
@@ -98,7 +100,15 @@ func PutApiKey(c *gin.Context) {
 		shared.ApiOutputError(c, errors.BadInput.Wrap(err, "bad apiKeyId format supplied"))
 		return
 	}
-	apiOutputApiKey, err := services.PutApiKey(c, id)
+	user, email, err := utils.GetUserInfo(c.Request)
+	if err != nil {
+		shared.ApiOutputError(c, errors.Default.Wrap(err, "error getting user info"))
+		return
+	}
+	apiOutputApiKey, err := services.PutApiKey(&common.Updater{
+		Updater:      user,
+		UpdaterEmail: email,
+	}, id)
 	if err != nil {
 		shared.ApiOutputError(c, errors.Default.Wrap(err, "error regenerate api key"))
 		return
@@ -122,8 +132,15 @@ func PostApiKey(c *gin.Context) {
 		shared.ApiOutputError(c, errors.BadInput.Wrap(err, shared.BadRequestBody))
 		return
 	}
-
-	apiKeyOutput, err := services.CreateApiKey(c, apiKeyInput)
+	user, email, err := utils.GetUserInfo(c.Request)
+	if err != nil {
+		shared.ApiOutputError(c, errors.Default.Wrap(err, "error getting user info"))
+		return
+	}
+	apiKeyOutput, err := services.CreateApiKey(&common.Creator{
+		Creator:      user,
+		CreatorEmail: email,
+	}, apiKeyInput)
 	if err != nil {
 		shared.ApiOutputError(c, errors.Default.Wrap(err, "error creating api key"))
 		return

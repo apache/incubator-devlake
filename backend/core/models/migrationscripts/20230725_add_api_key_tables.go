@@ -23,7 +23,6 @@ import (
 	"github.com/apache/incubator-devlake/core/models/migrationscripts/archived"
 	"github.com/apache/incubator-devlake/core/plugin"
 	"github.com/apache/incubator-devlake/helpers/migrationhelper"
-	"gorm.io/datatypes"
 	"time"
 )
 
@@ -31,19 +30,19 @@ var _ plugin.MigrationScript = (*addApiKeyTables)(nil)
 
 type addApiKeyTables struct{}
 
-type ApiKey struct {
+type apiKey20230728 struct {
 	archived.Model
 	archived.Creator
 	archived.Updater
-	Name        string         `json:"name" gorm:"type:varchar(255);uniqueIndex"`
-	ApiKey      string         `json:"apiKey" gorm:"type:varchar(255);column:api_key;uniqueIndex"`
-	ExpiredAt   time.Time      `json:"expiredAt" gorm:"column:expired_at"`
-	AllowedPath string         `json:"allowedPath" gorm:"type:varchar(255);column:allowed_path"`
-	Type        string         `json:"type" gorm:"type:varchar(40);column:type;index"`
-	Extra       datatypes.JSON `json:"extra" gorm:"type:text;column:extra"`
+	Name        string    `json:"name" gorm:"type:varchar(255);uniqueIndex"`
+	ApiKey      string    `json:"apiKey" gorm:"type:varchar(255);column:api_key;uniqueIndex"`
+	ExpiredAt   time.Time `json:"expiredAt" gorm:"column:expired_at"`
+	AllowedPath string    `json:"allowedPath" gorm:"type:varchar(255);column:allowed_path"`
+	Type        string    `json:"type" gorm:"type:varchar(40);column:type;index"`
+	Extra       string    `json:"extra" gorm:"type:varchar(255);column:extra;index"`
 }
 
-func (ApiKey) TableName() string {
+func (apiKey20230728) TableName() string {
 	return "_devlake_api_keys"
 }
 
@@ -51,7 +50,7 @@ func (script *addApiKeyTables) Up(basicRes context.BasicRes) errors.Error {
 	// To create multiple tables with migration helper
 	return migrationhelper.AutoMigrateTables(
 		basicRes,
-		&ApiKey{},
+		&apiKey20230728{},
 	)
 }
 

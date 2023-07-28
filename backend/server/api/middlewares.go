@@ -21,7 +21,7 @@ import (
 	"fmt"
 	"github.com/apache/incubator-devlake/core/dal"
 	"github.com/apache/incubator-devlake/core/models"
-	"github.com/apache/incubator-devlake/core/utils"
+	"github.com/apache/incubator-devlake/helpers/apikeyhelper"
 	"github.com/apache/incubator-devlake/impls/logruslog"
 	"github.com/apache/incubator-devlake/server/services"
 	"github.com/gin-gonic/gin"
@@ -72,7 +72,7 @@ func Authentication(router *gin.Engine) gin.HandlerFunc {
 			return
 		}
 
-		hashedApiKey, err := utils.GenerateApiKeyWithToken(c, apiKeyStr)
+		hashedApiKey, err := apikeyhelper.GenerateApiKeyWithToken(c, apiKeyStr)
 		if err != nil {
 			logruslog.Global.Error(err, "GenerateApiKeyWithToken")
 			c.Abort()

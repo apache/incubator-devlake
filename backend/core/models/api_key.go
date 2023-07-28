@@ -19,7 +19,6 @@ package models
 
 import (
 	"github.com/apache/incubator-devlake/core/models/common"
-	"gorm.io/datatypes"
 	"time"
 )
 
@@ -28,12 +27,12 @@ type ApiKey struct {
 	common.Model
 	common.Creator
 	common.Updater
-	Name        string         `json:"name"`
-	ApiKey      string         `json:"apiKey"`
-	ExpiredAt   *time.Time     `json:"expiredAt"`
-	AllowedPath string         `json:"allowedPath"`
-	Type        string         `json:"type"`
-	Extra       datatypes.JSON `json:"extra"`
+	Name        string     `json:"name"`
+	ApiKey      string     `json:"apiKey"`
+	ExpiredAt   *time.Time `json:"expiredAt"`
+	AllowedPath string     `json:"allowedPath"`
+	Type        string     `json:"type"`
+	Extra       string     `json:"extra"`
 }
 
 func (ApiKey) TableName() string {
@@ -41,11 +40,10 @@ func (ApiKey) TableName() string {
 }
 
 type ApiInputApiKey struct {
-	Name        string      `json:"name" validate:"required,max=255"`
-	Type        string      `json:"type" validate:"required"`
-	AllowedPath string      `json:"allowedPath" validate:"required"`
-	Extra       interface{} `json:"extra" validate:"required_unless=Type devlake"`
-	ExpiredAt   time.Time   `json:"expiredAt" validate:"required"`
+	Name        string    `json:"name" validate:"required,max=255"`
+	Type        string    `json:"type" validate:"required"`
+	AllowedPath string    `json:"allowedPath" validate:"required"`
+	ExpiredAt   time.Time `json:"expiredAt" validate:"required"`
 }
 
 type ApiOutputApiKey struct {

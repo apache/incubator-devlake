@@ -19,14 +19,12 @@ package services
 
 import (
 	"context"
-	"encoding/json"
 	"fmt"
 	"github.com/apache/incubator-devlake/core/dal"
 	"github.com/apache/incubator-devlake/core/errors"
 	"github.com/apache/incubator-devlake/core/models"
 	"github.com/apache/incubator-devlake/core/models/common"
-	"github.com/apache/incubator-devlake/core/utils"
-	"github.com/gin-gonic/gin"
+	"github.com/apache/incubator-devlake/helpers/apikeyhelper"
 	"time"
 )
 
@@ -78,7 +76,7 @@ func getApiKeyById(tx dal.Dal, id uint64, additionalClauses ...dal.Clause) (*mod
 	return apiKey, nil
 }
 
-func DeleteApiKey(c *gin.Context, id uint64) errors.Error {
+func DeleteApiKey(id uint64) errors.Error {
 	// verify input
 	if id == 0 {
 		return errors.BadInput.New("api key's id is missing")
@@ -97,7 +95,7 @@ func DeleteApiKey(c *gin.Context, id uint64) errors.Error {
 	return nil
 }
 
-func PutApiKey(c *gin.Context, id uint64) (*models.ApiOutputApiKey, errors.Error) {
+func PutApiKey(operator *common.Updater, id uint64) (*models.ApiOutputApiKey, errors.Error) {
 	// verify input
 	if id == 0 {
 		return nil, errors.BadInput.New("api key's id is missing")
@@ -108,17 +106,15 @@ func PutApiKey(c *gin.Context, id uint64) (*models.ApiOutputApiKey, errors.Error
 		logger.Error(err, "get api key by id: %d", id)
 		return nil, err
 	}
-	apiKeyStr, hashApiKey, err := utils.GenerateApiKey(context.Background())
+	apiKeyStr, hashApiKey, err := apikeyhelper.GenerateApiKey(context.Background())
 	if err != nil {
 		logger.Error(err, "GenerateApiKey")
 		return nil, err
 	}
 	apiKey.ApiKey = hashApiKey
 	apiKey.UpdatedAt = time.Now()
-	user, email, _ := utils.GetUserInfo(c.Request)
-	apiKey.Updater = common.Updater{
-		Updater:      user,
-		UpdaterEmail: email,
+	if operator != nil {
+		apiKey.Updater = *operator
 	}
 	if err = db.Update(apiKey); err != nil {
 		logger.Error(err, "delete api key, id: %d", id)
@@ -131,7 +127,7 @@ func PutApiKey(c *gin.Context, id uint64) (*models.ApiOutputApiKey, errors.Error
 }
 
 // CreateApiKey accepts an api key instance and insert it to database
-func CreateApiKey(c *gin.Context, apiKeyInput *models.ApiInputApiKey) (*models.ApiOutputApiKey, errors.Error) {
+func CreateApiKey(operator *common.Creator, apiKeyInput *models.ApiInputApiKey) (*models.ApiOutputApiKey, errors.Error) {
 
 	// verify input
 	if err := VerifyStruct(apiKeyInput); err != nil {
@@ -139,7 +135,7 @@ func CreateApiKey(c *gin.Context, apiKeyInput *models.ApiInputApiKey) (*models.A
 		return nil, err
 	}
 
-	randomApiKey, hashedApiKey, generateApiKeyErr := utils.GenerateApiKey(c)
+	randomApiKey, hashedApiKey, generateApiKeyErr := apikeyhelper.GenerateApiKey(context.Background())
 	if generateApiKeyErr != nil {
 		logger.Error(generateApiKeyErr, "GenerateApiKey")
 		return nil, errors.Default.Wrap(generateApiKeyErr, "random letters")
@@ -157,32 +153,24 @@ func CreateApiKey(c *gin.Context, apiKeyInput *models.ApiInputApiKey) (*models.A
 		}
 	}()
 
-	extra, jsonMarshalErr := json.Marshal(apiKeyInput.Extra)
-	if jsonMarshalErr != nil {
-		logger.Error(jsonMarshalErr, "json marshal %s", apiKeyInput.Extra)
-		return nil, errors.Default.Wrap(err, "json marshal")
-	}
 	// create project first
-	user, email, _ := utils.GetUserInfo(c.Request)
 	apiKey := &models.ApiKey{
 		Model: common.Model{
 			CreatedAt: time.Now(),
 			UpdatedAt: time.Now(),
-		},
-		Creator: common.Creator{
-			Creator:      user,
-			CreatorEmail: email,
-		},
-		Updater: common.Updater{
-			Updater:      user,
-			UpdaterEmail: email,
 		},
 		Name:        apiKeyInput.Name,
 		ApiKey:      hashedApiKey,
 		ExpiredAt:   &apiKeyInput.ExpiredAt,
 		AllowedPath: apiKeyInput.AllowedPath,
 		Type:        apiKeyInput.Type,
-		Extra:       extra,
+	}
+	if operator != nil {
+		apiKey.Creator = *operator
+		apiKey.Updater = common.Updater{
+			Updater:      operator.Creator,
+			UpdaterEmail: operator.CreatorEmail,
+		}
 	}
 	err = db.Create(apiKey)
 	if err != nil {

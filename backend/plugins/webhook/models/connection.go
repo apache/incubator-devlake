@@ -18,12 +18,13 @@ limitations under the License.
 package models
 
 import (
+	"github.com/apache/incubator-devlake/core/models"
 	helper "github.com/apache/incubator-devlake/helpers/pluginhelper/api"
 )
 
 type ApiOutputWebhookConnection struct {
 	WebhookConnection `mapstructure:",squash"`
-	ApiKey            *ApiKey `json:"apiKey,omitempty"`
+	ApiKey            *models.ApiKey `json:"apiKey,omitempty"`
 }
 
 type WebhookConnection struct {
