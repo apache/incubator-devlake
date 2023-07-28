@@ -78,6 +78,9 @@ export const PipelineTask = ({ task }: Props) => {
       case ['refdiff'].includes(config.plugin):
         name = `${name}:${options.repoId ?? options.projectName}`;
         break;
+      case ['bamboo'].includes(config.plugin):
+        name = `${name}:${options.planKey}`;
+        break;
     }
 
     return [config.icon, name];

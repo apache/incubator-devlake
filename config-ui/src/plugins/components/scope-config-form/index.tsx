@@ -30,6 +30,7 @@ import { JenkinsTransformation } from '@/plugins/register/jenkins';
 import { BitbucketTransformation } from '@/plugins/register/bitbucket';
 import { AzureTransformation } from '@/plugins/register/azure';
 import { TapdTransformation } from '@/plugins/register/tapd';
+import { BambooTransformation } from '@/plugins/register/bamboo';
 import { operator } from '@/utils';
 
 import { AdditionalSettings } from './fields';
@@ -171,9 +172,9 @@ export const ScopeConfigForm = ({
       )}
       {step === 2 && (
         <>
-          <Card>
+          <Card style={{ margin: 0 }}>
             <h1 style={{ marginBottom: 16 }}>Transformations</h1>
-
+            <Divider />
             {showWarning && (
               <>
                 <Message content="Please note: if you only edit the following Scope Configs without editing Data Entities in the previous step, you will only need to re-transform data on the Project page to see the Dashboard updated." />
@@ -235,6 +236,14 @@ export const ScopeConfigForm = ({
                 entities={entities}
                 connectionId={connectionId}
                 scopeId={scopeId}
+                transformation={transformation}
+                setTransformation={setTransformation}
+              />
+            )}
+
+            {plugin === 'bamboo' && (
+              <BambooTransformation
+                entities={entities}
                 transformation={transformation}
                 setTransformation={setTransformation}
               />
