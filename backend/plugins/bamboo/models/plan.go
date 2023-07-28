@@ -56,6 +56,10 @@ func (p BambooPlan) ScopeName() string {
 	return p.Name
 }
 
+func (p BambooPlan) ScopeFullName() string {
+	return p.Name
+}
+
 func (p BambooPlan) ScopeParams() interface{} {
 	return &BambooApiParams{
 		ConnectionId: p.ConnectionId,
