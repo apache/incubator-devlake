@@ -137,7 +137,11 @@ func ExtractBug(taskCtx plugin.SubTaskContext) errors.Error {
 			}
 
 			if len(statusMappings) != 0 {
-				bug.StdStatus = statusMappings[bug.Status]
+				if stdStatus, ok := statusMappings[bug.Status]; ok {
+					bug.StdStatus = stdStatus
+				} else {
+					bug.StdStatus = bug.Status
+				}
 			} else {
 				bug.StdStatus = ticket.GetStatus(&ticket.StatusRule{
 					Done:    []string{"resolved"},

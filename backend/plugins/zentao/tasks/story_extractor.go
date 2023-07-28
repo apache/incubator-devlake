@@ -138,7 +138,11 @@ func ExtractStory(taskCtx plugin.SubTaskContext) errors.Error {
 				story.Status = "active"
 			}
 			if len(statusMappings) != 0 {
-				story.StdStatus = statusMappings[story.Status]
+				if stdStatus, ok := statusMappings[story.Status]; ok {
+					story.StdStatus = stdStatus
+				} else {
+					story.StdStatus = story.Status
+				}
 			} else {
 				story.StdStatus = ticket.GetStatus(&ticket.StatusRule{
 					Done:    []string{"closed"},
