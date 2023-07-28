@@ -19,16 +19,18 @@ package helper
 
 import (
 	"fmt"
-	"github.com/apache/incubator-devlake/helpers/pluginhelper/services"
 	"net/http"
 	"reflect"
 	"strings"
+
+	"github.com/apache/incubator-devlake/helpers/pluginhelper/services"
 
 	"github.com/apache/incubator-devlake/core/errors"
 	"github.com/apache/incubator-devlake/core/models"
 	"github.com/apache/incubator-devlake/core/plugin"
 	"github.com/apache/incubator-devlake/server/api/blueprints"
 	apiProject "github.com/apache/incubator-devlake/server/api/project"
+	"github.com/apache/incubator-devlake/server/api/shared"
 	"github.com/stretchr/testify/require"
 )
 
@@ -67,12 +69,12 @@ func (d *DevlakeClient) ListConnections(pluginName string) []*Connection {
 // DeleteConnection FIXME
 func (d *DevlakeClient) DeleteConnection(pluginName string, connectionId uint64) services.BlueprintProjectPairs {
 	d.testCtx.Helper()
-	refs := sendHttpRequest[services.BlueprintProjectPairs](d.testCtx, d.timeout, &testContext{
+	refs := sendHttpRequest[shared.TypedApiBody[services.BlueprintProjectPairs]](d.testCtx, d.timeout, &testContext{
 		client:       d,
 		printPayload: true,
 		inlineJson:   false,
 	}, http.MethodDelete, fmt.Sprintf("%s/plugins/%s/connections/%d", d.Endpoint, pluginName, connectionId), nil, nil)
-	return refs
+	return refs.Data
 }
 
 // CreateBasicBlueprintV2 FIXME
