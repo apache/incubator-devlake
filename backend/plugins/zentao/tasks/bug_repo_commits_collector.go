@@ -81,6 +81,9 @@ func CollectBugRepoCommits(taskCtx plugin.SubTaskContext) errors.Error {
 			if err != nil {
 				return nil, err
 			}
+			if errors.Is(err, api.ErrEmptyResponse) {
+				return nil, nil
+			}
 			byteData := []byte(result.Data)
 			return []json.RawMessage{byteData}, nil
 
