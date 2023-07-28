@@ -121,6 +121,7 @@ python-unit-test: build-pydevlake
 	sh ./python/run_tests.sh
 
 e2e-plugins-test:
+  export TZ=UTC;\
 	export ENV_PATH=$(shell readlink -f .env);\
 	set -e;\
 	for m in $$(go list ./plugins/... | egrep 'e2e'); do \
