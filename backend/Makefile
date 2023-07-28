@@ -40,7 +40,7 @@ swag:
 	elif [ $(PLUGIN) = "none" ]; then \
 		swag init --parseDependency --parseInternal -o ./server/api/docs -g ./server/api/api.go;\
 	else \
-	  	plugins="";\
+		plugins="";\
 		for p in $$(echo $(PLUGIN) | tr "," "\n"); do \
 			plugins="$$plugins -g ./plugins/$$p/api/*.go"; \
 		done;\
@@ -50,24 +50,24 @@ swag:
 
 build-plugin:
 	if [ "$(PLUGIN)" = "none" ]; then \
-  		echo "Building plugins will be skipped"; \
+		echo "Building plugins will be skipped"; \
 	elif [ "$(DEBUG)" = "true" ]; then \
-  		PLUGIN=$(PLUGIN) sh scripts/compile-plugins.sh -gcflags='all=-N -l'; \
-  	else \
+		PLUGIN=$(PLUGIN) sh scripts/compile-plugins.sh -gcflags='all=-N -l'; \
+	else \
 		PLUGIN=$(PLUGIN) sh scripts/compile-plugins.sh; \
 	fi
 
 build-worker:
 	if [ "$(DEBUG)" = "true" ]; then \
-  		go build -gcflags='all=-N -l' -ldflags "-X 'github.com/apache/incubator-devlake/core/version.Version=$(VERSION)'" -o bin/lake-worker ./worker/; \
-  	else \
+		go build -gcflags='all=-N -l' -ldflags "-X 'github.com/apache/incubator-devlake/core/version.Version=$(VERSION)'" -o bin/lake-worker ./worker/; \
+	else \
 		go build -ldflags "-X 'github.com/apache/incubator-devlake/core/version.Version=$(VERSION)'" -o bin/lake-worker ./worker/; \
 	fi
 
 build-server: swag
 	if [ "$(DEBUG)" = "true" ]; then \
-  		go build -gcflags='all=-N -l' -ldflags "-X 'github.com/apache/incubator-devlake/core/version.Version=$(VERSION)'" -o bin/lake ./server/; \
-  	else \
+		go build -gcflags='all=-N -l' -ldflags "-X 'github.com/apache/incubator-devlake/core/version.Version=$(VERSION)'" -o bin/lake ./server/; \
+	else \
 		go build -ldflags "-X 'github.com/apache/incubator-devlake/core/version.Version=$(VERSION)'" -o bin/lake ./server/; \
 	fi
 
@@ -137,7 +137,7 @@ e2e-test-run:
 	export ENV_PATH=$(shell readlink -f .env);\
 	set -e;\
 	for m in $$(go list ./test/e2e/... | grep -v manual); do \
-		echo $$m; go test -timeout 120s -v $$m || exit $$?; \
+		echo $$m; go test -failfast -timeout 120s -v $$m || exit $$?; \
 	done; \
 
 e2e-test: e2e-test-init e2e-test-run
@@ -148,7 +148,7 @@ integration-test:
 	go run ./test/init.go || exit $$?;\
 	for m in $$(go list ./test/integration/...); do \
 		echo $$m; go test -timeout 300s -v $$m || exit $$?; \
-    done; \
+	done; \
 
 lint:
 	golangci-lint run
