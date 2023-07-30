@@ -36,7 +36,7 @@ type migratorImpl struct {
 	sync.Mutex
 	basicRes context.BasicRes
 	logger   core.Logger
-	executed map[string]*MigrationHistory
+	executed map[string]bool
 	scripts  []*scriptWithComment
 	pending  []*scriptWithComment
 }
@@ -49,7 +49,7 @@ func (m *migratorImpl) loadExecuted() errors.Error {
 		return errors.Default.Wrap(err, "error performing migrations")
 	}
 	// load executed scripts into memory
-	m.executed = make(map[string]*MigrationHistory)
+	m.executed = make(map[string]bool)
 	var records []MigrationHistory
 	err = db.All(&records)
 	if err != nil {
@@ -57,7 +57,7 @@ func (m *migratorImpl) loadExecuted() errors.Error {
 	}
 	for _, record := range records {
 		scriptId := getScriptId(record.ScriptName, record.ScriptVersion)
-		m.executed[scriptId] = &record
+		m.executed[scriptId] = true
 	}
 	return nil
 }
@@ -73,7 +73,7 @@ func (m *migratorImpl) Register(scripts []plugin.MigrationScript, comment string
 			comment: comment,
 		}
 		m.scripts = append(m.scripts, swc)
-		if _, ok := m.executed[scriptId]; !ok {
+		if !m.executed[scriptId] {
 			m.pending = append(m.pending, swc)
 		} else {
 			m.logger.Debug("skipping previously executed migration script: %s", scriptId)
@@ -81,33 +81,12 @@ func (m *migratorImpl) Register(scripts []plugin.MigrationScript, comment string
 	}
 }
 
-func (m *migratorImpl) sortAndFilterScripts() {
+// Execute all registered migration script in order and mark them as executed in migration_history table
+func (m *migratorImpl) Execute() errors.Error {
 	// sort the scripts by version
 	sort.Slice(m.pending, func(i, j int) bool {
 		return m.pending[i].script.Version() < m.pending[j].script.Version()
 	})
-	// determine the latest version we have
-	var latestExecutedVersion uint64 = 0
-	for _, record := range m.executed {
-		if record.ScriptVersion > latestExecutedVersion {
-			latestExecutedVersion = record.ScriptVersion
-		}
-	}
-	// only keep those pending scripts with version greater than the latest-executed
-	cutoffIndex := 0
-	for i, swc := range m.pending {
-		if swc.script.Version() > latestExecutedVersion {
-			break
-		}
-		m.logger.Info("Skipping outdated pending migration: %s", getScriptId(swc.script.Name(), swc.script.Version()))
-		cutoffIndex = i + 1
-	}
-	m.pending = m.pending[cutoffIndex:]
-}
-
-// Execute all registered migration script in order and mark them as executed in migration_history table
-func (m *migratorImpl) Execute() errors.Error {
-	m.sortAndFilterScripts()
 	// execute them one by one
 	db := m.basicRes.GetDal()
 	for _, swc := range m.pending {
@@ -117,16 +96,15 @@ func (m *migratorImpl) Execute() errors.Error {
 		if err != nil {
 			return err
 		}
-		migrationRecord := &MigrationHistory{
+		err = db.Create(&MigrationHistory{
 			ScriptVersion: swc.script.Version(),
 			ScriptName:    swc.script.Name(),
 			Comment:       swc.comment,
-		}
-		err = db.Create(migrationRecord)
+		})
 		if err != nil {
 			return errors.Default.Wrap(err, fmt.Sprintf("failed to execute migration script %s", scriptId))
 		}
-		m.executed[scriptId] = migrationRecord
+		m.executed[scriptId] = true
 		m.pending = m.pending[1:]
 	}
 	return nil
