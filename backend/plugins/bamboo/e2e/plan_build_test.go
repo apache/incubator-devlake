@@ -53,6 +53,7 @@ func TestBambooPlanBuildDataFlow(t *testing.T) {
 
 	// verify extraction
 	dataflowTester.FlushTabler(&models.BambooPlanBuild{})
+	dataflowTester.FlushTabler(&models.BambooPlanBuildVcsRevision{})
 	dataflowTester.Subtask(tasks.ExtractPlanBuildMeta, taskData)
 	dataflowTester.VerifyTable(
 		models.BambooPlanBuild{},
