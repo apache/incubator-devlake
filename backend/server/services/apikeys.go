@@ -104,8 +104,7 @@ func PutApiKey(user *common.User, id uint64) (*models.ApiOutputApiKey, errors.Er
 		logger.Error(err, "api key helper put: %d", id)
 		return nil, err
 	}
-	apiOutputApiKey := &models.ApiOutputApiKey{ApiKey: *apiKey}
-	return apiOutputApiKey, nil
+	return apiKey, nil
 }
 
 // CreateApiKey accepts an api key instance and insert it to database
@@ -123,9 +122,5 @@ func CreateApiKey(operator *common.User, apiKeyInput *models.ApiInputApiKey) (*m
 		logger.Error(err, "api key helper create")
 		return nil, errors.Default.Wrap(err, "random letters")
 	}
-
-	apiOutputApiKey := &models.ApiOutputApiKey{
-		ApiKey: *apiKey,
-	}
-	return apiOutputApiKey, nil
+	return apiKey, nil
 }

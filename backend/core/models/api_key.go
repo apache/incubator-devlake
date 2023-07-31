@@ -46,6 +46,4 @@ type ApiInputApiKey struct {
 	ExpiredAt   *time.Time `json:"expiredAt" validate:"required"`
 }
 
-type ApiOutputApiKey struct {
-	ApiKey `mapstructure:",squash"`
-}
+type ApiOutputApiKey = ApiKey
