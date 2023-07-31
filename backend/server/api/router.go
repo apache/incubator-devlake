@@ -118,7 +118,7 @@ func handlePluginCall(basicRes context.BasicRes, pluginName string, handler plug
 		input.Query = c.Request.URL.Query()
 		user, exist := shared.GetUser(c)
 		if !exist {
-			basicRes.GetLogger().Warn(fmt.Errorf("user doesn't exist"), "GetUser")
+			basicRes.GetLogger().Warn(nil, "user doesn't exist")
 		} else {
 			input.User = user
 		}

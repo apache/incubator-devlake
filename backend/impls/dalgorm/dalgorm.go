@@ -125,10 +125,8 @@ func buildTx(tx *gorm.DB, clauses []dal.Clause) *gorm.DB {
 			if nowait {
 				locking.Options = "NOWAIT"
 			}
-
 			tx = tx.Clauses(locking)
 		}
-
 	}
 	return tx
 }

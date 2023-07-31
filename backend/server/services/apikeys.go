@@ -18,7 +18,6 @@ limitations under the License.
 package services
 
 import (
-	"fmt"
 	"github.com/apache/incubator-devlake/core/dal"
 	"github.com/apache/incubator-devlake/core/errors"
 	"github.com/apache/incubator-devlake/core/models"
@@ -62,33 +61,17 @@ func GetApiKeys(query *ApiKeysQuery) ([]*models.ApiKey, int64, errors.Error) {
 	return apiKeys, count, nil
 }
 
-func getApiKeyById(tx dal.Dal, id uint64, additionalClauses ...dal.Clause) (*models.ApiKey, errors.Error) {
-	apiKey := &models.ApiKey{}
-	err := tx.First(apiKey, append([]dal.Clause{dal.Where("id = ?", id)}, additionalClauses...)...)
-	if err != nil {
-		if tx.IsErrorNotFound(err) {
-			return nil, errors.NotFound.Wrap(err, fmt.Sprintf("could not find api key id[%d] in DB", id))
-		}
-		return nil, errors.Default.Wrap(err, "error getting api key from DB")
-	}
-	return apiKey, nil
-}
-
 func DeleteApiKey(id uint64) errors.Error {
 	// verify input
 	if id == 0 {
 		return errors.BadInput.New("api key's id is missing")
 	}
-	// verify exists
-	_, err := getApiKeyById(db, id)
+
+	apiKeyHelper := apikeyhelper.NewApiKeyHelper(basicRes, logger)
+	err := apiKeyHelper.Delete(nil, id)
 	if err != nil {
-		logger.Error(err, "get api key by id: %d", id)
+		logger.Error(err, "api key helper delete: %d", id)
 		return err
-	}
-	err = db.Delete(&models.ApiKey{}, dal.Where("id = ?", id))
-	if err != nil {
-		logger.Error(err, "delete api key, id: %d", id)
-		return errors.Default.Wrap(err, "error deleting project")
 	}
 	return nil
 }

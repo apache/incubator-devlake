@@ -23,7 +23,6 @@ import (
 	"github.com/apache/incubator-devlake/core/context"
 	"github.com/apache/incubator-devlake/core/dal"
 	"github.com/apache/incubator-devlake/core/errors"
-	"github.com/apache/incubator-devlake/core/models"
 	"github.com/apache/incubator-devlake/core/models/common"
 	"github.com/apache/incubator-devlake/helpers/apikeyhelper"
 	"github.com/gin-gonic/gin"
@@ -148,8 +147,7 @@ func RestAuthentication(router *gin.Engine, basicRes context.BasicRes) gin.Handl
 			return
 		}
 
-		var apiKey models.ApiKey
-		err = db.First(&apiKey, dal.Where("api_key = ?", hashedApiKey))
+		apiKey, err := apiKeyHelper.GetApiKey(nil, dal.Where("api_key = ?", hashedApiKey))
 		if err != nil {
 			c.Abort()
 			if db.IsErrorNotFound(err) {

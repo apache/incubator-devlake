@@ -64,7 +64,7 @@ func (c *ApiKeyHelper) Create(user *common.User, name string, expiredAt *time.Ti
 	randomApiKey, hashedApiKey, generateApiKeyErr := c.digestApiKey()
 	if generateApiKeyErr != nil {
 		c.logger.Error(generateApiKeyErr, "digestApiKey")
-		return nil, errors.Default.Wrap(generateApiKeyErr, "random letters")
+		return nil, errors.Default.Wrap(generateApiKeyErr, "digest api key")
 	}
 
 	// create transaction to update multiple tables
@@ -111,6 +111,7 @@ func (c *ApiKeyHelper) Create(user *common.User, name string, expiredAt *time.Ti
 	}
 	err = tx.Commit()
 	if err != nil {
+		c.logger.Error(err, "commit create api key")
 		return nil, err
 	}
 	apiKey.ApiKey = randomApiKey
@@ -118,8 +119,8 @@ func (c *ApiKeyHelper) Create(user *common.User, name string, expiredAt *time.Ti
 }
 
 func (c *ApiKeyHelper) Put(user *common.User, id uint64) (*models.ApiKey, errors.Error) {
-	// verify exists
 	db := c.basicRes.GetDal()
+	// verify exists
 	apiKey, err := c.getApiKeyById(db, id)
 	if err != nil {
 		c.logger.Error(err, "get api key by id: %d", id)
@@ -140,7 +141,7 @@ func (c *ApiKeyHelper) Put(user *common.User, id uint64) (*models.ApiKey, errors
 		}
 	}
 	if err = db.Update(apiKey); err != nil {
-		c.logger.Error(err, "delete api key, id: %d", id)
+		c.logger.Error(err, "update api key, id: %d", id)
 		return nil, errors.Default.Wrap(err, "error deleting project")
 	}
 	apiKey.ApiKey = apiKeyStr
@@ -148,6 +149,9 @@ func (c *ApiKeyHelper) Put(user *common.User, id uint64) (*models.ApiKey, errors
 }
 
 func (c *ApiKeyHelper) getApiKeyById(tx dal.Dal, id uint64, additionalClauses ...dal.Clause) (*models.ApiKey, errors.Error) {
+	if tx == nil {
+		tx = c.basicRes.GetDal()
+	}
 	apiKey := &models.ApiKey{}
 	err := tx.First(apiKey, append([]dal.Clause{dal.Where("id = ?", id)}, additionalClauses...)...)
 	if err != nil {
@@ -157,6 +161,15 @@ func (c *ApiKeyHelper) getApiKeyById(tx dal.Dal, id uint64, additionalClauses ..
 		return nil, errors.Default.Wrap(err, "error getting api key from DB")
 	}
 	return apiKey, nil
+}
+
+func (c *ApiKeyHelper) GetApiKey(tx dal.Dal, additionalClauses ...dal.Clause) (*models.ApiKey, errors.Error) {
+	if tx == nil {
+		tx = c.basicRes.GetDal()
+	}
+	apiKey := &models.ApiKey{}
+	err := tx.First(apiKey, additionalClauses...)
+	return apiKey, err
 }
 
 func (c *ApiKeyHelper) digestApiKey() (string, string, errors.Error) {
@@ -172,10 +185,31 @@ func (c *ApiKeyHelper) DigestToken(token string) (string, errors.Error) {
 	h := hmac.New(sha256.New, []byte(c.encryptionSecret))
 	if _, err := h.Write([]byte(token)); err != nil {
 		c.logger.Error(err, "hmac write api key")
-		return "", errors.Default.Wrap(err, "hmac write api key")
+		return "", errors.Default.Wrap(err, "hmac write token")
 	}
 	hashedApiKey := fmt.Sprintf("%x", h.Sum(nil))
 	return hashedApiKey, nil
+}
+
+func (c *ApiKeyHelper) Delete(tx dal.Transaction, id uint64) errors.Error {
+	// verify exists
+	var db dal.Dal
+	if tx != nil {
+		db = tx
+	} else {
+		db = c.basicRes.GetDal()
+	}
+	_, err := c.getApiKeyById(db, id)
+	if err != nil {
+		c.logger.Error(err, "get api key by id: %d", id)
+		return err
+	}
+	err = tx.Delete(&models.ApiKey{}, dal.Where("id = ?", id))
+	if err != nil {
+		c.logger.Error(err, "delete api key, id: %d", id)
+		return errors.Default.Wrap(err, "error deleting project")
+	}
+	return nil
 }
 
 func (c *ApiKeyHelper) DeleteForPlugin(tx dal.Transaction, pluginName string, extra string) errors.Error {
