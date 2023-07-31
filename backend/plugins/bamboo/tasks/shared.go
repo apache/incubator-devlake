@@ -37,7 +37,7 @@ func CreateRawDataSubTaskArgs(taskCtx plugin.SubTaskContext, rawTable string) (*
 	*filteredData.Options = *data.Options
 	var params = models.BambooApiParams{
 		ConnectionId: data.Options.ConnectionId,
-		ProjectKey:   data.Options.ProjectKey,
+		PlanKey:      data.Options.PlanKey,
 	}
 	rawDataSubTaskArgs := &api.RawDataSubTaskArgs{
 		Ctx:    taskCtx,

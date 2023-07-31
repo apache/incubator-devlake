@@ -48,7 +48,7 @@ func ExtractDeployBuild(taskCtx plugin.SubTaskContext) errors.Error {
 			}
 
 			build := res.Convert(data.Options)
-			build.PlanKey = input.PlanKey
+			build.PlanKey = data.Options.PlanKey
 			build.Environment = data.RegexEnricher.ReturnNameIfMatched(devops.PRODUCTION, build.DeploymentVersionName)
 
 			return []interface{}{

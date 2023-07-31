@@ -57,7 +57,7 @@ func (p Bamboo) Connection() dal.Tabler {
 }
 
 func (p Bamboo) Scope() plugin.ToolLayerScope {
-	return &models.BambooProject{}
+	return &models.BambooPlan{}
 }
 
 func (p Bamboo) ScopeConfig() dal.Tabler {
@@ -71,7 +71,6 @@ func (p Bamboo) MakeDataSourcePipelinePlanV200(connectionId uint64, scopes []*pl
 func (p Bamboo) GetTablesInfo() []dal.Tabler {
 	return []dal.Tabler{
 		&models.BambooConnection{},
-		&models.BambooProject{},
 		&models.BambooPlan{},
 		&models.BambooJob{},
 		&models.BambooPlanBuild{},
@@ -94,23 +93,26 @@ func (p Bamboo) Name() string {
 func (p Bamboo) SubTaskMetas() []plugin.SubTaskMeta {
 	// TODO add your sub task here
 	return []plugin.SubTaskMeta{
-		tasks.CollectPlanMeta,
-		tasks.ExtractPlanMeta,
+		tasks.ConvertPlansMeta,
+
 		tasks.CollectJobMeta,
 		tasks.ExtractJobMeta,
+
 		tasks.CollectPlanBuildMeta,
 		tasks.ExtractPlanBuildMeta,
+
 		tasks.CollectJobBuildMeta,
 		tasks.ExtractJobBuildMeta,
+
 		tasks.CollectDeployMeta,
 		tasks.ExtractDeployMeta,
+
 		tasks.CollectDeployBuildMeta,
 		tasks.ExtractDeployBuildMeta,
 
 		tasks.ConvertJobBuildsMeta,
 		tasks.ConvertPlanBuildsMeta,
 		tasks.ConvertPlanVcsMeta,
-		tasks.ConvertProjectsMeta,
 		tasks.ConvertDeployBuildsMeta,
 	}
 }
@@ -138,29 +140,19 @@ func (p Bamboo) PrepareTaskData(taskCtx plugin.TaskContext, options map[string]i
 	if err != nil {
 		return nil, errors.Default.Wrap(err, "unable to get Bamboo API client instance")
 	}
-
-	if op.ProjectKey != "" {
-		var scope *models.BambooProject
+	if op.PlanKey != "" {
+		var scope *models.BambooPlan
 		// support v100 & advance mode
 		// If we still cannot find the record in db, we have to request from remote server and save it to db
 		db := taskCtx.GetDal()
-		err = db.First(&scope, dal.Where("connection_id = ? AND project_key = ?", op.ConnectionId, op.ProjectKey))
-		if err != nil && db.IsErrorNotFound(err) {
-			apiProject, err := api.GetApiProject(op.ProjectKey, apiClient)
-			if err != nil {
-				return nil, err
-			}
-			logger.Debug(fmt.Sprintf("Current project: %s", apiProject.Key))
-			scope = apiProject.ConvertApiScope().(*models.BambooProject)
-			scope.ConnectionId = op.ConnectionId
-			err = taskCtx.GetDal().CreateIfNotExist(&scope)
-			if err != nil {
-				return nil, err
-			}
+		err = db.First(&scope, dal.Where("connection_id = ? AND plan_key = ?", op.ConnectionId, op.PlanKey))
+		if err != nil {
+			return nil, err
 		}
+
 		op.ScopeConfigId = scope.ScopeConfigId
 		if err != nil {
-			return nil, errors.Default.Wrap(err, fmt.Sprintf("fail to find project: %s", op.ProjectKey))
+			return nil, errors.Default.Wrap(err, fmt.Sprintf("fail to find plan: %s", op.PlanKey))
 		}
 	}
 
