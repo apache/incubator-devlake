@@ -43,7 +43,6 @@ func TestIssueRelationshipDataFlow(t *testing.T) {
 	dataflowTester.ImportCsvIntoRawTable("./raw_tables/_raw_jira_api_issue_relationships.csv", "_raw_jira_api_issues")
 	// verify issue extraction
 	dataflowTester.FlushTabler(&models.JiraIssueRelationship{})
-	// verify issue extraction
 	dataflowTester.FlushTabler(&models.JiraIssue{})
 	dataflowTester.FlushTabler(&models.JiraBoardIssue{})
 	dataflowTester.FlushTabler(&models.JiraSprintIssue{})
