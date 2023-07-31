@@ -52,6 +52,7 @@ func TestEpicDataflow(t *testing.T) {
 	dataflowTester.FlushTabler(&models.JiraWorklog{})
 	dataflowTester.FlushTabler(&models.JiraAccount{})
 	dataflowTester.FlushTabler(&models.JiraIssueType{})
+	dataflowTester.FlushTabler(&models.JiraIssueComment{})
 
 	ctx := dataflowTester.SubtaskContext(taskData)
 

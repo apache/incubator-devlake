@@ -50,7 +50,7 @@ func ConvertDeployBuilds(taskCtx plugin.SubTaskContext) errors.Error {
 	}
 	cursor, err := db.Cursor(
 		dal.From(&models.BambooDeployBuild{}),
-		dal.Where("connection_id = ? and project_key = ?", data.Options.ConnectionId, data.Options.ProjectKey))
+		dal.Where("connection_id = ? and plan_key = ?", data.Options.ConnectionId, data.Options.PlanKey))
 	if err != nil {
 		return err
 	}
@@ -58,7 +58,7 @@ func ConvertDeployBuilds(taskCtx plugin.SubTaskContext) errors.Error {
 
 	deployBuildIdGen := didgen.NewDomainIdGenerator(&models.BambooDeployBuild{})
 	planBuildIdGen := didgen.NewDomainIdGenerator(&models.BambooPlanBuild{})
-	projectIdGen := didgen.NewDomainIdGenerator(&models.BambooProject{})
+	planIdGen := didgen.NewDomainIdGenerator(&models.BambooPlan{})
 
 	converter, err := api.NewDataConverter(api.DataConverterArgs{
 		InputRowType:       reflect.TypeOf(models.BambooDeployBuild{}),
@@ -71,7 +71,7 @@ func ConvertDeployBuilds(taskCtx plugin.SubTaskContext) errors.Error {
 					Id: deployBuildIdGen.Generate(data.Options.ConnectionId, deployBuild.DeployBuildId),
 				},
 				PipelineId:  planBuildIdGen.Generate(data.Options.ConnectionId, deployBuild.PlanKey),
-				CicdScopeId: projectIdGen.Generate(data.Options.ConnectionId, deployBuild.ProjectKey),
+				CicdScopeId: planIdGen.Generate(data.Options.ConnectionId, data.Options.PlanKey),
 
 				Name: deployBuild.DeploymentVersionName,
 

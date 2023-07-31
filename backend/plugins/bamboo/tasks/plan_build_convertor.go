@@ -50,14 +50,14 @@ func ConvertPlanBuilds(taskCtx plugin.SubTaskContext) errors.Error {
 	}
 	cursor, err := db.Cursor(
 		dal.From(&models.BambooPlanBuild{}),
-		dal.Where("connection_id = ? and project_key = ?", data.Options.ConnectionId, data.Options.ProjectKey))
+		dal.Where("connection_id = ? and plan_key = ?", data.Options.ConnectionId, data.Options.PlanKey))
 	if err != nil {
 		return err
 	}
 	defer cursor.Close()
 
 	planBuildIdGen := didgen.NewDomainIdGenerator(&models.BambooPlanBuild{})
-	projectIdGen := didgen.NewDomainIdGenerator(&models.BambooProject{})
+	planIdGen := didgen.NewDomainIdGenerator(&models.BambooPlan{})
 
 	converter, err := api.NewDataConverter(api.DataConverterArgs{
 		InputRowType:       reflect.TypeOf(models.BambooPlanBuild{}),
@@ -65,13 +65,16 @@ func ConvertPlanBuilds(taskCtx plugin.SubTaskContext) errors.Error {
 		RawDataSubTaskArgs: *rawDataSubTaskArgs,
 		Convert: func(inputRow interface{}) ([]interface{}, errors.Error) {
 			line := inputRow.(*models.BambooPlanBuild)
+			if line.BuildStartedTime == nil {
+				return nil, nil
+			}
 			domainPlanBuild := &devops.CICDPipeline{
 				DomainEntity: domainlayer.DomainEntity{Id: planBuildIdGen.Generate(data.Options.ConnectionId, line.PlanBuildKey)},
 				Name:         line.PlanName,
 				DurationSec:  uint64(line.BuildDurationInSeconds),
 				CreatedDate:  *line.BuildStartedTime,
 				FinishedDate: line.BuildCompletedDate,
-				CicdScopeId:  projectIdGen.Generate(data.Options.ConnectionId, line.ProjectKey),
+				CicdScopeId:  planIdGen.Generate(data.Options.ConnectionId, data.Options.PlanKey),
 
 				Result: devops.GetResult(&devops.ResultRule{
 					Failed:  []string{"Failed"},

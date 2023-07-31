@@ -15,21 +15,34 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-package models
+package migrationscripts
 
-type BambooApiParams struct {
-	ConnectionId uint64 `json:"connectionId"`
-	PlanKey      string
+import (
+	"github.com/apache/incubator-devlake/core/context"
+	"github.com/apache/incubator-devlake/core/errors"
+	"github.com/apache/incubator-devlake/core/plugin"
+)
+
+var _ plugin.MigrationScript = (*addRawParamTableForScope)(nil)
+
+type plan20230725 struct {
+	ScopeConfigId uint64 `json:"scopeConfigId"`
 }
 
-type BambooOptions struct {
-	// TODO add some custom options here if necessary
-	// options means some custom params required by plugin running.
-	// Such As How many rows do your want
-	// You can use it in sub tasks and you need pass it in main.go and pipelines.
-	ConnectionId       uint64   `json:"connectionId"`
-	PlanKey            string   `json:"planKey"`
-	Tasks              []string `json:"tasks,omitempty"`
-	ScopeConfigId      uint64   `mapstructure:"scopeConfigId" json:"scopeConfigId"`
-	*BambooScopeConfig `mapstructure:"scopeConfig" json:"scopeConfig"`
+func (plan20230725) TableName() string {
+	return "_tool_bamboo_plans"
+}
+
+type addScopeConfigId struct{}
+
+func (script *addScopeConfigId) Up(basicRes context.BasicRes) errors.Error {
+	return basicRes.GetDal().AutoMigrate(&plan20230725{})
+}
+
+func (*addScopeConfigId) Version() uint64 {
+	return 20230725093602
+}
+
+func (script *addScopeConfigId) Name() string {
+	return "add scope_config_id to _tool_bamboo_plans"
 }
