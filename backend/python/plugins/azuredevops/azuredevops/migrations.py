@@ -144,7 +144,7 @@ def add_build_id_as_job_primary_key(b: MigrationScriptBuilder):
     # and then add the new composite primary key.
     table = '_tool_azuredevops_jobs'
     b.execute(f'ALTER TABLE {table} MODIFY COLUMN build_id VARCHAR(255)', Dialect.MYSQL)
-    b.execute(f'ALTER TABLE {table} ALTER COLUMN build_id VARCHAR(255)', Dialect.POSTGRESQL)
+    b.execute(f'ALTER TABLE {table} ALTER COLUMN build_id TYPE VARCHAR(255)', Dialect.POSTGRESQL)
     b.execute(f'ALTER TABLE {table} DROP PRIMARY KEY', Dialect.MYSQL)
     b.execute(f'ALTER TABLE {table} DROP CONSTRAINT {table}_pkey', Dialect.POSTGRESQL)
     b.execute(f'ALTER TABLE {table} ADD PRIMARY KEY (id, build_id)')
