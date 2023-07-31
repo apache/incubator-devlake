@@ -30,12 +30,14 @@ import (
 
 const BadRequestBody = "bad request body format"
 
-type ApiBody struct {
-	Success bool        `json:"success"`
-	Message string      `json:"message"`
-	Causes  []string    `json:"causes"`
-	Data    interface{} `json:"data"`
+type TypedApiBody[T any] struct {
+	Success bool     `json:"success"`
+	Message string   `json:"message"`
+	Causes  []string `json:"causes"`
+	Data    T        `json:"data"`
 }
+
+type ApiBody TypedApiBody[interface{}]
 
 type ResponsePipelines struct {
 	Count     int64              `json:"count"`

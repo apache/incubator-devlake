@@ -20,13 +20,15 @@ package e2e
 import (
 	"testing"
 
+	"github.com/apache/incubator-devlake/core/models/common"
+	"github.com/apache/incubator-devlake/core/models/domainlayer/ticket"
 	"github.com/apache/incubator-devlake/helpers/e2ehelper"
 	"github.com/apache/incubator-devlake/plugins/jira/impl"
 	"github.com/apache/incubator-devlake/plugins/jira/models"
 	"github.com/apache/incubator-devlake/plugins/jira/tasks"
 )
 
-func TestRemotelinkDataFlow(t *testing.T) {
+func TestIssueRelationshipDataFlow(t *testing.T) {
 	var plugin impl.Jira
 	dataflowTester := e2ehelper.NewDataFlowTester(t, "jira", plugin)
 
@@ -34,46 +36,28 @@ func TestRemotelinkDataFlow(t *testing.T) {
 		Options: &tasks.JiraOptions{
 			ConnectionId: 2,
 			BoardId:      8,
-			ScopeConfig: &models.JiraScopeConfig{
-				RemotelinkCommitShaPattern: ".*/commit/(.*)",
-				RemotelinkRepoPattern: []models.CommitUrlPattern{
-					{
-						Pattern: "",
-						Regex:   `https://example.com/(?P<namespace>\S+)/(?P<repo_name>\S+)/-/commits/(?P<commit_sha>\w{40})`,
-					},
-				},
-			},
 		},
 	}
 
 	// import raw data table
-	dataflowTester.ImportCsvIntoRawTable("./raw_tables/_raw_jira_api_remotelinks.csv", "_raw_jira_api_remotelinks")
+	dataflowTester.ImportCsvIntoRawTable("./raw_tables/_raw_jira_api_issue_relationships.csv", "_raw_jira_api_issue_relationships")
 
-	// verify remotelink extraction
-	dataflowTester.FlushTabler(&models.JiraRemotelink{})
-	dataflowTester.FlushTabler(&models.JiraIssueCommit{})
-	dataflowTester.Subtask(tasks.ExtractRemotelinksMeta, taskData)
-	dataflowTester.VerifyTable(
-		models.JiraRemotelink{},
-		"./snapshot_tables/_tool_jira_remotelinks.csv",
-		e2ehelper.ColumnWithRawData(
-			"connection_id",
-			"remotelink_id",
-			"issue_id",
-			"self",
-			"title",
-			"url",
-			"issue_updated",
-		),
-	)
-	dataflowTester.VerifyTable(
-		models.JiraIssueCommit{},
-		"./snapshot_tables/_tool_jira_issue_commits.csv",
-		e2ehelper.ColumnWithRawData(
-			"connection_id",
-			"issue_id",
-			"commit_sha",
-			"commit_url",
-		),
-	)
+	// verify issue extraction
+	dataflowTester.FlushTabler(&models.JiraIssueRelationship{})
+	dataflowTester.Subtask(tasks.ExtractIssuesMeta, taskData)
+
+	dataflowTester.VerifyTableWithOptions(&models.JiraIssueRelationship{}, e2ehelper.TableOptions{
+		CSVRelPath:  "./snapshot_tables/_tool_jira_issue_relationships.csv",
+		IgnoreTypes: []interface{}{common.NoPKModel{}},
+	})
+
+	dataflowTester.ImportCsvIntoTabler("./snapshot_tables/_tool_jira_board_issues.csv", &models.JiraBoardIssue{})
+
+	// verify issue conversion
+	dataflowTester.FlushTabler(&ticket.IssueRelationship{})
+	dataflowTester.Subtask(tasks.ConvertIssueRelationshipsMeta, taskData)
+	dataflowTester.VerifyTableWithOptions(&ticket.IssueRelationship{}, e2ehelper.TableOptions{
+		CSVRelPath:  "./snapshot_tables/issue_relationships.csv",
+		IgnoreTypes: []interface{}{common.NoPKModel{}},
+	})
 }
