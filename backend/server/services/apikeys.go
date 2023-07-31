@@ -91,8 +91,7 @@ func PutApiKey(user *common.User, id uint64) (*models.ApiOutputApiKey, errors.Er
 }
 
 // CreateApiKey accepts an api key instance and insert it to database
-func CreateApiKey(operator *common.User, apiKeyInput *models.ApiInputApiKey) (*models.ApiOutputApiKey, errors.Error) {
-
+func CreateApiKey(user *common.User, apiKeyInput *models.ApiInputApiKey) (*models.ApiOutputApiKey, errors.Error) {
 	// verify input
 	if err := VerifyStruct(apiKeyInput); err != nil {
 		logger.Error(err, "verify: %+v", apiKeyInput)
@@ -100,10 +99,13 @@ func CreateApiKey(operator *common.User, apiKeyInput *models.ApiInputApiKey) (*m
 	}
 
 	apiKeyHelper := apikeyhelper.NewApiKeyHelper(basicRes, logger)
-	apiKey, err := apiKeyHelper.Create(operator, apiKeyInput.Name, apiKeyInput.ExpiredAt, apiKeyInput.AllowedPath, apiKeyInput.Type)
+	tx := basicRes.GetDal().Begin()
+	apiKey, err := apiKeyHelper.Create(tx, user, apiKeyInput.Name, apiKeyInput.ExpiredAt, apiKeyInput.AllowedPath, apiKeyInput.Type, "")
 	if err != nil {
+		tx.Rollback()
 		logger.Error(err, "api key helper create")
 		return nil, errors.Default.Wrap(err, "random letters")
 	}
+	tx.Commit()
 	return apiKey, nil
 }

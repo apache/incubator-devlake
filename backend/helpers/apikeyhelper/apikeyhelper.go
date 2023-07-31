@@ -30,6 +30,7 @@ import (
 	common "github.com/apache/incubator-devlake/core/models/common"
 	"github.com/apache/incubator-devlake/core/utils"
 	"github.com/spf13/viper"
+	"regexp"
 	"strings"
 	"time"
 )
@@ -60,66 +61,14 @@ func NewApiKeyHelper(basicRes context.BasicRes, logger log.Logger) *ApiKeyHelper
 	}
 }
 
-func (c *ApiKeyHelper) Create(user *common.User, name string, expiredAt *time.Time, allowedPath string, apiKeyType string) (*models.ApiKey, errors.Error) {
-	randomApiKey, hashedApiKey, generateApiKeyErr := c.digestApiKey()
-	if generateApiKeyErr != nil {
-		c.logger.Error(generateApiKeyErr, "digestApiKey")
-		return nil, errors.Default.Wrap(generateApiKeyErr, "digest api key")
+func (c *ApiKeyHelper) Create(tx dal.Transaction, user *common.User, name string, expiredAt *time.Time, allowedPath string, apiKeyType string, extra string) (*models.ApiKey, errors.Error) {
+	if _, err := regexp.Compile(allowedPath); err != nil {
+		c.logger.Error(err, "Compile allowed path")
+		return nil, errors.Default.Wrap(err, fmt.Sprintf("compile allowed path: %s", allowedPath))
 	}
-
-	// create transaction to update multiple tables
-	var err errors.Error
-	tx := c.basicRes.GetDal().Begin()
-	defer func() {
-		if r := recover(); r != nil || err != nil {
-			c.logger.Error(err, "panic occurs or something went wrong")
-			if err = tx.Rollback(); err != nil {
-				c.logger.Error(err, "CreateApiKey: failed to rollback")
-			}
-		}
-	}()
-
-	now := time.Now()
-	apiKey := &models.ApiKey{
-		Model: common.Model{
-			CreatedAt: now,
-			UpdatedAt: now,
-		},
-		Name:        name,
-		ApiKey:      hashedApiKey,
-		ExpiredAt:   expiredAt,
-		AllowedPath: allowedPath,
-		Type:        apiKeyType,
-	}
-	if user != nil {
-		apiKey.Creator = common.Creator{
-			Creator:      user.Name,
-			CreatorEmail: user.Email,
-		}
-		apiKey.Updater = common.Updater{
-			Updater:      user.Name,
-			UpdaterEmail: user.Email,
-		}
-	}
-	err = tx.Create(apiKey)
-	if err != nil {
-		if tx.IsDuplicationError(err) {
-			return nil, errors.BadInput.New(fmt.Sprintf("An api key with name [%s] has already exists", name))
-		}
-		return nil, errors.Default.Wrap(err, "error creating DB api key")
-	}
-	err = tx.Commit()
-	if err != nil {
-		c.logger.Error(err, "commit create api key")
-		return nil, err
-	}
-	apiKey.ApiKey = randomApiKey
-	return apiKey, nil
-}
-
-func (c *ApiKeyHelper) CreateForPlugin(tx dal.Transaction, user *common.User, name string, pluginName string, allowedPath string, extra string) (*models.ApiKey, errors.Error) {
 	apiKey, hashedApiKey, err := c.digestApiKey()
 	if err != nil {
+		c.logger.Error(err, "digestApiKey")
 		return nil, err
 	}
 	now := time.Now()
@@ -130,9 +79,9 @@ func (c *ApiKeyHelper) CreateForPlugin(tx dal.Transaction, user *common.User, na
 		},
 		Name:        name,
 		ApiKey:      hashedApiKey,
-		ExpiredAt:   nil,
+		ExpiredAt:   expiredAt,
 		AllowedPath: allowedPath,
-		Type:        fmt.Sprintf("plugin:%s", pluginName),
+		Type:        apiKeyType,
 		Extra:       extra,
 	}
 	if user != nil {
@@ -147,10 +96,17 @@ func (c *ApiKeyHelper) CreateForPlugin(tx dal.Transaction, user *common.User, na
 	}
 	if err := tx.Create(apiKeyRecord); err != nil {
 		c.logger.Error(err, "create api key record")
-		return nil, err
+		if tx.IsDuplicationError(err) {
+			return nil, errors.BadInput.New(fmt.Sprintf("An api key with name [%s] has already exists", name))
+		}
+		return nil, errors.Default.Wrap(err, "error creating DB api key")
 	}
 	apiKeyRecord.ApiKey = apiKey
 	return apiKeyRecord, nil
+}
+
+func (c *ApiKeyHelper) CreateForPlugin(tx dal.Transaction, user *common.User, name string, pluginName string, allowedPath string, extra string) (*models.ApiKey, errors.Error) {
+	return c.Create(tx, user, name, nil, fmt.Sprintf("plugin:%s", pluginName), allowedPath, extra)
 }
 
 func (c *ApiKeyHelper) Put(user *common.User, id uint64) (*models.ApiKey, errors.Error) {
