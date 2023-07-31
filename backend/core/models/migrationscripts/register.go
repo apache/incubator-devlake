@@ -87,5 +87,6 @@ func All() []plugin.MigrationScript {
 		new(renameFinishedCommitsDiffs),
 		new(addUpdatedDateToIssueComments),
 		new(addIssueRelationship),
+		new(tasksUsesJSON),
 	}
 }

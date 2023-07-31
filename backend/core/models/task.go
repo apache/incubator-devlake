@@ -49,7 +49,7 @@ type Task struct {
 	common.Model
 	Plugin         string                 `json:"plugin" gorm:"index"`
 	Subtasks       []string               `json:"subtasks" gorm:"type:json;serializer:json"`
-	Options        map[string]interface{} `json:"options" gorm:"type:json;serializer:encdec"`
+	Options        map[string]interface{} `json:"options" gorm:"serializer:encdec"`
 	Status         string                 `json:"status"`
 	Message        string                 `json:"message"`
 	ErrorName      string                 `json:"errorName"`
