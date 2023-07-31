@@ -29,6 +29,14 @@ type ApiResourceInput struct {
 	Query   url.Values             // query string
 	Body    map[string]interface{} // json body
 	Request *http.Request
+
+	User *UserInfo
+}
+
+type UserInfo struct {
+	Name      string
+	Email     string
+	AvatarURL string
 }
 
 // GetPlugin get the plugin in context

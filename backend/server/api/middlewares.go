@@ -19,11 +19,10 @@ package api
 
 import (
 	"fmt"
+	"github.com/apache/incubator-devlake/core/context"
 	"github.com/apache/incubator-devlake/core/dal"
 	"github.com/apache/incubator-devlake/core/models"
 	"github.com/apache/incubator-devlake/helpers/apikeyhelper"
-	"github.com/apache/incubator-devlake/impls/logruslog"
-	"github.com/apache/incubator-devlake/server/services"
 	"github.com/gin-gonic/gin"
 	"net/http"
 	"regexp"
@@ -31,15 +30,17 @@ import (
 	"time"
 )
 
-func Authentication(router *gin.Engine) gin.HandlerFunc {
+func Authentication(router *gin.Engine, basicRes context.BasicRes) gin.HandlerFunc {
 	type ApiBody struct {
 		Success bool   `json:"success"`
 		Message string `json:"message"`
 	}
-	db := services.GetBasicRes().GetDal()
+	db := basicRes.GetDal()
+	logger := basicRes.GetLogger()
 	if db == nil {
 		panic(fmt.Errorf("db is not initialised"))
 	}
+	apiKeyHelper := apikeyhelper.NewApiKeyHelper(basicRes, logger)
 	return func(c *gin.Context) {
 		path := c.Request.URL.Path
 		if strings.HasPrefix(path, "/api") {
@@ -48,7 +49,7 @@ func Authentication(router *gin.Engine) gin.HandlerFunc {
 
 		// Only open api needs to check api key
 		if !strings.HasPrefix(path, "/rest") {
-			logruslog.Global.Info("path %s will continue", path)
+			logger.Info("path %s will continue", path)
 			c.Next()
 			return
 		}
@@ -72,9 +73,9 @@ func Authentication(router *gin.Engine) gin.HandlerFunc {
 			return
 		}
 
-		hashedApiKey, err := apikeyhelper.GenerateApiKeyWithToken(c, apiKeyStr)
+		hashedApiKey, err := apiKeyHelper.GenerateApiKeyWithToken(apiKeyStr)
 		if err != nil {
-			logruslog.Global.Error(err, "GenerateApiKeyWithToken")
+			logger.Error(err, "GenerateApiKeyWithToken")
 			c.Abort()
 			c.JSON(http.StatusInternalServerError, &ApiBody{
 				Success: false,
@@ -93,7 +94,7 @@ func Authentication(router *gin.Engine) gin.HandlerFunc {
 					Message: "api key is invalid",
 				})
 			} else {
-				logruslog.Global.Error(err, "query api key from db")
+				logger.Error(err, "query api key from db")
 				c.JSON(http.StatusInternalServerError, &ApiBody{
 					Success: false,
 					Message: err.Error(),
@@ -112,7 +113,7 @@ func Authentication(router *gin.Engine) gin.HandlerFunc {
 		}
 		matched, matchErr := regexp.MatchString(apiKey.AllowedPath, path)
 		if matchErr != nil {
-			logruslog.Global.Error(err, "regexp match path error")
+			logger.Error(err, "regexp match path error")
 			c.Abort()
 			c.JSON(http.StatusInternalServerError, &ApiBody{
 				Success: false,
@@ -129,7 +130,7 @@ func Authentication(router *gin.Engine) gin.HandlerFunc {
 		}
 
 		if strings.HasPrefix(path, "/rest") {
-			logruslog.Global.Info("redirect path: %s to: %s", path, strings.TrimPrefix(path, "/rest"))
+			logger.Info("redirect path: %s to: %s", path, strings.TrimPrefix(path, "/rest"))
 			c.Request.URL.Path = strings.TrimPrefix(path, "/rest")
 		}
 		router.HandleContext(c)

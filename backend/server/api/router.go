@@ -19,6 +19,7 @@ package api
 
 import (
 	"fmt"
+	"github.com/apache/incubator-devlake/core/context"
 	"github.com/apache/incubator-devlake/core/errors"
 	"github.com/apache/incubator-devlake/impls/logruslog"
 	"github.com/apache/incubator-devlake/server/api/apikeys"
@@ -39,7 +40,7 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-func RegisterRouter(r *gin.Engine) {
+func RegisterRouter(r *gin.Engine, basicRes context.BasicRes) {
 	r.GET("/pipelines", pipelines.Index)
 	r.POST("/pipelines", pipelines.Post)
 	r.GET("/pipelines/:pipelineId", pipelines.Get)
@@ -87,23 +88,23 @@ func RegisterRouter(r *gin.Engine) {
 	}
 	// mount all api resources for all plugins
 	for pluginName, apiResources := range resources {
-		registerPluginEndpoints(r, pluginName, apiResources)
+		registerPluginEndpoints(r, basicRes, pluginName, apiResources)
 	}
 }
 
-func registerPluginEndpoints(r *gin.Engine, pluginName string, apiResources map[string]map[string]plugin.ApiResourceHandler) {
+func registerPluginEndpoints(r *gin.Engine, basicRes context.BasicRes, pluginName string, apiResources map[string]map[string]plugin.ApiResourceHandler) {
 	for resourcePath, resourceHandlers := range apiResources {
 		for method, h := range resourceHandlers {
 			r.Handle(
 				method,
 				fmt.Sprintf("/plugins/%s/%s", pluginName, resourcePath),
-				handlePluginCall(pluginName, h),
+				handlePluginCall(basicRes, pluginName, h),
 			)
 		}
 	}
 }
 
-func handlePluginCall(pluginName string, handler plugin.ApiResourceHandler) func(c *gin.Context) {
+func handlePluginCall(basicRes context.BasicRes, pluginName string, handler plugin.ApiResourceHandler) func(c *gin.Context) {
 	return func(c *gin.Context) {
 		var err errors.Error
 		input := &plugin.ApiResourceInput{}
@@ -115,13 +116,22 @@ func handlePluginCall(pluginName string, handler plugin.ApiResourceHandler) func
 		}
 		input.Params["plugin"] = pluginName
 		input.Query = c.Request.URL.Query()
+		userName, email, getUserInfoErr := shared.GetUserInfo(c.Request)
+		if getUserInfoErr != nil {
+			basicRes.GetLogger().Warn(getUserInfoErr, "GetUserInfo")
+		} else {
+			input.User = &plugin.UserInfo{
+				Name:  userName,
+				Email: email,
+			}
+		}
 		if c.Request.Body != nil {
 			if strings.HasPrefix(c.Request.Header.Get("Content-Type"), "multipart/form-data;") {
 				input.Request = c.Request
 			} else {
-				err2 := c.ShouldBindJSON(&input.Body)
-				if err2 != nil && err2.Error() != "EOF" {
-					shared.ApiOutputError(c, err2)
+				shouldBindJSONErr := c.ShouldBindJSON(&input.Body)
+				if shouldBindJSONErr != nil && shouldBindJSONErr.Error() != "EOF" {
+					shared.ApiOutputError(c, shouldBindJSONErr)
 					return
 				}
 			}

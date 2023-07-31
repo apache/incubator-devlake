@@ -18,13 +18,10 @@ limitations under the License.
 package api
 
 import (
-	"context"
 	"fmt"
 	"github.com/apache/incubator-devlake/core/dal"
 	"github.com/apache/incubator-devlake/core/errors"
 	"github.com/apache/incubator-devlake/core/plugin"
-	"github.com/apache/incubator-devlake/core/utils"
-	"github.com/apache/incubator-devlake/helpers/apikeyhelper"
 	"github.com/apache/incubator-devlake/plugins/webhook/models"
 	"net/http"
 	"strconv"
@@ -48,12 +45,12 @@ func PostConnections(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput,
 		return nil, err
 	}
 	logger.Info("connection: %+v", connection)
-
-	user, email, getUserInfoErr := utils.GetUserInfo(input.Request)
-	if getUserInfoErr != nil {
-		return nil, errors.Default.Wrap(getUserInfoErr, "GetUserInfo")
+	var user, email string
+	if input.User != nil {
+		user = input.User.Name
+		email = input.User.Email
 	}
-	apiKeyRecord, err := apikeyhelper.CreateWithConnectionId(context.Background(), tx, user, email, "webhook", connection.ID)
+	apiKeyRecord, err := apiKeyHelper.CreateWithConnectionId(tx, user, email, "webhook", connection.ID)
 	if err != nil {
 		tx.Rollback()
 		logger.Error(err, "CreateWithConnectionId")
@@ -111,7 +108,7 @@ func DeleteConnection(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput
 		return nil, err
 	}
 
-	err = apikeyhelper.DeleteWithConnectionId(context.Background(), tx, "webhook", connection.ID)
+	err = apiKeyHelper.DeleteWithConnectionId(tx, "webhook", connection.ID)
 	if err != nil {
 		tx.Rollback()
 		logger.Error(err, "delete connection id: %d", connection.ID)

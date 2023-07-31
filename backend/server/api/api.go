@@ -95,7 +95,8 @@ func CreateApiService() {
 	})
 
 	// Api keys
-	router.Use(Authentication(router))
+	basicRes := services.GetBasicRes()
+	router.Use(Authentication(router, basicRes))
 
 	// Restrict access if database migration is required
 	router.Use(func(ctx *gin.Context) {
@@ -136,7 +137,7 @@ func CreateApiService() {
 	}))
 
 	// Register API endpoints
-	RegisterRouter(router)
+	RegisterRouter(router, basicRes)
 	// Get port from config
 	port := v.GetString("PORT")
 	// Trim any : from the start

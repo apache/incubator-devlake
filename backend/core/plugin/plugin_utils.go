@@ -29,7 +29,6 @@ import (
 	"github.com/apache/incubator-devlake/core/utils"
 )
 
-// Deprecated: use utils.EncodeKeyEnvStr
 const EncodeKeyEnvStr = "ENCRYPTION_SECRET"
 
 // TODO: maybe move encryption/decryption into helper?

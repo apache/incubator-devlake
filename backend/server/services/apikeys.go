@@ -18,7 +18,6 @@ limitations under the License.
 package services
 
 import (
-	"context"
 	"fmt"
 	"github.com/apache/incubator-devlake/core/dal"
 	"github.com/apache/incubator-devlake/core/errors"
@@ -106,7 +105,8 @@ func PutApiKey(operator *common.Updater, id uint64) (*models.ApiOutputApiKey, er
 		logger.Error(err, "get api key by id: %d", id)
 		return nil, err
 	}
-	apiKeyStr, hashApiKey, err := apikeyhelper.GenerateApiKey(context.Background())
+	apiKeyHelper := apikeyhelper.NewApiKeyHelper(basicRes, logger)
+	apiKeyStr, hashApiKey, err := apiKeyHelper.GenerateApiKey()
 	if err != nil {
 		logger.Error(err, "GenerateApiKey")
 		return nil, err
@@ -135,7 +135,8 @@ func CreateApiKey(operator *common.Creator, apiKeyInput *models.ApiInputApiKey) 
 		return nil, err
 	}
 
-	randomApiKey, hashedApiKey, generateApiKeyErr := apikeyhelper.GenerateApiKey(context.Background())
+	apiKeyHelper := apikeyhelper.NewApiKeyHelper(basicRes, logger)
+	randomApiKey, hashedApiKey, generateApiKeyErr := apiKeyHelper.GenerateApiKey()
 	if generateApiKeyErr != nil {
 		logger.Error(generateApiKeyErr, "GenerateApiKey")
 		return nil, errors.Default.Wrap(generateApiKeyErr, "random letters")

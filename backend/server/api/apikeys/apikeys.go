@@ -21,7 +21,6 @@ import (
 	"github.com/apache/incubator-devlake/core/errors"
 	"github.com/apache/incubator-devlake/core/models"
 	"github.com/apache/incubator-devlake/core/models/common"
-	"github.com/apache/incubator-devlake/core/utils"
 	"github.com/apache/incubator-devlake/server/api/shared"
 	"github.com/apache/incubator-devlake/server/services"
 	"github.com/gin-gonic/gin"
@@ -100,7 +99,7 @@ func PutApiKey(c *gin.Context) {
 		shared.ApiOutputError(c, errors.BadInput.Wrap(err, "bad apiKeyId format supplied"))
 		return
 	}
-	user, email, err := utils.GetUserInfo(c.Request)
+	user, email, err := shared.GetUserInfo(c.Request)
 	if err != nil {
 		shared.ApiOutputError(c, errors.Default.Wrap(err, "error getting user info"))
 		return
@@ -132,7 +131,7 @@ func PostApiKey(c *gin.Context) {
 		shared.ApiOutputError(c, errors.BadInput.Wrap(err, shared.BadRequestBody))
 		return
 	}
-	user, email, err := utils.GetUserInfo(c.Request)
+	user, email, err := shared.GetUserInfo(c.Request)
 	if err != nil {
 		shared.ApiOutputError(c, errors.Default.Wrap(err, "error getting user info"))
 		return
