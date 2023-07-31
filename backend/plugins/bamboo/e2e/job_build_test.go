@@ -51,6 +51,7 @@ func TestBambooJobBuildDataFlow(t *testing.T) {
 
 	// verify env when production regex is not set
 	dataflowTester.FlushTabler(&models.BambooJobBuild{})
+	dataflowTester.FlushTabler(&models.BambooPlanBuildVcsRevision{})
 	dataflowTester.Subtask(tasks.ExtractJobBuildMeta, taskData)
 	dataflowTester.VerifyTable(
 		models.BambooJobBuild{},
