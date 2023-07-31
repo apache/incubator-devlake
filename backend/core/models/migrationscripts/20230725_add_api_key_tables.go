@@ -34,12 +34,12 @@ type apiKey20230728 struct {
 	archived.Model
 	archived.Creator
 	archived.Updater
-	Name        string    `json:"name" gorm:"type:varchar(255);uniqueIndex"`
-	ApiKey      string    `json:"apiKey" gorm:"type:varchar(255);column:api_key;uniqueIndex"`
-	ExpiredAt   time.Time `json:"expiredAt" gorm:"column:expired_at"`
-	AllowedPath string    `json:"allowedPath" gorm:"type:varchar(255);column:allowed_path"`
-	Type        string    `json:"type" gorm:"type:varchar(40);column:type;index"`
-	Extra       string    `json:"extra" gorm:"type:varchar(255);column:extra;index"`
+	Name        string     `json:"name" gorm:"type:varchar(255);uniqueIndex"`
+	ApiKey      string     `json:"apiKey" gorm:"type:varchar(255);column:api_key;uniqueIndex"`
+	ExpiredAt   *time.Time `json:"expiredAt" gorm:"column:expired_at"`
+	AllowedPath string     `json:"allowedPath" gorm:"type:varchar(255);column:allowed_path"`
+	Type        string     `json:"type" gorm:"type:varchar(40);column:type;index"`
+	Extra       string     `json:"extra" gorm:"type:varchar(255);column:extra;index"`
 }
 
 func (apiKey20230728) TableName() string {

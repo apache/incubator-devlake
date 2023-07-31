@@ -19,6 +19,7 @@ package plugin
 
 import (
 	"github.com/apache/incubator-devlake/core/errors"
+	"github.com/apache/incubator-devlake/core/models/common"
 	"net/http"
 	"net/url"
 )
@@ -30,13 +31,7 @@ type ApiResourceInput struct {
 	Body    map[string]interface{} // json body
 	Request *http.Request
 
-	User *UserInfo
-}
-
-type UserInfo struct {
-	Name      string
-	Email     string
-	AvatarURL string
+	User *common.User
 }
 
 // GetPlugin get the plugin in context

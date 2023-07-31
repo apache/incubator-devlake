@@ -26,6 +26,8 @@ import (
 	"github.com/go-playground/validator/v10"
 )
 
+const pluginName = "webhook"
+
 var vld *validator.Validate
 var connectionHelper *api.ConnectionApiHelper
 var apiKeyHelper *apikeyhelper.ApiKeyHelper

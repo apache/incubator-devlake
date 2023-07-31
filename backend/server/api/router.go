@@ -116,14 +116,11 @@ func handlePluginCall(basicRes context.BasicRes, pluginName string, handler plug
 		}
 		input.Params["plugin"] = pluginName
 		input.Query = c.Request.URL.Query()
-		userName, email, getUserInfoErr := shared.GetUserInfo(c.Request)
-		if getUserInfoErr != nil {
-			basicRes.GetLogger().Warn(getUserInfoErr, "GetUserInfo")
+		user, exist := shared.GetUser(c)
+		if !exist {
+			basicRes.GetLogger().Warn(fmt.Errorf("user doesn't exist"), "GetUser")
 		} else {
-			input.User = &plugin.UserInfo{
-				Name:  userName,
-				Email: email,
-			}
+			input.User = user
 		}
 		if c.Request.Body != nil {
 			if strings.HasPrefix(c.Request.Header.Get("Content-Type"), "multipart/form-data;") {

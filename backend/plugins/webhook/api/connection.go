@@ -45,15 +45,13 @@ func PostConnections(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput,
 		return nil, err
 	}
 	logger.Info("connection: %+v", connection)
-	var user, email string
-	if input.User != nil {
-		user = input.User.Name
-		email = input.User.Email
-	}
-	apiKeyRecord, err := apiKeyHelper.CreateWithConnectionId(tx, user, email, "webhook", connection.ID)
+	name := fmt.Sprintf("%s-%d", pluginName, connection.ID)
+	allowedPath := fmt.Sprintf("/plugins/%s/connections/%d/.*", pluginName, connection.ID)
+	extra := fmt.Sprintf("connectionId:%d", connection.ID)
+	apiKeyRecord, err := apiKeyHelper.CreateForPlugin(tx, input.User, name, pluginName, allowedPath, extra)
 	if err != nil {
 		tx.Rollback()
-		logger.Error(err, "CreateWithConnectionId")
+		logger.Error(err, "CreateForPlugin")
 		return nil, err
 	}
 	tx.Commit()
@@ -107,11 +105,11 @@ func DeleteConnection(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput
 		logger.Error(err, "delete connection: %d", connectionId)
 		return nil, err
 	}
-
-	err = apiKeyHelper.DeleteWithConnectionId(tx, "webhook", connection.ID)
+	extra := fmt.Sprintf("connectionId:%d", connectionId)
+	err = apiKeyHelper.DeleteForPlugin(tx, pluginName, extra)
 	if err != nil {
 		tx.Rollback()
-		logger.Error(err, "delete connection id: %d", connection.ID)
+		logger.Error(err, "delete connection extra: %d, name: %s", extra, pluginName)
 		return nil, err
 	}
 	tx.Commit()

@@ -20,7 +20,7 @@ package apikeys
 import (
 	"github.com/apache/incubator-devlake/core/errors"
 	"github.com/apache/incubator-devlake/core/models"
-	"github.com/apache/incubator-devlake/core/models/common"
+	"github.com/apache/incubator-devlake/impls/logruslog"
 	"github.com/apache/incubator-devlake/server/api/shared"
 	"github.com/apache/incubator-devlake/server/services"
 	"github.com/gin-gonic/gin"
@@ -99,15 +99,11 @@ func PutApiKey(c *gin.Context) {
 		shared.ApiOutputError(c, errors.BadInput.Wrap(err, "bad apiKeyId format supplied"))
 		return
 	}
-	user, email, err := shared.GetUserInfo(c.Request)
-	if err != nil {
-		shared.ApiOutputError(c, errors.Default.Wrap(err, "error getting user info"))
-		return
+	user, exist := shared.GetUser(c)
+	if !exist {
+		logruslog.Global.Warn(nil, "user doesn't exist")
 	}
-	apiOutputApiKey, err := services.PutApiKey(&common.Updater{
-		Updater:      user,
-		UpdaterEmail: email,
-	}, id)
+	apiOutputApiKey, err := services.PutApiKey(user, id)
 	if err != nil {
 		shared.ApiOutputError(c, errors.Default.Wrap(err, "error regenerate api key"))
 		return
@@ -131,15 +127,11 @@ func PostApiKey(c *gin.Context) {
 		shared.ApiOutputError(c, errors.BadInput.Wrap(err, shared.BadRequestBody))
 		return
 	}
-	user, email, err := shared.GetUserInfo(c.Request)
-	if err != nil {
-		shared.ApiOutputError(c, errors.Default.Wrap(err, "error getting user info"))
-		return
+	user, exist := shared.GetUser(c)
+	if !exist {
+		logruslog.Global.Warn(nil, "user doesn't exist")
 	}
-	apiKeyOutput, err := services.CreateApiKey(&common.Creator{
-		Creator:      user,
-		CreatorEmail: email,
-	}, apiKeyInput)
+	apiKeyOutput, err := services.CreateApiKey(user, apiKeyInput)
 	if err != nil {
 		shared.ApiOutputError(c, errors.Default.Wrap(err, "error creating api key"))
 		return

@@ -15,37 +15,18 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-package models
+package shared
 
 import (
 	"github.com/apache/incubator-devlake/core/models/common"
-	"time"
+	"github.com/gin-gonic/gin"
 )
 
-// ApiKey is the basic of api key management.
-type ApiKey struct {
-	common.Model
-	common.Creator
-	common.Updater
-	Name        string     `json:"name"`
-	ApiKey      string     `json:"apiKey"`
-	ExpiredAt   *time.Time `json:"expiredAt"`
-	AllowedPath string     `json:"allowedPath"`
-	Type        string     `json:"type"`
-	Extra       string     `json:"extra"`
-}
-
-func (ApiKey) TableName() string {
-	return "_devlake_api_keys"
-}
-
-type ApiInputApiKey struct {
-	Name        string     `json:"name" validate:"required,max=255"`
-	Type        string     `json:"type" validate:"required"`
-	AllowedPath string     `json:"allowedPath" validate:"required"`
-	ExpiredAt   *time.Time `json:"expiredAt" validate:"required"`
-}
-
-type ApiOutputApiKey struct {
-	ApiKey `mapstructure:",squash"`
+func GetUser(c *gin.Context) (*common.User, bool) {
+	userObj, exist := c.Get(common.USER)
+	if !exist {
+		return nil, false
+	}
+	user := userObj.(*common.User)
+	return user, true
 }

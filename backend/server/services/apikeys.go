@@ -24,7 +24,6 @@ import (
 	"github.com/apache/incubator-devlake/core/models"
 	"github.com/apache/incubator-devlake/core/models/common"
 	"github.com/apache/incubator-devlake/helpers/apikeyhelper"
-	"time"
 )
 
 // ApiKeysQuery used to query api keys as the api key input
@@ -94,40 +93,23 @@ func DeleteApiKey(id uint64) errors.Error {
 	return nil
 }
 
-func PutApiKey(operator *common.Updater, id uint64) (*models.ApiOutputApiKey, errors.Error) {
+func PutApiKey(user *common.User, id uint64) (*models.ApiOutputApiKey, errors.Error) {
 	// verify input
 	if id == 0 {
 		return nil, errors.BadInput.New("api key's id is missing")
 	}
-	// verify exists
-	apiKey, err := getApiKeyById(db, id)
-	if err != nil {
-		logger.Error(err, "get api key by id: %d", id)
-		return nil, err
-	}
 	apiKeyHelper := apikeyhelper.NewApiKeyHelper(basicRes, logger)
-	apiKeyStr, hashApiKey, err := apiKeyHelper.GenerateApiKey()
+	apiKey, err := apiKeyHelper.Put(user, id)
 	if err != nil {
-		logger.Error(err, "GenerateApiKey")
+		logger.Error(err, "api key helper put: %d", id)
 		return nil, err
 	}
-	apiKey.ApiKey = hashApiKey
-	apiKey.UpdatedAt = time.Now()
-	if operator != nil {
-		apiKey.Updater = *operator
-	}
-	if err = db.Update(apiKey); err != nil {
-		logger.Error(err, "delete api key, id: %d", id)
-		return nil, errors.Default.Wrap(err, "error deleting project")
-	}
-
 	apiOutputApiKey := &models.ApiOutputApiKey{ApiKey: *apiKey}
-	apiOutputApiKey.ApiKey.ApiKey = apiKeyStr
 	return apiOutputApiKey, nil
 }
 
 // CreateApiKey accepts an api key instance and insert it to database
-func CreateApiKey(operator *common.Creator, apiKeyInput *models.ApiInputApiKey) (*models.ApiOutputApiKey, errors.Error) {
+func CreateApiKey(operator *common.User, apiKeyInput *models.ApiInputApiKey) (*models.ApiOutputApiKey, errors.Error) {
 
 	// verify input
 	if err := VerifyStruct(apiKeyInput); err != nil {
@@ -136,58 +118,14 @@ func CreateApiKey(operator *common.Creator, apiKeyInput *models.ApiInputApiKey) 
 	}
 
 	apiKeyHelper := apikeyhelper.NewApiKeyHelper(basicRes, logger)
-	randomApiKey, hashedApiKey, generateApiKeyErr := apiKeyHelper.GenerateApiKey()
-	if generateApiKeyErr != nil {
-		logger.Error(generateApiKeyErr, "GenerateApiKey")
-		return nil, errors.Default.Wrap(generateApiKeyErr, "random letters")
-	}
-
-	// create transaction to update multiple tables
-	var err errors.Error
-	tx := db.Begin()
-	defer func() {
-		if r := recover(); r != nil || err != nil {
-			err = tx.Rollback()
-			if err != nil {
-				logger.Error(err, "CreateApiKey: failed to rollback")
-			}
-		}
-	}()
-
-	// create project first
-	apiKey := &models.ApiKey{
-		Model: common.Model{
-			CreatedAt: time.Now(),
-			UpdatedAt: time.Now(),
-		},
-		Name:        apiKeyInput.Name,
-		ApiKey:      hashedApiKey,
-		ExpiredAt:   &apiKeyInput.ExpiredAt,
-		AllowedPath: apiKeyInput.AllowedPath,
-		Type:        apiKeyInput.Type,
-	}
-	if operator != nil {
-		apiKey.Creator = *operator
-		apiKey.Updater = common.Updater{
-			Updater:      operator.Creator,
-			UpdaterEmail: operator.CreatorEmail,
-		}
-	}
-	err = db.Create(apiKey)
+	apiKey, err := apiKeyHelper.Create(operator, apiKeyInput.Name, apiKeyInput.ExpiredAt, apiKeyInput.AllowedPath, apiKeyInput.Type)
 	if err != nil {
-		if db.IsDuplicationError(err) {
-			return nil, errors.BadInput.New(fmt.Sprintf("An api key with name [%s] has already exists", apiKeyInput.Name))
-		}
-		return nil, errors.Default.Wrap(err, "error creating DB api key")
-	}
-	err = tx.Commit()
-	if err != nil {
-		return nil, err
+		logger.Error(err, "api key helper create")
+		return nil, errors.Default.Wrap(err, "random letters")
 	}
 
 	apiOutputApiKey := &models.ApiOutputApiKey{
 		ApiKey: *apiKey,
 	}
-	apiOutputApiKey.ApiKey.ApiKey = randomApiKey
 	return apiOutputApiKey, nil
 }

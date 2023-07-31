@@ -22,6 +22,15 @@ import (
 	"time"
 )
 
+const (
+	USER = "user"
+)
+
+type User struct {
+	Name  string
+	Email string
+}
+
 type Model struct {
 	ID        uint64    `gorm:"primaryKey" json:"id"`
 	CreatedAt time.Time `json:"createdAt"`

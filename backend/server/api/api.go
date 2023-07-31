@@ -96,7 +96,8 @@ func CreateApiService() {
 
 	// Api keys
 	basicRes := services.GetBasicRes()
-	router.Use(Authentication(router, basicRes))
+	router.Use(RestAuthentication(router, basicRes))
+	router.Use(OAuth2ProxyAuthentication(basicRes))
 
 	// Restrict access if database migration is required
 	router.Use(func(ctx *gin.Context) {
