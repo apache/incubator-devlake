@@ -43,6 +43,17 @@ func TestIssueRelationshipDataFlow(t *testing.T) {
 	dataflowTester.ImportCsvIntoRawTable("./raw_tables/_raw_jira_api_issue_relationships.csv", "_raw_jira_api_issues")
 	// verify issue extraction
 	dataflowTester.FlushTabler(&models.JiraIssueRelationship{})
+	// verify issue extraction
+	dataflowTester.FlushTabler(&models.JiraIssue{})
+	dataflowTester.FlushTabler(&models.JiraBoardIssue{})
+	dataflowTester.FlushTabler(&models.JiraSprintIssue{})
+	dataflowTester.FlushTabler(&models.JiraIssueComment{})
+	dataflowTester.FlushTabler(&models.JiraIssueChangelogs{})
+	dataflowTester.FlushTabler(&models.JiraIssueChangelogItems{})
+	dataflowTester.FlushTabler(&models.JiraWorklog{})
+	dataflowTester.FlushTabler(&models.JiraAccount{})
+	dataflowTester.FlushTabler(&models.JiraIssueType{})
+	dataflowTester.FlushTabler(&models.JiraIssueLabel{})
 	dataflowTester.Subtask(tasks.ExtractIssuesMeta, taskData)
 
 	dataflowTester.VerifyTableWithOptions(&models.JiraIssueRelationship{}, e2ehelper.TableOptions{
