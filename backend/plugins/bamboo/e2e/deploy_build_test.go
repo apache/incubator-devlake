@@ -35,7 +35,7 @@ func TestBambooDeployBuildDataFlow(t *testing.T) {
 	taskData := &tasks.BambooTaskData{
 		Options: &models.BambooOptions{
 			ConnectionId: 1,
-			ProjectKey:   "TEST1",
+			PlanKey:      "TEST1",
 			BambooScopeConfig: &models.BambooScopeConfig{
 				DeploymentPattern: "(?i)release",
 				ProductionPattern: "(?i)release",
