@@ -18,30 +18,26 @@ limitations under the License.
 package migrationscripts
 
 import (
-	"github.com/apache/incubator-devlake/core/plugin"
+	"github.com/apache/incubator-devlake/core/context"
+	"github.com/apache/incubator-devlake/core/errors"
+	"github.com/apache/incubator-devlake/core/models/migrationscripts/archived"
+	"github.com/apache/incubator-devlake/helpers/migrationhelper"
 )
 
-// All return all the migration scripts
-func All() []plugin.MigrationScript {
-	return []plugin.MigrationScript{
-		new(addSourceTable20220407),
-		new(renameSourceTable20220505),
-		new(addInitTables20220716),
-		new(addTransformationRule20221116),
-		new(addProjectName20221215),
-		new(addJiraMultiAuth20230129),
-		new(removeIssueStdStoryPoint),
-		new(addCommitRepoPattern),
-		new(expandRemotelinkUrl),
-		new(addConnectionIdToTransformationRule),
-		new(addChangeTotal20230412),
-		new(expandRemotelinkSelfUrl),
-		new(addDescAndComments),
-		new(renameTr2ScopeConfig),
-		new(addRepoUrl),
-		new(addApplicationType),
-		new(clearRepoPattern),
-		new(addRawParamTableForScope),
-		new(addIssueRelationship),
-	}
+type addIssueRelationship struct{}
+
+func (u *addIssueRelationship) Up(basicRes context.BasicRes) errors.Error {
+	return migrationhelper.AutoMigrateTables(
+		basicRes,
+		&archived.IssueRelationship{},
+	)
+
+}
+
+func (*addIssueRelationship) Version() uint64 {
+	return 20230728000001
+}
+
+func (*addIssueRelationship) Name() string {
+	return "add issue_relationships table"
 }
