@@ -41,7 +41,7 @@ func TestIssueRelationshipDataFlow(t *testing.T) {
 
 	// import raw data table
 	dataflowTester.ImportCsvIntoRawTable("./raw_tables/_raw_jira_api_issue_relationships.csv", "_raw_jira_api_issues")
-
+	// verify issue extraction
 	dataflowTester.FlushTabler(&models.JiraIssueRelationship{})
 	dataflowTester.Subtask(tasks.ExtractIssuesMeta, taskData)
 
@@ -50,10 +50,11 @@ func TestIssueRelationshipDataFlow(t *testing.T) {
 		IgnoreTypes: []interface{}{common.NoPKModel{}},
 	})
 
-	dataflowTester.ImportCsvIntoTabler("./snapshot_tables/_tool_jira_board_issues.csv", &models.JiraBoardIssue{})
-
 	// verify issue conversion
+	dataflowTester.FlushTabler(&models.JiraBoardIssue{})
 	dataflowTester.FlushTabler(&ticket.IssueRelationship{})
+	dataflowTester.ImportCsvIntoTabler("./snapshot_tables/_tool_jira_board_issues_relations.csv", &models.JiraBoardIssue{})
+
 	dataflowTester.Subtask(tasks.ConvertIssueRelationshipsMeta, taskData)
 	dataflowTester.VerifyTableWithOptions(&ticket.IssueRelationship{}, e2ehelper.TableOptions{
 		CSVRelPath:  "./snapshot_tables/issue_relationships.csv",
