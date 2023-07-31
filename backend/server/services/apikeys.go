@@ -68,7 +68,7 @@ func DeleteApiKey(id uint64) errors.Error {
 	}
 
 	apiKeyHelper := apikeyhelper.NewApiKeyHelper(basicRes, logger)
-	err := apiKeyHelper.Delete(nil, id)
+	err := apiKeyHelper.Delete(id)
 	if err != nil {
 		logger.Error(err, "api key helper delete: %d", id)
 		return err
