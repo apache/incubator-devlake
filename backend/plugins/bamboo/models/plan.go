@@ -40,7 +40,7 @@ type BambooPlan struct {
 	Enabled                   bool    `json:"enabled" mapstructure:"enabled"`
 	Href                      string  `json:"href" mapstructure:"href"`
 	Rel                       string  `json:"rel" mapstructure:"rel"`
-	IsFavourite               bool    `json:"isFavourite" mapstructure:"isFavourite""`
+	IsFavourite               bool    `json:"isFavourite" mapstructure:"isFavourite"`
 	IsActive                  bool    `json:"isActive" mapstructure:"isActive"`
 	IsBuilding                bool    `json:"isBuilding" mapstructure:"isBuilding"`
 	AverageBuildTimeInSeconds float64 `json:"averageBuildTimeInSeconds" mapstructure:"averageBuildTimeInSeconds"`
