@@ -79,7 +79,6 @@ func (c *ApiKeyHelper) Create(user *common.User, name string, expiredAt *time.Ti
 		}
 	}()
 
-	// create project first
 	now := time.Now()
 	apiKey := &models.ApiKey{
 		Model: common.Model{
@@ -142,7 +141,7 @@ func (c *ApiKeyHelper) Put(user *common.User, id uint64) (*models.ApiKey, errors
 	}
 	if err = db.Update(apiKey); err != nil {
 		c.logger.Error(err, "update api key, id: %d", id)
-		return nil, errors.Default.Wrap(err, "error deleting project")
+		return nil, errors.Default.Wrap(err, "error deleting api key")
 	}
 	apiKey.ApiKey = apiKeyStr
 	return apiKey, nil
@@ -207,7 +206,7 @@ func (c *ApiKeyHelper) Delete(tx dal.Transaction, id uint64) errors.Error {
 	err = tx.Delete(&models.ApiKey{}, dal.Where("id = ?", id))
 	if err != nil {
 		c.logger.Error(err, "delete api key, id: %d", id)
-		return errors.Default.Wrap(err, "error deleting project")
+		return errors.Default.Wrap(err, "error deleting api key")
 	}
 	return nil
 }
