@@ -106,10 +106,7 @@ func RestAuthentication(router *gin.Engine, basicRes context.BasicRes) gin.Handl
 	apiKeyHelper := apikeyhelper.NewApiKeyHelper(basicRes, logger)
 	return func(c *gin.Context) {
 		path := c.Request.URL.Path
-		if strings.HasPrefix(path, "/api") {
-			path = strings.TrimPrefix(path, "/api")
-		}
-
+		path = strings.TrimPrefix(path, "/api")
 		// Only open api needs to check api key
 		if !strings.HasPrefix(path, "/rest") {
 			logger.Info("path %s will continue", path)
@@ -165,7 +162,7 @@ func RestAuthentication(router *gin.Engine, basicRes context.BasicRes) gin.Handl
 			return
 		}
 
-		if apiKey.ExpiredAt != nil && apiKey.ExpiredAt.Sub(time.Now()) < 0 {
+		if apiKey.ExpiredAt != nil && time.Until(*apiKey.ExpiredAt) < 0 {
 			c.Abort()
 			c.JSON(http.StatusForbidden, &ApiBody{
 				Success: false,

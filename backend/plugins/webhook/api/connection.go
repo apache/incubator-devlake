@@ -50,11 +50,15 @@ func PostConnections(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput,
 	extra := fmt.Sprintf("connectionId:%d", connection.ID)
 	apiKeyRecord, err := apiKeyHelper.CreateForPlugin(tx, input.User, name, pluginName, allowedPath, extra)
 	if err != nil {
-		tx.Rollback()
+		if err := tx.Rollback(); err != nil {
+			logger.Error(err, "transaction Rollback")
+		}
 		logger.Error(err, "CreateForPlugin")
 		return nil, err
 	}
-	tx.Commit()
+	if err := tx.Commit(); err != nil {
+		logger.Info("transaction commit: %s", err)
+	}
 
 	apiOutputConnection := models.ApiOutputWebhookConnection{
 		WebhookConnection: *connection,
@@ -101,18 +105,24 @@ func DeleteConnection(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput
 	tx := basicRes.GetDal().Begin()
 	err := tx.Delete(&connection, dal.Where("id = ?", connectionId))
 	if err != nil {
-		tx.Rollback()
+		if err := tx.Rollback(); err != nil {
+			logger.Error(err, "transaction Rollback")
+		}
 		logger.Error(err, "delete connection: %d", connectionId)
 		return nil, err
 	}
 	extra := fmt.Sprintf("connectionId:%d", connectionId)
 	err = apiKeyHelper.DeleteForPlugin(tx, pluginName, extra)
 	if err != nil {
-		tx.Rollback()
+		if err := tx.Rollback(); err != nil {
+			logger.Error(err, "transaction Rollback")
+		}
 		logger.Error(err, "delete connection extra: %d, name: %s", extra, pluginName)
 		return nil, err
 	}
-	tx.Commit()
+	if err := tx.Commit(); err != nil {
+		logger.Info("transaction commit: %s", err)
+	}
 
 	return &plugin.ApiResourceOutput{Status: http.StatusOK}, nil
 }

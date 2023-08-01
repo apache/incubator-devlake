@@ -66,9 +66,9 @@ func (c *ApiKeyHelper) Create(tx dal.Transaction, user *common.User, name string
 		c.logger.Error(err, "Compile allowed path")
 		return nil, errors.Default.Wrap(err, fmt.Sprintf("compile allowed path: %s", allowedPath))
 	}
-	apiKey, hashedApiKey, err := c.digestApiKey()
+	apiKey, hashedApiKey, err := c.generateApiKey()
 	if err != nil {
-		c.logger.Error(err, "digestApiKey")
+		c.logger.Error(err, "generateApiKey")
 		return nil, err
 	}
 	now := time.Now()
@@ -118,9 +118,9 @@ func (c *ApiKeyHelper) Put(user *common.User, id uint64) (*models.ApiKey, errors
 		return nil, err
 	}
 
-	apiKeyStr, hashApiKey, err := c.digestApiKey()
+	apiKeyStr, hashApiKey, err := c.generateApiKey()
 	if err != nil {
-		c.logger.Error(err, "digestApiKey")
+		c.logger.Error(err, "generateApiKey")
 		return nil, err
 	}
 	apiKey.ApiKey = hashApiKey
@@ -205,13 +205,14 @@ func (c *ApiKeyHelper) GetApiKey(tx dal.Dal, additionalClauses ...dal.Clause) (*
 	return apiKey, err
 }
 
-func (c *ApiKeyHelper) digestApiKey() (string, string, errors.Error) {
-	randomApiKey, randomLetterErr := utils.RandLetterBytes(apiKeyLen)
+func (c *ApiKeyHelper) generateApiKey() (apiKey string, hashedApiKey string, err errors.Error) {
+	apiKey, randomLetterErr := utils.RandLetterBytes(apiKeyLen)
 	if randomLetterErr != nil {
-		return "", "", errors.Default.Wrap(randomLetterErr, "random letters")
+		err = errors.Default.Wrap(randomLetterErr, "random letters")
+		return
 	}
-	hashedApiKey, err := c.DigestToken(randomApiKey)
-	return randomApiKey, hashedApiKey, err
+	hashedApiKey, err = c.DigestToken(apiKey)
+	return apiKey, hashedApiKey, err
 }
 
 func (c *ApiKeyHelper) DigestToken(token string) (string, errors.Error) {

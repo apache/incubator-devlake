@@ -102,10 +102,14 @@ func CreateApiKey(user *common.User, apiKeyInput *models.ApiInputApiKey) (*model
 	tx := basicRes.GetDal().Begin()
 	apiKey, err := apiKeyHelper.Create(tx, user, apiKeyInput.Name, apiKeyInput.ExpiredAt, apiKeyInput.AllowedPath, apiKeyInput.Type, "")
 	if err != nil {
-		tx.Rollback()
+		if err := tx.Rollback(); err != nil {
+			logger.Error(err, "transaction Rollback")
+		}
 		logger.Error(err, "api key helper create")
 		return nil, errors.Default.Wrap(err, "random letters")
 	}
-	tx.Commit()
+	if err := tx.Commit(); err != nil {
+		logger.Info("transaction commit: %s", err)
+	}
 	return apiKey, nil
 }
