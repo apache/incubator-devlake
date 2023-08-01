@@ -43,10 +43,6 @@ func NewRemotePlugin(info *models.PluginInfo) (models.RemotePlugin, errors.Error
 	if err != nil {
 		return nil, err
 	}
-	err = plugin.RunAutoMigrations()
-	if err != nil {
-		return nil, err
-	}
 	err = pluginCore.RegisterPlugin(info.Name, plugin)
 	if err != nil {
 		return nil, err
