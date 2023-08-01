@@ -14,16 +14,17 @@
 # limitations under the License.
 
 import datetime
+import re
 from enum import Enum
 from typing import Optional
-import re
 
 from pydantic import SecretStr
-
-from pydevlake import Field, Connection, ScopeConfig
-from pydevlake.model import ToolModel, ToolScope
+from pydevlake import ScopeConfig, Field
+from pydevlake.model import ToolScope, ToolModel, Connection
 from pydevlake.pipeline_tasks import RefDiffOptions
-from pydevlake.migration import migration, MigrationScriptBuilder, Dialect
+
+# needed to be able to run migrations
+import azuredevops.migrations
 
 
 class AzureDevOpsConnection(Connection):
@@ -128,30 +129,3 @@ class Job(ToolModel, table=True):
     finish_time: Optional[datetime.datetime]
     state: JobState
     result: Optional[JobResult]
-
-
-@migration(20230524181430)
-def add_build_id_as_job_primary_key(b: MigrationScriptBuilder):
-    # NOTE: We can't add a column to the primary key of an existing table
-    # so we have to drop the primary key constraint first,
-    # which is done differently in MySQL and PostgreSQL,
-    # and then add the new composite primary key.
-    table = Job.__tablename__
-    b.execute(f'ALTER TABLE {table} DROP PRIMARY KEY', Dialect.MYSQL)
-    b.execute(f'ALTER TABLE {table} DROP CONSTRAINT {table}_pkey', Dialect.POSTGRESQL)
-    b.execute(f'ALTER TABLE {table} ADD PRIMARY KEY (id, build_id)')
-
-
-@migration(20230606165630)
-def rename_tx_rule_table_to_scope_config(b: MigrationScriptBuilder):
-    b.rename_table('_tool_azuredevops_azuredevopstransformationrules', GitRepositoryConfig.__tablename__)
-
-
-@migration(20230607165630, name="add entities column to gitrepositoryconfig table")
-def add_entities_column_to_scope_config(b: MigrationScriptBuilder):
-    b.add_column(GitRepositoryConfig.__tablename__, 'entities', 'json')
-
-
-@migration(20230630000001, name="populated _raw_data_table column for azuredevops git repos")
-def add_raw_data_params_table_to_scope(b: MigrationScriptBuilder):
-    b.execute(f'''UPDATE {GitRepository.__tablename__} SET _raw_data_table = '_raw_azuredevops_scopes' WHERE 1=1''')

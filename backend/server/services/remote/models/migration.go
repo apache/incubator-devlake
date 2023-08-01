@@ -19,15 +19,16 @@ package models
 
 import (
 	"encoding/json"
-
 	"github.com/apache/incubator-devlake/core/context"
 	"github.com/apache/incubator-devlake/core/dal"
 	"github.com/apache/incubator-devlake/core/errors"
+	"github.com/apache/incubator-devlake/core/models/common"
 	"github.com/apache/incubator-devlake/core/plugin"
+	"github.com/apache/incubator-devlake/helpers/pluginhelper/api"
 )
 
 type Operation interface {
-	Execute(dal.Dal) errors.Error
+	Execute(basicRes context.BasicRes) errors.Error
 }
 
 type ExecuteOperation struct {
@@ -35,14 +36,15 @@ type ExecuteOperation struct {
 	Dialect *string `json:"dialect"`
 }
 
-func (o ExecuteOperation) Execute(dal dal.Dal) errors.Error {
+func (o ExecuteOperation) Execute(basicRes context.BasicRes) errors.Error {
+	db := basicRes.GetDal()
 	if o.Dialect != nil {
-		if dal.Dialect() == *o.Dialect {
-			return dal.Exec(o.Sql)
+		if db.Dialect() == *o.Dialect {
+			return db.Exec(o.Sql)
 		}
 		return nil
 	} else {
-		return dal.Exec(o.Sql)
+		return db.Exec(o.Sql)
 	}
 }
 
@@ -54,14 +56,12 @@ type AddColumnOperation struct {
 	ColumnType dal.ColumnType `json:"column_type"`
 }
 
-func (o AddColumnOperation) Execute(dal dal.Dal) errors.Error {
-	if dal.HasColumn(o.Table, o.Column) {
-		err := dal.DropColumns(o.Table, o.Column)
-		if err != nil {
-			return err
-		}
+func (o AddColumnOperation) Execute(basicRes context.BasicRes) errors.Error {
+	db := basicRes.GetDal()
+	if db.HasColumn(o.Table, o.Column) {
+		return nil
 	}
-	return dal.AddColumn(o.Table, o.Column, o.ColumnType)
+	return db.AddColumn(o.Table, o.Column, o.ColumnType)
 }
 
 type DropColumnOperation struct {
@@ -69,9 +69,10 @@ type DropColumnOperation struct {
 	Column string `json:"column"`
 }
 
-func (o DropColumnOperation) Execute(dal dal.Dal) errors.Error {
-	if dal.HasColumn(o.Table, o.Column) {
-		return dal.DropColumns(o.Table, o.Column)
+func (o DropColumnOperation) Execute(basicRes context.BasicRes) errors.Error {
+	db := basicRes.GetDal()
+	if db.HasColumn(o.Table, o.Column) {
+		return db.DropColumns(o.Table, o.Column)
 	}
 	return nil
 }
@@ -83,9 +84,10 @@ type DropTableOperation struct {
 	Column string `json:"column"`
 }
 
-func (o DropTableOperation) Execute(dal dal.Dal) errors.Error {
-	if dal.HasTable(o.Table) {
-		return dal.DropTables(o.Table)
+func (o DropTableOperation) Execute(basicRes context.BasicRes) errors.Error {
+	db := basicRes.GetDal()
+	if db.HasTable(o.Table) {
+		return db.DropTables(o.Table)
 	}
 	return nil
 }
@@ -97,17 +99,33 @@ type RenameTableOperation struct {
 	NewName string `json:"new_name"`
 }
 
-func (o RenameTableOperation) Execute(dal dal.Dal) errors.Error {
-	if !dal.HasTable(o.OldName) {
+func (o RenameTableOperation) Execute(basicRes context.BasicRes) errors.Error {
+	db := basicRes.GetDal()
+	if !db.HasTable(o.OldName) {
 		return nil
 	}
-	if dal.HasTable(o.NewName) {
-		err := dal.DropTables(o.NewName)
-		if err != nil {
-			return err
-		}
+	return db.RenameTable(o.OldName, o.NewName)
+}
+
+type CreateTableOperation struct {
+	ModelInfo *DynamicModelInfo `json:"model_info"`
+}
+
+func (o CreateTableOperation) Execute(basicRes context.BasicRes) errors.Error {
+	db := basicRes.GetDal()
+	if db.HasTable(o.ModelInfo.TableName) {
+		basicRes.GetLogger().Warn(nil, "table %s already exists. It won't be created.", o.ModelInfo.TableName)
+		return nil
 	}
-	return dal.RenameTable(o.OldName, o.NewName)
+	model, err := o.ModelInfo.LoadDynamicTabler(common.NoPKModel{})
+	if err != nil {
+		return err
+	}
+	err = api.CallDB(db.AutoMigrate, model.New())
+	if err != nil {
+		return err
+	}
+	return nil
 }
 
 var _ Operation = (*RenameTableOperation)(nil)
@@ -135,7 +153,7 @@ func (s *RemoteMigrationScript) UnmarshalJSON(data []byte) error {
 	s.operations = make([]Operation, len(rawScript.Operations))
 	for i, operationRaw := range rawScript.Operations {
 		operationMap := make(map[string]interface{})
-		err := json.Unmarshal(operationRaw, &operationMap)
+		err = json.Unmarshal(operationRaw, &operationMap)
 		if err != nil {
 			return err
 		}
@@ -152,6 +170,8 @@ func (s *RemoteMigrationScript) UnmarshalJSON(data []byte) error {
 			operation = &DropTableOperation{}
 		case "rename_table":
 			operation = &RenameTableOperation{}
+		case "create_table":
+			operation = &CreateTableOperation{}
 		default:
 			return errors.BadInput.New("unsupported operation type")
 		}
@@ -165,9 +185,8 @@ func (s *RemoteMigrationScript) UnmarshalJSON(data []byte) error {
 }
 
 func (s *RemoteMigrationScript) Up(basicRes context.BasicRes) errors.Error {
-	db := basicRes.GetDal()
 	for _, operation := range s.operations {
-		err := operation.Execute(db)
+		err := operation.Execute(basicRes)
 		if err != nil {
 			return err
 		}
