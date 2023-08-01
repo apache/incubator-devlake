@@ -128,7 +128,7 @@ class NoPKModel(RawDataOrigin):
 
 
 class ToolModel(ToolTable, NoPKModel):
-    connection_id: Optional[int] = Field(primary_key=True)
+    connection_id: Optional[int] = Field(primary_key=True, auto_increment=False)
 
     def domain_id(self):
         """
