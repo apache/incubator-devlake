@@ -16,20 +16,24 @@
 from typing import Optional
 
 import pytest
+
 pytest.register_assert_rewrite('pydevlake.testing')
 
 from sqlmodel import Field as _Field
 
 
-def Field(*args, primary_key: bool=False, source: Optional[str]=None, **kwargs):
+def Field(*args, primary_key: bool = False, auto_increment: Optional[bool] = None, source: Optional[str] = None,
+          **kwargs):
     """
     A wrapper around sqlmodel.Field that adds a source parameter.
     """
     schema_extra = kwargs.get('schema_extra', {})
-    if source:
+    if source is not None:
         schema_extra['source'] = source
     if primary_key:
         schema_extra['primaryKey'] = True
+    if auto_increment is not None:
+        schema_extra['autoIncrement'] = auto_increment
     return _Field(*args, **kwargs, primary_key=primary_key, schema_extra=schema_extra)
 
 
@@ -42,6 +46,8 @@ from .context import Context
 
 # the debugger hangs on startup during plugin registration (reason unknown), hence this workaround
 import sys
+
 if not sys.argv.__contains__('startup'):
     from pydevlake.helpers import debugger
+
     debugger.init()

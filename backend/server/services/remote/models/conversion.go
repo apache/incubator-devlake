@@ -212,6 +212,10 @@ func getGormTag(schema utils.JsonObject, goType reflect.Type) string {
 	if err == nil && primaryKey {
 		gormTags = append(gormTags, "primaryKey")
 	}
+	autoIncrement, err := utils.GetProperty[bool](schema, "autoIncrement")
+	if err == nil {
+		gormTags = append(gormTags, fmt.Sprintf("autoIncrement:%v", autoIncrement))
+	}
 	if goType == stringType {
 		maxLength, err := utils.GetProperty[float64](schema, "maxLength")
 		maxLengthInt := int(maxLength)

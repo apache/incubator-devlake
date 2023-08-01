@@ -94,7 +94,7 @@ def init_schemas(b: MigrationScriptBuilder):
             PartiallySucceeded = "partiallySucceeded"
             Succeeded = "succeeded"
 
-        id: int = Field(primary_key=True)
+        id: int = Field(primary_key=True, auto_increment=False)
         name: str
         start_time: Optional[datetime.datetime]
         finish_time: Optional[datetime.datetime]
