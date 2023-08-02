@@ -54,7 +54,6 @@ func (script *tasksUsesJSON) Up(basicRes context.BasicRes) errors.Error {
 			if len(src.Subtasks) == 0 {
 				return nil, nil
 			}
-			println("src.Subtask", string(src.Subtasks))
 			errors.Must(json.Unmarshal(src.Subtasks, &dst.Subtasks))
 			return dst, nil
 		},
