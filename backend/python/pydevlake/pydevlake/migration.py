@@ -32,6 +32,7 @@ class Execute(BaseModel):
     type: Literal["execute"] = "execute"
     sql: str
     dialect: Optional[Dialect] = None
+    ignore_error: bool = False
 
 
 class AddColumn(BaseModel):
@@ -81,12 +82,12 @@ class MigrationScriptBuilder:
     def __init__(self):
         self.operations = []
 
-    def execute(self, sql: str, dialect: Optional[Dialect] = None):
+    def execute(self, sql: str, dialect: Optional[Dialect] = None, ignore_error = False):
         """
         Executes a raw SQL statement.
         If dialect is specified the statement will be executed only if the db dialect matches.
         """
-        self.operations.append(Execute(sql=sql, dialect=dialect))
+        self.operations.append(Execute(sql=sql, dialect=dialect, ignore_error=ignore_error))
 
     def add_column(self, table: str, column: str, type: str):
         """

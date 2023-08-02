@@ -31,19 +31,24 @@ type Operation interface {
 }
 
 type ExecuteOperation struct {
-	Sql     string  `json:"sql"`
-	Dialect *string `json:"dialect"`
+	Sql         string  `json:"sql"`
+	Dialect     *string `json:"dialect"`
+	IgnoreError bool    `json:"ignore_error"`
 }
 
 func (o ExecuteOperation) Execute(dal dal.Dal) errors.Error {
+	var err errors.Error
 	if o.Dialect != nil {
 		if dal.Dialect() == *o.Dialect {
-			return dal.Exec(o.Sql)
+			err = dal.Exec(o.Sql)
 		}
-		return nil
 	} else {
-		return dal.Exec(o.Sql)
+		err = dal.Exec(o.Sql)
 	}
+	if o.IgnoreError {
+		return nil
+	}
+	return err
 }
 
 var _ Operation = (*ExecuteOperation)(nil)
