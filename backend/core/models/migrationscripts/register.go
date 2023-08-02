@@ -88,5 +88,6 @@ func All() []plugin.MigrationScript {
 		new(addUpdatedDateToIssueComments),
 		new(addApiKeyTables),
 		new(addIssueRelationship),
+		new(tasksUsesJSON),
 	}
 }

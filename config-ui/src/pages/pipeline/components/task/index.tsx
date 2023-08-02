@@ -39,7 +39,7 @@ export const PipelineTask = ({ task }: Props) => {
 
   const [icon, name] = useMemo(() => {
     const config = getPluginConfig(task.plugin);
-    const options = JSON.parse(task.options);
+    const options = task.options;
 
     let name = config.name;
 
