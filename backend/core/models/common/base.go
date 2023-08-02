@@ -44,7 +44,7 @@ type Creator struct {
 
 type Updater struct {
 	Updater      string `json:"updater"`
-	UpdaterEmail string `json:"updater_email"`
+	UpdaterEmail string `json:"updaterEmail"`
 }
 
 type ScopeConfig struct {
