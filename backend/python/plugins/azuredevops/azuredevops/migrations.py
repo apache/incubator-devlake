@@ -120,8 +120,8 @@ def init_schemas(b: MigrationScriptBuilder):
         id: str = Field(primary_key=True)
         build_id: str
         name: str
-        start_time: Optional[datetime.datetime]
-        finish_time: Optional[datetime.datetime]
+        startTime: Optional[datetime.datetime]
+        finishTime: Optional[datetime.datetime]
         state: JobState
         result: Optional[JobResult]
 
@@ -163,3 +163,10 @@ def add_entities_column_to_scope_config(b: MigrationScriptBuilder):
 @migration(20230630000001, name="populated _raw_data_table column for azuredevops git repos")
 def add_raw_data_params_table_to_scope(b: MigrationScriptBuilder):
     b.execute(f'''UPDATE _tool_azuredevops_gitrepositories SET _raw_data_table = '_raw_azuredevops_scopes' WHERE 1=1''')
+
+@migration(20230802000001, name="rename startTime/finishTime to start_time/finish_time")
+def rename_starttime_and_finishtime_for_job(b: MigrationScriptBuilder):
+    b.execute(f'ALTER TABLE _tool_azuredevops_jobs RENAME COLUMN startTime TO start_time', Dialect.MYSQL, ignore_error=True)
+    b.execute(f'ALTER TABLE _tool_azuredevops_jobs RENAME COLUMN finishTime TO finish_time', Dialect.MYSQL, ignore_error=True)
+    b.execute(f'ALTER TABLE _tool_azuredevops_jobs RENAME COLUMN `startTime` TO start_time', Dialect.POSTGRESQL, ignore_error=True)
+    b.execute(f'ALTER TABLE _tool_azuredevops_jobs RENAME COLUMN `finishTime` TO finish_time', Dialect.POSTGRESQL, ignore_error=True)

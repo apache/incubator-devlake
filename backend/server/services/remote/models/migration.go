@@ -19,6 +19,7 @@ package models
 
 import (
 	"encoding/json"
+
 	"github.com/apache/incubator-devlake/core/context"
 	"github.com/apache/incubator-devlake/core/dal"
 	"github.com/apache/incubator-devlake/core/errors"
@@ -33,20 +34,25 @@ type Operation interface {
 }
 
 type ExecuteOperation struct {
-	Sql     string  `json:"sql"`
-	Dialect *string `json:"dialect"`
+	Sql         string  `json:"sql"`
+	Dialect     *string `json:"dialect"`
+	IgnoreError bool    `json:"ignore_error"`
 }
 
 func (o ExecuteOperation) Execute(basicRes context.BasicRes) errors.Error {
+	var err errors.Error
 	db := basicRes.GetDal()
 	if o.Dialect != nil {
 		if db.Dialect() == *o.Dialect {
-			return db.Exec(o.Sql)
+			err = db.Exec(o.Sql)
 		}
-		return nil
 	} else {
-		return db.Exec(o.Sql)
+		err = db.Exec(o.Sql)
 	}
+	if o.IgnoreError {
+		return nil
+	}
+	return err
 }
 
 var _ Operation = (*ExecuteOperation)(nil)
