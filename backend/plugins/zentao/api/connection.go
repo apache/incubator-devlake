@@ -19,6 +19,7 @@ package api
 
 import (
 	"context"
+	"github.com/apache/incubator-devlake/core/runner"
 	"net/http"
 
 	"github.com/apache/incubator-devlake/server/api/shared"
@@ -51,11 +52,28 @@ func TestConnection(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, 
 	}
 
 	// try to create apiClient
-	_, err = helper.NewApiClientFromConnection(context.TODO(), basicRes, &connection)
+	client, err := helper.NewApiClientFromConnection(context.TODO(), basicRes, &connection)
 	if err != nil {
 		return nil, err
 	}
-	body := ZentaoTestConnResponse{}
+	resp, err := client.Get("/user", nil, nil)
+	if err != nil {
+		return nil, err
+	}
+	var body ZentaoTestConnResponse
+	if resp.StatusCode != http.StatusOK {
+		body.Success = false
+		body.Message = err.Error()
+		return &plugin.ApiResourceOutput{Body: body, Status: http.StatusBadRequest}, nil
+	}
+	if connection.DbUrl != "" {
+		err = runner.CheckDbConnection(connection.DbUrl)
+		if err != nil {
+			body.Success = false
+			body.Message = "invalid DbUrl"
+			return &plugin.ApiResourceOutput{Body: body, Status: http.StatusBadRequest}, nil
+		}
+	}
 	body.Success = true
 	body.Message = "success"
 	body.Connection = &connection
