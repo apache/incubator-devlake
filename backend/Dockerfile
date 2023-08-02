@@ -49,7 +49,7 @@ RUN if [ "$(arch)" != "x86_64" ] ; then \
         apt-get install -y gcc-x86-64-linux-gnu binutils-x86-64-linux-gnu ; \
     fi
 
-RUN go install github.com/vektra/mockery/v2@v2.14.0
+RUN go install github.com/vektra/mockery/v2@v2.20.0
 RUN go install github.com/swaggo/swag/cmd/swag@v1.8.12
 
 COPY --from=debian-amd64 /usr/include /rootfs-amd64/usr/include
@@ -89,7 +89,6 @@ ARG TARGETPLATFORM
 ARG TAG=
 ARG SHA=
 ARG GO_PLUGINS=
-ARG DEBUG=
 
 RUN --mount=type=cache,target=/root/.cache/go-build \
     if [ "$TARGETPLATFORM" = "linux/arm64" ] ; then \
@@ -104,10 +103,6 @@ RUN --mount=type=cache,target=/root/.cache/go-build \
     export PKG_CONFIG_PATH=/usr/local/deps/target/lib/pkgconfig && \
     export CGO_ENABLED=1 &&\
     PLUGIN="$GO_PLUGINS" make all
-
-RUN if [ "$DEBUG" = "true" ]; then \
-      go install github.com/go-delve/delve/cmd/dlv@latest; \
-    fi;
 
 # remove symlink in lib, we will recreate in final image
 RUN cd /usr/local/deps/target/lib && \

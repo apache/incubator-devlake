@@ -24,10 +24,10 @@ VERSION = $(TAG)@$(SHA)
 PYTHON_DIR ?= "./python"
 
 go-dep:
-	go install github.com/vektra/mockery/v2@latest
-	go install github.com/swaggo/swag/cmd/swag@v1.8.4
+	go install github.com/vektra/mockery/v2@v2.20.0
+	go install github.com/swaggo/swag/cmd/swag@v1.8.12
+	go install github.com/golangci/golangci-lint/cmd/golangci-lint@vv1.53.3
 	go install github.com/atombender/go-jsonschema/cmd/gojsonschema@latest
-	go install github.com/golangci/golangci-lint/cmd/golangci-lint@v1.50.1
 
 python-dep:
 	pip install -r python/requirements.txt
