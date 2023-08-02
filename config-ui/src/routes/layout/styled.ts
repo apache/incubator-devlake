@@ -120,8 +120,8 @@ export const Inner = styled.div`
 export const Content = styled.div`
   margin: 0 auto;
   padding: 0 24px;
-  max-width: 1200px;
-  min-width: 900px;
+  max-width: 1440px;
+  min-width: 1024px;
 `;
 
 export const Tips = styled.div`
