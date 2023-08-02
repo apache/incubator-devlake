@@ -75,6 +75,21 @@ export const BambooTransformation = ({ entities, transformation, setTransformati
             <Checkbox disabled checked />
             <span>Convert a Bamboo Deployment to a DevLake Deployment </span>
           </div>
+          <div className="sub-text">
+            <span>If its environment name matches</span>
+            <InputGroup
+              style={{ width: 180, margin: '0 8px' }}
+              placeholder="(?i)prod(.*)"
+              value={transformation.envNamePattern}
+              onChange={(e) =>
+                setTransformation({
+                  ...transformation,
+                  envNamePattern: e.target.value,
+                })
+              }
+            />
+            <span>, this deployment is a ‘Production Deployment’</span>
+          </div>
           <div className="text">
             <Checkbox checked={useCustom} onChange={handleChangeUseCustom} />
             <span>
