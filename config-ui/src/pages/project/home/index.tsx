@@ -78,7 +78,7 @@ export const ProjectHomePage = () => {
     const [success] = await operator(
       async () => {
         await API.createProject({
-          name: encodeName(name),
+          name,
           description: '',
           metrics: [
             {
