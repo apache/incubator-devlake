@@ -99,7 +99,7 @@ export const ScopeConfigSelect = ({ plugin, connectionId, scopeConfigId, onCance
         <Button disabled={!trId} intent={Intent.PRIMARY} text="Save" onClick={() => trId && onSubmit?.(trId)} />
       </Buttons>
       <Dialog
-        style={{ width: 820 }}
+        style={{ width: 960 }}
         footer={null}
         isOpen={isOpen}
         title={!updatedId ? 'Add Scope Config' : 'Edit Scope Config'}

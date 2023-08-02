@@ -176,10 +176,10 @@ export const ScopeConfigForm = ({
             <h1 style={{ marginBottom: 16 }}>Transformations</h1>
             <Divider />
             {showWarning && (
-              <>
-                <Message content="Please note: if you only edit the following Scope Configs without editing Data Entities in the previous step, you will only need to re-transform data on the Project page to see the Dashboard updated." />
-                <Divider />
-              </>
+              <Message
+                style={{ marginBottom: 16 }}
+                content="Please note: if you only edit the following Scope Configs without editing Data Entities in the previous step, you will only need to re-transform data on the Project page to see the Dashboard updated."
+              />
             )}
 
             {plugin === 'github' && (

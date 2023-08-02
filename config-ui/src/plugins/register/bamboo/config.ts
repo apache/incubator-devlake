@@ -55,6 +55,7 @@ export const BambooConfig: PluginConfigType = {
   scopeConfig: {
     entities: ['CICD', 'CROSS'],
     transformation: {
+      envNamePattern: '(?i)prod(.*)',
       deploymentPattern: '',
       productionPattern: '',
     },
