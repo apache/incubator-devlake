@@ -18,19 +18,32 @@ limitations under the License.
 package models
 
 import (
-	"github.com/apache/incubator-devlake/core/models"
-	helper "github.com/apache/incubator-devlake/helpers/pluginhelper/api"
+	"github.com/apache/incubator-devlake/core/models/common"
+	"time"
 )
 
-type ApiOutputWebhookConnection struct {
-	WebhookConnection `mapstructure:",squash"`
-	ApiKey            *models.ApiKey `json:"apiKey,omitempty"`
+// ApiKey is the basic of api key management.
+type ApiKey struct {
+	common.Model
+	common.Creator
+	common.Updater
+	Name        string     `json:"name"`
+	ApiKey      string     `json:"apiKey"`
+	ExpiredAt   *time.Time `json:"expiredAt"`
+	AllowedPath string     `json:"allowedPath"`
+	Type        string     `json:"type"`
+	Extra       string     `json:"extra"`
 }
 
-type WebhookConnection struct {
-	helper.BaseConnection `mapstructure:",squash"`
+func (ApiKey) TableName() string {
+	return "_devlake_api_keys"
 }
 
-func (WebhookConnection) TableName() string {
-	return "_tool_webhook_connections"
+type ApiInputApiKey struct {
+	Name        string     `json:"name" validate:"required,max=255"`
+	Type        string     `json:"type" validate:"required"`
+	AllowedPath string     `json:"allowedPath" validate:"required"`
+	ExpiredAt   *time.Time `json:"expiredAt" validate:"required"`
 }
+
+type ApiOutputApiKey = ApiKey

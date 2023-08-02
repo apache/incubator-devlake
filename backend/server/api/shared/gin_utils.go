@@ -15,22 +15,18 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-package models
+package shared
 
 import (
-	"github.com/apache/incubator-devlake/core/models"
-	helper "github.com/apache/incubator-devlake/helpers/pluginhelper/api"
+	"github.com/apache/incubator-devlake/core/models/common"
+	"github.com/gin-gonic/gin"
 )
 
-type ApiOutputWebhookConnection struct {
-	WebhookConnection `mapstructure:",squash"`
-	ApiKey            *models.ApiKey `json:"apiKey,omitempty"`
-}
-
-type WebhookConnection struct {
-	helper.BaseConnection `mapstructure:",squash"`
-}
-
-func (WebhookConnection) TableName() string {
-	return "_tool_webhook_connections"
+func GetUser(c *gin.Context) (*common.User, bool) {
+	userObj, exist := c.Get(common.USER)
+	if !exist {
+		return nil, false
+	}
+	user := userObj.(*common.User)
+	return user, true
 }

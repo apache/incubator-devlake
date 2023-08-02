@@ -19,6 +19,7 @@ package plugin
 
 import (
 	"github.com/apache/incubator-devlake/core/errors"
+	"github.com/apache/incubator-devlake/core/models/common"
 	"net/http"
 	"net/url"
 )
@@ -29,6 +30,8 @@ type ApiResourceInput struct {
 	Query   url.Values             // query string
 	Body    map[string]interface{} // json body
 	Request *http.Request
+
+	User *common.User
 }
 
 // GetPlugin get the plugin in context
