@@ -105,8 +105,7 @@ func RestAuthentication(router *gin.Engine, basicRes context.BasicRes) gin.Handl
 	}
 	apiKeyHelper := apikeyhelper.NewApiKeyHelper(basicRes, logger)
 	return func(c *gin.Context) {
-		rawPath := c.Request.URL.Path
-		path := strings.TrimPrefix(rawPath, "/api")
+		path := c.Request.URL.Path
 		// Only open api needs to check api key
 		if !strings.HasPrefix(path, "/rest") {
 			logger.Info("path %s will continue", path)
@@ -189,7 +188,7 @@ func RestAuthentication(router *gin.Engine, basicRes context.BasicRes) gin.Handl
 			return
 		}
 
-		logger.Info("redirect path: %s to: %s", rawPath, path)
+		logger.Info("redirect path: %s to: %s", c.Request.URL.Path, path)
 		c.Request.URL.Path = path
 		c.Set(common.USER, &common.User{
 			Name:  apiKey.Creator.Creator,
