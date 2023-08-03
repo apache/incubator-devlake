@@ -20,7 +20,7 @@ package plugins
 import (
 	"testing"
 
-	"github.com/apache/incubator-devlake/core/utils"
+	"github.com/apache/incubator-devlake/helpers/unithelper"
 	ae "github.com/apache/incubator-devlake/plugins/ae/impl"
 	bamboo "github.com/apache/incubator-devlake/plugins/bamboo/impl"
 	bitbucket "github.com/apache/incubator-devlake/plugins/bitbucket/impl"
@@ -51,7 +51,7 @@ import (
 
 func Test_GetPluginTablesInfo(t *testing.T) {
 	// Make sure EVERY Go plugin is listed here
-	checker := utils.NewTableInfoChecker(utils.TableInfoCheckerConfig{
+	checker := unithelper.NewTableInfoChecker(unithelper.TableInfoCheckerConfig{
 		ValidatePluginCount: true,
 	})
 	checker.FeedIn("ae/models", ae.AE{}.GetTablesInfo)
