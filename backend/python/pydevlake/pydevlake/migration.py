@@ -20,8 +20,10 @@ from datetime import datetime
 
 from pydantic import BaseModel, Field
 
+from pydevlake.model_info import DynamicModelInfo
 
 MIGRATION_SCRIPTS = []
+
 
 class Dialect(Enum):
     MYSQL = "mysql"
@@ -65,8 +67,13 @@ class RenameTable(BaseModel):
     new_name: str
 
 
+class CreateTable(BaseModel):
+    type: Literal["create_table"] = "create_table"
+    model_info: DynamicModelInfo
+
+
 Operation = Annotated[
-    Union[Execute, AddColumn, DropColumn, RenameColumn, DropTable, RenameTable],
+    Union[Execute, AddColumn, DropColumn, RenameColumn, DropTable, RenameTable, CreateTable],
     Field(discriminator="type")
 ]
 
@@ -118,6 +125,13 @@ class MigrationScriptBuilder:
         """
         self.operations.append(RenameTable(old_name=old_name, new_name=new_name))
 
+    def create_tables(self, *model_classes):
+        """
+        Creates a table if it doesn't exist based on the object's fields.
+        """
+        for model_class in model_classes:
+            self.operations.append(CreateTable(model_info=DynamicModelInfo.from_model(model_class)))
+
 
 def migration(version: int, name: Optional[str] = None):
     """
@@ -137,6 +151,7 @@ def migration(version: int, name: Optional[str] = None):
         script = MigrationScript(operations=builder.operations, version=version, name=name or fn.__name__)
         MIGRATION_SCRIPTS.append(script)
         return script
+
     return wrapper
 
 
@@ -148,4 +163,4 @@ def _validate_version(version: int):
     try:
         datetime.strptime(str_version, "%Y%m%d%H%M%S")
     except ValueError:
-        raise  err
+        raise err

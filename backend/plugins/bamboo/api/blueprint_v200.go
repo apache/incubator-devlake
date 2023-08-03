@@ -61,7 +61,7 @@ func makeScopeV200(connectionId uint64, scopes []*plugin.BlueprintScopeV200) ([]
 	sc := make([]plugin.Scope, 0, len(scopes))
 
 	for _, scope := range scopes {
-		id := didgen.NewDomainIdGenerator(&models.BambooProject{}).Generate(connectionId, scope.Id)
+		id := didgen.NewDomainIdGenerator(&models.BambooPlan{}).Generate(connectionId, scope.Id)
 
 		// get project from db
 		project, scopeConfig, err := scopeHelper.DbHelper().GetScopeAndConfig(connectionId, scope.Id)
@@ -98,7 +98,7 @@ func makePipelinePlanV200(
 		// bamboo main part
 		options := make(map[string]interface{})
 		options["connectionId"] = connection.ID
-		options["projectKey"] = scope.Id
+		options["planKey"] = scope.Id
 		options["scopeConfigId"] = scopeConfig.ID
 
 		// construct subtasks

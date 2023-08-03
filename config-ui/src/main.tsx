@@ -18,15 +18,7 @@
 
 import ReactDOM from 'react-dom';
 
-import { ErrorBoundary } from '@/components';
-
-import App from './App';
-
+import { App } from './App';
 import './index.css';
 
-ReactDOM.render(
-  <ErrorBoundary>
-    <App />
-  </ErrorBoundary>,
-  document.getElementById('root'),
-);
+ReactDOM.render(<App />, document.getElementById('root'));

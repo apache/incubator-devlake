@@ -67,9 +67,9 @@ export const UpdatePolicyDialog = ({ blueprint, operating, onCancel, onSubmit, .
   return (
     <Dialog
       isOpen
-      title="Change Sync Policy"
+      title="Set Sync Policy"
       style={{
-        width: 720,
+        width: 820,
       }}
       okText="Save"
       okLoading={operating}

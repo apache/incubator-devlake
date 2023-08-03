@@ -419,7 +419,7 @@ const ConnectionDetail = ({ plugin, connectionId }: Props) => {
         </Dialog>
       )}
       {type === 'associateScopeConfig' && (
-        <Dialog isOpen style={{ width: 820 }} footer={null} title="Associate Scope Config" onCancel={handleHideDialog}>
+        <Dialog isOpen style={{ width: 960 }} footer={null} title="Associate Scope Config" onCancel={handleHideDialog}>
           {plugin === 'tapd' ? (
             <ScopeConfigForm
               plugin={plugin}

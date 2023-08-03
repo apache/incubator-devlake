@@ -17,11 +17,11 @@
 from typing import Optional
 
 from pydantic import BaseModel, Field
-import jsonref
 
 from pydevlake.model import ToolScope
 from pydevlake.migration import MigrationScript
 from pydevlake.api import Response
+from pydevlake.model_info import DynamicModelInfo
 
 
 class Message(BaseModel):
@@ -37,27 +37,6 @@ class SubtaskMeta(BaseModel):
     description: str
     domain_types: list[str]
     arguments: list[str] = None
-
-
-class DynamicModelInfo(Message):
-    json_schema: dict
-    table_name: str
-
-    @staticmethod
-    def from_model(model_class):
-        schema = model_class.schema(by_alias=True)
-        if 'definitions' in schema:
-            # Replace $ref with actual schema
-            schema = jsonref.replace_refs(schema, proxies=False)
-            del schema['definitions']
-        # Pydantic forgets to put type in enums
-        for prop in schema['properties'].values():
-            if 'type' not in prop and 'enum' in prop:
-                prop['type'] = 'string'
-        return DynamicModelInfo(
-            json_schema=schema,
-            table_name=model_class.__tablename__
-        )
 
 
 class PluginInfo(Message):
@@ -87,8 +66,8 @@ class PipelineTask(Message):
 
 
 class DynamicDomainScope(Message):
-	type_name: str
-	data: bytes
+    type_name: str
+    data: bytes
 
 
 class PipelineData(Message):

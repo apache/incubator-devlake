@@ -88,6 +88,7 @@ func (p Jira) GetTablesInfo() []dal.Tabler {
 		&models.JiraStatus{},
 		&models.JiraWorklog{},
 		&models.JiraIssueComment{},
+		&models.JiraIssueRelationship{},
 		&models.JiraScopeConfig{},
 	}
 }
@@ -139,6 +140,7 @@ func (p Jira) SubTaskMetas() []plugin.SubTaskMeta {
 		tasks.ConvertIssueCommentsMeta,
 		tasks.ConvertWorklogsMeta,
 		tasks.ConvertIssueChangelogsMeta,
+		tasks.ConvertIssueRelationshipsMeta,
 
 		tasks.ConvertSprintsMeta,
 		tasks.ConvertSprintIssuesMeta,
@@ -227,7 +229,7 @@ func (p Jira) PrepareTaskData(taskCtx plugin.TaskContext, options map[string]int
 		if err != nil && db.IsErrorNotFound(err) {
 			return nil, errors.BadInput.Wrap(err, "fail to get scopeConfig")
 		}
-		op.ScopeConfig, err = tasks.MakeScopeConfig(scopeConfig)
+		op.ScopeConfig = &scopeConfig
 		if err != nil {
 			return nil, errors.BadInput.Wrap(err, "fail to make scopeConfig")
 		}

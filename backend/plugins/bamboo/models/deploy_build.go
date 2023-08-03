@@ -65,7 +65,7 @@ type ApiBambooDeployBuild struct {
 func (api *ApiBambooDeployBuild) Convert(op *BambooOptions) *BambooDeployBuild {
 	return &BambooDeployBuild{
 		ConnectionId:          op.ConnectionId,
-		ProjectKey:            op.ProjectKey,
+		PlanKey:               op.PlanKey,
 		DeploymentVersionName: api.DeploymentVersionName,
 		DeployBuildId:         api.Id,
 		DeploymentState:       api.DeploymentState,

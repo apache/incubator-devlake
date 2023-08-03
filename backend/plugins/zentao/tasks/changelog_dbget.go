@@ -75,7 +75,7 @@ func (h actionHistoryHandler) collectActionHistory(rdb dal.Dal, connectionId uin
 		dal.Select("*,zt_action.id aid,zt_history.id hid "),
 		dal.From("zt_action"),
 		dal.Join("LEFT JOIN zt_history on zt_history.action = zt_action.id"),
-		dal.Where("zt_action.objectType IN ?", []string{"story", "task", "bug"}),
+		dal.Where("? IN ?", dal.ClauseColumn{Table: "zt_action", Name: "objectType"}, []string{"story", "task", "bug"}),
 	}
 	cursor, err := rdb.Cursor(clause...)
 	if err != nil {

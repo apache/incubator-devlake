@@ -120,7 +120,6 @@ export const MultiSelector = <T,>({
   return (
     <MultiSelect2
       fill
-      resetOnSelect
       placeholder={placeholder ?? 'Select...'}
       items={filteredItems}
       // https://github.com/palantir/blueprint/issues/3596

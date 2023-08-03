@@ -29,12 +29,22 @@ import (
 	"github.com/apache/incubator-devlake/plugins/github/models"
 )
 
+func init() {
+	RegisterSubtaskMeta(&ConvertPullRequestCommitsMeta)
+}
+
 var ConvertPullRequestCommitsMeta = plugin.SubTaskMeta{
 	Name:             "convertPullRequestCommits",
 	EntryPoint:       ConvertPullRequestCommits,
 	EnabledByDefault: true,
 	Description:      "Convert tool layer table github_pull_request_commits into  domain layer table pull_request_commits",
 	DomainTypes:      []string{plugin.DOMAIN_TYPE_CROSS, plugin.DOMAIN_TYPE_CODE_REVIEW},
+	DependencyTables: []string{
+		models.GithubPrCommit{}.TableName(),    // cursor
+		models.GithubPullRequest{}.TableName(), // cursor
+		models.GithubPullRequest{}.TableName(), // id generator
+		RAW_PR_COMMIT_TABLE},
+	ProductTables: []string{code.PullRequestCommit{}.TableName()},
 }
 
 func ConvertPullRequestCommits(taskCtx plugin.SubTaskContext) (err errors.Error) {

@@ -508,19 +508,11 @@ func RerunPipeline(pipelineId uint64, task *models.Task) (tasks []*models.Task, 
 			return nil, err
 		}
 		// create new task
-		subtasks, err := t.GetSubTasks()
-		if err != nil {
-			return nil, err
-		}
-		options, err := t.GetOptions()
-		if err != nil {
-			return nil, err
-		}
 		rerunTask, err := CreateTask(&models.NewTask{
 			PipelineTask: &plugin.PipelineTask{
 				Plugin:   t.Plugin,
-				Subtasks: subtasks,
-				Options:  options,
+				Subtasks: t.Subtasks,
+				Options:  t.Options,
 			},
 			PipelineId:  t.PipelineId,
 			PipelineRow: t.PipelineRow,

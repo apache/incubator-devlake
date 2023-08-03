@@ -27,6 +27,7 @@ import (
 	"github.com/apache/incubator-devlake/core/errors"
 	"github.com/apache/incubator-devlake/core/log"
 	"github.com/apache/incubator-devlake/core/plugin"
+	"github.com/apache/incubator-devlake/helpers/pluginhelper/api/apihelperabstract"
 	"github.com/go-playground/validator/v10"
 )
 
@@ -60,8 +61,8 @@ func (t ScopeConfigHelper[ScopeConfig]) Create(input *plugin.ApiResourceInput) (
 	if e != nil || connectionId == 0 {
 		return nil, errors.Default.Wrap(e, "the connection ID should be an non-zero integer")
 	}
-	var config ScopeConfig
-	if err := DecodeMapStruct(input.Body, &config, false); err != nil {
+	config := new(ScopeConfig)
+	if err := DecodeMapStruct(input.Body, config, false); err != nil {
 		return nil, errors.Default.Wrap(err, "error in decoding scope config")
 	}
 	if t.validator != nil {
@@ -69,12 +70,18 @@ func (t ScopeConfigHelper[ScopeConfig]) Create(input *plugin.ApiResourceInput) (
 			return nil, errors.Default.Wrap(err, "error validating scope config")
 		}
 	}
-	valueConnectionId := reflect.ValueOf(&config).Elem().FieldByName("ConnectionId")
+	if cv, ok := interface{}(config).(apihelperabstract.ComplexValidate); ok {
+		err := cv.Validate()
+		if err != nil {
+			return nil, err
+		}
+	}
+	valueConnectionId := reflect.ValueOf(config).Elem().FieldByName("ConnectionId")
 	if valueConnectionId.IsValid() {
 		valueConnectionId.SetUint(connectionId)
 	}
 
-	if err := t.db.Create(&config); err != nil {
+	if err := t.db.Create(config); err != nil {
 		if t.db.IsDuplicationError(err) {
 			return nil, errors.BadInput.New("there was a scope config with the same name, please choose another name")
 		}
@@ -88,23 +95,29 @@ func (t ScopeConfigHelper[ScopeConfig]) Update(input *plugin.ApiResourceInput) (
 	if e != nil {
 		return nil, errors.Default.Wrap(e, "the scope config ID should be an integer")
 	}
-	var old ScopeConfig
-	err := t.db.First(&old, dal.Where("id = ?", scopeConfigId))
+	config := new(ScopeConfig)
+	err := t.db.First(config, dal.Where("id = ?", scopeConfigId))
 	if err != nil {
 		return nil, errors.Default.Wrap(err, "error on saving ScopeConfig")
 	}
-	err = DecodeMapStruct(input.Body, &old, true)
+	err = DecodeMapStruct(input.Body, config, true)
 	if err != nil {
 		return nil, errors.Default.Wrap(err, "error decoding map into scopeConfig")
 	}
-	err = t.db.Update(&old, dal.Where("id = ?", scopeConfigId))
+	if cv, ok := interface{}(config).(apihelperabstract.ComplexValidate); ok {
+		err := cv.Validate()
+		if err != nil {
+			return nil, err
+		}
+	}
+	err = t.db.Update(config, dal.Where("id = ?", scopeConfigId))
 	if err != nil {
 		if t.db.IsDuplicationError(err) {
 			return nil, errors.BadInput.New("there was a scope config with the same name, please choose another name")
 		}
 		return nil, errors.BadInput.Wrap(err, "error on saving ScopeConfig")
 	}
-	return &plugin.ApiResourceOutput{Body: old, Status: http.StatusOK}, nil
+	return &plugin.ApiResourceOutput{Body: config, Status: http.StatusOK}, nil
 }
 
 func (t ScopeConfigHelper[ScopeConfig]) Get(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, errors.Error) {

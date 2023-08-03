@@ -163,9 +163,11 @@ func TransformColumns[S any, D any](
 				}
 
 				dst, err := transform(src)
-
 				if err != nil {
 					return errors.Default.Wrap(err, fmt.Sprintf("failed to update row %v", src))
+				}
+				if dst == nil {
+					continue
 				}
 				err = batch.Add(dst)
 				if err != nil {

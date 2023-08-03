@@ -28,6 +28,10 @@ import (
 	helper "github.com/apache/incubator-devlake/helpers/pluginhelper/api"
 )
 
+func init() {
+	RegisterSubtaskMeta(&CollectApiCommitsMeta)
+}
+
 const RAW_COMMIT_TABLE = "github_api_commits"
 
 var CollectApiCommitsMeta = plugin.SubTaskMeta{
@@ -36,6 +40,8 @@ var CollectApiCommitsMeta = plugin.SubTaskMeta{
 	EnabledByDefault: false,
 	Description:      "Collect commits data from Github api, supports both timeFilter and diffSync.",
 	DomainTypes:      []string{plugin.DOMAIN_TYPE_CODE},
+	DependencyTables: []string{},
+	ProductTables:    []string{RAW_COMMIT_TABLE},
 }
 
 func CollectApiCommits(taskCtx plugin.SubTaskContext) errors.Error {

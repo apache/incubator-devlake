@@ -39,5 +39,6 @@ func All() []plugin.MigrationScript {
 		new(addGitlabIssueAssignee),
 		new(addMrCommitSha),
 		new(addRawParamTableForScope),
+		new(addProjectArchived),
 	}
 }

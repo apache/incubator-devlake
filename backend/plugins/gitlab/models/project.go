@@ -30,24 +30,25 @@ import (
 var _ plugin.ToolLayerScope = (*GitlabProject)(nil)
 
 type GitlabProject struct {
-	ConnectionId            uint64 `json:"connectionId" mapstructure:"connectionId" validate:"required" gorm:"primaryKey"`
-	ScopeConfigId           uint64 `json:"scopeConfigId,omitempty" mapstructure:"scopeConfigId"`
-	GitlabId                int    `json:"gitlabId" mapstructure:"gitlabId" validate:"required" gorm:"primaryKey"`
-	Name                    string `json:"name" mapstructure:"name" gorm:"type:varchar(255)"`
-	Description             string `json:"description" mapstructure:"description"`
-	DefaultBranch           string `json:"defaultBranch" mapstructure:"defaultBranch" gorm:"type:varchar(255)"`
-	PathWithNamespace       string `json:"pathWithNamespace" mapstructure:"pathWithNamespace" gorm:"type:varchar(255)"`
-	WebUrl                  string `json:"webUrl" mapstructure:"webUrl" gorm:"type:varchar(255)"`
-	CreatorId               int    `json:"creatorId" mapstructure:"creatorId"`
-	Visibility              string `json:"visibility" mapstructure:"visibility" gorm:"type:varchar(255)"`
-	OpenIssuesCount         int    `json:"openIssuesCount" mapstructure:"openIssuesCount"`
-	StarCount               int    `json:"starCount" mapstructure:"StarCount"`
-	ForkedFromProjectId     int    `json:"forkedFromProjectId" mapstructure:"forkedFromProjectId"`
-	ForkedFromProjectWebUrl string `json:"forkedFromProjectWebUrl" mapstructure:"forkedFromProjectWebUrl" gorm:"type:varchar(255)"`
-	HttpUrlToRepo           string `json:"httpUrlToRepo" gorm:"type:varchar(255)"`
+	ConnectionId            uint64     `json:"connectionId" mapstructure:"connectionId" validate:"required" gorm:"primaryKey"`
+	ScopeConfigId           uint64     `json:"scopeConfigId,omitempty" mapstructure:"scopeConfigId"`
+	GitlabId                int        `json:"gitlabId" mapstructure:"gitlabId" validate:"required" gorm:"primaryKey"`
+	Name                    string     `json:"name" mapstructure:"name" gorm:"type:varchar(255)"`
+	Description             string     `json:"description" mapstructure:"description"`
+	DefaultBranch           string     `json:"defaultBranch" mapstructure:"defaultBranch" gorm:"type:varchar(255)"`
+	PathWithNamespace       string     `json:"pathWithNamespace" mapstructure:"pathWithNamespace" gorm:"type:varchar(255)"`
+	WebUrl                  string     `json:"webUrl" mapstructure:"webUrl" gorm:"type:varchar(255)"`
+	CreatorId               int        `json:"creatorId" mapstructure:"creatorId"`
+	Visibility              string     `json:"visibility" mapstructure:"visibility" gorm:"type:varchar(255)"`
+	OpenIssuesCount         int        `json:"openIssuesCount" mapstructure:"openIssuesCount"`
+	StarCount               int        `json:"starCount" mapstructure:"StarCount"`
+	ForkedFromProjectId     int        `json:"forkedFromProjectId" mapstructure:"forkedFromProjectId"`
+	ForkedFromProjectWebUrl string     `json:"forkedFromProjectWebUrl" mapstructure:"forkedFromProjectWebUrl" gorm:"type:varchar(255)"`
+	HttpUrlToRepo           string     `json:"httpUrlToRepo" gorm:"type:varchar(255)"`
+	CreatedDate             *time.Time `json:"createdDate" mapstructure:"-"`
+	UpdatedDate             *time.Time `json:"updatedDate" mapstructure:"-"`
+	Archived                bool       `json:"archived" mapstructure:"archived"`
 
-	CreatedDate      *time.Time `json:"createdDate" mapstructure:"-"`
-	UpdatedDate      *time.Time `json:"updatedDate" mapstructure:"-"`
 	common.NoPKModel `json:"-" mapstructure:"-"`
 }
 
@@ -88,6 +89,7 @@ func (gitlabApiProject GitlabApiProject) ConvertApiScope() plugin.ToolLayerScope
 	p.Visibility = gitlabApiProject.Visibility
 	p.OpenIssuesCount = gitlabApiProject.OpenIssuesCount
 	p.StarCount = gitlabApiProject.StarCount
+	p.Archived = gitlabApiProject.Archived
 	p.CreatedDate = gitlabApiProject.CreatedAt.ToNullableTime()
 	p.UpdatedDate = helper.Iso8601TimeToTime(gitlabApiProject.LastActivityAt)
 	if gitlabApiProject.ForkedFromProject != nil {
@@ -116,6 +118,7 @@ type GitlabApiProject struct {
 	CreatedAt         helper.Iso8601Time  `json:"created_at"`
 	LastActivityAt    *helper.Iso8601Time `json:"last_activity_at"`
 	HttpUrlToRepo     string              `json:"http_url_to_repo"`
+	Archived          bool                `json:"archived"`
 }
 
 type GroupResponse struct {

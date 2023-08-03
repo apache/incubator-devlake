@@ -22,7 +22,6 @@ export * from './buttons';
 export * from './card';
 export * from './dialog';
 export * from './divider';
-export { default as ErrorBoundary } from './error-boundary';
 export * from './form';
 export * from './inspector';
 export * from './loading';

@@ -19,13 +19,13 @@ package impl
 
 import (
 	"fmt"
+	"github.com/apache/incubator-devlake/helpers/pluginhelper/subtaskmeta/sorter"
 	"time"
-
-	"github.com/apache/incubator-devlake/core/models/domainlayer/devops"
 
 	"github.com/apache/incubator-devlake/core/context"
 	"github.com/apache/incubator-devlake/core/dal"
 	"github.com/apache/incubator-devlake/core/errors"
+	"github.com/apache/incubator-devlake/core/models/domainlayer/devops"
 	"github.com/apache/incubator-devlake/core/plugin"
 	helper "github.com/apache/incubator-devlake/helpers/pluginhelper/api"
 	"github.com/apache/incubator-devlake/plugins/github/api"
@@ -45,7 +45,18 @@ var _ interface {
 	plugin.CloseablePluginTask
 } = (*Github)(nil)
 
+var sortedSubtaskMetas []plugin.SubTaskMeta
+
 type Github struct{}
+
+func init() {
+	var err error
+	// check subtask meta loop and gen subtask list when plugin init
+	sortedSubtaskMetas, err = sorter.NewTableSorter(tasks.SubTaskMetaList).Sort()
+	if err != nil {
+		panic(err)
+	}
+}
 
 func (p Github) Connection() dal.Tabler {
 	return &models.GithubConnection{}
@@ -103,53 +114,7 @@ func (p Github) Name() string {
 }
 
 func (p Github) SubTaskMetas() []plugin.SubTaskMeta {
-	return []plugin.SubTaskMeta{
-		tasks.CollectApiIssuesMeta,
-		tasks.ExtractApiIssuesMeta,
-		tasks.CollectApiPullRequestsMeta,
-		tasks.ExtractApiPullRequestsMeta,
-		tasks.CollectApiCommentsMeta,
-		tasks.ExtractApiCommentsMeta,
-		tasks.CollectApiEventsMeta,
-		tasks.ExtractApiEventsMeta,
-		tasks.CollectApiPullRequestCommitsMeta,
-		tasks.ExtractApiPullRequestCommitsMeta,
-		tasks.CollectApiPullRequestReviewsMeta,
-		tasks.ExtractApiPullRequestReviewsMeta,
-		tasks.CollectApiPrReviewCommentsMeta,
-		tasks.ExtractApiPrReviewCommentsMeta,
-		tasks.CollectApiCommitsMeta,
-		tasks.ExtractApiCommitsMeta,
-		tasks.CollectApiCommitStatsMeta,
-		tasks.ExtractApiCommitStatsMeta,
-		tasks.CollectMilestonesMeta,
-		tasks.ExtractMilestonesMeta,
-		tasks.CollectAccountsMeta,
-		tasks.ExtractAccountsMeta,
-		tasks.CollectAccountOrgMeta,
-		tasks.ExtractAccountOrgMeta,
-		tasks.CollectRunsMeta,
-		tasks.ExtractRunsMeta,
-		tasks.ConvertRunsMeta,
-		tasks.CollectJobsMeta,
-		tasks.ExtractJobsMeta,
-		tasks.ConvertJobsMeta,
-		tasks.EnrichPullRequestIssuesMeta,
-		tasks.ConvertRepoMeta,
-		tasks.ConvertIssuesMeta,
-		tasks.ConvertIssueAssigneeMeta,
-		tasks.ConvertCommitsMeta,
-		tasks.ConvertIssueLabelsMeta,
-		tasks.ConvertPullRequestCommitsMeta,
-		tasks.ConvertPullRequestsMeta,
-		tasks.ConvertPullRequestReviewsMeta,
-		tasks.ConvertPullRequestLabelsMeta,
-		tasks.ConvertPullRequestIssuesMeta,
-		tasks.ConvertIssueCommentsMeta,
-		tasks.ConvertPullRequestCommentsMeta,
-		tasks.ConvertMilestonesMeta,
-		tasks.ConvertAccountsMeta,
-	}
+	return sortedSubtaskMetas
 }
 
 func (p Github) PrepareTaskData(taskCtx plugin.TaskContext, options map[string]interface{}) (interface{}, errors.Error) {

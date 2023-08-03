@@ -54,6 +54,7 @@ type GitlabApiProject struct {
 	CreatedAt         helper.Iso8601Time  `json:"created_at"`
 	LastActivityAt    *helper.Iso8601Time `json:"last_activity_at"`
 	HttpUrlToRepo     string              `json:"http_url_to_repo"`
+	Archived          bool                `json:"archived"`
 }
 
 var ConvertProjectMeta = plugin.SubTaskMeta{

@@ -38,6 +38,7 @@ func ConvertProject(gitlabApiProject *GitlabApiProject) *models.GitlabProject {
 		StarCount:         gitlabApiProject.StarCount,
 		CreatedDate:       gitlabApiProject.CreatedAt.ToNullableTime(),
 		UpdatedDate:       helper.Iso8601TimeToTime(gitlabApiProject.LastActivityAt),
+		Archived:          gitlabApiProject.Archived,
 	}
 	if gitlabApiProject.ForkedFromProject != nil {
 		gitlabProject.ForkedFromProjectId = gitlabApiProject.ForkedFromProject.GitlabId
