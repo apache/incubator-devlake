@@ -15,19 +15,20 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-package utils
+package unithelper
 
 import (
 	"fmt"
 	"go/ast"
 	"go/parser"
 	"go/token"
-	"golang.org/x/exp/slices"
 	fs2 "io/fs"
 	"os"
 	"path/filepath"
 	"sort"
 	"strings"
+
+	"golang.org/x/exp/slices"
 
 	"github.com/apache/incubator-devlake/core/dal"
 	"github.com/apache/incubator-devlake/core/errors"

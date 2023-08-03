@@ -106,7 +106,7 @@ func (c *ApiKeyHelper) Create(tx dal.Transaction, user *common.User, name string
 }
 
 func (c *ApiKeyHelper) CreateForPlugin(tx dal.Transaction, user *common.User, name string, pluginName string, allowedPath string, extra string) (*models.ApiKey, errors.Error) {
-	return c.Create(tx, user, name, nil, fmt.Sprintf("plugin:%s", pluginName), allowedPath, extra)
+	return c.Create(tx, user, name, nil, allowedPath, fmt.Sprintf("plugin:%s", pluginName), extra)
 }
 
 func (c *ApiKeyHelper) Put(user *common.User, id uint64) (*models.ApiKey, errors.Error) {
