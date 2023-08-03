@@ -15,24 +15,24 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-package e2e
+package migrationscripts
 
 import (
-	"github.com/apache/incubator-devlake/core/runner"
-	"testing"
-	"time"
-
-	"github.com/apache/incubator-devlake/core/config"
+	"github.com/apache/incubator-devlake/core/context"
+	"github.com/apache/incubator-devlake/core/errors"
+	"github.com/apache/incubator-devlake/plugins/zentao/models/migrationscripts/archived"
 )
 
-func TestZentaoCheckDbConnection(t *testing.T) {
-	cfg := config.GetConfig()
-	dbUrl := cfg.GetString("E2E_DB_URL")
-	if dbUrl == "" {
-		return
-	}
-	err := runner.CheckDbConnection(dbUrl, 10*time.Second)
-	if err != nil {
-		t.Error(err)
-	}
+type dropTotalReal struct{}
+
+func (*dropTotalReal) Up(basicRes context.BasicRes) errors.Error {
+	return basicRes.GetDal().DropColumns(archived.ZentaoProject{}.TableName(), "total_real")
+}
+
+func (*dropTotalReal) Version() uint64 {
+	return 20230803145723
+}
+
+func (*dropTotalReal) Name() string {
+	return "drop the column total_real from the table _tool_zentao_projects"
 }
