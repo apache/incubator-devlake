@@ -43,7 +43,7 @@ type ApiInputApiKey struct {
 	Name        string     `json:"name" validate:"required,max=255"`
 	Type        string     `json:"type" validate:"required"`
 	AllowedPath string     `json:"allowedPath" validate:"required"`
-	ExpiredAt   *time.Time `json:"expiredAt" validate:"required"`
+	ExpiredAt   *time.Time `json:"expiredAt" `
 }
 
 type ApiOutputApiKey = ApiKey

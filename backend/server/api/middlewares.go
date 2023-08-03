@@ -82,7 +82,7 @@ func OAuth2ProxyAuthentication(basicRes context.BasicRes) gin.HandlerFunc {
 				// fetch with basic auth header
 				user, err = getBasicAuthUserInfo(c)
 				if err != nil {
-					logger.Error(err, "getBasicAuthUserInfo")
+					logger.Warn(err, "getBasicAuthUserInfo")
 				}
 			}
 			if user != nil && user.Name != "" {
@@ -106,13 +106,13 @@ func RestAuthentication(router *gin.Engine, basicRes context.BasicRes) gin.Handl
 	apiKeyHelper := apikeyhelper.NewApiKeyHelper(basicRes, logger)
 	return func(c *gin.Context) {
 		path := c.Request.URL.Path
-		path = strings.TrimPrefix(path, "/api")
 		// Only open api needs to check api key
 		if !strings.HasPrefix(path, "/rest") {
 			logger.Info("path %s will continue", path)
 			c.Next()
 			return
 		}
+		path = strings.TrimPrefix(path, "/rest")
 
 		authHeader := c.GetHeader("Authorization")
 		if authHeader == "" {
@@ -188,10 +188,8 @@ func RestAuthentication(router *gin.Engine, basicRes context.BasicRes) gin.Handl
 			return
 		}
 
-		if strings.HasPrefix(path, "/rest") {
-			logger.Info("redirect path: %s to: %s", path, strings.TrimPrefix(path, "/rest"))
-			c.Request.URL.Path = strings.TrimPrefix(path, "/rest")
-		}
+		logger.Info("redirect path: %s to: %s", c.Request.URL.Path, path)
+		c.Request.URL.Path = path
 		c.Set(common.USER, &common.User{
 			Name:  apiKey.Creator.Creator,
 			Email: apiKey.Creator.CreatorEmail,
