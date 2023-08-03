@@ -19,7 +19,6 @@ package models
 
 import (
 	"github.com/apache/incubator-devlake/core/models/common"
-	helper "github.com/apache/incubator-devlake/helpers/pluginhelper/api"
 )
 
 type ZentaoTaskRes struct {
@@ -49,24 +48,24 @@ type ZentaoTaskRes struct {
 	Description    string              `json:"desc"`
 	Version        int                 `json:"version"`
 	OpenedBy       *ApiAccount         `json:"openedBy"`
-	OpenedDate     *helper.Iso8601Time `json:"openedDate"`
+	OpenedDate     *common.Iso8601Time `json:"openedDate"`
 	AssignedTo     *ApiAccount         `json:"assignedTo"`
-	AssignedDate   *helper.Iso8601Time `json:"assignedDate"`
+	AssignedDate   *common.Iso8601Time `json:"assignedDate"`
 	EstStarted     string              `json:"estStarted"`
-	RealStarted    *helper.Iso8601Time `json:"realStarted"`
+	RealStarted    *common.Iso8601Time `json:"realStarted"`
 	FinishedBy     *ApiAccount         `json:"finishedBy"`
-	FinishedDate   *helper.Iso8601Time `json:"finishedDate"`
+	FinishedDate   *common.Iso8601Time `json:"finishedDate"`
 	FinishedList   string              `json:"finishedList"`
 	CanceledBy     *ApiAccount         `json:"canceledBy"`
-	CanceledDate   *helper.Iso8601Time `json:"canceledDate"`
+	CanceledDate   *common.Iso8601Time `json:"canceledDate"`
 	ClosedBy       *ApiAccount         `json:"closedBy"`
-	ClosedDate     *helper.Iso8601Time `json:"closedDate"`
+	ClosedDate     *common.Iso8601Time `json:"closedDate"`
 	PlanDuration   int                 `json:"planDuration"`
 	RealDuration   int                 `json:"realDuration"`
 	ClosedReason   string              `json:"closedReason"`
 	LastEditedBy   *ApiAccount         `json:"lastEditedBy"`
-	LastEditedDate *helper.Iso8601Time `json:"lastEditedDate"`
-	ActivatedDate  *helper.Iso8601Time `json:"activatedDate"`
+	LastEditedDate *common.Iso8601Time `json:"lastEditedDate"`
+	ActivatedDate  *common.Iso8601Time `json:"activatedDate"`
 	OrderIn        int                 `json:"order"`
 	Repo           int                 `json:"repo"`
 	Mr             int                 `json:"mr"`
@@ -121,25 +120,25 @@ type ZentaoTask struct {
 	Version            int     `json:"version"`
 	OpenedById         int64
 	OpenedByName       string
-	OpenedDate         *helper.Iso8601Time `json:"openedDate"`
+	OpenedDate         *common.Iso8601Time `json:"openedDate"`
 	AssignedToId       int64
 	AssignedToName     string
-	AssignedDate       *helper.Iso8601Time `json:"assignedDate"`
+	AssignedDate       *common.Iso8601Time `json:"assignedDate"`
 	EstStarted         string              `json:"estStarted"`
-	RealStarted        *helper.Iso8601Time `json:"realStarted"`
+	RealStarted        *common.Iso8601Time `json:"realStarted"`
 	FinishedId         int64
-	FinishedDate       *helper.Iso8601Time `json:"finishedDate"`
+	FinishedDate       *common.Iso8601Time `json:"finishedDate"`
 	FinishedList       string              `json:"finishedList"`
 	CanceledId         int64
-	CanceledDate       *helper.Iso8601Time `json:"canceledDate"`
+	CanceledDate       *common.Iso8601Time `json:"canceledDate"`
 	ClosedById         int64
-	ClosedDate         *helper.Iso8601Time `json:"closedDate"`
+	ClosedDate         *common.Iso8601Time `json:"closedDate"`
 	PlanDuration       int                 `json:"planDuration"`
 	RealDuration       int                 `json:"realDuration"`
 	ClosedReason       string              `json:"closedReason"`
 	LastEditedId       int64
-	LastEditedDate     *helper.Iso8601Time `json:"lastEditedDate"`
-	ActivatedDate      *helper.Iso8601Time `json:"activatedDate"`
+	LastEditedDate     *common.Iso8601Time `json:"lastEditedDate"`
+	ActivatedDate      *common.Iso8601Time `json:"activatedDate"`
 	OrderIn            int                 `json:"order"`
 	Repo               int                 `json:"repo"`
 	Mr                 int                 `json:"mr"`

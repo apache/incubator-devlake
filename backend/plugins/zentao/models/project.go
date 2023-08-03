@@ -23,7 +23,6 @@ import (
 
 	"github.com/apache/incubator-devlake/core/models/common"
 	"github.com/apache/incubator-devlake/core/plugin"
-	helper "github.com/apache/incubator-devlake/helpers/pluginhelper/api"
 )
 
 type ZentaoProject struct {
@@ -47,10 +46,10 @@ type ZentaoProject struct {
 	Grade            int                 `json:"grade" mapstructure:"grade"`
 	Name             string              `json:"name" mapstructure:"name"`
 	Code             string              `json:"code" mapstructure:"code"`
-	PlanBegin        *helper.Iso8601Time `json:"begin" mapstructure:"begin"`
-	PlanEnd          *helper.Iso8601Time `json:"end" mapstructure:"end"`
-	RealBegan        *helper.Iso8601Time `json:"realBegan" mapstructure:"realBegan"`
-	RealEnd          *helper.Iso8601Time `json:"realEnd" mapstructure:"realEnd"`
+	PlanBegin        *common.Iso8601Time `json:"begin" mapstructure:"begin"`
+	PlanEnd          *common.Iso8601Time `json:"end" mapstructure:"end"`
+	RealBegan        *common.Iso8601Time `json:"realBegan" mapstructure:"realBegan"`
+	RealEnd          *common.Iso8601Time `json:"realEnd" mapstructure:"realEnd"`
 	Days             int                 `json:"days" mapstructure:"days"`
 	Status           string              `json:"status" mapstructure:"status"`
 	SubStatus        string              `json:"subStatus" mapstructure:"subStatus"`
@@ -61,17 +60,17 @@ type ZentaoProject struct {
 	PlanDuration     int                 `json:"planDuration" mapstructure:"planDuration"`
 	RealDuration     int                 `json:"realDuration" mapstructure:"realDuration"`
 	//OpenedBy       string    `json:"openedBy" mapstructure:"openedBy"`
-	OpenedDate    *helper.Iso8601Time `json:"openedDate" mapstructure:"openedDate"`
+	OpenedDate    *common.Iso8601Time `json:"openedDate" mapstructure:"openedDate"`
 	OpenedVersion string              `json:"openedVersion" mapstructure:"openedVersion"`
 	//LastEditedBy   string              `json:"lastEditedBy" mapstructure:"lastEditedBy"`
-	LastEditedDate *helper.Iso8601Time `json:"lastEditedDate" mapstructure:"lastEditedDate"`
+	LastEditedDate *common.Iso8601Time `json:"lastEditedDate" mapstructure:"lastEditedDate"`
 	ClosedBy       string
 	ClosedByRes    interface{}         `json:"closedBy" mapstructure:"closedBy" gorm:"-"`
-	ClosedDate     *helper.Iso8601Time `json:"closedDate" mapstructure:"closedDate"`
+	ClosedDate     *common.Iso8601Time `json:"closedDate" mapstructure:"closedDate"`
 	CanceledBy     string
 	CanceledByRes  interface{}         `json:"canceledBy" mapstructure:"canceledBy" gorm:"-"`
-	CanceledDate   *helper.Iso8601Time `json:"canceledDate" mapstructure:"canceledDate"`
-	SuspendedDate  *helper.Iso8601Time `json:"suspendedDate" mapstructure:"suspendedDate"`
+	CanceledDate   *common.Iso8601Time `json:"canceledDate" mapstructure:"canceledDate"`
+	SuspendedDate  *common.Iso8601Time `json:"suspendedDate" mapstructure:"suspendedDate"`
 	PO             string              `json:"po" mapstructure:"po"`
 	PM             `json:"pm" mapstructure:"pm"`
 	QD             string `json:"qd" mapstructure:"qd"`

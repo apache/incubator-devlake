@@ -29,6 +29,7 @@ import (
 
 	"github.com/apache/incubator-devlake/core/dal"
 	"github.com/apache/incubator-devlake/core/errors"
+	"github.com/apache/incubator-devlake/core/models/common"
 	"github.com/apache/incubator-devlake/plugins/gitlab/models"
 
 	"github.com/apache/incubator-devlake/core/plugin"
@@ -94,7 +95,7 @@ func GetOneRawMessageFromResponse(res *http.Response) ([]json.RawMessage, errors
 
 func GetRawMessageUpdatedAtAfter(timeAfter *time.Time) func(res *http.Response) ([]json.RawMessage, errors.Error) {
 	type ApiModel struct {
-		UpdatedAt *helper.Iso8601Time `json:"updated_at"`
+		UpdatedAt *common.Iso8601Time `json:"updated_at"`
 	}
 
 	return func(res *http.Response) ([]json.RawMessage, errors.Error) {

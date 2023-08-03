@@ -19,6 +19,7 @@ package api
 
 import (
 	"github.com/apache/incubator-devlake/core/errors"
+	"github.com/apache/incubator-devlake/core/models/common"
 	"github.com/apache/incubator-devlake/core/plugin"
 	"github.com/apache/incubator-devlake/helpers/pluginhelper/api"
 	"github.com/apache/incubator-devlake/plugins/sonarqube/models"
@@ -49,7 +50,7 @@ func PutScope(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, errors
 		if !ok {
 			continue
 		}
-		timeObj, err := api.ConvertStringToTime(dateStr)
+		timeObj, err := common.ConvertStringToTime(dateStr)
 		if err != nil {
 			panic(err)
 		}

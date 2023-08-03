@@ -20,7 +20,9 @@ package tasks
 import (
 	"encoding/json"
 	"fmt"
+
 	"github.com/apache/incubator-devlake/core/errors"
+	"github.com/apache/incubator-devlake/core/models/common"
 	"github.com/apache/incubator-devlake/core/plugin"
 	"github.com/apache/incubator-devlake/helpers/pluginhelper/api"
 	"github.com/apache/incubator-devlake/plugins/gitee/models"
@@ -42,8 +44,8 @@ type GiteeApiRepoResponse struct {
 	Description string                `json:"description"`
 	Owner       models.GiteeAccount   `json:"owner"`
 	Parent      *GiteeApiRepoResponse `json:"parent"`
-	CreatedAt   api.Iso8601Time       `json:"created_at"`
-	UpdatedAt   *api.Iso8601Time      `json:"updated_at"`
+	CreatedAt   common.Iso8601Time    `json:"created_at"`
+	UpdatedAt   *common.Iso8601Time   `json:"updated_at"`
 }
 
 func ExtractApiRepositories(taskCtx plugin.SubTaskContext) errors.Error {
@@ -70,7 +72,7 @@ func ExtractApiRepositories(taskCtx plugin.SubTaskContext) errors.Error {
 				OwnerLogin:   repo.Owner.Login,
 				Language:     repo.Language,
 				CreatedDate:  repo.CreatedAt.ToTime(),
-				UpdatedDate:  api.Iso8601TimeToTime(repo.UpdatedAt),
+				UpdatedDate:  common.Iso8601TimeToTime(repo.UpdatedAt),
 			}
 			data.Repo = giteeRepository
 

@@ -27,6 +27,7 @@ import (
 	"strings"
 
 	"github.com/apache/incubator-devlake/core/errors"
+	"github.com/apache/incubator-devlake/core/models/common"
 	"github.com/apache/incubator-devlake/core/plugin"
 	"github.com/apache/incubator-devlake/helpers/pluginhelper/api"
 	"github.com/apache/incubator-devlake/plugins/jira/models"
@@ -244,10 +245,10 @@ func GetCommitsURLs(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, 
 		return nil, err
 	}
 	type commit struct {
-		ID              string          `json:"id"`
-		DisplayID       string          `json:"displayId"`
-		AuthorTimestamp api.Iso8601Time `json:"authorTimestamp"`
-		URL             string          `json:"url"`
+		ID              string             `json:"id"`
+		DisplayID       string             `json:"displayId"`
+		AuthorTimestamp common.Iso8601Time `json:"authorTimestamp"`
+		URL             string             `json:"url"`
 	}
 	var detail struct {
 		Detail []struct {

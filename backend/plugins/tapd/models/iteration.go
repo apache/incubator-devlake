@@ -19,7 +19,6 @@ package models
 
 import (
 	"github.com/apache/incubator-devlake/core/models/common"
-	helper "github.com/apache/incubator-devlake/helpers/pluginhelper/api"
 )
 
 type TapdIteration struct {
@@ -27,17 +26,17 @@ type TapdIteration struct {
 	Id           uint64          `gorm:"primaryKey;type:BIGINT NOT NULL;autoIncrement:false" json:"id,string"`
 	Name         string          `gorm:"type:varchar(255)" json:"name"`
 	WorkspaceId  uint64          `json:"workspace_id,string"`
-	Startdate    *helper.CSTTime `json:"startdate"`
-	Enddate      *helper.CSTTime `json:"enddate"`
+	Startdate    *common.CSTTime `json:"startdate"`
+	Enddate      *common.CSTTime `json:"enddate"`
 	Status       string          `gorm:"type:varchar(255)" json:"status"`
 	ReleaseId    uint64          `gorm:"type:BIGINT" json:"release_id,string"`
 	Description  string          `json:"description"`
 	Creator      string          `gorm:"type:varchar(255)" json:"creator"`
-	Created      *helper.CSTTime `json:"created"`
-	Modified     *helper.CSTTime `json:"modified"`
-	Completed    *helper.CSTTime `json:"completed"`
+	Created      *common.CSTTime `json:"created"`
+	Modified     *common.CSTTime `json:"modified"`
+	Completed    *common.CSTTime `json:"completed"`
 	Releaseowner string          `gorm:"type:varchar(255)" json:"releaseowner"`
-	Launchdate   *helper.CSTTime `json:"launchdate"`
+	Launchdate   *common.CSTTime `json:"launchdate"`
 	Notice       string          `gorm:"type:varchar(255)" json:"notice"`
 	Releasename  string          `gorm:"type:varchar(255)" json:"releasename"`
 	common.NoPKModel

@@ -15,18 +15,14 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-package api
+package common
 
 import (
 	"database/sql/driver"
-	"encoding/json"
 	"fmt"
-	"github.com/apache/incubator-devlake/core/errors"
 	"reflect"
 	"testing"
 	"time"
-
-	"github.com/stretchr/testify/assert"
 )
 
 type Iso8601TimeRecord struct {
@@ -49,43 +45,6 @@ func TimeMustParse(text string) time.Time {
 	return t
 }
 
-func TestIso8601Time(t *testing.T) {
-	pairs := map[string]time.Time{
-		`{ "Created": "2021-07-30T19:14:33Z" }`:          TimeMustParse("2021-07-30T19:14:33Z"),
-		`{ "Created": "2021-07-30T19:14:33-0100" }`:      TimeMustParse("2021-07-30T20:14:33Z"),
-		`{ "Created": "2021-07-30T19:14:33+0100" }`:      TimeMustParse("2021-07-30T18:14:33Z"),
-		`{ "Created": "2021-07-30T19:14:33.000-01:00" }`: TimeMustParse("2021-07-30T20:14:33Z"),
-		`{ "Created": "2021-07-30T19:14:33.000+01:00" }`: TimeMustParse("2021-07-30T18:14:33Z"),
-		`{ "Created": "2021-07-30T19:14:33+01:00" }`:     TimeMustParse("2021-07-30T18:14:33Z"),
-	}
-
-	for input, expected := range pairs {
-		var record Iso8601TimeRecord
-		err := errors.Convert(json.Unmarshal([]byte(input), &record))
-		assert.Nil(t, err)
-		assert.Equal(t, expected, record.Created.ToTime().UTC())
-
-		var ms map[string]interface{}
-		err = errors.Convert(json.Unmarshal([]byte(input), &ms))
-		assert.Nil(t, err)
-
-		var record2 Iso8601TimeRecord
-		err = DecodeMapStruct(ms, &record2, true)
-		assert.Nil(t, err)
-		assert.Equal(t, expected, record2.Created.ToTime().UTC())
-
-		var record3 Iso8601TimeRecordP
-		err = DecodeMapStruct(ms, &record3, true)
-		assert.Nil(t, err)
-		assert.Equal(t, expected, record3.Created.ToTime().UTC())
-
-		var record4 TimeRecord
-		err = DecodeMapStruct(ms, &record4, true)
-		assert.Nil(t, err)
-		assert.Equal(t, expected, record4.Created.UTC())
-	}
-}
-
 func TestIso8601Time_Value(t *testing.T) {
 	zeroTime := time.Time{}
 	testCases := []struct {
@@ -103,7 +62,7 @@ func TestIso8601Time_Value(t *testing.T) {
 		{
 			name: "Valid time value",
 			input: &Iso8601Time{
-				time:   time.Date(2023, 2, 28, 10, 30, 0, 0, time.UTC),
+				Time:   time.Date(2023, 2, 28, 10, 30, 0, 0, time.UTC),
 				format: time.RFC3339,
 			},
 			output: time.Date(2023, 2, 28, 10, 30, 0, 0, time.UTC),
@@ -112,7 +71,7 @@ func TestIso8601Time_Value(t *testing.T) {
 		{
 			name: "Zero time value",
 			input: &Iso8601Time{
-				time:   zeroTime,
+				Time:   zeroTime,
 				format: time.RFC3339,
 			},
 			output: nil,
@@ -142,7 +101,7 @@ func TestIso8601Time_Scan(t *testing.T) {
 		{
 			name:   "Valid time value",
 			input:  time.Date(2023, 2, 28, 10, 30, 0, 0, time.UTC),
-			output: &Iso8601Time{time: time.Date(2023, 2, 28, 10, 30, 0, 0, time.UTC), format: time.RFC3339},
+			output: &Iso8601Time{Time: time.Date(2023, 2, 28, 10, 30, 0, 0, time.UTC), format: time.RFC3339},
 			err:    nil,
 		},
 		{

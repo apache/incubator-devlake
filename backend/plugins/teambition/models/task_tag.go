@@ -19,20 +19,19 @@ package models
 
 import (
 	"github.com/apache/incubator-devlake/core/models/common"
-	"github.com/apache/incubator-devlake/helpers/pluginhelper/api"
 )
 
 type TeambitionTaskTag struct {
-	ConnectionId   uint64           `gorm:"primaryKey;type:BIGINT"`
-	Id             string           `gorm:"primaryKey;type:varchar(100)" json:"id"`
-	CreatorId      string           `gorm:"type:varchar(100)" json:"creatorId"`
-	ProjectId      string           `gorm:"type:varchar(100)" json:"projectId"`
-	OrganizationId string           `gorm:"type:varchar(100)" json:"organizationId"`
-	Name           string           `gorm:"type:varchar(100)" json:"name"`
-	Color          string           `gorm:"type:varchar(100)" json:"color"`
-	IsArchived     bool             `json:"isArchived"`
-	Created        *api.Iso8601Time `json:"created"`
-	Updated        *api.Iso8601Time `json:"updated"`
+	ConnectionId   uint64              `gorm:"primaryKey;type:BIGINT"`
+	Id             string              `gorm:"primaryKey;type:varchar(100)" json:"id"`
+	CreatorId      string              `gorm:"type:varchar(100)" json:"creatorId"`
+	ProjectId      string              `gorm:"type:varchar(100)" json:"projectId"`
+	OrganizationId string              `gorm:"type:varchar(100)" json:"organizationId"`
+	Name           string              `gorm:"type:varchar(100)" json:"name"`
+	Color          string              `gorm:"type:varchar(100)" json:"color"`
+	IsArchived     bool                `json:"isArchived"`
+	Created        *common.Iso8601Time `json:"created"`
+	Updated        *common.Iso8601Time `json:"updated"`
 
 	common.NoPKModel
 }

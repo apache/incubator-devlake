@@ -21,6 +21,7 @@ import (
 	"encoding/json"
 
 	"github.com/apache/incubator-devlake/core/errors"
+	"github.com/apache/incubator-devlake/core/models/common"
 	"github.com/apache/incubator-devlake/core/models/domainlayer/devops"
 	"github.com/apache/incubator-devlake/core/plugin"
 	"github.com/apache/incubator-devlake/helpers/pluginhelper/api"
@@ -51,10 +52,10 @@ type ApiPipeline struct {
 	Duration int
 	WebUrl   string `json:"web_url"`
 
-	CreatedAt  *api.Iso8601Time `json:"created_at"`
-	UpdatedAt  *api.Iso8601Time `json:"updated_at"`
-	StartedAt  *api.Iso8601Time `json:"started_at"`
-	FinishedAt *api.Iso8601Time `json:"finished_at"`
+	CreatedAt  *common.Iso8601Time `json:"created_at"`
+	UpdatedAt  *common.Iso8601Time `json:"updated_at"`
+	StartedAt  *common.Iso8601Time `json:"started_at"`
+	FinishedAt *common.Iso8601Time `json:"finished_at"`
 
 	ApiDetailedStatus
 }
@@ -92,10 +93,10 @@ func ExtractApiPipelines(taskCtx plugin.SubTaskContext) errors.Error {
 				Sha:             gitlabApiPipeline.Sha,
 				WebUrl:          gitlabApiPipeline.WebUrl,
 				Status:          gitlabApiPipeline.Status,
-				GitlabCreatedAt: api.Iso8601TimeToTime(gitlabApiPipeline.CreatedAt),
-				GitlabUpdatedAt: api.Iso8601TimeToTime(gitlabApiPipeline.UpdatedAt),
-				StartedAt:       api.Iso8601TimeToTime(gitlabApiPipeline.StartedAt),
-				FinishedAt:      api.Iso8601TimeToTime(gitlabApiPipeline.FinishedAt),
+				GitlabCreatedAt: common.Iso8601TimeToTime(gitlabApiPipeline.CreatedAt),
+				GitlabUpdatedAt: common.Iso8601TimeToTime(gitlabApiPipeline.UpdatedAt),
+				StartedAt:       common.Iso8601TimeToTime(gitlabApiPipeline.StartedAt),
+				FinishedAt:      common.Iso8601TimeToTime(gitlabApiPipeline.FinishedAt),
 				Duration:        gitlabApiPipeline.Duration,
 				ConnectionId:    data.Options.ConnectionId,
 

@@ -19,7 +19,9 @@ package tasks
 
 import (
 	"encoding/json"
+
 	"github.com/apache/incubator-devlake/core/errors"
+	"github.com/apache/incubator-devlake/core/models/common"
 	"github.com/apache/incubator-devlake/core/plugin"
 	"github.com/apache/incubator-devlake/helpers/pluginhelper/api"
 	"github.com/apache/incubator-devlake/plugins/gitee/models"
@@ -35,14 +37,14 @@ var ExtractCommitsMeta = plugin.SubTaskMeta{
 
 type GiteeCommit struct {
 	Author struct {
-		Date  api.Iso8601Time `json:"date"`
-		Email string          `json:"email"`
-		Name  string          `json:"name"`
+		Date  common.Iso8601Time `json:"date"`
+		Email string             `json:"email"`
+		Name  string             `json:"name"`
 	}
 	Committer struct {
-		Date  api.Iso8601Time `json:"date"`
-		Email string          `json:"email"`
-		Name  string          `json:"name"`
+		Date  common.Iso8601Time `json:"date"`
+		Email string             `json:"email"`
+		Name  string             `json:"name"`
 	}
 	Message string `json:"message"`
 }

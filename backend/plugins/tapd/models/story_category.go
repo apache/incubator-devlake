@@ -19,7 +19,6 @@ package models
 
 import (
 	"github.com/apache/incubator-devlake/core/models/common"
-	helper "github.com/apache/incubator-devlake/helpers/pluginhelper/api"
 )
 
 type TapdStoryCategory struct {
@@ -28,8 +27,8 @@ type TapdStoryCategory struct {
 	Name         string          `json:"name" gorm:"type:varchar(255)"`
 	Description  string          `json:"description"`
 	ParentId     uint64          `json:"parent_id,string"`
-	Created      *helper.CSTTime `json:"created"`
-	Modified     *helper.CSTTime `json:"modified"`
+	Created      *common.CSTTime `json:"created"`
+	Modified     *common.CSTTime `json:"modified"`
 	common.NoPKModel
 }
 

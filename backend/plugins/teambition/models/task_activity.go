@@ -19,21 +19,20 @@ package models
 
 import (
 	"github.com/apache/incubator-devlake/core/models/common"
-	"github.com/apache/incubator-devlake/helpers/pluginhelper/api"
 )
 
 type TeambitionTaskActivity struct {
-	ConnectionId      uint64           `gorm:"primaryKey;type:BIGINT"`
-	Id                string           `gorm:"primaryKey;type:varchar(100)" json:"id"`
-	ProjectId         string           `gorm:"primaryKey;type:varchar(100)" json:"projectId"`
-	TaskId            string           `gorm:"primaryKey;type:varchar(100)" json:"taskId"`
-	CreatorId         string           `gorm:"type:varchar(100)" json:"creatorId"`
-	Action            string           `gorm:"type:varchar(100)" json:"action"`
-	BoundToObjectId   string           `gorm:"type:varchar(100)" json:"boundToObjectId"`
-	BoundToObjectType string           `gorm:"type:varchar(100)" json:"BoundToObjectType"`
-	CreateTime        *api.Iso8601Time `json:"createTime"`
-	UpdateTime        *api.Iso8601Time `json:"updateTime"`
-	Content           string           `gorm:"type:text" json:"content"`
+	ConnectionId      uint64              `gorm:"primaryKey;type:BIGINT"`
+	Id                string              `gorm:"primaryKey;type:varchar(100)" json:"id"`
+	ProjectId         string              `gorm:"primaryKey;type:varchar(100)" json:"projectId"`
+	TaskId            string              `gorm:"primaryKey;type:varchar(100)" json:"taskId"`
+	CreatorId         string              `gorm:"type:varchar(100)" json:"creatorId"`
+	Action            string              `gorm:"type:varchar(100)" json:"action"`
+	BoundToObjectId   string              `gorm:"type:varchar(100)" json:"boundToObjectId"`
+	BoundToObjectType string              `gorm:"type:varchar(100)" json:"BoundToObjectType"`
+	CreateTime        *common.Iso8601Time `json:"createTime"`
+	UpdateTime        *common.Iso8601Time `json:"updateTime"`
+	Content           string              `gorm:"type:text" json:"content"`
 
 	common.NoPKModel
 }

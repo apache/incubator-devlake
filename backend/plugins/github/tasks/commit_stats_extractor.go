@@ -22,6 +22,7 @@ import (
 
 	"github.com/apache/incubator-devlake/core/dal"
 	"github.com/apache/incubator-devlake/core/errors"
+	"github.com/apache/incubator-devlake/core/models/common"
 	"github.com/apache/incubator-devlake/core/plugin"
 	"github.com/apache/incubator-devlake/helpers/pluginhelper/api"
 	"github.com/apache/incubator-devlake/plugins/github/models"
@@ -53,7 +54,7 @@ type ApiSingleCommitResponse struct {
 		Committer struct {
 			Name  string
 			Email string
-			Date  api.Iso8601Time
+			Date  common.Iso8601Time
 		}
 	}
 }
