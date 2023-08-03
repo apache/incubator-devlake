@@ -71,13 +71,13 @@ func ConvertDeployBuilds(taskCtx plugin.SubTaskContext) errors.Error {
 				Name: deployBuild.DeploymentVersionName,
 
 				Result: devops.GetResult(&devops.ResultRule{
-					Failed:  []string{"Failed"},
-					Success: []string{"Successful"},
+					Failed:  []string{"Failed", "FAILED"},
+					Success: []string{"Successful", "SUCCESSFUL"},
 					Default: "",
 				}, deployBuild.DeploymentState),
 
 				Status: devops.GetStatus(&devops.StatusRule{
-					Done:    []string{"Finished"},
+					Done:    []string{"Finished", "FINISHED"},
 					Default: devops.IN_PROGRESS,
 				}, deployBuild.LifeCycleState),
 

@@ -21,6 +21,7 @@ import (
 	"context"
 	"github.com/apache/incubator-devlake/core/runner"
 	"net/http"
+	"time"
 
 	"github.com/apache/incubator-devlake/server/api/shared"
 
@@ -67,7 +68,7 @@ func TestConnection(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, 
 		return &plugin.ApiResourceOutput{Body: body, Status: http.StatusBadRequest}, nil
 	}
 	if connection.DbUrl != "" {
-		err = runner.CheckDbConnection(connection.DbUrl)
+		err = runner.CheckDbConnection(connection.DbUrl, 5*time.Second)
 		if err != nil {
 			body.Success = false
 			body.Message = "invalid DbUrl"

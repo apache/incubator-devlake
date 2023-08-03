@@ -93,8 +93,8 @@ type ZentaoProject struct {
 	TotalConsumed float64 `json:"totalConsumed" mapstructure:"totalConsumed"`
 	TotalLeft     float64 `json:"totalLeft" mapstructure:"totalLeft"`
 	Progress      float64 `json:"progress" mapstructure:"progress"`
-	TotalReal     int     `json:"totalReal" mapstructure:"totalReal"`
-	ScopeConfigId uint64  `json:"scopeConfigId,omitempty" mapstructure:"scopeConfigId"`
+	//TotalReal     int     `json:"totalReal" mapstructure:"totalReal"`
+	ScopeConfigId uint64 `json:"scopeConfigId,omitempty" mapstructure:"scopeConfigId"`
 }
 type PM struct {
 	PmId       int64  `json:"id" mapstructure:"id"`
