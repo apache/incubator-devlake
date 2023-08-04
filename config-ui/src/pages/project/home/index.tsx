@@ -51,9 +51,9 @@ export const ProjectHomePage = () => {
       (data?.projects ?? []).map((it) => {
         return {
           name: it.name,
-          connections: it.blueprint.settings.connections,
-          isManual: it.blueprint.isManual,
-          cronConfig: it.blueprint.cronConfig,
+          connections: it.blueprint?.settings.connections,
+          isManual: it.blueprint?.isManual,
+          cronConfig: it.blueprint?.cronConfig,
           createdAt: it.createdAt,
           lastRunCompletedAt: it.lastPipeline?.finishedAt,
           lastRunStatus: it.lastPipeline?.status,
@@ -78,7 +78,7 @@ export const ProjectHomePage = () => {
     const [success] = await operator(
       async () => {
         await API.createProject({
-          name: encodeName(name),
+          name,
           description: '',
           metrics: [
             {
@@ -137,12 +137,12 @@ export const ProjectHomePage = () => {
             dataIndex: 'connections',
             key: 'connections',
             render: (val: BlueprintType['settings']['connections']) =>
-              !val.length
+              !val || !val.length
                 ? 'N/A'
                 : val
                     .map((it) => {
                       const cs = onGet(`${it.plugin}-${it.connectionId}`);
-                      return cs.name;
+                      return cs?.name;
                     })
                     .join(', '),
           },

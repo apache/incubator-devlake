@@ -177,6 +177,23 @@ func extractIssues(data *JiraTaskData, mappings *typeMappings, row *api.RawData)
 		}
 		results = append(results, issueLabel)
 	}
+	issuelinks := apiIssue.Fields.Issuelinks
+	for _, v := range issuelinks {
+		issueLink := &models.JiraIssueRelationship{
+			ConnectionId:    data.Options.ConnectionId,
+			IssueId:         issue.IssueId,
+			IssueKey:        issue.IssueKey,
+			TypeId:          v.Type.ID,          // Extracting the TypeId from the issuelink
+			TypeName:        v.Type.Name,        // Extracting the TypeName from the issuelink
+			Inward:          v.Type.Inward,      // Extracting the Inward from the issuelink
+			Outward:         v.Type.Outward,     // Extracting the Outward from the issuelink
+			InwardIssueId:   v.InwardIssue.ID,   // Extracting the InwardIssueId from the issuelink
+			InwardIssueKey:  v.InwardIssue.Key,  // Extracting the InwardIssueKey from the issuelink
+			OutwardIssueId:  v.OutwardIssue.ID,  // Extracting the OutwardIssueId from the issuelink
+			OutwardIssueKey: v.OutwardIssue.Key, // Extracting the OutwardIssueKey from the issuelink
+		}
+		results = append(results, issueLink)
+	}
 	return results, nil
 }
 

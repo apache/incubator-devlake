@@ -18,29 +18,29 @@ limitations under the License.
 package archived
 
 import (
-	"github.com/apache/incubator-devlake/core/models/migrationscripts/archived"
-	helper "github.com/apache/incubator-devlake/helpers/pluginhelper/api"
 	"time"
+
+	"github.com/apache/incubator-devlake/core/models/migrationscripts/archived"
 )
 
 type TapdStoryCommit struct {
 	ConnectionId uint64 `gorm:"primaryKey"`
 	Id           uint64 `gorm:"primaryKey;type:BIGINT;autoIncrement:false" json:"id,string"`
 
-	UserId          string          `json:"user_id" gorm:"type:varchar(255)"`
-	HookUserName    string          `json:"hook_user_name" gorm:"type:varchar(255)"`
-	CommitId        string          `json:"commit_id" gorm:"type:varchar(255)"`
-	WorkspaceId     uint64          `json:"workspace_id,string" gorm:"type:BIGINT"`
-	Message         string          `json:"message" gorm:"type:text"`
-	Path            string          `json:"path" gorm:"type:varchar(255)"`
-	WebURL          string          `json:"web_url" gorm:"type:varchar(255)"`
-	HookProjectName string          `json:"hook_project_name" gorm:"type:varchar(255)"`
-	Ref             string          `json:"ref" gorm:"type:varchar(255)"`
-	RefStatus       string          `json:"ref_status" gorm:"type:varchar(255)"`
-	GitEnv          string          `json:"git_env" gorm:"type:varchar(255)"`
-	FileCommit      string          `json:"file_commit"`
-	CommitTime      *helper.CSTTime `json:"commit_time"`
-	Created         *helper.CSTTime `json:"created"`
+	UserId          string     `json:"user_id" gorm:"type:varchar(255)"`
+	HookUserName    string     `json:"hook_user_name" gorm:"type:varchar(255)"`
+	CommitId        string     `json:"commit_id" gorm:"type:varchar(255)"`
+	WorkspaceId     uint64     `json:"workspace_id,string" gorm:"type:BIGINT"`
+	Message         string     `json:"message" gorm:"type:text"`
+	Path            string     `json:"path" gorm:"type:varchar(255)"`
+	WebURL          string     `json:"web_url" gorm:"type:varchar(255)"`
+	HookProjectName string     `json:"hook_project_name" gorm:"type:varchar(255)"`
+	Ref             string     `json:"ref" gorm:"type:varchar(255)"`
+	RefStatus       string     `json:"ref_status" gorm:"type:varchar(255)"`
+	GitEnv          string     `json:"git_env" gorm:"type:varchar(255)"`
+	FileCommit      string     `json:"file_commit"`
+	CommitTime      *time.Time `json:"commit_time"`
+	Created         *time.Time `json:"created"`
 	IssueUpdated    *time.Time
 	StoryId         uint64
 	archived.NoPKModel

@@ -22,6 +22,7 @@ import (
 	"time"
 
 	"github.com/apache/incubator-devlake/core/errors"
+	"github.com/apache/incubator-devlake/core/models/common"
 	plugin "github.com/apache/incubator-devlake/core/plugin"
 	"github.com/apache/incubator-devlake/helpers/pluginhelper/api"
 	"github.com/apache/incubator-devlake/plugins/bitbucket/models"
@@ -47,7 +48,7 @@ type BitbucketApiPullRequest struct {
 	MergeCommit *struct {
 		Hash string `json:"hash"`
 		// date only return when fields defined
-		Date *api.Iso8601Time `json:"date"`
+		Date *common.Iso8601Time `json:"date"`
 	} `json:"merge_commit"`
 	Links *struct {
 		Html struct {

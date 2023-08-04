@@ -18,18 +18,19 @@ limitations under the License.
 package archived
 
 import (
+	"time"
+
 	"github.com/apache/incubator-devlake/core/models/migrationscripts/archived"
-	helper "github.com/apache/incubator-devlake/helpers/pluginhelper/api"
 )
 
 type TapdStoryCategory struct {
-	ConnectionId uint64          `gorm:"primaryKey"`
-	Id           uint64          `gorm:"primaryKey;type:BIGINT;autoIncrement:false" json:"id,string"`
-	Name         string          `json:"name" gorm:"type:varchar(255)"`
-	Description  string          `json:"description"`
-	ParentId     uint64          `json:"parent_id,string"`
-	Created      *helper.CSTTime `json:"created"`
-	Modified     *helper.CSTTime `json:"modified"`
+	ConnectionId uint64     `gorm:"primaryKey"`
+	Id           uint64     `gorm:"primaryKey;type:BIGINT;autoIncrement:false" json:"id,string"`
+	Name         string     `json:"name" gorm:"type:varchar(255)"`
+	Description  string     `json:"description"`
+	ParentId     uint64     `json:"parent_id,string"`
+	Created      *time.Time `json:"created"`
+	Modified     *time.Time `json:"modified"`
 	archived.NoPKModel
 }
 

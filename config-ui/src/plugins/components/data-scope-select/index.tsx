@@ -16,7 +16,7 @@
  *
  */
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Button, Intent } from '@blueprintjs/core';
 import { useDebounce } from 'ahooks';
 
@@ -47,6 +47,10 @@ export const DataScopeSelect = ({
   const [version, setVersion] = useState(1);
   const [scopeIds, setScopeIds] = useState<ID[]>([]);
   const [query, setQuery] = useState('');
+
+  useEffect(() => {
+    setScopeIds((initialScope ?? []).map((sc: any) => getPluginScopeId(plugin, sc)) ?? []);
+  }, []);
 
   const search = useDebounce(query, { wait: 500 });
 

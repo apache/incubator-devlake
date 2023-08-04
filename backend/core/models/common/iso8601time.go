@@ -15,7 +15,7 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-package api
+package common
 
 import (
 	"database/sql/driver"
@@ -77,7 +77,7 @@ func init() {
 
 // Iso8601Time is type time.Time
 type Iso8601Time struct {
-	time   time.Time
+	Time   time.Time
 	format string
 }
 
@@ -86,7 +86,7 @@ func (jt *Iso8601Time) String() string {
 	if format == "" {
 		format = DateTimeFormats[0].Format
 	}
-	return jt.time.Format(format)
+	return jt.Time.Format(format)
 }
 
 // MarshalJSON FIXME ...
@@ -108,13 +108,13 @@ func (jt *Iso8601Time) UnmarshalJSON(b []byte) error {
 	if err != nil {
 		return err
 	}
-	jt.time = t
+	jt.Time = t
 	return nil
 }
 
 // ToTime FIXME ...
 func (jt *Iso8601Time) ToTime() time.Time {
-	return jt.time
+	return jt.Time
 }
 
 // ToNullableTime FIXME ...
@@ -122,7 +122,7 @@ func (jt *Iso8601Time) ToNullableTime() *time.Time {
 	if jt == nil {
 		return nil
 	}
-	return &jt.time
+	return &jt.Time
 }
 
 // ConvertStringToTime FIXME ...
@@ -150,7 +150,7 @@ func (jt *Iso8601Time) Value() (driver.Value, error) {
 		return nil, nil
 	}
 	var zeroTime time.Time
-	t := jt.time
+	t := jt.Time
 	if t.UnixNano() == zeroTime.UnixNano() {
 		return nil, nil
 	}
@@ -162,7 +162,7 @@ func (jt *Iso8601Time) Scan(v interface{}) error {
 	value, ok := v.(time.Time)
 	if ok {
 		*jt = Iso8601Time{
-			time:   value,
+			Time:   value,
 			format: time.RFC3339,
 		}
 		return nil

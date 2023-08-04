@@ -21,6 +21,7 @@ import (
 	"encoding/json"
 
 	"github.com/apache/incubator-devlake/core/errors"
+	"github.com/apache/incubator-devlake/core/models/common"
 	"github.com/apache/incubator-devlake/core/plugin"
 	"github.com/apache/incubator-devlake/helpers/pluginhelper/api"
 	"github.com/apache/incubator-devlake/plugins/github/models"
@@ -69,13 +70,13 @@ type MilestonesResponse struct {
 		Type              string `json:"type"`
 		SiteAdmin         bool   `json:"site_admin"`
 	} `json:"creator"`
-	OpenIssues   int              `json:"open_issues"`
-	ClosedIssues int              `json:"closed_issues"`
-	State        string           `json:"state"`
-	CreatedAt    api.Iso8601Time  `json:"created_at"`
-	UpdatedAt    api.Iso8601Time  `json:"updated_at"`
-	DueOn        *api.Iso8601Time `json:"due_on"`
-	ClosedAt     *api.Iso8601Time `json:"closed_at"`
+	OpenIssues   int                 `json:"open_issues"`
+	ClosedIssues int                 `json:"closed_issues"`
+	State        string              `json:"state"`
+	CreatedAt    common.Iso8601Time  `json:"created_at"`
+	UpdatedAt    common.Iso8601Time  `json:"updated_at"`
+	DueOn        *common.Iso8601Time `json:"due_on"`
+	ClosedAt     *common.Iso8601Time `json:"closed_at"`
 }
 
 func ExtractMilestones(taskCtx plugin.SubTaskContext) errors.Error {
@@ -118,7 +119,7 @@ func convertGithubMilestone(response *MilestonesResponse, connectionId uint64, r
 		OpenIssues:   response.OpenIssues,
 		ClosedIssues: response.ClosedIssues,
 		State:        response.State,
-		ClosedAt:     api.Iso8601TimeToTime(response.ClosedAt),
+		ClosedAt:     common.Iso8601TimeToTime(response.ClosedAt),
 		CreatedAt:    response.CreatedAt.ToTime(),
 		UpdatedAt:    response.UpdatedAt.ToTime(),
 	}

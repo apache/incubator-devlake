@@ -22,6 +22,7 @@ import (
 
 	"github.com/apache/incubator-devlake/core/dal"
 	"github.com/apache/incubator-devlake/core/errors"
+	"github.com/apache/incubator-devlake/core/models/common"
 	"github.com/apache/incubator-devlake/core/plugin"
 	helper "github.com/apache/incubator-devlake/helpers/pluginhelper/api"
 	"github.com/apache/incubator-devlake/plugins/github/models"
@@ -51,8 +52,8 @@ type IssueComment struct {
 	Body            json.RawMessage
 	User            *GithubAccountResponse
 	IssueUrl        string             `json:"issue_url"`
-	GithubCreatedAt helper.Iso8601Time `json:"created_at"`
-	GithubUpdatedAt helper.Iso8601Time `json:"updated_at"`
+	GithubCreatedAt common.Iso8601Time `json:"created_at"`
+	GithubUpdatedAt common.Iso8601Time `json:"updated_at"`
 }
 
 func ExtractApiComments(taskCtx plugin.SubTaskContext) errors.Error {

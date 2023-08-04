@@ -17,16 +17,14 @@ limitations under the License.
 
 package archived
 
-import (
-	"github.com/apache/incubator-devlake/helpers/pluginhelper/api"
-)
+import "time"
 
 type CqProject struct {
 	DomainEntity
 	Name             string `gorm:"type:varchar(255)"`
 	Qualifier        string `gorm:"type:varchar(255)"`
 	Visibility       string `gorm:"type:varchar(64)"`
-	LastAnalysisDate *api.Iso8601Time
+	LastAnalysisDate *time.Time
 	CommitSha        string `gorm:"type:varchar(128)"`
 }
 

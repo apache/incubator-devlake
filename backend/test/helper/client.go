@@ -229,18 +229,10 @@ func (d *DevlakeClient) RunPlugin(ctx context.Context, pluginName string, plugin
 	if len(subtaskNames) == 0 {
 		subtaskNames = GetSubtaskNames(pluginTask.SubTaskMetas()...)
 	}
-	optionsJson, err := json.Marshal(options)
-	if err != nil {
-		return errors.Convert(err)
-	}
-	subtasksJson, err := json.Marshal(subtaskNames)
-	if err != nil {
-		return errors.Convert(err)
-	}
 	task := &models.Task{
 		Plugin:   pluginName,
-		Options:  string(optionsJson),
-		Subtasks: subtasksJson,
+		Options:  options,
+		Subtasks: subtaskNames,
 	}
 	return runner.RunPluginSubTasks(
 		ctx,

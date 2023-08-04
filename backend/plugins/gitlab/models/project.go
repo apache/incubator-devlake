@@ -22,7 +22,6 @@ import (
 	"time"
 
 	"github.com/apache/incubator-devlake/core/plugin"
-	helper "github.com/apache/incubator-devlake/helpers/pluginhelper/api"
 
 	"github.com/apache/incubator-devlake/core/models/common"
 )
@@ -91,7 +90,7 @@ func (gitlabApiProject GitlabApiProject) ConvertApiScope() plugin.ToolLayerScope
 	p.StarCount = gitlabApiProject.StarCount
 	p.Archived = gitlabApiProject.Archived
 	p.CreatedDate = gitlabApiProject.CreatedAt.ToNullableTime()
-	p.UpdatedDate = helper.Iso8601TimeToTime(gitlabApiProject.LastActivityAt)
+	p.UpdatedDate = common.Iso8601TimeToTime(gitlabApiProject.LastActivityAt)
 	if gitlabApiProject.ForkedFromProject != nil {
 		p.ForkedFromProjectId = gitlabApiProject.ForkedFromProject.GitlabId
 		p.ForkedFromProjectWebUrl = gitlabApiProject.ForkedFromProject.WebUrl
@@ -115,8 +114,8 @@ type GitlabApiProject struct {
 	OpenIssuesCount   int                 `json:"open_issues_count"`
 	StarCount         int                 `json:"star_count"`
 	ForkedFromProject *GitlabApiProject   `json:"forked_from_project"`
-	CreatedAt         helper.Iso8601Time  `json:"created_at"`
-	LastActivityAt    *helper.Iso8601Time `json:"last_activity_at"`
+	CreatedAt         common.Iso8601Time  `json:"created_at"`
+	LastActivityAt    *common.Iso8601Time `json:"last_activity_at"`
 	HttpUrlToRepo     string              `json:"http_url_to_repo"`
 	Archived          bool                `json:"archived"`
 }

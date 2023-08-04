@@ -20,12 +20,13 @@ package tasks
 import (
 	"crypto/sha256"
 	"encoding/json"
+	"strings"
+
 	"github.com/apache/incubator-devlake/core/errors"
+	"github.com/apache/incubator-devlake/core/models/common"
 	"github.com/apache/incubator-devlake/core/plugin"
 	helper "github.com/apache/incubator-devlake/helpers/pluginhelper/api"
-	"github.com/apache/incubator-devlake/helpers/utils"
 	"github.com/apache/incubator-devlake/plugins/sonarqube/models"
-	"strings"
 )
 
 var _ plugin.SubTaskEntryPoint = ExtractIssues
@@ -138,18 +139,18 @@ type IssuesResponse struct {
 		StartOffset int `json:"startOffset"`
 		EndOffset   int `json:"endOffset"`
 	} `json:"textRange"`
-	Flows             []flow             `json:"flows"`
-	Status            string             `json:"status"`
-	Message           string             `json:"message"`
-	Effort            string             `json:"effort"`
-	Debt              string             `json:"debt"`
-	Author            string             `json:"author"`
-	Tags              []string           `json:"tags"`
-	CreationDate      *utils.Iso8601Time `json:"creationDate"`
-	UpdateDate        *utils.Iso8601Time `json:"updateDate"`
-	Type              string             `json:"type"`
-	Scope             string             `json:"scope"`
-	QuickFixAvailable bool               `json:"quickFixAvailable"`
+	Flows             []flow              `json:"flows"`
+	Status            string              `json:"status"`
+	Message           string              `json:"message"`
+	Effort            string              `json:"effort"`
+	Debt              string              `json:"debt"`
+	Author            string              `json:"author"`
+	Tags              []string            `json:"tags"`
+	CreationDate      *common.Iso8601Time `json:"creationDate"`
+	UpdateDate        *common.Iso8601Time `json:"updateDate"`
+	Type              string              `json:"type"`
+	Scope             string              `json:"scope"`
+	QuickFixAvailable bool                `json:"quickFixAvailable"`
 }
 
 type flow struct {

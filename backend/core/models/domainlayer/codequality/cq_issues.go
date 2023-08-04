@@ -18,8 +18,8 @@ limitations under the License.
 package codequality
 
 import (
+	"github.com/apache/incubator-devlake/core/models/common"
 	"github.com/apache/incubator-devlake/core/models/domainlayer"
-	"github.com/apache/incubator-devlake/helpers/utils"
 )
 
 type CqIssue struct {
@@ -45,8 +45,8 @@ type CqIssue struct {
 	EndOffset                int    `json:"endOffset"`
 	VulnerabilityProbability string `gorm:"type:varchar(100)"`
 	SecurityCategory         string `gorm:"type:varchar(100)"`
-	CreatedDate              *utils.Iso8601Time
-	UpdatedDate              *utils.Iso8601Time
+	CreatedDate              *common.Iso8601Time
+	UpdatedDate              *common.Iso8601Time
 }
 
 func (CqIssue) TableName() string {

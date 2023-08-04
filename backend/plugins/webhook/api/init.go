@@ -19,22 +19,29 @@ package api
 
 import (
 	"github.com/apache/incubator-devlake/core/context"
+	"github.com/apache/incubator-devlake/core/log"
 	"github.com/apache/incubator-devlake/core/plugin"
+	"github.com/apache/incubator-devlake/helpers/apikeyhelper"
 	"github.com/apache/incubator-devlake/helpers/pluginhelper/api"
 	"github.com/go-playground/validator/v10"
 )
 
+const pluginName = "webhook"
+
 var vld *validator.Validate
 var connectionHelper *api.ConnectionApiHelper
+var apiKeyHelper *apikeyhelper.ApiKeyHelper
 var basicRes context.BasicRes
+var logger log.Logger
 
 func Init(br context.BasicRes, p plugin.PluginMeta) {
-
 	basicRes = br
+	logger = basicRes.GetLogger()
 	vld = validator.New()
 	connectionHelper = api.NewConnectionHelper(
 		basicRes,
 		vld,
 		p.Name(),
 	)
+	apiKeyHelper = apikeyhelper.NewApiKeyHelper(basicRes, logger)
 }

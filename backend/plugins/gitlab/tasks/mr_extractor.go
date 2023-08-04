@@ -23,6 +23,7 @@ import (
 	"strings"
 
 	"github.com/apache/incubator-devlake/core/errors"
+	"github.com/apache/incubator-devlake/core/models/common"
 	"github.com/apache/incubator-devlake/core/plugin"
 	"github.com/apache/incubator-devlake/helpers/pluginhelper/api"
 	"github.com/apache/incubator-devlake/plugins/gitlab/models"
@@ -41,18 +42,18 @@ type MergeRequestRes struct {
 	State           string
 	Title           string
 	Description     string
-	WebUrl          string           `json:"web_url"`
-	UserNotesCount  int              `json:"user_notes_count"`
-	WorkInProgress  bool             `json:"work_in_progress"`
-	SourceBranch    string           `json:"source_branch"`
-	TargetBranch    string           `json:"target_branch"`
-	GitlabCreatedAt api.Iso8601Time  `json:"created_at"`
-	GitlabUpdatedAt *api.Iso8601Time `json:"updated_at"`
-	MergedAt        *api.Iso8601Time `json:"merged_at"`
-	ClosedAt        *api.Iso8601Time `json:"closed_at"`
-	MergeCommitSha  string           `json:"merge_commit_sha"`
-	SquashCommitSha string           `json:"squash_commit_sha"`
-	DiffHeadSha     string           `json:"sha"`
+	WebUrl          string              `json:"web_url"`
+	UserNotesCount  int                 `json:"user_notes_count"`
+	WorkInProgress  bool                `json:"work_in_progress"`
+	SourceBranch    string              `json:"source_branch"`
+	TargetBranch    string              `json:"target_branch"`
+	GitlabCreatedAt common.Iso8601Time  `json:"created_at"`
+	GitlabUpdatedAt *common.Iso8601Time `json:"updated_at"`
+	MergedAt        *common.Iso8601Time `json:"merged_at"`
+	ClosedAt        *common.Iso8601Time `json:"closed_at"`
+	MergeCommitSha  string              `json:"merge_commit_sha"`
+	SquashCommitSha string              `json:"squash_commit_sha"`
+	DiffHeadSha     string              `json:"sha"`
 	MergedBy        struct {
 		Username string `json:"username"`
 	} `json:"merged_by"`
@@ -61,7 +62,7 @@ type MergeRequestRes struct {
 		Username string `json:"username"`
 	}
 	Reviewers        []Reviewer
-	FirstCommentTime api.Iso8601Time
+	FirstCommentTime common.Iso8601Time
 	Labels           []string `json:"labels"`
 }
 
@@ -201,10 +202,10 @@ func convertMergeRequest(mr *MergeRequestRes) (*models.GitlabMergeRequest, error
 		MergeCommitSha:   mr.MergeCommitSha,
 		SquashCommitSha:  mr.SquashCommitSha,
 		DiffHeadSha:      mr.DiffHeadSha,
-		MergedAt:         api.Iso8601TimeToTime(mr.MergedAt),
+		MergedAt:         common.Iso8601TimeToTime(mr.MergedAt),
 		GitlabCreatedAt:  mr.GitlabCreatedAt.ToTime(),
-		GitlabUpdatedAt:  api.Iso8601TimeToTime(mr.GitlabUpdatedAt),
-		ClosedAt:         api.Iso8601TimeToTime(mr.ClosedAt),
+		GitlabUpdatedAt:  common.Iso8601TimeToTime(mr.GitlabUpdatedAt),
+		ClosedAt:         common.Iso8601TimeToTime(mr.ClosedAt),
 		MergedByUsername: mr.MergedBy.Username,
 		AuthorUsername:   mr.Author.Username,
 		AuthorUserId:     mr.Author.Id,

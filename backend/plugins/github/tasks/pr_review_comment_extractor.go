@@ -25,6 +25,7 @@ import (
 
 	"github.com/apache/incubator-devlake/core/dal"
 	"github.com/apache/incubator-devlake/core/errors"
+	"github.com/apache/incubator-devlake/core/models/common"
 	"github.com/apache/incubator-devlake/core/plugin"
 	helper "github.com/apache/incubator-devlake/helpers/pluginhelper/api"
 	"github.com/apache/incubator-devlake/plugins/github/models"
@@ -67,8 +68,8 @@ func ExtractApiPrReviewComments(taskCtx plugin.SubTaskContext) errors.Error {
 				Body            json.RawMessage
 				User            *GithubAccountResponse
 				PrUrl           string             `json:"pull_request_url"`
-				GithubCreatedAt helper.Iso8601Time `json:"created_at"`
-				GithubUpdatedAt helper.Iso8601Time `json:"updated_at"`
+				GithubCreatedAt common.Iso8601Time `json:"created_at"`
+				GithubUpdatedAt common.Iso8601Time `json:"updated_at"`
 				CommitId        string             `json:"commit_id"`
 				PrReviewId      int                `json:"pull_request_review_id"`
 			}

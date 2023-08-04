@@ -22,6 +22,7 @@ import sys
 import fire
 
 import pydevlake.message as msg
+import pydevlake.model_info
 from pydevlake.subtasks import Subtask
 from pydevlake.logger import logger
 from pydevlake.ipc import PluginCommands
@@ -233,10 +234,10 @@ class Plugin(ABC):
             description=self.description,
             plugin_path=self._plugin_path(),
             extension="datasource",
-            connection_model_info=msg.DynamicModelInfo.from_model(self.connection_type),
-            scope_model_info=msg.DynamicModelInfo.from_model(self.tool_scope_type),
-            scope_config_model_info=msg.DynamicModelInfo.from_model(self.scope_config_type),
-            tool_model_infos=[msg.DynamicModelInfo.from_model(stream.tool_model) for stream in self._streams.values()],
+            connection_model_info=pydevlake.model_info.DynamicModelInfo.from_model(self.connection_type),
+            scope_model_info=pydevlake.model_info.DynamicModelInfo.from_model(self.tool_scope_type),
+            scope_config_model_info=pydevlake.model_info.DynamicModelInfo.from_model(self.scope_config_type),
+            tool_model_infos=[pydevlake.model_info.DynamicModelInfo.from_model(stream.tool_model) for stream in self._streams.values()],
             subtask_metas=subtask_metas,
             migration_scripts=MIGRATION_SCRIPTS
         )

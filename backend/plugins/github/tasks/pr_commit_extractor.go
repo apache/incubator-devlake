@@ -22,6 +22,7 @@ import (
 	"strings"
 
 	"github.com/apache/incubator-devlake/core/errors"
+	"github.com/apache/incubator-devlake/core/models/common"
 
 	"github.com/apache/incubator-devlake/core/plugin"
 	helper "github.com/apache/incubator-devlake/helpers/pluginhelper/api"
@@ -56,12 +57,12 @@ type PullRequestCommit struct {
 		Id    int
 		Name  string
 		Email string
-		Date  helper.Iso8601Time
+		Date  common.Iso8601Time
 	}
 	Committer struct {
 		Name  string
 		Email string
-		Date  helper.Iso8601Time
+		Date  common.Iso8601Time
 	}
 	Message json.RawMessage
 }

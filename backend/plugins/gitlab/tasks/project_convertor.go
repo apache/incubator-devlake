@@ -22,6 +22,7 @@ import (
 
 	"github.com/apache/incubator-devlake/core/dal"
 	"github.com/apache/incubator-devlake/core/errors"
+	"github.com/apache/incubator-devlake/core/models/common"
 	"github.com/apache/incubator-devlake/core/models/domainlayer"
 	"github.com/apache/incubator-devlake/core/models/domainlayer/code"
 	"github.com/apache/incubator-devlake/core/models/domainlayer/crossdomain"
@@ -51,8 +52,8 @@ type GitlabApiProject struct {
 	OpenIssuesCount   int                 `json:"open_issues_count"`
 	StarCount         int                 `json:"star_count"`
 	ForkedFromProject *GitlabApiProject   `json:"forked_from_project"`
-	CreatedAt         helper.Iso8601Time  `json:"created_at"`
-	LastActivityAt    *helper.Iso8601Time `json:"last_activity_at"`
+	CreatedAt         common.Iso8601Time  `json:"created_at"`
+	LastActivityAt    *common.Iso8601Time `json:"last_activity_at"`
 	HttpUrlToRepo     string              `json:"http_url_to_repo"`
 	Archived          bool                `json:"archived"`
 }

@@ -34,8 +34,8 @@ func TestBambooPlanBuildCommitsDataFlow(t *testing.T) {
 
 	taskData := &tasks.BambooTaskData{
 		Options: &models.BambooOptions{
-			ConnectionId: 3,
-			ProjectKey:   "TEST1",
+			ConnectionId: 1,
+			PlanKey:      "TEST-PLA3",
 			BambooScopeConfig: &models.BambooScopeConfig{
 				DeploymentPattern: "(?i)compile",
 				ProductionPattern: "(?i)compile",

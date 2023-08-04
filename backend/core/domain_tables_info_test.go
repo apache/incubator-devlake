@@ -18,13 +18,14 @@ limitations under the License.
 package core
 
 import (
-	"github.com/apache/incubator-devlake/core/models/domainlayer/domaininfo"
-	"github.com/apache/incubator-devlake/core/utils"
 	"testing"
+
+	"github.com/apache/incubator-devlake/core/models/domainlayer/domaininfo"
+	"github.com/apache/incubator-devlake/helpers/unithelper"
 )
 
 func Test_GetDomainTablesInfo(t *testing.T) {
-	checker := utils.NewTableInfoChecker(utils.TableInfoCheckerConfig{})
+	checker := unithelper.NewTableInfoChecker(unithelper.TableInfoCheckerConfig{})
 	checker.FeedIn("models/domainlayer", domaininfo.GetDomainTablesInfo)
 	err := checker.Verify()
 	if err != nil {

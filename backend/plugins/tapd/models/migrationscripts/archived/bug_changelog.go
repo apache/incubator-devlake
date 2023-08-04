@@ -18,21 +18,22 @@ limitations under the License.
 package archived
 
 import (
+	"time"
+
 	"github.com/apache/incubator-devlake/core/models/migrationscripts/archived"
-	helper "github.com/apache/incubator-devlake/helpers/pluginhelper/api"
 )
 
 type TapdBugChangelog struct {
-	ConnectionId uint64          `gorm:"primaryKey;type:BIGINT  NOT NULL"`
-	WorkspaceId  uint64          `gorm:"type:BIGINT  NOT NULL"`
-	Id           uint64          `gorm:"primaryKey;type:BIGINT  NOT NULL;autoIncrement:false" json:"id,string"`
-	BugId        uint64          `json:"bug_id,string"`
-	Author       string          `json:"author" gorm:"type:varchar(255)"`
-	Field        string          `gorm:"primaryKey;type:varchar(255)" json:"field"`
-	OldValue     string          `json:"old_value"`
-	NewValue     string          `json:"new_value"`
-	Memo         string          `json:"memo" gorm:"type:text"`
-	Created      *helper.CSTTime `json:"created"`
+	ConnectionId uint64     `gorm:"primaryKey;type:BIGINT  NOT NULL"`
+	WorkspaceId  uint64     `gorm:"type:BIGINT  NOT NULL"`
+	Id           uint64     `gorm:"primaryKey;type:BIGINT  NOT NULL;autoIncrement:false" json:"id,string"`
+	BugId        uint64     `json:"bug_id,string"`
+	Author       string     `json:"author" gorm:"type:varchar(255)"`
+	Field        string     `gorm:"primaryKey;type:varchar(255)" json:"field"`
+	OldValue     string     `json:"old_value"`
+	NewValue     string     `json:"new_value"`
+	Memo         string     `json:"memo" gorm:"type:text"`
+	Created      *time.Time `json:"created"`
 	archived.NoPKModel
 }
 

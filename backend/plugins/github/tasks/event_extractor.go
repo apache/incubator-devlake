@@ -21,6 +21,7 @@ import (
 	"encoding/json"
 
 	"github.com/apache/incubator-devlake/core/errors"
+	"github.com/apache/incubator-devlake/core/models/common"
 	"github.com/apache/incubator-devlake/core/plugin"
 	"github.com/apache/incubator-devlake/helpers/pluginhelper/api"
 	"github.com/apache/incubator-devlake/plugins/github/models"
@@ -47,7 +48,7 @@ type IssueEvent struct {
 	Issue    struct {
 		Id int
 	}
-	GithubCreatedAt api.Iso8601Time `json:"created_at"`
+	GithubCreatedAt common.Iso8601Time `json:"created_at"`
 }
 
 func ExtractApiEvents(taskCtx plugin.SubTaskContext) errors.Error {

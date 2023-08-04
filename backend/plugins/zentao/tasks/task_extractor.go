@@ -159,7 +159,11 @@ func (c *taskExtractor) toZentaoTasks(accountCache *AccountCache, res *models.Ze
 		task.StdType = ticket.TASK
 	}
 	if len(c.statusMappings) != 0 {
-		task.StdStatus = c.statusMappings[task.Status]
+		if stdStatus, ok := c.statusMappings[task.Status]; ok {
+			task.StdStatus = stdStatus
+		} else {
+			task.StdStatus = task.Status
+		}
 	} else {
 		task.StdStatus = ticket.GetStatus(&ticket.StatusRule{
 			Done:    []string{"done", "closed", "cancel"},

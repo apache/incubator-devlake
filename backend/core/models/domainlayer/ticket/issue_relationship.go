@@ -15,35 +15,18 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-package api
+package ticket
 
-import (
-	"encoding/json"
-	"github.com/apache/incubator-devlake/core/errors"
-	"testing"
-	"time"
+import "github.com/apache/incubator-devlake/core/models/domainlayer"
 
-	"github.com/stretchr/testify/assert"
-)
+type IssueRelationship struct {
+	domainlayer.DomainEntity
 
-type CSTTimeRecord struct {
-	Created CSTTime
+	SourceIssueId uint64 `gorm:"index"`
+	TargetIssueId uint64
+	OriginalType  string `gorm:"type:varchar(255)"`
 }
 
-type CSTTimeRecordP struct {
-	Created *CSTTime
-}
-
-func TestCSTTime(t *testing.T) {
-	pairs := map[string]time.Time{
-		`{ "Created": "2021-07-30 19:14:33" }`: TimeMustParse("2021-07-30T11:14:33Z"),
-		`{ "Created": "2021-07-30" }`:          TimeMustParse("2021-07-29T16:00:00Z"),
-	}
-
-	for input, expected := range pairs {
-		var record CSTTimeRecord
-		err := errors.Convert(json.Unmarshal([]byte(input), &record))
-		assert.Nil(t, err)
-		assert.Equal(t, expected, time.Time(record.Created).UTC())
-	}
+func (IssueRelationship) TableName() string {
+	return "issue_relationships"
 }

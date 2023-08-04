@@ -17,9 +17,7 @@ limitations under the License.
 
 package archived
 
-import (
-	"github.com/apache/incubator-devlake/helpers/pluginhelper/api"
-)
+import "time"
 
 type CqIssue struct {
 	DomainEntity
@@ -44,8 +42,8 @@ type CqIssue struct {
 	EndOffset                int    `json:"endOffset"`
 	VulnerabilityProbability string `gorm:"type:varchar(100)"`
 	SecurityCategory         string `gorm:"type:varchar(100)"`
-	CreatedDate              *api.Iso8601Time
-	UpdatedDate              *api.Iso8601Time
+	CreatedDate              *time.Time
+	UpdatedDate              *time.Time
 }
 
 func (CqIssue) TableName() string {

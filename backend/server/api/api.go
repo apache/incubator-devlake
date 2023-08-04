@@ -94,6 +94,11 @@ func CreateApiService() {
 		shared.ApiOutputSuccess(ctx, nil, http.StatusOK)
 	})
 
+	// Api keys
+	basicRes := services.GetBasicRes()
+	router.Use(RestAuthentication(router, basicRes))
+	router.Use(OAuth2ProxyAuthentication(basicRes))
+
 	// Restrict access if database migration is required
 	router.Use(func(ctx *gin.Context) {
 		if !services.MigrationRequireConfirmation() {
@@ -133,7 +138,7 @@ func CreateApiService() {
 	}))
 
 	// Register API endpoints
-	RegisterRouter(router)
+	RegisterRouter(router, basicRes)
 	// Get port from config
 	port := v.GetString("PORT")
 	// Trim any : from the start

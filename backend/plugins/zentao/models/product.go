@@ -19,7 +19,6 @@ package models
 
 import (
 	"github.com/apache/incubator-devlake/core/models/common"
-	helper "github.com/apache/incubator-devlake/helpers/pluginhelper/api"
 )
 
 type ZentaoProductRes struct {
@@ -41,7 +40,7 @@ type ZentaoProductRes struct {
 	Whitelist      []interface{}       `json:"whitelist" mapstructure:"whitelist"`
 	Reviewer       string              `json:"reviewer" mapstructure:"reviewer"`
 	CreatedBy      *ZentaoAccount      `json:"createdBy" mapstructure:"createdBy"`
-	CreatedDate    *helper.Iso8601Time `json:"createdDate" mapstructure:"createdDate"`
+	CreatedDate    *common.Iso8601Time `json:"createdDate" mapstructure:"createdDate"`
 	CreatedVersion string              `json:"createdVersion" mapstructure:"createdVersion"`
 	OrderIn        int                 `json:"order" mapstructure:"order"`
 	Vision         string              `json:"vision" mapstructure:"vision"`
@@ -86,7 +85,7 @@ type ZentaoProduct struct {
 	Acl              string `json:"acl" mapstructure:"acl"`
 	Reviewer         string `json:"reviewer" mapstructure:"reviewer"`
 	CreatedById      int64
-	CreatedDate      *helper.Iso8601Time `json:"createdDate" mapstructure:"createdDate"`
+	CreatedDate      *common.Iso8601Time `json:"createdDate" mapstructure:"createdDate"`
 	CreatedVersion   string              `json:"createdVersion" mapstructure:"createdVersion"`
 	OrderIn          int                 `json:"order" mapstructure:"order"`
 	Deleted          string              `json:"deleted" mapstructure:"deleted"`
