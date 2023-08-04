@@ -18,6 +18,7 @@ limitations under the License.
 package runner
 
 import (
+	"context"
 	"fmt"
 	"net/url"
 	"strings"
@@ -127,10 +128,16 @@ func getDbConnection(dbUrl string, conf *gorm.Config) (*gorm.DB, error) {
 	}
 }
 
-func CheckDbConnection(dbUrl string) errors.Error {
+func CheckDbConnection(dbUrl string, d time.Duration) errors.Error {
 	db, err := getDbConnection(dbUrl, &gorm.Config{})
 	if err != nil {
 		return errors.Convert(err)
 	}
-	return errors.Convert(db.Exec("SELECT 1").Error)
+	ctx := context.Background()
+	if d > 0 {
+		var cancel context.CancelFunc
+		ctx, cancel = context.WithTimeout(context.Background(), d)
+		defer cancel()
+	}
+	return errors.Convert(db.WithContext(ctx).Exec("SELECT 1").Error)
 }
