@@ -15,13 +15,14 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-package api
+package common
 
 import (
 	"encoding/json"
-	"github.com/apache/incubator-devlake/core/errors"
 	"testing"
 	"time"
+
+	"github.com/apache/incubator-devlake/core/errors"
 
 	"github.com/stretchr/testify/assert"
 )

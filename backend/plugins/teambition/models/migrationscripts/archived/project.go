@@ -18,8 +18,9 @@ limitations under the License.
 package archived
 
 import (
+	"time"
+
 	"github.com/apache/incubator-devlake/core/models/migrationscripts/archived"
-	"github.com/apache/incubator-devlake/helpers/pluginhelper/api"
 )
 
 type TeambitionProject struct {
@@ -35,10 +36,10 @@ type TeambitionProject struct {
 	IsArchived     bool
 	IsSuspended    bool
 	UniqueIdPrefix string `gorm:"type:varchar(255)"`
-	Created        *api.Iso8601Time
-	Updated        *api.Iso8601Time
-	StartDate      *api.Iso8601Time
-	EndDate        *api.Iso8601Time
+	Created        *time.Time
+	Updated        *time.Time
+	StartDate      *time.Time
+	EndDate        *time.Time
 	Customfields   []TeambitionProjectCustomField `gorm:"serializer:json;type:text"`
 
 	archived.NoPKModel

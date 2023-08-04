@@ -23,6 +23,7 @@ import (
 
 	"github.com/apache/incubator-devlake/core/dal"
 	"github.com/apache/incubator-devlake/core/errors"
+	"github.com/apache/incubator-devlake/core/models/common"
 	"github.com/apache/incubator-devlake/core/models/domainlayer"
 	"github.com/apache/incubator-devlake/core/models/domainlayer/code"
 	"github.com/apache/incubator-devlake/core/models/domainlayer/crossdomain"
@@ -46,10 +47,10 @@ type GithubApiRepo struct {
 	Language    string `json:"language"`
 	Description string `json:"description"`
 	Owner       *GithubAccountResponse
-	Parent      *GithubApiRepo   `json:"parent"`
-	CreatedAt   api.Iso8601Time  `json:"created_at"`
-	UpdatedAt   *api.Iso8601Time `json:"updated_at"`
-	CloneUrl    string           `json:"clone_url"`
+	Parent      *GithubApiRepo      `json:"parent"`
+	CreatedAt   common.Iso8601Time  `json:"created_at"`
+	UpdatedAt   *common.Iso8601Time `json:"updated_at"`
+	CloneUrl    string              `json:"clone_url"`
 }
 
 var ConvertRepoMeta = plugin.SubTaskMeta{

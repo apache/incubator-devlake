@@ -18,55 +18,56 @@ limitations under the License.
 package archived
 
 import (
+	"time"
+
 	"github.com/apache/incubator-devlake/core/models/migrationscripts/archived"
-	helper "github.com/apache/incubator-devlake/helpers/pluginhelper/api"
 )
 
 type ZentaoProject struct {
 	archived.NoPKModel `json:"-"`
-	ConnectionId       uint64              `json:"connectionid" mapstructure:"connectionid" gorm:"primaryKey;type:BIGINT  NOT NULL"`
-	Id                 int64               `json:"id" mapstructure:"id" gorm:"primaryKey;type:BIGINT  NOT NULL;autoIncrement:false"`
-	Project            int64               `json:"project" mapstructure:"project"`
-	Model              string              `json:"model" mapstructure:"model"`
-	Type               string              `json:"type" mapstructure:"type"`
-	ProjectType        string              `json:"projectType" mapstructure:"projectType"`
-	Lifetime           string              `json:"lifetime" mapstructure:"lifetime"`
-	Budget             string              `json:"budget" mapstructure:"budget"`
-	BudgetUnit         string              `json:"budgetUnit" mapstructure:"budgetUnit"`
-	Attribute          string              `json:"attribute" mapstructure:"attribute"`
-	Percent            int                 `json:"percent" mapstructure:"percent"`
-	Milestone          string              `json:"milestone" mapstructure:"milestone"`
-	Output             string              `json:"output" mapstructure:"output"`
-	Auth               string              `json:"auth" mapstructure:"auth"`
-	Parent             int64               `json:"parent" mapstructure:"parent"`
-	Path               string              `json:"path" mapstructure:"path"`
-	Grade              int                 `json:"grade" mapstructure:"grade"`
-	Name               string              `json:"name" mapstructure:"name"`
-	Code               string              `json:"code" mapstructure:"code"`
-	PlanBegin          *helper.Iso8601Time `json:"begin" mapstructure:"begin"`
-	PlanEnd            *helper.Iso8601Time `json:"end" mapstructure:"end"`
-	RealBegan          *helper.Iso8601Time `json:"realBegan" mapstructure:"realBegan"`
-	RealEnd            *helper.Iso8601Time `json:"realEnd" mapstructure:"realEnd"`
-	Days               int                 `json:"days" mapstructure:"days"`
-	Status             string              `json:"status" mapstructure:"status"`
-	SubStatus          string              `json:"subStatus" mapstructure:"subStatus"`
-	Pri                string              `json:"pri" mapstructure:"pri"`
-	Description        string              `json:"desc" mapstructure:"desc"`
-	Version            int                 `json:"version" mapstructure:"version"`
-	ParentVersion      int                 `json:"parentVersion" mapstructure:"parentVersion"`
-	PlanDuration       int                 `json:"planDuration" mapstructure:"planDuration"`
-	RealDuration       int                 `json:"realDuration" mapstructure:"realDuration"`
+	ConnectionId       uint64     `json:"connectionid" mapstructure:"connectionid" gorm:"primaryKey;type:BIGINT  NOT NULL"`
+	Id                 int64      `json:"id" mapstructure:"id" gorm:"primaryKey;type:BIGINT  NOT NULL;autoIncrement:false"`
+	Project            int64      `json:"project" mapstructure:"project"`
+	Model              string     `json:"model" mapstructure:"model"`
+	Type               string     `json:"type" mapstructure:"type"`
+	ProjectType        string     `json:"projectType" mapstructure:"projectType"`
+	Lifetime           string     `json:"lifetime" mapstructure:"lifetime"`
+	Budget             string     `json:"budget" mapstructure:"budget"`
+	BudgetUnit         string     `json:"budgetUnit" mapstructure:"budgetUnit"`
+	Attribute          string     `json:"attribute" mapstructure:"attribute"`
+	Percent            int        `json:"percent" mapstructure:"percent"`
+	Milestone          string     `json:"milestone" mapstructure:"milestone"`
+	Output             string     `json:"output" mapstructure:"output"`
+	Auth               string     `json:"auth" mapstructure:"auth"`
+	Parent             int64      `json:"parent" mapstructure:"parent"`
+	Path               string     `json:"path" mapstructure:"path"`
+	Grade              int        `json:"grade" mapstructure:"grade"`
+	Name               string     `json:"name" mapstructure:"name"`
+	Code               string     `json:"code" mapstructure:"code"`
+	PlanBegin          *time.Time `json:"begin" mapstructure:"begin"`
+	PlanEnd            *time.Time `json:"end" mapstructure:"end"`
+	RealBegan          *time.Time `json:"realBegan" mapstructure:"realBegan"`
+	RealEnd            *time.Time `json:"realEnd" mapstructure:"realEnd"`
+	Days               int        `json:"days" mapstructure:"days"`
+	Status             string     `json:"status" mapstructure:"status"`
+	SubStatus          string     `json:"subStatus" mapstructure:"subStatus"`
+	Pri                string     `json:"pri" mapstructure:"pri"`
+	Description        string     `json:"desc" mapstructure:"desc"`
+	Version            int        `json:"version" mapstructure:"version"`
+	ParentVersion      int        `json:"parentVersion" mapstructure:"parentVersion"`
+	PlanDuration       int        `json:"planDuration" mapstructure:"planDuration"`
+	RealDuration       int        `json:"realDuration" mapstructure:"realDuration"`
 	//OpenedBy       string    `json:"openedBy" mapstructure:"openedBy"`
-	OpenedDate    *helper.Iso8601Time `json:"openedDate" mapstructure:"openedDate"`
-	OpenedVersion string              `json:"openedVersion" mapstructure:"openedVersion"`
+	OpenedDate    *time.Time `json:"openedDate" mapstructure:"openedDate"`
+	OpenedVersion string     `json:"openedVersion" mapstructure:"openedVersion"`
 	//LastEditedBy   string              `json:"lastEditedBy" mapstructure:"lastEditedBy"`
-	LastEditedDate *helper.Iso8601Time `json:"lastEditedDate" mapstructure:"lastEditedDate"`
-	ClosedBy       string              `json:"closedBy" mapstructure:"closedBy"`
-	ClosedDate     *helper.Iso8601Time `json:"closedDate" mapstructure:"closedDate"`
-	CanceledBy     string              `json:"canceledBy" mapstructure:"canceledBy"`
-	CanceledDate   *helper.Iso8601Time `json:"canceledDate" mapstructure:"canceledDate"`
-	SuspendedDate  *helper.Iso8601Time `json:"suspendedDate" mapstructure:"suspendedDate"`
-	PO             string              `json:"po" mapstructure:"po"`
+	LastEditedDate *time.Time `json:"lastEditedDate" mapstructure:"lastEditedDate"`
+	ClosedBy       string     `json:"closedBy" mapstructure:"closedBy"`
+	ClosedDate     *time.Time `json:"closedDate" mapstructure:"closedDate"`
+	CanceledBy     string     `json:"canceledBy" mapstructure:"canceledBy"`
+	CanceledDate   *time.Time `json:"canceledDate" mapstructure:"canceledDate"`
+	SuspendedDate  *time.Time `json:"suspendedDate" mapstructure:"suspendedDate"`
+	PO             string     `json:"po" mapstructure:"po"`
 	PM             `json:"pm" mapstructure:"pm"`
 	QD             string `json:"qd" mapstructure:"qd"`
 	RD             string `json:"rd" mapstructure:"rd"`

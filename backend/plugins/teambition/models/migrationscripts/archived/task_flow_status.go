@@ -18,8 +18,9 @@ limitations under the License.
 package archived
 
 import (
+	"time"
+
 	"github.com/apache/incubator-devlake/core/models/migrationscripts/archived"
-	"github.com/apache/incubator-devlake/helpers/pluginhelper/api"
 )
 
 type TeambitionTaskFlowStatus struct {
@@ -34,8 +35,8 @@ type TeambitionTaskFlowStatus struct {
 	CreatorId                   string   `gorm:"varchar(100)"`
 	IsDeleted                   bool
 	IsTaskflowstatusruleexector bool
-	Created                     *api.Iso8601Time
-	Updated                     *api.Iso8601Time
+	Created                     *time.Time
+	Updated                     *time.Time
 
 	archived.NoPKModel
 }

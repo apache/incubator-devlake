@@ -19,7 +19,9 @@ package tasks
 
 import (
 	"encoding/json"
+
 	"github.com/apache/incubator-devlake/core/errors"
+	"github.com/apache/incubator-devlake/core/models/common"
 	"github.com/apache/incubator-devlake/core/plugin"
 	"github.com/apache/incubator-devlake/helpers/pluginhelper/api"
 	"github.com/apache/incubator-devlake/plugins/gitlab/models"
@@ -67,7 +69,7 @@ func ExtractApiMergeRequestsCommits(taskCtx plugin.SubTaskContext) errors.Error 
 				ConnectionId:       data.Options.ConnectionId,
 				CommitAuthorEmail:  gitlabApiCommit.AuthorEmail,
 				CommitAuthorName:   gitlabApiCommit.AuthorName,
-				CommitAuthoredDate: api.Iso8601TimeToTime(&gitlabApiCommit.AuthoredDate),
+				CommitAuthoredDate: common.Iso8601TimeToTime(&gitlabApiCommit.AuthoredDate),
 			}
 			gitlabProjectCommit := &models.GitlabProjectCommit{
 				ConnectionId:    data.Options.ConnectionId,

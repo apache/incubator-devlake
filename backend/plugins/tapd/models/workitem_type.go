@@ -19,7 +19,6 @@ package models
 
 import (
 	"github.com/apache/incubator-devlake/core/models/common"
-	helper "github.com/apache/incubator-devlake/helpers/pluginhelper/api"
 )
 
 type TapdWorkitemType struct {
@@ -35,9 +34,9 @@ type TapdWorkitemType struct {
 	Icon           string          `json:"icon"`
 	IconSmall      string          `json:"icon_small"`
 	Creator        string          `gorm:"type:varchar(255)" json:"creator"`
-	Created        *helper.CSTTime `json:"created"`
+	Created        *common.CSTTime `json:"created"`
 	ModifiedBy     string          `gorm:"type:varchar(255)" json:"modified_by"`
-	Modified       *helper.CSTTime `json:"modified"`
+	Modified       *common.CSTTime `json:"modified"`
 	IconViper      string          `json:"icon_viper"`
 	IconSmallViper string          `json:"icon_small_viper"`
 	common.NoPKModel

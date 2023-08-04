@@ -18,8 +18,9 @@ limitations under the License.
 package archived
 
 import (
+	"time"
+
 	"github.com/apache/incubator-devlake/core/models/migrationscripts/archived"
-	"github.com/apache/incubator-devlake/helpers/pluginhelper/api"
 )
 
 type TeambitionTaskScenario struct {
@@ -36,8 +37,8 @@ type TeambitionTaskScenario struct {
 	BoundToObjectType string                    `gorm:"type:varchar(100)"`
 	TaskflowId        string                    `gorm:"type:varchar(100)"`
 	IsArchived        bool
-	Created           *api.Iso8601Time
-	Updated           *api.Iso8601Time
+	Created           *time.Time
+	Updated           *time.Time
 
 	archived.NoPKModel
 }

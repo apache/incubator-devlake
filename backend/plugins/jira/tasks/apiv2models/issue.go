@@ -22,7 +22,7 @@ import (
 	"time"
 
 	"github.com/apache/incubator-devlake/core/errors"
-	helper "github.com/apache/incubator-devlake/helpers/pluginhelper/api"
+	"github.com/apache/incubator-devlake/core/models/common"
 	"github.com/apache/incubator-devlake/plugins/jira/models"
 
 	"gorm.io/datatypes"
@@ -67,7 +67,7 @@ type Issue struct {
 		FixVersions        []interface{}       `json:"fixVersions"`
 		Aggregatetimespent interface{}         `json:"aggregatetimespent"`
 		Resolution         interface{}         `json:"resolution"`
-		Resolutiondate     *helper.Iso8601Time `json:"resolutiondate"`
+		Resolutiondate     *common.Iso8601Time `json:"resolutiondate"`
 		Workratio          int                 `json:"workratio"`
 		LastViewed         string              `json:"lastViewed"`
 		Watches            struct {
@@ -75,7 +75,7 @@ type Issue struct {
 			WatchCount int    `json:"watchCount"`
 			IsWatching bool   `json:"isWatching"`
 		} `json:"watches"`
-		Created *helper.Iso8601Time `json:"created"`
+		Created *common.Iso8601Time `json:"created"`
 		Epic    *struct {
 			ID      int    `json:"id"`
 			Key     string `json:"key"`
@@ -99,7 +99,7 @@ type Issue struct {
 		Versions                      []interface{}      `json:"versions"`
 		Issuelinks                    []IssueLink        `json:"issuelinks"`
 		Assignee                      *Account           `json:"assignee"`
-		Updated                       helper.Iso8601Time `json:"updated"`
+		Updated                       common.Iso8601Time `json:"updated"`
 		Status                        struct {
 			Self           string `json:"self"`
 			Description    string `json:"description"`

@@ -20,8 +20,8 @@ package models
 import (
 	"bytes"
 	"encoding/json"
+
 	"github.com/apache/incubator-devlake/core/models/common"
-	helper "github.com/apache/incubator-devlake/helpers/pluginhelper/api"
 )
 
 type ApiAccount struct {
@@ -84,21 +84,21 @@ type ZentaoBugRes struct {
 	Color          string              `json:"color"`
 	Confirmed      int                 `json:"confirmed"`
 	ActivatedCount int                 `json:"activatedCount"`
-	ActivatedDate  *helper.Iso8601Time `json:"activatedDate"`
+	ActivatedDate  *common.Iso8601Time `json:"activatedDate"`
 	FeedbackBy     string              `json:"feedbackBy"`
 	NotifyEmail    string              `json:"notifyEmail"`
 	OpenedBy       *ApiAccount         `json:"openedBy"`
-	OpenedDate     *helper.Iso8601Time `json:"openedDate"`
+	OpenedDate     *common.Iso8601Time `json:"openedDate"`
 	OpenedBuild    string              `json:"openedBuild"`
 	AssignedTo     *ApiAccount         `json:"assignedTo"`
-	AssignedDate   *helper.Iso8601Time `json:"assignedDate"`
+	AssignedDate   *common.Iso8601Time `json:"assignedDate"`
 	Deadline       string              `json:"deadline"`
 	ResolvedBy     *ApiAccount         `json:"resolvedBy"`
 	Resolution     string              `json:"resolution"`
 	ResolvedBuild  string              `json:"resolvedBuild"`
-	ResolvedDate   *helper.Iso8601Time `json:"resolvedDate"`
+	ResolvedDate   *common.Iso8601Time `json:"resolvedDate"`
 	ClosedBy       *ApiAccount         `json:"closedBy"`
-	ClosedDate     *helper.Iso8601Time `json:"closedDate"`
+	ClosedDate     *common.Iso8601Time `json:"closedDate"`
 	DuplicateBug   int                 `json:"duplicateBug"`
 	LinkBug        string              `json:"linkBug"`
 	Feedback       int                 `json:"feedback"`
@@ -113,7 +113,7 @@ type ZentaoBugRes struct {
 	IssueKey       string              `json:"issueKey"`
 	Testtask       int                 `json:"testtask"`
 	LastEditedBy   *ApiAccount         `json:"lastEditedBy"`
-	LastEditedDate *helper.Iso8601Time `json:"lastEditedDate"`
+	LastEditedDate *common.Iso8601Time `json:"lastEditedDate"`
 	Deleted        bool                `json:"deleted"`
 	PriOrder       string              `json:"priOrder"`
 	SeverityOrder  int                 `json:"severityOrder"`
@@ -154,23 +154,23 @@ type ZentaoBug struct {
 	Color          string              `json:"color"`
 	Confirmed      int                 `json:"confirmed"`
 	ActivatedCount int                 `json:"activatedCount"`
-	ActivatedDate  *helper.Iso8601Time `json:"activatedDate"`
+	ActivatedDate  *common.Iso8601Time `json:"activatedDate"`
 	FeedbackBy     string              `json:"feedbackBy"`
 	NotifyEmail    string              `json:"notifyEmail"`
 	OpenedById     int64
 	OpenedByName   string
-	OpenedDate     *helper.Iso8601Time `json:"openedDate"`
+	OpenedDate     *common.Iso8601Time `json:"openedDate"`
 	OpenedBuild    string              `json:"openedBuild"`
 	AssignedToId   int64
 	AssignedToName string
-	AssignedDate   *helper.Iso8601Time `json:"assignedDate"`
+	AssignedDate   *common.Iso8601Time `json:"assignedDate"`
 	Deadline       string              `json:"deadline"`
 	ResolvedById   int64
 	Resolution     string              `json:"resolution"`
 	ResolvedBuild  string              `json:"resolvedBuild"`
-	ResolvedDate   *helper.Iso8601Time `json:"resolvedDate"`
+	ResolvedDate   *common.Iso8601Time `json:"resolvedDate"`
 	ClosedById     int64
-	ClosedDate     *helper.Iso8601Time `json:"closedDate"`
+	ClosedDate     *common.Iso8601Time `json:"closedDate"`
 	DuplicateBug   int                 `json:"duplicateBug"`
 	LinkBug        string              `json:"linkBug"`
 	Feedback       int                 `json:"feedback"`
@@ -185,7 +185,7 @@ type ZentaoBug struct {
 	IssueKey       string              `json:"issueKey"`
 	Testtask       int                 `json:"testtask"`
 	LastEditedById int64
-	LastEditedDate *helper.Iso8601Time `json:"lastEditedDate"`
+	LastEditedDate *common.Iso8601Time `json:"lastEditedDate"`
 	Deleted        bool                `json:"deleted"`
 	PriOrder       string              `json:"priOrder"`
 	SeverityOrder  int                 `json:"severityOrder"`

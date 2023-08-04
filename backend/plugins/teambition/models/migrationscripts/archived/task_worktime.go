@@ -18,8 +18,9 @@ limitations under the License.
 package archived
 
 import (
+	"time"
+
 	"github.com/apache/incubator-devlake/core/models/migrationscripts/archived"
-	"github.com/apache/incubator-devlake/helpers/pluginhelper/api"
 )
 
 type TeambitionTaskWorktime struct {
@@ -31,12 +32,12 @@ type TeambitionTaskWorktime struct {
 	ObjectId     string `gorm:"type:varchar(100)"`
 	Worktime     uint64
 	UserId       string `gorm:"type:varchar(100)"`
-	Date         *api.Iso8601Time
+	Date         *time.Time
 	Description  string `gorm:"type:text"`
 	OrgId        string `gorm:"type:varchar(100)"`
 	SubmitterId  string `gorm:"type:varchar(100)"`
-	CreatedAt    *api.Iso8601Time
-	UpdatedAt    *api.Iso8601Time
+	CreatedAt    *time.Time
+	UpdatedAt    *time.Time
 
 	archived.NoPKModel
 }

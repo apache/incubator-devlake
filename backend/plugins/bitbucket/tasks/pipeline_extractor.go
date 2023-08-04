@@ -21,6 +21,7 @@ import (
 	"encoding/json"
 
 	"github.com/apache/incubator-devlake/core/errors"
+	"github.com/apache/incubator-devlake/core/models/common"
 	"github.com/apache/incubator-devlake/core/models/domainlayer/devops"
 	"github.com/apache/incubator-devlake/core/plugin"
 	"github.com/apache/incubator-devlake/helpers/pluginhelper/api"
@@ -58,8 +59,8 @@ type BitbucketApiPipeline struct {
 		} `json:"stage"`
 	} `json:"state"`
 	Target            *bitbucketApiPipelineTarget `json:"target"`
-	CreatedOn         *api.Iso8601Time            `json:"created_on"`
-	CompletedOn       *api.Iso8601Time            `json:"completed_on"`
+	CreatedOn         *common.Iso8601Time         `json:"created_on"`
+	CompletedOn       *common.Iso8601Time         `json:"completed_on"`
 	DurationInSeconds uint64                      `json:"duration_in_seconds"`
 	Links             struct {
 		Self struct {
@@ -98,8 +99,8 @@ func ExtractApiPipelines(taskCtx plugin.SubTaskContext) errors.Error {
 				CommitSha:           bitbucketApiPipeline.Target.Commit.Hash,
 				RepoId:              data.Options.FullName,
 				DurationInSeconds:   bitbucketApiPipeline.DurationInSeconds,
-				BitbucketCreatedOn:  api.Iso8601TimeToTime(bitbucketApiPipeline.CreatedOn),
-				BitbucketCompleteOn: api.Iso8601TimeToTime(bitbucketApiPipeline.CompletedOn),
+				BitbucketCreatedOn:  common.Iso8601TimeToTime(bitbucketApiPipeline.CreatedOn),
+				BitbucketCompleteOn: common.Iso8601TimeToTime(bitbucketApiPipeline.CompletedOn),
 				Type:                data.RegexEnricher.ReturnNameIfMatched(devops.DEPLOYMENT, bitbucketApiPipeline.Target.RefName),
 				Environment:         data.RegexEnricher.ReturnNameIfOmittedOrMatched(devops.PRODUCTION, bitbucketApiPipeline.Target.RefName),
 			}

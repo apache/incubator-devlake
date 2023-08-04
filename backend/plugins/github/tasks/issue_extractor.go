@@ -23,6 +23,7 @@ import (
 	"strings"
 
 	"github.com/apache/incubator-devlake/core/errors"
+	"github.com/apache/incubator-devlake/core/models/common"
 	"github.com/apache/incubator-devlake/core/models/domainlayer/ticket"
 	"github.com/apache/incubator-devlake/core/plugin"
 	"github.com/apache/incubator-devlake/helpers/pluginhelper/api"
@@ -67,9 +68,9 @@ type IssuesResponse struct {
 	Milestone *struct {
 		Id int
 	}
-	ClosedAt        *api.Iso8601Time `json:"closed_at"`
-	GithubCreatedAt api.Iso8601Time  `json:"created_at"`
-	GithubUpdatedAt api.Iso8601Time  `json:"updated_at"`
+	ClosedAt        *common.Iso8601Time `json:"closed_at"`
+	GithubCreatedAt common.Iso8601Time  `json:"created_at"`
+	GithubUpdatedAt common.Iso8601Time  `json:"updated_at"`
 }
 
 type IssueRegexes struct {
@@ -179,7 +180,7 @@ func convertGithubIssue(issue *IssuesResponse, connectionId uint64, repositoryId
 		Title:           issue.Title,
 		Body:            string(issue.Body),
 		Url:             issue.HtmlUrl,
-		ClosedAt:        api.Iso8601TimeToTime(issue.ClosedAt),
+		ClosedAt:        common.Iso8601TimeToTime(issue.ClosedAt),
 		GithubCreatedAt: issue.GithubCreatedAt.ToTime(),
 		GithubUpdatedAt: issue.GithubUpdatedAt.ToTime(),
 	}

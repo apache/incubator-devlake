@@ -19,6 +19,7 @@ package tasks
 
 import (
 	"github.com/apache/incubator-devlake/core/errors"
+	"github.com/apache/incubator-devlake/core/models/common"
 	"github.com/apache/incubator-devlake/core/plugin"
 	"github.com/apache/incubator-devlake/helpers/pluginhelper/api"
 )
@@ -43,14 +44,14 @@ type GitlabApiCommit struct {
 	Title          string
 	Message        string
 	ProjectId      int
-	ShortId        string          `json:"short_id"`
-	AuthorName     string          `json:"author_name"`
-	AuthorEmail    string          `json:"author_email"`
-	AuthoredDate   api.Iso8601Time `json:"authored_date"`
-	CommitterName  string          `json:"committer_name"`
-	CommitterEmail string          `json:"committer_email"`
-	CommittedDate  api.Iso8601Time `json:"committed_date"`
-	WebUrl         string          `json:"web_url"`
+	ShortId        string             `json:"short_id"`
+	AuthorName     string             `json:"author_name"`
+	AuthorEmail    string             `json:"author_email"`
+	AuthoredDate   common.Iso8601Time `json:"authored_date"`
+	CommitterName  string             `json:"committer_name"`
+	CommitterEmail string             `json:"committer_email"`
+	CommittedDate  common.Iso8601Time `json:"committed_date"`
+	WebUrl         string             `json:"web_url"`
 	Stats          struct {
 		Additions int
 		Deletions int

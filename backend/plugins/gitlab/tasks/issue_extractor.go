@@ -22,6 +22,7 @@ import (
 	"regexp"
 
 	"github.com/apache/incubator-devlake/core/errors"
+	"github.com/apache/incubator-devlake/core/models/common"
 	"github.com/apache/incubator-devlake/core/models/domainlayer/ticket"
 	"github.com/apache/incubator-devlake/core/plugin"
 	"github.com/apache/incubator-devlake/helpers/pluginhelper/api"
@@ -51,8 +52,8 @@ type IssuesResponse struct {
 		Iid         int
 		Id          int
 		Title       string
-		CreatedAt   api.Iso8601Time
-		UpdatedAt   api.Iso8601Time
+		CreatedAt   common.Iso8601Time
+		UpdatedAt   common.Iso8601Time
 	}
 	Author *struct {
 		State     string
@@ -88,9 +89,9 @@ type IssuesResponse struct {
 	MergeRequestsCount int
 	Id                 int `json:"id"`
 	Title              string
-	GitlabUpdatedAt    api.Iso8601Time  `json:"updated_at"`
-	GitlabCreatedAt    api.Iso8601Time  `json:"created_at"`
-	GitlabClosedAt     *api.Iso8601Time `json:"closed_at"`
+	GitlabUpdatedAt    common.Iso8601Time  `json:"updated_at"`
+	GitlabCreatedAt    common.Iso8601Time  `json:"created_at"`
+	GitlabClosedAt     *common.Iso8601Time `json:"closed_at"`
 	ClosedBy           struct {
 		State     string
 		WebUrl    string
@@ -100,7 +101,7 @@ type IssuesResponse struct {
 		Name      string
 	}
 	UserNotesCount int
-	DueDate        api.Iso8601Time
+	DueDate        common.Iso8601Time
 	WebUrl         string `json:"web_url"`
 	References     struct {
 		Short    string
@@ -299,7 +300,7 @@ func convertGitlabIssue(issue *IssuesResponse, projectId int) (*models.GitlabIss
 		Title:           issue.Title,
 		Body:            issue.Description,
 		Url:             issue.Links.Self,
-		ClosedAt:        api.Iso8601TimeToTime(issue.GitlabClosedAt),
+		ClosedAt:        common.Iso8601TimeToTime(issue.GitlabClosedAt),
 		GitlabCreatedAt: issue.GitlabCreatedAt.ToTime(),
 		GitlabUpdatedAt: issue.GitlabUpdatedAt.ToTime(),
 		TimeEstimate:    issue.TimeStats.TimeEstimate,

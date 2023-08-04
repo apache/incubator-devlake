@@ -19,7 +19,6 @@ package models
 
 import (
 	"github.com/apache/incubator-devlake/core/models/common"
-	"github.com/apache/incubator-devlake/helpers/utils"
 )
 
 type SonarqubeHotspot struct {
@@ -35,8 +34,8 @@ type SonarqubeHotspot struct {
 	Assignee                 string `gorm:"type:varchar(100)"`
 	SecurityCategory         string `gorm:"type:varchar(100)"`
 	VulnerabilityProbability string `gorm:"type:varchar(100)"`
-	CreationDate             *utils.Iso8601Time
-	UpdateDate               *utils.Iso8601Time
+	CreationDate             *common.Iso8601Time
+	UpdateDate               *common.Iso8601Time
 	common.NoPKModel
 }
 
