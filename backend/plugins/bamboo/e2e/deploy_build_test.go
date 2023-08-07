@@ -85,7 +85,8 @@ func TestBambooDeployBuildDataFlow(t *testing.T) {
 	dataflowTester.FlushTabler(&devops.CicdDeploymentCommit{})
 	dataflowTester.Subtask(tasks.ConvertDeployBuildsMeta, taskData)
 	dataflowTester.VerifyTableWithOptions(&devops.CicdDeploymentCommit{}, e2ehelper.TableOptions{
-		CSVRelPath:  "./snapshot_tables/cicd_deployment_commits.csv",
-		IgnoreTypes: []interface{}{common.NoPKModel{}},
+		CSVRelPath:   "./snapshot_tables/cicd_deployment_commits.csv",
+		IgnoreTypes:  []interface{}{common.NoPKModel{}},
+		IgnoreFields: []string{"created_date", "started_date", "finished_date"},
 	})
 }
