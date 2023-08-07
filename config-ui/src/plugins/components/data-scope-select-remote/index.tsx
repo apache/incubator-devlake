@@ -39,34 +39,25 @@ interface Props {
 
 export const DataScopeSelectRemote = ({ plugin, connectionId, disabledScope, onCancel, onSubmit }: Props) => {
   const [operating, setOperating] = useState(false);
-  const [scope, setScope] = useState<any>([]);
-
-  const pluginConfig = useMemo(() => getPluginConfig(plugin), [plugin]);
-
-  const error = useMemo(() => (!scope.length ? 'No Data Scope is Selected' : ''), [scope]);
-
-  const selectedItems = useMemo(
-    () =>
-      scope.map((it: any) => ({ id: getPluginScopeId(plugin, it), name: it.name, fullName: it.fullName, data: it })),
-    [scope],
-  );
+  const [selectedItems, setSelectedItems] = useState<Array<{ data: any }>>([]);
 
   const disabledItems = useMemo(
-    () =>
-      (disabledScope ?? []).map((it) => ({
-        id: getPluginScopeId(plugin, it),
-        name: it.name,
-        fullName: it.fullName,
-        data: it,
-      })),
+    () => (disabledScope ?? []).map((it) => ({ id: getPluginScopeId(plugin, it) })),
     [disabledScope],
   );
 
+  const pluginConfig = useMemo(() => getPluginConfig(plugin), [plugin]);
+
+  const error = useMemo(() => (!selectedItems.length ? 'No Data Scope is Selected' : ''), [selectedItems]);
+
   const handleSubmit = async () => {
-    const [success, res] = await operator(() => API.updateDataScope(plugin, connectionId, { data: scope }), {
-      setOperating,
-      formatMessage: () => 'Add data scope successful.',
-    });
+    const [success, res] = await operator(
+      () => API.updateDataScope(plugin, connectionId, { data: selectedItems.map((it) => it.data) }),
+      {
+        setOperating,
+        formatMessage: () => 'Add data scope successful.',
+      },
+    );
 
     if (success) {
       onSubmit(res);
@@ -81,7 +72,7 @@ export const DataScopeSelectRemote = ({ plugin, connectionId, disabledScope, onC
           connectionId,
           disabledItems,
           selectedItems,
-          onChangeItems: setScope,
+          onChangeItems: setSelectedItems,
         })
       ) : (
         <>
@@ -94,7 +85,7 @@ export const DataScopeSelectRemote = ({ plugin, connectionId, disabledScope, onC
             connectionId={connectionId}
             disabledItems={disabledItems}
             selectedItems={selectedItems}
-            onChangeItems={setScope}
+            onChangeItems={setSelectedItems}
           />
           {pluginConfig.dataScope.search && (
             <>
@@ -105,7 +96,7 @@ export const DataScopeSelectRemote = ({ plugin, connectionId, disabledScope, onC
                 connectionId={connectionId}
                 disabledItems={disabledItems}
                 selectedItems={selectedItems}
-                onChangeItems={setScope}
+                onChangeItems={setSelectedItems}
               />
             </>
           )}

@@ -96,11 +96,11 @@ export const DataScopeMillerColumns = ({
     const result = selectedIds.map((id) => {
       const selectedItem = (selectedItems ?? []).find((it) => it.id === id);
       if (selectedItem) {
-        return selectedItem.data;
+        return selectedItem;
       }
 
       const item = items.find((it) => it.id === id) as McsItem<ExtraType>;
-      return item.data;
+      return item;
     });
 
     onChangeItems ? onChangeItems(result) : setSelectedIds(selectedIds);
