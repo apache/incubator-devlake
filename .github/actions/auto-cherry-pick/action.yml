@@ -15,7 +15,7 @@
 # limitations under the License.
 #
 
-name: "Auto Cherrry Pick"
+name: "Auto Cherry Pick"
 description: "cherry pick commits from Pull Requests into Release branch"
 inputs:
   author_email:
@@ -39,7 +39,6 @@ runs:
       shell: bash
       env:
         GH_TOKEN: ${{ github.token }}
-        REPOSITORY: ${{ github.repository }}
         PR_NUMBER: ${{ github.event.pull_request.number }}
         PR_TITLE: ${{ github.event.pull_request.title }}
         LABEL_NAME: ${{ github.event.label.name }}
