@@ -25,6 +25,15 @@ const instance = axios.create({
   baseURL: DEVLAKE_ENDPOINT,
 });
 
+export type RequestConfig = {
+  baseURL?: string;
+  method?: AxiosRequestConfig['method'];
+  data?: unknown;
+  timeout?: number;
+  signal?: AbortSignal;
+  headers?: Record<string, string>;
+};
+
 instance.interceptors.response.use(
   (response) => response,
   (error) => {
@@ -37,15 +46,6 @@ instance.interceptors.response.use(
     return Promise.reject(error);
   },
 );
-
-export type RequestConfig = {
-  baseURL?: string;
-  method?: AxiosRequestConfig['method'];
-  data?: unknown;
-  timeout?: number;
-  signal?: AbortSignal;
-  headers?: Record<string, string>;
-};
 
 export const request = (path: string, config?: RequestConfig) => {
   const { method = 'get', data, timeout, headers, signal } = config || {};

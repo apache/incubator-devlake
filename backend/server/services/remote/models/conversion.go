@@ -33,7 +33,11 @@ import (
 )
 
 func LoadTableModel(tableName string, schema utils.JsonObject, parentModel any) (models.DynamicTabler, errors.Error) {
-	structType, err := GenerateStructType(schema, reflect.TypeOf(parentModel))
+	var baseType reflect.Type = nil
+	if parentModel != nil {
+		baseType = reflect.TypeOf(parentModel)
+	}
+	structType, err := GenerateStructType(schema, baseType)
 	if err != nil {
 		return nil, err
 	}
@@ -60,7 +64,7 @@ func GenerateStructType(schema utils.JsonObject, baseType reflect.Type) (reflect
 		structFields = append(structFields, anonymousField)
 	}
 	for k, v := range props {
-		if isBaseTypeField(k, baseType) {
+		if baseType != nil && isBaseTypeField(k, baseType) {
 			continue
 		}
 		spec := v.(utils.JsonObject)
@@ -136,6 +140,7 @@ var (
 	stringType  = reflect.TypeOf("")
 	timeType    = reflect.TypeOf(time.Time{})
 	jsonMapType = reflect.TypeOf(datatypes.JSONMap{})
+	jsonType    = reflect.TypeOf(datatypes.JSON{})
 )
 
 func generateStructField(name string, schema utils.JsonObject, required bool) (*reflect.StructField, errors.Error) {
@@ -156,11 +161,11 @@ func generateStructField(name string, schema utils.JsonObject, required bool) (*
 }
 
 func getGoType(schema utils.JsonObject, required bool) (reflect.Type, errors.Error) {
-	jsonType, ok := schema["type"].(string)
+	rawType, ok := schema["type"].(string)
 	if !ok {
 		return nil, errors.BadInput.New("\"type\" property must be a string")
 	}
-	switch jsonType {
+	switch rawType {
 	//TODO: support more types
 	case "integer":
 		return int64Type, nil
@@ -179,10 +184,12 @@ func getGoType(schema utils.JsonObject, required bool) (reflect.Type, errors.Err
 		} else {
 			return stringType, nil
 		}
+	case "array":
+		return jsonType, nil
 	case "object":
 		return jsonMapType, nil
 	default:
-		return nil, errors.BadInput.New(fmt.Sprintf("Unsupported type %s", jsonType))
+		return nil, errors.BadInput.New(fmt.Sprintf("Unsupported type %s", rawType))
 	}
 }
 
@@ -204,6 +211,10 @@ func getGormTag(schema utils.JsonObject, goType reflect.Type) string {
 	primaryKey, err := utils.GetProperty[bool](schema, "primaryKey")
 	if err == nil && primaryKey {
 		gormTags = append(gormTags, "primaryKey")
+	}
+	autoIncrement, err := utils.GetProperty[bool](schema, "autoIncrement")
+	if err == nil {
+		gormTags = append(gormTags, fmt.Sprintf("autoIncrement:%v", autoIncrement))
 	}
 	if goType == stringType {
 		maxLength, err := utils.GetProperty[float64](schema, "maxLength")

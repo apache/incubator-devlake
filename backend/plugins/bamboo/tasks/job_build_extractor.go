@@ -48,9 +48,8 @@ func ExtractJobBuild(taskCtx plugin.SubTaskContext) errors.Error {
 			}
 			body := res.Convert()
 			body.ConnectionId = data.Options.ConnectionId
-			body.ProjectKey = data.Options.ProjectKey
 			body.JobKey = plan.JobKey
-			body.PlanKey = plan.PlanKey
+			body.PlanKey = data.Options.PlanKey
 			body.PlanName = plan.PlanName
 			body.PlanBuildKey = fmt.Sprintf("%s-%v", plan.PlanKey, body.Number)
 			body.Type = data.RegexEnricher.ReturnNameIfMatched(devops.DEPLOYMENT, body.JobName)

@@ -22,11 +22,16 @@ import (
 	"strings"
 
 	"github.com/apache/incubator-devlake/core/errors"
+	"github.com/apache/incubator-devlake/core/models/common"
 
 	"github.com/apache/incubator-devlake/core/plugin"
 	helper "github.com/apache/incubator-devlake/helpers/pluginhelper/api"
 	"github.com/apache/incubator-devlake/plugins/github/models"
 )
+
+func init() {
+	RegisterSubtaskMeta(&ExtractApiPullRequestCommitsMeta)
+}
 
 var ExtractApiPullRequestCommitsMeta = plugin.SubTaskMeta{
 	Name:             "extractApiPullRequestCommits",
@@ -34,6 +39,11 @@ var ExtractApiPullRequestCommitsMeta = plugin.SubTaskMeta{
 	EnabledByDefault: true,
 	Description:      "Extract raw PullRequestCommits data into tool layer table github_commits",
 	DomainTypes:      []string{plugin.DOMAIN_TYPE_CROSS, plugin.DOMAIN_TYPE_CODE_REVIEW},
+	DependencyTables: []string{RAW_PR_COMMIT_TABLE},
+	ProductTables: []string{
+		models.GithubRepoCommit{}.TableName(),
+		models.GithubCommit{}.TableName(),
+		models.GithubPrCommit{}.TableName()},
 }
 
 type PrCommitsResponse struct {
@@ -47,12 +57,12 @@ type PullRequestCommit struct {
 		Id    int
 		Name  string
 		Email string
-		Date  helper.Iso8601Time
+		Date  common.Iso8601Time
 	}
 	Committer struct {
 		Name  string
 		Email string
-		Date  helper.Iso8601Time
+		Date  common.Iso8601Time
 	}
 	Message json.RawMessage
 }

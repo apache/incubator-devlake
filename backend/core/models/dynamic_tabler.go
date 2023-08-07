@@ -133,3 +133,51 @@ func UnwrapObject(ifc any) any {
 	}
 	return ifc
 }
+
+// DumpInfo Useful function for debugging purposes - to see what's in the struct at runtime
+func DumpInfo(tbl DynamicTabler) map[string]any {
+	typ := reflect.TypeOf(tbl.Unwrap())
+	type typeInfo struct {
+		Type string
+		Tags string
+	}
+	var fn func(t reflect.Type) map[string]any
+	fn = func(t reflect.Type) map[string]any {
+		infoMap := map[string]any{}
+		if t.Kind() == reflect.Pointer {
+			t = t.Elem()
+		}
+		if t.Kind() != reflect.Struct {
+			return infoMap
+		}
+		for i := 0; i < t.NumField(); i++ {
+			f := t.Field(i)
+			if f.Anonymous {
+				subMap := fn(f.Type)
+				infoMap[f.Name] = subMap
+			} else {
+				if t.Kind() == reflect.Pointer {
+					t = t.Elem()
+				}
+				if t.Kind() == reflect.Struct {
+					subMap := fn(f.Type)
+					if len(subMap) == 0 {
+						infoMap[f.Name] = typeInfo{
+							Type: f.Type.Name(),
+							Tags: string(f.Tag),
+						}
+					} else {
+						infoMap[f.Name] = subMap
+					}
+				} else {
+					infoMap[f.Name] = typeInfo{
+						Type: f.Type.Name(),
+						Tags: string(f.Tag),
+					}
+				}
+			}
+		}
+		return infoMap
+	}
+	return fn(typ)
+}

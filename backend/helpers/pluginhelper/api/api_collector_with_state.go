@@ -41,7 +41,7 @@ type ApiCollectorStateManager struct {
 	ExecuteStart time.Time
 }
 
-// NewApiCollectorWithState create a new ApiCollectorStateManager
+// NewStatefulApiCollector create a new ApiCollectorStateManager
 func NewStatefulApiCollector(args RawDataSubTaskArgs, timeAfter *time.Time) (*ApiCollectorStateManager, errors.Error) {
 	db := args.Ctx.GetDal()
 

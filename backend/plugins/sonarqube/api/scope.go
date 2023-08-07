@@ -19,6 +19,7 @@ package api
 
 import (
 	"github.com/apache/incubator-devlake/core/errors"
+	"github.com/apache/incubator-devlake/core/models/common"
 	"github.com/apache/incubator-devlake/core/plugin"
 	"github.com/apache/incubator-devlake/helpers/pluginhelper/api"
 	"github.com/apache/incubator-devlake/plugins/sonarqube/models"
@@ -49,7 +50,7 @@ func PutScope(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, errors
 		if !ok {
 			continue
 		}
-		timeObj, err := api.ConvertStringToTime(dateStr)
+		timeObj, err := common.ConvertStringToTime(dateStr)
 		if err != nil {
 			panic(err)
 		}
@@ -82,6 +83,7 @@ func UpdateScope(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, err
 // @Description get Sonarqube projects
 // @Tags plugins/sonarqube
 // @Param connectionId path int false "connection ID"
+// @Param searchTerm query string false "search term for scope name"
 // @Param pageSize query int false "page size, default 50"
 // @Param page query int false "page size, default 1"
 // @Param blueprints query bool false "also return blueprints using these scopes as part of the payload"

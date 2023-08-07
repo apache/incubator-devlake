@@ -1,6 +1,6 @@
 # Pydevlake
 
-Pydevlake is a framework for writing plugins plugins for [DevLake](https://devlake.apache.org/). The framework source code
+Pydevlake is a framework for writing plugins for [DevLake](https://devlake.apache.org/) in Python. The framework source code
 can be found in [here](./pydevlake).
 
 
@@ -237,23 +237,38 @@ To facilitate or even eliminate extraction, your tool models should be close to 
 #### Migration of tool models
 
 Tool models, connection, scope and scope config types are stored in the DevLake database.
-When you change the definition of one of those types, the database needs to be migrated.
-Automatic migration takes care of most modifications, but some changes require manual migration. For example, automatic migration never drops columns. Another example is adding a column to the primary key of a table, you need to write a script that remove the primary key constraint and add a new compound primary key.
+When you create or change the definition of one of those types, the database needs to be migrated. This requires that
+you write migration code for them. Important: When you write a migration for a creation operation, the model must be a SNAPSHOT of the models you're intending
+to migrate; don't directly use the actual model because that may change over time. Instead, define a model that is a copy of the main one, and use that in the
+migration - this model's code will never change (Hence, it's a snapshot).
+Also, keep in mind, that Python only supports writing schema migrations. If your flow requires data migrations as well, at this time, the code needs to
+be written in Go. See [this Go package](https://github.com/apache/incubator-devlake/tree/main/backend/server/services/remote/models/migrationscripts) for example.
 
 To declare a new migration script, you decorate a function with the `migration` decorator. The function name should describe what the script does. The `migration` decorator takes a version number that should be a 14 digits timestamp in the format `YYYYMMDDhhmmss`. The function takes a `MigrationScriptBuilder` as a parameter. This builder exposes methods to execute migration operations.
 
 ##### Migration operations
 
-The `MigrationScriptBuilder` exposes the following methods:
+The `MigrationScriptBuilder` exposes several methods. Here we list a few:
 - `execute(sql: str, dialect: Optional[Dialect])`: execute a raw SQL statement. The `dialect` parameter is used to execute the SQL statement only if the database is of the given dialect. If `dialect` is `None`, the statement is executed unconditionally.
 - `drop_column(table: str, column: str)`: drop a column from a table
 - `drop_table(table: str)`: drop a table
+
+Example of creating tables via migrations:
+```python
+
+@migration(20230501000001, name="initialize schemas for Plugin")
+def init_schemas(b: MigrationScriptBuilder):
+    class PluginConnection(Connection):
+        token: SecretStr
+        organization: Optional[str]
+    b.create_tables(PluginConnection)
+```
 
 
 ```python
 from pydevlake.migration import MigrationScriptBuilder, migration, Dialect
 
-@migration(20230524181430)
+@migration(20230524181430, name="add pk to Job table")
 def add_build_id_as_job_primary_key(b: MigrationScriptBuilder):
     table = Job.__tablename__
     b.execute(f'ALTER TABLE {table} DROP PRIMARY KEY', Dialect.MYSQL)
@@ -296,7 +311,9 @@ Most of the time, you will convert a tool model into a single domain model, but 
 
 The `collect` method takes a `state` dictionary and a context object and yields tuples of raw data and new state.
 The last state that the plugin yielded for a given connection will be reused during the next collection.
-The plugin can use this `state` to store information necessary to perform incremental collection of data.
+The plugin can use this `state` to store information necessary to perform incremental collection of data. This operates
+independently of the way Go manages state, and is tracked by the table `_pydevlake_subtask_runs`. See [this issue](https://github.com/apache/incubator-devlake/issues/4880)
+for a proposed improvement to this feature.
 
 The `extract` method takes a raw data object and returns a tool model.
 This method has a default implementation that populates an instance of the `tool_model` class with the raw data.

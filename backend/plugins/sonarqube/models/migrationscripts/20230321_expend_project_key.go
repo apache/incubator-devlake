@@ -18,22 +18,23 @@ limitations under the License.
 package migrationscripts
 
 import (
+	"time"
+
 	"github.com/apache/incubator-devlake/core/context"
 	"github.com/apache/incubator-devlake/core/errors"
 	"github.com/apache/incubator-devlake/core/models/migrationscripts/archived"
 	"github.com/apache/incubator-devlake/helpers/migrationhelper"
-	"github.com/apache/incubator-devlake/helpers/pluginhelper/api"
 )
 
 type SonarqubeProject20230206Before struct {
 	archived.NoPKModel `json:"-" mapstructure:"-"`
-	ConnectionId       uint64           `json:"connectionId" validate:"required" gorm:"primaryKey"`
-	ProjectKey         string           `json:"projectKey" validate:"required" gorm:"type:varchar(64);primaryKey"`
-	Name               string           `json:"name" gorm:"type:varchar(255)"`
-	Qualifier          string           `json:"qualifier" gorm:"type:varchar(255)"`
-	Visibility         string           `json:"visibility" gorm:"type:varchar(64)"`
-	LastAnalysisDate   *api.Iso8601Time `json:"lastAnalysisDate"`
-	Revision           string           `json:"revision" gorm:"type:varchar(128)"`
+	ConnectionId       uint64     `json:"connectionId" validate:"required" gorm:"primaryKey"`
+	ProjectKey         string     `json:"projectKey" validate:"required" gorm:"type:varchar(64);primaryKey"`
+	Name               string     `json:"name" gorm:"type:varchar(255)"`
+	Qualifier          string     `json:"qualifier" gorm:"type:varchar(255)"`
+	Visibility         string     `json:"visibility" gorm:"type:varchar(64)"`
+	LastAnalysisDate   *time.Time `json:"lastAnalysisDate"`
+	Revision           string     `json:"revision" gorm:"type:varchar(128)"`
 }
 
 func (SonarqubeProject20230206Before) TableName() string {
@@ -42,13 +43,13 @@ func (SonarqubeProject20230206Before) TableName() string {
 
 type SonarqubeProject20230206After struct {
 	archived.NoPKModel `json:"-" mapstructure:"-"`
-	ConnectionId       uint64           `json:"connectionId" validate:"required" gorm:"primaryKey"`
-	ProjectKey         string           `json:"projectKey" validate:"required" gorm:"type:varchar(255);primaryKey"` // expand this
-	Name               string           `json:"name" gorm:"type:varchar(255)"`
-	Qualifier          string           `json:"qualifier" gorm:"type:varchar(255)"`
-	Visibility         string           `json:"visibility" gorm:"type:varchar(64)"`
-	LastAnalysisDate   *api.Iso8601Time `json:"lastAnalysisDate"`
-	Revision           string           `json:"revision" gorm:"type:varchar(128)"`
+	ConnectionId       uint64     `json:"connectionId" validate:"required" gorm:"primaryKey"`
+	ProjectKey         string     `json:"projectKey" validate:"required" gorm:"type:varchar(255);primaryKey"` // expand this
+	Name               string     `json:"name" gorm:"type:varchar(255)"`
+	Qualifier          string     `json:"qualifier" gorm:"type:varchar(255)"`
+	Visibility         string     `json:"visibility" gorm:"type:varchar(64)"`
+	LastAnalysisDate   *time.Time `json:"lastAnalysisDate"`
+	Revision           string     `json:"revision" gorm:"type:varchar(128)"`
 }
 
 func (SonarqubeProject20230206After) TableName() string {
@@ -76,8 +77,8 @@ type SonarqubeIssue20230206Before struct {
 	EndLine      int
 	StartOffset  int
 	EndOffset    int
-	CreationDate *api.Iso8601Time
-	UpdateDate   *api.Iso8601Time
+	CreationDate *time.Time
+	UpdateDate   *time.Time
 	archived.NoPKModel
 }
 
@@ -106,8 +107,8 @@ type SonarqubeIssue20230206After struct {
 	EndLine      int
 	StartOffset  int
 	EndOffset    int
-	CreationDate *api.Iso8601Time
-	UpdateDate   *api.Iso8601Time
+	CreationDate *time.Time
+	UpdateDate   *time.Time
 	archived.NoPKModel
 }
 

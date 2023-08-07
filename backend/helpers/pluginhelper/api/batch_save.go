@@ -29,7 +29,7 @@ import (
 	"github.com/apache/incubator-devlake/core/log"
 )
 
-// BatchSave performs mulitple records persistence of a specific type in one sql query to improve the performance
+// BatchSave performs multiple records persistence of a specific type in one sql query to improve the performance
 type BatchSave struct {
 	basicRes context.BasicRes
 	log      log.Logger

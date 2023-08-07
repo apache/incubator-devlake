@@ -21,7 +21,6 @@ import (
 	"encoding/json"
 
 	"github.com/apache/incubator-devlake/core/models/common"
-	helper "github.com/apache/incubator-devlake/helpers/pluginhelper/api"
 )
 
 type TapdTaskChangelog struct {
@@ -30,7 +29,7 @@ type TapdTaskChangelog struct {
 	WorkspaceId    uint64          `json:"workspace_id,string"`
 	WorkitemTypeId uint64          `json:"workitem_type_id,string"`
 	Creator        string          `json:"creator" gorm:"type:varchar(255)"`
-	Created        *helper.CSTTime `json:"created"`
+	Created        *common.CSTTime `json:"created"`
 	ChangeSummary  string          `json:"change_summary" gorm:"type:varchar(255)"`
 	Comment        string          `json:"comment"`
 	EntityType     string          `json:"entity_type" gorm:"type:varchar(255)"`

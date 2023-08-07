@@ -19,7 +19,6 @@ package models
 
 import (
 	"github.com/apache/incubator-devlake/core/models/common"
-	helper "github.com/apache/incubator-devlake/helpers/pluginhelper/api"
 )
 
 type ZentaoStoryRes struct {
@@ -49,20 +48,20 @@ type ZentaoStoryRes struct {
 	FromStory        int64               `json:"fromStory"`
 	FromVersion      int                 `json:"fromVersion"`
 	OpenedBy         *ApiAccount         `json:"openedBy"`
-	OpenedDate       *helper.Iso8601Time `json:"openedDate"`
+	OpenedDate       *common.Iso8601Time `json:"openedDate"`
 	AssignedTo       *ApiAccount         `json:"assignedTo"`
-	AssignedDate     *helper.Iso8601Time `json:"assignedDate"`
-	ApprovedDate     *helper.Iso8601Time `json:"approvedDate"`
+	AssignedDate     *common.Iso8601Time `json:"assignedDate"`
+	ApprovedDate     *common.Iso8601Time `json:"approvedDate"`
 	LastEditedBy     *ApiAccount         `json:"lastEditedBy"`
-	LastEditedDate   *helper.Iso8601Time `json:"lastEditedDate"`
+	LastEditedDate   *common.Iso8601Time `json:"lastEditedDate"`
 	ChangedBy        string              `json:"changedBy"`
-	ChangedDate      *helper.Iso8601Time `json:"changedDate"`
+	ChangedDate      *common.Iso8601Time `json:"changedDate"`
 	ReviewedBy       *ApiAccount         `json:"reviewedBy"`
-	ReviewedDate     *helper.Iso8601Time `json:"reviewedDate"`
+	ReviewedDate     *common.Iso8601Time `json:"reviewedDate"`
 	ClosedBy         *ApiAccount         `json:"closedBy"`
-	ClosedDate       *helper.Iso8601Time `json:"closedDate"`
+	ClosedDate       *common.Iso8601Time `json:"closedDate"`
 	ClosedReason     string              `json:"closedReason"`
-	ActivatedDate    *helper.Iso8601Time `json:"activatedDate"`
+	ActivatedDate    *common.Iso8601Time `json:"activatedDate"`
 	ToBug            int                 `json:"toBug"`
 	ChildStories     string              `json:"childStories"`
 	LinkStories      string              `json:"linkStories"`
@@ -111,20 +110,20 @@ type ZentaoStory struct {
 	FromVersion      int   `json:"fromVersion"`
 	OpenedById       int64
 	OpenedByName     string
-	OpenedDate       *helper.Iso8601Time `json:"openedDate"`
+	OpenedDate       *common.Iso8601Time `json:"openedDate"`
 	AssignedToId     int64
 	AssignedToName   string
-	AssignedDate     *helper.Iso8601Time `json:"assignedDate"`
-	ApprovedDate     *helper.Iso8601Time `json:"approvedDate"`
+	AssignedDate     *common.Iso8601Time `json:"assignedDate"`
+	ApprovedDate     *common.Iso8601Time `json:"approvedDate"`
 	LastEditedId     int64
-	LastEditedDate   *helper.Iso8601Time `json:"lastEditedDate"`
-	ChangedDate      *helper.Iso8601Time `json:"changedDate"`
+	LastEditedDate   *common.Iso8601Time `json:"lastEditedDate"`
+	ChangedDate      *common.Iso8601Time `json:"changedDate"`
 	ReviewedById     int64               `json:"reviewedBy"`
-	ReviewedDate     *helper.Iso8601Time `json:"reviewedDate"`
+	ReviewedDate     *common.Iso8601Time `json:"reviewedDate"`
 	ClosedId         int64
-	ClosedDate       *helper.Iso8601Time `json:"closedDate"`
+	ClosedDate       *common.Iso8601Time `json:"closedDate"`
 	ClosedReason     string              `json:"closedReason"`
-	ActivatedDate    *helper.Iso8601Time `json:"activatedDate"`
+	ActivatedDate    *common.Iso8601Time `json:"activatedDate"`
 	ToBug            int                 `json:"toBug"`
 	ChildStories     string              `json:"childStories"`
 	LinkStories      string              `json:"linkStories"`

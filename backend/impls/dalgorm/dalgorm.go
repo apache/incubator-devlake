@@ -125,7 +125,6 @@ func buildTx(tx *gorm.DB, clauses []dal.Clause) *gorm.DB {
 			if nowait {
 				locking.Options = "NOWAIT"
 			}
-
 			tx = tx.Clauses(locking)
 		}
 	}
@@ -463,5 +462,5 @@ func (d *Dalgorm) convertGormError(err error) errors.Error {
 		return errors.BadInput.WrapRaw(err)
 	}
 
-	panic(err)
+	return errors.Internal.WrapRaw(err)
 }

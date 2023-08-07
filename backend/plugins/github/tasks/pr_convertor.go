@@ -30,12 +30,22 @@ import (
 	"github.com/apache/incubator-devlake/plugins/github/models"
 )
 
+func init() {
+	RegisterSubtaskMeta(&ConvertPullRequestsMeta)
+}
+
 var ConvertPullRequestsMeta = plugin.SubTaskMeta{
 	Name:             "convertPullRequests",
 	EntryPoint:       ConvertPullRequests,
 	EnabledByDefault: true,
 	Description:      "ConvertPullRequests data from Github api",
 	DomainTypes:      []string{plugin.DOMAIN_TYPE_CROSS, plugin.DOMAIN_TYPE_CODE_REVIEW},
+	DependencyTables: []string{
+		models.GithubPullRequest{}.TableName(), // cursor
+		//models.GithubRepo{}.TableName(),        // id generator, but not regard as dependency
+		models.GithubAccount{}.TableName(), // cursor
+		RAW_PULL_REQUEST_TABLE},
+	ProductTables: []string{code.PullRequest{}.TableName()},
 }
 
 func ConvertPullRequests(taskCtx plugin.SubTaskContext) errors.Error {

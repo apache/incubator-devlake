@@ -39,7 +39,7 @@ export const PipelineTask = ({ task }: Props) => {
 
   const [icon, name] = useMemo(() => {
     const config = getPluginConfig(task.plugin);
-    const options = JSON.parse(task.options);
+    const options = task.options;
 
     let name = config.name;
 
@@ -77,6 +77,9 @@ export const PipelineTask = ({ task }: Props) => {
         break;
       case ['refdiff'].includes(config.plugin):
         name = `${name}:${options.repoId ?? options.projectName}`;
+        break;
+      case ['bamboo'].includes(config.plugin):
+        name = `${name}:${options.planKey}`;
         break;
     }
 

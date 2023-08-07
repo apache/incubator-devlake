@@ -18,6 +18,9 @@ limitations under the License.
 package tasks
 
 import (
+	"reflect"
+	"strings"
+
 	"github.com/apache/incubator-devlake/core/dal"
 	"github.com/apache/incubator-devlake/core/errors"
 	"github.com/apache/incubator-devlake/core/models/domainlayer"
@@ -26,9 +29,11 @@ import (
 	"github.com/apache/incubator-devlake/core/plugin"
 	"github.com/apache/incubator-devlake/helpers/pluginhelper/api"
 	"github.com/apache/incubator-devlake/plugins/github/models"
-	"reflect"
-	"strings"
 )
+
+func init() {
+	RegisterSubtaskMeta(&ConvertJobsMeta)
+}
 
 var ConvertJobsMeta = plugin.SubTaskMeta{
 	Name:             "convertJobs",
@@ -36,6 +41,13 @@ var ConvertJobsMeta = plugin.SubTaskMeta{
 	EnabledByDefault: true,
 	Description:      "Convert tool layer table github_jobs into  domain layer table cicd_tasks",
 	DomainTypes:      []string{plugin.DOMAIN_TYPE_CICD},
+	DependencyTables: []string{
+		RAW_JOB_TABLE,
+		models.GithubJob{}.TableName(), // cursor and generator
+		models.GithubRun{}.TableName(), // id generator
+		//models.GithubRepo{}.TableName(), // id generator, but config will not regard as dependency
+	},
+	ProductTables: []string{devops.CICDTask{}.TableName()},
 }
 
 type SimpleBranch struct {

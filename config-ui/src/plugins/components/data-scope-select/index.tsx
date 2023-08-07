@@ -18,8 +18,9 @@
 
 import { useState, useEffect } from 'react';
 import { Button, Intent } from '@blueprintjs/core';
+import { useDebounce } from 'ahooks';
 
-import { PageLoading, FormItem, ExternalLink, Message, Buttons, Table } from '@/components';
+import { PageLoading, FormItem, ExternalLink, Message, Buttons, MultiSelector, Table } from '@/components';
 import { useRefreshData } from '@/hooks';
 import { getPluginScopeId } from '@/plugins';
 
@@ -45,12 +46,19 @@ export const DataScopeSelect = ({
 }: Props) => {
   const [version, setVersion] = useState(1);
   const [scopeIds, setScopeIds] = useState<ID[]>([]);
-
-  const { ready, data } = useRefreshData(() => API.getDataScope(plugin, connectionId), [version]);
+  const [query, setQuery] = useState('');
 
   useEffect(() => {
-    setScopeIds((initialScope ?? data ?? []).map((sc: any) => getPluginScopeId(plugin, sc)) ?? []);
-  }, [data]);
+    setScopeIds((initialScope ?? []).map((sc: any) => getPluginScopeId(plugin, sc)) ?? []);
+  }, []);
+
+  const search = useDebounce(query, { wait: 500 });
+
+  const { ready, data } = useRefreshData(() => API.getDataScope(plugin, connectionId), [version]);
+  const { ready: searchReady, data: searchItems } = useRefreshData<[{ name: string }]>(
+    () => API.getDataScope(plugin, connectionId, { searchTerm: search }),
+    [search],
+  );
 
   const handleRefresh = () => setVersion((v) => v + 1);
 
@@ -104,6 +112,18 @@ export const DataScopeSelect = ({
               <Button intent={Intent.PRIMARY} icon="refresh" text="Refresh Data Scope" onClick={handleRefresh} />
             </Buttons>
           )}
+          <div className="search">
+            <MultiSelector
+              loading={!searchReady}
+              items={searchItems ?? []}
+              getName={(it: any) => it.name}
+              getKey={(it) => getPluginScopeId(plugin, it)}
+              noResult="No Data Scopes Available."
+              onQueryChange={(query) => setQuery(query)}
+              selectedItems={data.filter((it: any) => scopeIds.includes(getPluginScopeId(plugin, it))) ?? []}
+              onChangeItems={(items) => setScopeIds(items.map((it: any) => getPluginScopeId(plugin, it)))}
+            />
+          </div>
           <Table
             noShadow
             loading={!ready}
