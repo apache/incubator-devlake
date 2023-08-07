@@ -463,5 +463,5 @@ func (d *Dalgorm) convertGormError(err error) errors.Error {
 		return errors.BadInput.WrapRaw(err)
 	}
 
-	panic(err)
+	return errors.Internal.WrapRaw(err)
 }
