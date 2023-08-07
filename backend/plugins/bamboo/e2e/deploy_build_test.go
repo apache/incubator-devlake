@@ -81,9 +81,10 @@ func TestBambooDeployBuildDataFlow(t *testing.T) {
 
 	// verify conversion
 	dataflowTester.ImportCsvIntoTabler("./snapshot_tables/_tool_bamboo_plan_build_commits.csv", &models.BambooPlanBuildVcsRevision{})
+	dataflowTester.ImportCsvIntoTabler("./snapshot_tables/_tool_bamboo_deploy_build.csv", &models.BambooDeployBuild{})
 	dataflowTester.FlushTabler(&devops.CicdDeploymentCommit{})
 	dataflowTester.Subtask(tasks.ConvertDeployBuildsMeta, taskData)
-	dataflowTester.VerifyTableWithOptions(&devops.CICDTask{}, e2ehelper.TableOptions{
+	dataflowTester.VerifyTableWithOptions(&devops.CicdDeploymentCommit{}, e2ehelper.TableOptions{
 		CSVRelPath:  "./snapshot_tables/cicd_deployment_commits.csv",
 		IgnoreTypes: []interface{}{common.NoPKModel{}},
 	})

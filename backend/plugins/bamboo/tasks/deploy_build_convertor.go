@@ -106,9 +106,7 @@ func ConvertDeployBuilds(taskCtx plugin.SubTaskContext) errors.Error {
 			}
 			if input.FinishedDate != nil && input.StartedDate != nil {
 				duration := uint64(input.FinishedDate.Sub(*input.StartedDate).Seconds())
-				if duration >= 0 {
-					deploymentCommit.DurationSec = &duration
-				}
+				deploymentCommit.DurationSec = &duration
 			}
 
 			return []interface{}{deploymentCommit}, nil

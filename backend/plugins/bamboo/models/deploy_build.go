@@ -82,8 +82,7 @@ func (api *ApiBambooDeployBuild) Convert(op *BambooOptions, envName string) []*B
 		PlanBranchName:        api.DeploymentVersion.PlanBranchName,
 	}
 	for _, item := range api.DeploymentVersion.Items {
-		var build BambooDeployBuild
-		build = tmpl
+		build := tmpl
 		build.PlanResultKey = item.PlanResultKey.Key
 		if build.PlanResultKey != "" {
 			result = append(result, &build)
