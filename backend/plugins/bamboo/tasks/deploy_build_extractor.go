@@ -46,13 +46,12 @@ func ExtractDeployBuild(taskCtx plugin.SubTaskContext) errors.Error {
 				return nil, err
 			}
 
-			build := res.Convert(data.Options)
-			build.PlanKey = data.Options.PlanKey
-			build.Environment = input.Name
-
-			return []interface{}{
-				build,
-			}, nil
+			builds := res.Convert(data.Options, input.Name)
+			var result []interface{}
+			for _, build := range builds {
+				result = append(result, build)
+			}
+			return result, nil
 		},
 	})
 	if err != nil {
