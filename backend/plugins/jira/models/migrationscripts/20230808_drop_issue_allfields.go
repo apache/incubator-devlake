@@ -18,31 +18,20 @@ limitations under the License.
 package migrationscripts
 
 import (
-	"github.com/apache/incubator-devlake/core/plugin"
+	"github.com/apache/incubator-devlake/core/context"
+	"github.com/apache/incubator-devlake/core/errors"
 )
 
-// All return all the migration scripts
-func All() []plugin.MigrationScript {
-	return []plugin.MigrationScript{
-		new(addSourceTable20220407),
-		new(renameSourceTable20220505),
-		new(addInitTables20220716),
-		new(addTransformationRule20221116),
-		new(addProjectName20221215),
-		new(addJiraMultiAuth20230129),
-		new(removeIssueStdStoryPoint),
-		new(addCommitRepoPattern),
-		new(expandRemotelinkUrl),
-		new(addConnectionIdToTransformationRule),
-		new(addChangeTotal20230412),
-		new(expandRemotelinkSelfUrl),
-		new(addDescAndComments),
-		new(renameTr2ScopeConfig),
-		new(addRepoUrl),
-		new(addApplicationType),
-		new(clearRepoPattern),
-		new(addRawParamTableForScope),
-		new(addIssueRelationship),
-		new(dropIssueAllFields),
-	}
+type dropIssueAllFields struct{}
+
+func (script *dropIssueAllFields) Up(basicRes context.BasicRes) errors.Error {
+	return basicRes.GetDal().DropColumns("_tool_jira_issues", "all_fields")
+}
+
+func (*dropIssueAllFields) Version() uint64 {
+	return 20230808162534
+}
+
+func (*dropIssueAllFields) Name() string {
+	return "add table _tool_jira_issues.all_fields column"
 }
