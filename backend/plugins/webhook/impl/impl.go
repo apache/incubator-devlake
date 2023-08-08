@@ -91,5 +91,14 @@ func (p Webhook) ApiResources() map[string]map[string]plugin.ApiResourceHandler 
 		"connections/:connectionId/issue/:issueKey/close": {
 			"POST": api.CloseIssue,
 		},
+		":connectionId/deployments": {
+			"POST": api.PostDeploymentCicdTask,
+		},
+		":connectionId/issues": {
+			"POST": api.PostIssue,
+		},
+		":connectionId/issue/:issueKey/close": {
+			"POST": api.CloseIssue,
+		},
 	}
 }

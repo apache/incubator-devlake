@@ -19,12 +19,13 @@ package api
 
 import (
 	"fmt"
+	"net/http"
+	"strings"
+
 	"github.com/apache/incubator-devlake/core/context"
 	"github.com/apache/incubator-devlake/core/errors"
 	"github.com/apache/incubator-devlake/impls/logruslog"
 	"github.com/apache/incubator-devlake/server/api/apikeys"
-	"net/http"
-	"strings"
 
 	"github.com/apache/incubator-devlake/core/plugin"
 	"github.com/apache/incubator-devlake/server/api/blueprints"
@@ -118,7 +119,7 @@ func handlePluginCall(basicRes context.BasicRes, pluginName string, handler plug
 		input.Query = c.Request.URL.Query()
 		user, exist := shared.GetUser(c)
 		if !exist {
-			basicRes.GetLogger().Warn(nil, "user doesn't exist")
+			basicRes.GetLogger().Debug("user doesn't exist")
 		} else {
 			input.User = user
 		}

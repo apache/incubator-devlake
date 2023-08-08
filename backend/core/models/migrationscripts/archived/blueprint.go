@@ -18,12 +18,12 @@ limitations under the License.
 package archived
 
 import (
-	"gorm.io/datatypes"
+	"encoding/json"
 )
 
 type Blueprint struct {
 	Name       string
-	Tasks      datatypes.JSON
+	Tasks      json.RawMessage `gorm:"type:json"`
 	Enable     bool
 	CronConfig string
 	Model

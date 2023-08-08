@@ -18,8 +18,9 @@ limitations under the License.
 package tasks
 
 import (
-	"github.com/apache/incubator-devlake/core/models/domainlayer/devops"
 	"reflect"
+
+	"github.com/apache/incubator-devlake/core/models/domainlayer/devops"
 
 	"github.com/apache/incubator-devlake/core/dal"
 	"github.com/apache/incubator-devlake/core/errors"
@@ -50,7 +51,7 @@ func ConvertPlanVcs(taskCtx plugin.SubTaskContext) errors.Error {
 	defer cursor.Close()
 
 	planBuildIdGen := didgen.NewDomainIdGenerator(&models.BambooPlanBuild{})
-	repoMap := getRepoMap(data.Options.RepoMap)
+	repoMap := data.Options.GetRepoIdMap()
 	converter, err := api.NewDataConverter(api.DataConverterArgs{
 		InputRowType:       reflect.TypeOf(models.BambooPlanBuildVcsRevision{}),
 		Input:              cursor,
