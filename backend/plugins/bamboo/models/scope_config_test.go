@@ -15,29 +15,22 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-package tasks
+package models
 
 import (
-	"encoding/json"
-	"gorm.io/datatypes"
-	"reflect"
 	"testing"
+
+	"github.com/magiconair/properties/assert"
 )
 
-func TestGetRepoMap(t *testing.T) {
-	rawJSON := `
-	{
-		"repo1": [1, 2],
-		"repo2": [3],
-		"repo3": [4, 5, 6]
+func TestGetRepoIdMap(t *testing.T) {
+	scopeConfig := &BambooScopeConfig{
+		RepoMap: map[string][]int{
+			"repo1": {1, 2},
+			"repo2": {3},
+			"repo3": {4, 5, 6},
+		},
 	}
-	`
-	var rawRepoMap datatypes.JSONMap
-	err := json.Unmarshal([]byte(rawJSON), &rawRepoMap)
-	if err != nil {
-		t.Errorf("Failed to unmarshal rawJSON: %v", err)
-	}
-
 	expectedRepoMap := map[int]string{
 		1: "repo1",
 		2: "repo1",
@@ -47,9 +40,5 @@ func TestGetRepoMap(t *testing.T) {
 		6: "repo3",
 	}
 
-	repoMap := getRepoMap(rawRepoMap)
-
-	if !reflect.DeepEqual(repoMap, expectedRepoMap) {
-		t.Errorf("Unexpected result. Expected: %v, got: %v", expectedRepoMap, repoMap)
-	}
+	assert.Equal(t, scopeConfig.GetRepoIdMap(), expectedRepoMap, "Unexpected result")
 }
