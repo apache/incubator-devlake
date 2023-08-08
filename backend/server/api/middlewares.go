@@ -20,16 +20,17 @@ package api
 import (
 	"encoding/base64"
 	"fmt"
+	"net/http"
+	"regexp"
+	"strings"
+	"time"
+
 	"github.com/apache/incubator-devlake/core/context"
 	"github.com/apache/incubator-devlake/core/dal"
 	"github.com/apache/incubator-devlake/core/errors"
 	"github.com/apache/incubator-devlake/core/models/common"
 	"github.com/apache/incubator-devlake/helpers/apikeyhelper"
 	"github.com/gin-gonic/gin"
-	"net/http"
-	"regexp"
-	"strings"
-	"time"
 )
 
 func getOAuthUserInfo(c *gin.Context) (*common.User, error) {
@@ -44,13 +45,14 @@ func getOAuthUserInfo(c *gin.Context) (*common.User, error) {
 	}, nil
 }
 
-func getBasicAuthUserInfo(c *gin.Context) (*common.User, error) {
+func getBasicAuthUserInfo(c *gin.Context, basicRes context.BasicRes) (*common.User, error) {
 	if c == nil {
 		return nil, errors.Default.New("request is nil")
 	}
 	authHeader := c.GetHeader("Authorization")
 	if authHeader == "" {
-		return nil, errors.Default.New("Authorization is empty")
+		basicRes.GetLogger().Debug("Authorization is empty")
+		return nil, nil
 	}
 	basicAuth := strings.TrimPrefix(authHeader, "Basic ")
 	if basicAuth == authHeader || basicAuth == "" {
@@ -80,9 +82,9 @@ func OAuth2ProxyAuthentication(basicRes context.BasicRes) gin.HandlerFunc {
 			}
 			if user == nil || user.Name == "" {
 				// fetch with basic auth header
-				user, err = getBasicAuthUserInfo(c)
+				user, err = getBasicAuthUserInfo(c, basicRes)
 				if err != nil {
-					logger.Warn(err, "getBasicAuthUserInfo")
+					logger.Debug("getBasicAuthUserInfo")
 				}
 			}
 			if user != nil && user.Name != "" {
