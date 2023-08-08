@@ -24,8 +24,8 @@ on:
       - closed
 
 jobs:
-  cherry-pick:
-    if: github.event.pull_request.merged == true && startsWith(github.event.label.name, 'needs-cherrypick-')
+  auto-cherry-pick:
+    if: github.event.pull_request.merged == true
     runs-on: ubuntu-latest
     permissions:
       contents: write
