@@ -28,6 +28,7 @@ import (
 
 	"github.com/apache/incubator-devlake/core/dal"
 	"github.com/apache/incubator-devlake/core/errors"
+	"github.com/apache/incubator-devlake/core/models/common"
 	"github.com/apache/incubator-devlake/core/plugin"
 	helper "github.com/apache/incubator-devlake/helpers/pluginhelper/api"
 	"github.com/apache/incubator-devlake/plugins/gitlab/models"
@@ -41,7 +42,7 @@ const RAW_JOB_TABLE = "gitlab_api_job"
 
 type SimpleGitlabApiJob struct {
 	GitlabId  int
-	CreatedAt helper.Iso8601Time `json:"created_at"`
+	CreatedAt common.Iso8601Time `json:"created_at"`
 }
 
 var CollectApiJobsMeta = plugin.SubTaskMeta{

@@ -110,7 +110,7 @@ export const MultiSelector = <T,>({
   };
 
   const handleQueryChange = (query: string) => {
-    if (onQueryChange) {
+    if (onQueryChange && query) {
       onQueryChange(query);
     } else {
       setQuery(query);
@@ -119,6 +119,7 @@ export const MultiSelector = <T,>({
 
   return (
     <MultiSelect2
+      resetOnSelect
       fill
       placeholder={placeholder ?? 'Select...'}
       items={filteredItems}

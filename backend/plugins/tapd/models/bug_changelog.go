@@ -19,7 +19,6 @@ package models
 
 import (
 	"github.com/apache/incubator-devlake/core/models/common"
-	helper "github.com/apache/incubator-devlake/helpers/pluginhelper/api"
 )
 
 type TapdBugChangelog struct {
@@ -32,7 +31,7 @@ type TapdBugChangelog struct {
 	OldValue     string          `json:"old_value"`
 	NewValue     string          `json:"new_value"`
 	Memo         string          `json:"memo" gorm:"type:text"`
-	Created      *helper.CSTTime `json:"created"`
+	Created      *common.CSTTime `json:"created"`
 	common.NoPKModel
 }
 

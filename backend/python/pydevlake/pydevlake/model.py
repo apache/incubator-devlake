@@ -26,7 +26,8 @@ from pydantic import AnyUrl, SecretStr, validator
 from sqlalchemy import Column, DateTime, Text
 from sqlalchemy.orm import declared_attr
 from sqlalchemy.inspection import inspect
-from sqlmodel import SQLModel, Field
+from sqlmodel import SQLModel
+from pydevlake import Field
 
 
 inflect_engine = inflect.engine()
@@ -86,6 +87,7 @@ class DomainType(Enum):
 class ScopeConfig(ToolTable, Model):
     name: str = Field(default="default")
     domain_types: list[DomainType] = Field(default=list(DomainType), alias="entities")
+    connection_id: Optional[int]
 
 
 class RawModel(SQLModel):
@@ -126,7 +128,7 @@ class NoPKModel(RawDataOrigin):
 
 
 class ToolModel(ToolTable, NoPKModel):
-    connection_id: Optional[int] = Field(primary_key=True)
+    connection_id: Optional[int] = Field(primary_key=True, auto_increment=False)
 
     def domain_id(self):
         """
@@ -152,6 +154,7 @@ class DomainModel(NoPKModel):
 class ToolScope(ToolModel):
     id: str = Field(primary_key=True)
     name: str
+    scope_config_id: Optional[int]
 
 
 class DomainScope(DomainModel):

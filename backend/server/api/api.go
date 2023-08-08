@@ -18,8 +18,10 @@ limitations under the License.
 package api
 
 import (
+	"bytes"
 	"fmt"
 	"net/http"
+	"net/url"
 	"strconv"
 	"strings"
 	"time"
@@ -94,6 +96,11 @@ func CreateApiService() {
 		shared.ApiOutputSuccess(ctx, nil, http.StatusOK)
 	})
 
+	// Api keys
+	basicRes := services.GetBasicRes()
+	router.Use(RestAuthentication(router, basicRes))
+	router.Use(OAuth2ProxyAuthentication(basicRes))
+
 	// Restrict access if database migration is required
 	router.Use(func(ctx *gin.Context) {
 		if !services.MigrationRequireConfirmation() {
@@ -108,7 +115,7 @@ func CreateApiService() {
 	})
 
 	// Add swagger handlers
-	router.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerFiles.Handler))
+	router.GET("/swagger/*any", modifyBasePath, ginSwagger.WrapHandler(swaggerFiles.Handler))
 	registerExtraOpenApiSpecs(router)
 
 	// Add debug logging for endpoints
@@ -133,7 +140,7 @@ func CreateApiService() {
 	}))
 
 	// Register API endpoints
-	RegisterRouter(router)
+	RegisterRouter(router, basicRes)
 	// Get port from config
 	port := v.GetString("PORT")
 	// Trim any : from the start
@@ -177,4 +184,25 @@ func registerExtraOpenApiSpecs(router *gin.Engine) {
 			)
 		}
 	}
+}
+
+type bodyTamper struct {
+	gin.ResponseWriter
+}
+
+func (w bodyTamper) Write(b []byte) (int, error) {
+	b = bytes.Replace(b, []byte(`"basePath": ""`), []byte(`"basePath": "/api"`), 1)
+	return w.ResponseWriter.Write(b)
+}
+
+func modifyBasePath(c *gin.Context) {
+	if !strings.HasSuffix(c.Request.URL.Path, "swagger/doc.json") {
+		return
+	}
+	u, _ := url.Parse(c.GetHeader("Referer"))
+	if u == nil || !strings.HasPrefix(u.Path, "/api") {
+		return
+	}
+	blw := &bodyTamper{ResponseWriter: c.Writer}
+	c.Writer = blw
 }

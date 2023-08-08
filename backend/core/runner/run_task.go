@@ -189,14 +189,10 @@ func RunPluginSubTasks(
 	*/
 
 	// user specifies what subtasks to run
-	subtaskNames, err := task.GetSubTasks()
-	if err != nil {
-		return err
-	}
-	if len(subtaskNames) != 0 {
+	if len(task.Subtasks) != 0 {
 		// decode user specified subtasks
 		var specifiedTasks []string
-		err := api.Decode(subtaskNames, &specifiedTasks, nil)
+		err := api.Decode(task.Subtasks, &specifiedTasks, nil)
 		if err != nil {
 			return errors.Default.Wrap(err, "subtasks could not be decoded")
 		}
@@ -235,10 +231,7 @@ func RunPluginSubTasks(
 	if closeablePlugin, ok := pluginTask.(plugin.CloseablePluginTask); ok {
 		defer closeablePlugin.Close(taskCtx)
 	}
-	options, err := task.GetOptions()
-	if err != nil {
-		return err
-	}
+	options := task.Options
 	taskData, err := pluginTask.PrepareTaskData(taskCtx, options)
 	if err != nil {
 		return errors.Default.Wrap(err, fmt.Sprintf("error preparing task data for %s", task.Plugin))

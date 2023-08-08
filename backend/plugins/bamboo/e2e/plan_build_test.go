@@ -36,8 +36,8 @@ func TestBambooPlanBuildDataFlow(t *testing.T) {
 
 	taskData := &tasks.BambooTaskData{
 		Options: &models.BambooOptions{
-			ConnectionId: 3,
-			ProjectKey:   "TEST1",
+			ConnectionId: 1,
+			PlanKey:      "TEST-PLA2",
 			BambooScopeConfig: &models.BambooScopeConfig{
 				DeploymentPattern: "(?i)compile",
 				ProductionPattern: "(?i)compile",
@@ -53,6 +53,7 @@ func TestBambooPlanBuildDataFlow(t *testing.T) {
 
 	// verify extraction
 	dataflowTester.FlushTabler(&models.BambooPlanBuild{})
+	dataflowTester.FlushTabler(&models.BambooPlanBuildVcsRevision{})
 	dataflowTester.Subtask(tasks.ExtractPlanBuildMeta, taskData)
 	dataflowTester.VerifyTable(
 		models.BambooPlanBuild{},

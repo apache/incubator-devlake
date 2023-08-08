@@ -35,9 +35,9 @@ func TestConvertIssueRepoCommitsDataFlow(t *testing.T) {
 		Options: &tasks.JiraOptions{
 			ConnectionId: 2,
 			BoardId:      8,
-			ScopeConfig: &tasks.JiraScopeConfig{
+			ScopeConfig: &models.JiraScopeConfig{
 				RemotelinkCommitShaPattern: `.*/commit/(.*)`,
-				RemotelinkRepoPattern: []tasks.CommitUrlPattern{
+				RemotelinkRepoPattern: []models.CommitUrlPattern{
 					{"", `https://bitbucket.org/(?P<namespace>[^/]+)/(?P<repo_name>[^/]+)/commits/(?P<commit_sha>\w{40})`},
 					{"", `https://gitlab.com/(?P<namespace>\S+)/(?P<repo_name>\S+)/-/commit/(?P<commit_sha>\w{40})`},
 					{"", `https://github.com/(?P<namespace>[^/]+)/(?P<repo_name>[^/]+)/commit/(?P<commit_sha>\w{40})`},

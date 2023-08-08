@@ -24,9 +24,9 @@ import (
 )
 
 type BambooDeployBuild struct {
-	ConnectionId  uint64 `json:"connection_id" gorm:"primaryKey"`
-	DeployBuildId uint64 `json:"deploy_build_id" gorm:"primaryKey"`
-
+	ConnectionId          uint64     `json:"connection_id" gorm:"primaryKey"`
+	DeployBuildId         uint64     `json:"deploy_build_id" gorm:"primaryKey"`
+	PlanResultKey         string     `json:"planResultKey"  gorm:"primaryKey"`
 	DeploymentVersionName string     `json:"deploymentVersionName"`
 	DeploymentState       string     `json:"deploymentState"`
 	LifeCycleState        string     `json:"lifeCycleState"`
@@ -35,10 +35,10 @@ type BambooDeployBuild struct {
 	ExecutedDate          *time.Time `json:"executedDate"`
 	FinishedDate          *time.Time `json:"finishedDate"`
 	ReasonSummary         string     `json:"reasonSummary"`
-
-	ProjectKey  string `json:"project_key" gorm:"index"`
-	PlanKey     string `json:"plan_key" gorm:"index"`
-	Environment string `gorm:"type:varchar(255)"`
+	ProjectKey            string     `json:"project_key" gorm:"index"`
+	PlanKey               string     `json:"plan_key" gorm:"index"`
+	Environment           string     `gorm:"type:varchar(255)"`
+	PlanBranchName        string     `gorm:"type:varchar(255)"`
 	ApiBambooOperations
 	common.NoPKModel
 }
@@ -48,24 +48,26 @@ func (BambooDeployBuild) TableName() string {
 }
 
 type ApiBambooDeployBuild struct {
-	DeploymentVersionName string                    `json:"deploymentVersionName"`
-	Id                    uint64                    `json:"id"`
-	DeploymentState       string                    `json:"deploymentState"`
-	LifeCycleState        string                    `json:"lifeCycleState"`
-	StartedDate           int64                     `json:"startedDate"`
-	QueuedDate            int64                     `json:"queuedDate"`
-	ExecutedDate          int64                     `json:"executedDate"`
-	FinishedDate          int64                     `json:"finishedDate"`
-	ReasonSummary         string                    `json:"reasonSummary"`
-	Key                   ApiBambooDeployBuildKey   `json:"key"`
-	Agent                 ApiBambooDeployBuildAgent `json:"agent"`
-	Operations            ApiBambooOperations       `json:"operations"`
+	DeploymentVersion     ApiBambooDeploymentVersion `json:"deploymentVersion"`
+	DeploymentVersionName string                     `json:"deploymentVersionName"`
+	Id                    uint64                     `json:"id"`
+	DeploymentState       string                     `json:"deploymentState"`
+	LifeCycleState        string                     `json:"lifeCycleState"`
+	StartedDate           int64                      `json:"startedDate"`
+	QueuedDate            int64                      `json:"queuedDate"`
+	ExecutedDate          int64                      `json:"executedDate"`
+	FinishedDate          int64                      `json:"finishedDate"`
+	ReasonSummary         string                     `json:"reasonSummary"`
+	Key                   ApiBambooDeployBuildKey    `json:"key"`
+	Agent                 ApiBambooDeployBuildAgent  `json:"agent"`
+	Operations            ApiBambooOperations        `json:"operations"`
 }
 
-func (api *ApiBambooDeployBuild) Convert(op *BambooOptions) *BambooDeployBuild {
-	return &BambooDeployBuild{
+func (api *ApiBambooDeployBuild) Convert(op *BambooOptions, envName string) []*BambooDeployBuild {
+	var result []*BambooDeployBuild
+	tmpl := BambooDeployBuild{
 		ConnectionId:          op.ConnectionId,
-		ProjectKey:            op.ProjectKey,
+		PlanKey:               op.PlanKey,
 		DeploymentVersionName: api.DeploymentVersionName,
 		DeployBuildId:         api.Id,
 		DeploymentState:       api.DeploymentState,
@@ -76,7 +78,17 @@ func (api *ApiBambooDeployBuild) Convert(op *BambooOptions) *BambooDeployBuild {
 		FinishedDate:          unixForBambooDeployBuild(api.FinishedDate),
 		ReasonSummary:         api.ReasonSummary,
 		ApiBambooOperations:   api.Operations,
+		Environment:           envName,
+		PlanBranchName:        api.DeploymentVersion.PlanBranchName,
 	}
+	for _, item := range api.DeploymentVersion.Items {
+		build := tmpl
+		build.PlanResultKey = item.PlanResultKey.Key
+		if build.PlanResultKey != "" {
+			result = append(result, &build)
+		}
+	}
+	return result
 }
 
 type ApiBambooDeployBuildAgent struct {
@@ -96,14 +108,25 @@ type ApiBambooDeployBuildKey struct {
 }
 
 type ApiBambooDeploymentVersion struct {
-	ID                 uint64              `json:"id"`
-	Name               string              `json:"name"`
-	CreationDate       *time.Time          `json:"creationDate"`
-	CreatorUserName    string              `json:"creatorUserName"`
-	Items              []interface{}       `json:"items"`
-	Operations         ApiBambooOperations `json:"operations"`
-	CreatorDisplayName string              `json:"creatorDisplayName"`
-	CreatorGravatarUrl string              `json:"creatorGravatarUrl"`
-	PlanBranchName     string              `json:"planBranchName"`
-	AgeZeroPoint       uint64              `json:"ageZeroPoint"`
+	ID              uint64 `json:"id"`
+	Name            string `json:"name"`
+	CreationDate    int64  `json:"creationDate"`
+	CreatorUserName string `json:"creatorUserName"`
+	Items           []struct {
+		ID            int    `json:"id"`
+		Name          string `json:"name"`
+		PlanResultKey struct {
+			Key       string `json:"key"`
+			EntityKey struct {
+				Key string `json:"key"`
+			} `json:"entityKey"`
+			ResultNumber int `json:"resultNumber"`
+		} `json:"planResultKey"`
+		Type        string `json:"type"`
+		Label       string `json:"label"`
+		Location    string `json:"location"`
+		CopyPattern string `json:"copyPattern"`
+		Size        int    `json:"size"`
+	} `json:"items"`
+	PlanBranchName string `json:"planBranchName"`
 }

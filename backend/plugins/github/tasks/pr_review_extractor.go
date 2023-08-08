@@ -22,6 +22,7 @@ import (
 	"strings"
 
 	"github.com/apache/incubator-devlake/core/errors"
+	"github.com/apache/incubator-devlake/core/models/common"
 	"github.com/apache/incubator-devlake/core/plugin"
 	"github.com/apache/incubator-devlake/helpers/pluginhelper/api"
 	"github.com/apache/incubator-devlake/plugins/github/models"
@@ -49,8 +50,8 @@ type PullRequestReview struct {
 	User        *GithubAccountResponse
 	Body        string
 	State       string
-	CommitId    string          `json:"commit_id"`
-	SubmittedAt api.Iso8601Time `json:"submitted_at"`
+	CommitId    string             `json:"commit_id"`
+	SubmittedAt common.Iso8601Time `json:"submitted_at"`
 }
 
 func ExtractApiPullRequestReviews(taskCtx plugin.SubTaskContext) errors.Error {

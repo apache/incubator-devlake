@@ -29,5 +29,8 @@ func All() []plugin.MigrationScript {
 		new(addTypeAndEnvironment),
 		new(renameTr2ScopeConfig),
 		new(addRawParamTableForScope),
+		new(addScopeConfigId),
+		new(addEnvNamePattern),
+		new(addPlanResultKey),
 	}
 }

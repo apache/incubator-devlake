@@ -19,9 +19,11 @@ package utils
 
 import (
 	"encoding/json"
-	"github.com/apache/incubator-devlake/core/models"
 	"reflect"
 	"time"
+
+	"github.com/apache/incubator-devlake/core/models"
+	"github.com/apache/incubator-devlake/core/models/common"
 
 	"github.com/apache/incubator-devlake/core/errors"
 	"github.com/go-playground/validator/v10"
@@ -37,7 +39,7 @@ func DecodeHook(f reflect.Type, t reflect.Type, data interface{}) (interface{}, 
 		return json.Marshal(data)
 	}
 
-	if t != reflect.TypeOf(Iso8601Time{}) && t != reflect.TypeOf(time.Time{}) {
+	if t != reflect.TypeOf(common.Iso8601Time{}) && t != reflect.TypeOf(time.Time{}) {
 		return data, nil
 	}
 
@@ -46,7 +48,7 @@ func DecodeHook(f reflect.Type, t reflect.Type, data interface{}) (interface{}, 
 
 	switch f.Kind() {
 	case reflect.String:
-		tt, err = ConvertStringToTime(data.(string))
+		tt, err = common.ConvertStringToTime(data.(string))
 	case reflect.Float64:
 		tt = time.Unix(0, int64(data.(float64))*int64(time.Millisecond))
 	case reflect.Int64:
@@ -56,8 +58,8 @@ func DecodeHook(f reflect.Type, t reflect.Type, data interface{}) (interface{}, 
 		return data, nil
 	}
 
-	if t == reflect.TypeOf(Iso8601Time{}) {
-		return Iso8601Time{time: tt}, nil
+	if t == reflect.TypeOf(common.Iso8601Time{}) {
+		return common.Iso8601Time{Time: tt}, nil
 	}
 	return tt, nil
 }

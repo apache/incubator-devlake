@@ -18,8 +18,9 @@ limitations under the License.
 package archived
 
 import (
+	"time"
+
 	"github.com/apache/incubator-devlake/core/models/migrationscripts/archived"
-	"github.com/apache/incubator-devlake/helpers/pluginhelper/api"
 )
 
 type TeambitionTaskActivity struct {
@@ -31,8 +32,8 @@ type TeambitionTaskActivity struct {
 	Action            string `gorm:"type:varchar(100)"`
 	BoundToObjectId   string `gorm:"type:varchar(100)"`
 	BoundToObjectType string `gorm:"type:varchar(100)"`
-	CreateTime        *api.Iso8601Time
-	UpdateTime        *api.Iso8601Time
+	CreateTime        *time.Time
+	UpdateTime        *time.Time
 	Content           string `gorm:"type:text"`
 
 	archived.NoPKModel

@@ -230,36 +230,6 @@ func (p *remotePluginImpl) ApiResources() map[string]map[string]plugin.ApiResour
 	return p.resources
 }
 
-func (p *remotePluginImpl) RunAutoMigrations() errors.Error {
-	err := p.createTable(p.connectionTabler.New())
-	if err != nil {
-		return err
-	}
-	err = p.createTable(p.scopeTabler.New())
-	if err != nil {
-		return err
-	}
-	err = p.createTable(p.scopeConfigTabler.New())
-	if err != nil {
-		return err
-	}
-	for _, toolModelTabler := range p.toolModelTablers {
-		err = p.createTable(toolModelTabler.New())
-		if err != nil {
-			return err
-		}
-	}
-	return nil
-}
-
-func (p *remotePluginImpl) createTable(tbl coreModels.DynamicTabler) errors.Error {
-	db := basicRes.GetDal()
-	if db.HasTable(tbl.TableName()) {
-		return nil
-	}
-	return api.CallDB(db.AutoMigrate, tbl)
-}
-
 func (p *remotePluginImpl) OpenApiSpec() string {
 	return p.openApiSpec
 }

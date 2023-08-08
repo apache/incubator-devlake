@@ -34,7 +34,7 @@ func TestDevelopmentPanelDataFlow(t *testing.T) {
 		Options: &tasks.JiraOptions{
 			ConnectionId: 1,
 			BoardId:      68,
-			ScopeConfig: &tasks.JiraScopeConfig{
+			ScopeConfig: &models.JiraScopeConfig{
 				ApplicationType: "GitLab",
 			},
 		},

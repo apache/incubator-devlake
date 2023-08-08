@@ -18,8 +18,9 @@ limitations under the License.
 package archived
 
 import (
+	"time"
+
 	"github.com/apache/incubator-devlake/core/models/migrationscripts/archived"
-	helper "github.com/apache/incubator-devlake/helpers/pluginhelper/api"
 )
 
 type ZentaoProduct struct {
@@ -42,20 +43,20 @@ type ZentaoProduct struct {
 	Acl                string `json:"acl" mapstructure:"acl"`
 	Reviewer           string `json:"reviewer" mapstructure:"reviewer"`
 	CreatedById        int64
-	CreatedDate        *helper.Iso8601Time `json:"createdDate" mapstructure:"createdDate"`
-	CreatedVersion     string              `json:"createdVersion" mapstructure:"createdVersion"`
-	OrderIn            int                 `json:"order" mapstructure:"order"`
-	Deleted            string              `json:"deleted" mapstructure:"deleted"`
-	Plans              int                 `json:"plans" mapstructure:"plans"`
-	Releases           int                 `json:"releases" mapstructure:"releases"`
-	Builds             int                 `json:"builds" mapstructure:"builds"`
-	Cases              int                 `json:"cases" mapstructure:"cases"`
-	Projects           int                 `json:"projects" mapstructure:"projects"`
-	Executions         int                 `json:"executions" mapstructure:"executions"`
-	Bugs               int                 `json:"bugs" mapstructure:"bugs"`
-	Docs               int                 `json:"docs" mapstructure:"docs"`
-	Progress           float64             `json:"progress" mapstructure:"progress"`
-	CaseReview         bool                `json:"caseReview" mapstructure:"caseReview"`
+	CreatedDate        *time.Time `json:"createdDate" mapstructure:"createdDate"`
+	CreatedVersion     string     `json:"createdVersion" mapstructure:"createdVersion"`
+	OrderIn            int        `json:"order" mapstructure:"order"`
+	Deleted            string     `json:"deleted" mapstructure:"deleted"`
+	Plans              int        `json:"plans" mapstructure:"plans"`
+	Releases           int        `json:"releases" mapstructure:"releases"`
+	Builds             int        `json:"builds" mapstructure:"builds"`
+	Cases              int        `json:"cases" mapstructure:"cases"`
+	Projects           int        `json:"projects" mapstructure:"projects"`
+	Executions         int        `json:"executions" mapstructure:"executions"`
+	Bugs               int        `json:"bugs" mapstructure:"bugs"`
+	Docs               int        `json:"docs" mapstructure:"docs"`
+	Progress           float64    `json:"progress" mapstructure:"progress"`
+	CaseReview         bool       `json:"caseReview" mapstructure:"caseReview"`
 }
 
 func (ZentaoProduct) TableName() string {

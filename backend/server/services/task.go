@@ -19,15 +19,15 @@ package services
 
 import (
 	"context"
-	"encoding/json"
 	"fmt"
+	"regexp"
+	"strings"
+
 	"github.com/apache/incubator-devlake/core/dal"
 	"github.com/apache/incubator-devlake/core/errors"
 	"github.com/apache/incubator-devlake/core/log"
 	"github.com/apache/incubator-devlake/core/models"
 	"github.com/apache/incubator-devlake/impls/logruslog"
-	"regexp"
-	"strings"
 )
 
 var taskLog = logruslog.Global.Nested("task service")
@@ -44,19 +44,10 @@ type TaskQuery struct {
 
 // CreateTask creates a new task
 func CreateTask(newTask *models.NewTask) (*models.Task, errors.Error) {
-	b, err := json.Marshal(newTask.Options)
-	if err != nil {
-		return nil, errors.Convert(err)
-	}
-	s, err := json.Marshal(newTask.Subtasks)
-	if err != nil {
-		return nil, errors.Convert(err)
-	}
-
 	task := &models.Task{
 		Plugin:      newTask.Plugin,
-		Subtasks:    s,
-		Options:     string(b),
+		Subtasks:    newTask.Subtasks,
+		Options:     newTask.Options,
 		Status:      models.TASK_CREATED,
 		Message:     "",
 		PipelineId:  newTask.PipelineId,
@@ -66,7 +57,7 @@ func CreateTask(newTask *models.NewTask) (*models.Task, errors.Error) {
 	if newTask.IsRerun {
 		task.Status = models.TASK_RERUN
 	}
-	err = db.Create(task)
+	err := db.Create(task)
 	if err != nil {
 		taskLog.Error(err, "save task failed")
 		return nil, errors.Internal.Wrap(err, "save task failed")

@@ -18,28 +18,29 @@ limitations under the License.
 package archived
 
 import (
+	"time"
+
 	"github.com/apache/incubator-devlake/core/models/migrationscripts/archived"
-	helper "github.com/apache/incubator-devlake/helpers/pluginhelper/api"
 )
 
 type TapdIteration struct {
-	ConnectionId uint64          `gorm:"primaryKey;type:BIGINT  NOT NULL"`
-	Id           uint64          `gorm:"primaryKey;type:BIGINT  NOT NULL;autoIncrement:false" json:"id,string"`
-	Name         string          `gorm:"type:varchar(255)" json:"name"`
-	WorkspaceId  uint64          `json:"workspace_id,string"`
-	Startdate    *helper.CSTTime `json:"startdate"`
-	Enddate      *helper.CSTTime `json:"enddate"`
-	Status       string          `gorm:"type:varchar(255)" json:"status"`
-	ReleaseId    uint64          `gorm:"type:BIGINT" json:"release_id,string"`
-	Description  string          `json:"description"`
-	Creator      string          `gorm:"type:varchar(255)" json:"creator"`
-	Created      *helper.CSTTime `json:"created"`
-	Modified     *helper.CSTTime `json:"modified"`
-	Completed    *helper.CSTTime `json:"completed"`
-	Releaseowner string          `gorm:"type:varchar(255)" json:"releaseowner"`
-	Launchdate   *helper.CSTTime `json:"launchdate"`
-	Notice       string          `gorm:"type:varchar(255)" json:"notice"`
-	Releasename  string          `gorm:"type:varchar(255)" json:"releasename"`
+	ConnectionId uint64     `gorm:"primaryKey;type:BIGINT  NOT NULL"`
+	Id           uint64     `gorm:"primaryKey;type:BIGINT  NOT NULL;autoIncrement:false" json:"id,string"`
+	Name         string     `gorm:"type:varchar(255)" json:"name"`
+	WorkspaceId  uint64     `json:"workspace_id,string"`
+	Startdate    *time.Time `json:"startdate"`
+	Enddate      *time.Time `json:"enddate"`
+	Status       string     `gorm:"type:varchar(255)" json:"status"`
+	ReleaseId    uint64     `gorm:"type:BIGINT" json:"release_id,string"`
+	Description  string     `json:"description"`
+	Creator      string     `gorm:"type:varchar(255)" json:"creator"`
+	Created      *time.Time `json:"created"`
+	Modified     *time.Time `json:"modified"`
+	Completed    *time.Time `json:"completed"`
+	Releaseowner string     `gorm:"type:varchar(255)" json:"releaseowner"`
+	Launchdate   *time.Time `json:"launchdate"`
+	Notice       string     `gorm:"type:varchar(255)" json:"notice"`
+	Releasename  string     `gorm:"type:varchar(255)" json:"releasename"`
 	archived.NoPKModel
 }
 

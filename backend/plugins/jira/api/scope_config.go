@@ -27,6 +27,7 @@ import (
 	"strings"
 
 	"github.com/apache/incubator-devlake/core/errors"
+	"github.com/apache/incubator-devlake/core/models/common"
 	"github.com/apache/incubator-devlake/core/plugin"
 	"github.com/apache/incubator-devlake/helpers/pluginhelper/api"
 	"github.com/apache/incubator-devlake/plugins/jira/models"
@@ -57,8 +58,8 @@ type repo struct {
 // @Tags plugins/jira
 // @Accept application/json
 // @Param connectionId path int true "connectionId"
-// @Param scopeConfig body tasks.JiraScopeConfig true "scope config"
-// @Success 200  {object} tasks.JiraScopeConfig
+// @Param scopeConfig body models.JiraScopeConfig true "scope config"
+// @Success 200  {object} models.JiraScopeConfig
 // @Failure 400  {object} shared.ApiBody "Bad Request"
 // @Failure 500  {object} shared.ApiBody "Internal Error"
 // @Router /plugins/jira/connections/{connectionId}/scope-configs [POST]
@@ -73,8 +74,8 @@ func CreateScopeConfig(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutpu
 // @Accept application/json
 // @Param id path int true "id"
 // @Param connectionId path int true "connectionId"
-// @Param scopeConfig body tasks.JiraScopeConfig true "scope config"
-// @Success 200  {object} tasks.JiraScopeConfig
+// @Param scopeConfig body models.JiraScopeConfig true "scope config"
+// @Success 200  {object} models.JiraScopeConfig
 // @Failure 400  {object} shared.ApiBody "Bad Request"
 // @Failure 500  {object} shared.ApiBody "Internal Error"
 // @Router /plugins/jira/connections/{connectionId}/scope-configs/{id} [PATCH]
@@ -88,7 +89,7 @@ func UpdateScopeConfig(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutpu
 // @Tags plugins/jira
 // @Param id path int true "id"
 // @Param connectionId path int true "connectionId"
-// @Success 200  {object} tasks.JiraScopeConfig
+// @Success 200  {object} models.JiraScopeConfig
 // @Failure 400  {object} shared.ApiBody "Bad Request"
 // @Failure 500  {object} shared.ApiBody "Internal Error"
 // @Router /plugins/jira/connections/{connectionId}/scope-configs/{id} [GET]
@@ -103,7 +104,7 @@ func GetScopeConfig(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, 
 // @Param connectionId path int true "connectionId"
 // @Param pageSize query int false "page size, default 50"
 // @Param page query int false "page size, default 1"
-// @Success 200  {object} []tasks.JiraScopeConfig
+// @Success 200  {object} []models.JiraScopeConfig
 // @Failure 400  {object} shared.ApiBody "Bad Request"
 // @Failure 500  {object} shared.ApiBody "Internal Error"
 // @Router /plugins/jira/connections/{connectionId}/scope-configs [GET]
@@ -244,10 +245,10 @@ func GetCommitsURLs(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, 
 		return nil, err
 	}
 	type commit struct {
-		ID              string          `json:"id"`
-		DisplayID       string          `json:"displayId"`
-		AuthorTimestamp api.Iso8601Time `json:"authorTimestamp"`
-		URL             string          `json:"url"`
+		ID              string             `json:"id"`
+		DisplayID       string             `json:"displayId"`
+		AuthorTimestamp common.Iso8601Time `json:"authorTimestamp"`
+		URL             string             `json:"url"`
 	}
 	var detail struct {
 		Detail []struct {

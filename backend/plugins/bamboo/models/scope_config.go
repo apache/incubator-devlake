@@ -19,19 +19,30 @@ package models
 
 import (
 	"github.com/apache/incubator-devlake/core/models/common"
-	"gorm.io/datatypes"
 )
+
+const ENV_NAME_PATTERN = "ENV_NAME_PATTERN"
 
 type BambooScopeConfig struct {
 	common.ScopeConfig `mapstructure:",squash" json:",inline" gorm:"embedded"`
-	ConnectionId       uint64 `mapstructure:"connectionId" json:"connectionId"`
-	Name               string `gorm:"type:varchar(255);index:idx_name_gitlab,unique" validate:"required" mapstructure:"name" json:"name"`
-	// should be {realRepoName: [bamboo_repoId]}
-	RepoMap           datatypes.JSONMap
-	DeploymentPattern string `mapstructure:"deploymentPattern,omitempty" json:"deploymentPattern" gorm:"type:varchar(255)"`
-	ProductionPattern string `mapstructure:"productionPattern,omitempty" json:"productionPattern" gorm:"type:varchar(255)"`
+	ConnectionId       uint64           `mapstructure:"connectionId" json:"connectionId"`
+	Name               string           `gorm:"type:varchar(255);index:idx_name_gitlab,unique" validate:"required" mapstructure:"name" json:"name"`
+	RepoMap            map[string][]int `json:"repoMap" gorm:"type:json;serializer:json"` // should be {realRepoName: [bamboo_repoId, ...]}
+	DeploymentPattern  string           `mapstructure:"deploymentPattern,omitempty" json:"deploymentPattern" gorm:"type:varchar(255)"`
+	ProductionPattern  string           `mapstructure:"productionPattern,omitempty" json:"productionPattern" gorm:"type:varchar(255)"`
+	EnvNamePattern     string           `mapstructure:"envNamePattern,omitempty" json:"envNamePattern" gorm:"type:varchar(255)"`
 }
 
 func (BambooScopeConfig) TableName() string {
 	return "_tool_bamboo_scope_configs"
+}
+
+func (cfg *BambooScopeConfig) GetRepoIdMap() map[int]string {
+	repoMap := make(map[int]string)
+	for k, v := range cfg.RepoMap {
+		for _, id := range v {
+			repoMap[id] = k
+		}
+	}
+	return repoMap
 }

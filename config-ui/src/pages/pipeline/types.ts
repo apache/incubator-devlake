@@ -47,7 +47,7 @@ export type TaskType = {
   pipelineCol: number;
   beganAt: string | null;
   finishedAt: string | null;
-  options: string;
+  options: any;
   message: string;
   progressDetail?: {
     finishedSubTasks: number;

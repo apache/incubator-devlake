@@ -19,7 +19,6 @@ package models
 
 import (
 	"github.com/apache/incubator-devlake/core/models/common"
-	"github.com/apache/incubator-devlake/helpers/pluginhelper/api"
 )
 
 type TeambitionTask struct {
@@ -44,11 +43,11 @@ type TeambitionTask struct {
 	IsArchived     bool                    `json:"isArchived"`
 	Visible        string                  `gorm:"varchar(100)" json:"visible"`
 	UniqueId       int64                   `json:"uniqueId"`
-	StartDate      *api.Iso8601Time        `json:"startDate"`
-	DueDate        *api.Iso8601Time        `json:"dueDate"`
-	AccomplishTime *api.Iso8601Time        `json:"accomplishTime"`
-	Created        *api.Iso8601Time        `json:"created"`
-	Updated        *api.Iso8601Time        `json:"updated"`
+	StartDate      *common.Iso8601Time     `json:"startDate"`
+	DueDate        *common.Iso8601Time     `json:"dueDate"`
+	AccomplishTime *common.Iso8601Time     `json:"accomplishTime"`
+	Created        *common.Iso8601Time     `json:"created"`
+	Updated        *common.Iso8601Time     `json:"updated"`
 	SfcId          string                  `gorm:"type:varchar(100)" json:"sfcId"`
 	SprintId       string                  `gorm:"type:varchar(100)" json:"sprintId"`
 	Customfields   []TeambitionCustomField `gorm:"serializer:json;type:text" json:"customfields"`

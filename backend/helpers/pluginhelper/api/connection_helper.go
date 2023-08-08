@@ -19,17 +19,16 @@ package api
 
 import (
 	"fmt"
-	"strconv"
-
 	"github.com/apache/incubator-devlake/helpers/pluginhelper/services"
 	"github.com/apache/incubator-devlake/server/api/shared"
+	"strconv"
 
 	"github.com/apache/incubator-devlake/core/context"
 	"github.com/apache/incubator-devlake/core/dal"
 	"github.com/apache/incubator-devlake/core/errors"
 	"github.com/apache/incubator-devlake/core/log"
 	"github.com/apache/incubator-devlake/core/models"
-	plugin "github.com/apache/incubator-devlake/core/plugin"
+	"github.com/apache/incubator-devlake/core/plugin"
 	"github.com/go-playground/validator/v10"
 )
 
@@ -64,12 +63,25 @@ func NewConnectionHelper(
 
 // Create a connection record based on request body
 func (c *ConnectionApiHelper) Create(connection interface{}, input *plugin.ApiResourceInput) errors.Error {
+	return c.CreateWithTx(nil, connection, input)
+}
+
+// Create a connection record based on request body
+func (c *ConnectionApiHelper) CreateWithTx(tx dal.Transaction, connection interface{}, input *plugin.ApiResourceInput) errors.Error {
 	// update fields from request body
+	db := c.db
+	if tx != nil {
+		db = tx
+	}
 	err := c.merge(connection, input.Body)
 	if err != nil {
 		return err
 	}
-	return c.save(connection, c.db.Create)
+	if err := c.save(connection, db.Create); err != nil {
+		c.log.Error(err, "create connection")
+		return err
+	}
+	return nil
 }
 
 // Patch (Modify) a connection record based on request body
@@ -185,7 +197,7 @@ func (c *ConnectionApiHelper) getPluginSource() (plugin.PluginSource, errors.Err
 	pluginMeta, _ := plugin.GetPlugin(c.pluginName)
 	pluginSrc, ok := pluginMeta.(plugin.PluginSource)
 	if !ok {
-		return nil, errors.Default.New("plugin doesn't implement PluginSource")
+		return nil, errors.Default.New(fmt.Sprintf("plugin %s doesn't implement PluginSource", c.pluginName))
 	}
 	return pluginSrc, nil
 }

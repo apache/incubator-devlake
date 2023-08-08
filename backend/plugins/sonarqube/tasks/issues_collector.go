@@ -25,6 +25,7 @@ import (
 	"time"
 
 	"github.com/apache/incubator-devlake/core/errors"
+	"github.com/apache/incubator-devlake/core/models/common"
 	"github.com/apache/incubator-devlake/core/plugin"
 	helper "github.com/apache/incubator-devlake/helpers/pluginhelper/api"
 )
@@ -160,7 +161,7 @@ func CollectIssues(taskCtx plugin.SubTaskContext) (err errors.Error) {
 
 			// check if sonar report updated during collecting
 			var issue struct {
-				UpdateDate *helper.Iso8601Time `json:"updateDate"`
+				UpdateDate *common.Iso8601Time `json:"updateDate"`
 			}
 			for _, v := range resData.Data {
 				err = errors.Convert(json.Unmarshal(v, &issue))
