@@ -18,13 +18,12 @@ limitations under the License.
 package api
 
 import (
+	"bytes"
 	"fmt"
-	"github.com/apache/incubator-devlake/server/api/docs"
 	"net/http"
 	"net/url"
 	"strconv"
 	"strings"
-	"sync"
 	"time"
 
 	"github.com/gin-contrib/cors"
@@ -187,18 +186,23 @@ func registerExtraOpenApiSpecs(router *gin.Engine) {
 	}
 }
 
-var basePathMux sync.Mutex
+type bodyTamper struct {
+	gin.ResponseWriter
+}
+
+func (w bodyTamper) Write(b []byte) (int, error) {
+	b = bytes.Replace(b, []byte(`"basePath": ""`), []byte(`"basePath": "/api"`), 1)
+	return w.ResponseWriter.Write(b)
+}
 
 func modifyBasePath(c *gin.Context) {
 	if !strings.HasSuffix(c.Request.URL.Path, "swagger/doc.json") {
 		return
 	}
-	basePathMux.Lock()
-	defer basePathMux.Unlock()
 	u, _ := url.Parse(c.GetHeader("Referer"))
-	if u != nil && strings.HasPrefix(u.Path, "/api") {
-		docs.SwaggerInfo.BasePath = "/api"
+	if u == nil || !strings.HasPrefix(u.Path, "/api") {
+		return
 	}
-	c.Next()
-	docs.SwaggerInfo.BasePath = ""
+	blw := &bodyTamper{ResponseWriter: c.Writer}
+	c.Writer = blw
 }
