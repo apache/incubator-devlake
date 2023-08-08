@@ -19,9 +19,12 @@ package api
 
 import (
 	"fmt"
+	"github.com/apache/incubator-devlake/server/api/docs"
 	"net/http"
+	"net/url"
 	"strconv"
 	"strings"
+	"sync"
 	"time"
 
 	"github.com/gin-contrib/cors"
@@ -113,7 +116,7 @@ func CreateApiService() {
 	})
 
 	// Add swagger handlers
-	router.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerFiles.Handler))
+	router.GET("/swagger/*any", modifyBasePath, ginSwagger.WrapHandler(swaggerFiles.Handler))
 	registerExtraOpenApiSpecs(router)
 
 	// Add debug logging for endpoints
@@ -182,4 +185,20 @@ func registerExtraOpenApiSpecs(router *gin.Engine) {
 			)
 		}
 	}
+}
+
+var basePathMux sync.Mutex
+
+func modifyBasePath(c *gin.Context) {
+	if !strings.HasSuffix(c.Request.URL.Path, "swagger/doc.json") {
+		return
+	}
+	basePathMux.Lock()
+	defer basePathMux.Unlock()
+	u, _ := url.Parse(c.GetHeader("Referer"))
+	if u != nil && strings.HasPrefix(u.Path, "/api") {
+		docs.SwaggerInfo.BasePath = "/api"
+	}
+	c.Next()
+	docs.SwaggerInfo.BasePath = ""
 }
