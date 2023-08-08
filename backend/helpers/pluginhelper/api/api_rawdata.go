@@ -18,14 +18,13 @@ limitations under the License.
 package api
 
 import (
+	"encoding/json"
 	"fmt"
 	"reflect"
 	"time"
 
 	"github.com/apache/incubator-devlake/core/errors"
 	plugin "github.com/apache/incubator-devlake/core/plugin"
-
-	"gorm.io/datatypes"
 )
 
 // RawData is raw data structure in DB storage
@@ -34,7 +33,7 @@ type RawData struct {
 	Params    string `gorm:"type:varchar(255);index"`
 	Data      []byte
 	Url       string
-	Input     datatypes.JSON
+	Input     json.RawMessage `gorm:"type:json"`
 	CreatedAt time.Time
 }
 
