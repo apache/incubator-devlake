@@ -78,7 +78,7 @@ func TestGitRepoCreator_CloneOverHTTP(t *testing.T) {
 		testCtx = context.Background()
 		repoUrl = "https://github.com/apache/incubator-devlake-website"
 		repoId  = "fake-id-1"
-		proxy   = "http://127.0.0.1:7890"
+		proxy   = ""
 		user    = ""
 		passwd  = ""
 	)
@@ -162,9 +162,6 @@ func TestGitRepoCreator_CloneOverHTTP(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Logf("case config: %+v\n", tt)
-		if tt.name != "all-with-proxy-and-no-auth" {
-			continue
-		}
 		t.Run(tt.name, func(t *testing.T) {
 			l := &GitRepoCreator{
 				store:  tt.fields.store,
