@@ -42,7 +42,7 @@ func CalculateCommitsDiff(taskCtx plugin.SubTaskContext) errors.Error {
 
 	// get all data from finish_commits_diffs
 	commitPairsSrc := data.Options.AllPairs
-	var commitPairs RefCommitPairs
+	var commitPairs models.RefCommitPairs
 	refCommit := &code.RefCommit{}
 	for _, pair := range commitPairsSrc {
 		newRefId := fmt.Sprintf("%s:%s", repoId, pair[2])
