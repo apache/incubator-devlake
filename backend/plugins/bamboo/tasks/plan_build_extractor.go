@@ -55,6 +55,7 @@ func ExtractPlanBuild(taskCtx plugin.SubTaskContext) errors.Error {
 				results = append(results, &models.BambooPlanBuildVcsRevision{
 					ConnectionId:   data.Options.ConnectionId,
 					PlanBuildKey:   body.PlanBuildKey,
+					PlanResultKey:  body.PlanResultKey,
 					RepositoryId:   v.RepositoryId,
 					RepositoryName: v.RepositoryName,
 					VcsRevisionKey: v.VcsRevisionKey,
