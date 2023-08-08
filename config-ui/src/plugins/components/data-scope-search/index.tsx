@@ -39,7 +39,7 @@ export const DataScopeSearch = ({ plugin, connectionId, disabledItems, selectedI
   const search = useDebounce(query, { wait: 500 });
 
   const { ready, data } = useRefreshData<{ children: ItemType[] }>(async () => {
-    if (!search) return [];
+    if (!search) return { children: [] };
     return API.searchScope(plugin, connectionId, {
       search,
       page: 1,

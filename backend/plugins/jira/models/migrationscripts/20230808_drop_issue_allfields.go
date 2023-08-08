@@ -18,33 +18,20 @@ limitations under the License.
 package migrationscripts
 
 import (
-	"encoding/json"
-
 	"github.com/apache/incubator-devlake/core/context"
 	"github.com/apache/incubator-devlake/core/errors"
-	commonArchived "github.com/apache/incubator-devlake/core/models/migrationscripts/archived"
 )
 
-type createCollectorState struct{}
+type dropIssueAllFields struct{}
 
-type CollectorState20221101 struct {
-	commonArchived.GenericModel[string]
-	Type  string
-	Value json.RawMessage `gorm:"type:json"`
+func (script *dropIssueAllFields) Up(basicRes context.BasicRes) errors.Error {
+	return basicRes.GetDal().DropColumns("_tool_jira_issues", "all_fields")
 }
 
-func (CollectorState20221101) TableName() string {
-	return "_devlake_collector_state"
+func (*dropIssueAllFields) Version() uint64 {
+	return 20230808162534
 }
 
-func (*createCollectorState) Up(basicRes context.BasicRes) errors.Error {
-	return basicRes.GetDal().AutoMigrate(CollectorState20221101{})
-}
-
-func (*createCollectorState) Version() uint64 {
-	return 20221101000001
-}
-
-func (*createCollectorState) Name() string {
-	return "Create collector state table"
+func (*dropIssueAllFields) Name() string {
+	return "add table _tool_jira_issues.all_fields column"
 }

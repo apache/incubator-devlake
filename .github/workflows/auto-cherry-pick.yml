@@ -25,7 +25,7 @@ on:
 
 jobs:
   auto-cherry-pick:
-    if: github.event.pull_request.merged == true && startsWith(github.event.label.name, 'needs-cherrypick-')
+    if: github.event.pull_request.merged == true
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3

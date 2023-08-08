@@ -31,5 +31,6 @@ func All() []plugin.MigrationScript {
 		new(addRawParamTableForScope),
 		new(addScopeConfigId),
 		new(addEnvNamePattern),
+		new(addPlanResultKey),
 	}
 }

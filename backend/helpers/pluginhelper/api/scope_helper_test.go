@@ -18,6 +18,7 @@ limitations under the License.
 package api
 
 import (
+	"encoding/json"
 	"fmt"
 	"reflect"
 	"testing"
@@ -31,7 +32,6 @@ import (
 	"github.com/go-playground/validator/v10"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
-	"gorm.io/datatypes"
 	"gorm.io/gorm"
 )
 
@@ -162,19 +162,19 @@ func TestVerifyScope(t *testing.T) {
 
 type TestScopeConfig struct {
 	common.Model         `mapstructure:"-"`
-	Name                 string            `mapstructure:"name" json:"name" gorm:"type:varchar(255);index:idx_name_github,unique" validate:"required"`
-	PrType               string            `mapstructure:"prType,omitempty" json:"prType" gorm:"type:varchar(255)"`
-	PrComponent          string            `mapstructure:"prComponent,omitempty" json:"prComponent" gorm:"type:varchar(255)"`
-	PrBodyClosePattern   string            `mapstructure:"prBodyClosePattern,omitempty" json:"prBodyClosePattern" gorm:"type:varchar(255)"`
-	IssueSeverity        string            `mapstructure:"issueSeverity,omitempty" json:"issueSeverity" gorm:"type:varchar(255)"`
-	IssuePriority        string            `mapstructure:"issuePriority,omitempty" json:"issuePriority" gorm:"type:varchar(255)"`
-	IssueComponent       string            `mapstructure:"issueComponent,omitempty" json:"issueComponent" gorm:"type:varchar(255)"`
-	IssueTypeBug         string            `mapstructure:"issueTypeBug,omitempty" json:"issueTypeBug" gorm:"type:varchar(255)"`
-	IssueTypeIncident    string            `mapstructure:"issueTypeIncident,omitempty" json:"issueTypeIncident" gorm:"type:varchar(255)"`
-	IssueTypeRequirement string            `mapstructure:"issueTypeRequirement,omitempty" json:"issueTypeRequirement" gorm:"type:varchar(255)"`
-	DeploymentPattern    string            `mapstructure:"deploymentPattern,omitempty" json:"deploymentPattern" gorm:"type:varchar(255)"`
-	ProductionPattern    string            `mapstructure:"productionPattern,omitempty" json:"productionPattern" gorm:"type:varchar(255)"`
-	Refdiff              datatypes.JSONMap `mapstructure:"refdiff,omitempty" json:"refdiff" swaggertype:"object" format:"json"`
+	Name                 string          `mapstructure:"name" json:"name" gorm:"type:varchar(255);index:idx_name_github,unique" validate:"required"`
+	PrType               string          `mapstructure:"prType,omitempty" json:"prType" gorm:"type:varchar(255)"`
+	PrComponent          string          `mapstructure:"prComponent,omitempty" json:"prComponent" gorm:"type:varchar(255)"`
+	PrBodyClosePattern   string          `mapstructure:"prBodyClosePattern,omitempty" json:"prBodyClosePattern" gorm:"type:varchar(255)"`
+	IssueSeverity        string          `mapstructure:"issueSeverity,omitempty" json:"issueSeverity" gorm:"type:varchar(255)"`
+	IssuePriority        string          `mapstructure:"issuePriority,omitempty" json:"issuePriority" gorm:"type:varchar(255)"`
+	IssueComponent       string          `mapstructure:"issueComponent,omitempty" json:"issueComponent" gorm:"type:varchar(255)"`
+	IssueTypeBug         string          `mapstructure:"issueTypeBug,omitempty" json:"issueTypeBug" gorm:"type:varchar(255)"`
+	IssueTypeIncident    string          `mapstructure:"issueTypeIncident,omitempty" json:"issueTypeIncident" gorm:"type:varchar(255)"`
+	IssueTypeRequirement string          `mapstructure:"issueTypeRequirement,omitempty" json:"issueTypeRequirement" gorm:"type:varchar(255)"`
+	DeploymentPattern    string          `mapstructure:"deploymentPattern,omitempty" json:"deploymentPattern" gorm:"type:varchar(255)"`
+	ProductionPattern    string          `mapstructure:"productionPattern,omitempty" json:"productionPattern" gorm:"type:varchar(255)"`
+	Refdiff              json.RawMessage `mapstructure:"refdiff,omitempty" json:"refdiff" swaggertype:"object" format:"json"`
 }
 
 func (TestScopeConfig) TableName() string {
