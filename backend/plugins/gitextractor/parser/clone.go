@@ -18,6 +18,7 @@ limitations under the License.
 package parser
 
 import (
+	"context"
 	"encoding/base64"
 	"fmt"
 	"github.com/apache/incubator-devlake/core/errors"
@@ -35,7 +36,7 @@ import (
 
 const DefaultUser = "git"
 
-func cloneOverSSH(url, dir, passphrase string, pk []byte) errors.Error {
+func cloneOverSSH(ctx context.Context, url, dir, passphrase string, pk []byte) errors.Error {
 	key, err := ssh.NewPublicKeys(DefaultUser, pk, passphrase)
 	if err != nil {
 		return errors.Convert(err)
@@ -45,7 +46,7 @@ func cloneOverSSH(url, dir, passphrase string, pk []byte) errors.Error {
 			return nil
 		},
 	}
-	_, err = gogit.PlainClone(dir, true, &gogit.CloneOptions{
+	_, err = gogit.PlainCloneContext(ctx, dir, true, &gogit.CloneOptions{
 		URL:  url,
 		Auth: key,
 	})
@@ -55,7 +56,7 @@ func cloneOverSSH(url, dir, passphrase string, pk []byte) errors.Error {
 	return nil
 }
 
-func (l *GitRepoCreator) CloneOverHTTP(repoId, url, user, password, proxy string) (*GitRepo, errors.Error) {
+func (l *GitRepoCreator) CloneOverHTTP(ctx context.Context, repoId, url, user, password, proxy string) (*GitRepo, errors.Error) {
 	return withTempDirectory(func(dir string) (*GitRepo, error) {
 		cloneOptions := &git.CloneOptions{Bare: true}
 		if proxy != "" {
@@ -74,13 +75,13 @@ func (l *GitRepoCreator) CloneOverHTTP(repoId, url, user, password, proxy string
 	})
 }
 
-func (l *GitRepoCreator) CloneOverSSH(repoId, url, privateKey, passphrase string) (*GitRepo, errors.Error) {
+func (l *GitRepoCreator) CloneOverSSH(ctx context.Context, repoId, url, privateKey, passphrase string) (*GitRepo, errors.Error) {
 	return withTempDirectory(func(dir string) (*GitRepo, error) {
 		pk, err := base64.StdEncoding.DecodeString(privateKey)
 		if err != nil {
 			return nil, err
 		}
-		err = cloneOverSSH(url, dir, passphrase, pk)
+		err = cloneOverSSH(ctx, url, dir, passphrase, pk)
 		if err != nil {
 			return nil, err
 		}

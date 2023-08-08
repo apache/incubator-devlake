@@ -18,6 +18,7 @@ limitations under the License.
 package impl
 
 import (
+	"context"
 	"fmt"
 	"github.com/apache/incubator-devlake/core/dal"
 	"github.com/apache/incubator-devlake/core/errors"
@@ -71,7 +72,7 @@ func (p GitExtractor) PrepareTaskData(taskCtx plugin.TaskContext, options map[st
 		return nil, err
 	}
 	storage := store.NewDatabase(taskCtx, op.RepoId)
-	repo, err := NewGitRepo(taskCtx.GetLogger(), storage, op)
+	repo, err := NewGitRepo(taskCtx.GetContext(), taskCtx.GetLogger(), storage, op)
 	if err != nil {
 		return nil, err
 	}
@@ -92,14 +93,14 @@ func (p GitExtractor) RootPkgPath() string {
 }
 
 // NewGitRepo create and return a new parser git repo
-func NewGitRepo(logger log.Logger, storage models.Store, op tasks.GitExtractorOptions) (*parser.GitRepo, errors.Error) {
+func NewGitRepo(ctx context.Context, logger log.Logger, storage models.Store, op tasks.GitExtractorOptions) (*parser.GitRepo, errors.Error) {
 	var err errors.Error
 	var repo *parser.GitRepo
 	p := parser.NewGitRepoCreator(storage, logger)
 	if strings.HasPrefix(op.Url, "http") {
-		repo, err = p.CloneOverHTTP(op.RepoId, op.Url, op.User, op.Password, op.Proxy)
+		repo, err = p.CloneOverHTTP(ctx, op.RepoId, op.Url, op.User, op.Password, op.Proxy)
 	} else if url := strings.TrimPrefix(op.Url, "ssh://"); strings.HasPrefix(url, "git@") {
-		repo, err = p.CloneOverSSH(op.RepoId, url, op.PrivateKey, op.Passphrase)
+		repo, err = p.CloneOverSSH(ctx, op.RepoId, url, op.PrivateKey, op.Passphrase)
 	} else if strings.HasPrefix(op.Url, "/") {
 		repo, err = p.LocalRepo(op.Url, op.RepoId)
 	} else {
