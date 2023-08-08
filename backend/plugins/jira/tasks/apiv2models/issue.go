@@ -24,8 +24,6 @@ import (
 	"github.com/apache/incubator-devlake/core/errors"
 	"github.com/apache/incubator-devlake/core/models/common"
 	"github.com/apache/incubator-devlake/plugins/jira/models"
-
-	"gorm.io/datatypes"
 )
 
 type Issue struct {
@@ -273,7 +271,7 @@ func (i Issue) toToolLayer(connectionId uint64) *models.JiraIssue {
 	return result
 }
 
-func (i *Issue) SetAllFields(raw datatypes.JSON) errors.Error {
+func (i *Issue) SetAllFields(raw json.RawMessage) errors.Error {
 	var issue2 struct {
 		Expand string          `json:"expand"`
 		ID     uint64          `json:"id,string"`

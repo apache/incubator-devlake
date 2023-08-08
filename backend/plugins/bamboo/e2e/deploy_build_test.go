@@ -35,7 +35,7 @@ func TestBambooDeployBuildDataFlow(t *testing.T) {
 	taskData := &tasks.BambooTaskData{
 		Options: &models.BambooOptions{
 			ConnectionId: 1,
-			PlanKey:      "TEST1",
+			PlanKey:      "TEST-PLA2",
 			BambooScopeConfig: &models.BambooScopeConfig{
 				DeploymentPattern: "(?i)release",
 				ProductionPattern: "(?i)release",
@@ -50,6 +50,7 @@ func TestBambooDeployBuildDataFlow(t *testing.T) {
 
 	// verify extraction
 	dataflowTester.FlushTabler(&models.BambooDeployBuild{})
+	dataflowTester.FlushTabler(&models.BambooPlanBuildVcsRevision{})
 	dataflowTester.Subtask(tasks.ExtractDeployBuildMeta, taskData)
 	dataflowTester.VerifyTable(
 		models.BambooDeployBuild{},
@@ -79,11 +80,13 @@ func TestBambooDeployBuildDataFlow(t *testing.T) {
 	)
 
 	// verify conversion
-	dataflowTester.FlushTabler(&devops.CICDTask{})
-	dataflowTester.FlushTabler(&devops.CICDPipeline{})
+	dataflowTester.ImportCsvIntoTabler("./snapshot_tables/_tool_bamboo_plan_build_commits.csv", &models.BambooPlanBuildVcsRevision{})
+	dataflowTester.ImportCsvIntoTabler("./snapshot_tables/_tool_bamboo_deploy_build.csv", &models.BambooDeployBuild{})
+	dataflowTester.FlushTabler(&devops.CicdDeploymentCommit{})
 	dataflowTester.Subtask(tasks.ConvertDeployBuildsMeta, taskData)
-	dataflowTester.VerifyTableWithOptions(&devops.CICDTask{}, e2ehelper.TableOptions{
-		CSVRelPath:  "./snapshot_tables/cicd_tasks_deploy.csv",
-		IgnoreTypes: []interface{}{common.NoPKModel{}},
+	dataflowTester.VerifyTableWithOptions(&devops.CicdDeploymentCommit{}, e2ehelper.TableOptions{
+		CSVRelPath:   "./snapshot_tables/cicd_deployment_commits.csv",
+		IgnoreTypes:  []interface{}{common.NoPKModel{}},
+		IgnoreFields: []string{"created_date", "started_date", "finished_date"},
 	})
 }
