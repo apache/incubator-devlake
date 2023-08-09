@@ -25,7 +25,6 @@ import (
 	"regexp"
 	"sort"
 	"strconv"
-	"strings"
 
 	"github.com/apache/incubator-devlake/core/config"
 	"github.com/apache/incubator-devlake/core/dal"
@@ -337,8 +336,8 @@ func (r *GitRepo) getDiffComparedToParent(commitSha string, commit *git.Commit, 
 		return nil, errors.Convert(err)
 	}
 	cfg := config.GetConfig()
-	skipCommitFiles := strings.TrimSpace(cfg.GetString(SkipCommitFiles))
-	if skipCommitFiles == "" {
+	skipCommitFiles := cfg.GetBool(SkipCommitFiles)
+	if !skipCommitFiles {
 		err = r.storeCommitFilesFromDiff(commitSha, diff, componentMap)
 		if err != nil {
 			return nil, errors.Convert(err)
