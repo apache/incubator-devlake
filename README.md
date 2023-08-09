@@ -70,11 +70,11 @@ If the pre-built dashboards are limited for your use cases, you can always custo
 
 Please read the [contribution guidelines](https://devlake.apache.org/community) before you make contribution. The following docs list the resources you might need to know after you decided to make contribution.
 
-- [Create an Issue](https://devlake.apache.org/community/make-contribution/fix-or-create-issues): Report a bug or feature request to Apache DevLake
-- [Submit a PR](https://devlake.apache.org/community/make-contribution/development-workflow): Start with [good first issues](https://github.com/apache/incubator-devlake/issues?q=is%3Aissue+is%3Aopen+label%3A%22good+first+issue%22) or [issues with no assignees](https://github.com/apache/incubator-devlake/issues?q=is%3Aissue+is%3Aopen+no%3Aassignee)
+- [Create an Issue](https://devlake.apache.org/community/MakingContributions/fix-or-create-issues): Report a bug or feature request to Apache DevLake
+- [Submit a PR](https://devlake.apache.org/community/MakingContributions/development-workflow): Start with [good first issues](https://github.com/apache/incubator-devlake/issues?q=is%3Aissue+is%3Aopen+label%3A%22good+first+issue%22) or [issues with no assignees](https://github.com/apache/incubator-devlake/issues?q=is%3Aissue+is%3Aopen+no%3Aassignee)
 - [Join Mailing list](https://devlake.apache.org/community/subscribe): Initiate or participate in project discussions on the mailing list
-- [Write a Blog](https://devlake.apache.org/community/make-contribution/BlogSubmission): Write a blog to share your use cases about Apache DevLake
-- [Develop a Plugin](./backend/DevelopmentSetup.md): [Add a plugin](https://github.com/apache/incubator-devlake/issues?q=is%3Aissue+is%3Aopen+label%3Aadd-a-plugin+) to integrate Apache DevLake with more data sources for the community
+- [Write a Blog](https://devlake.apache.org/community/MakingContributions/BlogSubmission/): Write a blog to share your use cases about Apache DevLake
+- [Develop a Plugin](./backend/DevelopmentManual.md): [Add a plugin](https://github.com/apache/incubator-devlake/issues?q=is%3Aissue+is%3Aopen+label%3Aadd-a-plugin+) to integrate Apache DevLake with more data sources for the community
 
 ## 📄 Contributing to Documentation:
 
