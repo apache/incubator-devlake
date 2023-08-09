@@ -18,7 +18,7 @@ limitations under the License.
 package api
 
 import (
-	"bytes"
+	"encoding/json"
 	"fmt"
 	"net/http"
 	"net/url"
@@ -190,8 +190,18 @@ type bodyTamper struct {
 	gin.ResponseWriter
 }
 
+// Write intercepts the response body and modifies the base path
 func (w bodyTamper) Write(b []byte) (int, error) {
-	b = bytes.Replace(b, []byte(`"basePath": ""`), []byte(`"basePath": "/api"`), 1)
+	var m map[string]interface{}
+	err := json.Unmarshal(b, &m)
+	if err != nil {
+		return 0, err
+	}
+	m["basePath"] = "/api"
+	b, err = json.Marshal(m)
+	if err != nil {
+		return 0, err
+	}
 	return w.ResponseWriter.Write(b)
 }
 
