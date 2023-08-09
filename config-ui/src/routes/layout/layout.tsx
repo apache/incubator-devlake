@@ -115,7 +115,7 @@ export const Layout = () => {
                       </ExternalLink>
                     </S.DashboardIcon>
                     <Navbar.Divider />
-                    <a href="https://devlake.apache.org/docs/Overview/Introduction" rel="noreferrer" target="_blank">
+                    <a href="https://devlake.apache.org/docs/Configuration/Tutorial" rel="noreferrer" target="_blank">
                       <img src={FileIcon} alt="documents" />
                       <span>Docs</span>
                     </a>
