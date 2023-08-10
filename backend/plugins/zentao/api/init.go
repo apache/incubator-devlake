@@ -49,9 +49,10 @@ func Init(br context.BasicRes, p plugin.PluginMeta) {
 	)
 
 	projectParams := &api.ReflectionParameters{
-		ScopeIdFieldName:  "Id",
-		ScopeIdColumnName: "id",
-		RawScopeParamName: "ProjectId",
+		ScopeIdFieldName:     "Id",
+		ScopeIdColumnName:    "id",
+		RawScopeParamName:    "ProjectId",
+		SearchScopeParamName: "name",
 	}
 	projectScopeHelper = api.NewScopeHelper[models.ZentaoConnection, models.ZentaoProject, models.ZentaoScopeConfig](
 		basicRes,

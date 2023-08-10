@@ -43,9 +43,10 @@ func Init(br context.BasicRes, p plugin.PluginMeta) {
 		p.Name(),
 	)
 	params := &api.ReflectionParameters{
-		ScopeIdFieldName:  "PlanKey",
-		ScopeIdColumnName: "plan_key",
-		RawScopeParamName: "PlanKey",
+		ScopeIdFieldName:     "PlanKey",
+		ScopeIdColumnName:    "plan_key",
+		RawScopeParamName:    "PlanKey",
+		SearchScopeParamName: "name",
 	}
 	scopeHelper = api.NewScopeHelper[models.BambooConnection, models.BambooPlan, models.BambooScopeConfig](
 		basicRes,
