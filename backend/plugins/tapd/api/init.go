@@ -45,7 +45,7 @@ func Init(br context.BasicRes, p plugin.PluginMeta) {
 		ScopeIdFieldName:     "Id",
 		ScopeIdColumnName:    "id",
 		RawScopeParamName:    "WorkSpaceId",
-		SearchScopeParamName: "Name",
+		SearchScopeParamName: "name",
 	}
 	scopeHelper = api.NewScopeHelper[models.TapdConnection, models.TapdWorkspace, models.TapdScopeConfig](
 		basicRes,

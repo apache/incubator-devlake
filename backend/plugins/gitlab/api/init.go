@@ -45,7 +45,7 @@ func Init(br context.BasicRes, p plugin.PluginMeta) {
 		ScopeIdFieldName:     "GitlabId",
 		ScopeIdColumnName:    "gitlab_id",
 		RawScopeParamName:    "ProjectId",
-		SearchScopeParamName: "Name",
+		SearchScopeParamName: "name",
 	}
 	scopeHelper = api.NewScopeHelper[models.GitlabConnection, models.GitlabProject, models.GitlabScopeConfig](
 		basicRes,

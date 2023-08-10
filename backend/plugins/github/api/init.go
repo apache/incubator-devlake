@@ -50,7 +50,7 @@ func Init(br context.BasicRes, p plugin.PluginMeta) {
 		ScopeIdFieldName:     "GithubId",
 		ScopeIdColumnName:    "github_id",
 		RawScopeParamName:    "Name",
-		SearchScopeParamName: "Name",
+		SearchScopeParamName: "name",
 	}
 	scopeHelper = api.NewScopeHelper[models.GithubConnection, models.GithubRepo, models.GithubScopeConfig](
 		basicRes,

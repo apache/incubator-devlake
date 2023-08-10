@@ -46,7 +46,7 @@ func Init(br context.BasicRes, p plugin.PluginMeta) {
 		ScopeIdFieldName:     "BoardId",
 		ScopeIdColumnName:    "board_id",
 		RawScopeParamName:    "BoardId",
-		SearchScopeParamName: "Name",
+		SearchScopeParamName: "name",
 	}
 	scopeHelper = api.NewScopeHelper[models.JiraConnection, models.JiraBoard, models.JiraScopeConfig](
 		basicRes,
