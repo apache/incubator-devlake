@@ -42,9 +42,10 @@ func Init(br context.BasicRes, p plugin.PluginMeta) {
 		p.Name(),
 	)
 	params := &api.ReflectionParameters{
-		ScopeIdFieldName:  "BitbucketId",
-		ScopeIdColumnName: "bitbucket_id",
-		RawScopeParamName: "FullName",
+		ScopeIdFieldName:     "BitbucketId",
+		ScopeIdColumnName:    "bitbucket_id",
+		RawScopeParamName:    "FullName",
+		SearchScopeParamName: "Name",
 	}
 	scopeHelper = api.NewScopeHelper[models.BitbucketConnection, models.BitbucketRepo, models.BitbucketScopeConfig](
 		basicRes,

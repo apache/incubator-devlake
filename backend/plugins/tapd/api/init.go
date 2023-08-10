@@ -42,9 +42,10 @@ func Init(br context.BasicRes, p plugin.PluginMeta) {
 		p.Name(),
 	)
 	params := &api.ReflectionParameters{
-		ScopeIdFieldName:  "Id",
-		ScopeIdColumnName: "id",
-		RawScopeParamName: "WorkSpaceId",
+		ScopeIdFieldName:     "Id",
+		ScopeIdColumnName:    "id",
+		RawScopeParamName:    "WorkSpaceId",
+		SearchScopeParamName: "Name",
 	}
 	scopeHelper = api.NewScopeHelper[models.TapdConnection, models.TapdWorkspace, models.TapdScopeConfig](
 		basicRes,

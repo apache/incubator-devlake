@@ -42,9 +42,10 @@ func Init(br context.BasicRes, p plugin.PluginMeta) {
 		p.Name(),
 	)
 	params := &api.ReflectionParameters{
-		ScopeIdFieldName:  "Id",
-		ScopeIdColumnName: "id",
-		RawScopeParamName: "ScopeId",
+		ScopeIdFieldName:     "Id",
+		ScopeIdColumnName:    "id",
+		RawScopeParamName:    "ScopeId",
+		SearchScopeParamName: "Name",
 	}
 	scopeHelper = api.NewScopeHelper[models.PagerDutyConnection, models.Service, models.PagerdutyScopeConfig](
 		basicRes,
