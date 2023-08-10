@@ -35,7 +35,7 @@ func TestDeploymentCommitDiffDataFlow(t *testing.T) {
 	dataflowTester := e2ehelper.NewDataFlowTester(t, "refdiff", plugin)
 
 	taskData := &tasks.RefdiffTaskData{
-		Options: &tasks.RefdiffOptions{
+		Options: &models.RefdiffOptions{
 			ProjectName: "project1",
 		},
 	}
