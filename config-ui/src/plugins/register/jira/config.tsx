@@ -16,6 +16,8 @@
  *
  */
 
+import { DOC_URL } from '@/release';
+
 import type { PluginConfigType } from '../../types';
 import { PluginType } from '../../types';
 
@@ -29,7 +31,7 @@ export const JiraConfig: PluginConfigType = {
   icon: Icon,
   sort: 3,
   connection: {
-    docLink: 'https://devlake.apache.org/docs/Configuration/Jira',
+    docLink: DOC_URL.PLUGIN.JIRA.BASIS,
     fields: [
       'name',
       ({ initialValues, values, errors, setValues, setErrors }: any) => (
@@ -47,7 +49,7 @@ export const JiraConfig: PluginConfigType = {
         key: 'rateLimitPerHour',
         subLabel:
           'By default, DevLake uses dynamic rate limit for optimized data collection for Jira. But you can adjust the collection speed by setting up your desirable rate limit.',
-        learnMore: 'https://devlake.apache.org/docs/Configuration/Jira/#fixed-rate-limit-optional',
+        learnMore: DOC_URL.PLUGIN.JIRA.RATE_LIMIT,
         externalInfo:
           'Jira Cloud does not specify a maximum value of rate limit. For Jira Server, please contact your admin for more information.',
         defaultValue: 10000,

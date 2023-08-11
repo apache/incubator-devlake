@@ -16,6 +16,8 @@
  *
  */
 
+import { DOC_URL } from '@/release';
+
 import type { PluginConfigType } from '../../types';
 import { PluginType } from '../../types';
 
@@ -28,7 +30,7 @@ export const PagerDutyConfig: PluginConfigType = {
   icon: Icon,
   sort: 8,
   connection: {
-    docLink: 'https://devlake.apache.org/docs/Configuration/PagerDuty',
+    docLink: DOC_URL.PLUGIN.PAGERDUTY.BASIS,
     initialValues: {
       endpoint: 'https://api.pagerduty.com/',
     },
@@ -47,7 +49,7 @@ export const PagerDutyConfig: PluginConfigType = {
         key: 'rateLimitPerHour',
         subLabel:
           'By default, DevLake uses 10,000 requests/hour for data collection for PagerDuty. But you can adjust the collection speed by setting up your desirable rate limit.',
-        learnMore: 'https://devlake.apache.org/docs/Configuration/PagerDuty/#custom-rate-limit-optional',
+        learnMore: DOC_URL.PLUGIN.PAGERDUTY.RATE_LIMIT,
         externalInfo: 'PagerDuty does not specify a maximum value of rate limit.',
         defaultValue: 10000,
       },
