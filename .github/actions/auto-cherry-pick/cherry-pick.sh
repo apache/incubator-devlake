@@ -31,7 +31,7 @@ echo "Author Name: $AUTHOR_NAME"
 echo "Assignees: $ASSIGNEES"
 echo "::endgroup::"
 
-TARGET_LABEL_PREFIX="needs-cherry-pick-"
+TARGET_LABEL_PREFIX="needs-cherrypick-"
 TARGET_LABEL=""
 
 for label in "${ORIGIN_PR_LABELS[@]}"; do
