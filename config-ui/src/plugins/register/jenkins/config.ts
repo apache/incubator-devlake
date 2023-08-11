@@ -16,6 +16,8 @@
  *
  */
 
+import { DOC_URL } from '@/release';
+
 import type { PluginConfigType } from '../../types';
 import { PluginType } from '../../types';
 
@@ -28,7 +30,7 @@ export const JenkinsConfig: PluginConfigType = {
   icon: Icon,
   sort: 4,
   connection: {
-    docLink: 'https://devlake.apache.org/docs/Configuration/Jenkins',
+    docLink: DOC_URL.PLUGIN.JENKINS.BASIS,
     fields: [
       'name',
       {
@@ -42,7 +44,7 @@ export const JenkinsConfig: PluginConfigType = {
         key: 'rateLimitPerHour',
         subLabel:
           'By default, DevLake uses 10,000 requests/hour for data collection for Jenkins. But you can adjust the collection speed by setting up your desirable rate limit.',
-        learnMore: 'https://devlake.apache.org/docs/Configuration/Jenkins/#fixed-rate-limit-optional',
+        learnMore: DOC_URL.PLUGIN.JENKINS.RATE_LIMIT,
         externalInfo: 'Jenkins does not specify a maximum value of rate limit.',
         defaultValue: 10000,
       },

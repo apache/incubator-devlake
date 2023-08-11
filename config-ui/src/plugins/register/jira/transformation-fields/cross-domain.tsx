@@ -21,6 +21,7 @@ import { Radio, Icon, Collapse, Button } from '@blueprintjs/core';
 
 import { ExternalLink } from '@/components';
 import JiraIssueTipsImg from '@/images/jira-issue-tips.png';
+import { DOC_URL } from '@/release';
 
 import { RemoteLink } from './remote-link';
 import { DevPanel } from './dev-panel';
@@ -59,7 +60,7 @@ export const CrossDomain = ({ connectionId, transformation, setTransformation }:
       <h2>Cross-domain</h2>
       <p>
         Connect `commits` and `issues` to measure metrics such as{' '}
-        <ExternalLink link="https://devlake.apache.org/docs/Metrics/BugCountPer1kLinesOfCode">
+        <ExternalLink link={DOC_URL.METRICS.BUG_COUNT_PER_1K_LINES_OF_CODE}>
           Bug Count per 1k Lines of Code
         </ExternalLink>{' '}
         or man hour distribution on different work types.
