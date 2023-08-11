@@ -20,6 +20,7 @@ import { useState, useEffect } from 'react';
 import { Tag, Switch, InputGroup, Intent } from '@blueprintjs/core';
 
 import { ExternalLink, HelpTooltip } from '@/components';
+import { DOC_URL } from '@/release';
 
 import * as S from './styled';
 
@@ -71,9 +72,7 @@ export const AzureTransformation = ({ entities, transformation, setTransformatio
             <>
               <p>
                 Use Regular Expression to define Deployments in DevLake in order to measure DORA metrics.{' '}
-                <ExternalLink link="https://devlake.apache.org/docs/Configuration/GitHub#step-3---adding-transformation-rules-optional">
-                  Learn more
-                </ExternalLink>
+                <ExternalLink link={DOC_URL.PLUGIN.AZUREDEVOPS.TRANSFORMATION}>Learn more</ExternalLink>
               </p>
               <div style={{ marginTop: 16 }}>Convert a Azure Pipeline Run as a DevLake Deployment when: </div>
               <div className="text">

@@ -20,6 +20,9 @@ import { TextArea, ButtonGroup, Button, Menu, MenuItem, Position } from '@bluepr
 import { Popover2 } from '@blueprintjs/popover2';
 import styled from 'styled-components';
 
+import { ExternalLink } from '@/components';
+import { DOC_URL } from '@/release';
+
 import { EXAMPLE_CONFIG } from './example';
 
 const Wrapper = styled.div`
@@ -60,13 +63,7 @@ export const AdvancedEditor = ({ value, onChange }: Props) => {
       <h3>Task Editor</h3>
       <p>
         <span>Enter JSON Configuration or preload from a template.</span>
-        <a
-          href="https://devlake.apache.org/docs/UserManuals/ConfigUI/AdvancedMode/#examples"
-          rel="noreferrer"
-          target="_blank"
-        >
-          See examples
-        </a>
+        <ExternalLink link={DOC_URL.ADVANCED_MODE.EXAMPLES}>See examples</ExternalLink>
       </p>
       <TextArea fill value={value} onChange={(e) => onChange(e.target.value)} />
       <ButtonGroup minimal>

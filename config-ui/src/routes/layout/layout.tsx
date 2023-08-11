@@ -22,6 +22,7 @@ import { CSSTransition } from 'react-transition-group';
 import { Menu, MenuItem, Navbar, Alignment } from '@blueprintjs/core';
 
 import { Logo, ExternalLink, IconButton } from '@/components';
+import { DOC_URL } from '@/release';
 import { TipsContextProvider, TipsContextConsumer, ConnectionContextProvider } from '@/store';
 
 import DashboardIcon from '@/images/icons/dashboard.svg';
@@ -115,10 +116,10 @@ export const Layout = () => {
                       </ExternalLink>
                     </S.DashboardIcon>
                     <Navbar.Divider />
-                    <a href="https://devlake.apache.org/docs/Configuration/Tutorial" rel="noreferrer" target="_blank">
+                    <ExternalLink link={DOC_URL.TUTORIAL}>
                       <img src={FileIcon} alt="documents" />
                       <span>Docs</span>
-                    </a>
+                    </ExternalLink>
                     <Navbar.Divider />
                     <ExternalLink link="/api/swagger/index.html">
                       <img src={APIIcon} alt="api" />
