@@ -20,6 +20,7 @@ import { useMemo, useState, useEffect } from 'react';
 import { FormGroup, InputGroup, Tag, Intent, Checkbox } from '@blueprintjs/core';
 
 import { ExternalLink, HelpTooltip, Divider, MultiSelector } from '@/components';
+import { DOC_URL } from '@/release';
 
 import ExampleJpg from './assets/bitbucket-example.jpg';
 import * as S from './styled';
@@ -148,9 +149,7 @@ export const BitbucketTransformation = ({ entities, transformation, setTransform
           </h3>
           <p style={{ marginBottom: 16 }}>
             Use Regular Expression to define Deployments in DevLake in order to measure DORA metrics.{' '}
-            <ExternalLink link="https://devlake.apache.org/docs/Configuration/GitHub#step-3---adding-transformation-rules-optional">
-              Learn more
-            </ExternalLink>
+            <ExternalLink link={DOC_URL.PLUGIN.BITBUCKET.TRANSFORMATION}>Learn more</ExternalLink>
           </p>
           <div className="text">
             <Checkbox disabled checked />

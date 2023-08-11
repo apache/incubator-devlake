@@ -16,6 +16,8 @@
  *
  */
 
+import { DOC_URL } from '@/release';
+
 import type { PluginConfigType } from '../../types';
 import { PluginType } from '../../types';
 
@@ -28,7 +30,7 @@ export const BambooConfig: PluginConfigType = {
   icon: Icon,
   sort: 11,
   connection: {
-    docLink: 'https://devlake.apache.org/docs/Configuration/Bamboo/',
+    docLink: DOC_URL.PLUGIN.BAMBOO.BASIS,
     fields: [
       'name',
       'endpoint',
@@ -39,7 +41,7 @@ export const BambooConfig: PluginConfigType = {
         key: 'rateLimitPerHour',
         subLabel:
           'By default, DevLake uses dynamic rate limit for optimized data collection for Bamboo. But you can adjust the collection speed by entering a fixed value. Please note: the rate limit setting applies to all tokens you have entered above.',
-        learnMore: 'https://devlake.apache.org/docs/Configuration/Bamboo/#custom-rate-limit-optional',
+        learnMore: DOC_URL.PLUGIN.BAMBOO.RATE_LIMIT,
         externalInfo: 'Bamboo does not specify a maximum value of rate limit.',
         defaultValue: 10000,
       },

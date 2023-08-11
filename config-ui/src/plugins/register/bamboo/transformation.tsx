@@ -20,6 +20,7 @@ import { useState, useEffect } from 'react';
 import { InputGroup, Tag, Intent, Checkbox } from '@blueprintjs/core';
 
 import { ExternalLink, HelpTooltip } from '@/components';
+import { DOC_URL } from '@/release';
 
 import * as S from './styled';
 
@@ -67,9 +68,7 @@ export const BambooTransformation = ({ entities, transformation, setTransformati
           </h3>
           <p style={{ marginBottom: 16 }}>
             Use Regular Expression to define Deployments in DevLake in order to measure DORA metrics.{' '}
-            <ExternalLink link="https://devlake.apache.org/docs/Configuration/Bamboo#step-3---adding-transformation-rules-optional">
-              Learn more
-            </ExternalLink>
+            <ExternalLink link={DOC_URL.PLUGIN.BAMBOO.TRANSFORMATION}>Learn more</ExternalLink>
           </p>
           <div className="text">
             <Checkbox disabled checked />

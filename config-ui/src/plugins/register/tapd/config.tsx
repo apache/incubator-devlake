@@ -17,6 +17,7 @@
  */
 
 import { ExternalLink } from '@/components';
+import { DOC_URL } from '@/release';
 
 import type { PluginConfigType } from '../../types';
 import { PluginType } from '../../types';
@@ -31,7 +32,7 @@ export const TAPDConfig: PluginConfigType = {
   icon: Icon,
   sort: 9,
   connection: {
-    docLink: 'https://devlake.apache.org/docs/Configuration/Tapd',
+    docLink: DOC_URL.PLUGIN.TAPD.BASIS,
     initialValues: {
       endpoint: 'https://api.tapd.cn',
     },
@@ -47,10 +48,7 @@ export const TAPDConfig: PluginConfigType = {
         label: 'API Account',
         subLabel: (
           <span>
-            Please follow the instruction{' '}
-            <ExternalLink link="https://devlake.apache.org/docs/UserManuals/ConfigUI/Tapd/#api-account--api-token">
-              here
-            </ExternalLink>{' '}
+            Please follow the instruction <ExternalLink link={DOC_URL.PLUGIN.TAPD.USERNAMEPASSWORD}>here</ExternalLink>{' '}
             to find your API account information.
           </span>
         ),
@@ -66,7 +64,7 @@ export const TAPDConfig: PluginConfigType = {
         key: 'rateLimitPerHour',
         subLabel:
           'By default, DevLake uses 3,000 requests/hour for data collection for TAPD. But you can adjust the collection speed by setting up your desirable rate limit.',
-        learnMore: 'https://devlake.apache.org/docs/Configuration/Tapd#fixed-rate-limit-optional',
+        learnMore: DOC_URL.PLUGIN.TAPD.RATE_LIMIT,
         externalInfo: 'The maximum rate limit of TAPD is 3,600 requests/hour.',
         defaultValue: 3000,
       },
