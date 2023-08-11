@@ -52,16 +52,16 @@ jobs:
         cd backend
         echo "Building Python"
         make build-python
-#    - name: Cache unit-test
-#      id: cache-unit-test
-#      uses: actions/cache@v3
-#      with:
-#        path: |
-#          ~/.cache/go-build
-#          ${{ env.GOPATH }}/pkg/mod
-#        key: ${{ runner.os }}-go-${{ hashFiles('**/go.sum') }}
-#        restore-keys: |
-#          ${{ runner.os }}-go-
+    - name: Cache unit-test
+      id: cache-unit-test
+      uses: actions/cache@v3
+      with:
+        path: |
+          ~/.cache/go-build
+          ${{ env.GOPATH }}/pkg/mod
+        key: ${{ runner.os }}-go-${{ hashFiles('**/go.sum') }}-cache
+        restore-keys: |
+          ${{ runner.os }}-go-
     - name: Unit tests
       run: |
         go version
