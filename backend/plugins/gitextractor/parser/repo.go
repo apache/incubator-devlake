@@ -102,7 +102,10 @@ func (r *GitRepo) CountBranches(ctx context.Context) (int, errors.Error) {
 		default:
 		}
 		if branch.IsBranch() || branch.IsRemote() {
-			count++
+			isHead, _ := branch.IsHead()
+			if !isHead {
+				count++
+			}
 		}
 		return nil
 	})
