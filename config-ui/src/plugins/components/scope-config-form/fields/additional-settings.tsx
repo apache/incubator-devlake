@@ -20,6 +20,7 @@ import { useState } from 'react';
 import { Switch, InputGroup } from '@blueprintjs/core';
 
 import { ExternalLink, HelpTooltip } from '@/components';
+import { DOC_URL } from '@/release';
 
 import * as S from './styled';
 
@@ -53,8 +54,8 @@ export const AdditionalSettings = ({ transformation, setTransformation }: Props)
       {enable && (
         <>
           <p>
-            Enable the <ExternalLink link="https://devlake.apache.org/docs/Plugins/refdiff">RefDiff</ExternalLink>{' '}
-            plugin to pre-calculate version-based metrics
+            Enable the <ExternalLink link={DOC_URL.PLUGIN.REFDIFF}>RefDiff</ExternalLink> plugin to pre-calculate
+            version-based metrics
             <HelpTooltip content="Calculate the commits diff between two consecutive tags that match the following RegEx. Issues closed by PRs which contain these commits will also be calculated. The result will be shown in table.refs_commits_diffs and table.refs_issues_diffs." />
           </p>
           <div className="refdiff">

@@ -21,9 +21,10 @@ import { Link, useNavigate } from 'react-router-dom';
 import { Button, InputGroup, Checkbox, Intent, FormGroup } from '@blueprintjs/core';
 import dayjs from 'dayjs';
 
-import { PageHeader, Table, Dialog, IconButton, toast } from '@/components';
+import { PageHeader, Table, Dialog, ExternalLink, IconButton, toast } from '@/components';
 import { cronPresets } from '@/config';
 import { useRefreshData } from '@/hooks';
+import { DOC_URL } from '@/release';
 import { formatTime, operator } from '@/utils';
 
 import { validName, encodeName } from '../utils';
@@ -168,9 +169,7 @@ export const ProjectHomePage = () => {
             label={<S.Label>Project Settings</S.Label>}
             subLabel={
               <S.LabelDescription>
-                <a href="https://devlake.apache.org/docs/DORA/" rel="noreferrer" target="_blank">
-                  DORA metrics
-                </a>
+                <ExternalLink link={DOC_URL.DORA}>DORA metrics</ExternalLink>
                 <span style={{ marginLeft: 4 }}>
                   are four widely-adopted metrics for measuring software delivery performance.
                 </span>
