@@ -16,4 +16,4 @@
  *
  */
 
-export { default as DOC_URL } from './stable';
+export { default as DOC_URL } from './v0.19';
