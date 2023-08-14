@@ -18,9 +18,10 @@ limitations under the License.
 package helper
 
 import (
+	"time"
+
 	"github.com/apache/incubator-devlake/core/config"
 	"github.com/apache/incubator-devlake/core/models"
-	"time"
 
 	"github.com/apache/incubator-devlake/core/plugin"
 	"github.com/apache/incubator-devlake/helpers/pluginhelper/api"
@@ -42,6 +43,15 @@ type (
 		Scope       any
 		ScopeConfig any
 		Blueprints  []*models.Blueprint
+	}
+
+	ScopeListResponseIn struct {
+		Scopes []map[string]interface{}
+		Count  int64
+	}
+	ScopeListResponseOut struct {
+		Scopes []ScopeResponse
+		Count  int64
 	}
 )
 

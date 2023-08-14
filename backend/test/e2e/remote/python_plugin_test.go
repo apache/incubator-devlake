@@ -77,7 +77,7 @@ func TestDeleteConnection_WithDependentScopesAndConfig(t *testing.T) {
 	refs = client.DeleteConnection(PLUGIN_NAME, connection.ID)
 	require.Equal(t, 0, len(refs.Projects))
 	require.Equal(t, 0, len(refs.Blueprints))
-	scopeRes := client.SetExpectedStatusCode(http.StatusBadRequest).ListScopes(PLUGIN_NAME, connection.ID, false)
+	scopeRes := client.SetExpectedStatusCode(http.StatusBadRequest).ListScopes(PLUGIN_NAME, connection.ID, false).Scopes
 	require.Equal(t, 0, len(scopeRes))
 	configs := client.ListScopeConfigs(PLUGIN_NAME, connection.ID)
 	require.Equal(t, 0, len(configs))
@@ -130,7 +130,7 @@ func TestCreateScope(t *testing.T) {
 	conn := CreateTestConnection(client)
 	scopeConfig := CreateTestScopeConfig(client, conn.ID)
 	scope := CreateTestScope(client, scopeConfig, conn.ID)
-	scopes := client.ListScopes(PLUGIN_NAME, conn.ID, false)
+	scopes := client.ListScopes(PLUGIN_NAME, conn.ID, false).Scopes
 	require.Equal(t, 1, len(scopes))
 	cicdScope := helper.Cast[FakeProject](client.GetScope(PLUGIN_NAME, conn.ID, scope.Id, false).Scope)
 	require.Equal(t, scope.Id, cicdScope.Id)
@@ -175,13 +175,13 @@ func TestBlueprintV200_withScopeDeletion_Conflict(t *testing.T) {
 	client := CreateClient(t)
 	params := CreateTestBlueprints(t, client, 1)
 	client.TriggerBlueprint(params.blueprints[0].ID)
-	scopesResponse := client.ListScopes(PLUGIN_NAME, params.connection.ID, true)
+	scopesResponse := client.ListScopes(PLUGIN_NAME, params.connection.ID, true).Scopes
 	require.Equal(t, 1, len(scopesResponse))
 	require.Equal(t, 1, len(scopesResponse[0].Blueprints))
 	refs := DeleteScopeWithDataIntegrityValidation(t, client.SetExpectedStatusCode(http.StatusConflict), params.connection.ID, params.scope.Id, false)
 	require.Equal(t, 1, len(refs.Blueprints))
 	require.Equal(t, 1, len(refs.Projects))
-	scopesResponse = client.ListScopes(PLUGIN_NAME, params.connection.ID, true)
+	scopesResponse = client.ListScopes(PLUGIN_NAME, params.connection.ID, true).Scopes
 	require.Equal(t, 1, len(scopesResponse))
 	bpsResult := client.ListBlueprints()
 	require.Equal(t, 1, len(bpsResult.Blueprints))
@@ -191,11 +191,11 @@ func TestBlueprintV200_withBlueprintDeletion(t *testing.T) {
 	client := CreateClient(t)
 	params := CreateTestBlueprints(t, client, 2)
 	client.TriggerBlueprint(params.blueprints[0].ID)
-	scopesResponse := client.ListScopes(PLUGIN_NAME, params.connection.ID, true)
+	scopesResponse := client.ListScopes(PLUGIN_NAME, params.connection.ID, true).Scopes
 	require.Equal(t, 1, len(scopesResponse))
 	require.Equal(t, 2, len(scopesResponse[0].Blueprints))
 	client.DeleteBlueprint(params.blueprints[0].ID)
-	scopesResponse = client.ListScopes(PLUGIN_NAME, params.connection.ID, true)
+	scopesResponse = client.ListScopes(PLUGIN_NAME, params.connection.ID, true).Scopes
 	require.Equal(t, 1, len(scopesResponse))
 	bpsList := client.ListBlueprints()
 	require.Equal(t, 1, len(bpsList.Blueprints))
@@ -208,18 +208,18 @@ func TestBlueprintV200_withBlueprintDeletion_thenScopeDeletion(t *testing.T) {
 	client := CreateClient(t)
 	params := CreateTestBlueprints(t, client, 1)
 	client.TriggerBlueprint(params.blueprints[0].ID)
-	scopesResponse := client.ListScopes(PLUGIN_NAME, params.connection.ID, true)
+	scopesResponse := client.ListScopes(PLUGIN_NAME, params.connection.ID, true).Scopes
 	require.Equal(t, 1, len(scopesResponse))
 	require.Equal(t, 1, len(scopesResponse[0].Blueprints))
 	client.DeleteBlueprint(params.blueprints[0].ID)
-	scopesResponse = client.ListScopes(PLUGIN_NAME, params.connection.ID, true)
+	scopesResponse = client.ListScopes(PLUGIN_NAME, params.connection.ID, true).Scopes
 	require.Equal(t, 1, len(scopesResponse))
 	bpsList := client.ListBlueprints()
 	require.Equal(t, 0, len(bpsList.Blueprints))
 	refs := DeleteScopeWithDataIntegrityValidation(t, client, params.connection.ID, params.scope.Id, false)
 	require.Equal(t, 0, len(refs.Blueprints))
 	require.Equal(t, 0, len(refs.Projects))
-	scopesResponse = client.ListScopes(PLUGIN_NAME, params.connection.ID, true)
+	scopesResponse = client.ListScopes(PLUGIN_NAME, params.connection.ID, true).Scopes
 	require.Equal(t, 0, len(scopesResponse))
 	projectsResponse := client.ListProjects()
 	require.Equal(t, 1, len(projectsResponse.Projects))
@@ -229,18 +229,18 @@ func TestBlueprintV200_withProjectDeletion_thenScopeDeletion(t *testing.T) {
 	client := CreateClient(t)
 	params := CreateTestBlueprints(t, client, 1)
 	client.TriggerBlueprint(params.blueprints[0].ID)
-	scopesResponse := client.ListScopes(PLUGIN_NAME, params.connection.ID, true)
+	scopesResponse := client.ListScopes(PLUGIN_NAME, params.connection.ID, true).Scopes
 	require.Equal(t, 1, len(scopesResponse))
 	require.Equal(t, 1, len(scopesResponse[0].Blueprints))
 	client.DeleteProject(params.projects[0].Name)
-	scopesResponse = client.ListScopes(PLUGIN_NAME, params.connection.ID, true)
+	scopesResponse = client.ListScopes(PLUGIN_NAME, params.connection.ID, true).Scopes
 	require.Equal(t, 1, len(scopesResponse))
 	bpsList := client.ListBlueprints()
 	require.Equal(t, 0, len(bpsList.Blueprints))
 	refs := DeleteScopeWithDataIntegrityValidation(t, client, params.connection.ID, params.scope.Id, false)
 	require.Equal(t, 0, len(refs.Blueprints))
 	require.Equal(t, 0, len(refs.Projects))
-	scopesResponse = client.ListScopes(PLUGIN_NAME, params.connection.ID, true)
+	scopesResponse = client.ListScopes(PLUGIN_NAME, params.connection.ID, true).Scopes
 	require.Equal(t, 0, len(scopesResponse))
 	projectsResponse := client.ListProjects()
 	require.Equal(t, 0, len(projectsResponse.Projects))

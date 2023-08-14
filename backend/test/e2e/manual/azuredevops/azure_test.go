@@ -19,6 +19,11 @@ package azuredevops
 
 import (
 	"fmt"
+	"net/http"
+	"strings"
+	"testing"
+	"time"
+
 	"github.com/apache/incubator-devlake/core/config"
 	"github.com/apache/incubator-devlake/core/models"
 	"github.com/apache/incubator-devlake/core/models/common"
@@ -27,10 +32,6 @@ import (
 	pluginmodels "github.com/apache/incubator-devlake/plugins/pagerduty/models"
 	"github.com/apache/incubator-devlake/test/helper"
 	"github.com/stretchr/testify/require"
-	"net/http"
-	"strings"
-	"testing"
-	"time"
 )
 
 const (
@@ -101,7 +102,7 @@ func TestAzure(t *testing.T) {
 		scopes := helper.Cast[[]AzureGitRepo](client.CreateScopes(azurePlugin, connection.ID, remoteScopesToScopes(remoteScopes, cfg.Repos)...))
 		scopesCount := len(scopes)
 		scopesResponse := client.ListScopes(azurePlugin, connection.ID, false)
-		require.Equal(t, scopesCount, len(scopesResponse))
+		require.Equal(t, scopesCount, len(scopesResponse.Scopes))
 		// associate scopes with the scope config
 		for _, scope := range scopes {
 			scope.ScopeConfigId = repoConfig.ID
@@ -133,7 +134,7 @@ func TestAzure(t *testing.T) {
 		// run the bp
 		pipeline := client.TriggerBlueprint(bp.ID)
 		require.Equal(t, models.TASK_COMPLETED, pipeline.Status)
-		createdScopesList := client.ListScopes(azurePlugin, connection.ID, true)
+		createdScopesList := client.ListScopes(azurePlugin, connection.ID, true).Scopes
 		require.True(t, len(createdScopesList) > 0)
 		client.SetExpectedStatusCode(http.StatusConflict).DeleteConnection(azurePlugin, connection.ID)
 		client.DeleteScopeConfig(azurePlugin, connection.ID, repoConfig.ID)
