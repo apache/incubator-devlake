@@ -121,7 +121,7 @@ func TestGitlabPlugin(t *testing.T) {
 			}
 		}
 		createdScopes := helper.Cast[[]*pluginmodels.GitlabProject](client.CreateScopes(pluginName, connection.ID, scopeData...))
-		listedScopes := client.ListScopes(pluginName, connection.ID, false)
+		listedScopes := client.ListScopes(pluginName, connection.ID, false).Scopes
 		require.Equal(t, len(createdScopes), len(listedScopes))
 		outputProject := client.CreateProject(&helper.ProjectConfig{
 			ProjectName: fmt.Sprintf("project-%s", pluginName),

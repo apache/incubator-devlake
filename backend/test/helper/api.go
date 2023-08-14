@@ -208,17 +208,20 @@ func (d *DevlakeClient) UpdateScope(pluginName string, connectionId uint64, scop
 	}, http.MethodPatch, fmt.Sprintf("%s/plugins/%s/connections/%d/scopes/%s", d.Endpoint, pluginName, connectionId, scopeId), nil, scope)
 }
 
-func (d *DevlakeClient) ListScopes(pluginName string, connectionId uint64, listBlueprints bool) []ScopeResponse {
-	scopesRaw := sendHttpRequest[[]map[string]any](d.testCtx, d.timeout, &testContext{
+func (d *DevlakeClient) ListScopes(pluginName string, connectionId uint64, listBlueprints bool) ScopeListResponseOut {
+	scopesRaw := sendHttpRequest[ScopeListResponseIn](d.testCtx, d.timeout, &testContext{
 		client:       d,
 		printPayload: true,
 		inlineJson:   false,
 	}, http.MethodGet, fmt.Sprintf("%s/plugins/%s/connections/%d/scopes?blueprints=%v", d.Endpoint, pluginName, connectionId, listBlueprints), nil, nil)
 	var responses []ScopeResponse
-	for _, scopeRaw := range scopesRaw {
+	for _, scopeRaw := range scopesRaw.Scopes {
 		responses = append(responses, getScopeResponse(scopeRaw))
 	}
-	return responses
+	return ScopeListResponseOut{
+		Scopes: responses,
+		Count:  scopesRaw.Count,
+	}
 }
 
 func (d *DevlakeClient) GetScope(pluginName string, connectionId uint64, scopeId string, listBlueprints bool) ScopeResponse {
