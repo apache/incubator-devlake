@@ -278,6 +278,9 @@ func (p Zentao) ApiResources() map[string]map[string]plugin.ApiResourceHandler {
 		"connections/:connectionId/remote-scopes": {
 			"GET": api.RemoteScopes,
 		},
+		"connections/:connectionId/proxy/*path": {
+			"GET": api.Proxy,
+		},
 	}
 }
 
