@@ -74,7 +74,10 @@ services:
     ports:
       - "127.0.0.1:8080:8080"
     restart: always
-    env_file: .env
+    volumes:
+      - devlake-log:/app/logs
+    env_file:
+      - ./.env
     environment:
       LOGGING_DIR: /app/logs
       # LOGOUT_URI: https://xxx.amazoncognito.com/logout?client_id=yyy&logout_uri=http%3A%2F%2Flocalhost%3A4180%2Foauth2%2Fsign_out
@@ -124,3 +127,5 @@ volumes:
   mysql-storage:
   grafana-storage:
   postgres-storage:
+  devlake-log:
+

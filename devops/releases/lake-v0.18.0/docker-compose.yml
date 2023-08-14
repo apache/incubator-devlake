@@ -54,7 +54,9 @@ services:
       - 8080:8080
     restart: always
     volumes:
-      - ./.env:/app/.env:z
+      - devlake-log:/app/logs
+    env_file:
+      - ./.env
     environment:
       LOGGING_DIR: /app/logs
     depends_on:
@@ -77,4 +79,5 @@ services:
 volumes:
   mysql-storage:
   grafana-storage:
+  devlake-log:
 
