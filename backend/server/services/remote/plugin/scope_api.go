@@ -71,15 +71,22 @@ func (pa *pluginAPI) UpdateScope(input *plugin.ApiResourceInput) (*plugin.ApiRes
 }
 
 func (pa *pluginAPI) ListScopes(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, errors.Error) {
-	scopes, err := pa.scopeHelper.GetScopes(input)
+	paginated, err := pa.scopeHelper.GetScopes(input)
 	if err != nil {
 		return nil, err
 	}
-	response, err := convertScopeResponse(scopes...)
+	scopes, err := convertScopeResponse(paginated.Scopes...)
 	if err != nil {
 		return nil, err
 	}
-	return &plugin.ApiResourceOutput{Body: response, Status: http.StatusOK}, nil
+	body := &struct {
+		Scopes []map[string]any `json:"scopes"`
+		Count  int64            `json:"count"`
+	}{
+		Scopes: scopes,
+		Count:  paginated.Count,
+	}
+	return &plugin.ApiResourceOutput{Body: body, Status: http.StatusOK}, nil
 }
 
 func (pa *pluginAPI) GetScope(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, errors.Error) {
