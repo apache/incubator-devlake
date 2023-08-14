@@ -33,7 +33,10 @@ export const SonarQubeConfig: PluginConfigType = {
     docLink: DOC_URL.PLUGIN.SONARQUBE.BASIS,
     fields: [
       'name',
-      'endpoint',
+      {
+        key: 'endpoint',
+        subLabel: 'Provide the SonarQube instance API endpoint. E.g. http://<host>:<port>/api/',
+      },
       'token',
       'proxy',
       {
