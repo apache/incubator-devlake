@@ -50,7 +50,7 @@ export const BlueprintConnectionDetailPage = () => {
 
   const { ready, data } = useRefreshData(async () => {
     const [plugin, connectionId] = unique.split('-');
-    const [blueprint, connection, scopes] = await Promise.all([
+    const [blueprint, connection, scopesRes] = await Promise.all([
       getBlueprint(pname, bid),
       API.getConnection(plugin, connectionId),
       API.getDataScopes(plugin, connectionId),
@@ -68,7 +68,7 @@ export const BlueprintConnectionDetailPage = () => {
         id: +connectionId,
         name: connection.name,
       },
-      scopes: scopes.filter((sc: any) => scopeIds.includes(getPluginScopeId(plugin, sc))),
+      scopes: scopesRes.scopes.filter((sc: any) => scopeIds.includes(getPluginScopeId(plugin, sc))),
     };
   }, [version, pname, bid]);
 
