@@ -36,19 +36,21 @@ import * as S from './styled';
 
 export const ProjectHomePage = () => {
   const [version, setVersion] = useState(1);
+  const [page, setPage] = useState(1);
+  const [pageSize] = useState(20);
   const [isOpen, setIsOpen] = useState(false);
   const [name, setName] = useState('');
   const [enableDora, setEnableDora] = useState(true);
   const [saving, setSaving] = useState(false);
 
-  const { ready, data } = useRefreshData(() => API.getProjects({ page: 1, pageSize: 200 }), [version]);
+  const { ready, data } = useRefreshData(() => API.getProjects({ page, pageSize }), [version, page, pageSize]);
   const { onGet } = useConnections();
 
   const navigate = useNavigate();
 
   const presets = useMemo(() => cronPresets.map((preset) => preset.config), []);
-  const dataSource = useMemo(
-    () =>
+  const [dataSource, total] = useMemo(
+    () => [
       (data?.projects ?? []).map((it) => {
         return {
           name: it.name,
@@ -60,6 +62,8 @@ export const ProjectHomePage = () => {
           lastRunStatus: it.lastPipeline?.status,
         };
       }),
+      data?.count ?? 0,
+    ],
     [data],
   );
 
@@ -190,6 +194,12 @@ export const ProjectHomePage = () => {
           },
         ]}
         dataSource={dataSource}
+        pagination={{
+          page,
+          pageSize,
+          total,
+          onChange: setPage,
+        }}
         noData={{
           text: 'Add new projects to see engineering metrics based on projects.',
           btnText: 'New Project',

@@ -32,43 +32,37 @@ import * as API from './api';
 import * as S from './styled';
 
 export const BlueprintHomePage = () => {
-  const [type, setType] = useState('all');
   const [version, setVersion] = useState(1);
+  const [type, setType] = useState('all');
+  const [page, setPage] = useState(1);
+  const [pageSize] = useState(20);
   const [isOpen, setIsOpen] = useState(false);
   const [name, setName] = useState('');
   const [mode, setMode] = useState(ModeEnum.normal);
   const [saving, setSaving] = useState(false);
 
   const { onGet } = useConnections();
-  const { ready, data } = useRefreshData(() => API.getBlueprints({ page: 1, pageSize: 200 }), [version]);
+  const { ready, data } = useRefreshData(
+    () => API.getBlueprints({ type: type.toLocaleUpperCase(), page, pageSize }),
+    [version, type, page, pageSize],
+  );
 
   const [options, presets] = useMemo(() => [getCronOptions(), cronPresets.map((preset) => preset.config)], []);
-  const dataSource = useMemo(
-    () =>
-      (data?.blueprints ?? [])
-        .filter((it) => {
-          switch (type) {
-            case 'all':
-              return true;
-            case 'manual':
-              return it.isManual;
-            case 'custom':
-              return !presets.includes(it.cronConfig);
-            default:
-              return !it.isManual && it.cronConfig === type;
-          }
-        })
-        .map((it) => {
-          const connections =
-            it.settings?.connections
-              .filter((cs) => cs.plugin !== 'webhook')
-              .map((cs) => onGet(`${cs.plugin}-${cs.connectionId}`) || `${cs.plugin}-${cs.connectionId}`) ?? [];
-          return {
-            ...it,
-            connections: connections.map((cs) => cs.name),
-          };
-        }),
-    [data, type],
+  const [dataSource, total] = useMemo(
+    () => [
+      (data?.blueprints ?? []).map((it) => {
+        const connections =
+          it.settings?.connections
+            .filter((cs) => cs.plugin !== 'webhook')
+            .map((cs) => onGet(`${cs.plugin}-${cs.connectionId}`) || `${cs.plugin}-${cs.connectionId}`) ?? [];
+        return {
+          ...it,
+          connections: connections.map((cs) => cs.name),
+        };
+      }),
+      data?.count ?? 0,
+    ],
+    [data],
   );
 
   const handleShowDialog = () => setIsOpen(true);
@@ -123,12 +117,12 @@ export const BlueprintHomePage = () => {
         <div className="action">
           <ButtonGroup>
             <Button intent={type === 'all' ? Intent.PRIMARY : Intent.NONE} text="All" onClick={() => setType('all')} />
-            {options.map(({ label, value }) => (
+            {options.map(({ label }) => (
               <Button
-                key={value}
-                intent={type === value ? Intent.PRIMARY : Intent.NONE}
+                key={label}
+                intent={type === label ? Intent.PRIMARY : Intent.NONE}
                 text={label}
-                onClick={() => setType(value)}
+                onClick={() => setType(label)}
               />
             ))}
           </ButtonGroup>
@@ -221,6 +215,12 @@ export const BlueprintHomePage = () => {
             },
           ]}
           dataSource={dataSource}
+          pagination={{
+            page,
+            pageSize,
+            total,
+            onChange: setPage,
+          }}
           noData={{
             text: 'There is no Blueprint yet. Please add a new Blueprint here or from a Project.',
             btnText: 'New Blueprint',
