@@ -19,10 +19,15 @@
 import { request } from '@/utils';
 
 type ParamsType = {
-  searchTerm: string;
+  searchTerm?: string;
+} & Pagination;
+
+type ResponseType = {
+  scopes: Array<{ name: string }>;
+  count: number;
 };
 
-export const getDataScope = (plugin: string, connectionId: ID, params?: ParamsType) =>
+export const getDataScope = (plugin: string, connectionId: ID, params?: ParamsType): Promise<ResponseType> =>
   request(`/plugins/${plugin}/connections/${connectionId}/scopes`, {
     data: params,
   });

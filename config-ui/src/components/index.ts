@@ -29,6 +29,7 @@ export * from './logo';
 export * from './message';
 export * from './no-data';
 export * from './page-header';
+export * from './pagination';
 export * from './selector';
 export * from './table';
 export * from './toast';

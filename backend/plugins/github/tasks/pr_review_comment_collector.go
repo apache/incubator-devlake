@@ -66,6 +66,12 @@ func CollectPrReviewComments(taskCtx plugin.SubTaskContext) errors.Error {
 		ApiClient:   data.ApiClient,
 		PageSize:    100,
 		Incremental: incremental,
+		Header: func(reqData *helper.RequestData) (http.Header, errors.Error) {
+			// Adding -H "Accept: application/vnd.github+json" solve the issue of getting 502/403 error
+			header := http.Header{}
+			header.Set("Accept", "application/vnd.github+json")
+			return header, nil
+		},
 
 		UrlTemplate: "repos/{{ .Params.Name }}/pulls/comments",
 		Query: func(reqData *helper.RequestData) (url.Values, errors.Error) {

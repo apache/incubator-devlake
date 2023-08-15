@@ -33,7 +33,7 @@ type GetProjectsResponse = {
     blueprint: BlueprintType;
     lastPipeline: PipelineType;
   }>;
-  counts: number;
+  count: number;
 };
 
 export const getProjects = (params: GetProjectsParams): Promise<GetProjectsResponse> =>
