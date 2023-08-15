@@ -18,6 +18,19 @@
 
 import styled from 'styled-components';
 
+export const PageHeaderExtra = styled.div`
+  display: flex;
+  align-items: center;
+
+  .btns {
+    margin-left: 8px;
+
+    .bp4-button + .bp4-button {
+      margin-left: 8px;
+    }
+  }
+`;
+
 export const Wrapper = styled.div`
   .top {
     display: flex;
