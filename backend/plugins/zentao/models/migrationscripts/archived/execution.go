@@ -18,51 +18,52 @@ limitations under the License.
 package archived
 
 import (
+	"time"
+
 	"github.com/apache/incubator-devlake/core/models/migrationscripts/archived"
-	helper "github.com/apache/incubator-devlake/helpers/pluginhelper/api"
 )
 
 type ZentaoExecution struct {
-	ConnectionId   uint64              `gorm:"primaryKey;type:BIGINT  NOT NULL"`
-	Id             int64               `json:"id" gorm:"primaryKey;type:BIGINT  NOT NULL;autoIncrement:false"`
-	Project        int64               `json:"project"`
-	Model          string              `json:"model"`
-	Type           string              `json:"type"`
-	Lifetime       string              `json:"lifetime"`
-	Budget         string              `json:"budget"`
-	BudgetUnit     string              `json:"budgetUnit"`
-	Attribute      string              `json:"attribute"`
-	Percent        int                 `json:"percent"`
-	Milestone      string              `json:"milestone"`
-	Output         string              `json:"output"`
-	Auth           string              `json:"auth"`
-	Parent         int64               `json:"parent"`
-	Path           string              `json:"path"`
-	Grade          int                 `json:"grade"`
-	Name           string              `json:"name"`
-	Code           string              `json:"code"`
-	PlanBegin      *helper.Iso8601Time `json:"begin"`
-	PlanEnd        *helper.Iso8601Time `json:"end"`
-	RealBegan      *helper.Iso8601Time `json:"realBegan"`
-	RealEnd        *helper.Iso8601Time `json:"realEnd"`
-	Status         string              `json:"status"`
-	SubStatus      string              `json:"subStatus"`
-	Pri            string              `json:"pri"`
-	Description    string              `json:"desc"`
-	Version        int                 `json:"version"`
-	ParentVersion  int                 `json:"parentVersion"`
-	PlanDuration   int                 `json:"planDuration"`
-	RealDuration   int                 `json:"realDuration"`
+	ConnectionId   uint64     `gorm:"primaryKey;type:BIGINT  NOT NULL"`
+	Id             int64      `json:"id" gorm:"primaryKey;type:BIGINT  NOT NULL;autoIncrement:false"`
+	Project        int64      `json:"project"`
+	Model          string     `json:"model"`
+	Type           string     `json:"type"`
+	Lifetime       string     `json:"lifetime"`
+	Budget         string     `json:"budget"`
+	BudgetUnit     string     `json:"budgetUnit"`
+	Attribute      string     `json:"attribute"`
+	Percent        int        `json:"percent"`
+	Milestone      string     `json:"milestone"`
+	Output         string     `json:"output"`
+	Auth           string     `json:"auth"`
+	Parent         int64      `json:"parent"`
+	Path           string     `json:"path"`
+	Grade          int        `json:"grade"`
+	Name           string     `json:"name"`
+	Code           string     `json:"code"`
+	PlanBegin      *time.Time `json:"begin"`
+	PlanEnd        *time.Time `json:"end"`
+	RealBegan      *time.Time `json:"realBegan"`
+	RealEnd        *time.Time `json:"realEnd"`
+	Status         string     `json:"status"`
+	SubStatus      string     `json:"subStatus"`
+	Pri            string     `json:"pri"`
+	Description    string     `json:"desc"`
+	Version        int        `json:"version"`
+	ParentVersion  int        `json:"parentVersion"`
+	PlanDuration   int        `json:"planDuration"`
+	RealDuration   int        `json:"realDuration"`
 	OpenedById     int64
-	OpenedDate     *helper.Iso8601Time `json:"openedDate"`
-	OpenedVersion  string              `json:"openedVersion"`
+	OpenedDate     *time.Time `json:"openedDate"`
+	OpenedVersion  string     `json:"openedVersion"`
 	LastEditedById int64
-	LastEditedDate *helper.Iso8601Time `json:"lastEditedDate"`
+	LastEditedDate *time.Time `json:"lastEditedDate"`
 	ClosedById     int64
-	ClosedDate     *helper.Iso8601Time `json:"closedDate"`
+	ClosedDate     *time.Time `json:"closedDate"`
 	CanceledById   int64
-	CanceledDate   *helper.Iso8601Time `json:"canceledDate"`
-	SuspendedDate  *helper.Iso8601Time `json:"suspendedDate"`
+	CanceledDate   *time.Time `json:"canceledDate"`
+	SuspendedDate  *time.Time `json:"suspendedDate"`
 	POId           int64
 	PMId           int64
 	QDId           int64

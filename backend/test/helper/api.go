@@ -19,16 +19,18 @@ package helper
 
 import (
 	"fmt"
-	"github.com/apache/incubator-devlake/helpers/pluginhelper/services"
 	"net/http"
 	"reflect"
 	"strings"
+
+	"github.com/apache/incubator-devlake/helpers/pluginhelper/services"
 
 	"github.com/apache/incubator-devlake/core/errors"
 	"github.com/apache/incubator-devlake/core/models"
 	"github.com/apache/incubator-devlake/core/plugin"
 	"github.com/apache/incubator-devlake/server/api/blueprints"
 	apiProject "github.com/apache/incubator-devlake/server/api/project"
+	"github.com/apache/incubator-devlake/server/api/shared"
 	"github.com/stretchr/testify/require"
 )
 
@@ -67,12 +69,12 @@ func (d *DevlakeClient) ListConnections(pluginName string) []*Connection {
 // DeleteConnection FIXME
 func (d *DevlakeClient) DeleteConnection(pluginName string, connectionId uint64) services.BlueprintProjectPairs {
 	d.testCtx.Helper()
-	refs := sendHttpRequest[services.BlueprintProjectPairs](d.testCtx, d.timeout, &testContext{
+	refs := sendHttpRequest[shared.TypedApiBody[services.BlueprintProjectPairs]](d.testCtx, d.timeout, &testContext{
 		client:       d,
 		printPayload: true,
 		inlineJson:   false,
 	}, http.MethodDelete, fmt.Sprintf("%s/plugins/%s/connections/%d", d.Endpoint, pluginName, connectionId), nil, nil)
-	return refs
+	return refs.Data
 }
 
 // CreateBasicBlueprintV2 FIXME
@@ -130,20 +132,20 @@ func (d *DevlakeClient) DeleteBlueprint(blueprintId uint64) {
 }
 
 func (d *DevlakeClient) CreateProject(project *ProjectConfig) models.ApiOutputProject {
-	var metrics []models.BaseMetric
+	var metrics []*models.BaseMetric
 	doraSeen := false
 	for _, p := range project.MetricPlugins {
 		if p.Name == "dora" {
 			doraSeen = true
 		}
-		metrics = append(metrics, models.BaseMetric{
+		metrics = append(metrics, &models.BaseMetric{
 			PluginName:   p.Name,
 			PluginOption: string(ToJson(p.Options)),
 			Enable:       true,
 		})
 	}
 	if project.EnableDora && !doraSeen {
-		metrics = append(metrics, models.BaseMetric{
+		metrics = append(metrics, &models.BaseMetric{
 			PluginName:   "dora",
 			PluginOption: string(ToJson(nil)),
 			Enable:       true,
@@ -159,7 +161,7 @@ func (d *DevlakeClient) CreateProject(project *ProjectConfig) models.ApiOutputPr
 			Description: project.ProjectDescription,
 		},
 		Enable:  Val(true),
-		Metrics: &metrics,
+		Metrics: metrics,
 	})
 }
 
@@ -206,17 +208,20 @@ func (d *DevlakeClient) UpdateScope(pluginName string, connectionId uint64, scop
 	}, http.MethodPatch, fmt.Sprintf("%s/plugins/%s/connections/%d/scopes/%s", d.Endpoint, pluginName, connectionId, scopeId), nil, scope)
 }
 
-func (d *DevlakeClient) ListScopes(pluginName string, connectionId uint64, listBlueprints bool) []ScopeResponse {
-	scopesRaw := sendHttpRequest[[]map[string]any](d.testCtx, d.timeout, &testContext{
+func (d *DevlakeClient) ListScopes(pluginName string, connectionId uint64, listBlueprints bool) ScopeListResponseOut {
+	scopesRaw := sendHttpRequest[ScopeListResponseIn](d.testCtx, d.timeout, &testContext{
 		client:       d,
 		printPayload: true,
 		inlineJson:   false,
 	}, http.MethodGet, fmt.Sprintf("%s/plugins/%s/connections/%d/scopes?blueprints=%v", d.Endpoint, pluginName, connectionId, listBlueprints), nil, nil)
 	var responses []ScopeResponse
-	for _, scopeRaw := range scopesRaw {
+	for _, scopeRaw := range scopesRaw.Scopes {
 		responses = append(responses, getScopeResponse(scopeRaw))
 	}
-	return responses
+	return ScopeListResponseOut{
+		Scopes: responses,
+		Count:  scopesRaw.Count,
+	}
 }
 
 func (d *DevlakeClient) GetScope(pluginName string, connectionId uint64, scopeId string, listBlueprints bool) ScopeResponse {

@@ -46,14 +46,8 @@ func TestZentaoBugDataFlow(t *testing.T) {
 				},
 			},
 		},
-		ProductList: map[int64]string{
-			3: "",
-		},
-		FromBugList: map[int]bool{
-			1: true,
-			2: true,
-			4: true,
-		},
+		Bugs:         map[int64]struct{}{},
+		AccountCache: tasks.NewAccountCache(dataflowTester.Dal, 1),
 	}
 
 	// import raw data table

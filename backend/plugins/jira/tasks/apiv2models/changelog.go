@@ -20,14 +20,14 @@ package apiv2models
 import (
 	"time"
 
-	helper "github.com/apache/incubator-devlake/helpers/pluginhelper/api"
+	"github.com/apache/incubator-devlake/core/models/common"
 	"github.com/apache/incubator-devlake/plugins/jira/models"
 )
 
 type Changelog struct {
 	ID      uint64             `json:"id,string"`
 	Author  Account            `json:"author"`
-	Created helper.Iso8601Time `json:"created"`
+	Created common.Iso8601Time `json:"created"`
 	Items   []ChangelogItem    `json:"items"`
 }
 

@@ -42,3 +42,10 @@ func ignoreHTTPStatus404(res *http.Response) errors.Error {
 	}
 	return nil
 }
+
+func ignoreHTTPStatus422(res *http.Response) errors.Error {
+	if res.StatusCode == http.StatusUnprocessableEntity {
+		return api.ErrIgnoreAndContinue
+	}
+	return nil
+}

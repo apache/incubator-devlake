@@ -18,8 +18,9 @@ limitations under the License.
 package archived
 
 import (
+	"time"
+
 	"github.com/apache/incubator-devlake/core/models/migrationscripts/archived"
-	"github.com/apache/incubator-devlake/helpers/pluginhelper/api"
 )
 
 type TeambitionAccount struct {
@@ -28,20 +29,20 @@ type TeambitionAccount struct {
 	MemberId       string `gorm:"type:varchar(100)"`
 	IsDisabled     int    `json:"isDisabled"`
 	Role           uint64
-	AvatarUrl      string           `gorm:"type:varchar(255)"`
-	Birthday       string           `gorm:"type:varchar(100)"`
-	City           string           `gorm:"type:varchar(100)"`
-	Province       string           `gorm:"type:varchar(100)"`
-	Country        string           `gorm:"type:varchar(100)"`
-	Email          string           `gorm:"type:varchar(255)"`
-	EntryTime      *api.Iso8601Time `json:"entryTime"`
-	Name           string           `gorm:"index;type:varchar(255)"`
-	Phone          string           `gorm:"type:varchar(100)"`
-	Title          string           `gorm:"type:varchar(255)"`
-	Pinyin         string           `gorm:"type:varchar(255)"`
-	Py             string           `gorm:"type:varchar(255)"`
-	StaffType      string           `gorm:"type:varchar(255)"`
-	EmployeeNumber string           `gorm:"type:varchar(100)"`
+	AvatarUrl      string     `gorm:"type:varchar(255)"`
+	Birthday       string     `gorm:"type:varchar(100)"`
+	City           string     `gorm:"type:varchar(100)"`
+	Province       string     `gorm:"type:varchar(100)"`
+	Country        string     `gorm:"type:varchar(100)"`
+	Email          string     `gorm:"type:varchar(255)"`
+	EntryTime      *time.Time `json:"entryTime"`
+	Name           string     `gorm:"index;type:varchar(255)"`
+	Phone          string     `gorm:"type:varchar(100)"`
+	Title          string     `gorm:"type:varchar(255)"`
+	Pinyin         string     `gorm:"type:varchar(255)"`
+	Py             string     `gorm:"type:varchar(255)"`
+	StaffType      string     `gorm:"type:varchar(255)"`
+	EmployeeNumber string     `gorm:"type:varchar(100)"`
 
 	archived.NoPKModel
 }

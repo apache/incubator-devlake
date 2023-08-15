@@ -19,7 +19,7 @@ package impl
 
 import (
 	"fmt"
-	"github.com/apache/incubator-devlake/helpers/pluginhelper/subtaskmeta_sorter"
+	"github.com/apache/incubator-devlake/helpers/pluginhelper/subtaskmeta/sorter"
 	"time"
 
 	"github.com/apache/incubator-devlake/core/context"
@@ -49,7 +49,7 @@ type Gitlab string
 
 func init() {
 	// check subtask meta loop when init subtask meta
-	if _, err := subtaskmeta_sorter.NewDependencySorter(tasks.SubTaskMetaList).Sort(); err != nil {
+	if _, err := sorter.NewDependencySorter(tasks.SubTaskMetaList).Sort(); err != nil {
 		panic(err)
 	}
 }
@@ -109,7 +109,7 @@ func (p Gitlab) Name() string {
 }
 
 func (p Gitlab) SubTaskMetas() []plugin.SubTaskMeta {
-	list, err := subtaskmeta_sorter.NewDependencySorter(tasks.SubTaskMetaList).Sort()
+	list, err := sorter.NewDependencySorter(tasks.SubTaskMetaList).Sort()
 	if err != nil {
 		panic(err)
 	}

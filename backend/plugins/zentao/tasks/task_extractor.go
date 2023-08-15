@@ -19,7 +19,6 @@ package tasks
 
 import (
 	"encoding/json"
-
 	"github.com/apache/incubator-devlake/core/errors"
 	"github.com/apache/incubator-devlake/core/models/domainlayer/ticket"
 	"github.com/apache/incubator-devlake/core/plugin"
@@ -39,9 +38,7 @@ var ExtractTaskMeta = plugin.SubTaskMeta{
 
 func ExtractTask(taskCtx plugin.SubTaskContext) errors.Error {
 	data := taskCtx.GetData().(*ZentaoTaskData)
-
-	statusMappings := getTaskStatusMapping(data)
-	stdTypeMappings := getStdTypeMappings(data)
+	et := newTaskExtractor(data)
 
 	extractor, err := api.NewApiExtractor(api.ApiExtractorArgs{
 		RawDataSubTaskArgs: api.RawDataSubTaskArgs{
@@ -57,95 +54,15 @@ func ExtractTask(taskCtx plugin.SubTaskContext) errors.Error {
 			}
 
 			data.Tasks[res.Id] = struct{}{}
-			task := &models.ZentaoTask{
-				ConnectionId:       data.Options.ConnectionId,
-				ID:                 res.Id,
-				Project:            res.Project,
-				Parent:             res.Parent,
-				Execution:          res.Execution,
-				Module:             res.Module,
-				Design:             res.Design,
-				Story:              res.Story,
-				StoryVersion:       res.StoryVersion,
-				DesignVersion:      res.DesignVersion,
-				FromBug:            res.FromBug,
-				Feedback:           res.Feedback,
-				FromIssue:          res.FromIssue,
-				Name:               res.Name,
-				Type:               res.Type,
-				Mode:               res.Mode,
-				Pri:                res.Pri,
-				Estimate:           res.Estimate,
-				Consumed:           res.Consumed,
-				Left:               res.Left,
-				Deadline:           res.Deadline,
-				Status:             res.Status,
-				SubStatus:          res.SubStatus,
-				Color:              res.Color,
-				Description:        res.Description,
-				Version:            res.Version,
-				OpenedById:         getAccountId(res.OpenedBy),
-				OpenedByName:       getAccountName(res.OpenedBy),
-				OpenedDate:         res.OpenedDate,
-				AssignedToId:       getAccountId(res.AssignedTo),
-				AssignedToName:     getAccountName(res.AssignedTo),
-				AssignedDate:       res.AssignedDate,
-				EstStarted:         res.EstStarted,
-				RealStarted:        res.RealStarted,
-				FinishedId:         getAccountId(res.FinishedBy),
-				FinishedDate:       res.FinishedDate,
-				FinishedList:       res.FinishedList,
-				CanceledId:         getAccountId(res.CanceledBy),
-				CanceledDate:       res.CanceledDate,
-				ClosedById:         getAccountId(res.ClosedBy),
-				ClosedDate:         res.ClosedDate,
-				PlanDuration:       res.PlanDuration,
-				RealDuration:       res.RealDuration,
-				ClosedReason:       res.ClosedReason,
-				LastEditedId:       getAccountId(res.LastEditedBy),
-				LastEditedDate:     res.LastEditedDate,
-				ActivatedDate:      res.ActivatedDate,
-				OrderIn:            res.OrderIn,
-				Repo:               res.Repo,
-				Mr:                 res.Mr,
-				Entry:              res.Entry,
-				NumOfLine:          res.NumOfLine,
-				V1:                 res.V1,
-				V2:                 res.V2,
-				Deleted:            res.Deleted,
-				Vision:             res.Vision,
-				StoryID:            res.Story,
-				StoryTitle:         res.StoryTitle,
-				LatestStoryVersion: 0,
-				//Product:            getAccountId(res.Product),
-				//Branch:             res.Branch,
-				//LatestStoryVersion: res.LatestStoryVersion,
-				//StoryStatus:        res.StoryStatus,
-				AssignedToRealName: res.AssignedToRealName,
-				PriOrder:           res.PriOrder,
-				NeedConfirm:        res.NeedConfirm,
-				//ProductType:        res.ProductType,
-				Progress: res.Progress,
-				Url:      row.Url,
+			for _, t := range res.Children {
+				data.Tasks[t.Id] = struct{}{}
 			}
-
-			task.StdType = stdTypeMappings[task.Type]
-			if task.StdType == "" {
-				task.StdType = ticket.TASK
+			var tasks []*models.ZentaoTask
+			et.toZentaoTasks(data.AccountCache, res, row.Url, &tasks)
+			var results []interface{}
+			for _, task := range tasks {
+				results = append(results, task)
 			}
-
-			if len(statusMappings) != 0 {
-				task.StdStatus = statusMappings[task.Status]
-			} else {
-				task.StdStatus = ticket.GetStatus(&ticket.StatusRule{
-					Done:    []string{"done", "closed", "cancel"},
-					Todo:    []string{"wait"},
-					Default: ticket.IN_PROGRESS,
-				}, task.Status)
-			}
-
-			results := make([]interface{}, 0)
-			results = append(results, task)
 			return results, nil
 		},
 	})
@@ -155,4 +72,107 @@ func ExtractTask(taskCtx plugin.SubTaskContext) errors.Error {
 	}
 
 	return extractor.Execute()
+}
+
+type taskExtractor struct {
+	connectionId    uint64
+	statusMappings  map[string]string
+	stdTypeMappings map[string]string
+}
+
+func newTaskExtractor(data *ZentaoTaskData) *taskExtractor {
+	return &taskExtractor{
+		connectionId:    data.Options.ConnectionId,
+		statusMappings:  getTaskStatusMapping(data),
+		stdTypeMappings: getStdTypeMappings(data),
+	}
+}
+func (c *taskExtractor) toZentaoTasks(accountCache *AccountCache, res *models.ZentaoTaskRes, url string, tasks *[]*models.ZentaoTask) {
+	task := &models.ZentaoTask{
+		ConnectionId:       c.connectionId,
+		ID:                 res.Id,
+		Project:            res.Project,
+		Parent:             res.Parent,
+		Execution:          res.Execution,
+		Module:             res.Module,
+		Design:             res.Design,
+		Story:              res.Story,
+		StoryVersion:       res.StoryVersion,
+		DesignVersion:      res.DesignVersion,
+		FromBug:            res.FromBug,
+		Feedback:           res.Feedback,
+		FromIssue:          res.FromIssue,
+		Name:               res.Name,
+		Type:               res.Type,
+		Mode:               res.Mode,
+		Pri:                res.Pri,
+		Estimate:           res.Estimate,
+		Consumed:           res.Consumed,
+		Left:               res.Left,
+		Deadline:           res.Deadline,
+		Status:             res.Status,
+		SubStatus:          res.SubStatus,
+		Color:              res.Color,
+		Description:        res.Description,
+		Version:            res.Version,
+		OpenedById:         accountCache.getAccountIDFromApiAccount(res.OpenedBy),
+		OpenedByName:       accountCache.getAccountNameFromApiAccount(res.OpenedBy),
+		OpenedDate:         res.OpenedDate,
+		AssignedToId:       accountCache.getAccountIDFromApiAccount(res.AssignedTo),
+		AssignedToName:     accountCache.getAccountNameFromApiAccount(res.AssignedTo),
+		AssignedDate:       res.AssignedDate,
+		EstStarted:         res.EstStarted,
+		RealStarted:        res.RealStarted,
+		FinishedId:         accountCache.getAccountIDFromApiAccount(res.FinishedBy),
+		FinishedDate:       res.FinishedDate,
+		FinishedList:       res.FinishedList,
+		CanceledId:         accountCache.getAccountIDFromApiAccount(res.CanceledBy),
+		CanceledDate:       res.CanceledDate,
+		ClosedById:         accountCache.getAccountIDFromApiAccount(res.ClosedBy),
+		ClosedDate:         res.ClosedDate,
+		PlanDuration:       res.PlanDuration,
+		RealDuration:       res.RealDuration,
+		ClosedReason:       res.ClosedReason,
+		LastEditedId:       accountCache.getAccountIDFromApiAccount(res.LastEditedBy),
+		LastEditedDate:     res.LastEditedDate,
+		ActivatedDate:      res.ActivatedDate,
+		OrderIn:            res.OrderIn,
+		Repo:               res.Repo,
+		Mr:                 res.Mr,
+		Entry:              res.Entry,
+		NumOfLine:          res.NumOfLine,
+		V1:                 res.V1,
+		V2:                 res.V2,
+		Vision:             res.Vision,
+		StoryID:            res.Story,
+		StoryTitle:         res.StoryTitle,
+		LatestStoryVersion: 0,
+		AssignedToRealName: res.AssignedToRealName,
+		PriOrder:           res.PriOrder,
+		NeedConfirm:        res.NeedConfirm,
+		Progress:           res.Progress,
+		Url:                url,
+	}
+
+	task.StdType = c.stdTypeMappings[task.Type]
+	if task.StdType == "" {
+		task.StdType = ticket.TASK
+	}
+	if len(c.statusMappings) != 0 {
+		if stdStatus, ok := c.statusMappings[task.Status]; ok {
+			task.StdStatus = stdStatus
+		} else {
+			task.StdStatus = task.Status
+		}
+	} else {
+		task.StdStatus = ticket.GetStatus(&ticket.StatusRule{
+			Done:    []string{"done", "closed", "cancel"},
+			Todo:    []string{"wait"},
+			Default: ticket.IN_PROGRESS,
+		}, task.Status)
+	}
+	*tasks = append(*tasks, task)
+	for _, child := range res.Children {
+		c.toZentaoTasks(accountCache, child, url, tasks)
+	}
 }

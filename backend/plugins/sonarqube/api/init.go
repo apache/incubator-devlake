@@ -41,9 +41,10 @@ func Init(br context.BasicRes, p plugin.PluginMeta) {
 		p.Name(),
 	)
 	params := &api.ReflectionParameters{
-		ScopeIdFieldName:  "ProjectKey",
-		ScopeIdColumnName: "project_key",
-		RawScopeParamName: "ProjectKey",
+		ScopeIdFieldName:     "ProjectKey",
+		ScopeIdColumnName:    "project_key",
+		RawScopeParamName:    "ProjectKey",
+		SearchScopeParamName: "name",
 	}
 	scopeHelper = api.NewScopeHelper[models.SonarqubeConnection, models.SonarqubeProject, any](
 		basicRes,

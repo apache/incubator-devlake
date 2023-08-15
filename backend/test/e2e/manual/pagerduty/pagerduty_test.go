@@ -19,6 +19,10 @@ package pagerduty
 
 import (
 	"fmt"
+	"net/http"
+	"testing"
+	"time"
+
 	"github.com/apache/incubator-devlake/core/config"
 	"github.com/apache/incubator-devlake/core/models"
 	"github.com/apache/incubator-devlake/core/plugin"
@@ -27,9 +31,6 @@ import (
 	pluginmodels "github.com/apache/incubator-devlake/plugins/pagerduty/models"
 	"github.com/apache/incubator-devlake/test/helper"
 	"github.com/stretchr/testify/require"
-	"net/http"
-	"testing"
-	"time"
 )
 
 const pluginName = "pagerduty"
@@ -100,7 +101,7 @@ func TestPagerDutyPlugin(t *testing.T) {
 		fmt.Printf("=========================Triggering blueprint for project %s =========================\n", outputProject.Name)
 		pipeline := client.TriggerBlueprint(bp.ID)
 		require.Equal(t, models.TASK_COMPLETED, pipeline.Status)
-		createdScopesList := client.ListScopes(pluginName, connection.ID, true)
+		createdScopesList := client.ListScopes(pluginName, connection.ID, true).Scopes
 		require.True(t, len(createdScopesList) > 0)
 		client.SetExpectedStatusCode(http.StatusConflict).DeleteConnection(pluginName, connection.ID)
 		client.DeleteBlueprint(bp.ID)

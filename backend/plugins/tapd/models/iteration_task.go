@@ -19,7 +19,6 @@ package models
 
 import (
 	"github.com/apache/incubator-devlake/core/models/common"
-	helper "github.com/apache/incubator-devlake/helpers/pluginhelper/api"
 )
 
 type TapdIterationTask struct {
@@ -29,8 +28,8 @@ type TapdIterationTask struct {
 	WorkspaceId  uint64 `gorm:"primaryKey"`
 
 	TaskId          uint64 `gorm:"primaryKey"`
-	ResolutionDate  *helper.CSTTime
-	TaskCreatedDate *helper.CSTTime
+	ResolutionDate  *common.CSTTime
+	TaskCreatedDate *common.CSTTime
 }
 
 func (TapdIterationTask) TableName() string {

@@ -34,6 +34,10 @@ import (
 	"github.com/apache/incubator-devlake/plugins/github/models"
 )
 
+func init() {
+	RegisterSubtaskMeta(&CollectApiPullRequestCommitsMeta)
+}
+
 const RAW_PR_COMMIT_TABLE = "github_api_pull_request_commits"
 
 // this struct should be moved to `gitub_api_common.go`
@@ -44,6 +48,8 @@ var CollectApiPullRequestCommitsMeta = plugin.SubTaskMeta{
 	EnabledByDefault: true,
 	Description:      "Collect PullRequestCommits data from Github api, supports both timeFilter and diffSync.",
 	DomainTypes:      []string{plugin.DOMAIN_TYPE_CROSS, plugin.DOMAIN_TYPE_CODE_REVIEW},
+	DependencyTables: []string{models.GithubPullRequest{}.TableName()},
+	ProductTables:    []string{RAW_PR_COMMIT_TABLE},
 }
 
 type SimplePr struct {

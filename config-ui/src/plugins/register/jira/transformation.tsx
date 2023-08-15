@@ -23,6 +23,7 @@ import { uniqWith } from 'lodash';
 
 import { PageLoading, HelpTooltip, ExternalLink, MultiSelector, Selector, Divider } from '@/components';
 import { useProxyPrefix, useRefreshData } from '@/hooks';
+import { DOC_URL } from '@/release';
 
 import { CrossDomain } from './transformation-fields';
 import * as API from './api';
@@ -132,14 +133,9 @@ export const JiraTransformation = ({ entities, connectionId, transformation, set
                   <div style={{ padding: '8px 12px', color: '#ffffff', backgroundColor: 'rgba(0,0,0,.8)' }}>
                     DevLake defines three standard types of issues: FEATURE, BUG and INCIDENT. Standardize your Jira
                     issue types to these three types so that DevLake can calculate metrics such as{' '}
-                    <ExternalLink link="https://devlake.apache.org/docs/Metrics/RequirementLeadTime">
-                      Requirement Lead Time
-                    </ExternalLink>
-                    , <ExternalLink link="https://devlake.apache.org/docs/Metrics/BugAge">Bug Age</ExternalLink>,
-                    <ExternalLink link="https://devlake.apache.org/docs/Metrics/MTTR">
-                      DORA - Median Time to Restore Service
-                    </ExternalLink>
-                    , etc.
+                    <ExternalLink link={DOC_URL.METRICS.REQUIREMENT_LEAD_TIME}>Requirement Lead Time</ExternalLink>,{' '}
+                    <ExternalLink link={DOC_URL.METRICS.BUG_AGE}>Bug Age</ExternalLink>,
+                    <ExternalLink link={DOC_URL.METRICS.MTTR}>DORA - Median Time to Restore Service</ExternalLink>, etc.
                   </div>
                 }
               >

@@ -19,11 +19,17 @@ package tasks
 
 import (
 	"encoding/json"
+
 	"github.com/apache/incubator-devlake/core/errors"
+	"github.com/apache/incubator-devlake/core/models/common"
 	"github.com/apache/incubator-devlake/core/plugin"
 	"github.com/apache/incubator-devlake/helpers/pluginhelper/api"
 	"github.com/apache/incubator-devlake/plugins/github/models"
 )
+
+func init() {
+	RegisterSubtaskMeta(&ExtractApiCommitsMeta)
+}
 
 var ExtractApiCommitsMeta = plugin.SubTaskMeta{
 	Name:             "extractApiCommits",
@@ -31,6 +37,10 @@ var ExtractApiCommitsMeta = plugin.SubTaskMeta{
 	EnabledByDefault: false,
 	Description:      "Extract raw commit data into tool layer table github_commits",
 	DomainTypes:      []string{plugin.DOMAIN_TYPE_CODE},
+	DependencyTables: []string{RAW_COMMIT_TABLE},
+	ProductTables: []string{
+		models.GithubCommit{}.TableName(),
+		models.GithubRepoCommit{}.TableName()},
 }
 
 type CommitsResponse struct {
@@ -45,12 +55,12 @@ type Commit struct {
 	Author struct {
 		Name  string
 		Email string
-		Date  api.Iso8601Time
+		Date  common.Iso8601Time
 	}
 	Committer struct {
 		Name  string
 		Email string
-		Date  api.Iso8601Time
+		Date  common.Iso8601Time
 	}
 	Message string
 }

@@ -84,12 +84,16 @@ func (s *ScopeDatabaseHelperImpl) GetScope(connectionId uint64, scopeId string) 
 	return scope, nil
 }
 
-func (s *ScopeDatabaseHelperImpl) ListScopes(input *plugin.ApiResourceInput, connectionId uint64) ([]*models.DynamicScopeModel, errors.Error) {
+func (s *ScopeDatabaseHelperImpl) ListScopes(input *plugin.ApiResourceInput, connectionId uint64) ([]*models.DynamicScopeModel, int64, errors.Error) {
+	count, err := s.db.Count(dal.From(s.pa.scopeType.TableName()), dal.Where("connection_id = ?", connectionId))
+	if err != nil {
+		return nil, 0, err
+	}
 	limit, offset := api.GetLimitOffset(input.Query, "pageSize", "page")
 	scopes := models.NewDynamicScopeModel(s.pa.scopeType).NewSlice()
-	err := api.CallDB(s.db.All, scopes, dal.Where("connection_id = ?", connectionId), dal.Limit(limit), dal.Offset(offset))
+	err = api.CallDB(s.db.All, scopes, dal.Where("connection_id = ?", connectionId), dal.Limit(limit), dal.Offset(offset))
 	if err != nil {
-		return nil, err
+		return nil, 0, err
 	}
 	var result []*models.DynamicScopeModel
 	for _, scopeRaw := range scopes.UnwrapSlice() {
@@ -97,7 +101,7 @@ func (s *ScopeDatabaseHelperImpl) ListScopes(input *plugin.ApiResourceInput, con
 		_ = scope.From(scopeRaw)
 		result = append(result, scope)
 	}
-	return result, nil
+	return result, count, nil
 }
 
 func (s *ScopeDatabaseHelperImpl) DeleteScope(scope *models.DynamicScopeModel) errors.Error {

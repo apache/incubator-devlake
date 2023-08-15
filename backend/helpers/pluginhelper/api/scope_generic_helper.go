@@ -67,6 +67,10 @@ type (
 		Scope                    Scope                    `mapstructure:",squash"` // ideally we need this field to be embedded in the struct
 		ScopeResDoc[ScopeConfig] `mapstructure:",squash"` // however, only this type of embeding is supported as of golang 1.20
 	}
+	ScopeListRes[Scope plugin.ToolLayerScope, ScopeConfig any] struct {
+		Scopes []*ScopeRes[Scope, ScopeConfig] `mapstructure:"scopes" json:"scopes"`
+		Count  int64                           `mapstructure:"count" json:"count"`
+	}
 	ReflectionParameters struct {
 		// This corresponds to the struct field of the scope struct's ID field
 		ScopeIdFieldName string `validate:"required"`
@@ -74,6 +78,8 @@ type (
 		ScopeIdColumnName string `validate:"required"`
 		// This corresponds to the scope field on the ApiParams struct of a plugin.
 		RawScopeParamName string `validate:"required"`
+		// This corresponds to the scope field for allowing data scope search.
+		SearchScopeParamName string
 	}
 	ScopeHelperOptions struct {
 		// Define this if the raw params doesn't store the ScopeId but a different attribute of the Scope (e.g. Name)
@@ -223,7 +229,7 @@ func (gs *GenericScopeApiHelper[Conn, Scope, ScopeConfig]) UpdateScope(input *pl
 	return scopeRes[0], nil
 }
 
-func (gs *GenericScopeApiHelper[Conn, Scope, ScopeConfig]) GetScopes(input *plugin.ApiResourceInput) ([]*ScopeRes[Scope, ScopeConfig], errors.Error) {
+func (gs *GenericScopeApiHelper[Conn, Scope, ScopeConfig]) GetScopes(input *plugin.ApiResourceInput) (*ScopeListRes[Scope, ScopeConfig], errors.Error) {
 	params, err := gs.extractFromGetReqParam(input, false)
 	if err != nil {
 		return nil, errors.BadInput.New("invalid path params: \"connectionId\" not set")
@@ -232,9 +238,9 @@ func (gs *GenericScopeApiHelper[Conn, Scope, ScopeConfig]) GetScopes(input *plug
 	if err != nil {
 		return nil, errors.Default.Wrap(err, fmt.Sprintf("error verifying connection for connection ID %d", params.connectionId))
 	}
-	scopes, err := gs.dbHelper.ListScopes(input, params.connectionId)
+	scopes, count, err := gs.dbHelper.ListScopes(input, params.connectionId)
 	if err != nil {
-		return nil, errors.Default.Wrap(err, fmt.Sprintf("error verifying connection for connection ID %d", params.connectionId))
+		return nil, err
 	}
 	apiScopes, err := gs.addScopeConfig(scopes...)
 	if err != nil {
@@ -264,7 +270,10 @@ func (gs *GenericScopeApiHelper[Conn, Scope, ScopeConfig]) GetScopes(input *plug
 			gs.log.Warn(nil, "The following dangling scopes were found: %v", danglingIds)
 		}
 	}
-	return apiScopes, nil
+	return &ScopeListRes[Scope, ScopeConfig]{
+		Scopes: apiScopes,
+		Count:  count,
+	}, nil
 }
 
 func (gs *GenericScopeApiHelper[Conn, Scope, ScopeConfig]) GetScope(input *plugin.ApiResourceInput) (*ScopeRes[Scope, ScopeConfig], errors.Error) {

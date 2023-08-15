@@ -23,7 +23,6 @@ import (
 	"time"
 
 	"github.com/apache/incubator-devlake/core/errors"
-
 	helper "github.com/apache/incubator-devlake/helpers/pluginhelper/api"
 	"github.com/apache/incubator-devlake/plugins/github/models"
 )

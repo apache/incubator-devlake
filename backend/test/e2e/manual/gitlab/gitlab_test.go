@@ -19,6 +19,9 @@ package gitlab
 
 import (
 	"fmt"
+	"net/http"
+	"testing"
+
 	"github.com/apache/incubator-devlake/core/config"
 	"github.com/apache/incubator-devlake/core/models"
 	"github.com/apache/incubator-devlake/core/models/common"
@@ -29,8 +32,6 @@ import (
 	pluginmodels "github.com/apache/incubator-devlake/plugins/gitlab/models"
 	"github.com/apache/incubator-devlake/test/helper"
 	"github.com/stretchr/testify/require"
-	"net/http"
-	"testing"
 )
 
 const pluginName = "gitlab"
@@ -87,8 +88,8 @@ func TestGitlabPlugin(t *testing.T) {
 				IssueTypeIncident:    "",
 				IssueTypeRequirement: "",
 				DeploymentPattern:    ".*",
-				ProductionPattern:    ".*",             // this triggers dora
-				Refdiff:              map[string]any{}, // this is technically a true/false (nil or not)
+				ProductionPattern:    ".*", // this triggers dora
+				Refdiff:              nil,  // this is technically a true/false (nil or not)
 			}))
 		_ = scopeConfig
 		remoteScopes := client.RemoteScopes(helper.RemoteScopesQuery{
@@ -120,7 +121,7 @@ func TestGitlabPlugin(t *testing.T) {
 			}
 		}
 		createdScopes := helper.Cast[[]*pluginmodels.GitlabProject](client.CreateScopes(pluginName, connection.ID, scopeData...))
-		listedScopes := client.ListScopes(pluginName, connection.ID, false)
+		listedScopes := client.ListScopes(pluginName, connection.ID, false).Scopes
 		require.Equal(t, len(createdScopes), len(listedScopes))
 		outputProject := client.CreateProject(&helper.ProjectConfig{
 			ProjectName: fmt.Sprintf("project-%s", pluginName),

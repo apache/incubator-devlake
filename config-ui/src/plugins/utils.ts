@@ -35,6 +35,8 @@ export const getPluginScopeId = (plugin: string, scope: any) => {
       return `${scope.bitbucketId}`;
     case 'sonarqube':
       return `${scope.projectKey}`;
+    case 'bamboo':
+      return `${scope.planKey}`;
     default:
       return `${scope.id}`;
   }

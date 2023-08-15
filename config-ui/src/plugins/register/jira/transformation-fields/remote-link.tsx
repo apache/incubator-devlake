@@ -18,6 +18,7 @@
 
 import { useEffect, useState } from 'react';
 import { InputGroup, Button, Intent } from '@blueprintjs/core';
+import { useDebounce } from 'ahooks';
 
 import { IconButton } from '@/components';
 import { operator } from '@/utils';
@@ -31,54 +32,41 @@ interface Props {
 }
 
 export const RemoteLink = ({ transformation, setTransformation }: Props) => {
+  const [index, setInedx] = useState(0);
+  const [pattern, setPattern] = useState('');
+  const [error, setError] = useState('');
   const [links, setLinks] = useState<Array<{ pattern: string; regex: string }>>(
     transformation.remotelinkRepoPattern ?? [],
   );
   const [generating, setGenerating] = useState(false);
 
-  const generateRegex = async (pattern: string) => {
-    try {
-      const res = await API.generateRegex(pattern);
-      return { pattern, regex: res.regex };
-    } catch {
-      return { pattern, regex: '' };
-    }
-  };
+  useEffect(() => {
+    setTransformation({
+      ...transformation,
+      remotelinkRepoPattern: links.filter((link) => link.regex),
+    });
+  }, [links]);
+
+  const debouncedPattern = useDebounce(pattern, { wait: 500 });
 
   const getRegex = async () => {
-    const [success, res] = await operator(
-      () =>
-        Promise.all(
-          links.map((link) => {
-            if (!link.pattern || link.regex) {
-              return link;
-            }
-            return generateRegex(link.pattern);
-          }),
-        ),
-      {
-        setOperating: setGenerating,
-        hideToast: true,
-      },
-    );
+    const [success, res] = await operator(() => API.generateRegex(pattern), {
+      hideToast: true,
+      setOperating: setGenerating,
+    });
 
     if (success) {
-      setTransformation({
-        ...transformation,
-        remotelinkRepoPattern: res.filter((it: any) => it.regex),
-      });
+      setLinks(links.map((link, i) => (i === index ? res : link)));
+    } else {
+      setError(res?.response?.data?.message ?? '');
     }
   };
 
   useEffect(() => {
-    const timer = setTimeout(getRegex, 1000);
-    return () => clearTimeout(timer);
-  }, [links]);
-
-  const handleChangeLinks = (index: number, value: string) => {
-    const newValue = links.map((link, i) => (index === i ? { pattern: value, regex: link.regex } : link));
-    setLinks(newValue);
-  };
+    if (debouncedPattern) {
+      getRegex();
+    }
+  }, [debouncedPattern]);
 
   const handleAddLink = () => {
     const newValue = [...links, { pattern: '', regex: '' }];
@@ -94,21 +82,31 @@ export const RemoteLink = ({ transformation, setTransformation }: Props) => {
     <S.RemoteLinkWrapper>
       {links.map((link, i) => (
         <div key={i} className="input">
-          <InputGroup
-            key={i}
-            placeholder="E.g. https://gitlab.com/{namespace}/{repo_name}/-/commit/{commit_sha}"
-            value={link.pattern}
-            onChange={(e) => handleChangeLinks(i, e.target.value)}
-            // onBlur={() => handleGenerateRegex(i, link.pattern)}
-          />
-          {links.length > 1 && (
-            <IconButton disabled={generating} icon="cross" tooltip="Delete" onClick={() => handleDeleteLink(i)} />
-          )}
+          <div className="inner">
+            <InputGroup
+              key={i}
+              placeholder="E.g. https://gitlab.com/{namespace}/{repo_name}/-/commit/{commit_sha}"
+              value={index === i ? pattern : link.pattern}
+              onChange={(e) => {
+                setPattern(e.target.value);
+                setError('');
+              }}
+              onFocus={() => {
+                setInedx(i);
+                setPattern(link.pattern);
+                setError('');
+              }}
+            />
+            {links.length > 1 && (
+              <IconButton loading={generating} icon="cross" tooltip="Delete" onClick={() => handleDeleteLink(i)} />
+            )}
+          </div>
+          {index === i && error && <div className="error">{error}</div>}
         </div>
       ))}
       <Button
         outlined
-        disabled={generating}
+        loading={generating}
         intent={Intent.PRIMARY}
         icon="add"
         text="Add a Pattern"

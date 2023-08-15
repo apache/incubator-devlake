@@ -43,7 +43,10 @@ import (
 )
 
 // ErrIgnoreAndContinue is a error which should be ignored
-var ErrIgnoreAndContinue = errors.Default.New("ignore and continue")
+var (
+	ErrIgnoreAndContinue = errors.Default.New("ignore and continue")
+	ErrEmptyResponse     = errors.Default.New("empty response")
+)
 
 // ApiClient is designed for simple api requests
 type ApiClient struct {
@@ -372,6 +375,9 @@ func UnmarshalResponse(res *http.Response, v interface{}) errors.Error {
 	resBody, err := io.ReadAll(res.Body)
 	if err != nil {
 		return errors.Default.Wrap(err, fmt.Sprintf("error reading response from %s", res.Request.URL.String()))
+	}
+	if len(resBody) == 0 {
+		return ErrEmptyResponse
 	}
 	err = errors.Convert(json.Unmarshal(resBody, &v))
 	if err != nil {

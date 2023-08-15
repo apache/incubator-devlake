@@ -114,9 +114,9 @@ func (p Zentao) SubTaskMetas() []plugin.SubTaskMeta {
 		tasks.ExtractAccountMeta,
 		tasks.ConvertAccountMeta,
 
-		//tasks.CollectDepartmentMeta,
-		//tasks.ExtractDepartmentMeta,
-		//tasks.ConvertDepartmentMeta,
+		tasks.CollectDepartmentMeta,
+		tasks.ExtractDepartmentMeta,
+		tasks.ConvertDepartmentMeta,
 
 		// project
 		tasks.CollectExecutionSummaryMeta,
@@ -196,14 +196,12 @@ func (p Zentao) PrepareTaskData(taskCtx plugin.TaskContext, options map[string]i
 	}
 
 	data := &tasks.ZentaoTaskData{
-		Options:     op,
-		ApiClient:   apiClient,
-		ProductList: map[int64]string{},
-		StoryList:   map[int64]int64{},
-		FromBugList: map[int]bool{},
-		Stories:     map[int64]struct{}{},
-		Tasks:       map[int64]struct{}{},
-		Bugs:        map[int64]struct{}{},
+		Options:      op,
+		ApiClient:    apiClient,
+		Stories:      map[int64]struct{}{},
+		Tasks:        map[int64]struct{}{},
+		Bugs:         map[int64]struct{}{},
+		AccountCache: tasks.NewAccountCache(taskCtx.GetDal(), op.ConnectionId),
 	}
 
 	if connection.DbUrl != "" {
@@ -279,6 +277,9 @@ func (p Zentao) ApiResources() map[string]map[string]plugin.ApiResourceHandler {
 		},
 		"connections/:connectionId/remote-scopes": {
 			"GET": api.RemoteScopes,
+		},
+		"connections/:connectionId/proxy/*path": {
+			"GET": api.Proxy,
 		},
 	}
 }

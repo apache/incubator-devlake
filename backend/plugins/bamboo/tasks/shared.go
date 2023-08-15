@@ -27,7 +27,6 @@ import (
 	"github.com/apache/incubator-devlake/core/plugin"
 	"github.com/apache/incubator-devlake/helpers/pluginhelper/api"
 	"github.com/apache/incubator-devlake/plugins/bamboo/models"
-	"gorm.io/datatypes"
 )
 
 func CreateRawDataSubTaskArgs(taskCtx plugin.SubTaskContext, rawTable string) (*api.RawDataSubTaskArgs, *BambooTaskData) {
@@ -37,7 +36,7 @@ func CreateRawDataSubTaskArgs(taskCtx plugin.SubTaskContext, rawTable string) (*
 	*filteredData.Options = *data.Options
 	var params = models.BambooApiParams{
 		ConnectionId: data.Options.ConnectionId,
-		ProjectKey:   data.Options.ProjectKey,
+		PlanKey:      data.Options.PlanKey,
 	}
 	rawDataSubTaskArgs := &api.RawDataSubTaskArgs{
 		Ctx:    taskCtx,
@@ -86,16 +85,4 @@ func GetResultsResult(res *http.Response) ([]json.RawMessage, errors.Error) {
 		return nil, err
 	}
 	return resData.Results.Result, nil
-}
-
-func getRepoMap(rawRepoMap datatypes.JSONMap) map[int]string {
-	repoMap := make(map[int]string)
-	for k, v := range rawRepoMap {
-		if list, ok := v.([]interface{}); ok {
-			for _, id := range list {
-				repoMap[int(id.(float64))] = k
-			}
-		}
-	}
-	return repoMap
 }

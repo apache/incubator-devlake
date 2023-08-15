@@ -33,7 +33,7 @@ type TapdOptions struct {
 	TimeAfter     string `json:"timeAfter" mapstructure:"timeAfter,omitempty"`
 	CstZone       *time.Location
 	ScopeConfigId uint64
-	ScopeConfig   *TapdScopeConfig `json:"scopeConfigs"`
+	ScopeConfig   *TapdScopeConfig `json:"scopeConfig"`
 }
 
 func MakeScopeConfigs(rule models.TapdScopeConfig) (*TapdScopeConfig, errors.Error) {

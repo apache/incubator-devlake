@@ -28,16 +28,21 @@ import (
 
 	"github.com/apache/incubator-devlake/core/dal"
 	"github.com/apache/incubator-devlake/core/errors"
+	"github.com/apache/incubator-devlake/core/models/common"
 	"github.com/apache/incubator-devlake/core/plugin"
 	helper "github.com/apache/incubator-devlake/helpers/pluginhelper/api"
 	"github.com/apache/incubator-devlake/plugins/github/models"
 )
 
+func init() {
+	RegisterSubtaskMeta(&CollectApiEventsMeta)
+}
+
 const RAW_EVENTS_TABLE = "github_api_events"
 
 type SimpleGithubApiEvents struct {
 	GithubId  int64
-	CreatedAt helper.Iso8601Time `json:"created_at"`
+	CreatedAt common.Iso8601Time `json:"created_at"`
 }
 
 var CollectApiEventsMeta = plugin.SubTaskMeta{
@@ -46,6 +51,8 @@ var CollectApiEventsMeta = plugin.SubTaskMeta{
 	EnabledByDefault: true,
 	Description:      "Collect Events data from Github api, supports both timeFilter and diffSync.",
 	DomainTypes:      []string{plugin.DOMAIN_TYPE_TICKET},
+	DependencyTables: []string{},
+	ProductTables:    []string{RAW_EVENTS_TABLE},
 }
 
 func CollectApiEvents(taskCtx plugin.SubTaskContext) errors.Error {

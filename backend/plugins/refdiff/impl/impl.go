@@ -77,7 +77,7 @@ func (p RefDiff) SubTaskMetas() []plugin.SubTaskMeta {
 }
 
 func (p RefDiff) PrepareTaskData(taskCtx plugin.TaskContext, options map[string]interface{}) (interface{}, errors.Error) {
-	var op tasks.RefdiffOptions
+	var op models.RefdiffOptions
 	err := helper.Decode(options, &op, nil)
 	if err != nil {
 		return nil, err

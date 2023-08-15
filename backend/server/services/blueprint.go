@@ -44,6 +44,8 @@ type BlueprintQuery struct {
 	Enable   *bool  `form:"enable,omitempty"`
 	IsManual *bool  `form:"isManual"`
 	Label    string `form:"label"`
+	// isManual must be omitted or `null` for type to take effect
+	Type string `form:"type" enums:"ALL,MANUAL,DAILY,WEEKLY,MONTHLY,CUSTOM" validate:"oneof=ALL MANUAL DAILY WEEKLY MONTHLY CUSTOM"`
 }
 
 type BlueprintJob struct {
@@ -83,17 +85,14 @@ func CreateBlueprint(blueprint *models.Blueprint) errors.Error {
 
 // GetBlueprints returns a paginated list of Blueprints based on `query`
 func GetBlueprints(query *BlueprintQuery) ([]*models.Blueprint, int64, errors.Error) {
-	blueprints, count, err := bpManager.GetDbBlueprints(&services.GetBlueprintQuery{
+	return bpManager.GetDbBlueprints(&services.GetBlueprintQuery{
 		Enable:      query.Enable,
 		IsManual:    query.IsManual,
 		Label:       query.Label,
 		SkipRecords: query.GetSkip(),
 		PageSize:    query.GetPageSize(),
+		Type:        query.Type,
 	})
-	if err != nil {
-		return nil, 0, errors.Convert(err)
-	}
-	return blueprints, count, nil
 }
 
 // GetBlueprint returns the detail of a given Blueprint ID

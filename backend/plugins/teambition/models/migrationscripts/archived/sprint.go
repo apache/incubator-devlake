@@ -18,8 +18,9 @@ limitations under the License.
 package archived
 
 import (
+	"time"
+
 	"github.com/apache/incubator-devlake/core/models/migrationscripts/archived"
-	"github.com/apache/incubator-devlake/helpers/pluginhelper/api"
 )
 
 type TeambitionSprint struct {
@@ -31,11 +32,11 @@ type TeambitionSprint struct {
 	Status       string `gorm:"varchar(255)"`
 	ProjectId    string `gorm:"type:varchar(100)"`
 	CreatorId    string `gorm:"type:varchar(100)"`
-	StartDate    *api.Iso8601Time
-	DueDate      *api.Iso8601Time
-	Accomplished *api.Iso8601Time
-	Created      *api.Iso8601Time
-	Updated      *api.Iso8601Time
+	StartDate    *time.Time
+	DueDate      *time.Time
+	Accomplished *time.Time
+	Created      *time.Time
+	Updated      *time.Time
 	Payload      any      `gorm:"serializer:json;type:text"`
 	Labels       []string `gorm:"serializer:json;type:text"`
 

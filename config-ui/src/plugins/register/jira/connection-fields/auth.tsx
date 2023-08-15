@@ -20,6 +20,7 @@ import { useState, useEffect } from 'react';
 import { FormGroup, RadioGroup, Radio, InputGroup } from '@blueprintjs/core';
 
 import { ExternalLink, FormPassword } from '@/components';
+import { DOC_URL } from '@/release';
 
 import * as S from './styled';
 
@@ -154,9 +155,7 @@ export const Auth = ({ initialValues, values, setValues, setErrors }: Props) => 
             labelInfo={<S.LabelInfo>*</S.LabelInfo>}
             subLabel={
               <S.LabelDescription>
-                <ExternalLink link="https://devlake.apache.org/docs/Configuration/Jira#api-token">
-                  Learn about how to create an API Token
-                </ExternalLink>
+                <ExternalLink link={DOC_URL.PLUGIN.JIRA.API_TOKEN}>Learn about how to create an API Token</ExternalLink>
               </S.LabelDescription>
             }
           >
@@ -189,7 +188,7 @@ export const Auth = ({ initialValues, values, setValues, setErrors }: Props) => 
               labelInfo={<S.LabelInfo>*</S.LabelInfo>}
               subLabel={
                 <S.LabelDescription>
-                  <ExternalLink link="https://devlake.apache.org/docs/Configuration/Jira#personal-access-token">
+                  <ExternalLink link={DOC_URL.PLUGIN.JIRA.PERSONAL_ACCESS_TOKEN}>
                     Learn about how to create a PAT
                   </ExternalLink>
                 </S.LabelDescription>

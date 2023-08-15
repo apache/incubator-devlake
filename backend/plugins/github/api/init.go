@@ -18,8 +18,9 @@ limitations under the License.
 package api
 
 import (
-	"github.com/apache/incubator-devlake/core/plugin"
 	"strconv"
+
+	"github.com/apache/incubator-devlake/core/plugin"
 
 	"github.com/apache/incubator-devlake/core/context"
 	"github.com/apache/incubator-devlake/core/dal"
@@ -46,9 +47,10 @@ func Init(br context.BasicRes, p plugin.PluginMeta) {
 		p.Name(),
 	)
 	params := &api.ReflectionParameters{
-		ScopeIdFieldName:  "GithubId",
-		ScopeIdColumnName: "github_id",
-		RawScopeParamName: "Name",
+		ScopeIdFieldName:     "GithubId",
+		ScopeIdColumnName:    "github_id",
+		RawScopeParamName:    "Name",
+		SearchScopeParamName: "name",
 	}
 	scopeHelper = api.NewScopeHelper[models.GithubConnection, models.GithubRepo, models.GithubScopeConfig](
 		basicRes,

@@ -40,7 +40,7 @@ type ZentaoOptions struct {
 	// TODO not support now
 	TimeAfter     string              `json:"timeAfter" mapstructure:"timeAfter,omitempty"`
 	ScopeConfigId uint64              `json:"scopeConfigId" mapstructure:"scopeConfigId,omitempty"`
-	ScopeConfigs  *ZentaoScopeConfigs `json:"scopeConfigs" mapstructure:"scopeConfigs,omitempty"`
+	ScopeConfigs  *ZentaoScopeConfigs `json:"scopeConfig" mapstructure:"scopeConfig,omitempty"`
 }
 
 func (o *ZentaoOptions) GetParams() any {
@@ -104,16 +104,13 @@ type ZentaoTaskData struct {
 	Options  *ZentaoOptions
 	RemoteDb dal.Dal
 
-	TimeAfter   *time.Time
-	ProjectName string
-	ProductName string
-	ProductList map[int64]string // set if it is setting project id, it is map[id]name
-	StoryList   map[int64]int64  // set if it is run the task_extractor
-	FromBugList map[int]bool     // set if it is run the task_extracor
-	Stories     map[int64]struct{}
-	Tasks       map[int64]struct{}
-	Bugs        map[int64]struct{}
-	ApiClient   *helper.ApiAsyncClient
+	TimeAfter    *time.Time
+	ProjectName  string
+	Stories      map[int64]struct{}
+	Tasks        map[int64]struct{}
+	Bugs         map[int64]struct{}
+	AccountCache *AccountCache
+	ApiClient    *helper.ApiAsyncClient
 }
 
 func DecodeAndValidateTaskOptions(options map[string]interface{}) (*ZentaoOptions, error) {

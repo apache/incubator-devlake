@@ -30,12 +30,20 @@ import (
 	"github.com/apache/incubator-devlake/plugins/github/models"
 )
 
+func init() {
+	RegisterSubtaskMeta(&EnrichPullRequestIssuesMeta)
+}
+
 var EnrichPullRequestIssuesMeta = plugin.SubTaskMeta{
 	Name:             "enrichPullRequestIssues",
 	EntryPoint:       EnrichPullRequestIssues,
 	EnabledByDefault: true,
-	Description:      "Create tool layer table github_pull_request_issues from github_pull_reqeusts",
+	Description:      "Create tool layer table github_pull_request_issues from github_pull_requests",
 	DomainTypes:      []string{plugin.DOMAIN_TYPE_CROSS},
+	DependencyTables: []string{
+		models.GithubPullRequest{}.TableName(), // cursor
+		RAW_PULL_REQUEST_TABLE},
+	ProductTables: []string{models.GithubPrIssue{}.TableName()},
 }
 
 func EnrichPullRequestIssues(taskCtx plugin.SubTaskContext) (err errors.Error) {
@@ -54,7 +62,8 @@ func EnrichPullRequestIssues(taskCtx plugin.SubTaskContext) (err errors.Error) {
 		}
 	}
 	charPattern := regexp.MustCompile(`[\/a-zA-Z\s,]+`)
-	cursor, err := db.Cursor(dal.From(&models.GithubPullRequest{}), dal.Where("repo_id = ? and connection_id = ?", repoId, data.Options.ConnectionId))
+	cursor, err := db.Cursor(dal.From(&models.GithubPullRequest{}),
+		dal.Where("repo_id = ? and connection_id = ?", repoId, data.Options.ConnectionId))
 	if err != nil {
 		return err
 	}
@@ -101,7 +110,8 @@ func EnrichPullRequestIssues(taskCtx plugin.SubTaskContext) (err errors.Error) {
 				}
 				err = db.All(
 					issue,
-					dal.Where("number = ? and repo_id = ? and connection_id = ?", issueNumber, repoId, data.Options.ConnectionId),
+					dal.Where("number = ? and repo_id = ? and connection_id = ?",
+						issueNumber, repoId, data.Options.ConnectionId),
 					dal.Limit(1),
 				)
 				if err != nil {

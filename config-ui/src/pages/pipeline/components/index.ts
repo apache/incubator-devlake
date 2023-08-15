@@ -19,4 +19,5 @@
 export * from './context';
 export * from './historical';
 export * from './info';
+export * from './status';
 export * from './tasks';

@@ -19,7 +19,6 @@ package runner
 
 import (
 	"context"
-	"encoding/json"
 	goerror "errors"
 	"fmt"
 	"io"
@@ -80,18 +79,10 @@ func DirectRun(cmd *cobra.Command, args []string, pluginTask plugin.PluginTask, 
 		panic(err)
 	}
 	ctx := createContext()
-	optionsJson, err := json.Marshal(options)
-	if err != nil {
-		panic(err)
-	}
-	subtasksJson, err := json.Marshal(tasks)
-	if err != nil {
-		panic(err)
-	}
 	task := &models.Task{
 		Plugin:   cmd.Use,
-		Options:  string(optionsJson),
-		Subtasks: subtasksJson,
+		Options:  options,
+		Subtasks: tasks,
 	}
 	err = RunPluginSubTasks(
 		ctx,

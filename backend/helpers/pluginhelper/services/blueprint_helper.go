@@ -19,6 +19,7 @@ package services
 
 import (
 	"fmt"
+
 	"github.com/apache/incubator-devlake/core/dal"
 	"github.com/apache/incubator-devlake/core/errors"
 	"github.com/apache/incubator-devlake/core/models"
@@ -36,6 +37,8 @@ type GetBlueprintQuery struct {
 	Label       string
 	SkipRecords int
 	PageSize    int
+	Mode        string
+	Type        string
 }
 
 type BlueprintProjectPairs struct {
@@ -89,6 +92,18 @@ func (b *BlueprintManager) SaveDbBlueprint(blueprint *models.Blueprint) errors.E
 	return nil
 }
 
+const (
+	BP_TYPE_ALL     = "ALL"
+	BP_TYPE_MANUAL  = "MANUAL"
+	BP_TYPE_DAILY   = "DAILY"
+	BP_TYPE_WEEKLY  = "WEEKLY"
+	BP_TYPE_MONTHLY = "MONTHLY"
+	BP_TYPE_CUSTOM  = "CUSTOM"
+	BP_CRON_DAILY   = "0 0 * * *"
+	BP_CRON_WEEKLY  = "0 0 * * 1"
+	BP_CRON_MONTHLY = "0 0 1 * *"
+)
+
 // GetDbBlueprints returns a paginated list of Blueprints based on `query`
 func (b *BlueprintManager) GetDbBlueprints(query *GetBlueprintQuery) ([]*models.Blueprint, int64, errors.Error) {
 	// process query parameters
@@ -98,12 +113,32 @@ func (b *BlueprintManager) GetDbBlueprints(query *GetBlueprintQuery) ([]*models.
 	}
 	if query.IsManual != nil {
 		clauses = append(clauses, dal.Where("is_manual = ?", *query.IsManual))
+	} else {
+		switch query.Type {
+		case "", BP_TYPE_ALL:
+			// do nothing
+		case BP_TYPE_MANUAL:
+			clauses = append(clauses, dal.Where("is_manual = ?", true))
+		case BP_TYPE_DAILY:
+			clauses = append(clauses, dal.Where("is_manual = ? AND cron_config = ?", false, BP_CRON_DAILY))
+		case BP_TYPE_WEEKLY:
+			clauses = append(clauses, dal.Where("is_manual = ? AND cron_config = ?", false, BP_CRON_WEEKLY))
+		case BP_TYPE_MONTHLY:
+			clauses = append(clauses, dal.Where("is_manual = ? AND cron_config = ?", false, BP_CRON_MONTHLY))
+		case BP_TYPE_CUSTOM:
+			clauses = append(clauses, dal.Where("is_manual = ? AND cron_config NOT IN ?", false, []string{BP_CRON_DAILY, BP_CRON_WEEKLY, BP_CRON_MONTHLY}))
+		default:
+			return nil, 0, errors.BadInput.New(fmt.Sprintf("invalid type %s", query.Type))
+		}
 	}
 	if query.Label != "" {
 		clauses = append(clauses,
 			dal.Join("left join _devlake_blueprint_labels bl ON bl.blueprint_id = _devlake_blueprints.id"),
 			dal.Where("bl.name = ?", query.Label),
 		)
+	}
+	if query.Mode != "" {
+		clauses = append(clauses, dal.Where("mode = ?", query.Mode))
 	}
 
 	// count total records
@@ -155,7 +190,7 @@ func (b *BlueprintManager) GetDbBlueprint(blueprintId uint64) (*models.Blueprint
 
 // GetBlueprintsByScopes returns all blueprints that have these scopeIds and this connection Id
 func (b *BlueprintManager) GetBlueprintsByScopes(connectionId uint64, pluginName string, scopeIds ...string) (map[string][]*models.Blueprint, errors.Error) {
-	bps, _, err := b.GetDbBlueprints(&GetBlueprintQuery{})
+	bps, _, err := b.GetDbBlueprints(&GetBlueprintQuery{Mode: "NORMAL"})
 	if err != nil {
 		return nil, err
 	}

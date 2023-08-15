@@ -20,15 +20,12 @@ package tasks
 import (
 	"encoding/json"
 	"fmt"
-	"net/http"
-	"net/url"
-	"reflect"
-
-	"github.com/apache/incubator-devlake/core/dal"
 	"github.com/apache/incubator-devlake/core/errors"
 	"github.com/apache/incubator-devlake/core/plugin"
 	helper "github.com/apache/incubator-devlake/helpers/pluginhelper/api"
 	"github.com/apache/incubator-devlake/plugins/bamboo/models"
+	"net/http"
+	"net/url"
 )
 
 const RAW_JOB_TABLE = "bamboo_api_job"
@@ -41,29 +38,11 @@ type SimplePlan struct {
 
 func CollectJob(taskCtx plugin.SubTaskContext) errors.Error {
 	rawDataSubTaskArgs, data := CreateRawDataSubTaskArgs(taskCtx, RAW_JOB_TABLE)
-	db := taskCtx.GetDal()
-	clauses := []dal.Clause{
-		dal.Select("plan_key"),
-		dal.From(models.BambooPlan{}.TableName()),
-		dal.Where("project_key = ? and connection_id=?", data.Options.ProjectKey, data.Options.ConnectionId),
-	}
-	cursor, err := db.Cursor(
-		clauses...,
-	)
-	if err != nil {
-		return err
-	}
-	iterator, err := helper.NewDalCursorIterator(db, cursor, reflect.TypeOf(SimplePlan{}))
-	if err != nil {
-		return err
-	}
-
 	collector, err := helper.NewApiCollector(helper.ApiCollectorArgs{
 		RawDataSubTaskArgs: *rawDataSubTaskArgs,
 		ApiClient:          data.ApiClient,
 		PageSize:           100,
-		Input:              iterator,
-		UrlTemplate:        "search/jobs/{{ .Input.PlanKey }}.json",
+		UrlTemplate:        fmt.Sprintf("search/jobs/%s.json", data.Options.PlanKey),
 		Query: func(reqData *helper.RequestData) (url.Values, errors.Error) {
 			query := url.Values{}
 			query.Set("showEmpty", fmt.Sprintf("%v", true))
@@ -74,7 +53,7 @@ func CollectJob(taskCtx plugin.SubTaskContext) errors.Error {
 		},
 		GetTotalPages: func(res *http.Response, args *helper.ApiCollectorArgs) (int, errors.Error) {
 			body := models.ApiBambooSizeData{}
-			err = helper.UnmarshalResponse(res, &body)
+			err := helper.UnmarshalResponse(res, &body)
 			if err != nil {
 				return 0, err
 			}
@@ -85,7 +64,7 @@ func CollectJob(taskCtx plugin.SubTaskContext) errors.Error {
 			var results struct {
 				SearchResults []json.RawMessage `json:"searchResults"`
 			}
-			err = helper.UnmarshalResponse(res, &results)
+			err := helper.UnmarshalResponse(res, &results)
 			if err != nil {
 				return nil, err
 			}

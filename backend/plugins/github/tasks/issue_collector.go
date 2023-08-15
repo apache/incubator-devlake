@@ -30,12 +30,18 @@ import (
 
 const RAW_ISSUE_TABLE = "github_api_issues"
 
+func init() {
+	RegisterSubtaskMeta(&CollectApiIssuesMeta)
+}
+
 var CollectApiIssuesMeta = plugin.SubTaskMeta{
 	Name:             "collectApiIssues",
 	EntryPoint:       CollectApiIssues,
 	EnabledByDefault: true,
 	Description:      "Collect issues data from Github api, supports both timeFilter and diffSync.",
 	DomainTypes:      []string{plugin.DOMAIN_TYPE_TICKET},
+	DependencyTables: []string{},
+	ProductTables:    []string{RAW_ISSUE_TABLE},
 }
 
 func CollectApiIssues(taskCtx plugin.SubTaskContext) errors.Error {

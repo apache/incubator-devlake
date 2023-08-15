@@ -24,6 +24,7 @@ import (
 
 	"github.com/apache/incubator-devlake/core/dal"
 	"github.com/apache/incubator-devlake/core/errors"
+	"github.com/apache/incubator-devlake/core/models/common"
 	"github.com/apache/incubator-devlake/core/plugin"
 	"github.com/apache/incubator-devlake/helpers/pluginhelper/api"
 	"github.com/apache/incubator-devlake/plugins/zentao/models"
@@ -101,6 +102,9 @@ func CollectBugCommits(taskCtx plugin.SubTaskContext) errors.Error {
 				Actions []json.RawMessage `json:"actions"`
 			}
 			err := api.UnmarshalResponse(res, &data)
+			if errors.Is(err, api.ErrEmptyResponse) {
+				return nil, nil
+			}
 			if err != nil {
 				return nil, err
 			}
@@ -117,6 +121,6 @@ func CollectBugCommits(taskCtx plugin.SubTaskContext) errors.Error {
 }
 
 type SimpleZentaoBug struct {
-	ID             int64            `json:"id"`
-	LastEditedDate *api.Iso8601Time `json:"lastEditedDate"`
+	ID             int64               `json:"id"`
+	LastEditedDate *common.Iso8601Time `json:"lastEditedDate"`
 }

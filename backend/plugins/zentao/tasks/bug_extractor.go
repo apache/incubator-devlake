@@ -42,7 +42,6 @@ func ExtractBug(taskCtx plugin.SubTaskContext) errors.Error {
 
 	statusMappings := getBugStatusMapping(data)
 	stdTypeMappings := getStdTypeMappings(data)
-	cache := newAccountCache(taskCtx.GetDal(), data.Options.ConnectionId)
 	extractor, err := api.NewApiExtractor(api.ApiExtractorArgs{
 		RawDataSubTaskArgs: api.RawDataSubTaskArgs{
 			Ctx:     taskCtx,
@@ -90,19 +89,19 @@ func ExtractBug(taskCtx plugin.SubTaskContext) errors.Error {
 				ActivatedDate:  res.ActivatedDate,
 				FeedbackBy:     res.FeedbackBy,
 				NotifyEmail:    res.NotifyEmail,
-				OpenedById:     cache.getAccountIDFromApiAccount(res.OpenedBy),
-				OpenedByName:   cache.getAccountNameFromApiAccount(res.OpenedBy),
+				OpenedById:     data.AccountCache.getAccountIDFromApiAccount(res.OpenedBy),
+				OpenedByName:   data.AccountCache.getAccountNameFromApiAccount(res.OpenedBy),
 				OpenedDate:     res.OpenedDate,
 				OpenedBuild:    res.OpenedBuild,
-				AssignedToId:   cache.getAccountIDFromApiAccount(res.AssignedTo),
-				AssignedToName: cache.getAccountNameFromApiAccount(res.AssignedTo),
+				AssignedToId:   data.AccountCache.getAccountIDFromApiAccount(res.AssignedTo),
+				AssignedToName: data.AccountCache.getAccountNameFromApiAccount(res.AssignedTo),
 				AssignedDate:   res.AssignedDate,
 				Deadline:       res.Deadline,
-				ResolvedById:   cache.getAccountIDFromApiAccount(res.ResolvedBy),
+				ResolvedById:   data.AccountCache.getAccountIDFromApiAccount(res.ResolvedBy),
 				Resolution:     res.Resolution,
 				ResolvedBuild:  res.ResolvedBuild,
 				ResolvedDate:   res.ResolvedDate,
-				ClosedById:     cache.getAccountIDFromApiAccount(res.ClosedBy),
+				ClosedById:     data.AccountCache.getAccountIDFromApiAccount(res.ClosedBy),
 				ClosedDate:     res.ClosedDate,
 				DuplicateBug:   res.DuplicateBug,
 				LinkBug:        res.LinkBug,
@@ -117,7 +116,7 @@ func ExtractBug(taskCtx plugin.SubTaskContext) errors.Error {
 				RepoType:       res.RepoType,
 				IssueKey:       res.IssueKey,
 				Testtask:       res.Testtask,
-				LastEditedById: cache.getAccountIDFromApiAccount(res.LastEditedBy),
+				LastEditedById: data.AccountCache.getAccountIDFromApiAccount(res.LastEditedBy),
 				LastEditedDate: res.LastEditedDate,
 				Deleted:        res.Deleted,
 				PriOrder:       res.PriOrder,
@@ -127,14 +126,22 @@ func ExtractBug(taskCtx plugin.SubTaskContext) errors.Error {
 				ProductStatus:  res.ProductStatus,
 				Url:            row.Url,
 			}
-
+			switch bug.Status {
+			case "active", "closed", "resolved":
+			default:
+				bug.Status = "active"
+			}
 			bug.StdType = stdTypeMappings[bug.Type]
 			if bug.StdType == "" {
 				bug.StdType = ticket.BUG
 			}
 
 			if len(statusMappings) != 0 {
-				bug.StdStatus = statusMappings[bug.Status]
+				if stdStatus, ok := statusMappings[bug.Status]; ok {
+					bug.StdStatus = stdStatus
+				} else {
+					bug.StdStatus = bug.Status
+				}
 			} else {
 				bug.StdStatus = ticket.GetStatus(&ticket.StatusRule{
 					Done:    []string{"resolved"},

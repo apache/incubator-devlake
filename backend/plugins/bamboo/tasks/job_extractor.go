@@ -40,15 +40,9 @@ func ExtractJob(taskCtx plugin.SubTaskContext) errors.Error {
 			if err != nil {
 				return nil, err
 			}
-			plan := &SimplePlan{}
-			err = errors.Convert(json.Unmarshal(resData.Input, plan))
-			if err != nil {
-				return nil, err
-			}
 			body := res.Convert()
 			body.ConnectionId = data.Options.ConnectionId
-			body.ProjectKey = data.Options.ProjectKey
-			body.PlanKey = plan.PlanKey
+			body.PlanKey = data.Options.PlanKey
 			return []interface{}{body}, nil
 		},
 	})

@@ -22,10 +22,15 @@ import (
 	"regexp"
 
 	"github.com/apache/incubator-devlake/core/errors"
+	"github.com/apache/incubator-devlake/core/models/common"
 	"github.com/apache/incubator-devlake/core/plugin"
 	"github.com/apache/incubator-devlake/helpers/pluginhelper/api"
 	"github.com/apache/incubator-devlake/plugins/github/models"
 )
+
+func init() {
+	RegisterSubtaskMeta(&ExtractApiPullRequestsMeta)
+}
 
 var ExtractApiPullRequestsMeta = plugin.SubTaskMeta{
 	Name:             "extractApiPullRequests",
@@ -33,6 +38,11 @@ var ExtractApiPullRequestsMeta = plugin.SubTaskMeta{
 	EnabledByDefault: true,
 	Description:      "Extract raw PullRequests data into tool layer table github_pull_requests",
 	DomainTypes:      []string{plugin.DOMAIN_TYPE_CROSS, plugin.DOMAIN_TYPE_CODE_REVIEW},
+	DependencyTables: []string{RAW_PULL_REQUEST_TABLE},
+	ProductTables: []string{
+		models.GithubRepoAccount{}.TableName(),
+		models.GithubPrLabel{}.TableName(),
+		models.GithubPullRequest{}.TableName()},
 }
 
 type GithubApiPullRequest struct {
@@ -47,10 +57,10 @@ type GithubApiPullRequest struct {
 	} `json:"labels"`
 	Assignee        *GithubAccountResponse `json:"assignee"`
 	User            *GithubAccountResponse `json:"user"`
-	ClosedAt        *api.Iso8601Time       `json:"closed_at"`
-	MergedAt        *api.Iso8601Time       `json:"merged_at"`
-	GithubCreatedAt api.Iso8601Time        `json:"created_at"`
-	GithubUpdatedAt api.Iso8601Time        `json:"updated_at"`
+	ClosedAt        *common.Iso8601Time    `json:"closed_at"`
+	MergedAt        *common.Iso8601Time    `json:"merged_at"`
+	GithubCreatedAt common.Iso8601Time     `json:"created_at"`
+	GithubUpdatedAt common.Iso8601Time     `json:"updated_at"`
 	MergeCommitSha  string                 `json:"merge_commit_sha"`
 	Head            struct {
 		Ref  string         `json:"ref"`
@@ -171,8 +181,8 @@ func convertGithubPullRequest(pull *GithubApiPullRequest, connId uint64, repoId 
 		Url:             pull.HtmlUrl,
 		GithubCreatedAt: pull.GithubCreatedAt.ToTime(),
 		GithubUpdatedAt: pull.GithubUpdatedAt.ToTime(),
-		ClosedAt:        api.Iso8601TimeToTime(pull.ClosedAt),
-		MergedAt:        api.Iso8601TimeToTime(pull.MergedAt),
+		ClosedAt:        common.Iso8601TimeToTime(pull.ClosedAt),
+		MergedAt:        common.Iso8601TimeToTime(pull.MergedAt),
 		MergeCommitSha:  pull.MergeCommitSha,
 		Body:            string(pull.Body),
 		BaseRef:         pull.Base.Ref,

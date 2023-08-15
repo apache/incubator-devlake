@@ -73,22 +73,25 @@ func ConvertTask(taskCtx plugin.SubTaskContext) errors.Error {
 				DomainEntity: domainlayer.DomainEntity{
 					Id: taskIdGen.Generate(toolEntity.ConnectionId, toolEntity.ID),
 				},
-				IssueKey:        strconv.FormatInt(toolEntity.ID, 10),
-				Title:           toolEntity.Name,
-				Description:     toolEntity.Description,
-				Type:            ticket.TASK,
-				OriginalType:    toolEntity.Type + "." + toolEntity.Mode,
-				OriginalStatus:  toolEntity.Status,
-				ResolutionDate:  toolEntity.ClosedDate.ToNullableTime(),
-				CreatedDate:     toolEntity.OpenedDate.ToNullableTime(),
-				UpdatedDate:     toolEntity.LastEditedDate.ToNullableTime(),
-				Priority:        getPriority(toolEntity.Pri),
-				CreatorName:     toolEntity.OpenedByName,
-				AssigneeName:    toolEntity.AssignedToName,
-				Url:             toolEntity.Url,
-				OriginalProject: getOriginalProject(data),
-				Status:          toolEntity.StdStatus,
+				IssueKey:                strconv.FormatInt(toolEntity.ID, 10),
+				Title:                   toolEntity.Name,
+				Description:             toolEntity.Description,
+				Type:                    toolEntity.StdType,
+				OriginalType:            "task",
+				OriginalStatus:          toolEntity.Status,
+				ResolutionDate:          toolEntity.ClosedDate.ToNullableTime(),
+				CreatedDate:             toolEntity.OpenedDate.ToNullableTime(),
+				UpdatedDate:             toolEntity.LastEditedDate.ToNullableTime(),
+				Priority:                getPriority(toolEntity.Pri),
+				CreatorName:             toolEntity.OpenedByName,
+				AssigneeName:            toolEntity.AssignedToName,
+				Url:                     toolEntity.Url,
+				OriginalProject:         getOriginalProject(data),
+				Status:                  toolEntity.StdStatus,
+				OriginalEstimateMinutes: int64(toolEntity.Estimate) * 60,
+				TimeSpentMinutes:        int64(toolEntity.Consumed) * 60,
 			}
+			domainEntity.TimeRemainingMinutes = domainEntity.OriginalEstimateMinutes - domainEntity.TimeSpentMinutes
 			if toolEntity.Parent != 0 {
 				domainEntity.ParentIssueId = storyIdGen.Generate(data.Options.ConnectionId, toolEntity.Parent)
 			}
@@ -115,13 +118,16 @@ func ConvertTask(taskCtx plugin.SubTaskContext) errors.Error {
 				IssueId: domainEntity.Id,
 			}
 
-			sprintId := executionIdGen.Generate(toolEntity.ConnectionId, toolEntity.Execution)
-			sprintIssueTask := &ticket.SprintIssue{
-				SprintId: sprintId,
-				IssueId:  domainEntity.Id,
+			// Parent < 0 means that this is a parent task, not a subtask, so we don't need to create a sprint issue
+			if toolEntity.Execution > 0 && toolEntity.Parent >= 0 {
+				sprintIssueTask := &ticket.SprintIssue{
+					SprintId: executionIdGen.Generate(toolEntity.ConnectionId, toolEntity.Execution),
+					IssueId:  domainEntity.Id,
+				}
+				results = append(results, sprintIssueTask)
 			}
 
-			results = append(results, domainEntity, domainBoardIssue, sprintIssueTask)
+			results = append(results, domainEntity, domainBoardIssue)
 
 			return results, nil
 		},

@@ -21,6 +21,7 @@ import { ButtonGroup, Button, Intent } from '@blueprintjs/core';
 
 import { Table, ColumnType, ExternalLink, IconButton } from '@/components';
 import { useConnections } from '@/hooks';
+import { DOC_URL } from '@/release';
 
 import type { WebhookItemType } from '../types';
 import { WebhookCreateDialog } from '../create-dialog';
@@ -91,7 +92,7 @@ export const WebHookConnection = ({ filterIds, onCreateAfter, onDeleteAfter }: P
           text: (
             <>
               There is no Webhook yet. Please add a new Webhook.{' '}
-              <ExternalLink link="https://devlake.apache.org/docs/Configuration/webhook">Learn more</ExternalLink>
+              <ExternalLink link={DOC_URL.PLUGIN.WEBHOOK.BASIS}>Learn more</ExternalLink>
             </>
           ),
           btnText: 'Add a Webhook',

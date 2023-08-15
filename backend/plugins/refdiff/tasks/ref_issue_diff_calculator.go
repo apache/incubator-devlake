@@ -19,12 +19,14 @@ package tasks
 
 import (
 	"fmt"
+	"reflect"
+
 	"github.com/apache/incubator-devlake/core/dal"
 	"github.com/apache/incubator-devlake/core/errors"
 	"github.com/apache/incubator-devlake/core/models/domainlayer/crossdomain"
 	"github.com/apache/incubator-devlake/core/plugin"
 	"github.com/apache/incubator-devlake/helpers/pluginhelper/api"
-	"reflect"
+	"github.com/apache/incubator-devlake/plugins/refdiff/models"
 )
 
 // CaculatePairList Calculate the pair list both from Options.Pairs and TagPattern
@@ -36,7 +38,7 @@ func CaculatePairList(taskCtx plugin.SubTaskContext) (RefPairLists, errors.Error
 	pairList := make(RefPairLists, 0, len(pairs))
 
 	for _, pair := range pairs {
-		pairList = append(pairList, RefPairList{fmt.Sprintf("%s:%s", repoId, pair[2]), fmt.Sprintf("%s:%s", repoId, pair[3])})
+		pairList = append(pairList, models.RefPairList{fmt.Sprintf("%s:%s", repoId, pair[2]), fmt.Sprintf("%s:%s", repoId, pair[3])})
 	}
 
 	return pairList, nil

@@ -18,6 +18,7 @@ limitations under the License.
 package models
 
 import (
+	"fmt"
 	"strconv"
 	"time"
 
@@ -49,6 +50,10 @@ func (r GiteeRepo) ScopeId() string {
 
 func (r GiteeRepo) ScopeName() string {
 	return r.Name
+}
+
+func (r GiteeRepo) ScopeFullName() string {
+	return fmt.Sprintf("%v/%v", r.OwnerLogin, r.Name)
 }
 
 func (r GiteeRepo) ScopeParams() interface{} {

@@ -184,10 +184,15 @@ func Trigger(c *gin.Context) {
 	var body struct {
 		SkipCollectors bool `json:"skipCollectors"`
 	}
-	err = c.ShouldBindJSON(&body)
-	if err != nil {
-		shared.ApiOutputError(c, errors.BadInput.Wrap(err, "error binding request body"))
-		return
+
+	if c.Request.Body == nil || c.Request.ContentLength == 0 {
+		body.SkipCollectors = false
+	} else {
+		err = c.ShouldBindJSON(&body)
+		if err != nil {
+			shared.ApiOutputError(c, errors.BadInput.Wrap(err, "error binding request body"))
+			return
+		}
 	}
 
 	pipeline, err := services.TriggerBlueprint(id, body.SkipCollectors)

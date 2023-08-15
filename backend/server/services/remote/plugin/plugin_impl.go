@@ -76,7 +76,7 @@ func newPlugin(info *models.PluginInfo, invoker bridge.Invoker) (*remotePluginIm
 		models.NewDynamicScopeModel(scopeTabler),
 	}
 	for _, toolModelInfo := range info.ToolModelInfos {
-		toolModelTabler, err := toolModelInfo.LoadDynamicTabler(common.NoPKModel{})
+		toolModelTabler, err := toolModelInfo.LoadDynamicTabler(models.ToolModel{})
 		if err != nil {
 			return nil, errors.Default.Wrap(err, fmt.Sprintf("Couldn't load ToolModel type for plugin %s", info.Name))
 		}
@@ -228,29 +228,6 @@ func (p *remotePluginImpl) RootPkgPath() string {
 
 func (p *remotePluginImpl) ApiResources() map[string]map[string]plugin.ApiResourceHandler {
 	return p.resources
-}
-
-func (p *remotePluginImpl) RunAutoMigrations() errors.Error {
-	db := basicRes.GetDal()
-	err := api.CallDB(db.AutoMigrate, p.connectionTabler.New())
-	if err != nil {
-		return err
-	}
-	err = api.CallDB(db.AutoMigrate, p.scopeTabler.New())
-	if err != nil {
-		return err
-	}
-	err = api.CallDB(db.AutoMigrate, p.scopeConfigTabler.New())
-	if err != nil {
-		return err
-	}
-	for _, toolModelTabler := range p.toolModelTablers {
-		err = api.CallDB(db.AutoMigrate, toolModelTabler.New())
-		if err != nil {
-			return err
-		}
-	}
-	return nil
 }
 
 func (p *remotePluginImpl) OpenApiSpec() string {

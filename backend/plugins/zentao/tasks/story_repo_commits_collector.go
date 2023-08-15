@@ -78,6 +78,9 @@ func CollectStoryRepoCommits(taskCtx plugin.SubTaskContext) errors.Error {
 		ResponseParser: func(res *http.Response) ([]json.RawMessage, errors.Error) {
 			var result RepoRevisionResponse
 			err := api.UnmarshalResponse(res, &result)
+			if errors.Is(err, api.ErrEmptyResponse) {
+				return nil, nil
+			}
 			if err != nil {
 				return nil, err
 			}

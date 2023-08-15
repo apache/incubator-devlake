@@ -19,10 +19,11 @@ package tasks
 
 import (
 	"encoding/json"
+
 	"github.com/apache/incubator-devlake/core/errors"
+	"github.com/apache/incubator-devlake/core/models/common"
 	"github.com/apache/incubator-devlake/core/plugin"
 	helper "github.com/apache/incubator-devlake/helpers/pluginhelper/api"
-	"github.com/apache/incubator-devlake/helpers/utils"
 	"github.com/apache/incubator-devlake/plugins/sonarqube/models"
 )
 
@@ -35,19 +36,19 @@ func ExtractHotspots(taskCtx plugin.SubTaskContext) errors.Error {
 		RawDataSubTaskArgs: *rawDataSubTaskArgs,
 		Extract: func(resData *helper.RawData) ([]interface{}, errors.Error) {
 			var res struct {
-				Key                      string             `json:"key" gorm:"primaryKey"`
-				RuleKey                  string             `json:"ruleKey"`
-				Component                string             `json:"component" gorm:"index"`
-				ProjectKey               string             `json:"project" gorm:"index"`
-				Line                     int                `json:"line"`
-				Status                   string             `json:"status"`
-				Message                  string             `json:"message"`
-				Author                   string             `json:"author"`
-				Assignee                 string             `json:"assignee"`
-				SecurityCategory         string             `json:"securityCategory"`
-				VulnerabilityProbability string             `json:"vulnerabilityProbability"`
-				CreationDate             *utils.Iso8601Time `json:"creationDate"`
-				UpdateDate               *utils.Iso8601Time `json:"updateDate"`
+				Key                      string              `json:"key" gorm:"primaryKey"`
+				RuleKey                  string              `json:"ruleKey"`
+				Component                string              `json:"component" gorm:"index"`
+				ProjectKey               string              `json:"project" gorm:"index"`
+				Line                     int                 `json:"line"`
+				Status                   string              `json:"status"`
+				Message                  string              `json:"message"`
+				Author                   string              `json:"author"`
+				Assignee                 string              `json:"assignee"`
+				SecurityCategory         string              `json:"securityCategory"`
+				VulnerabilityProbability string              `json:"vulnerabilityProbability"`
+				CreationDate             *common.Iso8601Time `json:"creationDate"`
+				UpdateDate               *common.Iso8601Time `json:"updateDate"`
 			}
 			err := errors.Convert(json.Unmarshal(resData.Data, &res))
 			if err != nil {

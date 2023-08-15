@@ -18,6 +18,7 @@ limitations under the License.
 package runner
 
 import (
+	"context"
 	"fmt"
 	"net/url"
 	"strings"
@@ -79,20 +80,7 @@ func NewGormDbEx(configReader config.ConfigReader, logger log.Logger, sessionCon
 	if dbUrl == "" {
 		return nil, errors.BadInput.New("DB_URL is required, please set it in environment variable or .env file")
 	}
-	u, err := url.Parse(dbUrl)
-	if err != nil {
-		return nil, errors.Convert(err)
-	}
-	var db *gorm.DB
-	switch strings.ToLower(u.Scheme) {
-	case "mysql":
-		dbUrl = fmt.Sprintf("%s@tcp(%s)%s?%s", getUserString(u), u.Host, u.Path, addLocal(u.Query()))
-		db, err = gorm.Open(mysql.Open(dbUrl), dbConfig)
-	case "postgresql", "postgres", "pg":
-		db, err = gorm.Open(postgres.Open(dbUrl), dbConfig)
-	default:
-		return nil, errors.BadInput.New(fmt.Sprintf("invalid DB_URL:%s", dbUrl))
-	}
+	db, err := getDbConnection(dbUrl, dbConfig)
 	if err != nil {
 		return nil, errors.Convert(err)
 	}
@@ -122,4 +110,34 @@ func addLocal(query url.Values) string {
 		query.Set("loc", "Local")
 	}
 	return query.Encode()
+}
+
+func getDbConnection(dbUrl string, conf *gorm.Config) (*gorm.DB, error) {
+	u, err := url.Parse(dbUrl)
+	if err != nil {
+		return nil, err
+	}
+	switch strings.ToLower(u.Scheme) {
+	case "mysql":
+		dbUrl = fmt.Sprintf("%s@tcp(%s)%s?%s", getUserString(u), u.Host, u.Path, addLocal(u.Query()))
+		return gorm.Open(mysql.Open(dbUrl), conf)
+	case "postgresql", "postgres", "pg":
+		return gorm.Open(postgres.Open(dbUrl), conf)
+	default:
+		return nil, fmt.Errorf("invalid DB_URL:%s", dbUrl)
+	}
+}
+
+func CheckDbConnection(dbUrl string, d time.Duration) errors.Error {
+	db, err := getDbConnection(dbUrl, &gorm.Config{})
+	if err != nil {
+		return errors.Convert(err)
+	}
+	ctx := context.Background()
+	if d > 0 {
+		var cancel context.CancelFunc
+		ctx, cancel = context.WithTimeout(context.Background(), d)
+		defer cancel()
+	}
+	return errors.Convert(db.WithContext(ctx).Exec("SELECT 1").Error)
 }
