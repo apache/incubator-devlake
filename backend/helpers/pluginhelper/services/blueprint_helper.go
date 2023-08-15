@@ -38,6 +38,7 @@ type GetBlueprintQuery struct {
 	SkipRecords int
 	PageSize    int
 	Mode        string
+	Type        string
 }
 
 type BlueprintProjectPairs struct {
@@ -91,6 +92,18 @@ func (b *BlueprintManager) SaveDbBlueprint(blueprint *models.Blueprint) errors.E
 	return nil
 }
 
+const (
+	BP_TYPE_ALL     = "ALL"
+	BP_TYPE_MANUAL  = "MANUAL"
+	BP_TYPE_DAILY   = "DAILY"
+	BP_TYPE_WEEKLY  = "WEEKLY"
+	BP_TYPE_MONTHLY = "MONTHLY"
+	BP_TYPE_CUSTOM  = "CUSTOM"
+	BP_CRON_DAILY   = "0 0 * * *"
+	BP_CRON_WEEKLY  = "0 0 * * 1"
+	BP_CRON_MONTHLY = "0 0 1 * *"
+)
+
 // GetDbBlueprints returns a paginated list of Blueprints based on `query`
 func (b *BlueprintManager) GetDbBlueprints(query *GetBlueprintQuery) ([]*models.Blueprint, int64, errors.Error) {
 	// process query parameters
@@ -100,6 +113,23 @@ func (b *BlueprintManager) GetDbBlueprints(query *GetBlueprintQuery) ([]*models.
 	}
 	if query.IsManual != nil {
 		clauses = append(clauses, dal.Where("is_manual = ?", *query.IsManual))
+	} else {
+		switch query.Type {
+		case "", BP_TYPE_ALL:
+			// do nothing
+		case BP_TYPE_MANUAL:
+			clauses = append(clauses, dal.Where("is_manual = ?", true))
+		case BP_TYPE_DAILY:
+			clauses = append(clauses, dal.Where("is_manual = ? AND cron_config = ?", false, BP_CRON_DAILY))
+		case BP_TYPE_WEEKLY:
+			clauses = append(clauses, dal.Where("is_manual = ? AND cron_config = ?", false, BP_CRON_WEEKLY))
+		case BP_TYPE_MONTHLY:
+			clauses = append(clauses, dal.Where("is_manual = ? AND cron_config = ?", false, BP_CRON_MONTHLY))
+		case BP_TYPE_CUSTOM:
+			clauses = append(clauses, dal.Where("is_manual = ? AND cron_config NOT IN ?", false, []string{BP_CRON_DAILY, BP_CRON_WEEKLY, BP_CRON_MONTHLY}))
+		default:
+			return nil, 0, errors.BadInput.New(fmt.Sprintf("invalid type %s", query.Type))
+		}
 	}
 	if query.Label != "" {
 		clauses = append(clauses,
