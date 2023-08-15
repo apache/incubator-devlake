@@ -86,7 +86,7 @@ func ConvertStory(taskCtx plugin.SubTaskContext) errors.Error {
 				Priority:                getPriority(toolEntity.Pri),
 				CreatorName:             toolEntity.OpenedByName,
 				AssigneeName:            toolEntity.AssignedToName,
-				Url:                     toolEntity.Url,
+				Url:                     convertIssueURL(toolEntity.Url, "story", toolEntity.ID),
 				OriginalProject:         getOriginalProject(data),
 				Status:                  toolEntity.StdStatus,
 				OriginalEstimateMinutes: int64(toolEntity.Estimate) * 60,
