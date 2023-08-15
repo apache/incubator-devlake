@@ -47,7 +47,6 @@ func init() {
 		logLevel = logrus.ErrorLevel
 	}
 	inner.SetLevel(logLevel)
-	inner.SetReportCaller(true)
 	inner.SetFormatter(&logrus.TextFormatter{
 		TimestampFormat: time.DateTime,
 		FullTimestamp:   true,

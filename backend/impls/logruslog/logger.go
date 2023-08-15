@@ -113,7 +113,6 @@ func (l *DefaultLogger) getLogger(prefix string) (log.Logger, errors.Error) {
 	newLogrus.SetLevel(l.log.Level)
 	newLogrus.SetFormatter(l.log.Formatter)
 	newLogrus.SetOutput(l.log.Out)
-	newLogrus.SetReportCaller(true)
 	newLogger := &DefaultLogger{
 		log: newLogrus,
 		config: &log.LoggerConfig{
