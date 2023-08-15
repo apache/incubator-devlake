@@ -88,7 +88,7 @@ func ConvertBug(taskCtx plugin.SubTaskContext) errors.Error {
 				CreatorName:     toolEntity.OpenedByName,
 				AssigneeName:    toolEntity.AssignedToName,
 				Severity:        string(rune(toolEntity.Severity)),
-				Url:             toolEntity.Url,
+				Url:             convertIssueURL(toolEntity.Url, "bug", toolEntity.ID),
 				OriginalProject: getOriginalProject(data),
 				Status:          toolEntity.StdStatus,
 			}

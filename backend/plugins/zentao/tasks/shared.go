@@ -19,14 +19,15 @@ package tasks
 
 import (
 	"fmt"
-	"github.com/apache/incubator-devlake/core/dal"
-	"github.com/apache/incubator-devlake/core/plugin"
 	"net/http"
 	"net/url"
+	"path"
 	"reflect"
 	"strings"
 
+	"github.com/apache/incubator-devlake/core/dal"
 	"github.com/apache/incubator-devlake/core/errors"
+	"github.com/apache/incubator-devlake/core/plugin"
 	"github.com/apache/incubator-devlake/helpers/pluginhelper/api"
 	"github.com/apache/incubator-devlake/plugins/zentao/models"
 )
@@ -292,4 +293,15 @@ func (a *AccountCache) getAccountNameFromApiAccount(account *models.ApiAccount) 
 		return account.Realname
 	}
 	return a.getAccountName(account.Account)
+}
+
+func convertIssueURL(apiURL, issueType string, id int64) string {
+	u, err := url.Parse(apiURL)
+	if err != nil {
+		return apiURL
+	}
+	before, _, _ := strings.Cut(u.Path, "/api.php/v1")
+	u.RawQuery = ""
+	u.Path = path.Join(before, fmt.Sprintf("/%s-view-%d.html", issueType, id))
+	return u.String()
 }
