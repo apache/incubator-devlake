@@ -113,9 +113,8 @@ func (s *ScopeDatabaseHelperImpl[Conn, Scope, Tr]) GetScopeAndConfig(connectionI
 }
 
 func (s *ScopeDatabaseHelperImpl[Conn, Scope, Tr]) ListScopes(input *plugin.ApiResourceInput, connectionId uint64) ([]*Scope, errors.Error) {
-	limit, offset := GetLimitOffset(input.Query, "pageSize", "page")
 	var scopes []*Scope
-	err := s.db.All(&scopes, dal.Where("connection_id = ?", connectionId), dal.Limit(limit), dal.Offset(offset))
+	err := s.db.All(&scopes, dal.Where("connection_id = ?", connectionId))
 	return scopes, err
 }
 
