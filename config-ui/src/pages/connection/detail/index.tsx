@@ -60,6 +60,8 @@ const ConnectionDetail = ({ plugin, connectionId }: Props) => {
   >();
   const [operating, setOperating] = useState(false);
   const [version, setVersion] = useState(1);
+  const [page, setPage] = useState(1);
+  const [pageSize] = useState(10);
   const [scopeId, setScopeId] = useState<ID>();
   const [scopeIds, setScopeIds] = useState<ID[]>([]);
   const [scopeConfigId, setScopeConfigId] = useState<ID>();
@@ -69,11 +71,16 @@ const ConnectionDetail = ({ plugin, connectionId }: Props) => {
   const navigate = useNavigate();
   const { onGet, onTest, onRefresh } = useConnections();
   const { setTips } = useTips();
-  const { ready, data } = useRefreshData(() => API.getDataScopes(plugin, connectionId), [version]);
+  const { ready, data } = useRefreshData(
+    () => API.getDataScopes(plugin, connectionId, { page, pageSize }),
+    [version, page, pageSize],
+  );
 
   const { unique, status, name, icon } = onGet(`${plugin}-${connectionId}`) || {};
 
   const pluginConfig = useMemo(() => getPluginConfig(plugin), [plugin]);
+
+  const [dataSource, total] = useMemo(() => [data?.scopes ?? [], data?.count ?? 0], [data]);
 
   useEffect(() => {
     onTest(`${plugin}-${connectionId}`);
@@ -322,7 +329,13 @@ const ConnectionDetail = ({ plugin, connectionId }: Props) => {
               ),
             },
           ]}
-          dataSource={data}
+          dataSource={dataSource}
+          pagination={{
+            page,
+            pageSize,
+            total,
+            onChange: setPage,
+          }}
           noData={{
             text: 'Add data to this connection.',
             btnText: 'Add Data Scope',
@@ -383,7 +396,7 @@ const ConnectionDetail = ({ plugin, connectionId }: Props) => {
           <DataScopeSelectRemote
             plugin={plugin}
             connectionId={connectionId}
-            disabledScope={data}
+            disabledScope={dataSource}
             onCancel={handleHideDialog}
             onSubmit={handleCreateDataScope}
           />

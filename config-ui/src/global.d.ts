@@ -18,6 +18,11 @@
 
 type ID = string | number;
 
+type Pagination = {
+  page?: number;
+  pageSize?: number;
+};
+
 declare module '*.svg' {
   const content: any;
   export default content;
