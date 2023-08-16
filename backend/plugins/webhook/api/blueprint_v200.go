@@ -23,6 +23,7 @@ import (
 	"github.com/apache/incubator-devlake/core/errors"
 	"github.com/apache/incubator-devlake/core/models/domainlayer"
 	"github.com/apache/incubator-devlake/core/models/domainlayer/devops"
+	"github.com/apache/incubator-devlake/core/models/domainlayer/ticket"
 	"github.com/apache/incubator-devlake/core/plugin"
 	"github.com/apache/incubator-devlake/plugins/webhook/models"
 )
@@ -38,6 +39,14 @@ func MakeDataSourcePipelinePlanV200(connectionId uint64) (plugin.PipelinePlan, [
 	scopes := make([]plugin.Scope, 0)
 	// add cicd_scope to scopes
 	scopes = append(scopes, &devops.CicdScope{
+		DomainEntity: domainlayer.DomainEntity{
+			Id: fmt.Sprintf("%s:%d", "webhook", connection.ID),
+		},
+		Name: connection.Name,
+	})
+	fmt.Println("xxxx")
+	// add board to scopes
+	scopes = append(scopes, &ticket.Board{
 		DomainEntity: domainlayer.DomainEntity{
 			Id: fmt.Sprintf("%s:%d", "webhook", connection.ID),
 		},
