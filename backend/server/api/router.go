@@ -42,20 +42,20 @@ func RegisterRouter(r *gin.Engine) {
 	r.GET("/pipelines", pipelines.Index)
 	r.POST("/pipelines", pipelines.Post)
 	r.GET("/pipelines/:pipelineId", pipelines.Get)
-	r.PATCH("/blueprints/:blueprintId", blueprints.Patch)
-	r.POST("/blueprints/:blueprintId/trigger", blueprints.Trigger)
-	r.DELETE("/blueprints/:blueprintId", blueprints.Delete)
-
-	r.GET("/blueprints", blueprints.Index)
-	r.POST("/blueprints", blueprints.Post)
-	r.GET("/blueprints/:blueprintId", blueprints.Get)
-	r.GET("/blueprints/:blueprintId/pipelines", blueprints.GetBlueprintPipelines)
 	r.DELETE("/pipelines/:pipelineId", pipelines.Delete)
 	r.GET("/pipelines/:pipelineId/tasks", task.GetTaskByPipeline)
 	r.POST("/pipelines/:pipelineId/rerun", pipelines.PostRerun)
-	r.POST("/tasks/:taskId/rerun", task.PostRerun)
-
 	r.GET("/pipelines/:pipelineId/logging.tar.gz", pipelines.DownloadLogs)
+
+	r.GET("/blueprints", blueprints.Index)
+	r.POST("/blueprints", blueprints.Post)
+	r.PATCH("/blueprints/:blueprintId", blueprints.Patch)
+	r.DELETE("/blueprints/:blueprintId", blueprints.Delete)
+	r.GET("/blueprints/:blueprintId", blueprints.Get)
+	r.POST("/blueprints/:blueprintId/trigger", blueprints.Trigger)
+	r.GET("/blueprints/:blueprintId/pipelines", blueprints.GetBlueprintPipelines)
+
+	r.POST("/tasks/:taskId/rerun", task.PostRerun)
 
 	//r.GET("/ping", ping.Get)
 	//r.GET("/version", version.Get)
