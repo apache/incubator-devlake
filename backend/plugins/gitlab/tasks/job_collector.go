@@ -65,6 +65,8 @@ func CollectApiJobs(taskCtx plugin.SubTaskContext) errors.Error {
 					query := url.Values{}
 					query.Set("page", strconv.Itoa(reqData.Pager.Page))
 					query.Set("per_page", strconv.Itoa(reqData.Pager.Size))
+					query.Set("scope[]", "failed")
+					query.Add("scope[]", "success")
 					return query, nil
 				},
 				ResponseParser: func(res *http.Response) ([]json.RawMessage, errors.Error) {
