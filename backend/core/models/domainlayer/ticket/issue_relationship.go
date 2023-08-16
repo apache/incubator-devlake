@@ -22,7 +22,7 @@ import "github.com/apache/incubator-devlake/core/models/common"
 type IssueRelationship struct {
 	SourceIssueId string `gorm:"primaryKey;type:varchar(255);index"`
 	TargetIssueId string `gorm:"primaryKey;type:varchar(255)"`
-	OriginalType  string `gorm:"type:varchar(255)"`
+	OriginalType  string `gorm:"primaryKey;type:varchar(255)"`
 	common.NoPKModel
 }
 
