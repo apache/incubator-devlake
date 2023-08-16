@@ -104,7 +104,7 @@ func CollectApiPullRequests(taskCtx plugin.SubTaskContext) errors.Error {
 				return pr.CreatedAt, nil
 			},
 		},
-		CollectUnfinishedDetails: helper.FinalizableApiCollectorDetailArgs{
+		CollectUnfinishedDetails: &helper.FinalizableApiCollectorDetailArgs{
 			BuildInputIterator: func() (helper.Iterator, errors.Error) {
 				// select pull id from database
 				cursor, err := db.Cursor(

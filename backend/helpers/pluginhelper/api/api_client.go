@@ -24,16 +24,16 @@ import (
 	"encoding/json"
 	"encoding/xml"
 	"fmt"
-	aha "github.com/apache/incubator-devlake/core/plugin"
 	"io"
 	"net/http"
 	"net/url"
 	"reflect"
 	"regexp"
-	"strings"
 	"sync"
 	"time"
 	"unicode/utf8"
+
+	aha "github.com/apache/incubator-devlake/core/plugin"
 
 	"github.com/apache/incubator-devlake/core/context"
 	"github.com/apache/incubator-devlake/core/errors"
@@ -417,8 +417,10 @@ func GetURIStringPointer(baseUrl string, relativePath string, query url.Values) 
 	}
 	if query != nil {
 		queryString := u.Query()
-		for key, value := range query {
-			queryString.Set(key, strings.Join(value, ""))
+		for key, values := range query {
+			for _, v := range values {
+				queryString.Add(key, v)
+			}
 		}
 
 		u.RawQuery = queryString.Encode()
