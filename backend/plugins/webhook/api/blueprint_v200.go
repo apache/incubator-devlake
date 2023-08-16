@@ -44,7 +44,7 @@ func MakeDataSourcePipelinePlanV200(connectionId uint64) (plugin.PipelinePlan, [
 		},
 		Name: connection.Name,
 	})
-	fmt.Println("xxxx")
+
 	// add board to scopes
 	scopes = append(scopes, &ticket.Board{
 		DomainEntity: domainlayer.DomainEntity{
