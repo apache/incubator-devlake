@@ -17,12 +17,13 @@ limitations under the License.
 
 package archived
 
-type IssueRelationship struct {
-	DomainEntity
+import "github.com/apache/incubator-devlake/core/models/common"
 
-	SourceIssueId uint64 `gorm:"index"`
-	TargetIssueId uint64
+type IssueRelationship struct {
+	SourceIssueId string `gorm:"primaryKey;type:varchar(255);index"`
+	TargetIssueId string `gorm:"primaryKey;type:varchar(255)"`
 	OriginalType  string `gorm:"type:varchar(255)"`
+	common.NoPKModel
 }
 
 func (IssueRelationship) TableName() string {
