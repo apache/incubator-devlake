@@ -102,7 +102,7 @@ func CollectApiBuilds(taskCtx plugin.SubTaskContext) errors.Error {
 				return time.Unix(seconds, nanos), nil
 			},
 		},
-		CollectUnfinishedDetails: helper.FinalizableApiCollectorDetailArgs{
+		CollectUnfinishedDetails: &helper.FinalizableApiCollectorDetailArgs{
 			BuildInputIterator: func() (helper.Iterator, errors.Error) {
 				cursor, err := db.Cursor(
 					dal.Select("number"),

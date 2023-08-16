@@ -226,6 +226,10 @@ func NewStatefulApiCollectorForFinalizableEntity(args FinalizableApiCollectorArg
 		return nil, err
 	}
 
+	if args.CollectUnfinishedDetails == nil {
+		return manager, nil
+	}
+
 	// step 2: create another collector to collect updated records
 	// TODO: this creates cursor before previous step gets executed, which is too early, to be optimized
 	input, err := args.CollectUnfinishedDetails.BuildInputIterator()
@@ -264,7 +268,7 @@ type FinalizableApiCollectorArgs struct {
 	ApiClient                RateLimitedApiClient
 	TimeAfter                *time.Time // leave it be nil to disable time filter
 	CollectNewRecordsByList  FinalizableApiCollectorListArgs
-	CollectUnfinishedDetails FinalizableApiCollectorDetailArgs
+	CollectUnfinishedDetails *FinalizableApiCollectorDetailArgs
 }
 
 // FinalizableApiCollectorCommonArgs is the common arguments for both list and detail collectors

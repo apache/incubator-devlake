@@ -19,19 +19,15 @@ package tasks
 
 import (
 	"encoding/json"
-	"io"
 	"net/http"
 	"net/url"
-	"reflect"
 	"strconv"
 	"time"
 
-	"github.com/apache/incubator-devlake/core/dal"
 	"github.com/apache/incubator-devlake/core/errors"
 	"github.com/apache/incubator-devlake/core/models/common"
 	"github.com/apache/incubator-devlake/core/plugin"
 	helper "github.com/apache/incubator-devlake/helpers/pluginhelper/api"
-	"github.com/apache/incubator-devlake/plugins/gitlab/models"
 )
 
 func init() {
@@ -56,7 +52,6 @@ var CollectApiJobsMeta = plugin.SubTaskMeta{
 
 func CollectApiJobs(taskCtx plugin.SubTaskContext) errors.Error {
 	rawDataSubTaskArgs, data := CreateRawDataSubTaskArgs(taskCtx, RAW_JOB_TABLE)
-	db := taskCtx.GetDal()
 	collector, err := helper.NewStatefulApiCollectorForFinalizableEntity(helper.FinalizableApiCollectorArgs{
 		RawDataSubTaskArgs: *rawDataSubTaskArgs,
 		ApiClient:          data.ApiClient,
@@ -89,35 +84,6 @@ func CollectApiJobs(taskCtx plugin.SubTaskContext) errors.Error {
 					return time.Time{}, errors.BadInput.Wrap(err, "failed to unmarshal gitlab job")
 				}
 				return pr.CreatedAt.ToTime(), nil
-			},
-		},
-		CollectUnfinishedDetails: helper.FinalizableApiCollectorDetailArgs{
-			BuildInputIterator: func() (helper.Iterator, errors.Error) {
-				// select pull id from database
-				cursor, err := db.Cursor(
-					dal.Select("gitlab_id"),
-					dal.From(&models.GitlabJob{}),
-					dal.Where(
-						"project_id = ? AND connection_id = ? AND finished_at is null",
-						data.Options.ProjectId, data.Options.ConnectionId,
-					),
-				)
-				if err != nil {
-					return nil, err
-				}
-				return helper.NewDalCursorIterator(db, cursor, reflect.TypeOf(SimpleGitlabApiJob{}))
-			},
-			FinalizableApiCollectorCommonArgs: helper.FinalizableApiCollectorCommonArgs{
-				UrlTemplate: "projects/{{ .Params.ProjectId }}/jobs/{{ .Input.GitlabId }}",
-				ResponseParser: func(res *http.Response) ([]json.RawMessage, errors.Error) {
-					body, err := io.ReadAll(res.Body)
-					if err != nil {
-						return nil, errors.Convert(err)
-					}
-					res.Body.Close()
-					return []json.RawMessage{body}, nil
-				},
-				AfterResponse: ignoreHTTPStatus403, // ignore 403 for CI/CD disable
 			},
 		},
 	})
