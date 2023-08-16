@@ -254,16 +254,10 @@ func ReloadBlueprints(c *cron.Cron) errors.Error {
 	}
 	c.Stop()
 	for _, blueprint := range blueprints {
-		if err != nil {
-			blueprintLog.Error(err, failToCreateCronJob)
-			return err
-		}
-
 		blueprintLog.Info("Add blueprint id:[%d] cronConfg[%s] to cron job", blueprint.ID, blueprint.CronConfig)
 		blueprintJob := &BlueprintJob{
 			Blueprint: blueprint,
 		}
-
 		if _, err := c.AddJob(blueprint.CronConfig, blueprintJob); err != nil {
 			blueprintLog.Error(err, failToCreateCronJob)
 			return errors.Default.Wrap(err, "created cron job failed")
@@ -413,9 +407,8 @@ func TriggerBlueprint(id uint64, skipCollectors bool) (*models.Pipeline, errors.
 	// load record from db
 	blueprint, err := GetBlueprint(id)
 	if err != nil {
+		logger.Error(err, "GetBlueprint, id: %d", id)
 		return nil, err
 	}
-	pipeline, err := createPipelineByBlueprint(blueprint, skipCollectors)
-	// done
-	return pipeline, err
+	return createPipelineByBlueprint(blueprint, skipCollectors)
 }
