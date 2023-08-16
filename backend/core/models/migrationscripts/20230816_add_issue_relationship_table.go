@@ -35,7 +35,7 @@ func (u *addIssueRelationship) Up(basicRes context.BasicRes) errors.Error {
 }
 
 func (*addIssueRelationship) Version() uint64 {
-	return 20230728000001
+	return 20230816000001
 }
 
 func (*addIssueRelationship) Name() string {

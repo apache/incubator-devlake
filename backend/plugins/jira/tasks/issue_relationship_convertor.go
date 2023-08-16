@@ -18,9 +18,7 @@ limitations under the License.
 package tasks
 
 import (
-	"fmt"
 	"reflect"
-	"strings"
 
 	"github.com/apache/incubator-devlake/core/dal"
 	"github.com/apache/incubator-devlake/core/errors"
@@ -56,7 +54,8 @@ func ConvertIssueRelationships(taskCtx plugin.SubTaskContext) errors.Error {
 		return err
 	}
 	defer cursor.Close()
-	issueIdGen := didgen.NewDomainIdGenerator(&JiraIssueRelationship{})
+
+	issueIdGen := didgen.NewDomainIdGenerator(&models.JiraIssue{})
 
 	converter, err := helper.NewDataConverter(helper.DataConverterArgs{
 		RawDataSubTaskArgs: helper.RawDataSubTaskArgs{
@@ -72,20 +71,15 @@ func ConvertIssueRelationships(taskCtx plugin.SubTaskContext) errors.Error {
 		Convert: func(inputRow interface{}) ([]interface{}, errors.Error) {
 			issueRelationship := inputRow.(*models.JiraIssueRelationship)
 			domainIssueRelationship := &ticket.IssueRelationship{
-				SourceIssueId: issueRelationship.IssueId,
+				SourceIssueId: issueIdGen.Generate(issueRelationship.ConnectionId, issueRelationship.IssueId),
 			}
 			if issueRelationship.InwardIssueId != 0 {
-				domainIssueRelationship.TargetIssueId = issueRelationship.InwardIssueId
+				domainIssueRelationship.TargetIssueId = issueIdGen.Generate(issueRelationship.ConnectionId, issueRelationship.InwardIssueId)
 				domainIssueRelationship.OriginalType = issueRelationship.Inward
 			} else {
-				domainIssueRelationship.TargetIssueId = issueRelationship.OutwardIssueId
+				domainIssueRelationship.TargetIssueId = issueIdGen.Generate(issueRelationship.ConnectionId, issueRelationship.OutwardIssueId)
 				domainIssueRelationship.OriginalType = issueRelationship.Outward
 			}
-
-			originalType := strings.Replace(domainIssueRelationship.OriginalType, " ", "", -1)
-			relationshipKey := fmt.Sprintf("%d-%s-%d", domainIssueRelationship.SourceIssueId, originalType, domainIssueRelationship.TargetIssueId)
-
-			domainIssueRelationship.DomainEntity.Id = issueIdGen.Generate(data.Options.ConnectionId, relationshipKey)
 
 			return []interface{}{
 				domainIssueRelationship,
@@ -97,9 +91,4 @@ func ConvertIssueRelationships(taskCtx plugin.SubTaskContext) errors.Error {
 	}
 
 	return converter.Execute()
-}
-
-type JiraIssueRelationship struct {
-	ConnectionId    uint64 `gorm:"primaryKey"`
-	RelationshipKey string `gorm:"primarykey"`
 }
