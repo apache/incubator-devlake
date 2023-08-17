@@ -157,20 +157,10 @@ func CollectIssue(taskCtx plugin.SubTaskContext) errors.Error {
 				}
 				results = append(results, githubLabels...)
 				results = append(results, githubIssue)
-				if issue.AssigneeList.Assignees != nil && len(issue.AssigneeList.Assignees) > 0 {
-					relatedUser, err := convertGraphqlPreAccount(issue.AssigneeList.Assignees[0], data.Options.GithubId, data.Options.ConnectionId)
-					if err != nil {
-						return nil, err
-					}
-					results = append(results, relatedUser)
+				if len(issue.AssigneeList.Assignees) > 0 {
+					extractGraphqlPreAccount(&results, &issue.AssigneeList.Assignees[0], data.Options.GithubId, data.Options.ConnectionId)
 				}
-				if issue.Author != nil {
-					relatedUser, err := convertGraphqlPreAccount(*issue.Author, data.Options.GithubId, data.Options.ConnectionId)
-					if err != nil {
-						return nil, err
-					}
-					results = append(results, relatedUser)
-				}
+				extractGraphqlPreAccount(&results, issue.Author, data.Options.GithubId, data.Options.ConnectionId)
 				for _, assignee := range issue.AssigneeList.Assignees {
 					issueAssignee := &models.GithubIssueAssignee{
 						ConnectionId: githubIssue.ConnectionId,

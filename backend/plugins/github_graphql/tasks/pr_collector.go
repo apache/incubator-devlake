@@ -203,13 +203,7 @@ func CollectPr(taskCtx plugin.SubTaskContext) errors.Error {
 				if err != nil {
 					return nil, err
 				}
-				if rawL.Author != nil {
-					githubUser, err := convertGraphqlPreAccount(*rawL.Author, data.Options.GithubId, data.Options.ConnectionId)
-					if err != nil {
-						return nil, err
-					}
-					results = append(results, githubUser)
-				}
+				extractGraphqlPreAccount(&results, rawL.Author, data.Options.GithubId, data.Options.ConnectionId)
 				for _, label := range rawL.Labels.Nodes {
 					results = append(results, &models.GithubPrLabel{
 						ConnectionId: data.Options.ConnectionId,
@@ -236,11 +230,6 @@ func CollectPr(taskCtx plugin.SubTaskContext) errors.Error {
 
 				for _, apiPullRequestReview := range rawL.Reviews.Nodes {
 					if apiPullRequestReview.State != "PENDING" {
-						githubReviewer := &models.GithubReviewer{
-							ConnectionId:  data.Options.ConnectionId,
-							PullRequestId: githubPr.GithubId,
-						}
-
 						githubPrReview := &models.GithubPrReview{
 							ConnectionId:   data.Options.ConnectionId,
 							GithubId:       apiPullRequestReview.DatabaseId,
@@ -253,20 +242,11 @@ func CollectPr(taskCtx plugin.SubTaskContext) errors.Error {
 						}
 
 						if apiPullRequestReview.Author != nil {
-							githubReviewer.GithubId = apiPullRequestReview.Author.Id
-							githubReviewer.Login = apiPullRequestReview.Author.Login
-
 							githubPrReview.AuthorUserId = apiPullRequestReview.Author.Id
 							githubPrReview.AuthorUsername = apiPullRequestReview.Author.Login
-
-							githubUser, err := convertGraphqlPreAccount(*apiPullRequestReview.Author, data.Options.GithubId, data.Options.ConnectionId)
-							if err != nil {
-								return nil, err
-							}
-							results = append(results, githubUser)
+							extractGraphqlPreAccount(&results, apiPullRequestReview.Author, data.Options.GithubId, data.Options.ConnectionId)
 						}
 
-						results = append(results, githubReviewer)
 						results = append(results, githubPrReview)
 					}
 				}
@@ -290,14 +270,7 @@ func CollectPr(taskCtx plugin.SubTaskContext) errors.Error {
 						return nil, err
 					}
 					results = append(results, githubPullRequestCommit)
-
-					if apiPullRequestCommit.Commit.Author.User != nil {
-						githubUser, err := convertGraphqlPreAccount(*apiPullRequestCommit.Commit.Author.User, data.Options.GithubId, data.Options.ConnectionId)
-						if err != nil {
-							return nil, err
-						}
-						results = append(results, githubUser)
-					}
+					extractGraphqlPreAccount(&results, apiPullRequestCommit.Commit.Author.User, data.Options.GithubId, data.Options.ConnectionId)
 				}
 			}
 
