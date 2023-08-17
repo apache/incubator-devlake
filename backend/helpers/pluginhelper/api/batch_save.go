@@ -44,6 +44,7 @@ type BatchSave struct {
 	primaryKey []reflect.StructField
 	tableName  string
 	mutex      sync.Mutex
+	lastErr    errors.Error
 }
 
 // NewBatchSave creates a new BatchSave instance
@@ -53,7 +54,7 @@ func NewBatchSave(basicRes context.BasicRes, slotType reflect.Type, size int, ta
 	}
 	db := basicRes.GetDal()
 	primaryKey := db.GetPrimaryKeyFields(slotType)
-	// check if it have primaryKey
+	// check if it has primaryKey
 	if len(primaryKey) == 0 {
 		return nil, errors.Default.New(fmt.Sprintf("%s no primary key", slotType.String()))
 	}
@@ -84,6 +85,9 @@ func (c *BatchSave) Add(slot interface{}) errors.Error {
 	}
 	if reflect.ValueOf(slot).Kind() != reflect.Ptr {
 		return errors.Default.New("slot is not a pointer")
+	}
+	if c.lastErr != nil {
+		return errors.Default.Wrap(c.lastErr, "add slot failed due to previous err")
 	}
 	stripZeroByte(slot)
 	// deduplication
@@ -126,6 +130,7 @@ func (c *BatchSave) flushWithoutLocking() errors.Error {
 	}
 	err := c.db.CreateOrUpdate(c.slots.Slice(0, c.current).Interface(), clauses...)
 	if err != nil {
+		c.lastErr = err
 		return err
 	}
 	c.log.Debug("batch save flush total %d records to database", c.current)
