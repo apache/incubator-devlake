@@ -18,14 +18,15 @@ limitations under the License.
 package logruslog
 
 import (
+	"os"
+	"path/filepath"
+	"strings"
+	"time"
+
 	"github.com/apache/incubator-devlake/core/config"
 	"github.com/apache/incubator-devlake/core/errors"
 	"github.com/apache/incubator-devlake/core/log"
 	"github.com/sirupsen/logrus"
-	prefixed "github.com/x-cray/logrus-prefixed-formatter"
-	"os"
-	"path/filepath"
-	"strings"
 )
 
 var inner *logrus.Logger
@@ -46,8 +47,8 @@ func init() {
 		logLevel = logrus.ErrorLevel
 	}
 	inner.SetLevel(logLevel)
-	inner.SetFormatter(&prefixed.TextFormatter{
-		TimestampFormat: "2006-01-02 15:04:05",
+	inner.SetFormatter(&logrus.TextFormatter{
+		TimestampFormat: time.DateTime,
 		FullTimestamp:   true,
 	})
 	basePath := cfg.GetString("LOGGING_DIR")
