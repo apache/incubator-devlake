@@ -1,13 +1,13 @@
-id,source_issue_id,target_issue_id,original_type
-jira:JiraIssueRelationship:2:10802-isblockedby-10806,10802,10806,is blocked by
-jira:JiraIssueRelationship:2:10803-blocks-10823,10803,10823,blocks
-jira:JiraIssueRelationship:2:10805-clones-10812,10805,10812,clones
-jira:JiraIssueRelationship:2:10806-isduplicatedby-10812,10806,10812,is duplicated by
-jira:JiraIssueRelationship:2:10812-isduplicatedby-116583,10812,116583,is duplicated by
-jira:JiraIssueRelationship:2:10815-duplicates-116566,10815,116566,duplicates
-jira:JiraIssueRelationship:2:10817-isclonedby-111957,10817,111957,is cloned by
-jira:JiraIssueRelationship:2:10818-clones-111900,10818,111900,clones
-jira:JiraIssueRelationship:2:10820-relatesto-10822,10820,10822,relates to
-jira:JiraIssueRelationship:2:10821-isblockedby-116684,10821,116684,is blocked by
-jira:JiraIssueRelationship:2:10822-relatesto-10820,10822,10820,relates to
-jira:JiraIssueRelationship:2:10823-isblockedby-10803,10823,10803,is blocked by
+source_issue_id,target_issue_id,original_type
+jira:JiraIssue:2:10802,jira:JiraIssue:2:10806,is blocked by
+jira:JiraIssue:2:10803,jira:JiraIssue:2:10823,blocks
+jira:JiraIssue:2:10805,jira:JiraIssue:2:10812,clones
+jira:JiraIssue:2:10806,jira:JiraIssue:2:10812,is duplicated by
+jira:JiraIssue:2:10812,jira:JiraIssue:2:116583,is duplicated by
+jira:JiraIssue:2:10815,jira:JiraIssue:2:116566,duplicates
+jira:JiraIssue:2:10817,jira:JiraIssue:2:111957,is cloned by
+jira:JiraIssue:2:10818,jira:JiraIssue:2:111900,clones
+jira:JiraIssue:2:10820,jira:JiraIssue:2:10822,relates to
+jira:JiraIssue:2:10821,jira:JiraIssue:2:116684,is blocked by
+jira:JiraIssue:2:10822,jira:JiraIssue:2:10820,relates to
+jira:JiraIssue:2:10823,jira:JiraIssue:2:10803,is blocked by

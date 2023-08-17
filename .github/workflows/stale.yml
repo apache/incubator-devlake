@@ -30,16 +30,16 @@ jobs:
       - uses: actions/stale@v4
         with:
           # Stale Issues
-          days-before-issue-stale: 30
+          days-before-issue-stale: 60
           days-before-issue-close: 7
           # We do not stale Issues with label `Waiting for reply`, `new feature` and `DSIP`
           exempt-issue-labels: 'Waiting for reply,new feature,DSIP'
           stale-issue-message: >
-            This issue has been automatically marked as stale because it has not had recent activity
-            for 30 days. It will be closed in next 7 days if no further activity occurs.
+            This issue has been automatically marked as stale because it has been inactive
+            for 60 days. It will be closed in next 7 days if no further activity occurs.
           close-issue-message: >
-            This issue has been closed because it has not received response for too long time. You could
-            reopen it if you encountered similar problems in the future.
+            This issue has been closed because it has been inactive for a long time. You can
+            reopen it if you encounter the similar problem in the future.
           # Stale PRs
           days-before-pr-stale: 120
           days-before-pr-close: 7

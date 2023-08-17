@@ -18,11 +18,10 @@ limitations under the License.
 package archived
 
 type IssueRelationship struct {
-	DomainEntity
-
-	SourceIssueId uint64 `gorm:"index"`
-	TargetIssueId uint64
-	OriginalType  string `gorm:"type:varchar(255)"`
+	SourceIssueId string `gorm:"primaryKey;type:varchar(255);index"`
+	TargetIssueId string `gorm:"primaryKey;type:varchar(255)"`
+	OriginalType  string `gorm:"primaryKey;type:varchar(255)"`
+	NoPKModel
 }
 
 func (IssueRelationship) TableName() string {

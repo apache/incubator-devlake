@@ -111,7 +111,7 @@ func CollectRuns(taskCtx plugin.SubTaskContext) errors.Error {
 				return pj.CreatedAt.ToTime(), nil
 			},
 		},
-		CollectUnfinishedDetails: helper.FinalizableApiCollectorDetailArgs{
+		CollectUnfinishedDetails: &helper.FinalizableApiCollectorDetailArgs{
 			BuildInputIterator: func() (helper.Iterator, errors.Error) {
 				// load unfinished runs from the database
 				cursor, err := db.Cursor(
