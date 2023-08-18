@@ -107,7 +107,7 @@ func ConvertJobs(taskCtx plugin.SubTaskContext) (err errors.Error) {
 				}, line.Status),
 			}
 
-			if line.CompletedAt != nil && line.StartedAt != nil {
+			if domainJob.Status == devops.STATUS_DONE {
 				domainJob.DurationSec = uint64(line.CompletedAt.Sub(*line.StartedAt).Seconds())
 			}
 
