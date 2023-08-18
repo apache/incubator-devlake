@@ -18,6 +18,10 @@ limitations under the License.
 package tasks
 
 import (
+	"reflect"
+	"strconv"
+	"time"
+
 	"github.com/apache/incubator-devlake/core/dal"
 	"github.com/apache/incubator-devlake/core/errors"
 	"github.com/apache/incubator-devlake/core/models/domainlayer"
@@ -26,9 +30,6 @@ import (
 	"github.com/apache/incubator-devlake/core/plugin"
 	"github.com/apache/incubator-devlake/helpers/pluginhelper/api"
 	"github.com/apache/incubator-devlake/plugins/bamboo/models"
-	"reflect"
-	"strconv"
-	"time"
 )
 
 var ConvertDeployBuildsMeta = plugin.SubTaskMeta{
@@ -83,9 +84,9 @@ func ConvertDeployBuilds(taskCtx plugin.SubTaskContext) errors.Error {
 					Success: []string{"Successful", "SUCCESSFUL"},
 					Default: "",
 				}, input.DeploymentState),
-				Status: devops.GetStatus(&devops.StatusRule{
+				Status: devops.GetStatus(&devops.StatusRule[string]{
 					Done:    []string{"Finished", "FINISHED"},
-					Default: devops.IN_PROGRESS,
+					Default: devops.STATUS_IN_PROGRESS,
 				}, input.LifeCycleState),
 				Environment:  input.Environment,
 				StartedDate:  input.StartedDate,

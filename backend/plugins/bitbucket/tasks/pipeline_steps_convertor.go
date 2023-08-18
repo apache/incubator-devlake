@@ -70,14 +70,15 @@ func ConvertPipelineSteps(taskCtx plugin.SubTaskContext) errors.Error {
 				PipelineId: pipelineIdGen.Generate(data.Options.ConnectionId, bitbucketPipelineStep.PipelineId),
 				Result: devops.GetResult(&devops.ResultRule{
 					Failed:  []string{models.FAILED, models.ERROR, models.UNDEPLOYED},
-					Abort:   []string{models.STOPPED, models.SKIPPED},
+					Abort:   []string{models.STOPPED},
 					Success: []string{models.SUCCESSFUL, models.COMPLETED},
 					Manual:  []string{models.PAUSED, models.HALTED},
-					Default: devops.SUCCESS,
+					Skipped: []string{models.SKIPPED},
+					Default: devops.RESULT_SUCCESS,
 				}, bitbucketPipelineStep.Result),
-				Status: devops.GetStatus(&devops.StatusRule{
+				Status: devops.GetStatus(&devops.StatusRule[string]{
 					InProgress: []string{models.IN_PROGRESS, models.PENDING, models.BUILDING},
-					Default:    devops.DONE,
+					Default:    devops.STATUS_DONE,
 				}, bitbucketPipelineStep.State),
 				CicdScopeId: repoIdGen.Generate(data.Options.ConnectionId, data.Options.FullName),
 			}
@@ -87,7 +88,7 @@ func ConvertPipelineSteps(taskCtx plugin.SubTaskContext) errors.Error {
 			}
 			domainTask.StartedDate = *bitbucketPipelineStep.StartedOn
 			// rebuild the FinishedDate
-			if domainTask.Status == devops.DONE {
+			if domainTask.Status == devops.STATUS_DONE {
 				domainTask.FinishedDate = bitbucketPipelineStep.CompletedOn
 				domainTask.DurationSec = uint64(bitbucketPipelineStep.DurationInSeconds)
 			}
