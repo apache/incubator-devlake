@@ -86,13 +86,14 @@ func ConvertPipelines(taskCtx plugin.SubTaskContext) errors.Error {
 					Generate(data.Options.ConnectionId, data.Options.ProjectId),
 				Result: devops.GetResult(&devops.ResultRule{
 					Failed:  []string{"failed"},
-					Abort:   []string{"canceled", "skipped"},
+					Abort:   []string{"canceled"},
 					Success: []string{"success"},
+					Skipped: []string{"skipped"},
 					Default: "",
 				}, gitlabPipeline.Status),
-				Status: devops.GetStatus(&devops.StatusRule{
+				Status: devops.GetStatus(&devops.StatusRule[string]{
 					InProgress: []string{"created", "waiting_for_resource", "preparing", "pending", "running", "manual", "scheduled"},
-					Default:    devops.DONE,
+					Default:    devops.STATUS_DONE,
 				}, gitlabPipeline.Status),
 				CreatedDate:  createdAt,
 				FinishedDate: gitlabPipeline.GitlabUpdatedAt,
@@ -102,7 +103,7 @@ func ConvertPipelines(taskCtx plugin.SubTaskContext) errors.Error {
 			}
 
 			// rebuild the FinishedDate and DurationSec by Status
-			if domainPipeline.Status != devops.DONE {
+			if domainPipeline.Status != devops.STATUS_DONE {
 				domainPipeline.FinishedDate = nil
 				domainPipeline.DurationSec = 0
 			} else if domainPipeline.FinishedDate != nil {

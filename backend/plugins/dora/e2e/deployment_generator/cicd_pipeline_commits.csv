@@ -12,3 +12,5 @@ gitlab:GitlabPipeline:1:485811059,c791ea6949d6b4aadf79b15ba666cb690c6527ac,refs/
 gitlab:GitlabPipeline:1:485811050,c791ea6949d6b4aadf79b15ba666cb690c6527ac,EE-7121,cicd1,https://gitlab.com/gitlab-data/snowflake_spend
 gitlab:GitlabPipeline:1:457475160,44d127e0ab7dbc4bc259b55929c9d00b62fc3bf4,renovate/lodash-monorepo,cicd1,https://gitlab.com/gitlab-data/snowflake_spend
 gitlab:GitlabPipeline:1:457475337,10a6464b6bd2cf4b59b8ac37ce1466e013f5a20d,renovate/shx-0.x,cicd1,https://gitlab.com/gitlab-data/snowflake_spend
+gitlab:GitlabPipeline:1:485932864,22a6464b6bd2cf4b59b8ac37ce1466e013f5a20d,renovate/shx-0.x,cicd1,https://gitlab.com/gitlab-data/snowflake_spend
+gitlab:GitlabPipeline:1:485932865,33a6464b6bd2cf4b59b8ac37ce1466e013f5a20d,renovate/shx-0.x,cicd1,https://gitlab.com/gitlab-data/snowflake_spend
