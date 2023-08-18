@@ -27,11 +27,11 @@ services:
       MYSQL_DATABASE: lake
       MYSQL_USER: merico
       MYSQL_PASSWORD: merico
-    command:
+      TZ: UTC
+    command: 
       --character-set-server=utf8mb4
       --collation-server=utf8mb4_bin
       --skip-log-bin
-
 
   postgres:
     image: postgres:14.2
@@ -44,6 +44,7 @@ services:
       POSTGRES_DB: lake
       POSTGRES_USER: merico
       POSTGRES_PASSWORD: merico
+      TZ: UTC
 
   grafana:
     image: devlake.docker.scarf.sh/mericodev/devlake-dashboard:latest
@@ -60,6 +61,7 @@ services:
       MYSQL_DATABASE: lake
       MYSQL_USER: merico
       MYSQL_PASSWORD: merico
+      TZ: UTC
     restart: always
     depends_on:
       - mysql
@@ -80,6 +82,7 @@ services:
       - ./.env
     environment:
       LOGGING_DIR: /app/logs
+      TZ: UTC
       # LOGOUT_URI: https://xxx.amazoncognito.com/logout?client_id=yyy&logout_uri=http%3A%2F%2Flocalhost%3A4180%2Foauth2%2Fsign_out
     depends_on:
       - mysql
@@ -95,6 +98,7 @@ services:
     environment:
       DEVLAKE_ENDPOINT: devlake:8080
       GRAFANA_ENDPOINT: grafana:3000
+      TZ: UTC
       #ADMIN_USER: devlake
       #ADMIN_PASS: letsdivein
     depends_on:
@@ -128,4 +132,3 @@ volumes:
   grafana-storage:
   postgres-storage:
   devlake-log:
-
