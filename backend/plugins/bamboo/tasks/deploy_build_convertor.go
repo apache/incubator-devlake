@@ -81,9 +81,9 @@ func ConvertDeployBuilds(taskCtx plugin.SubTaskContext) errors.Error {
 					Default: "",
 				}, deployBuild.DeploymentState),
 
-				Status: devops.GetStatus(&devops.StatusRule{
+				Status: devops.GetStatus(&devops.StatusRule[string]{
 					Done:    []string{"Finished", "FINISHED"},
-					Default: devops.IN_PROGRESS,
+					Default: devops.STATUS_IN_PROGRESS,
 				}, deployBuild.LifeCycleState),
 
 				//DurationSec:  uint64(deployBuild),

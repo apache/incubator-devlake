@@ -19,7 +19,6 @@ package tasks
 
 import (
 	"reflect"
-	"strings"
 
 	"github.com/apache/incubator-devlake/core/dal"
 	"github.com/apache/incubator-devlake/core/errors"
@@ -85,21 +84,17 @@ func ConvertRuns(taskCtx plugin.SubTaskContext) errors.Error {
 				CicdScopeId:  repoIdGen.Generate(data.Options.ConnectionId, line.RepoId),
 				Type:         line.Type,
 				Environment:  line.Environment,
+				Result: devops.GetResult(&devops.ResultRule{
+					Failed:  []string{"failure", "FAILURE"},
+					Success: []string{"success", "SUCCESS"},
+					Skipped: []string{"skipped", "SKIPPED"},
+				}, line.Conclusion),
+				Status: devops.GetStatus(&devops.StatusRule[string]{
+					Done:    []string{"completed", "COMPLETED"},
+					Default: devops.STATUS_IN_PROGRESS,
+				}, line.Status),
 			}
-			if strings.Contains(line.Conclusion, "success") {
-				domainPipeline.Result = devops.SUCCESS
-			} else if strings.Contains(line.Conclusion, "failure") {
-				domainPipeline.Result = devops.FAILURE
-			} else if strings.Contains(line.Conclusion, "abort") {
-				domainPipeline.Result = devops.ABORT
-			} else {
-				domainPipeline.Result = ""
-			}
-
-			if line.Status != "completed" {
-				domainPipeline.Status = devops.IN_PROGRESS
-			} else {
-				domainPipeline.Status = devops.DONE
+			if domainPipeline.Status == devops.STATUS_DONE {
 				domainPipeline.DurationSec = uint64(line.GithubUpdatedAt.Sub(*line.GithubCreatedAt).Seconds())
 			}
 

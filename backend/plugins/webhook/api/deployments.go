@@ -100,7 +100,7 @@ func PostDeploymentCicdTask(input *plugin.ApiResourceInput) (*plugin.ApiResource
 		request.FinishedDate = &now
 	}
 	if request.Result == "" {
-		request.Result = devops.SUCCESS
+		request.Result = devops.RESULT_SUCCESS
 	}
 	duration := uint64(request.FinishedDate.Sub(*request.StartedDate).Seconds())
 
@@ -113,7 +113,7 @@ func PostDeploymentCicdTask(input *plugin.ApiResourceInput) (*plugin.ApiResource
 		CicdScopeId:      scopeId,
 		Name:             fmt.Sprintf(`deployment for %s`, request.CommitSha),
 		Result:           request.Result,
-		Status:           devops.DONE,
+		Status:           devops.STATUS_DONE,
 		Environment:      request.Environment,
 		CreatedDate:      *request.CreatedDate,
 		StartedDate:      request.StartedDate,
