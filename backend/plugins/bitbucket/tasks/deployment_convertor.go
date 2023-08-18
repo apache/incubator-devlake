@@ -92,9 +92,9 @@ func ConvertDeployments(taskCtx plugin.SubTaskContext) errors.Error {
 					Success: []string{"COMPLETED"},
 					Default: "",
 				}, bitbucketDeployment.Status),
-				Status: devops.GetStatus(&devops.StatusRule{
+				Status: devops.GetStatus(&devops.StatusRule[string]{
 					Done:    []string{"COMPLETED", "UNDEPLOYED"},
-					Default: devops.IN_PROGRESS,
+					Default: devops.STATUS_IN_PROGRESS,
 				}, bitbucketDeployment.Status),
 				Environment:  bitbucketDeployment.Environment,
 				CreatedDate:  *bitbucketDeployment.CreatedOn,

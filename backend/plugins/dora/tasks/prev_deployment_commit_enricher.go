@@ -58,7 +58,7 @@ func EnrichPrevSuccessDeploymentCommit(taskCtx plugin.SubTaskContext) errors.Err
 			AND dc.repo_url IS NOT NULL AND dc.repo_url != '' 
 			AND pm.project_name = ? AND dc.result = ?
 			`,
-			data.Options.ProjectName, devops.SUCCESS,
+			data.Options.ProjectName, devops.RESULT_SUCCESS,
 		),
 		dal.Orderby(`dc.cicd_scope_id, dc.repo_url, dc.environment, dc.finished_date`),
 	)

@@ -10,3 +10,4 @@ gitlab:GitlabJob:1:107,format,gitlab:GitlabPipeline:1:457475337,SUCCESS,DONE,,,2
 gitlab:GitlabJob:1:108,format,gitlab:GitlabPipeline:1:457475337,SUCCESS,DONE,,,2,2022-07-25T15:35:11.707+00:00,2022-07-25T15:35:14.224+00:00,gitlab:GitlabProject:1:44
 gitlab:GitlabJob:1:109,compile,gitlab:GitlabPipeline:1:457475337,SUCCESS,DONE,DEPLOYMENT,PRODUCTION,3,2022-07-25T15:35:14.724+00:00,2022-07-25T15:35:17.828+00:00,gitlab:GitlabProject:1:44
 gitlab:GitlabJob:1:110,format,gitlab:GitlabPipeline:1:457475337,SUCCESS,DONE,,,2,2022-07-25T15:36:18.097+00:00,2022-07-25T15:36:20.954+00:00,gitlab:GitlabProject:1:44
+gitlab:GitlabJob:1:111,format,gitlab:GitlabPipeline:1:485932865,SKIPPED,DONE,DEPLOYMENT,PRODUCTION,2,2022-07-25T15:36:18.097+00:00,2022-07-25T15:36:20.954+00:00,gitlab:GitlabProject:1:44
