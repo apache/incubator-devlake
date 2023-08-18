@@ -31,15 +31,15 @@ import (
 	"github.com/apache/incubator-devlake/plugins/jenkins/models"
 )
 
-var ConvertBuildsToCICDMeta = plugin.SubTaskMeta{
+var ConvertBuildsToCicdTasksMeta = plugin.SubTaskMeta{
 	Name:             "convertBuildsToCICD",
-	EntryPoint:       ConvertBuildsToCICD,
+	EntryPoint:       ConvertBuildsToCicdTasks,
 	EnabledByDefault: true,
 	Description:      "convert builds to cicd",
 	DomainTypes:      []string{plugin.DOMAIN_TYPE_CICD},
 }
 
-func ConvertBuildsToCICD(taskCtx plugin.SubTaskContext) (err errors.Error) {
+func ConvertBuildsToCicdTasks(taskCtx plugin.SubTaskContext) (err errors.Error) {
 	db := taskCtx.GetDal()
 	data := taskCtx.GetData().(*JenkinsTaskData)
 	clauses := []dal.Clause{
@@ -71,23 +71,22 @@ func ConvertBuildsToCICD(taskCtx plugin.SubTaskContext) (err errors.Error) {
 		Convert: func(inputRow interface{}) ([]interface{}, errors.Error) {
 			jenkinsBuild := inputRow.(*models.JenkinsBuild)
 			durationSec := int64(jenkinsBuild.Duration / 1000)
-			jenkinsPipelineResult := devops.GetResult(&devops.ResultRule{
-				Success: []string{"SUCCESS"},
-				Failed:  []string{"FAILURE"},
-				Abort:   []string{"ABORTED"},
-			}, jenkinsBuild.Result)
 			jenkinsPipelineStatus := devops.GetStatus(&devops.StatusRule[bool]{
 				InProgress: []bool{true},
 				Done:       []bool{false},
 			}, jenkinsBuild.Building)
+			var jenkinsPipelineResult string
+			if !jenkinsBuild.Building {
+				jenkinsPipelineResult = devops.GetResult(&devops.ResultRule{
+					Success: []string{"SUCCESS"},
+					Failed:  []string{"FAILURE"},
+					Abort:   []string{"ABORTED"},
+				}, jenkinsBuild.Result)
+			}
 			var jenkinsPipelineFinishedDate *time.Time
 			results := make([]interface{}, 0)
 
-			if jenkinsBuild.Building {
-				jenkinsPipelineStatus = devops.STATUS_IN_PROGRESS
-				jenkinsPipelineResult = ""
-			} else {
-				jenkinsPipelineStatus = devops.STATUS_DONE
+			if jenkinsPipelineStatus == devops.STATUS_DONE {
 				finishTime := jenkinsBuild.StartTime.Add(time.Duration(durationSec * int64(time.Second)))
 				jenkinsPipelineFinishedDate = &finishTime
 			}
