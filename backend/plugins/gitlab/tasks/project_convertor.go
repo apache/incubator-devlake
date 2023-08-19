@@ -42,7 +42,7 @@ const RAW_PROJECT_TABLE = "gitlab_api_project"
 
 type GitlabApiProject struct {
 	GitlabId          int    `json:"id"`
-	Name              string `josn:"name"`
+	Name              string `json:"name"`
 	Description       string `json:"description"`
 	DefaultBranch     string `json:"default_branch"`
 	PathWithNamespace string `json:"path_with_namespace"`
