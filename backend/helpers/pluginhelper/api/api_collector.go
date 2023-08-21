@@ -97,7 +97,7 @@ type ApiCollector struct {
 }
 
 // NewApiCollector allocates a new ApiCollector with the given args.
-// ApiCollector can help us collecting data from api with ease, pass in a AsyncApiClient and tell it which part
+// ApiCollector can help us to collect data from api with ease, pass in a AsyncApiClient and tell it which part
 // of response we want to save, ApiCollector will collect them from remote server and store them into database.
 func NewApiCollector(args ApiCollectorArgs) (*ApiCollector, errors.Error) {
 	// process args
