@@ -53,6 +53,7 @@ func CollectBug(taskCtx plugin.SubTaskContext) errors.Error {
 			query := url.Values{}
 			query.Set("page", fmt.Sprintf("%v", reqData.Pager.Page))
 			query.Set("limit", fmt.Sprintf("%v", reqData.Pager.Size))
+			query.Set("status", "all")
 			return query, nil
 		},
 		GetTotalPages: GetTotalPagesFromResponse,
