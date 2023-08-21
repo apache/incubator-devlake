@@ -107,6 +107,7 @@ func NewDataFlowTester(t *testing.T, pluginName string, pluginMeta plugin.Plugin
 		panic(errors.Default.New(`e2e can only run with E2E_DB_URL, please set it in environment variable or .env file`))
 	}
 	cfg.Set(`DB_URL`, cfg.GetString(`E2E_DB_URL`))
+	fmt.Println("e2eDbUrl", e2eDbUrl)
 	db, err := runner.NewGormDb(cfg, logruslog.Global)
 	if err != nil {
 		// if here fail with error `acces denied for user` you need to create database by your self as follow command

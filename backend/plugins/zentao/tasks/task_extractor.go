@@ -75,9 +75,8 @@ func ExtractTask(taskCtx plugin.SubTaskContext) errors.Error {
 }
 
 type taskExtractor struct {
-	connectionId    uint64
-	statusMappings  map[string]string
-	stdTypeMappings map[string]string
+	connectionId   uint64
+	statusMappings map[string]string
 }
 
 func newTaskExtractor(data *ZentaoTaskData) *taskExtractor {
