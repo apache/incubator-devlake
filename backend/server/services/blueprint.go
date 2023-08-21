@@ -161,19 +161,14 @@ func validateBlueprintAndMakePlan(blueprint *models.Blueprint) errors.Error {
 		}
 	}
 	if blueprint.Mode == models.BLUEPRINT_MODE_ADVANCED {
-		plan := make(plugin.PipelinePlan, 0)
-		err = errors.Convert(json.Unmarshal(blueprint.Plan, &plan))
-		if err != nil {
-			return errors.Default.Wrap(err, "invalid plan")
+		if len(blueprint.Plan) == 0 {
+			return errors.BadInput.New("invalid plan")
 		}
 	} else if blueprint.Mode == models.BLUEPRINT_MODE_NORMAL {
-		plan, err := MakePlanForBlueprint(blueprint, false)
+		var e errors.Error
+		blueprint.Plan, e = MakePlanForBlueprint(blueprint, false)
 		if err != nil {
-			return errors.Default.Wrap(err, "make plan for blueprint failed")
-		}
-		blueprint.Plan, err = errors.Convert01(json.Marshal(plan))
-		if err != nil {
-			return errors.Default.Wrap(err, "failed to markshal plan")
+			return e
 		}
 	}
 	return nil
@@ -275,12 +270,12 @@ func createPipelineByBlueprint(blueprint *models.Blueprint, skipCollectors bool)
 	var err errors.Error
 	if blueprint.Mode == models.BLUEPRINT_MODE_NORMAL {
 		plan, err = MakePlanForBlueprint(blueprint, skipCollectors)
+		if err != nil {
+			blueprintLog.Error(err, fmt.Sprintf("failed to MakePlanForBlueprint on blueprint:[%d][%s]", blueprint.ID, blueprint.Name))
+			return nil, err
+		}
 	} else {
-		plan, err = blueprint.UnmarshalPlan()
-	}
-	if err != nil {
-		blueprintLog.Error(err, fmt.Sprintf("failed to MakePlanForBlueprint on blueprint:[%d][%s]", blueprint.ID, blueprint.Name))
-		return nil, err
+		plan = blueprint.Plan
 	}
 	newPipeline := models.NewPipeline{}
 	newPipeline.Plan = plan
