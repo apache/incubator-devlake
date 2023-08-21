@@ -47,7 +47,7 @@ func ConvertStory(taskCtx plugin.SubTaskContext) errors.Error {
 	storyIdGen := didgen.NewDomainIdGenerator(&models.ZentaoStory{})
 	boardIdGen := didgen.NewDomainIdGenerator(&models.ZentaoProject{})
 	accountIdGen := didgen.NewDomainIdGenerator(&models.ZentaoAccount{})
-
+	stdTypeMappings := getStdTypeMappings(data)
 	cursor, err := db.Cursor(
 		dal.From(&models.ZentaoStory{}),
 		dal.Join(`LEFT JOIN _tool_zentao_project_stories ON
@@ -90,6 +90,9 @@ func ConvertStory(taskCtx plugin.SubTaskContext) errors.Error {
 				OriginalProject:         getOriginalProject(data),
 				Status:                  toolEntity.StdStatus,
 				OriginalEstimateMinutes: int64(toolEntity.Estimate) * 60,
+			}
+			if mappingType, ok := stdTypeMappings[domainEntity.OriginalType]; ok && mappingType != "" {
+				domainEntity.Type = mappingType
 			}
 			if toolEntity.Parent != 0 {
 				domainEntity.ParentIssueId = storyIdGen.Generate(data.Options.ConnectionId, toolEntity.Parent)

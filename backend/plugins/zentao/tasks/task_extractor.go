@@ -82,9 +82,8 @@ type taskExtractor struct {
 
 func newTaskExtractor(data *ZentaoTaskData) *taskExtractor {
 	return &taskExtractor{
-		connectionId:    data.Options.ConnectionId,
-		statusMappings:  getTaskStatusMapping(data),
-		stdTypeMappings: getStdTypeMappings(data),
+		connectionId:   data.Options.ConnectionId,
+		statusMappings: getTaskStatusMapping(data),
 	}
 }
 func (c *taskExtractor) toZentaoTasks(accountCache *AccountCache, res *models.ZentaoTaskRes, url string, tasks *[]*models.ZentaoTask) {
@@ -153,8 +152,6 @@ func (c *taskExtractor) toZentaoTasks(accountCache *AccountCache, res *models.Ze
 		Progress:           res.Progress,
 		Url:                url,
 	}
-
-	task.StdType = c.stdTypeMappings[task.Type]
 	if task.StdType == "" {
 		task.StdType = ticket.TASK
 	}
