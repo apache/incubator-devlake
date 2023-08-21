@@ -39,9 +39,7 @@ var ExtractBugMeta = plugin.SubTaskMeta{
 
 func ExtractBug(taskCtx plugin.SubTaskContext) errors.Error {
 	data := taskCtx.GetData().(*ZentaoTaskData)
-
 	statusMappings := getBugStatusMapping(data)
-	stdTypeMappings := getStdTypeMappings(data)
 	extractor, err := api.NewApiExtractor(api.ApiExtractorArgs{
 		RawDataSubTaskArgs: api.RawDataSubTaskArgs{
 			Ctx:     taskCtx,
@@ -131,11 +129,9 @@ func ExtractBug(taskCtx plugin.SubTaskContext) errors.Error {
 			default:
 				bug.Status = "active"
 			}
-			bug.StdType = stdTypeMappings[bug.Type]
 			if bug.StdType == "" {
 				bug.StdType = ticket.BUG
 			}
-
 			if len(statusMappings) != 0 {
 				if stdStatus, ok := statusMappings[bug.Status]; ok {
 					bug.StdStatus = stdStatus

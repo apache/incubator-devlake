@@ -19,6 +19,7 @@ package dbhelper
 
 import (
 	"fmt"
+	"github.com/apache/incubator-devlake/core/log"
 	"time"
 
 	"github.com/apache/incubator-devlake/core/context"
@@ -30,6 +31,7 @@ import (
 type TxHelper[E error] struct {
 	basicRes context.BasicRes
 	perr     *E
+	logger   log.Logger
 	tx       dal.Transaction
 }
 
@@ -44,7 +46,7 @@ func (l *TxHelper[E]) Begin() dal.Transaction {
 
 // LockTablesTimeout locks tables with timeout
 func (l *TxHelper[E]) LockTablesTimeout(timeout time.Duration, lockTables dal.LockTables) errors.Error {
-	println("timeout", timeout)
+	l.logger.Warn(fmt.Errorf("timeout"), "local tables")
 	c := make(chan errors.Error, 1)
 	go func() {
 		c <- l.tx.LockTables(lockTables)
@@ -94,5 +96,5 @@ func NewTxHelper[E error](basicRes context.BasicRes, errorPointer *E) *TxHelper[
 	if errorPointer == nil {
 		panic(fmt.Errorf("errorPointer is required"))
 	}
-	return &TxHelper[E]{basicRes: basicRes, perr: errorPointer}
+	return &TxHelper[E]{basicRes: basicRes, perr: errorPointer, logger: basicRes.GetLogger()}
 }

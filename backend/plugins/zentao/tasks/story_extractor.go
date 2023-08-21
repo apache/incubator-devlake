@@ -39,10 +39,7 @@ var ExtractStoryMeta = plugin.SubTaskMeta{
 
 func ExtractStory(taskCtx plugin.SubTaskContext) errors.Error {
 	data := taskCtx.GetData().(*ZentaoTaskData)
-
 	statusMappings := getStoryStatusMapping(data)
-	stdTypeMappings := getStdTypeMappings(data)
-
 	extractor, err := api.NewApiExtractor(api.ApiExtractorArgs{
 		RawDataSubTaskArgs: api.RawDataSubTaskArgs{
 			Ctx:     taskCtx,
@@ -127,8 +124,6 @@ func ExtractStory(taskCtx plugin.SubTaskContext) errors.Error {
 				PlanTitle:        res.PlanTitle,
 				Url:              row.Url,
 			}
-
-			story.StdType = stdTypeMappings[story.Type]
 			if story.StdType == "" {
 				story.StdType = ticket.REQUIREMENT
 			}

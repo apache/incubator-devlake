@@ -50,6 +50,7 @@ func ConvertTask(taskCtx plugin.SubTaskContext) errors.Error {
 	executionIdGen := didgen.NewDomainIdGenerator(&models.ZentaoExecution{})
 	taskIdGen := didgen.NewDomainIdGenerator(&models.ZentaoTask{})
 	accountIdGen := didgen.NewDomainIdGenerator(&models.ZentaoAccount{})
+	stdTypeMappings := getStdTypeMappings(data)
 	cursor, err := db.Cursor(
 		dal.From(&models.ZentaoTask{}),
 		dal.Where(`project = ? and connection_id = ?`, data.Options.ProjectId, data.Options.ConnectionId),
@@ -92,6 +93,9 @@ func ConvertTask(taskCtx plugin.SubTaskContext) errors.Error {
 				TimeSpentMinutes:        int64(toolEntity.Consumed) * 60,
 			}
 			domainEntity.TimeRemainingMinutes = domainEntity.OriginalEstimateMinutes - domainEntity.TimeSpentMinutes
+			if mappingType, ok := stdTypeMappings[domainEntity.OriginalType]; ok && mappingType != "" {
+				domainEntity.Type = mappingType
+			}
 			if toolEntity.Parent != 0 {
 				domainEntity.ParentIssueId = storyIdGen.Generate(data.Options.ConnectionId, toolEntity.Parent)
 			}

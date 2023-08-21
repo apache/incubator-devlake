@@ -60,8 +60,6 @@ func RegisterRouter(r *gin.Engine, basicRes context.BasicRes) {
 
 	r.POST("/tasks/:taskId/rerun", task.PostRerun)
 
-	//r.GET("/ping", ping.Get)
-	//r.GET("/version", version.Get)
 	r.POST("/push/:tableName", push.Post)
 	r.GET("/domainlayer/repos", domainlayer.ReposIndex)
 
