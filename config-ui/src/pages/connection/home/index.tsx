@@ -45,7 +45,7 @@ export const ConnectionHomePage = () => {
         count: connections.filter((cs) => cs.plugin === 'webhook').length,
       },
     ],
-    [],
+    [connections],
   );
 
   const handleShowListDialog = (config: PluginConfigType) => {

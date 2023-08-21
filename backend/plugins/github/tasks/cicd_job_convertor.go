@@ -19,7 +19,6 @@ package tasks
 
 import (
 	"reflect"
-	"strings"
 
 	"github.com/apache/incubator-devlake/core/dal"
 	"github.com/apache/incubator-devlake/core/errors"
@@ -97,22 +96,18 @@ func ConvertJobs(taskCtx plugin.SubTaskContext) (err errors.Error) {
 				CicdScopeId:  repoIdGen.Generate(data.Options.ConnectionId, line.RepoId),
 				Type:         line.Type,
 				Environment:  line.Environment,
+				Result: devops.GetResult(&devops.ResultRule{
+					Failed:  []string{"failure", "FAILURE"},
+					Success: []string{"success", "SUCCESS"},
+					Skipped: []string{"skipped", "SKIPPED"},
+				}, line.Conclusion),
+				Status: devops.GetStatus(&devops.StatusRule[string]{
+					Done:    []string{"completed", "COMPLETED"},
+					Default: devops.STATUS_IN_PROGRESS,
+				}, line.Status),
 			}
 
-			if strings.Contains(line.Conclusion, "SUCCESS") {
-				domainJob.Result = devops.SUCCESS
-			} else if strings.Contains(line.Conclusion, "FAILURE") {
-				domainJob.Result = devops.FAILURE
-			} else if strings.Contains(line.Conclusion, "ABORT") {
-				domainJob.Result = devops.ABORT
-			} else {
-				domainJob.Result = ""
-			}
-
-			if line.Status != "COMPLETED" {
-				domainJob.Status = devops.IN_PROGRESS
-			} else {
-				domainJob.Status = devops.DONE
+			if domainJob.Status == devops.STATUS_DONE {
 				domainJob.DurationSec = uint64(line.CompletedAt.Sub(*line.StartedAt).Seconds())
 			}
 

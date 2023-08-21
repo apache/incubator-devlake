@@ -17,14 +17,13 @@ limitations under the License.
 
 package ticket
 
-import "github.com/apache/incubator-devlake/core/models/domainlayer"
+import "github.com/apache/incubator-devlake/core/models/common"
 
 type IssueRelationship struct {
-	domainlayer.DomainEntity
-
-	SourceIssueId uint64 `gorm:"index"`
-	TargetIssueId uint64
-	OriginalType  string `gorm:"type:varchar(255)"`
+	SourceIssueId string `gorm:"primaryKey;type:varchar(255);index"`
+	TargetIssueId string `gorm:"primaryKey;type:varchar(255)"`
+	OriginalType  string `gorm:"primaryKey;type:varchar(255)"`
+	common.NoPKModel
 }
 
 func (IssueRelationship) TableName() string {

@@ -503,7 +503,7 @@ func RerunPipeline(pipelineId uint64, task *models.Task) (tasks []*models.Task, 
 	for _, t := range failedTasks {
 		// mark previous task failed
 		t.Status = models.TASK_FAILED
-		err := tx.UpdateColumn(t, "status", models.TASK_FAILED)
+		err := db.UpdateColumn(t, "status", models.TASK_FAILED)
 		if err != nil {
 			return nil, err
 		}
