@@ -44,7 +44,7 @@ func (l *TxHelper[E]) Begin() dal.Transaction {
 
 // LockTablesTimeout locks tables with timeout
 func (l *TxHelper[E]) LockTablesTimeout(timeout time.Duration, lockTables dal.LockTables) errors.Error {
-	println("timeout", timeout)
+	fmt.Println("timeout", timeout)
 	c := make(chan errors.Error, 1)
 	go func() {
 		c <- l.tx.LockTables(lockTables)
