@@ -16,11 +16,20 @@
  *
  */
 
-import styled from 'styled-components';
+export type ResItem = {
+  type: 'group' | 'scope';
+  parentId: ID | null;
+  id: ID;
+  name: string;
+  fullName: string;
+  data: any;
+};
 
-export const Wrapper = styled.div``;
+export type GetRemoteScopeParams = {
+  groupId: ID | null;
+  pageToken?: string;
+};
 
-export const ColumnTitle = styled.div`
-  padding: 6px 12px;
-  font-weight: 600;
-`;
+export type SearchRemoteScopeParams = {
+  search?: string;
+} & Pagination;
