@@ -96,9 +96,6 @@ func ConvertTask(taskCtx plugin.SubTaskContext) errors.Error {
 			if mappingType, ok := stdTypeMappings[domainEntity.OriginalType]; ok && mappingType != "" {
 				domainEntity.Type = mappingType
 			}
-			if mappingType, ok := stdTypeMappings[domainEntity.OriginalType]; ok && mappingType != "" {
-				domainEntity.Type = mappingType
-			}
 			if toolEntity.Parent != 0 {
 				domainEntity.ParentIssueId = storyIdGen.Generate(data.Options.ConnectionId, toolEntity.Parent)
 			}
