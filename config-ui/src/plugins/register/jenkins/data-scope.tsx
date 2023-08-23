@@ -16,8 +16,6 @@
  *
  */
 
-import { useMemo } from 'react';
-
 import { DataScopeMillerColumns } from '@/plugins';
 
 import type { ScopeItemType } from './types';
@@ -29,17 +27,7 @@ interface Props {
   onChangeItems: (selectedItems: ScopeItemType[]) => void;
 }
 
-export const JenkinsDataScope = ({ connectionId, onChangeItems, ...props }: Props) => {
-  const selectedItems = useMemo(
-    () => props.selectedItems.map((it) => ({ id: `${it.jobFullName}`, name: it.name, data: it })),
-    [props.selectedItems],
-  );
-
-  const disabledItems = useMemo(
-    () => (props.disabledItems ?? []).map((it) => ({ id: `${it.jobFullName}`, name: it.name, data: it })),
-    [props.disabledItems],
-  );
-
+export const DataScope = ({ connectionId, disabledItems, selectedItems, onChangeItems }: Props) => {
   return (
     <>
       <h3>Jobs *</h3>

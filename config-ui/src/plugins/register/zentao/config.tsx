@@ -60,10 +60,7 @@ export const ZenTaoConfig: PluginConfigType = {
     ],
   },
   dataScope: {
-    millerColumns: {
-      title: 'Repositories *',
-      subTitle: 'Select the repositories you would like to sync.',
-      columnCount: 2,
-    },
+    title: 'Repositories',
+    millerColumnCount: 2,
   },
 };
