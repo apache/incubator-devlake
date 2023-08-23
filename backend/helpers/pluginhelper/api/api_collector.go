@@ -21,6 +21,7 @@ import (
 	"bytes"
 	"encoding/json"
 	"fmt"
+	"github.com/apache/incubator-devlake/core/plugin"
 	"io"
 	"net/http"
 	"net/url"
@@ -30,9 +31,10 @@ import (
 
 	"github.com/apache/incubator-devlake/core/dal"
 	"github.com/apache/incubator-devlake/core/errors"
-	plugin "github.com/apache/incubator-devlake/core/plugin"
 	"github.com/apache/incubator-devlake/helpers/pluginhelper/common"
 )
+
+var _ plugin.SubTask = (*ApiCollector)(nil)
 
 // Pager contains pagination information for a api request
 type Pager struct {
@@ -241,7 +243,7 @@ func (collector *ApiCollector) exec(input interface{}) {
 		Page: 1,
 		Size: collector.args.PageSize,
 	}
-	// featch the detail
+	// fetch the detail
 	if collector.args.PageSize <= 0 {
 		collector.fetchAsync(reqData, nil)
 		// fetch pages sequentially
@@ -324,7 +326,7 @@ func (collector *ApiCollector) fetchPagesUndetermined(reqData *RequestData) {
 	concurrency := collector.args.Concurrency
 	if concurrency == 0 {
 		// normally when a multi-pages api depends on a another resource, like jira changelogs depend on issue ids
-		// it tend to have less page, like 1 or 2 pages in total
+		// it tends to have less page, like 1 or 2 pages in total
 		if collector.args.Input != nil {
 			concurrency = 2
 		} else {
@@ -484,5 +486,3 @@ func (collector *ApiCollector) fetchAsync(reqData *RequestData, handler func(int
 	}
 	logger.Debug("fetchAsync === enqueued for %s %v", apiUrl, apiQuery)
 }
-
-var _ plugin.SubTask = (*ApiCollector)(nil)
