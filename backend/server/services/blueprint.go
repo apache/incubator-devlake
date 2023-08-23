@@ -212,7 +212,7 @@ func PatchBlueprint(id uint64, body map[string]interface{}) (*models.Blueprint, 
 	if err != nil {
 		return nil, err
 	}
-	// make sure mode is not being update
+	// make sure mode is not being updated
 	if originMode != blueprint.Mode {
 		return nil, errors.Default.New("mode is not updatable")
 	}
