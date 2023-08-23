@@ -19,13 +19,14 @@ package remote
 
 import (
 	"fmt"
-	"github.com/apache/incubator-devlake/core/dal"
-	"github.com/apache/incubator-devlake/helpers/pluginhelper/services"
 	"net/http"
 	"os"
 	"path/filepath"
 	"testing"
 	"time"
+
+	"github.com/apache/incubator-devlake/core/dal"
+	"github.com/apache/incubator-devlake/helpers/pluginhelper/services"
 
 	"github.com/apache/incubator-devlake/core/models"
 	"github.com/apache/incubator-devlake/core/plugin"
@@ -160,9 +161,6 @@ func CreateTestBlueprints(t *testing.T, client *helper.DevlakeClient, count int)
 				ProjectName: projectName,
 			},
 		)
-		plan, err := blueprint.UnmarshalPlan()
-		require.NoError(t, err)
-		_ = plan
 		bps = append(bps, blueprint)
 		project := client.GetProject(projectName)
 		require.Equal(t, blueprint.Name, project.Blueprint.Name)

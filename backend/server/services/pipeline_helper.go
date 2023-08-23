@@ -18,7 +18,6 @@ limitations under the License.
 package services
 
 import (
-	"encoding/json"
 	"fmt"
 	"time"
 
@@ -54,7 +53,6 @@ func CreateDbPipeline(newPipeline *models.NewPipeline) (pipeline *models.Pipelin
 			return nil, errors.BadInput.New("there are pending pipelines of current blueprint already")
 		}
 	}
-	planByte := errors.Must1(json.Marshal(newPipeline.Plan))
 	// create pipeline object from posted data
 	dbPipeline := &models.Pipeline{
 		Name:          newPipeline.Name,
@@ -62,7 +60,7 @@ func CreateDbPipeline(newPipeline *models.NewPipeline) (pipeline *models.Pipelin
 		Status:        models.TASK_CREATED,
 		Message:       "",
 		SpentSeconds:  0,
-		Plan:          planByte,
+		Plan:          newPipeline.Plan,
 		SkipOnFail:    newPipeline.SkipOnFail,
 	}
 	if newPipeline.BlueprintId != 0 {

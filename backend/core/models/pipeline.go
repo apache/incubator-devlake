@@ -18,7 +18,6 @@ limitations under the License.
 package models
 
 import (
-	"encoding/json"
 	"time"
 
 	"github.com/apache/incubator-devlake/core/models/common"
@@ -27,20 +26,20 @@ import (
 
 type Pipeline struct {
 	common.Model
-	Name          string          `json:"name" gorm:"index"`
-	BlueprintId   uint64          `json:"blueprintId"`
-	Plan          json.RawMessage `json:"plan" gorm:"serializer:encdec"`
-	TotalTasks    int             `json:"totalTasks"`
-	FinishedTasks int             `json:"finishedTasks"`
-	BeganAt       *time.Time      `json:"beganAt"`
-	FinishedAt    *time.Time      `json:"finishedAt" gorm:"index"`
-	Status        string          `json:"status"`
-	Message       string          `json:"message"`
-	ErrorName     string          `json:"errorName"`
-	SpentSeconds  int             `json:"spentSeconds"`
-	Stage         int             `json:"stage"`
-	Labels        []string        `json:"labels" gorm:"-"`
-	SkipOnFail    bool            `json:"skipOnFail"`
+	Name          string              `json:"name" gorm:"index"`
+	BlueprintId   uint64              `json:"blueprintId"`
+	Plan          plugin.PipelinePlan `json:"plan" gorm:"serializer:encdec"`
+	TotalTasks    int                 `json:"totalTasks"`
+	FinishedTasks int                 `json:"finishedTasks"`
+	BeganAt       *time.Time          `json:"beganAt"`
+	FinishedAt    *time.Time          `json:"finishedAt" gorm:"index"`
+	Status        string              `json:"status"`
+	Message       string              `json:"message"`
+	ErrorName     string              `json:"errorName"`
+	SpentSeconds  int                 `json:"spentSeconds"`
+	Stage         int                 `json:"stage"`
+	Labels        []string            `json:"labels" gorm:"-"`
+	SkipOnFail    bool                `json:"skipOnFail"`
 }
 
 // We use a 2D array because the request body must be an array of a set of tasks

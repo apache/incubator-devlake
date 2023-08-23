@@ -80,10 +80,6 @@ build: build-plugin build-server
 
 all: build build-worker
 
-tap-models:
-	chmod +x ./scripts/singer-model-generator.sh
-	@sh scripts/singer-model-generator.sh resources/tap/pagerduty.json plugins/pagerduty --all
-
 run:
 	go run server/main.go
 

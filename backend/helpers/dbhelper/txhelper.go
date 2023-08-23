@@ -76,6 +76,8 @@ func (l *TxHelper[E]) End() {
 		r := recover()
 		if r != nil {
 			msg = fmt.Sprintf("%v", r)
+			// it won't work if recoverred error is not of type E
+			*l.perr = r.(E)
 		}
 	} else {
 		msg = err.Error()

@@ -89,5 +89,7 @@ func All() []plugin.MigrationScript {
 		new(addApiKeyTables),
 		new(addIssueRelationship),
 		new(tasksUsesJSON),
+		new(modifyCicdPipelinesToText),
+		new(dropTapStateTable),
 	}
 }
