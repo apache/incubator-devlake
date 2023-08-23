@@ -89,10 +89,10 @@ func ConvertTask(taskCtx plugin.SubTaskContext) errors.Error {
 				Url:                     convertIssueURL(toolEntity.Url, "task", toolEntity.ID),
 				OriginalProject:         getOriginalProject(data),
 				Status:                  toolEntity.StdStatus,
-				OriginalEstimateMinutes: int64(toolEntity.Estimate) * 60,
-				TimeSpentMinutes:        int64(toolEntity.Consumed) * 60,
+				OriginalEstimateMinutes: int64(toolEntity.Estimate * 60),
+				TimeSpentMinutes:        int64(toolEntity.Consumed * 60),
+				TimeRemainingMinutes:    int64(toolEntity.Left * 60),
 			}
-			domainEntity.TimeRemainingMinutes = domainEntity.OriginalEstimateMinutes - domainEntity.TimeSpentMinutes
 			if mappingType, ok := stdTypeMappings[domainEntity.OriginalType]; ok && mappingType != "" {
 				domainEntity.Type = mappingType
 			}
