@@ -48,6 +48,7 @@ func ConvertBug(taskCtx plugin.SubTaskContext) errors.Error {
 	accountIdGen := didgen.NewDomainIdGenerator(&models.ZentaoAccount{})
 	executionIdGen := didgen.NewDomainIdGenerator(&models.ZentaoExecution{})
 	boardIdGen := didgen.NewDomainIdGenerator(&models.ZentaoProduct{})
+	stdTypeMappings := getStdTypeMappings(data)
 	if data.Options.ProjectId != 0 {
 		boardIdGen = didgen.NewDomainIdGenerator(&models.ZentaoProject{})
 	}
@@ -91,6 +92,9 @@ func ConvertBug(taskCtx plugin.SubTaskContext) errors.Error {
 				Url:             convertIssueURL(toolEntity.Url, "bug", toolEntity.ID),
 				OriginalProject: getOriginalProject(data),
 				Status:          toolEntity.StdStatus,
+			}
+			if mappingType, ok := stdTypeMappings[domainEntity.OriginalType]; ok && mappingType != "" {
+				domainEntity.Type = mappingType
 			}
 			if toolEntity.Story != 0 {
 				domainEntity.ParentIssueId = storyIdGen.Generate(data.Options.ConnectionId, toolEntity.Story)
