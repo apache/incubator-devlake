@@ -38,7 +38,7 @@ type DataConvertHandler func(row interface{}) ([]interface{}, errors.Error)
 //				BatchSize: 			batch size
 type DataConverterArgs struct {
 	RawDataSubTaskArgs
-	// Domain layer entity Id prefix, i.e. `jira:JiraIssue:1`, `github:GithubIssue`
+	// Domain layer entity ID prefix, i.e. `jira:JiraIssue:1`, `github:GithubIssue`
 	InputRowType reflect.Type
 	Input        dal.Rows
 	Convert      DataConvertHandler
