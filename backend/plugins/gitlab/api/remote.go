@@ -83,14 +83,22 @@ func RemoteScopes(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, er
 			var res *http.Response
 			var resBody []models.GitlabApiProject
 			if gid == "" {
-				res, err = apiClient.Get(fmt.Sprintf("users/%d/projects", apiClient.GetData("UserId")), query, nil)
+				var resProjects []models.GitlabApiProject
+				res, err = apiClient.Get("/projects", query, nil)
 				if err != nil {
 					return nil, err
 				}
-				err = api.UnmarshalResponse(res, &resBody)
+				err = api.UnmarshalResponse(res, &resProjects)
 				if err != nil {
 					return nil, err
 				}
+
+				for _, project := range resProjects {
+					if project.Permissions.GroupAccess == nil {
+						resBody = append(resBody, project)
+					}
+				}
+
 			} else {
 				query.Set("with_shared", "false")
 				if gid[:6] == "group:" {
@@ -104,26 +112,28 @@ func RemoteScopes(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, er
 				if err != nil {
 					return nil, err
 				}
-
-				filteredProjects := make([]models.GitlabApiProject, 0)
-				for _, project := range resBody {
-					membersURL := fmt.Sprintf("/projects/%d/members/%d", project.GitlabId, apiClient.GetData("UserId"))
-					membersRes, err := apiClient.Get(membersURL, nil, nil)
-					if err != nil {
-						return nil, err
-					}
-					var member models.GitlabMember
-					err = api.UnmarshalResponse(membersRes, &member)
-					if err != nil {
-						return nil, err
-					}
-					// Filter out projects where the user only has Guest permission and archived projects
-					if member.AccessLevel != 10 && !project.Archived {
-						filteredProjects = append(filteredProjects, project)
-					}
-				}
-				resBody = filteredProjects
 			}
+
+			// Filter out projects where the user only has Guest permission and archived projects
+			var filteredProjects []models.GitlabApiProject
+			for _, project := range resBody {
+				membersURL := fmt.Sprintf("/projects/%d/members/%d", project.GitlabId, apiClient.GetData("UserId"))
+				membersRes, err := apiClient.Get(membersURL, nil, nil)
+				if err != nil {
+					return nil, err
+				}
+				var member models.GitlabMember
+				err = api.UnmarshalResponse(membersRes, &member)
+				if err != nil {
+					return nil, err
+				}
+				if member.AccessLevel != 10 && !project.Archived {
+					filteredProjects = append(filteredProjects, project)
+				}
+			}
+
+			resBody = filteredProjects
+
 			return resBody, err
 		})
 }
