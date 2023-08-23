@@ -118,10 +118,22 @@ type GitlabApiProject struct {
 	LastActivityAt    *common.Iso8601Time `json:"last_activity_at"`
 	HttpUrlToRepo     string              `json:"http_url_to_repo"`
 	Archived          bool                `json:"archived"`
-	Permissions       struct {
-		ProjectAccess any `json:"project_access"`
-		GroupAccess   any `json:"group_access"`
-	} `json:"permissions"`
+	Permissions       Permissions         `json:"permissions"`
+}
+
+type Permissions struct {
+	ProjectAccess *ProjectAccess `json:"project_access"`
+	GroupAccess   *GroupAccess   `json:"group_access"`
+}
+
+type ProjectAccess struct {
+	AccessLevel       int `json:"access_level"`
+	NotificationLevel int `json:"notification_level"`
+}
+
+type GroupAccess struct {
+	AccessLevel       int `json:"access_level"`
+	NotificationLevel int `json:"notification_level"`
 }
 
 type GroupResponse struct {
