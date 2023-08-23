@@ -62,7 +62,6 @@ func ConvertDepartment(taskCtx plugin.SubTaskContext) errors.Error {
 		},
 		Convert: func(inputRow interface{}) ([]interface{}, errors.Error) {
 			toolEntity := inputRow.(*models.ZentaoDepartment)
-
 			domainEntity := &crossdomain.Team{
 				DomainEntity: domainlayer.DomainEntity{
 					Id: departmentIdGen.Generate(toolEntity.ConnectionId, toolEntity.ID),

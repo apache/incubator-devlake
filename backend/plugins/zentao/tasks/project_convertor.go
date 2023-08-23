@@ -65,9 +65,7 @@ func ConvertProjects(taskCtx plugin.SubTaskContext) errors.Error {
 		},
 		Convert: func(inputRow interface{}) ([]interface{}, errors.Error) {
 			toolProject := inputRow.(*models.ZentaoProject)
-
 			data.ProjectName = toolProject.Name
-
 			domainBoard := &ticket.Board{
 				DomainEntity: domainlayer.DomainEntity{
 					Id: boardIdGen.Generate(toolProject.ConnectionId, toolProject.Id),

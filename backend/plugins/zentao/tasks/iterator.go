@@ -28,7 +28,9 @@ type iteratorConcator struct {
 }
 
 func newIteratorConcator(iterators ...api.Iterator) *iteratorConcator {
-	return &iteratorConcator{iterators: iterators}
+	return &iteratorConcator{
+		iterators: iterators,
+	}
 }
 
 func (w *iteratorConcator) HasNext() bool {
