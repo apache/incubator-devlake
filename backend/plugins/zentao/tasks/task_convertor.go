@@ -92,7 +92,6 @@ func ConvertTask(taskCtx plugin.SubTaskContext) errors.Error {
 				OriginalEstimateMinutes: int64(toolEntity.Estimate) * 60,
 				TimeSpentMinutes:        int64(toolEntity.Consumed) * 60,
 			}
-			domainEntity.TimeRemainingMinutes = domainEntity.OriginalEstimateMinutes - domainEntity.TimeSpentMinutes
 			if mappingType, ok := stdTypeMappings[domainEntity.OriginalType]; ok && mappingType != "" {
 				domainEntity.Type = mappingType
 			}
