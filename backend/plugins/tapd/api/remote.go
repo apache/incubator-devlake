@@ -18,10 +18,10 @@ limitations under the License.
 package api
 
 import (
-	"context"
+	gocontext "context"
 	"encoding/json"
 	"fmt"
-	context2 "github.com/apache/incubator-devlake/core/context"
+	"github.com/apache/incubator-devlake/core/context"
 	"github.com/apache/incubator-devlake/core/errors"
 	"github.com/apache/incubator-devlake/core/plugin"
 	"github.com/apache/incubator-devlake/helpers/pluginhelper/api"
@@ -62,12 +62,12 @@ func PrepareFirstPageToken(input *plugin.ApiResourceInput) (*plugin.ApiResourceO
 // @Router /plugins/tapd/connections/{connectionId}/remote-scopes [GET]
 func RemoteScopes(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, errors.Error) {
 	return remoteHelper.GetScopesFromRemote(input,
-		func(basicRes context2.BasicRes, gid string, queryData *api.RemoteQueryData, connection models.TapdConnection) ([]api.BaseRemoteGroupResponse, errors.Error) {
+		func(basicRes context.BasicRes, gid string, queryData *api.RemoteQueryData, connection models.TapdConnection) ([]api.BaseRemoteGroupResponse, errors.Error) {
 			if gid == "" {
 				// if gid is empty, it means we need to query company
 				gid = "1"
 			}
-			apiClient, err := api.NewApiClientFromConnection(context.TODO(), basicRes, &connection)
+			apiClient, err := api.NewApiClientFromConnection(gocontext.TODO(), basicRes, &connection)
 			if err != nil {
 				return nil, errors.BadInput.Wrap(err, "failed to get create apiClient")
 			}
@@ -107,12 +107,12 @@ func RemoteScopes(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, er
 
 			return groups, err
 		},
-		func(basicRes context2.BasicRes, gid string, queryData *api.RemoteQueryData, connection models.TapdConnection) ([]models.TapdWorkspace, errors.Error) {
+		func(basicRes context.BasicRes, gid string, queryData *api.RemoteQueryData, connection models.TapdConnection) ([]models.TapdWorkspace, errors.Error) {
 			if gid == "" {
 				return nil, nil
 			}
 
-			apiClient, err := api.NewApiClientFromConnection(context.TODO(), basicRes, &connection)
+			apiClient, err := api.NewApiClientFromConnection(gocontext.TODO(), basicRes, &connection)
 			if err != nil {
 				return nil, errors.BadInput.Wrap(err, "failed to get create apiClient")
 			}

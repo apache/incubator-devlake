@@ -30,18 +30,11 @@ import (
 	aha "github.com/apache/incubator-devlake/helpers/pluginhelper/api/apihelperabstract"
 )
 
-func GetJobsPage(
-	apiClient aha.ApiClientAbstract,
-	path string,
-	page int,
-	pageSize int,
-	callback func(job *models.Job) errors.Error,
-) (int, errors.Error) {
+func GetJobsPage(apiClient aha.ApiClientAbstract, path string, page int, pageSize int, callback func(job *models.Job) errors.Error) (int, errors.Error) {
 	i := page * pageSize
 	var data struct {
 		Jobs []json.RawMessage `json:"jobs"`
 	}
-
 	// set query
 	query := url.Values{}
 	treeValue := fmt.Sprintf("jobs[name,class,url,color,base,jobs,upstreamProjects[name]]{%d,%d}", i, i+pageSize)
@@ -62,7 +55,6 @@ func GetJobsPage(
 		}
 		return 0, err
 	}
-
 	for _, rawJobs := range data.Jobs {
 		job := &models.Job{}
 		err1 := json.Unmarshal(rawJobs, job)
@@ -75,16 +67,10 @@ func GetJobsPage(
 			return len(data.Jobs), err
 		}
 	}
-
 	return len(data.Jobs), nil
 }
 
-func GetJobs(
-	apiClient aha.ApiClientAbstract,
-	path string,
-	pageSize int,
-	callback func(job *models.Job) errors.Error,
-) errors.Error {
+func GetJobs(apiClient aha.ApiClientAbstract, path string, pageSize int, callback func(job *models.Job) errors.Error) errors.Error {
 	for i := 0; ; i++ {
 		count, err := GetJobsPage(apiClient, path, i, pageSize, callback)
 		if err != nil {

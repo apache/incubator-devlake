@@ -18,14 +18,14 @@ limitations under the License.
 package api
 
 import (
-	"context"
+	gocontext "context"
 	"fmt"
 	"net/http"
 	"net/url"
 	"strconv"
 	"time"
 
-	context2 "github.com/apache/incubator-devlake/core/context"
+	"github.com/apache/incubator-devlake/core/context"
 	"github.com/apache/incubator-devlake/core/errors"
 	"github.com/apache/incubator-devlake/core/plugin"
 	"github.com/apache/incubator-devlake/helpers/pluginhelper/api"
@@ -197,11 +197,11 @@ func (r repo) ConvertApiScope() plugin.ToolLayerScope {
 // @Router /plugins/github/connections/{connectionId}/remote-scopes [GET]
 func RemoteScopes(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, errors.Error) {
 	return remoteHelper.GetScopesFromRemote(input,
-		func(basicRes context2.BasicRes, gid string, queryData *api.RemoteQueryData, connection models.GithubConnection) ([]plugin.ApiGroup, errors.Error) {
+		func(basicRes context.BasicRes, gid string, queryData *api.RemoteQueryData, connection models.GithubConnection) ([]plugin.ApiGroup, errors.Error) {
 			if gid != "" {
 				return nil, nil
 			}
-			apiClient, err := api.NewApiClientFromConnection(context.TODO(), basicRes, &connection)
+			apiClient, err := api.NewApiClientFromConnection(gocontext.TODO(), basicRes, &connection)
 			if err != nil {
 				return nil, errors.BadInput.Wrap(err, "failed to get create apiClient")
 			}
@@ -231,11 +231,11 @@ func RemoteScopes(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, er
 			result = append(result, o)
 			return result, err
 		},
-		func(basicRes context2.BasicRes, gid string, queryData *api.RemoteQueryData, connection models.GithubConnection) ([]repo, errors.Error) {
+		func(basicRes context.BasicRes, gid string, queryData *api.RemoteQueryData, connection models.GithubConnection) ([]repo, errors.Error) {
 			if gid == "" {
 				return nil, nil
 			}
-			apiClient, err := api.NewApiClientFromConnection(context.TODO(), basicRes, &connection)
+			apiClient, err := api.NewApiClientFromConnection(gocontext.TODO(), basicRes, &connection)
 			if err != nil {
 				return nil, errors.BadInput.Wrap(err, "failed to get create apiClient")
 			}
@@ -276,8 +276,8 @@ func RemoteScopes(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, er
 // @Router /plugins/github/connections/{connectionId}/search-remote-scopes [GET]
 func SearchRemoteScopes(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, errors.Error) {
 	return remoteHelper.SearchRemoteScopes(input,
-		func(basicRes context2.BasicRes, queryData *api.RemoteQueryData, connection models.GithubConnection) ([]repo, errors.Error) {
-			apiClient, err := api.NewApiClientFromConnection(context.TODO(), basicRes, &connection)
+		func(basicRes context.BasicRes, queryData *api.RemoteQueryData, connection models.GithubConnection) ([]repo, errors.Error) {
+			apiClient, err := api.NewApiClientFromConnection(gocontext.TODO(), basicRes, &connection)
 			if err != nil {
 				return nil, errors.BadInput.Wrap(err, "failed to get create apiClient")
 			}
