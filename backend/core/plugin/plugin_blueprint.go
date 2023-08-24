@@ -87,8 +87,6 @@ type BlueprintConnectionV200 struct {
 type BlueprintScopeV200 struct {
 	Id   string `json:"id"`
 	Name string `json:"name"`
-	// Deprecated: Entities is moved to the ScopeConfig struct
-	Entities []string `json:"entities"`
 }
 
 // MetricPluginBlueprintV200 is similar to the DataSourcePluginBlueprintV200

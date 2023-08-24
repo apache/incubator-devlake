@@ -18,12 +18,18 @@ limitations under the License.
 package migrationscripts
 
 import (
+	"strings"
+
 	"github.com/apache/incubator-devlake/core/context"
 	"github.com/apache/incubator-devlake/core/errors"
+	"github.com/apache/incubator-devlake/helpers/migrationhelper"
 )
 
 type githubRepo20230612 struct {
-	FullName string `gorm:"type:varchar(255)"`
+	ConnectionId uint64 `gorm:"primaryKey"`
+	GithubId     int    `gorm:"primaryKey"`
+	Name         string `gorm:"type:varchar(255)"`
+	FullName     string `gorm:"type:varchar(255)"`
 }
 
 func (githubRepo20230612) TableName() string {
@@ -33,12 +39,29 @@ func (githubRepo20230612) TableName() string {
 type addFullName struct{}
 
 func (*addFullName) Up(res context.BasicRes) errors.Error {
+	gr := &githubRepo20230612{}
 	db := res.GetDal()
-	return db.AutoMigrate(&githubRepo20230612{})
+	err := db.AutoMigrate(gr)
+	if err != nil {
+		return err
+	}
+	return migrationhelper.CopyTableColumns[githubRepo20230612, githubRepo20230612](
+		res,
+		gr.TableName(),
+		gr.TableName(),
+		func(gr *githubRepo20230612) (*githubRepo20230612, errors.Error) {
+			fn := strings.Split(gr.Name, "/")
+			if len(fn) == 2 {
+				gr.FullName = gr.Name
+				gr.Name = fn[1]
+			}
+			return gr, nil
+		},
+	)
 }
 
 func (*addFullName) Version() uint64 {
-	return 20230612184110
+	return 20230612184111
 }
 
 func (*addFullName) Name() string {
