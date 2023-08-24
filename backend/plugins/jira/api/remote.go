@@ -18,11 +18,11 @@ limitations under the License.
 package api
 
 import (
-	"context"
+	gocontext "context"
 	"fmt"
 	"net/url"
 
-	context2 "github.com/apache/incubator-devlake/core/context"
+	"github.com/apache/incubator-devlake/core/context"
 	"github.com/apache/incubator-devlake/core/errors"
 	"github.com/apache/incubator-devlake/core/plugin"
 	"github.com/apache/incubator-devlake/helpers/pluginhelper/api"
@@ -45,10 +45,10 @@ import (
 func RemoteScopes(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, errors.Error) {
 	return remoteHelper.GetScopesFromRemote(input,
 		nil,
-		func(basicRes context2.BasicRes, gid string, queryData *api.RemoteQueryData, connection models.JiraConnection) ([]apiv2models.Board, errors.Error) {
+		func(basicRes context.BasicRes, gid string, queryData *api.RemoteQueryData, connection models.JiraConnection) ([]apiv2models.Board, errors.Error) {
 			query := initialQuery(queryData)
 			// create api client
-			apiClient, err := api.NewApiClientFromConnection(context.TODO(), basicRes, &connection)
+			apiClient, err := api.NewApiClientFromConnection(gocontext.TODO(), basicRes, &connection)
 			if err != nil {
 				return nil, err
 			}

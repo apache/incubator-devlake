@@ -18,10 +18,10 @@ limitations under the License.
 package api
 
 import (
-	"context"
+	gocontext "context"
 	"strings"
 
-	context2 "github.com/apache/incubator-devlake/core/context"
+	"github.com/apache/incubator-devlake/core/context"
 	"github.com/apache/incubator-devlake/core/errors"
 	"github.com/apache/incubator-devlake/core/plugin"
 	"github.com/apache/incubator-devlake/helpers/pluginhelper/api"
@@ -41,13 +41,13 @@ import (
 // @Failure 500  {object} shared.ApiBody "Internal Error"
 // @Router /plugins/jenkins/connections/{connectionId}/remote-scopes [GET]
 func RemoteScopes(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, errors.Error) {
-	return remoteHelper.GetScopesFromRemote(input,
-		func(basicRes context2.BasicRes, gid string, queryData *api.RemoteQueryData, connection models.JenkinsConnection) ([]models.Job, errors.Error) {
-			apiClient, err := api.NewApiClientFromConnection(context.TODO(), basicRes, &connection)
+	return remoteHelper.GetScopesFromRemote(
+		input,
+		func(basicRes context.BasicRes, gid string, queryData *api.RemoteQueryData, connection models.JenkinsConnection) ([]models.Job, errors.Error) {
+			apiClient, err := api.NewApiClientFromConnection(gocontext.TODO(), basicRes, &connection)
 			if err != nil {
 				return nil, errors.BadInput.Wrap(err, "failed to get create apiClient")
 			}
-
 			var resBody []models.Job
 			_, err = GetJobsPage(apiClient, gid, queryData.Page-1, queryData.PerPage, func(job *models.Job) errors.Error {
 				// this is a group
@@ -60,11 +60,10 @@ func RemoteScopes(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, er
 			if err != nil {
 				return nil, errors.BadInput.Wrap(err, "failed to GetJobsPage")
 			}
-
 			return resBody, err
 		},
-		func(basicRes context2.BasicRes, gid string, queryData *api.RemoteQueryData, connection models.JenkinsConnection) ([]models.Job, errors.Error) {
-			apiClient, err := api.NewApiClientFromConnection(context.TODO(), basicRes, &connection)
+		func(basicRes context.BasicRes, gid string, queryData *api.RemoteQueryData, connection models.JenkinsConnection) ([]models.Job, errors.Error) {
+			apiClient, err := api.NewApiClientFromConnection(gocontext.TODO(), basicRes, &connection)
 			if err != nil {
 				return nil, errors.BadInput.Wrap(err, "failed to get create apiClient")
 			}
@@ -81,7 +80,6 @@ func RemoteScopes(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, er
 			if err != nil {
 				return nil, errors.BadInput.Wrap(err, "failed to GetJobsPage")
 			}
-
 			return resBody, err
 		})
 }
@@ -101,8 +99,8 @@ func RemoteScopes(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, er
 // @Router /plugins/jenkins/connections/{connectionId}/search-remote-scopes [GET]
 func SearchRemoteScopes(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, errors.Error) {
 	return remoteHelper.SearchRemoteScopes(input,
-		func(basicRes context2.BasicRes, queryData *api.RemoteQueryData, connection models.JenkinsConnection) ([]models.Job, errors.Error) {
-			apiClient, err := api.NewApiClientFromConnection(context.TODO(), basicRes, &connection)
+		func(basicRes context.BasicRes, queryData *api.RemoteQueryData, connection models.JenkinsConnection) ([]models.Job, errors.Error) {
+			apiClient, err := api.NewApiClientFromConnection(gocontext.TODO(), basicRes, &connection)
 			if err != nil {
 				return nil, errors.BadInput.Wrap(err, "failed to get create apiClient")
 			}
