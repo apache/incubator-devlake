@@ -90,6 +90,7 @@ func ConvertStory(taskCtx plugin.SubTaskContext) errors.Error {
 				OriginalProject:         getOriginalProject(data),
 				Status:                  toolEntity.StdStatus,
 				OriginalEstimateMinutes: int64(toolEntity.Estimate) * 60,
+				StoryPoint:              toolEntity.Estimate,
 			}
 			if mappingType, ok := stdTypeMappings[domainEntity.OriginalType]; ok && mappingType != "" {
 				domainEntity.Type = mappingType
