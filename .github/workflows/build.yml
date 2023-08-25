@@ -23,6 +23,8 @@ on:
   push:
     tags:
       - "v*"
+      - "feat-*"
+      - "bug-*"
 jobs:
   build-and-push-builder:
     name: Build and Push devlake builder

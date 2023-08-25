@@ -19,7 +19,9 @@ name: golangci-lint
 on:
   push:
     tags:
-      - v*
+      - "v*"
+      - "feat-*"
+      - "bug-*"
     branches:
       - main
   pull_request:

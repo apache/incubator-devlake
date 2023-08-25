@@ -19,7 +19,9 @@ name: migration-script-lint
 on:
   push:
     tags:
-      - v*
+      - "v*"
+      - "feat-*"
+      - "bug-*"
     branches:
       - main
   pull_request:
