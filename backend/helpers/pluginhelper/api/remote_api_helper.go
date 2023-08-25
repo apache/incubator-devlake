@@ -155,6 +155,10 @@ func (r *RemoteApiHelper[Conn, Scope, ApiScope, ApiGroup]) GetRemoteScopesOutput
 	groupId := input.Query.Get("groupId")
 	pageToken := input.Query.Get("pageToken")
 	queryData, err := getPageDataFromPageTokenWithTag(pageToken, TypeMixed)
+	if err != nil {
+		r.logger.Error(err, "get page data from page token")
+		return nil, err
+	}
 	resp, err := getter(r.basicRes, groupId, queryData, connection)
 	if err != nil {
 		r.logger.Error(err, "call getter")
