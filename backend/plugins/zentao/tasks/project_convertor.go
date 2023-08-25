@@ -19,6 +19,7 @@ package tasks
 
 import (
 	"fmt"
+	"net/url"
 	"reflect"
 
 	"github.com/apache/incubator-devlake/core/dal"
@@ -46,6 +47,7 @@ var ConvertProjectMeta = plugin.SubTaskMeta{
 func ConvertProjects(taskCtx plugin.SubTaskContext) errors.Error {
 	data := taskCtx.GetData().(*ZentaoTaskData)
 	db := taskCtx.GetDal()
+	logger := taskCtx.GetLogger()
 	boardIdGen := didgen.NewDomainIdGenerator(&models.ZentaoProject{})
 	cursor, err := db.Cursor(
 		dal.From(&models.ZentaoProject{}),
@@ -55,6 +57,18 @@ func ConvertProjects(taskCtx plugin.SubTaskContext) errors.Error {
 		return err
 	}
 	defer cursor.Close()
+	var protocol, host, port string
+	endpoint := data.ApiClient.ApiClient.GetEndpoint()
+	if endpoint != "" {
+		endpointURL, err := url.Parse(endpoint)
+		if err != nil {
+			logger.Error(err, "parse: %s", endpoint)
+		} else {
+			protocol = endpointURL.Scheme
+			host = endpointURL.Host
+			port = endpointURL.Port()
+		}
+	}
 	convertor, err := api.NewDataConverter(api.DataConverterArgs{
 		InputRowType: reflect.TypeOf(models.ZentaoProject{}),
 		Input:        cursor,
@@ -74,8 +88,14 @@ func ConvertProjects(taskCtx plugin.SubTaskContext) errors.Error {
 				Description: toolProject.Description,
 				CreatedDate: toolProject.OpenedDate.ToNullableTime(),
 				Type:        "scrum",
-				Url:         fmt.Sprintf("/project-index-%d.html", data.Options.ProjectId),
 			}
+			var url string
+			if port != "" {
+				url = fmt.Sprintf("%s://%s:%s/project-index-%d.html", protocol, host, port, data.Options.ProjectId)
+			} else {
+				url = fmt.Sprintf("%s://%s/project-index-%d.html", protocol, host, data.Options.ProjectId)
+			}
+			domainBoard.Url = url
 			results := make([]interface{}, 0)
 			results = append(results, domainBoard)
 			return results, nil
