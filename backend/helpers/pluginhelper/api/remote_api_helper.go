@@ -116,8 +116,11 @@ func (g BaseRemoteGroupResponse) GroupName() string {
 }
 
 const remoteScopesPerPage int = 100
-const TypeScope string = "scope" // scope, sometimes we call it project. But scope is a more standard noun.
-const TypeGroup string = "group" // group is just like a directory or a folder, that holds some scopes.
+const (
+	TypeGroup string = "group" // group is just like a directory or a folder, that holds some scopes.
+	TypeScope string = "scope" // scope, sometimes we call it project. But scope is a more standard noun.
+	TypeMixed string = "mixed"
+)
 
 // PrepareFirstPageToken prepares the first page token
 func (r *RemoteApiHelper[Conn, Scope, ApiScope, Group]) PrepareFirstPageToken(customInfo string) (*plugin.ApiResourceOutput, errors.Error) {
@@ -133,6 +136,42 @@ func (r *RemoteApiHelper[Conn, Scope, ApiScope, Group]) PrepareFirstPageToken(cu
 	}
 	outputBody.PageToken = pageToken
 	return &plugin.ApiResourceOutput{Body: outputBody, Status: http.StatusOK}, nil
+}
+
+func (r *RemoteApiHelper[Conn, Scope, ApiScope, ApiGroup]) GetRemoteScopesOutput(
+	input *plugin.ApiResourceInput,
+	getter func(basicRes context.BasicRes, groupId string, queryData *RemoteQueryData, connection Conn) (*RemoteScopesOutput, errors.Error),
+) (*RemoteScopesOutput, errors.Error) {
+	connectionId, err := errors.Convert01(strconv.ParseUint(input.Params["connectionId"], 10, 64))
+	if err != nil || connectionId == 0 {
+		return nil, errors.BadInput.New("invalid connectionId")
+	}
+	var connection Conn
+	err = r.connHelper.First(&connection, input.Params)
+	if err != nil {
+		r.logger.Error(err, "find connection: %d", connectionId)
+		return nil, err
+	}
+	groupId := input.Query.Get("groupId")
+	pageToken := input.Query.Get("pageToken")
+	queryData, err := getPageDataFromPageTokenWithTag(pageToken, TypeMixed)
+	resp, err := getter(r.basicRes, groupId, queryData, connection)
+	if err != nil {
+		r.logger.Error(err, "call getter")
+		return nil, err
+	}
+
+	queryData.Page += 1
+	resp.NextPageToken, err = getPageTokenFromPageData(queryData)
+	if err != nil {
+		r.logger.Error(err, "get next page token")
+		return nil, err
+	}
+	if len(resp.Children) < queryData.PerPage {
+		// there are no more pages
+		resp.NextPageToken = ""
+	}
+	return resp, nil
 }
 
 // GetScopesFromRemote gets the scopes from api
@@ -325,11 +364,15 @@ func getPageTokenFromPageData(pageData *RemoteQueryData) (string, errors.Error) 
 }
 
 func getPageDataFromPageToken(pageToken string) (*RemoteQueryData, errors.Error) {
+	return getPageDataFromPageTokenWithTag(pageToken, TypeGroup)
+}
+
+func getPageDataFromPageTokenWithTag(pageToken string, queryTag string) (*RemoteQueryData, errors.Error) {
 	if pageToken == "" {
 		return &RemoteQueryData{
 			Page:    1,
 			PerPage: remoteScopesPerPage,
-			Tag:     TypeGroup,
+			Tag:     queryTag,
 		}, nil
 	}
 
