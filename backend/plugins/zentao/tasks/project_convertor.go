@@ -57,7 +57,7 @@ func ConvertProjects(taskCtx plugin.SubTaskContext) errors.Error {
 		return err
 	}
 	defer cursor.Close()
-	var protocol, host, port string
+	var protocol, host string
 	endpoint := data.ApiClient.ApiClient.GetEndpoint()
 	if endpoint != "" {
 		endpointURL, err := url.Parse(endpoint)
@@ -66,7 +66,6 @@ func ConvertProjects(taskCtx plugin.SubTaskContext) errors.Error {
 		} else {
 			protocol = endpointURL.Scheme
 			host = endpointURL.Host
-			port = endpointURL.Port()
 		}
 	}
 	convertor, err := api.NewDataConverter(api.DataConverterArgs{
@@ -88,14 +87,8 @@ func ConvertProjects(taskCtx plugin.SubTaskContext) errors.Error {
 				Description: toolProject.Description,
 				CreatedDate: toolProject.OpenedDate.ToNullableTime(),
 				Type:        "scrum",
+				Url:         fmt.Sprintf("%s://%s/project-index-%d.html", protocol, host, data.Options.ProjectId),
 			}
-			var url string
-			if port != "" {
-				url = fmt.Sprintf("%s://%s:%s/project-index-%d.html", protocol, host, port, data.Options.ProjectId)
-			} else {
-				url = fmt.Sprintf("%s://%s/project-index-%d.html", protocol, host, data.Options.ProjectId)
-			}
-			domainBoard.Url = url
 			results := make([]interface{}, 0)
 			results = append(results, domainBoard)
 			return results, nil
