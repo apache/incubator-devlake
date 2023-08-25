@@ -37,6 +37,13 @@ type Job struct {
 	*PrimaryView     `json:"primaryView"`
 }
 
+func (j Job) GetType() string {
+	if j.Jobs == nil {
+		return "scope"
+	}
+	return "group"
+}
+
 func (j Job) GroupId() string {
 	return j.Path + "job/" + j.Name + "/"
 }

@@ -41,7 +41,7 @@ import (
 // @Failure 500  {object} shared.ApiBody "Internal Error"
 // @Router /plugins/jenkins/connections/{connectionId}/remote-scopes [GET]
 func RemoteScopes(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, errors.Error) {
-	return remoteHelper.GetScopesFromRemote(
+	return remoteHelper.GetMixedGroupAndScopesFromRemote(
 		input,
 		func(basicRes context.BasicRes, gid string, queryData *api.RemoteQueryData, connection models.JenkinsConnection) ([]models.Job, errors.Error) {
 			apiClient, err := api.NewApiClientFromConnection(gocontext.TODO(), basicRes, &connection)
@@ -50,11 +50,8 @@ func RemoteScopes(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, er
 			}
 			var resBody []models.Job
 			_, err = GetJobsPage(apiClient, gid, queryData.Page-1, queryData.PerPage, func(job *models.Job) errors.Error {
-				// this is a group
-				if job.Jobs != nil {
-					job.Path = gid
-					resBody = append(resBody, *job)
-				}
+				job.Path = gid
+				resBody = append(resBody, *job)
 				return nil
 			})
 			if err != nil {
@@ -62,26 +59,7 @@ func RemoteScopes(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, er
 			}
 			return resBody, err
 		},
-		func(basicRes context.BasicRes, gid string, queryData *api.RemoteQueryData, connection models.JenkinsConnection) ([]models.Job, errors.Error) {
-			apiClient, err := api.NewApiClientFromConnection(gocontext.TODO(), basicRes, &connection)
-			if err != nil {
-				return nil, errors.BadInput.Wrap(err, "failed to get create apiClient")
-			}
-
-			var resBody []models.Job
-			_, err = GetJobsPage(apiClient, gid, queryData.Page-1, queryData.PerPage, func(job *models.Job) errors.Error {
-				// this is only a job
-				if job.Jobs == nil {
-					job.Path = gid
-					resBody = append(resBody, *job)
-				}
-				return nil
-			})
-			if err != nil {
-				return nil, errors.BadInput.Wrap(err, "failed to GetJobsPage")
-			}
-			return resBody, err
-		})
+	)
 }
 
 // SearchRemoteScopes use the Search API and only return project

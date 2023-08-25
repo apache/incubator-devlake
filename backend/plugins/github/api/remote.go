@@ -184,6 +184,18 @@ func (r repo) ConvertApiScope() plugin.ToolLayerScope {
 	return githubRepository
 }
 
+type RepoAndGroup struct {
+	repo
+	org
+}
+
+func (r RepoAndGroup) GetType() string {
+	if r.org.GroupName() != "" && r.org.GroupId() != "" {
+		return "group"
+	}
+	return "scope"
+}
+
 // RemoteScopes list all available scope for users
 // @Summary list all available scope for users
 // @Description list all available scope for users

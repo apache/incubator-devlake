@@ -19,6 +19,7 @@ package models
 
 import (
 	"fmt"
+	"github.com/apache/incubator-devlake/helpers/pluginhelper/api"
 
 	"github.com/apache/incubator-devlake/core/models/common"
 	"github.com/apache/incubator-devlake/core/plugin"
@@ -56,6 +57,16 @@ type WorkspaceResponse struct {
 		ApiTapdWorkspace `json:"Workspace"`
 	} `json:"data"`
 	Info string `json:"info"`
+}
+
+type TapdWorkspaceAndGroup struct {
+	TapdWorkspace
+	api.BaseRemoteGroupResponse
+}
+
+func (p TapdWorkspaceAndGroup) GetType() string {
+	// fixme how to distinct group and scope here?
+	return "scope"
 }
 
 type TapdWorkspace struct {

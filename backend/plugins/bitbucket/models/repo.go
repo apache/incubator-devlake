@@ -143,6 +143,18 @@ func (p GroupResponse) GroupName() string {
 	return p.Workspace.Name
 }
 
+type BitbucketApiRepoAndGroup struct {
+	BitbucketApiRepo
+	GroupResponse
+}
+
+func (p BitbucketApiRepoAndGroup) GetType() string {
+	if p.GroupResponse.GroupName() != "" && p.GroupResponse.GroupId() != "" {
+		return "group"
+	}
+	return "scope"
+}
+
 type ReposResponse struct {
 	Pagelen int                `json:"pagelen"`
 	Page    int                `json:"page"`

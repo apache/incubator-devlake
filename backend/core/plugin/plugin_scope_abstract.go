@@ -49,6 +49,12 @@ type ApiGroup interface {
 	GroupName() string
 }
 
+type ApiGroupAndScope interface {
+	ApiScope
+	ApiGroup
+	GetType() string
+}
+
 func MarshalScopeParams(params interface{}) string {
 	bytes, err := json.Marshal(params)
 	if err != nil {

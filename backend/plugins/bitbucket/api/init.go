@@ -28,7 +28,7 @@ import (
 var vld *validator.Validate
 var connectionHelper *api.ConnectionApiHelper
 var scopeHelper *api.ScopeApiHelper[models.BitbucketConnection, models.BitbucketRepo, models.BitbucketScopeConfig]
-var remoteHelper *api.RemoteApiHelper[models.BitbucketConnection, models.BitbucketRepo, models.BitbucketApiRepo, models.GroupResponse]
+var remoteHelper *api.RemoteApiHelper[models.BitbucketConnection, models.BitbucketRepo, models.BitbucketApiRepo, models.GroupResponse, models.BitbucketApiRepoAndGroup]
 var scHelper *api.ScopeConfigHelper[models.BitbucketScopeConfig]
 var basicRes context.BasicRes
 
@@ -56,7 +56,7 @@ func Init(br context.BasicRes, p plugin.PluginMeta) {
 		params,
 		nil,
 	)
-	remoteHelper = api.NewRemoteHelper[models.BitbucketConnection, models.BitbucketRepo, models.BitbucketApiRepo, models.GroupResponse](
+	remoteHelper = api.NewRemoteHelper[models.BitbucketConnection, models.BitbucketRepo, models.BitbucketApiRepo, models.GroupResponse, models.BitbucketApiRepoAndGroup](
 		basicRes,
 		vld,
 		connectionHelper,
