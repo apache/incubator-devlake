@@ -29,6 +29,9 @@ from pydevlake.pipeline_tasks import gitextractor, refdiff
 from pydevlake.api import APIException
 
 
+_SUPPORTED_EXTERNAL_SOURCE_PROVIDERS = ['github', 'githubenterprise', 'bitbucket', 'git']
+
+
 class AzureDevOpsPlugin(Plugin):
 
     @property
@@ -93,7 +96,10 @@ class AzureDevOpsPlugin(Plugin):
             yield repo
 
         for endpoint in api.endpoints(org, proj):
-            provider = endpoint['type']
+            provider = endpoint['type'].lower()
+            if provider not in _SUPPORTED_EXTERNAL_SOURCE_PROVIDERS:
+                continue
+
             res = api.external_repositories(org, proj, provider, endpoint['id'])
             for repo in res.json['repositories']:
                 props = repo['properties']
