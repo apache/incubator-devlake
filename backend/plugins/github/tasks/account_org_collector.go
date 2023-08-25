@@ -66,7 +66,9 @@ func CollectAccountOrg(taskCtx plugin.SubTaskContext) errors.Error {
 			AND ga.id = _tool_github_repo_accounts.account_id
 			AND ga.type = 'User'
 		)`),
-		dal.Where("_tool_github_repo_accounts.repo_github_id = ? and _tool_github_repo_accounts.connection_id=?",
+		dal.Where(`_tool_github_repo_accounts.repo_github_id = ?
+		  AND _tool_github_repo_accounts.connection_id=?
+			AND _tool_github_repo_accounts.account_id > 0`,
 			data.Options.GithubId, data.Options.ConnectionId),
 	)
 	if err != nil {
