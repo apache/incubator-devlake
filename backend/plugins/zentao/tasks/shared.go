@@ -179,29 +179,29 @@ func ignoreHTTPStatus404(res *http.Response) errors.Error {
 	return nil
 }
 
-func getProductIterator(taskCtx plugin.SubTaskContext) (dal.Rows, *api.DalCursorIterator, errors.Error) {
-	data := taskCtx.GetData().(*ZentaoTaskData)
-	db := taskCtx.GetDal()
-	clauses := []dal.Clause{
-		dal.Select("id"),
-		dal.From(&models.ZentaoProductSummary{}),
-		dal.Where(
-			"project_id = ? AND connection_id = ?",
-			data.Options.ProjectId, data.Options.ConnectionId,
-		),
-	}
-
-	cursor, err := db.Cursor(clauses...)
-	if err != nil {
-		return nil, nil, err
-	}
-	iterator, err := api.NewDalCursorIterator(db, cursor, reflect.TypeOf(input{}))
-	if err != nil {
-		cursor.Close()
-		return nil, nil, err
-	}
-	return cursor, iterator, nil
-}
+//func getProductIterator(taskCtx plugin.SubTaskContext) (dal.Rows, *api.DalCursorIterator, errors.Error) {
+//	data := taskCtx.GetData().(*ZentaoTaskData)
+//	db := taskCtx.GetDal()
+//	clauses := []dal.Clause{
+//		dal.Select("id"),
+//		dal.From(&models.ZentaoProductSummary{}),
+//		dal.Where(
+//			"project_id = ? AND connection_id = ?",
+//			data.Options.ProjectId, data.Options.ConnectionId,
+//		),
+//	}
+//
+//	cursor, err := db.Cursor(clauses...)
+//	if err != nil {
+//		return nil, nil, err
+//	}
+//	iterator, err := api.NewDalCursorIterator(db, cursor, reflect.TypeOf(input{}))
+//	if err != nil {
+//		cursor.Close()
+//		return nil, nil, err
+//	}
+//	return cursor, iterator, nil
+//}
 
 func getExecutionIterator(taskCtx plugin.SubTaskContext) (dal.Rows, *api.DalCursorIterator, errors.Error) {
 	data := taskCtx.GetData().(*ZentaoTaskData)
