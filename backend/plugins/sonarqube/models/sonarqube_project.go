@@ -20,7 +20,6 @@ package models
 import (
 	"github.com/apache/incubator-devlake/core/models/common"
 	"github.com/apache/incubator-devlake/core/plugin"
-	"github.com/apache/incubator-devlake/helpers/pluginhelper/api"
 )
 
 var _ plugin.ToolLayerScope = (*SonarqubeProject)(nil)
@@ -58,15 +57,6 @@ func (p SonarqubeProject) ScopeParams() interface{} {
 		ConnectionId: p.ConnectionId,
 		ProjectKey:   p.ProjectKey,
 	}
-}
-
-type SonarqubeApiProjectAndProject struct {
-	SonarqubeApiProject
-	api.NoRemoteGroupResponse
-}
-
-func (p SonarqubeApiProject) GetType() string {
-	return "scope"
 }
 
 type SonarqubeApiProject struct {

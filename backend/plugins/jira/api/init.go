@@ -29,7 +29,7 @@ import (
 var vld *validator.Validate
 var connectionHelper *api.ConnectionApiHelper
 var scopeHelper *api.ScopeApiHelper[models.JiraConnection, models.JiraBoard, models.JiraScopeConfig]
-var remoteHelper *api.RemoteApiHelper[models.JiraConnection, models.JiraBoard, apiv2models.Board, api.NoRemoteGroupResponse, apiv2models.BoardAndGroup]
+var remoteHelper *api.RemoteApiHelper[models.JiraConnection, models.JiraBoard, apiv2models.Board, api.NoRemoteGroupResponse]
 var basicRes context.BasicRes
 var scHelper *api.ScopeConfigHelper[models.JiraScopeConfig]
 
@@ -58,7 +58,7 @@ func Init(br context.BasicRes, p plugin.PluginMeta) {
 		nil,
 	)
 
-	remoteHelper = api.NewRemoteHelper[models.JiraConnection, models.JiraBoard, apiv2models.Board, api.NoRemoteGroupResponse, apiv2models.BoardAndGroup](
+	remoteHelper = api.NewRemoteHelper[models.JiraConnection, models.JiraBoard, apiv2models.Board, api.NoRemoteGroupResponse](
 		basicRes,
 		vld,
 		connectionHelper,

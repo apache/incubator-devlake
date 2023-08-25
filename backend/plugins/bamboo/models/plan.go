@@ -20,7 +20,6 @@ package models
 import (
 	"github.com/apache/incubator-devlake/core/models/common"
 	"github.com/apache/incubator-devlake/core/plugin"
-	"github.com/apache/incubator-devlake/helpers/pluginhelper/api"
 )
 
 var _ plugin.ToolLayerScope = (*BambooPlan)(nil)
@@ -86,15 +85,6 @@ type ApiBambooPlan struct {
 	PlanKey struct {
 		Key string `json:"key"`
 	} `json:"planKey"`
-}
-
-type ApiBambooPlanAndGroup struct {
-	ApiBambooPlan
-	api.NoRemoteGroupResponse
-}
-
-func (p ApiBambooPlanAndGroup) GetType() string {
-	return "scope"
 }
 
 //type ApiBambooPlan struct {

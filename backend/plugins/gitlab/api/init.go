@@ -28,7 +28,7 @@ import (
 var vld *validator.Validate
 var connectionHelper *api.ConnectionApiHelper
 var scopeHelper *api.ScopeApiHelper[models.GitlabConnection, models.GitlabProject, models.GitlabScopeConfig]
-var remoteHelper *api.RemoteApiHelper[models.GitlabConnection, models.GitlabProject, models.GitlabApiProject, models.GroupResponse, models.GitlabApiProjectAndGroup]
+var remoteHelper *api.RemoteApiHelper[models.GitlabConnection, models.GitlabProject, models.GitlabApiProject, models.GroupResponse]
 var basicRes context.BasicRes
 var scHelper *api.ScopeConfigHelper[models.GitlabScopeConfig]
 
@@ -56,7 +56,7 @@ func Init(br context.BasicRes, p plugin.PluginMeta) {
 		params,
 		nil,
 	)
-	remoteHelper = api.NewRemoteHelper[models.GitlabConnection, models.GitlabProject, models.GitlabApiProject, models.GroupResponse, models.GitlabApiProjectAndGroup](
+	remoteHelper = api.NewRemoteHelper[models.GitlabConnection, models.GitlabProject, models.GitlabApiProject, models.GroupResponse](
 		basicRes,
 		vld,
 		connectionHelper,

@@ -28,7 +28,7 @@ import (
 var vld *validator.Validate
 var connectionHelper *api.ConnectionApiHelper
 var scopeHelper *api.ScopeApiHelper[models.JenkinsConnection, models.JenkinsJob, models.JenkinsScopeConfig]
-var remoteHelper *api.RemoteApiHelper[models.JenkinsConnection, models.JenkinsJob, models.Job, models.Job, models.Job]
+var remoteHelper *api.RemoteApiHelper[models.JenkinsConnection, models.JenkinsJob, models.Job, models.Job]
 
 var basicRes context.BasicRes
 var scHelper *api.ScopeConfigHelper[models.JenkinsScopeConfig]
@@ -57,7 +57,7 @@ func Init(br context.BasicRes, p plugin.PluginMeta) {
 		params,
 		nil,
 	)
-	remoteHelper = api.NewRemoteHelper[models.JenkinsConnection, models.JenkinsJob, models.Job, models.Job, models.Job](
+	remoteHelper = api.NewRemoteHelper[models.JenkinsConnection, models.JenkinsJob, models.Job, models.Job](
 		basicRes,
 		vld,
 		connectionHelper,

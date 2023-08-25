@@ -19,7 +19,6 @@ package models
 
 import (
 	"fmt"
-	"github.com/apache/incubator-devlake/helpers/pluginhelper/api"
 	"strconv"
 
 	"github.com/apache/incubator-devlake/core/models/common"
@@ -175,16 +174,4 @@ func (p ZentaoProject) ConvertApiScope() plugin.ToolLayerScope {
 type ZentaoApiParams struct {
 	ConnectionId uint64
 	ProjectId    int64
-}
-
-type ZentaoProjectAndGroup struct {
-	ZentaoProject
-	api.BaseRemoteGroupResponse
-}
-
-func (p ZentaoProjectAndGroup) GetType() string {
-	if p.ZentaoProject.ScopeId() != "" && p.ZentaoProject.ScopeName() != "" && p.ZentaoProject.Type != "" {
-		return "scope"
-	}
-	return "group"
 }

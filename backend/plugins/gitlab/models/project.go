@@ -102,18 +102,6 @@ func (gitlabApiProject GitlabApiProject) ConvertApiScope() plugin.ToolLayerScope
 	return p
 }
 
-type GitlabApiProjectAndGroup struct {
-	GitlabApiProject
-	GroupResponse
-}
-
-func (p GitlabApiProjectAndGroup) GetType() string {
-	if p.GroupResponse.GroupName() != "" && p.GroupResponse.GroupId() != "" {
-		return "group"
-	}
-	return "scope"
-}
-
 type GitlabApiProject struct {
 	GitlabId          int    `json:"id"`
 	Name              string `json:"name"`

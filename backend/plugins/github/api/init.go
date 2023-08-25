@@ -35,7 +35,7 @@ var connectionHelper *api.ConnectionApiHelper
 var scopeHelper *api.ScopeApiHelper[models.GithubConnection, models.GithubRepo, models.GithubScopeConfig]
 var basicRes context.BasicRes
 var scHelper *api.ScopeConfigHelper[models.GithubScopeConfig]
-var remoteHelper *api.RemoteApiHelper[models.GithubConnection, models.GithubRepo, repo, plugin.ApiGroup, RepoAndGroup]
+var remoteHelper *api.RemoteApiHelper[models.GithubConnection, models.GithubRepo, repo, plugin.ApiGroup]
 
 func Init(br context.BasicRes, p plugin.PluginMeta) {
 
@@ -81,7 +81,7 @@ func Init(br context.BasicRes, p plugin.PluginMeta) {
 		vld,
 		p.Name(),
 	)
-	remoteHelper = api.NewRemoteHelper[models.GithubConnection, models.GithubRepo, repo, plugin.ApiGroup, RepoAndGroup](
+	remoteHelper = api.NewRemoteHelper[models.GithubConnection, models.GithubRepo, repo, plugin.ApiGroup](
 		basicRes,
 		vld,
 		connectionHelper,

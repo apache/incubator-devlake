@@ -19,18 +19,8 @@ package apiv2models
 
 import (
 	"github.com/apache/incubator-devlake/core/plugin"
-	"github.com/apache/incubator-devlake/helpers/pluginhelper/api"
 	"github.com/apache/incubator-devlake/plugins/jira/models"
 )
-
-type BoardAndGroup struct {
-	Board
-	api.NoRemoteGroupResponse
-}
-
-func (p BoardAndGroup) GetType() string {
-	return "scope"
-}
 
 type Board struct {
 	ID       uint64 `json:"id"`
