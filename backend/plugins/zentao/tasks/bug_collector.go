@@ -32,23 +32,53 @@ const RAW_BUG_TABLE = "zentao_api_bugs"
 
 var _ plugin.SubTaskEntryPoint = CollectBug
 
+var CollectBugMeta = plugin.SubTaskMeta{
+	Name:             "collectBug",
+	EntryPoint:       CollectBug,
+	EnabledByDefault: true,
+	Description:      "Collect Bug data from Zentao api",
+	DomainTypes:      []string{plugin.DOMAIN_TYPE_TICKET},
+}
+
+type collectBugInput struct {
+	Path        string
+	ProjectId   int64
+	ProductId   int64
+	ExecutionId int64
+}
+
 func CollectBug(taskCtx plugin.SubTaskContext) errors.Error {
 	data := taskCtx.GetData().(*ZentaoTaskData)
-	cursor, iterator, err := getProductIterator(taskCtx)
+	// project bug iterator
+	projectBugsIter := newIteratorFromSlice([]interface{}{
+		collectBugInput{
+			ProjectId: data.Options.ProjectId,
+			Path:      fmt.Sprintf("/projects/%d", data.Options.ProjectId),
+		},
+	})
+	// execution bug iterator
+	executionCursor, executionIterator, err := getExecutionIterator(taskCtx)
 	if err != nil {
 		return err
 	}
-	defer cursor.Close()
+	defer executionCursor.Close()
+	executionBugIter := newIteratorWrapper(executionIterator, func(arg interface{}) interface{} {
+		return &collectBugInput{
+			ExecutionId: arg.(*input).Id,
+			Path:        fmt.Sprintf("/executions/%d", arg.(*input).Id),
+		}
+	})
+
 	collector, err := api.NewApiCollector(api.ApiCollectorArgs{
 		RawDataSubTaskArgs: api.RawDataSubTaskArgs{
 			Ctx:     taskCtx,
 			Options: data.Options,
 			Table:   RAW_BUG_TABLE,
 		},
-		Input:       iterator,
+		Input:       newIteratorConcator(projectBugsIter, executionBugIter),
 		ApiClient:   data.ApiClient,
 		PageSize:    100,
-		UrlTemplate: "/products/{{ .Input.Id }}/bugs",
+		UrlTemplate: "{{ .Input.Path }}/bugs",
 		Query: func(reqData *api.RequestData) (url.Values, errors.Error) {
 			query := url.Values{}
 			query.Set("page", fmt.Sprintf("%v", reqData.Pager.Page))
@@ -76,12 +106,4 @@ func CollectBug(taskCtx plugin.SubTaskContext) errors.Error {
 	}
 
 	return collector.Execute()
-}
-
-var CollectBugMeta = plugin.SubTaskMeta{
-	Name:             "collectBug",
-	EntryPoint:       CollectBug,
-	EnabledByDefault: true,
-	Description:      "Collect Bug data from Zentao api",
-	DomainTypes:      []string{plugin.DOMAIN_TYPE_TICKET},
 }

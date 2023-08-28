@@ -19,8 +19,6 @@ package tasks
 
 import (
 	"encoding/json"
-	"regexp"
-
 	"github.com/apache/incubator-devlake/core/errors"
 	"github.com/apache/incubator-devlake/core/plugin"
 	"github.com/apache/incubator-devlake/helpers/pluginhelper/api"
@@ -39,8 +37,6 @@ var ExtractStoryRepoCommitsMeta = plugin.SubTaskMeta{
 
 func ExtractStoryRepoCommits(taskCtx plugin.SubTaskContext) errors.Error {
 	data := taskCtx.GetData().(*ZentaoTaskData)
-
-	re := regexp.MustCompile(`(\d+)(?:,\s*(\d+))*`)
 	extractor, err := api.NewApiExtractor(api.ApiExtractorArgs{
 		RawDataSubTaskArgs: api.RawDataSubTaskArgs{
 			Ctx:     taskCtx,
@@ -55,18 +51,19 @@ func ExtractStoryRepoCommits(taskCtx plugin.SubTaskContext) errors.Error {
 			}
 
 			results := make([]interface{}, 0)
-			match := re.FindStringSubmatch(res.Log.Comment)
-			for i := 1; i < len(match); i++ {
-				if match[i] != "" {
-					storyRepoCommits := &models.ZentaoStoryRepoCommit{
-						ConnectionId: data.Options.ConnectionId,
-						Project:      data.Options.ProjectId,
-						RepoUrl:      res.Repo.CodePath,
-						CommitSha:    res.Revision,
-						IssueId:      match[i], // story id
-					}
-					results = append(results, storyRepoCommits)
+			issueIds, err := extractIdFromLogComment("story", res.Log.Comment)
+			if err != nil {
+				return nil, errors.Default.Wrap(err, "extractIdFromLogComment")
+			}
+			for _, issueId := range issueIds {
+				storyRepoCommits := &models.ZentaoStoryRepoCommit{
+					ConnectionId: data.Options.ConnectionId,
+					Project:      data.Options.ProjectId,
+					RepoUrl:      res.Repo.CodePath,
+					CommitSha:    res.Revision,
+					IssueId:      issueId,
 				}
+				results = append(results, storyRepoCommits)
 			}
 
 			return results, nil
