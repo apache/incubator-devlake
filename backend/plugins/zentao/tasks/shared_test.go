@@ -17,7 +17,10 @@ limitations under the License.
 
 package tasks
 
-import "testing"
+import (
+	"reflect"
+	"testing"
+)
 
 func Test_convertIssueURL(t *testing.T) {
 	type args struct {
@@ -65,6 +68,86 @@ func Test_convertIssueURL(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			if got := convertIssueURL(tt.args.apiURL, tt.args.issueType, tt.args.id); got != tt.want {
 				t.Errorf("convertIssueURL() = %v, want %v", got, tt.want)
+			}
+		})
+	}
+}
+
+func Test_extractIdFromLogComment(t *testing.T) {
+	type args struct {
+		logCommentType string
+		comment        string
+	}
+	tests := []struct {
+		name    string
+		args    args
+		want    []string
+		wantErr bool
+	}{
+		{
+			name: "common-1",
+			args: args{
+				logCommentType: "something-wrong",
+				comment:        "random strings",
+			},
+			want:    nil,
+			wantErr: true,
+		},
+		{
+			name: "story-1",
+			args: args{
+				logCommentType: "story",
+				comment:        "story #<a href='\\/story-view-4590.json'  >4590<\\/a>\\n,<a href='\\/story-view-4572.json'  >4572<\\/a>\\n",
+			},
+			want:    []string{"4590", "4572"},
+			wantErr: false,
+		},
+		{
+			name: "story-2",
+			args: args{
+				logCommentType: "story",
+				comment:        "story #<a href='\\/story-view-4572.json'  >4572<\\/a>\\n,<a href='\\/story-view-4591.json'  >4591<\\/a>\\n \\u6d4b\\u8bd5\\u4e24\\u4e2a\\u5173\\u8054\\u5173\\u7cfb\\u662f\\u5426\\u90fd\\u5199\\u8fdbissuerepocommit\\u8868",
+			},
+			want:    []string{"4572", "4591"},
+			wantErr: false,
+		},
+		{
+			name: "story-3",
+			args: args{
+				logCommentType: "story",
+				comment:        "story #<a href='\\/story-view-4590.json'  >4590<\\/a>",
+			},
+			want:    []string{"4590"},
+			wantErr: false,
+		},
+		{
+			name: "bug-1",
+			args: args{
+				logCommentType: "bug",
+				comment:        "\"bug #<a href='\\/bug-view-6119.json'  >6119<\\/a>\\n,<a href='\\/bug-view-6118.json'  >6118<\\/a>\\n,<a href='\\/bug-view-6117.json'  >6117<\\/a>\\n,<a href='\\/bug-view-6121.json'  >6121<\\/a>\\n",
+			},
+			want:    []string{"6119", "6118", "6117", "6121"},
+			wantErr: false,
+		},
+		{
+			name: "task-1",
+			args: args{
+				logCommentType: "task",
+				comment:        "task #<a href='\\/task-view-004.json'  >004<\\/a>\\n\\uff0c\\u7985\\u9053\\u4efb\\u52a1\\u6d4b\\u8bd5",
+			},
+			want:    []string{"004"},
+			wantErr: false,
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			got, err := extractIdFromLogComment(tt.args.logCommentType, tt.args.comment)
+			if (err != nil) != tt.wantErr {
+				t.Errorf("extractIdFromLogComment() error = %v, wantErr %v", err, tt.wantErr)
+				return
+			}
+			if !reflect.DeepEqual(got, tt.want) {
+				t.Errorf("extractIdFromLogComment() got = %v, want %v", got, tt.want)
 			}
 		})
 	}
