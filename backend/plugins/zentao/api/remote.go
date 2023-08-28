@@ -18,11 +18,11 @@ limitations under the License.
 package api
 
 import (
-	"context"
+	gocontext "context"
 	"fmt"
 	"net/url"
 
-	context2 "github.com/apache/incubator-devlake/core/context"
+	"github.com/apache/incubator-devlake/core/context"
 	"github.com/apache/incubator-devlake/core/errors"
 	"github.com/apache/incubator-devlake/core/plugin"
 	"github.com/apache/incubator-devlake/helpers/pluginhelper/api"
@@ -42,7 +42,7 @@ func (pr *ProjectResponse) ConvertFix() {
 	}
 }
 
-func getGroup(basicRes context2.BasicRes, gid string, queryData *api.RemoteQueryData, connection models.ZentaoConnection) ([]api.BaseRemoteGroupResponse, errors.Error) {
+func getGroup(basicRes context.BasicRes, gid string, queryData *api.RemoteQueryData, connection models.ZentaoConnection) ([]api.BaseRemoteGroupResponse, errors.Error) {
 	return []api.BaseRemoteGroupResponse{
 		/*{
 			Id:   `products`,
@@ -78,10 +78,10 @@ func RemoteScopes(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, er
 	} else if gid == `projects` {
 		return projectRemoteHelper.GetScopesFromRemote(input,
 			nil,
-			func(basicRes context2.BasicRes, gid string, queryData *api.RemoteQueryData, connection models.ZentaoConnection) ([]models.ZentaoProject, errors.Error) {
+			func(basicRes context.BasicRes, gid string, queryData *api.RemoteQueryData, connection models.ZentaoConnection) ([]models.ZentaoProject, errors.Error) {
 				query := initialQuery(queryData)
 				// create api client
-				apiClient, err := api.NewApiClientFromConnection(context.TODO(), basicRes, &connection)
+				apiClient, err := api.NewApiClientFromConnection(gocontext.TODO(), basicRes, &connection)
 				if err != nil {
 					return nil, err
 				}
