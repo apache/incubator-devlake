@@ -23,6 +23,7 @@ import (
 	"net/url"
 	"path"
 	"reflect"
+	"regexp"
 	"strings"
 
 	"github.com/apache/incubator-devlake/core/dal"
@@ -304,4 +305,37 @@ func convertIssueURL(apiURL, issueType string, id int64) string {
 	u.RawQuery = ""
 	u.Path = path.Join(before, fmt.Sprintf("/%s-view-%d.html", issueType, id))
 	return u.String()
+}
+
+func extractIdFromLogComment(logCommentType string, comment string) ([]string, error) {
+	if logCommentType != "task" && logCommentType != "bug" && logCommentType != "story" {
+		return nil, errors.Default.New(fmt.Sprintf("unsupportted log comment type: %s", logCommentType))
+	}
+	regexpStr := fmt.Sprintf("(%s-view-\\d+\\.json)+", logCommentType)
+	re := regexp.MustCompile(regexpStr)
+	results := re.FindAllString(comment, -1)
+	var ret []string
+
+	convertMatchedString := func(s string) string {
+		if s == "" {
+			return s
+		}
+		s = strings.Replace(s, "-", " ", -1)
+		s = strings.Replace(s, ".", " ", -1)
+		return s
+	}
+
+	for _, matched := range results {
+		var id string
+		format := fmt.Sprintf("%s view %%s json", logCommentType)
+		n, err := fmt.Sscanf(convertMatchedString(matched), format, &id)
+		if err != nil {
+			return nil, err
+		}
+		if n < 1 {
+			return nil, errors.Default.New("unexpected comment")
+		}
+		ret = append(ret, id)
+	}
+	return ret, nil
 }
