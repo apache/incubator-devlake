@@ -21,6 +21,7 @@ import (
 	"fmt"
 	"net/url"
 	"reflect"
+	"strings"
 
 	"github.com/apache/incubator-devlake/core/dal"
 	"github.com/apache/incubator-devlake/core/errors"
@@ -57,7 +58,7 @@ func ConvertProjects(taskCtx plugin.SubTaskContext) errors.Error {
 		return err
 	}
 	defer cursor.Close()
-	var protocol, host string
+	var protocol, host, zentaoPath string
 	endpoint := data.ApiClient.ApiClient.GetEndpoint()
 	if endpoint != "" {
 		endpointURL, err := url.Parse(endpoint)
@@ -66,6 +67,7 @@ func ConvertProjects(taskCtx plugin.SubTaskContext) errors.Error {
 		} else {
 			protocol = endpointURL.Scheme
 			host = endpointURL.Host
+			zentaoPath, _, _ := strings.Cut(endpointURL.Path, "/api.php/v1")
 		}
 	}
 	convertor, err := api.NewDataConverter(api.DataConverterArgs{
@@ -87,7 +89,7 @@ func ConvertProjects(taskCtx plugin.SubTaskContext) errors.Error {
 				Description: toolProject.Description,
 				CreatedDate: toolProject.OpenedDate.ToNullableTime(),
 				Type:        "scrum",
-				Url:         fmt.Sprintf("%s://%s/project-index-%d.html", protocol, host, data.Options.ProjectId),
+				Url:         fmt.Sprintf("%s://%s%s/project-index-%d.html", protocol, host, zentaoPath, data.Options.ProjectId),
 			}
 			results := make([]interface{}, 0)
 			results = append(results, domainBoard)
