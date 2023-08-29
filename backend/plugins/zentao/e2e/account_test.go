@@ -21,25 +21,23 @@ import (
 	gocontext "context"
 	"github.com/apache/incubator-devlake/core/models/common"
 	"github.com/apache/incubator-devlake/core/models/domainlayer/crossdomain"
+	"github.com/apache/incubator-devlake/core/runner"
 	"github.com/apache/incubator-devlake/helpers/e2ehelper"
 	helper "github.com/apache/incubator-devlake/helpers/pluginhelper/api"
-	"github.com/apache/incubator-devlake/helpers/unithelper"
-	"github.com/apache/incubator-devlake/impls/context"
-	mockdal "github.com/apache/incubator-devlake/mocks/core/dal"
 	"github.com/apache/incubator-devlake/plugins/zentao/impl"
 	"github.com/apache/incubator-devlake/plugins/zentao/models"
 	"github.com/apache/incubator-devlake/plugins/zentao/tasks"
-	"github.com/spf13/viper"
 	"testing"
 	"time"
 )
 
+var basicContext = runner.CreateAppBasicRes()
+
 func getFakeAPIClient() *helper.ApiAsyncClient {
-	mockDal := new(mockdal.Dal)
 	client, _ := helper.NewApiClient(gocontext.Background(),
 		"http://54.158.1.10:30001/api.php/v1/",
 		nil, time.Second*5, "",
-		context.NewDefaultBasicRes(viper.New(), unithelper.DummyLogger(), mockDal),
+		basicContext,
 	)
 	return &helper.ApiAsyncClient{
 		ApiClient:       client,
