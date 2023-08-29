@@ -18,15 +18,34 @@ limitations under the License.
 package e2e
 
 import (
-	"testing"
-
+	gocontext "context"
 	"github.com/apache/incubator-devlake/core/models/common"
 	"github.com/apache/incubator-devlake/core/models/domainlayer/crossdomain"
 	"github.com/apache/incubator-devlake/helpers/e2ehelper"
+	helper "github.com/apache/incubator-devlake/helpers/pluginhelper/api"
+	"github.com/apache/incubator-devlake/helpers/unithelper"
+	"github.com/apache/incubator-devlake/impls/context"
+	mockdal "github.com/apache/incubator-devlake/mocks/core/dal"
 	"github.com/apache/incubator-devlake/plugins/zentao/impl"
 	"github.com/apache/incubator-devlake/plugins/zentao/models"
 	"github.com/apache/incubator-devlake/plugins/zentao/tasks"
+	"github.com/spf13/viper"
+	"testing"
+	"time"
 )
+
+func getFakeAPIClient() *helper.ApiAsyncClient {
+	mockDal := new(mockdal.Dal)
+	client, _ := helper.NewApiClient(gocontext.Background(),
+		"http://54.158.1.10:30001/api.php/v1/",
+		nil, time.Second*5, "",
+		context.NewDefaultBasicRes(viper.New(), unithelper.DummyLogger(), mockDal),
+	)
+	return &helper.ApiAsyncClient{
+		ApiClient:       client,
+		WorkerScheduler: nil,
+	}
+}
 
 func TestZentaoAccountDataFlow(t *testing.T) {
 
@@ -39,6 +58,7 @@ func TestZentaoAccountDataFlow(t *testing.T) {
 			ProjectId:    3,
 		},
 		AccountCache: tasks.NewAccountCache(dataflowTester.Dal, 1),
+		ApiClient:    getFakeAPIClient(),
 	}
 
 	// import raw data table
