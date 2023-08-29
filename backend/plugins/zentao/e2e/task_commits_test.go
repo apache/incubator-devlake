@@ -38,6 +38,7 @@ func TestZentaoTaskCommitsDataFlow(t *testing.T) {
 			ConnectionId: 1,
 			ProjectId:    48,
 		},
+		ApiClient: getFakeAPIClient(),
 	}
 
 	// import _raw_zentao_api_task_commits raw data table
