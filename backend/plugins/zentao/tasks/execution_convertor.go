@@ -85,8 +85,8 @@ func ConvertExecutions(taskCtx plugin.SubTaskContext) errors.Error {
 				Url:             toolExecution.Path,
 				Status:          domainStatus,
 				StartedDate:     toolExecution.RealBegan.ToNullableTime(),
-				EndedDate:       toolExecution.RealEnd.ToNullableTime(),
-				CompletedDate:   toolExecution.PlanEnd.ToNullableTime(),
+				EndedDate:       toolExecution.PlanEnd.ToNullableTime(),
+				CompletedDate:   toolExecution.RealEnd.ToNullableTime(),
 				OriginalBoardID: projectIdGen.Generate(toolExecution.ConnectionId, data.Options.ProjectId),
 			}
 			boardSprint := &ticket.BoardSprint{
