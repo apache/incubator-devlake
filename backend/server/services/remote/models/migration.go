@@ -97,6 +97,27 @@ func (o DropTableOperation) Execute(dal dal.Dal) errors.Error {
 
 var _ Operation = (*DropTableOperation)(nil)
 
+type RenameColumnOperation struct {
+	Table   string `json:"table"`
+	OldName string `json:"old_name"`
+	NewName string `json:"new_name"`
+}
+
+func (o RenameColumnOperation) Execute(dal dal.Dal) errors.Error {
+	if !dal.HasColumn(o.Table, o.OldName) {
+		return nil
+	}
+	if dal.HasColumn(o.Table, o.NewName) {
+		err := dal.DropColumns(o.Table, o.NewName)
+		if err != nil {
+			return err
+		}
+	}
+	return dal.RenameColumn(o.Table, o.OldName, o.NewName)
+}
+
+var _ Operation = (*RenameTableOperation)(nil)
+
 type RenameTableOperation struct {
 	OldName string `json:"old_name"`
 	NewName string `json:"new_name"`
@@ -155,10 +176,12 @@ func (s *RemoteMigrationScript) UnmarshalJSON(data []byte) error {
 			operation = &DropColumnOperation{}
 		case "drop_table":
 			operation = &DropTableOperation{}
+		case "rename_column":
+			operation = &RenameColumnOperation{}
 		case "rename_table":
 			operation = &RenameTableOperation{}
 		default:
-			return errors.BadInput.New("unsupported operation type")
+			return errors.BadInput.New("unsupported operation type: " + operationType)
 		}
 		err = json.Unmarshal(operationRaw, operation)
 		if err != nil {
