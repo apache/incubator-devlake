@@ -19,9 +19,6 @@ package tasks
 
 import (
 	"fmt"
-	"net/url"
-	"reflect"
-
 	"github.com/apache/incubator-devlake/core/dal"
 	"github.com/apache/incubator-devlake/core/errors"
 	"github.com/apache/incubator-devlake/core/models/domainlayer"
@@ -30,6 +27,7 @@ import (
 	"github.com/apache/incubator-devlake/core/plugin"
 	"github.com/apache/incubator-devlake/helpers/pluginhelper/api"
 	"github.com/apache/incubator-devlake/plugins/zentao/models"
+	"reflect"
 )
 
 const RAW_PROJECT_TABLE = "zentao_api_projects"
@@ -57,16 +55,10 @@ func ConvertProjects(taskCtx plugin.SubTaskContext) errors.Error {
 		return err
 	}
 	defer cursor.Close()
-	var protocol, host string
-	endpoint := data.ApiClient.ApiClient.GetEndpoint()
-	if endpoint != "" {
-		endpointURL, err := url.Parse(endpoint)
-		if err != nil {
-			logger.Error(err, "parse: %s", endpoint)
-		} else {
-			protocol = endpointURL.Scheme
-			host = endpointURL.Host
-		}
+	homePage, getZentaoHomePageErr := getZentaoHomePage(data.ApiClient.GetEndpoint())
+	if getZentaoHomePageErr != nil {
+		logger.Error(getZentaoHomePageErr, "get zentao homepage")
+		return errors.Default.WrapRaw(getZentaoHomePageErr)
 	}
 	convertor, err := api.NewDataConverter(api.DataConverterArgs{
 		InputRowType: reflect.TypeOf(models.ZentaoProject{}),
@@ -87,7 +79,7 @@ func ConvertProjects(taskCtx plugin.SubTaskContext) errors.Error {
 				Description: toolProject.Description,
 				CreatedDate: toolProject.OpenedDate.ToNullableTime(),
 				Type:        "scrum",
-				Url:         fmt.Sprintf("%s://%s/project-index-%d.html", protocol, host, data.Options.ProjectId),
+				Url:         fmt.Sprintf("%s/project-index-%d.html", homePage, data.Options.ProjectId),
 			}
 			results := make([]interface{}, 0)
 			results = append(results, domainBoard)
