@@ -40,6 +40,7 @@ type Pipeline struct {
 	Stage         int                 `json:"stage"`
 	Labels        []string            `json:"labels" gorm:"-"`
 	SkipOnFail    bool                `json:"skipOnFail"`
+	FullSync      bool                `json:"fullSync"`
 }
 
 // We use a 2D array because the request body must be an array of a set of tasks
@@ -49,6 +50,7 @@ type NewPipeline struct {
 	Plan        plugin.PipelinePlan `json:"plan" swaggertype:"array,string" example:"please check api /pipelines/<PLUGIN_NAME>/pipeline-plan"`
 	Labels      []string            `json:"labels"`
 	SkipOnFail  bool                `json:"skipOnFail"`
+	FullSync    bool                `json:"fullSync"`
 	BlueprintId uint64
 }
 

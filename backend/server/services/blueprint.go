@@ -54,7 +54,7 @@ type BlueprintJob struct {
 
 func (bj BlueprintJob) Run() {
 	blueprint := bj.Blueprint
-	pipeline, err := createPipelineByBlueprint(blueprint, false)
+	pipeline, err := createPipelineByBlueprint(blueprint, false, false)
 	if err == ErrEmptyPlan {
 		blueprintLog.Info("Empty plan, blueprint id:[%d] blueprint name:[%s]", blueprint.ID, blueprint.Name)
 		return
@@ -265,7 +265,7 @@ func ReloadBlueprints(c *cron.Cron) errors.Error {
 	return nil
 }
 
-func createPipelineByBlueprint(blueprint *models.Blueprint, skipCollectors bool) (*models.Pipeline, errors.Error) {
+func createPipelineByBlueprint(blueprint *models.Blueprint, skipCollectors bool, fullSync bool) (*models.Pipeline, errors.Error) {
 	var plan plugin.PipelinePlan
 	var err errors.Error
 	if blueprint.Mode == models.BLUEPRINT_MODE_NORMAL {
@@ -283,6 +283,7 @@ func createPipelineByBlueprint(blueprint *models.Blueprint, skipCollectors bool)
 	newPipeline.BlueprintId = blueprint.ID
 	newPipeline.Labels = blueprint.Labels
 	newPipeline.SkipOnFail = blueprint.SkipOnFail
+	newPipeline.FullSync = fullSync
 
 	// if the plan is empty, we should not create the pipeline
 	var shouldCreatePipeline bool
@@ -398,12 +399,12 @@ func SequencializePipelinePlans(plans ...plugin.PipelinePlan) plugin.PipelinePla
 }
 
 // TriggerBlueprint triggers blueprint immediately
-func TriggerBlueprint(id uint64, skipCollectors bool) (*models.Pipeline, errors.Error) {
+func TriggerBlueprint(id uint64, skipCollectors bool, fullSync bool) (*models.Pipeline, errors.Error) {
 	// load record from db
 	blueprint, err := GetBlueprint(id)
 	if err != nil {
 		logger.Error(err, "GetBlueprint, id: %d", id)
 		return nil, err
 	}
-	return createPipelineByBlueprint(blueprint, skipCollectors)
+	return createPipelineByBlueprint(blueprint, skipCollectors, fullSync)
 }

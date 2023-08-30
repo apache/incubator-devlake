@@ -62,6 +62,8 @@ type SubTaskContext interface {
 type TaskContext interface {
 	ExecContext
 	SetData(data interface{})
+	SetFullSync(fullSync bool)
+	FullSync() bool
 	SubTaskContext(subtask string) (SubTaskContext, errors.Error)
 }
 

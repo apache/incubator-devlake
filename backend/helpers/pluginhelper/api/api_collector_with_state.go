@@ -71,6 +71,9 @@ func NewStatefulApiCollector(args RawDataSubTaskArgs, timeAfter *time.Time) (*Ap
 
 // IsIncremental indicates if the collector should operate in incremental mode
 func (m *ApiCollectorStateManager) IsIncremental() bool {
+	if m.Ctx.TaskContext().FullSync() {
+		return false
+	}
 	prevSyncTime := m.LatestState.LatestSuccessStart
 	prevTimeAfter := m.LatestState.TimeAfter
 	currTimeAfter := m.TimeAfter
@@ -153,10 +156,12 @@ func NewStatefulApiCollectorForFinalizableEntity(args FinalizableApiCollectorArg
 	if err != nil {
 		return nil, err
 	}
-
 	// // prepare the basic variables
-	var isIncremental = manager.IsIncremental()
 	var createdAfter *time.Time
+	var isIncremental = manager.IsIncremental()
+	if manager.Ctx.TaskContext().FullSync() {
+		isIncremental = false
+	}
 	if isIncremental {
 		createdAfter = manager.LatestState.LatestSuccessStart
 	} else {

@@ -62,6 +62,7 @@ func CreateDbPipeline(newPipeline *models.NewPipeline) (pipeline *models.Pipelin
 		SpentSeconds:  0,
 		Plan:          newPipeline.Plan,
 		SkipOnFail:    newPipeline.SkipOnFail,
+		FullSync:      newPipeline.FullSync,
 	}
 	if newPipeline.BlueprintId != 0 {
 		dbPipeline.BlueprintId = newPipeline.BlueprintId

@@ -131,11 +131,16 @@ func RunTask(
 		return dbe
 	}
 
+	fullSync := false
+	if dbPipeline.FullSync {
+		fullSync = true
+	}
 	err = RunPluginTask(
 		ctx,
 		basicRes.ReplaceLogger(logger),
 		task,
 		progress,
+		fullSync,
 	)
 	return err
 }
@@ -146,6 +151,7 @@ func RunPluginTask(
 	basicRes context.BasicRes,
 	task *models.Task,
 	progress chan plugin.RunningProgress,
+	fullSync bool,
 ) errors.Error {
 	pluginMeta, err := plugin.GetPlugin(task.Plugin)
 	if err != nil {
@@ -161,6 +167,7 @@ func RunPluginTask(
 		task,
 		pluginTask,
 		progress,
+		fullSync,
 	)
 }
 
@@ -171,6 +178,7 @@ func RunPluginSubTasks(
 	task *models.Task,
 	pluginTask plugin.PluginTask,
 	progress chan plugin.RunningProgress,
+	fullSync bool,
 ) errors.Error {
 	logger := basicRes.GetLogger()
 	logger.Info("start plugin")
@@ -236,6 +244,7 @@ func RunPluginSubTasks(
 	if err != nil {
 		return errors.Default.Wrap(err, fmt.Sprintf("error preparing task data for %s", task.Plugin))
 	}
+	taskCtx.SetFullSync(fullSync)
 	taskCtx.SetData(taskData)
 
 	// execute subtasks in order
