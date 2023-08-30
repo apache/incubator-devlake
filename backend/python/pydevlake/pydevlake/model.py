@@ -89,6 +89,12 @@ class ScopeConfig(ToolTable, Model):
     domain_types: list[DomainType] = Field(default=list(DomainType), alias="entities")
     connection_id: Optional[int]
 
+    @validator('domain_types', pre=True, always=True)
+    def set_default_domain_types(cls, v):
+        if v is None:
+            return list(DomainType)
+        return v
+
 
 class RawModel(SQLModel):
     id: int = Field(primary_key=True)
