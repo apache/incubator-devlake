@@ -20,7 +20,11 @@ import { request } from '@/utils';
 
 import * as T from './types';
 
-export const getRemoteScope = (plugin: string, connectionId: ID, params: T.GetRemoteScopeParams) =>
+export const getRemoteScope = (
+  plugin: string,
+  connectionId: ID,
+  params: T.GetRemoteScopeParams,
+): Promise<{ children: T.ResItem[]; nextPageToken: string }> =>
   request(`/plugins/${plugin}/connections/${connectionId}/remote-scopes`, {
     method: 'get',
     data: params,
