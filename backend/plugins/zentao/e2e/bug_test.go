@@ -48,6 +48,7 @@ func TestZentaoBugDataFlow(t *testing.T) {
 		},
 		Bugs:         map[int64]struct{}{},
 		AccountCache: tasks.NewAccountCache(dataflowTester.Dal, 1),
+		ApiClient:    getFakeAPIClient(),
 	}
 
 	// import raw data table

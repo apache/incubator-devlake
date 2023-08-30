@@ -339,3 +339,19 @@ func extractIdFromLogComment(logCommentType string, comment string) ([]string, e
 	}
 	return ret, nil
 }
+
+// getZentaoHomePage receive endpoint like "http://54.158.1.10:30001/api.php/v1/" and return zentao's homepage like "http://54.158.1.10:30001/"
+func getZentaoHomePage(endpoint string) (string, error) {
+	if endpoint == "" {
+		return "", errors.Default.New("empty endpoint")
+	}
+	endpointURL, err := url.Parse(endpoint)
+	if err != nil {
+		return "", err
+	} else {
+		protocol := endpointURL.Scheme
+		host := endpointURL.Host
+		zentaoPath, _, _ := strings.Cut(endpointURL.Path, "/api.php/v1")
+		return fmt.Sprintf("%s://%s%s", protocol, host, zentaoPath), nil
+	}
+}
