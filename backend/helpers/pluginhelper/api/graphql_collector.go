@@ -138,12 +138,12 @@ func (collector *GraphqlCollector) Execute() errors.Error {
 
 	divider := NewBatchSaveDivider(collector.args.Ctx, collector.args.BatchSize, collector.table, collector.params)
 
-	isIncremental := collector.args.Incremental
+	// reset full sync flag
 	if collector.args.Ctx.TaskContext().FullSync() {
-		isIncremental = false
+		collector.args.Ctx.TaskContext().SetFullSync(false)
 	}
 	// flush data if not incremental collection
-	if isIncremental {
+	if collector.args.Incremental {
 		// re extract data for new scope config
 		err = collector.ExtractExistRawData(divider)
 		if err != nil {

@@ -158,10 +158,12 @@ func NewStatefulApiCollectorForFinalizableEntity(args FinalizableApiCollectorArg
 	}
 	// // prepare the basic variables
 	var createdAfter *time.Time
-	var isIncremental = manager.IsIncremental()
+	// reset full sync flag
 	if manager.Ctx.TaskContext().FullSync() {
-		isIncremental = false
+		manager.Ctx.TaskContext().SetFullSync(false)
 	}
+	var isIncremental = manager.IsIncremental()
+
 	if isIncremental {
 		createdAfter = manager.LatestState.LatestSuccessStart
 	} else {

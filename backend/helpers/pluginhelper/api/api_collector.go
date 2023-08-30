@@ -160,12 +160,12 @@ func (collector *ApiCollector) Execute() errors.Error {
 	if err != nil {
 		return errors.Default.Wrap(err, "error auto-migrating collector")
 	}
-	isIncremental := collector.args.Incremental
+	// reset full sync flag
 	if collector.args.Ctx.TaskContext().FullSync() {
-		isIncremental = false
+		collector.args.Ctx.TaskContext().SetFullSync(false)
 	}
 	// flush data if not incremental collection
-	if !isIncremental {
+	if !collector.args.Incremental {
 		err = db.Delete(&RawData{}, dal.From(collector.table), dal.Where("params = ?", collector.params))
 		if err != nil {
 			return errors.Default.Wrap(err, "error deleting data from collector")
