@@ -26,6 +26,8 @@ import { useRefreshData, useTips } from '@/hooks';
 import { DataScopeSelect, getPluginScopeId } from '@/plugins';
 import { operator } from '@/utils';
 
+import { encodeName } from '../../project/utils';
+
 import * as API from './api';
 import * as S from './styled';
 
@@ -123,7 +125,9 @@ export const BlueprintConnectionDetailPage = () => {
 
     if (success) {
       handleShowTips();
-      navigate(pname ? `/projects/${pname}?tab=configuration` : `/blueprints/${blueprint.id}?tab=configuration`);
+      navigate(
+        pname ? `/projects/${encodeName(pname)}?tab=configuration` : `/blueprints/${blueprint.id}?tab=configuration`,
+      );
     }
   };
 
