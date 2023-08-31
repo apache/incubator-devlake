@@ -18,6 +18,7 @@ limitations under the License.
 package tasks
 
 import (
+	"fmt"
 	"reflect"
 
 	"github.com/apache/incubator-devlake/core/dal"
@@ -43,6 +44,7 @@ var ConvertExecutionMeta = plugin.SubTaskMeta{
 func ConvertExecutions(taskCtx plugin.SubTaskContext) errors.Error {
 	data := taskCtx.GetData().(*ZentaoTaskData)
 	db := taskCtx.GetDal()
+	logger := taskCtx.GetLogger()
 	executionIdGen := didgen.NewDomainIdGenerator(&models.ZentaoExecution{})
 	projectIdGen := didgen.NewDomainIdGenerator(&models.ZentaoProject{})
 	cursor, err := db.Cursor(
@@ -51,6 +53,12 @@ func ConvertExecutions(taskCtx plugin.SubTaskContext) errors.Error {
 	)
 	if err != nil {
 		return err
+	}
+
+	homePage, getZentaoHomePageErr := getZentaoHomePage(data.ApiClient.GetEndpoint())
+	if getZentaoHomePageErr != nil {
+		logger.Error(getZentaoHomePageErr, "get zentao homepage")
+		return errors.Default.WrapRaw(getZentaoHomePageErr)
 	}
 	defer cursor.Close()
 	convertor, err := api.NewDataConverter(api.DataConverterArgs{
@@ -82,13 +90,14 @@ func ConvertExecutions(taskCtx plugin.SubTaskContext) errors.Error {
 					Id: executionIdGen.Generate(toolExecution.ConnectionId, toolExecution.Id),
 				},
 				Name:            toolExecution.Name,
-				Url:             toolExecution.Path,
+				Url:             fmt.Sprintf("%s/execution-view-%d.html", homePage, toolExecution.Id),
 				Status:          domainStatus,
 				StartedDate:     toolExecution.RealBegan.ToNullableTime(),
 				EndedDate:       toolExecution.PlanEnd.ToNullableTime(),
 				CompletedDate:   toolExecution.RealEnd.ToNullableTime(),
 				OriginalBoardID: projectIdGen.Generate(toolExecution.ConnectionId, data.Options.ProjectId),
 			}
+
 			boardSprint := &ticket.BoardSprint{
 				BoardId:  sprint.OriginalBoardID,
 				SprintId: sprint.Id,

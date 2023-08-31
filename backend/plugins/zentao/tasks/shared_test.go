@@ -152,3 +152,46 @@ func Test_extractIdFromLogComment(t *testing.T) {
 		})
 	}
 }
+
+func Test_getZentaoWebURL(t *testing.T) {
+	type args struct {
+		endpoint string
+	}
+	tests := []struct {
+		name    string
+		args    args
+		want    string
+		wantErr bool
+	}{
+		{
+			name:    "without-zentao",
+			args:    args{endpoint: "http://54.158.1.10:30001/api.php/v1/"},
+			want:    "http://54.158.1.10:30001",
+			wantErr: false,
+		},
+		{
+			name:    "with-zentao",
+			args:    args{endpoint: "http://54.158.1.10:30001/zentao/api.php/v1/"},
+			want:    "http://54.158.1.10:30001/zentao",
+			wantErr: false,
+		},
+		{
+			name:    "with-others",
+			args:    args{endpoint: "http://54.158.1.10:30001/abc/api.php/v1/"},
+			want:    "http://54.158.1.10:30001/abc",
+			wantErr: false,
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			got, err := getZentaoHomePage(tt.args.endpoint)
+			if (err != nil) != tt.wantErr {
+				t.Errorf("getZentaoHomePage() error = %v, wantErr %v", err, tt.wantErr)
+				return
+			}
+			if got != tt.want {
+				t.Errorf("getZentaoHomePage() got = %v, want %v", got, tt.want)
+			}
+		})
+	}
+}
