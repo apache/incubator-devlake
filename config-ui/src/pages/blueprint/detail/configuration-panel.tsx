@@ -26,6 +26,8 @@ import { useConnections } from '@/hooks';
 import { getPluginConfig } from '@/plugins';
 import { formatTime, operator } from '@/utils';
 
+import { encodeName } from '../../project/utils';
+
 import { BlueprintType, FromEnum } from '../types';
 import { ModeEnum } from '../types';
 import { validRawPlan } from '../utils';
@@ -214,7 +216,7 @@ export const ConfigurationPanel = ({ from, blueprint, onRefresh, onChangeTab }: 
                         to={
                           from === FromEnum.blueprint
                             ? `/blueprints/${blueprint.id}/${cs.unique}`
-                            : `/projects/${blueprint.projectName}/${cs.unique}`
+                            : `/projects/${encodeName(blueprint.projectName)}/${cs.unique}`
                         }
                       >
                         Edit Data Scope and Scope Config
