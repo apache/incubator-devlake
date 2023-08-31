@@ -81,6 +81,7 @@ func ConvertExecutions(taskCtx plugin.SubTaskContext) errors.Error {
 			case `suspended`:
 				domainStatus = `SUSPENDED`
 			case `closed`:
+				fallthrough
 			case `done`:
 				domainStatus = `CLOSED`
 			}
