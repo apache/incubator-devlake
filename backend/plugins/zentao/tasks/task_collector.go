@@ -20,38 +20,47 @@ package tasks
 import (
 	"encoding/json"
 	"fmt"
-	"net/http"
-	"net/url"
-	"reflect"
-
-	"github.com/apache/incubator-devlake/core/dal"
 	"github.com/apache/incubator-devlake/core/errors"
 	"github.com/apache/incubator-devlake/core/plugin"
 	"github.com/apache/incubator-devlake/helpers/pluginhelper/api"
-	"github.com/apache/incubator-devlake/plugins/zentao/models"
+	"net/http"
+	"net/url"
 )
 
 const RAW_TASK_TABLE = "zentao_api_tasks"
 
 var _ plugin.SubTaskEntryPoint = CollectTask
 
+type taskInput struct {
+	Path        string
+	ProjectId   int64
+	ProductId   int64
+	ExecutionId int64
+}
+
 func CollectTask(taskCtx plugin.SubTaskContext) errors.Error {
 	data := taskCtx.GetData().(*ZentaoTaskData)
 
-	cursor, err := taskCtx.GetDal().Cursor(
-		dal.Select(`id`),
-		dal.From(&models.ZentaoExecution{}),
-		dal.Where(`project_id = ? and connection_id = ?`, data.Options.ProjectId, data.Options.ConnectionId),
-	)
-	if err != nil {
-		return err
-	}
-	defer cursor.Close()
+	// project iterator
+	projectTaskIter := newIteratorFromSlice([]interface{}{
+		&taskInput{
+			ProjectId: data.Options.ProjectId,
+			Path:      fmt.Sprintf("/projects/%d", data.Options.ProjectId),
+		},
+	})
 
-	iterator, err := api.NewDalCursorIterator(taskCtx.GetDal(), cursor, reflect.TypeOf(input{}))
+	// execution iterator
+	executionCursor, executionIterator, err := getExecutionIterator(taskCtx)
 	if err != nil {
 		return err
 	}
+	defer executionCursor.Close()
+	executionTaskIter := newIteratorWrapper(executionIterator, func(arg interface{}) interface{} {
+		return &taskInput{
+			ExecutionId: arg.(*input).Id,
+			Path:        fmt.Sprintf("/executions/%d", arg.(*input).Id),
+		}
+	})
 
 	collector, err := api.NewApiCollector(api.ApiCollectorArgs{
 		RawDataSubTaskArgs: api.RawDataSubTaskArgs{
@@ -59,10 +68,10 @@ func CollectTask(taskCtx plugin.SubTaskContext) errors.Error {
 			Options: data.Options,
 			Table:   RAW_TASK_TABLE,
 		},
-		Input:       iterator,
+		Input:       newIteratorConcator(projectTaskIter, executionTaskIter),
 		ApiClient:   data.ApiClient,
 		PageSize:    100,
-		UrlTemplate: "/executions/{{ .Input.Id }}/tasks",
+		UrlTemplate: "{{ .Input.Path }}/tasks",
 		Query: func(reqData *api.RequestData) (url.Values, errors.Error) {
 			query := url.Values{}
 			query.Set("page", fmt.Sprintf("%v", reqData.Pager.Page))
