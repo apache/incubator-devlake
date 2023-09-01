@@ -158,7 +158,11 @@ def add_raw_data_params_table_to_scope(b: MigrationScriptBuilder):
 
 @migration(20230802000001, name="rename startTime/finishTime to start_time/finish_time")
 def rename_starttime_and_finishtime_for_job(b: MigrationScriptBuilder):
-    b.execute(f'ALTER TABLE _tool_azuredevops_jobs RENAME COLUMN startTime TO start_time', Dialect.MYSQL, ignore_error=True)
-    b.execute(f'ALTER TABLE _tool_azuredevops_jobs RENAME COLUMN finishTime TO finish_time', Dialect.MYSQL, ignore_error=True)
-    b.execute(f'ALTER TABLE _tool_azuredevops_jobs RENAME COLUMN `startTime` TO start_time', Dialect.POSTGRESQL, ignore_error=True)
-    b.execute(f'ALTER TABLE _tool_azuredevops_jobs RENAME COLUMN `finishTime` TO finish_time', Dialect.POSTGRESQL, ignore_error=True)
+    b.rename_column('_tool_azuredevops_jobs', 'startTime', 'start_time')
+    b.rename_column('_tool_azuredevops_jobs', 'finishTime', 'finish_time')
+
+
+@migration(20230825150421, name="add missing migrations from 0.17 to 0.18")
+def add_missing_migrations_0_17_to_0_18(b: MigrationScriptBuilder):
+    b.rename_column('_tool_azuredevops_gitrepositories', 'transformation_rule_id', 'scope_config_id')
+    b.add_column('_tool_azuredevops_gitrepositories', 'provider', 'varchar(255)')

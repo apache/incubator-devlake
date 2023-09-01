@@ -25,6 +25,7 @@ import (
 var allMigrations = map[string][]plugin.MigrationScript{
 	"azuredevops": {
 		&azuredevops.AddRawDataForScope{},
+		&azuredevops.DecryptConnectionFields{},
 	},
 }
 
