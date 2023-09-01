@@ -82,6 +82,7 @@ func PostDeploymentCicdTask(input *plugin.ApiResourceInput) (*plugin.ApiResource
 		return nil, errors.BadInput.Wrap(vld.Struct(request), `input json error`)
 	}
 	db := basicRes.GetDal()
+	tx := db.Begin()
 	urlHash16 := fmt.Sprintf("%x", md5.Sum([]byte(request.RepoUrl)))[:16]
 	scopeId := fmt.Sprintf("%s:%d", "webhook", connection.ID)
 	deploymentCommitId := fmt.Sprintf("%s:%d:%s:%s", "webhook", connection.ID, urlHash16, request.CommitSha)
@@ -124,12 +125,24 @@ func PostDeploymentCicdTask(input *plugin.ApiResourceInput) (*plugin.ApiResource
 		RepoId:           request.RepoId,
 		RepoUrl:          request.RepoUrl,
 	}
-	err = db.CreateOrUpdate(deploymentCommit)
+	err = tx.CreateOrUpdate(deploymentCommit)
 	if err != nil {
+		tx.Rollback()
+		logger.Error(err, "create deployment commit")
 		return nil, err
 	}
 
-	// TODO: create a deployment record when the table is ready
+	// create a deployment record
+	if err = tx.CreateOrUpdate(deploymentCommit.Deployment()); err != nil {
+		tx.Rollback()
+		logger.Error(err, "create deployment")
+		return nil, err
+	}
+
+	if err := tx.Commit(); err != nil {
+		logger.Error(err, "tx commit")
+		return nil, err
+	}
 
 	return &plugin.ApiResourceOutput{Body: nil, Status: http.StatusOK}, nil
 }

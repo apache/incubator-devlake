@@ -22,7 +22,7 @@ import (
 	"time"
 )
 
-type CicdDeployment struct {
+type CICDDeployment struct {
 	domainlayer.DomainEntity
 	CicdScopeId      string `gorm:"index;type:varchar(255)"`
 	CicdDeploymentId string `gorm:"type:varchar(255)"` // if it is converted from a cicd_pipeline_commit
@@ -39,6 +39,6 @@ type CicdDeployment struct {
 	RepoUrl          string `gorm:"index;not null"`
 }
 
-func (CicdDeployment) TableName() string {
+func (CICDDeployment) TableName() string {
 	return "cicd_deployments"
 }

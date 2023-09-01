@@ -106,7 +106,7 @@ func ConvertDeployments(taskCtx plugin.SubTaskContext) errors.Error {
 				RepoId:       repoId,
 				RepoUrl:      repo.HTMLUrl,
 			}
-			return []interface{}{domainDeployCommit}, nil
+			return []interface{}{domainDeployCommit, domainDeployCommit.Deployment()}, nil
 		},
 	})
 

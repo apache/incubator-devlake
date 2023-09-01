@@ -20,7 +20,7 @@ package migrationscripts
 import (
 	"github.com/apache/incubator-devlake/core/context"
 	"github.com/apache/incubator-devlake/core/errors"
-	"github.com/apache/incubator-devlake/core/models/domainlayer"
+	"github.com/apache/incubator-devlake/core/models/migrationscripts/archived"
 	"github.com/apache/incubator-devlake/core/plugin"
 	"github.com/apache/incubator-devlake/helpers/migrationhelper"
 	"time"
@@ -32,7 +32,7 @@ type addCICDDeploymentsTable struct {
 }
 
 type addCICDDeploymentsTable20230831 struct {
-	domainlayer.DomainEntity
+	archived.DomainEntity
 	CicdScopeId                   string `gorm:"index;type:varchar(255)"`
 	CicdDeploymentId              string `gorm:"type:varchar(255)"` // if it is converted from a cicd_pipeline_commit
 	Name                          string `gorm:"type:varchar(255)"`
