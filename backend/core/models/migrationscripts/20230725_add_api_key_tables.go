@@ -42,11 +42,11 @@ type apiKey20230728 struct {
 	Extra       string     `json:"extra" gorm:"type:varchar(255);column:extra;index"`
 }
 
-func (apiKey20230728) TableName() string {
+func (*apiKey20230728) TableName() string {
 	return "_devlake_api_keys"
 }
 
-func (script *addApiKeyTables) Up(basicRes context.BasicRes) errors.Error {
+func (*addApiKeyTables) Up(basicRes context.BasicRes) errors.Error {
 	// To create multiple tables with migration helper
 	return migrationhelper.AutoMigrateTables(
 		basicRes,
