@@ -33,19 +33,15 @@ type addCICDDeploymentsTable struct {
 
 type addCICDDeploymentsTable20230831 struct {
 	archived.DomainEntity
-	CicdScopeId      string `gorm:"index;type:varchar(255)"`
-	CicdDeploymentId string `gorm:"type:varchar(255)"` // if it is converted from a cicd_pipeline_commit
-	Name             string `gorm:"type:varchar(255)"`
-	Result           string `gorm:"type:varchar(100)"`
-	Status           string `gorm:"type:varchar(100)"`
-	Environment      string `gorm:"type:varchar(255)"`
-	CreatedDate      time.Time
-	StartedDate      *time.Time
-	FinishedDate     *time.Time
-	DurationSec      *uint64
-	RefName          string `gorm:"type:varchar(255)"` // to delete?
-	RepoId           string `gorm:"type:varchar(255)"`
-	RepoUrl          string `gorm:"index;not null"`
+	CicdScopeId  string `gorm:"index;type:varchar(255)"`
+	Name         string `gorm:"type:varchar(255)"`
+	Result       string `gorm:"type:varchar(100)"`
+	Status       string `gorm:"type:varchar(100)"`
+	Environment  string `gorm:"type:varchar(255)"`
+	CreatedDate  time.Time
+	StartedDate  *time.Time
+	FinishedDate *time.Time
+	DurationSec  *uint64
 }
 
 func (*addCICDDeploymentsTable20230831) TableName() string {
@@ -61,7 +57,7 @@ func (*addCICDDeploymentsTable) Up(basicRes context.BasicRes) errors.Error {
 }
 
 func (*addCICDDeploymentsTable) Version() uint64 {
-	return 202307831162402
+	return 202307831162403
 }
 
 func (*addCICDDeploymentsTable) Name() string {

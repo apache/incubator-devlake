@@ -24,19 +24,15 @@ import (
 
 type CICDDeployment struct {
 	domainlayer.DomainEntity
-	CicdScopeId      string `gorm:"index;type:varchar(255)"`
-	CicdDeploymentId string `gorm:"type:varchar(255)"` // if it is converted from a cicd_pipeline_commit
-	Name             string `gorm:"type:varchar(255)"`
-	Result           string `gorm:"type:varchar(100)"`
-	Status           string `gorm:"type:varchar(100)"`
-	Environment      string `gorm:"type:varchar(255)"`
-	CreatedDate      time.Time
-	StartedDate      *time.Time
-	FinishedDate     *time.Time
-	DurationSec      *uint64
-	RefName          string `gorm:"type:varchar(255)"` // to delete?
-	RepoId           string `gorm:"type:varchar(255)"`
-	RepoUrl          string `gorm:"index;not null"`
+	CicdScopeId  string `gorm:"index;type:varchar(255)"`
+	Name         string `gorm:"type:varchar(255)"`
+	Result       string `gorm:"type:varchar(100)"`
+	Status       string `gorm:"type:varchar(100)"`
+	Environment  string `gorm:"type:varchar(255)"`
+	CreatedDate  time.Time
+	StartedDate  *time.Time
+	FinishedDate *time.Time
+	DurationSec  *uint64
 }
 
 func (CICDDeployment) TableName() string {

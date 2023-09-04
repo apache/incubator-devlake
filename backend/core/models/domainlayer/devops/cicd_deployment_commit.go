@@ -48,19 +48,18 @@ func (t CicdDeploymentCommit) TableName() string {
 
 func (t CicdDeploymentCommit) Deployment() *CICDDeployment {
 	return &CICDDeployment{
-		DomainEntity:     t.DomainEntity,
-		CicdScopeId:      t.CicdScopeId,
-		CicdDeploymentId: t.CicdDeploymentId,
-		Name:             t.Name,
-		Result:           t.Result,
-		Status:           t.Status,
-		Environment:      t.Environment,
-		CreatedDate:      t.CreatedDate,
-		StartedDate:      t.StartedDate,
-		FinishedDate:     t.FinishedDate,
-		DurationSec:      t.DurationSec,
-		RefName:          t.RefName,
-		RepoId:           t.RepoId,
-		RepoUrl:          t.RepoUrl,
+		DomainEntity: domainlayer.DomainEntity{
+			Id:        t.CicdDeploymentId,
+			NoPKModel: t.DomainEntity.NoPKModel,
+		},
+		CicdScopeId:  t.CicdScopeId,
+		Name:         t.Name,
+		Result:       t.Result,
+		Status:       t.Status,
+		Environment:  t.Environment,
+		CreatedDate:  t.CreatedDate,
+		StartedDate:  t.StartedDate,
+		FinishedDate: t.FinishedDate,
+		DurationSec:  t.DurationSec,
 	}
 }
