@@ -26,7 +26,7 @@ import { getCron, cronPresets } from '@/config';
 import { useConnections, useRefreshData } from '@/hooks';
 import { DOC_URL } from '@/release';
 import { formatTime, operator } from '@/utils';
-import { PipelineStatus } from '@/pages/pipeline';
+import { PipelineStatus } from '@/routes/pipeline';
 
 import { validName, encodeName } from '../utils';
 import { BlueprintType, ModeEnum } from '../../blueprint';

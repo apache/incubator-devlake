@@ -16,39 +16,35 @@
  *
  */
 
-import { useState } from 'react';
+import dayjs from 'dayjs';
 
-import { IconButton } from '@/components';
-import { operator } from '@/utils';
-
-import { StatusEnum } from '../../types';
-import * as API from '../../api';
-
-import { usePipeline } from '../context';
+import * as T from '../types';
 
 interface Props {
-  id: ID;
-  status: StatusEnum;
+  status: T.PipelineStatus;
+  beganAt: string | null;
+  finishedAt: string | null;
 }
 
-export const PipelineCancel = ({ id, status }: Props) => {
-  const [canceling, setCanceling] = useState(false);
-
-  const { setVersion } = usePipeline();
-
-  const handleSubmit = async () => {
-    const [success] = await operator(() => API.deletePipeline(id), {
-      setOperating: setCanceling,
-    });
-
-    if (success) {
-      setVersion((v) => v + 1);
-    }
-  };
-
-  if (![StatusEnum.ACTIVE, StatusEnum.RUNNING, StatusEnum.RERUN].includes(status)) {
-    return null;
+export const PipelineDuration = ({ status, beganAt, finishedAt }: Props) => {
+  if (!beganAt) {
+    return <span>-</span>;
   }
 
-  return <IconButton loading={canceling} icon="disable" tooltip="Cancel" onClick={handleSubmit} />;
+  if (
+    ![
+      T.PipelineStatus.CANCELLED,
+      T.PipelineStatus.COMPLETED,
+      T.PipelineStatus.PARTIAL,
+      T.PipelineStatus.FAILED,
+    ].includes(status)
+  ) {
+    return <span>{dayjs(beganAt).toNow(true)}</span>;
+  }
+
+  if (!finishedAt) {
+    return <span>-</span>;
+  }
+
+  return <span>{dayjs(beganAt).from(finishedAt, true)}</span>;
 };

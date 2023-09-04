@@ -16,23 +16,29 @@
  *
  */
 
-import React, { useContext, useState } from 'react';
+import { request } from '@/utils';
 
-const PipelineContext = React.createContext<{
-  version: number;
-  setVersion: React.Dispatch<React.SetStateAction<number>>;
-}>({
-  version: 0,
-  setVersion: () => {},
-});
+import * as T from './types';
 
-interface Props {
-  children: React.ReactNode;
-}
+export const getPipelines = (): Promise<{ count: number; pipelines: T.Pipeline[] }> => request('/pipelines');
 
-export const PipelineContextProvider = ({ children }: Props) => {
-  const [version, setVersion] = useState(0);
-  return <PipelineContext.Provider value={{ version, setVersion }}>{children}</PipelineContext.Provider>;
-};
+export const getPipeline = (id: ID) => request(`/pipelines/${id}`);
 
-export const usePipeline = () => useContext(PipelineContext);
+export const deletePipeline = (id: ID) =>
+  request(`/pipelines/${id}`, {
+    method: 'delete',
+  });
+
+export const rerunPipeline = (id: ID) =>
+  request(`/pipelines/${id}/rerun`, {
+    method: 'post',
+  });
+
+export const getPipelineLog = (id: ID) => request(`/pipelines/${id}/logging.tar.gz`);
+
+export const getPipelineTasks = (id: ID) => request(`/pipelines/${id}/tasks`);
+
+export const taskRerun = (id: ID) =>
+  request(`/tasks/${id}/rerun`, {
+    method: 'post',
+  });

@@ -19,7 +19,7 @@
 import { request } from '@/utils';
 
 import type { BlueprintType } from '@/pages/blueprint';
-import type { PipelineType } from '@/pages/pipeline';
+import * as T from '@/routes/pipeline/types';
 
 type GetProjectsParams = {
   page: number;
@@ -31,7 +31,7 @@ type GetProjectsResponse = {
     name: string;
     createdAt: string;
     blueprint: BlueprintType;
-    lastPipeline: PipelineType;
+    lastPipeline: T.Pipeline;
   }>;
   count: number;
 };

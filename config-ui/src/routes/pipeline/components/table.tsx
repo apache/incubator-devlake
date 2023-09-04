@@ -22,48 +22,37 @@ import { pick } from 'lodash';
 import { saveAs } from 'file-saver';
 
 import { DEVLAKE_ENDPOINT } from '@/config';
-import type { ColumnType } from '@/components';
-import { Card, Table, Inspector, Dialog, IconButton } from '@/components';
-import { useAutoRefresh } from '@/hooks';
+import { Table, ColumnType, IconButton, Inspector, Dialog } from '@/components';
 import { formatTime } from '@/utils';
 
-import type { PipelineType } from '../../types';
-import { StatusEnum } from '../../types';
-import * as API from '../../api';
+import * as T from '../types';
+import * as API from '../api';
 
-import { usePipeline } from '../context';
-import { PipelineStatus } from '../status';
-import { PipelineDuration } from '../duration';
-import { PipelineTasks } from '../tasks';
+import { PipelineStatus } from './status';
+import { PipelineDuration } from './duration';
+import { PipelineTasks } from './tasks';
 
 interface Props {
-  blueprintId: ID;
+  loading: boolean;
+  dataSource: T.Pipeline[];
+  pagination?: {
+    total: number;
+    page: number;
+    pageSize: number;
+    onChange: (page: number) => void;
+  };
+  noData?: {
+    text?: React.ReactNode;
+    btnText?: string;
+    onCreate?: () => void;
+  };
 }
 
-export const PipelineHistorical = ({ blueprintId }: Props) => {
+export const PipelineTable = ({ dataSource, pagination, noData }: Props) => {
   const [JSON, setJSON] = useState<any>(null);
-  const [ID, setID] = useState<ID | null>(null);
+  const [id, setId] = useState<ID | null>(null);
 
-  const { version } = usePipeline();
-
-  const { data } = useAutoRefresh<PipelineType[]>(
-    async () => {
-      const res = await API.getPipelineHistorical(blueprintId);
-      return res.pipelines;
-    },
-    [version],
-    {
-      cancel: (data) =>
-        !!(
-          data &&
-          data.every((it) =>
-            [StatusEnum.COMPLETED, StatusEnum.PARTIAL, StatusEnum.CANCELLED, StatusEnum.FAILED].includes(it.status),
-          )
-        ),
-    },
-  );
-
-  const handleShowJSON = (row: PipelineType) => {
+  const handleShowJSON = (row: T.Pipeline) => {
     setJSON(pick(row, ['id', 'name', 'plan', 'skipOnFail']));
   };
 
@@ -75,12 +64,17 @@ export const PipelineHistorical = ({ blueprintId }: Props) => {
   };
 
   const handleShowDetails = (id: ID) => {
-    setID(id);
+    setId(id);
   };
 
   const columns = useMemo(
     () =>
       [
+        {
+          title: 'ID',
+          dataIndex: 'id',
+          key: 'id',
+        },
         {
           title: 'Status',
           dataIndex: 'status',
@@ -92,20 +86,19 @@ export const PipelineHistorical = ({ blueprintId }: Props) => {
           dataIndex: 'beganAt',
           key: 'beganAt',
           align: 'center',
-          render: (val: string | null) => (val ? formatTime(val) : '-'),
+          render: (val) => formatTime(val),
         },
         {
           title: 'Completed at',
           dataIndex: 'finishedAt',
           key: 'finishedAt',
           align: 'center',
-          render: (val: string | null) => (val ? formatTime(val) : '-'),
+          render: (val) => formatTime(val),
         },
         {
           title: 'Duration',
           dataIndex: ['status', 'beganAt', 'finishedAt'],
           key: 'duration',
-          align: 'center',
           render: ({ status, beganAt, finishedAt }) => (
             <PipelineDuration status={status} beganAt={beganAt} finishedAt={finishedAt} />
           ),
@@ -123,23 +116,19 @@ export const PipelineHistorical = ({ blueprintId }: Props) => {
             </ButtonGroup>
           ),
         },
-      ] as ColumnType<PipelineType>,
+      ] as ColumnType<T.Pipeline>,
     [],
   );
 
-  if (!data) {
-    return <Card>There are no historical runs associated with this blueprint.</Card>;
-  }
-
   return (
-    <div>
-      <Table columns={columns} dataSource={data} />
+    <>
+      <Table columns={columns} dataSource={dataSource} pagination={pagination} noData={noData} />
       {JSON && <Inspector isOpen title={`Pipeline ${JSON?.id}`} data={JSON} onClose={() => setJSON(null)} />}
-      {ID && (
-        <Dialog style={{ width: 820 }} isOpen title={`Pipeline ${ID}`} footer={null} onCancel={() => setID(null)}>
-          <PipelineTasks id={ID} />
+      {id && (
+        <Dialog style={{ width: 820 }} isOpen title={`Pipeline ${id}`} footer={null} onCancel={() => setId(null)}>
+          <PipelineTasks id={id} />
         </Dialog>
       )}
-    </div>
+    </>
   );
 };

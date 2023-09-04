@@ -16,24 +16,6 @@
  *
  */
 
-import { Colors } from '@blueprintjs/core';
-import styled from 'styled-components';
-
-export const Wrapper = styled.div`
-  &.ready,
-  &.cancel {
-    color: #94959f;
-  }
-
-  &.loading {
-    color: #7497f7;
-  }
-
-  &.success {
-    color: ${Colors.GREEN3};
-  }
-
-  &.error {
-    color: ${Colors.RED3};
-  }
-`;
+export * from './components';
+export * from './pipelines';
+export * from './pipeline';
