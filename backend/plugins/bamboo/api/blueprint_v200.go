@@ -20,6 +20,7 @@ package api
 import (
 	"fmt"
 
+	coreModels "github.com/apache/incubator-devlake/core/models"
 	"github.com/apache/incubator-devlake/plugins/bamboo/models"
 
 	"github.com/apache/incubator-devlake/core/errors"
@@ -34,9 +35,9 @@ import (
 func MakePipelinePlanV200(
 	subtaskMetas []plugin.SubTaskMeta,
 	connectionId uint64,
-	scope []*plugin.BlueprintScopeV200,
-	syncPolicy *plugin.BlueprintSyncPolicy,
-) (plugin.PipelinePlan, []plugin.Scope, errors.Error) {
+	scope []*coreModels.BlueprintScope,
+	syncPolicy *coreModels.BlueprintSyncPolicy,
+) (coreModels.PipelinePlan, []plugin.Scope, errors.Error) {
 	var err errors.Error
 	connection := new(models.BambooConnection)
 	err1 := connectionHelper.FirstById(connection, connectionId)
@@ -57,14 +58,14 @@ func MakePipelinePlanV200(
 	return pp, sc, nil
 }
 
-func makeScopeV200(connectionId uint64, scopes []*plugin.BlueprintScopeV200) ([]plugin.Scope, errors.Error) {
+func makeScopeV200(connectionId uint64, scopes []*coreModels.BlueprintScope) ([]plugin.Scope, errors.Error) {
 	sc := make([]plugin.Scope, 0, len(scopes))
 
 	for _, scope := range scopes {
-		id := didgen.NewDomainIdGenerator(&models.BambooPlan{}).Generate(connectionId, scope.Id)
+		id := didgen.NewDomainIdGenerator(&models.BambooPlan{}).Generate(connectionId, scope.ScopeId)
 
 		// get project from db
-		project, scopeConfig, err := scopeHelper.DbHelper().GetScopeAndConfig(connectionId, scope.Id)
+		project, scopeConfig, err := scopeHelper.DbHelper().GetScopeAndConfig(connectionId, scope.ScopeId)
 		if err != nil {
 			return nil, err
 		}
@@ -82,15 +83,15 @@ func makeScopeV200(connectionId uint64, scopes []*plugin.BlueprintScopeV200) ([]
 
 func makePipelinePlanV200(
 	subtaskMetas []plugin.SubTaskMeta,
-	scopes []*plugin.BlueprintScopeV200,
-	connection *models.BambooConnection, syncPolicy *plugin.BlueprintSyncPolicy,
-) (plugin.PipelinePlan, errors.Error) {
-	plans := make(plugin.PipelinePlan, 0, len(scopes))
+	scopes []*coreModels.BlueprintScope,
+	connection *models.BambooConnection, syncPolicy *coreModels.BlueprintSyncPolicy,
+) (coreModels.PipelinePlan, errors.Error) {
+	plans := make(coreModels.PipelinePlan, 0, len(scopes))
 	for _, scope := range scopes {
-		var stage plugin.PipelineStage
+		var stage coreModels.PipelineStage
 		var err errors.Error
 		// get project
-		_, scopeConfig, err := scopeHelper.DbHelper().GetScopeAndConfig(connection.ID, scope.Id)
+		_, scopeConfig, err := scopeHelper.DbHelper().GetScopeAndConfig(connection.ID, scope.ScopeId)
 		if err != nil {
 			return nil, err
 		}
@@ -98,7 +99,7 @@ func makePipelinePlanV200(
 		// bamboo main part
 		options := make(map[string]interface{})
 		options["connectionId"] = connection.ID
-		options["planKey"] = scope.Id
+		options["planKey"] = scope.ScopeId
 		options["scopeConfigId"] = scopeConfig.ID
 
 		// construct subtasks
@@ -107,7 +108,7 @@ func makePipelinePlanV200(
 			return nil, err
 		}
 
-		stage = append(stage, &plugin.PipelineTask{
+		stage = append(stage, &coreModels.PipelineTask{
 			Plugin:   "bamboo",
 			Subtasks: subtasks,
 			Options:  options,

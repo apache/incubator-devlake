@@ -18,12 +18,9 @@ limitations under the License.
 package models
 
 import (
-	"encoding/json"
 	"time"
 
-	"github.com/apache/incubator-devlake/core/errors"
 	"github.com/apache/incubator-devlake/core/models/common"
-	"github.com/apache/incubator-devlake/core/plugin"
 )
 
 const (
@@ -33,133 +30,60 @@ const (
 
 // @Description CronConfig
 type Blueprint struct {
-	Name         string              `json:"name" validate:"required"`
-	ProjectName  string              `json:"projectName" gorm:"type:varchar(255)"`
-	Mode         string              `json:"mode" gorm:"varchar(20)" validate:"required,oneof=NORMAL ADVANCED"`
-	Plan         plugin.PipelinePlan `json:"plan" gorm:"serializer:encdec"`
-	Enable       bool                `json:"enable"`
-	CronConfig   string              `json:"cronConfig" format:"* * * * *" example:"0 0 * * 1"`
-	IsManual     bool                `json:"isManual"`
-	SkipOnFail   bool                `json:"skipOnFail"`
-	Labels       []string            `json:"labels" gorm:"-"`
-	Settings     json.RawMessage     `json:"settings" swaggertype:"array,string" example:"please check api: /blueprints/<PLUGIN_NAME>/blueprint-setting" gorm:"serializer:encdec"`
+	Name         string                 `json:"name" validate:"required"`
+	ProjectName  string                 `json:"projectName" gorm:"type:varchar(255)"`
+	Mode         string                 `json:"mode" gorm:"varchar(20)" validate:"required,oneof=NORMAL ADVANCED"`
+	Plan         PipelinePlan           `json:"plan" gorm:"serializer:encdec"`
+	Enable       bool                   `json:"enable"`
+	CronConfig   string                 `json:"cronConfig" format:"* * * * *" example:"0 0 * * 1"`
+	IsManual     bool                   `json:"isManual"`
+	SkipOnFail   bool                   `json:"skipOnFail"`
+	BeforePlan   PipelinePlan           `json:"beforePlan" gorm:"serializer:encdec"`
+	AfterPlan    PipelinePlan           `json:"afterPlan" gorm:"serializer:encdec"`
+	TimeAfter    *time.Time             `json:"timeAfter"`
+	Labels       []string               `json:"labels" gorm:"-"`
+	Connections  []*BlueprintConnection `json:"connections" gorm:"-"`
 	common.Model `swaggerignore:"true"`
-}
-
-type BlueprintSettings struct {
-	Version     string          `json:"version" validate:"required,semver,oneof=1.0.0"`
-	TimeAfter   *time.Time      `json:"timeAfter"`
-	Connections json.RawMessage `json:"connections" validate:"required"`
-	BeforePlan  json.RawMessage `json:"before_plan"`
-	AfterPlan   json.RawMessage `json:"after_plan"`
-}
-
-// UnmarshalConnections unmarshals the connections on this BlueprintSettings reference
-func (bps *BlueprintSettings) UnmarshalConnections() ([]*plugin.BlueprintConnectionV200, errors.Error) {
-	var connections []*plugin.BlueprintConnectionV200
-	if bps.Connections == nil {
-		return nil, nil
-	}
-	err := json.Unmarshal(bps.Connections, &connections)
-	if err != nil {
-		return nil, errors.Default.Wrap(err, `unmarshal connections fail`)
-	}
-	return connections, nil
-}
-
-// UpdateConnections updates the connections on this BlueprintSettings reference according to the updater function
-func (bps *BlueprintSettings) UpdateConnections(updater func(c *plugin.BlueprintConnectionV200) errors.Error) errors.Error {
-	conns, err := bps.UnmarshalConnections()
-	if err != nil {
-		return err
-	}
-	for i, conn := range conns {
-		err = updater(conn)
-		if err != nil {
-			return err
-		}
-		if conn.Scopes == nil {
-			conn.Scopes = []*plugin.BlueprintScopeV200{} //UI expects this to be []
-		}
-		conns[i] = conn
-	}
-	bps.Connections, err = errors.Convert01(json.Marshal(&conns))
-	if err != nil {
-		return err
-	}
-	return nil
-}
-
-// UnmarshalSettings unmarshals the BlueprintSettings on the Blueprint
-func (bp *Blueprint) UnmarshalSettings() (BlueprintSettings, errors.Error) {
-	var settings BlueprintSettings
-	err := errors.Convert(json.Unmarshal(bp.Settings, &settings))
-	if err != nil {
-		return settings, errors.Default.Wrap(err, `unmarshal settings fail`)
-	}
-	return settings, nil
-}
-
-// GetConnections Gets all the blueprint connections for this blueprint
-func (bp *Blueprint) GetConnections() ([]*plugin.BlueprintConnectionV200, errors.Error) {
-	settings, err := bp.UnmarshalSettings()
-	if err != nil {
-		return nil, err
-	}
-	conns, err := settings.UnmarshalConnections()
-	if err != nil {
-		return nil, err
-	}
-	return conns, nil
-}
-
-// UpdateSettings updates the blueprint instance with this settings reference
-func (bp *Blueprint) UpdateSettings(settings *BlueprintSettings) errors.Error {
-	if settings.Connections == nil {
-		bp.Settings = nil
-	} else {
-		settingsRaw, err := errors.Convert01(json.Marshal(settings))
-		if err != nil {
-			return err
-		}
-		bp.Settings = settingsRaw
-	}
-	return nil
-}
-
-// GetScopes Gets all the scopes for a given connection for this blueprint. Returns an empty slice if none found.
-func (bp *Blueprint) GetScopes(connectionId uint64, pluginName string) ([]*plugin.BlueprintScopeV200, errors.Error) {
-	conns, err := bp.GetConnections()
-	if err != nil {
-		return nil, err
-	}
-	visited := map[string]any{}
-	var result []*plugin.BlueprintScopeV200
-	for _, conn := range conns {
-		if conn.ConnectionId != connectionId || conn.Plugin != pluginName {
-			continue
-		}
-		for _, scope := range conn.Scopes {
-			if _, ok := visited[scope.Id]; !ok {
-				result = append(result, scope)
-				visited[scope.Id] = true
-			}
-		}
-	}
-	return result, nil
 }
 
 func (Blueprint) TableName() string {
 	return "_devlake_blueprints"
 }
 
-type DbBlueprintLabel struct {
+type BlueprintLabel struct {
 	CreatedAt   time.Time `json:"createdAt"`
 	UpdatedAt   time.Time `json:"updatedAt"`
 	BlueprintId uint64    `json:"blueprint_id" gorm:"primaryKey"`
 	Name        string    `json:"name" gorm:"primaryKey;index"`
 }
 
-func (DbBlueprintLabel) TableName() string {
+func (BlueprintLabel) TableName() string {
 	return "_devlake_blueprint_labels"
+}
+
+type BlueprintConnection struct {
+	BlueprintId  uint64            `json:"-" gorm:"primaryKey" validate:"required"`
+	PluginName   string            `json:"pluginName" gorm:"primaryKey;type:varchar(255)" validate:"required"`
+	ConnectionId uint64            `json:"connectionId" gorm:"primaryKey" validate:"required"`
+	Scopes       []*BlueprintScope `json:"scopes" gorm:"-"`
+}
+
+func (BlueprintConnection) TableName() string {
+	return "_devlake_blueprint_connections"
+}
+
+type BlueprintScope struct {
+	BlueprintId  uint64 `json:"-" gorm:"primaryKey" validate:"required"`
+	PluginName   string `json:"-" gorm:"primaryKey;type:varchar(255)" validate:"required"`
+	ConnectionId uint64 `json:"-" gorm:"primaryKey" validate:"required"`
+	ScopeId      string `json:"scopeId" gorm:"primaryKey;type:varchar(255)" validate:"required"`
+}
+
+func (BlueprintScope) TableName() string {
+	return "_devlake_blueprint_scopes"
+}
+
+type BlueprintSyncPolicy struct {
+	SkipOnFail bool       `json:"skipOnFail"`
+	TimeAfter  *time.Time `json:"timeAfter"`
 }

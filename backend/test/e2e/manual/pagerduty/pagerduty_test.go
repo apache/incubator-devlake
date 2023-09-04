@@ -78,16 +78,15 @@ func TestPagerDutyPlugin(t *testing.T) {
 		require.True(t, len(createdScopes) > 0)
 		uniqueString := time.Now().Format(time.RFC3339)
 		outputProject := createProject(client, fmt.Sprintf("pagerduty-project-%s-%s", pluginName, uniqueString))
-		var bpScopes []*plugin.BlueprintScopeV200
+		var bpScopes []*models.BlueprintScope
 		for _, scope := range createdScopes {
-			bpScopes = append(bpScopes, &plugin.BlueprintScopeV200{
-				Id:   scope.Id,
-				Name: fmt.Sprintf("pagerduty-blueprint-v200-%s", uniqueString),
+			bpScopes = append(bpScopes, &models.BlueprintScope{
+				ScopeId: scope.Id,
 			})
 		}
 		bp := client.CreateBasicBlueprintV2(connection.Name, &helper.BlueprintV2Config{
-			Connection: &plugin.BlueprintConnectionV200{
-				Plugin:       pluginName,
+			Connection: &models.BlueprintConnection{
+				PluginName:   pluginName,
 				ConnectionId: connection.ID,
 				Scopes:       bpScopes,
 			},

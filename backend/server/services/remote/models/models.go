@@ -138,7 +138,7 @@ type DynamicDomainScope struct {
 }
 
 type PipelineData struct {
-	Plan   plugin.PipelinePlan  `json:"plan"`
+	Plan   models.PipelinePlan  `json:"plan"`
 	Scopes []DynamicDomainScope `json:"scopes"`
 }
 

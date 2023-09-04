@@ -110,17 +110,16 @@ func TestAzure(t *testing.T) {
 			require.Equal(t, repoConfig.ID, scope.ScopeConfigId)
 		}
 		// create bp_scopes from the scopes
-		var bpScopes []*plugin.BlueprintScopeV200
+		var bpScopes []*models.BlueprintScope
 		for _, scope := range scopes {
-			bpScopes = append(bpScopes, &plugin.BlueprintScopeV200{
-				Id:   scope.Id,
-				Name: scope.Name,
+			bpScopes = append(bpScopes, &models.BlueprintScope{
+				ScopeId: scope.Id,
 			})
 		}
 		// create the bp
 		bp := client.CreateBasicBlueprintV2(connection.Name, &helper.BlueprintV2Config{
-			Connection: &plugin.BlueprintConnectionV200{
-				Plugin:       azurePlugin,
+			Connection: &models.BlueprintConnection{
+				PluginName:   azurePlugin,
 				ConnectionId: connection.ID,
 				Scopes:       bpScopes,
 			},
