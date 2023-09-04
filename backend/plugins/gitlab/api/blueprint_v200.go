@@ -31,6 +31,7 @@ import (
 	"github.com/apache/incubator-devlake/core/errors"
 	"github.com/apache/incubator-devlake/core/utils"
 
+	coreModels "github.com/apache/incubator-devlake/core/models"
 	"github.com/apache/incubator-devlake/core/models/domainlayer/code"
 	"github.com/apache/incubator-devlake/core/models/domainlayer/devops"
 	"github.com/apache/incubator-devlake/core/models/domainlayer/didgen"
@@ -44,9 +45,9 @@ import (
 func MakePipelinePlanV200(
 	subtaskMetas []plugin.SubTaskMeta,
 	connectionId uint64,
-	scope []*plugin.BlueprintScopeV200,
-	syncPolicy *plugin.BlueprintSyncPolicy,
-) (plugin.PipelinePlan, []plugin.Scope, errors.Error) {
+	scope []*coreModels.BlueprintScope,
+	syncPolicy *coreModels.BlueprintSyncPolicy,
+) (coreModels.PipelinePlan, []plugin.Scope, errors.Error) {
 	var err errors.Error
 	connection := new(models.GitlabConnection)
 	err1 := connectionHelper.FirstById(connection, connectionId)
@@ -67,18 +68,18 @@ func MakePipelinePlanV200(
 	return pp, sc, nil
 }
 
-func makeScopeV200(connectionId uint64, scopes []*plugin.BlueprintScopeV200) ([]plugin.Scope, errors.Error) {
+func makeScopeV200(connectionId uint64, scopes []*coreModels.BlueprintScope) ([]plugin.Scope, errors.Error) {
 	sc := make([]plugin.Scope, 0, 3*len(scopes))
 
 	for _, scope := range scopes {
-		intScopeId, err1 := strconv.Atoi(scope.Id)
+		intScopeId, err1 := strconv.Atoi(scope.ScopeId)
 		if err1 != nil {
-			return nil, errors.Default.Wrap(err1, fmt.Sprintf("Failed to strconv.Atoi for scope.Id [%s]", scope.Id))
+			return nil, errors.Default.Wrap(err1, fmt.Sprintf("Failed to strconv.Atoi for scope.Id [%s]", scope.ScopeId))
 		}
 		id := didgen.NewDomainIdGenerator(&models.GitlabProject{}).Generate(connectionId, intScopeId)
 
 		// get repo from db
-		gitlabProject, scopeConfig, err := scopeHelper.DbHelper().GetScopeAndConfig(connectionId, scope.Id)
+		gitlabProject, scopeConfig, err := scopeHelper.DbHelper().GetScopeAndConfig(connectionId, scope.ScopeId)
 		if err != nil {
 			return nil, err
 		}
@@ -112,23 +113,23 @@ func makeScopeV200(connectionId uint64, scopes []*plugin.BlueprintScopeV200) ([]
 
 func makePipelinePlanV200(
 	subtaskMetas []plugin.SubTaskMeta,
-	scopes []*plugin.BlueprintScopeV200,
-	connection *models.GitlabConnection, syncPolicy *plugin.BlueprintSyncPolicy,
-) (plugin.PipelinePlan, errors.Error) {
-	plans := make(plugin.PipelinePlan, 0, 3*len(scopes))
+	scopes []*coreModels.BlueprintScope,
+	connection *models.GitlabConnection, syncPolicy *coreModels.BlueprintSyncPolicy,
+) (coreModels.PipelinePlan, errors.Error) {
+	plans := make(coreModels.PipelinePlan, 0, 3*len(scopes))
 	for _, scope := range scopes {
-		var stage plugin.PipelineStage
+		var stage coreModels.PipelineStage
 		var err errors.Error
 		// get repo
-		gitlabProject, scopeConfig, err := scopeHelper.DbHelper().GetScopeAndConfig(connection.ID, scope.Id)
+		gitlabProject, scopeConfig, err := scopeHelper.DbHelper().GetScopeAndConfig(connection.ID, scope.ScopeId)
 		if err != nil {
 			return nil, err
 		}
 
 		// get int scopeId
-		intScopeId, err1 := strconv.Atoi(scope.Id)
+		intScopeId, err1 := strconv.Atoi(scope.ScopeId)
 		if err != nil {
-			return nil, errors.Default.Wrap(err1, fmt.Sprintf("Failed to strconv.Atoi for scope.Id [%s]", scope.Id))
+			return nil, errors.Default.Wrap(err1, fmt.Sprintf("Failed to strconv.Atoi for scope.Id [%s]", scope.ScopeId))
 		}
 
 		// gitlab main part
@@ -146,7 +147,7 @@ func makePipelinePlanV200(
 			return nil, err
 		}
 
-		stage = append(stage, &plugin.PipelineTask{
+		stage = append(stage, &coreModels.PipelineTask{
 			Plugin:   "gitlab",
 			Subtasks: subtasks,
 			Options:  options,
@@ -159,7 +160,7 @@ func makePipelinePlanV200(
 				return nil, err
 			}
 			cloneUrl.User = url.UserPassword("git", connection.Token)
-			stage = append(stage, &plugin.PipelineTask{
+			stage = append(stage, &coreModels.PipelineTask{
 				Plugin: "gitextractor",
 				Options: map[string]interface{}{
 					"url":    cloneUrl.String(),
@@ -174,11 +175,11 @@ func makePipelinePlanV200(
 
 		// refdiff part
 		if scopeConfig.Refdiff != nil {
-			task := &plugin.PipelineTask{
+			task := &coreModels.PipelineTask{
 				Plugin:  "refdiff",
 				Options: scopeConfig.Refdiff,
 			}
-			plans = append(plans, plugin.PipelineStage{task})
+			plans = append(plans, coreModels.PipelineStage{task})
 		}
 	}
 	return plans, nil

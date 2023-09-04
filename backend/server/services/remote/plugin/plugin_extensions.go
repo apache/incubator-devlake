@@ -21,6 +21,7 @@ import (
 	"encoding/json"
 
 	"github.com/apache/incubator-devlake/core/errors"
+	coreModels "github.com/apache/incubator-devlake/core/models"
 	"github.com/apache/incubator-devlake/core/plugin"
 	"github.com/apache/incubator-devlake/server/services/remote/bridge"
 	"github.com/apache/incubator-devlake/server/services/remote/models"
@@ -35,11 +36,15 @@ type (
 	}
 )
 
-func (p remoteMetricPlugin) MakeMetricPluginPipelinePlanV200(projectName string, options json.RawMessage) (plugin.PipelinePlan, errors.Error) {
-	return nil, errors.Internal.New("Remote metric plugins not supported")
+func (p remoteMetricPlugin) MakeMetricPluginPipelinePlanV200(projectName string, options json.RawMessage) (coreModels.PipelinePlan, errors.Error) {
+	return nil, errors.Internal.New("Remote metric coreModels not supported")
 }
 
-func (p remoteDatasourcePlugin) MakeDataSourcePipelinePlanV200(connectionId uint64, bpScopes []*plugin.BlueprintScopeV200, syncPolicy plugin.BlueprintSyncPolicy) (plugin.PipelinePlan, []plugin.Scope, errors.Error) {
+func (p remoteDatasourcePlugin) MakeDataSourcePipelinePlanV200(
+	connectionId uint64,
+	bpScopes []*coreModels.BlueprintScope,
+	syncPolicy coreModels.BlueprintSyncPolicy,
+) (coreModels.PipelinePlan, []plugin.Scope, errors.Error) {
 	connection := p.connectionTabler.New()
 	err := p.connHelper.FirstById(connection, connectionId)
 	if err != nil {
@@ -49,7 +54,7 @@ func (p remoteDatasourcePlugin) MakeDataSourcePipelinePlanV200(connectionId uint
 	db := basicRes.GetDal()
 	var toolScopeConfigPairs = make([]interface{}, len(bpScopes))
 	for i, bpScope := range bpScopes {
-		toolScope, scopeConfig, err := p.getScopeAndConfig(db, connectionId, bpScope.Id)
+		toolScope, scopeConfig, err := p.getScopeAndConfig(db, connectionId, bpScope.ScopeId)
 		if err != nil {
 			return nil, nil, err
 		}

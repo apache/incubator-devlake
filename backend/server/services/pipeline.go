@@ -29,7 +29,6 @@ import (
 	"github.com/apache/incubator-devlake/core/dal"
 	"github.com/apache/incubator-devlake/core/errors"
 	"github.com/apache/incubator-devlake/core/models"
-	"github.com/apache/incubator-devlake/core/plugin"
 	"github.com/apache/incubator-devlake/core/utils"
 	"github.com/apache/incubator-devlake/helpers/dbhelper"
 	"github.com/apache/incubator-devlake/impls/logruslog"
@@ -509,7 +508,7 @@ func RerunPipeline(pipelineId uint64, task *models.Task) (tasks []*models.Task, 
 		}
 		// create new task
 		rerunTask, err := CreateTask(&models.NewTask{
-			PipelineTask: &plugin.PipelineTask{
+			PipelineTask: &models.PipelineTask{
 				Plugin:   t.Plugin,
 				Subtasks: t.Subtasks,
 				Options:  t.Options,

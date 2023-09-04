@@ -248,26 +248,8 @@ func (gs *GenericScopeApiHelper[Conn, Scope, ScopeConfig]) GetScopes(input *plug
 	}
 	// return empty array rather than nil in case of no scopes
 	if len(apiScopes) > 0 && params.loadBlueprints {
-		// fetch blueprints for all scopes in one call since all bps must be loaded to determine which ones are associated with the scopes
-		// TODO: split bp.settings into separate tables and load only the ones needed
-		var scopeIds []string
 		for _, apiScope := range apiScopes {
-			// scopeId := fmt.Sprintf("%v", reflectField(apiScope.Scope, gs.reflectionParams.ScopeIdFieldName).Interface())
-			scopeIds = append(scopeIds, apiScope.Scope.ScopeId())
-		}
-		blueprintMap := errors.Must1(gs.bpManager.GetBlueprintsByScopes(params.connectionId, params.plugin, scopeIds...))
-		for _, apiScope := range apiScopes {
-			if bps, ok := blueprintMap[apiScope.Scope.ScopeId()]; ok {
-				apiScope.Blueprints = bps
-				delete(blueprintMap, apiScope.Scope.ScopeId())
-			}
-		}
-		if len(blueprintMap) > 0 {
-			var danglingIds []string
-			for bpId := range blueprintMap {
-				danglingIds = append(danglingIds, bpId)
-			}
-			gs.log.Warn(nil, "The following dangling scopes were found: %v", danglingIds)
+			apiScope.Blueprints = gs.bpManager.GetBlueprintsByScopeId(params.connectionId, params.plugin, apiScope.Scope.ScopeId())
 		}
 	}
 	return &ScopeListRes[Scope, ScopeConfig]{
@@ -295,13 +277,7 @@ func (gs *GenericScopeApiHelper[Conn, Scope, ScopeConfig]) GetScope(input *plugi
 	}
 	scopeRes := apiScopes[0]
 	if params.loadBlueprints {
-		blueprintMap, err := gs.bpManager.GetBlueprintsByScopes(params.connectionId, params.plugin, params.scopeId)
-		if err != nil {
-			return nil, errors.Default.Wrap(err, fmt.Sprintf("error getting blueprints for scope with scope ID %s", params.scopeId))
-		}
-		if len(blueprintMap) == 1 {
-			scopeRes.Blueprints = blueprintMap[params.scopeId]
-		}
+		scopeRes.Blueprints = gs.bpManager.GetBlueprintsByScopeId(params.connectionId, params.plugin, params.scopeId)
 	}
 	return scopeRes, nil
 }
@@ -338,9 +314,12 @@ func (gs *GenericScopeApiHelper[Conn, Scope, ScopeConfig]) DeleteScope(input *pl
 	}
 
 	if !params.deleteDataOnly {
-		if refs, err := gs.getScopeReferences(params.connectionId, params.scopeId); err != nil || refs != nil {
-			if err != nil {
-				return nil, err
+		blueprints := gs.bpManager.GetBlueprintsByScopeId(params.connectionId, params.plugin, params.scopeId)
+		if len(blueprints) > 0 {
+			refs = &serviceHelper.BlueprintProjectPairs{}
+			for _, bp := range blueprints {
+				refs.Blueprints = append(refs.Blueprints, bp.Name)
+				refs.Projects = append(refs.Projects, bp.ProjectName)
 			}
 			return refs, errors.Conflict.New("Found one or more references to this scope")
 		}
@@ -371,18 +350,6 @@ func (gs *GenericScopeApiHelper[Conn, Scope, ScopeConfig]) addScopeConfig(scopes
 		}
 	}
 	return apiScopes, nil
-}
-
-func (gs *GenericScopeApiHelper[Conn, Scope, ScopeConfig]) getScopeReferences(connectionId uint64, scopeId string) (*serviceHelper.BlueprintProjectPairs, errors.Error) {
-	blueprintMap, err := gs.bpManager.GetBlueprintsByScopes(connectionId, gs.plugin, scopeId)
-	if err != nil {
-		return nil, err
-	}
-	blueprints := blueprintMap[scopeId]
-	if len(blueprints) == 0 {
-		return nil, nil
-	}
-	return serviceHelper.NewBlueprintProjectPairs(blueprints), nil
 }
 
 func (gs *GenericScopeApiHelper[Conn, Scope, ScopeConfig]) extractFromReqParam(input *plugin.ApiResourceInput, withScopeId bool) (*requestParams, errors.Error) {

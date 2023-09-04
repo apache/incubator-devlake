@@ -153,7 +153,7 @@ func TestRunPipeline(t *testing.T) {
 	scope := CreateTestScope(client, scopeConfig, conn.ID)
 	pipeline := client.RunPipeline(models.NewPipeline{
 		Name: "remote_test",
-		Plan: []plugin.PipelineStage{
+		Plan: []models.PipelineStage{
 			{
 				{
 					Plugin:   PLUGIN_NAME,

@@ -21,7 +21,6 @@ import (
 	"time"
 
 	"github.com/apache/incubator-devlake/core/models/common"
-	plugin "github.com/apache/incubator-devlake/core/plugin"
 )
 
 const (
@@ -45,6 +44,15 @@ type TaskProgressDetail struct {
 	SubTaskNumber    int    `json:"subTaskNumber"`
 }
 
+type NewTask struct {
+	// Plugin name
+	*PipelineTask
+	PipelineId  uint64 `json:"-"`
+	PipelineRow int    `json:"-"`
+	PipelineCol int    `json:"-"`
+	IsRerun     bool   `json:"-"`
+}
+
 type Task struct {
 	common.Model
 	Plugin         string                 `json:"plugin" gorm:"index"`
@@ -65,13 +73,8 @@ type Task struct {
 	SpentSeconds  int        `json:"spentSeconds"`
 }
 
-type NewTask struct {
-	// Plugin name
-	*plugin.PipelineTask
-	PipelineId  uint64 `json:"-"`
-	PipelineRow int    `json:"-"`
-	PipelineCol int    `json:"-"`
-	IsRerun     bool   `json:"-"`
+func (Task) TableName() string {
+	return "_devlake_tasks"
 }
 
 type Subtask struct {
@@ -82,10 +85,6 @@ type Subtask struct {
 	BeganAt      *time.Time `json:"beganAt"`
 	FinishedAt   *time.Time `json:"finishedAt" gorm:"index"`
 	SpentSeconds int64      `json:"spentSeconds"`
-}
-
-func (Task) TableName() string {
-	return "_devlake_tasks"
 }
 
 func (Subtask) TableName() string {

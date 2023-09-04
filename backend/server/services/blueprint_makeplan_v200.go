@@ -23,36 +23,32 @@ import (
 	"strings"
 
 	"github.com/apache/incubator-devlake/core/errors"
-	"github.com/apache/incubator-devlake/core/models"
+	coreModels "github.com/apache/incubator-devlake/core/models"
 	"github.com/apache/incubator-devlake/core/plugin"
 )
 
 // GeneratePlanJsonV200 generates pipeline plan according v2.0.0 definition
 func GeneratePlanJsonV200(
 	projectName string,
-	syncPolicy plugin.BlueprintSyncPolicy,
-	sources *models.BlueprintSettings,
+	syncPolicy coreModels.BlueprintSyncPolicy,
+	connections []*coreModels.BlueprintConnection,
 	metrics map[string]json.RawMessage,
 	skipCollectors bool,
-) (plugin.PipelinePlan, errors.Error) {
-	connections := make([]*plugin.BlueprintConnectionV200, 0)
-	err := errors.Convert(json.Unmarshal(sources.Connections, &connections))
-	if err != nil {
-		return nil, err
-	}
-	// make plan for data-source plugins fist. generate plan for each
+) (coreModels.PipelinePlan, errors.Error) {
+	var err errors.Error
+	// make plan for data-source coreModels fist. generate plan for each
 	// connection, then merge them into one legitimate plan and collect the
 	// scopes produced by the data-source plugins
-	sourcePlans := make([]plugin.PipelinePlan, len(connections))
+	sourcePlans := make([]coreModels.PipelinePlan, len(connections))
 	scopes := make([]plugin.Scope, 0, len(connections))
 	for i, connection := range connections {
-		if len(connection.Scopes) == 0 && connection.Plugin != `webhook` && connection.Plugin != `jenkins` {
+		if len(connection.Scopes) == 0 && connection.PluginName != `webhook` && connection.PluginName != `jenkins` {
 			// webhook needn't scopes
 			// jenkins may upgrade from v100 and its scope is empty
 			return nil, errors.Default.New(fmt.Sprintf("connections[%d].scopes is empty", i))
 		}
 
-		p, err := plugin.GetPlugin(connection.Plugin)
+		p, err := plugin.GetPlugin(connection.PluginName)
 		if err != nil {
 			return nil, err
 		}
@@ -71,7 +67,7 @@ func GeneratePlanJsonV200(
 			scopes = append(scopes, pluginScopes...)
 		} else {
 			return nil, errors.Default.New(
-				fmt.Sprintf("plugin %s does not support DataSourcePluginBlueprintV200", connection.Plugin),
+				fmt.Sprintf("plugin %s does not support DataSourcePluginBlueprintV200", connection.PluginName),
 			)
 		}
 	}
@@ -96,7 +92,7 @@ func GeneratePlanJsonV200(
 		// remove gitextractor plugin if it's not the only task
 		for i, plan := range sourcePlans {
 			for j, stage := range plan {
-				newStage := make(plugin.PipelineStage, 0, len(stage))
+				newStage := make(coreModels.PipelineStage, 0, len(stage))
 				hasGitExtractor := false
 				for _, task := range stage {
 					if task.Plugin != "gitextractor" {
@@ -113,7 +109,7 @@ func GeneratePlanJsonV200(
 	}
 
 	// make plans for metric plugins
-	metricPlans := make([]plugin.PipelinePlan, len(metrics))
+	metricPlans := make([]coreModels.PipelinePlan, len(metrics))
 	i := 0
 	for metricPluginName, metricPluginOptJson := range metrics {
 		p, err := plugin.GetPlugin(metricPluginName)
@@ -136,7 +132,7 @@ func GeneratePlanJsonV200(
 			)
 		}
 	}
-	var planForProjectMapping plugin.PipelinePlan
+	var planForProjectMapping coreModels.PipelinePlan
 	if projectName != "" {
 		p, err := plugin.GetPlugin("org")
 		if err != nil {

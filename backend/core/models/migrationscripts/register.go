@@ -91,6 +91,7 @@ func All() []plugin.MigrationScript {
 		new(tasksUsesJSON),
 		new(modifyCicdPipelinesToText),
 		new(dropTapStateTable),
+		new(normalizeBpSettings),
 		new(addFullSync),
 	}
 }
