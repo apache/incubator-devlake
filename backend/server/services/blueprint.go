@@ -27,7 +27,6 @@ import (
 	"github.com/apache/incubator-devlake/core/dal"
 	"github.com/apache/incubator-devlake/core/errors"
 	"github.com/apache/incubator-devlake/core/models"
-	"github.com/apache/incubator-devlake/core/plugin"
 	helper "github.com/apache/incubator-devlake/helpers/pluginhelper/api"
 	"github.com/apache/incubator-devlake/impls/logruslog"
 	"github.com/robfig/cron/v3"
@@ -124,9 +123,6 @@ func GetBlueprintByProjectName(projectName string) (*models.Blueprint, errors.Er
 }
 
 func validateBlueprintAndMakePlan(blueprint *models.Blueprint) errors.Error {
-	if len(blueprint.Settings) == 0 {
-		blueprint.Settings = nil
-	}
 	// validation
 	err := vld.Struct(blueprint)
 	if err != nil {
@@ -266,7 +262,7 @@ func ReloadBlueprints(c *cron.Cron) errors.Error {
 }
 
 func createPipelineByBlueprint(blueprint *models.Blueprint, skipCollectors bool) (*models.Pipeline, errors.Error) {
-	var plan plugin.PipelinePlan
+	var plan models.PipelinePlan
 	var err errors.Error
 	if blueprint.Mode == models.BLUEPRINT_MODE_NORMAL {
 		plan, err = MakePlanForBlueprint(blueprint, skipCollectors)
@@ -310,68 +306,34 @@ func createPipelineByBlueprint(blueprint *models.Blueprint, skipCollectors bool)
 }
 
 // MakePlanForBlueprint generates pipeline plan by version
-func MakePlanForBlueprint(blueprint *models.Blueprint, skipCollectors bool) (plugin.PipelinePlan, errors.Error) {
-	bpSettings := new(models.BlueprintSettings)
-	err := errors.Convert(json.Unmarshal(blueprint.Settings, bpSettings))
-	if err != nil {
-		return nil, errors.Default.Wrap(err, fmt.Sprintf("settings:%s", string(blueprint.Settings)))
-	}
+func MakePlanForBlueprint(blueprint *models.Blueprint, skipCollectors bool) (models.PipelinePlan, errors.Error) {
+	bpSyncPolicy := models.BlueprintSyncPolicy{}
+	bpSyncPolicy.TimeAfter = blueprint.TimeAfter
 
-	bpSyncPolicy := plugin.BlueprintSyncPolicy{}
-	bpSyncPolicy.TimeAfter = bpSettings.TimeAfter
-
-	var plan plugin.PipelinePlan
-	switch bpSettings.Version {
-	case "1.0.0":
-		return nil, errors.BadInput.New("Blueprint v1.0.0 had been deprecated, please se v2.0.0 instead")
-	case "2.0.0":
-		// load project metric plugins and convert it to a map
-		metrics := make(map[string]json.RawMessage)
-		projectMetrics := make([]models.ProjectMetricSetting, 0)
-		if blueprint.ProjectName != "" {
-			err = db.All(&projectMetrics, dal.Where("project_name = ? AND enable = ?", blueprint.ProjectName, true))
-			if err != nil {
-				return nil, err
-			}
-			for _, projectMetric := range projectMetrics {
-				metrics[projectMetric.PluginName] = json.RawMessage(projectMetric.PluginOption)
-			}
+	var plan models.PipelinePlan
+	// load project metric plugins and convert it to a map
+	metrics := make(map[string]json.RawMessage)
+	projectMetrics := make([]models.ProjectMetricSetting, 0)
+	if blueprint.ProjectName != "" {
+		err := db.All(&projectMetrics, dal.Where("project_name = ? AND enable = ?", blueprint.ProjectName, true))
+		if err != nil {
+			return nil, err
 		}
-		plan, err = GeneratePlanJsonV200(blueprint.ProjectName, bpSyncPolicy, bpSettings, metrics, skipCollectors)
-	default:
-		return nil, errors.Default.New(fmt.Sprintf("unknown version of blueprint settings: %s", bpSettings.Version))
+		for _, projectMetric := range projectMetrics {
+			metrics[projectMetric.PluginName] = json.RawMessage(projectMetric.PluginOption)
+		}
 	}
+	plan, err := GeneratePlanJsonV200(blueprint.ProjectName, bpSyncPolicy, blueprint.Connections, metrics, skipCollectors)
 	if err != nil {
 		return nil, err
 	}
-	return WrapPipelinePlans(bpSettings.BeforePlan, plan, bpSettings.AfterPlan)
-}
-
-// WrapPipelinePlans merges multiple pipelines and append before and after pipeline
-func WrapPipelinePlans(beforePlanJson json.RawMessage, mainPlan plugin.PipelinePlan, afterPlanJson json.RawMessage) (plugin.PipelinePlan, errors.Error) {
-	beforePipelinePlan := plugin.PipelinePlan{}
-	afterPipelinePlan := plugin.PipelinePlan{}
-
-	if beforePlanJson != nil {
-		err := errors.Convert(json.Unmarshal(beforePlanJson, &beforePipelinePlan))
-		if err != nil {
-			return nil, err
-		}
-	}
-	if afterPlanJson != nil {
-		err := errors.Convert(json.Unmarshal(afterPlanJson, &afterPipelinePlan))
-		if err != nil {
-			return nil, err
-		}
-	}
-
-	return SequencializePipelinePlans(beforePipelinePlan, mainPlan, afterPipelinePlan), nil
+	return SequencializePipelinePlans(blueprint.BeforePlan, plan, blueprint.AfterPlan), nil
 }
 
 // ParallelizePipelinePlans merges multiple pipelines into one unified plan
 // by assuming they can be executed in parallel
-func ParallelizePipelinePlans(plans ...plugin.PipelinePlan) plugin.PipelinePlan {
-	merged := make(plugin.PipelinePlan, 0)
+func ParallelizePipelinePlans(plans ...models.PipelinePlan) models.PipelinePlan {
+	merged := make(models.PipelinePlan, 0)
 	// iterate all pipelineTasks and try to merge them into `merged`
 	for _, plan := range plans {
 		// add all stages from plan to merged
@@ -388,8 +350,8 @@ func ParallelizePipelinePlans(plans ...plugin.PipelinePlan) plugin.PipelinePlan 
 
 // SequencializePipelinePlans merges multiple pipelines into one unified plan
 // by assuming they must be executed in sequencial order
-func SequencializePipelinePlans(plans ...plugin.PipelinePlan) plugin.PipelinePlan {
-	merged := make(plugin.PipelinePlan, 0)
+func SequencializePipelinePlans(plans ...models.PipelinePlan) models.PipelinePlan {
+	merged := make(models.PipelinePlan, 0)
 	// iterate all pipelineTasks and try to merge them into `merged`
 	for _, plan := range plans {
 		merged = append(merged, plan...)

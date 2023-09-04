@@ -21,34 +21,64 @@ import (
 	"time"
 
 	"github.com/apache/incubator-devlake/core/models/common"
-	"github.com/apache/incubator-devlake/core/plugin"
 )
+
+type GenericPipelineTask[T any] struct {
+	Plugin   string   `json:"plugin" binding:"required"`
+	Subtasks []string `json:"subtasks"`
+	Options  T        `json:"options"`
+}
+
+type GenericPipelineStage[T any] []*GenericPipelineTask[T]
+type GenericPipelinePlan[T any] []GenericPipelineStage[T]
+
+// PipelineTask represents a smallest unit of execution inside a PipelinePlan
+type PipelineTask GenericPipelineTask[map[string]interface{}]
+
+// PipelineStage consist of multiple PipelineTasks, they will be executed in parallel
+type PipelineStage []*PipelineTask
+
+// PipelinePlan consist of multiple PipelineStages, they will be executed in sequential order
+type PipelinePlan []PipelineStage
+
+// IsEmpty checks if a PipelinePlan is empty
+func (plan PipelinePlan) IsEmpty() bool {
+	if len(plan) == 0 {
+		return true
+	}
+	for _, stage := range plan {
+		if len(stage) > 0 {
+			return false
+		}
+	}
+	return true
+}
 
 type Pipeline struct {
 	common.Model
-	Name          string              `json:"name" gorm:"index"`
-	BlueprintId   uint64              `json:"blueprintId"`
-	Plan          plugin.PipelinePlan `json:"plan" gorm:"serializer:encdec"`
-	TotalTasks    int                 `json:"totalTasks"`
-	FinishedTasks int                 `json:"finishedTasks"`
-	BeganAt       *time.Time          `json:"beganAt"`
-	FinishedAt    *time.Time          `json:"finishedAt" gorm:"index"`
-	Status        string              `json:"status"`
-	Message       string              `json:"message"`
-	ErrorName     string              `json:"errorName"`
-	SpentSeconds  int                 `json:"spentSeconds"`
-	Stage         int                 `json:"stage"`
-	Labels        []string            `json:"labels" gorm:"-"`
-	SkipOnFail    bool                `json:"skipOnFail"`
+	Name          string       `json:"name" gorm:"index"`
+	BlueprintId   uint64       `json:"blueprintId"`
+	Plan          PipelinePlan `json:"plan" gorm:"serializer:encdec"`
+	TotalTasks    int          `json:"totalTasks"`
+	FinishedTasks int          `json:"finishedTasks"`
+	BeganAt       *time.Time   `json:"beganAt"`
+	FinishedAt    *time.Time   `json:"finishedAt" gorm:"index"`
+	Status        string       `json:"status"`
+	Message       string       `json:"message"`
+	ErrorName     string       `json:"errorName"`
+	SpentSeconds  int          `json:"spentSeconds"`
+	Stage         int          `json:"stage"`
+	Labels        []string     `json:"labels" gorm:"-"`
+	SkipOnFail    bool         `json:"skipOnFail"`
 }
 
 // We use a 2D array because the request body must be an array of a set of tasks
 // to be executed concurrently, while each set is to be executed sequentially.
 type NewPipeline struct {
-	Name        string              `json:"name"`
-	Plan        plugin.PipelinePlan `json:"plan" swaggertype:"array,string" example:"please check api /pipelines/<PLUGIN_NAME>/pipeline-plan"`
-	Labels      []string            `json:"labels"`
-	SkipOnFail  bool                `json:"skipOnFail"`
+	Name        string       `json:"name"`
+	Plan        PipelinePlan `json:"plan" swaggertype:"array,string" example:"please check api /pipelines/<PLUGIN_NAME>/pipeline-plan"`
+	Labels      []string     `json:"labels"`
+	SkipOnFail  bool         `json:"skipOnFail"`
 	BlueprintId uint64
 }
 

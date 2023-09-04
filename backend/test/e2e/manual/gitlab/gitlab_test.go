@@ -129,17 +129,16 @@ func TestGitlabPlugin(t *testing.T) {
 		})
 		projects := client.ListProjects()
 		require.Equal(t, 1, len(projects.Projects))
-		var scopes []*plugin.BlueprintScopeV200
+		var scopes []*models.BlueprintScope
 		for _, scope := range listedScopes {
 			project := helper.Cast[pluginmodels.GitlabProject](scope.Scope)
-			scopes = append(scopes, &plugin.BlueprintScopeV200{
-				Id:   fmt.Sprintf("%s", project.ScopeId()),
-				Name: "blueprint-v200",
+			scopes = append(scopes, &models.BlueprintScope{
+				ScopeId: fmt.Sprintf("%s", project.ScopeId()),
 			})
 		}
 		bp := client.CreateBasicBlueprintV2(connection.Name, &helper.BlueprintV2Config{
-			Connection: &plugin.BlueprintConnectionV200{
-				Plugin:       pluginName,
+			Connection: &models.BlueprintConnection{
+				PluginName:   pluginName,
 				ConnectionId: connection.ID,
 				Scopes:       scopes,
 			},

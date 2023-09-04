@@ -19,9 +19,10 @@ package api
 
 import (
 	"fmt"
+	"strconv"
+
 	"github.com/apache/incubator-devlake/helpers/pluginhelper/services"
 	"github.com/apache/incubator-devlake/server/api/shared"
-	"strconv"
 
 	"github.com/apache/incubator-devlake/core/context"
 	"github.com/apache/incubator-devlake/core/dal"
@@ -124,10 +125,7 @@ func (c *ConnectionApiHelper) List(connections interface{}) errors.Error {
 // Delete connection.
 func (c *ConnectionApiHelper) deleteConnection(connection interface{}) (*services.BlueprintProjectPairs, errors.Error) {
 	connectionId := reflectField(connection, "ID").Uint()
-	referencingBps, err := c.bpManager.GetBlueprintsByConnection(c.pluginName, connectionId)
-	if err != nil {
-		return nil, err
-	}
+	referencingBps := c.bpManager.GetBlueprintsByConnection(c.pluginName, connectionId)
 	if len(referencingBps) > 0 {
 		return services.NewBlueprintProjectPairs(referencingBps), errors.Conflict.New("Found one or more blueprint/project references to this connection")
 	}

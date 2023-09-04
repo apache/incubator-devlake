@@ -24,6 +24,7 @@ import (
 	"github.com/apache/incubator-devlake/core/context"
 	"github.com/apache/incubator-devlake/core/dal"
 	"github.com/apache/incubator-devlake/core/errors"
+	coreModels "github.com/apache/incubator-devlake/core/models"
 	"github.com/apache/incubator-devlake/core/plugin"
 	helper "github.com/apache/incubator-devlake/helpers/pluginhelper/api"
 	"github.com/apache/incubator-devlake/plugins/pagerduty/api"
@@ -173,8 +174,11 @@ func (p PagerDuty) ApiResources() map[string]map[string]plugin.ApiResourceHandle
 	}
 }
 
-func (p PagerDuty) MakeDataSourcePipelinePlanV200(connectionId uint64, scopes []*plugin.BlueprintScopeV200, syncPolicy plugin.BlueprintSyncPolicy,
-) (plugin.PipelinePlan, []plugin.Scope, errors.Error) {
+func (p PagerDuty) MakeDataSourcePipelinePlanV200(
+	connectionId uint64,
+	scopes []*coreModels.BlueprintScope,
+	syncPolicy coreModels.BlueprintSyncPolicy,
+) (coreModels.PipelinePlan, []plugin.Scope, errors.Error) {
 	return api.MakeDataSourcePipelinePlanV200(p.SubTaskMetas(), connectionId, scopes, &syncPolicy)
 }
 

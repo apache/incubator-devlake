@@ -23,7 +23,6 @@ import (
 	"github.com/apache/incubator-devlake/core/config"
 	"github.com/apache/incubator-devlake/core/models"
 
-	"github.com/apache/incubator-devlake/core/plugin"
 	"github.com/apache/incubator-devlake/helpers/pluginhelper/api"
 )
 
@@ -62,7 +61,7 @@ type Connection struct {
 }
 
 type BlueprintV2Config struct {
-	Connection  *plugin.BlueprintConnectionV200
+	Connection  *models.BlueprintConnection
 	TimeAfter   *time.Time
 	SkipOnFail  bool
 	ProjectName string

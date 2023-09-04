@@ -21,7 +21,7 @@ import (
 	"encoding/json"
 	"testing"
 
-	"github.com/apache/incubator-devlake/core/plugin"
+	coreModels "github.com/apache/incubator-devlake/core/models"
 	"github.com/stretchr/testify/assert"
 )
 
@@ -36,8 +36,8 @@ func TestMakeMetricPluginPipelinePlanV200(t *testing.T) {
 	optionJson, err := json.Marshal(option)
 	assert.Nil(t, err)
 	plan, err := dora.MakeMetricPluginPipelinePlanV200(projectName, optionJson)
-	doraOutputPlan := plugin.PipelinePlan{
-		plugin.PipelineStage{
+	doraOutputPlan := coreModels.PipelinePlan{
+		coreModels.PipelineStage{
 			{
 				Plugin: "dora",
 				Subtasks: []string{
@@ -47,14 +47,14 @@ func TestMakeMetricPluginPipelinePlanV200(t *testing.T) {
 				Options: map[string]interface{}{"projectName": projectName},
 			},
 		},
-		plugin.PipelineStage{
+		coreModels.PipelineStage{
 			{
 				Plugin:   "refdiff",
 				Subtasks: []string{"calculateDeploymentCommitsDiff"},
 				Options:  map[string]interface{}{"projectName": projectName},
 			},
 		},
-		plugin.PipelineStage{
+		coreModels.PipelineStage{
 			{
 				Plugin: "dora",
 				Subtasks: []string{

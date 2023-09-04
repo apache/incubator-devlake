@@ -28,18 +28,24 @@ import (
 	"github.com/apache/incubator-devlake/core/errors"
 	"github.com/apache/incubator-devlake/core/utils"
 
+	coreModels "github.com/apache/incubator-devlake/core/models"
 	"github.com/apache/incubator-devlake/core/models/domainlayer/didgen"
 	"github.com/apache/incubator-devlake/core/plugin"
 	helper "github.com/apache/incubator-devlake/helpers/pluginhelper/api"
 )
 
-func MakePipelinePlanV200(subtaskMetas []plugin.SubTaskMeta, connectionId uint64, scope []*plugin.BlueprintScopeV200, syncPolicy *plugin.BlueprintSyncPolicy) (plugin.PipelinePlan, []plugin.Scope, errors.Error) {
+func MakePipelinePlanV200(
+	subtaskMetas []plugin.SubTaskMeta,
+	connectionId uint64,
+	scope []*coreModels.BlueprintScope,
+	syncPolicy *coreModels.BlueprintSyncPolicy,
+) (coreModels.PipelinePlan, []plugin.Scope, errors.Error) {
 	scopes, err := makeScopeV200(connectionId, scope)
 	if err != nil {
 		return nil, nil, err
 	}
 
-	plan := make(plugin.PipelinePlan, len(scope))
+	plan := make(coreModels.PipelinePlan, len(scope))
 	plan, err = makePipelinePlanV200(subtaskMetas, plan, scope, connectionId, syncPolicy)
 	if err != nil {
 		return nil, nil, err
@@ -48,11 +54,11 @@ func MakePipelinePlanV200(subtaskMetas []plugin.SubTaskMeta, connectionId uint64
 	return plan, scopes, nil
 }
 
-func makeScopeV200(connectionId uint64, scopes []*plugin.BlueprintScopeV200) ([]plugin.Scope, errors.Error) {
+func makeScopeV200(connectionId uint64, scopes []*coreModels.BlueprintScope) ([]plugin.Scope, errors.Error) {
 	sc := make([]plugin.Scope, 0, len(scopes))
 
 	for _, scope := range scopes {
-		trelloBoard, scopeConfig, err := scopeHelper.DbHelper().GetScopeAndConfig(connectionId, scope.Id)
+		trelloBoard, scopeConfig, err := scopeHelper.DbHelper().GetScopeAndConfig(connectionId, scope.ScopeId)
 		if err != nil {
 			return nil, err
 		}
@@ -71,22 +77,27 @@ func makeScopeV200(connectionId uint64, scopes []*plugin.BlueprintScopeV200) ([]
 	return sc, nil
 }
 
-func makePipelinePlanV200(subtaskMetas []plugin.SubTaskMeta, plan plugin.PipelinePlan, scopes []*plugin.BlueprintScopeV200, connectionId uint64, syncPolicy *plugin.BlueprintSyncPolicy) (plugin.PipelinePlan, errors.Error) {
+func makePipelinePlanV200(
+	subtaskMetas []plugin.SubTaskMeta,
+	plan coreModels.PipelinePlan,
+	scopes []*coreModels.BlueprintScope,
+	connectionId uint64, syncPolicy *coreModels.BlueprintSyncPolicy,
+) (coreModels.PipelinePlan, errors.Error) {
 	for i, scope := range scopes {
 		stage := plan[i]
 		if stage == nil {
-			stage = plugin.PipelineStage{}
+			stage = coreModels.PipelineStage{}
 		}
 
 		// construct task options for trello
 		options := make(map[string]interface{})
 		options["connectionId"] = connectionId
-		options["scopeId"] = scope.Id
+		options["scopeId"] = scope.ScopeId
 		if syncPolicy.TimeAfter != nil {
 			options["timeAfter"] = syncPolicy.TimeAfter.Format(time.RFC3339)
 		}
 
-		_, scopeConfig, err := scopeHelper.DbHelper().GetScopeAndConfig(connectionId, scope.Id)
+		_, scopeConfig, err := scopeHelper.DbHelper().GetScopeAndConfig(connectionId, scope.ScopeId)
 		if err != nil {
 			return nil, err
 		}
@@ -96,7 +107,7 @@ func makePipelinePlanV200(subtaskMetas []plugin.SubTaskMeta, plan plugin.Pipelin
 			return nil, err
 		}
 
-		stage = append(stage, &plugin.PipelineTask{
+		stage = append(stage, &coreModels.PipelineTask{
 			Plugin:   "trello",
 			Subtasks: subtasks,
 			Options:  options,

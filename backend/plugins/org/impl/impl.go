@@ -21,6 +21,7 @@ import (
 	"github.com/apache/incubator-devlake/core/context"
 	"github.com/apache/incubator-devlake/core/dal"
 	"github.com/apache/incubator-devlake/core/errors"
+	coreModels "github.com/apache/incubator-devlake/core/models"
 	"github.com/apache/incubator-devlake/core/plugin"
 	helper "github.com/apache/incubator-devlake/helpers/pluginhelper/api"
 	"github.com/apache/incubator-devlake/plugins/org/api"
@@ -63,9 +64,9 @@ func (p Org) SubTaskMetas() []plugin.SubTaskMeta {
 	}
 }
 
-func (p Org) MapProject(projectName string, scopes []plugin.Scope) (plugin.PipelinePlan, errors.Error) {
-	var plan plugin.PipelinePlan
-	var stage plugin.PipelineStage
+func (p Org) MapProject(projectName string, scopes []plugin.Scope) (coreModels.PipelinePlan, errors.Error) {
+	var plan coreModels.PipelinePlan
+	var stage coreModels.PipelineStage
 
 	// construct task options for Org
 	options := make(map[string]interface{})
@@ -75,7 +76,7 @@ func (p Org) MapProject(projectName string, scopes []plugin.Scope) (plugin.Pipel
 	if err != nil {
 		return nil, err
 	}
-	stage = append(stage, &plugin.PipelineTask{
+	stage = append(stage, &coreModels.PipelineTask{
 		Plugin:   "org",
 		Subtasks: subtasks,
 		Options:  options,

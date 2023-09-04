@@ -23,6 +23,7 @@ import (
 	"github.com/apache/incubator-devlake/core/context"
 	"github.com/apache/incubator-devlake/core/dal"
 	"github.com/apache/incubator-devlake/core/errors"
+	coreModels "github.com/apache/incubator-devlake/core/models"
 	"github.com/apache/incubator-devlake/core/models/domainlayer/devops"
 	"github.com/apache/incubator-devlake/core/plugin"
 	helper "github.com/apache/incubator-devlake/helpers/pluginhelper/api"
@@ -64,7 +65,11 @@ func (p Bamboo) ScopeConfig() dal.Tabler {
 	return &models.BambooScopeConfig{}
 }
 
-func (p Bamboo) MakeDataSourcePipelinePlanV200(connectionId uint64, scopes []*plugin.BlueprintScopeV200, syncPolicy plugin.BlueprintSyncPolicy) (plugin.PipelinePlan, []plugin.Scope, errors.Error) {
+func (p Bamboo) MakeDataSourcePipelinePlanV200(
+	connectionId uint64,
+	scopes []*coreModels.BlueprintScope,
+	syncPolicy coreModels.BlueprintSyncPolicy,
+) (coreModels.PipelinePlan, []plugin.Scope, errors.Error) {
 	return api.MakePipelinePlanV200(p.SubTaskMetas(), connectionId, scopes, &syncPolicy)
 }
 
