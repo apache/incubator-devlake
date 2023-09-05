@@ -37,7 +37,7 @@ func TestZentaoTaskDataFlow(t *testing.T) {
 		Options: &tasks.ZentaoOptions{
 			ConnectionId: 1,
 			ProjectId:    1,
-			ScopeConfigs: &tasks.ZentaoScopeConfigs{
+			ScopeConfig: &models.ZentaoScopeConfig{
 				TypeMappings: map[string]string{
 					"devel": "TASK_DEV",
 					"bug":   "BUG",
