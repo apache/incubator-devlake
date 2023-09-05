@@ -367,3 +367,14 @@ func getRepoNamespaceFromUrlPath(path string) string {
 	path = path[:strings.LastIndex(path, "/")]
 	return path
 }
+
+// getRepoNameFromUrlPath
+// returns the last segment of url path as repo name, without .git suffix.
+func getRepoNameFromUrlPath(path string) string {
+	// Remove leading and trailing slashes
+	path = strings.Trim(path, "/")
+	// Remove .git suffix
+	path = strings.TrimSuffix(path, ".git")
+	// Get last segment
+	return path[strings.LastIndex(path, "/")+1:]
+}
