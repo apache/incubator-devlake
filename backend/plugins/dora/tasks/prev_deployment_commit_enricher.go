@@ -35,7 +35,7 @@ var EnrichPrevSuccessDeploymentCommitMeta = plugin.SubTaskMeta{
 
 // EnrichPrevSuccessDeploymentCommit
 // Please note that deploying multiple environment (such as TESTING) copies
-// (such as testing1 and testing2) using multiple steps with Deployment tools
+// (such as testing1 and testing2) using multiple steps with ToDeployment tools
 // like Bitbucket or Gitlab is not supported and may result in incorrect
 // outcomes. It is recommended that you deploy all copies in a single step.
 // We arrived at this decision because we believe that deploying multiple
@@ -55,7 +55,7 @@ func EnrichPrevSuccessDeploymentCommit(taskCtx plugin.SubTaskContext) errors.Err
 			`
 			dc.finished_date IS NOT NULL
 			AND dc.environment IS NOT NULL AND dc.environment != ''
-			AND dc.repo_url IS NOT NULL AND dc.repo_url != '' 
+			AND dc.repo_url IS NOT NULL AND dc.repo_url != ''
 			AND pm.project_name = ? AND dc.result = ?
 			`,
 			data.Options.ProjectName, devops.RESULT_SUCCESS,
