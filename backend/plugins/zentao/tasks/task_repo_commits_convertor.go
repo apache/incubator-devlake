@@ -18,6 +18,7 @@ limitations under the License.
 package tasks
 
 import (
+	"github.com/spf13/cast"
 	"reflect"
 
 	"github.com/apache/incubator-devlake/core/dal"
@@ -52,7 +53,7 @@ func ConvertTaskRepoCommits(taskCtx plugin.SubTaskContext) errors.Error {
 	}
 	defer cursor.Close()
 
-	issueIdGenerator := didgen.NewDomainIdGenerator(&models.ZentaoTaskRepoCommit{})
+	issueIdGenerator := didgen.NewDomainIdGenerator(&models.ZentaoTask{})
 	convertor, err := api.NewDataConverter(api.DataConverterArgs{
 		InputRowType: reflect.TypeOf(models.ZentaoTaskRepoCommit{}),
 		Input:        cursor,
@@ -64,7 +65,7 @@ func ConvertTaskRepoCommits(taskCtx plugin.SubTaskContext) errors.Error {
 		Convert: func(inputRow interface{}) ([]interface{}, errors.Error) {
 			toolEntity := inputRow.(*models.ZentaoTaskRepoCommit)
 			domainEntity := &crossdomain.IssueRepoCommit{
-				IssueId:   issueIdGenerator.Generate(data.Options.ConnectionId, toolEntity.IssueId),
+				IssueId:   issueIdGenerator.Generate(data.Options.ConnectionId, cast.ToInt64(toolEntity.IssueId)),
 				RepoUrl:   toolEntity.RepoUrl,
 				CommitSha: toolEntity.CommitSha,
 			}
