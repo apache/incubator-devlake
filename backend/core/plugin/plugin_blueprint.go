@@ -82,7 +82,7 @@ type DataSourcePluginBlueprintV200 interface {
 // but for Metric Plugin, take dora as an example, it doens't have any scope,
 // nor does it produce any, however, it does require other plugin to be
 // executed beforehand, like calcuating refdiff before it can connect PR to the
-// right ToDeployment keep in mind it would be called IFF the plugin was enabled
+// right Deployment keep in mind it would be called IFF the plugin was enabled
 // for the project.
 type MetricPluginBlueprintV200 interface {
 	MakeMetricPluginPipelinePlanV200(projectName string, options json.RawMessage) (models.PipelinePlan, errors.Error)

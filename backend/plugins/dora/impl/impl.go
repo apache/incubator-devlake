@@ -61,7 +61,7 @@ func (p Dora) RequiredDataEntities() (data []map[string]interface{}, err errors.
 			"model": "cicd_tasks",
 			"requiredFields": map[string]string{
 				"column":        "type",
-				"execptedValue": "ToDeployment",
+				"execptedValue": "Deployment",
 			},
 		},
 	}, nil

@@ -35,7 +35,7 @@ var EnrichPrevSuccessDeploymentCommitMeta = plugin.SubTaskMeta{
 
 // EnrichPrevSuccessDeploymentCommit
 // Please note that deploying multiple environment (such as TESTING) copies
-// (such as testing1 and testing2) using multiple steps with ToDeployment tools
+// (such as testing1 and testing2) using multiple steps with Deployment tools
 // like Bitbucket or Gitlab is not supported and may result in incorrect
 // outcomes. It is recommended that you deploy all copies in a single step.
 // We arrived at this decision because we believe that deploying multiple

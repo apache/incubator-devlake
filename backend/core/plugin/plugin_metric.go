@@ -23,7 +23,7 @@ import (
 
 type PluginMetric interface {
 	// returns a list of required data entities and expected features.
-	// [{ "model": "cicd_tasks", "requiredFields": {"column": "type", "execptedValue": "ToDeployment"}}, ...]
+	// [{ "model": "cicd_tasks", "requiredFields": {"column": "type", "execptedValue": "Deployment"}}, ...]
 	RequiredDataEntities() (data []map[string]interface{}, err errors.Error)
 
 	// returns if the metric depends on Project for calculation.

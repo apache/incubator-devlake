@@ -131,10 +131,6 @@ func PostDeploymentCicdTask(input *plugin.ApiResourceInput) (*plugin.ApiResource
 	}
 	err = tx.CreateOrUpdate(deploymentCommit)
 	if err != nil {
-		if err := tx.Rollback(); err != nil {
-			logger.Error(err, "tx rollback")
-			return nil, err
-		}
 		logger.Error(err, "create deployment commit")
 		return nil, err
 	}
