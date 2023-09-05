@@ -16,40 +16,59 @@
  *
  */
 
-import React from 'react';
+import { useState } from 'react';
 
-import { Loading } from '@/components';
+import { Loading, IconButton } from '@/components';
 import { useAutoRefresh } from '@/hooks';
-import { formatTime } from '@/utils';
+import { formatTime, operator } from '@/utils';
 
-import type { PipelineType } from '../../types';
-import { StatusEnum } from '../../types';
-import * as API from '../../api';
+import * as T from '../types';
+import * as S from '../styled';
+import * as API from '../api';
 
-import { usePipeline } from '../context';
-import { PipelineStatus } from '../status';
-import { PipelineDuration } from '../duration';
-import { PipelineCancel } from '../cancel';
-import { PipelineRerun } from '../rerun';
-
-import * as S from './styled';
+import { PipelineStatus } from './status';
+import { PipelineDuration } from './duration';
 
 interface Props {
   id: ID;
-  style?: React.CSSProperties;
 }
 
-export const PipelineInfo = ({ id, style }: Props) => {
-  const { version } = usePipeline();
+export const PipelineInfo = ({ id }: Props) => {
+  const [operating, setOperating] = useState(false);
 
-  const { data } = useAutoRefresh<PipelineType>(() => API.getPipeline(id), [version], {
+  const { data } = useAutoRefresh<T.Pipeline>(() => API.getPipeline(id), [], {
     cancel: (data) => {
       return !!(
         data &&
-        [StatusEnum.COMPLETED, StatusEnum.PARTIAL, StatusEnum.FAILED, StatusEnum.CANCELLED].includes(data.status)
+        [
+          T.PipelineStatus.COMPLETED,
+          T.PipelineStatus.PARTIAL,
+          T.PipelineStatus.FAILED,
+          T.PipelineStatus.CANCELLED,
+        ].includes(data.status)
       );
     },
   });
+
+  const handleCancel = async () => {
+    const [success] = await operator(() => API.deletePipeline(id), {
+      setOperating,
+    });
+
+    //   if (success) {
+    //     setVersion((v) => v + 1);
+    //   }
+  };
+
+  const handleRerun = async () => {
+    const [success] = await operator(() => API.rerunPipeline(id), {
+      setOperating,
+    });
+
+    // if (success) {
+    //   setVersion((v) => v + 1);
+    // }
+  };
 
   if (!data) {
     return <Loading />;
@@ -58,7 +77,7 @@ export const PipelineInfo = ({ id, style }: Props) => {
   const { status, beganAt, finishedAt, stage, finishedTasks, totalTasks, message } = data;
 
   return (
-    <S.Wrapper style={style}>
+    <S.Info>
       <ul>
         <li>
           <span>Status</span>
@@ -87,11 +106,20 @@ export const PipelineInfo = ({ id, style }: Props) => {
           </strong>
         </li>
         <li>
-          <PipelineCancel id={id} status={status} />
-          <PipelineRerun type="pipeline" id={id} status={status} />
+          {[T.PipelineStatus.ACTIVE, T.PipelineStatus.RUNNING, T.PipelineStatus.RERUN].includes(status) && (
+            <IconButton loading={operating} icon="disable" tooltip="Cancel" onClick={handleCancel} />
+          )}
+          {[
+            T.PipelineStatus.COMPLETED,
+            T.PipelineStatus.PARTIAL,
+            T.PipelineStatus.FAILED,
+            T.PipelineStatus.CANCELLED,
+          ].includes(status) && (
+            <IconButton loading={operating} icon="repeat" tooltip="Rerun failed tasks" onClick={handleRerun} />
+          )}
         </li>
       </ul>
-      {StatusEnum.FAILED === status && <p className="'message'">{message}</p>}
-    </S.Wrapper>
+      {T.PipelineStatus.FAILED === status && <p className="'message'">{message}</p>}
+    </S.Info>
   );
 };

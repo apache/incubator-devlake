@@ -16,25 +16,26 @@
  *
  */
 
-import { useMemo } from 'react';
+import { useState, useMemo } from 'react';
 import { Intent } from '@blueprintjs/core';
 
-import { TextTooltip } from '@/components';
+import { TextTooltip, IconButton } from '@/components';
 import { getPluginConfig } from '@/plugins';
+import { operator } from '@/utils';
 
-import type { TaskType } from '@/pages';
-import { StatusEnum } from '@/pages';
+import * as T from '../types';
+import * as S from '../styled';
+import * as API from '../api';
 
-import { PipelineDuration } from '../duration';
-import { PipelineRerun } from '../rerun';
-
-import * as S from './styled';
+import { PipelineDuration } from './duration';
 
 interface Props {
-  task: TaskType;
+  task: T.PipelineTask;
 }
 
 export const PipelineTask = ({ task }: Props) => {
+  const [operating, setOperating] = useState(false);
+
   const { id, beganAt, finishedAt, status, message, progressDetail } = task;
 
   const [icon, name] = useMemo(() => {
@@ -86,19 +87,29 @@ export const PipelineTask = ({ task }: Props) => {
     return [config.icon, name];
   }, [task]);
 
+  const handleRerun = async () => {
+    const [success] = await operator(() => API.taskRerun(id), {
+      setOperating,
+    });
+
+    // if (success) {
+    //   setVersion((v) => v + 1);
+    // }
+  };
+
   return (
-    <S.Wrapper>
-      <S.Info>
+    <S.Task>
+      <div className="info">
         <div className="title">
           <img src={icon} alt="" />
-          <strong>Task{task.id}</strong>
+          <strong>Task{id}</strong>
           <span>
             <TextTooltip content={name}>{name}</TextTooltip>
           </span>
         </div>
-        {[status === StatusEnum.CREATED, StatusEnum.PENDING].includes(status) && <p>Subtasks pending</p>}
+        {[status === T.PipelineStatus.CREATED, T.PipelineStatus.PENDING].includes(status) && <p>Subtasks pending</p>}
 
-        {[StatusEnum.ACTIVE, StatusEnum.RUNNING].includes(status) && (
+        {[T.PipelineStatus.ACTIVE, T.PipelineStatus.RUNNING].includes(status) && (
           <p>
             Subtasks running
             <strong style={{ marginLeft: 8 }}>
@@ -107,20 +118,27 @@ export const PipelineTask = ({ task }: Props) => {
           </p>
         )}
 
-        {status === StatusEnum.COMPLETED && <p>All Subtasks completed</p>}
+        {status === T.PipelineStatus.COMPLETED && <p>All Subtasks completed</p>}
 
-        {status === StatusEnum.FAILED && (
+        {status === T.PipelineStatus.FAILED && (
           <TextTooltip intent={Intent.DANGER} content={message}>
             <p className="error">Task failed: hover to view the reason</p>
           </TextTooltip>
         )}
 
-        {status === StatusEnum.CANCELLED && <p>Subtasks canceled</p>}
-      </S.Info>
-      <S.Duration>
+        {status === T.PipelineStatus.CANCELLED && <p>Subtasks canceled</p>}
+      </div>
+      <div className="duration">
         <PipelineDuration status={status} beganAt={beganAt} finishedAt={finishedAt} />
-        <PipelineRerun type="task" id={id} status={status} />
-      </S.Duration>
-    </S.Wrapper>
+        {[
+          T.PipelineStatus.COMPLETED,
+          T.PipelineStatus.PARTIAL,
+          T.PipelineStatus.FAILED,
+          T.PipelineStatus.CANCELLED,
+        ].includes(status) && (
+          <IconButton loading={operating} icon="repeat" tooltip="Rerun task" onClick={handleRerun} />
+        )}
+      </div>
+    </S.Task>
   );
 };

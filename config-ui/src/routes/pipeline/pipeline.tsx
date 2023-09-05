@@ -15,42 +15,32 @@
  * limitations under the License.
  *
  */
+import { useParams } from 'react-router-dom';
 
-export enum StatusEnum {
-  CREATED = 'TASK_CREATED',
-  PENDING = 'TASK_PENDING',
-  ACTIVE = 'TASK_ACTIVE',
-  RUNNING = 'TASK_RUNNING',
-  RERUN = 'TASK_RERUN',
-  COMPLETED = 'TASK_COMPLETED',
-  PARTIAL = 'TASK_PARTIAL',
-  FAILED = 'TASK_FAILED',
-  CANCELLED = 'TASK_CANCELLED',
-}
+import { PageHeader, Card } from '@/components';
 
-export type PipelineType = {
-  id: ID;
-  status: StatusEnum;
-  beganAt: string | null;
-  finishedAt: string | null;
-  stage: number;
-  finishedTasks: number;
-  totalTasks: number;
-  message: string;
-};
+import { PipelineInfo, PipelineTasks } from './components';
 
-export type TaskType = {
-  id: ID;
-  plugin: string;
-  status: StatusEnum;
-  pipelineRow: number;
-  pipelineCol: number;
-  beganAt: string | null;
-  finishedAt: string | null;
-  options: any;
-  message: string;
-  progressDetail?: {
-    finishedSubTasks: number;
-    totalSubTasks: number;
-  };
+export const Pipeline = () => {
+  const { id } = useParams();
+
+  return (
+    <PageHeader
+      breadcrumbs={[
+        { name: 'Advanced', path: '/blueprints' },
+        { name: 'Pipelines', path: '/pipelines' },
+        {
+          name: id as string,
+          path: `/pipelines/${id}`,
+        },
+      ]}
+    >
+      <Card>
+        <PipelineInfo id={id as string} />
+      </Card>
+      <Card>
+        <PipelineTasks id={id as string} />
+      </Card>
+    </PageHeader>
+  );
 };

@@ -30,6 +30,7 @@ import {
 } from '@/pages';
 import { Layout, loader as layoutLoader } from '@/routes/layout';
 import { Error, ErrorEnum } from '@/routes/error';
+import { Pipelines, Pipeline } from '@/routes/pipeline';
 
 const router = createBrowserRouter([
   {
@@ -81,6 +82,14 @@ const router = createBrowserRouter([
       {
         path: 'blueprints/:bid/:unique',
         element: <BlueprintConnectionDetailPage />,
+      },
+      {
+        path: 'pipelines',
+        element: <Pipelines />,
+      },
+      {
+        path: 'pipeline/:id',
+        element: <Pipeline />,
       },
     ],
   },

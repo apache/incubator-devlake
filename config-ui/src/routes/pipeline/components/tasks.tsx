@@ -23,14 +23,11 @@ import { groupBy, sortBy } from 'lodash';
 import { Loading } from '@/components';
 import { useAutoRefresh } from '@/hooks';
 
-import type { TaskType } from '../../types';
-import { StatusEnum } from '../../types';
-import * as API from '../../api';
+import * as T from '../types';
+import * as S from '../styled';
+import * as API from '../api';
 
-import { usePipeline } from '../context';
-import { PipelineTask } from '../task';
-
-import * as S from './styled';
+import { PipelineTask } from './task';
 
 interface Props {
   id: ID;
@@ -40,19 +37,21 @@ interface Props {
 export const PipelineTasks = ({ id, style }: Props) => {
   const [isOpen, setIsOpen] = useState(true);
 
-  const { version } = usePipeline();
+  // const { version } = usePipeline();
 
-  const { data } = useAutoRefresh<TaskType[]>(
+  const { data } = useAutoRefresh<T.PipelineTask[]>(
     async () => {
       const taskRes = await API.getPipelineTasks(id);
       return taskRes.tasks;
     },
-    [version],
+    [],
     {
       cancel: (data) => {
         return !!(
           data &&
-          data.every((task) => [StatusEnum.COMPLETED, StatusEnum.FAILED, StatusEnum.CANCELLED].includes(task.status))
+          data.every((task) =>
+            [T.PipelineStatus.COMPLETED, T.PipelineStatus.FAILED, T.PipelineStatus.CANCELLED].includes(task.status),
+          )
         );
       },
     },
@@ -63,23 +62,25 @@ export const PipelineTasks = ({ id, style }: Props) => {
   const handleToggleOpen = () => setIsOpen(!isOpen);
 
   return (
-    <S.Wrapper style={style}>
-      <S.Inner>
-        <S.Header>
+    <S.Tasks>
+      <div className="inner">
+        <S.TasksHeader>
           {Object.keys(stages).map((key) => {
             let status;
 
             switch (true) {
-              case !!stages[key].find((task) => [StatusEnum.ACTIVE, StatusEnum.RUNNING].includes(task.status)):
+              case !!stages[key].find((task) =>
+                [T.PipelineStatus.ACTIVE, T.PipelineStatus.RUNNING].includes(task.status),
+              ):
                 status = 'loading';
                 break;
-              case stages[key].every((task) => task.status === StatusEnum.COMPLETED):
+              case stages[key].every((task) => task.status === T.PipelineStatus.COMPLETED):
                 status = 'success';
                 break;
-              case !!stages[key].find((task) => task.status === StatusEnum.FAILED):
+              case !!stages[key].find((task) => task.status === T.PipelineStatus.FAILED):
                 status = 'error';
                 break;
-              case !!stages[key].find((task) => task.status === StatusEnum.CANCELLED):
+              case !!stages[key].find((task) => task.status === T.PipelineStatus.CANCELLED):
                 status = 'cancel';
                 break;
               default:
@@ -97,9 +98,9 @@ export const PipelineTasks = ({ id, style }: Props) => {
               </li>
             );
           })}
-        </S.Header>
+        </S.TasksHeader>
         <Collapse isOpen={isOpen}>
-          <S.Tasks>
+          <S.TasksList>
             {Object.keys(stages).map((key) => (
               <li key={key}>
                 {stages[key].map((task) => (
@@ -107,15 +108,15 @@ export const PipelineTasks = ({ id, style }: Props) => {
                 ))}
               </li>
             ))}
-          </S.Tasks>
+          </S.TasksList>
         </Collapse>
-      </S.Inner>
+      </div>
       <Button
         className="collapse-control"
         minimal
         icon={isOpen ? 'chevron-down' : 'chevron-up'}
         onClick={handleToggleOpen}
       />
-    </S.Wrapper>
+    </S.Tasks>
   );
 };
