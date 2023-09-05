@@ -18,28 +18,26 @@ limitations under the License.
 package models
 
 import (
-	"time"
-
 	"github.com/apache/incubator-devlake/core/models/common"
 )
 
 type ZentaoChangelog struct {
 	common.NoPKModel `json:"-"`
-	ConnectionId     uint64    `json:"connectionId" mapstructure:"connectionId" gorm:"primaryKey;type:BIGINT  NOT NULL"`
-	Id               int64     `json:"id" mapstructure:"id" gorm:"primaryKey;type:BIGINT  NOT NULL;autoIncrement:false"`
-	ObjectId         int64     `json:"objectId" mapstructure:"objectId" gorm:"index; NOT NULL"`
-	Execution        int64     `json:"execution" mapstructure:"execution" `
-	Actor            string    `json:"actor" mapstructure:"actor" `
-	Action           string    `json:"action" mapstructure:"action"`
-	Extra            string    `json:"extra" mapstructure:"extra"`
-	ObjectType       string    `json:"objectType" mapstructure:"objectType"`
-	Project          int64     `json:"project" mapstructure:"project"`
-	Product          int64     `json:"product" mapstructure:"product"`
-	Vision           string    `json:"vision" mapstructure:"vision"`
-	Comment          string    `json:"comment" mapstructure:"comment"`
-	Efforted         string    `json:"efforted" mapstructure:"efforted"`
-	Date             time.Time `json:"date" mapstructure:"date"`
-	Read             string    `json:"read" mapstructure:"read"`
+	ConnectionId     uint64          `json:"connectionId" mapstructure:"connectionId" gorm:"primaryKey;type:BIGINT  NOT NULL"`
+	Id               int64           `json:"id" mapstructure:"id" gorm:"primaryKey;type:BIGINT  NOT NULL;autoIncrement:false"`
+	ObjectId         int64           `json:"objectId" mapstructure:"objectId" gorm:"index; NOT NULL"`
+	Execution        int64           `json:"execution" mapstructure:"execution" `
+	Actor            string          `json:"actor" mapstructure:"actor" `
+	Action           string          `json:"action" mapstructure:"action"`
+	Extra            string          `json:"extra" mapstructure:"extra"`
+	ObjectType       string          `json:"objectType" mapstructure:"objectType"`
+	Project          int64           `json:"project" mapstructure:"project"`
+	Product          int64           `json:"product" mapstructure:"product"`
+	Vision           string          `json:"vision" mapstructure:"vision"`
+	Comment          string          `json:"comment" mapstructure:"comment"`
+	Efforted         string          `json:"efforted" mapstructure:"efforted"`
+	Date             *common.CSTTime `json:"date" mapstructure:"date"`
+	Read             string          `json:"read" mapstructure:"read"`
 }
 
 func (ZentaoChangelog) TableName() string {
