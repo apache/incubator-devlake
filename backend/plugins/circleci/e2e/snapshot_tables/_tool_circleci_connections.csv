@@ -1,0 +1,2 @@
+name,id,created_at,updated_at,endpoint,proxy,rate_limit_per_hour,token
+circleci-test,1,2023-03-28 15:32:46.540,2023-03-28 15:32:46.540,https://circleci.com/api/,"",20000,mIx6dlPQj7j3eUZN0jiOC1TnQMUYUFvWityt3TH+2pMDm/nZ9/Dp1Mu5ZRtOOMWx
