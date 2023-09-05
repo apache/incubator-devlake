@@ -18,6 +18,7 @@ limitations under the License.
 package api
 
 import (
+	"fmt"
 	"strings"
 
 	"github.com/apache/incubator-devlake/core/models/common"
@@ -27,6 +28,10 @@ import (
 type BaseConnection struct {
 	Name string `gorm:"type:varchar(100);uniqueIndex" json:"name" validate:"required"`
 	common.Model
+}
+
+func (c BaseConnection) GetHash() string {
+	return fmt.Sprintf("%d%v", c.ID, c.UpdatedAt)
 }
 
 // RestConnection implements the ApiConnection interface
