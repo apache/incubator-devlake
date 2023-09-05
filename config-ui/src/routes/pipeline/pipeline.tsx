@@ -15,7 +15,32 @@
  * limitations under the License.
  *
  */
+import { useParams } from 'react-router-dom';
 
-export * from './blueprint';
-export * from './connection';
-export * from './project';
+import { PageHeader, Card } from '@/components';
+
+import { PipelineInfo, PipelineTasks } from './components';
+
+export const Pipeline = () => {
+  const { id } = useParams();
+
+  return (
+    <PageHeader
+      breadcrumbs={[
+        { name: 'Advanced', path: '/blueprints' },
+        { name: 'Pipelines', path: '/pipelines' },
+        {
+          name: id as string,
+          path: `/pipelines/${id}`,
+        },
+      ]}
+    >
+      <Card>
+        <PipelineInfo id={id as string} />
+      </Card>
+      <Card>
+        <PipelineTasks id={id as string} />
+      </Card>
+    </PageHeader>
+  );
+};

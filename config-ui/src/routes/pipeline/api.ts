@@ -16,6 +16,29 @@
  *
  */
 
-export * from './blueprint';
-export * from './connection';
-export * from './project';
+import { request } from '@/utils';
+
+import * as T from './types';
+
+export const getPipelines = (): Promise<{ count: number; pipelines: T.Pipeline[] }> => request('/pipelines');
+
+export const getPipeline = (id: ID) => request(`/pipelines/${id}`);
+
+export const deletePipeline = (id: ID) =>
+  request(`/pipelines/${id}`, {
+    method: 'delete',
+  });
+
+export const rerunPipeline = (id: ID) =>
+  request(`/pipelines/${id}/rerun`, {
+    method: 'post',
+  });
+
+export const getPipelineLog = (id: ID) => request(`/pipelines/${id}/logging.tar.gz`);
+
+export const getPipelineTasks = (id: ID) => request(`/pipelines/${id}/tasks`);
+
+export const taskRerun = (id: ID) =>
+  request(`/tasks/${id}/rerun`, {
+    method: 'post',
+  });

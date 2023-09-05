@@ -16,6 +16,7 @@
  *
  */
 
-export * from './blueprint';
-export * from './connection';
-export * from './project';
+export * from './status';
+export * from './table';
+export * from './info';
+export * from './tasks';

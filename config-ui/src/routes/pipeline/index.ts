@@ -16,6 +16,6 @@
  *
  */
 
-export * from './blueprint';
-export * from './connection';
-export * from './project';
+export * from './components';
+export * from './pipelines';
+export * from './pipeline';

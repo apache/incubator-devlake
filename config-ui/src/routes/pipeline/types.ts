@@ -16,6 +16,41 @@
  *
  */
 
-export * from './blueprint';
-export * from './connection';
-export * from './project';
+export enum PipelineStatus {
+  CREATED = 'TASK_CREATED',
+  PENDING = 'TASK_PENDING',
+  ACTIVE = 'TASK_ACTIVE',
+  RUNNING = 'TASK_RUNNING',
+  RERUN = 'TASK_RERUN',
+  COMPLETED = 'TASK_COMPLETED',
+  PARTIAL = 'TASK_PARTIAL',
+  FAILED = 'TASK_FAILED',
+  CANCELLED = 'TASK_CANCELLED',
+}
+
+export type Pipeline = {
+  id: ID;
+  status: PipelineStatus;
+  beganAt: string | null;
+  finishedAt: string | null;
+  stage: number;
+  finishedTasks: number;
+  totalTasks: number;
+  message: string;
+};
+
+export type PipelineTask = {
+  id: ID;
+  plugin: string;
+  status: PipelineStatus;
+  pipelineRow: number;
+  pipelineCol: number;
+  beganAt: string | null;
+  finishedAt: string | null;
+  options: any;
+  message: string;
+  progressDetail?: {
+    finishedSubTasks: number;
+    totalSubTasks: number;
+  };
+};

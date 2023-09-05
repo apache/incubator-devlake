@@ -16,6 +16,35 @@
  *
  */
 
-export * from './blueprint';
-export * from './connection';
-export * from './project';
+import dayjs from 'dayjs';
+
+import * as T from '../types';
+
+interface Props {
+  status: T.PipelineStatus;
+  beganAt: string | null;
+  finishedAt: string | null;
+}
+
+export const PipelineDuration = ({ status, beganAt, finishedAt }: Props) => {
+  if (!beganAt) {
+    return <span>-</span>;
+  }
+
+  if (
+    ![
+      T.PipelineStatus.CANCELLED,
+      T.PipelineStatus.COMPLETED,
+      T.PipelineStatus.PARTIAL,
+      T.PipelineStatus.FAILED,
+    ].includes(status)
+  ) {
+    return <span>{dayjs(beganAt).toNow(true)}</span>;
+  }
+
+  if (!finishedAt) {
+    return <span>-</span>;
+  }
+
+  return <span>{dayjs(beganAt).from(finishedAt, true)}</span>;
+};
