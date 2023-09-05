@@ -21,6 +21,7 @@ import (
 	"fmt"
 
 	"github.com/apache/incubator-devlake/core/errors"
+	coreModels "github.com/apache/incubator-devlake/core/models"
 	"github.com/apache/incubator-devlake/core/models/domainlayer"
 	"github.com/apache/incubator-devlake/core/models/domainlayer/devops"
 	"github.com/apache/incubator-devlake/core/models/domainlayer/ticket"
@@ -28,7 +29,7 @@ import (
 	"github.com/apache/incubator-devlake/plugins/webhook/models"
 )
 
-func MakeDataSourcePipelinePlanV200(connectionId uint64) (plugin.PipelinePlan, []plugin.Scope, errors.Error) {
+func MakeDataSourcePipelinePlanV200(connectionId uint64) (coreModels.PipelinePlan, []plugin.Scope, errors.Error) {
 	// get the connection info for url
 	connection := &models.WebhookConnection{}
 	err := connectionHelper.FirstById(connection, connectionId)

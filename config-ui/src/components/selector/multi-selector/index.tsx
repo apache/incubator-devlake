@@ -24,6 +24,7 @@ import { useDebounce } from 'ahooks';
 interface Props<T> {
   placeholder?: string;
   loading?: boolean;
+  disabled?: boolean;
   items: T[];
   disabledItems?: T[];
   getKey?: (item: T) => string | number;
@@ -38,6 +39,7 @@ interface Props<T> {
 export const MultiSelector = <T,>({
   placeholder,
   loading = false,
+  disabled = false,
   items,
   disabledItems = [],
   getKey = (it) => it as string,
@@ -119,6 +121,7 @@ export const MultiSelector = <T,>({
 
   return (
     <MultiSelect2
+      disabled={disabled}
       resetOnSelect
       fill
       placeholder={placeholder ?? 'Select...'}

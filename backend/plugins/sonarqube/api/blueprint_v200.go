@@ -24,6 +24,7 @@ import (
 
 	"github.com/apache/incubator-devlake/core/dal"
 	"github.com/apache/incubator-devlake/core/errors"
+	coreModels "github.com/apache/incubator-devlake/core/models"
 	"github.com/apache/incubator-devlake/core/models/domainlayer"
 	"github.com/apache/incubator-devlake/core/models/domainlayer/codequality"
 	"github.com/apache/incubator-devlake/core/models/domainlayer/didgen"
@@ -33,8 +34,13 @@ import (
 	"github.com/apache/incubator-devlake/plugins/sonarqube/models"
 )
 
-func MakeDataSourcePipelinePlanV200(subtaskMetas []plugin.SubTaskMeta, connectionId uint64, bpScopes []*plugin.BlueprintScopeV200, syncPolicy *plugin.BlueprintSyncPolicy) (plugin.PipelinePlan, []plugin.Scope, errors.Error) {
-	plan := make(plugin.PipelinePlan, len(bpScopes))
+func MakeDataSourcePipelinePlanV200(
+	subtaskMetas []plugin.SubTaskMeta,
+	connectionId uint64,
+	bpScopes []*coreModels.BlueprintScope,
+	syncPolicy *coreModels.BlueprintSyncPolicy,
+) (coreModels.PipelinePlan, []plugin.Scope, errors.Error) {
+	plan := make(coreModels.PipelinePlan, len(bpScopes))
 	plan, err := makeDataSourcePipelinePlanV200(subtaskMetas, plan, bpScopes, connectionId, syncPolicy)
 	if err != nil {
 		return nil, nil, err
@@ -49,26 +55,26 @@ func MakeDataSourcePipelinePlanV200(subtaskMetas []plugin.SubTaskMeta, connectio
 
 func makeDataSourcePipelinePlanV200(
 	subtaskMetas []plugin.SubTaskMeta,
-	plan plugin.PipelinePlan,
-	bpScopes []*plugin.BlueprintScopeV200,
+	plan coreModels.PipelinePlan,
+	bpScopes []*coreModels.BlueprintScope,
 	connectionId uint64,
-	syncPolicy *plugin.BlueprintSyncPolicy,
-) (plugin.PipelinePlan, errors.Error) {
+	syncPolicy *coreModels.BlueprintSyncPolicy,
+) (coreModels.PipelinePlan, errors.Error) {
 	for i, bpScope := range bpScopes {
 		stage := plan[i]
 		if stage == nil {
-			stage = plugin.PipelineStage{}
+			stage = coreModels.PipelineStage{}
 		}
 		// construct task options for Sonarqube
 		options := make(map[string]interface{})
 		options["connectionId"] = connectionId
-		options["projectKey"] = bpScope.Id
+		options["projectKey"] = bpScope.ScopeId
 
 		subtasks, err := helper.MakePipelinePlanSubtasks(subtaskMetas, plugin.DOMAIN_TYPES)
 		if err != nil {
 			return nil, err
 		}
-		stage = append(stage, &plugin.PipelineTask{
+		stage = append(stage, &coreModels.PipelineTask{
 			Plugin:   "sonarqube",
 			Subtasks: subtasks,
 			Options:  options,
@@ -79,16 +85,16 @@ func makeDataSourcePipelinePlanV200(
 	return plan, nil
 }
 
-func makeScopesV200(bpScopes []*plugin.BlueprintScopeV200, connectionId uint64) ([]plugin.Scope, errors.Error) {
+func makeScopesV200(bpScopes []*coreModels.BlueprintScope, connectionId uint64) ([]plugin.Scope, errors.Error) {
 	scopes := make([]plugin.Scope, 0)
 	for _, bpScope := range bpScopes {
 		sonarqubeProject := &models.SonarqubeProject{}
 		// get repo from db
 		err := basicRes.GetDal().First(sonarqubeProject,
 			dal.Where("connection_id = ? and project_key = ?",
-				connectionId, bpScope.Id))
+				connectionId, bpScope.ScopeId))
 		if err != nil {
-			return nil, errors.Default.Wrap(err, fmt.Sprintf("fail to find sonarqube project %s", bpScope.Id))
+			return nil, errors.Default.Wrap(err, fmt.Sprintf("fail to find sonarqube project %s", bpScope.ScopeId))
 		}
 		// add board to scopes
 		// if utils.StringsContains(bpScope.Entities, plugin.DOMAIN_TYPE_CODE_QUALITY) {

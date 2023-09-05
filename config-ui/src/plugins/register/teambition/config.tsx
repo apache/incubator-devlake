@@ -88,10 +88,7 @@ export const TeambitionConfig: PluginConfigType = {
     ],
   },
   dataScope: {
-    millerColumns: {
-      title: '',
-      subTitle: '',
-    },
+    title: '',
   },
   scopeConfig: {
     entities: ['TICKET'],

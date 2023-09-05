@@ -57,10 +57,7 @@ export const getPluginConfig = (name: string): PluginConfigType => {
         fields: [],
       },
       dataScope: {
-        millerColumns: {
-          title: '',
-          subTitle: '',
-        },
+        title: '',
       },
     };
   }

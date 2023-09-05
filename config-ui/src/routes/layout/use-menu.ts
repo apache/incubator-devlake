@@ -62,7 +62,6 @@ export const useMenu = () => {
               title: 'Pipelines',
               icon: '',
               path: '/pipelines',
-              disabled: true,
             },
           ],
         },

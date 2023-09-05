@@ -20,6 +20,7 @@ package api
 import (
 	"testing"
 
+	coreModels "github.com/apache/incubator-devlake/core/models"
 	"github.com/apache/incubator-devlake/core/models/common"
 	"github.com/apache/incubator-devlake/core/models/domainlayer"
 	"github.com/apache/incubator-devlake/core/models/domainlayer/code"
@@ -62,21 +63,21 @@ func TestMakeDataSourcePipelinePlanV200(t *testing.T) {
 	// Refresh Global Variables and set the sql mock
 	mockBasicRes(t)
 
-	bs := &plugin.BlueprintScopeV200{
-		Id: "1",
+	bs := &coreModels.BlueprintScope{
+		ScopeId: "1",
 	}
-	bpScopes := make([]*plugin.BlueprintScopeV200, 0)
+	bpScopes := make([]*coreModels.BlueprintScope, 0)
 	bpScopes = append(bpScopes, bs)
-	syncPolicy := &plugin.BlueprintSyncPolicy{}
+	syncPolicy := &coreModels.BlueprintSyncPolicy{}
 
-	plan := make(plugin.PipelinePlan, len(bpScopes))
+	plan := make(coreModels.PipelinePlan, len(bpScopes))
 	plan, err = makeDataSourcePipelinePlanV200(nil, plan, bpScopes, connection, syncPolicy)
 	assert.Nil(t, err)
 	scopes, err := makeScopesV200(bpScopes, connection)
 	assert.Nil(t, err)
 
-	expectPlan := plugin.PipelinePlan{
-		plugin.PipelineStage{
+	expectPlan := coreModels.PipelinePlan{
+		coreModels.PipelineStage{
 			{
 				Plugin:   "bitbucket",
 				Subtasks: []string{},
@@ -95,7 +96,7 @@ func TestMakeDataSourcePipelinePlanV200(t *testing.T) {
 				},
 			},
 		},
-		plugin.PipelineStage{
+		coreModels.PipelineStage{
 			{
 				Plugin: "refdiff",
 				Options: map[string]interface{}{

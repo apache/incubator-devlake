@@ -92,5 +92,6 @@ func All() []plugin.MigrationScript {
 		new(modifyCicdPipelinesToText),
 		new(dropTapStateTable),
 		new(addCICDDeploymentsTable),
+		new(normalizeBpSettings),
 	}
 }

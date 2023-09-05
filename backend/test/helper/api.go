@@ -27,7 +27,6 @@ import (
 
 	"github.com/apache/incubator-devlake/core/errors"
 	"github.com/apache/incubator-devlake/core/models"
-	"github.com/apache/incubator-devlake/core/plugin"
 	"github.com/apache/incubator-devlake/server/api/blueprints"
 	apiProject "github.com/apache/incubator-devlake/server/api/project"
 	"github.com/apache/incubator-devlake/server/api/shared"
@@ -79,13 +78,6 @@ func (d *DevlakeClient) DeleteConnection(pluginName string, connectionId uint64)
 
 // CreateBasicBlueprintV2 FIXME
 func (d *DevlakeClient) CreateBasicBlueprintV2(name string, config *BlueprintV2Config) models.Blueprint {
-	settings := &models.BlueprintSettings{
-		Version:   "2.0.0",
-		TimeAfter: config.TimeAfter,
-		Connections: ToJson([]*plugin.BlueprintConnectionV200{
-			config.Connection,
-		}),
-	}
 	blueprint := models.Blueprint{
 		Name:        name,
 		ProjectName: config.ProjectName,
@@ -96,7 +88,9 @@ func (d *DevlakeClient) CreateBasicBlueprintV2(name string, config *BlueprintV2C
 		IsManual:    true,
 		SkipOnFail:  config.SkipOnFail,
 		Labels:      []string{"test-label"},
-		Settings:    ToJson(settings),
+		Connections: []*models.BlueprintConnection{
+			config.Connection,
+		},
 	}
 	d.testCtx.Helper()
 	blueprint = sendHttpRequest[models.Blueprint](d.testCtx, d.timeout, &testContext{

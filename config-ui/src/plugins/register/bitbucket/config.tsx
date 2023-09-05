@@ -61,11 +61,8 @@ export const BitBucketConfig: PluginConfigType = {
     ],
   },
   dataScope: {
-    millerColumns: {
-      title: 'Repositories *',
-      subTitle: 'Select the repositories you would like to sync.',
-      columnCount: 2,
-    },
+    title: 'Repositories',
+    millerColumnCount: 2,
   },
   scopeConfig: {
     entities: ['CODE', 'TICKET', 'CODEREVIEW', 'CROSS', 'CICD'],

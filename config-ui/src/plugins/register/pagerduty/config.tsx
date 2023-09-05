@@ -56,9 +56,6 @@ export const PagerDutyConfig: PluginConfigType = {
     ],
   },
   dataScope: {
-    millerColumns: {
-      title: 'PagerDuty Services *',
-      subTitle: 'You can either add services by searching or selecting from the following directory.',
-    },
+    title: 'Services',
   },
 };
