@@ -22,6 +22,7 @@ import type { PluginConfigType } from '../../types';
 import { PluginType } from '../../types';
 
 import Icon from './assets/icon.svg';
+import { DataScope } from './data-scope';
 
 export const JenkinsConfig: PluginConfigType = {
   type: PluginType.Connection,
@@ -51,10 +52,7 @@ export const JenkinsConfig: PluginConfigType = {
     ],
   },
   dataScope: {
-    millerColumns: {
-      title: 'Jobs *',
-      subTitle: 'Select the jobs you would like to sync.',
-    },
+    render: ({ ...props }) => <DataScope {...props} />,
   },
   scopeConfig: {
     entities: ['CICD'],

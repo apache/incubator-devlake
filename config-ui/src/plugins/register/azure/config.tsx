@@ -58,10 +58,7 @@ export const AzureConfig: PluginConfigType = {
     ],
   },
   dataScope: {
-    millerColumns: {
-      title: 'Add Repositories by Selecting from the Directory',
-      subTitle: 'The following directory lists out all repositories in your organizations.',
-    },
+    title: 'Repositories',
   },
   scopeConfig: {
     entities: ['CODE', 'CODEREVIEW', 'CROSS', 'CICD'],

@@ -16,8 +16,20 @@
  *
  */
 
-export type ScopeItemType = {
-  connectionId: ID;
-  jobFullName: string;
+export type ResItem = {
+  type: 'group' | 'scope';
+  parentId: ID | null;
+  id: ID;
   name: string;
+  fullName: string;
+  data: any;
 };
+
+export type GetRemoteScopeParams = {
+  groupId: ID | null;
+  pageToken?: string;
+};
+
+export type SearchRemoteScopeParams = {
+  search?: string;
+} & Pagination;

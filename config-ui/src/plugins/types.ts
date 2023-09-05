@@ -34,16 +34,9 @@ export type PluginConfigType = {
     fields: any[];
   };
   dataScope: {
-    millerColumns?: {
-      title: string;
-      subTitle: string;
-      firstColumnTitle?: string;
-      columnCount?: number;
-    };
-    search?: {
-      title?: string;
-      subTitle?: string;
-    };
+    title?: string;
+    millerColumnCount?: number;
+    millerFirstTitle?: string;
     render?: (props: any) => React.ReactNode;
   };
   scopeConfig?: {

@@ -68,15 +68,9 @@ export const GitLabConfig: PluginConfigType = {
     ],
   },
   dataScope: {
-    millerColumns: {
-      title: 'Projects *',
-      subTitle: 'Select the project you would like to sync.',
-      firstColumnTitle: 'Subgroups/Projects',
-    },
-    search: {
-      title: 'Add repositories outside of your projects',
-      subTitle: 'Search for repositories and add to them',
-    },
+    title: 'Projects',
+    millerColumnCount: 2.5,
+    millerFirstTitle: 'Subgroups/Projects',
   },
   scopeConfig: {
     entities: ['CODE', 'TICKET', 'CODEREVIEW', 'CROSS', 'CICD'],
