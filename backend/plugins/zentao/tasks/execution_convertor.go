@@ -105,7 +105,8 @@ func ConvertExecutions(taskCtx plugin.SubTaskContext) errors.Error {
 			}
 
 			boardSprint := &ticket.BoardSprint{
-				BoardId: sprint.OriginalBoardID,
+				BoardId:  sprint.OriginalBoardID,
+				SprintId: sprint.Id,
 			}
 			results := make([]interface{}, 0)
 			results = append(results, sprint, boardSprint)
