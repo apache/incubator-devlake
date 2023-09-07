@@ -81,17 +81,6 @@ func CreateRawDataSubTaskArgs(taskCtx plugin.SubTaskContext, rawTable string) (*
 	return rawDataSubTaskArgs, &filteredData
 }
 
-func findProjectByProjectSlug(db dal.Dal, projectSlug string) (*models.CircleciProject, errors.Error) {
-	if projectSlug == "" {
-		return nil, errors.Default.New("projectSlug must not empty")
-	}
-	project := &models.CircleciProject{}
-	if err := db.First(project, dal.Where("project_slug = ?", projectSlug)); err != nil {
-		return nil, err
-	}
-	return project, nil
-}
-
 func findPipelineById(db dal.Dal, id string) (*models.CircleciPipeline, errors.Error) {
 	if id == "" {
 		return nil, errors.Default.New("id must not empty")

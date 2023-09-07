@@ -80,6 +80,7 @@ func Test_GetPluginTablesInfo(t *testing.T) {
 	checker.FeedIn("trello/models", trello.Trello{}.GetTablesInfo)
 	checker.FeedIn("webhook/models", webhook.Webhook{}.GetTablesInfo)
 	checker.FeedIn("zentao/models", zentao.Zentao{}.GetTablesInfo)
+	checker.FeedIn("circleci/models", zentao.Zentao{}.GetTablesInfo)
 	err := checker.Verify()
 	if err != nil {
 		t.Error(err)
