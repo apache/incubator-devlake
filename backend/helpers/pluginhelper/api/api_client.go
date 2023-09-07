@@ -381,7 +381,6 @@ func UnmarshalResponse(res *http.Response, v interface{}) errors.Error {
 	}
 	err = errors.Convert(json.Unmarshal(resBody, &v))
 	if err != nil {
-		println(string(resBody))
 		return errors.Default.New(fmt.Sprintf("error decoding response from %s: raw response: %s", res.Request.URL.String(), string(resBody)))
 	}
 	return nil
