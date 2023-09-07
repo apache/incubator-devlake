@@ -53,9 +53,9 @@ type ScopeConfig struct {
 }
 
 type NoPKModel struct {
-	CreatedAt     time.Time `json:"createdAt"`
-	UpdatedAt     time.Time `json:"updatedAt"`
-	RawDataOrigin `swaggerignore:"true"`
+	CreatedAt     time.Time `json:"createdAt" mapstructure:"createdAt"`
+	UpdatedAt     time.Time `json:"updatedAt" mapstructure:"updatedAt"`
+	RawDataOrigin `swaggerignore:"true" json:"-"`
 }
 
 // embedded fields for tool layer tables

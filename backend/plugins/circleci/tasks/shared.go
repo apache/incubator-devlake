@@ -59,11 +59,6 @@ func getJobIdGen() *didgen.DomainIdGenerator {
 	return jobIdGen
 }
 
-type CircleciApiParams struct {
-	ConnectionId uint64
-	ProjectSlug  string
-}
-
 type CircleciPageTokenResp[T any] struct {
 	Items         T      `json:"items"`
 	NextPageToken string `json:"next_page_token"`
@@ -74,7 +69,7 @@ func CreateRawDataSubTaskArgs(taskCtx plugin.SubTaskContext, rawTable string) (*
 	filteredData := *data
 	filteredData.Options = &CircleciOptions{}
 	*filteredData.Options = *data.Options
-	params := CircleciApiParams{
+	params := models.CircleciApiParams{
 		ConnectionId: data.Options.ConnectionId,
 		ProjectSlug:  data.Options.ProjectSlug,
 	}

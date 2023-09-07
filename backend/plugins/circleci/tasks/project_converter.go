@@ -19,6 +19,8 @@ package tasks
 
 import (
 	"fmt"
+	"reflect"
+
 	"github.com/apache/incubator-devlake/core/dal"
 	"github.com/apache/incubator-devlake/core/errors"
 	"github.com/apache/incubator-devlake/core/models/domainlayer"
@@ -26,7 +28,6 @@ import (
 	"github.com/apache/incubator-devlake/core/plugin"
 	helper "github.com/apache/incubator-devlake/helpers/pluginhelper/api"
 	"github.com/apache/incubator-devlake/plugins/circleci/models"
-	"reflect"
 )
 
 var ConvertProjectsMeta = plugin.SubTaskMeta{
@@ -42,7 +43,7 @@ func ConvertProjects(taskCtx plugin.SubTaskContext) errors.Error {
 	db := taskCtx.GetDal()
 	clauses := []dal.Clause{
 		dal.From(&models.CircleciProject{}),
-		dal.Where("connection_id = ? AND project_slug = ?", data.Options.ConnectionId, data.Options.ProjectSlug),
+		dal.Where("connection_id = ? AND slug = ?", data.Options.ConnectionId, data.Options.ProjectSlug),
 	}
 
 	cursor, err := db.Cursor(clauses...)
@@ -58,7 +59,7 @@ func ConvertProjects(taskCtx plugin.SubTaskContext) errors.Error {
 			userTool := inputRow.(*models.CircleciProject)
 			account := &devops.CicdScope{
 				DomainEntity: domainlayer.DomainEntity{
-					Id: getProjectIdGen().Generate(data.Options.ConnectionId, userTool.Id),
+					Id: getProjectIdGen().Generate(data.Options.ConnectionId, userTool.Slug),
 				},
 				Name: userTool.Name,
 				Url:  fmt.Sprintf("https://app.circleci.com/pipelines/%s", data.Options.ProjectSlug),

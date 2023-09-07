@@ -1,2 +1,2 @@
-connection_id,id,project_slug,slug,name,organization_name,organization_slug,organization_id,vcs_info,created_at,updated_at,_raw_data_params,_raw_data_table,_raw_data_id,_raw_data_remark
-1,918df292-936a-41b2-8174-696c6cdd6cf5,github/coldgust/coldgust.github.io,gh/coldgust/coldgust.github.io,coldgust.github.io,coldgust,gh/coldgust,69dad4c8-00c3-4d4a-a368-4a9cc1599781,"{""vcs_url"":""https://github.com/coldgust/coldgust.github.io"",""provider"":""GitHub"",""default_branch"":""master""}",2023-03-28 15:39:55.596,2023-03-28 15:39:55.596,"{""ConnectionId"":1,""ProjectSlug"":""github/coldgust/coldgust.github.io""}",_raw_circleci_api_projects,3,""
+connection_id,id,slug,name,organization_id,scope_config_id
+1,918df292-936a-41b2-8174-696c6cdd6cf5,github/coldgust/coldgust.github.io,coldgust.github.io,,0

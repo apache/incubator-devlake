@@ -19,6 +19,7 @@ package tasks
 
 import (
 	"encoding/json"
+
 	"github.com/apache/incubator-devlake/core/errors"
 	"github.com/apache/incubator-devlake/core/plugin"
 	"github.com/apache/incubator-devlake/helpers/pluginhelper/api"
@@ -30,7 +31,7 @@ var _ plugin.SubTaskEntryPoint = ExtractProjects
 var ExtractProjectsMeta = plugin.SubTaskMeta{
 	Name:             "extractProjects",
 	EntryPoint:       ExtractProjects,
-	EnabledByDefault: true,
+	EnabledByDefault: false,
 	Description:      "Extract raw workspace data into tool layer table _tool_circleci_projects",
 	DomainTypes:      []string{plugin.DOMAIN_TYPE_CICD},
 }
@@ -47,7 +48,7 @@ func ExtractProjects(taskCtx plugin.SubTaskContext) errors.Error {
 			}
 			toolL := userRes
 			toolL.ConnectionId = data.Options.ConnectionId
-			toolL.ProjectSlug = data.Options.ProjectSlug
+			toolL.Slug = data.Options.ProjectSlug
 			return []interface{}{
 				&toolL,
 			}, nil
