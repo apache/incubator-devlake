@@ -18,10 +18,11 @@ limitations under the License.
 package tasks
 
 import (
+	"net/url"
+
 	"github.com/apache/incubator-devlake/core/errors"
 	"github.com/apache/incubator-devlake/core/plugin"
 	"github.com/apache/incubator-devlake/helpers/pluginhelper/api"
-	"net/url"
 )
 
 const RAW_PROJECT_TABLE = "circleci_api_projects"
@@ -31,7 +32,7 @@ var _ plugin.SubTaskEntryPoint = CollectProjects
 var CollectProjectsMeta = plugin.SubTaskMeta{
 	Name:             "collectProjects",
 	EntryPoint:       CollectProjects,
-	EnabledByDefault: true,
+	EnabledByDefault: false,
 	Description:      "collect circleci projects",
 	DomainTypes:      []string{plugin.DOMAIN_TYPE_CICD},
 }

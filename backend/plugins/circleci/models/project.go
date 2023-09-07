@@ -17,28 +17,59 @@ limitations under the License.
 
 package models
 
-import "github.com/apache/incubator-devlake/core/models/common"
+import (
+	"github.com/apache/incubator-devlake/core/models/common"
+	"github.com/apache/incubator-devlake/core/plugin"
+)
 
 type CircleciProject struct {
-	ConnectionId     uint64          `gorm:"primaryKey;type:BIGINT"`
-	Id               string          `gorm:"primaryKey;type:varchar(100)" json:"id"`
-	ProjectSlug      string          `gorm:"uniqueIndex;type:varchar(255)" json:"project_slug"`
-	Slug             string          `gorm:"type:varchar(255)" json:"slug"`
-	Name             string          `gorm:"type:varchar(255)" json:"name"`
-	OrganizationName string          `gorm:"type:varchar(255)" json:"organization_name"`
-	OrganizationSlug string          `gorm:"type:varchar(255)" json:"organization_slug"`
-	OrganizationId   string          `gorm:"type:varchar(100)" json:"organization_id"`
-	VcsInfo          CircleciVcsInfo `gorm:"serializer:json;type:text" json:"vcs_info"`
+	ConnectionId   uint64 `gorm:"primaryKey;type:BIGINT" json:"connectionId" mapstructure:"connectionId"`
+	Id             string `gorm:"primaryKey;type:varchar(100)" json:"id" mapstructure:"id"`
+	Slug           string `gorm:"type:varchar(255)" json:"slug" mapstructure:"slug"`
+	Name           string `gorm:"type:varchar(255)" json:"name" mapstructure:"name"`
+	OrganizationId string `gorm:"type:varchar(100)" json:"organizationId" mapstructure:"organizationId"`
+	// VcsInfo        CircleciVcsInfo `gorm:"serializer:json;type:text" json:"vcsInfo" mapstructure:"vcsInfo"`
+	ScopeConfigId uint64 `json:"scopeConfigId,omitempty" mapstructure:"scopeConfigId,omitempty"`
 
-	common.NoPKModel
+	common.NoPKModel `swaggerignore:"true" json:"-" mapstructure:"-"`
 }
 
 type CircleciVcsInfo struct {
-	VcsUrl        string `json:"vcs_url"`
+	VcsUrl        string `json:"vcsUrl"`
 	Provider      string `json:"provider"`
-	DefaultBranch string `json:"default_branch"`
+	DefaultBranch string `json:"defaultBranch"`
 }
 
 func (CircleciProject) TableName() string {
 	return "_tool_circleci_projects"
+}
+
+var _ plugin.ToolLayerScope = (*CircleciProject)(nil)
+
+type CircleciApiParams struct {
+	ConnectionId uint64
+	ProjectSlug  string
+}
+
+// ScopeFullName implements plugin.ToolLayerScope.
+func (c CircleciProject) ScopeFullName() string {
+	return c.Slug
+}
+
+// ScopeId implements plugin.ToolLayerScope.
+func (c CircleciProject) ScopeId() string {
+	return c.Id
+}
+
+// ScopeName implements plugin.ToolLayerScope.
+func (c CircleciProject) ScopeName() string {
+	return c.Name
+}
+
+// ScopeParams implements plugin.ToolLayerScope.
+func (c CircleciProject) ScopeParams() interface{} {
+	return &CircleciApiParams{
+		ConnectionId: c.ConnectionId,
+		ProjectSlug:  c.Slug,
+	}
 }

@@ -53,8 +53,8 @@ type ScopeConfig struct {
 }
 
 type NoPKModel struct {
-	CreatedAt     time.Time `json:"createdAt"`
-	UpdatedAt     time.Time `json:"updatedAt"`
+	CreatedAt     time.Time `json:"createdAt" mapstructure:"createdAt"`
+	UpdatedAt     time.Time `json:"updatedAt" mapstructure:"updatedAt"`
 	RawDataOrigin `swaggerignore:"true"`
 }
 

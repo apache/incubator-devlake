@@ -20,17 +20,17 @@ package api
 import (
 	"context"
 	"fmt"
+	"net/http"
+
 	"github.com/apache/incubator-devlake/core/errors"
 	"github.com/apache/incubator-devlake/core/plugin"
 	"github.com/apache/incubator-devlake/helpers/pluginhelper/api"
 	"github.com/apache/incubator-devlake/plugins/circleci/models"
 	"github.com/apache/incubator-devlake/server/api/shared"
-	"net/http"
 )
 
 type CircleciTestConnResponse struct {
 	shared.ApiBody
-	Connection *models.CircleciConn
 }
 
 // TestConnection @Summary test circleci connection
@@ -67,7 +67,6 @@ func TestConnection(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, 
 	body := CircleciTestConnResponse{}
 	body.Success = true
 	body.Message = "success"
-	body.Connection = &connection
 	// output
 	return &plugin.ApiResourceOutput{Body: body, Status: 200}, nil
 }
@@ -115,13 +114,7 @@ func PatchConnection(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput,
 // @Failure 500  {string} errcode.Error "Internal Error"
 // @Router /plugins/circleci/connections/{connectionId} [DELETE]
 func DeleteConnection(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, errors.Error) {
-	connection := &models.CircleciConnection{}
-	err := connectionHelper.First(connection, input.Params)
-	if err != nil {
-		return nil, err
-	}
-	err = connectionHelper.Delete(connection)
-	return &plugin.ApiResourceOutput{Body: connection}, err
+	return connectionHelper.Delete(&models.CircleciConnection{}, input)
 }
 
 // ListConnections @Summary get all circleci connections

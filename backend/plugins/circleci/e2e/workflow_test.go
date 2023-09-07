@@ -18,6 +18,8 @@ limitations under the License.
 package e2e
 
 import (
+	"testing"
+
 	"github.com/apache/incubator-devlake/core/models/common"
 	"github.com/apache/incubator-devlake/core/models/domainlayer"
 	"github.com/apache/incubator-devlake/core/models/domainlayer/devops"
@@ -25,7 +27,6 @@ import (
 	"github.com/apache/incubator-devlake/plugins/circleci/impl"
 	"github.com/apache/incubator-devlake/plugins/circleci/models"
 	"github.com/apache/incubator-devlake/plugins/circleci/tasks"
-	"testing"
 )
 
 func TestCircleciWorkflow(t *testing.T) {

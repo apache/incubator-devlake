@@ -27,7 +27,7 @@ type CircleciAccount struct {
 	AvatarUrl    string `gorm:"type:varchar(255)" json:"avatar_url"`
 	Slug         string `gorm:"type:varchar(255)" json:"slug"`
 
-	common.NoPKModel
+	common.NoPKModel `swaggerignore:"true" json:"-" mapstructure:"-"`
 }
 
 func (CircleciAccount) TableName() string {

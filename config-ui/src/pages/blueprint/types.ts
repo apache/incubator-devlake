@@ -36,15 +36,12 @@ export type BlueprintType = {
   cronConfig: string;
   skipOnFail: boolean;
   plan: any;
-  settings: {
-    version: string;
-    timeAfter: null | string;
-    connections: Array<{
-      plugin: string;
-      connectionId: ID;
-      scopes?: Array<{
-        id: string;
-      }>;
+  timeAfter: null | string;
+  connections: Array<{
+    pluginName: string;
+    connectionId: ID;
+    scopes?: Array<{
+      scopeId: string;
     }>;
-  };
+  }>;
 };

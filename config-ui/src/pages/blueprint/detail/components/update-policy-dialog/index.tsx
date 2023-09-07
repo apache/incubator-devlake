@@ -54,13 +54,7 @@ export const UpdatePolicyDialog = ({ blueprint, operating, onCancel, onSubmit, .
       isManual,
       cronConfig,
       skipOnFail,
-      settings:
-        blueprint.mode === ModeEnum.normal
-          ? {
-              ...blueprint.settings,
-              timeAfter,
-            }
-          : undefined,
+      timeAfter,
     });
   };
 
