@@ -36,7 +36,7 @@ func TestZentaoExecutionDataFlow(t *testing.T) {
 	taskData := &tasks.ZentaoTaskData{
 		Options: &tasks.ZentaoOptions{
 			ConnectionId: 1,
-			ProjectId:    1,
+			ProjectId:    192,
 		},
 		ApiClient: getFakeAPIClient(),
 	}
