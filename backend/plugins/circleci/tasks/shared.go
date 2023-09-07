@@ -59,11 +59,6 @@ func getJobIdGen() *didgen.DomainIdGenerator {
 	return jobIdGen
 }
 
-type CircleciApiParams struct {
-	ConnectionId uint64
-	ProjectSlug  string
-}
-
 type CircleciPageTokenResp[T any] struct {
 	Items         T      `json:"items"`
 	NextPageToken string `json:"next_page_token"`
@@ -74,7 +69,7 @@ func CreateRawDataSubTaskArgs(taskCtx plugin.SubTaskContext, rawTable string) (*
 	filteredData := *data
 	filteredData.Options = &CircleciOptions{}
 	*filteredData.Options = *data.Options
-	params := CircleciApiParams{
+	params := models.CircleciApiParams{
 		ConnectionId: data.Options.ConnectionId,
 		ProjectSlug:  data.Options.ProjectSlug,
 	}
@@ -84,17 +79,6 @@ func CreateRawDataSubTaskArgs(taskCtx plugin.SubTaskContext, rawTable string) (*
 		Table:  rawTable,
 	}
 	return rawDataSubTaskArgs, &filteredData
-}
-
-func findProjectByProjectSlug(db dal.Dal, projectSlug string) (*models.CircleciProject, errors.Error) {
-	if projectSlug == "" {
-		return nil, errors.Default.New("projectSlug must not empty")
-	}
-	project := &models.CircleciProject{}
-	if err := db.First(project, dal.Where("project_slug = ?", projectSlug)); err != nil {
-		return nil, err
-	}
-	return project, nil
 }
 
 func findPipelineById(db dal.Dal, id string) (*models.CircleciPipeline, errors.Error) {

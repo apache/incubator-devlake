@@ -19,16 +19,18 @@ package impl
 
 import (
 	"fmt"
+	"time"
+
 	"github.com/apache/incubator-devlake/core/context"
 	"github.com/apache/incubator-devlake/core/dal"
 	"github.com/apache/incubator-devlake/core/errors"
+	coreModels "github.com/apache/incubator-devlake/core/models"
 	"github.com/apache/incubator-devlake/core/plugin"
 	helper "github.com/apache/incubator-devlake/helpers/pluginhelper/api"
 	"github.com/apache/incubator-devlake/plugins/circleci/api"
 	"github.com/apache/incubator-devlake/plugins/circleci/models"
 	"github.com/apache/incubator-devlake/plugins/circleci/models/migrationscripts"
 	"github.com/apache/incubator-devlake/plugins/circleci/tasks"
-	"time"
 )
 
 // make sure interface is implemented
@@ -40,12 +42,17 @@ var _ plugin.CloseablePluginTask = (*Circleci)(nil)
 
 type Circleci struct{}
 
+// Name implements plugin.PluginMeta.
+func (Circleci) Name() string {
+	return "circleci"
+}
+
 func (p Circleci) Description() string {
 	return "collect some Circleci data"
 }
 
 func (p Circleci) Init(br context.BasicRes) errors.Error {
-	api.Init(br)
+	api.Init(br, &p)
 	return nil
 }
 
@@ -57,6 +64,7 @@ func (p Circleci) GetTablesInfo() []dal.Tabler {
 		&models.CircleciPipeline{},
 		&models.CircleciWorkflow{},
 		&models.CircleciJob{},
+		&models.CircleciScopeConfig{},
 	}
 }
 
@@ -66,7 +74,6 @@ func (p Circleci) SubTaskMetas() []plugin.SubTaskMeta {
 		tasks.ExtractAccountsMeta,
 		tasks.ConvertAccountsMeta,
 		tasks.CollectProjectsMeta,
-		tasks.ExtractProjectsMeta,
 		tasks.ConvertProjectsMeta,
 		tasks.CollectPipelinesMeta,
 		tasks.ExtractPipelinesMeta,
@@ -79,7 +86,11 @@ func (p Circleci) SubTaskMetas() []plugin.SubTaskMeta {
 	}
 }
 
-func (p Circleci) MakeDataSourcePipelinePlanV200(connectionId uint64, scopes []*plugin.BlueprintScopeV200, syncPolicy plugin.BlueprintSyncPolicy) (pp plugin.PipelinePlan, sc []plugin.Scope, err errors.Error) {
+func (p Circleci) MakeDataSourcePipelinePlanV200(
+	connectionId uint64,
+	scopes []*coreModels.BlueprintScope,
+	syncPolicy coreModels.BlueprintSyncPolicy,
+) (pp coreModels.PipelinePlan, sc []plugin.Scope, err errors.Error) {
 	return api.MakeDataSourcePipelinePlanV200(p.SubTaskMetas(), connectionId, scopes, &syncPolicy)
 }
 
@@ -91,6 +102,7 @@ func (p Circleci) PrepareTaskData(taskCtx plugin.TaskContext, options map[string
 	connectionHelper := helper.NewConnectionHelper(
 		taskCtx,
 		nil,
+		p.Name(),
 	)
 	connection := &models.CircleciConnection{}
 	err = connectionHelper.FirstById(connection, op.ConnectionId)
@@ -115,6 +127,28 @@ func (p Circleci) PrepareTaskData(taskCtx plugin.TaskContext, options map[string
 	}
 	if !createdDateAfter.IsZero() {
 		taskData.TimeAfter = &createdDateAfter
+	}
+	// fallback to project scope config
+	if op.ScopeConfigId == 0 {
+		project := &models.CircleciProject{}
+		err = taskCtx.GetDal().First(project, dal.Where("slug = ?", op.ProjectSlug))
+		if err != nil {
+			return nil, err
+		}
+		op.ScopeConfigId = project.ScopeConfigId
+	}
+	// fallback to given scope config
+	if op.ScopeConfig == nil && op.ScopeConfigId != 0 {
+		var scopeConfig models.CircleciScopeConfig
+		db := taskCtx.GetDal()
+		err = db.First(&scopeConfig, dal.Where("id = ?", op.ScopeConfigId))
+		if err != nil && !db.IsErrorNotFound(err) {
+			return nil, errors.BadInput.Wrap(err, "fail to load scopeConfig")
+		}
+		op.ScopeConfig = &scopeConfig
+	}
+	if op.ScopeConfig == nil && op.ScopeConfigId == 0 {
+		op.ScopeConfig = new(models.CircleciScopeConfig)
 	}
 	return taskData, nil
 }
@@ -141,6 +175,27 @@ func (p Circleci) ApiResources() map[string]map[string]plugin.ApiResourceHandler
 			"GET":    api.GetConnection,
 			"PATCH":  api.PatchConnection,
 			"DELETE": api.DeleteConnection,
+		},
+		"connections/:connectionId/remote-scopes": {
+			"GET": api.RemoteScopes,
+		},
+		"connections/:connectionId/scopes/*scopeId": {
+			"GET":    api.GetScope,
+			"PATCH":  api.UpdateScope,
+			"DELETE": api.DeleteScope,
+		},
+		"connections/:connectionId/scopes": {
+			"GET": api.GetScopeList,
+			"PUT": api.PutScope,
+		},
+		"connections/:connectionId/scope-configs": {
+			"POST": api.CreateScopeConfig,
+			"GET":  api.GetScopeConfigList,
+		},
+		"connections/:connectionId/scope-configs/:id": {
+			"PATCH":  api.UpdateScopeConfig,
+			"GET":    api.GetScopeConfig,
+			"DELETE": api.DeleteScopeConfig,
 		},
 	}
 }

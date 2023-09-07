@@ -18,12 +18,13 @@ limitations under the License.
 package e2e
 
 import (
+	"testing"
+
 	"github.com/apache/incubator-devlake/core/models/common"
 	"github.com/apache/incubator-devlake/helpers/e2ehelper"
 	"github.com/apache/incubator-devlake/plugins/circleci/impl"
 	"github.com/apache/incubator-devlake/plugins/circleci/models"
 	"github.com/apache/incubator-devlake/plugins/circleci/tasks"
-	"testing"
 )
 
 func TestCircleciPipeline(t *testing.T) {

@@ -21,13 +21,13 @@ import (
 	"github.com/apache/incubator-devlake/core/models/migrationscripts/archived"
 )
 
-// This object conforms to what the frontend currently sends.
-type JenkinsConnection struct {
+// CircleciConnection holds CircleciConn plus ID/Name for database storage
+type CircleciConnection struct {
 	archived.BaseConnection
 	archived.RestConnection
-	archived.BasicAuth
+	archived.AccessToken
 }
 
-func (JenkinsConnection) TableName() string {
-	return "_tool_jenkins_connections"
+func (CircleciConnection) TableName() string {
+	return "_tool_circleci_connections"
 }

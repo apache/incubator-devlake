@@ -18,6 +18,8 @@ limitations under the License.
 package tasks
 
 import (
+	"reflect"
+
 	"github.com/apache/incubator-devlake/core/dal"
 	"github.com/apache/incubator-devlake/core/errors"
 	"github.com/apache/incubator-devlake/core/models/domainlayer"
@@ -25,7 +27,6 @@ import (
 	"github.com/apache/incubator-devlake/core/plugin"
 	helper "github.com/apache/incubator-devlake/helpers/pluginhelper/api"
 	"github.com/apache/incubator-devlake/plugins/circleci/models"
-	"reflect"
 )
 
 var ConvertWorkflowsMeta = plugin.SubTaskMeta{
@@ -65,15 +66,13 @@ func ConvertWorkflows(taskCtx plugin.SubTaskContext) errors.Error {
 				CreatedDate:  userTool.CreatedAt.ToTime(),
 				FinishedDate: userTool.StoppedAt.ToNullableTime(),
 				Environment:  userTool.Tag,
+				CicdScopeId:  getProjectIdGen().Generate(data.Options.ConnectionId, userTool.ProjectSlug),
 			}
 			switch userTool.Status {
 			case "success":
-				pipeline.Result = devops.SUCCESS
+				pipeline.Result = devops.RESULT_SUCCESS
 			case "failed", "error", "failing":
-				pipeline.Result = devops.FAILURE
-			}
-			if p, err := findProjectByProjectSlug(db, data.Options.ProjectSlug); err == nil {
-				pipeline.CicdScopeId = getProjectIdGen().Generate(data.Options.ConnectionId, p.Id)
+				pipeline.Result = devops.RESULT_FAILURE
 			}
 			result := make([]interface{}, 0, 2)
 			result = append(result, pipeline)

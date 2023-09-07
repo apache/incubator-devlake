@@ -17,17 +17,19 @@ limitations under the License.
 
 package archived
 
-import (
-	"github.com/apache/incubator-devlake/core/models/migrationscripts/archived"
-)
+import "github.com/apache/incubator-devlake/core/models/migrationscripts/archived"
 
-// This object conforms to what the frontend currently sends.
-type JenkinsConnection struct {
-	archived.BaseConnection
-	archived.RestConnection
-	archived.BasicAuth
+type CircleciAccount struct {
+	ConnectionId uint64 `gorm:"primaryKey;type:BIGINT"`
+	Id           string `gorm:"primaryKey;type:varchar(100)" json:"id"`
+	VcsType      string `gorm:"type:varchar(100)" json:"vcs_type"`
+	Name         string `gorm:"type:varchar(255)" json:"name"`
+	AvatarUrl    string `gorm:"type:varchar(255)" json:"avatar_url"`
+	Slug         string `gorm:"type:varchar(255)" json:"slug"`
+
+	archived.NoPKModel
 }
 
-func (JenkinsConnection) TableName() string {
-	return "_tool_jenkins_connections"
+func (CircleciAccount) TableName() string {
+	return "_tool_circleci_accounts"
 }

@@ -21,13 +21,17 @@ import (
 	"github.com/apache/incubator-devlake/core/models/migrationscripts/archived"
 )
 
-// This object conforms to what the frontend currently sends.
-type JenkinsConnection struct {
-	archived.BaseConnection
-	archived.RestConnection
-	archived.BasicAuth
+type CircleciProject struct {
+	ConnectionId   uint64 `gorm:"primaryKey;type:BIGINT"`
+	Id             string `gorm:"primaryKey;type:varchar(100)"`
+	Slug           string `gorm:"type:varchar(255)"`
+	Name           string `gorm:"type:varchar(255)"`
+	OrganizationId string `gorm:"type:varchar(100)"`
+	ScopeConfigId  uint64
+
+	archived.NoPKModel
 }
 
-func (JenkinsConnection) TableName() string {
-	return "_tool_jenkins_connections"
+func (CircleciProject) TableName() string {
+	return "_tool_circleci_projects"
 }

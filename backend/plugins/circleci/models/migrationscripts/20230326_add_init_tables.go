@@ -21,7 +21,7 @@ import (
 	"github.com/apache/incubator-devlake/core/context"
 	"github.com/apache/incubator-devlake/core/errors"
 	"github.com/apache/incubator-devlake/helpers/migrationhelper"
-	"github.com/apache/incubator-devlake/plugins/circleci/models"
+	"github.com/apache/incubator-devlake/plugins/circleci/models/migrationscripts/archived"
 )
 
 type addInitTables struct{}
@@ -29,17 +29,18 @@ type addInitTables struct{}
 func (*addInitTables) Up(basicRes context.BasicRes) errors.Error {
 	return migrationhelper.AutoMigrateTables(
 		basicRes,
-		&models.CircleciConnection{},
-		&models.CircleciAccount{},
-		&models.CircleciProject{},
-		&models.CircleciPipeline{},
-		&models.CircleciWorkflow{},
-		&models.CircleciJob{},
+		&archived.CircleciConnection{},
+		&archived.CircleciScopeConfig{},
+		&archived.CircleciAccount{},
+		&archived.CircleciProject{},
+		&archived.CircleciPipeline{},
+		&archived.CircleciWorkflow{},
+		&archived.CircleciJob{},
 	)
 }
 
 func (*addInitTables) Version() uint64 {
-	return 20230326000001
+	return 20230326000003
 }
 
 func (*addInitTables) Name() string {

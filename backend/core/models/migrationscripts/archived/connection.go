@@ -17,17 +17,22 @@ limitations under the License.
 
 package archived
 
-import (
-	"github.com/apache/incubator-devlake/core/models/migrationscripts/archived"
-)
-
-// This object conforms to what the frontend currently sends.
-type JenkinsConnection struct {
-	archived.BaseConnection
-	archived.RestConnection
-	archived.BasicAuth
+type BaseConnection struct {
+	Model
+	Name string `gorm:"type:varchar(100);uniqueIndex"`
 }
 
-func (JenkinsConnection) TableName() string {
-	return "_tool_jenkins_connections"
+type RestConnection struct {
+	Endpoint         string
+	Proxy            string
+	RateLimitPerHour int
+}
+
+type BasicAuth struct {
+	Username string
+	Password string
+}
+
+type AccessToken struct {
+	Token string
 }

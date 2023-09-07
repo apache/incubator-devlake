@@ -19,26 +19,7 @@ package models
 
 import (
 	"github.com/apache/incubator-devlake/core/models/common"
-	"github.com/apache/incubator-devlake/helpers/pluginhelper/api"
 )
-
-type CircleciPipeline struct {
-	ConnectionId uint64 `gorm:"primaryKey;type:BIGINT"`
-	Id           string `gorm:"primaryKey;type:varchar(100)" json:"id"`
-	ProjectSlug  string `gorm:"type:varchar(255)" json:"project_slug"`
-	Errors       []struct {
-		Type    string `json:"type"`
-		Message string `json:"message"`
-	} `gorm:"serializer:json;type:text" json:"errors"`
-	UpdatedAt         *api.Iso8601Time `json:"updated_at"`
-	Number            int64            `json:"number"`
-	TriggerParameters any              `gorm:"serializer:json;type:text" json:"trigger_parameters"`
-	State             string           `gorm:"type:varchar(100)" json:"state"`
-	CreatedAt         *api.Iso8601Time `json:"created_at"`
-	Trigger           CircleciTrigger  `gorm:"serializer:json;type:text" json:"trigger"`
-	Vcs               CircleciVcs      `gorm:"serializer:json;type:text" json:"vcs"`
-	common.NoPKModel
-}
 
 type CircleciTrigger struct {
 	Type       string `json:"type"`
@@ -62,6 +43,20 @@ type CircleciVcs struct {
 		Subject string `json:"subject"`
 		Body    string `json:"body"`
 	} `json:"commit"`
+}
+
+type CircleciPipeline struct {
+	ConnectionId      uint64              `gorm:"primaryKey;type:BIGINT" json:"connectionId" mapstructure:"connectionId"`
+	Id                string              `gorm:"primaryKey;type:varchar(100)" json:"id" mapstructure:"id"`
+	ProjectSlug       string              `gorm:"type:varchar(255)" json:"projectSlug" mapstructure:"projectSlug"`
+	UpdatedDate       *common.Iso8601Time `json:"updatedDate" mapstructure:"updatedDate"`
+	CreatedDate       *common.Iso8601Time `json:"createdDate" mapstructure:"createdDate"`
+	Number            int64               `json:"number" mapstructure:"number"` // pipeline number within the project?
+	TriggerParameters any                 `gorm:"serializer:json" json:"trigger_parameters" mapstructure:"triggerParameters"`
+	State             string              `gorm:"type:varchar(100)" json:"state" mapstructure:"state"`
+	Trigger           CircleciTrigger     `gorm:"serializer:json" json:"trigger"`
+	Vcs               CircleciVcs         `gorm:"serializer:json" json:"vcs"`
+	common.NoPKModel  `swaggerignore:"true" json:"-" mapstructure:"-"`
 }
 
 func (CircleciPipeline) TableName() string {
