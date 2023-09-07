@@ -24,6 +24,7 @@ import (
 	ae "github.com/apache/incubator-devlake/plugins/ae/impl"
 	bamboo "github.com/apache/incubator-devlake/plugins/bamboo/impl"
 	bitbucket "github.com/apache/incubator-devlake/plugins/bitbucket/impl"
+	circleci "github.com/apache/incubator-devlake/plugins/circleci/impl"
 	customize "github.com/apache/incubator-devlake/plugins/customize/impl"
 	dbt "github.com/apache/incubator-devlake/plugins/dbt/impl"
 	dora "github.com/apache/incubator-devlake/plugins/dora/impl"
@@ -80,7 +81,7 @@ func Test_GetPluginTablesInfo(t *testing.T) {
 	checker.FeedIn("trello/models", trello.Trello{}.GetTablesInfo)
 	checker.FeedIn("webhook/models", webhook.Webhook{}.GetTablesInfo)
 	checker.FeedIn("zentao/models", zentao.Zentao{}.GetTablesInfo)
-	checker.FeedIn("circleci/models", zentao.Zentao{}.GetTablesInfo)
+	checker.FeedIn("circleci/models", circleci.Circleci{}.GetTablesInfo)
 	err := checker.Verify()
 	if err != nil {
 		t.Error(err)

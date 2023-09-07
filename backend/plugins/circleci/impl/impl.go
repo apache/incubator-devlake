@@ -64,6 +64,7 @@ func (p Circleci) GetTablesInfo() []dal.Tabler {
 		&models.CircleciPipeline{},
 		&models.CircleciWorkflow{},
 		&models.CircleciJob{},
+		&models.CircleciScopeConfig{},
 	}
 }
 
