@@ -95,7 +95,7 @@ func ConvertExecutions(taskCtx plugin.SubTaskContext) errors.Error {
 				Status:          domainStatus,
 				StartedDate:     toolExecution.RealBegan.ToNullableTime(),
 				EndedDate:       toolExecution.PlanEnd.ToNullableTime(),
-				CompletedDate:   toolExecution.RealEnd.ToNullableTime(),
+				CompletedDate:   toolExecution.ClosedDate.ToNullableTime(),
 				OriginalBoardID: projectIdGen.Generate(toolExecution.ConnectionId, data.Options.ProjectId),
 			}
 
