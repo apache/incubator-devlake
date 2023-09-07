@@ -65,6 +65,12 @@ export const useMenu = () => {
             },
           ],
         },
+        {
+          key: 'api-keys',
+          title: 'API Keys',
+          icon: 'key',
+          path: '/keys',
+        },
       ] as MenuItemType[],
     [],
   );
