@@ -101,7 +101,7 @@ func ConvertExecutions(taskCtx plugin.SubTaskContext) errors.Error {
 			if domainStatus == `FUTURE` {
 				sprint.StartedDate = toolExecution.PlanBegin.ToNullableTime()
 			} else {
-				sprint.StartedDate = toolExecution.RealBegan.ToNullableTime()
+				sprint.StartedDate = toolExecution.OpenedDate.ToNullableTime()
 			}
 
 			boardSprint := &ticket.BoardSprint{
