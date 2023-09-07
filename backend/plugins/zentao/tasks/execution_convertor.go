@@ -98,15 +98,14 @@ func ConvertExecutions(taskCtx plugin.SubTaskContext) errors.Error {
 				OriginalBoardID: projectIdGen.Generate(toolExecution.ConnectionId, data.Options.ProjectId),
 			}
 
-			if domainStatus == `FUTURE` {
+			if domainStatus == `FUTURE` || domainStatus == `` {
 				sprint.StartedDate = toolExecution.PlanBegin.ToNullableTime()
 			} else {
 				sprint.StartedDate = toolExecution.OpenedDate.ToNullableTime()
 			}
 
 			boardSprint := &ticket.BoardSprint{
-				BoardId:  sprint.OriginalBoardID,
-				SprintId: sprint.Id,
+				BoardId: sprint.OriginalBoardID,
 			}
 			results := make([]interface{}, 0)
 			results = append(results, sprint, boardSprint)
