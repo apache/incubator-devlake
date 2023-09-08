@@ -167,7 +167,7 @@ func TestRunPipeline(t *testing.T) {
 		},
 	})
 	require.Equal(t, models.TASK_COMPLETED, pipeline.Status)
-	require.Equal(t, 1, pipeline.FinishedTasks)
+	require.Equal(t, 1, pipeline.TotalTasks)
 	require.Equal(t, "", pipeline.ErrorName)
 }
 
