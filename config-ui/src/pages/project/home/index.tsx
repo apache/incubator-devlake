@@ -54,7 +54,7 @@ export const ProjectHomePage = () => {
       (data?.projects ?? []).map((it) => {
         return {
           name: it.name,
-          connections: it.blueprint?.settings.connections,
+          connections: it.blueprint?.connections,
           isManual: it.blueprint?.isManual,
           cronConfig: it.blueprint?.cronConfig,
           createdAt: it.createdAt,
@@ -141,12 +141,12 @@ export const ProjectHomePage = () => {
             title: 'Data Connections',
             dataIndex: 'connections',
             key: 'connections',
-            render: (val: BlueprintType['settings']['connections']) =>
+            render: (val: BlueprintType['connections']) =>
               !val || !val.length
                 ? 'N/A'
                 : val
                     .map((it) => {
-                      const cs = onGet(`${it.plugin}-${it.connectionId}`);
+                      const cs = onGet(`${it.pluginName}-${it.connectionId}`);
                       return cs?.name;
                     })
                     .join(', '),

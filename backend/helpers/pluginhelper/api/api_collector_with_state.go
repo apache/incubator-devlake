@@ -78,6 +78,7 @@ func (m *ApiCollectorStateManager) IsIncremental() bool {
 	if prevSyncTime == nil {
 		return false
 	}
+	// if we cleared the timeAfter, or moved timeAfter back in time, we should do a full sync
 	if currTimeAfter != nil {
 		return prevTimeAfter == nil || !currTimeAfter.Before(*prevTimeAfter)
 	}

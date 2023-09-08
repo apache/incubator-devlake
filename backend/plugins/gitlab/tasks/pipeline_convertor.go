@@ -73,17 +73,18 @@ func ConvertPipelines(taskCtx plugin.SubTaskContext) errors.Error {
 		Convert: func(inputRow interface{}) ([]interface{}, errors.Error) {
 			gitlabPipeline := inputRow.(*models.GitlabPipeline)
 
-			createdAt := time.Now()
-			if gitlabPipeline.GitlabCreatedAt != nil {
-				createdAt = *gitlabPipeline.GitlabCreatedAt
+			startedAt := time.Now()
+			if gitlabPipeline.StartedAt != nil {
+				startedAt = *gitlabPipeline.StartedAt
+			} else if gitlabPipeline.GitlabCreatedAt != nil {
+				startedAt = *gitlabPipeline.GitlabCreatedAt
 			}
 
 			domainPipeline := &devops.CICDPipeline{
 				DomainEntity: domainlayer.DomainEntity{
 					Id: pipelineIdGen.Generate(data.Options.ConnectionId, gitlabPipeline.GitlabId),
 				},
-				Name: projectIdGen.
-					Generate(data.Options.ConnectionId, data.Options.ProjectId),
+				Name: pipelineIdGen.Generate(data.Options.ConnectionId, gitlabPipeline.GitlabId),
 				Result: devops.GetResult(&devops.ResultRule{
 					Failed:  []string{"failed"},
 					Abort:   []string{"canceled"},
@@ -95,7 +96,7 @@ func ConvertPipelines(taskCtx plugin.SubTaskContext) errors.Error {
 					InProgress: []string{"created", "waiting_for_resource", "preparing", "pending", "running", "manual", "scheduled"},
 					Default:    devops.STATUS_DONE,
 				}, gitlabPipeline.Status),
-				CreatedDate:  createdAt,
+				CreatedDate:  startedAt,
 				FinishedDate: gitlabPipeline.GitlabUpdatedAt,
 				CicdScopeId:  projectIdGen.Generate(data.Options.ConnectionId, gitlabPipeline.ProjectId),
 				Environment:  gitlabPipeline.Environment,
@@ -107,7 +108,7 @@ func ConvertPipelines(taskCtx plugin.SubTaskContext) errors.Error {
 				domainPipeline.FinishedDate = nil
 				domainPipeline.DurationSec = 0
 			} else if domainPipeline.FinishedDate != nil {
-				durationTime := domainPipeline.FinishedDate.Sub(createdAt)
+				durationTime := domainPipeline.FinishedDate.Sub(startedAt)
 				domainPipeline.DurationSec = uint64(durationTime.Seconds())
 			}
 

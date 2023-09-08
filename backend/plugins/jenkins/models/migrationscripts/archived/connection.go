@@ -21,40 +21,11 @@ import (
 	"github.com/apache/incubator-devlake/core/models/migrationscripts/archived"
 )
 
-type BaseConnection struct {
-	Name string `gorm:"type:varchar(100);uniqueIndex" json:"name" validate:"required"`
-	archived.Model
-}
-
-type BasicAuth struct {
-	Username string `mapstructure:"username" validate:"required" json:"username"`
-	Password string `mapstructure:"password" validate:"required" json:"password" encrypt:"yes"`
-}
-
-type RestConnection struct {
-	BaseConnection   `mapstructure:",squash"`
-	Endpoint         string `mapstructure:"endpoint" validate:"required" json:"endpoint"`
-	Proxy            string `mapstructure:"proxy" json:"proxy"`
-	RateLimitPerHour int    `comment:"api request rate limt per hour" json:"rateLimit"`
-}
-
 // This object conforms to what the frontend currently sends.
 type JenkinsConnection struct {
-	RestConnection `mapstructure:",squash"`
-	BasicAuth      `mapstructure:",squash"`
-}
-
-type JenkinsResponse struct {
-	ID   int    `json:"id"`
-	Name string `json:"name"`
-	JenkinsConnection
-}
-
-type TestConnectionRequest struct {
-	Endpoint string `json:"endpoint" validate:"required"`
-	Username string `json:"username" validate:"required"`
-	Password string `json:"password" validate:"required"`
-	Proxy    string `json:"proxy"`
+	archived.BaseConnection
+	archived.RestConnection
+	archived.BasicAuth
 }
 
 func (JenkinsConnection) TableName() string {

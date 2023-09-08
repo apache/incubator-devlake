@@ -93,10 +93,15 @@ func ConvertExecutions(taskCtx plugin.SubTaskContext) errors.Error {
 				Name:            toolExecution.Name,
 				Url:             fmt.Sprintf("%s/execution-view-%d.html", homePage, toolExecution.Id),
 				Status:          domainStatus,
-				StartedDate:     toolExecution.RealBegan.ToNullableTime(),
 				EndedDate:       toolExecution.PlanEnd.ToNullableTime(),
-				CompletedDate:   toolExecution.RealEnd.ToNullableTime(),
+				CompletedDate:   toolExecution.ClosedDate.ToNullableTime(),
 				OriginalBoardID: projectIdGen.Generate(toolExecution.ConnectionId, data.Options.ProjectId),
+			}
+
+			if domainStatus == `FUTURE` || domainStatus == `` {
+				sprint.StartedDate = toolExecution.PlanBegin.ToNullableTime()
+			} else {
+				sprint.StartedDate = toolExecution.OpenedDate.ToNullableTime()
 			}
 
 			boardSprint := &ticket.BoardSprint{

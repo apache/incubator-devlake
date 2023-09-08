@@ -18,19 +18,17 @@ limitations under the License.
 package models
 
 import (
-	"encoding/json"
-
 	"github.com/apache/incubator-devlake/core/models/common"
 )
 
 type ZentaoScopeConfig struct {
 	common.ScopeConfig  `mapstructure:",squash" json:",inline" gorm:"embedded"`
-	ConnectionId        uint64          `mapstructure:"connectionId" json:"connectionId"`
-	Name                string          `gorm:"type:varchar(255);index:idx_name_tapd,unique" validate:"required" mapstructure:"name" json:"name"`
-	TypeMappings        json.RawMessage `mapstructure:"typeMappings,omitempty" json:"typeMappings"`
-	BugStatusMappings   json.RawMessage `mapstructure:"bugStatusMappings,omitempty" json:"bugStatusMappings"`
-	StoryStatusMappings json.RawMessage `mapstructure:"storyStatusMappings,omitempty" json:"storyStatusMappings"`
-	TaskStatusMappings  json.RawMessage `mapstructure:"taskStatusMappings,omitempty" json:"taskStatusMappings"`
+	ConnectionId        uint64            `mapstructure:"connectionId" json:"connectionId"`
+	Name                string            `gorm:"type:varchar(255);index:idx_name_tapd,unique" validate:"required" mapstructure:"name" json:"name"`
+	TypeMappings        map[string]string `mapstructure:"typeMappings,omitempty" json:"typeMappings" gorm:"serializer:json"`
+	BugStatusMappings   map[string]string `mapstructure:"bugStatusMappings,omitempty" json:"bugStatusMappings" gorm:"serializer:json"`
+	StoryStatusMappings map[string]string `mapstructure:"storyStatusMappings,omitempty" json:"storyStatusMappings" gorm:"serializer:json"`
+	TaskStatusMappings  map[string]string `mapstructure:"taskStatusMappings,omitempty" json:"taskStatusMappings" gorm:"serializer:json"`
 }
 
 func (t ZentaoScopeConfig) TableName() string {
