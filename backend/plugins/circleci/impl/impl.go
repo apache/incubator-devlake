@@ -25,6 +25,7 @@ import (
 	"github.com/apache/incubator-devlake/core/dal"
 	"github.com/apache/incubator-devlake/core/errors"
 	coreModels "github.com/apache/incubator-devlake/core/models"
+	"github.com/apache/incubator-devlake/core/models/domainlayer/devops"
 	"github.com/apache/incubator-devlake/core/plugin"
 	helper "github.com/apache/incubator-devlake/helpers/pluginhelper/api"
 	"github.com/apache/incubator-devlake/plugins/circleci/api"
@@ -150,6 +151,14 @@ func (p Circleci) PrepareTaskData(taskCtx plugin.TaskContext, options map[string
 	if op.ScopeConfig == nil && op.ScopeConfigId == 0 {
 		op.ScopeConfig = new(models.CircleciScopeConfig)
 	}
+	regexEnricher := helper.NewRegexEnricher()
+	if err := regexEnricher.TryAdd(devops.DEPLOYMENT, op.ScopeConfig.DeploymentPattern); err != nil {
+		return nil, errors.BadInput.Wrap(err, "invalid value for `deploymentPattern`")
+	}
+	if err := regexEnricher.TryAdd(devops.PRODUCTION, op.ScopeConfig.ProductionPattern); err != nil {
+		return nil, errors.BadInput.Wrap(err, "invalid value for `productionPattern`")
+	}
+	taskData.RegexEnricher = regexEnricher
 	return taskData, nil
 }
 
