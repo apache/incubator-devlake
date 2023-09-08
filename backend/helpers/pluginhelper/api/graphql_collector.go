@@ -139,8 +139,8 @@ func (collector *GraphqlCollector) Execute() errors.Error {
 	divider := NewBatchSaveDivider(collector.args.Ctx, collector.args.BatchSize, collector.table, collector.params)
 
 	isIncremental := collector.args.Incremental
-	taskContext := collector.args.Ctx.TaskContext()
-	if taskContext.SyncPolicy().FullSync {
+	syncPolicy := collector.args.Ctx.TaskContext().SyncPolicy()
+	if syncPolicy != nil && syncPolicy.FullSync {
 		isIncremental = false
 	}
 	// flush data if not incremental collection

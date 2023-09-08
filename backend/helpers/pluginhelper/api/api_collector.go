@@ -162,8 +162,8 @@ func (collector *ApiCollector) Execute() errors.Error {
 	}
 
 	isIncremental := collector.args.Incremental
-	taskContext := collector.args.Ctx.TaskContext()
-	if taskContext.SyncPolicy().FullSync {
+	syncPolicy := collector.args.Ctx.TaskContext().SyncPolicy()
+	if syncPolicy != nil && syncPolicy.FullSync {
 		isIncremental = false
 	}
 	// flush data if not incremental collection
