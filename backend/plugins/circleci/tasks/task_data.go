@@ -21,7 +21,6 @@ import (
 	"time"
 
 	"github.com/apache/incubator-devlake/core/errors"
-	"github.com/apache/incubator-devlake/helpers/pluginhelper/api"
 	helper "github.com/apache/incubator-devlake/helpers/pluginhelper/api"
 	"github.com/apache/incubator-devlake/plugins/circleci/models"
 )
@@ -39,7 +38,7 @@ type CircleciTaskData struct {
 	Options       *CircleciOptions
 	ApiClient     *helper.ApiAsyncClient
 	TimeAfter     *time.Time
-	RegexEnricher *api.RegexEnricher
+	RegexEnricher *helper.RegexEnricher
 }
 
 func DecodeAndValidateTaskOptions(options map[string]interface{}) (*CircleciOptions, errors.Error) {
