@@ -19,7 +19,7 @@
 import styled from 'styled-components';
 import { Colors } from '@blueprintjs/core';
 
-export const Wrapper = styled.div`
+export const Detail = styled.div`
   h2 {
     display: flex;
     align-items: center;
@@ -35,17 +35,7 @@ export const Wrapper = styled.div`
     }
   }
 
-  h3 {
-    margin: 0;
-    padding: 0;
-  }
-
-  .block {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    margin-bottom: 8px;
-    padding: 10px 16px;
-    background: #f0f4fe;
+  h5 {
+    margin: 8px 0;
   }
 `;
