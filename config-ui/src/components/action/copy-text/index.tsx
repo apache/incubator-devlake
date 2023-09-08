@@ -16,26 +16,32 @@
  *
  */
 
+import { CopyToClipboard } from 'react-copy-to-clipboard';
 import styled from 'styled-components';
-import { Colors } from '@blueprintjs/core';
 
-export const Detail = styled.div`
-  h2 {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    margin: 0;
-    margin-bottom: 16px;
-    padding: 0;
-    font-weight: 600;
-    color: ${Colors.GREEN5};
+import { TextTooltip, IconButton, toast } from '@/components';
 
-    .bp4-icon {
-      margin-right: 8px;
-    }
-  }
-
-  h5 {
-    margin: 8px 0;
-  }
+const Wrapper = styled.div`
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 10px 16px;
+  background: #f0f4fe;
 `;
+
+interface Props {
+  content: string;
+}
+
+export const CopyText = ({ content }: Props) => {
+  return (
+    <Wrapper>
+      <TextTooltip style={{ width: '96%' }} content={content}>
+        {content}
+      </TextTooltip>
+      <CopyToClipboard text={content} onCopy={() => toast.success('Copy successfully.')}>
+        <IconButton icon="clipboard" tooltip="Copy" />
+      </CopyToClipboard>
+    </Wrapper>
+  );
+};

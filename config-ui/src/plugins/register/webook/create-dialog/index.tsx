@@ -16,13 +16,14 @@
  *
  */
 
-import { useMemo } from 'react';
+import { useState, useMemo } from 'react';
 import { InputGroup, Icon } from '@blueprintjs/core';
-import { CopyToClipboard } from 'react-copy-to-clipboard';
 
-import { Dialog, toast } from '@/components';
+import { Dialog, FormItem, CopyText, Message } from '@/components';
+import { operator } from '@/utils';
 
-import { useCreate } from './use-create';
+import * as API from '../api';
+
 import * as S from './styled';
 
 interface Props {
@@ -32,16 +33,57 @@ interface Props {
 }
 
 export const WebhookCreateDialog = ({ isOpen, onCancel, onSubmitAfter }: Props) => {
-  const { saving, step, name, record, onChangeName, onSubmit } = useCreate();
+  const [operating, setOperating] = useState(false);
+  const [step, setStep] = useState(1);
+  const [name, setName] = useState('');
+  const [record, setRecord] = useState({
+    id: 0,
+    postIssuesEndpoint: '',
+    closeIssuesEndpoint: '',
+    postDeploymentsCurl: '',
+    apiKey: '',
+  });
 
-  const [okText, okDisabled] = useMemo(
-    () => [step === 1 ? 'Generate POST URL' : 'Done', step === 1 && !name],
-    [step, name],
-  );
+  const prefix = useMemo(() => `${window.location.origin}/api`, []);
 
-  const handleSubmit = () => {
+  const handleSubmit = async () => {
     if (step === 1) {
-      onSubmit();
+      const [success, res] = await operator(
+        async () => {
+          const { id, apiKey } = await API.createConnection({ name });
+          const { postIssuesEndpoint, closeIssuesEndpoint, postPipelineDeployTaskEndpoint } = await API.getConnection(
+            id,
+          );
+          return {
+            id,
+            apiKey: apiKey.apiKey,
+            postIssuesEndpoint,
+            closeIssuesEndpoint,
+            postPipelineDeployTaskEndpoint,
+          };
+        },
+        {
+          setOperating,
+          hideToast: true,
+        },
+      );
+
+      if (success) {
+        setStep(2);
+        setRecord({
+          id: res.id,
+          postIssuesEndpoint: `${prefix}${res.postIssuesEndpoint}?key={KEY}`,
+          closeIssuesEndpoint: `${prefix}${res.closeIssuesEndpoint}?key={KEY}`,
+          postDeploymentsCurl: `curl ${prefix}${res.postPipelineDeployTaskEndpoint} -X 'POST'
+            \\ -H 'Authorization: Bearer {KEY}'
+            \\ -d '{
+            \\"commit_sha\\":\\"the sha of deployment commit\\",
+            \\"repo_url\\":\\"the repo URL of the deployment commit\\",
+            \\"start_time\\":\\"eg. 2020-01-01T12:00:00+00:00\\"
+          }'`,
+          apiKey: res.apiKey,
+        });
+      }
     } else {
       onCancel();
       onSubmitAfter?.(record.id);
@@ -51,56 +93,49 @@ export const WebhookCreateDialog = ({ isOpen, onCancel, onSubmitAfter }: Props) 
   return (
     <Dialog
       isOpen={isOpen}
-      title="Add a New Incoming Webhook"
-      style={{ width: 600 }}
-      okText={okText}
-      okDisabled={okDisabled}
-      okLoading={saving}
+      title="Add a New Webhook"
+      style={{ width: 820 }}
+      okText={step === 1 ? 'Generate POST URL' : 'Done'}
+      okDisabled={step === 1 && !name}
+      okLoading={operating}
       onCancel={onCancel}
       onOk={handleSubmit}
     >
       {step === 1 && (
-        <S.Wrapper>
-          <h3>Incoming Webhook Name *</h3>
-          <p>Give your Incoming Webhook a unique name to help you identify it in the future.</p>
-          <InputGroup value={name} onChange={(e) => onChangeName(e.target.value)} />
-        </S.Wrapper>
+        <S.Detail>
+          <h3>Webhook Name *</h3>
+          <p>Give your Webhook a unique name to help you identify it in the future.</p>
+          <InputGroup value={name} onChange={(e) => setName(e.target.value)} />
+        </S.Detail>
       )}
       {step === 2 && (
-        <S.Wrapper>
+        <S.Detail>
           <h2>
             <Icon icon="endorsed" size={30} />
             <span>POST URL Generated!</span>
           </h2>
-          <h3>POST URL</h3>
           <p>
-            Copy the following URLs to your issue tracking tool for Incidents and CI tool for Deployments by making a
-            POST to DevLake.
+            Copy the following POST URLs to your issue tracking or CI tools to push `Incidents` and `Deployments` by
+            making a POST to DevLake.
           </p>
-          <h3>Incident</h3>
-          <p>POST to register an incident</p>
-          <div className="block">
-            <span>{record.postIssuesEndpoint}</span>
-            <CopyToClipboard text={record.postIssuesEndpoint} onCopy={() => toast.success('Copy successfully.')}>
-              <Icon icon="clipboard" />
-            </CopyToClipboard>
-          </div>
-          <p>POST to close a registered incident</p>
-          <div className="block">
-            <span>{record.closeIssuesEndpoint}</span>
-            <CopyToClipboard text={record.closeIssuesEndpoint} onCopy={() => toast.success('Copy successfully.')}>
-              <Icon icon="clipboard" />
-            </CopyToClipboard>
-          </div>
-          <h3>Deployment</h3>
-          <p>POST to register a deployment</p>
-          <div className="block">
-            <span>{record.postDeploymentsCurl}</span>
-            <CopyToClipboard text={record.postDeploymentsCurl} onCopy={() => toast.success('Copy successfully.')}>
-              <Icon icon="clipboard" />
-            </CopyToClipboard>
-          </div>
-        </S.Wrapper>
+          <FormItem label="Incident">
+            <h5>Post to register an incident</h5>
+            <CopyText content={record.postIssuesEndpoint} />
+            <h5>Post to close a registered incident</h5>
+            <CopyText content={record.closeIssuesEndpoint} />
+          </FormItem>
+          <FormItem label="Deployments">
+            <h5>Post to register a deployment</h5>
+            <CopyText content={record.postDeploymentsCurl} />
+          </FormItem>
+          <FormItem label="API Key">
+            <Message
+              style={{ marginBottom: 8 }}
+              content="Please make sure to copy your API key now. You will not be able to see it again."
+            />
+            <CopyText content={record.apiKey} />
+          </FormItem>
+        </S.Detail>
       )}
     </Dialog>
   );

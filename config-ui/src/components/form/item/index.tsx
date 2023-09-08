@@ -32,8 +32,8 @@ export const FormItem = ({ style, label, subLabel, required, children }: Props) 
   return (
     <FormGroup
       style={style}
-      label={<S.Label>{label}</S.Label>}
-      subLabel={<S.subLabel>{subLabel}</S.subLabel>}
+      label={label ? <S.Label>{label}</S.Label> : null}
+      subLabel={subLabel ? <S.subLabel>{subLabel}</S.subLabel> : null}
       labelInfo={required ? <S.LabelInfo>*</S.LabelInfo> : null}
     >
       {children}

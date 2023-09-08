@@ -16,10 +16,9 @@
  *
  */
 
-import { InputGroup, Icon } from '@blueprintjs/core';
-import { CopyToClipboard } from 'react-copy-to-clipboard';
+import { InputGroup } from '@blueprintjs/core';
 
-import { Dialog, toast } from '@/components';
+import { Dialog, FormItem, CopyText } from '@/components';
 
 import type { UseViewOrEditProps } from './use-view-or-edit';
 import { useViewOrEdit } from './use-view-or-edit';
@@ -47,8 +46,8 @@ export const WebhookViewOrEditDialog = ({ type, isOpen, onCancel, ...props }: Pr
   return (
     <Dialog
       isOpen={isOpen}
-      title="View or Edit Incoming Webhook"
-      style={{ width: 600 }}
+      title="View/Edit Webhook"
+      style={{ width: 820 }}
       okText={type === 'edit' ? 'Save' : 'Done'}
       okDisabled={!name}
       okLoading={saving}
@@ -56,40 +55,26 @@ export const WebhookViewOrEditDialog = ({ type, isOpen, onCancel, ...props }: Pr
       onOk={handleSubmit}
     >
       <S.Wrapper>
-        <h3>Incoming Webhook Name *</h3>
-        <p>Give your Incoming Webhook a unique name to help you identify it in the future.</p>
+        <h3>Webhook Name *</h3>
+        <p>
+          Copy the following POST URLs to your issue tracking or CI tools to push `Incidents` and `Deployments` by
+          making a POST to DevLake.
+        </p>
         <InputGroup disabled={type !== 'edit'} value={name} onChange={(e) => onChangeName(e.target.value)} />
-        <h2>
-          <Icon icon="endorsed" size={30} />
-          <span>POST URL </span>
-        </h2>
         <p>
           Copy the following URLs to your issue tracking tool for Incidents and CI tool for Deployments by making a POST
           to DevLake.
         </p>
-        <h3>Incident</h3>
-        <p>POST to register an incident </p>
-        <div className="block">
-          <span>{record.postIssuesEndpoint}</span>
-          <CopyToClipboard text={record.postIssuesEndpoint} onCopy={() => toast.success('Copy successfully.')}>
-            <Icon icon="clipboard" />
-          </CopyToClipboard>
-        </div>
-        <p>POST to close a registered incident</p>
-        <div className="block">
-          <span>{record.closeIssuesEndpoint}</span>
-          <CopyToClipboard text={record.closeIssuesEndpoint} onCopy={() => toast.success('Copy successfully.')}>
-            <Icon icon="clipboard" />
-          </CopyToClipboard>
-        </div>
-        <h3>Deployment</h3>
-        <p>POST to register a deployment</p>
-        <div className="block">
-          <span>{record.postDeploymentsCurl}</span>
-          <CopyToClipboard text={record.postDeploymentsCurl} onCopy={() => toast.success('Copy successfully.')}>
-            <Icon icon="clipboard" />
-          </CopyToClipboard>
-        </div>
+        <FormItem label="Incidents">
+          <h5>Post to register an incident</h5>
+          <CopyText content={record.postIssuesEndpoint} />
+          <h5>Post to close a registered incident</h5>
+          <CopyText content={record.closeIssuesEndpoint} />
+        </FormItem>
+        <FormItem label="Deployment">
+          <h5>Post to register a deployment</h5>
+          <CopyText content={record.postDeploymentsCurl} />
+        </FormItem>
       </S.Wrapper>
     </Dialog>
   );

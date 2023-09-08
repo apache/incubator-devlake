@@ -61,7 +61,7 @@ export const WebHookConnection = ({ filterIds, onCreateAfter, onDeleteAfter }: P
       key: 'id',
     },
     {
-      title: 'Incoming Webhook Name',
+      title: 'Webhook Name',
       dataIndex: 'name',
       key: 'name',
       render: (name, row) => <span onClick={() => handleShowDialog('show', row)}>{name}</span>,

@@ -17,26 +17,10 @@
  */
 
 import styled from 'styled-components';
-import { Colors } from '@blueprintjs/core';
 
 export const Wrapper = styled.div`
-  h2 {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    margin: 16px 0;
-    padding: 0;
-    font-weight: 600;
-    color: ${Colors.GREEN5};
-
-    .bp4-icon {
-      margin-right: 8px;
-    }
-  }
-
-  h3 {
-    margin: 0;
-    padding: 0;
+  h5 {
+    margin: 8px 0;
   }
 
   .block {
