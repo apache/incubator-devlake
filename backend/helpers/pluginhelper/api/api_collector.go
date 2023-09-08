@@ -161,15 +161,9 @@ func (collector *ApiCollector) Execute() errors.Error {
 		return errors.Default.Wrap(err, "error auto-migrating collector")
 	}
 
-	fmt.Println("xxxxxxxx----------------------")
 	isIncremental := collector.args.Incremental
 	taskContext := collector.args.Ctx.TaskContext()
-	fmt.Println(taskContext.SyncPolicy().FullSync)
-	fmt.Println(taskContext.SyncPolicy().SkipCollectors)
-	fmt.Println(taskContext.SyncPolicy().TimeAfter)
-	fmt.Println(taskContext.SyncPolicy().SkipOnFail)
 	if taskContext.SyncPolicy().FullSync {
-		fmt.Println("full sync----------------------")
 		isIncremental = false
 	}
 	// flush data if not incremental collection
