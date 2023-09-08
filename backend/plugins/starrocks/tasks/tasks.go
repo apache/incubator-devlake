@@ -180,7 +180,19 @@ func createTmpTableInStarrocks(dc *DataConfigParams) (map[string]string, string,
 				}
 			} else {
 				if updatedFrom.Equal(updatedTo) {
-					return nil, "", true, nil
+					sourceCount, err := db.Count(dal.From(table))
+					if err != nil {
+						return nil, "", false, err
+					}
+					starrocksCount, err := starrocksDb.Count(dal.From(starrocksTable))
+					if err != nil {
+						return nil, "", false, err
+					}
+					// When updated time is equal but record count is different,
+					// need to execute the following process, not returning here
+					if sourceCount == starrocksCount {
+						return nil, "", true, nil
+					}
 				}
 			}
 		}
