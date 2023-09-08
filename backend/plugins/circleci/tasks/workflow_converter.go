@@ -61,22 +61,30 @@ func ConvertWorkflows(taskCtx plugin.SubTaskContext) errors.Error {
 					Id: getPipelineIdGen().Generate(data.Options.ConnectionId, userTool.Id),
 				},
 				Name:         userTool.Name,
-				Status:       userTool.Status,
 				DurationSec:  userTool.DurationSec,
 				CreatedDate:  userTool.CreatedAt.ToTime(),
 				FinishedDate: userTool.StoppedAt.ToNullableTime(),
-				Environment:  userTool.Tag,
 				CicdScopeId:  getProjectIdGen().Generate(data.Options.ConnectionId, userTool.ProjectSlug),
-			}
-			switch userTool.Status {
-			case "success":
-				pipeline.Result = devops.RESULT_SUCCESS
-			case "failed", "error", "failing":
-				pipeline.Result = devops.RESULT_FAILURE
+				// reference: https://circleci.com/docs/api/v2/index.html#operation/getWorkflowById
+				Status: devops.GetStatus(&devops.StatusRule[string]{
+					Done:    []string{"canceled", "failed", "failing", "success", "not_run", "error"},
+					Manual:  []string{"on_hold"},
+					Default: devops.STATUS_IN_PROGRESS,
+				}, userTool.Status),
+				Result: devops.GetResult(&devops.ResultRule{
+					Success: []string{"success"},
+					Failed:  []string{"failed", "failing", "error"},
+					Skipped: []string{"not_run"},
+					Abort:   []string{"canceled"},
+				}, userTool.Status),
+				Type:        data.RegexEnricher.ReturnNameIfMatched(devops.DEPLOYMENT, userTool.Name),
+				Environment: data.RegexEnricher.ReturnNameIfOmittedOrMatched(devops.PRODUCTION, userTool.Name),
 			}
 			result := make([]interface{}, 0, 2)
 			result = append(result, pipeline)
 
+			// CircleCI does not support multiple repositories in one pipeline, so we can get the commit sha from the pipeline
+			// and convert it to a pipeline commit
 			if p, err := findPipelineById(db, userTool.PipelineId); err == nil {
 				if p.Vcs.Revision != "" {
 					result = append(result, &devops.CiCDPipelineCommit{

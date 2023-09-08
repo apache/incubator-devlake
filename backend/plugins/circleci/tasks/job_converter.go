@@ -60,15 +60,26 @@ func ConvertJobs(taskCtx plugin.SubTaskContext) errors.Error {
 				DomainEntity: domainlayer.DomainEntity{
 					Id: getJobIdGen().Generate(data.Options.ConnectionId, userTool.Id),
 				},
+				CicdScopeId:  getProjectIdGen().Generate(data.Options.ConnectionId, data.Options.ProjectSlug),
 				Name:         userTool.Name,
 				PipelineId:   userTool.PipelineId,
-				Type:         userTool.Type,
 				StartedDate:  userTool.StartedAt.ToTime(),
 				FinishedDate: userTool.StoppedAt.ToNullableTime(),
 				DurationSec:  userTool.DurationSec,
-				Result:       userTool.Status,
-				Environment:  userTool.Type,
-				CicdScopeId:  getProjectIdGen().Generate(data.Options.ConnectionId, data.Options.ProjectSlug),
+				// reference: https://circleci.com/docs/api/v2/index.html#operation/getJobDetails
+				Status: devops.GetStatus(&devops.StatusRule[string]{
+					Done:    []string{"canceled", "failed", "failing", "success", "not_run", "error", "infrastructure_fail", "timedout", "terminated-unknown"},
+					Manual:  []string{"on_hold", "blocked"},
+					Default: devops.STATUS_IN_PROGRESS,
+				}, userTool.Status),
+				Result: devops.GetResult(&devops.ResultRule{
+					Success: []string{"success"},
+					Failed:  []string{"failed", "failing", "error"},
+					Skipped: []string{"not_run"},
+					Abort:   []string{"canceled"},
+				}, userTool.Status),
+				Type:        data.RegexEnricher.ReturnNameIfMatched(devops.DEPLOYMENT, userTool.Name),
+				Environment: data.RegexEnricher.ReturnNameIfOmittedOrMatched(devops.PRODUCTION, userTool.Name),
 			}
 
 			return []interface{}{
