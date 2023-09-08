@@ -73,11 +73,6 @@ type ZentaoStoryRepoCommitsRes struct {
 		Time      string `json:"time"`
 		Comment   string `json:"comment"`
 		Change    struct {
-			TestYaml struct {
-				Action  string `json:"action"`
-				Kind    string `json:"kind"`
-				OldPath string `json:"oldPath"`
-			} `json:"/test.yaml"`
 		} `json:"change"`
 		Commit string `json:"commit"`
 	} `json:"log"`
