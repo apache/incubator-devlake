@@ -24,6 +24,7 @@ import (
 	"github.com/apache/incubator-devlake/core/models/domainlayer"
 	"github.com/apache/incubator-devlake/core/models/domainlayer/devops"
 	"github.com/apache/incubator-devlake/helpers/e2ehelper"
+	"github.com/apache/incubator-devlake/helpers/pluginhelper/api"
 	"github.com/apache/incubator-devlake/plugins/circleci/impl"
 	"github.com/apache/incubator-devlake/plugins/circleci/models"
 	"github.com/apache/incubator-devlake/plugins/circleci/tasks"
@@ -38,6 +39,7 @@ func TestCircleciJob(t *testing.T) {
 			ConnectionId: 1,
 			ProjectSlug:  "github/coldgust/coldgust.github.io",
 		},
+		RegexEnricher: api.NewRegexEnricher(),
 	}
 
 	// import raw data table
