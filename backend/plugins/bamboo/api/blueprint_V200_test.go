@@ -48,7 +48,7 @@ func TestMakeDataSourcePipelinePlanV200(t *testing.T) {
 	const testScopeConfigName string = "bamboo scope config"
 	const testProxy string = ""
 
-	syncPolicy := &coreModels.BlueprintSyncPolicy{}
+	syncPolicy := &coreModels.SyncPolicy{}
 	bpScopes := []*coreModels.BlueprintScope{
 		{
 			ScopeId: testKey,

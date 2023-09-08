@@ -22,6 +22,7 @@ import (
 
 	corecontext "github.com/apache/incubator-devlake/core/context"
 	"github.com/apache/incubator-devlake/core/errors"
+	"github.com/apache/incubator-devlake/core/models"
 )
 
 type ProgressType int
@@ -62,6 +63,8 @@ type SubTaskContext interface {
 type TaskContext interface {
 	ExecContext
 	SetData(data interface{})
+	SetSyncPolicy(syncPolicy *models.SyncPolicy)
+	SyncPolicy() *models.SyncPolicy
 	SubTaskContext(subtask string) (SubTaskContext, errors.Error)
 }
 

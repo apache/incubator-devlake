@@ -71,7 +71,7 @@ func TestMakeDataSourcePipelinePlanV200(t *testing.T) {
 	}*/
 	bpScopes := make([]*coreModels.BlueprintScope, 0)
 	bpScopes = append(bpScopes, bs)
-	syncPolicy := &coreModels.BlueprintSyncPolicy{}
+	syncPolicy := &coreModels.SyncPolicy{}
 
 	plan := make(coreModels.PipelinePlan, len(bpScopes))
 	plan, scopes, err := makePipelinePlanV200(nil, plan, bpScopes, connection, syncPolicy)

@@ -36,7 +36,7 @@ func MakeDataSourcePipelinePlanV200(
 	subtaskMetas []plugin.SubTaskMeta,
 	connectionId uint64,
 	bpScopes []*coreModels.BlueprintScope,
-	syncPolicy *coreModels.BlueprintSyncPolicy,
+	syncPolicy *coreModels.SyncPolicy,
 ) (coreModels.PipelinePlan, []plugin.Scope, errors.Error) {
 	// get the connection info for url
 	connection := &models.ZentaoConnection{}
@@ -59,7 +59,7 @@ func makePipelinePlanV200(
 	plan coreModels.PipelinePlan,
 	bpScopes []*coreModels.BlueprintScope,
 	connection *models.ZentaoConnection,
-	syncPolicy *coreModels.BlueprintSyncPolicy,
+	syncPolicy *coreModels.SyncPolicy,
 ) (coreModels.PipelinePlan, []plugin.Scope, errors.Error) {
 	domainScopes := make([]plugin.Scope, 0)
 	for i, bpScope := range bpScopes {

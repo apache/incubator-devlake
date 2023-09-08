@@ -169,6 +169,7 @@ func Patch(c *gin.Context) {
 // @Accept application/json
 // @Param blueprintId path string true "blueprintId"
 // @Param skipCollectors body bool false "skipCollectors"
+// @Param fullSync body bool false "fullSync"
 // @Success 200 {object} models.Pipeline
 // @Failure 400 {object} shared.ApiBody "Bad Request"
 // @Failure 500 {object} shared.ApiBody "Internal Error"
@@ -181,21 +182,19 @@ func Trigger(c *gin.Context) {
 		return
 	}
 
-	var body struct {
-		SkipCollectors bool `json:"skipCollectors"`
-	}
-
+	syncPolicy := &models.SyncPolicy{}
 	if c.Request.Body == nil || c.Request.ContentLength == 0 {
-		body.SkipCollectors = false
+		syncPolicy.SkipCollectors = false
+		syncPolicy.FullSync = false
 	} else {
-		err = c.ShouldBindJSON(&body)
+		err = c.ShouldBindJSON(syncPolicy)
 		if err != nil {
 			shared.ApiOutputError(c, errors.BadInput.Wrap(err, "error binding request body"))
 			return
 		}
 	}
 
-	pipeline, err := services.TriggerBlueprint(id, body.SkipCollectors)
+	pipeline, err := services.TriggerBlueprint(id, syncPolicy)
 	if err != nil {
 		shared.ApiOutputError(c, errors.Default.Wrap(err, "error triggering blueprint"))
 		return

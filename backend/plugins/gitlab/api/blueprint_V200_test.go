@@ -52,7 +52,7 @@ func TestMakeDataSourcePipelinePlanV200(t *testing.T) {
 	const testScopeConfigName string = "gitlab scope config"
 	const testProxy string = ""
 
-	syncPolicy := &coreModels.BlueprintSyncPolicy{}
+	syncPolicy := &coreModels.SyncPolicy{}
 	bpScopes := []*coreModels.BlueprintScope{
 		{
 			ScopeId: strconv.Itoa(testID),

@@ -240,6 +240,7 @@ func (d *DevlakeClient) RunPlugin(ctx context.Context, pluginName string, plugin
 		task,
 		pluginTask,
 		nil,
+		nil,
 	)
 }
 

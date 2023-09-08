@@ -36,7 +36,7 @@ func TestMakePlanV200(t *testing.T) {
 	githubName := "TestMakePlanV200-github" // mimic github
 	// mock github plugin as a data source plugin
 	githubConnId := uint64(1)
-	syncPolicy := coreModels.BlueprintSyncPolicy{}
+	syncPolicy := &coreModels.SyncPolicy{}
 	githubScopes := []*coreModels.BlueprintScope{
 		{ScopeId: "github:GithubRepo:1:123"},
 		{ScopeId: "github:GithubRepo:1:321"},
@@ -97,7 +97,7 @@ func TestMakePlanV200(t *testing.T) {
 		doraName: nil,
 	}
 
-	plan, err := GeneratePlanJsonV200(projectName, syncPolicy, connections, metrics, false)
+	plan, err := GeneratePlanJsonV200(projectName, syncPolicy, connections, metrics)
 	assert.Nil(t, err)
 
 	assert.Equal(t, expectedPlan, plan)

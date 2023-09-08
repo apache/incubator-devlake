@@ -72,7 +72,7 @@ type DataSourcePluginBlueprintV200 interface {
 	MakeDataSourcePipelinePlanV200(
 		connectionId uint64,
 		scopes []*models.BlueprintScope,
-		syncPolicy models.BlueprintSyncPolicy,
+		syncPolicy *models.SyncPolicy,
 	) (models.PipelinePlan, []Scope, errors.Error)
 }
 

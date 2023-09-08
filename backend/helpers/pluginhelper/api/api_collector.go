@@ -21,13 +21,14 @@ import (
 	"bytes"
 	"encoding/json"
 	"fmt"
-	"github.com/apache/incubator-devlake/core/plugin"
 	"io"
 	"net/http"
 	"net/url"
 	"sync"
 	"text/template"
 	"time"
+
+	"github.com/apache/incubator-devlake/core/plugin"
 
 	"github.com/apache/incubator-devlake/core/dal"
 	"github.com/apache/incubator-devlake/core/errors"
@@ -160,8 +161,19 @@ func (collector *ApiCollector) Execute() errors.Error {
 		return errors.Default.Wrap(err, "error auto-migrating collector")
 	}
 
+	fmt.Println("xxxxxxxx----------------------")
+	isIncremental := collector.args.Incremental
+	taskContext := collector.args.Ctx.TaskContext()
+	fmt.Println(taskContext.SyncPolicy().FullSync)
+	fmt.Println(taskContext.SyncPolicy().SkipCollectors)
+	fmt.Println(taskContext.SyncPolicy().TimeAfter)
+	fmt.Println(taskContext.SyncPolicy().SkipOnFail)
+	if taskContext.SyncPolicy().FullSync {
+		fmt.Println("full sync----------------------")
+		isIncremental = false
+	}
 	// flush data if not incremental collection
-	if !collector.args.Incremental {
+	if !isIncremental {
 		err = db.Delete(&RawData{}, dal.From(collector.table), dal.Where("params = ?", collector.params))
 		if err != nil {
 			return errors.Default.Wrap(err, "error deleting data from collector")

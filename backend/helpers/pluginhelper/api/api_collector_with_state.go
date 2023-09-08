@@ -74,7 +74,11 @@ func (m *ApiCollectorStateManager) IsIncremental() bool {
 	prevSyncTime := m.LatestState.LatestSuccessStart
 	prevTimeAfter := m.LatestState.TimeAfter
 	currTimeAfter := m.TimeAfter
+	fullSync := m.Ctx.TaskContext().SyncPolicy().FullSync
 
+	if fullSync {
+		return false
+	}
 	if prevSyncTime == nil {
 		return false
 	}

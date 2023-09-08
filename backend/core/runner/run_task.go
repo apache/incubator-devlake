@@ -53,6 +53,16 @@ func RunTask(
 	if err := db.First(dbPipeline, dal.Where("id = ? ", task.PipelineId)); err != nil {
 		return err
 	}
+	blueprint := &models.Blueprint{}
+	if err := db.First(blueprint, dal.Where("id = ? ", dbPipeline.BlueprintId)); err != nil {
+		return err
+	}
+	syncPolicy := &models.SyncPolicy{}
+	syncPolicy.TimeAfter = blueprint.TimeAfter
+	// Prioritize the configuration of pipeline
+	syncPolicy.SkipOnFail = dbPipeline.SkipOnFail
+	syncPolicy.FullSync = dbPipeline.FullSync
+
 	logger, err := getTaskLogger(basicRes.GetLogger(), task)
 	if err != nil {
 		return err
@@ -136,6 +146,7 @@ func RunTask(
 		basicRes.ReplaceLogger(logger),
 		task,
 		progress,
+		syncPolicy,
 	)
 	return err
 }
@@ -146,6 +157,7 @@ func RunPluginTask(
 	basicRes context.BasicRes,
 	task *models.Task,
 	progress chan plugin.RunningProgress,
+	syncPolicy *models.SyncPolicy,
 ) errors.Error {
 	pluginMeta, err := plugin.GetPlugin(task.Plugin)
 	if err != nil {
@@ -161,6 +173,7 @@ func RunPluginTask(
 		task,
 		pluginTask,
 		progress,
+		syncPolicy,
 	)
 }
 
@@ -171,6 +184,7 @@ func RunPluginSubTasks(
 	task *models.Task,
 	pluginTask plugin.PluginTask,
 	progress chan plugin.RunningProgress,
+	syncPolicy *models.SyncPolicy,
 ) errors.Error {
 	logger := basicRes.GetLogger()
 	logger.Info("start plugin")
@@ -236,6 +250,7 @@ func RunPluginSubTasks(
 	if err != nil {
 		return errors.Default.Wrap(err, fmt.Sprintf("error preparing task data for %s", task.Plugin))
 	}
+	taskCtx.SetSyncPolicy(syncPolicy)
 	taskCtx.SetData(taskData)
 
 	// execute subtasks in order
