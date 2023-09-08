@@ -37,7 +37,7 @@ func GetJobsPage(apiClient aha.ApiClientAbstract, path string, page int, pageSiz
 	}
 	// set query
 	query := url.Values{}
-	treeValue := fmt.Sprintf("jobs[name,class,url,color,base,jobs,upstreamProjects[name]]{%d,%d}", i, i+pageSize)
+	treeValue := fmt.Sprintf("jobs[fullName,name,class,url,color,base,jobs,upstreamProjects[name]]{%d,%d}", i, i+pageSize)
 	query.Set("tree", treeValue)
 
 	res, err := apiClient.Get(path+"/api/json", query, nil)
