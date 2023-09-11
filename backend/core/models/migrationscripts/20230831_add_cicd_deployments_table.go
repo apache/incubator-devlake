@@ -26,38 +26,40 @@ import (
 	"time"
 )
 
-var _ plugin.MigrationScript = (*addApiKeyTables)(nil)
+var _ plugin.MigrationScript = (*addCICDDeploymentsTable)(nil)
 
-type addApiKeyTables struct{}
-
-type apiKey20230728 struct {
-	archived.Model
-	archived.Creator
-	archived.Updater
-	Name        string     `json:"name" gorm:"type:varchar(255);uniqueIndex"`
-	ApiKey      string     `json:"apiKey" gorm:"type:varchar(255);column:api_key;uniqueIndex"`
-	ExpiredAt   *time.Time `json:"expiredAt" gorm:"column:expired_at"`
-	AllowedPath string     `json:"allowedPath" gorm:"type:varchar(255);column:allowed_path"`
-	Type        string     `json:"type" gorm:"type:varchar(40);column:type;index"`
-	Extra       string     `json:"extra" gorm:"type:varchar(255);column:extra;index"`
+type addCICDDeploymentsTable struct {
 }
 
-func (*apiKey20230728) TableName() string {
-	return "_devlake_api_keys"
+type addCICDDeploymentsTable20230831 struct {
+	archived.DomainEntity
+	CicdScopeId  string `gorm:"index;type:varchar(255)"`
+	Name         string `gorm:"type:varchar(255)"`
+	Result       string `gorm:"type:varchar(100)"`
+	Status       string `gorm:"type:varchar(100)"`
+	Environment  string `gorm:"type:varchar(255)"`
+	CreatedDate  time.Time
+	StartedDate  *time.Time
+	FinishedDate *time.Time
+	DurationSec  *uint64
 }
 
-func (*addApiKeyTables) Up(basicRes context.BasicRes) errors.Error {
+func (*addCICDDeploymentsTable20230831) TableName() string {
+	return "cicd_deployments"
+}
+
+func (*addCICDDeploymentsTable) Up(basicRes context.BasicRes) errors.Error {
 	// To create multiple tables with migration helper
 	return migrationhelper.AutoMigrateTables(
 		basicRes,
-		&apiKey20230728{},
+		&addCICDDeploymentsTable20230831{},
 	)
 }
 
-func (*addApiKeyTables) Version() uint64 {
-	return 20230725142900
+func (*addCICDDeploymentsTable) Version() uint64 {
+	return 202307831162403
 }
 
-func (*addApiKeyTables) Name() string {
-	return "add api key tables"
+func (*addCICDDeploymentsTable) Name() string {
+	return "add cicd deployments table"
 }
