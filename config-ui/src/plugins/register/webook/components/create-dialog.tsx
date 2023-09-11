@@ -19,12 +19,12 @@
 import { useState, useMemo } from 'react';
 import { InputGroup, Icon } from '@blueprintjs/core';
 
-import { Dialog, FormItem, CopyText, Message } from '@/components';
+import { Dialog, FormItem, CopyText } from '@/components';
+import { useConnections } from '@/hooks';
 import { operator } from '@/utils';
 
 import * as API from '../api';
-
-import * as S from './styled';
+import * as S from '../styled';
 
 interface Props {
   isOpen: boolean;
@@ -32,7 +32,7 @@ interface Props {
   onSubmitAfter?: (id: ID) => void;
 }
 
-export const WebhookCreateDialog = ({ isOpen, onCancel, onSubmitAfter }: Props) => {
+export const CreateDialog = ({ isOpen, onCancel, onSubmitAfter }: Props) => {
   const [operating, setOperating] = useState(false);
   const [step, setStep] = useState(1);
   const [name, setName] = useState('');
@@ -44,49 +44,46 @@ export const WebhookCreateDialog = ({ isOpen, onCancel, onSubmitAfter }: Props) 
     apiKey: '',
   });
 
+  const { onRefresh } = useConnections();
+
   const prefix = useMemo(() => `${window.location.origin}/api`, []);
 
   const handleSubmit = async () => {
-    if (step === 1) {
-      const [success, res] = await operator(
-        async () => {
-          const { id, apiKey } = await API.createConnection({ name });
-          const { postIssuesEndpoint, closeIssuesEndpoint, postPipelineDeployTaskEndpoint } = await API.getConnection(
-            id,
-          );
-          return {
-            id,
-            apiKey: apiKey.apiKey,
-            postIssuesEndpoint,
-            closeIssuesEndpoint,
-            postPipelineDeployTaskEndpoint,
-          };
-        },
-        {
-          setOperating,
-          hideToast: true,
-        },
-      );
+    const [success, res] = await operator(
+      async () => {
+        const { id, apiKey } = await API.createConnection({ name });
+        const { postIssuesEndpoint, closeIssuesEndpoint, postPipelineDeployTaskEndpoint } = await API.getConnection(id);
+        return {
+          id,
+          apiKey: apiKey.apiKey,
+          postIssuesEndpoint,
+          closeIssuesEndpoint,
+          postPipelineDeployTaskEndpoint,
+        };
+      },
+      {
+        setOperating,
+        hideToast: true,
+      },
+    );
 
-      if (success) {
-        setStep(2);
-        setRecord({
-          id: res.id,
-          postIssuesEndpoint: `${prefix}${res.postIssuesEndpoint}?key={KEY}`,
-          closeIssuesEndpoint: `${prefix}${res.closeIssuesEndpoint}?key={KEY}`,
-          postDeploymentsCurl: `curl ${prefix}${res.postPipelineDeployTaskEndpoint} -X 'POST'
-            \\ -H 'Authorization: Bearer {KEY}'
+    if (success) {
+      setStep(2);
+      setRecord({
+        id: res.id,
+        postIssuesEndpoint: `${prefix}${res.postIssuesEndpoint}?api_key=${res.apiKey}`,
+        closeIssuesEndpoint: `${prefix}${res.closeIssuesEndpoint}?api_key=${res.apiKey}`,
+        postDeploymentsCurl: `curl ${prefix}${res.postPipelineDeployTaskEndpoint} -X 'POST'
+            \\ -H 'Authorization: Bearer ${res.apiKey}'
             \\ -d '{
             \\"commit_sha\\":\\"the sha of deployment commit\\",
             \\"repo_url\\":\\"the repo URL of the deployment commit\\",
             \\"start_time\\":\\"eg. 2020-01-01T12:00:00+00:00\\"
           }'`,
-          apiKey: res.apiKey,
-        });
-      }
-    } else {
-      onCancel();
-      onSubmitAfter?.(record.id);
+        apiKey: res.apiKey,
+      });
+      onRefresh('webhook');
+      onSubmitAfter?.(res.id);
     }
   };
 
@@ -95,6 +92,7 @@ export const WebhookCreateDialog = ({ isOpen, onCancel, onSubmitAfter }: Props) 
       isOpen={isOpen}
       title="Add a New Webhook"
       style={{ width: 820 }}
+      footer={step === 2 ? null : undefined}
       okText={step === 1 ? 'Generate POST URL' : 'Done'}
       okDisabled={step === 1 && !name}
       okLoading={operating}
@@ -102,14 +100,18 @@ export const WebhookCreateDialog = ({ isOpen, onCancel, onSubmitAfter }: Props) 
       onOk={handleSubmit}
     >
       {step === 1 && (
-        <S.Detail>
-          <h3>Webhook Name *</h3>
-          <p>Give your Webhook a unique name to help you identify it in the future.</p>
-          <InputGroup value={name} onChange={(e) => setName(e.target.value)} />
-        </S.Detail>
+        <S.Wrapper>
+          <FormItem
+            label="Webhook Name"
+            subLabel="Give your Webhook a unique name to help you identify it in the future."
+            required
+          >
+            <InputGroup placeholder="Webhook Name" value={name} onChange={(e) => setName(e.target.value)} />
+          </FormItem>
+        </S.Wrapper>
       )}
       {step === 2 && (
-        <S.Detail>
+        <S.Wrapper>
           <h2>
             <Icon icon="endorsed" size={30} />
             <span>POST URL Generated!</span>
@@ -117,6 +119,10 @@ export const WebhookCreateDialog = ({ isOpen, onCancel, onSubmitAfter }: Props) 
           <p>
             Copy the following POST URLs to your issue tracking or CI tools to push `Incidents` and `Deployments` by
             making a POST to DevLake.
+          </p>
+          <p>
+            An API key is automatically generated for the authentication of this webhook. This key does not expire. You
+            can revoke it in the webhook page at any time.
           </p>
           <FormItem label="Incident">
             <h5>Post to register an incident</h5>
@@ -128,15 +134,10 @@ export const WebhookCreateDialog = ({ isOpen, onCancel, onSubmitAfter }: Props) 
             <h5>Post to register a deployment</h5>
             <CopyText content={record.postDeploymentsCurl} />
           </FormItem>
-          <FormItem label="API Key">
-            <Message
-              style={{ marginBottom: 8 }}
-              content="Please make sure to copy your API key now. You will not be able to see it again."
-            />
-            <CopyText content={record.apiKey} />
-          </FormItem>
-        </S.Detail>
+        </S.Wrapper>
       )}
     </Dialog>
   );
 };
+
+export default CreateDialog;

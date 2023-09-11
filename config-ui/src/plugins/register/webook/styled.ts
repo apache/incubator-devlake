@@ -16,6 +16,52 @@
  *
  */
 
+import { Colors } from '@blueprintjs/core';
 import styled from 'styled-components';
 
-export const Wrapper = styled.div``;
+export const Wrapper = styled.div`
+  h2 {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0;
+    margin-bottom: 16px;
+    padding: 0;
+    font-weight: 600;
+    color: ${Colors.GREEN5};
+
+    .bp4-icon {
+      margin-right: 8px;
+    }
+  }
+
+  h5 {
+    margin: 8px 0;
+  }
+`;
+
+export const Action = styled.div`
+  color: #7497f7;
+
+  span {
+    cursor: pointer;
+  }
+
+  span + span {
+    margin-left: 8px;
+  }
+`;
+
+export const ApiKey = styled.div`
+  display: flex;
+  align-items: center;
+
+  & > div {
+    max-width: 50%;
+    margin-right: 8px;
+  }
+`;
+
+export const Tips = styled.div`
+  margin-top: 8px;
+`;
