@@ -38,10 +38,6 @@ func Init(br context.BasicRes, p plugin.PluginMeta) {
 	basicRes = br
 	logger = basicRes.GetLogger()
 	vld = validator.New()
-	connectionHelper = api.NewConnectionHelper(
-		basicRes,
-		vld,
-		p.Name(),
-	)
+	connectionHelper = api.NewConnectionHelper(basicRes, vld, p.Name())
 	apiKeyHelper = apikeyhelper.NewApiKeyHelper(basicRes, logger)
 }
