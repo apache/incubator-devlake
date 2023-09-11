@@ -55,7 +55,7 @@ func EnrichPrevSuccessDeploymentCommit(taskCtx plugin.SubTaskContext) errors.Err
 			`
 			dc.finished_date IS NOT NULL
 			AND dc.environment IS NOT NULL AND dc.environment != ''
-			AND dc.repo_url IS NOT NULL AND dc.repo_url != '' 
+			AND dc.repo_url IS NOT NULL AND dc.repo_url != ''
 			AND pm.project_name = ? AND dc.result = ?
 			`,
 			data.Options.ProjectName, devops.RESULT_SUCCESS,

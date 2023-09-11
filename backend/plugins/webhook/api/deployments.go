@@ -20,6 +20,8 @@ package api
 import (
 	"crypto/md5"
 	"fmt"
+	"github.com/apache/incubator-devlake/core/dal"
+	"github.com/apache/incubator-devlake/helpers/dbhelper"
 	"net/http"
 	"time"
 
@@ -81,7 +83,14 @@ func PostDeploymentCicdTask(input *plugin.ApiResourceInput) (*plugin.ApiResource
 	if err != nil {
 		return nil, errors.BadInput.Wrap(vld.Struct(request), `input json error`)
 	}
-	db := basicRes.GetDal()
+	txHelper := dbhelper.NewTxHelper(basicRes, &err)
+	defer txHelper.End()
+	tx := txHelper.Begin()
+	err = txHelper.LockTablesTimeout(2*time.Second, dal.LockTables{{Table: "cicd_deployment_commits"}, {Table: "cicd_deployments"}})
+	if err != nil {
+		err = errors.Conflict.Wrap(err, "This CI/CD deployment cannot be post due to a table lock error. There might be running pipeline(s) or other operations in progress.")
+		return nil, err
+	}
 	urlHash16 := fmt.Sprintf("%x", md5.Sum([]byte(request.RepoUrl)))[:16]
 	scopeId := fmt.Sprintf("%s:%d", "webhook", connection.ID)
 	deploymentCommitId := fmt.Sprintf("%s:%d:%s:%s", "webhook", connection.ID, urlHash16, request.CommitSha)
@@ -124,12 +133,17 @@ func PostDeploymentCicdTask(input *plugin.ApiResourceInput) (*plugin.ApiResource
 		RepoId:           request.RepoId,
 		RepoUrl:          request.RepoUrl,
 	}
-	err = db.CreateOrUpdate(deploymentCommit)
+	err = tx.CreateOrUpdate(deploymentCommit)
 	if err != nil {
+		logger.Error(err, "create deployment commit")
 		return nil, err
 	}
 
-	// TODO: create a deployment record when the table is ready
+	// create a deployment record
+	if err = tx.CreateOrUpdate(deploymentCommit.ToDeployment()); err != nil {
+		logger.Error(err, "create deployment")
+		return nil, err
+	}
 
 	return &plugin.ApiResourceOutput{Body: nil, Status: http.StatusOK}, nil
 }

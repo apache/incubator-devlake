@@ -110,7 +110,7 @@ func ConvertDeployBuilds(taskCtx plugin.SubTaskContext) errors.Error {
 				deploymentCommit.DurationSec = &duration
 			}
 
-			return []interface{}{deploymentCommit}, nil
+			return []interface{}{deploymentCommit, deploymentCommit.ToDeployment()}, nil
 		},
 	})
 
