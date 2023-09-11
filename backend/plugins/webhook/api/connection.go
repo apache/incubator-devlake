@@ -203,6 +203,7 @@ func formatConnection(connection *models.WebhookConnection, withApiKeyInfo bool)
 			}
 		} else {
 			response.ApiKey = apiKey
+			response.ApiKey.RemoveHashedApiKey() // delete the hashed api key to reduce the attack surface.
 		}
 	}
 	return response, nil
