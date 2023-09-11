@@ -57,7 +57,7 @@ func GetApiKeys(query *ApiKeysQuery) ([]*models.ApiKey, int64, errors.Error) {
 	if err != nil {
 		return nil, 0, errors.Default.Wrap(err, "error finding DB api key")
 	}
-	for idx, _ := range apiKeys {
+	for idx := range apiKeys {
 		apiKeys[idx].RemoveHashedApiKey() // delete the hashed api key to reduce the attack surface.
 	}
 
