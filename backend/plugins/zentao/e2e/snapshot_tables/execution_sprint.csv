@@ -5,5 +5,5 @@ zentao:ZentaoExecution:1:194,新建一个迭代，完成之后检查sprints表,h
 zentao:ZentaoExecution:1:266,新建迭代然后关闭,https://zentao.demo.haogs.cn/execution-view-266.html,CLOSED,2023-09-07T00:00:00.000+00:00,2023-09-13T00:00:00.000+00:00,2023-09-07T02:15:31.000+00:00,zentao:ZentaoProject:1:192
 zentao:ZentaoExecution:1:267,建一个计划未来开始迭代,https://zentao.demo.haogs.cn/execution-view-267.html,FUTURE,2023-09-09T00:00:00.000+00:00,2023-09-22T00:00:00.000+00:00,,zentao:ZentaoProject:1:192
 zentao:ZentaoExecution:1:268,起始-截止都是结束时间,https://zentao.demo.haogs.cn/execution-view-268.html,FUTURE,2023-09-04T00:00:00.000+00:00,2023-09-05T00:00:00.000+00:00,,zentao:ZentaoProject:1:192
-zentao:ZentaoExecution:1:269,把迭代挂起,https://zentao.demo.haogs.cn/execution-view-269.html,SUSPENDED,,2023-09-20T00:00:00.000+00:00,,zentao:ZentaoProject:1:192
+zentao:ZentaoExecution:1:269,把迭代挂起,https://zentao.demo.haogs.cn/execution-view-269.html,SUSPENDED,2023-09-07T00:00:00.000+00:00,2023-09-20T00:00:00.000+00:00,,zentao:ZentaoProject:1:192
 zentao:ZentaoExecution:1:270,流程扭转--挂起迭代2,https://zentao.demo.haogs.cn/execution-view-270.html,SUSPENDED,2023-09-07T00:00:00.000+00:00,2023-09-20T00:00:00.000+00:00,,zentao:ZentaoProject:1:192
