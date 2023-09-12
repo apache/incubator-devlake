@@ -21,6 +21,7 @@ import (
 	"time"
 
 	"github.com/apache/incubator-devlake/core/errors"
+	coreModels "github.com/apache/incubator-devlake/core/models"
 	"github.com/apache/incubator-devlake/core/models/domainlayer"
 	"github.com/apache/incubator-devlake/core/models/domainlayer/didgen"
 	"github.com/apache/incubator-devlake/core/models/domainlayer/ticket"
@@ -31,7 +32,12 @@ import (
 	"github.com/apache/incubator-devlake/plugins/zentao/tasks"
 )
 
-func MakeDataSourcePipelinePlanV200(subtaskMetas []plugin.SubTaskMeta, connectionId uint64, bpScopes []*plugin.BlueprintScopeV200, syncPolicy *plugin.BlueprintSyncPolicy) (plugin.PipelinePlan, []plugin.Scope, errors.Error) {
+func MakeDataSourcePipelinePlanV200(
+	subtaskMetas []plugin.SubTaskMeta,
+	connectionId uint64,
+	bpScopes []*coreModels.BlueprintScope,
+	syncPolicy *coreModels.SyncPolicy,
+) (coreModels.PipelinePlan, []plugin.Scope, errors.Error) {
 	// get the connection info for url
 	connection := &models.ZentaoConnection{}
 	err := connectionHelper.FirstById(connection, connectionId)
@@ -39,7 +45,7 @@ func MakeDataSourcePipelinePlanV200(subtaskMetas []plugin.SubTaskMeta, connectio
 		return nil, nil, err
 	}
 
-	plan := make(plugin.PipelinePlan, len(bpScopes))
+	plan := make(coreModels.PipelinePlan, len(bpScopes))
 	plan, scopes, err := makePipelinePlanV200(subtaskMetas, plan, bpScopes, connection, syncPolicy)
 	if err != nil {
 		return nil, nil, err
@@ -50,16 +56,16 @@ func MakeDataSourcePipelinePlanV200(subtaskMetas []plugin.SubTaskMeta, connectio
 
 func makePipelinePlanV200(
 	subtaskMetas []plugin.SubTaskMeta,
-	plan plugin.PipelinePlan,
-	bpScopes []*plugin.BlueprintScopeV200,
+	plan coreModels.PipelinePlan,
+	bpScopes []*coreModels.BlueprintScope,
 	connection *models.ZentaoConnection,
-	syncPolicy *plugin.BlueprintSyncPolicy,
-) (plugin.PipelinePlan, []plugin.Scope, errors.Error) {
+	syncPolicy *coreModels.SyncPolicy,
+) (coreModels.PipelinePlan, []plugin.Scope, errors.Error) {
 	domainScopes := make([]plugin.Scope, 0)
 	for i, bpScope := range bpScopes {
 		stage := plan[i]
 		if stage == nil {
-			stage = plugin.PipelineStage{}
+			stage = coreModels.PipelineStage{}
 		}
 		// construct task options
 		op := &tasks.ZentaoOptions{
@@ -68,7 +74,7 @@ func makePipelinePlanV200(
 
 		var entities []string
 
-		project, scopeConfig, err := projectScopeHelper.DbHelper().GetScopeAndConfig(connection.ID, bpScope.Id)
+		project, scopeConfig, err := projectScopeHelper.DbHelper().GetScopeAndConfig(connection.ID, bpScope.ScopeId)
 		if err != nil {
 			return nil, nil, err
 		}
@@ -117,7 +123,7 @@ func makePipelinePlanV200(
 		if err != nil {
 			return nil, nil, err
 		}
-		stage = append(stage, &plugin.PipelineTask{
+		stage = append(stage, &coreModels.PipelineTask{
 			Plugin:   "zentao",
 			Subtasks: subtasks,
 			Options:  options,

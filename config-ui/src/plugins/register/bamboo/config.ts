@@ -48,11 +48,7 @@ export const BambooConfig: PluginConfigType = {
     ],
   },
   dataScope: {
-    millerColumns: {
-      title: 'Add Repositories by Selecting from the Directory',
-      subTitle: 'The following directory lists out all repositories in your organizations.',
-      columnCount: 1,
-    },
+    title: 'Repositories',
   },
   scopeConfig: {
     entities: ['CICD', 'CROSS'],

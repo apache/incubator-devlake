@@ -56,13 +56,12 @@ export const ConfigurationPanel = ({ from, blueprint, onRefresh, onChangeTab }: 
 
   const connections = useMemo(
     () =>
-      blueprint.settings?.connections
-        .filter((cs) => cs.plugin !== 'webhook')
+      blueprint.connections
+        .filter((cs) => cs.pluginName !== 'webhook')
         .map((cs: any) => {
-          const unique = `${cs.plugin}-${cs.connectionId}`;
-          const plugin = getPluginConfig(cs.plugin);
+          const unique = `${cs.pluginName}-${cs.connectionId}`;
+          const plugin = getPluginConfig(cs.pluginName);
           const connection = onGet(unique);
-
           return {
             unique,
             icon: plugin.icon,
@@ -163,7 +162,7 @@ export const ConfigurationPanel = ({ from, blueprint, onRefresh, onChangeTab }: 
           ]}
           dataSource={[
             {
-              timeRange: blueprint?.settings?.timeAfter,
+              timeRange: blueprint.timeAfter,
               frequency: blueprint.cronConfig,
               isManual: blueprint.isManual,
               skipFailed: blueprint.skipOnFail,
@@ -263,7 +262,7 @@ export const ConfigurationPanel = ({ from, blueprint, onRefresh, onChangeTab }: 
           isManual={blueprint.isManual}
           cronConfig={blueprint.cronConfig}
           skipOnFail={blueprint.skipOnFail}
-          timeAfter={blueprint.settings?.timeAfter}
+          timeAfter={blueprint.timeAfter}
           operating={operating}
           onCancel={handleCancel}
           onSubmit={(payload) => handleUpdate(payload)}
@@ -275,7 +274,7 @@ export const ConfigurationPanel = ({ from, blueprint, onRefresh, onChangeTab }: 
           onCancel={handleCancel}
           onSubmit={(connection) =>
             handleUpdate({
-              settings: { ...blueprint.settings, connections: [...blueprint.settings.connections, connection] },
+              connections: [...blueprint.connections, connection],
             })
           }
         />

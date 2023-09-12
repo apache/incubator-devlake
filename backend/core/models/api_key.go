@@ -28,15 +28,19 @@ type ApiKey struct {
 	common.Creator
 	common.Updater
 	Name        string     `json:"name"`
-	ApiKey      string     `json:"apiKey"`
+	ApiKey      string     `json:"apiKey,omitempty"`
 	ExpiredAt   *time.Time `json:"expiredAt"`
 	AllowedPath string     `json:"allowedPath"`
 	Type        string     `json:"type"`
 	Extra       string     `json:"extra"`
 }
 
-func (ApiKey) TableName() string {
+func (apiKey *ApiKey) TableName() string {
 	return "_devlake_api_keys"
+}
+
+func (apiKey *ApiKey) RemoveHashedApiKey() {
+	apiKey.ApiKey = ""
 }
 
 type ApiInputApiKey struct {

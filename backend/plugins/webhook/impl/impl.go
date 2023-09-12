@@ -21,6 +21,7 @@ import (
 	"github.com/apache/incubator-devlake/core/context"
 	"github.com/apache/incubator-devlake/core/dal"
 	"github.com/apache/incubator-devlake/core/errors"
+	coreModels "github.com/apache/incubator-devlake/core/models"
 	"github.com/apache/incubator-devlake/core/plugin"
 	"github.com/apache/incubator-devlake/plugins/webhook/api"
 	"github.com/apache/incubator-devlake/plugins/webhook/models"
@@ -58,7 +59,11 @@ func (p Webhook) GetTablesInfo() []dal.Tabler {
 	}
 }
 
-func (p Webhook) MakeDataSourcePipelinePlanV200(connectionId uint64, _ []*plugin.BlueprintScopeV200, _ plugin.BlueprintSyncPolicy) (pp plugin.PipelinePlan, sc []plugin.Scope, err errors.Error) {
+func (p Webhook) MakeDataSourcePipelinePlanV200(
+	connectionId uint64,
+	_ []*coreModels.BlueprintScope,
+	_ coreModels.SyncPolicy,
+) (pp coreModels.PipelinePlan, sc []plugin.Scope, err errors.Error) {
 	return api.MakeDataSourcePipelinePlanV200(connectionId)
 }
 

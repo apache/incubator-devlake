@@ -20,6 +20,7 @@ package api
 import (
 	"testing"
 
+	coreModels "github.com/apache/incubator-devlake/core/models"
 	"github.com/apache/incubator-devlake/core/models/common"
 	"github.com/apache/incubator-devlake/core/models/domainlayer"
 	"github.com/apache/incubator-devlake/core/models/domainlayer/ticket"
@@ -38,13 +39,13 @@ func TestMakeDataSourcePipelinePlanV200(t *testing.T) {
 	mockMeta.On("Name").Return("jira").Maybe()
 	err := plugin.RegisterPlugin("jira", mockMeta)
 	assert.Nil(t, err)
-	bs := &plugin.BlueprintScopeV200{
-		Id: "10",
+	bs := &coreModels.BlueprintScope{
+		ScopeId: "10",
 	}
-	syncPolicy := &plugin.BlueprintSyncPolicy{}
-	bpScopes := make([]*plugin.BlueprintScopeV200, 0)
+	syncPolicy := &coreModels.SyncPolicy{}
+	bpScopes := make([]*coreModels.BlueprintScope, 0)
 	bpScopes = append(bpScopes, bs)
-	plan := make(plugin.PipelinePlan, len(bpScopes))
+	plan := make(coreModels.PipelinePlan, len(bpScopes))
 	mockBasicRes(t)
 
 	plan, err = makeDataSourcePipelinePlanV200(nil, plan, bpScopes, uint64(1), syncPolicy)
@@ -52,8 +53,8 @@ func TestMakeDataSourcePipelinePlanV200(t *testing.T) {
 	scopes, err := makeScopesV200(bpScopes, uint64(1))
 	assert.Nil(t, err)
 
-	expectPlan := plugin.PipelinePlan{
-		plugin.PipelineStage{
+	expectPlan := coreModels.PipelinePlan{
+		coreModels.PipelineStage{
 			{
 				Plugin:   "jira",
 				Subtasks: []string{},

@@ -50,9 +50,6 @@ export const SonarQubeConfig: PluginConfigType = {
     ],
   },
   dataScope: {
-    millerColumns: {
-      title: 'Add Repositories by Selecting from the Directory',
-      subTitle: 'The following directory lists out all projects from SonarQube.',
-    },
+    title: 'Repositories',
   },
 };

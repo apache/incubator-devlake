@@ -38,7 +38,7 @@ export const WebhookDeleteDialog = ({ isOpen, onCancel, ...props }: Props) => {
   return (
     <Dialog
       isOpen={isOpen}
-      title="Delete this Incoming Webhook?"
+      title="Delete this Webhook?"
       style={{ width: 600 }}
       okText="Confirm"
       okLoading={saving}
@@ -47,7 +47,7 @@ export const WebhookDeleteDialog = ({ isOpen, onCancel, ...props }: Props) => {
     >
       <S.Wrapper>
         <div className="message">
-          <p>This Incoming Webhook cannot be recovered once it’s deleted.</p>
+          <p>This Webhook cannot be recovered once it’s deleted.</p>
         </div>
       </S.Wrapper>
     </Dialog>

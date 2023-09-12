@@ -21,6 +21,7 @@ import (
 	"time"
 
 	"github.com/apache/incubator-devlake/core/errors"
+	coreModels "github.com/apache/incubator-devlake/core/models"
 	"github.com/apache/incubator-devlake/core/models/domainlayer"
 	"github.com/apache/incubator-devlake/core/models/domainlayer/didgen"
 	"github.com/apache/incubator-devlake/core/models/domainlayer/ticket"
@@ -31,8 +32,12 @@ import (
 	"github.com/apache/incubator-devlake/plugins/pagerduty/tasks"
 )
 
-func MakeDataSourcePipelinePlanV200(subtaskMetas []plugin.SubTaskMeta, connectionId uint64, bpScopes []*plugin.BlueprintScopeV200, syncPolicy *plugin.BlueprintSyncPolicy,
-) (plugin.PipelinePlan, []plugin.Scope, errors.Error) {
+func MakeDataSourcePipelinePlanV200(
+	subtaskMetas []plugin.SubTaskMeta,
+	connectionId uint64,
+	bpScopes []*coreModels.BlueprintScope,
+	syncPolicy *coreModels.SyncPolicy,
+) (coreModels.PipelinePlan, []plugin.Scope, errors.Error) {
 	// get the connection info for url
 	connection := &models.PagerDutyConnection{}
 	err := connectionHelper.FirstById(connection, connectionId)
@@ -40,7 +45,7 @@ func MakeDataSourcePipelinePlanV200(subtaskMetas []plugin.SubTaskMeta, connectio
 		return nil, nil, err
 	}
 
-	plan := make(plugin.PipelinePlan, len(bpScopes))
+	plan := make(coreModels.PipelinePlan, len(bpScopes))
 	plan, err = makeDataSourcePipelinePlanV200(subtaskMetas, plan, bpScopes, connection, syncPolicy)
 	if err != nil {
 		return nil, nil, err
@@ -55,14 +60,14 @@ func MakeDataSourcePipelinePlanV200(subtaskMetas []plugin.SubTaskMeta, connectio
 
 func makeDataSourcePipelinePlanV200(
 	subtaskMetas []plugin.SubTaskMeta,
-	plan plugin.PipelinePlan,
-	bpScopes []*plugin.BlueprintScopeV200,
+	plan coreModels.PipelinePlan,
+	bpScopes []*coreModels.BlueprintScope,
 	connection *models.PagerDutyConnection,
-	syncPolicy *plugin.BlueprintSyncPolicy,
-) (plugin.PipelinePlan, errors.Error) {
+	syncPolicy *coreModels.SyncPolicy,
+) (coreModels.PipelinePlan, errors.Error) {
 	for i, bpScope := range bpScopes {
 		// get board and scope config from db
-		service, scopeConfig, err := scopeHelper.DbHelper().GetScopeAndConfig(connection.ID, bpScope.Id)
+		service, scopeConfig, err := scopeHelper.DbHelper().GetScopeAndConfig(connection.ID, bpScope.ScopeId)
 		if err != nil {
 			return nil, err
 		}
@@ -85,7 +90,7 @@ func makeDataSourcePipelinePlanV200(
 		if err != nil {
 			return nil, err
 		}
-		stage := []*plugin.PipelineTask{
+		stage := []*coreModels.PipelineTask{
 			{
 				Plugin:   "pagerduty",
 				Subtasks: subtasks,
@@ -97,11 +102,11 @@ func makeDataSourcePipelinePlanV200(
 	return plan, nil
 }
 
-func makeScopesV200(bpScopes []*plugin.BlueprintScopeV200, connection *models.PagerDutyConnection) ([]plugin.Scope, errors.Error) {
+func makeScopesV200(bpScopes []*coreModels.BlueprintScope, connection *models.PagerDutyConnection) ([]plugin.Scope, errors.Error) {
 	scopes := make([]plugin.Scope, 0)
 	for _, bpScope := range bpScopes {
 		// get board and scope config from db
-		service, scopeConfig, err := scopeHelper.DbHelper().GetScopeAndConfig(connection.ID, bpScope.Id)
+		service, scopeConfig, err := scopeHelper.DbHelper().GetScopeAndConfig(connection.ID, bpScope.ScopeId)
 		if err != nil {
 			return nil, err
 		}

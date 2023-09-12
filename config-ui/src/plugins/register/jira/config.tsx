@@ -57,11 +57,7 @@ export const JiraConfig: PluginConfigType = {
     ],
   },
   dataScope: {
-    millerColumns: {
-      title: 'Boards *',
-      subTitle: 'Select the boards you would like to sync.',
-      columnCount: 1,
-    },
+    title: 'Boards',
   },
   scopeConfig: {
     entities: ['TICKET', 'CROSS'],

@@ -19,9 +19,9 @@ package plugin
 
 import (
 	"encoding/json"
-	"time"
 
 	"github.com/apache/incubator-devlake/core/errors"
+	"github.com/apache/incubator-devlake/core/models"
 )
 
 /*
@@ -71,23 +71,12 @@ step 3: framework should maintain the project_mapping table based on the []Scope
 type DataSourcePluginBlueprintV200 interface {
 	MakeDataSourcePipelinePlanV200(
 		connectionId uint64,
-		scopes []*BlueprintScopeV200,
-		syncPolicy BlueprintSyncPolicy,
-	) (PipelinePlan, []Scope, errors.Error)
+		scopes []*models.BlueprintScope,
+		syncPolicy *models.SyncPolicy,
+	) (models.PipelinePlan, []Scope, errors.Error)
 }
 
 // BlueprintConnectionV200 contains the pluginName/connectionId  and related Scopes,
-type BlueprintConnectionV200 struct {
-	Plugin       string                `json:"plugin" validate:"required"`
-	ConnectionId uint64                `json:"connectionId" validate:"required"`
-	Scopes       []*BlueprintScopeV200 `json:"scopes" validate:"required"`
-}
-
-// BlueprintScopeV200 contains the `id` and `name` for a specific scope
-type BlueprintScopeV200 struct {
-	Id   string `json:"id"`
-	Name string `json:"name"`
-}
 
 // MetricPluginBlueprintV200 is similar to the DataSourcePluginBlueprintV200
 // but for Metric Plugin, take dora as an example, it doens't have any scope,
@@ -96,12 +85,12 @@ type BlueprintScopeV200 struct {
 // right Deployment keep in mind it would be called IFF the plugin was enabled
 // for the project.
 type MetricPluginBlueprintV200 interface {
-	MakeMetricPluginPipelinePlanV200(projectName string, options json.RawMessage) (PipelinePlan, errors.Error)
+	MakeMetricPluginPipelinePlanV200(projectName string, options json.RawMessage) (models.PipelinePlan, errors.Error)
 }
 
 // ProjectMapper is implemented by the plugin org, which binding project and scopes
 type ProjectMapper interface {
-	MapProject(projectName string, scopes []Scope) (PipelinePlan, errors.Error)
+	MapProject(projectName string, scopes []Scope) (models.PipelinePlan, errors.Error)
 }
 
 // CompositeDataSourcePluginBlueprintV200 is for unit test
@@ -127,10 +116,4 @@ type CompositePluginBlueprintV200 interface {
 type CompositeProjectMapper interface {
 	PluginMeta
 	ProjectMapper
-}
-
-type BlueprintSyncPolicy struct {
-	Version    string     `json:"version" validate:"required,semver,oneof=1.0.0"`
-	SkipOnFail bool       `json:"skipOnFail"`
-	TimeAfter  *time.Time `json:"timeAfter"`
 }

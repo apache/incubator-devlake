@@ -58,9 +58,10 @@ export const BlueprintConnectionDetailPage = () => {
       API.getDataScopes(plugin, connectionId),
     ]);
 
-    const scopeIds = blueprint.settings.connections
-      .find((cs: any) => cs.plugin === plugin && cs.connectionId === +connectionId)
-      .scopes.map((sc: any) => sc.id);
+    const scopeIds =
+      blueprint.connections
+        .find((cs) => cs.pluginName === plugin && cs.connectionId === +connectionId)
+        ?.scopes?.map((sc: any) => sc.scopeId) ?? [];
 
     return {
       blueprint,
@@ -114,12 +115,9 @@ export const BlueprintConnectionDetailPage = () => {
     const [success] = await operator(() =>
       API.updateBlueprint(blueprint.id, {
         ...blueprint,
-        settings: {
-          ...blueprint.settings,
-          connections: blueprint.settings.connections.filter(
-            (cs: any) => !(cs.plugin === connection.plugin && cs.connectionId === connection.id),
-          ),
-        },
+        connections: blueprint.connections.filter(
+          (cs) => !(cs.pluginName === connection.plugin && cs.connectionId === connection.id),
+        ),
       }),
     );
 
@@ -136,18 +134,15 @@ export const BlueprintConnectionDetailPage = () => {
       () =>
         API.updateBlueprint(blueprint.id, {
           ...blueprint,
-          settings: {
-            ...blueprint.settings,
-            connections: blueprint.settings.connections.map((cs: any) => {
-              if (cs.plugin === connection.plugin && cs.connectionId === connection.id) {
-                return {
-                  ...cs,
-                  scopes: scope.map((sc: any) => ({ id: getPluginScopeId(connection.plugin, sc) })),
-                };
-              }
-              return cs;
-            }),
-          },
+          connections: blueprint.connections.map((cs) => {
+            if (cs.pluginName === connection.plugin && cs.connectionId === connection.id) {
+              return {
+                ...cs,
+                scopes: scope.map((sc: any) => ({ id: getPluginScopeId(connection.plugin, sc) })),
+              };
+            }
+            return cs;
+          }),
         }),
       {
         formatMessage: () => 'Update data scope successful.',

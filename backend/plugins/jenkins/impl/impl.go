@@ -22,6 +22,8 @@ import (
 	"strings"
 	"time"
 
+	coreModels "github.com/apache/incubator-devlake/core/models"
+
 	"github.com/apache/incubator-devlake/core/context"
 	"github.com/apache/incubator-devlake/core/dal"
 	"github.com/apache/incubator-devlake/core/models/domainlayer/devops"
@@ -168,8 +170,12 @@ func (p Jenkins) MigrationScripts() []plugin.MigrationScript {
 	return migrationscripts.All()
 }
 
-func (p Jenkins) MakeDataSourcePipelinePlanV200(connectionId uint64, scopes []*plugin.BlueprintScopeV200, syncPolicy plugin.BlueprintSyncPolicy) (pp plugin.PipelinePlan, sc []plugin.Scope, err errors.Error) {
-	return api.MakeDataSourcePipelinePlanV200(p.SubTaskMetas(), connectionId, scopes, &syncPolicy)
+func (p Jenkins) MakeDataSourcePipelinePlanV200(
+	connectionId uint64,
+	scopes []*coreModels.BlueprintScope,
+	syncPolicy *coreModels.SyncPolicy,
+) (pp coreModels.PipelinePlan, sc []plugin.Scope, err errors.Error) {
+	return api.MakeDataSourcePipelinePlanV200(p.SubTaskMetas(), connectionId, scopes, syncPolicy)
 }
 
 func (p Jenkins) ApiResources() map[string]map[string]plugin.ApiResourceHandler {

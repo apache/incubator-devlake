@@ -23,6 +23,7 @@ import (
 	"github.com/apache/incubator-devlake/core/context"
 	"github.com/apache/incubator-devlake/core/dal"
 	"github.com/apache/incubator-devlake/core/errors"
+	coreModels "github.com/apache/incubator-devlake/core/models"
 	"github.com/apache/incubator-devlake/core/plugin"
 	helper "github.com/apache/incubator-devlake/helpers/pluginhelper/api"
 	"github.com/apache/incubator-devlake/plugins/trello/api"
@@ -191,8 +192,12 @@ func (p Trello) ApiResources() map[string]map[string]plugin.ApiResourceHandler {
 	}
 }
 
-func (p Trello) MakeDataSourcePipelinePlanV200(connectionId uint64, scopes []*plugin.BlueprintScopeV200, syncPolicy plugin.BlueprintSyncPolicy) (plugin.PipelinePlan, []plugin.Scope, errors.Error) {
-	return api.MakePipelinePlanV200(p.SubTaskMetas(), connectionId, scopes, &syncPolicy)
+func (p Trello) MakeDataSourcePipelinePlanV200(
+	connectionId uint64,
+	scopes []*coreModels.BlueprintScope,
+	syncPolicy *coreModels.SyncPolicy,
+) (coreModels.PipelinePlan, []plugin.Scope, errors.Error) {
+	return api.MakePipelinePlanV200(p.SubTaskMetas(), connectionId, scopes, syncPolicy)
 }
 
 func (p Trello) Close(taskCtx plugin.TaskContext) errors.Error {

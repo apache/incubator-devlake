@@ -72,6 +72,7 @@ func GetDomainTablesInfo() []dal.Tabler {
 		&devops.CicdDeploymentCommit{},
 		&devops.CiCDPipelineCommit{},
 		&devops.CicdScope{},
+		&devops.CICDDeployment{},
 		// didgen no table
 		// ticket
 		&ticket.Board{},

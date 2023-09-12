@@ -23,6 +23,7 @@ import (
 	"github.com/apache/incubator-devlake/core/context"
 	"github.com/apache/incubator-devlake/core/dal"
 	"github.com/apache/incubator-devlake/core/errors"
+	coreModels "github.com/apache/incubator-devlake/core/models"
 	"github.com/apache/incubator-devlake/core/plugin"
 	"github.com/apache/incubator-devlake/core/runner"
 	helper "github.com/apache/incubator-devlake/helpers/pluginhelper/api"
@@ -183,15 +184,10 @@ func (p Zentao) PrepareTaskData(taskCtx plugin.TaskContext, options map[string]i
 		return nil, errors.Default.Wrap(err, "unable to get Zentao API client instance: %v")
 	}
 
-	if op.ScopeConfigs == nil && op.ScopeConfigId != 0 {
-		var scopeConfig models.ZentaoScopeConfig
-		err = taskCtx.GetDal().First(&scopeConfig, dal.Where("id = ?", op.ScopeConfigId))
+	if op.ScopeConfig == nil && op.ScopeConfigId != 0 {
+		err = taskCtx.GetDal().First(&op.ScopeConfig, dal.Where("id = ?", op.ScopeConfigId))
 		if err != nil && taskCtx.GetDal().IsErrorNotFound(err) {
-			return nil, errors.BadInput.Wrap(err, "fail to get ScopeConfigs")
-		}
-		op.ScopeConfigs, err = tasks.MakeScopeConfigs(scopeConfig)
-		if err != nil {
-			return nil, errors.BadInput.Wrap(err, "fail to make ScopeConfigs")
+			return nil, errors.BadInput.Wrap(err, "fail to load scope config from database")
 		}
 	}
 
@@ -284,8 +280,12 @@ func (p Zentao) ApiResources() map[string]map[string]plugin.ApiResourceHandler {
 	}
 }
 
-func (p Zentao) MakeDataSourcePipelinePlanV200(connectionId uint64, scopes []*plugin.BlueprintScopeV200, syncPolicy plugin.BlueprintSyncPolicy) (pp plugin.PipelinePlan, sc []plugin.Scope, err errors.Error) {
-	return api.MakeDataSourcePipelinePlanV200(p.SubTaskMetas(), connectionId, scopes, &syncPolicy)
+func (p Zentao) MakeDataSourcePipelinePlanV200(
+	connectionId uint64,
+	scopes []*coreModels.BlueprintScope,
+	syncPolicy *coreModels.SyncPolicy,
+) (pp coreModels.PipelinePlan, sc []plugin.Scope, err errors.Error) {
+	return api.MakeDataSourcePipelinePlanV200(p.SubTaskMetas(), connectionId, scopes, syncPolicy)
 }
 
 func (p Zentao) Close(taskCtx plugin.TaskContext) errors.Error {

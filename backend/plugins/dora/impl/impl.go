@@ -22,6 +22,7 @@ import (
 
 	"github.com/apache/incubator-devlake/core/dal"
 	"github.com/apache/incubator-devlake/core/errors"
+	coreModels "github.com/apache/incubator-devlake/core/models"
 	"github.com/apache/incubator-devlake/core/plugin"
 	"github.com/apache/incubator-devlake/plugins/dora/models/migrationscripts"
 	"github.com/apache/incubator-devlake/plugins/dora/tasks"
@@ -115,13 +116,13 @@ func (p Dora) MigrationScripts() []plugin.MigrationScript {
 	return migrationscripts.All()
 }
 
-func (p Dora) MakeMetricPluginPipelinePlanV200(projectName string, options json.RawMessage) (plugin.PipelinePlan, errors.Error) {
+func (p Dora) MakeMetricPluginPipelinePlanV200(projectName string, options json.RawMessage) (coreModels.PipelinePlan, errors.Error) {
 	op := &tasks.DoraOptions{}
 	err := json.Unmarshal(options, op)
 	if err != nil {
 		return nil, errors.Default.WrapRaw(err)
 	}
-	plan := plugin.PipelinePlan{
+	plan := coreModels.PipelinePlan{
 		{
 			{
 				Plugin: "dora",

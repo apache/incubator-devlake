@@ -205,6 +205,10 @@ func (c *ApiKeyHelper) GetApiKey(tx dal.Dal, additionalClauses ...dal.Clause) (*
 	return apiKey, err
 }
 
+func (c *ApiKeyHelper) GenApiKeyNameForPlugin(pluginName string, connectionId uint64) string {
+	return fmt.Sprintf("%s-%d", pluginName, connectionId)
+}
+
 func (c *ApiKeyHelper) generateApiKey() (apiKey string, hashedApiKey string, err errors.Error) {
 	apiKey, randomLetterErr := utils.RandLetterBytes(apiKeyLen)
 	if randomLetterErr != nil {

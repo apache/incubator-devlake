@@ -20,6 +20,7 @@ package api
 import (
 	"testing"
 
+	coreModels "github.com/apache/incubator-devlake/core/models"
 	mockdal "github.com/apache/incubator-devlake/mocks/core/dal"
 	mockplugin "github.com/apache/incubator-devlake/mocks/core/plugin"
 
@@ -47,11 +48,10 @@ func TestMakeDataSourcePipelinePlanV200(t *testing.T) {
 	const testScopeConfigName string = "bamboo scope config"
 	const testProxy string = ""
 
-	syncPolicy := &plugin.BlueprintSyncPolicy{}
-	bpScopes := []*plugin.BlueprintScopeV200{
+	syncPolicy := &coreModels.SyncPolicy{}
+	bpScopes := []*coreModels.BlueprintScope{
 		{
-			Id:   testKey,
-			Name: testName,
+			ScopeId: testKey,
 		},
 	}
 
@@ -100,7 +100,7 @@ func TestMakeDataSourcePipelinePlanV200(t *testing.T) {
 		tasks.ConvertPlansMeta,
 	}
 
-	var expectPlans = plugin.PipelinePlan{
+	var expectPlans = coreModels.PipelinePlan{
 		{
 			{
 				Plugin: "bamboo",
