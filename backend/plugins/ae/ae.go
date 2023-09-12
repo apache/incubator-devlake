@@ -30,12 +30,13 @@ func main() {
 	aeCmd := &cobra.Command{Use: "ae"}
 	connectionId := aeCmd.Flags().Uint64P("Connection-id", "c", 0, "ae connection id")
 	projectId := aeCmd.Flags().IntP("project-id", "p", 0, "ae project id")
+	timeAfter := aeCmd.Flags().StringP("timeAfter", "a", "", "collect data that are created after specified time, ie 2006-01-02T15:04:05Z")
 	_ = aeCmd.MarkFlagRequired("project-id")
 	aeCmd.Run = func(cmd *cobra.Command, args []string) {
 		runner.DirectRun(cmd, args, PluginEntry, map[string]interface{}{
 			"connectionId": *connectionId,
 			"projectId":    *projectId,
-		})
+		}, *timeAfter)
 	}
 	runner.RunCmd(aeCmd)
 }

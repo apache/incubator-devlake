@@ -51,7 +51,7 @@ func main() {
 	projectVars["event_min_id"] = "7581"
 	projectVars["event_max_id"] = "7582"
 	dbtCmd.Flags().StringToStringVarP(&projectVars, "projectVars", "v", projectVars, "dbt provides variables to provide data to models for compilation.")
-	timeAfter := cmd.Flags().StringP("timeAfter", "a", "", "collect data that are created after specified time, ie 2006-01-02T15:04:05Z")
+	timeAfter := dbtCmd.Flags().StringP("timeAfter", "a", "", "collect data that are created after specified time, ie 2006-01-02T15:04:05Z")
 
 	dbtCmd.Run = func(cmd *cobra.Command, args []string) {
 		projectVarsConvert := make(map[string]interface{}, len(projectVars))
