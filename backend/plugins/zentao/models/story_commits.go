@@ -72,9 +72,7 @@ type ZentaoStoryRepoCommitsRes struct {
 		Committer string `json:"committer"`
 		Time      string `json:"time"`
 		Comment   string `json:"comment"`
-		Change    struct {
-		} `json:"change"`
-		Commit string `json:"commit"`
+		Commit    string `json:"commit"`
 	} `json:"log"`
 	Repo struct {
 		ID                 string `json:"id"`
