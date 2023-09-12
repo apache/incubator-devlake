@@ -21,11 +21,13 @@ import styled from 'styled-components';
 
 import { TextTooltip, IconButton, toast } from '@/components';
 
+import CopyIcon from './assets/copy.svg';
+
 const Wrapper = styled.div`
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 10px 16px;
+  padding: 6px 8px;
   background: #f0f4fe;
 `;
 
@@ -36,11 +38,11 @@ interface Props {
 export const CopyText = ({ content }: Props) => {
   return (
     <Wrapper>
-      <TextTooltip style={{ width: '96%' }} content={content}>
+      <TextTooltip style={{ width: '90%' }} content={content}>
         {content}
       </TextTooltip>
       <CopyToClipboard text={content} onCopy={() => toast.success('Copy successfully.')}>
-        <IconButton icon="clipboard" tooltip="Copy" />
+        <IconButton image={<img src={CopyIcon} alt="" />} tooltip="Copy" />
       </CopyToClipboard>
     </Wrapper>
   );
