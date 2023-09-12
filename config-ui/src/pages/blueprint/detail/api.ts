@@ -27,7 +27,7 @@ export const getBlueprintPipelines = (id: ID) => request(`/blueprints/${id}/pipe
 export const runBlueprint = (id: ID, skipCollectors: boolean) =>
   request(`/blueprints/${id}/trigger`, { method: 'post', data: { skipCollectors } });
 
-export const updateBlueprint = (id: ID, payload: any) =>
+export const updateBlueprint = (id: ID, payload: BlueprintType) =>
   request(`/blueprints/${id}`, { method: 'patch', data: payload });
 
 export const deleteBluprint = (id: ID) => request(`/blueprints/${id}`, { method: 'delete' });

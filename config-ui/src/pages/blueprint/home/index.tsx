@@ -83,15 +83,13 @@ export const BlueprintHomePage = () => {
     };
 
     if (mode === ModeEnum.normal) {
-      payload.settings = {
-        version: '2.0.0',
-        timeAfter: formatTime(dayjs().subtract(6, 'month').startOf('day').toDate(), 'YYYY-MM-DD[T]HH:mm:ssZ'),
-        connections: [],
-      };
+      payload.timeAfter = formatTime(dayjs().subtract(6, 'month').startOf('day').toDate(), 'YYYY-MM-DD[T]HH:mm:ssZ');
+      payload.connections = [];
     }
 
     if (mode === ModeEnum.advanced) {
-      payload.settings = null;
+      payload.timeAfter = undefined;
+      payload.connections = undefined;
       payload.plan = [[]];
     }
 
