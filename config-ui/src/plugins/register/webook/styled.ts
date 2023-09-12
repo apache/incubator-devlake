@@ -38,6 +38,10 @@ export const Wrapper = styled.div`
   h5 {
     margin: 8px 0;
   }
+
+  p {
+    color: #292b3f;
+  }
 `;
 
 export const Action = styled.div`

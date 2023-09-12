@@ -19,7 +19,7 @@
 import { useState, useMemo } from 'react';
 import { InputGroup, Icon } from '@blueprintjs/core';
 
-import { Dialog, FormItem, CopyText } from '@/components';
+import { Dialog, FormItem, CopyText, ExternalLink } from '@/components';
 import { useConnections } from '@/hooks';
 import { operator } from '@/utils';
 
@@ -71,15 +71,20 @@ export const CreateDialog = ({ isOpen, onCancel, onSubmitAfter }: Props) => {
       setStep(2);
       setRecord({
         id: res.id,
-        postIssuesEndpoint: `${prefix}${res.postIssuesEndpoint}?api_key=${res.apiKey}`,
-        closeIssuesEndpoint: `${prefix}${res.closeIssuesEndpoint}?api_key=${res.apiKey}`,
-        postDeploymentsCurl: `curl ${prefix}${res.postPipelineDeployTaskEndpoint} -X 'POST'
-            \\ -H 'Authorization: Bearer ${res.apiKey}'
-            \\ -d '{
-            \\"commit_sha\\":\\"the sha of deployment commit\\",
-            \\"repo_url\\":\\"the repo URL of the deployment commit\\",
-            \\"start_time\\":\\"eg. 2020-01-01T12:00:00+00:00\\"
-          }'`,
+        postIssuesEndpoint: ` curl ${prefix}${res.postIssuesEndpoint} -X 'POST' -H 'Authorization: Bearer ${res.apiKey}' -d '{
+   "issue_key":"DLK-1234",
+   "title":"a feature from DLK",
+   "type":"INCIDENT",
+   "status":"TODO",    
+   "created_date":"2020-01-01T12:00:00+00:00",
+   "updated_date":"2020-01-01T12:00:00+00:00"
+}'`,
+        closeIssuesEndpoint: `curl ${prefix}${res.closeIssuesEndpoint} -X 'POST' -H 'Authorization: Bearer ${res.apiKey}'`,
+        postDeploymentsCurl: `curl ${prefix}${res.postPipelineDeployTaskEndpoint} -X 'POST' -H 'Authorization: Bearer ${res.apiKey}' -d '{
+    "commit_sha":"the sha of deployment commit",
+    "repo_url":"the repo URL of the deployment commit",
+    "start_time":"Optional, eg. 2020-01-01T12:00:00+00:00"
+}'`,
         apiKey: res.apiKey,
       });
       onRefresh('webhook');
@@ -114,25 +119,42 @@ export const CreateDialog = ({ isOpen, onCancel, onSubmitAfter }: Props) => {
         <S.Wrapper>
           <h2>
             <Icon icon="endorsed" size={30} />
-            <span>POST URL Generated!</span>
+            <span>CURL commands generated. Please copy them now.</span>
           </h2>
           <p>
-            Copy the following POST URLs to your issue tracking or CI tools to push `Incidents` and `Deployments` by
-            making a POST to DevLake.
-          </p>
-          <p>
-            An API key is automatically generated for the authentication of this webhook. This key does not expire. You
-            can revoke it in the webhook page at any time.
+            A non-expired API key is automatically generated for the authentication of the webhook. This key will only
+            show now. You can revoke it in the webhook page at any time.
           </p>
           <FormItem label="Incident">
-            <h5>Post to register an incident</h5>
+            <h5>Post to register/update an incident</h5>
             <CopyText content={record.postIssuesEndpoint} />
+            <p>
+              See the{' '}
+              <ExternalLink link="https://devlake.apache.org/docs/Plugins/webhook#register-issues---update-or-create-issues">
+                full payload schema
+              </ExternalLink>
+              .
+            </p>
             <h5>Post to close a registered incident</h5>
             <CopyText content={record.closeIssuesEndpoint} />
+            <p>
+              See the{' '}
+              <ExternalLink link="https://devlake.apache.org/docs/Plugins/webhook#register-issues---close-issues-optional">
+                full payload schema
+              </ExternalLink>
+              .
+            </p>
           </FormItem>
           <FormItem label="Deployments">
             <h5>Post to register a deployment</h5>
             <CopyText content={record.postDeploymentsCurl} />
+            <p>
+              See the{' '}
+              <ExternalLink link="https://devlake.apache.org/docs/Plugins/webhook#deployment">
+                full payload schema
+              </ExternalLink>
+              .
+            </p>
           </FormItem>
         </S.Wrapper>
       )}
