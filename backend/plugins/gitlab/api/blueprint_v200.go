@@ -46,7 +46,7 @@ func MakePipelinePlanV200(
 	subtaskMetas []plugin.SubTaskMeta,
 	connectionId uint64,
 	scope []*coreModels.BlueprintScope,
-	syncPolicy *coreModels.BlueprintSyncPolicy,
+	syncPolicy *coreModels.SyncPolicy,
 ) (coreModels.PipelinePlan, []plugin.Scope, errors.Error) {
 	var err errors.Error
 	connection := new(models.GitlabConnection)
@@ -114,7 +114,7 @@ func makeScopeV200(connectionId uint64, scopes []*coreModels.BlueprintScope) ([]
 func makePipelinePlanV200(
 	subtaskMetas []plugin.SubTaskMeta,
 	scopes []*coreModels.BlueprintScope,
-	connection *models.GitlabConnection, syncPolicy *coreModels.BlueprintSyncPolicy,
+	connection *models.GitlabConnection, syncPolicy *coreModels.SyncPolicy,
 ) (coreModels.PipelinePlan, errors.Error) {
 	plans := make(coreModels.PipelinePlan, 0, 3*len(scopes))
 	for _, scope := range scopes {

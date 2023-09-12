@@ -37,7 +37,7 @@ func MakeDataSourcePipelinePlanV200(
 	subtaskMetas []plugin.SubTaskMeta,
 	connectionId uint64,
 	bpScopes []*coreModels.BlueprintScope,
-	syncPolicy *coreModels.BlueprintSyncPolicy,
+	syncPolicy *coreModels.SyncPolicy,
 ) (coreModels.PipelinePlan, []plugin.Scope, errors.Error) {
 	plan := make(coreModels.PipelinePlan, len(bpScopes))
 	plan, err := makeDataSourcePipelinePlanV200(subtaskMetas, plan, bpScopes, connectionId, syncPolicy)
@@ -57,7 +57,7 @@ func makeDataSourcePipelinePlanV200(
 	plan coreModels.PipelinePlan,
 	bpScopes []*coreModels.BlueprintScope,
 	connectionId uint64,
-	syncPolicy *coreModels.BlueprintSyncPolicy,
+	syncPolicy *coreModels.SyncPolicy,
 ) (coreModels.PipelinePlan, errors.Error) {
 	for i, bpScope := range bpScopes {
 		stage := plan[i]

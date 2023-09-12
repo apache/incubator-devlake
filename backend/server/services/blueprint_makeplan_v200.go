@@ -30,10 +30,9 @@ import (
 // GeneratePlanJsonV200 generates pipeline plan according v2.0.0 definition
 func GeneratePlanJsonV200(
 	projectName string,
-	syncPolicy coreModels.BlueprintSyncPolicy,
+	syncPolicy *coreModels.SyncPolicy,
 	connections []*coreModels.BlueprintConnection,
 	metrics map[string]json.RawMessage,
-	skipCollectors bool,
 ) (coreModels.PipelinePlan, errors.Error) {
 	var err errors.Error
 	// make plan for data-source coreModels fist. generate plan for each
@@ -73,7 +72,7 @@ func GeneratePlanJsonV200(
 	}
 
 	// skip collectors
-	if skipCollectors {
+	if syncPolicy != nil && syncPolicy.SkipCollectors {
 		for i, plan := range sourcePlans {
 			for j, stage := range plan {
 				for k, task := range stage {

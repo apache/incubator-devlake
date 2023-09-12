@@ -20,10 +20,12 @@ package context
 import (
 	gocontext "context"
 	"fmt"
+	"time"
+
 	"github.com/apache/incubator-devlake/core/context"
 	"github.com/apache/incubator-devlake/core/errors"
+	"github.com/apache/incubator-devlake/core/models"
 	"github.com/apache/incubator-devlake/core/plugin"
-	"time"
 )
 
 // DefaultTaskContext is TaskContext default implementation
@@ -31,6 +33,7 @@ type DefaultTaskContext struct {
 	*defaultExecContext
 	subtasks    map[string]bool
 	subtaskCtxs map[string]*DefaultSubTaskContext
+	syncPolicy  *models.SyncPolicy
 }
 
 // SetProgress FIXME ...
@@ -43,6 +46,14 @@ func (c *DefaultTaskContext) SetProgress(current int, total int) {
 func (c *DefaultTaskContext) IncProgress(quantity int) {
 	c.defaultExecContext.IncProgress(plugin.TaskIncProgress, quantity)
 	c.BasicRes.GetLogger().Info("finished step: %d / %d", c.current, c.total)
+}
+
+func (c *DefaultTaskContext) SetSyncPolicy(syncPolicy *models.SyncPolicy) {
+	c.syncPolicy = syncPolicy
+}
+
+func (c *DefaultTaskContext) SyncPolicy() *models.SyncPolicy {
+	return c.syncPolicy
 }
 
 // SubTaskContext FIXME ...
@@ -86,6 +97,7 @@ func NewDefaultTaskContext(
 		newDefaultExecContext(ctx, basicRes, name, nil, progress),
 		subtasks,
 		make(map[string]*DefaultSubTaskContext),
+		nil,
 	}
 }
 

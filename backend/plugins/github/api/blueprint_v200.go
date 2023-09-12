@@ -47,7 +47,7 @@ func MakeDataSourcePipelinePlanV200(
 	subtaskMetas []plugin.SubTaskMeta,
 	connectionId uint64,
 	bpScopes []*coreModels.BlueprintScope,
-	syncPolicy *coreModels.BlueprintSyncPolicy,
+	syncPolicy *coreModels.SyncPolicy,
 ) (coreModels.PipelinePlan, []plugin.Scope, errors.Error) {
 	// get the connection info for url
 	connection := &models.GithubConnection{}
@@ -81,7 +81,7 @@ func makeDataSourcePipelinePlanV200(
 	plan coreModels.PipelinePlan,
 	bpScopes []*coreModels.BlueprintScope,
 	connection *models.GithubConnection,
-	syncPolicy *coreModels.BlueprintSyncPolicy,
+	syncPolicy *coreModels.SyncPolicy,
 ) (coreModels.PipelinePlan, errors.Error) {
 	for i, bpScope := range bpScopes {
 		stage := plan[i]

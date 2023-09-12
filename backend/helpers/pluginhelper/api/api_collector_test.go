@@ -85,6 +85,7 @@ func TestFetchPageUndetermined(t *testing.T) {
 	mockApi.On("WaitAsync").Return(nil)
 	mockApi.On("GetAfterFunction", mock.Anything).Return(nil)
 	mockApi.On("SetAfterFunction", mock.Anything).Return()
+	mockApi.On("SetSyncPolicy", mock.Anything).Return()
 	mockApi.On("Release").Return()
 
 	collector, err := NewApiCollector(ApiCollectorArgs{

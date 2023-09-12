@@ -38,7 +38,7 @@ func MakePipelinePlanV200(
 	subtaskMetas []plugin.SubTaskMeta,
 	connectionId uint64,
 	scope []*coreModels.BlueprintScope,
-	syncPolicy *coreModels.BlueprintSyncPolicy,
+	syncPolicy *coreModels.SyncPolicy,
 ) (coreModels.PipelinePlan, []plugin.Scope, errors.Error) {
 	scopes, err := makeScopeV200(connectionId, scope)
 	if err != nil {
@@ -81,7 +81,7 @@ func makePipelinePlanV200(
 	subtaskMetas []plugin.SubTaskMeta,
 	plan coreModels.PipelinePlan,
 	scopes []*coreModels.BlueprintScope,
-	connectionId uint64, syncPolicy *coreModels.BlueprintSyncPolicy,
+	connectionId uint64, syncPolicy *coreModels.SyncPolicy,
 ) (coreModels.PipelinePlan, errors.Error) {
 	for i, scope := range scopes {
 		stage := plan[i]
