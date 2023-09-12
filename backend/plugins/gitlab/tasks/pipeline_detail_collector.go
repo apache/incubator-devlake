@@ -45,7 +45,7 @@ var CollectApiPipelineDetailsMeta = plugin.SubTaskMeta{
 
 func CollectApiPipelineDetails(taskCtx plugin.SubTaskContext) errors.Error {
 	rawDataSubTaskArgs, data := CreateRawDataSubTaskArgs(taskCtx, RAW_PIPELINE_DETAILS_TABLE)
-	collectorWithState, err := helper.NewStatefulApiCollector(*rawDataSubTaskArgs, data.TimeAfter)
+	collectorWithState, err := helper.NewStatefulApiCollector(*rawDataSubTaskArgs)
 	if err != nil {
 		return err
 	}

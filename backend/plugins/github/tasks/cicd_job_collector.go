@@ -59,7 +59,7 @@ func CollectJobs(taskCtx plugin.SubTaskContext) errors.Error {
 			Name:         data.Options.Name,
 		},
 		Table: RAW_JOB_TABLE,
-	}, data.TimeAfter)
+	})
 	if err != nil {
 		return err
 	}

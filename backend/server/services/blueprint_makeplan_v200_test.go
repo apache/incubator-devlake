@@ -97,7 +97,7 @@ func TestMakePlanV200(t *testing.T) {
 		doraName: nil,
 	}
 
-	plan, err := GeneratePlanJsonV200(projectName, syncPolicy, connections, metrics)
+	plan, err := GeneratePlanJsonV200(projectName, connections, metrics, false)
 	assert.Nil(t, err)
 
 	assert.Equal(t, expectedPlan, plan)

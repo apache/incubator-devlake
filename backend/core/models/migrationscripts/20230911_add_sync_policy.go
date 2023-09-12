@@ -18,41 +18,46 @@ limitations under the License.
 package migrationscripts
 
 import (
+	"time"
+
 	"github.com/apache/incubator-devlake/core/context"
 	"github.com/apache/incubator-devlake/core/errors"
 	"github.com/apache/incubator-devlake/helpers/migrationhelper"
 )
 
-type addFullSyncToBlueprint struct {
-	FullSync bool `json:"fullSync"`
+type addSyncPolicyToBlueprint struct {
+	FullSync       bool `json:"fullSync"`
+	SkipCollectors bool `json:"skipCollectors"`
 }
 
-func (*addFullSyncToBlueprint) TableName() string {
+func (*addSyncPolicyToBlueprint) TableName() string {
 	return "_devlake_blueprints"
 }
 
-type addFullSyncToPipeline struct {
-	FullSync bool `json:"fullSync"`
+type addSyncPolicyToPipeline struct {
+	FullSync       bool       `json:"fullSync"`
+	SkipCollectors bool       `json:"skipCollectors"`
+	TimeAfter      *time.Time `json:"timeAfter"`
 }
 
-func (*addFullSyncToPipeline) TableName() string {
+func (*addSyncPolicyToPipeline) TableName() string {
 	return "_devlake_pipelines"
 }
 
-type addFullSync struct{}
+type addSyncPolicy struct{}
 
-func (*addFullSync) Up(basicRes context.BasicRes) errors.Error {
+func (*addSyncPolicy) Up(basicRes context.BasicRes) errors.Error {
 	return migrationhelper.AutoMigrateTables(
 		basicRes,
-		&addFullSyncToBlueprint{},
-		&addFullSyncToPipeline{},
+		&addSyncPolicyToBlueprint{},
+		&addSyncPolicyToPipeline{},
 	)
 }
 
-func (*addFullSync) Version() uint64 {
-	return 20230907000041
+func (*addSyncPolicy) Version() uint64 {
+	return 20230911000041
 }
 
-func (*addFullSync) Name() string {
-	return "add full_sync to _devlake_blueprints and _devlake_pipelines table"
+func (*addSyncPolicy) Name() string {
+	return "add sync policy to _devlake_blueprints and _devlake_pipelines table"
 }

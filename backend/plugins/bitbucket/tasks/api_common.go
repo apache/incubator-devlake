@@ -20,15 +20,16 @@ package tasks
 import (
 	"encoding/json"
 	"fmt"
-	"github.com/apache/incubator-devlake/core/dal"
-	"github.com/apache/incubator-devlake/core/errors"
-	plugin "github.com/apache/incubator-devlake/core/plugin"
-	"github.com/apache/incubator-devlake/helpers/pluginhelper/api"
 	"io"
 	"net/http"
 	"net/url"
 	"reflect"
 	"time"
+
+	"github.com/apache/incubator-devlake/core/dal"
+	"github.com/apache/incubator-devlake/core/errors"
+	plugin "github.com/apache/incubator-devlake/core/plugin"
+	"github.com/apache/incubator-devlake/helpers/pluginhelper/api"
 )
 
 type BitbucketApiParams struct {
@@ -100,11 +101,12 @@ func GetQueryCreatedAndUpdated(fields string, collectorWithState *api.ApiCollect
 		}
 		query.Set("fields", fields)
 		query.Set("sort", "created_on")
+		syncPolicy := collectorWithState.Ctx.TaskContext().SyncPolicy()
 		if collectorWithState.IsIncremental() {
 			latestSuccessStart := collectorWithState.LatestState.LatestSuccessStart.Format(time.RFC3339)
 			query.Set("q", fmt.Sprintf("updated_on>=%s", latestSuccessStart))
-		} else if collectorWithState.TimeAfter != nil {
-			timeAfter := collectorWithState.TimeAfter.Format(time.RFC3339)
+		} else if syncPolicy != nil && syncPolicy.TimeAfter != nil {
+			timeAfter := syncPolicy.TimeAfter.Format(time.RFC3339)
 			query.Set("q", fmt.Sprintf("updated_on>=%s", timeAfter))
 		}
 

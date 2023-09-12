@@ -44,7 +44,7 @@ var CollectApiMergeRequestDetailsMeta = plugin.SubTaskMeta{
 
 func CollectApiMergeRequestDetails(taskCtx plugin.SubTaskContext) errors.Error {
 	rawDataSubTaskArgs, data := CreateRawDataSubTaskArgs(taskCtx, RAW_MERGE_REQUEST_DETAIL_TABLE)
-	collectorWithState, err := helper.NewStatefulApiCollector(*rawDataSubTaskArgs, data.TimeAfter)
+	collectorWithState, err := helper.NewStatefulApiCollector(*rawDataSubTaskArgs)
 	if err != nil {
 		return err
 	}
@@ -77,6 +77,7 @@ func CollectApiMergeRequestDetails(taskCtx plugin.SubTaskContext) errors.Error {
 func GetMergeRequestDetailsIterator(taskCtx plugin.SubTaskContext, collectorWithState *helper.ApiCollectorStateManager) (*helper.DalCursorIterator, errors.Error) {
 	db := taskCtx.GetDal()
 	data := taskCtx.GetData().(*GitlabTaskData)
+	syncPolicy := taskCtx.TaskContext().SyncPolicy()
 	clauses := []dal.Clause{
 		dal.Select("gmr.gitlab_id, gmr.iid"),
 		dal.From("_tool_gitlab_merge_requests gmr"),
@@ -87,8 +88,8 @@ func GetMergeRequestDetailsIterator(taskCtx plugin.SubTaskContext, collectorWith
 	}
 	if collectorWithState.LatestState.LatestSuccessStart != nil {
 		clauses = append(clauses, dal.Where("gitlab_updated_at > ?", *collectorWithState.LatestState.LatestSuccessStart))
-	} else if collectorWithState.TimeAfter != nil {
-		clauses = append(clauses, dal.Where("gitlab_updated_at > ?", *collectorWithState.TimeAfter))
+	} else if syncPolicy != nil && syncPolicy.TimeAfter != nil {
+		clauses = append(clauses, dal.Where("gitlab_updated_at > ?", *syncPolicy.TimeAfter))
 	}
 	// construct the input iterator
 	cursor, err := db.Cursor(clauses...)

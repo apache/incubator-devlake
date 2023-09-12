@@ -104,13 +104,13 @@ func CollectIssue(taskCtx plugin.SubTaskContext) errors.Error {
 			Name:         data.Options.Name,
 		},
 		Table: RAW_ISSUES_TABLE,
-	}, data.TimeAfter)
+	})
 	if err != nil {
 		return err
 	}
 
 	incremental := collectorWithState.IsIncremental()
-
+	syncPolicy := taskCtx.TaskContext().SyncPolicy()
 	err = collectorWithState.InitGraphQLCollector(helper.GraphqlCollectorArgs{
 		GraphqlClient: data.GraphqlClient,
 		PageSize:      100,
@@ -123,8 +123,8 @@ func CollectIssue(taskCtx plugin.SubTaskContext) errors.Error {
 			since := helper.DateTime{}
 			if incremental {
 				since = helper.DateTime{Time: *collectorWithState.LatestState.LatestSuccessStart}
-			} else if collectorWithState.TimeAfter != nil {
-				since = helper.DateTime{Time: *collectorWithState.TimeAfter}
+			} else if syncPolicy != nil && syncPolicy.TimeAfter != nil {
+				since = helper.DateTime{Time: *syncPolicy.TimeAfter}
 			}
 			ownerName := strings.Split(data.Options.Name, "/")
 			variables := map[string]interface{}{

@@ -155,12 +155,13 @@ func CollectPr(taskCtx plugin.SubTaskContext) errors.Error {
 			Name:         data.Options.Name,
 		},
 		Table: RAW_PRS_TABLE,
-	}, data.TimeAfter)
+	})
 	if err != nil {
 		return err
 	}
 
 	incremental := collectorWithState.IsIncremental()
+	syncPolicy := taskCtx.TaskContext().SyncPolicy()
 
 	err = collectorWithState.InitGraphQLCollector(api.GraphqlCollectorArgs{
 		GraphqlClient: data.GraphqlClient,
@@ -195,7 +196,7 @@ func CollectPr(taskCtx plugin.SubTaskContext) errors.Error {
 			isFinish := false
 			for _, rawL := range prs {
 				// collect data even though in increment mode because of updating existing data
-				if collectorWithState.TimeAfter != nil && !collectorWithState.TimeAfter.Before(rawL.UpdatedAt) {
+				if syncPolicy != nil && syncPolicy.TimeAfter != nil && !syncPolicy.TimeAfter.Before(rawL.UpdatedAt) {
 					isFinish = true
 					break
 				}

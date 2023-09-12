@@ -19,7 +19,6 @@ package impl
 
 import (
 	"fmt"
-	"time"
 
 	"github.com/apache/incubator-devlake/core/context"
 	"github.com/apache/incubator-devlake/core/dal"
@@ -164,13 +163,6 @@ func (p Bitbucket) PrepareTaskData(taskCtx plugin.TaskContext, options map[strin
 		return nil, err
 	}
 
-	var timeAfter time.Time
-	if op.TimeAfter != "" {
-		timeAfter, err = errors.Convert01(time.Parse(time.RFC3339, op.TimeAfter))
-		if err != nil {
-			return nil, errors.BadInput.Wrap(err, "invalid value for `timeAfter`")
-		}
-	}
 	regexEnricher := helper.NewRegexEnricher()
 	if err := regexEnricher.TryAdd(devops.DEPLOYMENT, op.DeploymentPattern); err != nil {
 		return nil, errors.BadInput.Wrap(err, "invalid value for `deploymentPattern`")
@@ -182,10 +174,6 @@ func (p Bitbucket) PrepareTaskData(taskCtx plugin.TaskContext, options map[strin
 		Options:       op,
 		ApiClient:     apiClient,
 		RegexEnricher: regexEnricher,
-	}
-	if !timeAfter.IsZero() {
-		taskData.TimeAfter = &timeAfter
-		logger.Debug("collect data updated timeAfter %s", timeAfter)
 	}
 
 	return taskData, nil
@@ -201,9 +189,8 @@ func (p Bitbucket) MigrationScripts() []plugin.MigrationScript {
 
 func (p Bitbucket) MakeDataSourcePipelinePlanV200(
 	connectionId uint64,
-	scopes []*coreModels.BlueprintScope,
-	syncPolicy *coreModels.SyncPolicy) (pp coreModels.PipelinePlan, sc []plugin.Scope, err errors.Error) {
-	return api.MakeDataSourcePipelinePlanV200(p.SubTaskMetas(), connectionId, scopes, syncPolicy)
+	scopes []*coreModels.BlueprintScope) (pp coreModels.PipelinePlan, sc []plugin.Scope, err errors.Error) {
+	return api.MakeDataSourcePipelinePlanV200(p.SubTaskMetas(), connectionId, scopes)
 }
 
 func (p Bitbucket) ApiResources() map[string]map[string]plugin.ApiResourceHandler {

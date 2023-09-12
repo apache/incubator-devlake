@@ -18,8 +18,6 @@ limitations under the License.
 package api
 
 import (
-	"time"
-
 	"github.com/apache/incubator-devlake/core/models/domainlayer"
 	"github.com/apache/incubator-devlake/core/models/domainlayer/ticket"
 
@@ -38,7 +36,6 @@ func MakePipelinePlanV200(
 	subtaskMetas []plugin.SubTaskMeta,
 	connectionId uint64,
 	scope []*coreModels.BlueprintScope,
-	syncPolicy *coreModels.SyncPolicy,
 ) (coreModels.PipelinePlan, []plugin.Scope, errors.Error) {
 	scopes, err := makeScopeV200(connectionId, scope)
 	if err != nil {
@@ -46,7 +43,7 @@ func MakePipelinePlanV200(
 	}
 
 	plan := make(coreModels.PipelinePlan, len(scope))
-	plan, err = makePipelinePlanV200(subtaskMetas, plan, scope, connectionId, syncPolicy)
+	plan, err = makePipelinePlanV200(subtaskMetas, plan, scope, connectionId)
 	if err != nil {
 		return nil, nil, err
 	}
@@ -81,7 +78,7 @@ func makePipelinePlanV200(
 	subtaskMetas []plugin.SubTaskMeta,
 	plan coreModels.PipelinePlan,
 	scopes []*coreModels.BlueprintScope,
-	connectionId uint64, syncPolicy *coreModels.SyncPolicy,
+	connectionId uint64,
 ) (coreModels.PipelinePlan, errors.Error) {
 	for i, scope := range scopes {
 		stage := plan[i]
@@ -93,9 +90,6 @@ func makePipelinePlanV200(
 		options := make(map[string]interface{})
 		options["connectionId"] = connectionId
 		options["scopeId"] = scope.ScopeId
-		if syncPolicy.TimeAfter != nil {
-			options["timeAfter"] = syncPolicy.TimeAfter.Format(time.RFC3339)
-		}
 
 		_, scopeConfig, err := scopeHelper.DbHelper().GetScopeAndConfig(connectionId, scope.ScopeId)
 		if err != nil {

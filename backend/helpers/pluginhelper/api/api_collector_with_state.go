@@ -37,12 +37,11 @@ type ApiCollectorStateManager struct {
 	// *GraphqlCollector
 	subtasks     []plugin.SubTask
 	LatestState  models.CollectorLatestState
-	TimeAfter    *time.Time
 	ExecuteStart time.Time
 }
 
 // NewStatefulApiCollector create a new ApiCollectorStateManager
-func NewStatefulApiCollector(args RawDataSubTaskArgs, timeAfter *time.Time) (*ApiCollectorStateManager, errors.Error) {
+func NewStatefulApiCollector(args RawDataSubTaskArgs) (*ApiCollectorStateManager, errors.Error) {
 	db := args.Ctx.GetDal()
 
 	rawDataSubTask, err := NewRawDataSubTask(args)
@@ -64,7 +63,6 @@ func NewStatefulApiCollector(args RawDataSubTaskArgs, timeAfter *time.Time) (*Ap
 	return &ApiCollectorStateManager{
 		RawDataSubTaskArgs: args,
 		LatestState:        latestState,
-		TimeAfter:          timeAfter,
 		ExecuteStart:       time.Now(),
 	}, nil
 }
@@ -73,16 +71,16 @@ func NewStatefulApiCollector(args RawDataSubTaskArgs, timeAfter *time.Time) (*Ap
 func (m *ApiCollectorStateManager) IsIncremental() bool {
 	prevSyncTime := m.LatestState.LatestSuccessStart
 	prevTimeAfter := m.LatestState.TimeAfter
-	currTimeAfter := m.TimeAfter
 	syncPolicy := m.Ctx.TaskContext().SyncPolicy()
-
 	if syncPolicy != nil && syncPolicy.FullSync {
 		return false
 	}
+
 	if prevSyncTime == nil {
 		return false
 	}
 	// if we cleared the timeAfter, or moved timeAfter back in time, we should do a full sync
+	currTimeAfter := syncPolicy.TimeAfter
 	if currTimeAfter != nil {
 		return prevTimeAfter == nil || !currTimeAfter.Before(*prevTimeAfter)
 	}
@@ -122,7 +120,11 @@ func (m *ApiCollectorStateManager) Execute() errors.Error {
 
 	db := m.Ctx.GetDal()
 	m.LatestState.LatestSuccessStart = &m.ExecuteStart
-	m.LatestState.TimeAfter = m.TimeAfter
+	syncPolicy := m.Ctx.TaskContext().SyncPolicy()
+	if syncPolicy != nil && syncPolicy.TimeAfter != nil {
+		m.LatestState.TimeAfter = syncPolicy.TimeAfter
+	}
+
 	return db.CreateOrUpdate(&m.LatestState)
 }
 
@@ -154,18 +156,19 @@ func NewStatefulApiCollectorForFinalizableEntity(args FinalizableApiCollectorArg
 		Options: args.Options,
 		Params:  args.Params,
 		Table:   args.Table,
-	}, args.TimeAfter)
+	})
 	if err != nil {
 		return nil, err
 	}
 
 	// // prepare the basic variables
+	syncPolicy := manager.Ctx.TaskContext().SyncPolicy()
 	var isIncremental = manager.IsIncremental()
 	var createdAfter *time.Time
 	if isIncremental {
 		createdAfter = manager.LatestState.LatestSuccessStart
-	} else {
-		createdAfter = manager.TimeAfter
+	} else if syncPolicy != nil && syncPolicy.TimeAfter != nil {
+		createdAfter = syncPolicy.TimeAfter
 	}
 
 	// step 1: create a collector to collect newly added records

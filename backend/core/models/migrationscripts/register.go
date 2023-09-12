@@ -93,6 +93,6 @@ func All() []plugin.MigrationScript {
 		new(dropTapStateTable),
 		new(addCICDDeploymentsTable),
 		new(normalizeBpSettings),
-		new(addFullSync),
+		new(addSyncPolicy),
 	}
 }

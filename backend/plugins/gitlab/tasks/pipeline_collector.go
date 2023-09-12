@@ -44,7 +44,7 @@ var CollectApiPipelinesMeta = plugin.SubTaskMeta{
 
 func CollectApiPipelines(taskCtx plugin.SubTaskContext) errors.Error {
 	rawDataSubTaskArgs, data := CreateRawDataSubTaskArgs(taskCtx, RAW_PIPELINE_TABLE)
-	collectorWithState, err := helper.NewStatefulApiCollector(*rawDataSubTaskArgs, data.TimeAfter)
+	collectorWithState, err := helper.NewStatefulApiCollector(*rawDataSubTaskArgs)
 	if err != nil {
 		return err
 	}
@@ -54,6 +54,7 @@ func CollectApiPipelines(taskCtx plugin.SubTaskContext) errors.Error {
 		return err
 	}
 	incremental := collectorWithState.IsIncremental()
+	syncPolicy := taskCtx.TaskContext().SyncPolicy()
 	err = collectorWithState.InitCollector(helper.ApiCollectorArgs{
 		RawDataSubTaskArgs: *rawDataSubTaskArgs,
 		ApiClient:          data.ApiClient,
@@ -63,8 +64,8 @@ func CollectApiPipelines(taskCtx plugin.SubTaskContext) errors.Error {
 		UrlTemplate:        "projects/{{ .Params.ProjectId }}/pipelines",
 		Query: func(reqData *helper.RequestData) (url.Values, errors.Error) {
 			query := url.Values{}
-			if collectorWithState.TimeAfter != nil {
-				query.Set("updated_after", collectorWithState.TimeAfter.Format(time.RFC3339))
+			if syncPolicy != nil && syncPolicy.TimeAfter != nil {
+				query.Set("updated_after", syncPolicy.TimeAfter.Format(time.RFC3339))
 			}
 			if incremental {
 				query.Set("updated_after", collectorWithState.LatestState.LatestSuccessStart.Format(time.RFC3339))

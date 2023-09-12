@@ -69,7 +69,6 @@ func CollectIncidents(taskCtx plugin.SubTaskContext) errors.Error {
 	collector, err := api.NewStatefulApiCollectorForFinalizableEntity(api.FinalizableApiCollectorArgs{
 		RawDataSubTaskArgs: args,
 		ApiClient:          data.Client,
-		TimeAfter:          data.TimeAfter,
 		CollectNewRecordsByList: api.FinalizableApiCollectorListArgs{
 			PageSize: 100,
 			GetNextPageCustomData: func(prevReqData *api.RequestData, prevPageResponse *http.Response) (interface{}, errors.Error) {

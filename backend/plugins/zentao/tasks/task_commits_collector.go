@@ -50,7 +50,7 @@ func CollectTaskCommits(taskCtx plugin.SubTaskContext) errors.Error {
 		Ctx:     taskCtx,
 		Options: data.Options,
 		Table:   RAW_TASK_COMMITS_TABLE,
-	}, data.TimeAfter)
+	})
 	if err != nil {
 		return err
 	}

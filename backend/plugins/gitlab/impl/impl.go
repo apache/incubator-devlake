@@ -19,7 +19,6 @@ package impl
 
 import (
 	"fmt"
-	"time"
 
 	"github.com/apache/incubator-devlake/helpers/pluginhelper/subtaskmeta/sorter"
 
@@ -77,9 +76,8 @@ func (p Gitlab) ScopeConfig() dal.Tabler {
 func (p Gitlab) MakeDataSourcePipelinePlanV200(
 	connectionId uint64,
 	scopes []*coreModels.BlueprintScope,
-	syncPolicy *coreModels.SyncPolicy,
 ) (coreModels.PipelinePlan, []plugin.Scope, errors.Error) {
-	return api.MakePipelinePlanV200(p.SubTaskMetas(), connectionId, scopes, syncPolicy)
+	return api.MakePipelinePlanV200(p.SubTaskMetas(), connectionId, scopes)
 }
 
 func (p Gitlab) GetTablesInfo() []dal.Tabler {
@@ -151,14 +149,6 @@ func (p Gitlab) PrepareTaskData(taskCtx plugin.TaskContext, options map[string]i
 		return nil, err
 	}
 
-	var timeAfter time.Time
-	if op.TimeAfter != "" {
-		timeAfter, err = errors.Convert01(time.Parse(time.RFC3339, op.TimeAfter))
-		if err != nil {
-			return nil, errors.BadInput.Wrap(err, "invalid value for `timeAfter`")
-		}
-	}
-
 	if op.ProjectId != 0 {
 		var scope *models.GitlabProject
 		// support v100 & advance mode
@@ -212,10 +202,6 @@ func (p Gitlab) PrepareTaskData(taskCtx plugin.TaskContext, options map[string]i
 		RegexEnricher: regexEnricher,
 	}
 
-	if !timeAfter.IsZero() {
-		taskData.TimeAfter = &timeAfter
-		logger.Debug("collect data updated timeAfter %s", timeAfter)
-	}
 	return &taskData, nil
 }
 

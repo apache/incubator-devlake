@@ -18,8 +18,6 @@ limitations under the License.
 package api
 
 import (
-	"time"
-
 	"github.com/apache/incubator-devlake/core/errors"
 	coreModels "github.com/apache/incubator-devlake/core/models"
 	"github.com/apache/incubator-devlake/core/models/domainlayer"
@@ -36,7 +34,6 @@ func MakeDataSourcePipelinePlanV200(
 	subtaskMetas []plugin.SubTaskMeta,
 	connectionId uint64,
 	bpScopes []*coreModels.BlueprintScope,
-	syncPolicy *coreModels.SyncPolicy,
 ) (coreModels.PipelinePlan, []plugin.Scope, errors.Error) {
 	// get the connection info for url
 	connection := &models.PagerDutyConnection{}
@@ -46,7 +43,7 @@ func MakeDataSourcePipelinePlanV200(
 	}
 
 	plan := make(coreModels.PipelinePlan, len(bpScopes))
-	plan, err = makeDataSourcePipelinePlanV200(subtaskMetas, plan, bpScopes, connection, syncPolicy)
+	plan, err = makeDataSourcePipelinePlanV200(subtaskMetas, plan, bpScopes, connection)
 	if err != nil {
 		return nil, nil, err
 	}
@@ -63,7 +60,6 @@ func makeDataSourcePipelinePlanV200(
 	plan coreModels.PipelinePlan,
 	bpScopes []*coreModels.BlueprintScope,
 	connection *models.PagerDutyConnection,
-	syncPolicy *coreModels.SyncPolicy,
 ) (coreModels.PipelinePlan, errors.Error) {
 	for i, bpScope := range bpScopes {
 		// get board and scope config from db
@@ -77,9 +73,7 @@ func makeDataSourcePipelinePlanV200(
 			ServiceId:    service.Id,
 			ServiceName:  service.Name,
 		}
-		if syncPolicy.TimeAfter != nil {
-			op.TimeAfter = syncPolicy.TimeAfter.Format(time.RFC3339)
-		}
+
 		var options map[string]any
 		options, err = tasks.EncodeTaskOptions(op)
 		if err != nil {

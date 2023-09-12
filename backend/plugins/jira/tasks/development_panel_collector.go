@@ -61,7 +61,7 @@ func CollectDevelopmentPanel(taskCtx plugin.SubTaskContext) errors.Error {
 		},
 
 		Table: RAW_DEVELOPMENT_PANEL,
-	}, data.TimeAfter)
+	})
 	if err != nil {
 		return err
 	}

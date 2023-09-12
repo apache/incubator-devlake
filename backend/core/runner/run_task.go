@@ -54,8 +54,16 @@ func RunTask(
 		return err
 	}
 	syncPolicy := &models.SyncPolicy{}
-	syncPolicy.SkipOnFail = dbPipeline.SkipOnFail
-	syncPolicy.FullSync = dbPipeline.FullSync
+	blueprint := &models.Blueprint{}
+	if dbPipeline.BlueprintId != 0 {
+		if err := db.First(blueprint, dal.Where("id = ? ", dbPipeline.BlueprintId)); err != nil {
+			return err
+		}
+		syncPolicy = &blueprint.SyncPolicy
+	}
+	if dbPipeline.FullSync {
+		syncPolicy.FullSync = true
+	}
 
 	logger, err := getTaskLogger(basicRes.GetLogger(), task)
 	if err != nil {

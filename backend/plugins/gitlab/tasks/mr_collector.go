@@ -43,12 +43,13 @@ var CollectApiMergeRequestsMeta = plugin.SubTaskMeta{
 
 func CollectApiMergeRequests(taskCtx plugin.SubTaskContext) errors.Error {
 	rawDataSubTaskArgs, data := CreateRawDataSubTaskArgs(taskCtx, RAW_MERGE_REQUEST_TABLE)
-	collectorWithState, err := helper.NewStatefulApiCollector(*rawDataSubTaskArgs, data.TimeAfter)
+	collectorWithState, err := helper.NewStatefulApiCollector(*rawDataSubTaskArgs)
 	if err != nil {
 		return err
 	}
 
 	incremental := collectorWithState.IsIncremental()
+	syncPolicy := taskCtx.TaskContext().SyncPolicy()
 	err = collectorWithState.InitCollector(helper.ApiCollectorArgs{
 		ApiClient:      data.ApiClient,
 		PageSize:       100,
@@ -61,8 +62,8 @@ func CollectApiMergeRequests(taskCtx plugin.SubTaskContext) errors.Error {
 			if err != nil {
 				return nil, err
 			}
-			if collectorWithState.TimeAfter != nil {
-				query.Set("updated_after", collectorWithState.TimeAfter.Format(time.RFC3339))
+			if syncPolicy != nil && syncPolicy.TimeAfter != nil {
+				query.Set("updated_after", syncPolicy.TimeAfter.Format(time.RFC3339))
 			}
 			if incremental {
 				query.Set("updated_after", collectorWithState.LatestState.LatestSuccessStart.Format(time.RFC3339))

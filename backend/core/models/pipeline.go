@@ -69,8 +69,7 @@ type Pipeline struct {
 	SpentSeconds  int          `json:"spentSeconds"`
 	Stage         int          `json:"stage"`
 	Labels        []string     `json:"labels" gorm:"-"`
-	SkipOnFail    bool         `json:"skipOnFail"`
-	FullSync      bool         `json:"fullSync"`
+	SyncPolicy    `gorm:"embedded"`
 }
 
 // We use a 2D array because the request body must be an array of a set of tasks
@@ -79,9 +78,8 @@ type NewPipeline struct {
 	Name        string       `json:"name"`
 	Plan        PipelinePlan `json:"plan" swaggertype:"array,string" example:"please check api /pipelines/<PLUGIN_NAME>/pipeline-plan"`
 	Labels      []string     `json:"labels"`
-	SkipOnFail  bool         `json:"skipOnFail"`
-	FullSync    bool         `json:"fullSync"`
 	BlueprintId uint64
+	SyncPolicy
 }
 
 func (Pipeline) TableName() string {
