@@ -31,6 +31,7 @@ func main() {
 	cmd := &cobra.Command{Use: "bitbucket"}
 	connectionId := cmd.Flags().Uint64P("connectionId", "c", 0, "bitbucket connection id")
 	fullName := cmd.Flags().StringP("fullName", "n", "", "bitbucket id: owner/repo")
+	timeAfter := cmd.Flags().StringP("timeAfter", "a", "", "collect data that are created after specified time, ie 2006-01-02T15:04:05Z")
 	deploymentPattern := cmd.Flags().StringP("deployment", "", "", "deployment pattern")
 	productionPattern := cmd.Flags().StringP("production", "", "", "production pattern")
 	_ = cmd.MarkFlagRequired("connectionId")
@@ -44,7 +45,7 @@ func main() {
 				"deploymentPattern": *deploymentPattern,
 				"productionPattern": *productionPattern,
 			},
-		})
+		}, *timeAfter)
 	}
 	runner.RunCmd(cmd)
 }

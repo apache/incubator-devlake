@@ -267,7 +267,6 @@ func ReloadBlueprints(c *cron.Cron) errors.Error {
 }
 
 func createPipelineByBlueprint(blueprint *models.Blueprint, syncPolicy *models.SyncPolicy) (*models.Pipeline, errors.Error) {
-
 	var plan models.PipelinePlan
 	var err errors.Error
 	if blueprint.Mode == models.BLUEPRINT_MODE_NORMAL {

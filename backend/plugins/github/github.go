@@ -32,6 +32,7 @@ func main() {
 	connectionId := cmd.Flags().Uint64P("connectionId", "c", 0, "github connection id")
 	owner := cmd.Flags().StringP("owner", "o", "", "github owner")
 	repo := cmd.Flags().StringP("repo", "r", "", "github repo")
+	timeAfter := cmd.Flags().StringP("timeAfter", "a", "", "collect data that are created after specified time, ie 2006-01-02T15:04:05Z")
 	_ = cmd.MarkFlagRequired("connectionId")
 	_ = cmd.MarkFlagRequired("owner")
 	_ = cmd.MarkFlagRequired("repo")
@@ -66,7 +67,7 @@ func main() {
 				"deploymentPattern":    *deploymentPattern,
 				"productionPattern":    *productionPattern,
 			},
-		})
+		}, *timeAfter)
 	}
 	runner.RunCmd(cmd)
 }

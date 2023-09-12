@@ -29,6 +29,8 @@ var PluginEntry impl.Customize //nolint
 // standalone mode for debugging
 func main() {
 	cmd := &cobra.Command{Use: "customize"}
+	timeAfter := cmd.Flags().StringP("timeAfter", "a", "", "collect data that are created after specified time, ie 2006-01-02T15:04:05Z")
+
 	cmd.Run = func(c *cobra.Command, args []string) {
 		runner.DirectRun(c, args, PluginEntry, map[string]interface{}{"transformationRules": []tasks.MappingRules{{
 			Table:         "issues",
@@ -36,7 +38,7 @@ func main() {
 			RawDataParams: "{\"ConnectionId\":1,\"BoardId\":8}",
 			Mapping:       map[string]string{"x_test": "fields.timespent"},
 		}},
-		})
+		}, *timeAfter)
 	}
 	runner.RunCmd(cmd)
 }
