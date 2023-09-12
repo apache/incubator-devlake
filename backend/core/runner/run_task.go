@@ -53,15 +53,7 @@ func RunTask(
 	if err := db.First(dbPipeline, dal.Where("id = ? ", task.PipelineId)); err != nil {
 		return err
 	}
-	blueprint := &models.Blueprint{}
 	syncPolicy := &models.SyncPolicy{}
-	if dbPipeline.BlueprintId != 0 {
-		if err := db.First(blueprint, dal.Where("id = ? ", dbPipeline.BlueprintId)); err != nil {
-			return err
-		}
-		syncPolicy.TimeAfter = blueprint.TimeAfter
-	}
-	// Prioritize the configuration of pipeline
 	syncPolicy.SkipOnFail = dbPipeline.SkipOnFail
 	syncPolicy.FullSync = dbPipeline.FullSync
 
