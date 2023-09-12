@@ -101,11 +101,8 @@ export const ProjectHomePage = () => {
           cronConfig: presets[0],
           isManual: false,
           skipOnFail: true,
-          settings: {
-            version: '2.0.0',
-            timeAfter: formatTime(dayjs().subtract(6, 'month').startOf('day').toDate(), 'YYYY-MM-DD[T]HH:mm:ssZ'),
-            connections: [],
-          },
+          timeAfter: formatTime(dayjs().subtract(6, 'month').startOf('day').toDate(), 'YYYY-MM-DD[T]HH:mm:ssZ'),
+          connections: [],
         });
       },
       {

@@ -52,16 +52,13 @@ export const WebhooksPanel = ({ project, onRefresh }: Props) => {
   const handleCreate = async (id: ID) => {
     const payload = {
       ...project.blueprint,
-      settings: {
-        ...project.blueprint,
-        connections: [
-          ...project.blueprint.connections,
-          {
-            plugin: 'webhook',
-            connectionId: id,
-          },
-        ],
-      },
+      connections: [
+        ...project.blueprint.connections,
+        {
+          pluginName: 'webhook',
+          connectionId: id,
+        },
+      ],
     };
 
     const [success] = await operator(() => API.updateBlueprint(project.blueprint.id, payload), {

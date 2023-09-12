@@ -44,9 +44,9 @@ export const AddConnectionDialog = ({ disabled = [], onCancel, onSubmit }: Props
   const handleSubmit = (scope: any) => {
     if (!selectedConnection) return;
     onSubmit({
-      plugin: selectedConnection.plugin,
+      pluginName: selectedConnection.plugin,
       connectionId: selectedConnection.id,
-      scopes: scope.map((sc: any) => ({ id: getPluginScopeId(selectedConnection.plugin, sc) })),
+      scopes: scope.map((sc: any) => ({ scopeId: getPluginScopeId(selectedConnection.plugin, sc) })),
     });
   };
 
