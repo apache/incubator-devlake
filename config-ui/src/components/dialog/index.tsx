@@ -56,16 +56,14 @@ export const Dialog = ({
         </S.Header>
       )}
       <S.Body className={Classes.DIALOG_BODY}>{children}</S.Body>
-      {footer ? (
-        footer
-      ) : footer !== null ? (
+      {footer !== null && (
         <S.Footer className={Classes.DIALOG_FOOTER}>
           <div className={Classes.DIALOG_FOOTER_ACTIONS}>
             <Button outlined intent={Intent.PRIMARY} onClick={onCancel} text={cancelText} />
             <Button disabled={okDisabled} loading={okLoading} intent={Intent.PRIMARY} text={okText} onClick={onOk} />
           </div>
         </S.Footer>
-      ) : null}
+      )}
     </S.Container>
   );
 };

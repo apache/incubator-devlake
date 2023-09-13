@@ -18,44 +18,46 @@
 
 import { useState } from 'react';
 
-import { Dialog } from '@/components';
+import { Dialog, Message } from '@/components';
+import { useConnections } from '@/hooks';
+import { operator } from '@/utils';
 
-import type { WebhookItemType } from '../types';
-
-import { MillerColumns } from '../components';
-
-import * as S from './styled';
+import * as API from '../api';
 
 interface Props {
-  isOpen: boolean;
-  saving: boolean;
+  initialId: ID;
   onCancel: () => void;
-  onSubmit: (items: WebhookItemType[]) => void;
+  onSubmitAfter?: (id: ID) => void;
 }
 
-export const WebhookSelectorDialog = ({ isOpen, saving, onCancel, onSubmit }: Props) => {
-  const [selectedItems, setSelectedItems] = useState<WebhookItemType[]>([]);
+export const DeleteDialog = ({ initialId, onCancel, onSubmitAfter }: Props) => {
+  const [operating, setOperating] = useState(false);
 
-  const handleSubmit = () => onSubmit(selectedItems);
+  const { onRefresh } = useConnections();
+
+  const handleSubmit = async () => {
+    const [success] = await operator(() => API.deleteConnection(initialId), {
+      setOperating,
+    });
+
+    if (success) {
+      onRefresh('webhook');
+      onSubmitAfter?.(initialId);
+      onCancel();
+    }
+  };
 
   return (
     <Dialog
-      isOpen={isOpen}
-      title="Select Existing Webhooks"
-      style={{
-        width: 820,
-      }}
-      okText="Confrim"
-      okLoading={saving}
-      okDisabled={!selectedItems.length}
+      isOpen
+      title="Delete this Webhook?"
+      // style={{ width: 600 }}
+      okText="Confirm"
+      okLoading={operating}
       onCancel={onCancel}
       onOk={handleSubmit}
     >
-      <S.Wrapper>
-        <h3>Webhooks</h3>
-        <p>Select an existing Webhook to import to the current project.</p>
-        <MillerColumns selectedItems={selectedItems} onChangeItems={setSelectedItems} />
-      </S.Wrapper>
+      <Message content="This Webhook cannot be recovered once it’s deleted." />
     </Dialog>
   );
 };
