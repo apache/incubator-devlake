@@ -18,14 +18,10 @@ limitations under the License.
 package api
 
 import (
-	"context"
-	"encoding/json"
-	"io"
 	"time"
 
 	"github.com/apache/incubator-devlake/core/errors"
 	"github.com/apache/incubator-devlake/core/plugin"
-	helper "github.com/apache/incubator-devlake/helpers/pluginhelper/api"
 	"github.com/apache/incubator-devlake/plugins/gitlab/models"
 )
 
@@ -39,26 +35,5 @@ func Proxy(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, errors.Er
 	if err != nil {
 		return nil, err
 	}
-	apiClient, err := helper.NewApiClientFromConnection(context.TODO(), basicRes, connection)
-	if err != nil {
-		return nil, err
-	}
-
-	resp, err := apiClient.Get(input.Params["path"], input.Query, nil)
-	if err != nil {
-		return nil, err
-	}
-	defer resp.Body.Close()
-
-	body, err := errors.Convert01(io.ReadAll(resp.Body))
-	if err != nil {
-		return nil, err
-	}
-	// verify response body is json
-	var tmp interface{}
-	err = errors.Convert(json.Unmarshal(body, &tmp))
-	if err != nil {
-		return nil, err
-	}
-	return &plugin.ApiResourceOutput{Status: resp.StatusCode, Body: json.RawMessage(body)}, nil
+	return remoteHelper.ProxyApiGet(connection, input.Params["path"], input.Query)
 }
