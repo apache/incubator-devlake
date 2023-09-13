@@ -48,7 +48,7 @@ export const Dialog = ({
   onOk,
 }: Props) => {
   return (
-    <S.Container isOpen={isOpen} style={style}>
+    <S.Container isOpen={isOpen} style={style} canEscapeKeyClose onClose={onCancel}>
       {title && (
         <S.Header className={Classes.DIALOG_HEADER}>
           <h2>{title}</h2>
