@@ -76,7 +76,7 @@ export const ViewDialog = ({ initialId, onCancel }: Props) => {
       setApiKey(res.apiKey);
       setRecord({
         ...record,
-        postIssuesEndpoint: ` curl ${prefix}${res.postIssuesEndpoint} -X 'POST' -H 'Authorization: Bearer ${res.apiKey}' -d '{
+        postIssuesEndpoint: ` curl ${record.postIssuesEndpoint} -X 'POST' -H 'Authorization: Bearer ${res.apiKey}' -d '{
           "issue_key":"DLK-1234",
           "title":"a feature from DLK",
           "type":"INCIDENT",
@@ -84,8 +84,8 @@ export const ViewDialog = ({ initialId, onCancel }: Props) => {
           "created_date":"2020-01-01T12:00:00+00:00",
           "updated_date":"2020-01-01T12:00:00+00:00"
        }'`,
-        closeIssuesEndpoint: `curl ${prefix}${res.closeIssuesEndpoint} -X 'POST' -H 'Authorization: Bearer ${res.apiKey}'`,
-        postDeploymentsCurl: `curl ${prefix}${res.postPipelineDeployTaskEndpoint} -X 'POST' -H 'Authorization: Bearer ${res.apiKey}' -d '{
+        closeIssuesEndpoint: `curl ${record.closeIssuesEndpoint} -X 'POST' -H 'Authorization: Bearer ${res.apiKey}'`,
+        postDeploymentsCurl: `curl ${record.postDeploymentsCurl} -X 'POST' -H 'Authorization: Bearer ${res.apiKey}' -d '{
            "commit_sha":"the sha of deployment commit",
            "repo_url":"the repo URL of the deployment commit",
            "start_time":"Optional, eg. 2020-01-01T12:00:00+00:00"
