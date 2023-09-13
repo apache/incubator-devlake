@@ -31,7 +31,7 @@ func main() {
 	cmd := &cobra.Command{Use: "gitlab"}
 	projectId := cmd.Flags().IntP("project-id", "p", 0, "gitlab project id")
 	connectionId := cmd.Flags().Uint64P("connection-id", "c", 0, "gitlab connection id")
-	timeAfter := cmd.Flags().StringP("timeAfter", "a", "", "collect data that are created after specified time, ie 2006-01-02T15:04:05Z")
+	timeAfter := cmd.Flags().StringP("time-after", "a", "", "collect data that are created after specified time, ie 2006-01-02T15:04:05Z")
 	_ = cmd.MarkFlagRequired("project-id")
 	_ = cmd.MarkFlagRequired("connection-id")
 

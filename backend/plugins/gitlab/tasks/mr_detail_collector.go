@@ -77,7 +77,6 @@ func CollectApiMergeRequestDetails(taskCtx plugin.SubTaskContext) errors.Error {
 func GetMergeRequestDetailsIterator(taskCtx plugin.SubTaskContext, collectorWithState *helper.ApiCollectorStateManager) (*helper.DalCursorIterator, errors.Error) {
 	db := taskCtx.GetDal()
 	data := taskCtx.GetData().(*GitlabTaskData)
-	syncPolicy := taskCtx.TaskContext().SyncPolicy()
 	clauses := []dal.Clause{
 		dal.Select("gmr.gitlab_id, gmr.iid"),
 		dal.From("_tool_gitlab_merge_requests gmr"),
@@ -88,8 +87,8 @@ func GetMergeRequestDetailsIterator(taskCtx plugin.SubTaskContext, collectorWith
 	}
 	if collectorWithState.LatestState.LatestSuccessStart != nil {
 		clauses = append(clauses, dal.Where("gitlab_updated_at > ?", *collectorWithState.LatestState.LatestSuccessStart))
-	} else if syncPolicy != nil && syncPolicy.TimeAfter != nil {
-		clauses = append(clauses, dal.Where("gitlab_updated_at > ?", *syncPolicy.TimeAfter))
+	} else if collectorWithState.TimeAfter != nil {
+		clauses = append(clauses, dal.Where("gitlab_updated_at > ?", *collectorWithState.TimeAfter))
 	}
 	// construct the input iterator
 	cursor, err := db.Cursor(clauses...)

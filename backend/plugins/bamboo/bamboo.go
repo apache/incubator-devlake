@@ -31,7 +31,7 @@ func main() {
 	bambooCmd := &cobra.Command{Use: "bamboo"}
 	connectionId := bambooCmd.Flags().Uint64P("Connection-id", "c", 0, "bamboo connection id")
 	projectKey := bambooCmd.Flags().StringP("project-key", "p", "", "bamboo project key")
-	timeAfter := bambooCmd.Flags().StringP("timeAfter", "a", "", "collect data that are created after specified time, ie 2006-01-02T15:04:05Z")
+	timeAfter := bambooCmd.Flags().StringP("time-after", "a", "", "collect data that are created after specified time, ie 2006-01-02T15:04:05Z")
 	deploymentPattern := bambooCmd.Flags().StringP("deployment", "", "", "deployment pattern")
 	productionPattern := bambooCmd.Flags().StringP("production", "", "", "production pattern")
 	_ = bambooCmd.MarkFlagRequired("project-key")

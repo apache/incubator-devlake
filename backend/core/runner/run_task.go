@@ -53,17 +53,6 @@ func RunTask(
 	if err := db.First(dbPipeline, dal.Where("id = ? ", task.PipelineId)); err != nil {
 		return err
 	}
-	syncPolicy := &models.SyncPolicy{}
-	blueprint := &models.Blueprint{}
-	if dbPipeline.BlueprintId != 0 {
-		if err := db.First(blueprint, dal.Where("id = ? ", dbPipeline.BlueprintId)); err != nil {
-			return err
-		}
-		syncPolicy = &blueprint.SyncPolicy
-	}
-	if dbPipeline.FullSync {
-		syncPolicy.FullSync = true
-	}
 
 	logger, err := getTaskLogger(basicRes.GetLogger(), task)
 	if err != nil {
@@ -148,7 +137,7 @@ func RunTask(
 		basicRes.ReplaceLogger(logger),
 		task,
 		progress,
-		syncPolicy,
+		&dbPipeline.SyncPolicy,
 	)
 	return err
 }

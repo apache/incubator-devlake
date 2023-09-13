@@ -37,6 +37,7 @@ type ApiCollectorStateManager struct {
 	// *GraphqlCollector
 	subtasks     []plugin.SubTask
 	LatestState  models.CollectorLatestState
+	TimeAfter    *time.Time
 	ExecuteStart time.Time
 }
 
@@ -60,9 +61,15 @@ func NewStatefulApiCollector(args RawDataSubTaskArgs) (*ApiCollectorStateManager
 			return nil, errors.Default.Wrap(err, "failed to load JiraLatestCollectorMeta")
 		}
 	}
+	var timeAfter *time.Time
+	syncPolicy := args.Ctx.TaskContext().SyncPolicy()
+	if syncPolicy != nil && syncPolicy.TimeAfter != nil {
+		timeAfter = syncPolicy.TimeAfter
+	}
 	return &ApiCollectorStateManager{
 		RawDataSubTaskArgs: args,
 		LatestState:        latestState,
+		TimeAfter:          timeAfter,
 		ExecuteStart:       time.Now(),
 	}, nil
 }
@@ -120,10 +127,7 @@ func (m *ApiCollectorStateManager) Execute() errors.Error {
 
 	db := m.Ctx.GetDal()
 	m.LatestState.LatestSuccessStart = &m.ExecuteStart
-	syncPolicy := m.Ctx.TaskContext().SyncPolicy()
-	if syncPolicy != nil && syncPolicy.TimeAfter != nil {
-		m.LatestState.TimeAfter = syncPolicy.TimeAfter
-	}
+	m.LatestState.TimeAfter = m.TimeAfter
 
 	return db.CreateOrUpdate(&m.LatestState)
 }

@@ -79,7 +79,7 @@ type NewPipeline struct {
 	Plan        PipelinePlan `json:"plan" swaggertype:"array,string" example:"please check api /pipelines/<PLUGIN_NAME>/pipeline-plan"`
 	Labels      []string     `json:"labels"`
 	BlueprintId uint64
-	SyncPolicy
+	SyncPolicy  `gorm:"embedded"`
 }
 
 func (Pipeline) TableName() string {

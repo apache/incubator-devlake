@@ -278,15 +278,13 @@ func createPipelineByBlueprint(blueprint *models.Blueprint, syncPolicy *models.S
 	} else {
 		plan = blueprint.Plan
 	}
+
 	newPipeline := models.NewPipeline{}
 	newPipeline.Plan = plan
 	newPipeline.Name = blueprint.Name
 	newPipeline.BlueprintId = blueprint.ID
 	newPipeline.Labels = blueprint.Labels
-	newPipeline.SkipOnFail = blueprint.SkipOnFail
-	newPipeline.TimeAfter = blueprint.TimeAfter
-	newPipeline.FullSync = blueprint.FullSync
-	newPipeline.SkipCollectors = blueprint.SkipCollectors
+	newPipeline.SyncPolicy = blueprint.SyncPolicy
 
 	// if the plan is empty, we should not create the pipeline
 	var shouldCreatePipeline bool
