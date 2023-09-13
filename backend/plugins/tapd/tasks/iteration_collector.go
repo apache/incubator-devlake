@@ -41,7 +41,6 @@ func CollectIterations(taskCtx plugin.SubTaskContext) errors.Error {
 		return err
 	}
 	incremental := collectorWithState.IsIncremental()
-	syncPolicy := taskCtx.TaskContext().SyncPolicy()
 	err = collectorWithState.InitCollector(api.ApiCollectorArgs{
 		Incremental: incremental,
 		ApiClient:   data.ApiClient,
@@ -54,15 +53,11 @@ func CollectIterations(taskCtx plugin.SubTaskContext) errors.Error {
 			query.Set("page", fmt.Sprintf("%v", reqData.Pager.Page))
 			query.Set("limit", fmt.Sprintf("%v", reqData.Pager.Size))
 			query.Set("order", "created asc")
-			if syncPolicy != nil && syncPolicy.TimeAfter != nil {
-				query.Set("modified",
-					fmt.Sprintf(">%s",
-						syncPolicy.TimeAfter.In(data.Options.CstZone).Format("2006-01-02")))
+			if collectorWithState.TimeAfter != nil {
+				query.Set("modified", fmt.Sprintf(">%s", collectorWithState.TimeAfter.In(data.Options.CstZone).Format("2006-01-02")))
 			}
 			if incremental {
-				query.Set("modified",
-					fmt.Sprintf(">%s",
-						collectorWithState.LatestState.LatestSuccessStart.In(data.Options.CstZone).Format("2006-01-02")))
+				query.Set("modified", fmt.Sprintf(">%s", collectorWithState.LatestState.LatestSuccessStart.In(data.Options.CstZone).Format("2006-01-02")))
 			}
 			return query, nil
 		},
