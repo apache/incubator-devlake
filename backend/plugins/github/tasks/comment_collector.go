@@ -59,7 +59,6 @@ func CollectApiComments(taskCtx plugin.SubTaskContext) errors.Error {
 	}
 
 	incremental := collectorWithState.IsIncremental()
-	syncPolicy := taskCtx.TaskContext().SyncPolicy()
 	err = collectorWithState.InitCollector(helper.ApiCollectorArgs{
 		ApiClient:   data.ApiClient,
 		PageSize:    100,
@@ -69,11 +68,11 @@ func CollectApiComments(taskCtx plugin.SubTaskContext) errors.Error {
 		Query: func(reqData *helper.RequestData) (url.Values, errors.Error) {
 			query := url.Values{}
 			query.Set("state", "all")
-			if syncPolicy != nil && syncPolicy.TimeAfter != nil {
+			if collectorWithState.TimeAfter != nil {
 				// Note that `since` is for filtering records by the `updated` time
 				// which is not ideal for semantic reasons and would result in slightly more records than expected.
 				// But we have no choice since it is the only available field we could exploit from the API.
-				query.Set("since", syncPolicy.TimeAfter.String())
+				query.Set("since", collectorWithState.TimeAfter.String())
 			}
 			// if incremental == true, we overwrite it
 			if incremental {
