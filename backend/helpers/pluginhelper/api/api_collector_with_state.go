@@ -42,7 +42,7 @@ type ApiCollectorStateManager struct {
 }
 
 // NewStatefulApiCollector create a new ApiCollectorStateManager
-func NewStatefulApiCollector(args RawDataSubTaskArgs, timeAfter *time.Time) (*ApiCollectorStateManager, errors.Error) {
+func NewStatefulApiCollector(args RawDataSubTaskArgs) (*ApiCollectorStateManager, errors.Error) {
 	db := args.Ctx.GetDal()
 
 	rawDataSubTask, err := NewRawDataSubTask(args)
@@ -61,6 +61,11 @@ func NewStatefulApiCollector(args RawDataSubTaskArgs, timeAfter *time.Time) (*Ap
 			return nil, errors.Default.Wrap(err, "failed to load JiraLatestCollectorMeta")
 		}
 	}
+	var timeAfter *time.Time
+	syncPolicy := args.Ctx.TaskContext().SyncPolicy()
+	if syncPolicy != nil && syncPolicy.TimeAfter != nil {
+		timeAfter = syncPolicy.TimeAfter
+	}
 	return &ApiCollectorStateManager{
 		RawDataSubTaskArgs: args,
 		LatestState:        latestState,
@@ -73,16 +78,16 @@ func NewStatefulApiCollector(args RawDataSubTaskArgs, timeAfter *time.Time) (*Ap
 func (m *ApiCollectorStateManager) IsIncremental() bool {
 	prevSyncTime := m.LatestState.LatestSuccessStart
 	prevTimeAfter := m.LatestState.TimeAfter
-	currTimeAfter := m.TimeAfter
 	syncPolicy := m.Ctx.TaskContext().SyncPolicy()
-
 	if syncPolicy != nil && syncPolicy.FullSync {
 		return false
 	}
+
 	if prevSyncTime == nil {
 		return false
 	}
 	// if we cleared the timeAfter, or moved timeAfter back in time, we should do a full sync
+	currTimeAfter := syncPolicy.TimeAfter
 	if currTimeAfter != nil {
 		return prevTimeAfter == nil || !currTimeAfter.Before(*prevTimeAfter)
 	}
@@ -123,6 +128,7 @@ func (m *ApiCollectorStateManager) Execute() errors.Error {
 	db := m.Ctx.GetDal()
 	m.LatestState.LatestSuccessStart = &m.ExecuteStart
 	m.LatestState.TimeAfter = m.TimeAfter
+
 	return db.CreateOrUpdate(&m.LatestState)
 }
 
@@ -154,12 +160,11 @@ func NewStatefulApiCollectorForFinalizableEntity(args FinalizableApiCollectorArg
 		Options: args.Options,
 		Params:  args.Params,
 		Table:   args.Table,
-	}, args.TimeAfter)
+	})
 	if err != nil {
 		return nil, err
 	}
 
-	// // prepare the basic variables
 	var isIncremental = manager.IsIncremental()
 	var createdAfter *time.Time
 	if isIncremental {

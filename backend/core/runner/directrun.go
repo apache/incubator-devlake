@@ -26,6 +26,7 @@ import (
 	"os/signal"
 	"runtime"
 	"syscall"
+	"time"
 
 	"github.com/apache/incubator-devlake/core/models"
 	"github.com/apache/incubator-devlake/core/models/migrationscripts"
@@ -47,7 +48,7 @@ func RunCmd(cmd *cobra.Command) {
 // args: command line arguments
 // pluginTask: specific built-in plugin, for example: feishu, jira...
 // options: plugin config
-func DirectRun(cmd *cobra.Command, args []string, pluginTask plugin.PluginTask, options map[string]interface{}) {
+func DirectRun(cmd *cobra.Command, args []string, pluginTask plugin.PluginTask, options map[string]interface{}, timeAfter string) {
 	basicRes := CreateAppBasicRes()
 	tasks, err := cmd.Flags().GetStringSlice("subtasks")
 	if err != nil {
@@ -84,13 +85,23 @@ func DirectRun(cmd *cobra.Command, args []string, pluginTask plugin.PluginTask, 
 		Options:  options,
 		Subtasks: tasks,
 	}
+	parsedTimeAfter := time.Time{}
+	syncPolicy := models.SyncPolicy{}
+	if timeAfter != "" {
+		parsedTimeAfter, err = time.Parse(time.RFC3339, timeAfter)
+		if err != nil {
+			panic(err)
+		}
+		syncPolicy.TimeAfter = &parsedTimeAfter
+	}
+
 	err = RunPluginSubTasks(
 		ctx,
 		basicRes,
 		task,
 		pluginTask,
 		nil,
-		nil,
+		&syncPolicy,
 	)
 	if err != nil {
 		panic(err)

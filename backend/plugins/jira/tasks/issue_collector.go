@@ -20,12 +20,13 @@ package tasks
 import (
 	"encoding/json"
 	"fmt"
-	"github.com/apache/incubator-devlake/core/dal"
-	"github.com/apache/incubator-devlake/plugins/jira/models"
 	"io"
 	"net/http"
 	"net/url"
 	"time"
+
+	"github.com/apache/incubator-devlake/core/dal"
+	"github.com/apache/incubator-devlake/plugins/jira/models"
 
 	"github.com/apache/incubator-devlake/core/errors"
 	"github.com/apache/incubator-devlake/core/plugin"
@@ -61,7 +62,7 @@ func CollectIssues(taskCtx plugin.SubTaskContext) errors.Error {
 			Table store raw data
 		*/
 		Table: RAW_ISSUE_TABLE,
-	}, data.TimeAfter)
+	})
 	if err != nil {
 		return err
 	}
@@ -76,7 +77,14 @@ func CollectIssues(taskCtx plugin.SubTaskContext) errors.Error {
 	} else {
 		logger.Info("got user's timezone: %v", loc.String())
 	}
-	jql := buildJQL(data.TimeAfter, collectorWithState.LatestState.LatestSuccessStart, incremental, loc)
+
+	jql := ""
+	syncPolicy := taskCtx.TaskContext().SyncPolicy()
+	if syncPolicy != nil && syncPolicy.TimeAfter != nil {
+		jql = buildJQL(syncPolicy.TimeAfter, collectorWithState.LatestState.LatestSuccessStart, incremental, loc)
+	} else {
+		jql = buildJQL(nil, collectorWithState.LatestState.LatestSuccessStart, incremental, loc)
+	}
 
 	err = collectorWithState.InitCollector(api.ApiCollectorArgs{
 		ApiClient:   data.ApiClient,

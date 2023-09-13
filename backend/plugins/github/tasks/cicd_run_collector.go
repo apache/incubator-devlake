@@ -78,7 +78,6 @@ func CollectRuns(taskCtx plugin.SubTaskContext) errors.Error {
 			Table: RAW_RUN_TABLE,
 		},
 		ApiClient: data.ApiClient,
-		TimeAfter: data.TimeAfter,
 		CollectNewRecordsByList: helper.FinalizableApiCollectorListArgs{
 			PageSize:    PAGE_SIZE,
 			Concurrency: 10,

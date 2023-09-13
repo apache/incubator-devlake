@@ -56,7 +56,7 @@ func CollectBugCommits(taskCtx plugin.SubTaskContext) errors.Error {
 		Ctx:     taskCtx,
 		Options: data.Options,
 		Table:   RAW_BUG_COMMITS_TABLE,
-	}, data.TimeAfter)
+	})
 	if err != nil {
 		return err
 	}

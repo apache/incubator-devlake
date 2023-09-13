@@ -52,7 +52,6 @@ func TestMakeDataSourcePipelinePlanV200(t *testing.T) {
 	const testScopeConfigName string = "gitlab scope config"
 	const testProxy string = ""
 
-	syncPolicy := &coreModels.SyncPolicy{}
 	bpScopes := []*coreModels.BlueprintScope{
 		{
 			ScopeId: strconv.Itoa(testID),
@@ -201,7 +200,7 @@ func TestMakeDataSourcePipelinePlanV200(t *testing.T) {
 	})
 	Init(mockRes, mockMeta)
 
-	plans, scopes, err := MakePipelinePlanV200(testSubTaskMeta, testConnectionID, bpScopes, syncPolicy)
+	plans, scopes, err := MakePipelinePlanV200(testSubTaskMeta, testConnectionID, bpScopes)
 	assert.Equal(t, err, nil)
 
 	assert.Equal(t, expectPlans, plans)

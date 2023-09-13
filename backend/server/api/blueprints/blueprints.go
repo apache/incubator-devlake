@@ -193,7 +193,6 @@ func Trigger(c *gin.Context) {
 			return
 		}
 	}
-
 	pipeline, err := services.TriggerBlueprint(id, syncPolicy)
 	if err != nil {
 		shared.ApiOutputError(c, errors.Default.Wrap(err, "error triggering blueprint"))

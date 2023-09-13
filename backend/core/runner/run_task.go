@@ -53,9 +53,6 @@ func RunTask(
 	if err := db.First(dbPipeline, dal.Where("id = ? ", task.PipelineId)); err != nil {
 		return err
 	}
-	syncPolicy := &models.SyncPolicy{}
-	syncPolicy.SkipOnFail = dbPipeline.SkipOnFail
-	syncPolicy.FullSync = dbPipeline.FullSync
 
 	logger, err := getTaskLogger(basicRes.GetLogger(), task)
 	if err != nil {
@@ -140,7 +137,7 @@ func RunTask(
 		basicRes.ReplaceLogger(logger),
 		task,
 		progress,
-		syncPolicy,
+		&dbPipeline.SyncPolicy,
 	)
 	return err
 }

@@ -20,7 +20,6 @@ package impl
 import (
 	"fmt"
 	"net/http"
-	"time"
 
 	"github.com/apache/incubator-devlake/core/context"
 	"github.com/apache/incubator-devlake/core/dal"
@@ -250,24 +249,15 @@ func (p Jira) PrepareTaskData(taskCtx plugin.TaskContext, options map[string]int
 		ApiClient:      jiraApiClient,
 		JiraServerInfo: *info,
 	}
-	if op.TimeAfter != "" {
-		var timeAfter time.Time
-		timeAfter, err = errors.Convert01(time.Parse(time.RFC3339, op.TimeAfter))
-		if err != nil {
-			return nil, errors.BadInput.Wrap(err, "invalid value for `timeAfter`")
-		}
-		taskData.TimeAfter = &timeAfter
-		logger.Debug("collect data created from %s", timeAfter)
-	}
+
 	return taskData, nil
 }
 
 func (p Jira) MakeDataSourcePipelinePlanV200(
 	connectionId uint64,
 	scopes []*coreModels.BlueprintScope,
-	syncPolicy *coreModels.SyncPolicy,
 ) (pp coreModels.PipelinePlan, sc []plugin.Scope, err errors.Error) {
-	return api.MakeDataSourcePipelinePlanV200(p.SubTaskMetas(), connectionId, scopes, syncPolicy)
+	return api.MakeDataSourcePipelinePlanV200(p.SubTaskMetas(), connectionId, scopes)
 }
 
 func (p Jira) RootPkgPath() string {

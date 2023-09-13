@@ -60,7 +60,7 @@ func CollectApiPullRequestReviews(taskCtx plugin.SubTaskContext) errors.Error {
 			Name:         data.Options.Name,
 		},
 		Table: RAW_PR_REVIEW_TABLE,
-	}, data.TimeAfter)
+	})
 	if err != nil {
 		return err
 	}

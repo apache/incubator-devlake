@@ -53,12 +53,13 @@ func CollectApiIssues(taskCtx plugin.SubTaskContext) errors.Error {
 			Name:         data.Options.Name,
 		},
 		Table: RAW_ISSUE_TABLE,
-	}, data.TimeAfter)
+	})
 	if err != nil {
 		return err
 	}
 
 	incremental := collectorWithState.IsIncremental()
+	syncPolicy := taskCtx.TaskContext().SyncPolicy()
 	err = collectorWithState.InitCollector(helper.ApiCollectorArgs{
 		ApiClient:   data.ApiClient,
 		PageSize:    100,
@@ -79,8 +80,8 @@ func CollectApiIssues(taskCtx plugin.SubTaskContext) errors.Error {
 		Query: func(reqData *helper.RequestData) (url.Values, errors.Error) {
 			query := url.Values{}
 			query.Set("state", "all")
-			if data.TimeAfter != nil {
-				query.Set("since", data.TimeAfter.String())
+			if syncPolicy != nil && syncPolicy.TimeAfter != nil {
+				query.Set("since", syncPolicy.TimeAfter.String())
 			}
 			if incremental {
 				query.Set("since", collectorWithState.LatestState.LatestSuccessStart.String())

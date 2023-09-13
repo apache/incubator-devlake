@@ -18,8 +18,6 @@ limitations under the License.
 package tasks
 
 import (
-	"time"
-
 	"github.com/apache/incubator-devlake/core/errors"
 	helper "github.com/apache/incubator-devlake/helpers/pluginhelper/api"
 	"github.com/apache/incubator-devlake/plugins/circleci/models"
@@ -29,7 +27,6 @@ type CircleciOptions struct {
 	ConnectionId  uint64                      `json:"connectionId"`
 	ProjectSlug   string                      `json:"projectSlug"`
 	PageSize      uint64                      `mapstruct:"pageSize"`
-	TimeAfter     string                      `json:"timeAfter" mapstructure:"timeAfter,omitempty"`
 	ScopeConfigId uint64                      `json:"scopeConfigId" mapstructure:"scopeConfigId,omitempty"`
 	ScopeConfig   *models.CircleciScopeConfig `json:"scopeConfig" mapstructure:"scopeConfig,omitempty"`
 }
@@ -37,7 +34,6 @@ type CircleciOptions struct {
 type CircleciTaskData struct {
 	Options       *CircleciOptions
 	ApiClient     *helper.ApiAsyncClient
-	TimeAfter     *time.Time
 	RegexEnricher *helper.RegexEnricher
 }
 

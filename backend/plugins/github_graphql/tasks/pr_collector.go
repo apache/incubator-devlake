@@ -155,13 +155,12 @@ func CollectPr(taskCtx plugin.SubTaskContext) errors.Error {
 			Name:         data.Options.Name,
 		},
 		Table: RAW_PRS_TABLE,
-	}, data.TimeAfter)
+	})
 	if err != nil {
 		return err
 	}
 
 	incremental := collectorWithState.IsIncremental()
-
 	err = collectorWithState.InitGraphQLCollector(api.GraphqlCollectorArgs{
 		GraphqlClient: data.GraphqlClient,
 		PageSize:      10,

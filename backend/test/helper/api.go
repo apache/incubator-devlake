@@ -86,8 +86,10 @@ func (d *DevlakeClient) CreateBasicBlueprintV2(name string, config *BlueprintV2C
 		Enable:      true,
 		CronConfig:  "manual",
 		IsManual:    true,
-		SkipOnFail:  config.SkipOnFail,
-		Labels:      []string{"test-label"},
+		SyncPolicy: models.SyncPolicy{
+			SkipOnFail: config.SkipOnFail,
+		},
+		Labels: []string{"test-label"},
 		Connections: []*models.BlueprintConnection{
 			config.Connection,
 		},

@@ -24,7 +24,6 @@ import (
 	"net/http"
 	"net/url"
 	"strconv"
-	"time"
 
 	"github.com/apache/incubator-devlake/plugins/gitlab/tasks"
 
@@ -46,7 +45,6 @@ func MakePipelinePlanV200(
 	subtaskMetas []plugin.SubTaskMeta,
 	connectionId uint64,
 	scope []*coreModels.BlueprintScope,
-	syncPolicy *coreModels.SyncPolicy,
 ) (coreModels.PipelinePlan, []plugin.Scope, errors.Error) {
 	var err errors.Error
 	connection := new(models.GitlabConnection)
@@ -60,7 +58,7 @@ func MakePipelinePlanV200(
 		return nil, nil, err
 	}
 
-	pp, err := makePipelinePlanV200(subtaskMetas, scope, connection, syncPolicy)
+	pp, err := makePipelinePlanV200(subtaskMetas, scope, connection)
 	if err != nil {
 		return nil, nil, err
 	}
@@ -114,7 +112,7 @@ func makeScopeV200(connectionId uint64, scopes []*coreModels.BlueprintScope) ([]
 func makePipelinePlanV200(
 	subtaskMetas []plugin.SubTaskMeta,
 	scopes []*coreModels.BlueprintScope,
-	connection *models.GitlabConnection, syncPolicy *coreModels.SyncPolicy,
+	connection *models.GitlabConnection,
 ) (coreModels.PipelinePlan, errors.Error) {
 	plans := make(coreModels.PipelinePlan, 0, 3*len(scopes))
 	for _, scope := range scopes {
@@ -137,9 +135,6 @@ func makePipelinePlanV200(
 		options["connectionId"] = connection.ID
 		options["projectId"] = intScopeId
 		options["scopeConfigId"] = scopeConfig.ID
-		if syncPolicy.TimeAfter != nil {
-			options["timeAfter"] = syncPolicy.TimeAfter.Format(time.RFC3339)
-		}
 
 		// construct subtasks
 		subtasks, err := helper.MakePipelinePlanSubtasks(subtaskMetas, scopeConfig.Entities)

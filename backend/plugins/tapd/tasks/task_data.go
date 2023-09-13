@@ -29,7 +29,6 @@ type TapdOptions struct {
 	ConnectionId  uint64 `mapstruct:"connectionId"`
 	WorkspaceId   uint64 `mapstruct:"workspaceId"`
 	PageSize      uint64 `mapstruct:"pageSize"`
-	TimeAfter     string `json:"timeAfter" mapstructure:"timeAfter,omitempty"`
 	CstZone       *time.Location
 	ScopeConfigId uint64
 	ScopeConfig   *models.TapdScopeConfig `json:"scopeConfig"`
@@ -38,7 +37,6 @@ type TapdOptions struct {
 type TapdTaskData struct {
 	Options    *TapdOptions
 	ApiClient  *helper.ApiAsyncClient
-	TimeAfter  *time.Time
 	Connection *models.TapdConnection
 }
 

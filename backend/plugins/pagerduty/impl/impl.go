@@ -19,7 +19,6 @@ package impl
 
 import (
 	"fmt"
-	"time"
 
 	"github.com/apache/incubator-devlake/core/context"
 	"github.com/apache/incubator-devlake/core/dal"
@@ -108,14 +107,7 @@ func (p PagerDuty) PrepareTaskData(taskCtx plugin.TaskContext, options map[strin
 	if err != nil {
 		return nil, errors.Default.Wrap(err, "unable to get Pagerduty connection by the given connection ID")
 	}
-	var timeAfter *time.Time
-	if op.TimeAfter != "" {
-		convertedTime, err := errors.Convert01(time.Parse(time.RFC3339, op.TimeAfter))
-		if err != nil {
-			return nil, errors.BadInput.Wrap(err, fmt.Sprintf("invalid value for `timeAfter`: %s", timeAfter))
-		}
-		timeAfter = &convertedTime
-	}
+
 	client, err := helper.NewApiClient(taskCtx.GetContext(), connection.Endpoint, map[string]string{
 		"Authorization": fmt.Sprintf("Token %s", connection.Token),
 	}, 0, connection.Proxy, taskCtx)
@@ -127,9 +119,8 @@ func (p PagerDuty) PrepareTaskData(taskCtx plugin.TaskContext, options map[strin
 		return nil, err
 	}
 	return &tasks.PagerDutyTaskData{
-		Options:   op,
-		TimeAfter: timeAfter,
-		Client:    asyncClient,
+		Options: op,
+		Client:  asyncClient,
 	}, nil
 }
 
@@ -177,9 +168,8 @@ func (p PagerDuty) ApiResources() map[string]map[string]plugin.ApiResourceHandle
 func (p PagerDuty) MakeDataSourcePipelinePlanV200(
 	connectionId uint64,
 	scopes []*coreModels.BlueprintScope,
-	syncPolicy *coreModels.SyncPolicy,
 ) (coreModels.PipelinePlan, []plugin.Scope, errors.Error) {
-	return api.MakeDataSourcePipelinePlanV200(p.SubTaskMetas(), connectionId, scopes, syncPolicy)
+	return api.MakeDataSourcePipelinePlanV200(p.SubTaskMetas(), connectionId, scopes)
 }
 
 func (p PagerDuty) Close(taskCtx plugin.TaskContext) errors.Error {

@@ -20,7 +20,6 @@ package impl
 import (
 	"fmt"
 	"strings"
-	"time"
 
 	coreModels "github.com/apache/incubator-devlake/core/models"
 
@@ -135,13 +134,6 @@ func (p Jenkins) PrepareTaskData(taskCtx plugin.TaskContext, options map[string]
 		return nil, err
 	}
 
-	var timeAfter time.Time
-	if op.TimeAfter != "" {
-		timeAfter, err = errors.Convert01(time.Parse(time.RFC3339, op.TimeAfter))
-		if err != nil {
-			return nil, errors.BadInput.Wrap(err, "invalid value for `timeAfter`")
-		}
-	}
 	regexEnricher := helper.NewRegexEnricher()
 	if err := regexEnricher.TryAdd(devops.DEPLOYMENT, op.ScopeConfig.DeploymentPattern); err != nil {
 		return nil, errors.BadInput.Wrap(err, "invalid value for `deploymentPattern`")
@@ -155,10 +147,7 @@ func (p Jenkins) PrepareTaskData(taskCtx plugin.TaskContext, options map[string]
 		Connection:    connection,
 		RegexEnricher: regexEnricher,
 	}
-	if !timeAfter.IsZero() {
-		taskData.TimeAfter = &timeAfter
-		logger.Debug("collect data created from %s", timeAfter)
-	}
+
 	return taskData, nil
 }
 
@@ -173,9 +162,8 @@ func (p Jenkins) MigrationScripts() []plugin.MigrationScript {
 func (p Jenkins) MakeDataSourcePipelinePlanV200(
 	connectionId uint64,
 	scopes []*coreModels.BlueprintScope,
-	syncPolicy *coreModels.SyncPolicy,
 ) (pp coreModels.PipelinePlan, sc []plugin.Scope, err errors.Error) {
-	return api.MakeDataSourcePipelinePlanV200(p.SubTaskMetas(), connectionId, scopes, syncPolicy)
+	return api.MakeDataSourcePipelinePlanV200(p.SubTaskMetas(), connectionId, scopes)
 }
 
 func (p Jenkins) ApiResources() map[string]map[string]plugin.ApiResourceHandler {

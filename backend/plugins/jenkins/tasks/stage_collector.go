@@ -54,9 +54,9 @@ func CollectApiStages(taskCtx plugin.SubTaskContext) errors.Error {
 		dal.Where(`tjb.connection_id = ? and tjb.job_path = ? and tjb.job_name = ? and tjb.class = ?`,
 			data.Options.ConnectionId, data.Options.JobPath, data.Options.JobName, "WorkflowRun"),
 	}
-	timeAfter := data.TimeAfter
-	if timeAfter != nil {
-		clauses = append(clauses, dal.Where(`tjb.start_time >= ?`, timeAfter))
+	syncPolicy := taskCtx.TaskContext().SyncPolicy()
+	if syncPolicy != nil && syncPolicy.TimeAfter != nil {
+		clauses = append(clauses, dal.Where(`tjb.start_time >= ?`, syncPolicy.TimeAfter))
 	}
 
 	cursor, err := db.Cursor(clauses...)

@@ -19,13 +19,14 @@ package tasks
 
 import (
 	"fmt"
+	"net/url"
+	"reflect"
+
 	"github.com/apache/incubator-devlake/core/dal"
 	"github.com/apache/incubator-devlake/core/errors"
 	"github.com/apache/incubator-devlake/core/plugin"
 	"github.com/apache/incubator-devlake/helpers/pluginhelper/api"
 	"github.com/apache/incubator-devlake/plugins/tapd/models"
-	"net/url"
-	"reflect"
 )
 
 const RAW_STORY_BUG_TABLE = "tapd_api_story_bugs"
@@ -35,7 +36,7 @@ var _ plugin.SubTaskEntryPoint = CollectStoryBugs
 func CollectStoryBugs(taskCtx plugin.SubTaskContext) errors.Error {
 	rawDataSubTaskArgs, data := CreateRawDataSubTaskArgs(taskCtx, RAW_STORY_BUG_TABLE)
 	db := taskCtx.GetDal()
-	collectorWithState, err := api.NewStatefulApiCollector(*rawDataSubTaskArgs, data.TimeAfter)
+	collectorWithState, err := api.NewStatefulApiCollector(*rawDataSubTaskArgs)
 	if err != nil {
 		return err
 	}

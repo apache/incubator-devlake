@@ -30,9 +30,9 @@ import (
 // GeneratePlanJsonV200 generates pipeline plan according v2.0.0 definition
 func GeneratePlanJsonV200(
 	projectName string,
-	syncPolicy *coreModels.SyncPolicy,
 	connections []*coreModels.BlueprintConnection,
 	metrics map[string]json.RawMessage,
+	skipCollectors bool,
 ) (coreModels.PipelinePlan, errors.Error) {
 	var err errors.Error
 	// make plan for data-source coreModels fist. generate plan for each
@@ -56,7 +56,6 @@ func GeneratePlanJsonV200(
 			sourcePlans[i], pluginScopes, err = pluginBp.MakeDataSourcePipelinePlanV200(
 				connection.ConnectionId,
 				connection.Scopes,
-				syncPolicy,
 			)
 			if err != nil {
 				return nil, err
@@ -72,7 +71,7 @@ func GeneratePlanJsonV200(
 	}
 
 	// skip collectors
-	if syncPolicy != nil && syncPolicy.SkipCollectors {
+	if skipCollectors {
 		for i, plan := range sourcePlans {
 			for j, stage := range plan {
 				for k, task := range stage {

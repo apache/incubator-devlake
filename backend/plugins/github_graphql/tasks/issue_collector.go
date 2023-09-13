@@ -104,13 +104,12 @@ func CollectIssue(taskCtx plugin.SubTaskContext) errors.Error {
 			Name:         data.Options.Name,
 		},
 		Table: RAW_ISSUES_TABLE,
-	}, data.TimeAfter)
+	})
 	if err != nil {
 		return err
 	}
 
 	incremental := collectorWithState.IsIncremental()
-
 	err = collectorWithState.InitGraphQLCollector(helper.GraphqlCollectorArgs{
 		GraphqlClient: data.GraphqlClient,
 		PageSize:      100,

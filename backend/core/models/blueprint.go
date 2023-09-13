@@ -37,13 +37,11 @@ type Blueprint struct {
 	Enable       bool                   `json:"enable"`
 	CronConfig   string                 `json:"cronConfig" format:"* * * * *" example:"0 0 * * 1"`
 	IsManual     bool                   `json:"isManual"`
-	SkipOnFail   bool                   `json:"skipOnFail"`
 	BeforePlan   PipelinePlan           `json:"beforePlan" gorm:"serializer:encdec"`
 	AfterPlan    PipelinePlan           `json:"afterPlan" gorm:"serializer:encdec"`
-	TimeAfter    *time.Time             `json:"timeAfter"`
-	FullSync     bool                   `json:"fullSync"`
 	Labels       []string               `json:"labels" gorm:"-"`
 	Connections  []*BlueprintConnection `json:"connections" gorm:"-"`
+	SyncPolicy   `gorm:"embedded"`
 	common.Model `swaggerignore:"true"`
 }
 

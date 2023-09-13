@@ -19,7 +19,6 @@ package tasks
 
 import (
 	"fmt"
-	"time"
 
 	"github.com/apache/incubator-devlake/core/dal"
 	"github.com/apache/incubator-devlake/core/errors"
@@ -37,7 +36,6 @@ type ZentaoOptions struct {
 	ConnectionId uint64 `json:"connectionId"`
 	ProjectId    int64  `json:"projectId" mapstructure:"projectId"`
 	// TODO not support now
-	TimeAfter     string                    `json:"timeAfter" mapstructure:"timeAfter,omitempty"`
 	ScopeConfigId uint64                    `json:"scopeConfigId" mapstructure:"scopeConfigId,omitempty"`
 	ScopeConfig   *models.ZentaoScopeConfig `json:"scopeConfig" mapstructure:"scopeConfig,omitempty"`
 }
@@ -53,7 +51,6 @@ type ZentaoTaskData struct {
 	Options  *ZentaoOptions
 	RemoteDb dal.Dal
 
-	TimeAfter    *time.Time
 	ProjectName  string
 	Stories      map[int64]struct{}
 	Tasks        map[int64]struct{}

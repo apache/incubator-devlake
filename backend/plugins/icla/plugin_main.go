@@ -29,8 +29,9 @@ var PluginEntry impl.Icla //nolint
 // standalone mode for debugging
 func main() {
 	cmd := &cobra.Command{Use: "icla"}
+	timeAfter := cmd.Flags().StringP("timeAfter", "a", "", "collect data that are created after specified time, ie 2006-01-02T15:04:05Z")
 	cmd.Run = func(cmd *cobra.Command, args []string) {
-		runner.DirectRun(cmd, args, PluginEntry, map[string]interface{}{})
+		runner.DirectRun(cmd, args, PluginEntry, map[string]interface{}{}, *timeAfter)
 	}
 	runner.RunCmd(cmd)
 }

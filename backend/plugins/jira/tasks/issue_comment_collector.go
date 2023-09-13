@@ -60,7 +60,7 @@ func CollectIssueComments(taskCtx plugin.SubTaskContext) errors.Error {
 			BoardId:      data.Options.BoardId,
 		},
 		Table: RAW_ISSUE_COMMENT_TABLE,
-	}, data.TimeAfter)
+	})
 	if err != nil {
 		return err
 	}

@@ -111,7 +111,7 @@ func CollectGraphqlJobs(taskCtx plugin.SubTaskContext) errors.Error {
 			Name:         data.Options.Name,
 		},
 		Table: RAW_GRAPHQL_JOBS_TABLE,
-	}, data.TimeAfter)
+	})
 	if err != nil {
 		return err
 	}
