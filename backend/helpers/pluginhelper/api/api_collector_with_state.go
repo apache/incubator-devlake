@@ -165,14 +165,12 @@ func NewStatefulApiCollectorForFinalizableEntity(args FinalizableApiCollectorArg
 		return nil, err
 	}
 
-	// // prepare the basic variables
-	syncPolicy := manager.Ctx.TaskContext().SyncPolicy()
 	var isIncremental = manager.IsIncremental()
 	var createdAfter *time.Time
 	if isIncremental {
 		createdAfter = manager.LatestState.LatestSuccessStart
-	} else if syncPolicy != nil && syncPolicy.TimeAfter != nil {
-		createdAfter = syncPolicy.TimeAfter
+	} else {
+		createdAfter = manager.TimeAfter
 	}
 
 	// step 1: create a collector to collect newly added records
