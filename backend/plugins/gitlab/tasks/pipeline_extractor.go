@@ -106,7 +106,7 @@ func ExtractApiPipelines(taskCtx plugin.SubTaskContext) errors.Error {
 				IsDetailRequired: false,
 			}
 
-			if gitlabApiPipeline.CreatedAt == nil && gitlabApiPipeline.UpdatedAt == nil {
+			if gitlabApiPipeline.StartedAt == nil && gitlabApiPipeline.FinishedAt == nil {
 				gitlabPipeline.IsDetailRequired = true
 			}
 
