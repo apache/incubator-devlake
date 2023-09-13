@@ -19,6 +19,7 @@ package models
 
 import (
 	"fmt"
+	"github.com/spf13/cast"
 	"strconv"
 
 	"github.com/apache/incubator-devlake/core/models/common"
@@ -89,12 +90,13 @@ type ZentaoProject struct {
 	TeamCount      int    `json:"teamCount" mapstructure:"teamCount"`
 	LeftTasks      string `json:"leftTasks" mapstructure:"leftTasks"`
 	//TeamMembers   []interface{} `json:"teamMembers" gorm:"-"`
-	TotalEstimate float64 `json:"totalEstimate" mapstructure:"totalEstimate"`
-	TotalConsumed float64 `json:"totalConsumed" mapstructure:"totalConsumed"`
-	TotalLeft     float64 `json:"totalLeft" mapstructure:"totalLeft"`
-	Progress      float64 `json:"progress" mapstructure:"progress"`
-	ScopeConfigId uint64  `json:"scopeConfigId,omitempty" mapstructure:"scopeConfigId"`
+	TotalEstimate float64     `json:"totalEstimate" mapstructure:"totalEstimate"`
+	TotalConsumed float64     `json:"totalConsumed" mapstructure:"totalConsumed"`
+	TotalLeft     float64     `json:"totalLeft" mapstructure:"totalLeft"`
+	Progress      interface{} `json:"progress" mapstructure:"progress"`
+	ScopeConfigId uint64      `json:"scopeConfigId,omitempty" mapstructure:"scopeConfigId"`
 }
+
 type PM struct {
 	PmId       int64  `json:"id" mapstructure:"id"`
 	PmAccount  string `json:"account" mapstructure:"account"`
@@ -115,7 +117,11 @@ type Hours struct {
 	HoursTotalReal     float64 `json:"totalReal" mapstructure:"totalReal"`
 }
 
-func (p *ZentaoProject) ConvertFix() {
+func (p *ZentaoProject) fixProgressField() {
+	p.Progress = cast.ToFloat64(p.Progress)
+}
+
+func (p *ZentaoProject) fixClosedByResField() {
 	switch cb := p.ClosedByRes.(type) {
 	case string:
 		p.ClosedBy = cb
@@ -127,7 +133,9 @@ func (p *ZentaoProject) ConvertFix() {
 		}
 	}
 	p.ClosedByRes = p.ClosedBy
+}
 
+func (p *ZentaoProject) fixCanceledByResField() {
 	switch cb := p.CanceledByRes.(type) {
 	case string:
 		p.CanceledBy = cb
@@ -141,7 +149,13 @@ func (p *ZentaoProject) ConvertFix() {
 	p.CanceledByRes = p.CanceledBy
 }
 
-func (ZentaoProject) TableName() string {
+func (p *ZentaoProject) ConvertFix() {
+	p.fixProgressField()
+	p.fixClosedByResField()
+	p.fixCanceledByResField()
+}
+
+func (p ZentaoProject) TableName() string {
 	return "_tool_zentao_projects"
 }
 
