@@ -17,16 +17,14 @@
  */
 
 import { useState } from 'react';
-import { ButtonGroup, Button, Intent } from '@blueprintjs/core';
+import { Button, Intent } from '@blueprintjs/core';
 
-import { Table, ColumnType, ExternalLink, IconButton } from '@/components';
+import { Buttons, Table, ColumnType, ExternalLink, IconButton } from '@/components';
 import { useConnections } from '@/hooks';
 import { DOC_URL } from '@/release';
 
-import type { WebhookItemType } from '../types';
-import { WebhookCreateDialog } from '../create-dialog';
-import { WebhookDeleteDialog } from '../delete-dialog';
-import { WebhookViewOrEditDialog } from '../view-or-edit-dialog';
+import { CreateDialog, ViewDialog, EditDialog, DeleteDialog } from './components';
+import * as T from './types';
 
 import * as S from './styled';
 
@@ -42,19 +40,19 @@ export const WebHookConnection = ({ filterIds, onCreateAfter, onDeleteAfter }: P
   const [type, setType] = useState<Type>();
   const [currentID, setCurrentID] = useState<ID>();
 
-  const { connections, onRefresh } = useConnections({ plugin: 'webhook' });
+  const { connections } = useConnections({ plugin: 'webhook' });
 
   const handleHideDialog = () => {
     setType(undefined);
     setCurrentID(undefined);
   };
 
-  const handleShowDialog = (t: Type, r?: WebhookItemType) => {
+  const handleShowDialog = (t: Type, r?: T.WebhookItemType) => {
     setType(t);
     setCurrentID(r?.id);
   };
 
-  const columns: ColumnType<WebhookItemType> = [
+  const columns: ColumnType<T.WebhookItemType> = [
     {
       title: 'ID',
       dataIndex: 'id',
@@ -73,7 +71,8 @@ export const WebHookConnection = ({ filterIds, onCreateAfter, onDeleteAfter }: P
       align: 'center',
       render: (_, row) => (
         <S.Action>
-          <IconButton icon="edit" tooltip="Edit" onClick={() => handleShowDialog('edit', row)} />
+          <IconButton icon="array" tooltip="View" onClick={() => handleShowDialog('show', row)} />
+          <IconButton icon="annotation" tooltip="Edit" onClick={() => handleShowDialog('edit', row)} />
           <IconButton icon="trash" tooltip="Delete" onClick={() => handleShowDialog('delete', row)} />
         </S.Action>
       ),
@@ -82,9 +81,9 @@ export const WebHookConnection = ({ filterIds, onCreateAfter, onDeleteAfter }: P
 
   return (
     <S.Wrapper>
-      <ButtonGroup>
+      <Buttons>
         <Button icon="plus" text="Add a Webhook" intent={Intent.PRIMARY} onClick={() => handleShowDialog('add')} />
-      </ButtonGroup>
+      </Buttons>
       <Table
         columns={columns}
         dataSource={connections.filter((cs) => (filterIds ? filterIds.includes(cs.id) : true))}
@@ -100,34 +99,12 @@ export const WebHookConnection = ({ filterIds, onCreateAfter, onDeleteAfter }: P
         }}
       />
       {type === 'add' && (
-        <WebhookCreateDialog
-          isOpen
-          onCancel={handleHideDialog}
-          onSubmitAfter={(id) => {
-            onRefresh();
-            onCreateAfter?.(id);
-          }}
-        />
+        <CreateDialog isOpen onCancel={handleHideDialog} onSubmitAfter={(id) => onCreateAfter?.(id)} />
       )}
+      {type === 'show' && currentID && <ViewDialog initialId={currentID} onCancel={handleHideDialog} />}
+      {type === 'edit' && currentID && <EditDialog initialId={currentID} onCancel={handleHideDialog} />}
       {type === 'delete' && currentID && (
-        <WebhookDeleteDialog
-          isOpen
-          initialID={currentID}
-          onCancel={handleHideDialog}
-          onSubmitAfter={(id) => {
-            onRefresh();
-            onDeleteAfter?.(id);
-          }}
-        />
-      )}
-      {(type === 'edit' || type === 'show') && currentID && (
-        <WebhookViewOrEditDialog
-          type={type}
-          isOpen
-          initialID={currentID}
-          onCancel={handleHideDialog}
-          onSubmitAfter={() => onRefresh()}
-        />
+        <DeleteDialog initialId={currentID} onCancel={handleHideDialog} onSubmitAfter={(id) => onDeleteAfter?.(id)} />
       )}
     </S.Wrapper>
   );

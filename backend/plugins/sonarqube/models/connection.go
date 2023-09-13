@@ -20,10 +20,11 @@ package models
 import (
 	"encoding/base64"
 	"fmt"
+	"net/http"
+
 	"github.com/apache/incubator-devlake/core/errors"
 	"github.com/apache/incubator-devlake/core/plugin"
 	helper "github.com/apache/incubator-devlake/helpers/pluginhelper/api"
-	"net/http"
 )
 
 type SonarqubeAccessToken helper.AccessToken
@@ -43,17 +44,16 @@ func (sat SonarqubeAccessToken) GetEncodedToken() string {
 	return base64.StdEncoding.EncodeToString([]byte(fmt.Sprintf("%v:", sat.Token)))
 }
 
-// This object conforms to what the frontend currently sends.
-type SonarqubeConnection struct {
-	helper.BaseConnection `mapstructure:",squash"`
-	helper.RestConnection `mapstructure:",squash"`
-	SonarqubeAccessToken  `mapstructure:",squash"`
-}
-
 // SonarqubeConn holds the essential information to connect to the sonarqube API
 type SonarqubeConn struct {
 	helper.RestConnection `mapstructure:",squash"`
 	SonarqubeAccessToken  `mapstructure:",squash"`
+}
+
+// This object conforms to what the frontend currently sends.
+type SonarqubeConnection struct {
+	helper.BaseConnection `mapstructure:",squash"`
+	SonarqubeConn         `mapstructure:",squash"`
 }
 
 // This object conforms to what the frontend currently expects.

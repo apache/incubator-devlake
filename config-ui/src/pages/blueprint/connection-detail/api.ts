@@ -24,7 +24,7 @@ export const getProject = (pname: string): Promise<{ blueprint: BlueprintType }>
 
 export const getBlueprint = (id: ID): Promise<BlueprintType> => request(`/blueprints/${id}`);
 
-export const updateBlueprint = (id: ID, payload: any) =>
+export const updateBlueprint = (id: ID, payload: BlueprintType) =>
   request(`/blueprints/${id}`, { method: 'patch', data: payload });
 
 export const getConnection = (plugin: string, connectionId: ID) =>

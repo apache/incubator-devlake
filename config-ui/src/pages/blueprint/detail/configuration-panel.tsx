@@ -65,7 +65,7 @@ export const ConfigurationPanel = ({ from, blueprint, onRefresh, onChangeTab }: 
           return {
             unique,
             icon: plugin.icon,
-            name: connection.name,
+            name: connection?.name,
             scope: cs.scopes,
           };
         })
