@@ -90,12 +90,14 @@ func RemoteScopes(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, er
 				// list projects part
 				res, err := apiClient.Get("/projects", query, nil)
 				if err != nil {
+					logger.Error(err, "call projects api")
 					return nil, err
 				}
 
 				resBody := &ProjectResponse{}
 				err = api.UnmarshalResponse(res, resBody)
 				if err != nil {
+					logger.Error(err, "unmarshal projects response")
 					return nil, err
 				}
 
