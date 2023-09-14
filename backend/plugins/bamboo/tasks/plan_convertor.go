@@ -19,6 +19,7 @@ package tasks
 
 import (
 	"reflect"
+	"strings"
 
 	"github.com/apache/incubator-devlake/core/dal"
 	"github.com/apache/incubator-devlake/core/errors"
@@ -61,7 +62,7 @@ func ConvertPlans(taskCtx plugin.SubTaskContext) errors.Error {
 				DomainEntity: domainlayer.DomainEntity{Id: planIdGen.Generate(data.Options.ConnectionId, bambooPlan.PlanKey)},
 				Name:         bambooPlan.Name,
 				Description:  bambooPlan.Description,
-				Url:          bambooPlan.Href,
+				Url:          strings.Replace(bambooPlan.Href, "/rest/api/latest/plan", "/browse", 1),
 			}
 			return []interface{}{
 				domainPlan,
