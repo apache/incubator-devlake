@@ -88,7 +88,7 @@ func GetResultsResult(res *http.Response) ([]json.RawMessage, errors.Error) {
 	return resData.Results.Result, nil
 }
 
-// getBambooHomePage receive endpoint like "http://54.158.1.10:30001/rest/api/latest/" and return zentao's homepage like "http://54.158.1.10:30001/"
+// getBambooHomePage receive endpoint like "http://127.0.0.1:30001/rest/api/latest/" and return bamboo's homepage like "http://127.0.0.1:30001/"
 func getBambooHomePage(endpoint string) (string, error) {
 	if endpoint == "" {
 		return "", errors.Default.New("empty endpoint")

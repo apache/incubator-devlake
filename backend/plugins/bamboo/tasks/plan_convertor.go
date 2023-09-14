@@ -18,9 +18,6 @@ limitations under the License.
 package tasks
 
 import (
-	"reflect"
-	"strings"
-
 	"github.com/apache/incubator-devlake/core/dal"
 	"github.com/apache/incubator-devlake/core/errors"
 	"github.com/apache/incubator-devlake/core/models/domainlayer"
@@ -29,6 +26,7 @@ import (
 	"github.com/apache/incubator-devlake/core/plugin"
 	"github.com/apache/incubator-devlake/helpers/pluginhelper/api"
 	bambooModels "github.com/apache/incubator-devlake/plugins/bamboo/models"
+	"reflect"
 )
 
 const RAW_PLAN_TABLE = "bamboo_plan"
@@ -63,7 +61,6 @@ func ConvertPlans(taskCtx plugin.SubTaskContext) errors.Error {
 				DomainEntity: domainlayer.DomainEntity{Id: planIdGen.Generate(data.Options.ConnectionId, bambooPlan.PlanKey)},
 				Name:         bambooPlan.Name,
 				Description:  bambooPlan.Description,
-				Url:          strings.Replace(bambooPlan.Href, "/rest/api/latest/plan", "/browse", 1),
 			}
 			homepage, err := getBambooHomePage(bambooPlan.Href)
 			if err != nil {
