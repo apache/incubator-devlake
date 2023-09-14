@@ -43,6 +43,7 @@ var ConvertPlansMeta = plugin.SubTaskMeta{
 
 func ConvertPlans(taskCtx plugin.SubTaskContext) errors.Error {
 	db := taskCtx.GetDal()
+	logger := taskCtx.GetLogger()
 	rawDataSubTaskArgs, data := CreateRawDataSubTaskArgs(taskCtx, RAW_PLAN_TABLE)
 	cursor, err := db.Cursor(dal.From(bambooModels.BambooPlan{}),
 		dal.Where("connection_id = ? and plan_key = ?", data.Options.ConnectionId, data.Options.PlanKey))
@@ -64,6 +65,13 @@ func ConvertPlans(taskCtx plugin.SubTaskContext) errors.Error {
 				Description:  bambooPlan.Description,
 				Url:          strings.Replace(bambooPlan.Href, "/rest/api/latest/plan", "/browse", 1),
 			}
+			homepage, err := getBambooHomePage(bambooPlan.Href)
+			if err != nil {
+				logger.Warn(err, "get bamboo home")
+			} else {
+				domainPlan.Url = homepage + "/browse/" + bambooPlan.PlanKey
+			}
+
 			return []interface{}{
 				domainPlan,
 			}, nil
