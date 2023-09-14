@@ -31,7 +31,7 @@ on:
 
 jobs:
   build-and-push-builder:
-    if: ${{ (github.event.pull_request.merged == true) || (contains(github.event.pull_request.labels.*.name, 'envtest')) || (github.ref_type == 'tag') }}
+#    if: ${{ (github.event.pull_request.merged == true) || (contains(github.event.pull_request.labels.*.name, 'envtest')) || (github.ref_type == 'tag') }}
     name: Build and Push devlake builder
     runs-on: ubuntu-latest
     steps:
