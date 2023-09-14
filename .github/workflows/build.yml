@@ -26,6 +26,7 @@ on:
   pull_request_target:
     types:
       - labeled
+      - synchronize
       - closed
 
 jobs:
