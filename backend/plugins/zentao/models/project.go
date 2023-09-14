@@ -89,10 +89,11 @@ type ZentaoProject struct {
 	TeamCount      int    `json:"teamCount" mapstructure:"teamCount"`
 	LeftTasks      string `json:"leftTasks" mapstructure:"leftTasks"`
 	//TeamMembers   []interface{} `json:"teamMembers" gorm:"-"`
-	TotalEstimate float64     `json:"totalEstimate" mapstructure:"totalEstimate"`
-	TotalConsumed float64     `json:"totalConsumed" mapstructure:"totalConsumed"`
-	TotalLeft     float64     `json:"totalLeft" mapstructure:"totalLeft"`
-	Progress      interface{} `json:"progress" mapstructure:"progress"`
+	TotalEstimate float64 `json:"totalEstimate" mapstructure:"totalEstimate"`
+	TotalConsumed float64 `json:"totalConsumed" mapstructure:"totalConsumed"`
+	TotalLeft     float64 `json:"totalLeft" mapstructure:"totalLeft"`
+	Progress      float64
+	ProgressRes   interface{} `json:"progress" mapstructure:"progress" gorm:"-"`
 	ScopeConfigId uint64      `json:"scopeConfigId,omitempty" mapstructure:"scopeConfigId"`
 }
 
@@ -117,7 +118,7 @@ type Hours struct {
 }
 
 func (p *ZentaoProject) fixProgressField() {
-	p.Progress = cast.ToFloat64(p.Progress)
+	p.Progress = cast.ToFloat64(p.ProgressRes)
 }
 
 func (p *ZentaoProject) fixClosedByResField() {
