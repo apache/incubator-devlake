@@ -59,7 +59,6 @@ func CollectApiCommits(taskCtx plugin.SubTaskContext) errors.Error {
 	}
 
 	incremental := collectorWithState.IsIncremental()
-	syncPolicy := taskCtx.TaskContext().SyncPolicy()
 	err = collectorWithState.InitCollector(helper.ApiCollectorArgs{
 		ApiClient:   data.ApiClient,
 		PageSize:    100,
@@ -80,8 +79,8 @@ func CollectApiCommits(taskCtx plugin.SubTaskContext) errors.Error {
 		Query: func(reqData *helper.RequestData) (url.Values, errors.Error) {
 			query := url.Values{}
 			query.Set("state", "all")
-			if syncPolicy != nil && syncPolicy.TimeAfter != nil {
-				query.Set("since", syncPolicy.TimeAfter.String())
+			if collectorWithState.TimeAfter != nil {
+				query.Set("since", collectorWithState.TimeAfter.String())
 			}
 			if incremental {
 				query.Set("since", collectorWithState.LatestState.LatestSuccessStart.String())

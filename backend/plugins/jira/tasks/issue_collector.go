@@ -77,14 +77,7 @@ func CollectIssues(taskCtx plugin.SubTaskContext) errors.Error {
 	} else {
 		logger.Info("got user's timezone: %v", loc.String())
 	}
-
-	jql := ""
-	syncPolicy := taskCtx.TaskContext().SyncPolicy()
-	if syncPolicy != nil && syncPolicy.TimeAfter != nil {
-		jql = buildJQL(syncPolicy.TimeAfter, collectorWithState.LatestState.LatestSuccessStart, incremental, loc)
-	} else {
-		jql = buildJQL(nil, collectorWithState.LatestState.LatestSuccessStart, incremental, loc)
-	}
+	jql := buildJQL(collectorWithState.TimeAfter, collectorWithState.LatestState.LatestSuccessStart, incremental, loc)
 
 	err = collectorWithState.InitCollector(api.ApiCollectorArgs{
 		ApiClient:   data.ApiClient,
