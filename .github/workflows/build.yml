@@ -25,13 +25,11 @@ on:
       - "v*"
   pull_request:
     types:
-      - labeled
-      - synchronize
       - closed
 
 jobs:
   build-and-push-builder:
-    if: ${{ (github.event.pull_request.merged == true) || (contains(github.event.pull_request.labels.*.name, 'envtest')) || (github.ref_type == 'tag') }}
+    if: ${{ (github.event.pull_request.merged == true) || (github.ref_type == 'tag') }}
     name: Build and Push devlake builder
     runs-on: ubuntu-latest
     steps:
@@ -56,7 +54,7 @@ jobs:
           cache-from: ${{ secrets.DOCKERHUB_OWNER }}/devlake:amd64-builder
           cache-to: ${{ secrets.DOCKERHUB_OWNER }}/devlake:amd64-builder
   build-and-push-base:
-    if: ${{ (github.event.pull_request.merged == true) || (contains(github.event.pull_request.labels.*.name, 'envtest')) || (github.ref_type == 'tag') }}
+    if: ${{ (github.event.pull_request.merged == true) || (github.ref_type == 'tag') }}
     name: Build and Push devlake base
     runs-on: ubuntu-latest
     steps:
@@ -81,7 +79,7 @@ jobs:
           cache-from: ${{ secrets.DOCKERHUB_OWNER }}/devlake:base
           cache-to: ${{ secrets.DOCKERHUB_OWNER }}/devlake:base
   build-devlake:
-    if: ${{ (github.event.pull_request.merged == true) || (contains(github.event.pull_request.labels.*.name, 'envtest')) || (github.ref_type == 'tag') }}
+    if: ${{ (github.event.pull_request.merged == true) || (github.ref_type == 'tag') }}
     needs: build-and-push-builder
     name: Build and cache devlake
     runs-on: ubuntu-latest
@@ -120,7 +118,7 @@ jobs:
             TAG=${{ github.ref_name }}
             SHA=${{ steps.get_short_sha.outputs.SHORT_SHA }}
   build-and-push-devlake:
-    if: ${{ (github.event.pull_request.merged == true) || (contains(github.event.pull_request.labels.*.name, 'envtest')) || (github.ref_type == 'tag') }}
+    if: ${{ (github.event.pull_request.merged == true) || (github.ref_type == 'tag') }}
     needs: [build-devlake, build-and-push-base]
     name: Build and Push devlake image
     runs-on: ubuntu-latest
@@ -195,7 +193,7 @@ jobs:
             }
 
   build-and-push-other-image:
-    if: ${{ (github.event.pull_request.merged == true) || (contains(github.event.pull_request.labels.*.name, 'envtest')) || (github.ref_type == 'tag') }}
+    if: ${{ (github.event.pull_request.merged == true) || (github.ref_type == 'tag') }}
     name: Build and Push ${{ matrix.build.name }} image
     runs-on: ubuntu-latest
     strategy:
