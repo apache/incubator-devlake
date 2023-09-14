@@ -23,8 +23,13 @@ on:
   push:
     tags:
       - "v*"
+  pull_request:
+    types:
+      - closed
+
 jobs:
   build-and-push-builder:
+    if: ${{ (github.event.pull_request.merged == true) || (github.ref_type == 'tag') }}
     name: Build and Push devlake builder
     runs-on: ubuntu-latest
     steps:
@@ -49,6 +54,7 @@ jobs:
           cache-from: ${{ secrets.DOCKERHUB_OWNER }}/devlake:amd64-builder
           cache-to: ${{ secrets.DOCKERHUB_OWNER }}/devlake:amd64-builder
   build-and-push-base:
+    if: ${{ (github.event.pull_request.merged == true) || (github.ref_type == 'tag') }}
     name: Build and Push devlake base
     runs-on: ubuntu-latest
     steps:
@@ -73,6 +79,7 @@ jobs:
           cache-from: ${{ secrets.DOCKERHUB_OWNER }}/devlake:base
           cache-to: ${{ secrets.DOCKERHUB_OWNER }}/devlake:base
   build-devlake:
+    if: ${{ (github.event.pull_request.merged == true) || (github.ref_type == 'tag') }}
     needs: build-and-push-builder
     name: Build and cache devlake
     runs-on: ubuntu-latest
@@ -111,6 +118,7 @@ jobs:
             TAG=${{ github.ref_name }}
             SHA=${{ steps.get_short_sha.outputs.SHORT_SHA }}
   build-and-push-devlake:
+    if: ${{ (github.event.pull_request.merged == true) || (github.ref_type == 'tag') }}
     needs: [build-devlake, build-and-push-base]
     name: Build and Push devlake image
     runs-on: ubuntu-latest
@@ -140,10 +148,16 @@ jobs:
         id: get_push_tags
         run: |
           image_name=${{ secrets.DOCKERHUB_OWNER }}/devlake
-          if printf ${{ github.ref_name }} | grep -Pq '^v(\d+).(\d+).(\d+)$'; then
+          export DATE_TAG=$(date '+%y%m%d_%H%M')
+          export VALID_DOCKER_TAG=$(echo "${{ github.event.pull_request.head.ref }}" | sed 's/[^a-zA-Z0-9]/-/g')
+          if printf ${{ github.ref }} |grep -Pq '^refs/tags/' && printf ${{ github.ref_name }} | grep -Pq '^v(\d+).(\d+).(\d+)$'; then
               echo "TAGS=${image_name}:latest,${image_name}:${{ github.ref_name }}" >> $GITHUB_OUTPUT
-          else
+          elif printf ${{ github.ref }} |grep -Pq '^refs/tags/'; then
               echo "TAGS=${image_name}:${{ github.ref_name }}" >> $GITHUB_OUTPUT
+          elif printf ${{ github.ref_name }} | egrep -q '^main$|^release-.+$'; then
+              echo "TAGS=${image_name}:${{ github.ref_name }}_${DATE_TAG}_${{ github.sha }}" >> $GITHUB_OUTPUT
+          else
+              echo "TAGS=${image_name}:MR-${{ github.event.pull_request.number }}_${VALID_DOCKER_TAG}_${DATE_TAG}_${{ github.sha }}" >> $GITHUB_OUTPUT
           fi
       - name: Build and push lake image
         uses: docker/build-push-action@v3
@@ -179,6 +193,7 @@ jobs:
             }
 
   build-and-push-other-image:
+    if: ${{ (github.event.pull_request.merged == true) || (github.ref_type == 'tag') }}
     name: Build and Push ${{ matrix.build.name }} image
     runs-on: ubuntu-latest
     strategy:
@@ -205,10 +220,16 @@ jobs:
         id: get_push_tags
         run: |
           image_name=${{ secrets.DOCKERHUB_OWNER }}/${{ matrix.build.image }}
-          if printf ${{ github.ref_name }} | grep -Pq '^v(\d+).(\d+).(\d+)$'; then
+          export DATE_TAG=$(date '+%y%m%d_%H%M')
+          export VALID_DOCKER_TAG=$(echo "${{ github.event.pull_request.head.ref }}" | sed 's/[^a-zA-Z0-9]/-/g')
+          if printf ${{ github.ref }} |grep -Pq '^refs/tags/' && printf ${{ github.ref_name }} | grep -Pq '^v(\d+).(\d+).(\d+)$'; then
               echo "TAGS=${image_name}:latest,${image_name}:${{ github.ref_name }}" >> $GITHUB_OUTPUT
-          else
+          elif printf ${{ github.ref }} |grep -Pq '^refs/tags/'; then
               echo "TAGS=${image_name}:${{ github.ref_name }}" >> $GITHUB_OUTPUT
+          elif printf ${{ github.ref_name }} | egrep -q '^main$|^release-.+$'; then
+              echo "TAGS=${image_name}:${{ github.ref_name }}_${DATE_TAG}_${{ github.sha }}" >> $GITHUB_OUTPUT
+          else
+              echo "TAGS=${image_name}:MR-${{ github.event.pull_request.number }}_${VALID_DOCKER_TAG}_${DATE_TAG}_${{ github.sha }}" >> $GITHUB_OUTPUT
           fi
       - name: Build and push ${{ matrix.build.name }} image
         uses: docker/build-push-action@v3
