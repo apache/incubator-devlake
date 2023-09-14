@@ -23,13 +23,12 @@ on:
   push:
     tags:
       - "v*"
-  pull_request:
-    types:
-      - closed
+    branches:
+      - main
+      - release-*
 
 jobs:
   build-and-push-builder:
-    if: ${{ (github.event.pull_request.merged == true) || (github.ref_type == 'tag') }}
     name: Build and Push devlake builder
     runs-on: ubuntu-latest
     steps:
@@ -54,7 +53,6 @@ jobs:
           cache-from: ${{ secrets.DOCKERHUB_OWNER }}/devlake:amd64-builder
           cache-to: ${{ secrets.DOCKERHUB_OWNER }}/devlake:amd64-builder
   build-and-push-base:
-    if: ${{ (github.event.pull_request.merged == true) || (github.ref_type == 'tag') }}
     name: Build and Push devlake base
     runs-on: ubuntu-latest
     steps:
@@ -79,7 +77,6 @@ jobs:
           cache-from: ${{ secrets.DOCKERHUB_OWNER }}/devlake:base
           cache-to: ${{ secrets.DOCKERHUB_OWNER }}/devlake:base
   build-devlake:
-    if: ${{ (github.event.pull_request.merged == true) || (github.ref_type == 'tag') }}
     needs: build-and-push-builder
     name: Build and cache devlake
     runs-on: ubuntu-latest
@@ -117,9 +114,24 @@ jobs:
           build-args: |
             TAG=${{ github.ref_name }}
             SHA=${{ steps.get_short_sha.outputs.SHORT_SHA }}
+  get-pr-number:
+    if: ${{ github.ref_type != 'tag' }}
+    name: Get pr number and build timestamp
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+      - name: Get pull request number
+        id: pr
+        run: echo "::set-output name=pull_request_number::$(gh pr view --json number -q .number || echo "")"
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      - name: Get build timestamp
+        id: ts
+        run: echo "::set-output name=timestamp::$(date '+%y%m%d_%H%M')"
   build-and-push-devlake:
-    if: ${{ (github.event.pull_request.merged == true) || (github.ref_type == 'tag') }}
-    needs: [build-devlake, build-and-push-base]
+    needs: [build-devlake, build-and-push-base, get-pr-number]
     name: Build and Push devlake image
     runs-on: ubuntu-latest
     steps:
@@ -148,16 +160,12 @@ jobs:
         id: get_push_tags
         run: |
           image_name=${{ secrets.DOCKERHUB_OWNER }}/devlake
-          export DATE_TAG=$(date '+%y%m%d_%H%M')
-          export VALID_DOCKER_TAG=$(echo "${{ github.event.pull_request.head.ref }}" | sed 's/[^a-zA-Z0-9]/-/g')
           if printf ${{ github.ref }} |grep -Pq '^refs/tags/' && printf ${{ github.ref_name }} | grep -Pq '^v(\d+).(\d+).(\d+)$'; then
               echo "TAGS=${image_name}:latest,${image_name}:${{ github.ref_name }}" >> $GITHUB_OUTPUT
           elif printf ${{ github.ref }} |grep -Pq '^refs/tags/'; then
               echo "TAGS=${image_name}:${{ github.ref_name }}" >> $GITHUB_OUTPUT
-          elif printf ${{ github.ref_name }} | egrep -q '^main$|^release-.+$'; then
-              echo "TAGS=${image_name}:${{ github.ref_name }}_${DATE_TAG}_${{ github.sha }}" >> $GITHUB_OUTPUT
           else
-              echo "TAGS=${image_name}:MR-${{ github.event.pull_request.number }}_${VALID_DOCKER_TAG}_${DATE_TAG}_${{ github.sha }}" >> $GITHUB_OUTPUT
+              echo "TAGS=${image_name}:${{ github.ref_name }}_${{ jobs.get-pr-number.steps.ts.outputs.timestamp }}_${{ github.sha }}_MR-${{ jobs.get-pr-number.steps.pr.outputs.pull_request_number }}" >> $GITHUB_OUTPUT
           fi
       - name: Build and push lake image
         uses: docker/build-push-action@v3
@@ -193,7 +201,7 @@ jobs:
             }
 
   build-and-push-other-image:
-    if: ${{ (github.event.pull_request.merged == true) || (github.ref_type == 'tag') }}
+    needs: [get-pr-number]
     name: Build and Push ${{ matrix.build.name }} image
     runs-on: ubuntu-latest
     strategy:
@@ -220,16 +228,12 @@ jobs:
         id: get_push_tags
         run: |
           image_name=${{ secrets.DOCKERHUB_OWNER }}/${{ matrix.build.image }}
-          export DATE_TAG=$(date '+%y%m%d_%H%M')
-          export VALID_DOCKER_TAG=$(echo "${{ github.event.pull_request.head.ref }}" | sed 's/[^a-zA-Z0-9]/-/g')
           if printf ${{ github.ref }} |grep -Pq '^refs/tags/' && printf ${{ github.ref_name }} | grep -Pq '^v(\d+).(\d+).(\d+)$'; then
               echo "TAGS=${image_name}:latest,${image_name}:${{ github.ref_name }}" >> $GITHUB_OUTPUT
           elif printf ${{ github.ref }} |grep -Pq '^refs/tags/'; then
               echo "TAGS=${image_name}:${{ github.ref_name }}" >> $GITHUB_OUTPUT
-          elif printf ${{ github.ref_name }} | egrep -q '^main$|^release-.+$'; then
-              echo "TAGS=${image_name}:${{ github.ref_name }}_${DATE_TAG}_${{ github.sha }}" >> $GITHUB_OUTPUT
           else
-              echo "TAGS=${image_name}:MR-${{ github.event.pull_request.number }}_${VALID_DOCKER_TAG}_${DATE_TAG}_${{ github.sha }}" >> $GITHUB_OUTPUT
+              echo "TAGS=${image_name}:${{ github.ref_name }}_${{ jobs.get-pr-number.steps.ts.outputs.timestamp }}_${{ github.sha }}_MR-${{ jobs.get-pr-number.steps.pr.outputs.pull_request_number }}" >> $GITHUB_OUTPUT
           fi
       - name: Build and push ${{ matrix.build.name }} image
         uses: docker/build-push-action@v3
