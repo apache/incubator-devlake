@@ -105,20 +105,31 @@ const SelectRemote = ({
   selectedScope: any[];
   onChangeSelectedScope: (selectedScope: any[]) => void;
 }) => {
-  // miller columns
-  const [items, setItems] = useState<McsItem<T.ResItem>[]>([]);
-  const [loadedIds, setLoadedIds] = useState<ID[]>([]);
-  const [nextTokenMap, setNextTokenMap] = useState<Record<ID, string>>({});
+  const [miller, setMiller] = useState<{
+    items: McsItem<T.ResItem>[];
+    loadedIds: ID[];
+    nextTokenMap: Record<ID, string>;
+  }>({
+    items: [],
+    loadedIds: [],
+    nextTokenMap: {},
+  });
 
-  // search
-  const [query, setQuery] = useState('');
-  const [items2, setItems2] = useState<McsItem<T.ResItem>[]>([]);
-  const [page, setPage] = useState(1);
-  const [total] = useState(0);
+  const [search, setSearch] = useState<{
+    items: McsItem<T.ResItem>[];
+    query: string;
+    page: number;
+    total: number;
+  }>({
+    items: [],
+    query: '',
+    page: 1,
+    total: 0,
+  });
 
-  const search = useDebounce(query, { wait: 500 });
+  const searchDebounce = useDebounce(search.query, { wait: 500 });
 
-  const allItems = useMemo(() => uniqBy([...items, ...items2], 'id'), [items, items2]);
+  const allItems = useMemo(() => uniqBy([...miller.items, ...search.items], 'id'), [miller.items, search.items]);
 
   const getItems = async (groupId: ID | null, currentPageToken?: string) => {
     const res = await API.getRemoteScope(plugin, connectionId, {
@@ -126,21 +137,26 @@ const SelectRemote = ({
       pageToken: currentPageToken,
     });
 
-    setItems([
-      ...items,
-      ...(res.children ?? []).map((it: any) => ({
-        ...it,
-        title: it.name,
-      })),
-    ]);
+    const newItems = (res.children ?? []).map((it) => ({
+      ...it,
+      title: it.name,
+    }));
 
-    if (!res.nextPageToken) {
-      setLoadedIds([...loadedIds, groupId ? groupId : 'root']);
+    if (res.nextPageToken) {
+      setMiller((m) => ({
+        ...m,
+        items: [...m.items, ...newItems],
+        nextTokenMap: {
+          ...m.nextTokenMap,
+          [`${groupId ? groupId : 'root'}`]: res.nextPageToken,
+        },
+      }));
     } else {
-      setNextTokenMap({
-        ...nextTokenMap,
-        [`${groupId ? groupId : 'root'}`]: res.nextPageToken,
-      });
+      setMiller((m) => ({
+        ...m,
+        items: [...m.items, ...newItems],
+        loadedIds: [...m.loadedIds, groupId ?? 'root'],
+      }));
     }
   };
 
@@ -149,29 +165,29 @@ const SelectRemote = ({
   }, []);
 
   const searchItems = async () => {
-    if (!search) return;
+    if (!searchDebounce) return;
 
     const res = await API.searchRemoteScope(plugin, connectionId, {
-      search,
-      page,
+      search: searchDebounce,
+      page: search.page,
       pageSize: 50,
     });
 
-    setItems2(
-      res.children.map((it) => ({
-        ...it,
-        title: it.fullName,
-      })),
-    );
+    const newItems = (res.children ?? []).map((it) => ({
+      ...it,
+      title: it.name,
+    }));
 
-    if (page === 1) {
-      // setTotal(res.count);
-    }
+    setSearch((s) => ({
+      ...s,
+      items: [...s.items, ...newItems],
+      total: res.count,
+    }));
   };
 
   useEffect(() => {
     searchItems();
-  }, [search, page]);
+  }, [searchDebounce, search.page]);
 
   return (
     <S.Wrapper>
@@ -185,16 +201,20 @@ const SelectRemote = ({
         />
       </FormItem>
       <FormItem>
-        <InputGroup leftIcon="search" value={query} onChange={(e) => setQuery(e.target.value)} />
-        {!search ? (
+        <InputGroup
+          leftIcon="search"
+          value={search.query}
+          onChange={(e) => setSearch({ ...search, query: e.target.value })}
+        />
+        {!searchDebounce ? (
           <MillerColumnsSelect
-            items={items}
+            items={miller.items}
             columnCount={config.millerColumnCount ?? 1}
             columnHeight={300}
             getCanExpand={(it) => it.type === 'group'}
-            getHasMore={(id) => !loadedIds.includes(id ?? 'root')}
-            onExpand={(id: McsID) => getItems(id, nextTokenMap[id])}
-            onScroll={(id: McsID | null) => getItems(id, nextTokenMap[id ?? 'root'])}
+            getHasMore={(id) => !miller.loadedIds.includes(id ?? 'root')}
+            onExpand={(id: McsID) => getItems(id, miller.nextTokenMap[id])}
+            onScroll={(id: McsID | null) => getItems(id, miller.nextTokenMap[id ?? 'root'])}
             renderTitle={(column: McsColumn) =>
               !column.parentId && config.millerFirstTitle && <S.ColumnTitle>{config.millerFirstTitle}</S.ColumnTitle>
             }
@@ -207,12 +227,12 @@ const SelectRemote = ({
           />
         ) : (
           <MillerColumnsSelect
-            items={items2}
+            items={search.items}
             columnCount={1}
             columnHeight={300}
             getCanExpand={() => false}
-            getHasMore={() => total === 0}
-            onScroll={() => setPage(page + 1)}
+            getHasMore={() => search.total === 0}
+            onScroll={() => setSearch({ ...search, page: search.page + 1 })}
             renderLoading={() => <Loading size={20} style={{ padding: '4px 12px' }} />}
             disabledIds={(disabledScope ?? []).map((it) => getPluginScopeId(plugin, it))}
             selectedIds={selectedScope.map((it) => it.id)}
