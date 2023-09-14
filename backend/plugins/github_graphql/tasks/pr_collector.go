@@ -160,11 +160,9 @@ func CollectPr(taskCtx plugin.SubTaskContext) errors.Error {
 		return err
 	}
 
-	incremental := collectorWithState.IsIncremental()
 	err = collectorWithState.InitGraphQLCollector(api.GraphqlCollectorArgs{
 		GraphqlClient: data.GraphqlClient,
 		PageSize:      10,
-		Incremental:   incremental,
 		/*
 			(Optional) Return query string for request, or you can plug them into UrlTemplate directly
 		*/

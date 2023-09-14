@@ -66,14 +66,8 @@ func CollectStoryCommits(taskCtx plugin.SubTaskContext) errors.Error {
 		dal.Where(`_tool_zentao_project_stories.project_id = ? and
 			_tool_zentao_project_stories.connection_id = ?`, data.Options.ProjectId, data.Options.ConnectionId),
 	}
-	// incremental collection
-	incremental := collectorWithState.IsIncremental()
-	if incremental {
-		clauses = append(
-			clauses,
-			dal.Where("last_edited_date is not null and last_edited_date > ?", collectorWithState.LatestState.LatestSuccessStart),
-		)
-	}
+	clauses = append(clauses, dal.Where("last_edited_date is not null and last_edited_date > ?", collectorWithState.Since))
+
 	cursor, err := db.Cursor(clauses...)
 	if err != nil {
 		return err
@@ -93,7 +87,6 @@ func CollectStoryCommits(taskCtx plugin.SubTaskContext) errors.Error {
 		},
 		ApiClient:   data.ApiClient,
 		Input:       iterator,
-		Incremental: incremental,
 		UrlTemplate: "stories/{{ .Input.ID }}",
 		ResponseParser: func(res *http.Response) ([]json.RawMessage, errors.Error) {
 			var data struct {

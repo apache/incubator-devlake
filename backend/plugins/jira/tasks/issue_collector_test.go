@@ -26,13 +26,10 @@ func Test_buildJQL(t *testing.T) {
 	base := time.Date(2021, 2, 3, 4, 5, 6, 7, time.UTC)
 	timeAfter := base
 	add48 := base.Add(48 * time.Hour)
-	minus48 := base.Add(-48 * time.Hour)
 	loc, _ := time.LoadLocation("Asia/Shanghai")
 	type args struct {
-		timeAfter          *time.Time
-		latestSuccessStart *time.Time
-		isIncremental      bool
-		location           *time.Location
+		since    *time.Time
+		location *time.Location
 	}
 	tests := []struct {
 		name string
@@ -42,56 +39,15 @@ func Test_buildJQL(t *testing.T) {
 		{
 			name: "test incremental",
 			args: args{
-				timeAfter:          nil,
-				latestSuccessStart: nil,
-				isIncremental:      false,
-			},
-			want: "ORDER BY created ASC"},
-		{
-			name: "test incremental",
-			args: args{
-				timeAfter:          nil,
-				latestSuccessStart: &add48,
-				isIncremental:      true,
-				location:           loc,
+				since:    &add48,
+				location: loc,
 			},
 			want: "updated >= '2021/02/05 12:05' ORDER BY created ASC",
 		},
 		{
 			name: "test incremental",
 			args: args{
-				timeAfter:          &base,
-				latestSuccessStart: nil,
-				isIncremental:      false,
-				location:           loc,
-			},
-			want: "updated >= '2021/02/03 12:05' ORDER BY created ASC",
-		},
-		{
-			name: "test incremental",
-			args: args{
-				timeAfter:          &timeAfter,
-				latestSuccessStart: &add48,
-				isIncremental:      true,
-			},
-			want: "updated >= '2021/02/04 04:05' ORDER BY created ASC",
-		},
-		{
-			name: "test incremental",
-			args: args{
-				timeAfter:          &timeAfter,
-				latestSuccessStart: &add48,
-				isIncremental:      true,
-				location:           loc,
-			},
-			want: "updated >= '2021/02/05 12:05' ORDER BY created ASC",
-		},
-		{
-			name: "test incremental",
-			args: args{
-				timeAfter:          &timeAfter,
-				latestSuccessStart: &minus48,
-				isIncremental:      true,
+				since: &timeAfter,
 			},
 			want: "updated >= '2021/02/02 04:05' ORDER BY created ASC",
 		},
@@ -99,7 +55,7 @@ func Test_buildJQL(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			if got := buildJQL(tt.args.timeAfter, tt.args.latestSuccessStart, tt.args.isIncremental, tt.args.location); got != tt.want {
+			if got := buildJQL(*tt.args.since, tt.args.location); got != tt.want {
 				t.Errorf("buildJQL() = %v, want %v", got, tt.want)
 			}
 		})

@@ -61,11 +61,9 @@ func CollectPrReviewComments(taskCtx plugin.SubTaskContext) errors.Error {
 		return err
 	}
 
-	incremental := collectorWithState.IsIncremental()
 	err = collectorWithState.InitCollector(helper.ApiCollectorArgs{
-		ApiClient:   data.ApiClient,
-		PageSize:    100,
-		Incremental: incremental,
+		ApiClient: data.ApiClient,
+		PageSize:  100,
 		Header: func(reqData *helper.RequestData) (http.Header, errors.Error) {
 			// Adding -H "Accept: application/vnd.github+json" solve the issue of getting 502/403 error
 			header := http.Header{}
@@ -76,14 +74,7 @@ func CollectPrReviewComments(taskCtx plugin.SubTaskContext) errors.Error {
 		UrlTemplate: "repos/{{ .Params.Name }}/pulls/comments",
 		Query: func(reqData *helper.RequestData) (url.Values, errors.Error) {
 			query := url.Values{}
-			if collectorWithState.TimeAfter != nil {
-				// Note that `since` is for filtering records by the `updated` time
-				query.Set("since", collectorWithState.TimeAfter.String())
-			}
-			// if incremental == true, we overwrite it
-			if incremental {
-				query.Set("since", collectorWithState.LatestState.LatestSuccessStart.String())
-			}
+			query.Set("since", collectorWithState.Since.String())
 			query.Set("page", fmt.Sprintf("%v", reqData.Pager.Page))
 			query.Set("direction", "asc")
 			query.Set("per_page", fmt.Sprintf("%v", reqData.Pager.Size))

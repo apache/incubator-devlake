@@ -38,6 +38,7 @@ type ApiCollectorStateManager struct {
 	subtasks     []plugin.SubTask
 	LatestState  models.CollectorLatestState
 	TimeAfter    *time.Time
+	Since        *time.Time
 	ExecuteStart time.Time
 }
 
@@ -66,32 +67,32 @@ func NewStatefulApiCollector(args RawDataSubTaskArgs) (*ApiCollectorStateManager
 	if syncPolicy != nil && syncPolicy.TimeAfter != nil {
 		timeAfter = syncPolicy.TimeAfter
 	}
+	since := GetSince(latestState.LatestSuccessStart, syncPolicy)
+
 	return &ApiCollectorStateManager{
 		RawDataSubTaskArgs: args,
 		LatestState:        latestState,
 		TimeAfter:          timeAfter,
+		Since:              since,
 		ExecuteStart:       time.Now(),
 	}, nil
 }
 
-// IsIncremental indicates if the collector should operate in incremental mode
-func (m *ApiCollectorStateManager) IsIncremental() bool {
-	prevSyncTime := m.LatestState.LatestSuccessStart
-	prevTimeAfter := m.LatestState.TimeAfter
-	syncPolicy := m.Ctx.TaskContext().SyncPolicy()
-	if syncPolicy != nil && syncPolicy.FullSync {
-		return false
+func GetSince(latestSuccessStart *time.Time, syncPolicy *models.SyncPolicy) *time.Time {
+	// If the execution has not been successful before, return timeAfter
+	if latestSuccessStart == nil {
+		return syncPolicy.TimeAfter
+	}
+	// If syncPolicy is nil, return latestSuccessStart
+	if syncPolicy == nil {
+		return latestSuccessStart
+	}
+	// If syncPolicy is fullSync or timeAfter is after latestSuccessStart, return timeAfter
+	if syncPolicy.FullSync || syncPolicy.TimeAfter.After(*latestSuccessStart) {
+		return syncPolicy.TimeAfter
 	}
 
-	if prevSyncTime == nil {
-		return false
-	}
-	// if we cleared the timeAfter, or moved timeAfter back in time, we should do a full sync
-	currTimeAfter := syncPolicy.TimeAfter
-	if currTimeAfter != nil {
-		return prevTimeAfter == nil || !currTimeAfter.Before(*prevTimeAfter)
-	}
-	return prevTimeAfter == nil
+	return latestSuccessStart
 }
 
 // InitCollector init the embedded collector
@@ -165,19 +166,11 @@ func NewStatefulApiCollectorForFinalizableEntity(args FinalizableApiCollectorArg
 		return nil, err
 	}
 
-	var isIncremental = manager.IsIncremental()
-	var createdAfter *time.Time
-	if isIncremental {
-		createdAfter = manager.LatestState.LatestSuccessStart
-	} else {
-		createdAfter = manager.TimeAfter
-	}
-
+	createdAfter := manager.Since
 	// step 1: create a collector to collect newly added records
 	err = manager.InitCollector(ApiCollectorArgs{
 		ApiClient: args.ApiClient,
 		// common
-		Incremental: isIncremental,
 		UrlTemplate: args.CollectNewRecordsByList.UrlTemplate,
 		Query: func(reqData *RequestData) (url.Values, errors.Error) {
 			if args.CollectNewRecordsByList.Query != nil {
@@ -249,7 +242,6 @@ func NewStatefulApiCollectorForFinalizableEntity(args FinalizableApiCollectorArg
 	err = manager.InitCollector(ApiCollectorArgs{
 		ApiClient: args.ApiClient,
 		// common
-		Incremental: true,
 		Input:       input,
 		UrlTemplate: args.CollectUnfinishedDetails.UrlTemplate,
 		Query: func(reqData *RequestData) (url.Values, errors.Error) {
