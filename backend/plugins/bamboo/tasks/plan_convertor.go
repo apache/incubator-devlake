@@ -18,8 +18,6 @@ limitations under the License.
 package tasks
 
 import (
-	"reflect"
-
 	"github.com/apache/incubator-devlake/core/dal"
 	"github.com/apache/incubator-devlake/core/errors"
 	"github.com/apache/incubator-devlake/core/models/domainlayer"
@@ -28,6 +26,7 @@ import (
 	"github.com/apache/incubator-devlake/core/plugin"
 	"github.com/apache/incubator-devlake/helpers/pluginhelper/api"
 	bambooModels "github.com/apache/incubator-devlake/plugins/bamboo/models"
+	"reflect"
 )
 
 const RAW_PLAN_TABLE = "bamboo_plan"
@@ -42,6 +41,7 @@ var ConvertPlansMeta = plugin.SubTaskMeta{
 
 func ConvertPlans(taskCtx plugin.SubTaskContext) errors.Error {
 	db := taskCtx.GetDal()
+	logger := taskCtx.GetLogger()
 	rawDataSubTaskArgs, data := CreateRawDataSubTaskArgs(taskCtx, RAW_PLAN_TABLE)
 	cursor, err := db.Cursor(dal.From(bambooModels.BambooPlan{}),
 		dal.Where("connection_id = ? and plan_key = ?", data.Options.ConnectionId, data.Options.PlanKey))
@@ -61,8 +61,14 @@ func ConvertPlans(taskCtx plugin.SubTaskContext) errors.Error {
 				DomainEntity: domainlayer.DomainEntity{Id: planIdGen.Generate(data.Options.ConnectionId, bambooPlan.PlanKey)},
 				Name:         bambooPlan.Name,
 				Description:  bambooPlan.Description,
-				Url:          bambooPlan.Href,
 			}
+			homepage, err := getBambooHomePage(bambooPlan.Href)
+			if err != nil {
+				logger.Warn(err, "get bamboo home")
+			} else {
+				domainPlan.Url = homepage + "/browse/" + bambooPlan.PlanKey
+			}
+
 			return []interface{}{
 				domainPlan,
 			}, nil
