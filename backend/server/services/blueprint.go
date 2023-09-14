@@ -161,13 +161,8 @@ func validateBlueprintAndMakePlan(blueprint *models.Blueprint) errors.Error {
 			return errors.BadInput.New("invalid plan")
 		}
 	} else if blueprint.Mode == models.BLUEPRINT_MODE_NORMAL {
-		syncPolicy := &models.SyncPolicy{
-			TimeAfter:  blueprint.TimeAfter,
-			FullSync:   blueprint.FullSync,
-			SkipOnFail: blueprint.SkipOnFail,
-		}
 		var e errors.Error
-		blueprint.Plan, e = MakePlanForBlueprint(blueprint, syncPolicy)
+		blueprint.Plan, e = MakePlanForBlueprint(blueprint, &blueprint.SyncPolicy)
 		if err != nil {
 			return e
 		}
@@ -208,9 +203,15 @@ func PatchBlueprint(id uint64, body map[string]interface{}) (*models.Blueprint, 
 	if err != nil {
 		return nil, err
 	}
+
 	// make sure mode is not being updated
 	if originMode != blueprint.Mode {
 		return nil, errors.Default.New("mode is not updatable")
+	}
+	// syncPolicy can be updated, so we need to decode it again
+	err = helper.DecodeMapStruct(body, &blueprint.SyncPolicy, true)
+	if err != nil {
+		return nil, err
 	}
 
 	blueprint, err = saveBlueprint(blueprint)
