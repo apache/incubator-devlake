@@ -81,24 +81,20 @@ func NewStatefulApiCollector(args RawDataSubTaskArgs) (*ApiCollectorStateManager
 	var isIncreamtal bool
 	var since *time.Time
 
-	// 1. If no oldState.LatestSuccessStart, not incremental and since is syncPolicy.TimeAfter
 	if oldLatestSuccessStart == nil {
+		// 1. If no oldState.LatestSuccessStart, not incremental and since is syncPolicy.TimeAfter
 		isIncreamtal = false
 		since = newTimeAfter
-	}
-	// 2. If no syncPolicy, incremental and since is oldState.LatestSuccessStart
-	if syncPolicy == nil {
+	} else if syncPolicy == nil {
+		// 2. If no syncPolicy, incremental and since is oldState.LatestSuccessStart
 		isIncreamtal = true
 		since = oldLatestSuccessStart
-	}
-	// 3. If fullSync true, not incremental and since is syncPolicy.TimeAfter
-	if syncPolicy != nil && fullSync {
+	} else if syncPolicy != nil && fullSync {
+		// 3. If fullSync true, not incremental and since is syncPolicy.TimeAfter
 		isIncreamtal = false
 		since = newTimeAfter
-	}
-
-	// 4. If syncPolicy.TimeAfter is not nil, compare with old oldState.TimeAfter
-	if newTimeAfter != nil {
+	} else if newTimeAfter != nil {
+		// 4. If syncPolicy.TimeAfter is not nil, compare with old oldState.TimeAfter
 		if oldTimeAfter == nil || !syncPolicy.TimeAfter.Before(*oldTimeAfter) {
 			isIncreamtal = false
 			since = newTimeAfter
@@ -107,8 +103,8 @@ func NewStatefulApiCollector(args RawDataSubTaskArgs) (*ApiCollectorStateManager
 			since = oldLatestSuccessStart
 		}
 	} else {
-		isIncreamtal = false
-		since = nil
+		// Default case: not incremental and since is nil
+		// No need to assign isIncreamtal and since here
 	}
 
 	currentTime := time.Now()
