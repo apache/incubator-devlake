@@ -89,22 +89,19 @@ func NewStatefulApiCollector(args RawDataSubTaskArgs) (*ApiCollectorStateManager
 		// 2. If no syncPolicy, incremental and since is oldState.LatestSuccessStart
 		isIncreamtal = true
 		since = oldLatestSuccessStart
-	} else if syncPolicy != nil && fullSync {
+	} else if fullSync {
 		// 3. If fullSync true, not incremental and since is syncPolicy.TimeAfter
 		isIncreamtal = false
 		since = newTimeAfter
 	} else if newTimeAfter != nil {
 		// 4. If syncPolicy.TimeAfter is not nil, compare with old oldState.TimeAfter
-		if oldTimeAfter == nil || !syncPolicy.TimeAfter.Before(*oldTimeAfter) {
+		if oldTimeAfter == nil || !newTimeAfter.Before(*oldTimeAfter) {
 			isIncreamtal = false
 			since = newTimeAfter
 		} else {
 			isIncreamtal = true
 			since = oldLatestSuccessStart
 		}
-	} else {
-		// Default case: not incremental and since is nil
-		// No need to assign isIncreamtal and since here
 	}
 
 	currentTime := time.Now()
