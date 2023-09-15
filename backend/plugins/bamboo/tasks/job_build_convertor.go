@@ -65,6 +65,7 @@ func ConvertJobBuilds(taskCtx plugin.SubTaskContext) errors.Error {
 			domainJobBuild := &devops.CICDTask{
 				DomainEntity: domainlayer.DomainEntity{Id: jobBuildIdGen.Generate(data.Options.ConnectionId, line.JobBuildKey)},
 				Name:         line.JobName,
+				DurationSec:  uint64(line.BuildDurationInSeconds),
 				StartedDate:  *line.BuildStartedTime,
 				FinishedDate: line.BuildCompletedDate,
 				PipelineId:   planBuildIdGen.Generate(data.Options.ConnectionId, line.PlanBuildKey),
