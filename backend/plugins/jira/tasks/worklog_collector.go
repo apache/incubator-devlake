@@ -66,7 +66,21 @@ func CollectWorklogs(taskCtx plugin.SubTaskContext) errors.Error {
 		dal.Where("i.updated > i.created AND bi.connection_id = ?  AND bi.board_id = ?  ", data.Options.ConnectionId, data.Options.BoardId),
 		dal.Groupby("i.issue_id, i.updated"),
 	}
-	clauses = append(clauses, dal.Having("i.updated > ? AND (i.updated > max(wl.issue_updated) OR (max(wl.issue_updated) IS NULL AND COUNT(wl.worklog_id) > 0))", collectorWithState.Since))
+
+	isIncreamtal := collectorWithState.IsIncreamtal
+	if isIncreamtal {
+		clauses = append(clauses, dal.Having("i.updated > ? AND (i.updated > max(wl.issue_updated) OR (max(wl.issue_updated) IS NULL AND COUNT(wl.worklog_id) > 0))", collectorWithState.Since))
+	} else {
+		/*
+			i.updated > max(rl.issue_updated) was deleted because for non-incremental collection,
+			max(rl.issue_updated) will only be one of null, less or equal to i.updated
+			so i.updated > max(rl.issue_updated) is always false.
+			max(c.issue_updated) IS NULL AND COUNT(c.worklog_id) > 0 infers the issue has more than 100 worklogs,
+			because we collected worklogs when collecting issues, and assign worklog.issue_updated if num of worklogs < 100,
+			and max(c.issue_updated) IS NULL AND COUNT(c.worklog_id) > 0 means all worklogs for the issue were not assigned issue_updated
+		*/
+		clauses = append(clauses, dal.Having("max(wl.issue_updated) IS NULL AND COUNT(wl.worklog_id) > 0"))
+	}
 
 	// construct the input iterator
 	cursor, err := db.Cursor(clauses...)
