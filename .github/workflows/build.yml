@@ -115,7 +115,7 @@ jobs:
             TAG=${{ github.ref_name }}
             SHA=${{ steps.get_short_sha.outputs.SHORT_SHA }}
   get-pr-number:
-#    if: ${{ github.ref_type != 'tag' }}
+    if: ${{ github.ref_type != 'tag' }}
     name: Get pr number and build timestamp
     runs-on: ubuntu-latest
     outputs:
