@@ -71,7 +71,7 @@ export const ScopeConfigSelect = ({ plugin, connectionId, scopeConfigId, onCance
 
   return (
     <S.Wrapper>
-      <Buttons>
+      <Buttons position="top">
         <Button icon="add" intent={Intent.PRIMARY} text="Add New Scope Config" onClick={handleShowDialog} />
       </Buttons>
       <Table
