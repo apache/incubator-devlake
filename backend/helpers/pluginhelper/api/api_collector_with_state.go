@@ -86,11 +86,13 @@ func NewStatefulApiCollector(args RawDataSubTaskArgs) (*ApiCollectorStateManager
 		isIncreamtal = false
 		since = syncPolicy.TimeAfter
 	} else if syncPolicy.TimeAfter != nil {
-		// 4. If syncPolicy.TimeAfter is not nil, compare with old oldState.TimeAfter
-		if oldTimeAfter == nil || !syncPolicy.TimeAfter.Before(*oldTimeAfter) {
+		// 4. If syncPolicy.TimeAfter not nil
+		if oldTimeAfter != nil && syncPolicy.TimeAfter.Before(*oldTimeAfter) {
+			// 4.1 If oldTimeAfter not nil and syncPolicy.TimeAfter before oldTimeAfter, incremental is false and since is syncPolicy.TimeAfter
 			isIncreamtal = false
 			since = syncPolicy.TimeAfter
 		} else {
+			// 4.2 If oldTimeAfter nil or syncPolicy.TimeAfter after oldTimeAfter, incremental is true and since is oldState.LatestSuccessStart
 			isIncreamtal = true
 			since = oldLatestSuccessStart
 		}
