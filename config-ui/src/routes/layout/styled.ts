@@ -53,7 +53,7 @@ export const Sider = styled.div`
         background-color: rgba(167, 182, 194, 0.3);
       }
 
-      .bp4-icon {
+      .bp5-icon {
         svg {
           width: 12px;
           height: 12px;
@@ -138,7 +138,7 @@ export const Tips = styled.div`
     justify-content: center;
   }
 
-  .bp4-popover2-target {
+  .bp5-popover2-target {
     flex: 0 0 50px;
     width: 50px;
   }
@@ -148,7 +148,7 @@ export const SiderMenuItem = styled.div`
   display: flex;
   align-items: center;
 
-  & > .bp4-tag {
+  & > .bp5-tag {
     margin-left: 8px;
   }
 `;

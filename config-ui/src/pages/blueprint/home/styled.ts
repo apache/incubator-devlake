@@ -28,7 +28,7 @@ export const Wrapper = styled.div`
 `;
 
 export const DialogWrapper = styled.div`
-  .bp4-form-group + .bp4-form-group {
+  .bp5-form-group + .bp5-form-group {
     margin-top: 40px;
     margin-bottom: 0;
   }

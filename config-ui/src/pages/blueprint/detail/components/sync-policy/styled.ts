@@ -45,15 +45,15 @@ export const Input = styled.div`
   display: flex;
   align-items: center;
 
-  .bp4-form-group {
+  .bp5-form-group {
     margin-bottom: 4px;
   }
 
-  .bp4-form-group + .bp4-form-group {
+  .bp5-form-group + .bp5-form-group {
     margin-left: 8px;
   }
 
-  .bp4-input {
+  .bp5-input {
     width: 60px;
   }
 `;

@@ -16,33 +16,67 @@
  *
  */
 
-import { useState } from 'react';
-
-import { DataScopeMillerColumns } from '@/plugins';
-
-import * as API from '@/plugins/components/data-scope-miller-columns/api';
+import { useEffect, useState } from 'react';
 import { Button, ControlGroup, InputGroup, Intent } from '@blueprintjs/core';
-import { ExternalLink } from '@/components';
+import type { McsID, McsItem } from 'miller-columns-select';
+import MillerColumnsSelect from 'miller-columns-select';
+
+import { ExternalLink, Loading } from '@/components';
+import * as T from '@/plugins/components/data-scope-select-remote/types';
+import * as API from '@/plugins/components/data-scope-select-remote/api';
+
+import { prepareToken } from './api';
 
 interface Props {
   connectionId: ID;
-  disabledItems?: any[];
-  selectedItems: any[];
-  onChangeItems: (selectedItems: any[]) => void;
+  disabledItems: T.ResItem[];
+  selectedItems: T.ResItem[];
+  onChangeSelectedItems: (items: T.ResItem[]) => void;
 }
 
-export const DataScope = ({ connectionId, disabledItems, selectedItems, onChangeItems }: Props) => {
+export const DataScope = ({ connectionId, disabledItems, selectedItems, onChangeSelectedItems }: Props) => {
   const [pageToken, setPageToken] = useState<string | undefined>(undefined);
   const [companyId, setCompanyId] = useState<string>(
     localStorage.getItem(`plugin/tapd/connections/${connectionId}/company_id`) || '',
   );
+
+  const [miller, setMiller] = useState<{
+    items: McsItem<T.ResItem>[];
+    loadedIds: ID[];
+  }>({
+    items: [],
+    loadedIds: [],
+  });
+
+  useEffect(() => {
+    if (!pageToken) return;
+    getItems(null, pageToken);
+  }, [pageToken]);
+
+  const getItems = async (groupId: ID | null, currentPageToken?: string) => {
+    const res = await API.getRemoteScope('tapd', connectionId, {
+      groupId,
+      pageToken: currentPageToken,
+    });
+
+    const newItems = (res.children ?? []).map((it) => ({
+      ...it,
+      title: it.name,
+    }));
+
+    setMiller((m) => ({
+      ...m,
+      items: [...m.items, ...newItems],
+      loadedIds: [...m.loadedIds, groupId ? groupId : 'root'],
+    }));
+  };
 
   const getPageToken = async (companyId: string | undefined) => {
     if (!companyId) {
       setPageToken(undefined);
       return;
     }
-    const res = await API.prepareToken(`tapd`, connectionId, {
+    const res = await prepareToken(connectionId, {
       companyId,
     });
     setPageToken(res.pageToken);
@@ -72,14 +106,20 @@ export const DataScope = ({ connectionId, disabledItems, selectedItems, onChange
       </ControlGroup>
 
       {pageToken && (
-        <DataScopeMillerColumns
-          key={pageToken}
-          plugin="tapd"
-          connectionId={connectionId}
-          disabledItems={disabledItems}
-          selectedItems={selectedItems}
-          onChangeItems={onChangeItems}
-          pageToken={pageToken}
+        <MillerColumnsSelect
+          items={miller.items}
+          getCanExpand={(it) => it.type === 'group'}
+          getHasMore={(id) => !miller.loadedIds.includes(id ?? 'root')}
+          onExpand={(id: McsID) => getItems(id, pageToken)}
+          onScroll={(id: McsID | null) => getItems(id, pageToken)}
+          columnCount={2.5}
+          columnHeight={300}
+          renderLoading={() => <Loading size={20} style={{ padding: '4px 12px' }} />}
+          disabledIds={(disabledItems ?? []).map((it) => it.id)}
+          selectedIds={selectedItems.map((it) => it.id)}
+          onSelectItemIds={(selectedIds: ID[]) =>
+            onChangeSelectedItems(miller.items.filter((it) => selectedIds.includes(it.id)))
+          }
         />
       )}
     </>

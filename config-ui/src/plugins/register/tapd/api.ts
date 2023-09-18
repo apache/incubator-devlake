@@ -31,3 +31,9 @@ export const getStatus = (prefix: string, workspaceId: ID, system: string) =>
 
 export const getStoryType = (prefix: string, workspaceId: ID) =>
   request(`${prefix}/story_categories?workspace_id=${workspaceId}`);
+
+export const prepareToken = (connectionId: ID, params: object) =>
+  request(`/plugins/tapd/connections/${connectionId}/remote-scopes-prepare-token`, {
+    method: 'get',
+    data: params,
+  });

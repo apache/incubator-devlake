@@ -18,7 +18,7 @@
 
 import styled from 'styled-components';
 
-const Wrapper = styled.div<{ position: 'top' | 'bottom'; align: 'left' | 'right' | 'center' }>`
+const Wrapper = styled.div<{ position?: 'top' | 'bottom'; align: 'left' | 'right' | 'center' }>`
   display: flex;
   align-items: center;
 
@@ -46,7 +46,7 @@ const Wrapper = styled.div<{ position: 'top' | 'bottom'; align: 'left' | 'right'
     }
   }}
 
-  .bp4-button + .bp4-button {
+  .bp5-button + .bp5-button {
     margin-left: 8px;
   }
 `;
@@ -58,7 +58,7 @@ interface Props {
   children: React.ReactNode;
 }
 
-export const Buttons = ({ style, position = 'top', align = 'left', children }: Props) => {
+export const Buttons = ({ style, position, align = 'left', children }: Props) => {
   return (
     <Wrapper style={style} position={position} align={align}>
       {children}

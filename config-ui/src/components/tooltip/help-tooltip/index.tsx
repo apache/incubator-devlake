@@ -23,10 +23,10 @@ import styled from 'styled-components';
 const Wrapper = styled.span`
   margin-left: 4px;
 
-  & > .bp4-popover2-target {
+  & > .bp5-popover2-target {
     display: inline-block !important;
 
-    .bp4-icon {
+    .bp5-icon {
       display: block;
       cursor: pointer;
     }

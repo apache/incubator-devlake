@@ -34,7 +34,7 @@ export const searchRemoteScope = (
   plugin: string,
   connectionId: ID,
   params: T.SearchRemoteScopeParams,
-): Promise<{ children: T.ResItem[] }> =>
+): Promise<{ children: T.ResItem[]; count: number }> =>
   request(`/plugins/${plugin}/connections/${connectionId}/search-remote-scopes`, {
     method: 'get',
     data: params,
