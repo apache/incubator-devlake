@@ -192,7 +192,7 @@ export const ConfigurationPanel = ({ from, blueprint, onRefresh, onChangeTab }: 
             />
           ) : (
             <>
-              <Buttons>
+              <Buttons position="top">
                 <Button
                   intent={Intent.PRIMARY}
                   icon="add"

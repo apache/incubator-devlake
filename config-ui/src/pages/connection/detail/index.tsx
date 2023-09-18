@@ -237,20 +237,18 @@ const ConnectionDetail = ({ plugin, connectionId }: Props) => {
       ]}
       extra={
         <S.PageHeaderExtra>
-          <div className="status">
-            <span style={{ marginRight: 4 }}>Status:</span>
-            <ConnectionStatus status={status} unique={unique} onTest={onTest} />
-          </div>
-          <div className="btns">
+          <span style={{ marginRight: 4 }}>Status:</span>
+          <ConnectionStatus status={status} unique={unique} onTest={onTest} />
+          <Buttons style={{ marginLeft: 8 }}>
             <Button outlined intent={Intent.PRIMARY} icon="annotation" text="Edit" onClick={handleShowUpdateDialog} />
             <Button intent={Intent.DANGER} icon="trash" text="Delete" onClick={handleShowDeleteDialog} />
-          </div>
+          </Buttons>
         </S.PageHeaderExtra>
       }
     >
       <S.Wrapper>
         <div className="top">Please note: In order to view DORA metrics, you will need to add Scope Configs.</div>
-        <Buttons>
+        <Buttons position="top">
           <Button intent={Intent.PRIMARY} icon="add" text="Add Data Scope" onClick={handleShowCreateDataScopeDialog} />
           {plugin !== 'tapd' && pluginConfig.scopeConfig && (
             <Button

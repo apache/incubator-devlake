@@ -55,9 +55,9 @@ export const PipelineInfo = ({ id }: Props) => {
       setOperating,
     });
 
-    //   if (success) {
-    //     setVersion((v) => v + 1);
-    //   }
+    if (success) {
+      // setVersion((v) => v + 1);
+    }
   };
 
   const handleRerun = async () => {
@@ -65,9 +65,9 @@ export const PipelineInfo = ({ id }: Props) => {
       setOperating,
     });
 
-    // if (success) {
-    //   setVersion((v) => v + 1);
-    // }
+    if (success) {
+      // setVersion((v) => v + 1);
+    }
   };
 
   if (!data) {
