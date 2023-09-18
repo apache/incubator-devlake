@@ -85,7 +85,9 @@ func GetMergeRequestDetailsIterator(taskCtx plugin.SubTaskContext, collectorWith
 			data.Options.ProjectId, data.Options.ConnectionId, true,
 		),
 	}
-	clauses = append(clauses, dal.Where("gitlab_updated_at > ?", *collectorWithState.Since))
+	if collectorWithState.Since != nil {
+		clauses = append(clauses, dal.Where("gitlab_updated_at > ?", *collectorWithState.Since))
+	}
 
 	// construct the input iterator
 	cursor, err := db.Cursor(clauses...)

@@ -62,7 +62,9 @@ func CollectApiPipelines(taskCtx plugin.SubTaskContext) errors.Error {
 		UrlTemplate:        "projects/{{ .Params.ProjectId }}/pipelines",
 		Query: func(reqData *helper.RequestData) (url.Values, errors.Error) {
 			query := url.Values{}
-			query.Set("updated_after", collectorWithState.Since.Format(time.RFC3339))
+			if collectorWithState.Since != nil {
+				query.Set("updated_after", collectorWithState.Since.Format(time.RFC3339))
+			}
 			query.Set("with_stats", "true")
 			query.Set("sort", "asc")
 			query.Set("page", fmt.Sprintf("%v", reqData.Pager.Page))

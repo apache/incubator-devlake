@@ -59,7 +59,9 @@ func CollectApiMergeRequests(taskCtx plugin.SubTaskContext) errors.Error {
 			if err != nil {
 				return nil, err
 			}
-			query.Set("updated_after", collectorWithState.Since.Format(time.RFC3339))
+			if collectorWithState.Since != nil {
+				query.Set("updated_after", collectorWithState.Since.Format(time.RFC3339))
+			}
 			return query, nil
 		},
 	})

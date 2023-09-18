@@ -49,7 +49,9 @@ func CollectWorklogs(taskCtx plugin.SubTaskContext) errors.Error {
 			query.Set("page", fmt.Sprintf("%v", reqData.Pager.Page))
 			query.Set("limit", fmt.Sprintf("%v", reqData.Pager.Size))
 			query.Set("order", "created asc")
-			query.Set("modified", fmt.Sprintf(">%s", collectorWithState.Since.In(data.Options.CstZone).Format("2006-01-02")))
+			if collectorWithState.Since != nil {
+				query.Set("modified", fmt.Sprintf(">%s", collectorWithState.Since.In(data.Options.CstZone).Format("2006-01-02")))
+			}
 			return query, nil
 		},
 		ResponseParser: GetRawMessageArrayFromResponse,

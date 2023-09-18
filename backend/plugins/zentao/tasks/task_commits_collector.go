@@ -64,8 +64,9 @@ func CollectTaskCommits(taskCtx plugin.SubTaskContext) errors.Error {
 			data.Options.ProjectId, data.Options.ConnectionId,
 		),
 	}
-	clauses = append(clauses, dal.Where("last_edited_date is not null and last_edited_date > ?", collectorWithState.Since))
-
+	if collectorWithState.IsIncreamtal && collectorWithState.Since != nil {
+		clauses = append(clauses, dal.Where("last_edited_date is not null and last_edited_date > ?", collectorWithState.Since))
+	}
 	cursor, err := db.Cursor(clauses...)
 	if err != nil {
 		return err

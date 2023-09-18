@@ -117,7 +117,10 @@ func CollectIssue(taskCtx plugin.SubTaskContext) errors.Error {
 			if reqData == nil {
 				return query, map[string]interface{}{}, nil
 			}
-			since := helper.DateTime{Time: *collectorWithState.Since}
+			since := helper.DateTime{}
+			if collectorWithState.Since != nil {
+				since = helper.DateTime{Time: *collectorWithState.Since}
+			}
 			ownerName := strings.Split(data.Options.Name, "/")
 			variables := map[string]interface{}{
 				"since":      since,

@@ -73,8 +73,9 @@ func CollectJobs(taskCtx plugin.SubTaskContext) errors.Error {
 			data.Options.GithubId, data.Options.ConnectionId,
 		),
 	}
-	clauses = append(clauses, dal.Where("github_updated_at > ?", collectorWithState.Since))
-
+	if collectorWithState.IsIncreamtal && collectorWithState.Since != nil {
+		clauses = append(clauses, dal.Where("github_updated_at > ?", collectorWithState.Since))
+	}
 	cursor, err := db.Cursor(clauses...)
 	if err != nil {
 		return err

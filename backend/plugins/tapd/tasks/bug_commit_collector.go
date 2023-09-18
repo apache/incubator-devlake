@@ -50,8 +50,9 @@ func CollectBugCommits(taskCtx plugin.SubTaskContext) errors.Error {
 		dal.From(&models.TapdBug{}),
 		dal.Where("_tool_tapd_bugs.connection_id = ? and _tool_tapd_bugs.workspace_id = ? ", data.Options.ConnectionId, data.Options.WorkspaceId),
 	}
-	clauses = append(clauses, dal.Where("modified > ?", *collectorWithState.Since))
-
+	if collectorWithState.Since != nil {
+		clauses = append(clauses, dal.Where("modified > ?", *collectorWithState.Since))
+	}
 	cursor, err := db.Cursor(clauses...)
 	if err != nil {
 		return err

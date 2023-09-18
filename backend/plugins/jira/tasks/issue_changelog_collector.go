@@ -71,7 +71,9 @@ func CollectIssueChangelogs(taskCtx plugin.SubTaskContext) errors.Error {
 		dal.Join("LEFT JOIN _tool_jira_issues i ON (bi.connection_id = i.connection_id AND bi.issue_id = i.issue_id)"),
 		dal.Where("bi.connection_id=? and bi.board_id = ? AND i.std_type != ? and i.changelog_total > 100", data.Options.ConnectionId, data.Options.BoardId, "Epic"),
 	}
-	clauses = append(clauses, dal.Where("i.updated > ?", collectorWithState.Since))
+	if collectorWithState.IsIncreamtal && collectorWithState.Since != nil {
+		clauses = append(clauses, dal.Where("i.updated > ?", collectorWithState.Since))
+	}
 
 	if logger.IsLevelEnabled(log.LOG_DEBUG) {
 		count, err := db.Count(clauses...)

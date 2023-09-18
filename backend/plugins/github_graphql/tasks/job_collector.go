@@ -122,7 +122,9 @@ func CollectGraphqlJobs(taskCtx plugin.SubTaskContext) errors.Error {
 		dal.Where("repo_id = ? and connection_id=?", data.Options.GithubId, data.Options.ConnectionId),
 		dal.Orderby("github_updated_at DESC"),
 	}
-	clauses = append(clauses, dal.Where("github_updated_at > ?", *collectorWithState.Since))
+	if collectorWithState.IsIncreamtal && collectorWithState.Since != nil {
+		clauses = append(clauses, dal.Where("github_updated_at > ?", *collectorWithState.Since))
+	}
 
 	cursor, err := db.Cursor(
 		clauses...,

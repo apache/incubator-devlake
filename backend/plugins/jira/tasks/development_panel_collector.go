@@ -72,8 +72,9 @@ func CollectDevelopmentPanel(taskCtx plugin.SubTaskContext) errors.Error {
 		dal.Join("LEFT JOIN _tool_jira_issues i ON (bi.connection_id = i.connection_id AND bi.issue_id = i.issue_id)"),
 		dal.Where("bi.connection_id=? and bi.board_id = ?", data.Options.ConnectionId, data.Options.BoardId),
 	}
-
-	clauses = append(clauses, dal.Where("i.updated > ?", collectorWithState.Since))
+	if collectorWithState.IsIncreamtal && collectorWithState.Since != nil {
+		clauses = append(clauses, dal.Where("i.updated > ?", collectorWithState.Since))
+	}
 	cursor, err := db.Cursor(clauses...)
 	if err != nil {
 		logger.Error(err, "collect development panel error")

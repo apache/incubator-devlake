@@ -74,7 +74,9 @@ func CollectPrReviewComments(taskCtx plugin.SubTaskContext) errors.Error {
 		UrlTemplate: "repos/{{ .Params.Name }}/pulls/comments",
 		Query: func(reqData *helper.RequestData) (url.Values, errors.Error) {
 			query := url.Values{}
-			query.Set("since", collectorWithState.Since.String())
+			if collectorWithState.Since != nil {
+				query.Set("since", collectorWithState.Since.String())
+			}
 			query.Set("page", fmt.Sprintf("%v", reqData.Pager.Page))
 			query.Set("direction", "asc")
 			query.Set("per_page", fmt.Sprintf("%v", reqData.Pager.Size))

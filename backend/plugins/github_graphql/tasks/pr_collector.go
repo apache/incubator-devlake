@@ -192,7 +192,7 @@ func CollectPr(taskCtx plugin.SubTaskContext) errors.Error {
 			isFinish := false
 			for _, rawL := range prs {
 				// collect data even though in increment mode because of updating existing data
-				if collectorWithState.LatestState.TimeAfter != nil && !collectorWithState.LatestState.TimeAfter.Before(rawL.UpdatedAt) {
+				if collectorWithState.Since != nil && !collectorWithState.Since.Before(rawL.UpdatedAt) {
 					isFinish = true
 					break
 				}

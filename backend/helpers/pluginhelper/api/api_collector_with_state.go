@@ -37,7 +37,7 @@ type ApiCollectorStateManager struct {
 	// *GraphqlCollector
 	subtasks     []plugin.SubTask
 	LatestState  models.CollectorLatestState
-	NewState     models.CollectorLatestState
+	newState     models.CollectorLatestState
 	IsIncreamtal bool
 	Since        *time.Time
 }
@@ -68,36 +68,28 @@ func NewStatefulApiCollector(args RawDataSubTaskArgs) (*ApiCollectorStateManager
 	oldTimeAfter := oldState.TimeAfter
 	oldLatestSuccessStart := oldState.LatestSuccessStart
 
-	// Get syncPolicy timeAfter and fullSync from context
-	var newTimeAfter *time.Time
-	var fullSync bool
-	syncPolicy := args.Ctx.TaskContext().SyncPolicy()
-	if syncPolicy != nil && syncPolicy.TimeAfter != nil {
-		newTimeAfter = syncPolicy.TimeAfter
-		fullSync = syncPolicy.FullSync
-	}
-
 	// Calculate incremental and since based on syncPolicy and old state
+	syncPolicy := args.Ctx.TaskContext().SyncPolicy()
 	var isIncreamtal bool
 	var since *time.Time
 
-	if oldLatestSuccessStart == nil {
-		// 1. If no oldState.LatestSuccessStart, not incremental and since is syncPolicy.TimeAfter
-		isIncreamtal = false
-		since = newTimeAfter
-	} else if syncPolicy == nil {
-		// 2. If no syncPolicy, incremental and since is oldState.LatestSuccessStart
+	if syncPolicy == nil {
+		// 1. If no syncPolicy, incremental and since is oldState.LatestSuccessStart
 		isIncreamtal = true
 		since = oldLatestSuccessStart
-	} else if fullSync {
+	} else if oldLatestSuccessStart == nil {
+		// 2. If no oldState.LatestSuccessStart, not incremental and since is syncPolicy.TimeAfter
+		isIncreamtal = false
+		since = syncPolicy.TimeAfter
+	} else if syncPolicy.FullSync {
 		// 3. If fullSync true, not incremental and since is syncPolicy.TimeAfter
 		isIncreamtal = false
-		since = newTimeAfter
-	} else if newTimeAfter != nil {
+		since = syncPolicy.TimeAfter
+	} else if syncPolicy.TimeAfter != nil {
 		// 4. If syncPolicy.TimeAfter is not nil, compare with old oldState.TimeAfter
-		if oldTimeAfter == nil || !newTimeAfter.Before(*oldTimeAfter) {
+		if oldTimeAfter == nil || !syncPolicy.TimeAfter.Before(*oldTimeAfter) {
 			isIncreamtal = false
-			since = newTimeAfter
+			since = syncPolicy.TimeAfter
 		} else {
 			isIncreamtal = true
 			since = oldLatestSuccessStart
@@ -106,11 +98,11 @@ func NewStatefulApiCollector(args RawDataSubTaskArgs) (*ApiCollectorStateManager
 
 	currentTime := time.Now()
 	oldState.LatestSuccessStart = &currentTime
-	oldState.TimeAfter = newTimeAfter
+	oldState.TimeAfter = syncPolicy.TimeAfter
 
 	return &ApiCollectorStateManager{
 		RawDataSubTaskArgs: args,
-		NewState:           oldState,
+		newState:           oldState,
 		IsIncreamtal:       isIncreamtal,
 		Since:              since,
 	}, nil
@@ -150,7 +142,7 @@ func (m *ApiCollectorStateManager) Execute() errors.Error {
 	}
 
 	db := m.Ctx.GetDal()
-	return db.CreateOrUpdate(&m.NewState)
+	return db.CreateOrUpdate(&m.newState)
 }
 
 // NewStatefulApiCollectorForFinalizableEntity aims to add timeFilter/diffSync support for

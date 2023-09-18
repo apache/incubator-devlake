@@ -159,8 +159,8 @@ func GetMergeRequestsIterator(taskCtx plugin.SubTaskContext, collectorWithState 
 		),
 	}
 	if collectorWithState != nil {
-		if collectorWithState.LatestState.LatestSuccessStart != nil {
-			clauses = append(clauses, dal.Where("gitlab_updated_at > ?", *collectorWithState.LatestState.LatestSuccessStart))
+		if collectorWithState.Since != nil {
+			clauses = append(clauses, dal.Where("gitlab_updated_at > ?", *collectorWithState.Since))
 		}
 	}
 	// construct the input iterator
