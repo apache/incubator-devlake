@@ -47,7 +47,7 @@ func (b *BambooDeployEnvironment) Convert(apiEnv *ApiBambooEnvironment) {
 }
 
 func (BambooDeployEnvironment) TableName() string {
-	return "_tool_bamboo_deploy_environment"
+	return "_tool_bamboo_deploy_environments"
 }
 
 type ApiBambooEnvironment struct {
