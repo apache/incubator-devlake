@@ -92,9 +92,9 @@ export const PipelineTask = ({ task }: Props) => {
       setOperating,
     });
 
-    // if (success) {
-    //   setVersion((v) => v + 1);
-    // }
+    if (success) {
+      //   setVersion((v) => v + 1);
+    }
   };
 
   return (
