@@ -36,7 +36,6 @@ type ApiCollectorStateManager struct {
 	// *ApiCollector
 	// *GraphqlCollector
 	subtasks     []plugin.SubTask
-	LatestState  models.CollectorLatestState
 	newState     models.CollectorLatestState
 	IsIncreamtal bool
 	Since        *time.Time
