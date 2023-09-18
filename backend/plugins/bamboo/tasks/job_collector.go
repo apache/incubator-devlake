@@ -28,7 +28,7 @@ import (
 	"net/url"
 )
 
-const RAW_JOB_TABLE = "bamboo_api_job"
+const RAW_JOB_TABLE = "bamboo_api_jobs"
 
 var _ plugin.SubTaskEntryPoint = CollectJob
 
