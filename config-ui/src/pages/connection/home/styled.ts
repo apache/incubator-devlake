@@ -75,7 +75,7 @@ export const Wrapper = styled.div`
       }
     }
 
-    & > .bp4-tag {
+    & > .bp5-tag {
       position: absolute;
       top: 0;
       right: 0;
