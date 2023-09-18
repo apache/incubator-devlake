@@ -39,7 +39,7 @@ export const TH = styled.th`
   font-weight: 400;
   border-bottom: 1px solid #dbdcdf;
 
-  label.bp4-control {
+  label.bp5-control {
     margin-bottom: 0;
   }
 `;
@@ -49,7 +49,7 @@ export const TD = styled.td`
   border-bottom: 1px solid #dbdcdf;
   word-break: break-word;
 
-  label.bp4-control {
+  label.bp5-control {
     margin-bottom: 0;
   }
 `;

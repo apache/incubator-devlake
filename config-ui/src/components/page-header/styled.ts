@@ -35,6 +35,8 @@ export const Breadcrumbs = styled.ul`
 `;
 
 export const Breadcrumb = styled.li`
+  display: flex;
+  align-items: center;
   font-size: 24px;
   font-weight: 600;
 
@@ -43,7 +45,7 @@ export const Breadcrumb = styled.li`
     align-items: center;
     color: #292b3f;
 
-    .bp4-icon {
+    .bp5-icon {
       margin: 0 10px;
     }
   }

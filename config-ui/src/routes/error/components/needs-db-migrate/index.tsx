@@ -17,10 +17,10 @@
  */
 
 import { useState } from 'react';
-import { Icon, ButtonGroup, Button, Colors, Intent } from '@blueprintjs/core';
+import { Icon, Button, Colors, Intent } from '@blueprintjs/core';
 import { useNavigate } from 'react-router-dom';
 
-import { Card } from '@/components';
+import { Card, Buttons } from '@/components';
 import { operator } from '@/utils';
 
 import * as API from './api';
@@ -53,14 +53,14 @@ export const NeedsDBMigrate = () => {
       <p className="warning">
         Warning: Performing migration may wipe collected data for consistency and re-collecting data may be required.
       </p>
-      <ButtonGroup>
+      <Buttons position="bottom" align="center">
         <Button
           loading={operating}
           text="Proceed to Database Migration"
           intent={Intent.PRIMARY}
           onClick={handleSubmit}
         />
-      </ButtonGroup>
+      </Buttons>
     </Card>
   );
 };

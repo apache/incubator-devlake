@@ -19,7 +19,7 @@
 import styled from 'styled-components';
 
 export const Wrapper = styled.div`
-  & > .bp4-tabs > .bp4-tab-list {
+  & > .bp5-tabs > .bp5-tab-list {
     display: flex;
     justify-content: center;
   }
@@ -29,7 +29,7 @@ export const DialogBody = styled.div`
   display: flex;
   align-items: center;
 
-  .bp4-icon {
+  .bp5-icon {
     margin-right: 8px;
     color: #f4be55;
   }

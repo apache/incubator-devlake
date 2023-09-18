@@ -30,7 +30,7 @@ export const Wrapper = styled.div`
     font-weight: 600;
     color: ${Colors.GREEN5};
 
-    .bp4-icon {
+    .bp5-icon {
       margin-right: 8px;
     }
   }

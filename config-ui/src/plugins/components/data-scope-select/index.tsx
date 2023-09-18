@@ -131,7 +131,7 @@ export const DataScopeSelect = ({
               }
             />
           ) : (
-            <Buttons>
+            <Buttons position="top">
               <Button intent={Intent.PRIMARY} icon="refresh" text="Refresh Data Scope" />
             </Buttons>
           )}
