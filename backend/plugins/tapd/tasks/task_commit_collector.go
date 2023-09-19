@@ -44,17 +44,13 @@ func CollectTaskCommits(taskCtx plugin.SubTaskContext) errors.Error {
 	}
 	logger := taskCtx.GetLogger()
 	logger.Info("collect issueCommits")
-	incremental := collectorWithState.IsIncremental()
 	clauses := []dal.Clause{
 		dal.Select("_tool_tapd_tasks.id as issue_id, modified as update_time"),
 		dal.From(&models.TapdTask{}),
 		dal.Where("_tool_tapd_tasks.connection_id = ? and _tool_tapd_tasks.workspace_id = ? ", data.Options.ConnectionId, data.Options.WorkspaceId),
 	}
-	if collectorWithState.TimeAfter != nil {
-		clauses = append(clauses, dal.Where("modified > ?", *collectorWithState.TimeAfter))
-	}
-	if incremental {
-		clauses = append(clauses, dal.Where("modified > ?", *collectorWithState.LatestState.LatestSuccessStart))
+	if collectorWithState.Since != nil {
+		clauses = append(clauses, dal.Where("modified > ?", *collectorWithState.Since))
 	}
 	cursor, err := db.Cursor(clauses...)
 	if err != nil {
@@ -66,7 +62,6 @@ func CollectTaskCommits(taskCtx plugin.SubTaskContext) errors.Error {
 	}
 	err = collectorWithState.InitCollector(api.ApiCollectorArgs{
 		ApiClient:   data.ApiClient,
-		Incremental: incremental,
 		Input:       iterator,
 		UrlTemplate: "code_commit_infos",
 		Query: func(reqData *api.RequestData) (url.Values, errors.Error) {

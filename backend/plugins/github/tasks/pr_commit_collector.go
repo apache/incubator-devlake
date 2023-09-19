@@ -73,20 +73,18 @@ func CollectApiPullRequestCommits(taskCtx plugin.SubTaskContext) errors.Error {
 		return err
 	}
 
-	incremental := collectorWithState.IsIncremental()
-
 	clauses := []dal.Clause{
 		dal.Select("number, github_id"),
 		dal.From(models.GithubPullRequest{}.TableName()),
 		dal.Where("repo_id = ? and connection_id=?", data.Options.GithubId, data.Options.ConnectionId),
 	}
-	// incremental collection, no need to care about the timeFilter since it has to be collected by PR
-	if incremental {
+	if collectorWithState.IsIncreamtal && collectorWithState.Since != nil {
 		clauses = append(
 			clauses,
-			dal.Where("github_updated_at > ?", collectorWithState.LatestState.LatestSuccessStart),
+			dal.Where("github_updated_at > ?", collectorWithState.Since),
 		)
 	}
+
 	cursor, err := db.Cursor(
 		clauses...,
 	)
@@ -98,10 +96,9 @@ func CollectApiPullRequestCommits(taskCtx plugin.SubTaskContext) errors.Error {
 		return err
 	}
 	err = collectorWithState.InitCollector(helper.ApiCollectorArgs{
-		ApiClient:   data.ApiClient,
-		PageSize:    100,
-		Incremental: incremental,
-		Input:       iterator,
+		ApiClient: data.ApiClient,
+		PageSize:  100,
+		Input:     iterator,
 
 		UrlTemplate: "repos/{{ .Params.Name }}/pulls/{{ .Input.Number }}/commits",
 

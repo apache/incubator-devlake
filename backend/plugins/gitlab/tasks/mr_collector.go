@@ -48,11 +48,9 @@ func CollectApiMergeRequests(taskCtx plugin.SubTaskContext) errors.Error {
 		return err
 	}
 
-	incremental := collectorWithState.IsIncremental()
 	err = collectorWithState.InitCollector(helper.ApiCollectorArgs{
 		ApiClient:      data.ApiClient,
 		PageSize:       100,
-		Incremental:    incremental,
 		UrlTemplate:    "projects/{{ .Params.ProjectId }}/merge_requests",
 		GetTotalPages:  GetTotalPagesFromResponse,
 		ResponseParser: GetRawMessageFromResponse,
@@ -61,11 +59,8 @@ func CollectApiMergeRequests(taskCtx plugin.SubTaskContext) errors.Error {
 			if err != nil {
 				return nil, err
 			}
-			if collectorWithState.TimeAfter != nil {
-				query.Set("updated_after", collectorWithState.TimeAfter.Format(time.RFC3339))
-			}
-			if incremental {
-				query.Set("updated_after", collectorWithState.LatestState.LatestSuccessStart.Format(time.RFC3339))
+			if collectorWithState.Since != nil {
+				query.Set("updated_after", collectorWithState.Since.Format(time.RFC3339))
 			}
 			return query, nil
 		},

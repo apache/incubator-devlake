@@ -53,21 +53,17 @@ func CollectApiPipelines(taskCtx plugin.SubTaskContext) errors.Error {
 	if err != nil {
 		return err
 	}
-	incremental := collectorWithState.IsIncremental()
+
 	err = collectorWithState.InitCollector(helper.ApiCollectorArgs{
 		RawDataSubTaskArgs: *rawDataSubTaskArgs,
 		ApiClient:          data.ApiClient,
 		MinTickInterval:    &tickInterval,
 		PageSize:           100,
-		Incremental:        incremental,
 		UrlTemplate:        "projects/{{ .Params.ProjectId }}/pipelines",
 		Query: func(reqData *helper.RequestData) (url.Values, errors.Error) {
 			query := url.Values{}
-			if collectorWithState.TimeAfter != nil {
-				query.Set("updated_after", collectorWithState.TimeAfter.Format(time.RFC3339))
-			}
-			if incremental {
-				query.Set("updated_after", collectorWithState.LatestState.LatestSuccessStart.Format(time.RFC3339))
+			if collectorWithState.Since != nil {
+				query.Set("updated_after", collectorWithState.Since.Format(time.RFC3339))
 			}
 			query.Set("with_stats", "true")
 			query.Set("sort", "asc")

@@ -67,12 +67,9 @@ func CollectApiStages(taskCtx plugin.SubTaskContext) errors.Error {
 		dal.Where(`tjb.connection_id = ? and tjb.job_path = ? and tjb.job_name = ? and tjb.class = ?`,
 			data.Options.ConnectionId, data.Options.JobPath, data.Options.JobName, "WorkflowRun"),
 	}
-
-	incremental := collectorWithState.IsIncremental()
-	if incremental && collectorWithState.LatestState.LatestSuccessStart != nil {
-		clauses = append(clauses, dal.Where(`tjb.start_time >= ?`, collectorWithState.LatestState.LatestSuccessStart))
+	if collectorWithState.IsIncreamtal && collectorWithState.Since != nil {
+		clauses = append(clauses, dal.Where(`tjb.start_time >= ?`, collectorWithState.Since))
 	}
-
 	cursor, err := db.Cursor(clauses...)
 	if err != nil {
 		return err

@@ -101,14 +101,10 @@ func GetQueryCreatedAndUpdated(fields string, collectorWithState *api.ApiCollect
 		}
 		query.Set("fields", fields)
 		query.Set("sort", "created_on")
-		if collectorWithState.IsIncremental() {
-			latestSuccessStart := collectorWithState.LatestState.LatestSuccessStart.Format(time.RFC3339)
-			query.Set("q", fmt.Sprintf("updated_on>=%s", latestSuccessStart))
-		} else if collectorWithState.TimeAfter != nil {
-			timeAfter := collectorWithState.TimeAfter.Format(time.RFC3339)
-			query.Set("q", fmt.Sprintf("updated_on>=%s", timeAfter))
-		}
 
+		if collectorWithState.Since != nil {
+			query.Set("q", fmt.Sprintf("updated_on>=%s", collectorWithState.Since.Format(time.RFC3339)))
+		}
 		return query, nil
 	}
 }
@@ -179,9 +175,10 @@ func GetPullRequestsIterator(taskCtx plugin.SubTaskContext, collectorWithState *
 			data.Options.FullName, data.Options.ConnectionId,
 		),
 	}
-	if collectorWithState.IsIncremental() {
-		clauses = append(clauses, dal.Where("bitbucket_updated_at > ?", *collectorWithState.LatestState.LatestSuccessStart))
+	if collectorWithState.IsIncreamtal && collectorWithState.Since != nil {
+		clauses = append(clauses, dal.Where("bitbucket_updated_at > ?", *collectorWithState.Since))
 	}
+
 	// construct the input iterator
 	cursor, err := db.Cursor(clauses...)
 	if err != nil {
@@ -202,8 +199,8 @@ func GetIssuesIterator(taskCtx plugin.SubTaskContext, collectorWithState *api.Ap
 			data.Options.FullName, data.Options.ConnectionId,
 		),
 	}
-	if collectorWithState.IsIncremental() {
-		clauses = append(clauses, dal.Where("bitbucket_updated_at > ?", *collectorWithState.LatestState.LatestSuccessStart))
+	if collectorWithState.IsIncreamtal && collectorWithState.Since != nil {
+		clauses = append(clauses, dal.Where("bitbucket_updated_at > ?", *collectorWithState.Since))
 	}
 	// construct the input iterator
 	cursor, err := db.Cursor(clauses...)
@@ -225,8 +222,8 @@ func GetPipelinesIterator(taskCtx plugin.SubTaskContext, collectorWithState *api
 			data.Options.FullName, data.Options.ConnectionId,
 		),
 	}
-	if collectorWithState.IsIncremental() {
-		clauses = append(clauses, dal.Where("bitbucket_complete_on > ?", *collectorWithState.LatestState.LatestSuccessStart))
+	if collectorWithState.IsIncreamtal && collectorWithState.Since != nil {
+		clauses = append(clauses, dal.Where("bitbucket_complete_on > ?", *collectorWithState.Since))
 	}
 	// construct the input iterator
 	cursor, err := db.Cursor(clauses...)
