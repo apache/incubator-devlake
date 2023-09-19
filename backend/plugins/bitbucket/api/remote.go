@@ -130,12 +130,13 @@ func SearchRemoteScopes(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutp
 			query.Set("fields", "values.name,values.full_name,values.language,values.description,values.owner.display_name,values.created_on,values.updated_on,values.links.clone,values.links.html,pagelen,page,size")
 
 			//list projects part
-			gid := ``
-			if strings.Contains(s, `/`) {
-				gid = strings.Split(s, `/`)[0]
-				s = strings.Split(s, `/`)[1]
-			}
-			query.Set("q", fmt.Sprintf(`name~"%s"`, s))
+			// gid := ``
+			// if strings.Contains(s, `/`) {
+			// 	gid = strings.Split(s, `/`)[0]
+			// 	s = strings.Split(s, `/`)[1]
+			// }
+			gid, searchName := GetSearch(s)
+			query.Set("q", fmt.Sprintf(`name~"%s"`, searchName))
 
 			// list repos part
 			res, err := apiClient.Get(fmt.Sprintf("/repositories/%s", gid), query, nil)
@@ -152,6 +153,18 @@ func SearchRemoteScopes(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutp
 			return resBody.Values, err
 		},
 	)
+}
+
+func GetSearch(s string) (string, string) {
+	gid := ""
+	if strings.Contains(s, "/") {
+		parts := strings.Split(s, "/")
+		if len(parts) >= 2 {
+			gid = parts[0]
+			s = strings.Join(parts[1:], "/")
+		}
+	}
+	return gid, s
 }
 
 func initialQuery(queryData *api.RemoteQueryData) url.Values {
