@@ -293,6 +293,9 @@ func (p Jira) ApiResources() map[string]map[string]plugin.ApiResourceHandler {
 		"connections/:connectionId/remote-scopes": {
 			"GET": api.RemoteScopes,
 		},
+		"connections/:connectionId/search-remote-scopes": {
+			"GET": api.SearchRemoteScopes,
+		},
 		"connections/:connectionId/scopes/:scopeId": {
 			"GET":    api.GetScope,
 			"PATCH":  api.UpdateScope,
