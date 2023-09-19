@@ -102,7 +102,7 @@ func GetQueryCreatedAndUpdated(fields string, collectorWithState *api.ApiCollect
 		query.Set("fields", fields)
 		query.Set("sort", "created_on")
 
-		if collectorWithState.IsIncreamtal && collectorWithState.Since != nil {
+		if collectorWithState.Since != nil {
 			query.Set("q", fmt.Sprintf("updated_on>=%s", collectorWithState.Since.Format(time.RFC3339)))
 		}
 		return query, nil
