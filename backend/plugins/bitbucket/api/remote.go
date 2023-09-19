@@ -117,33 +117,47 @@ func SearchRemoteScopes(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutp
 			// create api client
 			apiClient, err := api.NewApiClientFromConnection(gocontext.TODO(), basicRes, &connection)
 			if err != nil {
-				return nil, err
+				return nil, errors.BadInput.Wrap(err, "failed to get create apiClient")
 			}
-			query := initialQuery(queryData)
-			s := queryData.Search[0]
 
 			// request search
-			query.Set("sort", "name")
-			query.Set("fields", "values.name,values.full_name,values.language,values.description,values.owner.username,values.created_on,values.updated_on,values.links.clone,values.links.self,pagelen,page,size")
-			gid := ``
-			if strings.Contains(s, `/`) {
-				gid = strings.Split(s, `/`)[0]
-				s = strings.Split(s, `/`)[0]
+			query := initialQuery(queryData)
+			if len(queryData.Search) == 0 {
+				return nil, errors.BadInput.New("empty search query")
 			}
-			query.Set("q", fmt.Sprintf(`name~"%s"`, s))
+			s := queryData.Search[0]
+			query.Set("sort", "name")
+			query.Set("fields", "values.name,values.full_name,values.language,values.description,values.owner.display_name,values.created_on,values.updated_on,values.links.clone,values.links.html,pagelen,page,size")
+			gid, searchName := getSearch(s)
+			query.Set("q", fmt.Sprintf(`name~"%s"`, searchName))
+
 			// list repos part
 			res, err := apiClient.Get(fmt.Sprintf("/repositories/%s", gid), query, nil)
 			if err != nil {
 				return nil, err
 			}
-			resBody := &models.ReposResponse{}
+
+			var resBody models.ReposResponse
 			err = api.UnmarshalResponse(res, &resBody)
 			if err != nil {
 				return nil, err
 			}
+
 			return resBody.Values, err
 		},
 	)
+}
+
+func getSearch(s string) (string, string) {
+	gid := ""
+	if strings.Contains(s, "/") {
+		parts := strings.Split(s, "/")
+		if len(parts) >= 2 {
+			gid = parts[0]
+			s = strings.Join(parts[1:], "/")
+		}
+	}
+	return gid, s
 }
 
 func initialQuery(queryData *api.RemoteQueryData) url.Values {
