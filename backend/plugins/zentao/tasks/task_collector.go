@@ -73,7 +73,7 @@ func CollectTask(taskCtx plugin.SubTaskContext) errors.Error {
 		GetTotalPages: GetTotalPagesFromResponse,
 		ResponseParser: func(res *http.Response) ([]json.RawMessage, errors.Error) {
 			var data struct {
-				Task []json.RawMessage `json:"tasks"`
+				Tasks []models.ZentaoTaskRes `json:"tasks"`
 			}
 			err := api.UnmarshalResponse(res, &data)
 			if errors.Is(err, api.ErrEmptyResponse) {
@@ -82,13 +82,61 @@ func CollectTask(taskCtx plugin.SubTaskContext) errors.Error {
 			if err != nil {
 				return nil, errors.Default.Wrap(err, "error reading endpoint response by Zentao bug collector")
 			}
-			return data.Task, nil
+
+			allTaskRecords := make(map[int64]models.ZentaoTaskRes)
+			for _, task := range data.Tasks {
+				// extract task's children
+				childTasks, err := extractChildrenWithDFS(task)
+				if err != nil {
+					return nil, errors.Default.New(fmt.Sprintf("extract task: %v chidren err: %v", task, err))
+				}
+				for _, task := range childTasks {
+					allTaskRecords[task.Id] = task
+				}
+			}
+			var allTask []json.RawMessage
+			for _, task := range allTaskRecords {
+				taskRawJsonMessage, err := task.ToJsonRawMessage()
+				if err != nil {
+					return nil, errors.Default.New(err.Error())
+				}
+				allTask = append(allTask, taskRawJsonMessage)
+			}
+			return allTask, nil
 		},
 	})
 	if err != nil {
 		return err
 	}
 	return collector.Execute()
+}
+
+// extractChildrenWithDFS return task's child tasks and itself.
+func extractChildrenWithDFS(task models.ZentaoTaskRes) ([]models.ZentaoTaskRes, error) {
+	var tasks []models.ZentaoTaskRes
+	for _, child := range task.Children {
+		childTasks, err := extractChildrenWithDFS(*child)
+		if err != nil {
+			return nil, err
+		}
+		tasks = append(tasks, childTasks...)
+	}
+	tasks = append(tasks, task)
+	return tasks, nil
+}
+
+func extractChildren(allTaskRecords map[int64]models.ZentaoTaskRes) (map[int64]models.ZentaoTaskRes, error) {
+	ret := make(map[int64]models.ZentaoTaskRes)
+	for _, task := range allTaskRecords {
+		childTasks, err := extractChildrenWithDFS(task)
+		if err != nil {
+			return nil, err
+		}
+		for _, task := range childTasks {
+			ret[task.Id] = task
+		}
+	}
+	return ret, nil
 }
 
 var CollectTaskMeta = plugin.SubTaskMeta{
