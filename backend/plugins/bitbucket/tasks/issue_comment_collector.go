@@ -50,7 +50,6 @@ func CollectApiIssueComments(taskCtx plugin.SubTaskContext) errors.Error {
 	err = collectorWithState.InitCollector(helper.ApiCollectorArgs{
 		ApiClient:   data.ApiClient,
 		PageSize:    100,
-		Incremental: collectorWithState.IsIncremental(),
 		Input:       iterator,
 		UrlTemplate: "repositories/{{ .Params.FullName }}/issues/{{ .Input.BitbucketId }}/comments",
 		Query: GetQueryFields(

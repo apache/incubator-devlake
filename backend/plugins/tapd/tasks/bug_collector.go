@@ -38,9 +38,8 @@ func CollectBugs(taskCtx plugin.SubTaskContext) errors.Error {
 	if err != nil {
 		return err
 	}
-	incremental := collectorWithState.IsIncremental()
+
 	err = collectorWithState.InitCollector(helper.ApiCollectorArgs{
-		Incremental: incremental,
 		ApiClient:   data.ApiClient,
 		PageSize:    int(data.Options.PageSize),
 		UrlTemplate: "bugs",
@@ -51,11 +50,8 @@ func CollectBugs(taskCtx plugin.SubTaskContext) errors.Error {
 			query.Set("limit", fmt.Sprintf("%v", reqData.Pager.Size))
 			query.Set("fields", "labels")
 			query.Set("order", "created asc")
-			if collectorWithState.TimeAfter != nil {
-				query.Set("modified", fmt.Sprintf(">%s", collectorWithState.TimeAfter.In(data.Options.CstZone).Format("2006-01-02")))
-			}
-			if incremental {
-				query.Set("modified", fmt.Sprintf(">%s", collectorWithState.LatestState.LatestSuccessStart.In(data.Options.CstZone).Format("2006-01-02")))
+			if collectorWithState.Since != nil {
+				query.Set("modified", fmt.Sprintf(">%s", collectorWithState.Since.In(data.Options.CstZone).Format("2006-01-02")))
 			}
 			return query, nil
 		},

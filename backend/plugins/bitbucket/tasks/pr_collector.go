@@ -46,7 +46,6 @@ func CollectApiPullRequests(taskCtx plugin.SubTaskContext) errors.Error {
 	err = collectorWithState.InitCollector(helper.ApiCollectorArgs{
 		ApiClient:   data.ApiClient,
 		PageSize:    50,
-		Incremental: collectorWithState.IsIncremental(),
 		UrlTemplate: "repositories/{{ .Params.FullName }}/pullrequests",
 		Query: GetQueryCreatedAndUpdated(
 			`values.id,values.comment_count,values.type,values.state,values.title,values.description,`+

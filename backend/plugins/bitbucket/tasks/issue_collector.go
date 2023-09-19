@@ -43,7 +43,6 @@ func CollectApiIssues(taskCtx plugin.SubTaskContext) errors.Error {
 	err = collectorWithState.InitCollector(helper.ApiCollectorArgs{
 		ApiClient:   data.ApiClient,
 		PageSize:    100,
-		Incremental: collectorWithState.IsIncremental(),
 		UrlTemplate: "repositories/{{ .Params.FullName }}/issues",
 		Query: GetQueryCreatedAndUpdated(
 			`values.type,values.id,values.links.self,`+
