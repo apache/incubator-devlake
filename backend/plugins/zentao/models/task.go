@@ -18,6 +18,7 @@ limitations under the License.
 package models
 
 import (
+	"encoding/json"
 	"github.com/apache/incubator-devlake/core/models/common"
 )
 
@@ -88,6 +89,10 @@ type ZentaoTaskRes struct {
 	Delay              int              `json:"delay"`
 	NeedConfirm        bool             `json:"needConfirm"`
 	Progress           float64          `json:"progress"`
+}
+
+func (zentaoTaskRes ZentaoTaskRes) ToJsonRawMessage() (json.RawMessage, error) {
+	return json.Marshal(zentaoTaskRes)
 }
 
 type ZentaoTask struct {
