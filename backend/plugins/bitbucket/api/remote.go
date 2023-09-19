@@ -117,30 +117,38 @@ func SearchRemoteScopes(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutp
 			// create api client
 			apiClient, err := api.NewApiClientFromConnection(gocontext.TODO(), basicRes, &connection)
 			if err != nil {
-				return nil, err
+				return nil, errors.BadInput.Wrap(err, "failed to get create apiClient")
 			}
-			query := initialQuery(queryData)
-			s := queryData.Search[0]
 
 			// request search
+			query := initialQuery(queryData)
+			if len(queryData.Search) <= 1 {
+				return nil, errors.BadInput.New("empty search query")
+			}
+			s := queryData.Search[0]
 			query.Set("sort", "name")
-			query.Set("fields", "values.name,values.full_name,values.language,values.description,values.owner.username,values.created_on,values.updated_on,values.links.clone,values.links.self,pagelen,page,size")
+			query.Set("fields", "values.name,values.full_name,values.language,values.description,values.owner.display_name,values.created_on,values.updated_on,values.links.clone,values.links.html,pagelen,page,size")
+
+			//list projects part
 			gid := ``
 			if strings.Contains(s, `/`) {
 				gid = strings.Split(s, `/`)[0]
-				s = strings.Split(s, `/`)[0]
+				s = strings.Split(s, `/`)[1]
 			}
 			query.Set("q", fmt.Sprintf(`name~"%s"`, s))
+
 			// list repos part
 			res, err := apiClient.Get(fmt.Sprintf("/repositories/%s", gid), query, nil)
 			if err != nil {
 				return nil, err
 			}
-			resBody := &models.ReposResponse{}
+
+			var resBody models.ReposResponse
 			err = api.UnmarshalResponse(res, &resBody)
 			if err != nil {
 				return nil, err
 			}
+
 			return resBody.Values, err
 		},
 	)
