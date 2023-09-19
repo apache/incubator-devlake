@@ -29,7 +29,7 @@ type renameToolBambooDeployEnvironments20230919 struct{}
 
 func (*renameToolBambooDeployEnvironments20230919) Up(basicRes context.BasicRes) errors.Error {
 	db := basicRes.GetDal()
-	return db.RenameTable("_tool_bamboo_deploy_environment", "_tool_bamboo_deploy_environmentsmak")
+	return db.RenameTable("_tool_bamboo_deploy_environment", "_tool_bamboo_deploy_environments")
 }
 
 func (*renameToolBambooDeployEnvironments20230919) Version() uint64 {
