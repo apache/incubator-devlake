@@ -85,7 +85,11 @@ func SearchRemoteScopes(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutp
 			var apiBambooPlans []models.ApiBambooPlan
 			// append project to output
 			for _, apiResult := range resBody.SearchResults {
-				apiBambooPlans = append(apiBambooPlans, apiResult.SearchEntity)
+				bambooPlan := models.ApiBambooPlan{
+					Key:  apiResult.SearchEntity.Key,
+					Name: apiResult.SearchEntity.PlanName,
+				}
+				apiBambooPlans = append(apiBambooPlans, bambooPlan)
 			}
 			return apiBambooPlans, err
 		})

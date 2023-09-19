@@ -100,10 +100,20 @@ func (p ApiBambooPlan) ConvertApiScope() plugin.ToolLayerScope {
 	}
 }
 
+type SearchEntity struct {
+	ID          string `json:"id"`
+	Key         string `json:"key"`
+	ProjectName string `json:"projectName"`
+	PlanName    string `json:"planName"`
+	BranchName  string `json:"branchName"`
+	Description string `json:"description"`
+	Type        string `json:"type"`
+}
+
 type ApiSearchResult struct {
-	Id           string        `json:"id"`
-	Type         string        `json:"type"`
-	SearchEntity ApiBambooPlan `json:"searchEntity"`
+	Id           string       `json:"id"`
+	Type         string       `json:"type"`
+	SearchEntity SearchEntity `json:"searchEntity"`
 }
 
 type ApiBambooSearchPlanResponse struct {
