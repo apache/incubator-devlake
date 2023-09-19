@@ -128,13 +128,6 @@ func SearchRemoteScopes(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutp
 			s := queryData.Search[0]
 			query.Set("sort", "name")
 			query.Set("fields", "values.name,values.full_name,values.language,values.description,values.owner.display_name,values.created_on,values.updated_on,values.links.clone,values.links.html,pagelen,page,size")
-
-			//list projects part
-			// gid := ``
-			// if strings.Contains(s, `/`) {
-			// 	gid = strings.Split(s, `/`)[0]
-			// 	s = strings.Split(s, `/`)[1]
-			// }
 			gid, searchName := GetSearch(s)
 			query.Set("q", fmt.Sprintf(`name~"%s"`, searchName))
 
