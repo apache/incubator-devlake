@@ -125,20 +125,6 @@ func extractChildrenWithDFS(task models.ZentaoTaskRes) ([]models.ZentaoTaskRes, 
 	return tasks, nil
 }
 
-func extractChildren(allTaskRecords map[int64]models.ZentaoTaskRes) (map[int64]models.ZentaoTaskRes, error) {
-	ret := make(map[int64]models.ZentaoTaskRes)
-	for _, task := range allTaskRecords {
-		childTasks, err := extractChildrenWithDFS(task)
-		if err != nil {
-			return nil, err
-		}
-		for _, task := range childTasks {
-			ret[task.Id] = task
-		}
-	}
-	return ret, nil
-}
-
 var CollectTaskMeta = plugin.SubTaskMeta{
 	Name:             "collectTask",
 	EntryPoint:       CollectTask,
