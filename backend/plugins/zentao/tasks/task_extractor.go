@@ -168,7 +168,4 @@ func (c *taskExtractor) toZentaoTasks(accountCache *AccountCache, res *models.Ze
 		}, task.Status)
 	}
 	*tasks = append(*tasks, task)
-	for _, child := range res.Children {
-		c.toZentaoTasks(accountCache, child, url, tasks)
-	}
 }
