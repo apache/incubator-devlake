@@ -87,25 +87,6 @@ type ApiBambooPlan struct {
 	} `json:"planKey"`
 }
 
-//type ApiBambooPlan struct {
-//	Expand                    string `json:"expand"`
-//	Description               string `json:"description"`
-//	ShortName                 string `json:"shortName"`
-//	BuildName                 string `json:"buildName"`
-//	ShortKey                  string `json:"shortKey"`
-//	Type                      string `json:"type"`
-//	Enabled                   bool   `json:"enabled"`
-//	ProjectKey                string `json:"projectKey"`
-//	ProjectName               string `json:"projectName"`
-//	ApiBambooLink             `json:"link"`
-//	IsFavourite               bool    `json:"isFavourite"`
-//	IsActive                  bool    `json:"isActive"`
-//	IsBuilding                bool    `json:"isBuilding"`
-//	AverageBuildTimeInSeconds float64 `json:"averageBuildTimeInSeconds"`
-//	Key                       string  `json:"key"`
-//	Name                      string  `json:"name"`
-//}
-
 func (p ApiBambooPlan) ConvertApiScope() plugin.ToolLayerScope {
 	return &BambooPlan{
 		PlanKey:   p.Key,
@@ -120,9 +101,9 @@ func (p ApiBambooPlan) ConvertApiScope() plugin.ToolLayerScope {
 }
 
 type ApiSearchResult struct {
-	Id         string        `json:"id"`
-	EntityType string        `json:"entityType"`
-	Entity     ApiBambooPlan `json:"entity"`
+	Id           string        `json:"id"`
+	Type         string        `json:"type"`
+	SearchEntity ApiBambooPlan `json:"searchEntity"`
 }
 
 type ApiBambooSearchPlanResponse struct {
