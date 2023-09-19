@@ -128,7 +128,7 @@ func SearchRemoteScopes(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutp
 			s := queryData.Search[0]
 			query.Set("sort", "name")
 			query.Set("fields", "values.name,values.full_name,values.language,values.description,values.owner.display_name,values.created_on,values.updated_on,values.links.clone,values.links.html,pagelen,page,size")
-			gid, searchName := GetSearch(s)
+			gid, searchName := getSearch(s)
 			query.Set("q", fmt.Sprintf(`name~"%s"`, searchName))
 
 			// list repos part
@@ -148,7 +148,7 @@ func SearchRemoteScopes(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutp
 	)
 }
 
-func GetSearch(s string) (string, string) {
+func getSearch(s string) (string, string) {
 	gid := ""
 	if strings.Contains(s, "/") {
 		parts := strings.Split(s, "/")
