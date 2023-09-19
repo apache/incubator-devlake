@@ -122,7 +122,7 @@ func SearchRemoteScopes(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutp
 
 			// request search
 			query := initialQuery(queryData)
-			if len(queryData.Search) <= 1 {
+			if len(queryData.Search) == 0 {
 				return nil, errors.BadInput.New("empty search query")
 			}
 			s := queryData.Search[0]
