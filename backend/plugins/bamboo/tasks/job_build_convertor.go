@@ -80,7 +80,7 @@ func ConvertJobBuilds(taskCtx plugin.SubTaskContext) errors.Error {
 
 				Status: devops.GetStatus(&devops.StatusRule[string]{
 					Done:       []string{"Finished", "FINISHED"},
-					NotStarted: []string{"not_built", "NOT_BUILT", "Not_Built"},
+					NotStarted: []string{"not_built", "NOT_BUILT", "Not_Built", "PENDING", "QUEUED"},
 					Default:    devops.STATUS_IN_PROGRESS,
 				}, line.LifeCycleState),
 			}
