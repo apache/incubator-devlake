@@ -58,5 +58,5 @@ func (*addPlanResultKey) Version() uint64 {
 }
 
 func (script *addPlanResultKey) Name() string {
-	return "add plan_result_key to _tool_bamboo_deploy_builds and _tool_bamboo_plan_build_commits"
+	return "add plan_result_key to _tool_bamboo_deploy_build and _tool_bamboo_plan_build_commits"
 }
