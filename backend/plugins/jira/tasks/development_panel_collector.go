@@ -72,14 +72,9 @@ func CollectDevelopmentPanel(taskCtx plugin.SubTaskContext) errors.Error {
 		dal.Join("LEFT JOIN _tool_jira_issues i ON (bi.connection_id = i.connection_id AND bi.issue_id = i.issue_id)"),
 		dal.Where("bi.connection_id=? and bi.board_id = ?", data.Options.ConnectionId, data.Options.BoardId),
 	}
-	incremental := collectorWithState.IsIncremental()
-	if incremental && collectorWithState.LatestState.LatestSuccessStart != nil {
-		clauses = append(
-			clauses,
-			dal.Where("i.updated > ?", collectorWithState.LatestState.LatestSuccessStart),
-		)
+	if collectorWithState.IsIncreamtal && collectorWithState.Since != nil {
+		clauses = append(clauses, dal.Where("i.updated > ?", collectorWithState.Since))
 	}
-
 	cursor, err := db.Cursor(clauses...)
 	if err != nil {
 		logger.Error(err, "collect development panel error")
@@ -93,9 +88,8 @@ func CollectDevelopmentPanel(taskCtx plugin.SubTaskContext) errors.Error {
 	}
 
 	err = collectorWithState.InitCollector(api.ApiCollectorArgs{
-		ApiClient:   data.ApiClient,
-		Input:       iterator,
-		Incremental: incremental,
+		ApiClient: data.ApiClient,
+		Input:     iterator,
 		// the URL looks like:
 		// https://merico.atlassian.net/rest/dev-status/1.0/issue/detail?issueId=25184&applicationType=GitLab&dataType=repository
 		UrlTemplate: "dev-status/1.0/issue/detail",
