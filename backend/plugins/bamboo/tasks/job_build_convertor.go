@@ -72,14 +72,16 @@ func ConvertJobBuilds(taskCtx plugin.SubTaskContext) errors.Error {
 				CicdScopeId:  planIdGen.Generate(data.Options.ConnectionId, data.Options.PlanKey),
 
 				Result: devops.GetResult(&devops.ResultRule{
-					Failed:  []string{"Failed"},
-					Success: []string{"Successful"},
-					Default: "",
+					Failed:          []string{"Failed"},
+					Success:         []string{"Successful"},
+					CaseInsensitive: true,
+					Default:         line.BuildState,
 				}, line.BuildState),
 
 				Status: devops.GetStatus(&devops.StatusRule[string]{
-					Done:    []string{"Finished"},
-					Default: devops.STATUS_IN_PROGRESS,
+					Done:       []string{"Finished", "FINISHED"},
+					NotStarted: []string{"not_built", "NOT_BUILT", "Not_Built"},
+					Default:    devops.STATUS_IN_PROGRESS,
 				}, line.LifeCycleState),
 			}
 

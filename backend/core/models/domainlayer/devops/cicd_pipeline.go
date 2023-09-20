@@ -18,6 +18,8 @@ limitations under the License.
 package devops
 
 import (
+	"github.com/spf13/cast"
+	"strings"
 	"time"
 
 	"github.com/apache/incubator-devlake/core/models/domainlayer"
@@ -51,50 +53,88 @@ const (
 
 // this is for the field `status` in table.cicd_pipelines and table.cicd_tasks
 const (
+	STATUS_NOT_STARTED = "NOT_STARTED"
 	STATUS_IN_PROGRESS = "IN_PROGRESS"
+	STATUS_BLOCKED     = "BLOCKED"
 	STATUS_DONE        = "DONE"
 )
 
 type ResultRule struct {
-	Success []string
-	Failed  []string
-	Abort   []string
-	Manual  []string
-	Skipped []string
-	Default string
+	Success         []string
+	Failed          []string
+	Abort           []string
+	Manual          []string
+	Skipped         []string
+	Default         string
+	CaseInsensitive bool
 }
 type StatusRule[T comparable] struct {
 	InProgress []T
+	NotStarted []T
 	Done       []T
 	Manual     []T
 	Default    string
 }
 
-// GetResult compare the input with rule for return the enmu value of result
+func caseInSensitiveEqual(src string, dst string) bool {
+	return strings.ToUpper(src) == strings.ToUpper(dst)
+}
+
+// GetResult compare the input with rule for return the enum value of result
 func GetResult(rule *ResultRule, input interface{}) string {
 	for _, suc := range rule.Success {
-		if suc == input {
-			return RESULT_SUCCESS
+		if rule.CaseInsensitive {
+			if caseInSensitiveEqual(suc, cast.ToString(input)) {
+				return RESULT_SUCCESS
+			}
+		} else {
+			if suc == input {
+				return RESULT_SUCCESS
+			}
 		}
 	}
 	for _, fail := range rule.Failed {
-		if fail == input {
-			return RESULT_FAILURE
+		if rule.CaseInsensitive {
+			if caseInSensitiveEqual(fail, cast.ToString(input)) {
+				return RESULT_FAILURE
+			}
+		} else {
+			if fail == input {
+				return RESULT_FAILURE
+			}
 		}
 	}
 	for _, abort := range rule.Abort {
-		if abort == input {
-			return RESULT_ABORT
+		if rule.CaseInsensitive {
+			if caseInSensitiveEqual(abort, cast.ToString(input)) {
+				return RESULT_ABORT
+			}
+		} else {
+			if abort == input {
+				return RESULT_ABORT
+			}
 		}
 	}
 	for _, manual := range rule.Manual {
-		if manual == input {
-			return RESULT_MANUAL
+		if rule.CaseInsensitive {
+			if caseInSensitiveEqual(manual, cast.ToString(input)) {
+				return RESULT_MANUAL
+			}
+		} else {
+			if manual == input {
+				return RESULT_MANUAL
+			}
 		}
 	}
 	for _, skipped := range rule.Skipped {
-		if skipped == input {
-			return RESULT_SKIPPED
+		if rule.CaseInsensitive {
+			if caseInSensitiveEqual(skipped, cast.ToString(input)) {
+				return RESULT_SKIPPED
+			}
+		} else {
+			if skipped == input {
+				return RESULT_SKIPPED
+			}
 		}
 	}
 	return rule.Default
@@ -114,7 +154,12 @@ func GetStatus[T comparable](rule *StatusRule[T], input T) string {
 	}
 	for _, manual := range rule.Manual {
 		if manual == input {
-			return RESULT_MANUAL
+			return STATUS_BLOCKED
+		}
+	}
+	for _, notStarted := range rule.NotStarted {
+		if notStarted == input {
+			return STATUS_NOT_STARTED
 		}
 	}
 	return rule.Default
