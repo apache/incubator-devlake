@@ -44,7 +44,7 @@ type BambooDeployBuild struct {
 }
 
 func (BambooDeployBuild) TableName() string {
-	return "_tool_bamboo_deploy_build"
+	return "_tool_bamboo_deploy_builds"
 }
 
 type ApiBambooDeployBuild struct {

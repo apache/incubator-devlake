@@ -46,15 +46,16 @@ func TestBambooDeployBuildDataFlow(t *testing.T) {
 	taskData.RegexEnricher.TryAdd(devops.DEPLOYMENT, taskData.Options.DeploymentPattern)
 	taskData.RegexEnricher.TryAdd(devops.PRODUCTION, taskData.Options.ProductionPattern)
 	// import raw data table
-	dataflowTester.ImportCsvIntoRawTable("./raw_tables/_raw_bamboo_api_deploy_build.csv", "_raw_bamboo_api_deploy_build")
+	dataflowTester.ImportCsvIntoRawTable("./raw_tables/_raw_bamboo_api_deploy_builds.csv", "_raw_bamboo_api_deploy_builds")
 
 	// verify extraction
 	dataflowTester.FlushTabler(&models.BambooDeployBuild{})
 	dataflowTester.FlushTabler(&models.BambooPlanBuildVcsRevision{})
 	dataflowTester.Subtask(tasks.ExtractDeployBuildMeta, taskData)
+
 	dataflowTester.VerifyTable(
 		models.BambooDeployBuild{},
-		"./snapshot_tables/_tool_bamboo_deploy_build.csv",
+		"./snapshot_tables/_tool_bamboo_deploy_builds.csv",
 		e2ehelper.ColumnWithRawData(
 			"connection_id",
 			"deploy_build_id",
@@ -81,7 +82,7 @@ func TestBambooDeployBuildDataFlow(t *testing.T) {
 
 	// verify conversion
 	dataflowTester.ImportCsvIntoTabler("./snapshot_tables/_tool_bamboo_plan_build_commits.csv", &models.BambooPlanBuildVcsRevision{})
-	dataflowTester.ImportCsvIntoTabler("./snapshot_tables/_tool_bamboo_deploy_build.csv", &models.BambooDeployBuild{})
+	dataflowTester.ImportCsvIntoTabler("./snapshot_tables/_tool_bamboo_deploy_builds.csv", &models.BambooDeployBuild{})
 	dataflowTester.FlushTabler(&devops.CicdDeploymentCommit{})
 	dataflowTester.Subtask(tasks.ConvertDeployBuildsMeta, taskData)
 	dataflowTester.VerifyTableWithOptions(&devops.CicdDeploymentCommit{}, e2ehelper.TableOptions{
