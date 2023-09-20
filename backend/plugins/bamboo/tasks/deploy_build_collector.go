@@ -31,7 +31,7 @@ import (
 	"github.com/apache/incubator-devlake/plugins/bamboo/models"
 )
 
-const RAW_DEPLOY_BUILD_TABLE = "bamboo_api_deploy_build"
+const RAW_DEPLOY_BUILD_TABLE = "bamboo_api_deploy_builds"
 
 var _ plugin.SubTaskEntryPoint = CollectDeployBuild
 
