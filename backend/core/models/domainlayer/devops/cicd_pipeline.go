@@ -77,7 +77,7 @@ type StatusRule[T comparable] struct {
 }
 
 func caseInSensitiveEqual(src string, dst string) bool {
-	return strings.ToUpper(src) == strings.ToUpper(dst)
+	return strings.EqualFold(src, dst)
 }
 
 // GetResult compare the input with rule for return the enum value of result
