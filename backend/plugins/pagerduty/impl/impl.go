@@ -108,9 +108,8 @@ func (p PagerDuty) PrepareTaskData(taskCtx plugin.TaskContext, options map[strin
 		return nil, errors.Default.Wrap(err, "unable to get Pagerduty connection by the given connection ID")
 	}
 
-	client, err := helper.NewApiClient(taskCtx.GetContext(), connection.Endpoint, map[string]string{
-		"Authorization": fmt.Sprintf("Token token=%s", connection.Token),
-	}, 0, connection.Proxy, taskCtx)
+	client, err := helper.NewApiClientFromConnection(taskCtx.GetContext(), taskCtx, connection)
+
 	if err != nil {
 		return nil, err
 	}
