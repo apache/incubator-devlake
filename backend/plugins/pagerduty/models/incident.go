@@ -41,6 +41,7 @@ type (
 		Summary      string
 		Status       IncidentStatus  //acknowledged, triggered, resolved
 		Urgency      IncidentUrgency //high or low
+		Priority     string
 		CreatedDate  time.Time
 		UpdatedDate  time.Time
 	}
