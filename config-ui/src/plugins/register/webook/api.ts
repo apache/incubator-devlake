@@ -42,3 +42,5 @@ export const deleteConnection = (id: ID) =>
   request(`/plugins/webhook/connections/${id}`, {
     method: 'delete',
   });
+
+export const renewApiKey = (id: ID) => request(`/api-keys/${id}`, { method: 'put' });

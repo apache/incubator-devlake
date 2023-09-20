@@ -17,6 +17,11 @@ limitations under the License.
 
 package plugin
 
+import (
+	"encoding/json"
+	"fmt"
+)
+
 // Scope represents the top level entity for a data source, i.e. github repo,
 // gitlab project, jira board. They turn into repo, board in Domain Layer. In
 // Apache Devlake, a Project is essentially a set of these top level entities,
@@ -30,9 +35,9 @@ type Scope interface {
 }
 
 type ToolLayerScope interface {
-	ScopeId() string
-	ScopeName() string
-	TableName() string
+	Scope
+	ScopeFullName() string
+	ScopeParams() interface{}
 }
 
 type ApiScope interface {
@@ -42,4 +47,12 @@ type ApiScope interface {
 type ApiGroup interface {
 	GroupId() string
 	GroupName() string
+}
+
+func MarshalScopeParams(params interface{}) string {
+	bytes, err := json.Marshal(params)
+	if err != nil {
+		panic(fmt.Errorf("Failed to marshal %v, due to: %v", params, err))
+	}
+	return string(bytes)
 }

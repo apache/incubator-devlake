@@ -19,6 +19,9 @@ package gitlab
 
 import (
 	"fmt"
+	"net/http"
+	"testing"
+
 	"github.com/apache/incubator-devlake/core/config"
 	"github.com/apache/incubator-devlake/core/models"
 	"github.com/apache/incubator-devlake/core/models/common"
@@ -29,7 +32,6 @@ import (
 	pluginmodels "github.com/apache/incubator-devlake/plugins/gitlab/models"
 	"github.com/apache/incubator-devlake/test/helper"
 	"github.com/stretchr/testify/require"
-	"testing"
 )
 
 const pluginName = "gitlab"
@@ -58,15 +60,15 @@ func TestGitlabPlugin(t *testing.T) {
 		CreateServer: true,
 		DropDb:       false,
 		TruncateDb:   true,
-		Plugins: map[string]plugin.PluginMeta{
-			"gitlab":       gitlab.Gitlab(""),
-			"gitextractor": gitextractor.GitExtractor{},
+		Plugins: []plugin.PluginMeta{
+			gitlab.Gitlab(""),
+			gitextractor.GitExtractor{},
 		},
 	})
 	cfg := helper.GetTestConfig[TestConfig]()
 	connection := createConnection(cfg, client)
 	t.Run("blueprint v200", func(t *testing.T) {
-		rule := helper.Cast[pluginmodels.GitlabScopeConfig](client.CreateScopeConfig("gitlab", connection.ID,
+		scopeConfig := helper.Cast[pluginmodels.GitlabScopeConfig](client.CreateScopeConfig("gitlab", connection.ID,
 			pluginmodels.GitlabScopeConfig{
 				ScopeConfig: common.ScopeConfig{
 					Entities: []string{
@@ -75,7 +77,7 @@ func TestGitlabPlugin(t *testing.T) {
 						plugin.DOMAIN_TYPE_CODE_REVIEW,
 					},
 				},
-				Name:                 "rule-1",
+				Name:                 "config-1",
 				PrType:               "",
 				PrComponent:          "",
 				PrBodyClosePattern:   "",
@@ -86,10 +88,10 @@ func TestGitlabPlugin(t *testing.T) {
 				IssueTypeIncident:    "",
 				IssueTypeRequirement: "",
 				DeploymentPattern:    ".*",
-				ProductionPattern:    ".*",             // this triggers dora
-				Refdiff:              map[string]any{}, // this is technically a true/false (nil or not)
+				ProductionPattern:    ".*", // this triggers dora
+				Refdiff:              nil,  // this is technically a true/false (nil or not)
 			}))
-		_ = rule
+		_ = scopeConfig
 		remoteScopes := client.RemoteScopes(helper.RemoteScopesQuery{
 			PluginName:   pluginName,
 			ConnectionId: connection.ID,
@@ -113,13 +115,13 @@ func TestGitlabPlugin(t *testing.T) {
 			if remoteScope.Type == "scope" {
 				data := helper.Cast[pluginmodels.GitlabProject](remoteScope.Data)
 				if len(cfg.Projects) == 0 || helper.Contains(cfg.Projects, data.Name) {
-					data.ScopeConfigId = rule.ID
+					data.ScopeConfigId = scopeConfig.ID
 					scopeData = append(scopeData, data)
 				}
 			}
 		}
 		createdScopes := helper.Cast[[]*pluginmodels.GitlabProject](client.CreateScopes(pluginName, connection.ID, scopeData...))
-		listedScopes := client.ListScopes(pluginName, connection.ID, false)
+		listedScopes := client.ListScopes(pluginName, connection.ID, false).Scopes
 		require.Equal(t, len(createdScopes), len(listedScopes))
 		outputProject := client.CreateProject(&helper.ProjectConfig{
 			ProjectName: fmt.Sprintf("project-%s", pluginName),
@@ -127,17 +129,16 @@ func TestGitlabPlugin(t *testing.T) {
 		})
 		projects := client.ListProjects()
 		require.Equal(t, 1, len(projects.Projects))
-		var scopes []*plugin.BlueprintScopeV200
+		var scopes []*models.BlueprintScope
 		for _, scope := range listedScopes {
 			project := helper.Cast[pluginmodels.GitlabProject](scope.Scope)
-			scopes = append(scopes, &plugin.BlueprintScopeV200{
-				Id:   fmt.Sprintf("%s", project.ScopeId()),
-				Name: "blueprint-v200",
+			scopes = append(scopes, &models.BlueprintScope{
+				ScopeId: fmt.Sprintf("%s", project.ScopeId()),
 			})
 		}
 		bp := client.CreateBasicBlueprintV2(connection.Name, &helper.BlueprintV2Config{
-			Connection: &plugin.BlueprintConnectionV200{
-				Plugin:       pluginName,
+			Connection: &models.BlueprintConnection{
+				PluginName:   pluginName,
 				ConnectionId: connection.ID,
 				Scopes:       scopes,
 			},
@@ -150,6 +151,14 @@ func TestGitlabPlugin(t *testing.T) {
 		fmt.Printf("=========================Triggering blueprint for project %s =========================\n", outputProject.Name)
 		pipeline := client.TriggerBlueprint(bp.ID)
 		require.Equal(t, models.TASK_COMPLETED, pipeline.Status)
+		client.SetExpectedStatusCode(http.StatusConflict).DeleteConnection(pluginName, connection.ID)
+		client.DeleteScopeConfig(pluginName, connection.ID, scopeConfig.ID)
+		client.DeleteBlueprint(bp.ID)
+		for _, scope := range listedScopes {
+			project := helper.Cast[pluginmodels.GitlabProject](scope.Scope)
+			client.DeleteScope(pluginName, connection.ID, project.ScopeId(), false)
+		}
+		client.DeleteConnection(pluginName, connection.ID)
 	})
 	fmt.Println("======DONE======")
 }

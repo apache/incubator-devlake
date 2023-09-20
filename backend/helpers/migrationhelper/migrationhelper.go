@@ -163,9 +163,11 @@ func TransformColumns[S any, D any](
 				}
 
 				dst, err := transform(src)
-
 				if err != nil {
 					return errors.Default.Wrap(err, fmt.Sprintf("failed to update row %v", src))
+				}
+				if dst == nil {
+					continue
 				}
 				err = batch.Add(dst)
 				if err != nil {
@@ -263,15 +265,21 @@ func CopyTableColumns[S any, D any](
 	if err != nil {
 		return errors.Default.Wrap(err, fmt.Sprintf("failed to load data from src table [%s]", srcTableName))
 	}
-	defer cursor.Close()
+	if !reflect.ValueOf(cursor).IsNil() {
+		defer cursor.Close()
+	}
+
 	batch, err := helper.NewBatchSave(basicRes, reflect.TypeOf(new(D)), 200, dstTableName)
 	if err != nil {
 		return errors.Default.Wrap(err, fmt.Sprintf("failed to instantiate BatchSave for table [%s]", srcTableName))
 	}
 	defer batch.Close()
 
-	srcTable := new(S)
+	if reflect.ValueOf(cursor).IsNil() {
+		return nil
+	}
 	for cursor.Next() {
+		srcTable := new(S)
 		err1 := db.Fetch(cursor, srcTable)
 		if err1 != nil {
 			return errors.Default.Wrap(err1, fmt.Sprintf("fail to load record from table [%s]", srcTableName))

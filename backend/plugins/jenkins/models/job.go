@@ -19,7 +19,10 @@ package models
 
 import (
 	"github.com/apache/incubator-devlake/core/models/common"
+	"github.com/apache/incubator-devlake/core/plugin"
 )
+
+var _ plugin.ToolLayerScope = (*JenkinsJob)(nil)
 
 // JenkinsJob db entity for jenkins job
 type JenkinsJob struct {
@@ -47,4 +50,19 @@ func (j JenkinsJob) ScopeId() string {
 
 func (j JenkinsJob) ScopeName() string {
 	return j.Name
+}
+func (j JenkinsJob) ScopeFullName() string {
+	return j.FullName
+}
+
+func (j JenkinsJob) ScopeParams() interface{} {
+	return &JenkinsApiParams{
+		ConnectionId: j.ConnectionId,
+		FullName:     j.FullName,
+	}
+}
+
+type JenkinsApiParams struct {
+	ConnectionId uint64
+	FullName     string
 }

@@ -20,10 +20,8 @@ package tasks
 import (
 	"fmt"
 	"strings"
-	"time"
 
 	"github.com/apache/incubator-devlake/core/errors"
-
 	helper "github.com/apache/incubator-devlake/helpers/pluginhelper/api"
 	"github.com/apache/incubator-devlake/plugins/github/models"
 )
@@ -32,7 +30,6 @@ type GithubOptions struct {
 	ConnectionId  uint64                    `json:"connectionId" mapstructure:"connectionId,omitempty"`
 	ScopeConfigId uint64                    `json:"scopeConfigId" mapstructure:"scopeConfigId,omitempty"`
 	GithubId      int                       `json:"githubId" mapstructure:"githubId,omitempty"`
-	TimeAfter     string                    `json:"timeAfter" mapstructure:"timeAfter,omitempty"`
 	Owner         string                    `json:"owner" mapstructure:"owner,omitempty"`
 	Repo          string                    `json:"repo"  mapstructure:"repo,omitempty"`
 	Name          string                    `json:"name"  mapstructure:"name,omitempty"`
@@ -43,14 +40,11 @@ type GithubTaskData struct {
 	Options       *GithubOptions
 	ApiClient     *helper.ApiAsyncClient
 	GraphqlClient *helper.GraphqlAsyncClient
-	TimeAfter     *time.Time
 	RegexEnricher *helper.RegexEnricher
 }
 
-type GithubApiParams struct {
-	ConnectionId uint64
-	Name         string
-}
+// TODO: avoid touching too many files, should be removed in the future
+type GithubApiParams models.GithubApiParams
 
 func DecodeAndValidateTaskOptions(options map[string]interface{}) (*GithubOptions, errors.Error) {
 	op, err := DecodeTaskOptions(options)

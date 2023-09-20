@@ -40,9 +40,7 @@ export const WebhooksPanel = ({ project, onRefresh }: Props) => {
   const webhookIds = useMemo(
     () =>
       project.blueprint
-        ? project.blueprint.settings.connections
-            .filter((cs: any) => cs.plugin === 'webhook')
-            .map((cs: any) => cs.connectionId)
+        ? project.blueprint.connections.filter((cs) => cs.pluginName === 'webhook').map((cs: any) => cs.connectionId)
         : [],
     [project],
   );
@@ -54,16 +52,13 @@ export const WebhooksPanel = ({ project, onRefresh }: Props) => {
   const handleCreate = async (id: ID) => {
     const payload = {
       ...project.blueprint,
-      settings: {
-        ...project.blueprint.settings,
-        connections: [
-          ...project.blueprint.settings.connections,
-          {
-            plugin: 'webhook',
-            connectionId: id,
-          },
-        ],
-      },
+      connections: [
+        ...project.blueprint.connections,
+        {
+          pluginName: 'webhook',
+          connectionId: id,
+        },
+      ],
     };
 
     const [success] = await operator(() => API.updateBlueprint(project.blueprint.id, payload), {
@@ -78,16 +73,13 @@ export const WebhooksPanel = ({ project, onRefresh }: Props) => {
   const handleSelect = async (items: WebhookItemType[]) => {
     const payload = {
       ...project.blueprint,
-      settings: {
-        ...project.blueprint.settings,
-        connections: [
-          ...project.blueprint.settings.connections,
-          ...items.map((it) => ({
-            plugin: 'webhook',
-            connectionId: it.id,
-          })),
-        ],
-      },
+      connections: [
+        ...project.blueprint.connections,
+        ...items.map((it) => ({
+          pluginName: 'webhook',
+          connectionId: it.id,
+        })),
+      ],
     };
 
     const [success] = await operator(() => API.updateBlueprint(project.blueprint.id, payload), {
@@ -102,12 +94,9 @@ export const WebhooksPanel = ({ project, onRefresh }: Props) => {
   const handleDelete = async (id: ID) => {
     const payload = {
       ...project.blueprint,
-      settings: {
-        ...project.blueprint.settings,
-        connections: project.blueprint.settings.connections.filter(
-          (cs: any) => !(cs.plugin === 'webhook' && cs.connectionId === id),
-        ),
-      },
+      connections: project.blueprint.connections.filter(
+        (cs) => !(cs.pluginName === 'webhook' && cs.connectionId === id),
+      ),
     };
 
     const [success] = await operator(() => API.updateBlueprint(project.blueprint.id, payload), {

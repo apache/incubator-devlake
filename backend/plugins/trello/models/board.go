@@ -19,7 +19,10 @@ package models
 
 import (
 	"github.com/apache/incubator-devlake/core/models/common"
+	"github.com/apache/incubator-devlake/core/plugin"
 )
+
+var _ plugin.ToolLayerScope = (*TrelloBoard)(nil)
 
 type TrelloBoard struct {
 	common.NoPKModel `json:"-" mapstructure:"-"`
@@ -29,6 +32,30 @@ type TrelloBoard struct {
 	Name             string `json:"name" mapstructure:"name" gorm:"type:varchar(255)"`
 }
 
+func (b TrelloBoard) ScopeId() string {
+	return b.BoardId
+}
+
+func (b TrelloBoard) ScopeName() string {
+	return b.Name
+}
+
+func (b TrelloBoard) ScopeFullName() string {
+	return b.Name
+}
+
+func (b TrelloBoard) ScopeParams() interface{} {
+	return &TrelloApiParams{
+		ConnectionId: b.ConnectionId,
+		BoardId:      b.BoardId,
+	}
+}
+
 func (TrelloBoard) TableName() string {
 	return "_tool_trello_boards"
+}
+
+type TrelloApiParams struct {
+	ConnectionId uint64
+	BoardId      string
 }

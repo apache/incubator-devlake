@@ -19,6 +19,7 @@ package api
 
 import (
 	"github.com/apache/incubator-devlake/core/context"
+	"github.com/apache/incubator-devlake/core/plugin"
 	"github.com/apache/incubator-devlake/helpers/pluginhelper/api"
 	"github.com/apache/incubator-devlake/plugins/bamboo/models"
 	"github.com/go-playground/validator/v10"
@@ -26,34 +27,37 @@ import (
 
 var vld *validator.Validate
 var connectionHelper *api.ConnectionApiHelper
-var scopeHelper *api.ScopeApiHelper[models.BambooConnection, models.BambooProject, models.BambooScopeConfig]
-var remoteHelper *api.RemoteApiHelper[models.BambooConnection, models.BambooProject, models.ApiBambooProject, api.NoRemoteGroupResponse]
+var scopeHelper *api.ScopeApiHelper[models.BambooConnection, models.BambooPlan, models.BambooScopeConfig]
+var remoteHelper *api.RemoteApiHelper[models.BambooConnection, models.BambooPlan, models.ApiBambooPlan, api.NoRemoteGroupResponse]
 var scopeConfigHelper *api.ScopeConfigHelper[models.BambooScopeConfig]
 
 var basicRes context.BasicRes
 
-func Init(br context.BasicRes) {
+func Init(br context.BasicRes, p plugin.PluginMeta) {
+
 	basicRes = br
 	vld = validator.New()
 	connectionHelper = api.NewConnectionHelper(
 		basicRes,
 		vld,
+		p.Name(),
 	)
 	params := &api.ReflectionParameters{
-		ScopeIdFieldName:  "ProjectKey",
-		ScopeIdColumnName: "project_key",
-		RawScopeParamName: "ProjectKey",
+		ScopeIdFieldName:     "PlanKey",
+		ScopeIdColumnName:    "plan_key",
+		RawScopeParamName:    "PlanKey",
+		SearchScopeParamName: "name",
 	}
-	scopeHelper = api.NewScopeHelper[models.BambooConnection, models.BambooProject, models.BambooScopeConfig](
+	scopeHelper = api.NewScopeHelper[models.BambooConnection, models.BambooPlan, models.BambooScopeConfig](
 		basicRes,
 		vld,
 		connectionHelper,
-		api.NewScopeDatabaseHelperImpl[models.BambooConnection, models.BambooProject, models.BambooScopeConfig](
+		api.NewScopeDatabaseHelperImpl[models.BambooConnection, models.BambooPlan, models.BambooScopeConfig](
 			basicRes, connectionHelper, params),
 		params,
 		nil,
 	)
-	remoteHelper = api.NewRemoteHelper[models.BambooConnection, models.BambooProject, models.ApiBambooProject, api.NoRemoteGroupResponse](
+	remoteHelper = api.NewRemoteHelper[models.BambooConnection, models.BambooPlan, models.ApiBambooPlan, api.NoRemoteGroupResponse](
 		basicRes,
 		vld,
 		connectionHelper,
@@ -61,5 +65,6 @@ func Init(br context.BasicRes) {
 	scopeConfigHelper = api.NewScopeConfigHelper[models.BambooScopeConfig](
 		basicRes,
 		vld,
+		p.Name(),
 	)
 }

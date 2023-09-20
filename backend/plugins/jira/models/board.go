@@ -21,7 +21,10 @@ import (
 	"fmt"
 
 	"github.com/apache/incubator-devlake/core/models/common"
+	"github.com/apache/incubator-devlake/core/plugin"
 )
+
+var _ plugin.ToolLayerScope = (*JiraBoard)(nil)
 
 type JiraBoard struct {
 	common.NoPKModel `json:"-" mapstructure:"-"`
@@ -42,6 +45,22 @@ func (b JiraBoard) ScopeName() string {
 	return b.Name
 }
 
+func (b JiraBoard) ScopeFullName() string {
+	return b.Name
+}
+
+func (b JiraBoard) ScopeParams() interface{} {
+	return &JiraApiParams{
+		ConnectionId: b.ConnectionId,
+		BoardId:      b.BoardId,
+	}
+}
+
 func (JiraBoard) TableName() string {
 	return "_tool_jira_boards"
+}
+
+type JiraApiParams struct {
+	ConnectionId uint64
+	BoardId      uint64
 }

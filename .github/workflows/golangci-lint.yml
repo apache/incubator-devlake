@@ -38,10 +38,11 @@ jobs:
           key: ${{ runner.os }}-backend-golangci-lint
       - name: generate mock
         run: |
+          go version
           cd backend
           make mock
       - name: golangci-lint
         uses: golangci/golangci-lint-action@v3
         with:
-          version: v1.50.1
+          version: v1.53.3
           working-directory: ./backend

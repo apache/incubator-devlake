@@ -45,10 +45,10 @@ func (connection ZentaoConn) PrepareApiClient(apiClient apihelperabstract.ApiCli
 	tokenResBody := &ApiAccessTokenResponse{}
 	err = helper.UnmarshalResponse(tokenRes, tokenResBody)
 	if err != nil {
-		return err
+		return errors.HttpStatus(http.StatusBadRequest).Wrap(err, "failed UnmarshalResponse for tokenResBody")
 	}
 	if tokenResBody.Token == "" {
-		return errors.Default.New("failed to request access token")
+		return errors.HttpStatus(http.StatusBadRequest).New("failed to request access token")
 	}
 	apiClient.SetHeaders(map[string]string{
 		"Token": fmt.Sprintf("%v", tokenResBody.Token),

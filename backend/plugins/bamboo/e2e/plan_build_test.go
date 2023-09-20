@@ -36,8 +36,8 @@ func TestBambooPlanBuildDataFlow(t *testing.T) {
 
 	taskData := &tasks.BambooTaskData{
 		Options: &models.BambooOptions{
-			ConnectionId: 3,
-			ProjectKey:   "TEST1",
+			ConnectionId: 1,
+			PlanKey:      "TEST-PLA2",
 			BambooScopeConfig: &models.BambooScopeConfig{
 				DeploymentPattern: "(?i)compile",
 				ProductionPattern: "(?i)compile",
@@ -48,11 +48,12 @@ func TestBambooPlanBuildDataFlow(t *testing.T) {
 	taskData.RegexEnricher.TryAdd(devops.DEPLOYMENT, taskData.Options.DeploymentPattern)
 	taskData.RegexEnricher.TryAdd(devops.PRODUCTION, taskData.Options.ProductionPattern)
 	// import raw data table
-	// SELECT * FROM _raw_bamboo_api_job_build INTO OUTFILE "/tmp/_raw_bamboo_api_job_build.csv" FIELDS TERMINATED BY ',' OPTIONALLY ENCLOSED BY '"' LINES TERMINATED BY '\r\n';
-	dataflowTester.ImportCsvIntoRawTable("./raw_tables/_raw_bamboo_api_plan_build.csv", "_raw_bamboo_api_plan_build")
+	// SELECT * FROM _raw_bamboo_api_job_build INTO OUTFILE "/tmp/_raw_bamboo_api_job_builds.csv" FIELDS TERMINATED BY ',' OPTIONALLY ENCLOSED BY '"' LINES TERMINATED BY '\r\n';
+	dataflowTester.ImportCsvIntoRawTable("./raw_tables/_raw_bamboo_api_plan_builds.csv", "_raw_bamboo_api_plan_builds")
 
 	// verify extraction
 	dataflowTester.FlushTabler(&models.BambooPlanBuild{})
+	dataflowTester.FlushTabler(&models.BambooPlanBuildVcsRevision{})
 	dataflowTester.Subtask(tasks.ExtractPlanBuildMeta, taskData)
 	dataflowTester.VerifyTable(
 		models.BambooPlanBuild{},

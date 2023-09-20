@@ -20,6 +20,7 @@ import { useState, useEffect } from 'react';
 import { FormGroup, InputGroup, TextArea, Tag, Switch, Icon, Intent, Colors } from '@blueprintjs/core';
 
 import { ExternalLink, HelpTooltip, Divider } from '@/components';
+import { DOC_URL } from '@/release';
 
 import * as S from './styled';
 
@@ -36,7 +37,7 @@ export const GitHubTransformation = ({ entities, transformation, setTransformati
     if (!transformation.deploymentPattern) {
       setEnableCICD(false);
     }
-  }, [transformation]);
+  }, []);
 
   const handleChangeEnableCICD = (e: React.FormEvent<HTMLInputElement>) => {
     const checked = (e.target as HTMLInputElement).checked;
@@ -59,11 +60,8 @@ export const GitHubTransformation = ({ entities, transformation, setTransformati
           <h2>Issue Tracking</h2>
           <p>
             Tell DevLake what your issue labels mean to view metrics such as{' '}
-            <ExternalLink link="https://devlake.apache.org/docs/Metrics/BugAge">Bug Age</ExternalLink>,{' '}
-            <ExternalLink link="https://devlake.apache.org/docs/Metrics/MTTR">
-              DORA - Median Time to Restore Service
-            </ExternalLink>
-            , etc.
+            <ExternalLink link={DOC_URL.METRICS.BUG_AGE}>Bug Age</ExternalLink>,{' '}
+            <ExternalLink link={DOC_URL.METRICS.MTTR}>DORA - Median Time to Restore Service</ExternalLink>, etc.
           </p>
           <div className="issue-type">
             <div className="title">
@@ -199,9 +197,7 @@ export const GitHubTransformation = ({ entities, transformation, setTransformati
             <>
               <p>
                 Use Regular Expression to define Deployments in DevLake in order to measure DORA metrics.{' '}
-                <ExternalLink link="https://devlake.apache.org/docs/Configuration/GitHub#step-3---adding-transformation-rules-optional">
-                  Learn more
-                </ExternalLink>
+                <ExternalLink link={DOC_URL.PLUGIN.GITHUB.TRANSFORMATION}>Learn more</ExternalLink>
               </p>
               <div style={{ marginTop: 16 }}>Convert a GitHub Workflow run as a DevLake Deployment when: </div>
               <div className="text">
@@ -251,9 +247,7 @@ export const GitHubTransformation = ({ entities, transformation, setTransformati
           <p>
             If you use labels to identify types and components of pull requests, use the following RegExes to extract
             them into corresponding columns.{' '}
-            <ExternalLink link="https://devlake.apache.org/docs/DataModels/DevLakeDomainLayerSchema#pull_requests">
-              Learn More
-            </ExternalLink>
+            <ExternalLink link={DOC_URL.DATA_MODELS.DEVLAKE_DOMAIN_LAYER_SCHEMA.PULL_REQUEST}>Learn More</ExternalLink>
           </p>
           <FormGroup
             inline
@@ -298,7 +292,7 @@ export const GitHubTransformation = ({ entities, transformation, setTransformati
           <h2>Cross-domain</h2>
           <p>
             Connect entities across domains to measure metrics such as{' '}
-            <ExternalLink link="https://devlake.apache.org/docs/Metrics/BugCountPer1kLinesOfCode">
+            <ExternalLink link={DOC_URL.METRICS.BUG_COUNT_PER_1K_LINES_OF_CODE}>
               Bug Count per 1k Lines of Code
             </ExternalLink>
             .

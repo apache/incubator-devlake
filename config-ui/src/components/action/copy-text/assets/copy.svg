@@ -1,0 +1,32 @@
+<!--
+Licensed to the Apache Software Foundation (ASF) under one or more
+contributor license agreements.  See the NOTICE file distributed with
+this work for additional information regarding copyright ownership.
+The ASF licenses this file to You under the Apache License, Version 2.0
+(the "License"); you may not use this file except in compliance with
+the License.  You may obtain a copy of the License at
+
+    http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
+-->
+<svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <g clip-path="url(#clip0_6939_12355)">
+    <path fill-rule="evenodd" clip-rule="evenodd"
+      d="M7.3335 6.66665C6.96531 6.66665 6.66683 6.96512 6.66683 7.33331V13.3333C6.66683 13.7015 6.96531 14 7.3335 14H13.3335C13.7017 14 14.0002 13.7015 14.0002 13.3333V7.33331C14.0002 6.96512 13.7017 6.66665 13.3335 6.66665H7.3335ZM5.3335 7.33331C5.3335 6.22874 6.22893 5.33331 7.3335 5.33331H13.3335C14.4381 5.33331 15.3335 6.22874 15.3335 7.33331V13.3333C15.3335 14.4379 14.4381 15.3333 13.3335 15.3333H7.3335C6.22893 15.3333 5.3335 14.4379 5.3335 13.3333V7.33331Z"
+      fill="#7497F7" />
+    <path fill-rule="evenodd" clip-rule="evenodd"
+      d="M2.6665 2.00002C2.48969 2.00002 2.32012 2.07026 2.1951 2.19528C2.07008 2.32031 1.99984 2.48988 1.99984 2.66669V8.66669C1.99984 8.8435 2.07008 9.01307 2.1951 9.13809C2.32012 9.26312 2.48969 9.33335 2.6665 9.33335H3.33317C3.70136 9.33335 3.99984 9.63183 3.99984 10C3.99984 10.3682 3.70136 10.6667 3.33317 10.6667H2.6665C2.13607 10.6667 1.62736 10.456 1.25229 10.0809C0.877218 9.70583 0.666504 9.19712 0.666504 8.66669V2.66669C0.666504 2.13625 0.877217 1.62755 1.25229 1.25247C1.62736 0.877401 2.13607 0.666687 2.6665 0.666687H8.6665C9.19694 0.666687 9.70564 0.877401 10.0807 1.25247C10.4558 1.62755 10.6665 2.13625 10.6665 2.66669V3.33335C10.6665 3.70154 10.368 4.00002 9.99984 4.00002C9.63165 4.00002 9.33317 3.70154 9.33317 3.33335V2.66669C9.33317 2.48988 9.26293 2.32031 9.13791 2.19528C9.01288 2.07026 8.84332 2.00002 8.6665 2.00002H2.6665Z"
+      fill="#7497F7" />
+  </g>
+  <defs>
+    <clipPath id="clip0_6939_12355">
+      <rect width="16" height="16" fill="white" />
+    </clipPath>
+  </defs>
+</svg>
+  

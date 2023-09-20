@@ -19,12 +19,14 @@ package tasks
 
 import (
 	"fmt"
+	"reflect"
+
 	"github.com/apache/incubator-devlake/core/dal"
 	"github.com/apache/incubator-devlake/core/errors"
 	"github.com/apache/incubator-devlake/core/models/domainlayer/code"
 	"github.com/apache/incubator-devlake/core/plugin"
+	"github.com/apache/incubator-devlake/plugins/refdiff/models"
 	"github.com/apache/incubator-devlake/plugins/refdiff/utils"
-	"reflect"
 )
 
 func CalculateCommitsDiff(taskCtx plugin.SubTaskContext) errors.Error {
@@ -40,7 +42,7 @@ func CalculateCommitsDiff(taskCtx plugin.SubTaskContext) errors.Error {
 
 	// get all data from finish_commits_diffs
 	commitPairsSrc := data.Options.AllPairs
-	var commitPairs RefCommitPairs
+	var commitPairs models.RefCommitPairs
 	refCommit := &code.RefCommit{}
 	for _, pair := range commitPairsSrc {
 		newRefId := fmt.Sprintf("%s:%s", repoId, pair[2])
@@ -103,7 +105,7 @@ func CalculateCommitsDiff(taskCtx plugin.SubTaskContext) errors.Error {
 
 	// calculate diffs for commits pairs and store them into database
 	commitsDiff := &code.CommitsDiff{}
-	finishedCommitDiff := &code.FinishedCommitsDiff{}
+	finishedCommitDiff := &models.FinishedCommitsDiff{}
 	lenCommitPairs := len(commitPairs)
 	taskCtx.SetProgress(0, lenCommitPairs)
 
@@ -133,7 +135,7 @@ func CalculateCommitsDiff(taskCtx plugin.SubTaskContext) errors.Error {
 
 		commitsDiffs := []code.CommitsDiff{}
 		refCommits := []code.RefCommit{}
-		finishedCommitDiffs := []code.FinishedCommitsDiff{}
+		finishedCommitDiffs := []models.FinishedCommitsDiff{}
 
 		commitsDiff.SortingIndex = 1
 		for _, sha := range lostSha {

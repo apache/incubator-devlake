@@ -32,27 +32,54 @@ const RAW_STORY_TABLE = "zentao_api_stories"
 
 var _ plugin.SubTaskEntryPoint = CollectStory
 
+var CollectStoryMeta = plugin.SubTaskMeta{
+	Name:             "collectStory",
+	EntryPoint:       CollectStory,
+	EnabledByDefault: true,
+	Description:      "Collect Story data from Zentao api",
+	DomainTypes:      []string{plugin.DOMAIN_TYPE_TICKET},
+}
+
+type storyInput struct {
+	Path        string
+	ProjectId   int64
+	ProductId   int64
+	ExecutionId int64
+}
+
 func CollectStory(taskCtx plugin.SubTaskContext) errors.Error {
 	data := taskCtx.GetData().(*ZentaoTaskData)
+	// project iterator
+	projectStoryIter := newIteratorFromSlice([]interface{}{
+		&storyInput{
+			ProjectId: data.Options.ProjectId,
+			Path:      fmt.Sprintf("/projects/%d", data.Options.ProjectId),
+		},
+	})
 
-	// this collect only work for product
-	if data.Options.ProductId == 0 {
-		return nil
+	// execution iterator
+	executionCursor, executionIterator, err := getExecutionIterator(taskCtx)
+	if err != nil {
+		return err
 	}
+	defer executionCursor.Close()
+	executionStoryIter := newIteratorWrapper(executionIterator, func(arg interface{}) interface{} {
+		return &storyInput{
+			ExecutionId: arg.(*input).Id,
+			Path:        fmt.Sprintf("/executions/%d", arg.(*input).Id),
+		}
+	})
 
 	collector, err := api.NewApiCollector(api.ApiCollectorArgs{
 		RawDataSubTaskArgs: api.RawDataSubTaskArgs{
-			Ctx: taskCtx,
-			Params: ZentaoApiParams{
-				ConnectionId: data.Options.ConnectionId,
-				ProductId:    data.Options.ProductId,
-				ProjectId:    data.Options.ProjectId,
-			},
-			Table: RAW_STORY_TABLE,
+			Ctx:     taskCtx,
+			Options: data.Options,
+			Table:   RAW_STORY_TABLE,
 		},
+		Input:       newIteratorConcator(projectStoryIter, executionStoryIter),
 		ApiClient:   data.ApiClient,
 		PageSize:    100,
-		UrlTemplate: "/products/{{ .Params.ProductId }}/stories",
+		UrlTemplate: "{{ .Input.Path }}/stories",
 		Query: func(reqData *api.RequestData) (url.Values, errors.Error) {
 			query := url.Values{}
 			query.Set("page", fmt.Sprintf("%v", reqData.Pager.Page))
@@ -66,8 +93,11 @@ func CollectStory(taskCtx plugin.SubTaskContext) errors.Error {
 				Story []json.RawMessage `json:"stories"`
 			}
 			err := api.UnmarshalResponse(res, &data)
+			if errors.Is(err, api.ErrEmptyResponse) {
+				return nil, nil
+			}
 			if err != nil {
-				return nil, errors.Default.Wrap(err, "error reading endpoint response by Zentao bug collector")
+				return nil, errors.Default.Wrap(err, "error reading endpoint response by Zentao story collector")
 			}
 			return data.Story, nil
 		},
@@ -77,12 +107,4 @@ func CollectStory(taskCtx plugin.SubTaskContext) errors.Error {
 	}
 
 	return collector.Execute()
-}
-
-var CollectStoryMeta = plugin.SubTaskMeta{
-	Name:             "collectStory",
-	EntryPoint:       CollectStory,
-	EnabledByDefault: true,
-	Description:      "Collect Story data from Zentao api",
-	DomainTypes:      []string{plugin.DOMAIN_TYPE_TICKET},
 }

@@ -19,6 +19,7 @@ package api
 
 import (
 	"github.com/apache/incubator-devlake/core/context"
+	"github.com/apache/incubator-devlake/core/plugin"
 	"github.com/apache/incubator-devlake/helpers/pluginhelper/api"
 	"github.com/apache/incubator-devlake/plugins/jenkins/models"
 	"github.com/go-playground/validator/v10"
@@ -32,17 +33,20 @@ var remoteHelper *api.RemoteApiHelper[models.JenkinsConnection, models.JenkinsJo
 var basicRes context.BasicRes
 var scHelper *api.ScopeConfigHelper[models.JenkinsScopeConfig]
 
-func Init(br context.BasicRes) {
+func Init(br context.BasicRes, p plugin.PluginMeta) {
+
 	basicRes = br
 	vld = validator.New()
 	connectionHelper = api.NewConnectionHelper(
 		basicRes,
 		vld,
+		p.Name(),
 	)
 	params := &api.ReflectionParameters{
-		ScopeIdFieldName:  "FullName",
-		ScopeIdColumnName: "full_name",
-		RawScopeParamName: "FullName",
+		ScopeIdFieldName:     "FullName",
+		ScopeIdColumnName:    "full_name",
+		RawScopeParamName:    "FullName",
+		SearchScopeParamName: "full_name",
 	}
 	scopeHelper = api.NewScopeHelper[models.JenkinsConnection, models.JenkinsJob, models.JenkinsScopeConfig](
 		basicRes,
@@ -61,5 +65,6 @@ func Init(br context.BasicRes) {
 	scHelper = api.NewScopeConfigHelper[models.JenkinsScopeConfig](
 		basicRes,
 		vld,
+		p.Name(),
 	)
 }

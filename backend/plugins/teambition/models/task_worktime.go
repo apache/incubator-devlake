@@ -19,24 +19,23 @@ package models
 
 import (
 	"github.com/apache/incubator-devlake/core/models/common"
-	"github.com/apache/incubator-devlake/helpers/pluginhelper/api"
 )
 
 type TeambitionTaskWorktime struct {
-	ConnectionId uint64           `gorm:"primaryKey;type:BIGINT"`
-	ProjectId    string           `gorm:"primaryKey;type:varchar(100)" json:"projectId"`
-	TaskId       string           `gorm:"primaryKey;type:varchar(100)" json:"taskId"`
-	WorktimeId   string           `gorm:"primaryKey;type:varchar(100)" json:"worktimeId"`
-	ObjectType   string           `gorm:"type:varchar(100)" json:"objectType"`
-	ObjectId     string           `gorm:"type:varchar(100)" json:"objectId"`
-	Worktime     uint64           `json:"worktime"`
-	UserId       string           `gorm:"type:varchar(100)" json:"userId"`
-	Date         *api.Iso8601Time `json:"date"`
-	Description  string           `gorm:"type:text" json:"description"`
-	OrgId        string           `gorm:"type:varchar(100)" json:"orgId"`
-	SubmitterId  string           `gorm:"type:varchar(100)" json:"submitterId"`
-	CreatedAt    *api.Iso8601Time `json:"createdAt"`
-	UpdatedAt    *api.Iso8601Time `json:"updatedAt"`
+	ConnectionId uint64              `gorm:"primaryKey;type:BIGINT"`
+	ProjectId    string              `gorm:"primaryKey;type:varchar(100)" json:"projectId"`
+	TaskId       string              `gorm:"primaryKey;type:varchar(100)" json:"taskId"`
+	WorktimeId   string              `gorm:"primaryKey;type:varchar(100)" json:"worktimeId"`
+	ObjectType   string              `gorm:"type:varchar(100)" json:"objectType"`
+	ObjectId     string              `gorm:"type:varchar(100)" json:"objectId"`
+	Worktime     uint64              `json:"worktime"`
+	UserId       string              `gorm:"type:varchar(100)" json:"userId"`
+	Date         *common.Iso8601Time `json:"date"`
+	Description  string              `gorm:"type:text" json:"description"`
+	OrgId        string              `gorm:"type:varchar(100)" json:"orgId"`
+	SubmitterId  string              `gorm:"type:varchar(100)" json:"submitterId"`
+	CreatedAt    *common.Iso8601Time `json:"createdAt"`
+	UpdatedAt    *common.Iso8601Time `json:"updatedAt"`
 
 	common.NoPKModel
 }

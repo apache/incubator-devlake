@@ -18,6 +18,8 @@ limitations under the License.
 package tasks
 
 import (
+	"reflect"
+
 	"github.com/apache/incubator-devlake/core/dal"
 	"github.com/apache/incubator-devlake/core/errors"
 	"github.com/apache/incubator-devlake/core/models/domainlayer"
@@ -26,9 +28,11 @@ import (
 	"github.com/apache/incubator-devlake/core/plugin"
 	"github.com/apache/incubator-devlake/helpers/pluginhelper/api"
 	"github.com/apache/incubator-devlake/plugins/github/models"
-	"reflect"
-	"strings"
 )
+
+func init() {
+	RegisterSubtaskMeta(&ConvertJobsMeta)
+}
 
 var ConvertJobsMeta = plugin.SubTaskMeta{
 	Name:             "convertJobs",
@@ -36,6 +40,13 @@ var ConvertJobsMeta = plugin.SubTaskMeta{
 	EnabledByDefault: true,
 	Description:      "Convert tool layer table github_jobs into  domain layer table cicd_tasks",
 	DomainTypes:      []string{plugin.DOMAIN_TYPE_CICD},
+	DependencyTables: []string{
+		RAW_JOB_TABLE,
+		models.GithubJob{}.TableName(), // cursor and generator
+		models.GithubRun{}.TableName(), // id generator
+		//models.GithubRepo{}.TableName(), // id generator, but config will not regard as dependency
+	},
+	ProductTables: []string{devops.CICDTask{}.TableName()},
 }
 
 type SimpleBranch struct {
@@ -85,22 +96,18 @@ func ConvertJobs(taskCtx plugin.SubTaskContext) (err errors.Error) {
 				CicdScopeId:  repoIdGen.Generate(data.Options.ConnectionId, line.RepoId),
 				Type:         line.Type,
 				Environment:  line.Environment,
+				Result: devops.GetResult(&devops.ResultRule{
+					Failed:  []string{"failure", "FAILURE"},
+					Success: []string{"success", "SUCCESS"},
+					Skipped: []string{"skipped", "SKIPPED"},
+				}, line.Conclusion),
+				Status: devops.GetStatus(&devops.StatusRule[string]{
+					Done:    []string{"completed", "COMPLETED"},
+					Default: devops.STATUS_IN_PROGRESS,
+				}, line.Status),
 			}
 
-			if strings.Contains(line.Conclusion, "SUCCESS") {
-				domainJob.Result = devops.SUCCESS
-			} else if strings.Contains(line.Conclusion, "FAILURE") {
-				domainJob.Result = devops.FAILURE
-			} else if strings.Contains(line.Conclusion, "ABORT") {
-				domainJob.Result = devops.ABORT
-			} else {
-				domainJob.Result = ""
-			}
-
-			if line.Status != "COMPLETED" {
-				domainJob.Status = devops.IN_PROGRESS
-			} else {
-				domainJob.Status = devops.DONE
+			if domainJob.Status == devops.STATUS_DONE {
 				domainJob.DurationSec = uint64(line.CompletedAt.Sub(*line.StartedAt).Seconds())
 			}
 

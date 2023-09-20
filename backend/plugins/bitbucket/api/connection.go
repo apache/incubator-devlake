@@ -114,16 +114,11 @@ func PatchConnection(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput,
 // @Tags plugins/bitbucket
 // @Success 200  {object} models.BitbucketConnection
 // @Failure 400  {string} errcode.Error "Bad Request"
+// @Failure 409  {object} services.BlueprintProjectPairs "References exist to this connection"
 // @Failure 500  {string} errcode.Error "Internal Error"
 // @Router /plugins/bitbucket/connections/{connectionId} [DELETE]
 func DeleteConnection(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, errors.Error) {
-	connection := &models.BitbucketConnection{}
-	err := connectionHelper.First(connection, input.Params)
-	if err != nil {
-		return nil, err
-	}
-	err = connectionHelper.Delete(connection)
-	return &plugin.ApiResourceOutput{Body: connection}, err
+	return connectionHelper.Delete(&models.BitbucketConnection{}, input)
 }
 
 // @Summary get all bitbucket connections

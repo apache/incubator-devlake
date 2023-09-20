@@ -19,7 +19,6 @@ package models
 
 import (
 	"github.com/apache/incubator-devlake/core/models/common"
-	helper "github.com/apache/incubator-devlake/helpers/pluginhelper/api"
 )
 
 type TapdTask struct {
@@ -29,16 +28,16 @@ type TapdTask struct {
 	Description     string          `json:"description"`
 	WorkspaceId     uint64          `json:"workspace_id,string"`
 	Creator         string          `gorm:"type:varchar(255)" json:"creator"`
-	Created         *helper.CSTTime `json:"created"`
-	Modified        *helper.CSTTime `json:"modified" gorm:"index"`
+	Created         *common.CSTTime `json:"created"`
+	Modified        *common.CSTTime `json:"modified" gorm:"index"`
 	Status          string          `json:"status" gorm:"type:varchar(255)"`
 	Owner           string          `json:"owner" gorm:"type:varchar(255)"`
 	Cc              string          `json:"cc" gorm:"type:varchar(255)"`
-	Begin           *helper.CSTTime `json:"begin"`
-	Due             *helper.CSTTime `json:"due"`
+	Begin           *common.CSTTime `json:"begin"`
+	Due             *common.CSTTime `json:"due"`
 	Priority        string          `gorm:"type:varchar(255)" json:"priority"`
 	IterationId     uint64          `json:"iteration_id,string"`
-	Completed       *helper.CSTTime `json:"completed"`
+	Completed       *common.CSTTime `json:"completed"`
 	Effort          float32         `json:"effort,string"`
 	EffortCompleted float32         `json:"effort_completed,string"`
 	Exceed          float32         `json:"exceed,string"`

@@ -23,6 +23,7 @@ import (
 
 	"github.com/apache/incubator-devlake/core/dal"
 	"github.com/apache/incubator-devlake/core/errors"
+	"github.com/apache/incubator-devlake/core/models/common"
 	"github.com/apache/incubator-devlake/core/models/domainlayer"
 	"github.com/apache/incubator-devlake/core/models/domainlayer/code"
 	"github.com/apache/incubator-devlake/core/models/domainlayer/crossdomain"
@@ -34,9 +35,9 @@ import (
 	"github.com/apache/incubator-devlake/plugins/github/models"
 )
 
-const RAW_REPOSITORIES_TABLE = "github_api_repositories"
-
-type ApiRepoResponse GithubApiRepo
+func init() {
+	RegisterSubtaskMeta(&ConvertRepoMeta)
+}
 
 type GithubApiRepo struct {
 	Name        string `json:"name"`
@@ -46,18 +47,32 @@ type GithubApiRepo struct {
 	Language    string `json:"language"`
 	Description string `json:"description"`
 	Owner       *GithubAccountResponse
-	Parent      *GithubApiRepo   `json:"parent"`
-	CreatedAt   api.Iso8601Time  `json:"created_at"`
-	UpdatedAt   *api.Iso8601Time `json:"updated_at"`
-	CloneUrl    string           `json:"clone_url"`
+	Parent      *GithubApiRepo      `json:"parent"`
+	CreatedAt   common.Iso8601Time  `json:"created_at"`
+	UpdatedAt   *common.Iso8601Time `json:"updated_at"`
+	CloneUrl    string              `json:"clone_url"`
 }
 
 var ConvertRepoMeta = plugin.SubTaskMeta{
 	Name:             "convertRepo",
 	EntryPoint:       ConvertRepo,
 	EnabledByDefault: true,
-	Description:      "Convert tool layer table github_repos into  domain layer table repos and boards",
-	DomainTypes:      []string{plugin.DOMAIN_TYPE_CODE, plugin.DOMAIN_TYPE_TICKET, plugin.DOMAIN_TYPE_CICD, plugin.DOMAIN_TYPE_CODE_REVIEW, plugin.DOMAIN_TYPE_CROSS},
+	Description:      "Convert tool layer table github_repos into domain layer table repos and boards",
+	DomainTypes: []string{
+		plugin.DOMAIN_TYPE_CODE,
+		plugin.DOMAIN_TYPE_TICKET,
+		plugin.DOMAIN_TYPE_CICD,
+		plugin.DOMAIN_TYPE_CODE_REVIEW,
+		plugin.DOMAIN_TYPE_CROSS},
+	DependencyTables: []string{
+		//models.GithubRepo{}.TableName(), // config will not regard as dependency
+		//RAW_REPOSITORIES_TABLE,
+	},
+	ProductTables: []string{
+		code.Repo{}.TableName(),
+		ticket.Board{}.TableName(),
+		crossdomain.BoardRepo{}.TableName(),
+		devops.CicdScope{}.TableName()},
 }
 
 func ConvertRepo(taskCtx plugin.SubTaskContext) errors.Error {
@@ -85,7 +100,7 @@ func ConvertRepo(taskCtx plugin.SubTaskContext) errors.Error {
 				ConnectionId: data.Options.ConnectionId,
 				Name:         data.Options.Name,
 			},
-			Table: RAW_REPOSITORIES_TABLE,
+			Table: models.GithubRepo{}.TableName(),
 		},
 		Convert: func(inputRow interface{}) ([]interface{}, errors.Error) {
 			repository := inputRow.(*models.GithubRepo)

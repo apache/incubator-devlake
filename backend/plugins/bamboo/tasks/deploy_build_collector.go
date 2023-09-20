@@ -31,22 +31,22 @@ import (
 	"github.com/apache/incubator-devlake/plugins/bamboo/models"
 )
 
-const RAW_DEPLOY_BUILD_TABLE = "bamboo_api_deploy_build"
+const RAW_DEPLOY_BUILD_TABLE = "bamboo_api_deploy_builds"
 
 var _ plugin.SubTaskEntryPoint = CollectDeployBuild
 
 type InputForEnv struct {
-	EnvId   uint64 `json:"env_id"`
-	PlanKey string `json:"plan_key"`
+	EnvId uint64 `json:"env_id"`
+	Name  string `json:"name"`
 }
 
 func CollectDeployBuild(taskCtx plugin.SubTaskContext) errors.Error {
 	rawDataSubTaskArgs, data := CreateRawDataSubTaskArgs(taskCtx, RAW_DEPLOY_BUILD_TABLE)
 	db := taskCtx.GetDal()
 	clauses := []dal.Clause{
-		dal.Select("env_id,plan_key"),
+		dal.Select("env_id, name"),
 		dal.From(models.BambooDeployEnvironment{}.TableName()),
-		dal.Where("project_key = ? and connection_id=?", data.Options.ProjectKey, data.Options.ConnectionId),
+		dal.Where("plan_key = ? and connection_id=?", data.Options.PlanKey, data.Options.ConnectionId),
 	}
 	cursor, err := db.Cursor(
 		clauses...,

@@ -18,14 +18,31 @@ limitations under the License.
 package e2e
 
 import (
+	gocontext "context"
 	"github.com/apache/incubator-devlake/core/models/common"
 	"github.com/apache/incubator-devlake/core/models/domainlayer/crossdomain"
+	"github.com/apache/incubator-devlake/core/runner"
 	"github.com/apache/incubator-devlake/helpers/e2ehelper"
+	helper "github.com/apache/incubator-devlake/helpers/pluginhelper/api"
 	"github.com/apache/incubator-devlake/plugins/zentao/impl"
 	"github.com/apache/incubator-devlake/plugins/zentao/models"
 	"github.com/apache/incubator-devlake/plugins/zentao/tasks"
 	"testing"
+	"time"
 )
+
+var basicContext = runner.CreateAppBasicRes()
+
+func getFakeAPIClient() *helper.ApiAsyncClient {
+	client, _ := helper.NewApiClient(gocontext.Background(),
+		"https://zentao.demo.haogs.cn/api.php/v1/",
+		nil, time.Second*5, "",
+		basicContext,
+	)
+	return &helper.ApiAsyncClient{
+		ApiClient: client,
+	}
+}
 
 func TestZentaoAccountDataFlow(t *testing.T) {
 
@@ -35,9 +52,10 @@ func TestZentaoAccountDataFlow(t *testing.T) {
 	taskData := &tasks.ZentaoTaskData{
 		Options: &tasks.ZentaoOptions{
 			ConnectionId: 1,
-			ProjectId:    1,
-			ProductId:    3,
+			ProjectId:    3,
 		},
+		AccountCache: tasks.NewAccountCache(dataflowTester.Dal, 1),
+		ApiClient:    getFakeAPIClient(),
 	}
 
 	// import raw data table

@@ -18,6 +18,28 @@
 
 import { request } from '@/utils';
 
+import * as T from './types';
+
+export const getRemoteScope = (
+  plugin: string,
+  connectionId: ID,
+  params: T.GetRemoteScopeParams,
+): Promise<{ children: T.ResItem[]; nextPageToken: string }> =>
+  request(`/plugins/${plugin}/connections/${connectionId}/remote-scopes`, {
+    method: 'get',
+    data: params,
+  });
+
+export const searchRemoteScope = (
+  plugin: string,
+  connectionId: ID,
+  params: T.SearchRemoteScopeParams,
+): Promise<{ children: T.ResItem[]; count: number }> =>
+  request(`/plugins/${plugin}/connections/${connectionId}/search-remote-scopes`, {
+    method: 'get',
+    data: params,
+  });
+
 export const getDataScope = (plugin: string, connectionId: ID, scopeId: string) =>
   request(`/plugins/${plugin}/connections/${connectionId}/scopes/${scopeId}`);
 

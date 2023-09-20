@@ -71,7 +71,7 @@ export const ScopeConfigSelect = ({ plugin, connectionId, scopeConfigId, onCance
 
   return (
     <S.Wrapper>
-      <Buttons>
+      <Buttons position="top">
         <Button icon="add" intent={Intent.PRIMARY} text="Add New Scope Config" onClick={handleShowDialog} />
       </Buttons>
       <Table
@@ -88,7 +88,6 @@ export const ScopeConfigSelect = ({ plugin, connectionId, scopeConfigId, onCance
         ]}
         dataSource={dataSource}
         rowSelection={{
-          rowKey: 'id',
           type: 'radio',
           selectedRowKeys: trId ? [trId] : [],
           onChange: (selectedRowKeys) => setTrId(selectedRowKeys[0]),
@@ -100,7 +99,7 @@ export const ScopeConfigSelect = ({ plugin, connectionId, scopeConfigId, onCance
         <Button disabled={!trId} intent={Intent.PRIMARY} text="Save" onClick={() => trId && onSubmit?.(trId)} />
       </Buttons>
       <Dialog
-        style={{ width: 820 }}
+        style={{ width: 960 }}
         footer={null}
         isOpen={isOpen}
         title={!updatedId ? 'Add Scope Config' : 'Edit Scope Config'}

@@ -19,6 +19,7 @@ package tasks
 
 import (
 	"encoding/json"
+
 	"github.com/apache/incubator-devlake/core/errors"
 	"github.com/apache/incubator-devlake/core/plugin"
 	"github.com/apache/incubator-devlake/helpers/pluginhelper/api"
@@ -39,24 +40,19 @@ func ExtractAccount(taskCtx plugin.SubTaskContext) errors.Error {
 	data := taskCtx.GetData().(*ZentaoTaskData)
 	extractor, err := api.NewApiExtractor(api.ApiExtractorArgs{
 		RawDataSubTaskArgs: api.RawDataSubTaskArgs{
-			Ctx: taskCtx,
-			Params: ZentaoApiParams{
-				ConnectionId: data.Options.ConnectionId,
-				ProductId:    data.Options.ProductId,
-				ProjectId:    data.Options.ProjectId,
-			},
-			Table: RAW_ACCOUNT_TABLE,
+			Ctx:     taskCtx,
+			Options: data.Options,
+			Table:   RAW_ACCOUNT_TABLE,
 		},
 		Extract: func(row *api.RawData) ([]interface{}, errors.Error) {
-			account := &models.ZentaoAccount{}
-			err := json.Unmarshal(row.Data, account)
+			var account models.ZentaoAccount
+			err := json.Unmarshal(row.Data, &account)
 			if err != nil {
 				return nil, errors.Default.WrapRaw(err)
 			}
 			account.ConnectionId = data.Options.ConnectionId
-			results := make([]interface{}, 0)
-			results = append(results, account)
-			return results, nil
+			data.AccountCache.put(account)
+			return []interface{}{&account}, nil
 		},
 	})
 

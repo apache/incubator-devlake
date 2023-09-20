@@ -22,10 +22,8 @@ import (
 	"time"
 
 	"github.com/apache/incubator-devlake/core/errors"
-	helper "github.com/apache/incubator-devlake/helpers/pluginhelper/api"
+	"github.com/apache/incubator-devlake/core/models/common"
 	"github.com/apache/incubator-devlake/plugins/jira/models"
-
-	"gorm.io/datatypes"
 )
 
 type Issue struct {
@@ -67,7 +65,7 @@ type Issue struct {
 		FixVersions        []interface{}       `json:"fixVersions"`
 		Aggregatetimespent interface{}         `json:"aggregatetimespent"`
 		Resolution         interface{}         `json:"resolution"`
-		Resolutiondate     *helper.Iso8601Time `json:"resolutiondate"`
+		Resolutiondate     *common.Iso8601Time `json:"resolutiondate"`
 		Workratio          int                 `json:"workratio"`
 		LastViewed         string              `json:"lastViewed"`
 		Watches            struct {
@@ -75,7 +73,7 @@ type Issue struct {
 			WatchCount int    `json:"watchCount"`
 			IsWatching bool   `json:"isWatching"`
 		} `json:"watches"`
-		Created *helper.Iso8601Time `json:"created"`
+		Created *common.Iso8601Time `json:"created"`
 		Epic    *struct {
 			ID      int    `json:"id"`
 			Key     string `json:"key"`
@@ -97,9 +95,9 @@ type Issue struct {
 		Timeestimate                  interface{}        `json:"timeestimate"`
 		Aggregatetimeoriginalestimate interface{}        `json:"aggregatetimeoriginalestimate"`
 		Versions                      []interface{}      `json:"versions"`
-		Issuelinks                    []interface{}      `json:"issuelinks"`
+		Issuelinks                    []IssueLink        `json:"issuelinks"`
 		Assignee                      *Account           `json:"assignee"`
-		Updated                       helper.Iso8601Time `json:"updated"`
+		Updated                       common.Iso8601Time `json:"updated"`
 		Status                        struct {
 			Self           string `json:"self"`
 			Description    string `json:"description"`
@@ -158,6 +156,60 @@ type Issue struct {
 		Total      int         `json:"total"`
 		Histories  []Changelog `json:"histories"`
 	} `json:"changelog"`
+}
+
+type IssueLinkType struct {
+	ID      uint64 `json:"id,string"`
+	Name    string `json:"name"`
+	Inward  string `json:"inward"`
+	Outward string `json:"outward"`
+	Self    string `json:"self"`
+}
+
+type InOutwardIssue struct {
+	ID     uint64 `json:"id,string"`
+	Key    string `json:"key"`
+	Self   string `json:"self"`
+	Fields struct {
+		Summary string `json:"summary"`
+		Status  struct {
+			Self           string `json:"self"`
+			Description    string `json:"description"`
+			IconURL        string `json:"iconUrl"`
+			Name           string `json:"name"`
+			ID             uint64 `json:"id,string"`
+			StatusCategory struct {
+				Self      string `json:"self"`
+				ID        int    `json:"id"`
+				Key       string `json:"key"`
+				ColorName string `json:"colorName"`
+				Name      string `json:"name"`
+			} `json:"statusCategory"`
+		} `json:"status"`
+		Priority struct {
+			Self    string `json:"self"`
+			IconURL string `json:"iconUrl"`
+			Name    string `json:"name"`
+			ID      uint64 `json:"id,string"`
+		} `json:"priority"`
+		Issuetype struct {
+			Self        string `json:"self"`
+			ID          uint64 `json:"id,string"`
+			Description string `json:"description"`
+			IconURL     string `json:"iconUrl"`
+			Name        string `json:"name"`
+			Subtask     bool   `json:"subtask"`
+			AvatarID    int    `json:"avatarId"`
+		} `json:"issuetype"`
+	} `json:"fields"`
+}
+
+type IssueLink struct {
+	ID           uint64         `json:"id,string"`
+	Self         string         `json:"self"`
+	Type         IssueLinkType  `json:"type"`
+	InwardIssue  InOutwardIssue `json:"inwardIssue"`
+	OutwardIssue InOutwardIssue `json:"outwardIssue"`
 }
 
 func (i Issue) toToolLayer(connectionId uint64) *models.JiraIssue {
@@ -219,7 +271,7 @@ func (i Issue) toToolLayer(connectionId uint64) *models.JiraIssue {
 	return result
 }
 
-func (i *Issue) SetAllFields(raw datatypes.JSON) errors.Error {
+func (i *Issue) SetAllFields(raw json.RawMessage) errors.Error {
 	var issue2 struct {
 		Expand string          `json:"expand"`
 		ID     uint64          `json:"id,string"`

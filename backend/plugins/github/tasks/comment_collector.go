@@ -28,7 +28,21 @@ import (
 	helper "github.com/apache/incubator-devlake/helpers/pluginhelper/api"
 )
 
+func init() {
+	RegisterSubtaskMeta(&CollectApiCommentsMeta)
+}
+
 const RAW_COMMENTS_TABLE = "github_api_comments"
+
+var CollectApiCommentsMeta = plugin.SubTaskMeta{
+	Name:             "collectApiComments",
+	EntryPoint:       CollectApiComments,
+	EnabledByDefault: true,
+	Description:      "Collect comments data from Github api, supports both timeFilter and diffSync.",
+	DomainTypes:      []string{plugin.DOMAIN_TYPE_CODE_REVIEW, plugin.DOMAIN_TYPE_TICKET},
+	DependencyTables: []string{},
+	ProductTables:    []string{RAW_COMMENTS_TABLE},
+}
 
 func CollectApiComments(taskCtx plugin.SubTaskContext) errors.Error {
 	data := taskCtx.GetData().(*GithubTaskData)
@@ -39,30 +53,20 @@ func CollectApiComments(taskCtx plugin.SubTaskContext) errors.Error {
 			Name:         data.Options.Name,
 		},
 		Table: RAW_COMMENTS_TABLE,
-	}, data.TimeAfter)
+	})
 	if err != nil {
 		return err
 	}
 
-	incremental := collectorWithState.IsIncremental()
 	err = collectorWithState.InitCollector(helper.ApiCollectorArgs{
 		ApiClient:   data.ApiClient,
 		PageSize:    100,
-		Incremental: incremental,
-
 		UrlTemplate: "repos/{{ .Params.Name }}/issues/comments",
 		Query: func(reqData *helper.RequestData) (url.Values, errors.Error) {
 			query := url.Values{}
 			query.Set("state", "all")
-			if data.TimeAfter != nil {
-				// Note that `since` is for filtering records by the `updated` time
-				// which is not ideal for semantic reasons and would result in slightly more records than expected.
-				// But we have no choice since it is the only available field we could exploit from the API.
-				query.Set("since", data.TimeAfter.String())
-			}
-			// if incremental == true, we overwrite it
-			if incremental {
-				query.Set("since", collectorWithState.LatestState.LatestSuccessStart.String())
+			if collectorWithState.Since != nil {
+				query.Set("since", collectorWithState.Since.String())
 			}
 			query.Set("page", fmt.Sprintf("%v", reqData.Pager.Page))
 			query.Set("direction", "asc")
@@ -86,12 +90,4 @@ func CollectApiComments(taskCtx plugin.SubTaskContext) errors.Error {
 	}
 
 	return collectorWithState.Execute()
-}
-
-var CollectApiCommentsMeta = plugin.SubTaskMeta{
-	Name:             "collectApiComments",
-	EntryPoint:       CollectApiComments,
-	EnabledByDefault: true,
-	Description:      "Collect comments data from Github api, supports both timeFilter and diffSync.",
-	DomainTypes:      []string{plugin.DOMAIN_TYPE_CODE_REVIEW, plugin.DOMAIN_TYPE_TICKET},
 }

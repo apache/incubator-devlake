@@ -18,11 +18,11 @@ limitations under the License.
 package helper
 
 import (
-	"github.com/apache/incubator-devlake/core/config"
-	"github.com/apache/incubator-devlake/core/models"
 	"time"
 
-	"github.com/apache/incubator-devlake/core/plugin"
+	"github.com/apache/incubator-devlake/core/config"
+	"github.com/apache/incubator-devlake/core/models"
+
 	"github.com/apache/incubator-devlake/helpers/pluginhelper/api"
 )
 
@@ -43,6 +43,15 @@ type (
 		ScopeConfig any
 		Blueprints  []*models.Blueprint
 	}
+
+	ScopeListResponseIn struct {
+		Scopes []map[string]interface{}
+		Count  int64
+	}
+	ScopeListResponseOut struct {
+		Scopes []ScopeResponse
+		Count  int64
+	}
 )
 
 type Connection struct {
@@ -52,7 +61,7 @@ type Connection struct {
 }
 
 type BlueprintV2Config struct {
-	Connection  *plugin.BlueprintConnectionV200
+	Connection  *models.BlueprintConnection
 	TimeAfter   *time.Time
 	SkipOnFail  bool
 	ProjectName string

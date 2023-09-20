@@ -18,8 +18,9 @@ limitations under the License.
 package tasks
 
 import (
-	"github.com/apache/incubator-devlake/core/models/domainlayer/devops"
 	"reflect"
+
+	"github.com/apache/incubator-devlake/core/models/domainlayer/devops"
 
 	"github.com/apache/incubator-devlake/core/dal"
 	"github.com/apache/incubator-devlake/core/errors"
@@ -40,24 +41,17 @@ var ConvertPlanVcsMeta = plugin.SubTaskMeta{
 func ConvertPlanVcs(taskCtx plugin.SubTaskContext) errors.Error {
 	db := taskCtx.GetDal()
 	rawDataSubTaskArgs, data := CreateRawDataSubTaskArgs(taskCtx, RAW_PLAN_BUILD_TABLE)
-	deploymentPattern := data.Options.DeploymentPattern
-	productionPattern := data.Options.ProductionPattern
-	regexEnricher := api.NewRegexEnricher()
-	err := regexEnricher.AddRegexp(deploymentPattern, productionPattern)
-	if err != nil {
-		return err
-	}
 	cursor, err := db.Cursor(
 		dal.From(&models.BambooPlanBuildVcsRevision{}),
 		dal.Join(`left join _tool_bamboo_plan_builds on _tool_bamboo_plan_builds.plan_build_key = _tool_bamboo_plan_build_commits.plan_build_key`),
-		dal.Where("_tool_bamboo_plan_build_commits.connection_id = ? and _tool_bamboo_plan_builds.project_key = ?", data.Options.ConnectionId, data.Options.ProjectKey))
+		dal.Where("_tool_bamboo_plan_build_commits.connection_id = ? and _tool_bamboo_plan_builds.plan_key = ?", data.Options.ConnectionId, data.Options.PlanKey))
 	if err != nil {
 		return err
 	}
 	defer cursor.Close()
 
 	planBuildIdGen := didgen.NewDomainIdGenerator(&models.BambooPlanBuild{})
-	repoMap := getRepoMap(data.Options.RepoMap)
+	repoMap := data.Options.GetRepoIdMap()
 	converter, err := api.NewDataConverter(api.DataConverterArgs{
 		InputRowType:       reflect.TypeOf(models.BambooPlanBuildVcsRevision{}),
 		Input:              cursor,

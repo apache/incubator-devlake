@@ -18,30 +18,41 @@ limitations under the License.
 package models
 
 import (
-	"encoding/json"
 	"regexp"
 
 	"github.com/apache/incubator-devlake/core/errors"
 	"github.com/apache/incubator-devlake/core/models/common"
 )
 
+type StatusMapping struct {
+	StandardStatus string `json:"standardStatus"`
+}
+
+type StatusMappings map[string]StatusMapping
+
+type TypeMapping struct {
+	StandardType   string         `json:"standardType"`
+	StatusMappings StatusMappings `json:"statusMappings"`
+}
+
+type CommitUrlPattern struct {
+	Pattern string `json:"pattern"`
+	Regex   string `json:"regex"`
+}
+
 type JiraScopeConfig struct {
 	common.ScopeConfig         `mapstructure:",squash" json:",inline" gorm:"embedded"`
-	ConnectionId               uint64          `mapstructure:"connectionId" json:"connectionId"`
-	Name                       string          `mapstructure:"name" json:"name" gorm:"type:varchar(255);index:idx_name_jira,unique" validate:"required"`
-	EpicKeyField               string          `mapstructure:"epicKeyField,omitempty" json:"epicKeyField" gorm:"type:varchar(255)"`
-	StoryPointField            string          `mapstructure:"storyPointField,omitempty" json:"storyPointField" gorm:"type:varchar(255)"`
-	RemotelinkCommitShaPattern string          `mapstructure:"remotelinkCommitShaPattern,omitempty" json:"remotelinkCommitShaPattern" gorm:"type:varchar(255)"`
-	RemotelinkRepoPattern      json.RawMessage `mapstructure:"remotelinkRepoPattern,omitempty" json:"remotelinkRepoPattern"`
-	TypeMappings               json.RawMessage `mapstructure:"typeMappings,omitempty" json:"typeMappings"`
-	ApplicationType            string          `mapstructure:"applicationType,omitempty" json:"applicationType" gorm:"type:varchar(255)"`
+	ConnectionId               uint64                 `mapstructure:"connectionId" json:"connectionId"`
+	Name                       string                 `mapstructure:"name" json:"name" gorm:"type:varchar(255);index:idx_name_jira,unique" validate:"required"`
+	EpicKeyField               string                 `mapstructure:"epicKeyField,omitempty" json:"epicKeyField" gorm:"type:varchar(255)"`
+	StoryPointField            string                 `mapstructure:"storyPointField,omitempty" json:"storyPointField" gorm:"type:varchar(255)"`
+	RemotelinkCommitShaPattern string                 `mapstructure:"remotelinkCommitShaPattern,omitempty" json:"remotelinkCommitShaPattern" gorm:"type:varchar(255)"`
+	RemotelinkRepoPattern      []CommitUrlPattern     `mapstructure:"remotelinkRepoPattern,omitempty" json:"remotelinkRepoPattern" gorm:"type:json;serializer:json"`
+	TypeMappings               map[string]TypeMapping `mapstructure:"typeMappings,omitempty" json:"typeMappings" gorm:"type:json;serializer:json"`
+	ApplicationType            string                 `mapstructure:"applicationType,omitempty" json:"applicationType" gorm:"type:varchar(255)"`
 }
 
-func (r JiraScopeConfig) TableName() string {
-	return "_tool_jira_scope_configs"
-}
-
-func (r JiraScopeConfig) VerifyRegexp() errors.Error {
+func (r *JiraScopeConfig) Validate() errors.Error {
 	var err error
 	if r.RemotelinkCommitShaPattern != "" {
 		_, err = regexp.Compile(r.RemotelinkCommitShaPattern)
@@ -49,16 +60,18 @@ func (r JiraScopeConfig) VerifyRegexp() errors.Error {
 			return errors.Convert(err)
 		}
 	}
-	var repoPatterns []string
-	err = json.Unmarshal(r.RemotelinkRepoPattern, &repoPatterns)
-	if err != nil {
-		return errors.Convert(err)
-	}
-	for _, pattern := range repoPatterns {
-		_, err = regexp.Compile(pattern)
+	for _, pattern := range r.RemotelinkRepoPattern {
+		if pattern.Regex == "" {
+			return errors.BadInput.New("empty regex in remotelinkRepoPattern")
+		}
+		_, err = regexp.Compile(pattern.Regex)
 		if err != nil {
 			return errors.Convert(err)
 		}
 	}
 	return nil
+}
+
+func (r JiraScopeConfig) TableName() string {
+	return "_tool_jira_scope_configs"
 }

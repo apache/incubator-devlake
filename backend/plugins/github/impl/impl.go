@@ -19,13 +19,14 @@ package impl
 
 import (
 	"fmt"
-	"time"
 
-	"github.com/apache/incubator-devlake/core/models/domainlayer/devops"
+	"github.com/apache/incubator-devlake/helpers/pluginhelper/subtaskmeta/sorter"
 
 	"github.com/apache/incubator-devlake/core/context"
 	"github.com/apache/incubator-devlake/core/dal"
 	"github.com/apache/incubator-devlake/core/errors"
+	coreModels "github.com/apache/incubator-devlake/core/models"
+	"github.com/apache/incubator-devlake/core/models/domainlayer/devops"
 	"github.com/apache/incubator-devlake/core/plugin"
 	helper "github.com/apache/incubator-devlake/helpers/pluginhelper/api"
 	"github.com/apache/incubator-devlake/plugins/github/api"
@@ -34,32 +35,45 @@ import (
 	"github.com/apache/incubator-devlake/plugins/github/tasks"
 )
 
-var _ plugin.PluginMeta = (*Github)(nil)
-var _ plugin.PluginInit = (*Github)(nil)
-var _ plugin.PluginTask = (*Github)(nil)
-var _ plugin.PluginApi = (*Github)(nil)
-var _ plugin.PluginModel = (*Github)(nil)
-var _ plugin.DataSourcePluginBlueprintV200 = (*Github)(nil)
-var _ plugin.CloseablePluginTask = (*Github)(nil)
+var _ interface {
+	plugin.PluginMeta
+	plugin.PluginInit
+	plugin.PluginTask
+	plugin.PluginApi
+	plugin.PluginModel
+	plugin.PluginSource
+	plugin.DataSourcePluginBlueprintV200
+	plugin.CloseablePluginTask
+} = (*Github)(nil)
 
-// var _ plugin.PluginSource = (*Github)(nil)
+var sortedSubtaskMetas []plugin.SubTaskMeta
 
 type Github struct{}
 
-func (p Github) Connection() interface{} {
+func init() {
+	var err error
+	// check subtask meta loop and gen subtask list when plugin init
+	sortedSubtaskMetas, err = sorter.NewTableSorter(tasks.SubTaskMetaList).Sort()
+	if err != nil {
+		panic(err)
+	}
+}
+
+func (p Github) Connection() dal.Tabler {
 	return &models.GithubConnection{}
 }
 
-func (p Github) Scope() interface{} {
+func (p Github) Scope() plugin.ToolLayerScope {
 	return &models.GithubRepo{}
 }
 
-func (p Github) ScopeConfig() interface{} {
+func (p Github) ScopeConfig() dal.Tabler {
 	return &models.GithubScopeConfig{}
 }
 
 func (p Github) Init(basicRes context.BasicRes) errors.Error {
-	api.Init(basicRes)
+	api.Init(basicRes, p)
+
 	return nil
 }
 
@@ -87,6 +101,8 @@ func (p Github) GetTablesInfo() []dal.Tabler {
 		&models.GithubRepoCommit{},
 		&models.GithubReviewer{},
 		&models.GithubRun{},
+		&models.GithubIssueAssignee{},
+		&models.GithubScopeConfig{},
 	}
 }
 
@@ -94,54 +110,12 @@ func (p Github) Description() string {
 	return "To collect and enrich data from GitHub"
 }
 
+func (p Github) Name() string {
+	return "github"
+}
+
 func (p Github) SubTaskMetas() []plugin.SubTaskMeta {
-	return []plugin.SubTaskMeta{
-		tasks.CollectApiIssuesMeta,
-		tasks.ExtractApiIssuesMeta,
-		tasks.CollectApiPullRequestsMeta,
-		tasks.ExtractApiPullRequestsMeta,
-		tasks.CollectApiCommentsMeta,
-		tasks.ExtractApiCommentsMeta,
-		tasks.CollectApiEventsMeta,
-		tasks.ExtractApiEventsMeta,
-		tasks.CollectApiPullRequestCommitsMeta,
-		tasks.ExtractApiPullRequestCommitsMeta,
-		tasks.CollectApiPullRequestReviewsMeta,
-		tasks.ExtractApiPullRequestReviewsMeta,
-		tasks.CollectApiPrReviewCommentsMeta,
-		tasks.ExtractApiPrReviewCommentsMeta,
-		tasks.CollectApiCommitsMeta,
-		tasks.ExtractApiCommitsMeta,
-		tasks.CollectApiCommitStatsMeta,
-		tasks.ExtractApiCommitStatsMeta,
-		tasks.CollectMilestonesMeta,
-		tasks.ExtractMilestonesMeta,
-		tasks.CollectAccountsMeta,
-		tasks.ExtractAccountsMeta,
-		tasks.CollectAccountOrgMeta,
-		tasks.ExtractAccountOrgMeta,
-		tasks.CollectRunsMeta,
-		tasks.ExtractRunsMeta,
-		tasks.ConvertRunsMeta,
-		tasks.CollectJobsMeta,
-		tasks.ExtractJobsMeta,
-		tasks.ConvertJobsMeta,
-		tasks.EnrichPullRequestIssuesMeta,
-		tasks.ConvertRepoMeta,
-		tasks.ConvertIssuesMeta,
-		tasks.ConvertIssueAssigneeMeta,
-		tasks.ConvertCommitsMeta,
-		tasks.ConvertIssueLabelsMeta,
-		tasks.ConvertPullRequestCommitsMeta,
-		tasks.ConvertPullRequestsMeta,
-		tasks.ConvertPullRequestReviewsMeta,
-		tasks.ConvertPullRequestLabelsMeta,
-		tasks.ConvertPullRequestIssuesMeta,
-		tasks.ConvertIssueCommentsMeta,
-		tasks.ConvertPullRequestCommentsMeta,
-		tasks.ConvertMilestonesMeta,
-		tasks.ConvertAccountsMeta,
-	}
+	return sortedSubtaskMetas
 }
 
 func (p Github) PrepareTaskData(taskCtx plugin.TaskContext, options map[string]interface{}) (interface{}, errors.Error) {
@@ -154,6 +128,7 @@ func (p Github) PrepareTaskData(taskCtx plugin.TaskContext, options map[string]i
 	connectionHelper := helper.NewConnectionHelper(
 		taskCtx,
 		nil,
+		p.Name(),
 	)
 	connection := &models.GithubConnection{}
 	err = connectionHelper.FirstById(connection, op.ConnectionId)
@@ -183,15 +158,6 @@ func (p Github) PrepareTaskData(taskCtx plugin.TaskContext, options map[string]i
 		RegexEnricher: regexEnricher,
 	}
 
-	if op.TimeAfter != "" {
-		var timeAfter time.Time
-		timeAfter, err = errors.Convert01(time.Parse(time.RFC3339, op.TimeAfter))
-		if err != nil {
-			return nil, errors.BadInput.Wrap(err, "invalid value for `timeAfter`")
-		}
-		taskData.TimeAfter = &timeAfter
-		logger.Debug("collect data updated timeAfter %s", timeAfter)
-	}
 	return taskData, nil
 }
 
@@ -231,8 +197,9 @@ func (p Github) ApiResources() map[string]map[string]plugin.ApiResourceHandler {
 			"GET":  api.GetScopeConfigList,
 		},
 		"connections/:connectionId/scope-configs/:id": {
-			"PATCH": api.UpdateScopeConfig,
-			"GET":   api.GetScopeConfig,
+			"PATCH":  api.UpdateScopeConfig,
+			"GET":    api.GetScopeConfig,
+			"DELETE": api.DeleteScopeConfig,
 		},
 		"connections/:connectionId/remote-scopes": {
 			"GET": api.RemoteScopes,
@@ -246,8 +213,11 @@ func (p Github) ApiResources() map[string]map[string]plugin.ApiResourceHandler {
 	}
 }
 
-func (p Github) MakeDataSourcePipelinePlanV200(connectionId uint64, scopes []*plugin.BlueprintScopeV200, syncPolicy plugin.BlueprintSyncPolicy) (pp plugin.PipelinePlan, sc []plugin.Scope, err errors.Error) {
-	return api.MakeDataSourcePipelinePlanV200(p.SubTaskMetas(), connectionId, scopes, &syncPolicy)
+func (p Github) MakeDataSourcePipelinePlanV200(
+	connectionId uint64,
+	scopes []*coreModels.BlueprintScope,
+) (pp coreModels.PipelinePlan, sc []plugin.Scope, err errors.Error) {
+	return api.MakeDataSourcePipelinePlanV200(p.SubTaskMetas(), connectionId, scopes)
 }
 
 func (p Github) Close(taskCtx plugin.TaskContext) errors.Error {

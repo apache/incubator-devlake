@@ -19,8 +19,10 @@
 import { useState, useEffect } from 'react';
 import { Tag, Intent, Switch, InputGroup } from '@blueprintjs/core';
 
-import * as S from './styled';
 import { ExternalLink, HelpTooltip } from '@/components';
+import { DOC_URL } from '@/release';
+
+import * as S from './styled';
 
 interface Props {
   entities: string[];
@@ -35,7 +37,7 @@ export const JenkinsTransformation = ({ entities, transformation, setTransformat
     if (!transformation.deploymentPattern) {
       setEnableCICD(false);
     }
-  }, [transformation]);
+  }, []);
 
   const handleChangeCICDEnable = (e: React.FormEvent<HTMLInputElement>) => {
     const checked = (e.target as HTMLInputElement).checked;
@@ -70,9 +72,7 @@ export const JenkinsTransformation = ({ entities, transformation, setTransformat
             <>
               <p>
                 Use Regular Expression to define Deployments in DevLake in order to measure DORA metrics.{' '}
-                <ExternalLink link="https://devlake.apache.org/docs/Configuration/GitHub#step-3---adding-transformation-rules-optional">
-                  Learn more
-                </ExternalLink>
+                <ExternalLink link={DOC_URL.PLUGIN.JENKINS.TRANSFORMATION}>Learn more</ExternalLink>
               </p>
               <div style={{ marginTop: 16 }}>Convert a Jenkins Build as a DevLake Deployment when: </div>
               <div className="text">

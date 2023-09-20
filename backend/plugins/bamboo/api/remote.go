@@ -18,16 +18,15 @@ limitations under the License.
 package api
 
 import (
-	"context"
+	gocontext "context"
 	"fmt"
-	context2 "github.com/apache/incubator-devlake/core/context"
+	"net/url"
+
+	"github.com/apache/incubator-devlake/core/context"
 	"github.com/apache/incubator-devlake/core/errors"
 	"github.com/apache/incubator-devlake/core/plugin"
 	"github.com/apache/incubator-devlake/helpers/pluginhelper/api"
-	aha "github.com/apache/incubator-devlake/helpers/pluginhelper/api/apihelperabstract"
 	"github.com/apache/incubator-devlake/plugins/bamboo/models"
-	"net/http"
-	"net/url"
 )
 
 // RemoteScopes list all available scope for users
@@ -43,28 +42,7 @@ import (
 // @Failure 500  {object} shared.ApiBody "Internal Error"
 // @Router /plugins/bamboo/connections/{connectionId}/remote-scopes [GET]
 func RemoteScopes(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, errors.Error) {
-	return remoteHelper.GetScopesFromRemote(input,
-		nil,
-		func(basicRes context2.BasicRes, gid string, queryData *api.RemoteQueryData, connection models.BambooConnection) ([]models.ApiBambooProject, errors.Error) {
-			query := initialQuery(queryData)
-			// create api client
-			apiClient, err := api.NewApiClientFromConnection(context.TODO(), basicRes, &connection)
-			if err != nil {
-				return nil, err
-			}
-			res, err := apiClient.Get("/project.json", query, nil)
-
-			if err != nil {
-				return nil, err
-			}
-
-			resBody := models.ApiBambooProjectResponse{}
-			err = api.UnmarshalResponse(res, &resBody)
-			if err != nil {
-				return nil, err
-			}
-			return resBody.Projects.Projects, err
-		})
+	return remoteHelper.GetScopesFromRemote(input, nil, getRemotePlans)
 }
 
 // SearchRemoteScopes use the Search API and only return project
@@ -82,62 +60,78 @@ func RemoteScopes(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, er
 // @Router /plugins/bamboo/connections/{connectionId}/search-remote-scopes [GET]
 func SearchRemoteScopes(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, errors.Error) {
 	return remoteHelper.SearchRemoteScopes(input,
-		func(basicRes context2.BasicRes, queryData *api.RemoteQueryData, connection models.BambooConnection) ([]models.ApiBambooProject, errors.Error) {
-			apiClient, err := api.NewApiClientFromConnection(context.TODO(), basicRes, &connection)
+		func(basicRes context.BasicRes, queryData *api.RemoteQueryData, connection models.BambooConnection) ([]models.ApiBambooPlan, errors.Error) {
+			apiClient, err := api.NewApiClientFromConnection(gocontext.TODO(), basicRes, &connection)
 			if err != nil {
 				return nil, errors.BadInput.Wrap(err, "failed to get create apiClient")
 			}
 			query := initialQuery(queryData)
+			if len(queryData.Search) == 0 {
+				return nil, errors.BadInput.New("empty search query")
+			}
 			query.Set("searchTerm", queryData.Search[0])
 			// request search
-			res, err := apiClient.Get("search/projects.json", query, nil)
+			res, err := apiClient.Get("search/plans.json", query, nil)
 			if err != nil {
 				return nil, err
 			}
-			resBody := models.ApiBambooSearchProjectResponse{}
+
+			resBody := models.ApiBambooSearchPlanResponse{}
 			err = api.UnmarshalResponse(res, &resBody)
 			if err != nil {
 				return nil, err
 			}
-			var apiBambooProjects []models.ApiBambooProject
+
+			var apiBambooPlans []models.ApiBambooPlan
 			// append project to output
 			for _, apiResult := range resBody.SearchResults {
-				apiProject, err := GetApiProject(apiResult.SearchEntity.Key, apiClient)
-				if err != nil {
-					return nil, err
+				bambooPlan := models.ApiBambooPlan{
+					Key:  apiResult.SearchEntity.Key,
+					Name: apiResult.SearchEntity.PlanName,
 				}
-
-				apiBambooProjects = append(apiBambooProjects, *apiProject)
+				apiBambooPlans = append(apiBambooPlans, bambooPlan)
 			}
-			return apiBambooProjects, err
+			return apiBambooPlans, err
 		})
 }
 
 func initialQuery(queryData *api.RemoteQueryData) url.Values {
 	query := url.Values{}
-	query.Set("showEmpty", fmt.Sprintf("%v", true))
+	query.Set("showEmpty", fmt.Sprintf("%v", false))
 	query.Set("max-result", fmt.Sprintf("%v", queryData.PerPage))
 	query.Set("start-index", fmt.Sprintf("%v", (queryData.Page-1)*queryData.PerPage))
 	return query
 }
 
-// move from blueprint_v200 because of cycle import
-func GetApiProject(
-	projectKey string,
-	apiClient aha.ApiClientAbstract,
-) (*models.ApiBambooProject, errors.Error) {
-	projectRes := &models.ApiBambooProject{}
-	res, err := apiClient.Get(fmt.Sprintf("project/%s.json", projectKey), nil, nil)
+func getRemotePlans(basicRes context.BasicRes, gid string, queryData *api.RemoteQueryData, connection models.BambooConnection) ([]models.ApiBambooPlan, errors.Error) {
+	query := initialQuery(queryData)
+	// create api client
+	apiClient, err := api.NewApiClientFromConnection(gocontext.TODO(), basicRes, &connection)
 	if err != nil {
 		return nil, err
 	}
-	defer res.Body.Close()
-	if res.StatusCode != http.StatusOK {
-		return nil, errors.HttpStatus(res.StatusCode).New(fmt.Sprintf("unexpected status code when requesting project detail from %s", res.Request.URL.String()))
-	}
-	err = api.UnmarshalResponse(res, projectRes)
+	res, err := apiClient.Get("plan.json", query, nil)
+
 	if err != nil {
 		return nil, err
 	}
-	return projectRes, nil
+	var planRes struct {
+		Expand string `json:"expand"`
+		Link   struct {
+			Href string `json:"href"`
+			Rel  string `json:"rel"`
+		} `json:"link"`
+		Plans struct {
+			Size       int                    `json:"size"`
+			Expand     string                 `json:"expand"`
+			StartIndex int                    `json:"start-index"`
+			MaxResult  int                    `json:"max-result"`
+			Plan       []models.ApiBambooPlan `json:"plan"`
+		} `json:"plans"`
+	}
+	err = api.UnmarshalResponse(res, &planRes)
+	if err != nil {
+		return nil, err
+	}
+	return planRes.Plans.Plan, err
 }

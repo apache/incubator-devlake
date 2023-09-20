@@ -19,11 +19,13 @@ package api
 
 import (
 	"fmt"
-	"net/http"
-
+	"github.com/apache/incubator-devlake/core/dal"
 	"github.com/apache/incubator-devlake/core/errors"
+	coreModels "github.com/apache/incubator-devlake/core/models"
 	"github.com/apache/incubator-devlake/core/plugin"
 	"github.com/apache/incubator-devlake/plugins/webhook/models"
+	"net/http"
+	"strconv"
 )
 
 // PostConnections
@@ -31,18 +33,42 @@ import (
 // @Description Create webhook connection, example: {"name":"Webhook data connection name"}
 // @Tags plugins/webhook
 // @Param body body models.WebhookConnection true "json body"
-// @Success 200  {object} models.WebhookConnection
+// @Success 200  {object} WebhookConnectionResponse
 // @Failure 400  {string} errcode.Error "Bad Request"
 // @Failure 500  {string} errcode.Error "Internal Error"
 // @Router /plugins/webhook/connections [POST]
 func PostConnections(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, errors.Error) {
 	// update from request and save to database
 	connection := &models.WebhookConnection{}
-	err := connectionHelper.Create(connection, input)
+	tx := basicRes.GetDal().Begin()
+	err := connectionHelper.CreateWithTx(tx, connection, input)
 	if err != nil {
 		return nil, err
 	}
-	return &plugin.ApiResourceOutput{Body: connection, Status: http.StatusOK}, nil
+	logger.Info("connection: %+v", connection)
+	name := apiKeyHelper.GenApiKeyNameForPlugin(pluginName, connection.ID)
+	allowedPath := fmt.Sprintf("/plugins/%s/connections/%d/.*", pluginName, connection.ID)
+	extra := fmt.Sprintf("connectionId:%d", connection.ID)
+	apiKeyRecord, err := apiKeyHelper.CreateForPlugin(tx, input.User, name, pluginName, allowedPath, extra)
+	if err != nil {
+		if err := tx.Rollback(); err != nil {
+			logger.Error(err, "transaction Rollback")
+		}
+		logger.Error(err, "CreateForPlugin")
+		return nil, err
+	}
+	if err := tx.Commit(); err != nil {
+		logger.Info("transaction commit: %s", err)
+	}
+
+	webhookConnectionResponse, err := formatConnection(connection, false)
+	if err != nil {
+		return nil, err
+	}
+	webhookConnectionResponse.ApiKey = apiKeyRecord
+	logger.Info("api output connection: %+v", webhookConnectionResponse)
+
+	return &plugin.ApiResourceOutput{Body: webhookConnectionResponse, Status: http.StatusOK}, nil
 }
 
 // PatchConnection
@@ -69,32 +95,55 @@ func PatchConnection(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput,
 // @Tags plugins/webhook
 // @Success 200  {object} models.WebhookConnection
 // @Failure 400  {string} errcode.Error "Bad Request"
+// @Failure 409  {object} services.BlueprintProjectPairs "References exist to this connection"
 // @Failure 500  {string} errcode.Error "Internal Error"
 // @Router /plugins/webhook/connections/{connectionId} [DELETE]
 func DeleteConnection(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, errors.Error) {
-	connection := &models.WebhookConnection{}
-	err := connectionHelper.First(connection, input.Params)
+	connectionId, e := strconv.ParseInt(input.Params["connectionId"], 10, 64)
+	if e != nil {
+		return nil, errors.BadInput.WrapRaw(e)
+	}
+	var connection models.WebhookConnection
+	tx := basicRes.GetDal().Begin()
+	err := tx.Delete(&connection, dal.Where("id = ?", connectionId))
 	if err != nil {
+		if err := tx.Rollback(); err != nil {
+			logger.Error(err, "transaction Rollback")
+		}
+		logger.Error(err, "delete connection: %d", connectionId)
 		return nil, err
 	}
-	err = connectionHelper.Delete(connection)
-	return &plugin.ApiResourceOutput{Body: connection}, err
+	extra := fmt.Sprintf("connectionId:%d", connectionId)
+	err = apiKeyHelper.DeleteForPlugin(tx, pluginName, extra)
+	if err != nil {
+		if err := tx.Rollback(); err != nil {
+			logger.Error(err, "transaction Rollback")
+		}
+		logger.Error(err, "delete connection extra: %d, name: %s", extra, pluginName)
+		return nil, err
+	}
+	if err := tx.Commit(); err != nil {
+		logger.Info("transaction commit: %s", err)
+	}
+
+	return &plugin.ApiResourceOutput{Status: http.StatusOK}, nil
 }
 
 type WebhookConnectionResponse struct {
 	models.WebhookConnection
-	PostIssuesEndpoint             string `json:"postIssuesEndpoint"`
-	CloseIssuesEndpoint            string `json:"closeIssuesEndpoint"`
-	PostPipelineTaskEndpoint       string `json:"postPipelineTaskEndpoint"`
-	PostPipelineDeployTaskEndpoint string `json:"postPipelineDeployTaskEndpoint"`
-	ClosePipelineEndpoint          string `json:"closePipelineEndpoint"`
+	PostIssuesEndpoint             string             `json:"postIssuesEndpoint"`
+	CloseIssuesEndpoint            string             `json:"closeIssuesEndpoint"`
+	PostPipelineTaskEndpoint       string             `json:"postPipelineTaskEndpoint"`
+	PostPipelineDeployTaskEndpoint string             `json:"postPipelineDeployTaskEndpoint"`
+	ClosePipelineEndpoint          string             `json:"closePipelineEndpoint"`
+	ApiKey                         *coreModels.ApiKey `json:"apiKey,omitempty"`
 }
 
 // ListConnections
 // @Summary get all webhook connections
 // @Description Get all webhook connections
 // @Tags plugins/webhook
-// @Success 200  {object} []WebhookConnectionResponse
+// @Success 200  {object} []*WebhookConnectionResponse
 // @Failure 400  {string} errcode.Error "Bad Request"
 // @Failure 500  {string} errcode.Error "Internal Error"
 // @Router /plugins/webhook/connections [GET]
@@ -104,9 +153,13 @@ func ListConnections(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput,
 	if err != nil {
 		return nil, err
 	}
-	responseList := []WebhookConnectionResponse{}
+	var responseList []*WebhookConnectionResponse
 	for _, connection := range connections {
-		responseList = append(responseList, *formatConnection(&connection))
+		webhookConnectionResponse, err := formatConnection(&connection, true)
+		if err != nil {
+			return nil, err
+		}
+		responseList = append(responseList, webhookConnectionResponse)
 	}
 	return &plugin.ApiResourceOutput{Body: responseList, Status: http.StatusOK}, nil
 }
@@ -122,16 +175,36 @@ func ListConnections(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput,
 func GetConnection(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, errors.Error) {
 	connection := &models.WebhookConnection{}
 	err := connectionHelper.First(connection, input.Params)
-	response := formatConnection(connection)
+	if err != nil {
+		logger.Error(err, "query connection")
+		return nil, err
+	}
+	response, err := formatConnection(connection, true)
 	return &plugin.ApiResourceOutput{Body: response}, err
 }
 
-func formatConnection(connection *models.WebhookConnection) *WebhookConnectionResponse {
+func formatConnection(connection *models.WebhookConnection, withApiKeyInfo bool) (*WebhookConnectionResponse, errors.Error) {
 	response := &WebhookConnectionResponse{WebhookConnection: *connection}
-	response.PostIssuesEndpoint = fmt.Sprintf(`/plugins/webhook/%d/issues`, connection.ID)
-	response.CloseIssuesEndpoint = fmt.Sprintf(`/plugins/webhook/%d/issue/:issueKey/close`, connection.ID)
-	response.PostPipelineTaskEndpoint = fmt.Sprintf(`/plugins/webhook/%d/cicd_tasks`, connection.ID)
-	response.PostPipelineDeployTaskEndpoint = fmt.Sprintf(`/plugins/webhook/%d/deployments`, connection.ID)
-	response.ClosePipelineEndpoint = fmt.Sprintf(`/plugins/webhook/%d/cicd_pipeline/:pipelineName/finish`, connection.ID)
-	return response
+	response.PostIssuesEndpoint = fmt.Sprintf(`/plugins/webhook/connections/%d/issues`, connection.ID)
+	response.CloseIssuesEndpoint = fmt.Sprintf(`/plugins/webhook/connections/%d/issue/:issueKey/close`, connection.ID)
+	response.PostPipelineTaskEndpoint = fmt.Sprintf(`/plugins/webhook/connections/%d/cicd_tasks`, connection.ID)
+	response.PostPipelineDeployTaskEndpoint = fmt.Sprintf(`/plugins/webhook/connections/%d/deployments`, connection.ID)
+	response.ClosePipelineEndpoint = fmt.Sprintf(`/plugins/webhook/connections/%d/cicd_pipeline/:pipelineName/finish`, connection.ID)
+	if withApiKeyInfo {
+		db := basicRes.GetDal()
+		apiKeyName := apiKeyHelper.GenApiKeyNameForPlugin(pluginName, connection.ID)
+		apiKey, err := apiKeyHelper.GetApiKey(db, dal.Where("name = ?", apiKeyName))
+		if err != nil {
+			if db.IsErrorNotFound(err) {
+				logger.Info("api key with name: %s not found in db", apiKeyName)
+			} else {
+				logger.Error(err, "query api key from db, name: %s", apiKeyName)
+				return nil, err
+			}
+		} else {
+			response.ApiKey = apiKey
+			response.ApiKey.RemoveHashedApiKey() // delete the hashed api key to reduce the attack surface.
+		}
+	}
+	return response, nil
 }

@@ -17,14 +17,16 @@
  */
 
 import { useState } from 'react';
-import { useHistory, useParams } from 'react-router-dom';
+import { useNavigate, useParams } from 'react-router-dom';
 import { Button, Intent, Position } from '@blueprintjs/core';
 import { Popover2 } from '@blueprintjs/popover2';
 
-import { PageLoading, PageHeader, ExternalLink, Buttons, Table, Dialog, Message } from '@/components';
+import { PageLoading, PageHeader, ExternalLink, Message, Buttons, Table, Dialog } from '@/components';
 import { useRefreshData, useTips } from '@/hooks';
-import { DataScopeSelect, getPluginId } from '@/plugins';
+import { DataScopeSelect, getPluginScopeId } from '@/plugins';
 import { operator } from '@/utils';
+
+import { encodeName } from '../../project/utils';
 
 import * as API from './api';
 import * as S from './styled';
@@ -34,8 +36,8 @@ export const BlueprintConnectionDetailPage = () => {
   const [isOpen, setIsOpen] = useState(false);
   const [operating, setOperating] = useState(false);
 
-  const { pname, bid, unique } = useParams<{ pname?: string; bid?: string; unique: string }>();
-  const history = useHistory();
+  const { pname, bid, unique } = useParams() as { pname?: string; bid?: string; unique: string };
+  const navigate = useNavigate();
 
   const { setTips } = useTips();
 
@@ -50,15 +52,16 @@ export const BlueprintConnectionDetailPage = () => {
 
   const { ready, data } = useRefreshData(async () => {
     const [plugin, connectionId] = unique.split('-');
-    const [blueprint, connection, scopes] = await Promise.all([
+    const [blueprint, connection, scopesRes] = await Promise.all([
       getBlueprint(pname, bid),
       API.getConnection(plugin, connectionId),
       API.getDataScopes(plugin, connectionId),
     ]);
 
-    const scopeIds = blueprint.settings.connections
-      .find((cs: any) => cs.plugin === plugin && cs.connectionId === +connectionId)
-      .scopes.map((sc: any) => sc.id);
+    const scopeIds =
+      blueprint.connections
+        .find((cs) => cs.pluginName === plugin && cs.connectionId === +connectionId)
+        ?.scopes?.map((sc: any) => sc.scopeId) ?? [];
 
     return {
       blueprint,
@@ -68,7 +71,7 @@ export const BlueprintConnectionDetailPage = () => {
         id: +connectionId,
         name: connection.name,
       },
-      scopes: scopes.filter((sc: any) => scopeIds.includes(`${sc[getPluginId(plugin)]}`)),
+      scopes: scopesRes.scopes.filter((sc: any) => scopeIds.includes(getPluginScopeId(plugin, sc))),
     };
   }, [version, pname, bid]);
 
@@ -88,21 +91,15 @@ export const BlueprintConnectionDetailPage = () => {
     });
 
     if (success) {
-      history.push(pname ? `/projects/${pname}` : `/blueprints/${blueprint.id}`);
+      navigate(pname ? `/projects/${pname}` : `/blueprints/${blueprint.id}`);
     }
   };
 
   const handleShowTips = () => {
     setTips(
       <>
-        <Message content="The Scope Config and/or Data Scope in this project have been updated. Would you like to re-transform or recollect the data in this project?" />
+        <Message content="The change of Data Scope(s) will affect the metrics of this project. Would you like to recollect the data to get them updated?" />
         <Buttons style={{ marginLeft: 8, marginBottom: 0 }}>
-          <Button
-            loading={operating}
-            intent={Intent.PRIMARY}
-            text="Only Re-transform Data"
-            onClick={() => handleRunBP(true)}
-          />
           <Button
             loading={operating}
             intent={Intent.PRIMARY}
@@ -118,18 +115,17 @@ export const BlueprintConnectionDetailPage = () => {
     const [success] = await operator(() =>
       API.updateBlueprint(blueprint.id, {
         ...blueprint,
-        settings: {
-          ...blueprint.settings,
-          connections: blueprint.settings.connections.filter(
-            (cs: any) => !(cs.plugin === connection.plugin && cs.connectionId === connection.id),
-          ),
-        },
+        connections: blueprint.connections.filter(
+          (cs) => !(cs.pluginName === connection.plugin && cs.connectionId === connection.id),
+        ),
       }),
     );
 
     if (success) {
       handleShowTips();
-      history.push(pname ? `/projects/${pname}` : `/blueprints/${blueprint.id}`);
+      navigate(
+        pname ? `/projects/${encodeName(pname)}?tab=configuration` : `/blueprints/${blueprint.id}?tab=configuration`,
+      );
     }
   };
 
@@ -138,18 +134,15 @@ export const BlueprintConnectionDetailPage = () => {
       () =>
         API.updateBlueprint(blueprint.id, {
           ...blueprint,
-          settings: {
-            ...blueprint.settings,
-            connections: blueprint.settings.connections.map((cs: any) => {
-              if (cs.plugin === connection.plugin && cs.connectionId === connection.id) {
-                return {
-                  ...cs,
-                  scopes: scope.map((sc: any) => ({ id: `${sc[getPluginId(connection.plugin)]}` })),
-                };
-              }
-              return cs;
-            }),
-          },
+          connections: blueprint.connections.map((cs) => {
+            if (cs.pluginName === connection.plugin && cs.connectionId === connection.id) {
+              return {
+                ...cs,
+                scopes: scope.map((sc: any) => ({ id: getPluginScopeId(connection.plugin, sc) })),
+              };
+            }
+            return cs;
+          }),
         }),
       {
         formatMessage: () => 'Update data scope successful.',
@@ -192,10 +185,10 @@ export const BlueprintConnectionDetailPage = () => {
           position={Position.BOTTOM}
           content={
             <S.ActionDelete>
-              <div className="content">Are you sure you want to remove the connection from this project/blueprint?</div>
-              <div className="btns" onClick={handleRemoveConnection}>
-                <Button intent={Intent.PRIMARY} text="Confirm" />
-              </div>
+              <Message content="Are you sure you want to remove the connection from this project/blueprint?" />
+              <Buttons position="bottom" align="right">
+                <Button intent={Intent.PRIMARY} text="Confirm" onClick={handleRemoveConnection} />
+              </Buttons>
             </S.ActionDelete>
           }
         >
@@ -204,7 +197,7 @@ export const BlueprintConnectionDetailPage = () => {
           </Button>
         </Popover2>
       </S.Top>
-      <Buttons>
+      <Buttons position="top">
         <Button intent={Intent.PRIMARY} icon="annotation" text="Manage Data Scope" onClick={handleShowDataScope} />
         <ExternalLink style={{ marginLeft: 8 }} link={`/connections/${connection.plugin}/${connection.id}`}>
           <Button intent={Intent.PRIMARY} icon="annotation" text="Edit Scope Config" />

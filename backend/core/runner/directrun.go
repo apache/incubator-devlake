@@ -19,7 +19,6 @@ package runner
 
 import (
 	"context"
-	"encoding/json"
 	goerror "errors"
 	"fmt"
 	"io"
@@ -27,6 +26,7 @@ import (
 	"os/signal"
 	"runtime"
 	"syscall"
+	"time"
 
 	"github.com/apache/incubator-devlake/core/models"
 	"github.com/apache/incubator-devlake/core/models/migrationscripts"
@@ -48,7 +48,7 @@ func RunCmd(cmd *cobra.Command) {
 // args: command line arguments
 // pluginTask: specific built-in plugin, for example: feishu, jira...
 // options: plugin config
-func DirectRun(cmd *cobra.Command, args []string, pluginTask plugin.PluginTask, options map[string]interface{}) {
+func DirectRun(cmd *cobra.Command, args []string, pluginTask plugin.PluginTask, options map[string]interface{}, timeAfter string) {
 	basicRes := CreateAppBasicRes()
 	tasks, err := cmd.Flags().GetStringSlice("subtasks")
 	if err != nil {
@@ -80,25 +80,28 @@ func DirectRun(cmd *cobra.Command, args []string, pluginTask plugin.PluginTask, 
 		panic(err)
 	}
 	ctx := createContext()
-	optionsJson, err := json.Marshal(options)
-	if err != nil {
-		panic(err)
-	}
-	subtasksJson, err := json.Marshal(tasks)
-	if err != nil {
-		panic(err)
-	}
 	task := &models.Task{
 		Plugin:   cmd.Use,
-		Options:  string(optionsJson),
-		Subtasks: subtasksJson,
+		Options:  options,
+		Subtasks: tasks,
 	}
+	parsedTimeAfter := time.Time{}
+	syncPolicy := models.SyncPolicy{}
+	if timeAfter != "" {
+		parsedTimeAfter, err = time.Parse(time.RFC3339, timeAfter)
+		if err != nil {
+			panic(err)
+		}
+		syncPolicy.TimeAfter = &parsedTimeAfter
+	}
+
 	err = RunPluginSubTasks(
 		ctx,
 		basicRes,
 		task,
 		pluginTask,
 		nil,
+		&syncPolicy,
 	)
 	if err != nil {
 		panic(err)

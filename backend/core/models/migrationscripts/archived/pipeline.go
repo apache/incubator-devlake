@@ -18,16 +18,15 @@ limitations under the License.
 package archived
 
 import (
+	"encoding/json"
 	"time"
-
-	"gorm.io/datatypes"
 )
 
 type Pipeline struct {
 	Model
 	Name        string `json:"name" gorm:"index"`
 	BlueprintId uint64
-	Tasks       datatypes.JSON
+	Tasks       json.RawMessage `gorm:"type:json"`
 	TotalTasks  int
 	// Deprecated
 	FinishedTasks int

@@ -20,6 +20,7 @@ package api
 import (
 	"testing"
 
+	coreModels "github.com/apache/incubator-devlake/core/models"
 	"github.com/apache/incubator-devlake/core/models/common"
 	"github.com/apache/incubator-devlake/core/models/domainlayer"
 	"github.com/apache/incubator-devlake/core/models/domainlayer/code"
@@ -56,25 +57,26 @@ func TestMakeDataSourcePipelinePlanV200(t *testing.T) {
 	}
 	mockMeta := mockplugin.NewPluginMeta(t)
 	mockMeta.On("RootPkgPath").Return("github.com/apache/incubator-devlake/plugins/bitbucket")
+	mockMeta.On("Name").Return("bitbucket").Maybe()
 	err := plugin.RegisterPlugin("bitbucket", mockMeta)
 	assert.Nil(t, err)
 	// Refresh Global Variables and set the sql mock
-	mockBasicRes()
-	bs := &plugin.BlueprintScopeV200{
-		Id: "1",
-	}
-	bpScopes := make([]*plugin.BlueprintScopeV200, 0)
-	bpScopes = append(bpScopes, bs)
-	syncPolicy := &plugin.BlueprintSyncPolicy{}
+	mockBasicRes(t)
 
-	plan := make(plugin.PipelinePlan, len(bpScopes))
-	plan, err = makeDataSourcePipelinePlanV200(nil, plan, bpScopes, connection, syncPolicy)
+	bs := &coreModels.BlueprintScope{
+		ScopeId: "1",
+	}
+	bpScopes := make([]*coreModels.BlueprintScope, 0)
+	bpScopes = append(bpScopes, bs)
+
+	plan := make(coreModels.PipelinePlan, len(bpScopes))
+	plan, err = makeDataSourcePipelinePlanV200(nil, plan, bpScopes, connection)
 	assert.Nil(t, err)
 	scopes, err := makeScopesV200(bpScopes, connection)
 	assert.Nil(t, err)
 
-	expectPlan := plugin.PipelinePlan{
-		plugin.PipelineStage{
+	expectPlan := coreModels.PipelinePlan{
+		coreModels.PipelineStage{
 			{
 				Plugin:   "bitbucket",
 				Subtasks: []string{},
@@ -93,7 +95,7 @@ func TestMakeDataSourcePipelinePlanV200(t *testing.T) {
 				},
 			},
 		},
-		plugin.PipelineStage{
+		coreModels.PipelineStage{
 			{
 				Plugin: "refdiff",
 				Options: map[string]interface{}{
@@ -129,7 +131,7 @@ func TestMakeDataSourcePipelinePlanV200(t *testing.T) {
 	assert.Equal(t, expectScopes, scopes)
 }
 
-func mockBasicRes() {
+func mockBasicRes(t *testing.T) {
 	testBitbucketRepo := &models.BitbucketRepo{
 		ConnectionId:  1,
 		BitbucketId:   "likyh/likyhphp",
@@ -165,5 +167,7 @@ func mockBasicRes() {
 			*dst = *testScopeConfig
 		}).Return(nil)
 	})
-	Init(mockRes)
+	p := mockplugin.NewPluginMeta(t)
+	p.On("Name").Return("dummy").Maybe()
+	Init(mockRes, p)
 }

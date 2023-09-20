@@ -30,15 +30,14 @@ func main() {
 	connectionId := jenkinsCmd.Flags().Uint64P("connection", "c", 1, "jenkins connection id")
 	jobFullName := jenkinsCmd.Flags().StringP("jobFullName", "j", "", "jenkins job full name")
 	deployTagPattern := jenkinsCmd.Flags().String("deployTagPattern", "(?i)deploy", "deploy tag name")
-	timeAfter := jenkinsCmd.Flags().StringP("timeAfter", "a", "", "collect data that are created after specified time, ie 2006-05-06T07:08:09Z")
+	timeAfter := jenkinsCmd.Flags().StringP("timeAfter", "a", "", "collect data that are created after specified time, ie 2006-01-02T15:04:05Z")
 
 	jenkinsCmd.Run = func(cmd *cobra.Command, args []string) {
 		runner.DirectRun(cmd, args, PluginEntry, map[string]interface{}{
 			"connectionId":     *connectionId,
 			"jobFullName":      *jobFullName,
 			"deployTagPattern": *deployTagPattern,
-			"timeAfter":        *timeAfter,
-		})
+		}, *timeAfter)
 	}
 	runner.RunCmd(jenkinsCmd)
 }

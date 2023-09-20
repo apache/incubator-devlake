@@ -26,7 +26,8 @@ from pydantic import AnyUrl, SecretStr, validator
 from sqlalchemy import Column, DateTime, Text
 from sqlalchemy.orm import declared_attr
 from sqlalchemy.inspection import inspect
-from sqlmodel import SQLModel, Field
+from sqlmodel import SQLModel
+from pydevlake import Field
 
 
 inflect_engine = inflect.engine()
@@ -84,8 +85,15 @@ class DomainType(Enum):
 
 
 class ScopeConfig(ToolTable, Model):
-    name: str
-    domain_types: list[DomainType] = Field(default_factory=list, alias="entities")
+    name: str = Field(default="default")
+    domain_types: list[DomainType] = Field(default=list(DomainType), alias="entities")
+    connection_id: Optional[int]
+
+    @validator('domain_types', pre=True, always=True)
+    def set_default_domain_types(cls, v):
+        if v is None:
+            return list(DomainType)
+        return v
 
 
 class RawModel(SQLModel):
@@ -126,7 +134,7 @@ class NoPKModel(RawDataOrigin):
 
 
 class ToolModel(ToolTable, NoPKModel):
-    connection_id: Optional[int] = Field(primary_key=True)
+    connection_id: Optional[int] = Field(primary_key=True, auto_increment=False)
 
     def domain_id(self):
         """
@@ -152,6 +160,7 @@ class DomainModel(NoPKModel):
 class ToolScope(ToolModel):
     id: str = Field(primary_key=True)
     name: str
+    scope_config_id: Optional[int]
 
 
 class DomainScope(DomainModel):
@@ -169,9 +178,10 @@ def domain_id(model_type, connection_id, *args):
 
 
 def raw_data_params(connection_id: int, scope_id: str) -> str:
+    # JSON keys MUST follow the Go conventions (CamelCase) and be sorted
     return json.dumps({
-        "connection_id": connection_id,
-        "scope_id": scope_id
+        "ConnectionId": connection_id,
+        "ScopeId": scope_id
     }, separators=(',', ':'))
 
 

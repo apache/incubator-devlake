@@ -24,16 +24,16 @@ import (
 	"encoding/json"
 	"encoding/xml"
 	"fmt"
-	aha "github.com/apache/incubator-devlake/core/plugin"
 	"io"
 	"net/http"
 	"net/url"
 	"reflect"
 	"regexp"
-	"strings"
 	"sync"
 	"time"
 	"unicode/utf8"
+
+	aha "github.com/apache/incubator-devlake/core/plugin"
 
 	"github.com/apache/incubator-devlake/core/context"
 	"github.com/apache/incubator-devlake/core/errors"
@@ -43,7 +43,10 @@ import (
 )
 
 // ErrIgnoreAndContinue is a error which should be ignored
-var ErrIgnoreAndContinue = errors.Default.New("ignore and continue")
+var (
+	ErrIgnoreAndContinue = errors.Default.New("ignore and continue")
+	ErrEmptyResponse     = errors.Default.New("empty response")
+)
 
 // ApiClient is designed for simple api requests
 type ApiClient struct {
@@ -373,6 +376,9 @@ func UnmarshalResponse(res *http.Response, v interface{}) errors.Error {
 	if err != nil {
 		return errors.Default.Wrap(err, fmt.Sprintf("error reading response from %s", res.Request.URL.String()))
 	}
+	if len(resBody) == 0 {
+		return ErrEmptyResponse
+	}
 	err = errors.Convert(json.Unmarshal(resBody, &v))
 	if err != nil {
 		return errors.Default.New(fmt.Sprintf("error decoding response from %s: raw response: %s", res.Request.URL.String(), string(resBody)))
@@ -411,8 +417,10 @@ func GetURIStringPointer(baseUrl string, relativePath string, query url.Values) 
 	}
 	if query != nil {
 		queryString := u.Query()
-		for key, value := range query {
-			queryString.Set(key, strings.Join(value, ""))
+		for key, values := range query {
+			for _, v := range values {
+				queryString.Add(key, v)
+			}
 		}
 
 		u.RawQuery = queryString.Encode()

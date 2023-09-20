@@ -73,7 +73,9 @@ export const TableContent = <T extends Record<string, any>>({
               </S.TD>
             )}
             {columns.map(({ key, width, align = 'left', ellipsis, dataIndex, render }) => {
-              const value = Array.isArray(dataIndex)
+              const value = !dataIndex
+                ? null
+                : Array.isArray(dataIndex)
                 ? dataIndex.reduce((acc, cur) => {
                     acc[cur] = data[cur];
                     return acc;

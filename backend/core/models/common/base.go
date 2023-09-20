@@ -22,10 +22,29 @@ import (
 	"time"
 )
 
+const (
+	USER = "user"
+)
+
+type User struct {
+	Name  string
+	Email string
+}
+
 type Model struct {
 	ID        uint64    `gorm:"primaryKey" json:"id"`
 	CreatedAt time.Time `json:"createdAt"`
 	UpdatedAt time.Time `json:"updatedAt"`
+}
+
+type Creator struct {
+	Creator      string `json:"creator"`
+	CreatorEmail string `json:"creatorEmail"`
+}
+
+type Updater struct {
+	Updater      string `json:"updater"`
+	UpdaterEmail string `json:"updaterEmail"`
 }
 
 type ScopeConfig struct {
@@ -34,8 +53,8 @@ type ScopeConfig struct {
 }
 
 type NoPKModel struct {
-	CreatedAt     time.Time `json:"createdAt"`
-	UpdatedAt     time.Time `json:"updatedAt"`
+	CreatedAt     time.Time `json:"createdAt" mapstructure:"createdAt"`
+	UpdatedAt     time.Time `json:"updatedAt" mapstructure:"updatedAt"`
 	RawDataOrigin `swaggerignore:"true"`
 }
 

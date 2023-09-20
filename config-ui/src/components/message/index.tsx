@@ -22,22 +22,22 @@ import styled from 'styled-components';
 const Wrapper = styled.div`
   display: flex;
   align-items: center;
-  font-size: 12px;
 
-  & > .bp4-icon {
-    margin-right: 8px;
+  & > .bp5-icon {
+    margin-right: 16px;
   }
 `;
 
 interface Props {
   style?: React.CSSProperties;
+  size?: number;
   content: React.ReactNode;
 }
 
-export const Message = ({ style, content }: Props) => {
+export const Message = ({ style, size = 20, content }: Props) => {
   return (
     <Wrapper style={style}>
-      <Icon icon="warning-sign" size={24} color="#f4be55" />
+      <Icon icon="warning-sign" size={size} color="#f4be55" />
       <span>{content}</span>
     </Wrapper>
   );

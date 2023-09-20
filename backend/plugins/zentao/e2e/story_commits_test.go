@@ -36,9 +36,9 @@ func TestZentaoStoryCommitsDataFlow(t *testing.T) {
 	taskData := &tasks.ZentaoTaskData{
 		Options: &tasks.ZentaoOptions{
 			ConnectionId: 1,
-			ProjectId:    0,
-			ProductId:    31,
+			ProjectId:    1,
 		},
+		ApiClient: getFakeAPIClient(),
 	}
 
 	// import _raw_zentao_api_story_commits raw data table

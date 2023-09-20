@@ -22,6 +22,7 @@ import (
 	"testing"
 	"time"
 
+	coreModels "github.com/apache/incubator-devlake/core/models"
 	mockdal "github.com/apache/incubator-devlake/mocks/core/dal"
 	mockplugin "github.com/apache/incubator-devlake/mocks/core/plugin"
 
@@ -51,11 +52,9 @@ func TestMakeDataSourcePipelinePlanV200(t *testing.T) {
 	const testScopeConfigName string = "gitlab scope config"
 	const testProxy string = ""
 
-	syncPolicy := &plugin.BlueprintSyncPolicy{}
-	bpScopes := []*plugin.BlueprintScopeV200{
+	bpScopes := []*coreModels.BlueprintScope{
 		{
-			Id:   strconv.Itoa(testID),
-			Name: testName,
+			ScopeId: strconv.Itoa(testID),
 		},
 	}
 
@@ -118,7 +117,7 @@ func TestMakeDataSourcePipelinePlanV200(t *testing.T) {
 		tasks.ExtractApiPipelinesMeta,
 	}
 
-	var expectPlans = plugin.PipelinePlan{
+	var expectPlans = coreModels.PipelinePlan{
 		{
 			{
 				Plugin: "gitlab",
@@ -175,9 +174,10 @@ func TestMakeDataSourcePipelinePlanV200(t *testing.T) {
 
 	var err errors.Error
 
-	// register gitlab plugin for NewDomainIdGenerator
+	// register gitlab coreModels for NewDomainIdGenerator
 	mockMeta := mockplugin.NewPluginMeta(t)
 	mockMeta.On("RootPkgPath").Return("github.com/apache/incubator-devlake/plugins/gitlab")
+	mockMeta.On("Name").Return("dummy").Maybe()
 	err = plugin.RegisterPlugin("gitlab", mockMeta)
 	assert.Equal(t, err, nil)
 
@@ -198,9 +198,9 @@ func TestMakeDataSourcePipelinePlanV200(t *testing.T) {
 			*dst = *testScopeConfig
 		}).Return(nil)
 	})
-	Init(mockRes)
+	Init(mockRes, mockMeta)
 
-	plans, scopes, err := MakePipelinePlanV200(testSubTaskMeta, testConnectionID, bpScopes, syncPolicy)
+	plans, scopes, err := MakePipelinePlanV200(testSubTaskMeta, testConnectionID, bpScopes)
 	assert.Equal(t, err, nil)
 
 	assert.Equal(t, expectPlans, plans)

@@ -24,6 +24,7 @@ import (
 
 	"github.com/apache/incubator-devlake/core/dal"
 	"github.com/apache/incubator-devlake/core/errors"
+	"github.com/apache/incubator-devlake/core/models/common"
 	"github.com/apache/incubator-devlake/core/plugin"
 	"github.com/apache/incubator-devlake/helpers/pluginhelper/api"
 	"github.com/apache/incubator-devlake/plugins/zentao/models"
@@ -47,41 +48,33 @@ func CollectStoryCommits(taskCtx plugin.SubTaskContext) errors.Error {
 
 	// state manager
 	collectorWithState, err := api.NewStatefulApiCollector(api.RawDataSubTaskArgs{
-		Ctx: taskCtx,
-		Params: ZentaoApiParams{
-			ConnectionId: data.Options.ConnectionId,
-			ProductId:    data.Options.ProductId,
-			ProjectId:    data.Options.ProjectId,
-		},
-		Table: RAW_STORY_COMMITS_TABLE,
-	}, data.TimeAfter)
+		Ctx:     taskCtx,
+		Options: data.Options,
+		Table:   RAW_STORY_COMMITS_TABLE,
+	})
 	if err != nil {
 		return err
 	}
 
 	// load stories id from db
 	clauses := []dal.Clause{
-		dal.Select("id, last_edited_date"),
-		dal.From(&models.ZentaoStory{}),
-		dal.Where(
-			"product = ? AND connection_id = ?",
-			data.Options.ProductId, data.Options.ConnectionId,
-		),
+		dal.Select("_tool_zentao_project_stories.story_id AS id, last_edited_date"),
+		dal.From(&models.ZentaoProjectStory{}),
+		dal.Join(`LEFT JOIN _tool_zentao_stories ON
+						_tool_zentao_project_stories.story_id = _tool_zentao_stories.id
+							AND _tool_zentao_project_stories.connection_id = _tool_zentao_stories.connection_id`),
+		dal.Where(`_tool_zentao_project_stories.project_id = ? and
+			_tool_zentao_project_stories.connection_id = ?`, data.Options.ProjectId, data.Options.ConnectionId),
 	}
-	// incremental collection
-	incremental := collectorWithState.IsIncremental()
-	if incremental {
-		clauses = append(
-			clauses,
-			dal.Where("last_edited_date is not null and last_edited_date > ?", collectorWithState.LatestState.LatestSuccessStart),
-		)
+	if collectorWithState.IsIncreamtal && collectorWithState.Since != nil {
+		clauses = append(clauses, dal.Where("last_edited_date is not null and last_edited_date > ?", collectorWithState.Since))
 	}
 	cursor, err := db.Cursor(clauses...)
 	if err != nil {
 		return err
 	}
 
-	iterator, err := api.NewDalCursorIterator(db, cursor, reflect.TypeOf(SimpleZentaoStory{}))
+	iterator, err := api.NewDalCursorIterator(db, cursor, reflect.TypeOf(inputWithLastEditedDate{}))
 	if err != nil {
 		return err
 	}
@@ -89,23 +82,21 @@ func CollectStoryCommits(taskCtx plugin.SubTaskContext) errors.Error {
 	// collect story commits
 	err = collectorWithState.InitCollector(api.ApiCollectorArgs{
 		RawDataSubTaskArgs: api.RawDataSubTaskArgs{
-			Ctx: taskCtx,
-			Params: ZentaoApiParams{
-				ConnectionId: data.Options.ConnectionId,
-				ProductId:    data.Options.ProductId,
-				ProjectId:    data.Options.ProjectId,
-			},
-			Table: RAW_STORY_COMMITS_TABLE,
+			Ctx:     taskCtx,
+			Options: data.Options,
+			Table:   RAW_STORY_COMMITS_TABLE,
 		},
 		ApiClient:   data.ApiClient,
 		Input:       iterator,
-		Incremental: incremental,
 		UrlTemplate: "stories/{{ .Input.ID }}",
 		ResponseParser: func(res *http.Response) ([]json.RawMessage, errors.Error) {
 			var data struct {
 				Actions []json.RawMessage `json:"actions"`
 			}
 			err := api.UnmarshalResponse(res, &data)
+			if errors.Is(err, api.ErrEmptyResponse) {
+				return nil, nil
+			}
 			if err != nil {
 				return nil, err
 			}
@@ -121,7 +112,7 @@ func CollectStoryCommits(taskCtx plugin.SubTaskContext) errors.Error {
 	return collectorWithState.Execute()
 }
 
-type SimpleZentaoStory struct {
-	ID             int64            `json:"id"`
-	LastEditedDate *api.Iso8601Time `json:"lastEditedDate"`
+type inputWithLastEditedDate struct {
+	ID             int64               `json:"id"`
+	LastEditedDate *common.Iso8601Time `json:"lastEditedDate"`
 }

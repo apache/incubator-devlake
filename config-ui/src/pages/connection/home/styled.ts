@@ -21,6 +21,7 @@ import styled from 'styled-components';
 export const Wrapper = styled.div`
   h5 {
     margin-top: 12px;
+    font-weight: 400;
   }
 
   .block + .block {
@@ -74,7 +75,7 @@ export const Wrapper = styled.div`
       }
     }
 
-    & > .bp4-tag {
+    & > .bp5-tag {
       position: absolute;
       top: 0;
       right: 0;

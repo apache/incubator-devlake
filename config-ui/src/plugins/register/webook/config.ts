@@ -32,10 +32,5 @@ export const WebhookConfig: PluginConfigType = {
     fields: [],
     initialValues: {},
   },
-  dataScope: {
-    millerColumns: {
-      title: '',
-      subTitle: '',
-    },
-  },
+  dataScope: {},
 };

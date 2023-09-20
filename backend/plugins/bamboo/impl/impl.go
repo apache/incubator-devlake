@@ -23,6 +23,7 @@ import (
 	"github.com/apache/incubator-devlake/core/context"
 	"github.com/apache/incubator-devlake/core/dal"
 	"github.com/apache/incubator-devlake/core/errors"
+	coreModels "github.com/apache/incubator-devlake/core/models"
 	"github.com/apache/incubator-devlake/core/models/domainlayer/devops"
 	"github.com/apache/incubator-devlake/core/plugin"
 	helper "github.com/apache/incubator-devlake/helpers/pluginhelper/api"
@@ -33,48 +34,55 @@ import (
 )
 
 // make sure interface is implemented
-var _ plugin.PluginMeta = (*Bamboo)(nil)
-var _ plugin.PluginInit = (*Bamboo)(nil)
-var _ plugin.PluginTask = (*Bamboo)(nil)
-var _ plugin.PluginModel = (*Bamboo)(nil)
-var _ plugin.PluginMigration = (*Bamboo)(nil)
-var _ plugin.DataSourcePluginBlueprintV200 = (*Bamboo)(nil)
-var _ plugin.CloseablePluginTask = (*Bamboo)(nil)
-
-// var _ plugin.PluginSource = (*Bamboo)(nil)
+var _ interface {
+	plugin.PluginMeta
+	plugin.PluginInit
+	plugin.PluginTask
+	plugin.PluginModel
+	plugin.PluginMigration
+	plugin.DataSourcePluginBlueprintV200
+	plugin.CloseablePluginTask
+	plugin.PluginSource
+} = (*Bamboo)(nil)
 
 type Bamboo struct{}
 
 func (p Bamboo) Init(br context.BasicRes) errors.Error {
-	api.Init(br)
+	api.Init(br, p)
+
 	return nil
 }
 
-func (p Bamboo) Connection() interface{} {
+func (p Bamboo) Connection() dal.Tabler {
 	return &models.BambooConnection{}
 }
 
-func (p Bamboo) Scope() interface{} {
-	return nil
+func (p Bamboo) Scope() plugin.ToolLayerScope {
+	return &models.BambooPlan{}
 }
 
-func (p Bamboo) ScopeConfig() interface{} {
-	return nil
+func (p Bamboo) ScopeConfig() dal.Tabler {
+	return &models.BambooScopeConfig{}
 }
 
-func (p Bamboo) MakeDataSourcePipelinePlanV200(connectionId uint64, scopes []*plugin.BlueprintScopeV200, syncPolicy plugin.BlueprintSyncPolicy) (plugin.PipelinePlan, []plugin.Scope, errors.Error) {
-	return api.MakePipelinePlanV200(p.SubTaskMetas(), connectionId, scopes, &syncPolicy)
+func (p Bamboo) MakeDataSourcePipelinePlanV200(
+	connectionId uint64,
+	scopes []*coreModels.BlueprintScope,
+) (coreModels.PipelinePlan, []plugin.Scope, errors.Error) {
+	return api.MakePipelinePlanV200(p.SubTaskMetas(), connectionId, scopes)
 }
 
 func (p Bamboo) GetTablesInfo() []dal.Tabler {
 	return []dal.Tabler{
 		&models.BambooConnection{},
-		&models.BambooProject{},
 		&models.BambooPlan{},
 		&models.BambooJob{},
 		&models.BambooPlanBuild{},
 		&models.BambooPlanBuildVcsRevision{},
 		&models.BambooJobBuild{},
+		&models.BambooDeployBuild{},
+		&models.BambooDeployEnvironment{},
+		&models.BambooScopeConfig{},
 	}
 }
 
@@ -82,26 +90,33 @@ func (p Bamboo) Description() string {
 	return "collect some Bamboo data"
 }
 
+func (p Bamboo) Name() string {
+	return "bamboo"
+}
+
 func (p Bamboo) SubTaskMetas() []plugin.SubTaskMeta {
 	// TODO add your sub task here
 	return []plugin.SubTaskMeta{
-		tasks.CollectPlanMeta,
-		tasks.ExtractPlanMeta,
+		tasks.ConvertPlansMeta,
+
 		tasks.CollectJobMeta,
 		tasks.ExtractJobMeta,
+
 		tasks.CollectPlanBuildMeta,
 		tasks.ExtractPlanBuildMeta,
+
 		tasks.CollectJobBuildMeta,
 		tasks.ExtractJobBuildMeta,
+
 		tasks.CollectDeployMeta,
 		tasks.ExtractDeployMeta,
+
 		tasks.CollectDeployBuildMeta,
 		tasks.ExtractDeployBuildMeta,
 
 		tasks.ConvertJobBuildsMeta,
 		tasks.ConvertPlanBuildsMeta,
 		tasks.ConvertPlanVcsMeta,
-		tasks.ConvertProjectsMeta,
 		tasks.ConvertDeployBuildsMeta,
 	}
 }
@@ -117,6 +132,7 @@ func (p Bamboo) PrepareTaskData(taskCtx plugin.TaskContext, options map[string]i
 	connectionHelper := helper.NewConnectionHelper(
 		taskCtx,
 		nil,
+		p.Name(),
 	)
 	connection := &models.BambooConnection{}
 	err = connectionHelper.FirstById(connection, op.ConnectionId)
@@ -128,29 +144,19 @@ func (p Bamboo) PrepareTaskData(taskCtx plugin.TaskContext, options map[string]i
 	if err != nil {
 		return nil, errors.Default.Wrap(err, "unable to get Bamboo API client instance")
 	}
-
-	if op.ProjectKey != "" {
-		var scope *models.BambooProject
+	if op.PlanKey != "" {
+		var scope *models.BambooPlan
 		// support v100 & advance mode
 		// If we still cannot find the record in db, we have to request from remote server and save it to db
 		db := taskCtx.GetDal()
-		err = db.First(&scope, dal.Where("connection_id = ? AND project_key = ?", op.ConnectionId, op.ProjectKey))
-		if err != nil && db.IsErrorNotFound(err) {
-			apiProject, err := api.GetApiProject(op.ProjectKey, apiClient)
-			if err != nil {
-				return nil, err
-			}
-			logger.Debug(fmt.Sprintf("Current project: %s", apiProject.Key))
-			scope = apiProject.ConvertApiScope().(*models.BambooProject)
-			scope.ConnectionId = op.ConnectionId
-			err = taskCtx.GetDal().CreateIfNotExist(&scope)
-			if err != nil {
-				return nil, err
-			}
+		err = db.First(&scope, dal.Where("connection_id = ? AND plan_key = ?", op.ConnectionId, op.PlanKey))
+		if err != nil {
+			return nil, err
 		}
+
 		op.ScopeConfigId = scope.ScopeConfigId
 		if err != nil {
-			return nil, errors.Default.Wrap(err, fmt.Sprintf("fail to find project: %s", op.ProjectKey))
+			return nil, errors.Default.Wrap(err, fmt.Sprintf("fail to find plan: %s", op.PlanKey))
 		}
 	}
 
@@ -175,6 +181,9 @@ func (p Bamboo) PrepareTaskData(taskCtx plugin.TaskContext, options map[string]i
 	}
 	if err := regexEnricher.TryAdd(devops.PRODUCTION, op.ProductionPattern); err != nil {
 		return nil, errors.BadInput.Wrap(err, "invalid value for `productionPattern`")
+	}
+	if err := regexEnricher.TryAdd(models.ENV_NAME_PATTERN, op.EnvNamePattern); err != nil {
+		return nil, errors.BadInput.Wrap(err, "invalid value for `envNamePattern`")
 	}
 	return &tasks.BambooTaskData{
 		Options:       op,
@@ -211,8 +220,9 @@ func (p Bamboo) ApiResources() map[string]map[string]plugin.ApiResourceHandler {
 			"GET":  api.GetScopeConfigList,
 		},
 		"connections/:connectionId/scope-configs/:id": {
-			"PATCH": api.UpdateScopeConfig,
-			"GET":   api.GetScopeConfig,
+			"PATCH":  api.UpdateScopeConfig,
+			"GET":    api.GetScopeConfig,
+			"DELETE": api.DeleteScopeConfig,
 		},
 		"connections/:connectionId/scopes": {
 			"GET": api.GetScopeList,

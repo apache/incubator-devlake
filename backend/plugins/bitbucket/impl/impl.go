@@ -19,11 +19,11 @@ package impl
 
 import (
 	"fmt"
-	"time"
 
 	"github.com/apache/incubator-devlake/core/context"
 	"github.com/apache/incubator-devlake/core/dal"
 	"github.com/apache/incubator-devlake/core/errors"
+	coreModels "github.com/apache/incubator-devlake/core/models"
 	"github.com/apache/incubator-devlake/core/models/domainlayer/devops"
 	"github.com/apache/incubator-devlake/core/plugin"
 	helper "github.com/apache/incubator-devlake/helpers/pluginhelper/api"
@@ -33,33 +33,35 @@ import (
 	"github.com/apache/incubator-devlake/plugins/bitbucket/tasks"
 )
 
-var _ plugin.PluginMeta = (*Bitbucket)(nil)
-var _ plugin.PluginInit = (*Bitbucket)(nil)
-var _ plugin.PluginTask = (*Bitbucket)(nil)
-var _ plugin.PluginApi = (*Bitbucket)(nil)
-var _ plugin.PluginModel = (*Bitbucket)(nil)
-var _ plugin.PluginMigration = (*Bitbucket)(nil)
-var _ plugin.CloseablePluginTask = (*Bitbucket)(nil)
-var _ plugin.DataSourcePluginBlueprintV200 = (*Bitbucket)(nil)
-
-// var _ plugin.PluginSource = (*Bitbucket)(nil)
+var _ interface {
+	plugin.PluginMeta
+	plugin.PluginInit
+	plugin.PluginTask
+	plugin.PluginApi
+	plugin.PluginModel
+	plugin.PluginMigration
+	plugin.CloseablePluginTask
+	plugin.DataSourcePluginBlueprintV200
+	plugin.PluginSource
+} = (*Bitbucket)(nil)
 
 type Bitbucket string
 
-func (p Bitbucket) Connection() interface{} {
+func (p Bitbucket) Connection() dal.Tabler {
 	return &models.BitbucketConnection{}
 }
 
-func (p Bitbucket) Scope() interface{} {
+func (p Bitbucket) Scope() plugin.ToolLayerScope {
 	return &models.BitbucketRepo{}
 }
 
-func (p Bitbucket) ScopeConfig() interface{} {
+func (p Bitbucket) ScopeConfig() dal.Tabler {
 	return &models.BitbucketScopeConfig{}
 }
 
 func (p Bitbucket) Init(basicRes context.BasicRes) errors.Error {
-	api.Init(basicRes)
+	api.Init(basicRes, p)
+
 	return nil
 }
 
@@ -75,11 +77,19 @@ func (p Bitbucket) GetTablesInfo() []dal.Tabler {
 		&models.BitbucketPipeline{},
 		&models.BitbucketRepo{},
 		&models.BitbucketRepoCommit{},
+		&models.BitbucketDeployment{},
+		&models.BitbucketPipelineStep{},
+		&models.BitbucketPrCommit{},
+		&models.BitbucketScopeConfig{},
 	}
 }
 
 func (p Bitbucket) Description() string {
 	return "To collect and enrich data from Bitbucket"
+}
+
+func (p Bitbucket) Name() string {
+	return "bitbucket"
 }
 
 func (p Bitbucket) SubTaskMetas() []plugin.SubTaskMeta {
@@ -136,6 +146,7 @@ func (p Bitbucket) PrepareTaskData(taskCtx plugin.TaskContext, options map[strin
 	connectionHelper := helper.NewConnectionHelper(
 		taskCtx,
 		nil,
+		p.Name(),
 	)
 	connection := &models.BitbucketConnection{}
 	err = connectionHelper.FirstById(connection, op.ConnectionId)
@@ -152,13 +163,6 @@ func (p Bitbucket) PrepareTaskData(taskCtx plugin.TaskContext, options map[strin
 		return nil, err
 	}
 
-	var timeAfter time.Time
-	if op.TimeAfter != "" {
-		timeAfter, err = errors.Convert01(time.Parse(time.RFC3339, op.TimeAfter))
-		if err != nil {
-			return nil, errors.BadInput.Wrap(err, "invalid value for `timeAfter`")
-		}
-	}
 	regexEnricher := helper.NewRegexEnricher()
 	if err := regexEnricher.TryAdd(devops.DEPLOYMENT, op.DeploymentPattern); err != nil {
 		return nil, errors.BadInput.Wrap(err, "invalid value for `deploymentPattern`")
@@ -170,10 +174,6 @@ func (p Bitbucket) PrepareTaskData(taskCtx plugin.TaskContext, options map[strin
 		Options:       op,
 		ApiClient:     apiClient,
 		RegexEnricher: regexEnricher,
-	}
-	if !timeAfter.IsZero() {
-		taskData.TimeAfter = &timeAfter
-		logger.Debug("collect data updated timeAfter %s", timeAfter)
 	}
 
 	return taskData, nil
@@ -187,8 +187,10 @@ func (p Bitbucket) MigrationScripts() []plugin.MigrationScript {
 	return migrationscripts.All()
 }
 
-func (p Bitbucket) MakeDataSourcePipelinePlanV200(connectionId uint64, scopes []*plugin.BlueprintScopeV200, syncPolicy plugin.BlueprintSyncPolicy) (pp plugin.PipelinePlan, sc []plugin.Scope, err errors.Error) {
-	return api.MakeDataSourcePipelinePlanV200(p.SubTaskMetas(), connectionId, scopes, &syncPolicy)
+func (p Bitbucket) MakeDataSourcePipelinePlanV200(
+	connectionId uint64,
+	scopes []*coreModels.BlueprintScope) (pp coreModels.PipelinePlan, sc []plugin.Scope, err errors.Error) {
+	return api.MakeDataSourcePipelinePlanV200(p.SubTaskMetas(), connectionId, scopes)
 }
 
 func (p Bitbucket) ApiResources() map[string]map[string]plugin.ApiResourceHandler {
@@ -225,8 +227,9 @@ func (p Bitbucket) ApiResources() map[string]map[string]plugin.ApiResourceHandle
 			"GET":  api.GetScopeConfigList,
 		},
 		"connections/:connectionId/scope-configs/:id": {
-			"PATCH": api.UpdateScopeConfig,
-			"GET":   api.GetScopeConfig,
+			"PATCH":  api.UpdateScopeConfig,
+			"GET":    api.GetScopeConfig,
+			"DELETE": api.DeleteScopeConfig,
 		},
 	}
 }

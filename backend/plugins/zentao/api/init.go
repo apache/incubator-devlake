@@ -19,6 +19,8 @@ package api
 
 import (
 	"github.com/apache/incubator-devlake/core/context"
+	"github.com/apache/incubator-devlake/core/log"
+	"github.com/apache/incubator-devlake/core/plugin"
 	"github.com/apache/incubator-devlake/helpers/pluginhelper/api"
 	"github.com/apache/incubator-devlake/plugins/zentao/models"
 	"github.com/go-playground/validator/v10"
@@ -29,41 +31,27 @@ type MixScopes struct {
 	ZentaoProject *models.ZentaoProject `json:"project"`
 }
 
+var logger log.Logger
 var vld *validator.Validate
 var connectionHelper *api.ConnectionApiHelper
-var productScopeHelper *api.ScopeApiHelper[models.ZentaoConnection, models.ZentaoProduct, models.ZentaoScopeConfig]
 var projectScopeHelper *api.ScopeApiHelper[models.ZentaoConnection, models.ZentaoProject, models.ZentaoScopeConfig]
 
-var productRemoteHelper *api.RemoteApiHelper[models.ZentaoConnection, models.ZentaoProduct, models.ZentaoProductRes, api.BaseRemoteGroupResponse]
-var projectRemoteHelper *api.RemoteApiHelper[models.ZentaoConnection, models.ZentaoProject, models.ZentaoProject, api.NoRemoteGroupResponse]
+var projectRemoteHelper *api.RemoteApiHelper[models.ZentaoConnection, models.ZentaoProject, models.ZentaoProject, api.BaseRemoteGroupResponse]
 var basicRes context.BasicRes
 var scHelper *api.ScopeConfigHelper[models.ZentaoScopeConfig]
 
-func Init(br context.BasicRes) {
+func Init(br context.BasicRes, p plugin.PluginMeta) {
+
 	basicRes = br
+	logger = basicRes.GetLogger()
 	vld = validator.New()
-	connectionHelper = api.NewConnectionHelper(
-		basicRes,
-		vld,
-	)
-	productParams := &api.ReflectionParameters{
-		ScopeIdFieldName:  "Id",
-		ScopeIdColumnName: "id",
-		RawScopeParamName: "ProductId",
-	}
-	productScopeHelper = api.NewScopeHelper[models.ZentaoConnection, models.ZentaoProduct, models.ZentaoScopeConfig](
-		basicRes,
-		vld,
-		connectionHelper,
-		api.NewScopeDatabaseHelperImpl[models.ZentaoConnection, models.ZentaoProduct, models.ZentaoScopeConfig](
-			basicRes, connectionHelper, productParams),
-		productParams,
-		nil,
-	)
+	connectionHelper = api.NewConnectionHelper(basicRes, vld, p.Name())
+
 	projectParams := &api.ReflectionParameters{
-		ScopeIdFieldName:  "Project",
-		ScopeIdColumnName: "project",
-		RawScopeParamName: "ProjectId",
+		ScopeIdFieldName:     "Id",
+		ScopeIdColumnName:    "id",
+		RawScopeParamName:    "ProjectId",
+		SearchScopeParamName: "name",
 	}
 	projectScopeHelper = api.NewScopeHelper[models.ZentaoConnection, models.ZentaoProject, models.ZentaoScopeConfig](
 		basicRes,
@@ -74,18 +62,7 @@ func Init(br context.BasicRes) {
 		projectParams,
 		nil,
 	)
-	productRemoteHelper = api.NewRemoteHelper[models.ZentaoConnection, models.ZentaoProduct, models.ZentaoProductRes, api.BaseRemoteGroupResponse](
-		basicRes,
-		vld,
-		connectionHelper,
-	)
-	projectRemoteHelper = api.NewRemoteHelper[models.ZentaoConnection, models.ZentaoProject, models.ZentaoProject, api.NoRemoteGroupResponse](
-		basicRes,
-		vld,
-		connectionHelper,
-	)
-	scHelper = api.NewScopeConfigHelper[models.ZentaoScopeConfig](
-		basicRes,
-		vld,
-	)
+
+	projectRemoteHelper = api.NewRemoteHelper[models.ZentaoConnection, models.ZentaoProject, models.ZentaoProject, api.BaseRemoteGroupResponse](basicRes, vld, connectionHelper)
+	scHelper = api.NewScopeConfigHelper[models.ZentaoScopeConfig](basicRes, vld, p.Name())
 }

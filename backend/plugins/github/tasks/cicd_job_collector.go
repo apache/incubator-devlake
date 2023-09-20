@@ -31,6 +31,10 @@ import (
 	"github.com/apache/incubator-devlake/plugins/github/models"
 )
 
+func init() {
+	RegisterSubtaskMeta(&CollectJobsMeta)
+}
+
 const RAW_JOB_TABLE = "github_api_jobs"
 
 var CollectJobsMeta = plugin.SubTaskMeta{
@@ -39,6 +43,8 @@ var CollectJobsMeta = plugin.SubTaskMeta{
 	EnabledByDefault: true,
 	Description:      "Collect Jobs data from Github action api, supports both timeFilter and diffSync.",
 	DomainTypes:      []string{plugin.DOMAIN_TYPE_CICD},
+	DependencyTables: []string{models.GithubRun{}.TableName()},
+	ProductTables:    []string{RAW_JOB_TABLE},
 }
 
 func CollectJobs(taskCtx plugin.SubTaskContext) errors.Error {
@@ -53,7 +59,7 @@ func CollectJobs(taskCtx plugin.SubTaskContext) errors.Error {
 			Name:         data.Options.Name,
 		},
 		Table: RAW_JOB_TABLE,
-	}, data.TimeAfter)
+	})
 	if err != nil {
 		return err
 	}
@@ -67,13 +73,8 @@ func CollectJobs(taskCtx plugin.SubTaskContext) errors.Error {
 			data.Options.GithubId, data.Options.ConnectionId,
 		),
 	}
-	// incremental collection
-	incremental := collectorWithState.IsIncremental()
-	if incremental {
-		clauses = append(
-			clauses,
-			dal.Where("github_updated_at > ?", collectorWithState.LatestState.LatestSuccessStart),
-		)
+	if collectorWithState.IsIncreamtal && collectorWithState.Since != nil {
+		clauses = append(clauses, dal.Where("github_updated_at > ?", collectorWithState.Since))
 	}
 	cursor, err := db.Cursor(clauses...)
 	if err != nil {
@@ -96,7 +97,6 @@ func CollectJobs(taskCtx plugin.SubTaskContext) errors.Error {
 		ApiClient:   data.ApiClient,
 		PageSize:    100,
 		Input:       iterator,
-		Incremental: incremental,
 		UrlTemplate: "repos/{{ .Params.Name }}/actions/runs/{{ .Input.ID }}/jobs",
 		Query: func(reqData *api.RequestData) (url.Values, errors.Error) {
 			query := url.Values{}

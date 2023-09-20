@@ -39,24 +39,12 @@ var ExtractBugMeta = plugin.SubTaskMeta{
 
 func ExtractBug(taskCtx plugin.SubTaskContext) errors.Error {
 	data := taskCtx.GetData().(*ZentaoTaskData)
-
-	// this Extract only work for product
-	if data.Options.ProductId == 0 {
-		return nil
-	}
-
 	statusMappings := getBugStatusMapping(data)
-	stdTypeMappings := getStdTypeMappings(data)
-
 	extractor, err := api.NewApiExtractor(api.ApiExtractorArgs{
 		RawDataSubTaskArgs: api.RawDataSubTaskArgs{
-			Ctx: taskCtx,
-			Params: ZentaoApiParams{
-				ConnectionId: data.Options.ConnectionId,
-				ProductId:    data.Options.ProductId,
-				ProjectId:    data.Options.ProjectId,
-			},
-			Table: RAW_BUG_TABLE,
+			Ctx:     taskCtx,
+			Options: data.Options,
+			Table:   RAW_BUG_TABLE,
 		},
 		Extract: func(row *api.RawData) ([]interface{}, errors.Error) {
 			res := &models.ZentaoBugRes{}
@@ -64,10 +52,11 @@ func ExtractBug(taskCtx plugin.SubTaskContext) errors.Error {
 			if err != nil {
 				return nil, errors.Default.WrapRaw(err)
 			}
+			data.Bugs[res.ID] = struct{}{}
 			bug := &models.ZentaoBug{
 				ConnectionId:   data.Options.ConnectionId,
 				ID:             res.ID,
-				Project:        res.Project,
+				Project:        data.Options.ProjectId,
 				Product:        res.Product,
 				Injection:      res.Injection,
 				Identify:       res.Identify,
@@ -98,19 +87,19 @@ func ExtractBug(taskCtx plugin.SubTaskContext) errors.Error {
 				ActivatedDate:  res.ActivatedDate,
 				FeedbackBy:     res.FeedbackBy,
 				NotifyEmail:    res.NotifyEmail,
-				OpenedById:     getAccountId(res.OpenedBy),
-				OpenedByName:   getAccountName(res.OpenedBy),
+				OpenedById:     data.AccountCache.getAccountIDFromApiAccount(res.OpenedBy),
+				OpenedByName:   data.AccountCache.getAccountNameFromApiAccount(res.OpenedBy),
 				OpenedDate:     res.OpenedDate,
 				OpenedBuild:    res.OpenedBuild,
-				AssignedToId:   getAccountId(res.AssignedTo),
-				AssignedToName: getAccountName(res.AssignedTo),
+				AssignedToId:   data.AccountCache.getAccountIDFromApiAccount(res.AssignedTo),
+				AssignedToName: data.AccountCache.getAccountNameFromApiAccount(res.AssignedTo),
 				AssignedDate:   res.AssignedDate,
 				Deadline:       res.Deadline,
-				ResolvedById:   getAccountId(res.ResolvedBy),
+				ResolvedById:   data.AccountCache.getAccountIDFromApiAccount(res.ResolvedBy),
 				Resolution:     res.Resolution,
 				ResolvedBuild:  res.ResolvedBuild,
 				ResolvedDate:   res.ResolvedDate,
-				ClosedById:     getAccountId(res.ClosedBy),
+				ClosedById:     data.AccountCache.getAccountIDFromApiAccount(res.ClosedBy),
 				ClosedDate:     res.ClosedDate,
 				DuplicateBug:   res.DuplicateBug,
 				LinkBug:        res.LinkBug,
@@ -125,7 +114,7 @@ func ExtractBug(taskCtx plugin.SubTaskContext) errors.Error {
 				RepoType:       res.RepoType,
 				IssueKey:       res.IssueKey,
 				Testtask:       res.Testtask,
-				LastEditedById: getAccountId(res.LastEditedBy),
+				LastEditedById: data.AccountCache.getAccountIDFromApiAccount(res.LastEditedBy),
 				LastEditedDate: res.LastEditedDate,
 				Deleted:        res.Deleted,
 				PriOrder:       res.PriOrder,
@@ -135,14 +124,20 @@ func ExtractBug(taskCtx plugin.SubTaskContext) errors.Error {
 				ProductStatus:  res.ProductStatus,
 				Url:            row.Url,
 			}
-
-			bug.StdType = stdTypeMappings[bug.Type]
+			switch bug.Status {
+			case "active", "closed", "resolved":
+			default:
+				bug.Status = "active"
+			}
 			if bug.StdType == "" {
 				bug.StdType = ticket.BUG
 			}
-
 			if len(statusMappings) != 0 {
-				bug.StdStatus = statusMappings[bug.Status]
+				if stdStatus, ok := statusMappings[bug.Status]; ok {
+					bug.StdStatus = stdStatus
+				} else {
+					bug.StdStatus = bug.Status
+				}
 			} else {
 				bug.StdStatus = ticket.GetStatus(&ticket.StatusRule{
 					Done:    []string{"resolved"},

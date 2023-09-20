@@ -3,7 +3,10 @@
     "list": [
       {
         "builtIn": 1,
-        "datasource": "-- Grafana --",
+        "datasource": {
+          "type": "datasource",
+          "uid": "grafana"
+        },
         "enable": true,
         "hide": true,
         "iconColor": "rgba(0, 211, 255, 1)",
@@ -13,14 +16,17 @@
     ]
   },
   "editable": true,
-  "gnetId": null,
+  "fiscalYearStartMonth": 0,
   "graphTooltip": 0,
-  "id": 13,
-  "iteration": 1681785827220,
+  "id": 3,
   "links": [],
+  "liveNow": false,
   "panels": [
     {
-      "datasource": null,
+      "datasource": {
+        "type": "datasource",
+        "uid": "grafana"
+      },
       "gridPos": {
         "h": 3,
         "w": 24,
@@ -29,12 +35,21 @@
       },
       "id": 28,
       "options": {
+        "code": {
+          "language": "plaintext",
+          "showLineNumbers": false,
+          "showMiniMap": false
+        },
         "content": "- Use Cases: This dashboard can be used to track bugs with metrics such as [Bug Age](https://devlake.apache.org/docs/Metrics/BugAge).\n- Data Source Required: GitHub ([transformation](https://devlake.apache.org/docs/UserManuals/ConfigUI/GitHub#step-3---adding-transformation-rules-optional) required) or Jira ([transformation](https://devlake.apache.org/docs/UserManuals/ConfigUI/Jira#step-3---adding-transformation-rules-optional) required). Transformation is the configuration for you to tell DevLake what is a bug.",
         "mode": "markdown"
       },
-      "pluginVersion": "8.0.6",
+      "pluginVersion": "9.5.1",
       "targets": [
         {
+          "datasource": {
+            "type": "datasource",
+            "uid": "grafana"
+          },
           "queryType": "randomWalk",
           "refId": "A"
         }
@@ -43,7 +58,10 @@
       "type": "text"
     },
     {
-      "datasource": "mysql",
+      "datasource": {
+        "type": "mysql",
+        "uid": "P430005175C4C7810"
+      },
       "fieldConfig": {
         "defaults": {
           "color": {
@@ -88,15 +106,19 @@
         "text": {},
         "textMode": "auto"
       },
-      "pluginVersion": "8.0.6",
+      "pluginVersion": "9.5.1",
       "targets": [
         {
+          "datasource": {
+            "type": "mysql",
+            "uid": "P430005175C4C7810"
+          },
           "format": "table",
           "group": [],
           "metricColumn": "none",
           "queryType": "randomWalk",
           "rawQuery": true,
-          "rawSql": "select\n  count(*)\nfrom\n  lake.issues as i\n  join lake.board_issues bi on i.id = bi.issue_id\n  join boards b on bi.board_id = b.id\nwhere\n  i.type in ($issue_type)\n  and date(i.created_date) BETWEEN curdate() - INTERVAL WEEKDAY(curdate())+7 DAY AND curdate() - INTERVAL WEEKDAY(curdate())+1 DAY\n  and b.id in ($board_id)",
+          "rawSql": "select\n  count(*)\nfrom\n  issues as i\n  join board_issues bi on i.id = bi.issue_id\n  join boards b on bi.board_id = b.id\nwhere\n  i.type in ($issue_type)\n  and date(i.created_date) BETWEEN curdate() - INTERVAL WEEKDAY(curdate())+7 DAY AND curdate() - INTERVAL WEEKDAY(curdate())+1 DAY\n  and b.id in ($board_id)",
           "refId": "A",
           "select": [
             [
@@ -124,7 +146,10 @@
       "type": "stat"
     },
     {
-      "datasource": "mysql",
+      "datasource": {
+        "type": "mysql",
+        "uid": "P430005175C4C7810"
+      },
       "fieldConfig": {
         "defaults": {
           "color": {
@@ -156,6 +181,7 @@
         "legend": {
           "displayMode": "list",
           "placement": "bottom",
+          "showLegend": true,
           "values": [
             "percent",
             "value"
@@ -168,18 +194,23 @@
           "values": true
         },
         "tooltip": {
-          "mode": "multi"
+          "mode": "multi",
+          "sort": "none"
         }
       },
       "pluginVersion": "8.0.6",
       "targets": [
         {
+          "datasource": {
+            "type": "mysql",
+            "uid": "P430005175C4C7810"
+          },
           "format": "table",
           "group": [],
           "metricColumn": "none",
           "queryType": "randomWalk",
           "rawQuery": true,
-          "rawSql": "select\n  priority,\n  count(*) as 'Issue Number'\nfrom\n  lake.issues as i\n  join lake.board_issues bi on i.id = bi.issue_id\n  join boards b on bi.board_id = b.id\nwhere\n  i.type in ($issue_type)\n  and date(i.created_date) BETWEEN curdate() - INTERVAL WEEKDAY(curdate())+7 DAY AND curdate() - INTERVAL WEEKDAY(curdate())+1 DAY\n  and b.id in ($board_id)\ngroup by 1",
+          "rawSql": "select\n  priority,\n  count(*) as 'Issue Number'\nfrom\n  issues as i\n  join board_issues bi on i.id = bi.issue_id\n  join boards b on bi.board_id = b.id\nwhere\n  i.type in ($issue_type)\n  and date(i.created_date) BETWEEN curdate() - INTERVAL WEEKDAY(curdate())+7 DAY AND curdate() - INTERVAL WEEKDAY(curdate())+1 DAY\n  and b.id in ($board_id)\ngroup by 1",
           "refId": "A",
           "select": [
             [
@@ -207,7 +238,10 @@
       "type": "piechart"
     },
     {
-      "datasource": "mysql",
+      "datasource": {
+        "type": "mysql",
+        "uid": "P430005175C4C7810"
+      },
       "fieldConfig": {
         "defaults": {
           "color": {
@@ -215,7 +249,10 @@
           },
           "custom": {
             "align": "auto",
-            "displayMode": "auto"
+            "cellOptions": {
+              "type": "auto"
+            },
+            "inspect": false
           },
           "mappings": [],
           "thresholds": {
@@ -320,18 +357,31 @@
       },
       "id": 4,
       "options": {
+        "cellHeight": "sm",
+        "footer": {
+          "countRows": false,
+          "fields": "",
+          "reducer": [
+            "sum"
+          ],
+          "show": false
+        },
         "showHeader": true,
         "sortBy": []
       },
-      "pluginVersion": "8.0.6",
+      "pluginVersion": "9.5.1",
       "targets": [
         {
+          "datasource": {
+            "type": "mysql",
+            "uid": "P430005175C4C7810"
+          },
           "format": "table",
           "group": [],
           "metricColumn": "none",
           "queryType": "randomWalk",
           "rawQuery": true,
-          "rawSql": "select\n  i.issue_key as 'Issue Number',\n  i.title as 'Title',\n  i.url as 'Url'\nfrom\n  lake.issues as i\n\tjoin lake.board_issues bi on i.id = bi.issue_id\n\tjoin lake.boards b on bi.board_id = b.id\nwhere\n  i.type in ($issue_type)\n  and date(i.created_date) BETWEEN curdate() - INTERVAL WEEKDAY(curdate())+7 DAY AND curdate() - INTERVAL WEEKDAY(curdate())+1 DAY\n  and b.id in ($board_id)",
+          "rawSql": "select\n  i.issue_key as 'Issue Number',\n  i.title as 'Title',\n  i.url as 'Url'\nfrom\n  issues as i\n\tjoin board_issues bi on i.id = bi.issue_id\n\tjoin boards b on bi.board_id = b.id\nwhere\n  i.type in ($issue_type)\n  and date(i.created_date) BETWEEN curdate() - INTERVAL WEEKDAY(curdate())+7 DAY AND curdate() - INTERVAL WEEKDAY(curdate())+1 DAY\n  and b.id in ($board_id)",
           "refId": "A",
           "select": [
             [
@@ -359,7 +409,10 @@
       "type": "table"
     },
     {
-      "datasource": "mysql",
+      "datasource": {
+        "type": "mysql",
+        "uid": "P430005175C4C7810"
+      },
       "fieldConfig": {
         "defaults": {
           "color": {
@@ -404,15 +457,19 @@
         "text": {},
         "textMode": "auto"
       },
-      "pluginVersion": "8.0.6",
+      "pluginVersion": "9.5.1",
       "targets": [
         {
+          "datasource": {
+            "type": "mysql",
+            "uid": "P430005175C4C7810"
+          },
           "format": "table",
           "group": [],
           "metricColumn": "none",
           "queryType": "randomWalk",
           "rawQuery": true,
-          "rawSql": "select\n  count(*)\nfrom\n  lake.issues as i\n  join board_issues bi on i.id = bi.issue_id\n\tjoin boards b on bi.board_id = b.id\nwhere\n  i.type in ($issue_type)\n  and status = 'DONE'\n  and date(i.resolution_date) BETWEEN curdate() - INTERVAL WEEKDAY(curdate())+7 DAY AND curdate() - INTERVAL WEEKDAY(curdate())+1 DAY\n  and b.id in ($board_id)",
+          "rawSql": "select\n  count(*)\nfrom\n  issues as i\n  join board_issues bi on i.id = bi.issue_id\n\tjoin boards b on bi.board_id = b.id\nwhere\n  i.type in ($issue_type)\n  and status = 'DONE'\n  and date(i.resolution_date) BETWEEN curdate() - INTERVAL WEEKDAY(curdate())+7 DAY AND curdate() - INTERVAL WEEKDAY(curdate())+1 DAY\n  and b.id in ($board_id)",
           "refId": "A",
           "select": [
             [
@@ -440,7 +497,10 @@
       "type": "stat"
     },
     {
-      "datasource": "mysql",
+      "datasource": {
+        "type": "mysql",
+        "uid": "P430005175C4C7810"
+      },
       "fieldConfig": {
         "defaults": {
           "color": {
@@ -490,15 +550,19 @@
         "text": {},
         "textMode": "auto"
       },
-      "pluginVersion": "8.0.6",
+      "pluginVersion": "9.5.1",
       "targets": [
         {
+          "datasource": {
+            "type": "mysql",
+            "uid": "P430005175C4C7810"
+          },
           "format": "table",
           "group": [],
           "metricColumn": "none",
           "queryType": "randomWalk",
           "rawQuery": true,
-          "rawSql": "select\n  avg(lead_time_minutes / 1440)\nfrom\n  lake.issues as i\n\tjoin board_issues bi on i.id = bi.issue_id\n\tjoin boards b on bi.board_id = b.id\nwhere\n  i.type in ($issue_type)\n  and status = 'DONE'\n  and date(i.resolution_date) BETWEEN curdate() - INTERVAL WEEKDAY(curdate())+7 DAY AND curdate() - INTERVAL WEEKDAY(curdate())+1 DAY\n  and b.id in ($board_id)",
+          "rawSql": "select\n  avg(lead_time_minutes / 1440)\nfrom\n  issues as i\n\tjoin board_issues bi on i.id = bi.issue_id\n\tjoin boards b on bi.board_id = b.id\nwhere\n  i.type in ($issue_type)\n  and status = 'DONE'\n  and date(i.resolution_date) BETWEEN curdate() - INTERVAL WEEKDAY(curdate())+7 DAY AND curdate() - INTERVAL WEEKDAY(curdate())+1 DAY\n  and b.id in ($board_id)",
           "refId": "A",
           "select": [
             [
@@ -526,7 +590,10 @@
       "type": "stat"
     },
     {
-      "datasource": "mysql",
+      "datasource": {
+        "type": "mysql",
+        "uid": "P430005175C4C7810"
+      },
       "fieldConfig": {
         "defaults": {
           "color": {
@@ -534,7 +601,10 @@
           },
           "custom": {
             "align": "auto",
-            "displayMode": "auto"
+            "cellOptions": {
+              "type": "auto"
+            },
+            "inspect": false
           },
           "mappings": [],
           "thresholds": {
@@ -595,8 +665,10 @@
             },
             "properties": [
               {
-                "id": "custom.displayMode",
-                "value": "color-text"
+                "id": "custom.cellOptions",
+                "value": {
+                  "type": "color-text"
+                }
               }
             ]
           }
@@ -610,18 +682,31 @@
       },
       "id": 10,
       "options": {
+        "cellHeight": "sm",
+        "footer": {
+          "countRows": false,
+          "fields": "",
+          "reducer": [
+            "sum"
+          ],
+          "show": false
+        },
         "showHeader": true,
         "sortBy": []
       },
-      "pluginVersion": "8.0.6",
+      "pluginVersion": "9.5.1",
       "targets": [
         {
+          "datasource": {
+            "type": "mysql",
+            "uid": "P430005175C4C7810"
+          },
           "format": "table",
           "group": [],
           "metricColumn": "none",
           "queryType": "randomWalk",
           "rawQuery": true,
-          "rawSql": "select\n  i.issue_key as 'Issue Number',\n  i.title as 'Title',\n  lead_time_minutes/1440 as 'Lead Time in Days',\n  i.url as 'Url'\nfrom\n  lake.issues as i\n\tjoin board_issues bi on i.id = bi.issue_id\n\tjoin boards b on bi.board_id = b.id\nwhere\n  i.type in ($issue_type)\n  and status = 'DONE'\n  and date(i.resolution_date) BETWEEN curdate() - INTERVAL WEEKDAY(curdate())+7 DAY AND curdate() - INTERVAL WEEKDAY(curdate())+1 DAY\n  and b.id in ($board_id)",
+          "rawSql": "select\n  i.issue_key as 'Issue Number',\n  i.title as 'Title',\n  lead_time_minutes/1440 as 'Lead Time in Days',\n  i.url as 'Url'\nfrom\n  issues as i\n\tjoin board_issues bi on i.id = bi.issue_id\n\tjoin boards b on bi.board_id = b.id\nwhere\n  i.type in ($issue_type)\n  and status = 'DONE'\n  and date(i.resolution_date) BETWEEN curdate() - INTERVAL WEEKDAY(curdate())+7 DAY AND curdate() - INTERVAL WEEKDAY(curdate())+1 DAY\n  and b.id in ($board_id)",
           "refId": "A",
           "select": [
             [
@@ -649,13 +734,18 @@
       "type": "table"
     },
     {
-      "datasource": "mysql",
+      "datasource": {
+        "type": "mysql",
+        "uid": "P430005175C4C7810"
+      },
       "fieldConfig": {
         "defaults": {
           "color": {
             "mode": "palette-classic"
           },
           "custom": {
+            "axisCenteredZero": false,
+            "axisColorMode": "text",
             "axisLabel": "",
             "axisPlacement": "auto",
             "axisSoftMin": 0,
@@ -666,7 +756,13 @@
               "tooltip": false,
               "viz": false
             },
-            "lineWidth": 1
+            "lineWidth": 1,
+            "scaleDistribution": {
+              "type": "linear"
+            },
+            "thresholdsStyle": {
+              "mode": "off"
+            }
           },
           "decimals": 1,
           "mappings": [],
@@ -694,31 +790,42 @@
       },
       "id": 23,
       "options": {
+        "barRadius": 0,
         "barWidth": 0.3,
+        "fullHighlight": false,
         "groupWidth": 0.7,
         "legend": {
           "calcs": [
             "mean"
           ],
           "displayMode": "list",
-          "placement": "bottom"
+          "placement": "bottom",
+          "showLegend": true
         },
         "orientation": "horizontal",
         "showValue": "auto",
+        "stacking": "none",
         "text": {},
         "tooltip": {
-          "mode": "single"
-        }
+          "mode": "single",
+          "sort": "none"
+        },
+        "xTickLabelRotation": 0,
+        "xTickLabelSpacing": 0
       },
       "pluginVersion": "8.0.6",
       "targets": [
         {
+          "datasource": {
+            "type": "mysql",
+            "uid": "P430005175C4C7810"
+          },
           "format": "table",
           "group": [],
           "metricColumn": "none",
           "queryType": "randomWalk",
           "rawQuery": true,
-          "rawSql": "select\n  concat('#',i.issue_key, ' ', i.title) as issue_key,\n  lead_time_minutes/1440 as lead_time\nfrom\n  lake.issues as i\n\tjoin board_issues bi on i.id = bi.issue_id\n\tjoin boards b on bi.board_id = b.id\nwhere\n  i.type in ($issue_type)\n  and status = 'DONE'\n  and date(i.resolution_date) BETWEEN curdate() - INTERVAL WEEKDAY(curdate())+7 DAY AND curdate() - INTERVAL WEEKDAY(curdate())+1 DAY\n  and b.id in ($board_id)\norder by lead_time desc",
+          "rawSql": "select\n  concat('#',i.issue_key, ' ', i.title) as issue_key,\n  lead_time_minutes/1440 as lead_time\nfrom\n  issues as i\n\tjoin board_issues bi on i.id = bi.issue_id\n\tjoin boards b on bi.board_id = b.id\nwhere\n  i.type in ($issue_type)\n  and status = 'DONE'\n  and date(i.resolution_date) BETWEEN curdate() - INTERVAL WEEKDAY(curdate())+7 DAY AND curdate() - INTERVAL WEEKDAY(curdate())+1 DAY\n  and b.id in ($board_id)\norder by lead_time desc",
           "refId": "A",
           "select": [
             [
@@ -746,7 +853,10 @@
       "type": "barchart"
     },
     {
-      "datasource": "mysql",
+      "datasource": {
+        "type": "mysql",
+        "uid": "P430005175C4C7810"
+      },
       "fieldConfig": {
         "defaults": {
           "color": {
@@ -791,15 +901,19 @@
         "text": {},
         "textMode": "auto"
       },
-      "pluginVersion": "8.0.6",
+      "pluginVersion": "9.5.1",
       "targets": [
         {
+          "datasource": {
+            "type": "mysql",
+            "uid": "P430005175C4C7810"
+          },
           "format": "table",
           "group": [],
           "metricColumn": "none",
           "queryType": "randomWalk",
           "rawQuery": true,
-          "rawSql": "select\n  count(*)\nfrom \n  lake.issues i\n\tjoin board_issues bi on i.id = bi.issue_id\n\tjoin boards b on bi.board_id = b.id\nwhere\n  i.type in ($issue_type)\n  and i.status != 'DONE'\n  and b.id in ($board_id)",
+          "rawSql": "select\n  count(*)\nfrom \n  issues i\n\tjoin board_issues bi on i.id = bi.issue_id\n\tjoin boards b on bi.board_id = b.id\nwhere\n  i.type in ($issue_type)\n  and i.status != 'DONE'\n  and b.id in ($board_id)",
           "refId": "A",
           "select": [
             [
@@ -827,7 +941,10 @@
       "type": "stat"
     },
     {
-      "datasource": "mysql",
+      "datasource": {
+        "type": "mysql",
+        "uid": "P430005175C4C7810"
+      },
       "fieldConfig": {
         "defaults": {
           "color": {
@@ -872,15 +989,19 @@
         "text": {},
         "textMode": "auto"
       },
-      "pluginVersion": "8.0.6",
+      "pluginVersion": "9.5.1",
       "targets": [
         {
+          "datasource": {
+            "type": "mysql",
+            "uid": "P430005175C4C7810"
+          },
           "format": "table",
           "group": [],
           "metricColumn": "none",
           "queryType": "randomWalk",
           "rawQuery": true,
-          "rawSql": "select \n  avg((TIMESTAMPDIFF(MINUTE, i.created_date,NOW()))/1440)\nfrom \n  lake.issues i\n\tjoin board_issues bi on i.id = bi.issue_id\n\tjoin boards b on bi.board_id = b.id\nwhere\n  i.type in ($issue_type)\n  and i.status != 'DONE'\n  and b.id in ($board_id)",
+          "rawSql": "select \n  avg((TIMESTAMPDIFF(MINUTE, i.created_date,NOW()))/1440)\nfrom \n  issues i\n\tjoin board_issues bi on i.id = bi.issue_id\n\tjoin boards b on bi.board_id = b.id\nwhere\n  i.type in ($issue_type)\n  and i.status != 'DONE'\n  and b.id in ($board_id)",
           "refId": "A",
           "select": [
             [
@@ -908,7 +1029,10 @@
       "type": "stat"
     },
     {
-      "datasource": "mysql",
+      "datasource": {
+        "type": "mysql",
+        "uid": "P430005175C4C7810"
+      },
       "fieldConfig": {
         "defaults": {
           "color": {
@@ -916,7 +1040,10 @@
           },
           "custom": {
             "align": "auto",
-            "displayMode": "auto"
+            "cellOptions": {
+              "type": "auto"
+            },
+            "inspect": false
           },
           "mappings": [],
           "thresholds": {
@@ -989,8 +1116,10 @@
             },
             "properties": [
               {
-                "id": "custom.displayMode",
-                "value": "color-text"
+                "id": "custom.cellOptions",
+                "value": {
+                  "type": "color-text"
+                }
               }
             ]
           },
@@ -1001,8 +1130,7 @@
             },
             "properties": [
               {
-                "id": "custom.width",
-                "value": null
+                "id": "custom.width"
               }
             ]
           }
@@ -1016,18 +1144,31 @@
       },
       "id": 14,
       "options": {
+        "cellHeight": "sm",
+        "footer": {
+          "countRows": false,
+          "fields": "",
+          "reducer": [
+            "sum"
+          ],
+          "show": false
+        },
         "showHeader": true,
         "sortBy": []
       },
-      "pluginVersion": "8.0.6",
+      "pluginVersion": "9.5.1",
       "targets": [
         {
+          "datasource": {
+            "type": "mysql",
+            "uid": "P430005175C4C7810"
+          },
           "format": "table",
           "group": [],
           "metricColumn": "none",
           "queryType": "randomWalk",
           "rawQuery": true,
-          "rawSql": "select \n  i.issue_key as 'Issue Number',\n  i.title as 'Title',\n  (TIMESTAMPDIFF(MINUTE, i.created_date,NOW()))/1440 as 'Queue Time in Days',\n  i.url as 'Url',\n  priority\nfrom \n  lake.issues i\n\tjoin board_issues bi on i.id = bi.issue_id\n\tjoin boards b on bi.board_id = b.id\nwhere\n  i.type in ($issue_type)\n  and i.status != 'DONE'\n  and b.id in ($board_id)\n  and priority in ($priority)\norder by 'Queue Time' desc",
+          "rawSql": "select \n  i.issue_key as 'Issue Number',\n  i.title as 'Title',\n  (TIMESTAMPDIFF(MINUTE, i.created_date,NOW()))/1440 as 'Queue Time in Days',\n  i.url as 'Url',\n  priority\nfrom \n  issues i\n\tjoin board_issues bi on i.id = bi.issue_id\n\tjoin boards b on bi.board_id = b.id\nwhere\n  i.type in ($issue_type)\n  and i.status != 'DONE'\n  and b.id in ($board_id)\n  and priority in ($priority)\norder by 'Queue Time' desc",
           "refId": "A",
           "select": [
             [
@@ -1055,13 +1196,18 @@
       "type": "table"
     },
     {
-      "datasource": "mysql",
+      "datasource": {
+        "type": "mysql",
+        "uid": "P430005175C4C7810"
+      },
       "fieldConfig": {
         "defaults": {
           "color": {
             "mode": "palette-classic"
           },
           "custom": {
+            "axisCenteredZero": false,
+            "axisColorMode": "text",
             "axisLabel": "Queue Time in Days",
             "axisPlacement": "auto",
             "axisSoftMin": 0,
@@ -1072,7 +1218,13 @@
               "tooltip": false,
               "viz": false
             },
-            "lineWidth": 1
+            "lineWidth": 1,
+            "scaleDistribution": {
+              "type": "linear"
+            },
+            "thresholdsStyle": {
+              "mode": "off"
+            }
           },
           "mappings": [],
           "thresholds": {
@@ -1099,7 +1251,9 @@
       },
       "id": 18,
       "options": {
+        "barRadius": 0,
         "barWidth": 0.3,
+        "fullHighlight": false,
         "groupWidth": 0.7,
         "legend": {
           "calcs": [
@@ -1107,26 +1261,35 @@
             "max"
           ],
           "displayMode": "list",
-          "placement": "bottom"
+          "placement": "bottom",
+          "showLegend": true
         },
         "orientation": "auto",
         "showValue": "always",
+        "stacking": "none",
         "text": {
           "valueSize": 12
         },
         "tooltip": {
-          "mode": "single"
-        }
+          "mode": "single",
+          "sort": "none"
+        },
+        "xTickLabelRotation": 45,
+        "xTickLabelSpacing": 0
       },
       "pluginVersion": "8.0.6",
       "targets": [
         {
+          "datasource": {
+            "type": "mysql",
+            "uid": "P430005175C4C7810"
+          },
           "format": "table",
           "group": [],
           "metricColumn": "none",
           "queryType": "randomWalk",
           "rawQuery": true,
-          "rawSql": "select \n  concat('#', i.issue_key) as issue_key,\n  (TIMESTAMPDIFF(MINUTE, i.created_date,NOW()))/1440 as 'Queue Time in Days'\nfrom \n  lake.issues i\n\tjoin board_issues bi on i.id = bi.issue_id\n\tjoin boards b on bi.board_id = b.id\nwhere\n  i.type in ($issue_type)\n  and i.status != 'DONE'\n  and b.id in ($board_id)\norder by 2 desc",
+          "rawSql": "select \n  concat('#', i.issue_key) as issue_key,\n  (TIMESTAMPDIFF(MINUTE, i.created_date,NOW()))/1440 as 'Queue Time in Days'\nfrom \n  issues i\n\tjoin board_issues bi on i.id = bi.issue_id\n\tjoin boards b on bi.board_id = b.id\nwhere\n  i.type in ($issue_type)\n  and i.status != 'DONE'\n  and b.id in ($board_id)\norder by 2 desc",
           "refId": "A",
           "select": [
             [
@@ -1154,7 +1317,10 @@
       "type": "barchart"
     },
     {
-      "datasource": "mysql",
+      "datasource": {
+        "type": "mysql",
+        "uid": "P430005175C4C7810"
+      },
       "fieldConfig": {
         "defaults": {
           "color": {
@@ -1162,7 +1328,10 @@
           },
           "custom": {
             "align": "auto",
-            "displayMode": "auto"
+            "cellOptions": {
+              "type": "auto"
+            },
+            "inspect": false
           },
           "mappings": [],
           "thresholds": {
@@ -1223,8 +1392,10 @@
             },
             "properties": [
               {
-                "id": "custom.displayMode",
-                "value": "color-text"
+                "id": "custom.cellOptions",
+                "value": {
+                  "type": "color-text"
+                }
               }
             ]
           }
@@ -1238,18 +1409,31 @@
       },
       "id": 31,
       "options": {
+        "cellHeight": "sm",
+        "footer": {
+          "countRows": false,
+          "fields": "",
+          "reducer": [
+            "sum"
+          ],
+          "show": false
+        },
         "showHeader": true,
         "sortBy": []
       },
-      "pluginVersion": "8.0.6",
+      "pluginVersion": "9.5.1",
       "targets": [
         {
+          "datasource": {
+            "type": "mysql",
+            "uid": "P430005175C4C7810"
+          },
           "format": "table",
           "group": [],
           "metricColumn": "none",
           "queryType": "randomWalk",
           "rawQuery": true,
-          "rawSql": "select \n  i.issue_key as 'Issue Number',\n  i.title as 'Title',\n  (TIMESTAMPDIFF(MINUTE, i.created_date,NOW()))/1440 as 'Queue Time in Days',\n  i.url as 'Url'\nfrom \n  lake.issues i\n\tjoin board_issues bi on i.id = bi.issue_id\n\tjoin boards b on bi.board_id = b.id\nwhere\n  i.type in ($issue_type)\n  and i.status != 'DONE'\n  and i.assignee_name = ''\n  and b.id in ($board_id)\norder by 'Queue Time' desc",
+          "rawSql": "select \n  i.issue_key as 'Issue Number',\n  i.title as 'Title',\n  (TIMESTAMPDIFF(MINUTE, i.created_date,NOW()))/1440 as 'Queue Time in Days',\n  i.url as 'Url'\nfrom \n  issues i\n\tjoin board_issues bi on i.id = bi.issue_id\n\tjoin boards b on bi.board_id = b.id\nwhere\n  i.type in ($issue_type)\n  and i.status != 'DONE'\n  and i.assignee_name = ''\n  and b.id in ($board_id)\norder by 'Queue Time' desc",
           "refId": "A",
           "select": [
             [
@@ -1277,13 +1461,18 @@
       "type": "table"
     },
     {
-      "datasource": "mysql",
+      "datasource": {
+        "type": "mysql",
+        "uid": "P430005175C4C7810"
+      },
       "fieldConfig": {
         "defaults": {
           "color": {
             "mode": "palette-classic"
           },
           "custom": {
+            "axisCenteredZero": false,
+            "axisColorMode": "text",
             "axisLabel": "",
             "axisPlacement": "auto",
             "axisSoftMin": 0,
@@ -1294,7 +1483,13 @@
               "tooltip": false,
               "viz": false
             },
-            "lineWidth": 1
+            "lineWidth": 1,
+            "scaleDistribution": {
+              "type": "linear"
+            },
+            "thresholdsStyle": {
+              "mode": "off"
+            }
           },
           "mappings": [],
           "thresholds": {
@@ -1321,30 +1516,41 @@
       },
       "id": 2,
       "options": {
+        "barRadius": 0,
         "barWidth": 0.71,
+        "fullHighlight": false,
         "groupWidth": 0.7,
         "legend": {
           "calcs": [],
           "displayMode": "list",
-          "placement": "bottom"
+          "placement": "bottom",
+          "showLegend": true
         },
         "orientation": "auto",
         "showValue": "auto",
+        "stacking": "none",
         "text": {
           "valueSize": 12
         },
         "tooltip": {
-          "mode": "single"
-        }
+          "mode": "single",
+          "sort": "none"
+        },
+        "xTickLabelRotation": 45,
+        "xTickLabelSpacing": 0
       },
       "targets": [
         {
+          "datasource": {
+            "type": "mysql",
+            "uid": "P430005175C4C7810"
+          },
           "format": "table",
           "group": [],
           "metricColumn": "none",
           "queryType": "randomWalk",
           "rawQuery": true,
-          "rawSql": "with bugs as (  \n  select \n    DATE_ADD(date(i.created_date), INTERVAL -WEEKDAY(date(i.created_date)) DAY) as time,\n    count(*) as bug_count\n  from\n    lake.issues as i\n\t  join lake.board_issues bi on i.id = bi.issue_id\n\t  join lake.boards b on bi.board_id = b.id\n  where \n    i.type in ($issue_type)\n    and $__timeFilter(i.created_date)\n    and b.id in ($board_id)\n  group by time\n  order by time desc\n),\n\ncalendar_date as(\n\tSELECT CAST((SYSDATE()-INTERVAL (H+T+U) DAY) AS date) d\n\tFROM ( SELECT 0 H\n\t\t\tUNION ALL SELECT 100 UNION ALL SELECT 200 UNION ALL SELECT 300\n\t\t) H CROSS JOIN ( SELECT 0 T\n\t\t\tUNION ALL SELECT  10 UNION ALL SELECT  20 UNION ALL SELECT  30\n\t\t\tUNION ALL SELECT  40 UNION ALL SELECT  50 UNION ALL SELECT  60\n\t\t\tUNION ALL SELECT  70 UNION ALL SELECT  80 UNION ALL SELECT  90\n\t\t) T CROSS JOIN ( SELECT 0 U\n\t\t\tUNION ALL SELECT   1 UNION ALL SELECT   2 UNION ALL SELECT   3\n\t\t\tUNION ALL SELECT   4 UNION ALL SELECT   5 UNION ALL SELECT   6\n\t\t\tUNION ALL SELECT   7 UNION ALL SELECT   8 UNION ALL SELECT   9\n\t\t) U\n\tWHERE\n\t\t(SYSDATE()-INTERVAL (H+T+U) DAY) >= (SYSDATE()-INTERVAL 6 MONTH)\n),\n\ncalendar_weeks as(\n  select \n  \tdistinct date(DATE_ADD(date(d), INTERVAL -WEEKDAY(date(d)) DAY)) as start_of_week\n  FROM calendar_date\n  ORDER BY 1 asc\n)\n\n\nselect \n  concat(date_format(cw.start_of_week,'%m/%d'), ' - ', date_format(DATE_ADD(cw.start_of_week, INTERVAL +6 DAY),'%m/%d')) as week,\n  case when bug_count is not null then bug_count else 0 end as 'Weekly New Bugs'\nfrom calendar_weeks cw left join bugs b on cw.start_of_week = b.time\norder by cw.start_of_week asc\n",
+          "rawSql": "with bugs as (  \n  select \n    DATE_ADD(date(i.created_date), INTERVAL -WEEKDAY(date(i.created_date)) DAY) as time,\n    count(*) as bug_count\n  from\n    issues as i\n\t  join board_issues bi on i.id = bi.issue_id\n\t  join boards b on bi.board_id = b.id\n  where \n    i.type in ($issue_type)\n    and $__timeFilter(i.created_date)\n    and b.id in ($board_id)\n  group by time\n  order by time desc\n),\n\ncalendar_date as(\n\tSELECT CAST((SYSDATE()-INTERVAL (H+T+U) DAY) AS date) d\n\tFROM ( SELECT 0 H\n\t\t\tUNION ALL SELECT 100 UNION ALL SELECT 200 UNION ALL SELECT 300\n\t\t) H CROSS JOIN ( SELECT 0 T\n\t\t\tUNION ALL SELECT  10 UNION ALL SELECT  20 UNION ALL SELECT  30\n\t\t\tUNION ALL SELECT  40 UNION ALL SELECT  50 UNION ALL SELECT  60\n\t\t\tUNION ALL SELECT  70 UNION ALL SELECT  80 UNION ALL SELECT  90\n\t\t) T CROSS JOIN ( SELECT 0 U\n\t\t\tUNION ALL SELECT   1 UNION ALL SELECT   2 UNION ALL SELECT   3\n\t\t\tUNION ALL SELECT   4 UNION ALL SELECT   5 UNION ALL SELECT   6\n\t\t\tUNION ALL SELECT   7 UNION ALL SELECT   8 UNION ALL SELECT   9\n\t\t) U\n\tWHERE\n\t\t(SYSDATE()-INTERVAL (H+T+U) DAY) >= (SYSDATE()-INTERVAL 6 MONTH)\n),\n\ncalendar_weeks as(\n  select \n  \tdistinct date(DATE_ADD(date(d), INTERVAL -WEEKDAY(date(d)) DAY)) as start_of_week\n  FROM calendar_date\n  ORDER BY 1 asc\n)\n\n\nselect \n  concat(date_format(cw.start_of_week,'%m/%d'), ' - ', date_format(DATE_ADD(cw.start_of_week, INTERVAL +6 DAY),'%m/%d')) as week,\n  case when bug_count is not null then bug_count else 0 end as 'Weekly New Bugs'\nfrom calendar_weeks cw left join bugs b on cw.start_of_week = b.time\norder by cw.start_of_week asc\n",
           "refId": "A",
           "select": [
             [
@@ -1372,13 +1578,18 @@
       "type": "barchart"
     },
     {
-      "datasource": "mysql",
+      "datasource": {
+        "type": "mysql",
+        "uid": "P430005175C4C7810"
+      },
       "fieldConfig": {
         "defaults": {
           "color": {
             "mode": "palette-classic"
           },
           "custom": {
+            "axisCenteredZero": false,
+            "axisColorMode": "text",
             "axisLabel": "",
             "axisPlacement": "auto",
             "axisSoftMin": 0,
@@ -1389,7 +1600,13 @@
               "tooltip": false,
               "viz": false
             },
-            "lineWidth": 1
+            "lineWidth": 1,
+            "scaleDistribution": {
+              "type": "linear"
+            },
+            "thresholdsStyle": {
+              "mode": "off"
+            }
           },
           "mappings": [],
           "thresholds": {
@@ -1416,30 +1633,41 @@
       },
       "id": 20,
       "options": {
+        "barRadius": 0,
         "barWidth": 0.71,
+        "fullHighlight": false,
         "groupWidth": 0.7,
         "legend": {
           "calcs": [],
           "displayMode": "list",
-          "placement": "bottom"
+          "placement": "bottom",
+          "showLegend": true
         },
         "orientation": "auto",
         "showValue": "auto",
+        "stacking": "none",
         "text": {
           "valueSize": 12
         },
         "tooltip": {
-          "mode": "single"
-        }
+          "mode": "single",
+          "sort": "none"
+        },
+        "xTickLabelRotation": 45,
+        "xTickLabelSpacing": 0
       },
       "targets": [
         {
+          "datasource": {
+            "type": "mysql",
+            "uid": "P430005175C4C7810"
+          },
           "format": "table",
           "group": [],
           "metricColumn": "none",
           "queryType": "randomWalk",
           "rawQuery": true,
-          "rawSql": "with bugs as (\n  select \n    DATE_ADD(date(i.resolution_date), INTERVAL -WEEKDAY(date(i.resolution_date)) DAY) as time,\n    count(*) as bug_count\n  from\n    lake.issues as i\n\t  join lake.board_issues bi on i.id = bi.issue_id\n\t  join lake.boards b on bi.board_id = b.id\n  where \n    i.type in ($issue_type)\n    and status = 'DONE'\n    and $__timeFilter(i.resolution_date)\n    and b.id in ($board_id)\n  group by time\n  order by time desc\n),\n\ncalendar_date as(\n\tSELECT CAST((SYSDATE()-INTERVAL (H+T+U) DAY) AS date) d\n\tFROM ( SELECT 0 H\n\t\t\tUNION ALL SELECT 100 UNION ALL SELECT 200 UNION ALL SELECT 300\n\t\t) H CROSS JOIN ( SELECT 0 T\n\t\t\tUNION ALL SELECT  10 UNION ALL SELECT  20 UNION ALL SELECT  30\n\t\t\tUNION ALL SELECT  40 UNION ALL SELECT  50 UNION ALL SELECT  60\n\t\t\tUNION ALL SELECT  70 UNION ALL SELECT  80 UNION ALL SELECT  90\n\t\t) T CROSS JOIN ( SELECT 0 U\n\t\t\tUNION ALL SELECT   1 UNION ALL SELECT   2 UNION ALL SELECT   3\n\t\t\tUNION ALL SELECT   4 UNION ALL SELECT   5 UNION ALL SELECT   6\n\t\t\tUNION ALL SELECT   7 UNION ALL SELECT   8 UNION ALL SELECT   9\n\t\t) U\n\tWHERE\n\t\t(SYSDATE()-INTERVAL (H+T+U) DAY) >= (SYSDATE()-INTERVAL 6 MONTH)\n),\n\ncalendar_weeks as(\n  select \n  \tdistinct date(DATE_ADD(date(d), INTERVAL -WEEKDAY(date(d)) DAY)) as start_of_week\n  FROM calendar_date\n  ORDER BY 1 asc\n)\n\nselect \n  concat(date_format(cw.start_of_week,'%m/%d'), ' - ', date_format(DATE_ADD(cw.start_of_week, INTERVAL +6 DAY),'%m/%d')) as week,\n  case when bug_count is not null then bug_count else 0 end as 'Weekly Closed Bugs'\nfrom calendar_weeks cw left join bugs b on cw.start_of_week = b.time\norder by cw.start_of_week asc",
+          "rawSql": "with bugs as (\n  select \n    DATE_ADD(date(i.resolution_date), INTERVAL -WEEKDAY(date(i.resolution_date)) DAY) as time,\n    count(*) as bug_count\n  from\n    issues as i\n\t  join board_issues bi on i.id = bi.issue_id\n\t  join boards b on bi.board_id = b.id\n  where \n    i.type in ($issue_type)\n    and status = 'DONE'\n    and $__timeFilter(i.resolution_date)\n    and b.id in ($board_id)\n  group by time\n  order by time desc\n),\n\ncalendar_date as(\n\tSELECT CAST((SYSDATE()-INTERVAL (H+T+U) DAY) AS date) d\n\tFROM ( SELECT 0 H\n\t\t\tUNION ALL SELECT 100 UNION ALL SELECT 200 UNION ALL SELECT 300\n\t\t) H CROSS JOIN ( SELECT 0 T\n\t\t\tUNION ALL SELECT  10 UNION ALL SELECT  20 UNION ALL SELECT  30\n\t\t\tUNION ALL SELECT  40 UNION ALL SELECT  50 UNION ALL SELECT  60\n\t\t\tUNION ALL SELECT  70 UNION ALL SELECT  80 UNION ALL SELECT  90\n\t\t) T CROSS JOIN ( SELECT 0 U\n\t\t\tUNION ALL SELECT   1 UNION ALL SELECT   2 UNION ALL SELECT   3\n\t\t\tUNION ALL SELECT   4 UNION ALL SELECT   5 UNION ALL SELECT   6\n\t\t\tUNION ALL SELECT   7 UNION ALL SELECT   8 UNION ALL SELECT   9\n\t\t) U\n\tWHERE\n\t\t(SYSDATE()-INTERVAL (H+T+U) DAY) >= (SYSDATE()-INTERVAL 6 MONTH)\n),\n\ncalendar_weeks as(\n  select \n  \tdistinct date(DATE_ADD(date(d), INTERVAL -WEEKDAY(date(d)) DAY)) as start_of_week\n  FROM calendar_date\n  ORDER BY 1 asc\n)\n\nselect \n  concat(date_format(cw.start_of_week,'%m/%d'), ' - ', date_format(DATE_ADD(cw.start_of_week, INTERVAL +6 DAY),'%m/%d')) as week,\n  case when bug_count is not null then bug_count else 0 end as 'Weekly Closed Bugs'\nfrom calendar_weeks cw left join bugs b on cw.start_of_week = b.time\norder by cw.start_of_week asc",
           "refId": "A",
           "select": [
             [
@@ -1467,13 +1695,18 @@
       "type": "barchart"
     },
     {
-      "datasource": "mysql",
+      "datasource": {
+        "type": "mysql",
+        "uid": "P430005175C4C7810"
+      },
       "fieldConfig": {
         "defaults": {
           "color": {
             "mode": "palette-classic"
           },
           "custom": {
+            "axisCenteredZero": false,
+            "axisColorMode": "text",
             "axisLabel": "",
             "axisPlacement": "auto",
             "axisSoftMin": 0,
@@ -1484,7 +1717,13 @@
               "tooltip": false,
               "viz": false
             },
-            "lineWidth": 1
+            "lineWidth": 1,
+            "scaleDistribution": {
+              "type": "linear"
+            },
+            "thresholdsStyle": {
+              "mode": "off"
+            }
           },
           "mappings": [],
           "thresholds": {
@@ -1511,32 +1750,43 @@
       },
       "id": 21,
       "options": {
+        "barRadius": 0,
         "barWidth": 0.71,
+        "fullHighlight": false,
         "groupWidth": 0.7,
         "legend": {
           "calcs": [
             "mean"
           ],
           "displayMode": "list",
-          "placement": "bottom"
+          "placement": "bottom",
+          "showLegend": true
         },
         "orientation": "auto",
         "showValue": "auto",
+        "stacking": "none",
         "text": {
           "valueSize": 12
         },
         "tooltip": {
-          "mode": "single"
-        }
+          "mode": "single",
+          "sort": "none"
+        },
+        "xTickLabelRotation": 45,
+        "xTickLabelSpacing": 0
       },
       "targets": [
         {
+          "datasource": {
+            "type": "mysql",
+            "uid": "P430005175C4C7810"
+          },
           "format": "table",
           "group": [],
           "metricColumn": "none",
           "queryType": "randomWalk",
           "rawQuery": true,
-          "rawSql": "with calendar_date as(\n\tSELECT CAST((SYSDATE()-INTERVAL (H+T+U) DAY) AS date) d\n\tFROM ( SELECT 0 H\n\t\t\tUNION ALL SELECT 100 UNION ALL SELECT 200 UNION ALL SELECT 300\n\t\t) H CROSS JOIN ( SELECT 0 T\n\t\t\tUNION ALL SELECT  10 UNION ALL SELECT  20 UNION ALL SELECT  30\n\t\t\tUNION ALL SELECT  40 UNION ALL SELECT  50 UNION ALL SELECT  60\n\t\t\tUNION ALL SELECT  70 UNION ALL SELECT  80 UNION ALL SELECT  90\n\t\t) T CROSS JOIN ( SELECT 0 U\n\t\t\tUNION ALL SELECT   1 UNION ALL SELECT   2 UNION ALL SELECT   3\n\t\t\tUNION ALL SELECT   4 UNION ALL SELECT   5 UNION ALL SELECT   6\n\t\t\tUNION ALL SELECT   7 UNION ALL SELECT   8 UNION ALL SELECT   9\n\t\t) U\n\tWHERE\n\t\t(SYSDATE()-INTERVAL (H+T+U) DAY) >= (SYSDATE()-INTERVAL 6 MONTH)\n),\n\ncalendar_weeks as(\n  select \n  \tdistinct date(DATE_ADD(date(d), INTERVAL -WEEKDAY(date(d)) DAY)) as start_of_week\n  FROM calendar_date\n  ORDER BY 1 asc\n),\n\ncreated_bugs as (  \n  select \n    DATE_ADD(date(i.created_date), INTERVAL -WEEKDAY(date(i.created_date)) DAY) as time,\n    count(*) as bug_count\n  from\n    lake.issues as i\n\t  join lake.board_issues bi on i.id = bi.issue_id\n\t  join lake.boards b on bi.board_id = b.id\n  where \n    i.type in ($issue_type)\n    and $__timeFilter(i.created_date)\n    and b.id in ($board_id)\n  group by time\n  order by time desc\n),\n\nresolved_bugs as (\n  select \n    DATE_ADD(date(i.resolution_date), INTERVAL -WEEKDAY(date(i.resolution_date)) DAY) as time,\n    count(*) as bug_count\n  from\n    lake.issues as i\n\t  join lake.board_issues bi on i.id = bi.issue_id\n\t  join lake.boards b on bi.board_id = b.id\n  where \n    i.type in ($issue_type)\n    and status = 'DONE'\n    and $__timeFilter(i.resolution_date)\n    and b.id in ($board_id)\n  group by time\n  order by time desc\n),\n\nweekly_new_bug as(\n  select\n    cw.start_of_week as week,\n    case when bug_count is not null then bug_count else 0 end as weekly_new_bug\n  from calendar_weeks cw left join created_bugs cb on cw.start_of_week = cb.time\n),\n\nweekly_closed_bug as(\n  select\n    cw.start_of_week as week,\n    case when bug_count is not null then bug_count else 0 end as weekly_closed_bug\n  from calendar_weeks cw left join resolved_bugs cb on cw.start_of_week = cb.time\n),\n\nweekly_updates as(\n  SELECT t1.week, weekly_new_bug, weekly_closed_bug FROM weekly_new_bug t1\n  LEFT JOIN weekly_closed_bug t2 ON t1.week = t2.week\n  UNION\n  SELECT t1.week, weekly_new_bug, weekly_closed_bug FROM weekly_new_bug t1\n  RIGHT JOIN weekly_closed_bug t2 ON t1.week = t2.week\n),\n\n\noriginal_open_bugs as (\n  SELECT \n    count(distinct i.id) as original_open_bug_count\n  FROM\n    lake.issues as i\n\t  join lake.board_issues bi on i.id = bi.issue_id\n\t  join lake.boards b on bi.board_id = b.id\n  where \n    i.type in ($issue_type)\n    and i.created_date < $__timeFrom()\n    and (i.status != 'DONE' or $__timeFilter(i.resolution_date))\n    and b.id in ($board_id)\n),\n\nweekly_updated_without_null as(\n  SELECT \n    week, \n    COALESCE(weekly_new_bug,0) as weekly_new_bug, \n    COALESCE(weekly_closed_bug,0) as weekly_closed_bug,\n    original_open_bug_count\n  from weekly_updates, original_open_bugs\n  where week is not null\n),\n\nweekly_delta as(\n  SELECT \n    *,\n    (weekly_new_bug - weekly_closed_bug) as weekly_delta\n  from weekly_updated_without_null\n  order by week asc\n),\n\nfinal_data as(\n  SELECT \n    *,\n    concat(date_format(week,'%m/%d'), ' - ', date_format(DATE_ADD(week, INTERVAL +6 DAY),'%m/%d')) as _week,\n    sum(weekly_delta) over(order by week asc) as weekly_accumulated\n  from weekly_delta\n)\n\nSELECT \n  _week,\n  (original_open_bug_count + weekly_accumulated) as \"Total No. of Outstanding Bugs By the End of Week\" from final_data",
+          "rawSql": "with calendar_date as(\n\tSELECT CAST((SYSDATE()-INTERVAL (H+T+U) DAY) AS date) d\n\tFROM ( SELECT 0 H\n\t\t\tUNION ALL SELECT 100 UNION ALL SELECT 200 UNION ALL SELECT 300\n\t\t) H CROSS JOIN ( SELECT 0 T\n\t\t\tUNION ALL SELECT  10 UNION ALL SELECT  20 UNION ALL SELECT  30\n\t\t\tUNION ALL SELECT  40 UNION ALL SELECT  50 UNION ALL SELECT  60\n\t\t\tUNION ALL SELECT  70 UNION ALL SELECT  80 UNION ALL SELECT  90\n\t\t) T CROSS JOIN ( SELECT 0 U\n\t\t\tUNION ALL SELECT   1 UNION ALL SELECT   2 UNION ALL SELECT   3\n\t\t\tUNION ALL SELECT   4 UNION ALL SELECT   5 UNION ALL SELECT   6\n\t\t\tUNION ALL SELECT   7 UNION ALL SELECT   8 UNION ALL SELECT   9\n\t\t) U\n\tWHERE\n\t\t(SYSDATE()-INTERVAL (H+T+U) DAY) >= (SYSDATE()-INTERVAL 6 MONTH)\n),\n\ncalendar_weeks as(\n  select \n  \tdistinct date(DATE_ADD(date(d), INTERVAL -WEEKDAY(date(d)) DAY)) as start_of_week\n  FROM calendar_date\n  ORDER BY 1 asc\n),\n\ncreated_bugs as (  \n  select \n    DATE_ADD(date(i.created_date), INTERVAL -WEEKDAY(date(i.created_date)) DAY) as time,\n    count(*) as bug_count\n  from\n    issues as i\n\t  join board_issues bi on i.id = bi.issue_id\n\t  join boards b on bi.board_id = b.id\n  where \n    i.type in ($issue_type)\n    and $__timeFilter(i.created_date)\n    and b.id in ($board_id)\n  group by time\n  order by time desc\n),\n\nresolved_bugs as (\n  select \n    DATE_ADD(date(i.resolution_date), INTERVAL -WEEKDAY(date(i.resolution_date)) DAY) as time,\n    count(*) as bug_count\n  from\n    issues as i\n\t  join board_issues bi on i.id = bi.issue_id\n\t  join boards b on bi.board_id = b.id\n  where \n    i.type in ($issue_type)\n    and status = 'DONE'\n    and $__timeFilter(i.resolution_date)\n    and b.id in ($board_id)\n  group by time\n  order by time desc\n),\n\nweekly_new_bug as(\n  select\n    cw.start_of_week as week,\n    case when bug_count is not null then bug_count else 0 end as weekly_new_bug\n  from calendar_weeks cw left join created_bugs cb on cw.start_of_week = cb.time\n),\n\nweekly_closed_bug as(\n  select\n    cw.start_of_week as week,\n    case when bug_count is not null then bug_count else 0 end as weekly_closed_bug\n  from calendar_weeks cw left join resolved_bugs cb on cw.start_of_week = cb.time\n),\n\nweekly_updates as(\n  SELECT t1.week, weekly_new_bug, weekly_closed_bug FROM weekly_new_bug t1\n  LEFT JOIN weekly_closed_bug t2 ON t1.week = t2.week\n  UNION\n  SELECT t1.week, weekly_new_bug, weekly_closed_bug FROM weekly_new_bug t1\n  RIGHT JOIN weekly_closed_bug t2 ON t1.week = t2.week\n),\n\n\noriginal_open_bugs as (\n  SELECT \n    count(distinct i.id) as original_open_bug_count\n  FROM\n    issues as i\n\t  join board_issues bi on i.id = bi.issue_id\n\t  join boards b on bi.board_id = b.id\n  where \n    i.type in ($issue_type)\n    and i.created_date < $__timeFrom()\n    and (i.status != 'DONE' or $__timeFilter(i.resolution_date))\n    and b.id in ($board_id)\n),\n\nweekly_updated_without_null as(\n  SELECT \n    week, \n    COALESCE(weekly_new_bug,0) as weekly_new_bug, \n    COALESCE(weekly_closed_bug,0) as weekly_closed_bug,\n    original_open_bug_count\n  from weekly_updates, original_open_bugs\n  where week is not null\n),\n\nweekly_delta as(\n  SELECT \n    *,\n    (weekly_new_bug - weekly_closed_bug) as weekly_delta\n  from weekly_updated_without_null\n  order by week asc\n),\n\nfinal_data as(\n  SELECT \n    *,\n    concat(date_format(week,'%m/%d'), ' - ', date_format(DATE_ADD(week, INTERVAL +6 DAY),'%m/%d')) as _week,\n    sum(weekly_delta) over(order by week asc) as weekly_accumulated\n  from weekly_delta\n)\n\nSELECT \n  _week,\n  (original_open_bug_count + weekly_accumulated) as \"Total No. of Outstanding Bugs By the End of Week\" from final_data",
           "refId": "A",
           "select": [
             [
@@ -1564,7 +1814,10 @@
       "type": "barchart"
     },
     {
-      "datasource": null,
+      "datasource": {
+        "type": "datasource",
+        "uid": "grafana"
+      },
       "gridPos": {
         "h": 2,
         "w": 24,
@@ -1573,12 +1826,21 @@
       },
       "id": 30,
       "options": {
+        "code": {
+          "language": "plaintext",
+          "showLineNumbers": false,
+          "showMiniMap": false
+        },
         "content": "<br/>\n\nThis dashboard is created based on this [data schema](https://devlake.apache.org/docs/DataModels/DevLakeDomainLayerSchema). Want to add more metrics? Please follow the [guide](https://devlake.apache.org/docs/UserManuals/Dashboards/GrafanaUserGuide).",
         "mode": "markdown"
       },
-      "pluginVersion": "8.0.6",
+      "pluginVersion": "9.5.1",
       "targets": [
         {
+          "datasource": {
+            "type": "datasource",
+            "uid": "grafana"
+          },
           "queryType": "randomWalk",
           "refId": "A"
         }
@@ -1586,22 +1848,23 @@
       "type": "text"
     }
   ],
-  "schemaVersion": 30,
+  "refresh": "",
+  "schemaVersion": 38,
   "style": "dark",
   "tags": [],
   "templating": {
     "list": [
       {
-        "allValue": null,
         "current": {
           "selected": false,
           "text": "All",
           "value": "$__all"
         },
-        "datasource": "mysql",
+        "datasource": {
+          "type": "mysql",
+          "uid": "P430005175C4C7810"
+        },
         "definition": "select concat(name, '-', id) as text from boards",
-        "description": null,
-        "error": null,
         "hide": 0,
         "includeAll": true,
         "label": "Board",
@@ -1616,16 +1879,16 @@
         "type": "query"
       },
       {
-        "allValue": null,
         "current": {
           "selected": false,
           "text": "BUG",
           "value": "BUG"
         },
-        "datasource": "mysql",
+        "datasource": {
+          "type": "mysql",
+          "uid": "P430005175C4C7810"
+        },
         "definition": "select distinct type from issues",
-        "description": null,
-        "error": null,
         "hide": 0,
         "includeAll": true,
         "label": "Issue Type",
@@ -1640,7 +1903,6 @@
         "type": "query"
       },
       {
-        "allValue": null,
         "current": {
           "selected": true,
           "text": [
@@ -1650,10 +1912,11 @@
             "$__all"
           ]
         },
-        "datasource": "mysql",
+        "datasource": {
+          "type": "mysql",
+          "uid": "P430005175C4C7810"
+        },
         "definition": "select distinct priority from issues",
-        "description": null,
-        "error": null,
         "hide": 0,
         "includeAll": true,
         "label": "Priority",
@@ -1677,5 +1940,6 @@
   "timezone": "",
   "title": "Weekly Bug Retro",
   "uid": "-5EKA5w7k",
-  "version": 23
+  "version": 2,
+  "weekStart": ""
 }

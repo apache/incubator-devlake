@@ -69,16 +69,16 @@ func GenerateDeploymentCommits(taskCtx plugin.SubTaskContext) errors.Error {
 				p.finished_date,
 				p.environment,
 				p.cicd_scope_id,
-				EXISTS(SELECT 1 FROM cicd_tasks t WHERE t.pipeline_id = p.id AND t.environment = ?)
+				EXISTS(SELECT 1 FROM cicd_tasks t WHERE t.pipeline_id = p.id AND t.environment = ? AND t.result <> ?)
 				as has_testing_tasks,
-				EXISTS(SELECT 1 FROM cicd_tasks t WHERE t.pipeline_id = p.id AND t.environment = ?)
+				EXISTS(SELECT 1 FROM cicd_tasks t WHERE t.pipeline_id = p.id AND t.environment = ? AND t.result <> ?)
 				as has_staging_tasks,
-				EXISTS( SELECT 1 FROM cicd_tasks t WHERE t.pipeline_id = p.id AND t.environment = ?)
+				EXISTS( SELECT 1 FROM cicd_tasks t WHERE t.pipeline_id = p.id AND t.environment = ? AND t.result <> ?)
 				as has_production_tasks
 			`,
-			devops.TESTING,
-			devops.STAGING,
-			devops.PRODUCTION,
+			devops.TESTING, devops.RESULT_SKIPPED,
+			devops.STAGING, devops.RESULT_SKIPPED,
+			devops.PRODUCTION, devops.RESULT_SKIPPED,
 		),
 		dal.From("cicd_pipeline_commits pc"),
 		dal.Join("LEFT JOIN cicd_pipelines p ON (p.id = pc.pipeline_id)"),
@@ -87,13 +87,15 @@ func GenerateDeploymentCommits(taskCtx plugin.SubTaskContext) errors.Error {
 			`
 			pm.project_name = ? AND (
 				p.type = ? OR EXISTS(
-					SELECT 1 FROM cicd_tasks t WHERE t.pipeline_id = p.id AND t.type = ?
+					SELECT 1 FROM cicd_tasks t WHERE t.pipeline_id = p.id AND t.type = ? AND t.result <> ?
 				)
-			)
+			) AND p.result <> ?
 			`,
 			data.Options.ProjectName,
 			devops.DEPLOYMENT,
 			devops.DEPLOYMENT,
+			devops.RESULT_SKIPPED,
+			devops.RESULT_SKIPPED,
 		),
 	)
 	if err != nil {
@@ -154,7 +156,7 @@ func GenerateDeploymentCommits(taskCtx plugin.SubTaskContext) errors.Error {
 					domainDeployCommit.Environment = devops.TESTING
 				}
 			}
-			return []interface{}{domainDeployCommit}, nil
+			return []interface{}{domainDeployCommit, domainDeployCommit.ToDeployment()}, nil
 		},
 	})
 	if err != nil {

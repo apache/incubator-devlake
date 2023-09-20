@@ -18,6 +18,9 @@
 
 import { request } from '@/utils';
 
+import type { BlueprintType } from '@/pages/blueprint';
+import * as T from '@/routes/pipeline/types';
+
 type GetProjectsParams = {
   page: number;
   pageSize: number;
@@ -26,8 +29,11 @@ type GetProjectsParams = {
 type GetProjectsResponse = {
   projects: Array<{
     name: string;
+    createdAt: string;
+    blueprint: BlueprintType;
+    lastPipeline: T.Pipeline;
   }>;
-  counts: number;
+  count: number;
 };
 
 export const getProjects = (params: GetProjectsParams): Promise<GetProjectsResponse> =>

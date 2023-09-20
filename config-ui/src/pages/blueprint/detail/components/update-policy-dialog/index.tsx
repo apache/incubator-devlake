@@ -54,22 +54,16 @@ export const UpdatePolicyDialog = ({ blueprint, operating, onCancel, onSubmit, .
       isManual,
       cronConfig,
       skipOnFail,
-      settings:
-        blueprint.mode === ModeEnum.normal
-          ? {
-              ...blueprint.settings,
-              timeAfter,
-            }
-          : undefined,
+      timeAfter,
     });
   };
 
   return (
     <Dialog
       isOpen
-      title="Change Sync Policy"
+      title="Set Sync Policy"
       style={{
-        width: 720,
+        width: 820,
       }}
       okText="Save"
       okLoading={operating}

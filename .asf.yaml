@@ -62,23 +62,24 @@ github:
         require_code_owner_reviews: false
         required_approving_review_count: 1
     release-v0.11:
-      whatever: Just a placehold to make it in protection
+      whatever: Just a placeholder to make it in protection
     release-v0.12:
-      whatever: Just a placehold to make it in protection
+      whatever: Just a placeholder to make it in protection
     release-v0.13:
-      whatever: Just a placehold to make it in protection
+      whatever: Just a placeholder to make it in protection
     release-v0.14:
-      whatever: Just a placehold to make it in protection
+      whatever: Just a placeholder to make it in protection
     release-v0.15:
-      whatever: Just a placehold to make it in protection
+      whatever: Just a placeholder to make it in protection
   # The triage role allows people to assign, edit, and close issues and pull requests,
   # without giving them write access to the code.
   collaborators:
     - mintsweet
     - keon94
     - CamilleTeruel
+    - d4x1
 
 notifications:
   commits: commits@devlake.apache.org
-  issues:  commits@devlake.apache.org
+  issues:  dev@devlake.apache.org
   pullrequests: commits@devlake.apache.org

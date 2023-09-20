@@ -86,5 +86,13 @@ func All() []plugin.MigrationScript {
 		new(modifyPrLabelsAndComments),
 		new(renameFinishedCommitsDiffs),
 		new(addUpdatedDateToIssueComments),
+		new(addApiKeyTables),
+		new(addIssueRelationship),
+		new(tasksUsesJSON),
+		new(modifyCicdPipelinesToText),
+		new(dropTapStateTable),
+		new(addCICDDeploymentsTable),
+		new(normalizeBpSettings),
+		new(addSyncPolicy),
 	}
 }

@@ -89,6 +89,7 @@ func PostConnections(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput,
 // @Description Patch bamboo connection
 // @Tags plugins/bamboo
 // @Param body body models.BambooConnection true "json body"
+// @Param connectionId path int true "connection ID"
 // @Success 200  {object} models.BambooConnection
 // @Failure 400  {string} errcode.Error "Bad Request"
 // @Failure 500  {string} errcode.Error "Internel Error"
@@ -105,18 +106,14 @@ func PatchConnection(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput,
 // @Summary delete a bamboo connection
 // @Description Delete a bamboo connection
 // @Tags plugins/bamboo
+// @Param connectionId path int true "connection ID"
 // @Success 200  {object} models.BambooConnection
 // @Failure 400  {string} errcode.Error "Bad Request"
+// @Failure 409  {object} services.BlueprintProjectPairs "References exist to this connection"
 // @Failure 500  {string} errcode.Error "Internel Error"
 // @Router /plugins/bamboo/connections/{connectionId} [DELETE]
 func DeleteConnection(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, errors.Error) {
-	connection := &models.BambooConnection{}
-	err := connectionHelper.First(connection, input.Params)
-	if err != nil {
-		return nil, err
-	}
-	err = connectionHelper.Delete(connection)
-	return &plugin.ApiResourceOutput{Body: connection}, err
+	return connectionHelper.Delete(&models.BambooConnection{}, input)
 }
 
 // @Summary get all bamboo connections
@@ -138,6 +135,7 @@ func ListConnections(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput,
 // @Summary get bamboo connection detail
 // @Description Get bamboo connection detail
 // @Tags plugins/bamboo
+// @Param connectionId path int true "connection ID"
 // @Success 200  {object} models.BambooConnection
 // @Failure 400  {string} errcode.Error "Bad Request"
 // @Failure 500  {string} errcode.Error "Internel Error"

@@ -43,7 +43,7 @@ func ConvertJobBuilds(taskCtx plugin.SubTaskContext) errors.Error {
 	rawDataSubTaskArgs, data := CreateRawDataSubTaskArgs(taskCtx, RAW_JOB_BUILD_TABLE)
 	cursor, err := db.Cursor(
 		dal.From(&models.BambooJobBuild{}),
-		dal.Where("connection_id = ? and project_key = ?", data.Options.ConnectionId, data.Options.ProjectKey))
+		dal.Where("connection_id = ? and plan_key = ?", data.Options.ConnectionId, data.Options.PlanKey))
 	if err != nil {
 		return err
 	}
@@ -51,7 +51,7 @@ func ConvertJobBuilds(taskCtx plugin.SubTaskContext) errors.Error {
 
 	jobBuildIdGen := didgen.NewDomainIdGenerator(&models.BambooJobBuild{})
 	planBuildIdGen := didgen.NewDomainIdGenerator(&models.BambooPlanBuild{})
-	projectIdGen := didgen.NewDomainIdGenerator(&models.BambooProject{})
+	planIdGen := didgen.NewDomainIdGenerator(&models.BambooPlan{})
 
 	converter, err := api.NewDataConverter(api.DataConverterArgs{
 		InputRowType:       reflect.TypeOf(models.BambooJobBuild{}),
@@ -59,13 +59,17 @@ func ConvertJobBuilds(taskCtx plugin.SubTaskContext) errors.Error {
 		RawDataSubTaskArgs: *rawDataSubTaskArgs,
 		Convert: func(inputRow interface{}) ([]interface{}, errors.Error) {
 			line := inputRow.(*models.BambooJobBuild)
+			if line.BuildStartedTime == nil {
+				return nil, nil
+			}
 			domainJobBuild := &devops.CICDTask{
 				DomainEntity: domainlayer.DomainEntity{Id: jobBuildIdGen.Generate(data.Options.ConnectionId, line.JobBuildKey)},
 				Name:         line.JobName,
+				DurationSec:  uint64(line.BuildDurationInSeconds),
 				StartedDate:  *line.BuildStartedTime,
 				FinishedDate: line.BuildCompletedDate,
 				PipelineId:   planBuildIdGen.Generate(data.Options.ConnectionId, line.PlanBuildKey),
-				CicdScopeId:  projectIdGen.Generate(data.Options.ConnectionId, line.ProjectKey),
+				CicdScopeId:  planIdGen.Generate(data.Options.ConnectionId, data.Options.PlanKey),
 
 				Result: devops.GetResult(&devops.ResultRule{
 					Failed:  []string{"Failed"},
@@ -73,9 +77,9 @@ func ConvertJobBuilds(taskCtx plugin.SubTaskContext) errors.Error {
 					Default: "",
 				}, line.BuildState),
 
-				Status: devops.GetStatus(&devops.StatusRule{
+				Status: devops.GetStatus(&devops.StatusRule[string]{
 					Done:    []string{"Finished"},
-					Default: devops.IN_PROGRESS,
+					Default: devops.STATUS_IN_PROGRESS,
 				}, line.LifeCycleState),
 			}
 

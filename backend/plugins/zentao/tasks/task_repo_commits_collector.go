@@ -68,13 +68,9 @@ func CollectTaskRepoCommits(taskCtx plugin.SubTaskContext) errors.Error {
 	// collect task repo commits
 	collector, err := api.NewApiCollector(api.ApiCollectorArgs{
 		RawDataSubTaskArgs: api.RawDataSubTaskArgs{
-			Ctx: taskCtx,
-			Params: ZentaoApiParams{
-				ConnectionId: data.Options.ConnectionId,
-				ProductId:    data.Options.ProductId,
-				ProjectId:    data.Options.ProjectId,
-			},
-			Table: RAW_TASK_REPO_COMMITS_TABLE,
+			Ctx:     taskCtx,
+			Options: data.Options,
+			Table:   RAW_TASK_REPO_COMMITS_TABLE,
 		},
 		ApiClient:   data.ApiClient,
 		Input:       iterator,
@@ -82,6 +78,9 @@ func CollectTaskRepoCommits(taskCtx plugin.SubTaskContext) errors.Error {
 		ResponseParser: func(res *http.Response) ([]json.RawMessage, errors.Error) {
 			var result RepoRevisionResponse
 			err := api.UnmarshalResponse(res, &result)
+			if errors.Is(err, api.ErrEmptyResponse) {
+				return nil, nil
+			}
 			if err != nil {
 				return nil, err
 			}

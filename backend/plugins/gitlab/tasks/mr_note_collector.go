@@ -40,7 +40,7 @@ var CollectApiMrNotesMeta = plugin.SubTaskMeta{
 
 func CollectApiMergeRequestsNotes(taskCtx plugin.SubTaskContext) errors.Error {
 	rawDataSubTaskArgs, data := CreateRawDataSubTaskArgs(taskCtx, RAW_MERGE_REQUEST_NOTES_TABLE)
-	collectorWithState, err := helper.NewStatefulApiCollector(*rawDataSubTaskArgs, data.TimeAfter)
+	collectorWithState, err := helper.NewStatefulApiCollector(*rawDataSubTaskArgs)
 	if err != nil {
 		return err
 	}
@@ -51,17 +51,15 @@ func CollectApiMergeRequestsNotes(taskCtx plugin.SubTaskContext) errors.Error {
 	}
 	defer iterator.Close()
 
-	incremental := collectorWithState.IsIncremental()
-
 	err = collectorWithState.InitCollector(helper.ApiCollectorArgs{
 		ApiClient:      data.ApiClient,
 		PageSize:       100,
-		Incremental:    incremental,
 		Input:          iterator,
 		UrlTemplate:    "projects/{{ .Params.ProjectId }}/merge_requests/{{ .Input.Iid }}/notes?system=false",
 		Query:          GetQuery,
 		GetTotalPages:  GetTotalPagesFromResponse,
 		ResponseParser: GetRawMessageFromResponse,
+		AfterResponse:  ignoreHTTPStatus404,
 	})
 	if err != nil {
 		return err

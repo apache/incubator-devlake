@@ -18,6 +18,7 @@ limitations under the License.
 package tasks
 
 import (
+	"fmt"
 	"reflect"
 
 	"github.com/apache/incubator-devlake/core/dal"
@@ -43,6 +44,7 @@ var ConvertExecutionMeta = plugin.SubTaskMeta{
 func ConvertExecutions(taskCtx plugin.SubTaskContext) errors.Error {
 	data := taskCtx.GetData().(*ZentaoTaskData)
 	db := taskCtx.GetDal()
+	logger := taskCtx.GetLogger()
 	executionIdGen := didgen.NewDomainIdGenerator(&models.ZentaoExecution{})
 	projectIdGen := didgen.NewDomainIdGenerator(&models.ZentaoProject{})
 	cursor, err := db.Cursor(
@@ -52,18 +54,20 @@ func ConvertExecutions(taskCtx plugin.SubTaskContext) errors.Error {
 	if err != nil {
 		return err
 	}
+
+	homePage, getZentaoHomePageErr := getZentaoHomePage(data.ApiClient.GetEndpoint())
+	if getZentaoHomePageErr != nil {
+		logger.Error(getZentaoHomePageErr, "get zentao homepage")
+		return errors.Default.WrapRaw(getZentaoHomePageErr)
+	}
 	defer cursor.Close()
 	convertor, err := api.NewDataConverter(api.DataConverterArgs{
 		InputRowType: reflect.TypeOf(models.ZentaoExecution{}),
 		Input:        cursor,
 		RawDataSubTaskArgs: api.RawDataSubTaskArgs{
-			Ctx: taskCtx,
-			Params: ZentaoApiParams{
-				ConnectionId: data.Options.ConnectionId,
-				ProductId:    data.Options.ProductId,
-				ProjectId:    data.Options.ProjectId,
-			},
-			Table: RAW_EXECUTION_TABLE,
+			Ctx:     taskCtx,
+			Options: data.Options,
+			Table:   RAW_EXECUTION_TABLE,
 		},
 		Convert: func(inputRow interface{}) ([]interface{}, errors.Error) {
 			toolExecution := inputRow.(*models.ZentaoExecution)
@@ -77,6 +81,7 @@ func ConvertExecutions(taskCtx plugin.SubTaskContext) errors.Error {
 			case `suspended`:
 				domainStatus = `SUSPENDED`
 			case `closed`:
+				fallthrough
 			case `done`:
 				domainStatus = `CLOSED`
 			}
@@ -86,15 +91,20 @@ func ConvertExecutions(taskCtx plugin.SubTaskContext) errors.Error {
 					Id: executionIdGen.Generate(toolExecution.ConnectionId, toolExecution.Id),
 				},
 				Name:            toolExecution.Name,
-				Url:             toolExecution.Path,
+				Url:             fmt.Sprintf("%s/execution-view-%d.html", homePage, toolExecution.Id),
 				Status:          domainStatus,
 				StartedDate:     toolExecution.RealBegan.ToNullableTime(),
-				EndedDate:       toolExecution.RealEnd.ToNullableTime(),
-				CompletedDate:   toolExecution.PlanEnd.ToNullableTime(),
+				EndedDate:       toolExecution.PlanEnd.ToNullableTime(),
+				CompletedDate:   toolExecution.ClosedDate.ToNullableTime(),
 				OriginalBoardID: projectIdGen.Generate(toolExecution.ConnectionId, data.Options.ProjectId),
 			}
+
+			if sprint.StartedDate == nil {
+				sprint.StartedDate = toolExecution.PlanBegin.ToNullableTime()
+			}
+
 			boardSprint := &ticket.BoardSprint{
-				BoardId:  projectIdGen.Generate(toolExecution.ConnectionId, toolExecution.Id),
+				BoardId:  sprint.OriginalBoardID,
 				SprintId: sprint.Id,
 			}
 			results := make([]interface{}, 0)

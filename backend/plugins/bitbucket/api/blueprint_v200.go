@@ -19,9 +19,9 @@ package api
 
 import (
 	"net/url"
-	"time"
 
 	"github.com/apache/incubator-devlake/core/errors"
+	coreModels "github.com/apache/incubator-devlake/core/models"
 	"github.com/apache/incubator-devlake/core/models/domainlayer"
 	"github.com/apache/incubator-devlake/core/models/domainlayer/code"
 	"github.com/apache/incubator-devlake/core/models/domainlayer/devops"
@@ -34,7 +34,11 @@ import (
 	"github.com/apache/incubator-devlake/plugins/bitbucket/tasks"
 )
 
-func MakeDataSourcePipelinePlanV200(subtaskMetas []plugin.SubTaskMeta, connectionId uint64, bpScopes []*plugin.BlueprintScopeV200, syncPolicy *plugin.BlueprintSyncPolicy) (plugin.PipelinePlan, []plugin.Scope, errors.Error) {
+func MakeDataSourcePipelinePlanV200(
+	subtaskMetas []plugin.SubTaskMeta,
+	connectionId uint64,
+	bpScopes []*coreModels.BlueprintScope,
+) (coreModels.PipelinePlan, []plugin.Scope, errors.Error) {
 	// get the connection info for url
 	connection := &models.BitbucketConnection{}
 	err := connectionHelper.FirstById(connection, connectionId)
@@ -42,8 +46,8 @@ func MakeDataSourcePipelinePlanV200(subtaskMetas []plugin.SubTaskMeta, connectio
 		return nil, nil, err
 	}
 
-	plan := make(plugin.PipelinePlan, len(bpScopes))
-	plan, err = makeDataSourcePipelinePlanV200(subtaskMetas, plan, bpScopes, connection, syncPolicy)
+	plan := make(coreModels.PipelinePlan, len(bpScopes))
+	plan, err = makeDataSourcePipelinePlanV200(subtaskMetas, plan, bpScopes, connection)
 	if err != nil {
 		return nil, nil, err
 	}
@@ -57,18 +61,17 @@ func MakeDataSourcePipelinePlanV200(subtaskMetas []plugin.SubTaskMeta, connectio
 
 func makeDataSourcePipelinePlanV200(
 	subtaskMetas []plugin.SubTaskMeta,
-	plan plugin.PipelinePlan,
-	bpScopes []*plugin.BlueprintScopeV200,
+	plan coreModels.PipelinePlan,
+	bpScopes []*coreModels.BlueprintScope,
 	connection *models.BitbucketConnection,
-	syncPolicy *plugin.BlueprintSyncPolicy,
-) (plugin.PipelinePlan, errors.Error) {
+) (coreModels.PipelinePlan, errors.Error) {
 	for i, bpScope := range bpScopes {
 		stage := plan[i]
 		if stage == nil {
-			stage = plugin.PipelineStage{}
+			stage = coreModels.PipelineStage{}
 		}
 		// get repo and scope config from db
-		repo, scopeConfig, err := scopeHelper.DbHelper().GetScopeAndConfig(connection.ID, bpScope.Id)
+		repo, scopeConfig, err := scopeHelper.DbHelper().GetScopeAndConfig(connection.ID, bpScope.ScopeId)
 		if err != nil {
 			return nil, err
 		}
@@ -81,7 +84,7 @@ func makeDataSourcePipelinePlanV200(
 			}
 			refdiffOp := scopeConfig.Refdiff
 			refdiffOp["repoId"] = didgen.NewDomainIdGenerator(&models.BitbucketRepo{}).Generate(connection.ID, repo.BitbucketId)
-			plan[j] = plugin.PipelineStage{
+			plan[j] = coreModels.PipelineStage{
 				{
 					Plugin:  "refdiff",
 					Options: refdiffOp,
@@ -95,9 +98,6 @@ func makeDataSourcePipelinePlanV200(
 			ConnectionId: repo.ConnectionId,
 			FullName:     repo.BitbucketId,
 		}
-		if syncPolicy.TimeAfter != nil {
-			op.TimeAfter = syncPolicy.TimeAfter.Format(time.RFC3339)
-		}
 		options, err := tasks.EncodeTaskOptions(op)
 		if err != nil {
 			return nil, err
@@ -107,7 +107,7 @@ func makeDataSourcePipelinePlanV200(
 		if err != nil {
 			return nil, err
 		}
-		stage = append(stage, &plugin.PipelineTask{
+		stage = append(stage, &coreModels.PipelineTask{
 			Plugin:   "bitbucket",
 			Subtasks: subtasks,
 			Options:  options,
@@ -123,7 +123,7 @@ func makeDataSourcePipelinePlanV200(
 				return nil, err
 			}
 			cloneUrl.User = url.UserPassword(connection.Username, connection.Password)
-			stage = append(stage, &plugin.PipelineTask{
+			stage = append(stage, &coreModels.PipelineTask{
 				Plugin: "gitextractor",
 				Options: map[string]interface{}{
 					"url":    cloneUrl.String(),
@@ -139,10 +139,10 @@ func makeDataSourcePipelinePlanV200(
 	return plan, nil
 }
 
-func makeScopesV200(bpScopes []*plugin.BlueprintScopeV200, connection *models.BitbucketConnection) ([]plugin.Scope, errors.Error) {
+func makeScopesV200(bpScopes []*coreModels.BlueprintScope, connection *models.BitbucketConnection) ([]plugin.Scope, errors.Error) {
 	scopes := make([]plugin.Scope, 0)
 	for _, bpScope := range bpScopes {
-		repo, scopeConfig, err := scopeHelper.DbHelper().GetScopeAndConfig(connection.ID, bpScope.Id)
+		repo, scopeConfig, err := scopeHelper.DbHelper().GetScopeAndConfig(connection.ID, bpScope.ScopeId)
 		if err != nil {
 			return nil, err
 		}

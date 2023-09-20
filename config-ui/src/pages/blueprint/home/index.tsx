@@ -32,43 +32,37 @@ import * as API from './api';
 import * as S from './styled';
 
 export const BlueprintHomePage = () => {
-  const [type, setType] = useState('all');
   const [version, setVersion] = useState(1);
+  const [type, setType] = useState('all');
+  const [page, setPage] = useState(1);
+  const [pageSize] = useState(20);
   const [isOpen, setIsOpen] = useState(false);
   const [name, setName] = useState('');
   const [mode, setMode] = useState(ModeEnum.normal);
   const [saving, setSaving] = useState(false);
 
   const { onGet } = useConnections();
-  const { ready, data } = useRefreshData(() => API.getBlueprints({ page: 1, pageSize: 200 }), [version]);
+  const { ready, data } = useRefreshData(
+    () => API.getBlueprints({ type: type.toLocaleUpperCase(), page, pageSize }),
+    [version, type, page, pageSize],
+  );
 
   const [options, presets] = useMemo(() => [getCronOptions(), cronPresets.map((preset) => preset.config)], []);
-  const dataSource = useMemo(
-    () =>
-      (data?.blueprints ?? [])
-        .filter((it) => {
-          switch (type) {
-            case 'all':
-              return true;
-            case 'manual':
-              return it.isManual;
-            case 'custom':
-              return !presets.includes(it.cronConfig);
-            default:
-              return !it.isManual && it.cronConfig === type;
-          }
-        })
-        .map((it) => {
-          const connections =
-            it.settings?.connections
-              .filter((cs) => cs.plugin !== 'webhook')
-              .map((cs) => onGet(`${cs.plugin}-${cs.connectionId}`)) ?? [];
-          return {
-            ...it,
-            connections: connections.map((cs) => cs.name),
-          };
-        }),
-    [data, type],
+  const [dataSource, total] = useMemo(
+    () => [
+      (data?.blueprints ?? []).map((it) => {
+        const connections =
+          it.connections
+            .filter((cs) => cs.pluginName !== 'webhook')
+            .map((cs) => onGet(`${cs.pluginName}-${cs.connectionId}`) || `${cs.pluginName}-${cs.connectionId}`) ?? [];
+        return {
+          ...it,
+          connections: connections.map((cs) => cs.name),
+        };
+      }),
+      data?.count ?? 0,
+    ],
+    [data],
   );
 
   const handleShowDialog = () => setIsOpen(true);
@@ -89,15 +83,13 @@ export const BlueprintHomePage = () => {
     };
 
     if (mode === ModeEnum.normal) {
-      payload.settings = {
-        version: '2.0.0',
-        timeAfter: formatTime(dayjs().subtract(6, 'month').startOf('day').toDate(), 'YYYY-MM-DD[T]HH:mm:ssZ'),
-        connections: [],
-      };
+      payload.timeAfter = formatTime(dayjs().subtract(6, 'month').startOf('day').toDate(), 'YYYY-MM-DD[T]HH:mm:ssZ');
+      payload.connections = [];
     }
 
     if (mode === ModeEnum.advanced) {
-      payload.settings = null;
+      payload.timeAfter = undefined;
+      payload.connections = undefined;
       payload.plan = [[]];
     }
 
@@ -123,12 +115,12 @@ export const BlueprintHomePage = () => {
         <div className="action">
           <ButtonGroup>
             <Button intent={type === 'all' ? Intent.PRIMARY : Intent.NONE} text="All" onClick={() => setType('all')} />
-            {options.map(({ label, value }) => (
+            {options.map(({ label }) => (
               <Button
-                key={value}
-                intent={type === value ? Intent.PRIMARY : Intent.NONE}
+                key={label}
+                intent={type === label ? Intent.PRIMARY : Intent.NONE}
                 text={label}
-                onClick={() => setType(value)}
+                onClick={() => setType(label)}
               />
             ))}
           </ButtonGroup>
@@ -139,9 +131,13 @@ export const BlueprintHomePage = () => {
           columns={[
             {
               title: 'Blueprint Name',
-              dataIndex: 'name',
+              dataIndex: ['id', 'name'],
               key: 'name',
-              ellipsis: true,
+              render: ({ id, name }) => (
+                <Link to={`/blueprints/${id}?tab=configuration`} style={{ color: '#292b3f' }}>
+                  <TextTooltip content={name}>{name}</TextTooltip>
+                </Link>
+              ),
             },
             {
               title: 'Data Connections',
@@ -188,7 +184,7 @@ export const BlueprintHomePage = () => {
                     <TextTooltip content={val}>{val}</TextTooltip>
                   </Link>
                 ) : (
-                  val
+                  'N/A'
                 ),
             },
             {
@@ -210,13 +206,19 @@ export const BlueprintHomePage = () => {
               width: 100,
               align: 'center',
               render: (val) => (
-                <Link to={`/blueprints/${val}`}>
+                <Link to={`/blueprints/${val}?tab=configuration`}>
                   <IconButton icon="cog" tooltip="Detail" />
                 </Link>
               ),
             },
           ]}
           dataSource={dataSource}
+          pagination={{
+            page,
+            pageSize,
+            total,
+            onChange: setPage,
+          }}
           noData={{
             text: 'There is no Blueprint yet. Please add a new Blueprint here or from a Project.',
             btnText: 'New Blueprint',

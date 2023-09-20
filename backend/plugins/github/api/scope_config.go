@@ -81,3 +81,17 @@ func GetScopeConfig(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, 
 func GetScopeConfigList(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, errors.Error) {
 	return scHelper.List(input)
 }
+
+// DeleteScopeConfig delete a scope config
+// @Summary delete a scope config
+// @Description delete a scope config
+// @Tags plugins/github
+// @Param id path int true "id"
+// @Param connectionId path int true "connectionId"
+// @Success 200
+// @Failure 400  {object} shared.ApiBody "Bad Request"
+// @Failure 500  {object} shared.ApiBody "Internal Error"
+// @Router /plugins/github/connections/{connectionId}/scope-configs/{id} [DELETE]
+func DeleteScopeConfig(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, errors.Error) {
+	return scHelper.Delete(input)
+}

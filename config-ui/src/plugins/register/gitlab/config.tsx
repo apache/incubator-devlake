@@ -16,10 +16,11 @@
  *
  */
 
+import { ExternalLink } from '@/components';
+import { DOC_URL } from '@/release';
+
 import type { PluginConfigType } from '../../types';
 import { PluginType } from '../../types';
-
-import { ExternalLink } from '@/components';
 
 import Icon from './assets/icon.svg';
 
@@ -30,7 +31,7 @@ export const GitLabConfig: PluginConfigType = {
   icon: Icon,
   sort: 2,
   connection: {
-    docLink: 'https://devlake.apache.org/docs/Configuration/GitLab',
+    docLink: DOC_URL.PLUGIN.GITLAB.BASIS,
     initialValues: {
       endpoint: 'https://gitlab.com/api/v4/',
     },
@@ -49,7 +50,7 @@ export const GitLabConfig: PluginConfigType = {
         key: 'token',
         label: 'Personal Access Token',
         subLabel: (
-          <ExternalLink link="https://devlake.apache.org/docs/Configuration/GitLab/#auth-tokens">
+          <ExternalLink link={DOC_URL.PLUGIN.GITLAB.AUTH_TOKEN}>
             Learn how to create a personal access token
           </ExternalLink>
         ),
@@ -59,7 +60,7 @@ export const GitLabConfig: PluginConfigType = {
         key: 'rateLimitPerHour',
         subLabel:
           'By default, DevLake uses dynamic rate limit around 12,000 requests/hour for optimized data collection for GitLab. But you can adjust the collection speed by entering a fixed value.',
-        learnMore: 'https://devlake.apache.org/docs/Configuration/GitLab#fixed-rate-limit-optional',
+        learnMore: DOC_URL.PLUGIN.GITLAB.RATE_LIMIT,
         externalInfo:
           'The maximum rate limit for GitLab Cloud is 120,000 requests/hour. Tokens under the same IP address share the rate limit, so the actual rate limit for your token will be lower than this number.',
         defaultValue: 12000,
@@ -67,15 +68,9 @@ export const GitLabConfig: PluginConfigType = {
     ],
   },
   dataScope: {
-    millerColumns: {
-      title: 'Projects *',
-      subTitle: 'Select the project you would like to sync.',
-      firstColumnTitle: 'Subgroups/Projects',
-    },
-    search: {
-      title: 'Add repositories outside of your projects',
-      subTitle: 'Search for repositories and add to them',
-    },
+    title: 'Projects',
+    millerColumnCount: 2.5,
+    millerFirstTitle: 'Subgroups/Projects',
   },
   scopeConfig: {
     entities: ['CODE', 'TICKET', 'CODEREVIEW', 'CROSS', 'CICD'],

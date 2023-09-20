@@ -37,3 +37,18 @@ export const getApplicationTypes = (connectionId: ID, query: { key: string }) =>
 
 export const getDevPanelCommits = (connectionId: ID, query: { key: string; applicationType: string }) =>
   request(`/plugins/jira/connections/${connectionId}/dev-panel-commits`, { data: query });
+
+export const generateRegex = (pattern: string) =>
+  request('/plugins/jira/generate-regex', {
+    method: 'post',
+    data: { pattern },
+  });
+
+export const applyRegex = (regex: string, urls: string[]) =>
+  request('/plugins/jira/apply-regex', {
+    method: 'post',
+    data: {
+      regex,
+      urls,
+    },
+  });

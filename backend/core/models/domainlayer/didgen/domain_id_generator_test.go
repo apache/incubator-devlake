@@ -29,6 +29,10 @@ import (
 
 type FooPlugin string
 
+func (f *FooPlugin) Name() string {
+	return "foo"
+}
+
 func (f *FooPlugin) Description() string {
 	return "foo"
 }

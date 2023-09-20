@@ -26,7 +26,7 @@ export const DialogBody = styled.div`
   display: flex;
   align-items: center;
 
-  .bp4-icon {
+  .bp5-icon {
     margin-right: 8px;
     color: #f4be55;
   }
@@ -108,7 +108,7 @@ export const BlueprintAction = styled.div`
   justify-content: center;
   align-items: center;
 
-  & > .bp4-switch {
+  & > .bp5-switch {
     margin: 0 8px;
   }
 `;

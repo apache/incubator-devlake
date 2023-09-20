@@ -19,6 +19,7 @@ package api
 
 import (
 	"github.com/apache/incubator-devlake/core/context"
+	"github.com/apache/incubator-devlake/core/plugin"
 	"github.com/apache/incubator-devlake/helpers/pluginhelper/api"
 	"github.com/apache/incubator-devlake/plugins/bitbucket/models"
 	"github.com/go-playground/validator/v10"
@@ -31,17 +32,20 @@ var remoteHelper *api.RemoteApiHelper[models.BitbucketConnection, models.Bitbuck
 var scHelper *api.ScopeConfigHelper[models.BitbucketScopeConfig]
 var basicRes context.BasicRes
 
-func Init(br context.BasicRes) {
+func Init(br context.BasicRes, p plugin.PluginMeta) {
+
 	basicRes = br
 	vld = validator.New()
 	connectionHelper = api.NewConnectionHelper(
 		basicRes,
 		vld,
+		p.Name(),
 	)
 	params := &api.ReflectionParameters{
-		ScopeIdFieldName:  "BitbucketId",
-		ScopeIdColumnName: "bitbucket_id",
-		RawScopeParamName: "FullName",
+		ScopeIdFieldName:     "BitbucketId",
+		ScopeIdColumnName:    "bitbucket_id",
+		RawScopeParamName:    "FullName",
+		SearchScopeParamName: "name",
 	}
 	scopeHelper = api.NewScopeHelper[models.BitbucketConnection, models.BitbucketRepo, models.BitbucketScopeConfig](
 		basicRes,
@@ -60,5 +64,6 @@ func Init(br context.BasicRes) {
 	scHelper = api.NewScopeConfigHelper[models.BitbucketScopeConfig](
 		basicRes,
 		vld,
+		p.Name(),
 	)
 }

@@ -20,15 +20,16 @@ package tasks
 import (
 	"encoding/json"
 	"fmt"
+	"net/http"
+	"net/url"
+	"reflect"
+	"time"
+
 	"github.com/apache/incubator-devlake/core/dal"
 	"github.com/apache/incubator-devlake/core/errors"
 	"github.com/apache/incubator-devlake/core/plugin"
 	"github.com/apache/incubator-devlake/helpers/pluginhelper/api"
 	"github.com/apache/incubator-devlake/plugins/pagerduty/models"
-	"net/http"
-	"net/url"
-	"reflect"
-	"time"
 )
 
 const RAW_INCIDENTS_TABLE = "pagerduty_incidents"
@@ -68,7 +69,6 @@ func CollectIncidents(taskCtx plugin.SubTaskContext) errors.Error {
 	collector, err := api.NewStatefulApiCollectorForFinalizableEntity(api.FinalizableApiCollectorArgs{
 		RawDataSubTaskArgs: args,
 		ApiClient:          data.Client,
-		TimeAfter:          data.TimeAfter,
 		CollectNewRecordsByList: api.FinalizableApiCollectorListArgs{
 			PageSize: 100,
 			GetNextPageCustomData: func(prevReqData *api.RequestData, prevPageResponse *http.Response) (interface{}, errors.Error) {
@@ -108,7 +108,7 @@ func CollectIncidents(taskCtx plugin.SubTaskContext) errors.Error {
 				},
 			},
 		},
-		CollectUnfinishedDetails: api.FinalizableApiCollectorDetailArgs{
+		CollectUnfinishedDetails: &api.FinalizableApiCollectorDetailArgs{
 			FinalizableApiCollectorCommonArgs: api.FinalizableApiCollectorCommonArgs{
 				// 2. "Input" here is the type: simplifiedRawIncident which is the element type of the returned iterator from BuildInputIterator
 				UrlTemplate: "incidents/{{ .Input.Number }}",

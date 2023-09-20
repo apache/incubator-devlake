@@ -17,10 +17,10 @@
  */
 
 import { useMemo, useState } from 'react';
-import { ButtonGroup, Button, Intent } from '@blueprintjs/core';
+import { Button, Intent } from '@blueprintjs/core';
 import { pick } from 'lodash';
 
-import { ExternalLink, PageLoading } from '@/components';
+import { ExternalLink, PageLoading, Buttons } from '@/components';
 import { useRefreshData } from '@/hooks';
 import { getPluginConfig } from '@/plugins';
 import { operator } from '@/utils';
@@ -116,7 +116,7 @@ export const ConnectionForm = ({ plugin, connectionId, onSuccess }: Props) => {
           setValues={setValues}
           setErrors={setErrors}
         />
-        <ButtonGroup className="btns">
+        <Buttons position="bottom" align="right">
           <Button loading={operating} disabled={disabled} outlined text="Test Connection" onClick={handleTest} />
           <Button
             loading={operating}
@@ -126,7 +126,7 @@ export const ConnectionForm = ({ plugin, connectionId, onSuccess }: Props) => {
             text="Save Connection"
             onClick={handleSave}
           />
-        </ButtonGroup>
+        </Buttons>
       </S.Form>
     </S.Wrapper>
   );

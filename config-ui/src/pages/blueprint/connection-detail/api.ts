@@ -18,11 +18,13 @@
 
 import { request } from '@/utils';
 
-export const getProject = (pname: string) => request(`/projects/${pname}`);
+import { BlueprintType } from '../types';
 
-export const getBlueprint = (id: ID) => request(`/blueprints/${id}`);
+export const getProject = (pname: string): Promise<{ blueprint: BlueprintType }> => request(`/projects/${pname}`);
 
-export const updateBlueprint = (id: ID, payload: any) =>
+export const getBlueprint = (id: ID): Promise<BlueprintType> => request(`/blueprints/${id}`);
+
+export const updateBlueprint = (id: ID, payload: BlueprintType) =>
   request(`/blueprints/${id}`, { method: 'patch', data: payload });
 
 export const getConnection = (plugin: string, connectionId: ID) =>

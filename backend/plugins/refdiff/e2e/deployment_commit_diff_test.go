@@ -25,6 +25,7 @@ import (
 	"github.com/apache/incubator-devlake/core/models/domainlayer/devops"
 	"github.com/apache/incubator-devlake/helpers/e2ehelper"
 	"github.com/apache/incubator-devlake/plugins/refdiff/impl"
+	"github.com/apache/incubator-devlake/plugins/refdiff/models"
 	"github.com/apache/incubator-devlake/plugins/refdiff/tasks"
 )
 
@@ -34,7 +35,7 @@ func TestDeploymentCommitDiffDataFlow(t *testing.T) {
 	dataflowTester := e2ehelper.NewDataFlowTester(t, "refdiff", plugin)
 
 	taskData := &tasks.RefdiffTaskData{
-		Options: &tasks.RefdiffOptions{
+		Options: &models.RefdiffOptions{
 			ProjectName: "project1",
 		},
 	}
@@ -47,14 +48,14 @@ func TestDeploymentCommitDiffDataFlow(t *testing.T) {
 
 	// verify extraction
 	dataflowTester.FlushTabler(&code.CommitsDiff{})
-	dataflowTester.FlushTabler(&code.FinishedCommitsDiff{})
+	dataflowTester.FlushTabler(&models.FinishedCommitsDiff{})
 
 	dataflowTester.Subtask(tasks.CalculateDeploymentCommitsDiffMeta, taskData)
 	dataflowTester.VerifyTableWithOptions(&code.CommitsDiff{}, e2ehelper.TableOptions{
 		CSVRelPath: "./deployment_commit_diff/commits_diffs.csv",
 	})
 
-	dataflowTester.VerifyTableWithOptions(&code.FinishedCommitsDiff{}, e2ehelper.TableOptions{
+	dataflowTester.VerifyTableWithOptions(&models.FinishedCommitsDiff{}, e2ehelper.TableOptions{
 		CSVRelPath: "./deployment_commit_diff/_tool_refdiff_finished_commits_diffs.csv",
 	})
 }

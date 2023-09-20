@@ -66,7 +66,6 @@ func CollectApiBuilds(taskCtx plugin.SubTaskContext) errors.Error {
 			Table: RAW_BUILD_TABLE,
 		},
 		ApiClient: data.ApiClient,
-		TimeAfter: data.TimeAfter,
 		CollectNewRecordsByList: helper.FinalizableApiCollectorListArgs{
 			PageSize:    100,
 			Concurrency: 10,
@@ -102,7 +101,7 @@ func CollectApiBuilds(taskCtx plugin.SubTaskContext) errors.Error {
 				return time.Unix(seconds, nanos), nil
 			},
 		},
-		CollectUnfinishedDetails: helper.FinalizableApiCollectorDetailArgs{
+		CollectUnfinishedDetails: &helper.FinalizableApiCollectorDetailArgs{
 			BuildInputIterator: func() (helper.Iterator, errors.Error) {
 				cursor, err := db.Cursor(
 					dal.Select("number"),

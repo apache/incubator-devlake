@@ -18,23 +18,16 @@ limitations under the License.
 package api
 
 import (
-	"context"
+	gocontext "context"
 	"fmt"
 	"net/url"
 
-	context2 "github.com/apache/incubator-devlake/core/context"
+	"github.com/apache/incubator-devlake/core/context"
 	"github.com/apache/incubator-devlake/core/errors"
 	"github.com/apache/incubator-devlake/core/plugin"
 	"github.com/apache/incubator-devlake/helpers/pluginhelper/api"
 	"github.com/apache/incubator-devlake/plugins/zentao/models"
 )
-
-type ProductResponse struct {
-	Limit  int                       `json:"limit"`
-	Page   int                       `json:"page"`
-	Total  int                       `json:"total"`
-	Values []models.ZentaoProductRes `json:"products"`
-}
 
 type ProjectResponse struct {
 	Limit  int                    `json:"limit"`
@@ -49,12 +42,12 @@ func (pr *ProjectResponse) ConvertFix() {
 	}
 }
 
-func getGroup(basicRes context2.BasicRes, gid string, queryData *api.RemoteQueryData, connection models.ZentaoConnection) ([]api.BaseRemoteGroupResponse, errors.Error) {
+func getGroup(basicRes context.BasicRes, gid string, queryData *api.RemoteQueryData, connection models.ZentaoConnection) ([]api.BaseRemoteGroupResponse, errors.Error) {
 	return []api.BaseRemoteGroupResponse{
-		{
+		/*{
 			Id:   `products`,
 			Name: `Products`,
-		},
+		},*/
 		{
 			Id:   `projects`,
 			Name: `Projects`,
@@ -81,39 +74,14 @@ func RemoteScopes(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, er
 	}
 	gid := groupId[0]
 	if gid == "" {
-		return productRemoteHelper.GetScopesFromRemote(input, getGroup, nil)
-	} else if gid == `products` {
-		return productRemoteHelper.GetScopesFromRemote(input,
-			nil,
-			func(basicRes context2.BasicRes, gid string, queryData *api.RemoteQueryData, connection models.ZentaoConnection) ([]models.ZentaoProductRes, errors.Error) {
-				query := initialQuery(queryData)
-				// create api client
-				apiClient, err := api.NewApiClientFromConnection(context.TODO(), basicRes, &connection)
-				if err != nil {
-					return nil, err
-				}
-
-				query.Set("sort", "name")
-				// list projects part
-				res, err := apiClient.Get("/products", query, nil)
-				if err != nil {
-					return nil, err
-				}
-
-				resBody := &ProductResponse{}
-				err = api.UnmarshalResponse(res, resBody)
-				if err != nil {
-					return nil, err
-				}
-				return resBody.Values, nil
-			})
+		return projectRemoteHelper.GetScopesFromRemote(input, getGroup, nil)
 	} else if gid == `projects` {
 		return projectRemoteHelper.GetScopesFromRemote(input,
 			nil,
-			func(basicRes context2.BasicRes, gid string, queryData *api.RemoteQueryData, connection models.ZentaoConnection) ([]models.ZentaoProject, errors.Error) {
+			func(basicRes context.BasicRes, gid string, queryData *api.RemoteQueryData, connection models.ZentaoConnection) ([]models.ZentaoProject, errors.Error) {
 				query := initialQuery(queryData)
 				// create api client
-				apiClient, err := api.NewApiClientFromConnection(context.TODO(), basicRes, &connection)
+				apiClient, err := api.NewApiClientFromConnection(gocontext.TODO(), basicRes, &connection)
 				if err != nil {
 					return nil, err
 				}
@@ -122,12 +90,14 @@ func RemoteScopes(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, er
 				// list projects part
 				res, err := apiClient.Get("/projects", query, nil)
 				if err != nil {
+					logger.Error(err, "call projects api")
 					return nil, err
 				}
 
 				resBody := &ProjectResponse{}
 				err = api.UnmarshalResponse(res, resBody)
 				if err != nil {
+					logger.Error(err, "unmarshal projects response")
 					return nil, err
 				}
 

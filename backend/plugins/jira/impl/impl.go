@@ -20,11 +20,11 @@ package impl
 import (
 	"fmt"
 	"net/http"
-	"time"
 
 	"github.com/apache/incubator-devlake/core/context"
 	"github.com/apache/incubator-devlake/core/dal"
 	"github.com/apache/incubator-devlake/core/errors"
+	coreModels "github.com/apache/incubator-devlake/core/models"
 	"github.com/apache/incubator-devlake/core/plugin"
 	helper "github.com/apache/incubator-devlake/helpers/pluginhelper/api"
 	"github.com/apache/incubator-devlake/plugins/jira/api"
@@ -42,26 +42,27 @@ var _ interface {
 	plugin.PluginMigration
 	plugin.DataSourcePluginBlueprintV200
 	plugin.CloseablePluginTask
-	// plugin.PluginSource
+	plugin.PluginSource
 } = (*Jira)(nil)
 
 type Jira struct {
 }
 
-func (p Jira) Connection() interface{} {
+func (p Jira) Connection() dal.Tabler {
 	return &models.JiraConnection{}
 }
 
-func (p Jira) Scope() interface{} {
+func (p Jira) Scope() plugin.ToolLayerScope {
 	return &models.JiraBoard{}
 }
 
-func (p Jira) ScopeConfig() interface{} {
+func (p Jira) ScopeConfig() dal.Tabler {
 	return &models.JiraScopeConfig{}
 }
 
 func (p *Jira) Init(basicRes context.BasicRes) errors.Error {
-	api.Init(basicRes)
+	api.Init(basicRes, p)
+
 	return nil
 }
 
@@ -86,11 +87,18 @@ func (p Jira) GetTablesInfo() []dal.Tabler {
 		&models.JiraSprintIssue{},
 		&models.JiraStatus{},
 		&models.JiraWorklog{},
+		&models.JiraIssueComment{},
+		&models.JiraIssueRelationship{},
+		&models.JiraScopeConfig{},
 	}
 }
 
 func (p Jira) Description() string {
 	return "To collect and enrich data from JIRA"
+}
+
+func (p Jira) Name() string {
+	return "jira"
 }
 
 func (p Jira) SubTaskMetas() []plugin.SubTaskMeta {
@@ -132,6 +140,7 @@ func (p Jira) SubTaskMetas() []plugin.SubTaskMeta {
 		tasks.ConvertIssueCommentsMeta,
 		tasks.ConvertWorklogsMeta,
 		tasks.ConvertIssueChangelogsMeta,
+		tasks.ConvertIssueRelationshipsMeta,
 
 		tasks.ConvertSprintsMeta,
 		tasks.ConvertSprintIssuesMeta,
@@ -167,6 +176,7 @@ func (p Jira) PrepareTaskData(taskCtx plugin.TaskContext, options map[string]int
 	connectionHelper := helper.NewConnectionHelper(
 		taskCtx,
 		nil,
+		p.Name(),
 	)
 	err = connectionHelper.FirstById(connection, op.ConnectionId)
 	if err != nil {
@@ -219,7 +229,7 @@ func (p Jira) PrepareTaskData(taskCtx plugin.TaskContext, options map[string]int
 		if err != nil && db.IsErrorNotFound(err) {
 			return nil, errors.BadInput.Wrap(err, "fail to get scopeConfig")
 		}
-		op.ScopeConfig, err = tasks.MakeScopeConfig(scopeConfig)
+		op.ScopeConfig = &scopeConfig
 		if err != nil {
 			return nil, errors.BadInput.Wrap(err, "fail to make scopeConfig")
 		}
@@ -239,20 +249,15 @@ func (p Jira) PrepareTaskData(taskCtx plugin.TaskContext, options map[string]int
 		ApiClient:      jiraApiClient,
 		JiraServerInfo: *info,
 	}
-	if op.TimeAfter != "" {
-		var timeAfter time.Time
-		timeAfter, err = errors.Convert01(time.Parse(time.RFC3339, op.TimeAfter))
-		if err != nil {
-			return nil, errors.BadInput.Wrap(err, "invalid value for `timeAfter`")
-		}
-		taskData.TimeAfter = &timeAfter
-		logger.Debug("collect data created from %s", timeAfter)
-	}
+
 	return taskData, nil
 }
 
-func (p Jira) MakeDataSourcePipelinePlanV200(connectionId uint64, scopes []*plugin.BlueprintScopeV200, syncPolicy plugin.BlueprintSyncPolicy) (pp plugin.PipelinePlan, sc []plugin.Scope, err errors.Error) {
-	return api.MakeDataSourcePipelinePlanV200(p.SubTaskMetas(), connectionId, scopes, &syncPolicy)
+func (p Jira) MakeDataSourcePipelinePlanV200(
+	connectionId uint64,
+	scopes []*coreModels.BlueprintScope,
+) (pp coreModels.PipelinePlan, sc []plugin.Scope, err errors.Error) {
+	return api.MakeDataSourcePipelinePlanV200(p.SubTaskMetas(), connectionId, scopes)
 }
 
 func (p Jira) RootPkgPath() string {
@@ -288,6 +293,9 @@ func (p Jira) ApiResources() map[string]map[string]plugin.ApiResourceHandler {
 		"connections/:connectionId/remote-scopes": {
 			"GET": api.RemoteScopes,
 		},
+		"connections/:connectionId/search-remote-scopes": {
+			"GET": api.SearchRemoteScopes,
+		},
 		"connections/:connectionId/scopes/:scopeId": {
 			"GET":    api.GetScope,
 			"PATCH":  api.UpdateScope,
@@ -302,8 +310,9 @@ func (p Jira) ApiResources() map[string]map[string]plugin.ApiResourceHandler {
 			"GET":  api.GetScopeConfigList,
 		},
 		"connections/:connectionId/scope-configs/:id": {
-			"PATCH": api.UpdateScopeConfig,
-			"GET":   api.GetScopeConfig,
+			"PATCH":  api.UpdateScopeConfig,
+			"GET":    api.GetScopeConfig,
+			"DELETE": api.DeleteScopeConfig,
 		},
 		"connections/:connectionId/application-types": {
 			"GET": api.GetApplicationTypes,

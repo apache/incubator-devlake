@@ -21,7 +21,7 @@ import { Button, Intent } from '@blueprintjs/core';
 
 import { Dialog, FormItem, Selector, Buttons } from '@/components';
 import { useConnections } from '@/hooks';
-import { DataScopeSelect, getPluginId } from '@/plugins';
+import { DataScopeSelect, getPluginScopeId } from '@/plugins';
 import type { ConnectionItemType } from '@/store';
 
 interface Props {
@@ -34,7 +34,7 @@ export const AddConnectionDialog = ({ disabled = [], onCancel, onSubmit }: Props
   const [step, setStep] = useState(1);
   const [selectedConnection, setSelectedConnection] = useState<ConnectionItemType>();
 
-  const { connections } = useConnections();
+  const { connections } = useConnections({ filterPlugin: ['webhook'] });
 
   const disabledItems = useMemo(
     () => connections.filter((cs) => (disabled.length ? disabled.includes(cs.unique) : false)),
@@ -44,9 +44,9 @@ export const AddConnectionDialog = ({ disabled = [], onCancel, onSubmit }: Props
   const handleSubmit = (scope: any) => {
     if (!selectedConnection) return;
     onSubmit({
-      plugin: selectedConnection.plugin,
+      pluginName: selectedConnection.plugin,
       connectionId: selectedConnection.id,
-      scopes: scope.map((sc: any) => ({ id: `${sc[getPluginId(selectedConnection.plugin)]}` })),
+      scopes: scope.map((sc: any) => ({ scopeId: getPluginScopeId(selectedConnection.plugin, sc) })),
     });
   };
 
@@ -63,6 +63,7 @@ export const AddConnectionDialog = ({ disabled = [], onCancel, onSubmit }: Props
             disabledItems={disabledItems}
             getKey={(it) => it.unique}
             getName={(it) => it.name}
+            getIcon={(it) => it.icon}
             selectedItem={selectedConnection}
             onChangeItem={(selectedItem) => setSelectedConnection(selectedItem)}
           />

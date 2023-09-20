@@ -21,12 +21,21 @@ import (
 	"fmt"
 	"net/http"
 	"net/url"
+	"path"
+	"reflect"
+	"regexp"
 	"strings"
 
+	"github.com/apache/incubator-devlake/core/dal"
 	"github.com/apache/incubator-devlake/core/errors"
+	"github.com/apache/incubator-devlake/core/plugin"
 	"github.com/apache/incubator-devlake/helpers/pluginhelper/api"
 	"github.com/apache/incubator-devlake/plugins/zentao/models"
 )
+
+type input struct {
+	Id int64
+}
 
 func GetTotalPagesFromResponse(res *http.Response, args *api.ApiCollectorArgs) (int, errors.Error) {
 	body := &ZentaoPagination{}
@@ -48,39 +57,32 @@ func getAccountId(account *models.ZentaoAccount) int64 {
 	return 0
 }
 
-func getAccountName(account *models.ZentaoAccount) string {
-	if account != nil {
-		return account.Realname
-	}
-	return ""
-}
-
 // get the Priority string for zentao
 func getPriority(pri int) string {
-	switch pri {
-	case 2:
-		return "High"
-	case 3:
-		return "Middle"
-	case 4:
-		return "Low"
-	default:
-		if pri <= 1 {
-			return "VeryHigh"
+	return fmt.Sprintf("%d", pri)
+	/*
+		switch pri {
+		case 2:
+			return "High"
+		case 3:
+			return "Middle"
+		case 4:
+			return "Low"
+		default:
+			if pri <= 1 {
+				return "VeryHigh"
+			}
+			if pri >= 5 {
+				return "VeryLow"
+			}
 		}
-		if pri >= 5 {
-			return "VeryLow"
-		}
-	}
-	return "Error"
+		return "Error"
+	*/
 }
 
 func getOriginalProject(data *ZentaoTaskData) string {
 	if data.Options.ProjectId != 0 {
 		return data.ProjectName
-	}
-	if data.Options.ProductId != 0 {
-		return data.ProductName
 	}
 	return ""
 }
@@ -89,10 +91,10 @@ func getOriginalProject(data *ZentaoTaskData) string {
 // based on the provided ZentaoTaskData. It returns the created map.
 func getBugStatusMapping(data *ZentaoTaskData) map[string]string {
 	stdStatusMappings := make(map[string]string)
-	if data.Options.ScopeConfigs == nil {
+	if data.Options.ScopeConfig == nil {
 		return stdStatusMappings
 	}
-	mapping := data.Options.ScopeConfigs.BugStatusMappings
+	mapping := data.Options.ScopeConfig.BugStatusMappings
 	// Map original status values to standard status values
 	for userStatus, stdStatus := range mapping {
 		stdStatusMappings[userStatus] = strings.ToUpper(stdStatus)
@@ -104,10 +106,10 @@ func getBugStatusMapping(data *ZentaoTaskData) map[string]string {
 // based on the provided ZentaoTaskData. It returns the created map.
 func getStoryStatusMapping(data *ZentaoTaskData) map[string]string {
 	stdStatusMappings := make(map[string]string)
-	if data.Options.ScopeConfigs == nil {
+	if data.Options.ScopeConfig == nil {
 		return stdStatusMappings
 	}
-	mapping := data.Options.ScopeConfigs.StoryStatusMappings
+	mapping := data.Options.ScopeConfig.StoryStatusMappings
 	// Map original status values to standard status values
 	for userStatus, stdStatus := range mapping {
 		stdStatusMappings[userStatus] = strings.ToUpper(stdStatus)
@@ -119,10 +121,10 @@ func getStoryStatusMapping(data *ZentaoTaskData) map[string]string {
 // based on the provided ZentaoTaskData. It returns the created map.
 func getTaskStatusMapping(data *ZentaoTaskData) map[string]string {
 	stdStatusMappings := make(map[string]string)
-	if data.Options.ScopeConfigs == nil {
+	if data.Options.ScopeConfig == nil {
 		return stdStatusMappings
 	}
-	mapping := data.Options.ScopeConfigs.TaskStatusMappings
+	mapping := data.Options.ScopeConfig.TaskStatusMappings
 	// Map original status values to standard status values
 	for userStatus, stdStatus := range mapping {
 		stdStatusMappings[userStatus] = strings.ToUpper(stdStatus)
@@ -134,10 +136,10 @@ func getTaskStatusMapping(data *ZentaoTaskData) map[string]string {
 // It returns the created map.
 func getStdTypeMappings(data *ZentaoTaskData) map[string]string {
 	stdTypeMappings := make(map[string]string)
-	if data.Options.ScopeConfigs == nil {
+	if data.Options.ScopeConfig == nil {
 		return stdTypeMappings
 	}
-	mapping := data.Options.ScopeConfigs.TypeMappings
+	mapping := data.Options.ScopeConfig.TypeMappings
 	// Map user types to standard types
 	for userType, stdType := range mapping {
 		stdTypeMappings[userType] = strings.ToUpper(stdType)
@@ -176,4 +178,180 @@ func ignoreHTTPStatus404(res *http.Response) errors.Error {
 		return api.ErrIgnoreAndContinue
 	}
 	return nil
+}
+
+//func getProductIterator(taskCtx plugin.SubTaskContext) (dal.Rows, *api.DalCursorIterator, errors.Error) {
+//	data := taskCtx.GetData().(*ZentaoTaskData)
+//	db := taskCtx.GetDal()
+//	clauses := []dal.Clause{
+//		dal.Select("id"),
+//		dal.From(&models.ZentaoProductSummary{}),
+//		dal.Where(
+//			"project_id = ? AND connection_id = ?",
+//			data.Options.ProjectId, data.Options.ConnectionId,
+//		),
+//	}
+//
+//	cursor, err := db.Cursor(clauses...)
+//	if err != nil {
+//		return nil, nil, err
+//	}
+//	iterator, err := api.NewDalCursorIterator(db, cursor, reflect.TypeOf(input{}))
+//	if err != nil {
+//		cursor.Close()
+//		return nil, nil, err
+//	}
+//	return cursor, iterator, nil
+//}
+
+func getExecutionIterator(taskCtx plugin.SubTaskContext) (dal.Rows, *api.DalCursorIterator, errors.Error) {
+	data := taskCtx.GetData().(*ZentaoTaskData)
+	db := taskCtx.GetDal()
+	clauses := []dal.Clause{
+		dal.Select("id"),
+		dal.From(&models.ZentaoExecutionSummary{}),
+		dal.Where(
+			"project = ? AND connection_id = ?",
+			data.Options.ProjectId, data.Options.ConnectionId,
+		),
+	}
+	cursor, err := db.Cursor(clauses...)
+	if err != nil {
+		return nil, nil, err
+	}
+	iterator, err := api.NewDalCursorIterator(db, cursor, reflect.TypeOf(input{}))
+	if err != nil {
+		cursor.Close()
+		return nil, nil, err
+	}
+	return cursor, iterator, nil
+}
+
+// AccountCache is a cache for account information.
+type AccountCache struct {
+	accounts     map[string]models.ZentaoAccount
+	db           dal.Dal
+	connectionId uint64
+}
+
+func NewAccountCache(db dal.Dal, connectionId uint64) *AccountCache {
+	return &AccountCache{db: db, connectionId: connectionId, accounts: make(map[string]models.ZentaoAccount)}
+}
+
+func (a *AccountCache) put(account models.ZentaoAccount) {
+	if account.Account != "" {
+		a.accounts[account.Account] = account
+	}
+}
+
+func (a *AccountCache) getAccountID(account string) int64 {
+	if data, ok := a.accounts[account]; ok {
+		return data.ID
+	}
+	var zentaoAccount models.ZentaoAccount
+	err := a.db.First(
+		&zentaoAccount,
+		dal.Where("connection_id = ? AND account = ?", a.connectionId, account),
+	)
+	if err != nil {
+		return 0
+	}
+	a.accounts[account] = zentaoAccount
+	return zentaoAccount.ID
+}
+
+func (a *AccountCache) getAccountIDFromApiAccount(account *models.ApiAccount) int64 {
+	if account == nil {
+		return 0
+	}
+	if account.ID != 0 {
+		return account.ID
+	}
+	return a.getAccountID(account.Account)
+}
+
+func (a *AccountCache) getAccountName(account string) string {
+	if data, ok := a.accounts[account]; ok {
+		return data.Realname
+	}
+	var zentaoAccount models.ZentaoAccount
+	err := a.db.First(
+		&zentaoAccount,
+		dal.Where("connection_id = ? AND account = ?", a.connectionId, account),
+	)
+	if err != nil {
+		return ""
+	}
+	a.accounts[account] = zentaoAccount
+	return zentaoAccount.Realname
+}
+
+func (a *AccountCache) getAccountNameFromApiAccount(account *models.ApiAccount) string {
+	if account == nil {
+		return ""
+	}
+	if account.Realname != "" {
+		return account.Realname
+	}
+	return a.getAccountName(account.Account)
+}
+
+func convertIssueURL(apiURL, issueType string, id int64) string {
+	u, err := url.Parse(apiURL)
+	if err != nil {
+		return apiURL
+	}
+	before, _, _ := strings.Cut(u.Path, "/api.php/v1")
+	u.RawQuery = ""
+	u.Path = path.Join(before, fmt.Sprintf("/%s-view-%d.html", issueType, id))
+	return u.String()
+}
+
+func extractIdFromLogComment(logCommentType string, comment string) ([]string, error) {
+	if logCommentType != "task" && logCommentType != "bug" && logCommentType != "story" {
+		return nil, errors.Default.New(fmt.Sprintf("unsupportted log comment type: %s", logCommentType))
+	}
+	regexpStr := fmt.Sprintf("(%s-view-\\d+\\.json)+", logCommentType)
+	re := regexp.MustCompile(regexpStr)
+	results := re.FindAllString(comment, -1)
+	var ret []string
+
+	convertMatchedString := func(s string) string {
+		if s == "" {
+			return s
+		}
+		s = strings.Replace(s, "-", " ", -1)
+		s = strings.Replace(s, ".", " ", -1)
+		return s
+	}
+
+	for _, matched := range results {
+		var id string
+		format := fmt.Sprintf("%s view %%s json", logCommentType)
+		n, err := fmt.Sscanf(convertMatchedString(matched), format, &id)
+		if err != nil {
+			return nil, err
+		}
+		if n < 1 {
+			return nil, errors.Default.New("unexpected comment")
+		}
+		ret = append(ret, id)
+	}
+	return ret, nil
+}
+
+// getZentaoHomePage receive endpoint like "http://54.158.1.10:30001/api.php/v1/" and return zentao's homepage like "http://54.158.1.10:30001/"
+func getZentaoHomePage(endpoint string) (string, error) {
+	if endpoint == "" {
+		return "", errors.Default.New("empty endpoint")
+	}
+	endpointURL, err := url.Parse(endpoint)
+	if err != nil {
+		return "", err
+	} else {
+		protocol := endpointURL.Scheme
+		host := endpointURL.Host
+		zentaoPath, _, _ := strings.Cut(endpointURL.Path, "/api.php/v1")
+		return fmt.Sprintf("%s://%s%s", protocol, host, zentaoPath), nil
+	}
 }

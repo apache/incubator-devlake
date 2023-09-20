@@ -19,6 +19,10 @@ package pagerduty
 
 import (
 	"fmt"
+	"net/http"
+	"testing"
+	"time"
+
 	"github.com/apache/incubator-devlake/core/config"
 	"github.com/apache/incubator-devlake/core/models"
 	"github.com/apache/incubator-devlake/core/plugin"
@@ -27,8 +31,6 @@ import (
 	pluginmodels "github.com/apache/incubator-devlake/plugins/pagerduty/models"
 	"github.com/apache/incubator-devlake/test/helper"
 	"github.com/stretchr/testify/require"
-	"testing"
-	"time"
 )
 
 const pluginName = "pagerduty"
@@ -41,8 +43,8 @@ func TestPagerDutyPlugin(t *testing.T) {
 		CreateServer: true,
 		DropDb:       false,
 		TruncateDb:   true,
-		Plugins: map[string]plugin.PluginMeta{
-			pluginName: &impl.PagerDuty{},
+		Plugins: []plugin.PluginMeta{
+			&impl.PagerDuty{},
 		},
 	})
 	client.SetTimeout(0)
@@ -76,16 +78,15 @@ func TestPagerDutyPlugin(t *testing.T) {
 		require.True(t, len(createdScopes) > 0)
 		uniqueString := time.Now().Format(time.RFC3339)
 		outputProject := createProject(client, fmt.Sprintf("pagerduty-project-%s-%s", pluginName, uniqueString))
-		var bpScopes []*plugin.BlueprintScopeV200
+		var bpScopes []*models.BlueprintScope
 		for _, scope := range createdScopes {
-			bpScopes = append(bpScopes, &plugin.BlueprintScopeV200{
-				Id:   scope.Id,
-				Name: fmt.Sprintf("pagerduty-blueprint-v200-%s", uniqueString),
+			bpScopes = append(bpScopes, &models.BlueprintScope{
+				ScopeId: scope.Id,
 			})
 		}
 		bp := client.CreateBasicBlueprintV2(connection.Name, &helper.BlueprintV2Config{
-			Connection: &plugin.BlueprintConnectionV200{
-				Plugin:       pluginName,
+			Connection: &models.BlueprintConnection{
+				PluginName:   pluginName,
 				ConnectionId: connection.ID,
 				Scopes:       bpScopes,
 			},
@@ -99,14 +100,17 @@ func TestPagerDutyPlugin(t *testing.T) {
 		fmt.Printf("=========================Triggering blueprint for project %s =========================\n", outputProject.Name)
 		pipeline := client.TriggerBlueprint(bp.ID)
 		require.Equal(t, models.TASK_COMPLETED, pipeline.Status)
-		createdScopesList := client.ListScopes(pluginName, connection.ID, true)
+		createdScopesList := client.ListScopes(pluginName, connection.ID, true).Scopes
 		require.True(t, len(createdScopesList) > 0)
+		client.SetExpectedStatusCode(http.StatusConflict).DeleteConnection(pluginName, connection.ID)
+		client.DeleteBlueprint(bp.ID)
 		for _, scope := range createdScopesList {
 			scopeCast := helper.Cast[pluginmodels.Service](scope.Scope)
 			fmt.Printf("Deleting scope %s\n", scopeCast.Id)
 			client.DeleteScope(pluginName, connection.ID, scopeCast.Id, false)
 			fmt.Printf("Deleted scope %s\n", scopeCast.Id)
 		}
+		client.DeleteConnection(pluginName, connection.ID)
 	})
 	fmt.Println("======DONE======")
 }

@@ -13,30 +13,14 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from enum import Enum
-from datetime import datetime
-from typing import Optional
 import json
+from datetime import datetime
 
-from pydantic import SecretStr
-
-from pydevlake import Plugin, Connection, Stream, ToolModel, ToolScope, ScopeConfig, RemoteScopeGroup, DomainType, Field, TestConnectionResult
+from fakeplugin.models import FakeConnection, FakeProject, FakeScopeConfig, FakePipeline
+from pydevlake import Plugin, Stream, RemoteScopeGroup, DomainType, TestConnectionResult
 from pydevlake.domain_layer.devops import CicdScope, CICDPipeline, CICDStatus, CICDResult, CICDType
 
 VALID_TOKEN = "this_is_a_valid_token"
-
-
-class FakePipeline(ToolModel, table=True):
-    class State(Enum):
-        PENDING = "pending"
-        RUNNING = "running"
-        FAILURE = "failure"
-        SUCCESS = "success"
-
-    id: str = Field(primary_key=True)
-    started_at: Optional[datetime]
-    finished_at: Optional[datetime]
-    state: State
 
 
 class FakePipelineStream(Stream):
@@ -90,18 +74,6 @@ class FakePipelineStream(Stream):
                 finished_at=datetime(2023, 1, 10, 11, 3, 0, microsecond=i),
             ))
         return fake_pipelines
-
-
-class FakeConnection(Connection):
-    token: SecretStr
-
-
-class FakeProject(ToolScope, table=True):
-    url: str
-
-
-class FakeScopeConfig(ScopeConfig):
-    env: str
 
 
 class FakePlugin(Plugin):
@@ -164,6 +136,8 @@ class FakePlugin(Plugin):
             FakePipelineStream
         ]
 
+
+import fakeplugin.migrations  # NEEDED
 
 if __name__ == '__main__':
     FakePlugin.start()

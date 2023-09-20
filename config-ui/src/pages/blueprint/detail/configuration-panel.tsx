@@ -26,6 +26,8 @@ import { useConnections } from '@/hooks';
 import { getPluginConfig } from '@/plugins';
 import { formatTime, operator } from '@/utils';
 
+import { encodeName } from '../../project/utils';
+
 import { BlueprintType, FromEnum } from '../types';
 import { ModeEnum } from '../types';
 import { validRawPlan } from '../utils';
@@ -38,9 +40,10 @@ interface Props {
   from: FromEnum;
   blueprint: BlueprintType;
   onRefresh: () => void;
+  onChangeTab: (tab: string) => void;
 }
 
-export const ConfigurationPanel = ({ from, blueprint, onRefresh }: Props) => {
+export const ConfigurationPanel = ({ from, blueprint, onRefresh, onChangeTab }: Props) => {
   const [type, setType] = useState<'name' | 'policy' | 'add-connection'>();
   const [rawPlan, setRawPlan] = useState('');
   const [operating, setOperating] = useState(false);
@@ -53,17 +56,16 @@ export const ConfigurationPanel = ({ from, blueprint, onRefresh }: Props) => {
 
   const connections = useMemo(
     () =>
-      blueprint.settings?.connections
-        .filter((cs) => cs.plugin !== 'webhook')
+      blueprint.connections
+        .filter((cs) => cs.pluginName !== 'webhook')
         .map((cs: any) => {
-          const unique = `${cs.plugin}-${cs.connectionId}`;
-          const plugin = getPluginConfig(cs.plugin);
+          const unique = `${cs.pluginName}-${cs.connectionId}`;
+          const plugin = getPluginConfig(cs.pluginName);
           const connection = onGet(unique);
-
           return {
             unique,
             icon: plugin.icon,
-            name: connection.name,
+            name: connection?.name,
             scope: cs.scopes,
           };
         })
@@ -107,13 +109,14 @@ export const ConfigurationPanel = ({ from, blueprint, onRefresh }: Props) => {
   };
 
   const handleRun = async () => {
-    const [success] = await operator(() => API.runBlueprint(blueprint.id, true), {
+    const [success] = await operator(() => API.runBlueprint(blueprint.id, false), {
       setOperating,
       formatMessage: () => 'Trigger blueprint successful.',
     });
 
     if (success) {
       onRefresh();
+      onChangeTab('status');
     }
   };
 
@@ -137,7 +140,7 @@ export const ConfigurationPanel = ({ from, blueprint, onRefresh }: Props) => {
               title: 'Data Time Range',
               dataIndex: 'timeRange',
               key: 'timeRange',
-              render: (val) => `${formatTime(val)} to Now`,
+              render: (val) => (blueprint.mode === ModeEnum.normal ? `${formatTime(val)} to Now` : 'N/A'),
             },
             {
               title: 'Sync Frequency',
@@ -159,7 +162,7 @@ export const ConfigurationPanel = ({ from, blueprint, onRefresh }: Props) => {
           ]}
           dataSource={[
             {
-              timeRange: blueprint.settings.timeAfter,
+              timeRange: blueprint.timeAfter,
               frequency: blueprint.cronConfig,
               isManual: blueprint.isManual,
               skipFailed: blueprint.skipOnFail,
@@ -189,7 +192,7 @@ export const ConfigurationPanel = ({ from, blueprint, onRefresh }: Props) => {
             />
           ) : (
             <>
-              <Buttons>
+              <Buttons position="top">
                 <Button
                   intent={Intent.PRIMARY}
                   icon="add"
@@ -212,7 +215,7 @@ export const ConfigurationPanel = ({ from, blueprint, onRefresh }: Props) => {
                         to={
                           from === FromEnum.blueprint
                             ? `/blueprints/${blueprint.id}/${cs.unique}`
-                            : `/projects/${blueprint.projectName}/${cs.unique}`
+                            : `/projects/${encodeName(blueprint.projectName)}/${cs.unique}`
                         }
                       >
                         Edit Data Scope and Scope Config
@@ -259,7 +262,7 @@ export const ConfigurationPanel = ({ from, blueprint, onRefresh }: Props) => {
           isManual={blueprint.isManual}
           cronConfig={blueprint.cronConfig}
           skipOnFail={blueprint.skipOnFail}
-          timeAfter={blueprint.settings?.timeAfter}
+          timeAfter={blueprint.timeAfter}
           operating={operating}
           onCancel={handleCancel}
           onSubmit={(payload) => handleUpdate(payload)}
@@ -271,7 +274,7 @@ export const ConfigurationPanel = ({ from, blueprint, onRefresh }: Props) => {
           onCancel={handleCancel}
           onSubmit={(connection) =>
             handleUpdate({
-              settings: { ...blueprint.settings, connections: [...blueprint.settings.connections, connection] },
+              connections: [...blueprint.connections, connection],
             })
           }
         />

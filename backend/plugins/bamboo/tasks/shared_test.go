@@ -17,39 +17,65 @@ limitations under the License.
 
 package tasks
 
-import (
-	"encoding/json"
-	"gorm.io/datatypes"
-	"reflect"
-	"testing"
-)
+import "testing"
 
-func TestGetRepoMap(t *testing.T) {
-	rawJSON := `
-	{
-		"repo1": [1, 2],
-		"repo2": [3],
-		"repo3": [4, 5, 6]
+func Test_getBambooWebURL(t *testing.T) {
+	type args struct {
+		endpoint string
 	}
-	`
-	var rawRepoMap datatypes.JSONMap
-	err := json.Unmarshal([]byte(rawJSON), &rawRepoMap)
-	if err != nil {
-		t.Errorf("Failed to unmarshal rawJSON: %v", err)
+	tests := []struct {
+		name    string
+		args    args
+		want    string
+		wantErr bool
+	}{
+		{
+			name:    "without-bamboo",
+			args:    args{endpoint: "http://54.158.1.10:30001/rest/api/latest"},
+			want:    "http://54.158.1.10:30001",
+			wantErr: false,
+		},
+		{
+			name:    "without-bamboo-1",
+			args:    args{endpoint: "http://54.158.1.10:30001/rest/api/latest/"},
+			want:    "http://54.158.1.10:30001",
+			wantErr: false,
+		},
+		{
+			name:    "with-bamboo",
+			args:    args{endpoint: "http://54.158.1.10:30001/bamboo/rest/api/latest"},
+			want:    "http://54.158.1.10:30001/bamboo",
+			wantErr: false,
+		},
+		{
+			name:    "with-bamboo-1",
+			args:    args{endpoint: "http://54.158.1.10:30001/bamboo/rest/api/latest/"},
+			want:    "http://54.158.1.10:30001/bamboo",
+			wantErr: false,
+		},
+		{
+			name:    "with-others",
+			args:    args{endpoint: "http://54.158.1.10:30001/abc/rest/api/latest"},
+			want:    "http://54.158.1.10:30001/abc",
+			wantErr: false,
+		},
+		{
+			name:    "with-others-1",
+			args:    args{endpoint: "http://54.158.1.10:30001/abc/rest/api/latest/repos"},
+			want:    "http://54.158.1.10:30001/abc",
+			wantErr: false,
+		},
 	}
-
-	expectedRepoMap := map[int]string{
-		1: "repo1",
-		2: "repo1",
-		3: "repo2",
-		4: "repo3",
-		5: "repo3",
-		6: "repo3",
-	}
-
-	repoMap := getRepoMap(rawRepoMap)
-
-	if !reflect.DeepEqual(repoMap, expectedRepoMap) {
-		t.Errorf("Unexpected result. Expected: %v, got: %v", expectedRepoMap, repoMap)
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			got, err := getBambooHomePage(tt.args.endpoint)
+			if (err != nil) != tt.wantErr {
+				t.Errorf("getbambooHomePage() error = %v, wantErr %v", err, tt.wantErr)
+				return
+			}
+			if got != tt.want {
+				t.Errorf("getbambooHomePage() got = %v, want %v", got, tt.want)
+			}
+		})
 	}
 }

@@ -25,7 +25,7 @@ import (
 
 // CallDB wraps DB calls with this signature, and handles the case if the struct is wrapped in a models.DynamicTabler.
 func CallDB(f func(any, ...dal.Clause) errors.Error, x any, clauses ...dal.Clause) errors.Error {
-	if dynamic, ok := x.(*models.DynamicTabler); ok {
+	if dynamic, ok := x.(models.DynamicTabler); ok {
 		clauses = append(clauses, dal.From(dynamic.TableName()))
 		x = dynamic.Unwrap()
 	}

@@ -18,7 +18,6 @@ limitations under the License.
 package tasks
 
 import (
-	"encoding/json"
 	"github.com/apache/incubator-devlake/core/errors"
 	"github.com/apache/incubator-devlake/core/plugin"
 	"github.com/apache/incubator-devlake/helpers/pluginhelper/api"
@@ -40,18 +39,12 @@ func ExtractStoryStatus(taskCtx plugin.SubTaskContext) errors.Error {
 	extractor, err := api.NewApiExtractor(api.ApiExtractorArgs{
 		RawDataSubTaskArgs: *rawDataSubTaskArgs,
 		Extract: func(row *api.RawData) ([]interface{}, errors.Error) {
-			if string(row.Data) == "[]" {
-				return nil, nil
-			}
-			var storyStatusRes struct {
-				Data map[string]string
-			}
-			err := errors.Convert(json.Unmarshal(row.Data, &storyStatusRes))
+			var results []interface{}
+			status, err := extractStatus(row.Data)
 			if err != nil {
 				return nil, err
 			}
-			results := make([]interface{}, 0)
-			for k, v := range storyStatusRes.Data {
+			for k, v := range status {
 				toolL := &models.TapdStoryStatus{
 					ConnectionId: data.Options.ConnectionId,
 					WorkspaceId:  data.Options.WorkspaceId,

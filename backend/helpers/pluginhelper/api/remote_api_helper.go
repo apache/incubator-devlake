@@ -18,13 +18,18 @@ limitations under the License.
 package api
 
 import (
+	gocontext "context"
 	"encoding/base64"
 	"encoding/json"
 	"fmt"
+	"io"
 	"net/http"
+	"net/url"
 	"strconv"
 
-	coreContext "github.com/apache/incubator-devlake/core/context"
+	"github.com/apache/incubator-devlake/core/log"
+
+	"github.com/apache/incubator-devlake/core/context"
 	"github.com/apache/incubator-devlake/core/errors"
 	"github.com/apache/incubator-devlake/core/plugin"
 	"github.com/go-playground/validator/v10"
@@ -35,6 +40,7 @@ type RemoteScopesChild struct {
 	ParentId *string     `json:"parentId"`
 	Id       string      `json:"id"`
 	Name     string      `json:"name"`
+	FullName string      `json:"fullName"`
 	Data     interface{} `json:"data"`
 }
 
@@ -63,14 +69,16 @@ type SearchRemoteScopesOutput struct {
 
 // RemoteApiHelper is used to write the CURD of connection
 type RemoteApiHelper[Conn plugin.ApiConnection, Scope plugin.ToolLayerScope, ApiScope plugin.ApiScope, Group plugin.ApiGroup] struct {
-	basicRes   coreContext.BasicRes
-	validator  *validator.Validate
-	connHelper *ConnectionApiHelper
+	basicRes        context.BasicRes
+	validator       *validator.Validate
+	connHelper      *ConnectionApiHelper
+	httpClientCache map[string]*ApiClient
+	logger          log.Logger
 }
 
 // NewRemoteHelper creates a ScopeHelper for connection management
 func NewRemoteHelper[Conn plugin.ApiConnection, Scope plugin.ToolLayerScope, ApiScope plugin.ApiScope, Group plugin.ApiGroup](
-	basicRes coreContext.BasicRes,
+	basicRes context.BasicRes,
 	vld *validator.Validate,
 	connHelper *ConnectionApiHelper,
 ) *RemoteApiHelper[Conn, Scope, ApiScope, Group] {
@@ -81,9 +89,11 @@ func NewRemoteHelper[Conn plugin.ApiConnection, Scope plugin.ToolLayerScope, Api
 		return nil
 	}
 	return &RemoteApiHelper[Conn, Scope, ApiScope, Group]{
-		basicRes:   basicRes,
-		validator:  vld,
-		connHelper: connHelper,
+		basicRes:        basicRes,
+		validator:       vld,
+		connHelper:      connHelper,
+		httpClientCache: make(map[string]*ApiClient),
+		logger:          basicRes.GetLogger(),
 	}
 }
 
@@ -112,8 +122,57 @@ func (g BaseRemoteGroupResponse) GroupName() string {
 }
 
 const remoteScopesPerPage int = 100
-const TypeProject string = "scope"
-const TypeGroup string = "group"
+const (
+	TypeGroup string = "group" // group is just like a directory or a folder, that holds some scopes.
+	TypeScope string = "scope" // scope, sometimes we call it project. But scope is a more standard noun.
+	TypeMixed string = "mixed"
+)
+
+func (r *RemoteApiHelper[Conn, Scope, ApiScope, Group]) GetApiClient(connection plugin.CacheableConnection) (*ApiClient, errors.Error) {
+	key := connection.GetHash()
+	// empty key means no connection reuse
+	if key == "" {
+		r.logger.Info("No api client reuse")
+		return NewApiClientFromConnection(gocontext.TODO(), r.basicRes, connection)
+	}
+
+	if client, ok := r.httpClientCache[key]; ok {
+		r.logger.Info("Reused api client")
+		return client, nil
+	}
+	r.logger.Info("Creating new api client")
+	newClient, err := NewApiClientFromConnection(gocontext.TODO(), r.basicRes, connection)
+	if err != nil {
+		return nil, err
+	}
+	r.httpClientCache[key] = newClient
+	return newClient, nil
+}
+
+func (r *RemoteApiHelper[Conn, Scope, ApiScope, Group]) ProxyApiGet(conn plugin.CacheableConnection, path string, query url.Values) (*plugin.ApiResourceOutput, errors.Error) {
+	apiClient, err := r.GetApiClient(conn)
+	if err != nil {
+		return nil, err
+	}
+
+	resp, err := apiClient.Get(path, query, nil)
+	if err != nil {
+		return nil, err
+	}
+	defer resp.Body.Close()
+
+	body, err := errors.Convert01(io.ReadAll(resp.Body))
+	if err != nil {
+		return nil, err
+	}
+	// verify response body is json
+	var tmp interface{}
+	err = errors.Convert(json.Unmarshal(body, &tmp))
+	if err != nil {
+		return nil, err
+	}
+	return &plugin.ApiResourceOutput{Status: resp.StatusCode, Body: json.RawMessage(body)}, nil
+}
 
 // PrepareFirstPageToken prepares the first page token
 func (r *RemoteApiHelper[Conn, Scope, ApiScope, Group]) PrepareFirstPageToken(customInfo string) (*plugin.ApiResourceOutput, errors.Error) {
@@ -122,7 +181,7 @@ func (r *RemoteApiHelper[Conn, Scope, ApiScope, Group]) PrepareFirstPageToken(cu
 		Page:       1,
 		PerPage:    remoteScopesPerPage,
 		CustomInfo: customInfo,
-		Tag:        "group",
+		Tag:        TypeGroup,
 	})
 	if err != nil {
 		return nil, err
@@ -131,46 +190,77 @@ func (r *RemoteApiHelper[Conn, Scope, ApiScope, Group]) PrepareFirstPageToken(cu
 	return &plugin.ApiResourceOutput{Body: outputBody, Status: http.StatusOK}, nil
 }
 
-// GetScopesFromRemote gets the scopes from api
-func (r *RemoteApiHelper[Conn, Scope, ApiScope, Group]) GetScopesFromRemote(input *plugin.ApiResourceInput,
-	getGroup func(basicRes coreContext.BasicRes, gid string, queryData *RemoteQueryData, connection Conn) ([]Group, errors.Error),
-	getScope func(basicRes coreContext.BasicRes, gid string, queryData *RemoteQueryData, connection Conn) ([]ApiScope, errors.Error),
-) (*plugin.ApiResourceOutput, errors.Error) {
+func (r *RemoteApiHelper[Conn, Scope, ApiScope, ApiGroup]) GetRemoteScopesOutput(
+	input *plugin.ApiResourceInput,
+	getter func(basicRes context.BasicRes, groupId string, queryData *RemoteQueryData, connection Conn) (*RemoteScopesOutput, errors.Error),
+) (*RemoteScopesOutput, errors.Error) {
 	connectionId, err := errors.Convert01(strconv.ParseUint(input.Params["connectionId"], 10, 64))
 	if err != nil || connectionId == 0 {
 		return nil, errors.BadInput.New("invalid connectionId")
 	}
+	var connection Conn
+	err = r.connHelper.First(&connection, input.Params)
+	if err != nil {
+		r.logger.Error(err, "find connection: %d", connectionId)
+		return nil, err
+	}
+	groupId := input.Query.Get("groupId")
+	pageToken := input.Query.Get("pageToken")
+	queryData, err := getPageDataFromPageTokenWithTag(pageToken, TypeMixed)
+	if err != nil {
+		r.logger.Error(err, "get page data from page token")
+		return nil, err
+	}
+	resp, err := getter(r.basicRes, groupId, queryData, connection)
+	if err != nil {
+		r.logger.Error(err, "call getter")
+		return nil, err
+	}
 
+	queryData.Page += 1
+	resp.NextPageToken, err = getPageTokenFromPageData(queryData)
+	if err != nil {
+		r.logger.Error(err, "get next page token")
+		return nil, err
+	}
+	if len(resp.Children) < queryData.PerPage {
+		// there are no more pages
+		resp.NextPageToken = ""
+	}
+	return resp, nil
+}
+
+// GetScopesFromRemote gets the scopes from api
+func (r *RemoteApiHelper[Conn, Scope, ApiScope, Group]) GetScopesFromRemote(
+	input *plugin.ApiResourceInput,
+	getGroup func(basicRes context.BasicRes, gid string, queryData *RemoteQueryData, connection Conn) ([]Group, errors.Error),
+	getScope func(basicRes context.BasicRes, gid string, queryData *RemoteQueryData, connection Conn) ([]ApiScope, errors.Error),
+) (*plugin.ApiResourceOutput, errors.Error) {
+
+	connectionId, err := errors.Convert01(strconv.ParseUint(input.Params["connectionId"], 10, 64))
+	if err != nil || connectionId == 0 {
+		return nil, errors.BadInput.New("invalid connectionId")
+	}
 	var connection Conn
 	err = r.connHelper.First(&connection, input.Params)
 	if err != nil {
 		return nil, err
 	}
+	// get groupId and pageData
+	groupId := input.Query.Get("groupId")
+	pageToken := input.Query.Get("pageToken")
 
-	groupId, ok := input.Query["groupId"]
-	if !ok || len(groupId) == 0 {
-		groupId = []string{""}
-	}
-
-	pageToken, ok := input.Query["pageToken"]
-	if !ok || len(pageToken) == 0 {
-		pageToken = []string{""}
-	}
-
-	// get gid and pageData
-	gid := groupId[0]
-	queryData, err := getPageDataFromPageToken(pageToken[0])
+	queryData, err := getPageDataFromPageToken(pageToken)
 	if err != nil {
 		return nil, errors.BadInput.New("failed to get page token")
 	}
-
 	outputBody := &RemoteScopesOutput{}
 
 	// list groups part
 	if queryData.Tag == TypeGroup {
 		var resBody []Group
 		if getGroup != nil {
-			resBody, err = getGroup(r.basicRes, gid, queryData, connection)
+			resBody, err = getGroup(r.basicRes, groupId, queryData, connection)
 		}
 		if err != nil {
 			return nil, err
@@ -185,7 +275,7 @@ func (r *RemoteApiHelper[Conn, Scope, ApiScope, Group]) GetScopesFromRemote(inpu
 				// don't need to save group into data
 				Data: nil,
 			}
-			child.ParentId = &gid
+			child.ParentId = &groupId
 			if *child.ParentId == "" {
 				child.ParentId = nil
 			}
@@ -193,16 +283,16 @@ func (r *RemoteApiHelper[Conn, Scope, ApiScope, Group]) GetScopesFromRemote(inpu
 		}
 		// check groups count
 		if len(resBody) < queryData.PerPage {
-			queryData.Tag = TypeProject
+			queryData.Tag = TypeScope
 			queryData.Page = 1
 			queryData.PerPage = queryData.PerPage - len(resBody)
 		}
 	}
 
 	// list projects part
-	if queryData.Tag == TypeProject && getScope != nil {
+	if queryData.Tag == TypeScope && getScope != nil {
 		var resBody []ApiScope
-		resBody, err = getScope(r.basicRes, gid, queryData, connection)
+		resBody, err = getScope(r.basicRes, groupId, queryData, connection)
 		if err != nil {
 			return nil, err
 		}
@@ -211,20 +301,20 @@ func (r *RemoteApiHelper[Conn, Scope, ApiScope, Group]) GetScopesFromRemote(inpu
 		for _, project := range resBody {
 			scope := project.ConvertApiScope()
 			child := RemoteScopesChild{
-				Type: TypeProject,
-				Id:   scope.ScopeId(),
-				Name: scope.ScopeName(),
-				Data: &scope,
+				Type:     TypeScope,
+				Id:       scope.ScopeId(),
+				Name:     scope.ScopeName(),
+				FullName: scope.ScopeFullName(),
+				Data:     &scope,
 			}
-			child.ParentId = &gid
+			child.ParentId = &groupId
 			if *child.ParentId == "" {
 				child.ParentId = nil
 			}
-
 			outputBody.Children = append(outputBody.Children, child)
 		}
 
-		// check project count
+		// check scopes count
 		if len(resBody) < queryData.PerPage {
 			queryData = nil
 		}
@@ -234,18 +324,16 @@ func (r *RemoteApiHelper[Conn, Scope, ApiScope, Group]) GetScopesFromRemote(inpu
 	outputBody.NextPageToken = ""
 	if queryData != nil {
 		queryData.Page += 1
-
 		outputBody.NextPageToken, err = getPageTokenFromPageData(queryData)
 		if err != nil {
 			return nil, err
 		}
 	}
-
 	return &plugin.ApiResourceOutput{Body: outputBody, Status: http.StatusOK}, nil
 }
 
 func (r *RemoteApiHelper[Conn, Scope, ApiScope, Group]) SearchRemoteScopes(input *plugin.ApiResourceInput,
-	searchScope func(basicRes coreContext.BasicRes, queryData *RemoteQueryData, connection Conn) ([]ApiScope, errors.Error),
+	searchScope func(basicRes context.BasicRes, queryData *RemoteQueryData, connection Conn) ([]ApiScope, errors.Error),
 ) (*plugin.ApiResourceOutput, errors.Error) {
 	connectionId, err := errors.Convert01(strconv.ParseUint(input.Params["connectionId"], 10, 64))
 	if err != nil || connectionId == 0 {
@@ -303,10 +391,11 @@ func (r *RemoteApiHelper[Conn, Scope, ApiScope, Group]) SearchRemoteScopes(input
 	for _, project := range resBody {
 		scope := project.ConvertApiScope()
 		child := RemoteScopesChild{
-			Type:     TypeProject,
+			Type:     TypeScope,
 			Id:       scope.ScopeId(),
 			ParentId: nil,
 			Name:     scope.ScopeName(),
+			FullName: scope.ScopeFullName(),
 			Data:     scope,
 		}
 
@@ -331,11 +420,15 @@ func getPageTokenFromPageData(pageData *RemoteQueryData) (string, errors.Error) 
 }
 
 func getPageDataFromPageToken(pageToken string) (*RemoteQueryData, errors.Error) {
+	return getPageDataFromPageTokenWithTag(pageToken, TypeGroup)
+}
+
+func getPageDataFromPageTokenWithTag(pageToken string, queryTag string) (*RemoteQueryData, errors.Error) {
 	if pageToken == "" {
 		return &RemoteQueryData{
 			Page:    1,
 			PerPage: remoteScopesPerPage,
-			Tag:     "group",
+			Tag:     queryTag,
 		}, nil
 	}
 

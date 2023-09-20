@@ -20,6 +20,8 @@ package runner
 import (
 	gocontext "context"
 	"fmt"
+	"time"
+
 	"github.com/apache/incubator-devlake/core/context"
 	"github.com/apache/incubator-devlake/core/dal"
 	"github.com/apache/incubator-devlake/core/errors"
@@ -30,7 +32,6 @@ import (
 	"github.com/apache/incubator-devlake/helpers/pluginhelper/api"
 	contextimpl "github.com/apache/incubator-devlake/impls/context"
 	"github.com/apache/incubator-devlake/impls/logruslog"
-	"time"
 )
 
 // RunTask FIXME ...
@@ -52,6 +53,7 @@ func RunTask(
 	if err := db.First(dbPipeline, dal.Where("id = ? ", task.PipelineId)); err != nil {
 		return err
 	}
+
 	logger, err := getTaskLogger(basicRes.GetLogger(), task)
 	if err != nil {
 		return err
@@ -113,8 +115,8 @@ func RunTask(
 		if dbe != nil {
 			logger.Error(dbe, "update pipeline state failed")
 		}
-		// not return err if the `SkipOnFail` is true
-		if dbPipeline.SkipOnFail {
+		// not return err if the `SkipOnFail` is true and the error is not canceled
+		if dbPipeline.SkipOnFail && !errors.Is(err, gocontext.Canceled) {
 			err = nil
 		}
 	}()
@@ -135,6 +137,7 @@ func RunTask(
 		basicRes.ReplaceLogger(logger),
 		task,
 		progress,
+		&dbPipeline.SyncPolicy,
 	)
 	return err
 }
@@ -145,6 +148,7 @@ func RunPluginTask(
 	basicRes context.BasicRes,
 	task *models.Task,
 	progress chan plugin.RunningProgress,
+	syncPolicy *models.SyncPolicy,
 ) errors.Error {
 	pluginMeta, err := plugin.GetPlugin(task.Plugin)
 	if err != nil {
@@ -160,6 +164,7 @@ func RunPluginTask(
 		task,
 		pluginTask,
 		progress,
+		syncPolicy,
 	)
 }
 
@@ -170,6 +175,7 @@ func RunPluginSubTasks(
 	task *models.Task,
 	pluginTask plugin.PluginTask,
 	progress chan plugin.RunningProgress,
+	syncPolicy *models.SyncPolicy,
 ) errors.Error {
 	logger := basicRes.GetLogger()
 	logger.Info("start plugin")
@@ -188,14 +194,10 @@ func RunPluginSubTasks(
 	*/
 
 	// user specifies what subtasks to run
-	subtaskNames, err := task.GetSubTasks()
-	if err != nil {
-		return err
-	}
-	if len(subtaskNames) != 0 {
+	if len(task.Subtasks) != 0 {
 		// decode user specified subtasks
 		var specifiedTasks []string
-		err := api.Decode(subtaskNames, &specifiedTasks, nil)
+		err := api.Decode(task.Subtasks, &specifiedTasks, nil)
 		if err != nil {
 			return errors.Default.Wrap(err, "subtasks could not be decoded")
 		}
@@ -234,14 +236,12 @@ func RunPluginSubTasks(
 	if closeablePlugin, ok := pluginTask.(plugin.CloseablePluginTask); ok {
 		defer closeablePlugin.Close(taskCtx)
 	}
-	options, err := task.GetOptions()
-	if err != nil {
-		return err
-	}
+	options := task.Options
 	taskData, err := pluginTask.PrepareTaskData(taskCtx, options)
 	if err != nil {
 		return errors.Default.Wrap(err, fmt.Sprintf("error preparing task data for %s", task.Plugin))
 	}
+	taskCtx.SetSyncPolicy(syncPolicy)
 	taskCtx.SetData(taskData)
 
 	// execute subtasks in order

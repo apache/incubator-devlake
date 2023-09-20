@@ -53,6 +53,22 @@ func (r GithubRepo) ScopeName() string {
 	return r.Name
 }
 
+func (r GithubRepo) ScopeFullName() string {
+	return r.FullName
+}
+
+func (r GithubRepo) ScopeParams() interface{} {
+	return &GithubApiParams{
+		ConnectionId: r.ConnectionId,
+		Name:         r.FullName,
+	}
+}
+
 func (GithubRepo) TableName() string {
 	return "_tool_github_repos"
+}
+
+type GithubApiParams struct {
+	ConnectionId uint64
+	Name         string
 }

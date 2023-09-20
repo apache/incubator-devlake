@@ -19,10 +19,11 @@ package models
 
 import (
 	"fmt"
+	"github.com/spf13/cast"
+	"strconv"
 
 	"github.com/apache/incubator-devlake/core/models/common"
 	"github.com/apache/incubator-devlake/core/plugin"
-	helper "github.com/apache/incubator-devlake/helpers/pluginhelper/api"
 )
 
 type ZentaoProject struct {
@@ -46,10 +47,10 @@ type ZentaoProject struct {
 	Grade            int                 `json:"grade" mapstructure:"grade"`
 	Name             string              `json:"name" mapstructure:"name"`
 	Code             string              `json:"code" mapstructure:"code"`
-	PlanBegin        *helper.Iso8601Time `json:"begin" mapstructure:"begin"`
-	PlanEnd          *helper.Iso8601Time `json:"end" mapstructure:"end"`
-	RealBegan        *helper.Iso8601Time `json:"realBegan" mapstructure:"realBegan"`
-	RealEnd          *helper.Iso8601Time `json:"realEnd" mapstructure:"realEnd"`
+	PlanBegin        *common.Iso8601Time `json:"begin" mapstructure:"begin"`
+	PlanEnd          *common.Iso8601Time `json:"end" mapstructure:"end"`
+	RealBegan        *common.Iso8601Time `json:"realBegan" mapstructure:"realBegan"`
+	RealEnd          *common.Iso8601Time `json:"realEnd" mapstructure:"realEnd"`
 	Days             int                 `json:"days" mapstructure:"days"`
 	Status           string              `json:"status" mapstructure:"status"`
 	SubStatus        string              `json:"subStatus" mapstructure:"subStatus"`
@@ -60,17 +61,17 @@ type ZentaoProject struct {
 	PlanDuration     int                 `json:"planDuration" mapstructure:"planDuration"`
 	RealDuration     int                 `json:"realDuration" mapstructure:"realDuration"`
 	//OpenedBy       string    `json:"openedBy" mapstructure:"openedBy"`
-	OpenedDate    *helper.Iso8601Time `json:"openedDate" mapstructure:"openedDate"`
+	OpenedDate    *common.Iso8601Time `json:"openedDate" mapstructure:"openedDate"`
 	OpenedVersion string              `json:"openedVersion" mapstructure:"openedVersion"`
 	//LastEditedBy   string              `json:"lastEditedBy" mapstructure:"lastEditedBy"`
-	LastEditedDate *helper.Iso8601Time `json:"lastEditedDate" mapstructure:"lastEditedDate"`
+	LastEditedDate *common.Iso8601Time `json:"lastEditedDate" mapstructure:"lastEditedDate"`
 	ClosedBy       string
 	ClosedByRes    interface{}         `json:"closedBy" mapstructure:"closedBy" gorm:"-"`
-	ClosedDate     *helper.Iso8601Time `json:"closedDate" mapstructure:"closedDate"`
+	ClosedDate     *common.Iso8601Time `json:"closedDate" mapstructure:"closedDate"`
 	CanceledBy     string
 	CanceledByRes  interface{}         `json:"canceledBy" mapstructure:"canceledBy" gorm:"-"`
-	CanceledDate   *helper.Iso8601Time `json:"canceledDate" mapstructure:"canceledDate"`
-	SuspendedDate  *helper.Iso8601Time `json:"suspendedDate" mapstructure:"suspendedDate"`
+	CanceledDate   *common.Iso8601Time `json:"canceledDate" mapstructure:"canceledDate"`
+	SuspendedDate  *common.Iso8601Time `json:"suspendedDate" mapstructure:"suspendedDate"`
 	PO             string              `json:"po" mapstructure:"po"`
 	PM             `json:"pm" mapstructure:"pm"`
 	QD             string `json:"qd" mapstructure:"qd"`
@@ -91,10 +92,11 @@ type ZentaoProject struct {
 	TotalEstimate float64 `json:"totalEstimate" mapstructure:"totalEstimate"`
 	TotalConsumed float64 `json:"totalConsumed" mapstructure:"totalConsumed"`
 	TotalLeft     float64 `json:"totalLeft" mapstructure:"totalLeft"`
-	Progress      float64 `json:"progress" mapstructure:"progress"`
-	TotalReal     int     `json:"totalReal" mapstructure:"totalReal"`
-	ScopeConfigId uint64  `json:"scopeConfigId,omitempty" mapstructure:"scopeConfigId"`
+	Progress      float64
+	ProgressRes   interface{} `json:"progress" mapstructure:"progress" gorm:"-"`
+	ScopeConfigId uint64      `json:"scopeConfigId,omitempty" mapstructure:"scopeConfigId"`
 }
+
 type PM struct {
 	PmId       int64  `json:"id" mapstructure:"id"`
 	PmAccount  string `json:"account" mapstructure:"account"`
@@ -115,7 +117,11 @@ type Hours struct {
 	HoursTotalReal     float64 `json:"totalReal" mapstructure:"totalReal"`
 }
 
-func (p *ZentaoProject) ConvertFix() {
+func (p *ZentaoProject) fixProgressField() {
+	p.Progress = cast.ToFloat64(p.ProgressRes)
+}
+
+func (p *ZentaoProject) fixClosedByResField() {
 	switch cb := p.ClosedByRes.(type) {
 	case string:
 		p.ClosedBy = cb
@@ -127,7 +133,9 @@ func (p *ZentaoProject) ConvertFix() {
 		}
 	}
 	p.ClosedByRes = p.ClosedBy
+}
 
+func (p *ZentaoProject) fixCanceledByResField() {
 	switch cb := p.CanceledByRes.(type) {
 	case string:
 		p.CanceledBy = cb
@@ -141,16 +149,33 @@ func (p *ZentaoProject) ConvertFix() {
 	p.CanceledByRes = p.CanceledBy
 }
 
-func (ZentaoProject) TableName() string {
+func (p *ZentaoProject) ConvertFix() {
+	p.fixProgressField()
+	p.fixClosedByResField()
+	p.fixCanceledByResField()
+}
+
+func (p ZentaoProject) TableName() string {
 	return "_tool_zentao_projects"
 }
 
 func (p ZentaoProject) ScopeId() string {
-	return fmt.Sprintf(`project/%d`, p.Id)
+	return strconv.FormatInt(p.Id, 10)
 }
 
 func (p ZentaoProject) ScopeName() string {
 	return p.Name
+}
+
+func (p ZentaoProject) ScopeFullName() string {
+	return p.Name
+}
+
+func (p ZentaoProject) ScopeParams() interface{} {
+	return &ZentaoApiParams{
+		ConnectionId: p.ConnectionId,
+		ProjectId:    p.Id,
+	}
 }
 
 func (p ZentaoProject) ConvertApiScope() plugin.ToolLayerScope {
@@ -159,4 +184,9 @@ func (p ZentaoProject) ConvertApiScope() plugin.ToolLayerScope {
 		p.Type = "project"
 	}
 	return p
+}
+
+type ZentaoApiParams struct {
+	ConnectionId uint64
+	ProjectId    int64
 }

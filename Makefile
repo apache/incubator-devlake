@@ -71,9 +71,6 @@ swag:
 build-plugin:
 	make build-plugin -C backend
 
-build-plugin-debug:
-	make build-plugin-debug -C backend
-
 build-worker:
 	make build-worker -C backend
 
@@ -115,10 +112,8 @@ unit-test-only:
 python-unit-test:
 	make python-unit-test -C backend
 
-e2e-test: build e2e-test-only
-
-e2e-test-only:
-	make e2e-test-only -C backend
+e2e-test:
+	make e2e-test -C backend
 
 e2e-plugins-test:
 	make e2e-plugins-test -C backend

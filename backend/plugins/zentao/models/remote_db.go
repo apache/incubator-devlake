@@ -29,9 +29,21 @@ type ZentaoRemoteDbHistoryBase struct {
 }
 
 type ZentaoRemoteDbHistory struct {
-	Id     int `gorm:"column:id"`
-	Action int `gorm:"column:action"`
+	Id     int64 `gorm:"column:id"`
+	Action int64 `gorm:"column:action"`
 	ZentaoRemoteDbHistoryBase
+}
+
+func (h ZentaoRemoteDbHistory) ToChangelogDetail(connectionId uint64) *ZentaoChangelogDetail {
+	return &ZentaoChangelogDetail{
+		ConnectionId: connectionId,
+		Id:           h.Id,
+		ChangelogId:  h.Action,
+		Field:        h.Field,
+		Old:          h.Old,
+		New:          h.New,
+		Diff:         h.Diff,
+	}
 }
 
 func (ZentaoRemoteDbHistory) TableName() string {
@@ -39,12 +51,12 @@ func (ZentaoRemoteDbHistory) TableName() string {
 }
 
 type ZentaoRemoteDbAction struct {
-	Id         int       `gorm:"column:id"`
+	Id         int64     `gorm:"column:id"`
 	ObjectType string    `gorm:"column:objectType"`
-	ObjectId   int       `gorm:"column:objectID"`
+	ObjectId   int64     `gorm:"column:objectID"`
 	Product    string    `gorm:"column:product"`
-	Project    int       `gorm:"column:project"`
-	Execution  int       `gorm:"column:execution"`
+	Project    int64     `gorm:"column:project"`
+	Execution  int64     `gorm:"column:execution"`
 	Actor      string    `gorm:"column:actor"`
 	Action     string    `gorm:"column:action"`
 	Date       time.Time `gorm:"column:date"`
@@ -55,6 +67,25 @@ type ZentaoRemoteDbAction struct {
 	Efforted   string    `gorm:"column:efforted"`
 }
 
+func (a ZentaoRemoteDbAction) ToChangelog(connectionId uint64) *ZentaoChangelog {
+	return &ZentaoChangelog{
+		ConnectionId: connectionId,
+		Id:           a.Id,
+		ObjectId:     a.ObjectId,
+		Execution:    a.Execution,
+		Actor:        a.Actor,
+		Action:       a.Action,
+		Extra:        a.Extra,
+		ObjectType:   a.ObjectType,
+		Project:      a.Project,
+		Vision:       a.Vision,
+		Comment:      a.Comment,
+		Efforted:     a.Efforted,
+		Date:         a.Date,
+		Read:         a.Read,
+	}
+}
+
 func (ZentaoRemoteDbAction) TableName() string {
 	return "zt_action"
 }
@@ -63,34 +94,36 @@ type ZentaoRemoteDbActionHistory struct {
 	ZentaoRemoteDbAction
 	ZentaoRemoteDbHistoryBase
 
-	ActionId  int `gorm:"column:aid"`
-	HistoryId int `gorm:"column:hid"`
+	ActionId  int64 `gorm:"column:aid"`
+	HistoryId int64 `gorm:"column:hid"`
 }
 
-func (ah *ZentaoRemoteDbActionHistory) Convert() *ZentaoChangelogCom {
+func (ah *ZentaoRemoteDbActionHistory) Convert(connectId uint64) *ZentaoChangelogCom {
 	return &ZentaoChangelogCom{
 		&ZentaoChangelog{
-			Id:         int64(ah.ActionId),
-			ObjectId:   ah.ObjectId,
-			Execution:  ah.Execution,
-			Actor:      ah.Actor,
-			Action:     ah.Action,
-			Extra:      ah.Extra,
-			ObjectType: ah.ObjectType,
-			Project:    ah.Project,
-			Vision:     ah.Vision,
-			Comment:    ah.Comment,
-			Efforted:   ah.Efforted,
-			Date:       ah.Date,
-			Read:       ah.Read,
+			ConnectionId: connectId,
+			Id:           ah.ActionId,
+			ObjectId:     ah.ObjectId,
+			Execution:    ah.Execution,
+			Actor:        ah.Actor,
+			Action:       ah.Action,
+			Extra:        ah.Extra,
+			ObjectType:   ah.ObjectType,
+			Project:      ah.Project,
+			Vision:       ah.Vision,
+			Comment:      ah.Comment,
+			Efforted:     ah.Efforted,
+			Date:         ah.Date,
+			Read:         ah.Read,
 		},
 		&ZentaoChangelogDetail{
-			Id:          int64(ah.HistoryId),
-			ChangelogId: int64(ah.ActionId),
-			Field:       ah.Field,
-			Old:         ah.Old,
-			New:         ah.New,
-			Diff:        ah.Diff,
+			ConnectionId: connectId,
+			Id:           ah.HistoryId,
+			ChangelogId:  ah.ActionId,
+			Field:        ah.Field,
+			Old:          ah.Old,
+			New:          ah.New,
+			Diff:         ah.Diff,
 		},
 	}
 }

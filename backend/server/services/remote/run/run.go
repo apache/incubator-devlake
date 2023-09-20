@@ -59,7 +59,7 @@ func main() {
 		}
 
 		options["connectionId"] = *connectionId
-		runner.DirectRun(cmd, args, plugin, options)
+		runner.DirectRun(cmd, args, plugin, options, "")
 	}
 	runner.RunCmd(cmd)
 }

@@ -18,7 +18,7 @@ limitations under the License.
 package tasks
 
 import (
-	helper "github.com/apache/incubator-devlake/helpers/pluginhelper/api"
+	"github.com/apache/incubator-devlake/core/models/common"
 	"github.com/apache/incubator-devlake/plugins/gitlab/models"
 )
 
@@ -37,7 +37,8 @@ func ConvertProject(gitlabApiProject *GitlabApiProject) *models.GitlabProject {
 		OpenIssuesCount:   gitlabApiProject.OpenIssuesCount,
 		StarCount:         gitlabApiProject.StarCount,
 		CreatedDate:       gitlabApiProject.CreatedAt.ToNullableTime(),
-		UpdatedDate:       helper.Iso8601TimeToTime(gitlabApiProject.LastActivityAt),
+		UpdatedDate:       common.Iso8601TimeToTime(gitlabApiProject.LastActivityAt),
+		Archived:          gitlabApiProject.Archived,
 	}
 	if gitlabApiProject.ForkedFromProject != nil {
 		gitlabProject.ForkedFromProjectId = gitlabApiProject.ForkedFromProject.GitlabId

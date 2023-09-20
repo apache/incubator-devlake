@@ -61,7 +61,7 @@ type GraphqlQueryIssue struct {
 	AssigneeList struct {
 		// FIXME now domain layer just support one assignee
 		Assignees []GraphqlInlineAccountQuery `graphql:"nodes"`
-	} `graphql:"assignees(first: 1)"`
+	} `graphql:"assignees(first: 100)"`
 	Milestone *struct {
 		Number int
 	} `json:"milestone"`
@@ -104,27 +104,22 @@ func CollectIssue(taskCtx plugin.SubTaskContext) errors.Error {
 			Name:         data.Options.Name,
 		},
 		Table: RAW_ISSUES_TABLE,
-	}, data.TimeAfter)
+	})
 	if err != nil {
 		return err
 	}
 
-	incremental := collectorWithState.IsIncremental()
-
 	err = collectorWithState.InitGraphQLCollector(helper.GraphqlCollectorArgs{
 		GraphqlClient: data.GraphqlClient,
 		PageSize:      100,
-		Incremental:   incremental,
 		BuildQuery: func(reqData *helper.GraphqlRequestData) (interface{}, map[string]interface{}, error) {
 			query := &GraphqlQueryIssueWrapper{}
 			if reqData == nil {
 				return query, map[string]interface{}{}, nil
 			}
 			since := helper.DateTime{}
-			if incremental {
-				since = helper.DateTime{Time: *collectorWithState.LatestState.LatestSuccessStart}
-			} else if collectorWithState.TimeAfter != nil {
-				since = helper.DateTime{Time: *collectorWithState.TimeAfter}
+			if collectorWithState.Since != nil {
+				since = helper.DateTime{Time: *collectorWithState.Since}
 			}
 			ownerName := strings.Split(data.Options.Name, "/")
 			variables := map[string]interface{}{
@@ -157,20 +152,10 @@ func CollectIssue(taskCtx plugin.SubTaskContext) errors.Error {
 				}
 				results = append(results, githubLabels...)
 				results = append(results, githubIssue)
-				if issue.AssigneeList.Assignees != nil && len(issue.AssigneeList.Assignees) > 0 {
-					relatedUser, err := convertGraphqlPreAccount(issue.AssigneeList.Assignees[0], data.Options.GithubId, data.Options.ConnectionId)
-					if err != nil {
-						return nil, err
-					}
-					results = append(results, relatedUser)
+				if len(issue.AssigneeList.Assignees) > 0 {
+					extractGraphqlPreAccount(&results, &issue.AssigneeList.Assignees[0], data.Options.GithubId, data.Options.ConnectionId)
 				}
-				if issue.Author != nil {
-					relatedUser, err := convertGraphqlPreAccount(*issue.Author, data.Options.GithubId, data.Options.ConnectionId)
-					if err != nil {
-						return nil, err
-					}
-					results = append(results, relatedUser)
-				}
+				extractGraphqlPreAccount(&results, issue.Author, data.Options.GithubId, data.Options.ConnectionId)
 				for _, assignee := range issue.AssigneeList.Assignees {
 					issueAssignee := &models.GithubIssueAssignee{
 						ConnectionId: githubIssue.ConnectionId,

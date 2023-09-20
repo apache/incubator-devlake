@@ -17,13 +17,15 @@
  */
 
 import { useState, useMemo } from 'react';
-import { useHistory } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import { Button, Switch, Icon, Intent, Position } from '@blueprintjs/core';
 import { Tooltip2 } from '@blueprintjs/popover2';
 
 import { Card, IconButton, Dialog } from '@/components';
 import { getCron } from '@/config';
-import { PipelineContextProvider, PipelineInfo, PipelineTasks, PipelineHistorical } from '@/pages';
+import { useAutoRefresh } from '@/hooks';
+import * as PipelineT from '@/routes/pipeline/types';
+import { PipelineInfo, PipelineTasks, PipelineTable } from '@/routes/pipeline';
 import { formatTime, operator } from '@/utils';
 
 import { BlueprintType, FromEnum } from '../types';
@@ -42,9 +44,31 @@ export const StatusPanel = ({ from, blueprint, pipelineId, onRefresh }: Props) =
   const [isOpen, setIsOpen] = useState(false);
   const [operating, setOperating] = useState(false);
 
-  const history = useHistory();
+  const navigate = useNavigate();
 
   const cron = useMemo(() => getCron(blueprint.isManual, blueprint.cronConfig), [blueprint]);
+
+  const { loading, data } = useAutoRefresh<PipelineT.Pipeline[]>(
+    async () => {
+      const res = await API.getBlueprintPipelines(blueprint.id);
+      return res.pipelines;
+    },
+    [],
+    {
+      cancel: (data) =>
+        !!(
+          data &&
+          data.every((it) =>
+            [
+              PipelineT.PipelineStatus.COMPLETED,
+              PipelineT.PipelineStatus.PARTIAL,
+              PipelineT.PipelineStatus.CANCELLED,
+              PipelineT.PipelineStatus.FAILED,
+            ].includes(it.status),
+          )
+        ),
+    },
+  );
 
   const handleShowDeleteDialog = () => {
     setIsOpen(true);
@@ -90,7 +114,7 @@ export const StatusPanel = ({ from, blueprint, pipelineId, onRefresh }: Props) =
     });
 
     if (success) {
-      history.push('/blueprints');
+      navigate('/blueprints');
     }
   };
 
@@ -143,25 +167,31 @@ export const StatusPanel = ({ from, blueprint, pipelineId, onRefresh }: Props) =
         </S.BlueprintAction>
       )}
 
-      <PipelineContextProvider>
-        <div className="block">
-          <h3>Current Pipeline</h3>
-          {!pipelineId ? (
-            <Card>There is no current run for this blueprint.</Card>
-          ) : (
-            <>
+      {/* <PipelineContextProvider> */}
+      <div className="block">
+        <h3>Current Pipeline</h3>
+        {!pipelineId ? (
+          <Card>There is no current run for this blueprint.</Card>
+        ) : (
+          <>
+            <Card>
               <PipelineInfo id={pipelineId} />
-              <Card style={{ marginTop: 16 }}>
-                <PipelineTasks id={pipelineId} />
-              </Card>
-            </>
-          )}
-        </div>
-        <div className="block">
-          <h3>Historical Pipelines</h3>
-          <PipelineHistorical blueprintId={blueprint.id} />
-        </div>
-      </PipelineContextProvider>
+            </Card>
+            <Card>
+              <PipelineTasks id={pipelineId} />
+            </Card>
+          </>
+        )}
+      </div>
+      <div className="block">
+        <h3>Historical Pipelines</h3>
+        {!data?.length ? (
+          <Card>There are no historical runs associated with this blueprint.</Card>
+        ) : (
+          <PipelineTable loading={loading} dataSource={data} />
+        )}
+      </div>
+      {/* </PipelineContextProvider> */}
 
       <Dialog
         isOpen={isOpen}

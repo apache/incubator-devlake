@@ -18,16 +18,21 @@ limitations under the License.
 package parser
 
 import (
+	"context"
+	"crypto/tls"
 	"encoding/base64"
 	"fmt"
 	"github.com/apache/incubator-devlake/core/errors"
+	"github.com/go-git/go-git/v5/plumbing/transport/client"
 	"net"
+	"net/http"
 	"os"
 
 	gogit "github.com/go-git/go-git/v5"
+	githttp "github.com/go-git/go-git/v5/plumbing/transport/http"
 	"github.com/go-git/go-git/v5/plumbing/transport/ssh"
-	git "github.com/libgit2/git2go/v33"
 	ssh2 "golang.org/x/crypto/ssh"
+	neturl "net/url"
 )
 
 // We have done comparison experiments for git2go and go-git, and the results show that git2go has better performance.
@@ -35,7 +40,7 @@ import (
 
 const DefaultUser = "git"
 
-func cloneOverSSH(url, dir, passphrase string, pk []byte) errors.Error {
+func cloneOverSSH(ctx context.Context, url, dir, passphrase string, pk []byte) errors.Error {
 	key, err := ssh.NewPublicKeys(DefaultUser, pk, passphrase)
 	if err != nil {
 		return errors.Convert(err)
@@ -45,7 +50,7 @@ func cloneOverSSH(url, dir, passphrase string, pk []byte) errors.Error {
 			return nil
 		},
 	}
-	_, err = gogit.PlainClone(dir, true, &gogit.CloneOptions{
+	_, err = gogit.PlainCloneContext(ctx, dir, true, &gogit.CloneOptions{
 		URL:  url,
 		Auth: key,
 	})
@@ -55,32 +60,52 @@ func cloneOverSSH(url, dir, passphrase string, pk []byte) errors.Error {
 	return nil
 }
 
-func (l *GitRepoCreator) CloneOverHTTP(repoId, url, user, password, proxy string) (*GitRepo, errors.Error) {
+func (l *GitRepoCreator) CloneOverHTTP(ctx context.Context, repoId, url, user, password, proxy string) (*GitRepo, errors.Error) {
 	return withTempDirectory(func(dir string) (*GitRepo, error) {
-		cloneOptions := &git.CloneOptions{Bare: true}
+		cloneOptions := &gogit.CloneOptions{URL: url}
 		if proxy != "" {
-			cloneOptions.FetchOptions.ProxyOptions.Type = git.ProxyTypeAuto
-			cloneOptions.FetchOptions.ProxyOptions.Url = proxy
+			proxyUrl, err := neturl.Parse(proxy)
+			if err != nil {
+				l.logger.Error(err, "parse proxy")
+				return nil, fmt.Errorf("parse %s err: %w", proxyUrl, err)
+			}
+			customClient := &http.Client{
+				Transport: &http.Transport{
+					Proxy: http.ProxyURL(proxyUrl),
+					TLSClientConfig: &tls.Config{
+						InsecureSkipVerify: true,
+					},
+				},
+
+				CheckRedirect: func(req *http.Request, via []*http.Request) error {
+					return http.ErrUseLastResponse
+				},
+			}
+			client.InstallProtocol("https", githttp.NewClient(customClient))
 		}
 		if user != "" {
-			auth := fmt.Sprintf("Authorization: Basic %s", base64.StdEncoding.EncodeToString([]byte(user+":"+password)))
-			cloneOptions.FetchOptions.Headers = []string{auth}
+			cloneOptions.Auth = &githttp.BasicAuth{
+				Username: user,
+				Password: password,
+			}
 		}
-		clonedRepo, err := git.Clone(url, dir, cloneOptions)
+		//fmt.Printf("CloneOverHTTP clone opt: %+v\ndir: %v, repo: %v, id: %v, user: %v, passwd: %v, proxy: %v\n", cloneOptions, dir, url, repoId, user, password, proxy)
+		_, err := gogit.PlainCloneContext(ctx, dir, true, cloneOptions)
 		if err != nil {
+			l.logger.Error(err, "PlainCloneContext")
 			return nil, err
 		}
-		return l.newGitRepo(repoId, clonedRepo), nil
+		return l.LocalRepo(dir, repoId)
 	})
 }
 
-func (l *GitRepoCreator) CloneOverSSH(repoId, url, privateKey, passphrase string) (*GitRepo, errors.Error) {
+func (l *GitRepoCreator) CloneOverSSH(ctx context.Context, repoId, url, privateKey, passphrase string) (*GitRepo, errors.Error) {
 	return withTempDirectory(func(dir string) (*GitRepo, error) {
 		pk, err := base64.StdEncoding.DecodeString(privateKey)
 		if err != nil {
 			return nil, err
 		}
-		err = cloneOverSSH(url, dir, passphrase, pk)
+		err = cloneOverSSH(ctx, url, dir, passphrase, pk)
 		if err != nil {
 			return nil, err
 		}

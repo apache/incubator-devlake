@@ -28,10 +28,15 @@ import (
 
 	"github.com/apache/incubator-devlake/core/dal"
 	"github.com/apache/incubator-devlake/core/errors"
+	"github.com/apache/incubator-devlake/core/models/common"
 	"github.com/apache/incubator-devlake/core/plugin"
 	helper "github.com/apache/incubator-devlake/helpers/pluginhelper/api"
 	"github.com/apache/incubator-devlake/plugins/github/models"
 )
+
+func init() {
+	RegisterSubtaskMeta(&CollectRunsMeta)
+}
 
 const RAW_RUN_TABLE = "github_api_runs"
 
@@ -47,7 +52,7 @@ type GithubRawRunsResult struct {
 
 type SimpleGithubApiJob struct {
 	ID        int64
-	CreatedAt helper.Iso8601Time `json:"created_at"`
+	CreatedAt common.Iso8601Time `json:"created_at"`
 }
 
 var CollectRunsMeta = plugin.SubTaskMeta{
@@ -56,6 +61,8 @@ var CollectRunsMeta = plugin.SubTaskMeta{
 	EnabledByDefault: true,
 	Description:      "Collect Runs data from Github action api, supports both timeFilter and diffSync.",
 	DomainTypes:      []string{plugin.DOMAIN_TYPE_CICD},
+	DependencyTables: []string{},
+	ProductTables:    []string{RAW_RUN_TABLE},
 }
 
 func CollectRuns(taskCtx plugin.SubTaskContext) errors.Error {
@@ -71,7 +78,6 @@ func CollectRuns(taskCtx plugin.SubTaskContext) errors.Error {
 			Table: RAW_RUN_TABLE,
 		},
 		ApiClient: data.ApiClient,
-		TimeAfter: data.TimeAfter,
 		CollectNewRecordsByList: helper.FinalizableApiCollectorListArgs{
 			PageSize:    PAGE_SIZE,
 			Concurrency: 10,
@@ -104,7 +110,7 @@ func CollectRuns(taskCtx plugin.SubTaskContext) errors.Error {
 				return pj.CreatedAt.ToTime(), nil
 			},
 		},
-		CollectUnfinishedDetails: helper.FinalizableApiCollectorDetailArgs{
+		CollectUnfinishedDetails: &helper.FinalizableApiCollectorDetailArgs{
 			BuildInputIterator: func() (helper.Iterator, errors.Error) {
 				// load unfinished runs from the database
 				cursor, err := db.Cursor(

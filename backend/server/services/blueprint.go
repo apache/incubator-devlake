@@ -27,7 +27,6 @@ import (
 	"github.com/apache/incubator-devlake/core/dal"
 	"github.com/apache/incubator-devlake/core/errors"
 	"github.com/apache/incubator-devlake/core/models"
-	"github.com/apache/incubator-devlake/core/plugin"
 	helper "github.com/apache/incubator-devlake/helpers/pluginhelper/api"
 	"github.com/apache/incubator-devlake/impls/logruslog"
 	"github.com/robfig/cron/v3"
@@ -44,6 +43,8 @@ type BlueprintQuery struct {
 	Enable   *bool  `form:"enable,omitempty"`
 	IsManual *bool  `form:"isManual"`
 	Label    string `form:"label"`
+	// isManual must be omitted or `null` for type to take effect
+	Type string `form:"type" enums:"ALL,MANUAL,DAILY,WEEKLY,MONTHLY,CUSTOM" validate:"oneof=ALL MANUAL DAILY WEEKLY MONTHLY CUSTOM"`
 }
 
 type BlueprintJob struct {
@@ -52,7 +53,7 @@ type BlueprintJob struct {
 
 func (bj BlueprintJob) Run() {
 	blueprint := bj.Blueprint
-	pipeline, err := createPipelineByBlueprint(blueprint, false)
+	pipeline, err := createPipelineByBlueprint(blueprint, &blueprint.SyncPolicy)
 	if err == ErrEmptyPlan {
 		blueprintLog.Info("Empty plan, blueprint id:[%d] blueprint name:[%s]", blueprint.ID, blueprint.Name)
 		return
@@ -83,17 +84,14 @@ func CreateBlueprint(blueprint *models.Blueprint) errors.Error {
 
 // GetBlueprints returns a paginated list of Blueprints based on `query`
 func GetBlueprints(query *BlueprintQuery) ([]*models.Blueprint, int64, errors.Error) {
-	blueprints, count, err := bpManager.GetDbBlueprints(&services.GetBlueprintQuery{
+	return bpManager.GetDbBlueprints(&services.GetBlueprintQuery{
 		Enable:      query.Enable,
 		IsManual:    query.IsManual,
 		Label:       query.Label,
 		SkipRecords: query.GetSkip(),
 		PageSize:    query.GetPageSize(),
+		Type:        query.Type,
 	})
-	if err != nil {
-		return nil, 0, errors.Convert(err)
-	}
-	return blueprints, count, nil
 }
 
 // GetBlueprint returns the detail of a given Blueprint ID
@@ -125,9 +123,6 @@ func GetBlueprintByProjectName(projectName string) (*models.Blueprint, errors.Er
 }
 
 func validateBlueprintAndMakePlan(blueprint *models.Blueprint) errors.Error {
-	if len(blueprint.Settings) == 0 {
-		blueprint.Settings = nil
-	}
 	// validation
 	err := vld.Struct(blueprint)
 	if err != nil {
@@ -162,19 +157,14 @@ func validateBlueprintAndMakePlan(blueprint *models.Blueprint) errors.Error {
 		}
 	}
 	if blueprint.Mode == models.BLUEPRINT_MODE_ADVANCED {
-		plan := make(plugin.PipelinePlan, 0)
-		err = errors.Convert(json.Unmarshal(blueprint.Plan, &plan))
-		if err != nil {
-			return errors.Default.Wrap(err, "invalid plan")
+		if len(blueprint.Plan) == 0 {
+			return errors.BadInput.New("invalid plan")
 		}
 	} else if blueprint.Mode == models.BLUEPRINT_MODE_NORMAL {
-		plan, err := MakePlanForBlueprint(blueprint, false)
+		var e errors.Error
+		blueprint.Plan, e = MakePlanForBlueprint(blueprint, &blueprint.SyncPolicy)
 		if err != nil {
-			return errors.Default.Wrap(err, "make plan for blueprint failed")
-		}
-		blueprint.Plan, err = errors.Convert01(json.Marshal(plan))
-		if err != nil {
-			return errors.Default.Wrap(err, "failed to markshal plan")
+			return e
 		}
 	}
 	return nil
@@ -213,9 +203,15 @@ func PatchBlueprint(id uint64, body map[string]interface{}) (*models.Blueprint, 
 	if err != nil {
 		return nil, err
 	}
-	// make sure mode is not being update
+
+	// make sure mode is not being updated
 	if originMode != blueprint.Mode {
 		return nil, errors.Default.New("mode is not updatable")
+	}
+	// syncPolicy can be updated, so we need to decode it again
+	err = helper.DecodeMapStruct(body, &blueprint.SyncPolicy, true)
+	if err != nil {
+		return nil, err
 	}
 
 	blueprint, err = saveBlueprint(blueprint)
@@ -255,16 +251,10 @@ func ReloadBlueprints(c *cron.Cron) errors.Error {
 	}
 	c.Stop()
 	for _, blueprint := range blueprints {
-		if err != nil {
-			blueprintLog.Error(err, failToCreateCronJob)
-			return err
-		}
-
 		blueprintLog.Info("Add blueprint id:[%d] cronConfg[%s] to cron job", blueprint.ID, blueprint.CronConfig)
 		blueprintJob := &BlueprintJob{
 			Blueprint: blueprint,
 		}
-
 		if _, err := c.AddJob(blueprint.CronConfig, blueprintJob); err != nil {
 			blueprintLog.Error(err, failToCreateCronJob)
 			return errors.Default.Wrap(err, "created cron job failed")
@@ -277,24 +267,25 @@ func ReloadBlueprints(c *cron.Cron) errors.Error {
 	return nil
 }
 
-func createPipelineByBlueprint(blueprint *models.Blueprint, skipCollectors bool) (*models.Pipeline, errors.Error) {
-	var plan plugin.PipelinePlan
+func createPipelineByBlueprint(blueprint *models.Blueprint, syncPolicy *models.SyncPolicy) (*models.Pipeline, errors.Error) {
+	var plan models.PipelinePlan
 	var err errors.Error
 	if blueprint.Mode == models.BLUEPRINT_MODE_NORMAL {
-		plan, err = MakePlanForBlueprint(blueprint, skipCollectors)
+		plan, err = MakePlanForBlueprint(blueprint, syncPolicy)
+		if err != nil {
+			blueprintLog.Error(err, fmt.Sprintf("failed to MakePlanForBlueprint on blueprint:[%d][%s]", blueprint.ID, blueprint.Name))
+			return nil, err
+		}
 	} else {
-		plan, err = blueprint.UnmarshalPlan()
+		plan = blueprint.Plan
 	}
-	if err != nil {
-		blueprintLog.Error(err, fmt.Sprintf("failed to MakePlanForBlueprint on blueprint:[%d][%s]", blueprint.ID, blueprint.Name))
-		return nil, err
-	}
+
 	newPipeline := models.NewPipeline{}
 	newPipeline.Plan = plan
 	newPipeline.Name = blueprint.Name
 	newPipeline.BlueprintId = blueprint.ID
 	newPipeline.Labels = blueprint.Labels
-	newPipeline.SkipOnFail = blueprint.SkipOnFail
+	newPipeline.SyncPolicy = blueprint.SyncPolicy
 
 	// if the plan is empty, we should not create the pipeline
 	var shouldCreatePipeline bool
@@ -322,68 +313,35 @@ func createPipelineByBlueprint(blueprint *models.Blueprint, skipCollectors bool)
 }
 
 // MakePlanForBlueprint generates pipeline plan by version
-func MakePlanForBlueprint(blueprint *models.Blueprint, skipCollectors bool) (plugin.PipelinePlan, errors.Error) {
-	bpSettings := new(models.BlueprintSettings)
-	err := errors.Convert(json.Unmarshal(blueprint.Settings, bpSettings))
-	if err != nil {
-		return nil, errors.Default.Wrap(err, fmt.Sprintf("settings:%s", string(blueprint.Settings)))
-	}
-
-	bpSyncPolicy := plugin.BlueprintSyncPolicy{}
-	bpSyncPolicy.TimeAfter = bpSettings.TimeAfter
-
-	var plan plugin.PipelinePlan
-	switch bpSettings.Version {
-	case "1.0.0":
-		return nil, errors.BadInput.New("Blueprint v1.0.0 had been deprecated, please se v2.0.0 instead")
-	case "2.0.0":
-		// load project metric plugins and convert it to a map
-		metrics := make(map[string]json.RawMessage)
-		projectMetrics := make([]models.ProjectMetricSetting, 0)
-		if blueprint.ProjectName != "" {
-			err = db.All(&projectMetrics, dal.Where("project_name = ? AND enable = ?", blueprint.ProjectName, true))
-			if err != nil {
-				return nil, err
-			}
-			for _, projectMetric := range projectMetrics {
-				metrics[projectMetric.PluginName] = json.RawMessage(projectMetric.PluginOption)
-			}
+func MakePlanForBlueprint(blueprint *models.Blueprint, syncPolicy *models.SyncPolicy) (models.PipelinePlan, errors.Error) {
+	var plan models.PipelinePlan
+	// load project metric plugins and convert it to a map
+	metrics := make(map[string]json.RawMessage)
+	projectMetrics := make([]models.ProjectMetricSetting, 0)
+	if blueprint.ProjectName != "" {
+		err := db.All(&projectMetrics, dal.Where("project_name = ? AND enable = ?", blueprint.ProjectName, true))
+		if err != nil {
+			return nil, err
 		}
-		plan, err = GeneratePlanJsonV200(blueprint.ProjectName, bpSyncPolicy, bpSettings, metrics, skipCollectors)
-	default:
-		return nil, errors.Default.New(fmt.Sprintf("unknown version of blueprint settings: %s", bpSettings.Version))
+		for _, projectMetric := range projectMetrics {
+			metrics[projectMetric.PluginName] = json.RawMessage(projectMetric.PluginOption)
+		}
 	}
+	skipCollectors := false
+	if syncPolicy != nil && syncPolicy.SkipCollectors {
+		skipCollectors = true
+	}
+	plan, err := GeneratePlanJsonV200(blueprint.ProjectName, blueprint.Connections, metrics, skipCollectors)
 	if err != nil {
 		return nil, err
 	}
-	return WrapPipelinePlans(bpSettings.BeforePlan, plan, bpSettings.AfterPlan)
-}
-
-// WrapPipelinePlans merges multiple pipelines and append before and after pipeline
-func WrapPipelinePlans(beforePlanJson json.RawMessage, mainPlan plugin.PipelinePlan, afterPlanJson json.RawMessage) (plugin.PipelinePlan, errors.Error) {
-	beforePipelinePlan := plugin.PipelinePlan{}
-	afterPipelinePlan := plugin.PipelinePlan{}
-
-	if beforePlanJson != nil {
-		err := errors.Convert(json.Unmarshal(beforePlanJson, &beforePipelinePlan))
-		if err != nil {
-			return nil, err
-		}
-	}
-	if afterPlanJson != nil {
-		err := errors.Convert(json.Unmarshal(afterPlanJson, &afterPipelinePlan))
-		if err != nil {
-			return nil, err
-		}
-	}
-
-	return SequencializePipelinePlans(beforePipelinePlan, mainPlan, afterPipelinePlan), nil
+	return SequencializePipelinePlans(blueprint.BeforePlan, plan, blueprint.AfterPlan), nil
 }
 
 // ParallelizePipelinePlans merges multiple pipelines into one unified plan
 // by assuming they can be executed in parallel
-func ParallelizePipelinePlans(plans ...plugin.PipelinePlan) plugin.PipelinePlan {
-	merged := make(plugin.PipelinePlan, 0)
+func ParallelizePipelinePlans(plans ...models.PipelinePlan) models.PipelinePlan {
+	merged := make(models.PipelinePlan, 0)
 	// iterate all pipelineTasks and try to merge them into `merged`
 	for _, plan := range plans {
 		// add all stages from plan to merged
@@ -400,8 +358,8 @@ func ParallelizePipelinePlans(plans ...plugin.PipelinePlan) plugin.PipelinePlan 
 
 // SequencializePipelinePlans merges multiple pipelines into one unified plan
 // by assuming they must be executed in sequencial order
-func SequencializePipelinePlans(plans ...plugin.PipelinePlan) plugin.PipelinePlan {
-	merged := make(plugin.PipelinePlan, 0)
+func SequencializePipelinePlans(plans ...models.PipelinePlan) models.PipelinePlan {
+	merged := make(models.PipelinePlan, 0)
 	// iterate all pipelineTasks and try to merge them into `merged`
 	for _, plan := range plans {
 		merged = append(merged, plan...)
@@ -410,13 +368,15 @@ func SequencializePipelinePlans(plans ...plugin.PipelinePlan) plugin.PipelinePla
 }
 
 // TriggerBlueprint triggers blueprint immediately
-func TriggerBlueprint(id uint64, skipCollectors bool) (*models.Pipeline, errors.Error) {
+func TriggerBlueprint(id uint64, syncPolicy *models.SyncPolicy) (*models.Pipeline, errors.Error) {
 	// load record from db
 	blueprint, err := GetBlueprint(id)
 	if err != nil {
+		logger.Error(err, "GetBlueprint, id: %d", id)
 		return nil, err
 	}
-	pipeline, err := createPipelineByBlueprint(blueprint, skipCollectors)
-	// done
-	return pipeline, err
+	blueprint.SkipCollectors = syncPolicy.SkipCollectors
+	blueprint.FullSync = syncPolicy.FullSync
+
+	return createPipelineByBlueprint(blueprint, syncPolicy)
 }

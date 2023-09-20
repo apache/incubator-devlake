@@ -27,21 +27,47 @@ export const CrossDomain = styled.div`
     margin-top: 24px;
   }
 
-  .input {
-    display: flex;
-    align-items: center;
+  .application {
     margin-bottom: 8px;
 
-    .bp4-input-group {
-      margin-right: 8px;
-      width: 680px;
+    span {
+      padding: 4px 8px;
+      background-color: #efefef;
+    }
+
+    span + span {
+      margin-left: 8px;
     }
   }
 `;
 
+export const RemoteLinkWrapper = styled.div`
+  .input {
+    margin-bottom: 8px;
+  }
+
+  .inner {
+    display: flex;
+    align-items: center;
+
+    .bp5-input-group {
+      margin-right: 8px;
+      width: 680px;
+    }
+  }
+
+  .error {
+    margin-top: 2px;
+    color: #cd4246;
+  }
+`;
+
 export const DialogBody = styled.div`
-  ul {
+  ul,
+  pre {
     padding: 8px 16px;
+    max-height: 240px;
+    overflow-y: auto;
     background: #efefef;
   }
 
@@ -49,7 +75,7 @@ export const DialogBody = styled.div`
     display: flex;
     align-items: center;
 
-    .bp4-input-group {
+    .bp5-input-group {
       margin-right: 24px;
       width: 360px;
     }

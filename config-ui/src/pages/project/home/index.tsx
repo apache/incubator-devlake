@@ -17,34 +17,55 @@
  */
 
 import { useState, useMemo } from 'react';
-import { Link, useHistory } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { Button, InputGroup, Checkbox, Intent, FormGroup } from '@blueprintjs/core';
 import dayjs from 'dayjs';
 
-import { PageHeader, Table, Dialog, IconButton, toast } from '@/components';
-import { cronPresets } from '@/config';
-import { useRefreshData } from '@/hooks';
+import { PageHeader, Table, Dialog, ExternalLink, IconButton, toast } from '@/components';
+import { getCron, cronPresets } from '@/config';
+import { useConnections, useRefreshData } from '@/hooks';
+import { DOC_URL } from '@/release';
 import { formatTime, operator } from '@/utils';
+import { PipelineStatus } from '@/routes/pipeline';
 
 import { validName, encodeName } from '../utils';
-import { ModeEnum } from '../../blueprint';
+import { BlueprintType, ModeEnum } from '../../blueprint';
 
 import * as API from './api';
 import * as S from './styled';
 
 export const ProjectHomePage = () => {
   const [version, setVersion] = useState(1);
+  const [page, setPage] = useState(1);
+  const [pageSize] = useState(20);
   const [isOpen, setIsOpen] = useState(false);
   const [name, setName] = useState('');
   const [enableDora, setEnableDora] = useState(true);
   const [saving, setSaving] = useState(false);
 
-  const { ready, data } = useRefreshData(() => API.getProjects({ page: 1, pageSize: 200 }), [version]);
+  const { ready, data } = useRefreshData(() => API.getProjects({ page, pageSize }), [version, page, pageSize]);
+  const { onGet } = useConnections();
 
-  const history = useHistory();
+  const navigate = useNavigate();
 
-  const dataSource = useMemo(() => data?.projects ?? [], [data]);
   const presets = useMemo(() => cronPresets.map((preset) => preset.config), []);
+  const [dataSource, total] = useMemo(
+    () => [
+      (data?.projects ?? []).map((it) => {
+        return {
+          name: it.name,
+          connections: it.blueprint?.connections,
+          isManual: it.blueprint?.isManual,
+          cronConfig: it.blueprint?.cronConfig,
+          createdAt: it.createdAt,
+          lastRunCompletedAt: it.lastPipeline?.finishedAt,
+          lastRunStatus: it.lastPipeline?.status,
+        };
+      }),
+      data?.count ?? 0,
+    ],
+    [data],
+  );
 
   const handleShowDialog = () => setIsOpen(true);
   const handleHideDialog = () => {
@@ -62,7 +83,7 @@ export const ProjectHomePage = () => {
     const [success] = await operator(
       async () => {
         await API.createProject({
-          name: encodeName(name),
+          name,
           description: '',
           metrics: [
             {
@@ -80,11 +101,8 @@ export const ProjectHomePage = () => {
           cronConfig: presets[0],
           isManual: false,
           skipOnFail: true,
-          settings: {
-            version: '2.0.0',
-            timeAfter: formatTime(dayjs().subtract(6, 'month').startOf('day').toDate(), 'YYYY-MM-DD[T]HH:mm:ssZ'),
-            connections: [],
-          },
+          timeAfter: formatTime(dayjs().subtract(6, 'month').startOf('day').toDate(), 'YYYY-MM-DD[T]HH:mm:ssZ'),
+          connections: [],
         });
       },
       {
@@ -111,10 +129,51 @@ export const ProjectHomePage = () => {
             dataIndex: 'name',
             key: 'name',
             render: (name: string) => (
-              <Link to={`/projects/${encodeName(name)}`} style={{ color: '#292b3f' }}>
+              <Link to={`/projects/${encodeName(name)}?tab=configuration`} style={{ color: '#292b3f' }}>
                 {name}
               </Link>
             ),
+          },
+          {
+            title: 'Data Connections',
+            dataIndex: 'connections',
+            key: 'connections',
+            render: (val: BlueprintType['connections']) =>
+              !val || !val.length
+                ? 'N/A'
+                : val
+                    .map((it) => {
+                      const cs = onGet(`${it.pluginName}-${it.connectionId}`);
+                      return cs?.name;
+                    })
+                    .join(', '),
+          },
+          {
+            title: 'Sync Frequency',
+            dataIndex: ['isManual', 'cronConfig'],
+            key: 'frequency',
+            render: ({ isManual, cronConfig }) => {
+              const cron = getCron(isManual, cronConfig);
+              return cron.label;
+            },
+          },
+          {
+            title: 'Created at',
+            dataIndex: 'createdAt',
+            key: 'createdAt',
+            render: (val) => formatTime(val),
+          },
+          {
+            title: 'Last Run Completed at',
+            dataIndex: 'lastRunCompletedAt',
+            key: 'lastRunCompletedAt',
+            render: (val) => (val ? formatTime(val) : '-'),
+          },
+          {
+            title: 'Last Run Status',
+            dataIndex: 'lastRunStatus',
+            key: 'lastRunStatus',
+            render: (val) => (val ? <PipelineStatus status={val} /> : '-'),
           },
           {
             title: '',
@@ -123,11 +182,21 @@ export const ProjectHomePage = () => {
             width: 100,
             align: 'center',
             render: (name: any) => (
-              <IconButton icon="cog" tooltip="Detail" onClick={() => history.push(`/projects/${encodeName(name)}`)} />
+              <IconButton
+                icon="cog"
+                tooltip="Detail"
+                onClick={() => navigate(`/projects/${encodeName(name)}?tab=configuration`)}
+              />
             ),
           },
         ]}
         dataSource={dataSource}
+        pagination={{
+          page,
+          pageSize,
+          total,
+          onChange: setPage,
+        }}
         noData={{
           text: 'Add new projects to see engineering metrics based on projects.',
           btnText: 'New Project',
@@ -164,9 +233,7 @@ export const ProjectHomePage = () => {
             label={<S.Label>Project Settings</S.Label>}
             subLabel={
               <S.LabelDescription>
-                <a href="https://devlake.apache.org/docs/DORA/" rel="noreferrer" target="_blank">
-                  DORA metrics
-                </a>
+                <ExternalLink link={DOC_URL.DORA}>DORA metrics</ExternalLink>
                 <span style={{ marginLeft: 4 }}>
                   are four widely-adopted metrics for measuring software delivery performance.
                 </span>

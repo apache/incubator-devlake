@@ -19,15 +19,16 @@ package api
 
 import (
 	"bytes"
+	"io"
+	"net/http"
+	"net/url"
+	"testing"
+
 	"github.com/apache/incubator-devlake/core/errors"
 	"github.com/apache/incubator-devlake/helpers/pluginhelper/common"
 	"github.com/apache/incubator-devlake/helpers/unithelper"
 	mockdal "github.com/apache/incubator-devlake/mocks/core/dal"
 	mockapi "github.com/apache/incubator-devlake/mocks/helpers/pluginhelper/api"
-	"io/ioutil"
-	"net/http"
-	"net/url"
-	"testing"
 
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
@@ -71,7 +72,7 @@ func TestFetchPageUndetermined(t *testing.T) {
 			Request: &http.Request{
 				URL: &url.URL{},
 			},
-			Body: ioutil.NopCloser(bytes.NewBufferString(body)),
+			Body: io.NopCloser(bytes.NewBufferString(body)),
 		}
 		handler := args.Get(3).(common.ApiAsyncCallback)
 		handler(res)
@@ -84,6 +85,7 @@ func TestFetchPageUndetermined(t *testing.T) {
 	mockApi.On("WaitAsync").Return(nil)
 	mockApi.On("GetAfterFunction", mock.Anything).Return(nil)
 	mockApi.On("SetAfterFunction", mock.Anything).Return()
+	mockApi.On("SetSyncPolicy", mock.Anything).Return()
 	mockApi.On("Release").Return()
 
 	collector, err := NewApiCollector(ApiCollectorArgs{

@@ -20,6 +20,8 @@ package api
 import (
 	"testing"
 
+	coreModels "github.com/apache/incubator-devlake/core/models"
+
 	"github.com/apache/incubator-devlake/core/models/common"
 	"github.com/apache/incubator-devlake/core/models/domainlayer"
 	"github.com/apache/incubator-devlake/core/models/domainlayer/ticket"
@@ -55,37 +57,37 @@ func TestMakeDataSourcePipelinePlanV200(t *testing.T) {
 	}
 	mockMeta := mockplugin.NewPluginMeta(t)
 	mockMeta.On("RootPkgPath").Return("github.com/apache/incubator-devlake/plugins/zentao")
+	mockMeta.On("Name").Return("zentao").Maybe()
 	err := plugin.RegisterPlugin("zentao", mockMeta)
 	assert.Nil(t, err)
 	// Refresh Global Variables and set the sql mock
-	mockBasicRes()
-	bs := &plugin.BlueprintScopeV200{
-		Id: "project/1",
-	}
-	bs2 := &plugin.BlueprintScopeV200{
-		Id: "product/1",
-	}
-	bpScopes := make([]*plugin.BlueprintScopeV200, 0)
-	bpScopes = append(bpScopes, bs, bs2)
-	syncPolicy := &plugin.BlueprintSyncPolicy{}
+	mockBasicRes(t)
 
-	plan := make(plugin.PipelinePlan, len(bpScopes))
-	plan, scopes, err := makePipelinePlanV200(nil, plan, bpScopes, connection, syncPolicy)
+	bs := &coreModels.BlueprintScope{
+		ScopeId: "1",
+	}
+	/*bs2 := &coreModels.BlueprintScope{
+		Id: "product/1",
+	}*/
+	bpScopes := make([]*coreModels.BlueprintScope, 0)
+	bpScopes = append(bpScopes, bs)
+
+	plan := make(coreModels.PipelinePlan, len(bpScopes))
+	plan, scopes, err := makePipelinePlanV200(nil, plan, bpScopes, connection)
 	assert.Nil(t, err)
 
-	expectPlan := plugin.PipelinePlan{
-		plugin.PipelineStage{
+	expectPlan := coreModels.PipelinePlan{
+		coreModels.PipelineStage{
 			{
 				Plugin:   "zentao",
 				Subtasks: []string{},
 				Options: map[string]interface{}{
 					"ConnectionId": uint64(1),
-					"productId":    int64(0),
 					"projectId":    int64(1),
 				},
 			},
 		},
-		plugin.PipelineStage{
+		/*coreModels.PipelineStage{
 			{
 				Plugin:   "zentao",
 				Subtasks: []string{},
@@ -95,7 +97,7 @@ func TestMakeDataSourcePipelinePlanV200(t *testing.T) {
 					"projectId":    int64(0),
 				},
 			},
-		},
+		},*/
 	}
 	assert.Equal(t, expectPlan, plan)
 	expectScopes := make([]plugin.Scope, 0)
@@ -109,7 +111,7 @@ func TestMakeDataSourcePipelinePlanV200(t *testing.T) {
 		CreatedDate: nil,
 		Type:        `project`,
 	}
-	scopeTicket2 := &ticket.Board{
+	/*scopeTicket2 := &ticket.Board{
 		DomainEntity: domainlayer.DomainEntity{
 			Id: "zentao:ZentaoProduct:1:1",
 		},
@@ -118,21 +120,21 @@ func TestMakeDataSourcePipelinePlanV200(t *testing.T) {
 		Url:         "",
 		CreatedDate: nil,
 		Type:        `product/normal`,
-	}
+	}*/
 
-	expectScopes = append(expectScopes, scopeTicket1, scopeTicket2)
+	expectScopes = append(expectScopes, scopeTicket1)
 	assert.Equal(t, expectScopes, scopes)
 }
 
 // mockBasicRes FIXME ...
-func mockBasicRes() {
-	testZentaoProduct := &models.ZentaoProduct{
+func mockBasicRes(t *testing.T) {
+	/*testZentaoProduct := &models.ZentaoProduct{
 		ConnectionId:  1,
 		Id:            1,
 		Name:          "test/testRepo",
 		Type:          `product/normal`,
 		ScopeConfigId: 0,
-	}
+	}*/
 	testZentaoProject := &models.ZentaoProject{
 		ConnectionId:  1,
 		Id:            1,
@@ -146,14 +148,16 @@ func mockBasicRes() {
 			*dst = *testZentaoProject
 		}).Return(nil)
 
-		mockDal.On("First", mock.AnythingOfType("*models.ZentaoProduct"), mock.Anything).Run(func(args mock.Arguments) {
+		/*mockDal.On("First", mock.AnythingOfType("*models.ZentaoProduct"), mock.Anything).Run(func(args mock.Arguments) {
 			dst := args.Get(0).(*models.ZentaoProduct)
 			*dst = *testZentaoProduct
-		}).Return(nil)
+		}).Return(nil)*/
 
 		mockDal.On("First", mock.AnythingOfType("*models.ZentaoScopeConfig"), mock.Anything).Run(func(args mock.Arguments) {
 			panic("The empty scope should not call First() for ZentaoScopeConfig")
 		}).Return(nil)
 	})
-	Init(mockRes)
+	p := mockplugin.NewPluginMeta(t)
+	p.On("Name").Return("dummy").Maybe()
+	Init(mockRes, p)
 }

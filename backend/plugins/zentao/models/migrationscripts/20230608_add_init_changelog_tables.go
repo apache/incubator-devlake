@@ -21,7 +21,7 @@ import (
 	"github.com/apache/incubator-devlake/core/context"
 	"github.com/apache/incubator-devlake/core/errors"
 	"github.com/apache/incubator-devlake/helpers/migrationhelper"
-	"github.com/apache/incubator-devlake/plugins/zentao/models/archived"
+	"github.com/apache/incubator-devlake/plugins/zentao/models/migrationscripts/archived"
 )
 
 type addInitChangelogTables struct{}

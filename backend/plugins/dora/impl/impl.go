@@ -22,18 +22,21 @@ import (
 
 	"github.com/apache/incubator-devlake/core/dal"
 	"github.com/apache/incubator-devlake/core/errors"
+	coreModels "github.com/apache/incubator-devlake/core/models"
 	"github.com/apache/incubator-devlake/core/plugin"
 	"github.com/apache/incubator-devlake/plugins/dora/models/migrationscripts"
 	"github.com/apache/incubator-devlake/plugins/dora/tasks"
 )
 
 // make sure interface is implemented
-var _ plugin.PluginMeta = (*Dora)(nil)
-var _ plugin.PluginTask = (*Dora)(nil)
-var _ plugin.PluginModel = (*Dora)(nil)
-var _ plugin.PluginMetric = (*Dora)(nil)
-var _ plugin.PluginMigration = (*Dora)(nil)
-var _ plugin.MetricPluginBlueprintV200 = (*Dora)(nil)
+var _ interface {
+	plugin.PluginMeta
+	plugin.PluginTask
+	plugin.PluginModel
+	plugin.PluginMetric
+	plugin.PluginMigration
+	plugin.MetricPluginBlueprintV200
+} = (*Dora)(nil)
 
 type Dora struct{}
 
@@ -66,6 +69,10 @@ func (p Dora) RequiredDataEntities() (data []map[string]interface{}, err errors.
 
 func (p Dora) GetTablesInfo() []dal.Tabler {
 	return []dal.Tabler{}
+}
+
+func (p Dora) Name() string {
+	return "dora"
 }
 
 func (p Dora) IsProjectMetric() bool {
@@ -109,13 +116,13 @@ func (p Dora) MigrationScripts() []plugin.MigrationScript {
 	return migrationscripts.All()
 }
 
-func (p Dora) MakeMetricPluginPipelinePlanV200(projectName string, options json.RawMessage) (plugin.PipelinePlan, errors.Error) {
+func (p Dora) MakeMetricPluginPipelinePlanV200(projectName string, options json.RawMessage) (coreModels.PipelinePlan, errors.Error) {
 	op := &tasks.DoraOptions{}
 	err := json.Unmarshal(options, op)
 	if err != nil {
 		return nil, errors.Default.WrapRaw(err)
 	}
-	plan := plugin.PipelinePlan{
+	plan := coreModels.PipelinePlan{
 		{
 			{
 				Plugin: "dora",

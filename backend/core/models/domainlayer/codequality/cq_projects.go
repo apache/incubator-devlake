@@ -18,9 +18,9 @@ limitations under the License.
 package codequality
 
 import (
+	"github.com/apache/incubator-devlake/core/models/common"
 	"github.com/apache/incubator-devlake/core/models/domainlayer"
 	"github.com/apache/incubator-devlake/core/plugin"
-	"github.com/apache/incubator-devlake/helpers/pluginhelper/api"
 )
 
 var _ plugin.Scope = (*CqProject)(nil)
@@ -30,7 +30,7 @@ type CqProject struct {
 	Name             string `gorm:"type:varchar(255)"`
 	Qualifier        string `gorm:"type:varchar(255)"`
 	Visibility       string `gorm:"type:varchar(64)"`
-	LastAnalysisDate *api.Iso8601Time
+	LastAnalysisDate *common.Iso8601Time
 	CommitSha        string `gorm:"type:varchar(128)"`
 }
 

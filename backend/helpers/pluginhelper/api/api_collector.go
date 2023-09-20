@@ -24,14 +24,18 @@ import (
 	"io"
 	"net/http"
 	"net/url"
+	"sync"
 	"text/template"
 	"time"
 
+	"github.com/apache/incubator-devlake/core/plugin"
+
 	"github.com/apache/incubator-devlake/core/dal"
 	"github.com/apache/incubator-devlake/core/errors"
-	plugin "github.com/apache/incubator-devlake/core/plugin"
 	"github.com/apache/incubator-devlake/helpers/pluginhelper/common"
 )
+
+var _ plugin.SubTask = (*ApiCollector)(nil)
 
 // Pager contains pagination information for a api request
 type Pager struct {
@@ -96,7 +100,7 @@ type ApiCollector struct {
 }
 
 // NewApiCollector allocates a new ApiCollector with the given args.
-// ApiCollector can help us collecting data from api with ease, pass in a AsyncApiClient and tell it which part
+// ApiCollector can help us to collect data from api with ease, pass in a AsyncApiClient and tell it which part
 // of response we want to save, ApiCollector will collect them from remote server and store them into database.
 func NewApiCollector(args ApiCollectorArgs) (*ApiCollector, errors.Error) {
 	// process args
@@ -136,6 +140,15 @@ func NewApiCollector(args ApiCollectorArgs) (*ApiCollector, errors.Error) {
 	return apiCollector, nil
 }
 
+var rawTableAutoMigrateLock sync.Mutex
+
+func (collector *ApiCollector) ensureRawTable(table string) errors.Error {
+	db := collector.args.Ctx.GetDal()
+	rawTableAutoMigrateLock.Lock()
+	defer rawTableAutoMigrateLock.Unlock()
+	return db.AutoMigrate(&RawData{}, dal.From(collector.table))
+}
+
 // Execute will start collection
 func (collector *ApiCollector) Execute() errors.Error {
 	logger := collector.args.Ctx.GetLogger()
@@ -143,13 +156,18 @@ func (collector *ApiCollector) Execute() errors.Error {
 
 	// make sure table is created
 	db := collector.args.Ctx.GetDal()
-	err := db.AutoMigrate(&RawData{}, dal.From(collector.table))
+	err := collector.ensureRawTable(collector.table)
 	if err != nil {
 		return errors.Default.Wrap(err, "error auto-migrating collector")
 	}
 
+	isIncremental := collector.args.Incremental
+	syncPolicy := collector.args.Ctx.TaskContext().SyncPolicy()
+	if syncPolicy != nil && syncPolicy.FullSync {
+		isIncremental = false
+	}
 	// flush data if not incremental collection
-	if !collector.args.Incremental {
+	if !isIncremental {
 		err = db.Delete(&RawData{}, dal.From(collector.table), dal.Where("params = ?", collector.params))
 		if err != nil {
 			return errors.Default.Wrap(err, "error deleting data from collector")
@@ -231,7 +249,7 @@ func (collector *ApiCollector) exec(input interface{}) {
 		Page: 1,
 		Size: collector.args.PageSize,
 	}
-	// featch the detail
+	// fetch the detail
 	if collector.args.PageSize <= 0 {
 		collector.fetchAsync(reqData, nil)
 		// fetch pages sequentially
@@ -314,7 +332,7 @@ func (collector *ApiCollector) fetchPagesUndetermined(reqData *RequestData) {
 	concurrency := collector.args.Concurrency
 	if concurrency == 0 {
 		// normally when a multi-pages api depends on a another resource, like jira changelogs depend on issue ids
-		// it tend to have less page, like 1 or 2 pages in total
+		// it tends to have less page, like 1 or 2 pages in total
 		if collector.args.Input != nil {
 			concurrency = 2
 		} else {
@@ -474,5 +492,3 @@ func (collector *ApiCollector) fetchAsync(reqData *RequestData, handler func(int
 	}
 	logger.Debug("fetchAsync === enqueued for %s %v", apiUrl, apiQuery)
 }
-
-var _ plugin.SubTask = (*ApiCollector)(nil)

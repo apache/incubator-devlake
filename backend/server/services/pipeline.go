@@ -29,8 +29,8 @@ import (
 	"github.com/apache/incubator-devlake/core/dal"
 	"github.com/apache/incubator-devlake/core/errors"
 	"github.com/apache/incubator-devlake/core/models"
-	"github.com/apache/incubator-devlake/core/plugin"
 	"github.com/apache/incubator-devlake/core/utils"
+	"github.com/apache/incubator-devlake/helpers/dbhelper"
 	"github.com/apache/incubator-devlake/impls/logruslog"
 	"github.com/google/uuid"
 	v11 "go.temporal.io/api/enums/v1"
@@ -166,67 +166,82 @@ func GetPipelineLogsArchivePath(pipeline *models.Pipeline) (string, errors.Error
 	return archive, err
 }
 
+func dequeuePipeline(runningParallelLabels []string) (pipeline *models.Pipeline, err errors.Error) {
+	txHelper := dbhelper.NewTxHelper(basicRes, &err)
+	defer txHelper.End()
+	tx := txHelper.Begin()
+	// mysql read lock, not sure if it works for postgresql
+	errors.Must(tx.LockTables(dal.LockTables{
+		{Table: "_devlake_pipelines", Exclusive: false},
+		{Table: "_devlake_pipeline_labels", Exclusive: false},
+	}))
+	// prepare query to find an appropriate pipeline to execute
+	pipeline = &models.Pipeline{}
+	err = tx.First(pipeline,
+		dal.Where("status IN ?", []string{models.TASK_CREATED, models.TASK_RERUN}),
+		dal.Join(
+			`left join _devlake_pipeline_labels ON
+				_devlake_pipeline_labels.pipeline_id = _devlake_pipelines.id AND
+				_devlake_pipeline_labels.name LIKE 'parallel/%' AND
+				_devlake_pipeline_labels.name in ?`,
+			runningParallelLabels,
+		),
+		dal.Groupby("id"),
+		dal.Having("count(_devlake_pipeline_labels.name)=0"),
+		dal.Select("id"),
+		dal.Orderby("id ASC"),
+		dal.Limit(1),
+	)
+	if err == nil {
+		// mark the pipeline running, now we want a write lock
+		errors.Must(tx.LockTables(dal.LockTables{{Table: "_devlake_pipelines", Exclusive: true}}))
+		err = tx.UpdateColumns(&models.Pipeline{}, []dal.DalSet{
+			{ColumnName: "status", Value: models.TASK_RUNNING},
+			{ColumnName: "message", Value: ""},
+			{ColumnName: "began_at", Value: time.Now()},
+		}, dal.Where("id = ?", pipeline.ID))
+		if err != nil {
+			panic(err)
+		}
+		return
+	}
+	if tx.IsErrorNotFound(err) {
+		pipeline = nil
+		err = nil
+	} else {
+		// log unexpected err
+		globalPipelineLog.Error(err, "dequeue failed")
+	}
+
+	return
+}
+
 // RunPipelineInQueue query pipeline from db and run it in a queue
 func RunPipelineInQueue(pipelineMaxParallel int64) {
 	sema := semaphore.NewWeighted(pipelineMaxParallel)
 	runningParallelLabels := []string{}
 	var runningParallelLabelLock sync.Mutex
+	var err error
 	for {
-		globalPipelineLog.Info("acquire lock")
 		// start goroutine when sema lock ready and pipeline exist.
 		// to avoid read old pipeline, acquire lock before read exist pipeline
-		err := sema.Acquire(context.TODO(), 1)
-		if err != nil {
-			panic(err)
-		}
+		errors.Must(sema.Acquire(context.TODO(), 1))
 		globalPipelineLog.Info("get lock and wait next pipeline")
-		dbPipeline := &models.Pipeline{}
+		var dbPipeline *models.Pipeline
 		for {
-			cronLocker.Lock()
-			// prepare query to find an appropriate pipeline to execute
-			err := db.First(dbPipeline,
-				dal.Where("status IN ?", []string{models.TASK_CREATED, models.TASK_RERUN}),
-				dal.Join(
-					`left join _devlake_pipeline_labels ON
-						_devlake_pipeline_labels.pipeline_id = _devlake_pipelines.id AND
-						_devlake_pipeline_labels.name LIKE 'parallel/%' AND
-						_devlake_pipeline_labels.name in ?`,
-					runningParallelLabels,
-				),
-				dal.Groupby("id"),
-				dal.Having("count(_devlake_pipeline_labels.name)=0"),
-				dal.Select("id"),
-				dal.Orderby("id ASC"),
-				dal.Limit(1),
-			)
-			cronLocker.Unlock()
-			if err == nil {
-				// next pipeline found
+			dbPipeline, err = dequeuePipeline(runningParallelLabels)
+			if err == nil && dbPipeline != nil {
 				break
-			}
-			if !db.IsErrorNotFound(err) {
-				// log unexpected err
-				globalPipelineLog.Error(err, "dequeue failed")
 			}
 			time.Sleep(time.Second)
 		}
 
-		// mark the pipeline running
-		err = db.UpdateColumns(&models.Pipeline{}, []dal.DalSet{
-			{ColumnName: "status", Value: models.TASK_RUNNING},
-			{ColumnName: "message", Value: ""},
-			{ColumnName: "began_at", Value: time.Now()},
-		}, dal.Where("id = ?", dbPipeline.ID))
-		if err != nil {
-			panic(err)
-		}
-
-		// add pipelineParallelLabels to runningParallelLabels
-		var pipelineParallelLabels []string
 		err = fillPipelineDetail(dbPipeline)
 		if err != nil {
 			panic(err)
 		}
+		// add pipelineParallelLabels to runningParallelLabels
+		var pipelineParallelLabels []string
 		for _, dbLabel := range dbPipeline.Labels {
 			if strings.HasPrefix(dbLabel, `parallel/`) {
 				pipelineParallelLabels = append(pipelineParallelLabels, dbLabel)
@@ -376,8 +391,6 @@ func NotifyExternal(pipelineId uint64) errors.Error {
 // CancelPipeline FIXME ...
 func CancelPipeline(pipelineId uint64) errors.Error {
 	// prevent RunPipelineInQueue from consuming pending pipelines
-	cronLocker.Lock()
-	defer cronLocker.Unlock()
 	pipeline := &models.Pipeline{}
 	err := db.First(pipeline, dal.Where("id = ?", pipelineId))
 	if err != nil {
@@ -433,13 +446,20 @@ func getPipelineLogsPath(pipeline *models.Pipeline) (string, errors.Error) {
 }
 
 // RerunPipeline would rerun all failed tasks or specified task
-func RerunPipeline(pipelineId uint64, task *models.Task) ([]*models.Task, errors.Error) {
+func RerunPipeline(pipelineId uint64, task *models.Task) (tasks []*models.Task, err errors.Error) {
 	// prevent pipeline executor from doing anything that might jeopardize the integrity
-	cronLocker.Lock()
-	defer cronLocker.Unlock()
+	pipeline := &models.Pipeline{}
+	txHelper := dbhelper.NewTxHelper(basicRes, &err)
+	tx := txHelper.Begin()
+	defer txHelper.End()
+	err = txHelper.LockTablesTimeout(2*time.Second, dal.LockTables{{Table: "_devlake_pipelines", Exclusive: true}})
+	if err != nil {
+		err = errors.BadInput.Wrap(err, "failed to lock pipeline table, is there any pending pipeline or deletion?")
+		return
+	}
 
 	// load the pipeline
-	pipeline, err := GetPipeline(pipelineId)
+	err = tx.First(pipeline, dal.Where("id = ?", pipelineId))
 	if err != nil {
 		return nil, err
 	}
@@ -487,19 +507,11 @@ func RerunPipeline(pipelineId uint64, task *models.Task) ([]*models.Task, errors
 			return nil, err
 		}
 		// create new task
-		subtasks, err := t.GetSubTasks()
-		if err != nil {
-			return nil, err
-		}
-		options, err := t.GetOptions()
-		if err != nil {
-			return nil, err
-		}
 		rerunTask, err := CreateTask(&models.NewTask{
-			PipelineTask: &plugin.PipelineTask{
+			PipelineTask: &models.PipelineTask{
 				Plugin:   t.Plugin,
-				Subtasks: subtasks,
-				Options:  options,
+				Subtasks: t.Subtasks,
+				Options:  t.Options,
 			},
 			PipelineId:  t.PipelineId,
 			PipelineRow: t.PipelineRow,
@@ -514,7 +526,7 @@ func RerunPipeline(pipelineId uint64, task *models.Task) ([]*models.Task, errors
 	}
 
 	// mark pipline rerun
-	err = db.UpdateColumn(&models.Pipeline{},
+	err = tx.UpdateColumn(&models.Pipeline{},
 		"status", models.TASK_RERUN,
 		dal.Where("id = ?", pipelineId),
 	)

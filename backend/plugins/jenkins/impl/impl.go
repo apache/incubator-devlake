@@ -20,7 +20,8 @@ package impl
 import (
 	"fmt"
 	"strings"
-	"time"
+
+	coreModels "github.com/apache/incubator-devlake/core/models"
 
 	"github.com/apache/incubator-devlake/core/context"
 	"github.com/apache/incubator-devlake/core/dal"
@@ -35,33 +36,35 @@ import (
 	"github.com/apache/incubator-devlake/plugins/jenkins/tasks"
 )
 
-var _ plugin.PluginMeta = (*Jenkins)(nil)
-var _ plugin.PluginInit = (*Jenkins)(nil)
-var _ plugin.PluginTask = (*Jenkins)(nil)
-var _ plugin.PluginApi = (*Jenkins)(nil)
-var _ plugin.PluginModel = (*Jenkins)(nil)
-var _ plugin.PluginMigration = (*Jenkins)(nil)
-var _ plugin.CloseablePluginTask = (*Jenkins)(nil)
-
-// var _ plugin.PluginSource = (*Jenkins)(nil)
-var _ plugin.DataSourcePluginBlueprintV200 = (*Jenkins)(nil)
+var _ interface {
+	plugin.PluginMeta
+	plugin.PluginInit
+	plugin.PluginTask
+	plugin.PluginApi
+	plugin.PluginModel
+	plugin.PluginMigration
+	plugin.CloseablePluginTask
+	plugin.PluginSource
+	plugin.DataSourcePluginBlueprintV200
+} = (*Jenkins)(nil)
 
 type Jenkins struct{}
 
 func (p Jenkins) Init(basicRes context.BasicRes) errors.Error {
-	api.Init(basicRes)
+	api.Init(basicRes, p)
+
 	return nil
 }
 
-func (p Jenkins) Connection() interface{} {
+func (p Jenkins) Connection() dal.Tabler {
 	return &models.JenkinsConnection{}
 }
 
-func (p Jenkins) Scope() interface{} {
+func (p Jenkins) Scope() plugin.ToolLayerScope {
 	return &models.JenkinsJob{}
 }
 
-func (p Jenkins) ScopeConfig() interface{} {
+func (p Jenkins) ScopeConfig() dal.Tabler {
 	return &models.JenkinsScopeConfig{}
 }
 
@@ -72,14 +75,17 @@ func (p Jenkins) GetTablesInfo() []dal.Tabler {
 		&models.JenkinsConnection{},
 		&models.JenkinsJob{},
 		&models.JenkinsJobDag{},
-		&models.JenkinsPipeline{},
 		&models.JenkinsStage{},
-		&models.JenkinsTask{},
+		&models.JenkinsScopeConfig{},
 	}
 }
 
 func (p Jenkins) Description() string {
 	return "To collect and enrich data from Jenkins"
+}
+
+func (p Jenkins) Name() string {
+	return "jenkins"
 }
 
 func (p Jenkins) SubTaskMetas() []plugin.SubTaskMeta {
@@ -90,7 +96,7 @@ func (p Jenkins) SubTaskMetas() []plugin.SubTaskMeta {
 		tasks.CollectApiStagesMeta,
 		tasks.ExtractApiStagesMeta,
 		tasks.EnrichApiBuildWithStagesMeta,
-		tasks.ConvertBuildsToCICDMeta,
+		tasks.ConvertBuildsToCicdTasksMeta,
 		tasks.ConvertStagesMeta,
 		tasks.ConvertBuildReposMeta,
 	}
@@ -108,6 +114,7 @@ func (p Jenkins) PrepareTaskData(taskCtx plugin.TaskContext, options map[string]
 	connectionHelper := helper.NewConnectionHelper(
 		taskCtx,
 		nil,
+		p.Name(),
 	)
 	if err != nil {
 		return nil, err
@@ -127,13 +134,6 @@ func (p Jenkins) PrepareTaskData(taskCtx plugin.TaskContext, options map[string]
 		return nil, err
 	}
 
-	var timeAfter time.Time
-	if op.TimeAfter != "" {
-		timeAfter, err = errors.Convert01(time.Parse(time.RFC3339, op.TimeAfter))
-		if err != nil {
-			return nil, errors.BadInput.Wrap(err, "invalid value for `timeAfter`")
-		}
-	}
 	regexEnricher := helper.NewRegexEnricher()
 	if err := regexEnricher.TryAdd(devops.DEPLOYMENT, op.ScopeConfig.DeploymentPattern); err != nil {
 		return nil, errors.BadInput.Wrap(err, "invalid value for `deploymentPattern`")
@@ -147,10 +147,7 @@ func (p Jenkins) PrepareTaskData(taskCtx plugin.TaskContext, options map[string]
 		Connection:    connection,
 		RegexEnricher: regexEnricher,
 	}
-	if !timeAfter.IsZero() {
-		taskData.TimeAfter = &timeAfter
-		logger.Debug("collect data created from %s", timeAfter)
-	}
+
 	return taskData, nil
 }
 
@@ -162,8 +159,11 @@ func (p Jenkins) MigrationScripts() []plugin.MigrationScript {
 	return migrationscripts.All()
 }
 
-func (p Jenkins) MakeDataSourcePipelinePlanV200(connectionId uint64, scopes []*plugin.BlueprintScopeV200, syncPolicy plugin.BlueprintSyncPolicy) (pp plugin.PipelinePlan, sc []plugin.Scope, err errors.Error) {
-	return api.MakeDataSourcePipelinePlanV200(p.SubTaskMetas(), connectionId, scopes, &syncPolicy)
+func (p Jenkins) MakeDataSourcePipelinePlanV200(
+	connectionId uint64,
+	scopes []*coreModels.BlueprintScope,
+) (pp coreModels.PipelinePlan, sc []plugin.Scope, err errors.Error) {
+	return api.MakeDataSourcePipelinePlanV200(p.SubTaskMetas(), connectionId, scopes)
 }
 
 func (p Jenkins) ApiResources() map[string]map[string]plugin.ApiResourceHandler {
@@ -200,8 +200,9 @@ func (p Jenkins) ApiResources() map[string]map[string]plugin.ApiResourceHandler 
 			"GET":  api.GetScopeConfigList,
 		},
 		"connections/:connectionId/scope-configs/:id": {
-			"PATCH": api.UpdateScopeConfig,
-			"GET":   api.GetScopeConfig,
+			"PATCH":  api.UpdateScopeConfig,
+			"GET":    api.GetScopeConfig,
+			"DELETE": api.DeleteScopeConfig,
 		},
 		"connections/:connectionId/proxy/rest/*path": {
 			"GET": api.Proxy,

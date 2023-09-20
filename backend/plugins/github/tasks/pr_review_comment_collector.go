@@ -28,9 +28,23 @@ import (
 	helper "github.com/apache/incubator-devlake/helpers/pluginhelper/api"
 )
 
+func init() {
+	RegisterSubtaskMeta(&CollectApiPrReviewCommentsMeta)
+}
+
 const RAW_PR_REVIEW_COMMENTS_TABLE = "github_api_pull_request_review_comments"
 
 // this struct should be moved to `github_api_common.go`
+
+var CollectApiPrReviewCommentsMeta = plugin.SubTaskMeta{
+	Name:             "collectApiPrReviewCommentsMeta",
+	EntryPoint:       CollectPrReviewComments,
+	EnabledByDefault: true,
+	Description:      "Collect pr review comments data from Github api, supports both timeFilter and diffSync.",
+	DomainTypes:      []string{plugin.DOMAIN_TYPE_CROSS, plugin.DOMAIN_TYPE_CODE_REVIEW},
+	DependencyTables: []string{},
+	ProductTables:    []string{RAW_PR_REVIEW_COMMENTS_TABLE},
+}
 
 func CollectPrReviewComments(taskCtx plugin.SubTaskContext) errors.Error {
 	data := taskCtx.GetData().(*GithubTaskData)
@@ -42,29 +56,26 @@ func CollectPrReviewComments(taskCtx plugin.SubTaskContext) errors.Error {
 			Name:         data.Options.Name,
 		},
 		Table: RAW_PR_REVIEW_COMMENTS_TABLE,
-	}, data.TimeAfter)
+	})
 	if err != nil {
 		return err
 	}
 
-	incremental := collectorWithState.IsIncremental()
 	err = collectorWithState.InitCollector(helper.ApiCollectorArgs{
-		ApiClient:   data.ApiClient,
-		PageSize:    100,
-		Incremental: incremental,
+		ApiClient: data.ApiClient,
+		PageSize:  100,
+		Header: func(reqData *helper.RequestData) (http.Header, errors.Error) {
+			// Adding -H "Accept: application/vnd.github+json" solve the issue of getting 502/403 error
+			header := http.Header{}
+			header.Set("Accept", "application/vnd.github+json")
+			return header, nil
+		},
 
 		UrlTemplate: "repos/{{ .Params.Name }}/pulls/comments",
 		Query: func(reqData *helper.RequestData) (url.Values, errors.Error) {
 			query := url.Values{}
-			if data.TimeAfter != nil {
-				// Note that `since` is for filtering records by the `updated` time
-				// which is not ideal for semantic reasons and would result in slightly more records than expected.
-				// But we have no choice since it is the only available field we could exploit from the API.
-				query.Set("since", data.TimeAfter.String())
-			}
-			// if incremental == true, we overwrite it
-			if incremental {
-				query.Set("since", collectorWithState.LatestState.LatestSuccessStart.String())
+			if collectorWithState.Since != nil {
+				query.Set("since", collectorWithState.Since.String())
 			}
 			query.Set("page", fmt.Sprintf("%v", reqData.Pager.Page))
 			query.Set("direction", "asc")
@@ -87,12 +98,4 @@ func CollectPrReviewComments(taskCtx plugin.SubTaskContext) errors.Error {
 	}
 
 	return collectorWithState.Execute()
-}
-
-var CollectApiPrReviewCommentsMeta = plugin.SubTaskMeta{
-	Name:             "collectApiPrReviewCommentsMeta",
-	EntryPoint:       CollectPrReviewComments,
-	EnabledByDefault: true,
-	Description:      "Collect pr review comments data from Github api, supports both timeFilter and diffSync.",
-	DomainTypes:      []string{plugin.DOMAIN_TYPE_CROSS, plugin.DOMAIN_TYPE_CODE_REVIEW},
 }

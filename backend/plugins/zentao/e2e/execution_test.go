@@ -18,13 +18,14 @@ limitations under the License.
 package e2e
 
 import (
+	"testing"
+
 	"github.com/apache/incubator-devlake/core/models/common"
 	"github.com/apache/incubator-devlake/core/models/domainlayer/ticket"
 	"github.com/apache/incubator-devlake/helpers/e2ehelper"
 	"github.com/apache/incubator-devlake/plugins/zentao/impl"
 	"github.com/apache/incubator-devlake/plugins/zentao/models"
 	"github.com/apache/incubator-devlake/plugins/zentao/tasks"
-	"testing"
 )
 
 func TestZentaoExecutionDataFlow(t *testing.T) {
@@ -35,9 +36,9 @@ func TestZentaoExecutionDataFlow(t *testing.T) {
 	taskData := &tasks.ZentaoTaskData{
 		Options: &tasks.ZentaoOptions{
 			ConnectionId: 1,
-			ProjectId:    1,
-			ProductId:    3,
+			ProjectId:    192,
 		},
+		ApiClient: getFakeAPIClient(),
 	}
 
 	// import raw data table
@@ -46,6 +47,7 @@ func TestZentaoExecutionDataFlow(t *testing.T) {
 
 	// verify extraction
 	dataflowTester.FlushTabler(&models.ZentaoExecution{})
+	dataflowTester.FlushTabler(&models.ZentaoProductSummary{})
 	dataflowTester.Subtask(tasks.ExtractExecutionMeta, taskData)
 	dataflowTester.VerifyTableWithOptions(&models.ZentaoExecution{}, e2ehelper.TableOptions{
 		CSVRelPath:  "./snapshot_tables/_tool_zentao_executions.csv",

@@ -18,11 +18,11 @@ limitations under the License.
 package api
 
 import (
-	"context"
+	gocontext "context"
 	"fmt"
 	"net/url"
 
-	context2 "github.com/apache/incubator-devlake/core/context"
+	"github.com/apache/incubator-devlake/core/context"
 	"github.com/apache/incubator-devlake/core/errors"
 	"github.com/apache/incubator-devlake/core/plugin"
 	"github.com/apache/incubator-devlake/helpers/pluginhelper/api"
@@ -45,10 +45,10 @@ import (
 func RemoteScopes(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, errors.Error) {
 	return remoteHelper.GetScopesFromRemote(input,
 		nil,
-		func(basicRes context2.BasicRes, gid string, queryData *api.RemoteQueryData, connection models.JiraConnection) ([]apiv2models.Board, errors.Error) {
+		func(basicRes context.BasicRes, gid string, queryData *api.RemoteQueryData, connection models.JiraConnection) ([]apiv2models.Board, errors.Error) {
 			query := initialQuery(queryData)
 			// create api client
-			apiClient, err := api.NewApiClientFromConnection(context.TODO(), basicRes, &connection)
+			apiClient, err := api.NewApiClientFromConnection(gocontext.TODO(), basicRes, &connection)
 			if err != nil {
 				return nil, err
 			}
@@ -74,6 +74,50 @@ func RemoteScopes(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, er
 			}
 
 			return resBody.Values, err
+		})
+}
+
+// SearchRemoteScopes use the Search API and only return board
+// @Summary use the Search API and only return board
+// @Description use the Search API and only return board
+// @Tags plugins/jira
+// @Accept application/json
+// @Param connectionId path int false "connection ID"
+// @Param search query string false "search"
+// @Param page query int false "page number"
+// @Param pageSize query int false "page size per page"
+// @Success 200  {object} api.SearchRemoteScopesOutput
+// @Failure 400  {object} shared.ApiBody "Bad Request"
+// @Failure 500  {object} shared.ApiBody "Internal Error"
+// @Router /plugins/jira/connections/{connectionId}/search-remote-scopes [GET]
+func SearchRemoteScopes(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, errors.Error) {
+	return remoteHelper.SearchRemoteScopes(input,
+		func(basicRes context.BasicRes, queryData *api.RemoteQueryData, connection models.JiraConnection) ([]apiv2models.Board, errors.Error) {
+			apiClient, err := api.NewApiClientFromConnection(gocontext.TODO(), basicRes, &connection)
+			if err != nil {
+				return nil, errors.BadInput.Wrap(err, "failed to get create apiClient")
+			}
+			query := initialQuery(queryData)
+			if len(queryData.Search) == 0 {
+				return nil, errors.BadInput.New("empty search query")
+			}
+			query.Set("name", queryData.Search[0])
+
+			// request search
+			res, err := apiClient.Get("agile/1.0/board?", query, nil)
+			if err != nil {
+				return nil, err
+			}
+			var resBody struct {
+				Values []apiv2models.Board `json:"values"`
+			}
+			err = api.UnmarshalResponse(res, &resBody)
+			if err != nil {
+				return nil, err
+			}
+
+			return resBody.Values, err
+
 		})
 }
 

@@ -33,6 +33,10 @@ import (
 	"github.com/apache/incubator-devlake/plugins/github/models"
 )
 
+func init() {
+	RegisterSubtaskMeta(&CollectApiPullRequestsMeta)
+}
+
 const RAW_PULL_REQUEST_TABLE = "github_api_pull_requests"
 
 var CollectApiPullRequestsMeta = plugin.SubTaskMeta{
@@ -41,6 +45,8 @@ var CollectApiPullRequestsMeta = plugin.SubTaskMeta{
 	EnabledByDefault: true,
 	Description:      "Collect PullRequests data from Github api, supports both timeFilter and diffSync.",
 	DomainTypes:      []string{plugin.DOMAIN_TYPE_CROSS, plugin.DOMAIN_TYPE_CODE_REVIEW},
+	DependencyTables: []string{},
+	ProductTables:    []string{RAW_PULL_REQUEST_TABLE},
 }
 
 type SimpleGithubPr struct {
@@ -66,7 +72,6 @@ func CollectApiPullRequests(taskCtx plugin.SubTaskContext) errors.Error {
 			Table: RAW_PULL_REQUEST_TABLE,
 		},
 		ApiClient: data.ApiClient,
-		TimeAfter: data.TimeAfter, // set to nil to disable timeFilter
 		CollectNewRecordsByList: helper.FinalizableApiCollectorListArgs{
 			PageSize:    100,
 			Concurrency: 10,
@@ -98,7 +103,7 @@ func CollectApiPullRequests(taskCtx plugin.SubTaskContext) errors.Error {
 				return pr.CreatedAt, nil
 			},
 		},
-		CollectUnfinishedDetails: helper.FinalizableApiCollectorDetailArgs{
+		CollectUnfinishedDetails: &helper.FinalizableApiCollectorDetailArgs{
 			BuildInputIterator: func() (helper.Iterator, errors.Error) {
 				// select pull id from database
 				cursor, err := db.Cursor(

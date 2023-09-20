@@ -27,13 +27,17 @@ var (
 	// Default special error type. If it's wrapping another error, then it will take the type of that error if it's an Error. Otherwise, it equates to Internal.
 	Default = register(nil)
 
-	SubtaskErr   = register(&Type{meta: "subtask"})
-	NotFound     = register(&Type{httpCode: http.StatusNotFound, meta: "not-found"})
+	SubtaskErr = register(&Type{meta: "subtask"})
+	//400+
 	BadInput     = register(&Type{httpCode: http.StatusBadRequest, meta: "bad-input"})
 	Unauthorized = register(&Type{httpCode: http.StatusUnauthorized, meta: "unauthorized"})
 	Forbidden    = register(&Type{httpCode: http.StatusForbidden, meta: "forbidden"})
-	Internal     = register(&Type{httpCode: http.StatusInternalServerError, meta: "internal"})
-	Timeout      = register(&Type{httpCode: http.StatusGatewayTimeout, meta: "timeout"})
+	NotFound     = register(&Type{httpCode: http.StatusNotFound, meta: "not-found"})
+	Conflict     = register(&Type{httpCode: http.StatusConflict, meta: "internal"})
+
+	//500+
+	Internal = register(&Type{httpCode: http.StatusInternalServerError, meta: "internal"})
+	Timeout  = register(&Type{httpCode: http.StatusGatewayTimeout, meta: "timeout"})
 
 	//cached values
 	typesByHttpCode = newSyncMap[int, *Type]()

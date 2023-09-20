@@ -16,11 +16,10 @@
  *
  */
 
-import { Switch, Route, Redirect, Router } from 'react-router-dom';
-import { ErrorLayout, BaseLayout } from '@/layouts';
+import { createBrowserRouter, Navigate, RouterProvider, json } from 'react-router-dom';
+
+import { PageLoading } from '@/components';
 import {
-  OfflinePage,
-  DBMigratePage,
   ConnectionHomePage,
   ConnectionDetailPage,
   ProjectHomePage,
@@ -29,53 +28,76 @@ import {
   BlueprintDetailPage,
   BlueprintConnectionDetailPage,
 } from '@/pages';
-import { history } from '@/utils';
+import { Layout, loader as layoutLoader } from '@/routes/layout';
+import { Error, ErrorEnum } from '@/routes/error';
+import { Pipelines, Pipeline } from '@/routes/pipeline';
+import { ApiKeys } from '@/routes/api-keys';
 
-function App() {
-  return (
-    <Router history={history}>
-      <Switch>
-        <Route
-          exact
-          path="/offline"
-          component={() => (
-            <ErrorLayout>
-              <OfflinePage />
-            </ErrorLayout>
-          )}
-        />
+const router = createBrowserRouter([
+  {
+    path: 'db-migrate',
+    element: <></>,
+    loader: () => {
+      throw json({ error: ErrorEnum.NEEDS_DB_MIRGATE }, { status: 428 });
+    },
+    errorElement: <Error />,
+  },
+  {
+    path: '/',
+    element: <Layout />,
+    loader: layoutLoader,
+    errorElement: <Error />,
+    children: [
+      {
+        index: true,
+        element: <Navigate to="connections" />,
+      },
+      {
+        path: 'connections',
+        element: <ConnectionHomePage />,
+      },
+      {
+        path: 'connections/:plugin/:id',
+        element: <ConnectionDetailPage />,
+      },
+      {
+        path: 'projects',
+        element: <ProjectHomePage />,
+      },
+      {
+        path: 'projects/:pname',
+        element: <ProjectDetailPage />,
+      },
+      {
+        path: 'projects/:pname/:unique',
+        element: <BlueprintConnectionDetailPage />,
+      },
+      {
+        path: 'blueprints',
+        element: <BlueprintHomePage />,
+      },
+      {
+        path: 'blueprints/:id',
+        element: <BlueprintDetailPage />,
+      },
+      {
+        path: 'blueprints/:bid/:unique',
+        element: <BlueprintConnectionDetailPage />,
+      },
+      {
+        path: 'pipelines',
+        element: <Pipelines />,
+      },
+      {
+        path: 'pipeline/:id',
+        element: <Pipeline />,
+      },
+      {
+        path: 'keys',
+        element: <ApiKeys />,
+      },
+    ],
+  },
+]);
 
-        <Route
-          exact
-          path="/db-migrate"
-          component={() => (
-            <ErrorLayout>
-              <DBMigratePage />
-            </ErrorLayout>
-          )}
-        />
-
-        <Route
-          path="/"
-          component={() => (
-            <BaseLayout>
-              <Switch>
-                <Route exact path="/" component={() => <Redirect to="/connections" />} />
-                <Route exact path="/connections" component={() => <ConnectionHomePage />} />
-                <Route exact path="/connections/:plugin/:id" component={() => <ConnectionDetailPage />} />
-                <Route exact path="/projects" component={() => <ProjectHomePage />} />
-                <Route exact path="/projects/:pname" component={() => <ProjectDetailPage />} />
-                <Route exact path="/projects/:pname/:unique" component={() => <BlueprintConnectionDetailPage />} />
-                <Route exact path="/blueprints" component={() => <BlueprintHomePage />} />
-                <Route exact path="/blueprints/:id" component={() => <BlueprintDetailPage />} />
-                <Route exact path="/blueprints/:bid/:unique" component={() => <BlueprintConnectionDetailPage />} />
-              </Switch>
-            </BaseLayout>
-          )}
-        />
-      </Switch>
-    </Router>
-  );
-}
-
-export default App;
+export const App = () => <RouterProvider router={router} fallbackElement={<PageLoading />} />;

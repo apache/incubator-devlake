@@ -55,6 +55,17 @@ func (p BitbucketRepo) ScopeName() string {
 	return p.Name
 }
 
+func (p BitbucketRepo) ScopeFullName() string {
+	return p.BitbucketId
+}
+
+func (p BitbucketRepo) ScopeParams() interface{} {
+	return &BitbucketApiParams{
+		ConnectionId: p.ConnectionId,
+		FullName:     p.BitbucketId,
+	}
+}
+
 type BitbucketApiRepo struct {
 	//Scm         string `json:"scm"`
 	//HasWiki     bool   `json:"has_wiki"`
@@ -137,4 +148,9 @@ type ReposResponse struct {
 	Page    int                `json:"page"`
 	Size    int                `json:"size"`
 	Values  []BitbucketApiRepo `json:"values"`
+}
+
+type BitbucketApiParams struct {
+	ConnectionId uint64
+	FullName     string
 }

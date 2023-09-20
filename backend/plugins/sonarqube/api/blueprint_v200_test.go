@@ -20,6 +20,7 @@ package api
 import (
 	"testing"
 
+	coreModels "github.com/apache/incubator-devlake/core/models"
 	"github.com/apache/incubator-devlake/core/models/domainlayer"
 	"github.com/apache/incubator-devlake/core/models/domainlayer/codequality"
 	"github.com/apache/incubator-devlake/core/plugin"
@@ -34,23 +35,25 @@ import (
 func TestMakeDataSourcePipelinePlanV200(t *testing.T) {
 	mockMeta := mockplugin.NewPluginMeta(t)
 	mockMeta.On("RootPkgPath").Return("github.com/apache/incubator-devlake/plugins/sonarqube")
+	mockMeta.On("Name").Return("sonarqube").Maybe()
 	err := plugin.RegisterPlugin("sonarqube", mockMeta)
 	assert.Nil(t, err)
-	bs := &plugin.BlueprintScopeV200{
-		Id: "f5a50c63-2e8f-4107-9014-853f6f467757",
+	bs := &coreModels.BlueprintScope{
+		ScopeId: "f5a50c63-2e8f-4107-9014-853f6f467757",
 	}
-	syncPolicy := &plugin.BlueprintSyncPolicy{}
-	bpScopes := make([]*plugin.BlueprintScopeV200, 0)
+
+	bpScopes := make([]*coreModels.BlueprintScope, 0)
 	bpScopes = append(bpScopes, bs)
-	plan := make(plugin.PipelinePlan, len(bpScopes))
-	plan, err = makeDataSourcePipelinePlanV200(nil, plan, bpScopes, uint64(1), syncPolicy)
+	plan := make(coreModels.PipelinePlan, len(bpScopes))
+	plan, err = makeDataSourcePipelinePlanV200(nil, plan, bpScopes, uint64(1))
 	assert.Nil(t, err)
 	basicRes = NewMockBasicRes()
+
 	scopes, err := makeScopesV200(bpScopes, uint64(1))
 	assert.Nil(t, err)
 
-	expectPlan := plugin.PipelinePlan{
-		plugin.PipelineStage{
+	expectPlan := coreModels.PipelinePlan{
+		coreModels.PipelineStage{
 			{
 				Plugin:   "sonarqube",
 				Subtasks: []string{},

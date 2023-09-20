@@ -30,5 +30,6 @@ func All() []plugin.MigrationScript {
 		new(addTransformationRulesToService20230303),
 		new(renameTr2ScopeConfig),
 		new(removeScopeConfig),
+		new(addRawParamTableForScope),
 	}
 }

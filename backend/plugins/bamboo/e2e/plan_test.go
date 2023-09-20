@@ -20,6 +20,8 @@ package e2e
 import (
 	"testing"
 
+	"github.com/apache/incubator-devlake/core/models/common"
+	"github.com/apache/incubator-devlake/core/models/domainlayer/devops"
 	"github.com/apache/incubator-devlake/helpers/e2ehelper"
 	"github.com/apache/incubator-devlake/plugins/bamboo/impl"
 	"github.com/apache/incubator-devlake/plugins/bamboo/models"
@@ -34,39 +36,17 @@ func TestBambooPlanDataFlow(t *testing.T) {
 	taskData := &tasks.BambooTaskData{
 		Options: &models.BambooOptions{
 			ConnectionId:      3,
-			ProjectKey:        "TEST1",
+			PlanKey:           "TEST1",
 			BambooScopeConfig: new(models.BambooScopeConfig),
 		},
 	}
-	// import raw data table
-	dataflowTester.ImportCsvIntoRawTable("./raw_tables/_raw_bamboo_api_plan.csv", "_raw_bamboo_api_plan")
 
+	dataflowTester.ImportCsvIntoTabler("./snapshot_tables/_tool_bamboo_plans.csv", models.BambooPlan{})
 	// verify extraction
-	dataflowTester.FlushTabler(&models.BambooPlan{})
-	dataflowTester.Subtask(tasks.ExtractPlanMeta, taskData)
-	dataflowTester.VerifyTable(
-		models.BambooPlan{},
-		"./snapshot_tables/_tool_bamboo_plans.csv",
-		e2ehelper.ColumnWithRawData(
-			"connection_id",
-			"plan_key",
-			"name",
-			"expand",
-			"project_key",
-			"project_name",
-			"description",
-			"short_name",
-			"build_name",
-			"short_key",
-			"type",
-			"enabled",
-			"href",
-			"rel",
-			"is_favourite",
-			"is_active",
-			"is_building",
-			"average_build_time_in_seconds",
-		),
-	)
-
+	dataflowTester.FlushTabler(&devops.CicdScope{})
+	dataflowTester.Subtask(tasks.ConvertPlansMeta, taskData)
+	dataflowTester.VerifyTableWithOptions(&devops.CicdScope{}, e2ehelper.TableOptions{
+		CSVRelPath:  "./snapshot_tables/cicd_scopes.csv",
+		IgnoreTypes: []interface{}{common.NoPKModel{}},
+	})
 }

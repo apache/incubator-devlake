@@ -22,12 +22,12 @@ import (
 	"fmt"
 	"net/http"
 	"net/url"
+	"strings"
 
 	"github.com/apache/incubator-devlake/core/errors"
 	"github.com/apache/incubator-devlake/core/plugin"
 	"github.com/apache/incubator-devlake/helpers/pluginhelper/api"
 	"github.com/apache/incubator-devlake/plugins/bamboo/models"
-	"gorm.io/datatypes"
 )
 
 func CreateRawDataSubTaskArgs(taskCtx plugin.SubTaskContext, rawTable string) (*api.RawDataSubTaskArgs, *BambooTaskData) {
@@ -37,7 +37,7 @@ func CreateRawDataSubTaskArgs(taskCtx plugin.SubTaskContext, rawTable string) (*
 	*filteredData.Options = *data.Options
 	var params = models.BambooApiParams{
 		ConnectionId: data.Options.ConnectionId,
-		ProjectKey:   data.Options.ProjectKey,
+		PlanKey:      data.Options.PlanKey,
 	}
 	rawDataSubTaskArgs := &api.RawDataSubTaskArgs{
 		Ctx:    taskCtx,
@@ -88,14 +88,18 @@ func GetResultsResult(res *http.Response) ([]json.RawMessage, errors.Error) {
 	return resData.Results.Result, nil
 }
 
-func getRepoMap(rawRepoMap datatypes.JSONMap) map[int]string {
-	repoMap := make(map[int]string)
-	for k, v := range rawRepoMap {
-		if list, ok := v.([]interface{}); ok {
-			for _, id := range list {
-				repoMap[int(id.(float64))] = k
-			}
-		}
+// getBambooHomePage receive endpoint like "http://127.0.0.1:30001/rest/api/latest/" and return bamboo's homepage like "http://127.0.0.1:30001/"
+func getBambooHomePage(endpoint string) (string, error) {
+	if endpoint == "" {
+		return "", errors.Default.New("empty endpoint")
 	}
-	return repoMap
+	endpointURL, err := url.Parse(endpoint)
+	if err != nil {
+		return "", err
+	} else {
+		protocol := endpointURL.Scheme
+		host := endpointURL.Host
+		bambooPath, _, _ := strings.Cut(endpointURL.Path, "/rest/api/latest")
+		return fmt.Sprintf("%s://%s%s", protocol, host, bambooPath), nil
+	}
 }

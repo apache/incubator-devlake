@@ -21,6 +21,7 @@ import (
 	"encoding/json"
 
 	"github.com/apache/incubator-devlake/core/errors"
+	"github.com/apache/incubator-devlake/core/models/common"
 	"github.com/apache/incubator-devlake/core/models/domainlayer/devops"
 	"github.com/apache/incubator-devlake/core/plugin"
 	"github.com/apache/incubator-devlake/helpers/pluginhelper/api"
@@ -63,10 +64,10 @@ func ExtractApiPipelineDetails(taskCtx plugin.SubTaskContext) errors.Error {
 				Sha:             gitlabApiPipeline.Sha,
 				WebUrl:          gitlabApiPipeline.WebUrl,
 				Status:          gitlabApiPipeline.Status,
-				GitlabCreatedAt: api.Iso8601TimeToTime(gitlabApiPipeline.CreatedAt),
-				GitlabUpdatedAt: api.Iso8601TimeToTime(gitlabApiPipeline.UpdatedAt),
-				StartedAt:       api.Iso8601TimeToTime(gitlabApiPipeline.StartedAt),
-				FinishedAt:      api.Iso8601TimeToTime(gitlabApiPipeline.FinishedAt),
+				GitlabCreatedAt: common.Iso8601TimeToTime(gitlabApiPipeline.CreatedAt),
+				GitlabUpdatedAt: common.Iso8601TimeToTime(gitlabApiPipeline.UpdatedAt),
+				StartedAt:       common.Iso8601TimeToTime(gitlabApiPipeline.StartedAt),
+				FinishedAt:      common.Iso8601TimeToTime(gitlabApiPipeline.FinishedAt),
 				Duration:        gitlabApiPipeline.Duration,
 				ConnectionId:    data.Options.ConnectionId,
 

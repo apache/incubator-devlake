@@ -18,13 +18,13 @@ limitations under the License.
 package api
 
 import (
-	"context"
+	gocontext "context"
 	"fmt"
 	"net/http"
 	"net/url"
 	"strings"
 
-	context2 "github.com/apache/incubator-devlake/core/context"
+	"github.com/apache/incubator-devlake/core/context"
 	"github.com/apache/incubator-devlake/core/errors"
 	"github.com/apache/incubator-devlake/core/plugin"
 	"github.com/apache/incubator-devlake/helpers/pluginhelper/api"
@@ -45,13 +45,13 @@ import (
 // @Router /plugins/bitbucket/connections/{connectionId}/remote-scopes [GET]
 func RemoteScopes(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, errors.Error) {
 	return remoteHelper.GetScopesFromRemote(input,
-		func(basicRes context2.BasicRes, gid string, queryData *api.RemoteQueryData, connection models.BitbucketConnection) ([]models.GroupResponse, errors.Error) {
+		func(basicRes context.BasicRes, gid string, queryData *api.RemoteQueryData, connection models.BitbucketConnection) ([]models.GroupResponse, errors.Error) {
 			if gid != "" {
 				return nil, nil
 			}
 			query := initialQuery(queryData)
 
-			apiClient, err := api.NewApiClientFromConnection(context.TODO(), basicRes, &connection)
+			apiClient, err := api.NewApiClientFromConnection(gocontext.TODO(), basicRes, &connection)
 			if err != nil {
 				return nil, errors.BadInput.Wrap(err, "failed to get create apiClient")
 			}
@@ -71,13 +71,13 @@ func RemoteScopes(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, er
 
 			return resBody.Values, err
 		},
-		func(basicRes context2.BasicRes, gid string, queryData *api.RemoteQueryData, connection models.BitbucketConnection) ([]models.BitbucketApiRepo, errors.Error) {
+		func(basicRes context.BasicRes, gid string, queryData *api.RemoteQueryData, connection models.BitbucketConnection) ([]models.BitbucketApiRepo, errors.Error) {
 			if gid == "" {
 				return nil, nil
 			}
 			query := initialQuery(queryData)
 
-			apiClient, err := api.NewApiClientFromConnection(context.TODO(), basicRes, &connection)
+			apiClient, err := api.NewApiClientFromConnection(gocontext.TODO(), basicRes, &connection)
 			if err != nil {
 				return nil, errors.BadInput.Wrap(err, "failed to get create apiClient")
 			}
@@ -113,37 +113,51 @@ func RemoteScopes(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, er
 // @Router /plugins/bitbucket/connections/{connectionId}/search-remote-scopes [GET]
 func SearchRemoteScopes(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, errors.Error) {
 	return remoteHelper.SearchRemoteScopes(input,
-		func(basicRes context2.BasicRes, queryData *api.RemoteQueryData, connection models.BitbucketConnection) ([]models.BitbucketApiRepo, errors.Error) {
+		func(basicRes context.BasicRes, queryData *api.RemoteQueryData, connection models.BitbucketConnection) ([]models.BitbucketApiRepo, errors.Error) {
 			// create api client
-			apiClient, err := api.NewApiClientFromConnection(context.TODO(), basicRes, &connection)
+			apiClient, err := api.NewApiClientFromConnection(gocontext.TODO(), basicRes, &connection)
 			if err != nil {
-				return nil, err
+				return nil, errors.BadInput.Wrap(err, "failed to get create apiClient")
 			}
-			query := initialQuery(queryData)
-			s := queryData.Search[0]
 
 			// request search
-			query.Set("sort", "name")
-			query.Set("fields", "values.name,values.full_name,values.language,values.description,values.owner.username,values.created_on,values.updated_on,values.links.clone,values.links.self,pagelen,page,size")
-			gid := ``
-			if strings.Contains(s, `/`) {
-				gid = strings.Split(s, `/`)[0]
-				s = strings.Split(s, `/`)[0]
+			query := initialQuery(queryData)
+			if len(queryData.Search) == 0 {
+				return nil, errors.BadInput.New("empty search query")
 			}
-			query.Set("q", fmt.Sprintf(`name~"%s"`, s))
+			s := queryData.Search[0]
+			query.Set("sort", "name")
+			query.Set("fields", "values.name,values.full_name,values.language,values.description,values.owner.display_name,values.created_on,values.updated_on,values.links.clone,values.links.html,pagelen,page,size")
+			gid, searchName := getSearch(s)
+			query.Set("q", fmt.Sprintf(`name~"%s"`, searchName))
+
 			// list repos part
 			res, err := apiClient.Get(fmt.Sprintf("/repositories/%s", gid), query, nil)
 			if err != nil {
 				return nil, err
 			}
-			resBody := &models.ReposResponse{}
+
+			var resBody models.ReposResponse
 			err = api.UnmarshalResponse(res, &resBody)
 			if err != nil {
 				return nil, err
 			}
+
 			return resBody.Values, err
 		},
 	)
+}
+
+func getSearch(s string) (string, string) {
+	gid := ""
+	if strings.Contains(s, "/") {
+		parts := strings.Split(s, "/")
+		if len(parts) >= 2 {
+			gid = parts[0]
+			s = strings.Join(parts[1:], "/")
+		}
+	}
+	return gid, s
 }
 
 func initialQuery(queryData *api.RemoteQueryData) url.Values {

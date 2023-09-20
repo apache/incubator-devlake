@@ -20,7 +20,6 @@ package tasks
 import (
 	"encoding/json"
 
-	"github.com/apache/incubator-devlake/core/dal"
 	"github.com/apache/incubator-devlake/core/errors"
 	"github.com/apache/incubator-devlake/core/plugin"
 	helper "github.com/apache/incubator-devlake/helpers/pluginhelper/api"
@@ -32,31 +31,6 @@ var _ plugin.SubTaskEntryPoint = ExtractDeploy
 func ExtractDeploy(taskCtx plugin.SubTaskContext) errors.Error {
 	rawDataSubTaskArgs, data := CreateRawDataSubTaskArgs(taskCtx, RAW_DEPLOY_TABLE)
 
-	db := taskCtx.GetDal()
-	clauses := []dal.Clause{
-		dal.Select("plan_key"),
-		dal.From(models.BambooPlan{}.TableName()),
-		dal.Where("project_key = ? and connection_id=?", data.Options.ProjectKey, data.Options.ConnectionId),
-	}
-	cursor, err := db.Cursor(
-		clauses...,
-	)
-	if err != nil {
-		return err
-	}
-	defer cursor.Close()
-
-	Plans := make(map[string]bool)
-
-	for cursor.Next() {
-		Plan := &models.BambooPlan{}
-		err = db.Fetch(cursor, Plan)
-		if err != nil {
-			return err
-		}
-		Plans[Plan.PlanKey] = true
-	}
-
 	extractor, err := helper.NewApiExtractor(helper.ApiExtractorArgs{
 		RawDataSubTaskArgs: *rawDataSubTaskArgs,
 		Extract: func(resData *helper.RawData) ([]interface{}, errors.Error) {
@@ -65,28 +39,17 @@ func ExtractDeploy(taskCtx plugin.SubTaskContext) errors.Error {
 			if err != nil {
 				return nil, err
 			}
-			plan := &SimplePlan{}
-			err = errors.Convert(json.Unmarshal(resData.Input, plan))
 
-			if err != nil {
-				return nil, err
-			}
-
-			results := make([]interface{}, 0, len(res.Environments))
-
-			if Plans[res.PlanKey.Key] {
-				for _, env := range res.Environments {
-					body := &models.BambooDeployEnvironment{}
-
-					body.Convert(&env)
-					body.ConnectionId = data.Options.ConnectionId
-					body.ProjectKey = data.Options.ProjectKey
-					body.PlanKey = res.PlanKey.Key
-
-					results = append(results, body)
+			var results []interface{}
+			if res.PlanKey.Key == data.Options.PlanKey {
+				for _, apiEnv := range res.Environments {
+					env := new(models.BambooDeployEnvironment)
+					env.Convert(&apiEnv)
+					env.ConnectionId = data.Options.ConnectionId
+					env.PlanKey = res.PlanKey.Key
+					results = append(results, env)
 				}
 			}
-
 			return results, nil
 		},
 	})
@@ -101,6 +64,6 @@ var ExtractDeployMeta = plugin.SubTaskMeta{
 	Name:             "ExtractDeploy",
 	EntryPoint:       ExtractDeploy,
 	EnabledByDefault: true,
-	Description:      "Extract raw data into tool layer table _tool_bamboo_deploy_environment",
+	Description:      "Extract raw data into tool layer table _tool_bamboo_deploy_environments",
 	DomainTypes:      []string{plugin.DOMAIN_TYPE_CICD},
 }

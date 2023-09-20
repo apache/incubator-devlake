@@ -27,11 +27,11 @@ services:
       MYSQL_DATABASE: lake
       MYSQL_USER: merico
       MYSQL_PASSWORD: merico
-    command:
+      TZ: UTC
+    command: 
       --character-set-server=utf8mb4
       --collation-server=utf8mb4_bin
       --skip-log-bin
-
 
   postgres:
     image: postgres:14.2
@@ -44,9 +44,10 @@ services:
       POSTGRES_DB: lake
       POSTGRES_USER: merico
       POSTGRES_PASSWORD: merico
+      TZ: UTC
 
   grafana:
-    image: mericodev/devlake-dashboard:latest
+    image: devlake.docker.scarf.sh/mericodev/devlake-dashboard:latest
     build:
       context: grafana/
     ports:
@@ -60,12 +61,13 @@ services:
       MYSQL_DATABASE: lake
       MYSQL_USER: merico
       MYSQL_PASSWORD: merico
+      TZ: UTC
     restart: always
     depends_on:
       - mysql
 
   devlake:
-    image: mericodev/devlake:latest
+    image: devlake.docker.scarf.sh/mericodev/devlake:latest
     build:
       context: backend
       args:
@@ -75,16 +77,18 @@ services:
       - "127.0.0.1:8080:8080"
     restart: always
     volumes:
-      - ./.env:/app/.env
-      - ./logs:/app/logs
+      - devlake-log:/app/logs
+    env_file:
+      - ./.env
     environment:
       LOGGING_DIR: /app/logs
+      TZ: UTC
       # LOGOUT_URI: https://xxx.amazoncognito.com/logout?client_id=yyy&logout_uri=http%3A%2F%2Flocalhost%3A4180%2Foauth2%2Fsign_out
     depends_on:
       - mysql
 
   config-ui:
-    image: mericodev/devlake-config-ui:latest
+    image: devlake.docker.scarf.sh/mericodev/devlake-config-ui:latest
     build:
       context: "config-ui"
     ports:
@@ -94,6 +98,7 @@ services:
     environment:
       DEVLAKE_ENDPOINT: devlake:8080
       GRAFANA_ENDPOINT: grafana:3000
+      TZ: UTC
       #ADMIN_USER: devlake
       #ADMIN_PASS: letsdivein
     depends_on:
@@ -109,14 +114,14 @@ services:
     # environment:
     #   OAUTH2_PROXY_PROVIDER: oidc
     #   OAUTH2_PROXY_PROVIDER_DISPLAY_NAME: my provider
-    #   OAUTH2_PROXY_COOKIE_SECRET: 
+    #   OAUTH2_PROXY_COOKIE_SECRET:
     #   OAUTH2_PROXY_COOKIE_DOMAINS: localhost:4180
     #   OAUTH2_PROXY_COOKIE_SECURE: 'false'
     #   OAUTH2_PROXY_EMAIL_DOMAINS: *
-    #   OAUTH2_PROXY_OIDC_ISSUER_URL: 
-    #   OAUTH2_PROXY_OIDC_JWKS_URL: 
-    #   OAUTH2_PROXY_CLIENT_ID: 
-    #   OAUTH2_PROXY_CLIENT_SECRET: 
+    #   OAUTH2_PROXY_OIDC_ISSUER_URL:
+    #   OAUTH2_PROXY_OIDC_JWKS_URL:
+    #   OAUTH2_PROXY_CLIENT_ID:
+    #   OAUTH2_PROXY_CLIENT_SECRET:
     #   OAUTH2_PROXY_UPSTREAMS: http://localhost:4000
     #   OAUTH2_PROXY_HTTP_ADDRESS: http://0.0.0.0:4180
     #   OAUTH2_PROXY_REVERSE_PROXY: 'true'
@@ -126,3 +131,4 @@ volumes:
   mysql-storage:
   grafana-storage:
   postgres-storage:
+  devlake-log:

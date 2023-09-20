@@ -45,11 +45,16 @@ func ConvertStory(taskCtx plugin.SubTaskContext) errors.Error {
 	data := taskCtx.GetData().(*ZentaoTaskData)
 	db := taskCtx.GetDal()
 	storyIdGen := didgen.NewDomainIdGenerator(&models.ZentaoStory{})
-	boardIdGen := didgen.NewDomainIdGenerator(&models.ZentaoProduct{})
+	boardIdGen := didgen.NewDomainIdGenerator(&models.ZentaoProject{})
+	accountIdGen := didgen.NewDomainIdGenerator(&models.ZentaoAccount{})
+	stdTypeMappings := getStdTypeMappings(data)
 	cursor, err := db.Cursor(
 		dal.From(&models.ZentaoStory{}),
-		dal.Where(`_tool_zentao_stories.product = ? and
-			_tool_zentao_stories.connection_id = ?`, data.Options.ProductId, data.Options.ConnectionId),
+		dal.Join(`LEFT JOIN _tool_zentao_project_stories ON
+						_tool_zentao_project_stories.story_id = _tool_zentao_stories.id
+							AND _tool_zentao_project_stories.connection_id = _tool_zentao_stories.connection_id`),
+		dal.Where(`_tool_zentao_project_stories.project_id = ? and
+			_tool_zentao_project_stories.connection_id = ?`, data.Options.ProjectId, data.Options.ConnectionId),
 	)
 	if err != nil {
 		return err
@@ -59,13 +64,9 @@ func ConvertStory(taskCtx plugin.SubTaskContext) errors.Error {
 		InputRowType: reflect.TypeOf(models.ZentaoStory{}),
 		Input:        cursor,
 		RawDataSubTaskArgs: api.RawDataSubTaskArgs{
-			Ctx: taskCtx,
-			Params: ZentaoApiParams{
-				ConnectionId: data.Options.ConnectionId,
-				ProductId:    data.Options.ProductId,
-				ProjectId:    data.Options.ProjectId,
-			},
-			Table: RAW_STORY_TABLE,
+			Ctx:     taskCtx,
+			Options: data.Options,
+			Table:   RAW_STORY_TABLE,
 		},
 		Convert: func(inputRow interface{}) ([]interface{}, errors.Error) {
 			toolEntity := inputRow.(*models.ZentaoStory)
@@ -74,25 +75,35 @@ func ConvertStory(taskCtx plugin.SubTaskContext) errors.Error {
 				DomainEntity: domainlayer.DomainEntity{
 					Id: storyIdGen.Generate(toolEntity.ConnectionId, toolEntity.ID),
 				},
-				IssueKey:        strconv.FormatInt(toolEntity.ID, 10),
-				Title:           toolEntity.Title,
-				Type:            ticket.REQUIREMENT,
-				OriginalType:    toolEntity.Type + "." + toolEntity.Category,
-				OriginalStatus:  toolEntity.Status + "-" + toolEntity.Stage,
-				ResolutionDate:  toolEntity.ClosedDate.ToNullableTime(),
-				CreatedDate:     toolEntity.OpenedDate.ToNullableTime(),
-				UpdatedDate:     toolEntity.LastEditedDate.ToNullableTime(),
-				ParentIssueId:   storyIdGen.Generate(data.Options.ConnectionId, toolEntity.Parent),
-				Priority:        getPriority(toolEntity.Pri),
-				CreatorId:       strconv.FormatInt(toolEntity.OpenedById, 10),
-				CreatorName:     toolEntity.OpenedByName,
-				AssigneeId:      strconv.FormatInt(toolEntity.AssignedToId, 10),
-				AssigneeName:    toolEntity.AssignedToName,
-				Url:             toolEntity.Url,
-				OriginalProject: getOriginalProject(data),
-				Status:          toolEntity.StdStatus,
+				IssueKey:                strconv.FormatInt(toolEntity.ID, 10),
+				Title:                   toolEntity.Title,
+				Type:                    toolEntity.StdType,
+				OriginalType:            "story",
+				OriginalStatus:          toolEntity.Status,
+				ResolutionDate:          toolEntity.ClosedDate.ToNullableTime(),
+				CreatedDate:             toolEntity.OpenedDate.ToNullableTime(),
+				UpdatedDate:             toolEntity.LastEditedDate.ToNullableTime(),
+				Priority:                getPriority(toolEntity.Pri),
+				CreatorName:             toolEntity.OpenedByName,
+				AssigneeName:            toolEntity.AssignedToName,
+				Url:                     convertIssueURL(toolEntity.Url, "story", toolEntity.ID),
+				OriginalProject:         getOriginalProject(data),
+				Status:                  toolEntity.StdStatus,
+				OriginalEstimateMinutes: int64(toolEntity.Estimate) * 60,
+				StoryPoint:              toolEntity.Estimate,
 			}
-
+			if mappingType, ok := stdTypeMappings[domainEntity.OriginalType]; ok && mappingType != "" {
+				domainEntity.Type = mappingType
+			}
+			if toolEntity.Parent != 0 {
+				domainEntity.ParentIssueId = storyIdGen.Generate(data.Options.ConnectionId, toolEntity.Parent)
+			}
+			if toolEntity.OpenedById != 0 {
+				domainEntity.CreatorId = accountIdGen.Generate(data.Options.ConnectionId, toolEntity.OpenedById)
+			}
+			if toolEntity.AssignedToId != 0 {
+				domainEntity.AssigneeId = accountIdGen.Generate(data.Options.ConnectionId, toolEntity.AssignedToId)
+			}
 			if domainEntity.OriginalStatus == "closed-closed" {
 				domainEntity.OriginalStatus = "closed"
 			}
@@ -109,8 +120,9 @@ func ConvertStory(taskCtx plugin.SubTaskContext) errors.Error {
 			if toolEntity.ClosedDate != nil {
 				domainEntity.LeadTimeMinutes = int64(toolEntity.ClosedDate.ToNullableTime().Sub(toolEntity.OpenedDate.ToTime()).Minutes())
 			}
+
 			domainBoardIssue := &ticket.BoardIssue{
-				BoardId: boardIdGen.Generate(data.Options.ConnectionId, data.Options.ProductId),
+				BoardId: boardIdGen.Generate(data.Options.ConnectionId, data.Options.ProjectId),
 				IssueId: domainEntity.Id,
 			}
 			results = append(results, domainEntity, domainBoardIssue)

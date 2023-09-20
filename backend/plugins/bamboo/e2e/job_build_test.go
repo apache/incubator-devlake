@@ -35,8 +35,8 @@ func TestBambooJobBuildDataFlow(t *testing.T) {
 	dataflowTester := e2ehelper.NewDataFlowTester(t, "bamboo", bamboo)
 	taskData := &tasks.BambooTaskData{
 		Options: &models.BambooOptions{
-			ConnectionId: 3,
-			ProjectKey:   "TEST1",
+			ConnectionId: 1,
+			PlanKey:      "TEST-PLA3",
 			BambooScopeConfig: &models.BambooScopeConfig{
 				DeploymentPattern: "(?i)compile",
 				ProductionPattern: "(?i)compile",
@@ -46,12 +46,12 @@ func TestBambooJobBuildDataFlow(t *testing.T) {
 	}
 	taskData.RegexEnricher.TryAdd(devops.DEPLOYMENT, taskData.Options.DeploymentPattern)
 	// import raw data table
-	// SELECT * FROM _raw_bamboo_api_job_build INTO OUTFILE "/tmp/_raw_bamboo_api_job_build.csv" FIELDS TERMINATED BY ',' OPTIONALLY ENCLOSED BY '"' LINES TERMINATED BY '\r\n';
-	dataflowTester.ImportCsvIntoRawTable("./raw_tables/_raw_bamboo_api_job_build.csv", "_raw_bamboo_api_job_build")
+	// SELECT * FROM _raw_bamboo_api_job_build INTO OUTFILE "/tmp/_raw_bamboo_api_job_builds.csv" FIELDS TERMINATED BY ',' OPTIONALLY ENCLOSED BY '"' LINES TERMINATED BY '\r\n';
+	dataflowTester.ImportCsvIntoRawTable("./raw_tables/_raw_bamboo_api_job_builds.csv", "_raw_bamboo_api_job_builds")
 
 	// verify env when production regex is not set
 	dataflowTester.FlushTabler(&models.BambooJobBuild{})
-	dataflowTester.Subtask(tasks.ExtractJobBuildMeta, taskData)
+	dataflowTester.FlushTabler(&models.BambooPlanBuildVcsRevision{})
 	dataflowTester.Subtask(tasks.ExtractJobBuildMeta, taskData)
 	dataflowTester.VerifyTable(
 		models.BambooJobBuild{},

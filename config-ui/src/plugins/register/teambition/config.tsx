@@ -16,6 +16,8 @@
  *
  */
 
+import { DOC_URL } from '@/release';
+
 import type { PluginConfigType } from '../../types';
 import { PluginType } from '../../types';
 
@@ -23,14 +25,14 @@ import Icon from './assets/icon.svg';
 import { ConnectionTenantId, ConnectionTenantType } from './connection-fields';
 
 export const TeambitionConfig: PluginConfigType = {
-  type: PluginType.Connection,
+  type: PluginType.Pipeline,
   plugin: 'teambition',
   name: 'Teambition',
   isBeta: true,
   icon: Icon,
   sort: 100,
   connection: {
-    docLink: 'https://devlake.apache.org/docs/Configuration/Teambition',
+    docLink: DOC_URL.PLUGIN.TEAMBITION.BASIS,
     initialValues: {
       endpoint: 'https://open.teambition.com/api/',
       tenantType: 'organization',
@@ -78,18 +80,15 @@ export const TeambitionConfig: PluginConfigType = {
       {
         key: 'rateLimitPerHour',
         subLabel:
-          'By default, DevLake uses 3,000 requests/hour for data collection for TAPD. But you can adjust the collection speed by setting up your desirable rate limit.',
-        learnMore: 'https://devlake.apache.org/docs/Configuration/Tapd#fixed-rate-limit-optional',
-        externalInfo: 'The maximum rate limit of TAPD is 3,600 requests/hour.',
-        defaultValue: 3000,
+          'By default, DevLake uses dynamic rate limit for optimized data collection for Teambition. But you can adjust the collection speed by entering a fixed value. Please note: the rate limit setting applies to all tokens you have entered above.',
+        learnMore: DOC_URL.PLUGIN.TEAMBITION.RATE_LIMIT,
+        externalInfo: 'Teambition does not specify a maximum value of rate limit.',
+        defaultValue: 5000,
       },
     ],
   },
   dataScope: {
-    millerColumns: {
-      title: '',
-      subTitle: '',
-    },
+    title: '',
   },
   scopeConfig: {
     entities: ['TICKET'],

@@ -30,12 +30,18 @@ import (
 
 const RAW_ISSUE_TABLE = "github_api_issues"
 
+func init() {
+	RegisterSubtaskMeta(&CollectApiIssuesMeta)
+}
+
 var CollectApiIssuesMeta = plugin.SubTaskMeta{
 	Name:             "collectApiIssues",
 	EntryPoint:       CollectApiIssues,
 	EnabledByDefault: true,
 	Description:      "Collect issues data from Github api, supports both timeFilter and diffSync.",
 	DomainTypes:      []string{plugin.DOMAIN_TYPE_TICKET},
+	DependencyTables: []string{},
+	ProductTables:    []string{RAW_ISSUE_TABLE},
 }
 
 func CollectApiIssues(taskCtx plugin.SubTaskContext) errors.Error {
@@ -47,16 +53,14 @@ func CollectApiIssues(taskCtx plugin.SubTaskContext) errors.Error {
 			Name:         data.Options.Name,
 		},
 		Table: RAW_ISSUE_TABLE,
-	}, data.TimeAfter)
+	})
 	if err != nil {
 		return err
 	}
 
-	incremental := collectorWithState.IsIncremental()
 	err = collectorWithState.InitCollector(helper.ApiCollectorArgs{
-		ApiClient:   data.ApiClient,
-		PageSize:    100,
-		Incremental: incremental,
+		ApiClient: data.ApiClient,
+		PageSize:  100,
 		/*
 			url may use arbitrary variables from different source in any order, we need GoTemplate to allow more
 			flexible for all kinds of possibility.
@@ -73,11 +77,8 @@ func CollectApiIssues(taskCtx plugin.SubTaskContext) errors.Error {
 		Query: func(reqData *helper.RequestData) (url.Values, errors.Error) {
 			query := url.Values{}
 			query.Set("state", "all")
-			if data.TimeAfter != nil {
-				query.Set("since", data.TimeAfter.String())
-			}
-			if incremental {
-				query.Set("since", collectorWithState.LatestState.LatestSuccessStart.String())
+			if collectorWithState.Since != nil {
+				query.Set("since", collectorWithState.Since.String())
 			}
 			query.Set("direction", "asc")
 			query.Set("page", fmt.Sprintf("%v", reqData.Pager.Page))

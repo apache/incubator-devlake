@@ -18,17 +18,18 @@ limitations under the License.
 package archived
 
 import (
+	"encoding/json"
+
 	"github.com/apache/incubator-devlake/core/models/migrationscripts/archived"
-	"gorm.io/datatypes"
 )
 
 type BambooTransformationRule struct {
 	archived.Model
 	Name string `gorm:"type:varchar(255);index:idx_name_gitlab,unique" validate:"required" mapstructure:"name" json:"name"`
 	// should be {realRepoName: [bamboo_repoId]}
-	RepoMap           datatypes.JSONMap
-	DeploymentPattern string `mapstructure:"deploymentPattern,omitempty" json:"deploymentPattern" gorm:"type:varchar(255)"`
-	ProductionPattern string `mapstructure:"productionPattern,omitempty" json:"productionPattern" gorm:"type:varchar(255)"`
+	RepoMap           json.RawMessage `gorm:"type:json"`
+	DeploymentPattern string          `mapstructure:"deploymentPattern,omitempty" json:"deploymentPattern" gorm:"type:varchar(255)"`
+	ProductionPattern string          `mapstructure:"productionPattern,omitempty" json:"productionPattern" gorm:"type:varchar(255)"`
 }
 
 func (BambooTransformationRule) TableName() string {

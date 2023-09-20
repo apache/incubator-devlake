@@ -22,6 +22,11 @@ import (
 	"net/http"
 	"strings"
 
+	"github.com/apache/incubator-devlake/core/context"
+	"github.com/apache/incubator-devlake/core/errors"
+	"github.com/apache/incubator-devlake/impls/logruslog"
+	"github.com/apache/incubator-devlake/server/api/apikeys"
+
 	"github.com/apache/incubator-devlake/core/plugin"
 	"github.com/apache/incubator-devlake/server/api/blueprints"
 	"github.com/apache/incubator-devlake/server/api/domainlayer"
@@ -36,27 +41,25 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-func RegisterRouter(r *gin.Engine) {
+func RegisterRouter(r *gin.Engine, basicRes context.BasicRes) {
 	r.GET("/pipelines", pipelines.Index)
 	r.POST("/pipelines", pipelines.Post)
 	r.GET("/pipelines/:pipelineId", pipelines.Get)
-	r.PATCH("/blueprints/:blueprintId", blueprints.Patch)
-	r.POST("/blueprints/:blueprintId/trigger", blueprints.Trigger)
-	r.DELETE("/blueprints/:blueprintId", blueprints.Delete)
-
-	r.GET("/blueprints", blueprints.Index)
-	r.POST("/blueprints", blueprints.Post)
-	r.GET("/blueprints/:blueprintId", blueprints.Get)
-	r.GET("/blueprints/:blueprintId/pipelines", blueprints.GetBlueprintPipelines)
 	r.DELETE("/pipelines/:pipelineId", pipelines.Delete)
 	r.GET("/pipelines/:pipelineId/tasks", task.GetTaskByPipeline)
 	r.POST("/pipelines/:pipelineId/rerun", pipelines.PostRerun)
-	r.POST("/tasks/:taskId/rerun", task.PostRerun)
-
 	r.GET("/pipelines/:pipelineId/logging.tar.gz", pipelines.DownloadLogs)
 
-	//r.GET("/ping", ping.Get)
-	//r.GET("/version", version.Get)
+	r.GET("/blueprints", blueprints.Index)
+	r.POST("/blueprints", blueprints.Post)
+	r.PATCH("/blueprints/:blueprintId", blueprints.Patch)
+	r.DELETE("/blueprints/:blueprintId", blueprints.Delete)
+	r.GET("/blueprints/:blueprintId", blueprints.Get)
+	r.POST("/blueprints/:blueprintId/trigger", blueprints.Trigger)
+	r.GET("/blueprints/:blueprintId/pipelines", blueprints.GetBlueprintPipelines)
+
+	r.POST("/tasks/:taskId/rerun", task.PostRerun)
+
 	r.POST("/push/:tableName", push.Post)
 	r.GET("/domainlayer/repos", domainlayer.ReposIndex)
 
@@ -71,6 +74,12 @@ func RegisterRouter(r *gin.Engine) {
 	r.POST("/projects", project.PostProject)
 	r.GET("/projects", project.GetProjects)
 
+	// api keys api
+	r.GET("/api-keys", apikeys.GetApiKeys)
+	r.POST("/api-keys", apikeys.PostApiKey)
+	r.PUT("/api-keys/:apiKeyId/", apikeys.PutApiKey)
+	r.DELETE("/api-keys/:apiKeyId", apikeys.DeleteApiKey)
+
 	// mount all api resources for all plugins
 	resources, err := services.GetPluginsApiResources()
 	if err != nil {
@@ -78,25 +87,25 @@ func RegisterRouter(r *gin.Engine) {
 	}
 	// mount all api resources for all plugins
 	for pluginName, apiResources := range resources {
-		registerPluginEndpoints(r, pluginName, apiResources)
+		registerPluginEndpoints(r, basicRes, pluginName, apiResources)
 	}
 }
 
-func registerPluginEndpoints(r *gin.Engine, pluginName string, apiResources map[string]map[string]plugin.ApiResourceHandler) {
+func registerPluginEndpoints(r *gin.Engine, basicRes context.BasicRes, pluginName string, apiResources map[string]map[string]plugin.ApiResourceHandler) {
 	for resourcePath, resourceHandlers := range apiResources {
 		for method, h := range resourceHandlers {
 			r.Handle(
 				method,
 				fmt.Sprintf("/plugins/%s/%s", pluginName, resourcePath),
-				handlePluginCall(pluginName, h),
+				handlePluginCall(basicRes, pluginName, h),
 			)
 		}
 	}
 }
 
-func handlePluginCall(pluginName string, handler plugin.ApiResourceHandler) func(c *gin.Context) {
+func handlePluginCall(basicRes context.BasicRes, pluginName string, handler plugin.ApiResourceHandler) func(c *gin.Context) {
 	return func(c *gin.Context) {
-		var err error
+		var err errors.Error
 		input := &plugin.ApiResourceInput{}
 		input.Params = make(map[string]string)
 		if len(c.Params) > 0 {
@@ -106,20 +115,31 @@ func handlePluginCall(pluginName string, handler plugin.ApiResourceHandler) func
 		}
 		input.Params["plugin"] = pluginName
 		input.Query = c.Request.URL.Query()
+		user, exist := shared.GetUser(c)
+		if !exist {
+			basicRes.GetLogger().Debug("user doesn't exist")
+		} else {
+			input.User = user
+		}
 		if c.Request.Body != nil {
 			if strings.HasPrefix(c.Request.Header.Get("Content-Type"), "multipart/form-data;") {
 				input.Request = c.Request
 			} else {
-				err = c.ShouldBindJSON(&input.Body)
-				if err != nil && err.Error() != "EOF" {
-					shared.ApiOutputError(c, err)
+				shouldBindJSONErr := c.ShouldBindJSON(&input.Body)
+				if shouldBindJSONErr != nil && shouldBindJSONErr.Error() != "EOF" {
+					shared.ApiOutputError(c, shouldBindJSONErr)
 					return
 				}
 			}
 		}
 		output, err := handler(input)
 		if err != nil {
-			shared.ApiOutputError(c, err)
+			if output != nil && output.Body != nil {
+				logruslog.Global.Error(err, "")
+				shared.ApiOutputSuccess(c, output.Body, err.GetType().GetHttpCode())
+			} else {
+				shared.ApiOutputError(c, err)
+			}
 		} else if output != nil {
 			status := output.Status
 			if status < http.StatusContinue {

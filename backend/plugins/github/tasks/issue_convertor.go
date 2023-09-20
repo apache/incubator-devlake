@@ -18,6 +18,10 @@ limitations under the License.
 package tasks
 
 import (
+	"reflect"
+	"strconv"
+	"strings"
+
 	"github.com/apache/incubator-devlake/core/dal"
 	"github.com/apache/incubator-devlake/core/errors"
 	"github.com/apache/incubator-devlake/core/models/domainlayer"
@@ -26,10 +30,11 @@ import (
 	"github.com/apache/incubator-devlake/core/plugin"
 	"github.com/apache/incubator-devlake/helpers/pluginhelper/api"
 	"github.com/apache/incubator-devlake/plugins/github/models"
-	"reflect"
-	"strconv"
-	"strings"
 )
+
+func init() {
+	RegisterSubtaskMeta(&ConvertIssuesMeta)
+}
 
 var ConvertIssuesMeta = plugin.SubTaskMeta{
 	Name:             "convertIssues",
@@ -37,6 +42,14 @@ var ConvertIssuesMeta = plugin.SubTaskMeta{
 	EnabledByDefault: true,
 	Description:      "Convert tool layer table github_issues into  domain layer table issues",
 	DomainTypes:      []string{plugin.DOMAIN_TYPE_TICKET},
+	DependencyTables: []string{
+		models.GithubIssue{}.TableName(),   // cursor
+		models.GithubAccount{}.TableName(), // id generator
+		//models.GithubRepo{}.TableName(),    // id generator, but config not regard as dependency
+		RAW_ISSUE_TABLE},
+	ProductTables: []string{
+		ticket.Issue{}.TableName(),
+		ticket.BoardIssue{}.TableName()},
 }
 
 func ConvertIssues(taskCtx plugin.SubTaskContext) errors.Error {
@@ -80,9 +93,7 @@ func ConvertIssues(taskCtx plugin.SubTaskContext) errors.Error {
 				Type:            issue.StdType,
 				OriginalType:    issue.Type,
 				OriginalStatus:  issue.State,
-				AssigneeId:      accountIdGen.Generate(data.Options.ConnectionId, issue.AssigneeId),
 				AssigneeName:    issue.AssigneeName,
-				CreatorId:       accountIdGen.Generate(data.Options.ConnectionId, issue.AuthorId),
 				CreatorName:     issue.AuthorName,
 				LeadTimeMinutes: int64(issue.LeadTimeMinutes),
 				Url:             issue.Url,
@@ -91,6 +102,12 @@ func ConvertIssues(taskCtx plugin.SubTaskContext) errors.Error {
 				ResolutionDate:  issue.ClosedAt,
 				Severity:        issue.Severity,
 				Component:       issue.Component,
+			}
+			if issue.AssigneeId != 0 {
+				domainIssue.AssigneeId = accountIdGen.Generate(data.Options.ConnectionId, issue.AssigneeId)
+			}
+			if issue.AuthorId != 0 {
+				domainIssue.CreatorId = accountIdGen.Generate(data.Options.ConnectionId, issue.AuthorId)
 			}
 			if strings.ToUpper(issue.State) == "CLOSED" {
 				domainIssue.Status = ticket.DONE
