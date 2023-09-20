@@ -18,22 +18,24 @@ limitations under the License.
 package migrationscripts
 
 import (
+	"github.com/apache/incubator-devlake/core/context"
+	"github.com/apache/incubator-devlake/core/errors"
 	"github.com/apache/incubator-devlake/core/plugin"
 )
 
-// All return all the migration scripts
-func All() []plugin.MigrationScript {
-	return []plugin.MigrationScript{
-		new(addInitTables),
-		new(addConnectionIdToTransformationRule),
-		new(addTypeAndEnvironment),
-		new(renameTr2ScopeConfig),
-		new(addRawParamTableForScope),
-		new(addScopeConfigId),
-		new(addEnvNamePattern),
-		new(addPlanResultKey),
-		new(renameToolBambooDeployBuild20230919),
-		new(renameToolBambooDeployEnvironments20230919),
-		new(renameMultiBambooRawTables20230920),
-	}
+var _ plugin.MigrationScript = (*renameToolBambooDeployBuild20230919)(nil)
+
+type renameToolBambooDeployBuild20230919 struct{}
+
+func (*renameToolBambooDeployBuild20230919) Up(basicRes context.BasicRes) errors.Error {
+	db := basicRes.GetDal()
+	return db.RenameTable("_tool_bamboo_deploy_build", "_tool_bamboo_deploy_builds")
+}
+
+func (*renameToolBambooDeployBuild20230919) Version() uint64 {
+	return 20230919000000
+}
+
+func (*renameToolBambooDeployBuild20230919) Name() string {
+	return "rename _tool_bamboo_deploy_build to _tool_bamboo_deploy_builds"
 }
