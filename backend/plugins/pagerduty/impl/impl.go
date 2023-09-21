@@ -115,9 +115,9 @@ func (p PagerDuty) PrepareTaskData(taskCtx plugin.TaskContext, options map[strin
 		}
 		timeAfter = &convertedTime
 	}
-	client, err := helper.NewApiClient(taskCtx.GetContext(), connection.Endpoint, map[string]string{
-		"Authorization": fmt.Sprintf("Token %s", connection.Token),
-	}, 0, connection.Proxy, taskCtx)
+
+	client, err := helper.NewApiClientFromConnection(taskCtx.GetContext(), taskCtx, connection)
+
 	if err != nil {
 		return nil, err
 	}
