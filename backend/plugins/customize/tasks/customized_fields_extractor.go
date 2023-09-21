@@ -102,13 +102,12 @@ func extractCustomizedFields(ctx context.Context, d dal.Dal, table, rawTable, ra
 			for field, path := range extractor {
 				result := gjson.Get(blob, path)
 				// special case for issues custom_fields
+				rawDataId, ok := row["_raw_data_id"].(int64)
+				if !ok {
+					return errors.Default.New("_raw_data_id is not int64")
+				}
 				if table == "issues" && result.IsArray() {
 					result.ForEach(func(_, v gjson.Result) bool {
-						rawDataId, ok := row["_raw_data_id"].(int64)
-						if !ok {
-							errors.Default.New("_raw_data_id is not int64")
-
-						}
 						err1 := d.CreateOrUpdate(&ticket.IssueCustomArrayField{
 							IssueId:    row["id"].(string),
 							FieldId:    field,
