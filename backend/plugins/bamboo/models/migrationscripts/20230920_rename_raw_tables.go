@@ -51,9 +51,5 @@ func (*renameMultiBambooRawTables20230920) Version() uint64 {
 }
 
 func (*renameMultiBambooRawTables20230920) Name() string {
-	return "rename _raw_bamboo_api_deploy_build to _raw_bamboo_api_deploy_builds," +
-		" _raw_bamboo_api_deploy to _raw_bamboo_api_deploys," +
-		" _raw_bamboo_api_job_build to _raw_bamboo_api_job_builds," +
-		" _raw_bamboo_api_job to _raw_bamboo_api_jobs," +
-		" _raw_bamboo_api_plan_build to _raw_bamboo_api_plan_builds"
+	return "rename raw tables' name to their plural form"
 }
