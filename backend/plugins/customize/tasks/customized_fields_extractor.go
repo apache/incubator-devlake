@@ -24,6 +24,8 @@ import (
 
 	"github.com/apache/incubator-devlake/core/dal"
 	"github.com/apache/incubator-devlake/core/errors"
+	"github.com/apache/incubator-devlake/core/models/common"
+	"github.com/apache/incubator-devlake/core/models/domainlayer/ticket"
 	"github.com/apache/incubator-devlake/core/plugin"
 	"github.com/apache/incubator-devlake/plugins/customize/models"
 	"github.com/tidwall/gjson"
@@ -99,7 +101,35 @@ func extractCustomizedFields(ctx context.Context, d dal.Dal, table, rawTable, ra
 		case string:
 			for field, path := range extractor {
 				result := gjson.Get(blob, path)
-				fillInUpdates(result, field, updates)
+				// special case for issues custom_fields
+				if table == "issues" && result.IsArray() {
+					result.ForEach(func(_, v gjson.Result) bool {
+						rawDataId, ok := row["_raw_data_id"].(int64)
+						if !ok {
+							errors.Default.New("_raw_data_id is not int64")
+
+						}
+						err1 := d.CreateOrUpdate(&ticket.IssueCustomArrayField{
+							IssueId:    row["id"].(string),
+							FieldId:    field,
+							FieldValue: v.String(),
+							NoPKModel: common.NoPKModel{
+								RawDataOrigin: common.RawDataOrigin{
+									RawDataParams: rawDataParams,
+									RawDataTable:  rawTable,
+									RawDataId:     uint64(rawDataId),
+								},
+							},
+						})
+						if err1 != nil {
+							err = err1
+							return false
+						}
+						return true
+					})
+				} else {
+					fillInUpdates(result, field, updates)
+				}
 			}
 		default:
 			return nil
