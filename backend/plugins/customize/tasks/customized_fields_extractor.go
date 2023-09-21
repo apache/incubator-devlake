@@ -110,7 +110,10 @@ func extractCustomizedFields(ctx context.Context, d dal.Dal, table, rawTable, ra
 					issueId := row["id"].(string)
 					fieldId := field
 					// Delete existing records for the given issue and field
-					err = d.Exec("DELETE FROM "+ticket.IssueCustomArrayField{}.TableName()+" WHERE issue_id = ? AND field_id = ?", issueId, fieldId)
+					err = d.Delete(
+						&ticket.IssueCustomArrayField{},
+						dal.Where("issue_id = ? AND field_id = ?", issueId, fieldId),
+					)
 					if err != nil {
 						return err
 					}
