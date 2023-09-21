@@ -72,7 +72,7 @@ func (bambooPlanBuild BambooPlanBuild) TableName() string {
 }
 
 func (bambooPlanBuild BambooPlanBuild) GenerateCICDPipeLineName() string {
-	return fmt.Sprintf("%s/%s/%d", bambooPlanBuild.ProjectName, bambooPlanBuild.PlanName, bambooPlanBuild.BuildNumber)
+	return fmt.Sprintf("%s - %s/%d", bambooPlanBuild.ProjectName, bambooPlanBuild.PlanName, bambooPlanBuild.BuildNumber)
 }
 
 func (apiRes *ApiBambooPlanBuild) Convert() *BambooPlanBuild {
