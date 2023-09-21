@@ -107,10 +107,18 @@ func extractCustomizedFields(ctx context.Context, d dal.Dal, table, rawTable, ra
 					return errors.Default.New("_raw_data_id is not int64")
 				}
 				if table == "issues" && result.IsArray() {
+					issueId := row["id"].(string)
+					fieldId := field
+					// Delete existing records for the given issue and field
+					err = d.Exec("DELETE FROM "+ticket.IssueCustomArrayField{}.TableName()+" WHERE issue_id = ? AND field_id = ?", issueId, fieldId)
+					if err != nil {
+						return err
+					}
+
 					result.ForEach(func(_, v gjson.Result) bool {
-						err1 := d.CreateOrUpdate(&ticket.IssueCustomArrayField{
-							IssueId:    row["id"].(string),
-							FieldId:    field,
+						err1 := d.Create(&ticket.IssueCustomArrayField{
+							IssueId:    issueId,
+							FieldId:    fieldId,
 							FieldValue: v.String(),
 							NoPKModel: common.NoPKModel{
 								RawDataOrigin: common.RawDataOrigin{
