@@ -51,7 +51,10 @@ type deployBuildWithVcsRevision struct {
 }
 
 func (deployBuildWithVcsRevision deployBuildWithVcsRevision) GenerateCICDDeploymentCommitName() string {
-	return fmt.Sprintf("%s/%s", deployBuildWithVcsRevision.ProjectPlanName, deployBuildWithVcsRevision.DeploymentVersionName)
+	if deployBuildWithVcsRevision.ProjectPlanName != "" {
+		return fmt.Sprintf("%s/%s", deployBuildWithVcsRevision.ProjectPlanName, deployBuildWithVcsRevision.DeploymentVersionName)
+	}
+	return deployBuildWithVcsRevision.DeploymentVersionName
 }
 
 func ConvertDeployBuilds(taskCtx plugin.SubTaskContext) errors.Error {
@@ -61,7 +64,7 @@ func ConvertDeployBuilds(taskCtx plugin.SubTaskContext) errors.Error {
 		dal.Select("db.*, pbc.repository_id, pbc.repository_name, pbc.vcs_revision_key, p.name as project_plan_name, p.project_name"),
 		dal.From("_tool_bamboo_deploy_builds AS db"),
 		dal.Join("INNER JOIN _tool_bamboo_plan_build_commits AS pbc ON db.connection_id = pbc.connection_id AND db.plan_result_key = pbc.plan_result_key"),
-		dal.Join("LEFT JOIN _tool_bamboo_plans as p pm ON db.plan_key = p.plan_key"),
+		dal.Join("LEFT JOIN _tool_bamboo_plans as p ON db.plan_key = p.plan_key"),
 		dal.Where("db.connection_id = ? and db.plan_key = ?", data.Options.ConnectionId, data.Options.PlanKey))
 	if err != nil {
 		return err
