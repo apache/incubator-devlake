@@ -76,7 +76,7 @@ func ConvertWorkflows(taskCtx plugin.SubTaskContext) errors.Error {
 					Failed:  []string{"failed", "failing", "error"},
 					Skipped: []string{"not_run"},
 					Abort:   []string{"canceled"},
-				}, userTool.Status),
+				}, userTool.Status, false),
 				Type:        data.RegexEnricher.ReturnNameIfMatched(devops.DEPLOYMENT, userTool.Name),
 				Environment: data.RegexEnricher.ReturnNameIfOmittedOrMatched(devops.PRODUCTION, userTool.Name),
 			}
