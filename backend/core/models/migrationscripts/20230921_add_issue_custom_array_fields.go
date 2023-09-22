@@ -18,22 +18,26 @@ limitations under the License.
 package migrationscripts
 
 import (
-	"github.com/apache/incubator-devlake/core/plugin"
+	"github.com/apache/incubator-devlake/core/context"
+	"github.com/apache/incubator-devlake/core/errors"
+	"github.com/apache/incubator-devlake/core/models/migrationscripts/archived"
+	"github.com/apache/incubator-devlake/helpers/migrationhelper"
 )
 
-// All return all the migration scripts
-func All() []plugin.MigrationScript {
-	return []plugin.MigrationScript{
-		new(addInitTables),
-		new(addConnectionIdToTransformationRule),
-		new(addTypeAndEnvironment),
-		new(renameTr2ScopeConfig),
-		new(addRawParamTableForScope),
-		new(addScopeConfigId),
-		new(addEnvNamePattern),
-		new(addPlanResultKey),
-		new(renameToolBambooDeployBuild20230919),
-		new(renameToolBambooDeployEnvironments20230919),
-		new(renameMultiBambooRawTables20230920),
-	}
+type addIssueCustomArrayField struct{}
+
+func (u *addIssueCustomArrayField) Up(basicRes context.BasicRes) errors.Error {
+
+	return migrationhelper.AutoMigrateTables(
+		basicRes,
+		&archived.IssueCustomArrayField{},
+	)
+}
+
+func (*addIssueCustomArrayField) Version() uint64 {
+	return 20230921000083
+}
+
+func (*addIssueCustomArrayField) Name() string {
+	return "add issue custom array field"
 }
