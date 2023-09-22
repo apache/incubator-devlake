@@ -63,7 +63,7 @@ func ConvertPlanBuilds(taskCtx plugin.SubTaskContext) errors.Error {
 			}
 			domainPlanBuild := &devops.CICDPipeline{
 				DomainEntity: domainlayer.DomainEntity{Id: planBuildIdGen.Generate(data.Options.ConnectionId, line.PlanBuildKey)},
-				Name:         line.PlanName,
+				Name:         line.GenerateCICDPipeLineName(),
 				DurationSec:  uint64(line.BuildDurationInSeconds),
 				CreatedDate:  *line.BuildStartedTime,
 				FinishedDate: line.BuildCompletedDate,

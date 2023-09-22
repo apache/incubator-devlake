@@ -83,6 +83,7 @@ func TestBambooDeployBuildDataFlow(t *testing.T) {
 	// verify conversion
 	dataflowTester.ImportCsvIntoTabler("./snapshot_tables/_tool_bamboo_plan_build_commits.csv", &models.BambooPlanBuildVcsRevision{})
 	dataflowTester.ImportCsvIntoTabler("./snapshot_tables/_tool_bamboo_deploy_builds.csv", &models.BambooDeployBuild{})
+	dataflowTester.ImportCsvIntoTabler("./snapshot_tables/_tool_bamboo_plans.csv", models.BambooPlan{})
 	dataflowTester.FlushTabler(&devops.CicdDeploymentCommit{})
 	dataflowTester.FlushTabler(&devops.CICDDeployment{})
 	dataflowTester.Subtask(tasks.ConvertDeployBuildsMeta, taskData)

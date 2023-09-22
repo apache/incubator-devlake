@@ -18,6 +18,7 @@ limitations under the License.
 package tasks
 
 import (
+	"fmt"
 	"reflect"
 	"strconv"
 	"time"
@@ -42,18 +43,28 @@ var ConvertDeployBuildsMeta = plugin.SubTaskMeta{
 
 type deployBuildWithVcsRevision struct {
 	models.BambooDeployBuild
-	RepositoryId   int
-	RepositoryName string
-	VcsRevisionKey string
+	RepositoryId    int
+	RepositoryName  string
+	VcsRevisionKey  string
+	ProjectPlanName string
+	ProjectName     string
+}
+
+func (deployBuildWithVcsRevision deployBuildWithVcsRevision) GenerateCICDDeploymentCommitName() string {
+	if deployBuildWithVcsRevision.ProjectPlanName != "" {
+		return fmt.Sprintf("%s/%s", deployBuildWithVcsRevision.ProjectPlanName, deployBuildWithVcsRevision.DeploymentVersionName)
+	}
+	return deployBuildWithVcsRevision.DeploymentVersionName
 }
 
 func ConvertDeployBuilds(taskCtx plugin.SubTaskContext) errors.Error {
 	db := taskCtx.GetDal()
 	rawDataSubTaskArgs, data := CreateRawDataSubTaskArgs(taskCtx, RAW_JOB_BUILD_TABLE)
 	cursor, err := db.Cursor(
-		dal.Select("db.*, pbc.repository_id, pbc.repository_name, pbc.vcs_revision_key"),
+		dal.Select("db.*, pbc.repository_id, pbc.repository_name, pbc.vcs_revision_key, p.name as project_plan_name, p.project_name"),
 		dal.From("_tool_bamboo_deploy_builds AS db"),
 		dal.Join("INNER JOIN _tool_bamboo_plan_build_commits AS pbc ON db.connection_id = pbc.connection_id AND db.plan_result_key = pbc.plan_result_key"),
+		dal.Join("LEFT JOIN _tool_bamboo_plans as p ON db.plan_key = p.plan_key"),
 		dal.Where("db.connection_id = ? and db.plan_key = ?", data.Options.ConnectionId, data.Options.PlanKey))
 	if err != nil {
 		return err
@@ -78,7 +89,7 @@ func ConvertDeployBuilds(taskCtx plugin.SubTaskContext) errors.Error {
 				},
 				CicdScopeId:      planIdGen.Generate(data.Options.ConnectionId, data.Options.PlanKey),
 				CicdDeploymentId: deployBuildIdGen.Generate(data.Options.ConnectionId, input.DeployBuildId),
-				Name:             input.DeploymentVersionName,
+				Name:             input.GenerateCICDDeploymentCommitName(),
 				Result: devops.GetResult(&devops.ResultRule{
 					Failed:  []string{"Failed"},
 					Success: []string{"Successful"},
