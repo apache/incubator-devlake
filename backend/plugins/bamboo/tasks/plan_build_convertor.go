@@ -73,7 +73,7 @@ func ConvertPlanBuilds(taskCtx plugin.SubTaskContext) errors.Error {
 					Failed:  []string{"Failed"},
 					Success: []string{"Successful"},
 					Default: line.BuildState,
-				}, line.BuildState, true),
+				}, line.BuildState),
 
 				Status: devops.GetStatus(&devops.StatusRule[string]{
 					Done:       []string{"Finished", "FINISHED"},
