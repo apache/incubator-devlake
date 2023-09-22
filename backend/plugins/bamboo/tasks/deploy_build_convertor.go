@@ -95,7 +95,7 @@ func ConvertDeployBuilds(taskCtx plugin.SubTaskContext) errors.Error {
 					Failed:  []string{"Failed"},
 					Success: []string{"Successful"},
 					Default: input.DeploymentState,
-				}, input.DeploymentState, true),
+				}, input.DeploymentState),
 				Status: devops.GetStatus(&devops.StatusRule[string]{
 					Done:       []string{"Finished", "FINISHED"},
 					NotStarted: []string{"not_built", "NOT_BUILT", "Not_Built", "PENDING", "QUEUED"},

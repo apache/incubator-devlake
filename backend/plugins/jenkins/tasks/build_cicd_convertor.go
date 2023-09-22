@@ -81,7 +81,7 @@ func ConvertBuildsToCicdTasks(taskCtx plugin.SubTaskContext) (err errors.Error) 
 					Success: []string{"SUCCESS"},
 					Failed:  []string{"FAILURE"},
 					Abort:   []string{"ABORTED"},
-				}, jenkinsBuild.Result, false)
+				}, jenkinsBuild.Result)
 			}
 			var jenkinsPipelineFinishedDate *time.Time
 			results := make([]interface{}, 0)

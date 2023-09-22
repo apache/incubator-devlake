@@ -80,60 +80,30 @@ func caseInSensitiveEqual(src string, dst string) bool {
 }
 
 // GetResult compare the input with rule for return the enum value of result
-func GetResult(rule *ResultRule, input interface{}, caseInsensitive bool) string {
+func GetResult(rule *ResultRule, input interface{}) string {
 	for _, suc := range rule.Success {
-		if caseInsensitive {
-			if caseInSensitiveEqual(suc, cast.ToString(input)) {
-				return RESULT_SUCCESS
-			}
-		} else {
-			if suc == input {
-				return RESULT_SUCCESS
-			}
+		if caseInSensitiveEqual(suc, cast.ToString(input)) {
+			return RESULT_SUCCESS
 		}
 	}
 	for _, fail := range rule.Failed {
-		if caseInsensitive {
-			if caseInSensitiveEqual(fail, cast.ToString(input)) {
-				return RESULT_FAILURE
-			}
-		} else {
-			if fail == input {
-				return RESULT_FAILURE
-			}
+		if caseInSensitiveEqual(fail, cast.ToString(input)) {
+			return RESULT_FAILURE
 		}
 	}
 	for _, abort := range rule.Abort {
-		if caseInsensitive {
-			if caseInSensitiveEqual(abort, cast.ToString(input)) {
-				return RESULT_ABORT
-			}
-		} else {
-			if abort == input {
-				return RESULT_ABORT
-			}
+		if caseInSensitiveEqual(abort, cast.ToString(input)) {
+			return RESULT_ABORT
 		}
 	}
 	for _, manual := range rule.Manual {
-		if caseInsensitive {
-			if caseInSensitiveEqual(manual, cast.ToString(input)) {
-				return RESULT_MANUAL
-			}
-		} else {
-			if manual == input {
-				return RESULT_MANUAL
-			}
+		if caseInSensitiveEqual(manual, cast.ToString(input)) {
+			return RESULT_MANUAL
 		}
 	}
 	for _, skipped := range rule.Skipped {
-		if caseInsensitive {
-			if caseInSensitiveEqual(skipped, cast.ToString(input)) {
-				return RESULT_SKIPPED
-			}
-		} else {
-			if skipped == input {
-				return RESULT_SKIPPED
-			}
+		if caseInSensitiveEqual(skipped, cast.ToString(input)) {
+			return RESULT_SKIPPED
 		}
 	}
 	return rule.Default
