@@ -60,13 +60,12 @@ const (
 )
 
 type ResultRule struct {
-	Success         []string
-	Failed          []string
-	Abort           []string
-	Manual          []string
-	Skipped         []string
-	Default         string
-	CaseInsensitive bool
+	Success []string
+	Failed  []string
+	Abort   []string
+	Manual  []string
+	Skipped []string
+	Default string
 }
 type StatusRule[T comparable] struct {
 	InProgress []T
@@ -83,64 +82,34 @@ func caseInSensitiveEqual(src string, dst string) bool {
 // GetResult compare the input with rule for return the enum value of result
 func GetResult(rule *ResultRule, input interface{}) string {
 	for _, suc := range rule.Success {
-		if rule.CaseInsensitive {
-			if caseInSensitiveEqual(suc, cast.ToString(input)) {
-				return RESULT_SUCCESS
-			}
-		} else {
-			if suc == input {
-				return RESULT_SUCCESS
-			}
+		if caseInSensitiveEqual(suc, cast.ToString(input)) {
+			return RESULT_SUCCESS
 		}
 	}
 	for _, fail := range rule.Failed {
-		if rule.CaseInsensitive {
-			if caseInSensitiveEqual(fail, cast.ToString(input)) {
-				return RESULT_FAILURE
-			}
-		} else {
-			if fail == input {
-				return RESULT_FAILURE
-			}
+		if caseInSensitiveEqual(fail, cast.ToString(input)) {
+			return RESULT_FAILURE
 		}
 	}
 	for _, abort := range rule.Abort {
-		if rule.CaseInsensitive {
-			if caseInSensitiveEqual(abort, cast.ToString(input)) {
-				return RESULT_ABORT
-			}
-		} else {
-			if abort == input {
-				return RESULT_ABORT
-			}
+		if caseInSensitiveEqual(abort, cast.ToString(input)) {
+			return RESULT_ABORT
 		}
 	}
 	for _, manual := range rule.Manual {
-		if rule.CaseInsensitive {
-			if caseInSensitiveEqual(manual, cast.ToString(input)) {
-				return RESULT_MANUAL
-			}
-		} else {
-			if manual == input {
-				return RESULT_MANUAL
-			}
+		if caseInSensitiveEqual(manual, cast.ToString(input)) {
+			return RESULT_MANUAL
 		}
 	}
 	for _, skipped := range rule.Skipped {
-		if rule.CaseInsensitive {
-			if caseInSensitiveEqual(skipped, cast.ToString(input)) {
-				return RESULT_SKIPPED
-			}
-		} else {
-			if skipped == input {
-				return RESULT_SKIPPED
-			}
+		if caseInSensitiveEqual(skipped, cast.ToString(input)) {
+			return RESULT_SKIPPED
 		}
 	}
 	return rule.Default
 }
 
-// GetStatus compare the input with rule for return the enmu value of status
+// GetStatus compare the input with rule for return the enum value of status
 func GetStatus[T comparable](rule *StatusRule[T], input T) string {
 	for _, inp := range rule.InProgress {
 		if inp == input {
