@@ -15,25 +15,18 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-package migrationscripts
+package ticket
 
-import (
-	"github.com/apache/incubator-devlake/core/plugin"
-)
+import "github.com/apache/incubator-devlake/core/models/common"
 
-// All return all the migration scripts
-func All() []plugin.MigrationScript {
-	return []plugin.MigrationScript{
-		new(addInitTables),
-		new(addConnectionIdToTransformationRule),
-		new(addTypeAndEnvironment),
-		new(renameTr2ScopeConfig),
-		new(addRawParamTableForScope),
-		new(addScopeConfigId),
-		new(addEnvNamePattern),
-		new(addPlanResultKey),
-		new(renameToolBambooDeployBuild20230919),
-		new(renameToolBambooDeployEnvironments20230919),
-		new(renameMultiBambooRawTables20230920),
-	}
+type IssueCustomArrayField struct {
+	IssueId    string `gorm:"primaryKey;type:varchar(255)"`
+	FieldId    string `gorm:"primaryKey;type:varchar(255)"`
+	FieldValue string `gorm:"primaryKey;type:varchar(255)"`
+
+	common.NoPKModel
+}
+
+func (IssueCustomArrayField) TableName() string {
+	return "issue_custom_array_fields"
 }
