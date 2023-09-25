@@ -28,7 +28,7 @@ import (
 var _ plugin.ToolLayerScope = (*GithubRepo)(nil)
 
 type GithubRepo struct {
-	common.Scope   `json:",squash" mapstructure:",squash" gorm:"embedded"`
+	common.Scope   `mapstructure:",squash" gorm:"embedded"`
 	GithubId       int        `json:"githubId" gorm:"primaryKey" validate:"required" mapstructure:"githubId"`
 	Name           string     `json:"name" gorm:"type:varchar(255)" mapstructure:"name,omitempty"`
 	FullName       string     `json:"fullName" gorm:"type:varchar(255)" mapstructure:"fullName,omitempty"`

@@ -30,8 +30,8 @@ type BaseConnection struct {
 	common.Model
 }
 
-func (rc BaseConnection) ConnectionId() uint64 {
-	return rc.ID
+func (c BaseConnection) ConnectionId() uint64 {
+	return c.ID
 }
 
 func (c BaseConnection) GetHash() string {
