@@ -98,7 +98,7 @@ type ScopeConfig struct {
 	Model
 	Entities     []string `gorm:"type:json;serializer:json" json:"entities" mapstructure:"entities"`
 	ConnectionId uint64   `json:"connectionId" gorm:"index" validate:"required" mapstructure:"connectionId,omitempty"`
-	Name         string   `mapstructure:"name" json:"name" gorm:"type:varchar(255);index:idx_name_github,unique" validate:"required"`
+	Name         string   `mapstructure:"name" json:"name" gorm:"type:varchar(255)" validate:"required"`
 }
 
 func (s ScopeConfig) ScopeConfigConnectionId() uint64 {
