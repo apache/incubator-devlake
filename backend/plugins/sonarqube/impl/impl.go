@@ -153,7 +153,7 @@ func (p Sonarqube) PrepareTaskData(taskCtx plugin.TaskContext, options map[strin
 	return taskData, nil
 }
 
-// PkgPath information lost when compiled as plugin(.so)
+// RootPkgPath information lost when compiled as plugin(.so)
 func (p Sonarqube) RootPkgPath() string {
 	return "github.com/apache/incubator-devlake/plugins/sonarqube"
 }

@@ -230,7 +230,7 @@ func (p Zentao) PrepareTaskData(taskCtx plugin.TaskContext, options map[string]i
 	return data, nil
 }
 
-// PkgPath information lost when compiled as plugin(.so)
+// RootPkgPath information lost when compiled as plugin(.so)
 func (p Zentao) RootPkgPath() string {
 	return "github.com/apache/incubator-devlake/plugins/zentao"
 }

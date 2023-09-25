@@ -82,7 +82,7 @@ func (p Icla) PrepareTaskData(taskCtx plugin.TaskContext, options map[string]int
 	}, nil
 }
 
-// PkgPath information lost when compiled as plugin(.so)
+// RootPkgPath information lost when compiled as plugin(.so)
 func (p Icla) RootPkgPath() string {
 	return "github.com/apache/incubator-devlake/plugins/icla"
 }

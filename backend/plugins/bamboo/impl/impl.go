@@ -192,7 +192,7 @@ func (p Bamboo) PrepareTaskData(taskCtx plugin.TaskContext, options map[string]i
 	}, nil
 }
 
-// PkgPath information lost when compiled as plugin(.so)
+// RootPkgPath information lost when compiled as plugin(.so)
 func (p Bamboo) RootPkgPath() string {
 	return "github.com/apache/incubator-devlake/plugins/bamboo"
 }

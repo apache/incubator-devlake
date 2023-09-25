@@ -247,7 +247,7 @@ func (p GithubGraphql) PrepareTaskData(taskCtx plugin.TaskContext, options map[s
 	return taskData, nil
 }
 
-// PkgPath information lost when compiled as plugin(.so)
+// RootPkgPath information lost when compiled as plugin(.so)
 func (p GithubGraphql) RootPkgPath() string {
 	return "github.com/apache/incubator-devlake/plugins/githubGraphql"
 }
