@@ -83,7 +83,7 @@ func Test_getBambooWebURL(t *testing.T) {
 func Test_generateFakeRepoURL(t *testing.T) {
 	type args struct {
 		endpoint string
-		repoID   uint
+		repoID   int
 	}
 	tests := []struct {
 		name    string
