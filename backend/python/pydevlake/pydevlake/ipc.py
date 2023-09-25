@@ -131,6 +131,9 @@ def create_db_engine(db_url) -> Engine:
         del connect_args['parseTime']
     if 'loc' in connect_args:
         del connect_args['loc']
+    if 'tls' in connect_args:
+        del connect_args['tls']
+        connect_args['ssl'] = {'verify_cert': 'False'}
     try:
         engine = create_engine(base_url, connect_args=connect_args)
         tables = SubtaskRun.metadata.tables

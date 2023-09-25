@@ -59,7 +59,7 @@ func lockDatabase() {
 	// 3. update the record
 	select {
 	case <-c:
-	case <-time.After(3 * time.Second):
+	case <-time.After(10 * time.Second):
 		panic(fmt.Errorf("locking _devlake_locking_stub timeout, the database might be locked by another devlake instance"))
 	}
 }
