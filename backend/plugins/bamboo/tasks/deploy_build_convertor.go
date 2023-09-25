@@ -114,7 +114,7 @@ func ConvertDeployBuilds(taskCtx plugin.SubTaskContext) errors.Error {
 			if err != nil {
 				logger.Warn(err, "generate fake repo url, endpoint: %s, repo id: %d", data.ApiClient.GetEndpoint(), input.RepositoryId)
 			} else {
-				deploymentCommit.RepoId = fakeRepoUrl
+				deploymentCommit.RepoUrl = fakeRepoUrl
 			}
 
 			return []interface{}{deploymentCommit}, nil
