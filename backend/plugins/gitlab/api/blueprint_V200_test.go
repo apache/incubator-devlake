@@ -59,11 +59,13 @@ func TestMakeDataSourcePipelinePlanV200(t *testing.T) {
 	}
 
 	var testGitlabProject = &models.GitlabProject{
-		ConnectionId:      testConnectionID,
+		Scope: common.Scope{
+			ConnectionId:  testConnectionID,
+			ScopeConfigId: testScopeConfigId,
+		},
 		GitlabId:          testID,
 		Name:              testName,
 		PathWithNamespace: pathWithNamespace,
-		ScopeConfigId:     testScopeConfigId,
 		CreatedDate:       &time.Time{},
 		HttpUrlToRepo:     testHttpUrlToRepo,
 	}

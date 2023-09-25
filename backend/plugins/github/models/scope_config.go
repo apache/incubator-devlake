@@ -19,12 +19,14 @@ package models
 
 import (
 	"github.com/apache/incubator-devlake/core/models/common"
+	"github.com/apache/incubator-devlake/core/plugin"
 	"gorm.io/datatypes"
 )
 
+var _ plugin.ToolLayerScopeConfig = (*GithubScopeConfig)(nil)
+
 type GithubScopeConfig struct {
 	common.ScopeConfig   `mapstructure:",squash" json:",inline" gorm:"embedded"`
-	ConnectionId         uint64            `mapstructure:"connectionId" json:"connectionId"`
 	Name                 string            `mapstructure:"name" json:"name" gorm:"type:varchar(255);index:idx_name_github,unique" validate:"required"`
 	PrType               string            `mapstructure:"prType,omitempty" json:"prType" gorm:"type:varchar(255)"`
 	PrComponent          string            `mapstructure:"prComponent,omitempty" json:"prComponent" gorm:"type:varchar(255)"`
@@ -38,6 +40,11 @@ type GithubScopeConfig struct {
 	DeploymentPattern    string            `mapstructure:"deploymentPattern,omitempty" json:"deploymentPattern" gorm:"type:varchar(255)"`
 	ProductionPattern    string            `mapstructure:"productionPattern,omitempty" json:"productionPattern" gorm:"type:varchar(255)"`
 	Refdiff              datatypes.JSONMap `mapstructure:"refdiff,omitempty" json:"refdiff" swaggertype:"object" format:"json"`
+}
+
+// GetConnectionId implements plugin.ToolLayerScopeConfig.
+func (sc GithubScopeConfig) GetConnectionId() uint64 {
+	return sc.ConnectionId
 }
 
 func (GithubScopeConfig) TableName() string {

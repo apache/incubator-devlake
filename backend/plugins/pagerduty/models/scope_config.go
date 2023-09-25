@@ -23,6 +23,4 @@ import (
 
 type PagerdutyScopeConfig struct {
 	common.ScopeConfig `mapstructure:",squash" json:",inline" gorm:"embedded"`
-	Name               string `mapstructure:"name" json:"name" gorm:"type:varchar(255);index:idx_name_github,unique" validate:"required"`
-	ConnectionId       uint64
 }

@@ -26,7 +26,7 @@ var _ plugin.ToolLayerScope = (*BambooPlan)(nil)
 var _ plugin.ApiScope = (*ApiBambooPlan)(nil)
 
 type BambooPlan struct {
-	ConnectionId              uint64  `json:"connectionId" mapstructure:"connectionId" gorm:"primaryKey"`
+	common.Scope
 	PlanKey                   string  `json:"planKey" mapstructure:"planKey" gorm:"primaryKey"`
 	Name                      string  `json:"name" mapstructure:"name"`
 	Expand                    string  `json:"expand" mapstructure:"expand"`
@@ -44,8 +44,6 @@ type BambooPlan struct {
 	IsActive                  bool    `json:"isActive" mapstructure:"isActive"`
 	IsBuilding                bool    `json:"isBuilding" mapstructure:"isBuilding"`
 	AverageBuildTimeInSeconds float64 `json:"averageBuildTimeInSeconds" mapstructure:"averageBuildTimeInSeconds"`
-	ScopeConfigId             uint64  `json:"scopeConfigId" mapstructure:"scopeConfigId"`
-	common.NoPKModel          `json:"-" mapstructure:"-"`
 }
 
 func (p BambooPlan) ScopeId() string {

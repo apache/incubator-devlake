@@ -81,9 +81,11 @@ func TestMakeDataSourcePipelinePlanV200(t *testing.T) {
 
 func mockBasicRes(t *testing.T) {
 	tapdWorkspace := &models.TapdWorkspace{
-		ConnectionId: 1,
-		Id:           10,
-		Name:         "a",
+		Scope: common.Scope{
+			ConnectionId: 1,
+		},
+		Id:   10,
+		Name: "a",
 	}
 	scopeConfig := &models.TapdScopeConfig{
 		ScopeConfig: common.ScopeConfig{
