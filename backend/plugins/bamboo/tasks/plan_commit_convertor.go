@@ -40,6 +40,7 @@ var ConvertPlanVcsMeta = plugin.SubTaskMeta{
 
 func ConvertPlanVcs(taskCtx plugin.SubTaskContext) errors.Error {
 	db := taskCtx.GetDal()
+	logger := taskCtx.GetLogger()
 	rawDataSubTaskArgs, data := CreateRawDataSubTaskArgs(taskCtx, RAW_PLAN_BUILD_TABLE)
 	cursor, err := db.Cursor(
 		dal.From(&models.BambooPlanBuildVcsRevision{}),
@@ -61,9 +62,14 @@ func ConvertPlanVcs(taskCtx plugin.SubTaskContext) errors.Error {
 			domainPlanVcs := &devops.CiCDPipelineCommit{
 				PipelineId: planBuildIdGen.Generate(data.Options.ConnectionId, line.PlanBuildKey),
 				CommitSha:  line.VcsRevisionKey,
-				RepoUrl:    line.RepositoryName,
 			}
 			domainPlanVcs.RepoId = repoMap[line.RepositoryId]
+			fakeRepoUrl, err := generateFakeRepoUrl(data.ApiClient.GetEndpoint(), line.RepositoryId)
+			if err != nil {
+				logger.Warn(err, "generate fake repo url, endpoint: %s, repo id: %d", data.ApiClient.GetEndpoint(), line.RepositoryId)
+			} else {
+				domainPlanVcs.RepoUrl = fakeRepoUrl
+			}
 			return []interface{}{
 				domainPlanVcs,
 			}, nil

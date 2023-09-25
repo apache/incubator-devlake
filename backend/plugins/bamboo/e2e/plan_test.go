@@ -39,6 +39,7 @@ func TestBambooPlanDataFlow(t *testing.T) {
 			PlanKey:           "TEST1",
 			BambooScopeConfig: new(models.BambooScopeConfig),
 		},
+		ApiClient: getFakeAPIClient(),
 	}
 
 	dataflowTester.ImportCsvIntoTabler("./snapshot_tables/_tool_bamboo_plans.csv", models.BambooPlan{})
