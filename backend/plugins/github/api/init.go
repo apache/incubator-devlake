@@ -18,65 +18,39 @@ limitations under the License.
 package api
 
 import (
-	"strconv"
-
 	"github.com/apache/incubator-devlake/core/plugin"
 
 	"github.com/apache/incubator-devlake/core/context"
-	"github.com/apache/incubator-devlake/core/dal"
-	"github.com/apache/incubator-devlake/core/errors"
 	"github.com/apache/incubator-devlake/helpers/pluginhelper/api"
+	"github.com/apache/incubator-devlake/helpers/srvhelper"
 	"github.com/apache/incubator-devlake/plugins/github/models"
 	"github.com/go-playground/validator/v10"
 )
 
 var vld *validator.Validate
+var connSrv *srvhelper.ConnectionSrvHelper[models.GithubConnection, models.GithubRepo, models.GithubScopeConfig]
+var connApi *api.DsConnectionApiHelper[models.GithubConnection, models.GithubRepo, models.GithubScopeConfig]
+var scopeSrv *srvhelper.ScopeSrvHelper[models.GithubConnection, models.GithubRepo, models.GithubScopeConfig]
+var scopeApi *api.DsScopeApiHelper[models.GithubConnection, models.GithubRepo, models.GithubScopeConfig]
+var scSrv *srvhelper.ScopeConfigSrvHelper[models.GithubConnection, models.GithubRepo, models.GithubScopeConfig]
+var scApi *api.DsScopeConfigApiHelper[models.GithubConnection, models.GithubRepo, models.GithubScopeConfig]
 var connectionHelper *api.ConnectionApiHelper
-var scopeHelper *api.ScopeApiHelper[models.GithubConnection, models.GithubRepo, models.GithubScopeConfig]
 var basicRes context.BasicRes
-var scHelper *api.ScopeConfigHelper[models.GithubScopeConfig]
 var remoteHelper *api.RemoteApiHelper[models.GithubConnection, models.GithubRepo, repo, plugin.ApiGroup]
 
 func Init(br context.BasicRes, p plugin.PluginMeta) {
-
 	basicRes = br
+	connSrv, connApi, scopeSrv, scopeApi, scSrv, scApi = api.NewDataSourceHelpers[
+		models.GithubConnection,
+		models.GithubRepo, models.GithubScopeConfig,
+	](
+		br,
+		"github",
+		[]string{"full_name"},
+	)
+	// TODO: refactor remoteHelper
 	vld = validator.New()
 	connectionHelper = api.NewConnectionHelper(
-		basicRes,
-		vld,
-		p.Name(),
-	)
-	params := &api.ReflectionParameters{
-		ScopeIdFieldName:     "GithubId",
-		ScopeIdColumnName:    "github_id",
-		RawScopeParamName:    "Name",
-		SearchScopeParamName: "name",
-	}
-	scopeHelper = api.NewScopeHelper[models.GithubConnection, models.GithubRepo, models.GithubScopeConfig](
-		basicRes,
-		vld,
-		connectionHelper,
-		api.NewScopeDatabaseHelperImpl[models.GithubConnection, models.GithubRepo, models.GithubScopeConfig](
-			basicRes, connectionHelper, params),
-		params,
-		&api.ScopeHelperOptions{
-			GetScopeParamValue: func(db dal.Dal, scopeId string) (string, errors.Error) {
-				id, err := errors.Convert01(strconv.ParseInt(scopeId, 10, 64))
-				if err != nil {
-					return "", err
-				}
-				repo := models.GithubRepo{
-					GithubId: int(id),
-				}
-				err = db.First(&repo)
-				if err != nil {
-					return "", err
-				}
-				return repo.FullName, nil
-			},
-		},
-	)
-	scHelper = api.NewScopeConfigHelper[models.GithubScopeConfig](
 		basicRes,
 		vld,
 		p.Name(),

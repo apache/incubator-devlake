@@ -86,9 +86,13 @@ func makeDataSourcePipelinePlanV200(
 			stage = coreModels.PipelineStage{}
 		}
 		// get repo and scope config from db
-		githubRepo, scopeConfig, err := scopeHelper.DbHelper().GetScopeAndConfig(connection.ID, bpScope.ScopeId)
+		githubRepo, err := scopeSrv.FindByPk(connection.ID, bpScope.ScopeId)
 		if err != nil {
 			return nil, err
+		}
+		var scopeConfig *models.GithubScopeConfig
+		if githubRepo.ScopeConfigId != 0 {
+			scopeConfig, err = scSrv.FindByPk(githubRepo.ScopeConfigId)
 		}
 		// refdiff
 		if scopeConfig != nil && scopeConfig.Refdiff != nil {
