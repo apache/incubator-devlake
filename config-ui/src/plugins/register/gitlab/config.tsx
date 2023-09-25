@@ -69,8 +69,10 @@ export const GitLabConfig: PluginConfigType = {
   },
   dataScope: {
     title: 'Projects',
-    millerColumnCount: 2.5,
-    millerFirstTitle: 'Subgroups/Projects',
+    millerColumn: {
+      columnCount: 2.5,
+      firstColumnTitle: 'Subgroups/Projects',
+    },
   },
   scopeConfig: {
     entities: ['CODE', 'TICKET', 'CODEREVIEW', 'CROSS', 'CICD'],

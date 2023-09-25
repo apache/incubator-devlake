@@ -101,8 +101,10 @@ export const GitHubConfig: PluginConfigType = {
   },
   dataScope: {
     title: 'Repositories',
-    millerColumnCount: 2,
-    millerFirstTitle: 'Organizations/Owners',
+    millerColumn: {
+      columnCount: 2,
+      firstColumnTitle: 'Organizations/Owners',
+    },
   },
   scopeConfig: {
     entities: ['CODE', 'TICKET', 'CODEREVIEW', 'CROSS', 'CICD'],

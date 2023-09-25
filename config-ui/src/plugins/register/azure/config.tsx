@@ -58,7 +58,11 @@ export const AzureConfig: PluginConfigType = {
     ],
   },
   dataScope: {
+    localSearch: true,
     title: 'Repositories',
+    millerColumn: {
+      columnCount: 2,
+    },
   },
   scopeConfig: {
     entities: ['CODE', 'CODEREVIEW', 'CROSS', 'CICD'],
