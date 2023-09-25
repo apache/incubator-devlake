@@ -175,6 +175,12 @@ jobs:
           build-args: |
             TAG=${{ github.ref_name }}
             SHA=${{ steps.get_short_sha.outputs.SHORT_SHA }}
+      - name: Trivy scan
+        uses: aquasecurity/trivy-action@master
+        with:
+          image-ref: ${{ steps.get_push_tags.outputs.TAGS }}
+          format: 'sarif'
+          output: 'trivy-results.sarif'
       - name: Clear cache
         uses: actions/github-script@v6
         if: always()
