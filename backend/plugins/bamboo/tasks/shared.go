@@ -103,3 +103,15 @@ func getBambooHomePage(endpoint string) (string, error) {
 		return fmt.Sprintf("%s://%s%s", protocol, host, bambooPath), nil
 	}
 }
+
+// generateFakeRepoUrl will return a fake url for repo url field.
+func generateFakeRepoUrl(endpoint string, repoId int) (string, error) {
+	if endpoint == "" {
+		return "", errors.Default.New("empty endpoint")
+	}
+	endpointURL, err := url.Parse(endpoint)
+	if err != nil {
+		return "", err
+	}
+	return fmt.Sprintf("fake://%s/repos/%d", endpointURL.Host, repoId), nil
+}

@@ -43,6 +43,7 @@ func TestBambooJobBuildDataFlow(t *testing.T) {
 			},
 		},
 		RegexEnricher: helper.NewRegexEnricher(),
+		ApiClient:     getFakeAPIClient(),
 	}
 	taskData.RegexEnricher.TryAdd(devops.DEPLOYMENT, taskData.Options.DeploymentPattern)
 	// import raw data table
