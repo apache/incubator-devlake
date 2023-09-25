@@ -18,7 +18,10 @@ limitations under the License.
 package e2e
 
 import (
+	gocontext "context"
+	"github.com/apache/incubator-devlake/core/runner"
 	"testing"
+	"time"
 
 	"github.com/apache/incubator-devlake/core/models/common"
 	"github.com/apache/incubator-devlake/core/models/domainlayer/devops"
@@ -28,6 +31,19 @@ import (
 	"github.com/apache/incubator-devlake/plugins/bamboo/models"
 	"github.com/apache/incubator-devlake/plugins/bamboo/tasks"
 )
+
+var basicContext = runner.CreateAppBasicRes()
+
+func getFakeAPIClient() *helper.ApiAsyncClient {
+	client, _ := helper.NewApiClient(gocontext.Background(),
+		"https://zentao.demo.haogs.cn/api.php/v1/",
+		nil, time.Second*5, "",
+		basicContext,
+	)
+	return &helper.ApiAsyncClient{
+		ApiClient: client,
+	}
+}
 
 func TestBambooDeployBuildDataFlow(t *testing.T) {
 	var bamboo impl.Bamboo
@@ -42,6 +58,7 @@ func TestBambooDeployBuildDataFlow(t *testing.T) {
 			},
 		},
 		RegexEnricher: helper.NewRegexEnricher(),
+		ApiClient:     getFakeAPIClient(),
 	}
 	taskData.RegexEnricher.TryAdd(devops.DEPLOYMENT, taskData.Options.DeploymentPattern)
 	taskData.RegexEnricher.TryAdd(devops.PRODUCTION, taskData.Options.ProductionPattern)
