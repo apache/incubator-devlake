@@ -24,3 +24,13 @@ export const ColumnTitle = styled.div`
   padding: 6px 12px;
   font-weight: 600;
 `;
+
+export const JobLoad = styled.div`
+  display: flex;
+  align-items: center;
+
+  & > span.count {
+    margin: 0 8px;
+    color: #7497f7;
+  }
+`;
