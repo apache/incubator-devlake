@@ -39,17 +39,17 @@ func NewScopeConfigSrvHelper[
 	}
 }
 
-func (self *ScopeConfigSrvHelper[C, S, SC]) GetAllByConnectionId(connectionId uint64) ([]*SC, errors.Error) {
+func (scopeConfigSrv *ScopeConfigSrvHelper[C, S, SC]) GetAllByConnectionId(connectionId uint64) ([]*SC, errors.Error) {
 	var scopeConfigs []*SC
-	err := self.db.All(&scopeConfigs,
+	err := scopeConfigSrv.db.All(&scopeConfigs,
 		dal.Where("connection_id = ?", connectionId),
 		dal.Orderby("id DESC"),
 	)
 	return scopeConfigs, err
 }
 
-func (self *ScopeConfigSrvHelper[C, S, SC]) Delete(scopeConfig *SC) (refs []*S, err errors.Error) {
-	err = self.ModelSrvHelper.NoRunningPipeline(func(tx dal.Transaction) errors.Error {
+func (scopeConfigSrv *ScopeConfigSrvHelper[C, S, SC]) DeleteScopeConfig(scopeConfig *SC) (refs []*S, err errors.Error) {
+	err = scopeConfigSrv.ModelSrvHelper.NoRunningPipeline(func(tx dal.Transaction) errors.Error {
 		// make sure no scope is using the scopeConfig
 		sc := (*scopeConfig)
 		errors.Must(tx.All(

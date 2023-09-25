@@ -23,20 +23,20 @@ type Pagination struct {
 	SearchTerm string `json:"searchTerm"`
 }
 
-func (self *Pagination) GetPage() int {
-	if self.Page > 0 {
-		return self.Page
+func (pagination *Pagination) GetPage() int {
+	if pagination.Page > 0 {
+		return pagination.Page
 	}
 	return 1
 }
 
-func (self *Pagination) GetLimit() int {
-	if self.PageSize > 0 {
-		return self.PageSize
+func (pagination *Pagination) GetLimit() int {
+	if pagination.PageSize > 0 {
+		return pagination.PageSize
 	}
 	return 100
 }
 
-func (self *Pagination) GetOffset() int {
-	return (self.GetPage() - 1) * self.GetLimit()
+func (pagination *Pagination) GetOffset() int {
+	return (pagination.GetPage() - 1) * pagination.GetLimit()
 }

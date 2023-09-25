@@ -46,28 +46,28 @@ func NewConnectionSrvHelper[
 	}
 }
 
-func (self *ConnectionSrvHelper[C, S, SC]) Delete(connection *C) (refs *DsRefs, err errors.Error) {
-	err = self.ModelSrvHelper.NoRunningPipeline(func(tx dal.Transaction) errors.Error {
+func (connSrv *ConnectionSrvHelper[C, S, SC]) DeleteConnection(connection *C) (refs *DsRefs, err errors.Error) {
+	err = connSrv.ModelSrvHelper.NoRunningPipeline(func(tx dal.Transaction) errors.Error {
 		// make sure no blueprint is using the connection
 		connectionId := (*connection).ConnectionId()
-		refs, err = toDsRefs(self.getAllBlueprinsByConnection(connectionId))
+		refs, err = toDsRefs(connSrv.getAllBlueprinsByConnection(connectionId))
 		if err != nil {
 			return err
 		}
-		scopeCount := errors.Must1(self.db.Count(dal.From(new(S)), dal.Where("connection_id = ?", connectionId)))
+		scopeCount := errors.Must1(connSrv.db.Count(dal.From(new(S)), dal.Where("connection_id = ?", connectionId)))
 		if scopeCount > 0 {
 			return errors.Conflict.New("Please delete all data scope(s) before you delete this Data Connection.")
 		}
 		errors.Must(tx.Delete(connection))
-		errors.Must(self.db.Delete(new(SC), dal.Where("connection_id = ?", connectionId)))
+		errors.Must(connSrv.db.Delete(new(SC), dal.Where("connection_id = ?", connectionId)))
 		return nil
 	})
 	return
 }
 
-func (self *ConnectionSrvHelper[C, S, SC]) getAllBlueprinsByConnection(connectionId uint64) []*models.Blueprint {
+func (connSrv *ConnectionSrvHelper[C, S, SC]) getAllBlueprinsByConnection(connectionId uint64) []*models.Blueprint {
 	blueprints := make([]*models.Blueprint, 0)
-	errors.Must(self.db.All(
+	errors.Must(connSrv.db.All(
 		&blueprints,
 		dal.From("_devlake_blueprints bp"),
 		dal.Join("JOIN _devlake_blueprint_connections cn ON cn.blueprint_id = bp.id"),
@@ -75,7 +75,7 @@ func (self *ConnectionSrvHelper[C, S, SC]) getAllBlueprinsByConnection(connectio
 			"mode = ? AND cn.connection_id = ? AND cn.plugin_name = ?",
 			"NORMAL",
 			connectionId,
-			self.pluginName,
+			connSrv.pluginName,
 		),
 	))
 	return blueprints

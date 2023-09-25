@@ -41,44 +41,44 @@ func NewDsScopeConfigApiHelper[C plugin.ToolLayerConnection, S plugin.ToolLayerS
 	}
 }
 
-func (self *DsScopeConfigApiHelper[C, S, SC]) GetAll(input *plugin.ApiResourceInput) (out *plugin.ApiResourceOutput, err errors.Error) {
+func (connApi *DsScopeConfigApiHelper[C, S, SC]) GetAll(input *plugin.ApiResourceInput) (out *plugin.ApiResourceOutput, err errors.Error) {
 	connectionId, err := extractConnectionId(input)
 	if err != nil {
 		return nil, err
 	}
-	scopeConfigs := errors.Must1(self.ScopeConfigSrvHelper.GetAllByConnectionId(connectionId))
+	scopeConfigs := errors.Must1(connApi.ScopeConfigSrvHelper.GetAllByConnectionId(connectionId))
 	return &plugin.ApiResourceOutput{
 		Body: scopeConfigs,
 	}, nil
 }
 
-func (self *DsScopeConfigApiHelper[C, S, SC]) Post(input *plugin.ApiResourceInput) (out *plugin.ApiResourceOutput, err errors.Error) {
+func (connApi *DsScopeConfigApiHelper[C, S, SC]) Post(input *plugin.ApiResourceInput) (out *plugin.ApiResourceOutput, err errors.Error) {
 	// fix connectionId
 	connectionId, err := extractConnectionId(input)
 	if err != nil {
 		return nil, err
 	}
 	input.Body["connectionId"] = connectionId
-	return self.ModelApiHelper.Post(input)
+	return connApi.ModelApiHelper.Post(input)
 }
 
-func (self *DsScopeConfigApiHelper[C, S, SC]) Patch(input *plugin.ApiResourceInput) (out *plugin.ApiResourceOutput, err errors.Error) {
+func (connApi *DsScopeConfigApiHelper[C, S, SC]) Patch(input *plugin.ApiResourceInput) (out *plugin.ApiResourceOutput, err errors.Error) {
 	// fix connectionId
 	connectionId, err := extractConnectionId(input)
 	if err != nil {
 		return nil, err
 	}
 	input.Body["connectionId"] = connectionId
-	return self.ModelApiHelper.Patch(input)
+	return connApi.ModelApiHelper.Patch(input)
 }
 
-func (self *DsScopeConfigApiHelper[C, S, SC]) Delete(input *plugin.ApiResourceInput) (out *plugin.ApiResourceOutput, err errors.Error) {
+func (connApi *DsScopeConfigApiHelper[C, S, SC]) Delete(input *plugin.ApiResourceInput) (out *plugin.ApiResourceOutput, err errors.Error) {
 	var scopeConfig *SC
-	scopeConfig, err = self.FindByPk(input)
+	scopeConfig, err = connApi.FindByPk(input)
 	if err != nil {
 		return nil, err
 	}
-	refs, err := self.ScopeConfigSrvHelper.Delete(scopeConfig)
+	refs, err := connApi.ScopeConfigSrvHelper.DeleteScopeConfig(scopeConfig)
 	if err != nil {
 		return &plugin.ApiResourceOutput{Body: &shared.ApiBody{
 			Success: false,

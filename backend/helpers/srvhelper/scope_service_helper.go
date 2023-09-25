@@ -64,25 +64,25 @@ func NewScopeSrvHelper[
 	}
 }
 
-func (self *ScopeSrvHelper[C, S, SC]) Validate(scope *S) errors.Error {
+func (scopeSrv *ScopeSrvHelper[C, S, SC]) Validate(scope *S) errors.Error {
 	connectionId := (*scope).ScopeConnectionId()
-	connectionCount := errors.Must1(self.db.Count(dal.From(new(SC)), dal.Where("id = ?", connectionId)))
+	connectionCount := errors.Must1(scopeSrv.db.Count(dal.From(new(SC)), dal.Where("id = ?", connectionId)))
 	if connectionCount == 0 {
 		return errors.BadInput.New("connectionId is invalid")
 	}
 	scopeConfigId := (*scope).ScopeScopeConfigId()
-	scopeConfigCount := errors.Must1(self.db.Count(dal.From(new(SC)), dal.Where("id = ?", scopeConfigId)))
+	scopeConfigCount := errors.Must1(scopeSrv.db.Count(dal.From(new(SC)), dal.Where("id = ?", scopeConfigId)))
 	if scopeConfigCount == 0 {
 		return errors.BadInput.New("scopeConfigId is invalid")
 	}
 	return nil
 }
 
-func (self *ScopeSrvHelper[C, S, SC]) GetPage(pagination *ScopePagination) ([]*ScopeResItem[S], int64, errors.Error) {
+func (scopeSrv *ScopeSrvHelper[C, S, SC]) GetScopesPage(pagination *ScopePagination) ([]*ScopeResItem[S], int64, errors.Error) {
 	if pagination.ConnectionId < 1 {
 		return nil, 0, errors.BadInput.New("connectionId is required")
 	}
-	scopes, count, err := self.ModelSrvHelper.GetPage(
+	scopes, count, err := scopeSrv.ModelSrvHelper.GetPage(
 		&pagination.Pagination,
 		dal.Where("connection_id = ?", pagination.ConnectionId),
 	)
@@ -95,7 +95,7 @@ func (self *ScopeSrvHelper[C, S, SC]) GetPage(pagination *ScopePagination) ([]*S
 		for i, s := range scopes {
 			// load blueprints
 			scope := (*s)
-			blueprints := self.getAllBlueprinsByScope(scope.ScopeConnectionId(), scope.ScopeId())
+			blueprints := scopeSrv.getAllBlueprinsByScope(scope.ScopeConnectionId(), scope.ScopeId())
 			resItem := &ScopeResItem[S]{
 				Scope:      scope,
 				Blueprints: blueprints,
@@ -106,27 +106,27 @@ func (self *ScopeSrvHelper[C, S, SC]) GetPage(pagination *ScopePagination) ([]*S
 	return data, count, nil
 }
 
-func (self *ScopeSrvHelper[C, S, SC]) Delete(scope *S, dataOnly bool) (refs *DsRefs, err errors.Error) {
-	err = self.ModelSrvHelper.NoRunningPipeline(func(tx dal.Transaction) errors.Error {
+func (scopeSrv *ScopeSrvHelper[C, S, SC]) DeleteScope(scope *S, dataOnly bool) (refs *DsRefs, err errors.Error) {
+	err = scopeSrv.ModelSrvHelper.NoRunningPipeline(func(tx dal.Transaction) errors.Error {
 		s := (*scope)
 		// check referencing blueprints
 		if !dataOnly {
-			refs, err = toDsRefs(self.getAllBlueprinsByScope(s.ScopeConnectionId(), s.ScopeId()))
+			refs, err = toDsRefs(scopeSrv.getAllBlueprinsByScope(s.ScopeConnectionId(), s.ScopeId()))
 			if err != nil {
 				return err
 			}
 			errors.Must(tx.Delete(scope))
 		}
 		// delete data
-		self.deleteScopeData(s, tx)
+		scopeSrv.deleteScopeData(s, tx)
 		return nil
 	})
 	return
 }
 
-func (self *ScopeSrvHelper[C, S, SC]) getAllBlueprinsByScope(connectionId uint64, scopeId string) []*models.Blueprint {
+func (scopeSrv *ScopeSrvHelper[C, S, SC]) getAllBlueprinsByScope(connectionId uint64, scopeId string) []*models.Blueprint {
 	blueprints := make([]*models.Blueprint, 0)
-	errors.Must(self.db.All(
+	errors.Must(scopeSrv.db.All(
 		&blueprints,
 		dal.From("_devlake_blueprints bp"),
 		dal.Join("JOIN _devlake_blueprint_scopes sc ON sc.blueprint_id = bp.id"),
@@ -134,14 +134,14 @@ func (self *ScopeSrvHelper[C, S, SC]) getAllBlueprinsByScope(connectionId uint64
 			"mode = ? AND sc.connection_id = ? AND sc.plugin_name = ? AND sc.scope_id = ?",
 			"NORMAL",
 			connectionId,
-			self.pluginName,
+			scopeSrv.pluginName,
 			scopeId,
 		),
 	))
 	return blueprints
 }
 
-func (self *ScopeSrvHelper[C, S, SC]) deleteScopeData(scope plugin.ToolLayerScope, tx dal.Transaction) {
+func (scopeSrv *ScopeSrvHelper[C, S, SC]) deleteScopeData(scope plugin.ToolLayerScope, tx dal.Transaction) {
 	rawDataParams := plugin.MarshalScopeParams(scope.ScopeParams())
 	generateWhereClause := func(table string) (string, []any) {
 		var where string
@@ -163,38 +163,38 @@ func (self *ScopeSrvHelper[C, S, SC]) deleteScopeData(scope plugin.ToolLayerScop
 				// domain layer table
 				where = "_raw_data_table LIKE ? AND _raw_data_params = ?"
 			}
-			rawDataTablePrefix := fmt.Sprintf("_raw_%s%%", self.pluginName)
+			rawDataTablePrefix := fmt.Sprintf("_raw_%s%%", scopeSrv.pluginName)
 			params = []interface{}{rawDataTablePrefix, rawDataParams}
 		}
 		return where, params
 	}
-	tables := errors.Must1(self.getAffectedTables())
+	tables := errors.Must1(scopeSrv.getAffectedTables())
 	for _, table := range tables {
 		where, params := generateWhereClause(table)
-		self.log.Info("deleting data from table %s with WHERE \"%s\" and params: \"%v\"", table, where, params)
+		scopeSrv.log.Info("deleting data from table %s with WHERE \"%s\" and params: \"%v\"", table, where, params)
 		sql := fmt.Sprintf("DELETE FROM %s WHERE %s", table, where)
 		errors.Must(tx.Exec(sql, params...))
 	}
 }
 
-func (self *ScopeSrvHelper[C, S, SC]) getAffectedTables() ([]string, errors.Error) {
+func (scopeSrv *ScopeSrvHelper[C, S, SC]) getAffectedTables() ([]string, errors.Error) {
 	var tables []string
-	meta, err := plugin.GetPlugin(self.pluginName)
+	meta, err := plugin.GetPlugin(scopeSrv.pluginName)
 	if err != nil {
 		return nil, err
 	}
 	if pluginModel, ok := meta.(plugin.PluginModel); !ok {
-		panic(errors.Default.New(fmt.Sprintf("plugin \"%s\" does not implement listing its tables", self.pluginName)))
+		panic(errors.Default.New(fmt.Sprintf("plugin \"%s\" does not implement listing its tables", scopeSrv.pluginName)))
 	} else {
 		// Unfortunately, can't cache the tables because Python creates some tables on a per-demand basis, so such a cache would possibly get outdated.
 		// It's a rare scenario in practice, but might as well play it safe and sacrifice some performance here
 		var allTables []string
-		if allTables, err = self.db.AllTables(); err != nil {
+		if allTables, err = scopeSrv.db.AllTables(); err != nil {
 			return nil, err
 		}
 		// collect raw tables
 		for _, table := range allTables {
-			if strings.HasPrefix(table, "_raw_"+self.pluginName) {
+			if strings.HasPrefix(table, "_raw_"+scopeSrv.pluginName) {
 				tables = append(tables, table)
 			}
 		}
@@ -216,7 +216,7 @@ func (self *ScopeSrvHelper[C, S, SC]) getAffectedTables() ([]string, errors.Erro
 		// additional tables
 		tables = append(tables, models.CollectorLatestState{}.TableName())
 	}
-	self.log.Debug("Discovered %d tables used by plugin \"%s\": %v", len(tables), self.pluginName, tables)
+	scopeSrv.log.Debug("Discovered %d tables used by plugin \"%s\": %v", len(tables), scopeSrv.pluginName, tables)
 	return tables, nil
 }
 

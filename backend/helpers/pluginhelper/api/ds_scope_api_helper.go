@@ -40,12 +40,12 @@ func NewDsScopeApiHelper[C plugin.ToolLayerConnection, S plugin.ToolLayerScope, 
 	}
 }
 
-func (self *DsScopeApiHelper[C, S, SC]) GetPage(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, errors.Error) {
+func (connApi *DsScopeApiHelper[C, S, SC]) GetPage(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, errors.Error) {
 	pagination, err := ParsePagination[srvhelper.ScopePagination](input)
 	if err != nil {
 		return nil, errors.BadInput.Wrap(err, "failed to decode pathvars into pagination")
 	}
-	scopes, count, err := self.ScopeSrvHelper.GetPage(pagination)
+	scopes, count, err := connApi.ScopeSrvHelper.GetScopesPage(pagination)
 	if err != nil {
 		return nil, err
 	}
@@ -57,7 +57,7 @@ func (self *DsScopeApiHelper[C, S, SC]) GetPage(input *plugin.ApiResourceInput) 
 	}, nil
 }
 
-func (self *DsScopeApiHelper[C, S, SC]) PutMultiple(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, errors.Error) {
+func (connApi *DsScopeApiHelper[C, S, SC]) PutMultiple(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, errors.Error) {
 	// fix data[].connectionId
 	connectionId, err := extractConnectionId(input)
 	if err != nil {
@@ -74,18 +74,18 @@ func (self *DsScopeApiHelper[C, S, SC]) PutMultiple(input *plugin.ApiResourceInp
 		}
 		dict["connectionId"] = connectionId
 	}
-	return self.ModelApiHelper.PutMultiple(input)
+	return connApi.ModelApiHelper.PutMultiple(input)
 }
 
-func (self *DsScopeApiHelper[C, S, SC]) Delete(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, errors.Error) {
+func (connApi *DsScopeApiHelper[C, S, SC]) Delete(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, errors.Error) {
 	var scope *S
-	scope, err := self.FindByPk(input)
+	scope, err := connApi.FindByPk(input)
 	if err != nil {
 		return nil, err
 	}
 	// time.Sleep(1 * time.Minute) # uncomment this line if you were to verify pipelines get blocked while deleting data
 	// check referencing blueprints
-	refs, err := self.ScopeSrvHelper.Delete(scope, input.Query.Get("delete_data_only") == "true")
+	refs, err := connApi.ScopeSrvHelper.DeleteScope(scope, input.Query.Get("delete_data_only") == "true")
 	if err != nil {
 		return &plugin.ApiResourceOutput{Body: &shared.ApiBody{
 			Success: false,

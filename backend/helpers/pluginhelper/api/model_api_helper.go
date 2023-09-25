@@ -111,7 +111,7 @@ func (self *ModelApiHelper[M]) Delete(input *plugin.ApiResourceInput) (*plugin.A
 	if err != nil {
 		return nil, err
 	}
-	err = self.dalHelper.Delete(model)
+	err = self.dalHelper.DeleteModel(model)
 	if err != nil {
 		return nil, err
 	}

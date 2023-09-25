@@ -28,7 +28,8 @@ import (
 )
 
 var vld *validator.Validate
-var connSrv *srvhelper.ConnectionSrvHelper[models.GithubConnection, models.GithubRepo, models.GithubScopeConfig]
+
+// var connSrv *srvhelper.ConnectionSrvHelper[models.GithubConnection, models.GithubRepo, models.GithubScopeConfig]
 var connApi *api.DsConnectionApiHelper[models.GithubConnection, models.GithubRepo, models.GithubScopeConfig]
 var scopeSrv *srvhelper.ScopeSrvHelper[models.GithubConnection, models.GithubRepo, models.GithubScopeConfig]
 var scopeApi *api.DsScopeApiHelper[models.GithubConnection, models.GithubRepo, models.GithubScopeConfig]
@@ -40,7 +41,7 @@ var remoteHelper *api.RemoteApiHelper[models.GithubConnection, models.GithubRepo
 
 func Init(br context.BasicRes, p plugin.PluginMeta) {
 	basicRes = br
-	connSrv, connApi, scopeSrv, scopeApi, scSrv, scApi = api.NewDataSourceHelpers[
+	_, connApi, scopeSrv, scopeApi, scSrv, scApi = api.NewDataSourceHelpers[
 		models.GithubConnection,
 		models.GithubRepo, models.GithubScopeConfig,
 	](

@@ -73,75 +73,75 @@ func NewModelSrvHelper[M dal.Tabler](basicRes context.BasicRes) *ModelSrvHelper[
 	}
 }
 
-func (self *ModelSrvHelper[M]) NewTx(tx dal.Transaction) *ModelSrvHelper[M] {
+func (srv *ModelSrvHelper[M]) NewTx(tx dal.Transaction) *ModelSrvHelper[M] {
 	helper := new(ModelSrvHelper[M])
-	*helper = *self
+	*helper = *srv
 	helper.db = tx
 	return helper
 }
 
-func (self *ModelSrvHelper[M]) Validate(model *M) errors.Error {
+func (srv *ModelSrvHelper[M]) ValidateModel(model *M) errors.Error {
 	// the model can validate itself
 	if customValidator, ok := (interface{}(model)).(CustomValidator); ok {
-		return customValidator.CustomValidate(model, self.validator)
+		return customValidator.CustomValidate(model, srv.validator)
 	}
 	// basic validator
-	if e := self.validator.Struct(model); e != nil {
+	if e := srv.validator.Struct(model); e != nil {
 		return errors.BadInput.Wrap(e, "validation faild")
 	}
 	return nil
 }
 
 // Create validates given model and insert it into database if validation passed
-func (self *ModelSrvHelper[M]) Create(model *M) errors.Error {
+func (srv *ModelSrvHelper[M]) Create(model *M) errors.Error {
 	println("create model")
-	err := self.Validate(model)
+	err := srv.ValidateModel(model)
 	if err != nil {
 		return err
 	}
-	err = self.db.Create(model)
-	if err != nil && self.db.IsDuplicationError(err) {
-		return errors.Conflict.Wrap(err, fmt.Sprintf("%s already exists", self.modelName))
+	err = srv.db.Create(model)
+	if err != nil && srv.db.IsDuplicationError(err) {
+		return errors.Conflict.Wrap(err, fmt.Sprintf("%s already exists", srv.modelName))
 	}
 	return err
 }
 
 // Update validates given model and update it into database if validation passed
-func (self *ModelSrvHelper[M]) Update(model *M) errors.Error {
-	err := self.Validate(model)
+func (srv *ModelSrvHelper[M]) Update(model *M) errors.Error {
+	err := srv.ValidateModel(model)
 	if err != nil {
 		return err
 	}
-	if err != nil && self.db.IsDuplicationError(err) {
-		return errors.Conflict.Wrap(err, fmt.Sprintf("%s already exists", self.modelName))
+	if err != nil && srv.db.IsDuplicationError(err) {
+		return errors.Conflict.Wrap(err, fmt.Sprintf("%s already exists", srv.modelName))
 	}
-	return self.db.Update(model)
+	return srv.db.Update(model)
 }
 
 // CreateOrUpdate validates given model and insert or update it into database if validation passed
-func (self *ModelSrvHelper[M]) CreateOrUpdate(model *M) errors.Error {
-	err := self.Validate(model)
+func (srv *ModelSrvHelper[M]) CreateOrUpdate(model *M) errors.Error {
+	err := srv.ValidateModel(model)
 	if err != nil {
 		return err
 	}
-	return self.db.CreateOrUpdate(model)
+	return srv.db.CreateOrUpdate(model)
 }
 
-// Delete deletes given model from database
-func (self *ModelSrvHelper[M]) Delete(model *M) errors.Error {
-	return self.db.Delete(model)
+// DeleteModel deletes given model from database
+func (srv *ModelSrvHelper[M]) DeleteModel(model *M) errors.Error {
+	return srv.db.Delete(model)
 }
 
 // FindByPk returns model with given primary key from database
-func (self *ModelSrvHelper[M]) FindByPk(pk ...interface{}) (*M, errors.Error) {
-	if len(pk) != self.pkCount {
+func (srv *ModelSrvHelper[M]) FindByPk(pk ...interface{}) (*M, errors.Error) {
+	if len(pk) != srv.pkCount {
 		return nil, errors.BadInput.New("invalid primary key")
 	}
 	model := new(M)
-	err := self.db.First(model, dal.Where(self.pkWhere, pk...))
+	err := srv.db.First(model, dal.Where(srv.pkWhere, pk...))
 	if err != nil {
-		if self.db.IsErrorNotFound(err) {
-			return nil, errors.NotFound.Wrap(err, fmt.Sprintf("%s not found", self.modelName))
+		if srv.db.IsErrorNotFound(err) {
+			return nil, errors.NotFound.Wrap(err, fmt.Sprintf("%s not found", srv.modelName))
 		}
 		return nil, err
 	}
@@ -149,20 +149,20 @@ func (self *ModelSrvHelper[M]) FindByPk(pk ...interface{}) (*M, errors.Error) {
 }
 
 // GetAll returns all models from database
-func (self *ModelSrvHelper[M]) GetAll() ([]*M, errors.Error) {
-	models := make([]*M, 0)
-	return models, self.db.All(&models)
+func (srv *ModelSrvHelper[M]) GetAll() ([]*M, errors.Error) {
+	array := make([]*M, 0)
+	return array, srv.db.All(&array)
 }
 
-func (self *ModelSrvHelper[M]) GetPage(pagination *Pagination, query ...dal.Clause) ([]*M, int64, errors.Error) {
+func (srv *ModelSrvHelper[M]) GetPage(pagination *Pagination, query ...dal.Clause) ([]*M, int64, errors.Error) {
 	query = append(query, dal.From(new(M)))
 	// process keyword
 	searchTerm := pagination.SearchTerm
-	if searchTerm != "" && len(self.searchColumns) > 0 {
+	if searchTerm != "" && len(srv.searchColumns) > 0 {
 		sql := ""
 		value := "%" + searchTerm + "%"
-		values := make([]interface{}, len(self.searchColumns))
-		for i, field := range self.searchColumns {
+		values := make([]interface{}, len(srv.searchColumns))
+		for i, field := range srv.searchColumns {
 			if sql != "" {
 				sql += " OR "
 			}
@@ -174,19 +174,19 @@ func (self *ModelSrvHelper[M]) GetPage(pagination *Pagination, query ...dal.Clau
 			dal.Where(sql, values...),
 		)
 	}
-	count, err := self.db.Count(query...)
+	count, err := srv.db.Count(query...)
 	if err != nil {
 		return nil, 0, err
 	}
 	query = append(query, dal.Limit(pagination.GetLimit()), dal.Offset(pagination.GetOffset()))
 	var scopes []*M
-	return scopes, count, self.db.All(&scopes, query...)
+	return scopes, count, srv.db.All(&scopes, query...)
 }
 
-func (self *ModelSrvHelper[M]) NoRunningPipeline(fn func(tx dal.Transaction) errors.Error, tablesToLock ...*dal.LockTable) (err errors.Error) {
+func (srv *ModelSrvHelper[M]) NoRunningPipeline(fn func(tx dal.Transaction) errors.Error, tablesToLock ...*dal.LockTable) (err errors.Error) {
 	// make sure no pipeline is running
 	tablesToLock = append(tablesToLock, &dal.LockTable{Table: "_devlake_pipelines", Exclusive: true})
-	txHelper := dbhelper.NewTxHelper(self.basicRes, &err)
+	txHelper := dbhelper.NewTxHelper(srv.basicRes, &err)
 	defer txHelper.End()
 	tx := txHelper.Begin()
 	err = txHelper.LockTablesTimeout(2*time.Second, tablesToLock)
@@ -204,7 +204,7 @@ func (self *ModelSrvHelper[M]) NoRunningPipeline(fn func(tx dal.Transaction) err
 	}
 	// time.Sleep(1 * time.Minute) # uncomment this line if you were to verify pipelines get blocked while deleting data
 	// creating a nested transaction to avoid mysql complaining about table(s) NOT being locked
-	nextedTxHelper := dbhelper.NewTxHelper(self.basicRes, &err)
+	nextedTxHelper := dbhelper.NewTxHelper(srv.basicRes, &err)
 	defer nextedTxHelper.End()
 	nestedTX := nextedTxHelper.Begin()
 	err = fn(nestedTX)

@@ -43,13 +43,13 @@ func NewDsConnectionApiHelper[C plugin.ToolLayerConnection, S plugin.ToolLayerSc
 	}
 }
 
-func (self *DsConnectionApiHelper[C, S, SC]) Delete(input *plugin.ApiResourceInput) (out *plugin.ApiResourceOutput, err errors.Error) {
+func (connApi *DsConnectionApiHelper[C, S, SC]) Delete(input *plugin.ApiResourceInput) (out *plugin.ApiResourceOutput, err errors.Error) {
 	var conn *C
-	conn, err = self.FindByPk(input)
+	conn, err = connApi.FindByPk(input)
 	if err != nil {
 		return nil, err
 	}
-	refs, err := self.ConnectionSrvHelper.Delete(conn)
+	refs, err := connApi.ConnectionSrvHelper.DeleteConnection(conn)
 	if err != nil {
 		return &plugin.ApiResourceOutput{Body: &shared.ApiBody{
 			Success: false,

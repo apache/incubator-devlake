@@ -93,6 +93,9 @@ func makeDataSourcePipelinePlanV200(
 		var scopeConfig *models.GithubScopeConfig
 		if githubRepo.ScopeConfigId != 0 {
 			scopeConfig, err = scSrv.FindByPk(githubRepo.ScopeConfigId)
+			if err != nil {
+				return nil, err
+			}
 		}
 		// refdiff
 		if scopeConfig != nil && scopeConfig.Refdiff != nil {
