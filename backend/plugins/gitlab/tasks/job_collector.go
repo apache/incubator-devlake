@@ -55,7 +55,6 @@ func CollectApiJobs(taskCtx plugin.SubTaskContext) errors.Error {
 	collector, err := helper.NewStatefulApiCollectorForFinalizableEntity(helper.FinalizableApiCollectorArgs{
 		RawDataSubTaskArgs: *rawDataSubTaskArgs,
 		ApiClient:          data.ApiClient,
-		TimeAfter:          data.TimeAfter, // set to nil to disable timeFilter
 		CollectNewRecordsByList: helper.FinalizableApiCollectorListArgs{
 			PageSize:    100,
 			Concurrency: 10,

@@ -42,6 +42,7 @@ func TestBambooPlanBuildCommitsDataFlow(t *testing.T) {
 				ProductionPattern: "(?i)compile",
 			},
 		},
+		ApiClient: getFakeAPIClient(),
 	}
 	dataflowTester.ImportCsvIntoTabler("./snapshot_tables/_tool_bamboo_plan_build_commits.csv", &models.BambooPlanBuildVcsRevision{})
 	dataflowTester.ImportCsvIntoTabler("./snapshot_tables/_tool_bamboo_plan_builds.csv", &models.BambooPlanBuild{})

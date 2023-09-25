@@ -53,12 +53,7 @@ type BlueprintJob struct {
 
 func (bj BlueprintJob) Run() {
 	blueprint := bj.Blueprint
-	syncPolicy := &models.SyncPolicy{
-		TimeAfter:  blueprint.TimeAfter,
-		FullSync:   blueprint.FullSync,
-		SkipOnFail: blueprint.SkipOnFail,
-	}
-	pipeline, err := createPipelineByBlueprint(blueprint, syncPolicy)
+	pipeline, err := createPipelineByBlueprint(blueprint, &blueprint.SyncPolicy)
 	if err == ErrEmptyPlan {
 		blueprintLog.Info("Empty plan, blueprint id:[%d] blueprint name:[%s]", blueprint.ID, blueprint.Name)
 		return
@@ -166,13 +161,8 @@ func validateBlueprintAndMakePlan(blueprint *models.Blueprint) errors.Error {
 			return errors.BadInput.New("invalid plan")
 		}
 	} else if blueprint.Mode == models.BLUEPRINT_MODE_NORMAL {
-		syncPolicy := &models.SyncPolicy{
-			TimeAfter:  blueprint.TimeAfter,
-			FullSync:   blueprint.FullSync,
-			SkipOnFail: blueprint.SkipOnFail,
-		}
 		var e errors.Error
-		blueprint.Plan, e = MakePlanForBlueprint(blueprint, syncPolicy)
+		blueprint.Plan, e = MakePlanForBlueprint(blueprint, &blueprint.SyncPolicy)
 		if err != nil {
 			return e
 		}
@@ -213,9 +203,15 @@ func PatchBlueprint(id uint64, body map[string]interface{}) (*models.Blueprint, 
 	if err != nil {
 		return nil, err
 	}
+
 	// make sure mode is not being updated
 	if originMode != blueprint.Mode {
 		return nil, errors.Default.New("mode is not updatable")
+	}
+	// syncPolicy can be updated, so we need to decode it again
+	err = helper.DecodeMapStruct(body, &blueprint.SyncPolicy, true)
+	if err != nil {
+		return nil, err
 	}
 
 	blueprint, err = saveBlueprint(blueprint)
@@ -274,9 +270,6 @@ func ReloadBlueprints(c *cron.Cron) errors.Error {
 func createPipelineByBlueprint(blueprint *models.Blueprint, syncPolicy *models.SyncPolicy) (*models.Pipeline, errors.Error) {
 	var plan models.PipelinePlan
 	var err errors.Error
-	if syncPolicy != nil && syncPolicy.FullSync {
-		blueprint.FullSync = true
-	}
 	if blueprint.Mode == models.BLUEPRINT_MODE_NORMAL {
 		plan, err = MakePlanForBlueprint(blueprint, syncPolicy)
 		if err != nil {
@@ -286,18 +279,13 @@ func createPipelineByBlueprint(blueprint *models.Blueprint, syncPolicy *models.S
 	} else {
 		plan = blueprint.Plan
 	}
+
 	newPipeline := models.NewPipeline{}
 	newPipeline.Plan = plan
 	newPipeline.Name = blueprint.Name
 	newPipeline.BlueprintId = blueprint.ID
 	newPipeline.Labels = blueprint.Labels
-	newPipeline.SkipOnFail = blueprint.SkipOnFail
-
-	if syncPolicy != nil && syncPolicy.FullSync {
-		newPipeline.FullSync = true
-	} else {
-		newPipeline.FullSync = blueprint.FullSync
-	}
+	newPipeline.SyncPolicy = blueprint.SyncPolicy
 
 	// if the plan is empty, we should not create the pipeline
 	var shouldCreatePipeline bool
@@ -326,11 +314,6 @@ func createPipelineByBlueprint(blueprint *models.Blueprint, syncPolicy *models.S
 
 // MakePlanForBlueprint generates pipeline plan by version
 func MakePlanForBlueprint(blueprint *models.Blueprint, syncPolicy *models.SyncPolicy) (models.PipelinePlan, errors.Error) {
-	if syncPolicy != nil {
-		syncPolicy.TimeAfter = blueprint.TimeAfter
-		syncPolicy.FullSync = blueprint.FullSync
-	}
-
 	var plan models.PipelinePlan
 	// load project metric plugins and convert it to a map
 	metrics := make(map[string]json.RawMessage)
@@ -344,7 +327,11 @@ func MakePlanForBlueprint(blueprint *models.Blueprint, syncPolicy *models.SyncPo
 			metrics[projectMetric.PluginName] = json.RawMessage(projectMetric.PluginOption)
 		}
 	}
-	plan, err := GeneratePlanJsonV200(blueprint.ProjectName, syncPolicy, blueprint.Connections, metrics)
+	skipCollectors := false
+	if syncPolicy != nil && syncPolicy.SkipCollectors {
+		skipCollectors = true
+	}
+	plan, err := GeneratePlanJsonV200(blueprint.ProjectName, blueprint.Connections, metrics, skipCollectors)
 	if err != nil {
 		return nil, err
 	}
@@ -388,5 +375,8 @@ func TriggerBlueprint(id uint64, syncPolicy *models.SyncPolicy) (*models.Pipelin
 		logger.Error(err, "GetBlueprint, id: %d", id)
 		return nil, err
 	}
+	blueprint.SkipCollectors = syncPolicy.SkipCollectors
+	blueprint.FullSync = syncPolicy.FullSync
+
 	return createPipelineByBlueprint(blueprint, syncPolicy)
 }

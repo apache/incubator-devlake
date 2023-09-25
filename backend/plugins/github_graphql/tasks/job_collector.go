@@ -111,12 +111,10 @@ func CollectGraphqlJobs(taskCtx plugin.SubTaskContext) errors.Error {
 			Name:         data.Options.Name,
 		},
 		Table: RAW_GRAPHQL_JOBS_TABLE,
-	}, data.TimeAfter)
+	})
 	if err != nil {
 		return err
 	}
-
-	incremental := collectorWithState.IsIncremental()
 
 	clauses := []dal.Clause{
 		dal.Select("check_suite_node_id"),
@@ -124,9 +122,10 @@ func CollectGraphqlJobs(taskCtx plugin.SubTaskContext) errors.Error {
 		dal.Where("repo_id = ? and connection_id=?", data.Options.GithubId, data.Options.ConnectionId),
 		dal.Orderby("github_updated_at DESC"),
 	}
-	if incremental {
-		clauses = append(clauses, dal.Where("github_updated_at > ?", *collectorWithState.LatestState.LatestSuccessStart))
+	if collectorWithState.IsIncreamtal && collectorWithState.Since != nil {
+		clauses = append(clauses, dal.Where("github_updated_at > ?", *collectorWithState.Since))
 	}
+
 	cursor, err := db.Cursor(
 		clauses...,
 	)
@@ -142,7 +141,6 @@ func CollectGraphqlJobs(taskCtx plugin.SubTaskContext) errors.Error {
 	err = collectorWithState.InitGraphQLCollector(helper.GraphqlCollectorArgs{
 		Input:         iterator,
 		InputStep:     20,
-		Incremental:   incremental,
 		GraphqlClient: data.GraphqlClient,
 		BuildQuery: func(reqData *helper.GraphqlRequestData) (interface{}, map[string]interface{}, error) {
 			query := &GraphqlQueryCheckRunWrapper{}

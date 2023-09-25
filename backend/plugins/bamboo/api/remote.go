@@ -20,12 +20,13 @@ package api
 import (
 	gocontext "context"
 	"fmt"
+	"net/url"
+
 	"github.com/apache/incubator-devlake/core/context"
 	"github.com/apache/incubator-devlake/core/errors"
 	"github.com/apache/incubator-devlake/core/plugin"
 	"github.com/apache/incubator-devlake/helpers/pluginhelper/api"
 	"github.com/apache/incubator-devlake/plugins/bamboo/models"
-	"net/url"
 )
 
 // RemoteScopes list all available scope for users
@@ -65,21 +66,30 @@ func SearchRemoteScopes(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutp
 				return nil, errors.BadInput.Wrap(err, "failed to get create apiClient")
 			}
 			query := initialQuery(queryData)
+			if len(queryData.Search) == 0 {
+				return nil, errors.BadInput.New("empty search query")
+			}
 			query.Set("searchTerm", queryData.Search[0])
 			// request search
 			res, err := apiClient.Get("search/plans.json", query, nil)
 			if err != nil {
 				return nil, err
 			}
+
 			resBody := models.ApiBambooSearchPlanResponse{}
 			err = api.UnmarshalResponse(res, &resBody)
 			if err != nil {
 				return nil, err
 			}
+
 			var apiBambooPlans []models.ApiBambooPlan
 			// append project to output
 			for _, apiResult := range resBody.SearchResults {
-				apiBambooPlans = append(apiBambooPlans, apiResult.Entity)
+				bambooPlan := models.ApiBambooPlan{
+					Key:  apiResult.SearchEntity.Key,
+					Name: apiResult.SearchEntity.PlanName,
+				}
+				apiBambooPlans = append(apiBambooPlans, bambooPlan)
 			}
 			return apiBambooPlans, err
 		})
@@ -87,7 +97,7 @@ func SearchRemoteScopes(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutp
 
 func initialQuery(queryData *api.RemoteQueryData) url.Values {
 	query := url.Values{}
-	query.Set("showEmpty", fmt.Sprintf("%v", true))
+	query.Set("showEmpty", fmt.Sprintf("%v", false))
 	query.Set("max-result", fmt.Sprintf("%v", queryData.PerPage))
 	query.Set("start-index", fmt.Sprintf("%v", (queryData.Page-1)*queryData.PerPage))
 	return query

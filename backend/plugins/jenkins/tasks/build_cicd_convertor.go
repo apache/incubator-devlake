@@ -45,7 +45,7 @@ func ConvertBuildsToCicdTasks(taskCtx plugin.SubTaskContext) (err errors.Error) 
 	clauses := []dal.Clause{
 		dal.From("_tool_jenkins_builds"),
 		dal.Where(`_tool_jenkins_builds.connection_id = ?
-						and _tool_jenkins_builds.job_path = ? 
+						and _tool_jenkins_builds.job_path = ?
 						and _tool_jenkins_builds.job_name = ?`,
 			data.Options.ConnectionId, data.Options.JobPath, data.Options.JobName),
 	}

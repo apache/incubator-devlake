@@ -22,6 +22,7 @@ import (
 	"fmt"
 	"net/http"
 	"net/url"
+	"strings"
 
 	"github.com/apache/incubator-devlake/core/errors"
 	"github.com/apache/incubator-devlake/core/plugin"
@@ -85,4 +86,32 @@ func GetResultsResult(res *http.Response) ([]json.RawMessage, errors.Error) {
 		return nil, err
 	}
 	return resData.Results.Result, nil
+}
+
+// getBambooHomePage receive endpoint like "http://127.0.0.1:30001/rest/api/latest/" and return bamboo's homepage like "http://127.0.0.1:30001/"
+func getBambooHomePage(endpoint string) (string, error) {
+	if endpoint == "" {
+		return "", errors.Default.New("empty endpoint")
+	}
+	endpointURL, err := url.Parse(endpoint)
+	if err != nil {
+		return "", err
+	} else {
+		protocol := endpointURL.Scheme
+		host := endpointURL.Host
+		bambooPath, _, _ := strings.Cut(endpointURL.Path, "/rest/api/latest")
+		return fmt.Sprintf("%s://%s%s", protocol, host, bambooPath), nil
+	}
+}
+
+// generateFakeRepoUrl will return a fake url for repo url field.
+func generateFakeRepoUrl(endpoint string, repoId int) (string, error) {
+	if endpoint == "" {
+		return "", errors.Default.New("empty endpoint")
+	}
+	endpointURL, err := url.Parse(endpoint)
+	if err != nil {
+		return "", err
+	}
+	return fmt.Sprintf("fake://%s/repos/%d", endpointURL.Host, repoId), nil
 }

@@ -48,17 +48,28 @@ type SimpleBuild struct {
 func CollectApiStages(taskCtx plugin.SubTaskContext) errors.Error {
 	db := taskCtx.GetDal()
 	data := taskCtx.GetData().(*JenkinsTaskData)
+
+	collectorWithState, err := api.NewStatefulApiCollector(api.RawDataSubTaskArgs{
+		Params: JenkinsApiParams{
+			ConnectionId: data.Options.ConnectionId,
+			FullName:     data.Options.JobFullName,
+		},
+		Ctx:   taskCtx,
+		Table: RAW_STAGE_TABLE,
+	})
+	if err != nil {
+		return err
+	}
+
 	clauses := []dal.Clause{
 		dal.Select("tjb.number,tjb.full_name"),
 		dal.From("_tool_jenkins_builds as tjb"),
 		dal.Where(`tjb.connection_id = ? and tjb.job_path = ? and tjb.job_name = ? and tjb.class = ?`,
 			data.Options.ConnectionId, data.Options.JobPath, data.Options.JobName, "WorkflowRun"),
 	}
-	timeAfter := data.TimeAfter
-	if timeAfter != nil {
-		clauses = append(clauses, dal.Where(`tjb.start_time >= ?`, timeAfter))
+	if collectorWithState.IsIncreamtal && collectorWithState.Since != nil {
+		clauses = append(clauses, dal.Where(`tjb.start_time >= ?`, collectorWithState.Since))
 	}
-
 	cursor, err := db.Cursor(clauses...)
 	if err != nil {
 		return err
@@ -70,15 +81,7 @@ func CollectApiStages(taskCtx plugin.SubTaskContext) errors.Error {
 		return err
 	}
 
-	collector, err := api.NewApiCollector(api.ApiCollectorArgs{
-		RawDataSubTaskArgs: api.RawDataSubTaskArgs{
-			Params: JenkinsApiParams{
-				ConnectionId: data.Options.ConnectionId,
-				FullName:     data.Options.JobFullName,
-			},
-			Ctx:   taskCtx,
-			Table: RAW_STAGE_TABLE,
-		},
+	err = collectorWithState.InitCollector(api.ApiCollectorArgs{
 		ApiClient:   data.ApiClient,
 		Input:       iterator,
 		UrlTemplate: fmt.Sprintf("%sjob/%s/{{ .Input.Number }}/wfapi/describe", data.Options.JobPath, data.Options.JobName),
@@ -106,5 +109,5 @@ func CollectApiStages(taskCtx plugin.SubTaskContext) errors.Error {
 		return err
 	}
 
-	return collector.Execute()
+	return collectorWithState.Execute()
 }

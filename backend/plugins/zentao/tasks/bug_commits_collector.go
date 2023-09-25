@@ -56,7 +56,7 @@ func CollectBugCommits(taskCtx plugin.SubTaskContext) errors.Error {
 		Ctx:     taskCtx,
 		Options: data.Options,
 		Table:   RAW_BUG_COMMITS_TABLE,
-	}, data.TimeAfter)
+	})
 	if err != nil {
 		return err
 	}
@@ -70,13 +70,8 @@ func CollectBugCommits(taskCtx plugin.SubTaskContext) errors.Error {
 			data.Options.ProjectId, data.Options.ConnectionId,
 		),
 	}
-	// incremental collection
-	incremental := collectorWithState.IsIncremental()
-	if incremental {
-		clauses = append(
-			clauses,
-			dal.Where("last_edited_date is not null and last_edited_date > ?", collectorWithState.LatestState.LatestSuccessStart),
-		)
+	if collectorWithState.IsIncreamtal && collectorWithState.Since != nil {
+		clauses = append(clauses, dal.Where("last_edited_date is not null and last_edited_date > ?", collectorWithState.Since))
 	}
 	cursor, err := db.Cursor(clauses...)
 	if err != nil {
@@ -95,7 +90,6 @@ func CollectBugCommits(taskCtx plugin.SubTaskContext) errors.Error {
 		},
 		ApiClient:   data.ApiClient,
 		Input:       iterator,
-		Incremental: incremental,
 		UrlTemplate: "bugs/{{ .Input.BugId }}",
 		ResponseParser: func(res *http.Response) ([]json.RawMessage, errors.Error) {
 			var data struct {

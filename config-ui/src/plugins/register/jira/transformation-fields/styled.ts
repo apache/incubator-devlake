@@ -50,7 +50,7 @@ export const RemoteLinkWrapper = styled.div`
     display: flex;
     align-items: center;
 
-    .bp4-input-group {
+    .bp5-input-group {
       margin-right: 8px;
       width: 680px;
     }
@@ -75,7 +75,7 @@ export const DialogBody = styled.div`
     display: flex;
     align-items: center;
 
-    .bp4-input-group {
+    .bp5-input-group {
       margin-right: 24px;
       width: 360px;
     }

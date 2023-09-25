@@ -194,7 +194,7 @@ export const Task = styled.div`
     flex: 0 0 80px;
     text-align: right;
 
-    .bp4-icon {
+    .bp5-icon {
       margin-top: 4px;
       cursor: pointer;
     }

@@ -32,7 +32,7 @@ func main() {
 	workspaceId := cmd.Flags().Uint64P("workspace", "w", 0, "tapd workspace id")
 	companyId := cmd.Flags().Uint64P("company", "o", 0, "tapd company id")
 	pageSize := cmd.Flags().Uint64P("pageSize", "p", 0, "tapd page size")
-	timeAfter := cmd.Flags().StringP("timeAfter", "a", "", "collect data that are created after specified time, ie 2006-05-06T07:08:09Z")
+	timeAfter := cmd.Flags().StringP("timeAfter", "a", "", "collect data that are created after specified time, ie 2006-01-02T15:04:05Z")
 	err := cmd.MarkFlagRequired("connection")
 	if err != nil {
 		panic(err)
@@ -47,9 +47,8 @@ func main() {
 			"connectionId": *connectionId,
 			"workspaceId":  *workspaceId,
 			"companyId":    *companyId,
-			"timeAfter":    *timeAfter,
 			"pageSize":     *pageSize,
-		})
+		}, *timeAfter)
 		//
 		// cfg := config.GetConfig()
 		// log := logger.Global.Nested(cmd.Use)

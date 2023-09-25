@@ -57,7 +57,7 @@ func (*addCICDDeploymentsTable) Up(basicRes context.BasicRes) errors.Error {
 }
 
 func (*addCICDDeploymentsTable) Version() uint64 {
-	return 202307831162403
+	return 20230831162403
 }
 
 func (*addCICDDeploymentsTable) Name() string {

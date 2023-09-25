@@ -36,7 +36,7 @@ var CollectApiPrCommentsMeta = plugin.SubTaskMeta{
 
 func CollectApiPullRequestsComments(taskCtx plugin.SubTaskContext) errors.Error {
 	rawDataSubTaskArgs, data := CreateRawDataSubTaskArgs(taskCtx, RAW_PULL_REQUEST_COMMENTS_TABLE)
-	collectorWithState, err := helper.NewStatefulApiCollector(*rawDataSubTaskArgs, data.TimeAfter)
+	collectorWithState, err := helper.NewStatefulApiCollector(*rawDataSubTaskArgs)
 	if err != nil {
 		return err
 	}
@@ -50,7 +50,6 @@ func CollectApiPullRequestsComments(taskCtx plugin.SubTaskContext) errors.Error 
 	err = collectorWithState.InitCollector(helper.ApiCollectorArgs{
 		ApiClient:   data.ApiClient,
 		PageSize:    100,
-		Incremental: collectorWithState.IsIncremental(),
 		Input:       iterator,
 		UrlTemplate: "repositories/{{ .Params.FullName }}/pullrequests/{{ .Input.BitbucketId }}/comments",
 		Query: GetQueryFields(

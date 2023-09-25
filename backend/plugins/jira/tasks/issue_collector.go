@@ -20,12 +20,13 @@ package tasks
 import (
 	"encoding/json"
 	"fmt"
-	"github.com/apache/incubator-devlake/core/dal"
-	"github.com/apache/incubator-devlake/plugins/jira/models"
 	"io"
 	"net/http"
 	"net/url"
 	"time"
+
+	"github.com/apache/incubator-devlake/core/dal"
+	"github.com/apache/incubator-devlake/plugins/jira/models"
 
 	"github.com/apache/incubator-devlake/core/errors"
 	"github.com/apache/incubator-devlake/core/plugin"
@@ -61,7 +62,7 @@ func CollectIssues(taskCtx plugin.SubTaskContext) errors.Error {
 			Table store raw data
 		*/
 		Table: RAW_ISSUE_TABLE,
-	}, data.TimeAfter)
+	})
 	if err != nil {
 		return err
 	}
@@ -69,19 +70,20 @@ func CollectIssues(taskCtx plugin.SubTaskContext) errors.Error {
 	// build jql
 	// IMPORTANT: we have to keep paginated data in a consistence order to avoid data-missing, if we sort issues by
 	//  `updated`, issue will be jumping between pages if it got updated during the collection process
-	incremental := collectorWithState.IsIncremental()
 	loc, err := getTimeZone(taskCtx)
 	if err != nil {
 		logger.Info("failed to get timezone, err: %v", err)
 	} else {
 		logger.Info("got user's timezone: %v", loc.String())
 	}
-	jql := buildJQL(data.TimeAfter, collectorWithState.LatestState.LatestSuccessStart, incremental, loc)
+	jql := "ORDER BY created ASC"
+	if collectorWithState.Since != nil {
+		jql = buildJQL(*collectorWithState.Since, loc)
+	}
 
 	err = collectorWithState.InitCollector(api.ApiCollectorArgs{
-		ApiClient:   data.ApiClient,
-		PageSize:    data.Options.PageSize,
-		Incremental: incremental,
+		ApiClient: data.ApiClient,
+		PageSize:  data.Options.PageSize,
 		/*
 			url may use arbitrary variables from different connection in any order, we need GoTemplate to allow more
 			flexible for all kinds of possibility.
@@ -145,23 +147,15 @@ func CollectIssues(taskCtx plugin.SubTaskContext) errors.Error {
 }
 
 // buildJQL build jql based on timeAfter and incremental mode
-func buildJQL(timeAfter, latestSuccessStart *time.Time, isIncremental bool, location *time.Location) string {
+func buildJQL(since time.Time, location *time.Location) string {
 	jql := "ORDER BY created ASC"
-	var moment time.Time
-	if timeAfter != nil {
-		moment = *timeAfter
-	}
-	// if isIncremental is true, we should not collect data before latestSuccessStart
-	if isIncremental && latestSuccessStart.After(moment) {
-		moment = *latestSuccessStart
-	}
-	if !moment.IsZero() {
+	if !since.IsZero() {
 		if location != nil {
-			moment = moment.In(location)
+			since = since.In(location)
 		} else {
-			moment = moment.In(time.UTC).Add(-24 * time.Hour)
+			since = since.In(time.UTC).Add(-24 * time.Hour)
 		}
-		jql = fmt.Sprintf("updated >= '%s' %s", moment.Format("2006/01/02 15:04"), jql)
+		jql = fmt.Sprintf("updated >= '%s' %s", since.Format("2006/01/02 15:04"), jql)
 	}
 	return jql
 }

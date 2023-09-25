@@ -31,12 +31,13 @@ func main() {
 	cmd := &cobra.Command{Use: "teambition"}
 	connectionId := cmd.Flags().Uint64P("connection", "c", 0, "teambition connection id")
 	projectId := cmd.Flags().StringP("project", "p", "", "teambition project id")
+	timeAfter := cmd.Flags().StringP("timeAfter", "a", "", "collect data that are created after specified time, ie 2006-01-02T15:04:05Z")
 
 	cmd.Run = func(cmd *cobra.Command, args []string) {
 		runner.DirectRun(cmd, args, PluginEntry, map[string]interface{}{
 			"connectionId": *connectionId,
 			"projectId":    *projectId,
-		})
+		}, *timeAfter)
 	}
 
 	runner.RunCmd(cmd)

@@ -38,7 +38,7 @@ export const Inner = styled.div`
     align-items: center;
     margin: 0;
 
-    .bp4-icon {
+    .bp5-icon {
       margin-right: 4px;
     }
   }
@@ -49,10 +49,5 @@ export const Inner = styled.div`
     &.warning {
       color: ${Colors.ORANGE5};
     }
-  }
-
-  .bp4-button-group {
-    display: flex;
-    justify-content: center;
   }
 `;

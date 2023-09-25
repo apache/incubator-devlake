@@ -48,7 +48,6 @@ func TestMakeDataSourcePipelinePlanV200(t *testing.T) {
 	const testScopeConfigName string = "bamboo scope config"
 	const testProxy string = ""
 
-	syncPolicy := &coreModels.SyncPolicy{}
 	bpScopes := []*coreModels.BlueprintScope{
 		{
 			ScopeId: testKey,
@@ -148,7 +147,7 @@ func TestMakeDataSourcePipelinePlanV200(t *testing.T) {
 	})
 	Init(basicRes, mockMeta)
 
-	plans, scopes, err := MakePipelinePlanV200(testSubTaskMeta, testConnectionID, bpScopes, syncPolicy)
+	plans, scopes, err := MakePipelinePlanV200(testSubTaskMeta, testConnectionID, bpScopes)
 	assert.Equal(t, err, nil)
 
 	assert.Equal(t, expectPlans, plans)

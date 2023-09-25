@@ -25,7 +25,6 @@ import (
 	"net/http"
 	"net/url"
 	"strings"
-	"time"
 
 	"github.com/apache/incubator-devlake/core/dal"
 	"github.com/apache/incubator-devlake/core/errors"
@@ -47,7 +46,6 @@ func MakeDataSourcePipelinePlanV200(
 	subtaskMetas []plugin.SubTaskMeta,
 	connectionId uint64,
 	bpScopes []*coreModels.BlueprintScope,
-	syncPolicy *coreModels.SyncPolicy,
 ) (coreModels.PipelinePlan, []plugin.Scope, errors.Error) {
 	// get the connection info for url
 	connection := &models.GithubConnection{}
@@ -64,7 +62,7 @@ func MakeDataSourcePipelinePlanV200(
 	}
 
 	plan := make(coreModels.PipelinePlan, len(bpScopes))
-	plan, err = makeDataSourcePipelinePlanV200(subtaskMetas, plan, bpScopes, connection, syncPolicy)
+	plan, err = makeDataSourcePipelinePlanV200(subtaskMetas, plan, bpScopes, connection)
 	if err != nil {
 		return nil, nil, err
 	}
@@ -81,7 +79,6 @@ func makeDataSourcePipelinePlanV200(
 	plan coreModels.PipelinePlan,
 	bpScopes []*coreModels.BlueprintScope,
 	connection *models.GithubConnection,
-	syncPolicy *coreModels.SyncPolicy,
 ) (coreModels.PipelinePlan, errors.Error) {
 	for i, bpScope := range bpScopes {
 		stage := plan[i]
@@ -116,9 +113,6 @@ func makeDataSourcePipelinePlanV200(
 			ConnectionId: githubRepo.ConnectionId,
 			GithubId:     githubRepo.GithubId,
 			Name:         githubRepo.FullName,
-		}
-		if syncPolicy.TimeAfter != nil {
-			op.TimeAfter = syncPolicy.TimeAfter.Format(time.RFC3339)
 		}
 		options, err := tasks.EncodeTaskOptions(op)
 		if err != nil {

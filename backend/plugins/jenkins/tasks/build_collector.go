@@ -66,7 +66,6 @@ func CollectApiBuilds(taskCtx plugin.SubTaskContext) errors.Error {
 			Table: RAW_BUILD_TABLE,
 		},
 		ApiClient: data.ApiClient,
-		TimeAfter: data.TimeAfter,
 		CollectNewRecordsByList: helper.FinalizableApiCollectorListArgs{
 			PageSize:    100,
 			Concurrency: 10,

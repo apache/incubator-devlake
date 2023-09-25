@@ -31,15 +31,15 @@ export const Transformation = styled.div`
     }
   }
 
-  .bp4-form-group {
+  .bp5-form-group {
     display: flex;
     align-items: center;
 
-    .bp4-label {
+    .bp5-label {
       flex: 0 0 140px;
     }
 
-    .bp4-form-content {
+    .bp5-form-content {
       flex: auto;
     }
   }
@@ -56,7 +56,7 @@ export const CICD = styled.div`
       font-size: 14px;
       font-weight: 400;
 
-      .bp4-switch {
+      .bp5-switch {
         margin-bottom: 0;
       }
     }
@@ -68,7 +68,7 @@ export const CICD = styled.div`
     margin-top: 16px;
     padding-left: 24px;
 
-    .bp4-radio {
+    .bp5-radio {
       margin-right: 0;
     }
   }

@@ -60,7 +60,7 @@ func CollectIssueComments(taskCtx plugin.SubTaskContext) errors.Error {
 			BoardId:      data.Options.BoardId,
 		},
 		Table: RAW_ISSUE_COMMENT_TABLE,
-	}, data.TimeAfter)
+	})
 	if err != nil {
 		return err
 	}
@@ -71,14 +71,9 @@ func CollectIssueComments(taskCtx plugin.SubTaskContext) errors.Error {
 		dal.Join("LEFT JOIN _tool_jira_issues i ON (bi.connection_id = i.connection_id AND bi.issue_id = i.issue_id)"),
 		dal.Where("bi.connection_id=? and bi.board_id = ? AND i.std_type != ? AND i.comment_total > 100", data.Options.ConnectionId, data.Options.BoardId, "Epic"),
 	}
-	incremental := collectorWithState.IsIncremental()
-	if incremental && collectorWithState.LatestState.LatestSuccessStart != nil {
-		clauses = append(
-			clauses,
-			dal.Where("i.updated > ?", collectorWithState.LatestState.LatestSuccessStart),
-		)
+	if collectorWithState.IsIncreamtal && collectorWithState.Since != nil {
+		clauses = append(clauses, dal.Where("i.updated > ?", collectorWithState.Since))
 	}
-
 	if logger.IsLevelEnabled(log.LOG_DEBUG) {
 		count, err := db.Count(clauses...)
 		if err != nil {
@@ -102,7 +97,6 @@ func CollectIssueComments(taskCtx plugin.SubTaskContext) errors.Error {
 	err = collectorWithState.InitCollector(api.ApiCollectorArgs{
 		ApiClient:     data.ApiClient,
 		PageSize:      100,
-		Incremental:   incremental,
 		GetTotalPages: GetTotalPagesFromResponse,
 		Input:         iterator,
 		UrlTemplate:   "api/3/issue/{{ .Input.IssueId }}/comment",

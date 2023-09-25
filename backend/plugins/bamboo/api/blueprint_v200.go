@@ -36,7 +36,6 @@ func MakePipelinePlanV200(
 	subtaskMetas []plugin.SubTaskMeta,
 	connectionId uint64,
 	scope []*coreModels.BlueprintScope,
-	syncPolicy *coreModels.SyncPolicy,
 ) (coreModels.PipelinePlan, []plugin.Scope, errors.Error) {
 	var err errors.Error
 	connection := new(models.BambooConnection)
@@ -50,7 +49,7 @@ func MakePipelinePlanV200(
 		return nil, nil, err
 	}
 
-	pp, err := makePipelinePlanV200(subtaskMetas, scope, connection, syncPolicy)
+	pp, err := makePipelinePlanV200(subtaskMetas, scope, connection)
 	if err != nil {
 		return nil, nil, err
 	}
@@ -84,7 +83,7 @@ func makeScopeV200(connectionId uint64, scopes []*coreModels.BlueprintScope) ([]
 func makePipelinePlanV200(
 	subtaskMetas []plugin.SubTaskMeta,
 	scopes []*coreModels.BlueprintScope,
-	connection *models.BambooConnection, syncPolicy *coreModels.SyncPolicy,
+	connection *models.BambooConnection,
 ) (coreModels.PipelinePlan, errors.Error) {
 	plans := make(coreModels.PipelinePlan, 0, len(scopes))
 	for _, scope := range scopes {

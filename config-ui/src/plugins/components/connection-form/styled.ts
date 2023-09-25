@@ -30,34 +30,25 @@ export const Tips = styled.div`
 `;
 
 export const Form = styled.div`
-  .bp4-form-group label.bp4-label {
+  .bp5-form-group label.bp5-label {
     margin: 0 0 8px 0;
   }
 
-  .bp4-form-group .bp4-form-group-sub-label {
+  .bp5-form-group .bp5-form-group-sub-label {
     margin: 0 0 8px 0;
   }
 
-  .bp4-input-group {
+  .bp5-input-group {
     width: 386px;
   }
 
-  .bp4-input {
+  .bp5-input {
     border: 1px solid #dbe4fd;
     box-shadow: none;
     border-radius: 4px;
 
     &::placeholder {
       color: #b8b8bf;
-    }
-  }
-
-  .btns {
-    display: flex;
-    justify-content: end;
-
-    .bp4-button + .bp4-button {
-      margin-left: 8px;
     }
   }
 `;

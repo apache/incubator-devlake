@@ -56,16 +56,14 @@ func CollectPrReviewComments(taskCtx plugin.SubTaskContext) errors.Error {
 			Name:         data.Options.Name,
 		},
 		Table: RAW_PR_REVIEW_COMMENTS_TABLE,
-	}, data.TimeAfter)
+	})
 	if err != nil {
 		return err
 	}
 
-	incremental := collectorWithState.IsIncremental()
 	err = collectorWithState.InitCollector(helper.ApiCollectorArgs{
-		ApiClient:   data.ApiClient,
-		PageSize:    100,
-		Incremental: incremental,
+		ApiClient: data.ApiClient,
+		PageSize:  100,
 		Header: func(reqData *helper.RequestData) (http.Header, errors.Error) {
 			// Adding -H "Accept: application/vnd.github+json" solve the issue of getting 502/403 error
 			header := http.Header{}
@@ -76,15 +74,8 @@ func CollectPrReviewComments(taskCtx plugin.SubTaskContext) errors.Error {
 		UrlTemplate: "repos/{{ .Params.Name }}/pulls/comments",
 		Query: func(reqData *helper.RequestData) (url.Values, errors.Error) {
 			query := url.Values{}
-			if data.TimeAfter != nil {
-				// Note that `since` is for filtering records by the `updated` time
-				// which is not ideal for semantic reasons and would result in slightly more records than expected.
-				// But we have no choice since it is the only available field we could exploit from the API.
-				query.Set("since", data.TimeAfter.String())
-			}
-			// if incremental == true, we overwrite it
-			if incremental {
-				query.Set("since", collectorWithState.LatestState.LatestSuccessStart.String())
+			if collectorWithState.Since != nil {
+				query.Set("since", collectorWithState.Since.String())
 			}
 			query.Set("page", fmt.Sprintf("%v", reqData.Pager.Page))
 			query.Set("direction", "asc")

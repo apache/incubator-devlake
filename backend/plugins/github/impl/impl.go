@@ -19,7 +19,6 @@ package impl
 
 import (
 	"fmt"
-	"time"
 
 	"github.com/apache/incubator-devlake/helpers/pluginhelper/subtaskmeta/sorter"
 
@@ -159,15 +158,6 @@ func (p Github) PrepareTaskData(taskCtx plugin.TaskContext, options map[string]i
 		RegexEnricher: regexEnricher,
 	}
 
-	if op.TimeAfter != "" {
-		var timeAfter time.Time
-		timeAfter, err = errors.Convert01(time.Parse(time.RFC3339, op.TimeAfter))
-		if err != nil {
-			return nil, errors.BadInput.Wrap(err, "invalid value for `timeAfter`")
-		}
-		taskData.TimeAfter = &timeAfter
-		logger.Debug("collect data updated timeAfter %s", timeAfter)
-	}
 	return taskData, nil
 }
 
@@ -226,9 +216,8 @@ func (p Github) ApiResources() map[string]map[string]plugin.ApiResourceHandler {
 func (p Github) MakeDataSourcePipelinePlanV200(
 	connectionId uint64,
 	scopes []*coreModels.BlueprintScope,
-	syncPolicy *coreModels.SyncPolicy,
 ) (pp coreModels.PipelinePlan, sc []plugin.Scope, err errors.Error) {
-	return api.MakeDataSourcePipelinePlanV200(p.SubTaskMetas(), connectionId, scopes, syncPolicy)
+	return api.MakeDataSourcePipelinePlanV200(p.SubTaskMetas(), connectionId, scopes)
 }
 
 func (p Github) Close(taskCtx plugin.TaskContext) errors.Error {

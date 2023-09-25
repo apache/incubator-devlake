@@ -32,5 +32,8 @@ func All() []plugin.MigrationScript {
 		new(addScopeConfigId),
 		new(addEnvNamePattern),
 		new(addPlanResultKey),
+		new(renameToolBambooDeployBuild20230919),
+		new(renameToolBambooDeployEnvironments20230919),
+		new(renameMultiBambooRawTables20230920),
 	}
 }

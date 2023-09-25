@@ -59,7 +59,7 @@ func CollectRemotelinks(taskCtx plugin.SubTaskContext) errors.Error {
 			BoardId:      data.Options.BoardId,
 		},
 		Table: RAW_REMOTELINK_TABLE,
-	}, data.TimeAfter)
+	})
 	if err != nil {
 		return err
 	}
@@ -70,14 +70,9 @@ func CollectRemotelinks(taskCtx plugin.SubTaskContext) errors.Error {
 		dal.Join("LEFT JOIN _tool_jira_issues i ON (bi.connection_id = i.connection_id AND bi.issue_id = i.issue_id)"),
 		dal.Where("bi.connection_id=? and bi.board_id = ?", data.Options.ConnectionId, data.Options.BoardId),
 	}
-	incremental := collectorWithState.IsIncremental()
-	if incremental && collectorWithState.LatestState.LatestSuccessStart != nil {
-		clauses = append(
-			clauses,
-			dal.Where("i.updated > ?", collectorWithState.LatestState.LatestSuccessStart),
-		)
+	if collectorWithState.IsIncreamtal && collectorWithState.Since != nil {
+		clauses = append(clauses, dal.Where("i.updated > ?", collectorWithState.Since))
 	}
-
 	cursor, err := db.Cursor(clauses...)
 	if err != nil {
 		logger.Error(err, "collect remotelink error")
@@ -93,7 +88,6 @@ func CollectRemotelinks(taskCtx plugin.SubTaskContext) errors.Error {
 	err = collectorWithState.InitCollector(api.ApiCollectorArgs{
 		ApiClient:   data.ApiClient,
 		Input:       iterator,
-		Incremental: incremental,
 		UrlTemplate: "api/2/issue/{{ .Input.IssueId }}/remotelink",
 		ResponseParser: func(res *http.Response) ([]json.RawMessage, errors.Error) {
 			if res.StatusCode == http.StatusNotFound {

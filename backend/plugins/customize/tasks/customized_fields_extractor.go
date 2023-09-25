@@ -24,6 +24,8 @@ import (
 
 	"github.com/apache/incubator-devlake/core/dal"
 	"github.com/apache/incubator-devlake/core/errors"
+	"github.com/apache/incubator-devlake/core/models/common"
+	"github.com/apache/incubator-devlake/core/models/domainlayer/ticket"
 	"github.com/apache/incubator-devlake/core/plugin"
 	"github.com/apache/incubator-devlake/plugins/customize/models"
 	"github.com/tidwall/gjson"
@@ -99,7 +101,45 @@ func extractCustomizedFields(ctx context.Context, d dal.Dal, table, rawTable, ra
 		case string:
 			for field, path := range extractor {
 				result := gjson.Get(blob, path)
-				fillInUpdates(result, field, updates)
+				// special case for issues custom_fields
+				rawDataId, ok := row["_raw_data_id"].(int64)
+				if !ok {
+					return errors.Default.New("_raw_data_id is not int64")
+				}
+				if table == "issues" && result.IsArray() {
+					issueId := row["id"].(string)
+					fieldId := field
+					// Delete existing records for the given issue and field
+					err = d.Delete(
+						&ticket.IssueCustomArrayField{},
+						dal.Where("issue_id = ? AND field_id = ?", issueId, fieldId),
+					)
+					if err != nil {
+						return err
+					}
+
+					result.ForEach(func(_, v gjson.Result) bool {
+						err1 := d.Create(&ticket.IssueCustomArrayField{
+							IssueId:    issueId,
+							FieldId:    fieldId,
+							FieldValue: v.String(),
+							NoPKModel: common.NoPKModel{
+								RawDataOrigin: common.RawDataOrigin{
+									RawDataParams: rawDataParams,
+									RawDataTable:  rawTable,
+									RawDataId:     uint64(rawDataId),
+								},
+							},
+						})
+						if err1 != nil {
+							err = err1
+							return false
+						}
+						return true
+					})
+				} else {
+					fillInUpdates(result, field, updates)
+				}
 			}
 		default:
 			return nil

@@ -50,6 +50,7 @@ func main() {
 	_ = cmd.MarkFlagRequired("batch_size")
 	extra := cmd.Flags().StringP("extra", "e", "", "StarRocks create table sql extra")
 	orderBy := cmd.Flags().StringP("order_by", "o", "", "Source tables order by, default is primary key")
+	timeAfter := cmd.Flags().StringP("time_after", "a", "", "collect data that are created after specified time, ie 2006-01-02T15:04:05Z")
 	cmd.Run = func(cmd *cobra.Command, args []string) {
 		runner.DirectRun(cmd, args, PluginEntry, map[string]interface{}{
 			"source_type":   sourceType,
@@ -66,7 +67,7 @@ func main() {
 			"batch_size":    batchSize,
 			"extra":         extra,
 			"order_by":      orderBy,
-		})
+		}, *timeAfter)
 	}
 	runner.RunCmd(cmd)
 }

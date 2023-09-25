@@ -81,7 +81,7 @@ export const WebHookConnection = ({ filterIds, onCreateAfter, onDeleteAfter }: P
 
   return (
     <S.Wrapper>
-      <Buttons>
+      <Buttons position="top">
         <Button icon="plus" text="Add a Webhook" intent={Intent.PRIMARY} onClick={() => handleShowDialog('add')} />
       </Buttons>
       <Table

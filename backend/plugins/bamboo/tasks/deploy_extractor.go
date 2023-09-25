@@ -64,6 +64,6 @@ var ExtractDeployMeta = plugin.SubTaskMeta{
 	Name:             "ExtractDeploy",
 	EntryPoint:       ExtractDeploy,
 	EnabledByDefault: true,
-	Description:      "Extract raw data into tool layer table _tool_bamboo_deploy_environment",
+	Description:      "Extract raw data into tool layer table _tool_bamboo_deploy_environments",
 	DomainTypes:      []string{plugin.DOMAIN_TYPE_CICD},
 }

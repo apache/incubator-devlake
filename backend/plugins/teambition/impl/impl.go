@@ -19,7 +19,6 @@ package impl
 
 import (
 	"fmt"
-	"time"
 
 	"github.com/apache/incubator-devlake/core/context"
 	"github.com/apache/incubator-devlake/core/dal"
@@ -122,9 +121,8 @@ func (p Teambition) SubTaskMetas() []plugin.SubTaskMeta {
 func (p Teambition) MakeDataSourcePipelinePlanV200(
 	connectionId uint64,
 	scopes []*coreModels.BlueprintScope,
-	syncPolicy *coreModels.SyncPolicy,
 ) (pp coreModels.PipelinePlan, sc []plugin.Scope, err errors.Error) {
-	return api.MakeDataSourcePipelinePlanV200(p.SubTaskMetas(), connectionId, scopes, syncPolicy)
+	return api.MakeDataSourcePipelinePlanV200(p.SubTaskMetas(), connectionId, scopes)
 }
 
 func (p Teambition) PrepareTaskData(taskCtx plugin.TaskContext, options map[string]interface{}) (interface{}, errors.Error) {
@@ -152,16 +150,7 @@ func (p Teambition) PrepareTaskData(taskCtx plugin.TaskContext, options map[stri
 		ApiClient: apiClient,
 		TenantId:  connection.TenantId,
 	}
-	var createdDateAfter time.Time
-	if op.TimeAfter != "" {
-		createdDateAfter, err = errors.Convert01(time.Parse(time.RFC3339, op.TimeAfter))
-		if err != nil {
-			return nil, errors.BadInput.Wrap(err, "invalid value for `createdDateAfter`")
-		}
-	}
-	if !createdDateAfter.IsZero() {
-		taskData.TimeAfter = &createdDateAfter
-	}
+
 	return taskData, nil
 }
 

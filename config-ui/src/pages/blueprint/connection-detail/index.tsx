@@ -21,7 +21,7 @@ import { useNavigate, useParams } from 'react-router-dom';
 import { Button, Intent, Position } from '@blueprintjs/core';
 import { Popover2 } from '@blueprintjs/popover2';
 
-import { PageLoading, PageHeader, ExternalLink, Buttons, Table, Dialog, Message } from '@/components';
+import { PageLoading, PageHeader, ExternalLink, Message, Buttons, Table, Dialog } from '@/components';
 import { useRefreshData, useTips } from '@/hooks';
 import { DataScopeSelect, getPluginScopeId } from '@/plugins';
 import { operator } from '@/utils';
@@ -185,10 +185,10 @@ export const BlueprintConnectionDetailPage = () => {
           position={Position.BOTTOM}
           content={
             <S.ActionDelete>
-              <div className="content">Are you sure you want to remove the connection from this project/blueprint?</div>
-              <div className="btns" onClick={handleRemoveConnection}>
-                <Button intent={Intent.PRIMARY} text="Confirm" />
-              </div>
+              <Message content="Are you sure you want to remove the connection from this project/blueprint?" />
+              <Buttons position="bottom" align="right">
+                <Button intent={Intent.PRIMARY} text="Confirm" onClick={handleRemoveConnection} />
+              </Buttons>
             </S.ActionDelete>
           }
         >
@@ -197,7 +197,7 @@ export const BlueprintConnectionDetailPage = () => {
           </Button>
         </Popover2>
       </S.Top>
-      <Buttons>
+      <Buttons position="top">
         <Button intent={Intent.PRIMARY} icon="annotation" text="Manage Data Scope" onClick={handleShowDataScope} />
         <ExternalLink style={{ marginLeft: 8 }} link={`/connections/${connection.plugin}/${connection.id}`}>
           <Button intent={Intent.PRIMARY} icon="annotation" text="Edit Scope Config" />

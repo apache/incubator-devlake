@@ -65,6 +65,7 @@ func ConvertJobBuilds(taskCtx plugin.SubTaskContext) errors.Error {
 			domainJobBuild := &devops.CICDTask{
 				DomainEntity: domainlayer.DomainEntity{Id: jobBuildIdGen.Generate(data.Options.ConnectionId, line.JobBuildKey)},
 				Name:         line.JobName,
+				DurationSec:  uint64(line.BuildDurationInSeconds),
 				StartedDate:  *line.BuildStartedTime,
 				FinishedDate: line.BuildCompletedDate,
 				PipelineId:   planBuildIdGen.Generate(data.Options.ConnectionId, line.PlanBuildKey),
@@ -73,12 +74,13 @@ func ConvertJobBuilds(taskCtx plugin.SubTaskContext) errors.Error {
 				Result: devops.GetResult(&devops.ResultRule{
 					Failed:  []string{"Failed"},
 					Success: []string{"Successful"},
-					Default: "",
+					Default: line.BuildState,
 				}, line.BuildState),
 
 				Status: devops.GetStatus(&devops.StatusRule[string]{
-					Done:    []string{"Finished"},
-					Default: devops.STATUS_IN_PROGRESS,
+					Done:       []string{"Finished", "FINISHED"},
+					NotStarted: []string{"not_built", "NOT_BUILT", "Not_Built", "PENDING", "QUEUED"},
+					Default:    devops.STATUS_IN_PROGRESS,
 				}, line.LifeCycleState),
 			}
 

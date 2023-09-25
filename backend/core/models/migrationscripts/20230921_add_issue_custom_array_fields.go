@@ -20,39 +20,24 @@ package migrationscripts
 import (
 	"github.com/apache/incubator-devlake/core/context"
 	"github.com/apache/incubator-devlake/core/errors"
+	"github.com/apache/incubator-devlake/core/models/migrationscripts/archived"
 	"github.com/apache/incubator-devlake/helpers/migrationhelper"
 )
 
-type addFullSyncToBlueprint struct {
-	FullSync bool `json:"fullSync"`
-}
+type addIssueCustomArrayField struct{}
 
-func (*addFullSyncToBlueprint) TableName() string {
-	return "_devlake_blueprints"
-}
+func (u *addIssueCustomArrayField) Up(basicRes context.BasicRes) errors.Error {
 
-type addFullSyncToPipeline struct {
-	FullSync bool `json:"fullSync"`
-}
-
-func (*addFullSyncToPipeline) TableName() string {
-	return "_devlake_pipelines"
-}
-
-type addFullSync struct{}
-
-func (*addFullSync) Up(basicRes context.BasicRes) errors.Error {
 	return migrationhelper.AutoMigrateTables(
 		basicRes,
-		&addFullSyncToBlueprint{},
-		&addFullSyncToPipeline{},
+		&archived.IssueCustomArrayField{},
 	)
 }
 
-func (*addFullSync) Version() uint64 {
-	return 20230907000041
+func (*addIssueCustomArrayField) Version() uint64 {
+	return 20230921000083
 }
 
-func (*addFullSync) Name() string {
-	return "add full_sync to _devlake_blueprints and _devlake_pipelines table"
+func (*addIssueCustomArrayField) Name() string {
+	return "add issue custom array field"
 }
