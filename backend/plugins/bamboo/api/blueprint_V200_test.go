@@ -55,12 +55,13 @@ func TestMakeDataSourcePipelinePlanV200(t *testing.T) {
 	}
 
 	var testBambooPlan = &models.BambooPlan{
-		ConnectionId: testConnectionID,
-		PlanKey:      testKey,
-		Name:         testName,
-		Href:         testLink,
-
-		ScopeConfigId: testScopeConfigId,
+		Scope: common.Scope{
+			ConnectionId:  testConnectionID,
+			ScopeConfigId: testScopeConfigId,
+		},
+		PlanKey: testKey,
+		Name:    testName,
+		Href:    testLink,
 	}
 
 	var testScopeConfig = &models.BambooScopeConfig{

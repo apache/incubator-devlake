@@ -18,7 +18,6 @@ limitations under the License.
 package common
 
 import (
-	"regexp"
 	"time"
 )
 
@@ -47,17 +46,6 @@ type Updater struct {
 	UpdaterEmail string `json:"updaterEmail"`
 }
 
-type ScopeConfig struct {
-	Model
-	Entities []string `gorm:"type:json;serializer:json" json:"entities" mapstructure:"entities"`
-}
-
-type NoPKModel struct {
-	CreatedAt     time.Time `json:"createdAt" mapstructure:"createdAt"`
-	UpdatedAt     time.Time `json:"updatedAt" mapstructure:"updatedAt"`
-	RawDataOrigin `swaggerignore:"true"`
-}
-
 // embedded fields for tool layer tables
 type RawDataOrigin struct {
 	// can be used for flushing outdated records from table
@@ -77,6 +65,12 @@ func (c *RawDataOrigin) GetRawDataOrigin() *RawDataOrigin {
 	return c
 }
 
+type NoPKModel struct {
+	CreatedAt     time.Time `json:"createdAt" mapstructure:"createdAt"`
+	UpdatedAt     time.Time `json:"updatedAt" mapstructure:"updatedAt"`
+	RawDataOrigin `swaggerignore:"true"`
+}
+
 func NewNoPKModel() NoPKModel {
 	now := time.Now()
 	return NoPKModel{
@@ -85,10 +79,31 @@ func NewNoPKModel() NoPKModel {
 	}
 }
 
-var (
-	DUPLICATE_REGEX = regexp.MustCompile(`(?i)\bduplicate\b`)
-)
+type Scope struct {
+	NoPKModel     `json:"-" mapstructure:"-"`
+	ConnectionId  uint64 `json:"connectionId" gorm:"primaryKey" validate:"required" mapstructure:"connectionId,omitempty"`
+	ScopeConfigId uint64 `json:"scopeConfigId,omitempty" mapstructure:"scopeConfigId,omitempty"`
+}
 
-func IsDuplicateError(err error) bool {
-	return err != nil && DUPLICATE_REGEX.MatchString(err.Error())
+// ScopeConnectionId implements plugin.ToolLayerScope.
+func (s Scope) ScopeConnectionId() uint64 {
+	return s.ConnectionId
+}
+
+func (s Scope) ScopeScopeConfigId() uint64 {
+	return s.ScopeConfigId
+}
+
+type ScopeConfig struct {
+	Model
+	Entities     []string `gorm:"type:json;serializer:json" json:"entities" mapstructure:"entities"`
+	ConnectionId uint64   `json:"connectionId" gorm:"index" validate:"required" mapstructure:"connectionId,omitempty"`
+	Name         string   `mapstructure:"name" json:"name" gorm:"type:varchar(255);index:idx_name_github,unique" validate:"required"`
+}
+
+func (s ScopeConfig) ScopeConfigConnectionId() uint64 {
+	return s.ConnectionId
+}
+func (s ScopeConfig) ScopeConfigId() uint64 {
+	return s.ID
 }

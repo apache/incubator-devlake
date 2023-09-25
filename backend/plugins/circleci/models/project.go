@@ -23,15 +23,12 @@ import (
 )
 
 type CircleciProject struct {
-	ConnectionId   uint64 `gorm:"primaryKey;type:BIGINT" json:"connectionId" mapstructure:"connectionId"`
+	common.Scope
 	Id             string `gorm:"primaryKey;type:varchar(100)" json:"id" mapstructure:"id"`
 	Slug           string `gorm:"type:varchar(255)" json:"slug" mapstructure:"slug"`
 	Name           string `gorm:"type:varchar(255)" json:"name" mapstructure:"name"`
 	OrganizationId string `gorm:"type:varchar(100)" json:"organizationId" mapstructure:"organizationId"`
 	// VcsInfo        CircleciVcsInfo `gorm:"serializer:json;type:text" json:"vcsInfo" mapstructure:"vcsInfo"`
-	ScopeConfigId uint64 `json:"scopeConfigId,omitempty" mapstructure:"scopeConfigId,omitempty"`
-
-	common.NoPKModel `swaggerignore:"true" json:"-" mapstructure:"-"`
 }
 
 type CircleciVcsInfo struct {

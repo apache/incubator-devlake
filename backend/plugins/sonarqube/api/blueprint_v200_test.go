@@ -21,6 +21,7 @@ import (
 	"testing"
 
 	coreModels "github.com/apache/incubator-devlake/core/models"
+	"github.com/apache/incubator-devlake/core/models/common"
 	"github.com/apache/incubator-devlake/core/models/domainlayer"
 	"github.com/apache/incubator-devlake/core/models/domainlayer/codequality"
 	"github.com/apache/incubator-devlake/core/plugin"
@@ -81,9 +82,11 @@ func TestMakeDataSourcePipelinePlanV200(t *testing.T) {
 // NewMockBasicRes FIXME ...
 func NewMockBasicRes() *mockcontext.BasicRes {
 	sonarqubeProject := &models.SonarqubeProject{
-		ConnectionId: 1,
-		ProjectKey:   "f5a50c63-2e8f-4107-9014-853f6f467757",
-		Name:         "aerosolve",
+		Scope: common.Scope{
+			ConnectionId: 1,
+		},
+		ProjectKey: "f5a50c63-2e8f-4107-9014-853f6f467757",
+		Name:       "aerosolve",
 	}
 
 	mockRes := new(mockcontext.BasicRes)
