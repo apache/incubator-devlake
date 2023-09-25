@@ -94,5 +94,6 @@ func All() []plugin.MigrationScript {
 		new(addCICDDeploymentsTable),
 		new(normalizeBpSettings),
 		new(addSyncPolicy),
+		new(addIssueCustomArrayField),
 	}
 }
