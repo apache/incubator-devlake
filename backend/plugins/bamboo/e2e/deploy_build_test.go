@@ -18,11 +18,6 @@ limitations under the License.
 package e2e
 
 import (
-	gocontext "context"
-	"github.com/apache/incubator-devlake/core/runner"
-	"testing"
-	"time"
-
 	"github.com/apache/incubator-devlake/core/models/common"
 	"github.com/apache/incubator-devlake/core/models/domainlayer/devops"
 	"github.com/apache/incubator-devlake/helpers/e2ehelper"
@@ -30,16 +25,13 @@ import (
 	"github.com/apache/incubator-devlake/plugins/bamboo/impl"
 	"github.com/apache/incubator-devlake/plugins/bamboo/models"
 	"github.com/apache/incubator-devlake/plugins/bamboo/tasks"
+	"testing"
+	"time"
 )
 
-var basicContext = runner.CreateAppBasicRes()
-
 func getFakeAPIClient() *helper.ApiAsyncClient {
-	client, _ := helper.NewApiClient(gocontext.Background(),
-		"https://zentao.demo.haogs.cn/api.php/v1/",
-		nil, time.Second*5, "",
-		basicContext,
-	)
+	client := &helper.ApiClient{}
+	client.Setup("http://127.0.0.1:8080/bamboo/", nil, time.Second)
 	return &helper.ApiAsyncClient{
 		ApiClient: client,
 	}
