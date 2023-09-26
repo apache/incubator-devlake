@@ -16,26 +16,6 @@
  *
  */
 
-export const getPluginId = (plugin: string) => {
-  switch (plugin) {
-    case 'github':
-      return 'githubId';
-    case 'jira':
-      return 'boardId';
-    case 'gitlab':
-      return 'gitlabId';
+import styled from 'styled-components';
 
-    // TODO: this should be just id... or similar
-    case 'clickup':
-      return 'Id';
-
-    case 'jenkins':
-      return 'jobFullName';
-    case 'bitbucket':
-      return 'bitbucketId';
-    case 'sonarqube':
-      return 'projectKey';
-    default:
-      return 'id';
-  }
-};
+export const DataScope = styled.div``;

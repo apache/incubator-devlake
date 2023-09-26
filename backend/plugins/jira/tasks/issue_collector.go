@@ -137,6 +137,7 @@ func CollectIssues(taskCtx plugin.SubTaskContext) errors.Error {
 			return data.Issues, nil
 		},
 	})
+
 	if err != nil {
 		return err
 	}

@@ -16,26 +16,18 @@
  *
  */
 
-export const getPluginId = (plugin: string) => {
-  switch (plugin) {
-    case 'github':
-      return 'githubId';
-    case 'jira':
-      return 'boardId';
-    case 'gitlab':
-      return 'gitlabId';
+import { Colors } from '@blueprintjs/core';
+import styled from 'styled-components';
 
-    // TODO: this should be just id... or similar
-    case 'clickup':
-      return 'Id';
+export const Label = styled.label`
+  font-size: 16px;
+  font-weight: 600;
+`;
 
-    case 'jenkins':
-      return 'jobFullName';
-    case 'bitbucket':
-      return 'bitbucketId';
-    case 'sonarqube':
-      return 'projectKey';
-    default:
-      return 'id';
-  }
-};
+export const LabelInfo = styled.i`
+  color: #ff8b8b;
+`;
+
+export const LabelDescription = styled.p`
+  margin: 0;
+`;

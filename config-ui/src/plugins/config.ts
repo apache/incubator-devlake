@@ -41,12 +41,14 @@ import { WebhookConfig } from './register/webook';
 import { ZenTaoConfig } from './register/zentao';
 import { TeambitionConfig } from './register/teambition';
 import { BasePipelineConfig } from '@/plugins/register/base';
+import { ClickUpConfig } from './register/clickup/config';
 
 export const PluginConfig: PluginConfigType[] = [
   AEConfig,
   AzureConfig,
   BitBucketConfig,
   CustomizeConfig,
+  ClickUpConfig,
   DBTConfig,
   DORAConfig,
   FeiShuConfig,

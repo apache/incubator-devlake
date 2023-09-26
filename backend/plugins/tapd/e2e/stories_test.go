@@ -38,10 +38,10 @@ func TestTapdStoryDataFlow(t *testing.T) {
 			WorkspaceId:  991,
 			TransformationRules: &tasks.TransformationRules{
 				TypeMappings: tasks.TypeMappings{
-					"BUG":      "缺陷",
-					"TASK":     "任务",
-					"需求":     "故事需求",
-					"技术债":   "技术需求债务",
+					"BUG":  "缺陷",
+					"TASK": "任务",
+					"需求":   "故事需求",
+					"技术债":  "技术需求债务",
 					"长篇故事": "Epic需求",
 				},
 			},
