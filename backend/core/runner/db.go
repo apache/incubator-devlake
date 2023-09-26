@@ -137,8 +137,10 @@ func getDbConnection(dbUrl string, conf *gorm.Config) (*gorm.DB, error) {
 			if ok := rootCertPool.AppendCertsFromPEM(pem); !ok {
 				return nil, err
 			}
-			tlsMysql.RegisterTLSConfig("custom", &tls.Config{RootCAs: rootCertPool})
-
+			err = tlsMysql.RegisterTLSConfig("custom", &tls.Config{RootCAs: rootCertPool})
+			if err != nil {
+				return nil, err
+			}
 			dbUrl = fmt.Sprintf("%s&tls=custom", dbUrl)
 			db, err := sql.Open("mysql", dbUrl)
 			if err != nil {
