@@ -16,26 +16,4 @@
  *
  */
 
-export const getPluginId = (plugin: string) => {
-  switch (plugin) {
-    case 'github':
-      return 'githubId';
-    case 'jira':
-      return 'boardId';
-    case 'gitlab':
-      return 'gitlabId';
-
-    // TODO: this should be just id... or similar
-    case 'clickup':
-      return 'Id';
-
-    case 'jenkins':
-      return 'jobFullName';
-    case 'bitbucket':
-      return 'bitbucketId';
-    case 'sonarqube':
-      return 'projectKey';
-    default:
-      return 'id';
-  }
-};
+export * from './auth';

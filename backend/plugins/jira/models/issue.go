@@ -37,7 +37,7 @@ type JiraIssue struct {
 	Summary                  string
 	Type                     string `gorm:"type:varchar(255)"`
 	EpicKey                  string `gorm:"type:varchar(255)"`
-	StatusName               string `gorm:"type:varchar(255)"`
+	StatusName               string `gorm:"type:varchar(256)"`
 	StatusKey                string `gorm:"type:varchar(255)"`
 	StoryPoint               float64
 	OriginalEstimateMinutes  int64  // user input?
