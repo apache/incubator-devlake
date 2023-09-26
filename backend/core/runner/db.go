@@ -128,7 +128,7 @@ func getDbConnection(dbUrl string, conf *gorm.Config) (*gorm.DB, error) {
 	switch strings.ToLower(u.Scheme) {
 	case "mysql":
 		dbUrl = fmt.Sprintf("%s@tcp(%s)%s?%s", getUserString(u), u.Host, u.Path, sanitizeQuery(u.Query()))
-		if u.Query().Get("ca-cert") != "" {
+		if u.Query().Get("tls") != "" && u.Query().Get("ca-cert") != "" {
 			rootCertPool := x509.NewCertPool()
 			pem, err := os.ReadFile(u.Query().Get("ca-cert"))
 			if err != nil {
@@ -141,7 +141,6 @@ func getDbConnection(dbUrl string, conf *gorm.Config) (*gorm.DB, error) {
 			if err != nil {
 				return nil, err
 			}
-			dbUrl = fmt.Sprintf("%s&tls=custom", dbUrl)
 			db, err := sql.Open("mysql", dbUrl)
 			if err != nil {
 				return nil, err
