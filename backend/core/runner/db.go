@@ -109,8 +109,8 @@ func getUserString(u *url.URL) string {
 	return userString
 }
 
-// addLocal adds loc=Local to the query string if it's not already there
-func addLocal(query url.Values) string {
+// sanitizeQuery add default value to query and remove ca-cert from query
+func sanitizeQuery(query url.Values) string {
 	if query.Get("loc") == "" {
 		query.Set("loc", "Local")
 	}
@@ -127,7 +127,7 @@ func getDbConnection(dbUrl string, conf *gorm.Config) (*gorm.DB, error) {
 	}
 	switch strings.ToLower(u.Scheme) {
 	case "mysql":
-		dbUrl = fmt.Sprintf("%s@tcp(%s)%s?%s", getUserString(u), u.Host, u.Path, addLocal(u.Query()))
+		dbUrl = fmt.Sprintf("%s@tcp(%s)%s?%s", getUserString(u), u.Host, u.Path, sanitizeQuery(u.Query()))
 		if u.Query().Get("ca-cert") != "" {
 			rootCertPool := x509.NewCertPool()
 			pem, err := os.ReadFile(u.Query().Get("ca-cert"))
