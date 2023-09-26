@@ -289,12 +289,13 @@ func (d *DevlakeClient) initPlugins(cfg *LocalClientConfig) {
 	for _, p := range cfg.Plugins {
 		require.NoError(d.testCtx, plugin.RegisterPlugin(p.Name(), p))
 	}
-	for _, p := range plugin.AllPlugins() {
-		if pi, ok := p.(plugin.PluginInit); ok {
-			err := pi.Init(d.basicRes)
-			require.NoError(d.testCtx, err)
-		}
-	}
+	// The following code doesn't seem correct, plugin should be initialized by the server, not the client
+	// for _, p := range plugin.AllPlugins() {
+	// 	if pi, ok := p.(plugin.PluginInit); ok {
+	// 		err := pi.Init(d.basicRes)
+	// 		require.NoError(d.testCtx, err)
+	// 	}
+	// }
 	remotePlugin.Init(d.basicRes)
 }
 
