@@ -148,6 +148,12 @@ func (d *Dalgorm) unwrapDynamic(entityPtr *interface{}, clausesPtr *[]dal.Clause
 		}
 		*entityPtr = dynamic.Unwrap()
 	} else if clausesPtr != nil {
+		// try to add dal.From if it does not exist
+		for _, c := range *clausesPtr {
+			if c.Type == dal.FromClause {
+				return
+			}
+		}
 		*clausesPtr = append(*clausesPtr, dal.From(*entityPtr))
 	}
 }
