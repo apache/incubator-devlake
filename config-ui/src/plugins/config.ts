@@ -30,6 +30,7 @@ import { TAPDConfig } from './register/tapd';
 import { WebhookConfig } from './register/webook';
 import { TeambitionConfig } from './register/teambition';
 import { ZenTaoConfig } from './register/zentao';
+import { OpsgenieConfig } from './register/opsgenie';
 
 export const PluginConfig: PluginConfigType[] = [
   AzureConfig,
@@ -45,4 +46,5 @@ export const PluginConfig: PluginConfigType[] = [
   TeambitionConfig,
   ZenTaoConfig,
   WebhookConfig,
+  OpsgenieConfig,
 ].sort((a, b) => a.sort - b.sort);

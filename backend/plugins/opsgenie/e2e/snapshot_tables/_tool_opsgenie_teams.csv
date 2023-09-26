@@ -1,0 +1,3 @@
+created_at,updated_at,_raw_data_params,_raw_data_table,_raw_data_id,_raw_data_remark,connection_id,id,name,description
+2023-09-19 20:08:54.226,2023-09-19 20:08:54.226,"{""ConnectionId"":1,""ScopeId"":""695bce3d-4621-4630-8ae1-24eb89c22d6e""}",_raw_opsgenie_teams,1,,1,6a95a94a-2db4-4ec0-9f0f-694c40e017fe,old_team,
+2023-09-19 20:08:54.226,2023-09-19 20:08:54.226,"{""ConnectionId"":1,""ScopeId"":""695bce3d-4621-4630-8ae1-24eb89c22d6e""}",_raw_opsgenie_teams,2,,1,d2d47ba1-a034-488f-b1f4-be2cd3c693ad,new_team,

@@ -97,6 +97,11 @@ const URLS = {
       RATE_LIMIT: 'https://devlake.apache.org/docs/v0.19/Configuration/Teambition#ralte-limit-optional',
     },
     REFDIFF: 'https://devlake.apache.org/docs/v0.19/Plugins/refdiff',
+    OPSGENIE: {
+      BASIS: 'https://devlake.apache.org/docs/v0.19/Configuration/Opsgenie',
+      RATE_LIMIT: 'https://devlake.apache.org/docs/v0.19/Configuration/Opsgenie/#fixed-rate-limit-optional',
+      API_KEY: 'https://devlake.apache.org/docs/v0.19/Configuration/Opsgenie#api-access-key',
+    },
   },
   METRICS: {
     BUG_AGE: 'https://devlake.apache.org/docs/v0.19/Metrics/BugAge',
