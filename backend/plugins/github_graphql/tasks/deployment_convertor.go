@@ -18,8 +18,16 @@ limitations under the License.
 package tasks
 
 import (
+	"fmt"
+	"github.com/apache/incubator-devlake/core/dal"
 	"github.com/apache/incubator-devlake/core/errors"
+	"github.com/apache/incubator-devlake/core/models/domainlayer"
+	"github.com/apache/incubator-devlake/core/models/domainlayer/devops"
+	"github.com/apache/incubator-devlake/core/models/domainlayer/didgen"
 	"github.com/apache/incubator-devlake/core/plugin"
+	"github.com/apache/incubator-devlake/helpers/pluginhelper/api"
+	githubGraphqlModels "github.com/apache/incubator-devlake/plugins/github_graphql/models"
+	"reflect"
 )
 
 var _ plugin.SubTaskEntryPoint = ConvertDeployment
@@ -28,10 +36,69 @@ var ConvertDeploymentMeta = plugin.SubTaskMeta{
 	Name:             "ConvertDeployment",
 	EntryPoint:       ConvertDeployment,
 	EnabledByDefault: true,
-	Description:      "",
-	DomainTypes:      []string{},
+	Description:      "Convert github deployment from tool layer to domain layer",
+	DomainTypes:      []string{plugin.DOMAIN_TYPE_CICD},
 }
 
 func ConvertDeployment(taskCtx plugin.SubTaskContext) errors.Error {
-	return nil
+	db := taskCtx.GetDal()
+	rawDataSubTaskArgs, data := CreateRawDataSubTaskArgs(taskCtx, RAW_DEPLOYMENT)
+	cursor, err := db.Cursor(
+		dal.From(&githubGraphqlModels.GithubDeployment{}),
+		dal.Where("connection_id = ? and github_id = ?", data.Options.ConnectionId, data.Options.GithubId),
+	)
+	if err != nil {
+		return err
+	}
+	defer cursor.Close()
+
+	jobBuildIdGen := didgen.NewDomainIdGenerator(&githubGraphqlModels.GithubDeployment{})
+
+	converter, err := api.NewDataConverter(api.DataConverterArgs{
+		InputRowType:       reflect.TypeOf(githubGraphqlModels.GithubDeployment{}),
+		Input:              cursor,
+		RawDataSubTaskArgs: *rawDataSubTaskArgs,
+		Convert: func(inputRow interface{}) ([]interface{}, errors.Error) {
+			githubDeployment := inputRow.(*githubGraphqlModels.GithubDeployment)
+			domainCICDDeployment := &devops.CICDDeployment{
+				DomainEntity: domainlayer.DomainEntity{
+					Id: jobBuildIdGen.Generate(githubDeployment.ConnectionId, githubDeployment.Id),
+				},
+				CicdScopeId: fmt.Sprintf("%d:%d", githubDeployment.ConnectionId, githubDeployment.GithubId),
+				Name:        fmt.Sprintf("%s:%d", githubDeployment.RepositoryName, githubDeployment.DatabaseId), // fixme where does the deploy name field exist?
+				Result: devops.GetResult(&devops.ResultRule{
+					Success: []string{"SUCCESS"},
+					Failed:  []string{"ERROR", "FAILURE"},
+					Abort:   []string{"QUEUED", "ABANDONED", "DESTROYED", "INACTIVE"},
+					Manual:  []string{"WAITING", "PENDING", "ACTIVE", "IN_PROGRESS"},
+					Skipped: []string{},
+					Default: githubDeployment.LatestStatusState,
+				}, githubDeployment.State),
+				Status: devops.GetStatus(&devops.StatusRule[string]{
+					InProgress: []string{"ACTIVE", "QUEUED", "IN_PROGRESS", "ABANDONED", "DESTROYED", "FAILURE", "INACTIVE"},
+					NotStarted: []string{"PENDING"},
+					Done:       []string{"SUCCESS"},
+					Manual:     []string{"ERROR", "WAITING"},
+					Default:    githubDeployment.State,
+				}, githubDeployment.State),
+				Environment:  githubDeployment.Environment,
+				CreatedDate:  githubDeployment.CreatedDate,
+				StartedDate:  &githubDeployment.CreatedDate, // fixme there is no such field
+				FinishedDate: &githubDeployment.CreatedDate, // fixme there is no such field
+			}
+
+			durationSec := uint64(githubDeployment.UpdatedDate.Sub(githubDeployment.CreatedDate).Seconds())
+			domainCICDDeployment.DurationSec = &durationSec
+
+			return []interface{}{
+				domainCICDDeployment,
+			}, nil
+		},
+	})
+
+	if err != nil {
+		return err
+	}
+
+	return converter.Execute()
 }

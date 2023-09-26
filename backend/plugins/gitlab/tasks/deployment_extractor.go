@@ -15,24 +15,33 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-package migrationscripts
+package tasks
 
 import (
-	"github.com/apache/incubator-devlake/core/context"
 	"github.com/apache/incubator-devlake/core/errors"
-	"github.com/apache/incubator-devlake/plugins/github_graphql/models"
+	"github.com/apache/incubator-devlake/core/plugin"
 )
 
-type addDeploymentTable struct {
+var _ plugin.SubTaskEntryPoint = CollectDeployment
+
+type SingleEntityTaskGroup struct {
+	Collector plugin.SubTaskMeta
+	Extractor plugin.SubTaskMeta
+	Convertor plugin.SubTaskMeta
 }
 
-func (*addDeploymentTable) Up(basicRes context.BasicRes) errors.Error {
-	return basicRes.GetDal().AutoMigrate(&models.GithubDeployment{})
+var Deployment = SingleEntityTaskGroup{
+	Collector: CollectDeploymentMeta,
 }
 
-func (*addDeploymentTable) Version() uint64 {
-	return 20230913170100
+var CollectDeploymentMeta = plugin.SubTaskMeta{
+	Name:             "CollectDeployment",
+	EntryPoint:       CollectDeployment,
+	EnabledByDefault: true,
+	Description:      "",
+	DomainTypes:      []string{},
 }
-func (*addDeploymentTable) Name() string {
-	return "add github deployment table"
+
+func CollectDeployment(taskCtx plugin.SubTaskContext) errors.Error {
+	return nil
 }

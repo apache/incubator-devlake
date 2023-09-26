@@ -15,24 +15,4 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-package migrationscripts
-
-import (
-	"github.com/apache/incubator-devlake/core/context"
-	"github.com/apache/incubator-devlake/core/errors"
-	"github.com/apache/incubator-devlake/plugins/github_graphql/models"
-)
-
-type addDeploymentTable struct {
-}
-
-func (*addDeploymentTable) Up(basicRes context.BasicRes) errors.Error {
-	return basicRes.GetDal().AutoMigrate(&models.GithubDeployment{})
-}
-
-func (*addDeploymentTable) Version() uint64 {
-	return 20230913170100
-}
-func (*addDeploymentTable) Name() string {
-	return "add github deployment table"
-}
+package tasks

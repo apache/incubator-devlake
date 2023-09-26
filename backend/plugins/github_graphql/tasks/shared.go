@@ -18,36 +18,21 @@ limitations under the License.
 package tasks
 
 import (
-	"github.com/apache/incubator-devlake/core/errors"
 	"github.com/apache/incubator-devlake/core/plugin"
+	helper "github.com/apache/incubator-devlake/helpers/pluginhelper/api"
+	"github.com/apache/incubator-devlake/plugins/github/models"
+	githubTasks "github.com/apache/incubator-devlake/plugins/github/tasks"
 )
 
-var _ plugin.SubTaskEntryPoint = CollectDeployment
-
-const (
-	RAW_DEPLOYMENT = "github_deployment"
-)
-
-type SingleEntityTaskGroup struct {
-	Collector plugin.SubTaskMeta
-	Extractor plugin.SubTaskMeta
-	Convertor plugin.SubTaskMeta
-}
-
-var Deployment = SingleEntityTaskGroup{
-	Collector: CollectDeploymentMeta,
-	Extractor: ExtractDeploymentMeta,
-	Convertor: ConvertDeploymentMeta,
-}
-
-var CollectDeploymentMeta = plugin.SubTaskMeta{
-	Name:             "CollectDeployment",
-	EntryPoint:       CollectDeployment,
-	EnabledByDefault: true,
-	Description:      "",
-	DomainTypes:      []string{},
-}
-
-func CollectDeployment(taskCtx plugin.SubTaskContext) errors.Error {
-	return nil
+func CreateRawDataSubTaskArgs(taskCtx plugin.SubTaskContext, table string) (*helper.RawDataSubTaskArgs, *githubTasks.GithubTaskData) {
+	data := taskCtx.GetData().(*githubTasks.GithubTaskData)
+	RawDataSubTaskArgs := &helper.RawDataSubTaskArgs{
+		Ctx: taskCtx,
+		Params: models.GithubApiParams{
+			Name:         data.Options.Name,
+			ConnectionId: data.Options.ConnectionId,
+		},
+		Table: table,
+	}
+	return RawDataSubTaskArgs, data
 }
