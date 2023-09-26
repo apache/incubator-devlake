@@ -147,6 +147,8 @@ func (d *Dalgorm) unwrapDynamic(entityPtr *interface{}, clausesPtr *[]dal.Clause
 			*clausesPtr = append(*clausesPtr, dal.From(dynamic.TableName()))
 		}
 		*entityPtr = dynamic.Unwrap()
+	} else {
+		*clausesPtr = append(*clausesPtr, dal.From(*entityPtr))
 	}
 }
 
