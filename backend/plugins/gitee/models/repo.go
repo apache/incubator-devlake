@@ -29,7 +29,7 @@ import (
 var _ plugin.ToolLayerScope = (*GiteeRepo)(nil)
 
 type GiteeRepo struct {
-	ConnectionId  uint64 `gorm:"primaryKey"`
+	common.Scope
 	GiteeId       int    `gorm:"primaryKey"`
 	Name          string `gorm:"type:varchar(255)"`
 	HTMLUrl       string `gorm:"type:varchar(255)"`
@@ -41,7 +41,6 @@ type GiteeRepo struct {
 	ParentHTMLUrl string     `json:"parentHtmlUrl"`
 	CreatedDate   time.Time  `json:"createdDate"`
 	UpdatedDate   *time.Time `json:"updatedDate"`
-	common.NoPKModel
 }
 
 func (r GiteeRepo) ScopeId() string {

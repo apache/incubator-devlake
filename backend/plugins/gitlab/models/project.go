@@ -29,8 +29,7 @@ import (
 var _ plugin.ToolLayerScope = (*GitlabProject)(nil)
 
 type GitlabProject struct {
-	ConnectionId            uint64     `json:"connectionId" mapstructure:"connectionId" validate:"required" gorm:"primaryKey"`
-	ScopeConfigId           uint64     `json:"scopeConfigId,omitempty" mapstructure:"scopeConfigId"`
+	common.Scope
 	GitlabId                int        `json:"gitlabId" mapstructure:"gitlabId" validate:"required" gorm:"primaryKey"`
 	Name                    string     `json:"name" mapstructure:"name" gorm:"type:varchar(255)"`
 	Description             string     `json:"description" mapstructure:"description"`
@@ -47,8 +46,6 @@ type GitlabProject struct {
 	CreatedDate             *time.Time `json:"createdDate" mapstructure:"-"`
 	UpdatedDate             *time.Time `json:"updatedDate" mapstructure:"-"`
 	Archived                bool       `json:"archived" mapstructure:"archived"`
-
-	common.NoPKModel `json:"-" mapstructure:"-"`
 }
 
 func (GitlabProject) TableName() string {

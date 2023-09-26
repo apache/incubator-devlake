@@ -30,6 +30,10 @@ type BaseConnection struct {
 	common.Model
 }
 
+func (c BaseConnection) ConnectionId() uint64 {
+	return c.ID
+}
+
 func (c BaseConnection) GetHash() string {
 	return fmt.Sprintf("%d%v", c.ID, c.UpdatedAt)
 }

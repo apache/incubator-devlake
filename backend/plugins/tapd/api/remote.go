@@ -21,6 +21,10 @@ import (
 	gocontext "context"
 	"encoding/json"
 	"fmt"
+	"io"
+	"net/http"
+	"net/url"
+
 	"github.com/apache/incubator-devlake/core/context"
 	"github.com/apache/incubator-devlake/core/errors"
 	"github.com/apache/incubator-devlake/core/plugin"
@@ -28,9 +32,6 @@ import (
 	aha "github.com/apache/incubator-devlake/helpers/pluginhelper/api/apihelperabstract"
 	"github.com/apache/incubator-devlake/plugins/tapd/models"
 	"github.com/apache/incubator-devlake/plugins/tapd/tasks"
-	"io"
-	"net/http"
-	"net/url"
 )
 
 // PrepareFirstPageToken prepare first page token
@@ -91,16 +92,16 @@ func RemoteScopes(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, er
 			// check if workspace is a group
 			isGroupMap := map[uint64]bool{}
 			for _, workspace := range resBody.Data {
-				isGroupMap[workspace.ApiTapdWorkspace.ParentId] = true
+				isGroupMap[workspace.TapdWorkspace.ParentId] = true
 			}
 
 			groups := []api.BaseRemoteGroupResponse{}
 			for _, workspace := range resBody.Data {
-				if fmt.Sprintf(`%d`, workspace.ApiTapdWorkspace.ParentId) == gid &&
-					isGroupMap[workspace.ApiTapdWorkspace.Id] {
+				if fmt.Sprintf(`%d`, workspace.TapdWorkspace.ParentId) == gid &&
+					isGroupMap[workspace.TapdWorkspace.Id] {
 					groups = append(groups, api.BaseRemoteGroupResponse{
-						Id:   fmt.Sprintf(`%d`, workspace.ApiTapdWorkspace.Id),
-						Name: workspace.ApiTapdWorkspace.Name,
+						Id:   fmt.Sprintf(`%d`, workspace.TapdWorkspace.Id),
+						Name: workspace.TapdWorkspace.Name,
 					})
 				}
 			}
@@ -130,9 +131,9 @@ func RemoteScopes(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, er
 			}
 			workspaces := []models.TapdWorkspace{}
 			for _, workspace := range resBody.Data {
-				if fmt.Sprintf(`%d`, workspace.ApiTapdWorkspace.ParentId) == gid {
+				if fmt.Sprintf(`%d`, workspace.TapdWorkspace.ParentId) == gid {
 					// filter from all project to query what we need...
-					workspaces = append(workspaces, models.TapdWorkspace(workspace.ApiTapdWorkspace))
+					workspaces = append(workspaces, models.TapdWorkspace(workspace.TapdWorkspace))
 				}
 
 			}
@@ -162,7 +163,7 @@ func GetApiWorkspace(op *tasks.TapdOptions, apiClient aha.ApiClientAbstract) (*m
 	if err != nil {
 		return nil, err
 	}
-	workspace := models.TapdWorkspace(resBody.Data.ApiTapdWorkspace)
+	workspace := models.TapdWorkspace(resBody.Data.TapdWorkspace)
 	workspace.ConnectionId = op.ConnectionId
 	return &workspace, nil
 }
