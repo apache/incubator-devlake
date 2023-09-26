@@ -47,10 +47,12 @@ func TestIncidentDataFlow(t *testing.T) {
 	dataflowTester.FlushTabler(&models.Service{})
 	// tx-rule
 	service := models.Service{
-		ConnectionId: options.ConnectionId,
-		Url:          fmt.Sprintf("https://keon-test.pagerduty.com/service-directory/%s", options.ServiceId),
-		Id:           options.ServiceId,
-		Name:         options.ServiceName,
+		Scope: common.Scope{
+			ConnectionId: options.ConnectionId,
+		},
+		Url:  fmt.Sprintf("https://keon-test.pagerduty.com/service-directory/%s", options.ServiceId),
+		Id:   options.ServiceId,
+		Name: options.ServiceName,
 	}
 	// scope
 	require.NoError(t, dataflowTester.Dal.CreateOrUpdate(&service))

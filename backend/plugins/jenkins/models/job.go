@@ -26,18 +26,16 @@ var _ plugin.ToolLayerScope = (*JenkinsJob)(nil)
 
 // JenkinsJob db entity for jenkins job
 type JenkinsJob struct {
-	ConnectionId     uint64 `gorm:"primaryKey" mapstructure:"connectionId,omitempty" validate:"required" json:"connectionId"`
-	FullName         string `gorm:"primaryKey;type:varchar(255)" mapstructure:"jobFullName" validate:"required" json:"jobFullName"` // "path1/path2/job name"
-	ScopeConfigId    uint64 `mapstructure:"scopeConfigId,omitempty" json:"scopeConfigId,omitempty"`
-	Name             string `gorm:"index;type:varchar(255)" mapstructure:"name" json:"name"`     // scope name now is same to `jobFullName`
-	Path             string `gorm:"index;type:varchar(511)" mapstructure:"-,omitempty" json:"-"` // "job/path1/job/path2"
-	Class            string `gorm:"type:varchar(255)" mapstructure:"class,omitempty" json:"class"`
-	Color            string `gorm:"type:varchar(255)" mapstructure:"color,omitempty" json:"color"`
-	Base             string `gorm:"type:varchar(255)" mapstructure:"base,omitempty" json:"base"`
-	Url              string `mapstructure:"url,omitempty" json:"url"`
-	Description      string `mapstructure:"description,omitempty" json:"description"`
-	PrimaryView      string `gorm:"type:varchar(255)" mapstructure:"primaryView,omitempty" json:"primaryView"`
-	common.NoPKModel `json:"-" mapstructure:"-"`
+	common.Scope
+	FullName    string `gorm:"primaryKey;type:varchar(255)" mapstructure:"jobFullName" validate:"required" json:"jobFullName"` // "path1/path2/job name"
+	Name        string `gorm:"index;type:varchar(255)" mapstructure:"name" json:"name"`                                        // scope name now is same to `jobFullName`
+	Path        string `gorm:"index;type:varchar(511)" mapstructure:"-,omitempty" json:"-"`                                    // "job/path1/job/path2"
+	Class       string `gorm:"type:varchar(255)" mapstructure:"class,omitempty" json:"class"`
+	Color       string `gorm:"type:varchar(255)" mapstructure:"color,omitempty" json:"color"`
+	Base        string `gorm:"type:varchar(255)" mapstructure:"base,omitempty" json:"base"`
+	Url         string `mapstructure:"url,omitempty" json:"url"`
+	Description string `mapstructure:"description,omitempty" json:"description"`
+	PrimaryView string `gorm:"type:varchar(255)" mapstructure:"primaryView,omitempty" json:"primaryView"`
 }
 
 func (JenkinsJob) TableName() string {

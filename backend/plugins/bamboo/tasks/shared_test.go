@@ -79,3 +79,38 @@ func Test_getBambooWebURL(t *testing.T) {
 		})
 	}
 }
+
+func Test_generateFakeRepoURL(t *testing.T) {
+	type args struct {
+		endpoint string
+		repoID   int
+	}
+	tests := []struct {
+		name    string
+		args    args
+		want    string
+		wantErr bool
+	}{
+		{
+			name: "t-1",
+			args: args{
+				endpoint: "http://127.0.0.1:8080/abc",
+				repoID:   123,
+			},
+			want:    "fake://127.0.0.1:8080/repos/123",
+			wantErr: false,
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			got, err := generateFakeRepoUrl(tt.args.endpoint, tt.args.repoID)
+			if (err != nil) != tt.wantErr {
+				t.Errorf("generateFakeRepoUrl() error = %v, wantErr %v", err, tt.wantErr)
+				return
+			}
+			if got != tt.want {
+				t.Errorf("generateFakeRepoUrl() got = %v, want %v", got, tt.want)
+			}
+		})
+	}
+}

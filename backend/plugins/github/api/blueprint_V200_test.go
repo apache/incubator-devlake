@@ -20,6 +20,7 @@ package api
 import (
 	"testing"
 
+	"github.com/apache/incubator-devlake/core/dal"
 	coreModels "github.com/apache/incubator-devlake/core/models"
 	"github.com/apache/incubator-devlake/core/models/common"
 	"github.com/apache/incubator-devlake/core/models/domainlayer"
@@ -29,6 +30,7 @@ import (
 	helper "github.com/apache/incubator-devlake/helpers/pluginhelper/api"
 	"github.com/apache/incubator-devlake/helpers/unithelper"
 	mockdal "github.com/apache/incubator-devlake/mocks/core/dal"
+	mocks "github.com/apache/incubator-devlake/mocks/core/dal"
 	mockplugin "github.com/apache/incubator-devlake/mocks/core/plugin"
 	"github.com/apache/incubator-devlake/plugins/github/models"
 	"github.com/stretchr/testify/assert"
@@ -135,12 +137,14 @@ func TestMakeDataSourcePipelinePlanV200(t *testing.T) {
 
 func mockBasicRes(t *testing.T) {
 	testGithubRepo := &models.GithubRepo{
-		ConnectionId:  1,
-		GithubId:      12345,
-		Name:          "testRepo",
-		FullName:      "test/testRepo",
-		CloneUrl:      "https://this_is_cloneUrl",
-		ScopeConfigId: 1,
+		Scope: common.Scope{
+			ConnectionId:  1,
+			ScopeConfigId: 1,
+		},
+		GithubId: 12345,
+		Name:     "testRepo",
+		FullName: "test/testRepo",
+		CloneUrl: "https://this_is_cloneUrl",
 	}
 
 	testScopeConfig := &models.GithubScopeConfig{
@@ -169,6 +173,20 @@ func mockBasicRes(t *testing.T) {
 			dst := args.Get(0).(*models.GithubScopeConfig)
 			*dst = *testScopeConfig
 		}).Return(nil)
+
+		id := new(mocks.ColumnMeta)
+		id.On("PrimayKey").Return(true)
+		id.On("Name").Return("id")
+		connectionId := new(mocks.ColumnMeta)
+		connectionId.On("PrimayKey").Return(true)
+		connectionId.On("Name").Return("connection_id")
+		githubId := new(mocks.ColumnMeta)
+		githubId.On("PrimayKey").Return(true)
+		githubId.On("Name").Return("github_id")
+
+		mockDal.On("GetColumns", mock.AnythingOfType("GithubConnection"), mock.Anything).Return([]dal.ColumnMeta{id}, nil)
+		mockDal.On("GetColumns", mock.AnythingOfType("GithubRepo"), mock.Anything).Return([]dal.ColumnMeta{connectionId, githubId}, nil)
+		mockDal.On("GetColumns", mock.AnythingOfType("GithubScopeConfig"), mock.Anything).Return([]dal.ColumnMeta{id}, nil)
 	})
 	p := mockplugin.NewPluginMeta(t)
 	p.On("Name").Return("dummy").Maybe()

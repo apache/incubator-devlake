@@ -18,6 +18,8 @@ limitations under the License.
 package devops
 
 import (
+	"github.com/spf13/cast"
+	"strings"
 	"time"
 
 	"github.com/apache/incubator-devlake/core/models/domainlayer"
@@ -51,7 +53,9 @@ const (
 
 // this is for the field `status` in table.cicd_pipelines and table.cicd_tasks
 const (
+	STATUS_NOT_STARTED = "NOT_STARTED"
 	STATUS_IN_PROGRESS = "IN_PROGRESS"
+	STATUS_BLOCKED     = "BLOCKED"
 	STATUS_DONE        = "DONE"
 )
 
@@ -65,42 +69,47 @@ type ResultRule struct {
 }
 type StatusRule[T comparable] struct {
 	InProgress []T
+	NotStarted []T
 	Done       []T
 	Manual     []T
 	Default    string
 }
 
-// GetResult compare the input with rule for return the enmu value of result
+func caseInSensitiveEqual(src string, dst string) bool {
+	return strings.EqualFold(src, dst)
+}
+
+// GetResult compare the input with rule for return the enum value of result
 func GetResult(rule *ResultRule, input interface{}) string {
 	for _, suc := range rule.Success {
-		if suc == input {
+		if caseInSensitiveEqual(suc, cast.ToString(input)) {
 			return RESULT_SUCCESS
 		}
 	}
 	for _, fail := range rule.Failed {
-		if fail == input {
+		if caseInSensitiveEqual(fail, cast.ToString(input)) {
 			return RESULT_FAILURE
 		}
 	}
 	for _, abort := range rule.Abort {
-		if abort == input {
+		if caseInSensitiveEqual(abort, cast.ToString(input)) {
 			return RESULT_ABORT
 		}
 	}
 	for _, manual := range rule.Manual {
-		if manual == input {
+		if caseInSensitiveEqual(manual, cast.ToString(input)) {
 			return RESULT_MANUAL
 		}
 	}
 	for _, skipped := range rule.Skipped {
-		if skipped == input {
+		if caseInSensitiveEqual(skipped, cast.ToString(input)) {
 			return RESULT_SKIPPED
 		}
 	}
 	return rule.Default
 }
 
-// GetStatus compare the input with rule for return the enmu value of status
+// GetStatus compare the input with rule for return the enum value of status
 func GetStatus[T comparable](rule *StatusRule[T], input T) string {
 	for _, inp := range rule.InProgress {
 		if inp == input {
@@ -114,7 +123,12 @@ func GetStatus[T comparable](rule *StatusRule[T], input T) string {
 	}
 	for _, manual := range rule.Manual {
 		if manual == input {
-			return RESULT_MANUAL
+			return STATUS_BLOCKED
+		}
+	}
+	for _, notStarted := range rule.NotStarted {
+		if notStarted == input {
+			return STATUS_NOT_STARTED
 		}
 	}
 	return rule.Default

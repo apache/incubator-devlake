@@ -82,8 +82,10 @@ func TestMakeDataSourcePipelinePlanV200(t *testing.T) {
 
 func mockBasicRes(t *testing.T) {
 	jenkinsJob := &models.JenkinsJob{
-		ConnectionId: 1,
-		FullName:     "a/b/ccc",
+		Scope: common.Scope{
+			ConnectionId: 1,
+		},
+		FullName: "a/b/ccc",
 	}
 
 	scopeConfig := &models.JenkinsScopeConfig{

@@ -44,6 +44,7 @@ func TestBambooPlanBuildDataFlow(t *testing.T) {
 			},
 		},
 		RegexEnricher: helper.NewRegexEnricher(),
+		ApiClient:     getFakeAPIClient(),
 	}
 	taskData.RegexEnricher.TryAdd(devops.DEPLOYMENT, taskData.Options.DeploymentPattern)
 	taskData.RegexEnricher.TryAdd(devops.PRODUCTION, taskData.Options.ProductionPattern)

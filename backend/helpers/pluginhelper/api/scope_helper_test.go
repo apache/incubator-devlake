@@ -41,11 +41,10 @@ type TestModel struct {
 }
 
 type TestFakeGitlabRepo struct {
-	ConnectionId     uint64     `json:"connectionId" mapstructure:"connectionId" gorm:"primaryKey"`
-	GitlabId         int        `json:"gitlabId" mapstructure:"gitlabId" gorm:"primaryKey"`
-	CreatedDate      *time.Time `json:"createdDate" mapstructure:"-"`
-	UpdatedDate      *time.Time `json:"updatedDate" mapstructure:"-"`
-	common.NoPKModel `json:"-" mapstructure:"-"`
+	common.Scope
+	GitlabId    int        `json:"gitlabId" mapstructure:"gitlabId" gorm:"primaryKey"`
+	CreatedDate *time.Time `json:"createdDate" mapstructure:"-"`
+	UpdatedDate *time.Time `json:"updatedDate" mapstructure:"-"`
 }
 
 func (t TestFakeGitlabRepo) ScopeId() string {
@@ -68,21 +67,23 @@ func (t TestFakeGitlabRepo) ScopeParams() interface{} {
 	return nil
 }
 
+func (t TestFakeGitlabRepo) ScopeConnectionId() uint64 {
+	return 0
+}
+
 type TestFakeGithubRepo struct {
-	ConnectionId     uint64     `json:"connectionId" gorm:"primaryKey" mapstructure:"connectionId,omitempty"`
-	GithubId         int        `json:"githubId" gorm:"primaryKey" mapstructure:"githubId"`
-	Name             string     `json:"name" gorm:"type:varchar(255)" mapstructure:"name,omitempty"`
-	HTMLUrl          string     `json:"HTMLUrl" gorm:"type:varchar(255)" mapstructure:"HTMLUrl,omitempty"`
-	Description      string     `json:"description" mapstructure:"description,omitempty"`
-	ScopeConfigId    uint64     `json:"scopeConfigId,omitempty" mapstructure:"scopeConfigId,omitempty"`
-	OwnerId          int        `json:"ownerId" mapstructure:"ownerId,omitempty"`
-	Language         string     `json:"language" gorm:"type:varchar(255)" mapstructure:"language,omitempty"`
-	ParentGithubId   int        `json:"parentId" mapstructure:"parentGithubId,omitempty"`
-	ParentHTMLUrl    string     `json:"parentHtmlUrl" mapstructure:"parentHtmlUrl,omitempty"`
-	CloneUrl         string     `json:"cloneUrl" gorm:"type:varchar(255)" mapstructure:"cloneUrl,omitempty"`
-	CreatedDate      *time.Time `json:"createdDate" mapstructure:"-"`
-	UpdatedDate      *time.Time `json:"updatedDate" mapstructure:"-"`
-	common.NoPKModel `json:"-" mapstructure:"-"`
+	common.Scope
+	GithubId       int        `json:"githubId" gorm:"primaryKey" mapstructure:"githubId"`
+	Name           string     `json:"name" gorm:"type:varchar(255)" mapstructure:"name,omitempty"`
+	HTMLUrl        string     `json:"HTMLUrl" gorm:"type:varchar(255)" mapstructure:"HTMLUrl,omitempty"`
+	Description    string     `json:"description" mapstructure:"description,omitempty"`
+	OwnerId        int        `json:"ownerId" mapstructure:"ownerId,omitempty"`
+	Language       string     `json:"language" gorm:"type:varchar(255)" mapstructure:"language,omitempty"`
+	ParentGithubId int        `json:"parentId" mapstructure:"parentGithubId,omitempty"`
+	ParentHTMLUrl  string     `json:"parentHtmlUrl" mapstructure:"parentHtmlUrl,omitempty"`
+	CloneUrl       string     `json:"cloneUrl" gorm:"type:varchar(255)" mapstructure:"cloneUrl,omitempty"`
+	CreatedDate    *time.Time `json:"createdDate" mapstructure:"-"`
+	UpdatedDate    *time.Time `json:"updatedDate" mapstructure:"-"`
 }
 
 func (r TestFakeGithubRepo) ScopeId() string {
@@ -99,6 +100,10 @@ func (r TestFakeGithubRepo) ScopeFullName() string {
 
 func (r TestFakeGithubRepo) ScopeParams() interface{} {
 	return nil
+}
+
+func (TestFakeGithubRepo) ScopeConnectionId() uint64 {
+	return 0
 }
 
 func (TestFakeGithubRepo) TableName() string {

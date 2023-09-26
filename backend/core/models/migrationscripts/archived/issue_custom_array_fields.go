@@ -15,12 +15,16 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-package models
+package archived
 
-import (
-	"github.com/apache/incubator-devlake/core/models/common"
-)
+type IssueCustomArrayField struct {
+	IssueId    string `gorm:"primaryKey;type:varchar(255)"`
+	FieldId    string `gorm:"primaryKey;type:varchar(255)"`
+	FieldValue string `gorm:"primaryKey;type:varchar(255)"`
 
-type PagerdutyScopeConfig struct {
-	common.ScopeConfig `mapstructure:",squash" json:",inline" gorm:"embedded"`
+	NoPKModel
+}
+
+func (IssueCustomArrayField) TableName() string {
+	return "issue_custom_array_fields"
 }

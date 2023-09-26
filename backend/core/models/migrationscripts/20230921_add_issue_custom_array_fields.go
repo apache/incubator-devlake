@@ -15,12 +15,29 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-package models
+package migrationscripts
 
 import (
-	"github.com/apache/incubator-devlake/core/models/common"
+	"github.com/apache/incubator-devlake/core/context"
+	"github.com/apache/incubator-devlake/core/errors"
+	"github.com/apache/incubator-devlake/core/models/migrationscripts/archived"
+	"github.com/apache/incubator-devlake/helpers/migrationhelper"
 )
 
-type PagerdutyScopeConfig struct {
-	common.ScopeConfig `mapstructure:",squash" json:",inline" gorm:"embedded"`
+type addIssueCustomArrayField struct{}
+
+func (u *addIssueCustomArrayField) Up(basicRes context.BasicRes) errors.Error {
+
+	return migrationhelper.AutoMigrateTables(
+		basicRes,
+		&archived.IssueCustomArrayField{},
+	)
+}
+
+func (*addIssueCustomArrayField) Version() uint64 {
+	return 20230921000083
+}
+
+func (*addIssueCustomArrayField) Name() string {
+	return "add issue custom array field"
 }
