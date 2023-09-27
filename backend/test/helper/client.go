@@ -36,7 +36,6 @@ import (
 	dora "github.com/apache/incubator-devlake/plugins/dora/impl"
 	org "github.com/apache/incubator-devlake/plugins/org/impl"
 	refdiff "github.com/apache/incubator-devlake/plugins/refdiff/impl"
-	remotePlugin "github.com/apache/incubator-devlake/server/services/remote/plugin"
 
 	"github.com/apache/incubator-devlake/core/config"
 	corectx "github.com/apache/incubator-devlake/core/context"
@@ -289,14 +288,6 @@ func (d *DevlakeClient) initPlugins(cfg *LocalClientConfig) {
 	for _, p := range cfg.Plugins {
 		require.NoError(d.testCtx, plugin.RegisterPlugin(p.Name(), p))
 	}
-	// The following code doesn't seem correct, plugin should be initialized by the server, not the client
-	// for _, p := range plugin.AllPlugins() {
-	// 	if pi, ok := p.(plugin.PluginInit); ok {
-	// 		err := pi.Init(d.basicRes)
-	// 		require.NoError(d.testCtx, err)
-	// 	}
-	// }
-	remotePlugin.Init(d.basicRes)
 }
 
 func (d *DevlakeClient) prepareDB(cfg *LocalClientConfig) {
