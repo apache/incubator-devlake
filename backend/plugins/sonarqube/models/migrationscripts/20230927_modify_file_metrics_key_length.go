@@ -30,7 +30,7 @@ var _ plugin.MigrationScript = (*modifyFileMetricsKeyLength)(nil)
 type modifyFileMetricsKeyLength struct{}
 
 type fileMetricsKey20230927 struct {
-	FileMetricsKey string `gorm:"type:varchar(500);primary_key"`
+	FileMetricsKey string `gorm:"primaryKey;type:varchar(500)"`
 }
 
 func (fileMetricsKey20230927) TableName() string {
@@ -39,7 +39,7 @@ func (fileMetricsKey20230927) TableName() string {
 
 func (script *modifyFileMetricsKeyLength) Up(basicRes context.BasicRes) errors.Error {
 	db := basicRes.GetDal()
-	return migrationhelper.ChangeColumnsType[fileMetricsKey20230927](
+	err := migrationhelper.ChangeColumnsType[fileMetricsKey20230927](
 		basicRes,
 		script,
 		fileMetricsKey20230927{}.TableName(),
@@ -53,10 +53,19 @@ func (script *modifyFileMetricsKeyLength) Up(basicRes context.BasicRes) errors.E
 			)
 		},
 	)
+	if err != nil {
+		return err
+	}
+	err = db.Exec("ALTER TABLE _tool_sonarqube_file_metrics DROP PRIMARY KEY;")
+	if err != nil {
+		return err
+	}
+
+	return db.Exec("ALTER TABLE _tool_sonarqube_file_metrics ADD PRIMARY KEY (connection_id, file_metrics_key)")
 }
 
 func (*modifyFileMetricsKeyLength) Version() uint64 {
-	return 20230927145125
+	return 20230927145127
 }
 
 func (*modifyFileMetricsKeyLength) Name() string {
