@@ -39,6 +39,7 @@ func (fileMetricsKey20230927) TableName() string {
 
 func (script *modifyFileMetricsKeyLength) Up(basicRes context.BasicRes) errors.Error {
 	db := basicRes.GetDal()
+	tx := db.Begin()
 	err := migrationhelper.ChangeColumnsType[fileMetricsKey20230927](
 		basicRes,
 		script,
@@ -54,14 +55,26 @@ func (script *modifyFileMetricsKeyLength) Up(basicRes context.BasicRes) errors.E
 		},
 	)
 	if err != nil {
-		return err
-	}
-	err = db.Exec("ALTER TABLE _tool_sonarqube_file_metrics DROP PRIMARY KEY;")
-	if err != nil {
+		tx.Rollback()
 		return err
 	}
 
-	return db.Exec("ALTER TABLE _tool_sonarqube_file_metrics ADD PRIMARY KEY (connection_id, file_metrics_key)")
+	if err = tx.Exec("ALTER TABLE _tool_sonarqube_file_metrics DROP PRIMARY KEY"); err != nil {
+		tx.Rollback()
+		return err
+	}
+
+	if err := tx.Exec("ALTER TABLE _tool_sonarqube_file_metrics ADD PRIMARY KEY (connection_id, file_metrics_key)"); err != nil {
+		tx.Rollback()
+		return err
+	}
+
+	if err := tx.Commit(); err != nil {
+		tx.Rollback()
+		return err
+	}
+
+	return nil
 }
 
 func (*modifyFileMetricsKeyLength) Version() uint64 {
