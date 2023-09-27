@@ -100,8 +100,11 @@ func (srv *ModelSrvHelper[M]) Create(model *M) errors.Error {
 		return err
 	}
 	err = srv.db.Create(model)
-	if err != nil && srv.db.IsDuplicationError(err) {
-		return errors.Conflict.Wrap(err, fmt.Sprintf("%s already exists", srv.modelName))
+	if err != nil {
+		if srv.db.IsDuplicationError(err) {
+			return errors.Conflict.Wrap(err, fmt.Sprintf("%s already exists", srv.modelName))
+		}
+		return err
 	}
 	return err
 }
@@ -110,10 +113,10 @@ func (srv *ModelSrvHelper[M]) Create(model *M) errors.Error {
 func (srv *ModelSrvHelper[M]) Update(model *M) errors.Error {
 	err := srv.ValidateModel(model)
 	if err != nil {
+		if srv.db.IsDuplicationError(err) {
+			return errors.Conflict.Wrap(err, fmt.Sprintf("%s already exists", srv.modelName))
+		}
 		return err
-	}
-	if err != nil && srv.db.IsDuplicationError(err) {
-		return errors.Conflict.Wrap(err, fmt.Sprintf("%s already exists", srv.modelName))
 	}
 	return srv.db.Update(model)
 }
