@@ -22,8 +22,8 @@ import type { McsID, McsItem } from 'miller-columns-select';
 import MillerColumnsSelect from 'miller-columns-select';
 
 import { ExternalLink, Loading } from '@/components';
-import * as T from '@/plugins/components/data-scope-select-remote/types';
-import * as API from '@/plugins/components/data-scope-select-remote/api';
+import * as T from '@/plugins/components/data-scope-remote/types';
+import * as API from '@/plugins/components/data-scope-remote/api';
 
 import { prepareToken } from './api';
 
