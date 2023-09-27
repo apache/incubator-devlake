@@ -17,15 +17,14 @@
  */
 
 import { useEffect, useMemo, useState } from 'react';
-import { Button, Intent, InputGroup } from '@blueprintjs/core';
+import { InputGroup } from '@blueprintjs/core';
 import type { McsID, McsItem, McsColumn } from 'miller-columns-select';
 import MillerColumnsSelect from 'miller-columns-select';
 import { useDebounce } from 'ahooks';
 import { uniqBy } from 'lodash';
 
-import { FormItem, MultiSelector, Loading, Buttons } from '@/components';
-import { getPluginConfig, getPluginScopeId } from '@/plugins';
-import { operator } from '@/utils';
+import { FormItem, MultiSelector, Loading } from '@/components';
+import { PluginConfigType, getPluginScopeId } from '@/plugins';
 
 import * as T from './types';
 import * as API from './api';
@@ -34,77 +33,13 @@ import * as S from './styled';
 interface Props {
   plugin: string;
   connectionId: ID;
-  disabledScope?: any[];
-  onCancel: () => void;
-  onSubmit: (origin: any) => void;
+  config: PluginConfigType['dataScope'];
+  disabledScope: any[];
+  selectedScope: any[];
+  onChange: (selectedScope: any[]) => void;
 }
 
-export const DataScopeSelectRemote = ({ plugin, connectionId, disabledScope, onCancel, onSubmit }: Props) => {
-  const [operating, setOperating] = useState(false);
-  const [selectedScope, setSelectedScope] = useState<T.ResItem[]>([]);
-
-  const config = useMemo(() => getPluginConfig(plugin).dataScope, [plugin]);
-
-  const handleSubmit = async () => {
-    const [success, res] = await operator(
-      () => API.updateDataScope(plugin, connectionId, { data: selectedScope.map((it) => it.data) }),
-      {
-        setOperating,
-        formatMessage: () => 'Add data scope successful.',
-      },
-    );
-
-    if (success) {
-      onSubmit(res);
-    }
-  };
-
-  return (
-    <>
-      {config.render ? (
-        config.render({
-          connectionId,
-          disabledItems: disabledScope?.map((it) => ({ id: getPluginScopeId(plugin, it) })),
-          selectedItems: selectedScope,
-          onChangeSelectedItems: setSelectedScope,
-        })
-      ) : (
-        <SelectRemote
-          plugin={plugin}
-          connectionId={connectionId}
-          config={config}
-          disabledScope={disabledScope}
-          selectedScope={selectedScope}
-          onChangeSelectedScope={setSelectedScope}
-        />
-      )}
-      <Buttons position="bottom" align="right">
-        <Button outlined intent={Intent.PRIMARY} text="Cancel" disabled={operating} onClick={onCancel} />
-        <Button
-          outlined
-          intent={Intent.PRIMARY}
-          text="Save"
-          loading={operating}
-          disabled={!selectedScope.length}
-          onClick={handleSubmit}
-        />
-      </Buttons>
-    </>
-  );
-};
-
-const SelectRemote = ({
-  plugin,
-  connectionId,
-  config,
-  disabledScope,
-  selectedScope,
-  onChangeSelectedScope,
-}: Omit<Props, 'onCancel' | 'onSubmit'> & {
-  config: any;
-  selectedScope: any[];
-  onChangeSelectedScope: (selectedScope: any[]) => void;
-}) => {
+export const SearchRemote = ({ plugin, connectionId, config, disabledScope, selectedScope, onChange }: Props) => {
   const [miller, setMiller] = useState<{
     items: McsItem<T.ResItem>[];
     loadedIds: ID[];
@@ -209,21 +144,22 @@ const SelectRemote = ({
         {!searchDebounce ? (
           <MillerColumnsSelect
             items={miller.items}
-            columnCount={config.millerColumnCount ?? 1}
+            columnCount={config.millerColumn?.columnCount ?? 1}
             columnHeight={300}
             getCanExpand={(it) => it.type === 'group'}
             getHasMore={(id) => !miller.loadedIds.includes(id ?? 'root')}
             onExpand={(id: McsID) => getItems(id, miller.nextTokenMap[id])}
             onScroll={(id: McsID | null) => getItems(id, miller.nextTokenMap[id ?? 'root'])}
             renderTitle={(column: McsColumn) =>
-              !column.parentId && config.millerFirstTitle && <S.ColumnTitle>{config.millerFirstTitle}</S.ColumnTitle>
+              !column.parentId &&
+              config.millerColumn?.firstColumnTitle && (
+                <S.ColumnTitle>{config.millerColumn.firstColumnTitle}</S.ColumnTitle>
+              )
             }
             renderLoading={() => <Loading size={20} style={{ padding: '4px 12px' }} />}
             disabledIds={(disabledScope ?? []).map((it) => getPluginScopeId(plugin, it))}
             selectedIds={selectedScope.map((it) => it.id)}
-            onSelectItemIds={(selectedIds: ID[]) =>
-              onChangeSelectedScope(allItems.filter((it) => selectedIds.includes(it.id)))
-            }
+            onSelectItemIds={(selectedIds: ID[]) => onChange(allItems.filter((it) => selectedIds.includes(it.id)))}
           />
         ) : (
           <MillerColumnsSelect
@@ -236,9 +172,7 @@ const SelectRemote = ({
             renderLoading={() => <Loading size={20} style={{ padding: '4px 12px' }} />}
             disabledIds={(disabledScope ?? []).map((it) => getPluginScopeId(plugin, it))}
             selectedIds={selectedScope.map((it) => it.id)}
-            onSelectItemIds={(selectedIds: ID[]) =>
-              onChangeSelectedScope(allItems.filter((it) => selectedIds.includes(it.id)))
-            }
+            onSelectItemIds={(selectedIds: ID[]) => onChange(allItems.filter((it) => selectedIds.includes(it.id)))}
           />
         )}
       </FormItem>

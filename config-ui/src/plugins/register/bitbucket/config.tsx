@@ -62,7 +62,9 @@ export const BitBucketConfig: PluginConfigType = {
   },
   dataScope: {
     title: 'Repositories',
-    millerColumnCount: 2,
+    millerColumn: {
+      columnCount: 2,
+    },
   },
   scopeConfig: {
     entities: ['CODE', 'TICKET', 'CODEREVIEW', 'CROSS', 'CICD'],
