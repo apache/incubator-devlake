@@ -60,8 +60,8 @@ func Test_addLocal(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			if got := addLocal(tt.args.query); got != tt.want {
-				t.Errorf("addLocal() = %v, want %v", got, tt.want)
+			if got := sanitizeQuery(tt.args.query); got != tt.want {
+				t.Errorf("sanitizeQuery() = %v, want %v", got, tt.want)
 			}
 		})
 	}
