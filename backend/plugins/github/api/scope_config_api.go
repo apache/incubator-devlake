@@ -18,8 +18,6 @@ limitations under the License.
 package api
 
 import (
-	"fmt"
-
 	"github.com/apache/incubator-devlake/core/errors"
 	"github.com/apache/incubator-devlake/core/plugin"
 )
@@ -52,8 +50,6 @@ func PostScopeConfig(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput,
 // @Failure 500  {object} shared.ApiBody "Internal Error"
 // @Router /plugins/github/connections/{connectionId}/scope-configs/{id} [PATCH]
 func PatchScopeConfig(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, errors.Error) {
-	println("api hello")
-	fmt.Printf("api patch scope confg %v\n", input.Params)
 	return scApi.Patch(input)
 }
 
