@@ -51,7 +51,7 @@ func (scopeConfigSrv *ScopeConfigSrvHelper[C, S, SC]) GetAllByConnectionId(conne
 func (scopeConfigSrv *ScopeConfigSrvHelper[C, S, SC]) DeleteScopeConfig(scopeConfig *SC) (refs []*S, err errors.Error) {
 	err = scopeConfigSrv.ModelSrvHelper.NoRunningPipeline(func(tx dal.Transaction) errors.Error {
 		// make sure no scope is using the scopeConfig
-		sc := (*scopeConfig)
+		sc := *scopeConfig
 		errors.Must(tx.All(
 			&refs,
 			dal.Where("connection_id = ? AND scope_config_id = ?", sc.ScopeConfigConnectionId(), sc.ScopeConfigId()),

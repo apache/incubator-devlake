@@ -38,7 +38,7 @@ func DecodeHook(f reflect.Type, t reflect.Type, data interface{}) (interface{}, 
 	if t == reflect.TypeOf(json.RawMessage{}) {
 		return json.Marshal(data)
 	}
-	// to support decodng url.Values (quer string) to non-array variables
+	// to support decoding url.Values (query string) to non-array variables
 	if t.Kind() != reflect.Slice && t.Kind() != reflect.Array &&
 		(f.Kind() == reflect.Slice || f.Kind() == reflect.Array) {
 		v := reflect.ValueOf(data)

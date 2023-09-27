@@ -31,7 +31,7 @@ import (
 )
 
 type CustomValidator interface {
-	CustomValidate(entitiy interface{}, validate *validator.Validate) errors.Error
+	CustomValidate(entity interface{}, validate *validator.Validate) errors.Error
 }
 
 type ModelSrvHelper[M dal.Tabler] struct {

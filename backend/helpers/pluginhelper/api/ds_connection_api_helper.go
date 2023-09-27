@@ -62,7 +62,6 @@ func (connApi *DsConnectionApiHelper[C, S, SC]) Delete(input *plugin.ApiResource
 	}, nil
 }
 
-// DsScopeApiHelper
 func extractConnectionId(input *plugin.ApiResourceInput) (uint64, errors.Error) {
 	connectionId, ok := input.Params["connectionId"]
 	if !ok {
