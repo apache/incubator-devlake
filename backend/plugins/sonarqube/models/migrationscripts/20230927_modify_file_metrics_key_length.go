@@ -55,23 +55,19 @@ func (script *modifyFileMetricsKeyLength) Up(basicRes context.BasicRes) errors.E
 		},
 	)
 	if err != nil {
-		tx.Rollback()
-		return err
+		return tx.Rollback()
 	}
 
 	if err = tx.Exec("ALTER TABLE _tool_sonarqube_file_metrics DROP PRIMARY KEY"); err != nil {
-		tx.Rollback()
-		return err
+		return tx.Rollback()
 	}
 
 	if err := tx.Exec("ALTER TABLE _tool_sonarqube_file_metrics ADD PRIMARY KEY (connection_id, file_metrics_key)"); err != nil {
-		tx.Rollback()
-		return err
+		return tx.Rollback()
 	}
 
 	if err := tx.Commit(); err != nil {
-		tx.Rollback()
-		return err
+		return tx.Rollback()
 	}
 
 	return nil
