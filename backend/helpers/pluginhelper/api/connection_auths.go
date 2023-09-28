@@ -144,6 +144,11 @@ func (ma *MultiAuth) SetupAuthenticationForConnection(connection plugin.ApiConne
 	return apiAuthenticator.SetupAuthentication(req)
 }
 
+func (ma *MultiAuth) CustomValidate(connection interface{}, v *validator.Validate) errors.Error {
+	return ma.ValidateConnection(connection, v)
+}
+
+// TODO: deprecated, rename to CustomValidate instead
 func (ma *MultiAuth) ValidateConnection(connection interface{}, v *validator.Validate) errors.Error {
 	// the idea is to filtered out errors from unselected Authentication struct
 	validationErrors := v.Struct(connection).(validator.ValidationErrors)

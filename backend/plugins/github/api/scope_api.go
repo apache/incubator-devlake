@@ -24,12 +24,8 @@ import (
 	"github.com/apache/incubator-devlake/plugins/github/models"
 )
 
-type ScopeRes struct {
-	models.GithubRepo
-	api.ScopeResDoc[models.GithubScopeConfig]
-}
-
-type ScopeReq api.ScopeReq[models.GithubRepo]
+type PutScopesReqBody api.PutScopesReqBody[models.GithubRepo]
+type ScopeDetail api.ScopeDetail[models.GithubRepo, models.GithubScopeConfig]
 
 // PutScope create or update github repo
 // @Summary create or update github repo
@@ -37,13 +33,13 @@ type ScopeReq api.ScopeReq[models.GithubRepo]
 // @Tags plugins/github
 // @Accept application/json
 // @Param connectionId path int true "connection ID"
-// @Param scope body ScopeReq true "json"
-// @Success 200  {object} []ScopeRes
+// @Param scope body PutScopesReqBody true "json"
+// @Success 200  {object} []models.GithubRepo
 // @Failure 400  {object} shared.ApiBody "Bad Request"
 // @Failure 500  {object} shared.ApiBody "Internal Error"
 // @Router /plugins/github/connections/{connectionId}/scopes [PUT]
-func PutScope(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, errors.Error) {
-	return scopeHelper.Put(input)
+func PutScopes(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, errors.Error) {
+	return scopeApi.PutMultiple(input)
 }
 
 // UpdateScope patch to github repo
@@ -54,12 +50,12 @@ func PutScope(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, errors
 // @Param connectionId path int true "connection ID"
 // @Param scopeId path int true "scope ID"
 // @Param scope body models.GithubRepo true "json"
-// @Success 200  {object} ScopeRes
+// @Success 200  {object} models.GithubRepo
 // @Failure 400  {object} shared.ApiBody "Bad Request"
 // @Failure 500  {object} shared.ApiBody "Internal Error"
 // @Router /plugins/github/connections/{connectionId}/scopes/{scopeId} [PATCH]
-func UpdateScope(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, errors.Error) {
-	return scopeHelper.Update(input)
+func PatchScope(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, errors.Error) {
+	return scopeApi.Patch(input)
 }
 
 // GetScopeList get Github repos
@@ -71,12 +67,12 @@ func UpdateScope(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, err
 // @Param pageSize query int false "page size, default 50"
 // @Param page query int false "page size, default 1"
 // @Param blueprints query bool false "also return blueprints using these scopes as part of the payload"
-// @Success 200  {object} []ScopeRes
+// @Success 200  {object} []ScopeDetail
 // @Failure 400  {object} shared.ApiBody "Bad Request"
 // @Failure 500  {object} shared.ApiBody "Internal Error"
 // @Router /plugins/github/connections/{connectionId}/scopes [GET]
-func GetScopeList(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, errors.Error) {
-	return scopeHelper.GetScopeList(input)
+func GetScopes(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, errors.Error) {
+	return scopeApi.GetPage(input)
 }
 
 // GetScope get one Github repo
@@ -85,12 +81,13 @@ func GetScopeList(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, er
 // @Tags plugins/github
 // @Param connectionId path int true "connection ID"
 // @Param scopeId path int true "scope ID"
-// @Success 200  {object} ScopeRes
+// @Param blueprints query bool false "also return blueprints using these scopes as part of the payload"
+// @Success 200  {object} ScopeDetail
 // @Failure 400  {object} shared.ApiBody "Bad Request"
 // @Failure 500  {object} shared.ApiBody "Internal Error"
 // @Router /plugins/github/connections/{connectionId}/scopes/{scopeId} [GET]
 func GetScope(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, errors.Error) {
-	return scopeHelper.GetScope(input)
+	return scopeApi.GetScopeDetail(input)
 }
 
 // DeleteScope delete plugin data associated with the scope and optionally the scope itself
@@ -100,11 +97,11 @@ func GetScope(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, errors
 // @Param connectionId path int true "connection ID"
 // @Param scopeId path int true "scope ID"
 // @Param delete_data_only query bool false "Only delete the scope data, not the scope itself"
-// @Success 200
+// @Success 200  {object} models.GithubRepo
 // @Failure 400  {object} shared.ApiBody "Bad Request"
 // @Failure 409  {object} api.ScopeRefDoc "References exist to this scope"
 // @Failure 500  {object} shared.ApiBody "Internal Error"
 // @Router /plugins/github/connections/{connectionId}/scopes/{scopeId} [DELETE]
 func DeleteScope(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, errors.Error) {
-	return scopeHelper.Delete(input)
+	return scopeApi.Delete(input)
 }

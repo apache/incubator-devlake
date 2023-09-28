@@ -20,6 +20,7 @@ package utils
 import (
 	"encoding/json"
 	"fmt"
+	"net/url"
 	"testing"
 	"time"
 
@@ -137,4 +138,20 @@ func TestIso8601Time(t *testing.T) {
 		assert.Nil(t, err)
 		assert.Equal(t, expected, record4.Created.UTC())
 	}
+}
+
+func TestDecodeMapStructUrlVales(t *testing.T) {
+	query := &url.Values{}
+	query.Set("page", "1")
+	query.Set("pageSize", "100")
+
+	var pagination struct {
+		Page     int `mapstructure:"page"`
+		PageSize int `mapstructure:"pageSize"`
+	}
+
+	err := DecodeMapStruct(query, &pagination, true)
+	assert.Nil(t, err)
+	assert.Equal(t, 1, pagination.Page)
+	assert.Equal(t, 100, pagination.PageSize)
 }
