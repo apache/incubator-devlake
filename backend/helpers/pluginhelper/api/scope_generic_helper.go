@@ -174,7 +174,7 @@ func (gs *GenericScopeApiHelper[Conn, Scope, ScopeConfig]) PutScopes(input *plug
 	}
 	now := time.Now()
 	for _, scope := range scopes {
-		// Set the connection ID, CreatedDate, and UpdatedDate fields
+		// Set the connection ID, CreatedAt, and UpdatedAt fields
 		gs.setScopeFields(scope, params.connectionId, &now, &now)
 		err = gs.verifyScope(scope, gs.validator)
 		if err != nil {
@@ -426,7 +426,7 @@ func (gs *GenericScopeApiHelper[Conn, Scope, ScopeConfig]) createRawParams(conne
 	return plugin.MarshalScopeParams(paramsMap)
 }
 
-func (gs *GenericScopeApiHelper[Conn, Scope, ScopeConfig]) setScopeFields(p interface{}, connectionId uint64, createdDate *time.Time, updatedDate *time.Time) {
+func (gs *GenericScopeApiHelper[Conn, Scope, ScopeConfig]) setScopeFields(p interface{}, connectionId uint64, createdAt *time.Time, updatedAt *time.Time) {
 	pType := reflect.TypeOf(p)
 	if pType.Kind() != reflect.Ptr {
 		panic("expected a pointer to a struct")
@@ -444,24 +444,24 @@ func (gs *GenericScopeApiHelper[Conn, Scope, ScopeConfig]) setScopeFields(p inte
 	scopeIdField := pValue.FieldByName(gs.reflectionParams.ScopeIdFieldName)
 	rawParams.Set(reflect.ValueOf(gs.createRawParams(connectionId, scopeIdField.Interface())))
 
-	// set CreatedDate
-	createdDateField := pValue.FieldByName("CreatedDate")
-	if createdDateField.IsValid() && createdDateField.Type().AssignableTo(reflect.TypeOf(createdDate)) {
-		createdDateField.Set(reflect.ValueOf(createdDate))
+	// set CreatedAt
+	createdAtField := pValue.FieldByName("CreatedAt")
+	if createdAtField.IsValid() && createdAtField.Type().AssignableTo(reflect.TypeOf(createdAt)) {
+		createdAtField.Set(reflect.ValueOf(createdAt))
 	}
 
-	// set UpdatedDate
-	updatedDateField := pValue.FieldByName("UpdatedDate")
-	if !updatedDateField.IsValid() || (updatedDate != nil && !updatedDateField.Type().AssignableTo(reflect.TypeOf(updatedDate))) {
+	// set UpdatedAt
+	updatedAtField := pValue.FieldByName("UpdatedAt")
+	if !updatedAtField.IsValid() || (updatedAt != nil && !updatedAtField.Type().AssignableTo(reflect.TypeOf(updatedAt))) {
 		return
 	}
-	if updatedDate == nil {
-		// if updatedDate is nil, set UpdatedDate to be nil
-		updatedDateField.Set(reflect.Zero(updatedDateField.Type()))
+	if updatedAt == nil {
+		// if updatedAt is nil, set UpdatedAt to be nil
+		updatedAtField.Set(reflect.Zero(updatedAtField.Type()))
 	} else {
-		// if updatedDate is not nil, set UpdatedDate to be the value
-		updatedDateFieldValue := reflect.ValueOf(updatedDate)
-		updatedDateField.Set(updatedDateFieldValue)
+		// if updatedAt is not nil, set UpdatedAt to be the value
+		updatedAtFieldValue := reflect.ValueOf(updatedAt)
+		updatedAtField.Set(updatedAtFieldValue)
 	}
 }
 
