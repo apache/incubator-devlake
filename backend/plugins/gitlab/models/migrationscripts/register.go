@@ -40,5 +40,6 @@ func All() []plugin.MigrationScript {
 		new(addMrCommitSha),
 		new(addRawParamTableForScope),
 		new(addProjectArchived),
+		new(addDeployment),
 	}
 }
