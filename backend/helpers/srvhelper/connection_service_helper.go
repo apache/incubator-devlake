@@ -50,9 +50,9 @@ func (connSrv *ConnectionSrvHelper[C, S, SC]) DeleteConnection(connection *C) (r
 	err = connSrv.ModelSrvHelper.NoRunningPipeline(func(tx dal.Transaction) errors.Error {
 		// make sure no blueprint is using the connection
 		connectionId := (*connection).ConnectionId()
-		refs, err = toDsRefs(connSrv.getAllBlueprinsByConnection(connectionId))
-		if err != nil {
-			return err
+		refs = toDsRefs(connSrv.getAllBlueprinsByConnection(connectionId))
+		if refs != nil {
+			return errors.Conflict.New("Cannot delete the scope because it is referenced by blueprints")
 		}
 		scopeCount := errors.Must1(connSrv.db.Count(dal.From(new(S)), dal.Where("connection_id = ?", connectionId)))
 		if scopeCount > 0 {

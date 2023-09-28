@@ -18,7 +18,6 @@ limitations under the License.
 package srvhelper
 
 import (
-	"github.com/apache/incubator-devlake/core/errors"
 	"github.com/apache/incubator-devlake/core/models"
 )
 
@@ -27,7 +26,7 @@ type DsRefs struct {
 	Projects   []string `json:"projects"`
 }
 
-func toDsRefs(blueprints []*models.Blueprint) (*DsRefs, errors.Error) {
+func toDsRefs(blueprints []*models.Blueprint) *DsRefs {
 	if len(blueprints) > 0 {
 		blueprintNames := make([]string, 0, len(blueprints))
 		projectNames := make([]string, 0, len(blueprints))
@@ -40,7 +39,7 @@ func toDsRefs(blueprints []*models.Blueprint) (*DsRefs, errors.Error) {
 		return &DsRefs{
 			Blueprints: blueprintNames,
 			Projects:   projectNames,
-		}, errors.Conflict.New("Cannot delete record because it is referenced by blueprints")
+		}
 	}
-	return nil, nil
+	return nil
 }

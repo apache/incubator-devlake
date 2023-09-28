@@ -128,9 +128,9 @@ func (scopeSrv *ScopeSrvHelper[C, S, SC]) DeleteScope(scope *S, dataOnly bool) (
 		s := (*scope)
 		// check referencing blueprints
 		if !dataOnly {
-			refs, err = toDsRefs(scopeSrv.getAllBlueprinsByScope(s.ScopeConnectionId(), s.ScopeId()))
-			if err != nil {
-				return err
+			refs = toDsRefs(scopeSrv.getAllBlueprinsByScope(s.ScopeConnectionId(), s.ScopeId()))
+			if refs != nil {
+				return errors.Conflict.New("Cannot delete the scope because it is referenced by blueprints")
 			}
 			errors.Must(tx.Delete(scope))
 		}
