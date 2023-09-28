@@ -95,6 +95,19 @@ func (scopeSrv *ScopeSrvHelper[C, S, SC]) GetScopeDetail(includeBlueprints bool,
 	return scopeDetail, nil
 }
 
+// MapScopeDetails returns scope details (scope and scopeConfig) for the given blueprint scopes
+func (scopeSrv *ScopeSrvHelper[C, S, SC]) MapScopeDetails(connectionId uint64, bpScopes []*models.BlueprintScope) ([]*ScopeDetail[S, SC], errors.Error) {
+	var err errors.Error
+	scopeDetails := make([]*ScopeDetail[S, SC], len(bpScopes))
+	for i, bpScope := range bpScopes {
+		scopeDetails[i], err = scopeSrv.GetScopeDetail(false, connectionId, bpScope.ScopeId)
+		if err != nil {
+			return nil, err
+		}
+	}
+	return scopeDetails, nil
+}
+
 func (scopeSrv *ScopeSrvHelper[C, S, SC]) GetScopesPage(pagination *ScopePagination) ([]*ScopeDetail[S, SC], int64, errors.Error) {
 	if pagination.ConnectionId < 1 {
 		return nil, 0, errors.BadInput.New("connectionId is required")

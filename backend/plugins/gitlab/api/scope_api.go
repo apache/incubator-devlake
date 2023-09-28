@@ -24,29 +24,25 @@ import (
 	"github.com/apache/incubator-devlake/plugins/gitlab/models"
 )
 
-type ScopeRes struct {
-	models.GitlabProject
-	api.ScopeResDoc[models.GitlabScopeConfig]
-}
+type PutScopesReqBody api.PutScopesReqBody[models.GitlabProject]
+type ScopeDetail api.ScopeDetail[models.GitlabProject, models.GitlabScopeConfig]
 
-type ScopeReq api.ScopeReq[models.GitlabProject]
-
-// PutScope create or update gitlab project
+// PutScopes create or update gitlab project
 // @Summary create or update gitlab project
 // @Description Create or update gitlab project
 // @Tags plugins/gitlab
 // @Accept application/json
 // @Param connectionId path int false "connection ID"
-// @Param scope body ScopeReq true "json"
+// @Param scope body PutScopesReqBody true "json"
 // @Success 200  {object} []models.GitlabProject
 // @Failure 400  {object} shared.ApiBody "Bad Request"
 // @Failure 500  {object} shared.ApiBody "Internal Error"
 // @Router /plugins/gitlab/connections/{connectionId}/scopes [PUT]
-func PutScope(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, errors.Error) {
-	return scopeHelper.Put(input)
+func PutScopes(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, errors.Error) {
+	return scopeApi.PutMultiple(input)
 }
 
-// UpdateScope patch to gitlab project
+// PatchScope patch to gitlab project
 // @Summary patch to gitlab project
 // @Description patch to gitlab project
 // @Tags plugins/gitlab
@@ -58,8 +54,8 @@ func PutScope(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, errors
 // @Failure 400  {object} shared.ApiBody "Bad Request"
 // @Failure 500  {object} shared.ApiBody "Internal Error"
 // @Router /plugins/gitlab/connections/{connectionId}/scopes/{scopeId} [PATCH]
-func UpdateScope(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, errors.Error) {
-	return scopeHelper.Update(input)
+func PatchScope(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, errors.Error) {
+	return scopeApi.Patch(input)
 }
 
 // GetScopeList get Gitlab projects
@@ -69,12 +65,12 @@ func UpdateScope(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, err
 // @Param connectionId path int false "connection ID"
 // @Param searchTerm query string false "search term for scope name"
 // @Param blueprints query bool false "also return blueprints using these scopes as part of the payload"
-// @Success 200  {object} []ScopeRes
+// @Success 200  {object} []ScopeDetail
 // @Failure 400  {object} shared.ApiBody "Bad Request"
 // @Failure 500  {object} shared.ApiBody "Internal Error"
 // @Router /plugins/gitlab/connections/{connectionId}/scopes/ [GET]
 func GetScopeList(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, errors.Error) {
-	return scopeHelper.GetScopeList(input)
+	return scopeApi.GetPage(input)
 }
 
 // GetScope get one Gitlab project
@@ -90,7 +86,7 @@ func GetScopeList(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, er
 // @Failure 500  {object} shared.ApiBody "Internal Error"
 // @Router /plugins/gitlab/connections/{connectionId}/scopes/{scopeId} [GET]
 func GetScope(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, errors.Error) {
-	return scopeHelper.GetScope(input)
+	return scopeApi.GetScopeDetail(input)
 }
 
 // DeleteScope delete plugin data associated with the scope and optionally the scope itself
@@ -106,5 +102,5 @@ func GetScope(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, errors
 // @Failure 500  {object} shared.ApiBody "Internal Error"
 // @Router /plugins/gitlab/connections/{connectionId}/scopes/{scopeId} [DELETE]
 func DeleteScope(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, errors.Error) {
-	return scopeHelper.Delete(input)
+	return scopeApi.Delete(input)
 }

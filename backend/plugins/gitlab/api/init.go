@@ -21,49 +21,44 @@ import (
 	"github.com/apache/incubator-devlake/core/context"
 	"github.com/apache/incubator-devlake/core/plugin"
 	"github.com/apache/incubator-devlake/helpers/pluginhelper/api"
+	"github.com/apache/incubator-devlake/helpers/srvhelper"
 	"github.com/apache/incubator-devlake/plugins/gitlab/models"
 	"github.com/go-playground/validator/v10"
 )
 
 var vld *validator.Validate
+
+var connSrv *srvhelper.ConnectionSrvHelper[models.GitlabConnection, models.GitlabProject, models.GitlabScopeConfig]
+var connApi *api.DsConnectionApiHelper[models.GitlabConnection, models.GitlabProject, models.GitlabScopeConfig]
+var scopeSrv *srvhelper.ScopeSrvHelper[models.GitlabConnection, models.GitlabProject, models.GitlabScopeConfig]
+var scopeApi *api.DsScopeApiHelper[models.GitlabConnection, models.GitlabProject, models.GitlabScopeConfig]
+var scSrv *srvhelper.ScopeConfigSrvHelper[models.GitlabConnection, models.GitlabProject, models.GitlabScopeConfig]
+var scApi *api.DsScopeConfigApiHelper[models.GitlabConnection, models.GitlabProject, models.GitlabScopeConfig]
+
 var connectionHelper *api.ConnectionApiHelper
-var scopeHelper *api.ScopeApiHelper[models.GitlabConnection, models.GitlabProject, models.GitlabScopeConfig]
 var remoteHelper *api.RemoteApiHelper[models.GitlabConnection, models.GitlabProject, models.GitlabApiProject, models.GroupResponse]
 var basicRes context.BasicRes
-var scHelper *api.ScopeConfigHelper[models.GitlabScopeConfig]
 
 func Init(br context.BasicRes, p plugin.PluginMeta) {
-
 	basicRes = br
+	connSrv, connApi, scopeSrv, scopeApi, scSrv, scApi = api.NewDataSourceHelpers[
+		models.GitlabConnection,
+		models.GitlabProject, models.GitlabScopeConfig,
+	](
+		br,
+		p.Name(),
+		[]string{"name"},
+	)
+	// TODO: remove connectionHelper and refactor remoteHelper
 	vld = validator.New()
 	connectionHelper = api.NewConnectionHelper(
 		basicRes,
 		vld,
 		p.Name(),
 	)
-	params := &api.ReflectionParameters{
-		ScopeIdFieldName:     "GitlabId",
-		ScopeIdColumnName:    "gitlab_id",
-		RawScopeParamName:    "ProjectId",
-		SearchScopeParamName: "name",
-	}
-	scopeHelper = api.NewScopeHelper[models.GitlabConnection, models.GitlabProject, models.GitlabScopeConfig](
-		basicRes,
-		vld,
-		connectionHelper,
-		api.NewScopeDatabaseHelperImpl[models.GitlabConnection, models.GitlabProject, models.GitlabScopeConfig](
-			basicRes, connectionHelper, params),
-		params,
-		nil,
-	)
 	remoteHelper = api.NewRemoteHelper[models.GitlabConnection, models.GitlabProject, models.GitlabApiProject, models.GroupResponse](
 		basicRes,
 		vld,
 		connectionHelper,
-	)
-	scHelper = api.NewScopeConfigHelper[models.GitlabScopeConfig](
-		basicRes,
-		vld,
-		p.Name(),
 	)
 }
