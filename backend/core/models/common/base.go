@@ -68,7 +68,7 @@ func (c *RawDataOrigin) GetRawDataOrigin() *RawDataOrigin {
 type NoPKModel struct {
 	CreatedAt     time.Time `json:"createdAt" mapstructure:"createdAt"`
 	UpdatedAt     time.Time `json:"updatedAt" mapstructure:"updatedAt"`
-	RawDataOrigin `swaggerignore:"true"`
+	RawDataOrigin `swaggerignore:"true" json:"-" mapstructure:"-"`
 }
 
 func NewNoPKModel() NoPKModel {
