@@ -158,7 +158,7 @@ func (self *ModelApiHelper[M]) PutMultiple(input *plugin.ApiResourceInput) (*plu
 	}, nil
 }
 
-func ParsePagination[P any](input *plugin.ApiResourceInput, query ...dal.Clause) (*P, errors.Error) {
+func parsePagination[P any](input *plugin.ApiResourceInput, query ...dal.Clause) (*P, errors.Error) {
 	pagination := new(P)
 	err := utils.DecodeMapStruct(input.Query, pagination, false)
 	if err != nil {

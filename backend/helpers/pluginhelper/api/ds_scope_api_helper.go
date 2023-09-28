@@ -47,7 +47,7 @@ func NewDsScopeApiHelper[C plugin.ToolLayerConnection, S plugin.ToolLayerScope, 
 }
 
 func (scopeApi *DsScopeApiHelper[C, S, SC]) GetPage(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, errors.Error) {
-	pagination, err := ParsePagination[srvhelper.ScopePagination](input)
+	pagination, err := parsePagination[srvhelper.ScopePagination](input)
 	if err != nil {
 		return nil, errors.BadInput.Wrap(err, "failed to decode pathvars into pagination")
 	}
