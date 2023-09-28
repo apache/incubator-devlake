@@ -90,7 +90,7 @@ func TestConnection(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, 
 // @Failure 500  {string} errcode.Error "Internal Error"
 // @Router /plugins/gitlab/connections [POST]
 func PostConnections(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, errors.Error) {
-	return connApi.Post(input)
+	return dsHelper.ConnApi.Post(input)
 }
 
 // @Summary patch gitlab connection
@@ -102,7 +102,7 @@ func PostConnections(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput,
 // @Failure 500  {string} errcode.Error "Internal Error"
 // @Router /plugins/gitlab/connections/{connectionId} [PATCH]
 func PatchConnection(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, errors.Error) {
-	return connApi.Patch(input)
+	return dsHelper.ConnApi.Patch(input)
 }
 
 // @Summary delete a gitlab connection
@@ -114,7 +114,7 @@ func PatchConnection(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput,
 // @Failure 500  {string} errcode.Error "Internal Error"
 // @Router /plugins/gitlab/connections/{connectionId} [DELETE]
 func DeleteConnection(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, errors.Error) {
-	return connApi.Delete(input)
+	return dsHelper.ConnApi.Delete(input)
 }
 
 // @Summary get all gitlab connections
@@ -125,7 +125,7 @@ func DeleteConnection(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput
 // @Failure 500  {string} errcode.Error "Internal Error"
 // @Router /plugins/gitlab/connections [GET]
 func ListConnections(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, errors.Error) {
-	return connApi.GetAll(input)
+	return dsHelper.ConnApi.GetAll(input)
 }
 
 // @Summary get gitlab connection detail
@@ -136,5 +136,5 @@ func ListConnections(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput,
 // @Failure 500  {string} errcode.Error "Internal Error"
 // @Router /plugins/gitlab/connections/{connectionId} [GET]
 func GetConnection(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, errors.Error) {
-	return connApi.GetDetail(input)
+	return dsHelper.ConnApi.GetDetail(input)
 }

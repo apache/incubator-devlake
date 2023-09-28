@@ -47,11 +47,11 @@ func MakePipelinePlanV200(
 	bpScopes []*coreModels.BlueprintScope,
 ) (coreModels.PipelinePlan, []plugin.Scope, errors.Error) {
 	// load connection, scope and scopeConfig from the db
-	connection, err := connSrv.FindByPk(connectionId)
+	connection, err := dsHelper.ConnSrv.FindByPk(connectionId)
 	if err != nil {
 		return nil, nil, err
 	}
-	scopeDetails, err := scopeApi.MapScopeDetails(connectionId, bpScopes)
+	scopeDetails, err := dsHelper.ScopeApi.MapScopeDetails(connectionId, bpScopes)
 	if err != nil {
 		return nil, nil, err
 	}

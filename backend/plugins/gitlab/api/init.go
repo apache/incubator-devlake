@@ -21,19 +21,13 @@ import (
 	"github.com/apache/incubator-devlake/core/context"
 	"github.com/apache/incubator-devlake/core/plugin"
 	"github.com/apache/incubator-devlake/helpers/pluginhelper/api"
-	"github.com/apache/incubator-devlake/helpers/srvhelper"
 	"github.com/apache/incubator-devlake/plugins/gitlab/models"
 	"github.com/go-playground/validator/v10"
 )
 
 var vld *validator.Validate
 
-var connSrv *srvhelper.ConnectionSrvHelper[models.GitlabConnection, models.GitlabProject, models.GitlabScopeConfig]
-var connApi *api.DsConnectionApiHelper[models.GitlabConnection, models.GitlabProject, models.GitlabScopeConfig]
-var scopeSrv *srvhelper.ScopeSrvHelper[models.GitlabConnection, models.GitlabProject, models.GitlabScopeConfig]
-var scopeApi *api.DsScopeApiHelper[models.GitlabConnection, models.GitlabProject, models.GitlabScopeConfig]
-var scSrv *srvhelper.ScopeConfigSrvHelper[models.GitlabConnection, models.GitlabProject, models.GitlabScopeConfig]
-var scApi *api.DsScopeConfigApiHelper[models.GitlabConnection, models.GitlabProject, models.GitlabScopeConfig]
+var dsHelper *api.DsHelper[models.GitlabConnection, models.GitlabProject, models.GitlabScopeConfig]
 
 var connectionHelper *api.ConnectionApiHelper
 var remoteHelper *api.RemoteApiHelper[models.GitlabConnection, models.GitlabProject, models.GitlabApiProject, models.GroupResponse]
@@ -41,7 +35,7 @@ var basicRes context.BasicRes
 
 func Init(br context.BasicRes, p plugin.PluginMeta) {
 	basicRes = br
-	connSrv, connApi, scopeSrv, scopeApi, scSrv, scApi = api.NewDataSourceHelpers[
+	dsHelper = api.NewDataSourceHelper[
 		models.GitlabConnection,
 		models.GitlabProject, models.GitlabScopeConfig,
 	](

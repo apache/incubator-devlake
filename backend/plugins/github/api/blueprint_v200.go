@@ -48,11 +48,11 @@ func MakeDataSourcePipelinePlanV200(
 	bpScopes []*coreModels.BlueprintScope,
 ) (coreModels.PipelinePlan, []plugin.Scope, errors.Error) {
 	// load connection, scope and scopeConfig from the db
-	connection, err := connSrv.FindByPk(connectionId)
+	connection, err := dsHelper.ConnSrv.FindByPk(connectionId)
 	if err != nil {
 		return nil, nil, err
 	}
-	scopeDetails, err := scopeApi.MapScopeDetails(connectionId, bpScopes)
+	scopeDetails, err := dsHelper.ScopeSrv.MapScopeDetails(connectionId, bpScopes)
 	if err != nil {
 		return nil, nil, err
 	}
@@ -64,8 +64,7 @@ func MakeDataSourcePipelinePlanV200(
 		return nil, nil, err
 	}
 
-	plan := make(coreModels.PipelinePlan, len(bpScopes))
-	plan, err = makeDataSourcePipelinePlanV200(subtaskMetas, plan, scopeDetails, connection)
+	plan, err := makeDataSourcePipelinePlanV200(subtaskMetas, scopeDetails, connection)
 	if err != nil {
 		return nil, nil, err
 	}
@@ -79,10 +78,10 @@ func MakeDataSourcePipelinePlanV200(
 
 func makeDataSourcePipelinePlanV200(
 	subtaskMetas []plugin.SubTaskMeta,
-	plan coreModels.PipelinePlan,
 	scopeDetails []*srvhelper.ScopeDetail[models.GithubRepo, models.GithubScopeConfig],
 	connection *models.GithubConnection,
 ) (coreModels.PipelinePlan, errors.Error) {
+	plan := make(coreModels.PipelinePlan, len(scopeDetails))
 	for i, scopeDetail := range scopeDetails {
 		githubRepo, scopeConfig := scopeDetail.Scope, scopeDetail.ScopeConfig
 		stage := plan[i]
