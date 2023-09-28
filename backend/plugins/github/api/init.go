@@ -46,7 +46,7 @@ func Init(br context.BasicRes, p plugin.PluginMeta) {
 		models.GithubRepo, models.GithubScopeConfig,
 	](
 		br,
-		"github",
+		p.Name(),
 		[]string{"full_name"},
 	)
 	// TODO: refactor remoteHelper

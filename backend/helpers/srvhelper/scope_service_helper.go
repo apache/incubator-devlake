@@ -33,12 +33,13 @@ import (
 type ScopePagination struct {
 	Pagination
 	ConnectionId uint64 `json:"connectionId" mapstructure:"connectionId" validate:"required"`
-	Blueprnts    bool   `json:"blueprints" mapstructure:"blueprints"`
+	Blueprints   bool   `json:"blueprints" mapstructure:"blueprints"`
 }
 
-type ScopeResItem[S plugin.ToolLayerScope] struct {
-	Scope      S                   `json:"scope"`
-	Blueprints []*models.Blueprint `json:"blueprints"`
+type ScopeDetail[S plugin.ToolLayerScope, SC plugin.ToolLayerScopeConfig] struct {
+	Scope       S                   `json:"scope"`
+	ScopeConfig *SC                 `json:"scopeConfig,omitempty"`
+	Blueprints  []*models.Blueprint `json:"blueprints,omitempty"`
 }
 
 type ScopeSrvHelper[C plugin.ToolLayerConnection, S plugin.ToolLayerScope, SC plugin.ToolLayerScopeConfig] struct {
@@ -78,7 +79,23 @@ func (scopeSrv *ScopeSrvHelper[C, S, SC]) Validate(scope *S) errors.Error {
 	return nil
 }
 
-func (scopeSrv *ScopeSrvHelper[C, S, SC]) GetScopesPage(pagination *ScopePagination) ([]*ScopeResItem[S], int64, errors.Error) {
+func (scopeSrv *ScopeSrvHelper[C, S, SC]) GetScopeDetail(includeBlueprints bool, pkv ...interface{}) (*ScopeDetail[S, SC], errors.Error) {
+	scope, err := scopeSrv.ModelSrvHelper.FindByPk(pkv...)
+	if err != nil {
+		return nil, err
+	}
+	s := *scope
+	scopeDetail := &ScopeDetail[S, SC]{
+		Scope:       s,
+		ScopeConfig: scopeSrv.getScopeConfig(s.ScopeScopeConfigId()),
+	}
+	if includeBlueprints {
+		scopeDetail.Blueprints = scopeSrv.getAllBlueprinsByScope(s.ScopeConnectionId(), s.ScopeId())
+	}
+	return scopeDetail, nil
+}
+
+func (scopeSrv *ScopeSrvHelper[C, S, SC]) GetScopesPage(pagination *ScopePagination) ([]*ScopeDetail[S, SC], int64, errors.Error) {
 	if pagination.ConnectionId < 1 {
 		return nil, 0, errors.BadInput.New("connectionId is required")
 	}
@@ -90,18 +107,18 @@ func (scopeSrv *ScopeSrvHelper[C, S, SC]) GetScopesPage(pagination *ScopePaginat
 		return nil, 0, err
 	}
 
-	data := make([]*ScopeResItem[S], len(scopes))
-	if pagination.Blueprnts {
-		for i, s := range scopes {
-			// load blueprints
-			scope := (*s)
-			blueprints := scopeSrv.getAllBlueprinsByScope(scope.ScopeConnectionId(), scope.ScopeId())
-			resItem := &ScopeResItem[S]{
-				Scope:      scope,
-				Blueprints: blueprints,
-			}
-			data[i] = resItem
+	data := make([]*ScopeDetail[S, SC], len(scopes))
+	for i, s := range scopes {
+		// load blueprints
+		scope := (*s)
+		scopeDetail := &ScopeDetail[S, SC]{
+			Scope:       scope,
+			ScopeConfig: scopeSrv.getScopeConfig(scope.ScopeScopeConfigId()),
 		}
+		if pagination.Blueprints {
+			scopeDetail.Blueprints = scopeSrv.getAllBlueprinsByScope(scope.ScopeConnectionId(), scope.ScopeId())
+		}
+		data[i] = scopeDetail
 	}
 	return data, count, nil
 }
@@ -122,6 +139,21 @@ func (scopeSrv *ScopeSrvHelper[C, S, SC]) DeleteScope(scope *S, dataOnly bool) (
 		return nil
 	})
 	return
+}
+
+func (scopeSrv *ScopeSrvHelper[C, S, SC]) getScopeConfig(scopeConfigId uint64) *SC {
+	if scopeConfigId < 1 {
+		return nil
+	}
+	scopeConfig := new(SC)
+	errors.Must(scopeSrv.db.First(
+		scopeConfig,
+		dal.Where(
+			"id = ?",
+			scopeConfigId,
+		),
+	))
+	return scopeConfig
 }
 
 func (scopeSrv *ScopeSrvHelper[C, S, SC]) getAllBlueprinsByScope(connectionId uint64, scopeId string) []*models.Blueprint {

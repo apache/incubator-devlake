@@ -25,6 +25,12 @@ import (
 	"github.com/apache/incubator-devlake/server/api/shared"
 )
 
+type PutScopesReqBody[T any] struct {
+	Data []*T `json:"data"`
+}
+
+type ScopeDetail[S plugin.ToolLayerScope, SC plugin.ToolLayerScopeConfig] srvhelper.ScopeDetail[S, SC]
+
 type DsScopeApiHelper[C plugin.ToolLayerConnection, S plugin.ToolLayerScope, SC plugin.ToolLayerScopeConfig] struct {
 	*ModelApiHelper[S]
 	*srvhelper.ScopeSrvHelper[C, S, SC]
@@ -40,12 +46,12 @@ func NewDsScopeApiHelper[C plugin.ToolLayerConnection, S plugin.ToolLayerScope, 
 	}
 }
 
-func (connApi *DsScopeApiHelper[C, S, SC]) GetPage(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, errors.Error) {
+func (scopeApi *DsScopeApiHelper[C, S, SC]) GetPage(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, errors.Error) {
 	pagination, err := ParsePagination[srvhelper.ScopePagination](input)
 	if err != nil {
 		return nil, errors.BadInput.Wrap(err, "failed to decode pathvars into pagination")
 	}
-	scopes, count, err := connApi.ScopeSrvHelper.GetScopesPage(pagination)
+	scopes, count, err := scopeApi.ScopeSrvHelper.GetScopesPage(pagination)
 	if err != nil {
 		return nil, err
 	}
@@ -57,7 +63,21 @@ func (connApi *DsScopeApiHelper[C, S, SC]) GetPage(input *plugin.ApiResourceInpu
 	}, nil
 }
 
-func (connApi *DsScopeApiHelper[C, S, SC]) PutMultiple(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, errors.Error) {
+func (scopeApi *DsScopeApiHelper[C, S, SC]) GetScopeDetail(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, errors.Error) {
+	pkv, err := scopeApi.ExtractPkValues(input)
+	if err != nil {
+		return nil, err
+	}
+	scopeDetail, err := scopeApi.ScopeSrvHelper.GetScopeDetail(input.Query.Get("blueprints") == "true", pkv...)
+	if err != nil {
+		return nil, err
+	}
+	return &plugin.ApiResourceOutput{
+		Body: scopeDetail,
+	}, nil
+}
+
+func (scopeApi *DsScopeApiHelper[C, S, SC]) PutMultiple(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, errors.Error) {
 	// fix data[].connectionId
 	connectionId, err := extractConnectionId(input)
 	if err != nil {
@@ -74,18 +94,18 @@ func (connApi *DsScopeApiHelper[C, S, SC]) PutMultiple(input *plugin.ApiResource
 		}
 		dict["connectionId"] = connectionId
 	}
-	return connApi.ModelApiHelper.PutMultiple(input)
+	return scopeApi.ModelApiHelper.PutMultiple(input)
 }
 
-func (connApi *DsScopeApiHelper[C, S, SC]) Delete(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, errors.Error) {
+func (scopeApi *DsScopeApiHelper[C, S, SC]) Delete(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, errors.Error) {
 	var scope *S
-	scope, err := connApi.FindByPk(input)
+	scope, err := scopeApi.FindByPk(input)
 	if err != nil {
 		return nil, err
 	}
 	// time.Sleep(1 * time.Minute) # uncomment this line if you were to verify pipelines get blocked while deleting data
 	// check referencing blueprints
-	refs, err := connApi.ScopeSrvHelper.DeleteScope(scope, input.Query.Get("delete_data_only") == "true")
+	refs, err := scopeApi.ScopeSrvHelper.DeleteScope(scope, input.Query.Get("delete_data_only") == "true")
 	if err != nil {
 		return &plugin.ApiResourceOutput{Body: &shared.ApiBody{
 			Success: false,

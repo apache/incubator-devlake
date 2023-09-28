@@ -70,10 +70,22 @@ func (self *ModelApiHelper[M]) Post(input *plugin.ApiResourceInput) (*plugin.Api
 	}, nil
 }
 
-func (self *ModelApiHelper[M]) FindByPk(input *plugin.ApiResourceInput) (*M, errors.Error) {
+func (self *ModelApiHelper[M]) ExtractPkValues(input *plugin.ApiResourceInput) ([]interface{}, errors.Error) {
 	pkv := make([]interface{}, len(self.pkPathVarNames))
 	for i, pkn := range self.pkPathVarNames {
-		pkv[i] = input.Params[pkn]
+		var ok bool
+		pkv[i], ok = input.Params[pkn]
+		if !ok {
+			return nil, errors.BadInput.New(fmt.Sprintf("missing path variable %s", pkn))
+		}
+	}
+	return pkv, nil
+}
+
+func (self *ModelApiHelper[M]) FindByPk(input *plugin.ApiResourceInput) (*M, errors.Error) {
+	pkv, err := self.ExtractPkValues(input)
+	if err != nil {
+		return nil, err
 	}
 	return self.dalHelper.FindByPk(pkv...)
 }
