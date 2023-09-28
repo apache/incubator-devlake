@@ -184,11 +184,10 @@ func (TestScopeConfig) TableName() string {
 func TestSetScopeFields(t *testing.T) {
 	// create a struct
 	type P struct {
-		ConnectionId uint64 `json:"connectionId" mapstructure:"connectionId" gorm:"primaryKey"`
-		GitlabId     int    `json:"gitlabId" mapstructure:"gitlabId" gorm:"primaryKey"`
-
-		CreatedDate      *time.Time `json:"createdDate" mapstructure:"-"`
-		UpdatedDate      *time.Time `json:"updatedDate" mapstructure:"-"`
+		ConnectionId     uint64     `json:"connectionId" mapstructure:"connectionId" gorm:"primaryKey"`
+		GitlabId         int        `json:"gitlabId" mapstructure:"gitlabId" gorm:"primaryKey"`
+		CreatedAt        *time.Time `json:"createdAt" mapstructure:"-"`
+		UpdatedAt        *time.Time `json:"updatedAt" mapstructure:"-"`
 		common.NoPKModel `json:"-" mapstructure:"-"`
 	}
 	p := P{}
@@ -196,38 +195,38 @@ func TestSetScopeFields(t *testing.T) {
 
 	// call setScopeFields to assign value
 	connectionId := uint64(123)
-	createdDate := time.Now()
-	updatedDate := &createdDate
-	apiHelper.setScopeFields(&p, connectionId, &createdDate, updatedDate)
+	createdAt := time.Now()
+	updatedAt := &createdAt
+	apiHelper.setScopeFields(&p, connectionId, &createdAt, updatedAt)
 
 	// verify fields
 	if p.ConnectionId != connectionId {
 		t.Errorf("ConnectionId not set correctly, expected: %v, got: %v", connectionId, p.ConnectionId)
 	}
 
-	if !p.CreatedDate.Equal(createdDate) {
-		t.Errorf("CreatedDate not set correctly, expected: %v, got: %v", createdDate, p.CreatedDate)
+	if !p.CreatedAt.Equal(createdAt) {
+		t.Errorf("CreatedAt not set correctly, expected: %v, got: %v", createdAt, p.CreatedAt)
 	}
 
-	if p.UpdatedDate == nil {
-		t.Errorf("UpdatedDate not set correctly, expected: %v, got: %v", updatedDate, p.UpdatedDate)
-	} else if !p.UpdatedDate.Equal(*updatedDate) {
-		t.Errorf("UpdatedDate not set correctly, expected: %v, got: %v", updatedDate, p.UpdatedDate)
+	if p.UpdatedAt == nil {
+		t.Errorf("UpdatedDate not set correctly, expected: %v, got: %v", updatedAt, p.UpdatedAt)
+	} else if !p.UpdatedAt.Equal(*updatedAt) {
+		t.Errorf("UpdatedDate not set correctly, expected: %v, got: %v", updatedAt, p.UpdatedAt)
 	}
 
-	apiHelper.setScopeFields(&p, connectionId, &createdDate, nil)
+	apiHelper.setScopeFields(&p, connectionId, &createdAt, nil)
 
 	// verify fields
 	if p.ConnectionId != connectionId {
 		t.Errorf("ConnectionId not set correctly, expected: %v, got: %v", connectionId, p.ConnectionId)
 	}
 
-	if !p.CreatedDate.Equal(createdDate) {
-		t.Errorf("CreatedDate not set correctly, expected: %v, got: %v", createdDate, p.CreatedDate)
+	if !p.CreatedAt.Equal(createdAt) {
+		t.Errorf("CreatedDate not set correctly, expected: %v, got: %v", createdAt, p.CreatedAt)
 	}
 
-	if p.UpdatedDate != nil {
-		t.Errorf("UpdatedDate not set correctly, expected: %v, got: %v", nil, p.UpdatedDate)
+	if p.UpdatedAt != nil {
+		t.Errorf("UpdatedDate not set correctly, expected: %v, got: %v", nil, p.UpdatedAt)
 	}
 }
 
