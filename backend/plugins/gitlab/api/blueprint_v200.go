@@ -122,7 +122,6 @@ func makePipelinePlanV200(
 		options := make(map[string]interface{})
 		options["connectionId"] = connection.ID
 		options["projectId"] = gitlabProject.GitlabId
-		options["scopeConfigId"] = scopeConfig.ID
 
 		// construct subtasks
 		subtasks, err := helper.MakePipelinePlanSubtasks(subtaskMetas, scopeConfig.Entities)
