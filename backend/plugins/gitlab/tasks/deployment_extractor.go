@@ -53,7 +53,7 @@ func ExtractDeployment(taskCtx plugin.SubTaskContext) errors.Error {
 			if err != nil {
 				return nil, err
 			}
-			gitlabDeployment := deploymentResp.toGitlabDeployment(data.Options.ConnectionId)
+			gitlabDeployment := deploymentResp.toGitlabDeployment(data.Options.ConnectionId, data.Options.ProjectId)
 			return []interface{}{
 				gitlabDeployment,
 			}, nil
@@ -80,10 +80,11 @@ type GitlabDeploymentResp struct {
 	User        GitlabDeploymentSimpleUser  `json:"user"`
 }
 
-func (r GitlabDeploymentResp) toGitlabDeployment(connectionId uint64) *models.GitlabDeployment {
+func (r GitlabDeploymentResp) toGitlabDeployment(connectionId uint64, gitlabId int) *models.GitlabDeployment {
 	ret := models.GitlabDeployment{
 		NoPKModel:                   common.NewNoPKModel(),
 		ConnectionId:                connectionId,
+		GitlabId:                    gitlabId,
 		CreatedDate:                 r.CreatedAt,
 		UpdatedDate:                 r.UpdatedAt,
 		Status:                      r.Status,

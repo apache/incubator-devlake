@@ -60,7 +60,7 @@ func ConvertDeployment(taskCtx plugin.SubTaskContext) errors.Error {
 
 	cursor, err := db.Cursor(
 		dal.From(&models.GitlabDeployment{}),
-		dal.Where("connection_id = ? ", data.Options.ConnectionId),
+		dal.Where("connection_id = ? AND gitlab_id = ?", data.Options.ConnectionId, data.Options.ProjectId),
 	)
 	if err != nil {
 		return err

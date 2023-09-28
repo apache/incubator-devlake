@@ -15,22 +15,22 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-package models
+package archived
 
 import (
-	"github.com/apache/incubator-devlake/core/models/common"
+	"github.com/apache/incubator-devlake/core/models/migrationscripts/archived"
 	"time"
 )
 
 type GitlabDeployment struct {
-	common.NoPKModel `swaggerignore:"true" json:"-" mapstructure:"-"`
+	archived.NoPKModel `swaggerignore:"true" json:"-" mapstructure:"-"`
 
 	ConnectionId uint64 `json:"connection_id" gorm:"primaryKey"`
 	GitlabId     int    `json:"gitlab_id" gorm:"primaryKey"`
 
 	CreatedDate time.Time `json:"created_date"`
 	UpdatedDate time.Time `json:"updated_date"`
-	Status      string    `json:"status"` //created, running, success, failed, canceled, or blocked
+	Status      string    `json:"status"`
 
 	DeploymentId int    `json:"id" gorm:"primaryKey"`
 	Iid          int    `json:"iid"`
