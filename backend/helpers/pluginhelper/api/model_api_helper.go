@@ -28,7 +28,10 @@ import (
 	"github.com/apache/incubator-devlake/core/plugin"
 	"github.com/apache/incubator-devlake/helpers/srvhelper"
 	"github.com/apache/incubator-devlake/helpers/utils"
+	"github.com/go-playground/validator/v10"
 )
+
+var vld = validator.New()
 
 type ModelApiHelper[M dal.Tabler] struct {
 	basicRes       context.BasicRes
@@ -159,6 +162,12 @@ func (self *ModelApiHelper[M]) PutMultiple(input *plugin.ApiResourceInput) (*plu
 }
 
 func parsePagination[P any](input *plugin.ApiResourceInput, query ...dal.Clause) (*P, errors.Error) {
+	if !input.Query.Has("page") {
+		input.Query.Set("page", "1")
+	}
+	if !input.Query.Has("pageSize") {
+		input.Query.Set("pageSize", "100")
+	}
 	pagination := new(P)
 	err := utils.DecodeMapStruct(input.Query, pagination, false)
 	if err != nil {
@@ -167,6 +176,9 @@ func parsePagination[P any](input *plugin.ApiResourceInput, query ...dal.Clause)
 	err = utils.DecodeMapStruct(input.Params, pagination, false)
 	if err != nil {
 		return nil, errors.BadInput.Wrap(err, "faild to decode pagination from path variables")
+	}
+	if e := vld.Struct(pagination); e != nil {
+		return nil, errors.BadInput.Wrap(e, "invalid pagination parameters")
 	}
 	return pagination, nil
 }

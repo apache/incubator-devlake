@@ -18,9 +18,9 @@ limitations under the License.
 package srvhelper
 
 type Pagination struct {
-	Page       int    `json:"page"`
-	PageSize   int    `json:"pageSize"`
-	SearchTerm string `json:"searchTerm"`
+	Page       int    `json:"page" mapstructure:"page" validate:"min=1"`
+	PageSize   int    `json:"pageSize" mapstructure:"pageSize" validate:"min=1,max=1000"`
+	SearchTerm string `json:"searchTerm" mapstructure:"searchTerm"`
 }
 
 func (pagination *Pagination) GetPage() int {

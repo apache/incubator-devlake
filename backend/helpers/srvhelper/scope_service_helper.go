@@ -31,7 +31,7 @@ import (
 )
 
 type ScopePagination struct {
-	Pagination
+	Pagination   `mapstructure:",squash"`
 	ConnectionId uint64 `json:"connectionId" mapstructure:"connectionId" validate:"required"`
 	Blueprints   bool   `json:"blueprints" mapstructure:"blueprints"`
 }
