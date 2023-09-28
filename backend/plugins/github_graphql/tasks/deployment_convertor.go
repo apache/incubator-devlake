@@ -60,7 +60,7 @@ func ConvertDeployment(taskCtx plugin.SubTaskContext) errors.Error {
 		RawDataSubTaskArgs: *rawDataSubTaskArgs,
 		Convert: func(inputRow interface{}) ([]interface{}, errors.Error) {
 			githubDeployment := inputRow.(*githubModels.GithubDeployment)
-			domainCICDDeployment := &devops.CICDDeployment{
+			deploymentCommit := &devops.CicdDeploymentCommit{
 				DomainEntity: domainlayer.DomainEntity{
 					Id: jobBuildIdGen.Generate(githubDeployment.ConnectionId, githubDeployment.Id),
 				},
@@ -84,14 +84,23 @@ func ConvertDeployment(taskCtx plugin.SubTaskContext) errors.Error {
 				Environment:  githubDeployment.Environment,
 				CreatedDate:  githubDeployment.CreatedDate,
 				StartedDate:  &githubDeployment.CreatedDate, // fixme there is no such field
-				FinishedDate: &githubDeployment.CreatedDate, // fixme there is no such field
+				FinishedDate: &githubDeployment.UpdatedDate, // fixme there is no such field
+				CommitSha:    githubDeployment.CommitOid,
+				RefName:      githubDeployment.RefName,
+				RepoId:       githubDeployment.RepositoryID,
+				RepoUrl:      githubDeployment.RepositoryUrl,
 			}
 
 			durationSec := uint64(githubDeployment.UpdatedDate.Sub(githubDeployment.CreatedDate).Seconds())
-			domainCICDDeployment.DurationSec = &durationSec
+			deploymentCommit.DurationSec = &durationSec
+
+			if data.RegexEnricher != nil {
+				deploymentCommit.Environment = data.RegexEnricher.ReturnNameIfMatched(devops.PRODUCTION, githubDeployment.Environment)
+			}
 
 			return []interface{}{
-				domainCICDDeployment,
+				deploymentCommit,
+				deploymentCommit.ToDeployment(),
 			}, nil
 		},
 	})

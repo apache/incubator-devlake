@@ -57,14 +57,19 @@ type GraphqlQueryDeploymentWrapper struct {
 }
 
 type GraphqlQueryDeploymentDeployment struct {
-	Task         string `graphql:"task"` // is value always "deploy"? not sure.
-	Id           string `graphql:"id"`
-	CommitOid    string `graphql:"commitOid"`
-	Environment  string `graphql:"environment"`
-	State        string `graphql:"state"`
-	DatabaseId   uint   `graphql:"databaseId"`
-	Description  string `graphql:"description"`
-	Payload      string `graphql:"payload"`
+	Task        string `graphql:"task"` // is value always "deploy"? not sure.
+	Id          string `graphql:"id"`
+	CommitOid   string `graphql:"commitOid"`
+	Environment string `graphql:"environment"`
+	State       string `graphql:"state"`
+	DatabaseId  uint   `graphql:"databaseId"`
+	Description string `graphql:"description"`
+	Payload     string `graphql:"payload"`
+	Ref         *struct {
+		ID     string `graphql:"id"`
+		Name   string `graphql:"name"`
+		Prefix string `graphql:"prefix"`
+	} `graphql:"ref"`
 	LatestStatus struct {
 		Id        string    `graphql:"id"`
 		State     string    `graphql:"state"`
@@ -142,7 +147,7 @@ func CollectAndExtractDeployment(taskCtx plugin.SubTaskContext) errors.Error {
 }
 
 func convertGithubDeployment(deployment GraphqlQueryDeploymentDeployment, connectionId uint64, githubId int) (*githubModels.GithubDeployment, error) {
-	return &githubModels.GithubDeployment{
+	ret := &githubModels.GithubDeployment{
 		ConnectionId:      connectionId,
 		GithubId:          githubId,
 		NoPKModel:         common.NewNoPKModel(),
@@ -160,5 +165,9 @@ func convertGithubDeployment(deployment GraphqlQueryDeploymentDeployment, connec
 		UpdatedDate:       deployment.UpdatedAt,
 		LatestStatusState: deployment.LatestStatus.State,
 		LatestUpdatedDate: deployment.LatestStatus.UpdatedAt,
-	}, nil
+	}
+	if deployment.Ref != nil {
+		ret.RefName = deployment.Ref.Name
+	}
+	return ret, nil
 }

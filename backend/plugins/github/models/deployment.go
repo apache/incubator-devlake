@@ -37,6 +37,7 @@ type GithubDeployment struct {
 	RepositoryID      string    `json:"repository_id" gorm:"type:varchar(255)"`
 	RepositoryName    string    `json:"repository_name" gorm:"type:varchar(255)"`
 	RepositoryUrl     string    `json:"repository_url" gorm:"type:varchar(255)"`
+	RefName           string    `json:"ref_name" gorm:"type:varchar(255)"`
 	Payload           string    `json:"payload" gorm:"type:text"`
 	CreatedDate       time.Time `json:"created_at"`
 	UpdatedDate       time.Time `json:"updated_at"`
