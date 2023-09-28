@@ -20,7 +20,6 @@ package impl
 import (
 	"context"
 	"fmt"
-	"github.com/apache/incubator-devlake/plugins/github_graphql/models/migrationscripts"
 	"net/http"
 	"net/url"
 	"reflect"
@@ -37,7 +36,6 @@ import (
 	githubImpl "github.com/apache/incubator-devlake/plugins/github/impl"
 	"github.com/apache/incubator-devlake/plugins/github/models"
 	githubTasks "github.com/apache/incubator-devlake/plugins/github/tasks"
-	githubGraphqlModels "github.com/apache/incubator-devlake/plugins/github_graphql/models"
 	"github.com/apache/incubator-devlake/plugins/github_graphql/tasks"
 	"github.com/merico-dev/graphql"
 	"golang.org/x/oauth2"
@@ -51,7 +49,6 @@ var _ interface {
 	plugin.PluginModel
 	plugin.PluginSource
 	plugin.CloseablePluginTask
-	plugin.PluginMigration
 } = (*GithubGraphql)(nil)
 
 type GithubGraphql struct{}
@@ -78,12 +75,8 @@ func (p GithubGraphql) Name() string {
 
 func (p GithubGraphql) GetTablesInfo() []dal.Tabler {
 	return []dal.Tabler{
-		&githubGraphqlModels.GithubDeployment{},
+		&models.GithubDeployment{},
 	}
-}
-
-func (p GithubGraphql) MigrationScripts() []plugin.MigrationScript {
-	return migrationscripts.All()
 }
 
 func (p GithubGraphql) SubTaskMetas() []plugin.SubTaskMeta {

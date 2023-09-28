@@ -26,7 +26,7 @@ import (
 	"github.com/apache/incubator-devlake/core/models/domainlayer/didgen"
 	"github.com/apache/incubator-devlake/core/plugin"
 	"github.com/apache/incubator-devlake/helpers/pluginhelper/api"
-	githubGraphqlModels "github.com/apache/incubator-devlake/plugins/github_graphql/models"
+	githubModels "github.com/apache/incubator-devlake/plugins/github/models"
 	"reflect"
 )
 
@@ -44,7 +44,7 @@ func ConvertDeployment(taskCtx plugin.SubTaskContext) errors.Error {
 	db := taskCtx.GetDal()
 	rawDataSubTaskArgs, data := CreateRawDataSubTaskArgs(taskCtx, RAW_DEPLOYMENT)
 	cursor, err := db.Cursor(
-		dal.From(&githubGraphqlModels.GithubDeployment{}),
+		dal.From(&githubModels.GithubDeployment{}),
 		dal.Where("connection_id = ? and github_id = ?", data.Options.ConnectionId, data.Options.GithubId),
 	)
 	if err != nil {
@@ -52,14 +52,14 @@ func ConvertDeployment(taskCtx plugin.SubTaskContext) errors.Error {
 	}
 	defer cursor.Close()
 
-	jobBuildIdGen := didgen.NewDomainIdGenerator(&githubGraphqlModels.GithubDeployment{})
+	jobBuildIdGen := didgen.NewDomainIdGenerator(&githubModels.GithubDeployment{})
 
 	converter, err := api.NewDataConverter(api.DataConverterArgs{
-		InputRowType:       reflect.TypeOf(githubGraphqlModels.GithubDeployment{}),
+		InputRowType:       reflect.TypeOf(githubModels.GithubDeployment{}),
 		Input:              cursor,
 		RawDataSubTaskArgs: *rawDataSubTaskArgs,
 		Convert: func(inputRow interface{}) ([]interface{}, errors.Error) {
-			githubDeployment := inputRow.(*githubGraphqlModels.GithubDeployment)
+			githubDeployment := inputRow.(*githubModels.GithubDeployment)
 			domainCICDDeployment := &devops.CICDDeployment{
 				DomainEntity: domainlayer.DomainEntity{
 					Id: jobBuildIdGen.Generate(githubDeployment.ConnectionId, githubDeployment.Id),

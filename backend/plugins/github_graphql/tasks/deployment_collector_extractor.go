@@ -22,8 +22,8 @@ import (
 	"github.com/apache/incubator-devlake/core/models/common"
 	"github.com/apache/incubator-devlake/core/plugin"
 	helper "github.com/apache/incubator-devlake/helpers/pluginhelper/api"
+	githubModels "github.com/apache/incubator-devlake/plugins/github/models"
 	githubTasks "github.com/apache/incubator-devlake/plugins/github/tasks"
-	githubGraphqlModels "github.com/apache/incubator-devlake/plugins/github_graphql/models"
 	"github.com/merico-dev/graphql"
 	"strings"
 	"time"
@@ -141,8 +141,8 @@ func CollectAndExtractDeployment(taskCtx plugin.SubTaskContext) errors.Error {
 	return collectorWithState.Execute()
 }
 
-func convertGithubDeployment(deployment GraphqlQueryDeploymentDeployment, connectionId uint64, githubId int) (*githubGraphqlModels.GithubDeployment, error) {
-	return &githubGraphqlModels.GithubDeployment{
+func convertGithubDeployment(deployment GraphqlQueryDeploymentDeployment, connectionId uint64, githubId int) (*githubModels.GithubDeployment, error) {
+	return &githubModels.GithubDeployment{
 		ConnectionId:      connectionId,
 		GithubId:          githubId,
 		NoPKModel:         common.NewNoPKModel(),
