@@ -59,6 +59,7 @@ func (deployBuildWithVcsRevision deployBuildWithVcsRevision) GenerateCICDDeploym
 
 func ConvertDeployBuilds(taskCtx plugin.SubTaskContext) errors.Error {
 	db := taskCtx.GetDal()
+	logger := taskCtx.GetLogger()
 	rawDataSubTaskArgs, data := CreateRawDataSubTaskArgs(taskCtx, RAW_JOB_BUILD_TABLE)
 	cursor, err := db.Cursor(
 		dal.Select("db.*, pbc.repository_id, pbc.repository_name, pbc.vcs_revision_key, p.name as project_plan_name, p.project_name"),
@@ -119,6 +120,12 @@ func ConvertDeployBuilds(taskCtx plugin.SubTaskContext) errors.Error {
 			if input.FinishedDate != nil && input.StartedDate != nil {
 				duration := uint64(input.FinishedDate.Sub(*input.StartedDate).Seconds())
 				deploymentCommit.DurationSec = &duration
+			}
+			fakeRepoUrl, err := generateFakeRepoUrl(data.ApiClient.GetEndpoint(), input.RepositoryId)
+			if err != nil {
+				logger.Warn(err, "generate fake repo url, endpoint: %s, repo id: %d", data.ApiClient.GetEndpoint(), input.RepositoryId)
+			} else {
+				deploymentCommit.RepoUrl = fakeRepoUrl
 			}
 
 			return []interface{}{deploymentCommit}, nil

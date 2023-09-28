@@ -35,6 +35,7 @@ func TestBambooDeployDataFlow(t *testing.T) {
 			PlanKey:           "TEST1",
 			BambooScopeConfig: new(models.BambooScopeConfig),
 		},
+		ApiClient: getFakeAPIClient(),
 	}
 
 	// import raw data table
