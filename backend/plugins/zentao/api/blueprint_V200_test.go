@@ -136,11 +136,13 @@ func mockBasicRes(t *testing.T) {
 		ScopeConfigId: 0,
 	}*/
 	testZentaoProject := &models.ZentaoProject{
-		ConnectionId:  1,
-		Id:            1,
-		Name:          "test/testRepo",
-		Type:          `project`,
-		ScopeConfigId: 0,
+		Scope: common.Scope{
+			ConnectionId:  1,
+			ScopeConfigId: 0,
+		},
+		Id:   1,
+		Name: "test/testRepo",
+		Type: `project`,
 	}
 	mockRes := unithelper.DummyBasicRes(func(mockDal *mockdal.Dal) {
 		mockDal.On("First", mock.AnythingOfType("*models.ZentaoProject"), mock.Anything).Run(func(args mock.Arguments) {

@@ -26,7 +26,7 @@ import ClearImg from '@/images/icons/clear.svg';
 import {
   ConnectionForm,
   ConnectionStatus,
-  DataScopeSelectRemote,
+  DataScopeRemote,
   getPluginConfig,
   getPluginScopeId,
   ScopeConfigForm,
@@ -395,7 +395,7 @@ const ConnectionDetail = ({ plugin, connectionId }: Props) => {
           }
           onCancel={handleHideDialog}
         >
-          <DataScopeSelectRemote
+          <DataScopeRemote
             plugin={plugin}
             connectionId={connectionId}
             disabledScope={dataSource}

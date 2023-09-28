@@ -133,11 +133,13 @@ func TestMakeDataSourcePipelinePlanV200(t *testing.T) {
 
 func mockBasicRes(t *testing.T) {
 	testBitbucketRepo := &models.BitbucketRepo{
-		ConnectionId:  1,
-		BitbucketId:   "likyh/likyhphp",
-		Name:          "test/testRepo",
-		CloneUrl:      "https://this_is_cloneUrl",
-		ScopeConfigId: 1,
+		Scope: common.Scope{
+			ConnectionId:  1,
+			ScopeConfigId: 1,
+		},
+		BitbucketId: "likyh/likyhphp",
+		Name:        "test/testRepo",
+		CloneUrl:    "https://this_is_cloneUrl",
 	}
 
 	testScopeConfig := &models.BitbucketScopeConfig{

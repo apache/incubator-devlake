@@ -81,9 +81,11 @@ func TestMakeDataSourcePipelinePlanV200(t *testing.T) {
 
 func mockBasicRes(t *testing.T) {
 	jiraBoard := &models.JiraBoard{
-		ConnectionId: 1,
-		BoardId:      10,
-		Name:         "a",
+		Scope: common.Scope{
+			ConnectionId: 1,
+		},
+		BoardId: 10,
+		Name:    "a",
 	}
 	scopeConfig := &models.JiraScopeConfig{
 		ScopeConfig: common.ScopeConfig{

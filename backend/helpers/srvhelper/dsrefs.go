@@ -15,12 +15,31 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-package models
+package srvhelper
 
 import (
-	"github.com/apache/incubator-devlake/core/models/common"
+	"github.com/apache/incubator-devlake/core/models"
 )
 
-type PagerdutyScopeConfig struct {
-	common.ScopeConfig `mapstructure:",squash" json:",inline" gorm:"embedded"`
+type DsRefs struct {
+	Blueprints []string `json:"blueprints"`
+	Projects   []string `json:"projects"`
+}
+
+func toDsRefs(blueprints []*models.Blueprint) *DsRefs {
+	if len(blueprints) > 0 {
+		blueprintNames := make([]string, 0, len(blueprints))
+		projectNames := make([]string, 0, len(blueprints))
+		for _, bp := range blueprints {
+			blueprintNames = append(blueprintNames, bp.Name)
+			if bp.ProjectName != "" {
+				projectNames = append(projectNames, bp.ProjectName)
+			}
+		}
+		return &DsRefs{
+			Blueprints: blueprintNames,
+			Projects:   projectNames,
+		}
+	}
+	return nil
 }

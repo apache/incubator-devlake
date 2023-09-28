@@ -19,8 +19,12 @@ package runner
 
 import (
 	"context"
+	"crypto/tls"
+	"crypto/x509"
+	"database/sql"
 	"fmt"
 	"net/url"
+	"os"
 	"strings"
 	"time"
 
@@ -28,6 +32,7 @@ import (
 	"github.com/apache/incubator-devlake/core/dal"
 	"github.com/apache/incubator-devlake/core/errors"
 	"github.com/apache/incubator-devlake/core/log"
+	tlsMysql "github.com/go-sql-driver/mysql"
 	"gorm.io/driver/mysql"
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
@@ -104,10 +109,13 @@ func getUserString(u *url.URL) string {
 	return userString
 }
 
-// addLocal adds loc=Local to the query string if it's not already there
-func addLocal(query url.Values) string {
+// sanitizeQuery add default value to query and remove ca-cert from query
+func sanitizeQuery(query url.Values) string {
 	if query.Get("loc") == "" {
 		query.Set("loc", "Local")
+	}
+	if query.Get("ca-cert") != "" {
+		query.Del("ca-cert")
 	}
 	return query.Encode()
 }
@@ -119,7 +127,30 @@ func getDbConnection(dbUrl string, conf *gorm.Config) (*gorm.DB, error) {
 	}
 	switch strings.ToLower(u.Scheme) {
 	case "mysql":
-		dbUrl = fmt.Sprintf("%s@tcp(%s)%s?%s", getUserString(u), u.Host, u.Path, addLocal(u.Query()))
+		dbUrl = fmt.Sprintf("%s@tcp(%s)%s?%s", getUserString(u), u.Host, u.Path, sanitizeQuery(u.Query()))
+		if u.Query().Get("tls") != "" && u.Query().Get("ca-cert") != "" {
+			rootCertPool := x509.NewCertPool()
+			pem, err := os.ReadFile(u.Query().Get("ca-cert"))
+			if err != nil {
+				return nil, err
+			}
+			if ok := rootCertPool.AppendCertsFromPEM(pem); !ok {
+				return nil, err
+			}
+			err = tlsMysql.RegisterTLSConfig("custom", &tls.Config{RootCAs: rootCertPool})
+			if err != nil {
+				return nil, err
+			}
+			db, err := sql.Open("mysql", dbUrl)
+			if err != nil {
+				return nil, err
+			}
+			gormDB, err := gorm.Open(mysql.New(mysql.Config{
+				Conn: db,
+			}), &gorm.Config{})
+
+			return gormDB, err
+		}
 		return gorm.Open(mysql.Open(dbUrl), conf)
 	case "postgresql", "postgres", "pg":
 		return gorm.Open(postgres.Open(dbUrl), conf)

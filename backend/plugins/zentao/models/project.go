@@ -19,47 +19,47 @@ package models
 
 import (
 	"fmt"
-	"github.com/spf13/cast"
 	"strconv"
+
+	"github.com/spf13/cast"
 
 	"github.com/apache/incubator-devlake/core/models/common"
 	"github.com/apache/incubator-devlake/core/plugin"
 )
 
 type ZentaoProject struct {
-	common.NoPKModel `json:"-"`
-	ConnectionId     uint64              `json:"connectionid" mapstructure:"connectionid" gorm:"primaryKey;type:BIGINT  NOT NULL"`
-	Id               int64               `json:"id" mapstructure:"id" gorm:"primaryKey;type:BIGINT  NOT NULL;autoIncrement:false"`
-	Project          int64               `json:"project" mapstructure:"project"`
-	Model            string              `json:"model" mapstructure:"model"`
-	Type             string              `json:"type" mapstructure:"type"`
-	ProjectType      string              `json:"projectType" mapstructure:"projectType"`
-	Lifetime         string              `json:"lifetime" mapstructure:"lifetime"`
-	Budget           string              `json:"budget" mapstructure:"budget"`
-	BudgetUnit       string              `json:"budgetUnit" mapstructure:"budgetUnit"`
-	Attribute        string              `json:"attribute" mapstructure:"attribute"`
-	Percent          int                 `json:"percent" mapstructure:"percent"`
-	Milestone        string              `json:"milestone" mapstructure:"milestone"`
-	Output           string              `json:"output" mapstructure:"output"`
-	Auth             string              `json:"auth" mapstructure:"auth"`
-	Parent           int64               `json:"parent" mapstructure:"parent"`
-	Path             string              `json:"path" mapstructure:"path"`
-	Grade            int                 `json:"grade" mapstructure:"grade"`
-	Name             string              `json:"name" mapstructure:"name"`
-	Code             string              `json:"code" mapstructure:"code"`
-	PlanBegin        *common.Iso8601Time `json:"begin" mapstructure:"begin"`
-	PlanEnd          *common.Iso8601Time `json:"end" mapstructure:"end"`
-	RealBegan        *common.Iso8601Time `json:"realBegan" mapstructure:"realBegan"`
-	RealEnd          *common.Iso8601Time `json:"realEnd" mapstructure:"realEnd"`
-	Days             int                 `json:"days" mapstructure:"days"`
-	Status           string              `json:"status" mapstructure:"status"`
-	SubStatus        string              `json:"subStatus" mapstructure:"subStatus"`
-	Pri              string              `json:"pri" mapstructure:"pri"`
-	Description      string              `json:"desc" mapstructure:"desc"`
-	Version          int                 `json:"version" mapstructure:"version"`
-	ParentVersion    int                 `json:"parentVersion" mapstructure:"parentVersion"`
-	PlanDuration     int                 `json:"planDuration" mapstructure:"planDuration"`
-	RealDuration     int                 `json:"realDuration" mapstructure:"realDuration"`
+	common.Scope
+	Id            int64               `json:"id" mapstructure:"id" gorm:"primaryKey;type:BIGINT  NOT NULL;autoIncrement:false"`
+	Project       int64               `json:"project" mapstructure:"project"`
+	Model         string              `json:"model" mapstructure:"model"`
+	Type          string              `json:"type" mapstructure:"type"`
+	ProjectType   string              `json:"projectType" mapstructure:"projectType"`
+	Lifetime      string              `json:"lifetime" mapstructure:"lifetime"`
+	Budget        string              `json:"budget" mapstructure:"budget"`
+	BudgetUnit    string              `json:"budgetUnit" mapstructure:"budgetUnit"`
+	Attribute     string              `json:"attribute" mapstructure:"attribute"`
+	Percent       int                 `json:"percent" mapstructure:"percent"`
+	Milestone     string              `json:"milestone" mapstructure:"milestone"`
+	Output        string              `json:"output" mapstructure:"output"`
+	Auth          string              `json:"auth" mapstructure:"auth"`
+	Parent        int64               `json:"parent" mapstructure:"parent"`
+	Path          string              `json:"path" mapstructure:"path"`
+	Grade         int                 `json:"grade" mapstructure:"grade"`
+	Name          string              `json:"name" mapstructure:"name"`
+	Code          string              `json:"code" mapstructure:"code"`
+	PlanBegin     *common.Iso8601Time `json:"begin" mapstructure:"begin"`
+	PlanEnd       *common.Iso8601Time `json:"end" mapstructure:"end"`
+	RealBegan     *common.Iso8601Time `json:"realBegan" mapstructure:"realBegan"`
+	RealEnd       *common.Iso8601Time `json:"realEnd" mapstructure:"realEnd"`
+	Days          int                 `json:"days" mapstructure:"days"`
+	Status        string              `json:"status" mapstructure:"status"`
+	SubStatus     string              `json:"subStatus" mapstructure:"subStatus"`
+	Pri           string              `json:"pri" mapstructure:"pri"`
+	Description   string              `json:"desc" mapstructure:"desc"`
+	Version       int                 `json:"version" mapstructure:"version"`
+	ParentVersion int                 `json:"parentVersion" mapstructure:"parentVersion"`
+	PlanDuration  int                 `json:"planDuration" mapstructure:"planDuration"`
+	RealDuration  int                 `json:"realDuration" mapstructure:"realDuration"`
 	//OpenedBy       string    `json:"openedBy" mapstructure:"openedBy"`
 	OpenedDate    *common.Iso8601Time `json:"openedDate" mapstructure:"openedDate"`
 	OpenedVersion string              `json:"openedVersion" mapstructure:"openedVersion"`
@@ -94,7 +94,6 @@ type ZentaoProject struct {
 	TotalLeft     float64 `json:"totalLeft" mapstructure:"totalLeft"`
 	Progress      float64
 	ProgressRes   interface{} `json:"progress" mapstructure:"progress" gorm:"-"`
-	ScopeConfigId uint64      `json:"scopeConfigId,omitempty" mapstructure:"scopeConfigId"`
 }
 
 type PM struct {

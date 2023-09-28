@@ -15,46 +15,39 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-package models
+package migrationscripts
 
 import (
-	"github.com/apache/incubator-devlake/core/models/common"
+	"github.com/apache/incubator-devlake/core/context"
+	"github.com/apache/incubator-devlake/core/errors"
 	"github.com/apache/incubator-devlake/core/plugin"
+	"github.com/apache/incubator-devlake/helpers/migrationhelper"
 )
 
-type PagerDutyParams struct {
-	ConnectionId uint64
-	ScopeId      string
+var _ plugin.MigrationScript = (*addScopeConfigIdToRepo)(nil)
+
+type giteeRepo20230922 struct {
+	ScopeConfigId uint64 `json:"scopeConfigId,omitempty" mapstructure:"scopeConfigId,omitempty"`
 }
 
-type Service struct {
-	common.Scope
-	Id   string `json:"id" mapstructure:"id" gorm:"primaryKey;autoIncrement:false" `
-	Url  string `json:"url" mapstructure:"url"`
-	Name string `json:"name" mapstructure:"name"`
+func (giteeRepo20230922) TableName() string {
+	return "_raw_gitee_api_repo"
 }
 
-func (s Service) ScopeId() string {
-	return s.Name
+type addScopeConfigIdToRepo struct{}
+
+func (script *addScopeConfigIdToRepo) Up(basicRes context.BasicRes) errors.Error {
+
+	return migrationhelper.AutoMigrateTables(
+		basicRes,
+		&giteeRepo20230922{},
+	)
 }
 
-func (s Service) ScopeName() string {
-	return s.Name
+func (*addScopeConfigIdToRepo) Version() uint64 {
+	return 20230922152829
 }
 
-func (s Service) ScopeFullName() string {
-	return s.Name
+func (*addScopeConfigIdToRepo) Name() string {
+	return "add scope_config_id to _tool_gitee_repos table"
 }
-
-func (s Service) ScopeParams() interface{} {
-	return &PagerDutyParams{
-		ConnectionId: s.ConnectionId,
-		ScopeId:      s.Id,
-	}
-}
-
-func (s Service) TableName() string {
-	return "_tool_pagerduty_services"
-}
-
-var _ plugin.ToolLayerScope = (*Service)(nil)

@@ -15,12 +15,28 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-package models
+package srvhelper
 
-import (
-	"github.com/apache/incubator-devlake/core/models/common"
-)
+type Pagination struct {
+	Page       int    `json:"page" mapstructure:"page" validate:"min=1"`
+	PageSize   int    `json:"pageSize" mapstructure:"pageSize" validate:"min=1,max=1000"`
+	SearchTerm string `json:"searchTerm" mapstructure:"searchTerm"`
+}
 
-type PagerdutyScopeConfig struct {
-	common.ScopeConfig `mapstructure:",squash" json:",inline" gorm:"embedded"`
+func (pagination *Pagination) GetPage() int {
+	if pagination.Page > 0 {
+		return pagination.Page
+	}
+	return 1
+}
+
+func (pagination *Pagination) GetLimit() int {
+	if pagination.PageSize > 0 {
+		return pagination.PageSize
+	}
+	return 100
+}
+
+func (pagination *Pagination) GetOffset() int {
+	return (pagination.GetPage() - 1) * pagination.GetLimit()
 }

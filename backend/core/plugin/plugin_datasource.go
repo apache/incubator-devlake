@@ -18,7 +18,12 @@ limitations under the License.
 package plugin
 
 import (
+	"encoding/json"
+	"fmt"
+
 	"net/http"
+
+	"github.com/apache/incubator-devlake/core/dal"
 
 	"github.com/apache/incubator-devlake/core/errors"
 	"github.com/apache/incubator-devlake/helpers/pluginhelper/api/apihelperabstract"
@@ -44,6 +49,7 @@ type ApiAuthenticator interface {
 	SetupAuthentication(request *http.Request) errors.Error
 }
 
+// TODO: deprecated, remove
 // ConnectionValidator represents the API Connection would validate its fields with customized logic
 type ConnectionValidator interface {
 	ValidateConnection(connection interface{}, valdator *validator.Validate) errors.Error
@@ -86,4 +92,53 @@ type AccessTokenAuthenticator interface {
 // AppKeyAuthenticator represents the API Key and Secret authentication mechanism
 type AppKeyAuthenticator interface {
 	GetAppKeyAuthenticator() ApiAuthenticator
+}
+
+// Scope represents the top level entity for a data source, i.e. github repo,
+// gitlab project, jira board. They turn into repo, board in Domain Layer. In
+// Apache Devlake, a Project is essentially a set of these top level entities,
+// for the framework to maintain these relationships dynamically and
+// automatically, all Domain Layer Top Level Entities should implement this
+// interface
+type Scope interface {
+	ScopeId() string
+	ScopeName() string
+	TableName() string
+}
+
+type ToolLayerConnection interface {
+	dal.Tabler
+	ConnectionId() uint64
+}
+
+type ToolLayerScope interface {
+	dal.Tabler
+	Scope
+	ScopeFullName() string
+	ScopeParams() interface{}
+	ScopeConnectionId() uint64
+	ScopeScopeConfigId() uint64
+}
+
+type ToolLayerScopeConfig interface {
+	dal.Tabler
+	ScopeConfigId() uint64
+	ScopeConfigConnectionId() uint64
+}
+
+type ApiScope interface {
+	ConvertApiScope() ToolLayerScope
+}
+
+type ApiGroup interface {
+	GroupId() string
+	GroupName() string
+}
+
+func MarshalScopeParams(params interface{}) string {
+	bytes, err := json.Marshal(params)
+	if err != nil {
+		panic(fmt.Errorf("Failed to marshal %v, due to: %v", params, err))
+	}
+	return string(bytes)
 }
