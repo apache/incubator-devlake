@@ -119,6 +119,10 @@ func ConvertDeployment(taskCtx plugin.SubTaskContext) errors.Error {
 			if duration != nil {
 				domainDeployCommit.DurationSec = duration
 			}
+			if data.RegexEnricher != nil {
+				domainDeployCommit.Environment = data.RegexEnricher.ReturnNameIfOmittedOrMatched(devops.PRODUCTION, gitlabDeployment.Environment)
+			}
+
 			return []interface{}{
 				domainDeployCommit,
 				domainDeployCommit.ToDeployment(),
