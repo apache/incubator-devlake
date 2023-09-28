@@ -16,5 +16,8 @@
 # limitations under the License.
 #
 
+echo sys path $PATH >&2
+[ -n "$VIRTUAL_ENV" ] && echo "Using virtualenv: $VIRTUAL_ENV" >&2 && . "$VIRTUAL_ENV/bin/activate"
+
 cd "$(dirname "$0")"
 poetry run python fakeplugin/main.py "$@"

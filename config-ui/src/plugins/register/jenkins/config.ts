@@ -22,7 +22,6 @@ import type { PluginConfigType } from '../../types';
 import { PluginType } from '../../types';
 
 import Icon from './assets/icon.svg';
-import { DataScope } from './data-scope';
 
 export const JenkinsConfig: PluginConfigType = {
   type: PluginType.Connection,
@@ -52,7 +51,11 @@ export const JenkinsConfig: PluginConfigType = {
     ],
   },
   dataScope: {
-    render: ({ ...props }) => <DataScope {...props} />,
+    localSearch: true,
+    title: 'Jobs',
+    millerColumn: {
+      columnCount: 2.5,
+    },
   },
   scopeConfig: {
     entities: ['CICD'],

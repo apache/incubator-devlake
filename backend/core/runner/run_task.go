@@ -107,14 +107,11 @@ func RunTask(
 			}
 		}
 		// update finishedTasks
-		dbe := db.UpdateColumn(
+		errors.Must(db.UpdateColumn(
 			&models.Pipeline{},
 			"finished_tasks", dal.Expr("finished_tasks + 1"),
 			dal.Where("id=?", task.PipelineId),
-		)
-		if dbe != nil {
-			logger.Error(dbe, "update pipeline state failed")
-		}
+		))
 		// not return err if the `SkipOnFail` is true and the error is not canceled
 		if dbPipeline.SkipOnFail && !errors.Is(err, gocontext.Canceled) {
 			err = nil

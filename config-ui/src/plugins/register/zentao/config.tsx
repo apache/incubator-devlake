@@ -60,7 +60,10 @@ export const ZenTaoConfig: PluginConfigType = {
     ],
   },
   dataScope: {
+    localSearch: true,
     title: 'Repositories',
-    millerColumnCount: 2,
+    millerColumn: {
+      columnCount: 2,
+    },
   },
 };

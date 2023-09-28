@@ -22,7 +22,7 @@ import (
 	"github.com/apache/incubator-devlake/core/plugin"
 )
 
-// CreateScopeConfig create scope config for Github
+// PostScopeConfig create scope config for Github
 // @Summary create scope config for Github
 // @Description create scope config for Github
 // @Tags plugins/github
@@ -33,11 +33,11 @@ import (
 // @Failure 400  {object} shared.ApiBody "Bad Request"
 // @Failure 500  {object} shared.ApiBody "Internal Error"
 // @Router /plugins/github/connections/{connectionId}/scope-configs [POST]
-func CreateScopeConfig(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, errors.Error) {
-	return scHelper.Create(input)
+func PostScopeConfig(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, errors.Error) {
+	return scApi.Post(input)
 }
 
-// UpdateScopeConfig update scope config for Github
+// PatchScopeConfig update scope config for Github
 // @Summary update scope config for Github
 // @Description update scope config for Github
 // @Tags plugins/github
@@ -49,8 +49,8 @@ func CreateScopeConfig(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutpu
 // @Failure 400  {object} shared.ApiBody "Bad Request"
 // @Failure 500  {object} shared.ApiBody "Internal Error"
 // @Router /plugins/github/connections/{connectionId}/scope-configs/{id} [PATCH]
-func UpdateScopeConfig(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, errors.Error) {
-	return scHelper.Update(input)
+func PatchScopeConfig(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, errors.Error) {
+	return scApi.Patch(input)
 }
 
 // GetScopeConfig return one scope config
@@ -64,7 +64,7 @@ func UpdateScopeConfig(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutpu
 // @Failure 500  {object} shared.ApiBody "Internal Error"
 // @Router /plugins/github/connections/{connectionId}/scope-configs/{id} [GET]
 func GetScopeConfig(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, errors.Error) {
-	return scHelper.Get(input)
+	return scApi.GetDetail(input)
 }
 
 // GetScopeConfigList return all scope configs
@@ -79,7 +79,7 @@ func GetScopeConfig(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, 
 // @Failure 500  {object} shared.ApiBody "Internal Error"
 // @Router /plugins/github/connections/{connectionId}/scope-configs [GET]
 func GetScopeConfigList(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, errors.Error) {
-	return scHelper.List(input)
+	return scApi.GetAll(input)
 }
 
 // DeleteScopeConfig delete a scope config
@@ -93,5 +93,5 @@ func GetScopeConfigList(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutp
 // @Failure 500  {object} shared.ApiBody "Internal Error"
 // @Router /plugins/github/connections/{connectionId}/scope-configs/{id} [DELETE]
 func DeleteScopeConfig(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, errors.Error) {
-	return scHelper.Delete(input)
+	return scApi.Delete(input)
 }

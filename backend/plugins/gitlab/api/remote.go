@@ -161,7 +161,7 @@ func SearchRemoteScopes(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutp
 			query := initialQuery(queryData)
 			query.Set("search", queryData.Search[0])
 			// request search
-			res, err := apiClient.Get("/projects", query, nil)
+			res, err := apiClient.Get("projects", query, nil)
 			if err != nil {
 				return nil, err
 			}

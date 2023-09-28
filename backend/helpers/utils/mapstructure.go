@@ -38,6 +38,17 @@ func DecodeHook(f reflect.Type, t reflect.Type, data interface{}) (interface{}, 
 	if t == reflect.TypeOf(json.RawMessage{}) {
 		return json.Marshal(data)
 	}
+	// to support decoding url.Values (query string) to non-array variables
+	if t.Kind() != reflect.Slice && t.Kind() != reflect.Array &&
+		(f.Kind() == reflect.Slice || f.Kind() == reflect.Array) {
+		v := reflect.ValueOf(data)
+		if v.Len() == 1 {
+			data = v.Index(0).Interface()
+			var result interface{}
+			err := DecodeMapStruct(data, &result, true)
+			return result, err
+		}
+	}
 
 	if t != reflect.TypeOf(common.Iso8601Time{}) && t != reflect.TypeOf(time.Time{}) {
 		return data, nil
@@ -65,12 +76,13 @@ func DecodeHook(f reflect.Type, t reflect.Type, data interface{}) (interface{}, 
 }
 
 // DecodeMapStruct with time.Time and Iso8601Time support
-func DecodeMapStruct(input map[string]interface{}, result interface{}, zeroFields bool) errors.Error {
+func DecodeMapStruct(input interface{}, result interface{}, zeroFields bool) errors.Error {
 	result = models.UnwrapObject(result)
 	decoder, err := mapstructure.NewDecoder(&mapstructure.DecoderConfig{
-		ZeroFields: zeroFields,
-		DecodeHook: mapstructure.ComposeDecodeHookFunc(DecodeHook),
-		Result:     result,
+		ZeroFields:       zeroFields,
+		DecodeHook:       mapstructure.ComposeDecodeHookFunc(DecodeHook),
+		Result:           result,
+		WeaklyTypedInput: true,
 	})
 	if err != nil {
 		return errors.Convert(err)

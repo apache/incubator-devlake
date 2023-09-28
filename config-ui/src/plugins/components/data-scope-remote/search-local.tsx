@@ -18,26 +18,29 @@
 
 import { useState, useEffect, useMemo } from 'react';
 import { Button, InputGroup, Icon, Intent } from '@blueprintjs/core';
-import type { McsID, McsItem } from 'miller-columns-select';
+import type { McsID, McsItem, McsColumn } from 'miller-columns-select';
 import { MillerColumnsSelect } from 'miller-columns-select';
 import { useDebounce } from 'ahooks';
 
 import { FormItem, MultiSelector, Loading, Dialog, Message } from '@/components';
-import * as T from '@/plugins/components/data-scope-select-remote/types';
-import * as API from '@/plugins/components/data-scope-select-remote/api';
+import { PluginConfigType } from '@/plugins';
 
+import * as T from './types';
+import * as API from './api';
 import * as S from './styled';
 
 interface Props {
+  plugin: string;
   connectionId: ID;
-  disabledItems: T.ResItem[];
-  selectedItems: T.ResItem[];
-  onChangeSelectedItems: (items: T.ResItem[]) => void;
+  config: PluginConfigType['dataScope'];
+  disabledScope: any[];
+  selectedScope: any[];
+  onChange: (selectedScope: any[]) => void;
 }
 
 let canceling = false;
 
-export const DataScope = ({ connectionId, selectedItems, onChangeSelectedItems }: Props) => {
+export const SearchLocal = ({ plugin, connectionId, config, disabledScope, selectedScope, onChange }: Props) => {
   const [miller, setMiller] = useState<{
     items: McsItem<T.ResItem>[];
     loadedIds: ID[];
@@ -56,7 +59,7 @@ export const DataScope = ({ connectionId, selectedItems, onChangeSelectedItems }
   const [query, setQuery] = useState('');
   const search = useDebounce(query, { wait: 500 });
 
-  const jobs = useMemo(
+  const scopes = useMemo(
     () =>
       search
         ? miller.items
@@ -85,7 +88,7 @@ export const DataScope = ({ connectionId, selectedItems, onChangeSelectedItems }
       return;
     }
 
-    const res = await API.getRemoteScope('jenkins', connectionId, {
+    const res = await API.getRemoteScope(plugin, connectionId, {
       groupId,
       pageToken: currentPageToken,
     });
@@ -138,7 +141,7 @@ export const DataScope = ({ connectionId, selectedItems, onChangeSelectedItems }
     }
   }, [miller]);
 
-  const handleLoadAllJobs = async () => {
+  const handleLoadAllScopes = async () => {
     setIsOpen(false);
     setStatus('loading');
 
@@ -162,33 +165,33 @@ export const DataScope = ({ connectionId, selectedItems, onChangeSelectedItems }
     }
   };
 
-  const handleCancelLoadAllJobs = () => {
+  const handleCancelLoadAllScopes = () => {
     setStatus('cancel');
     canceling = true;
   };
 
   return (
-    <S.DataScope>
-      <FormItem label="Jobs" required>
+    <S.Wrapper>
+      <FormItem label={config.title} required>
         <MultiSelector
           disabled
-          items={selectedItems}
+          items={selectedScope}
           getKey={(it) => it.id}
           getName={(it) => it.fullName}
-          selectedItems={selectedItems}
+          selectedItems={selectedScope}
         />
       </FormItem>
       <FormItem>
         {(status === 'loading' || status === 'cancel') && (
           <S.JobLoad>
             <Loading style={{ marginRight: 8 }} size={20} />
-            Loading: <span className="count">{miller.items.length}</span> jobs found
+            Loading: <span className="count">{miller.items.length}</span> scopes found
             <Button
               style={{ marginLeft: 8 }}
               loading={status === 'cancel'}
               small
               text="Cancel"
-              onClick={handleCancelLoadAllJobs}
+              onClick={handleCancelLoadAllScopes}
             />
           </S.JobLoad>
         )}
@@ -196,7 +199,7 @@ export const DataScope = ({ connectionId, selectedItems, onChangeSelectedItems }
         {status === 'loaded' && (
           <S.JobLoad>
             <Icon icon="endorsed" style={{ color: '#4DB764' }} />
-            <span className="count">{miller.items.length}</span> jobs found
+            <span className="count">{miller.items.length}</span> scopes found
           </S.JobLoad>
         )}
 
@@ -205,7 +208,7 @@ export const DataScope = ({ connectionId, selectedItems, onChangeSelectedItems }
             <Button
               disabled={!miller.items.length}
               intent={Intent.PRIMARY}
-              text="Load all jobs to search by keywords"
+              text="Load all scopes to search by keywords"
               onClick={() => setIsOpen(true)}
             />
           </S.JobLoad>
@@ -216,8 +219,8 @@ export const DataScope = ({ connectionId, selectedItems, onChangeSelectedItems }
           <InputGroup leftIcon="search" value={query} onChange={(e) => setQuery(e.target.value)} />
         )}
         <MillerColumnsSelect
-          items={jobs}
-          columnCount={search ? 1 : 2.5}
+          items={scopes}
+          columnCount={search ? 1 : config.millerColumn?.columnCount ?? 1}
           columnHeight={300}
           getCanExpand={(it) => it.type === 'group'}
           getHasMore={(id) => !miller.loadedIds.includes(id ?? 'root')}
@@ -225,18 +228,21 @@ export const DataScope = ({ connectionId, selectedItems, onChangeSelectedItems }
           onScroll={(id: McsID | null) =>
             getItems({ groupId: id, currentPageToken: miller.nextTokenMap[id ?? 'root'] })
           }
-          renderLoading={() => <Loading size={20} style={{ padding: '4px 12px' }} />}
-          selectedIds={selectedItems.map((it) => it.id)}
-          onSelectItemIds={(selectedIds: ID[]) =>
-            onChangeSelectedItems(miller.items.filter((it) => selectedIds.includes(it.id)))
+          renderTitle={(column: McsColumn) =>
+            !column.parentId &&
+            config.millerColumn?.firstColumnTitle && (
+              <S.ColumnTitle>{config.millerColumn.firstColumnTitle}</S.ColumnTitle>
+            )
           }
+          renderLoading={() => <Loading size={20} style={{ padding: '4px 12px' }} />}
+          selectedIds={selectedScope.map((it) => it.id)}
+          onSelectItemIds={(selectedIds: ID[]) => onChange(miller.items.filter((it) => selectedIds.includes(it.id)))}
           expandedIds={miller.expandedIds}
-          // onChangeExpandedIds={(expandedIds: ID[]) => setExpandedIds(expandedIds)}
         />
       </FormItem>
-      <Dialog isOpen={isOpen} okText="Load" onCancel={() => setIsOpen(false)} onOk={handleLoadAllJobs}>
-        <Message content="This operation may take a long time, as it iterates through all the Jenkins Jobs." />
+      <Dialog isOpen={isOpen} okText="Load" onCancel={() => setIsOpen(false)} onOk={handleLoadAllScopes}>
+        <Message content={`This operation may take a long time, as it iterates through all the ${config.title}.`} />
       </Dialog>
-    </S.DataScope>
+    </S.Wrapper>
   );
 };

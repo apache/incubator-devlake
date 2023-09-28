@@ -15,17 +15,28 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-package migrationscripts
+package srvhelper
 
-import "github.com/apache/incubator-devlake/core/plugin"
+type Pagination struct {
+	Page       int    `json:"page" mapstructure:"page" validate:"min=1"`
+	PageSize   int    `json:"pageSize" mapstructure:"pageSize" validate:"min=1,max=1000"`
+	SearchTerm string `json:"searchTerm" mapstructure:"searchTerm"`
+}
 
-// All return all the migration scripts
-func All() []plugin.MigrationScript {
-	return []plugin.MigrationScript{
-		new(addInitTables),
-		new(modifyCharacterSet),
-		new(expandProjectKey20230206),
-		new(addRawParamTableForScope),
-		new(modifyFileMetricsKeyLength),
+func (pagination *Pagination) GetPage() int {
+	if pagination.Page > 0 {
+		return pagination.Page
 	}
+	return 1
+}
+
+func (pagination *Pagination) GetLimit() int {
+	if pagination.PageSize > 0 {
+		return pagination.PageSize
+	}
+	return 100
+}
+
+func (pagination *Pagination) GetOffset() int {
+	return (pagination.GetPage() - 1) * pagination.GetLimit()
 }
