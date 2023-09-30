@@ -22,6 +22,7 @@ import (
 	"fmt"
 	"net/http"
 	"net/url"
+	"time"
 
 	"github.com/apache/incubator-devlake/core/errors"
 	"github.com/apache/incubator-devlake/core/plugin"
@@ -37,6 +38,10 @@ type (
 		TotalCount int               `json:"totalCount"`
 		Data       []json.RawMessage `json:"data"`
 	}
+	simplifiedRawIncident struct {
+		Id        string    `json:"id"`
+		CreatedAt time.Time `json:"createdAt"`
+	}
 )
 
 var CollectIncidentsMeta = plugin.SubTaskMeta{
@@ -45,45 +50,54 @@ var CollectIncidentsMeta = plugin.SubTaskMeta{
 	EnabledByDefault: true,
 	Description:      "Collect Opsgenie incidents",
 	DomainTypes:      []string{plugin.DOMAIN_TYPE_TICKET},
+	ProductTables:    []string{RAW_INCIDENTS_TABLE},
 }
 
 func CollectIncidents(taskCtx plugin.SubTaskContext) errors.Error {
 	data := taskCtx.GetData().(*OpsgenieTaskData)
-
-	collectorWithState, err := api.NewStatefulApiCollector(api.RawDataSubTaskArgs{
+	args := api.RawDataSubTaskArgs{
 		Ctx:     taskCtx,
 		Options: data.Options,
 		Table:   RAW_INCIDENTS_TABLE,
+	}
+	collector, err := api.NewStatefulApiCollectorForFinalizableEntity(api.FinalizableApiCollectorArgs{
+		RawDataSubTaskArgs: args,
+		ApiClient:          data.Client,
+		TimeAfter:          data.TimeAfter,
+		CollectNewRecordsByList: api.FinalizableApiCollectorListArgs{
+			PageSize:    100,
+			Concurrency: 10,
+			FinalizableApiCollectorCommonArgs: api.FinalizableApiCollectorCommonArgs{
+				UrlTemplate: "v1/incidents",
+				Query: func(reqData *api.RequestData, createdAfter *time.Time) (url.Values, errors.Error) {
+					query := url.Values{}
+
+					query.Set("query", fmt.Sprintf("impactedServices:%s", data.Options.ServiceId))
+					query.Set("sort", "createdAt")
+					query.Set("order", "desc")
+					query.Set("limit", fmt.Sprintf("%d", reqData.Pager.Size))
+					query.Set("offset", fmt.Sprintf("%d", reqData.Pager.Skip))
+					return query, nil
+				},
+				ResponseParser: func(res *http.Response) ([]json.RawMessage, errors.Error) {
+					rawResult := collectedIncidents{}
+					err := api.UnmarshalResponse(res, &rawResult)
+
+					return rawResult.Data, err
+				},
+			},
+			GetCreated: func(item json.RawMessage) (time.Time, errors.Error) {
+				incident := &simplifiedRawIncident{}
+				err := json.Unmarshal(item, incident)
+				if err != nil {
+					return time.Time{}, errors.BadInput.Wrap(err, "failed to unmarshal opsgenie incident request")
+				}
+				return incident.CreatedAt, nil
+			},
+		},
 	})
 	if err != nil {
-		return err
+		return nil
 	}
-
-	err = collectorWithState.InitCollector(api.ApiCollectorArgs{
-		ApiClient:   data.Client,
-		PageSize:    100,
-		UrlTemplate: "v1/incidents",
-		Query: func(reqData *api.RequestData) (url.Values, errors.Error) {
-			query := url.Values{}
-
-			query.Set("query", fmt.Sprintf("impactedServices:%s", data.Options.ServiceId))
-			query.Set("sort", "createdAt")
-			query.Set("order", "desc")
-			query.Set("limit", fmt.Sprintf("%d", reqData.Pager.Size))
-			query.Set("offset", fmt.Sprintf("%d", reqData.Pager.Skip))
-			return query, nil
-		},
-		ResponseParser: func(res *http.Response) ([]json.RawMessage, errors.Error) {
-			rawResult := collectedIncidents{}
-			err := api.UnmarshalResponse(res, &rawResult)
-
-			return rawResult.Data, err
-		},
-	})
-
-	if err != nil {
-		return errors.Default.Wrap(err, "error collecting opsgenie incidents")
-	}
-
-	return collectorWithState.Execute()
+	return collector.Execute()
 }

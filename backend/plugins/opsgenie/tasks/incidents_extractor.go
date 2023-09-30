@@ -36,6 +36,7 @@ var ExtractIncidentsMeta = plugin.SubTaskMeta{
 	Description:      "Extract Opsgenie incidents",
 	DomainTypes:      []string{plugin.DOMAIN_TYPE_TICKET},
 	DependencyTables: []string{RAW_INCIDENTS_TABLE},
+	ProductTables:    []string{models.Incident{}.TableName()},
 }
 
 func ExtractIncidents(taskCtx plugin.SubTaskContext) errors.Error {

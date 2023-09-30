@@ -40,7 +40,7 @@ type OpsgenieConn struct {
 	OpsgenieGenieKey      `mapstructure:",squash"`
 }
 
-// OpsgenieConnection holds GitlabConn plus ID/Name for database storage
+// OpsgenieConnection holds OpsgenieConn plus ID/Name for database storage
 type OpsgenieConnection struct {
 	helper.BaseConnection `mapstructure:",squash"`
 	OpsgenieConn          `mapstructure:",squash"`
