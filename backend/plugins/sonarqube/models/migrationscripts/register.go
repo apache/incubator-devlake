@@ -27,5 +27,6 @@ func All() []plugin.MigrationScript {
 		new(expandProjectKey20230206),
 		new(addRawParamTableForScope),
 		new(modifyFileMetricsKeyLength),
+		new(modifyComponentLength),
 	}
 }
