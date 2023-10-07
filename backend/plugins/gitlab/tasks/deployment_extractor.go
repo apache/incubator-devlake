@@ -81,7 +81,7 @@ type GitlabDeploymentResp struct {
 }
 
 func (r GitlabDeploymentResp) toGitlabDeployment(connectionId uint64, gitlabId int) *models.GitlabDeployment {
-	ret := models.GitlabDeployment{
+	return &models.GitlabDeployment{
 		NoPKModel:                   common.NewNoPKModel(),
 		ConnectionId:                connectionId,
 		GitlabId:                    gitlabId,
@@ -137,20 +137,11 @@ func (r GitlabDeploymentResp) toGitlabDeployment(connectionId uint64, gitlabId i
 		UserState:                   r.User.State,
 		UserUsername:                r.User.Username,
 		UserWebURL:                  r.User.WebURL,
+		DeployableStartedAt:         r.Deployable.StartedAt,
+		DeployableCreatedAt:         r.Deployable.CreatedAt,
+		DeployableFinishedAt:        r.Deployable.FinishedAt,
+		DeployableDuration:          r.Deployable.Duration,
 	}
-	if r.Deployable.StartedAt != nil {
-		ret.DeployableStartedAt = r.Deployable.StartedAt
-	}
-	if r.Deployable.CreatedAt != nil {
-		ret.DeployableCreatedAt = r.Deployable.CreatedAt
-	}
-	if r.Deployable.FinishedAt != nil {
-		ret.DeployableFinishedAt = r.Deployable.FinishedAt
-	}
-	if r.Deployable.Duration != nil {
-		ret.DeployableDuration = r.Deployable.Duration
-	}
-	return &ret
 }
 
 type GitlabDeploymentCommit struct {
