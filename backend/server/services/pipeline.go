@@ -33,14 +33,10 @@ import (
 	"github.com/apache/incubator-devlake/helpers/dbhelper"
 	"github.com/apache/incubator-devlake/impls/logruslog"
 	"github.com/google/uuid"
-	v11 "go.temporal.io/api/enums/v1"
-	"go.temporal.io/sdk/client"
-	"go.temporal.io/sdk/converter"
 	"golang.org/x/sync/semaphore"
 )
 
 var notificationService *NotificationService
-var temporalClient client.Client
 var globalPipelineLog = logruslog.Global.Nested("pipeline service")
 
 // PipelineQuery is a query for GetPipelines
@@ -60,46 +56,32 @@ func pipelineServiceInit() {
 		notificationService = NewNotificationService(notificationEndpoint, notificationSecret)
 	}
 
-	// temporal client
-	var temporalUrl = cfg.GetString("TEMPORAL_URL")
-	if temporalUrl != "" {
-		// TODO: logger
-		var err error
-		temporalClient, err = client.NewClient(client.Options{
-			HostPort: temporalUrl,
-		})
-		if err != nil {
-			panic(err)
-		}
-		watchTemporalPipelines()
-	} else {
-		// standalone mode: reset pipeline status
-		errMsg := "The process was terminated unexpectedly"
-		err := db.UpdateColumns(
-			&models.Pipeline{},
-			[]dal.DalSet{
-				{ColumnName: "status", Value: models.TASK_FAILED},
-				{ColumnName: "message", Value: errMsg},
-			},
-			dal.Where("status = ?", models.TASK_RUNNING),
-		)
-		if err != nil {
-			panic(err)
-		}
-		err = db.UpdateColumns(
-			&models.Task{},
-			[]dal.DalSet{
-				{ColumnName: "status", Value: models.TASK_FAILED},
-				{ColumnName: "message", Value: errMsg},
-			},
-			dal.Where("status = ?", models.TASK_RUNNING),
-		)
-		if err != nil {
-			panic(err)
-		}
+	// standalone mode: reset pipeline status
+	errMsg := "The process was terminated unexpectedly"
+	err := db.UpdateColumns(
+		&models.Pipeline{},
+		[]dal.DalSet{
+			{ColumnName: "status", Value: models.TASK_FAILED},
+			{ColumnName: "message", Value: errMsg},
+		},
+		dal.Where("status = ?", models.TASK_RUNNING),
+	)
+	if err != nil {
+		panic(err)
+	}
+	err = db.UpdateColumns(
+		&models.Task{},
+		[]dal.DalSet{
+			{ColumnName: "status", Value: models.TASK_FAILED},
+			{ColumnName: "message", Value: errMsg},
+		},
+		dal.Where("status = ?", models.TASK_RUNNING),
+	)
+	if err != nil {
+		panic(err)
 	}
 
-	err := ReloadBlueprints(cronManager)
+	err = ReloadBlueprints(cronManager)
 	if err != nil {
 		panic(err)
 	}
@@ -268,101 +250,6 @@ func RunPipelineInQueue(pipelineMaxParallel int64) {
 	}
 }
 
-func watchTemporalPipelines() {
-	ticker := time.NewTicker(3 * time.Second)
-	dc := converter.GetDefaultDataConverter()
-	go func() {
-		// run forever
-		for range ticker.C {
-			// load all running pipeline from database
-			runningDbPipelines := make([]models.Pipeline, 0)
-			err := db.All(&runningDbPipelines, dal.Where("status = ?", models.TASK_RUNNING))
-			if err != nil {
-				panic(err)
-			}
-			// progressDetails will be only used in this goroutine now
-			// So it needn't lock and unlock now
-			progressDetails := make(map[uint64]*models.TaskProgressDetail)
-			// check their status against temporal
-			for _, rp := range runningDbPipelines {
-				workflowId := getTemporalWorkflowId(rp.ID)
-				desc, err := temporalClient.DescribeWorkflowExecution(
-					context.Background(),
-					workflowId,
-					"",
-				)
-				if err != nil {
-					globalPipelineLog.Error(err, "failed to query workflow execution: %v", err)
-					continue
-				}
-				// workflow is terminated by outsider
-				s := desc.WorkflowExecutionInfo.Status
-				if s != v11.WORKFLOW_EXECUTION_STATUS_RUNNING {
-					rp.Status = models.TASK_COMPLETED
-					if s != v11.WORKFLOW_EXECUTION_STATUS_COMPLETED {
-						rp.Status = models.TASK_FAILED
-						// get error message
-						hisIter := temporalClient.GetWorkflowHistory(
-							context.Background(),
-							workflowId,
-							"",
-							false,
-							v11.HISTORY_EVENT_FILTER_TYPE_CLOSE_EVENT,
-						)
-						for hisIter.HasNext() {
-							his, err := hisIter.Next()
-							if err != nil {
-								globalPipelineLog.Error(err, "failed to get next from workflow history iterator: %v", err)
-								continue
-							}
-							rp.Message = fmt.Sprintf("temporal event type: %v", his.GetEventType())
-						}
-					}
-					rp.FinishedAt = desc.WorkflowExecutionInfo.CloseTime
-					err = db.UpdateColumns(rp, []dal.DalSet{
-						{ColumnName: "status", Value: rp.Status},
-						{ColumnName: "message", Value: rp.Message},
-						{ColumnName: "finished_at", Value: rp.FinishedAt},
-					})
-					if err != nil {
-						globalPipelineLog.Error(err, "failed to update db: %v", err)
-					}
-					continue
-				}
-
-				// check pending activity
-				for _, activity := range desc.PendingActivities {
-					taskId, err := getTaskIdFromActivityId(activity.ActivityId)
-					if err != nil {
-						globalPipelineLog.Error(err, "unable to extract task id from activity id `%s`", activity.ActivityId)
-						continue
-					}
-					progressDetail := &models.TaskProgressDetail{}
-					progressDetails[taskId] = progressDetail
-					heartbeats := activity.GetHeartbeatDetails()
-					if heartbeats == nil {
-						continue
-					}
-					payloads := heartbeats.GetPayloads()
-					if len(payloads) == 0 {
-						return
-					}
-					lastPayload := payloads[len(payloads)-1]
-					if err := dc.FromPayload(lastPayload, progressDetail); err != nil {
-						globalPipelineLog.Error(err, "failed to unmarshal heartbeat payload: %v", err)
-						continue
-					}
-				}
-			}
-			runningTasks.setAll(progressDetails)
-		}
-	}()
-}
-
-func getTemporalWorkflowId(pipelineId uint64) string {
-	return fmt.Sprintf("pipeline #%d", pipelineId)
-}
-
 // NotifyExternal FIXME ...
 func NotifyExternal(pipelineId uint64) errors.Error {
 	if notificationService == nil {
@@ -414,9 +301,6 @@ func CancelPipeline(pipelineId uint64) errors.Error {
 		}
 		// the target pipeline is pending, no running, no need to perform the actual cancel operation
 		return nil
-	}
-	if temporalClient != nil {
-		return errors.Convert(temporalClient.CancelWorkflow(context.Background(), getTemporalWorkflowId(pipelineId), ""))
 	}
 	pendingTasks, count, err := GetTasks(&TaskQuery{PipelineId: pipelineId, Pending: 1, Pagination: Pagination{PageSize: -1}})
 	if err != nil {

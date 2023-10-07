@@ -15,38 +15,31 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-package models
+package migrationscripts
 
 import (
-	"github.com/apache/incubator-devlake/core/models/common"
-	"time"
+	"github.com/apache/incubator-devlake/core/context"
+	"github.com/apache/incubator-devlake/core/errors"
+	"github.com/apache/incubator-devlake/helpers/migrationhelper"
 )
 
-const (
-	IncidentStatusAcknowledged IncidentStatus = "acknowledged"
-	IncidentStatusTriggered    IncidentStatus = "triggered"
-	IncidentStatusResolved     IncidentStatus = "resolved"
-)
+type addIncidentPriority struct {
+	Priority string `gorm:"type:varchar(255)"`
+}
 
-type (
-	IncidentUrgency string
-	IncidentStatus  string
-
-	Incident struct {
-		common.NoPKModel
-		ConnectionId uint64 `gorm:"primaryKey"`
-		Number       int    `gorm:"primaryKey"`
-		Url          string
-		ServiceId    string
-		Summary      string
-		Status       IncidentStatus  //acknowledged, triggered, resolved
-		Urgency      IncidentUrgency //high or low
-		Priority     string
-		CreatedDate  time.Time
-		UpdatedDate  time.Time
-	}
-)
-
-func (Incident) TableName() string {
+func (*addIncidentPriority) TableName() string {
 	return "_tool_pagerduty_incidents"
+}
+func (u *addIncidentPriority) Up(baseRes context.BasicRes) errors.Error {
+	return migrationhelper.AutoMigrateTables(baseRes,
+		&addIncidentPriority{},
+	)
+}
+
+func (*addIncidentPriority) Version() uint64 {
+	return 20230920130004
+}
+
+func (*addIncidentPriority) Name() string {
+	return "add priority to _tool_pagerduty_incidents table"
 }

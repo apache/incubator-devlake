@@ -68,6 +68,9 @@ func ExtractIncidents(taskCtx plugin.SubTaskContext) errors.Error {
 				incident.ServiceId = service.Id
 				results = append(results, &service)
 			}
+			if incidentRaw.Priority != nil {
+				incident.Priority = *incidentRaw.Priority.Name
+			}
 			for _, assignmentRaw := range incidentRaw.Assignments {
 				userRaw := assignmentRaw.Assignee
 				results = append(results, &models.Assignment{
