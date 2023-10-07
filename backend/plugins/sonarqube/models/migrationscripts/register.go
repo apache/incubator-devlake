@@ -26,6 +26,8 @@ func All() []plugin.MigrationScript {
 		new(modifyCharacterSet),
 		new(expandProjectKey20230206),
 		new(addRawParamTableForScope),
+		new(addScopeConfigIdToProject),
 		new(modifyFileMetricsKeyLength),
+		new(modifyComponentLength),
 	}
 }
