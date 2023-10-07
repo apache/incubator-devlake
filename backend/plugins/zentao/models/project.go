@@ -18,7 +18,9 @@ limitations under the License.
 package models
 
 import (
+	"database/sql/driver"
 	"encoding/json"
+	"fmt"
 	"github.com/spf13/cast"
 	"strconv"
 
@@ -27,10 +29,42 @@ import (
 )
 
 type OperatedBy struct {
-	Raw      interface{}
+	Raw interface{}
+	CoreOperatedBy
+}
+
+type CoreOperatedBy struct {
 	Type     string
 	Account  string
 	RealName string
+}
+
+func (by *OperatedBy) Value() (driver.Value, error) {
+	if by == nil {
+		return nil, nil
+	}
+	b, err := json.Marshal(by.CoreOperatedBy)
+	if err != nil {
+		return nil, err
+	}
+	return string(b), nil
+}
+
+func (by *OperatedBy) Scan(v interface{}) error {
+	switch value := v.(type) {
+	case string:
+		var coreOperatedBy CoreOperatedBy
+		if err := json.Unmarshal([]byte(value), &coreOperatedBy); err != nil {
+			return err
+		}
+		*by = OperatedBy{
+			Raw:            nil,
+			CoreOperatedBy: coreOperatedBy,
+		}
+	default:
+		return fmt.Errorf("%+v is an unknown type, with value: %v", v, value)
+	}
+	return nil
 }
 
 func (by *OperatedBy) MarshalJSON() ([]byte, error) {

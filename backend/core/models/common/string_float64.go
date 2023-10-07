@@ -18,6 +18,7 @@ limitations under the License.
 package common
 
 import (
+	"database/sql/driver"
 	"encoding/json"
 	"fmt"
 	"github.com/spf13/cast"
@@ -55,5 +56,30 @@ func (f *StringFloat64) UnmarshalJSON(data []byte) error {
 		return err
 	}
 	f.v = value
+	return nil
+}
+
+func (f *StringFloat64) Value() (driver.Value, error) {
+	if f == nil {
+		return nil, nil
+	}
+	return f.v, nil
+}
+
+func (f *StringFloat64) Scan(v interface{}) error {
+	switch value := v.(type) {
+	case float64:
+		*f = StringFloat64{
+			v: value,
+			t: "float64",
+		}
+	case string:
+		*f = StringFloat64{
+			v: cast.ToFloat64(value),
+			t: "string",
+		}
+	default:
+		return fmt.Errorf("%+v is an unknown type, with value: %v", v, value)
+	}
 	return nil
 }
