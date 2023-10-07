@@ -28,5 +28,6 @@ func All() []plugin.MigrationScript {
 		new(addRawParamTableForScope),
 		new(addScopeConfigIdToProject),
 		new(modifyFileMetricsKeyLength),
+		new(modifyComponentLength),
 	}
 }
