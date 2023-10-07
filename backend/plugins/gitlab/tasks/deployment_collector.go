@@ -50,14 +50,10 @@ func CollectDeployment(taskCtx plugin.SubTaskContext) errors.Error {
 	if err != nil {
 		return err
 	}
-	if err != nil {
-		return err
-	}
 	err = collectorWithState.InitCollector(helper.ApiCollectorArgs{
 		RawDataSubTaskArgs: *rawDataSubTaskArgs,
 		ApiClient:          data.ApiClient,
 		PageSize:           100,
-		Incremental:        false,
 		UrlTemplate:        "projects/{{ .Params.ProjectId }}/deployments",
 		Query: func(reqData *helper.RequestData) (url.Values, errors.Error) {
 			query, err := GetQuery(reqData)
