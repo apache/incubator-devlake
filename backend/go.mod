@@ -30,8 +30,6 @@ require (
 	github.com/swaggo/swag v1.16.1
 	github.com/tidwall/gjson v1.14.3
 	github.com/viant/afs v1.16.0
-	go.temporal.io/api v1.7.1-0.20220223032354-6e6fe738916a
-	go.temporal.io/sdk v1.14.0
 	golang.org/x/crypto v0.9.0
 	golang.org/x/exp v0.0.0-20221028150844-83b7d23a625f
 	golang.org/x/oauth2 v0.0.0-20210402161424-2e8d93401602

@@ -25,7 +25,6 @@ import (
 	"github.com/apache/incubator-devlake/core/models"
 	"github.com/apache/incubator-devlake/core/plugin"
 	"github.com/apache/incubator-devlake/core/runner"
-	"strconv"
 	"sync"
 )
 
@@ -53,23 +52,6 @@ func (rt *RunningTask) Add(taskId uint64, cancel context.CancelFunc) errors.Erro
 		ProgressDetail: &models.TaskProgressDetail{},
 	}
 	return nil
-}
-
-func (rt *RunningTask) setAll(progressDetails map[uint64]*models.TaskProgressDetail) {
-	rt.mu.Lock()
-	defer rt.mu.Unlock()
-	// delete finished tasks
-	for taskId := range rt.tasks {
-		if _, ok := progressDetails[taskId]; !ok {
-			delete(rt.tasks, taskId)
-		}
-	}
-	for taskId, progressDetail := range progressDetails {
-		if _, ok := rt.tasks[taskId]; !ok {
-			rt.tasks[taskId] = &RunningTaskData{}
-		}
-		rt.tasks[taskId].ProgressDetail = progressDetail
-	}
 }
 
 // FillProgressDetailToTasks lock less times than GetProgressDetail
@@ -156,12 +138,4 @@ func updateTaskProgress(taskId uint64, progress chan plugin.RunningProgress) {
 		runner.UpdateProgressDetail(basicRes, taskId, progressDetail, &p)
 		runningTasks.mu.Unlock()
 	}
-}
-
-func getTaskIdFromActivityId(activityId string) (uint64, errors.Error) {
-	submatches := activityPattern.FindStringSubmatch(activityId)
-	if len(submatches) < 2 {
-		return 0, errors.Default.New("activityId does not match")
-	}
-	return errors.Convert01(strconv.ParseUint(submatches[1], 10, 64))
 }
