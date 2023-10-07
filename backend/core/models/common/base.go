@@ -68,7 +68,7 @@ func (c *RawDataOrigin) GetRawDataOrigin() *RawDataOrigin {
 type NoPKModel struct {
 	CreatedAt     time.Time `json:"createdAt" mapstructure:"createdAt"`
 	UpdatedAt     time.Time `json:"updatedAt" mapstructure:"updatedAt"`
-	RawDataOrigin `swaggerignore:"true" json:"-" mapstructure:"-"`
+	RawDataOrigin `swaggerignore:"true"`
 }
 
 func NewNoPKModel() NoPKModel {
@@ -80,7 +80,7 @@ func NewNoPKModel() NoPKModel {
 }
 
 type Scope struct {
-	NoPKModel     `json:"-" mapstructure:"-"`
+	NoPKModel
 	ConnectionId  uint64 `json:"connectionId" gorm:"primaryKey" validate:"required" mapstructure:"connectionId,omitempty"`
 	ScopeConfigId uint64 `json:"scopeConfigId,omitempty" mapstructure:"scopeConfigId,omitempty"`
 }
