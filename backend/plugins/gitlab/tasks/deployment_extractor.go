@@ -148,7 +148,7 @@ func (r GitlabDeploymentResp) toGitlabDeployment(connectionId uint64, gitlabId i
 		ret.DeployableFinishedAt = r.Deployable.FinishedAt
 	}
 	if r.Deployable.Duration != nil {
-		ret.DeployableDuration = *r.Deployable.Duration
+		ret.DeployableDuration = r.Deployable.Duration
 	}
 	return &ret
 }

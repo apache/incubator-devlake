@@ -78,11 +78,11 @@ func ConvertDeployment(taskCtx plugin.SubTaskContext) errors.Error {
 			gitlabDeployment := inputRow.(*models.GitlabDeployment)
 
 			var duration *uint64
-			if gitlabDeployment.DeployableDuration != 0 {
-				deployableDuration := cast.ToUint64(gitlabDeployment.DeployableDuration)
+			if gitlabDeployment.DeployableDuration != nil {
+				deployableDuration := cast.ToUint64(*gitlabDeployment.DeployableDuration)
 				duration = &deployableDuration
 			}
-			if *duration == 0 {
+			if duration == nil || *duration == 0 {
 				if gitlabDeployment.DeployableFinishedAt != nil && gitlabDeployment.DeployableCreatedAt != nil {
 					deployableDuration := uint64(gitlabDeployment.DeployableFinishedAt.Sub(*gitlabDeployment.DeployableCreatedAt).Seconds())
 					duration = &deployableDuration

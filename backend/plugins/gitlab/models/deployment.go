@@ -58,7 +58,7 @@ type GitlabDeployment struct {
 	DeployableStartedAt *time.Time `json:"deployable_started_at"`
 	DeployableStatus    string     `json:"deployable_status" gorm:"type:varchar(255)"`
 	DeployableTag       bool       `json:"deployable_tag"`
-	DeployableDuration  float64    `json:"deployable_duration"`
+	DeployableDuration  *float64   `json:"deployable_duration"`
 	QueuedDuration      float64    `json:"queued_duration"`
 
 	DeployableUserID        int       `json:"deployable_user_id"`
