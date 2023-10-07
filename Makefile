@@ -71,24 +71,18 @@ swag:
 build-plugin:
 	make build-plugin -C backend
 
-build-worker:
-	make build-worker -C backend
-
 build-server:
 	make build-server -C backend
 
 build: build-plugin build-server
 
-all: build build-worker
+all: build
 
 tap-models:
 	make tap-models -C backend
 
 run:
 	make run -C backend
-
-worker:
-	make worker -C backend
 
 dev:
 	make dev -C backend
