@@ -49,5 +49,5 @@ func (*addScopeConfigIdToProject) Version() uint64 {
 }
 
 func (*addScopeConfigIdToProject) Name() string {
-	return "add scope_config_id to _tool_gitee_repos table"
+	return "add scope_config_id to _tool_sonarqube_projects table"
 }
