@@ -61,7 +61,7 @@ func MakePipelinePlanV200(
 		return nil, nil, err
 	}
 
-	pp, err := makePipelinePlanV200(subtaskMetas, scopeDetails, connection)
+	pp, err := makePipelinePlanV200(subtaskMetas, connection, scopeDetails)
 	if err != nil {
 		return nil, nil, err
 	}
@@ -108,8 +108,8 @@ func makeScopeV200(
 
 func makePipelinePlanV200(
 	subtaskMetas []plugin.SubTaskMeta,
-	scopeDetails []*srvhelper.ScopeDetail[models.GitlabProject, models.GitlabScopeConfig],
 	connection *models.GitlabConnection,
+	scopeDetails []*srvhelper.ScopeDetail[models.GitlabProject, models.GitlabScopeConfig],
 ) (coreModels.PipelinePlan, errors.Error) {
 	plans := make(coreModels.PipelinePlan, 0, 3*len(scopeDetails))
 	for _, scope := range scopeDetails {
