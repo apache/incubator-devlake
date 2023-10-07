@@ -32,7 +32,7 @@ interface Props {
 }
 
 export const RemoteLink = ({ transformation, setTransformation }: Props) => {
-  const [index, setInedx] = useState(0);
+  const [index, setInedx] = useState<number>();
   const [pattern, setPattern] = useState('');
   const [error, setError] = useState('');
   const [links, setLinks] = useState<Array<{ pattern: string; regex: string }>>(
@@ -56,7 +56,7 @@ export const RemoteLink = ({ transformation, setTransformation }: Props) => {
     });
 
     if (success) {
-      setLinks(links.map((link, i) => (i === index ? res : link)));
+      setLinks(links.map((link, i) => (i === index ? { ...res, pattern } : link)));
     } else {
       setError(res?.response?.data?.message ?? '');
     }
