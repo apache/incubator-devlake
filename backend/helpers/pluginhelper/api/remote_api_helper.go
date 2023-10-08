@@ -68,7 +68,6 @@ type SearchRemoteScopesOutput struct {
 }
 
 // RemoteApiHelper is used to write the CURD of connection
-// test
 type RemoteApiHelper[Conn plugin.ApiConnection, Scope plugin.ToolLayerScope, ApiScope plugin.ApiScope, Group plugin.ApiGroup] struct {
 	basicRes        context.BasicRes
 	validator       *validator.Validate
