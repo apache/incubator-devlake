@@ -113,9 +113,16 @@ func (p Circleci) PrepareTaskData(taskCtx plugin.TaskContext, options map[string
 	if err != nil {
 		return nil, errors.Default.Wrap(err, "unable to get Circleci API client instance")
 	}
+	project := &models.CircleciProject{}
+	err = taskCtx.GetDal().First(project, dal.Where("slug = ?", op.ProjectSlug))
+	if err != nil {
+		return nil, errors.Default.Wrap(err, "project not found")
+	}
+
 	taskData := &tasks.CircleciTaskData{
 		Options:   op,
 		ApiClient: apiClient,
+		Project:   project,
 	}
 	// fallback to project scope config
 	if op.ScopeConfigId == 0 {

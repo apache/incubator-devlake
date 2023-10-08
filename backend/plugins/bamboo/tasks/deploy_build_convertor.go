@@ -86,10 +86,10 @@ func ConvertDeployBuilds(taskCtx plugin.SubTaskContext) errors.Error {
 			}
 			deploymentCommit := &devops.CicdDeploymentCommit{
 				DomainEntity: domainlayer.DomainEntity{
-					Id: deployBuildIdGen.Generate(data.Options.ConnectionId, input.DeployBuildId),
+					Id: deployBuildIdGen.Generate(data.Options.ConnectionId, input.DeployBuildId, input.PlanResultKey),
 				},
 				CicdScopeId:      planIdGen.Generate(data.Options.ConnectionId, data.Options.PlanKey),
-				CicdDeploymentId: deployBuildIdGen.Generate(data.Options.ConnectionId, input.DeployBuildId),
+				CicdDeploymentId: deployBuildIdGen.Generate(data.Options.ConnectionId, input.DeployBuildId, input.PlanResultKey),
 				Name:             input.GenerateCICDDeploymentCommitName(),
 				Result: devops.GetResult(&devops.ResultRule{
 					Failed:  []string{"Failed"},
