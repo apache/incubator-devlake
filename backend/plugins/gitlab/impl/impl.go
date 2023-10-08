@@ -101,6 +101,7 @@ func (p Gitlab) GetTablesInfo() []dal.Tabler {
 		&models.GitlabTag{},
 		&models.GitlabIssueAssignee{},
 		&models.GitlabScopeConfig{},
+		&models.GitlabDeployment{},
 	}
 }
 
