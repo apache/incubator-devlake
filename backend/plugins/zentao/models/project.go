@@ -18,14 +18,97 @@ limitations under the License.
 package models
 
 import (
+	"database/sql/driver"
+	"encoding/json"
 	"fmt"
-	"strconv"
-
 	"github.com/spf13/cast"
+	"strconv"
 
 	"github.com/apache/incubator-devlake/core/models/common"
 	"github.com/apache/incubator-devlake/core/plugin"
 )
+
+type OperatedBy struct {
+	Raw interface{}
+	CoreOperatedBy
+}
+
+type CoreOperatedBy struct {
+	Type     string
+	Account  string
+	RealName string
+}
+
+func (by *OperatedBy) Value() (driver.Value, error) {
+	if by == nil {
+		return nil, nil
+	}
+	b, err := json.Marshal(by.CoreOperatedBy)
+	if err != nil {
+		return nil, err
+	}
+	return string(b), nil
+}
+
+func (by *OperatedBy) Scan(v interface{}) error {
+	switch value := v.(type) {
+	case string:
+		var coreOperatedBy CoreOperatedBy
+		if err := json.Unmarshal([]byte(value), &coreOperatedBy); err != nil {
+			return err
+		}
+		*by = OperatedBy{
+			Raw:            nil,
+			CoreOperatedBy: coreOperatedBy,
+		}
+	default:
+		return fmt.Errorf("%+v is an unknown type, with value: %v", v, value)
+	}
+	return nil
+}
+
+func (by *OperatedBy) MarshalJSON() ([]byte, error) {
+	if by == nil {
+		return json.Marshal(nil)
+	}
+	return json.Marshal(by.Raw)
+}
+
+func (by *OperatedBy) UnmarshalJSON(data []byte) error {
+	var i interface{}
+	if err := json.Unmarshal(data, &i); err != nil {
+		return err
+	}
+	by.Raw = i
+	switch i.(type) {
+	case string:
+		by.Type = "string"
+		by.Account = cast.ToString(by.Raw)
+		by.RealName = cast.ToString(by.Raw)
+	default:
+		by.Type = "struct"
+		type ByUser struct {
+			ID       int    `json:"id"`
+			Account  string `json:"account"`
+			Avatar   string `json:"avatar"`
+			RealName string `json:"realname"`
+		}
+		var byUser ByUser
+		if err := json.Unmarshal(data, &byUser); err != nil {
+			return err
+		}
+		by.Account = byUser.Account
+		by.RealName = byUser.RealName
+	}
+	return nil
+}
+
+func (by *OperatedBy) String() string {
+	if by == nil {
+		return "<nil>"
+	}
+	return by.Account
+}
 
 type ZentaoProject struct {
 	common.Scope
@@ -65,11 +148,9 @@ type ZentaoProject struct {
 	OpenedVersion string              `json:"openedVersion" mapstructure:"openedVersion"`
 	//LastEditedBy   string              `json:"lastEditedBy" mapstructure:"lastEditedBy"`
 	LastEditedDate *common.Iso8601Time `json:"lastEditedDate" mapstructure:"lastEditedDate"`
-	ClosedBy       string
-	ClosedByRes    interface{}         `json:"closedBy" mapstructure:"closedBy" gorm:"-"`
+	ClosedBy       *OperatedBy         `json:"closedBy" mapstructure:"closedBy" gorm:"-"`
 	ClosedDate     *common.Iso8601Time `json:"closedDate" mapstructure:"closedDate"`
-	CanceledBy     string
-	CanceledByRes  interface{}         `json:"canceledBy" mapstructure:"canceledBy" gorm:"-"`
+	CanceledBy     *OperatedBy         `json:"canceledBy" mapstructure:"canceledBy" gorm:"-"`
 	CanceledDate   *common.Iso8601Time `json:"canceledDate" mapstructure:"canceledDate"`
 	SuspendedDate  *common.Iso8601Time `json:"suspendedDate" mapstructure:"suspendedDate"`
 	PO             string              `json:"po" mapstructure:"po"`
@@ -89,11 +170,10 @@ type ZentaoProject struct {
 	TeamCount      int    `json:"teamCount" mapstructure:"teamCount"`
 	LeftTasks      string `json:"leftTasks" mapstructure:"leftTasks"`
 	//TeamMembers   []interface{} `json:"teamMembers" gorm:"-"`
-	TotalEstimate float64 `json:"totalEstimate" mapstructure:"totalEstimate"`
-	TotalConsumed float64 `json:"totalConsumed" mapstructure:"totalConsumed"`
-	TotalLeft     float64 `json:"totalLeft" mapstructure:"totalLeft"`
-	Progress      float64
-	ProgressRes   interface{} `json:"progress" mapstructure:"progress" gorm:"-"`
+	TotalEstimate float64               `json:"totalEstimate" mapstructure:"totalEstimate"`
+	TotalConsumed float64               `json:"totalConsumed" mapstructure:"totalConsumed"`
+	TotalLeft     float64               `json:"totalLeft" mapstructure:"totalLeft"`
+	Progress      *common.StringFloat64 `json:"progress" mapstructure:"progress" gorm:"-"`
 }
 
 type PM struct {
@@ -114,44 +194,6 @@ type Hours struct {
 	HoursTotalLeft     float64 `json:"totalLeft" mapstructure:"totalLeft"`
 	HoursProgress      float64 `json:"progress" mapstructure:"progress"`
 	HoursTotalReal     float64 `json:"totalReal" mapstructure:"totalReal"`
-}
-
-func (p *ZentaoProject) fixProgressField() {
-	p.Progress = cast.ToFloat64(p.ProgressRes)
-}
-
-func (p *ZentaoProject) fixClosedByResField() {
-	switch cb := p.ClosedByRes.(type) {
-	case string:
-		p.ClosedBy = cb
-	default:
-		if cb == nil {
-			p.ClosedBy = ""
-		} else {
-			p.ClosedBy = fmt.Sprintf("%v", cb)
-		}
-	}
-	p.ClosedByRes = p.ClosedBy
-}
-
-func (p *ZentaoProject) fixCanceledByResField() {
-	switch cb := p.CanceledByRes.(type) {
-	case string:
-		p.CanceledBy = cb
-	default:
-		if cb == nil {
-			p.CanceledBy = ""
-		} else {
-			p.CanceledBy = fmt.Sprintf("%v", cb)
-		}
-	}
-	p.CanceledByRes = p.CanceledBy
-}
-
-func (p *ZentaoProject) ConvertFix() {
-	p.fixProgressField()
-	p.fixClosedByResField()
-	p.fixCanceledByResField()
 }
 
 func (p ZentaoProject) TableName() string {
