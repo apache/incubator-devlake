@@ -15,34 +15,24 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-package migrationscripts
+package tasks
 
 import (
 	"github.com/apache/incubator-devlake/core/plugin"
+	helper "github.com/apache/incubator-devlake/helpers/pluginhelper/api"
+	"github.com/apache/incubator-devlake/plugins/github/models"
+	githubTasks "github.com/apache/incubator-devlake/plugins/github/tasks"
 )
 
-// All return all the migration scripts
-func All() []plugin.MigrationScript {
-	return []plugin.MigrationScript{
-		new(addInitTables),
-		new(addGithubRunsTable),
-		new(addGithubJobsTable),
-		new(addGithubPipelineTable),
-		new(deleteGithubPipelineTable),
-		new(addHeadRepoIdFieldInGithubPr),
-		new(addEnableGraphqlForConnection),
-		new(addTransformationRule20221124),
-		new(concatOwnerAndName),
-		new(addStdTypeToIssue221230),
-		new(addConnectionIdToTransformationRule),
-		new(addEnvToRunAndJob),
-		new(addGithubCommitAuthorInfo),
-		new(fixRunNameToText),
-		new(addGithubMultiAuth),
-		new(renameTr2ScopeConfig),
-		new(addGithubIssueAssignee),
-		new(addFullName),
-		new(addRawParamTableForScope),
-		new(addDeploymentTable),
+func CreateRawDataSubTaskArgs(taskCtx plugin.SubTaskContext, table string) (*helper.RawDataSubTaskArgs, *githubTasks.GithubTaskData) {
+	data := taskCtx.GetData().(*githubTasks.GithubTaskData)
+	RawDataSubTaskArgs := &helper.RawDataSubTaskArgs{
+		Ctx: taskCtx,
+		Params: models.GithubApiParams{
+			Name:         data.Options.Name,
+			ConnectionId: data.Options.ConnectionId,
+		},
+		Table: table,
 	}
+	return RawDataSubTaskArgs, data
 }

@@ -74,7 +74,9 @@ func (p GithubGraphql) Name() string {
 }
 
 func (p GithubGraphql) GetTablesInfo() []dal.Tabler {
-	return []dal.Tabler{}
+	return []dal.Tabler{
+		&models.GithubDeployment{},
+	}
 }
 
 func (p GithubGraphql) SubTaskMetas() []plugin.SubTaskMeta {
@@ -123,6 +125,10 @@ func (p GithubGraphql) SubTaskMetas() []plugin.SubTaskMeta {
 		githubTasks.ConvertPullRequestCommentsMeta,
 		githubTasks.ConvertMilestonesMeta,
 		githubTasks.ConvertAccountsMeta,
+
+		// deployment
+		tasks.CollectAndExtractDeploymentMeta,
+		tasks.ConvertDeploymentMeta,
 	}
 }
 
@@ -236,7 +242,7 @@ func (p GithubGraphql) PrepareTaskData(taskCtx plugin.TaskContext, options map[s
 	return taskData, nil
 }
 
-// PkgPath information lost when compiled as plugin(.so)
+// RootPkgPath information lost when compiled as plugin(.so)
 func (p GithubGraphql) RootPkgPath() string {
 	return "github.com/apache/incubator-devlake/plugins/githubGraphql"
 }

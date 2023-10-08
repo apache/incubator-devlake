@@ -123,7 +123,7 @@ func (p PagerDuty) PrepareTaskData(taskCtx plugin.TaskContext, options map[strin
 	}, nil
 }
 
-// PkgPath information lost when compiled as plugin(.so)
+// RootPkgPath information lost when compiled as plugin(.so)
 func (p PagerDuty) RootPkgPath() string {
 	return "github.com/apache/incubator-devlake/plugins/pagerduty"
 }

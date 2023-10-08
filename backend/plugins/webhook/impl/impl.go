@@ -67,7 +67,7 @@ func (p Webhook) MakeDataSourcePipelinePlanV200(
 	return api.MakeDataSourcePipelinePlanV200(connectionId)
 }
 
-// PkgPath information lost when compiled as plugin(.so)
+// RootPkgPath information lost when compiled as plugin(.so)
 func (p Webhook) RootPkgPath() string {
 	return "github.com/apache/incubator-devlake/plugins/webhook"
 }

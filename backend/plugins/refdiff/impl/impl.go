@@ -102,7 +102,7 @@ func (p RefDiff) PrepareTaskData(taskCtx plugin.TaskContext, options map[string]
 	}, nil
 }
 
-// PkgPath information lost when compiled as plugin(.so)
+// RootPkgPath information lost when compiled as plugin(.so)
 func (p RefDiff) RootPkgPath() string {
 	return "github.com/apache/incubator-devlake/plugins/refdiff"
 }
