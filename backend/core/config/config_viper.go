@@ -102,7 +102,6 @@ func getEnvPath() string {
 func setDefaultValue(v *viper.Viper) {
 	v.SetDefault("PORT", "8080")
 	v.SetDefault("PLUGIN_DIR", "bin/plugins")
-	v.SetDefault("TEMPORAL_TASK_QUEUE", "DEVLAKE_TASK_QUEUE")
 	v.SetDefault("REMOTE_PLUGIN_DIR", "python/plugins")
 	v.SetDefault("SWAGGER_DOCS_DIR", "resources/swagger")
 }

@@ -57,13 +57,6 @@ build-plugin:
 		PLUGIN=$(PLUGIN) sh scripts/compile-plugins.sh; \
 	fi
 
-build-worker:
-	if [ "$(DEBUG)" = "true" ]; then \
-		go build -gcflags='all=-N -l' -ldflags "-X 'github.com/apache/incubator-devlake/core/version.Version=$(VERSION)'" -o bin/lake-worker ./worker/; \
-	else \
-		go build -ldflags "-X 'github.com/apache/incubator-devlake/core/version.Version=$(VERSION)'" -o bin/lake-worker ./worker/; \
-	fi
-
 build-server: swag
 	if [ "$(DEBUG)" = "true" ]; then \
 		go build -gcflags='all=-N -l' -ldflags "-X 'github.com/apache/incubator-devlake/core/version.Version=$(VERSION)'" -o bin/lake ./server/; \
@@ -78,13 +71,10 @@ build-python: #don't mix this with the other build commands
 
 build: build-plugin build-server
 
-all: build build-worker
+all: build
 
 run:
 	go run server/main.go
-
-worker:
-	go run worker/*.go
 
 dev: build-plugin build-python run
 

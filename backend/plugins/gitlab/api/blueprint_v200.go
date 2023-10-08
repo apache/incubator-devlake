@@ -23,7 +23,6 @@ import (
 	"io"
 	"net/http"
 	"net/url"
-	"strconv"
 
 	"github.com/apache/incubator-devlake/plugins/gitlab/tasks"
 
@@ -38,27 +37,31 @@ import (
 	plugin "github.com/apache/incubator-devlake/core/plugin"
 	helper "github.com/apache/incubator-devlake/helpers/pluginhelper/api"
 	aha "github.com/apache/incubator-devlake/helpers/pluginhelper/api/apihelperabstract"
+	"github.com/apache/incubator-devlake/helpers/srvhelper"
 	"github.com/apache/incubator-devlake/plugins/gitlab/models"
 )
 
 func MakePipelinePlanV200(
 	subtaskMetas []plugin.SubTaskMeta,
 	connectionId uint64,
-	scope []*coreModels.BlueprintScope,
+	bpScopes []*coreModels.BlueprintScope,
 ) (coreModels.PipelinePlan, []plugin.Scope, errors.Error) {
-	var err errors.Error
-	connection := new(models.GitlabConnection)
-	err1 := connectionHelper.FirstById(connection, connectionId)
-	if err1 != nil {
-		return nil, nil, errors.Default.Wrap(err1, fmt.Sprintf("error on get connection by id[%d]", connectionId))
+	// load connection, scope and scopeConfig from the db
+	connection, err := dsHelper.ConnSrv.FindByPk(connectionId)
+	if err != nil {
+		return nil, nil, err
 	}
-
-	sc, err := makeScopeV200(connectionId, scope)
+	scopeDetails, err := dsHelper.ScopeApi.MapScopeDetails(connectionId, bpScopes)
 	if err != nil {
 		return nil, nil, err
 	}
 
-	pp, err := makePipelinePlanV200(subtaskMetas, scope, connection)
+	sc, err := makeScopeV200(connectionId, scopeDetails)
+	if err != nil {
+		return nil, nil, err
+	}
+
+	pp, err := makePipelinePlanV200(subtaskMetas, connection, scopeDetails)
 	if err != nil {
 		return nil, nil, err
 	}
@@ -66,21 +69,15 @@ func MakePipelinePlanV200(
 	return pp, sc, nil
 }
 
-func makeScopeV200(connectionId uint64, scopes []*coreModels.BlueprintScope) ([]plugin.Scope, errors.Error) {
-	sc := make([]plugin.Scope, 0, 3*len(scopes))
+func makeScopeV200(
+	connectionId uint64,
+	scopeDetails []*srvhelper.ScopeDetail[models.GitlabProject, models.GitlabScopeConfig],
+) ([]plugin.Scope, errors.Error) {
+	sc := make([]plugin.Scope, 0, 3*len(scopeDetails))
 
-	for _, scope := range scopes {
-		intScopeId, err1 := strconv.Atoi(scope.ScopeId)
-		if err1 != nil {
-			return nil, errors.Default.Wrap(err1, fmt.Sprintf("Failed to strconv.Atoi for scope.Id [%s]", scope.ScopeId))
-		}
-		id := didgen.NewDomainIdGenerator(&models.GitlabProject{}).Generate(connectionId, intScopeId)
-
-		// get repo from db
-		gitlabProject, scopeConfig, err := scopeHelper.DbHelper().GetScopeAndConfig(connectionId, scope.ScopeId)
-		if err != nil {
-			return nil, err
-		}
+	for _, scope := range scopeDetails {
+		gitlabProject, scopeConfig := scope.Scope, scope.ScopeConfig
+		id := didgen.NewDomainIdGenerator(&models.GitlabProject{}).Generate(connectionId, gitlabProject.GitlabId)
 
 		if utils.StringsContains(scopeConfig.Entities, plugin.DOMAIN_TYPE_CODE_REVIEW) ||
 			utils.StringsContains(scopeConfig.Entities, plugin.DOMAIN_TYPE_CODE) {
@@ -111,30 +108,20 @@ func makeScopeV200(connectionId uint64, scopes []*coreModels.BlueprintScope) ([]
 
 func makePipelinePlanV200(
 	subtaskMetas []plugin.SubTaskMeta,
-	scopes []*coreModels.BlueprintScope,
 	connection *models.GitlabConnection,
+	scopeDetails []*srvhelper.ScopeDetail[models.GitlabProject, models.GitlabScopeConfig],
 ) (coreModels.PipelinePlan, errors.Error) {
-	plans := make(coreModels.PipelinePlan, 0, 3*len(scopes))
-	for _, scope := range scopes {
+	plans := make(coreModels.PipelinePlan, 0, 3*len(scopeDetails))
+	for _, scope := range scopeDetails {
+		gitlabProject, scopeConfig := scope.Scope, scope.ScopeConfig
 		var stage coreModels.PipelineStage
 		var err errors.Error
 		// get repo
-		gitlabProject, scopeConfig, err := scopeHelper.DbHelper().GetScopeAndConfig(connection.ID, scope.ScopeId)
-		if err != nil {
-			return nil, err
-		}
-
-		// get int scopeId
-		intScopeId, err1 := strconv.Atoi(scope.ScopeId)
-		if err != nil {
-			return nil, errors.Default.Wrap(err1, fmt.Sprintf("Failed to strconv.Atoi for scope.Id [%s]", scope.ScopeId))
-		}
 
 		// gitlab main part
 		options := make(map[string]interface{})
 		options["connectionId"] = connection.ID
-		options["projectId"] = intScopeId
-		options["scopeConfigId"] = scopeConfig.ID
+		options["projectId"] = gitlabProject.GitlabId
 
 		// construct subtasks
 		subtasks, err := helper.MakePipelinePlanSubtasks(subtaskMetas, scopeConfig.Entities)

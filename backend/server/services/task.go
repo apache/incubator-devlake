@@ -20,7 +20,6 @@ package services
 import (
 	"context"
 	"fmt"
-	"regexp"
 	"strings"
 
 	"github.com/apache/incubator-devlake/core/dal"
@@ -31,7 +30,6 @@ import (
 )
 
 var taskLog = logruslog.Global.Nested("task service")
-var activityPattern = regexp.MustCompile(`task #(\d+)`)
 
 // TaskQuery FIXME .
 type TaskQuery struct {

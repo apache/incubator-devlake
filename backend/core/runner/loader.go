@@ -68,12 +68,6 @@ func LoadGoPlugins(basicRes context.BasicRes) errors.Error {
 			if !ok {
 				return errors.Default.New(fmt.Sprintf("%s PluginEntry must implement PluginMeta interface", pluginName))
 			}
-			if pluginEntry, ok := symPluginEntry.(plugin.PluginInit); ok {
-				err = pluginEntry.Init(basicRes)
-				if err != nil {
-					return err
-				}
-			}
 			err = plugin.RegisterPlugin(pluginName, pluginMeta)
 			if err != nil {
 				return err

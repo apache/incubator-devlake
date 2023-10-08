@@ -163,7 +163,7 @@ func validateBlueprintAndMakePlan(blueprint *models.Blueprint) errors.Error {
 	} else if blueprint.Mode == models.BLUEPRINT_MODE_NORMAL {
 		var e errors.Error
 		blueprint.Plan, e = MakePlanForBlueprint(blueprint, &blueprint.SyncPolicy)
-		if err != nil {
+		if e != nil {
 			return e
 		}
 	}

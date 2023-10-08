@@ -39,7 +39,7 @@ type ScopeDetail api.ScopeDetail[models.GithubRepo, models.GithubScopeConfig]
 // @Failure 500  {object} shared.ApiBody "Internal Error"
 // @Router /plugins/github/connections/{connectionId}/scopes [PUT]
 func PutScopes(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, errors.Error) {
-	return scopeApi.PutMultiple(input)
+	return dsHelper.ScopeApi.PutMultiple(input)
 }
 
 // UpdateScope patch to github repo
@@ -55,7 +55,7 @@ func PutScopes(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, error
 // @Failure 500  {object} shared.ApiBody "Internal Error"
 // @Router /plugins/github/connections/{connectionId}/scopes/{scopeId} [PATCH]
 func PatchScope(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, errors.Error) {
-	return scopeApi.Patch(input)
+	return dsHelper.ScopeApi.Patch(input)
 }
 
 // GetScopeList get Github repos
@@ -72,7 +72,7 @@ func PatchScope(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, erro
 // @Failure 500  {object} shared.ApiBody "Internal Error"
 // @Router /plugins/github/connections/{connectionId}/scopes [GET]
 func GetScopes(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, errors.Error) {
-	return scopeApi.GetPage(input)
+	return dsHelper.ScopeApi.GetPage(input)
 }
 
 // GetScope get one Github repo
@@ -87,7 +87,7 @@ func GetScopes(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, error
 // @Failure 500  {object} shared.ApiBody "Internal Error"
 // @Router /plugins/github/connections/{connectionId}/scopes/{scopeId} [GET]
 func GetScope(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, errors.Error) {
-	return scopeApi.GetScopeDetail(input)
+	return dsHelper.ScopeApi.GetScopeDetail(input)
 }
 
 // DeleteScope delete plugin data associated with the scope and optionally the scope itself
@@ -103,5 +103,5 @@ func GetScope(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, errors
 // @Failure 500  {object} shared.ApiBody "Internal Error"
 // @Router /plugins/github/connections/{connectionId}/scopes/{scopeId} [DELETE]
 func DeleteScope(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, errors.Error) {
-	return scopeApi.Delete(input)
+	return dsHelper.ScopeApi.Delete(input)
 }

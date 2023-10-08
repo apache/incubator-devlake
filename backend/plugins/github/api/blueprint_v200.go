@@ -26,7 +26,6 @@ import (
 	"net/url"
 	"strings"
 
-	"github.com/apache/incubator-devlake/core/dal"
 	"github.com/apache/incubator-devlake/core/errors"
 	coreModels "github.com/apache/incubator-devlake/core/models"
 	"github.com/apache/incubator-devlake/core/models/domainlayer"
@@ -38,6 +37,7 @@ import (
 	"github.com/apache/incubator-devlake/core/utils"
 	helper "github.com/apache/incubator-devlake/helpers/pluginhelper/api"
 	aha "github.com/apache/incubator-devlake/helpers/pluginhelper/api/apihelperabstract"
+	"github.com/apache/incubator-devlake/helpers/srvhelper"
 	"github.com/apache/incubator-devlake/plugins/github/models"
 	"github.com/apache/incubator-devlake/plugins/github/tasks"
 )
@@ -47,9 +47,12 @@ func MakeDataSourcePipelinePlanV200(
 	connectionId uint64,
 	bpScopes []*coreModels.BlueprintScope,
 ) (coreModels.PipelinePlan, []plugin.Scope, errors.Error) {
-	// get the connection info for url
-	connection := &models.GithubConnection{}
-	err := connectionHelper.FirstById(connection, connectionId)
+	// load connection, scope and scopeConfig from the db
+	connection, err := dsHelper.ConnSrv.FindByPk(connectionId)
+	if err != nil {
+		return nil, nil, err
+	}
+	scopeDetails, err := dsHelper.ScopeSrv.MapScopeDetails(connectionId, bpScopes)
 	if err != nil {
 		return nil, nil, err
 	}
@@ -61,12 +64,11 @@ func MakeDataSourcePipelinePlanV200(
 		return nil, nil, err
 	}
 
-	plan := make(coreModels.PipelinePlan, len(bpScopes))
-	plan, err = makeDataSourcePipelinePlanV200(subtaskMetas, plan, bpScopes, connection)
+	plan, err := makeDataSourcePipelinePlanV200(subtaskMetas, scopeDetails, connection)
 	if err != nil {
 		return nil, nil, err
 	}
-	scopes, err := makeScopesV200(bpScopes, connection)
+	scopes, err := makeScopesV200(scopeDetails, connection)
 	if err != nil {
 		return nil, nil, err
 	}
@@ -76,26 +78,15 @@ func MakeDataSourcePipelinePlanV200(
 
 func makeDataSourcePipelinePlanV200(
 	subtaskMetas []plugin.SubTaskMeta,
-	plan coreModels.PipelinePlan,
-	bpScopes []*coreModels.BlueprintScope,
+	scopeDetails []*srvhelper.ScopeDetail[models.GithubRepo, models.GithubScopeConfig],
 	connection *models.GithubConnection,
 ) (coreModels.PipelinePlan, errors.Error) {
-	for i, bpScope := range bpScopes {
+	plan := make(coreModels.PipelinePlan, len(scopeDetails))
+	for i, scopeDetail := range scopeDetails {
+		githubRepo, scopeConfig := scopeDetail.Scope, scopeDetail.ScopeConfig
 		stage := plan[i]
 		if stage == nil {
 			stage = coreModels.PipelineStage{}
-		}
-		// get repo and scope config from db
-		githubRepo, err := scopeSrv.FindByPk(connection.ID, bpScope.ScopeId)
-		if err != nil {
-			return nil, err
-		}
-		var scopeConfig *models.GithubScopeConfig
-		if githubRepo.ScopeConfigId != 0 {
-			scopeConfig, err = scSrv.FindByPk(githubRepo.ScopeConfigId)
-			if err != nil {
-				return nil, err
-			}
 		}
 		// refdiff
 		if scopeConfig != nil && scopeConfig.Refdiff != nil {
@@ -154,23 +145,13 @@ func makeDataSourcePipelinePlanV200(
 	return plan, nil
 }
 
-func makeScopesV200(bpScopes []*coreModels.BlueprintScope, connection *models.GithubConnection) ([]plugin.Scope, errors.Error) {
+func makeScopesV200(
+	scopeDetails []*srvhelper.ScopeDetail[models.GithubRepo, models.GithubScopeConfig],
+	connection *models.GithubConnection,
+) ([]plugin.Scope, errors.Error) {
 	scopes := make([]plugin.Scope, 0)
-	for _, bpScope := range bpScopes {
-		githubRepo := &models.GithubRepo{}
-		// get repo from db
-		err := basicRes.GetDal().First(githubRepo, dal.Where(`connection_id = ? AND github_id = ?`, connection.ID, bpScope.ScopeId))
-		if err != nil {
-			return nil, errors.Default.Wrap(err, fmt.Sprintf("fail to find repo%s", bpScope.ScopeId))
-		}
-
-		scopeConfig := &models.GithubScopeConfig{}
-		// get scope configs from db
-		db := basicRes.GetDal()
-		err = db.First(scopeConfig, dal.Where(`id = ?`, githubRepo.ScopeConfigId))
-		if err != nil && !db.IsErrorNotFound(err) {
-			return nil, err
-		}
+	for _, scopeDetail := range scopeDetails {
+		githubRepo, scopeConfig := scopeDetail.Scope, scopeDetail.ScopeConfig
 
 		if utils.StringsContains(scopeConfig.Entities, plugin.DOMAIN_TYPE_CODE_REVIEW) ||
 			utils.StringsContains(scopeConfig.Entities, plugin.DOMAIN_TYPE_CODE) ||

@@ -80,7 +80,7 @@ func NewNoPKModel() NoPKModel {
 }
 
 type Scope struct {
-	NoPKModel     `json:"-" mapstructure:"-"`
+	NoPKModel
 	ConnectionId  uint64 `json:"connectionId" gorm:"primaryKey" validate:"required" mapstructure:"connectionId,omitempty"`
 	ScopeConfigId uint64 `json:"scopeConfigId,omitempty" mapstructure:"scopeConfigId,omitempty"`
 }

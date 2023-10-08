@@ -90,13 +90,7 @@ func TestConnection(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, 
 // @Failure 500  {string} errcode.Error "Internal Error"
 // @Router /plugins/gitlab/connections [POST]
 func PostConnections(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, errors.Error) {
-	// update from request and save to database
-	connection := &models.GitlabConnection{}
-	err := connectionHelper.Create(connection, input)
-	if err != nil {
-		return nil, err
-	}
-	return &plugin.ApiResourceOutput{Body: connection, Status: http.StatusOK}, nil
+	return dsHelper.ConnApi.Post(input)
 }
 
 // @Summary patch gitlab connection
@@ -108,12 +102,7 @@ func PostConnections(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput,
 // @Failure 500  {string} errcode.Error "Internal Error"
 // @Router /plugins/gitlab/connections/{connectionId} [PATCH]
 func PatchConnection(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, errors.Error) {
-	connection := &models.GitlabConnection{}
-	err := connectionHelper.Patch(connection, input)
-	if err != nil {
-		return nil, err
-	}
-	return &plugin.ApiResourceOutput{Body: connection}, nil
+	return dsHelper.ConnApi.Patch(input)
 }
 
 // @Summary delete a gitlab connection
@@ -125,7 +114,7 @@ func PatchConnection(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput,
 // @Failure 500  {string} errcode.Error "Internal Error"
 // @Router /plugins/gitlab/connections/{connectionId} [DELETE]
 func DeleteConnection(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, errors.Error) {
-	return connectionHelper.Delete(&models.GitlabConnection{}, input)
+	return dsHelper.ConnApi.Delete(input)
 }
 
 // @Summary get all gitlab connections
@@ -136,12 +125,7 @@ func DeleteConnection(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput
 // @Failure 500  {string} errcode.Error "Internal Error"
 // @Router /plugins/gitlab/connections [GET]
 func ListConnections(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, errors.Error) {
-	var connections []models.GitlabConnection
-	err := connectionHelper.List(&connections)
-	if err != nil {
-		return nil, err
-	}
-	return &plugin.ApiResourceOutput{Body: connections, Status: http.StatusOK}, nil
+	return dsHelper.ConnApi.GetAll(input)
 }
 
 // @Summary get gitlab connection detail
@@ -152,10 +136,5 @@ func ListConnections(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput,
 // @Failure 500  {string} errcode.Error "Internal Error"
 // @Router /plugins/gitlab/connections/{connectionId} [GET]
 func GetConnection(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, errors.Error) {
-	connection := &models.GitlabConnection{}
-	err := connectionHelper.First(connection, input.Params)
-	if err != nil {
-		return nil, err
-	}
-	return &plugin.ApiResourceOutput{Body: connection}, err
+	return dsHelper.ConnApi.GetDetail(input)
 }

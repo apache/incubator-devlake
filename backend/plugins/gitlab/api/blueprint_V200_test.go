@@ -18,106 +18,121 @@ limitations under the License.
 package api
 
 import (
-	"strconv"
 	"testing"
-	"time"
 
 	coreModels "github.com/apache/incubator-devlake/core/models"
-	mockdal "github.com/apache/incubator-devlake/mocks/core/dal"
 	mockplugin "github.com/apache/incubator-devlake/mocks/core/plugin"
 
-	"github.com/apache/incubator-devlake/core/errors"
 	"github.com/apache/incubator-devlake/core/models/common"
-	"github.com/apache/incubator-devlake/core/models/domainlayer/code"
-	"github.com/apache/incubator-devlake/core/models/domainlayer/devops"
-	"github.com/apache/incubator-devlake/core/models/domainlayer/ticket"
 	"github.com/apache/incubator-devlake/core/plugin"
-	helper "github.com/apache/incubator-devlake/helpers/pluginhelper/api"
-	"github.com/apache/incubator-devlake/helpers/unithelper"
+	"github.com/apache/incubator-devlake/helpers/pluginhelper/api"
+	"github.com/apache/incubator-devlake/helpers/srvhelper"
 	"github.com/apache/incubator-devlake/plugins/gitlab/models"
 	"github.com/apache/incubator-devlake/plugins/gitlab/tasks"
 	"github.com/stretchr/testify/assert"
-	"github.com/stretchr/testify/mock"
 )
 
+func mockGitlabPlugin(t *testing.T) {
+	mockMeta := mockplugin.NewPluginMeta(t)
+	mockMeta.On("RootPkgPath").Return("github.com/apache/incubator-devlake/plugins/gitlab")
+	mockMeta.On("Name").Return("dummy").Maybe()
+	err := plugin.RegisterPlugin("gitlab", mockMeta)
+	assert.Equal(t, err, nil)
+}
+
+func TestMakeScopes(t *testing.T) {
+	mockGitlabPlugin(t)
+
+	const connectionId = 1
+	const gitlabProjectId = 37
+	const expectDomainScopeId = "gitlab:GitlabProject:1:37"
+
+	actualScopes, err := makeScopeV200(
+		connectionId,
+		[]*srvhelper.ScopeDetail[models.GitlabProject, models.GitlabScopeConfig]{
+			{
+				Scope: models.GitlabProject{
+					Scope: common.Scope{
+						ConnectionId: connectionId,
+					},
+					GitlabId: gitlabProjectId,
+				},
+				ScopeConfig: &models.GitlabScopeConfig{
+					ScopeConfig: common.ScopeConfig{
+						Entities: []string{plugin.DOMAIN_TYPE_CODE, plugin.DOMAIN_TYPE_TICKET, plugin.DOMAIN_TYPE_CICD},
+					},
+				},
+			},
+		},
+	)
+	assert.Nil(t, err)
+	assert.Equal(t, 3, len(actualScopes))
+	assert.Equal(t, actualScopes[0].ScopeId(), expectDomainScopeId)
+	assert.Equal(t, actualScopes[1].ScopeId(), expectDomainScopeId)
+	assert.Equal(t, actualScopes[2].ScopeId(), expectDomainScopeId)
+}
+
 func TestMakeDataSourcePipelinePlanV200(t *testing.T) {
-	const testConnectionID uint64 = 1
-	const testScopeConfigId uint64 = 2
-	const testID int = 37
-	const testGitlabEndPoint string = "https://gitlab.com/api/v4/"
-	const testHttpUrlToRepo string = "https://this_is_cloneUrl"
-	const testToken string = "nddtf"
-	const testName string = "gitlab-test"
+	mockGitlabPlugin(t)
+
+	const connectionID uint64 = 1
+	const gitlabProjectId = 37
+	const scopeConfigId uint64 = 2
+	const scopeConfigName string = "gitlab scope config"
+	const gitlabEndPoint string = "https://gitlab.com/api/v4/"
+	const httpUrlToRepo string = "https://this_is_cloneUrl"
+	const gitlabToken string = "nddtf"
+	const gitlabProjectName string = "gitlab-test"
 	const pathWithNamespace string = "nddtf/gitlab-test"
-	const testScopeConfigName string = "gitlab scope config"
-	const testProxy string = ""
+	const expectDomainScopeId = "gitlab:GitlabProject:1:37"
 
-	bpScopes := []*coreModels.BlueprintScope{
-		{
-			ScopeId: strconv.Itoa(testID),
+	actualPlans, err := makePipelinePlanV200(
+		[]plugin.SubTaskMeta{
+			tasks.ConvertProjectMeta,
+			tasks.CollectApiIssuesMeta,
+			tasks.ExtractApiIssuesMeta,
+			tasks.ConvertIssuesMeta,
+			tasks.ConvertIssueLabelsMeta,
+			tasks.CollectApiJobsMeta,
+			tasks.ExtractApiJobsMeta,
+			tasks.CollectApiPipelinesMeta,
+			tasks.ExtractApiPipelinesMeta,
 		},
-	}
-
-	var testGitlabProject = &models.GitlabProject{
-		Scope: common.Scope{
-			ConnectionId:  testConnectionID,
-			ScopeConfigId: testScopeConfigId,
-		},
-		GitlabId:          testID,
-		Name:              testName,
-		PathWithNamespace: pathWithNamespace,
-		CreatedDate:       &time.Time{},
-		HttpUrlToRepo:     testHttpUrlToRepo,
-	}
-
-	var testScopeConfig = &models.GitlabScopeConfig{
-		ScopeConfig: common.ScopeConfig{
-			Model: common.Model{
-				ID: testScopeConfigId,
+		&models.GitlabConnection{
+			BaseConnection: api.BaseConnection{
+				Model: common.Model{
+					ID: connectionID,
+				},
 			},
-			Entities: []string{plugin.DOMAIN_TYPE_CODE, plugin.DOMAIN_TYPE_TICKET, plugin.DOMAIN_TYPE_CICD},
-		},
-		Name:   testScopeConfigName,
-		PrType: "hey,man,wasup",
-		Refdiff: map[string]interface{}{
-			"tagsPattern": "pattern",
-			"tagsLimit":   10,
-			"tagsOrder":   "reverse semver",
-		},
-	}
-
-	var testGitlabConnection = &models.GitlabConnection{
-		BaseConnection: helper.BaseConnection{
-			Name: testName,
-			Model: common.Model{
-				ID: testConnectionID,
+			GitlabConn: models.GitlabConn{
+				RestConnection: api.RestConnection{},
+				AccessToken: api.AccessToken{
+					Token: gitlabToken,
+				},
 			},
 		},
-		GitlabConn: models.GitlabConn{
-			RestConnection: helper.RestConnection{
-				Endpoint:         testGitlabEndPoint,
-				Proxy:            testProxy,
-				RateLimitPerHour: 0,
-			},
-			AccessToken: helper.AccessToken{
-				Token: testToken,
+		[]*srvhelper.ScopeDetail[models.GitlabProject, models.GitlabScopeConfig]{
+			{
+				Scope: models.GitlabProject{
+					GitlabId:      gitlabProjectId,
+					Name:          gitlabProjectName,
+					HttpUrlToRepo: httpUrlToRepo,
+				},
+				ScopeConfig: &models.GitlabScopeConfig{
+					ScopeConfig: common.ScopeConfig{
+						Entities: []string{plugin.DOMAIN_TYPE_CODE, plugin.DOMAIN_TYPE_TICKET, plugin.DOMAIN_TYPE_CICD},
+					},
+					PrType: "hey,man,wasup",
+					Refdiff: map[string]interface{}{
+						"tagsPattern": "pattern",
+						"tagsLimit":   10,
+						"tagsOrder":   "reverse semver",
+					},
+				},
 			},
 		},
-	}
-
-	var expectRepoId = "gitlab:GitlabProject:1:37"
-
-	var testSubTaskMeta = []plugin.SubTaskMeta{
-		tasks.ConvertProjectMeta,
-		tasks.CollectApiIssuesMeta,
-		tasks.ExtractApiIssuesMeta,
-		tasks.ConvertIssuesMeta,
-		tasks.ConvertIssueLabelsMeta,
-		tasks.CollectApiJobsMeta,
-		tasks.ExtractApiJobsMeta,
-		tasks.CollectApiPipelinesMeta,
-		tasks.ExtractApiPipelinesMeta,
-	}
+	)
+	assert.Nil(t, err)
 
 	var expectPlans = coreModels.PipelinePlan{
 		{
@@ -135,17 +150,16 @@ func TestMakeDataSourcePipelinePlanV200(t *testing.T) {
 					tasks.ExtractApiPipelinesMeta.Name,
 				},
 				Options: map[string]interface{}{
-					"connectionId":  uint64(1),
-					"projectId":     testID,
-					"scopeConfigId": testScopeConfigId,
+					"connectionId": connectionID,
+					"projectId":    gitlabProjectId,
 				},
 			},
 			{
 				Plugin: "gitextractor",
 				Options: map[string]interface{}{
 					"proxy":  "",
-					"repoId": expectRepoId,
-					"name":   testName,
+					"repoId": expectDomainScopeId,
+					"name":   gitlabProjectName,
 					"url":    "https://git:nddtf@this_is_cloneUrl",
 				},
 			},
@@ -162,71 +176,5 @@ func TestMakeDataSourcePipelinePlanV200(t *testing.T) {
 		},
 	}
 
-	expectRepo := code.NewRepo(expectRepoId, pathWithNamespace)
-	expectRepo.ForkedFrom = testGitlabProject.ForkedFromProjectWebUrl
-
-	expectCicdScope := devops.NewCicdScope(expectRepoId, pathWithNamespace)
-	expectCicdScope.Description = ""
-	expectCicdScope.Url = ""
-
-	expectBoard := ticket.NewBoard(expectRepoId, pathWithNamespace)
-	expectBoard.Description = ""
-	expectBoard.Url = ""
-	expectBoard.Type = ""
-
-	var err errors.Error
-
-	// register gitlab coreModels for NewDomainIdGenerator
-	mockMeta := mockplugin.NewPluginMeta(t)
-	mockMeta.On("RootPkgPath").Return("github.com/apache/incubator-devlake/plugins/gitlab")
-	mockMeta.On("Name").Return("dummy").Maybe()
-	err = plugin.RegisterPlugin("gitlab", mockMeta)
-	assert.Equal(t, err, nil)
-
-	// Refresh Global Variables and set the sql mock
-	mockRes := unithelper.DummyBasicRes(func(mockDal *mockdal.Dal) {
-		mockDal.On("First", mock.AnythingOfType("*models.GitlabConnection"), mock.Anything).Run(func(args mock.Arguments) {
-			dst := args.Get(0).(*models.GitlabConnection)
-			*dst = *testGitlabConnection
-		}).Return(nil)
-
-		mockDal.On("First", mock.AnythingOfType("*models.GitlabProject"), mock.Anything).Run(func(args mock.Arguments) {
-			dst := args.Get(0).(*models.GitlabProject)
-			*dst = *testGitlabProject
-		}).Return(nil)
-
-		mockDal.On("First", mock.AnythingOfType("*models.GitlabScopeConfig"), mock.Anything).Run(func(args mock.Arguments) {
-			dst := args.Get(0).(*models.GitlabScopeConfig)
-			*dst = *testScopeConfig
-		}).Return(nil)
-	})
-	Init(mockRes, mockMeta)
-
-	plans, scopes, err := MakePipelinePlanV200(testSubTaskMeta, testConnectionID, bpScopes)
-	assert.Equal(t, err, nil)
-
-	assert.Equal(t, expectPlans, plans)
-
-	// ignore CreatedDate UpdatedDate  CreatedAt UpdatedAt checking
-	expectRepo.CreatedDate = scopes[0].(*code.Repo).CreatedDate
-	expectRepo.UpdatedDate = scopes[0].(*code.Repo).UpdatedDate
-	expectRepo.CreatedAt = scopes[0].(*code.Repo).CreatedAt
-	expectRepo.UpdatedAt = scopes[0].(*code.Repo).UpdatedAt
-
-	expectCicdScope.CreatedDate = scopes[1].(*devops.CicdScope).CreatedDate
-	expectCicdScope.UpdatedDate = scopes[1].(*devops.CicdScope).UpdatedDate
-	expectCicdScope.CreatedAt = scopes[1].(*devops.CicdScope).CreatedAt
-	expectCicdScope.UpdatedAt = scopes[1].(*devops.CicdScope).UpdatedAt
-
-	expectBoard.CreatedDate = scopes[2].(*ticket.Board).CreatedDate
-	expectBoard.CreatedAt = scopes[2].(*ticket.Board).CreatedAt
-	expectBoard.UpdatedAt = scopes[2].(*ticket.Board).UpdatedAt
-
-	var expectScopes = []plugin.Scope{
-		expectRepo,
-		expectCicdScope,
-		expectBoard,
-	}
-
-	assert.Equal(t, expectScopes, scopes)
+	assert.Equal(t, expectPlans, actualPlans)
 }
