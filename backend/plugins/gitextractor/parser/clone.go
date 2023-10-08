@@ -154,7 +154,7 @@ func setCloneProgress(subTaskCtx plugin.SubTaskContext, cloneProgressInfo string
 	if cloneProgressInfo == "" {
 		return
 	}
-	re, err := regexp.Compile("\\d+/\\d+") // find strings like 12/123.
+	re, err := regexp.Compile(`\d+/\d+`) // find strings like 12/123.
 	if err != nil {
 		panic(err)
 	}
