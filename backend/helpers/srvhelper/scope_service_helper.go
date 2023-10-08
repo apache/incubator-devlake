@@ -101,11 +101,11 @@ func (scopeSrv *ScopeSrvHelper[C, S, SC]) MapScopeDetails(connectionId uint64, b
 	scopeDetails := make([]*ScopeDetail[S, SC], len(bpScopes))
 	for i, bpScope := range bpScopes {
 		scopeDetails[i], err = scopeSrv.GetScopeDetail(false, connectionId, bpScope.ScopeId)
-		if scopeDetails[i].ScopeConfig == nil {
-			scopeDetails[i].ScopeConfig = new(SC)
-		}
 		if err != nil {
 			return nil, err
+		}
+		if scopeDetails[i].ScopeConfig == nil {
+			scopeDetails[i].ScopeConfig = new(SC)
 		}
 	}
 	return scopeDetails, nil
