@@ -29,7 +29,7 @@ import (
 var _ plugin.ToolLayerScope = (*GitlabProject)(nil)
 
 type GitlabProject struct {
-	common.Scope
+	common.Scope            `mapstructure:",squash" gorm:"embedded"`
 	GitlabId                int        `json:"gitlabId" mapstructure:"gitlabId" validate:"required" gorm:"primaryKey"`
 	Name                    string     `json:"name" mapstructure:"name" gorm:"type:varchar(255)"`
 	Description             string     `json:"description" mapstructure:"description"`

@@ -23,7 +23,20 @@ import (
 	"github.com/apache/incubator-devlake/helpers/srvhelper"
 )
 
-func NewDataSourceHelpers[
+type DsHelper[
+	C plugin.ToolLayerConnection,
+	S plugin.ToolLayerScope,
+	SC plugin.ToolLayerScopeConfig,
+] struct {
+	ConnSrv        *srvhelper.ConnectionSrvHelper[C, S, SC]
+	ConnApi        *DsConnectionApiHelper[C, S, SC]
+	ScopeSrv       *srvhelper.ScopeSrvHelper[C, S, SC]
+	ScopeApi       *DsScopeApiHelper[C, S, SC]
+	ScopeConfigSrv *srvhelper.ScopeConfigSrvHelper[C, S, SC]
+	ScopeConfigApi *DsScopeConfigApiHelper[C, S, SC]
+}
+
+func NewDataSourceHelper[
 	C plugin.ToolLayerConnection,
 	S plugin.ToolLayerScope,
 	SC plugin.ToolLayerScopeConfig,
@@ -31,19 +44,19 @@ func NewDataSourceHelpers[
 	basicRes context.BasicRes,
 	pluginName string,
 	scopeSearchColumns []string,
-) (
-	*srvhelper.ConnectionSrvHelper[C, S, SC],
-	*DsConnectionApiHelper[C, S, SC],
-	*srvhelper.ScopeSrvHelper[C, S, SC],
-	*DsScopeApiHelper[C, S, SC],
-	*srvhelper.ScopeConfigSrvHelper[C, S, SC],
-	*DsScopeConfigApiHelper[C, S, SC],
-) {
+) *DsHelper[C, S, SC] {
 	connSrv := srvhelper.NewConnectionSrvHelper[C, S, SC](basicRes, pluginName)
 	connApi := NewDsConnectionApiHelper[C, S, SC](basicRes, connSrv)
 	scopeSrv := srvhelper.NewScopeSrvHelper[C, S, SC](basicRes, pluginName, scopeSearchColumns)
 	scopeApi := NewDsScopeApiHelper[C, S, SC](basicRes, scopeSrv)
 	scSrv := srvhelper.NewScopeConfigSrvHelper[C, S, SC](basicRes)
 	scApi := NewDsScopeConfigApiHelper[C, S, SC](basicRes, scSrv)
-	return connSrv, connApi, scopeSrv, scopeApi, scSrv, scApi
+	return &DsHelper[C, S, SC]{
+		ConnSrv:        connSrv,
+		ConnApi:        connApi,
+		ScopeSrv:       scopeSrv,
+		ScopeApi:       scopeApi,
+		ScopeConfigSrv: scSrv,
+		ScopeConfigApi: scApi,
+	}
 }
