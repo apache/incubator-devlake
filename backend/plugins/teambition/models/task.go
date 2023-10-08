@@ -23,8 +23,8 @@ import (
 
 type TeambitionTask struct {
 	ConnectionId   uint64                  `gorm:"primaryKey;type:BIGINT"`
-	ProjectId      string                  `gorm:"primaryKey;type:varchar(100)" json:"projectId"`
 	Id             string                  `gorm:"primaryKey;type:varchar(100)" json:"id"`
+	ProjectId      string                  `gorm:"type:varchar(100)" json:"projectId"`
 	Content        string                  `gorm:"type:varchar(255)" json:"content"`
 	Note           string                  `gorm:"type:varchar(255)" json:"Content"`
 	AncestorIds    []string                `gorm:"serializer:json;type:text" json:"ancestorIds"`

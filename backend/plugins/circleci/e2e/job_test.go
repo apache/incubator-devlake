@@ -40,6 +40,9 @@ func TestCircleciJob(t *testing.T) {
 			ProjectSlug:  "github/coldgust/coldgust.github.io",
 		},
 		RegexEnricher: api.NewRegexEnricher(),
+		Project: &models.CircleciProject{
+			Id: "abcd",
+		},
 	}
 
 	// import raw data table
