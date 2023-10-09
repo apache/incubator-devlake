@@ -92,7 +92,7 @@ func ExtractRuns(taskCtx plugin.SubTaskContext) errors.Error {
 				RerunURL:         githubRun.RerunURL,
 				WorkflowURL:      githubRun.WorkflowURL,
 				Type:             data.RegexEnricher.ReturnNameIfMatched(devops.DEPLOYMENT, githubRun.Name),
-				Environment:      data.RegexEnricher.ReturnNameIfOmittedOrMatched(devops.PRODUCTION, githubRun.Name),
+				Environment:      data.RegexEnricher.ReturnNameIfOmittedOrMatched(devops.PRODUCTION, githubRun.Name, githubRun.HeadBranch),
 			}
 			results = append(results, githubRunResult)
 			return results, nil
