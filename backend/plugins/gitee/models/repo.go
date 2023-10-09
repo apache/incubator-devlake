@@ -29,7 +29,7 @@ import (
 var _ plugin.ToolLayerScope = (*GiteeRepo)(nil)
 
 type GiteeRepo struct {
-	common.Scope
+	common.Scope  `mapstructure:",squash"`
 	GiteeId       int    `gorm:"primaryKey"`
 	Name          string `gorm:"type:varchar(255)"`
 	HTMLUrl       string `gorm:"type:varchar(255)"`

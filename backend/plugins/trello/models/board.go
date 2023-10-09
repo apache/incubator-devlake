@@ -25,7 +25,7 @@ import (
 var _ plugin.ToolLayerScope = (*TrelloBoard)(nil)
 
 type TrelloBoard struct {
-	common.Scope
+	common.Scope `mapstructure:",squash"`
 	ConnectionId uint64 `json:"connectionId" mapstructure:"connectionId" gorm:"primaryKey"`
 	BoardId      string `json:"boardId" mapstructure:"boardId" gorm:"type:varchar(255)"`
 	Name         string `json:"name" mapstructure:"name" gorm:"type:varchar(255)"`
