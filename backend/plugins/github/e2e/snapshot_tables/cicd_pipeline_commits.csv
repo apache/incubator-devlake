@@ -1,6 +1,6 @@
 pipeline_id,commit_sha,branch,repo_id,repo_url
 github:GithubRun:1:134018330:2559400712,5dd23ddff8621e6ae36eb24b20d4c4a06dd73dc9,Fix_rm_redundancy_code,github:GithubRepo:1:134018330,https://github.com/panjf2000/ants
-github:GithubRun:1:134018330:2559400713,5dd23ddff8621e6ae36eb24b20d4c4a06dd73dc9,Fix_rm_redundancy_code,github:GithubRepo:1:134018330,https://github.com/panjf2000/ants
+github:GithubRun:1:134018330:2559400713,5dd23ddff8621e6ae36eb24b20d4c4a06dd73dc9,CodeQL,github:GithubRepo:1:134018330,https://github.com/panjf2000/ants
 github:GithubRun:1:134018330:2559400714,5dd23ddff8621e6ae36eb24b20d4c4a06dd73dc9,Fix_rm_redundancy_code,github:GithubRepo:1:134018330,https://github.com/panjf2000/ants
 github:GithubRun:1:134018330:2559507315,f85611741eb1f5451697ac589008d28f240887fc,master,github:GithubRepo:1:134018330,https://github.com/panjf2000/ants
 github:GithubRun:1:134018330:2566218975,32664cb1408f8d9ffa7236335025a4cd94a306ce,master,github:GithubRepo:1:134018330,https://github.com/panjf2000/ants
