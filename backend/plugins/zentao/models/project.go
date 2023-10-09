@@ -21,8 +21,9 @@ import (
 	"database/sql/driver"
 	"encoding/json"
 	"fmt"
-	"github.com/spf13/cast"
 	"strconv"
+
+	"github.com/spf13/cast"
 
 	"github.com/apache/incubator-devlake/core/models/common"
 	"github.com/apache/incubator-devlake/core/plugin"
@@ -111,7 +112,7 @@ func (by *OperatedBy) String() string {
 }
 
 type ZentaoProject struct {
-	common.Scope
+	common.Scope  `mapstructure:",squash"`
 	Id            int64               `json:"id" mapstructure:"id" gorm:"primaryKey;type:BIGINT  NOT NULL;autoIncrement:false"`
 	Project       int64               `json:"project" mapstructure:"project"`
 	Model         string              `json:"model" mapstructure:"model"`

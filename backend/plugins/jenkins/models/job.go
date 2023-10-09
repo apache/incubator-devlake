@@ -26,7 +26,7 @@ var _ plugin.ToolLayerScope = (*JenkinsJob)(nil)
 
 // JenkinsJob db entity for jenkins job
 type JenkinsJob struct {
-	common.Scope
+	common.Scope `mapstructure:",squash"`
 	FullName     string `gorm:"primaryKey;type:varchar(255)" mapstructure:"fullName" validate:"required" json:"fullName"` // "path1/path2/job name"
 	Name         string `gorm:"index;type:varchar(255)" mapstructure:"name" json:"name"`                                  // scope name now is same to `jobFullName`
 	Path         string `gorm:"index;type:varchar(511)" mapstructure:"-,omitempty" json:"-"`                              // "job/path1/job/path2"
