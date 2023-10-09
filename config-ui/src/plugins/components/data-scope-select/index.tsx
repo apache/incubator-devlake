@@ -69,9 +69,9 @@ export const DataScopeSelect = ({
       ...items,
       ...res.scopes.map((sc) => ({
         parentId: null,
-        id: getPluginScopeId(plugin, sc),
-        title: sc.name,
-        data: sc,
+        id: getPluginScopeId(plugin, sc.scope),
+        title: sc.scope.name,
+        data: sc.scope,
       })),
     ]);
     if (page === 1) {
@@ -138,8 +138,8 @@ export const DataScopeSelect = ({
           <div className="search">
             <MultiSelector
               loading={!ready}
-              items={data?.scopes ?? []}
-              getName={(it: any) => it.name}
+              items={data?.scopes.map((sc) => sc.scope) ?? []}
+              getName={(it) => it.name}
               getKey={(it) => getPluginScopeId(plugin, it)}
               noResult="No Data Scopes Available."
               onQueryChange={(query) => setQuery(query)}

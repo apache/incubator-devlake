@@ -80,7 +80,19 @@ const ConnectionDetail = ({ plugin, connectionId }: Props) => {
 
   const pluginConfig = useMemo(() => getPluginConfig(plugin), [plugin]);
 
-  const [dataSource, total] = useMemo(() => [data?.scopes ?? [], data?.count ?? 0], [data]);
+  const [dataSource, total] = useMemo(
+    () => [
+      data?.scopes.map((it: any) => ({
+        id: getPluginScopeId(plugin, it.scope),
+        name: it.scope.name,
+        projects: it.blueprints.map((bp: any) => bp.projectName) ?? [],
+        configId: it.scopeConfig.id,
+        configName: it.scopeConfig.name,
+      })) ?? [],
+      data?.count ?? 0,
+    ],
+    [data],
+  );
 
   useEffect(() => {
     onTest(`${plugin}-${connectionId}`);
@@ -270,19 +282,17 @@ const ConnectionDetail = ({ plugin, connectionId }: Props) => {
             },
             {
               title: 'Project',
-              dataIndex: 'blueprints',
-              key: 'project',
-              render: (blueprints) => (
+              dataIndex: 'projects',
+              key: 'projects',
+              render: (projects) => (
                 <>
-                  {blueprints?.length ? (
+                  {projects.length ? (
                     <ul>
-                      {blueprints.map((bp: any, i: number) =>
-                        bp.projectName ? (
-                          <li key={bp.projectName}>
-                            <Link to={`/projects/${bp.projectName}`}>{bp.projectName}</Link>
-                          </li>
-                        ) : null,
-                      )}
+                      {projects.map((it: string) => (
+                        <li key={it}>
+                          <Link to={`/projects/${it}`}>{it}</Link>
+                        </li>
+                      ))}
                     </ul>
                   ) : (
                     '-'
@@ -292,19 +302,19 @@ const ConnectionDetail = ({ plugin, connectionId }: Props) => {
             },
             {
               title: 'Scope Config',
-              dataIndex: 'scopeConfig',
+              dataIndex: ['id', 'configId', 'configName'],
               key: 'scopeConfig',
               width: 400,
-              render: (_, row) => (
+              render: ({ id, configId, configName }) => (
                 <>
-                  <span>{row.scopeConfigId ? row.scopeConfig?.name : 'N/A'}</span>
+                  <span>{configId ? configName : 'N/A'}</span>
                   {pluginConfig.scopeConfig && (
                     <IconButton
                       icon="link"
                       tooltip="Associate Scope Config"
                       onClick={() => {
-                        handleShowScopeConfigSelectDialog([getPluginScopeId(plugin, row)]);
-                        setScopeConfigId(row.scopeConfigId);
+                        handleShowScopeConfigSelectDialog([id]);
+                        setScopeConfigId(configId);
                       }}
                     />
                   )}
@@ -313,19 +323,20 @@ const ConnectionDetail = ({ plugin, connectionId }: Props) => {
             },
             {
               title: '',
+              dataIndex: 'id',
               key: 'id',
               width: 100,
-              render: (_, row) => (
+              render: (id) => (
                 <>
                   <IconButton
                     image={<img src={ClearImg} alt="clear" />}
                     tooltip="Clear historical data"
-                    onClick={() => handleShowClearDataScopeDialog(getPluginScopeId(plugin, row))}
+                    onClick={() => handleShowClearDataScopeDialog(id)}
                   />
                   <IconButton
                     icon="trash"
                     tooltip="Delete Data Scope"
-                    onClick={() => handleShowDeleteDataScopeDialog(getPluginScopeId(plugin, row))}
+                    onClick={() => handleShowDeleteDataScopeDialog(id)}
                   />
                 </>
               ),
