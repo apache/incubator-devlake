@@ -82,13 +82,25 @@ const ConnectionDetail = ({ plugin, connectionId }: Props) => {
 
   const [dataSource, total] = useMemo(
     () => [
-      data?.scopes.map((it: any) => ({
-        id: getPluginScopeId(plugin, it.scope),
-        name: it.scope.name,
-        projects: it.blueprints.map((bp: any) => bp.projectName) ?? [],
-        configId: it.scopeConfig.id,
-        configName: it.scopeConfig.name,
-      })) ?? [],
+      data?.scopes.map((it: any) => {
+        if (['github', 'gitlab'].includes(plugin)) {
+          return {
+            id: getPluginScopeId(plugin, it.scope),
+            name: it.scope.name,
+            projects: it.blueprints?.map((bp: any) => bp.projectName) ?? [],
+            configId: it.scopeConfig?.id,
+            configName: it.scopeConfig?.name,
+          };
+        }
+
+        return {
+          id: getPluginScopeId(plugin, it),
+          name: it.name,
+          projects: it.blueprints?.map((bp: any) => bp.projectName) ?? [],
+          configId: it.scopeConfigId,
+          configName: it.scopeConfigName,
+        };
+      }) ?? [],
       data?.count ?? 0,
     ],
     [data],

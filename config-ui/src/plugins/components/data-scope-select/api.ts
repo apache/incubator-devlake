@@ -23,7 +23,7 @@ type ParamsType = {
 } & Pagination;
 
 type ResponseType = {
-  scopes: Array<{ scope: { name: string } }>;
+  scopes: Array<{ name: string; scope: { name: string } }>;
   count: number;
 };
 

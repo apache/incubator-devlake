@@ -67,12 +67,22 @@ export const DataScopeSelect = ({
     const res = await API.getDataScope(plugin, connectionId, { page, pageSize });
     setItems([
       ...items,
-      ...res.scopes.map((sc) => ({
-        parentId: null,
-        id: getPluginScopeId(plugin, sc.scope),
-        title: sc.scope.name,
-        data: sc.scope,
-      })),
+      ...res.scopes.map((sc) => {
+        if (['github', 'gitlab'].includes(plugin)) {
+          return {
+            parentId: null,
+            id: getPluginScopeId(plugin, sc.scope),
+            title: sc.scope.name,
+            data: sc,
+          };
+        }
+        return {
+          parentId: null,
+          id: getPluginScopeId(plugin, sc),
+          title: sc.name,
+          data: sc,
+        };
+      }),
     ]);
     if (page === 1) {
       setTotal(res.count);
@@ -138,7 +148,7 @@ export const DataScopeSelect = ({
           <div className="search">
             <MultiSelector
               loading={!ready}
-              items={data?.scopes.map((sc) => sc.scope) ?? []}
+              items={data?.scopes.map((sc) => (['github', 'gitlab'].includes(plugin) ? sc.scope : sc)) ?? []}
               getName={(it) => it.name}
               getKey={(it) => getPluginScopeId(plugin, it)}
               noResult="No Data Scopes Available."
