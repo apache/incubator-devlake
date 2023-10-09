@@ -18,6 +18,8 @@ limitations under the License.
 package migrationscripts
 
 import (
+	"net/url"
+
 	"github.com/apache/incubator-devlake/core/context"
 	"github.com/apache/incubator-devlake/core/dal"
 	"github.com/apache/incubator-devlake/core/errors"
@@ -39,7 +41,24 @@ func (fileMetricsKey20230927) TableName() string {
 
 func (script *modifyFileMetricsKeyLength) Up(basicRes context.BasicRes) errors.Error {
 	db := basicRes.GetDal()
-	tx := db.Begin()
+	dbUrl := basicRes.GetConfig("DB_URL")
+	if dbUrl == "" {
+		return errors.BadInput.New("DB_URL is required")
+	}
+	u, err1 := url.Parse(dbUrl)
+	if err1 != nil {
+		return errors.Convert(err1)
+	}
+	if u.Scheme == "mysql" {
+		if err := db.Exec("ALTER TABLE _tool_sonarqube_file_metrics DROP PRIMARY KEY"); err != nil {
+			return err
+		}
+	} else {
+		if err := db.Exec("ALTER TABLE _tool_sonarqube_file_metrics DROP CONSTRAINT _tool_sonarqube_file_metrics_pkey"); err != nil {
+			return err
+		}
+	}
+
 	err := migrationhelper.ChangeColumnsType[fileMetricsKey20230927](
 		basicRes,
 		script,
@@ -55,21 +74,12 @@ func (script *modifyFileMetricsKeyLength) Up(basicRes context.BasicRes) errors.E
 		},
 	)
 	if err != nil {
-		return tx.Rollback()
+		return err
 	}
 
-	if err = tx.Exec("ALTER TABLE _tool_sonarqube_file_metrics DROP PRIMARY KEY"); err != nil {
-		return tx.Rollback()
+	if err := db.Exec("ALTER TABLE _tool_sonarqube_file_metrics ADD PRIMARY KEY (connection_id, file_metrics_key)"); err != nil {
+		return err
 	}
-
-	if err := tx.Exec("ALTER TABLE _tool_sonarqube_file_metrics ADD PRIMARY KEY (connection_id, file_metrics_key)"); err != nil {
-		return tx.Rollback()
-	}
-
-	if err := tx.Commit(); err != nil {
-		return tx.Rollback()
-	}
-
 	return nil
 }
 
