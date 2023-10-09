@@ -92,3 +92,58 @@ func TestParallelizePipelineTasks(t *testing.T) {
 		ParallelizePipelinePlans(plan1, plan2, plan3),
 	)
 }
+
+func TestRemoveCollectorTasks(t *testing.T) {
+	plan1 := coreModels.PipelinePlan{
+		{
+			{
+				Plugin: "github", 
+				Subtasks: []string{
+					"collectApiPipelines",
+					"extractApiPipelines",
+					"collectApiPipelineDetails",
+					"extractApiPipelineDetails",
+					"collectApiJobs",
+					"extractApiJobs",
+					"collectAccounts",
+					"extractAccounts",
+					"convertAccounts",
+					"convertApiProject",
+					"convertPipelines",
+					"convertPipelineCommits",
+					"convertJobs",
+				},
+			},
+		},
+		{
+			{
+				Plugin: "starrocks", 
+				Subtasks: []string{},
+			},
+		},
+	}
+	assert.Equal(t, coreModels.PipelinePlan{
+		{
+			{
+				Plugin: "github", 
+				Subtasks: []string{
+					"extractApiPipelines",
+					"extractApiPipelineDetails",
+					"extractApiJobs",
+					"extractAccounts",
+					"convertAccounts",
+					"convertApiProject",
+					"convertPipelines",
+					"convertPipelineCommits",
+					"convertJobs",
+				},
+			},
+		},
+		{
+			{
+				Plugin: "starrocks", 
+				Subtasks: []string{},
+			},
+		},
+	}, RemoveCollectorTasks(plan1))
+}

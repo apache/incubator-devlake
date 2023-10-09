@@ -27,6 +27,7 @@ import (
 	"github.com/apache/incubator-devlake/core/dal"
 	"github.com/apache/incubator-devlake/core/errors"
 	"github.com/apache/incubator-devlake/core/models"
+	coreModels "github.com/apache/incubator-devlake/core/models"
 	helper "github.com/apache/incubator-devlake/helpers/pluginhelper/api"
 	"github.com/apache/incubator-devlake/impls/logruslog"
 	"github.com/robfig/cron/v3"
@@ -277,7 +278,11 @@ func createPipelineByBlueprint(blueprint *models.Blueprint, syncPolicy *models.S
 			return nil, err
 		}
 	} else {
-		plan = blueprint.Plan
+		if (syncPolicy.SkipCollectors) {
+			plan = RemoveCollectorTasks(blueprint.Plan)
+		} else {
+			plan = blueprint.Plan
+		}
 	}
 
 	newPipeline := models.NewPipeline{}
@@ -379,4 +384,20 @@ func TriggerBlueprint(id uint64, syncPolicy *models.SyncPolicy) (*models.Pipelin
 	blueprint.FullSync = syncPolicy.FullSync
 
 	return createPipelineByBlueprint(blueprint, syncPolicy)
+}
+
+func RemoveCollectorTasks(plan coreModels.PipelinePlan) coreModels.PipelinePlan {
+	for j, stage := range plan {
+		for k, task := range stage {
+			newSubtasks := make([]string, 0, len(task.Subtasks))
+			for _, subtask := range task.Subtasks {
+				if !strings.Contains(strings.ToLower(subtask), "collect") {
+					newSubtasks = append(newSubtasks, subtask)
+				}
+			}
+			task.Subtasks = newSubtasks
+			plan[j][k] = task
+		}
+	}
+	return plan
 }

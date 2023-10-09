@@ -20,7 +20,6 @@ package services
 import (
 	"encoding/json"
 	"fmt"
-	"strings"
 
 	"github.com/apache/incubator-devlake/core/errors"
 	coreModels "github.com/apache/incubator-devlake/core/models"
@@ -73,18 +72,7 @@ func GeneratePlanJsonV200(
 	// skip collectors
 	if skipCollectors {
 		for i, plan := range sourcePlans {
-			for j, stage := range plan {
-				for k, task := range stage {
-					newSubtasks := make([]string, 0, len(task.Subtasks))
-					for _, subtask := range task.Subtasks {
-						if !strings.Contains(strings.ToLower(subtask), "collect") {
-							newSubtasks = append(newSubtasks, subtask)
-						}
-					}
-					task.Subtasks = newSubtasks
-					sourcePlans[i][j][k] = task
-				}
-			}
+			sourcePlans[i] = RemoveCollectorTasks(plan)
 		}
 
 		// remove gitextractor plugin if it's not the only task
