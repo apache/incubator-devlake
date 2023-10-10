@@ -18,6 +18,7 @@ limitations under the License.
 package common
 
 import (
+	"github.com/apache/incubator-devlake/core/dal"
 	"time"
 )
 
@@ -98,7 +99,7 @@ type ScopeConfig struct {
 	Model
 	Entities     []string `gorm:"type:json;serializer:json" json:"entities" mapstructure:"entities"`
 	ConnectionId uint64   `json:"connectionId" gorm:"index" validate:"required" mapstructure:"connectionId,omitempty"`
-	Name         string   `mapstructure:"name" json:"name" gorm:"type:varchar(255)" validate:"required"`
+	//Name         string   `mapstructure:"name" json:"name" gorm:"type:varchar(255)" validate:"required"`
 }
 
 func (s ScopeConfig) ScopeConfigConnectionId() uint64 {
@@ -106,4 +107,9 @@ func (s ScopeConfig) ScopeConfigConnectionId() uint64 {
 }
 func (s ScopeConfig) ScopeConfigId() uint64 {
 	return s.ID
+}
+
+type ScopeConfigOperator[T dal.Tabler] interface {
+	*T
+	SetConnectionId(t *T, connectionId uint64)
 }

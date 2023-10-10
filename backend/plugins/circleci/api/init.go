@@ -28,7 +28,7 @@ import (
 var vld *validator.Validate
 var connectionHelper *helper.ConnectionApiHelper
 var scopeHelper *helper.ScopeApiHelper[models.CircleciConnection, models.CircleciProject, models.CircleciScopeConfig]
-var scHelper *helper.ScopeConfigHelper[models.CircleciScopeConfig]
+var scHelper *helper.ScopeConfigHelper[models.CircleciScopeConfig, *models.CircleciScopeConfig]
 var remoteHelper *helper.RemoteApiHelper[models.CircleciConnection, models.CircleciProject, RemoteProject, helper.NoRemoteGroupResponse]
 var basicRes context.BasicRes
 
@@ -60,7 +60,7 @@ func Init(br context.BasicRes, p plugin.PluginMeta) {
 		vld,
 		connectionHelper,
 	)
-	scHelper = helper.NewScopeConfigHelper[models.CircleciScopeConfig](
+	scHelper = helper.NewScopeConfigHelper[models.CircleciScopeConfig, *models.CircleciScopeConfig](
 		basicRes,
 		vld,
 		p.Name(),
