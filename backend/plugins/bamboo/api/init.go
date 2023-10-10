@@ -29,7 +29,7 @@ var vld *validator.Validate
 var connectionHelper *api.ConnectionApiHelper
 var scopeHelper *api.ScopeApiHelper[models.BambooConnection, models.BambooPlan, models.BambooScopeConfig]
 var remoteHelper *api.RemoteApiHelper[models.BambooConnection, models.BambooPlan, models.ApiBambooPlan, api.NoRemoteGroupResponse]
-var scopeConfigHelper *api.ScopeConfigHelper[models.BambooScopeConfig]
+var scopeConfigHelper *api.ScopeConfigHelper[models.BambooScopeConfig, *models.BambooScopeConfig]
 
 var basicRes context.BasicRes
 
@@ -62,7 +62,7 @@ func Init(br context.BasicRes, p plugin.PluginMeta) {
 		vld,
 		connectionHelper,
 	)
-	scopeConfigHelper = api.NewScopeConfigHelper[models.BambooScopeConfig](
+	scopeConfigHelper = api.NewScopeConfigHelper[models.BambooScopeConfig, *models.BambooScopeConfig](
 		basicRes,
 		vld,
 		p.Name(),

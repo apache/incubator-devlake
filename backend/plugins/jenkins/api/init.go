@@ -31,7 +31,7 @@ var scopeHelper *api.ScopeApiHelper[models.JenkinsConnection, models.JenkinsJob,
 var remoteHelper *api.RemoteApiHelper[models.JenkinsConnection, models.JenkinsJob, models.Job, models.Job]
 
 var basicRes context.BasicRes
-var scHelper *api.ScopeConfigHelper[models.JenkinsScopeConfig]
+var scHelper *api.ScopeConfigHelper[models.JenkinsScopeConfig, *models.JenkinsScopeConfig]
 
 func Init(br context.BasicRes, p plugin.PluginMeta) {
 
@@ -62,7 +62,7 @@ func Init(br context.BasicRes, p plugin.PluginMeta) {
 		vld,
 		connectionHelper,
 	)
-	scHelper = api.NewScopeConfigHelper[models.JenkinsScopeConfig](
+	scHelper = api.NewScopeConfigHelper[models.JenkinsScopeConfig, *models.JenkinsScopeConfig](
 		basicRes,
 		vld,
 		p.Name(),

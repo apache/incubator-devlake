@@ -30,3 +30,8 @@ type TrelloScopeConfig struct {
 func (TrelloScopeConfig) TableName() string {
 	return "_tool_trello_scope_configs"
 }
+
+func (t *TrelloScopeConfig) SetConnectionId(c *TrelloScopeConfig, connectionId uint64) {
+	c.ConnectionId = connectionId
+	c.ScopeConfig.ConnectionId = connectionId
+}

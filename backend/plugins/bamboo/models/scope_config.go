@@ -37,6 +37,11 @@ func (BambooScopeConfig) TableName() string {
 	return "_tool_bamboo_scope_configs"
 }
 
+func (cfg *BambooScopeConfig) SetConnectionId(c *BambooScopeConfig, connectionId uint64) {
+	c.ConnectionId = connectionId
+	c.ScopeConfig.ConnectionId = connectionId
+}
+
 func (cfg *BambooScopeConfig) GetRepoIdMap() map[int]string {
 	repoMap := make(map[int]string)
 	for k, v := range cfg.RepoMap {

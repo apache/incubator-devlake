@@ -32,3 +32,8 @@ type CircleciScopeConfig struct {
 func (t CircleciScopeConfig) TableName() string {
 	return "_tool_circleci_scope_configs"
 }
+
+func (t *CircleciScopeConfig) SetConnectionId(c *CircleciScopeConfig, connectionId uint64) {
+	c.ConnectionId = connectionId
+	c.ScopeConfig.ConnectionId = connectionId
+}

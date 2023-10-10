@@ -29,7 +29,7 @@ var vld *validator.Validate
 var connectionHelper *api.ConnectionApiHelper
 var scopeHelper *api.ScopeApiHelper[models.TrelloConnection, models.TrelloBoard, models.TrelloScopeConfig]
 var basicRes context.BasicRes
-var scHelper *api.ScopeConfigHelper[models.TrelloScopeConfig]
+var scHelper *api.ScopeConfigHelper[models.TrelloScopeConfig, *models.TrelloScopeConfig]
 
 func Init(br context.BasicRes, p plugin.PluginMeta) {
 	basicRes = br
@@ -53,7 +53,7 @@ func Init(br context.BasicRes, p plugin.PluginMeta) {
 		params,
 		nil,
 	)
-	scHelper = api.NewScopeConfigHelper[models.TrelloScopeConfig](
+	scHelper = api.NewScopeConfigHelper[models.TrelloScopeConfig, *models.TrelloScopeConfig](
 		basicRes,
 		vld,
 		p.Name(),

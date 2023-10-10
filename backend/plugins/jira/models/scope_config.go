@@ -52,6 +52,11 @@ type JiraScopeConfig struct {
 	ApplicationType            string                 `mapstructure:"applicationType,omitempty" json:"applicationType" gorm:"type:varchar(255)"`
 }
 
+func (r *JiraScopeConfig) SetConnectionId(c *JiraScopeConfig, connectionId uint64) {
+	c.ConnectionId = connectionId
+	c.ScopeConfig.ConnectionId = connectionId
+}
+
 func (r *JiraScopeConfig) Validate() errors.Error {
 	var err error
 	if r.RemotelinkCommitShaPattern != "" {

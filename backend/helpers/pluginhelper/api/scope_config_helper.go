@@ -18,6 +18,7 @@ limitations under the License.
 package api
 
 import (
+	"github.com/apache/incubator-devlake/core/models/common"
 	"net/http"
 	"reflect"
 	"strconv"
@@ -32,7 +33,7 @@ import (
 )
 
 // ScopeConfigHelper is used to write the CURD of scope config
-type ScopeConfigHelper[ScopeConfig dal.Tabler] struct {
+type ScopeConfigHelper[ScopeConfig dal.Tabler, ScopeConfigOperator common.ScopeConfigOperator[ScopeConfig]] struct {
 	log        log.Logger
 	db         dal.Dal
 	validator  *validator.Validate
@@ -40,15 +41,15 @@ type ScopeConfigHelper[ScopeConfig dal.Tabler] struct {
 }
 
 // NewScopeConfigHelper creates a ScopeConfigHelper for scope config management
-func NewScopeConfigHelper[Tr dal.Tabler](
+func NewScopeConfigHelper[Tr dal.Tabler, ScopeConfigOperator common.ScopeConfigOperator[Tr]](
 	basicRes context.BasicRes,
 	vld *validator.Validate,
 	pluginName string,
-) *ScopeConfigHelper[Tr] {
+) *ScopeConfigHelper[Tr, ScopeConfigOperator] {
 	if vld == nil {
 		vld = validator.New()
 	}
-	return &ScopeConfigHelper[Tr]{
+	return &ScopeConfigHelper[Tr, ScopeConfigOperator]{
 		log:        basicRes.GetLogger(),
 		db:         basicRes.GetDal(),
 		validator:  vld,
@@ -56,7 +57,7 @@ func NewScopeConfigHelper[Tr dal.Tabler](
 	}
 }
 
-func (t ScopeConfigHelper[ScopeConfig]) Create(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, errors.Error) {
+func (t ScopeConfigHelper[ScopeConfig, ScopeConfigOperator]) Create(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, errors.Error) {
 	connectionId, e := strconv.ParseUint(input.Params["connectionId"], 10, 64)
 	if e != nil || connectionId == 0 {
 		return nil, errors.Default.Wrap(e, "the connection ID should be an non-zero integer")
@@ -65,6 +66,8 @@ func (t ScopeConfigHelper[ScopeConfig]) Create(input *plugin.ApiResourceInput) (
 	if err := DecodeMapStruct(input.Body, config, false); err != nil {
 		return nil, errors.Default.Wrap(err, "error in decoding scope config")
 	}
+	var scopeConfigOperator ScopeConfigOperator = new(ScopeConfig)
+	scopeConfigOperator.SetConnectionId(config, connectionId)
 	if t.validator != nil {
 		if err := t.validator.Struct(config); err != nil {
 			return nil, errors.Default.Wrap(err, "error validating scope config")
@@ -90,7 +93,7 @@ func (t ScopeConfigHelper[ScopeConfig]) Create(input *plugin.ApiResourceInput) (
 	return &plugin.ApiResourceOutput{Body: config, Status: http.StatusOK}, nil
 }
 
-func (t ScopeConfigHelper[ScopeConfig]) Update(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, errors.Error) {
+func (t ScopeConfigHelper[ScopeConfig, ScopeConfigOperator]) Update(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, errors.Error) {
 	scopeConfigId, e := strconv.ParseUint(input.Params["id"], 10, 64)
 	if e != nil {
 		return nil, errors.Default.Wrap(e, "the scope config ID should be an integer")
@@ -120,7 +123,7 @@ func (t ScopeConfigHelper[ScopeConfig]) Update(input *plugin.ApiResourceInput) (
 	return &plugin.ApiResourceOutput{Body: config, Status: http.StatusOK}, nil
 }
 
-func (t ScopeConfigHelper[ScopeConfig]) Get(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, errors.Error) {
+func (t ScopeConfigHelper[ScopeConfig, ScopeConfigOperator]) Get(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, errors.Error) {
 	scopeConfigId, err := strconv.ParseUint(input.Params["id"], 10, 64)
 	if err != nil {
 		return nil, errors.Default.Wrap(err, "the scope config ID should be an integer")
@@ -133,7 +136,7 @@ func (t ScopeConfigHelper[ScopeConfig]) Get(input *plugin.ApiResourceInput) (*pl
 	return &plugin.ApiResourceOutput{Body: config, Status: http.StatusOK}, nil
 }
 
-func (t ScopeConfigHelper[ScopeConfig]) List(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, errors.Error) {
+func (t ScopeConfigHelper[ScopeConfig, ScopeConfigOperator]) List(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, errors.Error) {
 	connectionId, e := strconv.ParseUint(input.Params["connectionId"], 10, 64)
 	if e != nil || connectionId == 0 {
 		return nil, errors.Default.Wrap(e, "the connection ID should be an non-zero integer")
@@ -147,7 +150,7 @@ func (t ScopeConfigHelper[ScopeConfig]) List(input *plugin.ApiResourceInput) (*p
 	return &plugin.ApiResourceOutput{Body: configs, Status: http.StatusOK}, nil
 }
 
-func (t ScopeConfigHelper[ScopeConfig]) Delete(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, errors.Error) {
+func (t ScopeConfigHelper[ScopeConfig, ScopeConfigOperator]) Delete(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, errors.Error) {
 	scopeConfigId, err := errors.Convert01(strconv.ParseUint(input.Params["id"], 10, 64))
 	if err != nil {
 		return nil, errors.Default.Wrap(err, "the scope config ID should be an integer")
@@ -167,7 +170,7 @@ func (t ScopeConfigHelper[ScopeConfig]) Delete(input *plugin.ApiResourceInput) (
 	}
 	return &plugin.ApiResourceOutput{Body: nil, Status: http.StatusOK}, nil
 }
-func (t ScopeConfigHelper[ScopeConfig]) nullOutScopeReferences(scopeConfigId uint64) errors.Error {
+func (t ScopeConfigHelper[ScopeConfig, ScopeConfigOperator]) nullOutScopeReferences(scopeConfigId uint64) errors.Error {
 	p, _ := plugin.GetPlugin(t.pluginName)
 	pluginSrc, ok := p.(plugin.PluginSource)
 	if !ok {
