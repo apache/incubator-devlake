@@ -109,7 +109,7 @@ export const ConfigurationPanel = ({ from, blueprint, onRefresh, onChangeTab }: 
   };
 
   const handleRun = async () => {
-    const [success] = await operator(() => API.runBlueprint(blueprint.id, false), {
+    const [success] = await operator(() => API.runBlueprint(blueprint.id, { skipCollectors: false, fullSync: false }), {
       setOperating,
       formatMessage: () => 'Trigger blueprint successful.',
     });
