@@ -109,34 +109,6 @@ func CollectApiBuilds(taskCtx plugin.SubTaskContext) errors.Error {
 				return time.Unix(seconds, nanos), nil
 			},
 		},
-		// CollectUnfinishedDetails: &helper.FinalizableApiCollectorDetailArgs{
-		// 	BuildInputIterator: func() (helper.Iterator, errors.Error) {
-		// 		cursor, err := db.Cursor(
-		// 			dal.Select("number"),
-		// 			dal.From(&models.JenkinsBuild{}),
-		// 			dal.Where(
-		// 				"full_name = ? AND connection_id = ? AND result != 'SUCCESS' AND result != 'FAILURE'",
-		// 				data.Options.JobFullName, data.Options.ConnectionId,
-		// 			),
-		// 		)
-		// 		if err != nil {
-		// 			return nil, err
-		// 		}
-		// 		return helper.NewDalCursorIterator(db, cursor, reflect.TypeOf(SimpleJenkinsApiBuild{}))
-		// 	},
-		// 	FinalizableApiCollectorCommonArgs: helper.FinalizableApiCollectorCommonArgs{
-		// 		UrlTemplate: fmt.Sprintf("%sjob/%s/{{ .Input.Number }}/api/json?tree=number,url,result,timestamp,id,duration,estimatedDuration,building",
-		// 			data.Options.JobPath, data.Options.JobName),
-		// 		ResponseParser: func(res *http.Response) ([]json.RawMessage, errors.Error) {
-		// 			body, err := io.ReadAll(res.Body)
-		// 			if err != nil {
-		// 				return nil, errors.Convert(err)
-		// 			}
-		// 			res.Body.Close()
-		// 			return []json.RawMessage{body}, nil
-		// 		},
-		// 	},
-		// },
 	})
 
 	if err != nil {
