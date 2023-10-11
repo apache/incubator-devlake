@@ -20,18 +20,14 @@ package tasks
 import (
 	"encoding/json"
 	"fmt"
-	"io"
 	"net/http"
 	"net/url"
-	"reflect"
 	"time"
 
-	"github.com/apache/incubator-devlake/core/dal"
 	"github.com/apache/incubator-devlake/core/errors"
 	"github.com/apache/incubator-devlake/core/models/common"
 	"github.com/apache/incubator-devlake/core/plugin"
 	helper "github.com/apache/incubator-devlake/helpers/pluginhelper/api"
-	"github.com/apache/incubator-devlake/plugins/github/models"
 )
 
 func init() {
@@ -67,7 +63,6 @@ var CollectRunsMeta = plugin.SubTaskMeta{
 
 func CollectRuns(taskCtx plugin.SubTaskContext) errors.Error {
 	data := taskCtx.GetData().(*GithubTaskData)
-	db := taskCtx.GetDal()
 	collector, err := helper.NewStatefulApiCollectorForFinalizableEntity(helper.FinalizableApiCollectorArgs{
 		RawDataSubTaskArgs: helper.RawDataSubTaskArgs{
 			Ctx: taskCtx,
@@ -85,6 +80,7 @@ func CollectRuns(taskCtx plugin.SubTaskContext) errors.Error {
 				UrlTemplate: "repos/{{ .Params.Name }}/actions/runs",
 				Query: func(reqData *helper.RequestData, createdAfter *time.Time) (url.Values, errors.Error) {
 					query := url.Values{}
+					query.Set("status", "completed")
 					query.Set("page", fmt.Sprintf("%v", reqData.Pager.Page))
 					query.Set("per_page", fmt.Sprintf("%v", reqData.Pager.Size))
 					return query, nil
@@ -108,36 +104,6 @@ func CollectRuns(taskCtx plugin.SubTaskContext) errors.Error {
 					return time.Time{}, errors.BadInput.Wrap(err, "failed to unmarshal github run")
 				}
 				return pj.CreatedAt.ToTime(), nil
-			},
-		},
-		CollectUnfinishedDetails: &helper.FinalizableApiCollectorDetailArgs{
-			BuildInputIterator: func() (helper.Iterator, errors.Error) {
-				// load unfinished runs from the database
-				cursor, err := db.Cursor(
-					dal.Select("id"),
-					dal.From(&models.GithubRun{}),
-					dal.Where(
-						"repo_id = ? AND connection_id = ? AND status IN ('ACTION_REQUIRED', 'STALE', 'IN_PROGRESS', 'QUEUED', 'REQUESTED', 'WAITING', 'PENDING')",
-						data.Options.GithubId, data.Options.ConnectionId,
-					),
-				)
-				if err != nil {
-					return nil, err
-				}
-				return helper.NewDalCursorIterator(db, cursor, reflect.TypeOf(SimpleGithubApiJob{}))
-			},
-
-			FinalizableApiCollectorCommonArgs: helper.FinalizableApiCollectorCommonArgs{
-				UrlTemplate: "repos/{{ .Params.Name }}/actions/runs/{{ .Input.ID }}",
-				ResponseParser: func(res *http.Response) ([]json.RawMessage, errors.Error) {
-					body, err := io.ReadAll(res.Body)
-					if err != nil {
-						return nil, errors.Convert(err)
-					}
-					res.Body.Close()
-					return []json.RawMessage{body}, nil
-				},
-				AfterResponse: ignoreHTTPStatus404,
 			},
 		},
 	})
