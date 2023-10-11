@@ -17,18 +17,21 @@
  */
 
 import type { IntentProps } from '@blueprintjs/core';
-import { Position } from '@blueprintjs/core';
-import { Tooltip2 } from '@blueprintjs/popover2';
+import { Position, Tooltip } from '@blueprintjs/core';
 import styled from 'styled-components';
 
 const Wrapper = styled.div`
   width: 100%;
 
-  & > .bp5-popover2-target {
-    display: block;
-    overflow: hidden;
-    white-space: nowrap;
-    text-overflow: ellipsis;
+  & > .bp5-popover-target {
+    width: 100%;
+
+    & > span {
+      display: block;
+      overflow: hidden;
+      white-space: nowrap;
+      text-overflow: ellipsis;
+    }
   }
 `;
 
@@ -41,9 +44,9 @@ interface Props extends IntentProps {
 export const TextTooltip = ({ intent, content, children, style }: Props) => {
   return (
     <Wrapper style={style}>
-      <Tooltip2 intent={intent} position={Position.TOP} content={content}>
+      <Tooltip intent={intent} position={Position.TOP} content={content}>
         {children}
-      </Tooltip2>
+      </Tooltip>
     </Wrapper>
   );
 };

@@ -73,7 +73,7 @@ export const DataScopeSelect = ({
             parentId: null,
             id: getPluginScopeId(plugin, sc.scope),
             title: sc.scope.name,
-            data: sc,
+            data: sc.scope,
           };
         }
         return {

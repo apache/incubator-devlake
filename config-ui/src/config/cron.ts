@@ -79,7 +79,7 @@ export const getCron = (isManual: boolean, config: string) => {
     : {
         label: 'Custom',
         value: '',
-        description: 'Custom',
+        description: '',
         config,
         nextTime: getNextTime(config),
         nextTimes: getNextTimes(config),
