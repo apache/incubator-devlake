@@ -90,7 +90,7 @@ func CollectApiBuilds(taskCtx plugin.SubTaskContext) errors.Error {
 						if err != nil {
 							return nil, errors.Convert(err)
 						}
-						if buildObj["result"] == "SUCCESS" || buildObj["result"] == "FAILURE" {
+						if buildObj["result"] != nil {
 							builds = append(builds, build)
 						}
 					}
