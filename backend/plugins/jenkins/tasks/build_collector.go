@@ -20,17 +20,13 @@ package tasks
 import (
 	"encoding/json"
 	"fmt"
-	"io"
 	"net/http"
 	"net/url"
-	"reflect"
 	"time"
 
-	"github.com/apache/incubator-devlake/core/dal"
 	"github.com/apache/incubator-devlake/core/errors"
 	"github.com/apache/incubator-devlake/core/plugin"
 	helper "github.com/apache/incubator-devlake/helpers/pluginhelper/api"
-	"github.com/apache/incubator-devlake/plugins/jenkins/models"
 )
 
 const RAW_BUILD_TABLE = "jenkins_api_builds"
@@ -55,7 +51,6 @@ type SimpleJenkinsApiBuild struct {
 
 func CollectApiBuilds(taskCtx plugin.SubTaskContext) errors.Error {
 	data := taskCtx.GetData().(*JenkinsTaskData)
-	db := taskCtx.GetDal()
 	collector, err := helper.NewStatefulApiCollectorForFinalizableEntity(helper.FinalizableApiCollectorArgs{
 		RawDataSubTaskArgs: helper.RawDataSubTaskArgs{
 			Params: JenkinsApiParams{
@@ -87,7 +82,20 @@ func CollectApiBuilds(taskCtx plugin.SubTaskContext) errors.Error {
 					if err != nil {
 						return nil, err
 					}
-					return data.Builds, nil
+
+					builds := make([]json.RawMessage, 0, len(data.Builds))
+					for _, build := range data.Builds {
+						var buildObj map[string]interface{}
+						err := json.Unmarshal(build, &buildObj)
+						if err != nil {
+							return nil, errors.Convert(err)
+						}
+						if buildObj["result"] == "SUCCESS" || buildObj["result"] == "FAILURE" {
+							builds = append(builds, build)
+						}
+					}
+
+					return builds, nil
 				},
 			},
 			GetCreated: func(item json.RawMessage) (time.Time, errors.Error) {
@@ -101,34 +109,34 @@ func CollectApiBuilds(taskCtx plugin.SubTaskContext) errors.Error {
 				return time.Unix(seconds, nanos), nil
 			},
 		},
-		CollectUnfinishedDetails: &helper.FinalizableApiCollectorDetailArgs{
-			BuildInputIterator: func() (helper.Iterator, errors.Error) {
-				cursor, err := db.Cursor(
-					dal.Select("number"),
-					dal.From(&models.JenkinsBuild{}),
-					dal.Where(
-						"full_name = ? AND connection_id = ? AND result != 'SUCCESS' AND result != 'FAILURE'",
-						data.Options.JobFullName, data.Options.ConnectionId,
-					),
-				)
-				if err != nil {
-					return nil, err
-				}
-				return helper.NewDalCursorIterator(db, cursor, reflect.TypeOf(SimpleJenkinsApiBuild{}))
-			},
-			FinalizableApiCollectorCommonArgs: helper.FinalizableApiCollectorCommonArgs{
-				UrlTemplate: fmt.Sprintf("%sjob/%s/{{ .Input.Number }}/api/json?tree=number,url,result,timestamp,id,duration,estimatedDuration,building",
-					data.Options.JobPath, data.Options.JobName),
-				ResponseParser: func(res *http.Response) ([]json.RawMessage, errors.Error) {
-					body, err := io.ReadAll(res.Body)
-					if err != nil {
-						return nil, errors.Convert(err)
-					}
-					res.Body.Close()
-					return []json.RawMessage{body}, nil
-				},
-			},
-		},
+		// CollectUnfinishedDetails: &helper.FinalizableApiCollectorDetailArgs{
+		// 	BuildInputIterator: func() (helper.Iterator, errors.Error) {
+		// 		cursor, err := db.Cursor(
+		// 			dal.Select("number"),
+		// 			dal.From(&models.JenkinsBuild{}),
+		// 			dal.Where(
+		// 				"full_name = ? AND connection_id = ? AND result != 'SUCCESS' AND result != 'FAILURE'",
+		// 				data.Options.JobFullName, data.Options.ConnectionId,
+		// 			),
+		// 		)
+		// 		if err != nil {
+		// 			return nil, err
+		// 		}
+		// 		return helper.NewDalCursorIterator(db, cursor, reflect.TypeOf(SimpleJenkinsApiBuild{}))
+		// 	},
+		// 	FinalizableApiCollectorCommonArgs: helper.FinalizableApiCollectorCommonArgs{
+		// 		UrlTemplate: fmt.Sprintf("%sjob/%s/{{ .Input.Number }}/api/json?tree=number,url,result,timestamp,id,duration,estimatedDuration,building",
+		// 			data.Options.JobPath, data.Options.JobName),
+		// 		ResponseParser: func(res *http.Response) ([]json.RawMessage, errors.Error) {
+		// 			body, err := io.ReadAll(res.Body)
+		// 			if err != nil {
+		// 				return nil, errors.Convert(err)
+		// 			}
+		// 			res.Body.Close()
+		// 			return []json.RawMessage{body}, nil
+		// 		},
+		// 	},
+		// },
 	})
 
 	if err != nil {
