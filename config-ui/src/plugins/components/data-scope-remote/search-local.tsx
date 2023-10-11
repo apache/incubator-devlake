@@ -235,6 +235,7 @@ export const SearchLocal = ({ plugin, connectionId, config, disabledScope, selec
             )
           }
           renderLoading={() => <Loading size={20} style={{ padding: '4px 12px' }} />}
+          disabledIds={(disabledScope ?? []).map((it) => it.id)}
           selectedIds={selectedScope.map((it) => it.id)}
           onSelectItemIds={(selectedIds: ID[]) => onChange(miller.items.filter((it) => selectedIds.includes(it.id)))}
           expandedIds={miller.expandedIds}

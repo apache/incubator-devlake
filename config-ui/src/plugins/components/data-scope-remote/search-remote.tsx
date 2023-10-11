@@ -157,7 +157,7 @@ export const SearchRemote = ({ plugin, connectionId, config, disabledScope, sele
               )
             }
             renderLoading={() => <Loading size={20} style={{ padding: '4px 12px' }} />}
-            disabledIds={(disabledScope ?? []).map((it) => getPluginScopeId(plugin, it))}
+            disabledIds={(disabledScope ?? []).map((it) => it.id)}
             selectedIds={selectedScope.map((it) => it.id)}
             onSelectItemIds={(selectedIds: ID[]) => onChange(allItems.filter((it) => selectedIds.includes(it.id)))}
           />
@@ -170,7 +170,7 @@ export const SearchRemote = ({ plugin, connectionId, config, disabledScope, sele
             getHasMore={() => search.total === 0}
             onScroll={() => setSearch({ ...search, page: search.page + 1 })}
             renderLoading={() => <Loading size={20} style={{ padding: '4px 12px' }} />}
-            disabledIds={(disabledScope ?? []).map((it) => getPluginScopeId(plugin, it))}
+            disabledIds={(disabledScope ?? []).map((it) => it.id)}
             selectedIds={selectedScope.map((it) => it.id)}
             onSelectItemIds={(selectedIds: ID[]) => onChange(allItems.filter((it) => selectedIds.includes(it.id)))}
           />

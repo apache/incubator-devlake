@@ -60,7 +60,7 @@ export const DataScopeRemote = ({ plugin, connectionId, disabledScope, onCancel,
       {config.render ? (
         config.render({
           connectionId,
-          disabledItems: disabledScope?.map((it) => ({ id: getPluginScopeId(plugin, it) })),
+          disabledItems: disabledScope?.map((it) => ({ id: it.id })),
           selectedItems: selectedScope,
           onChangeSelectedItems: setSelectedScope,
         })
