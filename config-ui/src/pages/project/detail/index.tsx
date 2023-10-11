@@ -21,13 +21,13 @@ import { useParams } from 'react-router-dom';
 import { Tabs, Tab } from '@blueprintjs/core';
 import useUrlState from '@ahooksjs/use-url-state';
 
+import API from '@/api';
 import { PageHeader, PageLoading } from '@/components';
 import { useRefreshData } from '@/hooks';
 import { BlueprintDetail, FromEnum } from '@/pages';
 
 import { WebhooksPanel } from './webhooks-panel';
 import { SettingsPanel } from './settings-panel';
-import * as API from './api';
 import * as S from './styled';
 
 export const ProjectDetailPage = () => {
@@ -36,7 +36,7 @@ export const ProjectDetailPage = () => {
   const { pname } = useParams() as { pname: string };
   const [query, setQuery] = useUrlState({ tabId: 'blueprint' });
 
-  const { ready, data } = useRefreshData(() => Promise.all([API.getProject(pname)]), [pname, version]);
+  const { ready, data } = useRefreshData(() => Promise.all([API.project.get(pname)]), [pname, version]);
 
   const handleChangeTabId = (tabId: string) => {
     setQuery({ tabId });

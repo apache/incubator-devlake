@@ -20,11 +20,10 @@ import { useMemo, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Icon, Tag, Button, Intent, Colors, IconName } from '@blueprintjs/core';
 
+import API from '@/api';
 import { DEVLAKE_ENDPOINT } from '@/config';
 import { Card, Buttons } from '@/components';
 import { useAutoRefresh } from '@/hooks';
-
-import * as API from './api';
 
 export const Offline = () => {
   const [version, setVersion] = useState(1);

@@ -19,11 +19,11 @@
 import { useState, useMemo } from 'react';
 import { InputGroup, Icon } from '@blueprintjs/core';
 
+import API from '@/api';
 import { Dialog, FormItem, CopyText, ExternalLink } from '@/components';
 import { useConnections } from '@/hooks';
 import { operator } from '@/utils';
 
-import * as API from '../api';
 import * as S from '../styled';
 
 interface Props {
@@ -51,8 +51,9 @@ export const CreateDialog = ({ isOpen, onCancel, onSubmitAfter }: Props) => {
   const handleSubmit = async () => {
     const [success, res] = await operator(
       async () => {
-        const { id, apiKey } = await API.createConnection({ name });
-        const { postIssuesEndpoint, closeIssuesEndpoint, postPipelineDeployTaskEndpoint } = await API.getConnection(id);
+        const { id, apiKey } = await API.plugin.webhook.create({ name });
+        const { postIssuesEndpoint, closeIssuesEndpoint, postPipelineDeployTaskEndpoint } =
+          await API.plugin.webhook.get(id);
         return {
           id,
           apiKey: apiKey.apiKey,

@@ -19,12 +19,12 @@
 import { useState, useEffect, useMemo } from 'react';
 import { Button, Intent } from '@blueprintjs/core';
 
+import API from '@/api';
 import { Buttons, Table, IconButton, Dialog } from '@/components';
 import { useRefreshData } from '@/hooks';
 
 import { ScopeConfigForm } from '../scope-config-form';
 
-import * as API from './api';
 import * as S from './styled';
 
 interface Props {
@@ -41,7 +41,7 @@ export const ScopeConfigSelect = ({ plugin, connectionId, scopeConfigId, onCance
   const [isOpen, setIsOpen] = useState(false);
   const [updatedId, setUpdatedId] = useState<ID>();
 
-  const { ready, data } = useRefreshData(() => API.getScopeConfigs(plugin, connectionId), [version]);
+  const { ready, data } = useRefreshData(() => API.scopeConfig.list(plugin, connectionId), [version]);
 
   const dataSource = useMemo(() => (data ? data : []), [data]);
 

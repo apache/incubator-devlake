@@ -20,12 +20,12 @@ import { useState } from 'react';
 import { Button, Collapse, Icon } from '@blueprintjs/core';
 import { groupBy, sortBy } from 'lodash';
 
+import API from '@/api';
 import { Loading } from '@/components';
 import { useAutoRefresh } from '@/hooks';
 
 import * as T from '../types';
 import * as S from '../styled';
-import * as API from '../api';
 
 import { PipelineTask } from './task';
 
@@ -41,7 +41,7 @@ export const PipelineTasks = ({ id, style }: Props) => {
 
   const { data } = useAutoRefresh<T.PipelineTask[]>(
     async () => {
-      const taskRes = await API.getPipelineTasks(id);
+      const taskRes = await API.pipeline.tasks(id);
       return taskRes.tasks;
     },
     [],

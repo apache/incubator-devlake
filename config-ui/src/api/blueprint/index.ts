@@ -20,25 +20,21 @@ import { request } from '@/utils';
 
 import * as T from './types';
 
-export const getPipelines = (): Promise<{ count: number; pipelines: T.Pipeline[] }> => request('/pipelines');
+export const list = (data: Pagination & { type: string }): Promise<{ count: number; blueprints: T.Blueprint[] }> =>
+  request('/blueprints', { data });
 
-export const getPipeline = (id: ID) => request(`/pipelines/${id}`);
+export const get = (id: ID): Promise<T.Blueprint> => request(`/blueprints/${id}`);
 
-export const deletePipeline = (id: ID) =>
-  request(`/pipelines/${id}`, {
-    method: 'delete',
-  });
-
-export const rerunPipeline = (id: ID) =>
-  request(`/pipelines/${id}/rerun`, {
+export const create = (data: any) =>
+  request('/blueprints', {
     method: 'post',
+    data,
   });
 
-export const getPipelineLog = (id: ID) => request(`/pipelines/${id}/logging.tar.gz`);
+export const remove = (id: ID) => request(`/blueprints/${id}`, { method: 'delete' });
 
-export const getPipelineTasks = (id: ID) => request(`/pipelines/${id}/tasks`);
+export const update = (id: ID, data: T.Blueprint) => request(`/blueprints/${id}`, { method: 'patch', data });
 
-export const taskRerun = (id: ID) =>
-  request(`/tasks/${id}/rerun`, {
-    method: 'post',
-  });
+export const pipelines = (id: ID) => request(`/blueprints/${id}/pipelines`);
+
+export const trigger = (id: ID, data: T.TriggerQuery) => request(`/blueprints/${id}/trigger`, { method: 'post', data });

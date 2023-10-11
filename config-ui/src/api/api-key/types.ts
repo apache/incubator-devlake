@@ -16,6 +16,9 @@
  *
  */
 
-import { request } from '@/utils';
-
-export const testConnection = (payload: any) => request('/plugins/github/test', { method: 'post', data: payload });
+export type Key = {
+  name: string;
+  expiredAt?: string;
+  allowedPath: string;
+  creator: string;
+};

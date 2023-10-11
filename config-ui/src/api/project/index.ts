@@ -18,16 +18,26 @@
 
 import { request } from '@/utils';
 
-type VersionType = {
-  version: string;
-};
+import * as T from './types';
 
-export const getVersion = (signal?: AbortSignal): Promise<VersionType> => request('/version', { signal });
+export const list = (data: Pagination): Promise<{ count: number; projects: T.Project[] }> =>
+  request('/projects', { data });
 
-type UserInfoType = {
-  user: string;
-  email: string;
-  logoutURI: string;
-};
+export const get = (name: string): Promise<T.Project> => request(`/projects/${name}`);
 
-export const getUserInfo = (signal?: AbortSignal): Promise<UserInfoType> => request('/userinfo', { signal });
+export const create = (data: Pick<T.Project, 'name' | 'description' | 'metrics'>) =>
+  request('/projects', {
+    method: 'post',
+    data,
+  });
+
+export const remove = (name: string) =>
+  request(`/projects/${name}`, {
+    method: 'delete',
+  });
+
+export const update = (name: string, data: Pick<T.Project, 'name' | 'description' | 'metrics'>) =>
+  request(`/projects/${name}`, {
+    method: 'patch',
+    data,
+  });

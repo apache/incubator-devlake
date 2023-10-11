@@ -17,17 +17,17 @@
  */
 import { useState, useMemo } from 'react';
 
+import API from '@/api';
 import { PageHeader } from '@/components';
 import { useRefreshData } from '@/hooks';
 
 import { PipelineTable } from './components';
-import * as API from './api';
 
 export const Pipelines = () => {
   const [page, setPage] = useState(1);
   const [pageSize] = useState(20);
 
-  const { ready, data } = useRefreshData(() => API.getPipelines());
+  const { ready, data } = useRefreshData(() => API.pipeline.list());
 
   const [dataSource, total] = useMemo(() => [(data?.pipelines ?? []).map((it) => it), data?.count ?? 0], [data]);
 

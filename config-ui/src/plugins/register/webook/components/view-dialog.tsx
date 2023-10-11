@@ -19,10 +19,10 @@
 import { useState, useEffect, useMemo } from 'react';
 import { Button, Intent } from '@blueprintjs/core';
 
+import API from '@/api';
 import { Dialog, FormItem, CopyText, ExternalLink, Message } from '@/components';
 import { operator } from '@/utils';
 
-import * as API from '../api';
 import * as S from '../styled';
 
 interface Props {
@@ -45,7 +45,7 @@ export const ViewDialog = ({ initialId, onCancel }: Props) => {
 
   useEffect(() => {
     (async () => {
-      const res = await API.getConnection(initialId);
+      const res = await API.plugin.webhook.get(initialId);
       setRecord({
         apiKeyId: res.apiKey.id,
         postIssuesEndpoint: ` curl ${prefix}${res.postIssuesEndpoint} -X 'POST' -H 'Authorization: Bearer {API_KEY}' -d '{
@@ -67,7 +67,7 @@ export const ViewDialog = ({ initialId, onCancel }: Props) => {
   }, [initialId]);
 
   const handleGenerateNewKey = async () => {
-    const [success, res] = await operator(() => API.renewApiKey(record.apiKeyId), {
+    const [success, res] = await operator(() => API.apiKey.renew(record.apiKeyId), {
       setOperating,
     });
 

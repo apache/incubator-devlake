@@ -20,6 +20,7 @@ import { useState, useEffect, useMemo } from 'react';
 import { Link } from 'react-router-dom';
 import { Button, Intent } from '@blueprintjs/core';
 
+import API from '@/api';
 import { IconButton, Table, NoData, Buttons } from '@/components';
 import { getCron } from '@/config';
 import { useConnections } from '@/hooks';
@@ -33,7 +34,6 @@ import { ModeEnum } from '../types';
 import { validRawPlan } from '../utils';
 
 import { AdvancedEditor, UpdateNameDialog, UpdatePolicyDialog, AddConnectionDialog } from './components';
-import * as API from './api';
 import * as S from './styled';
 
 interface Props {
@@ -92,7 +92,7 @@ export const ConfigurationPanel = ({ from, blueprint, onRefresh, onChangeTab }: 
   const handleUpdate = async (payload: any) => {
     const [success] = await operator(
       () =>
-        API.updateBlueprint(blueprint.id, {
+        API.blueprint.update(blueprint.id, {
           ...blueprint,
           ...payload,
         }),
@@ -109,10 +109,13 @@ export const ConfigurationPanel = ({ from, blueprint, onRefresh, onChangeTab }: 
   };
 
   const handleRun = async () => {
-    const [success] = await operator(() => API.runBlueprint(blueprint.id, { skipCollectors: false, fullSync: false }), {
-      setOperating,
-      formatMessage: () => 'Trigger blueprint successful.',
-    });
+    const [success] = await operator(
+      () => API.blueprint.trigger(blueprint.id, { skipCollectors: false, fullSync: false }),
+      {
+        setOperating,
+        formatMessage: () => 'Trigger blueprint successful.',
+      },
+    );
 
     if (success) {
       onRefresh();
