@@ -113,7 +113,7 @@ func NewStatefulApiCollector(args RawDataSubTaskArgs) (*ApiCollectorStateManager
 // InitCollector init the embedded collector
 func (m *ApiCollectorStateManager) InitCollector(args ApiCollectorArgs) errors.Error {
 	args.RawDataSubTaskArgs = m.RawDataSubTaskArgs
-	args.Incremental = m.IsIncreamtal
+	args.Incremental = args.Incremental || m.IsIncreamtal
 	apiCollector, err := NewApiCollector(args)
 	if err != nil {
 		return err

@@ -367,7 +367,7 @@ const ConnectionDetail = ({ plugin, connectionId }: Props) => {
             onCreate: handleShowCreateDataScopeDialog,
           }}
           rowSelection={{
-            getRowKey: (row) => getPluginScopeId(plugin, row),
+            getRowKey: (row) => row.id,
             selectedRowKeys: scopeIds,
             onChange: (selectedRowKeys) => setScopeIds(selectedRowKeys),
           }}

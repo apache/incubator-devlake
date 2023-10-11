@@ -71,7 +71,7 @@ export const CreateDialog = ({ isOpen, onCancel, onSubmitAfter }: Props) => {
       setStep(2);
       setRecord({
         id: res.id,
-        postIssuesEndpoint: ` curl ${prefix}${res.postIssuesEndpoint} -X 'POST' -H 'Authorization: Bearer ${res.apiKey}' -d '{
+        postIssuesEndpoint: `curl ${prefix}${res.postIssuesEndpoint} -X 'POST' -H 'Authorization: Bearer ${res.apiKey}' -d '{
    "issue_key":"DLK-1234",
    "title":"a feature from DLK",
    "type":"INCIDENT",
