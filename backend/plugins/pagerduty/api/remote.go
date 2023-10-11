@@ -39,6 +39,7 @@ type RemoteScopesChild struct {
 	Id       string      `json:"id"`
 	Name     string      `json:"name"`
 	Data     interface{} `json:"data"`
+	FullName string      `json:"fullName"` // temporary fix, to adopt remote scope helper
 }
 
 type RemoteScopesOutput struct {
@@ -127,9 +128,10 @@ func RemoteScopes(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, er
 	// append service to output
 	for _, service := range response.Services {
 		child := RemoteScopesChild{
-			Type: TypeScope,
-			Id:   service.Id,
-			Name: service.Name,
+			Type:     TypeScope,
+			Id:       service.Id,
+			Name:     service.Name,
+			FullName: service.Name,
 			Data: models.Service{
 				Url:  service.HtmlUrl,
 				Id:   service.Id,
