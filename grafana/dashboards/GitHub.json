@@ -2289,10 +2289,7 @@
       "type": "row"
     },
     {
-      "datasource": {
-        "type": "datasource",
-        "uid": "mysql"
-      },
+      "datasource": "mysql",
       "description": "Number of workflow runs executed in the selected time range",
       "fieldConfig": {
         "defaults": {
@@ -2334,10 +2331,7 @@
       "pluginVersion": "9.5.2",
       "targets": [
         {
-          "datasource": {
-            "type": "datasource",
-            "uid": "mysql"
-          },
+          "datasource": "mysql",
           "editorMode": "code",
           "format": "table",
           "group": [],
@@ -2388,10 +2382,7 @@
       "type": "stat"
     },
     {
-      "datasource": {
-        "type": "datasource",
-        "uid": "mysql"
-      },
+      "datasource": "mysql",
       "description": "Number of successful workflow runs / Number of total workflow runs",
       "fieldConfig": {
         "defaults": {
@@ -2436,10 +2427,7 @@
       "pluginVersion": "9.5.2",
       "targets": [
         {
-          "datasource": {
-            "type": "datasource",
-            "uid": "mysql"
-          },
+          "datasource": "mysql",
           "editorMode": "code",
           "format": "table",
           "group": [],
@@ -2490,10 +2478,7 @@
       "type": "stat"
     },
     {
-      "datasource": {
-        "type": "datasource",
-        "uid": "mysql"
-      },
+      "datasource": "mysql",
       "description": "",
       "fieldConfig": {
         "defaults": {
@@ -2623,10 +2608,7 @@
       "pluginVersion": "8.0.6",
       "targets": [
         {
-          "datasource": {
-            "type": "datasource",
-            "uid": "mysql"
-          },
+          "datasource": "mysql",
           "editorMode": "code",
           "format": "table",
           "group": [],
@@ -2677,10 +2659,7 @@
       "type": "piechart"
     },
     {
-      "datasource": {
-        "type": "datasource",
-        "uid": "mysql"
-      },
+      "datasource": "mysql",
       "description": "Number of successful workflow runs / Number of total workflow runs",
       "fieldConfig": {
         "defaults": {
@@ -2723,10 +2702,7 @@
       "pluginVersion": "9.5.2",
       "targets": [
         {
-          "datasource": {
-            "type": "datasource",
-            "uid": "mysql"
-          },
+          "datasource": "mysql",
           "editorMode": "code",
           "format": "table",
           "group": [],
@@ -2777,10 +2753,7 @@
       "type": "stat"
     },
     {
-      "datasource": {
-        "type": "datasource",
-        "uid": "mysql"
-      },
+      "datasource": "mysql",
       "description": "",
       "fieldConfig": {
         "defaults": {
@@ -2859,10 +2832,7 @@
       "pluginVersion": "8.0.6",
       "targets": [
         {
-          "datasource": {
-            "type": "datasource",
-            "uid": "mysql"
-          },
+          "datasource": "mysql",
           "editorMode": "code",
           "format": "table",
           "group": [],
@@ -2914,10 +2884,7 @@
       "type": "barchart"
     },
     {
-      "datasource": {
-        "type": "datasource",
-        "uid": "mysql"
-      },
+      "datasource": "mysql",
       "description": "1. Mean Build success rate over time.\n2. The workflow runs being calculated are filtered by \"build starting time\" (time filter at the upper-right corner) and \"Jira board\" (\"Choose Board\" filter at the upper-left corner)",
       "fieldConfig": {
         "defaults": {
@@ -3016,10 +2983,7 @@
       "pluginVersion": "8.0.6",
       "targets": [
         {
-          "datasource": {
-            "type": "datasource",
-            "uid": "mysql"
-          },
+          "datasource": "mysql",
           "editorMode": "code",
           "format": "table",
           "group": [],
@@ -3070,10 +3034,7 @@
       "type": "barchart"
     },
     {
-      "datasource": {
-        "type": "datasource",
-        "uid": "mysql"
-      },
+      "datasource": "mysql",
       "description": "",
       "fieldConfig": {
         "defaults": {
@@ -3182,10 +3143,7 @@
       "pluginVersion": "8.0.6",
       "targets": [
         {
-          "datasource": {
-            "type": "datasource",
-            "uid": "mysql"
-          },
+          "datasource": "mysql",
           "editorMode": "code",
           "format": "time_series",
           "group": [],
@@ -3237,10 +3195,7 @@
       "type": "timeseries"
     },
     {
-      "datasource": {
-        "type": "datasource",
-        "uid": "mysql"
-      },
+      "datasource": "mysql",
       "description": "",
       "fieldConfig": {
         "defaults": {
@@ -3335,10 +3290,7 @@
       "pluginVersion": "8.0.6",
       "targets": [
         {
-          "datasource": {
-            "type": "datasource",
-            "uid": "mysql"
-          },
+          "datasource": "mysql",
           "editorMode": "code",
           "format": "table",
           "group": [],
