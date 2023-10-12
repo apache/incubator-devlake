@@ -115,7 +115,7 @@ func convertScopeResponse(scopes ...*api.ScopeRes[models.DynamicScopeModel, mode
 	responses := make([]map[string]any, len(scopes))
 	for i, scope := range scopes {
 		resMap := map[string]any{}
-		err := models.MapTo(scope.ScopeResDoc, &resMap)
+		err := models.MapTo(scope, &resMap)
 		if err != nil {
 			return nil, err
 		}
