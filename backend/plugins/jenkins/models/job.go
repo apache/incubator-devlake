@@ -27,7 +27,7 @@ var _ plugin.ToolLayerScope = (*JenkinsJob)(nil)
 // JenkinsJob db entity for jenkins job
 type JenkinsJob struct {
 	ConnectionId     uint64 `gorm:"primaryKey" mapstructure:"connectionId,omitempty" validate:"required" json:"connectionId"`
-	FullName         string `gorm:"primaryKey;type:varchar(255)" mapstructure:"jobFullName" validate:"required" json:"jobFullName"` // "path1/path2/job name"
+	FullName         string `gorm:"primaryKey;type:varchar(255)" mapstructure:"fullName" validate:"required" json:"fullName"` // "path1/path2/job name"
 	ScopeConfigId    uint64 `mapstructure:"scopeConfigId,omitempty" json:"scopeConfigId,omitempty"`
 	Name             string `gorm:"index;type:varchar(255)" mapstructure:"name" json:"name"`     // scope name now is same to `jobFullName`
 	Path             string `gorm:"index;type:varchar(511)" mapstructure:"-,omitempty" json:"-"` // "job/path1/job/path2"
