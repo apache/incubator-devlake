@@ -2290,8 +2290,8 @@
     },
     {
       "datasource": {
-        "type": "mysql",
-        "uid": "P430005175C4C7810"
+        "type": "datasource",
+        "uid": "mysql"
       },
       "description": "Number of builds executed in the selected time range",
       "fieldConfig": {
@@ -2335,8 +2335,8 @@
       "targets": [
         {
           "datasource": {
-            "type": "mysql",
-            "uid": "P430005175C4C7810"
+            "type": "datasource",
+            "uid": "mysql"
           },
           "editorMode": "code",
           "format": "table",
@@ -2389,8 +2389,8 @@
     },
     {
       "datasource": {
-        "type": "mysql",
-        "uid": "P430005175C4C7810"
+        "type": "datasource",
+        "uid": "mysql"
       },
       "description": "Number of successful builds / Number of total builds",
       "fieldConfig": {
@@ -2437,8 +2437,8 @@
       "targets": [
         {
           "datasource": {
-            "type": "mysql",
-            "uid": "P430005175C4C7810"
+            "type": "datasource",
+            "uid": "mysql"
           },
           "editorMode": "code",
           "format": "table",
@@ -2491,8 +2491,8 @@
     },
     {
       "datasource": {
-        "type": "mysql",
-        "uid": "P430005175C4C7810"
+        "type": "datasource",
+        "uid": "mysql"
       },
       "description": "",
       "fieldConfig": {
@@ -2624,8 +2624,8 @@
       "targets": [
         {
           "datasource": {
-            "type": "mysql",
-            "uid": "P430005175C4C7810"
+            "type": "datasource",
+            "uid": "mysql"
           },
           "editorMode": "code",
           "format": "table",
@@ -2678,8 +2678,8 @@
     },
     {
       "datasource": {
-        "type": "mysql",
-        "uid": "P430005175C4C7810"
+        "type": "datasource",
+        "uid": "mysql"
       },
       "description": "Number of successful builds / Number of total builds",
       "fieldConfig": {
@@ -2724,8 +2724,8 @@
       "targets": [
         {
           "datasource": {
-            "type": "mysql",
-            "uid": "P430005175C4C7810"
+            "type": "datasource",
+            "uid": "mysql"
           },
           "editorMode": "code",
           "format": "table",
@@ -2778,8 +2778,8 @@
     },
     {
       "datasource": {
-        "type": "mysql",
-        "uid": "P430005175C4C7810"
+        "type": "datasource",
+        "uid": "mysql"
       },
       "description": "",
       "fieldConfig": {
@@ -2860,8 +2860,8 @@
       "targets": [
         {
           "datasource": {
-            "type": "mysql",
-            "uid": "P430005175C4C7810"
+            "type": "datasource",
+            "uid": "mysql"
           },
           "editorMode": "code",
           "format": "table",
@@ -2915,8 +2915,8 @@
     },
     {
       "datasource": {
-        "type": "mysql",
-        "uid": "P430005175C4C7810"
+        "type": "datasource",
+        "uid": "mysql"
       },
       "description": "1. Mean Build success rate over time.\n2. The builds being calculated are filtered by \"build starting time\" (time filter at the upper-right corner) and \"Jira board\" (\"Choose Board\" filter at the upper-left corner)",
       "fieldConfig": {
@@ -3017,8 +3017,8 @@
       "targets": [
         {
           "datasource": {
-            "type": "mysql",
-            "uid": "P430005175C4C7810"
+            "type": "datasource",
+            "uid": "mysql"
           },
           "editorMode": "code",
           "format": "table",
@@ -3071,8 +3071,8 @@
     },
     {
       "datasource": {
-        "type": "mysql",
-        "uid": "P430005175C4C7810"
+        "type": "datasource",
+        "uid": "mysql"
       },
       "description": "",
       "fieldConfig": {
@@ -3183,8 +3183,8 @@
       "targets": [
         {
           "datasource": {
-            "type": "mysql",
-            "uid": "P430005175C4C7810"
+            "type": "datasource",
+            "uid": "mysql"
           },
           "editorMode": "code",
           "format": "time_series",
@@ -3238,8 +3238,8 @@
     },
     {
       "datasource": {
-        "type": "mysql",
-        "uid": "P430005175C4C7810"
+        "type": "datasource",
+        "uid": "mysql"
       },
       "description": "",
       "fieldConfig": {
@@ -3336,8 +3336,8 @@
       "targets": [
         {
           "datasource": {
-            "type": "mysql",
-            "uid": "P430005175C4C7810"
+            "type": "datasource",
+            "uid": "mysql"
           },
           "editorMode": "code",
           "format": "table",
@@ -3466,8 +3466,8 @@
           "value": "github:GithubRepo:1:681632666"
         },
         "datasource": {
-          "type": "mysql",
-          "uid": "P430005175C4C7810"
+          "type": "datasource",
+          "uid": "mysql"
         },
         "definition": "select distinct cicd_scope_id as text from cicd_pipelines where id like \"%github%\" ",
         "hide": 0,
