@@ -58,10 +58,7 @@
       "type": "text"
     },
     {
-      "datasource": {
-        "type": "mysql",
-        "uid": "P430005175C4C7810"
-      },
+      "datasource": "mysql",
       "description": "Number of builds executed in the selected time range",
       "fieldConfig": {
         "defaults": {
@@ -103,10 +100,7 @@
       "pluginVersion": "9.5.2",
       "targets": [
         {
-          "datasource": {
-            "type": "mysql",
-            "uid": "P430005175C4C7810"
-          },
+          "datasource": "mysql",
           "editorMode": "code",
           "format": "table",
           "group": [],
@@ -157,10 +151,7 @@
       "type": "stat"
     },
     {
-      "datasource": {
-        "type": "mysql",
-        "uid": "P430005175C4C7810"
-      },
+      "datasource": "mysql",
       "description": "Number of successful builds / Number of total builds",
       "fieldConfig": {
         "defaults": {
@@ -205,10 +196,7 @@
       "pluginVersion": "9.5.2",
       "targets": [
         {
-          "datasource": {
-            "type": "mysql",
-            "uid": "P430005175C4C7810"
-          },
+          "datasource": "mysql",
           "editorMode": "code",
           "format": "table",
           "group": [],
@@ -259,10 +247,7 @@
       "type": "stat"
     },
     {
-      "datasource": {
-        "type": "mysql",
-        "uid": "P430005175C4C7810"
-      },
+      "datasource": "mysql",
       "description": "",
       "fieldConfig": {
         "defaults": {
@@ -392,10 +377,7 @@
       "pluginVersion": "8.0.6",
       "targets": [
         {
-          "datasource": {
-            "type": "mysql",
-            "uid": "P430005175C4C7810"
-          },
+          "datasource": "mysql",
           "editorMode": "code",
           "format": "table",
           "group": [],
@@ -446,10 +428,7 @@
       "type": "piechart"
     },
     {
-      "datasource": {
-        "type": "mysql",
-        "uid": "P430005175C4C7810"
-      },
+      "datasource": "mysql",
       "description": "Number of successful builds / Number of total builds",
       "fieldConfig": {
         "defaults": {
@@ -492,10 +471,7 @@
       "pluginVersion": "9.5.2",
       "targets": [
         {
-          "datasource": {
-            "type": "mysql",
-            "uid": "P430005175C4C7810"
-          },
+          "datasource": "mysql",
           "editorMode": "code",
           "format": "table",
           "group": [],
@@ -546,10 +522,7 @@
       "type": "stat"
     },
     {
-      "datasource": {
-        "type": "mysql",
-        "uid": "P430005175C4C7810"
-      },
+      "datasource": "mysql",
       "description": "",
       "fieldConfig": {
         "defaults": {
@@ -628,10 +601,7 @@
       "pluginVersion": "8.0.6",
       "targets": [
         {
-          "datasource": {
-            "type": "mysql",
-            "uid": "P430005175C4C7810"
-          },
+          "datasource": "mysql",
           "editorMode": "code",
           "format": "table",
           "group": [],
@@ -683,10 +653,7 @@
       "type": "barchart"
     },
     {
-      "datasource": {
-        "type": "mysql",
-        "uid": "P430005175C4C7810"
-      },
+      "datasource": "mysql",
       "description": "1. Mean Build success rate over time.\n2. The builds being calculated are filtered by \"build starting time\" (time filter at the upper-right corner) and \"Jira board\" (\"Choose Board\" filter at the upper-left corner)",
       "fieldConfig": {
         "defaults": {
@@ -785,10 +752,7 @@
       "pluginVersion": "8.0.6",
       "targets": [
         {
-          "datasource": {
-            "type": "mysql",
-            "uid": "P430005175C4C7810"
-          },
+          "datasource": "mysql",
           "format": "table",
           "group": [],
           "metricColumn": "none",
@@ -821,10 +785,7 @@
       "type": "barchart"
     },
     {
-      "datasource": {
-        "type": "mysql",
-        "uid": "P430005175C4C7810"
-      },
+      "datasource": "mysql",
       "description": "",
       "fieldConfig": {
         "defaults": {
@@ -933,10 +894,7 @@
       "pluginVersion": "8.0.6",
       "targets": [
         {
-          "datasource": {
-            "type": "mysql",
-            "uid": "P430005175C4C7810"
-          },
+          "datasource": "mysql",
           "format": "time_series",
           "group": [],
           "hide": false,
@@ -970,10 +928,7 @@
       "type": "timeseries"
     },
     {
-      "datasource": {
-        "type": "mysql",
-        "uid": "P430005175C4C7810"
-      },
+      "datasource": "mysql",
       "description": "",
       "fieldConfig": {
         "defaults": {
@@ -1068,10 +1023,7 @@
       "pluginVersion": "8.0.6",
       "targets": [
         {
-          "datasource": {
-            "type": "mysql",
-            "uid": "P430005175C4C7810"
-          },
+          "datasource": "mysql",
           "format": "table",
           "group": [],
           "hide": false,
@@ -1157,10 +1109,7 @@
             "$__all"
           ]
         },
-        "datasource": {
-          "type": "mysql",
-          "uid": "P430005175C4C7810"
-        },
+        "datasource": "mysql",
         "definition": "select distinct row_id as text from project_mapping where `table` = 'cicd_scopes' and row_id like 'bamboo%'",
         "hide": 0,
         "includeAll": true,
