@@ -2293,7 +2293,7 @@
         "type": "datasource",
         "uid": "mysql"
       },
-      "description": "Number of builds executed in the selected time range",
+      "description": "Number of workflow runs executed in the selected time range",
       "fieldConfig": {
         "defaults": {
           "mappings": [],
@@ -2384,7 +2384,7 @@
           ]
         }
       ],
-      "title": "5.1 Total Number of Successful Builds [Selected Time Range]",
+      "title": "5.1 Total Number of Successful workflow runs [Selected Time Range]",
       "type": "stat"
     },
     {
@@ -2392,7 +2392,7 @@
         "type": "datasource",
         "uid": "mysql"
       },
-      "description": "Number of successful builds / Number of total builds",
+      "description": "Number of successful workflow runs / Number of total workflow runs",
       "fieldConfig": {
         "defaults": {
           "mappings": [],
@@ -2681,7 +2681,7 @@
         "type": "datasource",
         "uid": "mysql"
       },
-      "description": "Number of successful builds / Number of total builds",
+      "description": "Number of successful workflow runs / Number of total workflow runs",
       "fieldConfig": {
         "defaults": {
           "mappings": [],
@@ -2910,7 +2910,7 @@
           ]
         }
       ],
-      "title": "5.1.1 Total Number of Successful Builds [Each Month]",
+      "title": "5.1.1 Total Number of Successful workflow runs [Each Month]",
       "type": "barchart"
     },
     {
@@ -2918,7 +2918,7 @@
         "type": "datasource",
         "uid": "mysql"
       },
-      "description": "1. Mean Build success rate over time.\n2. The builds being calculated are filtered by \"build starting time\" (time filter at the upper-right corner) and \"Jira board\" (\"Choose Board\" filter at the upper-left corner)",
+      "description": "1. Mean Build success rate over time.\n2. The workflow runs being calculated are filtered by \"build starting time\" (time filter at the upper-right corner) and \"Jira board\" (\"Choose Board\" filter at the upper-left corner)",
       "fieldConfig": {
         "defaults": {
           "color": {
@@ -3233,7 +3233,7 @@
           ]
         }
       ],
-      "title": "5.3.1 Number of Successful and Failed Builds [Each Month]",
+      "title": "5.3.1 Number of Successful and Failed workflow runs [Each Month]",
       "type": "timeseries"
     },
     {
