@@ -40,11 +40,11 @@ func ConvertWorkspace(taskCtx plugin.SubTaskContext) errors.Error {
 	}
 	board := &ticket.Board{
 		DomainEntity: domainlayer.DomainEntity{
-			Id: getWorkspaceIdGen().Generate(workspace.ConnectionId, workspace.Id),
+			Id: getWorkspaceIdGen().Generate(workspace.ConnectionId, workspace.Id.Uint64()),
 		},
 		Name: workspace.Name,
 		Type: "scrum",
-		Url:  fmt.Sprintf("%s/%d", "https://tapd.cn", workspace.Id),
+		Url:  fmt.Sprintf("%s/%d", "https://tapd.cn", workspace.Id.Uint64()),
 	}
 	board.RawDataOrigin = workspace.RawDataOrigin
 

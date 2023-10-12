@@ -30,7 +30,20 @@ import (
 	"github.com/mitchellh/mapstructure"
 )
 
-func DecodeHook(f reflect.Type, t reflect.Type, data interface{}) (interface{}, error) {
+var decodeHooks = []mapstructure.DecodeHookFunc{
+	decodeHookStringUint64,
+	decodeHook,
+}
+
+func decodeHookStringUint64(f reflect.Type, t reflect.Type, data interface{}) (interface{}, error) {
+	if t == reflect.TypeOf(&common.StringUint64{}) || t == reflect.TypeOf(common.StringUint64{}) {
+		tt := common.NewStringUint64FromAny(data)
+		return tt, nil
+	}
+	return data, nil
+}
+
+func decodeHook(f reflect.Type, t reflect.Type, data interface{}) (interface{}, error) {
 	if data == nil {
 		return nil, nil
 	}
@@ -44,7 +57,6 @@ func DecodeHook(f reflect.Type, t reflect.Type, data interface{}) (interface{}, 
 
 	var tt time.Time
 	var err error
-
 	switch f.Kind() {
 	case reflect.String:
 		tt, err = common.ConvertStringToTime(data.(string))
@@ -56,7 +68,6 @@ func DecodeHook(f reflect.Type, t reflect.Type, data interface{}) (interface{}, 
 	if err != nil {
 		return data, nil
 	}
-
 	if t == reflect.TypeOf(common.Iso8601Time{}) {
 		return common.Iso8601Time{Time: tt}, nil
 	}
@@ -68,7 +79,7 @@ func DecodeMapStruct(input map[string]interface{}, result interface{}, zeroField
 	result = models.UnwrapObject(result)
 	decoder, err := mapstructure.NewDecoder(&mapstructure.DecoderConfig{
 		ZeroFields: zeroFields,
-		DecodeHook: mapstructure.ComposeDecodeHookFunc(DecodeHook),
+		DecodeHook: mapstructure.ComposeDecodeHookFunc(decodeHooks...),
 		Result:     result,
 	})
 	if err != nil {

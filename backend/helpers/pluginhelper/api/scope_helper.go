@@ -18,6 +18,7 @@ limitations under the License.
 package api
 
 import (
+	"fmt"
 	"net/http"
 
 	"github.com/apache/incubator-devlake/core/context"
@@ -61,6 +62,7 @@ func (c *ScopeApiHelper[Conn, Scope, Tr]) Put(input *plugin.ApiResourceInput) (*
 	}
 	err := errors.Convert(DecodeMapStruct(input.Body, &req, true))
 	if err != nil {
+		fmt.Println("===>", err)
 		return nil, errors.BadInput.Wrap(err, "decoding scope error")
 	}
 	// Extract the connection ID from the input.Params map

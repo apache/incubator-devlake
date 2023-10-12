@@ -22,36 +22,58 @@ import (
 	"encoding/json"
 	"fmt"
 	"github.com/spf13/cast"
+	"reflect"
 )
 
-type StringFloat64 struct {
-	v float64
+type StringUint64 struct {
+	v uint64
 	t string
 }
 
-func (f *StringFloat64) MarshalJSON() ([]byte, error) {
+func NewStringUint64(value uint64) *StringUint64 {
+	return &StringUint64{
+		v: value,
+		t: "uint64",
+	}
+}
+
+func NewStringUint64FromAny(value interface{}) *StringUint64 {
+	return &StringUint64{
+		v: cast.ToUint64(value),
+		t: "string",
+	}
+}
+
+func (f *StringUint64) MarshalJSON() ([]byte, error) {
 	return json.Marshal(f.String())
 }
 
-func (f *StringFloat64) String() string {
-	if f.t == "string" {
-		return fmt.Sprintf("\"%v\"", f.v)
+func (f *StringUint64) Uint64() uint64 {
+	if f == nil {
+		return 0
 	}
+	return f.v
+}
+
+func (f *StringUint64) String() string {
+	//if f.t == "string" {
+	//	return fmt.Sprintf("\"%v\"", f.v)
+	//}
 	return fmt.Sprintf("%v", f.v)
 }
 
-func (f *StringFloat64) UnmarshalJSON(data []byte) error {
+func (f *StringUint64) UnmarshalJSON(data []byte) error {
 	var i interface{}
 	if err := json.Unmarshal(data, &i); err != nil {
 		return err
 	}
 	switch i.(type) {
-	case float64:
-		f.t = "float64"
+	case uint64:
+		f.t = "uint64"
 	case string:
 		f.t = "string"
 	}
-	value, err := cast.ToFloat64E(i)
+	value, err := cast.ToUint64E(i)
 	if err != nil {
 		return err
 	}
@@ -59,27 +81,27 @@ func (f *StringFloat64) UnmarshalJSON(data []byte) error {
 	return nil
 }
 
-func (f *StringFloat64) Value() (driver.Value, error) {
+func (f *StringUint64) Value() (driver.Value, error) {
 	if f == nil {
 		return nil, nil
 	}
 	return f.v, nil
 }
 
-func (f *StringFloat64) Scan(v interface{}) error {
+func (f *StringUint64) Scan(v interface{}) error {
 	switch value := v.(type) {
-	case float64:
-		*f = StringFloat64{
-			v: value,
-			t: "float64",
+	case uint8, uint16, uint32, uint64, int8, int16, int32, int64, int, uint:
+		*f = StringUint64{
+			v: cast.ToUint64(value),
+			t: "uint64",
 		}
 	case string:
-		*f = StringFloat64{
-			v: cast.ToFloat64(value),
+		*f = StringUint64{
+			v: cast.ToUint64(value),
 			t: "string",
 		}
 	default:
-		return fmt.Errorf("[StringFloat64] %+v is an unknown type, with value: %v", v, value)
+		return fmt.Errorf("[StringUint64] %+v is an unknown type, type: %v with value: %v", v, reflect.TypeOf(v), value)
 	}
 	return nil
 }

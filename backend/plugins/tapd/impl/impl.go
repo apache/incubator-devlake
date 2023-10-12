@@ -220,7 +220,7 @@ func (p Tapd) PrepareTaskData(taskCtx plugin.TaskContext, options map[string]int
 			if err != nil {
 				return nil, err
 			}
-			logger.Debug(fmt.Sprintf("Current workspace: %d", scope.Id))
+			logger.Debug(fmt.Sprintf("Current workspace: %d", scope.Id.Uint64()))
 			err = db.CreateIfNotExist(&scope)
 			if err != nil {
 				return nil, err
@@ -229,7 +229,7 @@ func (p Tapd) PrepareTaskData(taskCtx plugin.TaskContext, options map[string]int
 		if err != nil {
 			return nil, errors.Default.Wrap(err, fmt.Sprintf("fail to find workspace: %d", op.WorkspaceId))
 		}
-		op.WorkspaceId = scope.Id
+		op.WorkspaceId = scope.Id.Uint64()
 		if op.ScopeConfigId == 0 {
 			op.ScopeConfigId = scope.ScopeConfigId
 		}

@@ -92,15 +92,15 @@ func RemoteScopes(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, er
 			// check if workspace is a group
 			isGroupMap := map[uint64]bool{}
 			for _, workspace := range resBody.Data {
-				isGroupMap[workspace.TapdWorkspace.ParentId] = true
+				isGroupMap[workspace.TapdWorkspace.ParentId.Uint64()] = true
 			}
 
 			groups := []api.BaseRemoteGroupResponse{}
 			for _, workspace := range resBody.Data {
-				if fmt.Sprintf(`%d`, workspace.TapdWorkspace.ParentId) == gid &&
-					isGroupMap[workspace.TapdWorkspace.Id] {
+				if fmt.Sprintf(`%d`, workspace.TapdWorkspace.ParentId.Uint64()) == gid &&
+					isGroupMap[workspace.TapdWorkspace.Id.Uint64()] {
 					groups = append(groups, api.BaseRemoteGroupResponse{
-						Id:   fmt.Sprintf(`%d`, workspace.TapdWorkspace.Id),
+						Id:   fmt.Sprintf(`%d`, workspace.TapdWorkspace.Id.Uint64()),
 						Name: workspace.TapdWorkspace.Name,
 					})
 				}
@@ -131,11 +131,10 @@ func RemoteScopes(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, er
 			}
 			workspaces := []models.TapdWorkspace{}
 			for _, workspace := range resBody.Data {
-				if fmt.Sprintf(`%d`, workspace.TapdWorkspace.ParentId) == gid {
+				if fmt.Sprintf(`%d`, workspace.TapdWorkspace.ParentId.Uint64()) == gid {
 					// filter from all project to query what we need...
 					workspaces = append(workspaces, models.TapdWorkspace(workspace.TapdWorkspace))
 				}
-
 			}
 			return workspaces, err
 		},

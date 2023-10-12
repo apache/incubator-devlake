@@ -84,7 +84,7 @@ func mockBasicRes(t *testing.T) {
 		Scope: common.Scope{
 			ConnectionId: 1,
 		},
-		Id:   10,
+		Id:   common.NewStringUint64(10),
 		Name: "a",
 	}
 	scopeConfig := &models.TapdScopeConfig{
