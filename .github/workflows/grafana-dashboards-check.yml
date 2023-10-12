@@ -1,0 +1,20 @@
+name: check-grafana-dashboards
+
+on:
+  pull_request:
+    branches: [ main ]
+  push:
+
+jobs:
+  check-grafana-dashboards:
+    name: check grafana dashboards
+    runs-on: ubuntu-20.04
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v2
+      - name: Check grafana dashboards whether using mysql uid
+        run: |
+          if grep '"type": "mysql"' grafana/dashboards/*; then
+              echo "There are dashboards which use mysql uid as datasource"
+              exit 1
+          fi
