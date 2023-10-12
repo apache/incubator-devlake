@@ -21,7 +21,12 @@ import (
 	"github.com/apache/incubator-devlake/core/errors"
 	"github.com/apache/incubator-devlake/core/plugin"
 	"github.com/apache/incubator-devlake/helpers/pluginhelper/api"
+	"github.com/apache/incubator-devlake/plugins/jira/models"
 )
+
+func init() {
+	RegisterSubtaskMeta(&ExtractEpicsMeta)
+}
 
 var _ plugin.SubTaskEntryPoint = ExtractEpics
 
@@ -31,6 +36,16 @@ var ExtractEpicsMeta = plugin.SubTaskMeta{
 	EnabledByDefault: true,
 	Description:      "extract Jira epics from all boards",
 	DomainTypes:      []string{plugin.DOMAIN_TYPE_TICKET, plugin.DOMAIN_TYPE_CROSS},
+	DependencyTables: []string{RAW_EPIC_TABLE},
+	ProductTables: []string{
+		models.JiraSprintIssue{}.TableName(),
+		models.JiraIssueComment{}.TableName(),
+		models.JiraWorklog{}.TableName(),
+		models.JiraIssueChangelogs{}.TableName(),
+		models.JiraIssueChangelogItems{}.TableName(),
+		models.JiraBoardIssue{}.TableName(),
+		models.JiraAccount{}.TableName(),
+		models.JiraIssueLabel{}.TableName()},
 }
 
 func ExtractEpics(taskCtx plugin.SubTaskContext) errors.Error {

@@ -18,6 +18,8 @@ limitations under the License.
 package tasks
 
 import (
+	"reflect"
+
 	"github.com/apache/incubator-devlake/core/dal"
 	"github.com/apache/incubator-devlake/core/errors"
 	"github.com/apache/incubator-devlake/core/models/domainlayer/crossdomain"
@@ -25,8 +27,11 @@ import (
 	"github.com/apache/incubator-devlake/core/plugin"
 	"github.com/apache/incubator-devlake/helpers/pluginhelper/api"
 	"github.com/apache/incubator-devlake/plugins/jira/models"
-	"reflect"
 )
+
+func init() {
+	RegisterSubtaskMeta(&ConvertIssueCommitsMeta)
+}
 
 var ConvertIssueCommitsMeta = plugin.SubTaskMeta{
 	Name:             "convertIssueCommits",
@@ -34,6 +39,12 @@ var ConvertIssueCommitsMeta = plugin.SubTaskMeta{
 	EnabledByDefault: true,
 	Description:      "convert Jira issue commits",
 	DomainTypes:      []string{plugin.DOMAIN_TYPE_CROSS},
+	DependencyTables: []string{
+		models.JiraIssueCommit{}.TableName(), // cursor
+		models.JiraBoardIssue{}.TableName(),  // cursor
+		models.JiraIssue{}.TableName(),       // id generator
+		RAW_ISSUE_TABLE},
+	ProductTables: []string{crossdomain.IssueCommit{}.TableName()},
 }
 
 func ConvertIssueCommits(taskCtx plugin.SubTaskContext) errors.Error {

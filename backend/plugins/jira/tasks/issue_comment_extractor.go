@@ -19,12 +19,17 @@ package tasks
 
 import (
 	"encoding/json"
+
 	"github.com/apache/incubator-devlake/core/errors"
 	"github.com/apache/incubator-devlake/core/plugin"
 	"github.com/apache/incubator-devlake/helpers/pluginhelper/api"
 	"github.com/apache/incubator-devlake/plugins/jira/models"
 	"github.com/apache/incubator-devlake/plugins/jira/tasks/apiv2models"
 )
+
+func init() {
+	RegisterSubtaskMeta(&ExtractIssueCommentsMeta)
+}
 
 var _ plugin.SubTaskEntryPoint = ExtractIssueComments
 
@@ -34,6 +39,8 @@ var ExtractIssueCommentsMeta = plugin.SubTaskMeta{
 	EnabledByDefault: false,
 	Description:      "extract Jira Issue comments",
 	DomainTypes:      []string{plugin.DOMAIN_TYPE_TICKET, plugin.DOMAIN_TYPE_CROSS},
+	DependencyTables: []string{RAW_ISSUE_COMMENT_TABLE},
+	ProductTables:    []string{models.JiraIssueComment{}.TableName()},
 }
 
 func ExtractIssueComments(taskCtx plugin.SubTaskContext) errors.Error {

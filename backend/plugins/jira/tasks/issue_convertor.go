@@ -33,12 +33,26 @@ import (
 	"github.com/apache/incubator-devlake/plugins/jira/models"
 )
 
+func init() {
+	RegisterSubtaskMeta(&ConvertIssuesMeta)
+}
+
 var ConvertIssuesMeta = plugin.SubTaskMeta{
 	Name:             "convertIssues",
 	EntryPoint:       ConvertIssues,
 	EnabledByDefault: true,
 	Description:      "convert Jira issues",
 	DomainTypes:      []string{plugin.DOMAIN_TYPE_TICKET},
+	DependencyTables: []string{
+		models.JiraIssue{}.TableName(),      // cursor
+		models.JiraBoardIssue{}.TableName(), // cursor
+		models.JiraAccount{}.TableName(),    // id generator
+		models.JiraBoard{}.TableName(),      // id generator
+		RAW_ISSUE_TABLE},
+	ProductTables: []string{
+		ticket.IssueAssignee{}.TableName(),
+		ticket.Issue{}.TableName(),
+		ticket.BoardIssue{}.TableName()},
 }
 
 func ConvertIssues(taskCtx plugin.SubTaskContext) errors.Error {

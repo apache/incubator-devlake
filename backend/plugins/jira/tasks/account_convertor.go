@@ -18,6 +18,8 @@ limitations under the License.
 package tasks
 
 import (
+	"reflect"
+
 	"github.com/apache/incubator-devlake/core/dal"
 	"github.com/apache/incubator-devlake/core/errors"
 	"github.com/apache/incubator-devlake/core/models/domainlayer"
@@ -26,8 +28,11 @@ import (
 	"github.com/apache/incubator-devlake/core/plugin"
 	"github.com/apache/incubator-devlake/helpers/pluginhelper/api"
 	"github.com/apache/incubator-devlake/plugins/jira/models"
-	"reflect"
 )
+
+func init() {
+	RegisterSubtaskMeta(&ConvertAccountsMeta)
+}
 
 var ConvertAccountsMeta = plugin.SubTaskMeta{
 	Name:             "convertAccounts",
@@ -35,6 +40,10 @@ var ConvertAccountsMeta = plugin.SubTaskMeta{
 	EnabledByDefault: true,
 	Description:      "convert Jira accounts",
 	DomainTypes:      []string{plugin.DOMAIN_TYPE_CROSS},
+	DependencyTables: []string{
+		models.JiraAccount{}.TableName(), // cursor
+		RAW_USERS_TABLE},
+	ProductTables: []string{crossdomain.Account{}.TableName()},
 }
 
 func ConvertAccounts(taskCtx plugin.SubTaskContext) errors.Error {

@@ -34,6 +34,10 @@ import (
 	"github.com/apache/incubator-devlake/plugins/jira/models"
 )
 
+func init() {
+	RegisterSubtaskMeta(&ConvertIssueChangelogsMeta)
+}
+
 var validID = regexp.MustCompile(`[0-9]+`)
 
 var ConvertIssueChangelogsMeta = plugin.SubTaskMeta{
@@ -42,6 +46,14 @@ var ConvertIssueChangelogsMeta = plugin.SubTaskMeta{
 	EnabledByDefault: true,
 	Description:      "convert Jira Issue change logs",
 	DomainTypes:      []string{plugin.DOMAIN_TYPE_TICKET, plugin.DOMAIN_TYPE_CROSS},
+	DependencyTables: []string{
+		models.JiraIssueChangelogItems{}.TableName(),
+		models.JiraIssueChangelogs{}.TableName(),
+		models.JiraIssue{}.TableName(),
+		models.JiraSprint{}.TableName(),
+		models.JiraAccount{}.TableName(),
+		RAW_CHANGELOG_TABLE},
+	ProductTables: []string{ticket.IssueChangelogs{}.TableName()},
 }
 
 type IssueChangelogItemResult struct {

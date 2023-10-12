@@ -18,6 +18,8 @@ limitations under the License.
 package tasks
 
 import (
+	"reflect"
+
 	"github.com/apache/incubator-devlake/core/dal"
 	"github.com/apache/incubator-devlake/core/errors"
 	"github.com/apache/incubator-devlake/core/models/domainlayer"
@@ -26,8 +28,11 @@ import (
 	"github.com/apache/incubator-devlake/core/plugin"
 	"github.com/apache/incubator-devlake/helpers/pluginhelper/api"
 	"github.com/apache/incubator-devlake/plugins/jira/models"
-	"reflect"
 )
+
+func init() {
+	RegisterSubtaskMeta(&ConvertBoardMeta)
+}
 
 const RAW_BOARD_TABLE = "jira_api_boards"
 
@@ -37,6 +42,10 @@ var ConvertBoardMeta = plugin.SubTaskMeta{
 	EnabledByDefault: true,
 	Description:      "convert Jira board",
 	DomainTypes:      []string{plugin.DOMAIN_TYPE_TICKET},
+	DependencyTables: []string{
+		models.JiraBoard{}.TableName(), // cursor
+		RAW_BOARD_TABLE},
+	ProductTables: []string{ticket.Board{}.TableName()},
 }
 
 func ConvertBoard(taskCtx plugin.SubTaskContext) errors.Error {

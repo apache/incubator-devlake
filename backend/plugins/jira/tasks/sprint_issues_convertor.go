@@ -18,6 +18,8 @@ limitations under the License.
 package tasks
 
 import (
+	"reflect"
+
 	"github.com/apache/incubator-devlake/core/dal"
 	"github.com/apache/incubator-devlake/core/errors"
 	"github.com/apache/incubator-devlake/core/models/domainlayer/didgen"
@@ -25,8 +27,11 @@ import (
 	"github.com/apache/incubator-devlake/core/plugin"
 	"github.com/apache/incubator-devlake/helpers/pluginhelper/api"
 	"github.com/apache/incubator-devlake/plugins/jira/models"
-	"reflect"
 )
+
+func init() {
+	RegisterSubtaskMeta(&ConvertSprintIssuesMeta)
+}
 
 var ConvertSprintIssuesMeta = plugin.SubTaskMeta{
 	Name:             "convertSprintIssues",
@@ -34,6 +39,12 @@ var ConvertSprintIssuesMeta = plugin.SubTaskMeta{
 	EnabledByDefault: true,
 	Description:      "convert Jira sprint_issues",
 	DomainTypes:      []string{plugin.DOMAIN_TYPE_TICKET},
+	DependencyTables: []string{
+		models.JiraSprintIssue{}.TableName(), // cursor
+		models.JiraIssue{}.TableName(),       // id generator
+		models.JiraSprint{}.TableName(),      // id generator
+		RAW_ISSUE_TABLE},
+	ProductTables: []string{ticket.SprintIssue{}.TableName()},
 }
 
 func ConvertSprintIssues(taskCtx plugin.SubTaskContext) errors.Error {

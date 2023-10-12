@@ -28,12 +28,20 @@ import (
 	"github.com/apache/incubator-devlake/plugins/jira/tasks/apiv2models"
 )
 
+func init() {
+	RegisterSubtaskMeta(&ExtractRemotelinksMeta)
+}
+
 var ExtractRemotelinksMeta = plugin.SubTaskMeta{
 	Name:             "extractRemotelinks",
 	EntryPoint:       ExtractRemotelinks,
 	EnabledByDefault: true,
 	Description:      "extract Jira remote links",
 	DomainTypes:      []string{plugin.DOMAIN_TYPE_TICKET},
+	DependencyTables: []string{RAW_REMOTELINK_TABLE},
+	ProductTables: []string{
+		models.JiraRemotelink{}.TableName(),
+		models.JiraIssueCommit{}.TableName()},
 }
 
 func ExtractRemotelinks(taskCtx plugin.SubTaskContext) errors.Error {

@@ -31,6 +31,10 @@ import (
 	"github.com/apache/incubator-devlake/plugins/jira/tasks/apiv2models"
 )
 
+func init() {
+	RegisterSubtaskMeta(&ExtractIssuesMeta)
+}
+
 var _ plugin.SubTaskEntryPoint = ExtractIssues
 
 var ExtractIssuesMeta = plugin.SubTaskMeta{
@@ -39,6 +43,16 @@ var ExtractIssuesMeta = plugin.SubTaskMeta{
 	EnabledByDefault: true,
 	Description:      "extract Jira issues",
 	DomainTypes:      []string{plugin.DOMAIN_TYPE_TICKET, plugin.DOMAIN_TYPE_CROSS},
+	DependencyTables: []string{RAW_ISSUE_TABLE},
+	ProductTables: []string{
+		models.JiraSprintIssue{}.TableName(),
+		models.JiraIssueComment{}.TableName(),
+		models.JiraWorklog{}.TableName(),
+		models.JiraIssueChangelogs{}.TableName(),
+		models.JiraIssueChangelogItems{}.TableName(),
+		models.JiraAccount{}.TableName(),
+		models.JiraBoardIssue{}.TableName(),
+		models.JiraIssueLabel{}.TableName()},
 }
 
 type typeMappings struct {

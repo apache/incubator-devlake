@@ -34,6 +34,10 @@ import (
 	"net/url"
 )
 
+func init() {
+	RegisterSubtaskMeta(&CollectEpicsMeta)
+}
+
 const RAW_EPIC_TABLE = "jira_api_epics"
 
 var _ plugin.SubTaskEntryPoint = CollectEpics
@@ -44,6 +48,11 @@ var CollectEpicsMeta = plugin.SubTaskMeta{
 	EnabledByDefault: true,
 	Description:      "collect Jira epics from all boards, does not support either timeFilter or diffSync.",
 	DomainTypes:      []string{plugin.DOMAIN_TYPE_TICKET, plugin.DOMAIN_TYPE_CROSS},
+	DependencyTables: []string{
+		models.JiraIssue{}.TableName(), // cursor
+		// models.JiraBoardIssue{}.TableName()}, // cursor, board issue not regard as dependency cause epic extractor will produce board issue result
+	},
+	ProductTables: []string{RAW_EPIC_TABLE},
 }
 
 func CollectEpics(taskCtx plugin.SubTaskContext) errors.Error {
@@ -117,12 +126,12 @@ func GetEpicKeysIterator(db dal.Dal, data *JiraTaskData, batchSize int) (api.Ite
 		dal.Join(`
 			LEFT JOIN _tool_jira_board_issues bi ON (
 			i.connection_id = bi.connection_id
-			AND 
+			AND
 			i.issue_id = bi.issue_id
 		)`),
 		dal.Where(`
 			i.connection_id = ?
-			AND 
+			AND
 			bi.board_id = ?
 			AND
 			i.epic_key != ''

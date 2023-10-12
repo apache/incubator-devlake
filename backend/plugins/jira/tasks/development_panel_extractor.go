@@ -27,6 +27,10 @@ import (
 	"github.com/apache/incubator-devlake/plugins/jira/tasks/apiv2models"
 )
 
+func init() {
+	RegisterSubtaskMeta(&ExtractDevelopmentPanelMeta)
+}
+
 var _ plugin.SubTaskEntryPoint = ExtractIssues
 
 var ExtractDevelopmentPanelMeta = plugin.SubTaskMeta{
@@ -35,6 +39,8 @@ var ExtractDevelopmentPanelMeta = plugin.SubTaskMeta{
 	EnabledByDefault: true,
 	Description:      "Extract Jira development panel",
 	DomainTypes:      []string{plugin.DOMAIN_TYPE_TICKET, plugin.DOMAIN_TYPE_CROSS},
+	DependencyTables: []string{RAW_DEVELOPMENT_PANEL},
+	ProductTables:    []string{models.JiraIssueCommit{}.TableName()},
 }
 
 func ExtractDevelopmentPanel(taskCtx plugin.SubTaskContext) errors.Error {

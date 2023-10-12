@@ -19,11 +19,16 @@ package tasks
 
 import (
 	"encoding/json"
+
 	"github.com/apache/incubator-devlake/core/errors"
 	"github.com/apache/incubator-devlake/core/plugin"
 	"github.com/apache/incubator-devlake/helpers/pluginhelper/api"
 	"github.com/apache/incubator-devlake/plugins/jira/models"
 )
+
+func init() {
+	RegisterSubtaskMeta(&ExtractIssueTypesMeta)
+}
 
 var ExtractIssueTypesMeta = plugin.SubTaskMeta{
 	Name:             "extractIssueType",
@@ -31,6 +36,8 @@ var ExtractIssueTypesMeta = plugin.SubTaskMeta{
 	EnabledByDefault: true,
 	Description:      "extract Jira issueType",
 	DomainTypes:      []string{plugin.DOMAIN_TYPE_TICKET},
+	DependencyTables: []string{RAW_ISSUE_TYPE_TABLE},
+	ProductTables:    []string{models.JiraIssueType{}.TableName()},
 }
 
 func ExtractIssueType(taskCtx plugin.SubTaskContext) errors.Error {

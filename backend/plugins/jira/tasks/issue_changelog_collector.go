@@ -33,6 +33,10 @@ import (
 	"github.com/apache/incubator-devlake/plugins/jira/tasks/apiv2models"
 )
 
+func init() {
+	RegisterSubtaskMeta(&CollectIssueChangelogsMeta)
+}
+
 var _ plugin.SubTaskEntryPoint = CollectIssueChangelogs
 
 const RAW_CHANGELOG_TABLE = "jira_api_issue_changelogs"
@@ -43,6 +47,10 @@ var CollectIssueChangelogsMeta = plugin.SubTaskMeta{
 	EnabledByDefault: true,
 	Description:      "collect Jira Issue change logs, supports both timeFilter and diffSync.",
 	DomainTypes:      []string{plugin.DOMAIN_TYPE_TICKET, plugin.DOMAIN_TYPE_CROSS},
+	DependencyTables: []string{
+		models.JiraBoardIssue{}.TableName(), // cursor
+		models.JiraIssue{}.TableName()},     // cursor
+	ProductTables: []string{RAW_CHANGELOG_TABLE},
 }
 
 func CollectIssueChangelogs(taskCtx plugin.SubTaskContext) errors.Error {

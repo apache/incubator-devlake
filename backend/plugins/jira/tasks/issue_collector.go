@@ -33,6 +33,10 @@ import (
 	"github.com/apache/incubator-devlake/helpers/pluginhelper/api"
 )
 
+func init() {
+	RegisterSubtaskMeta(&CollectIssuesMeta)
+}
+
 const RAW_ISSUE_TABLE = "jira_api_issues"
 
 var _ plugin.SubTaskEntryPoint = CollectIssues
@@ -43,6 +47,8 @@ var CollectIssuesMeta = plugin.SubTaskMeta{
 	EnabledByDefault: true,
 	Description:      "collect Jira issues, supports both timeFilter and diffSync.",
 	DomainTypes:      []string{plugin.DOMAIN_TYPE_TICKET, plugin.DOMAIN_TYPE_CROSS},
+	DependencyTables: []string{},
+	ProductTables:    []string{RAW_ISSUE_TABLE},
 }
 
 func CollectIssues(taskCtx plugin.SubTaskContext) errors.Error {

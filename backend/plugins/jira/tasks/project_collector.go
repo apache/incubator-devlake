@@ -27,6 +27,10 @@ import (
 	"github.com/apache/incubator-devlake/helpers/pluginhelper/api"
 )
 
+func init() {
+	RegisterSubtaskMeta(&CollectProjectsMeta)
+}
+
 const RAW_PROJECT_TABLE = "jira_api_projects"
 
 var _ plugin.SubTaskEntryPoint = CollectProjects
@@ -37,6 +41,8 @@ var CollectProjectsMeta = plugin.SubTaskMeta{
 	EnabledByDefault: true,
 	Description:      "collect Jira projects, does not support either timeFilter or diffSync.",
 	DomainTypes:      []string{plugin.DOMAIN_TYPE_TICKET},
+	DependencyTables: []string{},
+	ProductTables:    []string{RAW_PROJECT_TABLE},
 }
 
 func CollectProjects(taskCtx plugin.SubTaskContext) errors.Error {

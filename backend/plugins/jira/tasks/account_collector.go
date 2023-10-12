@@ -30,6 +30,10 @@ import (
 	"github.com/apache/incubator-devlake/plugins/jira/models"
 )
 
+func init() {
+	RegisterSubtaskMeta(&CollectAccountsMeta)
+}
+
 const RAW_USERS_TABLE = "jira_api_users"
 
 var CollectAccountsMeta = plugin.SubTaskMeta{
@@ -38,6 +42,10 @@ var CollectAccountsMeta = plugin.SubTaskMeta{
 	EnabledByDefault: true,
 	Description:      "collect Jira accounts, does not support either timeFilter or diffSync.",
 	DomainTypes:      []string{plugin.DOMAIN_TYPE_CROSS},
+	DependencyTables: []string{
+		// models.JiraAccount{}.TableName(), // cursor, config not regard as dependency
+	},
+	ProductTables: []string{RAW_USERS_TABLE},
 }
 
 func CollectAccounts(taskCtx plugin.SubTaskContext) errors.Error {

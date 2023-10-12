@@ -33,6 +33,10 @@ import (
 	"github.com/apache/incubator-devlake/plugins/jira/tasks/apiv2models"
 )
 
+func init() {
+	RegisterSubtaskMeta(&CollectIssueCommentsMeta)
+}
+
 var _ plugin.SubTaskEntryPoint = CollectIssueComments
 
 const RAW_ISSUE_COMMENT_TABLE = "jira_api_issue_comments"
@@ -43,6 +47,10 @@ var CollectIssueCommentsMeta = plugin.SubTaskMeta{
 	EnabledByDefault: false,
 	Description:      "collect Jira issue comments, supports both timeFilter and diffSync.",
 	DomainTypes:      []string{plugin.DOMAIN_TYPE_TICKET, plugin.DOMAIN_TYPE_CROSS},
+	DependencyTables: []string{
+		models.JiraBoardIssue{}.TableName(), // cursor
+		models.JiraIssue{}.TableName()},     // cursor
+	ProductTables: []string{RAW_ISSUE_COMMENT_TABLE},
 }
 
 func CollectIssueComments(taskCtx plugin.SubTaskContext) errors.Error {

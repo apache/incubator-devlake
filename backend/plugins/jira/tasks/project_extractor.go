@@ -19,11 +19,17 @@ package tasks
 
 import (
 	"encoding/json"
+
 	"github.com/apache/incubator-devlake/core/errors"
 	"github.com/apache/incubator-devlake/core/plugin"
 	"github.com/apache/incubator-devlake/helpers/pluginhelper/api"
+	"github.com/apache/incubator-devlake/plugins/jira/models"
 	"github.com/apache/incubator-devlake/plugins/jira/tasks/apiv2models"
 )
+
+func init() {
+	RegisterSubtaskMeta(&ExtractProjectsMeta)
+}
 
 var _ plugin.SubTaskEntryPoint = ExtractProjects
 
@@ -33,6 +39,8 @@ var ExtractProjectsMeta = plugin.SubTaskMeta{
 	EnabledByDefault: true,
 	Description:      "extract Jira projects",
 	DomainTypes:      []string{plugin.DOMAIN_TYPE_TICKET},
+	DependencyTables: []string{RAW_PROJECT_TABLE},
+	ProductTables:    []string{models.JiraProject{}.TableName()},
 }
 
 func ExtractProjects(taskCtx plugin.SubTaskContext) errors.Error {
