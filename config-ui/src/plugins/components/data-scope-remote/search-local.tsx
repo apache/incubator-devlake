@@ -177,7 +177,7 @@ export const SearchLocal = ({ plugin, connectionId, config, disabledScope, selec
           disabled
           items={selectedScope}
           getKey={(it) => it.id}
-          getName={(it) => it.fullName}
+          getName={(it) => it.fullName ?? it.name}
           selectedItems={selectedScope}
         />
       </FormItem>
