@@ -239,6 +239,9 @@ func (p Bamboo) ApiResources() map[string]map[string]plugin.ApiResourceHandler {
 			"PATCH":  api.UpdateScope,
 			"DELETE": api.DeleteScope,
 		},
+		"connections/:connectionId/proxy/rest/*path": {
+			"GET": api.Proxy,
+		},
 	}
 }
 
