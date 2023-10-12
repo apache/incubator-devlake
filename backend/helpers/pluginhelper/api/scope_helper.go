@@ -88,11 +88,11 @@ func (c *ScopeApiHelper[Conn, Scope, Tr]) GetScopeList(input *plugin.ApiResource
 }
 
 func (c *ScopeApiHelper[Conn, Scope, Tr]) GetScope(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, errors.Error) {
-	scopeRes, err := c.GenericScopeApiHelper.GetScope(input)
+	scope, err := c.GenericScopeApiHelper.GetScope(input)
 	if err != nil {
 		return nil, err
 	}
-	return &plugin.ApiResourceOutput{Body: scopeRes.Scope, Status: http.StatusOK}, nil
+	return &plugin.ApiResourceOutput{Body: scope, Status: http.StatusOK}, nil
 }
 
 func (c *ScopeApiHelper[Conn, Scope, Tr]) Delete(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, errors.Error) {
