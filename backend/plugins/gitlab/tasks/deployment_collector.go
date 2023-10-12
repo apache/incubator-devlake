@@ -64,7 +64,7 @@ func CollectDeployment(taskCtx plugin.SubTaskContext) errors.Error {
 			if collectorWithState.Since != nil {
 				query.Set("updated_after", collectorWithState.Since.Format(time.RFC3339))
 				// https://gitlab.com/gitlab-org/gitlab/-/issues/328500
-				query.Set("order_by", "updated_at")
+				query.Set("order_by", "created_at")
 			}
 			return query, nil
 		},
