@@ -118,10 +118,7 @@
       "type": "text"
     },
     {
-      "datasource": {
-        "type": "mysql",
-        "uid": "P430005175C4C7810"
-      },
+      "datasource": "mysql",
       "description": "",
       "fieldConfig": {
         "defaults": {
@@ -195,10 +192,7 @@
       "pluginVersion": "9.5.2",
       "targets": [
         {
-          "datasource": {
-            "type": "mysql",
-            "uid": "P430005175C4C7810"
-          },
+          "datasource": "mysql",
           "format": "table",
           "group": [],
           "metricColumn": "none",
@@ -232,10 +226,7 @@
       "type": "table"
     },
     {
-      "datasource": {
-        "type": "mysql",
-        "uid": "P430005175C4C7810"
-      },
+      "datasource": "mysql",
       "fieldConfig": {
         "defaults": {
           "color": {
@@ -301,10 +292,7 @@
       "pluginVersion": "9.5.2",
       "targets": [
         {
-          "datasource": {
-            "type": "mysql",
-            "uid": "P430005175C4C7810"
-          },
+          "datasource": "mysql",
           "format": "table",
           "group": [],
           "metricColumn": "none",
@@ -338,10 +326,7 @@
       "type": "stat"
     },
     {
-      "datasource": {
-        "type": "mysql",
-        "uid": "P430005175C4C7810"
-      },
+      "datasource": "mysql",
       "description": "",
       "fieldConfig": {
         "defaults": {
@@ -415,10 +400,7 @@
       "pluginVersion": "9.5.2",
       "targets": [
         {
-          "datasource": {
-            "type": "mysql",
-            "uid": "P430005175C4C7810"
-          },
+          "datasource": "mysql",
           "format": "table",
           "group": [],
           "metricColumn": "none",
@@ -452,10 +434,7 @@
       "type": "table"
     },
     {
-      "datasource": {
-        "type": "mysql",
-        "uid": "P430005175C4C7810"
-      },
+      "datasource": "mysql",
       "fieldConfig": {
         "defaults": {
           "color": {
@@ -530,10 +509,7 @@
       },
       "targets": [
         {
-          "datasource": {
-            "type": "mysql",
-            "uid": "P430005175C4C7810"
-          },
+          "datasource": "mysql",
           "format": "table",
           "group": [],
           "metricColumn": "none",
@@ -567,10 +543,7 @@
       "type": "barchart"
     },
     {
-      "datasource": {
-        "type": "mysql",
-        "uid": "P430005175C4C7810"
-      },
+      "datasource": "mysql",
       "description": "",
       "fieldConfig": {
         "defaults": {
@@ -652,10 +625,7 @@
       "pluginVersion": "9.5.2",
       "targets": [
         {
-          "datasource": {
-            "type": "mysql",
-            "uid": "P430005175C4C7810"
-          },
+          "datasource": "mysql",
           "format": "table",
           "group": [],
           "metricColumn": "none",
@@ -689,10 +659,7 @@
       "type": "table"
     },
     {
-      "datasource": {
-        "type": "mysql",
-        "uid": "P430005175C4C7810"
-      },
+      "datasource": "mysql",
       "fieldConfig": {
         "defaults": {
           "color": {
@@ -775,10 +742,7 @@
       "pluginVersion": "9.5.2",
       "targets": [
         {
-          "datasource": {
-            "type": "mysql",
-            "uid": "P430005175C4C7810"
-          },
+          "datasource": "mysql",
           "format": "table",
           "group": [],
           "metricColumn": "none",
@@ -812,10 +776,7 @@
       "type": "table"
     },
     {
-      "datasource": {
-        "type": "mysql",
-        "uid": "P430005175C4C7810"
-      },
+      "datasource": "mysql",
       "fieldConfig": {
         "defaults": {
           "color": {
@@ -898,10 +859,7 @@
       "pluginVersion": "9.5.2",
       "targets": [
         {
-          "datasource": {
-            "type": "mysql",
-            "uid": "P430005175C4C7810"
-          },
+          "datasource": "mysql",
           "format": "table",
           "group": [],
           "metricColumn": "none",
@@ -995,10 +953,7 @@
       "type": "text"
     },
     {
-      "datasource": {
-        "type": "mysql",
-        "uid": "P430005175C4C7810"
-      },
+      "datasource": "mysql",
       "description": "",
       "fieldConfig": {
         "defaults": {
@@ -1049,10 +1004,7 @@
       "pluginVersion": "9.5.2",
       "targets": [
         {
-          "datasource": {
-            "type": "mysql",
-            "uid": "P430005175C4C7810"
-          },
+          "datasource": "mysql",
           "format": "table",
           "group": [],
           "metricColumn": "none",
@@ -1086,10 +1038,7 @@
       "type": "table"
     },
     {
-      "datasource": {
-        "type": "mysql",
-        "uid": "P430005175C4C7810"
-      },
+      "datasource": "mysql",
       "fieldConfig": {
         "defaults": {
           "color": {
@@ -1155,10 +1104,7 @@
       "pluginVersion": "9.5.2",
       "targets": [
         {
-          "datasource": {
-            "type": "mysql",
-            "uid": "P430005175C4C7810"
-          },
+          "datasource": "mysql",
           "format": "table",
           "group": [],
           "metricColumn": "none",
@@ -1192,10 +1138,7 @@
       "type": "stat"
     },
     {
-      "datasource": {
-        "type": "mysql",
-        "uid": "P430005175C4C7810"
-      },
+      "datasource": "mysql",
       "fieldConfig": {
         "defaults": {
           "color": {
@@ -1314,10 +1257,7 @@
       "pluginVersion": "9.5.2",
       "targets": [
         {
-          "datasource": {
-            "type": "mysql",
-            "uid": "P430005175C4C7810"
-          },
+          "datasource": "mysql",
           "format": "table",
           "group": [],
           "metricColumn": "none",
@@ -1351,10 +1291,7 @@
       "type": "table"
     },
     {
-      "datasource": {
-        "type": "mysql",
-        "uid": "P430005175C4C7810"
-      },
+      "datasource": "mysql",
       "description": "",
       "fieldConfig": {
         "defaults": {
@@ -1427,10 +1364,7 @@
       "pluginVersion": "8.0.6",
       "targets": [
         {
-          "datasource": {
-            "type": "mysql",
-            "uid": "P430005175C4C7810"
-          },
+          "datasource": "mysql",
           "format": "table",
           "group": [],
           "hide": false,
@@ -1464,10 +1398,7 @@
       "type": "barchart"
     },
     {
-      "datasource": {
-        "type": "mysql",
-        "uid": "P430005175C4C7810"
-      },
+      "datasource": "mysql",
       "fieldConfig": {
         "defaults": {
           "color": {
@@ -1522,10 +1453,7 @@
       "pluginVersion": "9.5.2",
       "targets": [
         {
-          "datasource": {
-            "type": "mysql",
-            "uid": "P430005175C4C7810"
-          },
+          "datasource": "mysql",
           "format": "table",
           "group": [],
           "metricColumn": "none",
@@ -1555,10 +1483,7 @@
           ]
         },
         {
-          "datasource": {
-            "type": "mysql",
-            "uid": "P430005175C4C7810"
-          },
+          "datasource": "mysql",
           "format": "table",
           "group": [],
           "hide": false,
@@ -1592,10 +1517,7 @@
       "type": "gauge"
     },
     {
-      "datasource": {
-        "type": "mysql",
-        "uid": "P430005175C4C7810"
-      },
+      "datasource": "mysql",
       "description": "",
       "fieldConfig": {
         "defaults": {
@@ -1669,10 +1591,7 @@
       "pluginVersion": "9.5.2",
       "targets": [
         {
-          "datasource": {
-            "type": "mysql",
-            "uid": "P430005175C4C7810"
-          },
+          "datasource": "mysql",
           "format": "table",
           "group": [],
           "metricColumn": "none",
@@ -1706,10 +1625,7 @@
       "type": "table"
     },
     {
-      "datasource": {
-        "type": "mysql",
-        "uid": "P430005175C4C7810"
-      },
+      "datasource": "mysql",
       "fieldConfig": {
         "defaults": {
           "color": {
@@ -1834,10 +1750,7 @@
       "pluginVersion": "9.5.2",
       "targets": [
         {
-          "datasource": {
-            "type": "mysql",
-            "uid": "P430005175C4C7810"
-          },
+          "datasource": "mysql",
           "format": "table",
           "group": [],
           "metricColumn": "none",
@@ -1871,10 +1784,7 @@
       "type": "table"
     },
     {
-      "datasource": {
-        "type": "mysql",
-        "uid": "P430005175C4C7810"
-      },
+      "datasource": "mysql",
       "description": "",
       "fieldConfig": {
         "defaults": {
@@ -1940,10 +1850,7 @@
       "pluginVersion": "9.5.2",
       "targets": [
         {
-          "datasource": {
-            "type": "mysql",
-            "uid": "P430005175C4C7810"
-          },
+          "datasource": "mysql",
           "format": "table",
           "group": [],
           "metricColumn": "none",
@@ -1977,10 +1884,7 @@
       "type": "table"
     },
     {
-      "datasource": {
-        "type": "mysql",
-        "uid": "P430005175C4C7810"
-      },
+      "datasource": "mysql",
       "fieldConfig": {
         "defaults": {
           "color": {
@@ -2026,10 +1930,7 @@
       "pluginVersion": "9.5.2",
       "targets": [
         {
-          "datasource": {
-            "type": "mysql",
-            "uid": "P430005175C4C7810"
-          },
+          "datasource": "mysql",
           "format": "table",
           "group": [],
           "metricColumn": "none",
@@ -2059,10 +1960,7 @@
           ]
         },
         {
-          "datasource": {
-            "type": "mysql",
-            "uid": "P430005175C4C7810"
-          },
+          "datasource": "mysql",
           "format": "table",
           "group": [],
           "hide": false,
@@ -2096,10 +1994,7 @@
       "type": "gauge"
     },
     {
-      "datasource": {
-        "type": "mysql",
-        "uid": "P430005175C4C7810"
-      },
+      "datasource": "mysql",
       "fieldConfig": {
         "defaults": {
           "color": {
@@ -2141,10 +2036,7 @@
       "pluginVersion": "9.5.2",
       "targets": [
         {
-          "datasource": {
-            "type": "mysql",
-            "uid": "P430005175C4C7810"
-          },
+          "datasource": "mysql",
           "format": "table",
           "group": [],
           "metricColumn": "none",
@@ -2174,10 +2066,7 @@
           ]
         },
         {
-          "datasource": {
-            "type": "mysql",
-            "uid": "P430005175C4C7810"
-          },
+          "datasource": "mysql",
           "format": "table",
           "group": [],
           "hide": false,
@@ -2211,10 +2100,7 @@
       "type": "gauge"
     },
     {
-      "datasource": {
-        "type": "mysql",
-        "uid": "P430005175C4C7810"
-      },
+      "datasource": "mysql",
       "fieldConfig": {
         "defaults": {
           "color": {
@@ -2256,10 +2142,7 @@
       "pluginVersion": "9.5.2",
       "targets": [
         {
-          "datasource": {
-            "type": "mysql",
-            "uid": "P430005175C4C7810"
-          },
+          "datasource": "mysql",
           "format": "table",
           "group": [],
           "metricColumn": "none",
@@ -2289,10 +2172,7 @@
           ]
         },
         {
-          "datasource": {
-            "type": "mysql",
-            "uid": "P430005175C4C7810"
-          },
+          "datasource": "mysql",
           "format": "table",
           "group": [],
           "hide": false,
@@ -2326,10 +2206,7 @@
       "type": "gauge"
     },
     {
-      "datasource": {
-        "type": "mysql",
-        "uid": "P430005175C4C7810"
-      },
+      "datasource": "mysql",
       "fieldConfig": {
         "defaults": {
           "color": {
@@ -2371,10 +2248,7 @@
       "pluginVersion": "9.5.2",
       "targets": [
         {
-          "datasource": {
-            "type": "mysql",
-            "uid": "P430005175C4C7810"
-          },
+          "datasource": "mysql",
           "format": "table",
           "group": [],
           "metricColumn": "none",
@@ -2404,10 +2278,7 @@
           ]
         },
         {
-          "datasource": {
-            "type": "mysql",
-            "uid": "P430005175C4C7810"
-          },
+          "datasource": "mysql",
           "format": "table",
           "group": [],
           "hide": false,
@@ -2441,10 +2312,7 @@
       "type": "gauge"
     },
     {
-      "datasource": {
-        "type": "mysql",
-        "uid": "P430005175C4C7810"
-      },
+      "datasource": "mysql",
       "fieldConfig": {
         "defaults": {
           "color": {
@@ -2486,10 +2354,7 @@
       "pluginVersion": "9.5.2",
       "targets": [
         {
-          "datasource": {
-            "type": "mysql",
-            "uid": "P430005175C4C7810"
-          },
+          "datasource": "mysql",
           "format": "table",
           "group": [],
           "metricColumn": "none",
@@ -2523,10 +2388,7 @@
       "type": "gauge"
     },
     {
-      "datasource": {
-        "type": "mysql",
-        "uid": "P430005175C4C7810"
-      },
+      "datasource": "mysql",
       "description": "",
       "fieldConfig": {
         "defaults": {
@@ -2629,10 +2491,7 @@
       "pluginVersion": "9.5.2",
       "targets": [
         {
-          "datasource": {
-            "type": "mysql",
-            "uid": "P430005175C4C7810"
-          },
+          "datasource": "mysql",
           "format": "table",
           "group": [],
           "hide": false,
@@ -2760,10 +2619,7 @@
       "type": "text"
     },
     {
-      "datasource": {
-        "type": "mysql",
-        "uid": "P430005175C4C7810"
-      },
+      "datasource": "mysql",
       "fieldConfig": {
         "defaults": {
           "color": {
@@ -2828,10 +2684,7 @@
       "pluginVersion": "9.5.2",
       "targets": [
         {
-          "datasource": {
-            "type": "mysql",
-            "uid": "P430005175C4C7810"
-          },
+          "datasource": "mysql",
           "format": "table",
           "group": [],
           "metricColumn": "none",
@@ -2865,10 +2718,7 @@
       "type": "table"
     },
     {
-      "datasource": {
-        "type": "mysql",
-        "uid": "P430005175C4C7810"
-      },
+      "datasource": "mysql",
       "fieldConfig": {
         "defaults": {
           "color": {
@@ -2938,10 +2788,7 @@
       "pluginVersion": "9.5.2",
       "targets": [
         {
-          "datasource": {
-            "type": "mysql",
-            "uid": "P430005175C4C7810"
-          },
+          "datasource": "mysql",
           "format": "table",
           "group": [],
           "metricColumn": "none",
@@ -2975,10 +2822,7 @@
       "type": "stat"
     },
     {
-      "datasource": {
-        "type": "mysql",
-        "uid": "P430005175C4C7810"
-      },
+      "datasource": "mysql",
       "fieldConfig": {
         "defaults": {
           "color": {
@@ -3043,10 +2887,7 @@
       "pluginVersion": "9.5.2",
       "targets": [
         {
-          "datasource": {
-            "type": "mysql",
-            "uid": "P430005175C4C7810"
-          },
+          "datasource": "mysql",
           "format": "table",
           "group": [],
           "metricColumn": "none",
@@ -3115,10 +2956,7 @@
       "type": "text"
     },
     {
-      "datasource": {
-        "type": "mysql",
-        "uid": "P430005175C4C7810"
-      },
+      "datasource": "mysql",
       "description": "",
       "fieldConfig": {
         "defaults": {
@@ -3212,10 +3050,7 @@
       "pluginVersion": "8.0.6",
       "targets": [
         {
-          "datasource": {
-            "type": "mysql",
-            "uid": "P430005175C4C7810"
-          },
+          "datasource": "mysql",
           "format": "table",
           "group": [],
           "hide": false,
@@ -3249,10 +3084,7 @@
       "type": "barchart"
     },
     {
-      "datasource": {
-        "type": "mysql",
-        "uid": "P430005175C4C7810"
-      },
+      "datasource": "mysql",
       "fieldConfig": {
         "defaults": {
           "color": {
@@ -3318,10 +3150,7 @@
       "pluginVersion": "9.5.2",
       "targets": [
         {
-          "datasource": {
-            "type": "mysql",
-            "uid": "P430005175C4C7810"
-          },
+          "datasource": "mysql",
           "format": "table",
           "group": [],
           "metricColumn": "none",
@@ -3355,10 +3184,7 @@
       "type": "stat"
     },
     {
-      "datasource": {
-        "type": "mysql",
-        "uid": "P430005175C4C7810"
-      },
+      "datasource": "mysql",
       "fieldConfig": {
         "defaults": {
           "color": {
@@ -3424,10 +3250,7 @@
       "pluginVersion": "9.5.2",
       "targets": [
         {
-          "datasource": {
-            "type": "mysql",
-            "uid": "P430005175C4C7810"
-          },
+          "datasource": "mysql",
           "format": "table",
           "group": [],
           "metricColumn": "none",
@@ -3461,10 +3284,7 @@
       "type": "table"
     },
     {
-      "datasource": {
-        "type": "mysql",
-        "uid": "P430005175C4C7810"
-      },
+      "datasource": "mysql",
       "fieldConfig": {
         "defaults": {
           "color": {
@@ -3530,10 +3350,7 @@
       "pluginVersion": "9.5.2",
       "targets": [
         {
-          "datasource": {
-            "type": "mysql",
-            "uid": "P430005175C4C7810"
-          },
+          "datasource": "mysql",
           "editorMode": "code",
           "format": "table",
           "group": [],
@@ -3585,10 +3402,7 @@
       "type": "table"
     },
     {
-      "datasource": {
-        "type": "mysql",
-        "uid": "P430005175C4C7810"
-      },
+      "datasource": "mysql",
       "description": "",
       "fieldConfig": {
         "defaults": {
@@ -3682,10 +3496,7 @@
       "pluginVersion": "8.0.6",
       "targets": [
         {
-          "datasource": {
-            "type": "mysql",
-            "uid": "P430005175C4C7810"
-          },
+          "datasource": "mysql",
           "format": "table",
           "group": [],
           "hide": false,
@@ -3731,10 +3542,7 @@
           "text": "All",
           "value": "$__all"
         },
-        "datasource": {
-          "type": "mysql",
-          "uid": "P430005175C4C7810"
-        },
+        "datasource": "mysql",
         "definition": "select distinct name from projects",
         "hide": 0,
         "includeAll": true,
@@ -3755,10 +3563,7 @@
           "text": "https://github.com/apache/incubator-devlake-website/pull/121",
           "value": "github:GithubPullRequest:1:1000234032"
         },
-        "datasource": {
-          "type": "mysql",
-          "uid": "P430005175C4C7810"
-        },
+        "datasource": "mysql",
         "definition": "select concat(Url, '--', id) from pull_requests",
         "hide": 0,
         "includeAll": false,

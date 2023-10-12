@@ -109,10 +109,7 @@
       "type": "row"
     },
     {
-      "datasource": {
-        "type": "mysql",
-        "uid": "P430005175C4C7810"
-      },
+      "datasource": "mysql",
       "description": "1. Total number of incidents created.\n2. The requirements being calculated are filtered by \"requirement creation time\" (time filter at the upper-right corner) and \"Jira board\" (\"Choose Board\" filter at the upper-left corner)",
       "fieldConfig": {
         "defaults": {
@@ -157,10 +154,7 @@
       "pluginVersion": "9.5.2",
       "targets": [
         {
-          "datasource": {
-            "type": "mysql",
-            "uid": "P430005175C4C7810"
-          },
+          "datasource": "mysql",
           "editorMode": "code",
           "format": "table",
           "group": [],
@@ -210,10 +204,7 @@
       "type": "stat"
     },
     {
-      "datasource": {
-        "type": "mysql",
-        "uid": "P430005175C4C7810"
-      },
+      "datasource": "mysql",
       "description": "",
       "fieldConfig": {
         "defaults": {
@@ -259,10 +250,7 @@
       "pluginVersion": "9.5.2",
       "targets": [
         {
-          "datasource": {
-            "type": "mysql",
-            "uid": "P430005175C4C7810"
-          },
+          "datasource": "mysql",
           "editorMode": "code",
           "format": "table",
           "group": [],
@@ -312,10 +300,7 @@
       "type": "stat"
     },
     {
-      "datasource": {
-        "type": "mysql",
-        "uid": "P430005175C4C7810"
-      },
+      "datasource": "mysql",
       "description": "1. Total number of incidents created.\n2. The requirements being calculated are filtered by \"requirement creation time\" (time filter at the upper-right corner) and \"Jira board\" (\"Choose Board\" filter at the upper-left corner)",
       "fieldConfig": {
         "defaults": {
@@ -378,10 +363,7 @@
       "pluginVersion": "9.5.2",
       "targets": [
         {
-          "datasource": {
-            "type": "mysql",
-            "uid": "P430005175C4C7810"
-          },
+          "datasource": "mysql",
           "editorMode": "code",
           "format": "table",
           "group": [],
@@ -431,10 +413,7 @@
       "type": "table"
     },
     {
-      "datasource": {
-        "type": "mysql",
-        "uid": "P430005175C4C7810"
-      },
+      "datasource": "mysql",
       "description": "",
       "fieldConfig": {
         "defaults": {
@@ -484,10 +463,7 @@
       "pluginVersion": "9.5.2",
       "targets": [
         {
-          "datasource": {
-            "type": "mysql",
-            "uid": "P430005175C4C7810"
-          },
+          "datasource": "mysql",
           "editorMode": "code",
           "format": "time_series",
           "group": [],
@@ -537,10 +513,7 @@
       "type": "stat"
     },
     {
-      "datasource": {
-        "type": "mysql",
-        "uid": "P430005175C4C7810"
-      },
+      "datasource": "mysql",
       "description": "",
       "fieldConfig": {
         "defaults": {
@@ -618,10 +591,7 @@
       "pluginVersion": "8.0.6",
       "targets": [
         {
-          "datasource": {
-            "type": "mysql",
-            "uid": "P430005175C4C7810"
-          },
+          "datasource": "mysql",
           "editorMode": "code",
           "format": "time_series",
           "group": [],
@@ -697,10 +667,7 @@
       "type": "row"
     },
     {
-      "datasource": {
-        "type": "mysql",
-        "uid": "P430005175C4C7810"
-      },
+      "datasource": "mysql",
       "description": "",
       "fieldConfig": {
         "defaults": {
@@ -752,10 +719,7 @@
       "pluginVersion": "9.5.2",
       "targets": [
         {
-          "datasource": {
-            "type": "mysql",
-            "uid": "P430005175C4C7810"
-          },
+          "datasource": "mysql",
           "editorMode": "code",
           "format": "table",
           "group": [],
@@ -806,10 +770,7 @@
       "type": "stat"
     },
     {
-      "datasource": {
-        "type": "mysql",
-        "uid": "P430005175C4C7810"
-      },
+      "datasource": "mysql",
       "description": "",
       "fieldConfig": {
         "defaults": {
@@ -860,10 +821,7 @@
       "pluginVersion": "9.5.2",
       "targets": [
         {
-          "datasource": {
-            "type": "mysql",
-            "uid": "P430005175C4C7810"
-          },
+          "datasource": "mysql",
           "editorMode": "code",
           "format": "table",
           "group": [],
@@ -914,10 +872,7 @@
       "type": "stat"
     },
     {
-      "datasource": {
-        "type": "mysql",
-        "uid": "P430005175C4C7810"
-      },
+      "datasource": "mysql",
       "description": "",
       "fieldConfig": {
         "defaults": {
@@ -998,10 +953,7 @@
       "pluginVersion": "8.0.6",
       "targets": [
         {
-          "datasource": {
-            "type": "mysql",
-            "uid": "P430005175C4C7810"
-          },
+          "datasource": "mysql",
           "editorMode": "code",
           "format": "table",
           "group": [],
@@ -1056,10 +1008,7 @@
       "bars": false,
       "dashLength": 10,
       "dashes": false,
-      "datasource": {
-        "type": "mysql",
-        "uid": "P430005175C4C7810"
-      },
+      "datasource": "mysql",
       "description": "1. The cumulative distribution of MTTR\n2. Each point refers to the percent rank of a distinct duration to resolve incidents.",
       "fill": 0,
       "fillGradient": 4,
@@ -1099,10 +1048,7 @@
       "steppedLine": false,
       "targets": [
         {
-          "datasource": {
-            "type": "mysql",
-            "uid": "P430005175C4C7810"
-          },
+          "datasource": "mysql",
           "editorMode": "code",
           "format": "time_series",
           "group": [],
@@ -1249,10 +1195,7 @@
             "$__all"
           ]
         },
-        "datasource": {
-          "type": "mysql",
-          "uid": "P430005175C4C7810"
-        },
+        "datasource": "mysql",
         "definition": "select concat(name, '--', id) from boards where id like 'pagerduty%'",
         "hide": 0,
         "includeAll": true,
