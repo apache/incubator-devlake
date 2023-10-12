@@ -52,16 +52,17 @@ export const BlueprintConnectionDetailPage = () => {
 
   const { ready, data } = useRefreshData(async () => {
     const [plugin, connectionId] = unique.split('-');
-    const [blueprint, connection, scopesRes] = await Promise.all([
+    const [blueprint, connection] = await Promise.all([
       getBlueprint(pname, bid),
       API.getConnection(plugin, connectionId),
-      API.getDataScopes(plugin, connectionId),
     ]);
 
     const scopeIds =
       blueprint.connections
         .find((cs) => cs.pluginName === plugin && cs.connectionId === +connectionId)
         ?.scopes?.map((sc: any) => sc.scopeId) ?? [];
+
+    const scopes = await Promise.all(scopeIds.map((scopeId) => API.getDataScope(plugin, connectionId, scopeId)));
 
     return {
       blueprint,
@@ -71,7 +72,12 @@ export const BlueprintConnectionDetailPage = () => {
         id: +connectionId,
         name: connection.name,
       },
-      scopes: scopesRes.scopes.filter((sc: any) => scopeIds.includes(getPluginScopeId(plugin, sc))),
+      scopes: scopes.map((sc) => ({
+        id: getPluginScopeId(plugin, sc.scope),
+        name: sc.scope.fullName ?? sc.scope.name,
+        scopeConfigId: sc.scopeConfig?.id,
+        scopeConfigName: sc.scopeConfig?.name,
+      })),
     };
   }, [version, pname, bid]);
 
@@ -129,7 +135,7 @@ export const BlueprintConnectionDetailPage = () => {
     }
   };
 
-  const handleChangeDataScope = async (scope: any) => {
+  const handleChangeDataScope = async (scopeIds: any) => {
     const [success] = await operator(
       () =>
         API.updateBlueprint(blueprint.id, {
@@ -138,7 +144,7 @@ export const BlueprintConnectionDetailPage = () => {
             if (cs.pluginName === connection.plugin && cs.connectionId === connection.id) {
               return {
                 ...cs,
-                scopes: scope.map((sc: any) => ({ id: getPluginScopeId(connection.plugin, sc) })),
+                scopes: scopeIds.map((scopeId: any) => ({ scopeId })),
               };
             }
             return cs;
@@ -212,9 +218,9 @@ export const BlueprintConnectionDetailPage = () => {
           },
           {
             title: 'Scope Config',
-            dataIndex: 'scopeConfig',
+            dataIndex: ['scopeConfigId', 'scopeConfigName'],
             key: 'scopeConfig',
-            render: (_, row) => (row.scopeConfigId ? row.scopeConfig?.name : 'N/A'),
+            render: ({ scopeConfigId, scopeConfigName }) => (scopeConfigId ? scopeConfigName : 'N/A'),
           },
         ]}
         dataSource={scopes}

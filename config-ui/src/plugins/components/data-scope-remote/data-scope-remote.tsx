@@ -20,7 +20,7 @@ import { useState, useMemo } from 'react';
 import { Button, Intent } from '@blueprintjs/core';
 
 import { Buttons } from '@/components';
-import { getPluginConfig, getPluginScopeId } from '@/plugins';
+import { getPluginConfig } from '@/plugins';
 import { operator } from '@/utils';
 
 import { SearchLocal } from './search-local';

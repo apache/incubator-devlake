@@ -24,7 +24,7 @@ import { useDebounce } from 'ahooks';
 import { uniqBy } from 'lodash';
 
 import { FormItem, MultiSelector, Loading } from '@/components';
-import { PluginConfigType, getPluginScopeId } from '@/plugins';
+import { PluginConfigType } from '@/plugins';
 
 import * as T from './types';
 import * as API from './api';

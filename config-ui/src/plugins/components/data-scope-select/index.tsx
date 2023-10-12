@@ -19,7 +19,7 @@
 import { useState, useEffect, useMemo } from 'react';
 import { Button, Intent } from '@blueprintjs/core';
 import { useDebounce } from 'ahooks';
-import type { McsID, McsItem } from 'miller-columns-select';
+import type { McsItem } from 'miller-columns-select';
 import MillerColumnsSelect from 'miller-columns-select';
 
 import { FormItem, ExternalLink, Message, Buttons, MultiSelector } from '@/components';
@@ -48,41 +48,26 @@ export const DataScopeSelect = ({
 }: Props) => {
   const [query, setQuery] = useState('');
   const [items, setItems] = useState<McsItem<{ data: any }>[]>([]);
-  const [selectedItems, setSelecteItems] = useState<any>([]);
+  const [selectedIds, setSelectedIds] = useState<ID[]>([]);
+  // const [selectedItems, setSelecteItems] = useState<any>([]);
   const [page, setPage] = useState(1);
   const [pageSize] = useState(10);
   const [total, setTotal] = useState(0);
 
   useEffect(() => {
-    setSelecteItems(initialScope ?? []);
+    setSelectedIds((initialScope ?? []).map((sc) => sc.id));
   }, []);
-
-  const selectedIds = useMemo(() => selectedItems.map((it: any) => getPluginScopeId(plugin, it)), [selectedItems]);
-
-  const handleChangeSelectItemsIds = (ids: McsID[]) => {
-    setSelecteItems(items.filter((it) => ids.includes(it.id)).map((it) => it.data));
-  };
 
   const getDataScope = async (page: number) => {
     const res = await API.getDataScope(plugin, connectionId, { page, pageSize });
     setItems([
       ...items,
-      ...res.scopes.map((sc) => {
-        if (['github', 'gitlab'].includes(plugin)) {
-          return {
-            parentId: null,
-            id: getPluginScopeId(plugin, sc.scope),
-            title: sc.scope.name,
-            data: sc.scope,
-          };
-        }
-        return {
-          parentId: null,
-          id: getPluginScopeId(plugin, sc),
-          title: sc.name,
-          data: sc,
-        };
-      }),
+      ...res.scopes.map((sc) => ({
+        parentId: null,
+        id: getPluginScopeId(plugin, sc.scope),
+        title: sc.scope.fullName,
+        data: sc.scope,
+      })),
     ]);
     if (page === 1) {
       setTotal(res.count);
@@ -100,9 +85,11 @@ export const DataScopeSelect = ({
     [search],
   );
 
+  const searchItems = useMemo(() => data?.scopes.map((sc) => sc.scope) ?? [], [data]);
+
   const handleScroll = () => setPage(page + 1);
 
-  const handleSubmit = () => onSubmit?.(selectedItems);
+  const handleSubmit = () => onSubmit?.(selectedIds);
 
   return (
     <FormItem
@@ -148,13 +135,13 @@ export const DataScopeSelect = ({
           <div className="search">
             <MultiSelector
               loading={!ready}
-              items={data?.scopes.map((sc) => (['github', 'gitlab'].includes(plugin) ? sc.scope : sc)) ?? []}
+              items={searchItems}
               getName={(it) => it.name}
               getKey={(it) => getPluginScopeId(plugin, it)}
               noResult="No Data Scopes Available."
               onQueryChange={(query) => setQuery(query)}
-              selectedItems={selectedItems}
-              onChangeItems={setSelecteItems}
+              selectedItems={searchItems.filter((it) => selectedIds.includes(getPluginScopeId(plugin, it)))}
+              onChangeItems={(selectedItems) => setSelectedIds(selectedItems.map((it) => getPluginScopeId(plugin, it)))}
             />
           </div>
           <MillerColumnsSelect
@@ -165,11 +152,11 @@ export const DataScopeSelect = ({
             getHasMore={() => items.length < total}
             onScroll={handleScroll}
             selectedIds={selectedIds}
-            onSelectItemIds={handleChangeSelectItemsIds}
+            onSelectItemIds={setSelectedIds}
           />
           <Buttons position="bottom" align="right">
             <Button outlined intent={Intent.PRIMARY} text="Cancel" onClick={onCancel} />
-            <Button disabled={!selectedItems.length} intent={Intent.PRIMARY} text="Save" onClick={handleSubmit} />
+            <Button disabled={!selectedIds.length} intent={Intent.PRIMARY} text="Save" onClick={handleSubmit} />
           </Buttons>
         </S.Wrapper>
       ) : (
