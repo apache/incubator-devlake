@@ -20,21 +20,20 @@ import { request } from '@/utils';
 
 import * as T from './types';
 
-export const getApiKeys = (params?: Pagination): Promise<{ count: number; apikeys: T.Key[] }> =>
-  request('/api-keys', {
-    data: params,
+export const list = (): Promise<{ count: number; pipelines: T.Pipeline[] }> => request('/pipelines');
+
+export const get = (id: ID) => request(`/pipelines/${id}`);
+
+export const remove = (id: ID) =>
+  request(`/pipelines/${id}`, {
+    method: 'delete',
   });
 
-export const createApiKey = (data: Pick<T.Key, 'name' | 'expiredAt' | 'allowedPath'>): Promise<T.Key> =>
-  request('/api-keys', {
-    method: 'POST',
-    data: {
-      ...data,
-      type: 'devlake',
-    },
+export const rerun = (id: ID) =>
+  request(`/pipelines/${id}/rerun`, {
+    method: 'post',
   });
 
-export const deleteApiKey = (id: string): Promise<void> =>
-  request(`/api-keys/${id}`, {
-    method: 'DELETE',
-  });
+export const log = (id: ID) => request(`/pipelines/${id}/logging.tar.gz`);
+
+export const tasks = (id: ID) => request(`/pipelines/${id}/tasks`);

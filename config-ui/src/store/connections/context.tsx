@@ -20,12 +20,12 @@ import React, { useState, useEffect, useMemo } from 'react';
 
 import { PageLoading } from '@/components';
 
+import API from '@/api';
 import type { PluginConfigType } from '@/plugins';
 import { PluginConfig, PluginType } from '@/plugins';
 
 import type { ConnectionItemType } from './types';
 import { ConnectionStatusEnum } from './types';
-import * as API from './api';
 
 export const ConnectionContext = React.createContext<{
   connections: ConnectionItemType[];
@@ -46,7 +46,7 @@ export const ConnectionContextProvider = ({ children, ...props }: Props) => {
 
   const queryConnection = async (plugin: string) => {
     try {
-      const res = await API.getConnection(plugin);
+      const res = await API.connection.list(plugin);
       const { name, icon, isBeta, scopeConfig } = plugins.find((p) => p.plugin === plugin) as PluginConfigType;
 
       return res.map((connection) => ({
@@ -74,7 +74,7 @@ export const ConnectionContextProvider = ({ children, ...props }: Props) => {
     appId,
   }: ConnectionItemType) => {
     try {
-      const res = await API.testConnection(plugin, {
+      const res = await API.connection.test(plugin, {
         endpoint,
         proxy,
         token,

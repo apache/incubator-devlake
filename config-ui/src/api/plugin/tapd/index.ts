@@ -18,16 +18,22 @@
 
 import { request } from '@/utils';
 
-import type { BlueprintType } from '../types';
+export type GetBoardsParams = {
+  startAt: number;
+  maxResults: number;
+};
 
-export const getBlueprint = (id: ID): Promise<BlueprintType> => request(`/blueprints/${id}`);
+export const boards = (prefix: string, params: GetBoardsParams) =>
+  request(`${prefix}/agile/1.0/board`, { data: params });
 
-export const getBlueprintPipelines = (id: ID) => request(`/blueprints/${id}/pipelines`);
+export const statusMap = (prefix: string, workspaceId: ID, system: string) =>
+  request(`${prefix}/workflows/status_map?workspace_id=${workspaceId}&system=${system}`);
 
-export const runBlueprint = (id: ID, data: { skipCollectors: boolean; fullSync: boolean }) =>
-  request(`/blueprints/${id}/trigger`, { method: 'post', data });
+export const storyCategories = (prefix: string, workspaceId: ID) =>
+  request(`${prefix}/story_categories?workspace_id=${workspaceId}`);
 
-export const updateBlueprint = (id: ID, payload: BlueprintType) =>
-  request(`/blueprints/${id}`, { method: 'patch', data: payload });
-
-export const deleteBluprint = (id: ID) => request(`/blueprints/${id}`, { method: 'delete' });
+export const remoteScopePrepareToken = (connectionId: ID, params: object) =>
+  request(`/plugins/tapd/connections/${connectionId}/remote-scopes-prepare-token`, {
+    method: 'get',
+    data: params,
+  });

@@ -20,6 +20,7 @@ import { useState, useEffect, useMemo } from 'react';
 import { useParams, useNavigate, Link } from 'react-router-dom';
 import { Button, Intent } from '@blueprintjs/core';
 
+import API from '@/api';
 import { PageHeader, Buttons, Dialog, IconButton, Table, Message, toast } from '@/components';
 import { useTips, useConnections, useRefreshData } from '@/hooks';
 import ClearImg from '@/images/icons/clear.svg';
@@ -34,7 +35,6 @@ import {
 } from '@/plugins';
 import { operator } from '@/utils';
 
-import * as API from './api';
 import * as S from './styled';
 
 export const ConnectionDetailPage = () => {
@@ -72,7 +72,7 @@ const ConnectionDetail = ({ plugin, connectionId }: Props) => {
   const { onGet, onTest, onRefresh } = useConnections();
   const { setTips } = useTips();
   const { ready, data } = useRefreshData(
-    () => API.getDataScopes(plugin, connectionId, { page, pageSize }),
+    () => API.scope.list(plugin, connectionId, { page, pageSize, blueprint: true }),
     [version, page, pageSize],
   );
 
@@ -110,7 +110,7 @@ const ConnectionDetail = ({ plugin, connectionId }: Props) => {
     const [, res] = await operator(
       async () => {
         try {
-          await API.deleteConnection(plugin, connectionId);
+          await API.connection.remove(plugin, connectionId);
           return { status: 'success' };
         } catch (err: any) {
           const { status, data } = err.response;
@@ -175,7 +175,7 @@ const ConnectionDetail = ({ plugin, connectionId }: Props) => {
     const [, res] = await operator(
       async () => {
         try {
-          await API.deleteDataScope(plugin, connectionId, scopeId, onlyData);
+          await API.scope.remove(plugin, connectionId, scopeId, onlyData);
           return { status: 'success' };
         } catch (err: any) {
           const { status, data } = err.response;
@@ -216,8 +216,8 @@ const ConnectionDetail = ({ plugin, connectionId }: Props) => {
       () =>
         Promise.all(
           scopeIds.map(async (scopeId) => {
-            const scope = await API.getDataScope(plugin, connectionId, scopeId);
-            return API.updateDataScope(plugin, connectionId, scopeId, {
+            const scope = await API.scope.get(plugin, connectionId, scopeId);
+            return API.scope.update(plugin, connectionId, scopeId, {
               ...scope,
               scopeConfigId: +trId,
             });

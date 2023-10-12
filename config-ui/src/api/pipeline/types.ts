@@ -16,24 +16,25 @@
  *
  */
 
-import { request } from '@/utils';
+export enum PipelineStatus {
+  CREATED = 'TASK_CREATED',
+  PENDING = 'TASK_PENDING',
+  ACTIVE = 'TASK_ACTIVE',
+  RUNNING = 'TASK_RUNNING',
+  RERUN = 'TASK_RERUN',
+  COMPLETED = 'TASK_COMPLETED',
+  PARTIAL = 'TASK_PARTIAL',
+  FAILED = 'TASK_FAILED',
+  CANCELLED = 'TASK_CANCELLED',
+}
 
-export type GetBoardsParams = {
-  startAt: number;
-  maxResults: number;
+export type Pipeline = {
+  id: ID;
+  status: PipelineStatus;
+  beganAt: string | null;
+  finishedAt: string | null;
+  stage: number;
+  finishedTasks: number;
+  totalTasks: number;
+  message: string;
 };
-
-export const getBoards = (prefix: string, params: GetBoardsParams) =>
-  request(`${prefix}/agile/1.0/board`, { data: params });
-
-export const getStatus = (prefix: string, workspaceId: ID, system: string) =>
-  request(`${prefix}/workflows/status_map?workspace_id=${workspaceId}&system=${system}`);
-
-export const getStoryType = (prefix: string, workspaceId: ID) =>
-  request(`${prefix}/story_categories?workspace_id=${workspaceId}`);
-
-export const prepareToken = (connectionId: ID, params: object) =>
-  request(`/plugins/tapd/connections/${connectionId}/remote-scopes-prepare-token`, {
-    method: 'get',
-    data: params,
-  });

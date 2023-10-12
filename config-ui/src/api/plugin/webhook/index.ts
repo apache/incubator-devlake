@@ -16,20 +16,26 @@
  *
  */
 
-import { request } from '@/utils';
+import * as connection from '../../connection';
 
-import { BlueprintType } from '../types';
+export const list = () => connection.list('webhook');
 
-type ResponseType = {
-  blueprints: Array<BlueprintType>;
-  count: number;
-};
+export const get = (
+  id: ID,
+): Promise<{
+  name: string;
+  postIssuesEndpoint: string;
+  closeIssuesEndpoint: string;
+  postPipelineDeployTaskEndpoint: string;
+  apiKey: {
+    id: string;
+    apiKey: string;
+  };
+}> => connection.get('webook', id) as any;
 
-export const getBlueprints = (params: Pagination & { type: string }): Promise<ResponseType> =>
-  request('/blueprints', { data: params });
+export const create = (payload: any): Promise<{ id: string; apiKey: { apiKey: string } }> =>
+  connection.create('webhook', payload) as any;
 
-export const createBlueprint = (payload: any) =>
-  request('/blueprints', {
-    method: 'post',
-    data: payload,
-  });
+export const remove = (id: ID) => connection.remove('webhook', id);
+
+export const update = (id: ID, payload: any) => connection.update('webhook', id, payload);

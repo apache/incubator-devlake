@@ -22,11 +22,11 @@ import { useDebounce } from 'ahooks';
 import type { McsItem } from 'miller-columns-select';
 import MillerColumnsSelect from 'miller-columns-select';
 
+import API from '@/api';
 import { FormItem, ExternalLink, Message, Buttons, MultiSelector } from '@/components';
 import { useRefreshData } from '@/hooks';
 import { getPluginScopeId } from '@/plugins';
 
-import * as API from './api';
 import * as S from './styled';
 
 interface Props {
@@ -59,7 +59,7 @@ export const DataScopeSelect = ({
   }, []);
 
   const getDataScope = async (page: number) => {
-    const res = await API.getDataScope(plugin, connectionId, { page, pageSize });
+    const res = await API.scope.list(plugin, connectionId, { page, pageSize });
     setItems([
       ...items,
       ...res.scopes.map((sc) => ({
@@ -80,10 +80,7 @@ export const DataScopeSelect = ({
 
   const search = useDebounce(query, { wait: 500 });
 
-  const { ready, data } = useRefreshData(
-    () => API.getDataScope(plugin, connectionId, { searchTerm: search }),
-    [search],
-  );
+  const { ready, data } = useRefreshData(() => API.scope.list(plugin, connectionId, { searchTerm: search }), [search]);
 
   const searchItems = useMemo(() => data?.scopes.map((sc) => sc.scope) ?? [], [data]);
 

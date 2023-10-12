@@ -21,6 +21,7 @@ import { useNavigate } from 'react-router-dom';
 import { Button, Switch, Intent, Position, Popover, Menu, MenuItem } from '@blueprintjs/core';
 import { Tooltip2 } from '@blueprintjs/popover2';
 
+import API from '@/api';
 import { Card, IconButton, Dialog, Message } from '@/components';
 import { getCron } from '@/config';
 import { useAutoRefresh } from '@/hooks';
@@ -30,7 +31,6 @@ import { formatTime, operator } from '@/utils';
 
 import { BlueprintType, FromEnum } from '../types';
 
-import * as API from './api';
 import * as S from './styled';
 
 interface Props {
@@ -50,7 +50,7 @@ export const StatusPanel = ({ from, blueprint, pipelineId, onRefresh }: Props) =
 
   const { loading, data } = useAutoRefresh<PipelineT.Pipeline[]>(
     async () => {
-      const res = await API.getBlueprintPipelines(blueprint.id);
+      const res = await API.blueprint.pipelines(blueprint.id);
       return res.pipelines;
     },
     [],
@@ -81,7 +81,7 @@ export const StatusPanel = ({ from, blueprint, pipelineId, onRefresh }: Props) =
     skipCollectors?: boolean;
     fullSync?: boolean;
   }) => {
-    const [success] = await operator(() => API.runBlueprint(blueprint.id, { skipCollectors, fullSync }), {
+    const [success] = await operator(() => API.blueprint.trigger(blueprint.id, { skipCollectors, fullSync }), {
       setOperating,
       formatMessage: () => 'Trigger blueprint successful.',
     });
@@ -94,7 +94,7 @@ export const StatusPanel = ({ from, blueprint, pipelineId, onRefresh }: Props) =
   const handleUpdate = async (payload: any) => {
     const [success] = await operator(
       () =>
-        API.updateBlueprint(blueprint.id, {
+        API.blueprint.update(blueprint.id, {
           ...blueprint,
           ...payload,
         }),
@@ -110,7 +110,7 @@ export const StatusPanel = ({ from, blueprint, pipelineId, onRefresh }: Props) =
   };
 
   const handleDelete = async () => {
-    const [success] = await operator(() => API.deleteBluprint(blueprint.id), {
+    const [success] = await operator(() => API.blueprint.remove(blueprint.id), {
       setOperating,
       formatMessage: () => 'Delete blueprint successful.',
     });

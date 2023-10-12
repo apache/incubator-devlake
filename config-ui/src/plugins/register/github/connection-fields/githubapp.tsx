@@ -20,15 +20,14 @@ import { useEffect, useState } from 'react';
 import { Button, FormGroup, InputGroup, MenuItem, TextArea } from '@blueprintjs/core';
 import { Select2 } from '@blueprintjs/select';
 
+import API from '@/api';
 import { ExternalLink } from '@/components';
-
-import * as API from '../api';
 
 import * as S from './styled';
 
 interface Props {
   endpoint?: string;
-  proxy?: string;
+  proxy: string;
   initialValue: any;
   value: any;
   error: string;
@@ -87,7 +86,7 @@ export const GithubApp = ({ endpoint, proxy, initialValue, value, error, setValu
     }
 
     try {
-      const res = await API.testConnection({
+      const res = await API.connection.test('github', {
         authMethod: 'AppKey',
         endpoint,
         proxy,

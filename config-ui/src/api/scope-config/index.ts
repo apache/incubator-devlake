@@ -18,45 +18,20 @@
 
 import { request } from '@/utils';
 
-import type { BlueprintType } from '@/pages/blueprint';
-import * as T from '@/routes/pipeline/types';
+export const list = (plugin: string, connectionId: ID) =>
+  request(`/plugins/${plugin}/connections/${connectionId}/scope-configs`);
 
-type GetProjectsParams = {
-  page: number;
-  pageSize: number;
-};
+export const get = (plugin: string, connectionId: ID, id: ID) =>
+  request(`/plugins/${plugin}/connections/${connectionId}/scope-configs/${id}`);
 
-type GetProjectsResponse = {
-  projects: Array<{
-    name: string;
-    createdAt: string;
-    blueprint: BlueprintType;
-    lastPipeline: T.Pipeline;
-  }>;
-  count: number;
-};
-
-export const getProjects = (params: GetProjectsParams): Promise<GetProjectsResponse> =>
-  request('/projects', { data: params });
-
-type CreateProjectPayload = {
-  name: string;
-  description: string;
-  metrics: Array<{
-    pluginName: string;
-    pluginOption: string;
-    enable: boolean;
-  }>;
-};
-
-export const createProject = (payload: CreateProjectPayload) =>
-  request('/projects', {
+export const create = (plugin: string, connectionId: ID, data: any) =>
+  request(`/plugins/${plugin}/connections/${connectionId}/scope-configs`, {
     method: 'post',
-    data: payload,
+    data,
   });
 
-export const createBlueprint = (payload: any) =>
-  request('/blueprints', {
-    method: 'post',
-    data: payload,
+export const update = (plugin: string, connectionId: ID, id: ID, data: any) =>
+  request(`/plugins/${plugin}/connections/${connectionId}/scope-configs/${id}`, {
+    method: 'patch',
+    data,
   });

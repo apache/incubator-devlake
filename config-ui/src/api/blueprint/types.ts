@@ -16,25 +16,32 @@
  *
  */
 
-import { request } from '@/utils';
+export enum ModeEnum {
+  advanced = 'ADVANCED',
+  normal = 'NORMAL',
+}
 
-import type { ProjectType, BlueprintType } from '@/pages';
+export type Blueprint = {
+  projectName: string;
+  id: ID;
+  enable: boolean;
+  name: string;
+  mode: ModeEnum;
+  isManual: boolean;
+  cronConfig: string;
+  skipOnFail: boolean;
+  plan: any;
+  timeAfter: null | string;
+  connections: Array<{
+    pluginName: string;
+    connectionId: ID;
+    scopes?: Array<{
+      scopeId: string;
+    }>;
+  }>;
+};
 
-export const getProject = (name: string): Promise<ProjectType> => request(`/projects/${name}`);
-
-export const updateProject = (name: string, payload: Omit<ProjectType, 'blueprint'>) =>
-  request(`/projects/${name}`, {
-    method: 'patch',
-    data: payload,
-  });
-
-export const updateBlueprint = (id: ID, payload: BlueprintType) =>
-  request(`/blueprints/${id}`, {
-    method: 'patch',
-    data: payload,
-  });
-
-export const deleteProject = (name: string) =>
-  request(`/projects/${name}`, {
-    method: 'delete',
-  });
+export type TriggerQuery = {
+  skipCollectors: boolean;
+  fullSync: boolean;
+};

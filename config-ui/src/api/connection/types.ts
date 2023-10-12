@@ -16,34 +16,41 @@
  *
  */
 
-import { request } from '@/utils';
-
-type GetConnectionRes = {
+export type Connection = {
   id: ID;
   name: string;
   endpoint: string;
-  proxy: string;
+  authMethod?: string;
   token?: string;
   username?: string;
   password?: string;
-  authMethod?: string;
+  proxy: string;
+  apiKey?: string;
 };
 
-export const getConnection = (plugin: string): Promise<GetConnectionRes[]> => request(`/plugins/${plugin}/connections`);
-
-type TestConnectionPayload = {
-  endpoint: string;
-  proxy: string;
-  token?: string;
+export type ConnectionForm = {
+  name: string;
+  endpoint?: string;
+  authMethod?: string;
   username?: string;
   password?: string;
-  authMethod?: string;
+  token?: string;
   appId?: string;
   secretKey?: string;
+  enableGraphql?: boolean;
+  proxy: string;
+  rateLimitPerHour?: number;
 };
 
-export const testConnection = (plugin: string, data: TestConnectionPayload) =>
-  request(`/plugins/${plugin}/test`, {
-    method: 'post',
-    data,
-  });
+export type ConnectionTest = {
+  message: string;
+  success: boolean;
+  login?: string;
+  installations?: Array<{
+    id: number;
+    account: {
+      login: string;
+    };
+  }>;
+  warning?: string;
+};

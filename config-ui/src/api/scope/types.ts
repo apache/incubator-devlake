@@ -16,18 +16,35 @@
  *
  */
 
-import { request } from '@/utils';
-
-type ParamsType = {
+export type ListQuery = Pagination & {
+  blueprint?: boolean;
   searchTerm?: string;
-} & Pagination;
-
-type ResponseType = {
-  scopes: Array<{ scope: { name: string; fullName: string } }>;
-  count: number;
 };
 
-export const getDataScope = (plugin: string, connectionId: ID, params?: ParamsType): Promise<ResponseType> =>
-  request(`/plugins/${plugin}/connections/${connectionId}/scopes`, {
-    data: params,
-  });
+export type Scope = {
+  name: string;
+  fullName: string;
+};
+
+export type List = Array<{
+  scope: Scope;
+  scopeConfig?: { name: string };
+}>;
+
+export type RemoteQuery = {
+  groupId: ID | null;
+  pageToken?: string;
+};
+
+export type RemoteScope = {
+  type: 'group' | 'scope';
+  parentId: ID | null;
+  id: ID;
+  name: string;
+  fullName: string;
+  data: any;
+};
+
+export type SearchRemoteQuery = {
+  search?: string;
+} & Pagination;

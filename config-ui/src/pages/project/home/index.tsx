@@ -21,6 +21,7 @@ import { Link, useNavigate } from 'react-router-dom';
 import { Button, InputGroup, Checkbox, Intent, FormGroup } from '@blueprintjs/core';
 import dayjs from 'dayjs';
 
+import API from '@/api';
 import { PageHeader, Table, Dialog, ExternalLink, IconButton, toast } from '@/components';
 import { getCron, cronPresets } from '@/config';
 import { useConnections, useRefreshData } from '@/hooks';
@@ -31,7 +32,6 @@ import { PipelineStatus } from '@/routes/pipeline';
 import { validName, encodeName } from '../utils';
 import { BlueprintType, ModeEnum } from '../../blueprint';
 
-import * as API from './api';
 import * as S from './styled';
 
 export const ProjectHomePage = () => {
@@ -43,7 +43,7 @@ export const ProjectHomePage = () => {
   const [enableDora, setEnableDora] = useState(true);
   const [saving, setSaving] = useState(false);
 
-  const { ready, data } = useRefreshData(() => API.getProjects({ page, pageSize }), [version, page, pageSize]);
+  const { ready, data } = useRefreshData(() => API.project.list({ page, pageSize }), [version, page, pageSize]);
   const { onGet } = useConnections();
 
   const navigate = useNavigate();
@@ -82,7 +82,7 @@ export const ProjectHomePage = () => {
 
     const [success] = await operator(
       async () => {
-        await API.createProject({
+        await API.project.create({
           name,
           description: '',
           metrics: [
@@ -93,7 +93,7 @@ export const ProjectHomePage = () => {
             },
           ],
         });
-        return API.createBlueprint({
+        return API.blueprint.create({
           name: `${name}-Blueprint`,
           projectName: name,
           mode: ModeEnum.normal,

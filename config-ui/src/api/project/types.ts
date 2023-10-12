@@ -16,19 +16,14 @@
  *
  */
 
-import { request } from '@/utils';
+import { Blueprint } from '../blueprint/types';
+import { Pipeline } from '../pipeline/types';
 
-export const getScopeConfig = (plugin: string, connectionId: ID, id: ID) =>
-  request(`/plugins/${plugin}/connections/${connectionId}/scope-configs/${id}`);
-
-export const createScopeConfig = (plugin: string, connectionId: ID, payload: any) =>
-  request(`/plugins/${plugin}/connections/${connectionId}/scope-configs`, {
-    method: 'post',
-    data: payload,
-  });
-
-export const updateScopeConfig = (plugin: string, connectionId: ID, id: ID, payload: any) =>
-  request(`/plugins/${plugin}/connections/${connectionId}/scope-configs/${id}`, {
-    method: 'patch',
-    data: payload,
-  });
+export type Project = {
+  name: string;
+  description: string;
+  metrics: Array<{ pluginName: string; pluginOption: string; enable: boolean }>;
+  createdAt: string;
+  blueprint: Blueprint;
+  lastPipeline: Pipeline;
+};

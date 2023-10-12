@@ -19,13 +19,13 @@
 import { useState, useMemo } from 'react';
 import { Button, Intent } from '@blueprintjs/core';
 
+import API from '@/api';
 import { Buttons } from '@/components';
 import { getPluginConfig } from '@/plugins';
 import { operator } from '@/utils';
 
 import { SearchLocal } from './search-local';
 import { SearchRemote } from './search-remote';
-import * as API from './api';
 
 interface Props {
   plugin: string;
@@ -43,7 +43,7 @@ export const DataScopeRemote = ({ plugin, connectionId, disabledScope, onCancel,
 
   const handleSubmit = async () => {
     const [success, res] = await operator(
-      () => API.updateDataScope(plugin, connectionId, { data: selectedScope.map((it) => it.data) }),
+      () => API.scope.batch(plugin, connectionId, { data: selectedScope.map((it) => it.data) }),
       {
         setOperating,
         formatMessage: () => 'Add data scope successful.',
