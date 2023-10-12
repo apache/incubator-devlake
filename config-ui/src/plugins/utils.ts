@@ -30,7 +30,7 @@ export const getPluginScopeId = (plugin: string, scope: any) => {
     case 'gitlab':
       return `${scope.gitlabId}`;
     case 'jenkins':
-      return `${scope.jobFullName}`;
+      return `${scope.fullName}`;
     case 'bitbucket':
       return `${scope.bitbucketId}`;
     case 'sonarqube':

@@ -267,8 +267,9 @@ const ConnectionDetail = ({ plugin, connectionId }: Props) => {
           columns={[
             {
               title: 'Data Scope',
-              dataIndex: 'name',
+              dataIndex: ['name', 'fullName'],
               key: 'name',
+              render: ({ name, fullName }) => fullName ?? name,
             },
             {
               title: 'Project',
