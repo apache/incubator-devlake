@@ -30,8 +30,8 @@ export const updateBlueprint = (id: ID, payload: BlueprintType) =>
 export const getConnection = (plugin: string, connectionId: ID) =>
   request(`/plugins/${plugin}/connections/${connectionId}`);
 
-export const getDataScopes = (plugin: string, connectionId: ID) =>
-  request(`/plugins/${plugin}/connections/${connectionId}/scopes`);
+export const getDataScope = (plugin: string, connectionId: ID, scopeId: ID) =>
+  request(`/plugins/${plugin}/connections/${connectionId}/scopes/${scopeId}`);
 
 export const runBlueprint = (id: ID, skipCollectors: boolean) =>
   request(`/blueprints/${id}/trigger`, { method: 'post', data: { skipCollectors } });
