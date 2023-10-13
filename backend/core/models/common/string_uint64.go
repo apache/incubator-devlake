@@ -30,15 +30,15 @@ type StringUint64 struct {
 	t string
 }
 
-func NewStringUint64(value uint64) *StringUint64 {
-	return &StringUint64{
+func NewStringUint64(value uint64) StringUint64 {
+	return StringUint64{
 		v: value,
 		t: "uint64",
 	}
 }
 
-func NewStringUint64FromAny(value interface{}) *StringUint64 {
-	return &StringUint64{
+func NewStringUint64FromAny(value interface{}) StringUint64 {
+	return StringUint64{
 		v: cast.ToUint64(value),
 		t: "string",
 	}
@@ -55,7 +55,7 @@ func (f *StringUint64) Uint64() uint64 {
 	return f.v
 }
 
-func (f *StringUint64) String() string {
+func (f StringUint64) String() string {
 	//if f.t == "string" {
 	//	return fmt.Sprintf("\"%v\"", f.v)
 	//}

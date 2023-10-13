@@ -42,18 +42,18 @@ type WorkspaceResponse struct {
 
 type TapdWorkspace struct {
 	common.Scope `mapstructure:",squash"`
-	Id           *common.StringUint64 `gorm:"primaryKey;type:BIGINT" mapstructure:"id" json:"id"`
-	Name         string               `gorm:"type:varchar(255)" mapstructure:"name" json:"name"`
-	PrettyName   string               `gorm:"type:varchar(255)" mapstructure:"pretty_name" json:"pretty_name"`
-	Category     string               `gorm:"type:varchar(255)" mapstructure:"category" json:"category"`
-	Status       string               `gorm:"type:varchar(255)" mapstructure:"status" json:"status"`
-	Description  string               `mapstructure:"description" json:"description"`
-	BeginDate    *common.CSTTime      `mapstructure:"begin_date" json:"begin_date"`
-	EndDate      *common.CSTTime      `mapstructure:"end_date" json:"end_date"`
-	ExternalOn   string               `gorm:"type:varchar(255)" mapstructure:"external_on" json:"external_on"`
-	ParentId     *common.StringUint64 `gorm:"type:BIGINT" mapstructure:"parent_id,string" json:"parent_id"`
-	Creator      string               `gorm:"type:varchar(255)" mapstructure:"creator" json:"creator"`
-	Created      *common.CSTTime      `mapstructure:"created" json:"created"`
+	Id           common.StringUint64 `gorm:"primaryKey;type:BIGINT" mapstructure:"id" json:"id"`
+	Name         string              `gorm:"type:varchar(255)" mapstructure:"name" json:"name"`
+	PrettyName   string              `gorm:"type:varchar(255)" mapstructure:"pretty_name" json:"pretty_name"`
+	Category     string              `gorm:"type:varchar(255)" mapstructure:"category" json:"category"`
+	Status       string              `gorm:"type:varchar(255)" mapstructure:"status" json:"status"`
+	Description  string              `mapstructure:"description" json:"description"`
+	BeginDate    *common.CSTTime     `mapstructure:"begin_date" json:"begin_date"`
+	EndDate      *common.CSTTime     `mapstructure:"end_date" json:"end_date"`
+	ExternalOn   string              `gorm:"type:varchar(255)" mapstructure:"external_on" json:"external_on"`
+	ParentId     common.StringUint64 `gorm:"type:BIGINT" mapstructure:"parent_id,string" json:"parent_id"`
+	Creator      string              `gorm:"type:varchar(255)" mapstructure:"creator" json:"creator"`
+	Created      *common.CSTTime     `mapstructure:"created" json:"created"`
 }
 
 func (TapdWorkspace) TableName() string {
