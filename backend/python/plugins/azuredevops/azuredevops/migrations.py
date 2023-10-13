@@ -138,7 +138,7 @@ def init_schemas(b: MigrationScriptBuilder):
 
 @migration(20230524181430)
 def add_build_id_as_job_primary_key(b: MigrationScriptBuilder):
-    # NOTE: We can't add a column to the primary key of an existing table
+    # NOTE: We can't add a column to the primary key of an existing table,
     # so we have to drop the primary key constraint first,
     # which is done differently in MySQL and PostgreSQL,
     # and then add the new composite primary key.
