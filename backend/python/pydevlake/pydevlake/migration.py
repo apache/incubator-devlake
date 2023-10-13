@@ -104,7 +104,7 @@ class MigrationScriptBuilder:
 
     def drop_column(self, table: str, column: str):
         """
-        Drops a column from a table if it exist.
+        Drops a column from a table if it exists.
         """
         self.operations.append(DropColumn(table=table, column=column))
 
