@@ -56,7 +56,7 @@ Alternatively, you may downgrade back to the previous DevLake version.
 // @license.name Apache-2.0
 // @host localhost:8080
 // @BasePath /
-func CreateApiService() {
+func CreateApiService(router *gin.Engine) {
 	// Get configuration
 	v := config.GetConfig()
 	// Initialize services
@@ -64,18 +64,13 @@ func CreateApiService() {
 	// Set gin mode
 	gin.SetMode(v.GetString("MODE"))
 	// Create a gin router
-	router := gin.Default()
+	if router == nil {
+		router = gin.Default()
+	}
 
 	// For both protected and unprotected routes
 	router.GET("/ping", ping.Get)
 	router.GET("/version", version.Get)
-	router.GET("/userinfo", func(ctx *gin.Context) {
-		shared.ApiOutputSuccess(ctx, gin.H{
-			"user":      ctx.Request.Header.Get("X-Forwarded-User"),
-			"email":     ctx.Request.Header.Get("X-Forwarded-Email"),
-			"logoutURI": config.GetConfig().GetString("LOGOUT_URI"),
-		}, http.StatusOK)
-	})
 
 	// Endpoint to proceed database migration
 	router.GET("/proceed-db-migration", func(ctx *gin.Context) {

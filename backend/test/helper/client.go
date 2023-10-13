@@ -172,7 +172,7 @@ func ConnectLocalServer(t *testing.T, clientConfig *LocalClientConfig) *DevlakeC
 		cfg.Set("PLUGIN_DIR", throwawayDir)
 		cfg.Set("LOGGING_DIR", throwawayDir)
 		go func() {
-			initService.Do(api.CreateApiService)
+			initService.Do(func() { api.CreateApiService(nil) })
 		}()
 		req, err2 := http.NewRequest(http.MethodGet, fmt.Sprintf("%s/proceed-db-migration", addr), nil)
 		require.NoError(t, err2)

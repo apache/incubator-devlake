@@ -84,7 +84,7 @@ func newPlugin(info *models.PluginInfo, invoker bridge.Invoker) (*remotePluginIm
 	}
 	openApiSpec, err := doc.GenerateOpenApiSpec(info)
 	if err != nil {
-		return nil, errors.Default.Wrap(err, fmt.Sprintf("Couldn't generate OpenAPI spec for plugin %s", info.Name))
+		panic(err)
 	}
 	scripts := make([]plugin.MigrationScript, 0)
 	for _, script := range info.MigrationScripts {
