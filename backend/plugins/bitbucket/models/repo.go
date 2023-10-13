@@ -29,16 +29,16 @@ var _ plugin.ApiGroup = (*GroupResponse)(nil)
 var _ plugin.ApiScope = (*BitbucketApiRepo)(nil)
 
 type BitbucketRepo struct {
-	common.Scope
-	BitbucketId string     `json:"bitbucketId" gorm:"primaryKey;type:varchar(255)" validate:"required" mapstructure:"bitbucketId"`
-	Name        string     `json:"name" gorm:"type:varchar(255)" mapstructure:"name,omitempty"`
-	HTMLUrl     string     `json:"HTMLUrl" gorm:"type:varchar(255)" mapstructure:"HTMLUrl,omitempty"`
-	Description string     `json:"description" mapstructure:"description,omitempty"`
-	Owner       string     `json:"owner" mapstructure:"owner,omitempty"`
-	Language    string     `json:"language" gorm:"type:varchar(255)" mapstructure:"language,omitempty"`
-	CloneUrl    string     `json:"cloneUrl" gorm:"type:varchar(255)" mapstructure:"cloneUrl,omitempty"`
-	CreatedDate *time.Time `json:"createdDate" mapstructure:"-"`
-	UpdatedDate *time.Time `json:"updatedDate" mapstructure:"-"`
+	common.Scope `mapstructure:",squash"`
+	BitbucketId  string     `json:"bitbucketId" gorm:"primaryKey;type:varchar(255)" validate:"required" mapstructure:"bitbucketId"`
+	Name         string     `json:"name" gorm:"type:varchar(255)" mapstructure:"name,omitempty"`
+	HTMLUrl      string     `json:"HTMLUrl" gorm:"type:varchar(255)" mapstructure:"HTMLUrl,omitempty"`
+	Description  string     `json:"description" mapstructure:"description,omitempty"`
+	Owner        string     `json:"owner" mapstructure:"owner,omitempty"`
+	Language     string     `json:"language" gorm:"type:varchar(255)" mapstructure:"language,omitempty"`
+	CloneUrl     string     `json:"cloneUrl" gorm:"type:varchar(255)" mapstructure:"cloneUrl,omitempty"`
+	CreatedDate  *time.Time `json:"createdDate" mapstructure:"-"`
+	UpdatedDate  *time.Time `json:"updatedDate" mapstructure:"-"`
 }
 
 func (BitbucketRepo) TableName() string {

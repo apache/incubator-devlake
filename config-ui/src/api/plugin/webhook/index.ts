@@ -16,25 +16,26 @@
  *
  */
 
-import { request } from '@/utils';
+import * as connection from '../../connection';
 
-import type { ProjectType, BlueprintType } from '@/pages';
+export const list = () => connection.list('webhook');
 
-export const getProject = (name: string): Promise<ProjectType> => request(`/projects/${name}`);
+export const get = (
+  id: ID,
+): Promise<{
+  name: string;
+  postIssuesEndpoint: string;
+  closeIssuesEndpoint: string;
+  postPipelineDeployTaskEndpoint: string;
+  apiKey: {
+    id: string;
+    apiKey: string;
+  };
+}> => connection.get('webook', id) as any;
 
-export const updateProject = (name: string, payload: Omit<ProjectType, 'blueprint'>) =>
-  request(`/projects/${name}`, {
-    method: 'patch',
-    data: payload,
-  });
+export const create = (payload: any): Promise<{ id: string; apiKey: { apiKey: string } }> =>
+  connection.create('webhook', payload) as any;
 
-export const updateBlueprint = (id: ID, payload: BlueprintType) =>
-  request(`/blueprints/${id}`, {
-    method: 'patch',
-    data: payload,
-  });
+export const remove = (id: ID) => connection.remove('webhook', id);
 
-export const deleteProject = (name: string) =>
-  request(`/projects/${name}`, {
-    method: 'delete',
-  });
+export const update = (id: ID, payload: any) => connection.update('webhook', id, payload);

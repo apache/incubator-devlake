@@ -35,6 +35,7 @@ type CircleciTaskData struct {
 	Options       *CircleciOptions
 	ApiClient     *helper.ApiAsyncClient
 	RegexEnricher *helper.RegexEnricher
+	Project       *models.CircleciProject
 }
 
 func DecodeAndValidateTaskOptions(options map[string]interface{}) (*CircleciOptions, errors.Error) {

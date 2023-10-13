@@ -18,32 +18,22 @@
 
 import { request } from '@/utils';
 
-type GetConnectionRes = {
-  id: ID;
-  name: string;
-  endpoint: string;
-  proxy: string;
-  token?: string;
-  username?: string;
-  password?: string;
-  authMethod?: string;
+export type GetBoardsParams = {
+  startAt: number;
+  maxResults: number;
 };
 
-export const getConnection = (plugin: string): Promise<GetConnectionRes[]> => request(`/plugins/${plugin}/connections`);
+export const boards = (prefix: string, params: GetBoardsParams) =>
+  request(`${prefix}/agile/1.0/board`, { data: params });
 
-type TestConnectionPayload = {
-  endpoint: string;
-  proxy: string;
-  token?: string;
-  username?: string;
-  password?: string;
-  authMethod?: string;
-  appId?: string;
-  secretKey?: string;
-};
+export const statusMap = (prefix: string, workspaceId: ID, system: string) =>
+  request(`${prefix}/workflows/status_map?workspace_id=${workspaceId}&system=${system}`);
 
-export const testConnection = (plugin: string, data: TestConnectionPayload) =>
-  request(`/plugins/${plugin}/test`, {
-    method: 'post',
-    data,
+export const storyCategories = (prefix: string, workspaceId: ID) =>
+  request(`${prefix}/story_categories?workspace_id=${workspaceId}`);
+
+export const remoteScopePrepareToken = (connectionId: ID, params: object) =>
+  request(`/plugins/tapd/connections/${connectionId}/remote-scopes-prepare-token`, {
+    method: 'get',
+    data: params,
   });

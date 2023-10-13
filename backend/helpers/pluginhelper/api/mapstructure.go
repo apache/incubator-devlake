@@ -67,9 +67,10 @@ func DecodeHook(f reflect.Type, t reflect.Type, data interface{}) (interface{}, 
 func DecodeMapStruct(input map[string]interface{}, result interface{}, zeroFields bool) errors.Error {
 	result = models.UnwrapObject(result)
 	decoder, err := mapstructure.NewDecoder(&mapstructure.DecoderConfig{
-		ZeroFields: zeroFields,
-		DecodeHook: mapstructure.ComposeDecodeHookFunc(DecodeHook),
-		Result:     result,
+		ZeroFields:       zeroFields,
+		DecodeHook:       mapstructure.ComposeDecodeHookFunc(DecodeHook),
+		Result:           result,
+		WeaklyTypedInput: true,
 	})
 	if err != nil {
 		return errors.Convert(err)

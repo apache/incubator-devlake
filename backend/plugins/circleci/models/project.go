@@ -23,7 +23,7 @@ import (
 )
 
 type CircleciProject struct {
-	common.Scope
+	common.Scope   `mapstructure:",squash"`
 	Id             string `gorm:"primaryKey;type:varchar(100)" json:"id" mapstructure:"id"`
 	Slug           string `gorm:"type:varchar(255)" json:"slug" mapstructure:"slug"`
 	Name           string `gorm:"type:varchar(255)" json:"name" mapstructure:"name"`

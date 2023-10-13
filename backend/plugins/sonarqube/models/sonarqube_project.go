@@ -26,7 +26,7 @@ var _ plugin.ToolLayerScope = (*SonarqubeProject)(nil)
 var _ plugin.ApiScope = (*SonarqubeApiProject)(nil)
 
 type SonarqubeProject struct {
-	common.Scope
+	common.Scope     `mapstructure:",squash"`
 	ProjectKey       string              `json:"projectKey" validate:"required" gorm:"type:varchar(255);primaryKey" mapstructure:"projectKey"`
 	Name             string              `json:"name" gorm:"type:varchar(255)" mapstructure:"name"`
 	Qualifier        string              `json:"qualifier" gorm:"type:varchar(255)" mapstructure:"qualifier"`

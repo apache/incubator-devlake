@@ -16,20 +16,25 @@
  *
  */
 
-import { request } from '@/utils';
+export enum PipelineStatus {
+  CREATED = 'TASK_CREATED',
+  PENDING = 'TASK_PENDING',
+  ACTIVE = 'TASK_ACTIVE',
+  RUNNING = 'TASK_RUNNING',
+  RERUN = 'TASK_RERUN',
+  COMPLETED = 'TASK_COMPLETED',
+  PARTIAL = 'TASK_PARTIAL',
+  FAILED = 'TASK_FAILED',
+  CANCELLED = 'TASK_CANCELLED',
+}
 
-import { BlueprintType } from '../types';
-
-type ResponseType = {
-  blueprints: Array<BlueprintType>;
-  count: number;
+export type Pipeline = {
+  id: ID;
+  status: PipelineStatus;
+  beganAt: string | null;
+  finishedAt: string | null;
+  stage: number;
+  finishedTasks: number;
+  totalTasks: number;
+  message: string;
 };
-
-export const getBlueprints = (params: Pagination & { type: string }): Promise<ResponseType> =>
-  request('/blueprints', { data: params });
-
-export const createBlueprint = (payload: any) =>
-  request('/blueprints', {
-    method: 'post',
-    data: payload,
-  });

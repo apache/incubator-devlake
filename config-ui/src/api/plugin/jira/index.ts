@@ -23,19 +23,19 @@ export type GetBoardsParams = {
   maxResults: number;
 };
 
-export const getBoards = (prefix: string, params: GetBoardsParams) =>
+export const boards = (prefix: string, params: GetBoardsParams) =>
   request(`${prefix}/agile/1.0/board`, { data: params });
 
-export const getIssueType = (prefix: string) => request(`${prefix}/api/2/issuetype`);
+export const issueType = (prefix: string) => request(`${prefix}/api/2/issuetype`);
 
-export const getField = (prefix: string) => request(`${prefix}/api/2/field`);
+export const field = (prefix: string) => request(`${prefix}/api/2/field`);
 
-export const getApplicationTypes = (connectionId: ID, query: { key: string }) =>
+export const applicationTypes = (connectionId: ID, query: { key: string }) =>
   request(`/plugins/jira/connections/${connectionId}/application-types`, {
     data: query,
   });
 
-export const getDevPanelCommits = (connectionId: ID, query: { key: string; applicationType: string }) =>
+export const devPanelCommits = (connectionId: ID, query: { key: string; applicationType: string }) =>
   request(`/plugins/jira/connections/${connectionId}/dev-panel-commits`, { data: query });
 
 export const generateRegex = (pattern: string) =>

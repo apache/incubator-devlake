@@ -16,6 +16,41 @@
  *
  */
 
-import { request } from '@/utils';
+export type Connection = {
+  id: ID;
+  name: string;
+  endpoint: string;
+  authMethod?: string;
+  token?: string;
+  username?: string;
+  password?: string;
+  proxy: string;
+  apiKey?: string;
+};
 
-export const testConnection = (payload: any) => request('/plugins/github/test', { method: 'post', data: payload });
+export type ConnectionForm = {
+  name: string;
+  endpoint?: string;
+  authMethod?: string;
+  username?: string;
+  password?: string;
+  token?: string;
+  appId?: string;
+  secretKey?: string;
+  enableGraphql?: boolean;
+  proxy: string;
+  rateLimitPerHour?: number;
+};
+
+export type ConnectionTest = {
+  message: string;
+  success: boolean;
+  login?: string;
+  installations?: Array<{
+    id: number;
+    account: {
+      login: string;
+    };
+  }>;
+  warning?: string;
+};

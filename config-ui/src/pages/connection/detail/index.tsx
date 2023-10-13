@@ -20,6 +20,7 @@ import { useState, useEffect, useMemo } from 'react';
 import { useParams, useNavigate, Link } from 'react-router-dom';
 import { Button, Intent } from '@blueprintjs/core';
 
+import API from '@/api';
 import { PageHeader, Buttons, Dialog, IconButton, Table, Message, toast } from '@/components';
 import { useTips, useConnections, useRefreshData } from '@/hooks';
 import ClearImg from '@/images/icons/clear.svg';
@@ -34,7 +35,6 @@ import {
 } from '@/plugins';
 import { operator } from '@/utils';
 
-import * as API from './api';
 import * as S from './styled';
 
 export const ConnectionDetailPage = () => {
@@ -72,7 +72,7 @@ const ConnectionDetail = ({ plugin, connectionId }: Props) => {
   const { onGet, onTest, onRefresh } = useConnections();
   const { setTips } = useTips();
   const { ready, data } = useRefreshData(
-    () => API.getDataScopes(plugin, connectionId, { page, pageSize }),
+    () => API.scope.list(plugin, connectionId, { page, pageSize, blueprint: true }),
     [version, page, pageSize],
   );
 
@@ -80,7 +80,19 @@ const ConnectionDetail = ({ plugin, connectionId }: Props) => {
 
   const pluginConfig = useMemo(() => getPluginConfig(plugin), [plugin]);
 
-  const [dataSource, total] = useMemo(() => [data?.scopes ?? [], data?.count ?? 0], [data]);
+  const [dataSource, total] = useMemo(
+    () => [
+      data?.scopes.map((it: any) => ({
+        id: getPluginScopeId(plugin, it.scope),
+        name: it.scope.fullName ?? it.scope.name,
+        projects: it.blueprints?.map((bp: any) => bp.projectName) ?? [],
+        configId: it.scopeConfig?.id,
+        configName: it.scopeConfig?.name,
+      })) ?? [],
+      data?.count ?? 0,
+    ],
+    [data],
+  );
 
   useEffect(() => {
     onTest(`${plugin}-${connectionId}`);
@@ -98,7 +110,7 @@ const ConnectionDetail = ({ plugin, connectionId }: Props) => {
     const [, res] = await operator(
       async () => {
         try {
-          await API.deleteConnection(plugin, connectionId);
+          await API.connection.remove(plugin, connectionId);
           return { status: 'success' };
         } catch (err: any) {
           const { status, data } = err.response;
@@ -163,7 +175,7 @@ const ConnectionDetail = ({ plugin, connectionId }: Props) => {
     const [, res] = await operator(
       async () => {
         try {
-          await API.deleteDataScope(plugin, connectionId, scopeId, onlyData);
+          await API.scope.remove(plugin, connectionId, scopeId, onlyData);
           return { status: 'success' };
         } catch (err: any) {
           const { status, data } = err.response;
@@ -204,8 +216,8 @@ const ConnectionDetail = ({ plugin, connectionId }: Props) => {
       () =>
         Promise.all(
           scopeIds.map(async (scopeId) => {
-            const scope = await API.getDataScope(plugin, connectionId, scopeId);
-            return API.updateDataScope(plugin, connectionId, scopeId, {
+            const scope = await API.scope.get(plugin, connectionId, scopeId);
+            return API.scope.update(plugin, connectionId, scopeId, {
               ...scope,
               scopeConfigId: +trId,
             });
@@ -270,19 +282,17 @@ const ConnectionDetail = ({ plugin, connectionId }: Props) => {
             },
             {
               title: 'Project',
-              dataIndex: 'blueprints',
-              key: 'project',
-              render: (blueprints) => (
+              dataIndex: 'projects',
+              key: 'projects',
+              render: (projects) => (
                 <>
-                  {blueprints?.length ? (
+                  {projects.length ? (
                     <ul>
-                      {blueprints.map((bp: any, i: number) =>
-                        bp.projectName ? (
-                          <li key={bp.projectName}>
-                            <Link to={`/projects/${bp.projectName}`}>{bp.projectName}</Link>
-                          </li>
-                        ) : null,
-                      )}
+                      {projects.map((it: string) => (
+                        <li key={it}>
+                          <Link to={`/projects/${it}`}>{it}</Link>
+                        </li>
+                      ))}
                     </ul>
                   ) : (
                     '-'
@@ -292,19 +302,19 @@ const ConnectionDetail = ({ plugin, connectionId }: Props) => {
             },
             {
               title: 'Scope Config',
-              dataIndex: 'scopeConfig',
+              dataIndex: ['id', 'configId', 'configName'],
               key: 'scopeConfig',
               width: 400,
-              render: (_, row) => (
+              render: ({ id, configId, configName }) => (
                 <>
-                  <span>{row.scopeConfigId ? row.scopeConfig?.name : 'N/A'}</span>
+                  <span>{configId ? configName : 'N/A'}</span>
                   {pluginConfig.scopeConfig && (
                     <IconButton
                       icon="link"
                       tooltip="Associate Scope Config"
                       onClick={() => {
-                        handleShowScopeConfigSelectDialog([getPluginScopeId(plugin, row)]);
-                        setScopeConfigId(row.scopeConfigId);
+                        handleShowScopeConfigSelectDialog([id]);
+                        setScopeConfigId(configId);
                       }}
                     />
                   )}
@@ -313,19 +323,20 @@ const ConnectionDetail = ({ plugin, connectionId }: Props) => {
             },
             {
               title: '',
+              dataIndex: 'id',
               key: 'id',
               width: 100,
-              render: (_, row) => (
+              render: (id) => (
                 <>
                   <IconButton
                     image={<img src={ClearImg} alt="clear" />}
                     tooltip="Clear historical data"
-                    onClick={() => handleShowClearDataScopeDialog(getPluginScopeId(plugin, row))}
+                    onClick={() => handleShowClearDataScopeDialog(id)}
                   />
                   <IconButton
                     icon="trash"
                     tooltip="Delete Data Scope"
-                    onClick={() => handleShowDeleteDataScopeDialog(getPluginScopeId(plugin, row))}
+                    onClick={() => handleShowDeleteDataScopeDialog(id)}
                   />
                 </>
               ),
@@ -344,7 +355,7 @@ const ConnectionDetail = ({ plugin, connectionId }: Props) => {
             onCreate: handleShowCreateDataScopeDialog,
           }}
           rowSelection={{
-            getRowKey: (row) => getPluginScopeId(plugin, row),
+            getRowKey: (row) => row.id,
             selectedRowKeys: scopeIds,
             onChange: (selectedRowKeys) => setScopeIds(selectedRowKeys),
           }}

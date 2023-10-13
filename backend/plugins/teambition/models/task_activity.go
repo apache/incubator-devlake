@@ -24,8 +24,8 @@ import (
 type TeambitionTaskActivity struct {
 	ConnectionId      uint64              `gorm:"primaryKey;type:BIGINT"`
 	Id                string              `gorm:"primaryKey;type:varchar(100)" json:"id"`
-	ProjectId         string              `gorm:"primaryKey;type:varchar(100)" json:"projectId"`
-	TaskId            string              `gorm:"primaryKey;type:varchar(100)" json:"taskId"`
+	ProjectId         string              `gorm:"type:varchar(100)" json:"projectId"`
+	TaskId            string              `gorm:"type:varchar(100)" json:"taskId"`
 	CreatorId         string              `gorm:"type:varchar(100)" json:"creatorId"`
 	Action            string              `gorm:"type:varchar(100)" json:"action"`
 	BoundToObjectId   string              `gorm:"type:varchar(100)" json:"boundToObjectId"`

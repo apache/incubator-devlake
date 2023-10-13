@@ -26,7 +26,7 @@ var _ plugin.ToolLayerScope = (*BambooPlan)(nil)
 var _ plugin.ApiScope = (*ApiBambooPlan)(nil)
 
 type BambooPlan struct {
-	common.Scope
+	common.Scope              `mapstructure:",squash"`
 	PlanKey                   string  `json:"planKey" mapstructure:"planKey" gorm:"primaryKey"`
 	Name                      string  `json:"name" mapstructure:"name"`
 	Expand                    string  `json:"expand" mapstructure:"expand"`

@@ -16,18 +16,14 @@
  *
  */
 
-import { request } from '@/utils';
+import * as jira from './jira';
+import * as tapd from './tapd';
+import * as webhook from './webhook';
 
-type ParamsType = {
-  searchTerm?: string;
-} & Pagination;
-
-type ResponseType = {
-  scopes: Array<{ name: string }>;
-  count: number;
+export const plugin = {
+  jira,
+  tapd,
+  webhook,
 };
 
-export const getDataScope = (plugin: string, connectionId: ID, params?: ParamsType): Promise<ResponseType> =>
-  request(`/plugins/${plugin}/connections/${connectionId}/scopes`, {
-    data: params,
-  });
+export default plugin;

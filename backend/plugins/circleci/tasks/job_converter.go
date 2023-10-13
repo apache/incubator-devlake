@@ -58,9 +58,9 @@ func ConvertJobs(taskCtx plugin.SubTaskContext) errors.Error {
 			userTool := inputRow.(*models.CircleciJob)
 			task := &devops.CICDTask{
 				DomainEntity: domainlayer.DomainEntity{
-					Id: getJobIdGen().Generate(data.Options.ConnectionId, userTool.Id),
+					Id: getJobIdGen().Generate(data.Options.ConnectionId, userTool.WorkflowId, userTool.Id),
 				},
-				CicdScopeId:  getProjectIdGen().Generate(data.Options.ConnectionId, data.Options.ProjectSlug),
+				CicdScopeId:  getProjectIdGen().Generate(data.Options.ConnectionId, data.Project.Id),
 				Name:         userTool.Name,
 				PipelineId:   userTool.PipelineId,
 				StartedDate:  userTool.StartedAt.ToTime(),

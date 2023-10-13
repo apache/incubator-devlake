@@ -16,18 +16,14 @@
  *
  */
 
-import { request } from '@/utils';
+import { Blueprint } from '../blueprint/types';
+import { Pipeline } from '../pipeline/types';
 
-import type { BlueprintType } from '../types';
-
-export const getBlueprint = (id: ID): Promise<BlueprintType> => request(`/blueprints/${id}`);
-
-export const getBlueprintPipelines = (id: ID) => request(`/blueprints/${id}/pipelines`);
-
-export const runBlueprint = (id: ID, skipCollectors: boolean) =>
-  request(`/blueprints/${id}/trigger`, { method: 'post', data: { skipCollectors } });
-
-export const updateBlueprint = (id: ID, payload: BlueprintType) =>
-  request(`/blueprints/${id}`, { method: 'patch', data: payload });
-
-export const deleteBluprint = (id: ID) => request(`/blueprints/${id}`, { method: 'delete' });
+export type Project = {
+  name: string;
+  description: string;
+  metrics: Array<{ pluginName: string; pluginOption: string; enable: boolean }>;
+  createdAt: string;
+  blueprint: Blueprint;
+  lastPipeline: Pipeline;
+};

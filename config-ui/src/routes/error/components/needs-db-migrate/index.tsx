@@ -20,10 +20,9 @@ import { useState } from 'react';
 import { Icon, Button, Colors, Intent } from '@blueprintjs/core';
 import { useNavigate } from 'react-router-dom';
 
+import API from '@/api';
 import { Card, Buttons } from '@/components';
 import { operator } from '@/utils';
-
-import * as API from './api';
 
 export const NeedsDBMigrate = () => {
   const [operating, setOperating] = useState(false);

@@ -18,6 +18,7 @@ limitations under the License.
 package common
 
 import (
+	"github.com/apache/incubator-devlake/core/dal"
 	"time"
 )
 
@@ -49,12 +50,12 @@ type Updater struct {
 // embedded fields for tool layer tables
 type RawDataOrigin struct {
 	// can be used for flushing outdated records from table
-	RawDataParams string `gorm:"column:_raw_data_params;type:varchar(255);index" json:"_raw_data_params"`
-	RawDataTable  string `gorm:"column:_raw_data_table;type:varchar(255)" json:"_raw_data_table"`
+	RawDataParams string `gorm:"column:_raw_data_params;type:varchar(255);index" json:"_raw_data_params" mapstructure:"rawDataParams"`
+	RawDataTable  string `gorm:"column:_raw_data_table;type:varchar(255)" json:"_raw_data_table" mapstructure:"rawDataTable"`
 	// can be used for debugging
-	RawDataId uint64 `gorm:"column:_raw_data_id" json:"_raw_data_id"`
+	RawDataId uint64 `gorm:"column:_raw_data_id" json:"_raw_data_id" mapstructure:"rawDataId"`
 	// we can store record index into this field, which is helpful for debugging
-	RawDataRemark string `gorm:"column:_raw_data_remark" json:"_raw_data_remark"`
+	RawDataRemark string `gorm:"column:_raw_data_remark" json:"_raw_data_remark" mapstructure:"rawDataRemark"`
 }
 
 type GetRawDataOrigin interface {
@@ -68,7 +69,7 @@ func (c *RawDataOrigin) GetRawDataOrigin() *RawDataOrigin {
 type NoPKModel struct {
 	CreatedAt     time.Time `json:"createdAt" mapstructure:"createdAt"`
 	UpdatedAt     time.Time `json:"updatedAt" mapstructure:"updatedAt"`
-	RawDataOrigin `swaggerignore:"true"`
+	RawDataOrigin `swaggerignore:"true" mapstructure:",squash"`
 }
 
 func NewNoPKModel() NoPKModel {
@@ -80,7 +81,7 @@ func NewNoPKModel() NoPKModel {
 }
 
 type Scope struct {
-	NoPKModel
+	NoPKModel     `mapstructure:",squash"`
 	ConnectionId  uint64 `json:"connectionId" gorm:"primaryKey" validate:"required" mapstructure:"connectionId,omitempty"`
 	ScopeConfigId uint64 `json:"scopeConfigId,omitempty" mapstructure:"scopeConfigId,omitempty"`
 }
@@ -98,7 +99,7 @@ type ScopeConfig struct {
 	Model
 	Entities     []string `gorm:"type:json;serializer:json" json:"entities" mapstructure:"entities"`
 	ConnectionId uint64   `json:"connectionId" gorm:"index" validate:"required" mapstructure:"connectionId,omitempty"`
-	Name         string   `mapstructure:"name" json:"name" gorm:"type:varchar(255)" validate:"required"`
+	//Name         string   `mapstructure:"name" json:"name" gorm:"type:varchar(255)" validate:"required"`
 }
 
 func (s ScopeConfig) ScopeConfigConnectionId() uint64 {
@@ -106,4 +107,9 @@ func (s ScopeConfig) ScopeConfigConnectionId() uint64 {
 }
 func (s ScopeConfig) ScopeConfigId() uint64 {
 	return s.ID
+}
+
+type ScopeConfigOperator[T dal.Tabler] interface {
+	*T
+	SetConnectionId(t *T, connectionId uint64)
 }

@@ -18,20 +18,26 @@
 
 import { request } from '@/utils';
 
-import { BlueprintType } from '../types';
+import * as T from './types';
 
-export const getProject = (pname: string): Promise<{ blueprint: BlueprintType }> => request(`/projects/${pname}`);
+export const list = (data: Pagination): Promise<{ count: number; projects: T.Project[] }> =>
+  request('/projects', { data });
 
-export const getBlueprint = (id: ID): Promise<BlueprintType> => request(`/blueprints/${id}`);
+export const get = (name: string): Promise<T.Project> => request(`/projects/${name}`);
 
-export const updateBlueprint = (id: ID, payload: BlueprintType) =>
-  request(`/blueprints/${id}`, { method: 'patch', data: payload });
+export const create = (data: Pick<T.Project, 'name' | 'description' | 'metrics'>) =>
+  request('/projects', {
+    method: 'post',
+    data,
+  });
 
-export const getConnection = (plugin: string, connectionId: ID) =>
-  request(`/plugins/${plugin}/connections/${connectionId}`);
+export const remove = (name: string) =>
+  request(`/projects/${name}`, {
+    method: 'delete',
+  });
 
-export const getDataScopes = (plugin: string, connectionId: ID) =>
-  request(`/plugins/${plugin}/connections/${connectionId}/scopes`);
-
-export const runBlueprint = (id: ID, skipCollectors: boolean) =>
-  request(`/blueprints/${id}/trigger`, { method: 'post', data: { skipCollectors } });
+export const update = (name: string, data: Pick<T.Project, 'name' | 'description' | 'metrics'>) =>
+  request(`/projects/${name}`, {
+    method: 'patch',
+    data,
+  });

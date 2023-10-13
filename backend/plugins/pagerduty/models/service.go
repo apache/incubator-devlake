@@ -28,10 +28,10 @@ type PagerDutyParams struct {
 }
 
 type Service struct {
-	common.Scope
-	Id   string `json:"id" mapstructure:"id" gorm:"primaryKey;autoIncrement:false" `
-	Url  string `json:"url" mapstructure:"url"`
-	Name string `json:"name" mapstructure:"name"`
+	common.Scope `mapstructure:",squash"`
+	Id           string `json:"id" mapstructure:"id" gorm:"primaryKey;autoIncrement:false" `
+	Url          string `json:"url" mapstructure:"url"`
+	Name         string `json:"name" mapstructure:"name"`
 }
 
 func (s Service) ScopeId() string {

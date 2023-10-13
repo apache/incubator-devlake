@@ -16,19 +16,32 @@
  *
  */
 
-import { request } from '@/utils';
+export enum ModeEnum {
+  advanced = 'ADVANCED',
+  normal = 'NORMAL',
+}
 
-export const getScopeConfig = (plugin: string, connectionId: ID, id: ID) =>
-  request(`/plugins/${plugin}/connections/${connectionId}/scope-configs/${id}`);
+export type Blueprint = {
+  projectName: string;
+  id: ID;
+  enable: boolean;
+  name: string;
+  mode: ModeEnum;
+  isManual: boolean;
+  cronConfig: string;
+  skipOnFail: boolean;
+  plan: any;
+  timeAfter: null | string;
+  connections: Array<{
+    pluginName: string;
+    connectionId: ID;
+    scopes?: Array<{
+      scopeId: string;
+    }>;
+  }>;
+};
 
-export const createScopeConfig = (plugin: string, connectionId: ID, payload: any) =>
-  request(`/plugins/${plugin}/connections/${connectionId}/scope-configs`, {
-    method: 'post',
-    data: payload,
-  });
-
-export const updateScopeConfig = (plugin: string, connectionId: ID, id: ID, payload: any) =>
-  request(`/plugins/${plugin}/connections/${connectionId}/scope-configs/${id}`, {
-    method: 'patch',
-    data: payload,
-  });
+export type TriggerQuery = {
+  skipCollectors: boolean;
+  fullSync: boolean;
+};

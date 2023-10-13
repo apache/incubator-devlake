@@ -22,11 +22,11 @@ import type { McsID, McsItem, McsColumn } from 'miller-columns-select';
 import { MillerColumnsSelect } from 'miller-columns-select';
 import { useDebounce } from 'ahooks';
 
+import API from '@/api';
 import { FormItem, MultiSelector, Loading, Dialog, Message } from '@/components';
 import { PluginConfigType } from '@/plugins';
 
 import * as T from './types';
-import * as API from './api';
 import * as S from './styled';
 
 interface Props {
@@ -88,7 +88,7 @@ export const SearchLocal = ({ plugin, connectionId, config, disabledScope, selec
       return;
     }
 
-    const res = await API.getRemoteScope(plugin, connectionId, {
+    const res = await API.scope.remote(plugin, connectionId, {
       groupId,
       pageToken: currentPageToken,
     });
@@ -177,7 +177,7 @@ export const SearchLocal = ({ plugin, connectionId, config, disabledScope, selec
           disabled
           items={selectedScope}
           getKey={(it) => it.id}
-          getName={(it) => it.fullName}
+          getName={(it) => it.fullName ?? it.name}
           selectedItems={selectedScope}
         />
       </FormItem>
@@ -235,6 +235,7 @@ export const SearchLocal = ({ plugin, connectionId, config, disabledScope, selec
             )
           }
           renderLoading={() => <Loading size={20} style={{ padding: '4px 12px' }} />}
+          disabledIds={(disabledScope ?? []).map((it) => it.id)}
           selectedIds={selectedScope.map((it) => it.id)}
           onSelectItemIds={(selectedIds: ID[]) => onChange(miller.items.filter((it) => selectedIds.includes(it.id)))}
           expandedIds={miller.expandedIds}

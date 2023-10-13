@@ -32,3 +32,8 @@ type TapdScopeConfig struct {
 func (t TapdScopeConfig) TableName() string {
 	return "_tool_tapd_scope_configs"
 }
+
+func (t *TapdScopeConfig) SetConnectionId(c *TapdScopeConfig, connectionId uint64) {
+	c.ConnectionId = connectionId
+	c.ScopeConfig.ConnectionId = connectionId
+}

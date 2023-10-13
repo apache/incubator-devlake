@@ -34,3 +34,8 @@ type ZentaoScopeConfig struct {
 func (t ZentaoScopeConfig) TableName() string {
 	return "_tool_zentao_scope_configs"
 }
+
+func (t *ZentaoScopeConfig) SetConnectionId(c *ZentaoScopeConfig, connectionId uint64) {
+	c.ConnectionId = connectionId
+	c.ScopeConfig.ConnectionId = connectionId
+}

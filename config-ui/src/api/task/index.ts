@@ -18,4 +18,7 @@
 
 import { request } from '@/utils';
 
-export const migrate = () => request('/proceed-db-migration');
+export const rertun = (id: ID) =>
+  request(`/tasks/${id}/rerun`, {
+    method: 'post',
+  });
