@@ -175,3 +175,13 @@ def rename_starttime_and_finishtime_for_job(b: MigrationScriptBuilder):
 def add_missing_migrations_0_17_to_0_18(b: MigrationScriptBuilder):
     b.rename_column('_tool_azuredevops_gitrepositories', 'transformation_rule_id', 'scope_config_id')
     b.add_column('_tool_azuredevops_gitrepositories', 'provider', 'varchar(255)')
+
+
+@migration(20231013130200, name="add missing field in _tool_azuredevops_gitrepositoryconfigs")
+def add_missing_field_in_tool_azuredevops_gitrepositoryconfigs(b: MigrationScriptBuilder):
+    b.add_column('_tool_azuredevops_gitrepositoryconfigs', 'connection_id', 'bigint')
+
+
+@migration(20231013130201, name="add missing field in _tool_azuredevops_gitrepositories")
+def add_missing_field_in_tool_azuredevops_gitrepositories(b: MigrationScriptBuilder):
+    b.add_column('_tool_azuredevops_gitrepositories', 'scope_config_id', 'bigint')
