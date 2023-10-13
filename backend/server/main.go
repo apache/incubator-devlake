@@ -30,5 +30,5 @@ func main() {
 	if encryptionSecret == "" {
 		panic("ENCRYPTION_SECRET must be set in environment variable or .env file")
 	}
-	api.CreateApiService()
+	api.CreateApiService(nil)
 }
