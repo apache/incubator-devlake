@@ -106,7 +106,7 @@ func makeScopesV200(
 		if utils.StringsContains(scopeConfig.Entities, plugin.DOMAIN_TYPE_TICKET) {
 			domainBoard := &ticket.Board{
 				DomainEntity: domainlayer.DomainEntity{
-					Id: didgen.NewDomainIdGenerator(&models.TapdWorkspace{}).Generate(tapdWorkspace.ConnectionId, tapdWorkspace.Id.Uint64()),
+					Id: didgen.NewDomainIdGenerator(&models.TapdWorkspace{}).Generate(tapdWorkspace.ConnectionId, tapdWorkspace.Id),
 				},
 				Name: tapdWorkspace.Name,
 				Type: "scrum",

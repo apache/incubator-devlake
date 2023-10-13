@@ -18,6 +18,7 @@ limitations under the License.
 package tasks
 
 import (
+	"github.com/apache/incubator-devlake/core/models/common"
 	"reflect"
 	"strconv"
 	"time"
@@ -93,7 +94,7 @@ func ConvertStory(taskCtx plugin.SubTaskContext) errors.Error {
 				domainL.LeadTimeMinutes = int64(domainL.ResolutionDate.Sub(*domainL.CreatedDate).Minutes())
 			}
 			boardIssue := &ticket.BoardIssue{
-				BoardId: getWorkspaceIdGen().Generate(toolL.ConnectionId, toolL.WorkspaceId),
+				BoardId: getWorkspaceIdGen().Generate(toolL.ConnectionId, common.NewStringUint64(toolL.WorkspaceId)),
 				IssueId: domainL.Id,
 			}
 			sprintIssue := &ticket.SprintIssue{

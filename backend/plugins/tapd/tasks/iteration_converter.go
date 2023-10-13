@@ -21,6 +21,7 @@ import (
 	"fmt"
 	"github.com/apache/incubator-devlake/core/dal"
 	"github.com/apache/incubator-devlake/core/errors"
+	"github.com/apache/incubator-devlake/core/models/common"
 	"github.com/apache/incubator-devlake/core/models/domainlayer"
 	"github.com/apache/incubator-devlake/core/models/domainlayer/ticket"
 	"github.com/apache/incubator-devlake/core/plugin"
@@ -69,7 +70,7 @@ func ConvertIteration(taskCtx plugin.SubTaskContext) errors.Error {
 				Name:            iter.Name,
 				StartedDate:     (*time.Time)(iter.Startdate),
 				EndedDate:       (*time.Time)(iter.Enddate),
-				OriginalBoardID: getWorkspaceIdGen().Generate(iter.ConnectionId, iter.WorkspaceId),
+				OriginalBoardID: getWorkspaceIdGen().Generate(iter.ConnectionId, common.NewStringUint64(iter.WorkspaceId)),
 				CompletedDate:   (*time.Time)(iter.Completed),
 			}
 			results := make([]interface{}, 0)

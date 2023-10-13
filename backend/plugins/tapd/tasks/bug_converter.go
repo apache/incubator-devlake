@@ -20,6 +20,7 @@ package tasks
 import (
 	"github.com/apache/incubator-devlake/core/dal"
 	"github.com/apache/incubator-devlake/core/errors"
+	"github.com/apache/incubator-devlake/core/models/common"
 	"github.com/apache/incubator-devlake/core/models/domainlayer"
 	"github.com/apache/incubator-devlake/core/models/domainlayer/didgen"
 	"github.com/apache/incubator-devlake/core/models/domainlayer/ticket"
@@ -90,7 +91,7 @@ func ConvertBug(taskCtx plugin.SubTaskContext) errors.Error {
 				domainL.LeadTimeMinutes = int64(domainL.ResolutionDate.Sub(*domainL.CreatedDate).Minutes())
 			}
 			boardIssue := &ticket.BoardIssue{
-				BoardId: getWorkspaceIdGen().Generate(toolL.ConnectionId, toolL.WorkspaceId),
+				BoardId: getWorkspaceIdGen().Generate(toolL.ConnectionId, common.NewStringUint64(toolL.WorkspaceId)),
 				IssueId: domainL.Id,
 			}
 			sprintIssue := &ticket.SprintIssue{
