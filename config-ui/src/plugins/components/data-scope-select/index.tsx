@@ -65,7 +65,7 @@ export const DataScopeSelect = ({
       ...res.scopes.map((sc) => ({
         parentId: null,
         id: getPluginScopeId(plugin, sc.scope),
-        title: sc.scope.fullName,
+        title: sc.scope.fullName ?? sc.scope.name,
         data: sc.scope,
       })),
     ]);
