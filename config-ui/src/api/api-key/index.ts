@@ -17,5 +17,25 @@
  */
 
 import { request } from '@/utils';
+import * as T from './types';
 
-export const ping = () => request('/ping');
+export const list = (data?: Pagination): Promise<{ count: number; apikeys: T.Key[] }> =>
+  request('/api-keys', {
+    data,
+  });
+
+export const create = (data: Pick<T.Key, 'name' | 'expiredAt' | 'allowedPath'>): Promise<T.Key> =>
+  request('/api-keys', {
+    method: 'POST',
+    data: {
+      ...data,
+      type: 'devlake',
+    },
+  });
+
+export const remove = (id: string): Promise<void> =>
+  request(`/api-keys/${id}`, {
+    method: 'DELETE',
+  });
+
+export const renew = (id: ID) => request(`/api-keys/${id}`, { method: 'put' });

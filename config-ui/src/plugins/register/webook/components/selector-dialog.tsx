@@ -20,10 +20,10 @@ import { useState, useEffect } from 'react';
 import type { McsItem } from 'miller-columns-select';
 import MillerColumnsSelect from 'miller-columns-select';
 
+import API from '@/api';
 import { Dialog, FormItem, Loading } from '@/components';
 
 import * as T from '../types';
-import * as API from '../api';
 import * as S from '../styled';
 
 interface Props {
@@ -48,7 +48,7 @@ export const SelectorDialog = ({ isOpen, saving, onCancel, onSubmit }: Props) =>
 
   useEffect(() => {
     (async () => {
-      const res = await API.getConnections();
+      const res = await API.plugin.webhook.list();
       setItems([...updateItems(res)]);
       setIsLast(true);
     })();

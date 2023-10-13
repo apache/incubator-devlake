@@ -21,12 +21,12 @@ import { FormGroup, Tag, Icon, Intent } from '@blueprintjs/core';
 import { Popover2 } from '@blueprintjs/popover2';
 import { uniqWith } from 'lodash';
 
+import API from '@/api';
 import { PageLoading, HelpTooltip, ExternalLink, MultiSelector, Selector, Divider } from '@/components';
 import { useProxyPrefix, useRefreshData } from '@/hooks';
 import { DOC_URL } from '@/release';
 
 import { CrossDomain } from './transformation-fields';
-import * as API from './api';
 import * as S from './styled';
 
 enum StandardType {
@@ -67,7 +67,7 @@ export const JiraTransformation = ({ entities, connectionId, transformation, set
       };
     }
 
-    const [issueTypes, fields] = await Promise.all([API.getIssueType(prefix), API.getField(prefix)]);
+    const [issueTypes, fields] = await Promise.all([API.plugin.jira.issueType(prefix), API.plugin.jira.field(prefix)]);
     return {
       issueTypes: uniqWith(issueTypes, (it, oit) => it.name === oit.name),
       fields,

@@ -16,18 +16,35 @@
  *
  */
 
-import { request } from '@/utils';
-
-type VersionType = {
-  version: string;
+export type ListQuery = Pagination & {
+  blueprint?: boolean;
+  searchTerm?: string;
 };
 
-export const getVersion = (signal?: AbortSignal): Promise<VersionType> => request('/version', { signal });
-
-type UserInfoType = {
-  user: string;
-  email: string;
-  logoutURI: string;
+export type Scope = {
+  name: string;
+  fullName: string;
 };
 
-export const getUserInfo = (signal?: AbortSignal): Promise<UserInfoType> => request('/userinfo', { signal });
+export type List = Array<{
+  scope: Scope;
+  scopeConfig?: { name: string };
+}>;
+
+export type RemoteQuery = {
+  groupId: ID | null;
+  pageToken?: string;
+};
+
+export type RemoteScope = {
+  type: 'group' | 'scope';
+  parentId: ID | null;
+  id: ID;
+  name: string;
+  fullName: string;
+  data: any;
+};
+
+export type SearchRemoteQuery = {
+  search?: string;
+} & Pagination;

@@ -21,11 +21,12 @@ import { Button, ControlGroup, InputGroup, Intent } from '@blueprintjs/core';
 import type { McsID, McsItem } from 'miller-columns-select';
 import MillerColumnsSelect from 'miller-columns-select';
 
+import API from '@/api';
 import { ExternalLink, Loading } from '@/components';
 import * as T from '@/plugins/components/data-scope-remote/types';
-import * as API from '@/plugins/components/data-scope-remote/api';
+// import * as API from '@/plugins/components/data-scope-remote/api';
 
-import { prepareToken } from './api';
+// import { prepareToken } from './api';
 
 interface Props {
   connectionId: ID;
@@ -54,7 +55,7 @@ export const DataScope = ({ connectionId, disabledItems, selectedItems, onChange
   }, [pageToken]);
 
   const getItems = async (groupId: ID | null, currentPageToken?: string) => {
-    const res = await API.getRemoteScope('tapd', connectionId, {
+    const res = await API.scope.remote('tapd', connectionId, {
       groupId,
       pageToken: currentPageToken,
     });
@@ -76,7 +77,7 @@ export const DataScope = ({ connectionId, disabledItems, selectedItems, onChange
       setPageToken(undefined);
       return;
     }
-    const res = await prepareToken(connectionId, {
+    const res = await API.plugin.tapd.remoteScopePrepareToken(connectionId, {
       companyId,
     });
     setPageToken(res.pageToken);

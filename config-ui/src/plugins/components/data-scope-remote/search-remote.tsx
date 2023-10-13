@@ -23,11 +23,11 @@ import MillerColumnsSelect from 'miller-columns-select';
 import { useDebounce } from 'ahooks';
 import { uniqBy } from 'lodash';
 
+import API from '@/api';
 import { FormItem, MultiSelector, Loading } from '@/components';
-import { PluginConfigType, getPluginScopeId } from '@/plugins';
+import { PluginConfigType } from '@/plugins';
 
 import * as T from './types';
-import * as API from './api';
 import * as S from './styled';
 
 interface Props {
@@ -67,7 +67,7 @@ export const SearchRemote = ({ plugin, connectionId, config, disabledScope, sele
   const allItems = useMemo(() => uniqBy([...miller.items, ...search.items], 'id'), [miller.items, search.items]);
 
   const getItems = async (groupId: ID | null, currentPageToken?: string) => {
-    const res = await API.getRemoteScope(plugin, connectionId, {
+    const res = await API.scope.remote(plugin, connectionId, {
       groupId,
       pageToken: currentPageToken,
     });
@@ -102,7 +102,7 @@ export const SearchRemote = ({ plugin, connectionId, config, disabledScope, sele
   const searchItems = async () => {
     if (!searchDebounce) return;
 
-    const res = await API.searchRemoteScope(plugin, connectionId, {
+    const res = await API.scope.searchRemote(plugin, connectionId, {
       search: searchDebounce,
       page: search.page,
       pageSize: 50,

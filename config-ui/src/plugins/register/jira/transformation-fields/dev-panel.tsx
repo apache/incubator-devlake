@@ -19,11 +19,11 @@
 import { useEffect, useState } from 'react';
 import { InputGroup, Button, RadioGroup, Radio, Icon, Collapse } from '@blueprintjs/core';
 
+import API from '@/api';
 import { Dialog, FormItem, toast } from '@/components';
 import JiraIssueTipsImg from '@/images/jira-issue-tips.png';
 import { operator } from '@/utils';
 
-import * as API from '../api';
 import * as S from './styled';
 
 interface Props {
@@ -52,8 +52,8 @@ export const DevPanel = ({ connectionId, transformation, setTransformation, isOp
 
     const [success, res] = await operator(
       async () => {
-        const { regex } = await API.generateRegex(pattern);
-        const preview = await API.applyRegex(regex, devPanelCommits);
+        const { regex } = await API.plugin.jira.generateRegex(pattern);
+        const preview = await API.plugin.jira.applyRegex(regex, devPanelCommits);
         return {
           regex,
           preview,
@@ -82,7 +82,7 @@ export const DevPanel = ({ connectionId, transformation, setTransformation, isOp
   }, [pattern]);
 
   const handleSearch = async () => {
-    const [success, res] = await operator(() => API.getApplicationTypes(connectionId, { key: issueKey }), {
+    const [success, res] = await operator(() => API.plugin.jira.applicationTypes(connectionId, { key: issueKey }), {
       setOperating: setSearching,
       hideToast: true,
     });
@@ -98,7 +98,7 @@ export const DevPanel = ({ connectionId, transformation, setTransformation, isOp
   const handleSubmit = async () => {
     if (step === 1 && applicationType) {
       const [success, res] = await operator(
-        () => API.getDevPanelCommits(connectionId, { key: issueKey, applicationType }),
+        () => API.plugin.jira.devPanelCommits(connectionId, { key: issueKey, applicationType }),
         {
           setOperating,
           hideToast: true,

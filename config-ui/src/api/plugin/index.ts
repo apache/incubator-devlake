@@ -16,25 +16,14 @@
  *
  */
 
-import { request } from '@/utils';
+import * as jira from './jira';
+import * as tapd from './tapd';
+import * as webhook from './webhook';
 
-import * as T from './types';
+export const plugin = {
+  jira,
+  tapd,
+  webhook,
+};
 
-export const getApiKeys = (params?: Pagination): Promise<{ count: number; apikeys: T.Key[] }> =>
-  request('/api-keys', {
-    data: params,
-  });
-
-export const createApiKey = (data: Pick<T.Key, 'name' | 'expiredAt' | 'allowedPath'>): Promise<T.Key> =>
-  request('/api-keys', {
-    method: 'POST',
-    data: {
-      ...data,
-      type: 'devlake',
-    },
-  });
-
-export const deleteApiKey = (id: string): Promise<void> =>
-  request(`/api-keys/${id}`, {
-    method: 'DELETE',
-  });
+export default plugin;

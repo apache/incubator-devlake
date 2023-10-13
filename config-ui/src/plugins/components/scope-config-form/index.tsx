@@ -20,6 +20,7 @@ import { useState, useEffect, useMemo } from 'react';
 import { omit } from 'lodash';
 import { InputGroup, Button, Intent } from '@blueprintjs/core';
 
+import API from '@/api';
 import { Alert, ExternalLink, Card, FormItem, MultiSelector, Message, Buttons, Divider } from '@/components';
 import { transformEntities, EntitiesLabel } from '@/config';
 import { getPluginConfig } from '@/plugins';
@@ -35,7 +36,6 @@ import { operator } from '@/utils';
 
 import { AdditionalSettings } from './fields';
 import { TIPS_MAP } from './misc';
-import * as API from './api';
 import * as S from './styled';
 
 interface Props {
@@ -80,7 +80,7 @@ export const ScopeConfigForm = ({
 
     (async () => {
       try {
-        const res = await API.getScopeConfig(plugin, connectionId, scopeConfigId);
+        const res = await API.scopeConfig.get(plugin, connectionId, scopeConfigId);
         setName(res.name);
         setEntities(res.entities);
         setTransformation(omit(res, ['id', 'connectionId', 'name', 'entities', 'createdAt', 'updatedAt']));
@@ -100,8 +100,8 @@ export const ScopeConfigForm = ({
     const [success, res] = await operator(
       () =>
         !scopeConfigId
-          ? API.createScopeConfig(plugin, connectionId, { name, entities, ...transformation })
-          : API.updateScopeConfig(plugin, connectionId, scopeConfigId, { name, entities, ...transformation }),
+          ? API.scopeConfig.create(plugin, connectionId, { name, entities, ...transformation })
+          : API.scopeConfig.update(plugin, connectionId, scopeConfigId, { name, entities, ...transformation }),
       {
         setOperating,
         formatMessage: () => (!scopeConfigId ? 'Create scope config successful.' : 'Update scope config successful'),

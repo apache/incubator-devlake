@@ -18,16 +18,29 @@
 
 import { request } from '@/utils';
 
-export const testConnection = (plugin: string, payload: any) =>
-  request(`/plugins/${plugin}/test`, { method: 'post', data: payload });
+import * as T from './types';
 
-export const createConnection = (plugin: string, payload: any) =>
+export const list = (plugin: string): Promise<T.Connection[]> => request(`/plugins/${plugin}/connections`);
+
+export const get = (plugin: string, connectionId: ID): Promise<T.Connection> =>
+  request(`/plugins/${plugin}/connections/${connectionId}`);
+
+export const create = (plugin: string, payload: T.ConnectionForm): Promise<T.Connection> =>
   request(`/plugins/${plugin}/connections`, { method: 'post', data: payload });
 
-export const getConnection = (plugin: string, id: ID) => request(`/plugins/${plugin}/connections/${id}`);
+export const remove = (plugin: string, id: ID): Promise<T.Connection> =>
+  request(`/plugins/${plugin}/connections/${id}`, { method: 'delete' });
 
-export const updateConnection = (plugin: string, id: ID, payload: any) =>
+export const update = (plugin: string, id: ID, payload: T.ConnectionForm): Promise<T.Connection> =>
   request(`/plugins/${plugin}/connections/${id}`, {
     method: 'patch',
     data: payload,
   });
+
+export const test = (
+  plugin: string,
+  payload: Pick<
+    T.ConnectionForm,
+    'endpoint' | 'authMethod' | 'username' | 'password' | 'token' | 'appId' | 'secretKey' | 'proxy'
+  >,
+): Promise<T.ConnectionTest> => request(`/plugins/${plugin}/test`, { method: 'post', data: payload });

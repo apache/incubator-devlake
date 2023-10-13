@@ -18,11 +18,10 @@
 
 import { useState } from 'react';
 
+import API from '@/api';
 import { Dialog, Message } from '@/components';
 import { useConnections } from '@/hooks';
 import { operator } from '@/utils';
-
-import * as API from '../api';
 
 interface Props {
   initialId: ID;
@@ -36,7 +35,7 @@ export const DeleteDialog = ({ initialId, onCancel, onSubmitAfter }: Props) => {
   const { onRefresh } = useConnections();
 
   const handleSubmit = async () => {
-    const [success] = await operator(() => API.deleteConnection(initialId), {
+    const [success] = await operator(() => API.plugin.webhook.remove(initialId), {
       setOperating,
     });
 

@@ -20,6 +20,7 @@ import { useState } from 'react';
 import { Tabs, Tab } from '@blueprintjs/core';
 import useUrlState from '@ahooksjs/use-url-state';
 
+import API from '@/api';
 import { PageLoading } from '@/components';
 import { useRefreshData } from '@/hooks';
 
@@ -27,7 +28,6 @@ import { FromEnum } from '../types';
 
 import { ConfigurationPanel } from './configuration-panel';
 import { StatusPanel } from './status-panel';
-import * as API from './api';
 import * as S from './styled';
 
 interface Props {
@@ -41,7 +41,7 @@ export const BlueprintDetail = ({ id, from }: Props) => {
   const [query, setQuery] = useUrlState({ tab: 'status' });
 
   const { ready, data } = useRefreshData(async () => {
-    const [bpRes, pipelineRes] = await Promise.all([API.getBlueprint(id), API.getBlueprintPipelines(id)]);
+    const [bpRes, pipelineRes] = await Promise.all([API.blueprint.get(id), API.blueprint.pipelines(id)]);
     return [bpRes, pipelineRes.pipelines[0]];
   }, [version]);
 

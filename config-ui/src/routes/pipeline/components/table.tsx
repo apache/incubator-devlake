@@ -21,12 +21,12 @@ import { ButtonGroup } from '@blueprintjs/core';
 import { pick } from 'lodash';
 import { saveAs } from 'file-saver';
 
+import API from '@/api';
 import { DEVLAKE_ENDPOINT } from '@/config';
 import { Table, ColumnType, IconButton, Inspector, Dialog } from '@/components';
 import { formatTime } from '@/utils';
 
 import * as T from '../types';
-import * as API from '../api';
 
 import { PipelineStatus } from './status';
 import { PipelineDuration } from './duration';
@@ -57,7 +57,7 @@ export const PipelineTable = ({ dataSource, pagination, noData }: Props) => {
   };
 
   const handleDownloadLog = async (id: ID) => {
-    const res = await API.getPipelineLog(id);
+    const res = await API.pipeline.log(id);
     if (res) {
       saveAs(`${DEVLAKE_ENDPOINT}/pipelines/${id}/logging.tar.gz`, 'logging.tar.gz');
     }

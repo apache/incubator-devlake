@@ -16,6 +16,14 @@
  *
  */
 
-import { request } from '@/utils';
+import { Blueprint } from '../blueprint/types';
+import { Pipeline } from '../pipeline/types';
 
-export const testConnection = (payload: any) => request('/plugins/github/test', { method: 'post', data: payload });
+export type Project = {
+  name: string;
+  description: string;
+  metrics: Array<{ pluginName: string; pluginOption: string; enable: boolean }>;
+  createdAt: string;
+  blueprint: Blueprint;
+  lastPipeline: Pipeline;
+};

@@ -20,10 +20,10 @@ import { useEffect, useState } from 'react';
 import { InputGroup, Button, Intent } from '@blueprintjs/core';
 import { useDebounce } from 'ahooks';
 
+import API from '@/api';
 import { IconButton } from '@/components';
 import { operator } from '@/utils';
 
-import * as API from '../api';
 import * as S from './styled';
 
 interface Props {
@@ -50,7 +50,7 @@ export const RemoteLink = ({ transformation, setTransformation }: Props) => {
   const debouncedPattern = useDebounce(pattern, { wait: 500 });
 
   const getRegex = async () => {
-    const [success, res] = await operator(() => API.generateRegex(pattern), {
+    const [success, res] = await operator(() => API.plugin.jira.generateRegex(pattern), {
       hideToast: true,
       setOperating: setGenerating,
     });
