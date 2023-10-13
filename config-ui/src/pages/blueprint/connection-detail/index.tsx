@@ -21,6 +21,7 @@ import { useNavigate, useParams } from 'react-router-dom';
 import { Button, Intent, Position } from '@blueprintjs/core';
 import { Popover2 } from '@blueprintjs/popover2';
 
+import API from '@/api';
 import { PageLoading, PageHeader, ExternalLink, Message, Buttons, Table, Dialog } from '@/components';
 import { useRefreshData, useTips } from '@/hooks';
 import { DataScopeSelect, getPluginScopeId } from '@/plugins';
@@ -28,7 +29,6 @@ import { operator } from '@/utils';
 
 import { encodeName } from '../../project/utils';
 
-import * as API from './api';
 import * as S from './styled';
 
 export const BlueprintConnectionDetailPage = () => {
@@ -43,25 +43,26 @@ export const BlueprintConnectionDetailPage = () => {
 
   const getBlueprint = async (pname?: string, bid?: string) => {
     if (pname) {
-      const res = await API.getProject(pname);
+      const res = await API.project.get(pname);
       return res.blueprint;
     }
 
-    return API.getBlueprint(bid as any);
+    return API.blueprint.get(bid as any);
   };
 
   const { ready, data } = useRefreshData(async () => {
     const [plugin, connectionId] = unique.split('-');
-    const [blueprint, connection, scopesRes] = await Promise.all([
+    const [blueprint, connection] = await Promise.all([
       getBlueprint(pname, bid),
-      API.getConnection(plugin, connectionId),
-      API.getDataScopes(plugin, connectionId),
+      API.connection.get(plugin, connectionId),
     ]);
 
     const scopeIds =
       blueprint.connections
         .find((cs) => cs.pluginName === plugin && cs.connectionId === +connectionId)
         ?.scopes?.map((sc: any) => sc.scopeId) ?? [];
+
+    const scopes = await Promise.all(scopeIds.map((scopeId) => API.scope.get(plugin, connectionId, scopeId)));
 
     return {
       blueprint,
@@ -71,7 +72,12 @@ export const BlueprintConnectionDetailPage = () => {
         id: +connectionId,
         name: connection.name,
       },
-      scopes: scopesRes.scopes.filter((sc: any) => scopeIds.includes(getPluginScopeId(plugin, sc))),
+      scopes: scopes.map((sc) => ({
+        id: getPluginScopeId(plugin, sc.scope),
+        name: sc.scope.fullName ?? sc.scope.name,
+        scopeConfigId: sc.scopeConfig?.id,
+        scopeConfigName: sc.scopeConfig?.name,
+      })),
     };
   }, [version, pname, bid]);
 
@@ -85,7 +91,7 @@ export const BlueprintConnectionDetailPage = () => {
   const handleHideDataScope = () => setIsOpen(false);
 
   const handleRunBP = async (skipCollectors: boolean) => {
-    const [success] = await operator(() => API.runBlueprint(blueprint.id, skipCollectors), {
+    const [success] = await operator(() => API.blueprint.trigger(blueprint.id, { skipCollectors, fullSync: false }), {
       setOperating,
       formatMessage: () => 'Trigger blueprint successful.',
     });
@@ -113,7 +119,7 @@ export const BlueprintConnectionDetailPage = () => {
 
   const handleRemoveConnection = async () => {
     const [success] = await operator(() =>
-      API.updateBlueprint(blueprint.id, {
+      API.blueprint.update(blueprint.id, {
         ...blueprint,
         connections: blueprint.connections.filter(
           (cs) => !(cs.pluginName === connection.plugin && cs.connectionId === connection.id),
@@ -129,16 +135,16 @@ export const BlueprintConnectionDetailPage = () => {
     }
   };
 
-  const handleChangeDataScope = async (scope: any) => {
+  const handleChangeDataScope = async (scopeIds: any) => {
     const [success] = await operator(
       () =>
-        API.updateBlueprint(blueprint.id, {
+        API.blueprint.update(blueprint.id, {
           ...blueprint,
           connections: blueprint.connections.map((cs) => {
             if (cs.pluginName === connection.plugin && cs.connectionId === connection.id) {
               return {
                 ...cs,
-                scopes: scope.map((sc: any) => ({ id: getPluginScopeId(connection.plugin, sc) })),
+                scopes: scopeIds.map((scopeId: any) => ({ scopeId })),
               };
             }
             return cs;
@@ -212,9 +218,9 @@ export const BlueprintConnectionDetailPage = () => {
           },
           {
             title: 'Scope Config',
-            dataIndex: 'scopeConfig',
+            dataIndex: ['scopeConfigId', 'scopeConfigName'],
             key: 'scopeConfig',
-            render: (_, row) => (row.scopeConfigId ? row.scopeConfig?.name : 'N/A'),
+            render: ({ scopeConfigId, scopeConfigName }) => (scopeConfigId ? scopeConfigName : 'N/A'),
           },
         ]}
         dataSource={scopes}

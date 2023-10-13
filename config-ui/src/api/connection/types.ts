@@ -16,19 +16,41 @@
  *
  */
 
-import { request } from '@/utils';
+export type Connection = {
+  id: ID;
+  name: string;
+  endpoint: string;
+  authMethod?: string;
+  token?: string;
+  username?: string;
+  password?: string;
+  proxy: string;
+  apiKey?: string;
+};
 
-export const getScopeConfig = (plugin: string, connectionId: ID, id: ID) =>
-  request(`/plugins/${plugin}/connections/${connectionId}/scope-configs/${id}`);
+export type ConnectionForm = {
+  name: string;
+  endpoint?: string;
+  authMethod?: string;
+  username?: string;
+  password?: string;
+  token?: string;
+  appId?: string;
+  secretKey?: string;
+  enableGraphql?: boolean;
+  proxy: string;
+  rateLimitPerHour?: number;
+};
 
-export const createScopeConfig = (plugin: string, connectionId: ID, payload: any) =>
-  request(`/plugins/${plugin}/connections/${connectionId}/scope-configs`, {
-    method: 'post',
-    data: payload,
-  });
-
-export const updateScopeConfig = (plugin: string, connectionId: ID, id: ID, payload: any) =>
-  request(`/plugins/${plugin}/connections/${connectionId}/scope-configs/${id}`, {
-    method: 'patch',
-    data: payload,
-  });
+export type ConnectionTest = {
+  message: string;
+  success: boolean;
+  login?: string;
+  installations?: Array<{
+    id: number;
+    account: {
+      login: string;
+    };
+  }>;
+  warning?: string;
+};

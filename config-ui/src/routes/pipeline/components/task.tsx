@@ -19,13 +19,13 @@
 import { useState, useMemo } from 'react';
 import { Intent } from '@blueprintjs/core';
 
+import API from '@/api';
 import { TextTooltip, IconButton } from '@/components';
 import { getPluginConfig } from '@/plugins';
 import { operator } from '@/utils';
 
 import * as T from '../types';
 import * as S from '../styled';
-import * as API from '../api';
 
 import { PipelineDuration } from './duration';
 
@@ -88,7 +88,7 @@ export const PipelineTask = ({ task }: Props) => {
   }, [task]);
 
   const handleRerun = async () => {
-    const [success] = await operator(() => API.taskRerun(id), {
+    const [success] = await operator(() => API.task.rertun(id), {
       setOperating,
     });
 

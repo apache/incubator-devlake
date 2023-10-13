@@ -21,6 +21,7 @@ import { Link } from 'react-router-dom';
 import { ButtonGroup, Button, Tag, Intent, FormGroup, InputGroup, RadioGroup, Radio } from '@blueprintjs/core';
 import dayjs from 'dayjs';
 
+import API from '@/api';
 import { PageHeader, Table, IconButton, TextTooltip, Dialog } from '@/components';
 import { getCronOptions, cronPresets, getCron } from '@/config';
 import { useConnections, useRefreshData } from '@/hooks';
@@ -28,7 +29,6 @@ import { formatTime, operator } from '@/utils';
 
 import { ModeEnum } from '../types';
 
-import * as API from './api';
 import * as S from './styled';
 
 export const BlueprintHomePage = () => {
@@ -43,7 +43,7 @@ export const BlueprintHomePage = () => {
 
   const { onGet } = useConnections();
   const { ready, data } = useRefreshData(
-    () => API.getBlueprints({ type: type.toLocaleUpperCase(), page, pageSize }),
+    () => API.blueprint.list({ type: type.toLocaleUpperCase(), page, pageSize }),
     [version, type, page, pageSize],
   );
 
@@ -93,7 +93,7 @@ export const BlueprintHomePage = () => {
       payload.plan = [[]];
     }
 
-    const [success] = await operator(() => API.createBlueprint(payload), {
+    const [success] = await operator(() => API.blueprint.create(payload), {
       setOperating: setSaving,
     });
 

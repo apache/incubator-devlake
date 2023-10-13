@@ -20,6 +20,7 @@ import { useState, useMemo } from 'react';
 import { Button, Intent, InputGroup } from '@blueprintjs/core';
 import { CopyToClipboard } from 'react-copy-to-clipboard';
 
+import API from '@/api';
 import {
   PageHeader,
   Table,
@@ -36,7 +37,6 @@ import {
 import { useRefreshData } from '@/hooks';
 import { operator, formatTime } from '@/utils';
 
-import * as API from './api';
 import * as C from './constant';
 import * as S from './styled';
 
@@ -58,7 +58,7 @@ export const ApiKeys = () => {
     allowedPath: '.*',
   });
 
-  const { data, ready } = useRefreshData(() => API.getApiKeys({ page, pageSize }), [version, page, pageSize]);
+  const { data, ready } = useRefreshData(() => API.apiKey.list({ page, pageSize }), [version, page, pageSize]);
 
   const [dataSource, total] = useMemo(() => [data?.apikeys ?? [], data?.count ?? 0], [data]);
 
@@ -71,7 +71,7 @@ export const ApiKeys = () => {
   };
 
   const handleSubmit = async () => {
-    const [success, res] = await operator(() => API.createApiKey(form), {
+    const [success, res] = await operator(() => API.apiKey.create(form), {
       setOperating,
       hideToast: true,
     });
@@ -91,7 +91,7 @@ export const ApiKeys = () => {
   const handleRevoke = async () => {
     if (!currentId) return;
 
-    const [success] = await operator(() => API.deleteApiKey(currentId));
+    const [success] = await operator(() => API.apiKey.remove(currentId));
 
     if (success) {
       setVersion(version + 1);

@@ -20,13 +20,13 @@ import { useMemo, useState } from 'react';
 import { Button, Intent } from '@blueprintjs/core';
 import { pick } from 'lodash';
 
+import API from '@/api';
 import { ExternalLink, PageLoading, Buttons } from '@/components';
 import { useRefreshData } from '@/hooks';
 import { getPluginConfig } from '@/plugins';
 import { operator } from '@/utils';
 
 import { Form } from './fields';
-import * as API from './api';
 import * as S from './styled';
 
 interface Props {
@@ -36,7 +36,7 @@ interface Props {
 }
 
 export const ConnectionForm = ({ plugin, connectionId, onSuccess }: Props) => {
-  const [values, setValues] = useState<Record<string, any>>({});
+  const [values, setValues] = useState<any>({});
   const [errors, setErrors] = useState<Record<string, any>>({});
   const [operating, setOperating] = useState(false);
 
@@ -54,13 +54,13 @@ export const ConnectionForm = ({ plugin, connectionId, onSuccess }: Props) => {
       return {};
     }
 
-    return API.getConnection(plugin, connectionId);
+    return API.connection.get(plugin, connectionId);
   }, [plugin, connectionId]);
 
   const handleTest = async () => {
     await operator(
       () =>
-        API.testConnection(
+        API.connection.test(
           plugin,
           pick(values, [
             'endpoint',
@@ -84,7 +84,8 @@ export const ConnectionForm = ({ plugin, connectionId, onSuccess }: Props) => {
 
   const handleSave = async () => {
     const [success, res] = await operator(
-      () => (!connectionId ? API.createConnection(plugin, values) : API.updateConnection(plugin, connectionId, values)),
+      () =>
+        !connectionId ? API.connection.create(plugin, values) : API.connection.update(plugin, connectionId, values),
       {
         setOperating,
         formatMessage: () => (!connectionId ? 'Create a New Connection Successful.' : 'Update Connection Successful.'),

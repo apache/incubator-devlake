@@ -19,14 +19,13 @@
 import { useState, useMemo } from 'react';
 import { Button, Intent } from '@blueprintjs/core';
 
+import API from '@/api';
 import { Alert, NoData } from '@/components';
 import type { WebhookItemType } from '@/plugins/register/webook';
 import { WebhookCreateDialog, WebhookSelectorDialog, WebHookConnection } from '@/plugins/register/webook';
 import { operator } from '@/utils';
 
 import type { ProjectType } from '../types';
-
-import * as API from './api';
 
 interface Props {
   project: ProjectType;
@@ -61,7 +60,7 @@ export const WebhooksPanel = ({ project, onRefresh }: Props) => {
       ],
     };
 
-    const [success] = await operator(() => API.updateBlueprint(project.blueprint.id, payload), {
+    const [success] = await operator(() => API.blueprint.update(project.blueprint.id, payload), {
       setOperating,
     });
 
@@ -82,7 +81,7 @@ export const WebhooksPanel = ({ project, onRefresh }: Props) => {
       ],
     };
 
-    const [success] = await operator(() => API.updateBlueprint(project.blueprint.id, payload), {
+    const [success] = await operator(() => API.blueprint.update(project.blueprint.id, payload), {
       setOperating,
     });
 
@@ -99,7 +98,7 @@ export const WebhooksPanel = ({ project, onRefresh }: Props) => {
       ),
     };
 
-    const [success] = await operator(() => API.updateBlueprint(project.blueprint.id, payload), {
+    const [success] = await operator(() => API.blueprint.update(project.blueprint.id, payload), {
       setOperating,
     });
 

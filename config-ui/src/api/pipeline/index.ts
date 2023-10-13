@@ -18,16 +18,22 @@
 
 import { request } from '@/utils';
 
-type ParamsType = {
-  searchTerm?: string;
-} & Pagination;
+import * as T from './types';
 
-type ResponseType = {
-  scopes: Array<{ name: string; scope: { name: string } }>;
-  count: number;
-};
+export const list = (): Promise<{ count: number; pipelines: T.Pipeline[] }> => request('/pipelines');
 
-export const getDataScope = (plugin: string, connectionId: ID, params?: ParamsType): Promise<ResponseType> =>
-  request(`/plugins/${plugin}/connections/${connectionId}/scopes`, {
-    data: params,
+export const get = (id: ID) => request(`/pipelines/${id}`);
+
+export const remove = (id: ID) =>
+  request(`/pipelines/${id}`, {
+    method: 'delete',
   });
+
+export const rerun = (id: ID) =>
+  request(`/pipelines/${id}/rerun`, {
+    method: 'post',
+  });
+
+export const log = (id: ID) => request(`/pipelines/${id}/logging.tar.gz`);
+
+export const tasks = (id: ID) => request(`/pipelines/${id}/tasks`);

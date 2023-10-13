@@ -19,11 +19,10 @@
 import { useState, useEffect } from 'react';
 import { InputGroup } from '@blueprintjs/core';
 
+import API from '@/api';
 import { Dialog, FormItem } from '@/components';
 import { useConnections } from '@/hooks';
 import { operator } from '@/utils';
-
-import * as API from '../api';
 
 interface Props {
   initialId: ID;
@@ -38,13 +37,13 @@ export const EditDialog = ({ initialId, onCancel }: Props) => {
 
   useEffect(() => {
     (async () => {
-      const res = await API.getConnection(initialId);
+      const res = await API.plugin.webhook.get(initialId);
       setName(res.name);
     })();
   }, [initialId]);
 
   const handleSubmit = async () => {
-    const [success] = await operator(() => API.updateConnection(initialId, { name }), {
+    const [success] = await operator(() => API.plugin.webhook.update(initialId, { name }), {
       setOperating,
     });
 

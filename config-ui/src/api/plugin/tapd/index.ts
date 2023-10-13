@@ -18,23 +18,22 @@
 
 import { request } from '@/utils';
 
-import type { ProjectType, BlueprintType } from '@/pages';
+export type GetBoardsParams = {
+  startAt: number;
+  maxResults: number;
+};
 
-export const getProject = (name: string): Promise<ProjectType> => request(`/projects/${name}`);
+export const boards = (prefix: string, params: GetBoardsParams) =>
+  request(`${prefix}/agile/1.0/board`, { data: params });
 
-export const updateProject = (name: string, payload: Omit<ProjectType, 'blueprint'>) =>
-  request(`/projects/${name}`, {
-    method: 'patch',
-    data: payload,
-  });
+export const statusMap = (prefix: string, workspaceId: ID, system: string) =>
+  request(`${prefix}/workflows/status_map?workspace_id=${workspaceId}&system=${system}`);
 
-export const updateBlueprint = (id: ID, payload: BlueprintType) =>
-  request(`/blueprints/${id}`, {
-    method: 'patch',
-    data: payload,
-  });
+export const storyCategories = (prefix: string, workspaceId: ID) =>
+  request(`${prefix}/story_categories?workspace_id=${workspaceId}`);
 
-export const deleteProject = (name: string) =>
-  request(`/projects/${name}`, {
-    method: 'delete',
+export const remoteScopePrepareToken = (connectionId: ID, params: object) =>
+  request(`/plugins/tapd/connections/${connectionId}/remote-scopes-prepare-token`, {
+    method: 'get',
+    data: params,
   });

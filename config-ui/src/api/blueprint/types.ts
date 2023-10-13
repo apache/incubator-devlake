@@ -16,34 +16,32 @@
  *
  */
 
-import { request } from '@/utils';
+export enum ModeEnum {
+  advanced = 'ADVANCED',
+  normal = 'NORMAL',
+}
 
-type GetConnectionRes = {
+export type Blueprint = {
+  projectName: string;
   id: ID;
+  enable: boolean;
   name: string;
-  endpoint: string;
-  proxy: string;
-  token?: string;
-  username?: string;
-  password?: string;
-  authMethod?: string;
+  mode: ModeEnum;
+  isManual: boolean;
+  cronConfig: string;
+  skipOnFail: boolean;
+  plan: any;
+  timeAfter: null | string;
+  connections: Array<{
+    pluginName: string;
+    connectionId: ID;
+    scopes?: Array<{
+      scopeId: string;
+    }>;
+  }>;
 };
 
-export const getConnection = (plugin: string): Promise<GetConnectionRes[]> => request(`/plugins/${plugin}/connections`);
-
-type TestConnectionPayload = {
-  endpoint: string;
-  proxy: string;
-  token?: string;
-  username?: string;
-  password?: string;
-  authMethod?: string;
-  appId?: string;
-  secretKey?: string;
+export type TriggerQuery = {
+  skipCollectors: boolean;
+  fullSync: boolean;
 };
-
-export const testConnection = (plugin: string, data: TestConnectionPayload) =>
-  request(`/plugins/${plugin}/test`, {
-    method: 'post',
-    data,
-  });
