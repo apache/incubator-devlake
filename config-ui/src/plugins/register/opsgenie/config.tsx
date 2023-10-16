@@ -32,7 +32,7 @@ export const OpsgenieConfig: PluginConfigType = {
   icon: Icon,
   sort: 8,
   connection: {
-    docLink: DOC_URL.PLUGIN.OPSGENIE.BASIS,
+    //docLink: DOC_URL.PLUGIN.OPSGENIE.BASIS,
     initialValues: {
       endpoint: 'https://api.opsgenie.com/',
     },
@@ -48,18 +48,18 @@ export const OpsgenieConfig: PluginConfigType = {
       {
         key: 'token',
         label: 'Opsgenie API Key',
-        subLabel: (
-          <ExternalLink link={DOC_URL.PLUGIN.OPSGENIE.API_KEY}>
-            Learn how to create a Atlassian Opsgenie personal API Key
-          </ExternalLink>
-        ),
+        // subLabel: (
+        //   <ExternalLink link={DOC_URL.PLUGIN.OPSGENIE.API_KEY}>
+        //     Learn how to create a Atlassian Opsgenie personal API Key
+        //   </ExternalLink>
+        // ),
       },
       'proxy',
       {
         key: 'rateLimitPerHour',
         subLabel:
           'By default, DevLake uses 6,000 requests/hour for data collection for Opsgenie. But you can adjust the collection speed by setting up your desirable rate limit.',
-        learnMore: DOC_URL.PLUGIN.OPSGENIE.RATE_LIMIT,
+        //learnMore: DOC_URL.PLUGIN.OPSGENIE.RATE_LIMIT,
         externalInfo: 'Opsgenie rate limit is based on number of users and domains.',
         defaultValue: 6000,
       },

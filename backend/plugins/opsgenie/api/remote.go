@@ -27,6 +27,7 @@ import (
 	"strconv"
 
 	"github.com/apache/incubator-devlake/core/errors"
+	"github.com/apache/incubator-devlake/core/models/common"
 	"github.com/apache/incubator-devlake/core/plugin"
 	"github.com/apache/incubator-devlake/helpers/pluginhelper/api"
 	"github.com/apache/incubator-devlake/plugins/opsgenie/models"
@@ -135,6 +136,10 @@ func RemoteScopes(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, er
 				Id:     service.Id,
 				Name:   service.Name,
 				TeamId: service.TeamId,
+				Scope: common.Scope{
+					NoPKModel:    common.NoPKModel{},
+					ConnectionId: connection.ID,
+				},
 			},
 		}
 		outputBody.Children = append(outputBody.Children, child)

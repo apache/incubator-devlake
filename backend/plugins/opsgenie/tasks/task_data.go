@@ -18,8 +18,6 @@ limitations under the License.
 package tasks
 
 import (
-	"time"
-
 	"github.com/apache/incubator-devlake/core/errors"
 	"github.com/apache/incubator-devlake/helpers/pluginhelper/api"
 	"github.com/apache/incubator-devlake/plugins/opsgenie/models"
@@ -27,7 +25,6 @@ import (
 
 type OpsgenieOptions struct {
 	ConnectionId uint64   `json:"connectionId"`
-	TimeAfter    string   `json:"time_after,omitempty"`
 	ServiceId    string   `json:"service_id,omitempty"`
 	ServiceName  string   `json:"service_name,omitempty"`
 	Tasks        []string `json:"tasks,omitempty"`
@@ -35,9 +32,8 @@ type OpsgenieOptions struct {
 }
 
 type OpsgenieTaskData struct {
-	Options   *OpsgenieOptions
-	TimeAfter *time.Time
-	Client    api.RateLimitedApiClient
+	Options *OpsgenieOptions
+	Client  api.RateLimitedApiClient
 }
 
 func (p *OpsgenieOptions) GetParams() any {

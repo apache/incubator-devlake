@@ -22,11 +22,14 @@ import (
 	"fmt"
 	"net/http"
 	"net/url"
+	"reflect"
 	"time"
 
+	"github.com/apache/incubator-devlake/core/dal"
 	"github.com/apache/incubator-devlake/core/errors"
 	"github.com/apache/incubator-devlake/core/plugin"
 	"github.com/apache/incubator-devlake/helpers/pluginhelper/api"
+	"github.com/apache/incubator-devlake/plugins/opsgenie/models"
 )
 
 const RAW_INCIDENTS_TABLE = "opsgenie_incidents"
@@ -38,9 +41,11 @@ type (
 		TotalCount int               `json:"totalCount"`
 		Data       []json.RawMessage `json:"data"`
 	}
+	collectedIncident struct {
+		Data json.RawMessage `json:"data"`
+	}
 	simplifiedRawIncident struct {
-		Id        string    `json:"id"`
-		CreatedAt time.Time `json:"createdAt"`
+		Id string `json:"id"`
 	}
 )
 
@@ -50,11 +55,13 @@ var CollectIncidentsMeta = plugin.SubTaskMeta{
 	EnabledByDefault: true,
 	Description:      "Collect Opsgenie incidents",
 	DomainTypes:      []string{plugin.DOMAIN_TYPE_TICKET},
+	DependencyTables: []string{},
 	ProductTables:    []string{RAW_INCIDENTS_TABLE},
 }
 
 func CollectIncidents(taskCtx plugin.SubTaskContext) errors.Error {
 	data := taskCtx.GetData().(*OpsgenieTaskData)
+	db := taskCtx.GetDal()
 	args := api.RawDataSubTaskArgs{
 		Ctx:     taskCtx,
 		Options: data.Options,
@@ -63,7 +70,6 @@ func CollectIncidents(taskCtx plugin.SubTaskContext) errors.Error {
 	collector, err := api.NewStatefulApiCollectorForFinalizableEntity(api.FinalizableApiCollectorArgs{
 		RawDataSubTaskArgs: args,
 		ApiClient:          data.Client,
-		TimeAfter:          data.TimeAfter,
 		CollectNewRecordsByList: api.FinalizableApiCollectorListArgs{
 			PageSize:    100,
 			Concurrency: 10,
@@ -71,8 +77,18 @@ func CollectIncidents(taskCtx plugin.SubTaskContext) errors.Error {
 				UrlTemplate: "v1/incidents",
 				Query: func(reqData *api.RequestData, createdAfter *time.Time) (url.Values, errors.Error) {
 					query := url.Values{}
+					//var incidentQueryParams string
+					incidentQueryParams := fmt.Sprintf("impactedServices:%s", data.Options.ServiceId)
 
-					query.Set("query", fmt.Sprintf("impactedServices:%s", data.Options.ServiceId))
+					// if createdAfter != nil {
+					// 	datetime, _ := time.Parse(time.RFC3339Nano, createdAfter.String())
+					// 	timestampMillis := datetime.UnixNano() / int64(time.Millisecond)
+					// 	incidentQueryParams = fmt.Sprintf("impactedServices:%s+createdAt>%d", data.Options.ServiceId, timestampMillis)
+					// } else {
+					// 	incidentQueryParams = fmt.Sprintf("impactedServices:%s", data.Options.ServiceId)
+					// }
+
+					query.Set("query", incidentQueryParams)
 					query.Set("sort", "createdAt")
 					query.Set("order", "desc")
 					query.Set("limit", fmt.Sprintf("%d", reqData.Pager.Size))
@@ -86,13 +102,30 @@ func CollectIncidents(taskCtx plugin.SubTaskContext) errors.Error {
 					return rawResult.Data, err
 				},
 			},
-			GetCreated: func(item json.RawMessage) (time.Time, errors.Error) {
-				incident := &simplifiedRawIncident{}
-				err := json.Unmarshal(item, incident)
+		},
+		CollectUnfinishedDetails: &api.FinalizableApiCollectorDetailArgs{
+			BuildInputIterator: func() (api.Iterator, errors.Error) {
+				cursor, err := db.Cursor(
+					dal.Select("id"),
+					dal.From(&models.Incident{}),
+					dal.Where(
+						"service_id = ? AND connection_id = ? AND status NOT IN ('resolved', 'closed')",
+						data.Options.ServiceId, data.Options.ConnectionId,
+					),
+				)
 				if err != nil {
-					return time.Time{}, errors.BadInput.Wrap(err, "failed to unmarshal opsgenie incident request")
+					return nil, err
 				}
-				return incident.CreatedAt, nil
+				return api.NewDalCursorIterator(db, cursor, reflect.TypeOf(simplifiedRawIncident{}))
+			},
+			FinalizableApiCollectorCommonArgs: api.FinalizableApiCollectorCommonArgs{
+				UrlTemplate: "v1/incidents/{{ .Input.Id }}",
+				ResponseParser: func(res *http.Response) ([]json.RawMessage, errors.Error) {
+					rawResult := collectedIncident{}
+					err := api.UnmarshalResponse(res, &rawResult)
+
+					return []json.RawMessage{rawResult.Data}, err
+				},
 			},
 		},
 	})

@@ -47,10 +47,9 @@ func TestIncidentDataFlow(t *testing.T) {
 	dataflowTester.FlushTabler(&models.Service{})
 
 	service := models.Service{
-		ConnectionId: options.ConnectionId,
-		Url:          fmt.Sprintf("https://sandesvitor.app.opsgenie.com/service/%s", options.ServiceId),
-		Id:           options.ServiceId,
-		Name:         options.ServiceName,
+		Url:  fmt.Sprintf("https://sandesvitor.app.opsgenie.com/service/%s", options.ServiceId),
+		Id:   options.ServiceId,
+		Name: options.ServiceName,
 	}
 	// scope
 	require.NoError(t, dataflowTester.Dal.CreateOrUpdate(&service))

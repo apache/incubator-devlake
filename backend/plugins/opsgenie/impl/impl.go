@@ -19,7 +19,6 @@ package impl
 
 import (
 	"fmt"
-	"time"
 
 	"github.com/apache/incubator-devlake/core/context"
 	"github.com/apache/incubator-devlake/core/dal"
@@ -122,17 +121,9 @@ func (p Opsgenie) PrepareTaskData(taskCtx plugin.TaskContext, options map[string
 	if err != nil {
 		return nil, errors.Default.Wrap(err, "unable to get Opsgenie connection by the given connection ID")
 	}
-	var timeAfter *time.Time
-	if op.TimeAfter != "" {
-		convertedTime, err := errors.Convert01(time.Parse(time.RFC3339, op.TimeAfter))
-		if err != nil {
-			return nil, errors.BadInput.Wrap(err, fmt.Sprintf("invalid value for `timeAfter`: %s", timeAfter))
-		}
-		timeAfter = &convertedTime
-	}
-	client, err := helper.NewApiClient(taskCtx.GetContext(), connection.Endpoint, map[string]string{
-		"Authorization": fmt.Sprintf("GenieKey %s", connection.Token),
-	}, 0, connection.Proxy, taskCtx)
+
+	client, err := helper.NewApiClientFromConnection(taskCtx.GetContext(), taskCtx, connection)
+
 	if err != nil {
 		return nil, err
 	}
@@ -141,9 +132,8 @@ func (p Opsgenie) PrepareTaskData(taskCtx plugin.TaskContext, options map[string
 		return nil, err
 	}
 	return &tasks.OpsgenieTaskData{
-		Options:   op,
-		TimeAfter: timeAfter,
-		Client:    asyncClient,
+		Options: op,
+		Client:  asyncClient,
 	}, nil
 }
 
