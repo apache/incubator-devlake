@@ -21,6 +21,8 @@ import (
 	"github.com/apache/incubator-devlake/core/errors"
 	"github.com/apache/incubator-devlake/core/plugin"
 	helper "github.com/apache/incubator-devlake/helpers/pluginhelper/api"
+	"net/url"
+	"time"
 )
 
 var _ plugin.SubTaskEntryPoint = CollectDeployment
@@ -44,18 +46,36 @@ var CollectDeploymentMeta = &plugin.SubTaskMeta{
 
 func CollectDeployment(taskCtx plugin.SubTaskContext) errors.Error {
 	rawDataSubTaskArgs, data := CreateRawDataSubTaskArgs(taskCtx, RAW_DEPLOYMENT)
-	collector, err := helper.NewApiCollector(helper.ApiCollectorArgs{
+	collectorWithState, err := helper.NewStatefulApiCollector(*rawDataSubTaskArgs)
+	if err != nil {
+		return err
+	}
+	err = collectorWithState.InitCollector(helper.ApiCollectorArgs{
 		RawDataSubTaskArgs: *rawDataSubTaskArgs,
 		ApiClient:          data.ApiClient,
 		PageSize:           100,
-		Incremental:        false,
 		UrlTemplate:        "projects/{{ .Params.ProjectId }}/deployments",
-		Query:              GetQuery,
-		GetTotalPages:      GetTotalPagesFromResponse,
-		ResponseParser:     GetRawMessageFromResponse,
+		Query: func(reqData *helper.RequestData) (url.Values, errors.Error) {
+			query, err := GetQuery(reqData)
+			if err != nil {
+				return query, err
+			}
+			// https://gitlab.com/gitlab-org/gitlab/-/issues/328500
+			// https://docs.gitlab.com/ee/api/deployments.html#list-project-deployments
+			query.Set("order_by", "updated_at")
+			if collectorWithState.Since != nil {
+				query.Set("updated_after", collectorWithState.Since.Format(time.RFC3339))
+			}
+			if collectorWithState.Before != nil {
+				query.Set("updated_before", collectorWithState.Before.Format(time.RFC3339))
+			}
+			return query, nil
+		},
+		GetTotalPages:  GetTotalPagesFromResponse,
+		ResponseParser: GetRawMessageFromResponse,
 	})
 	if err != nil {
 		return err
 	}
-	return collector.Execute()
+	return collectorWithState.Execute()
 }
