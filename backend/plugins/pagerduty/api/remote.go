@@ -22,6 +22,7 @@ import (
 	"encoding/base64"
 	"encoding/json"
 	"fmt"
+	"github.com/apache/incubator-devlake/core/models/common"
 	"net/http"
 	"net/url"
 	"strconv"
@@ -114,6 +115,11 @@ func RemoteScopes(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, er
 		return nil, err
 	}
 
+	search := input.Query.Get("search")
+	if search != "" {
+		query.Set("query", search)
+	}
+
 	var res *http.Response
 	outputBody := &RemoteScopesOutput{}
 	res, err = apiClient.Get("/services", query, nil)
@@ -136,6 +142,12 @@ func RemoteScopes(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, er
 				Url:  service.HtmlUrl,
 				Id:   service.Id,
 				Name: service.Name,
+				Scope: common.Scope{
+					NoPKModel: common.NoPKModel{
+						CreatedAt: service.CreatedAt,
+					},
+					ConnectionId: connection.ID,
+				},
 			},
 		}
 		outputBody.Children = append(outputBody.Children, child)
@@ -173,8 +185,7 @@ func RemoteScopes(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, er
 // @Failure 500  {object} shared.ApiBody "Internal Error"
 // @Router /plugins/pagerduty/connections/{connectionId}/search-remote-scopes [GET]
 func SearchRemoteScopes(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, errors.Error) {
-	// Not supported
-	return &plugin.ApiResourceOutput{Body: nil, Status: http.StatusMethodNotAllowed}, nil
+	return RemoteScopes(input)
 }
 
 func EncodeToPageToken(pageData *PageData) (string, errors.Error) {
