@@ -45,7 +45,8 @@ type (
 		Data json.RawMessage `json:"data"`
 	}
 	simplifiedRawIncident struct {
-		Id string `json:"id"`
+		Id        string    `json:"id"`
+		CreatedAt time.Time `json:"createdAt"`
 	}
 )
 
@@ -92,6 +93,14 @@ func CollectIncidents(taskCtx plugin.SubTaskContext) errors.Error {
 
 					return rawResult.Data, err
 				},
+			},
+			GetCreated: func(item json.RawMessage) (time.Time, errors.Error) {
+				i := &simplifiedRawIncident{}
+				err := json.Unmarshal(item, i)
+				if err != nil {
+					return time.Time{}, errors.BadInput.Wrap(err, "failed to unmarshal opsgenie incidents")
+				}
+				return i.CreatedAt, nil
 			},
 		},
 		CollectUnfinishedDetails: &api.FinalizableApiCollectorDetailArgs{

@@ -18,7 +18,7 @@
   "editable": true,
   "fiscalYearStartMonth": 0,
   "graphTooltip": 0,
-  "id": 6,
+  "id": 11,
   "links": [
     {
       "asDropdown": false,
@@ -111,10 +111,7 @@
       "type": "row"
     },
     {
-      "datasource": {
-        "type": "mysql",
-        "uid": "P430005175C4C7810"
-      },
+      "datasource": "mysql",
       "description": "1. Total number of incidents created.\n2. The requirements being calculated are filtered by \"requirement creation time\" (time filter at the upper-right corner) and \"Opsgenie board\" (\"Choose Board\" filter at the upper-left corner)",
       "fieldConfig": {
         "defaults": {
@@ -159,10 +156,7 @@
       "pluginVersion": "9.5.2",
       "targets": [
         {
-          "datasource": {
-            "type": "mysql",
-            "uid": "P430005175C4C7810"
-          },
+          "datasource": "mysql",
           "editorMode": "code",
           "format": "table",
           "group": [],
@@ -212,10 +206,7 @@
       "type": "stat"
     },
     {
-      "datasource": {
-        "type": "mysql",
-        "uid": "P430005175C4C7810"
-      },
+      "datasource": "mysql",
       "description": "",
       "fieldConfig": {
         "defaults": {
@@ -237,7 +228,7 @@
         "overrides": []
       },
       "gridPos": {
-        "h": 6,
+        "h": 3,
         "w": 4,
         "x": 4,
         "y": 4
@@ -261,10 +252,7 @@
       "pluginVersion": "9.5.2",
       "targets": [
         {
-          "datasource": {
-            "type": "mysql",
-            "uid": "P430005175C4C7810"
-          },
+          "datasource": "mysql",
           "editorMode": "code",
           "format": "table",
           "group": [],
@@ -314,10 +302,7 @@
       "type": "stat"
     },
     {
-      "datasource": {
-        "type": "mysql",
-        "uid": "P430005175C4C7810"
-      },
+      "datasource": "mysql",
       "description": "1. Total number of incidents created.\n2. The requirements being calculated are filtered by \"requirement creation time\" (time filter at the upper-right corner) and \"Jira board\" (\"Choose Board\" filter at the upper-left corner)",
       "fieldConfig": {
         "defaults": {
@@ -392,10 +377,7 @@
       "pluginVersion": "9.5.2",
       "targets": [
         {
-          "datasource": {
-            "type": "mysql",
-            "uid": "P430005175C4C7810"
-          },
+          "datasource": "mysql",
           "editorMode": "code",
           "format": "table",
           "group": [],
@@ -445,10 +427,103 @@
       "type": "table"
     },
     {
-      "datasource": {
-        "type": "mysql",
-        "uid": "P430005175C4C7810"
+      "datasource": "mysql",
+      "description": "",
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "thresholds"
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "text",
+                "value": null
+              }
+            ]
+          },
+          "unit": "none"
+        },
+        "overrides": []
       },
+      "gridPos": {
+        "h": 3,
+        "w": 4,
+        "x": 4,
+        "y": 7
+      },
+      "id": 134,
+      "options": {
+        "colorMode": "value",
+        "graphMode": "area",
+        "justifyMode": "auto",
+        "orientation": "auto",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "text": {},
+        "textMode": "auto"
+      },
+      "pluginVersion": "9.5.2",
+      "targets": [
+        {
+          "datasource": "mysql",
+          "editorMode": "code",
+          "format": "table",
+          "group": [],
+          "metricColumn": "none",
+          "queryType": "randomWalk",
+          "rawQuery": true,
+          "rawSql": "select count(distinct i.issue_key) as value\r\nfrom issues i\r\n  join board_issues bi on i.id = bi.issue_id\r\nwhere \r\n  i.original_status = 'closed'\r\n  and $__timeFilter(i.created_date)\r\n  and bi.board_id in ($board_id)\r\n",
+          "refId": "A",
+          "select": [
+            [
+              {
+                "params": [
+                  "value"
+                ],
+                "type": "column"
+              }
+            ]
+          ],
+          "sql": {
+            "columns": [
+              {
+                "parameters": [],
+                "type": "function"
+              }
+            ],
+            "groupBy": [
+              {
+                "property": {
+                  "type": "string"
+                },
+                "type": "groupBy"
+              }
+            ],
+            "limit": 50
+          },
+          "timeColumn": "time",
+          "where": [
+            {
+              "name": "$__timeFilter",
+              "params": [],
+              "type": "macro"
+            }
+          ]
+        }
+      ],
+      "title": "Number of Closed Incidents [Created in Selected Time Range]",
+      "type": "stat"
+    },
+    {
+      "datasource": "mysql",
       "description": "",
       "fieldConfig": {
         "defaults": {
@@ -498,10 +573,7 @@
       "pluginVersion": "9.5.2",
       "targets": [
         {
-          "datasource": {
-            "type": "mysql",
-            "uid": "P430005175C4C7810"
-          },
+          "datasource": "mysql",
           "editorMode": "code",
           "format": "time_series",
           "group": [],
@@ -551,10 +623,7 @@
       "type": "stat"
     },
     {
-      "datasource": {
-        "type": "mysql",
-        "uid": "P430005175C4C7810"
-      },
+      "datasource": "mysql",
       "description": "",
       "fieldConfig": {
         "defaults": {
@@ -632,10 +701,7 @@
       "pluginVersion": "8.0.6",
       "targets": [
         {
-          "datasource": {
-            "type": "mysql",
-            "uid": "P430005175C4C7810"
-          },
+          "datasource": "mysql",
           "editorMode": "code",
           "format": "time_series",
           "group": [],
@@ -711,10 +777,7 @@
       "type": "row"
     },
     {
-      "datasource": {
-        "type": "mysql",
-        "uid": "P430005175C4C7810"
-      },
+      "datasource": "mysql",
       "description": "",
       "fieldConfig": {
         "defaults": {
@@ -766,10 +829,7 @@
       "pluginVersion": "9.5.2",
       "targets": [
         {
-          "datasource": {
-            "type": "mysql",
-            "uid": "P430005175C4C7810"
-          },
+          "datasource": "mysql",
           "editorMode": "code",
           "format": "table",
           "group": [],
@@ -820,10 +880,7 @@
       "type": "stat"
     },
     {
-      "datasource": {
-        "type": "mysql",
-        "uid": "P430005175C4C7810"
-      },
+      "datasource": "mysql",
       "description": "",
       "fieldConfig": {
         "defaults": {
@@ -874,10 +931,7 @@
       "pluginVersion": "9.5.2",
       "targets": [
         {
-          "datasource": {
-            "type": "mysql",
-            "uid": "P430005175C4C7810"
-          },
+          "datasource": "mysql",
           "editorMode": "code",
           "format": "table",
           "group": [],
@@ -928,10 +982,7 @@
       "type": "stat"
     },
     {
-      "datasource": {
-        "type": "mysql",
-        "uid": "P430005175C4C7810"
-      },
+      "datasource": "mysql",
       "description": "",
       "fieldConfig": {
         "defaults": {
@@ -1012,10 +1063,7 @@
       "pluginVersion": "8.0.6",
       "targets": [
         {
-          "datasource": {
-            "type": "mysql",
-            "uid": "P430005175C4C7810"
-          },
+          "datasource": "mysql",
           "editorMode": "code",
           "format": "table",
           "group": [],
@@ -1070,10 +1118,7 @@
       "bars": false,
       "dashLength": 10,
       "dashes": false,
-      "datasource": {
-        "type": "mysql",
-        "uid": "P430005175C4C7810"
-      },
+      "datasource": "mysql",
       "description": "1. The cumulative distribution of MTTR\n2. Each point refers to the percent rank of a distinct duration to resolve incidents.",
       "fill": 0,
       "fillGradient": 4,
@@ -1113,10 +1158,7 @@
       "steppedLine": false,
       "targets": [
         {
-          "datasource": {
-            "type": "mysql",
-            "uid": "P430005175C4C7810"
-          },
+          "datasource": "mysql",
           "editorMode": "code",
           "format": "time_series",
           "group": [],
@@ -1258,10 +1300,7 @@
       "type": "row"
     },
     {
-      "datasource": {
-        "type": "mysql",
-        "uid": "P430005175C4C7810"
-      },
+      "datasource": "mysql",
       "description": "Due to Opsgenie API limitation regarding the relationship between assignee, users, and incident (and lack of 'assign at' key ), the column assignee represents a JSON object containing all assignee from said incident",
       "fieldConfig": {
         "defaults": {
@@ -1340,10 +1379,7 @@
       "pluginVersion": "9.5.2",
       "targets": [
         {
-          "datasource": {
-            "type": "mysql",
-            "uid": "P430005175C4C7810"
-          },
+          "datasource": "mysql",
           "editorMode": "code",
           "format": "table",
           "rawQuery": true,
@@ -1388,10 +1424,7 @@
             "$__all"
           ]
         },
-        "datasource": {
-          "type": "mysql",
-          "uid": "P430005175C4C7810"
-        },
+        "datasource": "mysql",
         "definition": "select concat(name, '--', id) from boards where id like 'opsgenie%'",
         "hide": 0,
         "includeAll": true,
@@ -1409,13 +1442,13 @@
     ]
   },
   "time": {
-    "from": "2022-06-08T21:00:42.390Z",
-    "to": "2024-06-13T21:00:42.390Z"
+    "from": "2021-06-05T21:00:42.390Z",
+    "to": "2025-06-16T21:00:42.390Z"
   },
   "timepicker": {},
   "timezone": "",
   "title": "Opsgenie",
   "uid": "b4556439-f173-4411-93d4-65f261726d24",
-  "version": 7,
+  "version": 2,
   "weekStart": ""
 }
