@@ -18,12 +18,9 @@ limitations under the License.
 package tasks
 
 import (
-	"fmt"
 	"github.com/apache/incubator-devlake/core/errors"
 	"github.com/apache/incubator-devlake/core/plugin"
 	helper "github.com/apache/incubator-devlake/helpers/pluginhelper/api"
-	"net/url"
-	"time"
 )
 
 var _ plugin.SubTaskEntryPoint = CollectDeployment
@@ -61,41 +58,4 @@ func CollectDeployment(taskCtx plugin.SubTaskContext) errors.Error {
 		return err
 	}
 	return collector.Execute()
-}
-
-func IncrementalCollectDeployment(taskCtx plugin.SubTaskContext) errors.Error {
-	rawDataSubTaskArgs, data := CreateRawDataSubTaskArgs(taskCtx, RAW_DEPLOYMENT)
-	collectorWithState, err := helper.NewStatefulApiCollector(*rawDataSubTaskArgs)
-	if err != nil {
-		return err
-	}
-	err = collectorWithState.InitCollector(helper.ApiCollectorArgs{
-		RawDataSubTaskArgs: *rawDataSubTaskArgs,
-		ApiClient:          data.ApiClient,
-		PageSize:           100,
-		UrlTemplate:        "projects/{{ .Params.ProjectId }}/deployments",
-		Query: func(reqData *helper.RequestData) (url.Values, errors.Error) {
-			query, err := GetQuery(reqData)
-			if err != nil {
-				return query, err
-			}
-			// https://gitlab.com/gitlab-org/gitlab/-/issues/328500
-			// https://docs.gitlab.com/ee/api/deployments.html#list-project-deployments
-			query.Set("order_by", "updated_at")
-			if collectorWithState.Since != nil {
-				query.Set("updated_after", collectorWithState.Since.Format(time.RFC3339))
-			}
-			if collectorWithState.Before != nil {
-				query.Set("updated_before", collectorWithState.Before.Format(time.RFC3339))
-			}
-			fmt.Printf("query: %+v\n", query)
-			return query, nil
-		},
-		GetTotalPages:  GetTotalPagesFromResponse,
-		ResponseParser: GetRawMessageFromResponse,
-	})
-	if err != nil {
-		return err
-	}
-	return collectorWithState.Execute()
 }
