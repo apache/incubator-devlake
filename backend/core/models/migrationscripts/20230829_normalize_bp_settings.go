@@ -74,7 +74,8 @@ func (script *normalizeBpSettings) Up(basicRes context.BasicRes) errors.Error {
 	}
 	db := basicRes.GetDal()
 	bp := &blueprint20230829{}
-	cursor := errors.Must1(db.Cursor(dal.From("_devlake_blueprints")))
+	_ = db.First(bp)
+	cursor := errors.Must1(db.Cursor(dal.From("_devlake_blueprints"), dal.Where("mode = ?", "NORMAL")))
 	defer cursor.Close()
 
 	for cursor.Next() {
@@ -82,6 +83,9 @@ func (script *normalizeBpSettings) Up(basicRes context.BasicRes) errors.Error {
 		errors.Must(db.Fetch(cursor, bp))
 		// decrypt and unmarshal settings
 		settingsJson := errors.Must1(plugin.Decrypt(encKey, bp.Settings))
+		if settingsJson == "" {
+			continue
+		}
 		settings := &blueprintSettings20230829{}
 		errors.Must(json.Unmarshal([]byte(settingsJson), settings))
 		// update bp fields
