@@ -77,16 +77,7 @@ func CollectIncidents(taskCtx plugin.SubTaskContext) errors.Error {
 				UrlTemplate: "v1/incidents",
 				Query: func(reqData *api.RequestData, createdAfter *time.Time) (url.Values, errors.Error) {
 					query := url.Values{}
-					//var incidentQueryParams string
 					incidentQueryParams := fmt.Sprintf("impactedServices:%s", data.Options.ServiceId)
-
-					// if createdAfter != nil {
-					// 	datetime, _ := time.Parse(time.RFC3339Nano, createdAfter.String())
-					// 	timestampMillis := datetime.UnixNano() / int64(time.Millisecond)
-					// 	incidentQueryParams = fmt.Sprintf("impactedServices:%s+createdAt>%d", data.Options.ServiceId, timestampMillis)
-					// } else {
-					// 	incidentQueryParams = fmt.Sprintf("impactedServices:%s", data.Options.ServiceId)
-					// }
 
 					query.Set("query", incidentQueryParams)
 					query.Set("sort", "createdAt")
