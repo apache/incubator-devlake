@@ -15,14 +15,20 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-package models
+package migrationscripts
 
 import (
-	"github.com/apache/incubator-devlake/core/models/common"
+	"github.com/apache/incubator-devlake/core/context"
+	"github.com/apache/incubator-devlake/core/errors"
+	"github.com/apache/incubator-devlake/core/models/migrationscripts/archived"
+	"github.com/apache/incubator-devlake/helpers/migrationhelper"
+	jiraArchived "github.com/apache/incubator-devlake/plugins/jira/models/migrationscripts/archived"
 )
 
-type JiraIssueRelationship struct {
-	common.NoPKModel
+type modifyIssueRelationship struct{}
+
+type JiraIssueRelationship20231016 struct {
+	archived.NoPKModel
 	ConnectionId    uint64 `gorm:"primaryKey"`
 	IssueId         uint64 `gorm:"primarykey"`
 	IssueKey        string `gorm:"type:varchar(255)"` // e.g. DEV-1
@@ -36,6 +42,25 @@ type JiraIssueRelationship struct {
 	OutwardIssueKey string `gorm:"type:varchar(255)"` // e.g. DEV-3
 }
 
-func (JiraIssueRelationship) TableName() string {
+func (JiraIssueRelationship20231016) TableName() string {
 	return "_tool_jira_issue_relationships"
+}
+
+func (script *modifyIssueRelationship) Up(basicRes context.BasicRes) errors.Error {
+	err := basicRes.GetDal().DropTables(&jiraArchived.JiraIssueRelationship{})
+	if err != nil {
+		return err
+	}
+	return migrationhelper.AutoMigrateTables(
+		basicRes,
+		&JiraIssueRelationship20231016{},
+	)
+}
+
+func (*modifyIssueRelationship) Version() uint64 {
+	return 20231016122537
+}
+
+func (*modifyIssueRelationship) Name() string {
+	return "modify _tool_jira_issue_relationships table primary key"
 }
