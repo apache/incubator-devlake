@@ -74,6 +74,7 @@ func (script *normalizeBpSettings) Up(basicRes context.BasicRes) errors.Error {
 	}
 	db := basicRes.GetDal()
 	bp := &blueprint20230829{}
+	_ = db.First(bp)
 	cursor := errors.Must1(db.Cursor(dal.From("_devlake_blueprints"), dal.Where("mode = ?", "NORMAL")))
 	defer cursor.Close()
 
