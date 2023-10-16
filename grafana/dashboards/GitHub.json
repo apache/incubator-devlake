@@ -2474,7 +2474,7 @@
           ]
         }
       ],
-      "title": "5.2 Mean Build Success Rate",
+      "title": "5.2 Mean Workflow Runs Success Rate",
       "type": "stat"
     },
     {
@@ -2655,7 +2655,7 @@
           ]
         }
       ],
-      "title": "5.3 Total Build Result Distribution",
+      "title": "5.3 Total Workflow Runs Result Distribution",
       "type": "piechart"
     },
     {
@@ -2749,7 +2749,7 @@
           ]
         }
       ],
-      "title": "5.4 Mean Build Duration in Minutes",
+      "title": "5.4 Mean Workflow Runs Duration in Minutes",
       "type": "stat"
     },
     {
@@ -2763,7 +2763,7 @@
           "custom": {
             "axisCenteredZero": false,
             "axisColorMode": "text",
-            "axisLabel": "Build Count",
+            "axisLabel": "Workflow Runs Count",
             "axisPlacement": "auto",
             "axisSoftMin": 0,
             "fillOpacity": 80,
@@ -2839,7 +2839,7 @@
           "hide": false,
           "metricColumn": "none",
           "rawQuery": true,
-          "rawSql": "WITH _builds as(\n  SELECT\n    DATE_ADD(date(finished_date), INTERVAL -DAYOFMONTH(date(finished_date))+1 DAY) as time,\n    count(*) as build_count\n  FROM cicd_pipelines\n  WHERE\n    $__timeFilter(finished_date)\n    and result = 'SUCCESS'\n    and id like \"%github%\"\n    and cicd_scope_id in ($repo_id)\n    -- the following condition will remove the month with incomplete data\n    and finished_date >= DATE_ADD(DATE_ADD($__timeFrom(), INTERVAL -DAY($__timeFrom())+1 DAY), INTERVAL +1 MONTH)\n  GROUP BY 1\n)\n\nSELECT \n  date_format(time,'%M %Y') as month,\n  build_count as \"Build Count\"\nFROM _builds\nORDER BY time\n",
+          "rawSql": "WITH _builds as(\n  SELECT\n    DATE_ADD(date(finished_date), INTERVAL -DAYOFMONTH(date(finished_date))+1 DAY) as time,\n    count(*) as build_count\n  FROM cicd_pipelines\n  WHERE\n    $__timeFilter(finished_date)\n    and result = 'SUCCESS'\n    and id like \"%github%\"\n    and cicd_scope_id in ($repo_id)\n    -- the following condition will remove the month with incomplete data\n    and finished_date >= DATE_ADD(DATE_ADD($__timeFrom(), INTERVAL -DAY($__timeFrom())+1 DAY), INTERVAL +1 MONTH)\n  GROUP BY 1\n)\n\nSELECT \n  date_format(time,'%M %Y') as month,\n  build_count as \"Workflow Runs Count\"\nFROM _builds\nORDER BY time\n",
           "refId": "A",
           "select": [
             [
@@ -2885,7 +2885,7 @@
     },
     {
       "datasource": "mysql",
-      "description": "1. Mean Build success rate over time.\n2. The workflow runs being calculated are filtered by \"build starting time\" (time filter at the upper-right corner) and \"Jira board\" (\"Choose Board\" filter at the upper-left corner)",
+      "description": "1. Mean Workflow Runs success rate over time.\n2. The workflow runs being calculated are filtered by \"workflow runs starting time\" (time filter at the upper-right corner) and \"Jira board\" (\"Choose Board\" filter at the upper-left corner)",
       "fieldConfig": {
         "defaults": {
           "color": {
@@ -2894,7 +2894,7 @@
           "custom": {
             "axisCenteredZero": false,
             "axisColorMode": "text",
-            "axisLabel": "Build Success Rate(%)",
+            "axisLabel": "Workflow Runs Success Rate(%)",
             "axisPlacement": "auto",
             "axisSoftMin": 0,
             "fillOpacity": 80,
@@ -2932,7 +2932,7 @@
           {
             "matcher": {
               "id": "byName",
-              "options": "Build Success Rate"
+              "options": "Workflow Runs Success Rate"
             },
             "properties": [
               {
@@ -2989,7 +2989,7 @@
           "group": [],
           "metricColumn": "none",
           "rawQuery": true,
-          "rawSql": "WITH _build_success_rate as(\r\n  SELECT\r\n    DATE_ADD(date(finished_date), INTERVAL -DAYOFMONTH(date(finished_date))+1 DAY) as time,\r\n    result\r\n  FROM\r\n    cicd_pipelines\r\n  WHERE\r\n    $__timeFilter(finished_date)\r\n    and id like \"%github%\"\r\n    and cicd_scope_id in ($repo_id)\r\n    -- the following condition will remove the month with incomplete data\r\n    and finished_date >= DATE_ADD(DATE_ADD($__timeFrom(), INTERVAL -DAY($__timeFrom())+1 DAY), INTERVAL +1 MONTH)\r\n)\r\n\r\nSELECT \r\n  date_format(time,'%M %Y') as month,\r\n  1.0 * sum(case when result = 'SUCCESS' then 1 else 0 end)/ count(*) as \"Build Success Rate\"\r\nFROM _build_success_rate\r\nGROUP BY time\r\nORDER BY time",
+          "rawSql": "WITH _build_success_rate as(\r\n  SELECT\r\n    DATE_ADD(date(finished_date), INTERVAL -DAYOFMONTH(date(finished_date))+1 DAY) as time,\r\n    result\r\n  FROM\r\n    cicd_pipelines\r\n  WHERE\r\n    $__timeFilter(finished_date)\r\n    and id like \"%github%\"\r\n    and cicd_scope_id in ($repo_id)\r\n    -- the following condition will remove the month with incomplete data\r\n    and finished_date >= DATE_ADD(DATE_ADD($__timeFrom(), INTERVAL -DAY($__timeFrom())+1 DAY), INTERVAL +1 MONTH)\r\n)\r\n\r\nSELECT \r\n  date_format(time,'%M %Y') as month,\r\n  1.0 * sum(case when result = 'SUCCESS' then 1 else 0 end)/ count(*) as \"Workflow Runs Success Rate\"\r\nFROM _build_success_rate\r\nGROUP BY time\r\nORDER BY time",
           "refId": "A",
           "select": [
             [
@@ -3030,7 +3030,7 @@
           ]
         }
       ],
-      "title": "5.2.1 Build Success Rate [Each Month]",
+      "title": "5.2.1 Workflow Runs Success Rate [Each Month]",
       "type": "barchart"
     },
     {
@@ -3044,7 +3044,7 @@
           "custom": {
             "axisCenteredZero": false,
             "axisColorMode": "text",
-            "axisLabel": "Build Count",
+            "axisLabel": "Workflow Runs Count",
             "axisPlacement": "auto",
             "barAlignment": 1,
             "drawStyle": "bars",
@@ -3090,7 +3090,7 @@
           {
             "matcher": {
               "id": "byName",
-              "options": "successful_build_count"
+              "options": "successful_workflow_run_count"
             },
             "properties": [
               {
@@ -3105,7 +3105,7 @@
           {
             "matcher": {
               "id": "byName",
-              "options": "failed_build_count"
+              "options": "failed_workflow_run_count"
             },
             "properties": [
               {
@@ -3150,7 +3150,7 @@
           "hide": false,
           "metricColumn": "none",
           "rawQuery": true,
-          "rawSql": "SELECT\n  DATE_ADD(date(finished_date), INTERVAL -DAYOFMONTH(date(finished_date))+1 DAY) as time,\n  count(distinct case when result = 'SUCCESS' then id else null end) as successful_build_count,\n  count(distinct case when result != 'SUCCESS' then id else null end) as failed_build_count\nFROM cicd_pipelines\nWHERE\n  $__timeFilter(finished_date)\n  and id like \"%github%\"\n  and cicd_scope_id in ($repo_id)\n  -- the following condition will remove the month with incomplete data\n  and finished_date >= DATE_ADD(DATE_ADD($__timeFrom(), INTERVAL -DAY($__timeFrom())+1 DAY), INTERVAL +1 MONTH)\nGROUP BY 1",
+          "rawSql": "SELECT\n  DATE_ADD(date(finished_date), INTERVAL -DAYOFMONTH(date(finished_date))+1 DAY) as time,\n  count(distinct case when result = 'SUCCESS' then id else null end) as successful_workflow_run_count,\n  count(distinct case when result != 'SUCCESS' then id else null end) as failed_workflow_run_count\nFROM cicd_pipelines\nWHERE\n  $__timeFilter(finished_date)\n  and id like \"%github%\"\n  and cicd_scope_id in ($repo_id)\n  -- the following condition will remove the month with incomplete data\n  and finished_date >= DATE_ADD(DATE_ADD($__timeFrom(), INTERVAL -DAY($__timeFrom())+1 DAY), INTERVAL +1 MONTH)\nGROUP BY 1",
           "refId": "A",
           "select": [
             [
@@ -3205,7 +3205,7 @@
           "custom": {
             "axisCenteredZero": false,
             "axisColorMode": "text",
-            "axisLabel": "Build Duration(minutes)",
+            "axisLabel": "Workflow Runs Duration(minutes)",
             "axisPlacement": "auto",
             "axisSoftMin": 0,
             "fillOpacity": 80,
@@ -3338,7 +3338,7 @@
           ]
         }
       ],
-      "title": "5.4.1 Mean Build Duration in Minutes [Each Month]",
+      "title": "5.4.1 Mean Workflow Runs Duration in Minutes [Each Month]",
       "type": "barchart"
     },
     {
