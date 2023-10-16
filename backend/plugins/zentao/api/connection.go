@@ -19,7 +19,6 @@ package api
 
 import (
 	"context"
-	"fmt"
 	"github.com/apache/incubator-devlake/core/runner"
 	"net/http"
 	"time"
@@ -68,9 +67,7 @@ func TestConnection(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, 
 		body.Message = err.Error()
 		return &plugin.ApiResourceOutput{Body: body, Status: http.StatusBadRequest}, nil
 	}
-	fmt.Printf("%+v\n", connection)
 	if connection.DbUrl != "" {
-		fmt.Println("xxxx")
 		err = runner.CheckDbConnection(connection.DbUrl, 5*time.Second)
 		if err != nil {
 			body.Success = false
