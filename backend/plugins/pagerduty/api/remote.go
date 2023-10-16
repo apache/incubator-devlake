@@ -22,6 +22,7 @@ import (
 	"encoding/base64"
 	"encoding/json"
 	"fmt"
+	"github.com/apache/incubator-devlake/core/models/common"
 	"net/http"
 	"net/url"
 	"strconv"
@@ -141,6 +142,12 @@ func RemoteScopes(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, er
 				Url:  service.HtmlUrl,
 				Id:   service.Id,
 				Name: service.Name,
+				Scope: common.Scope{
+					NoPKModel: common.NoPKModel{
+						CreatedAt: service.CreatedAt,
+					},
+					ConnectionId: connection.ID,
+				},
 			},
 		}
 		outputBody.Children = append(outputBody.Children, child)
