@@ -39,6 +39,7 @@ type ApiCollectorStateManager struct {
 	newState     models.CollectorLatestState
 	IsIncreamtal bool
 	Since        *time.Time
+	Before       *time.Time
 }
 
 // NewStatefulApiCollector create a new ApiCollectorStateManager
@@ -69,30 +70,30 @@ func NewStatefulApiCollector(args RawDataSubTaskArgs) (*ApiCollectorStateManager
 
 	// Calculate incremental and since based on syncPolicy and old state
 	syncPolicy := args.Ctx.TaskContext().SyncPolicy()
-	var isIncreamtal bool
+	var isIncremental bool
 	var since *time.Time
 
 	if syncPolicy == nil {
 		// 1. If no syncPolicy, incremental and since is oldState.LatestSuccessStart
-		isIncreamtal = true
+		isIncremental = true
 		since = oldLatestSuccessStart
 	} else if oldLatestSuccessStart == nil {
 		// 2. If no oldState.LatestSuccessStart, not incremental and since is syncPolicy.TimeAfter
-		isIncreamtal = false
+		isIncremental = false
 		since = syncPolicy.TimeAfter
 	} else if syncPolicy.FullSync {
 		// 3. If fullSync true, not incremental and since is syncPolicy.TimeAfter
-		isIncreamtal = false
+		isIncremental = false
 		since = syncPolicy.TimeAfter
 	} else if syncPolicy.TimeAfter != nil {
 		// 4. If syncPolicy.TimeAfter not nil
 		if oldTimeAfter != nil && syncPolicy.TimeAfter.Before(*oldTimeAfter) {
 			// 4.1 If oldTimeAfter not nil and syncPolicy.TimeAfter before oldTimeAfter, incremental is false and since is syncPolicy.TimeAfter
-			isIncreamtal = false
+			isIncremental = false
 			since = syncPolicy.TimeAfter
 		} else {
 			// 4.2 If oldTimeAfter nil or syncPolicy.TimeAfter after oldTimeAfter, incremental is true and since is oldState.LatestSuccessStart
-			isIncreamtal = true
+			isIncremental = true
 			since = oldLatestSuccessStart
 		}
 	}
@@ -104,8 +105,9 @@ func NewStatefulApiCollector(args RawDataSubTaskArgs) (*ApiCollectorStateManager
 	return &ApiCollectorStateManager{
 		RawDataSubTaskArgs: args,
 		newState:           oldState,
-		IsIncreamtal:       isIncreamtal,
+		IsIncreamtal:       isIncremental,
 		Since:              since,
+		Before:             &currentTime,
 	}, nil
 
 }
