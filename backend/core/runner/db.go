@@ -160,15 +160,33 @@ func getDbConnection(dbUrl string, conf *gorm.Config) (*gorm.DB, error) {
 }
 
 func CheckDbConnection(dbUrl string, d time.Duration) errors.Error {
-	db, err := getDbConnection(dbUrl, &gorm.Config{})
-	if err != nil {
-		return errors.Convert(err)
-	}
 	ctx := context.Background()
-	if d > 0 {
-		var cancel context.CancelFunc
-		ctx, cancel = context.WithTimeout(context.Background(), d)
-		defer cancel()
+
+	result := make(chan errors.Error, 1)
+	done := make(chan struct{}, 1)
+	go func() {
+		db, err := getDbConnection(dbUrl, &gorm.Config{})
+		if err != nil {
+			result <- errors.Convert(err)
+		}
+		if d > 0 {
+			fmt.Println("yyy")
+			var cancel context.CancelFunc
+			ctx, cancel = context.WithTimeout(context.Background(), d)
+			defer cancel()
+		}
+		if err := db.WithContext(ctx).Exec("SELECT 1").Error; err != nil {
+			done <- struct{}{}
+		} else {
+			result <- errors.Convert(err)
+		}
+	}()
+	select {
+	case <-time.After(d):
+		return errors.Default.New("timeout")
+	case <-done:
+		return nil
+	case err := <-result:
+		return err
 	}
-	return errors.Convert(db.WithContext(ctx).Exec("SELECT 1").Error)
 }
