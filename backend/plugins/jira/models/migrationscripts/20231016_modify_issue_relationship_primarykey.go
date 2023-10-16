@@ -20,15 +20,15 @@ package migrationscripts
 import (
 	"github.com/apache/incubator-devlake/core/context"
 	"github.com/apache/incubator-devlake/core/errors"
-	"github.com/apache/incubator-devlake/core/models/common"
+	"github.com/apache/incubator-devlake/core/models/migrationscripts/archived"
 	"github.com/apache/incubator-devlake/helpers/migrationhelper"
-	"github.com/apache/incubator-devlake/plugins/jira/models/migrationscripts/archived"
+	jiraArchived "github.com/apache/incubator-devlake/plugins/jira/models/migrationscripts/archived"
 )
 
 type modifyIssueRelationship struct{}
 
 type JiraIssueRelationship20231016 struct {
-	common.NoPKModel
+	archived.NoPKModel
 	ConnectionId    uint64 `gorm:"primaryKey"`
 	IssueId         uint64 `gorm:"primarykey"`
 	IssueKey        string `gorm:"type:varchar(255)"` // e.g. DEV-1
@@ -47,7 +47,7 @@ func (JiraIssueRelationship20231016) TableName() string {
 }
 
 func (script *modifyIssueRelationship) Up(basicRes context.BasicRes) errors.Error {
-	err := basicRes.GetDal().DropTables(&archived.JiraIssueRelationship{})
+	err := basicRes.GetDal().DropTables(&jiraArchived.JiraIssueRelationship{})
 	if err != nil {
 		return err
 	}
