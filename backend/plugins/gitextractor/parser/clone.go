@@ -23,10 +23,13 @@ import (
 	"encoding/base64"
 	"fmt"
 	"github.com/apache/incubator-devlake/core/errors"
+	"github.com/go-git/go-git/v5/plumbing/protocol/packp/capability"
+	"github.com/go-git/go-git/v5/plumbing/transport"
 	"github.com/go-git/go-git/v5/plumbing/transport/client"
 	"net"
 	"net/http"
 	"os"
+	"strings"
 
 	gogit "github.com/go-git/go-git/v5"
 	githttp "github.com/go-git/go-git/v5/plumbing/transport/http"
@@ -89,7 +92,14 @@ func (l *GitRepoCreator) CloneOverHTTP(ctx context.Context, repoId, url, user, p
 				Password: password,
 			}
 		}
-		//fmt.Printf("CloneOverHTTP clone opt: %+v\ndir: %v, repo: %v, id: %v, user: %v, passwd: %v, proxy: %v\n", cloneOptions, dir, url, repoId, user, password, proxy)
+		// fmt.Printf("CloneOverHTTP clone opt: %+v\ndir: %v, repo: %v, id: %v, user: %v, passwd: %v, proxy: %v\n", cloneOptions, dir, url, repoId, user, password, proxy)
+		if isAzureRepo(ctx, url) {
+			// https://github.com/go-git/go-git/issues/64
+			// https://github.com/go-git/go-git/blob/master/_examples/azure_devops/main.go#L34
+			transport.UnsupportedCapabilities = []capability.Capability{
+				capability.ThinPack,
+			}
+		}
 		_, err := gogit.PlainCloneContext(ctx, dir, true, cloneOptions)
 		if err != nil {
 			l.logger.Error(err, "PlainCloneContext")
@@ -132,4 +142,8 @@ func withTempDirectory(f func(tempDir string) (*GitRepo, error)) (*GitRepo, erro
 	}
 	repo.cleanup = cleanup
 	return repo, errors.Convert(err)
+}
+
+func isAzureRepo(ctx context.Context, repoUrl string) bool {
+	return strings.Contains(repoUrl, "dev.azure.com")
 }
