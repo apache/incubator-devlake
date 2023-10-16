@@ -44,5 +44,6 @@ func All() []plugin.MigrationScript {
 		new(addRawParamTableForScope),
 		new(addIssueRelationship),
 		new(dropIssueAllFields),
+		new(modifyIssueRelationship),
 	}
 }
