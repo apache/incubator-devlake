@@ -37,7 +37,7 @@ import * as S from './styled';
 import './tips-transition.css';
 
 export const Layout = () => {
-  const { version, userInfo } = useLoaderData() as Awaited<ReturnType<typeof loader>>;
+  const { version } = useLoaderData() as Awaited<ReturnType<typeof loader>>;
 
   const navigate = useNavigate();
   const { pathname } = useLocation();
@@ -144,14 +144,6 @@ export const Layout = () => {
                       <img src={SlackIcon} alt="slack" />
                       <span>Slack</span>
                     </a>
-                    {userInfo && userInfo.logoutURI && (
-                      <>
-                        <Navbar.Divider />
-                        <span>{userInfo.email}</span>
-                        <Navbar.Divider />
-                        <a href={userInfo.logoutURI}>Sign Out</a>
-                      </>
-                    )}
                   </Navbar.Group>
                 </S.Header>
                 <S.Inner>
