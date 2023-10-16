@@ -35,11 +35,11 @@ type ApiCollectorStateManager struct {
 	RawDataSubTaskArgs
 	// *ApiCollector
 	// *GraphqlCollector
-	subtasks     []plugin.SubTask
-	newState     models.CollectorLatestState
-	IsIncreamtal bool
-	Since        *time.Time
-	Before       *time.Time
+	subtasks      []plugin.SubTask
+	newState      models.CollectorLatestState
+	IsIncremental bool
+	Since         *time.Time
+	Before        *time.Time
 }
 
 // NewStatefulApiCollector create a new ApiCollectorStateManager
@@ -105,7 +105,7 @@ func NewStatefulApiCollector(args RawDataSubTaskArgs) (*ApiCollectorStateManager
 	return &ApiCollectorStateManager{
 		RawDataSubTaskArgs: args,
 		newState:           oldState,
-		IsIncreamtal:       isIncremental,
+		IsIncremental:      isIncremental,
 		Since:              since,
 		Before:             &currentTime,
 	}, nil
@@ -115,7 +115,7 @@ func NewStatefulApiCollector(args RawDataSubTaskArgs) (*ApiCollectorStateManager
 // InitCollector init the embedded collector
 func (m *ApiCollectorStateManager) InitCollector(args ApiCollectorArgs) errors.Error {
 	args.RawDataSubTaskArgs = m.RawDataSubTaskArgs
-	args.Incremental = args.Incremental || m.IsIncreamtal
+	args.Incremental = args.Incremental || m.IsIncremental
 	apiCollector, err := NewApiCollector(args)
 	if err != nil {
 		return err
@@ -182,7 +182,7 @@ func NewStatefulApiCollectorForFinalizableEntity(args FinalizableApiCollectorArg
 	}
 
 	createdAfter := manager.Since
-	isIncremental := manager.IsIncreamtal
+	isIncremental := manager.IsIncremental
 	// step 1: create a collector to collect newly added records
 	err = manager.InitCollector(ApiCollectorArgs{
 		ApiClient: args.ApiClient,
