@@ -41,4 +41,5 @@ export type ConnectionItemType = {
   authMethod?: string;
   appId?: string;
   secretKey?: string;
+  dbUrl?: string;
 };

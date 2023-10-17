@@ -41,6 +41,6 @@ export const test = (
   plugin: string,
   payload: Pick<
     T.ConnectionForm,
-    'endpoint' | 'authMethod' | 'username' | 'password' | 'token' | 'appId' | 'secretKey' | 'proxy'
+    'endpoint' | 'authMethod' | 'username' | 'password' | 'token' | 'appId' | 'secretKey' | 'proxy' | 'dbUrl'
   >,
 ): Promise<T.ConnectionTest> => request(`/plugins/${plugin}/test`, { method: 'post', data: payload });
