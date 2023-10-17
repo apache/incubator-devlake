@@ -170,7 +170,6 @@ func CheckDbConnection(dbUrl string, d time.Duration) errors.Error {
 			result <- errors.Convert(err)
 		}
 		if d > 0 {
-			fmt.Println("yyy")
 			var cancel context.CancelFunc
 			ctx, cancel = context.WithTimeout(context.Background(), d)
 			defer cancel()
