@@ -33,7 +33,10 @@ export const Endpoint = ({ initialValue, value, setValue }: Props) => {
   }, [initialValue]);
 
   return (
-    <FormGroup label={<S.Label>Opsgenie Instance Location (us or eu)</S.Label>} labelInfo={<S.LabelInfo>*</S.LabelInfo>}>
+    <FormGroup
+      label={<S.Label>Opsgenie Instance Location (us or eu)</S.Label>}
+      labelInfo={<S.LabelInfo>*</S.LabelInfo>}
+    >
       <RadioGroup
         inline
         selectedValue={value || initialValue}
