@@ -69,7 +69,7 @@ export const AdditionalSettings = ({ transformation, setTransformation }: Props)
                   ...transformation,
                   refdiff: {
                     ...transformation?.refdiff,
-                    tagsLimit: e.target.value,
+                    tagsLimit: +e.target.value,
                   },
                 })
               }
