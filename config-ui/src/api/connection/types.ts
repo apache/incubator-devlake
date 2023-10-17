@@ -26,6 +26,7 @@ export type Connection = {
   password?: string;
   proxy: string;
   apiKey?: string;
+  dbUrl?: string;
 };
 
 export type ConnectionForm = {
@@ -40,6 +41,7 @@ export type ConnectionForm = {
   enableGraphql?: boolean;
   proxy: string;
   rateLimitPerHour?: number;
+  dbUrl?: string;
 };
 
 export type ConnectionTest = {
