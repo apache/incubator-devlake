@@ -3410,30 +3410,6 @@
         "skipUrlSync": false,
         "sort": 0,
         "type": "query"
-      },
-      {
-        "current": {
-          "selected": false,
-          "text": "github:GithubRepo:1:681632666",
-          "value": "github:GithubRepo:1:681632666"
-        },
-        "datasource": {
-          "type": "datasource",
-          "uid": "mysql"
-        },
-        "definition": "select distinct cicd_scope_id as text from cicd_pipelines where id like \"%github%\" ",
-        "hide": 0,
-        "includeAll": true,
-        "label": "Repo",
-        "multi": true,
-        "name": "repo_id",
-        "options": [],
-        "query": "select distinct cicd_scope_id as text from cicd_pipelines where id like \"%github%\" ",
-        "refresh": 1,
-        "regex": "",
-        "skipUrlSync": false,
-        "sort": 0,
-        "type": "query"
       }
     ]
   },
