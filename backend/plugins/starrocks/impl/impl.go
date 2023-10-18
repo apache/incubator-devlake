@@ -25,7 +25,7 @@ import (
 	"github.com/apache/incubator-devlake/plugins/starrocks/tasks"
 )
 
-type StarRocks string
+type StarRocks struct{}
 
 // make sure interface is implemented
 var _ interface {

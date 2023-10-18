@@ -46,7 +46,7 @@ var _ interface {
 	plugin.CloseablePluginTask
 } = (*Gitlab)(nil)
 
-type Gitlab string
+type Gitlab struct{}
 
 func init() {
 	// check subtask meta loop when init subtask meta
