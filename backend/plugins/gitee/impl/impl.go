@@ -44,7 +44,7 @@ var _ interface {
 
 var _ plugin.PluginSource = (*Gitee)(nil)
 
-type Gitee string
+type Gitee struct{}
 
 func (p Gitee) Connection() dal.Tabler {
 	return &models.GiteeConnection{}

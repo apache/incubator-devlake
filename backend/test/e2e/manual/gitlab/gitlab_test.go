@@ -61,7 +61,7 @@ func TestGitlabPlugin(t *testing.T) {
 		DropDb:       false,
 		TruncateDb:   true,
 		Plugins: []plugin.PluginMeta{
-			gitlab.Gitlab(""),
+			gitlab.Gitlab{},
 			gitextractor.GitExtractor{},
 		},
 	})
