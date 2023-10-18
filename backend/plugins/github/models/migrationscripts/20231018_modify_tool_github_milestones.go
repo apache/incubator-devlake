@@ -15,15 +15,21 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-package models
+package migrationscripts
 
 import (
 	"time"
 
-	"github.com/apache/incubator-devlake/core/models/common"
+	"github.com/apache/incubator-devlake/core/context"
+	"github.com/apache/incubator-devlake/core/errors"
+	"github.com/apache/incubator-devlake/core/models/migrationscripts/archived"
+	"github.com/apache/incubator-devlake/helpers/migrationhelper"
+	githubArchived "github.com/apache/incubator-devlake/plugins/github/models/migrationscripts/archived"
 )
 
-type GithubMilestone struct {
+type modifyGithubMilestone struct{}
+
+type GithubMilestone20231018 struct {
 	ConnectionId    uint64 `gorm:"primaryKey"`
 	MilestoneId     int    `gorm:"primaryKey;autoIncrement:false"`
 	RepoId          int
@@ -36,9 +42,29 @@ type GithubMilestone struct {
 	GithubCreatedAt time.Time
 	GithubUpdatedAt time.Time
 	ClosedAt        *time.Time
-	common.NoPKModel
+
+	archived.NoPKModel
 }
 
-func (GithubMilestone) TableName() string {
+func (GithubMilestone20231018) TableName() string {
 	return "_tool_github_milestones"
+}
+
+func (script *modifyGithubMilestone) Up(basicRes context.BasicRes) errors.Error {
+	err := basicRes.GetDal().DropTables(&githubArchived.GithubMilestone{})
+	if err != nil {
+		return err
+	}
+	return migrationhelper.AutoMigrateTables(
+		basicRes,
+		&GithubMilestone20231018{},
+	)
+}
+
+func (*modifyGithubMilestone) Version() uint64 {
+	return 20231018122537
+}
+
+func (*modifyGithubMilestone) Name() string {
+	return "modify _tool_github_milestones table created_at and updated_at"
 }
