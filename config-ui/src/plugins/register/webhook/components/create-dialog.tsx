@@ -21,7 +21,6 @@ import { InputGroup, Icon } from '@blueprintjs/core';
 
 import API from '@/api';
 import { Dialog, FormItem, CopyText, ExternalLink } from '@/components';
-import { useConnections } from '@/hooks';
 import { operator } from '@/utils';
 
 import * as S from '../styled';
@@ -43,8 +42,6 @@ export const CreateDialog = ({ isOpen, onCancel, onSubmitAfter }: Props) => {
     postDeploymentsCurl: '',
     apiKey: '',
   });
-
-  const { onRefresh } = useConnections();
 
   const prefix = useMemo(() => `${window.location.origin}/api`, []);
 
@@ -88,7 +85,6 @@ export const CreateDialog = ({ isOpen, onCancel, onSubmitAfter }: Props) => {
 }'`,
         apiKey: res.apiKey,
       });
-      onRefresh('webhook');
       onSubmitAfter?.(res.id);
     }
   };

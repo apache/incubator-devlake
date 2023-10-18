@@ -16,16 +16,28 @@
  *
  */
 
-import ReactDOM from 'react-dom';
-import { Provider } from 'react-redux';
+export enum IConnectionStatus {
+  IDLE = 'idle',
+  TESTING = 'testing',
+  ONLINE = 'online',
+  OFFLINE = 'offline',
+}
 
-import { App } from './App';
-import { store } from './app/store';
-import './index.css';
-
-ReactDOM.render(
-  <Provider store={store}>
-    <App />
-  </Provider>,
-  document.getElementById('root'),
-);
+export interface IConnection {
+  unique: string;
+  plugin: string;
+  pluginName: string;
+  id: ID;
+  name: string;
+  status: IConnectionStatus;
+  icon: string;
+  isBeta: boolean;
+  endpoint: string;
+  proxy: string;
+  authMethod?: string;
+  token?: string;
+  username?: string;
+  password?: string;
+  appId?: string;
+  secretKey?: string;
+}

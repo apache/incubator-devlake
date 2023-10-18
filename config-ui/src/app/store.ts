@@ -16,16 +16,15 @@
  *
  */
 
-import ReactDOM from 'react-dom';
-import { Provider } from 'react-redux';
+import { configureStore, ThunkAction, Action } from '@reduxjs/toolkit';
+import ConnectionSlice from '@/features/connections/slice';
 
-import { App } from './App';
-import { store } from './app/store';
-import './index.css';
+export const store = configureStore({
+  reducer: {
+    connections: ConnectionSlice,
+  },
+});
 
-ReactDOM.render(
-  <Provider store={store}>
-    <App />
-  </Provider>,
-  document.getElementById('root'),
-);
+export type AppDispatch = typeof store.dispatch;
+export type RootState = ReturnType<typeof store.getState>;
+export type AppThunk<ReturnType = void> = ThunkAction<ReturnType, RootState, unknown, Action<string>>;
