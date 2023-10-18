@@ -19,13 +19,11 @@
 import { DOC_URL } from '@/release';
 
 import type { PluginConfigType } from '../../types';
-import { PluginType } from '../../types';
 
 import { DBUrl } from './connection-fields';
 import Icon from './assets/icon.svg';
 
 export const ZenTaoConfig: PluginConfigType = {
-  type: PluginType.Connection,
   plugin: 'zentao',
   name: 'ZenTao',
   icon: Icon,

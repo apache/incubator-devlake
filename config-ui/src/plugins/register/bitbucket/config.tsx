@@ -19,12 +19,10 @@
 import { DOC_URL } from '@/release';
 
 import type { PluginConfigType } from '../../types';
-import { PluginType } from '../../types';
 
 import Icon from './assets/icon.svg';
 
 export const BitBucketConfig: PluginConfigType = {
-  type: PluginType.Connection,
   plugin: 'bitbucket',
   name: 'BitBucket',
   icon: Icon,
