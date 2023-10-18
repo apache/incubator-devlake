@@ -33,7 +33,7 @@ import (
 type ScopePagination struct {
 	Pagination   `mapstructure:",squash"`
 	ConnectionId uint64 `json:"connectionId" mapstructure:"connectionId" validate:"required"`
-	Blueprints   bool   `json:"blueprints" mapstructure:"blueprints"`
+	Blueprint    bool   `json:"blueprint" mapstructure:"blueprint"`
 }
 
 type ScopeDetail[S plugin.ToolLayerScope, SC plugin.ToolLayerScopeConfig] struct {
@@ -131,7 +131,7 @@ func (scopeSrv *ScopeSrvHelper[C, S, SC]) GetScopesPage(pagination *ScopePaginat
 			Scope:       scope,
 			ScopeConfig: scopeSrv.getScopeConfig(scope.ScopeScopeConfigId()),
 		}
-		if pagination.Blueprints {
+		if pagination.Blueprint {
 			scopeDetail.Blueprints = scopeSrv.getAllBlueprinsByScope(scope.ScopeConnectionId(), scope.ScopeId())
 		}
 		data[i] = scopeDetail
