@@ -108,14 +108,14 @@ export const SearchRemote = ({ plugin, connectionId, config, disabledScope, sele
       pageSize: 50,
     });
 
-    const newItems = (res.children ?? []).map((it) => ({
+    const items = (res.children ?? []).map((it) => ({
       ...it,
       title: it.name,
     }));
 
     setSearch((s) => ({
       ...s,
-      items: [...s.items, ...newItems],
+      items,
       total: res.count,
     }));
   };
