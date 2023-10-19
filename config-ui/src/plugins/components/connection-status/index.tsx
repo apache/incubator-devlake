@@ -21,7 +21,7 @@ import styled from 'styled-components';
 import { useAppDispatch } from '@/app/hook';
 import { IconButton } from '@/components';
 import { testConnection } from '@/features/connections';
-import { IConnection, IConnectionStatus, IPlugin } from '@/types';
+import { IConnection, IConnectionStatus } from '@/types';
 
 const Wrapper = styled.div`
   display: inline-flex;

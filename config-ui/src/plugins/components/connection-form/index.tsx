@@ -69,7 +69,7 @@ export const ConnectionForm = ({ plugin, connectionId, onSuccess }: Props) => {
             'secretKey',
             'tenantId',
             'tenantType',
-            "dbUrl",
+            'dbUrl',
           ]),
         ),
       {
