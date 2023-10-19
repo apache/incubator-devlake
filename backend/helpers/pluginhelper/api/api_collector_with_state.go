@@ -183,6 +183,7 @@ func NewStatefulApiCollectorForFinalizableEntity(args FinalizableApiCollectorArg
 
 	createdAfter := manager.Since
 	isIncremental := manager.IsIncremental
+
 	// step 1: create a collector to collect newly added records
 	err = manager.InitCollector(ApiCollectorArgs{
 		ApiClient: args.ApiClient,
