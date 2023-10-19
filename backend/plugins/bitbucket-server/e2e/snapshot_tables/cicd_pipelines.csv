@@ -1,0 +1,11 @@
+id,name,result,status,type,duration_sec,environment
+bitbucket:BitbucketPipeline:1:{01fad871-cd21-4a80-bd59-74148dd5be8e},bitbucket:BitbucketPipeline:1:main,FAILURE,DONE,DEPLOYMENT,14,
+bitbucket:BitbucketPipeline:1:{02c4dfe8-70a6-442c-8bd8-19061979c2cf},bitbucket:BitbucketPipeline:1:0.5-alpha,MANUAL,IN_PROGRESS,,0,
+bitbucket:BitbucketPipeline:1:{1e20072e-b22a-443f-ad92-3d9435393d5b},bitbucket:BitbucketPipeline:1:0.5-alpha,SUCCESS,DONE,,21,
+bitbucket:BitbucketPipeline:1:{2d91d69f-d84b-423d-ae4d-c1d3f2c27166},bitbucket:BitbucketPipeline:1:main,SUCCESS,DONE,DEPLOYMENT,16,
+bitbucket:BitbucketPipeline:1:{5decbbb2-f4e6-4f3a-aab0-f74c40497c51},bitbucket:BitbucketPipeline:1:0.5-alpha,SUCCESS,DONE,,15,
+bitbucket:BitbucketPipeline:1:{5fb099c8-ebdd-4d3e-97d8-a12ebfca5446},bitbucket:BitbucketPipeline:1:0.5-alpha,MANUAL,IN_PROGRESS,,0,
+bitbucket:BitbucketPipeline:1:{8b417a17-72e6-4e16-ae4a-97f6e279f68e},bitbucket:BitbucketPipeline:1:0.5-alpha,MANUAL,IN_PROGRESS,,0,
+bitbucket:BitbucketPipeline:1:{b5d2ab02-2013-415e-b146-61ff3bf19502},bitbucket:BitbucketPipeline:1:pipeline,ABORT,DONE,,0,PRODUCTION
+bitbucket:BitbucketPipeline:1:{d7bf8394-6e18-42c4-b3a3-70514fc4079f},bitbucket:BitbucketPipeline:1:pipeline,SUCCESS,DONE,,18,PRODUCTION
+bitbucket:BitbucketPipeline:1:{ee91b6d3-7736-482c-892f-ad1e923d145e},bitbucket:BitbucketPipeline:1:0.5-alpha,FAILURE,DONE,,0,
