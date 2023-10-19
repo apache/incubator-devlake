@@ -16,5 +16,5 @@
  *
  */
 
-export * from './tenant-id';
-export * from './tenant-type';
+export * from './slice';
+export * from './name';

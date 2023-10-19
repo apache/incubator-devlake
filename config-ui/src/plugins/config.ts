@@ -28,7 +28,6 @@ import { PagerDutyConfig } from './register/pagerduty';
 import { SonarQubeConfig } from './register/sonarqube';
 import { TAPDConfig } from './register/tapd';
 import { WebhookConfig } from './register/webhook';
-import { TeambitionConfig } from './register/teambition';
 import { ZenTaoConfig } from './register/zentao';
 
 export const PluginConfig: PluginConfigType[] = [
@@ -42,7 +41,6 @@ export const PluginConfig: PluginConfigType[] = [
   PagerDutyConfig,
   SonarQubeConfig,
   TAPDConfig,
-  TeambitionConfig,
   ZenTaoConfig,
   WebhookConfig,
 ].sort((a, b) => a.sort - b.sort);
