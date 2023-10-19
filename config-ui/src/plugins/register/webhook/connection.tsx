@@ -19,8 +19,9 @@
 import { useState } from 'react';
 import { Button, Intent } from '@blueprintjs/core';
 
+import { useAppSelector } from '@/app/hook';
 import { Buttons, Table, ColumnType, ExternalLink, IconButton } from '@/components';
-import { useConnections } from '@/hooks';
+import { selectConnections } from '@/features/connections';
 import { DOC_URL } from '@/release';
 
 import { CreateDialog, ViewDialog, EditDialog, DeleteDialog } from './components';
@@ -40,7 +41,7 @@ export const WebHookConnection = ({ filterIds, onCreateAfter, onDeleteAfter }: P
   const [type, setType] = useState<Type>();
   const [currentID, setCurrentID] = useState<ID>();
 
-  const { connections } = useConnections({ plugin: 'webhook' });
+  const connections = useAppSelector((state) => selectConnections(state, 'webhook'));
 
   const handleHideDialog = () => {
     setType(undefined);

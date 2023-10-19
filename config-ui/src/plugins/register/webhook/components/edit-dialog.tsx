@@ -21,7 +21,6 @@ import { InputGroup } from '@blueprintjs/core';
 
 import API from '@/api';
 import { Dialog, FormItem } from '@/components';
-import { useConnections } from '@/hooks';
 import { operator } from '@/utils';
 
 interface Props {
@@ -32,8 +31,6 @@ interface Props {
 export const EditDialog = ({ initialId, onCancel }: Props) => {
   const [name, setName] = useState('');
   const [operating, setOperating] = useState(false);
-
-  const { onRefresh } = useConnections({ plugin: 'webhook' });
 
   useEffect(() => {
     (async () => {
@@ -48,7 +45,6 @@ export const EditDialog = ({ initialId, onCancel }: Props) => {
     });
 
     if (success) {
-      onRefresh('webhook');
       onCancel();
     }
   };

@@ -20,13 +20,11 @@ import { ExternalLink } from '@/components';
 import { DOC_URL } from '@/release';
 
 import type { PluginConfigType } from '../../types';
-import { PluginType } from '../../types';
 
 import { DataScope } from './data-scope';
 import Icon from './assets/icon.svg';
 
 export const TAPDConfig: PluginConfigType = {
-  type: PluginType.Connection,
   plugin: 'tapd',
   name: 'TAPD',
   icon: Icon,

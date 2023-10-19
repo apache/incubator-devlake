@@ -18,8 +18,10 @@
 
 import styled from 'styled-components';
 
+import { useAppDispatch } from '@/app/hook';
 import { IconButton } from '@/components';
-import { ConnectionStatusEnum } from '@/store';
+import { testConnection } from '@/features/connections';
+import { IConnection, IConnectionStatus } from '@/types';
 
 const Wrapper = styled.div`
   display: inline-flex;
@@ -35,29 +37,28 @@ const Wrapper = styled.div`
 `;
 
 const STATUS_MAP = {
-  [`${ConnectionStatusEnum.NULL}`]: 'Test',
-  [`${ConnectionStatusEnum.TESTING}`]: 'Testing',
-  [`${ConnectionStatusEnum.ONLINE}`]: 'Connected',
-  [`${ConnectionStatusEnum.OFFLINE}`]: 'Disconnected',
+  [`${IConnectionStatus.IDLE}`]: 'Test',
+  [`${IConnectionStatus.TESTING}`]: 'Testing',
+  [`${IConnectionStatus.ONLINE}`]: 'Connected',
+  [`${IConnectionStatus.OFFLINE}`]: 'Disconnected',
 };
 
 interface Props {
-  status: ConnectionStatusEnum;
-  unique: string;
-  onTest: (unique: string) => void;
+  connection: IConnection;
 }
 
-export const ConnectionStatus = ({ status, unique, onTest }: Props) => {
+export const ConnectionStatus = ({ connection }: Props) => {
+  const { status } = connection;
+
+  const dispatch = useAppDispatch();
+
+  const handleTest = () => dispatch(testConnection(connection));
+
   return (
     <Wrapper>
       <span className={status}>{STATUS_MAP[status]}</span>
-      {status !== ConnectionStatusEnum.ONLINE && (
-        <IconButton
-          loading={status === ConnectionStatusEnum.TESTING}
-          icon="repeat"
-          tooltip="Retry"
-          onClick={() => onTest(unique)}
-        />
+      {status !== IConnectionStatus.ONLINE && (
+        <IconButton loading={status === IConnectionStatus.TESTING} icon="repeat" tooltip="Retry" onClick={handleTest} />
       )}
     </Wrapper>
   );

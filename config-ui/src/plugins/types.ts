@@ -16,13 +16,7 @@
  *
  */
 
-export enum PluginType {
-  Connection = 'connection',
-  Pipeline = 'pipeline',
-}
-
 export type PluginConfigType = {
-  type: PluginType;
   plugin: string;
   name: string;
   icon: string;

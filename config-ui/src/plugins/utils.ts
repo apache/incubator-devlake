@@ -19,7 +19,7 @@
 import PluginIcon from '@/images/plugin-icon.svg';
 
 import { PluginConfig } from './config';
-import { PluginConfigType, PluginType } from './types';
+import { PluginConfigType } from './types';
 
 export const getPluginScopeId = (plugin: string, scope: any) => {
   switch (plugin) {
@@ -46,7 +46,6 @@ export const getPluginConfig = (name: string): PluginConfigType => {
   let pluginConfig = PluginConfig.find((plugin) => plugin.plugin === name) as PluginConfigType;
   if (!pluginConfig) {
     pluginConfig = {
-      type: PluginType.Pipeline,
       plugin: name,
       name: name,
       icon: PluginIcon,

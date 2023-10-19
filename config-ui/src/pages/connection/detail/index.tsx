@@ -16,13 +16,15 @@
  *
  */
 
-import { useState, useEffect, useMemo } from 'react';
+import { useState, useMemo } from 'react';
 import { useParams, useNavigate, Link } from 'react-router-dom';
 import { Button, Intent } from '@blueprintjs/core';
 
 import API from '@/api';
+import { useAppSelector } from '@/app/hook';
 import { PageHeader, Buttons, Dialog, IconButton, Table, Message, toast } from '@/components';
-import { useTips, useConnections, useRefreshData } from '@/hooks';
+import { selectConnection } from '@/features';
+import { useTips, useRefreshData } from '@/hooks';
 import ClearImg from '@/images/icons/clear.svg';
 import {
   ConnectionForm,
@@ -33,6 +35,7 @@ import {
   ScopeConfigForm,
   ScopeConfigSelect,
 } from '@/plugins';
+import { IConnection } from '@/types';
 import { operator } from '@/utils';
 
 import * as S from './styled';
@@ -68,15 +71,15 @@ const ConnectionDetail = ({ plugin, connectionId }: Props) => {
   const [conflict, setConflict] = useState<string[]>([]);
   const [errorMsg, setErrorMsg] = useState('');
 
+  const connection = useAppSelector((state) => selectConnection(state, `${plugin}-${connectionId}`)) as IConnection;
   const navigate = useNavigate();
-  const { onGet, onTest, onRefresh } = useConnections();
   const { setTips } = useTips();
   const { ready, data } = useRefreshData(
     () => API.scope.list(plugin, connectionId, { page, pageSize, blueprint: true }),
     [version, page, pageSize],
   );
 
-  const { unique, status, name, icon } = onGet(`${plugin}-${connectionId}`) || {};
+  const { name, icon } = connection;
 
   const pluginConfig = useMemo(() => getPluginConfig(plugin), [plugin]);
 
@@ -93,10 +96,6 @@ const ConnectionDetail = ({ plugin, connectionId }: Props) => {
     ],
     [data],
   );
-
-  useEffect(() => {
-    onTest(`${plugin}-${connectionId}`);
-  }, [plugin, connectionId]);
 
   const handleHideDialog = () => {
     setType(undefined);
@@ -129,7 +128,6 @@ const ConnectionDetail = ({ plugin, connectionId }: Props) => {
 
     if (res.status === 'success') {
       toast.success('Delete Connection Successful.');
-      onRefresh(plugin);
       navigate('/connections');
     } else if (res.status === 'conflict') {
       setType('deleteConnectionFailed');
@@ -146,7 +144,6 @@ const ConnectionDetail = ({ plugin, connectionId }: Props) => {
   };
 
   const handleUpdate = () => {
-    onRefresh(plugin);
     handleHideDialog();
   };
 
@@ -250,7 +247,7 @@ const ConnectionDetail = ({ plugin, connectionId }: Props) => {
       extra={
         <S.PageHeaderExtra>
           <span style={{ marginRight: 4 }}>Status:</span>
-          <ConnectionStatus status={status} unique={unique} onTest={onTest} />
+          <ConnectionStatus connection={connection} />
           <Buttons style={{ marginLeft: 8 }}>
             <Button outlined intent={Intent.PRIMARY} icon="annotation" text="Edit" onClick={handleShowUpdateDialog} />
             <Button intent={Intent.DANGER} icon="trash" text="Delete" onClick={handleShowDeleteDialog} />

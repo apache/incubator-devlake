@@ -21,9 +21,10 @@ import { Button, Intent } from '@blueprintjs/core';
 import { pick } from 'lodash';
 
 import API from '@/api';
-import { ExternalLink, PageLoading, Buttons } from '@/components';
-import { useRefreshData } from '@/hooks';
-import { getPluginConfig } from '@/plugins';
+import { useAppDispatch, useAppSelector } from '@/app/hook';
+import { ExternalLink, Buttons } from '@/components';
+import { selectConnection } from '@/features/connections';
+import { PluginConfig, PluginConfigType } from '@/plugins';
 import { operator } from '@/utils';
 
 import { Form } from './fields';
@@ -40,22 +41,17 @@ export const ConnectionForm = ({ plugin, connectionId, onSuccess }: Props) => {
   const [errors, setErrors] = useState<Record<string, any>>({});
   const [operating, setOperating] = useState(false);
 
+  const dispatch = useAppDispatch();
+  const connection = useAppSelector((state) => selectConnection(state, `${plugin}-${connectionId}`));
+
   const {
     name,
     connection: { docLink, fields, initialValues },
-  } = useMemo(() => getPluginConfig(plugin), [plugin]);
+  } = useMemo(() => PluginConfig.find((p) => p.plugin === plugin) as PluginConfigType, [plugin]);
 
   const disabled = useMemo(() => {
     return Object.values(errors).some((value) => value);
   }, [errors]);
-
-  const { ready, data } = useRefreshData(async () => {
-    if (!connectionId) {
-      return {};
-    }
-
-    return API.connection.get(plugin, connectionId);
-  }, [plugin, connectionId]);
 
   const handleTest = async () => {
     await operator(
@@ -73,7 +69,7 @@ export const ConnectionForm = ({ plugin, connectionId, onSuccess }: Props) => {
             'secretKey',
             'tenantId',
             'tenantType',
-            "dbUrl",
+            'dbUrl',
           ]),
         ),
       {
@@ -98,10 +94,6 @@ export const ConnectionForm = ({ plugin, connectionId, onSuccess }: Props) => {
     }
   };
 
-  if (connectionId && !ready) {
-    return <PageLoading />;
-  }
-
   return (
     <S.Wrapper>
       <S.Tips>
@@ -112,7 +104,7 @@ export const ConnectionForm = ({ plugin, connectionId, onSuccess }: Props) => {
         <Form
           name={name}
           fields={fields}
-          initialValues={{ ...initialValues, ...data }}
+          initialValues={{ ...initialValues, ...(connection ?? {}) }}
           values={values}
           errors={errors}
           setValues={setValues}
