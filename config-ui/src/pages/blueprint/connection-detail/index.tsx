@@ -212,8 +212,9 @@ export const BlueprintConnectionDetailPage = () => {
         columns={[
           {
             title: 'Data Scope',
-            dataIndex: 'name',
+            dataIndex: ['fullName', 'name'],
             key: 'name',
+            render: ({ fullName, name }) => fullName ?? name,
           },
           {
             title: 'Scope Config',
