@@ -20,13 +20,12 @@ package api
 import (
 	gocontext "context"
 	"fmt"
-	"net/url"
-
 	"github.com/apache/incubator-devlake/core/context"
 	"github.com/apache/incubator-devlake/core/errors"
 	"github.com/apache/incubator-devlake/core/plugin"
 	"github.com/apache/incubator-devlake/helpers/pluginhelper/api"
 	"github.com/apache/incubator-devlake/plugins/bamboo/models"
+	"net/url"
 )
 
 // RemoteScopes list all available scope for users
@@ -87,7 +86,7 @@ func SearchRemoteScopes(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutp
 			for _, apiResult := range resBody.SearchResults {
 				bambooPlan := models.ApiBambooPlan{
 					Key:  apiResult.SearchEntity.Key,
-					Name: apiResult.SearchEntity.PlanName,
+					Name: apiResult.SearchEntity.Name(),
 				}
 				apiBambooPlans = append(apiBambooPlans, bambooPlan)
 			}
