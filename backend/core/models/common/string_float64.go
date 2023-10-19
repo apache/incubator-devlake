@@ -22,25 +22,15 @@ import (
 	"encoding/json"
 	"fmt"
 	"github.com/spf13/cast"
-	"reflect"
 )
 
 type StringFloat64 struct {
 	v float64
-	t string
-}
-
-func NewStringFloat64(f float64) *StringFloat64 {
-	return &StringFloat64{
-		v: f,
-		t: "float64",
-	}
 }
 
 func NewStringFloat64FromAny(f interface{}) *StringFloat64 {
 	return &StringFloat64{
 		v: cast.ToFloat64(f),
-		t: reflect.TypeOf(f).String(),
 	}
 }
 
@@ -56,12 +46,6 @@ func (f *StringFloat64) UnmarshalJSON(data []byte) error {
 	var i interface{}
 	if err := json.Unmarshal(data, &i); err != nil {
 		return err
-	}
-	switch i.(type) {
-	case float64:
-		f.t = "float64"
-	case string:
-		f.t = "string"
 	}
 	value, err := cast.ToFloat64E(i)
 	if err != nil {
@@ -83,12 +67,10 @@ func (f *StringFloat64) Scan(v interface{}) error {
 	case float64:
 		*f = StringFloat64{
 			v: value,
-			t: "float64",
 		}
 	case string:
 		*f = StringFloat64{
 			v: cast.ToFloat64(value),
-			t: "string",
 		}
 	default:
 		return fmt.Errorf("%+v is an unknown type, with value: %v", v, value)
