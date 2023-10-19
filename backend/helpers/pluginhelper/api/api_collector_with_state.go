@@ -246,7 +246,8 @@ func NewStatefulApiCollectorForFinalizableEntity(args FinalizableApiCollectorArg
 		return nil, err
 	}
 
-	if args.CollectUnfinishedDetails == nil {
+	syncPolicy := args.Ctx.TaskContext().SyncPolicy()
+	if args.CollectUnfinishedDetails == nil || (syncPolicy != nil && syncPolicy.FullSync) {
 		return manager, nil
 	}
 

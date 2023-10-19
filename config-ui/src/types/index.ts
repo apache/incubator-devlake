@@ -16,48 +16,4 @@
  *
  */
 
-import styled from 'styled-components';
-
-export const Transformation = styled.div`
-  .issue-tracking {
-    .issue-type {
-      .title {
-        margin-bottom: 8px;
-      }
-
-      .list {
-        padding-left: 40px;
-      }
-    }
-  }
-
-  .bp5-form-group {
-    display: flex;
-    align-items: center;
-
-    .bp5-label {
-      flex: 0 0 140px;
-    }
-
-    .bp5-form-content {
-      flex: auto;
-    }
-  }
-`;
-
-export const CICD = styled.div`
-  h3 {
-    margin-top: 16px;
-  }
-
-  .text,
-  .sub-text {
-    display: flex;
-    align-items: baseline;
-    margin-bottom: 8px;
-  }
-
-  .sub-text {
-    padding-left: 28px;
-  }
-`;
+export * from './connection';

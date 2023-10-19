@@ -16,21 +16,17 @@
  *
  */
 
-import type { PluginConfigType } from '../../types';
-import { PluginType } from '../../types';
+import { useAppSelector } from '@/app/hook';
 
-import Icon from './assets/icon.svg';
+import { selectConnection } from './slice';
+import { IConnection } from '@/types';
 
-export const WebhookConfig: PluginConfigType = {
-  plugin: 'webhook',
-  name: 'Webhook',
-  type: PluginType.Connection,
-  icon: Icon,
-  sort: 100,
-  connection: {
-    docLink: '',
-    fields: [],
-    initialValues: {},
-  },
-  dataScope: {},
+interface Props {
+  plugin: string;
+  connectionId: ID;
+}
+
+export const ConnectionName = ({ plugin, connectionId }: Props) => {
+  const connection = useAppSelector((state) => selectConnection(state, `${plugin}-${connectionId}`)) as IConnection;
+  return <span>{connection.name}</span>;
 };

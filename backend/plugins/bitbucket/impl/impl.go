@@ -45,7 +45,7 @@ var _ interface {
 	plugin.PluginSource
 } = (*Bitbucket)(nil)
 
-type Bitbucket string
+type Bitbucket struct{}
 
 func (p Bitbucket) Connection() dal.Tabler {
 	return &models.BitbucketConnection{}

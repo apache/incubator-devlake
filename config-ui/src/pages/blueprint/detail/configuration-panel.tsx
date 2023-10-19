@@ -23,7 +23,7 @@ import { Button, Intent } from '@blueprintjs/core';
 import API from '@/api';
 import { IconButton, Table, NoData, Buttons } from '@/components';
 import { getCron } from '@/config';
-import { useConnections } from '@/hooks';
+import { ConnectionName } from '@/features';
 import { getPluginConfig } from '@/plugins';
 import { formatTime, operator } from '@/utils';
 
@@ -52,20 +52,16 @@ export const ConfigurationPanel = ({ from, blueprint, onRefresh, onChangeTab }: 
     setRawPlan(JSON.stringify(blueprint.plan, null, '  '));
   }, [blueprint]);
 
-  const { onGet } = useConnections();
-
   const connections = useMemo(
     () =>
       blueprint.connections
         .filter((cs) => cs.pluginName !== 'webhook')
         .map((cs: any) => {
-          const unique = `${cs.pluginName}-${cs.connectionId}`;
           const plugin = getPluginConfig(cs.pluginName);
-          const connection = onGet(unique);
           return {
-            unique,
+            plugin: plugin.plugin,
+            connectionId: cs.connectionId,
             icon: plugin.icon,
-            name: connection?.name,
             scope: cs.scopes,
           };
         })
@@ -205,10 +201,10 @@ export const ConfigurationPanel = ({ from, blueprint, onRefresh, onChangeTab }: 
               </Buttons>
               <S.ConnectionList>
                 {connections.map((cs) => (
-                  <S.ConnectionItem key={cs.unique}>
+                  <S.ConnectionItem key={`${cs.plugin}-${cs.connectionId}`}>
                     <div className="title">
                       <img src={cs.icon} alt="" />
-                      <span>{cs.name}</span>
+                      <ConnectionName plugin={cs.plugin} connectionId={cs.connectionId} />
                     </div>
                     <div className="count">
                       <span>{cs.scope.length} data scope</span>
@@ -217,8 +213,8 @@ export const ConfigurationPanel = ({ from, blueprint, onRefresh, onChangeTab }: 
                       <Link
                         to={
                           from === FromEnum.blueprint
-                            ? `/blueprints/${blueprint.id}/${cs.unique}`
-                            : `/projects/${encodeName(blueprint.projectName)}/${cs.unique}`
+                            ? `/blueprints/${blueprint.id}/${cs.plugin}-${cs.connectionId}`
+                            : `/projects/${encodeName(blueprint.projectName)}/${cs.plugin}-${cs.connectionId}`
                         }
                       >
                         Edit Data Scope and Scope Config
@@ -273,7 +269,7 @@ export const ConfigurationPanel = ({ from, blueprint, onRefresh, onChangeTab }: 
       )}
       {type === 'add-connection' && (
         <AddConnectionDialog
-          disabled={connections.map((cs) => cs.unique)}
+          disabled={connections.map((cs) => `${cs.plugin}-${cs.connectionId}`)}
           onCancel={handleCancel}
           onSubmit={(connection) =>
             handleUpdate({

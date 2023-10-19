@@ -46,7 +46,7 @@ var _ interface {
 	plugin.CloseablePluginTask
 } = (*Gitlab)(nil)
 
-type Gitlab string
+type Gitlab struct{}
 
 func init() {
 	// check subtask meta loop when init subtask meta
@@ -247,7 +247,7 @@ func (p Gitlab) ApiResources() map[string]map[string]plugin.ApiResourceHandler {
 			"POST": api.CreateScopeConfig,
 			"GET":  api.GetScopeConfigList,
 		},
-		"connections/:connectionId/scope-configs/:id": {
+		"connections/:connectionId/scope-configs/:scopeConfigId": {
 			"PATCH":  api.PatchScopeConfig,
 			"GET":    api.GetScopeConfig,
 			"DELETE": api.DeleteScopeConfig,
