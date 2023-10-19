@@ -40,7 +40,7 @@ func MakeDataSourcePipelinePlanV200(
 	bpScopes []*coreModels.BlueprintScope,
 ) (coreModels.PipelinePlan, []plugin.Scope, errors.Error) {
 	// get the connection info for url
-	connection := &models.BitbucketConnection{}
+	connection := &models.BitbucketServerConnection{}
 	err := connectionHelper.FirstById(connection, connectionId)
 	if err != nil {
 		return nil, nil, err
@@ -63,7 +63,7 @@ func makeDataSourcePipelinePlanV200(
 	subtaskMetas []plugin.SubTaskMeta,
 	plan coreModels.PipelinePlan,
 	bpScopes []*coreModels.BlueprintScope,
-	connection *models.BitbucketConnection,
+	connection *models.BitbucketServerConnection,
 ) (coreModels.PipelinePlan, errors.Error) {
 	for i, bpScope := range bpScopes {
 		stage := plan[i]
@@ -139,7 +139,7 @@ func makeDataSourcePipelinePlanV200(
 	return plan, nil
 }
 
-func makeScopesV200(bpScopes []*coreModels.BlueprintScope, connection *models.BitbucketConnection) ([]plugin.Scope, errors.Error) {
+func makeScopesV200(bpScopes []*coreModels.BlueprintScope, connection *models.BitbucketServerConnection) ([]plugin.Scope, errors.Error) {
 	scopes := make([]plugin.Scope, 0)
 	for _, bpScope := range bpScopes {
 		repo, scopeConfig, err := scopeHelper.DbHelper().GetScopeAndConfig(connection.ID, bpScope.ScopeId)

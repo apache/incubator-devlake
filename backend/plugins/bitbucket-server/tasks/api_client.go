@@ -24,7 +24,7 @@ import (
 	"github.com/apache/incubator-devlake/plugins/bitbucket-server/models"
 )
 
-func CreateApiClient(taskCtx plugin.TaskContext, connection *models.BitbucketConnection) (*api.ApiAsyncClient, errors.Error) {
+func CreateApiClient(taskCtx plugin.TaskContext, connection *models.BitbucketServerConnection) (*api.ApiAsyncClient, errors.Error) {
 	// create synchronize api client so we can calculate api rate limit dynamically
 	apiClient, err := api.NewApiClientFromConnection(taskCtx.GetContext(), taskCtx, connection)
 	if err != nil {

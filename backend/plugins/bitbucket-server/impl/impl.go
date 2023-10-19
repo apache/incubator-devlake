@@ -48,7 +48,7 @@ var _ interface {
 type BitbucketServer string
 
 func (p BitbucketServer) Connection() dal.Tabler {
-	return &models.BitbucketConnection{}
+	return &models.BitbucketServerConnection{}
 }
 
 func (p BitbucketServer) Scope() plugin.ToolLayerScope {
@@ -67,7 +67,7 @@ func (p BitbucketServer) Init(basicRes context.BasicRes) errors.Error {
 
 func (p BitbucketServer) GetTablesInfo() []dal.Tabler {
 	return []dal.Tabler{
-		&models.BitbucketConnection{},
+		&models.BitbucketServerConnection{},
 		&models.BitbucketAccount{},
 		&models.BitbucketCommit{},
 		&models.BitbucketPullRequest{},
@@ -101,33 +101,12 @@ func (p BitbucketServer) SubTaskMetas() []plugin.SubTaskMeta {
 		tasks.CollectApiCommitsMeta,
 		tasks.ExtractApiCommitsMeta,
 
-		tasks.CollectApiIssuesMeta,
-		tasks.ExtractApiIssuesMeta,
-
-		tasks.CollectApiIssueCommentsMeta,
-		tasks.ExtractApiIssueCommentsMeta,
-
-		tasks.CollectApiPipelinesMeta,
-		tasks.ExtractApiPipelinesMeta,
-
-		tasks.CollectApiDeploymentsMeta,
-		tasks.ExtractApiDeploymentsMeta,
-
-		// must run after deployment to match
-		tasks.CollectPipelineStepsMeta,
-		tasks.ExtractPipelineStepsMeta,
-
 		tasks.ConvertRepoMeta,
 		tasks.ConvertAccountsMeta,
 		tasks.ConvertPullRequestsMeta,
 		tasks.ConvertPrCommentsMeta,
 		tasks.ConvertPrCommitsMeta,
 		tasks.ConvertCommitsMeta,
-		tasks.ConvertIssuesMeta,
-		tasks.ConvertIssueCommentsMeta,
-		tasks.ConvertPipelineMeta,
-		tasks.ConvertPipelineStepMeta,
-		tasks.ConvertiDeploymentMeta,
 	}
 }
 
@@ -143,7 +122,7 @@ func (p BitbucketServer) PrepareTaskData(taskCtx plugin.TaskContext, options map
 		nil,
 		p.Name(),
 	)
-	connection := &models.BitbucketConnection{}
+	connection := &models.BitbucketServerConnection{}
 	err = connectionHelper.FirstById(connection, op.ConnectionId)
 	if err != nil {
 		return nil, errors.Default.Wrap(err, "unable to get bitbucket server connection by the given connection ID")

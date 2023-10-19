@@ -31,7 +31,7 @@ import (
 
 type BitBucketTestConnResponse struct {
 	shared.ApiBody
-	Connection *models.BitbucketConn
+	Connection *models.BitbucketServerConn
 }
 
 // @Summary test bitbucket connection
@@ -45,7 +45,7 @@ type BitBucketTestConnResponse struct {
 func TestConnection(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, errors.Error) {
 	// decode
 	var err errors.Error
-	var connection models.BitbucketConn
+	var connection models.BitbucketServerConn
 	if err := api.Decode(input.Body, &connection, vld); err != nil {
 		return nil, errors.BadInput.Wrap(err, "could not decode request parameters")
 	}
@@ -84,7 +84,7 @@ func TestConnection(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, 
 // @Router /plugins/bitbucket/connections [POST]
 func PostConnections(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, errors.Error) {
 	// update from request and save to database
-	connection := &models.BitbucketConnection{}
+	connection := &models.BitbucketServerConnection{}
 	err := connectionHelper.Create(connection, input)
 	if err != nil {
 		return nil, err
@@ -101,7 +101,7 @@ func PostConnections(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput,
 // @Failure 500  {string} errcode.Error "Internal Error"
 // @Router /plugins/bitbucket/connections/{connectionId} [PATCH]
 func PatchConnection(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, errors.Error) {
-	connection := &models.BitbucketConnection{}
+	connection := &models.BitbucketServerConnection{}
 	err := connectionHelper.Patch(connection, input)
 	if err != nil {
 		return nil, err
@@ -118,7 +118,7 @@ func PatchConnection(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput,
 // @Failure 500  {string} errcode.Error "Internal Error"
 // @Router /plugins/bitbucket/connections/{connectionId} [DELETE]
 func DeleteConnection(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, errors.Error) {
-	return connectionHelper.Delete(&models.BitbucketConnection{}, input)
+	return connectionHelper.Delete(&models.BitbucketServerConnection{}, input)
 }
 
 // @Summary get all bitbucket connections
@@ -129,7 +129,7 @@ func DeleteConnection(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput
 // @Failure 500  {string} errcode.Error "Internal Error"
 // @Router /plugins/bitbucket/connections [GET]
 func ListConnections(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, errors.Error) {
-	var connections []models.BitbucketConnection
+	var connections []models.BitbucketServerConnection
 	err := connectionHelper.List(&connections)
 	if err != nil {
 		return nil, err
@@ -145,7 +145,7 @@ func ListConnections(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput,
 // @Failure 500  {string} errcode.Error "Internal Error"
 // @Router /plugins/bitbucket/connections/{connectionId} [GET]
 func GetConnection(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, errors.Error) {
-	connection := &models.BitbucketConnection{}
+	connection := &models.BitbucketServerConnection{}
 	err := connectionHelper.First(connection, input.Params)
 	return &plugin.ApiResourceOutput{Body: connection}, err
 }

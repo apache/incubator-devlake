@@ -22,20 +22,20 @@ import (
 	"github.com/apache/incubator-devlake/helpers/pluginhelper/api"
 )
 
-var _ plugin.ApiConnection = (*BitbucketConnection)(nil)
+var _ plugin.ApiConnection = (*BitbucketServerConnection)(nil)
 
-// BitbucketConn holds the essential information to connect to the Bitbucket API
-type BitbucketConn struct {
+// BitbucketServerConn holds the essential information to connect to the Bitbucket API
+type BitbucketServerConn struct {
 	api.RestConnection `mapstructure:",squash"`
 	api.BasicAuth      `mapstructure:",squash"`
 }
 
-// BitbucketConnection holds BitbucketConn plus ID/Name for database storage
-type BitbucketConnection struct {
-	api.BaseConnection `mapstructure:",squash"`
-	BitbucketConn      `mapstructure:",squash"`
+// BitbucketServerConnection holds BitbucketServerConn plus ID/Name for database storage
+type BitbucketServerConnection struct {
+	api.BaseConnection  `mapstructure:",squash"`
+	BitbucketServerConn `mapstructure:",squash"`
 }
 
-func (BitbucketConnection) TableName() string {
+func (BitbucketServerConnection) TableName() string {
 	return "_tool_bitbucket_server_connections"
 }

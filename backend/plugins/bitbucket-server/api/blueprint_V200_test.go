@@ -36,14 +36,14 @@ import (
 )
 
 func TestMakeDataSourcePipelinePlanV200(t *testing.T) {
-	connection := &models.BitbucketConnection{
+	connection := &models.BitbucketServerConnection{
 		BaseConnection: helper.BaseConnection{
 			Name: "bitbucket-test",
 			Model: common.Model{
 				ID: 1,
 			},
 		},
-		BitbucketConn: models.BitbucketConn{
+		BitbucketServerConn: models.BitbucketServerConn{
 			RestConnection: helper.RestConnection{
 				Endpoint:         "https://api.bitbucket.org/2.0/",
 				Proxy:            "",
