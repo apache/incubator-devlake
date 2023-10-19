@@ -30,7 +30,7 @@ import (
 	"github.com/mitchellh/mapstructure"
 )
 
-var defaultCustomDecoders = []mapstructure.DecodeHookFunc{decodeHookStringFloat64, DecodeHook}
+var defaultCustomDecoderHooks = []mapstructure.DecodeHookFunc{decodeHookStringFloat64, DecodeHook}
 
 func decodeHookStringFloat64(f reflect.Type, t reflect.Type, data interface{}) (interface{}, error) {
 	if f.Kind() == reflect.Float64 && t.Kind() == reflect.Struct && t == reflect.TypeOf(common.StringFloat64{}) {
@@ -80,7 +80,7 @@ func DecodeMapStruct(input map[string]interface{}, result interface{}, zeroField
 	result = models.UnwrapObject(result)
 	decoder, err := mapstructure.NewDecoder(&mapstructure.DecoderConfig{
 		ZeroFields:       zeroFields,
-		DecodeHook:       mapstructure.ComposeDecodeHookFunc(defaultCustomDecoders...),
+		DecodeHook:       mapstructure.ComposeDecodeHookFunc(defaultCustomDecoderHooks...),
 		Result:           result,
 		WeaklyTypedInput: true,
 	})
