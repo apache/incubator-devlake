@@ -27,7 +27,7 @@ import { JiraConfig } from './register/jira';
 import { PagerDutyConfig } from './register/pagerduty';
 import { SonarQubeConfig } from './register/sonarqube';
 import { TAPDConfig } from './register/tapd';
-import { WebhookConfig } from './register/webook';
+import { WebhookConfig } from './register/webhook';
 import { TeambitionConfig } from './register/teambition';
 import { ZenTaoConfig } from './register/zentao';
 
