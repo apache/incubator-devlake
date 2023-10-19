@@ -31,7 +31,7 @@ export const get = (
     id: string;
     apiKey: string;
   };
-}> => connection.get('webook', id) as any;
+}> => connection.get('webhook', id) as any;
 
 export const create = (payload: any): Promise<{ id: string; apiKey: { apiKey: string } }> =>
   connection.create('webhook', payload) as any;

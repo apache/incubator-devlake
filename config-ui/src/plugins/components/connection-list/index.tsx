@@ -23,7 +23,7 @@ import { Table } from '@/components';
 import { useConnections } from '@/hooks';
 import { ConnectionStatus } from '@/plugins';
 
-import { WebHookConnection } from '@/plugins/register/webook';
+import { WebHookConnection } from '@/plugins/register/webhook';
 
 interface Props {
   plugin: string;
