@@ -22,6 +22,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"github.com/spf13/cast"
+	"reflect"
 )
 
 type StringFloat64 struct {
@@ -29,14 +30,25 @@ type StringFloat64 struct {
 	t string
 }
 
+func NewStringFloat64(f float64) *StringFloat64 {
+	return &StringFloat64{
+		v: f,
+		t: "float64",
+	}
+}
+
+func NewStringFloat64FromAny(f interface{}) *StringFloat64 {
+	return &StringFloat64{
+		v: cast.ToFloat64(f),
+		t: reflect.TypeOf(f).String(),
+	}
+}
+
 func (f *StringFloat64) MarshalJSON() ([]byte, error) {
-	return json.Marshal(f.String())
+	return json.Marshal(f.v)
 }
 
 func (f *StringFloat64) String() string {
-	if f.t == "string" {
-		return fmt.Sprintf("\"%v\"", f.v)
-	}
 	return fmt.Sprintf("%v", f.v)
 }
 
