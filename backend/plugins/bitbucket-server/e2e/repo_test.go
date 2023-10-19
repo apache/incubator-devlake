@@ -27,15 +27,15 @@ import (
 	"github.com/apache/incubator-devlake/core/models/domainlayer/ticket"
 	"github.com/apache/incubator-devlake/helpers/e2ehelper"
 	"github.com/apache/incubator-devlake/helpers/pluginhelper"
-	"github.com/apache/incubator-devlake/plugins/bitbucket/impl"
-	"github.com/apache/incubator-devlake/plugins/bitbucket/models"
-	"github.com/apache/incubator-devlake/plugins/bitbucket/tasks"
+	"github.com/apache/incubator-devlake/plugins/bitbucket-server/impl"
+	"github.com/apache/incubator-devlake/plugins/bitbucket-server/models"
+	"github.com/apache/incubator-devlake/plugins/bitbucket-server/tasks"
 	"github.com/stretchr/testify/assert"
 )
 
 func TestRepoDataFlow(t *testing.T) {
 	var plugin impl.Bitbucket
-	dataflowTester := e2ehelper.NewDataFlowTester(t, "bitbucket", plugin)
+	dataflowTester := e2ehelper.NewDataFlowTester(t, "bitbucket-server", plugin)
 
 	taskData := &tasks.BitbucketTaskData{
 		Options: &tasks.BitbucketOptions{
@@ -65,7 +65,7 @@ func TestRepoDataFlow(t *testing.T) {
 	assert.Nil(t, err)
 	dataflowTester.VerifyTable(
 		models.BitbucketRepo{},
-		"./snapshot_tables/_tool_bitbucket_repos.csv",
+		"./snapshot_tables/_tool_bitbucket_server_repos.csv",
 		e2ehelper.ColumnWithRawData(
 			"connection_id",
 			"bitbucket_id",

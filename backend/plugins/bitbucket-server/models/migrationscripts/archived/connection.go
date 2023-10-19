@@ -20,6 +20,7 @@ package archived
 import (
 	"encoding/base64"
 	"fmt"
+
 	"github.com/apache/incubator-devlake/core/models/migrationscripts/archived"
 )
 
@@ -64,5 +65,5 @@ type BitbucketConnection struct {
 }
 
 func (BitbucketConnection) TableName() string {
-	return "_tool_bitbucket_connections"
+	return "_tool_bitbucket_server_connections"
 }

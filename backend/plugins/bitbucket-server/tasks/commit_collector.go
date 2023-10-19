@@ -23,7 +23,7 @@ import (
 	helper "github.com/apache/incubator-devlake/helpers/pluginhelper/api"
 )
 
-const RAW_COMMIT_TABLE = "bitbucket_api_commits"
+const RAW_COMMIT_TABLE = "bitbucket_server_api_commits"
 
 var CollectApiCommitsMeta = plugin.SubTaskMeta{
 	Name:             "collectApiCommits",

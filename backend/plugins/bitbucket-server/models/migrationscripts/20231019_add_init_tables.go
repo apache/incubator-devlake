@@ -21,22 +21,22 @@ import (
 	"github.com/apache/incubator-devlake/core/context"
 	"github.com/apache/incubator-devlake/core/errors"
 	"github.com/apache/incubator-devlake/helpers/migrationhelper"
-	"github.com/apache/incubator-devlake/plugins/bitbucket/models/migrationscripts/archived"
+	"github.com/apache/incubator-devlake/plugins/bitbucket-server/models/migrationscripts/archived"
 )
 
-type addInitTables20220803 struct{}
+type addInitTables20231019 struct{}
 
-func (script *addInitTables20220803) Up(basicRes context.BasicRes) errors.Error {
+func (script *addInitTables20231019) Up(basicRes context.BasicRes) errors.Error {
 	err := basicRes.GetDal().DropTables(
 		//history table
-		&archived.BitbucketRepo{},
-		&archived.BitbucketRepoCommit{},
 		&archived.BitbucketAccount{},
 		&archived.BitbucketCommit{},
 		&archived.BitbucketPullRequest{},
-		&archived.BitbucketIssue{},
 		&archived.BitbucketPrComment{},
-		&archived.BitbucketIssueComment{},
+		&archived.BitbucketPrCommit{},
+		&archived.BitbucketRepo{},
+		&archived.BitbucketRepoCommit{},
+		&archived.BitbucketScopeConfig{},
 	)
 	if err != nil {
 		return err
@@ -44,22 +44,22 @@ func (script *addInitTables20220803) Up(basicRes context.BasicRes) errors.Error 
 
 	return migrationhelper.AutoMigrateTables(
 		basicRes,
-		&archived.BitbucketRepo{},
-		&archived.BitbucketRepoCommit{},
-		&archived.BitbucketConnection{},
 		&archived.BitbucketAccount{},
 		&archived.BitbucketCommit{},
+		&archived.BitbucketConnection{},
 		&archived.BitbucketPullRequest{},
-		&archived.BitbucketIssue{},
 		&archived.BitbucketPrComment{},
-		&archived.BitbucketIssueComment{},
+		&archived.BitbucketPrCommit{},
+		&archived.BitbucketRepo{},
+		&archived.BitbucketRepoCommit{},
+		&archived.BitbucketScopeConfig{},
 	)
 }
 
-func (*addInitTables20220803) Version() uint64 {
-	return 20220803220824
+func (*addInitTables20231019) Version() uint64 {
+	return 20231019220824
 }
 
-func (*addInitTables20220803) Name() string {
+func (*addInitTables20231019) Name() string {
 	return "Bitbucket init schema 20220803"
 }

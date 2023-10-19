@@ -18,8 +18,9 @@ limitations under the License.
 package archived
 
 import (
-	"github.com/apache/incubator-devlake/core/models/migrationscripts/archived"
 	"time"
+
+	"github.com/apache/incubator-devlake/core/models/migrationscripts/archived"
 )
 
 type BitbucketPullRequest struct {
@@ -53,5 +54,5 @@ type BitbucketPullRequest struct {
 }
 
 func (BitbucketPullRequest) TableName() string {
-	return "_tool_bitbucket_pull_requests"
+	return "_tool_bitbucket_server_pull_requests"
 }

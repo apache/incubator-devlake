@@ -23,7 +23,7 @@ import (
 	"github.com/apache/incubator-devlake/core/models/migrationscripts/archived"
 )
 
-type BitbucketTransformationRule struct {
+type BitbucketScopeConfig struct {
 	archived.Model
 	Name              string          `gorm:"type:varchar(255);index:idx_name_github,unique"`
 	DeploymentPattern string          `gorm:"type:varchar(255)"`
@@ -37,6 +37,6 @@ type BitbucketTransformationRule struct {
 	IssueStatusOther      string `gorm:"type:varchar(255)"`
 }
 
-func (BitbucketTransformationRule) TableName() string {
-	return "_tool_bitbucket_transformation_rules"
+func (BitbucketScopeConfig) TableName() string {
+	return "_tool_bitbucket_scope_configs"
 }

@@ -23,7 +23,7 @@ import (
 	"github.com/apache/incubator-devlake/core/errors"
 	"github.com/apache/incubator-devlake/core/plugin"
 	"github.com/apache/incubator-devlake/helpers/pluginhelper/api"
-	"github.com/apache/incubator-devlake/plugins/bitbucket/models"
+	"github.com/apache/incubator-devlake/plugins/bitbucket-server/models"
 )
 
 type ScopeRes struct {
@@ -43,7 +43,7 @@ type ScopeReq api.ScopeReq[models.BitbucketRepo]
 // @Success 200  {object} []models.BitbucketRepo
 // @Failure 400  {object} shared.ApiBody "Bad Request"
 // @Failure 500  {object} shared.ApiBody "Internal Error"
-// @Router /plugins/bitbucket/connections/{connectionId}/scopes [PUT]
+// @Router /plugins/bitbucket-server/connections/{connectionId}/scopes [PUT]
 func PutScope(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, errors.Error) {
 	return scopeHelper.Put(input)
 }
@@ -59,7 +59,7 @@ func PutScope(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, errors
 // @Success 200  {object} models.BitbucketRepo
 // @Failure 400  {object} shared.ApiBody "Bad Request"
 // @Failure 500  {object} shared.ApiBody "Internal Error"
-// @Router /plugins/bitbucket/connections/{connectionId}/scopes/{scopeId} [PATCH]
+// @Router /plugins/bitbucket-server/connections/{connectionId}/scopes/{scopeId} [PATCH]
 func UpdateScope(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, errors.Error) {
 	input.Params["scopeId"] = strings.TrimLeft(input.Params["scopeId"], "/")
 	return scopeHelper.Update(input)
@@ -77,7 +77,7 @@ func UpdateScope(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, err
 // @Success 200  {object} []ScopeRes
 // @Failure 400  {object} shared.ApiBody "Bad Request"
 // @Failure 500  {object} shared.ApiBody "Internal Error"
-// @Router /plugins/bitbucket/connections/{connectionId}/scopes/ [GET]
+// @Router /plugins/bitbucket-server/connections/{connectionId}/scopes/ [GET]
 func GetScopeList(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, errors.Error) {
 	return scopeHelper.GetScopeList(input)
 }
@@ -91,7 +91,7 @@ func GetScopeList(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, er
 // @Success 200  {object} ScopeRes
 // @Failure 400  {object} shared.ApiBody "Bad Request"
 // @Failure 500  {object} shared.ApiBody "Internal Error"
-// @Router /plugins/bitbucket/connections/{connectionId}/scopes/{scopeId} [GET]
+// @Router /plugins/bitbucket-server/connections/{connectionId}/scopes/{scopeId} [GET]
 func GetScope(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, errors.Error) {
 	input.Params["scopeId"] = strings.TrimLeft(input.Params["scopeId"], "/")
 	return scopeHelper.GetScope(input)
@@ -108,7 +108,7 @@ func GetScope(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, errors
 // @Failure 400  {object} shared.ApiBody "Bad Request"
 // @Failure 409  {object} api.ScopeRefDoc "References exist to this scope"
 // @Failure 500  {object} shared.ApiBody "Internal Error"
-// @Router /plugins/bitbucket/connections/{connectionId}/scopes/{scopeId} [DELETE]
+// @Router /plugins/bitbucket-server/connections/{connectionId}/scopes/{scopeId} [DELETE]
 func DeleteScope(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, errors.Error) {
 	return scopeHelper.Delete(input)
 }

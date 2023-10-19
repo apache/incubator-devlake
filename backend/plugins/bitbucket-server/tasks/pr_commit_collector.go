@@ -26,7 +26,7 @@ import (
 	helper "github.com/apache/incubator-devlake/helpers/pluginhelper/api"
 )
 
-const RAW_PULL_REQUEST_COMMITS_TABLE = "bitbucket_api_pull_request_commits"
+const RAW_PULL_REQUEST_COMMITS_TABLE = "bitbucket_server_api_pull_request_commits"
 
 var CollectApiPrCommitsMeta = plugin.SubTaskMeta{
 	Name:             "collectApiPullRequestCommits",

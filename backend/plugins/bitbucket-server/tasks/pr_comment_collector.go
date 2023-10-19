@@ -23,7 +23,7 @@ import (
 	helper "github.com/apache/incubator-devlake/helpers/pluginhelper/api"
 )
 
-const RAW_PULL_REQUEST_COMMENTS_TABLE = "bitbucket_api_pull_request_comments"
+const RAW_PULL_REQUEST_COMMENTS_TABLE = "bitbucket_server_api_pull_request_comments"
 
 var CollectApiPrCommentsMeta = plugin.SubTaskMeta{
 	Name:             "collectApiPullRequestsComments",

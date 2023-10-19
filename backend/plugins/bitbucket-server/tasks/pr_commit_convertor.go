@@ -34,7 +34,7 @@ var ConvertPrCommitsMeta = plugin.SubTaskMeta{
 	Name:             "convertPullRequestCommits",
 	EntryPoint:       ConvertPullRequestCommits,
 	EnabledByDefault: true,
-	Description:      "Convert tool layer table bitbucket_pull_request_commits into  domain layer table pull_request_commits",
+	Description:      "Convert tool layer table bitbucket_server_pull_request_commits into  domain layer table pull_request_commits",
 	DomainTypes:      []string{plugin.DOMAIN_TYPE_CODE_REVIEW},
 }
 

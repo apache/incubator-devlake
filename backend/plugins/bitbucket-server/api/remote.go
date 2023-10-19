@@ -28,7 +28,7 @@ import (
 	"github.com/apache/incubator-devlake/core/errors"
 	"github.com/apache/incubator-devlake/core/plugin"
 	"github.com/apache/incubator-devlake/helpers/pluginhelper/api"
-	"github.com/apache/incubator-devlake/plugins/bitbucket/models"
+	"github.com/apache/incubator-devlake/plugins/bitbucket-server/models"
 )
 
 // RemoteScopes list all available scope for users
@@ -42,10 +42,10 @@ import (
 // @Success 200  {object} api.RemoteScopesOutput
 // @Failure 400  {object} shared.ApiBody "Bad Request"
 // @Failure 500  {object} shared.ApiBody "Internal Error"
-// @Router /plugins/bitbucket/connections/{connectionId}/remote-scopes [GET]
+// @Router /plugins/bitbucket-server/connections/{connectionId}/remote-scopes [GET]
 func RemoteScopes(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, errors.Error) {
 	return remoteHelper.GetScopesFromRemote(input,
-		func(basicRes context.BasicRes, gid string, queryData *api.RemoteQueryData, connection models.BitbucketConnection) ([]models.GroupResponse, errors.Error) {
+		func(basicRes context.BasicRes, gid string, queryData *api.RemoteQueryData, connection models.BitbucketServerConnection) ([]models.GroupResponse, errors.Error) {
 			if gid != "" {
 				return nil, nil
 			}
@@ -71,7 +71,7 @@ func RemoteScopes(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, er
 
 			return resBody.Values, err
 		},
-		func(basicRes context.BasicRes, gid string, queryData *api.RemoteQueryData, connection models.BitbucketConnection) ([]models.BitbucketApiRepo, errors.Error) {
+		func(basicRes context.BasicRes, gid string, queryData *api.RemoteQueryData, connection models.BitbucketServerConnection) ([]models.BitbucketApiRepo, errors.Error) {
 			if gid == "" {
 				return nil, nil
 			}
@@ -110,10 +110,10 @@ func RemoteScopes(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, er
 // @Success 200  {object} api.SearchRemoteScopesOutput
 // @Failure 400  {object} shared.ApiBody "Bad Request"
 // @Failure 500  {object} shared.ApiBody "Internal Error"
-// @Router /plugins/bitbucket/connections/{connectionId}/search-remote-scopes [GET]
+// @Router /plugins/bitbucket-server/connections/{connectionId}/search-remote-scopes [GET]
 func SearchRemoteScopes(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, errors.Error) {
 	return remoteHelper.SearchRemoteScopes(input,
-		func(basicRes context.BasicRes, queryData *api.RemoteQueryData, connection models.BitbucketConnection) ([]models.BitbucketApiRepo, errors.Error) {
+		func(basicRes context.BasicRes, queryData *api.RemoteQueryData, connection models.BitbucketServerConnection) ([]models.BitbucketApiRepo, errors.Error) {
 			// create api client
 			apiClient, err := api.NewApiClientFromConnection(gocontext.TODO(), basicRes, &connection)
 			if err != nil {

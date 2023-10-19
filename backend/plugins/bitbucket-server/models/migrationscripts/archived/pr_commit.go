@@ -29,5 +29,5 @@ type BitbucketPrCommit struct {
 }
 
 func (BitbucketPrCommit) TableName() string {
-	return "_tool_bitbucket_pull_request_commits"
+	return "_tool_bitbucket_server_pull_request_commits"
 }

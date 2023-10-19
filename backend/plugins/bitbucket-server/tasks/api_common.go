@@ -169,7 +169,7 @@ func GetPullRequestsIterator(taskCtx plugin.SubTaskContext, collectorWithState *
 	data := taskCtx.GetData().(*BitbucketTaskData)
 	clauses := []dal.Clause{
 		dal.Select("bpr.bitbucket_id"),
-		dal.From("_tool_bitbucket_pull_requests bpr"),
+		dal.From("_tool_bitbucket_server_pull_requests bpr"),
 		dal.Where(
 			`bpr.repo_id = ? and bpr.connection_id = ?`,
 			data.Options.FullName, data.Options.ConnectionId,
@@ -186,52 +186,6 @@ func GetPullRequestsIterator(taskCtx plugin.SubTaskContext, collectorWithState *
 	}
 
 	return api.NewDalCursorIterator(db, cursor, reflect.TypeOf(BitbucketInput{}))
-}
-
-func GetIssuesIterator(taskCtx plugin.SubTaskContext, collectorWithState *api.ApiCollectorStateManager) (*api.DalCursorIterator, errors.Error) {
-	db := taskCtx.GetDal()
-	data := taskCtx.GetData().(*BitbucketTaskData)
-	clauses := []dal.Clause{
-		dal.Select("bpr.bitbucket_id"),
-		dal.From("_tool_bitbucket_issues bpr"),
-		dal.Where(
-			`bpr.repo_id = ? and bpr.connection_id = ?`,
-			data.Options.FullName, data.Options.ConnectionId,
-		),
-	}
-	if collectorWithState.IsIncreamtal && collectorWithState.Since != nil {
-		clauses = append(clauses, dal.Where("bitbucket_updated_at > ?", *collectorWithState.Since))
-	}
-	// construct the input iterator
-	cursor, err := db.Cursor(clauses...)
-	if err != nil {
-		return nil, err
-	}
-
-	return api.NewDalCursorIterator(db, cursor, reflect.TypeOf(BitbucketInput{}))
-}
-
-func GetPipelinesIterator(taskCtx plugin.SubTaskContext, collectorWithState *api.ApiCollectorStateManager) (*api.DalCursorIterator, errors.Error) {
-	db := taskCtx.GetDal()
-	data := taskCtx.GetData().(*BitbucketTaskData)
-	clauses := []dal.Clause{
-		dal.Select("bpr.bitbucket_id"),
-		dal.From("_tool_bitbucket_pipelines bpr"),
-		dal.Where(
-			`bpr.repo_id = ? and bpr.connection_id = ?`,
-			data.Options.FullName, data.Options.ConnectionId,
-		),
-	}
-	if collectorWithState.IsIncreamtal && collectorWithState.Since != nil {
-		clauses = append(clauses, dal.Where("bitbucket_complete_on > ?", *collectorWithState.Since))
-	}
-	// construct the input iterator
-	cursor, err := db.Cursor(clauses...)
-	if err != nil {
-		return nil, err
-	}
-
-	return api.NewDalCursorIterator(db, cursor, reflect.TypeOf(BitbucketUuidInput{}))
 }
 
 func ignoreHTTPStatus404(res *http.Response) errors.Error {

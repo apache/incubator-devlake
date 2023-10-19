@@ -21,15 +21,15 @@ import (
 	"github.com/apache/incubator-devlake/core/models/common"
 	"github.com/apache/incubator-devlake/core/models/domainlayer/code"
 	"github.com/apache/incubator-devlake/helpers/e2ehelper"
-	"github.com/apache/incubator-devlake/plugins/bitbucket/impl"
-	"github.com/apache/incubator-devlake/plugins/bitbucket/models"
-	"github.com/apache/incubator-devlake/plugins/bitbucket/tasks"
+	"github.com/apache/incubator-devlake/plugins/bitbucket-server/impl"
+	"github.com/apache/incubator-devlake/plugins/bitbucket-server/models"
+	"github.com/apache/incubator-devlake/plugins/bitbucket-server/tasks"
 	"testing"
 )
 
 func TestPrCommitDataFlow(t *testing.T) {
 	var plugin impl.Bitbucket
-	dataflowTester := e2ehelper.NewDataFlowTester(t, "bitbucket", plugin)
+	dataflowTester := e2ehelper.NewDataFlowTester(t, "bitbucket-server", plugin)
 
 	taskData := &tasks.BitbucketTaskData{
 		Options: &tasks.BitbucketOptions{

@@ -29,5 +29,5 @@ type BitbucketRepoCommit struct {
 }
 
 func (BitbucketRepoCommit) TableName() string {
-	return "_tool_bitbucket_repo_commits"
+	return "_tool_bitbucket_server_repo_commits"
 }

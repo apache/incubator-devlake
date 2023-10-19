@@ -30,7 +30,7 @@ import (
 	bitbucketModels "github.com/apache/incubator-devlake/plugins/bitbucket-server/models"
 )
 
-const RAW_ACCOUNT_TABLE = "bitbucket_api_accounts"
+const RAW_ACCOUNT_TABLE = "bitbucket_server_api_accounts"
 
 var ConvertAccountsMeta = plugin.SubTaskMeta{
 	Name:             "convertAccounts",

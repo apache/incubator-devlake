@@ -35,5 +35,5 @@ type BitbucketAccount struct {
 }
 
 func (BitbucketAccount) TableName() string {
-	return "_tool_bitbucket_accounts"
+	return "_tool_bitbucket_server_accounts"
 }

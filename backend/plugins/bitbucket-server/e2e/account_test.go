@@ -21,15 +21,15 @@ import (
 	"github.com/apache/incubator-devlake/core/models/common"
 	"github.com/apache/incubator-devlake/core/models/domainlayer/crossdomain"
 	"github.com/apache/incubator-devlake/helpers/e2ehelper"
-	"github.com/apache/incubator-devlake/plugins/bitbucket/impl"
-	"github.com/apache/incubator-devlake/plugins/bitbucket/models"
-	"github.com/apache/incubator-devlake/plugins/bitbucket/tasks"
+	"github.com/apache/incubator-devlake/plugins/bitbucket-server/impl"
+	"github.com/apache/incubator-devlake/plugins/bitbucket-server/models"
+	"github.com/apache/incubator-devlake/plugins/bitbucket-server/tasks"
 	"testing"
 )
 
 func TestAccountDataFlow(t *testing.T) {
 	var plugin impl.Bitbucket
-	dataflowTester := e2ehelper.NewDataFlowTester(t, "bitbucket", plugin)
+	dataflowTester := e2ehelper.NewDataFlowTester(t, "bitbucket-server", plugin)
 
 	taskData := &tasks.BitbucketTaskData{
 		Options: &tasks.BitbucketOptions{
@@ -50,7 +50,7 @@ func TestAccountDataFlow(t *testing.T) {
 	dataflowTester.Subtask(tasks.ExtractApiPullRequestsMeta, taskData)
 	dataflowTester.VerifyTable(
 		models.BitbucketAccount{},
-		"./snapshot_tables/_tool_bitbucket_accounts.csv",
+		"./snapshot_tables/_tool_bitbucket_server_accounts.csv",
 		e2ehelper.ColumnWithRawData(
 			"connection_id",
 			"user_name",

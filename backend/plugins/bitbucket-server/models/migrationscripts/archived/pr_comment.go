@@ -18,8 +18,9 @@ limitations under the License.
 package archived
 
 import (
-	"github.com/apache/incubator-devlake/core/models/migrationscripts/archived"
 	"time"
+
+	"github.com/apache/incubator-devlake/core/models/migrationscripts/archived"
 )
 
 type BitbucketPrComment struct {
@@ -36,5 +37,5 @@ type BitbucketPrComment struct {
 }
 
 func (BitbucketPrComment) TableName() string {
-	return "_tool_bitbucket_pull_request_comments"
+	return "_tool_bitbucket_server_pull_request_comments"
 }

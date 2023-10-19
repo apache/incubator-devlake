@@ -44,8 +44,8 @@ func ConvertCommits(taskCtx plugin.SubTaskContext) errors.Error {
 	repoId := data.Options.FullName
 
 	cursor, err := db.Cursor(
-		dal.From("_tool_bitbucket_commits c"),
-		dal.Join(`left join _tool_bitbucket_repo_commits rc on (
+		dal.From("_tool_bitbucket_server_commits c"),
+		dal.Join(`left join _tool_bitbucket_server_repo_commits rc on (
 			rc.commit_sha = c.sha
 		)`),
 		dal.Select("c.*"),
