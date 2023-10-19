@@ -184,13 +184,6 @@ func NewStatefulApiCollectorForFinalizableEntity(args FinalizableApiCollectorArg
 	createdAfter := manager.Since
 	isIncremental := manager.IsIncremental
 
-	// if the sync policy is full sync, isIncremental should be false and createdAfter should be syncPolicy.TimeAfter
-	syncPolicy := args.Ctx.TaskContext().SyncPolicy()
-	if syncPolicy != nil && syncPolicy.FullSync {
-		isIncremental = false
-		createdAfter = syncPolicy.TimeAfter
-	}
-
 	// step 1: create a collector to collect newly added records
 	err = manager.InitCollector(ApiCollectorArgs{
 		ApiClient: args.ApiClient,
@@ -254,7 +247,8 @@ func NewStatefulApiCollectorForFinalizableEntity(args FinalizableApiCollectorArg
 		return nil, err
 	}
 
-	if args.CollectUnfinishedDetails == nil {
+	syncPolicy := args.Ctx.TaskContext().SyncPolicy()
+	if args.CollectUnfinishedDetails == nil || (syncPolicy != nil && syncPolicy.FullSync) {
 		return manager, nil
 	}
 
