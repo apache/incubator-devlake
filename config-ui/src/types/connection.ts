@@ -16,4 +16,28 @@
  *
  */
 
-export * from './config';
+export enum IConnectionStatus {
+  IDLE = 'idle',
+  TESTING = 'testing',
+  ONLINE = 'online',
+  OFFLINE = 'offline',
+}
+
+export interface IConnection {
+  unique: string;
+  plugin: string;
+  pluginName: string;
+  id: ID;
+  name: string;
+  status: IConnectionStatus;
+  icon: string;
+  isBeta: boolean;
+  endpoint: string;
+  proxy: string;
+  authMethod?: string;
+  token?: string;
+  username?: string;
+  password?: string;
+  appId?: string;
+  secretKey?: string;
+}

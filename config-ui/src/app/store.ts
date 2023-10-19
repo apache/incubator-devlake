@@ -16,30 +16,15 @@
  *
  */
 
-export enum ConnectionStatusEnum {
-  ONLINE = 'online',
-  OFFLINE = 'offline',
-  TESTING = 'testing',
-  NULL = 'null',
-}
+import { configureStore, ThunkAction, Action } from '@reduxjs/toolkit';
+import ConnectionSlice from '@/features/connections/slice';
 
-export type ConnectionItemType = {
-  unique: string;
-  plugin: string;
-  pluginName: string;
-  id: ID;
-  name: string;
-  status: ConnectionStatusEnum;
-  icon: string;
-  isBeta: boolean;
-  entities: string[];
-  endpoint: string;
-  proxy: string;
-  token?: string;
-  username?: string;
-  password?: string;
-  authMethod?: string;
-  appId?: string;
-  secretKey?: string;
-  dbUrl?: string;
-};
+export const store = configureStore({
+  reducer: {
+    connections: ConnectionSlice,
+  },
+});
+
+export type AppDispatch = typeof store.dispatch;
+export type RootState = ReturnType<typeof store.getState>;
+export type AppThunk<ReturnType = void> = ThunkAction<ReturnType, RootState, unknown, Action<string>>;

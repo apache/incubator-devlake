@@ -20,12 +20,10 @@ import { ExternalLink } from '@/components';
 import { DOC_URL } from '@/release';
 
 import type { PluginConfigType } from '../../types';
-import { PluginType } from '../../types';
 
 import Icon from './assets/icon.svg';
 
 export const GitLabConfig: PluginConfigType = {
-  type: PluginType.Connection,
   plugin: 'gitlab',
   name: 'GitLab',
   icon: Icon,

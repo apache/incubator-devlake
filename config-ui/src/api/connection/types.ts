@@ -27,6 +27,8 @@ export type Connection = {
   proxy: string;
   apiKey?: string;
   dbUrl?: string;
+  appId?: string;
+  secretKey?: string;
 };
 
 export type ConnectionForm = {
