@@ -21,9 +21,9 @@ import { useParams, useNavigate, Link } from 'react-router-dom';
 import { Button, Intent } from '@blueprintjs/core';
 
 import API from '@/api';
-import { useAppSelector } from '@/app/hook';
+import { useAppDispatch, useAppSelector } from '@/app/hook';
 import { PageHeader, Buttons, Dialog, IconButton, Table, Message, toast } from '@/components';
-import { selectConnection } from '@/features';
+import { selectConnection, removeConnection } from '@/features';
 import { useTips, useRefreshData } from '@/hooks';
 import ClearImg from '@/images/icons/clear.svg';
 import {
@@ -64,7 +64,9 @@ export const ConnectionDetailPage = () => {
   const { plugin, id } = useParams() as { plugin: string; id: string };
   const connectionId = +id;
 
+  const dispatch = useAppDispatch();
   const connection = useAppSelector((state) => selectConnection(state, `${plugin}-${connectionId}`)) as IConnection;
+
   const navigate = useNavigate();
   const { setTips } = useTips();
   const { ready, data } = useRefreshData(
@@ -102,7 +104,7 @@ export const ConnectionDetailPage = () => {
     const [, res] = await operator(
       async () => {
         try {
-          await API.connection.remove(plugin, connectionId);
+          await dispatch(removeConnection({ plugin, connectionId }));
           return { status: 'success' };
         } catch (err: any) {
           const { status, data } = err.response;

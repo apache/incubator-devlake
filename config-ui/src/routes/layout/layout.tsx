@@ -16,14 +16,12 @@
  *
  */
 
-import { useEffect, useRef } from 'react';
+import { useRef } from 'react';
 import { useLoaderData, Outlet, useNavigate, useLocation } from 'react-router-dom';
 import { CSSTransition } from 'react-transition-group';
 import { Menu, MenuItem, Navbar, Alignment } from '@blueprintjs/core';
 
-import { useAppDispatch } from '@/app/hook';
 import { Logo, ExternalLink, IconButton } from '@/components';
-import { init } from '@/features';
 import { DOC_URL } from '@/release';
 import { TipsContextProvider, TipsContextConsumer } from '@/store';
 
@@ -40,12 +38,6 @@ import './tips-transition.css';
 
 export const Layout = () => {
   const { version } = useLoaderData() as Awaited<ReturnType<typeof loader>>;
-
-  const dispatch = useAppDispatch();
-
-  useEffect(() => {
-    dispatch(init());
-  }, []);
 
   const navigate = useNavigate();
   const { pathname } = useLocation();
