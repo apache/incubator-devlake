@@ -21,9 +21,11 @@ import { Link, useNavigate } from 'react-router-dom';
 import { Button, InputGroup, Checkbox, Intent, FormGroup } from '@blueprintjs/core';
 import dayjs from 'dayjs';
 
+import API from '@/api';
 import { PageHeader, Table, Dialog, ExternalLink, IconButton, toast } from '@/components';
 import { getCron, cronPresets } from '@/config';
-import { useConnections, useRefreshData } from '@/hooks';
+import { ConnectionName } from '@/features';
+import { useRefreshData } from '@/hooks';
 import { DOC_URL } from '@/release';
 import { formatTime, operator } from '@/utils';
 import { PipelineStatus } from '@/routes/pipeline';
@@ -31,7 +33,6 @@ import { PipelineStatus } from '@/routes/pipeline';
 import { validName, encodeName } from '../utils';
 import { BlueprintType, ModeEnum } from '../../blueprint';
 
-import * as API from './api';
 import * as S from './styled';
 
 export const ProjectHomePage = () => {
@@ -43,8 +44,7 @@ export const ProjectHomePage = () => {
   const [enableDora, setEnableDora] = useState(true);
   const [saving, setSaving] = useState(false);
 
-  const { ready, data } = useRefreshData(() => API.getProjects({ page, pageSize }), [version, page, pageSize]);
-  const { onGet } = useConnections();
+  const { ready, data } = useRefreshData(() => API.project.list({ page, pageSize }), [version, page, pageSize]);
 
   const navigate = useNavigate();
 
@@ -82,7 +82,7 @@ export const ProjectHomePage = () => {
 
     const [success] = await operator(
       async () => {
-        await API.createProject({
+        await API.project.create({
           name,
           description: '',
           metrics: [
@@ -93,7 +93,7 @@ export const ProjectHomePage = () => {
             },
           ],
         });
-        return API.createBlueprint({
+        return API.blueprint.create({
           name: `${name}-Blueprint`,
           projectName: name,
           mode: ModeEnum.normal,
@@ -139,14 +139,19 @@ export const ProjectHomePage = () => {
             dataIndex: 'connections',
             key: 'connections',
             render: (val: BlueprintType['connections']) =>
-              !val || !val.length
-                ? 'N/A'
-                : val
-                    .map((it) => {
-                      const cs = onGet(`${it.pluginName}-${it.connectionId}`);
-                      return cs?.name;
-                    })
-                    .join(', '),
+              !val || !val.length ? (
+                'N/A'
+              ) : (
+                <>
+                  {val.map((it) => (
+                    <ConnectionName
+                      key={`${it.pluginName}-${it.connectionId}`}
+                      plugin={it.pluginName}
+                      connectionId={it.connectionId}
+                    />
+                  ))}
+                </>
+              ),
           },
           {
             title: 'Sync Frequency',

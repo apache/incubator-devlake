@@ -21,14 +21,15 @@ import { Link } from 'react-router-dom';
 import { ButtonGroup, Button, Tag, Intent, FormGroup, InputGroup, RadioGroup, Radio } from '@blueprintjs/core';
 import dayjs from 'dayjs';
 
+import API from '@/api';
 import { PageHeader, Table, IconButton, TextTooltip, Dialog } from '@/components';
 import { getCronOptions, cronPresets, getCron } from '@/config';
-import { useConnections, useRefreshData } from '@/hooks';
+import { ConnectionName } from '@/features';
+import { useRefreshData } from '@/hooks';
 import { formatTime, operator } from '@/utils';
 
-import { ModeEnum } from '../types';
+import { ModeEnum, BlueprintType } from '../types';
 
-import * as API from './api';
 import * as S from './styled';
 
 export const BlueprintHomePage = () => {
@@ -41,29 +42,13 @@ export const BlueprintHomePage = () => {
   const [mode, setMode] = useState(ModeEnum.normal);
   const [saving, setSaving] = useState(false);
 
-  const { onGet } = useConnections();
   const { ready, data } = useRefreshData(
-    () => API.getBlueprints({ type: type.toLocaleUpperCase(), page, pageSize }),
+    () => API.blueprint.list({ type: type.toLocaleUpperCase(), page, pageSize }),
     [version, type, page, pageSize],
   );
 
   const [options, presets] = useMemo(() => [getCronOptions(), cronPresets.map((preset) => preset.config)], []);
-  const [dataSource, total] = useMemo(
-    () => [
-      (data?.blueprints ?? []).map((it) => {
-        const connections =
-          it.connections
-            .filter((cs) => cs.pluginName !== 'webhook')
-            .map((cs) => onGet(`${cs.pluginName}-${cs.connectionId}`) || `${cs.pluginName}-${cs.connectionId}`) ?? [];
-        return {
-          ...it,
-          connections: connections.map((cs) => cs.name),
-        };
-      }),
-      data?.count ?? 0,
-    ],
-    [data],
-  );
+  const [dataSource, total] = useMemo(() => [data?.blueprints ?? [], data?.count ?? 0], [data]);
 
   const handleShowDialog = () => setIsOpen(true);
   const handleHideDialog = () => {
@@ -93,7 +78,7 @@ export const BlueprintHomePage = () => {
       payload.plan = [[]];
     }
 
-    const [success] = await operator(() => API.createBlueprint(payload), {
+    const [success] = await operator(() => API.blueprint.create(payload), {
       setOperating: setSaving,
     });
 
@@ -144,11 +129,21 @@ export const BlueprintHomePage = () => {
               dataIndex: ['mode', 'connections'],
               key: 'connections',
               align: 'center',
-              render: ({ mode, connections }) => {
+              render: ({ mode, connections }: Pick<BlueprintType, 'mode' | 'connections'>) => {
                 if (mode === ModeEnum.advanced) {
                   return 'Advanced Mode';
                 }
-                return connections.join(',');
+                return (
+                  <>
+                    {connections.map((it) => (
+                      <ConnectionName
+                        key={`${it.pluginName}-${it.connectionId}`}
+                        plugin={it.pluginName}
+                        connectionId={it.connectionId}
+                      />
+                    ))}
+                  </>
+                );
               },
             },
             {

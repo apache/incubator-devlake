@@ -19,9 +19,8 @@
 import { AxiosError } from 'axios';
 import { json } from 'react-router-dom';
 
+import API from '@/api';
 import { ErrorEnum } from '@/routes/error';
-
-import * as API from './api';
 
 type Props = {
   request: Request;
@@ -29,11 +28,9 @@ type Props = {
 
 export const loader = async ({ request }: Props) => {
   try {
-    const version = await API.getVersion(request.signal);
-    const userInfo = await API.getUserInfo(request.signal);
+    const version = await API.version(request.signal);
     return {
       version: version.version,
-      userInfo,
     };
   } catch (err) {
     const status = (err as AxiosError).response?.status;

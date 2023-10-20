@@ -44,5 +44,6 @@ func All() []plugin.MigrationScript {
 		new(addFullName),
 		new(addRawParamTableForScope),
 		new(addDeploymentTable),
+		new(modifyGithubMilestone),
 	}
 }

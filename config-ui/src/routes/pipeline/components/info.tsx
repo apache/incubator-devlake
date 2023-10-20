@@ -18,13 +18,13 @@
 
 import { useState } from 'react';
 
+import API from '@/api';
 import { Loading, IconButton } from '@/components';
 import { useAutoRefresh } from '@/hooks';
 import { formatTime, operator } from '@/utils';
 
 import * as T from '../types';
 import * as S from '../styled';
-import * as API from '../api';
 
 import { PipelineStatus } from './status';
 import { PipelineDuration } from './duration';
@@ -36,7 +36,7 @@ interface Props {
 export const PipelineInfo = ({ id }: Props) => {
   const [operating, setOperating] = useState(false);
 
-  const { data } = useAutoRefresh<T.Pipeline>(() => API.getPipeline(id), [], {
+  const { data } = useAutoRefresh<T.Pipeline>(() => API.pipeline.get(id), [], {
     cancel: (data) => {
       return !!(
         data &&
@@ -51,7 +51,7 @@ export const PipelineInfo = ({ id }: Props) => {
   });
 
   const handleCancel = async () => {
-    const [success] = await operator(() => API.deletePipeline(id), {
+    const [success] = await operator(() => API.pipeline.remove(id), {
       setOperating,
     });
 
@@ -61,7 +61,7 @@ export const PipelineInfo = ({ id }: Props) => {
   };
 
   const handleRerun = async () => {
-    const [success] = await operator(() => API.rerunPipeline(id), {
+    const [success] = await operator(() => API.pipeline.rerun(id), {
       setOperating,
     });
 

@@ -18,7 +18,6 @@ limitations under the License.
 package api
 
 import (
-	"encoding/json"
 	"fmt"
 	"reflect"
 	"strconv"
@@ -36,7 +35,6 @@ import (
 	"github.com/apache/incubator-devlake/helpers/dbhelper"
 	serviceHelper "github.com/apache/incubator-devlake/helpers/pluginhelper/services"
 	"github.com/go-playground/validator/v10"
-	"github.com/mitchellh/mapstructure"
 )
 
 type NoScopeConfig struct{}
@@ -64,8 +62,9 @@ type (
 	// Alias, for swagger purposes
 	ScopeRefDoc                                            = serviceHelper.BlueprintProjectPairs
 	ScopeRes[Scope plugin.ToolLayerScope, ScopeConfig any] struct {
-		Scope                    Scope                    `mapstructure:",squash"` // ideally we need this field to be embedded in the struct
-		ScopeResDoc[ScopeConfig] `mapstructure:",squash"` // however, only this type of embeding is supported as of golang 1.20
+		Scope       Scope               `mapstructure:"scope,omitempty" json:"scope,omitempty"`
+		ScopeConfig *ScopeConfig        `mapstructure:"scopeConfig,omitempty" json:"scopeConfig,omitempty"`
+		Blueprints  []*models.Blueprint `mapstructure:"blueprints,omitempty" json:"blueprints,omitempty"`
 	}
 	ScopeListRes[Scope plugin.ToolLayerScope, ScopeConfig any] struct {
 		Scopes []*ScopeRes[Scope, ScopeConfig] `mapstructure:"scopes" json:"scopes"`
@@ -599,22 +598,6 @@ func (gs *GenericScopeApiHelper[Conn, Scope, ScopeConfig]) transactionalDelete(t
 		return errors.Default.New(fmt.Sprintf("Failed to delete all expected rows from the following table(s): %v", failedTables))
 	}
 	return nil
-}
-
-// Implement MarshalJSON method to flatten all fields
-func (sr *ScopeRes[T, Y]) MarshalJSON() ([]byte, error) {
-	var flatMap map[string]interface{}
-	err := mapstructure.Decode(sr, &flatMap)
-	if err != nil {
-		return nil, err
-	}
-	// Encode the flattened map to JSON
-	result, err := json.Marshal(flatMap)
-	if err != nil {
-		return nil, err
-	}
-
-	return result, nil
 }
 
 func (gs *GenericScopeApiHelper[Conn, Scope, ScopeConfig]) getAffectedTables(pluginName string) ([]string, errors.Error) {

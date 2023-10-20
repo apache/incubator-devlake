@@ -30,9 +30,9 @@ type JiraIssueRelationship struct {
 	TypeName        string `gorm:"type:varchar(255)"` // e.g. Blocks
 	Inward          string `gorm:"type:varchar(255)"` // e.g. blocks
 	Outward         string `gorm:"type:varchar(255)"` // e.g. is blocked by
-	InwardIssueId   uint64 // e.g. 116566
+	InwardIssueId   uint64 `gorm:"primaryKey"`        // e.g. 116566
 	InwardIssueKey  string `gorm:"type:varchar(255)"` // e.g. DEV-2
-	OutwardIssueId  uint64 // e.g. 116567
+	OutwardIssueId  uint64 `gorm:"primaryKey"`        // e.g. 116567
 	OutwardIssueKey string `gorm:"type:varchar(255)"` // e.g. DEV-3
 }
 

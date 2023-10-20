@@ -26,17 +26,19 @@ import (
 
 type StringFloat64 struct {
 	v float64
-	t string
+}
+
+func NewStringFloat64FromAny(f interface{}) *StringFloat64 {
+	return &StringFloat64{
+		v: cast.ToFloat64(f),
+	}
 }
 
 func (f *StringFloat64) MarshalJSON() ([]byte, error) {
-	return json.Marshal(f.String())
+	return json.Marshal(f.v)
 }
 
 func (f *StringFloat64) String() string {
-	if f.t == "string" {
-		return fmt.Sprintf("\"%v\"", f.v)
-	}
 	return fmt.Sprintf("%v", f.v)
 }
 
@@ -44,12 +46,6 @@ func (f *StringFloat64) UnmarshalJSON(data []byte) error {
 	var i interface{}
 	if err := json.Unmarshal(data, &i); err != nil {
 		return err
-	}
-	switch i.(type) {
-	case float64:
-		f.t = "float64"
-	case string:
-		f.t = "string"
 	}
 	value, err := cast.ToFloat64E(i)
 	if err != nil {
@@ -71,12 +67,10 @@ func (f *StringFloat64) Scan(v interface{}) error {
 	case float64:
 		*f = StringFloat64{
 			v: value,
-			t: "float64",
 		}
 	case string:
 		*f = StringFloat64{
 			v: cast.ToFloat64(value),
-			t: "string",
 		}
 	default:
 		return fmt.Errorf("%+v is an unknown type, with value: %v", v, value)

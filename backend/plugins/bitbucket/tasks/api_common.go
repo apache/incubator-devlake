@@ -175,7 +175,7 @@ func GetPullRequestsIterator(taskCtx plugin.SubTaskContext, collectorWithState *
 			data.Options.FullName, data.Options.ConnectionId,
 		),
 	}
-	if collectorWithState.IsIncreamtal && collectorWithState.Since != nil {
+	if collectorWithState.IsIncremental && collectorWithState.Since != nil {
 		clauses = append(clauses, dal.Where("bitbucket_updated_at > ?", *collectorWithState.Since))
 	}
 
@@ -199,7 +199,7 @@ func GetIssuesIterator(taskCtx plugin.SubTaskContext, collectorWithState *api.Ap
 			data.Options.FullName, data.Options.ConnectionId,
 		),
 	}
-	if collectorWithState.IsIncreamtal && collectorWithState.Since != nil {
+	if collectorWithState.IsIncremental && collectorWithState.Since != nil {
 		clauses = append(clauses, dal.Where("bitbucket_updated_at > ?", *collectorWithState.Since))
 	}
 	// construct the input iterator
@@ -222,7 +222,7 @@ func GetPipelinesIterator(taskCtx plugin.SubTaskContext, collectorWithState *api
 			data.Options.FullName, data.Options.ConnectionId,
 		),
 	}
-	if collectorWithState.IsIncreamtal && collectorWithState.Since != nil {
+	if collectorWithState.IsIncremental && collectorWithState.Since != nil {
 		clauses = append(clauses, dal.Where("bitbucket_complete_on > ?", *collectorWithState.Since))
 	}
 	// construct the input iterator

@@ -16,14 +16,13 @@
  *
  */
 
-import { Icon, Position } from '@blueprintjs/core';
-import { Tooltip2 } from '@blueprintjs/popover2';
+import { Icon, Tooltip, Position } from '@blueprintjs/core';
 import styled from 'styled-components';
 
 const Wrapper = styled.span`
   margin-left: 4px;
 
-  & > .bp5-popover2-target {
+  & > .bp5-popover-target {
     display: inline-block !important;
 
     .bp5-icon {
@@ -41,9 +40,9 @@ interface Props {
 export const HelpTooltip = ({ content, style }: Props) => {
   return (
     <Wrapper style={style}>
-      <Tooltip2 position={Position.TOP} content={content}>
+      <Tooltip position={Position.TOP} content={content}>
         <Icon icon="help" size={12} color="#94959f" />
-      </Tooltip2>
+      </Tooltip>
     </Wrapper>
   );
 };

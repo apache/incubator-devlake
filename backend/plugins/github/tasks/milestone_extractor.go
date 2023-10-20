@@ -110,18 +110,18 @@ func ExtractMilestones(taskCtx plugin.SubTaskContext) errors.Error {
 
 func convertGithubMilestone(response *MilestonesResponse, connectionId uint64, repositoryId int) *models.GithubMilestone {
 	milestone := &models.GithubMilestone{
-		ConnectionId: connectionId,
-		MilestoneId:  response.Id,
-		RepoId:       repositoryId,
-		Number:       response.Number,
-		URL:          response.Url,
-		Title:        response.Title,
-		OpenIssues:   response.OpenIssues,
-		ClosedIssues: response.ClosedIssues,
-		State:        response.State,
-		ClosedAt:     common.Iso8601TimeToTime(response.ClosedAt),
-		CreatedAt:    response.CreatedAt.ToTime(),
-		UpdatedAt:    response.UpdatedAt.ToTime(),
+		ConnectionId:    connectionId,
+		MilestoneId:     response.Id,
+		RepoId:          repositoryId,
+		Number:          response.Number,
+		URL:             response.Url,
+		Title:           response.Title,
+		OpenIssues:      response.OpenIssues,
+		ClosedIssues:    response.ClosedIssues,
+		State:           response.State,
+		ClosedAt:        common.Iso8601TimeToTime(response.ClosedAt),
+		GithubCreatedAt: response.CreatedAt.ToTime(),
+		GithubUpdatedAt: response.UpdatedAt.ToTime(),
 	}
 	return milestone
 }

@@ -20,13 +20,13 @@ import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { InputGroup, Checkbox, Button, Icon, Intent } from '@blueprintjs/core';
 
+import API from '@/api';
 import { Card, FormItem, Buttons, toast, Dialog } from '@/components';
 import { operator } from '@/utils';
 
 import type { ProjectType } from '../types';
 import { validName } from '../utils';
 
-import * as API from './api';
 import * as S from './styled';
 
 interface Props {
@@ -57,7 +57,7 @@ export const SettingsPanel = ({ project, onRefresh }: Props) => {
 
     const [success] = await operator(
       () =>
-        API.updateProject(project.name, {
+        API.project.update(project.name, {
           name,
           description: '',
           metrics: [
@@ -88,7 +88,7 @@ export const SettingsPanel = ({ project, onRefresh }: Props) => {
   };
 
   const handleDelete = async () => {
-    const [success] = await operator(() => API.deleteProject(project.name), {
+    const [success] = await operator(() => API.project.remove(project.name), {
       setOperating,
       formatMessage: () => 'Delete project successful.',
     });

@@ -19,10 +19,10 @@
 import { useEffect, useState } from 'react';
 import { FormGroup, Intent, Tag } from '@blueprintjs/core';
 
+import API from '@/api';
 import { HelpTooltip, MultiSelector, PageLoading } from '@/components';
 import { useProxyPrefix, useRefreshData } from '@/hooks';
 
-import * as API from './api';
 import * as S from './styled';
 import { uniqWith } from 'lodash';
 
@@ -74,11 +74,11 @@ export const TapdTransformation = ({ entities, connectionId, scopeId, transforma
     }
 
     const [storyType, bugType, taskType, storyStatus, bugStatus, taskStatus] = await Promise.all([
-      API.getStoryType(prefix, scopeId),
+      API.plugin.tapd.storyCategories(prefix, scopeId),
       { BUG: 'bug' } as Record<string, string>,
       { TASK: 'task' } as Record<string, string>,
-      API.getStatus(prefix, scopeId, 'story'),
-      API.getStatus(prefix, scopeId, 'bug'),
+      API.plugin.tapd.statusMap(prefix, scopeId, 'story'),
+      API.plugin.tapd.statusMap(prefix, scopeId, 'bug'),
       { open: 'task-open', progressing: 'task-progressing', done: 'task-done' } as Record<string, string>,
     ]);
 

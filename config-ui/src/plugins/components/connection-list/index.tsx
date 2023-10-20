@@ -19,11 +19,12 @@
 import { Link } from 'react-router-dom';
 import { Button, Intent } from '@blueprintjs/core';
 
+import { useAppSelector } from '@/app/hook';
 import { Table } from '@/components';
-import { useConnections } from '@/hooks';
+import { selectConnections } from '@/features/connections';
 import { ConnectionStatus } from '@/plugins';
 
-import { WebHookConnection } from '@/plugins/register/webook';
+import { WebHookConnection } from '@/plugins/register/webhook';
 
 interface Props {
   plugin: string;
@@ -31,15 +32,11 @@ interface Props {
 }
 
 export const ConnectionList = ({ plugin, onCreate }: Props) => {
+  const connections = useAppSelector((state) => selectConnections(state, plugin));
+
   if (plugin === 'webhook') {
     return <WebHookConnection />;
   }
-
-  return <BaseList plugin={plugin} onCreate={onCreate} />;
-};
-
-const BaseList = ({ plugin, onCreate }: Props) => {
-  const { connections, onTest } = useConnections();
 
   return (
     <>
@@ -53,10 +50,9 @@ const BaseList = ({ plugin, onCreate }: Props) => {
           },
           {
             title: 'Status',
-            dataIndex: ['status', 'unique'],
             key: 'status',
             width: 150,
-            render: ({ status, unique }) => <ConnectionStatus status={status} unique={unique} onTest={onTest} />,
+            render: (_, row) => <ConnectionStatus connection={row} />,
           },
           {
             title: '',
@@ -66,7 +62,7 @@ const BaseList = ({ plugin, onCreate }: Props) => {
             render: ({ plugin, id }) => <Link to={`/connections/${plugin}/${id}`}>Details</Link>,
           },
         ]}
-        dataSource={connections.filter((cs) => cs.plugin === plugin)}
+        dataSource={connections}
         noData={{
           text: 'There is no data connection yet. Please add a new connection.',
         }}

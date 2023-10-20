@@ -153,7 +153,7 @@ func ListConnections(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput,
 	if err != nil {
 		return nil, err
 	}
-	var responseList []*WebhookConnectionResponse
+	responseList := []*WebhookConnectionResponse{}
 	for _, connection := range connections {
 		webhookConnectionResponse, err := formatConnection(&connection, true)
 		if err != nil {

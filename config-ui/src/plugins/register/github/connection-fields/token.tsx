@@ -19,10 +19,9 @@
 import { useEffect, useState } from 'react';
 import { FormGroup, Button, Icon, Intent } from '@blueprintjs/core';
 
+import API from '@/api';
 import { ExternalLink, FormPassword } from '@/components';
 import { DOC_URL } from '@/release';
-
-import * as API from '../api';
 
 import * as S from './styled';
 
@@ -35,7 +34,7 @@ type TokenItem = {
 
 interface Props {
   endpoint?: string;
-  proxy?: string;
+  proxy: string;
   initialValue: string;
   value: string;
   error: string;
@@ -54,7 +53,7 @@ export const Token = ({ endpoint, proxy, initialValue, value, error, setValue, s
     }
 
     try {
-      const res = await API.testConnection({
+      const res = await API.connection.test('github', {
         authMethod: 'AccessToken',
         endpoint,
         proxy,
