@@ -20,7 +20,6 @@ import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
 import { flatten } from 'lodash';
 
 import API from '@/api';
-import type { ConnectionForm } from '@/api/connection/types';
 import { RootState } from '@/app/store';
 import { PluginConfig } from '@/plugins';
 import { IConnection, IConnectionStatus } from '@/types';
@@ -29,8 +28,10 @@ import { transformConnection } from './utils';
 
 const initialState: {
   connections: IConnection[];
+  status: 'idle' | 'loading' | 'success' | 'failed';
 } = {
   connections: [],
+  status: 'idle',
 };
 
 export const init = createAsyncThunk('connections/init', async () => {
@@ -77,7 +78,21 @@ export const addConnection = createAsyncThunk('connections/addConnection', async
   return transformConnection(plugin, connection);
 });
 
-export const updateConnection = createAsyncThunk('connections/updateConnection', async (payload: ConnectionForm) => {});
+export const updateConnection = createAsyncThunk(
+  'connections/updateConnection',
+  async ({ plugin, connectionId, ...payload }: any) => {
+    const connection = await API.connection.update(plugin, connectionId, payload);
+    return transformConnection(plugin, connection);
+  },
+);
+
+export const removeConnection = createAsyncThunk(
+  'connections/removeConnection',
+  async ({ plugin, connectionId }: any) => {
+    await API.connection.remove(plugin, connectionId);
+    return `${plugin}-${connectionId}`;
+  },
+);
 
 export const slice = createSlice({
   name: 'connections',
@@ -85,14 +100,29 @@ export const slice = createSlice({
   reducers: {},
   extraReducers(builder) {
     builder
+      .addCase(init.pending, (state) => {
+        state.status = 'loading';
+      })
       .addCase(init.fulfilled, (state, action) => {
         state.connections = action.payload;
+        state.status = 'success';
       })
       .addCase(fetchConnections.fulfilled, (state, action) => {
         state.connections = state.connections.concat(action.payload.connections);
       })
       .addCase(addConnection.fulfilled, (state, action) => {
         state.connections.push(action.payload);
+      })
+      .addCase(updateConnection.fulfilled, (state, action) => {
+        state.connections = state.connections.map((cs) => {
+          if (cs.unique === action.payload.unique) {
+            return action.payload;
+          }
+          return cs;
+        });
+      })
+      .addCase(removeConnection.fulfilled, (state, action) => {
+        state.connections = state.connections.filter((cs) => cs.unique !== action.payload);
       })
       .addCase(testConnection.pending, (state, action) => {
         const existingConnection = state.connections.find((cs) => cs.unique === action.meta.arg.unique);
@@ -112,6 +142,8 @@ export const slice = createSlice({
 export const {} = slice.actions;
 
 export default slice.reducer;
+
+export const selectStatus = (state: RootState) => state.connections.status;
 
 export const selectAllConnections = (state: RootState) => state.connections.connections;
 
