@@ -36,7 +36,7 @@ export const Wrapper = styled.div`
   }
 
   h5 {
-    margin: 8px 0;
+    margin: 16px 0 8px;
   }
 
   p {
