@@ -82,7 +82,7 @@ export const ScopeConfigForm = ({
       try {
         const res = await API.scopeConfig.get(plugin, connectionId, scopeConfigId);
         setName(res.name);
-        setEntities(res.entities);
+        setEntities(res.entities ?? []);
         setTransformation(omit(res, ['id', 'connectionId', 'name', 'entities', 'createdAt', 'updatedAt']));
       } catch {}
     })();
