@@ -17,14 +17,12 @@
  */
 
 import type { PluginConfigType } from '../../types';
-import { PluginType } from '../../types';
 import { ExternalLink } from '@/components';
 
 import Icon from './assets/icon.png';
 import { Endpoint } from './connection-fields';
 
 export const OpsgenieConfig: PluginConfigType = {
-  type: PluginType.Connection,
   plugin: 'opsgenie',
   name: 'Opsgenie',
   icon: Icon,
