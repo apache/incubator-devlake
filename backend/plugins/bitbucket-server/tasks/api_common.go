@@ -175,7 +175,7 @@ func GetPullRequestsIterator(taskCtx plugin.SubTaskContext, collectorWithState *
 			data.Options.FullName, data.Options.ConnectionId,
 		),
 	}
-	if collectorWithState.IsIncreamtal && collectorWithState.Since != nil {
+	if collectorWithState.IsIncremental && collectorWithState.Since != nil {
 		clauses = append(clauses, dal.Where("bitbucket_updated_at > ?", *collectorWithState.Since))
 	}
 
