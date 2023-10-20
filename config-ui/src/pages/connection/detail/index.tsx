@@ -41,16 +41,6 @@ import { operator } from '@/utils';
 import * as S from './styled';
 
 export const ConnectionDetailPage = () => {
-  const { plugin, id } = useParams() as { plugin: string; id: string };
-  return <ConnectionDetail plugin={plugin} connectionId={+id} />;
-};
-
-interface Props {
-  plugin: string;
-  connectionId: ID;
-}
-
-const ConnectionDetail = ({ plugin, connectionId }: Props) => {
   const [type, setType] = useState<
     | 'deleteConnection'
     | 'updateConnection'
@@ -70,6 +60,9 @@ const ConnectionDetail = ({ plugin, connectionId }: Props) => {
   const [scopeConfigId, setScopeConfigId] = useState<ID>();
   const [conflict, setConflict] = useState<string[]>([]);
   const [errorMsg, setErrorMsg] = useState('');
+
+  const { plugin, id } = useParams() as { plugin: string; id: string };
+  const connectionId = +id;
 
   const connection = useAppSelector((state) => selectConnection(state, `${plugin}-${connectionId}`)) as IConnection;
   const navigate = useNavigate();
