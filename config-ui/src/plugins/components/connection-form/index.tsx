@@ -23,6 +23,7 @@ import { pick } from 'lodash';
 import API from '@/api';
 import { useAppDispatch, useAppSelector } from '@/app/hook';
 import { ExternalLink, Buttons } from '@/components';
+import { addConnection, updateConnection } from '@/features';
 import { selectConnection } from '@/features/connections';
 import { PluginConfig, PluginConfigType } from '@/plugins';
 import { operator } from '@/utils';
@@ -82,7 +83,9 @@ export const ConnectionForm = ({ plugin, connectionId, onSuccess }: Props) => {
   const handleSave = async () => {
     const [success, res] = await operator(
       () =>
-        !connectionId ? API.connection.create(plugin, values) : API.connection.update(plugin, connectionId, values),
+        !connectionId
+          ? dispatch(addConnection({ plugin, ...values })).unwrap()
+          : dispatch(updateConnection({ plugin, connectionId, ...values })).unwrap(),
       {
         setOperating,
         formatMessage: () => (!connectionId ? 'Create a New Connection Successful.' : 'Update Connection Successful.'),
