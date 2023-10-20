@@ -24,7 +24,7 @@ import { Popover2 } from '@blueprintjs/popover2';
 import API from '@/api';
 import { PageLoading, PageHeader, ExternalLink, Message, Buttons, Table, Dialog } from '@/components';
 import { useRefreshData, useTips } from '@/hooks';
-import { DataScopeSelect, getPluginScopeId } from '@/plugins';
+import { DataScopeSelect, getPluginScopeId, PluginConfig, PluginConfigType } from '@/plugins';
 import { operator } from '@/utils';
 
 import { encodeName } from '../../project/utils';
@@ -50,8 +50,11 @@ export const BlueprintConnectionDetailPage = () => {
     return API.blueprint.get(bid as any);
   };
 
+  const [plugin, connectionId] = unique.split('-');
+
+  const pluginConfig = PluginConfig.find((p) => p.plugin === plugin) as PluginConfigType;
+
   const { ready, data } = useRefreshData(async () => {
-    const [plugin, connectionId] = unique.split('-');
     const [blueprint, connection] = await Promise.all([
       getBlueprint(pname, bid),
       API.connection.get(plugin, connectionId),
@@ -205,9 +208,11 @@ export const BlueprintConnectionDetailPage = () => {
       </S.Top>
       <Buttons position="top">
         <Button intent={Intent.PRIMARY} icon="annotation" text="Manage Data Scope" onClick={handleShowDataScope} />
-        <ExternalLink style={{ marginLeft: 8 }} link={`/connections/${connection.plugin}/${connection.id}`}>
-          <Button intent={Intent.PRIMARY} icon="annotation" text="Edit Scope Config" />
-        </ExternalLink>
+        {pluginConfig.scopeConfig && (
+          <ExternalLink style={{ marginLeft: 8 }} link={`/connections/${connection.plugin}/${connection.id}`}>
+            <Button intent={Intent.PRIMARY} icon="annotation" text="Edit Scope Config" />
+          </ExternalLink>
+        )}
       </Buttons>
       <Table
         columns={[
