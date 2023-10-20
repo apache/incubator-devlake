@@ -61,5 +61,5 @@ func (*addInitTables20231019) Version() uint64 {
 }
 
 func (*addInitTables20231019) Name() string {
-	return "Bitbucket init schema 20220803"
+	return "Bitbucket Server init schema 20231019"
 }
