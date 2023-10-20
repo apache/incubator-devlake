@@ -1067,7 +1067,7 @@
     },
     {
       "datasource": "mysql",
-      "description": "Number of workflow runs executed in the selected time range",
+      "description": "Number of Pipeline runs executed in the selected time range",
       "fieldConfig": {
         "defaults": {
           "mappings": [],
@@ -1155,12 +1155,12 @@
           ]
         }
       ],
-      "title": "3.1 Total Number of Successful workflow runs [Selected Time Range]",
+      "title": "3.1 Total Number of Successful Pipeline runs [Selected Time Range]",
       "type": "stat"
     },
     {
       "datasource": "mysql",
-      "description": "Number of successful workflow runs / Number of total workflow runs",
+      "description": "Number of successful Pipeline runs / Number of total Pipeline runs",
       "fieldConfig": {
         "defaults": {
           "mappings": [],
@@ -1251,7 +1251,7 @@
           ]
         }
       ],
-      "title": "3.2 Mean Workflow Runs Success Rate",
+      "title": "3.2 Mean Pipeline runs Success Rate",
       "type": "stat"
     },
     {
@@ -1432,12 +1432,12 @@
           ]
         }
       ],
-      "title": "3.3 Total Workflow Runs Result Distribution",
+      "title": "3.3 Total Pipeline runs Result Distribution",
       "type": "piechart"
     },
     {
       "datasource": "mysql",
-      "description": "Number of successful workflow runs / Number of total workflow runs",
+      "description": "Number of successful Pipeline runs / Number of total Pipeline runs",
       "fieldConfig": {
         "defaults": {
           "mappings": [],
@@ -1526,7 +1526,7 @@
           ]
         }
       ],
-      "title": "3.4 Mean Workflow Runs Duration in Minutes",
+      "title": "3.4 Mean Pipeline runs Duration in Minutes",
       "type": "stat"
     },
     {
@@ -1540,7 +1540,7 @@
           "custom": {
             "axisCenteredZero": false,
             "axisColorMode": "text",
-            "axisLabel": "Workflow Runs Count",
+            "axisLabel": "Pipeline runs Count",
             "axisPlacement": "auto",
             "axisSoftMin": 0,
             "fillOpacity": 80,
@@ -1616,7 +1616,7 @@
           "hide": false,
           "metricColumn": "none",
           "rawQuery": true,
-          "rawSql": "WITH _builds as(\n  SELECT\n    DATE_ADD(date(finished_date), INTERVAL -DAYOFMONTH(date(finished_date))+1 DAY) as time,\n    count(*) as build_count\n  FROM cicd_pipelines\n  WHERE\n    $__timeFilter(finished_date)\n    and result = 'SUCCESS'\n    and id like \"%azure%\"\n    and cicd_scope_id in ($repo_id)\n    -- the following condition will remove the month with incomplete data\n    and finished_date >= DATE_ADD(DATE_ADD($__timeFrom(), INTERVAL -DAY($__timeFrom())+1 DAY), INTERVAL +1 MONTH)\n  GROUP BY 1\n)\n\nSELECT \n  date_format(time,'%M %Y') as month,\n  build_count as \"Workflow Runs Count\"\nFROM _builds\nORDER BY time\n",
+          "rawSql": "WITH _builds as(\n  SELECT\n    DATE_ADD(date(finished_date), INTERVAL -DAYOFMONTH(date(finished_date))+1 DAY) as time,\n    count(*) as build_count\n  FROM cicd_pipelines\n  WHERE\n    $__timeFilter(finished_date)\n    and result = 'SUCCESS'\n    and id like \"%azure%\"\n    and cicd_scope_id in ($repo_id)\n    -- the following condition will remove the month with incomplete data\n    and finished_date >= DATE_ADD(DATE_ADD($__timeFrom(), INTERVAL -DAY($__timeFrom())+1 DAY), INTERVAL +1 MONTH)\n  GROUP BY 1\n)\n\nSELECT \n  date_format(time,'%M %Y') as month,\n  build_count as \"Pipeline runs Count\"\nFROM _builds\nORDER BY time\n",
           "refId": "A",
           "select": [
             [
@@ -1657,12 +1657,12 @@
           ]
         }
       ],
-      "title": "3.1.1 Total Number of Successful workflow runs [Each Month]",
+      "title": "3.1.1 Total Number of Successful Pipeline runs [Each Month]",
       "type": "barchart"
     },
     {
       "datasource": "mysql",
-      "description": "1. Mean Workflow Runs success rate over time.\n2. The workflow runs being calculated are filtered by \"workflow runs starting time\" (time filter at the upper-right corner) and \"Jira board\" (\"Choose Board\" filter at the upper-left corner)",
+      "description": "1. Mean Pipeline runs success rate over time.\n2. The Pipeline runs being calculated are filtered by \"Pipeline runs starting time\" (time filter at the upper-right corner) and \"Jira board\" (\"Choose Board\" filter at the upper-left corner)",
       "fieldConfig": {
         "defaults": {
           "color": {
@@ -1671,7 +1671,7 @@
           "custom": {
             "axisCenteredZero": false,
             "axisColorMode": "text",
-            "axisLabel": "Workflow Runs Success Rate(%)",
+            "axisLabel": "Pipeline runs Success Rate(%)",
             "axisPlacement": "auto",
             "axisSoftMin": 0,
             "fillOpacity": 80,
@@ -1709,7 +1709,7 @@
           {
             "matcher": {
               "id": "byName",
-              "options": "Workflow Runs Success Rate"
+              "options": "Pipeline runs Success Rate"
             },
             "properties": [
               {
@@ -1766,7 +1766,7 @@
           "group": [],
           "metricColumn": "none",
           "rawQuery": true,
-          "rawSql": "WITH _build_success_rate as(\r\n  SELECT\r\n    DATE_ADD(date(finished_date), INTERVAL -DAYOFMONTH(date(finished_date))+1 DAY) as time,\r\n    result\r\n  FROM\r\n    cicd_pipelines\r\n  WHERE\r\n    $__timeFilter(finished_date)\r\n    and id like \"%azure%\"\r\n    and cicd_scope_id in ($repo_id)\r\n    -- the following condition will remove the month with incomplete data\r\n    and finished_date >= DATE_ADD(DATE_ADD($__timeFrom(), INTERVAL -DAY($__timeFrom())+1 DAY), INTERVAL +1 MONTH)\r\n)\r\n\r\nSELECT \r\n  date_format(time,'%M %Y') as month,\r\n  1.0 * sum(case when result = 'SUCCESS' then 1 else 0 end)/ count(*) as \"Workflow Runs Success Rate\"\r\nFROM _build_success_rate\r\nGROUP BY time\r\nORDER BY time",
+          "rawSql": "WITH _build_success_rate as(\r\n  SELECT\r\n    DATE_ADD(date(finished_date), INTERVAL -DAYOFMONTH(date(finished_date))+1 DAY) as time,\r\n    result\r\n  FROM\r\n    cicd_pipelines\r\n  WHERE\r\n    $__timeFilter(finished_date)\r\n    and id like \"%azure%\"\r\n    and cicd_scope_id in ($repo_id)\r\n    -- the following condition will remove the month with incomplete data\r\n    and finished_date >= DATE_ADD(DATE_ADD($__timeFrom(), INTERVAL -DAY($__timeFrom())+1 DAY), INTERVAL +1 MONTH)\r\n)\r\n\r\nSELECT \r\n  date_format(time,'%M %Y') as month,\r\n  1.0 * sum(case when result = 'SUCCESS' then 1 else 0 end)/ count(*) as \"Pipeline runs Success Rate\"\r\nFROM _build_success_rate\r\nGROUP BY time\r\nORDER BY time",
           "refId": "A",
           "select": [
             [
@@ -1807,7 +1807,7 @@
           ]
         }
       ],
-      "title": "3.2.1 Workflow Runs Success Rate [Each Month]",
+      "title": "3.2.1 Pipeline runs Success Rate [Each Month]",
       "type": "barchart"
     },
     {
@@ -1821,7 +1821,7 @@
           "custom": {
             "axisCenteredZero": false,
             "axisColorMode": "text",
-            "axisLabel": "Workflow Runs Duration(minutes)",
+            "axisLabel": "Pipeline runs Duration(minutes)",
             "axisPlacement": "auto",
             "axisSoftMin": 0,
             "fillOpacity": 80,
@@ -1954,7 +1954,7 @@
           ]
         }
       ],
-      "title": "3.4.1 Mean Workflow Runs Duration in Minutes [Each Month]",
+      "title": "3.4.1 Mean Pipeline runs Duration in Minutes [Each Month]",
       "type": "barchart"
     }
   ],
@@ -1988,30 +1988,6 @@
         "query": "select concat(name, '--', id) as text from repos where id like 'azure%'",
         "refresh": 1,
         "regex": "/^(?<text>.*)--(?<value>.*)$/",
-        "skipUrlSync": false,
-        "sort": 0,
-        "type": "query"
-      },
-      {
-        "current": {
-          "selected": false,
-          "text": "All",
-          "value": "$__all"
-        },
-        "datasource": {
-          "type": "mysql",
-          "uid": "P430005175C4C7810"
-        },
-        "definition": "select distinct cicd_scope_id as text from cicd_pipelines where id like \"%azure%\" ",
-        "hide": 0,
-        "includeAll": true,
-        "label": "Job Name",
-        "multi": true,
-        "name": "job_id",
-        "options": [],
-        "query": "select distinct cicd_scope_id as text from cicd_pipelines where id like \"%azure%\" ",
-        "refresh": 1,
-        "regex": "",
         "skipUrlSync": false,
         "sort": 0,
         "type": "query"
