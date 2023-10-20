@@ -34,7 +34,7 @@ import (
 // RemoteScopes list all available scope for users
 // @Summary list all available scope for users
 // @Description list all available scope for users
-// @Tags plugins/bitbucket
+// @Tags plugins/bitbucket-server
 // @Accept application/json
 // @Param connectionId path int false "connection ID"
 // @Param groupId query string false "group ID"
@@ -101,7 +101,7 @@ func RemoteScopes(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, er
 // SearchRemoteScopes use the Search API and only return project
 // @Summary use the Search API and only return project
 // @Description use the Search API and only return project
-// @Tags plugins/bitbucket
+// @Tags plugins/bitbucket-server
 // @Accept application/json
 // @Param connectionId path int false "connection ID"
 // @Param search query string false "search"

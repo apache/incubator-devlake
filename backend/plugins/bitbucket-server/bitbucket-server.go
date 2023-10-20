@@ -28,7 +28,7 @@ var PluginEntry impl.BitbucketServer //nolint
 
 // standalone mode for debugging
 func main() {
-	cmd := &cobra.Command{Use: "bitbucket"}
+	cmd := &cobra.Command{Use: "bitbucket-server"}
 	connectionId := cmd.Flags().Uint64P("connectionId", "c", 0, "bitbucket server connection id")
 	fullName := cmd.Flags().StringP("fullName", "n", "", "bitbucket id: owner/repo")
 	timeAfter := cmd.Flags().StringP("timeAfter", "a", "", "collect data that are created after specified time, ie 2006-01-02T15:04:05Z")

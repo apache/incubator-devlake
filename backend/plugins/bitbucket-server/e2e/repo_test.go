@@ -34,7 +34,7 @@ import (
 )
 
 func TestRepoDataFlow(t *testing.T) {
-	var plugin impl.Bitbucket
+	var plugin impl.BitbucketServer
 	dataflowTester := e2ehelper.NewDataFlowTester(t, "bitbucket-server", plugin)
 
 	taskData := &tasks.BitbucketTaskData{
@@ -58,13 +58,13 @@ func TestRepoDataFlow(t *testing.T) {
 	}
 
 	// verify extraction
-	dataflowTester.FlushTabler(&models.BitbucketRepo{})
-	scope := apiRepo.ConvertApiScope().(*models.BitbucketRepo)
+	dataflowTester.FlushTabler(&models.BitbucketServerRepo{})
+	scope := apiRepo.ConvertApiScope().(*models.BitbucketServerRepo)
 	scope.ConnectionId = 1
 	err := dataflowTester.Dal.CreateIfNotExist(scope)
 	assert.Nil(t, err)
 	dataflowTester.VerifyTable(
-		models.BitbucketRepo{},
+		models.BitbucketServerRepo{},
 		"./snapshot_tables/_tool_bitbucket_server_repos.csv",
 		e2ehelper.ColumnWithRawData(
 			"connection_id",

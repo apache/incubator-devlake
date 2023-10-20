@@ -27,20 +27,20 @@ import (
 )
 
 type ScopeRes struct {
-	models.BitbucketRepo
-	api.ScopeResDoc[models.BitbucketScopeConfig]
+	models.BitbucketServerRepo
+	api.ScopeResDoc[models.BitbucketServerScopeConfig]
 }
 
-type ScopeReq api.ScopeReq[models.BitbucketRepo]
+type ScopeReq api.ScopeReq[models.BitbucketServerRepo]
 
 // PutScope create or update repo
 // @Summary create or update repo
 // @Description Create or update repo
-// @Tags plugins/bitbucket
+// @Tags plugins/bitbucket-server
 // @Accept application/json
 // @Param connectionId path int true "connection ID"
 // @Param scope body ScopeReq true "json"
-// @Success 200  {object} []models.BitbucketRepo
+// @Success 200  {object} []models.BitbucketServerRepo
 // @Failure 400  {object} shared.ApiBody "Bad Request"
 // @Failure 500  {object} shared.ApiBody "Internal Error"
 // @Router /plugins/bitbucket-server/connections/{connectionId}/scopes [PUT]
@@ -51,12 +51,12 @@ func PutScope(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, errors
 // UpdateScope patch to repo
 // @Summary patch to repo
 // @Description patch to repo
-// @Tags plugins/bitbucket
+// @Tags plugins/bitbucket-server
 // @Accept application/json
 // @Param connectionId path int true "connection ID"
 // @Param scopeId path string true "repo ID"
-// @Param scope body models.BitbucketRepo true "json"
-// @Success 200  {object} models.BitbucketRepo
+// @Param scope body models.BitbucketServerRepo true "json"
+// @Success 200  {object} models.BitbucketServerRepo
 // @Failure 400  {object} shared.ApiBody "Bad Request"
 // @Failure 500  {object} shared.ApiBody "Internal Error"
 // @Router /plugins/bitbucket-server/connections/{connectionId}/scopes/{scopeId} [PATCH]
@@ -68,7 +68,7 @@ func UpdateScope(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, err
 // GetScopeList get repos
 // @Summary get repos
 // @Description get repos
-// @Tags plugins/bitbucket
+// @Tags plugins/bitbucket-server
 // @Param connectionId path int true "connection ID"
 // @Param searchTerm query string false "search term for scope name"
 // @Param pageSize query int false "page size, default 50"
@@ -85,7 +85,7 @@ func GetScopeList(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, er
 // GetScope get one repo
 // @Summary get one repo
 // @Description get one repo
-// @Tags plugins/bitbucket
+// @Tags plugins/bitbucket-server
 // @Param connectionId path int true "connection ID"
 // @Param scopeId path string true "repo ID"
 // @Success 200  {object} ScopeRes
@@ -100,7 +100,7 @@ func GetScope(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, errors
 // DeleteScope delete plugin data associated with the scope and optionally the scope itself
 // @Summary delete plugin data associated with the scope and optionally the scope itself
 // @Description delete data associated with plugin scope
-// @Tags plugins/bitbucket
+// @Tags plugins/bitbucket-server
 // @Param connectionId path int true "connection ID"
 // @Param scopeId path int true "scope ID"
 // @Param delete_data_only query bool false "Only delete the scope data, not the scope itself"

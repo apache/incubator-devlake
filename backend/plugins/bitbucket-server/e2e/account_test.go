@@ -18,17 +18,18 @@ limitations under the License.
 package e2e
 
 import (
+	"testing"
+
 	"github.com/apache/incubator-devlake/core/models/common"
 	"github.com/apache/incubator-devlake/core/models/domainlayer/crossdomain"
 	"github.com/apache/incubator-devlake/helpers/e2ehelper"
 	"github.com/apache/incubator-devlake/plugins/bitbucket-server/impl"
 	"github.com/apache/incubator-devlake/plugins/bitbucket-server/models"
 	"github.com/apache/incubator-devlake/plugins/bitbucket-server/tasks"
-	"testing"
 )
 
 func TestAccountDataFlow(t *testing.T) {
-	var plugin impl.Bitbucket
+	var plugin impl.BitbucketServer
 	dataflowTester := e2ehelper.NewDataFlowTester(t, "bitbucket-server", plugin)
 
 	taskData := &tasks.BitbucketTaskData{
@@ -43,13 +44,11 @@ func TestAccountDataFlow(t *testing.T) {
 	dataflowTester.ImportCsvIntoRawTable("./raw_tables/_raw_bitbucket_api_pull_requests.csv", "_raw_bitbucket_api_pull_requests")
 
 	// verify extraction
-	dataflowTester.FlushTabler(&models.BitbucketAccount{})
-	dataflowTester.FlushTabler(&models.BitbucketIssue{})
-	dataflowTester.FlushTabler(&models.BitbucketPullRequest{})
-	dataflowTester.Subtask(tasks.ExtractApiIssuesMeta, taskData)
+	dataflowTester.FlushTabler(&models.BitbucketServerAccount{})
+	dataflowTester.FlushTabler(&models.BitbucketServerPullRequest{})
 	dataflowTester.Subtask(tasks.ExtractApiPullRequestsMeta, taskData)
 	dataflowTester.VerifyTable(
-		models.BitbucketAccount{},
+		models.BitbucketServerAccount{},
 		"./snapshot_tables/_tool_bitbucket_server_accounts.csv",
 		e2ehelper.ColumnWithRawData(
 			"connection_id",

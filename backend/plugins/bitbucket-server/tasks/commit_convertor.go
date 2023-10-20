@@ -56,16 +56,16 @@ func ConvertCommits(taskCtx plugin.SubTaskContext) errors.Error {
 	}
 	defer cursor.Close()
 
-	repoDidGen := didgen.NewDomainIdGenerator(&models.BitbucketRepo{})
+	repoDidGen := didgen.NewDomainIdGenerator(&models.BitbucketServerRepo{})
 	domainRepoId := repoDidGen.Generate(data.Options.ConnectionId, repoId)
 
 	converter, err := api.NewDataConverter(api.DataConverterArgs{
 		RawDataSubTaskArgs: *rawDataSubTaskArgs,
-		InputRowType:       reflect.TypeOf(models.BitbucketCommit{}),
+		InputRowType:       reflect.TypeOf(models.BitbucketServerCommit{}),
 		Input:              cursor,
 
 		Convert: func(inputRow interface{}) ([]interface{}, errors.Error) {
-			bitbucketCommit := inputRow.(*models.BitbucketCommit)
+			bitbucketCommit := inputRow.(*models.BitbucketServerCommit)
 			domainCommit := &code.Commit{
 				Sha:           bitbucketCommit.Sha,
 				Message:       bitbucketCommit.Message,

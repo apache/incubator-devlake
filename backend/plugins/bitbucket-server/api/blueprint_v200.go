@@ -83,7 +83,7 @@ func makeDataSourcePipelinePlanV200(
 				plan = append(plan, nil)
 			}
 			refdiffOp := scopeConfig.Refdiff
-			refdiffOp["repoId"] = didgen.NewDomainIdGenerator(&models.BitbucketRepo{}).Generate(connection.ID, repo.BitbucketId)
+			refdiffOp["repoId"] = didgen.NewDomainIdGenerator(&models.BitbucketServerRepo{}).Generate(connection.ID, repo.BitbucketId)
 			plan[j] = coreModels.PipelineStage{
 				{
 					Plugin:  "refdiff",
@@ -108,7 +108,7 @@ func makeDataSourcePipelinePlanV200(
 			return nil, err
 		}
 		stage = append(stage, &coreModels.PipelineTask{
-			Plugin:   "bitbucket",
+			Plugin:   "bitbucket-server",
 			Subtasks: subtasks,
 			Options:  options,
 		})
@@ -128,7 +128,7 @@ func makeDataSourcePipelinePlanV200(
 				Options: map[string]interface{}{
 					"url":    cloneUrl.String(),
 					"name":   repo.BitbucketId,
-					"repoId": didgen.NewDomainIdGenerator(&models.BitbucketRepo{}).Generate(connection.ID, repo.BitbucketId),
+					"repoId": didgen.NewDomainIdGenerator(&models.BitbucketServerRepo{}).Generate(connection.ID, repo.BitbucketId),
 					"proxy":  connection.Proxy,
 				},
 			})
@@ -152,7 +152,7 @@ func makeScopesV200(bpScopes []*coreModels.BlueprintScope, connection *models.Bi
 			// if we don't need to collect gitex, we need to add repo to scopes here
 			scopeRepo := &code.Repo{
 				DomainEntity: domainlayer.DomainEntity{
-					Id: didgen.NewDomainIdGenerator(&models.BitbucketRepo{}).Generate(connection.ID, repo.BitbucketId),
+					Id: didgen.NewDomainIdGenerator(&models.BitbucketServerRepo{}).Generate(connection.ID, repo.BitbucketId),
 				},
 				Name: repo.BitbucketId,
 			}
@@ -162,7 +162,7 @@ func makeScopesV200(bpScopes []*coreModels.BlueprintScope, connection *models.Bi
 		if utils.StringsContains(scopeConfig.Entities, plugin.DOMAIN_TYPE_CICD) {
 			scopeCICD := &devops.CicdScope{
 				DomainEntity: domainlayer.DomainEntity{
-					Id: didgen.NewDomainIdGenerator(&models.BitbucketRepo{}).Generate(connection.ID, repo.BitbucketId),
+					Id: didgen.NewDomainIdGenerator(&models.BitbucketServerRepo{}).Generate(connection.ID, repo.BitbucketId),
 				},
 				Name: repo.BitbucketId,
 			}
@@ -172,7 +172,7 @@ func makeScopesV200(bpScopes []*coreModels.BlueprintScope, connection *models.Bi
 		if utils.StringsContains(scopeConfig.Entities, plugin.DOMAIN_TYPE_TICKET) {
 			scopeTicket := &ticket.Board{
 				DomainEntity: domainlayer.DomainEntity{
-					Id: didgen.NewDomainIdGenerator(&models.BitbucketRepo{}).Generate(connection.ID, repo.BitbucketId),
+					Id: didgen.NewDomainIdGenerator(&models.BitbucketServerRepo{}).Generate(connection.ID, repo.BitbucketId),
 				},
 				Name: repo.BitbucketId,
 			}

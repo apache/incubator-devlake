@@ -22,7 +22,7 @@ import (
 	"gorm.io/datatypes"
 )
 
-type BitbucketScopeConfig struct {
+type BitbucketServerScopeConfig struct {
 	common.ScopeConfig `mapstructure:",squash" json:",inline" gorm:"embedded"`
 	ConnectionId       uint64            `mapstructure:"connectionId" json:"connectionId"`
 	Name               string            `mapstructure:"name" json:"name" gorm:"type:varchar(255);index:idx_name_github,unique" validate:"required"`
@@ -37,11 +37,11 @@ type BitbucketScopeConfig struct {
 	IssueStatusOther      string `mapstructure:"issueStatusOther,omitempty" json:"issueStatusOther" gorm:"type:varchar(255)"`
 }
 
-func (BitbucketScopeConfig) TableName() string {
+func (BitbucketServerScopeConfig) TableName() string {
 	return "_tool_bitbucket_server_scope_configs"
 }
 
-func (cfg *BitbucketScopeConfig) SetConnectionId(c *BitbucketScopeConfig, connectionId uint64) {
+func (cfg *BitbucketServerScopeConfig) SetConnectionId(c *BitbucketServerScopeConfig, connectionId uint64) {
 	c.ConnectionId = connectionId
 	c.ScopeConfig.ConnectionId = connectionId
 }

@@ -18,17 +18,18 @@ limitations under the License.
 package e2e
 
 import (
+	"testing"
+
 	"github.com/apache/incubator-devlake/core/models/common"
 	"github.com/apache/incubator-devlake/core/models/domainlayer/code"
 	"github.com/apache/incubator-devlake/helpers/e2ehelper"
 	"github.com/apache/incubator-devlake/plugins/bitbucket-server/impl"
 	"github.com/apache/incubator-devlake/plugins/bitbucket-server/models"
 	"github.com/apache/incubator-devlake/plugins/bitbucket-server/tasks"
-	"testing"
 )
 
 func TestPrCommitDataFlow(t *testing.T) {
-	var plugin impl.Bitbucket
+	var plugin impl.BitbucketServer
 	dataflowTester := e2ehelper.NewDataFlowTester(t, "bitbucket-server", plugin)
 
 	taskData := &tasks.BitbucketTaskData{
@@ -42,12 +43,12 @@ func TestPrCommitDataFlow(t *testing.T) {
 	dataflowTester.ImportCsvIntoRawTable("./raw_tables/_raw_bitbucket_api_pull_request_commits.csv", "_raw_bitbucket_api_pull_request_commits")
 
 	// verify pr extraction
-	dataflowTester.FlushTabler(&models.BitbucketPrCommit{})
-	dataflowTester.FlushTabler(&models.BitbucketCommit{})
-	dataflowTester.FlushTabler(&models.BitbucketRepoCommit{})
+	dataflowTester.FlushTabler(&models.BitbucketServerPrCommit{})
+	dataflowTester.FlushTabler(&models.BitbucketServerCommit{})
+	dataflowTester.FlushTabler(&models.BitbucketServerRepoCommit{})
 	dataflowTester.Subtask(tasks.ExtractApiPrCommitsMeta, taskData)
 	dataflowTester.VerifyTableWithOptions(
-		models.BitbucketPrCommit{}, e2ehelper.TableOptions{
+		models.BitbucketServerPrCommit{}, e2ehelper.TableOptions{
 			CSVRelPath:  "./snapshot_tables/_tool_bitbucket_pull_request_commits.csv",
 			IgnoreTypes: []interface{}{common.NoPKModel{}},
 		},

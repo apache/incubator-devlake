@@ -29,14 +29,14 @@ import (
 )
 
 func TestCommentDataFlow(t *testing.T) {
-	var plugin impl.Bitbucket
+	var plugin impl.BitbucketServer
 	dataflowTester := e2ehelper.NewDataFlowTester(t, "bitbucket-server", plugin)
 
 	taskData := &tasks.BitbucketTaskData{
 		Options: &tasks.BitbucketOptions{
 			ConnectionId: 1,
 			FullName:     "likyh/likyhphp",
-			BitbucketScopeConfig: &models.BitbucketScopeConfig{
+			BitbucketServerScopeConfig: &models.BitbucketServerScopeConfig{
 				IssueStatusTodo:       "new,open",
 				IssueStatusInProgress: "on hold",
 				IssueStatusDone:       "closed",
@@ -49,13 +49,10 @@ func TestCommentDataFlow(t *testing.T) {
 	dataflowTester.ImportCsvIntoRawTable("./raw_tables/_raw_bitbucket_api_pullrequest_comments.csv", "_raw_bitbucket_api_pull_request_comments")
 
 	// verify extraction
-	dataflowTester.FlushTabler(&models.BitbucketIssueComment{})
-	dataflowTester.FlushTabler(&models.BitbucketPrComment{})
-	dataflowTester.FlushTabler(&models.BitbucketAccount{})
-	dataflowTester.Subtask(tasks.ExtractApiIssueCommentsMeta, taskData)
+	dataflowTester.FlushTabler(&models.BitbucketServerPrComment{})
+	dataflowTester.FlushTabler(&models.BitbucketServerAccount{})
 	dataflowTester.Subtask(tasks.ExtractApiPrCommentsMeta, taskData)
 	dataflowTester.VerifyTable(
-		models.BitbucketIssueComment{},
 		"./snapshot_tables/_tool_bitbucket_issue_comments.csv",
 		e2ehelper.ColumnWithRawData(
 			"connection_id",
@@ -69,7 +66,7 @@ func TestCommentDataFlow(t *testing.T) {
 		),
 	)
 	dataflowTester.VerifyTable(
-		models.BitbucketPrComment{},
+		models.BitbucketServerPrComment{},
 		"./snapshot_tables/_tool_bitbucket_pull_request_comments.csv",
 		e2ehelper.ColumnWithRawData(
 			"connection_id",
@@ -82,7 +79,7 @@ func TestCommentDataFlow(t *testing.T) {
 		),
 	)
 	dataflowTester.VerifyTable(
-		models.BitbucketAccount{},
+		models.BitbucketServerAccount{},
 		"./snapshot_tables/_tool_bitbucket_accounts_in_comments.csv",
 		e2ehelper.ColumnWithRawData(
 			"connection_id",
@@ -100,7 +97,6 @@ func TestCommentDataFlow(t *testing.T) {
 	// verify comment conversion
 	dataflowTester.FlushTabler(&ticket.IssueComment{})
 	dataflowTester.FlushTabler(&code.PullRequestComment{})
-	dataflowTester.Subtask(tasks.ConvertIssueCommentsMeta, taskData)
 	dataflowTester.Subtask(tasks.ConvertPrCommentsMeta, taskData)
 
 	dataflowTester.VerifyTable(

@@ -21,13 +21,13 @@ import (
 	"github.com/apache/incubator-devlake/core/models/common"
 )
 
-type BitbucketRepoCommit struct {
+type BitbucketServerRepoCommit struct {
 	ConnectionId uint64 `gorm:"primaryKey"`
 	RepoId       string `gorm:"primaryKey;type:varchar(255)"`
 	CommitSha    string `gorm:"primaryKey;type:varchar(40)"`
 	common.NoPKModel
 }
 
-func (BitbucketRepoCommit) TableName() string {
+func (BitbucketServerRepoCommit) TableName() string {
 	return "_tool_bitbucket_server_repo_commits"
 }

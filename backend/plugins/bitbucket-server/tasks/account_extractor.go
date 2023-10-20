@@ -41,8 +41,8 @@ type BitbucketAccountResponse struct {
 	}
 }
 
-func convertAccount(res *BitbucketAccountResponse, connId uint64) (*models.BitbucketAccount, errors.Error) {
-	bitbucketAccount := &models.BitbucketAccount{
+func convertAccount(res *BitbucketAccountResponse, connId uint64) (*models.BitbucketServerAccount, errors.Error) {
+	bitbucketAccount := &models.BitbucketServerAccount{
 		ConnectionId:  connId,
 		UserName:      res.UserName,
 		DisplayName:   res.DisplayName,

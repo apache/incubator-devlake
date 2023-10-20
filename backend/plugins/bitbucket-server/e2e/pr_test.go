@@ -28,7 +28,7 @@ import (
 )
 
 func TestPrDataFlow(t *testing.T) {
-	var plugin impl.Bitbucket
+	var plugin impl.BitbucketServer
 	dataflowTester := e2ehelper.NewDataFlowTester(t, "bitbucket-server", plugin)
 
 	taskData := &tasks.BitbucketTaskData{
@@ -42,11 +42,11 @@ func TestPrDataFlow(t *testing.T) {
 	dataflowTester.ImportCsvIntoRawTable("./raw_tables/_raw_bitbucket_api_pull_requests.csv", "_raw_bitbucket_api_pull_requests")
 
 	// verify pr extraction
-	dataflowTester.FlushTabler(&models.BitbucketPullRequest{})
-	dataflowTester.FlushTabler(&models.BitbucketAccount{})
+	dataflowTester.FlushTabler(&models.BitbucketServerPullRequest{})
+	dataflowTester.FlushTabler(&models.BitbucketServerAccount{})
 	dataflowTester.Subtask(tasks.ExtractApiPullRequestsMeta, taskData)
 	dataflowTester.VerifyTable(
-		models.BitbucketPullRequest{},
+		models.BitbucketServerPullRequest{},
 		"./snapshot_tables/_tool_bitbucket_pull_requests.csv",
 		e2ehelper.ColumnWithRawData(
 			"connection_id",
@@ -74,7 +74,7 @@ func TestPrDataFlow(t *testing.T) {
 	)
 
 	dataflowTester.VerifyTable(
-		models.BitbucketAccount{},
+		models.BitbucketServerAccount{},
 		"./snapshot_tables/_tool_bitbucket_accounts_in_pr.csv",
 		e2ehelper.ColumnWithRawData(
 			"connection_id",

@@ -43,7 +43,7 @@ func ConvertPullRequestComments(taskCtx plugin.SubTaskContext) errors.Error {
 	db := taskCtx.GetDal()
 
 	cursor, err := db.Cursor(
-		dal.From(&models.BitbucketPrComment{}),
+		dal.From(&models.BitbucketServerPrComment{}),
 		dal.Where("connection_id = ? AND repo_id = ?", data.Options.ConnectionId, data.Options.FullName),
 	)
 	if err != nil {
@@ -51,16 +51,16 @@ func ConvertPullRequestComments(taskCtx plugin.SubTaskContext) errors.Error {
 	}
 	defer cursor.Close()
 
-	domainIdGeneratorComment := didgen.NewDomainIdGenerator(&models.BitbucketPrComment{})
-	prIdGen := didgen.NewDomainIdGenerator(&models.BitbucketPullRequest{})
-	accountIdGen := didgen.NewDomainIdGenerator(&models.BitbucketAccount{})
+	domainIdGeneratorComment := didgen.NewDomainIdGenerator(&models.BitbucketServerPrComment{})
+	prIdGen := didgen.NewDomainIdGenerator(&models.BitbucketServerPullRequest{})
+	accountIdGen := didgen.NewDomainIdGenerator(&models.BitbucketServerAccount{})
 
 	converter, err := api.NewDataConverter(api.DataConverterArgs{
-		InputRowType:       reflect.TypeOf(models.BitbucketPrComment{}),
+		InputRowType:       reflect.TypeOf(models.BitbucketServerPrComment{}),
 		Input:              cursor,
 		RawDataSubTaskArgs: *rawDataSubTaskArgs,
 		Convert: func(inputRow interface{}) ([]interface{}, errors.Error) {
-			prComment := inputRow.(*models.BitbucketPrComment)
+			prComment := inputRow.(*models.BitbucketServerPrComment)
 			domainPrComment := &code.PullRequestComment{
 				DomainEntity: domainlayer.DomainEntity{
 					Id: domainIdGeneratorComment.Generate(prComment.ConnectionId, prComment.BitbucketId),

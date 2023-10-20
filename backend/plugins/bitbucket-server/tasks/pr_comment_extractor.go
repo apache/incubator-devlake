@@ -91,8 +91,8 @@ func ExtractApiPullRequestsComments(taskCtx plugin.SubTaskContext) errors.Error 
 	return extractor.Execute()
 }
 
-func convertPullRequestComment(prComment *BitbucketPrCommentsResponse) (*models.BitbucketPrComment, errors.Error) {
-	bitbucketPrComment := &models.BitbucketPrComment{
+func convertPullRequestComment(prComment *BitbucketPrCommentsResponse) (*models.BitbucketServerPrComment, errors.Error) {
+	bitbucketPrComment := &models.BitbucketServerPrComment{
 		BitbucketId:        prComment.BitbucketId,
 		AuthorId:           prComment.User.AccountId,
 		PullRequestId:      prComment.PullRequest.Id,

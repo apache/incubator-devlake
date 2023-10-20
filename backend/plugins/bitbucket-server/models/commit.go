@@ -23,7 +23,7 @@ import (
 	"github.com/apache/incubator-devlake/core/models/common"
 )
 
-type BitbucketCommit struct {
+type BitbucketServerCommit struct {
 	Sha           string `gorm:"primaryKey;type:varchar(40)"`
 	AuthorId      string `gorm:"type:varchar(255)"`
 	AuthorName    string `gorm:"type:varchar(255)"`
@@ -37,6 +37,6 @@ type BitbucketCommit struct {
 	common.NoPKModel
 }
 
-func (BitbucketCommit) TableName() string {
+func (BitbucketServerCommit) TableName() string {
 	return "_tool_bitbucket_server_commits"
 }

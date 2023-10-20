@@ -75,7 +75,7 @@ func ExtractApiCommits(taskCtx plugin.SubTaskContext) errors.Error {
 			}
 			results := make([]interface{}, 0, 4)
 
-			bitbucketCommit := &models.BitbucketCommit{
+			bitbucketCommit := &models.BitbucketServerCommit{
 				Sha:           commit.Sha,
 				Message:       commit.Message,
 				AuthoredDate:  commit.Date,
@@ -89,7 +89,7 @@ func ExtractApiCommits(taskCtx plugin.SubTaskContext) errors.Error {
 			//	results = append(results, commit.Author)
 			//}
 
-			bitbucketRepoCommit := &models.BitbucketRepoCommit{
+			bitbucketRepoCommit := &models.BitbucketServerRepoCommit{
 				ConnectionId: data.Options.ConnectionId,
 				RepoId:       data.Options.FullName,
 				CommitSha:    commit.Sha,

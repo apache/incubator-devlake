@@ -21,7 +21,7 @@ import (
 	"github.com/apache/incubator-devlake/core/models/common"
 )
 
-type BitbucketAccount struct {
+type BitbucketServerAccount struct {
 	ConnectionId  uint64 `gorm:"primaryKey"`
 	AccountId     string `gorm:"primaryKey;type:varchar(255)"`
 	UserName      string `gorm:"type:varchar(255)"`
@@ -34,6 +34,6 @@ type BitbucketAccount struct {
 	common.NoPKModel
 }
 
-func (BitbucketAccount) TableName() string {
+func (BitbucketServerAccount) TableName() string {
 	return "_tool_bitbucket_server_accounts"
 }

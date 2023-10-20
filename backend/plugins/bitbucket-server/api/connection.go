@@ -29,16 +29,16 @@ import (
 	"github.com/apache/incubator-devlake/plugins/bitbucket-server/models"
 )
 
-type BitBucketTestConnResponse struct {
+type BitBucketServerTestConnResponse struct {
 	shared.ApiBody
 	Connection *models.BitbucketServerConn
 }
 
 // @Summary test bitbucket connection
 // @Description Test bitbucket Connection
-// @Tags plugins/bitbucket
-// @Param body body models.BitbucketConn true "json body"
-// @Success 200  {object} BitBucketTestConnResponse "Success"
+// @Tags plugins/bitbucket-server
+// @Param body body models.BitbucketServerConn true "json body"
+// @Success 200  {object} BitBucketServerTestConnResponse "Success"
 // @Failure 400  {string} errcode.Error "Bad Request"
 // @Failure 500  {string} errcode.Error "Internal Error"
 // @Router /plugins/bitbucket-server/test [POST]
@@ -66,7 +66,7 @@ func TestConnection(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, 
 	if res.StatusCode != http.StatusOK {
 		return nil, errors.HttpStatus(res.StatusCode).New("unexpected status code when testing connection")
 	}
-	body := BitBucketTestConnResponse{}
+	body := BitBucketServerTestConnResponse{}
 	body.Success = true
 	body.Message = "success"
 	body.Connection = &connection
@@ -76,9 +76,9 @@ func TestConnection(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, 
 
 // @Summary create bitbucket connection
 // @Description Create bitbucket connection
-// @Tags plugins/bitbucket
-// @Param body body models.BitbucketConnection true "json body"
-// @Success 200  {object} models.BitbucketConnection
+// @Tags plugins/bitbucket-server
+// @Param body body models.BitbucketServerConnection true "json body"
+// @Success 200  {object} models.BitbucketServerConnection
 // @Failure 400  {string} errcode.Error "Bad Request"
 // @Failure 500  {string} errcode.Error "Internal Error"
 // @Router /plugins/bitbucket-server/connections [POST]
@@ -94,9 +94,9 @@ func PostConnections(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput,
 
 // @Summary patch bitbucket connection
 // @Description Patch bitbucket connection
-// @Tags plugins/bitbucket
-// @Param body body models.BitbucketConnection true "json body"
-// @Success 200  {object} models.BitbucketConnection
+// @Tags plugins/bitbucket-server
+// @Param body body models.BitbucketServerConnection true "json body"
+// @Success 200  {object} models.BitbucketServerConnection
 // @Failure 400  {string} errcode.Error "Bad Request"
 // @Failure 500  {string} errcode.Error "Internal Error"
 // @Router /plugins/bitbucket-server/connections/{connectionId} [PATCH]
@@ -111,8 +111,8 @@ func PatchConnection(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput,
 
 // @Summary delete a bitbucket connection
 // @Description Delete a bitbucket connection
-// @Tags plugins/bitbucket
-// @Success 200  {object} models.BitbucketConnection
+// @Tags plugins/bitbucket-server
+// @Success 200  {object} models.BitbucketServerConnection
 // @Failure 400  {string} errcode.Error "Bad Request"
 // @Failure 409  {object} services.BlueprintProjectPairs "References exist to this connection"
 // @Failure 500  {string} errcode.Error "Internal Error"
@@ -123,8 +123,8 @@ func DeleteConnection(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput
 
 // @Summary get all bitbucket connections
 // @Description Get all bitbucket connections
-// @Tags plugins/bitbucket
-// @Success 200  {object} []models.BitbucketConnection
+// @Tags plugins/bitbucket-server
+// @Success 200  {object} []models.BitbucketServerConnection
 // @Failure 400  {string} errcode.Error "Bad Request"
 // @Failure 500  {string} errcode.Error "Internal Error"
 // @Router /plugins/bitbucket-server/connections [GET]
@@ -139,8 +139,8 @@ func ListConnections(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput,
 
 // @Summary get bitbucket connection detail
 // @Description Get bitbucket connection detail
-// @Tags plugins/bitbucket
-// @Success 200  {object} models.BitbucketConnection
+// @Tags plugins/bitbucket-server
+// @Success 200  {object} models.BitbucketServerConnection
 // @Failure 400  {string} errcode.Error "Bad Request"
 // @Failure 500  {string} errcode.Error "Internal Error"
 // @Router /plugins/bitbucket-server/connections/{connectionId} [GET]

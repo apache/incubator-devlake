@@ -23,7 +23,7 @@ import (
 	"github.com/apache/incubator-devlake/core/models/common"
 )
 
-type BitbucketPrCommit struct {
+type BitbucketServerPrCommit struct {
 	ConnectionId       uint64 `gorm:"primaryKey"`
 	RepoId             string `gorm:"primaryKey"` // PullRequestId is not unique across multiple repos of a connection
 	PullRequestId      int    `gorm:"primaryKey;autoIncrement:false"`
@@ -34,6 +34,6 @@ type BitbucketPrCommit struct {
 	common.NoPKModel
 }
 
-func (BitbucketPrCommit) TableName() string {
+func (BitbucketServerPrCommit) TableName() string {
 	return "_tool_bitbucket_server_pull_request_commits"
 }

@@ -24,11 +24,11 @@ import (
 	"github.com/apache/incubator-devlake/core/plugin"
 )
 
-var _ plugin.ToolLayerScope = (*BitbucketRepo)(nil)
+var _ plugin.ToolLayerScope = (*BitbucketServerRepo)(nil)
 var _ plugin.ApiGroup = (*GroupResponse)(nil)
 var _ plugin.ApiScope = (*BitbucketApiRepo)(nil)
 
-type BitbucketRepo struct {
+type BitbucketServerRepo struct {
 	common.Scope
 	BitbucketId string     `json:"bitbucketId" gorm:"primaryKey;type:varchar(255)" validate:"required" mapstructure:"bitbucketId"`
 	Name        string     `json:"name" gorm:"type:varchar(255)" mapstructure:"name,omitempty"`
@@ -41,23 +41,23 @@ type BitbucketRepo struct {
 	UpdatedDate *time.Time `json:"updatedDate" mapstructure:"-"`
 }
 
-func (BitbucketRepo) TableName() string {
+func (BitbucketServerRepo) TableName() string {
 	return "_tool_bitbucket_server_repos"
 }
 
-func (p BitbucketRepo) ScopeId() string {
+func (p BitbucketServerRepo) ScopeId() string {
 	return p.BitbucketId
 }
 
-func (p BitbucketRepo) ScopeName() string {
+func (p BitbucketServerRepo) ScopeName() string {
 	return p.Name
 }
 
-func (p BitbucketRepo) ScopeFullName() string {
+func (p BitbucketServerRepo) ScopeFullName() string {
 	return p.BitbucketId
 }
 
-func (p BitbucketRepo) ScopeParams() interface{} {
+func (p BitbucketServerRepo) ScopeParams() interface{} {
 	return &BitbucketApiParams{
 		ConnectionId: p.ConnectionId,
 		FullName:     p.BitbucketId,
@@ -92,7 +92,7 @@ type BitbucketApiRepo struct {
 }
 
 func (b BitbucketApiRepo) ConvertApiScope() plugin.ToolLayerScope {
-	scope := &BitbucketRepo{}
+	scope := &BitbucketServerRepo{}
 	scope.BitbucketId = b.FullName
 	scope.CreatedDate = b.CreatedAt
 	scope.UpdatedDate = b.UpdatedAt

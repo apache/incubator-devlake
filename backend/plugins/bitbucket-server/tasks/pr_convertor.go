@@ -45,7 +45,7 @@ func ConvertPullRequests(taskCtx plugin.SubTaskContext) errors.Error {
 	repoId := data.Options.FullName
 
 	cursor, err := db.Cursor(
-		dal.From(&models.BitbucketPullRequest{}),
+		dal.From(&models.BitbucketServerPullRequest{}),
 		dal.Where("repo_id = ? and connection_id = ?", repoId, data.Options.ConnectionId),
 	)
 	if err != nil {
@@ -53,16 +53,16 @@ func ConvertPullRequests(taskCtx plugin.SubTaskContext) errors.Error {
 	}
 	defer cursor.Close()
 
-	prIdGen := didgen.NewDomainIdGenerator(&models.BitbucketPullRequest{})
-	repoIdGen := didgen.NewDomainIdGenerator(&models.BitbucketRepo{})
-	domainUserIdGen := didgen.NewDomainIdGenerator(&models.BitbucketAccount{})
+	prIdGen := didgen.NewDomainIdGenerator(&models.BitbucketServerPullRequest{})
+	repoIdGen := didgen.NewDomainIdGenerator(&models.BitbucketServerRepo{})
+	domainUserIdGen := didgen.NewDomainIdGenerator(&models.BitbucketServerAccount{})
 
 	converter, err := api.NewDataConverter(api.DataConverterArgs{
-		InputRowType:       reflect.TypeOf(models.BitbucketPullRequest{}),
+		InputRowType:       reflect.TypeOf(models.BitbucketServerPullRequest{}),
 		Input:              cursor,
 		RawDataSubTaskArgs: *rawDataSubTaskArgs,
 		Convert: func(inputRow interface{}) ([]interface{}, errors.Error) {
-			pr := inputRow.(*models.BitbucketPullRequest)
+			pr := inputRow.(*models.BitbucketServerPullRequest)
 			domainPr := &code.PullRequest{
 				DomainEntity: domainlayer.DomainEntity{
 					Id: prIdGen.Generate(data.Options.ConnectionId, pr.RepoId, pr.BitbucketId),

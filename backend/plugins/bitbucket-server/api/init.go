@@ -27,9 +27,9 @@ import (
 
 var vld *validator.Validate
 var connectionHelper *api.ConnectionApiHelper
-var scopeHelper *api.ScopeApiHelper[models.BitbucketServerConnection, models.BitbucketRepo, models.BitbucketScopeConfig]
-var remoteHelper *api.RemoteApiHelper[models.BitbucketServerConnection, models.BitbucketRepo, models.BitbucketApiRepo, models.GroupResponse]
-var scHelper *api.ScopeConfigHelper[models.BitbucketScopeConfig, *models.BitbucketScopeConfig]
+var scopeHelper *api.ScopeApiHelper[models.BitbucketServerConnection, models.BitbucketServerRepo, models.BitbucketServerScopeConfig]
+var remoteHelper *api.RemoteApiHelper[models.BitbucketServerConnection, models.BitbucketServerRepo, models.BitbucketApiRepo, models.GroupResponse]
+var scHelper *api.ScopeConfigHelper[models.BitbucketServerScopeConfig, *models.BitbucketServerScopeConfig]
 var basicRes context.BasicRes
 
 func Init(br context.BasicRes, p plugin.PluginMeta) {
@@ -47,21 +47,21 @@ func Init(br context.BasicRes, p plugin.PluginMeta) {
 		RawScopeParamName:    "FullName",
 		SearchScopeParamName: "name",
 	}
-	scopeHelper = api.NewScopeHelper[models.BitbucketServerConnection, models.BitbucketRepo, models.BitbucketScopeConfig](
+	scopeHelper = api.NewScopeHelper[models.BitbucketServerConnection, models.BitbucketServerRepo, models.BitbucketServerScopeConfig](
 		basicRes,
 		vld,
 		connectionHelper,
-		api.NewScopeDatabaseHelperImpl[models.BitbucketServerConnection, models.BitbucketRepo, models.BitbucketScopeConfig](
+		api.NewScopeDatabaseHelperImpl[models.BitbucketServerConnection, models.BitbucketServerRepo, models.BitbucketServerScopeConfig](
 			basicRes, connectionHelper, params),
 		params,
 		nil,
 	)
-	remoteHelper = api.NewRemoteHelper[models.BitbucketServerConnection, models.BitbucketRepo, models.BitbucketApiRepo, models.GroupResponse](
+	remoteHelper = api.NewRemoteHelper[models.BitbucketServerConnection, models.BitbucketServerRepo, models.BitbucketApiRepo, models.GroupResponse](
 		basicRes,
 		vld,
 		connectionHelper,
 	)
-	scHelper = api.NewScopeConfigHelper[models.BitbucketScopeConfig, *models.BitbucketScopeConfig](
+	scHelper = api.NewScopeConfigHelper[models.BitbucketServerScopeConfig, *models.BitbucketServerScopeConfig](
 		basicRes,
 		vld,
 		p.Name(),

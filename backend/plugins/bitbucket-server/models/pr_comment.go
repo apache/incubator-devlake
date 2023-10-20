@@ -23,7 +23,7 @@ import (
 	"github.com/apache/incubator-devlake/core/models/common"
 )
 
-type BitbucketPrComment struct {
+type BitbucketServerPrComment struct {
 	ConnectionId       uint64 `gorm:"primaryKey"`
 	BitbucketId        int    `gorm:"primaryKey"`
 	RepoId             string `gorm:"index:pr"` // PullRequestId is not unique across multiple repos of a connection
@@ -37,6 +37,6 @@ type BitbucketPrComment struct {
 	common.NoPKModel
 }
 
-func (BitbucketPrComment) TableName() string {
+func (BitbucketServerPrComment) TableName() string {
 	return "_tool_bitbucket_server_pull_request_comments"
 }

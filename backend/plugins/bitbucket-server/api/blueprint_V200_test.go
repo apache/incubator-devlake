@@ -132,7 +132,7 @@ func TestMakeDataSourcePipelinePlanV200(t *testing.T) {
 }
 
 func mockBasicRes(t *testing.T) {
-	testBitbucketRepo := &models.BitbucketRepo{
+	testBitbucketRepo := &models.BitbucketServerRepo{
 		Scope: common.Scope{
 			ConnectionId:  1,
 			ScopeConfigId: 1,
@@ -142,7 +142,7 @@ func mockBasicRes(t *testing.T) {
 		CloneUrl:    "https://this_is_cloneUrl",
 	}
 
-	testScopeConfig := &models.BitbucketScopeConfig{
+	testScopeConfig := &models.BitbucketServerScopeConfig{
 		ScopeConfig: common.ScopeConfig{
 			Entities: []string{"CODE", "TICKET"},
 			Model: common.Model{
@@ -160,12 +160,12 @@ func mockBasicRes(t *testing.T) {
 	// Refresh Global Variables and set the sql mock
 	mockRes := unithelper.DummyBasicRes(func(mockDal *mockdal.Dal) {
 		mockDal.On("First", mock.AnythingOfType("*models.BitbucketRepo"), mock.Anything).Run(func(args mock.Arguments) {
-			dst := args.Get(0).(*models.BitbucketRepo)
+			dst := args.Get(0).(*models.BitbucketServerRepo)
 			*dst = *testBitbucketRepo
 		}).Return(nil)
 
 		mockDal.On("First", mock.AnythingOfType("*models.BitbucketScopeConfig"), mock.Anything).Run(func(args mock.Arguments) {
-			dst := args.Get(0).(*models.BitbucketScopeConfig)
+			dst := args.Get(0).(*models.BitbucketServerScopeConfig)
 			*dst = *testScopeConfig
 		}).Return(nil)
 	})

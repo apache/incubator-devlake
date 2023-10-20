@@ -52,11 +52,11 @@ func (p BitbucketServer) Connection() dal.Tabler {
 }
 
 func (p BitbucketServer) Scope() plugin.ToolLayerScope {
-	return &models.BitbucketRepo{}
+	return &models.BitbucketServerRepo{}
 }
 
 func (p BitbucketServer) ScopeConfig() dal.Tabler {
-	return &models.BitbucketScopeConfig{}
+	return &models.BitbucketServerScopeConfig{}
 }
 
 func (p BitbucketServer) Init(basicRes context.BasicRes) errors.Error {
@@ -68,14 +68,14 @@ func (p BitbucketServer) Init(basicRes context.BasicRes) errors.Error {
 func (p BitbucketServer) GetTablesInfo() []dal.Tabler {
 	return []dal.Tabler{
 		&models.BitbucketServerConnection{},
-		&models.BitbucketAccount{},
-		&models.BitbucketCommit{},
-		&models.BitbucketPullRequest{},
-		&models.BitbucketPrComment{},
-		&models.BitbucketRepo{},
-		&models.BitbucketRepoCommit{},
-		&models.BitbucketPrCommit{},
-		&models.BitbucketScopeConfig{},
+		&models.BitbucketServerAccount{},
+		&models.BitbucketServerCommit{},
+		&models.BitbucketServerPullRequest{},
+		&models.BitbucketServerPrComment{},
+		&models.BitbucketServerRepo{},
+		&models.BitbucketServerRepoCommit{},
+		&models.BitbucketServerPrCommit{},
+		&models.BitbucketServerScopeConfig{},
 	}
 }
 
@@ -154,7 +154,7 @@ func (p BitbucketServer) PrepareTaskData(taskCtx plugin.TaskContext, options map
 }
 
 func (p BitbucketServer) RootPkgPath() string {
-	return "github.com/apache/incubator-devlake/plugins/bitbucketserver"
+	return "github.com/apache/incubator-devlake/plugins/bitbucket-server"
 }
 
 func (p BitbucketServer) MigrationScripts() []plugin.MigrationScript {
@@ -181,30 +181,30 @@ func (p BitbucketServer) ApiResources() map[string]map[string]plugin.ApiResource
 			"DELETE": api.DeleteConnection,
 			"GET":    api.GetConnection,
 		},
-		"connections/:connectionId/scopes/*scopeId": {
-			"GET":    api.GetScope,
-			"PATCH":  api.UpdateScope,
-			"DELETE": api.DeleteScope,
-		},
-		"connections/:connectionId/remote-scopes": {
-			"GET": api.RemoteScopes,
-		},
-		"connections/:connectionId/search-remote-scopes": {
-			"GET": api.SearchRemoteScopes,
-		},
-		"connections/:connectionId/scopes": {
-			"GET": api.GetScopeList,
-			"PUT": api.PutScope,
-		},
-		"connections/:connectionId/scope-configs": {
-			"POST": api.CreateScopeConfig,
-			"GET":  api.GetScopeConfigList,
-		},
-		"connections/:connectionId/scope-configs/:id": {
-			"PATCH":  api.UpdateScopeConfig,
-			"GET":    api.GetScopeConfig,
-			"DELETE": api.DeleteScopeConfig,
-		},
+		// "connections/:connectionId/scopes/*scopeId": {
+		// 	"GET":    api.GetScope,
+		// 	"PATCH":  api.UpdateScope,
+		// 	"DELETE": api.DeleteScope,
+		// },
+		// "connections/:connectionId/remote-scopes": {
+		// 	"GET": api.RemoteScopes,
+		// },
+		// "connections/:connectionId/search-remote-scopes": {
+		// 	"GET": api.SearchRemoteScopes,
+		// },
+		// "connections/:connectionId/scopes": {
+		// 	"GET": api.GetScopeList,
+		// 	"PUT": api.PutScope,
+		// },
+		// "connections/:connectionId/scope-configs": {
+		// 	"POST": api.CreateScopeConfig,
+		// 	"GET":  api.GetScopeConfigList,
+		// },
+		// "connections/:connectionId/scope-configs/:id": {
+		// 	"PATCH":  api.UpdateScopeConfig,
+		// 	"GET":    api.GetScopeConfig,
+		// 	"DELETE": api.DeleteScopeConfig,
+		// },
 	}
 }
 
@@ -220,7 +220,7 @@ func (p BitbucketServer) Close(taskCtx plugin.TaskContext) errors.Error {
 func EnrichOptions(taskCtx plugin.TaskContext,
 	op *tasks.BitbucketOptions,
 	apiClient *helper.ApiClient) errors.Error {
-	var repo models.BitbucketRepo
+	var repo models.BitbucketServerRepo
 	// validate the op and set name=owner/repo if this is from advanced mode or bpV100
 	err := tasks.ValidateTaskOptions(op)
 	if err != nil {
@@ -242,7 +242,7 @@ func EnrichOptions(taskCtx plugin.TaskContext,
 				return err
 			}
 			logger.Debug(fmt.Sprintf("Current repo: %s", repo.FullName))
-			scope := repo.ConvertApiScope().(*models.BitbucketRepo)
+			scope := repo.ConvertApiScope().(*models.BitbucketServerRepo)
 			scope.ConnectionId = op.ConnectionId
 			err = taskCtx.GetDal().CreateIfNotExist(scope)
 			if err != nil {
@@ -253,17 +253,17 @@ func EnrichOptions(taskCtx plugin.TaskContext,
 		}
 	}
 	// Set GithubScopeConfig if it's nil, this has lower priority
-	if op.BitbucketScopeConfig == nil && op.ScopeConfigId != 0 {
-		var scopeConfig models.BitbucketScopeConfig
+	if op.BitbucketServerScopeConfig == nil && op.ScopeConfigId != 0 {
+		var scopeConfig models.BitbucketServerScopeConfig
 		db := taskCtx.GetDal()
 		err = db.First(&scopeConfig, dal.Where("id = ?", repo.ScopeConfigId))
 		if err != nil && !db.IsErrorNotFound(err) {
 			return errors.BadInput.Wrap(err, "fail to get scopeConfig")
 		}
-		op.BitbucketScopeConfig = &scopeConfig
+		op.BitbucketServerScopeConfig = &scopeConfig
 	}
-	if op.BitbucketScopeConfig == nil && op.ScopeConfigId == 0 {
-		op.BitbucketScopeConfig = new(models.BitbucketScopeConfig)
+	if op.BitbucketServerScopeConfig == nil && op.ScopeConfigId == 0 {
+		op.BitbucketServerScopeConfig = new(models.BitbucketServerScopeConfig)
 	}
 	return err
 }

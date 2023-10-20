@@ -125,8 +125,8 @@ func ExtractApiPullRequests(taskCtx plugin.SubTaskContext) errors.Error {
 	}
 	return extractor.Execute()
 }
-func convertBitbucketPullRequest(pull *BitbucketApiPullRequest, connId uint64, repoId string) (*models.BitbucketPullRequest, errors.Error) {
-	bitbucketPull := &models.BitbucketPullRequest{
+func convertBitbucketPullRequest(pull *BitbucketApiPullRequest, connId uint64, repoId string) (*models.BitbucketServerPullRequest, errors.Error) {
+	bitbucketPull := &models.BitbucketServerPullRequest{
 		ConnectionId:       connId,
 		BitbucketId:        pull.BitbucketId,
 		Number:             pull.BitbucketId,

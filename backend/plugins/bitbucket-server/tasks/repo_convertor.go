@@ -88,7 +88,7 @@ func ConvertRepo(taskCtx plugin.SubTaskContext) errors.Error {
 	repoId := data.Options.FullName
 
 	cursor, err := db.Cursor(
-		dal.From(&models.BitbucketRepo{}),
+		dal.From(&models.BitbucketServerRepo{}),
 		dal.Where("connection_id = ? AND bitbucket_id = ?", data.Options.ConnectionId, repoId),
 	)
 	if err != nil {
@@ -96,14 +96,14 @@ func ConvertRepo(taskCtx plugin.SubTaskContext) errors.Error {
 	}
 	defer cursor.Close()
 
-	repoIdGen := didgen.NewDomainIdGenerator(&models.BitbucketRepo{})
+	repoIdGen := didgen.NewDomainIdGenerator(&models.BitbucketServerRepo{})
 
 	converter, err := api.NewDataConverter(api.DataConverterArgs{
-		InputRowType:       reflect.TypeOf(models.BitbucketRepo{}),
+		InputRowType:       reflect.TypeOf(models.BitbucketServerRepo{}),
 		Input:              cursor,
 		RawDataSubTaskArgs: *rawDataSubTaskArgs,
 		Convert: func(inputRow interface{}) ([]interface{}, errors.Error) {
-			repository := inputRow.(*models.BitbucketRepo)
+			repository := inputRow.(*models.BitbucketServerRepo)
 
 			repoId := repoIdGen.Generate(data.Options.ConnectionId, repository.BitbucketId)
 
