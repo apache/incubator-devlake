@@ -53,6 +53,7 @@ func TestCommentDataFlow(t *testing.T) {
 	dataflowTester.FlushTabler(&models.BitbucketServerAccount{})
 	dataflowTester.Subtask(tasks.ExtractApiPrCommentsMeta, taskData)
 	dataflowTester.VerifyTable(
+		models.BitbucketServerPrComment{},
 		"./snapshot_tables/_tool_bitbucket_issue_comments.csv",
 		e2ehelper.ColumnWithRawData(
 			"connection_id",

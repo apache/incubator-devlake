@@ -54,7 +54,7 @@ func TestConnection(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, 
 	if err != nil {
 		return nil, err
 	}
-	res, err := apiClient.Get("rest/api/1.0/profile/recent/repos", nil, nil)
+	res, err := apiClient.Get("rest/api/1.0/projects", nil, nil)
 	if err != nil {
 		return nil, err
 	}
