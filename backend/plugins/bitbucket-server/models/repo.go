@@ -18,6 +18,7 @@ limitations under the License.
 package models
 
 import (
+	"fmt"
 	"time"
 
 	"github.com/apache/incubator-devlake/core/models/common"
@@ -25,7 +26,7 @@ import (
 )
 
 var _ plugin.ToolLayerScope = (*BitbucketServerRepo)(nil)
-var _ plugin.ApiGroup = (*GroupResponse)(nil)
+var _ plugin.ApiGroup = (*ProjectItem)(nil)
 var _ plugin.ApiScope = (*BitbucketApiRepo)(nil)
 
 type BitbucketServerRepo struct {
@@ -65,42 +66,35 @@ func (p BitbucketServerRepo) ScopeParams() interface{} {
 }
 
 type BitbucketApiRepo struct {
-	//Scm         string `json:"scm"`
-	//HasWiki     bool   `json:"has_wiki"`
-	//Uuid        string `json:"uuid"`
-	//Type        string `json:"type"`
-	//HasIssue    bool   `json:"has_issue"`
-	//ForkPolicy  string `json:"fork_policy"`
-	Name        string `json:"name"`
-	FullName    string `json:"full_name"`
-	Language    string `json:"language"`
-	Description string `json:"description"`
-	Owner       struct {
-		Displayname string `json:"display_name"`
-	} `json:"owner"`
-	CreatedAt *time.Time `json:"created_on"`
-	UpdatedAt *time.Time `json:"updated_on"`
-	Links     struct {
+	Id            int32  `json:"id"`
+	Name          string `json:"name"`
+	Slug          string `json:"slug"`
+	HierarchyId   string `json:"hierarchyId"`
+	State         string `json:"state"`
+	StatusMessage string `json:"statusMessage"`
+	Public        bool   `json:"public"`
+	Archived      bool   `json:"archived"`
+	// CreatedAt     *time.Time  `json:"created_on"`
+	// UpdatedAt     *time.Time  `json:"updated_on"`
+	Project ProjectItem `json:"project"`
+	Links   struct {
 		Clone []struct {
 			Href string `json:"href"`
 			Name string `json:"name"`
 		} `json:"clone"`
-		Html struct {
-			Href string `json:"href"`
-		} `json:"html"`
 	} `json:"links"`
 }
 
 func (b BitbucketApiRepo) ConvertApiScope() plugin.ToolLayerScope {
 	scope := &BitbucketServerRepo{}
-	scope.BitbucketId = b.FullName
-	scope.CreatedDate = b.CreatedAt
-	scope.UpdatedDate = b.UpdatedAt
-	scope.Language = b.Language
-	scope.Description = b.Description
+	scope.BitbucketId = fmt.Sprintf("%s/repos/%s", b.Project.Key, b.Slug)
+	// scope.CreatedDate = b.CreatedAt
+	// scope.UpdatedDate = b.UpdatedAt
+	// scope.Language = b.Language
+	// scope.Description = b.Description
 	scope.Name = b.Name
-	scope.Owner = b.Owner.Displayname
-	scope.HTMLUrl = b.Links.Html.Href
+	// scope.Owner = b.Owner.Displayname
+	// scope.HTMLUrl = b.Links.Html.Href
 
 	scope.CloneUrl = ""
 	for _, u := range b.Links.Clone {
@@ -111,41 +105,36 @@ func (b BitbucketApiRepo) ConvertApiScope() plugin.ToolLayerScope {
 	return scope
 }
 
-type WorkspaceResponse struct {
-	Pagelen int             `json:"pagelen"`
-	Page    int             `json:"page"`
-	Size    int             `json:"size"`
-	Values  []GroupResponse `json:"values"`
+type ProjectsResponse struct {
+	Start      int           `json:"start"`
+	Limit      int           `json:"limit"`
+	Size       int           `json:"size"`
+	IsLastPage bool          `json:"isLastPage"`
+	Values     []ProjectItem `json:"values"`
 }
 
-type GroupResponse struct {
-	//Type       string `json:"type"`
-	//Permission string `json:"permission"`
-	//LastAccessed time.Time `json:"last_accessed"`
-	//AddedOn      time.Time `json:"added_on"`
-	Workspace WorkspaceItem `json:"workspace"`
+type ProjectItem struct {
+	Key    string `json:"key" group:"id"`
+	Name   string `json:"name" group:"name"`
+	Public bool   `json:"public"`
+	Type   string `json:"type"`
+	Id     int32  `json:"id"`
 }
 
-type WorkspaceItem struct {
-	//Type string `json:"type"`
-	//Uuid string `json:"uuid"`
-	Slug string `json:"slug" group:"id"`
-	Name string `json:"name" group:"name"`
+func (p ProjectItem) GroupId() string {
+	return p.Key
 }
 
-func (p GroupResponse) GroupId() string {
-	return p.Workspace.Slug
-}
-
-func (p GroupResponse) GroupName() string {
-	return p.Workspace.Name
+func (p ProjectItem) GroupName() string {
+	return p.Name
 }
 
 type ReposResponse struct {
-	Pagelen int                `json:"pagelen"`
-	Page    int                `json:"page"`
-	Size    int                `json:"size"`
-	Values  []BitbucketApiRepo `json:"values"`
+	Start      int                `json:"start"`
+	Limit      int                `json:"limit"`
+	Size       int                `json:"size"`
+	IsLastPage bool               `json:"isLastPage"`
+	Values     []BitbucketApiRepo `json:"values"`
 }
 
 type BitbucketApiParams struct {

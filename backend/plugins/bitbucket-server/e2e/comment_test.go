@@ -34,13 +34,9 @@ func TestCommentDataFlow(t *testing.T) {
 
 	taskData := &tasks.BitbucketTaskData{
 		Options: &tasks.BitbucketOptions{
-			ConnectionId: 1,
-			FullName:     "likyh/likyhphp",
-			BitbucketServerScopeConfig: &models.BitbucketServerScopeConfig{
-				IssueStatusTodo:       "new,open",
-				IssueStatusInProgress: "on hold",
-				IssueStatusDone:       "closed",
-			},
+			ConnectionId:               1,
+			FullName:                   "likyh/repos/likyhphp",
+			BitbucketServerScopeConfig: &models.BitbucketServerScopeConfig{},
 		},
 	}
 

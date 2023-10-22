@@ -142,14 +142,14 @@ func convertBitbucketPullRequest(pull *BitbucketApiPullRequest, connId uint64, r
 	}
 	if pull.BaseRef != nil {
 		if pull.BaseRef.Repo != nil {
-			bitbucketPull.BaseRepoId = pull.BaseRef.Repo.FullName
+			bitbucketPull.BaseRepoId = pull.BaseRef.Repo.Slug
 		}
 		bitbucketPull.BaseRef = pull.BaseRef.Branch.Name
 		bitbucketPull.BaseCommitSha = pull.BaseRef.Commit.Hash
 	}
 	if pull.HeadRef != nil {
 		if pull.HeadRef.Repo != nil {
-			bitbucketPull.HeadRepoId = pull.HeadRef.Repo.FullName
+			bitbucketPull.HeadRepoId = pull.HeadRef.Repo.Slug
 		}
 		bitbucketPull.HeadRef = pull.HeadRef.Branch.Name
 		bitbucketPull.HeadCommitSha = pull.HeadRef.Commit.Hash

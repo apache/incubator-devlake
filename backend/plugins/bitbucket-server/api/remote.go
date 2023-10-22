@@ -45,7 +45,7 @@ import (
 // @Router /plugins/bitbucket-server/connections/{connectionId}/remote-scopes [GET]
 func RemoteScopes(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, errors.Error) {
 	return remoteHelper.GetScopesFromRemote(input,
-		func(basicRes context.BasicRes, gid string, queryData *api.RemoteQueryData, connection models.BitbucketServerConnection) ([]models.GroupResponse, errors.Error) {
+		func(basicRes context.BasicRes, gid string, queryData *api.RemoteQueryData, connection models.BitbucketServerConnection) ([]models.ProjectItem, errors.Error) {
 			if gid != "" {
 				return nil, nil
 			}
@@ -56,14 +56,14 @@ func RemoteScopes(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, er
 				return nil, errors.BadInput.Wrap(err, "failed to get create apiClient")
 			}
 			var res *http.Response
-			query.Set("sort", "workspace.key")
-			query.Set("fields", "values.key,values.name,limit,start,size")
-			res, err = apiClient.Get("/rest/api/1.0/projects", query, nil)
+			// query.Set("sort", "values.slug")
+			// query.Set("fields", "values.slug,values.name,limit,start,size")
+			res, err = apiClient.Get("rest/api/1.0/projects", query, nil)
 			if err != nil {
 				return nil, err
 			}
 
-			resBody := &models.WorkspaceResponse{}
+			resBody := &models.ProjectsResponse{}
 			err = api.UnmarshalResponse(res, resBody)
 			if err != nil {
 				return nil, err
@@ -82,9 +82,9 @@ func RemoteScopes(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, er
 				return nil, errors.BadInput.Wrap(err, "failed to get create apiClient")
 			}
 			var res *http.Response
-			query.Set("fields", "values.name,values.full_name,values.language,values.description,values.owner.display_name,values.created_on,values.updated_on,values.links.clone,values.links.html,pagelen,page,size")
+			// query.Set("fields", "values.name,values.full_name,values.language,values.description,values.owner.display_name,values.created_on,values.updated_on,values.links.clone,values.links.html,pagelen,page,size")
 			// list projects part
-			res, err = apiClient.Get(fmt.Sprintf("/rest/api/1.0/projects/%s/repos", gid), query, nil)
+			res, err = apiClient.Get(fmt.Sprintf("rest/api/1.0/projects/%s/repos", gid), query, nil)
 			if err != nil {
 				return nil, err
 			}
@@ -162,7 +162,7 @@ func getSearch(s string) (string, string) {
 
 func initialQuery(queryData *api.RemoteQueryData) url.Values {
 	query := url.Values{}
-	query.Set("page", fmt.Sprintf("%v", queryData.Page))
-	query.Set("pagelen", fmt.Sprintf("%v", queryData.PerPage))
+	// query.Set("page", fmt.Sprintf("%v", queryData.Page))
+	// query.Set("limit", fmt.Sprintf("%v", queryData.PerPage))
 	return query
 }

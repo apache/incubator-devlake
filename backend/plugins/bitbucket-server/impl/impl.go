@@ -181,30 +181,30 @@ func (p BitbucketServer) ApiResources() map[string]map[string]plugin.ApiResource
 			"DELETE": api.DeleteConnection,
 			"GET":    api.GetConnection,
 		},
-		// "connections/:connectionId/scopes/*scopeId": {
-		// 	"GET":    api.GetScope,
-		// 	"PATCH":  api.UpdateScope,
-		// 	"DELETE": api.DeleteScope,
-		// },
-		// "connections/:connectionId/remote-scopes": {
-		// 	"GET": api.RemoteScopes,
-		// },
-		// "connections/:connectionId/search-remote-scopes": {
-		// 	"GET": api.SearchRemoteScopes,
-		// },
-		// "connections/:connectionId/scopes": {
-		// 	"GET": api.GetScopeList,
-		// 	"PUT": api.PutScope,
-		// },
-		// "connections/:connectionId/scope-configs": {
-		// 	"POST": api.CreateScopeConfig,
-		// 	"GET":  api.GetScopeConfigList,
-		// },
-		// "connections/:connectionId/scope-configs/:id": {
-		// 	"PATCH":  api.UpdateScopeConfig,
-		// 	"GET":    api.GetScopeConfig,
-		// 	"DELETE": api.DeleteScopeConfig,
-		// },
+		"connections/:connectionId/scopes/*scopeId": {
+			"GET":    api.GetScope,
+			"PATCH":  api.UpdateScope,
+			"DELETE": api.DeleteScope,
+		},
+		"connections/:connectionId/remote-scopes": {
+			"GET": api.RemoteScopes,
+		},
+		"connections/:connectionId/search-remote-scopes": {
+			"GET": api.SearchRemoteScopes,
+		},
+		"connections/:connectionId/scopes": {
+			"GET": api.GetScopeList,
+			"PUT": api.PutScope,
+		},
+		"connections/:connectionId/scope-configs": {
+			"POST": api.CreateScopeConfig,
+			"GET":  api.GetScopeConfigList,
+		},
+		"connections/:connectionId/scope-configs/:id": {
+			"PATCH":  api.UpdateScopeConfig,
+			"GET":    api.GetScopeConfig,
+			"DELETE": api.DeleteScopeConfig,
+		},
 	}
 }
 
@@ -241,7 +241,7 @@ func EnrichOptions(taskCtx plugin.TaskContext,
 			if err != nil {
 				return err
 			}
-			logger.Debug(fmt.Sprintf("Current repo: %s", repo.FullName))
+			logger.Debug(fmt.Sprintf("Current repo: %s", repo.Slug))
 			scope := repo.ConvertApiScope().(*models.BitbucketServerRepo)
 			scope.ConnectionId = op.ConnectionId
 			err = taskCtx.GetDal().CreateIfNotExist(scope)

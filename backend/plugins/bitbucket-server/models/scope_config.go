@@ -31,10 +31,6 @@ type BitbucketServerScopeConfig struct {
 	Refdiff            datatypes.JSONMap `mapstructure:"refdiff,omitempty" json:"refdiff" swaggertype:"object" format:"json"`
 
 	// a string array, split by `,`.
-	IssueStatusTodo       string `mapstructure:"issueStatusTodo,omitempty" json:"issueStatusTodo" gorm:"type:varchar(255)"`
-	IssueStatusInProgress string `mapstructure:"issueStatusInProgress,omitempty" json:"issueStatusInProgress" gorm:"type:varchar(255)"`
-	IssueStatusDone       string `mapstructure:"issueStatusDone,omitempty" json:"issueStatusDone" gorm:"type:varchar(255)"`
-	IssueStatusOther      string `mapstructure:"issueStatusOther,omitempty" json:"issueStatusOther" gorm:"type:varchar(255)"`
 }
 
 func (BitbucketServerScopeConfig) TableName() string {
