@@ -92,23 +92,6 @@ func ConvertPipelineSteps(taskCtx plugin.SubTaskContext) errors.Error {
 				domainTask.FinishedDate = bitbucketPipelineStep.CompletedOn
 				domainTask.DurationSec = uint64(bitbucketPipelineStep.DurationInSeconds)
 			}
-
-			bitbucketDeployment := &models.BitbucketDeployment{}
-			deploymentErr := db.First(bitbucketDeployment, dal.Where(`step_id=?`, bitbucketPipelineStep.BitbucketId))
-			if deploymentErr == nil {
-				// If cicd_task.type is DEPLOYMENT,
-				// it will cause cicd_pipelines be transformed to cicd_deployment_commit
-				// when there is no `deploymentPattern` and `productionPattern`.
-				// Just make cicd_task.type empty and prevent that transformation in dora plugin.
-				// domainTask.Type = devops.DEPLOYMENT
-				if bitbucketDeployment.EnvironmentType == `Production` {
-					domainTask.Environment = devops.PRODUCTION
-				} else if bitbucketDeployment.EnvironmentType == `Staging` {
-					domainTask.Environment = devops.STAGING
-				} else if bitbucketDeployment.EnvironmentType == `Test` {
-					domainTask.Environment = devops.TESTING
-				}
-			}
 			return []interface{}{
 				domainTask,
 			}, nil
