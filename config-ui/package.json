@@ -5,9 +5,9 @@
   "packageManager": "yarn@3.4.1",
   "scripts": {
     "start": "vite",
-    "build": "tsc && vite build",
+    "build": "vite build",
     "preview": "vite preview",
-    "lint": "eslint . --fix",
+    "lint": "tsc && eslint . --fix",
     "prettier": "prettier . --write",
     "lint-staged": "lint-staged",
     "prepare": "cd .. && husky install config-ui/.husky"
