@@ -160,8 +160,7 @@ func getSearch(s string) (string, string) {
 			// KEY/repo
 			gid = parts[0]
 			s = strings.Join(parts[1:], "/")
-		}
-		else if len(parts) >= 3 {
+		} else if len(parts) >= 3 {
 			// KEY/repos/repo
 			gid = parts[0]
 			s = strings.Join(parts[2:], "/")
@@ -172,7 +171,8 @@ func getSearch(s string) (string, string) {
 
 func initialQuery(queryData *api.RemoteQueryData) url.Values {
 	query := url.Values{}
-	query.Set("start", fmt.Sprintf("%v", queryData.Page))
+	start := queryData.Page * queryData.PerPage
+	query.Set("start", fmt.Sprintf("%v", start))
 	query.Set("limit", fmt.Sprintf("%v", queryData.PerPage))
 	return query
 }
