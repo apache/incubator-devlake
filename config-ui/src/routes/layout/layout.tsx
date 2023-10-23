@@ -16,12 +16,14 @@
  *
  */
 
-import { useRef } from 'react';
+import { useEffect, useRef } from 'react';
 import { useLoaderData, Outlet, useNavigate, useLocation } from 'react-router-dom';
 import { CSSTransition } from 'react-transition-group';
 import { Menu, MenuItem, Navbar, Alignment } from '@blueprintjs/core';
 
-import { Logo, ExternalLink, IconButton } from '@/components';
+import { useAppDispatch, useAppSelector } from '@/app/hook';
+import { PageLoading, Logo, ExternalLink, IconButton } from '@/components';
+import { init, selectStatus } from '@/features';
 import { DOC_URL } from '@/release';
 import { TipsContextProvider, TipsContextConsumer } from '@/store';
 
@@ -42,9 +44,20 @@ export const Layout = () => {
   const navigate = useNavigate();
   const { pathname } = useLocation();
 
+  const dispatch = useAppDispatch();
+  const status = useAppSelector(selectStatus);
+
   const menu = useMenu();
 
   const tipsRef = useRef(null);
+
+  useEffect(() => {
+    dispatch(init());
+  }, []);
+
+  if (['idle', 'loading'].includes(status)) {
+    return <PageLoading />;
+  }
 
   const handlePushPath = (it: MenuItemType) => {
     if (!it.target) {

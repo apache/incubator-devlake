@@ -16,11 +16,8 @@
  *
  */
 
-import { useEffect } from 'react';
 import { createBrowserRouter, Navigate, RouterProvider, json } from 'react-router-dom';
 
-import { useAppDispatch, useAppSelector } from '@/app/hook';
-import { init, selectStatus } from '@/features';
 import { PageLoading } from '@/components';
 import {
   ConnectionHomePage,
@@ -103,17 +100,4 @@ const router = createBrowserRouter([
   },
 ]);
 
-export const App = () => {
-  const dispatch = useAppDispatch();
-  const status = useAppSelector(selectStatus);
-
-  useEffect(() => {
-    dispatch(init());
-  }, []);
-
-  if (['idle', 'loading'].includes(status)) {
-    return <PageLoading />;
-  }
-
-  return <RouterProvider router={router} fallbackElement={<PageLoading />} />;
-};
+export const App = () => <RouterProvider router={router} fallbackElement={<PageLoading />} />;
