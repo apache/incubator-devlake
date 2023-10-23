@@ -56,7 +56,7 @@ func RemoteScopes(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, er
 				return nil, errors.BadInput.Wrap(err, "failed to get create apiClient")
 			}
 			var res *http.Response
-			// query.Set("sort", "values.slug")
+			// query.Set("sort", "values.key")
 			// query.Set("fields", "values.slug,values.name,limit,start,size")
 			res, err = apiClient.Get("rest/api/1.0/projects", query, nil)
 			if err != nil {
@@ -126,13 +126,17 @@ func SearchRemoteScopes(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutp
 				return nil, errors.BadInput.New("empty search query")
 			}
 			s := queryData.Search[0]
-			query.Set("sort", "name")
-			query.Set("fields", "values.name,values.full_name,values.language,values.description,values.owner.display_name,values.created_on,values.updated_on,values.links.clone,values.links.html,pagelen,page,size")
 			gid, searchName := getSearch(s)
-			query.Set("q", fmt.Sprintf(`name~"%s"`, searchName))
+			// query.Set("sort", "name")
+			// query.Set("fields", "values.name,values.full_name,values.language,values.description,values.owner.display_name,values.created_on,values.updated_on,values.links.clone,values.links.html,pagelen,page,size")
+			queryString := fmt.Sprintf("name=%s", searchName)
+			if len(gid) > 0 {
+				queryString = fmt.Sprintf("&projectkey=%s", gid)
+			}
+			query.Set("q", queryString)
 
 			// list repos part
-			res, err := apiClient.Get(fmt.Sprintf("/repositories/%s", gid), query, nil)
+			res, err := apiClient.Get("repos", query, nil)
 			if err != nil {
 				return nil, err
 			}
@@ -152,9 +156,15 @@ func getSearch(s string) (string, string) {
 	gid := ""
 	if strings.Contains(s, "/") {
 		parts := strings.Split(s, "/")
-		if len(parts) >= 2 {
+		if len(parts) == 2 {
+			// KEY/repo
 			gid = parts[0]
 			s = strings.Join(parts[1:], "/")
+		}
+		else if len(parts) >= 3 {
+			// KEY/repos/repo
+			gid = parts[0]
+			s = strings.Join(parts[2:], "/")
 		}
 	}
 	return gid, s
@@ -162,7 +172,7 @@ func getSearch(s string) (string, string) {
 
 func initialQuery(queryData *api.RemoteQueryData) url.Values {
 	query := url.Values{}
-	// query.Set("page", fmt.Sprintf("%v", queryData.Page))
-	// query.Set("limit", fmt.Sprintf("%v", queryData.PerPage))
+	query.Set("start", fmt.Sprintf("%v", queryData.Page))
+	query.Set("limit", fmt.Sprintf("%v", queryData.PerPage))
 	return query
 }
