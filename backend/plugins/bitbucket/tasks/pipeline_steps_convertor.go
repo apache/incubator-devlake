@@ -92,19 +92,6 @@ func ConvertPipelineSteps(taskCtx plugin.SubTaskContext) errors.Error {
 				domainTask.FinishedDate = bitbucketPipelineStep.CompletedOn
 				domainTask.DurationSec = uint64(bitbucketPipelineStep.DurationInSeconds)
 			}
-
-			bitbucketDeployment := &models.BitbucketDeployment{}
-			deploymentErr := db.First(bitbucketDeployment, dal.Where(`step_id=?`, bitbucketPipelineStep.BitbucketId))
-			if deploymentErr == nil {
-				domainTask.Type = devops.DEPLOYMENT
-				if bitbucketDeployment.EnvironmentType == `Production` {
-					domainTask.Environment = devops.PRODUCTION
-				} else if bitbucketDeployment.EnvironmentType == `Staging` {
-					domainTask.Environment = devops.STAGING
-				} else if bitbucketDeployment.EnvironmentType == `Test` {
-					domainTask.Environment = devops.TESTING
-				}
-			}
 			return []interface{}{
 				domainTask,
 			}, nil
