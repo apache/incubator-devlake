@@ -171,7 +171,7 @@ func getSearch(s string) (string, string) {
 
 func initialQuery(queryData *api.RemoteQueryData) url.Values {
 	query := url.Values{}
-	start := queryData.Page * queryData.PerPage
+	start := (queryData.Page - 1) * queryData.PerPage
 	query.Set("start", fmt.Sprintf("%v", start))
 	query.Set("limit", fmt.Sprintf("%v", queryData.PerPage))
 	return query
