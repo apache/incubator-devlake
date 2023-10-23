@@ -35,8 +35,6 @@ type BitbucketServerRepo struct {
 	Name        string     `json:"name" gorm:"type:varchar(255)" mapstructure:"name,omitempty"`
 	HTMLUrl     string     `json:"HTMLUrl" gorm:"type:varchar(255)" mapstructure:"HTMLUrl,omitempty"`
 	Description string     `json:"description" mapstructure:"description,omitempty"`
-	Owner       string     `json:"owner" mapstructure:"owner,omitempty"`
-	Language    string     `json:"language" gorm:"type:varchar(255)" mapstructure:"language,omitempty"`
 	CloneUrl    string     `json:"cloneUrl" gorm:"type:varchar(255)" mapstructure:"cloneUrl,omitempty"`
 	CreatedDate *time.Time `json:"createdDate" mapstructure:"-"`
 	UpdatedDate *time.Time `json:"updatedDate" mapstructure:"-"`
@@ -72,6 +70,7 @@ type BitbucketApiRepo struct {
 	HierarchyId   string `json:"hierarchyId"`
 	State         string `json:"state"`
 	StatusMessage string `json:"statusMessage"`
+	Description   string `json:"description"`
 	Public        bool   `json:"public"`
 	Archived      bool   `json:"archived"`
 	// CreatedAt     *time.Time  `json:"created_on"`
@@ -82,23 +81,25 @@ type BitbucketApiRepo struct {
 			Href string `json:"href"`
 			Name string `json:"name"`
 		} `json:"clone"`
+		Self []struct {
+			Href string `json:"href"`
+		}
 	} `json:"links"`
 }
 
 func (b BitbucketApiRepo) ConvertApiScope() plugin.ToolLayerScope {
 	scope := &BitbucketServerRepo{}
 	scope.BitbucketId = fmt.Sprintf("%s/repos/%s", b.Project.Key, b.Slug)
-	// scope.CreatedDate = b.CreatedAt
-	// scope.UpdatedDate = b.UpdatedAt
-	// scope.Language = b.Language
-	// scope.Description = b.Description
+	scope.Description = b.Description
 	scope.Name = b.Name
-	// scope.Owner = b.Owner.Displayname
-	// scope.HTMLUrl = b.Links.Html.Href
+
+	if len(b.Links.Self) > 0 {
+		scope.HTMLUrl = b.Links.Self[0].Href
+	}
 
 	scope.CloneUrl = ""
 	for _, u := range b.Links.Clone {
-		if u.Name == "https" {
+		if u.Name == "http" {
 			scope.CloneUrl = u.Href
 		}
 	}

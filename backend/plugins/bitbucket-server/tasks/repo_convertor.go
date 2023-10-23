@@ -114,7 +114,6 @@ func ConvertRepo(taskCtx plugin.SubTaskContext) errors.Error {
 				Name:        repository.BitbucketId,
 				Url:         repository.HTMLUrl,
 				Description: repository.Description,
-				Language:    repository.Language,
 				CreatedDate: repository.CreatedDate,
 				UpdatedDate: repository.UpdatedDate,
 			}
