@@ -35,9 +35,17 @@ const initialState: {
 };
 
 export const init = createAsyncThunk('connections/init', async () => {
+  const getConnections = async (plugin: string) => {
+    try {
+      return API.connection.list(plugin);
+    } catch {
+      return [];
+    }
+  };
+
   const res = await Promise.all(
     PluginConfig.map(async ({ plugin }) => {
-      const connections = await API.connection.list(plugin);
+      const connections = await getConnections(plugin);
       return connections.map((connection) => transformConnection(plugin, connection));
     }),
   );
