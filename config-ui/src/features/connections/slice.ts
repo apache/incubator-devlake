@@ -37,7 +37,7 @@ const initialState: {
 export const init = createAsyncThunk('connections/init', async () => {
   const getConnections = async (plugin: string) => {
     try {
-      return API.connection.list(plugin);
+      return await API.connection.list(plugin);
     } catch {
       return [];
     }
