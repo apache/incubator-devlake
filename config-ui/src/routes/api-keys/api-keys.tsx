@@ -17,7 +17,8 @@
  */
 
 import { useState, useMemo } from 'react';
-import { Button, Intent, InputGroup } from '@blueprintjs/core';
+import { Button, Tag, Intent, InputGroup } from '@blueprintjs/core';
+import dayjs from 'dayjs';
 
 import API from '@/api';
 import { PageHeader, Table, Dialog, FormItem, Selector, ExternalLink, CopyText, Message } from '@/components';
@@ -107,7 +108,12 @@ export const ApiKeys = () => {
             dataIndex: 'expiredAt',
             key: 'expiredAt',
             width: 200,
-            render: (val) => (val ? formatTime(val, 'YYYY-MM-DD') : 'No expiration'),
+            render: (val) => (
+              <div>
+                <span>{val ? formatTime(val, 'YYYY-MM-DD') : 'No expiration'}</span>
+                {dayjs().isAfter(dayjs(val)) && <Tag style={{ marginLeft: 8 }}>Expired</Tag>}
+              </div>
+            ),
           },
           {
             title: 'Allowed Path',
