@@ -30,19 +30,19 @@ var CollectApiCommitsMeta = plugin.SubTaskMeta{
 	EntryPoint:       CollectApiCommits,
 	EnabledByDefault: false,
 	Required:         false,
-	Description:      "Collect commits data from Bitbucket api",
+	Description:      "Collect commits data from Bitbucket Server api",
 	DomainTypes:      []string{plugin.DOMAIN_TYPE_CODE},
 }
 
 func CollectApiCommits(taskCtx plugin.SubTaskContext) errors.Error {
 	rawDataSubTaskArgs, data := CreateRawDataSubTaskArgs(taskCtx, RAW_COMMIT_TABLE)
-	//https://git.eu.tools.vz-connect.net/rest/api/1.0/projects/{projectKey}/repos/{repositorySlug}/commits
+
 	collector, err := helper.NewApiCollector(helper.ApiCollectorArgs{
 		RawDataSubTaskArgs: *rawDataSubTaskArgs,
 		ApiClient:          data.ApiClient,
 		PageSize:           100,
 		Incremental:        false,
-		UrlTemplate:        "repos/{{ .Params.FullName }}/commits",
+		UrlTemplate:        "projects/{{ .Params.FullName }}/commits",
 		Query:              GetQuery,
 		GetTotalPages:      GetTotalPagesFromResponse,
 		ResponseParser:     GetRawMessageFromResponse,

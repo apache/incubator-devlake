@@ -32,7 +32,7 @@ var CollectApiPrCommitsMeta = plugin.SubTaskMeta{
 	Name:             "collectApiPullRequestCommits",
 	EntryPoint:       CollectApiPullRequestCommits,
 	EnabledByDefault: true,
-	Description:      "Collect PullRequestCommits data from Bitbucket api",
+	Description:      "Collect PullRequestCommits data from Bitbucket Server api",
 	DomainTypes:      []string{plugin.DOMAIN_TYPE_CODE_REVIEW},
 }
 
@@ -53,7 +53,7 @@ func CollectApiPullRequestCommits(taskCtx plugin.SubTaskContext) errors.Error {
 		ApiClient:             data.ApiClient,
 		PageSize:              100,
 		Input:                 iterator,
-		UrlTemplate:           "repositories/{{ .Params.FullName }}/pullrequests/{{ .Input.BitbucketId }}/commits",
+		UrlTemplate:           "projects/{{ .Params.FullName }}/pull-requests/{{ .Input.BitbucketId }}/commits",
 		GetNextPageCustomData: GetNextPageCustomData,
 		Query: func(reqData *helper.RequestData) (url.Values, errors.Error) {
 			query := url.Values{}

@@ -32,12 +32,12 @@ import (
 	"github.com/apache/incubator-devlake/helpers/pluginhelper/api"
 )
 
-type BitbucketApiParams struct {
+type BitbucketServerApiParams struct {
 	ConnectionId uint64
 	FullName     string
 }
 
-type BitbucketInput struct {
+type BitbucketServerInput struct {
 	BitbucketId int
 }
 
@@ -45,19 +45,21 @@ type BitbucketUuidInput struct {
 	BitbucketId string
 }
 
-type BitbucketPagination struct {
-	Values  []interface{} `json:"values"`
-	PageLen int           `json:"pagelen"`
-	Size    int           `json:"size"`
-	Page    int           `json:"page"`
-	Next    string        `json:"next"`
+type BitbucketServerPagination struct {
+	Values     []interface{} `json:"values"`
+	Limit      int           `json:"limit"`
+	Size       int           `json:"size"`
+	Page       int           `json:"page"`
+	Start      int           `json:"start"`
+	Next       string        `json:"next"`
+	IsLastPage bool          `json:"isLastPage"`
 }
 
 func CreateRawDataSubTaskArgs(taskCtx plugin.SubTaskContext, Table string) (*api.RawDataSubTaskArgs, *BitbucketTaskData) {
 	data := taskCtx.GetData().(*BitbucketTaskData)
 	RawDataSubTaskArgs := &api.RawDataSubTaskArgs{
 		Ctx: taskCtx,
-		Params: BitbucketApiParams{
+		Params: BitbucketServerApiParams{
 			ConnectionId: data.Options.ConnectionId,
 			FullName:     data.Options.FullName,
 		},
@@ -140,7 +142,7 @@ func GetNextPageCustomData(_ *api.RequestData, prevPageResponse *http.Response) 
 }
 
 func GetTotalPagesFromResponse(res *http.Response, args *api.ApiCollectorArgs) (int, errors.Error) {
-	body := &BitbucketPagination{}
+	body := &BitbucketServerPagination{}
 	err := api.UnmarshalResponse(res, body)
 	if err != nil {
 		return 0, err
@@ -185,7 +187,7 @@ func GetPullRequestsIterator(taskCtx plugin.SubTaskContext, collectorWithState *
 		return nil, err
 	}
 
-	return api.NewDalCursorIterator(db, cursor, reflect.TypeOf(BitbucketInput{}))
+	return api.NewDalCursorIterator(db, cursor, reflect.TypeOf(BitbucketServerInput{}))
 }
 
 func ignoreHTTPStatus404(res *http.Response) errors.Error {

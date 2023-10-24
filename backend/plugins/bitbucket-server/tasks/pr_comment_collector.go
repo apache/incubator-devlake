@@ -30,7 +30,7 @@ var CollectApiPrCommentsMeta = plugin.SubTaskMeta{
 	EntryPoint:       CollectApiPullRequestsComments,
 	EnabledByDefault: true,
 	Required:         false,
-	Description:      "Collect pull requests comments data from bitbucket api",
+	Description:      "Collect pull requests comments data from Bitbucket Server api",
 	DomainTypes:      []string{plugin.DOMAIN_TYPE_CODE_REVIEW},
 }
 
@@ -51,7 +51,7 @@ func CollectApiPullRequestsComments(taskCtx plugin.SubTaskContext) errors.Error 
 		ApiClient:   data.ApiClient,
 		PageSize:    100,
 		Input:       iterator,
-		UrlTemplate: "repositories/{{ .Params.FullName }}/pullrequests/{{ .Input.BitbucketId }}/comments",
+		UrlTemplate: "projects/{{ .Params.FullName }}/pull-requests/{{ .Input.BitbucketId }}/comments",
 		Query: GetQueryFields(
 			`values.id,values.type,values.created_on,values.updated_on,values.content.raw,values.pullrequest.id,values.user,` +
 				`page,pagelen,size`),

@@ -37,7 +37,7 @@ var ConvertAccountsMeta = plugin.SubTaskMeta{
 	EntryPoint:       ConvertAccounts,
 	EnabledByDefault: true,
 	Required:         false,
-	Description:      "Convert tool layer table bitbucket_accounts into  domain layer table accounts",
+	Description:      "Convert tool layer table bitbucket_accounts into domain layer table accounts",
 	DomainTypes:      []string{plugin.DOMAIN_TYPE_CROSS},
 }
 

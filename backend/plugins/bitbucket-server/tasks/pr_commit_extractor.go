@@ -68,7 +68,7 @@ func ExtractApiPullRequestCommits(taskCtx plugin.SubTaskContext) errors.Error {
 			if err != nil {
 				return nil, err
 			}
-			pull := &BitbucketInput{}
+			pull := &BitbucketServerInput{}
 			err = errors.Convert(json.Unmarshal(row.Input, pull))
 			if err != nil {
 				return nil, err

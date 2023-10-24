@@ -32,7 +32,7 @@ var CollectApiPullRequestsMeta = plugin.SubTaskMeta{
 	EntryPoint:       CollectApiPullRequests,
 	EnabledByDefault: true,
 	Required:         false,
-	Description:      "Collect PullRequests data from Bitbucket api",
+	Description:      "Collect PullRequests data from Bitbucket Server api",
 	DomainTypes:      []string{plugin.DOMAIN_TYPE_CODE_REVIEW},
 }
 
@@ -46,7 +46,7 @@ func CollectApiPullRequests(taskCtx plugin.SubTaskContext) errors.Error {
 	err = collectorWithState.InitCollector(helper.ApiCollectorArgs{
 		ApiClient:   data.ApiClient,
 		PageSize:    50,
-		UrlTemplate: "repositories/{{ .Params.FullName }}/pullrequests",
+		UrlTemplate: "projects/{{ .Params.FullName }}/pull-requests",
 		Query: GetQueryCreatedAndUpdated(
 			`values.id,values.comment_count,values.type,values.state,values.title,values.description,`+
 				`values.merge_commit.hash,values.merge_commit.date,values.links.html,values.author,values.created_on,values.updated_on,`+
