@@ -18,6 +18,7 @@ limitations under the License.
 package tasks
 
 import (
+	"fmt"
 	"reflect"
 	"time"
 
@@ -72,9 +73,10 @@ func ConvertPipelines(taskCtx plugin.SubTaskContext) errors.Error {
 			if bitbucketPipeline.BitbucketCreatedOn != nil {
 				createdAt = *bitbucketPipeline.BitbucketCreatedOn
 			}
+			domainEntityId := pipelineIdGen.Generate(data.Options.ConnectionId, bitbucketPipeline.BitbucketId)
 			results := make([]interface{}, 0, 2)
 			domainPipelineCommit := &devops.CiCDPipelineCommit{
-				PipelineId: pipelineIdGen.Generate(data.Options.ConnectionId, bitbucketPipeline.BitbucketId),
+				PipelineId: domainEntityId,
 				RepoId:     repoId,
 				CommitSha:  bitbucketPipeline.CommitSha,
 				Branch:     bitbucketPipeline.RefName,
@@ -82,21 +84,20 @@ func ConvertPipelines(taskCtx plugin.SubTaskContext) errors.Error {
 			}
 			domainPipeline := &devops.CICDPipeline{
 				DomainEntity: domainlayer.DomainEntity{
-					Id: pipelineIdGen.Generate(data.Options.ConnectionId, bitbucketPipeline.BitbucketId),
+					Id: domainEntityId,
 				},
-				Name: didgen.NewDomainIdGenerator(&models.BitbucketPipeline{}).
-					Generate(data.Options.ConnectionId, bitbucketPipeline.RefName),
+				Name: fmt.Sprintf("%s/%s", domainEntityId, bitbucketPipeline.BitbucketId),
 				Result: devops.GetResult(&devops.ResultRule{
-					Failed:  []string{models.FAILED, models.ERROR, models.UNDEPLOYED},
+					Failed:  []string{models.FAILED, models.ERROR},
 					Abort:   []string{models.STOPPED},
 					Success: []string{models.SUCCESSFUL, models.COMPLETED},
 					Manual:  []string{models.PAUSED, models.HALTED},
 					Skipped: []string{models.SKIPPED},
-					Default: devops.RESULT_SUCCESS,
+					Default: "",
 				}, bitbucketPipeline.Result),
 				Status: devops.GetStatus(&devops.StatusRule[string]{
 					InProgress: []string{models.IN_PROGRESS, models.PENDING, models.BUILDING},
-					Default:    devops.STATUS_DONE,
+					Default:    bitbucketPipeline.Status,
 				}, bitbucketPipeline.Status),
 				Type:         bitbucketPipeline.Type,
 				Environment:  bitbucketPipeline.Environment,
