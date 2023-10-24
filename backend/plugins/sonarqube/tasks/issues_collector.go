@@ -71,8 +71,8 @@ func CollectIssues(taskCtx plugin.SubTaskContext) (err errors.Error) {
 			query := url.Values{}
 			query.Set("componentKeys", fmt.Sprintf("%v", data.Options.ProjectKey))
 			query.Set("severities", reqData.Input.(*SonarqubeIssueIteratorNode).Severity)
-            query.Set("statuses", reqData.Input.(*SonarqubeIssueIteratorNode).Status)
-            query.Set("types", reqData.Input.(*SonarqubeIssueIteratorNode).Type)
+			query.Set("statuses", reqData.Input.(*SonarqubeIssueIteratorNode).Status)
+			query.Set("types", reqData.Input.(*SonarqubeIssueIteratorNode).Type)
 			query.Set("p", fmt.Sprintf("%v", reqData.Pager.Page))
 			query.Set("ps", fmt.Sprintf("%v", reqData.Pager.Size))
 			query.Encode()
