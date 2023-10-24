@@ -69,16 +69,16 @@ func ConvertPipelineSteps(taskCtx plugin.SubTaskContext) errors.Error {
 				Name:       bitbucketPipelineStep.Name,
 				PipelineId: pipelineIdGen.Generate(data.Options.ConnectionId, bitbucketPipelineStep.PipelineId),
 				Result: devops.GetResult(&devops.ResultRule{
-					Failed:  []string{models.FAILED, models.ERROR, models.UNDEPLOYED},
+					Failed:  []string{models.FAILED, models.ERROR},
 					Abort:   []string{models.STOPPED},
 					Success: []string{models.SUCCESSFUL, models.COMPLETED},
 					Manual:  []string{models.PAUSED, models.HALTED},
 					Skipped: []string{models.SKIPPED},
-					Default: devops.RESULT_SUCCESS,
+					Default: "",
 				}, bitbucketPipelineStep.Result),
 				Status: devops.GetStatus(&devops.StatusRule[string]{
 					InProgress: []string{models.IN_PROGRESS, models.PENDING, models.BUILDING},
-					Default:    devops.STATUS_DONE,
+					Default:    bitbucketPipelineStep.State,
 				}, bitbucketPipelineStep.State),
 				CicdScopeId: repoIdGen.Generate(data.Options.ConnectionId, data.Options.FullName),
 			}

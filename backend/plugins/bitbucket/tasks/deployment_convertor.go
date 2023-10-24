@@ -88,15 +88,15 @@ func ConvertDeployments(taskCtx plugin.SubTaskContext) errors.Error {
 				CicdDeploymentId: pipelineIdGen.Generate(data.Options.ConnectionId, bitbucketDeployment.PipelineId),
 				Name:             bitbucketDeployment.Name,
 				Result: devops.GetResult(&devops.ResultRule{
-					Failed:  []string{"UNDEPLOYED"},
-					Success: []string{"COMPLETED"},
+					Failed:  []string{},
+					Success: []string{models.COMPLETED},
 					Default: "",
 				}, bitbucketDeployment.Status),
 				Status: devops.GetStatus(&devops.StatusRule[string]{
-					Done:    []string{"COMPLETED", "UNDEPLOYED"},
-					Default: devops.STATUS_IN_PROGRESS,
+					Done:    []string{models.COMPLETED},
+					Default: bitbucketDeployment.Status,
 				}, bitbucketDeployment.Status),
-				Environment:  bitbucketDeployment.Environment,
+				Environment:  bitbucketDeployment.Environment, // or bitbucketDeployment.EnvironmentType, they are same so far.
 				CreatedDate:  *bitbucketDeployment.CreatedOn,
 				StartedDate:  bitbucketDeployment.StartedOn,
 				FinishedDate: bitbucketDeployment.CompletedOn,
