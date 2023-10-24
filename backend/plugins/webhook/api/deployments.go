@@ -83,8 +83,8 @@ func PostDeploymentCicdTask(input *plugin.ApiResourceInput) (*plugin.ApiResource
 		return nil, errors.BadInput.Wrap(vld.Struct(request), `input json error`)
 	}
 	txHelper := dbhelper.NewTxHelper(basicRes, &err)
-	tx := txHelper.Begin()
 	defer txHelper.End()
+	tx := txHelper.Begin()
 	urlHash16 := fmt.Sprintf("%x", md5.Sum([]byte(request.RepoUrl)))[:16]
 	scopeId := fmt.Sprintf("%s:%d", "webhook", connection.ID)
 	deploymentCommitId := fmt.Sprintf("%s:%d:%s:%s", "webhook", connection.ID, urlHash16, request.CommitSha)
