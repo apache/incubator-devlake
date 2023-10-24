@@ -22,7 +22,6 @@ import (
 	"github.com/apache/incubator-devlake/core/errors"
 	"github.com/apache/incubator-devlake/core/plugin"
 	helper "github.com/apache/incubator-devlake/helpers/pluginhelper/api"
-	"github.com/apache/incubator-devlake/plugins/gitextractor/parser"
 	"github.com/apache/incubator-devlake/plugins/gitextractor/tasks"
 )
 
@@ -73,12 +72,14 @@ func (p GitExtractor) PrepareTaskData(taskCtx plugin.TaskContext, options map[st
 }
 
 func (p GitExtractor) Close(taskCtx plugin.TaskContext) errors.Error {
-	if repo, ok := taskCtx.GetData().(*parser.GitRepo); ok {
-		if err := repo.Close(); err != nil {
-			return errors.Convert(err)
+	if taskData, ok := taskCtx.GetData().(*tasks.GitExtractorTaskData); ok {
+		if taskData.GitRepo != nil {
+			if err := taskData.GitRepo.Close(); err != nil {
+				return errors.Convert(err)
+			}
 		}
 	}
-	return nil
+	return errors.Default.New("task ctx is not GitExtractorTaskData which is unexpected")
 }
 
 func (p GitExtractor) RootPkgPath() string {
