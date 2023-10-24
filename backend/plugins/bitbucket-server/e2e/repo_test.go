@@ -40,7 +40,7 @@ func TestRepoDataFlow(t *testing.T) {
 	taskData := &tasks.BitbucketTaskData{
 		Options: &tasks.BitbucketOptions{
 			ConnectionId: 1,
-			FullName:     "likyh/likyhphp",
+			FullName:     "DEV/repos/devlake-test-1",
 		},
 	}
 
