@@ -19,8 +19,9 @@
 import { useState, useMemo } from 'react';
 import { InputGroup, Icon } from '@blueprintjs/core';
 
-import API from '@/api';
+import { useAppDispatch } from '@/app/hook';
 import { Dialog, FormItem, CopyText, ExternalLink } from '@/components';
+import { addWebhook } from '@/features';
 import { operator } from '@/utils';
 
 import * as S from '../styled';
@@ -43,17 +44,20 @@ export const CreateDialog = ({ isOpen, onCancel, onSubmitAfter }: Props) => {
     apiKey: '',
   });
 
+  const dispatch = useAppDispatch();
+
   const prefix = useMemo(() => `${window.location.origin}/api`, []);
 
   const handleSubmit = async () => {
     const [success, res] = await operator(
       async () => {
-        const { id, apiKey } = await API.plugin.webhook.create({ name });
-        const { postIssuesEndpoint, closeIssuesEndpoint, postPipelineDeployTaskEndpoint } =
-          await API.plugin.webhook.get(id);
+        const { id, apiKey, postIssuesEndpoint, closeIssuesEndpoint, postPipelineDeployTaskEndpoint } = await dispatch(
+          addWebhook({ name }),
+        ).unwrap();
+
         return {
           id,
-          apiKey: apiKey.apiKey,
+          apiKey,
           postIssuesEndpoint,
           closeIssuesEndpoint,
           postPipelineDeployTaskEndpoint,

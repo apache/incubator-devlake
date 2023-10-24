@@ -16,16 +16,24 @@
  *
  */
 
-import * as connection from '../../connection';
+export interface IApiWebhook {
+  id: number;
+  name: string;
+  postIssuesEndpoint: string;
+  closeIssuesEndpoint: string;
+  postPipelineDeployTaskEndpoint: string;
+  apiKey: {
+    id: number;
+    apiKey: string;
+  };
+}
 
-import { IApiWebhook } from '@/types';
-
-export const list = (): Promise<IApiWebhook[]> => connection.list('webhook') as any;
-
-export const get = (id: ID): Promise<IApiWebhook> => connection.get('webhook', id) as any;
-
-export const create = (payload: any): Promise<IApiWebhook> => connection.create('webhook', payload) as any;
-
-export const remove = (id: ID) => connection.remove('webhook', id);
-
-export const update = (id: ID, payload: any) => connection.update('webhook', id, payload);
+export interface IWebhook {
+  id: number;
+  name: string;
+  postIssuesEndpoint: string;
+  closeIssuesEndpoint: string;
+  postPipelineDeployTaskEndpoint: string;
+  apiKey: string;
+  apiKeyId: number;
+}

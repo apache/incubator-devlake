@@ -16,16 +16,4 @@
  *
  */
 
-import * as connection from '../../connection';
-
-import { IApiWebhook } from '@/types';
-
-export const list = (): Promise<IApiWebhook[]> => connection.list('webhook') as any;
-
-export const get = (id: ID): Promise<IApiWebhook> => connection.get('webhook', id) as any;
-
-export const create = (payload: any): Promise<IApiWebhook> => connection.create('webhook', payload) as any;
-
-export const remove = (id: ID) => connection.remove('webhook', id);
-
-export const update = (id: ID, payload: any) => connection.update('webhook', id, payload);
+export type IStatus = 'idle' | 'loading' | 'success' | 'failed';
