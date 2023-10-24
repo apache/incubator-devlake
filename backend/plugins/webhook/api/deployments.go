@@ -20,7 +20,6 @@ package api
 import (
 	"crypto/md5"
 	"fmt"
-	"github.com/apache/incubator-devlake/core/dal"
 	"github.com/apache/incubator-devlake/helpers/dbhelper"
 	"net/http"
 	"time"
@@ -86,11 +85,6 @@ func PostDeploymentCicdTask(input *plugin.ApiResourceInput) (*plugin.ApiResource
 	txHelper := dbhelper.NewTxHelper(basicRes, &err)
 	defer txHelper.End()
 	tx := txHelper.Begin()
-	err = txHelper.LockTablesTimeout(2*time.Second, dal.LockTables{{Table: "cicd_deployment_commits"}, {Table: "cicd_deployments"}})
-	if err != nil {
-		err = errors.Conflict.Wrap(err, "This CI/CD deployment cannot be post due to a table lock error. There might be running pipeline(s) or other operations in progress.")
-		return nil, err
-	}
 	urlHash16 := fmt.Sprintf("%x", md5.Sum([]byte(request.RepoUrl)))[:16]
 	scopeId := fmt.Sprintf("%s:%d", "webhook", connection.ID)
 	deploymentCommitId := fmt.Sprintf("%s:%d:%s:%s", "webhook", connection.ID, urlHash16, request.CommitSha)
