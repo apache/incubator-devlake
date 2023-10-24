@@ -28,5 +28,5 @@ interface Props {
 
 export const ConnectionName = ({ plugin, connectionId }: Props) => {
   const connection = useAppSelector((state) => selectConnection(state, `${plugin}-${connectionId}`)) as IConnection;
-  return <span>{connection.name}</span>;
+  return <span>{connection ? connection.name : `${plugin}/connections/${connectionId}`}</span>;
 };
