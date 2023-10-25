@@ -21,45 +21,43 @@ import { flatten } from 'lodash';
 
 import API from '@/api';
 import { RootState } from '@/app/store';
-import { PluginConfig } from '@/plugins';
 import { IConnection, IConnectionStatus, IWebhook, IStatus } from '@/types';
 
 import { transformConnection, transformWebhook } from './utils';
 
 const initialState: {
+  status: IStatus;
+  plugins: string[];
   connections: IConnection[];
   webhooks: IWebhook[];
-  status: IStatus;
 } = {
+  status: 'idle',
+  plugins: [],
   connections: [],
   webhooks: [],
-  status: 'idle',
 };
 
-export const init = createAsyncThunk('connections/init', async () => {
-  const getConnections = async (plugin: string) => {
-    try {
-      return await API.connection.list(plugin);
-    } catch {
-      return [];
-    }
-  };
-
+export const init = createAsyncThunk('connections/init', async (plugins: string[]) => {
   const connections = await Promise.all(
-    PluginConfig.filter((p) => p.plugin !== 'webhook').map(async ({ plugin }) => {
-      const connections = await getConnections(plugin);
-      return connections.map((connection) => transformConnection(plugin, connection));
-    }),
+    plugins
+      .filter((plugin) => plugin !== 'webhook')
+      .map(async (plugin) => {
+        const connections = await API.connection.list(plugin);
+        return connections.map((connection) => transformConnection(plugin, connection));
+      }),
   );
 
   const webhooks = await Promise.all(
-    PluginConfig.filter((p) => p.plugin === 'webhook').map(async () => {
-      const webhooks = await API.plugin.webhook.list();
-      return webhooks.map((webhook) => transformWebhook(webhook));
-    }),
+    plugins
+      .filter((plugin) => plugin === 'webhook')
+      .map(async () => {
+        const webhooks = await API.plugin.webhook.list();
+        return webhooks.map((webhook) => transformWebhook(webhook));
+      }),
   );
 
   return {
+    plugins,
     connections: flatten(connections),
     webhooks: flatten(webhooks),
   };
@@ -131,7 +129,7 @@ export const renewWebhookApiKey = createAsyncThunk('connections/renewWebhookApiK
   };
 });
 
-export const ConnectionsSlice = createSlice({
+export const connectionsSlice = createSlice({
   name: 'connections',
   initialState,
   reducers: {},
@@ -141,6 +139,7 @@ export const ConnectionsSlice = createSlice({
         state.status = 'loading';
       })
       .addCase(init.fulfilled, (state, action) => {
+        state.plugins = action.payload.plugins;
         state.connections = action.payload.connections;
         state.webhooks = action.payload.webhooks;
         state.status = 'success';
@@ -190,11 +189,11 @@ export const ConnectionsSlice = createSlice({
   },
 });
 
-export const {} = ConnectionsSlice.actions;
-
-export default ConnectionsSlice.reducer;
+export default connectionsSlice.reducer;
 
 export const selectStatus = (state: RootState) => state.connections.status;
+
+export const selectPlugins = (state: RootState) => state.connections.plugins;
 
 export const selectAllConnections = (state: RootState) => state.connections.connections;
 

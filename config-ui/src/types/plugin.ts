@@ -16,43 +16,28 @@
  *
  */
 
-export interface IConnectionAPI {
-  id: ID;
-  name: string;
-  endpoint: string;
-  authMethod?: string;
-  token?: string;
-  username?: string;
-  password?: string;
-  proxy: string;
-  apiKey?: string;
-  dbUrl?: string;
-  appId?: string;
-  secretKey?: string;
-}
-
-export enum IConnectionStatus {
-  IDLE = 'idle',
-  TESTING = 'testing',
-  ONLINE = 'online',
-  OFFLINE = 'offline',
-}
-
-export interface IConnection {
-  unique: string;
+export interface IPluginConfig {
   plugin: string;
-  pluginName: string;
-  id: ID;
   name: string;
-  status: IConnectionStatus;
   icon: string;
-  isBeta: boolean;
-  endpoint: string;
-  proxy: string;
-  authMethod?: string;
-  token?: string;
-  username?: string;
-  password?: string;
-  appId?: string;
-  secretKey?: string;
+  sort: number;
+  isBeta?: boolean;
+  connection: {
+    docLink: string;
+    initialValues?: Record<string, any>;
+    fields: any[];
+  };
+  dataScope: {
+    localSearch?: boolean;
+    title?: string;
+    millerColumn?: {
+      columnCount?: number;
+      firstColumnTitle?: string;
+    };
+    render?: (props: any) => React.ReactNode;
+  };
+  scopeConfig?: {
+    entities: string[];
+    transformation: any;
+  };
 }

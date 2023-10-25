@@ -18,11 +18,9 @@
 
 import { DOC_URL } from '@/release';
 
-import type { PluginConfigType } from '../../types';
-
 import Icon from './assets/icon.svg';
 
-export const SonarQubeConfig: PluginConfigType = {
+export const SonarQubeConfig = {
   plugin: 'sonarqube',
   name: 'SonarQube',
   icon: Icon,

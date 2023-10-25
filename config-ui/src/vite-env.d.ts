@@ -17,3 +17,11 @@
  */
 
 /// <reference types="vite/client" />
+
+interface ImportMetaEnv {
+  readonly DEVLAKE_PLUGINS: string;
+}
+
+interface ImportMeta {
+  readonly env: ImportMetaEnv;
+}

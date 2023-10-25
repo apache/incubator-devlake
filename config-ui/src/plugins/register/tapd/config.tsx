@@ -19,12 +19,10 @@
 import { ExternalLink } from '@/components';
 import { DOC_URL } from '@/release';
 
-import type { PluginConfigType } from '../../types';
-
 import { DataScope } from './data-scope';
 import Icon from './assets/icon.svg';
 
-export const TAPDConfig: PluginConfigType = {
+export const TAPDConfig = {
   plugin: 'tapd',
   name: 'TAPD',
   icon: Icon,
@@ -69,7 +67,7 @@ export const TAPDConfig: PluginConfigType = {
     ],
   },
   dataScope: {
-    render: ({ ...props }) => <DataScope {...props} />,
+    render: ({ ...props }: any) => <DataScope {...props} />,
   },
   scopeConfig: {
     entities: ['TICKET', 'CROSS'],

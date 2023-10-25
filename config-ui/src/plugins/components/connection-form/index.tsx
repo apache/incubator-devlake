@@ -25,7 +25,7 @@ import { useAppDispatch, useAppSelector } from '@/app/hook';
 import { ExternalLink, Buttons } from '@/components';
 import { addConnection, updateConnection } from '@/features';
 import { selectConnection } from '@/features/connections';
-import { PluginConfig, PluginConfigType } from '@/plugins';
+import { getPluginConfig } from '@/plugins';
 import { operator } from '@/utils';
 
 import { Form } from './fields';
@@ -48,7 +48,7 @@ export const ConnectionForm = ({ plugin, connectionId, onSuccess }: Props) => {
   const {
     name,
     connection: { docLink, fields, initialValues },
-  } = useMemo(() => PluginConfig.find((p) => p.plugin === plugin) as PluginConfigType, [plugin]);
+  } = getPluginConfig(plugin);
 
   const disabled = useMemo(() => {
     return Object.values(errors).some((value) => value);

@@ -39,7 +39,7 @@ import * as S from './styled';
 import './tips-transition.css';
 
 export const Layout = () => {
-  const { version } = useLoaderData() as Awaited<ReturnType<typeof loader>>;
+  const { version, plugins } = useLoaderData() as Awaited<ReturnType<typeof loader>>;
 
   const navigate = useNavigate();
   const { pathname } = useLocation();
@@ -52,7 +52,7 @@ export const Layout = () => {
   const tipsRef = useRef(null);
 
   useEffect(() => {
-    dispatch(init());
+    dispatch(init(plugins));
   }, []);
 
   if (['idle', 'loading'].includes(status)) {

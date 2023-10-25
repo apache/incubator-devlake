@@ -20,12 +20,10 @@ import { pick } from 'lodash';
 
 import { DOC_URL } from '@/release';
 
-import type { PluginConfigType } from '../../types';
-
 import Icon from './assets/icon.svg';
 import { Token, Graphql, GithubApp, Authentication } from './connection-fields';
 
-export const GitHubConfig: PluginConfigType = {
+export const GitHubConfig = {
   plugin: 'github',
   name: 'GitHub',
   icon: Icon,

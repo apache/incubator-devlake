@@ -16,7 +16,7 @@
  *
  */
 
-export interface IApiWebhook {
+export interface IWebhookAPI {
   id: number;
   name: string;
   postIssuesEndpoint: string;

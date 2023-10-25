@@ -16,28 +16,4 @@
  *
  */
 
-export type PluginConfigType = {
-  plugin: string;
-  name: string;
-  icon: string;
-  sort: number;
-  isBeta?: boolean;
-  connection: {
-    docLink: string;
-    initialValues?: Record<string, any>;
-    fields: any[];
-  };
-  dataScope: {
-    localSearch?: boolean;
-    title?: string;
-    millerColumn?: {
-      columnCount?: number;
-      firstColumnTitle?: string;
-    };
-    render?: (props: any) => React.ReactNode;
-  };
-  scopeConfig?: {
-    entities: string[];
-    transformation: any;
-  };
-};
+export * from './name';
