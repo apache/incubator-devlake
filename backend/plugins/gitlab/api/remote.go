@@ -104,7 +104,6 @@ func RemoteScopes(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, er
 						resBody = append(resBody, project)
 					}
 				}
-				return resBody, nil
 			} else {
 				if gid[:6] == "group:" {
 					gid = gid[6:]
