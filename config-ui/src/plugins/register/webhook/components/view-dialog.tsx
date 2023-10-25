@@ -16,11 +16,13 @@
  *
  */
 
-import { useState, useEffect, useMemo } from 'react';
+import { useState, useMemo } from 'react';
 import { Button, Intent } from '@blueprintjs/core';
 
-import API from '@/api';
+import { useAppDispatch, useAppSelector } from '@/app/hook';
 import { Dialog, FormItem, CopyText, ExternalLink, Message } from '@/components';
+import { selectWebhook, renewWebhookApiKey } from '@/features';
+import { IWebhook } from '@/types';
 import { operator } from '@/utils';
 
 import * as S from '../styled';
@@ -30,68 +32,49 @@ interface Props {
   onCancel: () => void;
 }
 
+const transformURI = (prefix: string, webhook: IWebhook) => {
+  return {
+    postIssuesEndpoint: `curl ${prefix}${webhook.postIssuesEndpoint} -X 'POST' -H 'Authorization: Bearer ${
+      webhook.apiKey ?? '{API_KEY}'
+    }' -d '{
+        "issue_key":"DLK-1234",
+        "title":"a feature from DLK",
+        "type":"INCIDENT",
+        "original_status":"TODO",
+        "status":"TODO",    
+        "created_date":"2020-01-01T12:00:00+00:00",
+        "updated_date":"2020-01-01T12:00:00+00:00"
+     }'`,
+    closeIssuesEndpoint: `curl ${prefix}${webhook.closeIssuesEndpoint} -X 'POST' -H 'Authorization: Bearer ${
+      webhook.apiKey ?? '{API_KEY}'
+    }'`,
+    postDeploymentsCurl: `curl ${prefix}${webhook.postPipelineDeployTaskEndpoint} -X 'POST' -H 'Authorization: Bearer ${
+      webhook.apiKey ?? '{API_KEY}'
+    }' -d '{
+         "commit_sha":"the sha of deployment commit",
+         "repo_url":"the repo URL of the deployment commit",
+         "start_time":"Optional, eg. 2020-01-01T12:00:00+00:00"
+     }'`,
+  };
+};
+
 export const ViewDialog = ({ initialId, onCancel }: Props) => {
-  const [record, setRecord] = useState({
-    apiKeyId: '',
-    postIssuesEndpoint: '',
-    closeIssuesEndpoint: '',
-    postDeploymentsCurl: '',
-  });
   const [isOpen, setIsOpen] = useState(false);
   const [operating, setOperating] = useState(false);
-  const [apiKey, setApiKey] = useState('');
 
+  const dispatch = useAppDispatch();
+  const webhook = useAppSelector((state) => selectWebhook(state, initialId)) as IWebhook;
   const prefix = useMemo(() => `${window.location.origin}/api`, []);
 
-  useEffect(() => {
-    (async () => {
-      const res = await API.plugin.webhook.get(initialId);
-      setRecord({
-        apiKeyId: res.apiKey.id,
-        postIssuesEndpoint: ` curl ${prefix}${res.postIssuesEndpoint} -X 'POST' -H 'Authorization: Bearer {API_KEY}' -d '{
-          "issue_key":"DLK-1234",
-          "title":"a feature from DLK",
-          "type":"INCIDENT",
-          "original_status":"TODO",
-          "status":"TODO",    
-          "created_date":"2020-01-01T12:00:00+00:00",
-          "updated_date":"2020-01-01T12:00:00+00:00"
-       }'`,
-        closeIssuesEndpoint: `curl ${prefix}${res.closeIssuesEndpoint} -X 'POST' -H 'Authorization: Bearer {API_KEY}'`,
-        postDeploymentsCurl: `curl ${prefix}${res.postPipelineDeployTaskEndpoint} -X 'POST' -H 'Authorization: Bearer {API_KEY}' -d '{
-           "commit_sha":"the sha of deployment commit",
-           "repo_url":"the repo URL of the deployment commit",
-           "start_time":"Optional, eg. 2020-01-01T12:00:00+00:00"
-       }'`,
-      });
-    })();
-  }, [initialId]);
+  const URI = transformURI(prefix, webhook);
 
   const handleGenerateNewKey = async () => {
-    const [success, res] = await operator(() => API.apiKey.renew(record.apiKeyId), {
+    const [success] = await operator(() => dispatch(renewWebhookApiKey(initialId)), {
       setOperating,
     });
 
     if (success) {
       setIsOpen(false);
-      setApiKey(res.apiKey);
-      setRecord({
-        ...record,
-        postIssuesEndpoint: ` curl ${record.postIssuesEndpoint} -X 'POST' -H 'Authorization: Bearer ${res.apiKey}' -d '{
-          "issue_key":"DLK-1234",
-          "title":"a feature from DLK",
-          "type":"INCIDENT",
-          "status":"TODO",    
-          "created_date":"2020-01-01T12:00:00+00:00",
-          "updated_date":"2020-01-01T12:00:00+00:00"
-       }'`,
-        closeIssuesEndpoint: `curl ${record.closeIssuesEndpoint} -X 'POST' -H 'Authorization: Bearer ${res.apiKey}'`,
-        postDeploymentsCurl: `curl ${record.postDeploymentsCurl} -X 'POST' -H 'Authorization: Bearer ${res.apiKey}' -d '{
-           "commit_sha":"the sha of deployment commit",
-           "repo_url":"the repo URL of the deployment commit",
-           "start_time":"Optional, eg. 2020-01-01T12:00:00+00:00"
-       }'`,
-      });
     }
   };
 
@@ -104,7 +87,7 @@ export const ViewDialog = ({ initialId, onCancel }: Props) => {
         </p>
         <FormItem label="Incident">
           <h5>Post to register/update an incident</h5>
-          <CopyText content={record.postIssuesEndpoint} />
+          <CopyText content={URI.postIssuesEndpoint} />
           <p>
             See the{' '}
             <ExternalLink link="https://devlake.apache.org/docs/Plugins/webhook#register-issues---update-or-create-issues">
@@ -113,7 +96,7 @@ export const ViewDialog = ({ initialId, onCancel }: Props) => {
             .
           </p>
           <h5>Post to close a registered incident</h5>
-          <CopyText content={record.closeIssuesEndpoint} />
+          <CopyText content={URI.closeIssuesEndpoint} />
           <p>
             See the{' '}
             <ExternalLink link="https://devlake.apache.org/docs/Plugins/webhook#register-issues---close-issues-optional">
@@ -124,7 +107,7 @@ export const ViewDialog = ({ initialId, onCancel }: Props) => {
         </FormItem>
         <FormItem label="Deployments">
           <h5>Post to register a deployment</h5>
-          <CopyText content={record.postDeploymentsCurl} />
+          <CopyText content={URI.postDeploymentsCurl} />
           <p>
             See the{' '}
             <ExternalLink link="https://devlake.apache.org/docs/Plugins/webhook#deployment">
@@ -137,12 +120,12 @@ export const ViewDialog = ({ initialId, onCancel }: Props) => {
           label="API Key"
           subLabel="If you have forgotten your API key, you can revoke the previous key and generate a new one as a replacement."
         >
-          {!apiKey ? (
+          {!webhook.apiKey ? (
             <Button intent={Intent.PRIMARY} text="Revoke and generate a new key" onClick={() => setIsOpen(true)} />
           ) : (
             <>
               <S.ApiKey>
-                <CopyText content={apiKey} />
+                <CopyText content={webhook.apiKey} />
                 <span>No Expiration</span>
               </S.ApiKey>
               <S.Tips>

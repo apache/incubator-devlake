@@ -19,8 +19,9 @@
 import { useState, useEffect } from 'react';
 import { InputGroup } from '@blueprintjs/core';
 
-import API from '@/api';
+import { useAppDispatch, useAppSelector } from '@/app/hook';
 import { Dialog, FormItem } from '@/components';
+import { updateWebhook, selectWebhook } from '@/features';
 import { operator } from '@/utils';
 
 interface Props {
@@ -32,15 +33,15 @@ export const EditDialog = ({ initialId, onCancel }: Props) => {
   const [name, setName] = useState('');
   const [operating, setOperating] = useState(false);
 
+  const dispatch = useAppDispatch();
+  const webhook = useAppSelector((state) => selectWebhook(state, initialId));
+
   useEffect(() => {
-    (async () => {
-      const res = await API.plugin.webhook.get(initialId);
-      setName(res.name);
-    })();
-  }, [initialId]);
+    setName(webhook?.name ?? '');
+  }, [webhook]);
 
   const handleSubmit = async () => {
-    const [success] = await operator(() => API.plugin.webhook.update(initialId, { name }), {
+    const [success] = await operator(() => dispatch(updateWebhook({ id: initialId, name })), {
       setOperating,
     });
 

@@ -16,13 +16,13 @@
  *
  */
 
-import { useState, useMemo } from 'react';
+import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Tag, Intent } from '@blueprintjs/core';
 
 import { useAppSelector } from '@/app/hook';
 import { Dialog } from '@/components';
-import { selectAllConnections } from '@/features/connections';
+import { selectAllConnections, selectWebhooks } from '@/features/connections';
 import { PluginConfig, PluginConfigType, ConnectionList, ConnectionForm } from '@/plugins';
 
 import * as S from './styled';
@@ -32,17 +32,9 @@ export const ConnectionHomePage = () => {
   const [pluginConfig, setPluginConfig] = useState<PluginConfigType>();
 
   const connections = useAppSelector(selectAllConnections);
+  const webhooks = useAppSelector(selectWebhooks);
 
   const navigate = useNavigate();
-
-  const plugins = useMemo(
-    () =>
-      PluginConfig.map((p) => ({
-        ...p,
-        count: connections.filter((cs) => cs.plugin === p.plugin).length,
-      })),
-    [connections],
-  );
 
   const handleShowListDialog = (pluginConfig: PluginConfigType) => {
     setType('list');
@@ -77,20 +69,21 @@ export const ConnectionHomePage = () => {
           You can create and manage data connections for the following data sources and use them in your Projects.
         </h5>
         <ul>
-          {plugins
-            .filter((p) => p.plugin !== 'webhook')
-            .map((p) => (
+          {PluginConfig.filter((p) => p.plugin !== 'webhook').map((p) => {
+            const connectionCount = connections.filter((cs) => cs.plugin === p.plugin).length;
+            return (
               <li key={p.plugin} onClick={() => handleShowListDialog(p)}>
                 <img src={p.icon} alt="" />
                 <span className="name">{p.name}</span>
-                <S.Count>{p.count ? `${p.count} connections` : 'No connection'}</S.Count>
+                <S.Count>{connectionCount ? `${connectionCount} connections` : 'No connection'}</S.Count>
                 {p.isBeta && (
                   <Tag intent={Intent.WARNING} round>
                     beta
                   </Tag>
                 )}
               </li>
-            ))}
+            );
+          })}
         </ul>
       </div>
       <div className="block">
@@ -100,20 +93,16 @@ export const ConnectionHomePage = () => {
           DORA metrics, etc.
         </h5>
         <ul>
-          {plugins
-            .filter((p) => p.plugin === 'webhook')
-            .map((p) => (
+          {PluginConfig.filter((p) => p.plugin === 'webhook').map((p) => {
+            const webhookCount = webhooks.length;
+            return (
               <li key={p.plugin} onClick={() => handleShowListDialog(p)}>
                 <img src={p.icon} alt="" />
                 <span className="name">{p.name}</span>
-                <S.Count>{p.count ? `${p.count} connections` : 'No connection'}</S.Count>
-                {p.isBeta && (
-                  <Tag intent={Intent.WARNING} round>
-                    beta
-                  </Tag>
-                )}
+                <S.Count>{webhookCount ? `${webhookCount} connections` : 'No connection'}</S.Count>
               </li>
-            ))}
+            );
+          })}
         </ul>
       </div>
       {type === 'list' && pluginConfig && (
