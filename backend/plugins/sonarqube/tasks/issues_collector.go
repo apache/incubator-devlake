@@ -141,14 +141,23 @@ func CollectIssues(taskCtx plugin.SubTaskContext) (err errors.Error) {
 				// split it
 				MidTime := time.Unix((createdAfterUnix+createdBeforeUnix)/2+1, 0)
 
+				severity := query.Get("severities")
+				status := query.Get("statuses")
+				typ := query.Get("types")
 				// left part
 				iterator.Push(&SonarqubeIssueIteratorNode{
+					Severity:      severity,
+					Status:        status,
+					Type:          typ,
 					CreatedAfter:  createdAfter,
 					CreatedBefore: &MidTime,
 				})
 
 				// right part
 				iterator.Push(&SonarqubeIssueIteratorNode{
+					Severity:      severity,
+					Status:        status,
+					Type:          typ,
 					CreatedAfter:  &MidTime,
 					CreatedBefore: createdBefore,
 				})
