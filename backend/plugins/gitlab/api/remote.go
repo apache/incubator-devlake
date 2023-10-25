@@ -43,6 +43,7 @@ import (
 // @Failure 500  {object} shared.ApiBody "Internal Error"
 // @Router /plugins/gitlab/connections/{connectionId}/remote-scopes [GET]
 func RemoteScopes(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, errors.Error) {
+	var resGroup []models.GroupResponse
 	return remoteHelper.GetScopesFromRemote(input,
 		func(basicRes context.BasicRes, gid string, queryData *api.RemoteQueryData, connection models.GitlabConnection) ([]models.GroupResponse, errors.Error) {
 			apiClient, err := api.NewApiClientFromConnection(gocontext.TODO(), basicRes, &connection)
@@ -66,13 +67,11 @@ func RemoteScopes(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, er
 					return nil, err
 				}
 			}
-			var resBody []models.GroupResponse
-			err = api.UnmarshalResponse(res, &resBody)
+			err = api.UnmarshalResponse(res, &resGroup)
 			if err != nil {
 				return nil, err
 			}
-
-			return resBody, err
+			return resGroup, err
 		},
 		func(basicRes context.BasicRes, gid string, queryData *api.RemoteQueryData, connection models.GitlabConnection) ([]models.GitlabApiProject, errors.Error) {
 			apiClient, err := api.NewApiClientFromConnection(gocontext.TODO(), basicRes, &connection)
@@ -94,13 +93,18 @@ func RemoteScopes(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, er
 				}
 
 				for _, project := range resProjects {
-					if project.Permissions.GroupAccess == nil {
+					skipProject := false
+					for _, group := range resGroup {
+						if project.Namespace.Name == group.Name && project.Namespace.Path == group.Path {
+							skipProject = true
+							break
+						}
+					}
+					if !skipProject {
 						resBody = append(resBody, project)
 					}
 				}
-
 			} else {
-				query.Set("with_shared", "false")
 				if gid[:6] == "group:" {
 					gid = gid[6:]
 				}
