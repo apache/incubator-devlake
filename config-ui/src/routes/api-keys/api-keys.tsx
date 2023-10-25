@@ -192,7 +192,7 @@ export const ApiKeys = () => {
             required
           >
             <S.InputContainer>
-              <span>http://localhost:4000/api/rest</span>
+              <span>http://localhost:4000/api/rest/</span>
               <InputGroup
                 placeholder=""
                 value={form.allowedPath}
