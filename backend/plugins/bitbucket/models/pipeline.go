@@ -34,6 +34,7 @@ type BitbucketPipeline struct {
 	WebUrl            string `gorm:"type:varchar(255)"`
 	Type              string `gorm:"type:varchar(255)"`
 	Environment       string `gorm:"type:varchar(255)"`
+	BuildNumber       int
 	DurationInSeconds uint64
 
 	BitbucketCreatedOn  *time.Time

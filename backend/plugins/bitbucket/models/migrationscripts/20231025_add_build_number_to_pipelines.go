@@ -18,26 +18,31 @@ limitations under the License.
 package migrationscripts
 
 import (
-	plugin "github.com/apache/incubator-devlake/core/plugin"
+	"github.com/apache/incubator-devlake/core/context"
+	"github.com/apache/incubator-devlake/core/errors"
+	"github.com/apache/incubator-devlake/core/plugin"
 )
 
-// All return all the migration scripts
-func All() []plugin.MigrationScript {
-	return []plugin.MigrationScript{
-		new(addInitTables20220803),
-		new(addPipeline20220914),
-		new(addPrCommits20221008),
-		new(addDeployment20221013),
-		new(addRepoIdAndCommitShaField20221014),
-		new(addScope20230206),
-		new(addPipelineStep20230215),
-		new(addConnectionIdToTransformationRule),
-		new(addTypeEnvToPipelineAndStep),
-		new(addRepoIdField20230411),
-		new(addRepoIdToPr),
-		new(addBitbucketCommitAuthorInfo),
-		new(renameTr2ScopeConfig),
-		new(addRawParamTableForScope),
-		new(addBuildNumberToPipelines),
-	}
+var _ plugin.MigrationScript = (*addBuildNumberToPipelines)(nil)
+
+type pipeline20231025 struct {
+	BuildNumber int
+}
+
+func (pipeline20231025) TableName() string {
+	return "_tool_bitbucket_pipelines"
+}
+
+type addBuildNumberToPipelines struct{}
+
+func (script *addBuildNumberToPipelines) Up(basicRes context.BasicRes) errors.Error {
+	return basicRes.GetDal().AutoMigrate(&pipeline20231025{})
+}
+
+func (*addBuildNumberToPipelines) Version() uint64 {
+	return 20231025170900
+}
+
+func (script *addBuildNumberToPipelines) Name() string {
+	return "add build_number field to table _tool_bitbucket_pipelines"
 }
