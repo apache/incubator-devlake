@@ -25,6 +25,8 @@ import (
 	"github.com/apache/incubator-devlake/core/plugin"
 )
 
+const DefaultBatchSize = 100
+
 var SetProjectMappingMeta = plugin.SubTaskMeta{
 	Name:             "setProjectMapping",
 	EntryPoint:       SetProjectMapping,
@@ -57,6 +59,12 @@ func SetProjectMapping(taskCtx plugin.SubTaskContext) errors.Error {
 					},
 				},
 			})
+			if len(projectMappings) == DefaultBatchSize {
+				if err := db.CreateOrUpdate(projectMappings); err != nil {
+					return err
+				}
+				projectMappings = []crossdomain.ProjectMapping{}
+			}
 		}
 		if len(projectMappings) > 0 {
 			err = db.CreateOrUpdate(projectMappings)
