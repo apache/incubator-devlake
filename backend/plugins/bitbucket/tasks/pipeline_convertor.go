@@ -86,7 +86,7 @@ func ConvertPipelines(taskCtx plugin.SubTaskContext) errors.Error {
 				DomainEntity: domainlayer.DomainEntity{
 					Id: domainEntityId,
 				},
-				Name: fmt.Sprintf("%s/%s", domainEntityId, bitbucketPipeline.BitbucketId),
+				Name: fmt.Sprintf("%s/%d", domainEntityId, bitbucketPipeline.BuildNumber),
 				Result: devops.GetResult(&devops.ResultRule{
 					Failed:  []string{models.FAILED, models.ERROR},
 					Abort:   []string{models.STOPPED},
