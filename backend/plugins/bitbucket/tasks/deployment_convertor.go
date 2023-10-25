@@ -19,6 +19,7 @@ package tasks
 
 import (
 	"reflect"
+	"strings"
 
 	"github.com/apache/incubator-devlake/core/dal"
 	"github.com/apache/incubator-devlake/core/errors"
@@ -96,7 +97,7 @@ func ConvertDeployments(taskCtx plugin.SubTaskContext) errors.Error {
 					Done:    []string{models.COMPLETED},
 					Default: bitbucketDeployment.Status,
 				}, bitbucketDeployment.Status),
-				Environment:  bitbucketDeployment.Environment, // or bitbucketDeployment.EnvironmentType, they are same so far.
+				Environment:  strings.ToUpper(bitbucketDeployment.Environment), // or bitbucketDeployment.EnvironmentType, they are same so far.
 				CreatedDate:  *bitbucketDeployment.CreatedOn,
 				StartedDate:  bitbucketDeployment.StartedOn,
 				FinishedDate: bitbucketDeployment.CompletedOn,
@@ -105,6 +106,13 @@ func ConvertDeployments(taskCtx plugin.SubTaskContext) errors.Error {
 				RefName:      bitbucketDeployment.RefName,
 				RepoId:       repoId,
 				RepoUrl:      repo.HTMLUrl,
+			}
+			if domainDeployCommit.Environment == devops.TEST {
+				// Theoretically, environment cannot be "Test" according to
+				// https://developer.atlassian.com/server/bitbucket/rest/v814/api-group-builds-and-deployments/#api-api-latest-projects-projectkey-repos-repositoryslug-commits-commitid-deployments-get
+				// but in practice, we found environment is "Test".
+				// So convert it to devlake's definition.
+				domainDeployCommit.Environment = devops.TESTING
 			}
 			return []interface{}{domainDeployCommit, domainDeployCommit.ToDeployment()}, nil
 		},
