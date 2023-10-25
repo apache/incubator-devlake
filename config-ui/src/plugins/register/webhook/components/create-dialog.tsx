@@ -73,6 +73,7 @@ export const CreateDialog = ({ isOpen, onCancel, onSubmitAfter }: Props) => {
    "issue_key":"DLK-1234",
    "title":"a feature from DLK",
    "type":"INCIDENT",
+   "original_status":"TODO",
    "status":"TODO",    
    "created_date":"2020-01-01T12:00:00+00:00",
    "updated_date":"2020-01-01T12:00:00+00:00"
