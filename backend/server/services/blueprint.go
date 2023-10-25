@@ -21,6 +21,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"strings"
+	"sync"
 
 	"github.com/apache/incubator-devlake/helpers/pluginhelper/services"
 
@@ -233,8 +234,15 @@ func DeleteBlueprint(id uint64) errors.Error {
 	return nil
 }
 
+var blueprintReloadLock sync.Mutex
+
 // ReloadBlueprints FIXME ...
-func ReloadBlueprints(c *cron.Cron) errors.Error {
+func ReloadBlueprints(c *cron.Cron) (err errors.Error) {
+	// preventing concurrent reloads. It would be better to use Table Lock , however, it requires massive refactor
+	// like the `bpManager` must accept transaction. Use mutex as a temporary fix.
+	blueprintReloadLock.Lock()
+	defer blueprintReloadLock.Unlock()
+
 	enable := true
 	isManual := false
 	blueprints, _, err := bpManager.GetDbBlueprints(&services.GetBlueprintQuery{
