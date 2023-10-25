@@ -185,11 +185,11 @@ func GetConnection(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, e
 
 func formatConnection(connection *models.WebhookConnection, withApiKeyInfo bool) (*WebhookConnectionResponse, errors.Error) {
 	response := &WebhookConnectionResponse{WebhookConnection: *connection}
-	response.PostIssuesEndpoint = fmt.Sprintf(`/plugins/webhook/connections/%d/issues`, connection.ID)
-	response.CloseIssuesEndpoint = fmt.Sprintf(`/plugins/webhook/connections/%d/issue/:issueKey/close`, connection.ID)
-	response.PostPipelineTaskEndpoint = fmt.Sprintf(`/plugins/webhook/connections/%d/cicd_tasks`, connection.ID)
-	response.PostPipelineDeployTaskEndpoint = fmt.Sprintf(`/plugins/webhook/connections/%d/deployments`, connection.ID)
-	response.ClosePipelineEndpoint = fmt.Sprintf(`/plugins/webhook/connections/%d/cicd_pipeline/:pipelineName/finish`, connection.ID)
+	response.PostIssuesEndpoint = fmt.Sprintf(`/rest/plugins/webhook/connections/%d/issues`, connection.ID)
+	response.CloseIssuesEndpoint = fmt.Sprintf(`/rest/plugins/webhook/connections/%d/issue/:issueKey/close`, connection.ID)
+	response.PostPipelineTaskEndpoint = fmt.Sprintf(`/rest/plugins/webhook/connections/%d/cicd_tasks`, connection.ID)
+	response.PostPipelineDeployTaskEndpoint = fmt.Sprintf(`/rest/plugins/webhook/connections/%d/deployments`, connection.ID)
+	response.ClosePipelineEndpoint = fmt.Sprintf(`/rest/plugins/webhook/connections/%d/cicd_pipeline/:pipelineName/finish`, connection.ID)
 	if withApiKeyInfo {
 		db := basicRes.GetDal()
 		apiKeyName := apiKeyHelper.GenApiKeyNameForPlugin(pluginName, connection.ID)
