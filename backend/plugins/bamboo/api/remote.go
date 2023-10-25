@@ -85,6 +85,15 @@ func SearchRemoteScopes(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutp
 		})
 }
 
+func Proxy(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, errors.Error) {
+	connection := &models.BambooConnection{}
+	err := connectionHelper.First(connection, input.Params)
+	if err != nil {
+		return nil, err
+	}
+	return remoteHelper.ProxyApiGet(connection, input.Params["path"], input.Query)
+}
+
 func initialQuery(queryData *api.RemoteQueryData) url.Values {
 	query := url.Values{}
 	query.Set("showEmpty", fmt.Sprintf("%v", true))
