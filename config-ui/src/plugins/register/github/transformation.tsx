@@ -197,7 +197,7 @@ export const GitHubTransformation = ({ entities, transformation, setTransformati
           </p>
           <div className="text">
             <Checkbox disabled checked />
-            <span>Convert a GitHub Workflow to a DevLake Deployment </span>
+            <span>Convert a GitHub Deployment to a DevLake Deployment </span>
           </div>
           <div className="sub-text">
             <span>If its environment name matches</span>
@@ -216,10 +216,12 @@ export const GitHubTransformation = ({ entities, transformation, setTransformati
           </div>
           <div className="text">
             <Checkbox checked={useCustom} onChange={handleChangeUseCustom} />
-            <span>Convert a GitHub Workflow to a DevLake Deployment</span>
+            <span>Convert a GitHub workflow run as a DevLake Deployment when: </span>
           </div>
           <div className="sub-text">
-            <span>Its branch/tag name or one of its jobs matches</span>
+            <span>
+              The name of the <strong>GitHub workflow run</strong> or <strong> one of its jobs</strong> matches
+            </span>
             <InputGroup
               style={{ width: 180, margin: '0 8px' }}
               placeholder="(deploy|push-image)"
@@ -248,7 +250,7 @@ export const GitHubTransformation = ({ entities, transformation, setTransformati
                 })
               }
             />
-            <span>, this Deployment is a ‘Production Deployment’</span>
+            <span>, this deployment is a ‘Production Deployment’</span>
             <HelpTooltip content="If you leave this field empty, all Deployments will be tagged as in the Production environment. " />
           </div>
         </S.CICD>

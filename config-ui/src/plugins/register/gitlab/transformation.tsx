@@ -72,7 +72,7 @@ export const GitLabTransformation = ({ entities, transformation, setTransformati
           </p>
           <div className="text">
             <Checkbox disabled checked />
-            <span>Convert a GitLab Deployment to a DevLake Deployment</span>
+            <span>Convert a GitLab Deployment to a DevLake Deployment </span>
           </div>
           <div className="sub-text">
             <span>If its environment name matches</span>
@@ -91,10 +91,12 @@ export const GitLabTransformation = ({ entities, transformation, setTransformati
           </div>
           <div className="text">
             <Checkbox checked={useCustom} onChange={handleChangeUseCustom} />
-            <span>Convert a GitLab Pipeline as a DevLake Deployment when:</span>
+            <span>Convert a GitLab Pipeline as a DevLake Deployment when: </span>
           </div>
           <div className="sub-text">
-            <span>Its branch/tag name or one of its jobs matches</span>
+            <span>
+              Its branch/tag name or <strong>one of its jobs</strong> matches
+            </span>
             <InputGroup
               style={{ width: 180, margin: '0 8px' }}
               placeholder="(deploy|push-image)"
