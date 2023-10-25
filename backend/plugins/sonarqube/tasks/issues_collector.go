@@ -34,7 +34,10 @@ const RAW_ISSUES_TABLE = "sonarqube_api_issues"
 
 var _ plugin.SubTaskEntryPoint = CollectIssues
 
-type SonarqubeIssueTimeIteratorNode struct {
+type SonarqubeIssueIteratorNode struct {
+	Severity      string
+	Status        string
+	Type          string
 	CreatedAfter  *time.Time
 	CreatedBefore *time.Time
 }
@@ -42,14 +45,26 @@ type SonarqubeIssueTimeIteratorNode struct {
 func CollectIssues(taskCtx plugin.SubTaskContext) (err errors.Error) {
 	logger := taskCtx.GetLogger()
 	logger.Info("collect issues")
-	iterator := helper.NewQueueIterator()
-	iterator.Push(
-		&SonarqubeIssueTimeIteratorNode{
-			CreatedAfter:  nil,
-			CreatedBefore: nil,
-		},
-	)
 
+	iterator := helper.NewQueueIterator()
+	severities := []string{"BLOCKER", "CRITICAL", "MAJOR", "MINOR", "INFO"}
+	statuses := []string{"OPEN", "CONFIRMED", "REOPENED", "RESOLVED", "CLOSED"}
+	types := []string{"BUG", "VULNERABILITY", "CODE_SMELL"}
+	for _, severity := range severities {
+		for _, status := range statuses {
+			for _, typ := range types {
+				iterator.Push(
+					&SonarqubeIssueIteratorNode{
+						Severity:      severity,
+						Status:        status,
+						Type:          typ,
+						CreatedAfter:  nil,
+						CreatedBefore: nil,
+					},
+				)
+			}
+		}
+	}
 	rawDataSubTaskArgs, data := CreateRawDataSubTaskArgs(taskCtx, RAW_ISSUES_TABLE)
 	collector, err := helper.NewApiCollector(helper.ApiCollectorArgs{
 		RawDataSubTaskArgs: *rawDataSubTaskArgs,
@@ -60,19 +75,19 @@ func CollectIssues(taskCtx plugin.SubTaskContext) (err errors.Error) {
 		Query: func(reqData *helper.RequestData) (url.Values, errors.Error) {
 			query := url.Values{}
 			query.Set("componentKeys", fmt.Sprintf("%v", data.Options.ProjectKey))
-			input, ok := reqData.Input.(*SonarqubeIssueTimeIteratorNode)
+			input, ok := reqData.Input.(*SonarqubeIssueIteratorNode)
 			if !ok {
-				return nil, errors.Default.New(fmt.Sprintf("Input to SonarqubeIssueTimeIteratorNode failed:%+v", reqData.Input))
+				return nil, errors.Default.New(fmt.Sprintf("Input to SonarqubeIssueIteratorNode failed:%+v", reqData.Input))
 			}
-
+			query.Set("severities", reqData.Input.(*SonarqubeIssueIteratorNode).Severity)
+			query.Set("statuses", reqData.Input.(*SonarqubeIssueIteratorNode).Status)
+			query.Set("types", reqData.Input.(*SonarqubeIssueIteratorNode).Type)
 			if input.CreatedAfter != nil {
 				query.Set("createdAfter", GetFormatTime(input.CreatedAfter))
 			}
-
 			if input.CreatedBefore != nil {
 				query.Set("createdBefore", GetFormatTime(input.CreatedBefore))
 			}
-
 			query.Set("p", fmt.Sprintf("%v", reqData.Pager.Page))
 			query.Set("ps", fmt.Sprintf("%v", reqData.Pager.Size))
 			query.Encode()
@@ -126,14 +141,23 @@ func CollectIssues(taskCtx plugin.SubTaskContext) (err errors.Error) {
 				// split it
 				MidTime := time.Unix((createdAfterUnix+createdBeforeUnix)/2+1, 0)
 
+				severity := query.Get("severities")
+				status := query.Get("statuses")
+				typ := query.Get("types")
 				// left part
-				iterator.Push(&SonarqubeIssueTimeIteratorNode{
+				iterator.Push(&SonarqubeIssueIteratorNode{
+					Severity:      severity,
+					Status:        status,
+					Type:          typ,
 					CreatedAfter:  createdAfter,
 					CreatedBefore: &MidTime,
 				})
 
 				// right part
-				iterator.Push(&SonarqubeIssueTimeIteratorNode{
+				iterator.Push(&SonarqubeIssueIteratorNode{
+					Severity:      severity,
+					Status:        status,
+					Type:          typ,
 					CreatedAfter:  &MidTime,
 					CreatedBefore: createdBefore,
 				})
@@ -149,7 +173,6 @@ func CollectIssues(taskCtx plugin.SubTaskContext) (err errors.Error) {
 				return pages, nil
 			}
 		},
-
 		ResponseParser: func(res *http.Response) ([]json.RawMessage, errors.Error) {
 			var resData struct {
 				Data []json.RawMessage `json:"issues"`
