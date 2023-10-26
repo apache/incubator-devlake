@@ -114,7 +114,7 @@ func ConvertDeployments(taskCtx plugin.SubTaskContext) errors.Error {
 				// So convert it to devlake's definition.
 				domainDeployCommit.Environment = devops.TESTING
 			}
-			domainDeployCommit.CicdDeploymentId = domainDeployCommit.Id
+
 			return []interface{}{domainDeployCommit, domainDeployCommit.ToDeployment()}, nil
 		},
 	})
