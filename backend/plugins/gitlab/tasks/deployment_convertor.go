@@ -90,10 +90,9 @@ func ConvertDeployment(taskCtx plugin.SubTaskContext) errors.Error {
 				}
 			}
 			domainDeployCommit := &devops.CicdDeploymentCommit{
-				DomainEntity:     domainlayer.NewDomainEntity(idGen.Generate(data.Options.ConnectionId, data.Options.ProjectId, gitlabDeployment.DeploymentId)),
-				CicdScopeId:      projectIdGen.Generate(data.Options.ConnectionId, data.Options.ProjectId),
-				CicdDeploymentId: idGen.Generate(data.Options.ConnectionId, data.Options.ProjectId, gitlabDeployment.DeploymentId),
-				Name:             fmt.Sprintf("%s:%d", gitlabDeployment.Name, gitlabDeployment.DeploymentId),
+				DomainEntity: domainlayer.NewDomainEntity(idGen.Generate(data.Options.ConnectionId, data.Options.ProjectId, gitlabDeployment.DeploymentId)),
+				CicdScopeId:  projectIdGen.Generate(data.Options.ConnectionId, data.Options.ProjectId),
+				Name:         fmt.Sprintf("%s:%d", gitlabDeployment.Name, gitlabDeployment.DeploymentId),
 				Result: devops.GetResult(&devops.ResultRule{
 					Failed:  []string{"UNDEPLOYED", "failed"},
 					Success: []string{"COMPLETED", "success"},
