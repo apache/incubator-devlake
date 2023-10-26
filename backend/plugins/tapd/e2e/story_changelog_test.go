@@ -119,6 +119,13 @@ func TestTapdStoryChangelogDataFlow(t *testing.T) {
 		),
 	)
 
+	// duplicate existing changelog items to simulate the case that 2 connections having the same changelog items
+	e2ehelper.DuplicateRecords[models.TapdStoryChangelogItem](
+		dataflowTester,
+		map[string]interface{}{
+			"ConnectionId": uint64(2),
+		},
+	)
 	dataflowTester.FlushTabler(&ticket.IssueChangelogs{})
 	dataflowTester.Subtask(tasks.ConvertStoryChangelogMeta, taskData)
 	dataflowTester.VerifyTable(
