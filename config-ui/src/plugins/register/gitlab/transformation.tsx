@@ -28,9 +28,10 @@ interface Props {
   entities: string[];
   transformation: any;
   setTransformation: React.Dispatch<React.SetStateAction<any>>;
+  setHasError: React.Dispatch<React.SetStateAction<boolean>>;
 }
 
-export const GitLabTransformation = ({ entities, transformation, setTransformation }: Props) => {
+export const GitLabTransformation = ({ entities, transformation, setTransformation, setHasError }: Props) => {
   const [useCustom, setUseCustom] = useState(false);
 
   useEffect(() => {
@@ -40,6 +41,10 @@ export const GitLabTransformation = ({ entities, transformation, setTransformati
       setUseCustom(false);
     }
   }, [transformation]);
+
+  useEffect(() => {
+    setHasError(useCustom && !transformation.deploymentPattern);
+  }, [useCustom, transformation]);
 
   const handleChangeUseCustom = (e: React.FormEvent<HTMLInputElement>) => {
     const checked = (e.target as HTMLInputElement).checked;

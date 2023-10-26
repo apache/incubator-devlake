@@ -62,6 +62,7 @@ export const ScopeConfigForm = ({
   const [entities, setEntities] = useState<string[]>([]);
   const [transformation, setTransformation] = useState<any>({});
   const [hasRefDiff, setHasRefDiff] = useState(false);
+  const [hasError, setHasError] = useState(false);
   const [operating, setOperating] = useState(false);
 
   const config = useMemo(() => getPluginConfig(plugin), []);
@@ -187,6 +188,7 @@ export const ScopeConfigForm = ({
                 entities={entities}
                 transformation={transformation}
                 setTransformation={setTransformation}
+                setHasError={setHasError}
               />
             )}
 
@@ -204,6 +206,7 @@ export const ScopeConfigForm = ({
                 entities={entities}
                 transformation={transformation}
                 setTransformation={setTransformation}
+                setHasError={setHasError}
               />
             )}
 
@@ -253,7 +256,13 @@ export const ScopeConfigForm = ({
           </Card>
           <Buttons position="bottom" align="right">
             <Button outlined intent={Intent.PRIMARY} text="Prev" onClick={handlePrevStep} />
-            <Button loading={operating} intent={Intent.PRIMARY} text="Save" onClick={handleSubmit} />
+            <Button
+              loading={operating}
+              disabled={hasError}
+              intent={Intent.PRIMARY}
+              text="Save"
+              onClick={handleSubmit}
+            />
           </Buttons>
         </>
       )}
