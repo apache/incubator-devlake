@@ -29,6 +29,7 @@ export interface IPluginConfig {
   };
   dataScope: {
     localSearch?: boolean;
+    searchPlaceholder?: string;
     title?: string;
     millerColumn?: {
       columnCount?: number;

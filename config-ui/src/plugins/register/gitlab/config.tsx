@@ -64,6 +64,7 @@ export const GitLabConfig = {
     ],
   },
   dataScope: {
+    searchPlaceholder: 'Please enter at least 3 characters to search',
     title: 'Projects',
     millerColumn: {
       columnCount: 2.5,
