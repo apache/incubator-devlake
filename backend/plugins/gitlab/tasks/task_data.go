@@ -49,8 +49,5 @@ func DecodeAndValidateTaskOptions(options map[string]interface{}) (*GitlabOption
 	if op.ConnectionId == 0 {
 		return nil, errors.BadInput.New("connectionId is invalid")
 	}
-	if op.ScopeConfig == nil && op.ScopeConfigId == 0 {
-		op.ScopeConfig = new(models.GitlabScopeConfig)
-	}
 	return &op, nil
 }

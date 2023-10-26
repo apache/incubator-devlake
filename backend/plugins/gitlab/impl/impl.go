@@ -156,6 +156,11 @@ func (p Gitlab) PrepareTaskData(taskCtx plugin.TaskContext, options map[string]i
 		// If we still cannot find the record in db, we have to request from remote server and save it to db
 		db := taskCtx.GetDal()
 		err = db.First(&scope, dal.Where("connection_id = ? AND gitlab_id = ?", op.ConnectionId, op.ProjectId))
+		if err == nil {
+			if op.ScopeConfigId == 0 && scope.ScopeConfigId != 0 {
+				op.ScopeConfigId = scope.ScopeConfigId
+			}
+		}
 		if err != nil && db.IsErrorNotFound(err) {
 			var project *models.GitlabApiProject
 			project, err = api.GetApiProject(op, apiClient)
@@ -195,6 +200,9 @@ func (p Gitlab) PrepareTaskData(taskCtx plugin.TaskContext, options map[string]i
 	}
 	if err := regexEnricher.TryAdd(devops.PRODUCTION, op.ScopeConfig.ProductionPattern); err != nil {
 		return nil, errors.BadInput.Wrap(err, "invalid value for `productionPattern`")
+	}
+	if err := regexEnricher.TryAdd(devops.ENV_NAME_PATTERN, op.ScopeConfig.EnvNamePattern); err != nil {
+		return nil, errors.BadInput.Wrap(err, "invalid value for `envNamePattern`")
 	}
 
 	taskData := tasks.GitlabTaskData{
