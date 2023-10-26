@@ -67,7 +67,6 @@ func ConvertDeployments(taskCtx plugin.SubTaskContext) errors.Error {
 	defer cursor.Close()
 
 	idGen := didgen.NewDomainIdGenerator(&models.BitbucketDeployment{})
-	pipelineIdGen := didgen.NewDomainIdGenerator(&models.BitbucketPipeline{})
 
 	converter, err := api.NewDataConverter(api.DataConverterArgs{
 		InputRowType:       reflect.TypeOf(bitbucketDeploymentWithRefName{}),
