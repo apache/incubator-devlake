@@ -158,10 +158,7 @@ export const BitbucketTransformation = ({ entities, transformation, setTransform
           </div>
           <div className="text">
             <Checkbox checked={useCustom} onChange={handleChangeUseCustom} />
-            <span>
-              Convert a BitBucket Pipeline to a DevLake Deployment when its branch/tag name or one of its pipeline
-              steps’ names
-            </span>
+            <span>Convert a BitBucket Pipeline to a DevLake Deployment when its branch/tag name</span>
           </div>
           <div className="sub-text">
             <span>matches</span>

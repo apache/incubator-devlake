@@ -16,17 +16,24 @@
  *
  */
 
-import { useAppSelector } from '@/app/hook';
-
-import { selectConnection } from './slice';
-import { IConnection } from '@/types';
-
-interface Props {
-  plugin: string;
-  connectionId: ID;
+export interface IWebhookAPI {
+  id: number;
+  name: string;
+  postIssuesEndpoint: string;
+  closeIssuesEndpoint: string;
+  postPipelineDeployTaskEndpoint: string;
+  apiKey: {
+    id: number;
+    apiKey: string;
+  };
 }
 
-export const ConnectionName = ({ plugin, connectionId }: Props) => {
-  const connection = useAppSelector((state) => selectConnection(state, `${plugin}-${connectionId}`)) as IConnection;
-  return <span>{connection ? connection.name : `${plugin}/connections/${connectionId}`}</span>;
-};
+export interface IWebhook {
+  id: number;
+  name: string;
+  postIssuesEndpoint: string;
+  closeIssuesEndpoint: string;
+  postPipelineDeployTaskEndpoint: string;
+  apiKey: string;
+  apiKeyId: number;
+}

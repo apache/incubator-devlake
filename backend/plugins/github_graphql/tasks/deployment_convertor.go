@@ -19,6 +19,8 @@ package tasks
 
 import (
 	"fmt"
+	"reflect"
+
 	"github.com/apache/incubator-devlake/core/dal"
 	"github.com/apache/incubator-devlake/core/errors"
 	"github.com/apache/incubator-devlake/core/models/domainlayer"
@@ -27,7 +29,6 @@ import (
 	"github.com/apache/incubator-devlake/core/plugin"
 	"github.com/apache/incubator-devlake/helpers/pluginhelper/api"
 	githubModels "github.com/apache/incubator-devlake/plugins/github/models"
-	"reflect"
 )
 
 var _ plugin.SubTaskEntryPoint = ConvertDeployment
@@ -95,9 +96,12 @@ func ConvertDeployment(taskCtx plugin.SubTaskContext) errors.Error {
 			deploymentCommit.DurationSec = &durationSec
 
 			if data.RegexEnricher != nil {
-				deploymentCommit.Environment = data.RegexEnricher.ReturnNameIfMatched(devops.PRODUCTION, githubDeployment.Environment)
+				if data.RegexEnricher.ReturnNameIfMatched(devops.ENV_NAME_PATTERN, githubDeployment.Environment) != "" {
+					deploymentCommit.Environment = devops.PRODUCTION
+				}
 			}
 
+			deploymentCommit.CicdDeploymentId = deploymentCommit.Id
 			return []interface{}{
 				deploymentCommit,
 				deploymentCommit.ToDeployment(),

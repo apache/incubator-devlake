@@ -18,23 +18,13 @@
 
 import * as connection from '../../connection';
 
-export const list = () => connection.list('webhook');
+import { IWebhookAPI } from '@/types';
 
-export const get = (
-  id: ID,
-): Promise<{
-  name: string;
-  postIssuesEndpoint: string;
-  closeIssuesEndpoint: string;
-  postPipelineDeployTaskEndpoint: string;
-  apiKey: {
-    id: string;
-    apiKey: string;
-  };
-}> => connection.get('webhook', id) as any;
+export const list = (): Promise<IWebhookAPI[]> => connection.list('webhook') as any;
 
-export const create = (payload: any): Promise<{ id: string; apiKey: { apiKey: string } }> =>
-  connection.create('webhook', payload) as any;
+export const get = (id: ID): Promise<IWebhookAPI> => connection.get('webhook', id) as any;
+
+export const create = (payload: any): Promise<IWebhookAPI> => connection.create('webhook', payload) as any;
 
 export const remove = (id: ID) => connection.remove('webhook', id);
 

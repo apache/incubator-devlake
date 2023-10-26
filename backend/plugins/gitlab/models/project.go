@@ -116,6 +116,14 @@ type GitlabApiProject struct {
 	HttpUrlToRepo     string              `json:"http_url_to_repo"`
 	Archived          bool                `json:"archived"`
 	Permissions       Permissions         `json:"permissions"`
+	Namespace         struct {
+		ID       int    `json:"id"`
+		Name     string `json:"name"`
+		Path     string `json:"path"`
+		Kind     string `json:"kind"`
+		FullPath string `json:"full_path"`
+		ParentID any    `json:"parent_id"`
+	} `json:"namespace"`
 }
 
 type Permissions struct {

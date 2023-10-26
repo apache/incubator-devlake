@@ -16,43 +16,16 @@
  *
  */
 
-export interface IConnectionAPI {
-  id: ID;
-  name: string;
-  endpoint: string;
-  authMethod?: string;
-  token?: string;
-  username?: string;
-  password?: string;
-  proxy: string;
-  apiKey?: string;
-  dbUrl?: string;
-  appId?: string;
-  secretKey?: string;
-}
+import { useAppSelector } from '@/app/hook';
 
-export enum IConnectionStatus {
-  IDLE = 'idle',
-  TESTING = 'testing',
-  ONLINE = 'online',
-  OFFLINE = 'offline',
-}
+import { selectConnection } from '../slice';
 
-export interface IConnection {
-  unique: string;
+interface Props {
   plugin: string;
-  pluginName: string;
-  id: ID;
-  name: string;
-  status: IConnectionStatus;
-  icon: string;
-  isBeta: boolean;
-  endpoint: string;
-  proxy: string;
-  authMethod?: string;
-  token?: string;
-  username?: string;
-  password?: string;
-  appId?: string;
-  secretKey?: string;
+  connectionId: ID;
 }
+
+export const ConnectionName = ({ plugin, connectionId }: Props) => {
+  const connection = useAppSelector((state) => selectConnection(state, `${plugin}-${connectionId}`));
+  return <span>{connection?.name ?? `${plugin}/connections/${connectionId}`}</span>;
+};

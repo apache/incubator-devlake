@@ -22,31 +22,26 @@ import { Tag, Intent } from '@blueprintjs/core';
 
 import { useAppSelector } from '@/app/hook';
 import { Dialog } from '@/components';
-import { selectAllConnections } from '@/features/connections';
-import { PluginConfig, PluginConfigType, ConnectionList, ConnectionForm } from '@/plugins';
+import { selectPlugins, selectAllConnections, selectWebhooks } from '@/features/connections';
+import { getPluginConfig, ConnectionList, ConnectionForm } from '@/plugins';
 
 import * as S from './styled';
 
 export const ConnectionHomePage = () => {
   const [type, setType] = useState<'list' | 'form'>();
-  const [pluginConfig, setPluginConfig] = useState<PluginConfigType>();
+  const [plugin, setPlugin] = useState('');
 
+  const plugins = useAppSelector(selectPlugins);
   const connections = useAppSelector(selectAllConnections);
+  const webhooks = useAppSelector(selectWebhooks);
 
   const navigate = useNavigate();
 
-  const plugins = useMemo(
-    () =>
-      PluginConfig.map((p) => ({
-        ...p,
-        count: connections.filter((cs) => cs.plugin === p.plugin).length,
-      })),
-    [connections],
-  );
+  const pluginConfig = useMemo(() => getPluginConfig(plugin), [plugin]);
 
-  const handleShowListDialog = (pluginConfig: PluginConfigType) => {
+  const handleShowListDialog = (plugin: string) => {
     setType('list');
-    setPluginConfig(pluginConfig);
+    setPlugin(plugin);
   };
 
   const handleShowFormDialog = () => {
@@ -55,7 +50,7 @@ export const ConnectionHomePage = () => {
 
   const handleHideDialog = () => {
     setType(undefined);
-    setPluginConfig(undefined);
+    setPlugin('');
   };
 
   const handleSuccessAfter = async (plugin: string, id: ID) => {
@@ -71,51 +66,58 @@ export const ConnectionHomePage = () => {
           your Projects.
         </h5>
       </div>
-      <div className="block">
-        <h2>Data Connections</h2>
-        <h5>
-          You can create and manage data connections for the following data sources and use them in your Projects.
-        </h5>
-        <ul>
-          {plugins
-            .filter((p) => p.plugin !== 'webhook')
-            .map((p) => (
-              <li key={p.plugin} onClick={() => handleShowListDialog(p)}>
-                <img src={p.icon} alt="" />
-                <span className="name">{p.name}</span>
-                <S.Count>{p.count ? `${p.count} connections` : 'No connection'}</S.Count>
-                {p.isBeta && (
-                  <Tag intent={Intent.WARNING} round>
-                    beta
-                  </Tag>
-                )}
-              </li>
-            ))}
-        </ul>
-      </div>
-      <div className="block">
-        <h2>Webhooks</h2>
-        <h5>
-          You can use webhooks to import deployments and incidents from the unsupported data integrations to calculate
-          DORA metrics, etc.
-        </h5>
-        <ul>
-          {plugins
-            .filter((p) => p.plugin === 'webhook')
-            .map((p) => (
-              <li key={p.plugin} onClick={() => handleShowListDialog(p)}>
-                <img src={p.icon} alt="" />
-                <span className="name">{p.name}</span>
-                <S.Count>{p.count ? `${p.count} connections` : 'No connection'}</S.Count>
-                {p.isBeta && (
-                  <Tag intent={Intent.WARNING} round>
-                    beta
-                  </Tag>
-                )}
-              </li>
-            ))}
-        </ul>
-      </div>
+      {!!plugins.filter((plugin) => plugin !== 'webhook').length && (
+        <div className="block">
+          <h2>Data Connections</h2>
+          <h5>
+            You can create and manage data connections for the following data sources and use them in your Projects.
+          </h5>
+          <ul>
+            {plugins
+              .filter((plugin) => plugin !== 'webhook')
+              .map((plugin) => {
+                const pluginConfig = getPluginConfig(plugin);
+                const connectionCount = connections.filter((cs) => cs.plugin === plugin).length;
+                return (
+                  <li key={plugin} onClick={() => handleShowListDialog(plugin)}>
+                    <img src={pluginConfig.icon} alt="" />
+                    <span className="name">{pluginConfig.name}</span>
+                    <S.Count>{connectionCount ? `${connectionCount} connections` : 'No connection'}</S.Count>
+                    {pluginConfig.isBeta && (
+                      <Tag intent={Intent.WARNING} round>
+                        beta
+                      </Tag>
+                    )}
+                  </li>
+                );
+              })}
+          </ul>
+        </div>
+      )}
+      {plugins.includes('webhook') && (
+        <div className="block">
+          <h2>Webhooks</h2>
+          <h5>
+            You can use webhooks to import deployments and incidents from the unsupported data integrations to calculate
+            DORA metrics, etc.
+          </h5>
+          <ul>
+            {plugins
+              .filter((plugin) => plugin === 'webhook')
+              .map((plugin) => {
+                const pluginConfig = getPluginConfig(plugin);
+                const connectionCount = webhooks.length;
+                return (
+                  <li key={plugin} onClick={() => handleShowListDialog(plugin)}>
+                    <img src={pluginConfig.icon} alt="" />
+                    <span className="name">{pluginConfig.name}</span>
+                    <S.Count>{connectionCount ? `${connectionCount} connections` : 'No connection'}</S.Count>
+                  </li>
+                );
+              })}
+          </ul>
+        </div>
+      )}
       {type === 'list' && pluginConfig && (
         <Dialog
           style={{ width: 820 }}

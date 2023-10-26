@@ -115,7 +115,7 @@ func ConvertDeployBuilds(taskCtx plugin.SubTaskContext) errors.Error {
 			if input.QueuedDate != nil {
 				deploymentCommit.CreatedDate = *input.QueuedDate
 			}
-			if data.RegexEnricher.ReturnNameIfMatched(models.ENV_NAME_PATTERN, input.Environment) != "" {
+			if data.RegexEnricher.ReturnNameIfMatched(devops.ENV_NAME_PATTERN, input.Environment) != "" {
 				deploymentCommit.Environment = devops.PRODUCTION
 			}
 			if input.FinishedDate != nil && input.StartedDate != nil {

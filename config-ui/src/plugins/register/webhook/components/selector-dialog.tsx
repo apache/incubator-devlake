@@ -16,45 +16,29 @@
  *
  */
 
-import { useState, useEffect } from 'react';
-import type { McsItem } from 'miller-columns-select';
+import { useState } from 'react';
 import MillerColumnsSelect from 'miller-columns-select';
 
-import API from '@/api';
+import { useAppSelector } from '@/app/hook';
 import { Dialog, FormItem, Loading } from '@/components';
+import { selectWebhooks } from '@/features';
+import { IWebhook } from '@/types';
 
-import * as T from '../types';
 import * as S from '../styled';
 
 interface Props {
   isOpen: boolean;
   saving: boolean;
   onCancel: () => void;
-  onSubmit: (items: T.WebhookItemType[]) => void;
+  onSubmit: (items: IWebhook[]) => void;
 }
 
 export const SelectorDialog = ({ isOpen, saving, onCancel, onSubmit }: Props) => {
-  const [items, setItems] = useState<McsItem<T.WebhookItemType>[]>([]);
-  const [selectedItems, setSelectedItems] = useState<T.WebhookItemType[]>([]);
-  const [isLast, setIsLast] = useState(false);
+  const [selectedIds, setSelectedIds] = useState<ID[]>([]);
 
-  const updateItems = (arr: any) =>
-    arr.map((it: any) => ({
-      parentId: null,
-      id: it.id,
-      title: it.name,
-      name: it.name,
-    }));
+  const webhooks = useAppSelector(selectWebhooks);
 
-  useEffect(() => {
-    (async () => {
-      const res = await API.plugin.webhook.list();
-      setItems([...updateItems(res)]);
-      setIsLast(true);
-    })();
-  }, []);
-
-  const handleSubmit = () => onSubmit(selectedItems);
+  const handleSubmit = () => onSubmit(webhooks.filter((it) => selectedIds.includes(it.id)));
 
   return (
     <Dialog
@@ -65,7 +49,7 @@ export const SelectorDialog = ({ isOpen, saving, onCancel, onSubmit }: Props) =>
       }}
       okText="Confrim"
       okLoading={saving}
-      okDisabled={!selectedItems.length}
+      okDisabled={!selectedIds.length}
       onCancel={onCancel}
       onOk={handleSubmit}
     >
@@ -74,20 +58,16 @@ export const SelectorDialog = ({ isOpen, saving, onCancel, onSubmit }: Props) =>
           <MillerColumnsSelect
             columnCount={1}
             columnHeight={160}
-            getHasMore={() => !isLast}
+            getHasMore={() => false}
             renderLoading={() => <Loading size={20} style={{ padding: '4px 12px' }} />}
-            items={items}
-            selectedIds={selectedItems.map((it) => it.id)}
-            onSelectItemIds={(seletedIds: ID[]) =>
-              setSelectedItems(
-                items
-                  .filter((it) => seletedIds.includes(it.id))
-                  .map((it) => ({
-                    id: it.id,
-                    name: it.name,
-                  })),
-              )
-            }
+            items={webhooks.map((it) => ({
+              parentId: null,
+              id: it.id,
+              title: it.name,
+              name: it.name,
+            }))}
+            selectedIds={selectedIds}
+            onSelectItemIds={setSelectedIds}
           />
         </FormItem>
       </S.Wrapper>

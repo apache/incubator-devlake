@@ -21,11 +21,11 @@ import { Button, Intent } from '@blueprintjs/core';
 
 import { useAppSelector } from '@/app/hook';
 import { Buttons, Table, ColumnType, ExternalLink, IconButton } from '@/components';
-import { selectConnections } from '@/features/connections';
+import { selectWebhooks } from '@/features/connections';
 import { DOC_URL } from '@/release';
+import { IWebhook } from '@/types';
 
 import { CreateDialog, ViewDialog, EditDialog, DeleteDialog } from './components';
-import * as T from './types';
 
 import * as S from './styled';
 
@@ -41,19 +41,19 @@ export const WebHookConnection = ({ filterIds, onCreateAfter, onDeleteAfter }: P
   const [type, setType] = useState<Type>();
   const [currentID, setCurrentID] = useState<ID>();
 
-  const connections = useAppSelector((state) => selectConnections(state, 'webhook'));
+  const webhooks = useAppSelector(selectWebhooks);
 
   const handleHideDialog = () => {
     setType(undefined);
     setCurrentID(undefined);
   };
 
-  const handleShowDialog = (t: Type, r?: T.WebhookItemType) => {
+  const handleShowDialog = (t: Type, r?: IWebhook) => {
     setType(t);
     setCurrentID(r?.id);
   };
 
-  const columns: ColumnType<T.WebhookItemType> = [
+  const columns: ColumnType<IWebhook> = [
     {
       title: 'ID',
       dataIndex: 'id',
@@ -87,7 +87,7 @@ export const WebHookConnection = ({ filterIds, onCreateAfter, onDeleteAfter }: P
       </Buttons>
       <Table
         columns={columns}
-        dataSource={connections.filter((cs) => (filterIds ? filterIds.includes(cs.id) : true))}
+        dataSource={webhooks.filter((cs) => (filterIds ? filterIds.includes(cs.id) : true))}
         noData={{
           text: (
             <>

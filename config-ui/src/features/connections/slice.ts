@@ -21,65 +21,47 @@ import { flatten } from 'lodash';
 
 import API from '@/api';
 import { RootState } from '@/app/store';
-import { PluginConfig } from '@/plugins';
-import { IConnection, IConnectionStatus } from '@/types';
+import { IConnection, IConnectionStatus, IWebhook, IStatus } from '@/types';
 
-import { transformConnection } from './utils';
+import { transformConnection, transformWebhook } from './utils';
 
 const initialState: {
+  status: IStatus;
+  plugins: string[];
   connections: IConnection[];
-  status: 'idle' | 'loading' | 'success' | 'failed';
+  webhooks: IWebhook[];
 } = {
-  connections: [],
   status: 'idle',
+  plugins: [],
+  connections: [],
+  webhooks: [],
 };
 
-export const init = createAsyncThunk('connections/init', async () => {
-  const getConnections = async (plugin: string) => {
-    try {
-      return await API.connection.list(plugin);
-    } catch {
-      return [];
-    }
-  };
-
-  const res = await Promise.all(
-    PluginConfig.map(async ({ plugin }) => {
-      const connections = await getConnections(plugin);
-      return connections.map((connection) => transformConnection(plugin, connection));
-    }),
+export const init = createAsyncThunk('connections/init', async (plugins: string[]) => {
+  const connections = await Promise.all(
+    plugins
+      .filter((plugin) => plugin !== 'webhook')
+      .map(async (plugin) => {
+        const connections = await API.connection.list(plugin);
+        return connections.map((connection) => transformConnection(plugin, connection));
+      }),
   );
-  return flatten(res);
-});
 
-export const fetchConnections = createAsyncThunk('connections/fetchConnections', async (plugin: string) => {
-  const connections = await API.connection.list(plugin);
+  const webhooks = await Promise.all(
+    plugins
+      .filter((plugin) => plugin === 'webhook')
+      .map(async () => {
+        const webhooks = await API.plugin.webhook.list();
+        return webhooks.map((webhook) => transformWebhook(webhook));
+      }),
+  );
+
   return {
-    plugin,
-    connections: connections.map((connection) => transformConnection(plugin, connection)),
+    plugins,
+    connections: flatten(connections),
+    webhooks: flatten(webhooks),
   };
 });
-
-export const testConnection = createAsyncThunk(
-  'connections/testConnection',
-  async ({ unique, plugin, endpoint, proxy, token, username, password, authMethod, secretKey, appId }: IConnection) => {
-    const res = await API.connection.test(plugin, {
-      endpoint,
-      proxy,
-      token,
-      username,
-      password,
-      authMethod,
-      secretKey,
-      appId,
-    });
-
-    return {
-      unique,
-      status: res.success ? IConnectionStatus.ONLINE : IConnectionStatus.OFFLINE,
-    };
-  },
-);
 
 export const addConnection = createAsyncThunk('connections/addConnection', async ({ plugin, ...payload }: any) => {
   const connection = await API.connection.create(plugin, payload);
@@ -102,7 +84,52 @@ export const removeConnection = createAsyncThunk(
   },
 );
 
-export const slice = createSlice({
+export const testConnection = createAsyncThunk(
+  'connections/testConnection',
+  async ({ unique, plugin, endpoint, proxy, token, username, password, authMethod, secretKey, appId }: IConnection) => {
+    const res = await API.connection.test(plugin, {
+      endpoint,
+      proxy,
+      token,
+      username,
+      password,
+      authMethod,
+      secretKey,
+      appId,
+    });
+
+    return {
+      unique,
+      status: res.success ? IConnectionStatus.ONLINE : IConnectionStatus.OFFLINE,
+    };
+  },
+);
+
+export const addWebhook = createAsyncThunk('connections/addWebhook', async (payload: any) => {
+  const webhook = await API.plugin.webhook.create(payload);
+  return transformWebhook(webhook);
+});
+
+export const removeWebhook = createAsyncThunk('connections/removeWebhook', async (id: ID) => {
+  await API.plugin.webhook.remove(id);
+  return id;
+});
+
+export const updateWebhook = createAsyncThunk('connections/updateWebhook', async ({ id, ...payload }: any) => {
+  const webhook = await API.plugin.webhook.update(id, payload);
+  return webhook;
+});
+
+export const renewWebhookApiKey = createAsyncThunk('connections/renewWebhookApiKey', async (id: ID, { getState }) => {
+  const webhook = (getState() as RootState).connections.webhooks.find((wh) => wh.id === id) as IWebhook;
+  const apiKey = await API.apiKey.renew(webhook.apiKeyId);
+  return {
+    id: webhook.id,
+    apiKey: apiKey.apiKey,
+  };
+});
+
+export const connectionsSlice = createSlice({
   name: 'connections',
   initialState,
   reducers: {},
@@ -112,11 +139,10 @@ export const slice = createSlice({
         state.status = 'loading';
       })
       .addCase(init.fulfilled, (state, action) => {
-        state.connections = action.payload;
+        state.plugins = action.payload.plugins;
+        state.connections = action.payload.connections;
+        state.webhooks = action.payload.webhooks;
         state.status = 'success';
-      })
-      .addCase(fetchConnections.fulfilled, (state, action) => {
-        state.connections = state.connections.concat(action.payload.connections);
       })
       .addCase(addConnection.fulfilled, (state, action) => {
         state.connections.push(action.payload);
@@ -143,15 +169,31 @@ export const slice = createSlice({
         if (existingConnection) {
           existingConnection.status = action.payload.status;
         }
+      })
+      .addCase(addWebhook.fulfilled, (state, action) => {
+        state.webhooks.push(action.payload);
+      })
+      .addCase(removeWebhook.fulfilled, (state, action) => {
+        state.webhooks = state.webhooks.filter((wh) => wh.id !== action.payload);
+      })
+      .addCase(updateWebhook.fulfilled, (state, action) => {
+        state.webhooks = state.webhooks.map((wh) =>
+          wh.id === action.payload.id ? { ...wh, name: action.payload.name } : wh,
+        );
+      })
+      .addCase(renewWebhookApiKey.fulfilled, (state, action) => {
+        state.webhooks = state.webhooks.map((wh) =>
+          wh.id === action.payload.id ? { ...wh, apiKey: action.payload.apiKey } : wh,
+        );
       });
   },
 });
 
-export const {} = slice.actions;
-
-export default slice.reducer;
+export default connectionsSlice.reducer;
 
 export const selectStatus = (state: RootState) => state.connections.status;
+
+export const selectPlugins = (state: RootState) => state.connections.plugins;
 
 export const selectAllConnections = (state: RootState) => state.connections.connections;
 
@@ -160,3 +202,7 @@ export const selectConnections = (state: RootState, plugin: string) =>
 
 export const selectConnection = (state: RootState, unique: string) =>
   state.connections.connections.find((cs) => cs.unique === unique);
+
+export const selectWebhooks = (state: RootState) => state.connections.webhooks;
+
+export const selectWebhook = (state: RootState, id: ID) => state.connections.webhooks.find((wh) => wh.id === id);

@@ -18,29 +18,35 @@ limitations under the License.
 package migrationscripts
 
 import (
+	"github.com/apache/incubator-devlake/core/context"
+	"github.com/apache/incubator-devlake/core/errors"
 	"github.com/apache/incubator-devlake/core/plugin"
+	"github.com/apache/incubator-devlake/helpers/migrationhelper"
 )
 
-// All return all the migration scripts
-func All() []plugin.MigrationScript {
-	return []plugin.MigrationScript{
-		new(addInitTables),
-		new(addGitlabCI),
-		new(addPipelineID),
-		new(addPipelineProjects),
-		new(fixDurationToFloat8),
-		new(addTransformationRule20221125),
-		new(addStdTypeToIssue221230),
-		new(addIsDetailRequired20230210),
-		new(addConnectionIdToTransformationRule),
-		new(addGitlabCommitAuthorInfo),
-		new(addTypeEnvToPipeline),
-		new(renameTr2ScopeConfig),
-		new(addGitlabIssueAssignee),
-		new(addMrCommitSha),
-		new(addRawParamTableForScope),
-		new(addProjectArchived),
-		new(addDeployment),
-		new(addEnvNamePattern),
-	}
+var _ plugin.MigrationScript = (*addEnvNamePattern)(nil)
+
+type scopeConfig20231026 struct {
+	EnvNamePattern string `mapstructure:"envNamePattern,omitempty" json:"envNamePattern" gorm:"type:varchar(255)"`
+}
+
+func (scopeConfig20231026) TableName() string {
+	return "_tool_github_scope_configs"
+}
+
+type addEnvNamePattern struct{}
+
+func (script *addEnvNamePattern) Up(basicRes context.BasicRes) errors.Error {
+	return migrationhelper.AutoMigrateTables(
+		basicRes,
+		&scopeConfig20231026{},
+	)
+}
+
+func (*addEnvNamePattern) Version() uint64 {
+	return 20231026094400
+}
+
+func (script *addEnvNamePattern) Name() string {
+	return "add env_name_pattern to _tool_github_scope_configs"
 }

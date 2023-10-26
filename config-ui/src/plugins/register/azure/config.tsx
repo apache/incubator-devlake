@@ -19,12 +19,10 @@
 import { ExternalLink } from '@/components';
 import { DOC_URL } from '@/release';
 
-import type { PluginConfigType } from '../../types';
-
 import Icon from './assets/icon.svg';
 import { BaseURL } from './connection-fields';
 
-export const AzureConfig: PluginConfigType = {
+export const AzureConfig = {
   plugin: 'azuredevops',
   name: 'Azure DevOps',
   icon: Icon,

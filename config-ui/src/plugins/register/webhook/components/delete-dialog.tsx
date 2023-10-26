@@ -18,8 +18,9 @@
 
 import { useState } from 'react';
 
-import API from '@/api';
+import { useAppDispatch } from '@/app/hook';
 import { Dialog, Message } from '@/components';
+import { removeWebhook } from '@/features';
 import { operator } from '@/utils';
 
 interface Props {
@@ -31,8 +32,10 @@ interface Props {
 export const DeleteDialog = ({ initialId, onCancel, onSubmitAfter }: Props) => {
   const [operating, setOperating] = useState(false);
 
+  const dispatch = useAppDispatch();
+
   const handleSubmit = async () => {
-    const [success] = await operator(() => API.plugin.webhook.remove(initialId), {
+    const [success] = await operator(() => dispatch(removeWebhook(initialId)), {
       setOperating,
     });
 

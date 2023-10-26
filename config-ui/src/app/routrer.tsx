@@ -16,9 +16,8 @@
  *
  */
 
-import { createBrowserRouter, Navigate, RouterProvider, json } from 'react-router-dom';
+import { createBrowserRouter, Navigate, json } from 'react-router-dom';
 
-import { PageLoading } from '@/components';
 import {
   ConnectionHomePage,
   ConnectionDetailPage,
@@ -33,7 +32,7 @@ import { Error, ErrorEnum } from '@/routes/error';
 import { Pipelines, Pipeline } from '@/routes/pipeline';
 import { ApiKeys } from '@/routes/api-keys';
 
-const router = createBrowserRouter([
+export const router = createBrowserRouter([
   {
     path: 'db-migrate',
     element: <></>,
@@ -99,5 +98,3 @@ const router = createBrowserRouter([
     ],
   },
 ]);
-
-export const App = () => <RouterProvider router={router} fallbackElement={<PageLoading />} />;

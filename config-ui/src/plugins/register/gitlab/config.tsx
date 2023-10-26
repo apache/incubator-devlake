@@ -19,11 +19,9 @@
 import { ExternalLink } from '@/components';
 import { DOC_URL } from '@/release';
 
-import type { PluginConfigType } from '../../types';
-
 import Icon from './assets/icon.svg';
 
-export const GitLabConfig: PluginConfigType = {
+export const GitLabConfig = {
   plugin: 'gitlab',
   name: 'GitLab',
   icon: Icon,
@@ -75,8 +73,9 @@ export const GitLabConfig: PluginConfigType = {
   scopeConfig: {
     entities: ['CODE', 'TICKET', 'CODEREVIEW', 'CROSS', 'CICD'],
     transformation: {
-      deploymentPattern: '(deploy|push-image)',
-      productionPattern: 'prod(.*)',
+      envNamePattern: '(?i)prod(.*)',
+      deploymentPattern: '',
+      productionPattern: '',
     },
   },
 };

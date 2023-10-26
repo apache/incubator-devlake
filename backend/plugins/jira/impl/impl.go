@@ -60,7 +60,7 @@ func (p Jira) ScopeConfig() dal.Tabler {
 	return &models.JiraScopeConfig{}
 }
 
-func (p *Jira) Init(basicRes context.BasicRes) errors.Error {
+func (p Jira) Init(basicRes context.BasicRes) errors.Error {
 	api.Init(basicRes, p)
 
 	return nil

@@ -16,14 +16,12 @@
  *
  */
 
-import * as T from '@/api/connection/types';
-import type { PluginConfigType } from '@/plugins';
-import { PluginConfig } from '@/plugins';
+import { getPluginConfig } from '@/plugins';
 
-import { IConnection, IConnectionStatus } from '@/types';
+import { IConnectionAPI, IConnection, IConnectionStatus, IWebhookAPI, IWebhook } from '@/types';
 
-export const transformConnection = (plugin: string, connection: T.Connection): IConnection => {
-  const config = PluginConfig.find((p) => p.plugin === plugin) as PluginConfigType;
+export const transformConnection = (plugin: string, connection: IConnectionAPI): IConnection => {
+  const config = getPluginConfig(plugin);
   return {
     unique: `${plugin}-${connection.id}`,
     plugin,
@@ -41,5 +39,17 @@ export const transformConnection = (plugin: string, connection: T.Connection): I
     password: connection.password,
     appId: connection.appId,
     secretKey: connection.secretKey,
+  };
+};
+
+export const transformWebhook = (connection: IWebhookAPI): IWebhook => {
+  return {
+    id: connection.id,
+    name: connection.name,
+    postIssuesEndpoint: connection.postIssuesEndpoint,
+    closeIssuesEndpoint: connection.closeIssuesEndpoint,
+    postPipelineDeployTaskEndpoint: connection.postPipelineDeployTaskEndpoint,
+    apiKey: connection.apiKey.apiKey,
+    apiKeyId: connection.apiKey.id,
   };
 };

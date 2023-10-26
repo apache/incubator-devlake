@@ -24,7 +24,7 @@ import { Popover2 } from '@blueprintjs/popover2';
 import API from '@/api';
 import { PageLoading, PageHeader, ExternalLink, Message, Buttons, Table, Dialog } from '@/components';
 import { useRefreshData, useTips } from '@/hooks';
-import { DataScopeSelect, getPluginScopeId, PluginConfig, PluginConfigType } from '@/plugins';
+import { DataScopeSelect, getPluginConfig, getPluginScopeId } from '@/plugins';
 import { operator } from '@/utils';
 
 import { encodeName } from '../../project/utils';
@@ -52,7 +52,7 @@ export const BlueprintConnectionDetailPage = () => {
 
   const [plugin, connectionId] = unique.split('-');
 
-  const pluginConfig = PluginConfig.find((p) => p.plugin === plugin) as PluginConfigType;
+  const pluginConfig = getPluginConfig(plugin);
 
   const { ready, data } = useRefreshData(async () => {
     const [blueprint, connection] = await Promise.all([

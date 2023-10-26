@@ -16,22 +16,23 @@
  *
  */
 
-import type { PluginConfigType } from './types';
-import { AzureConfig } from './register/azure';
-import { BambooConfig } from './register/bamboo';
-import { BitBucketConfig } from './register/bitbucket';
-import { GitHubConfig } from './register/github';
-import { GitLabConfig } from './register/gitlab';
-import { JenkinsConfig } from './register/jenkins';
-import { JiraConfig } from './register/jira';
-import { PagerDutyConfig } from './register/pagerduty';
-import { SonarQubeConfig } from './register/sonarqube';
-import { TAPDConfig } from './register/tapd';
-import { WebhookConfig } from './register/webhook';
-import { ZenTaoConfig } from './register/zentao';
-import { OpsgenieConfig } from './register/opsgenie';
+import { IPluginConfig } from '@/types';
 
-export const PluginConfig: PluginConfigType[] = [
+import { AzureConfig } from './azure';
+import { BambooConfig } from './bamboo';
+import { BitBucketConfig } from './bitbucket';
+import { GitHubConfig } from './github';
+import { GitLabConfig } from './gitlab';
+import { JenkinsConfig } from './jenkins';
+import { JiraConfig } from './jira';
+import { PagerDutyConfig } from './pagerduty';
+import { SonarQubeConfig } from './sonarqube';
+import { TAPDConfig } from './tapd';
+import { WebhookConfig } from './webhook';
+import { ZenTaoConfig } from './zentao';
+import { OpsgenieConfig } from './opsgenie';
+
+export const pluginConfigs: IPluginConfig[] = [
   AzureConfig,
   BambooConfig,
   BitBucketConfig,

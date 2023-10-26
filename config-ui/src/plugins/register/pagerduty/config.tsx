@@ -18,11 +18,9 @@
 
 import { DOC_URL } from '@/release';
 
-import type { PluginConfigType } from '../../types';
-
 import Icon from './assets/icon.svg';
 
-export const PagerDutyConfig: PluginConfigType = {
+export const PagerDutyConfig = {
   plugin: 'pagerduty',
   name: 'PagerDuty',
   icon: Icon,

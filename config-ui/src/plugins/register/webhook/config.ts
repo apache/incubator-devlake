@@ -16,11 +16,9 @@
  *
  */
 
-import type { PluginConfigType } from '../../types';
-
 import Icon from './assets/icon.svg';
 
-export const WebhookConfig: PluginConfigType = {
+export const WebhookConfig = {
   plugin: 'webhook',
   name: 'Webhook',
   icon: Icon,
