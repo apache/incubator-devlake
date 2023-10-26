@@ -17,5 +17,6 @@
  */
 
 export * from './connection';
+export * from './plugin';
 export * from './status';
 export * from './webhook';

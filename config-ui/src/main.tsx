@@ -18,14 +18,17 @@
 
 import ReactDOM from 'react-dom';
 import { Provider } from 'react-redux';
+import { RouterProvider } from 'react-router-dom';
 
-import { App } from './App';
+import { PageLoading } from '@/components';
+
 import { store } from './app/store';
+import { router } from './app/routrer';
 import './index.css';
 
 ReactDOM.render(
   <Provider store={store}>
-    <App />
+    <RouterProvider router={router} fallbackElement={<PageLoading />} />
   </Provider>,
   document.getElementById('root'),
 );

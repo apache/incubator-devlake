@@ -20,6 +20,7 @@ import { AxiosError } from 'axios';
 import { json } from 'react-router-dom';
 
 import API from '@/api';
+import { getRegisterPlugins } from '@/plugins';
 import { ErrorEnum } from '@/routes/error';
 
 type Props = {
@@ -27,11 +28,19 @@ type Props = {
 };
 
 export const loader = async ({ request }: Props) => {
+  let version = 'unknow';
+  let plugins = [];
+
   try {
-    const version = await API.version(request.signal);
-    return {
-      version: version.version,
-    };
+    const envPlugins = import.meta.env.DEVLAKE_PLUGINS.split(',').filter(Boolean);
+    plugins = getRegisterPlugins().filter((plugin) => !envPlugins.length || envPlugins.includes(plugin));
+  } catch {
+    throw json({ error: ErrorEnum.API_OFFLINE }, { status: 503 });
+  }
+
+  try {
+    const res = await API.version(request.signal);
+    version = res.version;
   } catch (err) {
     const status = (err as AxiosError).response?.status;
     if (status === 428) {
@@ -39,4 +48,9 @@ export const loader = async ({ request }: Props) => {
     }
     throw json({ error: ErrorEnum.API_OFFLINE }, { status: 503 });
   }
+
+  return {
+    version,
+    plugins,
+  };
 };

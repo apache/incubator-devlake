@@ -18,8 +18,7 @@
 
 import { useAppSelector } from '@/app/hook';
 
-import { selectConnection } from './slice';
-import { IConnection } from '@/types';
+import { selectConnection } from '../slice';
 
 interface Props {
   plugin: string;
@@ -27,6 +26,6 @@ interface Props {
 }
 
 export const ConnectionName = ({ plugin, connectionId }: Props) => {
-  const connection = useAppSelector((state) => selectConnection(state, `${plugin}-${connectionId}`)) as IConnection;
-  return <span>{connection ? connection.name : `${plugin}/connections/${connectionId}`}</span>;
+  const connection = useAppSelector((state) => selectConnection(state, `${plugin}-${connectionId}`));
+  return <span>{connection?.name ?? `${plugin}/connections/${connectionId}`}</span>;
 };

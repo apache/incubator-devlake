@@ -24,7 +24,7 @@ import { useDebounce } from 'ahooks';
 
 import API from '@/api';
 import { FormItem, MultiSelector, Loading, Dialog, Message } from '@/components';
-import { PluginConfigType } from '@/plugins';
+import { IPluginConfig } from '@/types';
 
 import * as T from './types';
 import * as S from './styled';
@@ -32,7 +32,7 @@ import * as S from './styled';
 interface Props {
   plugin: string;
   connectionId: ID;
-  config: PluginConfigType['dataScope'];
+  config: IPluginConfig['dataScope'];
   disabledScope: any[];
   selectedScope: any[];
   onChange: (selectedScope: any[]) => void;

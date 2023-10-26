@@ -18,12 +18,10 @@
 
 import { DOC_URL } from '@/release';
 
-import type { PluginConfigType } from '../../types';
-
 import Icon from './assets/icon.svg';
 import { Auth } from './connection-fields';
 
-export const JiraConfig: PluginConfigType = {
+export const JiraConfig = {
   plugin: 'jira',
   name: 'Jira',
   icon: Icon,
