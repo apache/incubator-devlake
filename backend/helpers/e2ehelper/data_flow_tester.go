@@ -21,15 +21,17 @@ import (
 	"context"
 	"database/sql"
 	"fmt"
-	"github.com/spf13/cast"
 	"io/fs"
 	"os"
 	"path/filepath"
+	"reflect"
 	"strconv"
 	"strings"
 	"sync"
 	"testing"
 	"time"
+
+	"github.com/spf13/cast"
 
 	"github.com/apache/incubator-devlake/core/config"
 	"github.com/apache/incubator-devlake/core/dal"
@@ -575,4 +577,21 @@ func (t *DataFlowTester) VerifyTableWithOptions(dst schema.Tabler, opts TableOpt
 	}
 
 	assert.Equal(t.T, expectedRowTotal, actualRowTotal, fmt.Sprintf(`records in %s count not match expectation count,[expected(CSV):%d][actual(DB):%d]`, dst.TableName(), expectedRowTotal, actualRowTotal))
+}
+
+// DuplicateRecords duplicates all records in the specified table and change the specified fields to the specified values
+func DuplicateRecords[T dal.Tabler](t *DataFlowTester, fields map[string]interface{}) {
+	all := make([]*T, 0)
+	errors.Must(t.Dal.All(&all))
+	for _, row := range all {
+		val := reflect.ValueOf(row)
+		for k, v := range fields {
+			if f, ok := v.(func() interface{}); ok {
+				v = f()
+			}
+			f1 := val.Elem().FieldByName(k)
+			f1.Set(reflect.ValueOf(v))
+		}
+	}
+	errors.Must(t.Dal.Create(all))
 }
