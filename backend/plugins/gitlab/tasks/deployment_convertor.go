@@ -19,6 +19,8 @@ package tasks
 
 import (
 	"fmt"
+	"reflect"
+
 	"github.com/apache/incubator-devlake/core/dal"
 	"github.com/apache/incubator-devlake/core/errors"
 	"github.com/apache/incubator-devlake/core/models/domainlayer"
@@ -28,7 +30,6 @@ import (
 	"github.com/apache/incubator-devlake/helpers/pluginhelper/api"
 	"github.com/apache/incubator-devlake/plugins/gitlab/models"
 	"github.com/spf13/cast"
-	"reflect"
 )
 
 var _ plugin.SubTaskEntryPoint = ConvertDeployment
@@ -123,6 +124,7 @@ func ConvertDeployment(taskCtx plugin.SubTaskContext) errors.Error {
 				domainDeployCommit.Environment = data.RegexEnricher.ReturnNameIfOmittedOrMatched(devops.PRODUCTION, gitlabDeployment.Environment)
 			}
 
+			domainDeployCommit.CicdDeploymentId = domainDeployCommit.Id
 			return []interface{}{
 				domainDeployCommit,
 				domainDeployCommit.ToDeployment(),
