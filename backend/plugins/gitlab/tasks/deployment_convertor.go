@@ -120,7 +120,9 @@ func ConvertDeployment(taskCtx plugin.SubTaskContext) errors.Error {
 				domainDeployCommit.DurationSec = duration
 			}
 			if data.RegexEnricher != nil {
-				domainDeployCommit.Environment = data.RegexEnricher.ReturnNameIfOmittedOrMatched(devops.PRODUCTION, gitlabDeployment.Environment)
+				if data.RegexEnricher.ReturnNameIfMatched(devops.ENV_NAME_PATTERN, gitlabDeployment.Environment) != "" {
+					domainDeployCommit.Environment = devops.PRODUCTION
+				}
 			}
 
 			domainDeployCommit.CicdDeploymentId = domainDeployCommit.Id
