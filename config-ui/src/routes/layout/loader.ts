@@ -34,8 +34,8 @@ export const loader = async ({ request }: Props) => {
   try {
     const envPlugins = import.meta.env.DEVLAKE_PLUGINS.split(',').filter(Boolean);
     plugins = getRegisterPlugins().filter((plugin) => !envPlugins.length || envPlugins.includes(plugin));
-  } catch {
-    throw json({ error: ErrorEnum.API_OFFLINE }, { status: 503 });
+  } catch (err) {
+    plugins = getRegisterPlugins();
   }
 
   try {
