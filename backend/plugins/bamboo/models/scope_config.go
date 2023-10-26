@@ -21,8 +21,6 @@ import (
 	"github.com/apache/incubator-devlake/core/models/common"
 )
 
-const ENV_NAME_PATTERN = "ENV_NAME_PATTERN"
-
 type BambooScopeConfig struct {
 	common.ScopeConfig `mapstructure:",squash" json:",inline" gorm:"embedded"`
 	ConnectionId       uint64           `mapstructure:"connectionId" json:"connectionId"`
