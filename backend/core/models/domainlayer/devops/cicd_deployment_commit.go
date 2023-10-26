@@ -49,7 +49,7 @@ func (cicdDeploymentCommit CicdDeploymentCommit) TableName() string {
 func (cicdDeploymentCommit CicdDeploymentCommit) ToDeployment() *CICDDeployment {
 	return &CICDDeployment{
 		DomainEntity: domainlayer.DomainEntity{
-			Id:        cicdDeploymentCommit.CicdDeploymentId,
+			Id:        cicdDeploymentCommit.Id,
 			NoPKModel: cicdDeploymentCommit.DomainEntity.NoPKModel,
 		},
 		CicdScopeId:  cicdDeploymentCommit.CicdScopeId,
