@@ -24,39 +24,29 @@ import (
 	"github.com/apache/incubator-devlake/helpers/migrationhelper"
 )
 
-var _ plugin.MigrationScript = (*addPlanResultKey)(nil)
+var _ plugin.MigrationScript = (*addEnvNamePattern)(nil)
 
-type deployBuild20220807 struct {
-	PlanResultKey  string `gorm:"primaryKey"`
-	PlanBranchName string `gorm:"type:varchar(255)"`
+type scopeConfig20231026 struct {
+	EnvNamePattern string `mapstructure:"envNamePattern,omitempty" json:"envNamePattern" gorm:"type:varchar(255)"`
 }
 
-func (deployBuild20220807) TableName() string {
-	return "_tool_bamboo_deploy_build"
+func (scopeConfig20231026) TableName() string {
+	return "_tool_github_scope_configs"
 }
 
-type planBuildVcsRevision20220807 struct {
-	PlanResultKey string `gorm:"primaryKey"`
-}
+type addEnvNamePattern struct{}
 
-func (planBuildVcsRevision20220807) TableName() string {
-	return "_tool_bamboo_plan_build_commits"
-}
-
-type addPlanResultKey struct{}
-
-func (script *addPlanResultKey) Up(basicRes context.BasicRes) errors.Error {
+func (script *addEnvNamePattern) Up(basicRes context.BasicRes) errors.Error {
 	return migrationhelper.AutoMigrateTables(
 		basicRes,
-		&deployBuild20220807{},
-		&planBuildVcsRevision20220807{},
+		&scopeConfig20231026{},
 	)
 }
 
-func (*addPlanResultKey) Version() uint64 {
-	return 20230807165119
+func (*addEnvNamePattern) Version() uint64 {
+	return 20231026094400
 }
 
-func (script *addPlanResultKey) Name() string {
-	return "add plan_result_key to _tool_bamboo_deploy_build and _tool_bamboo_plan_build_commits"
+func (script *addEnvNamePattern) Name() string {
+	return "add env_name_pattern to _tool_github_scope_configs"
 }
