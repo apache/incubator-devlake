@@ -35,18 +35,7 @@ python-dep:
 dep: go-dep python-dep
 
 swag:
-	if [ -z $(PLUGIN) ]; then \
-		swag init --parseDependency --parseInternal -o ./server/api/docs -g ./server/api/api.go -g ./plugins/*/api/*.go; \
-	elif [ $(PLUGIN) = "none" ]; then \
-		swag init --parseDependency --parseInternal -o ./server/api/docs -g ./server/api/api.go;\
-	else \
-		plugins="";\
-		for p in $$(echo $(PLUGIN) | tr "," "\n"); do \
-			plugins="$$plugins -g ./plugins/$$p/api/*.go"; \
-		done;\
-		swag init --parseDependency --parseInternal -o ./server/api/docs -g ./server/api/api.go "$$plugins"; \
-	fi;\
-	echo "visit the swagger document on http://localhost:8080/swagger/index.html";
+	scripts/swag.sh
 
 build-plugin:
 	if [ "$(PLUGIN)" = "none" ]; then \
