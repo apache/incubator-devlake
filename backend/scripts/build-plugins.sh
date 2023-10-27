@@ -34,21 +34,26 @@ echo "Usage: "
 echo "  build all plugins:              $0 [golang build flags...]"
 echo "  build and keep specified plugins only: PLUGIN=github,jira $0 [golang build flags...]"
 
-SCRIPT_DIR="$( cd "$( dirname "$0" )" && pwd )"
-PLUGIN_SRC_DIR=$SCRIPT_DIR/../plugins
-PLUGIN_OUTPUT_DIR=$SCRIPT_DIR/../bin/plugins
+ROOT_DIR=$(dirname $(dirname "$0"))
+EXTRA=""
+PLUGIN_SRC_DIR=$ROOT_DIR/plugins
+PLUGIN_OUTPUT_DIR=${PLUGIN_DIR:-$ROOT_DIR/bin/plugins}
 
+if [ -n "$DEVLAKE_DEBUG" ]; then
+    EXTRA="-gcflags='all=-N -l'"
+fi
 
-if [ -z "$PLUGIN" ]; then
+if [ -z "$DEVLAKE_PLUGINS" ]; then
     echo "Building all plugins"
     PLUGINS=$(find $PLUGIN_SRC_DIR/* -maxdepth 0 -type d -not -name core -not -name helper -not -name logs -not -empty)
 else
     echo "Building the following plugins: $PLUGIN"
     PLUGINS=
-    for p in $(echo "$PLUGIN" | tr "," "\n"); do
+    for p in $(echo "$DEVLAKE_PLUGINS" | tr "," "\n"); do
         PLUGINS="$PLUGINS $PLUGIN_SRC_DIR/$p"
     done
 fi
+
 
 rm -rf $PLUGIN_OUTPUT_DIR/*
 
@@ -56,7 +61,7 @@ PIDS=""
 for PLUG in $PLUGINS; do
     NAME=$(basename $PLUG)
     echo "Building plugin $NAME to bin/plugins/$NAME/$NAME.so with args: $*"
-    go build -buildmode=plugin "$@" -o $PLUGIN_OUTPUT_DIR/$NAME/$NAME.so $PLUG/*.go &
+    go build -buildmode=plugin $EXTRA -o $PLUGIN_OUTPUT_DIR/$NAME/$NAME.so $PLUG/*.go &
     PIDS="$PIDS $!"
     # avoid too many processes causing signal killed
     COUNT=$(echo "$PIDS" | wc -w)
