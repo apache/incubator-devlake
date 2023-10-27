@@ -18,6 +18,8 @@ limitations under the License.
 package tasks
 
 import (
+	"reflect"
+
 	"github.com/apache/incubator-devlake/core/dal"
 	"github.com/apache/incubator-devlake/core/errors"
 	"github.com/apache/incubator-devlake/core/models/domainlayer/didgen"
@@ -25,7 +27,6 @@ import (
 	"github.com/apache/incubator-devlake/core/plugin"
 	helper "github.com/apache/incubator-devlake/helpers/pluginhelper/api"
 	"github.com/apache/incubator-devlake/plugins/tapd/models"
-	"reflect"
 )
 
 var ConvertTaskLabelsMeta = plugin.SubTaskMeta{
@@ -41,11 +42,10 @@ func ConvertTaskLabels(taskCtx plugin.SubTaskContext) errors.Error {
 	rawDataSubTaskArgs, data := CreateRawDataSubTaskArgs(taskCtx, RAW_TASK_TABLE)
 
 	clauses := []dal.Clause{
-		dal.From(&models.TapdTaskLabel{}),
-		dal.Join("left join _tool_tapd_workspace_tasks on _tool_tapd_workspace_tasks.task_id = _tool_tapd_task_labels.task_id"),
-		dal.Where("_tool_tapd_workspace_tasks.workspace_id = ? and _tool_tapd_workspace_tasks.connection_id = ?",
-			data.Options.WorkspaceId, data.Options.ConnectionId),
-		dal.Orderby("task_id ASC"),
+		dal.From("_tool_tapd_task_labels l"),
+		dal.Join("left join _tool_tapd_workspace_tasks t on t.task_id = l.task_id AND t.connection_id = l.connection_id"),
+		dal.Where("t.workspace_id = ? and t.connection_id = ?", data.Options.WorkspaceId, data.Options.ConnectionId),
+		dal.Orderby("t.task_id ASC"),
 	}
 
 	cursor, err := db.Cursor(clauses...)
