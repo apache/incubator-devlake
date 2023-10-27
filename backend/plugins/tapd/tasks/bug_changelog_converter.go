@@ -18,6 +18,9 @@ limitations under the License.
 package tasks
 
 import (
+	"reflect"
+	"time"
+
 	"github.com/apache/incubator-devlake/core/dal"
 	"github.com/apache/incubator-devlake/core/errors"
 	"github.com/apache/incubator-devlake/core/models/common"
@@ -27,8 +30,6 @@ import (
 	"github.com/apache/incubator-devlake/core/plugin"
 	helper "github.com/apache/incubator-devlake/helpers/pluginhelper/api"
 	"github.com/apache/incubator-devlake/plugins/tapd/models"
-	"reflect"
-	"time"
 )
 
 type BugChangelogItemResult struct {
@@ -65,10 +66,10 @@ func ConvertBugChangelog(taskCtx plugin.SubTaskContext) errors.Error {
 	clIterIdGen := didgen.NewDomainIdGenerator(&models.TapdIteration{})
 	clIdGen := didgen.NewDomainIdGenerator(&models.TapdBugChangelog{})
 	clauses := []dal.Clause{
-		dal.Select("tc.created, tc.id, tc.workspace_id, tc.bug_id, tc.author, _tool_tapd_bug_changelog_items.*"),
-		dal.From(&models.TapdBugChangelogItem{}),
-		dal.Join("left join _tool_tapd_bug_changelogs tc on tc.id = _tool_tapd_bug_changelog_items.changelog_id "),
-		dal.Where("tc.connection_id = ? AND tc.workspace_id = ?", data.Options.ConnectionId, data.Options.WorkspaceId),
+		dal.Select("c.created, c.id, c.workspace_id, c.bug_id, c.author, i.*"),
+		dal.From("_tool_tapd_bug_changelog_items i"),
+		dal.Join("left join _tool_tapd_bug_changelogs c on c.id = i.changelog_id AND c.connection_id = i.connection_id"),
+		dal.Where("c.connection_id = ? AND c.workspace_id = ?", data.Options.ConnectionId, data.Options.WorkspaceId),
 		dal.Orderby("created DESC"),
 	}
 
