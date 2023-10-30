@@ -17,7 +17,7 @@
  */
 
 export type ListQuery = Pagination & {
-  blueprint?: boolean;
+  blueprints?: boolean;
   searchTerm?: string;
 };
 
