@@ -143,13 +143,13 @@ export const StatusPanel = ({ from, blueprint, pipelineId, onRefresh }: Props) =
             disabled={!blueprint.enable}
             loading={operating}
             intent={Intent.PRIMARY}
-            text="Collect All Data"
+            text="Collect Data"
             onClick={() => handleRun({})}
           />
           <Popover
             content={
               <Menu>
-                <MenuItem text="Collect All Data in Full Sync Mode" onClick={() => setType('fullSync')} />
+                <MenuItem text="Collect All Data in Full Refresh Mode" onClick={() => setType('fullSync')} />
               </Menu>
             }
             placement="bottom"

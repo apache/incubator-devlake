@@ -72,7 +72,7 @@ export const WebHookConnection = ({ filterIds, onCreateAfter, onDeleteAfter }: P
       align: 'center',
       render: (_, row) => (
         <S.Action>
-          <IconButton icon="array" tooltip="View" onClick={() => handleShowDialog('show', row)} />
+          <IconButton icon="eye-open" tooltip="View" onClick={() => handleShowDialog('show', row)} />
           <IconButton icon="annotation" tooltip="Edit" onClick={() => handleShowDialog('edit', row)} />
           <IconButton icon="trash" tooltip="Delete" onClick={() => handleShowDialog('delete', row)} />
         </S.Action>

@@ -57,6 +57,7 @@ export const BitBucketConfig = {
     ],
   },
   dataScope: {
+    searchPlaceholder: 'Enter the keywords to search for repositories that you have read access',
     title: 'Repositories',
     millerColumn: {
       columnCount: 2,
