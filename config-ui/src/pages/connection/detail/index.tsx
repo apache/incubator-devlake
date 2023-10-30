@@ -70,7 +70,7 @@ export const ConnectionDetailPage = () => {
   const navigate = useNavigate();
   const { setTips } = useTips();
   const { ready, data } = useRefreshData(
-    () => API.scope.list(plugin, connectionId, { page, pageSize, blueprint: true }),
+    () => API.scope.list(plugin, connectionId, { page, pageSize, blueprints: true }),
     [version, page, pageSize],
   );
 
