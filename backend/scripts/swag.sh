@@ -19,7 +19,6 @@ set -e
 
 ROOT_DIR=$(dirname $(dirname "$0"))
 
-echo $ROOT_DIR
 # generate all docs by default, set the working dir (-d .) to root and general api info file (-g ./server/api/api.go).
 DOC_DIRS=$ROOT_DIR
 GENERAL_API_INFO_PATH=$ROOT_DIR/server/api/api.go
@@ -37,5 +36,5 @@ if [ -n "$DEVLAKE_PLUGINS" ]; then
   fi
 fi
 
-swag init --parseDependency --parseInternal -o $DIR/server/api/docs -g $GENERAL_API_INFO_PATH -d $DOC_DIRS
+swag init --parseDependency --parseInternal -o $ROOT_DIR/server/api/docs -g $GENERAL_API_INFO_PATH -d $DOC_DIRS
 echo "visit the swagger document on http://localhost:8080/swagger/index.html";
