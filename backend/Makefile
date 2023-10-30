@@ -23,6 +23,9 @@ IMAGE_REPO ?= "apache"
 VERSION = $(TAG)@$(SHA)
 PYTHON_DIR ?= "./python"
 
+
+all: build
+
 go-dep:
 	go install github.com/vektra/mockery/v2@v2.20.0
 	go install github.com/swaggo/swag/cmd/swag@v1.8.12
@@ -38,29 +41,15 @@ swag:
 	scripts/swag.sh
 
 build-plugin:
-	if [ "$(PLUGIN)" = "none" ]; then \
-		echo "Building plugins will be skipped"; \
-	elif [ "$(DEBUG)" = "true" ]; then \
-		PLUGIN=$(PLUGIN) sh scripts/compile-plugins.sh -gcflags='all=-N -l'; \
-	else \
-		PLUGIN=$(PLUGIN) sh scripts/compile-plugins.sh; \
-	fi
+	scripts/build-plugins.sh
 
 build-server: swag
-	if [ "$(DEBUG)" = "true" ]; then \
-		go build -gcflags='all=-N -l' -ldflags "-X 'github.com/apache/incubator-devlake/core/version.Version=$(VERSION)'" -o bin/lake ./server/; \
-	else \
-		go build -ldflags "-X 'github.com/apache/incubator-devlake/core/version.Version=$(VERSION)'" -o bin/lake ./server/; \
-	fi
+	scripts/build-server.sh
 
 build-python: #don't mix this with the other build commands
-	find ./python/ -name "*.sh" | xargs chmod +x &&\
-	sh python/build.sh
-	sh python/build.sh python/test
+	scripts/build-python.sh
 
 build: build-plugin build-server
-
-all: build
 
 run:
 	go run server/main.go
@@ -80,50 +69,23 @@ mock:
 
 test: unit-test e2e-test
 
-unit-test: mock unit-test-only python-unit-test
+unit-test: mock unit-test-go unit-test-python
 
-unit-test-only:
-	set -e;\
-	for m in $$(go list ./... | egrep -v 'test|models|e2e'); do \
-		echo $$m; go test -timeout 60s -v $$m || exit $$?; \
-	done; \
+unit-test-go:
+	scripts/unit-test-go.sh
 
 build-pydevlake:
 	poetry install -C python/pydevlake
 
-python-unit-test: build-pydevlake
+unit-test-python: build-pydevlake
 	sh python/build.sh python/test &&\
 	sh ./python/run_tests.sh
 
-e2e-plugins-test:
-	export TZ=UTC;\
-	export ENV_PATH=$(shell readlink -f .env);\
-	set -e;\
-	for m in $$(go list ./plugins/... | egrep 'e2e'); do \
-		echo $$m; go test -timeout 300s -gcflags=all=-l -v $$m || exit $$?; \
-	done; \
+e2e-test-go-plugins:
+	scripts/e2e-test-go-plugins.sh
 
-e2e-test-init:
-	export ENV_PATH=$(shell readlink -f .env);\
-	set -e;\
-	go run ./test/init.go || exit $$?;\
-
-e2e-test-run:
-	export ENV_PATH=$(shell readlink -f .env);\
-	set -e;\
-	for m in $$(go list ./test/e2e/... | grep -v manual); do \
-		echo $$m; go test -failfast -timeout 120s -v $$m || exit $$?; \
-	done; \
-
-e2e-test: e2e-test-init e2e-test-run
-
-integration-test:
-	export ENV_PATH=$(shell readlink -f .env);\
-	set -e;\
-	go run ./test/init.go || exit $$?;\
-	for m in $$(go list ./test/integration/...); do \
-		echo $$m; go test -timeout 300s -v $$m || exit $$?; \
-	done; \
+e2e-test:
+	scripts/e2e-test.sh
 
 lint:
 	golangci-lint run

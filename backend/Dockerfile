@@ -102,7 +102,7 @@ RUN --mount=type=cache,target=/root/.cache/go-build \
     fi && \
     export PKG_CONFIG_PATH=/usr/local/deps/target/lib/pkgconfig && \
     export CGO_ENABLED=1 &&\
-    PLUGIN="$GO_PLUGINS" make all
+    DEVLAKE_PLUGINS="$GO_PLUGINS" make all
 
 # remove symlink in lib, we will recreate in final image
 RUN cd /usr/local/deps/target/lib && \
