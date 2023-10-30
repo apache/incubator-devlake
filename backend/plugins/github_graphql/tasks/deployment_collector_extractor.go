@@ -18,6 +18,9 @@ limitations under the License.
 package tasks
 
 import (
+	"strings"
+	"time"
+
 	"github.com/apache/incubator-devlake/core/errors"
 	"github.com/apache/incubator-devlake/core/models/common"
 	"github.com/apache/incubator-devlake/core/plugin"
@@ -25,8 +28,6 @@ import (
 	githubModels "github.com/apache/incubator-devlake/plugins/github/models"
 	githubTasks "github.com/apache/incubator-devlake/plugins/github/tasks"
 	"github.com/merico-dev/graphql"
-	"strings"
-	"time"
 )
 
 var _ plugin.SubTaskEntryPoint = CollectAndExtractDeployment
@@ -87,9 +88,7 @@ type GraphqlQueryDeploymentDeployment struct {
 // CollectAndExtractDeployment will request github api via graphql and store the result into raw layer by default
 // ResponseParser's return will be stored to tool layer. So it's called CollectorAndExtractor.
 func CollectAndExtractDeployment(taskCtx plugin.SubTaskContext) errors.Error {
-
 	data := taskCtx.GetData().(*githubTasks.GithubTaskData)
-
 	collectorWithState, err := helper.NewStatefulApiCollector(helper.RawDataSubTaskArgs{
 		Ctx: taskCtx,
 		Params: githubTasks.GithubApiParams{
@@ -101,11 +100,19 @@ func CollectAndExtractDeployment(taskCtx plugin.SubTaskContext) errors.Error {
 	if err != nil {
 		return err
 	}
+	since := helper.DateTime{}
+	if collectorWithState.Since != nil {
+		since = helper.DateTime{Time: *collectorWithState.Since}
+	}
+	isSince := false
 
 	err = collectorWithState.InitGraphQLCollector(helper.GraphqlCollectorArgs{
 		GraphqlClient: data.GraphqlClient,
 		PageSize:      100,
 		BuildQuery: func(reqData *helper.GraphqlRequestData) (interface{}, map[string]interface{}, error) {
+			if isSince {
+				return nil, nil, nil
+			}
 			query := &GraphqlQueryDeploymentWrapper{}
 			variables := make(map[string]interface{})
 			if reqData == nil {
@@ -129,6 +136,11 @@ func CollectAndExtractDeployment(taskCtx plugin.SubTaskContext) errors.Error {
 			deployments := query.Repository.Deployments.Deployments
 			var results []interface{}
 			for _, deployment := range deployments {
+				//Skip deployments with createdAt earlier than 'since'
+				if deployment.CreatedAt.Before(since.Time) {
+					isSince = true
+					continue
+				}
 				githubDeployment, err := convertGithubDeployment(deployment, data.Options.ConnectionId, data.Options.GithubId)
 				if err != nil {
 					return nil, err
