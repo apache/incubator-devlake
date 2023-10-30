@@ -53,7 +53,8 @@ func ConvertDeployment(taskCtx plugin.SubTaskContext) errors.Error {
 	}
 	defer cursor.Close()
 
-	jobBuildIdGen := didgen.NewDomainIdGenerator(&githubModels.GithubDeployment{})
+	deploymentIdGen := didgen.NewDomainIdGenerator(&githubModels.GithubDeployment{})
+	deploymentScopeIdGen := didgen.NewDomainIdGenerator(&githubModels.GithubRepo{})
 
 	converter, err := api.NewDataConverter(api.DataConverterArgs{
 		InputRowType:       reflect.TypeOf(githubModels.GithubDeployment{}),
@@ -63,10 +64,10 @@ func ConvertDeployment(taskCtx plugin.SubTaskContext) errors.Error {
 			githubDeployment := inputRow.(*githubModels.GithubDeployment)
 			deploymentCommit := &devops.CicdDeploymentCommit{
 				DomainEntity: domainlayer.DomainEntity{
-					Id: jobBuildIdGen.Generate(githubDeployment.ConnectionId, githubDeployment.Id),
+					Id: deploymentIdGen.Generate(githubDeployment.ConnectionId, githubDeployment.Id),
 				},
-				CicdScopeId: fmt.Sprintf("%d:%d", githubDeployment.ConnectionId, githubDeployment.GithubId),
-				Name:        fmt.Sprintf("%s:%d", githubDeployment.RepositoryName, githubDeployment.DatabaseId), // fixme where does the deploy name field exist?
+				CicdScopeId: deploymentScopeIdGen.Generate(githubDeployment.ConnectionId, githubDeployment.GithubId),
+				Name:        githubDeployment.CommitOid,
 				Result: devops.GetResult(&devops.ResultRule{
 					Success: []string{"SUCCESS"},
 					Failed:  []string{"ERROR", "FAILURE"},
@@ -88,7 +89,7 @@ func ConvertDeployment(taskCtx plugin.SubTaskContext) errors.Error {
 				FinishedDate: &githubDeployment.UpdatedDate, // fixme there is no such field
 				CommitSha:    githubDeployment.CommitOid,
 				RefName:      githubDeployment.RefName,
-				RepoId:       githubDeployment.RepositoryID,
+				RepoId:       fmt.Sprintf("%d", githubDeployment.GithubId),
 				RepoUrl:      githubDeployment.RepositoryUrl,
 			}
 

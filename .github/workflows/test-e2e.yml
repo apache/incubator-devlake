@@ -73,7 +73,7 @@ jobs:
           go version
           cp env.example .env
           cd backend
-          make e2e-plugins-test
+          make e2e-test-go-plugins
           make e2e-test
 
   e2e-postgres:
@@ -113,5 +113,5 @@ jobs:
           go version
           cp env.example .env
           cd backend
-          make e2e-plugins-test
+          make e2e-test-go-plugins
           make e2e-test

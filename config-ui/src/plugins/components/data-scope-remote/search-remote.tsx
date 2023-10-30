@@ -138,6 +138,7 @@ export const SearchRemote = ({ plugin, connectionId, config, disabledScope, sele
       <FormItem>
         <InputGroup
           leftIcon="search"
+          placeholder={config.searchPlaceholder}
           value={search.query}
           onChange={(e) => setSearch({ ...search, query: e.target.value })}
         />

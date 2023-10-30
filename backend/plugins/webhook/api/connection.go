@@ -19,20 +19,21 @@ package api
 
 import (
 	"fmt"
+	"net/http"
+	"strconv"
+
 	"github.com/apache/incubator-devlake/core/dal"
 	"github.com/apache/incubator-devlake/core/errors"
 	coreModels "github.com/apache/incubator-devlake/core/models"
 	"github.com/apache/incubator-devlake/core/plugin"
 	"github.com/apache/incubator-devlake/plugins/webhook/models"
-	"net/http"
-	"strconv"
 )
 
 // PostConnections
 // @Summary create webhook connection
 // @Description Create webhook connection, example: {"name":"Webhook data connection name"}
 // @Tags plugins/webhook
-// @Param body body models.WebhookConnection true "json body"
+// @Param body body WebhookConnectionResponse true "json body"
 // @Success 200  {object} WebhookConnectionResponse
 // @Failure 400  {string} errcode.Error "Bad Request"
 // @Failure 500  {string} errcode.Error "Internal Error"
@@ -143,7 +144,7 @@ type WebhookConnectionResponse struct {
 // @Summary get all webhook connections
 // @Description Get all webhook connections
 // @Tags plugins/webhook
-// @Success 200  {object} []*WebhookConnectionResponse
+// @Success 200  {object} []WebhookConnectionResponse
 // @Failure 400  {string} errcode.Error "Bad Request"
 // @Failure 500  {string} errcode.Error "Internal Error"
 // @Router /plugins/webhook/connections [GET]
