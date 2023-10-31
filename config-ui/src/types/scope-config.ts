@@ -16,9 +16,6 @@
  *
  */
 
-export type Key = {
+export interface IScopeConfig {
   name: string;
-  expiredAt?: string;
-  allowedPath: string;
-  creator: string;
-};
+}

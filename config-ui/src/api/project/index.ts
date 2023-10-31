@@ -16,16 +16,15 @@
  *
  */
 
+import type { IProject } from '@/types';
 import { request } from '@/utils';
 
-import * as T from './types';
-
-export const list = (data: Pagination): Promise<{ count: number; projects: T.Project[] }> =>
+export const list = (data: Pagination): Promise<{ count: number; projects: IProject[] }> =>
   request('/projects', { data });
 
-export const get = (name: string): Promise<T.Project> => request(`/projects/${name}`);
+export const get = (name: string): Promise<IProject> => request(`/projects/${name}`);
 
-export const create = (data: Pick<T.Project, 'name' | 'description' | 'metrics'>) =>
+export const create = (data: Pick<IProject, 'name' | 'description' | 'metrics'>) =>
   request('/projects', {
     method: 'post',
     data,
@@ -36,7 +35,7 @@ export const remove = (name: string) =>
     method: 'delete',
   });
 
-export const update = (name: string, data: Pick<T.Project, 'name' | 'description' | 'metrics'>) =>
+export const update = (name: string, data: Pick<IProject, 'name' | 'description' | 'metrics'>) =>
   request(`/projects/${name}`, {
     method: 'patch',
     data,

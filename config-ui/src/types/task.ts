@@ -16,9 +16,20 @@
  *
  */
 
-export type Key = {
-  name: string;
-  expiredAt?: string;
-  allowedPath: string;
-  creator: string;
-};
+import { IPipelineStatus } from './pipeline';
+
+export interface ITask {
+  id: ID;
+  plugin: string;
+  status: IPipelineStatus;
+  pipelineRow: number;
+  pipelineCol: number;
+  beganAt: string | null;
+  finishedAt: string | null;
+  options: any;
+  message: string;
+  progressDetail?: {
+    finishedSubTasks: number;
+    totalSubTasks: number;
+  };
+}

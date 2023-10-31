@@ -18,10 +18,10 @@
 
 import dayjs from 'dayjs';
 
-import * as T from '../types';
+import { IPipelineStatus } from '@/types';
 
 interface Props {
-  status: T.PipelineStatus;
+  status: IPipelineStatus;
   beganAt: string | null;
   finishedAt: string | null;
 }
@@ -32,12 +32,9 @@ export const PipelineDuration = ({ status, beganAt, finishedAt }: Props) => {
   }
 
   if (
-    ![
-      T.PipelineStatus.CANCELLED,
-      T.PipelineStatus.COMPLETED,
-      T.PipelineStatus.PARTIAL,
-      T.PipelineStatus.FAILED,
-    ].includes(status)
+    ![IPipelineStatus.CANCELLED, IPipelineStatus.COMPLETED, IPipelineStatus.PARTIAL, IPipelineStatus.FAILED].includes(
+      status,
+    )
   ) {
     return <span>{dayjs(beganAt).toNow(true)}</span>;
   }

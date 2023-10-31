@@ -16,22 +16,21 @@
  *
  */
 
+import { IConnectionAPI, IConnectionTestResult } from '@/types';
 import { request } from '@/utils';
 
-import * as T from './types';
+export const list = (plugin: string): Promise<IConnectionAPI[]> => request(`/plugins/${plugin}/connections`);
 
-export const list = (plugin: string): Promise<T.Connection[]> => request(`/plugins/${plugin}/connections`);
-
-export const get = (plugin: string, connectionId: ID): Promise<T.Connection> =>
+export const get = (plugin: string, connectionId: ID): Promise<IConnectionAPI> =>
   request(`/plugins/${plugin}/connections/${connectionId}`);
 
-export const create = (plugin: string, payload: T.ConnectionForm): Promise<T.Connection> =>
+export const create = (plugin: string, payload: Omit<IConnectionAPI, 'id'>): Promise<IConnectionAPI> =>
   request(`/plugins/${plugin}/connections`, { method: 'post', data: payload });
 
-export const remove = (plugin: string, id: ID): Promise<T.Connection> =>
+export const remove = (plugin: string, id: ID): Promise<IConnectionAPI> =>
   request(`/plugins/${plugin}/connections/${id}`, { method: 'delete' });
 
-export const update = (plugin: string, id: ID, payload: T.ConnectionForm): Promise<T.Connection> =>
+export const update = (plugin: string, id: ID, payload: Omit<IConnectionAPI, 'id'>): Promise<IConnectionAPI> =>
   request(`/plugins/${plugin}/connections/${id}`, {
     method: 'patch',
     data: payload,
@@ -40,7 +39,7 @@ export const update = (plugin: string, id: ID, payload: T.ConnectionForm): Promi
 export const test = (
   plugin: string,
   payload: Pick<
-    T.ConnectionForm,
+    IConnectionAPI,
     'endpoint' | 'authMethod' | 'username' | 'password' | 'token' | 'appId' | 'secretKey' | 'proxy' | 'dbUrl'
   >,
-): Promise<T.ConnectionTest> => request(`/plugins/${plugin}/test`, { method: 'post', data: payload });
+): Promise<IConnectionTestResult> => request(`/plugins/${plugin}/test`, { method: 'post', data: payload });

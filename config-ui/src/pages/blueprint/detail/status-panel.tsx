@@ -25,17 +25,17 @@ import API from '@/api';
 import { Card, IconButton, Dialog, Message } from '@/components';
 import { getCron } from '@/config';
 import { useAutoRefresh } from '@/hooks';
-import * as PipelineT from '@/routes/pipeline/types';
 import { PipelineInfo, PipelineTasks, PipelineTable } from '@/routes/pipeline';
+import { IBlueprint, IPipeline, IPipelineStatus } from '@/types';
 import { formatTime, operator } from '@/utils';
 
-import { BlueprintType, FromEnum } from '../types';
+import { FromEnum } from '../types';
 
 import * as S from './styled';
 
 interface Props {
   from: FromEnum;
-  blueprint: BlueprintType;
+  blueprint: IBlueprint;
   pipelineId?: ID;
   onRefresh: () => void;
 }
@@ -48,7 +48,7 @@ export const StatusPanel = ({ from, blueprint, pipelineId, onRefresh }: Props) =
 
   const cron = useMemo(() => getCron(blueprint.isManual, blueprint.cronConfig), [blueprint]);
 
-  const { loading, data } = useAutoRefresh<PipelineT.Pipeline[]>(
+  const { loading, data } = useAutoRefresh<IPipeline[]>(
     async () => {
       const res = await API.blueprint.pipelines(blueprint.id);
       return res.pipelines;
@@ -60,10 +60,10 @@ export const StatusPanel = ({ from, blueprint, pipelineId, onRefresh }: Props) =
           data &&
           data.every((it) =>
             [
-              PipelineT.PipelineStatus.COMPLETED,
-              PipelineT.PipelineStatus.PARTIAL,
-              PipelineT.PipelineStatus.CANCELLED,
-              PipelineT.PipelineStatus.FAILED,
+              IPipelineStatus.COMPLETED,
+              IPipelineStatus.PARTIAL,
+              IPipelineStatus.CANCELLED,
+              IPipelineStatus.FAILED,
             ].includes(it.status),
           )
         ),

@@ -16,14 +16,7 @@
  *
  */
 
-import { Blueprint } from '../blueprint/types';
-import { Pipeline } from '../pipeline/types';
-
-export type Project = {
+export interface IDataScope {
   name: string;
-  description: string;
-  metrics: Array<{ pluginName: string; pluginOption: string; enable: boolean }>;
-  createdAt: string;
-  blueprint: Blueprint;
-  lastPipeline: Pipeline;
-};
+  fullName: string;
+}

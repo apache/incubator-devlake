@@ -23,8 +23,8 @@ import { groupBy, sortBy } from 'lodash';
 import API from '@/api';
 import { Loading } from '@/components';
 import { useAutoRefresh } from '@/hooks';
+import { ITask, IPipelineStatus } from '@/types';
 
-import * as T from '../types';
 import * as S from '../styled';
 
 import { PipelineTask } from './task';
@@ -39,7 +39,7 @@ export const PipelineTasks = ({ id, style }: Props) => {
 
   // const { version } = usePipeline();
 
-  const { data } = useAutoRefresh<T.PipelineTask[]>(
+  const { data } = useAutoRefresh<ITask[]>(
     async () => {
       const taskRes = await API.pipeline.tasks(id);
       return taskRes.tasks;
@@ -50,7 +50,7 @@ export const PipelineTasks = ({ id, style }: Props) => {
         return !!(
           data &&
           data.every((task) =>
-            [T.PipelineStatus.COMPLETED, T.PipelineStatus.FAILED, T.PipelineStatus.CANCELLED].includes(task.status),
+            [IPipelineStatus.COMPLETED, IPipelineStatus.FAILED, IPipelineStatus.CANCELLED].includes(task.status),
           )
         );
       },
@@ -70,17 +70,17 @@ export const PipelineTasks = ({ id, style }: Props) => {
 
             switch (true) {
               case !!stages[key].find((task) =>
-                [T.PipelineStatus.ACTIVE, T.PipelineStatus.RUNNING].includes(task.status),
+                [IPipelineStatus.ACTIVE, IPipelineStatus.RUNNING].includes(task.status),
               ):
                 status = 'loading';
                 break;
-              case stages[key].every((task) => task.status === T.PipelineStatus.COMPLETED):
+              case stages[key].every((task) => task.status === IPipelineStatus.COMPLETED):
                 status = 'success';
                 break;
-              case !!stages[key].find((task) => task.status === T.PipelineStatus.FAILED):
+              case !!stages[key].find((task) => task.status === IPipelineStatus.FAILED):
                 status = 'error';
                 break;
-              case !!stages[key].find((task) => task.status === T.PipelineStatus.CANCELLED):
+              case !!stages[key].find((task) => task.status === IPipelineStatus.CANCELLED):
                 status = 'cancel';
                 break;
               default:

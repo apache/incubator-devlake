@@ -16,45 +16,27 @@
  *
  */
 
-export type Connection = {
+export enum IBPMode {
+  ADVANCED = 'ADVANCED',
+  NORMAL = 'NORMAL',
+}
+
+export interface IBlueprint {
   id: ID;
   name: string;
-  endpoint: string;
-  authMethod?: string;
-  token?: string;
-  username?: string;
-  password?: string;
-  proxy: string;
-  apiKey?: string;
-  dbUrl?: string;
-  appId?: string;
-  secretKey?: string;
-};
-
-export type ConnectionForm = {
-  name: string;
-  endpoint?: string;
-  authMethod?: string;
-  username?: string;
-  password?: string;
-  token?: string;
-  appId?: string;
-  secretKey?: string;
-  enableGraphql?: boolean;
-  proxy: string;
-  rateLimitPerHour?: number;
-  dbUrl?: string;
-};
-
-export type ConnectionTest = {
-  message: string;
-  success: boolean;
-  login?: string;
-  installations?: Array<{
-    id: number;
-    account: {
-      login: string;
-    };
+  projectName: string;
+  mode: IBPMode;
+  enable: boolean;
+  isManual: boolean;
+  cronConfig: string;
+  skipOnFail: boolean;
+  plan: any;
+  timeAfter: null | string;
+  connections: Array<{
+    pluginName: string;
+    connectionId: ID;
+    scopes?: Array<{
+      scopeId: string;
+    }>;
   }>;
-  warning?: string;
-};
+}

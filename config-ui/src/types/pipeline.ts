@@ -16,7 +16,7 @@
  *
  */
 
-export enum PipelineStatus {
+export enum IPipelineStatus {
   CREATED = 'TASK_CREATED',
   PENDING = 'TASK_PENDING',
   ACTIVE = 'TASK_ACTIVE',
@@ -28,29 +28,13 @@ export enum PipelineStatus {
   CANCELLED = 'TASK_CANCELLED',
 }
 
-export type Pipeline = {
+export interface IPipeline {
   id: ID;
-  status: PipelineStatus;
+  status: IPipelineStatus;
   beganAt: string | null;
   finishedAt: string | null;
   stage: number;
   finishedTasks: number;
   totalTasks: number;
   message: string;
-};
-
-export type PipelineTask = {
-  id: ID;
-  plugin: string;
-  status: PipelineStatus;
-  pipelineRow: number;
-  pipelineCol: number;
-  beganAt: string | null;
-  finishedAt: string | null;
-  options: any;
-  message: string;
-  progressDetail?: {
-    finishedSubTasks: number;
-    totalSubTasks: number;
-  };
-};
+}

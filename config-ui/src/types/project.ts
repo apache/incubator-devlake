@@ -16,32 +16,14 @@
  *
  */
 
-export enum ModeEnum {
-  advanced = 'ADVANCED',
-  normal = 'NORMAL',
-}
+import { IBlueprint } from './blueprint';
+import { IPipeline } from './pipeline';
 
-export type Blueprint = {
-  projectName: string;
-  id: ID;
-  enable: boolean;
+export interface IProject {
   name: string;
-  mode: ModeEnum;
-  isManual: boolean;
-  cronConfig: string;
-  skipOnFail: boolean;
-  plan: any;
-  timeAfter: null | string;
-  connections: Array<{
-    pluginName: string;
-    connectionId: ID;
-    scopes?: Array<{
-      scopeId: string;
-    }>;
-  }>;
-};
-
-export type TriggerQuery = {
-  skipCollectors: boolean;
-  fullSync: boolean;
-};
+  description: string;
+  blueprint: IBlueprint;
+  metrics: Array<{ pluginName: string; pluginOption: string; enable: boolean }>;
+  createdAt?: string;
+  lastPipeline?: IPipeline;
+}

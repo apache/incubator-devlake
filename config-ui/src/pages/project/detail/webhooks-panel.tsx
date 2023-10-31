@@ -23,12 +23,11 @@ import API from '@/api';
 import { Alert, NoData } from '@/components';
 import type { WebhookItemType } from '@/plugins/register/webhook';
 import { WebhookCreateDialog, WebhookSelectorDialog, WebHookConnection } from '@/plugins/register/webhook';
+import { IProject } from '@/types';
 import { operator } from '@/utils';
 
-import type { ProjectType } from '../types';
-
 interface Props {
-  project: ProjectType;
+  project: IProject;
   onRefresh: () => void;
 }
 

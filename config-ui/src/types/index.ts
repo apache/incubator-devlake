@@ -16,7 +16,14 @@
  *
  */
 
+export * from './api-key';
+export * from './blueprint';
 export * from './connection';
+export * from './data-scope';
+export * from './pipeline';
 export * from './plugin';
+export * from './project';
+export * from './scope-config';
 export * from './status';
+export * from './task';
 export * from './webhook';
