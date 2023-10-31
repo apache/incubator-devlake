@@ -113,7 +113,7 @@ func ConvertDeployment(taskCtx plugin.SubTaskContext) errors.Error {
 				FinishedDate: gitlabDeployment.DeployableFinishedAt,
 				CommitSha:    gitlabDeployment.Sha,
 				RefName:      gitlabDeployment.Ref,
-				RepoId:       didgen.NewDomainIdGenerator(&models.GitlabProject{}).Generate(data.Options.ConnectionId, data.Options.ProjectId),
+				RepoId:       projectIdGen.Generate(data.Options.ConnectionId, data.Options.ProjectId),
 				RepoUrl:      repo.WebUrl,
 			}
 			if duration != nil {
