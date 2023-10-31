@@ -18,7 +18,6 @@ limitations under the License.
 package tasks
 
 import (
-	"fmt"
 	"reflect"
 
 	"github.com/apache/incubator-devlake/core/dal"
@@ -89,7 +88,7 @@ func ConvertDeployment(taskCtx plugin.SubTaskContext) errors.Error {
 				FinishedDate: &githubDeployment.UpdatedDate, // fixme there is no such field
 				CommitSha:    githubDeployment.CommitOid,
 				RefName:      githubDeployment.RefName,
-				RepoId:       fmt.Sprintf("%d", githubDeployment.GithubId),
+				RepoId:       deploymentScopeIdGen.Generate(githubDeployment.ConnectionId, githubDeployment.GithubId),
 				RepoUrl:      githubDeployment.RepositoryUrl,
 			}
 
