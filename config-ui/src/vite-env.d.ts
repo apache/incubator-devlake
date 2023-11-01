@@ -19,6 +19,8 @@
 /// <reference types="vite/client" />
 
 interface ImportMetaEnv {
+  readonly DEVLAKE_LOGO: string;
+  readonly DEVLAKE_COPYRIGHT: string;
   readonly DEVLAKE_PLUGINS: string;
 }
 
