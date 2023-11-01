@@ -19,7 +19,9 @@ package tasks
 
 import (
 	"github.com/apache/incubator-devlake/core/errors"
+	"github.com/apache/incubator-devlake/core/plugin"
 	"github.com/apache/incubator-devlake/helpers/pluginhelper/api"
+	"github.com/apache/incubator-devlake/plugins/github/models"
 	"github.com/apache/incubator-devlake/plugins/github/utils"
 	"net/http"
 )
@@ -48,4 +50,17 @@ func ignoreHTTPStatus422(res *http.Response) errors.Error {
 		return api.ErrIgnoreAndContinue
 	}
 	return nil
+}
+
+func CreateRawDataSubTaskArgs(taskCtx plugin.SubTaskContext, table string) (*api.RawDataSubTaskArgs, *GithubTaskData) {
+	data := taskCtx.GetData().(*GithubTaskData)
+	RawDataSubTaskArgs := &api.RawDataSubTaskArgs{
+		Ctx: taskCtx,
+		Params: models.GithubApiParams{
+			Name:         data.Options.Name,
+			ConnectionId: data.Options.ConnectionId,
+		},
+		Table: table,
+	}
+	return RawDataSubTaskArgs, data
 }

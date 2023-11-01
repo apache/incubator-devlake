@@ -18,8 +18,6 @@ limitations under the License.
 package tasks
 
 import (
-	"reflect"
-
 	"github.com/apache/incubator-devlake/core/dal"
 	"github.com/apache/incubator-devlake/core/errors"
 	"github.com/apache/incubator-devlake/core/models/domainlayer"
@@ -28,21 +26,30 @@ import (
 	"github.com/apache/incubator-devlake/core/plugin"
 	"github.com/apache/incubator-devlake/helpers/pluginhelper/api"
 	githubModels "github.com/apache/incubator-devlake/plugins/github/models"
+	"github.com/apache/incubator-devlake/plugins/gitlab/models"
+	"reflect"
 )
 
-var _ plugin.SubTaskEntryPoint = ConvertDeployment
-
-var ConvertDeploymentMeta = plugin.SubTaskMeta{
-	Name:             "ConvertDeployment",
-	EntryPoint:       ConvertDeployment,
-	EnabledByDefault: true,
-	Description:      "Convert github deployment from tool layer to domain layer",
-	DomainTypes:      []string{plugin.DOMAIN_TYPE_CICD},
+func init() {
+	RegisterSubtaskMeta(&ConvertDeploymentsMeta)
 }
 
+const RAW_DEPLOYMENT_TABLE = "github_deployment"
+
+var ConvertDeploymentsMeta = plugin.SubTaskMeta{
+	Name:             "convertDeployments",
+	EntryPoint:       ConvertDeployment,
+	EnabledByDefault: false,
+	Description:      "Convert tool layer table github_deployments into  domain layer table deployment",
+	DomainTypes:      []string{plugin.DOMAIN_TYPE_CICD},
+	DependencyTables: []string{models.GitlabDeployment{}.TableName()},
+	ProductTables:    []string{devops.CICDDeployment{}.TableName(), devops.CICDDeployment{}.TableName()},
+}
+
+// ConvertDeployment is the same with `github_ql.ConvertDeployment`
 func ConvertDeployment(taskCtx plugin.SubTaskContext) errors.Error {
 	db := taskCtx.GetDal()
-	rawDataSubTaskArgs, data := CreateRawDataSubTaskArgs(taskCtx, RAW_DEPLOYMENT)
+	rawDataSubTaskArgs, data := CreateRawDataSubTaskArgs(taskCtx, RAW_DEPLOYMENT_TABLE)
 	cursor, err := db.Cursor(
 		dal.From(&githubModels.GithubDeployment{}),
 		dal.Where("connection_id = ? and github_id = ?", data.Options.ConnectionId, data.Options.GithubId),
