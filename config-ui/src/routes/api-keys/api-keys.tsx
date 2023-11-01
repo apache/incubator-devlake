@@ -48,6 +48,7 @@ export const ApiKeys = () => {
 
   const { data, ready } = useRefreshData(() => API.apiKey.list({ page, pageSize }), [version, page, pageSize]);
 
+  const prefix = useMemo(() => `${window.location.origin}/api/rest/`, []);
   const [dataSource, total] = useMemo(() => [data?.apikeys ?? [], data?.count ?? 0], [data]);
   const hasError = useMemo(() => !form.name || !form.allowedPath, [form]);
 
@@ -119,7 +120,7 @@ export const ApiKeys = () => {
             title: 'Allowed Path',
             dataIndex: 'allowedPath',
             key: 'allowedPath',
-            render: (val) => `http://localhost:4000/api/rest${val}`,
+            render: (val) => `${prefix}${val}`,
           },
           {
             title: '',
@@ -192,7 +193,7 @@ export const ApiKeys = () => {
             required
           >
             <S.InputContainer>
-              <span>http://localhost:4000/api/rest/</span>
+              <span>{prefix}</span>
               <InputGroup
                 placeholder=""
                 value={form.allowedPath}
