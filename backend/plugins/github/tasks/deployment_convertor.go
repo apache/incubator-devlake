@@ -25,8 +25,7 @@ import (
 	"github.com/apache/incubator-devlake/core/models/domainlayer/didgen"
 	"github.com/apache/incubator-devlake/core/plugin"
 	"github.com/apache/incubator-devlake/helpers/pluginhelper/api"
-	githubModels "github.com/apache/incubator-devlake/plugins/github/models"
-	"github.com/apache/incubator-devlake/plugins/gitlab/models"
+	"github.com/apache/incubator-devlake/plugins/github/models"
 	"reflect"
 )
 
@@ -34,24 +33,25 @@ func init() {
 	RegisterSubtaskMeta(&ConvertDeploymentsMeta)
 }
 
-const RAW_DEPLOYMENT_TABLE = "github_deployment"
+const (
+	RAW_DEPLOYMENT_TABLE = "github_deployment"
+)
 
 var ConvertDeploymentsMeta = plugin.SubTaskMeta{
-	Name:             "convertDeployments",
+	Name:             "ConvertDeployments",
 	EntryPoint:       ConvertDeployment,
-	EnabledByDefault: false,
+	EnabledByDefault: true,
 	Description:      "Convert tool layer table github_deployments into  domain layer table deployment",
 	DomainTypes:      []string{plugin.DOMAIN_TYPE_CICD},
-	DependencyTables: []string{models.GitlabDeployment{}.TableName()},
-	ProductTables:    []string{devops.CICDDeployment{}.TableName(), devops.CICDDeployment{}.TableName()},
+	DependencyTables: []string{models.GithubDeployment{}.TableName()},
+	ProductTables:    []string{devops.CicdDeploymentCommit{}.TableName(), devops.CICDDeployment{}.TableName()},
 }
 
-// ConvertDeployment is the same with `github_ql.ConvertDeployment`
 func ConvertDeployment(taskCtx plugin.SubTaskContext) errors.Error {
 	db := taskCtx.GetDal()
 	rawDataSubTaskArgs, data := CreateRawDataSubTaskArgs(taskCtx, RAW_DEPLOYMENT_TABLE)
 	cursor, err := db.Cursor(
-		dal.From(&githubModels.GithubDeployment{}),
+		dal.From(&models.GithubDeployment{}),
 		dal.Where("connection_id = ? and github_id = ?", data.Options.ConnectionId, data.Options.GithubId),
 	)
 	if err != nil {
@@ -59,15 +59,15 @@ func ConvertDeployment(taskCtx plugin.SubTaskContext) errors.Error {
 	}
 	defer cursor.Close()
 
-	deploymentIdGen := didgen.NewDomainIdGenerator(&githubModels.GithubDeployment{})
-	deploymentScopeIdGen := didgen.NewDomainIdGenerator(&githubModels.GithubRepo{})
+	deploymentIdGen := didgen.NewDomainIdGenerator(&models.GithubDeployment{})
+	deploymentScopeIdGen := didgen.NewDomainIdGenerator(&models.GithubRepo{})
 
 	converter, err := api.NewDataConverter(api.DataConverterArgs{
-		InputRowType:       reflect.TypeOf(githubModels.GithubDeployment{}),
+		InputRowType:       reflect.TypeOf(models.GithubDeployment{}),
 		Input:              cursor,
 		RawDataSubTaskArgs: *rawDataSubTaskArgs,
 		Convert: func(inputRow interface{}) ([]interface{}, errors.Error) {
-			githubDeployment := inputRow.(*githubModels.GithubDeployment)
+			githubDeployment := inputRow.(*models.GithubDeployment)
 			deploymentCommit := &devops.CicdDeploymentCommit{
 				DomainEntity: domainlayer.DomainEntity{
 					Id: deploymentIdGen.Generate(githubDeployment.ConnectionId, githubDeployment.Id),
