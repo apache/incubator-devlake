@@ -81,6 +81,8 @@ func ConvertDeployBuilds(taskCtx plugin.SubTaskContext) errors.Error {
 	db := taskCtx.GetDal()
 	logger := taskCtx.GetLogger()
 	rawDataSubTaskArgs, data := CreateRawDataSubTaskArgs(taskCtx, RAW_JOB_BUILD_TABLE)
+	// INNER JOIN may cause loss of deploy entities here.
+	// It is not known that bamboo deploy can be associated with commits, so this is not an issue at the moment.
 	cursor, err := db.Cursor(
 		dal.Select("db.*, pbc.repository_id, pbc.repository_name, pbc.vcs_revision_key, p.name as project_plan_name, p.project_name"),
 		dal.From("_tool_bamboo_deploy_builds AS db"),
