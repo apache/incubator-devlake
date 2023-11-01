@@ -16,11 +16,10 @@
  *
  */
 
+import { IPipeline } from '@/types';
 import { request } from '@/utils';
 
-import * as T from './types';
-
-export const list = (): Promise<{ count: number; pipelines: T.Pipeline[] }> => request('/pipelines');
+export const list = (): Promise<{ count: number; pipelines: IPipeline[] }> => request('/pipelines');
 
 export const get = (id: ID) => request(`/pipelines/${id}`);
 

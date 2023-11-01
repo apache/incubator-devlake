@@ -26,9 +26,8 @@ import { PageHeader, Table, IconButton, TextTooltip, Dialog } from '@/components
 import { getCronOptions, cronPresets, getCron } from '@/config';
 import { ConnectionName } from '@/features';
 import { useRefreshData } from '@/hooks';
+import { IBlueprint, IBPMode } from '@/types';
 import { formatTime, operator } from '@/utils';
-
-import { ModeEnum, BlueprintType } from '../types';
 
 import * as S from './styled';
 
@@ -39,7 +38,7 @@ export const BlueprintHomePage = () => {
   const [pageSize] = useState(20);
   const [isOpen, setIsOpen] = useState(false);
   const [name, setName] = useState('');
-  const [mode, setMode] = useState(ModeEnum.normal);
+  const [mode, setMode] = useState(IBPMode.NORMAL);
   const [saving, setSaving] = useState(false);
 
   const { ready, data } = useRefreshData(
@@ -53,7 +52,7 @@ export const BlueprintHomePage = () => {
   const handleShowDialog = () => setIsOpen(true);
   const handleHideDialog = () => {
     setName('');
-    setMode(ModeEnum.normal);
+    setMode(IBPMode.NORMAL);
     setIsOpen(false);
   };
 
@@ -67,12 +66,12 @@ export const BlueprintHomePage = () => {
       skipOnFail: true,
     };
 
-    if (mode === ModeEnum.normal) {
+    if (mode === IBPMode.NORMAL) {
       payload.timeAfter = formatTime(dayjs().subtract(6, 'month').startOf('day').toDate(), 'YYYY-MM-DD[T]HH:mm:ssZ');
       payload.connections = [];
     }
 
-    if (mode === ModeEnum.advanced) {
+    if (mode === IBPMode.ADVANCED) {
       payload.timeAfter = undefined;
       payload.connections = undefined;
       payload.plan = [[]];
@@ -129,8 +128,8 @@ export const BlueprintHomePage = () => {
               dataIndex: ['mode', 'connections'],
               key: 'connections',
               align: 'center',
-              render: ({ mode, connections }: Pick<BlueprintType, 'mode' | 'connections'>) => {
-                if (mode === ModeEnum.advanced) {
+              render: ({ mode, connections }: Pick<IBlueprint, 'mode' | 'connections'>) => {
+                if (mode === IBPMode.ADVANCED) {
                   return 'Advanced Mode';
                 }
                 return (
@@ -261,10 +260,10 @@ export const BlueprintHomePage = () => {
             <RadioGroup
               inline
               selectedValue={mode}
-              onChange={(e) => setMode((e.target as HTMLInputElement).value as ModeEnum)}
+              onChange={(e) => setMode((e.target as HTMLInputElement).value as IBPMode)}
             >
-              <Radio value={ModeEnum.normal}>Normal Mode</Radio>
-              <Radio value={ModeEnum.advanced}>Advanced Mode</Radio>
+              <Radio value={IBPMode.NORMAL}>Normal Mode</Radio>
+              <Radio value={IBPMode.ADVANCED}>Advanced Mode</Radio>
             </RadioGroup>
           </FormGroup>
         </S.DialogWrapper>

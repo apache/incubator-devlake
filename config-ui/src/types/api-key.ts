@@ -16,11 +16,9 @@
  *
  */
 
-import type { BlueprintType } from '@/pages';
-
-export type ProjectType = {
+export interface IApiKey {
   name: string;
-  description: string;
-  blueprint: BlueprintType;
-  metrics: Array<{ pluginName: string; pluginOption: string; enable: boolean }>;
-};
+  expiredAt?: string;
+  allowedPath: string;
+  creator: string;
+}
