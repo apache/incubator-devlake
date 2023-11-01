@@ -19,6 +19,7 @@ package tasks
 
 import (
 	"fmt"
+	"github.com/apache/incubator-devlake/core/models/common"
 	"reflect"
 	"strconv"
 	"time"
@@ -41,9 +42,28 @@ var ConvertDeployBuildsMeta = plugin.SubTaskMeta{
 	DomainTypes:      []string{plugin.DOMAIN_TYPE_CICD},
 }
 
+// deployBuildWithVcsRevision is a virtual tool layer table,
+// it's used to store records from a complicated sql
+// and generate id field for table cicd_deployment_commits.
 type deployBuildWithVcsRevision struct {
-	models.BambooDeployBuild
-	RepositoryId    int
+	ConnectionId          uint64     `json:"connection_id" gorm:"primaryKey"`
+	DeployBuildId         uint64     `json:"deploy_build_id" gorm:"primaryKey"`
+	PlanResultKey         string     `json:"planResultKey" `
+	DeploymentVersionName string     `json:"deploymentVersionName"`
+	DeploymentState       string     `json:"deploymentState"`
+	LifeCycleState        string     `json:"lifeCycleState"`
+	StartedDate           *time.Time `json:"startedDate"`
+	QueuedDate            *time.Time `json:"queuedDate"`
+	ExecutedDate          *time.Time `json:"executedDate"`
+	FinishedDate          *time.Time `json:"finishedDate"`
+	ReasonSummary         string     `json:"reasonSummary"`
+	ProjectKey            string     `json:"project_key" gorm:"index"`
+	PlanKey               string     `json:"plan_key" gorm:"index"`
+	Environment           string     `gorm:"type:varchar(255)"`
+	PlanBranchName        string     `gorm:"type:varchar(255)"`
+	models.ApiBambooOperations
+	common.NoPKModel
+	RepositoryId    int `json:"repository_id" gorm:"primaryKey"`
 	RepositoryName  string
 	VcsRevisionKey  string
 	ProjectPlanName string
@@ -72,9 +92,7 @@ func ConvertDeployBuilds(taskCtx plugin.SubTaskContext) errors.Error {
 	}
 	defer cursor.Close()
 
-	deployBuildIdGen := didgen.NewDomainIdGenerator(&models.BambooDeployBuild{})
 	planIdGen := didgen.NewDomainIdGenerator(&models.BambooPlan{})
-
 	converter, err := api.NewDataConverter(api.DataConverterArgs{
 		InputRowType:       reflect.TypeOf(deployBuildWithVcsRevision{}),
 		Input:              cursor,
@@ -84,12 +102,13 @@ func ConvertDeployBuilds(taskCtx plugin.SubTaskContext) errors.Error {
 			if input.VcsRevisionKey == "" {
 				return nil, nil
 			}
+			deploymentCommitId := didgen.NewDomainIdGenerator(&deployBuildWithVcsRevision{}).Generate(data.Options.ConnectionId, input.DeployBuildId, input.RepositoryId)
 			deploymentCommit := &devops.CicdDeploymentCommit{
 				DomainEntity: domainlayer.DomainEntity{
-					Id: deployBuildIdGen.Generate(data.Options.ConnectionId, input.DeployBuildId, input.PlanResultKey),
+					Id: deploymentCommitId,
 				},
 				CicdScopeId:      planIdGen.Generate(data.Options.ConnectionId, data.Options.PlanKey),
-				CicdDeploymentId: deployBuildIdGen.Generate(data.Options.ConnectionId, input.DeployBuildId, input.PlanResultKey),
+				CicdDeploymentId: deploymentCommitId,
 				Name:             input.GenerateCICDDeploymentCommitName(),
 				Result: devops.GetResult(&devops.ResultRule{
 					Failed:  []string{"Failed"},

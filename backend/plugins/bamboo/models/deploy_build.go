@@ -26,7 +26,7 @@ import (
 type BambooDeployBuild struct {
 	ConnectionId          uint64     `json:"connection_id" gorm:"primaryKey"`
 	DeployBuildId         uint64     `json:"deploy_build_id" gorm:"primaryKey"`
-	PlanResultKey         string     `json:"planResultKey"  gorm:"primaryKey"`
+	PlanResultKey         string     `json:"planResultKey"`
 	DeploymentVersionName string     `json:"deploymentVersionName"`
 	DeploymentState       string     `json:"deploymentState"`
 	LifeCycleState        string     `json:"lifeCycleState"`
