@@ -28,7 +28,7 @@ const Wrapper = styled.div`
 export const Logo = () => {
   return (
     <Wrapper>
-      <img src={LogoImg} alt="Logo" />
+      <img src={import.meta.env.DEVLAKE_LOGO ?? LogoImg} alt="Logo" />
     </Wrapper>
   );
 };

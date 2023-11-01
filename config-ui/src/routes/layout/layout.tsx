@@ -114,7 +114,7 @@ export const Layout = () => {
                 })}
               </Menu>
               <div className="copyright">
-                <div>Apache 2.0 License</div>
+                <div>{import.meta.env.DEVLAKE_COPYRIGHT ?? 'Apache 2.0 License'}</div>
                 <div className="version">{version}</div>
               </div>
             </S.Sider>
