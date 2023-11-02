@@ -112,7 +112,7 @@ export const BlueprintConnectionDetailPage = () => {
           <Button
             loading={operating}
             intent={Intent.PRIMARY}
-            text="Recollect All Data"
+            text="Recollect Data"
             onClick={() => handleRunBP(false)}
           />
         </Buttons>
