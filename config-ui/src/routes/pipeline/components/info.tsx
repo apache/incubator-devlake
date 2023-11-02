@@ -21,9 +21,9 @@ import { useState } from 'react';
 import API from '@/api';
 import { Loading, IconButton } from '@/components';
 import { useAutoRefresh } from '@/hooks';
+import { IPipeline, IPipelineStatus } from '@/types';
 import { formatTime, operator } from '@/utils';
 
-import * as T from '../types';
 import * as S from '../styled';
 
 import { PipelineStatus } from './status';
@@ -36,15 +36,15 @@ interface Props {
 export const PipelineInfo = ({ id }: Props) => {
   const [operating, setOperating] = useState(false);
 
-  const { data } = useAutoRefresh<T.Pipeline>(() => API.pipeline.get(id), [], {
+  const { data } = useAutoRefresh<IPipeline>(() => API.pipeline.get(id), [], {
     cancel: (data) => {
       return !!(
         data &&
         [
-          T.PipelineStatus.COMPLETED,
-          T.PipelineStatus.PARTIAL,
-          T.PipelineStatus.FAILED,
-          T.PipelineStatus.CANCELLED,
+          IPipelineStatus.COMPLETED,
+          IPipelineStatus.PARTIAL,
+          IPipelineStatus.FAILED,
+          IPipelineStatus.CANCELLED,
         ].includes(data.status)
       );
     },
@@ -106,20 +106,20 @@ export const PipelineInfo = ({ id }: Props) => {
           </strong>
         </li>
         <li>
-          {[T.PipelineStatus.ACTIVE, T.PipelineStatus.RUNNING, T.PipelineStatus.RERUN].includes(status) && (
+          {[IPipelineStatus.ACTIVE, IPipelineStatus.RUNNING, IPipelineStatus.RERUN].includes(status) && (
             <IconButton loading={operating} icon="disable" tooltip="Cancel" onClick={handleCancel} />
           )}
           {[
-            T.PipelineStatus.COMPLETED,
-            T.PipelineStatus.PARTIAL,
-            T.PipelineStatus.FAILED,
-            T.PipelineStatus.CANCELLED,
+            IPipelineStatus.COMPLETED,
+            IPipelineStatus.PARTIAL,
+            IPipelineStatus.FAILED,
+            IPipelineStatus.CANCELLED,
           ].includes(status) && (
             <IconButton loading={operating} icon="repeat" tooltip="Rerun failed tasks" onClick={handleRerun} />
           )}
         </li>
       </ul>
-      {T.PipelineStatus.FAILED === status && <p className="'message'">{message}</p>}
+      {IPipelineStatus.FAILED === status && <p className="'message'">{message}</p>}
     </S.Info>
   );
 };

@@ -16,35 +16,9 @@
  *
  */
 
-export type ListQuery = Pagination & {
-  blueprint?: boolean;
-  searchTerm?: string;
-};
-
-export type Scope = {
+export interface IApiKey {
   name: string;
-  fullName: string;
-};
-
-export type List = Array<{
-  scope: Scope;
-  scopeConfig?: { name: string };
-}>;
-
-export type RemoteQuery = {
-  groupId: ID | null;
-  pageToken?: string;
-};
-
-export type RemoteScope = {
-  type: 'group' | 'scope';
-  parentId: ID | null;
-  id: ID;
-  name: string;
-  fullName: string;
-  data: any;
-};
-
-export type SearchRemoteQuery = {
-  search?: string;
-} & Pagination;
+  expiredAt?: string;
+  allowedPath: string;
+  creator: string;
+}

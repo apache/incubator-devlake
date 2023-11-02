@@ -16,14 +16,25 @@
  *
  */
 
-import { Blueprint } from '../blueprint/types';
-import { Pipeline } from '../pipeline/types';
+export enum IPipelineStatus {
+  CREATED = 'TASK_CREATED',
+  PENDING = 'TASK_PENDING',
+  ACTIVE = 'TASK_ACTIVE',
+  RUNNING = 'TASK_RUNNING',
+  RERUN = 'TASK_RERUN',
+  COMPLETED = 'TASK_COMPLETED',
+  PARTIAL = 'TASK_PARTIAL',
+  FAILED = 'TASK_FAILED',
+  CANCELLED = 'TASK_CANCELLED',
+}
 
-export type Project = {
-  name: string;
-  description: string;
-  metrics: Array<{ pluginName: string; pluginOption: string; enable: boolean }>;
-  createdAt: string;
-  blueprint: Blueprint;
-  lastPipeline: Pipeline;
-};
+export interface IPipeline {
+  id: ID;
+  status: IPipelineStatus;
+  beganAt: string | null;
+  finishedAt: string | null;
+  stage: number;
+  finishedTasks: number;
+  totalTasks: number;
+  message: string;
+}

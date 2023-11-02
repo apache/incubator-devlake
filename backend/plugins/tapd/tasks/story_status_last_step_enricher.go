@@ -43,7 +43,9 @@ func EnrichStoryStatusLastStep(taskCtx plugin.SubTaskContext) errors.Error {
 		RawDataSubTaskArgs: *rawDataSubTaskArgs,
 		Extract: func(row *api.RawData) ([]interface{}, errors.Error) {
 			var storyStatusLastStepRes struct {
-				Data map[string]string
+				Data   interface{} `json:"data"`
+				Status int         `json:"status"`
+				Info   string      `json:"info"`
 			}
 			err := errors.Convert(json.Unmarshal(row.Data, &storyStatusLastStepRes))
 			if err != nil {
@@ -60,10 +62,14 @@ func EnrichStoryStatusLastStep(taskCtx plugin.SubTaskContext) errors.Error {
 			}
 
 			for _, status := range statusList {
-				if storyStatusLastStepRes.Data[status.EnglishName] != "" {
-					status.IsLastStep = true
-					results = append(results, status)
+				switch storyStatusLastStepResData := storyStatusLastStepRes.Data.(type) {
+				case map[string]interface{}:
+					if _, ok := storyStatusLastStepResData[status.EnglishName]; ok {
+						status.IsLastStep = true
+						results = append(results, status)
+					}
 				}
+
 			}
 
 			return results, nil

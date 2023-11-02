@@ -16,9 +16,7 @@
  *
  */
 
-export type Key = {
+export interface IDataScope {
   name: string;
-  expiredAt?: string;
-  allowedPath: string;
-  creator: string;
-};
+  fullName: string;
+}

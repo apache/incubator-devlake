@@ -25,12 +25,12 @@ import { IconButton, Table, NoData, Buttons } from '@/components';
 import { getCron } from '@/config';
 import { ConnectionName } from '@/features';
 import { getPluginConfig } from '@/plugins';
+import { IBlueprint, IBPMode } from '@/types';
 import { formatTime, operator } from '@/utils';
 
 import { encodeName } from '../../project/utils';
 
-import { BlueprintType, FromEnum } from '../types';
-import { ModeEnum } from '../types';
+import { FromEnum } from '../types';
 import { validRawPlan } from '../utils';
 
 import { AdvancedEditor, UpdateNameDialog, UpdatePolicyDialog, AddConnectionDialog } from './components';
@@ -38,7 +38,7 @@ import * as S from './styled';
 
 interface Props {
   from: FromEnum;
-  blueprint: BlueprintType;
+  blueprint: IBlueprint;
   onRefresh: () => void;
   onChangeTab: (tab: string) => void;
 }
@@ -139,7 +139,7 @@ export const ConfigurationPanel = ({ from, blueprint, onRefresh, onChangeTab }: 
               title: 'Data Time Range',
               dataIndex: 'timeRange',
               key: 'timeRange',
-              render: (val) => (blueprint.mode === ModeEnum.normal ? `${formatTime(val)} to Now` : 'N/A'),
+              render: (val) => (blueprint.mode === IBPMode.NORMAL ? `${formatTime(val)} to Now` : 'N/A'),
             },
             {
               title: 'Sync Frequency',
@@ -169,7 +169,7 @@ export const ConfigurationPanel = ({ from, blueprint, onRefresh, onChangeTab }: 
           ]}
         />
       </div>
-      {blueprint.mode === ModeEnum.normal && (
+      {blueprint.mode === IBPMode.NORMAL && (
         <div className="block">
           <h3>Data Connections</h3>
           {!connections.length ? (
@@ -230,7 +230,7 @@ export const ConfigurationPanel = ({ from, blueprint, onRefresh, onChangeTab }: 
           )}
         </div>
       )}
-      {blueprint.mode === ModeEnum.advanced && (
+      {blueprint.mode === IBPMode.ADVANCED && (
         <div className="block">
           <h3>JSON Configuration</h3>
           <AdvancedEditor value={rawPlan} onChange={setRawPlan} />

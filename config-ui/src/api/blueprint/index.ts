@@ -16,14 +16,13 @@
  *
  */
 
+import type { IBlueprint } from '@/types';
 import { request } from '@/utils';
 
-import * as T from './types';
-
-export const list = (data: Pagination & { type: string }): Promise<{ count: number; blueprints: T.Blueprint[] }> =>
+export const list = (data: Pagination & { type: string }): Promise<{ count: number; blueprints: IBlueprint[] }> =>
   request('/blueprints', { data });
 
-export const get = (id: ID): Promise<T.Blueprint> => request(`/blueprints/${id}`);
+export const get = (id: ID): Promise<IBlueprint> => request(`/blueprints/${id}`);
 
 export const create = (data: any) =>
   request('/blueprints', {
@@ -33,8 +32,13 @@ export const create = (data: any) =>
 
 export const remove = (id: ID) => request(`/blueprints/${id}`, { method: 'delete' });
 
-export const update = (id: ID, data: T.Blueprint) => request(`/blueprints/${id}`, { method: 'patch', data });
+export const update = (id: ID, data: IBlueprint) => request(`/blueprints/${id}`, { method: 'patch', data });
 
 export const pipelines = (id: ID) => request(`/blueprints/${id}/pipelines`);
 
-export const trigger = (id: ID, data: T.TriggerQuery) => request(`/blueprints/${id}/trigger`, { method: 'post', data });
+type TriggerQuery = {
+  skipCollectors: boolean;
+  fullSync: boolean;
+};
+
+export const trigger = (id: ID, data: TriggerQuery) => request(`/blueprints/${id}/trigger`, { method: 'post', data });

@@ -16,11 +16,6 @@
  *
  */
 
-import type { BlueprintType } from '@/pages';
-
-export type ProjectType = {
+export interface IScopeConfig {
   name: string;
-  description: string;
-  blueprint: BlueprintType;
-  metrics: Array<{ pluginName: string; pluginOption: string; enable: boolean }>;
-};
+}

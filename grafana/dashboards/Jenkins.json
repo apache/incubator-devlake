@@ -3,7 +3,10 @@
     "list": [
       {
         "builtIn": 1,
-        "datasource": "-- Grafana --",
+        "datasource": {
+          "type": "datasource",
+          "uid": "grafana"
+        },
         "enable": true,
         "hide": true,
         "iconColor": "rgba(0, 211, 255, 1)",
@@ -13,14 +16,17 @@
     ]
   },
   "editable": true,
-  "gnetId": null,
+  "fiscalYearStartMonth": 0,
   "graphTooltip": 0,
-  "id": 6,
-  "iteration": 1683624526469,
+  "id": 7,
   "links": [],
+  "liveNow": false,
   "panels": [
     {
-      "datasource": null,
+      "datasource": {
+        "type": "datasource",
+        "uid": "grafana"
+      },
       "gridPos": {
         "h": 3,
         "w": 24,
@@ -29,12 +35,21 @@
       },
       "id": 58,
       "options": {
+        "code": {
+          "language": "plaintext",
+          "showLineNumbers": false,
+          "showMiniMap": false
+        },
         "content": "- Use Cases: This dashboard shows the basic CI/CD metrics from Jenkins, such as [Build Count](https://devlake.apache.org/docs/Metrics/BuildCount), [Build Duration](https://devlake.apache.org/docs/Metrics/BuildDuration) and [Build Success Rate](https://devlake.apache.org/docs/Metrics/BuildSuccessRate).\n- Data Source Required: Jenkins",
         "mode": "markdown"
       },
-      "pluginVersion": "8.0.6",
+      "pluginVersion": "9.5.2",
       "targets": [
         {
+          "datasource": {
+            "type": "datasource",
+            "uid": "grafana"
+          },
           "queryType": "randomWalk",
           "refId": "A"
         }
@@ -82,9 +97,10 @@
         "text": {},
         "textMode": "auto"
       },
-      "pluginVersion": "8.0.6",
+      "pluginVersion": "9.5.2",
       "targets": [
         {
+          "datasource": "mysql",
           "format": "table",
           "group": [],
           "metricColumn": "none",
@@ -113,8 +129,6 @@
           ]
         }
       ],
-      "timeFrom": null,
-      "timeShift": null,
       "title": "1. Total Number of Successful Builds [Selected Time Range]",
       "type": "stat"
     },
@@ -161,9 +175,10 @@
         "text": {},
         "textMode": "auto"
       },
-      "pluginVersion": "8.0.6",
+      "pluginVersion": "9.5.2",
       "targets": [
         {
+          "datasource": "mysql",
           "format": "table",
           "group": [],
           "metricColumn": "none",
@@ -192,13 +207,10 @@
           ]
         }
       ],
-      "timeFrom": null,
-      "timeShift": null,
       "title": "2. Mean Build Success Rate",
       "type": "stat"
     },
     {
-      "cacheTimeout": null,
       "datasource": "mysql",
       "description": "",
       "fieldConfig": {
@@ -297,7 +309,6 @@
         "y": 3
       },
       "id": 37,
-      "interval": null,
       "links": [],
       "options": {
         "displayLabels": [
@@ -308,6 +319,7 @@
           "calcs": [],
           "displayMode": "table",
           "placement": "right",
+          "showLegend": true,
           "values": [
             "percent",
             "value"
@@ -322,12 +334,14 @@
           "values": true
         },
         "tooltip": {
-          "mode": "single"
+          "mode": "single",
+          "sort": "none"
         }
       },
       "pluginVersion": "8.0.6",
       "targets": [
         {
+          "datasource": "mysql",
           "format": "table",
           "group": [],
           "metricColumn": "none",
@@ -356,8 +370,6 @@
           ]
         }
       ],
-      "timeFrom": null,
-      "timeShift": null,
       "title": "3. Total Build Result Distribution",
       "type": "piechart"
     },
@@ -402,9 +414,10 @@
         "text": {},
         "textMode": "auto"
       },
-      "pluginVersion": "8.0.6",
+      "pluginVersion": "9.5.2",
       "targets": [
         {
+          "datasource": "mysql",
           "format": "table",
           "group": [],
           "metricColumn": "none",
@@ -433,8 +446,6 @@
           ]
         }
       ],
-      "timeFrom": null,
-      "timeShift": null,
       "title": "4. Mean Build Duration in Minutes",
       "type": "stat"
     },
@@ -447,6 +458,8 @@
             "mode": "palette-classic"
           },
           "custom": {
+            "axisCenteredZero": false,
+            "axisColorMode": "text",
             "axisLabel": "Build Count",
             "axisPlacement": "auto",
             "axisSoftMin": 0,
@@ -457,7 +470,13 @@
               "tooltip": false,
               "viz": false
             },
-            "lineWidth": 1
+            "lineWidth": 1,
+            "scaleDistribution": {
+              "type": "linear"
+            },
+            "thresholdsStyle": {
+              "mode": "off"
+            }
           },
           "mappings": [],
           "thresholds": {
@@ -484,25 +503,33 @@
       },
       "id": 52,
       "options": {
+        "barRadius": 0,
         "barWidth": 0.5,
+        "fullHighlight": false,
         "groupWidth": 0.7,
         "legend": {
           "calcs": [],
           "displayMode": "list",
-          "placement": "bottom"
+          "placement": "bottom",
+          "showLegend": true
         },
         "orientation": "auto",
         "showValue": "auto",
+        "stacking": "none",
         "text": {
           "valueSize": 12
         },
         "tooltip": {
-          "mode": "single"
-        }
+          "mode": "single",
+          "sort": "none"
+        },
+        "xTickLabelRotation": 0,
+        "xTickLabelSpacing": 0
       },
       "pluginVersion": "8.0.6",
       "targets": [
         {
+          "datasource": "mysql",
           "format": "table",
           "group": [],
           "hide": false,
@@ -544,6 +571,8 @@
             "mode": "palette-classic"
           },
           "custom": {
+            "axisCenteredZero": false,
+            "axisColorMode": "text",
             "axisLabel": "Build Success Rate(%)",
             "axisPlacement": "auto",
             "axisSoftMin": 0,
@@ -554,7 +583,13 @@
               "tooltip": false,
               "viz": false
             },
-            "lineWidth": 1
+            "lineWidth": 1,
+            "scaleDistribution": {
+              "type": "linear"
+            },
+            "thresholdsStyle": {
+              "mode": "off"
+            }
           },
           "mappings": [],
           "thresholds": {
@@ -599,27 +634,35 @@
       "id": 50,
       "interval": "",
       "options": {
+        "barRadius": 0,
         "barWidth": 0.5,
+        "fullHighlight": false,
         "groupWidth": 0.7,
         "legend": {
           "calcs": [
             "mean"
           ],
           "displayMode": "list",
-          "placement": "bottom"
+          "placement": "bottom",
+          "showLegend": true
         },
         "orientation": "auto",
         "showValue": "auto",
+        "stacking": "none",
         "text": {
           "valueSize": 12
         },
         "tooltip": {
-          "mode": "single"
-        }
+          "mode": "single",
+          "sort": "none"
+        },
+        "xTickLabelRotation": 0,
+        "xTickLabelSpacing": 0
       },
       "pluginVersion": "8.0.6",
       "targets": [
         {
+          "datasource": "mysql",
           "format": "table",
           "group": [],
           "metricColumn": "none",
@@ -648,8 +691,6 @@
           ]
         }
       ],
-      "timeFrom": null,
-      "timeShift": null,
       "title": "2.1 Build Success Rate [Each Month]",
       "type": "barchart"
     },
@@ -662,6 +703,8 @@
             "mode": "fixed"
           },
           "custom": {
+            "axisCenteredZero": false,
+            "axisColorMode": "text",
             "axisLabel": "Build Count",
             "axisPlacement": "auto",
             "barAlignment": 1,
@@ -750,15 +793,18 @@
             "sum"
           ],
           "displayMode": "list",
-          "placement": "bottom"
+          "placement": "bottom",
+          "showLegend": true
         },
         "tooltip": {
-          "mode": "multi"
+          "mode": "multi",
+          "sort": "none"
         }
       },
       "pluginVersion": "8.0.6",
       "targets": [
         {
+          "datasource": "mysql",
           "format": "time_series",
           "group": [],
           "hide": false,
@@ -800,6 +846,8 @@
             "mode": "palette-classic"
           },
           "custom": {
+            "axisCenteredZero": false,
+            "axisColorMode": "text",
             "axisLabel": "Build Duration(minutes)",
             "axisPlacement": "auto",
             "axisSoftMin": 0,
@@ -810,7 +858,13 @@
               "tooltip": false,
               "viz": false
             },
-            "lineWidth": 1
+            "lineWidth": 1,
+            "scaleDistribution": {
+              "type": "linear"
+            },
+            "thresholdsStyle": {
+              "mode": "off"
+            }
           },
           "mappings": [],
           "thresholds": {
@@ -853,25 +907,33 @@
       },
       "id": 56,
       "options": {
+        "barRadius": 0,
         "barWidth": 0.5,
+        "fullHighlight": false,
         "groupWidth": 0.7,
         "legend": {
           "calcs": [],
           "displayMode": "list",
-          "placement": "bottom"
+          "placement": "bottom",
+          "showLegend": true
         },
         "orientation": "auto",
         "showValue": "auto",
+        "stacking": "none",
         "text": {
           "valueSize": 12
         },
         "tooltip": {
-          "mode": "single"
-        }
+          "mode": "single",
+          "sort": "none"
+        },
+        "xTickLabelRotation": 0,
+        "xTickLabelSpacing": 0
       },
       "pluginVersion": "8.0.6",
       "targets": [
         {
+          "datasource": "mysql",
           "format": "table",
           "group": [],
           "hide": false,
@@ -905,7 +967,10 @@
       "type": "barchart"
     },
     {
-      "datasource": null,
+      "datasource": {
+        "type": "datasource",
+        "uid": "grafana"
+      },
       "gridPos": {
         "h": 2,
         "w": 24,
@@ -914,12 +979,21 @@
       },
       "id": 60,
       "options": {
+        "code": {
+          "language": "plaintext",
+          "showLineNumbers": false,
+          "showMiniMap": false
+        },
         "content": "<br/>\n\nThis dashboard is created based on this [data schema](https://devlake.apache.org/docs/DataModels/DevLakeDomainLayerSchema). Want to add more metrics? Please follow the [guide](https://devlake.apache.org/docs/Configuration/Dashboards/GrafanaUserGuide).",
         "mode": "markdown"
       },
-      "pluginVersion": "8.0.6",
+      "pluginVersion": "9.5.2",
       "targets": [
         {
+          "datasource": {
+            "type": "datasource",
+            "uid": "grafana"
+          },
           "queryType": "randomWalk",
           "refId": "A"
         }
@@ -928,13 +1002,12 @@
     }
   ],
   "refresh": "",
-  "schemaVersion": 30,
+  "schemaVersion": 38,
   "style": "dark",
   "tags": [],
   "templating": {
     "list": [
       {
-        "allValue": null,
         "current": {
           "selected": true,
           "text": [
@@ -945,18 +1018,16 @@
           ]
         },
         "datasource": "mysql",
-        "definition": "select distinct cicd_scope_id as text from cicd_pipelines where id like \"%jenkins%\" ",
-        "description": null,
-        "error": null,
+        "definition": "select concat(name, '--', id) as text from cicd_scopes where id like \"jenkins%\" ",
         "hide": 0,
         "includeAll": true,
         "label": "Job Name",
         "multi": true,
         "name": "job_id",
         "options": [],
-        "query": "select distinct cicd_scope_id as text from cicd_pipelines where id like \"%jenkins%\" ",
+        "query": "select concat(name, '--', id) as text from cicd_scopes where id like \"jenkins%\" ",
         "refresh": 1,
-        "regex": "",
+        "regex": "/^(?<text>.*)--(?<value>.*)$/",
         "skipUrlSync": false,
         "sort": 0,
         "type": "query"
@@ -971,5 +1042,6 @@
   "timezone": "",
   "title": "Jenkins",
   "uid": "W8AiDFQnk",
-  "version": 2
+  "version": 5,
+  "weekStart": ""
 }

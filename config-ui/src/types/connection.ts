@@ -24,11 +24,26 @@ export interface IConnectionAPI {
   token?: string;
   username?: string;
   password?: string;
-  proxy: string;
   apiKey?: string;
   dbUrl?: string;
   appId?: string;
   secretKey?: string;
+  enableGraphql?: boolean;
+  proxy: string;
+  rateLimitPerHour?: number;
+}
+
+export interface IConnectionTestResult {
+  message: string;
+  success: boolean;
+  login?: string;
+  installations?: Array<{
+    id: number;
+    account: {
+      login: string;
+    };
+  }>;
+  warning?: string;
 }
 
 export enum IConnectionStatus {

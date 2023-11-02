@@ -18,7 +18,7 @@
   "editable": true,
   "fiscalYearStartMonth": 0,
   "graphTooltip": 0,
-  "id": 32,
+  "id": 5,
   "links": [],
   "liveNow": false,
   "panels": [
@@ -1110,16 +1110,16 @@
           ]
         },
         "datasource": "mysql",
-        "definition": "select distinct row_id as text from project_mapping where `table` = 'cicd_scopes' and row_id like 'bamboo%'",
+        "definition": "select concat(name, '--', id) as text from cicd_scopes where id like \"bamboo%\" ",
         "hide": 0,
         "includeAll": true,
         "label": "Plan Name",
         "multi": true,
         "name": "plan_id",
         "options": [],
-        "query": "select distinct row_id as text from project_mapping where `table` = 'cicd_scopes' and row_id like 'bamboo%'",
+        "query": "select concat(name, '--', id) as text from cicd_scopes where id like \"bamboo%\" ",
         "refresh": 1,
-        "regex": "",
+        "regex": "/^(?<text>.*)--(?<value>.*)$/",
         "skipUrlSync": false,
         "sort": 0,
         "type": "query"
@@ -1134,6 +1134,6 @@
   "timezone": "",
   "title": "Bamboo",
   "uid": "a90e58d9-7acc-4858-aa77-f606d11a7d4a",
-  "version": 4,
+  "version": 3,
   "weekStart": ""
 }

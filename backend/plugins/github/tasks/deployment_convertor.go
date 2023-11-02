@@ -18,9 +18,6 @@ limitations under the License.
 package tasks
 
 import (
-	"fmt"
-	"reflect"
-
 	"github.com/apache/incubator-devlake/core/dal"
 	"github.com/apache/incubator-devlake/core/errors"
 	"github.com/apache/incubator-devlake/core/models/domainlayer"
@@ -28,24 +25,33 @@ import (
 	"github.com/apache/incubator-devlake/core/models/domainlayer/didgen"
 	"github.com/apache/incubator-devlake/core/plugin"
 	"github.com/apache/incubator-devlake/helpers/pluginhelper/api"
-	githubModels "github.com/apache/incubator-devlake/plugins/github/models"
+	"github.com/apache/incubator-devlake/plugins/github/models"
+	"reflect"
 )
 
-var _ plugin.SubTaskEntryPoint = ConvertDeployment
+func init() {
+	RegisterSubtaskMeta(&ConvertDeploymentsMeta)
+}
 
-var ConvertDeploymentMeta = plugin.SubTaskMeta{
-	Name:             "ConvertDeployment",
+const (
+	RAW_DEPLOYMENT_TABLE = "github_deployment"
+)
+
+var ConvertDeploymentsMeta = plugin.SubTaskMeta{
+	Name:             "ConvertDeployments",
 	EntryPoint:       ConvertDeployment,
 	EnabledByDefault: true,
-	Description:      "Convert github deployment from tool layer to domain layer",
+	Description:      "Convert tool layer table github_deployments into  domain layer table deployment",
 	DomainTypes:      []string{plugin.DOMAIN_TYPE_CICD},
+	DependencyTables: []string{models.GithubDeployment{}.TableName()},
+	ProductTables:    []string{devops.CicdDeploymentCommit{}.TableName(), devops.CICDDeployment{}.TableName()},
 }
 
 func ConvertDeployment(taskCtx plugin.SubTaskContext) errors.Error {
 	db := taskCtx.GetDal()
-	rawDataSubTaskArgs, data := CreateRawDataSubTaskArgs(taskCtx, RAW_DEPLOYMENT)
+	rawDataSubTaskArgs, data := CreateRawDataSubTaskArgs(taskCtx, RAW_DEPLOYMENT_TABLE)
 	cursor, err := db.Cursor(
-		dal.From(&githubModels.GithubDeployment{}),
+		dal.From(&models.GithubDeployment{}),
 		dal.Where("connection_id = ? and github_id = ?", data.Options.ConnectionId, data.Options.GithubId),
 	)
 	if err != nil {
@@ -53,15 +59,15 @@ func ConvertDeployment(taskCtx plugin.SubTaskContext) errors.Error {
 	}
 	defer cursor.Close()
 
-	deploymentIdGen := didgen.NewDomainIdGenerator(&githubModels.GithubDeployment{})
-	deploymentScopeIdGen := didgen.NewDomainIdGenerator(&githubModels.GithubRepo{})
+	deploymentIdGen := didgen.NewDomainIdGenerator(&models.GithubDeployment{})
+	deploymentScopeIdGen := didgen.NewDomainIdGenerator(&models.GithubRepo{})
 
 	converter, err := api.NewDataConverter(api.DataConverterArgs{
-		InputRowType:       reflect.TypeOf(githubModels.GithubDeployment{}),
+		InputRowType:       reflect.TypeOf(models.GithubDeployment{}),
 		Input:              cursor,
 		RawDataSubTaskArgs: *rawDataSubTaskArgs,
 		Convert: func(inputRow interface{}) ([]interface{}, errors.Error) {
-			githubDeployment := inputRow.(*githubModels.GithubDeployment)
+			githubDeployment := inputRow.(*models.GithubDeployment)
 			deploymentCommit := &devops.CicdDeploymentCommit{
 				DomainEntity: domainlayer.DomainEntity{
 					Id: deploymentIdGen.Generate(githubDeployment.ConnectionId, githubDeployment.Id),
@@ -89,7 +95,7 @@ func ConvertDeployment(taskCtx plugin.SubTaskContext) errors.Error {
 				FinishedDate: &githubDeployment.UpdatedDate, // fixme there is no such field
 				CommitSha:    githubDeployment.CommitOid,
 				RefName:      githubDeployment.RefName,
-				RepoId:       fmt.Sprintf("%d", githubDeployment.GithubId),
+				RepoId:       deploymentScopeIdGen.Generate(githubDeployment.ConnectionId, githubDeployment.GithubId),
 				RepoUrl:      githubDeployment.RepositoryUrl,
 			}
 

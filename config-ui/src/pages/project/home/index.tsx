@@ -29,9 +29,9 @@ import { useRefreshData } from '@/hooks';
 import { DOC_URL } from '@/release';
 import { formatTime, operator } from '@/utils';
 import { PipelineStatus } from '@/routes/pipeline';
+import { IBlueprint, IBPMode } from '@/types';
 
 import { validName, encodeName } from '../utils';
-import { BlueprintType, ModeEnum } from '../../blueprint';
 
 import * as S from './styled';
 
@@ -96,7 +96,7 @@ export const ProjectHomePage = () => {
         return API.blueprint.create({
           name: `${name}-Blueprint`,
           projectName: name,
-          mode: ModeEnum.normal,
+          mode: IBPMode.NORMAL,
           enable: true,
           cronConfig: presets[0],
           isManual: false,
@@ -138,7 +138,7 @@ export const ProjectHomePage = () => {
             title: 'Data Connections',
             dataIndex: 'connections',
             key: 'connections',
-            render: (val: BlueprintType['connections']) =>
+            render: (val: IBlueprint['connections']) =>
               !val || !val.length ? (
                 'N/A'
               ) : (

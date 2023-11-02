@@ -16,15 +16,23 @@
  *
  */
 
+import { IDataScope, IScopeConfig } from '@/types';
 import { request } from '@/utils';
-
-import * as T from './types';
 
 export const list = (
   plugin: string,
   connectionId: ID,
-  data?: T.ListQuery,
-): Promise<{ count: number; scopes: T.List }> =>
+  data?: Pagination & {
+    blueprints?: boolean;
+    searchTerm?: string;
+  },
+): Promise<{
+  count: number;
+  scopes: Array<{
+    scope: IDataScope;
+    scopeConfig?: IScopeConfig;
+  }>;
+}> =>
   request(`/plugins/${plugin}/connections/${connectionId}/scopes`, {
     data,
   });
@@ -49,21 +57,39 @@ export const batch = (plugin: string, connectionId: ID, payload: any) =>
     data: payload,
   });
 
+type RemoteQuery = {
+  groupId: ID | null;
+  pageToken?: string;
+};
+
+type RemoteScope = {
+  type: 'group' | 'scope';
+  parentId: ID | null;
+  id: ID;
+  name: string;
+  fullName: string;
+  data: any;
+};
+
 export const remote = (
   plugin: string,
   connectionId: ID,
-  data: T.RemoteQuery,
-): Promise<{ children: T.RemoteScope[]; nextPageToken: string }> =>
+  data: RemoteQuery,
+): Promise<{ children: RemoteScope[]; nextPageToken: string }> =>
   request(`/plugins/${plugin}/connections/${connectionId}/remote-scopes`, {
     method: 'get',
     data,
   });
 
+type SearchRemoteQuery = {
+  search?: string;
+} & Pagination;
+
 export const searchRemote = (
   plugin: string,
   connectionId: ID,
-  data: T.SearchRemoteQuery,
-): Promise<{ children: T.RemoteScope[]; count: number }> =>
+  data: SearchRemoteQuery,
+): Promise<{ children: RemoteScope[]; count: number }> =>
   request(`/plugins/${plugin}/connections/${connectionId}/search-remote-scopes`, {
     method: 'get',
     data,
