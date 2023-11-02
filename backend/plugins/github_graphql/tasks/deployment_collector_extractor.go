@@ -29,17 +29,17 @@ import (
 	"time"
 )
 
-var _ plugin.SubTaskEntryPoint = CollectAndExtractDeployment
+var _ plugin.SubTaskEntryPoint = CollectAndExtractDeployments
 
 const (
-	RAW_DEPLOYMENT = "github_deployment"
+	RAW_DEPLOYMENT = "github_graphql_deployment"
 )
 
-var CollectAndExtractDeploymentMeta = plugin.SubTaskMeta{
-	Name:             "CollectAndExtractDeployment",
-	EntryPoint:       CollectAndExtractDeployment,
+var CollectAndExtractDeploymentsMeta = plugin.SubTaskMeta{
+	Name:             "CollectAndExtractDeployments",
+	EntryPoint:       CollectAndExtractDeployments,
 	EnabledByDefault: true,
-	Description:      "collect and extract github deployments to raw and tool layer",
+	Description:      "collect and extract github deployments to raw and tool layer from GithubGraphql api",
 	DomainTypes:      []string{plugin.DOMAIN_TYPE_CICD},
 }
 
@@ -84,9 +84,9 @@ type GraphqlQueryDeploymentDeployment struct {
 	UpdatedAt time.Time
 }
 
-// CollectAndExtractDeployment will request github api via graphql and store the result into raw layer by default
+// CollectAndExtractDeployments will request github api via graphql and store the result into raw layer by default
 // ResponseParser's return will be stored to tool layer. So it's called CollectorAndExtractor.
-func CollectAndExtractDeployment(taskCtx plugin.SubTaskContext) errors.Error {
+func CollectAndExtractDeployments(taskCtx plugin.SubTaskContext) errors.Error {
 
 	data := taskCtx.GetData().(*githubTasks.GithubTaskData)
 
