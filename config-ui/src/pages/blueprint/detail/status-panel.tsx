@@ -149,7 +149,7 @@ export const StatusPanel = ({ from, blueprint, pipelineId, onRefresh }: Props) =
           <Popover
             content={
               <Menu>
-                <MenuItem text="Collect All Data in Full Refresh Mode" onClick={() => setType('fullSync')} />
+                <MenuItem text="Collect Data in Full Refresh Mode" onClick={() => setType('fullSync')} />
               </Menu>
             }
             placement="bottom"
