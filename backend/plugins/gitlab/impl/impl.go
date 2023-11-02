@@ -149,7 +149,6 @@ func (p Gitlab) PrepareTaskData(taskCtx plugin.TaskContext, options map[string]i
 	if err != nil {
 		return nil, err
 	}
-
 	if op.ProjectId != 0 {
 		var scope *models.GitlabProject
 		// support v100 & advance mode
@@ -181,17 +180,21 @@ func (p Gitlab) PrepareTaskData(taskCtx plugin.TaskContext, options map[string]i
 		}
 	}
 
-	if op.ScopeConfig == nil && op.ScopeConfigId != 0 {
-		var scopeConfig models.GitlabScopeConfig
-		db := taskCtx.GetDal()
-		err = db.First(&scopeConfig, dal.Where("id = ?", op.ScopeConfigId))
-		if err != nil {
-			if db.IsErrorNotFound(err) {
-				return nil, errors.Default.Wrap(err, fmt.Sprintf("can not find scopeConfigs by scopeConfigId [%d]", op.ScopeConfigId))
+	if op.ScopeConfig == nil {
+		if op.ScopeConfigId != 0 {
+			var scopeConfig models.GitlabScopeConfig
+			db := taskCtx.GetDal()
+			err = db.First(&scopeConfig, dal.Where("id = ?", op.ScopeConfigId))
+			if err != nil {
+				if db.IsErrorNotFound(err) {
+					return nil, errors.Default.Wrap(err, fmt.Sprintf("can not find scopeConfigs by scopeConfigId [%d]", op.ScopeConfigId))
+				}
+				return nil, errors.Default.Wrap(err, fmt.Sprintf("fail to find scopeConfigs by scopeConfigId [%d]", op.ScopeConfigId))
 			}
-			return nil, errors.Default.Wrap(err, fmt.Sprintf("fail to find scopeConfigs by scopeConfigId [%d]", op.ScopeConfigId))
+			op.ScopeConfig = &scopeConfig
+		} else {
+			op.ScopeConfig = &models.GitlabScopeConfig{}
 		}
-		op.ScopeConfig = &scopeConfig
 	}
 
 	regexEnricher := helper.NewRegexEnricher()
