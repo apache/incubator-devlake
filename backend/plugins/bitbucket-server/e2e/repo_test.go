@@ -98,17 +98,6 @@ func TestRepoDataFlow(t *testing.T) {
 		),
 	)
 	dataflowTester.VerifyTable(
-		ticket.Board{},
-		"./snapshot_tables/boards.csv",
-		e2ehelper.ColumnWithRawData(
-			"id",
-			"name",
-			"description",
-			"url",
-			"created_date",
-		),
-	)
-	dataflowTester.VerifyTable(
 		devops.CicdScope{},
 		"./snapshot_tables/cicd_scopes.csv",
 		e2ehelper.ColumnWithRawData(

@@ -38,10 +38,9 @@ var ExtractApiPullRequestsMeta = plugin.SubTaskMeta{
 }
 
 type BitbucketApiPullRequest struct {
-	BitbucketId  int `json:"id"`
-	CommentCount int `json:"comment_count"`
-	//TaskCount    int    `json:"task_count"`
-	Type        string `json:"type"`
+	BitbucketId int `json:"id"`
+	// CommentCount int `json:"comment_count"`
+	// Type        string `json:"type"`
 	State       string `json:"state"`
 	Title       string `json:"title"`
 	Description string `json:"description"`
@@ -57,26 +56,18 @@ type BitbucketApiPullRequest struct {
 	} `json:"links"`
 	//ClosedBy           *BitbucketAccountResponse `json:"closed_by"`
 	Author             *BitbucketAccountResponse `json:"author"`
-	BitbucketCreatedAt time.Time                 `json:"created_on"`
-	BitbucketUpdatedAt time.Time                 `json:"updated_on"`
+	BitbucketCreatedAt time.Time                 `json:"createdDate"`
+	BitbucketUpdatedAt time.Time                 `json:"updatedDate"`
 	BaseRef            *struct {
-		Branch struct {
-			Name string `json:"name"`
-		} `json:"branch"`
-		Commit struct {
-			Hash string `json:"hash"`
-		} `json:"commit"`
-		Repo *models.BitbucketApiRepo `json:"repository"`
-	} `json:"destination"`
+		Branch string                   `json:"displayId"`
+		Commit string                   `json:"latestCommit"`
+		Repo   *models.BitbucketApiRepo `json:"repository"`
+	} `json:"toRef"`
 	HeadRef *struct {
-		Branch struct {
-			Name string `json:"name"`
-		} `json:"branch"`
-		Commit struct {
-			Hash string `json:"hash"`
-		} `json:"commit"`
-		Repo *models.BitbucketApiRepo `json:"repository"`
-	} `json:"source"`
+		Branch string                   `json:"displayId"`
+		Commit string                   `json:"latestCommit"`
+		Repo   *models.BitbucketApiRepo `json:"repository"`
+	} `json:"fromRef"`
 	//Reviewers    []BitbucketAccountResponse `json:"reviewers"`
 	//Participants []BitbucketAccountResponse `json:"participants"`
 }
@@ -127,16 +118,16 @@ func ExtractApiPullRequests(taskCtx plugin.SubTaskContext) errors.Error {
 }
 func convertBitbucketPullRequest(pull *BitbucketApiPullRequest, connId uint64, repoId string) (*models.BitbucketServerPullRequest, errors.Error) {
 	bitbucketPull := &models.BitbucketServerPullRequest{
-		ConnectionId:       connId,
-		BitbucketId:        pull.BitbucketId,
-		Number:             pull.BitbucketId,
-		RepoId:             repoId,
-		State:              pull.State,
-		Title:              pull.Title,
-		Description:        pull.Description,
-		Url:                pull.Links.Html.Href,
-		Type:               pull.Type,
-		CommentCount:       pull.CommentCount,
+		ConnectionId: connId,
+		BitbucketId:  pull.BitbucketId,
+		Number:       pull.BitbucketId,
+		RepoId:       repoId,
+		State:        pull.State,
+		Title:        pull.Title,
+		Description:  pull.Description,
+		Url:          pull.Links.Html.Href,
+		// Type:               pull.Type,
+		// CommentCount:       pull.CommentCount,
 		BitbucketCreatedAt: pull.BitbucketCreatedAt,
 		BitbucketUpdatedAt: pull.BitbucketUpdatedAt,
 	}
@@ -144,15 +135,15 @@ func convertBitbucketPullRequest(pull *BitbucketApiPullRequest, connId uint64, r
 		if pull.BaseRef.Repo != nil {
 			bitbucketPull.BaseRepoId = pull.BaseRef.Repo.Slug
 		}
-		bitbucketPull.BaseRef = pull.BaseRef.Branch.Name
-		bitbucketPull.BaseCommitSha = pull.BaseRef.Commit.Hash
+		bitbucketPull.BaseRef = pull.BaseRef.Branch
+		bitbucketPull.BaseCommitSha = pull.BaseRef.Commit
 	}
 	if pull.HeadRef != nil {
 		if pull.HeadRef.Repo != nil {
 			bitbucketPull.HeadRepoId = pull.HeadRef.Repo.Slug
 		}
-		bitbucketPull.HeadRef = pull.HeadRef.Branch.Name
-		bitbucketPull.HeadCommitSha = pull.HeadRef.Commit.Hash
+		bitbucketPull.HeadRef = pull.HeadRef.Branch
+		bitbucketPull.HeadCommitSha = pull.HeadRef.Commit
 	}
 	return bitbucketPull, nil
 }
