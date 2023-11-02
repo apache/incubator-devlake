@@ -3533,7 +3533,10 @@
   "refresh": "",
   "schemaVersion": 38,
   "style": "dark",
-  "tags": [],
+  "tags": [
+    "Engineering Leads Dashboard",
+    "Highlights"
+  ],
   "templating": {
     "list": [
       {

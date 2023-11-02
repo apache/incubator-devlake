@@ -2090,7 +2090,9 @@
   "refresh": "",
   "schemaVersion": 38,
   "style": "dark",
-  "tags": [],
+  "tags": [
+    "OSS Maintainer Dashboard"
+  ],
   "templating": {
     "list": [
       {
