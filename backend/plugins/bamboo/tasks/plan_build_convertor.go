@@ -75,7 +75,7 @@ func ConvertPlanBuilds(taskCtx plugin.SubTaskContext) errors.Error {
 					Default: line.BuildState,
 				}, line.BuildState),
 
-				Status: devops.GetStatus(&devops.StatusRule[string]{
+				Status: devops.GetStatus(&devops.StatusRule{
 					Done:       []string{"Finished", "FINISHED"},
 					NotStarted: []string{"not_built", "NOT_BUILT", "Not_Built", "PENDING", "QUEUED"},
 					Default:    devops.STATUS_IN_PROGRESS,

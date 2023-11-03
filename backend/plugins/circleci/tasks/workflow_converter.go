@@ -66,7 +66,7 @@ func ConvertWorkflows(taskCtx plugin.SubTaskContext) errors.Error {
 				FinishedDate: userTool.StoppedAt.ToNullableTime(),
 				CicdScopeId:  getProjectIdGen().Generate(data.Options.ConnectionId, userTool.ProjectSlug),
 				// reference: https://circleci.com/docs/api/v2/index.html#operation/getWorkflowById
-				Status: devops.GetStatus(&devops.StatusRule[string]{
+				Status: devops.GetStatus(&devops.StatusRule{
 					Done:    []string{"canceled", "failed", "failing", "success", "not_run", "error"},
 					Manual:  []string{"on_hold"},
 					Default: devops.STATUS_IN_PROGRESS,

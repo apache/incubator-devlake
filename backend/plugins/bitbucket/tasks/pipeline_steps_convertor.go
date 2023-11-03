@@ -76,7 +76,7 @@ func ConvertPipelineSteps(taskCtx plugin.SubTaskContext) errors.Error {
 					Skipped: []string{models.SKIPPED},
 					Default: "",
 				}, bitbucketPipelineStep.Result),
-				Status: devops.GetStatus(&devops.StatusRule[string]{
+				Status: devops.GetStatus(&devops.StatusRule{
 					InProgress: []string{models.IN_PROGRESS, models.PENDING, models.BUILDING},
 					Default:    bitbucketPipelineStep.State,
 				}, bitbucketPipelineStep.State),

@@ -67,7 +67,16 @@ type ResultRule struct {
 	Skipped []string
 	Default string
 }
-type StatusRule[T comparable] struct {
+
+type StatusRule struct {
+	InProgress []string
+	NotStarted []string
+	Done       []string
+	Manual     []string
+	Default    string
+}
+
+type StatusRuleCommon[T comparable] struct {
 	InProgress []T
 	NotStarted []T
 	Done       []T
@@ -75,34 +84,30 @@ type StatusRule[T comparable] struct {
 	Default    string
 }
 
-func caseInSensitiveEqual(src string, dst string) bool {
-	return strings.EqualFold(src, dst)
-}
-
 // GetResult compare the input with rule for return the enum value of result
 func GetResult(rule *ResultRule, input interface{}) string {
 	for _, suc := range rule.Success {
-		if caseInSensitiveEqual(suc, cast.ToString(input)) {
+		if strings.EqualFold(suc, cast.ToString(input)) {
 			return RESULT_SUCCESS
 		}
 	}
 	for _, fail := range rule.Failed {
-		if caseInSensitiveEqual(fail, cast.ToString(input)) {
+		if strings.EqualFold(fail, cast.ToString(input)) {
 			return RESULT_FAILURE
 		}
 	}
 	for _, abort := range rule.Abort {
-		if caseInSensitiveEqual(abort, cast.ToString(input)) {
+		if strings.EqualFold(abort, cast.ToString(input)) {
 			return RESULT_ABORT
 		}
 	}
 	for _, manual := range rule.Manual {
-		if caseInSensitiveEqual(manual, cast.ToString(input)) {
+		if strings.EqualFold(manual, cast.ToString(input)) {
 			return RESULT_MANUAL
 		}
 	}
 	for _, skipped := range rule.Skipped {
-		if caseInSensitiveEqual(skipped, cast.ToString(input)) {
+		if strings.EqualFold(skipped, cast.ToString(input)) {
 			return RESULT_SKIPPED
 		}
 	}
@@ -110,7 +115,33 @@ func GetResult(rule *ResultRule, input interface{}) string {
 }
 
 // GetStatus compare the input with rule for return the enum value of status
-func GetStatus[T comparable](rule *StatusRule[T], input T) string {
+func GetStatus(rule *StatusRule, input string) string {
+	for _, inProgress := range rule.InProgress {
+		if strings.EqualFold(inProgress, input) {
+			return STATUS_IN_PROGRESS
+		}
+	}
+	for _, done := range rule.Done {
+		if strings.EqualFold(done, input) {
+			return STATUS_DONE
+		}
+	}
+	for _, manual := range rule.Manual {
+		if strings.EqualFold(manual, input) {
+			return STATUS_BLOCKED
+		}
+	}
+	for _, notStarted := range rule.NotStarted {
+		if strings.EqualFold(notStarted, input) {
+			return STATUS_NOT_STARTED
+		}
+	}
+	return rule.Default
+}
+
+// GetStatusCommon compare the input with rule for return the enum value of status.
+// If T is string, it is case-sensitivity.
+func GetStatusCommon[T comparable](rule *StatusRuleCommon[T], input T) string {
 	for _, inp := range rule.InProgress {
 		if inp == input {
 			return STATUS_IN_PROGRESS

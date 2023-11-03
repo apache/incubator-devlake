@@ -67,7 +67,7 @@ func ConvertJobs(taskCtx plugin.SubTaskContext) errors.Error {
 				FinishedDate: userTool.StoppedAt.ToNullableTime(),
 				DurationSec:  userTool.DurationSec,
 				// reference: https://circleci.com/docs/api/v2/index.html#operation/getJobDetails
-				Status: devops.GetStatus(&devops.StatusRule[string]{
+				Status: devops.GetStatus(&devops.StatusRule{
 					Done:    []string{"canceled", "failed", "failing", "success", "not_run", "error", "infrastructure_fail", "timedout", "terminated-unknown"},
 					Manual:  []string{"on_hold", "blocked"},
 					Default: devops.STATUS_IN_PROGRESS,

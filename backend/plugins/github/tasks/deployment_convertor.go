@@ -82,7 +82,7 @@ func ConvertDeployment(taskCtx plugin.SubTaskContext) errors.Error {
 					Skipped: []string{},
 					Default: githubDeployment.LatestStatusState,
 				}, githubDeployment.State),
-				Status: devops.GetStatus(&devops.StatusRule[string]{
+				Status: devops.GetStatus(&devops.StatusRule{
 					InProgress: []string{"ACTIVE", "QUEUED", "IN_PROGRESS", "ABANDONED", "DESTROYED", "FAILURE", "INACTIVE"},
 					NotStarted: []string{"PENDING"},
 					Done:       []string{"SUCCESS"},

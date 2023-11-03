@@ -71,7 +71,7 @@ func ConvertBuildsToCicdTasks(taskCtx plugin.SubTaskContext) (err errors.Error) 
 		Convert: func(inputRow interface{}) ([]interface{}, errors.Error) {
 			jenkinsBuild := inputRow.(*models.JenkinsBuild)
 			durationSec := int64(jenkinsBuild.Duration / 1000)
-			jenkinsPipelineStatus := devops.GetStatus(&devops.StatusRule[bool]{
+			jenkinsPipelineStatus := devops.GetStatusCommon(&devops.StatusRuleCommon[bool]{
 				InProgress: []bool{true},
 				Done:       []bool{false},
 			}, jenkinsBuild.Building)

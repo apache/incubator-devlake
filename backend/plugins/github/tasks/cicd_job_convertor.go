@@ -101,7 +101,7 @@ func ConvertJobs(taskCtx plugin.SubTaskContext) (err errors.Error) {
 					Success: []string{"success"},
 					Skipped: []string{"skipped", "NEUTRAL"},
 				}, line.Conclusion),
-				Status: devops.GetStatus(&devops.StatusRule[string]{
+				Status: devops.GetStatus(&devops.StatusRule{
 					Done:    []string{"completed", "COMPLETED"},
 					Default: devops.STATUS_IN_PROGRESS,
 				}, line.Status),

@@ -100,7 +100,7 @@ func ConvertDeployment(taskCtx plugin.SubTaskContext) errors.Error {
 					Manual:  []string{"running", "blocked"},
 					Default: gitlabDeployment.Status,
 				}, gitlabDeployment.Status),
-				Status: devops.GetStatus(&devops.StatusRule[string]{
+				Status: devops.GetStatus(&devops.StatusRule{
 					Done:       []string{"COMPLETED", "UNDEPLOYED", "failed", "success", "canceled"},
 					InProgress: []string{"running"},
 					NotStarted: []string{"created"},

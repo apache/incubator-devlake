@@ -92,7 +92,7 @@ func ConvertJobs(taskCtx plugin.SubTaskContext) (err errors.Error) {
 					Skipped: []string{"skipped"},
 					Default: "",
 				}, gitlabJob.Status),
-				Status: devops.GetStatus(&devops.StatusRule[string]{
+				Status: devops.GetStatus(&devops.StatusRule{
 					InProgress: []string{"created", "waiting_for_resource", "preparing", "pending", "running", "scheduled"},
 					Manual:     []string{"manual"},
 					Default:    devops.STATUS_DONE,
