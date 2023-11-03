@@ -145,7 +145,9 @@ export const GithubApp = ({ endpoint, proxy, initialValue, value, error, setValu
       subLabel={
         <S.LabelDescription>
           Input information about your Github App{' '}
-          <ExternalLink link="https://TODO">Learn how to create a github app</ExternalLink>
+          <ExternalLink link="https://docs.github.com/en/apps/maintaining-github-apps/modifying-a-github-app-registration#navigating-to-your-github-app-settings">
+            Learn how to create a github app
+          </ExternalLink>
         </S.LabelDescription>
       }
     >
