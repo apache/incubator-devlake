@@ -44,8 +44,7 @@ type ScopeDetail[S plugin.ToolLayerScope, SC plugin.ToolLayerScopeConfig] struct
 
 type ScopeSrvHelper[C plugin.ToolLayerConnection, S plugin.ToolLayerScope, SC plugin.ToolLayerScopeConfig] struct {
 	*ModelSrvHelper[S]
-	pluginName    string
-	searchColumns []string
+	pluginName string
 }
 
 // NewScopeSrvHelper creates a ScopeDalHelper for scope management
@@ -59,9 +58,8 @@ func NewScopeSrvHelper[
 	searchColumns []string,
 ) *ScopeSrvHelper[C, S, SC] {
 	return &ScopeSrvHelper[C, S, SC]{
-		ModelSrvHelper: NewModelSrvHelper[S](basicRes),
+		ModelSrvHelper: NewModelSrvHelper[S](basicRes, searchColumns),
 		pluginName:     pluginName,
-		searchColumns:  searchColumns,
 	}
 }
 
