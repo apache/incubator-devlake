@@ -169,7 +169,6 @@ func (srv *ModelSrvHelper[M]) GetPage(pagination *Pagination, query ...dal.Claus
 	// process keyword
 	searchTerm := pagination.SearchTerm
 	if searchTerm != "" && len(srv.searchColumns) > 0 {
-		fmt.Println("searchTerm: ", searchTerm)
 		sql := ""
 		value := "%" + searchTerm + "%"
 		values := make([]interface{}, len(srv.searchColumns))
@@ -185,15 +184,12 @@ func (srv *ModelSrvHelper[M]) GetPage(pagination *Pagination, query ...dal.Claus
 			dal.Where(sql, values...),
 		)
 	}
-	fmt.Println("query: ", query)
 	count, err := srv.db.Count(query...)
 	if err != nil {
 		return nil, 0, err
 	}
 	query = append(query, dal.Limit(pagination.GetLimit()), dal.Offset(pagination.GetOffset()))
 	var scopes []*M
-	fmt.Println("query: ", query)
-	fmt.Println("scopes: ", scopes)
 	return scopes, count, srv.db.All(&scopes, query...)
 }
 
