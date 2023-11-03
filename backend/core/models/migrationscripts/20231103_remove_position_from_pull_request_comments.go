@@ -15,32 +15,24 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-package code
+package migrationscripts
 
 import (
-	"time"
-
-	"github.com/apache/incubator-devlake/core/models/domainlayer"
+	"github.com/apache/incubator-devlake/core/context"
+	"github.com/apache/incubator-devlake/core/errors"
+	"github.com/apache/incubator-devlake/core/models/migrationscripts/archived"
 )
 
-type PullRequestComment struct {
-	domainlayer.DomainEntity
-	PullRequestId string `gorm:"index;varchar(255)"`
-	Body          string
-	AccountId     string `gorm:"type:varchar(255)"`
-	CreatedDate   time.Time
-	CommitSha     string `gorm:"type:varchar(255)"`
-	Type          string `gorm:"type:varchar(255)"`
-	ReviewId      string `gorm:"type:varchar(255)"`
-	Status        string `gorm:"type:varchar(255)"`
+type removePositionFromPullRequestComments struct{}
+
+func (u *removePositionFromPullRequestComments) Up(basicRes context.BasicRes) errors.Error {
+	return basicRes.GetDal().DropColumns(archived.PullRequestComment{}.TableName(), "position")
 }
 
-func (PullRequestComment) TableName() string {
-	return "pull_request_comments"
+func (*removePositionFromPullRequestComments) Version() uint64 {
+	return 20231103102700
 }
 
-const (
-	NORMAL_COMMENT = "NORMAL"
-	DIFF_COMMENT   = "DIFF"
-	REVIEW         = "REVIEW"
-)
+func (*removePositionFromPullRequestComments) Name() string {
+	return "remove position field from pull_request_comments"
+}

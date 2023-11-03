@@ -71,7 +71,6 @@ func ConvertPullRequestComments(taskCtx plugin.SubTaskContext) errors.Error {
 				Body:          prComment.Body,
 				Type:          prComment.Type,
 				CommitSha:     "",
-				Position:      0,
 			}
 			return []interface{}{
 				domainPrComment,

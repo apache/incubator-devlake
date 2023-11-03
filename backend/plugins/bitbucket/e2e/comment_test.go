@@ -128,7 +128,6 @@ func TestCommentDataFlow(t *testing.T) {
 			"body",
 			"account_id",
 			"commit_sha",
-			"position",
 			"type",
 			"review_id",
 			"status",
