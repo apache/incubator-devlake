@@ -58,7 +58,7 @@ func GenerateDeploymentCommits(taskCtx plugin.SubTaskContext) errors.Error {
 	data := taskCtx.GetData().(*DoraTaskData)
 	// select all cicd_pipeline_commits from all "Deployments" in the project
 	// Note that failed records shall be included as well
-	noneSkippedResult := []string{devops.RESULT_FAILURE, devops.RESULT_SUCCESS}
+	noneSkippedResult := []string{devops.RESULT_FAILURE, devops.RESULT_SUCCESS, devops.RESULT_DEFAULT}
 	cursor, err := db.Cursor(
 		dal.Select(
 			`

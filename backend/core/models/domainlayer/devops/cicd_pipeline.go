@@ -46,7 +46,6 @@ func (CICDPipeline) TableName() string {
 const (
 	RESULT_SUCCESS = "SUCCESS"
 	RESULT_FAILURE = "FAILURE"
-	RESULT_SKIPPED = "SKIPPED"
 	RESULT_DEFAULT = ""
 )
 
