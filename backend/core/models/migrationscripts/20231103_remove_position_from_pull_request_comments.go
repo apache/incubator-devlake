@@ -34,5 +34,5 @@ func (*removePositionFromPullRequestComments) Version() uint64 {
 }
 
 func (*removePositionFromPullRequestComments) Name() string {
-	return "remove position from pullrequest_comments"
+	return "remove position field from pull_request_comments"
 }
