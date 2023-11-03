@@ -30,7 +30,6 @@ type PullRequestComment struct {
 	AccountId     string `gorm:"type:varchar(255)"`
 	CreatedDate   time.Time
 	CommitSha     string `gorm:"type:varchar(255)"`
-	Position      int
 	Type          string `gorm:"type:varchar(255)"`
 	ReviewId      string `gorm:"type:varchar(255)"`
 	Status        string `gorm:"type:varchar(255)"`
