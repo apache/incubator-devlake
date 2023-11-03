@@ -62,21 +62,17 @@ func NewModelSrvHelper[M dal.Tabler](basicRes context.BasicRes, searchColumns []
 		pkWhere += fmt.Sprintf("%s = ? ", col.Name())
 	}
 
-	msh := &ModelSrvHelper[M]{
-		basicRes:  basicRes,
-		log:       basicRes.GetLogger().Nested(fmt.Sprintf("%s_dal", modelName)),
-		db:        db,
-		validator: validator.New(),
-		modelName: modelName,
-		pk:        pk,
-		pkWhere:   pkWhere,
-		pkCount:   len(pk),
+	return &ModelSrvHelper[M]{
+		basicRes:      basicRes,
+		log:           basicRes.GetLogger().Nested(fmt.Sprintf("%s_dal", modelName)),
+		db:            db,
+		validator:     validator.New(),
+		modelName:     modelName,
+		pk:            pk,
+		pkWhere:       pkWhere,
+		pkCount:       len(pk),
+		searchColumns: searchColumns,
 	}
-	if searchColumns != nil {
-		msh.searchColumns = searchColumns
-	}
-
-	return msh
 }
 
 func (srv *ModelSrvHelper[M]) NewTx(tx dal.Transaction) *ModelSrvHelper[M] {
