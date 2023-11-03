@@ -55,8 +55,8 @@ gitlab:GitlabJob:1:152,format,gitlab:GitlabPipeline:1:73,FAILURE,DONE,,PRODUCTIO
 gitlab:GitlabJob:1:86,format,gitlab:GitlabPipeline:1:16,FAILURE,DONE,,PRODUCTION,0,2022-07-25T13:40:42.020+00:00,2022-07-25T13:40:42.892+00:00,gitlab:GitlabProject:1:44
 gitlab:GitlabJob:1:87,format,gitlab:GitlabPipeline:1:16,FAILURE,DONE,,PRODUCTION,0,2022-07-25T13:41:11.601+00:00,2022-07-25T13:41:11.932+00:00,gitlab:GitlabProject:1:44
 gitlab:GitlabJob:1:88,format,gitlab:GitlabPipeline:1:17,FAILURE,DONE,,PRODUCTION,0,2022-07-25T13:42:59.674+00:00,2022-07-25T13:42:59.998+00:00,gitlab:GitlabProject:1:44
-gitlab:GitlabJob:1:89,format,gitlab:GitlabPipeline:1:17,ABORT,DONE,,PRODUCTION,0,2022-07-25T13:46:15.482+00:00,2022-07-25T13:49:42.952+00:00,gitlab:GitlabProject:1:44
-gitlab:GitlabJob:1:90,format,gitlab:GitlabPipeline:1:18,ABORT,DONE,,PRODUCTION,0,2022-07-25T13:50:40.680+00:00,2022-07-25T14:19:03.023+00:00,gitlab:GitlabProject:1:44
+gitlab:GitlabJob:1:89,format,gitlab:GitlabPipeline:1:17,FAILURE,OTHER,,PRODUCTION,0,2022-07-25T13:46:15.482+00:00,2022-07-25T13:49:42.952+00:00,gitlab:GitlabProject:1:44
+gitlab:GitlabJob:1:90,format,gitlab:GitlabPipeline:1:18,FAILURE,OTHER,,PRODUCTION,0,2022-07-25T13:50:40.680+00:00,2022-07-25T14:19:03.023+00:00,gitlab:GitlabProject:1:44
 gitlab:GitlabJob:1:91,format,gitlab:GitlabPipeline:1:18,FAILURE,DONE,,PRODUCTION,2,2022-07-25T14:26:02.616+00:00,2022-07-25T14:26:05.480+00:00,gitlab:GitlabProject:1:44
 gitlab:GitlabJob:1:92,format,gitlab:GitlabPipeline:1:18,FAILURE,DONE,,PRODUCTION,1,2022-07-25T14:47:12.876+00:00,2022-07-25T14:47:14.295+00:00,gitlab:GitlabProject:1:44
 gitlab:GitlabJob:1:93,format,gitlab:GitlabPipeline:1:19,FAILURE,DONE,,PRODUCTION,1,2022-07-25T14:53:56.227+00:00,2022-07-25T14:53:57.910+00:00,gitlab:GitlabProject:1:44

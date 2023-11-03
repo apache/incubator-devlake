@@ -65,8 +65,8 @@ func ConvertStages(taskCtx plugin.SubTaskContext) (err errors.Error) {
 	clauses := []dal.Clause{
 		dal.Select(`tjb.connection_id, tjs.build_name, tjs.id, tjs._raw_data_remark, tjs.name,
 			tjs._raw_data_id, tjs._raw_data_table, tjs._raw_data_params,
-			tjs.status, tjs.start_time_millis, tjs.duration_millis, 
-			tjs.pause_duration_millis, tjs.type, 
+			tjs.status, tjs.start_time_millis, tjs.duration_millis,
+			tjs.pause_duration_millis, tjs.type,
 			tjb.triggered_by, tjb.building`),
 		dal.From("_tool_jenkins_stages tjs"),
 		dal.Join("left join _tool_jenkins_builds tjb on tjs.build_name = tjb.full_name"),
@@ -100,21 +100,21 @@ func ConvertStages(taskCtx plugin.SubTaskContext) (err errors.Error) {
 				return nil, err
 			}
 			durationSec := int64(body.DurationMillis / 1000)
-			jenkinsTaskResult := ""
-			jenkinsTaskStatus := devops.STATUS_DONE
+			jenkinsTaskResult := devops.GetResult(&devops.ResultRule{
+				Success: []string{SUCCESS},
+				Failed:  []string{FAILED, FAILURE, ABORTED},
+				Default: devops.RESULT_DEFAULT,
+			}, body.Status)
+
+			jenkinsTaskStatus := devops.GetStatus(&devops.StatusRule{
+				Done:       []string{SUCCESS, FAILURE, FAILED, ABORTED},
+				InProgress: []string{},
+				Other:      []string{NOT_BUILD, UNSTABLE},
+				Default:    devops.STATUS_OTHER,
+			}, body.Status)
+
 			var jenkinsTaskFinishedDate *time.Time
 			results := make([]interface{}, 0)
-			if body.Status == "SUCCESS" {
-				jenkinsTaskResult = devops.RESULT_SUCCESS
-			} else if body.Status == "FAILED" {
-				jenkinsTaskResult = devops.RESULT_FAILURE
-			} else if body.Status == "ABORTED" {
-				jenkinsTaskResult = devops.RESULT_ABORT
-			} else {
-				jenkinsTaskResult = ""
-				jenkinsTaskStatus = devops.STATUS_IN_PROGRESS
-			}
-
 			startedDate := time.Unix(body.StartTimeMillis/1000, 0)
 			finishedDate := startedDate.Add(time.Duration(durationSec * int64(time.Second)))
 			jenkinsTaskFinishedDate = &finishedDate

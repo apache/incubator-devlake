@@ -30,6 +30,29 @@ import (
 	"github.com/apache/incubator-devlake/plugins/bamboo/models"
 )
 
+const (
+	// https://docs.atlassian.com/atlassian-bamboo/7.2.4/com/atlassian/bamboo/builder/BuildState.html
+	StatusFinished   = "FINISHED"
+	StatusInProgress = "IN_PROGRESS"
+	StatusPending    = "PENDING"
+	StatusQueued     = "QUEUED"
+	StatusNotBuilt   = "NOT_BUILT"
+
+	// https://docs.atlassian.com/atlassian-bamboo/7.2.4/com/atlassian/bamboo/builder/BuildState.html
+	// https://confluence.atlassian.com/bamkb/bamboo-deployment-status-776822787.html
+	ResultSuccess    = "SUCCESS"
+	ResultFailed     = "FAILED"
+	ResultUnknown    = "UNKNOWN"
+	ResultReplaced   = "REPLACED"
+	ResultSkipped    = "SKIPPED"
+	ResultNever      = "NEVER"
+	ResultQueued     = "QUEUED"
+	ResultInProgress = "IN PROGRESS"
+	ResultNotBuilt   = "NOT BUILT"
+
+	ResultSuccessful = "Successful"
+)
+
 func CreateRawDataSubTaskArgs(taskCtx plugin.SubTaskContext, rawTable string) (*api.RawDataSubTaskArgs, *BambooTaskData) {
 	data := taskCtx.GetData().(*BambooTaskData)
 	filteredData := *data
