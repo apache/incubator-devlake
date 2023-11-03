@@ -70,4 +70,5 @@ export interface IConnection {
   password?: string;
   appId?: string;
   secretKey?: string;
+  enableGraphql?: boolean;
 }
