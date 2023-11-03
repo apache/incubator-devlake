@@ -33,9 +33,9 @@ func NewScopeConfigSrvHelper[
 	C plugin.ToolLayerConnection,
 	S plugin.ToolLayerScope,
 	SC plugin.ToolLayerScopeConfig,
-](basicRes context.BasicRes) *ScopeConfigSrvHelper[C, S, SC] {
+](basicRes context.BasicRes, searchColumns []string) *ScopeConfigSrvHelper[C, S, SC] {
 	return &ScopeConfigSrvHelper[C, S, SC]{
-		ModelSrvHelper: NewModelSrvHelper[SC](basicRes),
+		ModelSrvHelper: NewModelSrvHelper[SC](basicRes, searchColumns),
 	}
 }
 

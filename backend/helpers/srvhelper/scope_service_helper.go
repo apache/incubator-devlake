@@ -59,9 +59,8 @@ func NewScopeSrvHelper[
 	searchColumns []string,
 ) *ScopeSrvHelper[C, S, SC] {
 	return &ScopeSrvHelper[C, S, SC]{
-		ModelSrvHelper: NewModelSrvHelper[S](basicRes),
+		ModelSrvHelper: NewModelSrvHelper[S](basicRes, searchColumns),
 		pluginName:     pluginName,
-		searchColumns:  searchColumns,
 	}
 }
 
