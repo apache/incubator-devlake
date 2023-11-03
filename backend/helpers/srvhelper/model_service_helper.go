@@ -61,7 +61,9 @@ func NewModelSrvHelper[M dal.Tabler](basicRes context.BasicRes) *ModelSrvHelper[
 		}
 		pkWhere += fmt.Sprintf("%s = ? ", col.Name())
 	}
-	return &ModelSrvHelper[M]{
+
+	sc := errors.Must1(dal.GetColumnNames(db, *m, nil))
+	msh := &ModelSrvHelper[M]{
 		basicRes:  basicRes,
 		log:       basicRes.GetLogger().Nested(fmt.Sprintf("%s_dal", modelName)),
 		db:        db,
@@ -71,6 +73,11 @@ func NewModelSrvHelper[M dal.Tabler](basicRes context.BasicRes) *ModelSrvHelper[
 		pkWhere:   pkWhere,
 		pkCount:   len(pk),
 	}
+	if sc != nil {
+		msh.searchColumns = sc
+	}
+
+	return msh
 }
 
 func (srv *ModelSrvHelper[M]) NewTx(tx dal.Transaction) *ModelSrvHelper[M] {
@@ -162,6 +169,7 @@ func (srv *ModelSrvHelper[M]) GetPage(pagination *Pagination, query ...dal.Claus
 	// process keyword
 	searchTerm := pagination.SearchTerm
 	if searchTerm != "" && len(srv.searchColumns) > 0 {
+		fmt.Println("searchTerm: ", searchTerm)
 		sql := ""
 		value := "%" + searchTerm + "%"
 		values := make([]interface{}, len(srv.searchColumns))
@@ -177,12 +185,15 @@ func (srv *ModelSrvHelper[M]) GetPage(pagination *Pagination, query ...dal.Claus
 			dal.Where(sql, values...),
 		)
 	}
+	fmt.Println("query: ", query)
 	count, err := srv.db.Count(query...)
 	if err != nil {
 		return nil, 0, err
 	}
 	query = append(query, dal.Limit(pagination.GetLimit()), dal.Offset(pagination.GetOffset()))
 	var scopes []*M
+	fmt.Println("query: ", query)
+	fmt.Println("scopes: ", scopes)
 	return scopes, count, srv.db.All(&scopes, query...)
 }
 
