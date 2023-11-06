@@ -113,14 +113,13 @@ func ConvertDeployBuilds(taskCtx plugin.SubTaskContext) errors.Error {
 				CicdDeploymentId: deploymentCommitId,
 				Name:             input.GenerateCICDDeploymentCommitName(),
 				Result: devops.GetResult(&devops.ResultRule{
-					Success: []string{ResultSuccessful, ResultSuccess},
-					Failed:  []string{ResultFailed},
+					Success: []string{ResultSuccess},
+					Failure: []string{ResultFailed},
 					Default: devops.RESULT_DEFAULT,
 				}, input.DeploymentState),
 				Status: devops.GetStatus(&devops.StatusRule{
 					Done:       []string{StatusFinished},
 					InProgress: []string{StatusInProgress, StatusPending, StatusQueued},
-					Other:      []string{StatusNotBuilt},
 					Default:    devops.STATUS_OTHER,
 				}, input.LifeCycleState),
 				Environment:  input.Environment,

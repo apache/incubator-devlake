@@ -89,13 +89,12 @@ func ConvertPipelines(taskCtx plugin.SubTaskContext) errors.Error {
 				Name: fmt.Sprintf("%s/%d", domainEntityId, bitbucketPipeline.BuildNumber),
 				Result: devops.GetResult(&devops.ResultRule{
 					Success: []string{models.SUCCESSFUL, models.COMPLETED, models.PASSED},
-					Failed:  []string{models.FAILED, models.ERROR, models.STOPPED, models.ERROR},
+					Failure: []string{models.FAILED, models.ERROR, models.STOPPED, models.ERROR},
 					Default: devops.RESULT_DEFAULT,
 				}, bitbucketPipeline.Result),
 				Status: devops.GetStatus(&devops.StatusRule{
 					Done:       []string{models.COMPLETED, models.SUCCESSFUL, models.PASSED, models.FAILED, models.ERROR, models.STOPPED, models.HALTED},
 					InProgress: []string{models.IN_PROGRESS, models.PENDING, models.RUNNING, models.PAUSED, models.BUILDING},
-					Other:      []string{models.EXPIRED},
 					Default:    devops.STATUS_OTHER,
 				}, bitbucketPipeline.Status),
 				Type:         bitbucketPipeline.Type,

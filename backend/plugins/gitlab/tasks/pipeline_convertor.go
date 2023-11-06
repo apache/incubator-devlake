@@ -87,13 +87,12 @@ func ConvertPipelines(taskCtx plugin.SubTaskContext) errors.Error {
 				Name: pipelineIdGen.Generate(data.Options.ConnectionId, gitlabPipeline.GitlabId),
 				Result: devops.GetResult(&devops.ResultRule{
 					Success: []string{StatusSuccess, StatusCompleted},
-					Failed:  []string{StatusFailed, StatusCanceled},
+					Failure: []string{StatusFailed, StatusCanceled},
 					Default: devops.RESULT_DEFAULT,
 				}, gitlabPipeline.Status),
 				Status: devops.GetStatus(&devops.StatusRule{
 					Done:       []string{StatusSuccess, StatusCompleted, StatusFailed, StatusCanceled},
 					InProgress: []string{StatusRunning, StatusWaitingForResource, StatusPending, StatusPreparing},
-					Other:      []string{StatusCreated, StatusManual, StatusScheduled, StatusSkipped, StatusUndeployed},
 					Default:    devops.STATUS_OTHER,
 				}, gitlabPipeline.Status),
 				CreatedDate:  startedAt,

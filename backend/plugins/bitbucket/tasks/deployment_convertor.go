@@ -88,13 +88,12 @@ func ConvertDeployments(taskCtx plugin.SubTaskContext) errors.Error {
 				Name:        bitbucketDeployment.Name,
 				Result: devops.GetResult(&devops.ResultRule{
 					Success: []string{models.COMPLETED, models.SUCCESSFUL},
-					Failed:  []string{models.FAILED, models.STOPPED, models.CANCELLED},
+					Failure: []string{models.FAILED, models.STOPPED, models.CANCELLED},
 					Default: devops.RESULT_DEFAULT,
 				}, bitbucketDeployment.Status),
 				Status: devops.GetStatus(&devops.StatusRule{
 					Done:       []string{models.COMPLETED, models.SUCCESSFUL, models.FAILED, models.STOPPED},
 					InProgress: []string{models.IN_PROGRESS},
-					Other:      []string{models.UNDEPLOYED},
 					Default:    devops.STATUS_OTHER,
 				}, bitbucketDeployment.Status),
 				Environment:  strings.ToUpper(bitbucketDeployment.Environment), // or bitbucketDeployment.EnvironmentType, they are same so far.

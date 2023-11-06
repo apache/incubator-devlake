@@ -72,7 +72,7 @@ func ConvertWorkflows(taskCtx plugin.SubTaskContext) errors.Error {
 				}, userTool.Status),
 				Result: devops.GetResult(&devops.ResultRule{
 					Success: []string{"success"},
-					Failed:  []string{"failed", "failing", "error"}, // not_run,canceled
+					Failure: []string{"failed", "failing", "error"}, // not_run,canceled
 					Default: devops.RESULT_DEFAULT,
 				}, userTool.Status),
 				Type:        data.RegexEnricher.ReturnNameIfMatched(devops.DEPLOYMENT, userTool.Name),

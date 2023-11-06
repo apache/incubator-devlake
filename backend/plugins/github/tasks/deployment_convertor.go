@@ -76,7 +76,7 @@ func ConvertDeployment(taskCtx plugin.SubTaskContext) errors.Error {
 				Name:        githubDeployment.CommitOid,
 				Result: devops.GetResult(&devops.ResultRule{
 					Success: []string{StatusSuccess},
-					Failed:  []string{StatusError, StatusFailure},
+					Failure: []string{StatusError, StatusFailure},
 					Default: devops.RESULT_DEFAULT,
 				}, githubDeployment.State),
 				Status: devops.GetStatus(&devops.StatusRule{

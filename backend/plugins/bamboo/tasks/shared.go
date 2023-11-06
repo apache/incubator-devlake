@@ -49,8 +49,6 @@ const (
 	ResultQueued     = "QUEUED"
 	ResultInProgress = "IN PROGRESS"
 	ResultNotBuilt   = "NOT BUILT"
-
-	ResultSuccessful = "Successful"
 )
 
 func CreateRawDataSubTaskArgs(taskCtx plugin.SubTaskContext, rawTable string) (*api.RawDataSubTaskArgs, *BambooTaskData) {

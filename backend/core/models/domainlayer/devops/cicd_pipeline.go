@@ -58,21 +58,19 @@ const (
 
 type ResultRule struct {
 	Success []string
-	Failed  []string
+	Failure []string
 	Default string
 }
 
 type StatusRule struct {
 	InProgress []string
 	Done       []string
-	Other      []string
 	Default    string
 }
 
 type StatusRuleCommon[T comparable] struct {
 	InProgress []T
 	Done       []T
-	Other      []T
 	Default    string
 }
 
@@ -83,7 +81,7 @@ func GetResult(rule *ResultRule, input interface{}) string {
 			return RESULT_SUCCESS
 		}
 	}
-	for _, fail := range rule.Failed {
+	for _, fail := range rule.Failure {
 		if strings.EqualFold(fail, cast.ToString(input)) {
 			return RESULT_FAILURE
 		}
@@ -106,11 +104,6 @@ func GetStatus(rule *StatusRule, input string) string {
 			return STATUS_DONE
 		}
 	}
-	for _, other := range rule.Other {
-		if strings.EqualFold(other, input) {
-			return STATUS_OTHER
-		}
-	}
 	return rule.Default
 }
 
@@ -128,11 +121,6 @@ func GetStatusCommon[T comparable](rule *StatusRuleCommon[T], input T) string {
 	for _, done := range rule.Done {
 		if done == input {
 			return STATUS_DONE
-		}
-	}
-	for _, other := range rule.Other {
-		if other == input {
-			return STATUS_OTHER
 		}
 	}
 	return rule.Default

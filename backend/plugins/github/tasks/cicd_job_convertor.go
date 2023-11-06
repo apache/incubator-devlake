@@ -98,7 +98,7 @@ func ConvertJobs(taskCtx plugin.SubTaskContext) (err errors.Error) {
 				Environment:  line.Environment,
 				Result: devops.GetResult(&devops.ResultRule{
 					Success: []string{StatusSuccess},
-					Failed:  []string{StatusFailure, StatusCancelled, StatusTimedOut, StatusStartUpFailure},
+					Failure: []string{StatusFailure, StatusCancelled, StatusTimedOut, StatusStartUpFailure},
 					Default: devops.RESULT_DEFAULT,
 				}, line.Conclusion),
 				Status: devops.GetStatus(&devops.StatusRule{

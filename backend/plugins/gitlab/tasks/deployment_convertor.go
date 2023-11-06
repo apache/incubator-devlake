@@ -95,13 +95,12 @@ func ConvertDeployment(taskCtx plugin.SubTaskContext) errors.Error {
 				Name:         fmt.Sprintf("%s:%d", gitlabDeployment.Name, gitlabDeployment.DeploymentId),
 				Result: devops.GetResult(&devops.ResultRule{
 					Success: []string{StatusSuccess, StatusCompleted},
-					Failed:  []string{StatusCanceled, StatusFailed},
+					Failure: []string{StatusCanceled, StatusFailed},
 					Default: devops.RESULT_DEFAULT,
 				}, gitlabDeployment.Status),
 				Status: devops.GetStatus(&devops.StatusRule{
 					Done:       []string{StatusSuccess, StatusCompleted, StatusFailed},
 					InProgress: []string{StatusRunning, StatusCanceled, StatusBlocked},
-					Other:      []string{StatusCreated, StatusUndeployed},
 					Default:    devops.STATUS_OTHER,
 				}, gitlabDeployment.Status),
 				Environment:  gitlabDeployment.Environment,

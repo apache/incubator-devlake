@@ -86,13 +86,12 @@ func ConvertJobs(taskCtx plugin.SubTaskContext) (err errors.Error) {
 				PipelineId: pipelineIdGen.Generate(data.Options.ConnectionId, gitlabJob.PipelineId),
 				Result: devops.GetResult(&devops.ResultRule{
 					Success: []string{StatusSuccess, StatusCompleted},
-					Failed:  []string{StatusCanceled, StatusFailed},
+					Failure: []string{StatusCanceled, StatusFailed},
 					Default: devops.RESULT_DEFAULT,
 				}, gitlabJob.Status),
 				Status: devops.GetStatus(&devops.StatusRule{
 					Done:       []string{StatusSuccess, StatusCompleted, StatusFailed},
 					InProgress: []string{StatusRunning, StatusWaitingForResource, StatusPreparing, StatusPending},
-					Other:      []string{StatusManual, StatusCreated, StatusScheduled, StatusUndeployed},
 					Default:    devops.STATUS_OTHER,
 				}, gitlabJob.Status),
 
