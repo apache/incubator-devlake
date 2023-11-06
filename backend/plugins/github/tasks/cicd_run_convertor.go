@@ -98,13 +98,14 @@ func ConvertRuns(taskCtx plugin.SubTaskContext) errors.Error {
 				Type:         line.Type,
 				Environment:  line.Environment,
 				Result: devops.GetResult(&devops.ResultRule{
-					Failed:  []string{"failure"},
-					Success: []string{"success"},
-					Skipped: []string{"skipped"},
+					Success: []string{StatusSuccess},
+					Failure: []string{StatusFailure, StatusCancelled, StatusTimedOut, StatusStartUpFailure},
+					Default: devops.RESULT_DEFAULT,
 				}, line.Conclusion),
-				Status: devops.GetStatus(&devops.StatusRule[string]{
-					Done:    []string{"completed", "COMPLETED"},
-					Default: devops.STATUS_IN_PROGRESS,
+				Status: devops.GetStatus(&devops.StatusRule{
+					Done:       []string{StatusCompleted, StatusSuccess, StatusFailure, StatusCancelled, StatusTimedOut, StatusStartUpFailure},
+					InProgress: []string{StatusInProgress, StatusQueued, StatusWaiting, StatusPending},
+					Default:    devops.STATUS_OTHER,
 				}, line.Status),
 			}
 			if domainPipeline.Status == devops.STATUS_DONE {

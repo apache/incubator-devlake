@@ -36,6 +36,27 @@ import (
 	helper "github.com/apache/incubator-devlake/helpers/pluginhelper/api"
 )
 
+const (
+	// https://docs.gitlab.com/ee/api/pipelines.html#list-project-pipelines
+	// https://docs.gitlab.com/ee/api/deployments.html#list-project-deployments
+	// https://docs.gitlab.com/ee/api/jobs.html#list-project-jobs
+	StatusSuccess            = "success"
+	StatusFailed             = "failed"
+	StatusCanceled           = "canceled"
+	StatusRunning            = "running"
+	StatusWaitingForResource = "waiting_for_resource"
+	StatusPending            = "pending"
+	StatusPreparing          = "preparing"
+	StatusCreated            = "created"
+	StatusManual             = "manual"
+	StatusScheduled          = "scheduled"
+	StatusSkipped            = "skipped"
+	StatusBlocked            = "blocked"
+	// the following two status are handle in codes, but cannot be seen in documents.
+	StatusCompleted  = "COMPLETED"
+	StatusUndeployed = "UNDEPLOYED"
+)
+
 type GitlabInput struct {
 	GitlabId int
 	Iid      int

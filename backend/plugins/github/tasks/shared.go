@@ -26,6 +26,33 @@ import (
 	"net/http"
 )
 
+const (
+	// https://docs.github.com/en/graphql/reference/enums#checkrunstate
+	// https://docs.github.com/en/graphql/reference/enums#checkstatusstate
+	// https://docs.github.com/en/graphql/reference/enums#deploymentstate
+	// https://docs.github.com/en/graphql/reference/enums#checkconclusionstate
+	StatusCompleted      = "COMPLETED"
+	StatusSuccess        = "SUCCESS"
+	StatusFailure        = "FAILURE"
+	StatusCancelled      = "CANCELLED"
+	StatusTimedOut       = "TIMED_OUT"
+	StatusStartUpFailure = "STARTUP_FAILURE"
+	StatusInProgress     = "IN_PROGRESS "
+	StatusQueued         = "QUEUED"
+	StatusWaiting        = "WAITING "
+	StatusPending        = "PENDING"
+	StatusNeutral        = "NEUTRAL"
+	StatusSkipped        = "SKIPPED"
+	StatusStale          = "STALE"
+	StatusActionRequired = "ACTION_REQUIRED"
+	StatusRequested      = "REQUESTED"
+	StatusAbandoned      = "ABANDONED"
+	StatusActive         = "ACTIVE"
+	StatusInactive       = "INACTIVE"
+	StatusDestroyed      = "DESTROYED"
+	StatusError          = "ERROR"
+)
+
 func GetTotalPagesFromResponse(res *http.Response, args *api.ApiCollectorArgs) (int, errors.Error) {
 	link := res.Header.Get("link")
 	pageInfo, err := utils.GetPagingFromLinkHeader(link)
