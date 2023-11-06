@@ -35,21 +35,21 @@ Apache DevLake is designed for developer teams looking to make better sense of t
 
 ## 💪 Supported Data Sources
 
-[Here](https://devlake.apache.org/docs/v0.19/Overview/SupportedDataSources) you can find all data sources supported by DevLake, their scopes, supported versions and more!
+[Here](https://devlake.apache.org/docs/Overview/SupportedDataSources) you can find all data sources supported by DevLake, their scopes, supported versions and more!
 
 
 ## 🚀 Getting Started
 
-- [Install via Docker Compose](https://devlake.apache.org/docs/v0.19/GettingStarted/DockerComposeSetup)
-- [Install via Helm](https://devlake.apache.org/docs/v0.19/GettingStarted/HelmSetup)
-- [Install in Developer Mode](https://devlake.apache.org/docs/v0.19/DeveloperManuals/DeveloperSetup)
+- [Install via Docker Compose](https://devlake.apache.org/docs/GettingStarted/DockerComposeSetup)
+- [Install via Helm](https://devlake.apache.org/docs/GettingStarted/HelmSetup)
+- [Install in Developer Mode](https://devlake.apache.org/docs/DeveloperManuals/DeveloperSetup)
 
 ## 🤓 How do I use DevLake?
 
 ### 1. Set up DevLake
 
-You can set up Apache DevLake by following our step-by-step instructions for [Install via Docker Compose](https://devlake.apache.org/docs/v0.19/GettingStarted/DockerComposeSetup) or [Install via Helm](https://devlake.apache.org/docs/v0.19/GettingStarted/HelmSetup).
-Please see detailed instructions [here](https://devlake.apache.org/docs/v0.19/Overview/Introduction#how-do-i-use-devlake), and ask the community if you get stuck at any point.
+You can set up Apache DevLake by following our step-by-step instructions for [Install via Docker Compose](https://devlake.apache.org/docs/GettingStarted/DockerComposeSetup) or [Install via Helm](https://devlake.apache.org/docs/GettingStarted/HelmSetup).
+Please see detailed instructions [here](https://devlake.apache.org/docs/Overview/Introduction#how-do-i-use-devlake), and ask the community if you get stuck at any point.
 
 ### 2. Create a Blueprint
 
@@ -75,7 +75,7 @@ Please read the [contribution guidelines](https://devlake.apache.org/community) 
 - [Submit a PR](https://devlake.apache.org/community/MakingContributions/development-workflow): Start with [good first issues](https://github.com/apache/incubator-devlake/issues?q=is%3Aissue+is%3Aopen+label%3A%22good+first+issue%22) or [issues with no assignees](https://github.com/apache/incubator-devlake/issues?q=is%3Aissue+is%3Aopen+no%3Aassignee)
 - [Join Mailing list](https://devlake.apache.org/community/subscribe): Initiate or participate in project discussions on the mailing list
 - [Write a Blog](https://devlake.apache.org/community/MakingContributions/BlogSubmission): Write a blog to share your use cases about Apache DevLake
-- [Develop a Plugin](https://devlake.apache.org/docs/v0.19/DeveloperManuals/DeveloperSetup): [Add a plugin](https://github.com/apache/incubator-devlake/issues?q=is%3Aissue+is%3Aopen+label%3Aadd-a-plugin+) to integrate Apache DevLake with more data sources for the community
+- [Develop a Plugin](https://devlake.apache.org/docs/DeveloperManuals/DeveloperSetup): [Add a plugin](https://github.com/apache/incubator-devlake/issues?q=is%3Aissue+is%3Aopen+label%3Aadd-a-plugin+) to integrate Apache DevLake with more data sources for the community
 
 ## 📄 Contributing to Documentation:
 
@@ -84,7 +84,7 @@ Please read the [contribution guidelines](https://devlake.apache.org/community) 
 
 ## ⌚ Roadmap
 
-- <a href="https://devlake.apache.org/docs/v0.19/Overview/Roadmap" target="_blank">Roadmap</a>: Detailed roadmaps for DevLake.
+- <a href="https://devlake.apache.org/docs/Overview/Roadmap" target="_blank">Roadmap</a>: Detailed roadmaps for DevLake.
 
 ## 💙 Community
 
