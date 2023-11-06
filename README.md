@@ -29,7 +29,7 @@ Apache DevLake is designed for developer teams looking to make better sense of t
 3. DevLake fits teams of all shapes and sizes, and can be readily extended to support new data sources, metrics, and dashboards, with a flexible framework for data collection and transformation.
 
 ## 👉 Live Demo
-[DORA Dashboard](https://grafana-lake.demo.devlake.io/grafana/?orgId=1)
+[DORA Dashboard](https://grafana-lake.demo.devlake.io/grafana/d/qNo8_0M4z/dora?orgId=1)
 
 [All Dashboards](https://devlake.apache.org/livedemo/EngineeringLeads/DORA)
 
