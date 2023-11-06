@@ -113,7 +113,7 @@ func ConvertDeployBuilds(taskCtx plugin.SubTaskContext) errors.Error {
 				CicdDeploymentId: deploymentCommitId,
 				Name:             input.GenerateCICDDeploymentCommitName(),
 				Result: devops.GetResult(&devops.ResultRule{
-					Success: []string{ResultSuccess},
+					Success: []string{ResultSuccess, ResultSuccessful},
 					Failure: []string{ResultFailed},
 					Default: devops.RESULT_DEFAULT,
 				}, input.DeploymentState),
