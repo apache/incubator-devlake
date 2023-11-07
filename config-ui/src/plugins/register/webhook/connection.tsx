@@ -17,12 +17,12 @@
  */
 
 import { useState } from 'react';
+import { Table } from 'antd';
 import { Button, Intent } from '@blueprintjs/core';
 
 import { useAppSelector } from '@/app/hook';
-import { Buttons, Table, ColumnType, ExternalLink, IconButton } from '@/components';
+import { Buttons, IconButton } from '@/components';
 import { selectWebhooks } from '@/features/connections';
-import { DOC_URL } from '@/release';
 import { IWebhook } from '@/types';
 
 import { CreateDialog, ViewDialog, EditDialog, DeleteDialog } from './components';
@@ -53,51 +53,39 @@ export const WebHookConnection = ({ filterIds, onCreateAfter, onDeleteAfter }: P
     setCurrentID(r?.id);
   };
 
-  const columns: ColumnType<IWebhook> = [
-    {
-      title: 'ID',
-      dataIndex: 'id',
-      key: 'id',
-    },
-    {
-      title: 'Webhook Name',
-      dataIndex: 'name',
-      key: 'name',
-      render: (name, row) => <span onClick={() => handleShowDialog('show', row)}>{name}</span>,
-    },
-    {
-      title: '',
-      dataIndex: '',
-      key: 'action',
-      align: 'center',
-      render: (_, row) => (
-        <S.Action>
-          <IconButton icon="eye-open" tooltip="View" onClick={() => handleShowDialog('show', row)} />
-          <IconButton icon="annotation" tooltip="Edit" onClick={() => handleShowDialog('edit', row)} />
-          <IconButton icon="trash" tooltip="Delete" onClick={() => handleShowDialog('delete', row)} />
-        </S.Action>
-      ),
-    },
-  ];
-
   return (
     <S.Wrapper>
       <Buttons position="top">
         <Button icon="plus" text="Add a Webhook" intent={Intent.PRIMARY} onClick={() => handleShowDialog('add')} />
       </Buttons>
       <Table
-        columns={columns}
+        columns={[
+          {
+            title: 'ID',
+            dataIndex: 'id',
+            key: 'id',
+          },
+          {
+            title: 'Webhook Name',
+            dataIndex: 'name',
+            key: 'name',
+            render: (name, row) => <span onClick={() => handleShowDialog('show', row)}>{name}</span>,
+          },
+          {
+            title: '',
+            dataIndex: '',
+            key: 'action',
+            align: 'center',
+            render: (_, row) => (
+              <S.Action>
+                <IconButton icon="eye-open" tooltip="View" onClick={() => handleShowDialog('show', row)} />
+                <IconButton icon="annotation" tooltip="Edit" onClick={() => handleShowDialog('edit', row)} />
+                <IconButton icon="trash" tooltip="Delete" onClick={() => handleShowDialog('delete', row)} />
+              </S.Action>
+            ),
+          },
+        ]}
         dataSource={webhooks.filter((cs) => (filterIds ? filterIds.includes(cs.id) : true))}
-        noData={{
-          text: (
-            <>
-              There is no Webhook yet. Please add a new Webhook.{' '}
-              <ExternalLink link={DOC_URL.PLUGIN.WEBHOOK.BASIS}>Learn more</ExternalLink>
-            </>
-          ),
-          btnText: 'Add a Webhook',
-          onCreate: () => handleShowDialog('add'),
-        }}
       />
       {type === 'add' && (
         <CreateDialog isOpen onCancel={handleHideDialog} onSubmitAfter={(id) => onCreateAfter?.(id)} />

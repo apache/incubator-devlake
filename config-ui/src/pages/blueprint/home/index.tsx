@@ -18,11 +18,12 @@
 
 import { useState, useMemo } from 'react';
 import { Link } from 'react-router-dom';
+import { Table } from 'antd';
 import { ButtonGroup, Button, Tag, Intent, FormGroup, InputGroup, RadioGroup, Radio } from '@blueprintjs/core';
 import dayjs from 'dayjs';
 
 import API from '@/api';
-import { PageHeader, Table, IconButton, TextTooltip, Dialog } from '@/components';
+import { PageHeader, IconButton, TextTooltip, Dialog } from '@/components';
 import { getCronOptions, cronPresets, getCron } from '@/config';
 import { ConnectionName } from '@/features';
 import { useRefreshData } from '@/hooks';
@@ -206,15 +207,10 @@ export const BlueprintHomePage = () => {
           ]}
           dataSource={dataSource}
           pagination={{
-            page,
+            current: page,
             pageSize,
             total,
             onChange: setPage,
-          }}
-          noData={{
-            text: 'There is no Blueprint yet. Please add a new Blueprint here or from a Project.',
-            btnText: 'New Blueprint',
-            onCreate: handleShowDialog,
           }}
         />
       </S.Wrapper>

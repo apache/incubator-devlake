@@ -18,11 +18,12 @@
 
 import { useState, useMemo } from 'react';
 import { useParams, useNavigate, Link } from 'react-router-dom';
+import { Table } from 'antd';
 import { Button, Intent } from '@blueprintjs/core';
 
 import API from '@/api';
 import { useAppDispatch, useAppSelector } from '@/app/hook';
-import { PageHeader, Buttons, Dialog, IconButton, Table, Message, toast } from '@/components';
+import { PageHeader, Buttons, Dialog, IconButton, Message, toast } from '@/components';
 import { selectConnection, removeConnection } from '@/features';
 import { useTips, useRefreshData } from '@/hooks';
 import ClearImg from '@/images/icons/clear.svg';
@@ -265,6 +266,7 @@ export const ConnectionDetailPage = () => {
           )}
         </Buttons>
         <Table
+          rowKey={(row) => row.id}
           loading={!ready}
           columns={[
             {
@@ -336,18 +338,12 @@ export const ConnectionDetailPage = () => {
           ]}
           dataSource={dataSource}
           pagination={{
-            page,
+            current: page,
             pageSize,
             total,
             onChange: setPage,
           }}
-          noData={{
-            text: 'Add data to this connection.',
-            btnText: 'Add Data Scope',
-            onCreate: handleShowCreateDataScopeDialog,
-          }}
           rowSelection={{
-            getRowKey: (row) => row.id,
             selectedRowKeys: scopeIds,
             onChange: (selectedRowKeys) => setScopeIds(selectedRowKeys),
           }}

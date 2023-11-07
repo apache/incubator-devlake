@@ -17,10 +17,11 @@
  */
 
 import { useState, useEffect, useMemo } from 'react';
+import { Table } from 'antd';
 import { Button, Intent } from '@blueprintjs/core';
 
 import API from '@/api';
-import { Buttons, Table, IconButton, Dialog } from '@/components';
+import { Buttons, IconButton, Dialog } from '@/components';
 import { useRefreshData } from '@/hooks';
 
 import { ScopeConfigForm } from '../scope-config-form';
@@ -92,7 +93,6 @@ export const ScopeConfigSelect = ({ plugin, connectionId, scopeConfigId, onCance
           selectedRowKeys: trId ? [trId] : [],
           onChange: (selectedRowKeys) => setTrId(selectedRowKeys[0]),
         }}
-        noShadow
       />
       <Buttons position="bottom" align="right">
         <Button outlined intent={Intent.PRIMARY} text="Cancel" onClick={onCancel} />
