@@ -17,19 +17,18 @@
  */
 
 import ReactDOM from 'react-dom';
-import { BrowserRouter } from 'react-router-dom';
+import { Provider } from 'react-redux';
+import { RouterProvider } from 'react-router-dom';
 
-import { ErrorBoundary } from '@/components';
+import { PageLoading } from '@/components';
 
-import App from './App';
-
+import { store } from './app/store';
+import { router } from './app/routrer';
 import './index.css';
 
 ReactDOM.render(
-  <BrowserRouter>
-    <ErrorBoundary>
-      <App />
-    </ErrorBoundary>
-  </BrowserRouter>,
+  <Provider store={store}>
+    <RouterProvider router={router} fallbackElement={<PageLoading />} />
+  </Provider>,
   document.getElementById('root'),
 );

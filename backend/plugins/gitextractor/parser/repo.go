@@ -22,6 +22,11 @@ import (
 	"crypto/sha256"
 	"encoding/hex"
 	"fmt"
+	"regexp"
+	"sort"
+	"strconv"
+
+	"github.com/apache/incubator-devlake/core/config"
 	"github.com/apache/incubator-devlake/core/dal"
 	"github.com/apache/incubator-devlake/core/errors"
 	"github.com/apache/incubator-devlake/core/log"
@@ -29,12 +34,11 @@ import (
 	"github.com/apache/incubator-devlake/core/models/domainlayer/code"
 	"github.com/apache/incubator-devlake/core/plugin"
 	"github.com/apache/incubator-devlake/plugins/gitextractor/models"
-	"regexp"
-	"sort"
-	"strconv"
 
 	git "github.com/libgit2/git2go/v33"
 )
+
+const SkipCommitFiles = "SKIP_COMMIT_FILES"
 
 var TypeNotMatchError = "the requested type does not match the type in the ODB"
 
@@ -98,7 +102,10 @@ func (r *GitRepo) CountBranches(ctx context.Context) (int, errors.Error) {
 		default:
 		}
 		if branch.IsBranch() || branch.IsRemote() {
-			count++
+			isHead, _ := branch.IsHead()
+			if !isHead {
+				count++
+			}
 		}
 		return nil
 	})
@@ -331,9 +338,13 @@ func (r *GitRepo) getDiffComparedToParent(commitSha string, commit *git.Commit, 
 	if err != nil {
 		return nil, errors.Convert(err)
 	}
-	err = r.storeCommitFilesFromDiff(commitSha, diff, componentMap)
-	if err != nil {
-		return nil, errors.Convert(err)
+	cfg := config.GetConfig()
+	skipCommitFiles := cfg.GetBool(SkipCommitFiles)
+	if !skipCommitFiles {
+		err = r.storeCommitFilesFromDiff(commitSha, diff, componentMap)
+		if err != nil {
+			return nil, errors.Convert(err)
+		}
 	}
 	var stats *git.DiffStats
 	stats, err = diff.Stats()

@@ -17,29 +17,30 @@
  */
 
 import { useEffect, useState } from 'react';
-import { useHistory } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import { InputGroup, Checkbox, Button, Icon, Intent } from '@blueprintjs/core';
 
+import API from '@/api';
 import { Card, FormItem, Buttons, toast, Dialog } from '@/components';
+import { IProject } from '@/types';
 import { operator } from '@/utils';
 
-import type { ProjectType } from '../types';
-import { validName } from '../utils';
+import { validName, encodeName } from '../utils';
 
-import * as API from './api';
 import * as S from './styled';
 
 interface Props {
-  project: ProjectType;
+  project: IProject;
+  onRefresh: () => void;
 }
 
-export const SettingsPanel = ({ project }: Props) => {
+export const SettingsPanel = ({ project, onRefresh }: Props) => {
   const [name, setName] = useState('');
   const [enableDora, setEnableDora] = useState(false);
   const [operating, setOperating] = useState(false);
   const [isOpen, setIsOpen] = useState(false);
 
-  const history = useHistory();
+  const navigate = useNavigate();
 
   useEffect(() => {
     const doraMetrics = project.metrics.find((ms: any) => ms.pluginName === 'dora');
@@ -56,7 +57,7 @@ export const SettingsPanel = ({ project }: Props) => {
 
     const [success] = await operator(
       () =>
-        API.updateProject(project.name, {
+        API.project.update(encodeName(project.name), {
           name,
           description: '',
           metrics: [
@@ -73,7 +74,8 @@ export const SettingsPanel = ({ project }: Props) => {
     );
 
     if (success) {
-      history.push(`/projects/${name}`);
+      onRefresh();
+      navigate(`/projects/${encodeName(name)}?tabId=settings`);
     }
   };
 
@@ -86,13 +88,13 @@ export const SettingsPanel = ({ project }: Props) => {
   };
 
   const handleDelete = async () => {
-    const [success] = await operator(() => API.deleteProject(project.name), {
+    const [success] = await operator(() => API.project.remove(project.name), {
       setOperating,
       formatMessage: () => 'Delete project successful.',
     });
 
     if (success) {
-      history.push(`/projects`);
+      navigate(`/projects`);
     }
   };
 

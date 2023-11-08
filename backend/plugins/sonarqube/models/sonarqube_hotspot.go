@@ -19,14 +19,13 @@ package models
 
 import (
 	"github.com/apache/incubator-devlake/core/models/common"
-	"github.com/apache/incubator-devlake/helpers/pluginhelper/api"
 )
 
 type SonarqubeHotspot struct {
 	ConnectionId             uint64 `gorm:"primaryKey"`
 	HotspotKey               string `gorm:"primaryKey"`
 	RuleKey                  string `gorm:"type:varchar(255)"`
-	Component                string `gorm:"index"`
+	Component                string `gorm:"index;type:varchar(500)"`
 	ProjectKey               string `gorm:"index"`
 	Line                     int
 	Status                   string `gorm:"type:varchar(100)"`
@@ -35,8 +34,8 @@ type SonarqubeHotspot struct {
 	Assignee                 string `gorm:"type:varchar(100)"`
 	SecurityCategory         string `gorm:"type:varchar(100)"`
 	VulnerabilityProbability string `gorm:"type:varchar(100)"`
-	CreationDate             *api.Iso8601Time
-	UpdateDate               *api.Iso8601Time
+	CreationDate             *common.Iso8601Time
+	UpdateDate               *common.Iso8601Time
 	common.NoPKModel
 }
 

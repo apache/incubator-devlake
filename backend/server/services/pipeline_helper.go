@@ -18,52 +18,40 @@ limitations under the License.
 package services
 
 import (
-	"encoding/json"
 	"fmt"
+	"time"
 
 	"github.com/apache/incubator-devlake/core/dal"
 	"github.com/apache/incubator-devlake/core/errors"
 	"github.com/apache/incubator-devlake/core/models"
+	"github.com/apache/incubator-devlake/helpers/dbhelper"
 )
 
 // CreateDbPipeline returns a NewPipeline
-func CreateDbPipeline(newPipeline *models.NewPipeline) (*models.Pipeline, errors.Error) {
-	cronLocker.Lock()
-	defer cronLocker.Unlock()
+func CreateDbPipeline(newPipeline *models.NewPipeline) (pipeline *models.Pipeline, err errors.Error) {
+	pipeline = &models.Pipeline{}
+	txHelper := dbhelper.NewTxHelper(basicRes, &err)
+	defer txHelper.End()
+	tx := txHelper.Begin()
+	errors.Must(txHelper.LockTablesTimeout(2*time.Second,
+		dal.LockTables{
+			{Table: "_devlake_pipelines", Exclusive: true},
+			{Table: "_devlake_pipeline_labels", Exclusive: true},
+		},
+	))
+	if err != nil {
+		err = errors.BadInput.Wrap(err, "failed to lock pipeline table, is there any pending pipeline or deletion?")
+		return
+	}
 	if newPipeline.BlueprintId > 0 {
-		clauses := []dal.Clause{
+		count := errors.Must1(tx.Count(
 			dal.From(&models.Pipeline{}),
 			dal.Where("blueprint_id = ? AND status IN ?", newPipeline.BlueprintId, models.PendingTaskStatus),
-		}
-		count, err := db.Count(clauses...)
-		if err != nil {
-			return nil, errors.Default.Wrap(err, "query pipelines error")
-		}
+		))
 		// some pipeline is ruunning , get the detail and output them.
 		if count > 0 {
-			cursor, err := db.Cursor(clauses...)
-			if err != nil {
-				return nil, errors.Default.Wrap(err, fmt.Sprintf("query pipelines error but count it success. count:%d", count))
-			}
-			defer cursor.Close()
-			fetched := 0
-			errstr := ""
-			for cursor.Next() {
-				pipeline := &models.Pipeline{}
-				err = db.Fetch(cursor, pipeline)
-				if err != nil {
-					return nil, errors.Default.Wrap(err, fmt.Sprintf("failed to Fetch pipelines fetched:[%d],count:[%d]", fetched, count))
-				}
-				fetched++
-
-				errstr += fmt.Sprintf("pipeline:[%d] on state:[%s] Pending it\r\n", pipeline.ID, pipeline.Status)
-			}
-			return nil, errors.Default.New(fmt.Sprintf("the blueprint is running fetched:[%d],count:[%d]:\r\n%s", fetched, count, errstr))
+			return nil, errors.BadInput.New("there are pending pipelines of current blueprint already")
 		}
-	}
-	planByte, err := errors.Convert01(json.Marshal(newPipeline.Plan))
-	if err != nil {
-		return nil, err
 	}
 	// create pipeline object from posted data
 	dbPipeline := &models.Pipeline{
@@ -72,19 +60,15 @@ func CreateDbPipeline(newPipeline *models.NewPipeline) (*models.Pipeline, errors
 		Status:        models.TASK_CREATED,
 		Message:       "",
 		SpentSeconds:  0,
-		Plan:          planByte,
-		SkipOnFail:    newPipeline.SkipOnFail,
+		Plan:          newPipeline.Plan,
+		SyncPolicy:    newPipeline.SyncPolicy,
 	}
 	if newPipeline.BlueprintId != 0 {
 		dbPipeline.BlueprintId = newPipeline.BlueprintId
 	}
 
 	// save pipeline to database
-	if err := db.Create(&dbPipeline); err != nil {
-		globalPipelineLog.Error(err, "create pipeline failed: %v", err)
-		return nil, errors.Internal.Wrap(err, "create pipeline failed")
-	}
-
+	errors.Must(tx.Create(dbPipeline))
 	labels := make([]models.DbPipelineLabel, 0)
 	for _, label := range newPipeline.Labels {
 		labels = append(labels, models.DbPipelineLabel{
@@ -93,10 +77,7 @@ func CreateDbPipeline(newPipeline *models.NewPipeline) (*models.Pipeline, errors
 		})
 	}
 	if len(newPipeline.Labels) > 0 {
-		if err := db.Create(&labels); err != nil {
-			globalPipelineLog.Error(err, "create pipeline's labelModels failed: %v", err)
-			return nil, errors.Internal.Wrap(err, "create pipeline's labelModels failed")
-		}
+		errors.Must(tx.Create(&labels))
 	}
 
 	// create tasks accordingly
@@ -110,28 +91,18 @@ func CreateDbPipeline(newPipeline *models.NewPipeline) (*models.Pipeline, errors
 				PipelineRow:  i + 1,
 				PipelineCol:  j + 1,
 			}
-			_, err := CreateTask(newTask)
-			if err != nil {
-				globalPipelineLog.Error(err, "create task for pipeline failed: %v", err)
-				return nil, err
-			}
+			_ = errors.Must1(CreateTask(newTask))
 			// sync task state back to pipeline
 			dbPipeline.TotalTasks += 1
 		}
 	}
-	if err != nil {
-		globalPipelineLog.Error(err, "save tasks for pipeline failed: %v", err)
-		return nil, errors.Internal.Wrap(err, "save tasks for pipeline failed")
-	}
 	if dbPipeline.TotalTasks == 0 {
-		return nil, errors.Internal.New("no task to run")
+		err = errors.BadInput.New("no task to run")
+		return
 	}
 
 	// update tasks state
-	if err := db.Update(dbPipeline); err != nil {
-		globalPipelineLog.Error(err, "update pipline state failed: %v", err)
-		return nil, errors.Internal.Wrap(err, "update pipline state failed")
-	}
+	errors.Must(tx.Update(dbPipeline))
 	dbPipeline.Labels = newPipeline.Labels
 	return dbPipeline, nil
 }

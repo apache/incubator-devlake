@@ -29,6 +29,7 @@ var PluginEntry impl.PagerDuty //nolint
 // standalone mode for debugging
 func main() {
 	cmd := &cobra.Command{Use: "pagerduty"}
+	timeAfter := cmd.Flags().StringP("timeAfter", "a", "", "collect data that are created after specified time, ie 2006-01-02T15:04:05Z")
 
 	// TODO add your cmd flag if necessary
 	// yourFlag := cmd.Flags().IntP("yourFlag", "y", 8, "TODO add description here")
@@ -37,7 +38,7 @@ func main() {
 	cmd.Run = func(cmd *cobra.Command, args []string) {
 		runner.DirectRun(cmd, args, PluginEntry, map[string]interface{}{
 			// TODO add more custom params here
-		})
+		}, *timeAfter)
 	}
 	runner.RunCmd(cmd)
 }

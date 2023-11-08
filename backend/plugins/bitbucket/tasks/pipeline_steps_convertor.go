@@ -69,15 +69,14 @@ func ConvertPipelineSteps(taskCtx plugin.SubTaskContext) errors.Error {
 				Name:       bitbucketPipelineStep.Name,
 				PipelineId: pipelineIdGen.Generate(data.Options.ConnectionId, bitbucketPipelineStep.PipelineId),
 				Result: devops.GetResult(&devops.ResultRule{
-					Failed:  []string{models.FAILED, models.ERROR, models.UNDEPLOYED},
-					Abort:   []string{models.STOPPED, models.SKIPPED},
 					Success: []string{models.SUCCESSFUL, models.COMPLETED},
-					Manual:  []string{models.PAUSED, models.HALTED},
-					Default: devops.SUCCESS,
+					Failure: []string{models.FAILED, models.ERROR, models.STOPPED},
+					Default: devops.RESULT_DEFAULT,
 				}, bitbucketPipelineStep.Result),
 				Status: devops.GetStatus(&devops.StatusRule{
-					InProgress: []string{models.IN_PROGRESS, models.PENDING, models.BUILDING},
-					Default:    devops.DONE,
+					Done:       []string{models.COMPLETED, models.SUCCESSFUL, models.FAILED, models.ERROR, models.STOPPED},
+					InProgress: []string{models.IN_PROGRESS, models.PENDING, models.BUILDING, models.READY},
+					Default:    devops.STATUS_OTHER,
 				}, bitbucketPipelineStep.State),
 				CicdScopeId: repoIdGen.Generate(data.Options.ConnectionId, data.Options.FullName),
 			}
@@ -87,22 +86,9 @@ func ConvertPipelineSteps(taskCtx plugin.SubTaskContext) errors.Error {
 			}
 			domainTask.StartedDate = *bitbucketPipelineStep.StartedOn
 			// rebuild the FinishedDate
-			if domainTask.Status == devops.DONE {
+			if domainTask.Status == devops.STATUS_DONE {
 				domainTask.FinishedDate = bitbucketPipelineStep.CompletedOn
 				domainTask.DurationSec = uint64(bitbucketPipelineStep.DurationInSeconds)
-			}
-
-			bitbucketDeployment := &models.BitbucketDeployment{}
-			deploymentErr := db.First(bitbucketDeployment, dal.Where(`step_id=?`, bitbucketPipelineStep.BitbucketId))
-			if deploymentErr == nil {
-				domainTask.Type = devops.DEPLOYMENT
-				if bitbucketDeployment.EnvironmentType == `Production` {
-					domainTask.Environment = devops.PRODUCTION
-				} else if bitbucketDeployment.EnvironmentType == `Staging` {
-					domainTask.Environment = devops.STAGING
-				} else if bitbucketDeployment.EnvironmentType == `Test` {
-					domainTask.Environment = devops.TESTING
-				}
 			}
 			return []interface{}{
 				domainTask,

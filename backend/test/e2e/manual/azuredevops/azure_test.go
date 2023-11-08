@@ -19,6 +19,11 @@ package azuredevops
 
 import (
 	"fmt"
+	"net/http"
+	"strings"
+	"testing"
+	"time"
+
 	"github.com/apache/incubator-devlake/core/config"
 	"github.com/apache/incubator-devlake/core/models"
 	"github.com/apache/incubator-devlake/core/models/common"
@@ -27,8 +32,6 @@ import (
 	pluginmodels "github.com/apache/incubator-devlake/plugins/pagerduty/models"
 	"github.com/apache/incubator-devlake/test/helper"
 	"github.com/stretchr/testify/require"
-	"testing"
-	"time"
 )
 
 const (
@@ -43,8 +46,8 @@ func TestAzure(t *testing.T) {
 		CreateServer: true,
 		DropDb:       false,
 		TruncateDb:   true,
-		Plugins: map[string]plugin.PluginMeta{
-			"gitextractor": gitextractor.GitExtractor{},
+		Plugins: []plugin.PluginMeta{
+			gitextractor.GitExtractor{},
 		},
 	})
 	client.SetTimeout(60 * time.Second)
@@ -99,7 +102,7 @@ func TestAzure(t *testing.T) {
 		scopes := helper.Cast[[]AzureGitRepo](client.CreateScopes(azurePlugin, connection.ID, remoteScopesToScopes(remoteScopes, cfg.Repos)...))
 		scopesCount := len(scopes)
 		scopesResponse := client.ListScopes(azurePlugin, connection.ID, false)
-		require.Equal(t, scopesCount, len(scopesResponse))
+		require.Equal(t, scopesCount, len(scopesResponse.Scopes))
 		// associate scopes with the scope config
 		for _, scope := range scopes {
 			scope.ScopeConfigId = repoConfig.ID
@@ -107,17 +110,16 @@ func TestAzure(t *testing.T) {
 			require.Equal(t, repoConfig.ID, scope.ScopeConfigId)
 		}
 		// create bp_scopes from the scopes
-		var bpScopes []*plugin.BlueprintScopeV200
+		var bpScopes []*models.BlueprintScope
 		for _, scope := range scopes {
-			bpScopes = append(bpScopes, &plugin.BlueprintScopeV200{
-				Id:   scope.Id,
-				Name: scope.Name,
+			bpScopes = append(bpScopes, &models.BlueprintScope{
+				ScopeId: scope.Id,
 			})
 		}
 		// create the bp
 		bp := client.CreateBasicBlueprintV2(connection.Name, &helper.BlueprintV2Config{
-			Connection: &plugin.BlueprintConnectionV200{
-				Plugin:       azurePlugin,
+			Connection: &models.BlueprintConnection{
+				PluginName:   azurePlugin,
 				ConnectionId: connection.ID,
 				Scopes:       bpScopes,
 			},
@@ -131,14 +133,18 @@ func TestAzure(t *testing.T) {
 		// run the bp
 		pipeline := client.TriggerBlueprint(bp.ID)
 		require.Equal(t, models.TASK_COMPLETED, pipeline.Status)
-		createdScopesList := client.ListScopes(azurePlugin, connection.ID, true)
+		createdScopesList := client.ListScopes(azurePlugin, connection.ID, true).Scopes
 		require.True(t, len(createdScopesList) > 0)
+		client.SetExpectedStatusCode(http.StatusConflict).DeleteConnection(azurePlugin, connection.ID)
+		client.DeleteScopeConfig(azurePlugin, connection.ID, repoConfig.ID)
+		client.DeleteBlueprint(bp.ID)
 		for _, scope := range createdScopesList {
 			scopeCast := helper.Cast[pluginmodels.Service](scope.Scope)
 			fmt.Printf("Deleting scope %s\n", scopeCast.Id)
 			client.DeleteScope(azurePlugin, connection.ID, scopeCast.Id, false)
 			fmt.Printf("Deleted scope %s\n", scopeCast.Id)
 		}
+		client.DeleteConnection(azurePlugin, connection.ID)
 	})
 	fmt.Println("========DONE=======")
 }
@@ -147,8 +153,14 @@ func remoteScopesToScopes(remoteScopes helper.RemoteScopesOutput, filters []stri
 	var a []any
 	for _, c := range remoteScopes.Children {
 		repo := helper.Cast[AzureGitRepo](c.Data)
-		if len(filters) == 0 || helper.Contains(filters, repo.Name) {
+		if len(filters) == 0 {
 			a = append(a, repo)
+		} else {
+			for _, f := range filters {
+				if len(filters) == 0 || strings.Contains(repo.Name, f) {
+					a = append(a, repo)
+				}
+			}
 		}
 	}
 	return a

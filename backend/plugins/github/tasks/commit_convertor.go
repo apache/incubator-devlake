@@ -18,6 +18,8 @@ limitations under the License.
 package tasks
 
 import (
+	"reflect"
+
 	"github.com/apache/incubator-devlake/core/dal"
 	"github.com/apache/incubator-devlake/core/errors"
 	"github.com/apache/incubator-devlake/core/models/domainlayer/code"
@@ -25,8 +27,11 @@ import (
 	"github.com/apache/incubator-devlake/core/plugin"
 	"github.com/apache/incubator-devlake/helpers/pluginhelper/api"
 	"github.com/apache/incubator-devlake/plugins/github/models"
-	"reflect"
 )
+
+func init() {
+	RegisterSubtaskMeta(&ConvertCommitsMeta)
+}
 
 var ConvertCommitsMeta = plugin.SubTaskMeta{
 	Name:             "convertCommits",
@@ -34,6 +39,14 @@ var ConvertCommitsMeta = plugin.SubTaskMeta{
 	EnabledByDefault: false,
 	Description:      "Convert tool layer table github_commits into  domain layer table commits",
 	DomainTypes:      []string{plugin.DOMAIN_TYPE_CODE},
+	DependencyTables: []string{
+		models.GithubCommit{}.TableName(),     // cursor
+		models.GithubRepoCommit{}.TableName(), // cursor
+		//models.GithubRepo{}.TableName(),       // id generator, but config not regard as dependency
+		RAW_COMMIT_TABLE},
+	ProductTables: []string{
+		code.Commit{}.TableName(),
+		code.RepoCommit{}.TableName()},
 }
 
 func ConvertCommits(taskCtx plugin.SubTaskContext) errors.Error {
@@ -64,7 +77,7 @@ func ConvertCommits(taskCtx plugin.SubTaskContext) errors.Error {
 				ConnectionId: data.Options.ConnectionId,
 				Name:         data.Options.Name,
 			},
-			Table: RAW_COMMENTS_TABLE,
+			Table: RAW_COMMIT_TABLE,
 		},
 		InputRowType: reflect.TypeOf(models.GithubCommit{}),
 		Input:        cursor,

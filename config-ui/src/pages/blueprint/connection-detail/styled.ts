@@ -27,13 +27,6 @@ export const Top = styled.div`
 
 export const ActionDelete = styled.div`
   padding: 16px 24px;
-
-  .btns {
-    display: flex;
-    align-items: center;
-    justify-content: end;
-    margin-top: 16px;
-  }
 `;
 
 export const Entities = styled.div`
@@ -56,23 +49,6 @@ export const Entities = styled.div`
     }
 
     li + li {
-      margin-left: 4px;
-    }
-  }
-`;
-
-export const SelectTransformationWrapper = styled.div`
-  .action {
-    margin-bottom: 24px;
-  }
-
-  .btns {
-    display: flex;
-    align-items: center;
-    justify-content: end;
-    margin-top: 24px;
-
-    .bp4-button + .bp4-button {
       margin-left: 4px;
     }
   }

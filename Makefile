@@ -71,27 +71,18 @@ swag:
 build-plugin:
 	make build-plugin -C backend
 
-build-plugin-debug:
-	make build-plugin-debug -C backend
-
-build-worker:
-	make build-worker -C backend
-
 build-server:
 	make build-server -C backend
 
 build: build-plugin build-server
 
-all: build build-worker
+all: build
 
 tap-models:
 	make tap-models -C backend
 
 run:
 	make run -C backend
-
-worker:
-	make worker -C backend
 
 dev:
 	make dev -C backend
@@ -115,10 +106,8 @@ unit-test-only:
 python-unit-test:
 	make python-unit-test -C backend
 
-e2e-test: build e2e-test-only
-
-e2e-test-only:
-	make e2e-test-only -C backend
+e2e-test:
+	make e2e-test -C backend
 
 e2e-plugins-test:
 	make e2e-plugins-test -C backend

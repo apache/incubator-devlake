@@ -86,7 +86,7 @@ func ConvertApiMergeRequests(taskCtx plugin.SubTaskContext) errors.Error {
 				CreatedDate:    gitlabMr.GitlabCreatedAt,
 				MergedDate:     gitlabMr.MergedAt,
 				ClosedDate:     gitlabMr.ClosedAt,
-				MergeCommitSha: gitlabMr.MergeCommitSha,
+				MergeCommitSha: retrieveMrSha(gitlabMr.MergeCommitSha, gitlabMr.SquashCommitSha, gitlabMr.DiffHeadSha),
 				HeadRef:        gitlabMr.SourceBranch,
 				BaseRef:        gitlabMr.TargetBranch,
 				Component:      gitlabMr.Component,
@@ -112,4 +112,14 @@ func ConvertApiMergeRequests(taskCtx plugin.SubTaskContext) errors.Error {
 	}
 
 	return converter.Execute()
+}
+
+func retrieveMrSha(mergeCommitSha string, squashCommitSha string, sha string) string {
+	if mergeCommitSha != "" {
+		return mergeCommitSha
+	}
+	if squashCommitSha != "" {
+		return squashCommitSha
+	}
+	return sha
 }

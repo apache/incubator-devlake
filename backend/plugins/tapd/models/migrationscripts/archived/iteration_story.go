@@ -18,8 +18,9 @@ limitations under the License.
 package archived
 
 import (
+	"time"
+
 	"github.com/apache/incubator-devlake/core/models/migrationscripts/archived"
-	helper "github.com/apache/incubator-devlake/helpers/pluginhelper/api"
 )
 
 type TapdIterationStory struct {
@@ -28,8 +29,8 @@ type TapdIterationStory struct {
 	IterationId      uint64 `gorm:"primaryKey"`
 	WorkspaceId      uint64 `gorm:"primaryKey"`
 	StoryId          uint64 `gorm:"primaryKey"`
-	ResolutionDate   *helper.CSTTime
-	StoryCreatedDate *helper.CSTTime
+	ResolutionDate   *time.Time
+	StoryCreatedDate *time.Time
 }
 
 func (TapdIterationStory) TableName() string {

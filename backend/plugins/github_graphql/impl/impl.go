@@ -20,6 +20,7 @@ package impl
 import (
 	"context"
 	"fmt"
+	"net/http"
 	"net/url"
 	"reflect"
 	"strings"
@@ -41,25 +42,26 @@ import (
 )
 
 // make sure interface is implemented
-var _ plugin.PluginMeta = (*GithubGraphql)(nil)
-var _ plugin.PluginTask = (*GithubGraphql)(nil)
-var _ plugin.PluginApi = (*GithubGraphql)(nil)
-var _ plugin.PluginModel = (*GithubGraphql)(nil)
-var _ plugin.CloseablePluginTask = (*GithubGraphql)(nil)
-
-// var _ plugin.PluginSource = (*GithubGraphql)(nil)
+var _ interface {
+	plugin.PluginMeta
+	plugin.PluginTask
+	plugin.PluginApi
+	plugin.PluginModel
+	plugin.PluginSource
+	plugin.CloseablePluginTask
+} = (*GithubGraphql)(nil)
 
 type GithubGraphql struct{}
 
-func (p GithubGraphql) Connection() interface{} {
+func (p GithubGraphql) Connection() dal.Tabler {
 	return &models.GithubConnection{}
 }
 
-func (p GithubGraphql) Scope() interface{} {
+func (p GithubGraphql) Scope() plugin.ToolLayerScope {
 	return &models.GithubRepo{}
 }
 
-func (p GithubGraphql) ScopeConfig() interface{} {
+func (p GithubGraphql) ScopeConfig() dal.Tabler {
 	return &models.GithubScopeConfig{}
 }
 
@@ -67,8 +69,14 @@ func (p GithubGraphql) Description() string {
 	return "collect some GithubGraphql data"
 }
 
+func (p GithubGraphql) Name() string {
+	return "github_graphql"
+}
+
 func (p GithubGraphql) GetTablesInfo() []dal.Tabler {
-	return []dal.Tabler{}
+	return []dal.Tabler{
+		&models.GithubDeployment{},
+	}
 }
 
 func (p GithubGraphql) SubTaskMetas() []plugin.SubTaskMeta {
@@ -117,6 +125,10 @@ func (p GithubGraphql) SubTaskMetas() []plugin.SubTaskMeta {
 		githubTasks.ConvertPullRequestCommentsMeta,
 		githubTasks.ConvertMilestonesMeta,
 		githubTasks.ConvertAccountsMeta,
+
+		// deployment
+		tasks.CollectAndExtractDeploymentsMeta,
+		githubTasks.ConvertDeploymentsMeta,
 	}
 }
 
@@ -139,6 +151,7 @@ func (p GithubGraphql) PrepareTaskData(taskCtx plugin.TaskContext, options map[s
 	connectionHelper := helper.NewConnectionHelper(
 		taskCtx,
 		nil,
+		p.Name(),
 	)
 	connection := &models.GithubConnection{}
 	err = connectionHelper.FirstById(connection, op.ConnectionId)
@@ -160,7 +173,29 @@ func (p GithubGraphql) PrepareTaskData(taskCtx plugin.TaskContext, options map[s
 	src := oauth2.StaticTokenSource(
 		&oauth2.Token{AccessToken: tokens[0]},
 	)
-	httpClient := oauth2.NewClient(taskCtx.GetContext(), src)
+	oauthContext := taskCtx.GetContext()
+	proxy := connection.GetProxy()
+	if proxy != "" {
+		pu, err := url.Parse(proxy)
+		if err != nil {
+			return nil, errors.Convert(err)
+		}
+		if pu.Scheme == "http" || pu.Scheme == "socks5" {
+			proxyClient := &http.Client{
+				Transport: &http.Transport{Proxy: http.ProxyURL(pu)},
+			}
+			oauthContext = context.WithValue(
+				taskCtx.GetContext(),
+				oauth2.HTTPClient,
+				proxyClient,
+			)
+			logger.Debug("Proxy set in oauthContext to %s", proxy)
+		} else {
+			return nil, errors.BadInput.New("Unsupported scheme set in proxy")
+		}
+	}
+
+	httpClient := oauth2.NewClient(oauthContext, src)
 	endpoint, err := errors.Convert01(url.JoinPath(connection.Endpoint, `graphql`))
 	if err != nil {
 		return nil, errors.BadInput.Wrap(err, fmt.Sprintf("malformed connection endpoint supplied: %s", connection.Endpoint))
@@ -196,6 +231,9 @@ func (p GithubGraphql) PrepareTaskData(taskCtx plugin.TaskContext, options map[s
 	if err = regexEnricher.TryAdd(devops.PRODUCTION, op.ScopeConfig.ProductionPattern); err != nil {
 		return nil, errors.BadInput.Wrap(err, "invalid value for `productionPattern`")
 	}
+	if err = regexEnricher.TryAdd(devops.ENV_NAME_PATTERN, op.ScopeConfig.EnvNamePattern); err != nil {
+		return nil, errors.BadInput.Wrap(err, "invalid value for `envNamePattern`")
+	}
 
 	taskData := &githubTasks.GithubTaskData{
 		Options:       &op,
@@ -203,20 +241,11 @@ func (p GithubGraphql) PrepareTaskData(taskCtx plugin.TaskContext, options map[s
 		GraphqlClient: graphqlClient,
 		RegexEnricher: regexEnricher,
 	}
-	if op.TimeAfter != "" {
-		var timeAfter time.Time
-		timeAfter, err = errors.Convert01(time.Parse(time.RFC3339, op.TimeAfter))
-		if err != nil {
-			return nil, errors.BadInput.Wrap(err, "invalid value for `timeAfter`")
-		}
-		taskData.TimeAfter = &timeAfter
-		logger.Debug("collect data updated timeAfter %s", timeAfter)
-	}
 
 	return taskData, nil
 }
 
-// PkgPath information lost when compiled as plugin(.so)
+// RootPkgPath information lost when compiled as plugin(.so)
 func (p GithubGraphql) RootPkgPath() string {
 	return "github.com/apache/incubator-devlake/plugins/githubGraphql"
 }

@@ -45,12 +45,19 @@ func ConvertBug(taskCtx plugin.SubTaskContext) errors.Error {
 	data := taskCtx.GetData().(*ZentaoTaskData)
 	db := taskCtx.GetDal()
 	bugIdGen := didgen.NewDomainIdGenerator(&models.ZentaoBug{})
+	accountIdGen := didgen.NewDomainIdGenerator(&models.ZentaoAccount{})
+	executionIdGen := didgen.NewDomainIdGenerator(&models.ZentaoExecution{})
 	boardIdGen := didgen.NewDomainIdGenerator(&models.ZentaoProduct{})
+	stdTypeMappings := getStdTypeMappings(data)
+	if data.Options.ProjectId != 0 {
+		boardIdGen = didgen.NewDomainIdGenerator(&models.ZentaoProject{})
+	}
+
 	storyIdGen := didgen.NewDomainIdGenerator(&models.ZentaoStory{})
 	cursor, err := db.Cursor(
 		dal.From(&models.ZentaoBug{}),
-		dal.Where(`_tool_zentao_bugs.product = ? and
-			_tool_zentao_bugs.connection_id = ?`, data.Options.ProductId, data.Options.ConnectionId),
+		dal.Where(`project = ? and
+			connection_id = ?`, data.Options.ProjectId, data.Options.ConnectionId),
 	)
 	if err != nil {
 		return err
@@ -60,13 +67,9 @@ func ConvertBug(taskCtx plugin.SubTaskContext) errors.Error {
 		InputRowType: reflect.TypeOf(models.ZentaoBug{}),
 		Input:        cursor,
 		RawDataSubTaskArgs: api.RawDataSubTaskArgs{
-			Ctx: taskCtx,
-			Params: ZentaoApiParams{
-				ConnectionId: data.Options.ConnectionId,
-				ProductId:    data.Options.ProductId,
-				ProjectId:    data.Options.ProjectId,
-			},
-			Table: RAW_BUG_TABLE,
+			Ctx:     taskCtx,
+			Options: data.Options,
+			Table:   RAW_BUG_TABLE,
 		},
 		Convert: func(inputRow interface{}) ([]interface{}, errors.Error) {
 			toolEntity := inputRow.(*models.ZentaoBug)
@@ -76,24 +79,32 @@ func ConvertBug(taskCtx plugin.SubTaskContext) errors.Error {
 				},
 				IssueKey:        strconv.FormatInt(toolEntity.ID, 10),
 				Title:           toolEntity.Title,
-				Type:            ticket.BUG,
-				OriginalType:    toolEntity.Type,
+				Type:            toolEntity.StdType,
+				OriginalType:    "bug",
 				OriginalStatus:  toolEntity.Status,
 				ResolutionDate:  toolEntity.ClosedDate.ToNullableTime(),
 				CreatedDate:     toolEntity.OpenedDate.ToNullableTime(),
 				UpdatedDate:     toolEntity.LastEditedDate.ToNullableTime(),
-				ParentIssueId:   storyIdGen.Generate(data.Options.ConnectionId, toolEntity.Story),
 				Priority:        getPriority(toolEntity.Pri),
-				CreatorId:       strconv.FormatInt(toolEntity.OpenedById, 10),
 				CreatorName:     toolEntity.OpenedByName,
-				AssigneeId:      strconv.FormatInt(toolEntity.AssignedToId, 10),
 				AssigneeName:    toolEntity.AssignedToName,
 				Severity:        string(rune(toolEntity.Severity)),
-				Url:             toolEntity.Url,
+				Url:             convertIssueURL(toolEntity.Url, "bug", toolEntity.ID),
 				OriginalProject: getOriginalProject(data),
 				Status:          toolEntity.StdStatus,
 			}
-
+			if mappingType, ok := stdTypeMappings[domainEntity.OriginalType]; ok && mappingType != "" {
+				domainEntity.Type = mappingType
+			}
+			if toolEntity.Story != 0 {
+				domainEntity.ParentIssueId = storyIdGen.Generate(data.Options.ConnectionId, toolEntity.Story)
+			}
+			if toolEntity.OpenedById != 0 {
+				domainEntity.CreatorId = accountIdGen.Generate(data.Options.ConnectionId, toolEntity.OpenedById)
+			}
+			if toolEntity.AssignedToId != 0 {
+				domainEntity.AssigneeId = accountIdGen.Generate(data.Options.ConnectionId, toolEntity.AssignedToId)
+			}
 			if toolEntity.ClosedDate != nil {
 				domainEntity.LeadTimeMinutes = int64(toolEntity.ClosedDate.ToNullableTime().Sub(toolEntity.OpenedDate.ToTime()).Minutes())
 			}
@@ -106,9 +117,17 @@ func ConvertBug(taskCtx plugin.SubTaskContext) errors.Error {
 				}
 				results = append(results, issueAssignee)
 			}
+
 			domainBoardIssue := &ticket.BoardIssue{
-				BoardId: boardIdGen.Generate(data.Options.ConnectionId, data.Options.ProductId),
+				BoardId: boardIdGen.Generate(data.Options.ConnectionId, data.Options.ProjectId),
 				IssueId: domainEntity.Id,
+			}
+			if toolEntity.Execution != 0 {
+				sprintIssue := &ticket.SprintIssue{
+					SprintId: executionIdGen.Generate(data.Options.ConnectionId, toolEntity.Execution),
+					IssueId:  domainEntity.Id,
+				}
+				results = append(results, sprintIssue)
 			}
 			results = append(results, domainEntity, domainBoardIssue)
 			return results, nil

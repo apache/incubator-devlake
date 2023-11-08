@@ -17,11 +17,11 @@
  */
 
 import { useEffect, useState } from 'react';
-import { FormGroup, InputGroup, Button, Icon, Intent } from '@blueprintjs/core';
+import { FormGroup, Button, Icon, Intent } from '@blueprintjs/core';
 
-import { ExternalLink } from '@/components';
-
-import * as API from '../api';
+import API from '@/api';
+import { ExternalLink, FormPassword } from '@/components';
+import { DOC_URL } from '@/release';
 
 import * as S from './styled';
 
@@ -34,7 +34,7 @@ type TokenItem = {
 
 interface Props {
   endpoint?: string;
-  proxy?: string;
+  proxy: string;
   initialValue: string;
   value: string;
   error: string;
@@ -53,7 +53,7 @@ export const Token = ({ endpoint, proxy, initialValue, value, error, setValue, s
     }
 
     try {
-      const res = await API.testConnection({
+      const res = await API.connection.test('github', {
         authMethod: 'AccessToken',
         endpoint,
         proxy,
@@ -117,7 +117,7 @@ export const Token = ({ endpoint, proxy, initialValue, value, error, setValue, s
         <S.LabelDescription>
           Add one or more personal token(s) for authentication from you and your organization members. Multiple tokens
           (from different GitHub accounts, NOT from one account) can help speed up the data collection process.{' '}
-          <ExternalLink link="https://devlake.apache.org/docs/Configuration/GitHub/#auth-tokens">
+          <ExternalLink link={DOC_URL.PLUGIN.GITHUB.AUTH_TOKEN}>
             Learn how to create a personal access token
           </ExternalLink>
         </S.LabelDescription>
@@ -126,10 +126,8 @@ export const Token = ({ endpoint, proxy, initialValue, value, error, setValue, s
       {tokens.map(({ value, isValid, status, from }, i) => (
         <S.Input key={i}>
           <div className="input">
-            <InputGroup
+            <FormPassword
               placeholder="Token"
-              type="password"
-              value={value ?? ''}
               onChange={(e) => handleChangeToken(i, e.target.value)}
               onBlur={() => handleTestToken(i)}
             />

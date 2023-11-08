@@ -39,31 +39,33 @@ var ExtractStoryMeta = plugin.SubTaskMeta{
 
 func ExtractStory(taskCtx plugin.SubTaskContext) errors.Error {
 	data := taskCtx.GetData().(*ZentaoTaskData)
-
-	// this collect only work for product
-	if data.Options.ProductId == 0 {
-		return nil
-	}
-
 	statusMappings := getStoryStatusMapping(data)
-	stdTypeMappings := getStdTypeMappings(data)
-
 	extractor, err := api.NewApiExtractor(api.ApiExtractorArgs{
 		RawDataSubTaskArgs: api.RawDataSubTaskArgs{
-			Ctx: taskCtx,
-			Params: ZentaoApiParams{
-				ConnectionId: data.Options.ConnectionId,
-				ProductId:    data.Options.ProductId,
-				ProjectId:    data.Options.ProjectId,
-			},
-			Table: RAW_STORY_TABLE,
+			Ctx:     taskCtx,
+			Options: data.Options,
+			Table:   RAW_STORY_TABLE,
 		},
 		Extract: func(row *api.RawData) ([]interface{}, errors.Error) {
-			res := &models.ZentaoStoryRes{}
-			err := json.Unmarshal(row.Data, res)
+			var inputParams storyInput
+			err := json.Unmarshal(row.Input, &inputParams)
 			if err != nil {
 				return nil, errors.Default.WrapRaw(err)
 			}
+			res := &models.ZentaoStoryRes{}
+			err = json.Unmarshal(row.Data, res)
+			if err != nil {
+				return nil, errors.Default.WrapRaw(err)
+			}
+
+			data.Stories[res.ID] = struct{}{}
+			var results []interface{}
+			projectStory := &models.ZentaoProjectStory{
+				ConnectionId: data.Options.ConnectionId,
+				ProjectId:    data.Options.ProjectId,
+				StoryId:      res.ID,
+			}
+			results = append(results, projectStory)
 			story := &models.ZentaoStory{
 				ConnectionId:     data.Options.ConnectionId,
 				ID:               res.ID,
@@ -92,19 +94,19 @@ func ExtractStory(taskCtx plugin.SubTaskContext) errors.Error {
 				Lib:              res.Lib,
 				FromStory:        res.FromStory,
 				FromVersion:      res.FromVersion,
-				OpenedById:       getAccountId(res.OpenedBy),
-				OpenedByName:     getAccountName(res.OpenedBy),
+				OpenedById:       data.AccountCache.getAccountIDFromApiAccount(res.OpenedBy),
+				OpenedByName:     data.AccountCache.getAccountNameFromApiAccount(res.OpenedBy),
 				OpenedDate:       res.OpenedDate,
-				AssignedToId:     getAccountId(res.AssignedTo),
-				AssignedToName:   getAccountName(res.AssignedTo),
+				AssignedToId:     data.AccountCache.getAccountIDFromApiAccount(res.AssignedTo),
+				AssignedToName:   data.AccountCache.getAccountNameFromApiAccount(res.AssignedTo),
 				AssignedDate:     res.AssignedDate,
 				ApprovedDate:     res.ApprovedDate,
-				LastEditedId:     getAccountId(res.LastEditedBy),
+				LastEditedId:     data.AccountCache.getAccountIDFromApiAccount(res.LastEditedBy),
 				LastEditedDate:   res.LastEditedDate,
 				ChangedDate:      res.ChangedDate,
-				ReviewedById:     getAccountId(res.ReviewedBy),
+				ReviewedById:     data.AccountCache.getAccountIDFromApiAccount(res.ReviewedBy),
 				ReviewedDate:     res.ReviewedDate,
-				ClosedId:         getAccountId(res.ClosedBy),
+				ClosedId:         data.AccountCache.getAccountIDFromApiAccount(res.ClosedBy),
 				ClosedDate:       res.ClosedDate,
 				ClosedReason:     res.ClosedReason,
 				ActivatedDate:    res.ActivatedDate,
@@ -122,14 +124,20 @@ func ExtractStory(taskCtx plugin.SubTaskContext) errors.Error {
 				PlanTitle:        res.PlanTitle,
 				Url:              row.Url,
 			}
-
-			story.StdType = stdTypeMappings[story.Type+"."+story.Category]
 			if story.StdType == "" {
 				story.StdType = ticket.REQUIREMENT
 			}
-
+			switch story.Status {
+			case "active", "closed", "draft", "changing", "reviewing":
+			default:
+				story.Status = "active"
+			}
 			if len(statusMappings) != 0 {
-				story.StdStatus = statusMappings[story.Status+"-"+story.Stage]
+				if stdStatus, ok := statusMappings[story.Status]; ok {
+					story.StdStatus = stdStatus
+				} else {
+					story.StdStatus = story.Status
+				}
 			} else {
 				story.StdStatus = ticket.GetStatus(&ticket.StatusRule{
 					Done:    []string{"closed"},
@@ -138,8 +146,16 @@ func ExtractStory(taskCtx plugin.SubTaskContext) errors.Error {
 				}, story.Stage)
 			}
 
-			results := make([]interface{}, 0)
 			results = append(results, story)
+			if inputParams.ExecutionId != 0 {
+				executionStory := &models.ZentaoExecutionStory{
+					ConnectionId: data.Options.ConnectionId,
+					ProjectId:    data.Options.ProjectId,
+					ExecutionId:  inputParams.ExecutionId,
+					StoryId:      story.ID,
+				}
+				results = append(results, executionStory)
+			}
 			return results, nil
 		},
 	})

@@ -21,6 +21,7 @@ import (
 	"fmt"
 	"reflect"
 	"strings"
+	"sync"
 
 	"github.com/apache/incubator-devlake/core/context"
 	"github.com/apache/incubator-devlake/core/dal"
@@ -28,7 +29,7 @@ import (
 	"github.com/apache/incubator-devlake/core/log"
 )
 
-// BatchSave performs mulitple records persistence of a specific type in one sql query to improve the performance
+// BatchSave performs multiple records persistence of a specific type in one sql query to improve the performance
 type BatchSave struct {
 	basicRes context.BasicRes
 	log      log.Logger
@@ -42,6 +43,8 @@ type BatchSave struct {
 	valueIndex map[string]int
 	primaryKey []reflect.StructField
 	tableName  string
+	mutex      sync.Mutex
+	lastErr    errors.Error
 }
 
 // NewBatchSave creates a new BatchSave instance
@@ -51,7 +54,7 @@ func NewBatchSave(basicRes context.BasicRes, slotType reflect.Type, size int, ta
 	}
 	db := basicRes.GetDal()
 	primaryKey := db.GetPrimaryKeyFields(slotType)
-	// check if it have primaryKey
+	// check if it has primaryKey
 	if len(primaryKey) == 0 {
 		return nil, errors.Default.New(fmt.Sprintf("%s no primary key", slotType.String()))
 	}
@@ -83,10 +86,14 @@ func (c *BatchSave) Add(slot interface{}) errors.Error {
 	if reflect.ValueOf(slot).Kind() != reflect.Ptr {
 		return errors.Default.New("slot is not a pointer")
 	}
+	if c.lastErr != nil {
+		return errors.Default.Wrap(c.lastErr, "add slot failed due to previous err")
+	}
 	stripZeroByte(slot)
 	// deduplication
 	key := getKeyValue(slot, c.primaryKey)
-
+	c.mutex.Lock()
+	defer c.mutex.Unlock()
 	if key != "" {
 		if index, ok := c.valueIndex[key]; !ok {
 			c.valueIndex[key] = c.current
@@ -97,17 +104,23 @@ func (c *BatchSave) Add(slot interface{}) errors.Error {
 	}
 	c.slots.Index(c.current).Set(reflect.ValueOf(slot))
 	c.current++
-	// flush out into database if max outed
+	// flush out into database if maxed out
 	if c.current == c.size {
-		return c.Flush()
+		return c.flushWithoutLocking()
 	} else if c.current%100 == 0 {
 		c.log.Debug("batch save current: %d", c.current)
 	}
 	return nil
 }
 
-// Flush save cached records into database
+// Flush save cached records into database, even if cache is not maxed out
 func (c *BatchSave) Flush() errors.Error {
+	c.mutex.Lock()
+	defer c.mutex.Unlock()
+	return c.flushWithoutLocking()
+}
+
+func (c *BatchSave) flushWithoutLocking() errors.Error {
 	if c.current == 0 {
 		return nil
 	}
@@ -117,6 +130,7 @@ func (c *BatchSave) Flush() errors.Error {
 	}
 	err := c.db.CreateOrUpdate(c.slots.Slice(0, c.current).Interface(), clauses...)
 	if err != nil {
+		c.lastErr = err
 		return err
 	}
 	c.log.Debug("batch save flush total %d records to database", c.current)
@@ -125,10 +139,12 @@ func (c *BatchSave) Flush() errors.Error {
 	return nil
 }
 
-// Close would flash the cache and release resources
+// Close would flush the cache and release resources
 func (c *BatchSave) Close() errors.Error {
+	c.mutex.Lock()
+	defer c.mutex.Unlock()
 	if c.current > 0 {
-		return c.Flush()
+		return c.flushWithoutLocking()
 	}
 	return nil
 }

@@ -18,9 +18,41 @@ limitations under the License.
 package models
 
 import (
+	"bytes"
+	"encoding/json"
+
 	"github.com/apache/incubator-devlake/core/models/common"
-	helper "github.com/apache/incubator-devlake/helpers/pluginhelper/api"
 )
+
+type ApiAccount struct {
+	ID       int64  `json:"id"`
+	Account  string `json:"account"`
+	Avatar   string `json:"avatar"`
+	Realname string `json:"realname"`
+}
+
+func (a *ApiAccount) UnmarshalJSON(data []byte) error {
+	var dst struct {
+		ID       int64  `json:"id"`
+		Account  string `json:"account"`
+		Avatar   string `json:"avatar"`
+		Realname string `json:"realname"`
+	}
+	data = bytes.TrimSpace(data)
+	if string(data) == "null" {
+		a = nil
+	}
+	if len(data) > 1 && data[0] == '"' && data[len(data)-1] == '"' {
+		dst.Account = string(data[1 : len(data)-1])
+	} else {
+		err := json.Unmarshal(data, &dst)
+		if err != nil {
+			return err
+		}
+	}
+	*a = dst
+	return nil
+}
 
 type ZentaoBugRes struct {
 	ID             int64               `json:"id"`
@@ -52,21 +84,21 @@ type ZentaoBugRes struct {
 	Color          string              `json:"color"`
 	Confirmed      int                 `json:"confirmed"`
 	ActivatedCount int                 `json:"activatedCount"`
-	ActivatedDate  *helper.Iso8601Time `json:"activatedDate"`
+	ActivatedDate  *common.Iso8601Time `json:"activatedDate"`
 	FeedbackBy     string              `json:"feedbackBy"`
 	NotifyEmail    string              `json:"notifyEmail"`
-	OpenedBy       *ZentaoAccount      `json:"openedBy"`
-	OpenedDate     *helper.Iso8601Time `json:"openedDate"`
+	OpenedBy       *ApiAccount         `json:"openedBy"`
+	OpenedDate     *common.Iso8601Time `json:"openedDate"`
 	OpenedBuild    string              `json:"openedBuild"`
-	AssignedTo     *ZentaoAccount      `json:"assignedTo"`
-	AssignedDate   *helper.Iso8601Time `json:"assignedDate"`
+	AssignedTo     *ApiAccount         `json:"assignedTo"`
+	AssignedDate   *common.Iso8601Time `json:"assignedDate"`
 	Deadline       string              `json:"deadline"`
-	ResolvedBy     *ZentaoAccount      `json:"resolvedBy"`
+	ResolvedBy     *ApiAccount         `json:"resolvedBy"`
 	Resolution     string              `json:"resolution"`
 	ResolvedBuild  string              `json:"resolvedBuild"`
-	ResolvedDate   *helper.Iso8601Time `json:"resolvedDate"`
-	ClosedBy       *ZentaoAccount      `json:"closedBy"`
-	ClosedDate     *helper.Iso8601Time `json:"closedDate"`
+	ResolvedDate   *common.Iso8601Time `json:"resolvedDate"`
+	ClosedBy       *ApiAccount         `json:"closedBy"`
+	ClosedDate     *common.Iso8601Time `json:"closedDate"`
 	DuplicateBug   int                 `json:"duplicateBug"`
 	LinkBug        string              `json:"linkBug"`
 	Feedback       int                 `json:"feedback"`
@@ -80,8 +112,8 @@ type ZentaoBugRes struct {
 	RepoType       string              `json:"repoType"`
 	IssueKey       string              `json:"issueKey"`
 	Testtask       int                 `json:"testtask"`
-	LastEditedBy   *ZentaoAccount      `json:"lastEditedBy"`
-	LastEditedDate *helper.Iso8601Time `json:"lastEditedDate"`
+	LastEditedBy   *ApiAccount         `json:"lastEditedBy"`
+	LastEditedDate *common.Iso8601Time `json:"lastEditedDate"`
 	Deleted        bool                `json:"deleted"`
 	PriOrder       string              `json:"priOrder"`
 	SeverityOrder  int                 `json:"severityOrder"`
@@ -122,23 +154,23 @@ type ZentaoBug struct {
 	Color          string              `json:"color"`
 	Confirmed      int                 `json:"confirmed"`
 	ActivatedCount int                 `json:"activatedCount"`
-	ActivatedDate  *helper.Iso8601Time `json:"activatedDate"`
+	ActivatedDate  *common.Iso8601Time `json:"activatedDate"`
 	FeedbackBy     string              `json:"feedbackBy"`
 	NotifyEmail    string              `json:"notifyEmail"`
 	OpenedById     int64
 	OpenedByName   string
-	OpenedDate     *helper.Iso8601Time `json:"openedDate"`
+	OpenedDate     *common.Iso8601Time `json:"openedDate"`
 	OpenedBuild    string              `json:"openedBuild"`
 	AssignedToId   int64
 	AssignedToName string
-	AssignedDate   *helper.Iso8601Time `json:"assignedDate"`
+	AssignedDate   *common.Iso8601Time `json:"assignedDate"`
 	Deadline       string              `json:"deadline"`
 	ResolvedById   int64
 	Resolution     string              `json:"resolution"`
 	ResolvedBuild  string              `json:"resolvedBuild"`
-	ResolvedDate   *helper.Iso8601Time `json:"resolvedDate"`
+	ResolvedDate   *common.Iso8601Time `json:"resolvedDate"`
 	ClosedById     int64
-	ClosedDate     *helper.Iso8601Time `json:"closedDate"`
+	ClosedDate     *common.Iso8601Time `json:"closedDate"`
 	DuplicateBug   int                 `json:"duplicateBug"`
 	LinkBug        string              `json:"linkBug"`
 	Feedback       int                 `json:"feedback"`
@@ -153,7 +185,7 @@ type ZentaoBug struct {
 	IssueKey       string              `json:"issueKey"`
 	Testtask       int                 `json:"testtask"`
 	LastEditedById int64
-	LastEditedDate *helper.Iso8601Time `json:"lastEditedDate"`
+	LastEditedDate *common.Iso8601Time `json:"lastEditedDate"`
 	Deleted        bool                `json:"deleted"`
 	PriOrder       string              `json:"priOrder"`
 	SeverityOrder  int                 `json:"severityOrder"`

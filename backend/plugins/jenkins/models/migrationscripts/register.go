@@ -34,5 +34,6 @@ func All() []plugin.MigrationScript {
 		new(addFullNameForBuilds),
 		new(addConnectionIdToTransformationRule),
 		new(renameTr2ScopeConfig),
+		new(addRawParamTableForScope),
 	}
 }

@@ -19,7 +19,6 @@ package models
 
 import (
 	"github.com/apache/incubator-devlake/core/models/common"
-	helper "github.com/apache/incubator-devlake/helpers/pluginhelper/api"
 )
 
 type TapdIterationBug struct {
@@ -28,8 +27,8 @@ type TapdIterationBug struct {
 	IterationId    uint64 `gorm:"primaryKey"`
 	WorkspaceId    uint64 `gorm:"primaryKey"`
 	BugId          uint64 `gorm:"primaryKey"`
-	ResolutionDate *helper.CSTTime
-	BugCreatedDate *helper.CSTTime
+	ResolutionDate *common.CSTTime
+	BugCreatedDate *common.CSTTime
 }
 
 func (TapdIterationBug) TableName() string {

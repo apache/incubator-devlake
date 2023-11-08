@@ -23,14 +23,13 @@ import (
 	"io"
 	"net/http"
 	"net/url"
-	"strconv"
-	"time"
 
 	"github.com/apache/incubator-devlake/plugins/gitlab/tasks"
 
 	"github.com/apache/incubator-devlake/core/errors"
 	"github.com/apache/incubator-devlake/core/utils"
 
+	coreModels "github.com/apache/incubator-devlake/core/models"
 	"github.com/apache/incubator-devlake/core/models/domainlayer/code"
 	"github.com/apache/incubator-devlake/core/models/domainlayer/devops"
 	"github.com/apache/incubator-devlake/core/models/domainlayer/didgen"
@@ -38,28 +37,31 @@ import (
 	plugin "github.com/apache/incubator-devlake/core/plugin"
 	helper "github.com/apache/incubator-devlake/helpers/pluginhelper/api"
 	aha "github.com/apache/incubator-devlake/helpers/pluginhelper/api/apihelperabstract"
+	"github.com/apache/incubator-devlake/helpers/srvhelper"
 	"github.com/apache/incubator-devlake/plugins/gitlab/models"
 )
 
 func MakePipelinePlanV200(
 	subtaskMetas []plugin.SubTaskMeta,
 	connectionId uint64,
-	scope []*plugin.BlueprintScopeV200,
-	syncPolicy *plugin.BlueprintSyncPolicy,
-) (plugin.PipelinePlan, []plugin.Scope, errors.Error) {
-	var err errors.Error
-	connection := new(models.GitlabConnection)
-	err1 := connectionHelper.FirstById(connection, connectionId)
-	if err1 != nil {
-		return nil, nil, errors.Default.Wrap(err1, fmt.Sprintf("error on get connection by id[%d]", connectionId))
+	bpScopes []*coreModels.BlueprintScope,
+) (coreModels.PipelinePlan, []plugin.Scope, errors.Error) {
+	// load connection, scope and scopeConfig from the db
+	connection, err := dsHelper.ConnSrv.FindByPk(connectionId)
+	if err != nil {
+		return nil, nil, err
 	}
-
-	sc, err := makeScopeV200(connectionId, scope)
+	scopeDetails, err := dsHelper.ScopeApi.MapScopeDetails(connectionId, bpScopes)
 	if err != nil {
 		return nil, nil, err
 	}
 
-	pp, err := makePipelinePlanV200(subtaskMetas, scope, connection, syncPolicy)
+	sc, err := makeScopeV200(connectionId, scopeDetails)
+	if err != nil {
+		return nil, nil, err
+	}
+
+	pp, err := makePipelinePlanV200(subtaskMetas, connection, scopeDetails)
 	if err != nil {
 		return nil, nil, err
 	}
@@ -67,21 +69,15 @@ func MakePipelinePlanV200(
 	return pp, sc, nil
 }
 
-func makeScopeV200(connectionId uint64, scopes []*plugin.BlueprintScopeV200) ([]plugin.Scope, errors.Error) {
-	sc := make([]plugin.Scope, 0, 3*len(scopes))
+func makeScopeV200(
+	connectionId uint64,
+	scopeDetails []*srvhelper.ScopeDetail[models.GitlabProject, models.GitlabScopeConfig],
+) ([]plugin.Scope, errors.Error) {
+	sc := make([]plugin.Scope, 0, 3*len(scopeDetails))
 
-	for _, scope := range scopes {
-		intScopeId, err1 := strconv.Atoi(scope.Id)
-		if err1 != nil {
-			return nil, errors.Default.Wrap(err1, fmt.Sprintf("Failed to strconv.Atoi for scope.Id [%s]", scope.Id))
-		}
-		id := didgen.NewDomainIdGenerator(&models.GitlabProject{}).Generate(connectionId, intScopeId)
-
-		// get repo from db
-		gitlabProject, scopeConfig, err := scopeHelper.DbHelper().GetScopeAndConfig(connectionId, scope.Id)
-		if err != nil {
-			return nil, err
-		}
+	for _, scope := range scopeDetails {
+		gitlabProject, scopeConfig := scope.Scope, scope.ScopeConfig
+		id := didgen.NewDomainIdGenerator(&models.GitlabProject{}).Generate(connectionId, gitlabProject.GitlabId)
 
 		if utils.StringsContains(scopeConfig.Entities, plugin.DOMAIN_TYPE_CODE_REVIEW) ||
 			utils.StringsContains(scopeConfig.Entities, plugin.DOMAIN_TYPE_CODE) {
@@ -112,33 +108,20 @@ func makeScopeV200(connectionId uint64, scopes []*plugin.BlueprintScopeV200) ([]
 
 func makePipelinePlanV200(
 	subtaskMetas []plugin.SubTaskMeta,
-	scopes []*plugin.BlueprintScopeV200,
-	connection *models.GitlabConnection, syncPolicy *plugin.BlueprintSyncPolicy,
-) (plugin.PipelinePlan, errors.Error) {
-	plans := make(plugin.PipelinePlan, 0, 3*len(scopes))
-	for _, scope := range scopes {
-		var stage plugin.PipelineStage
+	connection *models.GitlabConnection,
+	scopeDetails []*srvhelper.ScopeDetail[models.GitlabProject, models.GitlabScopeConfig],
+) (coreModels.PipelinePlan, errors.Error) {
+	plans := make(coreModels.PipelinePlan, 0, 3*len(scopeDetails))
+	for _, scope := range scopeDetails {
+		gitlabProject, scopeConfig := scope.Scope, scope.ScopeConfig
+		var stage coreModels.PipelineStage
 		var err errors.Error
 		// get repo
-		gitlabProject, scopeConfig, err := scopeHelper.DbHelper().GetScopeAndConfig(connection.ID, scope.Id)
-		if err != nil {
-			return nil, err
-		}
-
-		// get int scopeId
-		intScopeId, err1 := strconv.Atoi(scope.Id)
-		if err != nil {
-			return nil, errors.Default.Wrap(err1, fmt.Sprintf("Failed to strconv.Atoi for scope.Id [%s]", scope.Id))
-		}
 
 		// gitlab main part
 		options := make(map[string]interface{})
 		options["connectionId"] = connection.ID
-		options["projectId"] = intScopeId
-		options["scopeConfigId"] = scopeConfig.ID
-		if syncPolicy.TimeAfter != nil {
-			options["timeAfter"] = syncPolicy.TimeAfter.Format(time.RFC3339)
-		}
+		options["projectId"] = gitlabProject.GitlabId
 
 		// construct subtasks
 		subtasks, err := helper.MakePipelinePlanSubtasks(subtaskMetas, scopeConfig.Entities)
@@ -146,7 +129,7 @@ func makePipelinePlanV200(
 			return nil, err
 		}
 
-		stage = append(stage, &plugin.PipelineTask{
+		stage = append(stage, &coreModels.PipelineTask{
 			Plugin:   "gitlab",
 			Subtasks: subtasks,
 			Options:  options,
@@ -159,7 +142,7 @@ func makePipelinePlanV200(
 				return nil, err
 			}
 			cloneUrl.User = url.UserPassword("git", connection.Token)
-			stage = append(stage, &plugin.PipelineTask{
+			stage = append(stage, &coreModels.PipelineTask{
 				Plugin: "gitextractor",
 				Options: map[string]interface{}{
 					"url":    cloneUrl.String(),
@@ -174,11 +157,11 @@ func makePipelinePlanV200(
 
 		// refdiff part
 		if scopeConfig.Refdiff != nil {
-			task := &plugin.PipelineTask{
+			task := &coreModels.PipelineTask{
 				Plugin:  "refdiff",
 				Options: scopeConfig.Refdiff,
 			}
-			plans = append(plans, plugin.PipelineStage{task})
+			plans = append(plans, coreModels.PipelineStage{task})
 		}
 	}
 	return plans, nil

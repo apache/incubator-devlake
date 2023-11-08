@@ -439,20 +439,19 @@ type IncidentsLogEntriesElemTeamsElem struct {
 }
 
 type IncidentsPriority struct {
-	// HtmlUrl corresponds to the JSON schema field "html_url".
-	HtmlUrl *string `json:"html_url,omitempty"`
-
-	// Id corresponds to the JSON schema field "id".
-	Id *string `json:"id,omitempty"`
-
-	// Self corresponds to the JSON schema field "self".
-	Self *string `json:"self,omitempty"`
-
-	// Summary corresponds to the JSON schema field "summary".
-	Summary *string `json:"summary,omitempty"`
-
-	// Type corresponds to the JSON schema field "type".
-	Type *string `json:"type,omitempty"`
+	HtmlUrl       *string    `json:"html_url,omitempty"`
+	Id            *string    `json:"id,omitempty"`
+	Self          *string    `json:"self,omitempty"`
+	Summary       *string    `json:"summary,omitempty"`
+	Type          *string    `json:"type,omitempty"`
+	AccountId     *string    `json:"account_id,omitempty"`
+	Color         *string    `json:"color,omitempty"`
+	CreatedAt     *time.Time `json:"created_at,omitempty"`
+	Description   *string    `json:"description,omitempty"`
+	Name          *string    `json:"name,omitempty"`
+	Order         *int       `json:"order,omitempty"`
+	SchemaVersion *int       `json:"schema_version,omitempty"`
+	UpdatedAt     *time.Time `json:"updated_at,omitempty"`
 }
 
 type IncidentsService struct {

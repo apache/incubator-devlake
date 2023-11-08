@@ -18,12 +18,12 @@ limitations under the License.
 package archived
 
 import (
-	"gorm.io/datatypes"
+	"encoding/json"
 )
 
 type Blueprint struct {
 	Name       string
-	Tasks      datatypes.JSON
+	Tasks      json.RawMessage `gorm:"type:json"`
 	Enable     bool
 	CronConfig string
 	Model
@@ -31,4 +31,25 @@ type Blueprint struct {
 
 func (Blueprint) TableName() string {
 	return "_devlake_blueprints"
+}
+
+type BlueprintConnection struct {
+	BlueprintId  uint64 `gorm:"primaryKey"`
+	PluginName   string `gorm:"primaryKey;type:varchar(255)"`
+	ConnectionId uint64 `gorm:"primaryKey"`
+}
+
+func (BlueprintConnection) TableName() string {
+	return "_devlake_blueprint_connections"
+}
+
+type BlueprintScope struct {
+	BlueprintId  uint64 `gorm:"primaryKey"`
+	PluginName   string `gorm:"primaryKey;type:varchar(255)"`
+	ConnectionId uint64 `gorm:"primaryKey"`
+	ScopeId      string `gorm:"primaryKey;type:varchar(255)"`
+}
+
+func (BlueprintScope) TableName() string {
+	return "_devlake_blueprint_scopes"
 }

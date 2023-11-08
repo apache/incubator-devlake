@@ -92,7 +92,6 @@ func TestPrReviewDataFlow(t *testing.T) {
 			"account_id",
 			"created_date",
 			"commit_sha",
-			"position",
 			"type",
 			"review_id",
 			"status",

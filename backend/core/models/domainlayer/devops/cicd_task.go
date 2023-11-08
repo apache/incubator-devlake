@@ -35,6 +35,8 @@ const (
 	TESTING    = "TESTING"
 )
 
+const ENV_NAME_PATTERN = "ENV_NAME_PATTERN"
+
 type CICDTask struct {
 	domainlayer.DomainEntity
 	Name         string `gorm:"type:varchar(255)"`

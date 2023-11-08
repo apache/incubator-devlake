@@ -16,6 +16,9 @@
  *
  */
 
+import type { PaginationProps } from '../pagination';
+import { Pagination } from '../pagination';
+
 import type { TableContentProps } from './components';
 import { TableLoading, TableNoData, TableContent } from './components';
 
@@ -26,9 +29,16 @@ interface Props<T> extends TableContentProps<T> {
     btnText?: string;
     onCreate?: () => void;
   };
+  pagination?: PaginationProps;
 }
 
-export const Table = <T extends Record<string, any>>({ loading, dataSource, noData = {}, ...props }: Props<T>) => {
+export const Table = <T extends Record<string, any>>({
+  loading,
+  dataSource,
+  noData = {},
+  pagination,
+  ...props
+}: Props<T>) => {
   if (loading) {
     return <TableLoading />;
   }
@@ -37,5 +47,10 @@ export const Table = <T extends Record<string, any>>({ loading, dataSource, noDa
     return <TableNoData {...noData} />;
   }
 
-  return <TableContent dataSource={dataSource} {...props} />;
+  return (
+    <>
+      <TableContent dataSource={dataSource} {...props} />
+      {pagination && <Pagination {...pagination} />}
+    </>
+  );
 };

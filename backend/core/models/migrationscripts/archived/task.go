@@ -18,15 +18,14 @@ limitations under the License.
 package archived
 
 import (
+	"encoding/json"
 	"time"
-
-	"gorm.io/datatypes"
 )
 
 type Task struct {
 	Model
-	Plugin        string `gorm:"index"`
-	Options       datatypes.JSON
+	Plugin        string          `gorm:"index"`
+	Options       json.RawMessage `gorm:"type:json"`
 	Status        string
 	Message       string
 	Progress      float32

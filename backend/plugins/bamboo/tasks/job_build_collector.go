@@ -27,7 +27,7 @@ import (
 	"github.com/apache/incubator-devlake/plugins/bamboo/models"
 )
 
-const RAW_JOB_BUILD_TABLE = "bamboo_api_job_build"
+const RAW_JOB_BUILD_TABLE = "bamboo_api_job_builds"
 
 var _ plugin.SubTaskEntryPoint = CollectJobBuild
 
@@ -43,7 +43,7 @@ func CollectJobBuild(taskCtx plugin.SubTaskContext) errors.Error {
 	clauses := []dal.Clause{
 		dal.Select("job_key, plan_name, plan_key"),
 		dal.From(models.BambooJob{}.TableName()),
-		dal.Where("project_key = ? and connection_id=?", data.Options.ProjectKey, data.Options.ConnectionId),
+		dal.Where("plan_key = ? and connection_id=?", data.Options.PlanKey, data.Options.ConnectionId),
 	}
 	cursor, err := db.Cursor(
 		clauses...,

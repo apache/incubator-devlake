@@ -18,21 +18,21 @@ limitations under the License.
 package archived
 
 import (
-	"github.com/apache/incubator-devlake/core/models/migrationscripts/archived"
+	"encoding/json"
 	"time"
 
-	"gorm.io/datatypes"
+	"github.com/apache/incubator-devlake/core/models/migrationscripts/archived"
 )
 
 type JiraRemotelink struct {
 	archived.NoPKModel
 
 	// collected fields
-	ConnectionId uint64 `gorm:"primaryKey"`
-	RemotelinkId uint64 `gorm:"primarykey"`
-	IssueId      uint64 `gorm:"index"`
-	RawJson      datatypes.JSON
-	Self         string `gorm:"type:varchar(255)"`
+	ConnectionId uint64          `gorm:"primaryKey"`
+	RemotelinkId uint64          `gorm:"primarykey"`
+	IssueId      uint64          `gorm:"index"`
+	RawJson      json.RawMessage `gorm:"type:json"`
+	Self         string          `gorm:"type:varchar(255)"`
 	Title        string
 	Url          string `gorm:"type:varchar(255)"`
 	IssueUpdated *time.Time

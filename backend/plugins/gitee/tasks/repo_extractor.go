@@ -20,7 +20,9 @@ package tasks
 import (
 	"encoding/json"
 	"fmt"
+
 	"github.com/apache/incubator-devlake/core/errors"
+	"github.com/apache/incubator-devlake/core/models/common"
 	"github.com/apache/incubator-devlake/core/plugin"
 	"github.com/apache/incubator-devlake/helpers/pluginhelper/api"
 	"github.com/apache/incubator-devlake/plugins/gitee/models"
@@ -42,8 +44,8 @@ type GiteeApiRepoResponse struct {
 	Description string                `json:"description"`
 	Owner       models.GiteeAccount   `json:"owner"`
 	Parent      *GiteeApiRepoResponse `json:"parent"`
-	CreatedAt   api.Iso8601Time       `json:"created_at"`
-	UpdatedAt   *api.Iso8601Time      `json:"updated_at"`
+	CreatedAt   common.Iso8601Time    `json:"created_at"`
+	UpdatedAt   *common.Iso8601Time   `json:"updated_at"`
 }
 
 func ExtractApiRepositories(taskCtx plugin.SubTaskContext) errors.Error {
@@ -61,16 +63,18 @@ func ExtractApiRepositories(taskCtx plugin.SubTaskContext) errors.Error {
 			}
 			results := make([]interface{}, 0, 1)
 			giteeRepository := &models.GiteeRepo{
-				ConnectionId: data.Options.ConnectionId,
-				GiteeId:      repo.GiteeId,
-				Name:         repo.Name,
-				HTMLUrl:      repo.HTMLUrl,
-				Description:  repo.Description,
-				OwnerId:      repo.Owner.Id,
-				OwnerLogin:   repo.Owner.Login,
-				Language:     repo.Language,
-				CreatedDate:  repo.CreatedAt.ToTime(),
-				UpdatedDate:  api.Iso8601TimeToTime(repo.UpdatedAt),
+				Scope: common.Scope{
+					ConnectionId: data.Options.ConnectionId,
+				},
+				GiteeId:     repo.GiteeId,
+				Name:        repo.Name,
+				HTMLUrl:     repo.HTMLUrl,
+				Description: repo.Description,
+				OwnerId:     repo.Owner.Id,
+				OwnerLogin:  repo.Owner.Login,
+				Language:    repo.Language,
+				CreatedDate: repo.CreatedAt.ToTime(),
+				UpdatedDate: common.Iso8601TimeToTime(repo.UpdatedAt),
 			}
 			data.Repo = giteeRepository
 

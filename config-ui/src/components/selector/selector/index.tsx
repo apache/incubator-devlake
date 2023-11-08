@@ -25,6 +25,7 @@ interface Props<T> {
   disabledItems?: T[];
   getKey?: (item: T) => ID;
   getName?: (item: T) => string;
+  getIcon?: (item: T) => string;
   selectedItem?: T;
   onChangeItem?: (selectedItem: T) => void;
 }
@@ -34,6 +35,7 @@ export const Selector = <T,>({
   disabledItems = [],
   getKey = (it) => it as string,
   getName = (it) => it as string,
+  getIcon,
   onChangeItem,
   ...props
 }: Props<T>) => {
@@ -53,9 +55,18 @@ export const Selector = <T,>({
   const itemRenderer = (item: T, { handleClick }: any) => {
     const key = getKey(item);
     const name = getName(item);
+    const icon = getIcon?.(item) ?? null;
     const disabled = !!disabledItems.find((it) => getKey(it) === getKey(item)) || selectedItem === item;
 
-    return <MenuItem key={key} disabled={disabled} text={<span>{name}</span>} onClick={handleClick} />;
+    return (
+      <MenuItem
+        key={key}
+        disabled={disabled}
+        text={<span>{name}</span>}
+        icon={icon ? <img src={icon} alt="" width={20} /> : null}
+        onClick={handleClick}
+      />
+    );
   };
 
   const handleItemSelect = (item: T) => {

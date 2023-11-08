@@ -19,29 +19,28 @@ package models
 
 import (
 	"github.com/apache/incubator-devlake/core/models/common"
-	"github.com/apache/incubator-devlake/helpers/pluginhelper/api"
 )
 
 type TeambitionAccount struct {
-	ConnectionId   uint64           `gorm:"primaryKey;type:BIGINT"`
-	UserId         string           `gorm:"primaryKey;type:varchar(100)" json:"userId"`
-	MemberId       string           `gorm:"type:varchar(100)" json:"memberId"`
-	IsDisabled     int              `json:"isDisabled"`
-	Role           uint64           `json:"role"`
-	AvatarUrl      string           `gorm:"type:varchar(255)" json:"avatarUrl"`
-	Birthday       string           `gorm:"type:varchar(100)" json:"birthday"`
-	City           string           `gorm:"type:varchar(100)" json:"city"`
-	Province       string           `gorm:"type:varchar(100)" json:"province"`
-	Country        string           `gorm:"type:varchar(100)" json:"country"`
-	Email          string           `gorm:"type:varchar(255)" json:"email"`
-	EntryTime      *api.Iso8601Time `json:"entryTime"`
-	Name           string           `gorm:"index;type:varchar(255)" json:"name"`
-	Phone          string           `gorm:"type:varchar(100)" json:"phone"`
-	Title          string           `gorm:"type:varchar(255)" json:"title"`
-	Pinyin         string           `gorm:"type:varchar(255)" json:"pinyin"`
-	Py             string           `gorm:"type:varchar(255)" json:"py"`
-	StaffType      string           `gorm:"type:varchar(255)" json:"staffType"`
-	EmployeeNumber string           `gorm:"type:varchar(100)" json:"employeeNumber"`
+	ConnectionId   uint64              `gorm:"primaryKey;type:BIGINT"`
+	UserId         string              `gorm:"primaryKey;type:varchar(100)" json:"userId"`
+	MemberId       string              `gorm:"type:varchar(100)" json:"memberId"`
+	IsDisabled     int                 `json:"isDisabled"`
+	Role           uint64              `json:"role"`
+	AvatarUrl      string              `gorm:"type:varchar(255)" json:"avatarUrl"`
+	Birthday       string              `gorm:"type:varchar(100)" json:"birthday"`
+	City           string              `gorm:"type:varchar(100)" json:"city"`
+	Province       string              `gorm:"type:varchar(100)" json:"province"`
+	Country        string              `gorm:"type:varchar(100)" json:"country"`
+	Email          string              `gorm:"type:varchar(255)" json:"email"`
+	EntryTime      *common.Iso8601Time `json:"entryTime"`
+	Name           string              `gorm:"index;type:varchar(255)" json:"name"`
+	Phone          string              `gorm:"type:varchar(100)" json:"phone"`
+	Title          string              `gorm:"type:varchar(255)" json:"title"`
+	Pinyin         string              `gorm:"type:varchar(255)" json:"pinyin"`
+	Py             string              `gorm:"type:varchar(255)" json:"py"`
+	StaffType      string              `gorm:"type:varchar(255)" json:"staffType"`
+	EmployeeNumber string              `gorm:"type:varchar(100)" json:"employeeNumber"`
 
 	common.NoPKModel
 }

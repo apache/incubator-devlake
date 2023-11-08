@@ -19,7 +19,9 @@ package tasks
 
 import (
 	"encoding/json"
+
 	"github.com/apache/incubator-devlake/core/errors"
+	"github.com/apache/incubator-devlake/core/models/common"
 	"github.com/apache/incubator-devlake/core/plugin"
 	"github.com/apache/incubator-devlake/helpers/pluginhelper/api"
 	"github.com/apache/incubator-devlake/plugins/gitlab/models"
@@ -35,7 +37,7 @@ type MergeRequestNote struct {
 	MergeRequestIid int    `json:"noteable_iid"`
 	NoteableType    string `json:"noteable_type"`
 	Body            string
-	GitlabCreatedAt api.Iso8601Time `json:"created_at"`
+	GitlabCreatedAt common.Iso8601Time `json:"created_at"`
 	Confidential    bool
 	Resolvable      bool `json:"resolvable"`
 	System          bool `json:"system"`

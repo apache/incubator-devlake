@@ -38,12 +38,3 @@ type RefCommit struct {
 func (RefCommit) TableName() string {
 	return "ref_commits"
 }
-
-type FinishedCommitsDiff struct {
-	NewCommitSha string `gorm:"primaryKey;type:varchar(40)"`
-	OldCommitSha string `gorm:"primaryKey;type:varchar(40)"`
-}
-
-func (FinishedCommitsDiff) TableName() string {
-	return "_tool_refdiff_finished_commits_diffs"
-}

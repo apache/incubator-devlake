@@ -19,10 +19,11 @@ package didgen
 
 import (
 	"fmt"
+	"reflect"
+
 	"github.com/apache/incubator-devlake/core/errors"
 	plugin "github.com/apache/incubator-devlake/core/plugin"
 	"github.com/apache/incubator-devlake/impls/dalgorm"
-	"reflect"
 )
 
 type DomainIdGenerator struct {
@@ -65,15 +66,19 @@ func NewDomainIdGenerator(entityPtr interface{}) *DomainIdGenerator {
 }
 
 func (g *DomainIdGenerator) Generate(pkValues ...interface{}) string {
+	if len(pkValues) != len(g.pk) {
+		panic(fmt.Errorf("primary key values do not match, expected %v, got %v", len(g.pk), len(pkValues)))
+	}
 	id := g.prefix
-	for i, pkValue := range pkValues {
+	for i, pkField := range g.pk {
 		// append pk
+		pkValue := pkValues[i]
 		id += ":" + fmt.Sprintf("%v", pkValue)
 		// type checking
 		pkValueType := reflect.TypeOf(pkValue)
 		if pkValueType == wildcardType {
 			break
-		} else if pkValueType != g.pk[i].Type {
+		} else if pkValueType != pkField.Type {
 			panic(errors.Default.New(fmt.Sprintf("primary key type does not match: %s is %s type, and it should be %s type",
 				g.pk[i].Name,
 				pkValueType.Name(),

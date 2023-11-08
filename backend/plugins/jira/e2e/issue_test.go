@@ -36,19 +36,19 @@ func TestIssueDataFlow(t *testing.T) {
 		Options: &tasks.JiraOptions{
 			ConnectionId: 2,
 			BoardId:      8,
-			ScopeConfig: &tasks.JiraScopeConfig{
+			ScopeConfig: &models.JiraScopeConfig{
 				StoryPointField: "customfield_10024",
-				TypeMappings: map[string]tasks.TypeMapping{
+				TypeMappings: map[string]models.TypeMapping{
 					"子任务": {
 						StandardType: "Sub-task",
-						StatusMappings: map[string]tasks.StatusMapping{
+						StatusMappings: map[string]models.StatusMapping{
 							"done": {StandardStatus: "你好世界"},
 							"new":  {StandardStatus: "\u6069\u5E95\u6EF4\u68AF\u6B38\u592B\u5178\u4EA2\u59C6"},
 						},
 					},
 					"任务": {
 						StandardType: "Task",
-						StatusMappings: map[string]tasks.StatusMapping{
+						StatusMappings: map[string]models.StatusMapping{
 							"done": {StandardStatus: "hello world"},
 							"new":  {StandardStatus: "110 100 100 116 102 46 99 111 109"},
 						},

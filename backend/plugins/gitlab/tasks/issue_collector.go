@@ -46,16 +46,14 @@ var CollectApiIssuesMeta = plugin.SubTaskMeta{
 
 func CollectApiIssues(taskCtx plugin.SubTaskContext) errors.Error {
 	rawDataSubTaskArgs, data := CreateRawDataSubTaskArgs(taskCtx, RAW_ISSUE_TABLE)
-	collectorWithState, err := helper.NewStatefulApiCollector(*rawDataSubTaskArgs, data.TimeAfter)
+	collectorWithState, err := helper.NewStatefulApiCollector(*rawDataSubTaskArgs)
 	if err != nil {
 		return err
 	}
 
-	incremental := collectorWithState.IsIncremental()
 	err = collectorWithState.InitCollector(helper.ApiCollectorArgs{
-		ApiClient:   data.ApiClient,
-		PageSize:    100,
-		Incremental: incremental,
+		ApiClient: data.ApiClient,
+		PageSize:  100,
 
 		UrlTemplate: "projects/{{ .Params.ProjectId }}/issues",
 		/*
@@ -63,11 +61,8 @@ func CollectApiIssues(taskCtx plugin.SubTaskContext) errors.Error {
 		*/
 		Query: func(reqData *helper.RequestData) (url.Values, errors.Error) {
 			query := url.Values{}
-			if collectorWithState.TimeAfter != nil {
-				query.Set("updated_after", collectorWithState.TimeAfter.Format(time.RFC3339))
-			}
-			if incremental {
-				query.Set("updated_after", collectorWithState.LatestState.LatestSuccessStart.Format(time.RFC3339))
+			if collectorWithState.Since != nil {
+				query.Set("updated_after", collectorWithState.Since.Format(time.RFC3339))
 			}
 			query.Set("sort", "asc")
 			query.Set("page", fmt.Sprintf("%v", reqData.Pager.Page))

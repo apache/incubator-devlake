@@ -23,7 +23,7 @@
 #While incubation status is not necessarily a reflection of the completeness or stability of the code,
 #it does indicate that the project has yet to be fully endorsed by the ASF.
 
-FROM grafana/grafana:9.5.1
+FROM grafana/grafana:9.5.2
 COPY ./provisioning/dashboards /etc/grafana/provisioning/dashboards
 COPY ./provisioning/datasources /etc/grafana/provisioning/datasources
 COPY ./dashboards /etc/grafana/dashboards
@@ -33,4 +33,5 @@ ENV GF_USERS_ALLOW_SIGN_UP=false
 ENV GF_SERVER_SERVE_FROM_SUB_PATH=true
 ENV GF_DASHBOARDS_JSON_ENABLED=true
 ENV GF_LIVE_ALLOWED_ORIGINS='*'
+ENV GF_DASHBOARDS_DEFAULT_HOME_DASHBOARD_PATH=/etc/grafana/dashboards/Homepage.json
 RUN grafana-cli plugins install grafana-piechart-panel

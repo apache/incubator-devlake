@@ -57,14 +57,19 @@ func (es *EncDecSerializer) Scan(ctx context.Context, field *schema.Field, dst r
 			return err
 		}
 		switch fieldValue.Elem().Kind() {
-		case reflect.Slice:
-			bytes := []byte(decrypted)
-			_ = json.Unmarshal(bytes, fieldValue.Interface())
-			field.ReflectValueOf(ctx, dst).Set(fieldValue.Elem())
 		case reflect.String:
 			field.ReflectValueOf(ctx, dst).SetString(decrypted)
 		default:
-			return fmt.Errorf("failed to decrypt value: %#v", dbValue)
+			if len(decrypted) == 0 {
+				return nil
+			}
+			// deal with complex type
+			bytes := []byte(decrypted)
+			err := json.Unmarshal(bytes, fieldValue.Interface())
+			if err != nil {
+				return err
+			}
+			field.ReflectValueOf(ctx, dst).Set(fieldValue.Elem())
 		}
 	}
 	return nil
@@ -79,7 +84,12 @@ func (es *EncDecSerializer) Value(ctx context.Context, field *schema.Field, dst 
 	case string:
 		target = v
 	default:
-		return nil, fmt.Errorf("failed to encrypt value: %#v", fieldValue)
+		// deal with complex type
+		b, err := json.Marshal(fieldValue)
+		if err != nil {
+			return nil, err
+		}
+		target = string(b)
 	}
 	return plugin.Encrypt(es.encryptionSecret, target)
 }

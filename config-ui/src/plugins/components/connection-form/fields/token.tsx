@@ -34,7 +34,9 @@
  */
 
 import { useEffect } from 'react';
-import { FormGroup, InputGroup } from '@blueprintjs/core';
+import { FormGroup } from '@blueprintjs/core';
+
+import { FormPassword } from '@/components';
 
 import * as S from './styled';
 
@@ -68,7 +70,7 @@ export const ConnectionToken = ({ label, subLabel, initialValue, value, setValue
       labelInfo={<S.LabelInfo>*</S.LabelInfo>}
       subLabel={subLabel && <S.LabelDescription>{subLabel}</S.LabelDescription>}
     >
-      <InputGroup type="password" placeholder="Your Token" value={value} onChange={handleChange} />
+      <FormPassword placeholder="Your Token" value={value} onChange={handleChange} />
     </FormGroup>
   );
 };

@@ -19,10 +19,11 @@ package tasks
 
 import (
 	"fmt"
+	"net/url"
+
 	"github.com/apache/incubator-devlake/core/errors"
 	"github.com/apache/incubator-devlake/core/plugin"
 	helper "github.com/apache/incubator-devlake/helpers/pluginhelper/api"
-	"net/url"
 )
 
 const RAW_PULL_REQUEST_COMMITS_TABLE = "bitbucket_api_pull_request_commits"
@@ -37,7 +38,7 @@ var CollectApiPrCommitsMeta = plugin.SubTaskMeta{
 
 func CollectApiPullRequestCommits(taskCtx plugin.SubTaskContext) errors.Error {
 	rawDataSubTaskArgs, data := CreateRawDataSubTaskArgs(taskCtx, RAW_PULL_REQUEST_COMMITS_TABLE)
-	collectorWithState, err := helper.NewStatefulApiCollector(*rawDataSubTaskArgs, data.TimeAfter)
+	collectorWithState, err := helper.NewStatefulApiCollector(*rawDataSubTaskArgs)
 	if err != nil {
 		return err
 	}
@@ -51,7 +52,6 @@ func CollectApiPullRequestCommits(taskCtx plugin.SubTaskContext) errors.Error {
 	err = collectorWithState.InitCollector(helper.ApiCollectorArgs{
 		ApiClient:             data.ApiClient,
 		PageSize:              100,
-		Incremental:           collectorWithState.IsIncremental(),
 		Input:                 iterator,
 		UrlTemplate:           "repositories/{{ .Params.FullName }}/pullrequests/{{ .Input.BitbucketId }}/commits",
 		GetNextPageCustomData: GetNextPageCustomData,

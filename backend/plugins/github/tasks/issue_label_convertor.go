@@ -18,6 +18,8 @@ limitations under the License.
 package tasks
 
 import (
+	"reflect"
+
 	"github.com/apache/incubator-devlake/core/dal"
 	"github.com/apache/incubator-devlake/core/errors"
 	"github.com/apache/incubator-devlake/core/models/domainlayer/didgen"
@@ -25,8 +27,11 @@ import (
 	"github.com/apache/incubator-devlake/core/plugin"
 	"github.com/apache/incubator-devlake/helpers/pluginhelper/api"
 	"github.com/apache/incubator-devlake/plugins/github/models"
-	"reflect"
 )
+
+func init() {
+	RegisterSubtaskMeta(&ConvertIssueLabelsMeta)
+}
 
 var ConvertIssueLabelsMeta = plugin.SubTaskMeta{
 	Name:             "convertIssueLabels",
@@ -34,6 +39,11 @@ var ConvertIssueLabelsMeta = plugin.SubTaskMeta{
 	EnabledByDefault: true,
 	Description:      "Convert tool layer table github_issue_labels into  domain layer table issue_labels",
 	DomainTypes:      []string{plugin.DOMAIN_TYPE_TICKET},
+	DependencyTables: []string{
+		models.GithubIssueLabel{}.TableName(), // cursor
+		models.GithubIssue{}.TableName(),      // cursor
+		RAW_ISSUE_TABLE},
+	ProductTables: []string{ticket.IssueLabel{}.TableName()},
 }
 
 func ConvertIssueLabels(taskCtx plugin.SubTaskContext) errors.Error {

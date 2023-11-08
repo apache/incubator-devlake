@@ -17,10 +17,12 @@ limitations under the License.
 
 package archived
 
-import "github.com/apache/incubator-devlake/core/models/common"
+import (
+	"github.com/apache/incubator-devlake/core/models/migrationscripts/archived"
+)
 
 type TransformationRules struct {
-	common.Model
+	archived.Model
 	Name         string `gorm:"type:varchar(255);index:idx_name_github,unique"`
 	ConnectionId uint64
 }

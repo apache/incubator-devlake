@@ -18,8 +18,10 @@ limitations under the License.
 package api
 
 import (
+	"encoding/json"
 	"fmt"
 	"net/http"
+	"net/url"
 	"strconv"
 	"strings"
 	"time"
@@ -54,7 +56,7 @@ Alternatively, you may downgrade back to the previous DevLake version.
 // @license.name Apache-2.0
 // @host localhost:8080
 // @BasePath /
-func CreateApiService() {
+func CreateApiService(router *gin.Engine) {
 	// Get configuration
 	v := config.GetConfig()
 	// Initialize services
@@ -62,18 +64,13 @@ func CreateApiService() {
 	// Set gin mode
 	gin.SetMode(v.GetString("MODE"))
 	// Create a gin router
-	router := gin.Default()
+	if router == nil {
+		router = gin.Default()
+	}
 
 	// For both protected and unprotected routes
 	router.GET("/ping", ping.Get)
 	router.GET("/version", version.Get)
-	router.GET("/userinfo", func(ctx *gin.Context) {
-		shared.ApiOutputSuccess(ctx, gin.H{
-			"user":      ctx.Request.Header.Get("X-Forwarded-User"),
-			"email":     ctx.Request.Header.Get("X-Forwarded-Email"),
-			"logoutURI": config.GetConfig().GetString("LOGOUT_URI"),
-		}, http.StatusOK)
-	})
 
 	// Endpoint to proceed database migration
 	router.GET("/proceed-db-migration", func(ctx *gin.Context) {
@@ -94,6 +91,11 @@ func CreateApiService() {
 		shared.ApiOutputSuccess(ctx, nil, http.StatusOK)
 	})
 
+	// Api keys
+	basicRes := services.GetBasicRes()
+	router.Use(RestAuthentication(router, basicRes))
+	router.Use(OAuth2ProxyAuthentication(basicRes))
+
 	// Restrict access if database migration is required
 	router.Use(func(ctx *gin.Context) {
 		if !services.MigrationRequireConfirmation() {
@@ -108,7 +110,7 @@ func CreateApiService() {
 	})
 
 	// Add swagger handlers
-	router.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerFiles.Handler))
+	router.GET("/swagger/*any", modifyBasePath, ginSwagger.WrapHandler(swaggerFiles.Handler))
 	registerExtraOpenApiSpecs(router)
 
 	// Add debug logging for endpoints
@@ -133,7 +135,7 @@ func CreateApiService() {
 	}))
 
 	// Register API endpoints
-	RegisterRouter(router)
+	RegisterRouter(router, basicRes)
 	// Get port from config
 	port := v.GetString("PORT")
 	// Trim any : from the start
@@ -177,4 +179,35 @@ func registerExtraOpenApiSpecs(router *gin.Engine) {
 			)
 		}
 	}
+}
+
+type bodyTamper struct {
+	gin.ResponseWriter
+}
+
+// Write intercepts the response body and modifies the base path
+func (w bodyTamper) Write(b []byte) (int, error) {
+	var m map[string]interface{}
+	err := json.Unmarshal(b, &m)
+	if err != nil {
+		return 0, err
+	}
+	m["basePath"] = "/api"
+	b, err = json.Marshal(m)
+	if err != nil {
+		return 0, err
+	}
+	return w.ResponseWriter.Write(b)
+}
+
+func modifyBasePath(c *gin.Context) {
+	if !strings.HasSuffix(c.Request.URL.Path, "swagger/doc.json") {
+		return
+	}
+	u, _ := url.Parse(c.GetHeader("Referer"))
+	if u == nil || !strings.HasPrefix(u.Path, "/api") {
+		return
+	}
+	blw := &bodyTamper{ResponseWriter: c.Writer}
+	c.Writer = blw
 }

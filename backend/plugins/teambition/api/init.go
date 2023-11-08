@@ -19,6 +19,7 @@ package api
 
 import (
 	"github.com/apache/incubator-devlake/core/context"
+	"github.com/apache/incubator-devlake/core/plugin"
 	helper "github.com/apache/incubator-devlake/helpers/pluginhelper/api"
 	"github.com/go-playground/validator/v10"
 )
@@ -27,11 +28,13 @@ var vld *validator.Validate
 var connectionHelper *helper.ConnectionApiHelper
 var basicRes context.BasicRes
 
-func Init(br context.BasicRes) {
+func Init(br context.BasicRes, p plugin.PluginMeta) {
+
 	basicRes = br
 	vld = validator.New()
 	connectionHelper = helper.NewConnectionHelper(
 		basicRes,
 		vld,
+		p.Name(),
 	)
 }

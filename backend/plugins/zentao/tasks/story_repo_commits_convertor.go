@@ -18,6 +18,7 @@ limitations under the License.
 package tasks
 
 import (
+	"github.com/spf13/cast"
 	"reflect"
 
 	"github.com/apache/incubator-devlake/core/dal"
@@ -45,30 +46,26 @@ func ConvertStoryRepoCommits(taskCtx plugin.SubTaskContext) errors.Error {
 
 	cursor, err := db.Cursor(
 		dal.From(&models.ZentaoStoryRepoCommit{}),
-		dal.Where(`product = ? and connection_id = ?`, data.Options.ProductId, data.Options.ConnectionId),
+		dal.Where(`project = ? and connection_id = ?`, data.Options.ProjectId, data.Options.ConnectionId),
 	)
 	if err != nil {
 		return err
 	}
 	defer cursor.Close()
 
-	issueIdGenerator := didgen.NewDomainIdGenerator(&models.ZentaoStoryRepoCommit{})
+	storyIssueIdGenerator := didgen.NewDomainIdGenerator(&models.ZentaoStory{})
 	convertor, err := api.NewDataConverter(api.DataConverterArgs{
 		InputRowType: reflect.TypeOf(models.ZentaoStoryRepoCommit{}),
 		Input:        cursor,
 		RawDataSubTaskArgs: api.RawDataSubTaskArgs{
-			Ctx: taskCtx,
-			Params: ZentaoApiParams{
-				ConnectionId: data.Options.ConnectionId,
-				ProductId:    data.Options.ProductId,
-				ProjectId:    data.Options.ProjectId,
-			},
-			Table: RAW_STORY_REPO_COMMITS_TABLE,
+			Ctx:     taskCtx,
+			Options: data.Options,
+			Table:   RAW_STORY_REPO_COMMITS_TABLE,
 		},
 		Convert: func(inputRow interface{}) ([]interface{}, errors.Error) {
 			toolEntity := inputRow.(*models.ZentaoStoryRepoCommit)
 			domainEntity := &crossdomain.IssueRepoCommit{
-				IssueId:   issueIdGenerator.Generate(data.Options.ConnectionId, toolEntity.IssueId),
+				IssueId:   storyIssueIdGenerator.Generate(data.Options.ConnectionId, cast.ToInt64(toolEntity.IssueId)),
 				RepoUrl:   toolEntity.RepoUrl,
 				CommitSha: toolEntity.CommitSha,
 			}

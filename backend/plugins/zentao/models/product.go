@@ -18,11 +18,7 @@ limitations under the License.
 package models
 
 import (
-	"fmt"
-
 	"github.com/apache/incubator-devlake/core/models/common"
-	"github.com/apache/incubator-devlake/core/plugin"
-	helper "github.com/apache/incubator-devlake/helpers/pluginhelper/api"
 )
 
 type ZentaoProductRes struct {
@@ -44,7 +40,7 @@ type ZentaoProductRes struct {
 	Whitelist      []interface{}       `json:"whitelist" mapstructure:"whitelist"`
 	Reviewer       string              `json:"reviewer" mapstructure:"reviewer"`
 	CreatedBy      *ZentaoAccount      `json:"createdBy" mapstructure:"createdBy"`
-	CreatedDate    *helper.Iso8601Time `json:"createdDate" mapstructure:"createdDate"`
+	CreatedDate    *common.Iso8601Time `json:"createdDate" mapstructure:"createdDate"`
 	CreatedVersion string              `json:"createdVersion" mapstructure:"createdVersion"`
 	OrderIn        int                 `json:"order" mapstructure:"order"`
 	Vision         string              `json:"vision" mapstructure:"vision"`
@@ -69,49 +65,6 @@ type ZentaoProductRes struct {
 	CaseReview bool    `json:"caseReview" mapstructure:"caseReview"`
 }
 
-func getAccountId(account *ZentaoAccount) int64 {
-	if account != nil {
-		return account.ID
-	}
-	return 0
-}
-
-func (res ZentaoProductRes) ConvertApiScope() plugin.ToolLayerScope {
-	return &ZentaoProduct{
-		Id:             res.ID,
-		Program:        res.Program,
-		Name:           res.Name,
-		Code:           res.Code,
-		Bind:           res.Bind,
-		Line:           res.Line,
-		Type:           `product`,
-		ProductType:    res.Type,
-		Status:         res.Status,
-		SubStatus:      res.SubStatus,
-		Description:    res.Description,
-		POId:           getAccountId(res.PO),
-		QDId:           getAccountId(res.QD),
-		RDId:           getAccountId(res.RD),
-		Acl:            res.Acl,
-		Reviewer:       res.Reviewer,
-		CreatedById:    getAccountId(res.CreatedBy),
-		CreatedDate:    res.CreatedDate,
-		CreatedVersion: res.CreatedVersion,
-		OrderIn:        res.OrderIn,
-		Deleted:        res.Deleted,
-		Plans:          res.Plans,
-		Releases:       res.Releases,
-		Builds:         res.Builds,
-		Cases:          res.Cases,
-		Projects:       res.Projects,
-		Executions:     res.Executions,
-		Bugs:           res.Bugs,
-		Docs:           res.Docs,
-		Progress:       res.Progress,
-		CaseReview:     res.CaseReview,
-	}
-}
-
 type ZentaoProduct struct {
 	common.NoPKModel `json:"-"`
 	ConnectionId     uint64 `json:"connectionId" mapstructure:"connectionId" gorm:"primaryKey;type:BIGINT  NOT NULL"`
@@ -132,7 +85,7 @@ type ZentaoProduct struct {
 	Acl              string `json:"acl" mapstructure:"acl"`
 	Reviewer         string `json:"reviewer" mapstructure:"reviewer"`
 	CreatedById      int64
-	CreatedDate      *helper.Iso8601Time `json:"createdDate" mapstructure:"createdDate"`
+	CreatedDate      *common.Iso8601Time `json:"createdDate" mapstructure:"createdDate"`
 	CreatedVersion   string              `json:"createdVersion" mapstructure:"createdVersion"`
 	OrderIn          int                 `json:"order" mapstructure:"order"`
 	Deleted          string              `json:"deleted" mapstructure:"deleted"`
@@ -151,12 +104,4 @@ type ZentaoProduct struct {
 
 func (ZentaoProduct) TableName() string {
 	return "_tool_zentao_products"
-}
-
-func (p ZentaoProduct) ScopeId() string {
-	return fmt.Sprintf(`product/%d`, p.Id)
-}
-
-func (p ZentaoProduct) ScopeName() string {
-	return p.Name
 }

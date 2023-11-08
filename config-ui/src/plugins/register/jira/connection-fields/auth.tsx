@@ -19,9 +19,12 @@
 import { useState, useEffect } from 'react';
 import { FormGroup, RadioGroup, Radio, InputGroup } from '@blueprintjs/core';
 
-import { ExternalLink } from '@/components';
+import { ExternalLink, FormPassword } from '@/components';
+import { DOC_URL } from '@/release';
 
 import * as S from './styled';
+
+const JIRA_CLOUD_REGEX = /^https:\/\/\w+.atlassian.net\/rest\/$/;
 
 type Method = 'BasicAuth' | 'AccessToken';
 
@@ -33,8 +36,14 @@ interface Props {
   setErrors: (value: any) => void;
 }
 
-export const Auth = ({ initialValues, values, errors, setValues, setErrors }: Props) => {
+export const Auth = ({ initialValues, values, setValues, setErrors }: Props) => {
   const [version, setVersion] = useState('cloud');
+
+  useEffect(() => {
+    if (initialValues.endpoint && !JIRA_CLOUD_REGEX.test(initialValues.endpoint)) {
+      setVersion('server');
+    }
+  }, [initialValues.endpoint]);
 
   useEffect(() => {
     setValues({
@@ -146,18 +155,11 @@ export const Auth = ({ initialValues, values, errors, setValues, setErrors }: Pr
             labelInfo={<S.LabelInfo>*</S.LabelInfo>}
             subLabel={
               <S.LabelDescription>
-                <ExternalLink link="https://devlake.apache.org/docs/Configuration/Jira#api-token">
-                  Learn about how to create an API Token
-                </ExternalLink>
+                <ExternalLink link={DOC_URL.PLUGIN.JIRA.API_TOKEN}>Learn about how to create an API Token</ExternalLink>
               </S.LabelDescription>
             }
           >
-            <InputGroup
-              type="password"
-              placeholder="Your PAT"
-              value={values.password}
-              onChange={handleChangePassword}
-            />
+            <FormPassword placeholder="Your PAT" value={values.password} onChange={handleChangePassword} />
           </FormGroup>
         </>
       )}
@@ -176,12 +178,7 @@ export const Auth = ({ initialValues, values, errors, setValues, setErrors }: Pr
                 <InputGroup placeholder="Your Username" value={values.username} onChange={handleChangeUsername} />
               </FormGroup>
               <FormGroup label={<S.Label>Password</S.Label>} labelInfo={<S.LabelInfo>*</S.LabelInfo>}>
-                <InputGroup
-                  type="password"
-                  placeholder="Your Password"
-                  value={values.password}
-                  onChange={handleChangePassword}
-                />
+                <FormPassword placeholder="Your Password" value={values.password} onChange={handleChangePassword} />
               </FormGroup>
             </>
           )}
@@ -191,13 +188,13 @@ export const Auth = ({ initialValues, values, errors, setValues, setErrors }: Pr
               labelInfo={<S.LabelInfo>*</S.LabelInfo>}
               subLabel={
                 <S.LabelDescription>
-                  <ExternalLink link="https://devlake.apache.org/docs/Configuration/Jira#personal-access-token">
+                  <ExternalLink link={DOC_URL.PLUGIN.JIRA.PERSONAL_ACCESS_TOKEN}>
                     Learn about how to create a PAT
                   </ExternalLink>
                 </S.LabelDescription>
               }
             >
-              <InputGroup type="password" placeholder="Your PAT" value={values.token} onChange={handleChangeToken} />
+              <FormPassword placeholder="Your PAT" value={values.token} onChange={handleChangeToken} />
             </FormGroup>
           )}
         </>

@@ -20,14 +20,15 @@ package tasks
 import (
 	"encoding/hex"
 	"fmt"
-	"github.com/apache/incubator-devlake/core/errors"
-	"github.com/apache/incubator-devlake/core/plugin"
-	"github.com/apache/incubator-devlake/helpers/pluginhelper/api"
-	"github.com/apache/incubator-devlake/plugins/sonarqube/models"
 	"hash"
 	"net/http"
 	"strconv"
 	"unicode"
+
+	"github.com/apache/incubator-devlake/core/errors"
+	"github.com/apache/incubator-devlake/core/plugin"
+	"github.com/apache/incubator-devlake/helpers/pluginhelper/api"
+	"github.com/apache/incubator-devlake/plugins/sonarqube/models"
 )
 
 func CreateRawDataSubTaskArgs(taskCtx plugin.SubTaskContext, rawTable string) (*api.RawDataSubTaskArgs, *SonarqubeTaskData) {
@@ -35,7 +36,7 @@ func CreateRawDataSubTaskArgs(taskCtx plugin.SubTaskContext, rawTable string) (*
 	filteredData := *data
 	filteredData.Options = &SonarqubeOptions{}
 	*filteredData.Options = *data.Options
-	var params = SonarqubeApiParams{
+	var params = models.SonarqubeApiParams{
 		ConnectionId: data.Options.ConnectionId,
 		ProjectKey:   data.Options.ProjectKey,
 	}

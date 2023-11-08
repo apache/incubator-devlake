@@ -35,25 +35,28 @@ type ApiCollectorStateManager struct {
 	RawDataSubTaskArgs
 	// *ApiCollector
 	// *GraphqlCollector
-	subtasks     []plugin.SubTask
-	LatestState  models.CollectorLatestState
-	TimeAfter    *time.Time
-	ExecuteStart time.Time
+	subtasks      []plugin.SubTask
+	newState      models.CollectorLatestState
+	IsIncremental bool
+	Since         *time.Time
+	Before        *time.Time
 }
 
-// NewApiCollectorWithState create a new ApiCollectorStateManager
-func NewStatefulApiCollector(args RawDataSubTaskArgs, timeAfter *time.Time) (*ApiCollectorStateManager, errors.Error) {
+// NewStatefulApiCollector create a new ApiCollectorStateManager
+func NewStatefulApiCollector(args RawDataSubTaskArgs) (*ApiCollectorStateManager, errors.Error) {
 	db := args.Ctx.GetDal()
 
 	rawDataSubTask, err := NewRawDataSubTask(args)
 	if err != nil {
 		return nil, errors.Default.Wrap(err, "Couldn't resolve raw subtask args")
 	}
-	latestState := models.CollectorLatestState{}
-	err = db.First(&latestState, dal.Where(`raw_data_table = ? AND raw_data_params = ?`, rawDataSubTask.table, rawDataSubTask.params))
+
+	// CollectorLatestState retrieves the latest collector state from the database
+	oldState := models.CollectorLatestState{}
+	err = db.First(&oldState, dal.Where(`raw_data_table = ? AND raw_data_params = ?`, rawDataSubTask.table, rawDataSubTask.params))
 	if err != nil {
 		if db.IsErrorNotFound(err) {
-			latestState = models.CollectorLatestState{
+			oldState = models.CollectorLatestState{
 				RawDataTable:  rawDataSubTask.table,
 				RawDataParams: rawDataSubTask.params,
 			}
@@ -61,32 +64,58 @@ func NewStatefulApiCollector(args RawDataSubTaskArgs, timeAfter *time.Time) (*Ap
 			return nil, errors.Default.Wrap(err, "failed to load JiraLatestCollectorMeta")
 		}
 	}
+	// Extract timeAfter and latestSuccessStart from old state
+	oldTimeAfter := oldState.TimeAfter
+	oldLatestSuccessStart := oldState.LatestSuccessStart
+
+	// Calculate incremental and since based on syncPolicy and old state
+	syncPolicy := args.Ctx.TaskContext().SyncPolicy()
+	var isIncremental bool
+	var since *time.Time
+
+	if syncPolicy == nil {
+		// 1. If no syncPolicy, incremental and since is oldState.LatestSuccessStart
+		isIncremental = true
+		since = oldLatestSuccessStart
+	} else if oldLatestSuccessStart == nil {
+		// 2. If no oldState.LatestSuccessStart, not incremental and since is syncPolicy.TimeAfter
+		isIncremental = false
+		since = syncPolicy.TimeAfter
+	} else if syncPolicy.FullSync {
+		// 3. If fullSync true, not incremental and since is syncPolicy.TimeAfter
+		isIncremental = false
+		since = syncPolicy.TimeAfter
+	} else if syncPolicy.TimeAfter != nil {
+		// 4. If syncPolicy.TimeAfter not nil
+		if oldTimeAfter != nil && syncPolicy.TimeAfter.Before(*oldTimeAfter) {
+			// 4.1 If oldTimeAfter not nil and syncPolicy.TimeAfter before oldTimeAfter, incremental is false and since is syncPolicy.TimeAfter
+			isIncremental = false
+			since = syncPolicy.TimeAfter
+		} else {
+			// 4.2 If oldTimeAfter nil or syncPolicy.TimeAfter after oldTimeAfter, incremental is true and since is oldState.LatestSuccessStart
+			isIncremental = true
+			since = oldLatestSuccessStart
+		}
+	}
+
+	currentTime := time.Now()
+	oldState.LatestSuccessStart = &currentTime
+	oldState.TimeAfter = syncPolicy.TimeAfter
+
 	return &ApiCollectorStateManager{
 		RawDataSubTaskArgs: args,
-		LatestState:        latestState,
-		TimeAfter:          timeAfter,
-		ExecuteStart:       time.Now(),
+		newState:           oldState,
+		IsIncremental:      isIncremental,
+		Since:              since,
+		Before:             &currentTime,
 	}, nil
-}
 
-// IsIncremental indicates if the collector should operate in incremental mode
-func (m *ApiCollectorStateManager) IsIncremental() bool {
-	prevSyncTime := m.LatestState.LatestSuccessStart
-	prevTimeAfter := m.LatestState.TimeAfter
-	currTimeAfter := m.TimeAfter
-
-	if prevSyncTime == nil {
-		return false
-	}
-	if currTimeAfter != nil {
-		return prevTimeAfter == nil || !currTimeAfter.Before(*prevTimeAfter)
-	}
-	return prevTimeAfter == nil
 }
 
 // InitCollector init the embedded collector
 func (m *ApiCollectorStateManager) InitCollector(args ApiCollectorArgs) errors.Error {
 	args.RawDataSubTaskArgs = m.RawDataSubTaskArgs
+	args.Incremental = args.Incremental || m.IsIncremental
 	apiCollector, err := NewApiCollector(args)
 	if err != nil {
 		return err
@@ -116,9 +145,7 @@ func (m *ApiCollectorStateManager) Execute() errors.Error {
 	}
 
 	db := m.Ctx.GetDal()
-	m.LatestState.LatestSuccessStart = &m.ExecuteStart
-	m.LatestState.TimeAfter = m.TimeAfter
-	return db.CreateOrUpdate(&m.LatestState)
+	return db.CreateOrUpdate(&m.newState)
 }
 
 // NewStatefulApiCollectorForFinalizableEntity aims to add timeFilter/diffSync support for
@@ -149,19 +176,13 @@ func NewStatefulApiCollectorForFinalizableEntity(args FinalizableApiCollectorArg
 		Options: args.Options,
 		Params:  args.Params,
 		Table:   args.Table,
-	}, args.TimeAfter)
+	})
 	if err != nil {
 		return nil, err
 	}
 
-	// // prepare the basic variables
-	var isIncremental = manager.IsIncremental()
-	var createdAfter *time.Time
-	if isIncremental {
-		createdAfter = manager.LatestState.LatestSuccessStart
-	} else {
-		createdAfter = manager.TimeAfter
-	}
+	createdAfter := manager.Since
+	isIncremental := manager.IsIncremental
 
 	// step 1: create a collector to collect newly added records
 	err = manager.InitCollector(ApiCollectorArgs{
@@ -226,6 +247,11 @@ func NewStatefulApiCollectorForFinalizableEntity(args FinalizableApiCollectorArg
 		return nil, err
 	}
 
+	syncPolicy := args.Ctx.TaskContext().SyncPolicy()
+	if args.CollectUnfinishedDetails == nil || (syncPolicy != nil && syncPolicy.FullSync) {
+		return manager, nil
+	}
+
 	// step 2: create another collector to collect updated records
 	// TODO: this creates cursor before previous step gets executed, which is too early, to be optimized
 	input, err := args.CollectUnfinishedDetails.BuildInputIterator()
@@ -264,7 +290,7 @@ type FinalizableApiCollectorArgs struct {
 	ApiClient                RateLimitedApiClient
 	TimeAfter                *time.Time // leave it be nil to disable time filter
 	CollectNewRecordsByList  FinalizableApiCollectorListArgs
-	CollectUnfinishedDetails FinalizableApiCollectorDetailArgs
+	CollectUnfinishedDetails *FinalizableApiCollectorDetailArgs
 }
 
 // FinalizableApiCollectorCommonArgs is the common arguments for both list and detail collectors

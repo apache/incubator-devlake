@@ -20,12 +20,11 @@ package api
 import (
 	"encoding/json"
 	"fmt"
-	"github.com/apache/incubator-devlake/core/errors"
-	plugin "github.com/apache/incubator-devlake/core/plugin"
 	"reflect"
 	"time"
 
-	"gorm.io/datatypes"
+	"github.com/apache/incubator-devlake/core/errors"
+	plugin "github.com/apache/incubator-devlake/core/plugin"
 )
 
 // RawData is raw data structure in DB storage
@@ -34,7 +33,7 @@ type RawData struct {
 	Params    string `gorm:"type:varchar(255);index"`
 	Data      []byte
 	Url       string
-	Input     datatypes.JSON
+	Input     json.RawMessage `gorm:"type:json"`
 	CreatedAt time.Time
 }
 
@@ -82,12 +81,7 @@ func NewRawDataSubTask(args RawDataSubTaskArgs) (*RawDataSubTask, errors.Error) 
 	if params == nil || reflect.ValueOf(params).IsZero() {
 		args.Ctx.GetLogger().Warn(nil, fmt.Sprintf("Missing `Params` for raw data subtask %s", args.Ctx.GetName()))
 	} else {
-		// TODO: maybe sort it to make it consistent
-		paramsBytes, err := json.Marshal(params)
-		if err != nil {
-			return nil, errors.Default.Wrap(err, "unable to serialize subtask parameters")
-		}
-		paramsString = string(paramsBytes)
+		paramsString = plugin.MarshalScopeParams(params)
 	}
 	return &RawDataSubTask{
 		args:   &args,

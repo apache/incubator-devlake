@@ -1,0 +1,39 @@
+<!--
+Licensed to the Apache Software Foundation (ASF) under one or more
+contributor license agreements.  See the NOTICE file distributed with
+this work for additional information regarding copyright ownership.
+The ASF licenses this file to You under the Apache License, Version 2.0
+(the "License"); you may not use this file except in compliance with
+the License.  You may obtain a copy of the License at
+
+    http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
+-->
+<svg width="60" height="60" viewBox="0 0 60 60" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <path
+    d="M49.5895 15.9673C50.3704 16.6327 50.3704 17.839 49.5894 18.5045L33.2772 32.4034C32.1951 33.3254 30.5296 32.5565 30.5296 31.1348L30.5296 3.33687C30.5296 1.91525 32.1951 1.14626 33.2772 2.06826L49.5895 15.9673Z"
+    fill="#7497F7" />
+  <path
+    d="M27.3929 9.15651C22.2218 9.84207 17.3852 12.2096 13.6558 15.9389C9.18064 20.4141 6.6665 26.4837 6.6665 32.8126L21.0005 32.8126C21.0005 30.2853 22.0044 27.8616 23.7915 26.0746C25.5657 24.3003 27.9676 23.298 30.4752 23.2837L27.3929 9.15651Z"
+    fill="#7497F7" />
+  <path
+    d="M30.5295 23.2836V8.94956C30.5295 8.94956 30.5295 8.94956 30.5295 8.94956V23.2836C30.5295 23.2836 30.5295 23.2836 30.5295 23.2836Z"
+    fill="#7497F7" />
+  <path
+    d="M33.6295 56.4743C38.8017 55.7967 43.6419 53.4367 47.377 49.7131C51.4643 45.6384 53.9228 40.2353 54.3317 34.5156C54.3973 33.5974 53.6462 32.8491 52.7257 32.8476L41.7251 32.8306C40.8046 32.8292 40.0721 33.5799 39.9105 34.4861C39.5697 36.397 38.6504 38.1727 37.257 39.5618C35.48 41.3333 33.0767 42.3319 30.5691 42.3423L33.6295 56.4743Z"
+    fill="#7497F7" />
+  <path
+    d="M30.5147 42.3424L30.4926 56.6764C30.4926 56.6764 30.4926 56.6764 30.4926 56.6764L30.5147 42.3424C30.5148 42.3424 30.5147 42.3424 30.5147 42.3424Z"
+    fill="#7497F7" />
+  <path
+    d="M6.86094 35.853C7.5254 41.0266 9.873 45.8727 13.5869 49.6171C18.0437 54.1106 24.103 56.6496 30.4318 56.6756L30.4906 42.3417C27.9633 42.3313 25.5437 41.3174 23.764 39.5231C21.9972 37.7417 21.0047 35.3361 21.0006 32.8286L6.86094 35.853Z"
+    fill="#7497F7" />
+  <path
+    d="M21.0006 32.7743L6.66676 32.7156C6.66676 32.7158 6.66677 32.7153 6.66676 32.7156L21.0006 32.7743C21.0006 32.7741 21.0006 32.7746 21.0006 32.7743Z"
+    fill="#7497F7" />
+</svg>

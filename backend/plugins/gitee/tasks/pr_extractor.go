@@ -22,6 +22,7 @@ import (
 	"regexp"
 
 	"github.com/apache/incubator-devlake/core/errors"
+	"github.com/apache/incubator-devlake/core/models/common"
 	"github.com/apache/incubator-devlake/core/plugin"
 	"github.com/apache/incubator-devlake/helpers/pluginhelper/api"
 	"github.com/apache/incubator-devlake/plugins/gitee/models"
@@ -55,11 +56,11 @@ type GiteeApiPullResponse struct {
 		Login string
 		Name  string
 	}
-	ClosedAt       *api.Iso8601Time `json:"closed_at"`
-	MergedAt       *api.Iso8601Time `json:"merged_at"`
-	GiteeCreatedAt api.Iso8601Time  `json:"created_at"`
-	GiteeUpdatedAt api.Iso8601Time  `json:"updated_at"`
-	MergeCommitSha string           `json:"merge_commit_sha"`
+	ClosedAt       *common.Iso8601Time `json:"closed_at"`
+	MergedAt       *common.Iso8601Time `json:"merged_at"`
+	GiteeCreatedAt common.Iso8601Time  `json:"created_at"`
+	GiteeUpdatedAt common.Iso8601Time  `json:"updated_at"`
+	MergeCommitSha string              `json:"merge_commit_sha"`
 	Head           struct {
 		Ref string
 		Sha string
@@ -163,8 +164,8 @@ func convertGiteePullRequest(pull *GiteeApiPullResponse, connId uint64, repoId i
 		AuthorId:       pull.User.Id,
 		GiteeCreatedAt: pull.GiteeCreatedAt.ToTime(),
 		GiteeUpdatedAt: pull.GiteeUpdatedAt.ToTime(),
-		ClosedAt:       api.Iso8601TimeToTime(pull.ClosedAt),
-		MergedAt:       api.Iso8601TimeToTime(pull.MergedAt),
+		ClosedAt:       common.Iso8601TimeToTime(pull.ClosedAt),
+		MergedAt:       common.Iso8601TimeToTime(pull.MergedAt),
 		MergeCommitSha: pull.MergeCommitSha,
 		Body:           string(pull.Body),
 		BaseRef:        pull.Base.Ref,

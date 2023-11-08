@@ -31,7 +31,7 @@ export const CICD = styled.div`
       font-size: 14px;
       font-weight: 400;
 
-      .bp4-switch {
+      .bp5-switch {
         margin-bottom: 0;
       }
     }
@@ -43,8 +43,20 @@ export const CICD = styled.div`
     margin-top: 16px;
     padding-left: 24px;
 
-    .bp4-radio {
+    .bp5-radio {
       margin-right: 0;
     }
+  }
+`;
+
+export const DataScope = styled.div``;
+
+export const JobLoad = styled.div`
+  display: flex;
+  align-items: center;
+
+  & > span.count {
+    margin: 0 8px;
+    color: #7497f7;
   }
 `;

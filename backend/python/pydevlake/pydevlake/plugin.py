@@ -22,6 +22,7 @@ import sys
 import fire
 
 import pydevlake.message as msg
+import pydevlake.model_info
 from pydevlake.subtasks import Subtask
 from pydevlake.logger import logger
 from pydevlake.ipc import PluginCommands
@@ -65,7 +66,7 @@ class Plugin(ABC):
 
     @property
     def scope_config_type(self) -> Type[ScopeConfig]:
-        return None
+        return ScopeConfig
 
     @abstractmethod
     def test_connection(self, connection: Connection) -> msg.TestConnectionResult:
@@ -117,6 +118,7 @@ class Plugin(ABC):
             for tool_scope in self.remote_scopes(connection, group_id):
                 tool_scope.connection_id = connection.id
                 tool_scope.raw_data_params = raw_data_params(connection.id, tool_scope.id)
+                tool_scope.raw_data_table = self._raw_scope_table_name()
                 remote_scopes.append(
                     msg.RemoteScope(
                         id=tool_scope.id,
@@ -139,7 +141,8 @@ class Plugin(ABC):
         for tool_scope, _ in scope_config_pairs:
             for scope in self.domain_scopes(tool_scope):
                 scope.id = tool_scope.domain_id()
-                scope.raw_data_params = raw_data_params(connection.id, scope.id)
+                scope.raw_data_params = raw_data_params(connection.id, tool_scope.id)
+                scope.raw_data_table = self._raw_scope_table_name()
                 domain_scopes.append(
                     msg.DynamicDomainScope(
                         type_name=type(scope).__name__,
@@ -161,6 +164,9 @@ class Plugin(ABC):
             *(self.make_pipeline_stage(scope, config, connection) for scope, config in scope_config_pairs),
             *self.extra_stages(scope_config_pairs, connection)
         ]
+
+    def _raw_scope_table_name(self) -> str:
+        return f"_raw_{self.name}_scopes"
 
     def extra_stages(self, scope_config_pairs: list[ScopeConfigPair],
                      connection: Connection) -> list[list[msg.PipelineTask]]:
@@ -228,10 +234,10 @@ class Plugin(ABC):
             description=self.description,
             plugin_path=self._plugin_path(),
             extension="datasource",
-            connection_model_info=msg.DynamicModelInfo.from_model(self.connection_type),
-            scope_model_info=msg.DynamicModelInfo.from_model(self.tool_scope_type),
-            scope_config_model_info=msg.DynamicModelInfo.from_model(self.scope_config_type),
-            tool_model_infos=[msg.DynamicModelInfo.from_model(stream.tool_model) for stream in self._streams.values()],
+            connection_model_info=pydevlake.model_info.DynamicModelInfo.from_model(self.connection_type),
+            scope_model_info=pydevlake.model_info.DynamicModelInfo.from_model(self.tool_scope_type),
+            scope_config_model_info=pydevlake.model_info.DynamicModelInfo.from_model(self.scope_config_type),
+            tool_model_infos=[pydevlake.model_info.DynamicModelInfo.from_model(stream.tool_model) for stream in self._streams.values()],
             subtask_metas=subtask_metas,
             migration_scripts=MIGRATION_SCRIPTS
         )

@@ -22,7 +22,7 @@ export const AdditionalSettings = styled.div`
     display: flex;
     align-items: center;
 
-    .bp4-switch {
+    .bp5-switch {
       margin: 0;
     }
   }
@@ -36,7 +36,7 @@ export const AdditionalSettings = styled.div`
       margin: 0;
     }
 
-    .bp4-control {
+    .bp5-control {
       margin: 0;
     }
   }
@@ -46,7 +46,7 @@ export const AdditionalSettings = styled.div`
     align-items: center;
     padding-left: 20px;
 
-    .bp4-input-group {
+    .bp5-input-group {
       margin: 0 8px;
     }
   }

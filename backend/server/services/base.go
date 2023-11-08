@@ -17,7 +17,9 @@ limitations under the License.
 
 package services
 
-import "github.com/apache/incubator-devlake/core/errors"
+import (
+	"github.com/apache/incubator-devlake/core/errors"
+)
 
 // Pagination holds the paginate information
 type Pagination struct {

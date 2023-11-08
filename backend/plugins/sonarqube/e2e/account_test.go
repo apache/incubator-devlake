@@ -19,6 +19,7 @@ package e2e
 
 import (
 	"testing"
+	"time"
 
 	"github.com/apache/incubator-devlake/core/models/common"
 	"github.com/apache/incubator-devlake/core/models/domainlayer/crossdomain"
@@ -37,6 +38,7 @@ func TestSonarqubeAccountDataFlow(t *testing.T) {
 		Options: &tasks.SonarqubeOptions{
 			ConnectionId: 1,
 		},
+		TaskStartTime: time.Now(),
 	}
 
 	// import raw data table
@@ -51,6 +53,7 @@ func TestSonarqubeAccountDataFlow(t *testing.T) {
 		Options: &tasks.SonarqubeOptions{
 			ConnectionId: 2,
 		},
+		TaskStartTime: time.Now(),
 	}
 
 	dataflowTester.Subtask(tasks.ExtractAccountsMeta, taskData2)

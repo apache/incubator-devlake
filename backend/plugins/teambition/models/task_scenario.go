@@ -19,7 +19,6 @@ package models
 
 import (
 	"github.com/apache/incubator-devlake/core/models/common"
-	"github.com/apache/incubator-devlake/helpers/pluginhelper/api"
 )
 
 type TeambitionTaskScenario struct {
@@ -36,8 +35,8 @@ type TeambitionTaskScenario struct {
 	BoundToObjectType string                    `gorm:"type:varchar(100)" json:"boundToObjectType"`
 	TaskflowId        string                    `gorm:"type:varchar(100)" json:"taskflowId"`
 	IsArchived        bool                      `json:"isArchived"`
-	Created           *api.Iso8601Time          `json:"created"`
-	Updated           *api.Iso8601Time          `json:"updated"`
+	Created           *common.Iso8601Time       `json:"created"`
+	Updated           *common.Iso8601Time       `json:"updated"`
 
 	common.NoPKModel
 }

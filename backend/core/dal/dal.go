@@ -127,7 +127,7 @@ type Dal interface {
 	Fetch(cursor Rows, dst interface{}) errors.Error
 	// All loads matched rows from database to `dst`, USE IT WITH CAUTIOUS!!
 	All(dst interface{}, clauses ...Clause) errors.Error
-	// First loads first matched row from database to `dst`, error will be returned if no records were found
+	// First loads the first matched row from database to `dst`, error will be returned if no records were found
 	First(dst interface{}, clauses ...Clause) errors.Error
 	// Count matched rows from database
 	Count(clauses ...Clause) (int64, errors.Error)
@@ -183,10 +183,32 @@ type Dal interface {
 	RawCursor(query string, params ...interface{}) (*sql.Rows, errors.Error)
 }
 
+type LockTable struct {
+	Table     interface{}
+	Exclusive bool
+}
+
+func (l *LockTable) TableName() string {
+	switch table := l.Table.(type) {
+	case Tabler:
+		return table.TableName()
+	case string:
+		return table
+	default:
+		panic("either Table or Tabler must be specified")
+	}
+}
+
+type LockTables []*LockTable
+
 type Transaction interface {
 	Dal
 	Rollback() errors.Error
 	Commit() errors.Error
+	// table: exclusive
+	LockTables(lockTables LockTables) errors.Error
+	UnlockTables() errors.Error
+	// End(err *errors.Error)
 }
 
 type Rows interface {

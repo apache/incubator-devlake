@@ -20,6 +20,7 @@ package api
 import (
 	"testing"
 
+	coreModels "github.com/apache/incubator-devlake/core/models"
 	mockdal "github.com/apache/incubator-devlake/mocks/core/dal"
 	mockplugin "github.com/apache/incubator-devlake/mocks/core/plugin"
 
@@ -40,28 +41,27 @@ func TestMakeDataSourcePipelinePlanV200(t *testing.T) {
 	const testScopeConfigId uint64 = 2
 	const testKey string = "TEST"
 	const testBambooEndPoint string = "http://mail.nddtf.com:8085/rest/api/latest/"
-	const testLink string = "http://mail.nddtf.com:8085/rest/api/latest/project/TEST"
+	const testLink string = "http://mail.nddtf.com:8085/rest/api/latest/plan/TEST"
 	const testUser string = "username"
 	const testPass string = "password"
 	const testName string = "bamboo-test"
 	const testScopeConfigName string = "bamboo scope config"
 	const testProxy string = ""
 
-	syncPolicy := &plugin.BlueprintSyncPolicy{}
-	bpScopes := []*plugin.BlueprintScopeV200{
+	bpScopes := []*coreModels.BlueprintScope{
 		{
-			Id:   testKey,
-			Name: testName,
+			ScopeId: testKey,
 		},
 	}
 
-	var testBambooProject = &models.BambooProject{
-		ConnectionId: testConnectionID,
-		ProjectKey:   testKey,
-		Name:         testName,
-		Href:         testLink,
-
-		ScopeConfigId: testScopeConfigId,
+	var testBambooPlan = &models.BambooPlan{
+		Scope: common.Scope{
+			ConnectionId:  testConnectionID,
+			ScopeConfigId: testScopeConfigId,
+		},
+		PlanKey: testKey,
+		Name:    testName,
+		Href:    testLink,
 	}
 
 	var testScopeConfig = &models.BambooScopeConfig{
@@ -94,22 +94,22 @@ func TestMakeDataSourcePipelinePlanV200(t *testing.T) {
 		},
 	}
 
-	var expectRepoId = "bamboo:BambooProject:1:TEST"
+	var expectRepoId = "bamboo:BambooPlan:1:TEST"
 
 	var testSubTaskMeta = []plugin.SubTaskMeta{
-		tasks.ConvertProjectsMeta,
+		tasks.ConvertPlansMeta,
 	}
 
-	var expectPlans = plugin.PipelinePlan{
+	var expectPlans = coreModels.PipelinePlan{
 		{
 			{
 				Plugin: "bamboo",
 				Subtasks: []string{
-					tasks.ConvertProjectsMeta.Name,
+					tasks.ConvertPlansMeta.Name,
 				},
 				Options: map[string]interface{}{
 					"connectionId":  uint64(1),
-					"projectKey":    testKey,
+					"planKey":       testKey,
 					"scopeConfigId": testScopeConfigId,
 				},
 			},
@@ -124,6 +124,7 @@ func TestMakeDataSourcePipelinePlanV200(t *testing.T) {
 
 	// register bamboo plugin for NewDomainIdGenerator
 	mockMeta := mockplugin.NewPluginMeta(t)
+	mockMeta.On("Name").Return("bamboo").Maybe()
 	mockMeta.On("RootPkgPath").Return("github.com/apache/incubator-devlake/plugins/bamboo")
 	err = plugin.RegisterPlugin("bamboo", mockMeta)
 	assert.Equal(t, err, nil)
@@ -135,9 +136,9 @@ func TestMakeDataSourcePipelinePlanV200(t *testing.T) {
 			*dst = *testBambooConnection
 		}).Return(nil)
 
-		mockDal.On("First", mock.AnythingOfType("*models.BambooProject"), mock.Anything).Run(func(args mock.Arguments) {
-			dst := args.Get(0).(*models.BambooProject)
-			*dst = *testBambooProject
+		mockDal.On("First", mock.AnythingOfType("*models.BambooPlan"), mock.Anything).Run(func(args mock.Arguments) {
+			dst := args.Get(0).(*models.BambooPlan)
+			*dst = *testBambooPlan
 		}).Return(nil)
 
 		mockDal.On("First", mock.AnythingOfType("*models.BambooScopeConfig"), mock.Anything).Run(func(args mock.Arguments) {
@@ -145,9 +146,9 @@ func TestMakeDataSourcePipelinePlanV200(t *testing.T) {
 			*dst = *testScopeConfig
 		}).Return(nil)
 	})
-	Init(basicRes)
+	Init(basicRes, mockMeta)
 
-	plans, scopes, err := MakePipelinePlanV200(testSubTaskMeta, testConnectionID, bpScopes, syncPolicy)
+	plans, scopes, err := MakePipelinePlanV200(testSubTaskMeta, testConnectionID, bpScopes)
 	assert.Equal(t, err, nil)
 
 	assert.Equal(t, expectPlans, plans)

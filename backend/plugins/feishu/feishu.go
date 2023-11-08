@@ -30,13 +30,15 @@ func main() {
 	cmd := &cobra.Command{Use: "feishu"}
 	connectionId := cmd.Flags().Uint64P("connectionId", "c", 0, "feishu connection id")
 	numOfDaysToCollect := cmd.Flags().IntP("numOfDaysToCollect", "n", 8, "feishu collect days")
+	timeAfter := cmd.Flags().StringP("timeAfter", "a", "", "collect data that are created after specified time, ie 2006-01-02T15:04:05Z")
+
 	_ = cmd.MarkFlagRequired("connectionId")
 	_ = cmd.MarkFlagRequired("numOfDaysToCollect")
 	cmd.Run = func(cmd *cobra.Command, args []string) {
 		runner.DirectRun(cmd, args, PluginEntry, map[string]interface{}{
 			"connectionId":       *connectionId,
 			"numOfDaysToCollect": *numOfDaysToCollect,
-		})
+		}, *timeAfter)
 	}
 	runner.RunCmd(cmd)
 }

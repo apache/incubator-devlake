@@ -31,18 +31,34 @@ import (
 	"github.com/apache/incubator-devlake/plugins/ae/tasks"
 )
 
-var _ plugin.PluginMeta = (*AE)(nil)
-var _ plugin.PluginInit = (*AE)(nil)
-var _ plugin.PluginTask = (*AE)(nil)
-var _ plugin.PluginApi = (*AE)(nil)
-var _ plugin.PluginModel = (*AE)(nil)
-var _ plugin.PluginMigration = (*AE)(nil)
-var _ plugin.CloseablePluginTask = (*AE)(nil)
+var _ interface {
+	plugin.PluginMeta
+	plugin.PluginInit
+	plugin.PluginTask
+	plugin.PluginApi
+	plugin.PluginModel
+	plugin.PluginMigration
+	plugin.CloseablePluginTask
+	plugin.PluginSource
+} = (*AE)(nil)
 
 type AE struct{}
 
 func (p AE) Init(basicRes context.BasicRes) errors.Error {
-	api.Init(basicRes)
+	api.Init(basicRes, p)
+
+	return nil
+}
+
+func (p AE) Connection() dal.Tabler {
+	return &models.AeConnection{}
+}
+
+func (p AE) Scope() plugin.ToolLayerScope {
+	return nil
+}
+
+func (p AE) ScopeConfig() dal.Tabler {
 	return nil
 }
 
@@ -56,6 +72,10 @@ func (p AE) GetTablesInfo() []dal.Tabler {
 
 func (p AE) Description() string {
 	return "To collect and enrich data from AE"
+}
+
+func (p AE) Name() string {
+	return "ae"
 }
 
 func (p AE) SubTaskMetas() []plugin.SubTaskMeta {
@@ -81,6 +101,7 @@ func (p AE) PrepareTaskData(taskCtx plugin.TaskContext, options map[string]inter
 	connectionHelper := helper.NewConnectionHelper(
 		taskCtx,
 		nil,
+		p.Name(),
 	)
 	err = connectionHelper.FirstById(connection, op.ConnectionId)
 	if err != nil {

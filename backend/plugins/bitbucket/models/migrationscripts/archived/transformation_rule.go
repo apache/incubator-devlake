@@ -18,16 +18,17 @@ limitations under the License.
 package archived
 
 import (
+	"encoding/json"
+
 	"github.com/apache/incubator-devlake/core/models/migrationscripts/archived"
-	"gorm.io/datatypes"
 )
 
 type BitbucketTransformationRule struct {
 	archived.Model
-	Name              string            `gorm:"type:varchar(255);index:idx_name_github,unique"`
-	DeploymentPattern string            `gorm:"type:varchar(255)"`
-	ProductionPattern string            `gorm:"type:varchar(255)"`
-	Refdiff           datatypes.JSONMap `format:"json"`
+	Name              string          `gorm:"type:varchar(255);index:idx_name_github,unique"`
+	DeploymentPattern string          `gorm:"type:varchar(255)"`
+	ProductionPattern string          `gorm:"type:varchar(255)"`
+	Refdiff           json.RawMessage `gorm:"type:json"`
 
 	// a string array, split by `,`.
 	IssueStatusTodo       string `gorm:"type:varchar(255)"`

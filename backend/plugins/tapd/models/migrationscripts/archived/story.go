@@ -18,53 +18,54 @@ limitations under the License.
 package archived
 
 import (
+	"time"
+
 	"github.com/apache/incubator-devlake/core/models/migrationscripts/archived"
-	helper "github.com/apache/incubator-devlake/helpers/pluginhelper/api"
 )
 
 type TapdStory struct {
-	ConnectionId    uint64          `gorm:"primaryKey"`
-	Id              uint64          `gorm:"primaryKey;type:BIGINT;autoIncrement:false" json:"id,string"`
-	WorkitemTypeId  uint64          `json:"workitem_type_id,string"`
-	Name            string          `gorm:"type:varchar(255)" json:"name"`
-	Description     string          `json:"description"`
-	WorkspaceId     uint64          `json:"workspace_id,string"`
-	Creator         string          `gorm:"type:varchar(255)"`
-	Created         *helper.CSTTime `json:"created"`
-	Modified        *helper.CSTTime `json:"modified" gorm:"index"`
-	Status          string          `json:"status" gorm:"type:varchar(255)"`
-	Owner           string          `json:"owner" gorm:"type:varchar(255)"`
-	Cc              string          `json:"cc" gorm:"type:varchar(255)"`
-	Begin           *helper.CSTTime `json:"begin"`
-	Due             *helper.CSTTime `json:"due"`
-	Size            int16           `json:"size,string"`
-	Priority        string          `gorm:"type:varchar(255)" json:"priority"`
-	Developer       string          `gorm:"type:varchar(255)" json:"developer"`
-	IterationId     uint64          `json:"iteration_id,string"`
-	TestFocus       string          `json:"test_focus" gorm:"type:varchar(255)"`
-	Type            string          `json:"type" gorm:"type:varchar(255)"`
-	Source          string          `json:"source" gorm:"type:varchar(255)"`
-	Module          string          `json:"module" gorm:"type:varchar(255)"`
-	Version         string          `json:"version" gorm:"type:varchar(255)"`
-	Completed       *helper.CSTTime `json:"completed"`
-	CategoryId      int64           `json:"category_id,string"`
-	Path            string          `gorm:"type:varchar(255)" json:"path"`
-	ParentId        uint64          `json:"parent_id,string"`
-	ChildrenId      string          `gorm:"type:text" json:"children_id"`
-	AncestorId      uint64          `json:"ancestor_id,string"`
-	BusinessValue   string          `gorm:"type:varchar(255)" json:"business_value"`
-	Effort          float32         `json:"effort,string"`
-	EffortCompleted float32         `json:"effort_completed,string"`
-	Exceed          float32         `json:"exceed,string"`
-	Remain          float32         `json:"remain,string"`
-	ReleaseId       uint64          `json:"release_id,string"`
-	Confidential    string          `gorm:"type:varchar(255)" json:"confidential"`
-	TemplatedId     uint64          `json:"templated_id,string"`
-	CreatedFrom     string          `gorm:"type:varchar(255)" json:"created_from"`
-	Feature         string          `gorm:"type:varchar(255)" json:"feature"`
-	StdStatus       string          `gorm:"type:varchar(20)"`
-	StdType         string          `gorm:"type:varchar(20)"`
-	Url             string          `gorm:"type:varchar(255)"`
+	ConnectionId    uint64     `gorm:"primaryKey"`
+	Id              uint64     `gorm:"primaryKey;type:BIGINT;autoIncrement:false" json:"id,string"`
+	WorkitemTypeId  uint64     `json:"workitem_type_id,string"`
+	Name            string     `gorm:"type:varchar(255)" json:"name"`
+	Description     string     `json:"description"`
+	WorkspaceId     uint64     `json:"workspace_id,string"`
+	Creator         string     `gorm:"type:varchar(255)"`
+	Created         *time.Time `json:"created"`
+	Modified        *time.Time `json:"modified" gorm:"index"`
+	Status          string     `json:"status" gorm:"type:varchar(255)"`
+	Owner           string     `json:"owner" gorm:"type:varchar(255)"`
+	Cc              string     `json:"cc" gorm:"type:varchar(255)"`
+	Begin           *time.Time `json:"begin"`
+	Due             *time.Time `json:"due"`
+	Size            int16      `json:"size,string"`
+	Priority        string     `gorm:"type:varchar(255)" json:"priority"`
+	Developer       string     `gorm:"type:varchar(255)" json:"developer"`
+	IterationId     uint64     `json:"iteration_id,string"`
+	TestFocus       string     `json:"test_focus" gorm:"type:varchar(255)"`
+	Type            string     `json:"type" gorm:"type:varchar(255)"`
+	Source          string     `json:"source" gorm:"type:varchar(255)"`
+	Module          string     `json:"module" gorm:"type:varchar(255)"`
+	Version         string     `json:"version" gorm:"type:varchar(255)"`
+	Completed       *time.Time `json:"completed"`
+	CategoryId      int64      `json:"category_id,string"`
+	Path            string     `gorm:"type:varchar(255)" json:"path"`
+	ParentId        uint64     `json:"parent_id,string"`
+	ChildrenId      string     `gorm:"type:text" json:"children_id"`
+	AncestorId      uint64     `json:"ancestor_id,string"`
+	BusinessValue   string     `gorm:"type:varchar(255)" json:"business_value"`
+	Effort          float32    `json:"effort,string"`
+	EffortCompleted float32    `json:"effort_completed,string"`
+	Exceed          float32    `json:"exceed,string"`
+	Remain          float32    `json:"remain,string"`
+	ReleaseId       uint64     `json:"release_id,string"`
+	Confidential    string     `gorm:"type:varchar(255)" json:"confidential"`
+	TemplatedId     uint64     `json:"templated_id,string"`
+	CreatedFrom     string     `gorm:"type:varchar(255)" json:"created_from"`
+	Feature         string     `gorm:"type:varchar(255)" json:"feature"`
+	StdStatus       string     `gorm:"type:varchar(20)"`
+	StdType         string     `gorm:"type:varchar(20)"`
+	Url             string     `gorm:"type:varchar(255)"`
 
 	AttachmentCount  int16  `json:"attachment_count,string"`
 	HasAttachment    string `json:"has_attachment" gorm:"type:varchar(255)"`

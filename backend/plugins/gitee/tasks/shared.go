@@ -20,15 +20,17 @@ package tasks
 import (
 	"encoding/json"
 	"fmt"
-	"github.com/apache/incubator-devlake/core/errors"
-	"github.com/apache/incubator-devlake/core/plugin"
-	"github.com/apache/incubator-devlake/helpers/pluginhelper/api"
 	"io"
 	"net/http"
 	"regexp"
 	"strconv"
 	"strings"
 	"time"
+
+	"github.com/apache/incubator-devlake/core/errors"
+	"github.com/apache/incubator-devlake/core/plugin"
+	"github.com/apache/incubator-devlake/helpers/pluginhelper/api"
+	"github.com/apache/incubator-devlake/plugins/gitee/models"
 )
 
 type PagingInfo struct {
@@ -42,12 +44,6 @@ type RateLimitInfo struct {
 	Date      time.Time
 	ResetTime time.Time
 	Remaining int
-}
-
-type GiteeApiParams struct {
-	ConnectionId uint64
-	Repo         string
-	Owner        string
 }
 
 type GiteeInput struct {
@@ -92,7 +88,7 @@ func CreateRawDataSubTaskArgs(taskCtx plugin.SubTaskContext, Table string) (*api
 	data := taskCtx.GetData().(*GiteeTaskData)
 	RawDataSubTaskArgs := &api.RawDataSubTaskArgs{
 		Ctx: taskCtx,
-		Params: GiteeApiParams{
+		Params: models.GiteeApiParams{
 			ConnectionId: data.Options.ConnectionId,
 			Repo:         data.Options.Repo,
 			Owner:        data.Options.Owner,

@@ -42,6 +42,24 @@ type CicdDeploymentCommit struct {
 	PrevSuccessDeploymentCommitId string `gorm:"type:varchar(255)"`
 }
 
-func (CicdDeploymentCommit) TableName() string {
+func (cicdDeploymentCommit CicdDeploymentCommit) TableName() string {
 	return "cicd_deployment_commits"
+}
+
+func (cicdDeploymentCommit CicdDeploymentCommit) ToDeployment() *CICDDeployment {
+	return &CICDDeployment{
+		DomainEntity: domainlayer.DomainEntity{
+			Id:        cicdDeploymentCommit.CicdDeploymentId,
+			NoPKModel: cicdDeploymentCommit.DomainEntity.NoPKModel,
+		},
+		CicdScopeId:  cicdDeploymentCommit.CicdScopeId,
+		Name:         cicdDeploymentCommit.Name,
+		Result:       cicdDeploymentCommit.Result,
+		Status:       cicdDeploymentCommit.Status,
+		Environment:  cicdDeploymentCommit.Environment,
+		CreatedDate:  cicdDeploymentCommit.CreatedDate,
+		StartedDate:  cicdDeploymentCommit.StartedDate,
+		FinishedDate: cicdDeploymentCommit.FinishedDate,
+		DurationSec:  cicdDeploymentCommit.DurationSec,
+	}
 }

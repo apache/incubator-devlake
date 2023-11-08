@@ -19,41 +19,23 @@ package tasks
 
 import (
 	"fmt"
-	"github.com/apache/incubator-devlake/core/dal"
-	"github.com/apache/incubator-devlake/core/errors"
-	"github.com/apache/incubator-devlake/core/models/domainlayer/code"
 	"regexp"
 	"sort"
 	"strings"
 	"time"
+
+	"github.com/apache/incubator-devlake/core/dal"
+	"github.com/apache/incubator-devlake/core/errors"
+	"github.com/apache/incubator-devlake/core/models/domainlayer/code"
+	"github.com/apache/incubator-devlake/plugins/refdiff/models"
 )
 
-type RefdiffOptions struct {
-	RepoId string
-	Tasks  []string `json:"tasks,omitempty"`
-	Pairs  []RefPair
-
-	TagsPattern string // The Pattern to match from all tags
-	TagsLimit   int    // How many tags be matched should be used.
-	TagsOrder   string // The Rule to Order the tag list
-
-	AllPairs    RefCommitPairs // Pairs and TagsPattern Pairs
-	ProjectName string
-}
-
 type RefdiffTaskData struct {
-	Options *RefdiffOptions
+	Options *models.RefdiffOptions
 	Since   *time.Time
 }
 
-type RefPair struct {
-	NewRef string
-	OldRef string
-}
-type RefCommitPair [4]string
-type RefPairList [2]string
-type RefCommitPairs []RefCommitPair
-type RefPairLists []RefPairList
+type RefPairLists []models.RefPairList
 
 type Refs []code.Ref
 type RefsAlphabetically Refs
@@ -188,8 +170,8 @@ func CalculateTagPattern(db dal.Dal, tagsPattern string, tagsLimit int, tagsOrde
 }
 
 // CalculateCommitPairs Calculate the commits pairs both from Options.Pairs and TagPattern
-func CalculateCommitPairs(db dal.Dal, repoId string, pairs []RefPair, rs Refs) (RefCommitPairs, errors.Error) {
-	commitPairs := make(RefCommitPairs, 0, len(rs)+len(pairs))
+func CalculateCommitPairs(db dal.Dal, repoId string, pairs []models.RefPair, rs Refs) (models.RefCommitPairs, errors.Error) {
+	commitPairs := make(models.RefCommitPairs, 0, len(rs)+len(pairs))
 	for i := 1; i < len(rs); i++ {
 		commitPairs = append(commitPairs, [4]string{rs[i-1].CommitSha, rs[i].CommitSha, rs[i-1].Name, rs[i].Name})
 	}
@@ -213,12 +195,12 @@ func CalculateCommitPairs(db dal.Dal, repoId string, pairs []RefPair, rs Refs) (
 		// get new ref's commit sha
 		newCommit, err := ref2sha(refPair.NewRef)
 		if err != nil {
-			return RefCommitPairs{}, errors.Default.Wrap(err, fmt.Sprintf("failed to load commit sha for NewRef on pair #%d", i))
+			return models.RefCommitPairs{}, errors.Default.Wrap(err, fmt.Sprintf("failed to load commit sha for NewRef on pair #%d", i))
 		}
 		// get old ref's commit sha
 		oldCommit, err := ref2sha(refPair.OldRef)
 		if err != nil {
-			return RefCommitPairs{}, errors.Default.Wrap(err, fmt.Sprintf("failed to load commit sha for OleRef on pair #%d", i))
+			return models.RefCommitPairs{}, errors.Default.Wrap(err, fmt.Sprintf("failed to load commit sha for OleRef on pair #%d", i))
 		}
 
 		have := false
@@ -229,7 +211,7 @@ func CalculateCommitPairs(db dal.Dal, repoId string, pairs []RefPair, rs Refs) (
 			}
 		}
 		if !have {
-			commitPairs = append(commitPairs, RefCommitPair{newCommit, oldCommit, refPair.NewRef, refPair.OldRef})
+			commitPairs = append(commitPairs, models.RefCommitPair{newCommit, oldCommit, refPair.NewRef, refPair.OldRef})
 		}
 	}
 

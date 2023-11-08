@@ -16,14 +16,17 @@
  *
  */
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { Button, Intent } from '@blueprintjs/core';
+import { useDebounce } from 'ahooks';
+import type { McsItem } from 'miller-columns-select';
+import MillerColumnsSelect from 'miller-columns-select';
 
-import { PageLoading, FormItem, ExternalLink, Message, Buttons, Table } from '@/components';
+import API from '@/api';
+import { FormItem, ExternalLink, Message, Buttons, MultiSelector } from '@/components';
 import { useRefreshData } from '@/hooks';
-import { getPluginId } from '@/plugins';
+import { getPluginScopeId } from '@/plugins';
 
-import * as API from './api';
 import * as S from './styled';
 
 interface Props {
@@ -43,31 +46,53 @@ export const DataScopeSelect = ({
   onSubmit,
   onCancel,
 }: Props) => {
-  const [version, setVersion] = useState(1);
-  const [scopeIds, setScopeIds] = useState<ID[]>([]);
-
-  const { ready, data } = useRefreshData(() => API.getDataScope(plugin, connectionId), [version]);
+  const [query, setQuery] = useState('');
+  const [items, setItems] = useState<McsItem<{ data: any }>[]>([]);
+  const [selectedIds, setSelectedIds] = useState<ID[]>([]);
+  // const [selectedItems, setSelecteItems] = useState<any>([]);
+  const [page, setPage] = useState(1);
+  const [pageSize] = useState(10);
+  const [total, setTotal] = useState(0);
 
   useEffect(() => {
-    setScopeIds((initialScope ?? data ?? []).map((sc: any) => sc[getPluginId(plugin)]) ?? []);
-  }, [data]);
+    setSelectedIds((initialScope ?? []).map((sc) => sc.id));
+  }, []);
 
-  const handleRefresh = () => setVersion((v) => v + 1);
-
-  const handleSubmit = () => {
-    const scope = data.filter((it: any) => scopeIds.includes(it[getPluginId(plugin)]));
-    onSubmit?.(scope);
+  const getDataScope = async (page: number) => {
+    const res = await API.scope.list(plugin, connectionId, { page, pageSize });
+    setItems([
+      ...items,
+      ...res.scopes.map((sc) => ({
+        parentId: null,
+        id: getPluginScopeId(plugin, sc.scope),
+        title: sc.scope.fullName ?? sc.scope.name,
+        data: sc.scope,
+      })),
+    ]);
+    if (page === 1) {
+      setTotal(res.count);
+    }
   };
 
-  if (!ready || !data) {
-    return <PageLoading />;
-  }
+  useEffect(() => {
+    getDataScope(page);
+  }, [page]);
+
+  const search = useDebounce(query, { wait: 500 });
+
+  const { ready, data } = useRefreshData(() => API.scope.list(plugin, connectionId, { searchTerm: search }), [search]);
+
+  const searchItems = useMemo(() => data?.scopes.map((sc) => sc.scope) ?? [], [data]);
+
+  const handleScroll = () => setPage(page + 1);
+
+  const handleSubmit = () => onSubmit?.(selectedIds);
 
   return (
     <FormItem
       label="Select Data Scope"
       subLabel={
-        data.length ? (
+        items.length ? (
           <>
             Select the data scope in this Connection that you wish to associate with this Project. If you wish to add
             more Data Scope to this Connection, please{' '}
@@ -85,7 +110,7 @@ export const DataScopeSelect = ({
       }
       required
     >
-      {data.length ? (
+      {items.length ? (
         <S.Wrapper>
           {showWarning ? (
             <Message
@@ -100,37 +125,35 @@ export const DataScopeSelect = ({
               }
             />
           ) : (
-            <Buttons>
-              <Button intent={Intent.PRIMARY} icon="refresh" text="Refresh Data Scope" onClick={handleRefresh} />
+            <Buttons position="top">
+              <Button intent={Intent.PRIMARY} icon="refresh" text="Refresh Data Scope" />
             </Buttons>
           )}
-          <Table
-            noShadow
-            loading={!ready}
-            columns={[
-              {
-                title: 'Data Scope',
-                dataIndex: 'name',
-                key: 'name',
-              },
-              {
-                title: 'Scope Config',
-                dataIndex: 'scopeConfig',
-                key: 'scopeConfig',
-                render: (_, row) => (row.scopeConfigId ? row.scopeConfig?.name : 'N/A'),
-              },
-            ]}
-            dataSource={data}
-            rowSelection={{
-              rowKey: getPluginId(plugin),
-              type: 'checkbox',
-              selectedRowKeys: scopeIds as string[],
-              onChange: (selectedRowKeys) => setScopeIds(selectedRowKeys),
-            }}
+          <div className="search">
+            <MultiSelector
+              loading={!ready}
+              items={searchItems}
+              getName={(it) => it.name}
+              getKey={(it) => getPluginScopeId(plugin, it)}
+              noResult="No Data Scopes Available."
+              onQueryChange={(query) => setQuery(query)}
+              selectedItems={searchItems.filter((it) => selectedIds.includes(getPluginScopeId(plugin, it)))}
+              onChangeItems={(selectedItems) => setSelectedIds(selectedItems.map((it) => getPluginScopeId(plugin, it)))}
+            />
+          </div>
+          <MillerColumnsSelect
+            showSelectAll
+            columnCount={1}
+            columnHeight={200}
+            items={items}
+            getHasMore={() => items.length < total}
+            onScroll={handleScroll}
+            selectedIds={selectedIds}
+            onSelectItemIds={setSelectedIds}
           />
           <Buttons position="bottom" align="right">
             <Button outlined intent={Intent.PRIMARY} text="Cancel" onClick={onCancel} />
-            <Button disabled={!scopeIds.length} intent={Intent.PRIMARY} text="Save" onClick={handleSubmit} />
+            <Button disabled={!selectedIds.length} intent={Intent.PRIMARY} text="Save" onClick={handleSubmit} />
           </Buttons>
         </S.Wrapper>
       ) : (

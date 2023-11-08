@@ -21,7 +21,6 @@ import (
 	"encoding/json"
 
 	"github.com/apache/incubator-devlake/core/errors"
-	"github.com/apache/incubator-devlake/core/models/domainlayer/devops"
 	"github.com/apache/incubator-devlake/core/plugin"
 	helper "github.com/apache/incubator-devlake/helpers/pluginhelper/api"
 	"github.com/apache/incubator-devlake/plugins/bamboo/models"
@@ -47,13 +46,12 @@ func ExtractDeployBuild(taskCtx plugin.SubTaskContext) errors.Error {
 				return nil, err
 			}
 
-			build := res.Convert(data.Options)
-			build.PlanKey = input.PlanKey
-			build.Environment = data.RegexEnricher.ReturnNameIfMatched(devops.PRODUCTION, build.DeploymentVersionName)
-
-			return []interface{}{
-				build,
-			}, nil
+			builds := res.Convert(data.Options, input.Name)
+			var result []interface{}
+			for _, build := range builds {
+				result = append(result, build)
+			}
+			return result, nil
 		},
 	})
 	if err != nil {

@@ -42,8 +42,11 @@ func TestZentaoDbGetDataFlow(t *testing.T) {
 		Options: &tasks.ZentaoOptions{
 			ConnectionId: 1,
 			ProjectId:    0,
-			ProductId:    1,
 		},
+		Stories:   map[int64]struct{}{},
+		Tasks:     map[int64]struct{}{10: {}, 11: {}, 14: {}},
+		Bugs:      map[int64]struct{}{1: {}, 2: {}, 3: {}, 4: {}},
+		ApiClient: getFakeAPIClient(),
 	}
 
 	dataflowTester.ImportCsvIntoTabler("./raw_tables/zt_action.csv", models.ZentaoRemoteDbAction{})
@@ -83,7 +86,6 @@ func TestZentaoDbGetDataFlow(t *testing.T) {
 			"vision",
 			"comment",
 			"efforted",
-			"date",
 		),
 	)
 

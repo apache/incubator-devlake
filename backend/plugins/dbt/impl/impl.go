@@ -25,11 +25,11 @@ import (
 	"github.com/apache/incubator-devlake/plugins/dbt/tasks"
 )
 
-var (
-	_ plugin.PluginMeta  = (*Dbt)(nil)
-	_ plugin.PluginTask  = (*Dbt)(nil)
-	_ plugin.PluginModel = (*Dbt)(nil)
-)
+var _ interface {
+	plugin.PluginMeta
+	plugin.PluginTask
+	plugin.PluginModel
+} = (*Dbt)(nil)
 
 type Dbt struct{}
 
@@ -69,4 +69,8 @@ func (p Dbt) PrepareTaskData(taskCtx plugin.TaskContext, options map[string]inte
 
 func (p Dbt) RootPkgPath() string {
 	return "github.com/apache/incubator-devlake/plugins/dbt"
+}
+
+func (p Dbt) Name() string {
+	return "dbt"
 }

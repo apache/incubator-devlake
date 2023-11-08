@@ -19,12 +19,13 @@ package impl
 
 import (
 	"fmt"
-	"github.com/apache/incubator-devlake/helpers/pluginhelper/subtaskmeta_sorter"
-	"time"
+
+	"github.com/apache/incubator-devlake/helpers/pluginhelper/subtaskmeta/sorter"
 
 	"github.com/apache/incubator-devlake/core/context"
 	"github.com/apache/incubator-devlake/core/dal"
 	"github.com/apache/incubator-devlake/core/errors"
+	coreModels "github.com/apache/incubator-devlake/core/models"
 	"github.com/apache/incubator-devlake/core/models/domainlayer/devops"
 	"github.com/apache/incubator-devlake/core/plugin"
 	helper "github.com/apache/incubator-devlake/helpers/pluginhelper/api"
@@ -40,39 +41,43 @@ var _ interface {
 	plugin.PluginTask
 	plugin.PluginModel
 	plugin.PluginMigration
+	plugin.PluginSource
 	plugin.DataSourcePluginBlueprintV200
 	plugin.CloseablePluginTask
-	// plugin.PluginSource
 } = (*Gitlab)(nil)
 
-type Gitlab string
+type Gitlab struct{}
 
 func init() {
 	// check subtask meta loop when init subtask meta
-	if _, err := subtaskmeta_sorter.NewDependencySorter(tasks.SubTaskMetaList).Sort(); err != nil {
+	if _, err := sorter.NewDependencySorter(tasks.SubTaskMetaList).Sort(); err != nil {
 		panic(err)
 	}
 }
 
 func (p Gitlab) Init(basicRes context.BasicRes) errors.Error {
-	api.Init(basicRes)
+	api.Init(basicRes, p)
+
 	return nil
 }
 
-func (p Gitlab) Connection() interface{} {
+func (p Gitlab) Connection() dal.Tabler {
 	return &models.GitlabConnection{}
 }
 
-func (p Gitlab) Scope() interface{} {
+func (p Gitlab) Scope() plugin.ToolLayerScope {
 	return &models.GitlabProject{}
 }
 
-func (p Gitlab) ScopeConfig() interface{} {
+func (p Gitlab) ScopeConfig() dal.Tabler {
 	return &models.GitlabScopeConfig{}
 }
 
-func (p Gitlab) MakeDataSourcePipelinePlanV200(connectionId uint64, scopes []*plugin.BlueprintScopeV200, syncPolicy plugin.BlueprintSyncPolicy) (plugin.PipelinePlan, []plugin.Scope, errors.Error) {
-	return api.MakePipelinePlanV200(p.SubTaskMetas(), connectionId, scopes, &syncPolicy)
+func (p Gitlab) MakeDataSourcePipelinePlanV200(
+	connectionId uint64,
+	scopes []*coreModels.BlueprintScope,
+) (coreModels.PipelinePlan, []plugin.Scope, errors.Error) {
+	return api.MakePipelinePlanV200(p.SubTaskMetas(), connectionId, scopes)
 }
 
 func (p Gitlab) GetTablesInfo() []dal.Tabler {
@@ -94,6 +99,9 @@ func (p Gitlab) GetTablesInfo() []dal.Tabler {
 		&models.GitlabProjectCommit{},
 		&models.GitlabReviewer{},
 		&models.GitlabTag{},
+		&models.GitlabIssueAssignee{},
+		&models.GitlabScopeConfig{},
+		&models.GitlabDeployment{},
 	}
 }
 
@@ -101,8 +109,12 @@ func (p Gitlab) Description() string {
 	return "To collect and enrich data from Gitlab"
 }
 
+func (p Gitlab) Name() string {
+	return "gitlab"
+}
+
 func (p Gitlab) SubTaskMetas() []plugin.SubTaskMeta {
-	list, err := subtaskmeta_sorter.NewDependencySorter(tasks.SubTaskMetaList).Sort()
+	list, err := sorter.NewDependencySorter(tasks.SubTaskMetaList).Sort()
 	if err != nil {
 		panic(err)
 	}
@@ -123,6 +135,7 @@ func (p Gitlab) PrepareTaskData(taskCtx plugin.TaskContext, options map[string]i
 	connectionHelper := helper.NewConnectionHelper(
 		taskCtx,
 		nil,
+		p.Name(),
 	)
 	if err != nil {
 		return nil, err
@@ -136,21 +149,17 @@ func (p Gitlab) PrepareTaskData(taskCtx plugin.TaskContext, options map[string]i
 	if err != nil {
 		return nil, err
 	}
-
-	var timeAfter time.Time
-	if op.TimeAfter != "" {
-		timeAfter, err = errors.Convert01(time.Parse(time.RFC3339, op.TimeAfter))
-		if err != nil {
-			return nil, errors.BadInput.Wrap(err, "invalid value for `timeAfter`")
-		}
-	}
-
 	if op.ProjectId != 0 {
 		var scope *models.GitlabProject
 		// support v100 & advance mode
 		// If we still cannot find the record in db, we have to request from remote server and save it to db
 		db := taskCtx.GetDal()
 		err = db.First(&scope, dal.Where("connection_id = ? AND gitlab_id = ?", op.ConnectionId, op.ProjectId))
+		if err == nil {
+			if op.ScopeConfigId == 0 && scope.ScopeConfigId != 0 {
+				op.ScopeConfigId = scope.ScopeConfigId
+			}
+		}
 		if err != nil && db.IsErrorNotFound(err) {
 			var project *models.GitlabApiProject
 			project, err = api.GetApiProject(op, apiClient)
@@ -171,17 +180,21 @@ func (p Gitlab) PrepareTaskData(taskCtx plugin.TaskContext, options map[string]i
 		}
 	}
 
-	if op.ScopeConfig == nil && op.ScopeConfigId != 0 {
-		var scopeConfig models.GitlabScopeConfig
-		db := taskCtx.GetDal()
-		err = db.First(&scopeConfig, dal.Where("id = ?", op.ScopeConfigId))
-		if err != nil {
-			if db.IsErrorNotFound(err) {
-				return nil, errors.Default.Wrap(err, fmt.Sprintf("can not find scopeConfigs by scopeConfigId [%d]", op.ScopeConfigId))
+	if op.ScopeConfig == nil {
+		if op.ScopeConfigId != 0 {
+			var scopeConfig models.GitlabScopeConfig
+			db := taskCtx.GetDal()
+			err = db.First(&scopeConfig, dal.Where("id = ?", op.ScopeConfigId))
+			if err != nil {
+				if db.IsErrorNotFound(err) {
+					return nil, errors.Default.Wrap(err, fmt.Sprintf("can not find scopeConfigs by scopeConfigId [%d]", op.ScopeConfigId))
+				}
+				return nil, errors.Default.Wrap(err, fmt.Sprintf("fail to find scopeConfigs by scopeConfigId [%d]", op.ScopeConfigId))
 			}
-			return nil, errors.Default.Wrap(err, fmt.Sprintf("fail to find scopeConfigs by scopeConfigId [%d]", op.ScopeConfigId))
+			op.ScopeConfig = &scopeConfig
+		} else {
+			op.ScopeConfig = &models.GitlabScopeConfig{}
 		}
-		op.ScopeConfig = &scopeConfig
 	}
 
 	regexEnricher := helper.NewRegexEnricher()
@@ -191,6 +204,9 @@ func (p Gitlab) PrepareTaskData(taskCtx plugin.TaskContext, options map[string]i
 	if err := regexEnricher.TryAdd(devops.PRODUCTION, op.ScopeConfig.ProductionPattern); err != nil {
 		return nil, errors.BadInput.Wrap(err, "invalid value for `productionPattern`")
 	}
+	if err := regexEnricher.TryAdd(devops.ENV_NAME_PATTERN, op.ScopeConfig.EnvNamePattern); err != nil {
+		return nil, errors.BadInput.Wrap(err, "invalid value for `envNamePattern`")
+	}
 
 	taskData := tasks.GitlabTaskData{
 		Options:       op,
@@ -198,10 +214,6 @@ func (p Gitlab) PrepareTaskData(taskCtx plugin.TaskContext, options map[string]i
 		RegexEnricher: regexEnricher,
 	}
 
-	if !timeAfter.IsZero() {
-		taskData.TimeAfter = &timeAfter
-		logger.Debug("collect data updated timeAfter %s", timeAfter)
-	}
 	return &taskData, nil
 }
 
@@ -229,7 +241,7 @@ func (p Gitlab) ApiResources() map[string]map[string]plugin.ApiResourceHandler {
 		},
 		"connections/:connectionId/scopes/:scopeId": {
 			"GET":    api.GetScope,
-			"PATCH":  api.UpdateScope,
+			"PATCH":  api.PatchScope,
 			"DELETE": api.DeleteScope,
 		},
 		"connections/:connectionId/remote-scopes": {
@@ -240,15 +252,16 @@ func (p Gitlab) ApiResources() map[string]map[string]plugin.ApiResourceHandler {
 		},
 		"connections/:connectionId/scopes": {
 			"GET": api.GetScopeList,
-			"PUT": api.PutScope,
+			"PUT": api.PutScopes,
 		},
 		"connections/:connectionId/scope-configs": {
 			"POST": api.CreateScopeConfig,
 			"GET":  api.GetScopeConfigList,
 		},
-		"connections/:connectionId/scope-configs/:id": {
-			"PATCH": api.UpdateScopeConfig,
-			"GET":   api.GetScopeConfig,
+		"connections/:connectionId/scope-configs/:scopeConfigId": {
+			"PATCH":  api.PatchScopeConfig,
+			"GET":    api.GetScopeConfig,
+			"DELETE": api.DeleteScopeConfig,
 		},
 		"connections/:connectionId/proxy/rest/*path": {
 			"GET": api.Proxy,

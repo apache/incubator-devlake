@@ -19,7 +19,6 @@ package models
 
 import (
 	"github.com/apache/incubator-devlake/core/models/common"
-	helper "github.com/apache/incubator-devlake/helpers/pluginhelper/api"
 )
 
 type TapdIterationStory struct {
@@ -29,8 +28,8 @@ type TapdIterationStory struct {
 	WorkspaceId  uint64 `gorm:"primaryKey"`
 
 	StoryId          uint64 `gorm:"primaryKey"`
-	ResolutionDate   *helper.CSTTime
-	StoryCreatedDate *helper.CSTTime
+	ResolutionDate   *common.CSTTime
+	StoryCreatedDate *common.CSTTime
 }
 
 func (TapdIterationStory) TableName() string {

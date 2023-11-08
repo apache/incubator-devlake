@@ -34,9 +34,9 @@ func TestRemotelinkDataFlow(t *testing.T) {
 		Options: &tasks.JiraOptions{
 			ConnectionId: 2,
 			BoardId:      8,
-			ScopeConfig: &tasks.JiraScopeConfig{
+			ScopeConfig: &models.JiraScopeConfig{
 				RemotelinkCommitShaPattern: ".*/commit/(.*)",
-				RemotelinkRepoPattern: []tasks.CommitUrlPattern{
+				RemotelinkRepoPattern: []models.CommitUrlPattern{
 					{
 						Pattern: "",
 						Regex:   `https://example.com/(?P<namespace>\S+)/(?P<repo_name>\S+)/-/commits/(?P<commit_sha>\w{40})`,

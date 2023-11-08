@@ -18,9 +18,10 @@ limitations under the License.
 package dalgorm
 
 import (
-	"github.com/apache/incubator-devlake/helpers/pluginhelper/api"
-	"gorm.io/gorm/schema"
 	"reflect"
+
+	"github.com/apache/incubator-devlake/core/models/common"
+	"gorm.io/gorm/schema"
 )
 
 // ToDatabaseMap convert the map to a format that can be inserted into a SQL database
@@ -33,7 +34,7 @@ func ToDatabaseMap(tableName string, m map[string]any) map[string]any {
 			continue
 		}
 		if str, ok := v.(string); ok {
-			t, err := api.ConvertStringToTime(str)
+			t, err := common.ConvertStringToTime(str)
 			if err == nil {
 				if t.Second() == 0 {
 					continue

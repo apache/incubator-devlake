@@ -20,7 +20,7 @@ package apiv2models
 import (
 	"time"
 
-	helper "github.com/apache/incubator-devlake/helpers/pluginhelper/api"
+	"github.com/apache/incubator-devlake/core/models/common"
 	"github.com/apache/incubator-devlake/plugins/jira/models"
 )
 
@@ -30,8 +30,8 @@ type Comment struct {
 	Author       *Account           `json:"author"`
 	Body         string             `json:"body"`
 	UpdateAuthor *Account           `json:"updateAuthor"`
-	Created      helper.Iso8601Time `json:"created"`
-	Updated      helper.Iso8601Time `json:"updated"`
+	Created      common.Iso8601Time `json:"created"`
+	Updated      common.Iso8601Time `json:"updated"`
 	JsdPublic    bool               `json:"jsdPublic"`
 }
 

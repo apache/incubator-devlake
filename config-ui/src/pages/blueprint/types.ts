@@ -16,35 +16,7 @@
  *
  */
 
-export enum ModeEnum {
-  advanced = 'ADVANCED',
-  normal = 'NORMAL',
-}
-
 export enum FromEnum {
   project = 'PROJECT',
   blueprint = 'BLUEPRINT',
 }
-
-export type BlueprintType = {
-  projectName: string;
-  id: ID;
-  enable: boolean;
-  name: string;
-  mode: ModeEnum;
-  isManual: boolean;
-  cronConfig: string;
-  skipOnFail: boolean;
-  plan: any;
-  settings: {
-    version: string;
-    timeAfter: null | string;
-    connections: Array<{
-      plugin: string;
-      connectionId: ID;
-      scopes?: Array<{
-        id: string;
-      }>;
-    }>;
-  };
-};

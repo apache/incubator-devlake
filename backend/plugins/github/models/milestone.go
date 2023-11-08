@@ -18,23 +18,24 @@ limitations under the License.
 package models
 
 import (
-	"github.com/apache/incubator-devlake/core/models/common"
 	"time"
+
+	"github.com/apache/incubator-devlake/core/models/common"
 )
 
 type GithubMilestone struct {
-	ConnectionId uint64 `gorm:"primaryKey"`
-	MilestoneId  int    `gorm:"primaryKey;autoIncrement:false"`
-	RepoId       int
-	Number       int
-	URL          string
-	Title        string
-	OpenIssues   int
-	ClosedIssues int
-	State        string
-	CreatedAt    time.Time
-	UpdatedAt    time.Time
-	ClosedAt     *time.Time
+	ConnectionId    uint64 `gorm:"primaryKey"`
+	MilestoneId     int    `gorm:"primaryKey;autoIncrement:false"`
+	RepoId          int
+	Number          int
+	URL             string
+	Title           string
+	OpenIssues      int
+	ClosedIssues    int
+	State           string
+	GithubCreatedAt time.Time
+	GithubUpdatedAt time.Time
+	ClosedAt        *time.Time
 	common.NoPKModel
 }
 

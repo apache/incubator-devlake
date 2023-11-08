@@ -18,15 +18,14 @@ limitations under the License.
 package services
 
 import (
-	"encoding/json"
-	"github.com/apache/incubator-devlake/core/plugin"
 	"testing"
 
+	coreModels "github.com/apache/incubator-devlake/core/models"
 	"github.com/stretchr/testify/assert"
 )
 
 func TestParallelizePipelineTasks(t *testing.T) {
-	plan1 := plugin.PipelinePlan{
+	plan1 := coreModels.PipelinePlan{
 		{
 			{Plugin: "github"},
 			{Plugin: "gitlab"},
@@ -37,13 +36,13 @@ func TestParallelizePipelineTasks(t *testing.T) {
 		},
 	}
 
-	plan2 := plugin.PipelinePlan{
+	plan2 := coreModels.PipelinePlan{
 		{
 			{Plugin: "jira"},
 		},
 	}
 
-	plan3 := plugin.PipelinePlan{
+	plan3 := coreModels.PipelinePlan{
 		{
 			{Plugin: "jenkins"},
 		},
@@ -59,7 +58,7 @@ func TestParallelizePipelineTasks(t *testing.T) {
 	assert.Equal(t, plan2, ParallelizePipelinePlans(plan2))
 	assert.Equal(
 		t,
-		plugin.PipelinePlan{
+		coreModels.PipelinePlan{
 			{
 				{Plugin: "github"},
 				{Plugin: "gitlab"},
@@ -74,7 +73,7 @@ func TestParallelizePipelineTasks(t *testing.T) {
 	)
 	assert.Equal(
 		t,
-		plugin.PipelinePlan{
+		coreModels.PipelinePlan{
 			{
 				{Plugin: "github"},
 				{Plugin: "gitlab"},
@@ -92,46 +91,4 @@ func TestParallelizePipelineTasks(t *testing.T) {
 		},
 		ParallelizePipelinePlans(plan1, plan2, plan3),
 	)
-}
-
-func TestWrapPipelinePlans(t *testing.T) {
-	beforePlan2 := json.RawMessage(`[[{"plugin":"github"},{"plugin":"gitlab"}],[{"plugin":"gitextractor1"},{"plugin":"gitextractor2"}]]`)
-
-	mainPlan := plugin.PipelinePlan{
-		{
-			{Plugin: "jira"},
-		},
-	}
-
-	afterPlan2 := json.RawMessage(`[[{"plugin":"jenkins"}],[{"plugin":"jenkins"}]]`)
-
-	result1, err1 := WrapPipelinePlans(nil, mainPlan, nil)
-	assert.Nil(t, err1)
-	assert.Equal(t, mainPlan, result1)
-
-	result2, err2 := WrapPipelinePlans(beforePlan2, mainPlan, afterPlan2)
-	assert.Nil(t, err2)
-	assert.Equal(t, plugin.PipelinePlan{
-		{
-			{Plugin: "github"},
-			{Plugin: "gitlab"},
-		},
-		{
-			{Plugin: "gitextractor1"},
-			{Plugin: "gitextractor2"},
-		},
-		{
-			{Plugin: "jira"},
-		},
-		{
-			{Plugin: "jenkins"},
-		},
-		{
-			{Plugin: "jenkins"},
-		},
-	}, result2)
-
-	result3, err3 := WrapPipelinePlans(json.RawMessage("[]"), mainPlan, json.RawMessage("[]"))
-	assert.Nil(t, err3)
-	assert.Equal(t, mainPlan, result3)
 }

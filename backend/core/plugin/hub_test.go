@@ -28,6 +28,10 @@ var _ PluginMeta = (*Bar)(nil)
 
 type Foo string
 
+func (f *Foo) Name() string {
+	return "foo"
+}
+
 func (f *Foo) Description() string {
 	return "foo"
 }
@@ -37,6 +41,10 @@ func (f *Foo) RootPkgPath() string {
 }
 
 type Bar string
+
+func (b *Bar) Name() string {
+	return "bar"
+}
 
 func (b *Bar) Description() string {
 	return "foo"

@@ -1,5 +1,5 @@
 issue_id,assignee_id,assignee_name
-zentao:ZentaoBug:1:1,4,开发甲
-zentao:ZentaoBug:1:2,0,
-zentao:ZentaoBug:1:3,4,开发甲
-zentao:ZentaoBug:1:4,9,测试丙
+zentao:ZentaoBug:1:1,zentao:ZentaoAccount:1:4,开发甲
+zentao:ZentaoBug:1:3,zentao:ZentaoAccount:1:4,开发甲
+zentao:ZentaoBug:1:4,zentao:ZentaoAccount:1:9,测试丙
+zentao:ZentaoBug:1:5,zentao:ZentaoAccount:1:4,开发甲

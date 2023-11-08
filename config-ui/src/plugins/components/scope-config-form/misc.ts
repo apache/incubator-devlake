@@ -16,33 +16,39 @@
  *
  */
 
+import { DOC_URL } from '@/release';
+
 export const TIPS_MAP: Record<string, { name: string; link: string }> = {
-  github: {
-    name: 'GitHub',
-    link: 'https://devlake.apache.org/docs/Configuration/GitHub#step-3---adding-transformation-rules-optional',
+  azuredevops: {
+    name: 'Azure DevOps',
+    link: DOC_URL.PLUGIN.AZUREDEVOPS.TRANSFORMATION,
   },
-  gitlab: {
-    name: 'GitLab',
-    link: 'https://devlake.apache.org/docs/Configuration/GitLab#step-3---adding-transformation-rules-optional',
-  },
-  jira: {
-    name: 'Jira',
-    link: 'https://devlake.apache.org/docs/Configuration/Jira#step-3---adding-transformation-rules-optional',
-  },
-  jenkins: {
-    name: 'Jenkins',
-    link: 'https://devlake.apache.org/docs/Configuration/Jenkins#step-3---adding-transformation-rules-optional',
+  bamboo: {
+    name: 'Bamboo',
+    link: DOC_URL.PLUGIN.BAMBOO.TRANSFORMATION,
   },
   bitbucket: {
     name: 'BitBucket',
-    link: 'https://devlake.apache.org/docs/Configuration/BitBucket#step-3---adding-transformation-rules-optional',
+    link: DOC_URL.PLUGIN.BITBUCKET.TRANSFORMATION,
   },
-  azuredevops: {
-    name: 'Azure DevOps',
-    link: 'https://devlake.apache.org/docs/Configuration/Jenkins#step-3---adding-transformation-rules-optional',
+  github: {
+    name: 'GitHub',
+    link: DOC_URL.PLUGIN.GITHUB.TRANSFORMATION,
+  },
+  gitlab: {
+    name: 'GitLab',
+    link: DOC_URL.PLUGIN.GITLAB.TRANSFORMATION,
+  },
+  jenkins: {
+    name: 'Jenkins',
+    link: DOC_URL.PLUGIN.JENKINS.TRANSFORMATION,
+  },
+  jira: {
+    name: 'Jira',
+    link: DOC_URL.PLUGIN.JIRA.TRANSFORMATION,
   },
   tapd: {
     name: 'TAPD',
-    link: 'https://devlake.apache.org/docs/Configuration/Tapd#step-3---adding-transformation-rules-optional',
+    link: DOC_URL.PLUGIN.TAPD.TRANSFORMATION,
   },
 };

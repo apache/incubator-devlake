@@ -93,7 +93,7 @@ func ConnectIncidentToDeployment(taskCtx plugin.SubTaskContext) errors.Error {
 						and cicd_deployment_commits.environment = ?
 						and pm.table = ?
 						and pm.project_name = ?`,
-					issue.CreatedDate, devops.SUCCESS, devops.PRODUCTION, "cicd_scopes", data.Options.ProjectName,
+					issue.CreatedDate, devops.RESULT_SUCCESS, devops.PRODUCTION, "cicd_scopes", data.Options.ProjectName,
 				),
 				dal.Orderby("finished_date DESC"),
 				dal.Limit(1),

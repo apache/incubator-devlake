@@ -36,7 +36,12 @@ type CsvFileIterator struct {
 	file   io.ReadCloser
 	reader *csv.Reader
 	fields []string
-	row    map[string]interface{}
+	row    []any
+}
+
+type CsvRecord struct {
+	Key   string
+	Value any
 }
 
 // NewCsvFileIterator create a `*CsvFileIterator` based on path to csv file
@@ -92,15 +97,35 @@ func (ci *CsvFileIterator) HasNextWithError() (bool, errors.Error) {
 		ci.row = nil
 		return false, errors.Convert(err)
 	}
-	// convert row tuple to map type, so gorm can insert data with it
-	ci.row = make(map[string]interface{})
-	for index, field := range ci.fields {
-		ci.row[field] = row[index]
+	ci.row = make([]any, len(row))
+	for index, record := range row {
+		ci.row[index] = record
 	}
 	return true, nil
 }
 
-// Fetch returns current row
-func (ci *CsvFileIterator) Fetch() map[string]interface{} {
-	return ci.row
+// Fetch returns current row as a map
+func (ci *CsvFileIterator) Fetch() map[string]any {
+	row := make(map[string]any)
+	for index, field := range ci.fields {
+		row[field] = ci.row[index]
+	}
+	return row
+}
+
+// Fetch returns current row as list of pairs (in order)
+func (ci *CsvFileIterator) FetchRecords() []*CsvRecord {
+	records := make([]*CsvRecord, len(ci.row))
+	for index, field := range ci.fields {
+		records[index] = &CsvRecord{
+			Key:   field,
+			Value: ci.row[index],
+		}
+	}
+	return records
+}
+
+// GetColumns the column names of the CSV file
+func (ci *CsvFileIterator) GetColumns() []string {
+	return ci.fields
 }

@@ -89,7 +89,6 @@ func PostIssue(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, error
 	if err != nil {
 		return &plugin.ApiResourceOutput{Body: err.Error(), Status: http.StatusBadRequest}, nil
 	}
-
 	db := basicRes.GetDal()
 	domainIssue := &ticket.Issue{
 		DomainEntity: domainlayer.DomainEntity{

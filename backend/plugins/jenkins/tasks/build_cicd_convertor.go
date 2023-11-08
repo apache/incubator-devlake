@@ -31,21 +31,21 @@ import (
 	"github.com/apache/incubator-devlake/plugins/jenkins/models"
 )
 
-var ConvertBuildsToCICDMeta = plugin.SubTaskMeta{
+var ConvertBuildsToCicdTasksMeta = plugin.SubTaskMeta{
 	Name:             "convertBuildsToCICD",
-	EntryPoint:       ConvertBuildsToCICD,
+	EntryPoint:       ConvertBuildsToCicdTasks,
 	EnabledByDefault: true,
 	Description:      "convert builds to cicd",
 	DomainTypes:      []string{plugin.DOMAIN_TYPE_CICD},
 }
 
-func ConvertBuildsToCICD(taskCtx plugin.SubTaskContext) (err errors.Error) {
+func ConvertBuildsToCicdTasks(taskCtx plugin.SubTaskContext) (err errors.Error) {
 	db := taskCtx.GetDal()
 	data := taskCtx.GetData().(*JenkinsTaskData)
 	clauses := []dal.Clause{
 		dal.From("_tool_jenkins_builds"),
 		dal.Where(`_tool_jenkins_builds.connection_id = ?
-						and _tool_jenkins_builds.job_path = ? 
+						and _tool_jenkins_builds.job_path = ?
 						and _tool_jenkins_builds.job_name = ?`,
 			data.Options.ConnectionId, data.Options.JobPath, data.Options.JobName),
 	}
@@ -71,23 +71,23 @@ func ConvertBuildsToCICD(taskCtx plugin.SubTaskContext) (err errors.Error) {
 		Convert: func(inputRow interface{}) ([]interface{}, errors.Error) {
 			jenkinsBuild := inputRow.(*models.JenkinsBuild)
 			durationSec := int64(jenkinsBuild.Duration / 1000)
-			jenkinsPipelineResult := ""
-			jenkinsPipelineStatus := ""
+			jenkinsPipelineStatus := devops.GetStatusCommon(&devops.StatusRuleCommon[bool]{
+				InProgress: []bool{true},
+				Done:       []bool{false},
+				Default:    devops.STATUS_OTHER,
+			}, jenkinsBuild.Building)
+			jenkinsPipelineResult := devops.RESULT_DEFAULT
+			if !jenkinsBuild.Building {
+				jenkinsPipelineResult = devops.GetResult(&devops.ResultRule{
+					Success: []string{SUCCESS},
+					Failure: []string{FAILURE, ABORTED},
+					Default: devops.RESULT_DEFAULT,
+				}, jenkinsBuild.Result)
+			}
 			var jenkinsPipelineFinishedDate *time.Time
 			results := make([]interface{}, 0)
-			if jenkinsBuild.Result == "SUCCESS" {
-				jenkinsPipelineResult = devops.SUCCESS
-			} else if jenkinsBuild.Result == "FAILURE" {
-				jenkinsPipelineResult = devops.FAILURE
-			} else {
-				jenkinsPipelineResult = devops.ABORT
-			}
 
-			if jenkinsBuild.Building {
-				jenkinsPipelineStatus = devops.IN_PROGRESS
-				jenkinsPipelineResult = ""
-			} else {
-				jenkinsPipelineStatus = devops.DONE
+			if jenkinsPipelineStatus == devops.STATUS_DONE {
 				finishTime := jenkinsBuild.StartTime.Add(time.Duration(durationSec * int64(time.Second)))
 				jenkinsPipelineFinishedDate = &finishTime
 			}

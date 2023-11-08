@@ -17,21 +17,18 @@
  */
 
 import { ExternalLink } from '@/components';
-
-import type { PluginConfigType } from '../../types';
-import { PluginType } from '../../types';
+import { DOC_URL } from '@/release';
 
 import Icon from './assets/icon.svg';
 import { BaseURL } from './connection-fields';
 
-export const AzureConfig: PluginConfigType = {
-  type: PluginType.Connection,
+export const AzureConfig = {
   plugin: 'azuredevops',
   name: 'Azure DevOps',
   icon: Icon,
   sort: 6,
   connection: {
-    docLink: 'https://devlake.apache.org/docs/Configuration/AzureDevOps',
+    docLink: DOC_URL.PLUGIN.AZUREDEVOPS.BASIS,
     fields: [
       'name',
       () => <BaseURL key="base-url" />,
@@ -40,9 +37,7 @@ export const AzureConfig: PluginConfigType = {
         label: 'Personal Access Token',
         subLabel: (
           <span>
-            <ExternalLink link="https://devlake.apache.org/docs/Configuration/AzureDevOps#auth-tokens">
-              Learn about how to create a PAT
-            </ExternalLink>{' '}
+            <ExternalLink link={DOC_URL.PLUGIN.AZUREDEVOPS.AUTH_TOKEN}>Learn about how to create a PAT</ExternalLink>{' '}
             Please select ALL ACCESSIBLE ORGANIZATIONS for the Organization field when you create the PAT.
           </span>
         ),
@@ -52,16 +47,17 @@ export const AzureConfig: PluginConfigType = {
         key: 'rateLimitPerHour',
         subLabel:
           'By default, DevLake uses 18,000 requests/hour for data collection for Azure DevOps. But you can adjust the collection speed by setting up your desirable rate limit.',
-        learnMore: 'https://devlake.apache.org/docs/Configuration/AzureDevOps/#custom-rate-limit-optional',
+        learnMore: DOC_URL.PLUGIN.AZUREDEVOPS.RATE_LIMIT,
         externalInfo: 'Azure DevOps does not specify a maximum value of rate limit.',
         maximum: 18000,
       },
     ],
   },
   dataScope: {
-    millerColumns: {
-      title: 'Add Repositories by Selecting from the Directory',
-      subTitle: 'The following directory lists out all repositories in your organizations.',
+    localSearch: true,
+    title: 'Repositories',
+    millerColumn: {
+      columnCount: 2,
     },
   },
   scopeConfig: {

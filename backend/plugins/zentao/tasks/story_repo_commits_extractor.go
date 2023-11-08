@@ -19,8 +19,6 @@ package tasks
 
 import (
 	"encoding/json"
-	"regexp"
-
 	"github.com/apache/incubator-devlake/core/errors"
 	"github.com/apache/incubator-devlake/core/plugin"
 	"github.com/apache/incubator-devlake/helpers/pluginhelper/api"
@@ -39,22 +37,11 @@ var ExtractStoryRepoCommitsMeta = plugin.SubTaskMeta{
 
 func ExtractStoryRepoCommits(taskCtx plugin.SubTaskContext) errors.Error {
 	data := taskCtx.GetData().(*ZentaoTaskData)
-
-	// this Extract only work for product
-	if data.Options.ProductId == 0 {
-		return nil
-	}
-
-	re := regexp.MustCompile(`(\d+)(?:,\s*(\d+))*`)
 	extractor, err := api.NewApiExtractor(api.ApiExtractorArgs{
 		RawDataSubTaskArgs: api.RawDataSubTaskArgs{
-			Ctx: taskCtx,
-			Params: ZentaoApiParams{
-				ConnectionId: data.Options.ConnectionId,
-				ProductId:    data.Options.ProductId,
-				ProjectId:    data.Options.ProjectId,
-			},
-			Table: RAW_STORY_REPO_COMMITS_TABLE,
+			Ctx:     taskCtx,
+			Options: data.Options,
+			Table:   RAW_STORY_REPO_COMMITS_TABLE,
 		},
 		Extract: func(row *api.RawData) ([]interface{}, errors.Error) {
 			res := &models.ZentaoStoryRepoCommitsRes{}
@@ -64,19 +51,19 @@ func ExtractStoryRepoCommits(taskCtx plugin.SubTaskContext) errors.Error {
 			}
 
 			results := make([]interface{}, 0)
-			match := re.FindStringSubmatch(res.Log.Comment)
-			for i := 1; i < len(match); i++ {
-				if match[i] != "" {
-					storyRepoCommits := &models.ZentaoStoryRepoCommit{
-						ConnectionId: data.Options.ConnectionId,
-						Product:      data.Options.ProductId,
-						Project:      data.Options.ProjectId,
-						RepoUrl:      res.Repo.CodePath,
-						CommitSha:    res.Revision,
-						IssueId:      match[i], // story id
-					}
-					results = append(results, storyRepoCommits)
+			issueIds, err := extractIdFromLogComment("story", res.Log.Comment)
+			if err != nil {
+				return nil, errors.Default.Wrap(err, "extractIdFromLogComment")
+			}
+			for _, issueId := range issueIds {
+				storyRepoCommits := &models.ZentaoStoryRepoCommit{
+					ConnectionId: data.Options.ConnectionId,
+					Project:      data.Options.ProjectId,
+					RepoUrl:      res.Repo.CodePath,
+					CommitSha:    res.Revision,
+					IssueId:      issueId,
 				}
+				results = append(results, storyRepoCommits)
 			}
 
 			return results, nil

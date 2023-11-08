@@ -18,10 +18,10 @@ limitations under the License.
 package archived
 
 import (
-	"github.com/apache/incubator-devlake/core/models/migrationscripts/archived"
+	"encoding/json"
 	"time"
 
-	"gorm.io/datatypes"
+	"github.com/apache/incubator-devlake/core/models/migrationscripts/archived"
 )
 
 type JiraIssue struct {
@@ -59,9 +59,9 @@ type JiraIssue struct {
 	SpentMinutes             int64
 	LeadTimeMinutes          uint
 	StdStoryPoint            int64
-	StdType                  string `gorm:"type:varchar(255)"`
-	StdStatus                string `gorm:"type:varchar(255)"`
-	AllFields                datatypes.JSONMap
+	StdType                  string          `gorm:"type:varchar(255)"`
+	StdStatus                string          `gorm:"type:varchar(255)"`
+	AllFields                json.RawMessage `gorm:"type:json"`
 	archived.NoPKModel
 }
 

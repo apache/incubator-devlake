@@ -18,9 +18,10 @@ limitations under the License.
 package models
 
 import (
-	"github.com/apache/incubator-devlake/core/models/common"
-	"gorm.io/datatypes"
+	"encoding/json"
 	"time"
+
+	"github.com/apache/incubator-devlake/core/models/common"
 )
 
 type JiraRemotelink struct {
@@ -30,7 +31,7 @@ type JiraRemotelink struct {
 	ConnectionId uint64 `gorm:"primaryKey"`
 	RemotelinkId uint64 `gorm:"primarykey"`
 	IssueId      uint64 `gorm:"index"`
-	RawJson      datatypes.JSON
+	RawJson      json.RawMessage
 	Self         string
 	Title        string
 	Url          string

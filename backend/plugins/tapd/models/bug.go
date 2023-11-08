@@ -19,7 +19,6 @@ package models
 
 import (
 	"github.com/apache/incubator-devlake/core/models/common"
-	helper "github.com/apache/incubator-devlake/helpers/pluginhelper/api"
 )
 
 type TapdBug struct {
@@ -29,12 +28,12 @@ type TapdBug struct {
 	Title        string          `json:"title" gorm:"type:varchar(255)"`
 	Description  string          `json:"description"`
 	WorkspaceId  uint64          `json:"workspace_id,string"`
-	Created      *helper.CSTTime `json:"created"`
-	Modified     *helper.CSTTime `json:"modified" gorm:"index"`
+	Created      *common.CSTTime `json:"created"`
+	Modified     *common.CSTTime `json:"modified" gorm:"index"`
 	Status       string          `json:"status" gorm:"type:varchar(255)"`
 	Cc           string          `json:"cc" gorm:"type:varchar(255)"`
-	Begin        *helper.CSTTime `json:"begin"`
-	Due          *helper.CSTTime `json:"due"`
+	Begin        *common.CSTTime `json:"begin"`
+	Due          *common.CSTTime `json:"due"`
 	Priority     string          `json:"priority" gorm:"type:varchar(255)"`
 	IterationId  uint64          `json:"iteration_id,string"`
 	Source       string          `json:"source" gorm:"type:varchar(255)"`
@@ -46,8 +45,8 @@ type TapdBug struct {
 
 	Severity         string          `json:"severity" gorm:"type:varchar(255)"`
 	Reporter         string          `json:"reporter" gorm:"type:varchar(255)"`
-	Resolved         *helper.CSTTime `json:"resolved"`
-	Closed           *helper.CSTTime `json:"closed"`
+	Resolved         *common.CSTTime `json:"resolved"`
+	Closed           *common.CSTTime `json:"closed"`
 	Lastmodify       string          `json:"lastmodify" gorm:"type:varchar(255)"`
 	Auditer          string          `json:"auditer" gorm:"type:varchar(255)"`
 	De               string          `json:"De" gorm:"comment:developer;type:varchar(255)"`
@@ -77,14 +76,14 @@ type TapdBug struct {
 	Flows            string          `json:"flows" gorm:"type:varchar(255)"`
 	Testmode         string          `json:"testmode" gorm:"type:varchar(50)"`
 	IssueId          uint64          `json:"issue_id,string"`
-	VerifyTime       *helper.CSTTime `json:"verify_time"`
-	RejectTime       *helper.CSTTime `json:"reject_time"`
-	ReopenTime       *helper.CSTTime `json:"reopen_time"`
-	AuditTime        *helper.CSTTime `json:"audit_time"`
-	SuspendTime      *helper.CSTTime `json:"suspend_time"`
-	Deadline         *helper.CSTTime `json:"deadline"`
-	InProgressTime   *helper.CSTTime `json:"in_progress_time"`
-	AssignedTime     *helper.CSTTime `json:"assigned_time"`
+	VerifyTime       *common.CSTTime `json:"verify_time"`
+	RejectTime       *common.CSTTime `json:"reject_time"`
+	ReopenTime       *common.CSTTime `json:"reopen_time"`
+	AuditTime        *common.CSTTime `json:"audit_time"`
+	SuspendTime      *common.CSTTime `json:"suspend_time"`
+	Deadline         *common.CSTTime `json:"deadline"`
+	InProgressTime   *common.CSTTime `json:"in_progress_time"`
+	AssignedTime     *common.CSTTime `json:"assigned_time"`
 	TemplateId       uint64          `json:"template_id,string"`
 	StoryId          uint64          `json:"story_id,string"`
 	StdStatus        string          `gorm:"type:varchar(20)"`

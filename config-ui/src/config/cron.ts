@@ -44,14 +44,25 @@ const getNextTime = (config: string) => {
   }
 };
 
+const getNextTimes = (config: string) => {
+  try {
+    return parser
+      .parseExpression(config, { tz: 'utc' })
+      .iterate(3)
+      .map((date) => date.toString());
+  } catch {
+    return [];
+  }
+};
+
 export const getCron = (isManual: boolean, config: string) => {
   if (isManual) {
     return {
       label: 'Manual',
-      value: 'manual',
-      description: '',
       config: '',
+      description: '',
       nextTime: '',
+      nextTimes: [],
     };
   }
 
@@ -60,37 +71,37 @@ export const getCron = (isManual: boolean, config: string) => {
   return preset
     ? {
         ...preset,
-        value: preset.config,
         nextTime: getNextTime(preset.config),
+        nextTimes: getNextTimes(preset.config),
       }
     : {
         label: 'Custom',
-        value: '',
-        description: 'Custom',
         config,
+        description: '',
         nextTime: getNextTime(config),
+        nextTimes: getNextTimes(config),
       };
 };
 
 export const getCronOptions = () => {
   return [
     {
-      value: 'manual',
       label: 'Manual',
+      value: 'manual',
       subLabel: '',
     },
   ]
     .concat(
       cronPresets.map((cp) => ({
-        value: cp.config,
         label: cp.label,
+        value: cp.config,
         subLabel: cp.description,
       })),
     )
     .concat([
       {
-        value: '',
         label: 'Custom',
+        value: 'custom',
         subLabel: '',
       },
     ]);

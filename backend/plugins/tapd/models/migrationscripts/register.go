@@ -31,5 +31,7 @@ func All() []plugin.MigrationScript {
 		new(modifyCustomFieldName),
 		new(addCustomFieldValue),
 		new(renameTr2ScopeConfig),
+		new(addRawParamTableForScope),
+		new(addConnIdToLabels),
 	}
 }

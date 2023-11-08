@@ -20,11 +20,13 @@ package tasks
 import (
 	"crypto/sha256"
 	"encoding/json"
+	"strings"
+
 	"github.com/apache/incubator-devlake/core/errors"
+	"github.com/apache/incubator-devlake/core/models/common"
 	"github.com/apache/incubator-devlake/core/plugin"
 	helper "github.com/apache/incubator-devlake/helpers/pluginhelper/api"
 	"github.com/apache/incubator-devlake/plugins/sonarqube/models"
-	"strings"
 )
 
 var _ plugin.SubTaskEntryPoint = ExtractIssues
@@ -144,8 +146,8 @@ type IssuesResponse struct {
 	Debt              string              `json:"debt"`
 	Author            string              `json:"author"`
 	Tags              []string            `json:"tags"`
-	CreationDate      *helper.Iso8601Time `json:"creationDate"`
-	UpdateDate        *helper.Iso8601Time `json:"updateDate"`
+	CreationDate      *common.Iso8601Time `json:"creationDate"`
+	UpdateDate        *common.Iso8601Time `json:"updateDate"`
 	Type              string              `json:"type"`
 	Scope             string              `json:"scope"`
 	QuickFixAvailable bool                `json:"quickFixAvailable"`

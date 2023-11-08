@@ -19,7 +19,6 @@ package models
 
 import (
 	"github.com/apache/incubator-devlake/core/models/common"
-	helper "github.com/apache/incubator-devlake/helpers/pluginhelper/api"
 )
 
 type TapdStory struct {
@@ -30,13 +29,13 @@ type TapdStory struct {
 	Description     string          `json:"description"`
 	WorkspaceId     uint64          `json:"workspace_id,string"`
 	Creator         string          `gorm:"type:varchar(255)"`
-	Created         *helper.CSTTime `json:"created"`
-	Modified        *helper.CSTTime `json:"modified" gorm:"index"`
+	Created         *common.CSTTime `json:"created"`
+	Modified        *common.CSTTime `json:"modified" gorm:"index"`
 	Status          string          `json:"status" gorm:"type:varchar(255)"`
 	Owner           string          `json:"owner" gorm:"type:varchar(255)"`
 	Cc              string          `json:"cc" gorm:"type:varchar(255)"`
-	Begin           *helper.CSTTime `json:"begin"`
-	Due             *helper.CSTTime `json:"due"`
+	Begin           *common.CSTTime `json:"begin"`
+	Due             *common.CSTTime `json:"due"`
 	Size            int16           `json:"size,string"`
 	Priority        string          `gorm:"type:varchar(255)" json:"priority"`
 	Developer       string          `gorm:"type:varchar(255)" json:"developer"`
@@ -46,7 +45,7 @@ type TapdStory struct {
 	Source          string          `json:"source" gorm:"type:varchar(255)"`
 	Module          string          `json:"module" gorm:"type:varchar(255)"`
 	Version         string          `json:"version" gorm:"type:varchar(255)"`
-	Completed       *helper.CSTTime `json:"completed"`
+	Completed       *common.CSTTime `json:"completed"`
 	CategoryId      int64           `json:"category_id,string"`
 	Path            string          `gorm:"type:varchar(255)" json:"path"`
 	ParentId        uint64          `json:"parent_id,string"`

@@ -19,8 +19,8 @@ package apiv2models
 
 import (
 	"encoding/json"
+
 	"github.com/apache/incubator-devlake/plugins/jira/models"
-	"gorm.io/datatypes"
 )
 
 type RemoteLink struct {
@@ -59,6 +59,6 @@ func (r RemoteLink) ToToolLayer(connectionId, issueId uint64, raw json.RawMessag
 		Self:         r.Self,
 		Title:        r.Object.Title,
 		Url:          r.Object.URL,
-		RawJson:      datatypes.JSON(raw),
+		RawJson:      raw,
 	}
 }

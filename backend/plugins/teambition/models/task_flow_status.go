@@ -19,23 +19,22 @@ package models
 
 import (
 	"github.com/apache/incubator-devlake/core/models/common"
-	"github.com/apache/incubator-devlake/helpers/pluginhelper/api"
 )
 
 type TeambitionTaskFlowStatus struct {
-	ConnectionId                uint64           `gorm:"primaryKey;type:BIGINT"`
-	ProjectId                   string           `gorm:"primaryKey;type:varchar(100)" json:"projectId"`
-	Id                          string           `gorm:"primaryKey;type:varchar(100)" json:"id"`
-	Name                        string           `gorm:"type:varchar(100)" json:"name"`
-	Pos                         int64            `json:"pos"`
-	TaskflowId                  string           `gorm:"type:varchar(100)" json:"taskflowId"`
-	RejectStatusIds             []string         `gorm:"serializer:json;type:text" json:"rejectStatusIds"`
-	Kind                        string           `gorm:"varchar(100)" json:"kind"`
-	CreatorId                   string           `gorm:"varchar(100)" json:"creatorId"`
-	IsDeleted                   bool             `json:"isDeleted"`
-	IsTaskflowstatusruleexector bool             `json:"isTaskflowstatusruleexector"`
-	Created                     *api.Iso8601Time `json:"created"`
-	Updated                     *api.Iso8601Time `json:"updated"`
+	ConnectionId                uint64              `gorm:"primaryKey;type:BIGINT"`
+	ProjectId                   string              `gorm:"primaryKey;type:varchar(100)" json:"projectId"`
+	Id                          string              `gorm:"primaryKey;type:varchar(100)" json:"id"`
+	Name                        string              `gorm:"type:varchar(100)" json:"name"`
+	Pos                         int64               `json:"pos"`
+	TaskflowId                  string              `gorm:"type:varchar(100)" json:"taskflowId"`
+	RejectStatusIds             []string            `gorm:"serializer:json;type:text" json:"rejectStatusIds"`
+	Kind                        string              `gorm:"varchar(100)" json:"kind"`
+	CreatorId                   string              `gorm:"varchar(100)" json:"creatorId"`
+	IsDeleted                   bool                `json:"isDeleted"`
+	IsTaskflowstatusruleexector bool                `json:"isTaskflowstatusruleexector"`
+	Created                     *common.Iso8601Time `json:"created"`
+	Updated                     *common.Iso8601Time `json:"updated"`
 
 	common.NoPKModel
 }

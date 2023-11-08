@@ -19,26 +19,20 @@ package tasks
 
 import (
 	"strings"
-	"time"
 
 	"github.com/apache/incubator-devlake/core/errors"
 	"github.com/apache/incubator-devlake/helpers/pluginhelper/api"
 	"github.com/apache/incubator-devlake/plugins/jenkins/models"
 )
 
-type JenkinsApiParams struct {
-	ConnectionId uint64
-	FullName     string
-}
-
+type JenkinsApiParams models.JenkinsApiParams
 type JenkinsOptions struct {
 	ConnectionId  uint64 `json:"connectionId"`
 	ScopeId       string
-	ScopeConfigId uint64 `json:"scopeConfigId"`
-	JobFullName   string `json:"jobFullName"` // "path1/path2/job name"
-	JobName       string `json:"jobName"`     // "job name"
-	JobPath       string `json:"jobPath"`     // "job/path1/job/path2"
-	TimeAfter     string
+	ScopeConfigId uint64                     `json:"scopeConfigId"`
+	JobFullName   string                     `json:"jobFullName"` // "path1/path2/job name"
+	JobName       string                     `json:"jobName"`     // "job name"
+	JobPath       string                     `json:"jobPath"`     // "job/path1/job/path2"
 	Tasks         []string                   `json:"tasks,omitempty"`
 	ScopeConfig   *models.JenkinsScopeConfig `mapstructure:"scopeConfig" json:"scopeConfig"`
 }
@@ -47,7 +41,6 @@ type JenkinsTaskData struct {
 	Options       *JenkinsOptions
 	ApiClient     *api.ApiAsyncClient
 	Connection    *models.JenkinsConnection
-	TimeAfter     *time.Time
 	RegexEnricher *api.RegexEnricher
 }
 

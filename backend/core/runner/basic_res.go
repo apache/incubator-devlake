@@ -33,7 +33,7 @@ import (
 var app_lock sync.Mutex
 var app_inited bool
 
-// CreateAppBasicRes returns a application level BasicRes instance based on .env/environment variables
+// CreateAppBasicRes returns an application level BasicRes instance based on .env/environment variables
 // it is useful because multiple places need BasicRes including `main.go` `directrun` and `worker`
 // keep in mind this function can be called only once
 func CreateAppBasicRes() context.BasicRes {

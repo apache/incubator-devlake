@@ -15,7 +15,7 @@
 # limitations under the License.
 #
 
-name: "Auto Cherrry Pick"
+name: "Auto Cherry Pick"
 description: "cherry pick commits from Pull Requests into Release branch"
 inputs:
   author_email:
@@ -28,6 +28,7 @@ inputs:
     required: false
   assignees:
     description: "A comma or newline separated list of assignees (GitHub usernames)."
+    default: ${{ github.actor }}
     required: false
 runs:
   using: "composite"
@@ -38,10 +39,9 @@ runs:
       shell: bash
       env:
         GH_TOKEN: ${{ github.token }}
-        PR_NUMBER: ${{ github.event.pull_request.number }}
-        PR_TITLE: ${{ github.event.pull_request.title }}
-        PR_BODY: ${{ github.event.pull_request.body }}
-        LABEL_NAME: ${{ github.event.label.name }}
+        ORIGIN_PR_NUMBER: ${{ github.event.pull_request.number }}
+        ORIGIN_PR_TITLE: ${{ github.event.pull_request.title }}
+        ORIGIN_PR_LABELS_JSON:  ${{ toJson(github.event.pull_request.labels.*.name) }}
         AUTHOR_EMAIL: ${{ inputs.author_email }}
         AUTHOR_NAME: ${{ inputs.author_name }}
         ASSIGNEES: ${{ inputs.assignees }}

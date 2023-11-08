@@ -19,6 +19,7 @@ package tasks
 
 import (
 	"reflect"
+	"strings"
 
 	"github.com/apache/incubator-devlake/core/dal"
 	"github.com/apache/incubator-devlake/core/errors"
@@ -66,7 +67,6 @@ func ConvertDeployments(taskCtx plugin.SubTaskContext) errors.Error {
 	defer cursor.Close()
 
 	idGen := didgen.NewDomainIdGenerator(&models.BitbucketDeployment{})
-	pipelineIdGen := didgen.NewDomainIdGenerator(&models.BitbucketPipeline{})
 
 	converter, err := api.NewDataConverter(api.DataConverterArgs{
 		InputRowType:       reflect.TypeOf(bitbucketDeploymentWithRefName{}),
@@ -84,19 +84,19 @@ func ConvertDeployments(taskCtx plugin.SubTaskContext) errors.Error {
 				DomainEntity: domainlayer.DomainEntity{
 					Id: idGen.Generate(data.Options.ConnectionId, bitbucketDeployment.BitbucketId),
 				},
-				CicdScopeId:      repoId,
-				CicdDeploymentId: pipelineIdGen.Generate(data.Options.ConnectionId, bitbucketDeployment.PipelineId),
-				Name:             bitbucketDeployment.Name,
+				CicdScopeId: repoId,
+				Name:        bitbucketDeployment.Name,
 				Result: devops.GetResult(&devops.ResultRule{
-					Failed:  []string{"UNDEPLOYED"},
-					Success: []string{"COMPLETED"},
-					Default: "",
+					Success: []string{models.COMPLETED, models.SUCCESSFUL},
+					Failure: []string{models.FAILED, models.STOPPED, models.CANCELLED},
+					Default: devops.RESULT_DEFAULT,
 				}, bitbucketDeployment.Status),
 				Status: devops.GetStatus(&devops.StatusRule{
-					Done:    []string{"COMPLETED", "UNDEPLOYED"},
-					Default: devops.IN_PROGRESS,
+					Done:       []string{models.COMPLETED, models.SUCCESSFUL, models.FAILED, models.STOPPED},
+					InProgress: []string{models.IN_PROGRESS},
+					Default:    devops.STATUS_OTHER,
 				}, bitbucketDeployment.Status),
-				Environment:  bitbucketDeployment.Environment,
+				Environment:  strings.ToUpper(bitbucketDeployment.Environment), // or bitbucketDeployment.EnvironmentType, they are same so far.
 				CreatedDate:  *bitbucketDeployment.CreatedOn,
 				StartedDate:  bitbucketDeployment.StartedOn,
 				FinishedDate: bitbucketDeployment.CompletedOn,
@@ -106,7 +106,16 @@ func ConvertDeployments(taskCtx plugin.SubTaskContext) errors.Error {
 				RepoId:       repoId,
 				RepoUrl:      repo.HTMLUrl,
 			}
-			return []interface{}{domainDeployCommit}, nil
+			if domainDeployCommit.Environment == devops.TEST {
+				// Theoretically, environment cannot be "Test" according to
+				// https://developer.atlassian.com/server/bitbucket/rest/v814/api-group-builds-and-deployments/#api-api-latest-projects-projectkey-repos-repositoryslug-commits-commitid-deployments-get
+				// but in practice, we found environment is "Test".
+				// So convert it to devlake's definition.
+				domainDeployCommit.Environment = devops.TESTING
+			}
+
+			domainDeployCommit.CicdDeploymentId = domainDeployCommit.Id
+			return []interface{}{domainDeployCommit, domainDeployCommit.ToDeployment()}, nil
 		},
 	})
 

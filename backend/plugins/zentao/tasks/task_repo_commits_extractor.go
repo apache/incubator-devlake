@@ -19,8 +19,6 @@ package tasks
 
 import (
 	"encoding/json"
-	"regexp"
-
 	"github.com/apache/incubator-devlake/core/errors"
 	"github.com/apache/incubator-devlake/core/plugin"
 	"github.com/apache/incubator-devlake/helpers/pluginhelper/api"
@@ -39,22 +37,11 @@ var ExtractTaskRepoCommitsMeta = plugin.SubTaskMeta{
 
 func ExtractTaskRepoCommits(taskCtx plugin.SubTaskContext) errors.Error {
 	data := taskCtx.GetData().(*ZentaoTaskData)
-
-	// this Extract only work for project
-	if data.Options.ProjectId == 0 {
-		return nil
-	}
-
-	re := regexp.MustCompile(`(\d+)(?:,\s*(\d+))*`)
 	extractor, err := api.NewApiExtractor(api.ApiExtractorArgs{
 		RawDataSubTaskArgs: api.RawDataSubTaskArgs{
-			Ctx: taskCtx,
-			Params: ZentaoApiParams{
-				ConnectionId: data.Options.ConnectionId,
-				ProductId:    data.Options.ProductId,
-				ProjectId:    data.Options.ProjectId,
-			},
-			Table: RAW_TASK_REPO_COMMITS_TABLE,
+			Ctx:     taskCtx,
+			Options: data.Options,
+			Table:   RAW_TASK_REPO_COMMITS_TABLE,
 		},
 		Extract: func(row *api.RawData) ([]interface{}, errors.Error) {
 			res := &models.ZentaoTaskRepoCommitsRes{}
@@ -64,19 +51,19 @@ func ExtractTaskRepoCommits(taskCtx plugin.SubTaskContext) errors.Error {
 			}
 
 			results := make([]interface{}, 0)
-			match := re.FindStringSubmatch(res.Log.Comment)
-			for i := 1; i < len(match); i++ {
-				if match[i] != "" {
-					taskRepoCommits := &models.ZentaoTaskRepoCommit{
-						ConnectionId: data.Options.ConnectionId,
-						Product:      data.Options.ProductId,
-						Project:      data.Options.ProjectId,
-						RepoUrl:      res.Repo.CodePath,
-						CommitSha:    res.Revision,
-						IssueId:      match[i], // task id
-					}
-					results = append(results, taskRepoCommits)
+			issueIds, err := extractIdFromLogComment("task", res.Log.Comment)
+			if err != nil {
+				return nil, errors.Default.Wrap(err, "extractIdFromLogComment")
+			}
+			for _, issueId := range issueIds {
+				taskRepoCommits := &models.ZentaoTaskRepoCommit{
+					ConnectionId: data.Options.ConnectionId,
+					Project:      data.Options.ProjectId,
+					RepoUrl:      res.Repo.CodePath,
+					CommitSha:    res.Revision,
+					IssueId:      issueId,
 				}
+				results = append(results, taskRepoCommits)
 			}
 
 			return results, nil

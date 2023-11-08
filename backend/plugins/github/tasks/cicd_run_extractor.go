@@ -27,12 +27,18 @@ import (
 	"github.com/apache/incubator-devlake/plugins/github/models"
 )
 
+func init() {
+	RegisterSubtaskMeta(&ExtractRunsMeta)
+}
+
 var ExtractRunsMeta = plugin.SubTaskMeta{
 	Name:             "extractRuns",
 	EntryPoint:       ExtractRuns,
 	EnabledByDefault: true,
 	Description:      "Extract raw run data into tool layer table github_runs",
 	DomainTypes:      []string{plugin.DOMAIN_TYPE_CICD},
+	DependencyTables: []string{RAW_RUN_TABLE},
+	ProductTables:    []string{models.GithubRun{}.TableName()},
 }
 
 func ExtractRuns(taskCtx plugin.SubTaskContext) errors.Error {
@@ -86,7 +92,7 @@ func ExtractRuns(taskCtx plugin.SubTaskContext) errors.Error {
 				RerunURL:         githubRun.RerunURL,
 				WorkflowURL:      githubRun.WorkflowURL,
 				Type:             data.RegexEnricher.ReturnNameIfMatched(devops.DEPLOYMENT, githubRun.Name),
-				Environment:      data.RegexEnricher.ReturnNameIfOmittedOrMatched(devops.PRODUCTION, githubRun.Name),
+				Environment:      data.RegexEnricher.ReturnNameIfOmittedOrMatched(devops.PRODUCTION, githubRun.Name, githubRun.HeadBranch),
 			}
 			results = append(results, githubRunResult)
 			return results, nil

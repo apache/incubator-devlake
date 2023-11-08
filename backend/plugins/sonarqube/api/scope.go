@@ -19,6 +19,7 @@ package api
 
 import (
 	"github.com/apache/incubator-devlake/core/errors"
+	"github.com/apache/incubator-devlake/core/models/common"
 	"github.com/apache/incubator-devlake/core/plugin"
 	"github.com/apache/incubator-devlake/helpers/pluginhelper/api"
 	"github.com/apache/incubator-devlake/plugins/sonarqube/models"
@@ -42,6 +43,22 @@ type ScopeReq api.ScopeReq[models.SonarqubeProject]
 // @Failure 500  {object} shared.ApiBody "Internal Error"
 // @Router /plugins/sonarqube/connections/{connectionId}/scopes [PUT]
 func PutScope(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, errors.Error) {
+	// decode request body to scope, deal with lastAnalysisDate format
+	data := input.Body["data"].([]interface{})
+	for _, item := range data {
+		dateStr, ok := item.(map[string]interface{})["lastAnalysisDate"].(string)
+		if !ok {
+			continue
+		}
+		timeObj, err := common.ConvertStringToTime(dateStr)
+		if err != nil {
+			panic(err)
+		}
+
+		item.(map[string]interface{})["lastAnalysisDate"] = timeObj
+
+	}
+
 	return scopeHelper.Put(input)
 }
 
@@ -66,6 +83,7 @@ func UpdateScope(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, err
 // @Description get Sonarqube projects
 // @Tags plugins/sonarqube
 // @Param connectionId path int false "connection ID"
+// @Param searchTerm query string false "search term for scope name"
 // @Param pageSize query int false "page size, default 50"
 // @Param page query int false "page size, default 1"
 // @Param blueprints query bool false "also return blueprints using these scopes as part of the payload"
@@ -100,6 +118,7 @@ func GetScope(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, errors
 // @Param delete_data_only query bool false "Only delete the scope data, not the scope itself"
 // @Success 200
 // @Failure 400  {object} shared.ApiBody "Bad Request"
+// @Failure 409  {object} api.ScopeRefDoc "References exist to this scope"
 // @Failure 500  {object} shared.ApiBody "Internal Error"
 // @Router /plugins/sonarqube/connections/{connectionId}/scopes/{scopeId} [DELETE]
 func DeleteScope(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, errors.Error) {

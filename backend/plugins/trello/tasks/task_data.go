@@ -19,6 +19,7 @@ package tasks
 
 import (
 	"github.com/apache/incubator-devlake/helpers/pluginhelper/api"
+	"github.com/apache/incubator-devlake/plugins/trello/models"
 )
 
 type TrelloOptions struct {
@@ -33,7 +34,4 @@ type TrelloTaskData struct {
 	ApiClient *api.ApiAsyncClient
 }
 
-type TrelloApiParams struct {
-	ConnectionId uint64
-	BoardId      string
-}
+type TrelloApiParams models.TrelloApiParams

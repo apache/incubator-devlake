@@ -19,7 +19,9 @@ package tasks
 
 import (
 	"encoding/json"
+
 	"github.com/apache/incubator-devlake/core/errors"
+	"github.com/apache/incubator-devlake/core/models/common"
 	"github.com/apache/incubator-devlake/core/plugin"
 	"github.com/apache/incubator-devlake/helpers/pluginhelper/api"
 	"github.com/apache/incubator-devlake/plugins/gitlab/models"
@@ -43,9 +45,9 @@ type ApiJob struct {
 		Id int
 	}
 
-	CreatedAt  *api.Iso8601Time `json:"created_at"`
-	StartedAt  *api.Iso8601Time `json:"started_at"`
-	FinishedAt *api.Iso8601Time `json:"finished_at"`
+	CreatedAt  *common.Iso8601Time `json:"created_at"`
+	StartedAt  *common.Iso8601Time `json:"started_at"`
+	FinishedAt *common.Iso8601Time `json:"finished_at"`
 }
 
 var ExtractApiJobsMeta = plugin.SubTaskMeta{
@@ -106,8 +108,8 @@ func convertJob(job *ApiJob, projectId int) (*models.GitlabJob, errors.Error) {
 		WebUrl:       job.WebUrl,
 		PipelineId:   job.Pipeline.Id,
 
-		GitlabCreatedAt: api.Iso8601TimeToTime(job.CreatedAt),
-		StartedAt:       api.Iso8601TimeToTime(job.StartedAt),
-		FinishedAt:      api.Iso8601TimeToTime(job.FinishedAt),
+		GitlabCreatedAt: common.Iso8601TimeToTime(job.CreatedAt),
+		StartedAt:       common.Iso8601TimeToTime(job.StartedAt),
+		FinishedAt:      common.Iso8601TimeToTime(job.FinishedAt),
 	}, nil
 }

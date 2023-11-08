@@ -17,9 +17,10 @@
  */
 
 import { useState, useEffect } from 'react';
-import { FormGroup, InputGroup, TextArea, Tag, Switch, Icon, Intent, Colors } from '@blueprintjs/core';
+import { FormGroup, InputGroup, TextArea, Tag, Checkbox, Icon, Intent, Colors } from '@blueprintjs/core';
 
 import { ExternalLink, HelpTooltip, Divider } from '@/components';
+import { DOC_URL } from '@/release';
 
 import * as S from './styled';
 
@@ -27,29 +28,36 @@ interface Props {
   entities: string[];
   transformation: any;
   setTransformation: React.Dispatch<React.SetStateAction<any>>;
+  setHasError: React.Dispatch<React.SetStateAction<boolean>>;
 }
 
-export const GitHubTransformation = ({ entities, transformation, setTransformation }: Props) => {
-  const [enableCICD, setEnableCICD] = useState(true);
+export const GitHubTransformation = ({ entities, transformation, setTransformation, setHasError }: Props) => {
+  const [useCustom, setUseCustom] = useState(false);
 
   useEffect(() => {
-    if (!transformation.deploymentPattern) {
-      setEnableCICD(false);
+    if (transformation.deploymentPattern || transformation.productionPattern) {
+      setUseCustom(true);
+    } else {
+      setUseCustom(false);
     }
   }, [transformation]);
 
-  const handleChangeEnableCICD = (e: React.FormEvent<HTMLInputElement>) => {
+  useEffect(() => {
+    setHasError(useCustom && !transformation.deploymentPattern);
+  }, [useCustom, transformation]);
+
+  const handleChangeUseCustom = (e: React.FormEvent<HTMLInputElement>) => {
     const checked = (e.target as HTMLInputElement).checked;
 
     if (!checked) {
       setTransformation({
         ...transformation,
-        deploymentPattern: undefined,
-        productionPattern: undefined,
+        deploymentPattern: '',
+        productionPattern: '',
       });
     }
 
-    setEnableCICD(checked);
+    setUseCustom(checked);
   };
 
   return (
@@ -59,11 +67,8 @@ export const GitHubTransformation = ({ entities, transformation, setTransformati
           <h2>Issue Tracking</h2>
           <p>
             Tell DevLake what your issue labels mean to view metrics such as{' '}
-            <ExternalLink link="https://devlake.apache.org/docs/Metrics/BugAge">Bug Age</ExternalLink>,{' '}
-            <ExternalLink link="https://devlake.apache.org/docs/Metrics/MTTR">
-              DORA - Median Time to Restore Service
-            </ExternalLink>
-            , etc.
+            <ExternalLink link={DOC_URL.METRICS.BUG_AGE}>Bug Age</ExternalLink>,{' '}
+            <ExternalLink link={DOC_URL.METRICS.MTTR}>DORA - Median Time to Restore Service</ExternalLink>, etc.
           </p>
           <div className="issue-type">
             <div className="title">
@@ -190,59 +195,69 @@ export const GitHubTransformation = ({ entities, transformation, setTransformati
             <Tag minimal intent={Intent.PRIMARY} style={{ marginLeft: 8 }}>
               DORA
             </Tag>
-            <div className="switch">
-              <span>Enable</span>
-              <Switch alignIndicator="right" inline checked={enableCICD} onChange={handleChangeEnableCICD} />
-            </div>
           </h3>
-          {enableCICD && (
-            <>
-              <p>
-                Use Regular Expression to define Deployments in DevLake in order to measure DORA metrics.{' '}
-                <ExternalLink link="https://devlake.apache.org/docs/Configuration/GitHub#step-3---adding-transformation-rules-optional">
-                  Learn more
-                </ExternalLink>
-              </p>
-              <div style={{ marginTop: 16 }}>Convert a GitHub Workflow run as a DevLake Deployment when: </div>
-              <div className="text">
-                <span>
-                  The name of the <strong>GitHub workflow run</strong> or <strong>one of its jobs</strong> matches
-                </span>
-                <InputGroup
-                  style={{ width: 200, margin: '0 8px' }}
-                  placeholder="(deploy|push-image)"
-                  value={transformation.deploymentPattern ?? ''}
-                  onChange={(e) =>
-                    setTransformation({
-                      ...transformation,
-                      deploymentPattern: e.target.value,
-                      productionPattern: !e.target.value ? '' : transformation.productionPattern,
-                    })
-                  }
-                />
-                <i style={{ color: '#E34040' }}>*</i>
-                <HelpTooltip content="GitHub Workflow Runs: https://docs.github.com/en/actions/managing-workflow-runs/manually-running-a-workflow" />
-              </div>
-              <div className="text">
-                <span>If the name also matches</span>
-                <InputGroup
-                  style={{ width: 200, margin: '0 8px' }}
-                  disabled={!transformation.deploymentPattern}
-                  placeholder="prod(.*)"
-                  value={transformation.productionPattern ?? ''}
-                  onChange={(e) =>
-                    setTransformation({
-                      ...transformation,
-                      productionPattern: e.target.value,
-                    })
-                  }
-                />
-                <span>, this Deployment is a ‘Production Deployment’</span>
-                <HelpTooltip content="If you leave this field empty, all DevLake Deployments will be tagged as in the Production environment. " />
-              </div>
-            </>
-          )}
-          <Divider />
+          <p style={{ marginBottom: 16 }}>
+            Use Regular Expression to define Deployments in DevLake in order to measure DORA metrics.{' '}
+            <ExternalLink link={DOC_URL.PLUGIN.GITHUB.TRANSFORMATION}>Learn more</ExternalLink>
+          </p>
+          <div className="text">
+            <Checkbox disabled checked />
+            <span>Convert a GitHub Deployment to a DevLake Deployment </span>
+          </div>
+          <div className="sub-text">
+            <span>If its environment name matches</span>
+            <InputGroup
+              style={{ width: 180, margin: '0 8px' }}
+              placeholder="(?i)prod(.*)"
+              value={transformation.envNamePattern}
+              onChange={(e) =>
+                setTransformation({
+                  ...transformation,
+                  envNamePattern: e.target.value,
+                })
+              }
+            />
+            <span>, this deployment is a ‘Production Deployment’</span>
+          </div>
+          <div className="text">
+            <Checkbox checked={useCustom} onChange={handleChangeUseCustom} />
+            <span>Convert a GitHub workflow run as a DevLake Deployment when: </span>
+          </div>
+          <div className="sub-text">
+            <span>
+              The name of the <strong>GitHub workflow run</strong> or <strong> one of its jobs</strong> matches
+            </span>
+            <InputGroup
+              style={{ width: 180, margin: '0 8px' }}
+              placeholder="(deploy|push-image)"
+              value={transformation.deploymentPattern ?? ''}
+              onChange={(e) =>
+                setTransformation({
+                  ...transformation,
+                  deploymentPattern: e.target.value,
+                  productionPattern: !e.target.value ? '' : transformation.productionPattern,
+                })
+              }
+            />
+            <i style={{ color: '#E34040' }}>*</i>
+            <HelpTooltip content="GitHub Workflow Runs: https://docs.github.com/en/actions/managing-workflow-runs/manually-running-a-workflow" />
+          </div>
+          <div className="sub-text">
+            <span>If the name also matches</span>
+            <InputGroup
+              style={{ width: 180, margin: '0 8px' }}
+              placeholder="prod(.*)"
+              value={transformation.productionPattern ?? ''}
+              onChange={(e) =>
+                setTransformation({
+                  ...transformation,
+                  productionPattern: e.target.value,
+                })
+              }
+            />
+            <span>, this deployment is a ‘Production Deployment’</span>
+            <HelpTooltip content="If you leave this field empty, all Deployments will be tagged as in the Production environment. " />
+          </div>
         </S.CICD>
       )}
       {entities.includes('CODEREVIEW') && (
@@ -251,9 +266,7 @@ export const GitHubTransformation = ({ entities, transformation, setTransformati
           <p>
             If you use labels to identify types and components of pull requests, use the following RegExes to extract
             them into corresponding columns.{' '}
-            <ExternalLink link="https://devlake.apache.org/docs/DataModels/DevLakeDomainLayerSchema#pull_requests">
-              Learn More
-            </ExternalLink>
+            <ExternalLink link={DOC_URL.DATA_MODELS.DEVLAKE_DOMAIN_LAYER_SCHEMA.PULL_REQUEST}>Learn More</ExternalLink>
           </p>
           <FormGroup
             inline
@@ -298,7 +311,7 @@ export const GitHubTransformation = ({ entities, transformation, setTransformati
           <h2>Cross-domain</h2>
           <p>
             Connect entities across domains to measure metrics such as{' '}
-            <ExternalLink link="https://devlake.apache.org/docs/Metrics/BugCountPer1kLinesOfCode">
+            <ExternalLink link={DOC_URL.METRICS.BUG_COUNT_PER_1K_LINES_OF_CODE}>
               Bug Count per 1k Lines of Code
             </ExternalLink>
             .

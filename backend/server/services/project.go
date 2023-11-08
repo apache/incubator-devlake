@@ -19,6 +19,7 @@ package services
 
 import (
 	"fmt"
+
 	"github.com/apache/incubator-devlake/core/dal"
 	"github.com/apache/incubator-devlake/core/errors"
 	"github.com/apache/incubator-devlake/core/models"
@@ -32,7 +33,7 @@ type ProjectQuery struct {
 }
 
 // GetProjects returns a paginated list of Projects based on `query`
-func GetProjects(query *ProjectQuery) ([]*models.Project, int64, errors.Error) {
+func GetProjects(query *ProjectQuery) ([]*models.ApiOutputProject, int64, errors.Error) {
 	// verify input
 	if err := VerifyStruct(query); err != nil {
 		return nil, 0, err
@@ -51,13 +52,22 @@ func GetProjects(query *ProjectQuery) ([]*models.Project, int64, errors.Error) {
 		dal.Offset(query.GetSkip()),
 		dal.Limit(query.GetPageSize()),
 	)
-	projects := make([]*models.Project, 0)
+	projects := make([]*models.Project, count)
 	err = db.All(&projects, clauses...)
 	if err != nil {
 		return nil, 0, errors.Default.Wrap(err, "error finding DB project")
 	}
+	var apiOutProjects []*models.ApiOutputProject
+	for _, project := range projects {
+		apiOutputProject, err := makeProjectOutput(project, true)
+		if err != nil {
+			logger.Error(err, "makeProjectOutput, name: %s", project.Name)
+			return nil, 0, errors.Default.Wrap(err, "error making project output")
+		}
+		apiOutProjects = append(apiOutProjects, apiOutputProject)
+	}
 
-	return projects, count, nil
+	return apiOutProjects, count, nil
 }
 
 // CreateProject accepts a project instance and insert it to database
@@ -90,8 +100,8 @@ func CreateProject(projectInput *models.ApiInputProject) (*models.ApiOutputProje
 		return nil, errors.Default.Wrap(err, "error creating DB project")
 	}
 
-	// check if need flush the Metrics
-	if projectInput.Metrics != nil {
+	// check if we need flush the Metrics
+	if len(projectInput.Metrics) > 0 {
 		err = refreshProjectMetrics(tx, projectInput)
 		if err != nil {
 			return nil, err
@@ -104,7 +114,7 @@ func CreateProject(projectInput *models.ApiInputProject) (*models.ApiOutputProje
 		return nil, err
 	}
 
-	return makeProjectOutput(&projectInput.BaseProject)
+	return makeProjectOutput(project, false)
 }
 
 // GetProject returns a Project
@@ -119,7 +129,7 @@ func GetProject(name string) (*models.ApiOutputProject, errors.Error) {
 		return nil, err
 	}
 	// convert to api output
-	return makeProjectOutput(&project.BaseProject)
+	return makeProjectOutput(project, false)
 }
 
 // PatchProject FIXME ...
@@ -224,7 +234,7 @@ func PatchProject(name string, body map[string]interface{}) (*models.ApiOutputPr
 	}
 
 	// refresh project metrics if needed
-	if projectInput.Metrics != nil {
+	if len(projectInput.Metrics) > 0 {
 		err = refreshProjectMetrics(tx, projectInput)
 		if err != nil {
 			return nil, err
@@ -244,7 +254,7 @@ func PatchProject(name string, body map[string]interface{}) (*models.ApiOutputPr
 	}
 
 	// all good, render output
-	return makeProjectOutput(&projectInput.BaseProject)
+	return makeProjectOutput(project, false)
 }
 
 // DeleteProject FIXME ...
@@ -253,7 +263,15 @@ func DeleteProject(name string) errors.Error {
 	if name == "" {
 		return errors.BadInput.New("project name is missing")
 	}
-	var err errors.Error
+	// verify exists
+	_, err := getProjectByName(db, name)
+	if err != nil {
+		return err
+	}
+	err = deleteProjectBlueprint(name)
+	if err != nil {
+		return err
+	}
 	tx := db.Begin()
 	defer func() {
 		if r := recover(); r != nil || err != nil {
@@ -263,10 +281,6 @@ func DeleteProject(name string) errors.Error {
 			}
 		}
 	}()
-	_, err = getProjectByName(tx, name)
-	if err != nil {
-		return err
-	}
 	err = tx.Delete(&models.Project{}, dal.Where("name = ?", name))
 	if err != nil {
 		return errors.Default.Wrap(err, "error deleting project")
@@ -287,20 +301,20 @@ func DeleteProject(name string) errors.Error {
 	if err != nil {
 		return errors.Default.Wrap(err, "error deleting project Issue metric")
 	}
-	err = tx.Commit()
+	return tx.Commit()
+}
+
+func deleteProjectBlueprint(projectName string) errors.Error {
+	bp, err := bpManager.GetDbBlueprintByProjectName(projectName)
 	if err != nil {
-		return err
-	}
-	bp, err := bpManager.GetDbBlueprintByProjectName(name)
-	if err != nil {
-		if tx.IsErrorNotFound(err) {
-			return nil
+		if !db.IsErrorNotFound(err) {
+			return errors.Default.Wrap(err, fmt.Sprintf("error finding blueprint associated with project %s", projectName))
 		}
-		return err
-	}
-	err = bpManager.DeleteBlueprint(bp.ID)
-	if err != nil {
-		return err
+	} else {
+		err = bpManager.DeleteBlueprint(bp.ID)
+		if err != nil {
+			return errors.Default.Wrap(err, fmt.Sprintf("error deleting blueprint associated with project %s", projectName))
+		}
 	}
 	return nil
 }
@@ -323,11 +337,11 @@ func refreshProjectMetrics(tx dal.Transaction, projectInput *models.ApiInputProj
 		return err
 	}
 
-	for _, baseMetric := range *projectInput.Metrics {
+	for _, baseMetric := range projectInput.Metrics {
 		err = tx.Create(&models.ProjectMetricSetting{
 			BaseProjectMetricSetting: models.BaseProjectMetricSetting{
 				ProjectName: projectInput.Name,
-				BaseMetric:  baseMetric,
+				BaseMetric:  *baseMetric,
 			},
 		})
 		if err != nil {
@@ -337,9 +351,9 @@ func refreshProjectMetrics(tx dal.Transaction, projectInput *models.ApiInputProj
 	return nil
 }
 
-func makeProjectOutput(baseProject *models.BaseProject) (*models.ApiOutputProject, errors.Error) {
+func makeProjectOutput(project *models.Project, withLastPipeline bool) (*models.ApiOutputProject, errors.Error) {
 	projectOutput := &models.ApiOutputProject{}
-	projectOutput.BaseProject = *baseProject
+	projectOutput.Project = *project
 	// load project metrics
 	projectMetrics := make([]models.ProjectMetricSetting, 0)
 	err := db.All(&projectMetrics, dal.Where("project_name = ?", projectOutput.Name))
@@ -348,17 +362,38 @@ func makeProjectOutput(baseProject *models.BaseProject) (*models.ApiOutputProjec
 	}
 	// convert metric to api output
 	if len(projectMetrics) > 0 {
-		baseMetric := make([]models.BaseMetric, len(projectMetrics))
+		baseMetrics := make([]*models.BaseMetric, len(projectMetrics))
 		for i, projectMetric := range projectMetrics {
-			baseMetric[i] = projectMetric.BaseMetric
+			baseMetric := projectMetric.BaseMetric
+			baseMetrics[i] = &baseMetric
 		}
-		projectOutput.Metrics = &baseMetric
+		projectOutput.Metrics = baseMetrics
 	}
 
 	// load blueprint
 	projectOutput.Blueprint, err = GetBlueprintByProjectName(projectOutput.Name)
 	if err != nil {
 		return nil, errors.Default.Wrap(err, "Error to get blueprint by project")
+	}
+	if withLastPipeline {
+		if projectOutput.Blueprint == nil {
+			logger.Warn(fmt.Errorf("Blueprint is nil"), "want to get latest pipeline, but blueprint is nil")
+		} else {
+			pipelines, pipelinesCount, err := GetPipelines(&PipelineQuery{
+				BlueprintId: projectOutput.Blueprint.ID,
+				Pagination: Pagination{
+					PageSize: 1,
+					Page:     1,
+				},
+			})
+			if err != nil {
+				logger.Error(err, "GetPipelines, blueprint id: %d", projectOutput.Blueprint.ID)
+				return nil, errors.Default.Wrap(err, "Error to get pipeline by blueprint id")
+			}
+			if pipelinesCount > 0 {
+				projectOutput.LastPipeline = pipelines[0]
+			}
+		}
 	}
 	return projectOutput, err
 }

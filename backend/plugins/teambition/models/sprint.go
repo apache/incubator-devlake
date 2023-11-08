@@ -19,25 +19,24 @@ package models
 
 import (
 	"github.com/apache/incubator-devlake/core/models/common"
-	"github.com/apache/incubator-devlake/helpers/pluginhelper/api"
 )
 
 type TeambitionSprint struct {
-	ConnectionId uint64           `gorm:"primaryKey;type:BIGINT"`
-	Id           string           `gorm:"primaryKey;type:varchar(100)" json:"id"`
-	Name         string           `gorm:"type:varchar(255)" json:"name"`
-	ExecutorId   string           `gorm:"type:varchar(100)" json:"executorId"`
-	Description  string           `gorm:"type:text" json:"description"`
-	Status       string           `gorm:"varchar(255)" json:"status"`
-	ProjectId    string           `gorm:"type:varchar(100)" json:"projectId"`
-	CreatorId    string           `gorm:"type:varchar(100)" json:"creatorId"`
-	StartDate    *api.Iso8601Time `json:"startDate"`
-	DueDate      *api.Iso8601Time `json:"dueDate"`
-	Accomplished *api.Iso8601Time `json:"accomplished"`
-	Created      *api.Iso8601Time `json:"created"`
-	Updated      *api.Iso8601Time `json:"updated"`
-	Payload      any              `gorm:"serializer:json;type:text" json:"payload"`
-	Labels       []string         `gorm:"serializer:json;type:text" json:"labels"`
+	ConnectionId uint64              `gorm:"primaryKey;type:BIGINT"`
+	Id           string              `gorm:"primaryKey;type:varchar(100)" json:"id"`
+	Name         string              `gorm:"type:varchar(255)" json:"name"`
+	ExecutorId   string              `gorm:"type:varchar(100)" json:"executorId"`
+	Description  string              `gorm:"type:text" json:"description"`
+	Status       string              `gorm:"varchar(255)" json:"status"`
+	ProjectId    string              `gorm:"type:varchar(100)" json:"projectId"`
+	CreatorId    string              `gorm:"type:varchar(100)" json:"creatorId"`
+	StartDate    *common.Iso8601Time `json:"startDate"`
+	DueDate      *common.Iso8601Time `json:"dueDate"`
+	Accomplished *common.Iso8601Time `json:"accomplished"`
+	Created      *common.Iso8601Time `json:"created"`
+	Updated      *common.Iso8601Time `json:"updated"`
+	Payload      any                 `gorm:"serializer:json;type:text" json:"payload"`
+	Labels       []string            `gorm:"serializer:json;type:text" json:"labels"`
 
 	common.NoPKModel
 }

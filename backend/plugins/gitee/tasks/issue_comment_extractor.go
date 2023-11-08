@@ -19,8 +19,10 @@ package tasks
 
 import (
 	"encoding/json"
+
 	"github.com/apache/incubator-devlake/core/dal"
 	"github.com/apache/incubator-devlake/core/errors"
+	"github.com/apache/incubator-devlake/core/models/common"
 	"github.com/apache/incubator-devlake/core/plugin"
 	"github.com/apache/incubator-devlake/helpers/pluginhelper/api"
 	"github.com/apache/incubator-devlake/plugins/gitee/models"
@@ -53,8 +55,8 @@ type IssueComment struct {
 		PullRequest string `json:"pull_request"`
 	}
 
-	GiteeCreatedAt api.Iso8601Time `json:"created_at"`
-	GiteeUpdatedAt api.Iso8601Time `json:"updated_at"`
+	GiteeCreatedAt common.Iso8601Time `json:"created_at"`
+	GiteeUpdatedAt common.Iso8601Time `json:"updated_at"`
 }
 
 func ExtractApiIssueComments(taskCtx plugin.SubTaskContext) errors.Error {
@@ -63,7 +65,7 @@ func ExtractApiIssueComments(taskCtx plugin.SubTaskContext) errors.Error {
 	extractor, err := api.NewApiExtractor(api.ApiExtractorArgs{
 		RawDataSubTaskArgs: api.RawDataSubTaskArgs{
 			Ctx: taskCtx,
-			Params: GiteeApiParams{
+			Params: models.GiteeApiParams{
 				Owner: data.Options.Owner,
 				Repo:  data.Options.Repo,
 			},

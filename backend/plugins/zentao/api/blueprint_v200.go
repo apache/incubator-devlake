@@ -18,10 +18,8 @@ limitations under the License.
 package api
 
 import (
-	"strings"
-	"time"
-
 	"github.com/apache/incubator-devlake/core/errors"
+	coreModels "github.com/apache/incubator-devlake/core/models"
 	"github.com/apache/incubator-devlake/core/models/domainlayer"
 	"github.com/apache/incubator-devlake/core/models/domainlayer/didgen"
 	"github.com/apache/incubator-devlake/core/models/domainlayer/ticket"
@@ -30,11 +28,13 @@ import (
 	helper "github.com/apache/incubator-devlake/helpers/pluginhelper/api"
 	"github.com/apache/incubator-devlake/plugins/zentao/models"
 	"github.com/apache/incubator-devlake/plugins/zentao/tasks"
-	"github.com/go-playground/validator/v10"
 )
 
-func MakeDataSourcePipelinePlanV200(subtaskMetas []plugin.SubTaskMeta, connectionId uint64, bpScopes []*plugin.BlueprintScopeV200, syncPolicy *plugin.BlueprintSyncPolicy) (plugin.PipelinePlan, []plugin.Scope, errors.Error) {
-	connectionHelper := helper.NewConnectionHelper(basicRes, validator.New())
+func MakeDataSourcePipelinePlanV200(
+	subtaskMetas []plugin.SubTaskMeta,
+	connectionId uint64,
+	bpScopes []*coreModels.BlueprintScope,
+) (coreModels.PipelinePlan, []plugin.Scope, errors.Error) {
 	// get the connection info for url
 	connection := &models.ZentaoConnection{}
 	err := connectionHelper.FirstById(connection, connectionId)
@@ -42,8 +42,8 @@ func MakeDataSourcePipelinePlanV200(subtaskMetas []plugin.SubTaskMeta, connectio
 		return nil, nil, err
 	}
 
-	plan := make(plugin.PipelinePlan, len(bpScopes))
-	plan, scopes, err := makePipelinePlanV200(subtaskMetas, plan, bpScopes, connection, syncPolicy)
+	plan := make(coreModels.PipelinePlan, len(bpScopes))
+	plan, scopes, err := makePipelinePlanV200(subtaskMetas, plan, bpScopes, connection)
 	if err != nil {
 		return nil, nil, err
 	}
@@ -53,46 +53,41 @@ func MakeDataSourcePipelinePlanV200(subtaskMetas []plugin.SubTaskMeta, connectio
 
 func makePipelinePlanV200(
 	subtaskMetas []plugin.SubTaskMeta,
-	plan plugin.PipelinePlan,
-	bpScopes []*plugin.BlueprintScopeV200,
+	plan coreModels.PipelinePlan,
+	bpScopes []*coreModels.BlueprintScope,
 	connection *models.ZentaoConnection,
-	syncPolicy *plugin.BlueprintSyncPolicy,
-) (plugin.PipelinePlan, []plugin.Scope, errors.Error) {
+) (coreModels.PipelinePlan, []plugin.Scope, errors.Error) {
 	domainScopes := make([]plugin.Scope, 0)
 	for i, bpScope := range bpScopes {
 		stage := plan[i]
 		if stage == nil {
-			stage = plugin.PipelineStage{}
+			stage = coreModels.PipelineStage{}
 		}
 		// construct task options
 		op := &tasks.ZentaoOptions{
 			ConnectionId: connection.ID,
 		}
 
-		scopeType := strings.Split(bpScope.Id, `/`)[0]
-		scopeId := strings.Split(bpScope.Id, `/`)[1]
-
 		var entities []string
 
-		if scopeType == `project` {
-			project, scopeConfig, err := projectScopeHelper.DbHelper().GetScopeAndConfig(connection.ID, scopeId)
-			if err != nil {
-				return nil, nil, err
-			}
-			op.ProjectId = project.Id
-			entities = scopeConfig.Entities
+		project, scopeConfig, err := projectScopeHelper.DbHelper().GetScopeAndConfig(connection.ID, bpScope.ScopeId)
+		if err != nil {
+			return nil, nil, err
+		}
+		op.ProjectId = project.Id
+		entities = scopeConfig.Entities
 
-			if utils.StringsContains(entities, plugin.DOMAIN_TYPE_TICKET) {
-				scopeTicket := &ticket.Board{
-					DomainEntity: domainlayer.DomainEntity{
-						Id: didgen.NewDomainIdGenerator(&models.ZentaoProject{}).Generate(connection.ID, project.Id),
-					},
-					Name: project.Name,
-					Type: project.Type,
-				}
-				domainScopes = append(domainScopes, scopeTicket)
+		if utils.StringsContains(entities, plugin.DOMAIN_TYPE_TICKET) {
+			scopeTicket := &ticket.Board{
+				DomainEntity: domainlayer.DomainEntity{
+					Id: didgen.NewDomainIdGenerator(&models.ZentaoProject{}).Generate(connection.ID, project.Id),
+				},
+				Name: project.Name,
+				Type: project.Type,
 			}
-		} else {
+			domainScopes = append(domainScopes, scopeTicket)
+		}
+		/*} else {
 			product, scopeConfig, err := productScopeHelper.DbHelper().GetScopeAndConfig(connection.ID, scopeId)
 			if err != nil {
 				return nil, nil, err
@@ -110,11 +105,8 @@ func makePipelinePlanV200(
 				}
 				domainScopes = append(domainScopes, scopeTicket)
 			}
-		}
+		}*/
 
-		if syncPolicy.TimeAfter != nil {
-			op.TimeAfter = syncPolicy.TimeAfter.Format(time.RFC3339)
-		}
 		options, err := tasks.EncodeTaskOptions(op)
 		if err != nil {
 			return nil, nil, err
@@ -124,7 +116,7 @@ func makePipelinePlanV200(
 		if err != nil {
 			return nil, nil, err
 		}
-		stage = append(stage, &plugin.PipelineTask{
+		stage = append(stage, &coreModels.PipelineTask{
 			Plugin:   "zentao",
 			Subtasks: subtasks,
 			Options:  options,

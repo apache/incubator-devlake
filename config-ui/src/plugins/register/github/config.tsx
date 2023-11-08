@@ -16,21 +16,20 @@
  *
  */
 
-import type { PluginConfigType } from '../../types';
-import { PluginType } from '../../types';
 import { pick } from 'lodash';
+
+import { DOC_URL } from '@/release';
 
 import Icon from './assets/icon.svg';
 import { Token, Graphql, GithubApp, Authentication } from './connection-fields';
 
-export const GitHubConfig: PluginConfigType = {
-  type: PluginType.Connection,
+export const GitHubConfig = {
   plugin: 'github',
   name: 'GitHub',
   icon: Icon,
   sort: 1,
   connection: {
-    docLink: 'https://devlake.apache.org/docs/Configuration/GitHub',
+    docLink: DOC_URL.PLUGIN.GITHUB.BASIS,
     initialValues: {
       endpoint: 'https://api.github.com/',
       authMethod: 'AccessToken',
@@ -89,7 +88,7 @@ export const GitHubConfig: PluginConfigType = {
         key: 'rateLimitPerHour',
         subLabel:
           'By default, DevLake uses dynamic rate limit for optimized data collection for GitHub. But you can adjust the collection speed by entering a fixed value. Please note: the rate limit setting applies to all tokens you have entered above.',
-        learnMore: 'https://devlake.apache.org/docs/Configuration/GitHub/#fixed-rate-limit-optional',
+        learnMore: DOC_URL.PLUGIN.GITHUB.RATE_LIMIT,
         externalInfo:
           'Rate Limit Value Reference\nGitHub: 0-5,000 requests/hour\nGitHub Enterprise: 0-15,000 requests/hour',
         defaultValue: 4500,
@@ -97,16 +96,10 @@ export const GitHubConfig: PluginConfigType = {
     ],
   },
   dataScope: {
-    millerColumns: {
-      title: 'Select Repositories *',
-      subTitle: 'You can either add repositories by searching or selecting from the following directory.',
-      firstColumnTitle: 'Organizations/Owners',
+    title: 'Repositories',
+    millerColumn: {
       columnCount: 2,
-    },
-    search: {
-      title: 'Add Repositories by Searching',
-      subTitle:
-        'If you would like to add repositories outside of your organizations, you can add them through this method.',
+      firstColumnTitle: 'Organizations/Owners',
     },
   },
   scopeConfig: {
@@ -118,8 +111,9 @@ export const GitHubConfig: PluginConfigType = {
       issuePriority: '(highest|high|medium|low|p0|p1|p2|p3)',
       issueComponent: 'component(.*)',
       issueSeverity: 'severity(.*)',
-      deploymentPattern: '(deploy|push-image)',
-      productionPattern: 'prod(.*)',
+      envNamePattern: '(?i)prod(.*)',
+      deploymentPattern: '',
+      productionPattern: '',
       prType: 'type(.*)',
       prComponent: 'component(.*)',
       prBodyClosePattern:

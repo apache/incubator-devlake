@@ -34,14 +34,12 @@ func CollectBugChangelogs(taskCtx plugin.SubTaskContext) errors.Error {
 	rawDataSubTaskArgs, data := CreateRawDataSubTaskArgs(taskCtx, RAW_BUG_CHANGELOG_TABLE)
 	logger := taskCtx.GetLogger()
 	logger.Info("collect storyChangelogs")
-	collectorWithState, err := helper.NewStatefulApiCollector(*rawDataSubTaskArgs, data.TimeAfter)
+	collectorWithState, err := helper.NewStatefulApiCollector(*rawDataSubTaskArgs)
 	if err != nil {
 		return err
 	}
-	incremental := collectorWithState.IsIncremental()
 
 	err = collectorWithState.InitCollector(helper.ApiCollectorArgs{
-		Incremental: incremental,
 		ApiClient:   data.ApiClient,
 		PageSize:    int(data.Options.PageSize),
 		UrlTemplate: "bug_changes",
@@ -51,15 +49,8 @@ func CollectBugChangelogs(taskCtx plugin.SubTaskContext) errors.Error {
 			query.Set("page", fmt.Sprintf("%v", reqData.Pager.Page))
 			query.Set("limit", fmt.Sprintf("%v", reqData.Pager.Size))
 			query.Set("order", "created desc")
-			if data.TimeAfter != nil {
-				query.Set("created",
-					fmt.Sprintf(">%s",
-						data.TimeAfter.In(data.Options.CstZone).Format("2006-01-02")))
-			}
-			if incremental {
-				query.Set("created",
-					fmt.Sprintf(">%s",
-						collectorWithState.LatestState.LatestSuccessStart.In(data.Options.CstZone).Format("2006-01-02")))
+			if collectorWithState.Since != nil {
+				query.Set("created", fmt.Sprintf(">%s", collectorWithState.Since.In(data.Options.CstZone).Format("2006-01-02")))
 			}
 			return query, nil
 		},

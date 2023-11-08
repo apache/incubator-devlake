@@ -18,10 +18,11 @@ limitations under the License.
 package migrationscripts
 
 import (
+	"encoding/json"
+
 	"github.com/apache/incubator-devlake/core/context"
 	"github.com/apache/incubator-devlake/core/errors"
 	commonArchived "github.com/apache/incubator-devlake/core/models/migrationscripts/archived"
-	"gorm.io/datatypes"
 )
 
 type createCollectorState struct{}
@@ -29,7 +30,7 @@ type createCollectorState struct{}
 type CollectorState20221101 struct {
 	commonArchived.GenericModel[string]
 	Type  string
-	Value datatypes.JSON
+	Value json.RawMessage `gorm:"type:json"`
 }
 
 func (CollectorState20221101) TableName() string {

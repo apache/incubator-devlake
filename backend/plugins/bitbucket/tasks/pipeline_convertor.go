@@ -18,6 +18,7 @@ limitations under the License.
 package tasks
 
 import (
+	"fmt"
 	"reflect"
 	"time"
 
@@ -72,9 +73,10 @@ func ConvertPipelines(taskCtx plugin.SubTaskContext) errors.Error {
 			if bitbucketPipeline.BitbucketCreatedOn != nil {
 				createdAt = *bitbucketPipeline.BitbucketCreatedOn
 			}
+			domainEntityId := pipelineIdGen.Generate(data.Options.ConnectionId, bitbucketPipeline.BitbucketId)
 			results := make([]interface{}, 0, 2)
 			domainPipelineCommit := &devops.CiCDPipelineCommit{
-				PipelineId: pipelineIdGen.Generate(data.Options.ConnectionId, bitbucketPipeline.BitbucketId),
+				PipelineId: domainEntityId,
 				RepoId:     repoId,
 				CommitSha:  bitbucketPipeline.CommitSha,
 				Branch:     bitbucketPipeline.RefName,
@@ -82,20 +84,18 @@ func ConvertPipelines(taskCtx plugin.SubTaskContext) errors.Error {
 			}
 			domainPipeline := &devops.CICDPipeline{
 				DomainEntity: domainlayer.DomainEntity{
-					Id: pipelineIdGen.Generate(data.Options.ConnectionId, bitbucketPipeline.BitbucketId),
+					Id: domainEntityId,
 				},
-				Name: didgen.NewDomainIdGenerator(&models.BitbucketPipeline{}).
-					Generate(data.Options.ConnectionId, bitbucketPipeline.RefName),
+				Name: fmt.Sprintf("%s/%d", domainEntityId, bitbucketPipeline.BuildNumber),
 				Result: devops.GetResult(&devops.ResultRule{
-					Failed:  []string{models.FAILED, models.ERROR, models.UNDEPLOYED},
-					Abort:   []string{models.STOPPED, models.SKIPPED},
-					Success: []string{models.SUCCESSFUL, models.COMPLETED},
-					Manual:  []string{models.PAUSED, models.HALTED},
-					Default: devops.SUCCESS,
+					Success: []string{models.SUCCESSFUL, models.COMPLETED, models.PASSED},
+					Failure: []string{models.FAILED, models.ERROR, models.STOPPED, models.ERROR},
+					Default: devops.RESULT_DEFAULT,
 				}, bitbucketPipeline.Result),
 				Status: devops.GetStatus(&devops.StatusRule{
-					InProgress: []string{models.IN_PROGRESS, models.PENDING, models.BUILDING},
-					Default:    devops.DONE,
+					Done:       []string{models.COMPLETED, models.SUCCESSFUL, models.PASSED, models.FAILED, models.ERROR, models.STOPPED, models.HALTED},
+					InProgress: []string{models.IN_PROGRESS, models.PENDING, models.RUNNING, models.PAUSED, models.BUILDING},
+					Default:    devops.STATUS_OTHER,
 				}, bitbucketPipeline.Status),
 				Type:         bitbucketPipeline.Type,
 				Environment:  bitbucketPipeline.Environment,

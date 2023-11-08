@@ -18,9 +18,7 @@ limitations under the License.
 package tasks
 
 import (
-	"encoding/json"
 	"fmt"
-	"time"
 
 	"github.com/apache/incubator-devlake/core/dal"
 	"github.com/apache/incubator-devlake/core/errors"
@@ -29,83 +27,36 @@ import (
 	"github.com/mitchellh/mapstructure"
 )
 
-type ZentaoApiParams struct {
-	ConnectionId uint64
-	ProductId    int64
-	ProjectId    int64
-}
+type ZentaoApiParams models.ZentaoApiParams
 
 type ZentaoOptions struct {
 	// options means some custom params required by plugin running.
 	// Such As How many rows do your want
 	// You can use it in subtasks, and you need to pass it to main.go and pipelines.
 	ConnectionId uint64 `json:"connectionId"`
-	ProductId    int64  `json:"productId" mapstructure:"productId"`
 	ProjectId    int64  `json:"projectId" mapstructure:"projectId"`
 	// TODO not support now
-	TimeAfter     string              `json:"timeAfter" mapstructure:"timeAfter,omitempty"`
-	ScopeConfigId uint64              `json:"scopeConfigId" mapstructure:"scopeConfigId,omitempty"`
-	ScopeConfigs  *ZentaoScopeConfigs `json:"scopeConfigs" mapstructure:"scopeConfigs,omitempty"`
+	ScopeConfigId uint64                    `json:"scopeConfigId" mapstructure:"scopeConfigId,omitempty"`
+	ScopeConfig   *models.ZentaoScopeConfig `json:"scopeConfig" mapstructure:"scopeConfig,omitempty"`
 }
 
-type TypeMappings map[string]string
-
-type StatusMappings map[string]string
-
-type ZentaoScopeConfigs struct {
-	TypeMappings        TypeMappings   `json:"typeMappings"`
-	BugStatusMappings   StatusMappings `json:"bugStatusMappings"`
-	StoryStatusMappings StatusMappings `json:"storyStatusMappings"`
-	TaskStatusMappings  StatusMappings `json:"taskStatusMappings"`
-}
-
-func MakeScopeConfigs(rule models.ZentaoScopeConfig) (*ZentaoScopeConfigs, errors.Error) {
-	var bugStatusMapping StatusMappings
-	var storyStatusMapping StatusMappings
-	var taskStatusMapping StatusMappings
-	var typeMapping TypeMappings
-	var err error
-	if len(rule.TypeMappings) > 0 {
-		err = json.Unmarshal(rule.TypeMappings, &typeMapping)
-		if err != nil {
-			return nil, errors.Default.Wrap(err, "unable to unmarshal the typeMapping")
-		}
+func (o *ZentaoOptions) GetParams() any {
+	return models.ZentaoApiParams{
+		ConnectionId: o.ConnectionId,
+		ProjectId:    o.ProjectId,
 	}
-	if len(rule.BugStatusMappings) > 0 {
-		err = json.Unmarshal(rule.BugStatusMappings, &bugStatusMapping)
-		if err != nil {
-			return nil, errors.Default.Wrap(err, "unable to unmarshal the statusMapping")
-		}
-	}
-	if len(rule.StoryStatusMappings) > 0 {
-		err = json.Unmarshal(rule.StoryStatusMappings, &storyStatusMapping)
-		if err != nil {
-			return nil, errors.Default.Wrap(err, "unable to unmarshal the statusMapping")
-		}
-	}
-	if len(rule.TaskStatusMappings) > 0 {
-		err = json.Unmarshal(rule.TaskStatusMappings, &taskStatusMapping)
-		if err != nil {
-			return nil, errors.Default.Wrap(err, "unable to unmarshal the statusMapping")
-		}
-	}
-	result := &ZentaoScopeConfigs{
-		TypeMappings:        typeMapping,
-		BugStatusMappings:   bugStatusMapping,
-		StoryStatusMappings: storyStatusMapping,
-		TaskStatusMappings:  taskStatusMapping,
-	}
-	return result, nil
 }
 
 type ZentaoTaskData struct {
 	Options  *ZentaoOptions
 	RemoteDb dal.Dal
 
-	TimeAfter   *time.Time
-	ProjectName string
-	ProductName string
-	ApiClient   *helper.ApiAsyncClient
+	ProjectName  string
+	Stories      map[int64]struct{}
+	Tasks        map[int64]struct{}
+	Bugs         map[int64]struct{}
+	AccountCache *AccountCache
+	ApiClient    *helper.ApiAsyncClient
 }
 
 func DecodeAndValidateTaskOptions(options map[string]interface{}) (*ZentaoOptions, error) {
@@ -118,8 +69,8 @@ func DecodeAndValidateTaskOptions(options map[string]interface{}) (*ZentaoOption
 	if op.ConnectionId == 0 {
 		return nil, fmt.Errorf("connectionId is invalid")
 	}
-	if op.ProductId == 0 && op.ProjectId == 0 {
-		return nil, fmt.Errorf("please set productId")
+	if op.ProjectId == 0 {
+		return nil, fmt.Errorf("please set projectId")
 	}
 	return &op, nil
 }

@@ -21,17 +21,20 @@ import (
 	"github.com/apache/incubator-devlake/core/context"
 	"github.com/apache/incubator-devlake/core/dal"
 	"github.com/apache/incubator-devlake/core/errors"
+	coreModels "github.com/apache/incubator-devlake/core/models"
 	"github.com/apache/incubator-devlake/core/plugin"
 	helper "github.com/apache/incubator-devlake/helpers/pluginhelper/api"
 	"github.com/apache/incubator-devlake/plugins/org/api"
 	"github.com/apache/incubator-devlake/plugins/org/tasks"
 )
 
-var _ plugin.PluginMeta = (*Org)(nil)
-var _ plugin.PluginInit = (*Org)(nil)
-var _ plugin.PluginTask = (*Org)(nil)
-var _ plugin.PluginModel = (*Org)(nil)
-var _ plugin.ProjectMapper = (*Org)(nil)
+var _ interface {
+	plugin.PluginMeta
+	plugin.PluginInit
+	plugin.PluginTask
+	plugin.PluginModel
+	plugin.ProjectMapper
+} = (*Org)(nil)
 
 type Org struct {
 	handlers *api.Handlers
@@ -50,6 +53,10 @@ func (p Org) Description() string {
 	return "collect data related to team and organization"
 }
 
+func (p Org) Name() string {
+	return "org"
+}
+
 func (p Org) SubTaskMetas() []plugin.SubTaskMeta {
 	return []plugin.SubTaskMeta{
 		tasks.ConnectUserAccountsExactMeta,
@@ -57,9 +64,9 @@ func (p Org) SubTaskMetas() []plugin.SubTaskMeta {
 	}
 }
 
-func (p Org) MapProject(projectName string, scopes []plugin.Scope) (plugin.PipelinePlan, errors.Error) {
-	var plan plugin.PipelinePlan
-	var stage plugin.PipelineStage
+func (p Org) MapProject(projectName string, scopes []plugin.Scope) (coreModels.PipelinePlan, errors.Error) {
+	var plan coreModels.PipelinePlan
+	var stage coreModels.PipelineStage
 
 	// construct task options for Org
 	options := make(map[string]interface{})
@@ -69,7 +76,7 @@ func (p Org) MapProject(projectName string, scopes []plugin.Scope) (plugin.Pipel
 	if err != nil {
 		return nil, err
 	}
-	stage = append(stage, &plugin.PipelineTask{
+	stage = append(stage, &coreModels.PipelineTask{
 		Plugin:   "org",
 		Subtasks: subtasks,
 		Options:  options,

@@ -29,3 +29,4 @@ connection_id,board_id,issue_id,_raw_data_params,_raw_data_table,_raw_data_id,_r
 2,8,10097,"{""ConnectionId"":2,""BoardId"":8}",_raw_jira_api_issues,12468,
 2,8,10098,"{""ConnectionId"":2,""BoardId"":8}",_raw_jira_api_issues,12469,
 2,8,10099,"{""ConnectionId"":2,""BoardId"":8}",_raw_jira_api_issues,12470,
+

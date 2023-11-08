@@ -21,8 +21,6 @@ import (
 	"time"
 
 	"github.com/apache/incubator-devlake/core/models/common"
-
-	"gorm.io/datatypes"
 )
 
 type JiraIssue struct {
@@ -64,7 +62,6 @@ type JiraIssue struct {
 	LeadTimeMinutes          uint
 	StdType                  string `gorm:"type:varchar(255)"`
 	StdStatus                string `gorm:"type:varchar(255)"`
-	AllFields                datatypes.JSONMap
 	ChangelogTotal           int
 	common.NoPKModel
 }

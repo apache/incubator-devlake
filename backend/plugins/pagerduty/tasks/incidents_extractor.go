@@ -19,7 +19,9 @@ package tasks
 
 import (
 	"encoding/json"
+
 	"github.com/apache/incubator-devlake/core/errors"
+	"github.com/apache/incubator-devlake/core/models/common"
 	"github.com/apache/incubator-devlake/core/plugin"
 	"github.com/apache/incubator-devlake/helpers/pluginhelper/api"
 	"github.com/apache/incubator-devlake/plugins/pagerduty/models"
@@ -56,13 +58,18 @@ func ExtractIncidents(taskCtx plugin.SubTaskContext) errors.Error {
 			results = append(results, &incident)
 			if incidentRaw.Service != nil {
 				service := models.Service{
-					ConnectionId: data.Options.ConnectionId,
-					Url:          resolve(incidentRaw.Service.HtmlUrl),
-					Id:           *incidentRaw.Service.Id,
-					Name:         *incidentRaw.Service.Summary,
+					Scope: common.Scope{
+						ConnectionId: data.Options.ConnectionId,
+					},
+					Url:  resolve(incidentRaw.Service.HtmlUrl),
+					Id:   *incidentRaw.Service.Id,
+					Name: *incidentRaw.Service.Summary,
 				}
 				incident.ServiceId = service.Id
 				results = append(results, &service)
+			}
+			if incidentRaw.Priority != nil {
+				incident.Priority = *incidentRaw.Priority.Name
 			}
 			for _, assignmentRaw := range incidentRaw.Assignments {
 				userRaw := assignmentRaw.Assignee

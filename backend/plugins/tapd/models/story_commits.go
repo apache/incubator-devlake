@@ -21,7 +21,6 @@ import (
 	"time"
 
 	"github.com/apache/incubator-devlake/core/models/common"
-	helper "github.com/apache/incubator-devlake/helpers/pluginhelper/api"
 )
 
 type TapdStoryCommit struct {
@@ -40,8 +39,8 @@ type TapdStoryCommit struct {
 	RefStatus       string          `json:"ref_status" gorm:"type:varchar(255)"`
 	GitEnv          string          `json:"git_env" gorm:"type:varchar(255)"`
 	FileCommit      string          `json:"file_commit"`
-	CommitTime      *helper.CSTTime `json:"commit_time"`
-	Created         *helper.CSTTime `json:"created"`
+	CommitTime      *common.CSTTime `json:"commit_time"`
+	Created         *common.CSTTime `json:"created"`
 	IssueUpdated    *time.Time
 
 	StoryId uint64

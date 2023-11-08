@@ -19,8 +19,25 @@
 import styled from 'styled-components';
 
 export const Wrapper = styled.div`
-  .block + .block {
-    margin-top: 24px;
+  .timezone {
+    margin-bottom: 16px;
+  }
+
+  .quick-selection {
+    margin-bottom: 8px;
+  }
+
+  .time-selection {
+    display: flex;
+    align-items: center;
+
+    strong {
+      margin-left: 8px;
+    }
+  }
+
+  .cron {
+    display: flex;
   }
 `;
 
@@ -28,34 +45,19 @@ export const Input = styled.div`
   display: flex;
   align-items: center;
 
-  .bp4-form-group + .bp4-form-group {
+  .bp5-form-group {
+    margin-bottom: 4px;
+  }
+
+  .bp5-form-group + .bp5-form-group {
     margin-left: 8px;
   }
 
-  .bp4-input {
+  .bp5-input {
     width: 60px;
   }
 `;
 
 export const Error = styled.div`
   color: #e34040;
-`;
-
-export const FromTimeWrapper = styled.div`
-  .quick-selection {
-    margin-bottom: 16px;
-
-    & > .bp4-tag {
-      cursor: pointer;
-    }
-  }
-
-  .time-selection {
-    display: flex;
-    align-items: center;
-
-    & > strong {
-      margin-left: 4px;
-    }
-  }
 `;

@@ -58,11 +58,12 @@ func (ProjectMetricSetting) TableName() string {
 type ApiInputProject struct {
 	BaseProject `mapstructure:",squash"`
 	Enable      *bool         `json:"enable" mapstructure:"enable"`
-	Metrics     *[]BaseMetric `json:"metrics" mapstructure:"metrics"`
+	Metrics     []*BaseMetric `json:"metrics" mapstructure:"metrics"`
 }
 
 type ApiOutputProject struct {
-	BaseProject `mapstructure:",squash"`
-	Metrics     *[]BaseMetric `json:"metrics" mapstructure:"metrics"`
-	Blueprint   *Blueprint    `json:"blueprint" mapstructure:"blueprint"`
+	Project      `mapstructure:",squash"`
+	Metrics      []*BaseMetric `json:"metrics" mapstructure:"metrics"`
+	Blueprint    *Blueprint    `json:"blueprint" mapstructure:"blueprint"`
+	LastPipeline *Pipeline     `json:"lastPipeline,omitempty" mapstructure:"lastPipeline"`
 }

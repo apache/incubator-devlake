@@ -38,6 +38,7 @@ func main() {
 	tagsOrder := refdiffCmd.Flags().StringP("tags-order", "d", "", "tags order")
 
 	projectName := refdiffCmd.Flags().StringP("project-name", "P", "", "project name")
+	timeAfter := refdiffCmd.Flags().StringP("time-after", "a", "", "collect data that are created after specified time, ie 2006-01-02T15:04:05Z")
 
 	// _ = refdiffCmd.MarkFlagRequired("repo-id")
 	//_ = refdiffCmd.MarkFlagRequired("new-ref")
@@ -59,7 +60,7 @@ func main() {
 			"tagsLimit":   *tagsLimit,
 			"tagsOrder":   *tagsOrder,
 			"projectName": *projectName,
-		})
+		}, *timeAfter)
 	}
 	runner.RunCmd(refdiffCmd)
 }

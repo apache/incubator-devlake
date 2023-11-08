@@ -25,7 +25,7 @@ import (
 	helper "github.com/apache/incubator-devlake/helpers/pluginhelper/api"
 )
 
-const RAW_DEPLOY_TABLE = "bamboo_api_deploy"
+const RAW_DEPLOY_TABLE = "bamboo_api_deploys"
 
 var _ plugin.SubTaskEntryPoint = CollectDeploy
 

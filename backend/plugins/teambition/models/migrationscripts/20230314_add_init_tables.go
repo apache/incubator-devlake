@@ -21,7 +21,7 @@ import (
 	"github.com/apache/incubator-devlake/core/context"
 	"github.com/apache/incubator-devlake/core/errors"
 	"github.com/apache/incubator-devlake/helpers/migrationhelper"
-	"github.com/apache/incubator-devlake/plugins/teambition/models"
+	"github.com/apache/incubator-devlake/plugins/teambition/models/migrationscripts/archived"
 )
 
 type addInitTables struct{}
@@ -29,17 +29,17 @@ type addInitTables struct{}
 func (*addInitTables) Up(basicRes context.BasicRes) errors.Error {
 	return migrationhelper.AutoMigrateTables(
 		basicRes,
-		&models.TeambitionConnection{},
-		&models.TeambitionAccount{},
-		&models.TeambitionTask{},
-		&models.TeambitionTaskActivity{},
-		&models.TeambitionSprint{},
-		&models.TeambitionTaskTag{},
-		&models.TeambitionTaskTagTask{},
-		&models.TeambitionTaskWorktime{},
-		&models.TeambitionProject{},
-		&models.TeambitionTaskFlowStatus{},
-		&models.TeambitionTaskScenario{},
+		&archived.TeambitionConnection{},
+		&archived.TeambitionAccount{},
+		&archived.TeambitionTask{},
+		&archived.TeambitionTaskActivity{},
+		&archived.TeambitionSprint{},
+		&archived.TeambitionTaskTag{},
+		&archived.TeambitionTaskTagTask{},
+		&archived.TeambitionTaskWorktime{},
+		&archived.TeambitionProject{},
+		&archived.TeambitionTaskFlowStatus{},
+		&archived.TeambitionTaskScenario{},
 	)
 }
 

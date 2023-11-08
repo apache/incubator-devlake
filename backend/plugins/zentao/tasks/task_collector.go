@@ -33,19 +33,10 @@ import (
 
 const RAW_TASK_TABLE = "zentao_api_tasks"
 
-type ExecuteInput struct {
-	Id int64
-}
-
 var _ plugin.SubTaskEntryPoint = CollectTask
 
 func CollectTask(taskCtx plugin.SubTaskContext) errors.Error {
 	data := taskCtx.GetData().(*ZentaoTaskData)
-
-	// this collect only work for project
-	if data.Options.ProjectId == 0 {
-		return nil
-	}
 
 	cursor, err := taskCtx.GetDal().Cursor(
 		dal.Select(`id`),
@@ -57,20 +48,16 @@ func CollectTask(taskCtx plugin.SubTaskContext) errors.Error {
 	}
 	defer cursor.Close()
 
-	iterator, err := api.NewDalCursorIterator(taskCtx.GetDal(), cursor, reflect.TypeOf(ExecuteInput{}))
+	iterator, err := api.NewDalCursorIterator(taskCtx.GetDal(), cursor, reflect.TypeOf(input{}))
 	if err != nil {
 		return err
 	}
 
 	collector, err := api.NewApiCollector(api.ApiCollectorArgs{
 		RawDataSubTaskArgs: api.RawDataSubTaskArgs{
-			Ctx: taskCtx,
-			Params: ZentaoApiParams{
-				ConnectionId: data.Options.ConnectionId,
-				ProductId:    data.Options.ProductId,
-				ProjectId:    data.Options.ProjectId,
-			},
-			Table: RAW_TASK_TABLE,
+			Ctx:     taskCtx,
+			Options: data.Options,
+			Table:   RAW_TASK_TABLE,
 		},
 		Input:       iterator,
 		ApiClient:   data.ApiClient,
@@ -80,24 +67,62 @@ func CollectTask(taskCtx plugin.SubTaskContext) errors.Error {
 			query := url.Values{}
 			query.Set("page", fmt.Sprintf("%v", reqData.Pager.Page))
 			query.Set("limit", fmt.Sprintf("%v", reqData.Pager.Size))
+			query.Set("status", "all")
 			return query, nil
 		},
 		GetTotalPages: GetTotalPagesFromResponse,
 		ResponseParser: func(res *http.Response) ([]json.RawMessage, errors.Error) {
 			var data struct {
-				Task []json.RawMessage `json:"tasks"`
+				Tasks []models.ZentaoTaskRes `json:"tasks"`
 			}
 			err := api.UnmarshalResponse(res, &data)
+			if errors.Is(err, api.ErrEmptyResponse) {
+				return nil, nil
+			}
 			if err != nil {
 				return nil, errors.Default.Wrap(err, "error reading endpoint response by Zentao bug collector")
 			}
-			return data.Task, nil
+
+			allTaskRecords := make(map[int64]models.ZentaoTaskRes)
+			for _, task := range data.Tasks {
+				// extract task's children
+				childTasks, err := extractChildrenWithDFS(task)
+				if err != nil {
+					return nil, errors.Default.New(fmt.Sprintf("extract task: %v chidren err: %v", task, err))
+				}
+				for _, task := range childTasks {
+					allTaskRecords[task.Id] = task
+				}
+			}
+			var allTask []json.RawMessage
+			for _, task := range allTaskRecords {
+				taskRawJsonMessage, err := task.ToJsonRawMessage()
+				if err != nil {
+					return nil, errors.Default.New(err.Error())
+				}
+				allTask = append(allTask, taskRawJsonMessage)
+			}
+			return allTask, nil
 		},
 	})
 	if err != nil {
 		return err
 	}
 	return collector.Execute()
+}
+
+// extractChildrenWithDFS return task's child tasks and itself.
+func extractChildrenWithDFS(task models.ZentaoTaskRes) ([]models.ZentaoTaskRes, error) {
+	var tasks []models.ZentaoTaskRes
+	for _, child := range task.Children {
+		childTasks, err := extractChildrenWithDFS(*child)
+		if err != nil {
+			return nil, err
+		}
+		tasks = append(tasks, childTasks...)
+	}
+	tasks = append(tasks, task)
+	return tasks, nil
 }
 
 var CollectTaskMeta = plugin.SubTaskMeta{

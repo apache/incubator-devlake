@@ -28,7 +28,7 @@ export const Wrapper = styled.div`
 `;
 
 export const DialogWrapper = styled.div`
-  .bp4-form-group + .bp4-form-group {
+  .bp5-form-group + .bp5-form-group {
     margin-top: 40px;
     margin-bottom: 0;
   }
@@ -45,4 +45,20 @@ export const LabelInfo = styled.i`
 
 export const LabelDescription = styled.p`
   margin: 0;
+`;
+
+export const ConnectionList = styled.ul`
+  display: flex;
+
+  li {
+    &:last-child {
+      &::after {
+        content: '';
+      }
+    }
+
+    &::after {
+      content: ',';
+    }
+  }
 `;

@@ -32,15 +32,15 @@ export const TransformationWrapper = styled.div`
     }
   }
 
-  .bp4-form-group {
+  .bp5-form-group {
     display: flex;
     align-items: center;
 
-    .bp4-label {
+    .bp5-label {
       flex: 0 0 140px;
     }
 
-    .bp4-form-content {
+    .bp5-form-content {
       flex: auto;
     }
   }

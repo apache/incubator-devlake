@@ -95,7 +95,7 @@ func TestConnection(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, 
 	if resBody.DeploymentType == models.DeploymentServer {
 		// only support 8.x.x or higher
 		if versions := resBody.VersionNumbers; len(versions) == 3 && versions[0] < 7 {
-			return nil, errors.Default.New(fmt.Sprintf("%s Support JIRA Server 8+ only", serverInfoFail))
+			return nil, errors.Default.New(fmt.Sprintf("%s Support JIRA Server 7+ only", serverInfoFail))
 		}
 	}
 	if res.StatusCode != http.StatusOK {
@@ -168,16 +168,11 @@ func PatchConnection(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput,
 // @Tags plugins/jira
 // @Success 200  {object} models.JiraConnection
 // @Failure 400  {string} errcode.Error "Bad Request"
+// @Failure 409  {object} services.BlueprintProjectPairs "References exist to this connection"
 // @Failure 500  {string} errcode.Error "Internal Error"
 // @Router /plugins/jira/connections/{connectionId} [DELETE]
 func DeleteConnection(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, errors.Error) {
-	connection := &models.JiraConnection{}
-	err := connectionHelper.First(connection, input.Params)
-	if err != nil {
-		return nil, err
-	}
-	err = connectionHelper.Delete(connection)
-	return &plugin.ApiResourceOutput{Body: connection}, err
+	return connectionHelper.Delete(&models.JiraConnection{}, input)
 }
 
 // @Summary get all jira connections

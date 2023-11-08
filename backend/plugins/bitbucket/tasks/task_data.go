@@ -18,8 +18,6 @@ limitations under the License.
 package tasks
 
 import (
-	"time"
-
 	"github.com/apache/incubator-devlake/core/errors"
 	"github.com/apache/incubator-devlake/helpers/pluginhelper/api"
 	"github.com/apache/incubator-devlake/plugins/bitbucket/models"
@@ -29,15 +27,13 @@ type BitbucketOptions struct {
 	ConnectionId                 uint64   `json:"connectionId" mapstructure:"connectionId,omitempty"`
 	Tasks                        []string `json:"tasks,omitempty" mapstructure:",omitempty"`
 	FullName                     string   `json:"fullName" mapstructure:"fullName"`
-	TimeAfter                    string   `json:"timeAfter" mapstructure:"timeAfter,omitempty"`
 	ScopeConfigId                uint64   `json:"scopeConfigId" mapstructure:"scopeConfigId,omitempty"`
-	*models.BitbucketScopeConfig `mapstructure:"scopeConfigs,omitempty" json:"scopeConfigs"`
+	*models.BitbucketScopeConfig `mapstructure:"scopeConfig,omitempty" json:"scopeConfig"`
 }
 
 type BitbucketTaskData struct {
 	Options       *BitbucketOptions
 	ApiClient     *api.ApiAsyncClient
-	TimeAfter     *time.Time
 	RegexEnricher *api.RegexEnricher
 }
 

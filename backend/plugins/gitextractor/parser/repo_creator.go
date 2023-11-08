@@ -45,6 +45,7 @@ func NewGitRepoCreator(store models.Store, logger log.Logger) *GitRepoCreator {
 func (l *GitRepoCreator) LocalRepo(repoPath, repoId string) (*GitRepo, errors.Error) {
 	repo, err := git.OpenRepository(repoPath)
 	if err != nil {
+		l.logger.Error(err, "OpenRepository")
 		return nil, errors.Convert(err)
 	}
 	return l.newGitRepo(repoId, repo), nil

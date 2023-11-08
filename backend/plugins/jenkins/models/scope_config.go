@@ -32,3 +32,8 @@ type JenkinsScopeConfig struct {
 func (t JenkinsScopeConfig) TableName() string {
 	return "_tool_jenkins_scope_configs"
 }
+
+func (t *JenkinsScopeConfig) SetConnectionId(c *JenkinsScopeConfig, connectionId uint64) {
+	c.ConnectionId = connectionId
+	c.ScopeConfig.ConnectionId = connectionId
+}

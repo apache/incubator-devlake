@@ -45,7 +45,7 @@ func (pa *pluginAPI) GetRemoteScopes(input *plugin.ApiResourceInput) (*plugin.Ap
 	}
 
 	connection := pa.connType.New()
-	err := pa.helper.First(connection, input.Params)
+	err := pa.connhelper.First(connection, input.Params)
 	if err != nil {
 		return nil, err
 	}

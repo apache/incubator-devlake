@@ -18,7 +18,11 @@ limitations under the License.
 package tasks
 
 import (
+	"fmt"
+	"github.com/apache/incubator-devlake/core/models/common"
 	"reflect"
+	"strconv"
+	"time"
 
 	"github.com/apache/incubator-devlake/core/dal"
 	"github.com/apache/incubator-devlake/core/errors"
@@ -38,65 +42,115 @@ var ConvertDeployBuildsMeta = plugin.SubTaskMeta{
 	DomainTypes:      []string{plugin.DOMAIN_TYPE_CICD},
 }
 
+// deployBuildWithVcsRevision is a virtual tool layer table,
+// it's used to store records from a complicated sql
+// and generate id field for table cicd_deployment_commits.
+type deployBuildWithVcsRevision struct {
+	ConnectionId          uint64     `json:"connection_id" gorm:"primaryKey"`
+	DeployBuildId         uint64     `json:"deploy_build_id" gorm:"primaryKey"`
+	PlanResultKey         string     `json:"planResultKey" `
+	DeploymentVersionName string     `json:"deploymentVersionName"`
+	DeploymentState       string     `json:"deploymentState"`
+	LifeCycleState        string     `json:"lifeCycleState"`
+	StartedDate           *time.Time `json:"startedDate"`
+	QueuedDate            *time.Time `json:"queuedDate"`
+	ExecutedDate          *time.Time `json:"executedDate"`
+	FinishedDate          *time.Time `json:"finishedDate"`
+	ReasonSummary         string     `json:"reasonSummary"`
+	ProjectKey            string     `json:"project_key" gorm:"index"`
+	PlanKey               string     `json:"plan_key" gorm:"index"`
+	Environment           string     `gorm:"type:varchar(255)"`
+	PlanBranchName        string     `gorm:"type:varchar(255)"`
+	models.ApiBambooOperations
+	common.NoPKModel
+	RepositoryId    int `json:"repository_id" gorm:"primaryKey"`
+	RepositoryName  string
+	VcsRevisionKey  string
+	ProjectPlanName string
+	ProjectName     string
+}
+
+func (deployBuildWithVcsRevision deployBuildWithVcsRevision) GenerateCICDDeploymentCommitName() string {
+	if deployBuildWithVcsRevision.ProjectPlanName != "" {
+		return fmt.Sprintf("%s/%s", deployBuildWithVcsRevision.ProjectPlanName, deployBuildWithVcsRevision.DeploymentVersionName)
+	}
+	return deployBuildWithVcsRevision.DeploymentVersionName
+}
+
 func ConvertDeployBuilds(taskCtx plugin.SubTaskContext) errors.Error {
 	db := taskCtx.GetDal()
+	logger := taskCtx.GetLogger()
 	rawDataSubTaskArgs, data := CreateRawDataSubTaskArgs(taskCtx, RAW_JOB_BUILD_TABLE)
-	deploymentPattern := data.Options.DeploymentPattern
-	productionPattern := data.Options.ProductionPattern
-	regexEnricher := api.NewRegexEnricher()
-	err := regexEnricher.AddRegexp(deploymentPattern, productionPattern)
-	if err != nil {
-		return err
-	}
+	// INNER JOIN may cause loss of deploy entities here.
+	// It is not known that bamboo deploy can be associated with commits, so this is not an issue at the moment.
 	cursor, err := db.Cursor(
-		dal.From(&models.BambooDeployBuild{}),
-		dal.Where("connection_id = ? and project_key = ?", data.Options.ConnectionId, data.Options.ProjectKey))
+		dal.Select("db.*, pbc.repository_id, pbc.repository_name, pbc.vcs_revision_key, p.name as project_plan_name, p.project_name"),
+		dal.From("_tool_bamboo_deploy_builds AS db"),
+		dal.Join("INNER JOIN _tool_bamboo_plan_build_commits AS pbc ON db.connection_id = pbc.connection_id AND db.plan_result_key = pbc.plan_result_key"),
+		dal.Join("LEFT JOIN _tool_bamboo_plans as p ON db.plan_key = p.plan_key"),
+		dal.Where("db.connection_id = ? and db.plan_key = ?", data.Options.ConnectionId, data.Options.PlanKey))
 	if err != nil {
 		return err
 	}
 	defer cursor.Close()
 
-	deployBuildIdGen := didgen.NewDomainIdGenerator(&models.BambooDeployBuild{})
-	planBuildIdGen := didgen.NewDomainIdGenerator(&models.BambooPlanBuild{})
-	projectIdGen := didgen.NewDomainIdGenerator(&models.BambooProject{})
-
+	planIdGen := didgen.NewDomainIdGenerator(&models.BambooPlan{})
 	converter, err := api.NewDataConverter(api.DataConverterArgs{
-		InputRowType:       reflect.TypeOf(models.BambooDeployBuild{}),
+		InputRowType:       reflect.TypeOf(deployBuildWithVcsRevision{}),
 		Input:              cursor,
 		RawDataSubTaskArgs: *rawDataSubTaskArgs,
 		Convert: func(inputRow interface{}) ([]interface{}, errors.Error) {
-			deployBuild := inputRow.(*models.BambooDeployBuild)
-			domainTask := &devops.CICDTask{
+			input := inputRow.(*deployBuildWithVcsRevision)
+			if input.VcsRevisionKey == "" {
+				return nil, nil
+			}
+			deploymentCommitId := didgen.NewDomainIdGenerator(&deployBuildWithVcsRevision{}).Generate(data.Options.ConnectionId, input.DeployBuildId, input.RepositoryId)
+			deploymentCommit := &devops.CicdDeploymentCommit{
 				DomainEntity: domainlayer.DomainEntity{
-					Id: deployBuildIdGen.Generate(data.Options.ConnectionId, deployBuild.DeployBuildId),
+					Id: deploymentCommitId,
 				},
-				PipelineId:  planBuildIdGen.Generate(data.Options.ConnectionId, deployBuild.PlanKey),
-				CicdScopeId: projectIdGen.Generate(data.Options.ConnectionId, deployBuild.ProjectKey),
-
-				Name: deployBuild.DeploymentVersionName,
-
+				CicdScopeId:      planIdGen.Generate(data.Options.ConnectionId, data.Options.PlanKey),
+				CicdDeploymentId: deploymentCommitId,
+				Name:             input.GenerateCICDDeploymentCommitName(),
 				Result: devops.GetResult(&devops.ResultRule{
-					Failed:  []string{"Failed"},
-					Success: []string{"Successful"},
-					Default: "",
-				}, deployBuild.DeploymentState),
-
+					Success: []string{ResultSuccess, ResultSuccessful},
+					Failure: []string{ResultFailed},
+					Default: devops.RESULT_DEFAULT,
+				}, input.DeploymentState),
 				Status: devops.GetStatus(&devops.StatusRule{
-					Done:    []string{"Finished"},
-					Default: devops.IN_PROGRESS,
-				}, deployBuild.LifeCycleState),
-
-				//DurationSec:  uint64(deployBuild),
-				StartedDate:  *deployBuild.StartedDate,
-				FinishedDate: deployBuild.FinishedDate,
+					Done:       []string{StatusFinished},
+					InProgress: []string{StatusInProgress, StatusPending, StatusQueued},
+					Default:    devops.STATUS_OTHER,
+				}, input.LifeCycleState),
+				Environment:  input.Environment,
+				StartedDate:  input.StartedDate,
+				FinishedDate: input.FinishedDate,
+				CommitSha:    input.VcsRevisionKey,
+				RefName:      input.PlanBranchName,
+				RepoId:       strconv.Itoa(input.RepositoryId),
+			}
+			deploymentCommit.CreatedDate = time.Now()
+			if input.StartedDate != nil {
+				deploymentCommit.CreatedDate = *input.StartedDate
+			}
+			if input.QueuedDate != nil {
+				deploymentCommit.CreatedDate = *input.QueuedDate
+			}
+			if data.RegexEnricher.ReturnNameIfMatched(devops.ENV_NAME_PATTERN, input.Environment) != "" {
+				deploymentCommit.Environment = devops.PRODUCTION
+			}
+			if input.FinishedDate != nil && input.StartedDate != nil {
+				duration := uint64(input.FinishedDate.Sub(*input.StartedDate).Seconds())
+				deploymentCommit.DurationSec = &duration
+			}
+			fakeRepoUrl, err := generateFakeRepoUrl(data.ApiClient.GetEndpoint(), input.RepositoryId)
+			if err != nil {
+				logger.Warn(err, "generate fake repo url, endpoint: %s, repo id: %d", data.ApiClient.GetEndpoint(), input.RepositoryId)
+			} else {
+				deploymentCommit.RepoUrl = fakeRepoUrl
 			}
 
-			domainTask.Type = devops.DEPLOYMENT
-			domainTask.Environment = deployBuild.Environment
-
-			return []interface{}{
-				domainTask,
-			}, nil
+			return []interface{}{deploymentCommit, deploymentCommit.ToDeployment()}, nil
 		},
 	})
 

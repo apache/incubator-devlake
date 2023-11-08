@@ -21,6 +21,7 @@ import (
 	"encoding/json"
 
 	"github.com/apache/incubator-devlake/core/errors"
+	coreModels "github.com/apache/incubator-devlake/core/models"
 	"github.com/apache/incubator-devlake/core/plugin"
 	"github.com/apache/incubator-devlake/server/services/remote/bridge"
 	"github.com/apache/incubator-devlake/server/services/remote/models"
@@ -35,13 +36,16 @@ type (
 	}
 )
 
-func (p remoteMetricPlugin) MakeMetricPluginPipelinePlanV200(projectName string, options json.RawMessage) (plugin.PipelinePlan, errors.Error) {
-	return nil, errors.Internal.New("Remote metric plugins not supported")
+func (p remoteMetricPlugin) MakeMetricPluginPipelinePlanV200(projectName string, options json.RawMessage) (coreModels.PipelinePlan, errors.Error) {
+	return nil, errors.Internal.New("Remote metric coreModels not supported")
 }
 
-func (p remoteDatasourcePlugin) MakeDataSourcePipelinePlanV200(connectionId uint64, bpScopes []*plugin.BlueprintScopeV200, syncPolicy plugin.BlueprintSyncPolicy) (plugin.PipelinePlan, []plugin.Scope, errors.Error) {
+func (p remoteDatasourcePlugin) MakeDataSourcePipelinePlanV200(
+	connectionId uint64,
+	bpScopes []*coreModels.BlueprintScope,
+) (coreModels.PipelinePlan, []plugin.Scope, errors.Error) {
 	connection := p.connectionTabler.New()
-	err := connectionHelper.FirstById(connection, connectionId)
+	err := p.connHelper.FirstById(connection, connectionId)
 	if err != nil {
 		return nil, nil, err
 	}
@@ -49,29 +53,42 @@ func (p remoteDatasourcePlugin) MakeDataSourcePipelinePlanV200(connectionId uint
 	db := basicRes.GetDal()
 	var toolScopeConfigPairs = make([]interface{}, len(bpScopes))
 	for i, bpScope := range bpScopes {
-		toolScope, scopeConfig, err := p.getScopeAndConfig(db, connectionId, bpScope.Id)
+		toolScope, scopeConfig, err := p.getScopeAndConfig(db, connectionId, bpScope.ScopeId)
 		if err != nil {
 			return nil, nil, err
 		}
 		toolScopeConfigPairs[i] = []interface{}{toolScope, scopeConfig}
 	}
 
-	plan_data := models.PipelineData{}
-	err = p.invoker.Call("make-pipeline", bridge.DefaultContext, toolScopeConfigPairs, connection.Unwrap()).Get(&plan_data)
+	planData := models.PipelineData{}
+	err = p.invoker.Call("make-pipeline", bridge.DefaultContext, toolScopeConfigPairs, connection.Unwrap()).Get(&planData)
 	if err != nil {
 		return nil, nil, err
 	}
-
-	var scopes = make([]plugin.Scope, len(plan_data.Scopes))
-	for i, dynamicScope := range plan_data.Scopes {
-		scope, err := dynamicScope.Load()
+	scopes, err := toDomainScopes(planData.Scopes)
+	if err != nil {
+		return nil, nil, err
+	}
+	// store these domain scopes in the DB (remote plugins will not explicitly do this via standalone extractor/convertor pairs)
+	for _, scope := range scopes {
+		err = db.CreateOrUpdate(scope)
 		if err != nil {
 			return nil, nil, err
 		}
-		scopes[i] = scope
 	}
+	return planData.Plan, scopes, nil
+}
 
-	return plan_data.Plan, scopes, nil
+func toDomainScopes(dynamicScopes []models.DynamicDomainScope) ([]plugin.Scope, errors.Error) {
+	var scopes []plugin.Scope
+	for _, dynamicScope := range dynamicScopes {
+		scope, err := dynamicScope.Load()
+		if err != nil {
+			return nil, err
+		}
+		scopes = append(scopes, scope)
+	}
+	return scopes, nil
 }
 
 var _ models.RemotePlugin = (*remoteMetricPlugin)(nil)

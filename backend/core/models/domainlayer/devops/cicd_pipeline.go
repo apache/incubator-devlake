@@ -18,6 +18,8 @@ limitations under the License.
 package devops
 
 import (
+	"github.com/spf13/cast"
+	"strings"
 	"time"
 
 	"github.com/apache/incubator-devlake/core/models/domainlayer"
@@ -42,72 +44,83 @@ func (CICDPipeline) TableName() string {
 
 // this is for the field `result` in table.cicd_pipelines and table.cicd_tasks
 const (
-	SUCCESS = "SUCCESS"
-	FAILURE = "FAILURE"
-	ABORT   = "ABORT"
-	MANUAL  = "MANUAL"
+	RESULT_SUCCESS = "SUCCESS"
+	RESULT_FAILURE = "FAILURE"
+	RESULT_DEFAULT = ""
 )
 
 // this is for the field `status` in table.cicd_pipelines and table.cicd_tasks
 const (
-	IN_PROGRESS = "IN_PROGRESS"
-	DONE        = "DONE"
+	STATUS_IN_PROGRESS = "IN_PROGRESS"
+	STATUS_DONE        = "DONE"
+	STATUS_OTHER       = "OTHER"
 )
 
 type ResultRule struct {
 	Success []string
-	Failed  []string
-	Abort   []string
-	Manual  []string
+	Failure []string
 	Default string
 }
+
 type StatusRule struct {
 	InProgress []string
 	Done       []string
-	Manual     []string
 	Default    string
 }
 
-// GetResult compare the input with rule for return the enmu value of result
+type StatusRuleCommon[T comparable] struct {
+	InProgress []T
+	Done       []T
+	Default    string
+}
+
+// GetResult compare the input with rule for return the enum value of result case-insensitively.
 func GetResult(rule *ResultRule, input interface{}) string {
 	for _, suc := range rule.Success {
-		if suc == input {
-			return SUCCESS
+		if strings.EqualFold(suc, cast.ToString(input)) {
+			return RESULT_SUCCESS
 		}
 	}
-	for _, fail := range rule.Failed {
-		if fail == input {
-			return FAILURE
-		}
-	}
-	for _, abort := range rule.Abort {
-		if abort == input {
-			return ABORT
-		}
-	}
-	for _, manual := range rule.Manual {
-		if manual == input {
-			return MANUAL
+	for _, fail := range rule.Failure {
+		if strings.EqualFold(fail, cast.ToString(input)) {
+			return RESULT_FAILURE
 		}
 	}
 	return rule.Default
 }
 
-// GetStatus compare the input with rule for return the enmu value of status
-func GetStatus(rule *StatusRule, input interface{}) string {
+// GetStatus compare the input with rule for return the enum value of status
+func GetStatus(rule *StatusRule, input string) string {
+	if rule.Default == "" {
+		rule.Default = STATUS_OTHER
+	}
+	for _, inProgress := range rule.InProgress {
+		if strings.EqualFold(inProgress, input) {
+			return STATUS_IN_PROGRESS
+		}
+	}
+	for _, done := range rule.Done {
+		if strings.EqualFold(done, input) {
+			return STATUS_DONE
+		}
+	}
+	return rule.Default
+}
+
+// GetStatusCommon compare the input with rule for return the enum value of status.
+// If T is string, it is case-sensitivity.
+func GetStatusCommon[T comparable](rule *StatusRuleCommon[T], input T) string {
+	if rule.Default == "" {
+		rule.Default = STATUS_OTHER
+	}
 	for _, inp := range rule.InProgress {
 		if inp == input {
-			return IN_PROGRESS
+			return STATUS_IN_PROGRESS
 		}
 	}
 	for _, done := range rule.Done {
 		if done == input {
-			return DONE
-		}
-	}
-	for _, manual := range rule.Manual {
-		if manual == input {
-			return MANUAL
+			return STATUS_DONE
 		}
 	}
 	return rule.Default

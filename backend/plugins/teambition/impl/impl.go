@@ -19,11 +19,11 @@ package impl
 
 import (
 	"fmt"
-	"time"
 
 	"github.com/apache/incubator-devlake/core/context"
 	"github.com/apache/incubator-devlake/core/dal"
 	"github.com/apache/incubator-devlake/core/errors"
+	coreModels "github.com/apache/incubator-devlake/core/models"
 	"github.com/apache/incubator-devlake/core/plugin"
 	helper "github.com/apache/incubator-devlake/helpers/pluginhelper/api"
 	"github.com/apache/incubator-devlake/plugins/teambition/api"
@@ -33,11 +33,15 @@ import (
 )
 
 // make sure interface is implemented
-var _ plugin.PluginMeta = (*Teambition)(nil)
-var _ plugin.PluginInit = (*Teambition)(nil)
-var _ plugin.PluginTask = (*Teambition)(nil)
-var _ plugin.PluginApi = (*Teambition)(nil)
-var _ plugin.CloseablePluginTask = (*Teambition)(nil)
+
+var _ interface {
+	plugin.PluginMeta
+	plugin.PluginInit
+	plugin.PluginTask
+	plugin.PluginApi
+	plugin.CloseablePluginTask
+	plugin.PluginSource
+} = (*Teambition)(nil)
 
 type Teambition struct{}
 
@@ -45,8 +49,13 @@ func (p Teambition) Description() string {
 	return "collect some Teambition data"
 }
 
+func (p Teambition) Name() string {
+	return "teambition"
+}
+
 func (p Teambition) Init(br context.BasicRes) errors.Error {
-	api.Init(br)
+	api.Init(br, p)
+
 	return nil
 }
 
@@ -61,7 +70,21 @@ func (p Teambition) GetTablesInfo() []dal.Tabler {
 		&models.TeambitionTaskActivity{},
 		&models.TeambitionTaskWorktime{},
 		&models.TeambitionProject{},
+		&models.TeambitionTaskFlowStatus{},
+		&models.TeambitionTaskScenario{},
 	}
+}
+
+func (p Teambition) Connection() dal.Tabler {
+	return &models.TeambitionConnection{}
+}
+
+func (p Teambition) Scope() plugin.ToolLayerScope {
+	return nil
+}
+
+func (p Teambition) ScopeConfig() dal.Tabler {
+	return nil
 }
 
 func (p Teambition) SubTaskMetas() []plugin.SubTaskMeta {
@@ -95,8 +118,11 @@ func (p Teambition) SubTaskMetas() []plugin.SubTaskMeta {
 	}
 }
 
-func (p Teambition) MakeDataSourcePipelinePlanV200(connectionId uint64, scopes []*plugin.BlueprintScopeV200, syncPolicy plugin.BlueprintSyncPolicy) (pp plugin.PipelinePlan, sc []plugin.Scope, err errors.Error) {
-	return api.MakeDataSourcePipelinePlanV200(p.SubTaskMetas(), connectionId, scopes, &syncPolicy)
+func (p Teambition) MakeDataSourcePipelinePlanV200(
+	connectionId uint64,
+	scopes []*coreModels.BlueprintScope,
+) (pp coreModels.PipelinePlan, sc []plugin.Scope, err errors.Error) {
+	return api.MakeDataSourcePipelinePlanV200(p.SubTaskMetas(), connectionId, scopes)
 }
 
 func (p Teambition) PrepareTaskData(taskCtx plugin.TaskContext, options map[string]interface{}) (interface{}, errors.Error) {
@@ -107,6 +133,7 @@ func (p Teambition) PrepareTaskData(taskCtx plugin.TaskContext, options map[stri
 	connectionHelper := helper.NewConnectionHelper(
 		taskCtx,
 		nil,
+		p.Name(),
 	)
 	connection := &models.TeambitionConnection{}
 	err = connectionHelper.FirstById(connection, op.ConnectionId)
@@ -123,16 +150,7 @@ func (p Teambition) PrepareTaskData(taskCtx plugin.TaskContext, options map[stri
 		ApiClient: apiClient,
 		TenantId:  connection.TenantId,
 	}
-	var createdDateAfter time.Time
-	if op.TimeAfter != "" {
-		createdDateAfter, err = errors.Convert01(time.Parse(time.RFC3339, op.TimeAfter))
-		if err != nil {
-			return nil, errors.BadInput.Wrap(err, "invalid value for `createdDateAfter`")
-		}
-	}
-	if !createdDateAfter.IsZero() {
-		taskData.TimeAfter = &createdDateAfter
-	}
+
 	return taskData, nil
 }
 

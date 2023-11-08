@@ -41,25 +41,21 @@ var ExtractBugCommitsMeta = plugin.SubTaskMeta{
 func ExtractBugCommits(taskCtx plugin.SubTaskContext) errors.Error {
 	data := taskCtx.GetData().(*ZentaoTaskData)
 
-	// this Extract only work for product
-	if data.Options.ProductId == 0 {
-		return nil
-	}
-
 	re := regexp.MustCompile(`href='(.*?)'`)
 	extractor, err := api.NewApiExtractor(api.ApiExtractorArgs{
 		RawDataSubTaskArgs: api.RawDataSubTaskArgs{
-			Ctx: taskCtx,
-			Params: ZentaoApiParams{
-				ConnectionId: data.Options.ConnectionId,
-				ProductId:    data.Options.ProductId,
-				ProjectId:    data.Options.ProjectId,
-			},
-			Table: RAW_BUG_COMMITS_TABLE,
+			Ctx:     taskCtx,
+			Options: data.Options,
+			Table:   RAW_BUG_COMMITS_TABLE,
 		},
 		Extract: func(row *api.RawData) ([]interface{}, errors.Error) {
 			res := &models.ZentaoBugCommitsRes{}
 			err := json.Unmarshal(row.Data, res)
+			if err != nil {
+				return nil, errors.Default.WrapRaw(err)
+			}
+			var input bugInput
+			err = json.Unmarshal(row.Input, &input)
 			if err != nil {
 				return nil, errors.Default.WrapRaw(err)
 			}
@@ -73,7 +69,7 @@ func ExtractBugCommits(taskCtx plugin.SubTaskContext) errors.Error {
 				ID:           res.ID,
 				ObjectType:   res.ObjectType,
 				ObjectID:     res.ObjectID,
-				Product:      data.Options.ProductId,
+				Product:      input.ProductId,
 				Project:      data.Options.ProjectId,
 				Execution:    res.Execution,
 				Actor:        res.Actor,

@@ -19,7 +19,7 @@ package models
 
 type BambooApiParams struct {
 	ConnectionId uint64 `json:"connectionId"`
-	ProjectKey   string
+	PlanKey      string
 }
 
 type BambooOptions struct {
@@ -28,7 +28,7 @@ type BambooOptions struct {
 	// Such As How many rows do your want
 	// You can use it in sub tasks and you need pass it in main.go and pipelines.
 	ConnectionId       uint64   `json:"connectionId"`
-	ProjectKey         string   `json:"projectKey"`
+	PlanKey            string   `json:"planKey"`
 	Tasks              []string `json:"tasks,omitempty"`
 	ScopeConfigId      uint64   `mapstructure:"scopeConfigId" json:"scopeConfigId"`
 	*BambooScopeConfig `mapstructure:"scopeConfig" json:"scopeConfig"`

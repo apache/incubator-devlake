@@ -18,12 +18,12 @@ limitations under the License.
 package archived
 
 import (
-	"github.com/apache/incubator-devlake/core/models/common"
+	"github.com/apache/incubator-devlake/core/models/migrationscripts/archived"
 )
 
 type (
 	Service struct {
-		common.NoPKModel
+		archived.NoPKModel
 		ConnectionId uint64 `gorm:"primaryKey"`
 		Id           string `gorm:"primaryKey;autoIncremental:false"`
 		Url          string

@@ -19,7 +19,6 @@ package services
 
 import (
 	"context"
-	"encoding/json"
 	"fmt"
 	"github.com/apache/incubator-devlake/core/dal"
 	"github.com/apache/incubator-devlake/core/errors"
@@ -27,8 +26,6 @@ import (
 	"github.com/apache/incubator-devlake/core/models"
 	"github.com/apache/incubator-devlake/core/runner"
 	"github.com/apache/incubator-devlake/impls/logruslog"
-	"github.com/apache/incubator-devlake/worker/app"
-	"go.temporal.io/sdk/client"
 	"time"
 )
 
@@ -45,37 +42,6 @@ func (p *pipelineRunner) runPipelineStandalone() errors.Error {
 			return RunTasksStandalone(p.logger, taskIds)
 		},
 	)
-}
-
-func (p *pipelineRunner) runPipelineViaTemporal() errors.Error {
-	workflowOpts := client.StartWorkflowOptions{
-		ID:        getTemporalWorkflowId(p.pipeline.ID),
-		TaskQueue: cfg.GetString("TEMPORAL_TASK_QUEUE"),
-	}
-	// send only the very basis data
-	configJson, err := json.Marshal(cfg.AllSettings())
-	if err != nil {
-		return errors.Convert(err)
-	}
-	p.logger.Info("enqueue pipeline #%d into temporal task queue", p.pipeline.ID)
-	workflow, err := temporalClient.ExecuteWorkflow(
-		context.Background(),
-		workflowOpts,
-		app.DevLakePipelineWorkflow,
-		configJson,
-		p.pipeline.ID,
-		p.logger.GetConfig(),
-	)
-	if err != nil {
-		p.logger.Error(err, "failed to enqueue pipeline #%d into temporal", p.pipeline.ID)
-		return errors.Convert(err)
-	}
-	err = workflow.Get(context.Background(), nil)
-	if err != nil {
-		p.logger.Info("failed to execute pipeline #%d via temporal: %v", p.pipeline.ID, err)
-	}
-	p.logger.Info("pipeline #%d finished by temporal", p.pipeline.ID)
-	return errors.Convert(err)
 }
 
 // GetPipelineLogger returns logger for the pipeline
@@ -107,11 +73,7 @@ func runPipeline(pipelineId uint64) errors.Error {
 		pipeline: ppl,
 	}
 	// run
-	if temporalClient != nil {
-		err = pipelineRun.runPipelineViaTemporal()
-	} else {
-		err = pipelineRun.runPipelineStandalone()
-	}
+	err = pipelineRun.runPipelineStandalone()
 	isCancelled := errors.Is(err, context.Canceled)
 	if err != nil {
 		err = errors.Default.Wrap(err, fmt.Sprintf("Error running pipeline %d.", pipelineId))

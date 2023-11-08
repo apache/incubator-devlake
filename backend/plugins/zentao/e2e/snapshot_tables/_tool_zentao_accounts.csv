@@ -1,1 +1,13 @@
 connection_id,id,account,avatar,realname,role,dept
+1,1,devlake,,devlake,,0
+1,2,productManager,,产品经理,po,5
+1,3,projectManager,,项目经理,pm,6
+1,4,dev1,,开发甲,dev,2
+1,5,dev2,,开发乙,dev,2
+1,6,dev3,,开发丙,dev,2
+1,7,tester1,,测试甲,qa,3
+1,8,tester2,,测试乙,qa,3
+1,9,tester3,,测试丙,qa,3
+1,10,testManager,,测试经理,qd,1
+1,11,productManager,,产品经理,po,5
+1,12,devlake,,devlake,,0

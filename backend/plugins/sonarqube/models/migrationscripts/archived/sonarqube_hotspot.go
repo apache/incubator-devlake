@@ -18,8 +18,9 @@ limitations under the License.
 package archived
 
 import (
+	"time"
+
 	"github.com/apache/incubator-devlake/core/models/migrationscripts/archived"
-	"github.com/apache/incubator-devlake/helpers/pluginhelper/api"
 )
 
 type SonarqubeHotspot struct {
@@ -35,8 +36,8 @@ type SonarqubeHotspot struct {
 	Assignee                 string `gorm:"type:varchar(100)"`
 	SecurityCategory         string `gorm:"type:varchar(100)"`
 	VulnerabilityProbability string `gorm:"type:varchar(100)"`
-	CreationDate             *api.Iso8601Time
-	UpdateDate               *api.Iso8601Time
+	CreationDate             *time.Time
+	UpdateDate               *time.Time
 	archived.NoPKModel
 }
 

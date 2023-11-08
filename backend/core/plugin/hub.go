@@ -19,8 +19,10 @@ package plugin
 
 import (
 	"fmt"
-	"github.com/apache/incubator-devlake/core/errors"
 	"strings"
+
+	"github.com/apache/incubator-devlake/core/context"
+	"github.com/apache/incubator-devlake/core/errors"
 )
 
 // Allowing plugin to know each other
@@ -68,4 +70,15 @@ func FindPluginNameBySubPkgPath(subPkgPath string) (string, errors.Error) {
 		}
 	}
 	return "", errors.Default.New(fmt.Sprintf("Unable to find plugin for subPkgPath %s", subPkgPath))
+}
+
+func InitPlugins(basicRes context.BasicRes) {
+	for pluginName, pluginMeta := range plugins {
+		if pluginEntry, ok := pluginMeta.(PluginInit); ok {
+			err := pluginEntry.Init(basicRes)
+			if err != nil {
+				panic(fmt.Errorf("failed to initialize plugin %v due to %w", pluginName, err))
+			}
+		}
+	}
 }

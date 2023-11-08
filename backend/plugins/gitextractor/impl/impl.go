@@ -18,22 +18,18 @@ limitations under the License.
 package impl
 
 import (
-	"fmt"
 	"github.com/apache/incubator-devlake/core/dal"
 	"github.com/apache/incubator-devlake/core/errors"
-	"github.com/apache/incubator-devlake/core/log"
 	"github.com/apache/incubator-devlake/core/plugin"
 	helper "github.com/apache/incubator-devlake/helpers/pluginhelper/api"
-	"github.com/apache/incubator-devlake/plugins/gitextractor/models"
-	"github.com/apache/incubator-devlake/plugins/gitextractor/parser"
-	"github.com/apache/incubator-devlake/plugins/gitextractor/store"
 	"github.com/apache/incubator-devlake/plugins/gitextractor/tasks"
-	"strings"
 )
 
-var _ plugin.PluginMeta = (*GitExtractor)(nil)
-var _ plugin.PluginTask = (*GitExtractor)(nil)
-var _ plugin.PluginModel = (*GitExtractor)(nil)
+var _ interface {
+	plugin.PluginMeta
+	plugin.PluginTask
+	plugin.PluginModel
+} = (*GitExtractor)(nil)
 
 type GitExtractor struct{}
 
@@ -45,9 +41,14 @@ func (p GitExtractor) Description() string {
 	return "extract infos from git repository"
 }
 
+func (p GitExtractor) Name() string {
+	return "gitextractor"
+}
+
 // return all available subtasks, framework will run them for you in order
 func (p GitExtractor) SubTaskMetas() []plugin.SubTaskMeta {
 	return []plugin.SubTaskMeta{
+		tasks.CloneGitRepoMeta,
 		tasks.CollectGitCommitMeta,
 		tasks.CollectGitBranchMeta,
 		tasks.CollectGitTagMeta,
@@ -55,7 +56,7 @@ func (p GitExtractor) SubTaskMetas() []plugin.SubTaskMeta {
 	}
 }
 
-// based on task context and user input options, return data that shared among all subtasks
+// PrepareTaskData based on task context and user input options, return data that shared among all subtasks
 func (p GitExtractor) PrepareTaskData(taskCtx plugin.TaskContext, options map[string]interface{}) (interface{}, errors.Error) {
 	var op tasks.GitExtractorOptions
 	if err := helper.Decode(options, &op, nil); err != nil {
@@ -64,40 +65,23 @@ func (p GitExtractor) PrepareTaskData(taskCtx plugin.TaskContext, options map[st
 	if err := op.Valid(); err != nil {
 		return nil, err
 	}
-	storage := store.NewDatabase(taskCtx, op.RepoId)
-	repo, err := NewGitRepo(taskCtx.GetLogger(), storage, op)
-	if err != nil {
-		return nil, err
+	taskData := &tasks.GitExtractorTaskData{
+		Options: &op,
 	}
-	return repo, nil
+	return taskData, nil
 }
 
 func (p GitExtractor) Close(taskCtx plugin.TaskContext) errors.Error {
-	if repo, ok := taskCtx.GetData().(*parser.GitRepo); ok {
-		if err := repo.Close(); err != nil {
-			return errors.Convert(err)
+	if taskData, ok := taskCtx.GetData().(*tasks.GitExtractorTaskData); ok {
+		if taskData.GitRepo != nil {
+			if err := taskData.GitRepo.Close(); err != nil {
+				return errors.Convert(err)
+			}
 		}
 	}
-	return nil
+	return errors.Default.New("task ctx is not GitExtractorTaskData which is unexpected")
 }
 
 func (p GitExtractor) RootPkgPath() string {
 	return "github.com/apache/incubator-devlake/plugins/gitextractor"
-}
-
-// NewGitRepo create and return a new parser git repo
-func NewGitRepo(logger log.Logger, storage models.Store, op tasks.GitExtractorOptions) (*parser.GitRepo, errors.Error) {
-	var err errors.Error
-	var repo *parser.GitRepo
-	p := parser.NewGitRepoCreator(storage, logger)
-	if strings.HasPrefix(op.Url, "http") {
-		repo, err = p.CloneOverHTTP(op.RepoId, op.Url, op.User, op.Password, op.Proxy)
-	} else if url := strings.TrimPrefix(op.Url, "ssh://"); strings.HasPrefix(url, "git@") {
-		repo, err = p.CloneOverSSH(op.RepoId, url, op.PrivateKey, op.Passphrase)
-	} else if strings.HasPrefix(op.Url, "/") {
-		repo, err = p.LocalRepo(op.Url, op.RepoId)
-	} else {
-		return nil, errors.BadInput.New(fmt.Sprintf("unsupported url [%s]", op.Url))
-	}
-	return repo, err
 }

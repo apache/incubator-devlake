@@ -18,6 +18,10 @@ limitations under the License.
 package tasks
 
 import (
+	"reflect"
+	"strings"
+	"time"
+
 	"github.com/apache/incubator-devlake/core/dal"
 	"github.com/apache/incubator-devlake/core/errors"
 	"github.com/apache/incubator-devlake/core/models/domainlayer"
@@ -26,9 +30,6 @@ import (
 	"github.com/apache/incubator-devlake/core/plugin"
 	helper "github.com/apache/incubator-devlake/helpers/pluginhelper/api"
 	"github.com/apache/incubator-devlake/plugins/tapd/models"
-	"reflect"
-	"strings"
-	"time"
 )
 
 func ConvertWorklog(taskCtx plugin.SubTaskContext) errors.Error {
@@ -68,11 +69,11 @@ func ConvertWorklog(taskCtx plugin.SubTaskContext) errors.Error {
 			}
 			switch strings.ToUpper(toolL.EntityType) {
 			case "TASK":
-				domainL.IssueId = taskIdGen.Generate(toolL.EntityId)
+				domainL.IssueId = taskIdGen.Generate(data.Options.ConnectionId, toolL.EntityId)
 			case "BUG":
-				domainL.IssueId = bugIdGen.Generate(toolL.EntityId)
+				domainL.IssueId = bugIdGen.Generate(data.Options.ConnectionId, toolL.EntityId)
 			case "STORY":
-				domainL.IssueId = storyIdGen.Generate(toolL.EntityId)
+				domainL.IssueId = storyIdGen.Generate(data.Options.ConnectionId, toolL.EntityId)
 			}
 			return []interface{}{
 				domainL,

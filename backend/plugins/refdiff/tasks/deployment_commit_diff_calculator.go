@@ -26,6 +26,7 @@ import (
 	"github.com/apache/incubator-devlake/core/models/domainlayer/code"
 	"github.com/apache/incubator-devlake/core/plugin"
 	"github.com/apache/incubator-devlake/helpers/pluginhelper/api"
+	"github.com/apache/incubator-devlake/plugins/refdiff/models"
 	"github.com/apache/incubator-devlake/plugins/refdiff/utils"
 )
 
@@ -113,7 +114,7 @@ func CalculateDeploymentCommitsDiff(taskCtx plugin.SubTaskContext) errors.Error 
 			return err
 		}
 		// mark commits_diff were calculated, no need to do it again in the future
-		finishedCommitsDiff := &code.FinishedCommitsDiff{
+		finishedCommitsDiff := &models.FinishedCommitsDiff{
 			NewCommitSha: pair.CommitSha,
 			OldCommitSha: pair.PrevCommitSha,
 		}

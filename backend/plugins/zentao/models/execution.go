@@ -19,7 +19,6 @@ package models
 
 import (
 	"github.com/apache/incubator-devlake/core/models/common"
-	helper "github.com/apache/incubator-devlake/helpers/pluginhelper/api"
 )
 
 type ZentaoExecutionRes struct {
@@ -40,10 +39,10 @@ type ZentaoExecutionRes struct {
 	Grade          int                 `json:"grade"`
 	Name           string              `json:"name"`
 	Code           string              `json:"code"`
-	PlanBegin      *helper.Iso8601Time `json:"begin"`
-	PlanEnd        *helper.Iso8601Time `json:"end"`
-	RealBegan      *helper.Iso8601Time `json:"realBegan"`
-	RealEnd        *helper.Iso8601Time `json:"realEnd"`
+	PlanBegin      *common.Iso8601Time `json:"begin"`
+	PlanEnd        *common.Iso8601Time `json:"end"`
+	RealBegan      *common.Iso8601Time `json:"realBegan"`
+	RealEnd        *common.Iso8601Time `json:"realEnd"`
 	Status         string              `json:"status"`
 	SubStatus      string              `json:"subStatus"`
 	Pri            string              `json:"pri"`
@@ -53,15 +52,15 @@ type ZentaoExecutionRes struct {
 	PlanDuration   int                 `json:"planDuration"`
 	RealDuration   int                 `json:"realDuration"`
 	OpenedBy       *ZentaoAccount      `json:"openedBy"`
-	OpenedDate     *helper.Iso8601Time `json:"openedDate"`
+	OpenedDate     *common.Iso8601Time `json:"openedDate"`
 	OpenedVersion  string              `json:"openedVersion"`
 	LastEditedBy   *ZentaoAccount      `json:"lastEditedBy"`
-	LastEditedDate *helper.Iso8601Time `json:"lastEditedDate"`
+	LastEditedDate *common.Iso8601Time `json:"lastEditedDate"`
 	ClosedBy       *ZentaoAccount      `json:"closedBy"`
-	ClosedDate     *helper.Iso8601Time `json:"closedDate"`
+	ClosedDate     *common.Iso8601Time `json:"closedDate"`
 	CanceledBy     *ZentaoAccount      `json:"canceledBy"`
-	CanceledDate   *helper.Iso8601Time `json:"canceledDate"`
-	SuspendedDate  *helper.Iso8601Time `json:"suspendedDate"`
+	CanceledDate   *common.Iso8601Time `json:"canceledDate"`
+	SuspendedDate  *common.Iso8601Time `json:"suspendedDate"`
 	PO             *ZentaoAccount      `json:"PO"`
 	PM             *ZentaoAccount      `json:"PM"`
 	QD             *ZentaoAccount      `json:"QD"`
@@ -96,10 +95,10 @@ type ZentaoExecutionRes struct {
 		Grade          int                 `json:"grade"`
 		Name           string              `json:"name"`
 		Code           string              `json:"code"`
-		PlanBegin      *helper.Iso8601Time `json:"begin"`
-		PlanEnd        *helper.Iso8601Time `json:"end"`
-		RealBegan      *helper.Iso8601Time `json:"realBegan"`
-		RealEnd        *helper.Iso8601Time `json:"realEnd"`
+		PlanBegin      *common.Iso8601Time `json:"begin"`
+		PlanEnd        *common.Iso8601Time `json:"end"`
+		RealBegan      *common.Iso8601Time `json:"realBegan"`
+		RealEnd        *common.Iso8601Time `json:"realEnd"`
 		Status         string              `json:"status"`
 		SubStatus      string              `json:"subStatus"`
 		Pri            string              `json:"pri"`
@@ -109,15 +108,15 @@ type ZentaoExecutionRes struct {
 		PlanDuration   int                 `json:"planDuration"`
 		RealDuration   int                 `json:"realDuration"`
 		OpenedBy       string              `json:"openedBy"`
-		OpenedDate     *helper.Iso8601Time `json:"openedDate"`
+		OpenedDate     *common.Iso8601Time `json:"openedDate"`
 		OpenedVersion  string              `json:"openedVersion"`
 		LastEditedBy   string              `json:"lastEditedBy"`
-		LastEditedDate *helper.Iso8601Time `json:"lastEditedDate"`
+		LastEditedDate *common.Iso8601Time `json:"lastEditedDate"`
 		ClosedBy       string              `json:"closedBy"`
-		ClosedDate     *helper.Iso8601Time `json:"closedDate"`
+		ClosedDate     *common.Iso8601Time `json:"closedDate"`
 		CanceledBy     string              `json:"canceledBy"`
-		CanceledDate   *helper.Iso8601Time `json:"canceledDate"`
-		SuspendedDate  *helper.Iso8601Time `json:"suspendedDate"`
+		CanceledDate   *common.Iso8601Time `json:"canceledDate"`
+		SuspendedDate  *common.Iso8601Time `json:"suspendedDate"`
 		PO             string              `json:"PO"`
 		PM             string              `json:"PM"`
 		QD             string              `json:"QD"`
@@ -177,10 +176,10 @@ type ZentaoExecution struct {
 	Grade          int                 `json:"grade"`
 	Name           string              `json:"name"`
 	Code           string              `json:"code"`
-	PlanBegin      *helper.Iso8601Time `json:"begin"`
-	PlanEnd        *helper.Iso8601Time `json:"end"`
-	RealBegan      *helper.Iso8601Time `json:"realBegan"`
-	RealEnd        *helper.Iso8601Time `json:"realEnd"`
+	PlanBegin      *common.Iso8601Time `json:"begin"`
+	PlanEnd        *common.Iso8601Time `json:"end"`
+	RealBegan      *common.Iso8601Time `json:"realBegan"`
+	RealEnd        *common.Iso8601Time `json:"realEnd"`
 	Status         string              `json:"status"`
 	SubStatus      string              `json:"subStatus"`
 	Pri            string              `json:"pri"`
@@ -190,15 +189,15 @@ type ZentaoExecution struct {
 	PlanDuration   int                 `json:"planDuration"`
 	RealDuration   int                 `json:"realDuration"`
 	OpenedById     int64
-	OpenedDate     *helper.Iso8601Time `json:"openedDate"`
+	OpenedDate     *common.Iso8601Time `json:"openedDate"`
 	OpenedVersion  string              `json:"openedVersion"`
 	LastEditedById int64
-	LastEditedDate *helper.Iso8601Time `json:"lastEditedDate"`
+	LastEditedDate *common.Iso8601Time `json:"lastEditedDate"`
 	ClosedById     int64
-	ClosedDate     *helper.Iso8601Time `json:"closedDate"`
+	ClosedDate     *common.Iso8601Time `json:"closedDate"`
 	CanceledById   int64
-	CanceledDate   *helper.Iso8601Time `json:"canceledDate"`
-	SuspendedDate  *helper.Iso8601Time `json:"suspendedDate"`
+	CanceledDate   *common.Iso8601Time `json:"canceledDate"`
+	SuspendedDate  *common.Iso8601Time `json:"suspendedDate"`
 	POId           int64
 	PMId           int64
 	QDId           int64

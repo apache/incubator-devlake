@@ -19,12 +19,12 @@
 import { useState, useEffect, useMemo } from 'react';
 import { Button, Intent } from '@blueprintjs/core';
 
+import API from '@/api';
 import { Buttons, Table, IconButton, Dialog } from '@/components';
 import { useRefreshData } from '@/hooks';
 
 import { ScopeConfigForm } from '../scope-config-form';
 
-import * as API from './api';
 import * as S from './styled';
 
 interface Props {
@@ -41,7 +41,7 @@ export const ScopeConfigSelect = ({ plugin, connectionId, scopeConfigId, onCance
   const [isOpen, setIsOpen] = useState(false);
   const [updatedId, setUpdatedId] = useState<ID>();
 
-  const { ready, data } = useRefreshData(() => API.getScopeConfigs(plugin, connectionId), [version]);
+  const { ready, data } = useRefreshData(() => API.scopeConfig.list(plugin, connectionId), [version]);
 
   const dataSource = useMemo(() => (data ? data : []), [data]);
 
@@ -71,7 +71,7 @@ export const ScopeConfigSelect = ({ plugin, connectionId, scopeConfigId, onCance
 
   return (
     <S.Wrapper>
-      <Buttons>
+      <Buttons position="top">
         <Button icon="add" intent={Intent.PRIMARY} text="Add New Scope Config" onClick={handleShowDialog} />
       </Buttons>
       <Table
@@ -88,7 +88,6 @@ export const ScopeConfigSelect = ({ plugin, connectionId, scopeConfigId, onCance
         ]}
         dataSource={dataSource}
         rowSelection={{
-          rowKey: 'id',
           type: 'radio',
           selectedRowKeys: trId ? [trId] : [],
           onChange: (selectedRowKeys) => setTrId(selectedRowKeys[0]),
@@ -100,7 +99,7 @@ export const ScopeConfigSelect = ({ plugin, connectionId, scopeConfigId, onCance
         <Button disabled={!trId} intent={Intent.PRIMARY} text="Save" onClick={() => trId && onSubmit?.(trId)} />
       </Buttons>
       <Dialog
-        style={{ width: 820 }}
+        style={{ width: 960 }}
         footer={null}
         isOpen={isOpen}
         title={!updatedId ? 'Add Scope Config' : 'Edit Scope Config'}

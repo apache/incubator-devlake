@@ -40,3 +40,8 @@ type BitbucketScopeConfig struct {
 func (BitbucketScopeConfig) TableName() string {
 	return "_tool_bitbucket_scope_configs"
 }
+
+func (cfg *BitbucketScopeConfig) SetConnectionId(c *BitbucketScopeConfig, connectionId uint64) {
+	c.ConnectionId = connectionId
+	c.ScopeConfig.ConnectionId = connectionId
+}

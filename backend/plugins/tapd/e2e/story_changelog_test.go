@@ -36,13 +36,13 @@ func TestTapdStoryChangelogDataFlow(t *testing.T) {
 		Options: &tasks.TapdOptions{
 			ConnectionId: 1,
 			WorkspaceId:  991,
-			ScopeConfig: &tasks.TapdScopeConfig{
-				TypeMappings: tasks.TypeMappings{
+			ScopeConfig: &models.TapdScopeConfig{
+				TypeMappings: map[string]string{
 					"Techstory": "REQUIREMENT",
 					"技术债":       "REQUIREMENT",
 					"需求":        "REQUIREMENT",
 				},
-				StatusMappings: tasks.StatusMappings{
+				StatusMappings: map[string]string{
 					"已关闭":                   "DONE",
 					"接受/处理":                 "IN_PROGRESS",
 					"开发中":                   "IN_PROGRESS",
@@ -119,6 +119,13 @@ func TestTapdStoryChangelogDataFlow(t *testing.T) {
 		),
 	)
 
+	// duplicate existing changelog items to simulate the case that 2 connections having the same changelog items
+	e2ehelper.DuplicateRecords[models.TapdStoryChangelogItem](
+		dataflowTester,
+		map[string]interface{}{
+			"ConnectionId": uint64(2),
+		},
+	)
 	dataflowTester.FlushTabler(&ticket.IssueChangelogs{})
 	dataflowTester.Subtask(tasks.ConvertStoryChangelogMeta, taskData)
 	dataflowTester.VerifyTable(

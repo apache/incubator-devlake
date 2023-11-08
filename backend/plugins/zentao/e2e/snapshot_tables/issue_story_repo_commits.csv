@@ -1,2 +1,2 @@
 issue_id,repo_url,commit_sha,host,namespace,repo_name
-zentao:ZentaoStoryRepoCommit:1:4564,http://devlake.gitlab.com/root/zentao-test,659ca323434f22ed01145de9d52eeb0d8288d8bb,devlake.gitlab.com,root,zentao-test
+zentao:ZentaoStory:1:4564,http://devlake.gitlab.com/root/zentao-test,659ca323434f22ed01145de9d52eeb0d8288d8bb,devlake.gitlab.com,root,zentao-test

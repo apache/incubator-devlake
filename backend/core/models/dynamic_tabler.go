@@ -29,41 +29,56 @@ import (
 // DynamicTabler is a core.Tabler that wraps a runtime (anonymously) generated data-model. Due to limitations of
 // reflection in Go and the GORM framework, the underlying model and the table have to be explicitly passed into dal.Dal's API
 // via Unwrap() and TableName()
-type DynamicTabler struct {
+type DynamicTabler interface {
+	dal.Tabler
+	json.Marshaler
+	json.Unmarshaler
+	NewValue() any
+	New() DynamicTabler
+	NewSlice() DynamicTabler
+	From(src any) errors.Error
+	To(target any) errors.Error
+	Unwrap() any
+	UnwrapPtr() *any
+	UnwrapSlice() []any
+}
+
+// DynamicTablerImpl the implementation of DynamicTabler
+type DynamicTablerImpl struct {
 	objType reflect.Type
 	wrapped any
 	table   string
 }
 
-func NewDynamicTabler(tableName string, objType reflect.Type) *DynamicTabler {
-	return &DynamicTabler{
+func NewDynamicTabler(tableName string, objType reflect.Type) DynamicTabler {
+	return &DynamicTablerImpl{
 		objType: objType,
 		table:   tableName,
 	}
 }
 
-func (d *DynamicTabler) NewValue() any {
+func (d *DynamicTablerImpl) NewValue() any {
 	return reflect.New(d.objType).Interface()
 }
 
-func (d *DynamicTabler) New() *DynamicTabler {
-	return &DynamicTabler{
+func (d *DynamicTablerImpl) New() DynamicTabler {
+	return &DynamicTablerImpl{
 		objType: d.objType,
 		wrapped: d.NewValue(),
 		table:   d.table,
 	}
 }
 
-func (d *DynamicTabler) NewSlice() *DynamicTabler {
+func (d *DynamicTablerImpl) NewSlice() DynamicTabler {
 	sliceType := reflect.SliceOf(d.objType)
-	return &DynamicTabler{
+	return &DynamicTablerImpl{
 		objType: sliceType,
 		wrapped: reflect.New(sliceType).Interface(),
 		table:   d.table,
 	}
 }
 
-func (d *DynamicTabler) From(src any) errors.Error {
+func (d *DynamicTablerImpl) From(src any) errors.Error {
 	b, err := json.Marshal(src)
 	if err != nil {
 		return errors.Convert(err)
@@ -71,7 +86,7 @@ func (d *DynamicTabler) From(src any) errors.Error {
 	return errors.Convert(json.Unmarshal(b, d.wrapped))
 }
 
-func (d *DynamicTabler) To(target any) errors.Error {
+func (d *DynamicTablerImpl) To(target any) errors.Error {
 	b, err := json.Marshal(d.wrapped)
 	if err != nil {
 		return errors.Convert(err)
@@ -79,19 +94,15 @@ func (d *DynamicTabler) To(target any) errors.Error {
 	return errors.Convert(json.Unmarshal(b, target))
 }
 
-func (d *DynamicTabler) Set(x any) {
-	d.wrapped = x
-}
-
-func (d *DynamicTabler) Unwrap() any {
+func (d *DynamicTablerImpl) Unwrap() any {
 	return d.wrapped
 }
 
-func (d *DynamicTabler) UnwrapPtr() *any {
+func (d *DynamicTablerImpl) UnwrapPtr() *any {
 	return &d.wrapped
 }
 
-func (d *DynamicTabler) UnwrapSlice() []any {
+func (d *DynamicTablerImpl) UnwrapSlice() []any {
 	var arr []any
 	slice := reflect.ValueOf(d.wrapped).Elem()
 	for i := 0; i < slice.Len(); i++ {
@@ -100,16 +111,73 @@ func (d *DynamicTabler) UnwrapSlice() []any {
 	return arr
 }
 
-func (d *DynamicTabler) TableName() string {
+func (d *DynamicTablerImpl) TableName() string {
 	return d.table
 }
 
-var _ dal.Tabler = (*DynamicTabler)(nil)
+func (d *DynamicTablerImpl) MarshalJSON() ([]byte, error) {
+	return json.Marshal(d.wrapped)
+}
+
+func (d *DynamicTablerImpl) UnmarshalJSON(b []byte) error {
+	// Insert the string directly into the Data member
+	return json.Unmarshal(b, &d.wrapped)
+}
+
+var _ DynamicTabler = (*DynamicTablerImpl)(nil)
 
 // UnwrapObject if the actual object is wrapped in some proxy, it unwinds and returns it, otherwise this is idempotent
 func UnwrapObject(ifc any) any {
-	if dynamic, ok := ifc.(*DynamicTabler); ok {
+	if dynamic, ok := ifc.(DynamicTabler); ok {
 		return dynamic.Unwrap()
 	}
 	return ifc
+}
+
+// DumpInfo Useful function for debugging purposes - to see what's in the struct at runtime
+func DumpInfo(tbl DynamicTabler) map[string]any {
+	typ := reflect.TypeOf(tbl.Unwrap())
+	type typeInfo struct {
+		Type string
+		Tags string
+	}
+	var fn func(t reflect.Type) map[string]any
+	fn = func(t reflect.Type) map[string]any {
+		infoMap := map[string]any{}
+		if t.Kind() == reflect.Pointer {
+			t = t.Elem()
+		}
+		if t.Kind() != reflect.Struct {
+			return infoMap
+		}
+		for i := 0; i < t.NumField(); i++ {
+			f := t.Field(i)
+			if f.Anonymous {
+				subMap := fn(f.Type)
+				infoMap[f.Name] = subMap
+			} else {
+				if t.Kind() == reflect.Pointer {
+					t = t.Elem()
+				}
+				if t.Kind() == reflect.Struct {
+					subMap := fn(f.Type)
+					if len(subMap) == 0 {
+						infoMap[f.Name] = typeInfo{
+							Type: f.Type.Name(),
+							Tags: string(f.Tag),
+						}
+					} else {
+						infoMap[f.Name] = subMap
+					}
+				} else {
+					infoMap[f.Name] = typeInfo{
+						Type: f.Type.Name(),
+						Tags: string(f.Tag),
+					}
+				}
+			}
+		}
+		return infoMap
+	}
+	return fn(typ)
 }

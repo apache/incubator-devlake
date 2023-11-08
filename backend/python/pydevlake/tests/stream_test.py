@@ -20,7 +20,7 @@ import pytest
 from sqlmodel import SQLModel, Session, Field, create_engine
 
 from pydevlake import Stream, Connection, Context, DomainType
-from pydevlake.model import ToolModel, DomainModel, ToolScope
+from pydevlake.model import ScopeConfig, ToolModel, DomainModel, ToolScope, raw_data_params
 
 
 class DummyToolModel(ToolModel, table=True):
@@ -88,6 +88,7 @@ def ctx(connection, scope, engine):
         engine=engine,
         scope=scope,
         connection=connection,
+        scope_config=ScopeConfig(),
         options={}
     )
 
@@ -111,7 +112,7 @@ def test_extract_data(stream, raw_data, ctx):
     with Session(ctx.engine) as session:
         for each in raw_data:
             raw_model = stream.raw_model(session)
-            raw_model.params = json.dumps({"connection_id": ctx.connection.id, "scope_id": ctx.scope.id}, separators=(',', ':'))
+            raw_model.params = raw_data_params(ctx.connection.id, ctx.scope.id)
             session.add(raw_model(data=json.dumps(each)))
         session.commit()
 
@@ -137,7 +138,7 @@ def test_convert_data(stream, raw_data, ctx):
                     connection_id=ctx.connection.id,
                     name=each["n"],
                     raw_data_table="_raw_dummy_model",
-                    raw_data_params=json.dumps({"connection_id": ctx.connection.id, "scope_id": ctx.scope.id}, separators=(',', ':'))
+                    raw_data_params=raw_data_params(ctx.connection.id, ctx.scope.id)
                 )
             )
         session.commit()

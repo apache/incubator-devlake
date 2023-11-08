@@ -20,14 +20,14 @@ package migrationscripts
 import (
 	"github.com/apache/incubator-devlake/core/context"
 	"github.com/apache/incubator-devlake/core/errors"
-	"github.com/apache/incubator-devlake/core/models/common"
+	"github.com/apache/incubator-devlake/core/models/migrationscripts/archived"
 	"github.com/apache/incubator-devlake/core/plugin"
 )
 
 var _ plugin.MigrationScript = (*addRepoSnapshot)(nil)
 
 type repoSnapshot20220918 struct {
-	common.NoPKModel
+	archived.NoPKModel
 	RepoId    string `gorm:"primaryKey;type:varchar(255)"`
 	CommitSha string `gorm:"primaryKey;type:varchar(40);"`
 	FilePath  string `gorm:"primaryKey;type:varchar(255);"`

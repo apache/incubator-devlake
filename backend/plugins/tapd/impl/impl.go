@@ -24,6 +24,7 @@ import (
 	"github.com/apache/incubator-devlake/core/context"
 	"github.com/apache/incubator-devlake/core/dal"
 	"github.com/apache/incubator-devlake/core/errors"
+	coreModels "github.com/apache/incubator-devlake/core/models"
 	"github.com/apache/incubator-devlake/core/plugin"
 	helper "github.com/apache/incubator-devlake/helpers/pluginhelper/api"
 	"github.com/apache/incubator-devlake/plugins/tapd/api"
@@ -32,19 +33,35 @@ import (
 	"github.com/apache/incubator-devlake/plugins/tapd/tasks"
 )
 
-var _ plugin.PluginMeta = (*Tapd)(nil)
-var _ plugin.PluginInit = (*Tapd)(nil)
-var _ plugin.PluginTask = (*Tapd)(nil)
-var _ plugin.PluginApi = (*Tapd)(nil)
-var _ plugin.PluginModel = (*Tapd)(nil)
-var _ plugin.PluginMigration = (*Tapd)(nil)
-var _ plugin.CloseablePluginTask = (*Tapd)(nil)
+var _ interface {
+	plugin.PluginMeta
+	plugin.PluginInit
+	plugin.PluginTask
+	plugin.PluginApi
+	plugin.PluginModel
+	plugin.PluginMigration
+	plugin.CloseablePluginTask
+	plugin.PluginSource
+} = (*Tapd)(nil)
 
 type Tapd struct{}
 
 func (p Tapd) Init(basicRes context.BasicRes) errors.Error {
-	api.Init(basicRes)
+	api.Init(basicRes, p)
+
 	return nil
+}
+
+func (p Tapd) Connection() dal.Tabler {
+	return &models.TapdConnection{}
+}
+
+func (p Tapd) Scope() plugin.ToolLayerScope {
+	return &models.TapdWorkspace{}
+}
+
+func (p Tapd) ScopeConfig() dal.Tabler {
+	return &models.TapdScopeConfig{}
 }
 
 func (p Tapd) GetTablesInfo() []dal.Tabler {
@@ -86,11 +103,17 @@ func (p Tapd) GetTablesInfo() []dal.Tabler {
 		&models.TapdStoryCustomFieldValue{},
 		&models.TapdTaskCustomFieldValue{},
 		&models.TapdBugCustomFieldValue{},
+		&models.TapdScopeConfig{},
+		&models.TapdWorkitemType{},
 	}
 }
 
 func (p Tapd) Description() string {
 	return "To collect and enrich data from Tapd"
+}
+
+func (p Tapd) Name() string {
+	return "tapd"
 }
 
 func (p Tapd) SubTaskMetas() []plugin.SubTaskMeta {
@@ -172,6 +195,7 @@ func (p Tapd) PrepareTaskData(taskCtx plugin.TaskContext, options map[string]int
 	connectionHelper := helper.NewConnectionHelper(
 		taskCtx,
 		nil,
+		p.Name(),
 	)
 	err = connectionHelper.FirstById(connection, op.ConnectionId)
 	if err != nil {
@@ -212,14 +236,9 @@ func (p Tapd) PrepareTaskData(taskCtx plugin.TaskContext, options map[string]int
 	}
 
 	if op.ScopeConfig == nil && op.ScopeConfigId != 0 {
-		var scopeConfig models.TapdScopeConfig
-		err = taskCtx.GetDal().First(&scopeConfig, dal.Where("id = ?", op.ScopeConfigId))
+		err = taskCtx.GetDal().First(&op.ScopeConfig, dal.Where("id = ?", op.ScopeConfigId))
 		if err != nil && taskCtx.GetDal().IsErrorNotFound(err) {
 			return nil, errors.BadInput.Wrap(err, "fail to get scopeConfig")
-		}
-		op.ScopeConfig, err = tasks.MakeScopeConfigs(scopeConfig)
-		if err != nil {
-			return nil, errors.BadInput.Wrap(err, "fail to make scopeConfig")
 		}
 	}
 
@@ -236,20 +255,14 @@ func (p Tapd) PrepareTaskData(taskCtx plugin.TaskContext, options map[string]int
 		ApiClient:  tapdApiClient,
 		Connection: connection,
 	}
-	if op.TimeAfter != "" {
-		var timeAfter time.Time
-		timeAfter, err = errors.Convert01(time.Parse(time.RFC3339, op.TimeAfter))
-		if err != nil {
-			return nil, errors.BadInput.Wrap(err, "invalid value for `timeAfter`")
-		}
-		taskData.TimeAfter = &timeAfter
-		logger.Debug("collect data updated timeAfter %s", timeAfter)
-	}
 	return taskData, nil
 }
 
-func (p Tapd) MakeDataSourcePipelinePlanV200(connectionId uint64, scopes []*plugin.BlueprintScopeV200, syncPolicy plugin.BlueprintSyncPolicy) (pp plugin.PipelinePlan, sc []plugin.Scope, err errors.Error) {
-	return api.MakeDataSourcePipelinePlanV200(p.SubTaskMetas(), connectionId, scopes, &syncPolicy)
+func (p Tapd) MakeDataSourcePipelinePlanV200(
+	connectionId uint64,
+	scopes []*coreModels.BlueprintScope,
+) (pp coreModels.PipelinePlan, sc []plugin.Scope, err errors.Error) {
+	return api.MakeDataSourcePipelinePlanV200(p.SubTaskMetas(), connectionId, scopes)
 }
 
 func (p Tapd) RootPkgPath() string {
@@ -297,8 +310,9 @@ func (p Tapd) ApiResources() map[string]map[string]plugin.ApiResourceHandler {
 			"GET":  api.GetScopeConfigList,
 		},
 		"connections/:connectionId/scope-configs/:id": {
-			"PATCH": api.UpdateScopeConfig,
-			"GET":   api.GetScopeConfig,
+			"PATCH":  api.UpdateScopeConfig,
+			"GET":    api.GetScopeConfig,
+			"DELETE": api.DeleteScopeConfig,
 		},
 	}
 }

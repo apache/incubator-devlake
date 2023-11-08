@@ -38,7 +38,7 @@ var CollectApiPullRequestsMeta = plugin.SubTaskMeta{
 
 func CollectApiPullRequests(taskCtx plugin.SubTaskContext) errors.Error {
 	rawDataSubTaskArgs, data := CreateRawDataSubTaskArgs(taskCtx, RAW_PULL_REQUEST_TABLE)
-	collectorWithState, err := helper.NewStatefulApiCollector(*rawDataSubTaskArgs, data.TimeAfter)
+	collectorWithState, err := helper.NewStatefulApiCollector(*rawDataSubTaskArgs)
 	if err != nil {
 		return err
 	}
@@ -46,7 +46,6 @@ func CollectApiPullRequests(taskCtx plugin.SubTaskContext) errors.Error {
 	err = collectorWithState.InitCollector(helper.ApiCollectorArgs{
 		ApiClient:   data.ApiClient,
 		PageSize:    50,
-		Incremental: collectorWithState.IsIncremental(),
 		UrlTemplate: "repositories/{{ .Params.FullName }}/pullrequests",
 		Query: GetQueryCreatedAndUpdated(
 			`values.id,values.comment_count,values.type,values.state,values.title,values.description,`+

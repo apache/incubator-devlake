@@ -24,16 +24,13 @@ import (
 	"net/url"
 	"regexp"
 	"sort"
-	"strconv"
 	"strings"
 
-	"github.com/apache/incubator-devlake/core/dal"
 	"github.com/apache/incubator-devlake/core/errors"
+	"github.com/apache/incubator-devlake/core/models/common"
 	"github.com/apache/incubator-devlake/core/plugin"
 	"github.com/apache/incubator-devlake/helpers/pluginhelper/api"
 	"github.com/apache/incubator-devlake/plugins/jira/models"
-	"github.com/apache/incubator-devlake/plugins/jira/tasks"
-	"github.com/mitchellh/mapstructure"
 )
 
 type genRegexReq struct {
@@ -61,22 +58,12 @@ type repo struct {
 // @Tags plugins/jira
 // @Accept application/json
 // @Param connectionId path int true "connectionId"
-// @Param scopeConfig body tasks.JiraScopeConfig true "scope config"
-// @Success 200  {object} tasks.JiraScopeConfig
+// @Param scopeConfig body models.JiraScopeConfig true "scope config"
+// @Success 200  {object} models.JiraScopeConfig
 // @Failure 400  {object} shared.ApiBody "Bad Request"
 // @Failure 500  {object} shared.ApiBody "Internal Error"
 // @Router /plugins/jira/connections/{connectionId}/scope-configs [POST]
 func CreateScopeConfig(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, errors.Error) {
-	rule, err := makeDbScopeConfigFromInput(input)
-	if err != nil {
-		return nil, errors.BadInput.Wrap(err, "error in makeJiraScopeConfig")
-	}
-	newRule := map[string]interface{}{}
-	err = errors.Convert(mapstructure.Decode(rule, &newRule))
-	if err != nil {
-		return nil, errors.BadInput.Wrap(err, "error in makeJiraScopeConfig")
-	}
-	input.Body = newRule
 	return scHelper.Create(input)
 }
 
@@ -87,65 +74,13 @@ func CreateScopeConfig(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutpu
 // @Accept application/json
 // @Param id path int true "id"
 // @Param connectionId path int true "connectionId"
-// @Param scopeConfig body tasks.JiraScopeConfig true "scope config"
-// @Success 200  {object} tasks.JiraScopeConfig
+// @Param scopeConfig body models.JiraScopeConfig true "scope config"
+// @Success 200  {object} models.JiraScopeConfig
 // @Failure 400  {object} shared.ApiBody "Bad Request"
 // @Failure 500  {object} shared.ApiBody "Internal Error"
 // @Router /plugins/jira/connections/{connectionId}/scope-configs/{id} [PATCH]
 func UpdateScopeConfig(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, errors.Error) {
-	connectionId, e := strconv.ParseUint(input.Params["connectionId"], 10, 64)
-	if e != nil || connectionId == 0 {
-		return nil, errors.Default.Wrap(e, "the connection ID should be an non-zero integer")
-	}
-	scopeConfigId, e := strconv.ParseUint(input.Params["id"], 10, 64)
-	if e != nil {
-		return nil, errors.Default.Wrap(e, "the scope config ID should be an integer")
-	}
-	var req tasks.JiraScopeConfig
-	err := api.Decode(input.Body, &req, vld)
-	if err != nil {
-		return nil, err
-	}
-	var oldDB models.JiraScopeConfig
-	err = basicRes.GetDal().First(&oldDB, dal.Where("id = ?", scopeConfigId))
-	if err != nil {
-		return nil, errors.Default.Wrap(err, "error on getting ScopeConfig")
-	}
-	oldTr, err := tasks.MakeScopeConfig(oldDB)
-	if err != nil {
-		return nil, err
-	}
-	err = api.DecodeMapStruct(input.Body, oldTr, true)
-	if err != nil {
-		return nil, err
-	}
-
-	newDB, err := oldTr.ToDb()
-	if err != nil {
-		return nil, err
-	}
-	newDB.ID = scopeConfigId
-	newDB.ConnectionId = connectionId
-	newDB.CreatedAt = oldDB.CreatedAt
-	err = basicRes.GetDal().Update(newDB)
-	if err != nil {
-		return nil, err
-	}
-	return &plugin.ApiResourceOutput{Body: newDB, Status: http.StatusOK}, err
-}
-
-func makeDbScopeConfigFromInput(input *plugin.ApiResourceInput) (*models.JiraScopeConfig, errors.Error) {
-	connectionId, e := strconv.ParseUint(input.Params["connectionId"], 10, 64)
-	if e != nil || connectionId == 0 {
-		return nil, errors.Default.Wrap(e, "the connection ID should be an non-zero integer")
-	}
-	var req tasks.JiraScopeConfig
-	err := api.Decode(input.Body, &req, vld)
-	if err != nil {
-		return nil, err
-	}
-	req.ConnectionId = connectionId
-	return req.ToDb()
+	return scHelper.Update(input)
 }
 
 // GetScopeConfig return one scope config
@@ -154,7 +89,7 @@ func makeDbScopeConfigFromInput(input *plugin.ApiResourceInput) (*models.JiraSco
 // @Tags plugins/jira
 // @Param id path int true "id"
 // @Param connectionId path int true "connectionId"
-// @Success 200  {object} tasks.JiraScopeConfig
+// @Success 200  {object} models.JiraScopeConfig
 // @Failure 400  {object} shared.ApiBody "Bad Request"
 // @Failure 500  {object} shared.ApiBody "Internal Error"
 // @Router /plugins/jira/connections/{connectionId}/scope-configs/{id} [GET]
@@ -169,12 +104,26 @@ func GetScopeConfig(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, 
 // @Param connectionId path int true "connectionId"
 // @Param pageSize query int false "page size, default 50"
 // @Param page query int false "page size, default 1"
-// @Success 200  {object} []tasks.JiraScopeConfig
+// @Success 200  {object} []models.JiraScopeConfig
 // @Failure 400  {object} shared.ApiBody "Bad Request"
 // @Failure 500  {object} shared.ApiBody "Internal Error"
 // @Router /plugins/jira/connections/{connectionId}/scope-configs [GET]
 func GetScopeConfigList(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, errors.Error) {
 	return scHelper.List(input)
+}
+
+// DeleteScopeConfig delete a scope config
+// @Summary delete a scope config
+// @Description delete a scope config
+// @Tags plugins/jira
+// @Param id path int true "id"
+// @Param connectionId path int true "connectionId"
+// @Success 200
+// @Failure 400  {object} shared.ApiBody "Bad Request"
+// @Failure 500  {object} shared.ApiBody "Internal Error"
+// @Router /plugins/jira/connections/{connectionId}/scope-configs/{id} [DELETE]
+func DeleteScopeConfig(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, errors.Error) {
+	return scHelper.Delete(input)
 }
 
 // GetApplicationTypes return issue application types
@@ -296,10 +245,10 @@ func GetCommitsURLs(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, 
 		return nil, err
 	}
 	type commit struct {
-		ID              string          `json:"id"`
-		DisplayID       string          `json:"displayId"`
-		AuthorTimestamp api.Iso8601Time `json:"authorTimestamp"`
-		URL             string          `json:"url"`
+		ID              string             `json:"id"`
+		DisplayID       string             `json:"displayId"`
+		AuthorTimestamp common.Iso8601Time `json:"authorTimestamp"`
+		URL             string             `json:"url"`
 	}
 	var detail struct {
 		Detail []struct {

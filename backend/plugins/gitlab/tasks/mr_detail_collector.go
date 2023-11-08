@@ -44,7 +44,7 @@ var CollectApiMergeRequestDetailsMeta = plugin.SubTaskMeta{
 
 func CollectApiMergeRequestDetails(taskCtx plugin.SubTaskContext) errors.Error {
 	rawDataSubTaskArgs, data := CreateRawDataSubTaskArgs(taskCtx, RAW_MERGE_REQUEST_DETAIL_TABLE)
-	collectorWithState, err := helper.NewStatefulApiCollector(*rawDataSubTaskArgs, data.TimeAfter)
+	collectorWithState, err := helper.NewStatefulApiCollector(*rawDataSubTaskArgs)
 	if err != nil {
 		return err
 	}
@@ -65,6 +65,7 @@ func CollectApiMergeRequestDetails(taskCtx plugin.SubTaskContext) errors.Error {
 			return query, nil
 		},
 		ResponseParser: GetOneRawMessageFromResponse,
+		AfterResponse:  ignoreHTTPStatus404,
 	})
 	if err != nil {
 		return err
@@ -84,11 +85,10 @@ func GetMergeRequestDetailsIterator(taskCtx plugin.SubTaskContext, collectorWith
 			data.Options.ProjectId, data.Options.ConnectionId, true,
 		),
 	}
-	if collectorWithState.LatestState.LatestSuccessStart != nil {
-		clauses = append(clauses, dal.Where("gitlab_updated_at > ?", *collectorWithState.LatestState.LatestSuccessStart))
-	} else if collectorWithState.TimeAfter != nil {
-		clauses = append(clauses, dal.Where("gitlab_updated_at > ?", *collectorWithState.TimeAfter))
+	if collectorWithState.Since != nil {
+		clauses = append(clauses, dal.Where("gitlab_updated_at > ?", *collectorWithState.Since))
 	}
+
 	// construct the input iterator
 	cursor, err := db.Cursor(clauses...)
 	if err != nil {

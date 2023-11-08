@@ -25,7 +25,7 @@ import { FromEnum } from '../types';
 import { BlueprintDetail } from './blueprint-detail';
 
 export const BlueprintDetailPage = () => {
-  const { id } = useParams<{ id: string }>();
+  const { id } = useParams() as { id: string };
 
   return (
     <PageHeader

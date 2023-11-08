@@ -1,0 +1,17 @@
+connection_id,issue_id,inward_issue_id,outward_issue_id,issue_key,type_id,type_name,inward,outward,inward_issue_key,outward_issue_key
+2,10802,10806,0,DZFNK0168-1,10000,Blocks,is blocked by,blocks,DZFNK0168-5,
+2,10803,0,10823,DZFNK0168-2,10000,Blocks,is blocked by,blocks,,DZFNK0168-22
+2,10805,0,10812,DZFNK0168-4,10001,Cloners,is cloned by,clones,,DZFNK0168-11
+2,10806,0,10802,DZFNK0168-5,10000,Blocks,is blocked by,blocks,,DZFNK0168-1
+2,10806,10812,0,DZFNK0168-5,10002,Duplicate,is duplicated by,duplicates,DZFNK0168-11,
+2,10812,0,10806,DZFNK0168-11,10002,Duplicate,is duplicated by,duplicates,,DZFNK0168-5
+2,10812,10805,0,DZFNK0168-11,10001,Cloners,is cloned by,clones,DZFNK0168-4,
+2,10812,116583,0,DZFNK0168-11,10002,Duplicate,is duplicated by,duplicates,IP8CUD168-35305,
+2,10815,0,116566,DZFNK0168-14,10002,Duplicate,is duplicated by,duplicates,,IP8CUD168-35288
+2,10817,111957,0,DZFNK0168-16,10001,Cloners,is cloned by,clones,M2VRIQ168-12985,
+2,10818,0,111900,DZFNK0168-17,10001,Cloners,is cloned by,clones,,M2VRIQ168-12954
+2,10820,0,10822,DZFNK0168-19,10003,Relates,relates to,relates to,,DZFNK0168-21
+2,10821,0,116582,DZFNK0168-20,10000,Blocks,is blocked by,blocks,,IP8CUD168-35304
+2,10821,116684,0,DZFNK0168-20,10000,Blocks,is blocked by,blocks,IP8CUD168-35406,
+2,10822,10820,0,DZFNK0168-21,10003,Relates,relates to,relates to,DZFNK0168-19,
+2,10823,10803,0,DZFNK0168-22,10000,Blocks,is blocked by,blocks,DZFNK0168-2,

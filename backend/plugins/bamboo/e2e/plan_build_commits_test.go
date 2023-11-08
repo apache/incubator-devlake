@@ -20,6 +20,7 @@ package e2e
 import (
 	"testing"
 
+	"github.com/apache/incubator-devlake/core/models/common"
 	"github.com/apache/incubator-devlake/core/models/domainlayer/devops"
 	"github.com/apache/incubator-devlake/helpers/e2ehelper"
 	"github.com/apache/incubator-devlake/plugins/bamboo/impl"
@@ -34,13 +35,14 @@ func TestBambooPlanBuildCommitsDataFlow(t *testing.T) {
 
 	taskData := &tasks.BambooTaskData{
 		Options: &models.BambooOptions{
-			ConnectionId: 3,
-			ProjectKey:   "TEST1",
+			ConnectionId: 1,
+			PlanKey:      "TEST-PLA2",
 			BambooScopeConfig: &models.BambooScopeConfig{
 				DeploymentPattern: "(?i)compile",
 				ProductionPattern: "(?i)compile",
 			},
 		},
+		ApiClient: getFakeAPIClient(),
 	}
 	dataflowTester.ImportCsvIntoTabler("./snapshot_tables/_tool_bamboo_plan_build_commits.csv", &models.BambooPlanBuildVcsRevision{})
 	dataflowTester.ImportCsvIntoTabler("./snapshot_tables/_tool_bamboo_plan_builds.csv", &models.BambooPlanBuild{})
@@ -48,15 +50,11 @@ func TestBambooPlanBuildCommitsDataFlow(t *testing.T) {
 	// verify extraction
 	dataflowTester.FlushTabler(&devops.CiCDPipelineCommit{})
 	dataflowTester.Subtask(tasks.ConvertPlanVcsMeta, taskData)
-	dataflowTester.VerifyTable(
+	dataflowTester.VerifyTableWithOptions(
 		devops.CiCDPipelineCommit{},
-		"./snapshot_tables/cicd_pipeline_commits.csv",
-		e2ehelper.ColumnWithRawData(
-			"pipeline_id",
-			"commit_sha",
-			"branch",
-			"repo_id",
-			"repo_url",
-		),
+		e2ehelper.TableOptions{
+			CSVRelPath:  "./snapshot_tables/cicd_pipeline_commits.csv",
+			IgnoreTypes: []interface{}{common.NoPKModel{}},
+		},
 	)
 }

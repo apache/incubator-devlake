@@ -20,6 +20,7 @@ import { useState, useEffect, useMemo } from 'react';
 import { omit } from 'lodash';
 import { InputGroup, Button, Intent } from '@blueprintjs/core';
 
+import API from '@/api';
 import { Alert, ExternalLink, Card, FormItem, MultiSelector, Message, Buttons, Divider } from '@/components';
 import { transformEntities, EntitiesLabel } from '@/config';
 import { getPluginConfig } from '@/plugins';
@@ -30,11 +31,11 @@ import { JenkinsTransformation } from '@/plugins/register/jenkins';
 import { BitbucketTransformation } from '@/plugins/register/bitbucket';
 import { AzureTransformation } from '@/plugins/register/azure';
 import { TapdTransformation } from '@/plugins/register/tapd';
+import { BambooTransformation } from '@/plugins/register/bamboo';
 import { operator } from '@/utils';
 
 import { AdditionalSettings } from './fields';
 import { TIPS_MAP } from './misc';
-import * as API from './api';
 import * as S from './styled';
 
 interface Props {
@@ -61,12 +62,14 @@ export const ScopeConfigForm = ({
   const [entities, setEntities] = useState<string[]>([]);
   const [transformation, setTransformation] = useState<any>({});
   const [hasRefDiff, setHasRefDiff] = useState(false);
+  const [hasError, setHasError] = useState(false);
   const [operating, setOperating] = useState(false);
 
   const config = useMemo(() => getPluginConfig(plugin), []);
 
   useEffect(() => {
     setHasRefDiff(!!config.scopeConfig?.transformation.refdiff);
+    setTransformation(config.scopeConfig?.transformation ?? {});
   }, [config.scopeConfig?.transformation]);
 
   useEffect(() => {
@@ -78,9 +81,9 @@ export const ScopeConfigForm = ({
 
     (async () => {
       try {
-        const res = await API.getScopeConfig(plugin, connectionId, scopeConfigId);
+        const res = await API.scopeConfig.get(plugin, connectionId, scopeConfigId);
         setName(res.name);
-        setEntities(res.entities);
+        setEntities(res.entities ?? []);
         setTransformation(omit(res, ['id', 'connectionId', 'name', 'entities', 'createdAt', 'updatedAt']));
       } catch {}
     })();
@@ -98,8 +101,8 @@ export const ScopeConfigForm = ({
     const [success, res] = await operator(
       () =>
         !scopeConfigId
-          ? API.createScopeConfig(plugin, connectionId, { name, entities, ...transformation })
-          : API.updateScopeConfig(plugin, connectionId, scopeConfigId, { name, entities, ...transformation }),
+          ? API.scopeConfig.create(plugin, connectionId, { name, entities, ...transformation })
+          : API.scopeConfig.update(plugin, connectionId, scopeConfigId, { name, entities, ...transformation }),
       {
         setOperating,
         formatMessage: () => (!scopeConfigId ? 'Create scope config successful.' : 'Update scope config successful'),
@@ -170,14 +173,14 @@ export const ScopeConfigForm = ({
       )}
       {step === 2 && (
         <>
-          <Card>
+          <Card style={{ margin: 0 }}>
             <h1 style={{ marginBottom: 16 }}>Transformations</h1>
-
+            <Divider />
             {showWarning && (
-              <>
-                <Message content="Please note: if you only edit the following Scope Configs without editing Data Entities in the previous step, you will only need to re-transform data on the Project page to see the Dashboard updated." />
-                <Divider />
-              </>
+              <Message
+                style={{ marginBottom: 16 }}
+                content="Please note: if you only edit the following Scope Configs without editing Data Entities in the previous step, you will only need to re-transform data on the Project page to see the Dashboard updated."
+              />
             )}
 
             {plugin === 'github' && (
@@ -185,6 +188,7 @@ export const ScopeConfigForm = ({
                 entities={entities}
                 transformation={transformation}
                 setTransformation={setTransformation}
+                setHasError={setHasError}
               />
             )}
 
@@ -202,6 +206,7 @@ export const ScopeConfigForm = ({
                 entities={entities}
                 transformation={transformation}
                 setTransformation={setTransformation}
+                setHasError={setHasError}
               />
             )}
 
@@ -239,11 +244,25 @@ export const ScopeConfigForm = ({
               />
             )}
 
+            {plugin === 'bamboo' && (
+              <BambooTransformation
+                entities={entities}
+                transformation={transformation}
+                setTransformation={setTransformation}
+              />
+            )}
+
             {hasRefDiff && <AdditionalSettings transformation={transformation} setTransformation={setTransformation} />}
           </Card>
           <Buttons position="bottom" align="right">
             <Button outlined intent={Intent.PRIMARY} text="Prev" onClick={handlePrevStep} />
-            <Button loading={operating} intent={Intent.PRIMARY} text="Save" onClick={handleSubmit} />
+            <Button
+              loading={operating}
+              disabled={hasError}
+              intent={Intent.PRIMARY}
+              text="Save"
+              onClick={handleSubmit}
+            />
           </Buttons>
         </>
       )}

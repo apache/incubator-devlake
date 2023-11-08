@@ -18,9 +18,10 @@ limitations under the License.
 package apiv2models
 
 import (
-	helper "github.com/apache/incubator-devlake/helpers/pluginhelper/api"
-	"github.com/apache/incubator-devlake/plugins/jira/models"
 	"time"
+
+	"github.com/apache/incubator-devlake/core/models/common"
+	"github.com/apache/incubator-devlake/plugins/jira/models"
 )
 
 type Worklog struct {
@@ -29,8 +30,8 @@ type Worklog struct {
 	UpdateAuthor     *Account           `json:"updateAuthor"`
 	Comment          string             `json:"comment"`
 	Created          string             `json:"created"`
-	Updated          helper.Iso8601Time `json:"updated"`
-	Started          helper.Iso8601Time `json:"started"`
+	Updated          common.Iso8601Time `json:"updated"`
+	Started          common.Iso8601Time `json:"started"`
 	TimeSpent        string             `json:"timeSpent"`
 	TimeSpentSeconds int                `json:"timeSpentSeconds"`
 	ID               string             `json:"id"`

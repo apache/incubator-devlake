@@ -19,7 +19,6 @@ package models
 
 import (
 	"github.com/apache/incubator-devlake/core/models/common"
-	"github.com/apache/incubator-devlake/helpers/pluginhelper/api"
 )
 
 type TeambitionProject struct {
@@ -35,10 +34,10 @@ type TeambitionProject struct {
 	IsArchived     bool                           `json:"isArchived"`
 	IsSuspended    bool                           `json:"isSuspended"`
 	UniqueIdPrefix string                         `gorm:"type:varchar(255)" json:"uniqueIdPrefix"`
-	Created        *api.Iso8601Time               `json:"created"`
-	Updated        *api.Iso8601Time               `json:"updated"`
-	StartDate      *api.Iso8601Time               `json:"startDate"`
-	EndDate        *api.Iso8601Time               `json:"endDate"`
+	Created        *common.Iso8601Time            `json:"created"`
+	Updated        *common.Iso8601Time            `json:"updated"`
+	StartDate      *common.Iso8601Time            `json:"startDate"`
+	EndDate        *common.Iso8601Time            `json:"endDate"`
 	Customfields   []TeambitionProjectCustomField `gorm:"serializer:json;type:text" json:"customfields"`
 
 	common.NoPKModel

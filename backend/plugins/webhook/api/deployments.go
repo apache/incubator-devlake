@@ -20,6 +20,7 @@ package api
 import (
 	"crypto/md5"
 	"fmt"
+	"github.com/apache/incubator-devlake/helpers/dbhelper"
 	"net/http"
 	"time"
 
@@ -81,7 +82,9 @@ func PostDeploymentCicdTask(input *plugin.ApiResourceInput) (*plugin.ApiResource
 	if err != nil {
 		return nil, errors.BadInput.Wrap(vld.Struct(request), `input json error`)
 	}
-	db := basicRes.GetDal()
+	txHelper := dbhelper.NewTxHelper(basicRes, &err)
+	defer txHelper.End()
+	tx := txHelper.Begin()
 	urlHash16 := fmt.Sprintf("%x", md5.Sum([]byte(request.RepoUrl)))[:16]
 	scopeId := fmt.Sprintf("%s:%d", "webhook", connection.ID)
 	deploymentCommitId := fmt.Sprintf("%s:%d:%s:%s", "webhook", connection.ID, urlHash16, request.CommitSha)
@@ -100,7 +103,7 @@ func PostDeploymentCicdTask(input *plugin.ApiResourceInput) (*plugin.ApiResource
 		request.FinishedDate = &now
 	}
 	if request.Result == "" {
-		request.Result = devops.SUCCESS
+		request.Result = devops.RESULT_SUCCESS
 	}
 	duration := uint64(request.FinishedDate.Sub(*request.StartedDate).Seconds())
 
@@ -113,7 +116,7 @@ func PostDeploymentCicdTask(input *plugin.ApiResourceInput) (*plugin.ApiResource
 		CicdScopeId:      scopeId,
 		Name:             fmt.Sprintf(`deployment for %s`, request.CommitSha),
 		Result:           request.Result,
-		Status:           devops.DONE,
+		Status:           devops.STATUS_DONE,
 		Environment:      request.Environment,
 		CreatedDate:      *request.CreatedDate,
 		StartedDate:      request.StartedDate,
@@ -124,12 +127,17 @@ func PostDeploymentCicdTask(input *plugin.ApiResourceInput) (*plugin.ApiResource
 		RepoId:           request.RepoId,
 		RepoUrl:          request.RepoUrl,
 	}
-	err = db.CreateOrUpdate(deploymentCommit)
+	err = tx.CreateOrUpdate(deploymentCommit)
 	if err != nil {
+		logger.Error(err, "create deployment commit")
 		return nil, err
 	}
 
-	// TODO: create a deployment record when the table is ready
+	// create a deployment record
+	if err = tx.CreateOrUpdate(deploymentCommit.ToDeployment()); err != nil {
+		logger.Error(err, "create deployment")
+		return nil, err
+	}
 
 	return &plugin.ApiResourceOutput{Body: nil, Status: http.StatusOK}, nil
 }

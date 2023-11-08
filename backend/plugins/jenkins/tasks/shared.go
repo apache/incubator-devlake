@@ -23,6 +23,15 @@ import (
 	"net/http"
 )
 
+const (
+	SUCCESS   = "SUCCESS"
+	FAILURE   = "FAILURE"
+	FAILED    = "FAILED"
+	ABORTED   = "ABORTED"
+	NOT_BUILD = "NOT_BUILD"
+	UNSTABLE  = "UNSTABLE"
+)
+
 func ignoreHTTPStatus404(res *http.Response) errors.Error {
 	if res.StatusCode == http.StatusUnauthorized {
 		return errors.Unauthorized.New("authentication failed, please check your AccessToken")

@@ -41,5 +41,9 @@ func All() []plugin.MigrationScript {
 		new(addRepoUrl),
 		new(addApplicationType),
 		new(clearRepoPattern),
+		new(addRawParamTableForScope),
+		new(addIssueRelationship),
+		new(dropIssueAllFields),
+		new(modifyIssueRelationship),
 	}
 }

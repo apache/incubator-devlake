@@ -19,62 +19,36 @@ package api
 
 import (
 	"github.com/apache/incubator-devlake/core/plugin"
-	"strconv"
 
 	"github.com/apache/incubator-devlake/core/context"
-	"github.com/apache/incubator-devlake/core/dal"
-	"github.com/apache/incubator-devlake/core/errors"
 	"github.com/apache/incubator-devlake/helpers/pluginhelper/api"
 	"github.com/apache/incubator-devlake/plugins/github/models"
 	"github.com/go-playground/validator/v10"
 )
 
 var vld *validator.Validate
+
+var dsHelper *api.DsHelper[models.GithubConnection, models.GithubRepo, models.GithubScopeConfig]
 var connectionHelper *api.ConnectionApiHelper
-var scopeHelper *api.ScopeApiHelper[models.GithubConnection, models.GithubRepo, models.GithubScopeConfig]
 var basicRes context.BasicRes
-var scHelper *api.ScopeConfigHelper[models.GithubScopeConfig]
 var remoteHelper *api.RemoteApiHelper[models.GithubConnection, models.GithubRepo, repo, plugin.ApiGroup]
 
-func Init(br context.BasicRes) {
+func Init(br context.BasicRes, p plugin.PluginMeta) {
 	basicRes = br
+	dsHelper = api.NewDataSourceHelper[
+		models.GithubConnection,
+		models.GithubRepo, models.GithubScopeConfig,
+	](
+		br,
+		p.Name(),
+		[]string{"full_name"},
+	)
+	// TODO: refactor remoteHelper
 	vld = validator.New()
 	connectionHelper = api.NewConnectionHelper(
 		basicRes,
 		vld,
-	)
-	params := &api.ReflectionParameters{
-		ScopeIdFieldName:  "GithubId",
-		ScopeIdColumnName: "github_id",
-		RawScopeParamName: "Name",
-	}
-	scopeHelper = api.NewScopeHelper[models.GithubConnection, models.GithubRepo, models.GithubScopeConfig](
-		basicRes,
-		vld,
-		connectionHelper,
-		api.NewScopeDatabaseHelperImpl[models.GithubConnection, models.GithubRepo, models.GithubScopeConfig](
-			basicRes, connectionHelper, params),
-		params,
-		&api.ScopeHelperOptions{
-			GetScopeParamValue: func(db dal.Dal, scopeId string) (string, errors.Error) {
-				id, err := errors.Convert01(strconv.ParseInt(scopeId, 10, 64))
-				if err != nil {
-					return "", err
-				}
-				repo := models.GithubRepo{
-					GithubId: int(id),
-				}
-				err = db.First(&repo)
-				if err != nil {
-					return "", err
-				}
-				return repo.FullName, nil
-			},
-		},
-	)
-	scHelper = api.NewScopeConfigHelper[models.GithubScopeConfig](
-		basicRes,
-		vld,
+		p.Name(),
 	)
 	remoteHelper = api.NewRemoteHelper[models.GithubConnection, models.GithubRepo, repo, plugin.ApiGroup](
 		basicRes,

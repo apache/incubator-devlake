@@ -25,9 +25,14 @@ import (
 	"github.com/apache/incubator-devlake/plugins/gitextractor/parser"
 )
 
+type GitExtractorTaskData struct {
+	Options *GitExtractorOptions
+	GitRepo *parser.GitRepo
+}
+
 type GitExtractorOptions struct {
 	RepoId     string `json:"repoId"`
-	Name       string `jsno:"name"`
+	Name       string `json:"name"`
 	Url        string `json:"url"`
 	User       string `json:"user"`
 	Password   string `json:"password"`
@@ -99,11 +104,14 @@ func CollectGitDiffLines(subTaskCtx plugin.SubTaskContext) errors.Error {
 }
 
 func getGitRepo(subTaskCtx plugin.SubTaskContext) *parser.GitRepo {
-	repo, ok := subTaskCtx.GetData().(*parser.GitRepo)
+	taskData, ok := subTaskCtx.GetData().(*GitExtractorTaskData)
 	if !ok {
 		panic("git repo reference not found on context")
 	}
-	return repo
+	if taskData.GitRepo == nil {
+		panic("git repo is empty, please check subtask: clone repo")
+	}
+	return taskData.GitRepo
 }
 
 var CollectGitCommitMeta = plugin.SubTaskMeta{
@@ -112,6 +120,7 @@ var CollectGitCommitMeta = plugin.SubTaskMeta{
 	EnabledByDefault: true,
 	Description:      "collect git commits into Domain Layer Tables",
 	DomainTypes:      []string{plugin.DOMAIN_TYPE_CODE, plugin.DOMAIN_TYPE_CROSS},
+	Dependencies:     []*plugin.SubTaskMeta{&CloneGitRepoMeta},
 }
 
 var CollectGitBranchMeta = plugin.SubTaskMeta{
@@ -120,6 +129,7 @@ var CollectGitBranchMeta = plugin.SubTaskMeta{
 	EnabledByDefault: true,
 	Description:      "collect git branch into Domain Layer Tables",
 	DomainTypes:      []string{plugin.DOMAIN_TYPE_CODE},
+	Dependencies:     []*plugin.SubTaskMeta{&CloneGitRepoMeta},
 }
 
 var CollectGitTagMeta = plugin.SubTaskMeta{
@@ -128,6 +138,7 @@ var CollectGitTagMeta = plugin.SubTaskMeta{
 	EnabledByDefault: true,
 	Description:      "collect git tag into Domain Layer Tables",
 	DomainTypes:      []string{plugin.DOMAIN_TYPE_CODE},
+	Dependencies:     []*plugin.SubTaskMeta{&CloneGitRepoMeta},
 }
 
 var CollectGitDiffLineMeta = plugin.SubTaskMeta{
@@ -136,4 +147,5 @@ var CollectGitDiffLineMeta = plugin.SubTaskMeta{
 	EnabledByDefault: false,
 	Description:      "collect git commit diff line into Domain Layer Tables",
 	DomainTypes:      []string{plugin.DOMAIN_TYPE_CODE},
+	Dependencies:     []*plugin.SubTaskMeta{&CloneGitRepoMeta},
 }

@@ -19,11 +19,13 @@ package tasks
 
 import (
 	"encoding/json"
+	"strings"
+
 	"github.com/apache/incubator-devlake/core/errors"
+	"github.com/apache/incubator-devlake/core/models/common"
 	"github.com/apache/incubator-devlake/core/plugin"
 	"github.com/apache/incubator-devlake/helpers/pluginhelper/api"
 	"github.com/apache/incubator-devlake/plugins/gitee/models"
-	"strings"
 )
 
 var ExtractApiPullRequestReviewsMeta = plugin.SubTaskMeta{
@@ -42,8 +44,8 @@ type PullRequestReview struct {
 		Name  string
 	}
 	Content    string
-	ActionType string          `json:"action_type"`
-	CreatedAt  api.Iso8601Time `json:"created_at"`
+	ActionType string             `json:"action_type"`
+	CreatedAt  common.Iso8601Time `json:"created_at"`
 }
 
 func ExtractApiPullRequestReviews(taskCtx plugin.SubTaskContext) errors.Error {

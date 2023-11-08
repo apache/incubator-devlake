@@ -69,7 +69,6 @@ class PullRequestComment(DomainModel, table=True):
     account_id: str
     created_date: datetime
     commit_sha: str
-    position: int
     type: str
     review_id: str
     status: str

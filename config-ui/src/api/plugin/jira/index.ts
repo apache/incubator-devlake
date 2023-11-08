@@ -1,0 +1,54 @@
+/*
+ * Licensed to the Apache Software Foundation (ASF) under one or more
+ * contributor license agreements.  See the NOTICE file distributed with
+ * this work for additional information regarding copyright ownership.
+ * The ASF licenses this file to You under the Apache License, Version 2.0
+ * (the "License"); you may not use this file except in compliance with
+ * the License.  You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *
+ */
+
+import { request } from '@/utils';
+
+export type GetBoardsParams = {
+  startAt: number;
+  maxResults: number;
+};
+
+export const boards = (prefix: string, params: GetBoardsParams) =>
+  request(`${prefix}/agile/1.0/board`, { data: params });
+
+export const issueType = (prefix: string) => request(`${prefix}/api/2/issuetype`);
+
+export const field = (prefix: string) => request(`${prefix}/api/2/field`);
+
+export const applicationTypes = (connectionId: ID, query: { key: string }) =>
+  request(`/plugins/jira/connections/${connectionId}/application-types`, {
+    data: query,
+  });
+
+export const devPanelCommits = (connectionId: ID, query: { key: string; applicationType: string }) =>
+  request(`/plugins/jira/connections/${connectionId}/dev-panel-commits`, { data: query });
+
+export const generateRegex = (pattern: string) =>
+  request('/plugins/jira/generate-regex', {
+    method: 'post',
+    data: { pattern },
+  });
+
+export const applyRegex = (regex: string, urls: string[]) =>
+  request('/plugins/jira/apply-regex', {
+    method: 'post',
+    data: {
+      regex,
+      urls,
+    },
+  });

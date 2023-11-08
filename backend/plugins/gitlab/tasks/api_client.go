@@ -75,3 +75,10 @@ func ignoreHTTPStatus403(res *http.Response) errors.Error {
 	}
 	return nil
 }
+
+func ignoreHTTPStatus404(res *http.Response) errors.Error {
+	if res.StatusCode == http.StatusNotFound {
+		return api.ErrIgnoreAndContinue
+	}
+	return nil
+}

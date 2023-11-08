@@ -19,7 +19,6 @@ package models
 
 import (
 	"github.com/apache/incubator-devlake/core/models/common"
-	helper "github.com/apache/incubator-devlake/helpers/pluginhelper/api"
 )
 
 type TapdWorklog struct {
@@ -29,9 +28,9 @@ type TapdWorklog struct {
 	EntityType   string          `gorm:"type:varchar(255)" json:"entity_type"`
 	EntityId     uint64          `json:"entity_id,string"`
 	Timespent    float32         `json:"timespent,string"`
-	Spentdate    *helper.CSTTime `json:"spentdate"`
+	Spentdate    *common.CSTTime `json:"spentdate"`
 	Owner        string          `gorm:"type:varchar(255)" json:"owner"`
-	Created      *helper.CSTTime `json:"created"`
+	Created      *common.CSTTime `json:"created"`
 	Memo         string          `json:"memo" gorm:"type:text"`
 	common.NoPKModel
 }

@@ -98,7 +98,7 @@ func (r *RegexEnricher) ReturnNameIfMatched(name string, targets ...string) stri
 	return ""
 }
 
-// ReturnNameIfMatchedOrOmitted returns the given name if regex of the given name is omitted or fallback to ReturnNameIfMatched
+// ReturnNameIfOmittedOrMatched returns the given name if regex of the given name is omitted or fallback to ReturnNameIfMatched
 func (r *RegexEnricher) ReturnNameIfOmittedOrMatched(name string, targets ...string) string {
 	if _, ok := r.regexpMap[name]; !ok {
 		return name

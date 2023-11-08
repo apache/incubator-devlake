@@ -19,7 +19,6 @@ package models
 
 import (
 	"github.com/apache/incubator-devlake/core/models/common"
-	"github.com/apache/incubator-devlake/helpers/pluginhelper/api"
 )
 
 type SonarqubeIssue struct {
@@ -27,7 +26,7 @@ type SonarqubeIssue struct {
 	IssueKey     string `gorm:"primaryKey;type:varchar(100)"`
 	Rule         string `gorm:"type:varchar(255)"`
 	Severity     string `gorm:"type:varchar(100)"`
-	Component    string `gorm:"type:varchar(255)"`
+	Component    string `gorm:"type:varchar(500)"`
 	ProjectKey   string `gorm:"index;type:varchar(255)"` //domain project key
 	Line         int
 	Status       string `gorm:"type:varchar(20)"`
@@ -43,8 +42,8 @@ type SonarqubeIssue struct {
 	EndLine      int
 	StartOffset  int
 	EndOffset    int
-	CreationDate *api.Iso8601Time
-	UpdateDate   *api.Iso8601Time
+	CreationDate *common.Iso8601Time
+	UpdateDate   *common.Iso8601Time
 	common.NoPKModel
 }
 

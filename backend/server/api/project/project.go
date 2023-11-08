@@ -18,18 +18,19 @@ limitations under the License.
 package project
 
 import (
+	"net/http"
+
 	"github.com/apache/incubator-devlake/core/errors"
 	"github.com/apache/incubator-devlake/core/models"
 	"github.com/apache/incubator-devlake/server/api/shared"
 	"github.com/apache/incubator-devlake/server/services"
-	"net/http"
 
 	"github.com/gin-gonic/gin"
 )
 
 type PaginatedProjects struct {
-	Projects []*models.Project `json:"projects"`
-	Count    int64             `json:"count"`
+	Projects []*models.ApiOutputProject `json:"projects"`
+	Count    int64                      `json:"count"`
 }
 
 // @Summary Create and run a new project

@@ -24,6 +24,7 @@ import (
 type BambooPlanBuildVcsRevision struct {
 	ConnectionId   uint64 `gorm:"primaryKey"`
 	PlanBuildKey   string `gorm:"primaryKey"`
+	PlanResultKey  string `gorm:"primaryKey"`
 	RepositoryId   int
 	RepositoryName string `json:"repositoryName"`
 	VcsRevisionKey string `gorm:"primaryKey"`

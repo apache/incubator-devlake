@@ -22,6 +22,7 @@ import (
 	"regexp"
 
 	"github.com/apache/incubator-devlake/core/errors"
+	"github.com/apache/incubator-devlake/core/models/common"
 	"github.com/apache/incubator-devlake/core/models/domainlayer/ticket"
 	"github.com/apache/incubator-devlake/core/plugin"
 	"github.com/apache/incubator-devlake/helpers/pluginhelper/api"
@@ -52,10 +53,10 @@ type IssuesResponse struct {
 	} `json:"pull_request"`
 	Labels []struct {
 		Id           int
-		RepositoryId int             `json:"repository_id"`
-		Name         string          `json:"name"`
-		CreatedAt    api.Iso8601Time `json:"created_at"`
-		UpdatedAt    api.Iso8601Time `json:"updated_at"`
+		RepositoryId int                `json:"repository_id"`
+		Name         string             `json:"name"`
+		CreatedAt    common.Iso8601Time `json:"created_at"`
+		UpdatedAt    common.Iso8601Time `json:"updated_at"`
 	} `json:"labels"`
 	Repository struct {
 		Id       int
@@ -71,28 +72,28 @@ type IssuesResponse struct {
 		Id    int
 		Name  string
 	}
-	Comments        int              `json:"comments"`
-	Priority        int              `json:"priority"`
-	IssueType       string           `json:"issue_type"`
-	SecurityHole    bool             `json:"security_hole"`
-	IssueState      string           `json:"issue_state"`
-	Branch          string           `json:"branch"`
-	FinishAt        *api.Iso8601Time `json:"finished_at"`
-	GiteeCreatedAt  api.Iso8601Time  `json:"created_at"`
-	GiteeUpdatedAt  api.Iso8601Time  `json:"updated_at"`
+	Comments        int                 `json:"comments"`
+	Priority        int                 `json:"priority"`
+	IssueType       string              `json:"issue_type"`
+	SecurityHole    bool                `json:"security_hole"`
+	IssueState      string              `json:"issue_state"`
+	Branch          string              `json:"branch"`
+	FinishAt        *common.Iso8601Time `json:"finished_at"`
+	GiteeCreatedAt  common.Iso8601Time  `json:"created_at"`
+	GiteeUpdatedAt  common.Iso8601Time  `json:"updated_at"`
 	IssueTypeDetail struct {
 		Id        int
 		Title     string
 		Ident     string
-		CreatedAt api.Iso8601Time `json:"created_at"`
-		UpdatedAt api.Iso8601Time `json:"updated_at"`
+		CreatedAt common.Iso8601Time `json:"created_at"`
+		UpdatedAt common.Iso8601Time `json:"updated_at"`
 	}
 	IssueStateDetail struct {
 		Id        int
 		Title     string
 		Serial    string
-		CreatedAt api.Iso8601Time `json:"created_at"`
-		UpdatedAt api.Iso8601Time `json:"updated_at"`
+		CreatedAt common.Iso8601Time `json:"created_at"`
+		UpdatedAt common.Iso8601Time `json:"updated_at"`
 	}
 }
 
@@ -237,7 +238,7 @@ func convertGiteeIssue(issue *IssuesResponse, connectionId uint64, repositoryId 
 		Title:          issue.Title,
 		Body:           issue.Body,
 		Url:            issue.HtmlUrl,
-		ClosedAt:       api.Iso8601TimeToTime(issue.FinishAt),
+		ClosedAt:       common.Iso8601TimeToTime(issue.FinishAt),
 		GiteeCreatedAt: issue.GiteeCreatedAt.ToTime(),
 		GiteeUpdatedAt: issue.GiteeUpdatedAt.ToTime(),
 	}

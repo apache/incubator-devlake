@@ -28,5 +28,12 @@ func All() []plugin.MigrationScript {
 		new(addConnectionIdToTransformationRule),
 		new(addTypeAndEnvironment),
 		new(renameTr2ScopeConfig),
+		new(addRawParamTableForScope),
+		new(addScopeConfigId),
+		new(addEnvNamePattern),
+		new(addPlanResultKey),
+		new(renameToolBambooDeployBuild20230919),
+		new(renameToolBambooDeployEnvironments20230919),
+		new(renameMultiBambooRawTables20230920),
 	}
 }

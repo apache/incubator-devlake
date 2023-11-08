@@ -19,14 +19,12 @@
 import { useState, useEffect } from 'react';
 
 import { Dialog } from '@/components';
-
-import type { BlueprintType } from '../../../types';
-import { ModeEnum } from '../../../types';
+import { IBlueprint, IBPMode } from '@/types';
 
 import { SyncPolicy } from '../sync-policy';
 
 interface Props {
-  blueprint: BlueprintType;
+  blueprint: IBlueprint;
   isManual: boolean;
   cronConfig: string;
   skipOnFail: boolean;
@@ -54,22 +52,16 @@ export const UpdatePolicyDialog = ({ blueprint, operating, onCancel, onSubmit, .
       isManual,
       cronConfig,
       skipOnFail,
-      settings:
-        blueprint.mode === ModeEnum.normal
-          ? {
-              ...blueprint.settings,
-              timeAfter,
-            }
-          : undefined,
+      timeAfter,
     });
   };
 
   return (
     <Dialog
       isOpen
-      title="Change Sync Policy"
+      title="Set Sync Policy"
       style={{
-        width: 720,
+        width: 820,
       }}
       okText="Save"
       okLoading={operating}
@@ -80,7 +72,7 @@ export const UpdatePolicyDialog = ({ blueprint, operating, onCancel, onSubmit, .
         isManual={isManual}
         cronConfig={cronConfig}
         skipOnFail={skipOnFail}
-        showTimeFilter={blueprint.mode === ModeEnum.normal}
+        showTimeFilter={blueprint.mode === IBPMode.NORMAL}
         timeAfter={timeAfter}
         onChangeIsManual={setIsManual}
         onChangeCronConfig={setCronConfig}

@@ -24,11 +24,6 @@ import (
 	"github.com/apache/incubator-devlake/helpers/pluginhelper/api"
 )
 
-type SonarqubeApiParams struct {
-	ConnectionId uint64 `json:"connectionId"`
-	ProjectKey   string
-}
-
 type SonarqubeOptions struct {
 	// options means some custom params required by plugin running.
 	// Such As How many rows do your want
@@ -42,6 +37,7 @@ type SonarqubeTaskData struct {
 	Options          *SonarqubeOptions
 	ApiClient        *api.ApiAsyncClient
 	LastAnalysisDate *time.Time
+	TaskStartTime    time.Time
 }
 
 func DecodeAndValidateTaskOptions(options map[string]interface{}) (*SonarqubeOptions, errors.Error) {

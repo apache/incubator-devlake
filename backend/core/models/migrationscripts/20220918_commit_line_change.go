@@ -20,7 +20,7 @@ package migrationscripts
 import (
 	"github.com/apache/incubator-devlake/core/context"
 	"github.com/apache/incubator-devlake/core/errors"
-	"github.com/apache/incubator-devlake/core/models/domainlayer"
+	"github.com/apache/incubator-devlake/core/models/migrationscripts/archived"
 	"github.com/apache/incubator-devlake/core/plugin"
 )
 
@@ -29,7 +29,7 @@ var _ plugin.MigrationScript = (*commitLineChange)(nil)
 type commitLineChange struct{}
 
 type commitLineChange20220918 struct {
-	domainlayer.DomainEntity
+	archived.DomainEntity
 	Id          string `gorm:"type:varchar(255);primaryKey"`
 	CommitSha   string `gorm:"type:varchar(40);"`
 	NewFilePath string `gorm:"type:varchar(255);"`

@@ -19,6 +19,7 @@ package e2e
 
 import (
 	"testing"
+	"time"
 
 	"github.com/apache/incubator-devlake/core/models/common"
 	"github.com/apache/incubator-devlake/core/models/domainlayer/codequality"
@@ -42,6 +43,7 @@ func TestSonarqubeProjectDataFlow(t *testing.T) {
 			ConnectionId: 2,
 			ProjectKey:   "e2c6d5e9-a321-4e8c-b322-03d9599ef962",
 		},
+		TaskStartTime: time.Now(),
 	}
 
 	dataflowTester.FlushTabler(&codequality.CqProject{})

@@ -18,31 +18,12 @@
 
 import type { AxiosRequestConfig } from 'axios';
 import axios from 'axios';
-import { history } from '@/utils/history';
 
 import { DEVLAKE_ENDPOINT } from '@/config';
-import { toast } from '@/components/toast';
 
 const instance = axios.create({
   baseURL: DEVLAKE_ENDPOINT,
 });
-
-instance.interceptors.response.use(
-  (response) => response,
-  (error) => {
-    const status = error.response?.status;
-
-    if (status === 428) {
-      history.push('/db-migrate');
-    }
-
-    if (status === 500) {
-      history.push('/offline');
-    }
-
-    return Promise.reject(error);
-  },
-);
 
 export type RequestConfig = {
   baseURL?: string;
@@ -52,6 +33,19 @@ export type RequestConfig = {
   signal?: AbortSignal;
   headers?: Record<string, string>;
 };
+
+instance.interceptors.response.use(
+  (response) => response,
+  (error) => {
+    const status = error.response?.status;
+
+    if (status === 428) {
+      window.location.replace('/db-migrate');
+    }
+
+    return Promise.reject(error);
+  },
+);
 
 export const request = (path: string, config?: RequestConfig) => {
   const { method = 'get', data, timeout, headers, signal } = config || {};

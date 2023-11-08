@@ -19,8 +19,9 @@ package api
 
 import (
 	"context"
-	"github.com/apache/incubator-devlake/server/api/shared"
 	"net/http"
+
+	"github.com/apache/incubator-devlake/server/api/shared"
 
 	"github.com/apache/incubator-devlake/core/errors"
 	"github.com/apache/incubator-devlake/core/plugin"
@@ -100,16 +101,11 @@ func PatchConnection(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput,
 // @Tags plugins/slack
 // @Success 200  {object} models.SlackConnection
 // @Failure 400  {string} errcode.Error "Bad Request"
+// @Failure 409  {object} services.BlueprintProjectPairs "References exist to this connection"
 // @Failure 500  {string} errcode.Error "Internal Error"
 // @Router /plugins/slack/connections/{connectionId} [DELETE]
 func DeleteConnection(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, errors.Error) {
-	connection := &models.SlackConnection{}
-	err := connectionHelper.First(connection, input.Params)
-	if err != nil {
-		return nil, err
-	}
-	err = connectionHelper.Delete(connection)
-	return &plugin.ApiResourceOutput{Body: connection}, err
+	return connectionHelper.Delete(&models.SlackConnection{}, input)
 }
 
 // @Summary get all slack connections

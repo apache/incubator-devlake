@@ -23,7 +23,7 @@ import (
 
 type SonarqubeFileMetrics struct {
 	ConnectionId             uint64 `gorm:"primaryKey"`
-	FileMetricsKey           string `gorm:"primaryKey"`
+	FileMetricsKey           string `gorm:"primaryKey;type:varchar(500)"`
 	ProjectKey               string `gorm:"index"`
 	FileName                 string
 	FilePath                 string
@@ -51,7 +51,7 @@ func (SonarqubeFileMetrics) TableName() string {
 
 type SonarqubeAdditionalFileMetrics struct {
 	ConnectionId                        uint64 `gorm:"primaryKey"`
-	FileMetricsKey                      string `gorm:"primaryKey"`
+	FileMetricsKey                      string `gorm:"primaryKey;type:varchar(500)"`
 	DuplicatedFiles                     int
 	DuplicatedLines                     int
 	EffortToReachMaintainabilityRatingA int
@@ -69,7 +69,7 @@ func (SonarqubeAdditionalFileMetrics) TableName() string {
 
 type SonarqubeWholeFileMetrics struct {
 	ConnectionId                        uint64 `gorm:"primaryKey"`
-	FileMetricsKey                      string `gorm:"primaryKey"`
+	FileMetricsKey                      string `gorm:"primaryKey;type:varchar(500)"`
 	ProjectKey                          string `gorm:"index"`
 	FileName                            string `gorm:"type:varchar(255)"`
 	FilePath                            string

@@ -19,11 +19,12 @@ package logruslog
 
 import (
 	"fmt"
+	"regexp"
+	"strings"
+
 	"github.com/apache/incubator-devlake/core/errors"
 	"github.com/apache/incubator-devlake/core/log"
 	"github.com/sirupsen/logrus"
-	"regexp"
-	"strings"
 )
 
 var alreadyInBracketsRegex = regexp.MustCompile(`\[.*?]+`)

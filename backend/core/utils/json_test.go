@@ -42,7 +42,7 @@ func TestMissingProperty(t *testing.T) {
 	_, err := GetProperty[int](object, "name")
 
 	assert.Error(t, err)
-	assert.Equal(t, "Missing property \"name\"", err.Error())
+	assert.Contains(t, err.Error(), "Missing property \"name\"")
 }
 
 func TestInvalidPropertyType(t *testing.T) {
@@ -53,7 +53,7 @@ func TestInvalidPropertyType(t *testing.T) {
 	_, err := GetProperty[string](object, "id")
 
 	assert.Error(t, err)
-	assert.Equal(t, "Value is not of type string", err.Error())
+	assert.Contains(t, err.Error(), "Value is not of type string")
 }
 
 func TestGetItemInRange(t *testing.T) {
@@ -71,7 +71,7 @@ func TestGetItemOutOfRange(t *testing.T) {
 	_, err := GetItem[int](array, 3)
 
 	assert.Error(t, err)
-	assert.Equal(t, "Index 3 out of range", err.Error())
+	assert.Contains(t, err.Error(), "Index 3 out of range")
 }
 
 func TestConvertSlice(t *testing.T) {
@@ -89,7 +89,7 @@ func TestConvertSliceInvalidType(t *testing.T) {
 	val, err := Convert[[]string](value)
 	_ = val
 	assert.Error(t, err)
-	assert.Equal(t, "Element 0 is not of type string", err.Error())
+	assert.Contains(t, err.Error(), "Element 0 is not of type string")
 }
 
 func TestConvertSliceInvalidValue(t *testing.T) {
@@ -98,7 +98,7 @@ func TestConvertSliceInvalidValue(t *testing.T) {
 	_, err := Convert[[]int](value)
 
 	assert.Error(t, err)
-	assert.Equal(t, "Element 1 is not of type int", err.Error())
+	assert.Contains(t, err.Error(), "Element 1 is not of type int")
 }
 
 func TestConvertSliceInvalidSlice(t *testing.T) {
@@ -107,5 +107,5 @@ func TestConvertSliceInvalidSlice(t *testing.T) {
 	_, err := Convert[[]int](value)
 
 	assert.Error(t, err)
-	assert.Equal(t, "Value is not a slice", err.Error())
+	assert.Contains(t, err.Error(), "Value is not a slice")
 }

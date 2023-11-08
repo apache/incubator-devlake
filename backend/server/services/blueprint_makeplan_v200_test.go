@@ -21,7 +21,7 @@ import (
 	"encoding/json"
 	"testing"
 
-	"github.com/apache/incubator-devlake/core/models"
+	coreModels "github.com/apache/incubator-devlake/core/models"
 	"github.com/apache/incubator-devlake/core/models/domainlayer"
 	"github.com/apache/incubator-devlake/core/models/domainlayer/code"
 	"github.com/apache/incubator-devlake/core/models/domainlayer/ticket"
@@ -36,12 +36,11 @@ func TestMakePlanV200(t *testing.T) {
 	githubName := "TestMakePlanV200-github" // mimic github
 	// mock github plugin as a data source plugin
 	githubConnId := uint64(1)
-	syncPolicy := plugin.BlueprintSyncPolicy{}
-	githubScopes := []*plugin.BlueprintScopeV200{
-		{Id: "", Name: "apache/incubator-devlake"},
-		{Id: "", Name: "apache/incubator-devlake-website"},
+	githubScopes := []*coreModels.BlueprintScope{
+		{ScopeId: "github:GithubRepo:1:123"},
+		{ScopeId: "github:GithubRepo:1:321"},
 	}
-	githubOutputPlan := plugin.PipelinePlan{
+	githubOutputPlan := coreModels.PipelinePlan{
 		{
 			{Plugin: githubName, Options: map[string]interface{}{"name": "apache/incubator-devlake"}},
 			{Plugin: "gitextractor", Options: map[string]interface{}{"url": "http://gihub.com/apache/incubator-devlake.git"}},
@@ -56,11 +55,11 @@ func TestMakePlanV200(t *testing.T) {
 		&ticket.Board{DomainEntity: domainlayer.DomainEntity{Id: "github:GithubRepo:1:123"}, Name: "apache/incubator-devlake"},
 	}
 	github := new(mockplugin.CompositeDataSourcePluginBlueprintV200)
-	github.On("MakeDataSourcePipelinePlanV200", githubConnId, githubScopes, syncPolicy).Return(githubOutputPlan, githubOutputScopes, nil)
+	github.On("MakeDataSourcePipelinePlanV200", githubConnId, githubScopes).Return(githubOutputPlan, githubOutputScopes, nil)
 
 	// mock dora plugin as a metric plugin
 	doraName := "TestMakePlanV200-dora"
-	doraOutputPlan := plugin.PipelinePlan{
+	doraOutputPlan := coreModels.PipelinePlan{
 		{
 			{Plugin: "refdiff", Subtasks: []string{"calculateProjectDeploymentCommitsDiff"}, Options: map[string]interface{}{"projectName": projectName}},
 			{Plugin: doraName},
@@ -71,7 +70,7 @@ func TestMakePlanV200(t *testing.T) {
 
 	// mock org plugin
 	org := new(mockplugin.CompositeProjectMapper)
-	orgPlan := plugin.PipelinePlan{
+	orgPlan := coreModels.PipelinePlan{
 		{
 			{Plugin: "org", Subtasks: []string{"setProjectMapping"}, Options: map[string]interface{}{"projectMappings": []interface{}{tasks.NewProjectMapping(projectName, githubOutputScopes)}}},
 		},
@@ -79,11 +78,10 @@ func TestMakePlanV200(t *testing.T) {
 	org.On("MapProject", projectName, githubOutputScopes).Return(orgPlan, nil)
 
 	// expectation, establish expectation before any code being launch to avoid unwanted modification
-	expectedPlan := make(plugin.PipelinePlan, 0)
+	expectedPlan := make(coreModels.PipelinePlan, 0)
 	expectedPlan = append(expectedPlan, orgPlan...)
 	expectedPlan = append(expectedPlan, githubOutputPlan...)
 	expectedPlan = append(expectedPlan, doraOutputPlan...)
-	expectedScopes := append(make([]plugin.Scope, 0), githubOutputScopes...)
 
 	// plugin registration
 	plugin.RegisterPlugin(githubName, github)
@@ -91,20 +89,15 @@ func TestMakePlanV200(t *testing.T) {
 	plugin.RegisterPlugin("org", org)
 
 	// put them together and call GeneratePlanJsonV200
-	connections, _ := json.Marshal([]*plugin.BlueprintConnectionV200{
-		{Plugin: githubName, ConnectionId: githubConnId, Scopes: githubScopes},
-	})
-	sources := &models.BlueprintSettings{
-		Version:     "2.0.0",
-		Connections: connections,
+	connections := []*coreModels.BlueprintConnection{
+		{PluginName: githubName, ConnectionId: githubConnId, Scopes: githubScopes},
 	}
 	metrics := map[string]json.RawMessage{
 		doraName: nil,
 	}
 
-	plan, scopes, err := genPlanJsonV200(projectName, syncPolicy, sources, metrics, false)
+	plan, err := GeneratePlanJsonV200(projectName, connections, metrics, false)
 	assert.Nil(t, err)
 
 	assert.Equal(t, expectedPlan, plan)
-	assert.Equal(t, expectedScopes, scopes)
 }

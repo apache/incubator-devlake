@@ -18,7 +18,6 @@ limitations under the License.
 package tasks
 
 import (
-	"encoding/json"
 	"time"
 
 	"github.com/apache/incubator-devlake/core/errors"
@@ -30,39 +29,14 @@ type TapdOptions struct {
 	ConnectionId  uint64 `mapstruct:"connectionId"`
 	WorkspaceId   uint64 `mapstruct:"workspaceId"`
 	PageSize      uint64 `mapstruct:"pageSize"`
-	TimeAfter     string `json:"timeAfter" mapstructure:"timeAfter,omitempty"`
 	CstZone       *time.Location
 	ScopeConfigId uint64
-	ScopeConfig   *TapdScopeConfig `json:"scopeConfigs"`
-}
-
-func MakeScopeConfigs(rule models.TapdScopeConfig) (*TapdScopeConfig, errors.Error) {
-	var statusMapping StatusMappings
-	var typeMapping TypeMappings
-	var err error
-	if len(rule.TypeMappings) > 0 {
-		err = json.Unmarshal(rule.TypeMappings, &typeMapping)
-		if err != nil {
-			return nil, errors.Default.Wrap(err, "unable to unmarshal the typeMapping")
-		}
-	}
-	if len(rule.StatusMappings) > 0 {
-		err = json.Unmarshal(rule.StatusMappings, &statusMapping)
-		if err != nil {
-			return nil, errors.Default.Wrap(err, "unable to unmarshal the statusMapping")
-		}
-	}
-	result := &TapdScopeConfig{
-		StatusMappings: statusMapping,
-		TypeMappings:   typeMapping,
-	}
-	return result, nil
+	ScopeConfig   *models.TapdScopeConfig `json:"scopeConfig"`
 }
 
 type TapdTaskData struct {
 	Options    *TapdOptions
 	ApiClient  *helper.ApiAsyncClient
-	TimeAfter  *time.Time
 	Connection *models.TapdConnection
 }
 
@@ -96,13 +70,4 @@ func ValidateTaskOptions(op *TapdOptions) errors.Error {
 		return errors.BadInput.New("connectionId is invalid")
 	}
 	return nil
-}
-
-type StatusMappings map[string]string
-
-type TypeMappings map[string]string
-
-type TapdScopeConfig struct {
-	TypeMappings   TypeMappings   `json:"typeMappings"`
-	StatusMappings StatusMappings `json:"statusMappings"`
 }
