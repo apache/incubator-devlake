@@ -16,7 +16,7 @@
  *
  */
 
-import { useMemo } from 'react';
+import { useState, useMemo } from 'react';
 import dayjs from 'dayjs';
 import { Tag, Checkbox, FormGroup, InputGroup, Radio, RadioGroup } from '@blueprintjs/core';
 import { TimePrecision } from '@blueprintjs/datetime';
@@ -51,6 +51,8 @@ export const SyncPolicy = ({
   onChangeSkipOnFail,
   onChangeTimeAfter,
 }: Props) => {
+  const [selectedValue, setSelectedValue] = useState('Daily');
+
   const [timezone, quickTimeOpts, cronOpts] = useMemo(() => {
     const timezone = dayjs().format('ZZ').replace('00', '');
     const quickTimeOpts = [
@@ -71,14 +73,16 @@ export const SyncPolicy = ({
 
   const handleChangeFrequency = (e: React.FormEvent<HTMLInputElement>) => {
     const value = (e.target as HTMLInputElement).value;
-    if (value === 'manual') {
+    setSelectedValue(value);
+    if (value === 'Manual') {
       onChangeIsManual(true);
-    } else if (!value) {
+    } else if (value === 'Custom') {
       onChangeIsManual(false);
       onChangeCronConfig('* * * * *');
     } else {
+      const opt = cronOpts.find((it) => it.label === value) as any;
       onChangeIsManual(false);
-      onChangeCronConfig(value);
+      onChangeCronConfig(opt.value);
     }
   };
 
@@ -127,12 +131,12 @@ export const SyncPolicy = ({
           label="Sync Frequency"
           subLabel="Blueprints will run on creation and recurringly based on the schedule."
         >
-          <RadioGroup selectedValue={cron.value} onChange={handleChangeFrequency}>
-            {cronOpts.map(({ value, label, subLabel }) => (
-              <Radio key={value} label={`${label} ${subLabel}`} value={value} />
+          <RadioGroup selectedValue={selectedValue} onChange={handleChangeFrequency}>
+            {cronOpts.map(({ label, subLabel }) => (
+              <Radio key={label} label={`${label} ${subLabel}`} value={label} />
             ))}
           </RadioGroup>
-          {!cron.value && (
+          {selectedValue === 'Custom' && (
             <>
               <S.Input>
                 <FormGroup label="Minute">
