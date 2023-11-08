@@ -1,3 +1,8 @@
 id,name,pipeline_id,result,status,type,environment,duration_sec,started_date,finished_date,cicd_scope_id
 bamboo:BambooJobBuild:1:TEST-PLA3-JOB1-1,Default Job,bamboo:BambooPlanBuild:1:TEST-PLA3-1,SUCCESS,DONE,,,0,2023-07-27T03:47:13.626+00:00,2023-07-27T03:47:13.750+00:00,bamboo:BambooPlan:1:TEST-PLA3
 bamboo:BambooJobBuild:1:TEST-PLA3-JOB1-2,Default Job,bamboo:BambooPlanBuild:1:TEST-PLA3-2,SUCCESS,DONE,,,0,2023-07-27T03:56:15.783+00:00,2023-07-27T03:56:15.789+00:00,bamboo:BambooPlan:1:TEST-PLA3
+bamboo:BambooJobBuild:1:TEST-PLA3-JOB1-20001,Default Job,bamboo:BambooPlanBuild:1:TEST-PLA3-1,SUCCESS,DONE,,,0,2023-07-27T03:47:13.626+00:00,2023-07-27T03:47:13.750+00:00,bamboo:BambooPlan:1:TEST-PLA3
+bamboo:BambooJobBuild:1:TEST-PLA3-JOB1-20002,Default Job,bamboo:BambooPlanBuild:1:TEST-PLA3-1,SUCCESS,IN_PROGRESS,,,0,2023-07-27T03:47:13.626+00:00,2023-07-27T03:47:13.750+00:00,bamboo:BambooPlan:1:TEST-PLA3
+bamboo:BambooJobBuild:1:TEST-PLA3-JOB1-20003,Default Job,bamboo:BambooPlanBuild:1:TEST-PLA3-1,SUCCESS,IN_PROGRESS,,,0,2023-07-27T03:47:13.626+00:00,2023-07-27T03:47:13.750+00:00,bamboo:BambooPlan:1:TEST-PLA3
+bamboo:BambooJobBuild:1:TEST-PLA3-JOB1-20004,Default Job,bamboo:BambooPlanBuild:1:TEST-PLA3-1,FAILURE,IN_PROGRESS,,,0,2023-07-27T03:47:13.626+00:00,2023-07-27T03:47:13.750+00:00,bamboo:BambooPlan:1:TEST-PLA3
+bamboo:BambooJobBuild:1:TEST-PLA3-JOB1-20005,Default Job,bamboo:BambooPlanBuild:1:TEST-PLA3-1,,OTHER,,,0,2023-07-27T03:47:13.626+00:00,2023-07-27T03:47:13.750+00:00,bamboo:BambooPlan:1:TEST-PLA3

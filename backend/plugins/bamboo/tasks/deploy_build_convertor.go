@@ -94,6 +94,7 @@ func ConvertDeployBuilds(taskCtx plugin.SubTaskContext) errors.Error {
 	}
 	defer cursor.Close()
 
+	fmt.Println("aaa", data.Options.PlanKey, data.Options.ConnectionId)
 	planIdGen := didgen.NewDomainIdGenerator(&models.BambooPlan{})
 	converter, err := api.NewDataConverter(api.DataConverterArgs{
 		InputRowType:       reflect.TypeOf(deployBuildWithVcsRevision{}),
