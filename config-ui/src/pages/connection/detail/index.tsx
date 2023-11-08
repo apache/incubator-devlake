@@ -104,14 +104,14 @@ export const ConnectionDetailPage = () => {
     const [, res] = await operator(
       async () => {
         try {
-          await dispatch(removeConnection({ plugin, connectionId }));
+          await dispatch(removeConnection({ plugin, connectionId })).unwrap();
           return { status: 'success' };
         } catch (err: any) {
-          const { status, data } = err.response;
+          const { status, data, message } = err;
           return {
             status: status === 409 ? 'conflict' : 'error',
-            conflict: data.data ? [...data.data.projects, ...data.data.blueprints] : [],
-            message: data.message,
+            conflict: data ? [...data.projects, ...data.blueprints] : [],
+            message,
           };
         }
       },
