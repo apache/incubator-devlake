@@ -18,6 +18,7 @@ limitations under the License.
 package e2e
 
 import (
+	"github.com/apache/incubator-devlake/core/models/domainlayer/devops"
 	"testing"
 
 	"github.com/apache/incubator-devlake/helpers/e2ehelper"
@@ -70,5 +71,33 @@ func TestDeloymentsDataFlow(t *testing.T) {
 			"last_update_time",
 			//"key",
 		),
+	)
+
+	// verify conversion
+	dataflowTester.FlushTabler(&devops.CiCDPipelineCommit{})
+	dataflowTester.FlushTabler(&devops.CICDDeployment{})
+	dataflowTester.ImportCsvIntoTabler("./snapshot_tables/_tool_bitbucket_deployments.csv", &models.BitbucketDeployment{})
+	dataflowTester.Subtask(tasks.ConvertiDeploymentMeta, taskData)
+	dataflowTester.VerifyTable(
+		devops.CicdDeploymentCommit{},
+		"./snapshot_tables/cicd_deployment_commits.csv",
+		[]string{
+			"id",
+			"name",
+			"result",
+			"status",
+			"environment",
+		},
+	)
+	dataflowTester.VerifyTable(
+		devops.CICDDeployment{},
+		"./snapshot_tables/cicd_deployments.csv",
+		[]string{
+			"id",
+			"name",
+			"result",
+			"status",
+			"environment",
+		},
 	)
 }
