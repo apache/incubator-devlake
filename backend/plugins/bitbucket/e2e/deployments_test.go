@@ -75,7 +75,7 @@ func TestDeloymentsDataFlow(t *testing.T) {
 	)
 
 	// verify conversion
-	dataflowTester.FlushTabler(&devops.CiCDPipelineCommit{})
+	dataflowTester.FlushTabler(&devops.CicdDeploymentCommit{})
 	dataflowTester.FlushTabler(&devops.CICDDeployment{})
 	dataflowTester.ImportCsvIntoTabler("./snapshot_tables/_tool_bitbucket_deployments.csv", &models.BitbucketDeployment{})
 	dataflowTester.Subtask(tasks.ConvertiDeploymentMeta, taskData)
