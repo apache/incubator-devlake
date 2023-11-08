@@ -18,6 +18,8 @@ limitations under the License.
 package tasks
 
 import (
+	"reflect"
+
 	"github.com/apache/incubator-devlake/core/dal"
 	"github.com/apache/incubator-devlake/core/errors"
 	"github.com/apache/incubator-devlake/core/models/domainlayer"
@@ -26,7 +28,6 @@ import (
 	"github.com/apache/incubator-devlake/core/plugin"
 	"github.com/apache/incubator-devlake/helpers/pluginhelper/api"
 	"github.com/apache/incubator-devlake/plugins/github/models"
-	"reflect"
 )
 
 func init() {
@@ -41,7 +42,7 @@ var ConvertDeploymentsMeta = plugin.SubTaskMeta{
 	Name:             "ConvertDeployments",
 	EntryPoint:       ConvertDeployment,
 	EnabledByDefault: true,
-	Description:      "Convert tool layer table github_deployments into  domain layer table deployment",
+	Description:      "Convert tool layer table github_deployments into domain layer table deployment",
 	DomainTypes:      []string{plugin.DOMAIN_TYPE_CICD},
 	DependencyTables: []string{models.GithubDeployment{}.TableName()},
 	ProductTables:    []string{devops.CicdDeploymentCommit{}.TableName(), devops.CICDDeployment{}.TableName()},
