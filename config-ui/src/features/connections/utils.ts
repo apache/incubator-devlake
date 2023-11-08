@@ -39,7 +39,8 @@ export const transformConnection = (plugin: string, connection: IConnectionAPI):
     password: connection.password,
     appId: connection.appId,
     secretKey: connection.secretKey,
-    enableGraphql:connection.enableGraphql,
+    enableGraphql: connection.enableGraphql,
+    rateLimitPerHour: connection.rateLimitPerHour,
   };
 };
 
