@@ -81,7 +81,7 @@ func TestDeloymentsDataFlow(t *testing.T) {
 	dataflowTester.Subtask(tasks.ConvertiDeploymentMeta, taskData)
 	dataflowTester.VerifyTable(
 		devops.CicdDeploymentCommit{},
-		"./snapshot_tables/cicd_deployment_commits.csv",
+		"./snapshot_tables/cicd_deployment_commits_for_deployment.csv",
 		[]string{
 			"id",
 			"name",
@@ -92,7 +92,7 @@ func TestDeloymentsDataFlow(t *testing.T) {
 	)
 	dataflowTester.VerifyTable(
 		devops.CICDDeployment{},
-		"./snapshot_tables/cicd_deployments.csv",
+		"./snapshot_tables/cicd_deployments_for_deployment.csv",
 		[]string{
 			"id",
 			"name",
