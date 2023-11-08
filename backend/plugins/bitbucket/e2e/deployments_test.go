@@ -42,6 +42,7 @@ func TestDeloymentsDataFlow(t *testing.T) {
 		},
 	}
 	dataflowTester.ImportCsvIntoTabler("./snapshot_tables/_tool_bitbucket_repos.csv", &models.BitbucketRepo{})
+	dataflowTester.ImportCsvIntoTabler("./snapshot_tables/_tool_bitbucket_pipelines.csv", &models.BitbucketPipeline{})
 	// import raw data table
 	dataflowTester.ImportCsvIntoRawTable("./raw_tables/_raw_bitbucket_api_deployments.csv", "_raw_bitbucket_api_deployments")
 
