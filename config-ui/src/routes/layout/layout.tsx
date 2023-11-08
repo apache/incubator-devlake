@@ -149,7 +149,7 @@ export const Layout = () => {
                   </a>
                   <Navbar.Divider />
                   <a
-                    href="https://join.slack.com/t/devlake-io/shared_invite/zt-17b6vuvps-x98pqseoUagM7EAmKC82xQ"
+                    href="https://join.slack.com/t/devlake-io/shared_invite/zt-26ulybksw-IDrJYuqY1FrdjlMMJhs53Q"
                     rel="noreferrer"
                     target="_blank"
                   >
