@@ -142,15 +142,17 @@ export const ProjectHomePage = () => {
               !val || !val.length ? (
                 'N/A'
               ) : (
-                <>
+                <S.ConnectionList>
                   {val.map((it) => (
-                    <ConnectionName
-                      key={`${it.pluginName}-${it.connectionId}`}
-                      plugin={it.pluginName}
-                      connectionId={it.connectionId}
-                    />
+                    <li>
+                      <ConnectionName
+                        key={`${it.pluginName}-${it.connectionId}`}
+                        plugin={it.pluginName}
+                        connectionId={it.connectionId}
+                      />
+                    </li>
                   ))}
-                </>
+                </S.ConnectionList>
               ),
           },
           {

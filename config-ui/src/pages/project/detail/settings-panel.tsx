@@ -25,7 +25,7 @@ import { Card, FormItem, Buttons, toast, Dialog } from '@/components';
 import { IProject } from '@/types';
 import { operator } from '@/utils';
 
-import { validName } from '../utils';
+import { validName, encodeName } from '../utils';
 
 import * as S from './styled';
 
@@ -57,7 +57,7 @@ export const SettingsPanel = ({ project, onRefresh }: Props) => {
 
     const [success] = await operator(
       () =>
-        API.project.update(project.name, {
+        API.project.update(encodeName(project.name), {
           name,
           description: '',
           metrics: [
@@ -75,7 +75,7 @@ export const SettingsPanel = ({ project, onRefresh }: Props) => {
 
     if (success) {
       onRefresh();
-      navigate(`/projects/${name}?tabId=settings`);
+      navigate(`/projects/${encodeName(name)}?tabId=settings`);
     }
   };
 

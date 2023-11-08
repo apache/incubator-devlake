@@ -32,10 +32,10 @@ interface Props {
   onCancel: () => void;
 }
 
-const transformURI = (prefix: string, webhook: IWebhook) => {
+const transformURI = (prefix: string, webhook: IWebhook, apiKey: string) => {
   return {
     postIssuesEndpoint: `curl ${prefix}${webhook.postIssuesEndpoint} -X 'POST' -H 'Authorization: Bearer ${
-      webhook.apiKey ?? '{API_KEY}'
+      apiKey ?? '{API_KEY}'
     }' -d '{
         "issue_key":"DLK-1234",
         "title":"a feature from DLK",
@@ -46,10 +46,10 @@ const transformURI = (prefix: string, webhook: IWebhook) => {
         "updated_date":"2020-01-01T12:00:00+00:00"
      }'`,
     closeIssuesEndpoint: `curl ${prefix}${webhook.closeIssuesEndpoint} -X 'POST' -H 'Authorization: Bearer ${
-      webhook.apiKey ?? '{API_KEY}'
+      apiKey ?? '{API_KEY}'
     }'`,
     postDeploymentsCurl: `curl ${prefix}${webhook.postPipelineDeployTaskEndpoint} -X 'POST' -H 'Authorization: Bearer ${
-      webhook.apiKey ?? '{API_KEY}'
+      apiKey ?? '{API_KEY}'
     }' -d '{
          "commit_sha":"the sha of deployment commit",
          "repo_url":"the repo URL of the deployment commit",
@@ -61,19 +61,21 @@ const transformURI = (prefix: string, webhook: IWebhook) => {
 export const ViewDialog = ({ initialId, onCancel }: Props) => {
   const [isOpen, setIsOpen] = useState(false);
   const [operating, setOperating] = useState(false);
+  const [apiKey, setApiKey] = useState('');
 
   const dispatch = useAppDispatch();
   const webhook = useAppSelector((state) => selectWebhook(state, initialId)) as IWebhook;
   const prefix = useMemo(() => `${window.location.origin}/api`, []);
 
-  const URI = transformURI(prefix, webhook);
+  const URI = transformURI(prefix, webhook, apiKey);
 
   const handleGenerateNewKey = async () => {
-    const [success] = await operator(() => dispatch(renewWebhookApiKey(initialId)), {
+    const [success, res] = await operator(async () => await dispatch(renewWebhookApiKey(initialId)).unwrap(), {
       setOperating,
     });
 
     if (success) {
+      setApiKey(res.apiKey);
       setIsOpen(false);
     }
   };
@@ -120,12 +122,12 @@ export const ViewDialog = ({ initialId, onCancel }: Props) => {
           label="API Key"
           subLabel="If you have forgotten your API key, you can revoke the previous key and generate a new one as a replacement."
         >
-          {!webhook.apiKey ? (
+          {!apiKey ? (
             <Button intent={Intent.PRIMARY} text="Revoke and generate a new key" onClick={() => setIsOpen(true)} />
           ) : (
             <>
               <S.ApiKey>
-                <CopyText content={webhook.apiKey} />
+                <CopyText content={apiKey} />
                 <span>No Expiration</span>
               </S.ApiKey>
               <S.Tips>

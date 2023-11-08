@@ -51,9 +51,10 @@ export const CreateDialog = ({ isOpen, onCancel, onSubmitAfter }: Props) => {
   const handleSubmit = async () => {
     const [success, res] = await operator(
       async () => {
-        const { id, apiKey, postIssuesEndpoint, closeIssuesEndpoint, postPipelineDeployTaskEndpoint } = await dispatch(
-          addWebhook({ name }),
-        ).unwrap();
+        const {
+          webhook: { id, postIssuesEndpoint, closeIssuesEndpoint, postPipelineDeployTaskEndpoint },
+          apiKey,
+        } = await dispatch(addWebhook({ name })).unwrap();
 
         return {
           id,

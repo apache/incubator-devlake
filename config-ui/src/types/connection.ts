@@ -71,4 +71,5 @@ export interface IConnection {
   appId?: string;
   secretKey?: string;
   enableGraphql?: boolean;
+  rateLimitPerHour?: number;
 }
