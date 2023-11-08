@@ -41,17 +41,14 @@ func TestDeloymentsDataFlow(t *testing.T) {
 			},
 		},
 	}
-	dataflowTester.ImportCsvIntoTabler("./snapshot_tables/_tool_bitbucket_repos_for_deployment.csv", &models.BitbucketRepo{})
-	dataflowTester.ImportCsvIntoTabler("./snapshot_tables/_tool_bitbucket_pipelines_for_deployment.csv", &models.BitbucketPipeline{})
 	// import raw data table
 	dataflowTester.ImportCsvIntoRawTable("./raw_tables/_raw_bitbucket_api_deployments.csv", "_raw_bitbucket_api_deployments")
-
 	dataflowTester.FlushTabler(&models.BitbucketDeployment{})
 	// verify extraction
 	dataflowTester.Subtask(tasks.ExtractApiDeploymentsMeta, taskData)
 	dataflowTester.VerifyTable(
 		models.BitbucketDeployment{},
-		"./snapshot_tables/_tool_bitbucket_deployments.csv",
+		"./snapshot_tables/_tool_bitbucket_deployments_for_deployment.csv",
 		e2ehelper.ColumnWithRawData(
 			"connection_id",
 			"bitbucket_id",
@@ -75,9 +72,14 @@ func TestDeloymentsDataFlow(t *testing.T) {
 	)
 
 	// verify conversion
+	dataflowTester.FlushTabler(&models.BitbucketRepo{})
+	dataflowTester.FlushTabler(&models.BitbucketPipeline{})
+	dataflowTester.FlushTabler(&models.BitbucketDeployment{})
+	dataflowTester.ImportCsvIntoTabler("./snapshot_tables/_tool_bitbucket_repos_for_deployment.csv", &models.BitbucketRepo{})
+	dataflowTester.ImportCsvIntoTabler("./snapshot_tables/_tool_bitbucket_pipelines_for_deployment.csv", &models.BitbucketPipeline{})
+	dataflowTester.ImportCsvIntoTabler("./snapshot_tables/_tool_bitbucket_deployments_for_deployment.csv", &models.BitbucketDeployment{})
 	dataflowTester.FlushTabler(&devops.CicdDeploymentCommit{})
 	dataflowTester.FlushTabler(&devops.CICDDeployment{})
-	dataflowTester.ImportCsvIntoTabler("./snapshot_tables/_tool_bitbucket_deployments.csv", &models.BitbucketDeployment{})
 	dataflowTester.Subtask(tasks.ConvertiDeploymentMeta, taskData)
 	dataflowTester.VerifyTable(
 		devops.CicdDeploymentCommit{},
