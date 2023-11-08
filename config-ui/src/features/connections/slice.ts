@@ -78,9 +78,13 @@ export const updateConnection = createAsyncThunk(
 
 export const removeConnection = createAsyncThunk(
   'connections/removeConnection',
-  async ({ plugin, connectionId }: any) => {
-    await API.connection.remove(plugin, connectionId);
-    return `${plugin}-${connectionId}`;
+  async ({ plugin, connectionId }: any, { rejectWithValue }) => {
+    try {
+      await API.connection.remove(plugin, connectionId);
+      return `${plugin}-${connectionId}`;
+    } catch (err: any) {
+      return rejectWithValue({ ...err.response.data, status: err.response.status });
+    }
   },
 );
 
