@@ -111,7 +111,10 @@ export const testConnection = createAsyncThunk(
 
 export const addWebhook = createAsyncThunk('connections/addWebhook', async (payload: any) => {
   const webhook = await API.plugin.webhook.create(payload);
-  return transformWebhook(webhook);
+  return {
+    webhook: transformWebhook(webhook),
+    apiKey: webhook.apiKey.apiKey,
+  };
 });
 
 export const removeWebhook = createAsyncThunk('connections/removeWebhook', async (id: ID) => {
@@ -175,7 +178,7 @@ export const connectionsSlice = createSlice({
         }
       })
       .addCase(addWebhook.fulfilled, (state, action) => {
-        state.webhooks.push(action.payload);
+        state.webhooks.push(action.payload.webhook);
       })
       .addCase(removeWebhook.fulfilled, (state, action) => {
         state.webhooks = state.webhooks.filter((wh) => wh.id !== action.payload);
@@ -183,11 +186,6 @@ export const connectionsSlice = createSlice({
       .addCase(updateWebhook.fulfilled, (state, action) => {
         state.webhooks = state.webhooks.map((wh) =>
           wh.id === action.payload.id ? { ...wh, name: action.payload.name } : wh,
-        );
-      })
-      .addCase(renewWebhookApiKey.fulfilled, (state, action) => {
-        state.webhooks = state.webhooks.map((wh) =>
-          wh.id === action.payload.id ? { ...wh, apiKey: action.payload.apiKey } : wh,
         );
       });
   },

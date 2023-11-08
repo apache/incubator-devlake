@@ -51,7 +51,6 @@ export const transformWebhook = (connection: IWebhookAPI): IWebhook => {
     postIssuesEndpoint: connection.postIssuesEndpoint,
     closeIssuesEndpoint: connection.closeIssuesEndpoint,
     postPipelineDeployTaskEndpoint: connection.postPipelineDeployTaskEndpoint,
-    apiKey: connection.apiKey.apiKey,
     apiKeyId: connection.apiKey.id,
   };
 };
