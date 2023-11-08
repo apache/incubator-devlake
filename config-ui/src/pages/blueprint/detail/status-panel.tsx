@@ -125,7 +125,7 @@ export const StatusPanel = ({ from, blueprint, pipelineId, onRefresh }: Props) =
       {from === FromEnum.project && (
         <S.ProjectACtion>
           <span>
-            {cron.value === 'manual' ? 'Manual' : `Next Run: ${formatTime(cron.nextTime, 'YYYY-MM-DD HH:mm')}`}
+            {cron.label === 'Manual' ? 'Manual' : `Next Run: ${formatTime(cron.nextTime, 'YYYY-MM-DD HH:mm')}`}
           </span>
           <Tooltip2
             position={Position.TOP}
