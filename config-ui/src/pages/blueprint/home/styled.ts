@@ -46,3 +46,19 @@ export const LabelInfo = styled.i`
 export const LabelDescription = styled.p`
   margin: 0;
 `;
+
+export const ConnectionList = styled.ul`
+  display: flex;
+
+  li {
+    &:last-child {
+      &::after {
+        content: '';
+      }
+    }
+
+    &::after {
+      content: ',';
+    }
+  }
+`;
