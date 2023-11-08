@@ -16,9 +16,14 @@
  *
  */
 
-export type Key = {
+import { IBlueprint } from './blueprint';
+import { IPipeline } from './pipeline';
+
+export interface IProject {
   name: string;
-  expiredAt?: string;
-  allowedPath: string;
-  creator: string;
-};
+  description: string;
+  blueprint: IBlueprint;
+  metrics: Array<{ pluginName: string; pluginOption: string; enable: boolean }>;
+  createdAt?: string;
+  lastPipeline?: IPipeline;
+}

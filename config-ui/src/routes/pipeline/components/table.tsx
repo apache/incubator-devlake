@@ -24,9 +24,8 @@ import { saveAs } from 'file-saver';
 import API from '@/api';
 import { DEVLAKE_ENDPOINT } from '@/config';
 import { Table, ColumnType, IconButton, Inspector, Dialog } from '@/components';
+import { IPipeline } from '@/types';
 import { formatTime } from '@/utils';
-
-import * as T from '../types';
 
 import { PipelineStatus } from './status';
 import { PipelineDuration } from './duration';
@@ -34,7 +33,7 @@ import { PipelineTasks } from './tasks';
 
 interface Props {
   loading: boolean;
-  dataSource: T.Pipeline[];
+  dataSource: IPipeline[];
   pagination?: {
     total: number;
     page: number;
@@ -52,7 +51,7 @@ export const PipelineTable = ({ dataSource, pagination, noData }: Props) => {
   const [JSON, setJSON] = useState<any>(null);
   const [id, setId] = useState<ID | null>(null);
 
-  const handleShowJSON = (row: T.Pipeline) => {
+  const handleShowJSON = (row: IPipeline) => {
     setJSON(pick(row, ['id', 'name', 'plan', 'skipOnFail']));
   };
 
@@ -116,7 +115,7 @@ export const PipelineTable = ({ dataSource, pagination, noData }: Props) => {
             </ButtonGroup>
           ),
         },
-      ] as ColumnType<T.Pipeline>,
+      ] as ColumnType<IPipeline>,
     [],
   );
 

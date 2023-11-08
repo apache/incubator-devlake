@@ -94,18 +94,14 @@ func ConvertDeployment(taskCtx plugin.SubTaskContext) errors.Error {
 				CicdScopeId:  projectIdGen.Generate(data.Options.ConnectionId, data.Options.ProjectId),
 				Name:         fmt.Sprintf("%s:%d", gitlabDeployment.Name, gitlabDeployment.DeploymentId),
 				Result: devops.GetResult(&devops.ResultRule{
-					Failed:  []string{"UNDEPLOYED", "failed"},
-					Success: []string{"COMPLETED", "success"},
-					Abort:   []string{"created", "canceled"},
-					Manual:  []string{"running", "blocked"},
-					Default: gitlabDeployment.Status,
+					Success: []string{StatusSuccess, StatusCompleted},
+					Failure: []string{StatusCanceled, StatusFailed},
+					Default: devops.RESULT_DEFAULT,
 				}, gitlabDeployment.Status),
-				Status: devops.GetStatus(&devops.StatusRule[string]{
-					Done:       []string{"COMPLETED", "UNDEPLOYED", "failed", "success", "canceled"},
-					InProgress: []string{"running"},
-					NotStarted: []string{"created"},
-					Manual:     []string{"blocked"},
-					Default:    gitlabDeployment.Status,
+				Status: devops.GetStatus(&devops.StatusRule{
+					Done:       []string{StatusSuccess, StatusCompleted, StatusFailed},
+					InProgress: []string{StatusRunning, StatusCanceled, StatusBlocked},
+					Default:    devops.STATUS_OTHER,
 				}, gitlabDeployment.Status),
 				Environment:  gitlabDeployment.Environment,
 				CreatedDate:  gitlabDeployment.CreatedDate,
@@ -113,7 +109,7 @@ func ConvertDeployment(taskCtx plugin.SubTaskContext) errors.Error {
 				FinishedDate: gitlabDeployment.DeployableFinishedAt,
 				CommitSha:    gitlabDeployment.Sha,
 				RefName:      gitlabDeployment.Ref,
-				RepoId:       didgen.NewDomainIdGenerator(&models.GitlabProject{}).Generate(data.Options.ConnectionId, data.Options.ProjectId),
+				RepoId:       projectIdGen.Generate(data.Options.ConnectionId, data.Options.ProjectId),
 				RepoUrl:      repo.WebUrl,
 			}
 			if duration != nil {

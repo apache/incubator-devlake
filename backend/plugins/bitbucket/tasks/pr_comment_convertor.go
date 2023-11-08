@@ -67,11 +67,10 @@ func ConvertPullRequestComments(taskCtx plugin.SubTaskContext) errors.Error {
 				},
 				PullRequestId: prIdGen.Generate(prComment.ConnectionId, prComment.RepoId, prComment.PullRequestId),
 				AccountId:     accountIdGen.Generate(prComment.ConnectionId, prComment.AuthorId),
-				CreatedDate:   prComment.CreatedAt,
+				CreatedDate:   prComment.BitbucketCreatedAt,
 				Body:          prComment.Body,
 				Type:          prComment.Type,
 				CommitSha:     "",
-				Position:      0,
 			}
 			return []interface{}{
 				domainPrComment,

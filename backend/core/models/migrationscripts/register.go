@@ -95,5 +95,6 @@ func All() []plugin.MigrationScript {
 		new(normalizeBpSettings),
 		new(addSyncPolicy),
 		new(addIssueCustomArrayField),
+		new(removePositionFromPullRequestComments),
 	}
 }

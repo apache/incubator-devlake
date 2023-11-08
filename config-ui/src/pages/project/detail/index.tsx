@@ -36,7 +36,7 @@ export const ProjectDetailPage = () => {
   const { pname } = useParams() as { pname: string };
   const [query, setQuery] = useUrlState({ tabId: 'blueprint' });
 
-  const { ready, data } = useRefreshData(() => Promise.all([API.project.get(pname)]), [pname, version]);
+  const { ready, data } = useRefreshData(() => API.project.get(pname), [pname, version]);
 
   const handleChangeTabId = (tabId: string) => {
     setQuery({ tabId });
@@ -50,13 +50,11 @@ export const ProjectDetailPage = () => {
     return <PageLoading />;
   }
 
-  const [project] = data;
-
   return (
     <PageHeader
       breadcrumbs={[
         { name: 'Projects', path: '/projects' },
-        { name: project.name, path: `/projects/${pname}` },
+        { name: data.name, path: `/projects/${pname}` },
       ]}
     >
       <S.Wrapper>
@@ -64,10 +62,10 @@ export const ProjectDetailPage = () => {
           <Tab
             id="blueprint"
             title="Blueprint"
-            panel={<BlueprintDetail id={project.blueprint.id} from={FromEnum.project} />}
+            panel={<BlueprintDetail id={data.blueprint.id} from={FromEnum.project} />}
           />
-          <Tab id="webhook" title="Webhooks" panel={<WebhooksPanel project={project} onRefresh={handleRefresh} />} />
-          <Tab id="settings" title="Settings" panel={<SettingsPanel project={project} onRefresh={handleRefresh} />} />
+          <Tab id="webhook" title="Webhooks" panel={<WebhooksPanel project={data} onRefresh={handleRefresh} />} />
+          <Tab id="settings" title="Settings" panel={<SettingsPanel project={data} onRefresh={handleRefresh} />} />
         </Tabs>
       </S.Wrapper>
     </PageHeader>

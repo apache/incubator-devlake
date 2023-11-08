@@ -18,11 +18,14 @@ limitations under the License.
 package tasks
 
 import (
+	"net/url"
+	"time"
+
 	"github.com/apache/incubator-devlake/core/errors"
 	"github.com/apache/incubator-devlake/core/plugin"
 	helper "github.com/apache/incubator-devlake/helpers/pluginhelper/api"
-	"net/url"
-	"time"
+	"github.com/apache/incubator-devlake/plugins/gitlab/models"
+	"golang.org/x/mod/semver"
 )
 
 var _ plugin.SubTaskEntryPoint = CollectDeployment
@@ -62,7 +65,11 @@ func CollectDeployment(taskCtx plugin.SubTaskContext) errors.Error {
 			}
 			// https://gitlab.com/gitlab-org/gitlab/-/issues/328500
 			// https://docs.gitlab.com/ee/api/deployments.html#list-project-deployments
-			query.Set("order_by", "updated_at")
+			if semver.Compare(data.ApiClient.GetData(models.GitlabApiClientData_ApiVersion).(string), "v16.0") >= 0 {
+				query.Set("order_by", "updated_at")
+			} else {
+				query.Set("order_by", "created_at")
+			}
 			if collectorWithState.Since != nil {
 				query.Set("updated_after", collectorWithState.Since.Format(time.RFC3339))
 			}

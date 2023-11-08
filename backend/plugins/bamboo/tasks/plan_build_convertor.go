@@ -70,15 +70,15 @@ func ConvertPlanBuilds(taskCtx plugin.SubTaskContext) errors.Error {
 				CicdScopeId:  planIdGen.Generate(data.Options.ConnectionId, data.Options.PlanKey),
 
 				Result: devops.GetResult(&devops.ResultRule{
-					Failed:  []string{"Failed"},
-					Success: []string{"Successful"},
-					Default: line.BuildState,
+					Success: []string{ResultSuccess, ResultSuccessful},
+					Failure: []string{ResultFailed},
+					Default: devops.RESULT_DEFAULT,
 				}, line.BuildState),
 
-				Status: devops.GetStatus(&devops.StatusRule[string]{
-					Done:       []string{"Finished", "FINISHED"},
-					NotStarted: []string{"not_built", "NOT_BUILT", "Not_Built", "PENDING", "QUEUED"},
-					Default:    devops.STATUS_IN_PROGRESS,
+				Status: devops.GetStatus(&devops.StatusRule{
+					Done:       []string{StatusFinished},
+					InProgress: []string{StatusInProgress, StatusPending, StatusQueued},
+					Default:    devops.STATUS_OTHER,
 				}, line.LifeCycleState),
 			}
 

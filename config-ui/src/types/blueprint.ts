@@ -16,21 +16,27 @@
  *
  */
 
-import styled from 'styled-components';
+export enum IBPMode {
+  ADVANCED = 'ADVANCED',
+  NORMAL = 'NORMAL',
+}
 
-export const Wrapper = styled.div`
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-
-  img:first-child {
-    width: 48px;
-    height: 48px;
-  }
-
-  img:last-child {
-    margin-top: 10px;
-    width: 100px;
-    height: 13px;
-  }
-`;
+export interface IBlueprint {
+  id: ID;
+  name: string;
+  projectName: string;
+  mode: IBPMode;
+  enable: boolean;
+  isManual: boolean;
+  cronConfig: string;
+  skipOnFail: boolean;
+  plan: any;
+  timeAfter: null | string;
+  connections: Array<{
+    pluginName: string;
+    connectionId: ID;
+    scopes?: Array<{
+      scopeId: string;
+    }>;
+  }>;
+}

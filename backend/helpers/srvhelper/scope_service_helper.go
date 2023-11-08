@@ -33,7 +33,7 @@ import (
 type ScopePagination struct {
 	Pagination   `mapstructure:",squash"`
 	ConnectionId uint64 `json:"connectionId" mapstructure:"connectionId" validate:"required"`
-	Blueprint    bool   `json:"blueprint" mapstructure:"blueprint"`
+	Blueprints   bool   `json:"blueprints" mapstructure:"blueprints"`
 }
 
 type ScopeDetail[S plugin.ToolLayerScope, SC plugin.ToolLayerScopeConfig] struct {
@@ -44,8 +44,7 @@ type ScopeDetail[S plugin.ToolLayerScope, SC plugin.ToolLayerScopeConfig] struct
 
 type ScopeSrvHelper[C plugin.ToolLayerConnection, S plugin.ToolLayerScope, SC plugin.ToolLayerScopeConfig] struct {
 	*ModelSrvHelper[S]
-	pluginName    string
-	searchColumns []string
+	pluginName string
 }
 
 // NewScopeSrvHelper creates a ScopeDalHelper for scope management
@@ -59,9 +58,8 @@ func NewScopeSrvHelper[
 	searchColumns []string,
 ) *ScopeSrvHelper[C, S, SC] {
 	return &ScopeSrvHelper[C, S, SC]{
-		ModelSrvHelper: NewModelSrvHelper[S](basicRes),
+		ModelSrvHelper: NewModelSrvHelper[S](basicRes, searchColumns),
 		pluginName:     pluginName,
-		searchColumns:  searchColumns,
 	}
 }
 
@@ -131,7 +129,7 @@ func (scopeSrv *ScopeSrvHelper[C, S, SC]) GetScopesPage(pagination *ScopePaginat
 			Scope:       scope,
 			ScopeConfig: scopeSrv.getScopeConfig(scope.ScopeScopeConfigId()),
 		}
-		if pagination.Blueprint {
+		if pagination.Blueprints {
 			scopeDetail.Blueprints = scopeSrv.getAllBlueprinsByScope(scope.ScopeConnectionId(), scope.ScopeId())
 		}
 		data[i] = scopeDetail

@@ -16,45 +16,20 @@
  *
  */
 
-export type Connection = {
+import { IPipelineStatus } from './pipeline';
+
+export interface ITask {
   id: ID;
-  name: string;
-  endpoint: string;
-  authMethod?: string;
-  token?: string;
-  username?: string;
-  password?: string;
-  proxy: string;
-  apiKey?: string;
-  dbUrl?: string;
-  appId?: string;
-  secretKey?: string;
-};
-
-export type ConnectionForm = {
-  name: string;
-  endpoint?: string;
-  authMethod?: string;
-  username?: string;
-  password?: string;
-  token?: string;
-  appId?: string;
-  secretKey?: string;
-  enableGraphql?: boolean;
-  proxy: string;
-  rateLimitPerHour?: number;
-  dbUrl?: string;
-};
-
-export type ConnectionTest = {
+  plugin: string;
+  status: IPipelineStatus;
+  pipelineRow: number;
+  pipelineCol: number;
+  beganAt: string | null;
+  finishedAt: string | null;
+  options: any;
   message: string;
-  success: boolean;
-  login?: string;
-  installations?: Array<{
-    id: number;
-    account: {
-      login: string;
-    };
-  }>;
-  warning?: string;
-};
+  progressDetail?: {
+    finishedSubTasks: number;
+    totalSubTasks: number;
+  };
+}

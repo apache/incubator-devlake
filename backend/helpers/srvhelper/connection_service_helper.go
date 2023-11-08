@@ -41,7 +41,7 @@ func NewConnectionSrvHelper[
 	pluginName string,
 ) *ConnectionSrvHelper[C, S, SC] {
 	return &ConnectionSrvHelper[C, S, SC]{
-		ModelSrvHelper: NewModelSrvHelper[C](basicRes),
+		ModelSrvHelper: NewModelSrvHelper[C](basicRes, nil),
 		pluginName:     pluginName,
 	}
 }
