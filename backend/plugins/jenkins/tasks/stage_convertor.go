@@ -18,6 +18,7 @@ limitations under the License.
 package tasks
 
 import (
+	"fmt"
 	"reflect"
 	"time"
 
@@ -66,7 +67,7 @@ func ConvertStages(taskCtx plugin.SubTaskContext) (err errors.Error) {
 		dal.Select(`tjb.connection_id, tjs.build_name, tjs.id, tjs._raw_data_remark, tjs.name,
 			tjs._raw_data_id, tjs._raw_data_table, tjs._raw_data_params,
 			tjs.status, tjs.start_time_millis, tjs.duration_millis,
-			tjs.pause_duration_millis, tjs.type,
+			tjs.pause_duration_millis, tjs.type, tjb.result,
 			tjb.triggered_by, tjb.building`),
 		dal.From("_tool_jenkins_stages tjs"),
 		dal.Join("left join _tool_jenkins_builds tjb on tjs.build_name = tjb.full_name"),
@@ -104,7 +105,8 @@ func ConvertStages(taskCtx plugin.SubTaskContext) (err errors.Error) {
 				Success: []string{SUCCESS},
 				Failure: []string{FAILED, FAILURE, ABORTED},
 				Default: devops.RESULT_DEFAULT,
-			}, body.Status)
+			}, body.Result)
+			fmt.Println("aaa", body.Result)
 
 			jenkinsTaskStatus := devops.GetStatus(&devops.StatusRule{
 				Done:       []string{SUCCESS, FAILURE, FAILED, ABORTED},
