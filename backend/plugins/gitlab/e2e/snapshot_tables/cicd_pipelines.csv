@@ -19,3 +19,12 @@ gitlab:GitlabPipeline:1:485865876,gitlab:GitlabPipeline:1:485865876,FAILURE,DONE
 gitlab:GitlabPipeline:1:485877118,gitlab:GitlabPipeline:1:485877118,FAILURE,DONE,,289,,2022-03-07T08:22:48.943+00:00,2022-03-07T08:27:38.364+00:00,gitlab:GitlabProject:1:12345678
 gitlab:GitlabPipeline:1:485905167,gitlab:GitlabPipeline:1:485905167,FAILURE,DONE,,687,,2022-03-07T09:02:09.994+00:00,2022-03-07T09:13:37.013+00:00,gitlab:GitlabProject:1:12345678
 gitlab:GitlabPipeline:1:485932863,gitlab:GitlabPipeline:1:485932863,SUCCESS,DONE,,398,,2022-03-07T09:34:57.476+00:00,2022-03-07T09:41:36.267+00:00,gitlab:GitlabProject:1:12345678
+gitlab:GitlabPipeline:1:485932864,gitlab:GitlabPipeline:1:485932864,FAILURE,DONE,,398,,2022-03-07T09:34:57.476+00:00,2022-03-07T09:41:36.267+00:00,gitlab:GitlabProject:1:12345678
+gitlab:GitlabPipeline:1:485932865,gitlab:GitlabPipeline:1:485932865,,OTHER,,0,,2022-03-07T09:34:57.476+00:00,,gitlab:GitlabProject:1:12345678
+gitlab:GitlabPipeline:1:485932866,gitlab:GitlabPipeline:1:485932866,,IN_PROGRESS,,0,,2022-03-07T09:34:57.476+00:00,,gitlab:GitlabProject:1:12345678
+gitlab:GitlabPipeline:1:485932867,gitlab:GitlabPipeline:1:485932867,,IN_PROGRESS,,0,,2022-03-07T09:34:57.476+00:00,,gitlab:GitlabProject:1:12345678
+gitlab:GitlabPipeline:1:485932868,gitlab:GitlabPipeline:1:485932868,,IN_PROGRESS,,0,,2022-03-07T09:34:57.476+00:00,,gitlab:GitlabProject:1:12345678
+gitlab:GitlabPipeline:1:485932869,gitlab:GitlabPipeline:1:485932869,,IN_PROGRESS,,0,,2022-03-07T09:34:57.476+00:00,,gitlab:GitlabProject:1:12345678
+gitlab:GitlabPipeline:1:485932870,gitlab:GitlabPipeline:1:485932870,,OTHER,,0,,2022-03-07T09:34:57.476+00:00,,gitlab:GitlabProject:1:12345678
+gitlab:GitlabPipeline:1:485932871,gitlab:GitlabPipeline:1:485932871,,OTHER,,0,,2022-03-07T09:34:57.476+00:00,,gitlab:GitlabProject:1:12345678
+gitlab:GitlabPipeline:1:485932872,gitlab:GitlabPipeline:1:485932872,,OTHER,,0,,2022-03-07T09:34:57.476+00:00,,gitlab:GitlabProject:1:12345678
