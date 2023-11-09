@@ -18,7 +18,6 @@ limitations under the License.
 package tasks
 
 import (
-	"fmt"
 	"reflect"
 	"time"
 
@@ -106,7 +105,6 @@ func ConvertStages(taskCtx plugin.SubTaskContext) (err errors.Error) {
 				Failure: []string{FAILED, FAILURE, ABORTED},
 				Default: devops.RESULT_DEFAULT,
 			}, body.Result)
-			fmt.Println("aaa", body.Result)
 
 			jenkinsTaskStatus := devops.GetStatus(&devops.StatusRule{
 				Done:       []string{SUCCESS, FAILURE, FAILED, ABORTED},
