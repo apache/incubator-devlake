@@ -60,6 +60,10 @@ export const Layout = () => {
   }
 
   const handlePushPath = (it: MenuItemType) => {
+    if (!it.path) {
+      return;
+    }
+
     if (!it.target) {
       navigate(it.path);
     } else {
