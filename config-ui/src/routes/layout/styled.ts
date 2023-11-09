@@ -49,8 +49,13 @@ export const Sider = styled.div`
       outline: none;
       cursor: pointer;
 
-      &:hover {
-        background-color: rgba(167, 182, 194, 0.3);
+      &.bp5-active {
+        color: #fff;
+        background-color: #7497f7;
+
+        .bp5-menu-item-icon {
+          color: #fff;
+        }
       }
 
       .bp5-icon {

@@ -188,77 +188,80 @@ export const GitHubTransformation = ({ entities, transformation, setTransformati
         </div>
       )}
       {entities.includes('CICD') && (
-        <S.CICD>
-          <h2>CI/CD</h2>
-          <h3>
-            <span>Deployment</span>
-            <Tag minimal intent={Intent.PRIMARY} style={{ marginLeft: 8 }}>
-              DORA
-            </Tag>
-          </h3>
-          <p style={{ marginBottom: 16 }}>
-            Use Regular Expression to define Deployments in DevLake in order to measure DORA metrics.{' '}
-            <ExternalLink link={DOC_URL.PLUGIN.GITHUB.TRANSFORMATION}>Learn more</ExternalLink>
-          </p>
-          <div className="text">
-            <Checkbox disabled checked />
-            <span>Convert a GitHub Deployment to a DevLake Deployment </span>
-          </div>
-          <div className="sub-text">
-            <span>If its environment name matches</span>
-            <InputGroup
-              style={{ width: 180, margin: '0 8px' }}
-              placeholder="(?i)prod(.*)"
-              value={transformation.envNamePattern}
-              onChange={(e) =>
-                setTransformation({
-                  ...transformation,
-                  envNamePattern: e.target.value,
-                })
-              }
-            />
-            <span>, this deployment is a ‘Production Deployment’</span>
-          </div>
-          <div className="text">
-            <Checkbox checked={useCustom} onChange={handleChangeUseCustom} />
-            <span>Convert a GitHub workflow run as a DevLake Deployment when: </span>
-          </div>
-          <div className="sub-text">
-            <span>
-              The name of the <strong>GitHub workflow run</strong> or <strong> one of its jobs</strong> matches
-            </span>
-            <InputGroup
-              style={{ width: 180, margin: '0 8px' }}
-              placeholder="(deploy|push-image)"
-              value={transformation.deploymentPattern ?? ''}
-              onChange={(e) =>
-                setTransformation({
-                  ...transformation,
-                  deploymentPattern: e.target.value,
-                  productionPattern: !e.target.value ? '' : transformation.productionPattern,
-                })
-              }
-            />
-            <i style={{ color: '#E34040' }}>*</i>
-            <HelpTooltip content="GitHub Workflow Runs: https://docs.github.com/en/actions/managing-workflow-runs/manually-running-a-workflow" />
-          </div>
-          <div className="sub-text">
-            <span>If the name also matches</span>
-            <InputGroup
-              style={{ width: 180, margin: '0 8px' }}
-              placeholder="prod(.*)"
-              value={transformation.productionPattern ?? ''}
-              onChange={(e) =>
-                setTransformation({
-                  ...transformation,
-                  productionPattern: e.target.value,
-                })
-              }
-            />
-            <span>, this deployment is a ‘Production Deployment’</span>
-            <HelpTooltip content="If you leave this field empty, all Deployments will be tagged as in the Production environment. " />
-          </div>
-        </S.CICD>
+        <>
+          <S.CICD>
+            <h2>CI/CD</h2>
+            <h3>
+              <span>Deployment</span>
+              <Tag minimal intent={Intent.PRIMARY} style={{ marginLeft: 8 }}>
+                DORA
+              </Tag>
+            </h3>
+            <p style={{ marginBottom: 16 }}>
+              Use Regular Expression to define Deployments in DevLake in order to measure DORA metrics.{' '}
+              <ExternalLink link={DOC_URL.PLUGIN.GITHUB.TRANSFORMATION}>Learn more</ExternalLink>
+            </p>
+            <div className="text">
+              <Checkbox disabled checked />
+              <span>Convert a GitHub Deployment to a DevLake Deployment </span>
+            </div>
+            <div className="sub-text">
+              <span>If its environment name matches</span>
+              <InputGroup
+                style={{ width: 180, margin: '0 8px' }}
+                placeholder="(?i)prod(.*)"
+                value={transformation.envNamePattern}
+                onChange={(e) =>
+                  setTransformation({
+                    ...transformation,
+                    envNamePattern: e.target.value,
+                  })
+                }
+              />
+              <span>, this deployment is a ‘Production Deployment’</span>
+            </div>
+            <div className="text">
+              <Checkbox checked={useCustom} onChange={handleChangeUseCustom} />
+              <span>Convert a GitHub workflow run as a DevLake Deployment when: </span>
+            </div>
+            <div className="sub-text">
+              <span>
+                The name of the <strong>GitHub workflow run</strong> or <strong> one of its jobs</strong> matches
+              </span>
+              <InputGroup
+                style={{ width: 180, margin: '0 8px' }}
+                placeholder="(deploy|push-image)"
+                value={transformation.deploymentPattern ?? ''}
+                onChange={(e) =>
+                  setTransformation({
+                    ...transformation,
+                    deploymentPattern: e.target.value,
+                    productionPattern: !e.target.value ? '' : transformation.productionPattern,
+                  })
+                }
+              />
+              <i style={{ color: '#E34040' }}>*</i>
+              <HelpTooltip content="GitHub Workflow Runs: https://docs.github.com/en/actions/managing-workflow-runs/manually-running-a-workflow" />
+            </div>
+            <div className="sub-text">
+              <span>If the name or its branch’s name also matches</span>
+              <InputGroup
+                style={{ width: 180, margin: '0 8px' }}
+                placeholder="prod(.*)"
+                value={transformation.productionPattern ?? ''}
+                onChange={(e) =>
+                  setTransformation({
+                    ...transformation,
+                    productionPattern: e.target.value,
+                  })
+                }
+              />
+              <span>, this deployment is a ‘Production Deployment’</span>
+              <HelpTooltip content="If you leave this field empty, all Deployments will be tagged as in the Production environment. " />
+            </div>
+          </S.CICD>
+          <Divider />
+        </>
       )}
       {entities.includes('CODEREVIEW') && (
         <div>
