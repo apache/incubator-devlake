@@ -84,7 +84,11 @@ func RemoteScopes(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, er
 			var resBody []models.GitlabApiProject
 			if gid == "" {
 				var resProjects []models.GitlabApiProject
-				res, err = apiClient.Get("/projects", query, nil)
+				if connection.Endpoint == models.GitlabCloudEndPoint {
+					res, err = apiClient.Get(fmt.Sprintf("users/%d/projects", apiClient.GetData("UserId")), query, nil)
+				} else {
+					res, err = apiClient.Get("/projects", query, nil)
+				}
 				if err != nil {
 					return nil, err
 				}
