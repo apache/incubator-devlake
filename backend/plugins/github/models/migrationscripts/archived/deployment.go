@@ -18,14 +18,15 @@ limitations under the License.
 package archived
 
 import (
-	"github.com/apache/incubator-devlake/core/models/migrationscripts/archived"
 	"time"
+
+	"github.com/apache/incubator-devlake/core/models/migrationscripts/archived"
 )
 
 type GithubDeployment struct {
 	archived.NoPKModel `json:"-" mapstructure:"-"`
 	ConnectionId       uint64    `json:"connection_id" gorm:"primaryKey"`
-	GithubId           int       `json:"github_id" gorm:"type:varchar(255)"`
+	GithubId           int       `json:"github_id"`
 	Id                 string    `json:"id" gorm:"type:varchar(255);primaryKey"`
 	DatabaseId         uint      `json:"database_id"`
 	CommitOid          string    `json:"commit_oid" gorm:"type:varchar(255)"`

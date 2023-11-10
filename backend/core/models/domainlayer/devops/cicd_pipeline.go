@@ -18,9 +18,10 @@ limitations under the License.
 package devops
 
 import (
-	"github.com/spf13/cast"
 	"strings"
 	"time"
+
+	"github.com/spf13/cast"
 
 	"github.com/apache/incubator-devlake/core/models/domainlayer"
 )
@@ -90,17 +91,14 @@ func GetResult(rule *ResultRule, input interface{}) string {
 }
 
 // GetStatus compare the input with rule for return the enum value of status
-func GetStatus(rule *StatusRule, input string) string {
-	if rule.Default == "" {
-		rule.Default = STATUS_OTHER
-	}
+func GetStatus(rule *StatusRule, input interface{}) string {
 	for _, inProgress := range rule.InProgress {
-		if strings.EqualFold(inProgress, input) {
+		if strings.EqualFold(inProgress, cast.ToString(input)) {
 			return STATUS_IN_PROGRESS
 		}
 	}
 	for _, done := range rule.Done {
-		if strings.EqualFold(done, input) {
+		if strings.EqualFold(done, cast.ToString(input)) {
 			return STATUS_DONE
 		}
 	}

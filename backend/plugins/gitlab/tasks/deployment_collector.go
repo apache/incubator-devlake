@@ -31,14 +31,14 @@ import (
 var _ plugin.SubTaskEntryPoint = CollectDeployment
 
 const (
-	RAW_DEPLOYMENT = "gitlab_deployments"
+	RAW_DEPLOYMENT = "gitlab_api_deployments"
 )
 
 func init() {
-	RegisterSubtaskMeta(CollectDeploymentMeta)
+	RegisterSubtaskMeta(&CollectDeploymentMeta)
 }
 
-var CollectDeploymentMeta = &plugin.SubTaskMeta{
+var CollectDeploymentMeta = plugin.SubTaskMeta{
 	Name:             "CollectDeployment",
 	EntryPoint:       CollectDeployment,
 	EnabledByDefault: true,

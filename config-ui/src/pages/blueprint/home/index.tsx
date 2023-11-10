@@ -127,21 +127,22 @@ export const BlueprintHomePage = () => {
               title: 'Data Connections',
               dataIndex: ['mode', 'connections'],
               key: 'connections',
-              align: 'center',
               render: ({ mode, connections }: Pick<IBlueprint, 'mode' | 'connections'>) => {
                 if (mode === IBPMode.ADVANCED) {
                   return 'Advanced Mode';
                 }
                 return (
-                  <>
+                  <S.ConnectionList>
                     {connections.map((it) => (
-                      <ConnectionName
-                        key={`${it.pluginName}-${it.connectionId}`}
-                        plugin={it.pluginName}
-                        connectionId={it.connectionId}
-                      />
+                      <li>
+                        <ConnectionName
+                          key={`${it.pluginName}-${it.connectionId}`}
+                          plugin={it.pluginName}
+                          connectionId={it.connectionId}
+                        />
+                      </li>
                     ))}
-                  </>
+                  </S.ConnectionList>
                 );
               },
             },
@@ -150,7 +151,6 @@ export const BlueprintHomePage = () => {
               dataIndex: ['isManual', 'cronConfig'],
               key: 'frequency',
               width: 100,
-              align: 'center',
               render: ({ isManual, cronConfig }) => {
                 const cron = getCron(isManual, cronConfig);
                 return cron.label;
@@ -161,7 +161,6 @@ export const BlueprintHomePage = () => {
               dataIndex: ['isManual', 'cronConfig'],
               key: 'nextRunTime',
               width: 200,
-              align: 'center',
               render: ({ isManual, cronConfig }) => {
                 const cron = getCron(isManual, cronConfig);
                 return formatTime(cron.nextTime);
@@ -171,7 +170,6 @@ export const BlueprintHomePage = () => {
               title: 'Project',
               dataIndex: 'projectName',
               key: 'project',
-              align: 'center',
               render: (val) =>
                 val ? (
                   <Link to={`/projects/${window.encodeURIComponent(val)}`}>
