@@ -18,7 +18,7 @@
 
 import { ExternalLink } from '@/components';
 
-import Icon from './assets/icon.png';
+import Icon from './assets/icon.svg';
 import { Endpoint } from './connection-fields';
 
 export const OpsgenieConfig = {
