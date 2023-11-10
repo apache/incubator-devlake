@@ -33,6 +33,7 @@ type GitlabConn struct {
 	api.AccessToken    `mapstructure:",squash"`
 }
 
+const GitlabCloudEndPoint string = "https://gitlab.com/api/v4/"
 const GitlabApiClientData_UserId string = "UserId"
 const GitlabApiClientData_ApiVersion string = "ApiVersion"
 
