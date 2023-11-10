@@ -18,12 +18,13 @@ limitations under the License.
 package tasks
 
 import (
+	"net/http"
+
 	"github.com/apache/incubator-devlake/core/errors"
 	"github.com/apache/incubator-devlake/core/plugin"
 	"github.com/apache/incubator-devlake/helpers/pluginhelper/api"
 	"github.com/apache/incubator-devlake/plugins/github/models"
 	"github.com/apache/incubator-devlake/plugins/github/utils"
-	"net/http"
 )
 
 const (
@@ -37,9 +38,9 @@ const (
 	StatusCancelled      = "CANCELLED"
 	StatusTimedOut       = "TIMED_OUT"
 	StatusStartUpFailure = "STARTUP_FAILURE"
-	StatusInProgress     = "IN_PROGRESS "
+	StatusInProgress     = "IN_PROGRESS"
 	StatusQueued         = "QUEUED"
-	StatusWaiting        = "WAITING "
+	StatusWaiting        = "WAITING"
 	StatusPending        = "PENDING"
 	StatusNeutral        = "NEUTRAL"
 	StatusSkipped        = "SKIPPED"

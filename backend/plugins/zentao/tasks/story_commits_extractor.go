@@ -20,6 +20,7 @@ package tasks
 import (
 	"encoding/json"
 	"net/url"
+	"path"
 	"regexp"
 
 	"github.com/apache/incubator-devlake/core/errors"
@@ -89,7 +90,7 @@ func ExtractStoryCommits(taskCtx plugin.SubTaskContext) errors.Error {
 			}
 
 			storyCommits.Host = u.Host
-			storyCommits.RepoRevision = u.Path
+			storyCommits.RepoRevision = "/" + path.Base(u.Path)
 
 			results := make([]interface{}, 0)
 			results = append(results, storyCommits)

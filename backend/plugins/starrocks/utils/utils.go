@@ -27,48 +27,73 @@ func GetTablesByDomainLayer(domainLayer string) []string {
 	switch domainLayer {
 	case "code":
 		return []string{
-			"commits_diffs",
-			"pull_requests",
-			"commits",
-			"refs_pr_cherrypicks",
-			"repos",
-			"refs",
-			"pull_request_commits",
-			"repo_commits",
-			"pull_request_labels",
 			"commit_parents",
-			"notes",
-			"pull_request_comments",
+			"commits",
 			"commit_files",
+			"commit_file_components",
+			"commit_line_change",
+			"repo_snapshot",
+			"commits_diffs",
+			"ref_commits",
+			"components",
+			"pull_request_comments",
+			"pull_request_commits",
+			"pull_request_labels",
+			"pull_requests",
+			"refs",
+			"refs_pr_cherrypicks",
+			"repo_commits",
+			"repos",
+			"repo_languages",
+		}
+	case "codequality":
+		return []string{
+			"cq_file_metrics",
+			"cq_issue_code_blocks",
+			"cq_issues",
+			"cq_projects",
 		}
 	case "crossdomain":
 		return []string{
-			"pull_request_issues",
-			"users",
+			"accounts",
+			"board_repos",
 			"issue_commits",
 			"issue_repo_commits",
+			"project_issue_metrics",
+			"project_mapping",
+			"project_pr_metrics",
+			"pull_request_issues",
 			"refs_issues_diffs",
-			"board_repos",
+			"team_users",
+			"teams",
+			"user_accounts",
+			"users",
 		}
 	case "devops":
 		return []string{
-			"builds",
-			"jobs",
+			"cicd_deployment_commits",
+			"cicd_deployments",
+			"cicd_pipeline_commits",
+			"cicd_pipelines",
+			"cicd_scopes",
+			"cicd_tasks",
 		}
 	case "ticket":
 		return []string{
 			"board_issues",
 			"boards",
-			"changelogs",
+			"board_sprints",
+			"issue_assignees",
+			"issue_changelogs",
 			"issue_comments",
+			"issue_custom_array_fields",
 			"issue_labels",
+			"issue_relationships",
 			"issues",
 			"sprints",
-			"issue_worklogs",
-			"board_sprints",
 			"sprint_issues",
+			"issue_worklogs",
 		}
-
 	}
 	return nil
 }

@@ -73,7 +73,6 @@ func TestJenkinsStagesDataFlow(t *testing.T) {
 			"type",
 		),
 	)
-
 	// verify env when production regex is omitted
 	dataflowTester.FlushTabler(&devops.CICDTask{})
 	dataflowTester.Subtask(tasks.ConvertStagesMeta, taskData)

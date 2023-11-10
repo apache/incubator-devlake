@@ -35,16 +35,16 @@ import (
 var _ plugin.SubTaskEntryPoint = ConvertDeployment
 
 func init() {
-	RegisterSubtaskMeta(ConvertDeploymentMeta)
+	RegisterSubtaskMeta(&ConvertDeploymentMeta)
 }
 
-var ConvertDeploymentMeta = &plugin.SubTaskMeta{
+var ConvertDeploymentMeta = plugin.SubTaskMeta{
 	Name:             "ConvertDeployment",
 	EntryPoint:       ConvertDeployment,
 	EnabledByDefault: true,
 	Description:      "Convert gitlab deployment from tool layer to domain layer",
 	DomainTypes:      []string{plugin.DOMAIN_TYPE_CICD},
-	Dependencies:     []*plugin.SubTaskMeta{ExtractDeploymentMeta},
+	Dependencies:     []*plugin.SubTaskMeta{&ExtractDeploymentMeta},
 }
 
 func ConvertDeployment(taskCtx plugin.SubTaskContext) errors.Error {
@@ -99,8 +99,8 @@ func ConvertDeployment(taskCtx plugin.SubTaskContext) errors.Error {
 					Default: devops.RESULT_DEFAULT,
 				}, gitlabDeployment.Status),
 				Status: devops.GetStatus(&devops.StatusRule{
-					Done:       []string{StatusSuccess, StatusCompleted, StatusFailed},
-					InProgress: []string{StatusRunning, StatusCanceled, StatusBlocked},
+					Done:       []string{StatusSuccess, StatusCompleted, StatusFailed, StatusCanceled},
+					InProgress: []string{StatusRunning},
 					Default:    devops.STATUS_OTHER,
 				}, gitlabDeployment.Status),
 				Environment:  gitlabDeployment.Environment,

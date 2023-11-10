@@ -42,7 +42,7 @@ export const useMenu = () => {
         {
           key: 'project',
           title: 'Projects',
-          icon: 'home',
+          icon: 'projects',
           path: '/projects',
         },
         {
