@@ -19,6 +19,7 @@ package api
 
 import (
 	"fmt"
+
 	"github.com/apache/incubator-devlake/core/errors"
 	plugin "github.com/apache/incubator-devlake/core/plugin"
 	"github.com/apache/incubator-devlake/core/utils"
@@ -27,7 +28,7 @@ import (
 // MakePipelinePlanSubtasks generates subtasks list based on sub-task meta information and entities wanted by user
 func MakePipelinePlanSubtasks(subtaskMetas []plugin.SubTaskMeta, entities []string) ([]string, errors.Error) {
 	subtasks := make([]string, 0)
-	// if no entities specified, use all subtasks enabled by default
+	// if no entities specified, use all entities enabled by default
 	if len(entities) == 0 {
 		entities = plugin.DOMAIN_TYPES
 	}
