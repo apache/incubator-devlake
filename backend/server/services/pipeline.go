@@ -66,7 +66,7 @@ func pipelineServiceInit() {
 	if temporalUrl != "" {
 		// TODO: logger
 		var err error
-		temporalClient, err = client.NewClient(client.Options{
+		temporalClient, err = client.NewLazyClient(client.Options{
 			HostPort: temporalUrl,
 		})
 		if err != nil {

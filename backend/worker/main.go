@@ -18,6 +18,8 @@ limitations under the License.
 package main
 
 import (
+	"log"
+
 	"github.com/apache/incubator-devlake/core/errors"
 	"github.com/apache/incubator-devlake/core/runner"
 	_ "github.com/apache/incubator-devlake/core/version"
@@ -25,7 +27,6 @@ import (
 	"github.com/apache/incubator-devlake/worker/app"
 	"go.temporal.io/sdk/client"
 	"go.temporal.io/sdk/worker"
-	"log"
 )
 
 func main() {
@@ -38,7 +39,7 @@ func main() {
 	// establish temporal connection
 	TASK_QUEUE := basicRes.GetConfig("TEMPORAL_TASK_QUEUE")
 	// Create the client object just once per process
-	c, err := errors.Convert01(client.NewClient(client.Options{
+	c, err := errors.Convert01(client.NewLazyClient(client.Options{
 		HostPort: basicRes.GetConfig("TEMPORAL_URL"),
 		Logger:   app.NewTemporalLogger(logruslog.Global),
 	}))
