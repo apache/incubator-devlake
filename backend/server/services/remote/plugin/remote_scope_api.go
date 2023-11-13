@@ -18,6 +18,7 @@ limitations under the License.
 package plugin
 
 import (
+	"github.com/apache/incubator-devlake/core/models"
 	"net/http"
 	"strconv"
 
@@ -43,26 +44,37 @@ func (pa *pluginAPI) GetRemoteScopes(input *plugin.ApiResourceInput) (*plugin.Ap
 	if connectionId == 0 {
 		return nil, errors.BadInput.New("invalid connectionId")
 	}
-
 	connection := pa.connType.New()
 	err := pa.connhelper.First(connection, input.Params)
 	if err != nil {
 		return nil, err
 	}
-
 	groupId := input.Query.Get("groupId")
-
-	remoteScopes := make([]RemoteScopesTreeNode, 0)
-	err = pa.invoker.Call("remote-scopes", bridge.DefaultContext, connection.Unwrap(), groupId).Get(&remoteScopes)
+	remoteScopes, err := pa.getRemoteScopesIncrementally(connection, groupId)
 	if err != nil {
 		return nil, err
 	}
-
 	output := RemoteScopesOutput{
 		Children: remoteScopes,
 	}
-
 	return &plugin.ApiResourceOutput{Body: output, Status: http.StatusOK}, nil
+}
+
+func (pa *pluginAPI) getRemoteScopesIncrementally(connection models.DynamicTabler, groupId string) ([]RemoteScopesTreeNode, errors.Error) {
+	remoteScopes := make([]RemoteScopesTreeNode, 0)
+	stream := pa.invoker.Stream("remote-scopes", bridge.DefaultContext, connection.Unwrap(), groupId)
+	for recv := range stream.Receive() {
+		if recv.Err != nil {
+			return nil, recv.Err
+		}
+		scope := RemoteScopesTreeNode{}
+		err := recv.Get(&scope)
+		if err != nil {
+			return nil, err
+		}
+		remoteScopes = append(remoteScopes, scope)
+	}
+	return remoteScopes, nil
 }
 
 func (pa *pluginAPI) SearchRemoteScopes(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, errors.Error) {
