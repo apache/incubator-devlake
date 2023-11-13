@@ -16,7 +16,7 @@
  *
  */
 
-import { useState, useMemo } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import dayjs from 'dayjs';
 import { Tag, Checkbox, FormGroup, InputGroup, Radio, RadioGroup } from '@blueprintjs/core';
 import { TimePrecision } from '@blueprintjs/datetime';
@@ -53,7 +53,18 @@ export const SyncPolicy = ({
 }: Props) => {
   const [selectedValue, setSelectedValue] = useState('Daily');
 
-  const [timezone, quickTimeOpts, cronOpts] = useMemo(() => {
+  const cronOpts = getCronOptions();
+
+  useEffect(() => {
+    if (isManual) {
+      setSelectedValue('Manual');
+    } else {
+      const opt = cronOpts.find((it) => it.value === cronConfig);
+      setSelectedValue(opt ? opt.label : 'Custom');
+    }
+  }, []);
+
+  const [timezone, quickTimeOpts] = useMemo(() => {
     const timezone = dayjs().format('ZZ').replace('00', '');
     const quickTimeOpts = [
       { label: 'Last 6 months', date: dayjs().subtract(6, 'month').toDate() },
@@ -61,10 +72,7 @@ export const SyncPolicy = ({
       { label: 'Last 30 days', date: dayjs().subtract(30, 'day').toDate() },
       { label: 'Last Year', date: dayjs().subtract(1, 'year').toDate() },
     ];
-
-    const cronOpts = getCronOptions();
-
-    return [timezone, quickTimeOpts, cronOpts];
+    return [timezone, quickTimeOpts];
   }, []);
 
   const cron = useMemo(() => getCron(isManual, cronConfig), [isManual, cronConfig]);
