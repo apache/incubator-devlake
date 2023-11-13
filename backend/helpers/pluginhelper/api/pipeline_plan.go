@@ -27,8 +27,9 @@ import (
 // MakePipelinePlanSubtasks generates subtasks list based on sub-task meta information and entities wanted by user
 func MakePipelinePlanSubtasks(subtaskMetas []plugin.SubTaskMeta, entities []string) ([]string, errors.Error) {
 	subtasks := make([]string, 0)
+	// if no entities specified, use all subtasks enabled by default
 	if len(entities) == 0 {
-		return subtasks, nil
+		entities = plugin.DOMAIN_TYPES
 	}
 	wanted := make(map[string]bool, len(entities))
 	for _, entity := range entities {
