@@ -285,7 +285,11 @@ func createPipelineByBlueprint(blueprint *models.Blueprint, syncPolicy *models.S
 			return nil, err
 		}
 	} else {
-		plan = blueprint.Plan
+		if syncPolicy != nil && syncPolicy.SkipCollectors {
+			plan = removeCollectorTasks(blueprint.Plan)
+		} else {
+			plan = blueprint.Plan
+		}
 	}
 
 	newPipeline := models.NewPipeline{}
@@ -387,4 +391,20 @@ func TriggerBlueprint(id uint64, syncPolicy *models.SyncPolicy) (*models.Pipelin
 	blueprint.FullSync = syncPolicy.FullSync
 
 	return createPipelineByBlueprint(blueprint, syncPolicy)
+}
+
+func removeCollectorTasks(plan models.PipelinePlan) models.PipelinePlan {
+	for j, stage := range plan {
+		for k, task := range stage {
+			newSubtasks := make([]string, 0, len(task.Subtasks))
+			for _, subtask := range task.Subtasks {
+				if !strings.Contains(strings.ToLower(subtask), "collect") {
+					newSubtasks = append(newSubtasks, subtask)
+				}
+			}
+			task.Subtasks = newSubtasks
+			plan[j][k] = task
+		}
+	}
+	return plan
 }
