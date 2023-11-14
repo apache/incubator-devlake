@@ -34,6 +34,12 @@ echo "Usage: "
 echo "  build all plugins:              $0 [golang build flags...]"
 echo "  build and keep specified plugins only: DEVLAKE_PLUGINS=github,jira $0 [golang build flags...]"
 
+
+if [ "$DEVLAKE_PLUGINS" = "none" ]; then
+    echo "skip building plugins" > &2
+    exit 0
+fi
+
 ROOT_DIR=$(dirname $(dirname "$0"))
 EXTRA=""
 PLUGIN_SRC_DIR=$ROOT_DIR/plugins
