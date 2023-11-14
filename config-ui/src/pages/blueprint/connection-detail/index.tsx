@@ -216,6 +216,8 @@ export const BlueprintConnectionDetailPage = () => {
         )}
       </Buttons>
       <Table
+        rowKey="id"
+        size="middle"
         columns={[
           {
             title: 'Data Scope',
@@ -224,9 +226,8 @@ export const BlueprintConnectionDetailPage = () => {
           },
           {
             title: 'Scope Config',
-            dataIndex: ['scopeConfigId', 'scopeConfigName'],
             key: 'scopeConfig',
-            render: ({ scopeConfigId, scopeConfigName }) => (scopeConfigId ? scopeConfigName : 'N/A'),
+            render: (_, { scopeConfigId, scopeConfigName }) => (scopeConfigId ? scopeConfigName : 'N/A'),
           },
         ]}
         dataSource={scopes}

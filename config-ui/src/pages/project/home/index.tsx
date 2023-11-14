@@ -123,6 +123,8 @@ export const ProjectHomePage = () => {
       extra={<Button intent={Intent.PRIMARY} icon="plus" text="New Project" onClick={handleShowDialog} />}
     >
       <Table
+        rowKey="name"
+        size="middle"
         loading={!ready}
         columns={[
           {
@@ -145,12 +147,8 @@ export const ProjectHomePage = () => {
               ) : (
                 <S.ConnectionList>
                   {val.map((it) => (
-                    <li>
-                      <ConnectionName
-                        key={`${it.pluginName}-${it.connectionId}`}
-                        plugin={it.pluginName}
-                        connectionId={it.connectionId}
-                      />
+                    <li key={`${it.pluginName}-${it.connectionId}`}>
+                      <ConnectionName plugin={it.pluginName} connectionId={it.connectionId} />
                     </li>
                   ))}
                 </S.ConnectionList>
@@ -158,9 +156,8 @@ export const ProjectHomePage = () => {
           },
           {
             title: 'Sync Frequency',
-            dataIndex: ['isManual', 'cronConfig'],
             key: 'frequency',
-            render: ({ isManual, cronConfig }) => {
+            render: (_, { isManual, cronConfig }) => {
               const cron = getCron(isManual, cronConfig);
               return cron.label;
             },

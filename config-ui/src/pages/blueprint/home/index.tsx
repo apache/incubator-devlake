@@ -112,13 +112,14 @@ export const BlueprintHomePage = () => {
           <Button icon="plus" intent={Intent.PRIMARY} text="New Blueprint" onClick={handleShowDialog} />
         </div>
         <Table
+          rowKey="id"
+          size="middle"
           loading={!ready}
           columns={[
             {
               title: 'Blueprint Name',
-              dataIndex: ['id', 'name'],
               key: 'name',
-              render: ({ id, name }) => (
+              render: (_, { id, name }) => (
                 <Link to={`/blueprints/${id}?tab=configuration`} style={{ color: '#292b3f' }}>
                   <TextTooltip content={name}>{name}</TextTooltip>
                 </Link>
@@ -126,21 +127,16 @@ export const BlueprintHomePage = () => {
             },
             {
               title: 'Data Connections',
-              dataIndex: ['mode', 'connections'],
               key: 'connections',
-              render: ({ mode, connections }: Pick<IBlueprint, 'mode' | 'connections'>) => {
+              render: (_, { mode, connections }: Pick<IBlueprint, 'mode' | 'connections'>) => {
                 if (mode === IBPMode.ADVANCED) {
                   return 'Advanced Mode';
                 }
                 return (
                   <S.ConnectionList>
                     {connections.map((it) => (
-                      <li>
-                        <ConnectionName
-                          key={`${it.pluginName}-${it.connectionId}`}
-                          plugin={it.pluginName}
-                          connectionId={it.connectionId}
-                        />
+                      <li key={`${it.pluginName}-${it.connectionId}`}>
+                        <ConnectionName plugin={it.pluginName} connectionId={it.connectionId} />
                       </li>
                     ))}
                   </S.ConnectionList>
@@ -149,20 +145,18 @@ export const BlueprintHomePage = () => {
             },
             {
               title: 'Frequency',
-              dataIndex: ['isManual', 'cronConfig'],
               key: 'frequency',
               width: 100,
-              render: ({ isManual, cronConfig }) => {
+              render: (_, { isManual, cronConfig }) => {
                 const cron = getCron(isManual, cronConfig);
                 return cron.label;
               },
             },
             {
               title: 'Next Run Time',
-              dataIndex: ['isManual', 'cronConfig'],
               key: 'nextRunTime',
               width: 200,
-              render: ({ isManual, cronConfig }) => {
+              render: (_, { isManual, cronConfig }) => {
                 const cron = getCron(isManual, cronConfig);
                 return formatTime(cron.nextTime);
               },

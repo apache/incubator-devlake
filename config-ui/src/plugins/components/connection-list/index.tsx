@@ -41,6 +41,8 @@ export const ConnectionList = ({ plugin, onCreate }: Props) => {
   return (
     <>
       <Table
+        rowKey="id"
+        size="small"
         columns={[
           {
             title: 'Connection Name',
@@ -55,13 +57,13 @@ export const ConnectionList = ({ plugin, onCreate }: Props) => {
           },
           {
             title: '',
-            dataIndex: ['plugin', 'id'],
             key: 'link',
             width: 100,
-            render: ({ plugin, id }) => <Link to={`/connections/${plugin}/${id}`}>Details</Link>,
+            render: (_, { plugin, id }) => <Link to={`/connections/${plugin}/${id}`}>Details</Link>,
           },
         ]}
         dataSource={connections}
+        pagination={false}
       />
       <Button
         style={{ marginTop: 16 }}

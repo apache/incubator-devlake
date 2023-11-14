@@ -97,6 +97,8 @@ export const ApiKeys = () => {
     >
       <p>You can generate and manage your API keys to access the DevLake API.</p>
       <Table
+        rowKey="id"
+        size="middle"
         loading={!ready}
         columns={[
           {

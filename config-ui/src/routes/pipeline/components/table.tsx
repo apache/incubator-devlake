@@ -70,6 +70,8 @@ export const PipelineTable = ({ dataSource, pagination, noData }: Props) => {
   return (
     <>
       <Table
+        rowKey="id"
+        size="middle"
         columns={[
           {
             title: 'ID',
@@ -98,9 +100,8 @@ export const PipelineTable = ({ dataSource, pagination, noData }: Props) => {
           },
           {
             title: 'Duration',
-            dataIndex: ['status', 'beganAt', 'finishedAt'],
             key: 'duration',
-            render: ({ status, beganAt, finishedAt }) => (
+            render: (_, { status, beganAt, finishedAt }) => (
               <PipelineDuration status={status} beganAt={beganAt} finishedAt={finishedAt} />
             ),
           },

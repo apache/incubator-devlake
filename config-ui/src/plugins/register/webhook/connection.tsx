@@ -55,10 +55,9 @@ export const WebHookConnection = ({ filterIds, onCreateAfter, onDeleteAfter }: P
 
   return (
     <S.Wrapper>
-      <Buttons position="top">
-        <Button icon="plus" text="Add a Webhook" intent={Intent.PRIMARY} onClick={() => handleShowDialog('add')} />
-      </Buttons>
       <Table
+        rowKey="id"
+        size="middle"
         columns={[
           {
             title: 'ID',
@@ -86,7 +85,11 @@ export const WebHookConnection = ({ filterIds, onCreateAfter, onDeleteAfter }: P
           },
         ]}
         dataSource={webhooks.filter((cs) => (filterIds ? filterIds.includes(cs.id) : true))}
+        pagination={false}
       />
+      <Buttons position="bottom">
+        <Button icon="plus" text="Add a Webhook" intent={Intent.PRIMARY} onClick={() => handleShowDialog('add')} />
+      </Buttons>
       {type === 'add' && (
         <CreateDialog isOpen onCancel={handleHideDialog} onSubmitAfter={(id) => onCreateAfter?.(id)} />
       )}

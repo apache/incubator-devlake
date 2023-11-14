@@ -76,6 +76,8 @@ export const ScopeConfigSelect = ({ plugin, connectionId, scopeConfigId, onCance
         <Button icon="add" intent={Intent.PRIMARY} text="Add New Scope Config" onClick={handleShowDialog} />
       </Buttons>
       <Table
+        rowKey="id"
+        size="small"
         loading={!ready}
         columns={[
           { title: 'Name', dataIndex: 'name', key: 'name' },
@@ -93,6 +95,7 @@ export const ScopeConfigSelect = ({ plugin, connectionId, scopeConfigId, onCance
           selectedRowKeys: trId ? [trId] : [],
           onChange: (selectedRowKeys) => setTrId(selectedRowKeys[0]),
         }}
+        pagination={false}
       />
       <Buttons position="bottom" align="right">
         <Button outlined intent={Intent.PRIMARY} text="Cancel" onClick={onCancel} />

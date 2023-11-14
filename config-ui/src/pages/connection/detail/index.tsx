@@ -266,7 +266,8 @@ export const ConnectionDetailPage = () => {
           )}
         </Buttons>
         <Table
-          rowKey={(row) => row.id}
+          rowKey="id"
+          size="middle"
           loading={!ready}
           columns={[
             {
@@ -296,10 +297,9 @@ export const ConnectionDetailPage = () => {
             },
             {
               title: 'Scope Config',
-              dataIndex: ['id', 'configId', 'configName'],
               key: 'scopeConfig',
               width: 400,
-              render: ({ id, configId, configName }) => (
+              render: (_, { id, configId, configName }) => (
                 <>
                   <span>{configId ? configName : 'N/A'}</span>
                   {pluginConfig.scopeConfig && (
