@@ -21,6 +21,7 @@
 interface ImportMetaEnv {
   readonly DEVLAKE_LOGO: string;
   readonly DEVLAKE_COPYRIGHT: string;
+  readonly DEVLAKE_PRIMARY_COLOR: string;
   readonly DEVLAKE_PLUGINS: string;
 }
 
