@@ -18,14 +18,15 @@ limitations under the License.
 package apikeys
 
 import (
+	"net/http"
+	"strconv"
+
 	"github.com/apache/incubator-devlake/core/errors"
 	"github.com/apache/incubator-devlake/core/models"
 	"github.com/apache/incubator-devlake/impls/logruslog"
 	"github.com/apache/incubator-devlake/server/api/shared"
 	"github.com/apache/incubator-devlake/server/services"
 	"github.com/gin-gonic/gin"
-	"net/http"
-	"strconv"
 )
 
 type PaginatedApiKeys struct {
@@ -36,8 +37,8 @@ type PaginatedApiKeys struct {
 // @Summary Get list of api keys
 // @Description GET /api-keys?page=1&pageSize=10
 // @Tags framework/api-keys
-// @Param page query int true "query"
-// @Param pageSize query int true "query"
+// @Param page query int false "query"
+// @Param pageSize query int false "query"
 // @Success 200  {object} PaginatedApiKeys
 // @Failure 400  {string} errcode.Error "Bad Request"
 // @Failure 500  {string} errcode.Error "Internal Error"
