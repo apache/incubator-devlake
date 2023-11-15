@@ -101,7 +101,7 @@ export const BlueprintConnectionDetailPage = () => {
     });
 
     if (success) {
-      navigate(pname ? `/projects/${pname}` : `/blueprints/${blueprint.id}`);
+      navigate(pname ? `/projects/${pname}` : `/advanced/blueprints/${blueprint.id}`);
     }
   };
 
@@ -134,7 +134,9 @@ export const BlueprintConnectionDetailPage = () => {
     if (success) {
       handleShowTips();
       navigate(
-        pname ? `/projects/${encodeName(pname)}?tab=configuration` : `/blueprints/${blueprint.id}?tab=configuration`,
+        pname
+          ? `/projects/${encodeName(pname)}?tab=configuration`
+          : `/advanced/blueprints/${blueprint.id}?tab=configuration`,
       );
     }
   };
@@ -176,9 +178,9 @@ export const BlueprintConnectionDetailPage = () => {
               { name: `Connection - ${connection.name}`, path: '' },
             ]
           : [
-              { name: 'Advanced', path: '/blueprints' },
-              { name: 'Blueprints', path: '/blueprints' },
-              { name: bid as any, path: `/blueprints/${bid}` },
+              { name: 'Advanced', path: '/advanced/blueprints' },
+              { name: 'Blueprints', path: '/advanced/blueprints' },
+              { name: bid as any, path: `/advanced/blueprints/${bid}` },
               { name: `Connection - ${connection.name}`, path: '' },
             ]
       }

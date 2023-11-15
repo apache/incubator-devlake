@@ -91,8 +91,8 @@ export const BlueprintHomePage = () => {
   return (
     <PageHeader
       breadcrumbs={[
-        { name: 'Advanced', path: '/blueprints' },
-        { name: 'Blueprints', path: '/blueprints' },
+        { name: 'Advanced', path: '/advanced/blueprints' },
+        { name: 'Blueprints', path: '/advanced/blueprints' },
       ]}
     >
       <S.Wrapper>
@@ -120,7 +120,7 @@ export const BlueprintHomePage = () => {
               title: 'Blueprint Name',
               key: 'name',
               render: (_, { id, name }) => (
-                <Link to={`/blueprints/${id}?tab=configuration`} style={{ color: '#292b3f' }}>
+                <Link to={`/advanced/blueprints/${id}?tab=configuration`} style={{ color: '#292b3f' }}>
                   <TextTooltip content={name}>{name}</TextTooltip>
                 </Link>
               ),
@@ -193,7 +193,7 @@ export const BlueprintHomePage = () => {
               width: 100,
               align: 'center',
               render: (val) => (
-                <Link to={`/blueprints/${val}?tab=configuration`}>
+                <Link to={`/advanced/blueprints/${val}?tab=configuration`}>
                   <IconButton icon="cog" tooltip="Detail" />
                 </Link>
               ),

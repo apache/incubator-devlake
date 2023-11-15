@@ -34,8 +34,8 @@ export const Pipelines = () => {
   return (
     <PageHeader
       breadcrumbs={[
-        { name: 'Advanced', path: '/blueprints' },
-        { name: 'Pipelines', path: '/pipelines' },
+        { name: 'Advanced', path: '/advanced/blueprints' },
+        { name: 'Pipelines', path: '/advanced/pipelines' },
       ]}
     >
       <PipelineTable

@@ -3315,6 +3315,7 @@ __metadata:
   resolution: "config-ui@workspace:."
   dependencies:
     "@ahooksjs/use-url-state": ^3.5.1
+    "@ant-design/icons": ^5.2.6
     "@blueprintjs/core": ^5.3.0
     "@blueprintjs/datetime2": ^1.0.10
     "@blueprintjs/popover2": ^2.0.10
