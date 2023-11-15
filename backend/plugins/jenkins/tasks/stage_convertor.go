@@ -99,7 +99,13 @@ func ConvertStages(taskCtx plugin.SubTaskContext) (err errors.Error) {
 			if body.Name == "" {
 				return nil, err
 			}
-			durationSec := int64(body.DurationMillis / 1000)
+			var durationMillis int
+			if body.DurationMillis > 0 {
+				durationMillis = body.DurationMillis
+			} else {
+				durationMillis = 0
+			}
+			durationSec := int64(durationMillis / 1000)
 			jenkinsTaskResult := ""
 			jenkinsTaskStatus := devops.STATUS_DONE
 			var jenkinsTaskFinishedDate *time.Time
@@ -126,7 +132,7 @@ func ConvertStages(taskCtx plugin.SubTaskContext) (err errors.Error) {
 				PipelineId:   buildIdGen.Generate(body.ConnectionId, body.BuildName),
 				Result:       jenkinsTaskResult,
 				Status:       jenkinsTaskStatus,
-				DurationSec:  uint64(body.DurationMillis / 1000),
+				DurationSec:  uint64(durationMillis / 1000),
 				StartedDate:  startedDate,
 				FinishedDate: jenkinsTaskFinishedDate,
 				CicdScopeId:  jobIdGen.Generate(body.ConnectionId, data.Options.JobFullName),
