@@ -17,11 +17,12 @@
  */
 
 import { useState, useMemo } from 'react';
+import { Table } from 'antd';
 import { Button, Tag, Intent, InputGroup } from '@blueprintjs/core';
 import dayjs from 'dayjs';
 
 import API from '@/api';
-import { PageHeader, Table, Dialog, FormItem, Selector, ExternalLink, CopyText, Message } from '@/components';
+import { PageHeader, Dialog, FormItem, Selector, ExternalLink, CopyText, Message } from '@/components';
 import { useRefreshData } from '@/hooks';
 import { operator, formatTime } from '@/utils';
 
@@ -96,6 +97,8 @@ export const ApiKeys = () => {
     >
       <p>You can generate and manage your API keys to access the DevLake API.</p>
       <Table
+        rowKey="id"
+        size="middle"
         loading={!ready}
         columns={[
           {
@@ -142,13 +145,10 @@ export const ApiKeys = () => {
         ]}
         dataSource={dataSource}
         pagination={{
-          page,
+          current: page,
           pageSize,
           total,
           onChange: setPage,
-        }}
-        noData={{
-          text: 'There is no API key yet.',
         }}
       />
       {modal === 'create' && (

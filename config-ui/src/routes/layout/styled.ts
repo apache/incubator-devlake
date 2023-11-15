@@ -22,7 +22,6 @@ import { Navbar } from '@blueprintjs/core';
 export const Wrapper = styled.div`
   display: flex;
   height: 100vh;
-  background-color: #f9f9fa;
   overflow: hidden;
 `;
 
@@ -89,7 +88,6 @@ export const Sider = styled.div`
 
 export const Header = styled(Navbar)`
   flex: 0 0 50px;
-  background-color: #f9f9fa;
   box-shadow: none;
 
   a {

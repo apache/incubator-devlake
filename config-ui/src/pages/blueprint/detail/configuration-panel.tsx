@@ -18,10 +18,11 @@
 
 import { useState, useEffect, useMemo } from 'react';
 import { Link } from 'react-router-dom';
+import { Table } from 'antd';
 import { Button, Intent } from '@blueprintjs/core';
 
 import API from '@/api';
-import { IconButton, Table, NoData, Buttons } from '@/components';
+import { IconButton, NoData, Buttons } from '@/components';
 import { getCron } from '@/config';
 import { ConnectionName } from '@/features';
 import { getPluginConfig } from '@/plugins';
@@ -134,6 +135,8 @@ export const ConfigurationPanel = ({ from, blueprint, onRefresh, onChangeTab }: 
           <IconButton icon="annotation" tooltip="Edit" onClick={handleShowPolicyDialog} />
         </h3>
         <Table
+          rowKey="id"
+          size="middle"
           columns={[
             {
               title: 'Data Time Range',
@@ -161,12 +164,14 @@ export const ConfigurationPanel = ({ from, blueprint, onRefresh, onChangeTab }: 
           ]}
           dataSource={[
             {
+              id: blueprint.id,
               timeRange: blueprint.timeAfter,
               frequency: blueprint.cronConfig,
               isManual: blueprint.isManual,
               skipFailed: blueprint.skipOnFail,
             },
           ]}
+          pagination={false}
         />
       </div>
       {blueprint.mode === IBPMode.NORMAL && (

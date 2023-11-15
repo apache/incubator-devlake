@@ -17,10 +17,10 @@
  */
 
 import { Link } from 'react-router-dom';
+import { Table } from 'antd';
 import { Button, Intent } from '@blueprintjs/core';
 
 import { useAppSelector } from '@/app/hook';
-import { Table } from '@/components';
 import { selectConnections } from '@/features/connections';
 import { ConnectionStatus } from '@/plugins';
 
@@ -41,7 +41,8 @@ export const ConnectionList = ({ plugin, onCreate }: Props) => {
   return (
     <>
       <Table
-        noShadow
+        rowKey="id"
+        size="small"
         columns={[
           {
             title: 'Connection Name',
@@ -56,16 +57,13 @@ export const ConnectionList = ({ plugin, onCreate }: Props) => {
           },
           {
             title: '',
-            dataIndex: ['plugin', 'id'],
             key: 'link',
             width: 100,
-            render: ({ plugin, id }) => <Link to={`/connections/${plugin}/${id}`}>Details</Link>,
+            render: (_, { plugin, id }) => <Link to={`/connections/${plugin}/${id}`}>Details</Link>,
           },
         ]}
         dataSource={connections}
-        noData={{
-          text: 'There is no data connection yet. Please add a new connection.',
-        }}
+        pagination={false}
       />
       <Button
         style={{ marginTop: 16 }}
