@@ -18,11 +18,12 @@
 
 import { useState, useMemo } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
+import { Table } from 'antd';
 import { Button, InputGroup, Checkbox, Intent, FormGroup } from '@blueprintjs/core';
 import dayjs from 'dayjs';
 
 import API from '@/api';
-import { PageHeader, Table, Dialog, ExternalLink, IconButton, toast } from '@/components';
+import { PageHeader, Dialog, ExternalLink, IconButton, toast } from '@/components';
 import { getCron, cronPresets } from '@/config';
 import { ConnectionName } from '@/features';
 import { useRefreshData } from '@/hooks';
@@ -122,6 +123,8 @@ export const ProjectHomePage = () => {
       extra={<Button intent={Intent.PRIMARY} icon="plus" text="New Project" onClick={handleShowDialog} />}
     >
       <Table
+        rowKey="name"
+        size="middle"
         loading={!ready}
         columns={[
           {
@@ -144,12 +147,8 @@ export const ProjectHomePage = () => {
               ) : (
                 <S.ConnectionList>
                   {val.map((it) => (
-                    <li>
-                      <ConnectionName
-                        key={`${it.pluginName}-${it.connectionId}`}
-                        plugin={it.pluginName}
-                        connectionId={it.connectionId}
-                      />
+                    <li key={`${it.pluginName}-${it.connectionId}`}>
+                      <ConnectionName plugin={it.pluginName} connectionId={it.connectionId} />
                     </li>
                   ))}
                 </S.ConnectionList>
@@ -157,9 +156,8 @@ export const ProjectHomePage = () => {
           },
           {
             title: 'Sync Frequency',
-            dataIndex: ['isManual', 'cronConfig'],
             key: 'frequency',
-            render: ({ isManual, cronConfig }) => {
+            render: (_, { isManual, cronConfig }) => {
               const cron = getCron(isManual, cronConfig);
               return cron.label;
             },
@@ -199,15 +197,10 @@ export const ProjectHomePage = () => {
         ]}
         dataSource={dataSource}
         pagination={{
-          page,
+          current: page,
           pageSize,
           total,
           onChange: setPage,
-        }}
-        noData={{
-          text: 'Add new projects to see engineering metrics based on projects.',
-          btnText: 'New Project',
-          onCreate: handleShowDialog,
         }}
       />
       <Dialog

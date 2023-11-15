@@ -18,11 +18,12 @@
 
 import { useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
+import { Table } from 'antd';
 import { Button, Intent, Position } from '@blueprintjs/core';
 import { Popover2 } from '@blueprintjs/popover2';
 
 import API from '@/api';
-import { PageLoading, PageHeader, ExternalLink, Message, Buttons, Table, Dialog } from '@/components';
+import { PageLoading, PageHeader, ExternalLink, Message, Buttons, Dialog } from '@/components';
 import { useRefreshData, useTips } from '@/hooks';
 import { DataScopeSelect, getPluginConfig, getPluginScopeId } from '@/plugins';
 import { operator } from '@/utils';
@@ -215,6 +216,8 @@ export const BlueprintConnectionDetailPage = () => {
         )}
       </Buttons>
       <Table
+        rowKey="id"
+        size="middle"
         columns={[
           {
             title: 'Data Scope',
@@ -223,9 +226,8 @@ export const BlueprintConnectionDetailPage = () => {
           },
           {
             title: 'Scope Config',
-            dataIndex: ['scopeConfigId', 'scopeConfigName'],
             key: 'scopeConfig',
-            render: ({ scopeConfigId, scopeConfigName }) => (scopeConfigId ? scopeConfigName : 'N/A'),
+            render: (_, { scopeConfigId, scopeConfigName }) => (scopeConfigId ? scopeConfigName : 'N/A'),
           },
         ]}
         dataSource={scopes}
